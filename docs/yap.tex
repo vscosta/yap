@@ -678,7 +678,7 @@ be expanded into @code{c:\Program Files\Yap} by Windows.
 @end table
 
 @node Compiling Under Visual C++, Tuning for SGI cc, Tuning for GCC, Machine Options
-@subsection  Compiling Under SGI's cc
+@subsection  Compiling Under Visual C++
 
 Yap compiles cleanly under Microsoft's Visual C++ release 6.0. We next
 give a step-by-step tutorial on how to compile Yap manually using this
@@ -2788,8 +2788,9 @@ compound terms.
 variables are roughly ordered by "age" (the "oldest" variable is put
 first);
 @item
-numbers are sorted in increasing order. Integers precede their floating
-point equivalents;
+floating point numbers are sorted in increasing order;
+@item
+Integers are sorted in increasing order;
 @item
 atoms are sorted in lexicographic order;
 @item
