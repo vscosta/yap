@@ -666,7 +666,6 @@ p_variables_in_term(void)	/* variables in term t		 */
   return(unify(ARG3,out));
 }
 
-
 static Term non_singletons_in_complex_term(register CELL *pt0, register CELL *pt0_end)
 {
 
@@ -910,10 +909,11 @@ p_ground(void)			/* ground(+T)		 */
 
 static Int var_in_complex_term(register CELL *pt0,
 			       register CELL *pt0_end,
-			       Term t)
+			       Term v)
 {
 
   register CELL **to_visit = (CELL **)(HeapTop + sizeof(CELL));
+  register tr_fr_ptr TR0 = TR;
 
  loop:
   while (pt0 < pt0_end) {
@@ -922,8 +922,8 @@ static Int var_in_complex_term(register CELL *pt0,
     ++ pt0;
     ptd0 = pt0;
     d0 = *ptd0;
-    deref_head(d0, vars_in_term_unk);
-  vars_in_term_nvar:
+    deref_head(d0, var_in_term_unk);
+  var_in_term_nvar:
     {
       if (IsPairTerm(d0)) {
 #ifdef RATIONAL_TREES
@@ -974,18 +974,15 @@ static Int var_in_complex_term(register CELL *pt0,
     }
     
 
-    deref_body(d0, ptd0, vars_in_term_unk, vars_in_term_nvar);
-    if ((CELL)ptd0 == t) { /* we found it */
-#ifdef RATIONAL_TREES
-      while (to_visit > (CELL **)(HeapTop + sizeof(CELL))) {
-	to_visit -= 3;
-	pt0 = to_visit[0];
-	pt0_end = to_visit[1];
-	*pt0 = (CELL)to_visit[2];
-      }
-#endif
+    deref_body(d0, ptd0, var_in_term_unk, var_in_term_nvar);
+    if ((CELL)ptd0 == v) { /* we found it */
+      clean_tr(TR0);
       return(TRUE);
     }
+    /* do or pt2 are unbound  */
+    *ptd0 = TermNil;
+    /* next make sure noone will see this as a variable again */ 
+    TrailTerm(TR++) = (CELL)ptd0;
   }
   /* Do we still have compound terms to visit */
   if (to_visit > (CELL **)(HeapTop + sizeof(CELL))) {
@@ -1001,22 +998,31 @@ static Int var_in_complex_term(register CELL *pt0,
 #endif
     goto loop;
   }
+  clean_tr(TR0);
   return(FALSE);
 }
  
-Int 
+static Int 
 var_in_term(Term v, Term t)		/* variables in term t		 */
 {
 
-  if (IsPrimitiveTerm(t)) 
+  if (IsVarTerm(t)) {
+    return(v == t);
+  } else if (IsPrimitiveTerm(t)) {
     return(FALSE);
-  else if (IsPairTerm(t)) {
+  } else if (IsPairTerm(t)) {
     return(var_in_complex_term(RepPair(t)-1,
 			       RepPair(t)+1, v));
   }
   else return(var_in_complex_term(RepAppl(t),
 				  RepAppl(t)+
 				  ArityOfFunctor(FunctorOfTerm(t)),v));
+}
+
+static Int
+p_var_in_term(void)
+{
+  return(var_in_term(Deref(ARG2), Deref(ARG1)));
 }
 
 /* The code for TermHash was originally contributed by Gertjen Van Noor */
@@ -1550,6 +1556,7 @@ void InitUtilCPreds(void)
   InitCPred("$copy_term_but_not_constraints", 2, p_copy_term_no_delays, 0);
   InitCPred("ground", 1, p_ground, SafePredFlag);
   InitCPred("$variables_in_term", 3, p_variables_in_term, SafePredFlag);
+  InitCPred("variable_in_term", 2, p_var_in_term, SafePredFlag);
   InitCPred("$non_singletons_in_term", 3, p_non_singletons_in_term, SafePredFlag);
   InitCPred("term_hash", 4, GvNTermHash, SafePredFlag);
   InitCPred("variant", 2, p_variant, SafePredFlag);

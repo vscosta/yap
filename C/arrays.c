@@ -1534,6 +1534,10 @@ p_assign_static(void)
 	ReleaseTermFromDB(ref);
       }
       ptr->ValueOfVE.terms[indx] = StoreTermInDB(3,3);
+      if (ptr->ValueOfVE.terms[indx]){
+	WRITE_UNLOCK(ptr->ArRWLock);
+	return(FALSE);
+      }
     }
     break;
   }

@@ -3968,6 +3968,8 @@ p_enqueue(void)
   } else
     father_key = (db_queue *)DBRefOfTerm(Father);
   x = StoreTermInDB(2, 2);
+  if (x == NULL)
+    return(FALSE);
   x->Parent = NULL;
   WRITE_LOCK(father_key->QRWLock);
   if (father_key->LastInQueue != NULL)

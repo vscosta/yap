@@ -887,8 +887,8 @@ break :- '$get_value'('$break',BL), NBL is BL+1,
 '$consult'(X) :-
 	'$find_in_path'(X,Y,consult(X)),
 	'$open'(Y,'$csult',Stream,0), !,
-         '$record_loaded'(Stream),
-         '$consult'(X,Stream),
+        '$record_loaded'(Stream),
+        '$consult'(X,Stream),
 	'$close'(Stream).
 '$consult'(X) :-
 	throw(error(permission_error(input,stream,X),consult(X))).

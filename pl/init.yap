@@ -102,7 +102,8 @@ system_mode(verbose,off) :- '$set_value'('$verbose',off).
    '$set_pred_module'(variant(_,_), terms),
    '$set_pred_module'(subsumes(_,_), terms),
    '$set_pred_module'(cyclic_term(_), terms),
-   '$set_pred_module'(acyclic_term(_,_), terms).
+   '$set_pred_module'(acyclic_term(_,_), terms),
+   '$set_pred_module'(variable_in_term(_,_), terms).
 
 :- '$set_value'('$user_module',user), '$protect'.
 

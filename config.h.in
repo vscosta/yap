@@ -251,3 +251,10 @@
 
 /* Is fflush(NULL) clobbering input streams? */
 #undef BROKEN_FFLUSH_NULL
+
+/* sunpro cc */
+#ifdef __SUNPRO_CC
+#ifdef HAVE_GCC
+#undef HAVE_GCC
+#endif
+#endif

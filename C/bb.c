@@ -313,9 +313,8 @@ p_bb_update(void)
 
   ReleaseTermFromDB(p->Element);
   p->Element = StoreTermInDB(3,3);
-
   WRITE_UNLOCK(p->BBRWLock);
-  return(TRUE);
+  return(p->Element != NULL);
 }
 
 static Int

@@ -1,4 +1,4 @@
-\input texinfo @c -*- mode: texinfo; coding: latin-1; -*-
+<\input texinfo @c -*- mode: texinfo; coding: latin-1; -*-
 
 @c %**start of header
 @setfilename yap.info
@@ -7885,6 +7885,18 @@ efficiency. They are available through the
 
 @table @code
 
+@item acyclic_term(?@var{Term})
+@findex cyclic_term/1
+@syindex cyclic_term/1
+@cnindex cyclic_term/1
+Succeed if the argument @var{Term} is an acyclic term.
+
+@item cyclic_term(?@var{Term})
+@findex cyclic_term/1
+@syindex cyclic_term/1
+@cnindex cyclic_term/1
+Succeed if the argument @var{Term} is a cyclic term.
+
 @item term_hash(+@var{Term}, ?@var{Hash})
 @findex  term_hash/2
 @syindex term_hash/2
@@ -7937,6 +7949,13 @@ Succeed if @var{Term1} subsumes @var{Term2}.  Variables in term
 
 Succeed if @var{Term1} subsumes @var{Term2} but does not bind any
 variable in @var{Term1}.
+
+@item variable_in_term(?@var{Term},?@var{Var})
+@findex variable_in_term/2
+@snindex variable_in_term/2
+@cnindex variable_in_term/2
+Succeed if the second argument @var{Var} is a variable and occurs in
+term @var{Term}.
 
 
 
