@@ -10,7 +10,7 @@
 * File:		Yap.h.m4						 *
 * mods:									 *
 * comments:	main header file for YAP				 *
-* version:      $Id: Yap.h.m4,v 1.78 2005-02-08 18:05:07 vsc Exp $	 *
+* version:      $Id: Yap.h.m4,v 1.79 2005-02-08 18:38:02 vsc Exp $	 *
 *************************************************************************/
 
 #include "config.h"
@@ -901,21 +901,21 @@ typedef struct opcode_tab_entry {
 /********* Prolog may be in several modes *******************************/
 
 typedef enum {
-  BootMode  =   1,		/* if booting or restoring */
-  UserMode  =   2,		/* Normal mode */
-  CritMode  =   4,		/* If we are meddling with the heap */
-  AbortMode =   8,		/* expecting to abort */
-  InterruptMode = 16,		/* under an interrupt */
-  InErrorMode = 32,		/* under an interrupt */
-  ConsoleGetcMode = 64,		/* blocked reading from console */
-  ExtendStackMode = 128,	/* trying to extend stack */
-  GrowHeapMode      = 256,      /* extending Heap  */
-  GrowStackMode     = 512,      /* extending Stack */
-  GCMode            = 1024,     /* doing Garbage Collecting */
-  ErrorHandlingMode = 2048,     /* doing error handling */
-  CCallMode         = 4096,     /* In c Call */
-  UnifyMode         = 8192,      /* In Unify Code */
-  UserCCallMode     = 16284      /* In User C-call Code */
+  BootMode  =   0x1,		/* if booting or restoring */
+  UserMode  =   0x2,		/* Normal mode */
+  CritMode  =   0x4,		/* If we are meddling with the heap */
+  AbortMode =   0x8,		/* expecting to abort */
+  InterruptMode = 0x10,		/* under an interrupt */
+  InErrorMode = 0x20,		/* under an interrupt */
+  ConsoleGetcMode = 0x40,		/* blocked reading from console */
+  ExtendStackMode = 0x80,	/* trying to extend stack */
+  GrowHeapMode      = 0x100,      /* extending Heap  */
+  GrowStackMode     = 0x200,      /* extending Stack */
+  GCMode            = 0x400,     /* doing Garbage Collecting */
+  ErrorHandlingMode = 0x800,     /* doing error handling */
+  CCallMode         = 0x1000,     /* In c Call */
+  UnifyMode         = 0x2000,      /* In Unify Code */
+  UserCCallMode     = 0x4000      /* In User C-call Code */
 } prolog_exec_mode;
 
 extern prolog_exec_mode      Yap_PrologMode;
