@@ -1133,7 +1133,7 @@ c_goal(Term Goal, int mod)
   if (IsApplTerm(Goal) && FunctorOfTerm(Goal) == FunctorModule) {
     Term M = ArgOfTerm(1, Goal);
 
-    if (IsVarTerm(M) || !IsAtomTerm(M)) {
+    if (!IsVarTerm(M) && !IsAtomTerm(M)) {
       Error_TYPE = TYPE_ERROR_ATOM;
       Error_Term = M;
       ErrorMessage = "in module name";
