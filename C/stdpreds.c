@@ -1152,12 +1152,20 @@ p_univ(void)
       }
       return (unify_constant(ARG1, MkAtomTerm(at)));
     }
+  build_compound:
     /* build the term directly on the heap */
     Ar = H;
     H++;
     
     while (!IsVarTerm(twork) && IsPairTerm(twork)) {
       *H++ = HeadOfTerm(twork);
+      if (H > ASP - 1024) {
+	/* restore space */
+	H = Ar;
+	gc(2, ENV, P);
+	twork = TailOfTerm(Deref(ARG2));
+	goto build_compound;
+      }
       twork = TailOfTerm(twork);
     }
     if (IsVarTerm(twork)) {
@@ -1217,7 +1225,13 @@ p_univ(void)
       twork = ArrayToList(CellPtr(TR), argno - 1);
     } else
 #endif
-      twork = ArrayToList(RepAppl(tin) + 1, arity);
+      {
+	if (H+arity*2 > ASP-1024) {
+	  gc(2, ENV, P);
+	  tin = Deref(ARG1);
+	}
+	twork = ArrayToList(RepAppl(tin) + 1, arity);
+      }
   } else {
     /* We found a list */
     at = AtomDot;
@@ -2133,7 +2147,7 @@ InitCPreds(void)
   InitCPred("number_atom", 2, p_number_atom, SafePredFlag);
   InitCPred("number_codes", 2, p_number_codes, SafePredFlag);
   InitCPred("atom_concat", 2, p_atom_concat, SafePredFlag);
-  InitCPred("=..", 2, p_univ, SafePredFlag);
+  InitCPred("=..", 2, p_univ, 0);
   InitCPred("$statistics_trail_max", 1, p_statistics_trail_max, SafePredFlag|SyncPredFlag);
   InitCPred("$statistics_heap_max", 1, p_statistics_heap_max, SafePredFlag|SyncPredFlag);
   InitCPred("$statistics_global_max", 1, p_statistics_global_max, SafePredFlag|SyncPredFlag);

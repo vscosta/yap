@@ -21,6 +21,7 @@ static char     SccsId[] = "%W% %G%";
 #include "absmi.h"
 #include "yapio.h"
 
+
 #define EARLY_RESET 1
 #if !defined(TABLING)
 #define EASY_SHUNTING 1

@@ -861,10 +861,10 @@ debugging :-
 '$action'(60,_,_,_,_,_) :- !,		% <Depth
 	'$new_deb_depth',
 	fail.
-'$action'(94,_,_,G,M,_) :- !,
-	'$print_deb_sterm'(G,M), fail.
+'$action'(94,_,_,G,_) :- !,
+	'$print_deb_sterm'(G), fail.
 '$action'(0'a,_,_,_,_,_) :- !, abort.	% a		abort
-'$action'(0'd,_,_,_,_,_) :- !, break,	% b		break
+'$action'(0'b,_,_,_,_,_) :- !, break,	% b		break
 	fail.
 '$action'(0'c,call,_,_,_,_) :- !,		% c		creep
 	'$set_yap_flags'(10,1).
@@ -946,7 +946,7 @@ debugging :-
 	'$get_sterm_list'(L), !,
 	'$deb_get_sterm_in_g'(L,G,A),
 	recorda('$debug_sub_skel',L,_),
-	nl(user_error), write(user_error,A), nl(user_error), nl(user_error).
+	'$format'(user_error,"~n~w~n~n",[A]).
 '$print_deb_sterm'(_) :- '$skipeol'(94).
 
 '$get_sterm_list'(L) :-
