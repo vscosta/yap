@@ -1,6 +1,6 @@
 =================================================================
 Logtalk - Object oriented extension to Prolog
-Release 2.12.0
+Release 2.13.0
 
 Copyright (c) 1998-2002 Paulo Moura.  All Rights Reserved.
 =================================================================
@@ -8,8 +8,8 @@ Copyright (c) 1998-2002 Paulo Moura.  All Rights Reserved.
 This folder contains several examples of Logtalk programs. Most of 
 these examples need objects, protocols, and categories that are
 defined in the Logtalk standard library or in other examples, so 
-you should load them first (see the NOTES file inside each example 
-folder).
+you should load them first (see the NOTES file inside the library 
+folder and inside each example folder).
 
 Some examples may redefine objects already loaded from other examples.
 You may want to restart Logtalk after trying each example.
@@ -18,7 +18,7 @@ Some of the examples code have been adopted from public available
 Prolog code and from known Prolog text books and are copyrighted by 
 the respective authors.
 
-These are programming examples, meaning that you should look at the 
+These are programming examples, meaning that you should study the 
 source files to fully understand them.
 
 All examples are formatted using four spaces tabs.

@@ -1,6 +1,6 @@
 =================================================================
 Logtalk - Object oriented extension to Prolog
-Release 2.12.0
+Release 2.13.0
 
 Copyright (c) 1998-2002 Paulo Moura.  All Rights Reserved.
 =================================================================
@@ -17,9 +17,9 @@ Day = 15
 Yes
 
 
-| ?- date(Year, _, _)::(today, leap_year). 
+| ?- date(Year, _, _)::(today, \+ leap_year). 
 
-Year = 2000
+Year = 2002
 
 yes
 

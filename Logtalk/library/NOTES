@@ -1,6 +1,6 @@
 =================================================================
 Logtalk - Object oriented extension to Prolog
-Release 2.12.0
+Release 2.13.0
 
 Copyright (c) 1998-2002 Paulo Moura.  All Rights Reserved.
 =================================================================
@@ -9,8 +9,9 @@ This folder contains objects, categories, and protocols that implement
 predicates for dealing with common Prolog types and structures.
 
 To load a group of objects, protocols, and categories in this library 
-consult the corresponding *.loader utility file. Currently, there are 
-seven groups of entities defined:
+change your Prolog working directory to this folder and then consult 
+the corresponding *.loader utility file. Currently, there are seven 
+groups of entities defined:
 
 	dates
 	debugging

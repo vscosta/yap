@@ -137,7 +137,7 @@
 		!.
 
 	execute_option(a) :-
-		abort.
+		throw(error(logtalk_execution_aborted)).
 
 	execute_option(h) :-
 		::stream(output, Output),

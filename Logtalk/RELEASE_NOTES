@@ -1,6 +1,6 @@
 =================================================================
 Logtalk - Object oriented extension to Prolog
-Release 2.12.0
+Release 2.13.0
 
 Copyright (c) 1998-2002 Paulo Moura.  All Rights Reserved.
 =================================================================
@@ -8,6 +8,24 @@ Copyright (c) 1998-2002 Paulo Moura.  All Rights Reserved.
 
 RELEASE NOTES
 =============
+
+
+2.13.0 - June 15, 2002
+
+	Logtalk now outputs Prolog code using write_canonical/2 instead of 
+	write_term/3. Goals are better portability of the generated Prolog files 
+	and avoid issues with clauses with long bodies for Prolog compilers that 
+	use a term print depth limit to prevent problems with cyclic terms.
+
+	Added report of default flag values at Logtalk startup.
+
+	Logtalk now prints a warning when redefining parametric objects.
+
+	Removed need of an abort/0 predicate from the Logtalk debugger example.
+	Removed any definition of this predicate from the config files.
+
+	Added missing definitions for some ISO built-in predicates to the Amzi! 
+	Prolog 6.2.2 config file.
 
 
 2.12.0 - May 25, 2002

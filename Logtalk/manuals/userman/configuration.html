@@ -38,10 +38,9 @@ In writing Logtalk I have tried to follow the recently approved Prolog ISO stand
 </p>
 <ul>
 	<li>access to predicate properties (<code>dynamic</code>, <code>static</code>, <code>built_in</code>)</li>
-	<li><code>abort/0</code> predicate</li>
 </ul>
 <p>
-Logtalk needs access to the  predicate property<code>built_in</code> to properly compile objects and categories that contain Prolog built-in predicates calls. In addition, some Logtalk built-ins need to know the dynamic/static status of predicates to ensure correct application. The current draft for the ISO standard for Prolog modules defines a <code>predicate_property/2</code> predicate that is already implemented by most Prolog compilers. The Logtalk compiler and runtime use the <code>abort/0</code> predicate for error handling. Note that if these capabilities are not built-in the user cannot easily define them.</p>
+Logtalk needs access to the  predicate property<code>built_in</code> to properly compile objects and categories that contain Prolog built-in predicates calls. In addition, some Logtalk built-ins need to know the dynamic/static status of predicates to ensure correct application. The ISO standard for Prolog modules defines a <code>predicate_property/2</code> predicate that is already implemented by most Prolog compilers. Note that if these capabilities are not built-in the user cannot easily define them.</p>
 <p>
 For optimal performance, Logtalk requires that the Prolog compiler supports <strong>first-argument indexing</strong> for both static and dynamic code (most modern compilers support this feature).
 </p>
@@ -70,7 +69,7 @@ If you are unsure that your Prolog compiler provides all the ISO predicates need
 <strong><a href="documenting.html">Previous</a> | <a href="installing.html">Next</a> | <a href="index.html">Table of Contents</a> | <a href="../bibliography.html">Bibliography</a> | <a href="../glossary.html">Glossary</a></strong>
 </p>
 <p class="center">
-Last updated on: May 6, 2002
+Last updated on: June 15, 2002
 </p>
 <hr />
 
