@@ -11,8 +11,12 @@
 * File:		index.c							 *
 * comments:	Indexing a Prolog predicate				 *
 *									 *
-* Last rev:     $Date: 2004-03-31 01:02:18 $,$Author: vsc $						 *
+* Last rev:     $Date: 2004-04-07 22:04:04 $,$Author: vsc $						 *
 * $Log: not supported by cvs2svn $
+* Revision 1.82  2004/03/31 01:02:18  vsc
+* if number of left-over < 1/5 keep list of clauses to expand around
+* fix call to stack expander
+*
 * Revision 1.81  2004/03/25 02:19:10  pmoura
 * Removed debugging line to allow compilation.
 *
@@ -4224,10 +4228,6 @@ expand_index(struct intermediates *cint) {
       max = install_clauses(cls, ap, stack, first, last);
     }
   }
-<<<<<<< index.c
-    fprintf(stderr,"expanding %d/%d %d\n",(max-cls)+1,NClauses, (Yap_op_from_opcode((*labp)->opc) == _expand_clauses));
-=======
->>>>>>> 1.81
   /* don't count last clause if you don't have to */
   if (alt && max->Code == last) max--;
   if (max < cls && labp != NULL) {
@@ -4932,6 +4932,10 @@ cp_lu_trychain(yamop *codep, yamop *ocodep, yamop *ostart, int flag, PredEntry *
 	  ocodep = NEXTOP(ocodep, ld);
 	  break;
 	} else if (i == 0) {
+	  if (compact_mode &&
+	      op != _try_clause) {
+	    tgl->ClRefCount--;
+	  }
 	  codep->opc = Yap_opcode(_try_clause);
 	  codep = copy_ld(codep, ocodep, ap, ocodep->u.ld.d, FALSE);
 	} else if (i == ncls-1) {

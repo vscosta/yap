@@ -11,8 +11,11 @@
 * File:		cdmgr.c							 *
 * comments:	Code manager						 *
 *									 *
-* Last rev:     $Date: 2004-03-31 01:03:09 $,$Author: vsc $						 *
+* Last rev:     $Date: 2004-04-07 22:04:03 $,$Author: vsc $						 *
 * $Log: not supported by cvs2svn $
+* Revision 1.116  2004/03/31 01:03:09  vsc
+* support expand group of clauses
+*
 * Revision 1.115  2004/03/19 11:35:42  vsc
 * trim_trail for default machine
 * be more aggressive about try-retry-trust chains.
@@ -272,9 +275,12 @@ decrease_ref_counter(yamop *ptr, yamop *b, yamop *e, yamop *sc)
   }
 }
 
+static vsc_countis;
+
 static void
 cleanup_dangling_indices(yamop *ipc, yamop *beg, yamop *end, yamop *suspend_code)
 {
+  vsc_countis++;
   while (ipc < end) {
     op_numbers op = Yap_op_from_opcode(ipc->opc);
     /* printf("op: %d %p->%p\n", op, ipc, end); */
@@ -325,6 +331,8 @@ cleanup_dangling_indices(yamop *ipc, yamop *beg, yamop *end, yamop *suspend_code
       break;
     case _enter_lu_pred:
     case _stale_lu_index:
+      if (ipc->u.Ill.s)
+	end = ipc->u.Ill.l2;
       ipc = ipc->u.Ill.l1;
       break;
     case _try_in:
@@ -427,10 +435,10 @@ static void
 kill_off_lu_block(LogUpdIndex *c, LogUpdIndex *parent, PredEntry *ap)
 {
   kills++;
+  decrease_log_indices(c, (yamop *)&(ap->cs.p_code.ExpandCode));
   if (parent != NULL) {
     /* sat bye bye */
     /* decrease refs */
-    decrease_log_indices(c, (yamop *)&(ap->cs.p_code.ExpandCode));
     LOCK(parent->ClLock);
     parent->ClRefCount--;
     if (parent->ClFlags & ErasedMask &&
@@ -3645,6 +3653,56 @@ p_static_pred_statistics(void)
   return static_statistics(pe);
 }
 
+#if DEBUG
+static Int
+p_predicate_erased_statistics(void)
+{
+  UInt sz = 0, cls = 0;
+  UInt isz = 0, icls = 0;
+  PredEntry *pe;
+  LogUpdClause *cl = DBErasedList;
+  LogUpdIndex *icl = DBErasedIList;
+  Term t = Deref(ARG1);
+  Term mod = CurrentModule;
+
+  if (IsVarTerm(t)) {
+    return FALSE;
+  } else if (IsAtomTerm(t)) {
+    Atom at = AtomOfTerm(t);
+    pe = RepPredProp(Yap_GetPredPropByAtom(at, mod));
+  } else if (IsApplTerm(t)) {
+    Functor         fun = FunctorOfTerm(t);
+    pe = RepPredProp(Yap_GetPredPropByFunc(fun, mod));
+  } else
+    return FALSE;
+  if (EndOfPAEntr(pe))
+    return FALSE;
+  while (cl) {
+    if (cl->ClPred == pe) {
+      cls++;
+      sz += cl->ClSize;
+    }
+    cl = cl->ClNext;
+  }
+  while (icl) {
+    LogUpdIndex *c = icl;
+
+    while (!c->ClFlags & SwitchRootMask)
+      c = c->u.ParentIndex;
+    if (pe == c->u.pred) {
+      icls++;
+      isz += c->ClSize;
+    }
+    icl = icl->SiblingIndex;
+  }
+  return
+    Yap_unify(ARG2,MkIntegerTerm(cls)) &&
+    Yap_unify(ARG3,MkIntegerTerm(sz)) &&
+    Yap_unify(ARG4,MkIntegerTerm(icls)) &&
+    Yap_unify(ARG5,MkIntegerTerm(isz));
+}
+#endif /* DEBUG */
+
 
 void 
 Yap_InitCdMgr(void)
@@ -3699,5 +3757,8 @@ Yap_InitCdMgr(void)
   Yap_InitCPred("$continue_static_clause", 5, p_continue_static_clause, SafePredFlag|SyncPredFlag);
   Yap_InitCPred("$static_pred_statistics", 5, p_static_pred_statistics, SyncPredFlag);
   Yap_InitCPred("$p_nth_clause", 4, p_nth_clause, SyncPredFlag);
+#ifdef DEBUG
+  Yap_InitCPred("predicate_erased_statistics", 5, p_predicate_erased_statistics, SyncPredFlag);
+#endif
 }
 

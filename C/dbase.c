@@ -3629,6 +3629,44 @@ p_key_erased_statistics(void)
 }
 
 static Int
+p_predicate_erased_statistics(void)
+{
+  UInt sz = 0, cls = 0;
+  UInt isz = 0, icls = 0;
+  Term twork = Deref(ARG1);
+  PredEntry *pe;
+  LogUpdClause *cl = DBErasedList;
+  LogUpdIndex *icl = DBErasedIList;
+
+  /* only for log upds */
+  if ((pe = find_lu_entry(twork)) == NULL) 
+    return FALSE;
+  while (cl) {
+    if (cl->ClPred == pe) {
+      cls++;
+      sz += cl->ClSize;
+    }
+    cl = cl->ClNext;
+  }
+  while (icl) {
+    LogUpdIndex *c = icl;
+
+    while (!c->ClFlags & SwitchRootMask)
+      c = c->u.ParentIndex;
+    if (pe == c->u.pred) {
+      icls++;
+      isz += c->ClSize;
+    }
+    icl = icl->SiblingIndex;
+  }
+  return
+    Yap_unify(ARG2,MkIntegerTerm(cls)) &&
+    Yap_unify(ARG3,MkIntegerTerm(sz)) &&
+    Yap_unify(ARG4,MkIntegerTerm(icls)) &&
+    Yap_unify(ARG5,MkIntegerTerm(isz));
+}
+
+static Int
 p_heap_space_info(void)
 {
   return
