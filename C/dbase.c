@@ -3917,7 +3917,8 @@ p_eraseall(void)
 
     if (!pe->cs.p_code.NOfClauses)
       return TRUE;
-    Yap_RemoveIndexation(pe);
+    if (pe->PredFlags & IndexedPredFlag)
+      Yap_RemoveIndexation(pe);
     cl = ClauseCodeToLogUpdClause(pe->cs.p_code.FirstClause);
     do {
       LogUpdClause *ncl = cl->ClNext;

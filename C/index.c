@@ -4726,7 +4726,6 @@ replace_lu_block(LogUpdIndex *blk, int flag, PredEntry *ap, yamop *code, int has
     i = 0;
   }
   codep = cp_lu_trychain(codep, ocodep, blk->ClCode, flag, ap, code, has_cut, ncl, ncls, i);
-  if (codep > (char *)ncl+sz) exit(1);
   /* the copying has been done */
   start->u.Ill.l2 = codep;
   /* insert ourselves into chain */
@@ -5378,7 +5377,8 @@ Yap_AddClauseToIndex(PredEntry *ap, yamop *beg, int first) {
   int cb;
 
   if (!(ap->PredFlags & LogUpdatePredFlag)) {
-    Yap_RemoveIndexation(ap);
+    if (ap->PredFlags & IndexedPredFlag)
+      Yap_RemoveIndexation(ap);
     return;
   }
   if ((cb = setjmp(Yap_CompilerBotch)) == 3) {
