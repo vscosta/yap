@@ -842,6 +842,7 @@ add_info(ClauseDef *clause, UInt regno)
     case _p_nonvar_x:
       if (regcopy_in(myregs, nofregs, cl->u.x.x)) {
 	clause->Tag = (CELL)NULL;
+	clause->u.t_ptr = (CELL)NULL;
 	return;
       }
       cl = NEXTOP(cl,x);
@@ -849,6 +850,7 @@ add_info(ClauseDef *clause, UInt regno)
     case _p_number_x:
       if (regcopy_in(myregs, nofregs, cl->u.x.x)) {
 	clause->Tag = (_number+1)*sizeof(CELL);
+	clause->u.t_ptr = (CELL)NULL;
 	return;
       }
       cl = NEXTOP(cl,x);
@@ -856,6 +858,7 @@ add_info(ClauseDef *clause, UInt regno)
     case _p_atomic_x:
       if (regcopy_in(myregs, nofregs, cl->u.x.x)) {
 	clause->Tag = (_atomic+1)*sizeof(CELL);
+	clause->u.t_ptr = (CELL)NULL;
 	return;
       }
       cl = NEXTOP(cl,x);
@@ -863,6 +866,7 @@ add_info(ClauseDef *clause, UInt regno)
     case _p_integer_x:
       if (regcopy_in(myregs, nofregs, cl->u.x.x)) {
 	clause->Tag = (_integer+1)*sizeof(CELL);
+	clause->u.t_ptr = (CELL)NULL;
 	return;
       }
       cl = NEXTOP(cl,x);
@@ -870,6 +874,7 @@ add_info(ClauseDef *clause, UInt regno)
     case _p_primitive_x:
       if (regcopy_in(myregs, nofregs, cl->u.x.x)) {
 	clause->Tag = (_primitive+1)*sizeof(CELL);
+	clause->u.t_ptr = (CELL)NULL;
 	return;
       }
       cl = NEXTOP(cl,x);
@@ -877,6 +882,7 @@ add_info(ClauseDef *clause, UInt regno)
     case _p_compound_x:
       if (regcopy_in(myregs, nofregs, cl->u.x.x)) {
 	clause->Tag = (_compound+1)*sizeof(CELL);
+	clause->u.t_ptr = (CELL)NULL;
 	return;
       }
       cl = NEXTOP(cl,x);
@@ -884,6 +890,7 @@ add_info(ClauseDef *clause, UInt regno)
     case _p_var_x:
       if (regcopy_in(myregs, nofregs, cl->u.x.x)) {
 	clause->Tag = (_var+1)*sizeof(CELL);
+	clause->u.t_ptr = (CELL)NULL;
 	return;
       }
       cl = NEXTOP(cl,x);
@@ -899,6 +906,7 @@ add_info(ClauseDef *clause, UInt regno)
     case _p_float_x:
       if (regcopy_in(myregs, nofregs, cl->u.x.x)) {
 	clause->Tag = AbsAppl((CELL *)FunctorDouble);
+	clause->u.t_ptr = (CELL)NULL;
 	return;
       }
       cl = NEXTOP(cl,x);
@@ -906,6 +914,7 @@ add_info(ClauseDef *clause, UInt regno)
     case _p_atom_x:
       if (regcopy_in(myregs, nofregs, cl->u.x.x)) {
 	clause->Tag = (_atom+1)*sizeof(CELL);
+	clause->u.t_ptr = (CELL)NULL;
 	return;
       }
       cl = NEXTOP(cl,x);
@@ -927,62 +936,63 @@ add_info(ClauseDef *clause, UInt regno)
     case _p_nonvar_y:
       if (cl->u.y.y == ycopy) {
 	clause->Tag = (CELL)NULL;
+	clause->u.t_ptr = (CELL)NULL;
 	return;
       }
       cl = NEXTOP(cl,y);
       break;
     case _p_atomic_y:
       if (ycopy == cl->u.y.y) {
-	clause->u.WorkPC = cl;
 	clause->Tag = (_atomic+1)*sizeof(CELL);
+	clause->u.t_ptr = (CELL)NULL;
 	return;
       }
       cl = NEXTOP(cl,y);
       break;
     case _p_integer_y:
       if (ycopy == cl->u.y.y) {
-	clause->u.WorkPC = cl;
 	clause->Tag = (_integer+1)*sizeof(CELL);
+	clause->u.t_ptr = (CELL)NULL;
 	return;
       }
       cl = NEXTOP(cl,y);
       break;
     case _p_number_y:
       if (ycopy == cl->u.y.y) {
-	clause->u.WorkPC = cl;
 	clause->Tag = (_number+1)*sizeof(CELL);
+	clause->u.t_ptr = (CELL)NULL;
 	return;
       }
       cl = NEXTOP(cl,y);
       break;
     case _p_primitive_y:
       if (ycopy == cl->u.y.y) {
-	clause->u.WorkPC = cl;
 	clause->Tag = (_primitive+1)*sizeof(CELL);
+	clause->u.t_ptr = (CELL)NULL;
 	return;
       }
       cl = NEXTOP(cl,y);
       break;
     case _p_compound_y:
       if (ycopy == cl->u.y.y) {
-	clause->u.WorkPC = cl;
 	clause->Tag = (_compound+1)*sizeof(CELL);
+	clause->u.t_ptr = (CELL)NULL;
 	return;
       }
       cl = NEXTOP(cl,y);
       break;
     case _p_db_ref_y:
       if (ycopy == cl->u.y.y) {
-	clause->u.t_ptr = (CELL)NULL;
 	clause->Tag = AbsAppl((CELL *)FunctorDBRef);
+	clause->u.t_ptr = (CELL)NULL;
 	return;
       }
       cl = NEXTOP(cl,y);
       break;
     case _p_float_y:
       if (ycopy == cl->u.y.y) {
-	clause->u.WorkPC = cl;
 	clause->Tag = AbsAppl((CELL *)FunctorDouble);
+	clause->u.t_ptr = (CELL)NULL;
 	return;
       }
       cl = NEXTOP(cl,y);
@@ -990,6 +1000,7 @@ add_info(ClauseDef *clause, UInt regno)
     case _p_atom_y:
       if (cl->u.y.y == ycopy) {
 	clause->Tag = (_atom+1)*sizeof(CELL);
+	clause->u.t_ptr = (CELL)NULL;
 	return;
       }
       cl = NEXTOP(cl,y);
@@ -997,6 +1008,7 @@ add_info(ClauseDef *clause, UInt regno)
     case _p_var_y:
       if (cl->u.y.y == ycopy) {
 	clause->Tag = (_var+1)*sizeof(CELL);
+	clause->u.t_ptr = (CELL)NULL;
 	return;
       }
       cl = NEXTOP(cl,y);
@@ -3340,7 +3352,11 @@ do_blob_index(ClauseDef *min, ClauseDef* max, Term t,PredEntry *ap, UInt argno, 
   cl = min;
   
   while (cl <= max) {
-    cl->Tag = MkIntTerm(RepAppl(cl->u.t_ptr)[1]);
+    if (cl->u.t_ptr == (CELL)NULL) { /* check whether it is a builtin */
+      cl->Tag = Zero;
+    } else {
+      cl->Tag = MkIntTerm(RepAppl(cl->u.t_ptr)[1]);
+    }
     cl++;
   }
   ngroups = groups_in(min, max, group);
@@ -4788,14 +4804,16 @@ replace_lu_block(LogUpdIndex *blk, int flag, PredEntry *ap, yamop *code, int has
 }
 
 static yamop *
-clean_up_index(LogUpdIndex *blk, PredEntry *ap)
+clean_up_index(LogUpdIndex *blk, yamop **jlbl, PredEntry *ap)
 {
   yamop *codep = blk->ClCode;
   UInt ncls = codep->u.Ill.s;
 
   if (blk->ClFlags & InUseMask) {
     /* make a new block */
-    return replace_lu_block(blk, REFRESH, ap, NULL, FALSE);
+    yamop *new = replace_lu_block(blk, REFRESH, ap, NULL, FALSE);
+    *jlbl = new;
+    return new;
   } else {
     /* work on the current block */
     codep->u.Ill.l2 = cp_lu_trychain(codep->u.Ill.l1, codep->u.Ill.l1, blk->ClCode, REFRESH, ap, NULL, FALSE, blk, ncls, 0);
@@ -6044,6 +6062,7 @@ Yap_follow_lu_indexing_code(PredEntry *ap, yamop *ipc, Term t1, Term tb, Term tr
   Term t = TermNil;
   yamop *start_pc = ipc;
   choiceptr b0 = NULL;
+  yamop **jlbl = NULL;
 
   for (i = 1; i <= ap->ArityOfPE; i++) {
     Yap_XREGS[i] = tar[i];
@@ -6145,7 +6164,7 @@ Yap_follow_lu_indexing_code(PredEntry *ap, yamop *ipc, Term t1, Term tb, Term tr
       ipc = NEXTOP(ipc,l);
       break;
     case _stale_lu_index:
-      ipc = clean_up_index(ipc->u.Ill.I, ap);
+      ipc = clean_up_index(ipc->u.Ill.I, jlbl, ap);
       break;
     case _enter_lu_pred:
       {
@@ -6174,6 +6193,7 @@ Yap_follow_lu_indexing_code(PredEntry *ap, yamop *ipc, Term t1, Term tb, Term tr
       {
 	Term t = Deref(ARG1);
 	if (IsVarTerm(t)) {
+	  jlbl = &(ipc->u.l.l);
 	  ipc = ipc->u.l.l;
 	} else {
 	  ipc = NEXTOP(ipc,l);
@@ -6184,60 +6204,78 @@ Yap_follow_lu_indexing_code(PredEntry *ap, yamop *ipc, Term t1, Term tb, Term tr
     case _switch_on_type:
       t = Deref(ARG1);
       if (IsVarTerm(t)) {
+	jlbl = &(ipc->u.llll.l4);
 	ipc = ipc->u.llll.l4;
       } else if (IsPairTerm(t)) {
+	jlbl = &(ipc->u.llll.l1);
 	ipc = ipc->u.llll.l1;
 	s_reg = RepPair(t);
       } else if (IsAtomOrIntTerm(t)) {
+	jlbl = &(ipc->u.llll.l2);
 	ipc = ipc->u.llll.l2;
       } else {
+	jlbl = &(ipc->u.llll.l3);
 	ipc = ipc->u.llll.l3;
       }
       break;
     case _switch_list_nl:
       t = Deref(ARG1);
       if (IsVarTerm(t)) {
+	jlbl = &(ipc->u.ollll.l4);
 	ipc = ipc->u.ollll.l4;
       } else if (IsPairTerm(t)) {
+	jlbl = &(ipc->u.ollll.l1);
 	ipc = ipc->u.ollll.l1;
 	s_reg = RepPair(t);
       } else if (IsAtomOrIntTerm(t)) {
+	jlbl = &(ipc->u.ollll.l2);
 	ipc = ipc->u.ollll.l2;
       } else {
+	jlbl = &(ipc->u.ollll.l3);
 	ipc = ipc->u.ollll.l3;
       }
       break;
     case _switch_on_arg_type:
       t = Deref(Yap_XREGS[arg_from_x(ipc->u.xllll.x)]);
       if (IsVarTerm(t)) {
+	jlbl = &(ipc->u.xllll.l4);
 	ipc = ipc->u.xllll.l4;
       } else if (IsPairTerm(t)) {
+	jlbl = &(ipc->u.xllll.l1);
 	ipc = ipc->u.xllll.l1;
 	s_reg = RepPair(t);
       } else if (IsAtomOrIntTerm(t)) {
+	jlbl = &(ipc->u.xllll.l1);
 	ipc = ipc->u.xllll.l2;
       } else {
+	jlbl = &(ipc->u.xllll.l3);
 	ipc = ipc->u.xllll.l3;
       }
       break;
     case _switch_on_sub_arg_type:
       t = Deref(s_reg[ipc->u.sllll.s]);
       if (IsVarTerm(t)) {
+	jlbl = &(ipc->u.sllll.l4);
 	ipc = ipc->u.sllll.l4;
       } else if (IsPairTerm(t)) {
+	jlbl = &(ipc->u.sllll.l1);
 	ipc = ipc->u.sllll.l1;
 	s_reg = RepPair(t);
       } else if (IsAtomOrIntTerm(t)) {
+	jlbl = &(ipc->u.sllll.l2);
 	ipc = ipc->u.sllll.l2;
       } else {
+	jlbl = &(ipc->u.sllll.l3);
 	ipc = ipc->u.sllll.l3;
       }
       break;
     case _if_not_then:
       t = Deref(ARG1);
       if (!IsVarTerm(t) && t != ipc->u.cll.c) {
+	jlbl = &(ipc->u.cll.l2);
 	ipc = ipc->u.cll.l2;
       } else {
+	jlbl = &(ipc->u.cll.l1);
 	ipc = ipc->u.cll.l1;
       }
       break;
@@ -6257,6 +6295,7 @@ Yap_follow_lu_indexing_code(PredEntry *ap, yamop *ipc, Term t1, Term tb, Term tr
 	} else {
 	  fe = lookup_f(f, ipc->u.sl.l, ipc->u.sl.s);
 	}
+	jlbl = (yamop **)(&fe->Label);
 	ipc = (yamop *)(fe->Label);
       }
       break;
@@ -6282,6 +6321,7 @@ Yap_follow_lu_indexing_code(PredEntry *ap, yamop *ipc, Term t1, Term tb, Term tr
 	} else {
 	  ae = lookup_c(t, ipc->u.sl.l, ipc->u.sl.s);
 	}
+	jlbl = (yamop **)(&ae->Label);
 	ipc = (yamop *)(ae->Label);
       }
       break;
