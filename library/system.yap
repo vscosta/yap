@@ -312,8 +312,8 @@ get_shell(Shell) :-
 	getenv('SHELL', Shell0), !,
 	atom_codes(Shell0, Codes),
 	append(Codes," -c ", Shell).
-get_shell(COMSPEC) :-
-	getenv('COMPSEC', Shell),
+get_shell(Shell) :-
+	getenv('COMPSEC', Shell0),
 	atom_codes(Shell0, Codes),
 	append(Codes," /c ", Shell).
 	   
