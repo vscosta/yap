@@ -1631,7 +1631,7 @@ record(int Flag, Term key, Term t_data, Term t_code)
     x->Prev = p->Last;
     p->Last = x;
   }
-  if (Flag & WithRef) {
+  if (Flag & MkCode) {
     x->Code = (yamop *) IntegerOfTerm(t_code);
   }
   WRITE_UNLOCK(p->DBRWLock);
@@ -3804,7 +3804,8 @@ PrepareToEraseClause(Clause *clau, DBRef dbr)
     WRITE_LOCK(pred->PRWLock);
     /* got my pred entry, let's have some fun! */
     clau_code = clau->ClCode;
-    if (pred->cs.p_code.FirstClause == pred->cs.p_code.LastClause) {
+    if (pred->cs.p_code.FirstClause == pred->cs.p_code.LastClause &&
+	pred->cs.p_code.FirstClause != NULL) {
 #ifdef DEBUG
       if (pred->cs.p_code.FirstClause != clau_code) {
 	/* sanity check */
@@ -3819,7 +3820,7 @@ PrepareToEraseClause(Clause *clau, DBRef dbr)
 #endif
       /* nothing left here, let's clean the shop */
       Yap_FreeCodeSpace(((char *) ClauseCodeToClause(pred->CodeOfPred)));
-      pred->cs.p_code.LastClause = pred->cs.p_code.FirstClause = NIL;
+      pred->cs.p_code.LastClause = pred->cs.p_code.FirstClause = NULL;
       pred->OpcodeOfPred = FAIL_OPCODE;
       pred->cs.p_code.TrueCodeOfPred = pred->CodeOfPred =
 	(yamop *)(&(pred->OpcodeOfPred)); 
