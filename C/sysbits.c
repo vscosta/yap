@@ -1028,6 +1028,7 @@ my_signal_info(int sig, void (*handler)(int))
 
   sigact.sa_handler = handler;
   sigemptyset(&sigact.sa_mask);
+  sigact.sa_flags = SA_SIGINFO;
 
   sigaction(sig,&sigact,NULL);
 }
@@ -1039,6 +1040,7 @@ my_signal(int sig, void (*handler)(int))
 
   sigact.sa_handler=handler;
   sigemptyset(&sigact.sa_mask);
+  sigact.sa_flags = 0;
 
   sigaction(sig,&sigact,NULL);
 }
