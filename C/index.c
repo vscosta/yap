@@ -4609,6 +4609,7 @@ cp_lu_trychain(yamop *codep, yamop *ocodep, yamop *ostart, int flag, PredEntry *
 {
   int count_reds = ap->PredFlags & CountPredFlag;
   int profiled = ap->PredFlags & ProfiledPredFlag;
+  int compact_mode = (codep == ocodep);
 
   while (ocodep != NULL &&
 	 ocodep < ostart->u.Ill.l2) {
@@ -4624,12 +4625,16 @@ cp_lu_trychain(yamop *codep, yamop *ocodep, yamop *ostart, int flag, PredEntry *
       if (i == 0) {
 	if (op != _try_clause) {
 	  LogUpdClause *tgl = ClauseCodeToLogUpdClause(ocodep->u.ld.d);
-	  tgl->ClRefCount--;
+	  if (compact_mode)
+	    tgl->ClRefCount--;
 	}
 	codep->opc = Yap_opcode(_try_clause);
 	codep = copy_ld(codep, ocodep, ap, ocodep->u.ld.d, FALSE);
       } else {
 	if (op == _try_clause) {
+	  LogUpdClause *tgl = ClauseCodeToLogUpdClause(ocodep->u.ld.d);
+	  tgl->ClRefCount++;
+	} else if (!compact_mode) {
 	  LogUpdClause *tgl = ClauseCodeToLogUpdClause(ocodep->u.ld.d);
 	  tgl->ClRefCount++;
 	}
@@ -4640,17 +4645,21 @@ cp_lu_trychain(yamop *codep, yamop *ocodep, yamop *ostart, int flag, PredEntry *
       break;
     case _trust:
       if (i < ncls-1) goto do_retry;
+      if (!compact_mode) {
+	LogUpdClause *tgl = ClauseCodeToLogUpdClause(ocodep->u.ld.d);
+	tgl->ClRefCount++;
+      }    
       codep = gen_lui_trust(codep, ocodep, profiled, count_reds, ap, ocodep->u.ld.d, TRUE, nblk);
       ocodep = NULL;
       break;
     case _retry_killed:
     case _trust_killed:
-      {
+      if (compact_mode) {
 	LogUpdClause *tgl = ClauseCodeToLogUpdClause(ocodep->u.ld.d);
 
 	tgl->ClRefCount--;
-	ocodep = NEXTOP(ocodep, ld);
       }
+      ocodep = NEXTOP(ocodep, ld);
       break;
     case _trust_logical_pred:
       ocodep = NEXTOP(ocodep, l);

@@ -12,7 +12,7 @@
 * Last rev:								 *
 * mods:									 *
 * comments:	allocating space					 *
-* version:$Id: alloc.c,v 1.38 2003-10-30 11:31:05 vsc Exp $		 *
+* version:$Id: alloc.c,v 1.39 2003-10-30 22:52:46 vsc Exp $		 *
 *************************************************************************/
 #ifdef SCCS
 static char SccsId[] = "%W% %G%";
@@ -1113,16 +1113,22 @@ Yap_InitMemory(int Trail, int Heap, int Stack)
 int
 Yap_ExtendWorkSpace(Int s)
 {
+#if USE_MMAP
   return ExtendWorkSpace(s, MAP_FIXED);
+#else
+  return ExtendWorkSpace(s);
+#endif
 }
 
 UInt
 Yap_ExtendWorkSpaceThroughHole(UInt s)
 {
+#if USE_MMAP
   MALLOC_T WorkSpaceTop0 = WorkSpaceTop;
 
   if (ExtendWorkSpace(s, 0))
     return WorkSpaceTop-WorkSpaceTop0;
+#endif
   return -1;
 }
 

@@ -1197,13 +1197,15 @@ Yap_absmi(int inp)
 	    FAIL();
 	  }
 	}
-	setregs();
 	if (!Yap_IUnify(ARG2, t)) {
+	  setregs();
 	  FAIL();
 	}
 	if (!Yap_IUnify(ARG3, MkDBRefTerm((DBRef)cl))) {
+	  setregs();
 	  FAIL();
 	}
+	setregs();
 
 #if defined(YAPOR) || defined(THREADS)
 
@@ -1237,12 +1239,16 @@ Yap_absmi(int inp)
       {
 	LogUpdClause *cl = ClauseCodeToLogUpdClause(PREG);
 
+	saveregs();
 	if (!Yap_IUnify(ARG2, cl->ClSource->Entry)) {
+	  setregs();
 	  FAIL();
 	}
 	if (!Yap_IUnify(ARG3, MkDBRefTerm((DBRef)cl))) {
+	  setregs();
 	  FAIL();
 	}
+	setregs();
 
 	/* say that an environment is using this clause */
 	/* we have our own copy for the clause */
