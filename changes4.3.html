@@ -16,6 +16,8 @@
 
 <h2>Yap-4.3.21:</h2>
 <ul>
+	<li>FIXED: g(X) :- (Z is 2*X; a(Z)) Z cannot be seen as a free
+	var. (Nicos Angelopoulos).</li>
 	<li>FIXED: atom_concat was not allocating heap correctly (Nicos Angelopoulos).</li>
 	<li>NEW: ord_intersection/4 (Nicos Angelopoulos).</li>
 	<li>NEW: file_search_path/2 (Nicos Angelopoulos).</li>

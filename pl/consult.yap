@@ -187,8 +187,8 @@ reconsult(Fs) :-
 	;
 	  '$set_value'('$verbose',off)
 	),
-	'$find_in_path'(X,Y,reconsult(X)),
-	( '$open'(Y,'$csult',Stream,0), !,
+	( '$find_in_path'(X,Y,reconsult(X)),
+	  '$open'(Y,'$csult',Stream,0) ->
 		'$record_loaded'(Stream),
 		( '$access_yap_flags'(15, 0) -> true ; '$skip_unix_comments'(Stream) ),
 		'$reconsult'(X,Stream), '$close'(Stream)
