@@ -12,7 +12,7 @@
 * Last rev:								 *
 * mods:									 *
 * comments:	allocating space					 *
-* version:$Id: alloc.c,v 1.44 2004-02-05 16:56:58 vsc Exp $		 *
+* version:$Id: alloc.c,v 1.45 2004-02-11 01:20:56 vsc Exp $		 *
 *************************************************************************/
 #ifdef SCCS
 static char SccsId[] = "%W% %G%";
@@ -163,6 +163,8 @@ InitExStacks(int Trail, int Stack)
   Yap_LocalBase = Yap_GlobalBase + sa;
   Yap_TrailBase = Yap_LocalBase + sizeof(CELL);
 
+  ScratchPad.ptr = NULL;
+  ScratchPad.sz = ScratchPad.msz = SCRATCH_START_SIZE;
   AuxSp = NULL;
 
 #ifdef DEBUG

@@ -1525,37 +1525,12 @@ p_endconsult(void)
   return (TRUE);
 }
 
-static Int 
-p_purge_clauses(void)
-{				/* '$purge_clauses'(+Func) */
-  PredEntry      *pred;
-  Term            t = Deref(ARG1);
-  Term            t2 = Deref(ARG2);
+static void
+purge_clauses(PredEntry *pred)
+{
   yamop          *q;
-  SMALLUNSGN      mod;
   int		  in_use;
 
-  Yap_PutValue(AtomAbol, MkAtomTerm(AtomNil));
-  if (IsVarTerm(t))
-    return (FALSE);
-  if (IsVarTerm(t2) || !IsAtomTerm(t2)) {
-    return (FALSE);
-  }
-  mod = Yap_LookupModule(t2);
-  if (IsAtomTerm(t)) {
-    Atom at = AtomOfTerm(t);
-    pred = RepPredProp(PredPropByAtom(at, mod));
-  } else if (IsApplTerm(t)) {
-    Functor         fun = FunctorOfTerm(t);
-    pred = RepPredProp(PredPropByFunc(fun, mod));
-  } else
-    return (FALSE);
-  WRITE_LOCK(pred->PRWLock);
-  if (pred->PredFlags & StandardPredFlag) {
-    WRITE_UNLOCK(pred->PRWLock);
-    Yap_Error(PERMISSION_ERROR_MODIFY_STATIC_PROCEDURE, t, "assert/1");
-    return (FALSE);
-  }
   if (pred->PredFlags & IndexedPredFlag)
     RemoveIndexation(pred);
   Yap_PutValue(AtomAbol, MkAtomTerm(AtomTrue));
@@ -1598,6 +1573,44 @@ p_purge_clauses(void)
   pred->src.OwnerFile = AtomNil;
   if (pred->PredFlags & MultiFileFlag)
     pred->PredFlags ^= MultiFileFlag;
+}
+
+void
+Yap_Abolish(PredEntry *pred)
+{
+  purge_clauses(pred);
+}
+
+static Int 
+p_purge_clauses(void)
+{				/* '$purge_clauses'(+Func) */
+  PredEntry      *pred;
+  Term            t = Deref(ARG1);
+  Term            t2 = Deref(ARG2);
+  SMALLUNSGN      mod;
+
+  Yap_PutValue(AtomAbol, MkAtomTerm(AtomNil));
+  if (IsVarTerm(t))
+    return (FALSE);
+  if (IsVarTerm(t2) || !IsAtomTerm(t2)) {
+    return (FALSE);
+  }
+  mod = Yap_LookupModule(t2);
+  if (IsAtomTerm(t)) {
+    Atom at = AtomOfTerm(t);
+    pred = RepPredProp(PredPropByAtom(at, mod));
+  } else if (IsApplTerm(t)) {
+    Functor         fun = FunctorOfTerm(t);
+    pred = RepPredProp(PredPropByFunc(fun, mod));
+  } else
+    return (FALSE);
+  WRITE_LOCK(pred->PRWLock);
+  if (pred->PredFlags & StandardPredFlag) {
+    WRITE_UNLOCK(pred->PRWLock);
+    Yap_Error(PERMISSION_ERROR_MODIFY_STATIC_PROCEDURE, t, "assert/1");
+    return (FALSE);
+  }
+  purge_clauses(pred);
   WRITE_UNLOCK(pred->PRWLock);
   return (TRUE);
 }

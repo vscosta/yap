@@ -20,7 +20,17 @@
 	thread_at_exit(:),
 	thread_signal(+,:).
 
-'$top_thread_goal'(G) :-
+:- initialization('$init_thread0').
+
+'$init_thread0' :-
+	no_threads, !.
+'$init_thread0' :-
+	'$create_mq'(0).
+	
+
+'$top_thread_goal'(G, Detached) :-
+	'$thread_self'(Id),
+	(Detached == true -> '$detach_thread'(Id) ; true),
 	'$current_module'(Module),
 	'$system_catch'((G,'$close_thread'),Module,Exception,'$thread_exception'(Exception)).
 
@@ -43,14 +53,14 @@ thread_create(Goal, Id, Options) :-
 	G0 = thread_create(Goal, Id, Options),
 	'$check_callable'(Goal,G0),
 	'$thread_options'(Options, Aliases, Stack, Trail, System, Detached, G0),
-	'$create_thread'(Goal, Stack, Trail, System, Id),
+	'$thread_new_tid'(Id),
+	'$add_thread_aliases'(Aliases, Id),
 	'$clean_db_on_id'(Id),
-	(Detached == true -> '$detach_thread'(Id) ; true),
-	'$create_mq'(Id),
-	'$add_thread_aliases'(Aliases, Id).
+	'$create_mq'(Id),	
+	'$create_thread'(Goal, Stack, Trail, System, Detached, Id).
 
 '$clean_db_on_id'(Id) :-
-	recorda('$thread_exit_status', [Id|_], R),
+	recorded('$thread_exit_status', [Id|_], R),
 	erase(R),
 	fail.
 '$clean_db_on_id'(Id) :-
@@ -70,10 +80,12 @@ thread_create(Goal, Id, Options) :-
 	'$thread_ground_stacks'(Stack),
 	'$thread_ground_stacks'(Trail),
 	'$thread_ground_stacks'(System).	
-'$thread_options'([Opt|OPts], Aliases, Stack, Trail, System, Detached, G0) :-
-	'$thread_option'(OPt, Aliases, Stack, Trail, System, Detached, G0, Aliases0),
+'$thread_options'([Opt|Opts], Aliases, Stack, Trail, System, Detached, G0) :-
+	'$thread_option'(Opt, Aliases, Stack, Trail, System, Detached, G0, Aliases0),
 	'$thread_options'(Opts, Aliases0, Stack, Trail, System, Detached, G0).
 
+'$thread_option'(Option, Aliases, _, _, _, _, G0, Aliases) :- var(Option), !,
+	'$do_error'(instantiation_error,G0).
 '$thread_option'(stacks(Stack), Aliases, Stack, _, _, _, G0, Aliases) :- !,
 	( \+ integer(Stack) -> '$do_error'(type_error(integer,Stack),G0) ; true ).
 '$thread_option'(trail(Trail), Aliases, _, Trail, _, _, G0, Aliases) :- !,
@@ -85,7 +97,7 @@ thread_create(Goal, Id, Options) :-
 '$thread_option'(detached(B), Aliases, _, _, _, B, G0, Aliases) :- !,
 	( B \== true, B \== false  -> '$do_error'(domain_error(flag_value,B+[true,false]),G0) ; true ).
 '$thread_option'(Option, Aliases, _, _, _, _, G0, Aliases) :-
-	'$do_error'(domain_error(thread_option,Option+[stacks(_),trail(_),system(_),alias(_),detached(_)]),G0).
+	'$do_error'(domain_error(thread_create_option,Option+[stacks(_),trail(_),system(_),alias(_),detached(_)]),G0).
 
 '$thread_ground_stacks'(0) :- !.
 '$thread_ground_stacks'(_).
@@ -170,8 +182,8 @@ current_thread(Tid, Status) :-
 
 mutex_create(V) :-
 	var(V), !,
-	'$new_mutex'(Id),
-	recorda('$mutex'(Id,Id),_).
+	'$new_mutex'(V),
+	recorda('$mutex',[V|V],_).
 mutex_create(A) :-
 	atom(A),
 	recorded('$mutex',[A|_],_), !,
@@ -179,7 +191,7 @@ mutex_create(A) :-
 mutex_create(A) :-
 	atom(A), !,
 	'$new_mutex'(Id),
-	recorda('$mutex'(A,Id),_).
+	recorda('$mutex',[A|Id],_).
 mutex_create(V) :-
 	'$do_error'(type_error(atom,V),mutex_create(V)).
 	
@@ -187,8 +199,8 @@ mutex_destroy(V) :-
 	var(V), !,
 	'$do_error'(instantiation_error,mutex_destroy(A)).
 mutex_destroy(A) :-
-	recorded('$mutex',[A|Id],R),
-	'$kill_mutex'(Id),
+	recorded('$mutex',[A|Id],R), !,
+	'$destroy_mutex'(Id),
 	erase(R).
 mutex_destroy(A) :-
 	atom(A), !,
@@ -200,7 +212,7 @@ mutex_lock(V) :-
 	var(V), !,
 	'$do_error'(instantiation_error,mutex_lock(A)).
 mutex_lock(A) :-
-	recorded('$mutex',[A|Id],_),
+	recorded('$mutex',[A|Id],_), !,
 	'$lock_mutex'(Id).
 mutex_lock(A) :-
 	atom(A), !,
@@ -213,7 +225,7 @@ mutex_trylock(V) :-
 	var(V), !,
 	'$do_error'(instantiation_error,mutex_trylock(A)).
 mutex_trylock(A) :-
-	recorded('$mutex',[A|Id],_),
+	recorded('$mutex',[A|Id],_), !,
 	'$trylock_mutex'(Id).
 mutex_trylock(A) :-
 	atom(A), !,
@@ -226,7 +238,7 @@ mutex_unlock(V) :-
 	var(V), !,
 	'$do_error'(instantiation_error,mutex_unlock(A)).
 mutex_unlock(A) :-
-	recorded('$mutex',[A|Id],_),
+	recorded('$mutex',[A|Id],_), !,
 	( '$unlock_mutex'(Id) ->
 	    true
 	;
@@ -263,14 +275,14 @@ message_queue_create(Cond) :-
 	'$cond_create'(Cond),
 	recorda('$queue',q(Cond,Mutex,Cond), _).
 message_queue_create(Name) :-
-	atom(Name), !,
-	recorded('$thread_alias',[Name|_],_),
-	'$do_error'(permission_error(create,queue,Name),thread_queue_create(Name)).
+	atom(Name),
+	recorded('$thread_alias',[Name|_],_), !,
+	'$do_error'(permission_error(create,queue,Name),message_queue_create(Name)).
 message_queue_create(Name) :-
 	atom(Name), !,
 	'$create_mq'(Name).
 message_queue_create(Name) :-
-	'$do_error'(type_error(atom,Name),thread_queue_create(Name)).
+	'$do_error'(type_error(atom,Name),message_queue_create(Name)).
 
 '$create_mq'(Name) :-
 	mutex_create(Mutex),
@@ -280,7 +292,7 @@ message_queue_create(Name) :-
 	
 message_queue_destroy(Name) :-
 	var(Name), !,
-	'$do_error'(instantiation_error,thread_queue_destroy(Name)).
+	'$do_error'(instantiation_error,message_queue_destroy(Name)).
 message_queue_destroy(Queue) :-
 	recorded('$queue',q(Queue,Mutex,Cond),R), !,
 	erase(R),
@@ -289,9 +301,9 @@ message_queue_destroy(Queue) :-
 	'$clean_mqueue'(Queue).
 message_queue_destroy(Queue) :-
 	atom(Queue), !,
-	'$do_error'(existence_error(queue,Queue),thread_queue_destroy(Name)).
+	'$do_error'(existence_error(queue,Queue),message_queue_destroy(Name)).
 message_queue_destroy(Name) :-
-	'$do_error'(type_error(atom,Name),thread_queue_destroy(Name)).
+	'$do_error'(type_error(atom,Name),message_queue_destroy(Name)).
 
 '$clean_mqueue'(Q) :-
 	recorded('$msg_queue',q(Queue,_),R),
@@ -300,7 +312,7 @@ message_queue_destroy(Name) :-
 '$clean_mqueue'(_).
 	
 thread_send_message(Queue, Term) :-
-	recorded('$thread_alias',[Queue|Id],_),
+	recorded('$thread_alias',[Queue|Id],_), !,
 	thread_send_message(Id, Term).
 thread_send_message(Queue, Term) :-
 	recorded('$queue',q(Queue,Mutex,Cond),_),
@@ -320,8 +332,8 @@ thread_get_message(Queue, Term) :-
 
 '$thread_get_message_loop'(Queue, Term, Mutex, Cond) :-
 	recorded('$msg_queue',q(Queue,Term),R), !,
-	mutex_unlock(Mutex),
-	erase(R).
+	erase(R),
+	mutex_unlock(Mutex).
 '$thread_get_message_loop'(Queue, Term, Mutex, Cond) :-
 	'$cond_wait'(Cond, Mutex),
 	'$thread_get_message_loop'(Queue, Term, Mutex, Cond).
@@ -335,12 +347,16 @@ thread_peek_message(Queue, Term) :-
 	mutex_lock(Mutex),
 	'$thread_peek_message2'(Queue, Term, Mutex).
 
-'$thread_get_message_loop'(Queue, Term, Mutex) :-
+'$thread_peek_message2'(Queue, Term, Mutex) :-
 	recorded('$msg_queue',q(Queue,Term),_), !,
 	mutex_unlock(Mutex).
-'$thread_get_message_loop'(Queue, Term, Mutex) :-
+'$thread_peek_message2'(Queue, Term, Mutex) :-
 	mutex_unlock(Mutex),
 	fail.
+
+thread_local(X) :-
+	'$current_module'(M),
+	'$thread_local'(X,M).
 
 '$thread_local'(X,M) :- var(X), !,
 	'$do_error'(instantiation_error,thread_local(M:X)).
@@ -376,11 +392,9 @@ thread_signal(Thread, Goal) :-
 	'$do_error'(type_error(integer,Thread),thread_signal(Thread, Goal)).
 
 '$thread_signal'(Thread, Goal) :-
-	mutex_lock(Thread),
 	( recorded('$thread_signal',[Thread|_],R), erase(R), fail ; true ),
 	recorda('$thread_signal',[Thread|Goal],_),
 	'$signal_thread'(Thread).
-	mutex_unlock(Thread).
 
 '$thread_gfetch'(G) :-
 	'$thread_self'(Id),

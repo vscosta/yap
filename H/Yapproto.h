@@ -10,7 +10,7 @@
 * File:		Yap.proto						 *
 * mods:									 *
 * comments:	Function declarations for YAP				 *
-* version:      $Id: Yapproto.h,v 1.44 2004-02-06 02:26:23 vsc Exp $	 *
+* version:      $Id: Yapproto.h,v 1.45 2004-02-11 01:20:56 vsc Exp $	 *
 *************************************************************************/
 
 /* prototype file for Yap */
@@ -31,6 +31,8 @@ Atom	STD_PROTO(Yap_FullLookupAtom,(char *));
 void	STD_PROTO(Yap_LookupAtomWithAddress,(char *,AtomEntry *));
 Prop	STD_PROTO(Yap_NewPredPropByFunctor,(struct FunctorEntryStruct *, SMALLUNSGN));
 Prop	STD_PROTO(Yap_NewPredPropByAtom,(struct AtomEntryStruct *, SMALLUNSGN));
+Prop	STD_PROTO(Yap_PredPropByFunctorNonThreadLocal,(struct FunctorEntryStruct *, SMALLUNSGN));
+Prop	STD_PROTO(Yap_PredPropByAtomNonThreadLocal,(struct AtomEntryStruct *, SMALLUNSGN));
 Functor	STD_PROTO(Yap_UnlockedMkFunctor,(AtomEntry *,unsigned int));
 Functor	STD_PROTO(Yap_MkFunctor,(Atom,unsigned int));
 void	STD_PROTO(Yap_MkFunctorWithAddress,(Atom,unsigned int,FunctorEntry *));
@@ -112,6 +114,7 @@ int     STD_PROTO(where_new_clause, (Prop, int));
 #endif
 void	STD_PROTO(Yap_init_consult,(int, char *));
 void	STD_PROTO(Yap_end_consult,(void));
+void	STD_PROTO(Yap_Abolish,(struct pred_entry *));
 
 
 /* cmppreds.c */

@@ -518,7 +518,7 @@ Yap_NewThreadPred(PredEntry *ap)
   p->ArityOfPE = ap->ArityOfPE;
   p->cs.p_code.FirstClause = p->cs.p_code.LastClause = NULL;
   p->cs.p_code.NOfClauses = 0;
-  p->PredFlags = 0L;
+  p->PredFlags = (ThreadLocalPredFlag|LogUpdatePredFlag);
   p->src.OwnerFile = ap->src.OwnerFile;
   p->OpcodeOfPred = UNDEF_OPCODE;
   p->CodeOfPred = p->cs.p_code.TrueCodeOfPred = (yamop *)(&(p->OpcodeOfPred)); 
@@ -576,6 +576,50 @@ Yap_NewPredPropByAtom(AtomEntry *ae, SMALLUNSGN cur_mod)
   WRITE_UNLOCK(ae->ARWLock);
   return (p0);
 }
+
+Prop
+Yap_PredPropByFunctorNonThreadLocal(Functor f, SMALLUNSGN cur_mod)
+/* get predicate entry for ap/arity; create it if neccessary.              */
+{
+  Prop p0;
+  FunctorEntry *fe = (FunctorEntry *)f;
+
+  WRITE_LOCK(fe->FRWLock);
+  p0 = fe->PropsOfFE;
+  while (p0) {
+    PredEntry *p = RepPredProp(p0);
+    if (/* p->KindOfPE != 0 || only props */
+	(p->ModuleOfPred == cur_mod || !(p->ModuleOfPred))) {
+      WRITE_UNLOCK(fe->FRWLock);
+      return (p0);
+    }
+    p0 = p->NextOfPE;
+  }
+  return Yap_NewPredPropByFunctor(fe,cur_mod);
+}
+
+Prop
+Yap_PredPropByAtomNonThreadLocal(Atom at, SMALLUNSGN cur_mod)
+/* get predicate entry for ap/arity; create it if neccessary.              */
+{
+  Prop p0;
+  AtomEntry *ae = RepAtom(at);
+
+  WRITE_LOCK(ae->ARWLock);
+  p0 = ae->PropsOfAE;
+  while (p0) {
+    PredEntry *pe = RepPredProp(p0);
+    if ( pe->KindOfPE == PEProp && 
+	 (pe->ModuleOfPred == cur_mod || !pe->ModuleOfPred)) {
+      WRITE_UNLOCK(ae->ARWLock);
+      return(p0);
+    }
+    p0 = pe->NextOfPE;
+  }
+  return Yap_NewPredPropByAtom(ae,cur_mod);
+}
+
+
 
 Term
 Yap_GetValue(Atom a)

@@ -496,7 +496,7 @@ exec_top_level(int BootMode, YAP_init_args *iap)
 	char init_file[256];
 	YAP_Atom atfile;
 	YAP_Functor fgoal;
-	YAP_Term goal, as[1];
+	YAP_Term goal, as[2];
 
 #if HAVE_STRNCAT
 	strncpy(init_file, PL_SRC_DIR, 256);
@@ -511,8 +511,9 @@ exec_top_level(int BootMode, YAP_init_args *iap)
 	/* consult init file */
 	atfile = YAP_LookupAtom(init_file);
 	as[0] = YAP_MkAtomTerm(atfile);
-	fgoal = YAP_MkFunctor(YAP_FullLookupAtom("$consult"), 1);
-	goal = YAP_MkApplTerm(fgoal, 1, as);
+	as[1] = YAP_MkAtomTerm(YAP_LookupAtom("prolog"));
+	fgoal = YAP_MkFunctor(YAP_FullLookupAtom("$consult"), 2);
+	goal = YAP_MkApplTerm(fgoal, 2, as);
 	/* launch consult */
 	YAP_RunGoal(goal);
 	/* set default module to user */

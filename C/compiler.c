@@ -1251,7 +1251,7 @@ c_goal(Term Goal, int mod, compiler_struct *cglobs)
       return;
     }
 #endif /* YAPOR */
-    p = RepPredProp(p0 = PredPropByAtom(atom, mod));
+    p = RepPredProp(p0 = Yap_PredPropByAtomNonThreadLocal(atom, mod));
     /* if we are profiling, make sure we register we entered this predicate */
     if (profiling)
       Yap_emit(enter_profiling_op, (CELL)p, Zero, &cglobs->cint);
@@ -1260,7 +1260,7 @@ c_goal(Term Goal, int mod, compiler_struct *cglobs)
   }
   else {
     f = FunctorOfTerm(Goal);
-    p = RepPredProp(p0 = PredPropByFunc(f, mod));
+    p = RepPredProp(p0 = Yap_PredPropByFunctorNonThreadLocal(f, mod));
     if (f == FunctorOr) {
       CELL l = ++cglobs->labelno;
       CELL m = ++cglobs->labelno;

@@ -52,22 +52,39 @@ allocate_new_tid(void)
 }
 
 static void
-store_specs(int new_worker_id, UInt ssize, UInt tsize, Term tgoal)
+store_specs(int new_worker_id, UInt ssize, UInt tsize, Term tgoal, Term tdetach)
 {
   ThreadHandle[new_worker_id].ssize = ssize;
   ThreadHandle[new_worker_id].tsize = tsize;
   ThreadHandle[new_worker_id].tgoal =
     Yap_StoreTermInDB(tgoal,4);
+  ThreadHandle[new_worker_id].cmod =
+    CurrentModule;
+  if (IsVarTerm(tdetach))
+    tdetach = MkAtomTerm(AtomFalse);
+  ThreadHandle[new_worker_id].tdetach =
+    tdetach;
 }
 
 
 static void
 thread_die(void)
 {
+  Prop p0 = AbsPredProp(heap_regs->thread_handle[worker_id].local_preds);
+
+  /* kill all thread local preds */
+  while(p0) {
+    PredEntry *ap = RepPredProp(p0);
+    p0 = ap->NextOfPE;
+    Yap_Abolish(ap);
+    Yap_FreeCodeSpace((char *)ap);
+  }
   Yap_KillStacks();
   LOCK(ThreadHandlesLock);
+  ActiveSignals = 0L;
+  free(ScratchPad.ptr);
+  free(ThreadHandle[worker_id].default_yaam_regs);
   ThreadHandle[worker_id].in_use = FALSE;
-  free((void *)ThreadHandle[worker_id].default_yaam_regs);
   UNLOCK(ThreadHandlesLock);
 }
 
@@ -75,7 +92,7 @@ static void *
 thread_run(void *widp)
 {
   Term tgoal;
-  Term tgs[1];
+  Term tgs[2];
   int out;
   REGSTORE *standard_regs = (REGSTORE *)malloc(sizeof(REGSTORE));
   int myworker_id = *((int *)widp); 
@@ -85,15 +102,23 @@ thread_run(void *widp)
   pthread_setspecific(Yap_yaamregs_key, (void *)standard_regs);
   worker_id = myworker_id;
   Yap_InitExStacks(ThreadHandle[myworker_id].ssize, ThreadHandle[myworker_id].tsize);
+  CurrentModule = ThreadHandle[myworker_id].cmod;
   Yap_InitYaamRegs();
   {
     Yap_ReleasePreAllocCodeSpace(Yap_PreAllocCodeSpace());
   }
   tgs[0] = Yap_FetchTermFromDB(ThreadHandle[worker_id].tgoal);
-  tgoal = Yap_MkApplTerm(FunctorThreadRun, 1, tgs);
+  tgs[1] = ThreadHandle[worker_id].tdetach;
+  tgoal = Yap_MkApplTerm(FunctorThreadRun, 2, tgs);
   out = Yap_RunTopGoal(tgoal);
   thread_die();
   return NULL;
+}
+
+static Int
+p_thread_new_tid(void)
+{
+  return Yap_unify(MkIntegerTerm(allocate_new_tid()), ARG1);
 }
 
 static Int
@@ -103,16 +128,17 @@ p_create_thread(void)
   UInt tsize = IntegerOfTerm(Deref(ARG3));
   /*  UInt systemsize = IntegerOfTerm(Deref(ARG4)); */
   Term tgoal = Deref(ARG1);
-  int new_worker_id = allocate_new_tid();
+  Term tdetach = Deref(ARG5);
+  int new_worker_id = IntegerOfTerm(Deref(ARG6));
   if (new_worker_id == -1) {
     /* YAP ERROR */
     return FALSE;
   }    
   ThreadHandle[new_worker_id].id = new_worker_id;
-  store_specs(new_worker_id, ssize, tsize, tgoal);
-  if ((ThreadHandle[new_worker_id].ret = pthread_create(&(ThreadHandle[new_worker_id].handle), NULL, thread_run, (void *)(&(ThreadHandle[new_worker_id].id)))) == 0)
-    return Yap_unify(MkIntegerTerm(new_worker_id), ARG5);
-  thread_die();
+  store_specs(new_worker_id, ssize, tsize, tgoal, tdetach);
+  if ((ThreadHandle[new_worker_id].ret = pthread_create(&(ThreadHandle[new_worker_id].handle), NULL, thread_run, (void *)(&(ThreadHandle[new_worker_id].id)))) == 0) {
+    return TRUE;
+  }
   /* YAP ERROR */
   return FALSE;
 }
@@ -149,14 +175,8 @@ p_thread_detach(void)
 static Int
 p_thread_exit(void)
 {
-  pthread_exit(NULL);
-  return TRUE;
-}
-
-static Int
-p_thread_die(void)
-{
   thread_die();
+  pthread_exit(NULL);
   return TRUE;
 }
 
@@ -223,7 +243,7 @@ p_new_mutex(void)
 static Int
 p_destroy_mutex(void)
 {
-  SWIMutex *mut = (SWIMutex*)Deref(ARG1);
+  SWIMutex *mut = (SWIMutex*)IntegerOfTerm(Deref(ARG1));
 
   if (pthread_mutex_destroy(&mut->m) < 0)
     return FALSE;
@@ -234,7 +254,7 @@ p_destroy_mutex(void)
 static Int
 p_lock_mutex(void)
 {
-  SWIMutex *mut = (SWIMutex*)Deref(ARG1);
+  SWIMutex *mut = (SWIMutex*)IntegerOfTerm(Deref(ARG1));
 
   if (pthread_mutex_lock(&mut->m) < 0)
     return FALSE;
@@ -246,7 +266,7 @@ p_lock_mutex(void)
 static Int
 p_trylock_mutex(void)
 {
-  SWIMutex *mut = (SWIMutex*)Deref(ARG1);
+  SWIMutex *mut = (SWIMutex*)IntegerOfTerm(Deref(ARG1));
 
   if (pthread_mutex_trylock(&mut->m) == EBUSY)
     return FALSE;
@@ -258,7 +278,7 @@ p_trylock_mutex(void)
 static Int
 p_unlock_mutex(void)
 {
-  SWIMutex *mut = (SWIMutex*)Deref(ARG1);
+  SWIMutex *mut = (SWIMutex*)IntegerOfTerm(Deref(ARG1));
 
   if (pthread_mutex_unlock(&mut->m) < 0)
     return FALSE;
@@ -269,7 +289,7 @@ p_unlock_mutex(void)
 static Int
 p_info_mutex(void)
 {
-  SWIMutex *mut = (SWIMutex*)Deref(ARG1);
+  SWIMutex *mut = (SWIMutex*)IntegerOfTerm(Deref(ARG1));
 
   return Yap_unify(ARG2, MkIntegerTerm(mut->owners)) &&
     Yap_unify(ARG2, MkIntegerTerm(mut->tid_own));
@@ -292,7 +312,7 @@ p_cond_create(void)
 static Int
 p_cond_destroy(void)
 {
-  pthread_cond_t *condp = (pthread_cond_t *)Deref(ARG1);
+  pthread_cond_t *condp = (pthread_cond_t *)IntegerOfTerm(Deref(ARG1));
 
   if (pthread_cond_destroy(condp) < 0)
     return FALSE;
@@ -303,7 +323,7 @@ p_cond_destroy(void)
 static Int
 p_cond_signal(void)
 {
-  pthread_cond_t *condp = (pthread_cond_t *)Deref(ARG1);
+  pthread_cond_t *condp = (pthread_cond_t *)IntegerOfTerm(Deref(ARG1));
 
   if (pthread_cond_signal(condp) < 0)
     return FALSE;
@@ -313,7 +333,7 @@ p_cond_signal(void)
 static Int
 p_cond_broadcast(void)
 {
-  pthread_cond_t *condp = (pthread_cond_t *)Deref(ARG1);
+  pthread_cond_t *condp = (pthread_cond_t *)IntegerOfTerm(Deref(ARG1));
 
   if (pthread_cond_broadcast(condp) < 0)
     return FALSE;
@@ -323,11 +343,10 @@ p_cond_broadcast(void)
 static Int
 p_cond_wait(void)
 {
-  pthread_cond_t *condp = (pthread_cond_t *)Deref(ARG1);
-  SWIMutex *mut = (SWIMutex*)Deref(ARG2);
+  pthread_cond_t *condp = (pthread_cond_t *)IntegerOfTerm(Deref(ARG1));
+  SWIMutex *mut = (SWIMutex*)IntegerOfTerm(Deref(ARG2));
 
-  if (pthread_cond_wait(condp, &mut->m) < 0)
-    return FALSE;
+  pthread_cond_wait(condp, &mut->m);
   return TRUE;
 }
 
@@ -353,7 +372,7 @@ p_install_thread_local(void)
   if (pe->PredFlags & (UserCPredFlag|HiddenPredFlag|CArgsPredFlag|SourcePredFlag|SyncPredFlag|TestPredFlag|AsmPredFlag|StandardPredFlag|DynamicPredFlag|CPredFlag|SafePredFlag|IndexedPredFlag|BinaryTestPredFlag|SpiedPredFlag)) {
     return FALSE;
   }
-  pe->PredFlags |= ThreadLocalPredFlag;
+  pe->PredFlags |= (ThreadLocalPredFlag|LogUpdatePredFlag);
   pe->OpcodeOfPred = Yap_opcode(_thread_local);
   pe->CodeOfPred = (yamop *)&pe->OpcodeOfPred;
   WRITE_UNLOCK(pe->PRWLock);
@@ -371,14 +390,21 @@ p_thread_signal(void)
   return TRUE;
 }
 
+static Int 
+p_no_threads(void)
+{				/* '$thread_signal'(+P)	 */
+  return FALSE;
+}
+
 void Yap_InitThreadPreds(void)
 {
-  Yap_InitCPred("$create_thread", 5, p_create_thread, 0);
+  Yap_InitCPred("$no_threads", 0, p_no_threads, 0);
+  Yap_InitCPred("$thread_new_tid", 1, p_thread_new_tid, 0);
+  Yap_InitCPred("$create_thread", 6, p_create_thread, 0);
   Yap_InitCPred("$thread_self", 1, p_thread_self, SafePredFlag);
   Yap_InitCPred("$thread_join", 1, p_thread_join, 0);
   Yap_InitCPred("$detach_thread", 1, p_thread_detach, 0);
   Yap_InitCPred("$thread_exit", 0, p_thread_exit, 0);
-  Yap_InitCPred("$thread_die", 0, p_thread_die, 0);
   Yap_InitCPred("thread_set_concurrency", 2, p_thread_set_concurrency, 0);
   Yap_InitCPred("$valid_thread", 1, p_valid_thread, 0);
   Yap_InitCPred("$new_mutex", 1, p_new_mutex, SafePredFlag);
@@ -393,7 +419,21 @@ void Yap_InitThreadPreds(void)
   Yap_InitCPred("$cond_broadcast", 1, p_cond_broadcast, SafePredFlag);
   Yap_InitCPred("$cond_wait", 2, p_cond_wait, SafePredFlag);
   Yap_InitCPred("$install_thread_local", 2, p_install_thread_local, SafePredFlag);
-  Yap_InitCPred("$thread_signal", 2, p_thread_signal, SafePredFlag);
+  Yap_InitCPred("$signal_thread", 1, p_thread_signal, SafePredFlag);
+}
+
+#else
+
+
+static Int 
+p_no_threads(void)
+{				/* '$thread_signal'(+P)	 */
+  return TRUE;
+}
+
+void Yap_InitThreadPreds(void)
+{
+  Yap_InitCPred("$no_threads", 0, p_create_thread, 0);
 }
 
 

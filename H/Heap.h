@@ -10,7 +10,7 @@
 * File:		Heap.h         						 *
 * mods:									 *
 * comments:	Heap Init Structure					 *
-* version:      $Id: Heap.h,v 1.53 2004-02-09 14:19:04 vsc Exp $	 *
+* version:      $Id: Heap.h,v 1.54 2004-02-11 01:20:56 vsc Exp $	 *
 *************************************************************************/
 
 /* information that can be stored in Code Space */
@@ -65,6 +65,8 @@ typedef struct thandle {
   int in_use;
   UInt ssize;
   UInt tsize;
+  Term tdetach;
+  SMALLUNSGN cmod;
   struct DB_TERM *tgoal;
   int id;
   int ret;

@@ -387,6 +387,9 @@ print_message(Level, Mss) :-
 '$output_error_message'(domain_error(syntax_error_handler,What), Where) :-
 	'$format'(user_error,"[ DOMAIN ERROR- ~w: ~w not a syntax error handler ]~n",
 	[Where,What]).
+'$output_error_message'(domain_error(thread_create_option,Option+Opts), Where) :-
+	'$format'(user_error,"[ DOMAIN ERROR- ~w: ~w not in ~w ]~n",
+	[Where,Option, Opts]).
 '$output_error_message'(domain_error(time_out_spec,What), Where) :-
 	'$format'(user_error,"[ DOMAIN ERROR- ~w: ~w not a valid specification for a time out ]~n",
 	[Where,What]).
