@@ -18,7 +18,7 @@
 * Last rev:	December 90						 *
 * mods:									 *
 * comments:	Original Tag Scheme for machines with 32 bits adresses   *
-* version:      $Id: Tags_32LowTag.h,v 1.4 2001-08-09 14:01:19 vsc Exp $	 *
+* version:      $Id: Tags_32LowTag.h,v 1.5 2001-09-24 18:07:16 vsc Exp $	 *
 *************************************************************************/
 
 #define TAG_LOW_BITS_32 1

@@ -10,7 +10,7 @@
 * File:		Regs.h							 *
 * mods:									 *
 * comments:	YAP abstract machine registers				 *
-* version:      $Id: Regs.h,v 1.4 2001-06-27 15:46:26 vsc Exp $	 *
+* version:      $Id: Regs.h,v 1.5 2001-09-24 18:07:16 vsc Exp $	 *
 *************************************************************************/
 
 
@@ -25,7 +25,7 @@
 #endif
 #endif
 
-#ifdef sparc
+#if defined(sparc) || defined(__sparc)
 #undef  PUSH_REGS
 #undef  PUSH_X
 #endif

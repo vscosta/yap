@@ -367,7 +367,7 @@ void cputime_interval(Int *now,Int *interval)
 
 #endif
 
-#if defined(__sun__) && defined(__svr4__)
+#if defined(__sun__) && (defined(__svr4__) || defined(__SVR4))
 
 #if HAVE_LIMITS_H
 #include <limits.h>
@@ -812,7 +812,7 @@ p_srandom (void)
 STATIC_PROTO (void InitSignals, (void));
 
 
-#if defined(__svr4__)
+#if (defined(__svr4__) || defined(__SVR4))
 
 #if HAVE_SIGINFO_H
 #include <siginfo.h>
@@ -1200,7 +1200,7 @@ ProcessSIGINT(void)
    that might be
 */
 static RETSIGTYPE
-#if defined(__svr4__)
+#if (defined(__svr4__) || defined(__SVR4))
 HandleSIGINT (int sig, siginfo_t   *x, ucontext_t *y)
 #else
 HandleSIGINT (int sig)
@@ -1238,7 +1238,7 @@ HandleSIGINT (int sig)
 #if !defined(_WIN32)
 /* this routine is called if the system activated the alarm */
 static RETSIGTYPE
-#if defined(__svr4__)
+#if (defined(__svr4__) || defined(__SVR4))
 HandleALRM (int s, siginfo_t   *x, ucontext_t *y)
 #else
 HandleALRM(int s)
@@ -1259,7 +1259,7 @@ HandleALRM(int s)
 
 #if !defined(LIGHT) && !_MSC_VER && !defined(__MINGW32__) && !defined(LIGHT) 
 static RETSIGTYPE
-#if defined(__svr4__)
+#if (defined(__svr4__) || defined(__SVR4))
 ReceiveSignal (int s, siginfo_t   *x, ucontext_t *y)
 #else
 ReceiveSignal (int s)

@@ -47,9 +47,10 @@ rational_tree_loop(CELL *pt0, CELL *pt0_end, CELL **to_visit0)
 
 loop:
   while (pt0 < pt0_end) {
-    register CELL *ptd0 = ++pt0; 
+    register CELL *ptd0;
     register CELL d0;
 
+    ptd0 = ++pt0; 
     pt0 = ptd0;
     d0 = *ptd0;
     deref_head(d0, rtree_loop_unk);
@@ -139,11 +140,13 @@ OCUnify_complex(register CELL *pt0, register CELL *pt0_end,
 )
 {
 
-  register CELL **to_visit = (CELL **) H;
+  register CELL **to_visit;
 #if SHADOW_HB
-  register CELL *HBREG = HB;
+  register CELL *HBREG;
+  HBREG = HB;
 #endif
 
+  to_visit = (CELL **) H;
  loop:
   while (pt0 < pt0_end) {
     register CELL *ptd0 = ++pt0;

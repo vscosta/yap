@@ -28,7 +28,7 @@ static char SccsId[] = "%W% %G%";
  */
 #ifdef __GNUC__
 
-#ifdef sparc
+#if defined(sparc) || defined(__sparc)
 #define SHADOW_P       1
 #define SHADOW_Y       1
 #define SHADOW_S       1

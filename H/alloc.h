@@ -102,7 +102,7 @@ void   STD_PROTO(YAP_InitHeap, (void *));
 
 #elif USE_SBRK
 
-#ifdef __svr4__
+#if (defined(__svr4__) || defined(__SVR4))
 #include <unistd.h>
 #elif sun
 #include <sys/types.h>

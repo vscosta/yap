@@ -371,7 +371,9 @@ Int unify(Term t0, Term t1)
     return(TRUE);
   } else {
     while(TR != TR0) {
-      CELL *p = (CELL *)TrailTerm(--TR);
+      CELL *p;
+      --TR;
+      p = (CELL *)TrailTerm(TR);
       RESET_VARIABLE(p);
     }
     return(FALSE);

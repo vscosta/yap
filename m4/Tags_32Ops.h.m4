@@ -11,7 +11,7 @@
 * Last rev:	December 90						 *
 * mods:									 *
 * comments:	Original Tag Scheme for machines with 32 bits adresses   *
-* version:      $Id: Tags_32Ops.h.m4,v 1.1.1.1 2001-04-09 19:53:46 vsc Exp $	 *
+* version:      $Id: Tags_32Ops.h.m4,v 1.2 2001-09-24 18:07:16 vsc Exp $	 *
 *************************************************************************/
 
 /*
@@ -71,7 +71,7 @@ are now 1 in compound terms and structures.
 	This allows optimisation of switch_list
 
 */
-#if defined(i386) || defined(sparc) || defined(_POWER)
+#if defined(i386) || defined(sparc) || defined(_POWER) || defined(__sparc)
 #define UNIQUE_TAG_FOR_PAIRS 1
 #endif
 

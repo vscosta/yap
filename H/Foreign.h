@@ -53,9 +53,9 @@
 #define LOAD_DL 1
 #endif
 
-#ifdef sparc
+#if defined(sparc) || defined(__sparc)
 #undef NO_DYN
-#ifndef __svr4__
+#if (!defined(__svr4__) && !defined(__SVR4))
 #define A_OUT 1
 #else
 #ifdef SIMICS
@@ -66,7 +66,7 @@
 #endif
 #endif
 
-#ifdef __svr4__
+#if (defined(__svr4__) || defined(__SVR4))
 #ifndef SIMICS
 #ifdef NO_DYN
 #undef NO_DYN

@@ -10,7 +10,7 @@
 * File:		Yap.h.m4						 *
 * mods:									 *
 * comments:	main header file for YAP				 *
-* version:      $Id: Yap.h.m4,v 1.11 2001-09-24 14:06:06 vsc Exp $	 *
+* version:      $Id: Yap.h.m4,v 1.12 2001-09-24 18:07:16 vsc Exp $	 *
 *************************************************************************/
 
 #include "config.h"
@@ -315,7 +315,7 @@ typedef CELL Term;
 #ifdef i386
 #include <x86_locks.h>
 #endif
-#ifdef sparc
+#if defined(sparc) || defined(__sparc)
 #include <sparc_locks.h>
 #endif
 #ifdef mips
@@ -567,7 +567,7 @@ and  RefOfTerm(t) : Term -> DBRef = ...
 	incompatible with the high tag scheme. Linux-ELF also does not like
 	if you place things in the lower addresses (power to the libc people).
 */
-#if (defined(_AIX) || defined(_WIN32) || defined(sparc) || defined(mips) || defined(__FreeBSD__) || defined(_POWER) || defined(IN_SECOND_QUADRANT)) && !defined(TABLING)
+#if (defined(_AIX) || defined(_WIN32) || defined(sparc) || defined(__sparc) || defined(mips) || defined(__FreeBSD__) || defined(_POWER) || defined(IN_SECOND_QUADRANT)) && !defined(TABLING)
 #define USE_LOW32_TAGS 1
 #endif
 
