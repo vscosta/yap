@@ -86,7 +86,7 @@ print_message(Level, Mss) :-
 	'$format'(user_error,"[ CONTEXT ERROR- ~w: ~w appeared in ~w ]~n",
 	[Goal,Who,Where]).
 '$output_error_message'(domain_error(array_overflow,Opt), Where) :-
-	'$format'(user_error,"[ DOMAIN ERROR- ~w: invalid index for array ~w ]~n",
+	'$format'(user_error,"[ DOMAIN ERROR- ~w: invalid index ~w for array ]~n",
 	[Where,Opt]).
 '$output_error_message'(domain_error(array_type,Opt), Where) :-
 	'$format'(user_error,"[ DOMAIN ERROR- ~w: invalid static array type ~w ]~n",

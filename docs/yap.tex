@@ -3353,9 +3353,9 @@ reset the stream and is used for @code{tty} type files, and @code{eof_code},
 which generates a new @code{end-of-file} (default for non-tty files).
 
 @item alias(+@var{Name})
-Specify an alias to the file. The alias @t{Name} must be an atom. The
-alias can be used instead of the file descriptor for every operation
-concerning the file.
+Specify an alias to the stream. The alias @t{Name} must be an atom. The
+alias can be used instead of the stream descriptor for every operation
+concerning the stream.
 
 The operation will fail and give an error if the alias name is already
 in use. YAP allows several aliases for the same file, but only

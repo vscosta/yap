@@ -756,23 +756,32 @@ p_create_static_array(void)
     /* Create a named array */
     AtomEntry *ae = RepAtom(AtomOfTerm(t));
     StaticArrayEntry *pp;
+    ArrayEntry *app = (ArrayEntry *) pp;
 
     WRITE_LOCK(ae->ARWLock);
     pp = RepStaticArrayProp(ae->PropsOfAE);
     while (!EndOfPAEntr(pp) && pp->KindOfPE != ArrayProperty)
       pp = RepStaticArrayProp(pp->NextOfPE);
+
+    app = (ArrayEntry *) pp;
     if (EndOfPAEntr(pp) || pp->ValueOfVE.ints == NULL) {
       CreateStaticArray(ae, size, props, NULL, pp);
       return (TRUE);
+    } else if (ArrayIsDynamic(app)) {
+      if (IsVarTerm(app->ValueOfVE) && IsUnboundVar(app->ValueOfVE)) {
+	CreateStaticArray(ae, size, props, NULL, pp);
+	return (TRUE);
+      } else {
+	Error(PERMISSION_ERROR_CREATE_ARRAY,t,"cannot create static array over dynamic array");
+	return (FALSE);
+      }
     } else {
-      WRITE_UNLOCK(ae->ARWLock);
-      Error(PERMISSION_ERROR_CREATE_ARRAY,t,"create static array");
-      return(FALSE);
+      Error(PERMISSION_ERROR_CREATE_ARRAY,t,"cannot create static array over static array");
+      return (FALSE);
     }
-  } else {
-    Error(TYPE_ERROR_ATOM,t,"create static array");
-    return (FALSE);
   }
+  Error(TYPE_ERROR_ATOM,t,"create static array");
+  return (FALSE);
 }
 
 /* has a static array associated (+Name) */
@@ -1399,6 +1408,7 @@ p_assign_static(void)
    if (indx < 0 || indx >= - ptr->ArrayEArity) {
     WRITE_UNLOCK(ptr->ArRWLock);
     Error(DOMAIN_ERROR_ARRAY_OVERFLOW,t2,"assign_static");
+    return(FALSE);
   }
   switch (ptr->ArrayType) {
   case array_of_ints:
@@ -1534,7 +1544,7 @@ p_assign_static(void)
 	ReleaseTermFromDB(ref);
       }
       ptr->ValueOfVE.terms[indx] = StoreTermInDB(3,3);
-      if (ptr->ValueOfVE.terms[indx]){
+      if (ptr->ValueOfVE.terms[indx] == NULL){
 	WRITE_UNLOCK(ptr->ArRWLock);
 	return(FALSE);
       }
