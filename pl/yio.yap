@@ -147,6 +147,7 @@ open(F,T,S,Opts) :-
 '$check_opt_read'(singletons(_), _) :- !.
 '$check_opt_read'(syntax_errors(T), G) :- !,
 	'$check_read_syntax_errors_arg'(T, G).
+'$check_opt_read'(term_position(_), G) :- !.
 '$check_opt_read'(A, G) :-
 	throw(error(domain_error(read_option,A),G)).
 
@@ -332,35 +333,31 @@ read(Stream,T) :-
 
 read_term(T, Options) :-
 	'$check_io_opts'(Options,read_term(T, Options)),
-	'$preprocess_read_terms_options'(Options),
-	'$read_vars'(T,VL),
+	current_input(S),
+	'$preprocess_read_terms_options'(Options,S),
+	'$read_vars'(S,T,VL),
 	'$postprocess_read_terms_options'(Options, T, VL).
-
-'$read_vars'(T,V) :-
-	'$read'(true,T,V,Err),
-	(nonvar(Err) ->
-	    '$print_message'(error,Err), fail
-	    ;
-	    true
-	).
 
 read_term(Stream, T, Options) :-
 	'$check_io_opts'(Options,read_term(T, Options)),
-	'$preprocess_read_terms_options'(Options),
+	'$preprocess_read_terms_options'(Options, Stream),
 	'$read_vars'(Stream,T,VL),
 	'$postprocess_read_terms_options'(Options, T, VL).
 
 %
 % support flags to read
 %
-'$preprocess_read_terms_options'([]).
-'$preprocess_read_terms_options'([syntax_errors(NewVal)|L]) :- !,
+'$preprocess_read_terms_options'([], _).
+'$preprocess_read_terms_options'([syntax_errors(NewVal)|L], Stream) :- !,
 	'$get_read_error_handler'(OldVal),
 	'$set_value'('$read_term_error_handler', OldVal),
 	'$set_read_error_handler'(NewVal),
-	'$preprocess_read_terms_options'(L).
-'$preprocess_read_terms_options'([_|L]) :-
-	'$preprocess_read_terms_options'(L).
+	'$preprocess_read_terms_options'(L, Stream).
+'$preprocess_read_terms_options'([term_position(Pos)|L], Stream) :- !,
+	'$show_stream_position'(Stream, '$stream_position'(_,Pos,_)),
+	'$preprocess_read_terms_options'(L, Stream).
+'$preprocess_read_terms_options'([_|L], Stream) :-
+	'$preprocess_read_terms_options'(L, Stream).
 
 '$postprocess_read_terms_options'([], _, _).
 '$postprocess_read_terms_options'([H|Tail], T, VL) :- !,
@@ -382,6 +379,7 @@ read_term(Stream, T, Options) :-
 	'$fetch_singleton_names'(Val1,VL,Val).
 '$postprocess_read_terms_option'(variables(Val), T, _) :-
 	'$variables_in_term'(T, [], Val).
+'$postprocess_read_terms_option'(term_position(_), _, _).
 %'$postprocess_read_terms_option'(cycles(Val), _, _).
 
 '$read_term_non_anonymous'([], []).
