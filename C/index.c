@@ -11,8 +11,11 @@
 * File:		index.c							 *
 * comments:	Indexing a Prolog predicate				 *
 *									 *
-* Last rev:     $Date: 2004-04-27 15:03:43 $,$Author: vsc $						 *
+* Last rev:     $Date: 2004-04-29 03:44:04 $,$Author: vsc $						 *
 * $Log: not supported by cvs2svn $
+* Revision 1.89  2004/04/27 15:03:43  vsc
+* more fixes for expand_clauses
+*
 * Revision 1.88  2004/04/22 03:24:17  vsc
 * trust_logical should protect the last clause, otherwise it cannot
 * jump there.
@@ -2878,7 +2881,7 @@ suspend_indexing(ClauseDef *min, ClauseDef *max, PredEntry *ap, struct intermedi
     cint->expand_block->u.sp.s3++;
     return (UInt)(cint->expand_block);
   }
-  if (cls < tcls/8 && FALSE) {
+  if (cls < tcls/8) {
     yamop *ncode;
     yamop **st;
     UInt sz = (UInt)(NEXTOP((yamop *)NULL,sp)+cls*sizeof(yamop *));
@@ -5303,24 +5306,30 @@ static yamop *
 clean_up_index(LogUpdIndex *blk, yamop **jlbl, PredEntry *ap)
 {
   yamop *codep = blk->ClCode;
-  UInt ncls = codep->u.Ill.s;
 
   if (blk->ClFlags & InUseMask) {
-    /* make a new block */
-    yamop *new = replace_lu_block(blk, REFRESH, ap, NULL, FALSE);
+    yamop *new;
+
+    if ((new = replace_lu_block(blk, REFRESH, ap, NULL, FALSE)) == NULL) {
+      /* will be null, if we are in the middle of the current block */
+      return NULL;
+    }
     if (jlbl)
       *jlbl = new;
     return new;
   } else {
     /* work on the current block */
     op_numbers op = Yap_op_from_opcode(codep->opc);
+    UInt ncls;
 
     while (op == _jump_if_nonvar) {
       codep = NEXTOP(codep, xl);
       op = Yap_op_from_opcode(codep->opc);
     }
+    ncls = codep->u.Ill.s;
+    codep->opc = Yap_opcode(_enter_lu_pred);
     codep->u.Ill.l2 = cp_lu_trychain(codep->u.Ill.l1, codep->u.Ill.l1, codep, REFRESH, ap, NULL, FALSE, blk, ncls, 0);
-    return codep->u.Ill.l1;
+    return codep;
   }
 }
 
@@ -5435,7 +5444,7 @@ inserta_in_lu_block(LogUpdIndex *blk, PredEntry *ap, yamop *code)
   if (here->opc == Yap_opcode(_try_clause) && here->u.ld.d == FAILCODE) {
     begin->u.Ill.s++;
     here->u.ld.d = code;
-    return begin;
+    return blk->ClCode;
   }
   start = NEXTOP(begin,Ill);
   here = PREVOP(here, ld);
@@ -6126,6 +6135,7 @@ Yap_AddClauseToIndex(PredEntry *ap, yamop *beg, int first) {
   }
   cint.CurrentPred = ap;
   cint.expand_block = NULL;
+  cint.CodeStart = cint.BlobsStart = cint.cpc = cint.icpc = NIL;
   if ((cb = setjmp(cint.CompilerBotch)) == 3) {
     restore_machine_regs();
     Yap_gcl(Yap_Error_Size, ap->ArityOfPE, ENV, CP);
@@ -6636,6 +6646,7 @@ Yap_RemoveClauseFromIndex(PredEntry *ap, yamop *beg) {
   struct intermediates cint; 
  
   cint.expand_block = NULL;
+  cint.CodeStart = cint.BlobsStart = cint.cpc = cint.icpc = NIL;
   if ((cb = setjmp(cint.CompilerBotch)) == 3) {
     restore_machine_regs();
     Yap_gcl(Yap_Error_Size, ap->ArityOfPE, ENV, CP);
@@ -6895,12 +6906,21 @@ Yap_FollowIndexingCode(PredEntry *ap, yamop *ipc, Term Terms[3], yamop *ap_pc, y
 	}
 #else
 	if (TrailTerm(B->cp_tr-1) == CLREF_TO_TRENTRY(cl) &&
-	    B->cp_tr > B->cp_b->cp_tr) {
+	    B->cp_tr != B->cp_b->cp_tr) {
 	  cl->ClFlags &= ~InUseMask;
 	  /* clear the entry from the trail */
 	  TR = --(B->cp_tr);
 	  /* next, recover space for the indexing code if it was erased */
 	  if (cl->ClFlags & ErasedMask) {
+	    yamop *next = NEXTOP(ipc,l)->u.ld.d;
+	    if (next != FAILCODE) {
+	      LogUpdClause *lcl = ClauseCodeToLogUpdClause(next);
+	      /* make sure we don't erase the clause we are jumping too */
+	      if (lcl->ClRefCount == 1 && !(lcl->ClFlags & InUseMask)) {
+		lcl->ClFlags |= InUseMask;
+		TRAIL_CLREF(lcl);
+	      }
+	    }
 	    Yap_ErLogUpdIndex(cl);
 	  }
 	}
