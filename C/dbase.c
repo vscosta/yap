@@ -3998,9 +3998,18 @@ p_instance(void)
   Term t1 = Deref(ARG1);
   DBRef dbr;
 
-  if (IsVarTerm(t1) || !IsDBRefTerm(t1))
-    return (FALSE);
-  dbr = DBRefOfTerm(t1);
+  if (IsVarTerm(t1) || !IsDBRefTerm(t1)) {
+    if (IsIntegerTerm(t1)) 
+      dbr = (DBRef)IntegerOfTerm(t1);
+    else
+      return (FALSE);
+    /* limited sanity checking */
+    if (dbr->id != FunctorDBRef) {
+      return FALSE;
+    }
+  } else {
+    dbr = DBRefOfTerm(t1);
+  }
   if (dbr->Flags & LogUpdMask) {
     op_numbers opc;
     LogUpdClause *cl = (LogUpdClause *)dbr;
@@ -4041,9 +4050,18 @@ p_instance_module(void)
   Term t1 = Deref(ARG1);
   DBRef dbr;
 
-  if (IsVarTerm(t1) || !IsDBRefTerm(t1))
-    return (FALSE);
-  dbr = DBRefOfTerm(t1);
+  if (IsVarTerm(t1) || !IsDBRefTerm(t1)) {
+    if (IsIntegerTerm(t1)) 
+      dbr = (DBRef)IntegerOfTerm(t1);
+    else
+      return (FALSE);
+    /* limited sanity checking */
+    if (dbr->id != FunctorDBRef) {
+      return FALSE;
+    }
+  } else {
+    dbr = DBRefOfTerm(t1);
+  }
   if (dbr->Flags & LogUpdMask) {
     LogUpdClause *cl = (LogUpdClause *)dbr;
 
