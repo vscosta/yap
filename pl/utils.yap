@@ -607,68 +607,138 @@ atom_concat(X,Y,At) :-
 	'$atom_contact_split'(At,Len2,Len,X,Y).
 
 sub_atom(At, Bef, Size, After, SubAt) :-
+	atom(At), !,
+	atom_codes(At, Atl),
+	'$sub_atom2'(Bef, Atl, Size, After, SubAt, sub_atom(At, Bef, Size, After, SubAt)).
+sub_atom(At, Bef, Size, After, SubAt) :-
 	var(At), !,
 	'$do_error'(instantiation_error,sub_atom(At, Bef, Size,After, SubAt)).
 sub_atom(At, Bef, Size, After, SubAt) :-
 	\+ atom(At), !,
 	'$do_error'(type_error(atom,At),sub_atom(At, Bef, Size,After, SubAt)).
-sub_atom(At, Bef, Size, After, SubAt) :-
-	nonvar(SubAt), \+ atom(SubAt), !,
-	'$do_error'(type_error(atom,SubAt),sub_atom(At, Bef, Size,After, SubAt)).
-sub_atom(At, Bef, Size, After, SubAt) :-
-	'$check_type_sub_atom'(Bef, sub_atom(At, Bef, Size,After, SubAt)),
-	'$check_type_sub_atom'(Size, sub_atom(At, Bef, Size,After, SubAt)),
-	'$check_type_sub_atom'(After, sub_atom(At, Bef, Size,After, SubAt)),
-	atom_codes(At, Atl),
-	'$$_length1'(Atl,0,Len),
-	'$split_len_in_parts'(Atl, Len, Bef, Size, After, SubAtl),
-	atom_codes(SubAt, SubAtl).
 
-'$check_type_sub_atom'(I, _) :-
-	var(I), !.
-'$check_type_sub_atom'(I, P) :-
-	integer(I), I < 0, !,
-	'$do_error'(domain_error(not_less_than_zero,I),P).
-'$check_type_sub_atom'(I, P) :-
-	\+ integer(I), !,
-	'$do_error'(type_error(integer,I),P).
-'$check_type_sub_atom'(_, _).
 
-'$split_len_in_parts'(Atl, Len, Bef, Size, After, SubAt) :-
+'$sub_atom2'(Bef, Atl, Size, After, SubAt, ErrorTerm) :-
 	var(Bef), !,
-	'$range_var'(0, Len, Bef),
-	'$split_len_in_parts2'(Atl, Len, Bef, Size, After, SubAt).
-'$split_len_in_parts'(Atl, Len, Bef, Size, After, SubAt) :-
-	'$split_len_in_parts2'(Atl, Len, Bef, Size, After, SubAt).
+	'$sub_atombv'(Bef, Size, After, SubAt, Atl, ErrorTerm).
+'$sub_atom2'(Bef, Atl, Size, After, SubAt, ErrorTerm) :-
+	'$sub_atom_get_subchars'(Bef, Atl, NewAtl),
+	'$sub_atom3'(Size, After, SubAt, NewAtl, ErrorTerm).
 
-'$split_len_in_parts2'(Atl, Len, 0, Size, After, SubAt) :- !,
-	'$split_len_in_parts3'(Atl, Len, Size, After, SubAt).
-'$split_len_in_parts2'([_|Atl], Len0, Bef0, Size, After, SubAt) :-
-	Bef is Bef0-1 ,
-	Len is Len0-1,
-	'$split_len_in_parts2'(Atl, Len, Bef, Size, After, SubAt).
-	
-	
-'$split_len_in_parts3'(Atl, Len, Size, After, SubAt) :-
-	var(Size), !,
-	'$range_var'(0, Len, Size),
-	'$split_len_in_parts4'(Atl, Len, Size, After, SubAt).
-'$split_len_in_parts3'(Atl, Len, Size, After, SubAt) :-
-	'$split_len_in_parts4'(Atl, Len, Size, After, SubAt).
+% if SubAt is bound, the rest is deterministic.
+'$sub_atom3'(Size, After, SubAt, Atl, ErrorTerm) :-
+	nonvar(SubAt), !,
+	'$sub_atom_needs_atom'(SubAt,ErrorTerm),
+	'$sub_atom_needs_int'(Size,ErrorTerm),
+	'$sub_atom_needs_int'(After,ErrorTerm),
+	atom_codes(SubAt,Atls),
+	'$$_length1'(Atls, 0, Size),
+	'$sub_atom_get_subchars_and_match'(Size, Atl, Atls, NAtl),
+	'$$_length1'(NAtl,0,After).
+% SubAt is unbound, but Size is bound
+'$sub_atom3'(Size, After, SubAt, Atl, ErrorTerm) :-
+	nonvar(Size), !,
+	'$sub_atom_needs_int'(Size,ErrorTerm),
+	'$sub_atom_needs_int'(After,ErrorTerm),
+	'$sub_atom_get_subchars_and_match'(Size, Atl, SubAts, NAtl),
+	'$$_length1'(NAtl,0,After),
+	atom_codes(SubAt,SubAts).
+% SubAt and Size are unbound, but After is bound.
+'$sub_atom3'(Size, After, SubAt, Atl, ErrorTerm) :-
+	nonvar(After), !,
+	'$sub_atom_needs_int'(After,ErrorTerm),
+	'$sub_atom_get_last_subchars'(Atl,SubAts,After,Total,Size),
+	Total >= After,
+	atom_codes(SubAt,SubAts).
+% SubAt, Size, and After are unbound.
+'$sub_atom3'(Size, After, SubAt, Atl, ErrorTerm) :-
+	'$$_length1'(Atl,0,Len),
+	'$sub_atom_split'(Atl,Len,SubAts,Size,_,After),
+	atom_codes(SubAt,SubAts).
 
-'$split_len_in_parts4'(_, Len, 0, After, SubAt) :- !,
-	After = Len,
-	SubAt = [].
-'$split_len_in_parts4'([Code|Atl], Len0, Size0, After, [Code|SubAt]) :-
-	Size is Size0-1,
-	Len is Len0-1,
-	'$split_len_in_parts4'(Atl, Len, Size, After, SubAt).
+% Bef is unbound, so we've got three hypothesis
+% ok: in the best case we just try to find SubAt in  the original atom.
+'$sub_atombv'(Bef, Size, After, SubAt, Atl, ErrorTerm) :-
+	nonvar(SubAt), !,
+	'$sub_atom_needs_atom'(SubAt, ErrorTerm),
+	atom_codes(SubAt,SubAts),
+	'$sub_atom_search'(SubAts, Atl, 0, Bef, AfterS),
+	'$$_length1'(SubAts, 0, Size),
+	'$$_length1'(AfterS, 0, After).
+% ok: in the second best case we just get rid of the tail
+'$sub_atombv'(Bef, Size, After, SubAt, Atl, ErrorTerm) :-
+	nonvar(After), !,
+	'$sub_atom_needs_int'(After, ErrorTerm),
+	'$sub_atom_get_last_subchars'(Atl,SubAt0,After,Total,Size0),
+	Total >= After,
+	'$sub_atom_split'(SubAt0,Size0,_,Bef,SubAts,Size),
+	atom_codes(SubAt,SubAts).
+% ok: just do everything
+'$sub_atombv'(Bef, Size, After, SubAt, Atl, ErrorTerm) :-
+	'$$_length1'(Atl, 0, Len),
+	'$sub_atom_split'(Atl,Len,_,Bef,Atls2,Len2),
+	'$sub_atom_split'(Atls2,Len2,SubAts,Size,_,After),
+	atom_codes(SubAt,SubAts).
+
+'$sub_atom_search'([], AfterS, BefSize, BefSize, AfterS).
+'$sub_atom_search'([C|SubAts], [C|Atl], BefSize, BefSize, AfterS) :-
+	'$sub_atom_search2'(SubAts, Atl, AfterS).
+'$sub_atom_search'([C|SubAts], [_|Atl], BefSize, BefSizeF, AfterS) :-
+	NBefSize is BefSize+1,
+	'$sub_atom_search'([C|SubAts], Atl, NBefSize, BefSizeF, AfterS).
+
+'$sub_atom_search2'([], AfterS, AfterS).
+'$sub_atom_search2'([C|SubAts], [C|Atl], AfterS) :-
+	'$sub_atom_search2'(SubAts, Atl, AfterS).
+
+'$sub_atom_get_subchars'(0, Atl, Atl) :- !.
+'$sub_atom_get_subchars'(I0, [_|Atl], NAtl) :-
+	I is I0-1,
+	'$sub_atom_get_subchars'(I, Atl, NAtl).
+
+'$sub_atom_get_subchars'(0, Atl, [], Atl) :- !.
+'$sub_atom_get_subchars'(I0, [C|Atl], [C|L], NAtl) :-
+	I is I0-1,
+	'$sub_atom_get_subchars'(I, Atl, L, NAtl).
+
+'$sub_atom_get_subchars_and_match'(0, Atl, [], Atl) :- !.
+'$sub_atom_get_subchars_and_match'(I0, [C|Atl], [C|Match], NAtl) :-
+	I is I0-1,
+	'$sub_atom_get_subchars_and_match'(I, Atl, Match, NAtl).
+
+'$sub_atom_check_length'([],0).
+'$sub_atom_check_length'([_|L],N1) :-
+	N1 > 0,
+	N is N1-1,
+	'$sub_atom_check_length'(L,N).	
+
+'$sub_atom_get_last_subchars'([],[],After,0,0).
+'$sub_atom_get_last_subchars'([C|Atl],SubAt,After,Total,Size) :-
+	'$sub_atom_get_last_subchars'(Atl,SubAt0,After,Total0,Size0),
+	Total is Total0+1,
+	( Total > After ->
+	    Size is Size0+1, SubAt = [C|SubAt0]
+	 ;
+	    Size = Size0, SubAt = SubAt0
+	).
+
+'$sub_atom_split'(Atl,After,[],0,Atl,After).
+'$sub_atom_split'([C|Atl],Len,[C|Atls],Size,NAtl,After) :-
+	Len1 is Len-1,
+	'$sub_atom_split'(Atl,Len1,Atls,Size0,NAtl,After),
+	Size is Size0+1.
 	
-'$range_var'(X,X,S) :- !, S = X.
-'$range_var'(X1,_,X1).
-'$range_var'(X1,X2,XF) :-
-	X11 is X1+1,
-	'$range_var'(X11,X2,XF).
+'$sub_atom_needs_int'(V,_) :- var(V), !.
+'$sub_atom_needs_int'(I,_) :- integer(I), I > 0, !.
+'$sub_atom_needs_int'(I,ErrorTerm) :- integer(I), !,
+	'$do_error'(domain_error(not_less_than_zero,I),ErrorTerm).
+'$sub_atom_needs_int'(I,ErrorTerm) :-
+	'$do_error'(type_error(integer,I),ErrorTerm).
+
+'$sub_atom_needs_atom'(V,_) :- var(V), !.
+'$sub_atom_needs_atom'(A,ErrorTerm) :- atom(A), !.
+'$sub_atom_needs_atom'(A,ErrorTerm) :-
+	'$do_error'(type_error(atom,A),ErrorTerm).
 
 '$singletons_in_term'(T,VL) :-
 	'$variables_in_term'(T,[],V10),
