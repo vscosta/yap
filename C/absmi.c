@@ -6365,15 +6365,19 @@ Yap_absmi(int inp)
 	  ASP = (CELL *) B;
 	}
 #if defined(YAPOR) || defined(THREADS)
-	LOCK(pe->PELock);
-	if (*PREG_ADDR != PREG) {
-	  PREG = *PREG_ADDR;
-	  UNLOCK(pe->PELock);
-	  JMPNext();
-	}
 	if (PP == NULL) {
 	  READ_LOCK(pe->PRWLock);
 	  PP = pe;
+	}
+	LOCK(pe->PELock);
+	if (*PREG_ADDR != PREG) {
+	  PREG = *PREG_ADDR;
+	  if (pe->PredFlags & (ThreadLocalPredFlag|LogUpdatePredFlag)) {
+	    READ_UNLOCK(pe->PRWLock);
+	    PP = NULL;
+	  }
+	  UNLOCK(pe->PELock);
+	  JMPNext();
 	}
 #endif
  	saveregs();
@@ -6382,6 +6386,12 @@ Yap_absmi(int inp)
 	setregs();
 	UNLOCK(pe->PELock);
  	PREG = pt0;
+#if defined(YAPOR) || defined(THREADS)
+	if (pe->PredFlags & (ThreadLocalPredFlag|LogUpdatePredFlag)) {
+	  READ_UNLOCK(pe->PRWLock);
+	  PP = NULL;
+	}
+#endif
 	JMPNext();
       }
       ENDBOp();

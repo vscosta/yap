@@ -4278,9 +4278,6 @@ Yap_ExpandIndex(PredEntry *ap) {
 static path_stack_entry *
 push_path(path_stack_entry *sp, yamop **pipc, ClauseDef *clp)
 {
-  if (Yap_Option['i' - 'a' + 1]) {
-    printf("+ %p=>%p\n",sp,sp+1);
-  }
   sp->flag = pc_entry;
   sp->u.pce.pi_pc = pipc;
   sp->u.pce.code = clp->Code;
