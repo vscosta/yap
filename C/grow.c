@@ -625,11 +625,16 @@ fix_compiler_instructions(PInstr *pcpc)
     case unify_var_op:
     case unify_last_var_op:
     case unify_val_op:
+    case unify_local_op:
     case unify_last_val_op:
+    case unify_last_local_op:
     case put_var_op:
     case put_val_op:
+    case put_unsafe_op:
+    case write_unsafe_op:
     case write_var_op:
     case write_val_op:
+    case write_local_op:
     case f_var_op:
     case f_val_op:
     case fetch_args_for_bccall:
@@ -638,10 +643,104 @@ fix_compiler_instructions(PInstr *pcpc)
     case save_appl_op:
     case save_b_op:
     case commit_b_op:
+    case fetch_args_cv_op:
+    case fetch_args_vc_op:
+    case fetch_args_vv_op:
       pcpc->rnd1 = GlobalAdjust(pcpc->rnd1);
       break;
-    default:
       /* hopefully nothing to do */
+    case nop_op:
+    case get_atom_op:
+    case put_atom_op:
+    case get_num_op:
+    case put_num_op:
+    case get_float_op:
+    case put_float_op:
+    case align_float_op:
+    case get_longint_op:
+    case put_longint_op:
+    case get_bigint_op:
+    case put_bigint_op:
+    case get_list_op:
+    case put_list_op:
+    case get_struct_op:
+    case put_struct_op:
+    case unify_atom_op:
+    case unify_last_atom_op:
+    case write_atom_op:
+    case unify_num_op:
+    case unify_last_num_op:
+    case write_num_op:
+    case unify_float_op:
+    case unify_last_float_op:
+    case write_float_op:
+    case unify_longint_op:
+    case unify_last_longint_op:
+    case write_longint_op:
+    case unify_bigint_op:
+    case unify_last_bigint_op:
+    case write_bigint_op:
+    case unify_list_op:
+    case write_list_op:
+    case unify_struct_op:
+    case write_struct_op:
+    case fail_op:
+    case cut_op:
+    case cutexit_op:
+    case allocate_op:
+    case deallocate_op:
+    case tryme_op:
+    case jump_op:
+    case jumpi_op:
+    case procceed_op:
+    case call_op:
+    case execute_op:
+    case safe_call_op:
+    case label_op:
+    case name_op:
+    case pop_op:
+    case retryme_op:
+    case trustme_op:
+    case either_op:
+    case orelse_op:
+    case orlast_op:
+    case push_or_op:
+    case pushpop_or_op:
+    case pop_or_op:
+    case patch_b_op:
+    case try_op:
+    case retry_op:
+    case trust_op:
+    case try_in_op:
+    case jump_v_op:
+    case jump_nv_op:
+    case cache_arg_op:
+    case cache_sub_arg_op:
+    case switch_on_type_op:
+    case switch_c_op:
+    case if_c_op:
+    case switch_f_op:
+    case if_f_op:
+    case if_not_op:
+    case index_dbref_op:
+    case index_blob_op:
+    case if_nonvar_op:
+    case commit_opt_op:
+    case unify_last_list_op:
+    case write_last_list_op:
+    case unify_last_struct_op:
+    case write_last_struct_op:
+    case mark_initialised_pvars_op:
+    case mark_live_regs_op:
+    case enter_profiling_op:
+    case retry_profiled_op:
+    case count_call_op:
+    case count_retry_op:
+    case restore_tmps_op:
+    case restore_tmps_and_skip_op:
+    case enter_lu_op:
+    case empty_call_op:
+    case blob_op:
       break;
     }
     if (ncpc != NULL) {

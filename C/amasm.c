@@ -11,8 +11,11 @@
 * File:		amasm.c							 *
 * comments:	abstract machine assembler				 *
 *									 *
-* Last rev:     $Date: 2004-04-29 03:45:50 $							 *
+* Last rev:     $Date: 2004-08-20 16:16:23 $							 *
 * $Log: not supported by cvs2svn $
+* Revision 1.61  2004/04/29 03:45:50  vsc
+* fix garbage collection in execute_tail
+*
 * Revision 1.60  2004/04/22 20:07:04  vsc
 * more fixes for USE_SYSTEM_MEMORY
 *
@@ -2815,13 +2818,12 @@ Yap_assemble(int mode, Term t, PredEntry *ap, int is_fact, struct intermediates 
 
     H = (CELL *)cip->freep;
     while ((x = Yap_StoreTermInDBPlusExtraSpace(t, size)) == NULL) {
-      H = h0;
+      *H++ = (CELL)h0;
       if (!Yap_growheap(TRUE, size, cip)) {
 	Yap_Error_TYPE = SYSTEM_ERROR;
 	return NULL;
       }
-      h0 = H;
-      H = (CELL *)cip->freep;
+      h0 = (CELL *)*--H;
     }
     H = h0;
     cl = (LogUpdClause *)((CODEADDR)x-(UInt)size);
@@ -2829,14 +2831,13 @@ Yap_assemble(int mode, Term t, PredEntry *ap, int is_fact, struct intermediates 
     cip->code_addr = (yamop *)cl;
   } else if (mode == ASSEMBLING_CLAUSE && 
       (ap->PredFlags & SourcePredFlag ||
-       (!ap->cs.p_code.NOfClauses && yap_flags[SOURCE_MODE_FLAG])) &&
+       yap_flags[SOURCE_MODE_FLAG]) &&
       !is_fact) {
     DBTerm *x;
     StaticClause *cl;
-    CELL *h0 = H;
 
-    H = (CELL *)cip->freep;
     while ((x = Yap_StoreTermInDBPlusExtraSpace(t, size)) == NULL) {
+
       switch (Yap_Error_TYPE) {
       case OUT_OF_STACK_ERROR:
 	Yap_Error_Size = 256+((char *)cip->freep - (char *)H);
@@ -2844,33 +2845,26 @@ Yap_assemble(int mode, Term t, PredEntry *ap, int is_fact, struct intermediates 
 	longjmp(cip->CompilerBotch,3);
       case OUT_OF_TRAIL_ERROR:
 	/* don't just return NULL */
-	H = h0;
 	ARG1 = t;
 	if (!Yap_growtrail(64 * 1024L)) {
 	  return NULL;
 	}
 	Yap_Error_TYPE = YAP_NO_ERROR;
 	t = ARG1;
-	h0 = H;
-	H = (CELL *)cip->freep;
 	break;
       case OUT_OF_HEAP_ERROR:
 	/* don't just return NULL */
-	H = h0;
 	ARG1 = t;
 	if (!Yap_growheap(TRUE, size, cip)) {
 	  return NULL;
 	}
 	Yap_Error_TYPE = YAP_NO_ERROR;
 	t = ARG1;
-	h0 = H;
-	H = (CELL *)cip->freep;
 	break;
       default:
 	return NULL;
       }
     }
-    H = h0;
     cl = (StaticClause *)((CODEADDR)x-(UInt)size);
     cip->code_addr = (yamop *)cl;
     code_p = do_pass(1, &entry_code, mode, &clause_has_blobs, cip, size);
@@ -2880,6 +2874,7 @@ Yap_assemble(int mode, Term t, PredEntry *ap, int is_fact, struct intermediates 
     return entry_code;
   } else {
     while ((cip->code_addr = (yamop *) Yap_AllocCodeSpace(size)) == NULL) {
+
       if (!Yap_growheap(TRUE, size, cip)) {
 	Yap_Error_TYPE = SYSTEM_ERROR;
 	return NULL;
