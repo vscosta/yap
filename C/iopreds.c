@@ -88,7 +88,7 @@ int  in_getc = FALSE;
 FILE *rl_instream, *rl_outstream;
 #endif
 
-jmp_buf readline_jmpbuf;
+sigjmp_buf readline_jmpbuf;
 
 #endif
 
