@@ -2618,6 +2618,7 @@ Yap_assemble(int mode)
       return NULL;
     }
   }
+  //  fprintf(stderr,"vsc: asking for %p\n",code_addr);
   entry_code = do_pass();
   YAPLeaveCriticalSection();
 #ifdef LOW_PROF

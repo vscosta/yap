@@ -2521,6 +2521,7 @@ fetch_fentry(FuncSwiEntry *febase, Functor ft, int i, int n)
 static UInt
 do_var_clauses(ClauseDef *c0, ClauseDef *cf, int var_group, PredEntry *ap, int first, int clleft, UInt nxtlbl, UInt argno0) {
   UInt labl;
+  UInt labl_dyn0 = 0, labl_dynf = 0;
 
   labl = new_label();
   Yap_emit(label_op, labl, Zero);
@@ -2533,17 +2534,20 @@ do_var_clauses(ClauseDef *c0, ClauseDef *cf, int var_group, PredEntry *ap, int f
     add expand_node if var_group == TRUE (jump on var) ||
 		       var_group == FALSE (leaf node)
    */
+  if (first &&
+      ap->PredFlags & LogUpdatePredFlag) {
+    labl_dyn0 = new_label();
+    if (clleft)
+      labl_dynf = labl_dyn0;
+    else
+      labl_dynf = new_label();
+    Yap_emit_3ops(enter_lu_op, labl_dyn0, labl_dynf, (cf-c0)+1);
+    Yap_emit(label_op, labl_dyn0, Zero); 
+  }
   if (c0 == cf) {
     emit_try(c0, ap, var_group, first, 0, clleft, nxtlbl);
   } else {
-    UInt labl_dyn0 = 0, labl_dynf = 0;
 
-    if (ap->PredFlags & LogUpdatePredFlag) {
-      labl_dyn0 = new_label();
-      labl_dynf = new_label();
-      Yap_emit_3ops(enter_lu_op, labl_dyn0, labl_dynf, (cf-c0)+1);
-      Yap_emit(label_op, labl_dyn0, Zero); 
-    }
     if (c0 < cf) {
       emit_try(c0, ap, var_group, first, cf-c0, clleft, nxtlbl);
     }
@@ -2554,7 +2558,8 @@ do_var_clauses(ClauseDef *c0, ClauseDef *cf, int var_group, PredEntry *ap, int f
     }
     if (c0 == cf) {
       emit_trust(c0, ap, nxtlbl, clleft);
-      if (ap->PredFlags & LogUpdatePredFlag) {
+      if (!clleft && 
+	  ap->PredFlags & LogUpdatePredFlag) {
 	Yap_emit(label_op, labl_dynf, Zero); 
       }
     }
@@ -4535,6 +4540,8 @@ kill_clause(yamop *ipc, yamop *bg, yamop *lt, path_stack_entry *sp, PredEntry *a
     */
     start->opc = Yap_opcode(_stale_lu_index);
     if (op == _trust) ipc->opc = Yap_opcode(_trust_killed);
+    /* in case of a try clause, just get rid of it */
+    else if (op == _try_clause) ipc->u.ld.d = FAILCODE;
     else ipc->opc = Yap_opcode(_retry_killed);
     return sp;
   }
@@ -4603,13 +4610,25 @@ cp_lu_trychain(yamop *codep, yamop *ocodep, yamop *ostart, int flag, PredEntry *
 	 ocodep < ostart->u.Ill.l2) {
     op_numbers op = Yap_op_from_opcode(ocodep->opc);
     switch (op) {
-    case _retry:
     case _try_clause:
+    case _retry:
+      if (ocodep->u.ld.d == FAILCODE) {
+	ocodep = NEXTOP(ocodep, ld);
+	break;
+      }
     do_retry:
       if (i == 0) {
+	if (op != _try_clause) {
+	  LogUpdClause *tgl = ClauseCodeToLogUpdClause(ocodep->u.ld.d);
+	  tgl->ClRefCount--;
+	}
 	codep->opc = Yap_opcode(_try_clause);
 	codep = copy_ld(codep, ocodep, ap, ocodep->u.ld.d, FALSE);
       } else {
+	if (op == _try_clause) {
+	  LogUpdClause *tgl = ClauseCodeToLogUpdClause(ocodep->u.ld.d);
+	  tgl->ClRefCount++;
+	}
 	codep = gen_lui_retry(codep, ocodep, profiled, count_reds, ap);
       }
       i++;
@@ -4650,7 +4669,7 @@ static yamop *
 replace_lu_block(LogUpdIndex *blk, int flag, PredEntry *ap, yamop *code, int has_cut)
 {
   yamop *codep, *start, *ocodep = blk->ClCode->u.Ill.l1;
-  UInt ncls = blk->ClCode->u.Ill.s, xcls;
+  UInt ncls, xcls;
   UInt sz, i;
   LogUpdIndex *ncl, *pcl;
   int count_reds = ap->PredFlags & CountPredFlag;
@@ -4658,8 +4677,14 @@ replace_lu_block(LogUpdIndex *blk, int flag, PredEntry *ap, yamop *code, int has
  
 
   /* add half the current space plus 1, and also the extra clause */
-  xcls = ncls;
-  if (flag == RECORDA || flag == RECORDZ) xcls += ncls/2+2;
+  if (flag == RECORDA || flag == RECORDZ) {
+    /* we are still introducing a clause */
+    ncls = ++(blk->ClCode->u.Ill.s);
+    xcls = ncls+ncls/2+2;
+  } else {
+    ncls = blk->ClCode->u.Ill.s;
+    xcls = ncls;
+  }
   sz = sizeof(LogUpdIndex)+
     xcls*((UInt)NEXTOP((yamop *)NULL,ld))+
     (UInt)NEXTOP((yamop *)NULL,Ill)+
@@ -4682,7 +4707,6 @@ replace_lu_block(LogUpdIndex *blk, int flag, PredEntry *ap, yamop *code, int has
   codep = NEXTOP(codep,Ill);
   if (flag == RECORDA) {
     int j;
-    LogUpdClause *tgl = ClauseCodeToLogUpdClause(code);
 
     for (j=0; j < ncls/2; j++) {
       codep = NEXTOP(codep, ld);
@@ -4690,21 +4714,21 @@ replace_lu_block(LogUpdIndex *blk, int flag, PredEntry *ap, yamop *code, int has
       if (count_reds) codep = NEXTOP(codep, p);
     }
     start->u.Ill.l1 = codep;
-    start->u.Ill.s++;
-    tgl->ClRefCount++;
     i = 1;
     codep->opc = Yap_opcode(_try_clause);
     codep = copy_ld(codep, ocodep, ap, code, has_cut);
   } else if (flag == RECORDZ) {
+    LogUpdClause *tgl = ClauseCodeToLogUpdClause(code);
+
+    tgl->ClRefCount++;
     start->u.Ill.l1 = codep;
-    start->u.Ill.s++;
-    ncls++;
     i = 0;
   } else {
     start->u.Ill.l1 = codep;    
     i = 0;
   }
   codep = cp_lu_trychain(codep, ocodep, blk->ClCode, flag, ap, code, has_cut, ncl, ncls, i);
+  if (codep > (char *)ncl+sz) exit(1);
   /* the copying has been done */
   start->u.Ill.l2 = codep;
   /* insert ourselves into chain */
@@ -4825,6 +4849,11 @@ inserta_in_lu_block(LogUpdIndex *blk, PredEntry *ap, yamop *code)
   /* ok, we are in a sequence of try-retry-trust instructions, or something
      similar */
   here = next = blk->ClCode->u.Ill.l1;
+  if (here->opc == Yap_opcode(_try_clause) && here->u.ld.d == FAILCODE) {
+    blk->ClCode->u.Ill.s++;
+    here->u.ld.d = code;
+    return blk->ClCode;
+  }
   start = NEXTOP(blk->ClCode,Ill);
   here = PREVOP(here, ld);
   /* follow profiling and counting instructions */ 
@@ -5446,7 +5475,6 @@ contract_ctable(yamop *ipc, ClauseUnion *blk, PredEntry *ap, Term at) {
   cep->Label = (CELL)FAILCODE;
 }
 
-
 static void
 remove_from_index(PredEntry *ap, path_stack_entry *sp, ClauseDef *cls, yamop *bg, yamop *lt) {
   /* last clause to experiment with */
@@ -5454,10 +5482,19 @@ remove_from_index(PredEntry *ap, path_stack_entry *sp, ClauseDef *cls, yamop *bg
   sp = init_block_stack(sp, ipc, ap);
   UInt current_arity = 0;
 
-  if (ap->cs.p_code.NOfClauses == 1 &&
-      ap->OpcodeOfPred != INDEX_OPCODE) {
-    /* there was no indexing code */
-    sp = kill_block(sp, ap);
+  if (ap->cs.p_code.NOfClauses == 1) {
+    if (ap->PredFlags & IndexedPredFlag) {
+      Yap_RemoveIndexation(ap);
+      return;
+    }
+    ap->cs.p_code.TrueCodeOfPred = ap->cs.p_code.FirstClause;
+    if (ap->PredFlags & SpiedPredFlag) {
+      ap->OpcodeOfPred = Yap_opcode(_spy_pred);
+      ap->CodeOfPred = (yamop *)(&(ap->OpcodeOfPred)); 
+    } else {
+      ap->OpcodeOfPred = ap->cs.p_code.FirstClause->opc;
+      ap->CodeOfPred = ap->cs.p_code.TrueCodeOfPred;
+    }
     return;
   }
   /* try to refine the interval using the indexing code */
@@ -5849,6 +5886,24 @@ Yap_RemoveClauseFromIndex(PredEntry *ap, yamop *beg) {
     Yap_DebugPutc(Yap_c_error_stream,':');
     if (ap->ModuleOfPred != 2) {
       if (ap->ArityOfPE == 0) {
+	Atom At = (Atom)ap->FunctorOfPred;
+	Yap_plwrite(MkAtomTerm(At), Yap_DebugPutc, 0);
+      } else {
+	Functor f = ap->FunctorOfPred;
+	Atom At = NameOfFunctor(f);
+	Yap_plwrite(MkAtomTerm(At), Yap_DebugPutc, 0);
+	Yap_DebugPutc(Yap_c_error_stream,'/');
+	Yap_plwrite(MkIntTerm(ArityOfFunctor(f)), Yap_DebugPutc, 0);
+      }
+    } else {
+      {
+	extern long long int vsc_count;
+	printf("vsc_count: %llu\n", vsc_count);
+      }
+      if (ap->PredFlags & NumberDBPredFlag) {
+	Int id = ap->src.IndxId;
+	Yap_plwrite(MkIntegerTerm(id), Yap_DebugPutc, 0);
+      } else if (ap->PredFlags & AtomDBPredFlag) {
 	Atom At = (Atom)ap->FunctorOfPred;
 	Yap_plwrite(MkAtomTerm(At), Yap_DebugPutc, 0);
       } else {

@@ -139,6 +139,7 @@ typedef union clause_obj {
 
 #define ClauseFlagsToDynamicClause(p)    ((DynamicClause *)(p))
 #define ClauseFlagsToLogUpdClause(p)     ((LogUpdClause *)((CODEADDR)(p)-(CELL)(&(((LogUpdClause *)NULL)->ClFlags))))
+#define ClauseFlagsToLogUpdIndex(p)      ((LogUpdIndex *)((CODEADDR)(p)-(CELL)(&(((LogUpdIndex *)NULL)->ClFlags))))
 #define ClauseFlagsToStaticClause(p)     ((StaticClause *)(p))
 
 #define DynamicFlags(X)		(ClauseCodeToDynamicClause(X)->ClFlags)
@@ -173,6 +174,7 @@ ClauseUnion *STD_PROTO(Yap_find_owner_index,(yamop *, PredEntry *));
 /* dbase.c */
 void	STD_PROTO(Yap_ErCl,(DynamicClause *));
 void	STD_PROTO(Yap_ErLogUpdCl,(LogUpdClause *));
+void	STD_PROTO(Yap_ErLogUpdIndex,(LogUpdIndex *));
 
 /* exec.c */
 Term    STD_PROTO(Yap_cp_as_integer,(choiceptr));

@@ -12,7 +12,7 @@
 * Last rev:								 *
 * mods:									 *
 * comments:	allocating space					 *
-* version:$Id: alloc.c,v 1.33 2003-08-27 13:37:08 vsc Exp $		 *
+* version:$Id: alloc.c,v 1.34 2003-10-14 00:53:10 vsc Exp $		 *
 *************************************************************************/
 #ifdef SCCS
 static char SccsId[] = "%W% %G%";
@@ -375,6 +375,10 @@ AllocCodeSpace(unsigned int size)
 char *
 Yap_AllocCodeSpace(unsigned int size)
 {
+  if (size == 768) {
+    printf("vsc: Here I go\n");
+  }
+
   return AllocCodeSpace(size);
 }
 

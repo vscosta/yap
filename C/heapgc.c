@@ -1932,19 +1932,36 @@ sweep_trail(choiceptr gc_B, tr_fr_ptr old_TR)
 	    }
 	  } else {
 	    if (flags & LogUpdMask) {
-	      LogUpdClause *cl = ClauseFlagsToLogUpdClause(pt0);
-	      int erase;
-	      DEC_CLREF_COUNT(cl);
-	      cl->ClFlags &= ~InUseMask;
-	      erase = (cl->ClFlags & ErasedMask)
+	      if (flags & IndexMask) {
+		LogUpdIndex *indx = ClauseFlagsToLogUpdIndex(pt0);
+		int erase;
+		DEC_CLREF_COUNT(indx);
+		indx->ClFlags &= ~InUseMask;
+		erase = (indx->ClFlags & ErasedMask)
 #if  defined(YAPOR) || defined(THREADS)
-		&& (cl->ref_count == 0)
+		  && (indx->ref_count == 0)
 #endif
-	      ;
-	      if (erase) {
-		/* at this point, 
-		   no one is accessing the clause */
-		Yap_ErLogUpdCl(cl);
+		  ;
+		if (erase) {
+		  /* at this point, 
+		     no one is accessing the clause */
+		  Yap_ErLogUpdIndex(indx);
+		}
+	      } else {
+		LogUpdClause *cl = ClauseFlagsToLogUpdClause(pt0);
+		int erase;
+		DEC_CLREF_COUNT(cl);
+		cl->ClFlags &= ~InUseMask;
+		erase = (cl->ClFlags & ErasedMask)
+#if  defined(YAPOR) || defined(THREADS)
+		  && (cl->ref_count == 0)
+#endif
+		  ;
+		if (erase) {
+		  /* at this point, 
+		     no one is accessing the clause */
+		  Yap_ErLogUpdCl(cl);
+		}
 	      }
 	    } else {
 	      DynamicClause *cl = ClauseFlagsToDynamicClause(pt0);

@@ -228,7 +228,7 @@ RemoveMainIndex(PredEntry *ap)
   yamop *First = ap->cs.p_code.FirstClause;
   int spied = ap->PredFlags & SpiedPredFlag;
 
-  ap->PredFlags ^= IndexedPredFlag;
+  ap->PredFlags &= ~IndexedPredFlag;
   if (First == NULL) {
     ap->cs.p_code.TrueCodeOfPred = FAILCODE;
   } else if (First != ap->cs.p_code.LastClause ||
@@ -416,6 +416,10 @@ kill_first_log_iblock(LogUpdIndex *c, LogUpdIndex *cl, PredEntry *ap)
     }
     decrease_log_indices(c, (yamop *)&(ap->cs.p_code.ExpandCode));
     Yap_FreeCodeSpace((CODEADDR)c);
+  } else {
+    c->ClFlags |= (ErasedMask|SwitchRootMask);
+    c->u.pred = ap;
+    c->ChildIndex = NULL;
   }
 }
 
@@ -454,6 +458,16 @@ Yap_kill_iblock(ClauseUnion *blk, ClauseUnion *parent_blk, PredEntry *ap)
   }
 }
 
+/*
+  This predicate is supposed to be called with a
+  lock on the current predicate
+*/
+void 
+Yap_ErLogUpdIndex(LogUpdIndex *clau)
+{
+  kill_first_log_iblock(clau, NULL, clau->u.pred);
+}
+
 void
 Yap_RemoveLogUpdIndex(LogUpdIndex *cl)
 {
@@ -473,8 +487,7 @@ Yap_RemoveLogUpdIndex(LogUpdIndex *cl)
 static int 
 RemoveIndexation(PredEntry *ap)
 { 
-  if (ap->OpcodeOfPred == INDEX_OPCODE ||
-      ap->cs.p_code.NOfClauses < 2) {
+  if (ap->OpcodeOfPred == INDEX_OPCODE) {
     return TRUE;
   }
   if (ap->PredFlags & LogUpdatePredFlag) {

@@ -1632,7 +1632,11 @@ Yap_absmi(int inp)
 	      } else {
 		saveregs();
 		if (flags & LogUpdMask) {
-		  Yap_ErLogUpdCl(ClauseFlagsToLogUpdClause(pt1));
+		  if (flags & IndexMask) {
+		    Yap_ErLogUpdIndex(ClauseFlagsToLogUpdIndex(pt1));
+		  } else {
+		    Yap_ErLogUpdCl(ClauseFlagsToLogUpdClause(pt1));
+		  }
 		} else {
 		  Yap_ErCl(ClauseFlagsToDynamicClause(pt1));
 		}
