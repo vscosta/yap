@@ -516,11 +516,29 @@ RestoreDB(DBEntry *pp)
     pp->FunctorOfDB = FuncAdjust(pp->FunctorOfDB);
   else
     pp->FunctorOfDB = (Functor) AtomAdjust((Atom)(pp->FunctorOfDB));
-  dbr = pp->First;
-  /* While we have something in the data base, restore it */
-  while (dbr) {
-    RestoreDBEntry(dbr);
-    dbr = dbr->Next;
+  if (pp->KindOfPE & LogUpdDBBit) {
+    dbr = pp->First;
+    /* While we have something in the data base, restore it */
+    while (dbr) {
+      RestoreDBEntry(dbr);
+      dbr = dbr->Next;
+    }
+  } else {
+    if (pp->F0 != NULL)
+      pp->F0 = DBRefAdjust(pp->F0);
+    if (pp->L0 != NULL)
+      pp->L0 = DBRefAdjust(pp->L0);
+    /* immediate update semantics */
+    dbr = pp->F0;
+    /* While we have something in the data base, even if erased, restore it */
+    while (dbr) {
+      RestoreDBEntry(dbr);
+      if (dbr->n != NULL)
+	dbr->n = DBRefAdjust(dbr->n);
+      if (dbr->p != NULL)
+	dbr->p = DBRefAdjust(dbr->p);
+      dbr = dbr->n;
+    }
   }
 }
 
