@@ -10,7 +10,7 @@
 * File:		Heap.h         						 *
 * mods:									 *
 * comments:	Heap Init Structure					 *
-* version:      $Id: Heap.h,v 1.7 2001-06-22 17:53:36 vsc Exp $	 *
+* version:      $Id: Heap.h,v 1.8 2001-08-08 21:17:27 vsc Exp $	 *
 *************************************************************************/
 
 /* information that can be stored in Code Space */
@@ -243,7 +243,7 @@ typedef struct various_codes {
     functor_or,
     functor_portray,
     functor_query,
-    functor_spied_meta_call,
+    functor_spy,
     functor_stream,
     functor_stream_pos,
     functor_stream_eOS,
@@ -427,7 +427,7 @@ typedef struct various_codes {
 #define  FunctorOr                heap_regs->functor_or
 #define  FunctorPortray           heap_regs->functor_portray
 #define  FunctorQuery             heap_regs->functor_query
-#define  FunctorSpiedMetaCall     heap_regs->functor_spied_meta_call
+#define  FunctorSpy               heap_regs->functor_spy
 #define  FunctorStream            heap_regs->functor_stream
 #define  FunctorStreamPos         heap_regs->functor_stream_pos
 #define  FunctorStreamEOS         heap_regs->functor_stream_eOS

@@ -159,6 +159,15 @@ nl.
 	'$system_catch'('$do_yes_no'((G->true)),Error,user:'$Error'(Error)),
 	fail.
 '$enter_top_level' :-
+	( '$get_value'('$trace', 1) ->
+	    '$set_value'(spy_sl,0),
+	    '$format'(user_error, "[trace]~n", [])
+	;
+	  '$get_value'(debug, 1) ->
+	    '$format'(user_error, "[debug]~n", [])
+	),
+	fail.
+'$enter_top_level' :-
 	prompt(_,'   ?- '),
 	prompt('   | '),
 	'$read_vars'(user_input,Command,Varnames),
@@ -166,7 +175,11 @@ nl.
 	'$set_value'(spy_fs,0),
 	'$set_value'(spy_sp,0),
 	'$set_value'(spy_gn,1),
-	'$set_yap_flags'(10,0),
+	( '$get_value'('$trace', 1) ->
+	    '$set_yap_flags'(10,1)
+	    ;
+	    '$set_yap_flags'(10,0)
+	),
 	'$set_value'(spy_cl,1),
 	'$set_value'(spy_leap,0),
 	'$setflop'(0),

@@ -20,6 +20,7 @@
 #ifdef LOW_LEVEL_TRACER
 
 #include "Yatom.h"
+#include "Heap.h"
 #include "yapio.h"
 #include "tracer.h"
 
@@ -132,7 +133,7 @@ low_level_trace(yap_low_level_port port, PredEntry *pred, CELL *args)
   /* if (vsc_count < 2518) return; */
   /* if (vsc_count > 500000) exit(0); */
   /* if (gc_calls < 1) return;*/
-  YP_fprintf(YP_stderr,"%lu (%p)", vsc_count, H);
+  YP_fprintf(YP_stderr,"%lu (%x,%d)", vsc_count, CreepFlag,yap_flags[SPY_CREEP_FLAG]);
   /* check_trail_consistency(); */
   if (pred == NULL) {
     return;

@@ -1088,7 +1088,7 @@ restore_codes(void)
   heap_regs->functor_or = FuncAdjust(heap_regs->functor_or);
   heap_regs->functor_portray = FuncAdjust(heap_regs->functor_portray);
   heap_regs->functor_query = FuncAdjust(heap_regs->functor_query);
-  heap_regs->functor_spied_meta_call = FuncAdjust(heap_regs->functor_spied_meta_call);
+  heap_regs->functor_spy = FuncAdjust(heap_regs->functor_spy);
   heap_regs->functor_stream = FuncAdjust(heap_regs->functor_stream);
   heap_regs->functor_stream_pos = FuncAdjust(heap_regs->functor_stream_pos);
   heap_regs->functor_stream_eOS = FuncAdjust(heap_regs->functor_stream_eOS);

@@ -11544,6 +11544,9 @@ The possible forms for @var{P} are the same as in @code{spy P}.
 @cnindex nospyall/0
 Removes all existing spy-points.
 
+@item notrace
+Switches off the debugger and stops tracing.
+
 @item leash(+@var{M})
 @findex leash/1
 @syindex leash/1
@@ -11600,6 +11603,9 @@ the ports where the debugger should stop. For example,
 @cnindex spy_write/2
 If defined by the user, this predicate will be used to print goals by
 the debugger instead of @code{write/2}.
+
+@item trace
+Switches on the debugger and starts tracing.
 
 @end table
 
@@ -12805,12 +12811,6 @@ These are YAP built-ins not available in C-Prolog.
 These are C-Prolog built-ins not available in YAP:
 
 @table @code
-@item notrace
-Switches off the debugger and stops tracing.
-
-@item trace
-Switches on the debugger and starts tracing.
-
 @item 'LC'
 The following Prolog text uses lower case letters.
 

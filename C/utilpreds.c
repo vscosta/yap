@@ -101,7 +101,7 @@ static void copy_complex_term(register CELL *pt0, register CELL *pt0_end, CELL *
 	pt0_end = ap2 + 1;
 	ptf = H;
 	H += 2;
-	if (H > ENV - CreepFlag) {
+	if (H > ENV - 2048) {
 	  goto overflow;
 	}
       } else if (IsApplTerm(d0)) {
@@ -148,7 +148,7 @@ static void copy_complex_term(register CELL *pt0, register CELL *pt0_end, CELL *
 	H[0] = (CELL)f;
 	ptf = H+1;
 	H += 1+d0;
-	if (H > ENV - CreepFlag) {
+	if (H > ENV - 2048) {
 	  goto overflow;
 	}
       } else {
@@ -368,7 +368,7 @@ static void copy_complex_term_no_delays(register CELL *pt0, register CELL *pt0_e
 	pt0_end = ap2 + 1;
 	ptf = H;
 	H += 2;
-	if (H > ENV - CreepFlag) {
+	if (H > ENV - 2048) {
 	  goto overflow;
 	}
       } else if (IsApplTerm(d0)) {
@@ -413,7 +413,7 @@ static void copy_complex_term_no_delays(register CELL *pt0, register CELL *pt0_e
 	H[0] = (CELL)f;
 	ptf = H+1;
 	H += 1+d0;
-	if (H > ENV - CreepFlag) {
+	if (H > ENV - 2048) {
 	  goto overflow;
 	}
       } else {

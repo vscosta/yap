@@ -2161,6 +2161,22 @@ p_clean_up_dead_clauses(void)
   return(TRUE);
 }
 
+static Int			/* $parent_pred(Module, Name, Arity) */
+p_parent_pred(void)
+{
+  Atom at;
+  Int arity;
+  SMALLUNSGN module;
+  if (!PredForCode((CODEADDR)CP, &at, &arity, &module)) {
+    return(unify(ARG1, MkIntTerm(0)) &&
+	   unify(ARG2, MkAtomTerm(AtomMetaCall)) &&
+	   unify(ARG3, MkIntTerm(0)));
+  }
+  return(unify(ARG1, MkIntTerm(module)) &&
+	 unify(ARG2, MkAtomTerm(at)) &&
+	 unify(ARG3, MkIntTerm(arity)));
+}
+
 void 
 InitCdMgr(void)
 {
@@ -2197,4 +2213,5 @@ InitCdMgr(void)
   InitCPred("$search_for_static_predicates_in_use", 1, p_search_for_static_predicate_in_use, TestPredFlag|SafePredFlag|SyncPredFlag);
   InitCPred("$toggle_static_predicates_in_use", 0, p_toggle_static_predicates_in_use, SafePredFlag|SyncPredFlag);
   InitCPred("$set_pred_module", 2, p_set_pred_module, SafePredFlag);
+  InitCPred("$parent_pred", 3, p_parent_pred, SafePredFlag);
 }

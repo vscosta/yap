@@ -10,7 +10,7 @@
 * File:		Yap.h.m4						 *
 * mods:									 *
 * comments:	main header file for YAP				 *
-* version:      $Id: Yap.h.m4,v 1.8 2001-07-04 16:48:54 uid49918 Exp $	 *
+* version:      $Id: Yap.h.m4,v 1.9 2001-08-08 21:17:27 vsc Exp $	 *
 *************************************************************************/
 
 #include "config.h"
@@ -362,7 +362,7 @@ typedef CELL Term;
 #ifdef mips
 #include <mips_locks_funcs.h>
 #endif
-#ifdef mips
+#ifdef __alpha
 #include <alpha_locks_funcs.h>
 #endif
 #endif

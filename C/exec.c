@@ -200,6 +200,16 @@ CallMetaCall(void) {
   return (FastCallProlog(PredMetaCall));
 }
 
+inline static Int
+EnterCreepMode(PredEntry *pen) {
+  Atom a = NameOfFunctor(FunctorSpy);
+  PredEntry *PredSpy = RepPredProp(PredProp(a,1));
+  ARG1 = MkPairTerm(Module_Name((CODEADDR)(pen)),ARG1);
+  CreepFlag = CalculateStackGap();
+  WRITE_LOCK(PredSpy->PRWLock);
+  return (FastCallProlog(PredSpy));
+}
+
 static Int
 p_execute(void)
 {				/* '$execute'(Goal)	 */
@@ -209,10 +219,6 @@ p_execute(void)
   Atom            a;
 
  restart_exec:
-  if (yap_flags[SPY_CREEP_FLAG]) {
-    a = NameOfFunctor(FunctorSpiedMetaCall);
-    return (CallProlog(RepPredProp(PredProp(a,1)), 1, (Int) (-1)));
-  }
   if (PredGoalExpansion->OpcodeOfPred != UNDEF_OPCODE) {
     return(CallMetaCall());
   } else  if (IsVarTerm(t)) {
@@ -268,6 +274,9 @@ p_execute(void)
       if (pen->PredFlags & MetaPredFlag) {
 	return(CallMetaCall());
       }
+      if (yap_flags[SPY_CREEP_FLAG]) {
+	return(EnterCreepMode(pen));
+      }
       /* now let us do what we wanted to do from the beginning !! */
       /* I cannot use the standard macro here because
 	 otherwise I would dereference the argument and
@@ -312,6 +321,9 @@ p_execute(void)
 	return(CallMetaCall());
       }
     }
+    if (yap_flags[SPY_CREEP_FLAG]) {
+      return(EnterCreepMode(RepPredProp(pe)));
+    }
     return (CallProlog(RepPredProp(pe), arity, (Int) (-1)));
   } else {
     /* Is Pair Term */
@@ -336,10 +348,6 @@ p_execute_within(void)
   Atom            a;
 
  restart_exec:
-  if (yap_flags[SPY_CREEP_FLAG]) {
-    a = NameOfFunctor(FunctorSpiedMetaCall);
-    return (CallProlog(RepPredProp(PredProp(a,1)), 1, (Int) (-1)));
-  }
   if (PredGoalExpansion->OpcodeOfPred != UNDEF_OPCODE) {
     return(CallMetaCallWithin());
   } else  if (IsVarTerm(t)) {
@@ -394,6 +402,10 @@ p_execute_within(void)
       /* but no meta calls require special preprocessing */
       if (pen->PredFlags & MetaPredFlag) {
 	return(CallMetaCallWithin());
+      }
+      /* at this point check if we should enter creep mode */ 
+      if (yap_flags[SPY_CREEP_FLAG]) {
+	return(EnterCreepMode(pen));
       }
       /* now let us do what we wanted to do from the beginning !! */
       /* I cannot use the standard macro here because
@@ -462,6 +474,9 @@ p_execute_within(void)
 	ARG1 = t;
 	return(CallMetaCallWithin());
       }
+    }
+    if (yap_flags[SPY_CREEP_FLAG]) {
+      return(EnterCreepMode(RepPredProp(pe)));
     }
     return (CallProlog(RepPredProp(pe), arity, (Int) (-1)));
   } else {

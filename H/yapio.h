@@ -316,9 +316,8 @@ extern int  Portray_delays;
 
 extern jmp_buf IOBotch;
 
-#if HAVE_LIBREADLINE
-extern jmp_buf readline_jmpbuf;
+extern int in_getc;
+
+#ifdef HAVE_LIBREADLINE
+extern sigjmp_buf readline_jmpbuf;
 #endif
-
-extern int in_getc, sigint_pending;
-

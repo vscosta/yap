@@ -104,7 +104,23 @@ debug :- '$set_value'(debug,1), write(user_error,'[ Debug mode on ]'), nl(user_e
 
 nodebug :- nospyall,
 	'$set_value'(debug,0),
-	write(user_error,'[ Debug mode off ]'), nl(user_error).
+	'$set_value'('$trace',0),
+	'$format'(user_error,"[ Debug mode off ]~n",[]).
+
+trace :- '$get_value'('$trace',1), !.
+trace :-
+	'$format'(user_error,"[ Trace mode on ]~n",[]),
+	'$set_value'('$trace',1),
+	'$set_value'(debug,1),
+	'$set_value'(spy_sl,0),
+	% start creep,
+	'$set_yap_flags'(10,1),
+	'$creep'.
+
+notrace :- 
+	'$set_value'('$trace',0),
+	'$set_value'(debug,0),
+	'$format'(user_error,"[ Trace and Debug mode off ]",[]).
 
 /*-----------------------------------------------------------------------------
 
@@ -220,6 +236,7 @@ debugging :-
 %	spy_leap	leap		0	0...
 %	spy_cl		clause number	1	1...
 %	spy_fs		fast skip	0	0, 1
+%	spy_trace	trace		0	0, 1
 % a flip-flop is also used
 %	when 1 spying is enabled
 %'$spy'(G) :- write(user_error,'$spy'(G)), nl, fail.
@@ -230,17 +247,20 @@ debugging :-
 	'$awoken_goals'(LG), !,
 	'$creep',
 	'$wake_up_goal'(G, LG).
+'$spy'([Module|G]) :-
+%    '$format'(user_error,"$spym(~w,~w)~n",[Module,G]),
+        '$system_predicate'(G),
+	'$parent_pred'(0,_,_),
+         !,
+	 /* called from prolog module   */
+	 '$creep',
+	 '$execute0'(G).
 '$spy'([Module|G]) :- !,
-%    write(user_error,$spym(M,G)), nl,
     (	  Module=prolog -> '$spy'(G);
 	  '$mod_switch'(Module, '$spy'(G))
      ).
 '$spy'(true) :- !, '$creep'.
 '$spy'('$cut_by'(M)) :- !, '$cut_by'(M).
-'$spy'(G) :-
-    '$hidden'(G), !,			/* dont spy hidden predicates 	*/
-    '$creep',
-    '$execute0'(G).
 '$spy'(G) :-
 %   write(user_error,$spy(G)), nl,
     '$get_value'(debug,1),		/* ditto if debug off		*/
@@ -292,6 +312,7 @@ debugging :-
 '$spy'(G) :- '$execute0'(G).	/* this clause applies when we do not want
 				   to spy the goal			*/
 
+'$cont_creep' :-  '$get_value'('$trace',1), '$set_yap_flags'(10,1), fail.
 '$cont_creep' :- '$access_yap_flags'(10,1), !, '$creep'.
 '$cont_creep'.
 

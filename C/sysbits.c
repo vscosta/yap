@@ -885,7 +885,7 @@ my_signal_info(int sig, void (*handler)(int, siginfo_t  *, ucontext_t *))
 
   sigact.sa_handler = handler;
   sigemptyset(&sigact.sa_mask);
-  sigact.sa_flags = SA_SIGINFO|SA_RESTART;
+  sigact.sa_flags = SA_SIGINFO;
 
   sigaction(sig,&sigact,NULL);
 }
@@ -897,9 +897,7 @@ my_signal(int sig, void (*handler)(int, siginfo_t *, ucontext_t *))
 
   sigact.sa_handler=handler;
   sigemptyset(&sigact.sa_mask);
-  sigact.sa_flags = 0
-;
-
+  sigact.sa_flags = 0;
   sigaction(sig,&sigact,NULL);
 }
 
@@ -1014,11 +1012,6 @@ HandleSIGSEGV(int   sig)
 
 #ifdef HAVE_SIGACTION
 
-#if !defined(SA_RESTART)
-/* sunos machine has no SA_RESTART, as most other 4.2BSD based machines */
-#define SA_RESTART 0
-#endif
-
 static void
 my_signal_info(int sig, void (*handler)(int))
 {
@@ -1026,7 +1019,6 @@ my_signal_info(int sig, void (*handler)(int))
 
   sigact.sa_handler = handler;
   sigemptyset(&sigact.sa_mask);
-  sigact.sa_flags = SA_RESTART;
 
   sigaction(sig,&sigact,NULL);
 }
@@ -1038,7 +1030,6 @@ my_signal(int sig, void (*handler)(int))
 
   sigact.sa_handler=handler;
   sigemptyset(&sigact.sa_mask);
-  sigact.sa_flags = SA_RESTART;
 
   sigaction(sig,&sigact,NULL);
 }
@@ -1081,6 +1072,10 @@ InteractSIGINT(char ch) {
   case 'c':
     /* continue */
     return(1);
+  case 'd':
+    /* enter debug mode */
+    PutValue (LookupAtom ("debug"), MkIntTerm (1));
+    return(1);
   case 'e':
     /* exit */
     exit_yap(0, "");
@@ -1089,7 +1084,8 @@ InteractSIGINT(char ch) {
     /* start tracing */
     PutValue (LookupAtom ("debug"), MkIntTerm (1));
     PutValue (LookupAtom ("spy_sl"), MkIntTerm (0));
-    PutValue (LookupAtom ("spy_creep"), MkIntTerm (1));
+    PutValue (FullLookupAtom ("$trace"), MkIntTerm (1));
+    yap_flags[SPY_CREEP_FLAG] = 1;
     p_creep ();
     return(1);
 #ifdef LOW_LEVEL_TRACER
@@ -1097,10 +1093,6 @@ InteractSIGINT(char ch) {
     toggle_low_level_trace();
     return(1);
 #endif
-  case 'd':
-    /* enter debug mode */
-    PutValue (LookupAtom ("debug"), MkIntTerm (1));
-    return(1);
   case 's':
     /* show some statistics */
 #if SHORT_INTS==0
@@ -1163,7 +1155,7 @@ InteractSIGINT(char ch) {
     /* show an helpful message */
     YP_fprintf(YP_stderr, "Please press one of:\n");
     YP_fprintf(YP_stderr, "  a for abort\n  c for continue\n  d for debug\n");
-    YP_fprintf(YP_stderr, "  e for exit\n  t for trace\n  s for statistics\n");
+    YP_fprintf(YP_stderr, "  e for exit\n  s for statistics\n  t for trace\n");
     return(0);
   }
 }
@@ -1176,6 +1168,7 @@ int
 ProcessSIGINT(void)
 {
   int ch, out;
+  extern int newline;
 
   do {
 #if  HAVE_LIBREADLINE
@@ -1187,6 +1180,8 @@ ProcessSIGINT(void)
       continue;
     }
     ch = _line[0];
+    free(_line);
+    _line = NULL;
 #else
     /* ask for a new line */
     fprintf(stderr, "Action (h for help): ");
@@ -1195,13 +1190,7 @@ ProcessSIGINT(void)
     while ((fgetc(stdin)) != '\n');
 #endif
   } while (!(out = InteractSIGINT(ch)));
-  if (out < 0)
-    sigint_pending = out;
-#if  HAVE_LIBREADLINE
-  if (in_getc) {
-    longjmp(readline_jmpbuf, (out < 0 ? -1 : 1));
-  }
-#endif
+  newline = TRUE;
   return(out);
 }
 
@@ -1222,26 +1211,23 @@ HandleSIGINT (int sig)
     InteractSIGINT('e');
   }
 #endif
-#if !HAVE_LIBREADLINE
-  if (in_getc) {
+  if (in_getc || (PrologMode & CritMode)) {
     PrologMode |= InterruptMode;
-    return;
-  }
+#if HAVE_LIBREADLINE
+    if (in_getc) {
+      siglongjmp(readline_jmpbuf, 0);
+    }
 #endif
-  if (PrologMode & CritMode) {
-    /* delay processing if we are messing with the Code space */
-    PrologMode |= InterruptMode;
     return;
   }
 #ifdef HAVE_SETBUF
   /* make sure we are not waiting for the end of line */
-  YP_setbuf (stdin, NULL); 
+  YP_setbuf (stdin, NULL);
 #endif
-  if (snoozing)
-    {
-      snoozing = FALSE;
-      return;
-    }
+  if (snoozing) {
+    snoozing = FALSE;
+    return;
+  }
   ProcessSIGINT();
 }
 

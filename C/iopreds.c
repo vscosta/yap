@@ -82,14 +82,14 @@ jmp_buf IOBotch;
 
 int  in_getc = FALSE;
 
-int  sigint_pending = FALSE;
-
 #if HAVE_LIBREADLINE
-jmp_buf readline_jmpbuf;
 
 #if _MSC_VER || defined(__MINGW32__)
 FILE *rl_instream, *rl_outstream;
 #endif
+
+jmp_buf readline_jmpbuf;
+
 #endif
 
 typedef struct
@@ -512,9 +512,9 @@ PlIOError (yap_error_number type, Term culprit, char *who)
 
 /*
  * Used by the prompts to check if they are after a newline, and then a
- * prompt should be output, or if we are in the middle of a line 
+ * prompt should be output, or if we are in the middle of a line.
  */
-static int newline = TRUE;
+int newline = TRUE;
 
 static void
 count_output_char(int ch, StreamDesc *s, int sno)
@@ -863,15 +863,23 @@ ReadlineGetc(int sno)
   register StreamDesc *s = &Stream[sno];
   register int ch;
 
-  if (ttyptr == NIL) {
-    if (setjmp(readline_jmpbuf) < 0) {
-      Abort("");
-    }
+  while (ttyptr == NULL) {
     in_getc = TRUE;
     /* Do it the gnu way */
+    if (sigsetjmp(readline_jmpbuf, TRUE)) {
+      printf("hello\n");
+      if (PrologMode & InterruptMode) {
+	PrologMode &= ~InterruptMode;
+	ProcessSIGINT();
+	if (PrologMode & AbortMode) {
+	  PrologMode &= ~AbortMode;
+	  Abort("");
+	}
+      }
+    }
     YP_fflush (YP_stdout);
     /* Only sends a newline if we are at the start of a line */
-    if (_line != (char *) NULL && _line != (char *) EOF)
+    if (_line != NULL && _line != (char *) EOF)
       free (_line);
     rl_instream = Stream[sno].u.file.file;
     rl_outstream = Stream[cur_out_sno].u.file.file;

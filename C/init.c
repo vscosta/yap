@@ -710,7 +710,7 @@ InitCodes(void)
     AtomNot,
     AtomQuery,
     AtomSemic,
-    AtomSpiedMetaCall,
+    AtomSpy,
     AtomStream,
     AtomStreamPos,
     AtomVar;
@@ -881,7 +881,7 @@ InitCodes(void)
   AtomStreamPos = LookupAtom ("$stream_position");
   heap_regs->atom_throw = LookupAtom("$throw");
   heap_regs->atom_true = LookupAtom("true");
-  AtomSpiedMetaCall = LookupAtom("$spied_meta_call");
+  AtomSpy = LookupAtom("$spy");
   heap_regs->atom_user = LookupAtom ("user");
   heap_regs->atom_usr_err = LookupAtom ("user_error");
   heap_regs->atom_usr_in = LookupAtom ("user_input");
@@ -927,7 +927,7 @@ InitCodes(void)
   heap_regs->functor_or = MkFunctor(AtomSemic, 2);
   heap_regs->functor_portray = MkFunctor(AtomPortray, 1);
   heap_regs->functor_query = MkFunctor(AtomQuery, 1);
-  heap_regs->functor_spied_meta_call = MkFunctor(AtomSpiedMetaCall, 1);
+  heap_regs->functor_spy = MkFunctor(AtomSpy, 1);
   heap_regs->functor_stream = MkFunctor (AtomStream, 1);
   heap_regs->functor_stream_pos = MkFunctor (AtomStreamPos, 3);
   heap_regs->functor_stream_eOS = MkFunctor (LookupAtom("end_of_stream"), 1);
