@@ -354,35 +354,6 @@ p_cond_wait(void)
   return TRUE;
 }
 
-static Int 
-p_install_thread_local(void)
-{				/* '$is_dynamic'(+P)	 */
-  PredEntry      *pe;
-  Term            t = Deref(ARG1);
-  Term            t2 = Deref(ARG2);
-  SMALLUNSGN      mod = Yap_LookupModule(t2);
-
-  if (IsVarTerm(t)) {
-    return (FALSE);
-  } else if (IsAtomTerm(t)) {
-    Atom at = AtomOfTerm(t);
-    pe = RepPredProp(PredPropByAtom(at, mod));
-  } else if (IsApplTerm(t)) {
-    Functor         fun = FunctorOfTerm(t);
-    pe = RepPredProp(PredPropByFunc(fun, mod));
-  } else
-    return FALSE;
-  WRITE_LOCK(pe->PRWLock);
-  if (pe->PredFlags & (UserCPredFlag|HiddenPredFlag|CArgsPredFlag|SyncPredFlag|TestPredFlag|AsmPredFlag|StandardPredFlag|CPredFlag|SafePredFlag|IndexedPredFlag|BinaryTestPredFlag) ||
-      pe->cs.p_code.FirstClause != NULL) {
-    return FALSE;
-  }
-  pe->PredFlags |= ThreadLocalPredFlag;
-  pe->OpcodeOfPred = Yap_opcode(_thread_local);
-  pe->CodeOfPred = (yamop *)&pe->OpcodeOfPred;
-  WRITE_UNLOCK(pe->PRWLock);
-  return TRUE;
-}
 
 static Int 
 p_thread_signal(void)
@@ -426,7 +397,6 @@ void Yap_InitThreadPreds(void)
   Yap_InitCPred("$cond_signal", 1, p_cond_signal, SafePredFlag);
   Yap_InitCPred("$cond_broadcast", 1, p_cond_broadcast, SafePredFlag);
   Yap_InitCPred("$cond_wait", 2, p_cond_wait, SafePredFlag);
-  Yap_InitCPred("$install_thread_local", 2, p_install_thread_local, SafePredFlag);
   Yap_InitCPred("$signal_thread", 1, p_thread_signal, SafePredFlag);
 }
 

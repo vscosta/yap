@@ -311,6 +311,12 @@ GetPredPropByAtomHavingLock(AtomEntry* ae, SMALLUNSGN cur_mod)
     if ( pe->KindOfPE == PEProp && 
 	 (pe->ModuleOfPred == cur_mod || !pe->ModuleOfPred)) {
       return(p0);
+#if THREADS
+      /* Thread Local Predicates */
+      if (pe->PredFlags & ThreadLocalPredFlag) {
+	return AbsPredProp(Yap_GetThreadPred(pe));
+      }
+#endif
     }
     p0 = pe->NextOfPE;
   }
@@ -341,6 +347,12 @@ GetPredPropByAtomHavingLockInThisModule(AtomEntry* ae, SMALLUNSGN cur_mod)
   while (p0) {
     PredEntry *pe = RepPredProp(p0);
     if ( pe->KindOfPE == PEProp && pe->ModuleOfPred == cur_mod ) {
+#if THREADS
+      /* Thread Local Predicates */
+      if (pe->PredFlags & ThreadLocalPredFlag) {
+	return AbsPredProp(Yap_GetThreadPred(pe));
+      }
+#endif
       return(p0);
     }
     p0 = pe->NextOfPE;
@@ -374,6 +386,12 @@ GetPredPropByFuncHavingLock(Functor f, SMALLUNSGN cur_mod)
     PredEntry *p = RepPredProp(p0);
     if (/* p->KindOfPE != 0 || only props */
 	(p->ModuleOfPred == cur_mod || !(p->ModuleOfPred))) {
+#if THREADS
+      /* Thread Local Predicates */
+      if (p->PredFlags & ThreadLocalPredFlag) {
+	return AbsPredProp(Yap_GetThreadPred(p));
+      }
+#endif
       return (p0);
     }
     p0 = p->NextOfPE;
@@ -404,6 +422,12 @@ GetPredPropByFuncHavingLockInThisModule(Functor f, SMALLUNSGN cur_mod)
   while (p0) {
     PredEntry *p = RepPredProp(p0);
     if (p->ModuleOfPred == cur_mod) {
+#if THREADS
+      /* Thread Local Predicates */
+      if (p->PredFlags & ThreadLocalPredFlag) {
+	return AbsPredProp(Yap_GetThreadPred(p));
+      }
+#endif
       return (p0);
     }
     p0 = p->NextOfPE;

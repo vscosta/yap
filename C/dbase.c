@@ -4902,6 +4902,48 @@ Yap_ReleaseTermFromDB(DBTerm *ref)
   ReleaseTermFromDB(ref);
 }
 
+static Int 
+p_install_thread_local(void)
+{				/* '$is_dynamic'(+P)	 */
+  PredEntry      *pe;
+  Term            t = Deref(ARG1);
+  Term            t2 = Deref(ARG2);
+  SMALLUNSGN      mod = Yap_LookupModule(t2);
+
+  if (IsVarTerm(t)) {
+    return (FALSE);
+  }
+  if (mod == IDB_MODULE) {
+    pe = find_lu_entry(t); 
+    if (!pe->cs.p_code.NOfClauses) {
+      if (IsIntegerTerm(t)) 
+	pe->PredFlags |= LogUpdatePredFlag|NumberDBPredFlag;
+      else if (IsAtomTerm(t))
+	pe->PredFlags |= LogUpdatePredFlag|AtomDBPredFlag;
+      else
+	pe->PredFlags |= LogUpdatePredFlag;
+    }
+  } else if (IsAtomTerm(t)) {
+    Atom at = AtomOfTerm(t);
+    pe = RepPredProp(PredPropByAtom(at, mod));
+  } else if (IsApplTerm(t)) {
+    Functor         fun = FunctorOfTerm(t);
+    pe = RepPredProp(PredPropByFunc(fun, mod));
+  } else {
+    return FALSE;
+  }
+  WRITE_LOCK(pe->PRWLock);
+  if (pe->PredFlags & (UserCPredFlag|HiddenPredFlag|CArgsPredFlag|SyncPredFlag|TestPredFlag|AsmPredFlag|StandardPredFlag|CPredFlag|SafePredFlag|IndexedPredFlag|BinaryTestPredFlag) ||
+      pe->cs.p_code.NOfClauses) {
+    return FALSE;
+  }
+  pe->PredFlags |= ThreadLocalPredFlag;
+  pe->OpcodeOfPred = Yap_opcode(_thread_local);
+  pe->CodeOfPred = (yamop *)&pe->OpcodeOfPred;
+  WRITE_UNLOCK(pe->PRWLock);
+  return TRUE;
+}
+
 void 
 Yap_InitDBPreds(void)
 {
@@ -4943,6 +4985,7 @@ Yap_InitDBPreds(void)
   Yap_InitCPred("nth_instance", 3, p_nth_instance, SyncPredFlag);
   Yap_InitCPred("$nth_instancep", 3, p_nth_instancep, SyncPredFlag);
   Yap_InitCPred("$jump_to_next_dynamic_clause", 0, p_jump_to_next_dynamic_clause, SyncPredFlag);
+  Yap_InitCPred("$install_thread_local", 2, p_install_thread_local, SafePredFlag);
 }
 
 void 
