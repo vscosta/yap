@@ -11,8 +11,11 @@
 * File:		compiler.c						 *
 * comments:	Clause compiler						 *
 *									 *
-* Last rev:     $Date: 2004-03-08 19:31:01 $,$Author: vsc $						 *
-* $Log: not supported by cvs2svn $									 *
+* Last rev:     $Date: 2004-03-10 16:27:39 $,$Author: vsc $						 *
+* $Log: not supported by cvs2svn $
+* Revision 1.48  2004/03/08 19:31:01  vsc
+* move to 4.5.3
+*									 *
 *									 *
 *************************************************************************/
 #ifdef SCCS
@@ -2854,36 +2857,52 @@ Yap_cclause(Term inp_clause, int NOfArgs, int mod, Term src)
   }
   /* phase 1 : produce skeleton code and variable information              */
   c_head(head, &cglobs);
-#ifdef TABLING_INNER_CUTS
-  Yap_emit(nop_op, Zero, Zero, &cglobs.cint);
-  cglobs->cut_mark = cpc;
-#endif /* TABLING_INNER_CUTS */
-  Yap_emit(allocate_op, Zero, Zero, &cglobs.cint);
-  c_body(body, mod, &cglobs);
-  /* Insert blobs at the very end */ 
-  if (cglobs.cint.BlobsStart != NULL) {
-    cglobs.cint.cpc->nextInst = cglobs.cint.BlobsStart;
-    cglobs.cint.BlobsStart = NULL;
-  }
-  reset_vars(cglobs.vtable);
-  H = HB;
-  if (B != NULL) {
-    HB = B->cp_h;
-  }
-  if (Yap_ErrorMessage)
-    return (0);
+  if (body == MkAtomTerm(AtomTrue) &&
+      !cglobs.vtable) {
+    Yap_emit(procceed_op, Zero, Zero, &cglobs.cint);
+    /* ground term, do not need much more work */
+    if (cglobs.cint.BlobsStart != NULL) {
+      cglobs.cint.cpc->nextInst = cglobs.cint.BlobsStart;
+      cglobs.cint.BlobsStart = NULL;
+    }
+    if (Yap_ErrorMessage)
+      return (0);
 #ifdef DEBUG
-  if (Yap_Option['g' - 96])
-    Yap_ShowCode(&cglobs.cint);
+    if (Yap_Option['g' - 96])
+      Yap_ShowCode(&cglobs.cint);
 #endif
-  /* phase 2: classify variables and optimize temporaries          */
-  c_layout(&cglobs);
-  /* Insert blobs at the very end */ 
-  if (cglobs.cint.BlobsStart != NULL) {
-    cglobs.cint.cpc->nextInst = cglobs.cint.BlobsStart;
-    cglobs.cint.BlobsStart = NULL;
-    while (cglobs.cint.cpc->nextInst != NULL)
-      cglobs.cint.cpc = cglobs.cint.cpc->nextInst;
+  } else {
+#ifdef TABLING_INNER_CUTS
+    Yap_emit(nop_op, Zero, Zero, &cglobs.cint);
+    cglobs->cut_mark = cpc;
+#endif /* TABLING_INNER_CUTS */
+    Yap_emit(allocate_op, Zero, Zero, &cglobs.cint);
+    c_body(body, mod, &cglobs);
+    /* Insert blobs at the very end */ 
+    if (cglobs.cint.BlobsStart != NULL) {
+      cglobs.cint.cpc->nextInst = cglobs.cint.BlobsStart;
+      cglobs.cint.BlobsStart = NULL;
+    }
+    reset_vars(cglobs.vtable);
+    H = HB;
+    if (B != NULL) {
+      HB = B->cp_h;
+    }
+    if (Yap_ErrorMessage)
+      return (0);
+#ifdef DEBUG
+    if (Yap_Option['g' - 96])
+      Yap_ShowCode(&cglobs.cint);
+#endif
+    /* phase 2: classify variables and optimize temporaries          */
+    c_layout(&cglobs);
+    /* Insert blobs at the very end */ 
+    if (cglobs.cint.BlobsStart != NULL) {
+      cglobs.cint.cpc->nextInst = cglobs.cint.BlobsStart;
+      cglobs.cint.BlobsStart = NULL;
+      while (cglobs.cint.cpc->nextInst != NULL)
+	cglobs.cint.cpc = cglobs.cint.cpc->nextInst;
+    }
   }
   /* eliminate superfluous pop's and unify_var's                   */
   c_optimize(cglobs.cint.CodeStart);
