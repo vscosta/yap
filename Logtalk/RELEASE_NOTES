@@ -1,6 +1,6 @@
 =================================================================
 Logtalk - Object oriented extension to Prolog
-Release 2.15.2
+Release 2.15.3
 
 Copyright (c) 1998-2003 Paulo Moura.  All Rights Reserved.
 =================================================================
@@ -8,6 +8,21 @@ Copyright (c) 1998-2003 Paulo Moura.  All Rights Reserved.
 
 RELEASE NOTES
 =============
+
+
+2.15.3 - June 27, 2003
+
+	Updated experimental support for DCG rules to prevent over-simplification 
+	of unification goals in the compilation of rules to clauses. Push-back 
+	lists can now be used on rule heads.
+
+	The compilation mode of an entity (static/dynamic) is now stored in the 
+	corresponding entity table (implying recompilation of all entities).
+
+	Updated GNU Prolog config file to hide compiled entity predicates.
+
+	Updated SWI-Prolog config file for better integration of Logtalk with 
+	this compiler.
 
 
 2.15.2 - April 2, 2003

@@ -5,9 +5,9 @@
 
 
 	:- info([
-		version is 1.0,
+		version is 1.1,
 		author is 'Paulo Moura',
-		date is 2000/7/24,
+		date is 2003/4/25,
 		comment is 'List predicates.']).
 
 
@@ -182,14 +182,13 @@
 
 
 	reverse(List, Reversed) :-
-		same_length(List, Reversed),
-		reverse(List, [], Reversed).
+		reverse(List, [], Reversed, Reversed).
 
 
-	reverse([], Reversed, Reversed).
+	reverse([], Reversed, Reversed, []).
 
-	reverse([Head| Tail], List, Reversed) :-
-		reverse(Tail, [Head| List], Reversed).
+	reverse([Head| Tail], List, Reversed, [_| Bound]) :-
+		reverse(Tail, [Head| List], Reversed, Bound).
 
 
 	same_length([], []).

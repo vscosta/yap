@@ -3,9 +3,9 @@
 
 
 	:- info([
-		version is 1.0,
+		version is 1.1,
 		author is 'Paulo Moura',
-		date is 2000/7/24,
+		date is 2003/4/17,
 		comment is 'List protocol.']).
 
 
@@ -20,7 +20,7 @@
 
 	:- public(delete/3).
 
-	:- mode(delete(+list, @term, ?list), one).
+	:- mode(delete(@list, @term, ?list), one).
 
 	:- info(delete/3,
 		[comment is 'Deletes from a list all ocurrences of an element returning the list of remaining elements.',
@@ -29,7 +29,7 @@
 
 	:- public(delete_matches/3).
 
-	:- mode(delete_matches(+list, @term, ?list), one).
+	:- mode(delete_matches(@list, @term, ?list), one).
 
 	:- info(delete_matches/3,
 		[comment is 'Deletes all matching elements from a list, returning the list of remaining elements.',

@@ -1,6 +1,6 @@
 =================================================================
 Logtalk - Object oriented extension to Prolog
-Release 2.15.2
+Release 2.15.3
 
 Copyright (c) 1998-2003 Paulo Moura.  All Rights Reserved.
 =================================================================
@@ -58,3 +58,6 @@ Logtalk version 2.15.0 changes the "authors" key in  the directive info/1 to
 this change. If you use the directive info/1 in your programs, you will need 
 to apply this change to take advantage of automatic generation of documenting 
 files.
+
+Logtalk version 2.15.3 changes the format of the runtime entity tables, 
+impliying recompilation of all objects, protocols, and categories.
