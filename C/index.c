@@ -1124,7 +1124,11 @@ add_info(ClauseDef *clause, UInt regno)
    case _get_bigint:
       if (regcopy_in(myregs, nofregs, cl->u.xc.x)) {
 	clause->WorkPC = cl;
+#ifdef USE_GMP
 	clause->Tag = AbsAppl((CELL *)FunctorBigInt);
+#else
+	clause->Tag = AbsAppl((CELL *)FunctorLongInt);	
+#endif
 	return;
       } else {
 	cl = NEXTOP(cl,xc);
@@ -1673,7 +1677,11 @@ add_arg_info(ClauseDef *clause, UInt argno)
     case _unify_bigint:
     case _unify_l_bigint:
       if (argno == 1) {
+#ifdef USE_GMP
 	clause->Tag = AbsAppl((CELL *)FunctorBigInt);
+#else
+	clause->Tag = AbsAppl((CELL *)FunctorLongInt);	
+#endif
 	return;
       }
       argno--;

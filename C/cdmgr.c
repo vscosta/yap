@@ -1445,7 +1445,6 @@ p_number_of_clauses(void)
   Term            t2 = Deref(ARG2);
   int ncl = 0;
   Prop            pe;
-  yamop          *q;
   int             mod;
 
   if (IsVarTerm(t2)  || !IsAtomTerm(t2)) {
@@ -1458,19 +1457,13 @@ p_number_of_clauses(void)
   } else if (IsApplTerm(t)) {
     register Functor f = FunctorOfTerm(t);
     pe = PredPropByFunc(f, mod);
-  } else
+  } else {
     return (FALSE);
-  q = RepPredProp(pe)->cs.p_code.FirstClause;
-  READ_LOCK(RepPredProp(pe)->PRWLock);
-  if (q != NIL) {
-    while (q != RepPredProp(pe)->cs.p_code.LastClause) {
-      ncl++;
-      q = NextClause(q);
-    }
   }
+  READ_LOCK(RepPredProp(pe)->PRWLock);
+  ncl = RepPredProp(pe)->cs.p_code.NOfClauses;
   READ_UNLOCK(RepPredProp(pe)->PRWLock);
-  t = MkIntegerTerm(ncl);
-  return (Yap_unify_constant(ARG3, t));
+  return (Yap_unify_constant(ARG3, MkIntegerTerm(ncl)));
 }
 
 static Int 
