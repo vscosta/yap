@@ -13457,7 +13457,7 @@ returns true iff its argument is not a variable.
 
 The user can create a new uninstantiated variable using the primitive
 @example
-      Term  YAP_MkVarTerm()
+      YAP_Term  YAP_MkVarTerm()
 @end example
 
 
@@ -13860,8 +13860,8 @@ The code required for the second function is
 static int continue_n100()
 @{
       int n;
-      Term t;
-      Term sol = ARG1;
+      YAP_Term t;
+      YAP_Term sol = ARG1;
       YAP_PRESERVED_DATA(n100_data,n100_data_type);
       n = YAP_IntOfTerm(n100_data->next_solution);
       if( n == 100) @{
@@ -14060,7 +14060,7 @@ interface may change and improve in the future.
 The following C-functions are available from Yap:
 
 @itemize @bullet
-@item  YAP_CompileClause(@code{Term} @var{Clause})
+@item  YAP_CompileClause(@code{YAP_Term} @var{Clause})
 @findex  YAP_CompileClause/1
 Compile the Prolog term @var{Clause} and assert it as the last clause
 for the corresponding procedure.
@@ -14069,10 +14069,11 @@ for the corresponding procedure.
 @findex YAP_ContinueGoal/0
 Continue execution from the point where it stopped.
 
-@item  @code{void} YAP_Error(@code{char *} @var{error_description})
+@item  @code{void} YAP_Error(@code{int} @var{ID},@code{YAP_Term} @var{Cause},@code{char *} @var{error_description})
 @findex YAP_Error/1
 Generate an YAP System Error with description given by the string
-@var{error_description}.
+@var{error_description}. @var{ID} is the error ID, if known, or
+@code{0}. @var{Cause} is the term that caused the crash.
 
 @item  @code{void} YAP_Exit(@code{int} @var{exit_code})
 @findex YAP_Exit/1
@@ -14080,7 +14081,7 @@ Exit YAP immediately. The argument @var{exit_code} gives the error code
 and is supposed to be 0 after successful execution in Unix and Unix-like
 systems.
 
-@item  @code{Term} YAP_GetValue(@code{Atom} @var{at})
+@item  @code{YAP_Term} YAP_GetValue(@code{Atom} @var{at})
 @findex  YAP_GetValue/1
 Return the term @var{value} associated with the atom @var{at}. If no
 such term exists the function will return the empty list.
@@ -14130,21 +14131,21 @@ for the cause of the error, or call
 @code{YAP_Error(ErrorNo,0L,ErrorCause)} to do default processing. 
 
 
-@item  @code{void} YAP_PutValue(@code{Atom} @var{at}, @code{Term} @var{value})
+@item  @code{void} YAP_PutValue(@code{Atom} @var{at}, @code{YAP_Term} @var{value})
 @findex  YAP_PutValue/2
 Associate the term @var{value} with the atom @var{at}. The term
 @var{value} must be a constant. This functionality is used by YAP as a
 simple way for controlling and communicating with the Prolog run-time.
 
-@item  @code{Term} YAP_Read(@code{int (*)(void)} @var{GetC})
+@item  @code{YAP_Term} YAP_Read(@code{int (*)(void)} @var{GetC})
 @findex  YAP_Read/1
 Parse a Term  using the function @var{GetC} to input characters.
 
-@item  @code{Term} YAP_RunGoal(@code{Term} @var{Goal})
+@item  @code{YAP_Term} YAP_RunGoal(@code{YAP_Term} @var{Goal})
 @findex YAP_RunGoal/1
 Execute query @var{Goal} and return 1 if the query succeeds, and
 0 otherwise. The predicate returns 0 if failure, otherwise it will
-return @var{Term}. Note that @var{Term} may change due to garbage
+return @var{YAP_Term}. Note that @var{YAP_Term} may change due to garbage
 collection, so you should use something like:
 @example
   t = YAP_RunGoal(t);
@@ -14163,7 +14164,7 @@ Reset execution environment (similar to the @code{abort/0}
 builtin). This is useful when you want to start a new query before
 asking all solutions to the previous query.
 
-@item  @code{void} YAP_Write(@code{Term} @var{t}, @code{void (*)(int)}
+@item  @code{void} YAP_Write(@code{YAP_Term} @var{t}, @code{void (*)(int)}
 @var{PutC}, @code{int} @var{flags})
 @findex  YAP_Write/3
 Write a Term @var{t} using the function @var{PutC} to output
@@ -14171,11 +14172,11 @@ characters. The term is written according to a mask of the following
 flags in the @code{flag} argument: @code{YAP_WRITE_QUOTED},
 @code{YAP_WRITE_HANDLE_VARS},  and @code{YAP_WRITE_IGNORE_OPS}.
 
-@item  @code{void} YAP_WriteBuffer(@code{Term} @var{t}, @code{char *}
+@item  @code{void} YAP_WriteBuffer(@code{YAP_Term} @var{t}, @code{char *}
 @var{buff}, @code{unsigned int}
 @var{size}, @code{int} @var{flags})
 @findex  YAP_WriteBuffer/4
-Write a Term @var{t} to buffer @var{buff} with size @var{size}. The
+Write a YAP_Term @var{t} to buffer @var{buff} with size @var{size}. The
 term is written according to a mask of the following flags in the
 @code{flag} argument: @code{YAP_WRITE_QUOTED},
 @code{YAP_WRITE_HANDLE_VARS}, and @code{YAP_WRITE_IGNORE_OPS}.
