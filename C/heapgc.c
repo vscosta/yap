@@ -2708,7 +2708,7 @@ Int total_gc_time(void)
 static Int
 p_inform_gc(void)
 {
-  Term tn = MkIntegerTerm(tot_gc_time);
+  Term tn = MkIntegerTerm(tot_gc_time/1000);
   Term tt = MkIntegerTerm(gc_calls);
   Term ts = MkIntegerTerm((tot_gc_recovered*sizeof(CELL)));
  
