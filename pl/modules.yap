@@ -516,6 +516,7 @@ $member(X,[_|L]) :- $member(X,L).
 	current_predicate(?,:),
 	findall(?,:,?),
 	findall(?,:,?,?),
+	if(:,:,:),
 	incore(:),
 	listing(?),
 	nospy(:),

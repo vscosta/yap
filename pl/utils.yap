@@ -17,6 +17,15 @@
 
 once(G) :- '$execute'(G), !.
 
+if(X,Y,Z) :-
+	CP is '$last_choice_pt',
+	'$execute'(X),
+	'$clean_ifcp'(CP),
+	'$execute'(Y).
+if(X,Y,Z) :-
+	'$execute'(Z).
+	
+
 call_with_args(V) :- var(V), !,
 	throw(error(instantiation_error,call_with_args(V))).
 call_with_args(M:A) :- !,

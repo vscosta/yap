@@ -1714,7 +1714,6 @@ The last argument @var{Options} must be a list of options, which can be:
 @item filename
  the filename for a module to import into the current module.
 
-@table @code
 @item library(file)
  a library file to import into the current module.
 
@@ -2060,7 +2059,6 @@ The built-in @code{repeat/1} could be defined in Prolog by:
  repeat :- repeat.
 @end example
 
-
 @item call(+@var{P}) [IS0]
 @findex call/1
 @syindex call/1
@@ -2098,6 +2096,53 @@ is converted to:
 @example
  a(X) :- call(X).
 @end example
+
+@item if(?@var{G},?@var{H},?@var{I}) [IS0]
+@findex if/3
+@syindex if/3
+@cnindex if/3
+Call goal @var{H} once per each solution of goal @var{H}. If goal
+@var{H} has no solutions, call goal @var{I}.
+
+The builtin @code{if/3} is similar to @code{->/3}, with the difference
+that it will backtrack over the test goal. Consider the following
+small data-base:
+
+@example
+a(1).        b(a).          c(x).
+a(2).        b(b).          c(y).
+@end example
+
+Execution of an @code{if/3} query will proceed as follows:
+
+@example
+   ?- if(a(X),b(Y),c(Z)).
+
+X = 1,
+Y = a ? ;
+
+X = 1,
+Y = b ? ;
+
+X = 2,
+Y = a ? ;
+
+X = 2,
+Y = b ? ;
+
+no
+@end example
+
+
+@noindent
+The system will backtrack over the two solutions for @code{a/1} and the
+two solutions for @code{b/1}, generating four solutions.
+
+Cuts are allowed inside the first goal @var{G}, but they will only prune
+over @var{G}.
+
+If you want @var{G} to be deterministic you should use if-then-else, as
+it is both more efficient and more portable.
 
 @item once(+@var{G}) [IS0]
 @findex once/1

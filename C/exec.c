@@ -1238,6 +1238,18 @@ p_restore_regs2(void)
   return(TRUE);
 }
 
+static Int
+p_clean_ifcp(void) {
+#if SBA
+  choiceptr pt0 = (choiceptr)IntegerOfTerm(Deref(ARG1));
+#else
+  choiceptr pt0 = (choiceptr)(LCL0-IntOfTerm(Deref(ARG1)));
+#endif
+  pt0->cp_ap = (yamop *)TRUSTFAILCODE;
+  return(TRUE);
+}
+
+
 void 
 InitExecFs(void)
 {
@@ -1263,5 +1275,6 @@ InitExecFs(void)
   InitCPred("$pred_goal_expansion_on", 0, p_pred_goal_expansion_on, SafePredFlag);
   InitCPred("$restore_regs", 1, p_restore_regs, SafePredFlag);
   InitCPred("$restore_regs", 2, p_restore_regs2, SafePredFlag);
+  InitCPred("$clean_ifcp", 1, p_clean_ifcp, SafePredFlag);
 }
 
