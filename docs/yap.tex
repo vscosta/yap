@@ -5345,8 +5345,8 @@ Change to home directory.
 Change to given directory. Acceptable directory names are strings or
 atoms.
 @item environ/2
-Unify the first argument with an
-environment variable, and the second with its value.
+If the first argument is an atom, unify the second argument with the
+value of the corresponding environment variable.
 @item getcwd/1
 Unify the first argument with an atom representing the current directory.
 @item putenv/2

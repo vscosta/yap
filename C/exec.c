@@ -1254,30 +1254,25 @@ p_clean_ifcp(void) {
 static Int
 p_jump_env(void) {
   CELL *env = LCL0-IntegerOfTerm(Deref(ARG1)), *prev = NULL, *cur = ENV;
-  choiceptr old, cptr, ocptr;
 
   while (cur != env) {
     prev = cur;
     cur = (CELL *)cur[E_E];
   }
-  if (prev != NULL) {
-    CP = (yamop *)(prev[E_CP]);
+  if (prev == NULL) {
+    return(FALSE);
   }
-  ENV = env;
+  CP = (yamop *)(prev[E_CP]);
+  YENV = ENV = env;
   /* force trail reset */
-  old = (choiceptr)(env[E_CB]);
-  cptr = ocptr = B;
-  while (ocptr->cp_b < old) {
-    ocptr = ocptr->cp_b;
+  while (B->cp_b < (choiceptr)env) {
+    B = B->cp_b;
   }
-  while (cptr != ocptr) {
-    cptr->cp_tr = ocptr->cp_tr;
-    cptr = cptr->cp_b;
-  }
-  /* I could do this, but it is easier to leave the undwindig to the emulator */
-  B->cp_env = env;
   B->cp_cp = CP;
+  B->cp_ap = CP;
+  B->cp_env = env;
   B->cp_h = H;
+  /* I could do this, but it is easier to leave the unwinding to the emulator */
   env[CP->u.yx.y] = ARG2;
   return(FALSE);
 }

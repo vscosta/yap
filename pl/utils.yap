@@ -203,7 +203,7 @@ unix(cd(V)) :- var(V), !,
 unix(cd(A)) :- atomic(A), !, cd(A).
 unix(cd(V)) :-
 	throw(error(type_error(atomic,V),unix(cd(V)))).
-unix(environ(X,Y)) :- do_environ(X,Y).
+unix(environ(X,Y)) :- '$do_environ'(X,Y).
 unix(getcwd(X)) :- getcwd(X).
 unix(shell(V)) :- var(V), !,
 	throw(error(instantiation_error,unix(shell(V)))).
@@ -214,9 +214,19 @@ unix(system(V)) :- var(V), !,
 	throw(error(instantiation_error,unix(system(V)))).
 unix(system(A)) :- atomic(A), !, system(A).
 unix(system(V)) :-
-	throw(error(type_error(atomic,V),unix(system(V)))).
+	throw(error(type_error(atom,V),unix(system(V)))).
 unix(shell) :- sh.
 unix(putenv(X,Y)) :- '$putenv'(X,Y).
+
+
+'$do_environ'(X, Y) :-
+	var(X), !,
+	throw(error(instantiation_error,unix(environ(X,Y)))).
+'$do_environ'(X, Y) :- atom(X), !,
+	'$getenv'(X,Y).
+'$do_environ'(X, Y) :-
+	throw(error(type_error(atom,X),unix(environ(X,Y)))).
+	
 
 putenv(Na,Val) :-
 	'$putenv'(Na,Val).

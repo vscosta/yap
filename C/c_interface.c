@@ -335,7 +335,8 @@ Yapcut_fail(void)
 {
   BACKUP_B();
 
-  B = B->cp_b; /* cut_fail */
+  B = B->cp_b;  /* cut_fail */
+  HB = B->cp_h; /* cut_fail */
 
   RECOVER_B();
   return(FALSE);
@@ -347,6 +348,7 @@ Yapcut_succeed(void)
   BACKUP_B();
 
   B = B->cp_b;
+  HB = B->cp_h;
 
   RECOVER_B();
   return(TRUE);

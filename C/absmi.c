@@ -2173,7 +2173,7 @@ absmi(int inp)
       JMPNext();
 
       BOp(procceed, e);
-      PREG = (yamop *) CPREG;
+      PREG = CPREG;
       Y = ENV;
 #ifdef DEPTH_LIMIT
       DEPTH = Y[E_DEPTH];

@@ -524,12 +524,12 @@ execute_command(void)
     YapCloseAllOpenStreams();
     close(0);
     dup(inpf);
+    close(inpf);
     close(1);
     dup(outf);
-    close(2);
-    dup(outf);
-    close(inpf);
     close(outf);
+    close(2);
+    dup(errf);
     close(errf);
     argv[0] = "sh";
     argv[1] = "-c";

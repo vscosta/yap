@@ -240,6 +240,7 @@ exec(Command, [StdIn, StdOut, StdErr], PID) :-
 	handle_system_error(Error, off, G).
 
 process_inp_stream_for_exec(Error, _, G, L, L) :- var(Error), !,
+	close_temp_streams(L),
 	throw(error(instantiation_error,G)).
 process_inp_stream_for_exec(null, null, _, L, L) :- !.
 process_inp_stream_for_exec(std, 0, _, L, L) :- !.
@@ -252,6 +253,7 @@ process_inp_stream_for_exec(Stream, Stream, _, L, L) :-
 
 
 process_out_stream_for_exec(Error, _, G, L, L) :- var(Error), !,
+	close_temp_streams(L),
 	throw(error(instantiation_error,G)).
 process_out_stream_for_exec(null, null, _, L, L) :- !.
 process_out_stream_for_exec(std, 1, _, L, L) :- !.
@@ -263,6 +265,7 @@ process_out_stream_for_exec(Stream, Stream, _, L, L) :-
 	stream_property(Stream, input).
 
 process_err_stream_for_exec(Error, _, G, L, L) :- var(Error), !,
+	close_temp_streams(L),
 	throw(error(instantiation_error,G)).
 process_err_stream_for_exec(null, null, _, L, L) :- !.
 process_err_stream_for_exec(std, 2, _, L, L) :- !.

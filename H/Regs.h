@@ -10,7 +10,7 @@
 * File:		Regs.h							 *
 * mods:									 *
 * comments:	YAP abstract machine registers				 *
-* version:      $Id: Regs.h,v 1.10 2002-01-03 16:28:17 vsc Exp $	 *
+* version:      $Id: Regs.h,v 1.11 2002-01-14 22:26:51 vsc Exp $	 *
 *************************************************************************/
 
 
@@ -269,7 +269,9 @@ EXTERN inline void save_machine_regs(void) {
   REGS.HB_ = HB;
   REGS.B_   = B;
   REGS.CP_ = CP;
+#ifndef DEBUG
   REGS.CreepFlag_ = CreepFlag;
+#endif
   REGS.TR_  = TR;
 }
 
@@ -278,7 +280,9 @@ EXTERN inline void restore_machine_regs(void) {
   HB = REGS.HB_;
   B = REGS.B_;
   CP = REGS.CP_;
+#ifndef DEBUG
   CreepFlag = REGS.CreepFlag_;
+#endif
   TR = REGS.TR_;
 }
 

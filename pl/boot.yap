@@ -1166,10 +1166,6 @@ catch(G, C, A) :-
 	    !, '$handle_throw'(C, A, Ball)
 	).
 
-% just create a choice-point
-'$mark_tr'(_).
-'$mark_tr'(_) :- fail.
-
 %
 % system_catch is like catch, but it avoids the overhead of a full
 % meta-call by calling '$execute0' instead of $execute.
@@ -1194,6 +1190,10 @@ catch(G, C, A) :-
 	    % process the throw, if we can.
 	    !, '$handle_throw'(C, A, Ball)
 	).
+
+% just create a choice-point
+'$mark_tr'(_).
+'$mark_tr'(_) :- fail.
 
 '$force_to_1st'(_).
 
