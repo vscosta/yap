@@ -214,7 +214,7 @@ dif(_, _).
 %
 % We still have some more conditions: continue the analysis.
 %
-'$redo_freeze'(Done, V, '$when'(C, G, Done)) :- !,
+'$redo_freeze'(Done, _, '$when'(C, G, Done)) :- !,
 	'$when'(C, G, Done).
 	
 %
@@ -503,13 +503,13 @@ frozen(V, LG) :-
 	'$simplify_list_of_frozen_goals'(Gs,NGs).
 
 '$find_att_vars'([], []).
-'$find_att_vars'([V|LGs], [V|AttVars]) :- '$is_att_variable'(V), !,
+'$find_att_vars'([V|LGs], [V|AttVars]) :- attvar(V), !,
 	'$find_att_vars'(LGs, AttVars).
 '$find_att_vars'([_|LGs], AttVars) :-
 	'$find_att_vars'(LGs, AttVars).
 
 '$purge_done_goals'([], []).
-'$purge_done_goals'([V|G0], GF) :- '$is_att_variable'(V), !,
+'$purge_done_goals'([V|G0], GF) :- attvar(V), !,
 	'$purge_done_goals'(G0, GF).
 '$purge_done_goals'(['$redo_dif'(Done, _ , _)|G0], GF) :- nonvar(Done), !,
 	'$purge_done_goals'(G0, GF).
@@ -523,14 +523,14 @@ frozen(V, LG) :-
 	'$purge_done_goals'(G0, GF).
 
 
-'$convert_frozen_goal'(V, _, _, V, _) :- '$is_att_variable'(V), !.
+'$convert_frozen_goal'(V, _, _, V, _) :- attvar(V), !.
 '$convert_frozen_goal'('$redo_dif'(Done, X, Y), LV, Done, [X,Y|LV], dif(X,Y)).
 '$convert_frozen_goal'('$redo_freeze'(Done, FV, G), LV, Done, [FV|LV], G).
 '$convert_frozen_goal'('$redo_eq'(Done, X, Y, G), LV, Done, [X,Y|LV], G).
 '$convert_frozen_goal'('$redo_ground'(Done, V, G), LV, Done, [V|LV], G).
 
 '$fetch_same_done_goals'([], _, [], []).
-'$fetch_same_done_goals'([V|G0], Done, NL, GF) :- '$is_att_variable'(V), !,
+'$fetch_same_done_goals'([V|G0], Done, NL, GF) :- attvar(V), !,
 	'$fetch_same_done_goals'(G0, Done, NL, GF).
 '$fetch_same_done_goals'(['$redo_dif'(Done, X , Y)|G0], D0, [X,Y|LV], GF) :-
 	Done == D0, !,
@@ -573,7 +573,7 @@ call_residue(Goal,Residue) :-
 
 '$purge_and_set_done_goals'([], L, L).
 '$purge_and_set_done_goals'([AttV|G0], [_-GS|GF], Atts) :-
-	'$is_att_variable'(AttV), !,
+	attvar(AttV), !,
 	attributes:convert_att_var(AttV, GS),
 	'$purge_and_set_done_goals'(G0, GF, Atts).
 '$purge_and_set_done_goals'(['$redo_dif'(Done, X , Y)|G0], [LVars-dif(X,Y)|GF], Atts) :-
@@ -632,7 +632,7 @@ call_residue(Goal,Residue) :-
 	'$undefined'(convert_att_var(Vs,LIV),attributes), !.
 '$convert_att_vars'(Vs0, LIV, LGs) :-
 	'$sort'(Vs0, Vs),
-	'$do_convert_att_vars'(Vs0, LIV, LGs).
+	'$do_convert_att_vars'(Vs, LIV, LGs).
 	
 '$do_convert_att_vars'([], _, []).
 '$do_convert_att_vars'([V|LAV], LIV, NGs) :-

@@ -2799,10 +2799,11 @@ syntax_error (TokEntry * tokptr)
     Term ts[2];
 
     if (H > ASP-1024) {
-      H = Hi;
       tf[3] = TermNil;
       err = 0;
       end = 0;
+      /* for some reason moving this earlier confuses gcc on solaris */
+      H = Hi;
       break;
     }
     if (tokptr == Yap_toktide) {
@@ -2813,8 +2814,9 @@ syntax_error (TokEntry * tokptr)
     switch (tokptr->Tok) {
     case Name_tok:
       {
-	Term t0 = MkAtomTerm((Atom)info);
-	ts[0] = Yap_MkApplTerm(Yap_MkFunctor(Yap_LookupAtom("atom"),1),1,&t0);
+	Term t0[1];
+	t0[0] = MkAtomTerm((Atom)info);
+	ts[0] = Yap_MkApplTerm(Yap_MkFunctor(Yap_LookupAtom("atom"),1),1,t0);
       }
       break;
     case Number_tok:

@@ -55,6 +55,11 @@ numbervars(Term, M, N) :-
 	'$numbermarked_vars'(L, M, N).
 
 '$numbermarked_vars'([], M, M).
+/*
+	'$numbermarked_vars'([V|L], M, N) :- 
+	attvar(V), !,
+	'$numbermarked_vars'(L, M, N).
+*/
 '$numbermarked_vars'(['$VAR'(M)|L], M, N) :-
 	M1 is M+1,
 	'$numbermarked_vars'(L, M1, N).

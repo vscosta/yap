@@ -9017,7 +9017,6 @@ these builtins are rewritten by the system into internal builtins, and
 that the rewriting process @emph{depends} on the module on which the
 builtins have been invoked.
 
-@table @code
 @item @var{Module}:get_atts(@var{-Var},@var{?ListOfAttributes})
 @findex get_atts/2
 @syindex get_atts/2
@@ -9080,7 +9079,15 @@ unification will fail.
 Notice that the @t{verify_attributes/3} may be called even if @var{Var}
 has no attributes in module @t{Module}. In this case the routine should
 simply succeed with @var{Goals} unified with the empty list.
+@table @code
+@item attvar(@var{-Var})
+@findex attvar/1
+@snindex attvar/1
+@cnindex attvar/1
+Succeed if @var{Var} is an attributed variable.
 @end table
+
+
 
 @node Displaying Attributes, Projecting Attributes,Attributed Unification, Attributed Variables 
 @section Displaying Attributes

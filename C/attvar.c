@@ -149,6 +149,8 @@ WakeAttVar(CELL* pt1, CELL reg2)
   CELL *bind_ptr;
 
   if (IsVarTerm(reg2)) {
+    if (pt1 == VarOfTerm(reg2))
+      return;
     if (IsAttachedTerm(reg2)) {
       attvar_record *susp2 = (attvar_record *)VarOfTerm(reg2);
 
@@ -711,7 +713,7 @@ void Yap_InitAttVarPreds(void)
 #endif /* COROUTINING */
   Yap_InitCPred("all_attvars", 1, p_all_attvars, SafePredFlag);
   CurrentModule = OldCurrentModule;
-  Yap_InitCPred("$is_att_variable", 1, p_is_attvar, SafePredFlag|TestPredFlag);
+  Yap_InitCPred("attvar", 1, p_is_attvar, SafePredFlag|TestPredFlag);
   Yap_InitCPred("$att_bound", 1, p_attvar_bound, SafePredFlag|TestPredFlag);
 }
 
