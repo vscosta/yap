@@ -615,20 +615,20 @@ incore(G) :- '$execute'(G).
 ','(X,Y) :-
 	'$save_current_choice_point'(CP),
 	'$current_module'(M),
-        '$call'(X,CP,G0,M),
-        '$call'(Y,CP,G0,M).
+        '$call'(X,CP,(X,Y),M),
+        '$call'(Y,CP,(X,Y),M).
 ';'(X,Y) :-
 	'$save_current_choice_point'(CP),
 	'$current_module'(M),
-        ( '$call'(X,CP,G0,M) ; '$call'(Y,CP,G0,M) ).
+        ( '$call'(X,CP,(X;Y),M) ; '$call'(Y,CP,(X;Y),M) ).
 '|'(X,Y) :-
 	'$save_current_choice_point'(CP),
 	'$current_module'(M),
-        ( '$call'(X,CP,G0,M) ; '$call'(Y,CP,G0,M) ).
-'|'(X,Y) :-
+        ( '$call'(X,CP,(X|Y),M) ; '$call'(Y,CP,(X|Y),M) ).
+'->'(X,Y) :-
 	'$save_current_choice_point'(CP),
 	'$current_module'(M),
-        ( '$call'(X,CP,G0,M) -> '$call'(Y,CP,G0,M) ).
+        ( '$call'(X,CP,G0,M) -> '$call'(Y,CP,(X->Y),M) ).
 \+(G) :-     \+ '$execute'(G).
 not(G) :-    \+ '$execute'(G).
 
