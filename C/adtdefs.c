@@ -149,8 +149,6 @@ LookupAtom(char *atom)
   /* compute hash */
   p = (unsigned char *)atom;
   HashFunction(p, hash);
-  if (!strcmp("in line 284, system predicate see/1 at prolog:$$compile_stat/5 (clause 1)",atom))
-    fprintf(stderr,"vsc: has is %d\n", hash);
   WRITE_LOCK(HashChain[hash].AERWLock);
   a = HashChain[hash].Entry;
   /* search atom in chain */

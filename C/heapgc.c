@@ -1484,11 +1484,11 @@ mark_choicepoints(register choiceptr gc_B, tr_fr_ptr saved_TR, int very_verbose)
 	  SMALLUNSGN mod;
 	  if (Yap_PredForCode(gc_B->cp_ap, &at, &arity, &mod)) {
 	    if (arity) 
-	      fprintf(Yap_stderr,"[GC]       %s/%d marked %d (%s)\n", RepAtom(at)->StrOfAE, arity, total_marked, op_names[opnum]);
+	      fprintf(Yap_stderr,"[GC]       %s/%ld marked %ld (%s)\n", RepAtom(at)->StrOfAE, arity, total_marked, op_names[opnum]);
 	    else
-	      fprintf(Yap_stderr,"[GC]       %s marked %d (%s)\n", RepAtom(at)->StrOfAE, total_marked, op_names[opnum]);
+	      fprintf(Yap_stderr,"[GC]       %s marked %ld (%s)\n", RepAtom(at)->StrOfAE, total_marked, op_names[opnum]);
 	  } else
-	    fprintf(Yap_stderr,"[GC]       marked %d (%s)\n", total_marked, op_names[opnum]);
+	    fprintf(Yap_stderr,"[GC]       marked %ld (%s)\n", total_marked, op_names[opnum]);
 	}
 	break;
 #ifdef TABLING
@@ -1521,12 +1521,12 @@ mark_choicepoints(register choiceptr gc_B, tr_fr_ptr saved_TR, int very_verbose)
 	{
 	  PredEntry *pe = (PredEntry *)gc_B->cp_ap->u.ld.p;
 	  if (pe == NULL) {
-	    fprintf(Yap_stderr,"[GC]       marked %d (%s)\n", total_marked, op_names[opnum]);
+	    fprintf(Yap_stderr,"[GC]       marked %ld (%s)\n", total_marked, op_names[opnum]);
 	  } else
 	    if (pe->ArityOfPE)
-	      fprintf(Yap_stderr,"[GC]       %s/%d marked %d (%s)\n", RepAtom(NameOfFunctor(pe->FunctorOfPred))->StrOfAE, pe->ArityOfPE, total_marked, op_names[opnum]);
+	      fprintf(Yap_stderr,"[GC]       %s/%ld marked %ld (%s)\n", RepAtom(NameOfFunctor(pe->FunctorOfPred))->StrOfAE, pe->ArityOfPE, total_marked, op_names[opnum]);
 	    else
-	      fprintf(Yap_stderr,"[GC]       %s marked %d (%s)\n", RepAtom((Atom)(pe->FunctorOfPred))->StrOfAE, total_marked, op_names[opnum]);
+	      fprintf(Yap_stderr,"[GC]       %s marked %ld (%s)\n", RepAtom((Atom)(pe->FunctorOfPred))->StrOfAE, total_marked, op_names[opnum]);
 	}
       }
     }
