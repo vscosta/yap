@@ -3226,7 +3226,7 @@ static ClauseDef *
 copy_clauses(ClauseDef *max0, ClauseDef *min0, CELL *top)
 {
   UInt sz = ((max0+1)-min0)*sizeof(ClauseDef);
-  if ((char *)top + sz > Yap_TrailTop) {
+  while ((char *)top + sz > Yap_TrailTop) {
     if(!Yap_growtrail (sizeof(CELL) * 16 * 1024L)) {
       longjmp(Yap_CompilerBotch,3);
     }                                              
