@@ -56,6 +56,7 @@ typedef struct logic_upd_index {
   yamop            ClCode[MIN_ARRAY];
 } LogUpdIndex;
 
+/* The ordering of the first 3 fields should be compatible with dbrefs */
 typedef struct logic_upd_clause {
   Functor Id;		/* allow pointers to this struct to id  */
 			/*   as dbref                           */

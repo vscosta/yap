@@ -529,7 +529,9 @@ static_growheap(long size, int fix_code, struct intermediates *cip)
   }
   /* CreepFlag is set to force heap expansion */
   if (ActiveSignals == YAP_CDOVF_SIGNAL) {
+    LOCK(SignalLock);
     CreepFlag = CalculateStackGap();
+    UNLOCK(SignalLock);
   }
   ASP -= 256;
   TrDiff = LDiff = GDiff = DelayDiff = size;
@@ -711,9 +713,11 @@ do_growheap(int fix_code, UInt in_size, struct intermediates *cip)
   fix_tabling_info();
 #endif /* TABLING */
   if (sz >= sizeof(CELL) * 16 * 1024L) {
+    LOCK(SignalLock);
     ActiveSignals &= ~YAP_CDOVF_SIGNAL;
     if (!ActiveSignals)
 	CreepFlag = CalculateStackGap();
+    UNLOCK(SignalLock);
     return TRUE;
   }
   /* failed */
@@ -996,10 +1000,12 @@ static int do_growtrail(long size)
     fprintf(Yap_stderr, "[TO]   took %g sec\n", (double)growth_time/1000);
     fprintf(Yap_stderr, "[TO] Total of %g sec expanding trail \n", (double)total_trail_overflow_time/1000);
   }
+  LOCK(SignalLock);
   if (ActiveSignals == YAP_TROVF_SIGNAL) {
     CreepFlag = CalculateStackGap();
   }
   ActiveSignals &= ~YAP_TROVF_SIGNAL;
+  UNLOCK(SignalLock);
   return TRUE;
 }
 
@@ -1051,10 +1057,12 @@ Yap_growatomtable(void)
   Int start_growth_time = Yap_cputime(), growth_time;
   int gc_verbose = Yap_is_gc_verbose();
 
+  LOCK(SignalLock);
   if (ActiveSignals == YAP_CDOVF_SIGNAL) {
     CreepFlag = CalculateStackGap();
   }
   ActiveSignals &= ~YAP_CDOVF_SIGNAL;
+  UNLOCK(SignalLock);
   while ((ntb = (AtomHashEntry *)Yap_AllocCodeSpace(nsize*sizeof(AtomHashEntry))) == NULL) {
     /* leave for next time */
     if (!do_growheap(FALSE, nsize*sizeof(AtomHashEntry), NULL))

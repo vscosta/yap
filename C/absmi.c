@@ -212,7 +212,7 @@ Yap_absmi(int inp)
 
   /* the registers are all set up, let's swap */
 #ifdef THREADS
-  pthread_setspecific(yaamregs_key, (const void *)&absmi_regs);  
+  pthread_setspecific(Yap_yaamregs_key, (const void *)&absmi_regs);  
   ThreadHandle[worker_id].current_yaam_regs = &absmi_regs;
 #else
   Yap_regp = &absmi_regs;
@@ -2456,8 +2456,10 @@ Yap_absmi(int inp)
 #if  _MSC_VER || defined(__MINGW32__)
 	/* I need this for Windows and other systems where SIGINT
 	   is not proceesed by same thread as absmi */
+      LOCK(SignalLock);
       if (Yap_PrologMode & (AbortMode|InterruptMode)) {
 	CFREG = CalculateStackGap();
+	UNLOCK(SignalLock);
 	/* same instruction */
 	if (Yap_PrologMode & InterruptMode) {
 	  Yap_PrologMode &= ~InterruptMode;
@@ -2470,6 +2472,7 @@ Yap_absmi(int inp)
 	} 
 	JMPNext();
       }
+      UNLOCK(SignalLock);
 #endif
 #if SHADOW_S
       S = SREG;
@@ -2520,23 +2523,26 @@ Yap_absmi(int inp)
       ARG1 = (Term) AbsPair(H);
 
       H += 2;
+      LOCK(SignalLock);
       CFREG = CalculateStackGap();
 #ifdef COROUTINING
       if (ActiveSignals & YAP_WAKEUP_SIGNAL) {
+	ActiveSignals &= ~YAP_WAKEUP_SIGNAL;
+	UNLOCK(SignalLock);
 	ARG2 = Yap_ListOfWokenGoals();
 	SREG = (CELL *) (WakeUpCode);
 	/* no more goals to wake up */
 	Yap_UpdateTimedVar(WokenGoals, TermNil);
-	ActiveSignals &= ~YAP_WAKEUP_SIGNAL;
       } else	
 #endif
 	SREG = (CELL *) CreepCode;
+      CFREG = CalculateStackGap();
+      UNLOCK(SignalLock);
 #ifdef LOW_LEVEL_TRACER
       if (Yap_do_low_level_trace)
 	low_level_trace(enter_pred,(PredEntry *)(SREG),XREGS+1);
 #endif	/* LOW_LEVEL_TRACE */
       PREG = ((PredEntry *)(SREG))->CodeOfPred;
-      CFREG = CalculateStackGap();
       CACHE_A1();
       JMPNext();
 
@@ -6433,7 +6439,6 @@ Yap_absmi(int inp)
 	{
 	  Prop p = Yap_GetPredPropByFunc(Yap_MkFunctor(at, 1),0);
 	  if (p == NIL) {
-	    CFREG = CalculateStackGap();
 	    FAIL();
 	  } else {
 	    PredEntry *undefpe;
@@ -6445,7 +6450,6 @@ Yap_absmi(int inp)
 	}
       }
       PREG = UndefCode->CodeOfPred;
-      CFREG = CalculateStackGap();
       CACHE_A1();
       JMPNext();
       ENDBOp();
@@ -11680,7 +11684,9 @@ Yap_absmi(int inp)
 	WRITEBACK_Y_AS_ENV();
 	SREG = (CELL *) pen;
 	ASP = E_YREG;
+	LOCK(SignalLock);
 	ActiveSignals &= ~YAP_CDOVF_SIGNAL;
+	UNLOCK(SignalLock);
 	if (ActiveSignals & YAP_CDOVF_SIGNAL) {
 	  saveregs_and_ycache();
 	  if (!Yap_growheap(FALSE, 0, NULL)) {
@@ -11689,7 +11695,9 @@ Yap_absmi(int inp)
 	    FAIL();
 	  }
 	  setregs_and_ycache();
+	  LOCK(SignalLock);
 	  CFREG = CalculateStackGap();
+	  UNLOCK(SignalLock);
 	}
 	if (ActiveSignals) {
 	  goto creep;

@@ -301,7 +301,9 @@ EnterCreepMode(Term t, SMALLUNSGN mod) {
   }
   PredCreep = RepPredProp(PredPropByFunc(FunctorCreep,1));
   ARG1 = MkPairTerm(ModuleName[mod],ARG1);
+  LOCK(SignalLock);
   CreepFlag = CalculateStackGap();
+  UNLOCK(SignalLock);
   P_before_spy = P;
   return (CallPredicate(PredCreep, B));
 }
@@ -1081,9 +1083,11 @@ exec_absmi(int top)
 #endif
 #endif
 	yap_flags[SPY_CREEP_FLAG] = 0;
+	LOCK(SignalLock);
 	CreepFlag = CalculateStackGap();
-	P = (yamop *)FAILCODE;
 	Yap_PrologMode = UserMode;
+	UNLOCK(SignalLock);
+	P = (yamop *)FAILCODE;
       }
       break;
     case 2:
@@ -1541,7 +1545,7 @@ Yap_InitYaamRegs(void)
      machine registers */
 #ifdef THREADS
   int myworker_id = worker_id;
-  pthread_setspecific(yaamregs_key, (const void *)ThreadHandle[myworker_id].default_yaam_regs);
+  pthread_setspecific(Yap_yaamregs_key, (const void *)ThreadHandle[myworker_id].default_yaam_regs);
   ThreadHandle[myworker_id].current_yaam_regs = ThreadHandle[myworker_id].default_yaam_regs;
   worker_id = myworker_id;
 #else
@@ -1573,7 +1577,9 @@ Yap_InitYaamRegs(void)
   BBREG = B_FZ = B_BASE;
   TR = TR_FZ = TR_BASE;
 #endif /* FROZEN_STACKS */
+  LOCK(SignalLock);
   CreepFlag = CalculateStackGap();
+  UNLOCK(SignalLock);
   EX = 0L;
   /* for slots to work */
   *--ASP = MkIntTerm(0);

@@ -3314,9 +3314,7 @@ p_recorded(void)
     } else {
       DBRef ref = DBRefOfTerm(t3);
       if (ref == NULL) return FALSE;
-      LOCK(ref->lock);
       if (DEAD_REF(ref)) {
-	UNLOCK(ref->lock);
 	return FALSE;
       }
       if (ref->Flags & LogUpdMask) {
@@ -3324,22 +3322,17 @@ p_recorded(void)
 	PredEntry *ap;
 	if (Yap_op_from_opcode(cl->ClCode->opc) == _unify_idb_term) {
 	  if (!Yap_unify(ARG2, cl->ClSource->Entry)) {
-	    UNLOCK(cl->ClLock);
 	    return FALSE;
 	  }
 	} else if (!Yap_unify(ARG2,GetDBTerm(cl->ClSource))) {
-	  UNLOCK(cl->ClLock);
 	  return FALSE;
 	}
 	ap = cl->ClPred;
-	UNLOCK(ref->lock);
 	return Yap_unify(GetDBLUKey(ap), ARG1);
       } else if (!Yap_unify(ARG2,GetDBTermFromDBEntry(ref))
 	  || !UnifyDBKey(ref,0,ARG1)) {
-	UNLOCK(ref->lock);
 	return FALSE;
       } else {
-	UNLOCK(ref->lock);
 	return TRUE;
       }
     }

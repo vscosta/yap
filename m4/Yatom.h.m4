@@ -286,19 +286,20 @@ typedef struct DB_TERM {
   Term Contents[MIN_ARRAY]; /* stored term	       		*/
 } DBTerm;
 
+/* The ordering of the first 3 fields should be compatible with lu_clauses */
 typedef struct DB_STRUCT {
   Functor id;		/* allow pointers to this struct to id  */
 			/*   as dbref                           */
   CELL Flags;	/* Term Flags				*/
+#if defined(YAPOR) || defined(THREADS)
+  lockvar   lock;         /* a simple lock to protect this entry */
+  Int       ref_count;    /* how many branches are using this entry */
+#endif
   CELL NOfRefsTo;	/* Number of references pointing here	*/
   struct struct_dbentry  *Parent;	/* key of DBase reference		*/
   struct yami *Code;	/* pointer to code if this is a clause 	*/
   struct DB_STRUCT *Prev; /* Previous element in chain            */
   struct DB_STRUCT *Next; /* Next element in chain                */
-#if defined(YAPOR) || defined(THREADS)
-  lockvar   lock;         /* a simple lock to protect this entry */
-  Int       ref_count;    /* how many branches are using this entry */
-#endif
   struct DB_STRUCT *p, *n; /* entry's age, negative if from recorda,
 			     positive if it was recordz  */
   CELL Mask;		/* parts that should be cleared		*/

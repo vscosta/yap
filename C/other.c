@@ -31,7 +31,7 @@ REGSTORE Yap_standard_regs;
 #ifdef THREADS
 /* PushRegs always on */
 
-pthread_key_t yaamregs_key;
+pthread_key_t Yap_yaamregs_key;
 
 #else
 

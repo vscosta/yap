@@ -1137,8 +1137,8 @@ Yap_InitWorkspace(int Heap,
 
 #if PUSH_REGS
 #ifdef THREADS
-  pthread_key_create(&yaamregs_key, NULL);
-  pthread_setspecific(yaamregs_key, (const void *)&Yap_standard_regs);
+  pthread_key_create(&Yap_yaamregs_key, NULL);
+  pthread_setspecific(Yap_yaamregs_key, (const void *)&Yap_standard_regs);
 #else
   /* In this case we need to initialise the abstract registers */
   Yap_regp = &Yap_standard_regs;

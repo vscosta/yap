@@ -82,13 +82,12 @@ thread_run(void *widp)
   
   /* create the YAAM descriptor */
   ThreadHandle[myworker_id].default_yaam_regs = standard_regs;
-  pthread_setspecific(yaamregs_key, (void *)standard_regs);
+  pthread_setspecific(Yap_yaamregs_key, (void *)standard_regs);
   worker_id = myworker_id;
   Yap_InitExStacks(ThreadHandle[myworker_id].ssize, ThreadHandle[myworker_id].tsize);
   Yap_InitYaamRegs();
   {
-    ADDR ptr = Yap_PreAllocCodeSpace();
-    Yap_ReleasePreAllocCodeSpace(ptr);
+    Yap_ReleasePreAllocCodeSpace(Yap_PreAllocCodeSpace());
   }
   tgs[0] = Yap_FetchTermFromDB(ThreadHandle[worker_id].tgoal);
   tgoal = Yap_MkApplTerm(FunctorThreadRun, 1, tgs);
@@ -369,6 +368,7 @@ p_thread_signal(void)
   ThreadHandle[wid].current_yaam_regs->CreepFlag_ = Unsigned(LCL0);
   heap_regs->wl[wid].active_signals |= YAP_ITI_SIGNAL;
   UNLOCK(heap_regs->wl[wid].signal_lock);
+  return TRUE;
 }
 
 void Yap_InitThreadPreds(void)
@@ -393,6 +393,7 @@ void Yap_InitThreadPreds(void)
   Yap_InitCPred("$cond_broadcast", 1, p_cond_broadcast, SafePredFlag);
   Yap_InitCPred("$cond_wait", 2, p_cond_wait, SafePredFlag);
   Yap_InitCPred("$install_thread_local", 2, p_install_thread_local, SafePredFlag);
+  Yap_InitCPred("$thread_signal", 2, p_thread_signal, SafePredFlag);
 }
 
 

@@ -10,7 +10,7 @@
 * File:		Regs.h							 *
 * mods:									 *
 * comments:	YAP abstract machine registers				 *
-* version:      $Id: Regs.h,v 1.23 2004-02-05 16:57:01 vsc Exp $	 *
+* version:      $Id: Regs.h,v 1.24 2004-02-06 17:22:24 vsc Exp $	 *
 *************************************************************************/
 
 
@@ -139,7 +139,7 @@ extern REGSTORE *Yap_regp;
 
 #if PUSH_X
 
-#define XREGS  (Yap_regp->XTERMS)
+#define XREGS  (Yap_REGS.XTERMS)
 
 #else
 
@@ -153,9 +153,9 @@ Term Yap_XREGS[MaxTemps];	/* 29                                     */
 
 #ifdef THREADS
 
-extern pthread_key_t yaamregs_key;
+extern pthread_key_t Yap_yaamregs_key;
 
-#define Yap_regp ((REGSTORE *)pthread_getspecific(yaamregs_key))
+#define Yap_regp ((REGSTORE *)pthread_getspecific(Yap_yaamregs_key))
 
 #endif
 

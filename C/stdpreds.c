@@ -432,7 +432,9 @@ p_creep(void)
 static Int 
 p_stop_creep(void)
 {
+  LOCK(SignalLock);
   CreepFlag = CalculateStackGap();
+  UNLOCK(SignalLock);
   return TRUE;
 }
 
