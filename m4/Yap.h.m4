@@ -10,7 +10,7 @@
 * File:		Yap.h.m4						 *
 * mods:									 *
 * comments:	main header file for YAP				 *
-* version:      $Id: Yap.h.m4,v 1.21 2002-02-12 18:24:20 vsc Exp $	 *
+* version:      $Id: Yap.h.m4,v 1.22 2002-02-22 06:10:16 vsc Exp $	 *
 *************************************************************************/
 
 #include "config.h"
@@ -232,7 +232,6 @@ extern char     Option[20];
 #endif
 
 #if !IN_SECOND_QUADRANT
-#define USE_OFFSETS	1
 #if __linux__ || __FreeBSD__ || __NetBSD__ || mips || __APPLE__
 #if defined(YAPOR) && defined(__alpha)
 #define MMAP_ADDR 0x40000000
@@ -629,13 +628,8 @@ Inline(IsUnboundVar, int, Term, t, *VarOfTerm(t) == (t))
 Inline(PtrOfTerm, CELL *, Term, t, *(CELL *)(t))
 
 Inline(FunctorOfTerm, Functor, Term, t, *RepAppl(t))
-#if IN_SECOND_QUADRANT
-Inline(MkAtomTerm, Term, Atom, a, TAGGEDA(AtomTag, (CELL *)(a)-(CELL *)HEAP_INIT_BASE))
-Destructor(Term, AtomOf, Atom, t, (CELL *)HEAP_INIT_BASE+NonTagPart(t))
-#else
-Inline(MkAtomTerm, Term, Atom, a, TAGGEDA(AtomTag, (a)))
-Destructor(Term, AtomOf, Atom, t, NonTagPart(t))
-#endif
+Inline(MkAtomTerm, Term, Atom, a, TAGGEDA(AtomTag, (CELL)(a)-HEAP_INIT_BASE))
+Destructor(Term, AtomOf, Atom, t, HEAP_INIT_BASE+NonTagPart(t))
 Inline(IsAtomTerm, int, Term, t, CHKTAG((t), AtomTag))
 
 Inline(MkIntTerm, Term, Int, n, TAGGED(NumberTag, (n)))
