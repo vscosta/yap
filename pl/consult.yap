@@ -56,10 +56,7 @@ compile(P) :-
 
 % leave compile mode to 1 for native code.
 '$compile'(M:A) :- !,
-        '$current_module'(M0),
-        '$change_module'(M),
-        '$compile'(A),
-        '$change_module'(M0).
+        '$reconsult'(A, M).
 '$compile'(A) :-
 	'$compile_mode'(Old,0),
         '$current_module'(M0),
@@ -69,12 +66,23 @@ compile(P) :-
 consult(Fs) :-
 	'$has_yap_or',
 	'$do_error'(context_error(consult(Fs),clause),query).
+consult(V) :-
+	var(V), !,
+	'$do_error'(instantiation_error,consult(V)).
+consult(M0:Fs) :- !,
+	'$consult'(Fs, M0).
 consult(Fs) :-
-	'$consult'(Fs).
+	'$current_module'(M0),
+	'$consult'(Fs, M0).
 
 reconsult(Fs) :-
 	'$has_yap_or', fail,
 	'$do_error'(context_error(reconsult(Fs),clause),query).
+reconsult(V) :-
+	var(V), !,
+	'$do_error'(instantiation_error,reconsult(V)).
+reconsult(M0:Fs) :- !,
+	'$reconsult'(Fs, M0).
 reconsult(Fs) :-
         '$current_module'(M0),
 	'$reconsult'(Fs, M0).
