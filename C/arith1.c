@@ -797,7 +797,7 @@ p_asin(Term t E_ARGS)
   out = asin(dbl);
 #if HAVE_ISNAN
   if (isnan(out)) {
-    Yap_Error(DOMAIN_ERROR_OUT_OF_RANGE, t, "acos(%f)", dbl);
+    Yap_Error(DOMAIN_ERROR_OUT_OF_RANGE, t, "asin(%f)", dbl);
     P = (yamop *)FAILCODE;
     RERROR();
   }
@@ -1061,7 +1061,7 @@ p_atanh(Term t E_ARGS)
   out = atanh(dbl);
 #if HAVE_ISNAN
   if (isnan(out)) {
-    Yap_Error(DOMAIN_ERROR_OUT_OF_RANGE, t, "acosh(%f)", dbl);
+    Yap_Error(DOMAIN_ERROR_OUT_OF_RANGE, t, "atanh(%f)", dbl);
     P = (yamop *)FAILCODE;
     RERROR();
   }

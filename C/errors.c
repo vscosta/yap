@@ -267,6 +267,12 @@ dump_stack(void)
   char tp[256];
   yamop *ipc = CP;
   
+#if DEBUG
+  fprintf(stderr,"%% YAP regs: P=%p, CP=%p, ASP=%p, H=%p, TR=%p, HeapTop=%p\n",P,CP,ASP,H,TR,HeapTop);
+  fprintf(stderr,"%% YAP mode: %x\n",Yap_PrologMode);
+  if (Yap_ErrorMessage)
+    fprintf(stderr,"%% YAP_ErrorMessage: %s\n",Yap_ErrorMessage);
+#endif
   if (H > ASP || H > LCL0) {
     fprintf(stderr,"%% YAP ERROR: Global Collided against Local (%p--%p)\n",H,ASP);
   } else   if (HeapTop > (ADDR)Yap_GlobalBase) {
@@ -293,7 +299,10 @@ dump_stack(void)
       }
     }
 #endif
-    fprintf (stderr,"Goal Stack Dump (* is backtrack point)\n"); 
+    detect_bug_location(P, FIND_PRED_FROM_ANYWHERE, (char *)H, 256);
+    fprintf (stderr,"Running code at %s\n",(char *)H); 
+    detect_bug_location(CP, FIND_PRED_FROM_ANYWHERE, (char *)H, 256);
+    fprintf (stderr,"Continuation is at %s\n",(char *)H); 
     while (b_ptr != NULL) {
       while (env_ptr && env_ptr <= (CELL *)b_ptr) {
 	detect_bug_location(ipc, FIND_PRED_FROM_ENV, tp, 256);
@@ -362,7 +371,9 @@ Yap_Error(yap_error_number type, Term where, char *format,...)
   char *tp = tmpbuf;
   int psize = YAP_BUF_SIZE;
 
-  
+#if DEBUG
+  fprintf(stderr,"***** Processing Error %d (%x,%x) ***\n", type, ActiveSignals,Yap_PrologMode);
+#endif
   if (type == INTERRUPT_ERROR) {
     fprintf(stderr,"%% YAP exiting: cannot handle signal %d\n",
 	    (int)IntOfTerm(where));
@@ -421,8 +432,6 @@ Yap_Error(yap_error_number type, Term where, char *format,...)
     Yap_PrologMode &= ~AbortMode;
     Yap_PrologMode |= InErrorMode;
   } else {
-    if (type != SYNTAX_ERROR)
-      where = Yap_CopyTerm(Deref(where));
     if (IsVarTerm(where)) {
       /* we must be careful someone gave us a copy to a local variable */
       Term t = MkVarTerm();
@@ -432,7 +441,9 @@ Yap_Error(yap_error_number type, Term where, char *format,...)
     /* Exit Abort Mode, if we were there */
     Yap_PrologMode &= ~AbortMode;
     Yap_PrologMode |= InErrorMode;
-    where = Yap_CopyTerm(where);
+    if (!(where = Yap_CopyTerm(where))) {
+      where = TermNil;
+    }
   }
   va_start (ap, format);
   /* now build the error string */
@@ -1653,6 +1664,9 @@ Yap_Error(yap_error_number type, Term where, char *format,...)
     nt[1] = MkPairTerm(MkAtomTerm(Yap_LookupAtom(tmpbuf)), Yap_all_calls());
   }
   if (serious) {
+    /* disable active signals at this point */
+    ActiveSignals = 0;
+    CreepFlag = CalculateStackGap();
     if (type == PURE_ABORT)
       Yap_JumpToEnv(MkAtomTerm(Yap_LookupAtom("$abort")));
     else
@@ -1660,6 +1674,6 @@ Yap_Error(yap_error_number type, Term where, char *format,...)
     P = (yamop *)FAILCODE;
   }
   Yap_PrologMode &= ~InErrorMode;
-  return(P);
+  return P;
 }
 

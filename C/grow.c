@@ -228,10 +228,10 @@ MoveLocalAndTrail(void)
 static void
 MoveGlobal(void)
 {
-	/*
-	 * cpcellsd(To,From,NOfCells) - copy the cells downwards - in
-	 * absmi.asm 
-	 */
+  /*
+   * cpcellsd(To,From,NOfCells) - copy the cells downwards - in
+   * absmi.asm 
+   */
 #if HAVE_MEMMOVE
   cpcellsd((CELL *)Yap_GlobalBase, (CELL *)OldGlobalBase, OldH - (CELL *)OldGlobalBase);  
 #else
@@ -1067,7 +1067,7 @@ execute_growstack(long size0, int from_trail, int in_parser, tr_fr_ptr *old_trp,
       return FALSE;
     }
     YAPEnterCriticalSection();
-    GDiff = DelayDiff = size;
+    GDiff = DelayDiff = size-size0;
   } else {
     YAPEnterCriticalSection();
     if (Yap_GlobalBase != old_Yap_GlobalBase) {

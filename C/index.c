@@ -11,8 +11,12 @@
 * File:		index.c							 *
 * comments:	Indexing a Prolog predicate				 *
 *									 *
-* Last rev:     $Date: 2005-02-21 16:50:00 $,$Author: vsc $						 *
+* Last rev:     $Date: 2005-02-24 21:46:39 $,$Author: vsc $						 *
 * $Log: not supported by cvs2svn $
+* Revision 1.115  2005/02/21 16:50:00  vsc
+* amd64 fixes
+* library fixes
+*
 * Revision 1.114  2005/01/28 23:14:36  vsc
 * move to Yap-4.5.7
 * Fix clause size
@@ -7607,6 +7611,14 @@ Yap_FollowIndexingCode(PredEntry *ap, yamop *ipc, Term Terms[3], yamop *ap_pc, y
     case _trust_me2:
     case _trust_me3:
     case _trust_me4:
+#ifdef YAPOR
+      CUT_prune_to(B->cp_b);
+#else
+      B = B->cp_b;
+#endif /* YAPOR */
+#ifdef TABLING
+      abolish_incomplete_subgoals(B);
+#endif /* TABLING */
       b0 = B;
       ipc = NEXTOP(ipc,ld);
       break;

@@ -3400,7 +3400,7 @@ do_gc(Int predarity, CELL *current_env, yamop *nextop)
     *--ASP = (CELL)current_env;
     if (!Yap_growheap(FALSE, MinHeapGap, NULL)) {
       Yap_Error(OUT_OF_HEAP_ERROR, TermNil, Yap_ErrorMessage);
-      return(FALSE);
+      return FALSE;
     }
     current_env = (CELL *)*ASP;
     ASP++;
@@ -3566,7 +3566,7 @@ call_gc(UInt gc_lim, Int predarity, CELL *current_env, yamop *nextop)
   if (gc_margin < gc_lim)
     gc_margin = gc_lim;
   GcCalls++;
-  if (gc_on) {
+  if (gc_on && !(Yap_PrologMode & InErrorMode)) {
     effectiveness = do_gc(predarity, current_env, nextop);
     if (effectiveness > 90) {
       while (gc_margin < H-H0) 

@@ -5118,4 +5118,3 @@ Yap_InitBackDB(void)
   Yap_InitCPredBack("$current_immediate_key", 2, 4, init_current_key, cont_current_key,
 		SyncPredFlag|HiddenPredFlag);
 }
-

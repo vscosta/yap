@@ -296,7 +296,7 @@ copy_complex_term(register CELL *pt0, register CELL *pt0_end, CELL *ptf, CELL *H
 }
 
 static Term
-CopyTerm(Term inp) {
+CopyTerm(Term inp, UInt arity) {
   Term t = Deref(inp);
 
   if (IsVarTerm(t)) {
@@ -310,21 +310,21 @@ CopyTerm(Term inp) {
       Hi = H+1;
       H += 2;
       if ((res = copy_complex_term(Hi-2, Hi-1, Hi, Hi)) < 0) {
-	ARG3 = t;
+	XREGS[arity+1] = t;
 	H = Hi-1;
 	if (res == -1) { /* handle overflow */
-	  if (!Yap_gc(3, ENV, P)) {
+	  if (!Yap_gc(arity+1, ENV, P)) {
 	    Yap_Error(OUT_OF_STACK_ERROR, TermNil, Yap_ErrorMessage);
 	    return FALSE;
 	  }
-	  t = Deref(ARG3);
+	  t = Deref(XREGS[arity+1]);
 	  goto restart_attached;
 	} else { /* handle overflow */
 	  if (!Yap_ExpandPreAllocCodeSpace(0,NULL)) {
 	    Yap_Error(OUT_OF_AUXSPACE_ERROR, TermNil, Yap_ErrorMessage);
 	    return FALSE;
 	  }
-	  t = Deref(ARG3);
+	  t = Deref(XREGS[arity+1]);
 	  goto restart_attached;
 	}
       }
@@ -348,20 +348,20 @@ CopyTerm(Term inp) {
       int res;
       if ((res = copy_complex_term(ap-1, ap+1, Hi, Hi)) < 0) {
 	H = Hi;
-	ARG3 = t;
+	XREGS[arity+1] = t;
 	if (res == -1) { /* handle overflow */
-	  if (!Yap_gc(3, ENV, P)) {
+	  if (!Yap_gc(arity+1, ENV, P)) {
 	    Yap_Error(OUT_OF_STACK_ERROR, TermNil, Yap_ErrorMessage);
 	    return FALSE;
 	  }
-	  t = Deref(ARG3);
+	  t = Deref(XREGS[arity+1]);
 	  goto restart_list;
 	} else { /* handle overflow */
 	  if (!Yap_ExpandPreAllocCodeSpace(0,NULL)) {
 	    Yap_Error(OUT_OF_AUXSPACE_ERROR, TermNil, Yap_ErrorMessage);
 	    return FALSE;
 	  }
-	  t = Deref(ARG3);
+	  t = Deref(XREGS[arity+1]);
 	  goto restart_list;
 	}
       }
@@ -385,20 +385,20 @@ CopyTerm(Term inp) {
 
       if ((res = copy_complex_term(ap, ap+ArityOfFunctor(f), HB0+1, HB0)) < 0) {
 	H = HB0;
-	ARG3 = t;
+	XREGS[arity+1] = t;
 	if (res == -1) {
-	  if (!Yap_gc(3, ENV, P)) {
+	  if (!Yap_gc(arity+1, ENV, P)) {
 	    Yap_Error(OUT_OF_STACK_ERROR, TermNil, Yap_ErrorMessage);
 	    return FALSE;
 	  }
-	  t = Deref(ARG3);
+	  t = Deref(XREGS[arity+1]);
 	  goto restart_appl;
 	} else { /* handle overflow */
 	  if (!Yap_ExpandPreAllocCodeSpace(0,NULL)) {
 	    Yap_Error(OUT_OF_AUXSPACE_ERROR, TermNil, Yap_ErrorMessage);
 	    return FALSE;
 	  }
-	  t = Deref(ARG3);
+	  t = Deref(XREGS[arity+1]);
 	  goto restart_appl;
 	}
       }
@@ -409,13 +409,13 @@ CopyTerm(Term inp) {
  
 Term
 Yap_CopyTerm(Term inp) {
-  return CopyTerm(inp);
+  return CopyTerm(inp, 0);
 }
 
 static Int 
 p_copy_term(void)		/* copy term t to a new instance  */
 {
-  Term t = CopyTerm(ARG1); 
+  Term t = CopyTerm(ARG1, 2); 
   if (t == 0L)
     return FALSE;
   /* be careful, there may be a stack shift here */
@@ -688,7 +688,6 @@ p_copy_term_no_delays(void)		/* copy term t to a new instance  */
 {
   Term t = CopyTermNoDelays(ARG1);
   if (t == 0L) {
-    printf("Error\n");
     return FALSE;
   }
   /* be careful, there may be a stack shift here */
