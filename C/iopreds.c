@@ -347,10 +347,17 @@ unix_upd_stream_info (StreamDesc * s)
 #if _MSC_VER || defined(__MINGW32__)
   {
     struct _stat buf;
+    char *emacs_env = getenv("EMACS");
+
     if (_fstat(YP_fileno(s->u.file.file), &buf) == -1) {
       return;
     }
     if (buf.st_mode & S_IFCHR) {
+      s->status |= Tty_Stream_f|Reset_Eof_Stream_f|Promptable_Stream_f;
+      /* make all console descriptors unbuffered */
+      setvbuf(s->u.file.file, NULL, _IONBF, 0);
+    } else if (emacs_env != NULL && strcmp(emacs_env,"t") == 0) {
+      /* emacs communicates with sub-processes via a pipe */
       s->status |= Tty_Stream_f|Reset_Eof_Stream_f|Promptable_Stream_f;
       /* make all console descriptors unbuffered */
       setvbuf(s->u.file.file, NULL, _IONBF, 0);
@@ -867,7 +874,6 @@ ReadlineGetc(int sno)
     in_getc = TRUE;
     /* Do it the gnu way */
     if (sigsetjmp(readline_jmpbuf, TRUE)) {
-      printf("hello\n");
       if (PrologMode & InterruptMode) {
 	PrologMode &= ~InterruptMode;
 	ProcessSIGINT();
