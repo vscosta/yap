@@ -26,6 +26,7 @@ false :- false.
 !.
 (:- G) :- '$execute'(G), !.
 '$$!'(CP) :- '$cut_by'(CP).
+[] :- true.
 
 :- '$set_value'('$doindex',true).
 

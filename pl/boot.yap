@@ -113,7 +113,7 @@ true :- true. % otherwise, $$compile will ignore this clause.
 	'$recorded'('$restore_goal',G,R),
 	erase(R),
 	prompt(_,'   | '),
-	'$system_catch'('$do_yes_no'((G->true)),Error,user:'$Error'(Error)),
+	'$system_catch'('$do_yes_no'((G->true),user),Error,user:'$Error'(Error)),
 	fail.
 '$enter_top_level' :-
 	( '$get_value'('$trace', 1) ->
@@ -290,7 +290,7 @@ repeat :- '$repeat'.
 % but YAP and SICStus does.
 %
 '$process_directive'(G, _, M) :-
-	( '$do_yes_no'(M:G) -> true ; '$format'(user_error,":- ~w:~w failed.~n",[M,G]) ).
+	( '$do_yes_no'(G,M) -> true ; '$format'(user_error,":- ~w:~w failed.~n",[M,G]) ).
 
 '$all_directives'(M:G1) :- !,
 	'$all_directives'(G1).
@@ -447,7 +447,8 @@ repeat :- '$repeat'.
 	).
 
 '$yes_no'(G,C) :-
-	'$do_yes_no'(G),
+	'$current_module'(M),
+	'$do_yes_no'(G,M),
 	'$show_frozen'(G, [], LGs),
 	'$write_answer'([], LGs, Written),
         ( Written = [] ->
@@ -460,8 +461,8 @@ repeat :- '$repeat'.
 	fail.
 
 
-'$do_yes_no'([X|L]) :- !, '$csult'([X|L]).
-'$do_yes_no'(G) :- '$execute'(G).
+'$do_yes_no'([X|L], M) :- !, '$csult'([X|L], M).
+'$do_yes_no'(G, M) :- '$execute'(M:G).
 
 '$extract_goal_vars_for_dump'([],[]).
 '$extract_goal_vars_for_dump'([[_|V]|VL],[V|LIV]) :-
@@ -713,8 +714,8 @@ not(A) :-
 	\+ '$execute'(X).
 '$call'(!, CP, _,_) :- !,
 	'$$cut_by'(CP).
-'$call'([A|B],_, _,_) :- !,
-	'$csult'([A|B]).
+'$call'([A|B], _, _, M) :- !,
+	'$csult'([A|B], M).
 '$call'(A, _, _,CurMod) :-
 	(
 	  % goal_expansion is defined, or
@@ -762,8 +763,8 @@ not(A) :-
 	\+ '$execute'(X).
 '$spied_call'(!,CP,_,_) :-
 	'$$cut_by'(CP).
-'$spied_call'([A|B],_,_,_) :- !,
-	'$csult'([A|B]).
+'$spied_call'([A|B],_,_,M) :- !,
+	'$csult'([A|B], M).
 '$spied_call'(A, _CP, _G0, CurMod) :-
 	(
 	  % goal_expansion is defined, or
@@ -841,11 +842,11 @@ break :- '$get_value'('$break',BL), NBL is BL+1,
 	'$set_value'('$break',BL).
 
 
-'$csult'(V) :- var(V), !,
+'$csult'(V, _) :- var(V), !,
 	throw(error(instantiation_error,consult(V))).
-'$csult'([]) :- !.
-'$csult'([-F|L]) :- !, '$reconsult'(F), '$csult'(L).
-'$csult'([F|L]) :- '$consult'(F), '$csult'(L).
+'$csult'([], _) :- !.
+'$csult'([-F|L], M) :- !, '$reconsult'(M:F), '$csult'(L, M).
+'$csult'([F|L], M) :- '$consult'(M:F), '$csult'(L, M).
 
 '$consult'(V) :- var(V), !,
 	throw(error(instantiation_error,consult(V))).
