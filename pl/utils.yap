@@ -578,7 +578,7 @@ predicate_property(Pred,Prop) :-
 	\+ '$undefined'(P,M).
 '$predicate_property'(P,M,_,meta_predicate(P)) :-
 	functor(P,Na,Ar),
-	user:'$meta_predicate'(M,Na,Ar,P).
+	'$meta_predicate'(M,Na,Ar,P).
 '$predicate_property'(P,M,_,multifile) :-
 	'$is_multifile'(P,M).
 '$predicate_property'(P,Mod,M,imported_from(Mod)) :-

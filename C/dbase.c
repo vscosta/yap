@@ -3033,25 +3033,6 @@ p_somercdedp(void)
   DBProp            AtProp;
   Register Term   twork = Deref(ARG1);	/* initially working with
 						 * ARG1 */
-  Term t3 = Deref(ARG3);
-  if (!IsVarTerm(t3)) {
-    if (!IsDBRefTerm(t3)) {
-      cut_fail();
-    } else {
-      DBRef ref = DBRefOfTerm(t3);
-      LOCK(ref->lock);
-      if (ref == NULL
-	  || DEAD_REF(ref)
-	  || !Yap_unify(ARG2,GetDBTerm(ref))
-	  || !UnifyDBKey(ref,CodeDBBit,ARG1)) {
-	UNLOCK(ref->lock);
-	cut_fail();
-      } else {
-	UNLOCK(ref->lock);
-	cut_succeed();
-      }
-    }
-  }
   if (EndOfPAEntr(AtProp = FetchDBPropFromKey(twork, MkCode, FALSE, "some_recorded/3"))) {
     return(FALSE);
   }

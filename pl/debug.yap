@@ -502,7 +502,7 @@ debugging :-
         CP is '$last_choice_pt',
 	functor(G,F,N),
 	(
-	    user:'$meta_predicate'(F,M,N,_) ->
+	    '$meta_predicate'(F,M,N,_) ->
 	    '$setflop'(1),
 	    '$creep',
 	    % I need to use call, otherwise I'll be in trouble if G
@@ -584,8 +584,15 @@ debugging :-
 	    Next is Cl+1, '$set_value'(spy_cl,Next), fail
         ).
 '$do_creep_execute'(G,M,Cl) :-
-	'$creep_execute'(G,M,Cl), '$leave_creep' ; 
-	'$leave_creep', Next is Cl+1, '$set_value'(spy_cl,Next), fail.
+	(
+	  '$creep_execute'(G,M,Cl),
+	   '$leave_creep'
+	  ; 
+	  '$leave_creep',
+	  Next is Cl+1,
+	  '$set_value'(spy_cl,Next),
+	  fail
+	).
 
 '$do_creep_log_upd_execute'(G,M,Cl,Index) :-
 	'$check_depth_for_interpreter'(D),
