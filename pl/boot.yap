@@ -154,6 +154,7 @@ read_sig.
 
 '$startup_reconsult' :-
 	get_value('$consult_on_boot',X), X \= [], !,
+	set_value('$consult_on_boot',[]),
 	'$do_startup_reconsult'(X).
 '$startup_reconsult'.
 
