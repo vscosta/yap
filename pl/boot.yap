@@ -47,6 +47,7 @@ true :- true.
 	  true
 	),
 	'$set_yap_flags'(10,0),
+	set_value(fileerrors,1),
 	set_value('$gc',on),
 	set_value('$verbose',on),
 	('$exit_undefp' -> true ; true),

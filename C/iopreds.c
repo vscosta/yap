@@ -454,9 +454,9 @@ PlIOError (yap_error_number type, Term culprit, char *who)
   if (Yap_GetValue(Yap_LookupAtom("fileerrors")) == MkIntTerm(1)) {
     Yap_Error(type, culprit, who);
     /* and fail */
-    return(FALSE);
+    return FALSE;
   } else {
-    return(FALSE);
+    return FALSE;
   }
 }
 
