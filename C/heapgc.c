@@ -23,7 +23,8 @@ static char     SccsId[] = "%W% %G%";
 
 
 #define EARLY_RESET 1
-#define SIMPLE_SHUNTING 1
+#define EASY_SHUNTING 1
+#define HYBRID_SCHEME 1
 
 #ifdef MULTI_ASSIGNMENT_VARIABLES
 /* 
@@ -145,7 +146,7 @@ STATIC_PROTO(Int  p_gc, (void));
 
 #ifndef FIXED_STACKS
 
-#ifdef SIMPLE_SHUNTING
+#ifdef EASY_SHUNTING
 static choiceptr current_B;
 
 static tr_fr_ptr sTR;
@@ -179,6 +180,145 @@ static Int      tot_gc_recovered = 0; /* number of heap objects in all garbage c
 #include "heapgc.h"
 
 static int discard_trail_entries = 0;
+
+/* support for hybrid garbage collection scheme */
+
+#ifdef HYBRID_SCHEME
+
+static CELL_PTR *iptop;
+
+inline static void
+PUSH_POINTER(CELL *v) {
+  if (iptop >= (CELL_PTR *)ASP) return;
+  *iptop++ = v;
+}
+
+inline static void
+POP_POINTER(void) {
+  if (iptop >= (CELL_PTR *)ASP) return;
+  --iptop;
+}
+
+inline static void
+POPSWAP_POINTER(CELL_PTR *vp) {
+  if (iptop >= (CELL_PTR *)ASP) return;
+  --iptop;
+  if (vp != iptop)
+    *vp = *iptop;
+}
+
+/*
+  original code from  In Hyuk Choi,
+  found at http://userpages.umbc.edu/~ichoi1/project/cs441.htm
+*/
+
+static inline void
+exchange(CELL_PTR * b, UInt i, UInt j)
+{ 
+  CELL *t = b[j];
+
+  b[j] = b[i];
+  b[i] = t;
+}
+
+static UInt
+gc_random(UInt l, UInt h) 
+{
+#if HAVE_RANDOM
+  return (random () % (h-l+1))+l;
+#elif HAVE_RAND
+  return (rand () % (h-l+1))+l;
+#else
+  return ((h+l)/2);
+#endif
+}
+
+
+static UInt
+partition(CELL *a[], UInt p, UInt r)
+{ 
+  CELL *x;
+  UInt i, j;
+
+  x = a[p];
+  i = p+1;
+  j = r;
+
+  while (a[j] > x) {
+    j--;
+  }
+  while (a[i] < x && i < j) {
+    i++;
+  }
+  while(i < j) {
+    exchange(a, i, j);
+    i++;
+    j--;
+    while (a[j] > x) {
+      j--;
+    }
+    while (a[i] < x && i < j) {
+      i++;
+    }
+  }
+  if (a[i] > x)
+    i--;
+  exchange(a, p, i);
+  return(i);
+}
+
+static void
+insort(CELL *a[], UInt p, UInt q)
+{
+  UInt j;
+    
+  for (j = p+1; j <= q; j ++) {
+    CELL *key;
+    UInt i;
+
+    key = a[j];
+    i = j;
+	 
+    while (i > p && a[i-1] > key) {
+      a[i] = a[i-1];
+      i --;
+    }
+    a[i] = key;
+  }
+}
+
+
+static int
+randomised_partition(CELL *a[], UInt p, UInt r)
+{
+  UInt m = gc_random(p,r);
+  exchange(a, p, m);
+  return partition(a, p, r);
+}
+
+
+static void
+randomised_quicksort(CELL *a[], UInt p, UInt r)
+{ 
+  UInt q;
+  if (p < r) {
+    if (r - p < 100) {
+      insort(a, p, r);
+      return;
+    }
+    q = randomised_partition (a, p, r);  
+    randomised_quicksort(a, p, q-1);
+    randomised_quicksort(a, q + 1, r);
+  }
+}
+
+#else
+
+#define PUSH_POINTER(P)
+#define POP_POINTER()
+#define POPSWAP_POINTER(P)
+
+#endif /* HYBRID_SCHEME */
 
 
 /* find all accessible objects on the heap and squeeze out all the rest */
@@ -536,6 +676,7 @@ init_dbtable(tr_fr_ptr trail_ptr) {
 #ifdef DEBUG
 
 #define INSTRUMENT_GC 1
+/*#define CHECK_CHOICEPOINTS 1*/
 
 #ifdef INSTRUMENT_GC
 typedef enum {
@@ -705,11 +846,12 @@ mark_variable(CELL_PTR current)
     return;
   MARK(current);
   total_marked++;
+  PUSH_POINTER(current);
   next = GET_NEXT(ccur);
 
   if (IsVarTerm(ccur)) {
     if (ONHEAP(next)) {
-#ifdef SIMPLE_SHUNTING
+#ifdef EASY_SHUNTING
       CELL cnext;
       /* do variable shunting between variables in the global */
       if (!MARKED((cnext = *next))) {
@@ -734,6 +876,7 @@ mark_variable(CELL_PTR current)
 	  if (next >= HB) {
 	    *current = cnext;
 	    total_marked--;
+	    POP_POINTER();
 	  } else {
 #ifdef INSTRUMENT_GC
 	    inc_var(current, next);
@@ -745,6 +888,7 @@ mark_variable(CELL_PTR current)
 	/* This step is possible because we clean up the trail */
 	*current = UNMARK_CELL(cnext);
 	total_marked--;
+	POP_POINTER();
       } else
 #endif
 	/* what I'd do without variable shunting */
@@ -805,10 +949,19 @@ mark_variable(CELL_PTR current)
       case (CELL)FunctorLongInt:
 	MARK(next);
 	total_marked += 3;
+	PUSH_POINTER(next);
+	PUSH_POINTER(next+1);
+	PUSH_POINTER(next+2);
 	return;
       case (CELL)FunctorDouble:
 	MARK(next);
 	total_marked += 2+SIZEOF_DOUBLE/SIZEOF_LONG_INT;
+	PUSH_POINTER(next);
+	PUSH_POINTER(next+1);
+	PUSH_POINTER(next+2);
+#if SIZEOF_DOUBLE==2*SIZEOF_LONG_INT
+	PUSH_POINTER(next+3);
+#endif
 	return;
 #ifdef USE_GMP
       case (CELL)FunctorBigInt:
@@ -817,6 +970,15 @@ mark_variable(CELL_PTR current)
 	total_marked += 2+
 	  (sizeof(MP_INT)+
 	   (((MP_INT *)(next+1))->_mp_alloc*sizeof(mp_limb_t)))/CellSize;
+	{
+	  int i = 1;
+	  PUSH_POINTER(next);
+	  for (i = 0; i <= (sizeof(MP_INT)+
+		 (((MP_INT *)(next+1))->_mp_alloc*sizeof(mp_limb_t)))/CellSize;
+	       i++)
+	    PUSH_POINTER(next+i);
+	  PUSH_POINTER(next+i);
+	}
 	return;
 #endif
       default:
@@ -829,6 +991,7 @@ mark_variable(CELL_PTR current)
     arity = ArityOfFunctor((Functor)(cnext));
     MARK(next);
     ++total_marked;
+    PUSH_POINTER(next);
     for (i = 1; i < arity; ++i)
       mark_variable(next + i);
     current = next + arity;
@@ -849,8 +1012,12 @@ mark_external_reference(CELL *ptr) {
   /* first, mark variables in environments */
   if (IsVarTerm(reg)) {
     if (ONHEAP(reg)) {
+#ifdef HYBRID_SCHEME
+      CELL_PTR *old = iptop;
+#endif      
       mark_variable(ptr);
       total_marked--;
+      POPSWAP_POINTER(old);
     } else {
       MARK(ptr);
     }
@@ -858,8 +1025,12 @@ mark_external_reference(CELL *ptr) {
     CELL *next = RepAppl(reg);
 
     if (ONHEAP(next)) {
+#ifdef HYBRID_SCHEME
+      CELL_PTR *old = iptop;
+#endif      
       mark_variable(ptr);
       total_marked--;
+      POPSWAP_POINTER(old);
     } else {
       MARK(ptr);
       if (ONCODE(next)) {
@@ -876,8 +1047,12 @@ mark_external_reference(CELL *ptr) {
    CELL *next = RepPair(reg);
    
    if (ONHEAP(next)) {
+#ifdef HYBRID_SCHEME
+      CELL_PTR *old = iptop;
+#endif      
       mark_variable(ptr);
       total_marked--;
+      POPSWAP_POINTER(old);
    } else {
      MARK(ptr);
      if (ONCODE(next)) {
@@ -1051,7 +1226,7 @@ mark_trail(tr_fr_ptr trail_ptr, tr_fr_ptr trail_base, CELL *gc_H, choiceptr gc_B
 	   The point of doing so is to have dynamic arrays */
 	  mark_external_reference(hp);
 	}
-#ifdef SIMPLE_SHUNTING
+#ifdef EASY_SHUNTING
 	if (hp < gc_H   && hp >= H0) {
 	  CELL *cptr = (CELL *)trail_cell;
 
@@ -1169,7 +1344,6 @@ mark_trail(tr_fr_ptr trail_ptr, tr_fr_ptr trail_base, CELL *gc_H, choiceptr gc_B
 #endif
 
 #ifdef DEBUG
-#define CHECK_CHOICEPOINTS 1
 #endif
 
 #ifdef CHECK_CHOICEPOINTS
@@ -1195,7 +1369,7 @@ mark_choicepoints(register choiceptr gc_B, tr_fr_ptr saved_TR)
     register OPCODE op;
     yamop *rtp = gc_B->cp_ap;
 
-#ifdef SIMPLE_SHUNTING
+#ifdef EASY_SHUNTING
     current_B = gc_B;
 #endif
     HB = gc_B->cp_h;
@@ -2170,7 +2344,149 @@ compact_heap(void)
 
 }
 
-#ifdef SIMPLE_SHUNTING
+#ifdef HYBRID_SCHEME
+/*
+ * move marked objects on the heap upwards over unmarked objects, and reset
+ * all pointers to point to new locations 
+ */
+static void 
+icompact_heap(void)
+{
+  CELL_PTR *iptr, *ibase = (CELL_PTR *)H;
+#ifdef DEBUG
+  Int             found_marked = 0;
+#endif /* DEBUG */
+  choiceptr        gc_B = B;
+ 
+
+  /*
+   * upward phase - scan heap from high to low, setting marked upward
+   * ptrs to point to what will be the new locations of the
+   * objects pointed to  
+   */
+
+  for (iptr = iptop - 1; iptr >= ibase; iptr--) {
+    CELL ccell;
+    CELL_PTR        current;
+
+    current = *iptr;
+    ccell = UNMARK_CELL(*current);
+    if (ccell < (CELL)AtomBase && ccell > EndSpecials && IsVarTerm(ccell)
+	) {
+      /* oops, we found a blob */
+      int nofcells = (UNMARK_CELL(*current)-EndSpecials) / sizeof(CELL);
+      CELL *ptr = current - nofcells ;
+
+      gc_B = update_B_H(gc_B, current, H0+(iptr-ibase), H0+(iptr-ibase)+1);
+      iptr -= nofcells;
+#ifdef DEBUG
+      found_marked+=nofcells;
+#endif /* DEBUG */
+      /* this one's being used */
+      /* first swap the tag so that it will be seen by the next step */
+      {
+	CELL tmp = current[0];
+	current[0] = ptr[1];
+	ptr[1] = tmp;
+      }
+      current = ptr;
+    } else {
+      /* process the functor next */
+      gc_B = update_B_H(gc_B, current, H0+(iptr-ibase), H0+((iptr-ibase)+1));
+    }
+#ifdef DEBUG
+    found_marked++;
+#endif /* DEBUG */
+    update_relocation_chain(current, H0+(iptr-ibase));
+    if (HEAP_PTR(*current)) {
+      CELL_PTR next;
+      next = GET_NEXT(*current);
+      if (next < current)	/* push into reloc.
+				 * chain */
+	into_relocation_chain(current, next);
+      else if (current == next)	/* cell pointing to
+				 * itself */
+	*current = (*current & MBIT) | (CELL) (H0+(iptr-ibase));	/* no tag */
+    }
+  }
+
+#ifdef DEBUG
+  if (total_marked != found_marked)
+    YP_fprintf(YP_stderr,"[GC] Upward (%d): %ld total against %ld found\n",
+	       gc_calls,
+	       (unsigned long int)total_marked,
+	       (unsigned long int)found_marked);
+  found_marked = 0;
+#endif
+
+
+  /*
+   * downward phase - scan heap from low to high, moving marked objects
+   * to their new locations & setting downward pointers to pt to new
+   * locations 
+   */
+
+  for (iptr = ibase; iptr < iptop; iptr++) {
+    CELL_PTR next;
+    CELL *current = *iptr;
+    CELL ccur = *current;
+    CELL_PTR dest = H0+(iptr-ibase);
+    CELL uccur = UNMARK_CELL(ccur);
+    if (uccur < (CELL)AtomBase && uccur > EndSpecials && IsVarTerm(uccur)) {
+      /* oops, we found a blob */
+      int nofcells = (uccur-EndSpecials) / sizeof(CELL) , i;
+
+      *dest++ = current[nofcells-1];
+      current ++;
+      for (i = 0; i < nofcells-2; i++) {
+	*dest++ = *current++;
+      }
+      *dest = ccur;
+      iptr += nofcells-1;
+#ifdef DEBUG
+      found_marked += nofcells;
+#endif
+      continue;
+    }
+#ifdef DEBUG
+    found_marked++;
+#endif
+    update_relocation_chain(current, dest);
+    ccur = *current;
+    next = GET_NEXT(ccur);
+    if (HEAP_PTR(ccur) &&	/* move current cell &
+				 * push */
+	next > current) {	/* into relocation chain  */
+      *dest = ccur;
+      into_relocation_chain(dest, next);
+      UNMARK(dest);
+    } else {
+      /* just move current cell */
+      *dest = ccur = UNMARK_CELL(ccur);
+    }
+  }
+#ifdef DEBUG
+  if (total_marked != found_marked)
+    YP_fprintf(YP_stderr,"[GC] Downward (%d): %ld total against %ld found\n",
+	       gc_calls,
+	       (unsigned long int)total_marked,
+	       (unsigned long int)found_marked);
+#endif
+
+  H = H0+(iptop-ibase);		/* reset H */
+  HB = B->cp_h;
+#ifdef TABLING
+  if (B_FZ == (choiceptr)LCL0)
+    H_FZ = H0;
+  else
+    H_FZ = B_FZ->cp_h;
+#endif
+
+}
+#endif /* HYBRID_SCHEME */
+
+
+#ifdef EASY_SHUNTING
 static void
 set_conditionals(CELL *TRo) {
   while (sTR != TRo) {
@@ -2191,7 +2507,7 @@ static void
 marking_phase(tr_fr_ptr old_TR, CELL *current_env, yamop *curp, CELL *max)
 {
 
-#ifdef SIMPLE_SHUNTING
+#ifdef EASY_SHUNTING
   tr_fr_ptr TRo;
   sTR = (tr_fr_ptr)PreAllocCodeSpace();
   TRo = sTR;
@@ -2207,7 +2523,7 @@ marking_phase(tr_fr_ptr old_TR, CELL *current_env, yamop *curp, CELL *max)
   /* active environments */
   mark_environments(current_env, EnvSize(curp), EnvBMap((CELL *)curp));
   mark_choicepoints(B, old_TR);	/* choicepoints, and environs  */
-#ifdef SIMPLE_SHUNTING
+#ifdef EASY_SHUNTING
   set_conditionals(TRo);
   ReleasePreAllocCodeSpace((ADDR)sTR);
 #endif
@@ -2240,12 +2556,22 @@ static void
 compaction_phase(tr_fr_ptr old_TR, CELL *current_env, yamop *curp, CELL *max)
 {
 #ifdef COROUTINING
-	sweep_delays(max);
+  sweep_delays(max);
 #endif
-	sweep_environments(current_env, EnvSize(curp), EnvBMap((CELL *)curp));
-	sweep_choicepoints(B);
-	sweep_trail(B, old_TR);
-	compact_heap();
+  sweep_environments(current_env, EnvSize(curp), EnvBMap((CELL *)curp));
+  sweep_choicepoints(B);
+  sweep_trail(B, old_TR);
+#ifdef HYBRID_SCHEME
+#ifdef DEBUG
+  if (total_marked != iptop-(CELL_PTR *)H && iptop < (CELL_PTR *)ASP -1024)
+    YP_fprintf(YP_stderr,"[GC] Oops on iptop-H (%d) vs %d\n", iptop-(CELL_PTR *)H, total_marked);
+#endif
+  if (iptop < (CELL_PTR *)ASP-1024 && 10*total_marked < H-H0) {
+    randomised_quicksort((CELL_PTR *)H, 0, (iptop-(CELL_PTR *)H)-1);
+    icompact_heap();
+  } else
+#endif /* HYBRID_SCHEME */
+    compact_heap();
 }
 
 static Int
@@ -2263,6 +2589,9 @@ do_gc(Int predarity, CELL *current_env, yamop *nextop)
   Int           effectiveness = 0;
   int           gc_trace = FALSE;
 
+#ifdef HYBRID_SCHEME
+  iptop = (CELL_PTR *)H;
+#endif
 #ifdef INSTRUMENT_GC
   {
     int i;

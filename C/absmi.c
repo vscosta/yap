@@ -318,7 +318,7 @@ absmi(int inp)
 	ASP = (CELL *) B;
       }
       else {
-	ASP = Y;
+	ASP = Y+E_CB;
       }
 #if PUSH_REGS
       restore_absmi_regs(old_regs);
@@ -1599,7 +1599,7 @@ absmi(int inp)
       if (HeapTop > Addr(AuxSp) - MinHeapGap)
 #endif
 	{
-	  ASP = Y;
+	  ASP = Y+E_CB;
 	  if (ASP > (CELL *)B)
 	    ASP = (CELL *)B;
 	  goto noheapleft;
@@ -1906,7 +1906,7 @@ absmi(int inp)
       if (HeapTop > Addr(AuxSp) - MinHeapGap)
 #endif /* YAPOR */
 	{
-	  ASP = Y;
+	  ASP = Y+E_CB;
 	  if (ASP > (CELL *)B)
 	    ASP = (CELL *)B;
 	  goto noheapleft;
@@ -1928,7 +1928,7 @@ absmi(int inp)
 
       /* try performing garbage collection */
 
-      ASP = Y;
+      ASP = Y+E_CB;
       saveregs();
       gc(PredArity(SREG), ENV, CPREG);
       setregs();
@@ -5721,7 +5721,7 @@ absmi(int inp)
       ENDCACHE_Y();
 
     TRYCC:
-      ASP = Y;
+      ASP = (CELL *)B;
       saveregs();
 
       BEGD(d0);
