@@ -2154,6 +2154,7 @@ p_pred_for_code(void) {
   Int cl;
 
   cl = PredForCode(codeptr, &at, &arity, &module);
+  if (cl == 0) return(unify(ARG5,MkIntegerTerm(cl)));
   return(unify(ARG2,MkAtomTerm(at)) &&
 	 unify(ARG3,MkIntegerTerm(arity)) &&
 	 unify(ARG4,ModuleName[module]) &&
