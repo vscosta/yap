@@ -2301,7 +2301,7 @@ InitCPreds(void)
     InitForeignPreds();
   }
 #endif
-#if NUNO
+#if APRIL
   {
     extern void init_ol(void), init_time(void);
   

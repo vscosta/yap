@@ -55,6 +55,10 @@ AC_ARG_ENABLE(condor,
 	[ --enable-condor    allow Yap to be used from condor ],
 	use_condor="$enableval", use_condor=no)
 	
+AC_ARG_ENABLE(april,
+	[ --enable-april    compile Yap to support April ILP system],
+	use_april="$enableval", use_april=no)
+	
 AC_ARG_WITH(gmp,
 	[ --with-gmp[=DIR]           use GNU Multiple Precision in DIR],
 	if test "$withval" = yes; then
@@ -591,6 +595,13 @@ fi
 if test "$depthlimit" = "yes"
   then
   YAP_EXTRAS="$YAP_EXTRAS -DDEPTH_LIMIT=1"
+fi
+  
+if test "$use_april" = "yes"
+  then	
+   YAP_EXTRAS="$YAP_EXTRAS -DDEPTH_LIMIT=1 -DAPRIL"
+   LDFLAGS="$LDFLAGS -L./"
+   LIBS="$LIBS -lApril"
 fi
   
 if test "$lowleveltracer" = "yes"
