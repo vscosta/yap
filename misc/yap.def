@@ -7,7 +7,7 @@ YapReset
 Deref
 YapIsVarTerm
 YapIsNonVarTerm
-MkVarTerm
+YapMkVarTerm
 YapIsIntTerm
 YapIsFloatTerm
 YapIsDbRefTerm
