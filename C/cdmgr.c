@@ -922,15 +922,15 @@ p_in_this_f_before(void)
   Prop            p0;
   SMALLUNSGN      mod;
 
-  if (IsVarTerm(t = Deref(ARG1)) && !IsAtomTerm(t))
+  if (IsVarTerm(t = Deref(ARG1)) || !IsAtomTerm(t))
     return (FALSE);
   else
     at = AtomOfTerm(t);
-  if (IsVarTerm(t = Deref(ARG2)) && !IsIntTerm(t))
+  if (IsVarTerm(t = Deref(ARG2)) || !IsIntTerm(t))
     return (FALSE);
   else
     arity = IntOfTerm(t);
-  if (IsVarTerm(t = Deref(ARG3)) && !IsAtomTerm(t))
+  if (IsVarTerm(t = Deref(ARG3)) || !IsAtomTerm(t))
     return (FALSE);
   else
     mod = LookupModule(t);
@@ -962,15 +962,15 @@ p_first_cl_in_f(void)
   SMALLUNSGN      mod;
   
 
-  if (IsVarTerm(t = Deref(ARG1)) && !IsAtomTerm(t))
+  if (IsVarTerm(t = Deref(ARG1)) || !IsAtomTerm(t))
     return (FALSE);
   else
     at = AtomOfTerm(t);
-  if (IsVarTerm(t = Deref(ARG2)) && !IsIntTerm(t))
+  if (IsVarTerm(t = Deref(ARG2)) || !IsIntTerm(t))
     return (FALSE);
   else
     arity = IntOfTerm(t);
-  if (IsVarTerm(t = Deref(ARG3)) && !IsAtomTerm(t))
+  if (IsVarTerm(t = Deref(ARG3)) || !IsAtomTerm(t))
     return (FALSE);
   else
     mod = LookupModule(t);

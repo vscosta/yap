@@ -220,7 +220,7 @@ putAtom(Atom atom)			/* writes an atom	 */
   char           *s = RepAtom(atom)->StrOfAE;
   wtype          atom_or_symbol = AtomIsSymbols(s);
 
-#define CRYPT_FOR_STEVE 1
+  /* #define CRYPT_FOR_STEVE 1*/
 #ifdef CRYPT_FOR_STEVE
   if (GetValue(LookupAtom("crypt_atoms")) != TermNil && GetAProp(atom, OpProperty) == NIL) {
     char s[16];

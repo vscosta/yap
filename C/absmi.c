@@ -7816,13 +7816,11 @@ absmi(int inp)
 	  DelayedB = pt0;
       }
       /* find where to cut to */
-#ifdef YAPOR
       if (SHOULD_CUT_UP_TO(B,pt0)) {
 	/* Wow, we're gonna cut!!! */
+#ifdef YAPOR
 	CUT_prune_to(pt0);
 #else
-      if (SHOULD_CUT_UP_TO(B,pt0)) {
-	/* Wow, we're gonna cut!!! */
 	B = pt0;
 #endif /* YAPOR */
 	HBREG = PROTECT_FROZEN_H(B);

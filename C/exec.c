@@ -1027,7 +1027,7 @@ execute_goal(Term t, int nargs, SMALLUNSGN mod)
     OldTopB = (choiceptr)(LCL0-MyOldTopB);
     OldDelayedB = (choiceptr)(LCL0-MyOldDelayedB);
     if (DelayedB != NULL) {
-      if (YOUNGER_CP(DelayedB,B)) {
+      if (YOUNGER_CP(B,DelayedB)) {
 	/* we have a delayed cut to do */
 	if (YOUNGER_CP(OldTopB,DelayedB)) {
 	  /* and this delayed cut is to before the c-code that actually called us */
@@ -1074,7 +1074,7 @@ execute_goal(Term t, int nargs, SMALLUNSGN mod)
     OldTopB = (choiceptr)(LCL0-MyOldTopB);
     OldDelayedB = (choiceptr)(LCL0-MyOldDelayedB);
     if (DelayedB != NULL) {
-      if (YOUNGER_CP(DelayedB,B)) {
+      if (YOUNGER_CP(B,DelayedB)) {
 	/* we have a delayed cut to do */
 	if (YOUNGER_CP(OldTopB,DelayedB)) {
 	  /* and this delayed cut is to before the c-code that actually called us */
@@ -1254,10 +1254,23 @@ Int
 JumpToEnv(Term t) {
   yamop *pos = (yamop *)(PredDollarCatch->LastClause);
   CELL *env;
+  choiceptr first_func = NULL;
 
   do {
     /* find the first choicepoint that may be a catch */
     while (B->cp_ap != pos) {
+      /* we are already doing a catch */
+      if (B->cp_ap == (yamop *)(PredHandleThrow->LastClause)) {
+	if (DelayedB == NULL || YOUNGER_CP(B,DelayedB))
+	  DelayedB = B;
+	P = (yamop *)FAILCODE;
+	if (first_func != NULL) {
+	  B = first_func;
+	}
+	return(FALSE);
+      }
+      if (B->cp_ap == (yamop *) NOCODE && first_func == NULL)
+	first_func = B;
       B = B->cp_b;
     }
     /* is it a continuation? */
@@ -1278,7 +1291,12 @@ JumpToEnv(Term t) {
   /* I could backtrack here, but it is easier to leave the unwinding
      to the emulator */
   B->cp_a3 = t;
+  if (DelayedB == NULL || YOUNGER_CP(B,DelayedB))
+    DelayedB = B;
   P = (yamop *)FAILCODE;
+  if (first_func != NULL) {
+    B = first_func;
+  }
   return(FALSE);
 }
 
