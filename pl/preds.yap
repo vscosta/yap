@@ -342,7 +342,7 @@ abolish(X) :-
 '$abolish_all' :-
         current_predicate(_,P),
 	functor(P, Na, Ar),
-	'$new_abolish'(Na, Ar),
+	'$new_abolish'(Na/Ar),
 	fail.
 '$abolish_all'.
 
