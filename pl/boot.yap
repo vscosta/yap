@@ -749,15 +749,19 @@ not(A) :-
 '$call'(A, _, _,CurMod) :-
 	(
 	  % goal_expansion is defined, or
-	  '$pred_goal_expansion_on'
+	  '$pred_goal_expansion_on' ->
+	  '$expand_call'(A,CurMod)
         ;
           % this is a meta-predicate
-	  '$flags'(A,CurMod,F,_), F /\ 0x200000 =:= 0x200000
-	), !,
+	  '$flags'(A,CurMod,F,_), F /\ 0x200000 =:= 0x200000 ->
+	  '$expand_call'(A,CurMod)
+	;
+	  '$execute0'(A, CurMod)
+	).
+
+'$expand_call'(A,CurMod) :-	
 	'$expand_goal'(A, CurMod, CurMod, NG, NMod),
 	'$execute0'(NG, NMod).
-'$call'(A, _, _, M) :-
-	'$execute0'(A, M).
 
 '$spied_call'((A,B),CP,G0,M) :- !,
 	'$execute_within'(A,CP,G0,M),
@@ -796,17 +800,27 @@ not(A) :-
 	'$$cut_by'(CP).
 '$spied_call'([A|B],_,_,M) :- !,
 	'$csult'([A|B], M).
-'$spied_call'(A, _CP, _G0, CurMod) :-
+'$spied_call'(A, CP, G0, CurMod) :-
 	(
 	  % goal_expansion is defined, or
 	  '$pred_goal_expansion_on'
+	 ->
+	  '$finish_spied_call'(A,CurMod)
         ;
           % this is a meta-predicate
 	  '$flags'(A,CurMod,F,_), F /\ 0x200000 =:= 0x200000
-	), !,
+	 ->
+	  '$finish_spied_call'(A,CurMod)
+	;
+	  % finish_it_off (careful with co-routining)
+	  '$std_spied_call'(A, CP, G0, CurMod)
+	).
+
+'$finish_spied_call'(A,CurMod) :-
 	'$expand_goal'(A, CurMod, CurMod, NG, NMod),
 	'$execute0'(NG, NMod).
-'$spied_call'(A, CP, G0, M) :-
+
+'$std_spied_call'(A, CP, G0, M) :-
 	( '$undefined'(A, M) ->
 		functor(A,F,N),
 		( '$recorded'('$import','$import'(S,M,F,N),_) ->
