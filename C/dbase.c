@@ -865,8 +865,6 @@ static CELL *MkDBTerm(register CELL *pt0, register CELL *pt0_end,
 	  Term t[4];
 	  int sz = to_visit-to_visit_base;
 
-	  printf("visiting a constraint %p\n", ptd0);
-
 	  H = (CELL *)to_visit;
 	  /* store the constraint away for now */
 	  t[0] = (CELL)ptd0;
