@@ -11,8 +11,12 @@
 * File:		stdpreds.c						 *
 * comments:	General-purpose C implemented system predicates		 *
 *									 *
-* Last rev:     $Date: 2004-12-28 22:20:36 $,$Author: vsc $						 *
+* Last rev:     $Date: 2005-01-05 05:32:37 $,$Author: vsc $						 *
 * $Log: not supported by cvs2svn $
+* Revision 1.79  2004/12/28 22:20:36  vsc
+* some extra bug fixes for trail overflows: some cannot be recovered that easily,
+* some can.
+*
 * Revision 1.78  2004/12/08 04:45:03  vsc
 * polish changes to undefp
 * get rid of a few warnings
@@ -95,9 +99,9 @@ static char     SccsId[] = "%W% %G%";
 #endif
 
 #ifdef LOW_PROF
-  #include <signal.h>
-  #include <unistd.h>
-  #include <sys/time.h>
+#include <signal.h>
+#include <unistd.h>
+#include <sys/time.h>
 #endif
 
 STD_PROTO(static Int p_setval, (void));
@@ -157,6 +161,63 @@ STD_PROTO(static Int p_set_yap_flags, (void));
 
 #define TIMER_DEFAULT 100
 #define MORE_INFO_FILE 1
+#define PROFILING_FILE 1
+#define PROFPREDS_FILE 2
+
+static char *DIRNAME=NULL;
+
+char *set_profile_dir(char *);
+char *set_profile_dir(char *name){
+int size=0;
+
+    if (name!=NULL) {
+      size=strlen(name)+1;
+      if (DIRNAME!=NULL) free(DIRNAME);
+      DIRNAME=malloc(size);
+      if (DIRNAME==NULL) { printf("Profiler Out of Mem\n"); exit(1); }
+      strcpy(DIRNAME,name);
+    } 
+    if (DIRNAME==NULL) {
+      do {
+        if (DIRNAME!=NULL) free(DIRNAME);
+        size+=20;
+        DIRNAME=malloc(size);
+        if (DIRNAME==NULL) { printf("Profiler Out of Mem\n"); exit(1); }
+      } while (getcwd(DIRNAME, size-15)==NULL); 
+    }
+
+return DIRNAME;
+}
+
+char *profile_names(int);
+char *profile_names(int k) {
+static char *FNAME=NULL;
+int size=200;
+   
+  if (DIRNAME==NULL) set_profile_dir(NULL);
+  size=strlen(DIRNAME)+40;
+  if (FNAME!=NULL) free(FNAME);
+  FNAME=malloc(size);
+  if (FNAME==NULL) { printf("Profiler Out of Mem\n"); exit(1); }
+  strcpy(FNAME,DIRNAME);
+
+  if (k==PROFILING_FILE) {
+    sprintf(FNAME,"%s/PROFILING_%d",FNAME,getpid());
+  } else { 
+    sprintf(FNAME,"%s/PROFPREDS_%d",FNAME,getpid());
+  }
+
+  //  printf("%s\n",FNAME);
+  return FNAME;
+}
+
+void del_profile_files(void);
+void del_profile_files() {
+  if (DIRNAME!=NULL) {
+    remove(profile_names(PROFPREDS_FILE));
+    remove(profile_names(PROFILING_FILE));
+  }
+}
 
 void
 Yap_inform_profiler_of_clause(yamop *code_start, yamop *code_end, PredEntry *pe,int index_code) {
@@ -167,7 +228,7 @@ static Int order=0;
     Int temp;
     order++;
     if (index_code) temp=-order; else temp=order;
-    fprintf(FPreds,"+%p %p %p %ld",code_start,code_end, pe, (long int)temp);
+    fprintf(FPreds,"+%p %p %p %d",code_start,code_end, pe, temp);
 #if MORE_INFO_FILE
     if (pe->FunctorOfPred->KindOfPE==47872) {
       if (pe->ArityOfPE) {
@@ -242,7 +303,7 @@ search_pc_pred(yamop *pc_ptr,clauseentry *beg, clauseentry *end) {
 extern void Yap_InitAbsmi(void);
 extern int rational_tree_loop(CELL *pt0, CELL *pt0_end, CELL **to_visit0);
 
-#ifndef ANALYST
+#ifdef ANALYST
 static char *op_names[_std_top + 1] =
 {
 #define OPCODE(OP,TYPE) #OP
@@ -265,17 +326,17 @@ showprofres(UInt type) {
 
   /* First part: Read information about predicates and store it on yap trail */
 
-  FPreds=fopen("PROFPREDS","r"); 
-  if (FPreds == NULL) return FALSE;
+  FPreds=fopen(profile_names(PROFPREDS_FILE),"r"); 
+  if (FPreds == NULL) { printf("Sorry, profiler couldn't find PROFPREDS file. \n"); return FALSE; }
 
   ProfPreds=0;
   pr=(clauseentry *) TR;
-  while (fscanf(FPreds,"+%p %p %p %ld",&(pr->beg),&(pr->end),&(pr->pp),&(pr->ts)) > 0){
+  while (fscanf(FPreds,"+%p %p %p %d",&(pr->beg),&(pr->end),&(pr->pp),&(pr->ts)) > 0){
     int c;
     pr->pcs = 0L;
     pr++;
     if (pr > (clauseentry *)Yap_TrailTop - 1024) {
-      Yap_growtrail(64 * 1024L, TRUE);
+      Yap_growtrail(64 * 1024L, FALSE);
     }
     ProfPreds++;
 
@@ -284,14 +345,14 @@ showprofres(UInt type) {
     } while(c!=EOF && c!='\n');
   }
   fclose(FPreds);
-  if (ProfPreds==0) return(FALSE);
+  if (ProfPreds==0) return(TRUE);
 
   qsort((void *)TR, ProfPreds, sizeof(clauseentry), cl_cmp);
 
   /* Second part: Read Profiling to know how many times each predicate has been profiled */
 
-  FProf=fopen("PROFILING","r"); 
-  if (FProf==NULL) { return FALSE; }
+  FProf=fopen(profile_names(PROFILING_FILE),"r"); 
+  if (FProf==NULL) { printf("Sorry, profiler couldn't find PROFILING file. \n"); return FALSE; }
 
   t2=NULL;
   ProfCalls=0;
@@ -336,7 +397,7 @@ showprofres(UInt type) {
   }
 
   fclose(FProf);
-  if (ProfCalls==0) return(FALSE);
+  if (ProfCalls==0) return(TRUE);
 
   /*I have the counting by clauses, but we also need them by predicate */
   qsort((void *)TR, ProfPreds, sizeof(clauseentry), p_cmp);
@@ -433,9 +494,9 @@ static Int profinit(void)
 {
   if (ProfilerOn!=0) return (FALSE);
 
-  FPreds=fopen("PROFPREDS","w+"); 
+  FPreds=fopen(profile_names(PROFPREDS_FILE),"w+"); 
   if (FPreds == NULL) return FALSE;
-  FProf=fopen("PROFILING","w+"); 
+  FProf=fopen(profile_names(PROFILING_FILE),"w+"); 
   if (FProf==NULL) { fclose(FPreds); return FALSE; }
 
   Yap_dump_code_area_for_profiler();
@@ -518,7 +579,6 @@ static Int profres0(void) {
 }
 
 #endif /* LOW_PROF */
-
 
 static Int 
 p_setval(void)
