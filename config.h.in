@@ -182,6 +182,7 @@
 #undef  HAVE_PUTENV
 #undef  HAVE_RAND
 #undef  HAVE_RANDOM
+#undef  HAVE_REGEXEC
 #undef  HAVE_RENAME
 #undef  HAVE_RINT
 #undef  HAVE_RL_SET_PROMPT

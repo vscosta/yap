@@ -159,6 +159,7 @@ PL_SOURCES= \
 	$(srcdir)/pl/depth_bound.yap $(srcdir)/pl/listing.yap \
 	$(srcdir)/pl/load_foreign.yap \
 	$(srcdir)/pl/modules.yap $(srcdir)/pl/preds.yap \
+	$(srcdir)/pl/profile.yap \
 	$(srcdir)/pl/protect.yap $(srcdir)/pl/setof.yap \
 	$(srcdir)/pl/sockets.yap $(srcdir)/pl/sort.yap \
 	$(srcdir)/pl/strict_iso.yap \
@@ -481,7 +482,7 @@ install_unix: startup
 	mkdir -p $(DESTDIR)$(INCLUDEDIR)
 	for h in $(INTERFACE_HEADERS); do $(INSTALL) $$h $(DESTDIR)$(INCLUDEDIR); done
 
-install_mingw32: startup
+install_win32: startup
 	mkdir -p $(DESTDIR)$(BINDIR)
 	mkdir -p $(DESTDIR)$(LIBDIR)
 	mkdir -p $(DESTDIR)$(YAPLIBDIR)
@@ -545,7 +546,7 @@ dist:
 # 
 DLLTOOL=dlltool
 DLLNAME=yap.dll
-DLL_LIBS=-L /usr/lib/mingw -lmsvcrt -lmingw32  -lkernel32 $(LIBS)
+DLL_LIBS=@DLL_LIBS@ $(LIBS)
 BASE_FILE=yap.base
 EXP_FILE=yap.exp
 DEF_FILE=$(srcdir)/misc/yap.def

@@ -245,18 +245,21 @@ dnl Check for libraries.
 dnl mingw does not get along well with libm
 dnl cygnus and mingw32 also need wsock32 to use sockets.
 dnl
-if test "$target_os" = "cygwin" -a "$cygwin" = "no"
+if test "$target_os" = "cygwin"
 then
-  CC="gcc  -mno-cygwin"
-  AC_CHECK_LIB(wsock32,main)
-  INSTALL_COMMAND=install_mingw32
-  yap_cv_readline=no
-  YAPLIB="libWYap.a"
-  prefix="c:/Program\\ Files/Yap"
-  SHLIB_SUFFIX=".dll"
-  NEWSHOBJ="dll"
-  YAPLIB=yap.dll
+  INSTALL_COMMAND=install_win32
+  if test "$cygwin" = "no"
+  then
+    CC="gcc  -mno-cygwin"
+    AC_CHECK_LIB(wsock32,main)
+    prefix="c:/Program\\ Files/Yap"
+    DLL_LIBS="-L /usr/lib/mingw -lmsvcrt -lmingw32  -lkernel32"
+  else
+    DLL_LIBS=""
+    LIBS="-lgcc -lcygwin -lkernel32 -lgcc"
+  fi
 else
+  DLL_LIBS=""
   INSTALL_COMMAND="install_unix"
   AC_CHECK_LIB(m,sin)
   AC_CHECK_LIB(socket,socket)
@@ -360,6 +363,8 @@ dnl install_info
 AC_SUBST(INSTALL_INFO)
 dnl let YAP_EXTRAS fall through configure, from the env into Makefile
 AC_SUBST(YAP_EXTRAS)
+AC_SUBST(DLL_LIBS)
+AC_SUBST(NO_BUILTIN_REGEXP)
 
 dnl defaults
 INSTALL_DLLS="#"
@@ -466,6 +471,9 @@ case $target_os in
       *cyg*)
 	# gcc on cygwin seems to have trouble with longjmp
         # and -fomit-frame-point -DBP_FREE
+	YAPLIB="libWYap.a"
+	SHLIB_SUFFIX=".dll"
+	NEWSHOBJ="dll"
 	C_PARSER_FLAGS="$C_INTERF_FLAGS"
 	;;
       *)
@@ -725,12 +733,14 @@ AC_CHECK_FUNCS(gethostbyname gethostid gethostname)
 AC_CHECK_FUNCS(gethrtime getpwnam getrusage gettimeofday getwd)
 AC_CHECK_FUNCS(isatty isnan kill labs link localtime lstat)
 AC_CHECK_FUNCS(memcpy memmove mkstemp mktemp mmap opendir)
-AC_CHECK_FUNCS(popen putenv rand random rename rint rl_set_prompt)
-AC_CHECK_FUNCS(sbrk select)
+AC_CHECK_FUNCS(popen putenv rand random regexec)
+AC_CHECK_FUNCS(rename rint rl_set_prompt sbrk select)
 AC_CHECK_FUNCS(setbuf setlinebuf shmat sigaction siggetmask siginterrupt)
 AC_CHECK_FUNCS(signal sigprocmask sleep snprintf socket stat)
 AC_CHECK_FUNCS(strchr strerror strncat strncpy strtod system)
 AC_CHECK_FUNCS(time times tmpnam usleep vsnprintf waitpid)
+
+AC_CHECK_FUNC(regexec, [NO_BUILTIN_REGEXP="#"], [NO_BUILTIN_REGEXP=""])
 
 dnl check for mpz_xor
 AC_MSG_CHECKING(for mpz_xor)
