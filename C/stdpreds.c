@@ -111,8 +111,14 @@ static Int
 p_value(void)
 {				/* '$get_value'(+Atom,?Val) */
   Term t1 = Deref(ARG1);
-  if (!IsAtomTerm(t1))
+  if (IsVarTerm(t1)) {
+    Error(INSTANTIATION_ERROR,t1,"get_value/2");
     return (FALSE);
+  }
+  if (!IsAtomTerm(t1)) {
+    Error(TYPE_ERROR_ATOM,t1,"get_value/2");
+    return (FALSE);
+  }
   return (unify_constant(ARG2, GetValue(AtomOfTerm(t1))));
 }
 
@@ -122,8 +128,14 @@ p_values(void)
 {				/* '$values'(Atom,Old,New) */
   Term            t1 = Deref(ARG1), t3 = Deref(ARG3);
 
-  if (!IsAtomTerm(t1))
+  if (IsVarTerm(t1)) {
+    Error(INSTANTIATION_ERROR,t1,"set_value/2");
     return (FALSE);
+  }
+  if (!IsAtomTerm(t1)) {
+    Error(TYPE_ERROR_ATOM,t1,"set_value/2");
+    return (FALSE);
+  }
   if (!unify_constant(ARG2, GetValue(AtomOfTerm(t1))))
     return (FALSE);
   if (!IsVarTerm(t3)) {
@@ -1399,10 +1411,8 @@ static Int
 init_current_predicate(void)
 {
   Term t1 = Deref(ARG1);
-  Term t2 = Deref(ARG2);
 
   if (IsVarTerm(t1) || !IsAtomTerm(t1)) cut_fail();
-  if (IsVarTerm(t2) || !IsAtomTerm(t2)) cut_fail();
   EXTRA_CBACK_ARG(3,1) = MkIntegerTerm((Int)ModulePred[LookupModule(t1)]);
   return (cont_current_predicate());
 }

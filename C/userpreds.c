@@ -702,6 +702,15 @@ p_softfunctor()
 
 #endif				/* SFUNC */
 
+#include <math.h>
+*
+static Int
+p_matching_distances(void)
+{
+  return(fabs(FloatOfTerm(Deref(ARG1))-FloatOfTerm(Deref(ARG2))) <= FloatOfTerm(Deref(ARG3)));
+}
+*/
+
 void 
 InitUserCPreds(void)
 {
@@ -722,11 +731,13 @@ InitUserCPreds(void)
 #ifdef SFUNC
   InitCPred("sparse_functor", 2, p_softfunctor, SafePredFlag);
 #endif				/* SFUNC */
+  /*  InitCPred("match_distances", 3, p_matching_distances, SafePredFlag); */
   /* InitCPred("unify",2,p_unify,SafePredFlag); */
   /* InitCPred("occurs_check",2,p_occurs_check,SafePredFlag); */
   /* InitCPred("counter",3,p_counter,SafePredFlag); */
   /* InitCPred("iconcat",3,p_iconcat,SafePredFlag); */
 }
+
 
 void 
 InitUserBacks(void)
