@@ -43,7 +43,6 @@ reset_trail(tr_fr_ptr tr_top, tr_fr_ptr trp)
 #ifdef MULTI_ASSIGNMENT_VARIABLES
     } else {
       CELL *aux_ptr = RepAppl(aux_cell);
-
       trp--;
       if (Unsigned((Int)(aux_ptr)-(Int)(H_FZ)) >
 	  Unsigned((Int)(B_FZ)-(Int)(H_FZ))) {
@@ -51,7 +50,7 @@ reset_trail(tr_fr_ptr tr_top, tr_fr_ptr trp)
       } else {
 	*aux_ptr = TrailTerm(trp);
       }
-#endif
+#endif /* MULTI_ASSIGNMENT_VARIABLES */
     }
   }
 }
@@ -185,7 +184,6 @@ int q_share_work(int worker_p) {
 #ifdef MULTI_ASSIGNMENT_VARIABLES
     } else if (IsApplTerm(aux_cell)) {
       CELL *cell_ptr = RepAppl(aux_cell);
-	  
       if (!lookup_ma_var(cell_ptr)) {
 	/* first time we found the variable, let's put the new value */
 	CELL *ptr = STACK_TO_SBA(cell_ptr);
@@ -194,7 +192,7 @@ int q_share_work(int worker_p) {
       /* skip the old value */
       aux_tr--;
     }
-#endif
+#endif /* MULTI_ASSIGNMENT_VARIABLES */
   }
 
   /* update registers and return */
@@ -296,7 +294,6 @@ void share_private_nodes(int worker_q) {
 #ifdef MULTI_ASSIGNMENT_VARIABLES
      } else {
        CELL *cell_ptr = RepAppl(aux_cell);
-       
        /* first do as a for a standard cell */
        if ((cell_ptr < B->cp_h || cell_ptr > (CELL *)B) && !(cell_ptr < H_FZ || (choiceptr)cell_ptr > B_FZ)) {
 	 CELL *ptr = STACK_TO_SBA(cell_ptr);
@@ -308,7 +305,7 @@ void share_private_nodes(int worker_q) {
        }
        /* but we also need to skip the old value */
        tr_ptr--;
-#endif
+#endif /* MULTI_ASSIGNMENT_VARIABLES */
      }
     }
   }
@@ -328,5 +325,3 @@ void share_private_nodes(int worker_q) {
 }
 
 #endif /* SBA */
-
-

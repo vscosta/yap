@@ -1,4 +1,3 @@
-
 #ifdef MULTI_ASSIGNMENT_VARIABLES
 /* 
    Set of routines to allow restoring updatable variables when we go *up*
@@ -91,4 +90,4 @@ NEW_MAHASH(ma_h_inner_struct *top) {
   return(time);
 }
 
-#endif
+#endif /* MULTI_ASSIGNMENT_VARIABLES */

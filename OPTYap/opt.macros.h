@@ -2,7 +2,7 @@
 **      Memory management      **
 ** --------------------------- */
 
-extern int PageSize;
+extern int Yap_page_size;
 
 #define H_BASE   ((CELL *) Yap_GlobalBase)
 #define B_BASE   ((choiceptr) Yap_LocalBase)
@@ -20,9 +20,9 @@ extern int PageSize;
 #endif /* SIZEOF_INT_P */
 
 #define ADJUST_SIZE(SIZE)          ((SIZE + ALIGN) & ALIGNMASK)
-#define ADJUST_SIZE_TO_PAGE(SIZE)  ((SIZE) - (SIZE) % PageSize + PageSize)
+#define ADJUST_SIZE_TO_PAGE(SIZE)  ((SIZE) - (SIZE) % Yap_page_size + Yap_page_size)
 #define STRUCT_SIZE(STR_TYPE)      ADJUST_SIZE(sizeof(STR_TYPE))
-#define PAGE_HEADER(STR)           (pg_hd_ptr)((unsigned int)STR - (unsigned int)STR % PageSize)
+#define PAGE_HEADER(STR)           (pg_hd_ptr)((unsigned int)STR - (unsigned int)STR % Yap_page_size)
 #define STRUCT_NEXT(STR)           ((STR)->next)
 
 
@@ -52,20 +52,13 @@ extern int PageSize;
 #define FREE_HASH_BUCKETS(BUCKET_PTR)  FREE_BLOCK(BUCKET_PTR)
 
 #ifdef USE_HEAP
-
-#define alloc_memory_block(SIZE)   (void *)Yap_AllocCodeSpace(SIZE)
-#define free_memory_block(BLK)   Yap_FreeCodeSpace((ADDR)BLK)
-#define reset_alloc_block_area()   
-
-#define ALLOC_STRUCT(STR, STR_PAGES, STR_TYPE) STR = (STR_TYPE *)Yap_AllocCodeSpace(sizeof(STR_TYPE))
-
-#define ALLOC_NEXT_FREE_STRUCT(STR, STR_PAGES, STR_TYPE) STR = (STR_TYPE *)Yap_AllocCodeSpace(sizeof(STR_TYPE))
-
-#define FREE_STRUCT(STR, STR_PAGES, STR_TYPE) Yap_FreeCodeSpace((ADDR)(STR))
-
+#define ALLOC_STRUCT(STR, STR_PAGES, STR_TYPE)            \
+        STR = (STR_TYPE *)Yap_AllocCodeSpace(sizeof(STR_TYPE))
+#define ALLOC_NEXT_FREE_STRUCT(STR, STR_PAGES, STR_TYPE)  \
+        STR = (STR_TYPE *)Yap_AllocCodeSpace(sizeof(STR_TYPE))
+#define FREE_STRUCT(STR, STR_PAGES, STR_TYPE)             \
+        Yap_FreeCodeSpace((ADDR)(STR))
 #else
-
-
 #define ALLOC_PAGE(PG_HD)                                           \
         LOCK(Pg_lock(GLOBAL_PAGES_void));                           \
         UPDATE_STATS(Pg_requests(GLOBAL_PAGES_void), 1);            \
@@ -75,7 +68,7 @@ extern int PageSize;
             abort_optyap("no more free alloc space (ALLOC_PAGE)");  \
           UPDATE_STATS(Pg_str_alloc(GLOBAL_PAGES_void), 1);         \
           PG_HD = (pg_hd_ptr)TopAllocArea;                          \
-          TopAllocArea += PageSize;                                 \
+          TopAllocArea += Yap_page_size                             \
         } else {                                                    \
           PG_HD = Pg_free_pg(GLOBAL_PAGES_void);                    \
           Pg_free_pg(GLOBAL_PAGES_void) = PgHd_next(PG_HD);         \
@@ -90,8 +83,6 @@ extern int PageSize;
         Pg_free_pg(GLOBAL_PAGES_void) = PG_HD;                      \
         UNLOCK(Pg_lock(GLOBAL_PAGES_void))
 
-
-
 #define ALLOC_STRUCT(STR, STR_PAGES, STR_TYPE)                                     \
         { pg_hd_ptr pg_hd;                                                         \
           LOCK(Pg_lock(STR_PAGES));                                                \
@@ -102,7 +93,8 @@ extern int PageSize;
             PgHd_str_in_use(pg_hd)++;                                              \
             STR = (STR_TYPE *) PgHd_free_str(pg_hd);                               \
             if ((PgHd_free_str(pg_hd) = (void *) STRUCT_NEXT(STR)) == NULL)        \
-              Pg_free_pg(STR_PAGES) = PgHd_next(pg_hd);                            \
+              if ((Pg_free_pg(STR_PAGES) = PgHd_next(pg_hd)) != NULL)              \
+                PgHd_previous(PgHd_next(pg_hd)) = NULL;                            \
             UNLOCK(Pg_lock(STR_PAGES));                                            \
           } else {                                                                 \
             int i;                                                                 \
@@ -192,8 +184,7 @@ extern int PageSize;
             UNLOCK(Pg_lock(STR_PAGES));                                            \
           }                                                                        \
         }
-
-#endif /* TEST*/
+#endif /* USE_HEAP */
 
 
 #define ALLOC_OR_FRAME(STR)          ALLOC_STRUCT(STR, GLOBAL_PAGES_or_fr, struct or_frame)

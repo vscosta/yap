@@ -33,10 +33,7 @@ STD_PROTO(static inline void CUT_validate_tg_answers, (tg_sol_fr_ptr));
 STD_PROTO(static inline void CUT_join_tg_solutions, (tg_sol_fr_ptr *, tg_sol_fr_ptr));
 STD_PROTO(static inline void CUT_join_solution_frame_tg_answers, (tg_sol_fr_ptr));
 STD_PROTO(static inline void CUT_join_solution_frames_tg_answers, (tg_sol_fr_ptr));
-/*printf*/
 STD_PROTO(static inline void CUT_free_tg_solution_frame, (tg_sol_fr_ptr));
-/*STD_PROTO(static inline int CUT_free_tg_solution_frame, (tg_sol_fr_ptr));*/
-/*printf*/
 STD_PROTO(static inline void CUT_free_tg_solution_frames, (tg_sol_fr_ptr));
 STD_PROTO(static inline tg_sol_fr_ptr CUT_prune_tg_solution_frames, (tg_sol_fr_ptr, int));
 #endif /* TABLING_INNER_CUTS */
@@ -89,7 +86,7 @@ STD_PROTO(static inline tg_sol_fr_ptr CUT_prune_tg_solution_frames, (tg_sol_fr_p
 #else
 #define STACK_PUSH(ITEM, STACK, STACK_TOP, STACK_BASE)                                     \
         *--(STACK) = (CELL)(ITEM);                                                         \
-        if ((STACK) <= STACK_TOP+1024)    {                                                \
+        if ((STACK) <= STACK_TOP + 1024) {                                                \
           CELL *NEW_STACK;                                                                 \
           UInt diff;                                                                       \
           char *OldTrailTop = (char *)Yap_TrailTop;                                        \
@@ -149,8 +146,7 @@ STD_PROTO(static inline tg_sol_fr_ptr CUT_prune_tg_solution_frames, (tg_sol_fr_p
 #else
 #define find_dependency_node(SG_FR, LEADER_CP, DEP_ON_STACK)                      \
         LEADER_CP = SgFr_gen_cp(SG_FR);                                           \
-        DEP_ON_STACK = TRUE;
-
+        DEP_ON_STACK = TRUE
 #define find_leader_node(LEADER_CP, DEP_ON_STACK)                                 \
         { dep_fr_ptr chain_dep_fr = LOCAL_top_dep_fr;                             \
           while (YOUNGER_CP(DepFr_cons_cp(chain_dep_fr), LEADER_CP)) {            \
@@ -171,7 +167,6 @@ STD_PROTO(static inline tg_sol_fr_ptr CUT_prune_tg_solution_frames, (tg_sol_fr_p
 #define GEN_CP_NULL_ALT                            ANSWER_RESOLUTION
 #define GEN_CP_SG_FR(GCP)                          DepFr_sg_fr(GEN_CP(GCP)->gcp_dep_fr)
 #endif /* TABLING_SCHEDULING */
-#define SgFr_init_scheduling_fields(SG_FR, ARITY)  SgFr_arity(SG_FR) = ARITY
 
 
 #ifdef YAPOR
@@ -202,7 +197,7 @@ STD_PROTO(static inline tg_sol_fr_ptr CUT_prune_tg_solution_frames, (tg_sol_fr_p
         TabEnt_hash_chain(TAB_ENT) = HASH
 #define AnsHash_init_next_field(HASH, SG_FR)       \
         Hash_next(HASH) = SgFr_hash_chain(SG_FR);  \
-        SgFr_hash_chain(SG_Fr) = HASH
+        SgFr_hash_chain(SG_FR) = HASH
 #else
 #define TabEnt_init_lock_field(TAB_ENT)
 #define SgHash_init_next_field(HASH, TAB_ENT)          \
@@ -255,7 +250,7 @@ STD_PROTO(static inline tg_sol_fr_ptr CUT_prune_tg_solution_frames, (tg_sol_fr_p
           SgFr_last_answer(SG_FR) = NULL;                          \
           SgFr_hash_chain(SG_FR) = NULL;                           \
           SgFr_state(SG_FR) = resolving;                           \
-          SgFr_init_scheduling_fields(SG_FR, ARITY);               \
+          SgFr_arity(SG_FR) = ARITY;                               \
           SgFr_next(SG_FR) = NEXT;                                 \
 	}
 
@@ -348,8 +343,8 @@ void mark_as_completed(sg_fr_ptr sg_fr) {
   hash = SgFr_hash_chain(sg_fr);
   SgFr_hash_chain(sg_fr) = NULL;
   SgFr_state(sg_fr) = complete;
-  UNLOCK(SgFr_lock(sg_fr));
   free_answer_hash_chain(hash);
+  UNLOCK(SgFr_lock(sg_fr));
   return;
 }
 
@@ -383,9 +378,8 @@ void unbind_variables(tr_fr_ptr unbind_tr, tr_fr_ptr end_tr) {
     } else {
       Term aux_val = TrailTerm(--unbind_tr);
       CELL *aux_ptr = RepAppl(ref);
-
       *aux_ptr = aux_val;
-#endif
+#endif /* MULTI_ASSIGNMENT_VARIABLES */
     }
   }
   return;
@@ -421,17 +415,18 @@ void rebind_variables(tr_fr_ptr rebind_tr, tr_fr_ptr end_tr) {
 #ifdef MULTI_ASSIGNMENT_VARIABLES
     } else {
       CELL *cell_ptr = RepAppl(ref);
-
       if (!lookup_ma_var(cell_ptr)) {
 	/* first time we found the variable, let's put the new value */
 	*cell_ptr = TrailVal(rebind_tr);
       }
       /* skip the old value */
       rebind_tr--;
-#endif
+#endif /* MULTI_ASSIGNMENT_VARIABLES */
     }
   }
+  return;
 }
+
 
 static inline
 void restore_bindings(tr_fr_ptr unbind_tr, tr_fr_ptr rebind_tr) {

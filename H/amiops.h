@@ -395,7 +395,7 @@ Int Yap_unify(Term t0, Term t1)
 	  pt[0] = TrailVal(TR);
 #else
 	  pt[0] = TrailTerm(TR);
-#endif
+#endif /* FROZEN_STACKS */
       }
 #endif
     }

@@ -213,7 +213,8 @@ int get_work(void) {
       }
     }
     if (LOCAL_top_cp == GLOBAL_root_cp) {
-      PUT_IN_ROOT_NODE(worker_id);
+      if (! BITMAP_member(GLOBAL_bm_root_cp_workers, worker_id))
+        PUT_IN_ROOT_NODE(worker_id);
       if (BITMAP_same(GLOBAL_bm_idle_workers, GLOBAL_bm_root_cp_workers) &&
           BITMAP_same(GLOBAL_bm_idle_workers, GLOBAL_bm_present_workers)) {
         /* All workers are idle in root choicepoint. Execution 

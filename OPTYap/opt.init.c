@@ -53,7 +53,7 @@ static void receive_signals(int s);
 **      Local macros      **
 ** ---------------------- */
 
-#define STRUCTS_PER_PAGE(STR_TYPE)  ((PageSize - STRUCT_SIZE(struct page_header)) / STRUCT_SIZE(STR_TYPE))
+#define STRUCTS_PER_PAGE(STR_TYPE)  ((Yap_page_size - STRUCT_SIZE(struct page_header)) / STRUCT_SIZE(STR_TYPE))
 
 #ifdef STATISTICS
 #define INIT_PAGE_STATISTICS(PG)  \
@@ -165,7 +165,7 @@ void init_global(int n_workers, int sch_loop, int delay_load) {
 void init_local(void) {
 #ifdef YAPOR
   /* local data related to or-parallelism */
-  LOCAL = REMOTE+worker_id;
+  LOCAL = REMOTE + worker_id;
   LOCAL_top_cp = B_BASE;
   LOCAL_top_or_fr = GLOBAL_root_or_fr;
   LOCAL_load = 0;

@@ -112,7 +112,6 @@ typedef struct subgoal_frame {
     complete = 1,
     executable = 2
   } state_flag;
-  /* vsc: needed by garbage collector to find where substitution frame for table_completion is */ 
   int subgoal_arity;
   struct subgoal_frame *next;
 } *sg_fr_ptr;

@@ -665,7 +665,7 @@ sg_node_ptr subgoal_search(tab_ent_ptr tab_ent, OPREG arity, CELL **Yaddr) {
 #else
   stack_terms_top = (CELL *)TR;
   stack_terms_base = stack_terms = (CELL *)Yap_TrailTop;
-#endif
+#endif /* YAPOR */
   current_sg_node = TabEnt_subgoal_trie(tab_ent);
 
   for (i = 1; i <= arity; i++) {
@@ -730,12 +730,12 @@ ans_node_ptr answer_search(sg_fr_ptr sg_fr, CELL *subs_ptr) {
   subs_arity = *subs_ptr;
   stack_vars = AuxSp;
 #ifdef YAPOR
-  stack_terms_top = (CELL *)TrailTop;
+  stack_terms_top = (CELL *)Yap_TrailTop;
   stack_terms_base = stack_terms = stack_vars - MAX_TABLE_VARS;
 #else
   stack_terms_top = (CELL *)TR;
   stack_terms_base = stack_terms = (CELL *)Yap_TrailTop;
-#endif
+#endif /* YAPOR */
   current_ans_node = SgFr_answer_trie(sg_fr);
 
   for (i = subs_arity; i >= 1; i--) {
@@ -801,12 +801,12 @@ void load_answer_trie(ans_node_ptr ans_node, CELL *subs_ptr) {
     CELL *stack_vars, *stack_terms, *stack_refs, *stack_refs_base, *stack_top;
     ans_node_ptr aux_parent_node;
 #ifdef YAPOR
-    stack_top = (CELL *)TrailTop;
+    stack_top = (CELL *)Yap_TrailTop;
     stack_vars = stack_terms = AuxSp - MAX_TABLE_VARS;
 #else
     stack_top = (CELL *)TR;
     stack_vars = stack_terms = ((CELL *)Yap_TrailTop)-MAX_TABLE_VARS;
-#endif
+#endif /* YAPOR */
 
     /* load the new answer from the answer trie to the stack_terms */
     aux_parent_node = UNTAG_ANSWER_LEAF_NODE(TrNode_parent(ans_node));

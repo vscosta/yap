@@ -259,7 +259,6 @@ void PUT_OUT_REQUESTABLE(int p) {
   return;
 }
 
-extern int  vsc_op;
 
 static inline 
 void SCH_update_local_or_tops(void) {

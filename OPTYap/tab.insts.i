@@ -429,7 +429,7 @@
       CELL *aux_args;
       CELL *aux_subs;
 
-      sg_fr_ptr aux_sg_fr = LOCAL_top_sg_fr;
+      aux_sg_fr = LOCAL_top_sg_fr;
       while (aux_sg_fr && aux_sg_fr != sg_fr)
         aux_sg_fr = SgFr_next(aux_sg_fr);
       if (aux_sg_fr == NULL)
@@ -927,7 +927,7 @@
 
 
 
-    BOp(table_completion, ld);
+  BOp(table_completion, ld);
 #ifdef YAPOR
     if (SCH_top_shared_cp(B)) {
       SCH_new_alternative(PREG, GEN_CP_NULL_ALT);
@@ -1169,9 +1169,9 @@
           /* unconsumed answer */
           UNLOCK_OR_FRAME(LOCAL_top_or_fr);
           if (ans_node == NULL) {
-            ans_node = DepFr_last_ans(dep_fr) = SgFr_first_answer(DepFr_sg_fr(dep_fr));
+            ans_node = DepFr_last_ans(LOCAL_top_dep_fr) = SgFr_first_answer(DepFr_sg_fr(LOCAL_top_dep_fr));
           } else {
-            ans_node = DepFr_last_ans(dep_fr) = TrNode_child(ans_node);
+            ans_node = DepFr_last_ans(LOCAL_top_dep_fr) = TrNode_child(ans_node);
           }
           UNLOCK(DepFr_lock(LOCAL_top_dep_fr));
           consume_answer_and_procceed(LOCAL_top_dep_fr, ans_node);
@@ -1225,10 +1225,10 @@
       goto fail;
 #else /* TABLING_LOCAL_SCHEDULING */
       /* subgoal completed */
-      LOCK_SG_FRAME(sg_fr);
+      LOCK(SgFr_lock(sg_fr));
       if (SgFr_state(sg_fr) == complete)
         update_answer_trie(sg_fr);
-      UNLOCK_SG_FRAME(sg_fr);
+      UNLOCK(SgFr_lock(sg_fr));
       if (SgFr_first_answer(sg_fr) == NULL) {
         /* no answers --> fail */
         B = B->cp_b;
@@ -1248,14 +1248,14 @@
         /* yes answer --> procceed */
         PREG = (yamop *) CPREG;
         PREFETCH_OP(PREG);
-        Y = ENV;
+        YENV = ENV;
         GONext();
       } else  {
         /* answers -> load first answer */
         PREG = (yamop *) TrNode_child(SgFr_answer_trie(sg_fr));
         PREFETCH_OP(PREG);
-        *--Y = 0;  /* vars_arity */
-        *--Y = 0;  /* heap_arity */
+        *--YENV = 0;  /* vars_arity */
+        *--YENV = 0;  /* heap_arity */
         GONext();
       }
 #endif /* TABLING_SCHEDULING */

@@ -27,7 +27,7 @@
 ** -------------------------------------- */
 
 #include "Yap.h"
-#if defined(YAPOR) || defined(TABLING)
+#ifdef YAPOR
 #include "Yatom.h"
 #include "Heap.h"
 #include "alloc.h"
@@ -42,31 +42,19 @@
 #include <sys/shm.h>
 #include <sys/mman.h>
 
-#define KBYTES          1024
-#define HEAP_BLOCKS     1
-#define OPT_BLOCKS      5
-#define OPT_BLOCK_SIZE  ADJUST_SIZE_TO_PAGE(10000 * KBYTES)
+#define KBYTES 1024
 
-int PageSize;
 #ifdef MMAP_MEMORY_MAPPING_SCHEME
 int fd_mapfile;
 #else /* SHM_MEMORY_MAPPING_SCHEME */
-int shm_mapid[MAX_WORKERS + HEAP_BLOCKS + OPT_BLOCKS];
+int shm_mapid[MAX_WORKERS + 1];
 #endif /* MEMORY_MAPPING_SCHEME */
+
+
 
 /* --------------------------- **
 **      Global functions       **
 ** --------------------------- */
-
-long global_data_size(void) {
-  return ADJUST_SIZE(sizeof(struct global_data));
-}
-
-
-long local_data_size(void) {
-  return ADJUST_SIZE(sizeof(struct local_data));
-}
-
 
 #ifdef SHM_MEMORY_MAPPING_SCHEME
 void shm_map_memory(int id, int size, void *shmaddr) {
@@ -74,54 +62,47 @@ void shm_map_memory(int id, int size, void *shmaddr) {
   if (size > SHMMAX)
     abort_optyap("maximum size for a shm segment exceeded in function shm_map_memory");
   if ((shm_mapid[id] = shmget(IPC_PRIVATE, size, SHM_R|SHM_W)) == -1) 
-    abort_optyap("shmget error in function shm_map_memory %s", strerror(errno));
+    abort_optyap("shmget error in function shm_map_memory: %s", strerror(errno));
   if (shmat(shm_mapid[id], shmaddr, 0) == (void *) -1)
-    abort_optyap("shmat error in function shm_map_memory %s", strerror(errno));
+    abort_optyap("shmat error in function shm_map_memory: %s", strerror(errno));
   return;
 }
 #else /* MMAP_MEMORY_MAPPING_SCHEME */
-static void
 open_mapfile(long TotalArea) {
   char mapfile[20];
   strcpy(mapfile,"/tmp/mapfile");
   itos(getpid(), &mapfile[12]);
   if ((fd_mapfile = open(mapfile, O_RDWR|O_CREAT|O_TRUNC, 0666)) < 0)
-    abort_optyap("open error in function open_mapfile %s", strerror(errno));
+    abort_optyap("open error in function open_mapfile: %s", strerror(errno));
   if (lseek(fd_mapfile, TotalArea, SEEK_SET) < 0) 
-    abort_optyap("lseek error in function map_memory: %s", strerror(errno));
+    abort_optyap("lseek error in function open_mapfile: %s", strerror(errno));
   if (write(fd_mapfile, "", 1) < 0) 
-    abort_optyap("write error in function map_memory: %s", strerror(errno));
+    abort_optyap("write error in function open_mapfile: %s", strerror(errno));
   return;
 }
 
-static void
+
 close_mapfile(void) {
   if (close(fd_mapfile) < 0) 
-    abort_optyap("close error in function open_mapfile %s", strerror(errno));
+    abort_optyap("close error in function close_mapfile: %s", strerror(errno));
 }
 #endif /* MMAP_MEMORY_MAPPING_SCHEME */
 
 
 void map_memory(long HeapArea, long GlobalLocalArea, long TrailAuxArea, int n_workers) {
-#ifndef ACOW
-#ifdef YAPOR
-  int i;
-#endif /* YAPOR */
-  long WorkerArea;
-  long TotalArea;
-#else
-#if MMAP_MEMORY_MAPPING_SCHEME
-  long TotalArea;
-#endif
-#endif
   void *mmap_addr = (void *)MMAP_ADDR;
 #ifdef ACOW
   int private_fd_mapfile;
-#endif /* ACOW */
+#if MMAP_MEMORY_MAPPING_SCHEME
+  long TotalArea;
+#endif /* MMAP_MEMORY_MAPPING_SCHEME */
+#else /* ENV_COPY || SBA */
+  int i;
+  long WorkerArea;
+  long TotalArea;
+#endif /* YAPOR_MODEL */
 
-  /* Initial Allocation */
-  /* model indepndent */
-  PageSize = sysconf(_SC_PAGESIZE);
+  /* initial allocation - model independent */
   HeapArea = ADJUST_SIZE_TO_PAGE(HeapArea * KBYTES);
   GlobalLocalArea = ADJUST_SIZE(GlobalLocalArea * KBYTES);
   TrailAuxArea = ADJUST_SIZE(TrailAuxArea * KBYTES);
@@ -129,41 +110,37 @@ void map_memory(long HeapArea, long GlobalLocalArea, long TrailAuxArea, int n_wo
   /* we'll need this later */
   Yap_GlobalBase = mmap_addr + HeapArea;
 
-  /* model dependent */
-  /* shared memory allocation */
+  /* shared memory allocation - model dependent */
 #ifdef ACOW
   /* acow just needs one stack */
 #ifdef MMAP_MEMORY_MAPPING_SCHEME
   /* I need this for MMAP to know what it must allocate */
   TotalArea = HeapArea;
-#endif
-#else
+#endif /* MMAP_MEMORY_MAPPING_SCHEME */
+#else /* ENV_COPY || SBA */
   /* the others need n stacks */
   WorkerArea = ADJUST_SIZE_TO_PAGE(GlobalLocalArea + TrailAuxArea);
   TotalArea = HeapArea + WorkerArea * n_workers;
-#endif /* ACOW */
+#endif /* YAPOR_MODEL */
 
-  /* step 2: mmap heap area */
+  /* mmap heap area */
 #ifdef MMAP_MEMORY_MAPPING_SCHEME
   /* map total area in a single go */
   open_mapfile(TotalArea);
   if ((mmap_addr = mmap((void *) MMAP_ADDR, (size_t) TotalArea, PROT_READ|PROT_WRITE, 
                          MAP_SHARED|MAP_FIXED, fd_mapfile, 0)) == (void *) -1)
     abort_optyap("mmap error in function map_memory: %s", strerror(errno));
-#endif /* MEMORY_MAPPING_SCHEME */
-
+#else /* SHM_MEMORY_MAPPING_SCHEME */
 /* Most systems are limited regarding what we can allocate */
-#ifdef SHM_MEMORY_MAPPING_SCHEME
 #ifdef ACOW
   /* single shared segment in ACOW */
   shm_map_memory(0, HeapArea, mmap_addr);
-#else
-  /* place as segment n otherwise (0..n-1 reserved for stacks */
+#else /* ENV_COPY || SBA */
+  /* place as segment n otherwise (0..n-1 reserved for worker areas */
   shm_map_memory(n_workers, HeapArea, mmap_addr);
-#endif
-#endif
+#endif /* YAPOR_MODEL */
+#endif /* MEMORY_MAPPING_SCHEME */
 
-#ifdef YAPOR
 #ifdef ACOW
   /* just allocate local space for stacks */
   if ((private_fd_mapfile = open("/dev/zero", O_RDWR)) < 0)
@@ -172,7 +149,7 @@ void map_memory(long HeapArea, long GlobalLocalArea, long TrailAuxArea, int n_wo
            MAP_PRIVATE|MAP_FIXED, private_fd_mapfile, 0) == (void *) -1)
     abort_optyap("mmap error in function map_memory: %s", strerror(errno));
   close(private_fd_mapfile);
-#else /* ENV_COPY or SBA */
+#else /* ENV_COPY || SBA */
   for (i = 0; i < n_workers; i++) {
     /* initialize worker vars */
     worker_area(i) = Yap_GlobalBase + i * WorkerArea;
@@ -182,14 +159,7 @@ void map_memory(long HeapArea, long GlobalLocalArea, long TrailAuxArea, int n_wo
     shm_map_memory(i, WorkerArea, worker_area(i));
 #endif /* SHM_MEMORY_MAPPING_SCHEME */
   }
-#endif /* ACOW */
-#else /* TABLING */
-#ifdef SHM_MEMORY_MAPPING_SCHEME
-  /* mapping worker area */
-  shm_map_memory(0, WorkerArea, mmap_addr + HeapArea);
-#endif /* SHM_MEMORY_MAPPING_SCHEME */
-#endif /* YAPOR */
-
+#endif /* YAPOR_MODEL */
 
 #ifdef SBA
   /* alloc space for the sparse binding array */
@@ -226,8 +196,6 @@ void unmap_memory (void) {
 #else /* MMAP_MEMORY_MAPPING_SCHEME */
   char MapFile[20];
 #endif /* MEMORY_MAPPING_SCHEME */
-
-#ifdef YAPOR
   {
     int proc;
     for (proc = 0; proc < number_workers; proc++) {
@@ -247,18 +215,13 @@ void unmap_memory (void) {
     }
 #endif /* ACOW */
   }
-#endif /* YAPOR */
 
 #ifdef SHM_MEMORY_MAPPING_SCHEME
-#ifdef YAPOR
 #ifdef ACOW
   i = 0;
 #else
   for (i = 0; i < number_workers + 1; i++)
-#endif
-#else /* TABLING */
-  for (i = 0; i < 1 + 2; i++)
-#endif /* YAPOR */
+#endif /* ACOW */
   {
     if (shmctl(shm_mapid[i], IPC_RMID, 0) == 0)
       INFORMATION_MESSAGE("Removing shared memory segment %d", shm_mapid[i]);
@@ -266,15 +229,11 @@ void unmap_memory (void) {
   }
 #else /* MMAP_MEMORY_MAPPING_SCHEME */
   strcpy(MapFile,"/tmp/mapfile");
-#ifdef YAPOR
 #ifdef ACOW
   itos(GLOBAL_master_worker, &MapFile[12]);
 #else /* ENV_COPY || SBA */
   itos(worker_pid(0), &MapFile[12]);
 #endif
-#else /* TABLING */
-  itos(getpid(), &MapFile[12]);
-#endif /* YAPOR */
   if (remove(MapFile) == 0)
     INFORMATION_MESSAGE("Removing mapfile \"%s\"", MapFile);
   else INFORMATION_MESSAGE("Can't remove mapfile \"%s\"", MapFile);
@@ -283,7 +242,6 @@ void unmap_memory (void) {
 }
 
 
-#ifdef YAPOR
 void remap_memory(void) {
 #ifdef ACOW
   /* do nothing */
@@ -334,44 +292,3 @@ void remap_memory(void) {
 #endif /* ENV_COPY */
 }
 #endif /* YAPOR */
-
-
-#ifdef DEAD_CODE
-
-This code is pretty much dead, the idea is to allocate large memory
-blocks from the Heap.
-
-void *alloc_memory_block(int size) {
-  void *block;
-  LOCK(Pg_lock(GLOBAL_PAGES_void));
-#if USE_HEAP_FOR_ALLOC_MEMORY_BLOCKS
-  block = (void *) AllocCodeSpace(size);
-#else
-  if (size > TopAllocBlockArea - TopAllocArea)
-    abort_optyap("no more free alloc space (alloc_memory_block)");
-  TopAllocBlockArea -= size;
-  block = TopAllocBlockArea;
-#endif /* USE_HEAP_FOR_ALLOC_MEMORY_BLOCKS */
-  UNLOCK(Pg_lock(GLOBAL_PAGES_void));
-  return block;
-}
-
-
-void free_memory_block(void *block) {
-#if USE_HEAP_FOR_ALLOC_MEMORY_BLOCKS
-  LOCK(Pg_lock(GLOBAL_PAGES_void));
-  Yap_FreeCodeSpace((char *) block);
-  UNLOCK(Pg_lock(GLOBAL_PAGES_void));
-#endif /* USE_HEAP_FOR_ALLOC_MEMORY_BLOCKS */
-}
-
-
-void reset_alloc_block_area(void) {
-#if USE_HEAP_FOR_ALLOC_MEMORY_BLOCKS
-  TopAllocBlockArea = BaseAllocArea+OPT_CHUNK_SIZE;
-#endif /* USE_HEAP_FOR_ALLOC_MEMORY_BLOCKS */
-}
-
-#endif /* USE_HEAP */
-
-#endif /* YAPOR || TABLING */

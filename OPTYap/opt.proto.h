@@ -6,17 +6,15 @@
 **  opt.memory.c  **
 ** -------------- */
 
-long global_data_size(void);
-long local_data_size(void);
+#ifdef YAPOR
 #ifdef SHM_MEMORY_MAPPING_SCHEME
 void shm_map_memory(int id, int size, void *shmaddr);
 #else /* MMAP_MEMORY_MAPPING_SCHEME */
 void open_mapfile(long);
-#endif /* MEMORY_MAPPING_SCHEME */
 void close_mapfile(void);
+#endif /* MEMORY_MAPPING_SCHEME */
 void map_memory(long HeapArea, long GlobalLocalArea, long TrailAuxArea, int n_workers);
 void unmap_memory(void);
-#ifdef YAPOR
 void remap_memory(void);
 #endif /* YAPOR */
 
@@ -50,7 +48,6 @@ void init_signals(void);
 **  opt.preds.c  **
 ** ------------- */
 
-void init_optyap_preds(void);
 #ifdef YAPOR
 void finish_yapor(void);
 #endif /* YAPOR */
@@ -74,9 +71,6 @@ void private_completion(sg_fr_ptr sg_fr);
 void free_subgoal_trie_branch(sg_node_ptr node, int missing_nodes);
 void free_answer_trie(sg_fr_ptr sg_fr);
 void update_answer_trie(sg_fr_ptr sg_fr);
-void show_trie(FILE *stream, sg_node_ptr sg_node, int pred_arity, Atom pred_atom);
-int show_subgoal_trie(FILE *stream, sg_node_ptr sg_node, char *str, int str_index, int *arity);
-int show_answer_trie(FILE *stream, ans_node_ptr ans_node, char *str, int str_index, int *arity, int var_index);
 void traverse_trie(FILE *stream, sg_node_ptr sg_node, int pred_arity, Atom pred_atom, int show);
 #endif /* TABLING */
 

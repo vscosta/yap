@@ -92,6 +92,7 @@ void make_root_choice_point(void) {
   LOCAL_top_cp_on_stack = LOCAL_top_cp;
   adjust_freeze_registers();
 #endif /* TABLING */
+  return;
 }
 
 
@@ -189,7 +190,6 @@ int q_share_work(int worker_p) {
 
   /* unbind variables */
   aux_tr = LOCAL_top_cp->cp_tr;
-  printf("%d: Starting variable unbinding %p---%p\n", worker_id, TR, aux_tr);
 #ifdef TABLING_ERRORS
   if (TR < aux_tr)
     TABLING_ERROR_MESSAGE("TR < aux_tr (q_share_work)");
@@ -217,9 +217,8 @@ int q_share_work(int worker_p) {
     } else if (IsApplTerm(aux_cell)) {
       CELL *aux_ptr = RepAppl(aux_cell);
       Term aux_val = TrailTerm(--aux_tr);
-
       *aux_ptr = aux_val;
-#endif
+#endif /* MULTI_ASSIGNMENT_VARIABLES */
     }
   }
 
@@ -322,7 +321,6 @@ sync_with_p:
 #ifdef MULTI_ASSIGNMENT_VARIABLES
     } else if (IsApplTerm(aux_cell)) {
       CELL *cell_ptr = RepAppl(aux_cell);
-	  
       if (((CELL *)aux_cell < LOCAL_top_cp->cp_h || 
           EQUAL_OR_YOUNGER_CP(LOCAL_top_cp, (choiceptr)aux_cell)) &&
 	  !lookup_ma_var(cell_ptr)) {
@@ -335,7 +333,7 @@ sync_with_p:
       }
       /* skip the old value */
       aux_tr--;
-#endif
+#endif /* MULTI_ASSIGNMENT_VARIABLES */
     }
   }
 

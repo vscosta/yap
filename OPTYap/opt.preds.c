@@ -35,12 +35,12 @@ static qg_ans_fr_ptr actual_answer;
 **      Local functions declaration      **
 ** ------------------------------------- */
 
-static int p_default_sequential(void);
 #ifdef YAPOR
 static realtime current_time(void);
 static int yapor_on(void);
 static int start_yapor(void);
 static int p_sequential(void);
+static int p_default_sequential(void);
 static int p_execution_mode(void);
 static int p_performance(void);
 static int p_parallel_new_answer(void);
@@ -69,27 +69,27 @@ static int p_debug_prolog(void);
 ** -------------------------- */
 
 void Yap_init_optyap_preds(void) {
-  Yap_InitCPred("$default_sequential", 1, p_default_sequential, SafePredFlag);
 #ifdef YAPOR
-  Yap_InitCPred("$yapor_on", 0, yapor_on, SafePredFlag);
-  Yap_InitCPred("$start_yapor", 0, start_yapor, SafePredFlag);
-  Yap_InitCPred("$sequential", 1, p_sequential, SafePredFlag);
-  Yap_InitCPred("execution_mode", 1, p_execution_mode, SafePredFlag);
-  Yap_InitCPred("performance", 1, p_performance, SafePredFlag);
-  Yap_InitCPred("$parallel_new_answer", 1, p_parallel_new_answer, SafePredFlag);
-  Yap_InitCPred("$parallel_yes_answer", 0, p_parallel_yes_answer, SafePredFlag);
+  Yap_InitCPred("$yapor_on", 0, yapor_on, SafePredFlag|SyncPredFlag);
+  Yap_InitCPred("$start_yapor", 0, start_yapor, SafePredFlag|SyncPredFlag);
+  Yap_InitCPred("$sequential", 1, p_sequential, SafePredFlag|SyncPredFlag);
+  Yap_InitCPred("$default_sequential", 1, p_default_sequential, SafePredFlag|SyncPredFlag);
+  Yap_InitCPred("execution_mode", 1, p_execution_mode, SafePredFlag|SyncPredFlag);
+  Yap_InitCPred("performance", 1, p_performance, SafePredFlag|SyncPredFlag);
+  Yap_InitCPred("$parallel_new_answer", 1, p_parallel_new_answer, SafePredFlag|SyncPredFlag);
+  Yap_InitCPred("$parallel_yes_answer", 0, p_parallel_yes_answer, SafePredFlag|SyncPredFlag);
 #endif /* YAPOR */
 #ifdef TABLING
-  Yap_InitCPred("$do_table", 2, p_table, SafePredFlag);
-  Yap_InitCPred("$do_abolish_trie", 2, p_abolish_trie, SafePredFlag);
-  Yap_InitCPred("$show_trie", 3, p_show_trie, SafePredFlag);
-  Yap_InitCPred("$resume_trie", 2, p_resume_trie, SafePredFlag);
+  Yap_InitCPred("$do_table", 2, p_table, SafePredFlag|SyncPredFlag);
+  Yap_InitCPred("$do_abolish_trie", 2, p_abolish_trie, SafePredFlag|SyncPredFlag);
+  Yap_InitCPred("$show_trie", 3, p_show_trie, SafePredFlag|SyncPredFlag);
+  Yap_InitCPred("$resume_trie", 2, p_resume_trie, SafePredFlag|SyncPredFlag);
 #endif /* TABLING */
 #ifdef STATISTICS
-  Yap_InitCPred("show_frames", 0, p_show_frames, SafePredFlag);
+  Yap_InitCPred("show_frames", 0, p_show_frames, SafePredFlag|SyncPredFlag);
 #endif /* STATISTICS */
 #if defined(YAPOR_ERRORS) || defined(TABLING_ERRORS)
-  Yap_InitCPred("debug_prolog", 1, p_debug_prolog, SafePredFlag);
+  Yap_InitCPred("debug_prolog", 1, p_debug_prolog, SafePredFlag|SyncPredFlag);
 #endif /* YAPOR_ERRORS || TABLING_ERRORS */
 }
 
@@ -107,39 +107,6 @@ void finish_yapor(void) {
 /* ------------------------- **
 **      Local functions      **
 ** ------------------------- */
-
-static
-int p_default_sequential(void) {
-#ifdef YAPOR
-  Term t;
-  t = Deref(ARG1);
-  if (IsVarTerm(t)) {
-    Term ta;
-    if (SEQUENTIAL_IS_DEFAULT)
-      ta = MkAtomTerm(Yap_LookupAtom("on"));
-    else
-      ta = MkAtomTerm(Yap_LookupAtom("off"));
-    Bind((CELL *)t, ta);
-    return(TRUE);
-  } 
-  if (IsAtomTerm(t)) {
-    char *s;
-    s = RepAtom(AtomOfTerm(t))->StrOfAE;
-    if (strcmp(s, "on") == 0) {
-      SEQUENTIAL_IS_DEFAULT = TRUE;
-      return(TRUE);
-    } 
-    if (strcmp(s,"off") == 0) {
-      SEQUENTIAL_IS_DEFAULT = FALSE;
-      return(TRUE);
-    }
-  }
-  return(FALSE);
-#else
-  return(TRUE);
-#endif
-}
-
 
 #ifdef YAPOR
 static
@@ -182,36 +149,59 @@ int start_yapor(void) {
 }
 
 
-
 static
 int p_sequential(void) {
   Term t, tmod;
-  Atom at;
-  int arity;
-  PredEntry *pe;
   SMALLUNSGN mod;
+  PredEntry *pe;
 
-  t = Deref(ARG1);
   tmod = Deref(ARG2);
   if (IsVarTerm(tmod) || !IsAtomTerm(tmod)) {
     return(FALSE);
+  } else {
+    mod = Yap_LookupModule(tmod);
   }
-  mod = Yap_LookupModule(tmod);
+  t = Deref(ARG1);
   if (IsAtomTerm(t)) {
-    at = AtomOfTerm(t);
-    arity = 0;
+    Atom at = AtomOfTerm(t);
     pe = RepPredProp(PredPropByAtom(at, mod));
   } else if (IsApplTerm(t)) {
     Functor func = FunctorOfTerm(t);
-    at = NameOfFunctor(func);
-    arity = ArityOfFunctor(func);
     pe = RepPredProp(PredPropByFunc(func, mod));
   } else {
-    abort_optyap("unknown term in function p_sequential");
     return(FALSE);
   }
   pe->PredFlags |= SequentialPredFlag;
   return (TRUE);
+}
+
+
+static
+int p_default_sequential(void) {
+  Term t;
+  t = Deref(ARG1);
+  if (IsVarTerm(t)) {
+    Term ta;
+    if (SEQUENTIAL_IS_DEFAULT)
+      ta = MkAtomTerm(Yap_LookupAtom("on"));
+    else
+      ta = MkAtomTerm(Yap_LookupAtom("off"));
+    Bind((CELL *)t, ta);
+    return(TRUE);
+  } 
+  if (IsAtomTerm(t)) {
+    char *s;
+    s = RepAtom(AtomOfTerm(t))->StrOfAE;
+    if (strcmp(s, "on") == 0) {
+      SEQUENTIAL_IS_DEFAULT = TRUE;
+      return(TRUE);
+    } 
+    if (strcmp(s,"off") == 0) {
+      SEQUENTIAL_IS_DEFAULT = FALSE;
+      return(TRUE);
+    }
+  }
+  return(FALSE);
 }
 
 
@@ -457,33 +447,32 @@ void answer_to_stdout(char *answer) {
 #ifdef TABLING
 static
 int p_table(void) {
-  Term t, t2;
+  Term t, tmod;
+  SMALLUNSGN mod;
   PredEntry *pe;
   tab_ent_ptr te;
   sg_node_ptr sg_node;
-  SMALLUNSGN mod;
 
-  t = Deref(ARG1);
-  t2 = Deref(ARG2);
-  if (IsVarTerm(t2) || !IsAtomTerm(t2)) {
+  tmod = Deref(ARG2);
+  if (IsVarTerm(tmod) || !IsAtomTerm(tmod)) {
     return (FALSE);
   } else {
-    mod = Yap_LookupModule(t2);
+    mod = Yap_LookupModule(tmod);
   }
+  t = Deref(ARG1);
   if (IsAtomTerm(t)) {
     Atom at = AtomOfTerm(t);
     pe = RepPredProp(PredPropByAtom(at, mod));
   } else if (IsApplTerm(t)) {
     Functor func = FunctorOfTerm(t);
     pe = RepPredProp(PredPropByFunc(func, mod));
-  } else
+  } else {
     return (FALSE);
-
+  }
   pe->PredFlags |= TabledPredFlag;
   new_subgoal_trie_node(sg_node, 0, NULL, NULL, NULL);
   new_table_entry(te, sg_node);
   pe->TableOfPred = te;
-
   return (TRUE);
 }
 
@@ -497,13 +486,13 @@ int p_abolish_trie(void) {
   sg_node_ptr sg_node;
   UInt arity;
 
-  t = Deref(ARG1);
   tmod = Deref(ARG2);
    if (IsVarTerm(tmod) || !IsAtomTerm(tmod)) {
     return (FALSE);
   } else {
     mod = Yap_LookupModule(tmod);
   } 
+  t = Deref(ARG1);
   if (IsAtomTerm(t)) {
     Atom at = AtomOfTerm(t);
     tab_ent = RepPredProp(PredPropByAtom(at, mod))->TableOfPred;
@@ -512,9 +501,9 @@ int p_abolish_trie(void) {
     Functor func = FunctorOfTerm(t);
     tab_ent = RepPredProp(PredPropByFunc(func, mod))->TableOfPred;
     arity = ArityOfFunctor(func);
-  } else
+  } else {
     return (FALSE);
-
+  }
   hash = TabEnt_hash_chain(tab_ent);
   TabEnt_hash_chain(tab_ent) = NULL;
   free_subgoal_hash_chain(hash);
@@ -523,7 +512,6 @@ int p_abolish_trie(void) {
     TrNode_child(TabEnt_subgoal_trie(tab_ent)) = NULL;
     free_subgoal_trie_branch(sg_node, arity);
   }
-
   return (TRUE);
 }
 
@@ -531,30 +519,30 @@ int p_abolish_trie(void) {
 static
 int p_show_trie(void) {
   Term t1, t2, tmod;
-  PredEntry *pe;
   SMALLUNSGN mod;
+  PredEntry *pe;
   Atom at;
   UInt arity;
 
-  t1 = Deref(ARG1);
   tmod = Deref(ARG2);
    if (IsVarTerm(tmod) || !IsAtomTerm(tmod)) {
     return (FALSE);
   } else {
     mod = Yap_LookupModule(tmod);
   } 
+  t1 = Deref(ARG1);
   if (IsAtomTerm(t1)) {
     at = AtomOfTerm(t1);
-    arity = 0;
     pe = RepPredProp(PredPropByAtom(at, mod));
+    arity = 0;
   } else if (IsApplTerm(t1)) {
     Functor func = FunctorOfTerm(t1);
     at = NameOfFunctor(func);
-    arity = ArityOfFunctor(func);
     pe = RepPredProp(PredPropByFunc(func, mod));
-  } else
+    arity = ArityOfFunctor(func);
+  } else {
     return (FALSE);
- 
+  }
   t2 = Deref(ARG3);
   if (IsVarTerm(t2)) {
     Term ta = MkAtomTerm(Yap_LookupAtom("stdout"));
@@ -567,39 +555,40 @@ int p_show_trie(void) {
       abort_optyap("fopen error in function p_show_trie");
     traverse_trie(file, TrNode_child(TabEnt_subgoal_trie(pe->TableOfPred)), arity, at, TRUE);
     fclose(file);
-  } else
+  } else {
     return(FALSE);
-
+  }
   return (TRUE);
 }
 
+
 static
 int p_resume_trie(void) {
-  Term t1;
+  Term t, tmod;
+  SMALLUNSGN mod;
+  PredEntry *pe;
   Atom at;
   int arity;
-  PredEntry *pe;
-  Term tmod = Deref(ARG2);
-  SMALLUNSGN mod;
 
-   if (IsVarTerm(tmod) || !IsAtomTerm(tmod)) {
+  tmod = Deref(ARG2);
+  if (IsVarTerm(tmod) || !IsAtomTerm(tmod)) {
     return (FALSE);
   } else {
     mod = Yap_LookupModule(tmod);
   } 
-  t1 = Deref(ARG1);
-  if (IsAtomTerm(t1)) {
-    at = AtomOfTerm(t1);
-    arity = 0;
+  t = Deref(ARG1);
+  if (IsAtomTerm(t)) {
+    at = AtomOfTerm(t);
     pe = RepPredProp(PredPropByAtom(at, mod));
-  } else if (IsApplTerm(t1)) {
-    Functor func = FunctorOfTerm(t1);
+    arity = 0;
+  } else if (IsApplTerm(t)) {
+    Functor func = FunctorOfTerm(t);
     at = NameOfFunctor(func);
-    arity = ArityOfFunctor(func);
     pe = RepPredProp(PredPropByFunc(func, mod));
-  } else
+    arity = ArityOfFunctor(func);
+  } else {
     return(FALSE);
-
+  }
   traverse_trie(stdout, TrNode_child(TabEnt_subgoal_trie(pe->TableOfPred)), arity, at, FALSE);
   return (TRUE);
 }
@@ -862,7 +851,7 @@ int p_show_frames(void) {
   }
   fprintf(stdout, " %s[%ld] Pages: In Use %ld - Free %ld (%ld Accesses)\n]\n\n",
           (Pg_str_alloc(GLOBAL_PAGES_void) - Pg_str_in_use(GLOBAL_PAGES_void) == cont &&
-          TopAllocArea - BaseAllocArea == PageSize * Pg_str_alloc(GLOBAL_PAGES_void) &&
+          TopAllocArea - BaseAllocArea == Yap_page_size * Pg_str_alloc(GLOBAL_PAGES_void) &&
           Pg_str_in_use(GLOBAL_PAGES_void) == pages) ? " ": "*", 
           Pg_str_alloc(GLOBAL_PAGES_void), 
           Pg_str_in_use(GLOBAL_PAGES_void), cont, Pg_requests(GLOBAL_PAGES_void));

@@ -6,6 +6,7 @@
 #if defined(YAPOR) || defined(TABLING)
 #include <stdarg.h>
 #include <stdio.h>
+#include <stdlib.h>
 #include "Yatom.h"
 #include "yapio.h"
 #if HAVE_UNISTD_H
@@ -21,10 +22,8 @@
 **      Global variables are defined here      **
 ** ------------------------------------------- */
 
-struct global_data *GLOBAL;
 struct local_data *LOCAL;
 #ifdef YAPOR
-struct local_data *REMOTE[MAX_WORKERS];
 struct worker WORKER;
 #endif /* YAPOR */
 
@@ -48,7 +47,7 @@ void abort_optyap(const char *msg, ...) {
 
 #ifdef YAPOR
   unmap_memory();
-#endif
+#endif /* YAPOR */
   exit (1);
 }
 
@@ -77,16 +76,7 @@ void information_message(const char *mesg,...) {
   fprintf(stderr, " ]\n");
   return;
 }
-/* ------------------------- **
-**      Local functions      **
-** ------------------------- */
 
-int tabling_putchar(int sno, int ch) {
-  return(putc(ch, stderr));
-}
-#endif /* TABLING_DEBUG */
-
-#ifdef YAPOR
 
 #if defined(YAPOR_ERRORS) || defined(TABLING_ERRORS)
 void error_message(const char *mesg, ...) {
