@@ -102,9 +102,9 @@ AC_ARG_WITH(trail-space,
 	fi,
 	[yap_cv_trail_space=0])
 
-if test $tabling = yes -o $orparallelism = yes
+if test $tabling = yes -o $orparallelism = yes -o "$CC" = "sslittle-na-sstrix-gcc"
 then
-	AC_DEFINE(MinHeapSpace, (300*SIZEOF_INT_P))
+	AC_DEFINE(MinHeapSpace, (400*SIZEOF_INT_P))
 	AC_DEFINE(MinStackSpace,(300*SIZEOF_INT_P))
 	AC_DEFINE(MinTrailSpace,( 48*SIZEOF_INT_P))
 else

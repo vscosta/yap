@@ -1817,10 +1817,10 @@ else
   yap_cv_trail_space=0
 fi;
 
-if test $tabling = yes -o $orparallelism = yes
+if test $tabling = yes -o $orparallelism = yes -o "$CC" = "sslittle-na-sstrix-gcc"
 then
 	cat >>confdefs.h <<\EOF
-#define MinHeapSpace (300*SIZEOF_INT_P)
+#define MinHeapSpace (400*SIZEOF_INT_P)
 EOF
 
 	cat >>confdefs.h <<\EOF
