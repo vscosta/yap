@@ -2798,7 +2798,7 @@ Integers are sorted in increasing order;
 atoms are sorted in lexicographic order;
 @item
 compound terms are ordered first by name, then by arity of the main
-functor and finally by their arguments i left-to-right order.
+functor, and finally by their arguments in left-to-right order.
 @end itemize
 
 @table @code
@@ -5431,6 +5431,48 @@ sent; the @var{Goal} to execute; and the goal @var{DoOnAlarm} to execute
 if the alarm is sent. It uses @code{catch/3} to handle the case the
 @code{alarm} is sent. Then it starts the alarm, calls the goal
 @var{Goal}, and disables the alarm on success or failure.
+
+@item on_signal(+@var{Signal},?@var{OldAction},+@var{Callable})
+@findex on_signal/3
+@snindex on_signal/3
+@cnindex on_signal/3
+Set the interrupt handler for soft interrupt @var{Signal} to be
+@var{Callable}. @var{OldAction} is unified with the previous handler.
+
+Only a subset of the software interrupts (signals) can have their
+handlers maniputated through @code{on_signal/3}.
+Their POSIX names, YAP names and default behaviour is given below.
+The "YAP name" of the signal is the atom that is associated with
+each signal, and should be used as the first argument to
+@code{on_signal/3}. It is chosen so that it matches the signal's POSIX
+name.
+
+@code{on_signal/3} succeeds, unless when called with an invalid
+signal name or one that is not supported on this platform. No checks
+are made on the handler provided by the user.
+
+@table @code
+@item SIGHUP (Hangup)
+  sig_hup in YAP; Reconsult the initialisation files
+  ~/.yaprc, ~/.prologrc and ~/prolog.ini.
+@item SIGUSR1 and SIGUSR2 (User signals)
+  sig_usr1 and sig_usr2 in YAP; Print a message and halt.
+@end table
+
+A special case is made, where if @var{Callable} is bound to
+@code{default}, then the default handler is restored for that signal.
+
+A call in the form @code{on_signal(@var{S},@var{H},@var{H})} can be used
+to retrieve a signal's current handler without changing it.
+
+It must be noted that although a signal can be received at all times,
+the handler is not executed while Yap is waiting for a query at the
+prompt. The signal will be, however, registered and dealt with as soon
+as the user makes a query.
+
+Please also note, that neither POSIX Operating Systems nor Yap guarantee
+that the order of delivery and handling is going to correspond with the
+order of dispatch.
 
 @end table
 
