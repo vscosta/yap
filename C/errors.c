@@ -181,7 +181,7 @@ DumpActiveGoals (void)
 	  DebugPutc (c_output_stream,'(');
 	  for (i= 0; i < arity; i++) {
 	    if (i > 0) DebugPutc (c_output_stream,',');
-	    plwrite(args[i], DebugPutc, 4);
+	    plwrite(args[i], DebugPutc, Handle_vars_f);
 	  }
 	  DebugPutc (c_output_stream,')');
 	}

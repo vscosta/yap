@@ -291,6 +291,11 @@ extern int c_input_stream, c_output_stream, c_error_stream;
 
 Term   STD_PROTO(OpenStream,(FILE *,char *,Term,int));
 
+#define	Quote_illegal_f		1
+#define	Ignore_ops_f		2
+#define	Handle_vars_f		4
+#define	Use_portray_f		8
+
 /* routines in sysbits.c */
 char *STD_PROTO(pfgets,(char *,int,YP_File));
 

@@ -671,3 +671,54 @@ ArgsOfSFTerm(Term t)
 }
 
 #endif
+
+long
+_YAP_NewSlots(int n)
+{
+  Int old_slots = IntOfTerm(ASP[0]), oldn = n;
+  while (n > 0) {
+    RESET_VARIABLE(ASP);
+    ASP--;
+    n--;
+  }
+  ASP[0] = MkIntTerm(old_slots+oldn);
+  return((ASP+1)-LCL0);
+}
+
+long
+_YAP_InitSlot(Term t)
+{
+  Int old_slots = IntOfTerm(ASP[0]);
+  *ASP = t;
+  ASP--;
+  ASP[0] = MkIntTerm(old_slots+1);
+  return((ASP+1)-LCL0);
+}
+
+void
+_YAP_RecoverSlots(int n)
+{
+  Int old_slots = IntOfTerm(ASP[0]);
+  ASP += n;
+  ASP[0] = MkIntTerm(old_slots-n);
+}
+
+Term
+_YAP_GetFromSlot(long slot)
+{
+  return(Deref(LCL0[slot]));
+}
+
+Term *
+_YAP_AddressFromSlot(long slot)
+{
+  return(LCL0+slot);
+}
+
+void
+_YAP_PutInSlot(long slot, Term t)
+{
+  LCL0[slot] = t;
+}
+
+

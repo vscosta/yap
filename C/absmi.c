@@ -1746,8 +1746,9 @@ absmi(int inp)
 	DEPTH -= MkIntConstant(2);
 #endif	/* DEPTH_LIMIT */
 #ifdef LOW_LEVEL_TRACER
-      if (do_low_level_trace)
+      if (do_low_level_trace) {
 	low_level_trace(enter_pred,pred_entry(pt0),XREGS+1);
+      }
 #endif	/* LOW_LEVEL_TRACE */
       /* this is the equivalent to setting up the stack */
       ALWAYS_GONext();
@@ -5810,6 +5811,7 @@ absmi(int inp)
       } else {
 	ASP = (CELL *) (((char *) Y) + PREG->u.sla.s);
       }
+      /* for slots to work */
 #endif /* FROZEN_STACKS */
 #ifdef LOW_LEVEL_TRACER
       if (do_low_level_trace)
@@ -6053,7 +6055,12 @@ absmi(int inp)
 	WRITE_UNLOCK(PredFromDefCode(PREG)->PRWLock);
 	JMPNext();
       }
-#endif 
+#endif
+      /* update ASP before calling IPred */
+      ASP = Y+E_CB;
+      if (ASP > (CELL *) B) {
+	ASP = (CELL *) B;
+      }
       IPred((CODEADDR)PredFromDefCode(PREG));
       /* IPred can generate errors, it thus must get rid of the lock itself */
       setregs();

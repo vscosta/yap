@@ -60,7 +60,7 @@ send_tracer_message(char *start, char *name, Int arity, char *mname, CELL *args)
       Portray_delays = TRUE;
 #endif
 #endif
-      plwrite(args[i], TracePutchar, 4);
+      plwrite(args[i], TracePutchar, Handle_vars_f);
 #if DEBUG
 #if COROUTINING
       Portray_delays = FALSE;
@@ -112,12 +112,13 @@ low_level_trace(yap_low_level_port port, PredEntry *pred, CELL *args)
   /*  extern int gc_calls; */
 
   vsc_count++;
-  /* if (vsc_count < 24200) return; */
+  /* return;*/
+  /*  if (vsc_count < 38372100LL) return;*/
   /* if (vsc_count == 80) {
      printf("Here I go\n");
      } */
   /* if (vsc_count > 500000) exit(0); */
-  /* if (gc_calls < 1) return;*/
+  /* if (gc_calls < 1) return; */
 #if defined(__GNUC__)
   YP_fprintf(YP_stderr,"%llu ", vsc_count);
 #endif

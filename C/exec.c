@@ -1447,8 +1447,11 @@ execute_goal(Term t, int nargs, SMALLUNSGN mod)
 #ifdef DEPTH_LIMIT
     DEPTH= B->cp_depth;
 #endif
-    YENV= ASP = B->cp_env;
-    ENV  = (CELL *)((B->cp_env)[E_E]);
+    /* ASP should be set to the top of the local stack when we
+       did the call */
+    ASP = B->cp_env;
+    /* YENV should be set to the current environment */
+    YENV = ENV  = (CELL *)((B->cp_env)[E_E]);
     B    = B->cp_b;
     SET_BB(B);
     HB = PROTECT_FROZEN_H(B);

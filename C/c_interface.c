@@ -431,50 +431,37 @@ YAP_Unify(Term t1, Term t2)
 X_API long
 YAP_NewSlots(int n)
 {
-  Int old_slots = IntOfTerm(ASP[0]), oldn = n;
-  while (n > 0) {
-    RESET_VARIABLE(ASP);
-    ASP--;
-    n--;
-  }
-  ASP[0] = MkIntTerm(old_slots+oldn);
-  return((ASP+1)-LCL0);
+  return _YAP_NewSlots(n);
 }
 
 X_API long
 YAP_InitSlot(Term t)
 {
-  Int old_slots = IntOfTerm(ASP[0]);
-  *ASP = t;
-  ASP--;
-  ASP[0] = MkIntTerm(old_slots+1);
-  return((ASP+1)-LCL0);
+  return _YAP_InitSlot(t);
 }
 
 X_API void
 YAP_RecoverSlots(int n)
 {
-  Int old_slots = IntOfTerm(ASP[0]);
-  ASP += n;
-  ASP[0] = MkIntTerm(old_slots-n);
+  return _YAP_RecoverSlots(n);
 }
 
 X_API Term
 YAP_GetFromSlot(long slot)
 {
-  return(Deref(LCL0[slot]));
+  return _YAP_GetFromSlot(slot);
 }
 
 X_API Term *
 YAP_AddressFromSlot(long slot)
 {
-  return(LCL0+slot);
+  return _YAP_AddressFromSlot(slot);
 }
 
 X_API void
 YAP_PutInSlot(long slot, Term t)
 {
-  LCL0[slot] = t;
+  _YAP_PutInSlot(slot, t);
 }
 
 

@@ -2584,7 +2584,11 @@ p_current_output (void)
 static Int
 p_write (void)
 {				/* '$write'(+Flags,?Term) */
-  plwrite (ARG2, Stream[c_output_stream].stream_putc, (int) IntOfTerm (Deref (ARG1)));
+  int flags = (int) IntOfTerm (Deref (ARG1));
+  /* notice: we must have ASP well set when using portray, otherwise
+     we cannot make recursive Prolog calls */
+  *--ASP = MkIntTerm(0);
+  plwrite (ARG2, Stream[c_output_stream].stream_putc, flags);
   if (EX != 0L) {
     Term ball = EX;
     EX = 0L;
@@ -2603,6 +2607,9 @@ p_write2 (void)
     c_output_stream = old_output_stream;
     return(FALSE);
   }
+  /* notice: we must have ASP well set when using portray, otherwise
+     we cannot make recursive Prolog calls */
+  *--ASP = MkIntTerm(0);
   plwrite (ARG3, Stream[c_output_stream].stream_putc, (int) IntOfTerm (Deref (ARG2)));
   c_output_stream = old_output_stream;
   if (EX != 0L) {
@@ -3789,7 +3796,7 @@ format(Term tail, Term args, int sno)
 		Error(TYPE_ERROR_ATOM,arghd,"~a in format/2");
 		return(FALSE);
 	      }
-	      plwrite (arghd, format_putc, 4);
+	      plwrite (arghd, format_putc, Handle_vars_f);
 	      break;
 	    case 'c':
 	      if (IsVarTerm (args)) {
@@ -3888,7 +3895,7 @@ format(Term tail, Term args, int sno)
 		return(FALSE);
 	      }
 	      if (!arg_size) {
-		plwrite (arghd, format_putc, 4);
+		plwrite (arghd, format_putc, Handle_vars_f);
 	      } else {
 		Int siz;
 		/*
@@ -4166,7 +4173,7 @@ format(Term tail, Term args, int sno)
 	      }
 	      arghd = HeadOfTerm (args);
 	      args = TailOfTerm (args);
-	      plwrite (arghd, format_putc, (int) 3);
+	      plwrite (arghd, format_putc, Quote_illegal_f|Ignore_ops_f );
 	      break;
 	    case 'p':
 	      if (size_args) {
@@ -4186,7 +4193,13 @@ format(Term tail, Term args, int sno)
 	      }
 	      arghd = HeadOfTerm (args);
 	      args = TailOfTerm (args);
-	      plwrite (arghd, format_putc, (int) 12);
+	      *--ASP = MkIntTerm(0);
+	      { 
+		long sl = _YAP_InitSlot(args);
+		plwrite(arghd, format_putc, Handle_vars_f|Use_portray_f);
+		args = _YAP_GetFromSlot(sl);
+		_YAP_RecoverSlots(1);
+	      }
 	      if (EX != 0L) {
 		Term ball = EX;
 		EX = 0L;
@@ -4213,7 +4226,7 @@ format(Term tail, Term args, int sno)
 	      }
 	      arghd = HeadOfTerm (args);
 	      args = TailOfTerm (args);
-	      plwrite (arghd, format_putc, (int) 5);
+	      plwrite (arghd, format_putc, Handle_vars_f|Quote_illegal_f);
 	      break;
 	    case 'w':
 	      if (size_args) {
@@ -4233,7 +4246,7 @@ format(Term tail, Term args, int sno)
 	      }
 	      arghd = HeadOfTerm (args);
 	      args = TailOfTerm (args);
-	      plwrite (arghd, format_putc, (int) 4);
+	      plwrite (arghd, format_putc, Handle_vars_f);
 	      break;
 	    case '~':
 	      if (size_args) {
