@@ -737,14 +737,17 @@ not(G) :-    \+ '$execute'(G).
 	'$execute0'(NG,M).
 '$do_undefp'(G,M) :-
 	\+ '$undefined'(unknown_predicate_handler(_,_,_), user),
-	'$system_catch'(unknown_predicate_handler(G,M,NG), user, _, fail), !,
-	( once('$execute'(user:NG)) -> '$exit_undefp' ; '$exit_undefp', fail).
+	( '$system_catch'(NG,user,Error,'$leave_undefp'(Error)) -> '$exit_undefp' ; '$exit_undefp', fail).
 '$do_undefp'(G,M) :-
 	recorded('$unknown','$unknown'(M:G,US),_), !,
-	( once('$execute'(user:US)) -> '$exit_undefp' ; '$exit_undefp', fail).
+	( '$system_catch'(US,user,Error,'$leave_undefp'(Error)) -> '$exit_undefp' ; '$exit_undefp', fail).
 '$do_undefp'(_,_) :-
 	'$exit_undefp',
 	fail.
+
+'$leave_undefp'(Ball) :-
+	'$exit_undefp',
+	throw(Ball).
 
 
 /* This is the break predicate,
