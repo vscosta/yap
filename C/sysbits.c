@@ -2052,27 +2052,6 @@ p_host_type(void) {
   return(unify(out,ARG1));
 }
 
-static Int
-p_same_file(void) {
-  char *f1 = RepAtom(AtomOfTerm(Deref(ARG1)))->StrOfAE;
-  char *f2 = RepAtom(AtomOfTerm(Deref(ARG2)))->StrOfAE;
-#if HAVE_LSTAT 
-  struct stat buf1, buf2;
-  if (stat(f1, &buf1) == -1) {
-    /* file does not exist, but was opened? Return -1 */
-    return(FALSE);
-  }
-  if (stat(f2, &buf2) == -1) {
-    /* file does not exist, but was opened? Return -1 */
-    return(FALSE);
-  }
-  return(buf1.st_ino == buf2.st_ino &&
-	 buf1.st_dev == buf2.st_dev);
-#else
-  return(strcmp(f1,f2) == 0);
-#endif
-}
-
 /*
  * This is responsable for the initialization of all machine dependant
  * predicates
@@ -2122,7 +2101,6 @@ InitSysPreds(void)
   InitCPred ("$file_age", 2, p_file_age, SafePredFlag|SyncPredFlag);
   InitCPred ("$set_fpu_exceptions", 0, p_set_fpu_exceptions, SafePredFlag|SyncPredFlag);
   InitCPred ("$host_type", 1, p_host_type, SafePredFlag|SyncPredFlag);
-  InitCPred ("$same_file", 2, p_same_file, SafePredFlag|SyncPredFlag);
 }
 
 

@@ -456,26 +456,37 @@ InitStdStream (int sno, SMALLUNSGN flags, YP_File file, Atom name)
     s->stream_getc = MemGetc;    
   } else {
    /* check if our console is promptable: may be tty or pipe */
-   if (s->status & (Promptable_Stream_f)) {
-     /* the putc routine only has to check it is putting out a newline */
-     s->stream_putc = ConsolePutc;
-     /* if a tty have a special routine to call readline */
+    if (s->status & (Promptable_Stream_f)) {
+      /* the putc routine only has to check it is putting out a newline */
+      s->stream_putc = ConsolePutc;
+      /* if a tty have a special routine to call readline */
 #if HAVE_LIBREADLINE
-     if (s->status & Tty_Stream_f) {
-       if (Stream[0].status & Tty_Stream_f &&
-	   s->u.file.name == Stream[0].u.file.name)
-	 s->stream_putc = ReadlinePutc;
-       s->stream_getc = ReadlineGetc;
-     } else
+      if (s->status & Tty_Stream_f) {
+	if (Stream[0].status & Tty_Stream_f &&
+	    s->u.file.name == Stream[0].u.file.name)
+	  s->stream_putc = ReadlinePutc;
+	s->stream_getc = ReadlineGetc;
+      } else
 #endif
-       {
-	 /* else just PlGet plus checking for prompt */
-	 s->stream_getc = ConsoleGetc;
-       }
+	{
+	  /* else just PlGet plus checking for prompt */
+	  s->stream_getc = ConsoleGetc;
+	}
     } else {
       /* we are reading from a file, no need to check for prompts */
       s->stream_putc = FilePutc;
       s->stream_getc = PlGetc;
+    } 
+    switch(sno) {
+    case 0:
+      s->u.file.name=LookupAtom("user_input");
+      break;
+    case 1:
+      s->u.file.name=LookupAtom("user_output");
+      break;
+    default:
+      s->u.file.name=LookupAtom("user_error");
+      break;
     }
     s->u.file.user_name = MkAtomTerm (s->u.file.name);
   }
@@ -4846,6 +4857,60 @@ p_stream(void)
   return(FALSE);
 }
 
+static Int
+p_same_file(void) {
+  char *f1 = RepAtom(AtomOfTerm(Deref(ARG1)))->StrOfAE;
+  char *f2 = RepAtom(AtomOfTerm(Deref(ARG2)))->StrOfAE;
+  if (strcmp(f1,f2) == 0)
+    return(TRUE);
+#if HAVE_LSTAT 
+  {
+    struct stat buf1, buf2;
+    if (strcmp(f1,"user_input") == 0) {
+      if (fstat(fileno(Stream[0].u.file.file), &buf1) == -1) {
+	/* file does not exist, but was opened? Return -1 */
+	return(FALSE);
+      }
+    } else   if (strcmp(f1,"user_output") == 0) {
+      if (fstat(fileno(Stream[1].u.file.file), &buf1) == -1) {
+	/* file does not exist, but was opened? Return -1 */
+	return(FALSE);    
+      }
+    } else   if (strcmp(f1,"user_error") == 0) {
+      if (fstat(fileno(Stream[2].u.file.file), &buf1) == -1) {
+	/* file does not exist, but was opened? Return -1 */
+	return(FALSE);    
+      }
+    } else if (stat(f1, &buf1) == -1) {
+      /* file does not exist, but was opened? Return -1 */
+      return(FALSE);
+    }
+    if (strcmp(f2,"user_input") == 0) {
+      if (fstat(fileno(Stream[0].u.file.file), &buf2) == -1) {
+	/* file does not exist, but was opened? Return -1 */
+	return(FALSE);
+      }
+    } else   if (strcmp(f2,"user_output") == 0) {
+      if (fstat(fileno(Stream[1].u.file.file), &buf2) == -1) {
+	/* file does not exist, but was opened? Return -1 */
+	return(FALSE);    
+      }
+    } else   if (strcmp(f2,"user_error") == 0) {
+      if (fstat(fileno(Stream[2].u.file.file), &buf2) == -1) {
+	/* file does not exist, but was opened? Return -1 */
+	return(FALSE);    
+      }
+    } else if (stat(f2, &buf2) == -1) {
+      /* file does not exist, but was opened? Return -1 */
+      return(FALSE);
+    }
+    return(buf1.st_ino == buf2.st_ino &&
+	   buf1.st_dev == buf2.st_dev);
+  }
+#endif
+  return(FALSE);
+}
+
 void
 InitBackIO (void)
 {
@@ -4921,6 +4986,7 @@ InitIOPreds(void)
 #if HAVE_SELECT
   InitCPred ("stream_select", 3, p_stream_select, SafePredFlag|SyncPredFlag);
 #endif
+  InitCPred ("$same_file", 2, p_same_file, SafePredFlag|SyncPredFlag);
 
 #if USE_SOCKET
   InitSockets ();
