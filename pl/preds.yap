@@ -70,7 +70,7 @@ assert(C) :-
 '$assert_dynamic'(V,Mod,_,_,_) :- var(V), !,
 	throw(error(instantiation_error,assert(Mod:V))).
 '$assert_dynamic'(M:C,_,Where,R,P) :- !,
-	'$assert_dynamic'(C,Mod,Where,R,P).
+	'$assert_dynamic'(C,M,Where,R,P).
 '$assert_dynamic'((H:-G),M1,Where,R,P) :-
         (var(H) -> throw(error(instantiation_error,P)) ;  H=M:C), !,
 	( M1 = M ->
