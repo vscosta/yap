@@ -11,8 +11,11 @@
 * File:		index.c							 *
 * comments:	Indexing a Prolog predicate				 *
 *									 *
-* Last rev:     $Date: 2004-04-21 04:01:53 $,$Author: vsc $						 *
+* Last rev:     $Date: 2004-04-22 03:24:17 $,$Author: vsc $						 *
 * $Log: not supported by cvs2svn $
+* Revision 1.87  2004/04/21 04:01:53  vsc
+* fix bad ordering when inserting second clause
+*
 * Revision 1.86  2004/04/20 22:08:23  vsc
 * fixes for corourining
 *
@@ -87,7 +90,6 @@ UInt STATIC_PROTO(do_index, (ClauseDef *,ClauseDef *,struct intermediates *,UInt
 UInt STATIC_PROTO(do_compound_index, (ClauseDef *,ClauseDef *,Term *t,struct intermediates *,UInt,UInt,UInt,UInt,int,int,int,CELL *,int));
 UInt STATIC_PROTO(do_dbref_index, (ClauseDef *,ClauseDef *,Term,struct intermediates *,UInt,UInt,int,int,CELL *));
 UInt STATIC_PROTO(do_blob_index, (ClauseDef *,ClauseDef *,Term,struct intermediates *,UInt,UInt,int,int,CELL *));
-/*path_stack_entry *STATIC_PROTO(kill_unsafe_block, (path_stack_entry *,op_numbers,PredEntry *,int,int,ClauseDef *));*/
 
 static UInt labelno;
 
@@ -5558,7 +5560,7 @@ static_clause(yamop *ipc)
 }
 
 /* this code should be called when we jumped to clauses */
-path_stack_entry *
+static path_stack_entry *
 kill_unsafe_block(path_stack_entry *sp, op_numbers op, PredEntry *ap, int first, int remove, ClauseDef *cls)
 {
   yamop *ipc;
@@ -5643,27 +5645,25 @@ static void
 nullify_expand_clause(yamop *ipc, path_stack_entry *sp, ClauseDef *cls)
 {
   yamop **st = (yamop **)NEXTOP(ipc,sp);
-  if (ipc->u.sp.s2 == 2) {
-    yamop *cl;
+  yamop **max = st+ipc->u.sp.s1;
 
+  /* make sure we get rid of the reference */
+  while (st < max) {
+    if (*st && *st == cls->Code) {
+      *st = NULL;
+      ipc->u.sp.s2--;
+      break;
+    }
+    st++;
+  }
+  /* if the block has a single element */
+  if (ipc->u.sp.s2 == 1) {
+    yamop **st = (yamop **)NEXTOP(ipc,sp);
     while ((--sp)->flag != block_entry);
     while (TRUE) {
       if (*st && *st != cls->Code) {
-	cl = *st;
-	break;
-      }
-      st++;
-    }
-    if (sp->u.cle.entry_code) {
-      *sp->u.cle.entry_code = cl;
-    }
-    recover_ecls_block(ipc);
-  } else {
-    yamop **max = st+ipc->u.sp.s1;
-    ipc->u.sp.s2--;
-    while (st < max) {
-      if (*st && *st == cls->Code) {
-	*st = NULL;
+	*sp->u.cle.entry_code = *st;
+	recover_ecls_block(ipc);
 	return;
       }
       st++;

@@ -1403,7 +1403,6 @@ mark_choicepoints(register choiceptr gc_B, tr_fr_ptr saved_TR, int very_verbose)
     yamop *rtp = gc_B->cp_ap;
 
     mark_db_fixed((CELL *)rtp);
-    mark_db_fixed((CELL *)(gc_B->cp_ap));
     mark_db_fixed((CELL *)(gc_B->cp_cp));
 #ifdef EASY_SHUNTING
     current_B = gc_B;
@@ -1914,11 +1913,8 @@ sweep_trail(choiceptr gc_B, tr_fr_ptr old_TR)
 		int erase;
 		DEC_CLREF_COUNT(indx);
 		indx->ClFlags &= ~InUseMask;
-		erase = (indx->ClFlags & ErasedMask)
-#if  defined(YAPOR) || defined(THREADS)
-		  && (indx->ClRefCount == 0)
-#endif
-		  ;
+		erase = (indx->ClFlags & ErasedMask
+			 && !indx->ClRefCount);
 		if (erase) {
 		  /* at this point, 
 		     no one is accessing the clause */
@@ -1927,13 +1923,10 @@ sweep_trail(choiceptr gc_B, tr_fr_ptr old_TR)
 	      } else {
 		LogUpdClause *cl = ClauseFlagsToLogUpdClause(pt0);
 		int erase;
+
 		DEC_CLREF_COUNT(cl);
 		cl->ClFlags &= ~InUseMask;
-		erase = (cl->ClFlags & ErasedMask)
-#if  defined(YAPOR) || defined(THREADS)
-		  && (cl->ClRefCount == 0)
-#endif
-		  ;
+		erase = ((cl->ClFlags & ErasedMask) && !cl->ClRefCount);
 		if (erase) {
 		  /* at this point, 
 		     no one is accessing the clause */
