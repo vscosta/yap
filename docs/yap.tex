@@ -964,7 +964,7 @@ A slightly more sophisticated example is:
 #!/usr/bin/yap -L
 #
 # Hello World script file using Yap
-#
+# .
 
 :- initialization(main).
 
@@ -975,14 +975,18 @@ main :- write('Hello World'), nl.
 
 The @code{initialization} directive tells Yap to execute the goal main
 after consulting the file. Source code is thus compiled and @code{main}
-executed at the end.
+executed at the end. The @code{.} is useful while debugging the script
+as a Prolog program: it guarantees that the syntax error will not
+propagate to the Prolog code.
 
-By default, arguments to a script are considered arguments to YAP. As an
-example, consider the following script @code{dump_args}:
+Notice that the @code{--} is required so that the shell passes the extra
+arguments to YAP.  As an example, consider the following script
+@code{dump_args}:
 
 @example
 @cartouche
-#!/usr/bin/yap -L
+#!/usr/bin/yap -L --
+#.
 
 main( [] ).
 main( [H|T] ) :-
