@@ -11,8 +11,13 @@
 * File:		cdmgr.c							 *
 * comments:	Code manager						 *
 *									 *
-* Last rev:     $Date: 2005-01-04 02:50:21 $,$Author: vsc $						 *
+* Last rev:     $Date: 2005-01-05 05:35:01 $,$Author: vsc $						 *
 * $Log: not supported by cvs2svn $
+* Revision 1.148  2005/01/04 02:50:21  vsc
+* - allow MegaClauses with blobs
+* - change Diffs to be thread specific
+* - include Christian's updates
+*
 * Revision 1.147  2004/12/28 22:20:35  vsc
 * some extra bug fixes for trail overflows: some cannot be recovered that easily,
 * some can.
@@ -389,10 +394,6 @@ Yap_BuildMegaClause(PredEntry *ap)
       break;
     has_blobs |= (cl->ClFlags & HasBlobsMask);
     cl = cl->ClNext;
-  }
-  if (ap->cs.p_code.NOfClauses > 1000000) {
-    extern long long int vsc_count;
-    vsc_count++;
   }
   /* ok, we got the chance for a mega clause */
   if (has_blobs) {
