@@ -75,6 +75,9 @@ STATIC_PROTO(Int  p_is_profiled, (void));
 STATIC_PROTO(Int  p_profile_info, (void));
 STATIC_PROTO(Int  p_profile_reset, (void));
 STATIC_PROTO(Int  p_toggle_static_predicates_in_use, (void));
+#ifdef DEBUG
+STATIC_PROTO(void  list_all_predicates_in_use, (void));
+#endif
 
 #define PredArity(p) (p->ArityOfPE)
 #define TRYCODE(G,F,N) ( (N)<5 ? (op_numbers)((int)F+(N)*3) : G)
@@ -342,9 +345,6 @@ retract_all(PredEntry *p)
   int             multifile_pred = p->PredFlags & MultiFileFlag;
   CODEADDR        fclause = NIL, lclause = NIL;
 
-  if (static_in_use(p, TRUE)) {
-    
-  }
   q = p->FirstClause;
   if (q != NIL) {
     do {
@@ -753,6 +753,7 @@ not_was_reconsulted(PredEntry *p, Term t, int mode)
       if (static_in_use(p, TRUE)) {
 	Int Arity = p->ArityOfPE;
 
+	list_all_predicates_in_use();
 	ErrorMessage = ErrorSay;
 	Error_Term = t;
 	Error_TYPE = PERMISSION_ERROR_MODIFY_STATIC_PROCEDURE;
@@ -1782,21 +1783,7 @@ search_for_static_predicate_in_use(PredEntry *p, int check_everything)
   return(FALSE);
 }
 
-static void
-mark_pred(int mark, PredEntry *pe)
-{
-  /* if the predicate is static mark it */
-  if (pe->ModuleOfPred) {
-    WRITE_LOCK(pe->PRWLock);
-    if (mark) {
-      pe->StateOfPred |= InUseMask;
-    } else {
-      pe->StateOfPred &= ~InUseMask;
-    }
-    WRITE_UNLOCK(pe->PRWLock);
-  }
-}
-
+#ifdef DEBUG
 #ifndef ANALYST
 
 static char *op_names[_std_top + 1] =
@@ -1809,23 +1796,31 @@ static char *op_names[_std_top + 1] =
 #endif
 
 
-/* go up the chain of choice_points and environments,
-   marking all static predicates that current execution is depending 
-   upon */
 static void
-do_toggle_static_predicates_in_use(int mask)
+list_all_predicates_in_use(void)
 {
   choiceptr b_ptr = B;
   CELL *env_ptr = ENV;
 
-  if (b_ptr == NULL)
-    return;
-  {
-    op_numbers opnum;
-    register OPCODE op;
-    op = b_ptr->cp_ap->opc;
-    opnum = op_from_opcode(op);
-    if (1) {
+  do {
+      /* 
+	 I do not need to check environments for asserts,
+	 only for retracts
+      */
+    while (b_ptr > (choiceptr)env_ptr) {
+      PredEntry *pe = EnvPreg(env_ptr[E_CP]);
+      op_numbers op = op_from_opcode(ENV_ToOp(env_ptr[E_CP]));
+      if (pe->ArityOfPE)
+	YP_fprintf(YP_stderr,"   ENV %p  %s/%d %s\n", env_ptr, RepAtom(NameOfFunctor(pe->FunctorOfPred))->StrOfAE, pe->ArityOfPE, op_names[op]);
+      else
+	YP_fprintf(YP_stderr,"   ENV %p  %s %s\n", env_ptr, RepAtom((Atom)(pe->FunctorOfPred))->StrOfAE, op_names[op]);
+      env_ptr = (CELL *)(env_ptr[E_E]);      
+    }
+  restart_cp:
+    /* now mark the choicepoint */
+    if (b_ptr != NULL) {
+      op_numbers opnum = op_from_opcode(b_ptr->cp_ap->opc);
+      
       switch (opnum) {
       case _or_else:
       case _or_last:
@@ -1842,27 +1837,62 @@ do_toggle_static_predicates_in_use(int mask)
 	  SMALLUNSGN mod;
 	  if (PredForCode((CODEADDR)b_ptr->cp_ap, &at, &arity, &mod)) {
 	    if (arity) 
-	      YP_fprintf(YP_stderr,"CP       %s/%d (%s)\n", RepAtom(at)->StrOfAE, arity, op_names[opnum]);
+	      YP_fprintf(YP_stderr,"CP  %p  %s/%d (%s)\n", b_ptr, RepAtom(at)->StrOfAE, arity, op_names[opnum]);
 	    else
-	      YP_fprintf(YP_stderr,"CP       %s (%s)\n", RepAtom(at)->StrOfAE, op_names[opnum]);
+	      YP_fprintf(YP_stderr,"CP  %p  %s (%s)\n", b_ptr, RepAtom(at)->StrOfAE, op_names[opnum]);
 	  } else
-	    YP_fprintf(YP_stderr,"CP      (%s)\n", op_names[opnum]);
+	    YP_fprintf(YP_stderr,"CP  %p  (%s)\n", op_names[opnum], b_ptr);
 	}
 	break;
       default:
 	{
 	  PredEntry *pe = (PredEntry *)b_ptr->cp_ap->u.ld.p;
 	  if (pe == NULL) {
-	    YP_fprintf(YP_stderr,"CP       (%s)\n", op_names[opnum]);
+	    YP_fprintf(YP_stderr,"CP  %p  (%s)\n", b_ptr, op_names[opnum]);
 	  } else
 	    if (pe->ArityOfPE)
-	      YP_fprintf(YP_stderr,"CP       %s/%d (%s)\n", RepAtom(NameOfFunctor(pe->FunctorOfPred))->StrOfAE, pe->ArityOfPE, op_names[opnum]);
+	      YP_fprintf(YP_stderr,"CP  %p  %s/%d (%s)\n", b_ptr, RepAtom(NameOfFunctor(pe->FunctorOfPred))->StrOfAE, pe->ArityOfPE, op_names[opnum]);
 	    else
-	      YP_fprintf(YP_stderr,"CP       %d (%s)\n", RepAtom((Atom)(pe->FunctorOfPred))->StrOfAE, op_names[opnum]);
+	      YP_fprintf(YP_stderr,"CP  %p  %d (%s)\n", b_ptr, RepAtom((Atom)(pe->FunctorOfPred))->StrOfAE, op_names[opnum]);
 	}
       }
+      if (opnum == _retry_profiled) {
+	opnum = op_from_opcode(NEXTOP(b_ptr->cp_ap,l)->opc);
+	goto restart_cp;
+      }
     }
+    env_ptr = b_ptr->cp_env;
+    b_ptr = b_ptr->cp_b;
+  } while (b_ptr != NULL);
+}
+#endif
+
+static void
+mark_pred(int mark, PredEntry *pe)
+{
+  /* if the predicate is static mark it */
+  if (pe->ModuleOfPred) {
+    WRITE_LOCK(pe->PRWLock);
+    if (mark) {
+      pe->StateOfPred |= InUseMask;
+    } else {
+      pe->StateOfPred &= ~InUseMask;
+    }
+    WRITE_UNLOCK(pe->PRWLock);
   }
+}
+
+/* go up the chain of choice_points and environments,
+   marking all static predicates that current execution is depending 
+   upon */
+static void
+do_toggle_static_predicates_in_use(int mask)
+{
+  choiceptr b_ptr = B;
+  CELL *env_ptr = ENV;
+
+  if (b_ptr == NULL)
+    return;
 
   do {
     PredEntry *pe;
@@ -1870,6 +1900,9 @@ do_toggle_static_predicates_in_use(int mask)
     while (b_ptr > (choiceptr)env_ptr) {
       PredEntry *pe = EnvPreg(env_ptr[E_CP]);
       
+<<<<<<< cdmgr.c
+      mark_pred(mask, pe);
+=======
       if (pe != NULL && FALSE) {
 	op_numbers op = op_from_opcode(ENV_ToOp(env_ptr[E_CP]));
 	if (pe->ArityOfPE)
@@ -1886,6 +1919,7 @@ do_toggle_static_predicates_in_use(int mask)
 
 	mark_pred(mask, pe);
       }
+>>>>>>> 1.22
       env_ptr = (CELL *)(env_ptr[E_E]);
     }
     /* now mark the choicepoint */
