@@ -722,6 +722,24 @@ else
 AC_DEFINE(HAVE_SIGSEGV,0)
 fi
 
+dnl check for siginfo
+AC_MSG_CHECKING(for siginfo)
+AC_CACHE_VAL(yap_siginfo,[
+AC_TRY_COMPILE(
+	#include <signal.h>
+	#include <stdio.h>
+	,
+	printf("SIGINFO value is %d\n", SA_SIGINFO);
+	,
+	yap_siginfo=yes,yap_siginfo=no)])
+AC_MSG_RESULT($yap_siginfo)
+if test $yap_siginfo = yes 
+then
+AC_DEFINE(HAVE_SIGINFO,1)
+else
+AC_DEFINE(HAVE_SIGINFO,0)
+fi
+
 dnl this is copied from the Tcl code
 dnl this code checks whether the system defines an union wait
 AC_MSG_CHECKING([union wait])

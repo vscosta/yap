@@ -1028,7 +1028,11 @@ my_signal_info(int sig, void (*handler)(int))
 
   sigact.sa_handler = handler;
   sigemptyset(&sigact.sa_mask);
+#if HAVE_SIGINFO
   sigact.sa_flags = SA_SIGINFO;
+#else
+  sigact.sa_flags = 0;
+#endif
 
   sigaction(sig,&sigact,NULL);
 }

@@ -217,6 +217,7 @@
 #undef  HAVE_WAITPID
 #undef  HAVE_MPZ_XOR
 
+#undef  HAVE_SIGINFO
 #undef  HAVE_SIGSEGV
 
 #undef  HAVE_ENVIRON
