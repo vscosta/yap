@@ -22,7 +22,6 @@ true :- true. % otherwise, $$compile will ignore this clause.
 
 '$live' :-
 	'$init_system',
-        '$init_catch',
         '$do_live'.
 
 '$do_live' :-
@@ -44,6 +43,8 @@ read_sig.
 
 
 '$init_system' :-
+        % do catch as early as possible
+        '$init_catch',
 	(
 	 '$access_yap_flags'(15, 0) ->
 	  '$version'
