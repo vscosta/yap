@@ -42,9 +42,6 @@ LOGTALK_PROGRAMS= \
 	$(srcdir)/logtalk/yap430.config
 
 install: $(PROGRAMS)
-	-mkdir $(DESTDIR)$(LIBDIR)/library
-	-mkdir $(DESTDIR)$(LIBDIR)/library/logtalk
-	$(INSTALL_DATA) $(PROGRAMS) $(DESTDIR)$(LIBDIR)/library
-	$(INSTALL_DATA) $(LOGTALK_PROGRAMS) $(DESTDIR)$(LIBDIR)/library/logtalk
-
-
+	-mkdir -p $(DESTDIR)$(LIBDIR)/library/logtalk
+	for p in $(PROGRAMS); do $(INSTALL) $$p $(DESTDIR)$(LIBDIR)/library; done
+	for p in $(LOGTALK_PROGRAMS); do $(INSTALL) $$p $(DESTDIR)$(LIBDIR)/library/logtalk; done

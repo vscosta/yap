@@ -421,6 +421,17 @@ tab.tries.o: $(srcdir)/OPTYap/tab.tries.c
 tab.suspend.o: $(srcdir)/OPTYap/tab.suspend.c
 	$(CC) -c $(CFLAGS) $(srcdir)/OPTYap/tab.suspend.c -o $@
 
+
+## CPP'ed files (for macro debugging)
+
+%.i : $(srcdir)/C/%.c
+	$(CC) -E $< $(CFLAGS) > $@
+
+absmi.i: $(srcdir)/C/absmi.c 
+	$(CC) -E $(CFLAGS) $(ABSMI_FLAGS) $(srcdir)/C/absmi.c > $@
+
+c_interface.i: $(srcdir)/C/c_interface.c $(srcdir)/include/c_interface.h
+	$(CC) -E $(C_INTERF_FLAGS) $(srcdir)/C/c_interface.c > $@
 #
 
 mycb: $(srcdir)/mycb.c
@@ -482,7 +493,7 @@ install_mingw32: startup
 install_library: libYap.a
 	$(INSTALL_DATA) -m 644 libYap.a  $(DESTDIR)$(LIBDIR)/libYap.a
 	-mkdir -p $(DESTDIR)$(INCLUDEDIR)
-	$(INSTALL) $(HEADERS) $(DESTDIR)$(INCLUDEDIR)
+	for h in $(HEADERS); do $(INSTALL) $$h $(DESTDIR)$(INCLUDEDIR); done
 
 ##########
 TAGS: $(C_SOURCES) $(PL_SOURCES) $(HEADERS)
