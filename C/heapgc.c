@@ -2223,37 +2223,44 @@ sweep_trail(choiceptr gc_B, tr_fr_ptr old_TR)
 	CELL trail_cell = TrailTerm(trail_ptr+2);
 	CELL *ptr;
 	CELL old = TrailTerm(trail_ptr+1);
+	/* be sure we don't overwrite before we read */
+	int marked_ptr = MARKED_PTR(&TrailTerm(trail_ptr+2));
+	int marked_old = MARKED_PTR(&TrailTerm(trail_ptr+1));
+#ifdef FROZEN_STACKS
+	int marked_val_old = MARKED_PTR(&TrailVal(trail_ptr+1));
+	int marked_val_ptr = MARKED_PTR(&TrailVal(trail_ptr+2));
+#endif
 
-	if (MARKED_PTR(&TrailTerm(trail_ptr+2))) 
+	if (marked_ptr) 
 	  ptr = RepAppl(UNMARK_CELL(trail_cell));
 	else
 	  ptr = RepAppl(trail_cell);
 
 	TrailTerm(dest+1) = old;
-	TrailTerm(dest+2) = TrailTerm(dest) = trail_cell;
-	if (MARKED_PTR(&TrailTerm(trail_ptr+1))) {
+	if (marked_old) {
 	  UNMARK(&TrailTerm(dest+1));
 	  if (HEAP_PTR(old)) {
 	    into_relocation_chain(&TrailTerm(dest+1), GET_NEXT(old));
 	  }
 	}
+	TrailTerm(dest+2) = TrailTerm(dest) = trail_cell;
 #ifdef FROZEN_STACKS
 	TrailVal(dest+1) = TrailVal(trail_ptr+1);
-	if (MARKED_PTR(&TrailVal(dest+1))) {
+	if (marked_val_old) {
 	  UNMARK(&TrailVal(dest+1));
 	  if (HEAP_PTR(TrailVal(dest+1))) {
 	    into_relocation_chain(&TrailVal(dest+1), GET_NEXT(TrailTerm(dest+1)));
 	  }
 	}
 	TrailVal(dest+2) = TrailVal(trail_ptr+2);
-	if (MARKED_PTR(&TrailVal(dest+2))) {
+	if (marked_val_ptr) {
 	  UNMARK(&TrailVal(dest+2));
 	  if (HEAP_PTR(TrailVal(dest+2))) {
 	    into_relocation_chain(&TrailVal(dest+2), GET_NEXT(TrailTerm(dest+2)));
 	  }
 	}
 #endif
-	if (MARKED_PTR(&TrailTerm(trail_ptr+2))) {
+	if (marked_ptr) {
 	  UNMARK(&TrailTerm(dest));
 	  UNMARK(&TrailTerm(dest+2));
 	  if (HEAP_PTR(trail_cell)) {
