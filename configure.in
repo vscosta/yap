@@ -135,29 +135,16 @@ else
          then
            if test "$debugyap" = "yes"
            then
-             CFLAGS="-Ae -g"
-             C_INTERF_FLAGS="-Ae -g"
+             CFLAGS="-Ae -g -O"
            else
-             CFLAGS="-Ae -O3"
-             C_INTERF_FLAGS="-Ae"
-           fi
-        fi
-        ;;
-       hppa*)
-        if test "$CC" = "cc" -o $CC = c89
-         then
-           if test "$debugyap" = "yes"
-           then
-             CFLAGS="-g"
-             C_INTERF_FLAGS="-g"
-           else
-             CFLAGS="-Ae +O4"
+             CFLAGS="-Ae +O3 +Onolimit"
            fi
         fi
         ;;
      esac
-    fi
-    C_INTERF_FLAGS="$CFLAGS"
+   fi
+   C_INTERF_FLAGS="$CFLAGS"
+   C_PARSER_FLAGS="$CFLAGS"
 fi
 
 dnl Checks for programs.
