@@ -715,10 +715,11 @@ static void  expand_consult(void)
   /* now double consult capacity */
   ConsultCapacity += InitialConsultCapacity;
   /* I assume it always works ;-) */
-  new_cl = (consult_obj *)AllocCodeSpace(sizeof(consult_obj)*ConsultCapacity);
-  if (new_cl == NULL) {
-    Error(SYSTEM_ERROR,TermNil,"Could not expand consult space: Heap crashed against Stacks");
-    return;
+  while ((new_cl = (consult_obj *)AllocCodeSpace(sizeof(consult_obj)*ConsultCapacity)) == NULL) {
+    if (!growheap(FALSE)) {
+      Error(SYSTEM_ERROR,TermNil,"Could not expand consult space: Heap crashed against Stacks");
+      return;
+    }
   }
   new_cs = new_cl + (InitialConsultCapacity+1);
   new_cb = new_cs + (ConsultBase-ConsultSp);
