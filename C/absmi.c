@@ -6399,8 +6399,8 @@ Yap_absmi(int inp)
 	  READ_UNLOCK(pe->PRWLock);
 	  FAIL();
 	}
-	READ_UNLOCK(pe->PRWLock);
 	d0 = pe->ArityOfPE;
+	READ_UNLOCK(pe->PRWLock);
 	if (d0 == 0) {
 	  H[1] = MkAtomTerm((Atom)(pe->FunctorOfPred));
 	}
@@ -6441,6 +6441,10 @@ Yap_absmi(int inp)
 	H[0] = Yap_Module_Name(pe);
 	ARG1 = (Term) AbsPair(H);
 	H += 2;
+#ifdef LOW_LEVEL_TRACER
+      if (Yap_do_low_level_trace)
+	low_level_trace(enter_pred,UndefCode,XREGS+1);
+#endif	/* LOW_LEVEL_TRACE */
       }
 
       PREG = UndefCode->CodeOfPred;
@@ -11330,7 +11334,7 @@ Yap_absmi(int inp)
 	    execute_comma_nvar:
 	      if (IsAtomTerm(d1)) {
 		E_YREG[-EnvSizeInCells-2]  = MkIntegerTerm((Int)PredPropByAtom(AtomOfTerm(d1),mod));
-		E_YREG[-EnvSizeInCells-3]  = MkIntTerm(mod);
+		E_YREG[-EnvSizeInCells-3]  = mod;
 	      } else if (IsApplTerm(d1)) {
 		Functor f = FunctorOfTerm(d1);
 		if (IsExtensionFunctor(f)) {
@@ -11338,7 +11342,7 @@ Yap_absmi(int inp)
 		} else {
 		  if (f == FunctorModule) goto execute_metacall;
 		  E_YREG[-EnvSizeInCells-2]  = MkIntegerTerm((Int)PredPropByFunc(f,mod));
-		  E_YREG[-EnvSizeInCells-3]  = MkIntTerm(mod);
+		  E_YREG[-EnvSizeInCells-3]  = mod;
 		}
 	      } else {
 		goto execute_metacall;
@@ -11500,7 +11504,7 @@ Yap_absmi(int inp)
 #endif /* FROZEN_STACKS */
 	arity = pen->ArityOfPE;
 	if (pen->PredFlags & MetaPredFlag) {
-	  mod = IntOfTerm(pt0[-EnvSizeInCells-3]);
+	  mod = pt0[-EnvSizeInCells-3];
 	  if (pen->FunctorOfPred == FunctorComma) {
 	    SREG = RepAppl(d0);
 	    BEGD(d1);
@@ -11535,7 +11539,7 @@ Yap_absmi(int inp)
 	    E_YREG[E_DEPTH] = DEPTH;
 #endif	/* DEPTH_LIMIT */
 	    E_YREG[-EnvSizeInCells-1]  = d1;
-	    E_YREG[-EnvSizeInCells-3]  = MkIntTerm(mod);
+	    E_YREG[-EnvSizeInCells-3]  = mod;
 	    ENV = E_YREG;
 	    E_YREG -= EnvSizeInCells+3;
 	    d0 = SREG[1];
