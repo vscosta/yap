@@ -9,14 +9,14 @@
 **************************************************************************
 *									 *
 * File:		mpe.c  							 *
-* Last rev:	$Date: 2002-02-26 15:33:16 $				 *
+* Last rev:	$Date: 2002-02-27 13:41:24 $				 *
 * mods:									 *
 * comments:	Interface to an MPE library                              *
 *									 *
 *************************************************************************/
 
 #ifndef lint
-static char *rcsid = "$Header: ";
+static char *rcsid = "$Header: /Users/vitor/Yap/yap-cvsbackup/library/mpi/mpe.c,v 1.3 2002-02-27 13:41:24 stasinos Exp $";
 #endif
 
 #include "Yap.h"
@@ -102,48 +102,50 @@ p_create_event()
 static Int               /* mpe_create_state(+Event,+Event,+Text,+Colour) */
 p_create_state()
 {
+  Term t_start = Deref(ARG1), t_end = Deref(ARG2),
+    t_descr = Deref(ARG3), t_colour = Deref(ARG4);
   Int start_id, end_id;
   char *descr, *colour;
   int retv;
 
   /* The first and second args must be bount to integer event IDs. */
-  if (IsVarTerm(ARG1)) {
-    Error(INSTANTIATION_ERROR, ARG1, "mpe_create_state");
+  if (IsVarTerm(t_start)) {
+    Error(INSTANTIATION_ERROR, t_start, "mpe_create_state");
     return (FALSE);
-  } else if( !IsIntegerTerm(ARG1) ) {
-    Error(TYPE_ERROR_INTEGER, ARG1, "mpe_create_state");
+  } else if( !IsIntegerTerm(t_start) ) {
+    Error(TYPE_ERROR_INTEGER, t_start, "mpe_create_state");
     return (FALSE);
   } else {
-    start_id = IntOfTerm(ARG1);
+    start_id = IntOfTerm(t_start);
   }
-  if (IsVarTerm(ARG2)) {
-    Error(INSTANTIATION_ERROR, ARG2, "mpe_create_state");
+  if (IsVarTerm(t_end)) {
+    Error(INSTANTIATION_ERROR, t_end, "mpe_create_state");
     return (FALSE);
-  } else if( !IsIntegerTerm(ARG2) ) {
-    Error(TYPE_ERROR_INTEGER, ARG2, "mpe_create_state");
+  } else if( !IsIntegerTerm(t_end) ) {
+    Error(TYPE_ERROR_INTEGER, t_end, "mpe_create_state");
     return (FALSE);
   } else {
-    end_id = IntOfTerm(ARG2);
+    end_id = IntOfTerm(t_end);
   }
 
   /* The third and fourth args must be bound to atoms. */
-  if (IsVarTerm(ARG3)) {
-    Error(INSTANTIATION_ERROR, ARG3, "mpe_create_state");
+  if (IsVarTerm(t_descr)) {
+    Error(INSTANTIATION_ERROR, t_descr, "mpe_create_state");
     return (FALSE);
-  } else if( !IsAtomTerm(ARG3) ) {
-    Error(TYPE_ERROR_ATOM, ARG3, "mpe_create_state");
+  } else if( !IsAtomTerm(t_descr) ) {
+    Error(TYPE_ERROR_ATOM, t_descr, "mpe_create_state");
     return (FALSE);
   } else {
-    descr = RepAtom(AtomOfTerm(ARG3))->StrOfAE;
+    descr = RepAtom(AtomOfTerm(t_descr))->StrOfAE;
   }
-  if (IsVarTerm(ARG4)) {
-    Error(INSTANTIATION_ERROR, ARG4, "mpe_create_state");
+  if (IsVarTerm(t_colour)) {
+    Error(INSTANTIATION_ERROR, t_colour, "mpe_create_state");
     return (FALSE);
-  } else if( !IsAtomTerm(ARG4) ) {
-    Error(TYPE_ERROR_ATOM, ARG4, "mpe_create_state");
+  } else if( !IsAtomTerm(t_colour) ) {
+    Error(TYPE_ERROR_ATOM, t_colour, "mpe_create_state");
     return (FALSE);
   } else {
-    colour = RepAtom(AtomOfTerm(ARG4))->StrOfAE;
+    colour = RepAtom(AtomOfTerm(t_colour))->StrOfAE;
   }
 
   retv = MPE_Describe_state( (int)start_id, (int)end_id, descr, colour );
@@ -204,8 +206,6 @@ p_log()                  /* mpe_log(+EventType, +EventNum, +EventStr) */
 void
 InitMPE(void)
 {
-  MPE_Init_log();
-
   InitCPred( "mpe_open", 0, p_init, SafePredFlag );
   InitCPred( "mpe_start", 0, p_start, SafePredFlag );
   InitCPred( "mpe_close", 1, p_close, SafePredFlag );

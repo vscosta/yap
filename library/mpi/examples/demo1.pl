@@ -19,8 +19,8 @@ calc( From, To, Acc, Res ) :- !,
 %% and collects the results.
 %%
 
-do(0, Num) :-
-	!,
+do(0, Num):-
+	integer(Num), !,
 	Half is Num // 2,
 	format( 'Proc 0: Calculating ~q..~q~n', [1, Half] ),
 	calc( 1, Half, 0, R1 ),
@@ -30,21 +30,30 @@ do(0, Num) :-
 	% mpi_receive( R2, 1, 1 ), % Be more particular
 	Res is R1 + R2,
 	format( 'Sum(1..~q) = ~q~n', [Num,Res] ).
-do(1, Num) :-
-	!,
+do(1, Num):-
+	integer(Num), !,
 	Half is Num // 2,
 	format( 'Proc 1: Calculating ~q..~q~n', [Half,Num] ),
 	calc( Half, Num, 0, Res ),
 	format( 'Proc 1: Done! (~q)~n', [Res] ),
 	mpi_send( Res, 0, 1 ).
 
+do(0, _):-
+	!,
+	mpi_receive(T, Source, Tag),
+	format( '0: Proc ~q said: ~q (Tag: ~q)~n', [Source,T,Tag] ).
+do(1, Term):-
+	!,
+	mpi_send(Term, 0, 1),
+	format( "1: I sent ~q (Tag: 1) to 0~n", [Term] ).
+
 
 %%
 %% This is the entry point
 %%
 
-start(Num) :-
+start(Job) :-
 	mpi_open( Rank, NumProc, ProcName ),
 	format( 'Rank: ~q NumProc: ~q, ProcName: ~q~n', [Rank,NumProc,ProcName] ),
-	do( Rank, Num ),
+	do( Rank, Job ),
 	format( 'Rank ~q finished!~n', [Rank] ).
