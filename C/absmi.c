@@ -11137,7 +11137,6 @@ absmi(int inp)
 	PredEntry *pen;
 
 	CACHE_Y_AS_ENV(Y);
-	CACHE_A1();
 	BEGD(d0);
 	d0 = ARG1;
 	if (PredGoalExpansion->OpcodeOfPred != UNDEF_OPCODE) {
@@ -11173,6 +11172,7 @@ absmi(int inp)
 	  }
 	  ENDD(d2);
 	  ENDP(pt1);
+	  CACHE_A1();
 	} else if (IsAtomTerm(d0)) {
 	  pen = RepPredProp(PredPropByAtom(AtomOfTerm(d0), ARG2));
 	} else {
@@ -11250,7 +11250,6 @@ absmi(int inp)
 	PredEntry *pen;
 
 	CACHE_Y_AS_ENV(Y);
-	CACHE_A1();
 	BEGD(d0);
 	d0 = ARG1;
 	if (PredGoalExpansion->OpcodeOfPred != UNDEF_OPCODE) {
@@ -11286,6 +11285,7 @@ absmi(int inp)
 	  }
 	  ENDD(d2);
 	  ENDP(pt1);
+	  CACHE_A1();
 	} else if (IsAtomTerm(d0)) {
 	  if (AtomOfTerm(d0) == AtomCut) {
 	    choiceptr pt0;

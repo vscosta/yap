@@ -722,7 +722,7 @@ InitFlags(void)
   yap_flags[SOURCE_MODE_FLAG] = FALSE;
   yap_flags[CHARACTER_ESCAPE_FLAG] = ISO_CHARACTER_ESCAPES;
   yap_flags[WRITE_QUOTED_STRING_FLAG] = FALSE;
-#if (defined(YAPOR) || defined(THREADS)) && VSC_FOR_YAPOR
+#if (defined(YAPOR) || defined(THREADS)) && PURE_YAPOR
   yap_flags[ALLOW_ASSERTING_STATIC_FLAG] = FALSE;
 #else
   yap_flags[ALLOW_ASSERTING_STATIC_FLAG] = TRUE;
