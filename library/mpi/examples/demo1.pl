@@ -2,6 +2,11 @@
 %% konstant@let.rug.nl, Thu Jan 24 2002
 %%
 
+
+% make the `floor' operator return integer values
+:- set_prolog_flag(language, iso).
+
+
 %%
 %% This the calculation that needs to be performed, in this case
 %% the sum of [From..To]
@@ -19,41 +24,47 @@ calc( From, To, Acc, Res ) :- !,
 %% and collects the results.
 %%
 
-do(0, Num):-
-	integer(Num), !,
-	Half is Num // 2,
-	format( 'Proc 0: Calculating ~q..~q~n', [1, Half] ),
-	calc( 1, Half, 0, R1 ),
-	format( 'Proc 0: Done! (~q)~n', [R1] ),
-	mpi_receive( R2, Source, Tag ), % Receive any Source, any Tag
-	format( 'Proc ~q said: ~q (Tag: ~q)~n', [Source,R2,Tag] ),
-	% mpi_receive( R2, 1, 1 ), % Be more particular
-	Res is R1 + R2,
-	format( 'Sum(1..~q) = ~q~n', [Num,Res] ).
-do(1, Num):-
-	integer(Num), !,
-	Half is Num // 2,
-	format( 'Proc 1: Calculating ~q..~q~n', [Half,Num] ),
-	calc( Half, Num, 0, Res ),
-	format( 'Proc 1: Done! (~q)~n', [Res] ),
-	mpi_send( Res, 0, 1 ).
-
-do(0, _):-
+do(0, NumProc):-
 	!,
-	mpi_receive(T, Source, Tag),
-	format( '0: Proc ~q said: ~q (Tag: ~q)~n', [Source,T,Tag] ).
-do(1, Term):-
+	% broadcast task
+	mpi_bcast(10, 0),
+	set_value(n, NumProc),
+	set_value(acc, 0),
+	repeat,
+	  mpi_receive(T, Source, Tag),
+	  format( '0: Proc ~q said: ~q (Tag: ~q)~n', [Source,T,Tag] ),
+	  % accumulate results
+	  get_value(acc, Acc),
+	  NewAcc is Acc + T,
+	  set_value(acc, NewAcc),
+	  % processors still left
+	  get_value(n, Counter),
+	  NewCounter is Counter - 1,
+	  set_value(n, NewCounter),
+	  NewCounter == 1,
 	!,
-	mpi_send(Term, 0, 1),
-	format( "1: I sent ~q (Tag: 1) to 0~n", [Term] ).
+	format( '0: Result: ~q.~n', [
+do(Rank, NumProc):-
+	!,
+	% catch the task broadcast
+	mpi_bcast(Job, 0),
+	From is floor(Job * (Rank - 1) / (NumProc - 1)),
+	To is floor(Job * Rank / (NumProc - 1)) - 1,
+	format( '~q: I am calculating ~q..~q.~n', [Rank,From,To] ),
+	% do the job
+	calc( From, To, 0, Result ),
+	format( '~q: sending ~q to 0. (Tag: 1)~n', [Rank,Result] ),
+	% send back the results
+	mpi_send(Result, 0, 1).
 
 
 %%
 %% This is the entry point
 %%
 
-start(Job) :-
-	mpi_open( Rank, NumProc, ProcName ),
-	format( 'Rank: ~q NumProc: ~q, ProcName: ~q~n', [Rank,NumProc,ProcName] ),
-	do( Rank, Job ),
-	format( 'Rank ~q finished!~n', [Rank] ).
+start:-
+	mpi_open(Rank, NumProc, ProcName),
+	format('Rank: ~q NumProc: ~q, ProcName: ~q~n', [Rank,NumProc,ProcName]),
+	do(Rank, NumProc),
+	format( 'Rank ~q finished!~n', [Rank] ),
+	mpi_close.
