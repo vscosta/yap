@@ -1162,6 +1162,9 @@ do_goal(yamop *CodeAdr, int arity, CELL *pt, int top)
 #endif /* DEPTH_LIMIT */
   YENV = ASP = (CELL *)B;
   HB = H;
+#if defined(YAPOR) || defined(THREADS)
+  WPP = NULL;
+#endif
   YENV[E_CB] = Unsigned (B);
   P = (yamop *) CodeAdr;
   CP = YESCODE;

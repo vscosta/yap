@@ -6313,7 +6313,7 @@ Yap_absmi(int inp)
       saveregs();
       {
 	PredEntry *ap = PredFromDefCode(PREG);
-	WRITE_LOCK(ap->PRWLock);
+ 	WRITE_LOCK(ap->PRWLock);
 #if defined(YAPOR) || defined(THREADS)
       /*
 	we do not lock access to the predicate,
@@ -6368,6 +6368,10 @@ Yap_absmi(int inp)
 	  PREG = *PREG_ADDR;
 	  UNLOCK(pe->PELock);
 	  JMPNext();
+	}
+	if (PP == NULL) {
+	  READ_LOCK(pe->PRWLock);
+	  PP = pe;
 	}
 #endif
  	saveregs();

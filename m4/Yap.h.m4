@@ -10,7 +10,7 @@
 * File:		Yap.h.m4						 *
 * mods:									 *
 * comments:	main header file for YAP				 *
-* version:      $Id: Yap.h.m4,v 1.53 2004-02-13 18:39:29 vsc Exp $	 *
+* version:      $Id: Yap.h.m4,v 1.54 2004-02-20 18:56:07 vsc Exp $	 *
 *************************************************************************/
 
 #include "config.h"
@@ -333,6 +333,11 @@ typedef CELL Term;
 #if !defined(YAPOR) && !defined(THREADS)
 #include <nolocks.h>
 #elif USE_PTHREAD_LOCKING
+
+#ifndef _XOPEN_SOURCE
+#define _XOPEN_SOURCE 600
+#endif
+
 typedef pthread_mutex_t lockvar;
 typedef pthread_rwlock_t rwlock_t;
 #include <pthread_locks.h>
@@ -349,6 +354,11 @@ typedef volatile int lockvar;
 typedef volatile int lockvar;
 #include <alpha_locks.h>
 #else
+
+#ifndef _XOPEN_SOURCE
+#define _XOPEN_SOURCE 600
+#endif
+
 typedef pthread_mutex_t lockvar;
 typedef pthread_rwlock_t rwlock_t;
 #include <pthread_locks.h>

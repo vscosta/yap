@@ -1326,7 +1326,7 @@ InitSignals (void)
 #ifndef MPW
   my_signal (SIGFPE, HandleMatherr);
 #endif
-#if HAVE_SIGSEGV
+#if HAVE_SIGSEGV && !defined(THREADS)
   my_signal_info (SIGSEGV, HandleSIGSEGV);
 #endif
 #ifdef ACOW

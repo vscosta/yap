@@ -1130,6 +1130,9 @@ addclause(Term t, yamop *cp, int mode, int mod)
   /* we are redefining a prolog module predicate */
   if (p->ModuleOfPred == PROLOG_MODULE && 
       mod != TermProlog && mod) {
+#if defined(YAPOR) || defined(THREADS)
+    WPP = NULL;
+#endif
     WRITE_UNLOCK(p->PRWLock);
     addcl_permission_error(RepAtom(at), Arity, FALSE);
     return TermNil;
@@ -1236,6 +1239,9 @@ Yap_EraseStaticClause(StaticClause *cl, Term mod) {
     }
   }
   WRITE_LOCK(ap->PRWLock);
+#if defined(YAPOR) || defined(THREADS)
+  WPP = NULL;
+#endif
   if (ap->PredFlags & IndexedPredFlag)
     RemoveIndexation(ap);
   ap->cs.p_code.NOfClauses--;
@@ -1277,6 +1283,9 @@ Yap_EraseStaticClause(StaticClause *cl, Term mod) {
     ap->OpcodeOfPred =
       ap->cs.p_code.TrueCodeOfPred->opc;
   }
+#if defined(YAPOR) || defined(THREADS)
+  WPP = NULL;
+#endif
   WRITE_UNLOCK(ap->PRWLock);
   if (cl->ClFlags & HasBlobsMask || static_in_use(ap,TRUE)) {
     DeadClause *dcl = (DeadClause *)cl;

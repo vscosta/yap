@@ -3850,8 +3850,13 @@ static void
 EraseLogUpdCl(LogUpdClause *clau)
 {
   PredEntry *ap;
-  LOCK(clau->ClLock);
   ap = clau->ClPred;
+#if defined(YAPOR) || defined(THREADS)
+  if (WPP != ap) {
+    WRITE_LOCK(ap->PRWLock);
+  }
+#endif
+  LOCK(clau->ClLock);
   /* no need to erase what has been erased */ 
   if (!(clau->ClFlags & ErasedMask)) {
     /* get ourselves out of the list */
@@ -3865,7 +3870,7 @@ EraseLogUpdCl(LogUpdClause *clau)
       clau->ClPrev->ClNext = clau->ClNext;
       UNLOCK(clau->ClPrev->ClLock);
     }
-    WRITE_LOCK(ap->PRWLock);
+    UNLOCK(clau->ClLock);
     if (clau->ClCode == ap->cs.p_code.FirstClause) {
       if (clau->ClNext == NULL) {
 	ap->cs.p_code.FirstClause = NULL;
@@ -3881,7 +3886,6 @@ EraseLogUpdCl(LogUpdClause *clau)
       }
     }
     ap->cs.p_code.NOfClauses--;
-    WRITE_UNLOCK(ap->PRWLock);
     clau->ClFlags |= ErasedMask;
 #ifdef DEBUG
     {
@@ -3906,6 +3910,11 @@ EraseLogUpdCl(LogUpdClause *clau)
   }
   UNLOCK(clau->ClLock);
   complete_lu_erase(clau);
+#if defined(YAPOR) || defined(THREADS)
+    if (WPP != ap) {
+      WRITE_UNLOCK(ap->PRWLock);
+    }
+#endif
 }
 
 static void

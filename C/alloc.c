@@ -12,7 +12,7 @@
 * Last rev:								 *
 * mods:									 *
 * comments:	allocating space					 *
-* version:$Id: alloc.c,v 1.46 2004-02-19 19:24:44 vsc Exp $		 *
+* version:$Id: alloc.c,v 1.47 2004-02-20 18:56:06 vsc Exp $		 *
 *************************************************************************/
 #ifdef SCCS
 static char SccsId[] = "%W% %G%";
@@ -189,7 +189,7 @@ Yap_InitExStacks(int Trail, int Stack)
 void
 Yap_KillStacks(int wid)
 {
-  ADDR gb = Yap_thread_gl[worker_id].global_base;
+  ADDR gb = Yap_thread_gl[wid].global_base;
   if (gb) {
     free(gb);
     Yap_thread_gl[wid].global_base = NULL;
