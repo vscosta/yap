@@ -2,15 +2,16 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %
 %  Logtalk - Object oriented extension to Prolog
-%  Release 2.22.3
+%  Release 2.22.4
 %
-%  Copyright (c) 1998-2004 Paulo Moura.  All Rights Reserved.
+%  Copyright (c) 1998-2005 Paulo Moura.  All Rights Reserved.
 %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 :- initialization(
 	(assertz(logtalk_library_path(library, '$LOGTALKUSER/library/')),
 	 assertz(logtalk_library_path(aliases, '$LOGTALKUSER/examples/aliases/')),
+	 assertz(logtalk_library_path(assignvars, '$LOGTALKUSER/examples/assignvars/')),
 	 assertz(logtalk_library_path(benchmarks, '$LOGTALKUSER/examples/benchmarks/')),
 	 assertz(logtalk_library_path(birds, '$LOGTALKUSER/examples/birds/')),
 	 assertz(logtalk_library_path(bricks, '$LOGTALKUSER/examples/bricks/')),

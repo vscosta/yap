@@ -1,13 +1,40 @@
 =================================================================
 Logtalk - Object oriented extension to Prolog
-Release 2.22.3
+Release 2.22.4
 
-Copyright (c) 1998-2004 Paulo Moura.  All Rights Reserved.
+Copyright (c) 1998-2005 Paulo Moura.  All Rights Reserved.
 =================================================================
 
 
 RELEASE NOTES
 =============
+
+
+2.22.4 - January 12, 2005
+
+	Simplified method lookup cache tables, resulting in a small message 
+	sending performance speedup. Improved method lookup caching for 
+	parametric objects. Added support for caching method lookups for 
+	parametric objects whose parameters contain cyclic terms.
+
+	Added a new category, "assignvars", to the Logtalk standard library, 
+	containing an adaptation of the implementation of logical assignable 
+	variables developed by Nobukuni Kino. Added a new example, "assignvars",
+	illustrating some possible uses of assignable variables in the context 
+	of parametric objects.
+
+	Simplified compilation of op/3 directives: there is no longer need to 
+	repeat the directives both before and inside an entity in order to make 
+	the operators global and also use them in the compilation process.
+
+	Simplified installation instructions.
+
+	Corrected a compiler bug in the code that checks and prints a warning 
+	when redefined parametric objects.
+
+	Corrected a bug in the built-in predicate abolish_category/1, which 
+	failed to delete import relation clauses between the category being 
+	abolished and other categories.
 
 
 2.22.3 - December 30, 2004

@@ -1,8 +1,8 @@
 =================================================================
 Logtalk - Object oriented extension to Prolog
-Release 2.22.3
+Release 2.22.4
 
-Copyright (c) 1998-2004 Paulo Moura.  All Rights Reserved.
+Copyright (c) 1998-2005 Paulo Moura.  All Rights Reserved.
 =================================================================
 
 
@@ -10,7 +10,10 @@ Quick start
 ===========
 
 
-1. Install Logtalk by following the instructions on the "INSTALL" file.
+1. Install Logtalk by following the instructions on the "INSTALL" file. 
+Depending on your operating-system, working environment, and favorite 
+Prolog compiler, you may already have a shortcut installed for easily 
+running Logtalk.
 
 2. Open the "manuals/index.html" file with a web browser.
 

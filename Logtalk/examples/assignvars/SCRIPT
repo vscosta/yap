@@ -1,0 +1,75 @@
+=================================================================
+Logtalk - Object oriented extension to Prolog
+Release 2.22.4
+
+Copyright (c) 1998-2005 Paulo Moura.  All Rights Reserved.
+=================================================================
+
+
+% start by loading the "assignvars" category:
+
+| ?- logtalk_load(library(assignvars)).
+...
+
+
+% now you are ready for loading the example:
+
+| ?- logtalk_load(assignvars(loader)).
+...
+
+
+% rectangle example:
+
+?- rectangle(2, 3, _)::(init, position(X0, Y0), move(3, 7), position(X1, Y1), move(2, 5), position(X2, Y2)).
+
+X0 = 0
+Y0 = 0
+X1 = 3
+Y1 = 7
+X2 = 2
+Y2 = 5 
+
+Yes
+
+
+% finite state machine example:
+
+| ?- fsm(T, I, F), fsm(T, I, F)::recognise([0,1,1,2,1,2,0]).
+
+red-0-red
+red-1-green
+green-1-yellow
+yellow-2-red
+red-1-green
+green-2-red
+red-0-red
+
+T = [red-0-red, red-1-green, red-2-red, yellow-0-red, yellow-1-green, yellow-2-red, green-0-yellow, ... -... -yellow, ... -...]
+I = red
+F = [red] 
+
+Yes
+
+
+% finite state machine example:
+
+| ?- fsm(T, I, F), !, fsm(T, I, F)::recognise([0,1,1,2,1,2,1,0]).
+
+red-0-red
+red-1-green
+green-1-yellow
+yellow-2-red
+red-1-green
+green-2-red
+red-1-green
+green-0-yellow
+backtracking...
+backtracking...
+backtracking...
+backtracking...
+backtracking...
+backtracking...
+backtracking...
+backtracking...
+
+No
