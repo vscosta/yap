@@ -41,9 +41,9 @@
 '$suspy'(A,S,M) :- atom(A), !,
 	'$suspy_predicates_by_name'(A,S,M).
 '$suspy'(P,spy,M) :- !,
-	 throw(error(domain_error(predicate_spec,P)),spy(M:P)).
+	 throw(error(domain_error(predicate_spec,P),spy(M:P))).
 '$suspy'(P,nospy,M) :-
-	 throw(error(domain_error(predicate_spec,P)),nospy(M:P)).
+	 throw(error(domain_error(predicate_spec,P),nospy(M:P))).
 
 '$suspy_predicates_by_name'(A,S,M) :-
 	% just check one such predicate exists

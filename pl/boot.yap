@@ -1002,7 +1002,7 @@ break :- '$get_value'('$break',BL), NBL is BL+1,
 	'$command'(Command,Vars,Status).
 
 '$abort_loop'(Stream) :-
-	throw(permission_error(input,closed_stream,Stream), loop).
+	throw(error(permission_error(input,closed_stream,Stream), loop)).
 
 /* General purpose predicates				*/
 

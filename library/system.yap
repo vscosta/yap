@@ -209,14 +209,14 @@ environ(Na,Val) :- var(Na), !,
 environ(Na,Val) :- atom(Na), !,
 	bound_environ(Na, Val).
 environ(Na,Val) :-
-	throw(type_error(atom,Na),environ(Na,Val)).
+	throw(error(type_error(atom,Na),environ(Na,Val))).
 
 bound_environ(Na, Val) :- var(Val), !,
 	getenv(Na,Val).
 bound_environ(Na, Val) :- atom(Val), !,
 	putenv(Na,Val).
 bound_environ(Na, Val) :-
-	throw(type_error(atom,Val),environ(Na,Val)).
+	throw(error(type_error(atom,Val),environ(Na,Val))).
 
 environ_enum(X,X).
 environ_enum(X,X1) :-
@@ -327,14 +327,14 @@ check_command(Com, G) :- var(Com), !,
 	throw(error(instantiation_error,G)).
 check_command(Com, _) :- atom(Com), !.
 check_command(Com, G) :-
-	throw(type_error(atom,Com),G).
+	throw(error(type_error(atom,Com),G)).
 
 check_mode(Mode, _, G) :- var(Mode), !,
 	throw(error(instantiation_error,G)).
 check_mode(read, 0, _) :- !.
 check_mode(write,1, _) :- !.
 check_mode(Mode, G) :-
-	throw(domain_error(io_mode,Mode),G).
+	throw(error(domain_error(io_mode,Mode),G)).
 
 shell :-
 	G = shell,
@@ -349,12 +349,10 @@ shell(Command) :-
 	check_command(Command, G),
 	get_shell(Shell),
 	atom_codes(Command, SC0),
-	protect_command(SC0, SC),
+	protect_command(SC0,SC),
 	append(Shell, [0'"|SC], ShellCommand),
 	atom_codes(FullCommand, ShellCommand),
-	exec_command(FullCommand, 0, 1, 2, PID, Error),
-	handle_system_error(Error, off, G),
-	wait(PID, _Status, Error),
+	do_system(FullCommand, _, Error),
 	handle_system_error(Error, off, G).
 
 shell(Command, Status) :-
@@ -362,14 +360,11 @@ shell(Command, Status) :-
 	check_command(Command, G),
 	get_shell(Shell),
 	atom_codes(Command, SC0),
-	protect_command(SC0, SC),
+	protect_command(SC0,SC),
 	append(Shell, [0'"|SC], ShellCommand),
 	atom_codes(FullCommand, ShellCommand),
-	exec_command(FullCommand, 0, 1, 2, PID, Error),
-	handle_system_error(Error, off, G),
-	wait(PID, Status,Error),
+	do_system(FullCommand, Status, Error),
 	handle_system_error(Error, off, G).
-
 
 protect_command([], [0'"]).
 protect_command([H|L], [H|NL]) :-
@@ -391,7 +386,7 @@ get_shell(Shell) :-
 	getenv('COMSPEC', Shell0),
 	atom_codes(Shell0, Codes),
 	append(Codes," /c ", Shell).
-get_shell("/bin/sh -c").
+get_shell("/bin/sh -c ").
 	   
 system :-
 	default_shell(Command),
