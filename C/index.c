@@ -11,8 +11,14 @@
 * File:		index.c							 *
 * comments:	Indexing a Prolog predicate				 *
 *									 *
-* Last rev:     $Date: 2005-02-24 21:46:39 $,$Author: vsc $						 *
+* Last rev:     $Date: 2005-02-25 00:09:06 $,$Author: vsc $						 *
 * $Log: not supported by cvs2svn $
+* Revision 1.116  2005/02/24 21:46:39  vsc
+* Improve error handling routine, trying to make it more robust.
+* Improve hole handling in stack expansion
+* Clause interrpeter was supposed to prune _trust_me
+* Wrong messages for acos and atanh
+*
 * Revision 1.115  2005/02/21 16:50:00  vsc
 * amd64 fixes
 * library fixes
@@ -7619,7 +7625,6 @@ Yap_FollowIndexingCode(PredEntry *ap, yamop *ipc, Term Terms[3], yamop *ap_pc, y
 #ifdef TABLING
       abolish_incomplete_subgoals(B);
 #endif /* TABLING */
-      b0 = B;
       ipc = NEXTOP(ipc,ld);
       break;
     case _trust_logical_pred:
