@@ -1766,7 +1766,7 @@ record_lu(PredEntry *pe, Term t, int position)
   cl->Id = FunctorDBRef;
   cl->ClFlags = LogUpdMask;
   cl->ClSource = x;
-  cl->Owner = Yap_ConsultingFile();
+  cl->Owner = AtomUser;
   cl->ClRefCount = 0;
   cl->ClPred = pe;
   cl->ClExt = NULL;

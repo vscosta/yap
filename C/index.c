@@ -4883,8 +4883,8 @@ inserta_in_lu_block(LogUpdIndex *blk, PredEntry *ap, yamop *code)
   }
   /* ok, we are in a sequence of try-retry-trust instructions, or something
      similar */
-  here = next = NEXTOP(blk->ClCode, Ill);
-  start = blk->ClCode->u.Ill.l1;
+  here = next = blk->ClCode->u.Ill.l1;
+  start = NEXTOP(blk->ClCode,Ill);
   here = PREVOP(here, ld);
   /* follow profiling and counting instructions */ 
   if (ap->PredFlags & ProfiledPredFlag) {
@@ -4897,19 +4897,16 @@ inserta_in_lu_block(LogUpdIndex *blk, PredEntry *ap, yamop *code)
   }
   if (here >= start) {
     /* we got space to put something in */
-    op_numbers sop = Yap_op_from_opcode(start->opc);
+    op_numbers sop = Yap_op_from_opcode(next->opc);
     if (sop != _retry_killed) {
       next->opc = Yap_opcode(_retry);
     }
-    start->u.Ill.l1 = here;
-    start->u.Ill.s++;
-    if (sop == _retry_killed)
-      here->opc = Yap_opcode(_try_clause);
-    else
-      here->opc = Yap_opcode(sop);
+    blk->ClCode->u.Ill.l1 = here;
+    blk->ClCode->u.Ill.s++;
+    here->opc = Yap_opcode(_try_clause);
     here->u.ld.s = next->u.ld.s;
     here->u.ld.p = ap; 
-    here->u.ld.d = next->u.ld.d;
+    here->u.ld.d = code;
 #ifdef YAPOR
     /* FIX ME */
     here->u.ld.or_arg = next->u.ld.or_arg;
@@ -4927,7 +4924,7 @@ inserta_in_lu_block(LogUpdIndex *blk, PredEntry *ap, yamop *code)
       here->opc = Yap_opcode(_retry_profiled);
       here->u.p.p = ap;
     }
-    return start;
+    return blk->ClCode;
   } else {
     return replace_lu_block(blk, RECORDA, ap, code, has_cut(code));
   }
