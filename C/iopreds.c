@@ -2671,6 +2671,15 @@ p_write2 (void)
   return (TRUE);
 }
 
+static void
+clean_vars(VarEntry *p)
+{
+  if (p == NULL) return;
+  p->VarAdr = TermNil;
+  clean_vars(p->VarLeft);
+  clean_vars(p->VarRight);
+}
+
 static Term
 syntax_error (TokEntry * tokptr)
 {
@@ -2681,6 +2690,7 @@ syntax_error (TokEntry * tokptr)
   Term *error = tf+3;
 
   start = tokptr->TokPos;
+  clean_vars(VarTable);
   while (1) {
     Term ts[2];
 
@@ -2707,15 +2717,17 @@ syntax_error (TokEntry * tokptr)
 	t[0] = MkIntTerm(0);
 	t[1] = StringToList(varinfo->VarRep);
 	if (varinfo->VarAdr == TermNil) {
-	  varinfo->VarAdr = MkVarTerm();
+	  t[2] = varinfo->VarAdr = MkVarTerm();
+	} else {
+	  t[2] = varinfo->VarAdr;
 	}
-	t[2] = varinfo->VarAdr;
 	ts[0] = MkApplTerm(MkFunctor(LookupAtom("var"),3),3,t);
       }
       break;
     case String_tok:
       {
 	Term t0 = StringToList((char *)info);
+	fprintf(stderr,"looking at string %s\n", (char  *)info);
 	ts[0] = MkApplTerm(MkFunctor(LookupAtom("string"),1),1,&t0);
       }
       break;
@@ -3567,6 +3579,7 @@ format_putc(int sno, int ch) {
       char *newbuf;
 
       if ((newbuf = AllocAtomSpace(new_max_size*sizeof(char))) == NULL) {
+	FreeAtomSpace(format_base);
 	Error(SYSTEM_ERROR, TermNil, "YAP could not grow heap for format/2");
 	return(EOF);
       }
@@ -3698,6 +3711,7 @@ format(Term tail, Term args, int sno)
   if (IsVarTerm (args) || !IsPairTerm (args))
     args = MkPairTerm (args, TermNil);
   format_base = format_ptr = AllocAtomSpace(FORMAT_MAX_SIZE*sizeof(char));
+  format_max = format_base+FORMAT_MAX_SIZE;
   if (format_ptr == NULL) {
     Error(INSTANTIATION_ERROR,tail,"format/2");
     return(FALSE);
