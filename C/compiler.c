@@ -1041,7 +1041,7 @@ c_bifun(Int Op, Term t1, Term t2, Term t3, int mod)
       save_machine_regs();
       longjmp(CompilerBotch,1);
     }
-  } else if (IsNewVar(t3) /* && cur_branch == 0 */) {
+  } else if (IsNewVar(t3) && cur_branch == 0 /* otherwise you may have trouble with z(X) :- ( Z is X*2 ; write(Z)) */) {
     c_var(t3,f_flag,(unsigned int)Op);
     if (Op == _functor) {
       emit(empty_call_op, Zero, Zero);
