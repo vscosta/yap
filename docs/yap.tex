@@ -671,20 +671,32 @@ CC="gcc -mabi=64" ./configure --...
 Be careful. At least for some versions of @code{GCC}, compiling with
 @code{-g} seems to result in broken code.
 
-@item WIN32: The cygwin environment is our suggested approach. The
+@item WIN32: GCC is distributed in the MINGW32 and CYGWIN packages.
+
+The Mingw32 environment is available from the URL:
+
+@code{http://www.mingw.org}
+
+You will need to install the @code{msys} and @code{mingw}
+packages. You should be able to do configure, make and make install.
+
+If you use mingw32 you may want to search the contributed packages for
+the @code{gmp} multi-precision arithmetic library. If you do setup Yap
+with @code{gmp} note that @code{libgmp.dll} must be in the path,
+otherwise Yap will not be able to execute.
+
 CygWin environment is available from the URL:
 
-@code{http://sourceware.cygnus.com}
+@code{http://www.cygwin.com}
 
 @noindent
-and mirrors. Yap should compile under cygwin 20.1 but we suggest using
-the newer 1.1.1 or recent, which has a more complete implementation of
-the WIN32 API and uses GCC2.95.2 instead of egcs. The compilation
-steps under the cygwin shell are as follows:
+and mirrors. We suggest using recent versions of the cygwin shell. The
+compilation steps under the cygwin shell are as follows:
 
 @example
 mkdir cyg
 $YAPSRC/configure --enable-coroutining \\
+                  --enable-depth-limit \\
                   --enable-max-performance
 make
 make install
@@ -702,7 +714,7 @@ You should check the default installation path which is set to
 @code{/PROGRA~1/Yap} in the standard Makefile. This string will usually
 be expanded into @code{c:\Program Files\Yap} by Windows.
 
-The cygwin environment does not provide @t{gm}. You can fetch a dll for
+The cygwin environment does not provide @t{gmp}. You can fetch a dll for
 the @t{gmp} library from @url{http://www.sf.net/projects/mingwrep}.
 
 It is also possible to configure Yap to be a part of the cygwin
@@ -715,8 +727,9 @@ $YAPSRC/configure --enable-coroutining \\
 make
 make install
 @end example
-Yap will then compile using the cygwin library. You can use Yap from a
-cygwin console, or as a standalone application as long as it can fin
+Yap will then compile using the cygwin library and will be installed
+in cygwin's @code{/usr/local}. You can use Yap from a cygwin console,
+or as a standalone application as long as it can find
 @code{cygwin1.dll} in its path.
 
 @end table

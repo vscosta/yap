@@ -41,13 +41,13 @@ STATIC_PROTO (void ShowOp, (char *));
  * afterwards 
  */
 
+#ifdef DEBUG
 static Int arg, rn;
 
 static compiler_vm_op ic;
 
 static CELL *cptr;
 
-#ifdef DEBUG
 char            _YAP_Option[20];
 
 YP_FILE *_YAP_logfile;

@@ -4422,17 +4422,17 @@ format(Term tail, Term args, int sno)
 		if (size_args)
 		  radix = arg_size;
 		if (IsVarTerm (args)) {
-		FreeAtomSpace(format_base);
-		  Error(INSTANTIATION_ERROR,args,"~T in format/2");
+		  _YAP_FreeAtomSpace(format_base);
+		  _YAP_Error(INSTANTIATION_ERROR,args,"~T in format/2");
 		  return(FALSE);		
 		} else if (!IsPairTerm (args)) {
-		FreeAtomSpace(format_base);
-		  Error(TYPE_ERROR_LIST,args,"~T in format/2");
+		  _YAP_FreeAtomSpace(format_base);
+		  _YAP_Error(TYPE_ERROR_LIST,args,"~T in format/2");
 		  return(FALSE);
 		}
 		if (radix > 36 || radix < 2) {
-		FreeAtomSpace(format_base);
-		  Error(DOMAIN_ERROR_RADIX,MkIntTerm(radix),"~T in format/2");
+		  _YAP_FreeAtomSpace(format_base);
+		  _YAP_Error(DOMAIN_ERROR_RADIX,MkIntTerm(radix),"~T in format/2");
 		  return(FALSE);
 		}
 		arghd = HeadOfTerm (args);

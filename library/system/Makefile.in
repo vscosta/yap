@@ -39,9 +39,7 @@ SOBJS=sys@SHLIB_SUFFIX@
 #in some systems we just create a single object, in others we need to
 # create a libray
 
-all: @NEWSHOBJ@
-
-sobjs: $(SOBJS) 
+all: $(SOBJS) 
 
 sys.o: $(srcdir)/sys.c
 	$(CC) -c $(CFLAGS) $(SHLIB_CFLAGS) $(srcdir)/sys.c -o sys.o
@@ -52,37 +50,8 @@ sys.o: $(srcdir)/sys.c
 @DO_SECOND_LD@sys@SHLIB_SUFFIX@: sys.o
 @DO_SECOND_LD@	@SHLIB_LD@ -o sys@SHLIB_SUFFIX@ sys.o
 
-#
-# create a new DLL library on mingw32 environments
-#
-# DLLNAME: name of the new dll
-# OBJS: list of object files I want to put in
-# LIBS: list of libraries to link with
-# DEFFILE is the name of the definitions file.
-# BASEFILE temporary 
-# EXPFILE  temporary
-# ENTRY is the entry point  int WINAPI startup (HINSTANCE, DWORD, LPVOID)
-# 
-DLLTOOL=dlltool
-DLLNAME=sys.dll
-DLL_LIBS=@DLL_LIBS@ -L../.. -lWYap
-BASE_FILE=sys.base
-EXP_FILE=sys.exp
-DEF_FILE=$(srcdir)/sys.def
-ENTRY_FUNCTION=_win_sys@12
-#
-sys.dll: $(OBJS)
-	$(LD) -s --base-file $(BASE_FILE) --dll -o $(DLLNAME) $(OBJS) $(DLL_LIBS) -e $(ENTRY_FUNCTION)
-	$(DLLTOOL) --as=$(AS) --dllname $(DLLNAME) --def $(DEF_FILE) --base-file $(BASE_FILE) --output-exp $(EXP_FILE)
-	$(LD) -s --base-file $(BASE_FILE) $(EXP_FILE) -dll -o $(DLLNAME) $(OBJS) $(DLL_LIBS) -e $(ENTRY_FUNCTION)
-	$(DLLTOOL) --as=$(AS) --dllname $(DLLNAME) --def $(DEF_FILE) --base-file $(BASE_FILE) --output-exp $(EXP_FILE)
-	$(LD) $(EXP_FILE) --dll -o $(DLLNAME) $(OBJS) $(DLL_LIBS) -e $(ENTRY_FUNCTION)
-
 install: all
 	$(INSTALL_PROGRAM) $(SOBJS) $(DESTDIR)$(LIBDIR)
-
-install_win32: dll
-	$(INSTALL_PROGRAM) -m 755 sys.dll $(LIBDIR)/sys.dll
 
 clean:
 	rm -f *.o *~ $(OBJS) $(SOBJS) *.BAK

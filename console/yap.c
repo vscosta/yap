@@ -491,6 +491,7 @@ main (int argc, char **argv)
   int BootMode;
   YAP_init_args init_args;
 
+  fprintf(stderr,"Entering YAP\n");
 #ifdef SIMICS
   fprintf(stdout,"Entering YAP\n");
 #endif /* SIMICS */

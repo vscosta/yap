@@ -331,7 +331,7 @@ _YAP_absmi(int inp)
       /* YREG =was pointing to where we were going to build the
        * next choice-point. The stack shifter will need to know this
        * to move the local stack */
-      if (YREG => (CELL *) B) {
+      if (YREG > (CELL *) B) {
 	ASP = (CELL *) B;
       }
       else {

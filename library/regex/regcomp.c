@@ -77,7 +77,7 @@ unsigned char collate_substitute_table[UCHAR_MAX + 1][STR_LEN];
 struct collate_st_char_pri collate_char_pri_table[UCHAR_MAX + 1];
 struct collate_st_chain_pri collate_chain_pri_table[TABLE_SIZE];
 
-#if _MSC_VER || defined(__MINGW32__)
+#if _MSC_VER || defined(__MINGW32__) || defined(__CYGWIN__)
 #define isblank(X) isspace(X)
 #define isascii(X) ((unsigned int)(X) < 0177)
 #endif
