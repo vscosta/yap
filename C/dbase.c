@@ -879,7 +879,10 @@ static CELL *MkDBTerm(register CELL *pt0, register CELL *pt0_end,
 	    *ConstraintsBottom = new;
 	    ConstraintsBottom = RepAppl(new)+4;
 	  }
-	  memcpy((void *)(H), (void *)(to_visit_base), sz*sizeof(CELL *));
+	  if (H+sz >= ASP) {
+	    goto error2;
+	  }
+	  memcpy((void *)H, (void *)(to_visit_base), sz*sizeof(CELL *));
 	  to_visit_base = (CELL **)H;
 	  to_visit = to_visit_base+sz;
 	}
