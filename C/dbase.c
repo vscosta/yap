@@ -4281,14 +4281,14 @@ p_resize_int_keys(void)
 void 
 InitDBPreds(void)
 {
-  InitCPred("$recorda", 3, p_rcda, SafePredFlag|SyncPredFlag);
-  InitCPred("$recordz", 3, p_rcdz, SafePredFlag|SyncPredFlag);
-  InitCPred("$recordap", 3, p_rcdap, SafePredFlag|SyncPredFlag);
-  InitCPred("$recordzp", 3, p_rcdzp, SafePredFlag|SyncPredFlag);
-  InitCPred("$recordap", 4, p_drcdap, SafePredFlag|SyncPredFlag);
-  InitCPred("$recordzp", 4, p_drcdzp, SafePredFlag|SyncPredFlag);
-  InitCPred("$recordaifnot", 3, p_rcdaifnot, SafePredFlag|SyncPredFlag);
-  InitCPred("$recordzifnot", 3, p_rcdzifnot, SafePredFlag|SyncPredFlag);
+  InitCPred("$recorda", 3, p_rcda, SyncPredFlag);
+  InitCPred("$recordz", 3, p_rcdz, SyncPredFlag);
+  InitCPred("$recordap", 3, p_rcdap, SyncPredFlag);
+  InitCPred("$recordzp", 3, p_rcdzp, SyncPredFlag);
+  InitCPred("$recordap", 4, p_drcdap, SyncPredFlag);
+  InitCPred("$recordzp", 4, p_drcdzp, SyncPredFlag);
+  InitCPred("$recordaifnot", 3, p_rcdaifnot, SyncPredFlag);
+  InitCPred("$recordzifnot", 3, p_rcdzifnot, SyncPredFlag);
   InitCPred("erase", 1, p_erase, SafePredFlag|SyncPredFlag);
   InitCPred("erased", 1, p_erased, TestPredFlag | SafePredFlag|SyncPredFlag);
   InitCPred("instance", 2, p_instance, SyncPredFlag);
