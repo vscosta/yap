@@ -814,7 +814,11 @@ p_prompt (void)
 }
 
 #if HAVE_LIBREADLINE
+
+#if HAVE_READLINE_READLINE_H
 #include <readline/readline.h>
+#endif
+
 extern void add_history (const char *);
 
 static char *ttyptr = NULL;
