@@ -489,6 +489,7 @@ exec_top_level(int BootMode, char *filename)
   livegoal = YAP_FullLookupAtom("$live");
   atomfalse = YAP_MkAtomTerm (YAP_LookupAtom("false"));
   while (YAP_GetValue (livegoal) != atomfalse) {
+    YAP_Reset();
     do_top_goal (YAP_MkAtomTerm (livegoal));
   }
   YAP_Exit(EXIT_SUCCESS);

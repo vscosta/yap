@@ -1659,6 +1659,9 @@ JumpToEnv(Term t) {
     /* uncaught throw */
     if (B == NULL) {
       B = B0;
+#if PUSH_REGS
+      restore_absmi_regs(&standard_regs);
+#endif
       siglongjmp(RestartEnv,1);
     }
     /* is it a continuation? */

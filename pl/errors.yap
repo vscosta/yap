@@ -35,7 +35,7 @@
 	fail.
 
 '$process_error'(abort) :- !,
-        '$format'(user_error,'[ Execution Aborted ]~n').
+        '$format'(user_error,"[ Execution Aborted ]~n",[]).
 '$process_error'(error(Msg, Where)) :- !,
 	'$set_fpu_exceptions',
 	'$print_message'(error,error(Msg, Where)).
@@ -179,6 +179,8 @@ print_message(Level, Mss) :-
 '$beautify_hidden_goal'('$loop',_,prolog,ClNo,Gs,NGs) :- !,
 	'$preprocess_stack'(Gs, NGs).
 '$beautify_hidden_goal'('$consult',1,prolog,ClNo,Gs,NGs) :- !,
+	'$preprocess_stack'(Gs, NGs).
+'$beautify_hidden_goal'('$reconsult',1,prolog,ClNo,Gs,NGs) :- !,
 	'$preprocess_stack'(Gs, NGs).
 '$beautify_hidden_goal'('$undefp',1,prolog,ClNo,Gs,NGs) :- !,
 	'$preprocess_stack'(Gs, NGs).
