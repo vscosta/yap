@@ -11,7 +11,7 @@
 
 
 	today(Year, Month, Day) :-
-		{lgt_current_date(Year, Month, Day)}.
+		{'$lgt_current_date'(Year, Month, Day)}.
 
 
 	leap_year(Year) :-

@@ -11,11 +11,11 @@
 
 
 	now(Hours, Mins, Secs) :-
-		{lgt_current_time(Hours, Mins, Secs)}.
+		{'$lgt_current_time'(Hours, Mins, Secs)}.
 
 
 	cpu_time(Seconds) :-
-		{lgt_cpu_time(Seconds)}.
+		{'$lgt_cpu_time'(Seconds)}.
 
 
 	valid(Hours, Mins, Secs) :-
