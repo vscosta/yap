@@ -600,7 +600,7 @@ fi
 if test "$use_april" = "yes"
   then	
    YAP_EXTRAS="$YAP_EXTRAS -DDEPTH_LIMIT=1 -DAPRIL"
-   LDFLAGS="$LDFLAGS -L./"
+   LDFLAGS="$LDFLAGS -L."
    LIBS="$LIBS -lApril"
 fi
   
