@@ -50,7 +50,6 @@ STATIC_PROTO(void mark_pred, (int, PredEntry *));
 STATIC_PROTO(void do_toggle_static_predicates_in_use, (int));
 #endif
 STATIC_PROTO(void recover_log_upd_clause, (Clause *));
-STATIC_PROTO(PredEntry *NextPred, (PredEntry *,AtomEntry *));
 STATIC_PROTO(Int  p_number_of_clauses, (void));
 STATIC_PROTO(Int  p_compile, (void));
 STATIC_PROTO(Int  p_compile_dynamic, (void));
@@ -1850,96 +1849,66 @@ p_toggle_static_predicates_in_use(void)
 }
 
 
-/* given a pointer P to someone's code, find out the clause
-   this belongs to */
-static PredEntry *
-NextPred(PredEntry *pp, AtomEntry *ae)
-{
-  READ_LOCK(ae->ARWLock);
-  while (!EndOfPAEntr(pp) &&
-	 (pp->KindOfPE & 0x8000))
-    pp = RepPredProp(pp->NextOfPE);
-  READ_UNLOCK(ae->ARWLock);
-  return (pp);
-}
-
 static Int
-check_code_in_atom(AtomEntry *ae, CODEADDR codeptr, Int *parity, SMALLUNSGN *pmodule) {
-  PredEntry *pp;
-  for (pp = NextPred(RepPredProp(ae->PropsOfAE),ae);
-       !EndOfPAEntr(pp);
-       pp = NextPred(RepPredProp(pp->NextOfPE),ae)) {
-    CODEADDR clcode, cl;
-    int i = 1;
+code_in_pred(PredEntry *pp, Atom *pat, Int *parity, CODEADDR codeptr) {
+  CODEADDR clcode, cl;
+  int i = 1;
 
-    READ_LOCK(pp->PRWLock);
-    clcode = pp->FirstClause;
-    if (clcode != NIL) {
-      /* check if the codeptr comes from the indexing code */
-      if ((pp->PredFlags & IndexedPredFlag) &&
-	  codeptr > pp->TrueCodeOfPred &&
-	  codeptr <= pp->TrueCodeOfPred + SizeOfBlock(pp->TrueCodeOfPred)) {
+  READ_LOCK(pp->PRWLock);
+  clcode = pp->FirstClause;
+  if (clcode != NIL) {
+    /* check if the codeptr comes from the indexing code */
+    if ((pp->PredFlags & IndexedPredFlag) &&
+	codeptr > pp->TrueCodeOfPred &&
+	codeptr <= pp->TrueCodeOfPred + SizeOfBlock(pp->TrueCodeOfPred)) {
+      *parity = pp->ArityOfPE;
+      if (pp->ArityOfPE) {
+	*pat = (Atom)(pp->FunctorOfPred);
+      } else {
+	*pat = NameOfFunctor(pp->FunctorOfPred);
+      }
+      READ_UNLOCK(pp->PRWLock);
+      return(-1);
+    }	      
+    cl = (CODEADDR)ClauseCodeToClause(clcode);
+    do {
+      if (codeptr > cl && codeptr <= cl + SizeOfBlock(cl)) {
+	/* we found it */
 	*parity = pp->ArityOfPE;
-	if (pp->ModuleOfPred == 0)
-	  *pmodule = pp->ModuleOfPred;
-	else
-	  *pmodule = IntOfTerm(pp->ModuleOfPred);
-	READ_UNLOCK(pp->PRWLock);
-	return(-1);
-      }	      
-      cl = (CODEADDR)ClauseCodeToClause(clcode);
-      do {
-	if (codeptr > cl && codeptr <= cl + SizeOfBlock(cl)) {
-	  /* we found it */
-	  *parity = pp->ArityOfPE;
-	  if (pp->ModuleOfPred == 0)
-	    *pmodule = pp->ModuleOfPred;
-	  else
-	    *pmodule = IntOfTerm(pp->ModuleOfPred);
-	  READ_UNLOCK(pp->PRWLock);
-	  return(i);
+	if (pp->ArityOfPE) {
+	  *pat = (Atom)(pp->FunctorOfPred);
+	} else {
+	  *pat = NameOfFunctor(pp->FunctorOfPred);
 	}
-	if (clcode == pp->LastClause)
-	  break;
-	cl = (CODEADDR)ClauseCodeToClause(clcode = NextClause(clcode));
-	i++;
-      } while (TRUE);
-    }
-    READ_UNLOCK(pp->PRWLock); 
+	READ_UNLOCK(pp->PRWLock);
+	return(i);
+      }
+      if (clcode == pp->LastClause)
+	break;
+      cl = (CODEADDR)ClauseCodeToClause(clcode = NextClause(clcode));
+      i++;
+    } while (TRUE);
   }
+  READ_UNLOCK(pp->PRWLock); 
   return(0);
 }
 
 Int
 PredForCode(CODEADDR codeptr, Atom *pat, Int *parity, SMALLUNSGN *pmodule) {
+  Int found;
   Int i_table;
-  Int val;
-  AtomEntry *chain;
 
-  for (i_table = 0; i_table < MaxHash; i_table++) {
-    Atom a;
-
-    READ_LOCK(HashChain[i_table].AERWLock);
-    a = HashChain[i_table].Entry;
-    while (a != NIL) {
-      AtomEntry *ae = RepAtom(a);
-      if ((val = check_code_in_atom(ae, codeptr, parity, pmodule)) != 0) {
-	*pat = a;
-	return(val);
+  for (i_table = 0; i_table < NoOfModules; ++i_table) {
+    PredEntry *pp = ModulePred[i_table];
+    while (pp != NULL) {
+      if ((found = code_in_pred(pp,  pat, parity, codeptr)) != 0) {
+	break;
       }
-      a = ae->NextOfAE;
+      pp = pp->NextPredOfModule;
     }
-    READ_UNLOCK(HashChain[i_table].AERWLock);
   }
-  chain = RepAtom(INVISIBLECHAIN.Entry);
-  while (!EndOfPAEntr(chain) != 0) {
-    if ((val = check_code_in_atom(chain, codeptr, parity, pmodule)) != 0) {
-      *pat = AbsAtom(chain);
-      return(val);
-    }
-    chain = RepAtom(chain->NextOfAE);
-  }
-  return(0);
+  /* should we allow the user to see hidden predicates? */
+  return(found);
 }
 
 static Int
