@@ -3021,9 +3021,6 @@ do_gc(Int predarity, CELL *current_env, yamop *nextop)
     return(0);
   }
   gc_calls++;
-  if (gc_calls == 19) {
-    fprintf(stderr,"here I go\n");
-  }
   if (gc_trace) {
     YP_fprintf(YP_stderr, "[gc]\n");
   } else if (gc_verbose) {
