@@ -570,6 +570,10 @@ p_execute_0(void)
   Prop            pe;
   Atom            a;
 
+  if (!IsAtomTerm(t)) {
+    Error(TYPE_ERROR_ATOM,ARG1,"call_with_args/1");
+    return(FALSE);
+  }
   a = AtomOfTerm(t);
   pe = PredPropByAtom(a, mod);
   return (CallPredicate(RepPredProp(pe), B));
@@ -583,6 +587,10 @@ p_execute_1(void)
   Prop            pe;
   Atom            a;
 
+  if (!IsAtomTerm(t)) {
+    Error(TYPE_ERROR_ATOM,ARG1,"call_with_args/2");
+    return(FALSE);
+  }
   a = AtomOfTerm(t);
   ARG1 = ARG2;
   pe = PredPropByFunc(MkFunctor(a,1),mod);
@@ -597,6 +605,10 @@ p_execute_2(void)
   Prop            pe;
   Atom            a;
 
+  if (!IsAtomTerm(t)) {
+    Error(TYPE_ERROR_ATOM,ARG1,"call_with_args/3");
+    return(FALSE);
+  }
   a = AtomOfTerm(t);
   ARG1 = ARG2;
   ARG2 = ARG3;
@@ -612,6 +624,10 @@ p_execute_3(void)
   Prop            pe;
   Atom            a;
 
+  if (!IsAtomTerm(t)) {
+    Error(TYPE_ERROR_ATOM,ARG1,"call_with_args/4");
+    return(FALSE);
+  }
   a = AtomOfTerm(t);
   ARG1 = ARG2;
   ARG2 = ARG3;
@@ -628,6 +644,10 @@ p_execute_4(void)
   Prop            pe;
   Atom            a;
 
+  if (!IsAtomTerm(t)) {
+    Error(TYPE_ERROR_ATOM,ARG1,"call_with_args/5");
+    return(FALSE);
+  }
   a = AtomOfTerm(t);
   ARG1 = ARG2;
   ARG2 = ARG3;
@@ -645,6 +665,10 @@ p_execute_5(void)
   Prop            pe;
   Atom            a;
 
+  if (!IsAtomTerm(t)) {
+    Error(TYPE_ERROR_ATOM,ARG1,"call_with_args/6");
+    return(FALSE);
+  }
   a = AtomOfTerm(t);
   ARG1 = ARG2;
   ARG2 = ARG3;
@@ -663,6 +687,10 @@ p_execute_6(void)
   Prop            pe;
   Atom            a;
 
+  if (!IsAtomTerm(t)) {
+    Error(TYPE_ERROR_ATOM,ARG1,"call_with_args/7");
+    return(FALSE);
+  }
   a = AtomOfTerm(t);
   ARG1 = ARG2;
   ARG2 = ARG3;
@@ -682,6 +710,10 @@ p_execute_7(void)
   Prop            pe;
   Atom            a;
 
+  if (!IsAtomTerm(t)) {
+    Error(TYPE_ERROR_ATOM,ARG1,"call_with_args/8");
+    return(FALSE);
+  }
   a = AtomOfTerm(t);
   ARG1 = ARG2;
   ARG2 = ARG3;
@@ -702,6 +734,10 @@ p_execute_8(void)
   Prop            pe;
   Atom            a;
 
+  if (!IsAtomTerm(t)) {
+    Error(TYPE_ERROR_ATOM,ARG1,"call_with_args/9");
+    return(FALSE);
+  }
   a = AtomOfTerm(t);
   ARG1 = ARG2;
   ARG2 = ARG3;
@@ -723,6 +759,10 @@ p_execute_9(void)
   Prop            pe;
   Atom            a;
 
+  if (!IsAtomTerm(t)) {
+    Error(TYPE_ERROR_ATOM,ARG1,"call_with_args/10");
+    return(FALSE);
+  }
   a = AtomOfTerm(t);
   ARG1 = ARG2;
   ARG2 = ARG3;
@@ -745,6 +785,10 @@ p_execute_10(void)
   Prop            pe;
   Atom            a;
 
+  if (!IsAtomTerm(t)) {
+    Error(TYPE_ERROR_ATOM,ARG1,"call_with_args/11");
+    return(FALSE);
+  }
   a = AtomOfTerm(t);
   ARG1 = ARG2;
   ARG2 = ARG3;

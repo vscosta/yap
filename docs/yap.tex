@@ -5645,6 +5645,15 @@ list_profile :-
         % predicates will come last:
         write_profile_data(SLP).
 
+list_profile(Module) :-
+        % get number of calls for each profiled procedure
+        findall(D-P,profile_data(Module:P,calls,D),LP),
+        % sort them
+        sort(LP,SLP),
+        % output so that the most often called
+        % predicates will come last:
+        write_profile_data(SLP).
+
 write_profile_data([]).
 write_profile_data([D-P|SLP]) :-
         % swap the two calls if you want the most often
