@@ -48,15 +48,24 @@ static char sccsid[] = "@(#)regexec.c	8.3 (Berkeley) 3/20/94";
  * macros that code uses.  This lets the same code operate on two different
  * representations for state sets.
  */
+#include "config.h"
+#include "c_interface.h"
+#if HAVE_SYS_TYPES_H
 #include <sys/types.h>
+#endif
 #include <stdio.h>
 #include <stdlib.h>
-#include <string.h>
-#include <limits.h>
+#if HAVE_CTYPE_H && !defined(_WIN32) && !defined(__CYGWIN__)
 #include <ctype.h>
-#include "c_interface.h"
-#include "yapregex.h"
+#endif
+#if HAVE_STRING_H
+#include <string.h>
+#endif
+#if HAVE_LIMITS_H
+#include <limits.h>
+#endif
 
+#include "yapregex.h"
 #include "utils.h"
 #include "regex2.h"
 

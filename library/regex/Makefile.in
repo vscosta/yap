@@ -45,16 +45,16 @@ sobjs: $(SOBJS)
 
 dll: regexp@SHLIB_SUFFIX@
 
-regexp.o: $(srcdir)/regexp.c
+regexp.o: $(srcdir)/regexp.c $(srcdir)/regex2.h  $(srcdir)/engine.c
 	$(CC) -c $(CFLAGS) $(SHLIB_CFLAGS) $(srcdir)/regexp.c -o regexp.o
 
-regcomp.o: $(srcdir)/regcomp.c
+regcomp.o: $(srcdir)/regcomp.c $(srcdir)/regex2.h
 	$(CC) -c $(CFLAGS) $(SHLIB_CFLAGS) $(srcdir)/regcomp.c -o regcomp.o
 
 regerror.o: $(srcdir)/regerror.c
 	$(CC) -c $(CFLAGS) $(SHLIB_CFLAGS) $(srcdir)/regerror.c -o regerror.o
 
-regfree.o: $(srcdir)/regfree.c
+regfree.o: $(srcdir)/regfree.c $(srcdir)/regex2.h
 	$(CC) -c $(CFLAGS) $(SHLIB_CFLAGS) $(srcdir)/regfree.c -o regfree.o
 
 regexec.o: $(srcdir)/regexec.c

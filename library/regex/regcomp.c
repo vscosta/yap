@@ -41,13 +41,25 @@
 static char sccsid[] = "@(#)regcomp.c	8.5 (Berkeley) 3/20/94";
 #endif /* LIBC_SCCS and not lint */
 
+#include "config.h"
 #include "c_interface.h"
+#if HAVE_SYS_TYPES_H
 #include <sys/types.h>
-#include <stdio.h>
-#include <string.h>
-#include <ctype.h>
-#include <limits.h>
+#endif
 #include <stdlib.h>
+#include <stdio.h>
+#if HAVE_STRING_H
+#include <string.h>
+#endif
+#if HAVE_CTYPE_H && !defined(_WIN32) && !defined(__CYGWIN__)
+#include <ctype.h>
+#endif
+#if HAVE_LIMITS_H
+#include <limits.h>
+#endif
+#if HAVE_MALLOC_H
+#include <malloc.h>
+#endif
 #include "yapregex.h"
 
 #include "collate.h"
@@ -911,7 +923,7 @@ register cset *cs;
 	switch (cp->fidx) {
 	case CALNUM:
 		for (c = CHAR_MIN; c <= CHAR_MAX; c++)
-			if (isalnum((uch)c))
+			if (isalpha((uch)c) || isdigit((uch)c))
 				CHadd(cs, c);
 		break;
 	case CALPHA:
