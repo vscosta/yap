@@ -11,8 +11,14 @@
 * File:		YapOpcodes.h						 *
 * comments:	Central Table with all YAP opcodes                       *
 *									 *
-* Last rev:     $Date: 2004-03-19 11:35:42 $							 *
+* Last rev:     $Date: 2004-03-31 01:03:10 $							 *
 * $Log: not supported by cvs2svn $
+* Revision 1.22  2004/03/19 11:35:42  vsc
+* trim_trail for default machine
+* be more aggressive about try-retry-trust chains.
+*    - handle cases where block starts with a wait
+*    - don't use _killed instructions, just let the thing rot by itself.
+*
 * Revision 1.21  2004/03/10 14:59:55  vsc
 * optimise -> for type tests
 *									 *
@@ -155,22 +161,23 @@
     OPCODE(try_in                  ,l),
     OPCODE(jump_if_var             ,l),	
     OPCODE(jump_if_nonvar          ,xl),	
-    OPCODE(switch_on_cons          ,ssl),	
+    OPCODE(switch_on_cons          ,sssl),	
     OPCODE(switch_on_type          ,llll),	
     OPCODE(switch_list_nl          ,ollll),
     OPCODE(switch_on_arg_type      ,xllll),
     OPCODE(switch_on_sub_arg_type  ,sllll),	
-    OPCODE(go_on_cons              ,sl),		
-    OPCODE(if_cons                 ,sl),		
-    OPCODE(switch_on_func          ,sl),	
-    OPCODE(go_on_func              ,sl),		
-    OPCODE(if_func                 ,sl),		
+    OPCODE(go_on_cons              ,sssl),		
+    OPCODE(if_cons                 ,sssl),		
+    OPCODE(switch_on_func          ,sssl),	
+    OPCODE(go_on_func              ,sssl),		
+    OPCODE(if_func                 ,sssl),		
     OPCODE(if_not_then             ,cll),	
     OPCODE(index_dbref             ,e),	
     OPCODE(index_blob              ,e),	
     OPCODE(trust_fail              ,e),		
     OPCODE(index_pred              ,e),
     OPCODE(expand_index            ,e),		
+    OPCODE(expand_clauses          ,sp),
     OPCODE(save_b_x                ,x),		
     OPCODE(save_b_y                ,y),		
     OPCODE(commit_b_x              ,x),		

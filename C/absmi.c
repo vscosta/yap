@@ -10,8 +10,14 @@
 *									 *
 * File:		absmi.c							 *
 * comments:	Portable abstract machine interpreter                    *
-* Last rev:     $Date: 2004-03-19 11:35:42 $,$Author: vsc $						 *
+* Last rev:     $Date: 2004-03-31 01:03:09 $,$Author: vsc $						 *
 * $Log: not supported by cvs2svn $
+* Revision 1.126  2004/03/19 11:35:42  vsc
+* trim_trail for default machine
+* be more aggressive about try-retry-trust chains.
+*    - handle cases where block starts with a wait
+*    - don't use _killed instructions, just let the thing rot by itself.
+*
 * Revision 1.125  2004/03/10 14:59:54  vsc
 * optimise -> for type tests
 *
@@ -6458,6 +6464,48 @@ Yap_absmi(int inp)
       }
       ENDBOp();
 
+      BOp(expand_clauses, sp);
+      {
+	PredEntry *pe = PREG->u.sp.p;
+	yamop *pt0;
+
+	/* update ASP before calling IPred */
+	ASP = YREG+E_CB;
+	if (ASP > (CELL *) B) {
+	  ASP = (CELL *) B;
+	}
+#if defined(YAPOR) || defined(THREADS)
+	if (PP == NULL) {
+	  READ_LOCK(pe->PRWLock);
+	  PP = pe;
+	}
+	LOCK(pe->PELock);
+	if (*PREG_ADDR != PREG) {
+	  PREG = *PREG_ADDR;
+	  if (pe->PredFlags & (ThreadLocalPredFlag|LogUpdatePredFlag)) {
+	    READ_UNLOCK(pe->PRWLock);
+	    PP = NULL;
+	  }
+	  UNLOCK(pe->PELock);
+	  JMPNext();
+	}
+#endif
+ 	saveregs();
+	pt0 = Yap_ExpandIndex(pe);
+	/* restart index */
+	setregs();
+	UNLOCK(pe->PELock);
+ 	PREG = pt0;
+#if defined(YAPOR) || defined(THREADS)
+	if (pe->PredFlags & (ThreadLocalPredFlag|LogUpdatePredFlag)) {
+	  READ_UNLOCK(pe->PRWLock);
+	  PP = NULL;
+	}
+#endif
+	JMPNext();
+      }
+      ENDBOp();
+
       BOp(undef_p, e);
       /* save S for module name */
       { 
@@ -6923,7 +6971,7 @@ Yap_absmi(int inp)
 
 #define HASH_SHIFT 6
 
-      BOp(switch_on_func, ssl);
+      BOp(switch_on_func, sssl);
       BEGD(d1);
       d1 = *SREG++;
       /* we use a very simple hash function to find elements in a
@@ -6931,10 +6979,10 @@ Yap_absmi(int inp)
       {
 	register CELL
 	/* first, calculate the mask */
-	  Mask = (PREG->u.sl.s - 1) << 1,	/* next, calculate the hash function */
+	  Mask = (PREG->u.sssl.s - 1) << 1,	/* next, calculate the hash function */
 	  hash = d1 >> (HASH_SHIFT - 1) & Mask;
 
-	PREG = (yamop *)(PREG->u.sl.l);
+	PREG = (yamop *)(PREG->u.sssl.l);
 	/* PREG now points at the beginning of the hash table */
 	BEGP(pt0);
 	/* pt0 will always point at the item */
@@ -6977,10 +7025,10 @@ Yap_absmi(int inp)
       {
 	register CELL
 	/* first, calculate the mask */
-	  Mask = (PREG->u.sl.s - 1) << 1,	/* next, calculate the hash function */
+	  Mask = (PREG->u.sssl.s - 1) << 1,	/* next, calculate the hash function */
 	  hash = d1 >> (HASH_SHIFT - 1) & Mask;
 
-	PREG = (yamop *)(PREG->u.sl.l);
+	PREG = (yamop *)(PREG->u.sssl.l);
 	/* PREG now points at the beginning of the hash table */
 	BEGP(pt0);
 	/* pt0 will always point at the item */
@@ -7015,10 +7063,10 @@ Yap_absmi(int inp)
       ENDD(d1);
       ENDBOp();
 
-      BOp(go_on_func, sl);
+      BOp(go_on_func, sssl);
       BEGD(d0);
       {
-	CELL *pt = (CELL *)(PREG->u.sl.l);
+	CELL *pt = (CELL *)(PREG->u.sssl.l);
 
 	d0 = *SREG++;
 	if (d0 == pt[0]) {
@@ -7034,10 +7082,10 @@ Yap_absmi(int inp)
       ENDD(d0);
       ENDBOp();
 
-      BOp(go_on_cons, sl);
+      BOp(go_on_cons, sssl);
       BEGD(d0);
       {
-	CELL *pt = (CELL *)(PREG->u.sl.l);
+	CELL *pt = (CELL *)(PREG->u.sssl.l);
 
 	d0 = I_R;
 	if (d0 == pt[0]) {
@@ -7053,10 +7101,10 @@ Yap_absmi(int inp)
       ENDD(d0);
       ENDBOp();
 
-      BOp(if_func, sl);
+      BOp(if_func, sssl);
       BEGD(d1);
       BEGP(pt0);
-      pt0 = (CELL *) PREG->u.sl.l;
+      pt0 = (CELL *) PREG->u.sssl.l;
       d1 = *SREG++;
       while (pt0[0] != d1 && pt0[0] != (CELL)NULL ) {
 	pt0 += 2;
@@ -7068,10 +7116,10 @@ Yap_absmi(int inp)
       ENDD(d1);
       ENDBOp();
 
-      BOp(if_cons, sl);
+      BOp(if_cons, sssl);
       BEGD(d1);
       BEGP(pt0);
-      pt0 = (CELL *) PREG->u.sl.l;
+      pt0 = (CELL *) PREG->u.sssl.l;
       d1 = I_R;
       while (pt0[0] != d1 && pt0[0] != 0L ) {
 	pt0 += 2;

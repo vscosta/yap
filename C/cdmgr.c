@@ -11,8 +11,14 @@
 * File:		cdmgr.c							 *
 * comments:	Code manager						 *
 *									 *
-* Last rev:     $Date: 2004-03-19 11:35:42 $,$Author: vsc $						 *
+* Last rev:     $Date: 2004-03-31 01:03:09 $,$Author: vsc $						 *
 * $Log: not supported by cvs2svn $
+* Revision 1.115  2004/03/19 11:35:42  vsc
+* trim_trail for default machine
+* be more aggressive about try-retry-trust chains.
+*    - handle cases where block starts with a wait
+*    - don't use _killed instructions, just let the thing rot by itself.
+*
 *									 *
 *************************************************************************/
 #ifdef SCCS
@@ -353,7 +359,7 @@ cleanup_dangling_indices(yamop *ipc, yamop *beg, yamop *end, yamop *suspend_code
     case _switch_on_cons:
     case _if_cons:
     case _go_on_cons:
-      ipc = NEXTOP(ipc,sl);
+      ipc = NEXTOP(ipc,sssl);
       break;
     default:
       Yap_Error(SYSTEM_ERROR,TermNil,"Bug in Indexing Code: opcode %d", op);
@@ -377,6 +383,18 @@ decrease_log_indices(LogUpdIndex *c, yamop *suspend_code)
   yamop *beg = c->ClCode, *end, *ipc;
   op_numbers op;
   if (c->ClFlags & SwitchTableMask) {
+    CELL *end = (CELL *)((char *)c+c->ClSize);
+    CELL *beg = (CELL *)(c->ClCode);
+    OPCODE ecs = Yap_opcode(_expand_clauses);
+
+    while (beg < end) {
+      yamop *cop;
+      cop = (yamop *)beg[1];
+      beg += 2;
+      if (cop->opc == ecs) {
+	Yap_FreeCodeSpace((char *)cop);
+      }
+    }
     return;
   }
   op = Yap_op_from_opcode(beg->opc);
@@ -403,9 +421,12 @@ kill_static_child_indxs(StaticIndex *indx)
   Yap_FreeCodeSpace((CODEADDR)indx);
 }
 
+int kills;
+
 static void
 kill_off_lu_block(LogUpdIndex *c, LogUpdIndex *parent, PredEntry *ap)
 {
+  kills++;
   if (parent != NULL) {
     /* sat bye bye */
     /* decrease refs */
@@ -3114,8 +3135,15 @@ fetch_next_lu_clause(PredEntry *pe, yamop *i_code, Term th, Term tb, Term tr, ya
 {
   LogUpdClause *cl;
   Term rtn;
+  Term Terms[3];
 
-  cl = Yap_FollowIndexingCode(pe, i_code, th, tb, tr, NEXTOP(PredLogUpdClause->CodeOfPred,ld), cp_ptr);
+  Terms[0] = th;
+  Terms[1] = tb;
+  Terms[2] = tr;
+  cl = Yap_FollowIndexingCode(pe, i_code, Terms, NEXTOP(PredLogUpdClause->CodeOfPred,ld), cp_ptr);
+  th = Terms[0];
+  tb = Terms[1];
+  tr = Terms[2];
   if (cl == NULL) {
     return FALSE;
   }
@@ -3223,8 +3251,14 @@ static Int
 fetch_next_lu_clause0(PredEntry *pe, yamop *i_code, Term th, Term tb, yamop *cp_ptr, int first_time)
 {
   LogUpdClause *cl;
+  Term Terms[3];
 
-  cl = Yap_FollowIndexingCode(pe, i_code, th, tb, TermNil, NEXTOP(PredLogUpdClause0->CodeOfPred,ld), cp_ptr);
+  Terms[0] = th;
+  Terms[1] = tb;
+  Terms[2] = TermNil;
+  cl = Yap_FollowIndexingCode(pe, i_code, Terms, NEXTOP(PredLogUpdClause0->CodeOfPred,ld), cp_ptr);
+  th = Terms[0];
+  tb = Terms[1];
 #if defined(YAPOR) || defined(THREADS)
   if (PP == pe) {
     READ_UNLOCK(pe->PRWLock);
@@ -3314,8 +3348,15 @@ fetch_next_static_clause(PredEntry *pe, yamop *i_code, Term th, Term tb, Term tr
 {
   StaticClause *cl;
   Term rtn;
+  Term Terms[3];
 
-  cl = (StaticClause *)Yap_FollowIndexingCode(pe, i_code, th, tb, tr, NEXTOP(PredStaticClause->CodeOfPred,ld), cp_ptr);
+  Terms[0] = th;
+  Terms[1] = tb;
+  Terms[2] = tr;
+  cl = (StaticClause *)Yap_FollowIndexingCode(pe, i_code, Terms, NEXTOP(PredStaticClause->CodeOfPred,ld), cp_ptr);
+  th = Terms[0];
+  tb = Terms[1];
+  tr = Terms[2];
   if (cl == NULL)
     return FALSE;
   rtn = MkDBRefTerm((DBRef)cl);

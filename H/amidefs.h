@@ -11,8 +11,11 @@
 * File:		amidefs.h						 *
 * comments:	Abstract machine peculiarities				 *
 *									 *
-* Last rev:     $Date: 2004-03-10 14:59:55 $							 *
-* $Log: not supported by cvs2svn $									 *
+* Last rev:     $Date: 2004-03-31 01:03:10 $							 *
+* $Log: not supported by cvs2svn $
+* Revision 1.22  2004/03/10 14:59:55  vsc
+* optimise -> for type tests
+*									 *
 *									 *
 *************************************************************************/
 
@@ -357,7 +360,8 @@ typedef struct yami {
 	 CELL next;
        } s;
        struct {
-	 COUNT               s;
+	 COUNT               s1;
+	 COUNT               s2;
 	 struct pred_entry  *p;
 	 CELL next;
        } sp;
@@ -374,11 +378,6 @@ typedef struct yami {
 	 CELL next;
        } sdl;
        struct {
-	 COUNT               s;
-	 struct yami        *l;
-	 CELL next;
-       } sl;
-       struct {
 #ifdef YAPOR
          unsigned int        or_arg;
 #endif /* YAPOR */
@@ -392,6 +391,13 @@ typedef struct yami {
          struct pred_entry  *p0;
 	 CELL next;
        } sla; /* also check env for yes and trustfail code before making any changes */
+       struct {
+	 COUNT               s;  /* size of table */
+	 COUNT               e;  /* live entries */
+	 COUNT               w;  /* pending suspended blocks */
+	 struct yami        *l;
+	 CELL next;
+       } sssl;
        struct {
 	 wamreg                x;
 	 CELL next;

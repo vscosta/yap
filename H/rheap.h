@@ -11,8 +11,14 @@
 * File:		rheap.h							 *
 * comments:	walk through heap code					 *
 *									 *
-* Last rev:     $Date: 2004-03-19 11:35:42 $,$Author: vsc $						 *
-* $Log: not supported by cvs2svn $									 *
+* Last rev:     $Date: 2004-03-31 01:03:10 $,$Author: vsc $						 *
+* $Log: not supported by cvs2svn $
+* Revision 1.39  2004/03/19 11:35:42  vsc
+* trim_trail for default machine
+* be more aggressive about try-retry-trust chains.
+*    - handle cases where block starts with a wait
+*    - don't use _killed instructions, just let the thing rot by itself.
+*									 *
 *									 *
 *************************************************************************/
 #ifdef SCCS
@@ -713,6 +719,18 @@ restore_opcodes(yamop *pc)
       pc->u.xF.F = PtoOpAdjust(pc->u.xF.F);
       pc = NEXTOP(pc,xF);
       break;
+    case _expand_clauses:
+      pc->u.sp.p = PtoPredAdjust(pc->u.sp.p);
+      {
+	COUNT i;
+	yamop **st = (yamop **)NEXTOP(pc,sp);
+
+	for (i = 0; i < pc->u.sp.s1; i++, st++) {
+	  if (*st) {
+	    *st = PtoOpAdjust(*st);
+	  }
+	}
+      }
       /* instructions type y */
     case _save_b_y:
     case _commit_b_y:
@@ -1051,8 +1069,8 @@ restore_opcodes(yamop *pc)
 	int             i, j;
 	CELL            *oldcode, *startcode;
 
-	i = pc->u.sl.s;
-	startcode = oldcode = (CELL *)(pc->u.sl.l = PtoOpAdjust(pc->u.sl.l));
+	i = pc->u.sssl.s;
+	startcode = oldcode = (CELL *)(pc->u.sssl.l = PtoOpAdjust(pc->u.sssl.l));
 	for (j = 0; j < i; j++) {
 	  Functor oldfunc = (Functor)(oldcode[0]);
 	  CODEADDR oldjmp = (CODEADDR)(oldcode[1]);
@@ -1063,7 +1081,7 @@ restore_opcodes(yamop *pc)
 	  oldcode += 2;
 	}
 	rehash(startcode, i, Funcs);
-	pc = NEXTOP(pc,sl);
+	pc = NEXTOP(pc,sssl);
       }
       break;
       /* switch_on_cons */
@@ -1075,11 +1093,11 @@ restore_opcodes(yamop *pc)
 	CELL            *startcode;
 #endif
 
-	i = pc->u.sl.s;
+	i = pc->u.sssl.s;
 #if !USE_OFFSETS
 	startcode =
 #endif
-	  oldcode = (CELL *)(pc->u.sl.l = PtoOpAdjust(pc->u.sl.l));
+	  oldcode = (CELL *)(pc->u.sssl.l = PtoOpAdjust(pc->u.sssl.l));
 	for (j = 0; j < i; j++) {
 	  Term oldcons = oldcode[0];
 	  CODEADDR oldjmp = (CODEADDR)(oldcode[1]);
@@ -1092,23 +1110,23 @@ restore_opcodes(yamop *pc)
 #if !USE_OFFSETS
 	rehash(startcode, i, Atomics);
 #endif
-	pc = NEXTOP(pc,sl);
+	pc = NEXTOP(pc,sssl);
       }
       break;
     case _go_on_func:
       {
-	CELL *oldcode = (CELL *)(pc->u.sl.l = PtoOpAdjust(pc->u.sl.l));
+	CELL *oldcode = (CELL *)(pc->u.sssl.l = PtoOpAdjust(pc->u.sssl.l));
 	Functor oldfunc = (Functor)(oldcode[0]);
 
 	oldcode[0] = (CELL)FuncAdjust(oldfunc);
 	oldcode[1] = (CELL)CodeAddrAdjust((CODEADDR)oldcode[1]);
 	oldcode[3] = (CELL)CodeAddrAdjust((CODEADDR)oldcode[3]);
       }
-      pc = NEXTOP(pc,sl);
+      pc = NEXTOP(pc,sssl);
       break;
     case _go_on_cons:
       {
-	CELL *oldcode = (CELL *)(pc->u.sl.l = PtoOpAdjust(pc->u.sl.l));
+	CELL *oldcode = (CELL *)(pc->u.sssl.l = PtoOpAdjust(pc->u.sssl.l));
 	Term oldcons = oldcode[0];
 
 	if (IsAtomTerm(oldcons)) {
@@ -1117,14 +1135,14 @@ restore_opcodes(yamop *pc)
 	oldcode[1] = (CELL)CodeAddrAdjust((CODEADDR)oldcode[1]);
 	oldcode[3] = (CELL)CodeAddrAdjust((CODEADDR)oldcode[3]);
       }
-      pc = NEXTOP(pc,sl);
+      pc = NEXTOP(pc,sssl);
       break;
     case _if_func:
       {
-	CELL *oldcode = (CELL *)(pc->u.sl.l = PtoOpAdjust(pc->u.sl.l));
+	CELL *oldcode = (CELL *)(pc->u.sssl.l = PtoOpAdjust(pc->u.sssl.l));
 	Int j;
 
-	for (j = 0; j < pc->u.sl.s; j++) {
+	for (j = 0; j < pc->u.sssl.s; j++) {
 	  Functor oldfunc = (Functor)(oldcode[0]);
 	  CODEADDR oldjmp = (CODEADDR)(oldcode[1]);
 	  oldcode[0] = (CELL)FuncAdjust(oldfunc);
@@ -1134,14 +1152,14 @@ restore_opcodes(yamop *pc)
 	/* adjust fail code */
 	oldcode[1] = (CELL)CodeAddrAdjust((CODEADDR)oldcode[1]);
       }
-      pc = NEXTOP(pc,sl);
+      pc = NEXTOP(pc,sssl);
       break;
     case _if_cons:
       {
-	CELL *oldcode = (CELL *)(pc->u.sl.l = PtoOpAdjust(pc->u.sl.l));
+	CELL *oldcode = (CELL *)(pc->u.sssl.l = PtoOpAdjust(pc->u.sssl.l));
 	Int j;
 
-	for (j = 0; j < pc->u.sl.s; j++) {
+	for (j = 0; j < pc->u.sssl.s; j++) {
 	  Term oldcons = oldcode[0];
 	  CODEADDR oldjmp = (CODEADDR)(oldcode[1]);
 	  if (IsAtomTerm(oldcons)) {
@@ -1153,7 +1171,7 @@ restore_opcodes(yamop *pc)
 	/* adjust fail code */
 	oldcode[1] = (CELL)CodeAddrAdjust((CODEADDR)oldcode[1]);
       }
-      pc = NEXTOP(pc,sl);
+      pc = NEXTOP(pc,sssl);
       break;
       /* instructions type xxx */
     case _p_plus_vv:

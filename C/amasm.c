@@ -11,8 +11,11 @@
 * File:		amasm.c							 *
 * comments:	abstract machine assembler				 *
 *									 *
-* Last rev:     $Date: 2004-03-10 14:59:55 $							 *
-* $Log: not supported by cvs2svn $									 *
+* Last rev:     $Date: 2004-03-31 01:03:09 $							 *
+* $Log: not supported by cvs2svn $
+* Revision 1.58  2004/03/10 14:59:55  vsc
+* optimise -> for type tests
+*									 *
 *									 *
 *************************************************************************/
 #ifdef SCCS
@@ -734,18 +737,6 @@ a_r(CELL arnd2, op_numbers opcode, yamop *code_p, int pass_no)
   return code_p;
 }
 
-inline static yamop *
-a_sp(op_numbers opcode, COUNT sv, yamop *code_p, int pass_no, struct intermediates *cip)
-{
-  if (pass_no) {
-    code_p->opc = emit_op(opcode);
-    code_p->u.sp.s = sv-1;
-    code_p->u.sp.p = cip->CurrentPred;
-  }
-  GONEXT(dp);
-  return code_p;
-}
-
 static yamop *
 check_alloc(clause_info *clinfo, yamop *code_p, int pass_no, struct intermediates *cip)
 {
@@ -1191,25 +1182,32 @@ a_hx(op_numbers opcode, union clause_obj *cl_u, int log_update, yamop *code_p, i
 {
   register CELL i, imax;
   register CELL *seq_ptr = (CELL *)cip->cpc->rnd2;
+  int j = 0;
 
   imax = cip->cpc->rnd1;
   if (pass_no) {
     code_p->opc = emit_op(opcode);
-    code_p->u.sl.s = emit_c(imax);
-    code_p->u.sl.l = emit_a(cip->cpc->rnd2);
+    code_p->u.sssl.s = emit_c(imax);
+    code_p->u.sssl.l = emit_a(cip->cpc->rnd2);
     if (log_update) {
       init_log_upd_table(ClauseCodeToLogUpdIndex(cip->cpc->rnd2), cl_u);
     } else {
       init_static_table(ClauseCodeToStaticIndex(cip->cpc->rnd2), cl_u);
     }
   }
-  GONEXT(sl);
   if (pass_no) {
     for (i = 0; i < imax; i++) {
+      yamop *ipc = (yamop *)seq_ptr[1];
       a_pair(seq_ptr, pass_no, cip);
+      if (ipc != FAILCODE) {
+	j++;
+      }
       seq_ptr += 2;
     }
+    code_p->u.sssl.e = j;
+    code_p->u.sssl.w = 0;    
   }
+  GONEXT(sssl);
   return code_p;
 }
 
@@ -1222,15 +1220,16 @@ a_if(op_numbers opcode, union clause_obj *cl_u, int log_update, yamop *code_p, i
   imax = cip->cpc->rnd1;
   if (pass_no) {
     code_p->opc = emit_op(opcode);
-    code_p->u.sl.s = emit_count(imax);
-    code_p->u.sl.l = emit_a(cip->cpc->rnd2);
+    code_p->u.sssl.s = code_p->u.sssl.e = emit_count(imax);
+    code_p->u.sssl.w = 0;
+    code_p->u.sssl.l = emit_a(cip->cpc->rnd2);
     if (log_update) {
       init_log_upd_table(ClauseCodeToLogUpdIndex(cip->cpc->rnd2), cl_u);
     } else {
       init_static_table(ClauseCodeToStaticIndex(cip->cpc->rnd2), cl_u);
     }
   }
-  GONEXT(sl);
+  GONEXT(sssl);
   if (pass_no) {
     CELL lab, lab0;
     for (i = 0; i < imax; i++) {
