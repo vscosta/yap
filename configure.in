@@ -463,6 +463,10 @@ case $target_os in
         DO_SECOND_LD=""
 	SHLIB_LD="cc -bundle -flat_namespace -undefined suppress"
 	INSTALL_DLLS=""
+        if test "$CC" = "cc"
+        then
+          CC="cc -no-cpp-precomp"
+        fi
 	;;
       *netbsd*|*freebsd*)
 	if echo __ELF__ | ${CC:-cc} -E - | grep -q __ELF__
