@@ -129,8 +129,6 @@ GC_NEW_MAHASH(gc_ma_h_inner_struct *top) {
 
 #endif
 
-/* #define DB_SEARCH_METHOD 1 */
-
 /* global variables for garbage collection */
 
 #ifndef DEBUG
@@ -164,11 +162,8 @@ STATIC_PROTO(void push_registers, (Int, yamop *));
 STATIC_PROTO(void marking_phase, (tr_fr_ptr, CELL *, yamop *, CELL *));
 STATIC_PROTO(void compaction_phase, (tr_fr_ptr, CELL *, yamop *, CELL *));
 STATIC_PROTO(void pop_registers, (Int, yamop *));
-#if DB_SEARCH_METHOD
-#else
 STATIC_PROTO(void store_ref_in_dbtable, (DBRef));
 STATIC_PROTO(DBRef find_ref_in_dbtable, (DBRef));
-#endif
 STATIC_PROTO(void init_dbtable, (tr_fr_ptr));
 STATIC_PROTO(void mark_db_fixed, (CELL *));
 STATIC_PROTO(void mark_regs, (tr_fr_ptr));
@@ -190,6 +185,43 @@ static Int      tot_gc_recovered = 0; /* number of heap objects in all garbage c
 static int discard_trail_entries = 0;
 
 /* support for hybrid garbage collection scheme */
+
+typedef struct {
+  CELL *v;
+  int nof;
+} cont;
+
+static cont *cont_top0, *cont_top;
+
+inline static void
+PUSH_CONTINUATION(CELL *v, int nof) {
+  cont *x;
+  if (nof == 0) return;
+  x = cont_top;
+  x++;
+  if ((ADDR)x > TrailTop-1024)
+    growtrail(64 * 1024L);
+  x->v = v;
+  x->nof = nof;
+  cont_top = x;
+}
+
+#define POP_CONTINUATION() {   \
+  if (cont_top == cont_top0)   \
+    return;                    \
+  else {                       \
+    int nof = cont_top->nof;   \
+    cont *x = cont_top;        \
+                               \
+    current = x->v;            \
+    if (nof == 1)              \
+      cont_top = --x;          \
+    else {                     \
+      x->nof = nof-1;          \
+      x->v = current+1;        \
+    }                          \
+  }                            \
+  goto begin; }
 
 #ifdef HYBRID_SCHEME
 
@@ -412,127 +444,6 @@ count_cells_marked(void)
 #endif
 
 
-#if DB_SEARCH_METHOD
-
-/* In this method we store first pointers to the DB, and when we find an entry
-   in the trail we go and see if anyone is pointing at it. We try to be efficient
-   space-wise, by removing entries to code that does not need them
-*/
-
-typedef struct DB_entry {
-  CELL *addr;
-  struct DB_entry *next;
-} *dbentry;
-
-#define MAX_DB_ENTRIES 1024
-
-static dbentry db_vec, free_entries;
-
-static dbentry dbtable[MAX_DB_ENTRIES];
-
-static int dbscale;
-
-static CODEADDR MyHpBase;
-
-static int
-dbslot(CELL *ptr)
-{
-  return((Addr(ptr)-Addr(MyHpBase))/dbscale);
-}
-
-static dbentry
-new_dbvec_entry(void)
-{
-  dbentry val;
-  if (free_entries != NULL) {
-    val = free_entries;
-    free_entries = free_entries->next;
-    return(val);
-  }
-  val = db_vec;
-  db_vec++;
-  return(val);
-}
-  
-static void
-add_new_dbuse(CELL *ptr)
-{
-  int off = dbslot(ptr);
-  dbentry prev = NULL;
-  dbentry curr = dbtable[off];
-
-  while (curr != NULL && curr->addr < ptr) {
-    prev = curr;
-    curr = curr->next;
-  }
-  if (curr == NULL) {
-    dbentry db_entry = new_dbvec_entry();
-    db_entry->addr = ptr;
-    db_entry->next = NULL;
-    dbtable[off] = db_entry;
-    return;
-  } else if (curr->addr > ptr) {
-    dbentry db_entry = new_dbvec_entry();
-    db_entry->addr = ptr;
-    db_entry->next = curr;
-    if (prev == NULL) {
-      dbtable[off] = db_entry;
-    } else {
-      prev->next = db_entry;
-    }
-  }
-}
-
-static void 
-mark_db_fixed(CELL *trail_ptr) {
-  add_new_dbuse(trail_ptr);
-}
-
-
-/* there are two cases: either off0 == offf or offf > off0 */
-static int
-found_dbentries(CELL *beg, CELL *end)
-{
-  int off0 = dbslot(beg);
-  int offf = dbslot(end);
-  int off = off0;
-  int found = FALSE;
-  dbentry prev = NULL;
-  dbentry curr = dbtable[off];
-
-  while (curr != NULL && curr->addr < beg) {
-    prev = curr;
-    curr = curr->next;
-  }
-  do {
-    while (curr != NULL) {
-      if (curr->addr > end) {
-	return(found);
-      } else {
-	dbentry nexte = curr->next;
-	found = TRUE;
-	if (prev == NULL)
-	  dbtable[off] = nexte;
-	else
-	  prev->next = nexte;
-	curr->next = free_entries;
-	free_entries = curr;
-	curr = nexte;
-      }
-    }
-    if (off < offf) {
-      off++;
-      prev = NULL;
-      curr = dbtable[off];
-    } else
-      return(found);
-  } while (TRUE);
-}
-
-
-
-#else
-
 /* straightforward binary tree scheme that, given a key, finds a
    matching dbref */  
 
@@ -608,16 +519,8 @@ mark_db_fixed(CELL *ptr) {
     el->Flags |= GcFoundMask;
 }
 
-#endif
-
 static void 
 init_dbtable(tr_fr_ptr trail_ptr) {
-#if DB_SEARCH_METHOD
-  MyHpBase = HeapBase;
-  db_vec = (dbentry)TR;
-  free_entries = NULL;
-  dbscale = ((Addr(HeapTop)-Addr(MyHpBase))+MAX_DB_ENTRIES-1)/MAX_DB_ENTRIES;
-#else
   db_vec0 = db_vec = (dbentry)TR;
   while (trail_ptr > (tr_fr_ptr)TrailBase) {
     register CELL trail_cell;
@@ -659,13 +562,12 @@ init_dbtable(tr_fr_ptr trail_ptr) {
     /* could not find any entries: probably using LOG UPD semantics */
     db_vec0 = NULL;
   }
-#endif
 }
 
 #ifdef DEBUG
 
 #define INSTRUMENT_GC 1
-#define CHECK_CHOICEPOINTS 1
+/*#define CHECK_CHOICEPOINTS 1 */
 
 #ifdef INSTRUMENT_GC
 typedef enum {
@@ -836,12 +738,12 @@ mark_variable(CELL_PTR current)
   CELL_PTR        next;
   register CELL	ccur;
   unsigned int    arity;
-  unsigned int		i;
 
  begin:
   ccur = *current;
-  if (MARKED(ccur))
-    return;
+  if (MARKED(ccur)) {
+    POP_CONTINUATION();
+  }
   MARK(current);
   total_marked++;
   PUSH_POINTER(current);
@@ -861,7 +763,7 @@ mark_variable(CELL_PTR current)
 #endif	      
 	    *next = (CELL)current;
 	    *current = MARK_CELL((CELL)current);
-	    return;
+	    POP_CONTINUATION();
 	  } else {
 	      /* can't help here */
 #ifdef INSTRUMENT_GC
@@ -908,19 +810,19 @@ mark_variable(CELL_PTR current)
     else
       inc_var(current, next);
 #endif
-    return;
+    POP_CONTINUATION();
   } else if (IsPairTerm(ccur)) {
 #ifdef INSTRUMENT_GC
     inc_vars_of_type(current,gc_list);
 #endif
     if (ONHEAP(next)) {
-      mark_variable(next);
-      current = next + 1;
+      PUSH_CONTINUATION(next+1,1);
+      current = next;
       goto begin;
     } else if (ONCODE(next)) {
       mark_db_fixed(RepPair(ccur));
     }
-    return;
+    POP_CONTINUATION();
   } else if (IsApplTerm(ccur)) {
     register CELL cnext = *next;
     
@@ -938,12 +840,12 @@ mark_variable(CELL_PTR current)
       } else {
 	mark_db_fixed(next);
       }
-      return;
+      POP_CONTINUATION();
     }
     if ( MARKED(cnext) || !ONHEAP(next) )
-      return;
+      POP_CONTINUATION();
     
-    if (next < H0) return;
+    if (next < H0) POP_CONTINUATION();
     if (IsExtensionFunctor((Functor)cnext)) {
       switch (cnext) {
       case (CELL)FunctorLongInt:
@@ -952,7 +854,7 @@ mark_variable(CELL_PTR current)
 	PUSH_POINTER(next);
 	PUSH_POINTER(next+1);
 	PUSH_POINTER(next+2);
-	return;
+	POP_CONTINUATION();
       case (CELL)FunctorDouble:
 	MARK(next);
 	total_marked += 2+SIZEOF_DOUBLE/SIZEOF_LONG_INT;
@@ -962,7 +864,7 @@ mark_variable(CELL_PTR current)
 #if SIZEOF_DOUBLE==2*SIZEOF_LONG_INT
 	PUSH_POINTER(next+3);
 #endif
-	return;
+	POP_CONTINUATION();
 #ifdef USE_GMP
       case (CELL)FunctorBigInt:
 	MARK(next);
@@ -979,10 +881,10 @@ mark_variable(CELL_PTR current)
 	    PUSH_POINTER(next+i);
 	  PUSH_POINTER(next+i);
 	}
-	return;
+	POP_CONTINUATION();
 #endif
       default:
-	return;
+	POP_CONTINUATION();
       }
     }
 #ifdef INSTRUMENT_GC
@@ -992,9 +894,8 @@ mark_variable(CELL_PTR current)
     MARK(next);
     ++total_marked;
     PUSH_POINTER(next);
-    for (i = 1; i < arity; ++i)
-      mark_variable(next + i);
-    current = next + arity;
+    current = next+1;
+    PUSH_CONTINUATION(current+1,arity-1);
     goto begin;
   }
 #ifdef INSTRUMENT_GC
@@ -1003,6 +904,7 @@ mark_variable(CELL_PTR current)
   else 
     inc_vars_of_type(current, gc_int);
 #endif
+  POP_CONTINUATION();
 }
 
 void
@@ -1250,35 +1152,7 @@ mark_trail(tr_fr_ptr trail_ptr, tr_fr_ptr trail_base, CELL *gc_H, choiceptr gc_B
 #endif
       }
     } else if (IsPairTerm(trail_cell)) {
-#if DB_SEARCH_METHOD
-      CELL *pt0 = RepPair(trail_cell);
-
-#ifdef FROZEN_REGS  /* TRAIL */
-            /* avoid frozen segments */
-      if (
-#ifdef SBA
-	  (ADDR) pt0 >= HeapTop
-#else
-	  (ADDR) pt0 >= TrailBase
-#endif
-	  ) {
-	trail_ptr = (tr_fr_ptr) pt0;
-	continue;
-      }
-#endif /* FROZEN_REGS */
-      /* DB pointer */ 
-      CELL flags = Flags((CELL)pt0);
-      /* for the moment, if all references to the term in the stacks
-	 are only pointers, reset the flag */
-      if (FlagOn(DBClMask, flags) && !FlagOn(LogUpdMask, flags)) {
-	if (FlagOn(DBNoVars, flags)) {
-	  DBRef entry = (DBRef) ((CODEADDR)pt0 - (CELL) &(((DBRef) NIL)->Flags));
-	  if (found_dbentries(entry->Contents,
-			      entry->Contents+entry->NOfCells))
-	    entry->Flags |= GcFoundMask;
-	}
-      }
-#endif
+      /* do nothing */
     }
 #if  MULTI_ASSIGNMENT_VARIABLES
     else {
@@ -1705,16 +1579,6 @@ sweep_trail(choiceptr gc_B, tr_fr_ptr old_TR)
      gc_B = gc_B->cp_b;
    }
  }
-#if DB_SEARCH_METHOD
-#if DEBUG
-  {
-    int i;
-    for (i=0; i<MAX_DB_ENTRIES; i++)
-      if (dbtable[i] != NULL)
-	fprintf(YP_stderr, "oops at entry %d: %p\n", i, dbtable[i]->addr);
-  }
-#endif
-#endif
   /* first, whatever we dumped on the trail. Easier just to do
      the registers separately?  */
   for (trail_ptr = old_TR; trail_ptr < TR; trail_ptr++) {
@@ -2591,6 +2455,7 @@ marking_phase(tr_fr_ptr old_TR, CELL *current_env, yamop *curp, CELL *max)
   current_B = B;
 #endif
   init_dbtable(old_TR);
+  cont_top0 = cont_top = (cont *)db_vec;
   /* These two must be marked first so that our trail optimisation won't lose
      values */
   mark_regs(old_TR);		/* active registers & trail */
@@ -2679,9 +2544,6 @@ do_gc(Int predarity, CELL *current_env, yamop *nextop)
   Int           effectiveness = 0;
   int           gc_trace = FALSE;
 
-#ifdef HYBRID_SCHEME
-  iptop = (CELL_PTR *)H;
-#endif
 #ifdef INSTRUMENT_GC
   {
     int i;
@@ -2703,7 +2565,7 @@ do_gc(Int predarity, CELL *current_env, yamop *nextop)
   }
 #endif
 #ifdef DEBUG
-  check_global();
+  //  check_global();
 #endif
   if (GetValue(AtomGcTrace) != TermNil)
     gc_trace = 1;
@@ -2720,9 +2582,21 @@ do_gc(Int predarity, CELL *current_env, yamop *nextop)
     YP_fprintf(YP_stderr, "[GC]       Trail:%8ld cells (%p-%p)\n",
 	       (unsigned long int)(TR-(tr_fr_ptr)TrailBase),TrailBase,TR);
   }
+  if (HeapTop >= GlobalBase - MinHeapGap) {
+    *--ASP = (CELL)current_env;
+    if (!growheap(FALSE)) {
+      Abort("[ SYSTEM ERROR: YAP could not grow heap before garbage collection ]\n");
+      return(FALSE);
+    }
+    current_env = (CELL *)*ASP;
+    ASP++;
+  }
   time_start = cputime();
   total_marked = 0;
   discard_trail_entries = 0;
+#ifdef HYBRID_SCHEME
+  iptop = (CELL_PTR *)H;
+#endif
   /* get the number of active registers */
   YAPEnterCriticalSection();
   old_TR = TR;
@@ -2756,8 +2630,8 @@ do_gc(Int predarity, CELL *current_env, yamop *nextop)
   TR = old_TR;
   pop_registers(predarity, nextop);
   TR = new_TR;
-  c_time = cputime();
   YAPLeaveCriticalSection();
+  c_time = cputime();
   if (gc_verbose) {
     YP_fprintf(YP_stderr, "[GC]   Compress: took %g sec\n", (double)(c_time-time_start)/1000);
   }
@@ -2770,7 +2644,7 @@ do_gc(Int predarity, CELL *current_env, yamop *nextop)
 	       (unsigned long int)(ASP-H));
   }
 #ifdef DEBUG
-  check_global();
+  //  check_global();
 #endif
   return(effectiveness);
 }
@@ -2848,7 +2722,7 @@ gc(Int predarity, CELL *current_env, yamop *nextop)
     while (gc_margin >= gap && !growstack(gc_margin))
       gc_margin = gc_margin/2;
 #ifdef DEBUG
-    check_global();
+    //    check_global();
 #endif
     return(gc_margin >= gap);
   }
