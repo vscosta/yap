@@ -901,9 +901,9 @@ debugging :-
 	'$set_value'(spy_leap,L).
 '$action'(0'l,_,_,_,_,_) :- !,		% l		leap
 	'$set_value'(spy_leap,1).
-'$action'(0'n,_,_,_,_._) :- !,		% n		nodebug
+'$action'(0'n,_,_,_,_,_) :- !,		% n		nodebug
 	nodebug.
-'$action'(0'k,_,_,_,_._) :- !,		% k		quasi leap
+'$action'(0'k,_,_,_,_,_) :- !,		% k		quasi leap
 	'$set_yap_flags'(10,0).
 '$action'(0'r,P,L,_,_,_) :- !,		% r		retry
 	( P=call, !, '$ilgl'(114); true),

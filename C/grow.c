@@ -549,7 +549,8 @@ local_growglobal(long size, CELL **ptr)
   MoveGlobalOnly();
   AdjustStacksAndTrail();
   AdjustRegs(MaxTemps);
-  *ptr = PtoLocAdjust(*ptr);
+  if (ptr)
+    *ptr = PtoLocAdjust(*ptr);
   YAPLeaveCriticalSection();
   ASP += 256;
   growth_time = cputime()-start_growth_time;
