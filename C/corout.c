@@ -136,10 +136,8 @@ STATIC_PROTO(Int p_non_ground, (void));
 STATIC_PROTO(void Wake, (CELL *, CELL));
 STATIC_PROTO(sus_record *UpdateSVarList, (sus_record *));
 STATIC_PROTO(sus_record *GetSVarList, (void));
-#ifndef FIXED_STACKS
 STATIC_PROTO(void mark_sus_record, (sus_record *));
 STATIC_PROTO(void mark_suspended_goal, (CELL *));
-#endif /* FIXED_STACKS */
 STATIC_PROTO(void AddSuspendedGoals, (sus_record *, sus_record *));
 STATIC_PROTO(void ReleaseGoals, (sus_record *));
 STATIC_PROTO(void wake_if_binding_vars_in_frozen_goal, (Term, sus_record *));
@@ -394,8 +392,6 @@ TermToSuspendedVar(Term gs, Term var)
 }
 
 
-#ifndef FIXED_STACKS
-
 static void
 mark_sus_record(sus_record *sg)
 {
@@ -419,8 +415,6 @@ static void mark_suspended_goal(CELL *orig)
   mark_sus_record(sreg->SG);
   mark_external_reference(((CELL *)&(sreg->SG)));
 }
-
-#endif /* FIXED_STACKS */
 
 
 /*
@@ -1211,9 +1205,7 @@ void InitCoroutPreds(void)
   attas[susp_ext].copy_term_op = CopySuspendedVar;
   attas[susp_ext].to_term_op = SuspendedVarToTerm;
   attas[susp_ext].term_to_op = TermToSuspendedVar;
-#ifndef FIXED_STACKS
   attas[susp_ext].mark_op = mark_suspended_goal;
-#endif /* FIXED_STACKS */
   at = LookupAtom("$wake_up_goal");
   pred = RepPredProp(PredPropByFunc(MkFunctor(at, 2),0));
   WakeUpCode = pred;

@@ -215,8 +215,6 @@ WakeAttVar(CELL* pt1, CELL reg2)
   Bind_Global(&(attv->Value), reg2);
 }
 
-#ifndef FIXED_STACKS
-
 static void
 mark_attvar(CELL *orig)
 {
@@ -229,8 +227,6 @@ mark_attvar(CELL *orig)
     mark_external_reference(attv->Atts+2*i+1);
   }
 }
-
-#endif /* FIXED_STACKS */
 
 #if FROZEN_STACKS
 static Term
@@ -635,9 +631,7 @@ void InitAttVarPreds(void)
   attas[attvars_ext].copy_term_op = CopyAttVar;
   attas[attvars_ext].to_term_op = AttVarToTerm;
   attas[attvars_ext].term_to_op = TermToAttVar;
-#ifndef FIXED_STACKS
   attas[attvars_ext].mark_op = mark_attvar;
-#endif
   InitCPred("get_att", 3, p_get_att, SafePredFlag);
   InitCPred("get_all_atts", 2, p_get_all_atts, SafePredFlag);
   InitCPred("free_att", 2, p_free_att, SafePredFlag);

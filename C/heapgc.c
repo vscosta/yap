@@ -48,8 +48,6 @@ struct gc_ma_h_entry *live_list;
 STATIC_PROTO(Int  p_inform_gc, (void));
 STATIC_PROTO(Int  p_gc, (void));
 
-#ifndef FIXED_STACKS
-
 #ifdef EASY_SHUNTING
 static choiceptr current_B;
 
@@ -3100,8 +3098,6 @@ do_gc(Int predarity, CELL *current_env, yamop *nextop)
   return(effectiveness);
 }
 
-#endif /* FIXED_STACKS */
-
 int
 is_gc_verbose(void)
 {
@@ -3140,14 +3136,17 @@ p_inform_gc(void)
 int 
 gc(Int predarity, CELL *current_env, yamop *nextop)
 {
-#ifdef FIXED_STACKS
-  abort_optyap("garbage collection");
-#else /* FIXED_STACKS */
   Int           gc_margin = 128;
   Term          Tgc_margin;
   Int           effectiveness = 0;
   int           gc_on = FALSE;
 
+#if defined(YAPOR) || defined(THREADS)
+  if (NOfThreads != 1) {
+    Error(SYSTEM_ERROR,TermNil,"cannot perform garbage collection: more than a worker/thread running");
+    return(FALSE);
+  }
+#endif
   if (GetValue(AtomGc) != TermNil)
     gc_on = TRUE;
   if (IsIntTerm(Tgc_margin = GetValue(AtomGcMargin)))
@@ -3186,7 +3185,6 @@ gc(Int predarity, CELL *current_env, yamop *nextop)
    * debug for(save_total=1; save_total<=N; ++save_total)
    * plwrite(XREGS[save_total],DebugPutc,0); 
    */
-#endif /* FIXED_STACKS */
   return ( TRUE );
 }
 
@@ -3194,9 +3192,7 @@ gc(Int predarity, CELL *current_env, yamop *nextop)
 static Int
 p_gc(void)
 {
-#ifndef FIXED_STACKS
   do_gc(0, ENV, P);
-#endif  /* FIXED_STACKS */
   return(TRUE);
 }
 

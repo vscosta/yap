@@ -834,6 +834,7 @@ InitCodes(void)
   INIT_LOCK(heap_regs->heap_used_lock);
   INIT_LOCK(heap_regs->heap_top_lock);
   INIT_LOCK(heap_regs->dead_clauses_lock);
+  heap_regs->n_of_threads = 1;
   heap_regs->heap_top_owner = -1;
 #endif /* YAPOR */
   heap_regs->clausecode.arity = 0;

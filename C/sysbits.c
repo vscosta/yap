@@ -1010,7 +1010,7 @@ SearchForTrailFault(void)
 #ifdef DEBUG
   /*  fprintf(stderr,"Catching a sigsegv at %p with %p\n", TR, TrailTop); */
 #endif
-#ifndef FIXED_STACKS
+#if  !OS_HANDLES_TR_OVERFLOW
   if ((TR > (tr_fr_ptr)TrailTop-1024  && 
        TR < (tr_fr_ptr)TrailTop+(64*1024))|| DBTrailOverflow()) {
     if (!growtrail(64 * 1024L)) {
@@ -1019,7 +1019,7 @@ SearchForTrailFault(void)
     /* just in case, make sure the OS keeps the signal handler. */
     /*    my_signal_info(SIGSEGV, HandleSIGSEGV); */
   } else
-#endif /* FIXED_STACKS */
+#endif /* OS_HANDLES_TR_OVERFLOW */
     Error(FATAL_ERROR, TermNil,
 	  "likely bug in YAP, segmentation violation");
 }

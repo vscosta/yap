@@ -10,7 +10,7 @@
 * File:		Heap.h         						 *
 * mods:									 *
 * comments:	Heap Init Structure					 *
-* version:      $Id: Heap.h,v 1.32 2002-10-14 16:25:33 vsc Exp $	 *
+* version:      $Id: Heap.h,v 1.33 2002-10-21 22:52:36 vsc Exp $	 *
 *************************************************************************/
 
 /* information that can be stored in Code Space */
@@ -128,9 +128,6 @@ typedef struct various_codes {
   Int maxdepth, maxlist;
   int update_mode;
   Atom atprompt;
-#if defined(YAPOR) || defined(THREADS)
-  lockvar  heap_used_lock;        /* protect HeapUsed */
-#endif
   char prompt[MAX_PROMPT];
   OPCODE undef_op; 
   OPCODE index_op; 
@@ -149,8 +146,11 @@ typedef struct various_codes {
   char *char_conversion_table;
   char *char_conversion_table2;
 #if defined(YAPOR) || defined(THREADS)
+  lockvar  heap_used_lock;        /* protect HeapUsed */
   lockvar  heap_top_lock;        /* protect HeapTop */
+  lockvar  dead_clauses_lock;        /* protect DeadClauses */
   int      heap_top_owner;
+  unsigned int n_of_threads;      /* number of threads and processes in system */
 #endif
   unsigned int size_of_overflow;
   UInt  number_of_cpreds;
@@ -159,9 +159,6 @@ typedef struct various_codes {
   struct pred_entry *module_pred[MaxModules];
   SMALLUNSGN   no_of_modules;
   struct clause_struct *dead_clauses;
-#if defined(YAPOR) || defined(THREADS)
-  lockvar  dead_clauses_lock;        /* protect DeadClauses */
-#endif
   int   primitives_module;
   int   user_module;
   struct idb_queue *db_queues, *db_queues_cache;
@@ -520,6 +517,7 @@ typedef struct various_codes {
 #define  FreeBlocksLock           heap_regs->free_blocks_lock
 #define  HeapTopLock              heap_regs->heap_top_lock
 #define  HeapTopOwner             heap_regs->heap_top_owner
+#define  NOfThreads               heap_regs->n_of_threads
 #define  HeapUsedLock             heap_regs->heap_used_lock
 #define  DeadClausesLock          heap_regs->dead_clauses_lock
 #endif

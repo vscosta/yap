@@ -635,8 +635,11 @@ growheap(int fix_code)
   int shift_factor = (heap_overflows > 8 ? 8 : heap_overflows);
   unsigned long sz =  size << shift_factor;
 
-#ifdef FIXED_STACKS
-  abort_optyap("noheapleft in function absmi");
+#if defined(YAPOR) || defined(THREADS)
+  if (NOfThreads != 1) {
+    Error(SYSTEM_ERROR,TermNil,"cannot grow Heap: more than a worker/thread running");
+    return(FALSE);
+  }
 #endif
   if (SizeOfOverflow > sz)
     sz = AdjustPageSize(SizeOfOverflow);
@@ -674,8 +677,11 @@ growglobal(CELL **ptr)
 {
   unsigned long sz = sizeof(CELL) * 16 * 1024L;
 
-#ifdef FIXED_STACKS
-  abort_optyap("noheapleft in function absmi");
+#if defined(YAPOR) || defined(THREADS)
+  if (NOfThreads != 1) {
+    Error(SYSTEM_ERROR,TermNil,"cannot grow Global: more than a worker/thread running");
+    return(FALSE);
+  }
 #endif
   if (!local_growglobal(sz, ptr))
     return(FALSE);
@@ -693,8 +699,11 @@ growstack(long size)
   Int start_growth_time, growth_time;
   int gc_verbose;
 
-#ifdef FIXED_STACKS
-  abort_optyap("nostackleft in function absmi");
+#if defined(YAPOR) || defined(THREADS)
+  if (NOfThreads != 1) {
+    Error(SYSTEM_ERROR,TermNil,"cannot grow Local: more than a worker/thread running");
+    return(FALSE);
+  }
 #endif
   /* adjust to a multiple of 256) */
   size = AdjustPageSize(size);
@@ -812,8 +821,11 @@ growstack_in_parser(tr_fr_ptr *old_trp, TokEntry **tksp, VarEntry **vep)
   int gc_verbose;
   long size  = sizeof(CELL)*(LCL0-(CELL *)GlobalBase);
 
-#ifdef FIXED_STACKS
-  abort_optyap("nostackleft in parser");
+#if defined(YAPOR) || defined(THREADS)
+  if (NOfThreads != 1) {
+    Error(SYSTEM_ERROR,TermNil,"cannot grow Parser Stack: more than a worker/thread running");
+    return(FALSE);
+  }
 #endif
   /* adjust to a multiple of 256) */
   size = AdjustPageSize(size);
@@ -867,8 +879,11 @@ growtrail(long size)
   Int start_growth_time = cputime(), growth_time;
   int gc_verbose = is_gc_verbose();
 
-#ifdef FIXED_STACKS
-  abort_optyap("notrailleft in function absmi");
+#if defined(YAPOR) || defined(THREADS)
+  if (NOfThreads != 1) {
+    Error(SYSTEM_ERROR,TermNil,"cannot grow trail: more than a worker/thread running");
+    return(FALSE);
+  }
 #endif
   /* adjust to a multiple of 256) */
   size = AdjustPageSize(size);

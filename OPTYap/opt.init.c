@@ -229,6 +229,7 @@ void make_root_frames(void) {
 #ifdef YAPOR
 void init_workers(void) {
   int proc;
+  NOfThreads = number_workers;
 #ifdef ACOW
   if (number_workers > 1) {
     int son;
