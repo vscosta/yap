@@ -8,7 +8,7 @@
 @c @setchapternewpage odd
 @c %**end of header
 
-@set VERSION: 4.5.2
+@set VERSION 4.5.2
 @set EDITION 4.2.3
 @set UPDATED January 2002
 
@@ -7737,7 +7737,7 @@ mailing-list.
 @findex splay_access/5
 @snindex splay_access/5
 @cnindex splay_access/5
-If item @var{Key} is in tree @var{Tree}, return its @value{Val} and
+If item @var{Key} is in tree @var{Tree}, return its @var{Val} and
 unify @var{Return} with @code{true}. Otherwise unify @var{Return} with
 @code{null}. The variable @var{NewTree} unifies with the new tree.
 
@@ -12124,13 +12124,13 @@ Logtalk documentation is included in the Logtalk directory. For the
 latest news, please see the URL @url{http://www.logtalk.org/}.
 
 @node Threads, Parallelism, Logtalk, Extensions
-@chapter Parallelism
+@chapter Threads
 
 YAP implements a SWI-Prolog compatible multithreading
 library. Like in SWI-Prolog, Prolog threads have their own stacks and
-only share the Prolog \emph{heap}: predicates, records, flags and other
+only share the Prolog @emph{heap}: predicates, records, flags and other
 global non-backtrackable data.  The package is based on the POSIX thread
-standard \cite{Butenhof:1997:PPT} used on most popular systems except
+standard (Butenhof:1997:PPT) used on most popular systems except
 for MS-Windows.
 
 @comment On Windows it uses the
@@ -12140,15 +12140,19 @@ for MS-Windows.
 
 @menu
 Subnodes of Threads
-* Creating and destroying Prolog threads::               
-* Monitoring threads::            
-* Thread communication::   
-* Thread synchronisation::                 
+* Creating and Destroying Prolog Threads::               
+* Monitoring Threads::            
+* Thread Communication::   
+* Thread Synchronisation::                 
 
+Subnodes of Thread Communication
+* Message Queues::
+* Signalling Threads::            
+* Threads and Dynamic Predicates::   
 @end menu
 
-@node Creating and destroying Prolog threads, Monitoring Threads, ,Threads
-@section Creating and destroying Prolog threads
+@node Creating and Destroying Prolog Threads, Monitoring Threads, ,Threads
+@section Creating and Destroying Prolog Threads
 
 @table @code
 
@@ -12166,12 +12170,12 @@ thread-identifier of the created thread is unified to @var{Id}.
     @item stack
 Set the limit in K-Bytes to which the Prolog stacks of
 this thread may grow.  If omited, the limit of the calling thread is
-used.  See also the \cmdlineoption{-s} commandline option.
+used.  See also the  commandline @code{-S} option.
 
     @item trail
 Set the limit in K-Bytes to which the trail stack of this thread may
 grow.  If omited, the limit of the calling thread is used. See also the
-\cmdlineoption{-t} commandline option.
+commandline option @code{-T}.
 
     @item alias
 Associate an alias-name with the thread.  This named may be used to
@@ -12188,7 +12192,7 @@ after a detached thread finishes or a normal thread has been joined.
 See also @code{thread_join/2} and @code{thread_detach/1}.
 @end table
 
-The @var{Goal} argument is \emph{copied} to the new Prolog engine.
+The @var{Goal} argument is @emph{copied} to the new Prolog engine.
 This implies further instantiation of this term in either thread does
 not have consequences for the other thread: Prolog threads do not share
 data from their stacks.
@@ -12228,8 +12232,8 @@ The goal has failed.
 exception.  See @code{print_message/2} to turn system exceptions into
 readable messages.
 
-    @item exited(@var{Term)
-The thread is terminated on thread_exit/1 using the argument @var{Term}.
+    @item exited(@var{Term})
+The thread is terminated on @code{thread_exit/1} using the argument @var{Term}.
 @end table
 
 
@@ -12237,7 +12241,7 @@ The thread is terminated on thread_exit/1 using the argument @var{Term}.
 @findex thread_detach/1
 @snindex thread_detach/1
 @cnindex thread_detach/1
-Switch thread into detached-state (see \code{detached} option at
+Switch thread into detached-state (see @code{detached} option at
 @code{thread_create/3} at runtime.  @var{Id} is the identifier of the thread
 placed in detached state.
 
@@ -12255,7 +12259,7 @@ inspected.
 @cnindex thread_exit/1
 Terminates the thread immediately, leaving @code{exited(@var{Term})} as
 result-state for @code{thread_join/2}.  If the thread has the attribute
-\term{detached}{true} it terminates, but its exit status cannot be
+@code{detached} @code{true} it terminates, but its exit status cannot be
 retrieved using @code{thread_join/2} making the value of @var{Term}
 irrelevant.  The Prolog stacks and C-thread are reclaimed.
 
@@ -12284,8 +12288,8 @@ and succeeds silently.
 @end table
 
 
-@node Monitoring threads, Thread Communication,Creating and destroying Prolog threads,Threads
-@section Monitoring threads
+@node Monitoring Threads, Thread Communication,Creating and Destroying Prolog Threads,Threads
+@section Monitoring Threads
 
 Normal multi-threaded applications should not need these the predicates
 from this section because almost any usage of these predicates is
@@ -12302,7 +12306,6 @@ These predicates are provided for diagnosis and monitoring tasks.
 @findex current_thread/2
 @snindex current_thread/2
 @cnindex current_thread/2
-    \predicate{current_thread}{2}{?Id, ?Status}
 Enumerates identifiers and status of all currently known threads.
 Calling current_thread/2 does not influence any thread.  See also
 @code{thread_join/2}.  For threads that have an alias-name, this name is
@@ -12343,7 +12346,6 @@ stacks and CPU time yield different values for each thread.
 @findex mutex_statistics/0
 @snindex mutex_statistics/0
 @cnindex mutex_statistics/0
-    \predicate{mutex_statistics}{0}{}
 Print usage statistics on internal mutexes and mutexes associated
 with dynamic predicates.  For each mutex two numbers are printed:
 the number of times the mutex was acquired and the number of
@@ -12355,103 +12357,121 @@ close to zero on single-CPU hardware.
 @end table
 
 
-@node Thread Communication, ,Monitoring threads, Threads
+@node Thread Communication, Thread Synchronisation, Monitoring Threads, Threads
 @section Thread communication
 
-\subsection{Message queues}			\label{sec:msgqueue}
+@menu
+Subnodes of Thread Communication
+* Message Queues::
+* Signalling Threads::            
+* Threads and Dynamic Predicates::   
+@end menu
+
+@node Message Queues, Signalling Threads, ,Thread Communication
+@subsection Message Queues
 
 Prolog threads can exchange data using dynamic predicates, database
 records, and other globally shared data. These provide no suitable means
 to wait for data or a condition as they can only be checked in an
-expensive polling loop. \jargon{Message queues} provide a means for
+expensive polling loop. @emph{Message queues} provide a means for
 threads to wait for data or conditions without using the CPU.
 
 Each thread has a message-queue attached to it that is identified
 by the thread. Additional queues are created using
-message_queue_create/2.
+@code{message_queue_create/2}.
 
 @table @code
-    \predicate{thread_send_message}{2}{+QueueOrThreadId, +Term}
+@item thread_send_message(+@var{QueueOrThreadId}, +@var{Term})
+@findex thread_send_message/2
+@snindex thread_send_message/2
+@cnindex thread_send_message/2
 Place @var{Term} in the given queue or default queue of the indicated
 thread (which can even be the message queue of itself (see
-thread_self/1). Any term can be placed in a message queue, but note that
+@code{thread_self/1}). Any term can be placed in a message queue, but note that
 the term is copied to the receiving thread and variable-bindings are
 thus lost. This call returns immediately.
 
 If more than one thread is waiting for messages on the given queue and
 at least one of these is waiting with a partially instantiated
-@var{Term}, the waiting threads are \emph{all} sent a wakeup signal,
+@var{Term}, the waiting threads are @emph{all} sent a wakeup signal,
 starting a rush for the available messages in the queue.  This behaviour
 can seriously harm performance with many threads waiting on the same
 queue as all-but-the-winner perform a useless scan of the queue. If
 there is only one waiting thread or all waiting threads wait with an
 unbound variable an arbitrary thread is restarted to scan the queue.%
-	\footnote{See the documentation for the POSIX thread functions
-		  pthread_cond_signal() v.s.\ pthread_cond_broadcastt()
-		  for background information.}
+@comment	\footnote{See the documentation for the POSIX thread functions
+@comment		  pthread_cond_signal() v.s.\ pthread_cond_broadcastt()
+@comment		  for background information.}
 
-    \predicate{thread_get_message}{1}{?Term}
+@item thread_get_message(?@var{Term})
+@findex thread_get_message/1
+@snindex thread_get_message/1
+@cnindex thread_get_message/1
 Examines the thread message-queue and if necessary blocks execution
 until a term that unifies to @var{Term} arrives in the queue.  After
 a term from the queue has been unified unified to @var{Term}, the
 term is deleted from the queue and this predicate returns.
 
 Please note that not-unifying messages remain in the queue.  After
-the following has been executed, thread 1 has the term \term{b}{gnu}
+the following has been executed, thread 1 has the term @code{gnu}
 in its queue and continues execution using @var{A} is @code{gnat}.
 
-\begin{code}
+@example
    <thread 1>
    thread_get_message(a(A)),
 
    <thread 2>
    thread_send_message(b(gnu)),
    thread_send_message(a(gnat)),
-\end{code}
+@end example
 
-See also thread_peek_message/1.
+See also @code{thread_peek_message/1}.
 
-    \predicate{thread_peek_message}{1}{?Term}
+@item thread_peek_message(?@var{Term})
+@findex thread_peek_message/1
+@snindex thread_peek_message/1
+@cnindex thread_peek_message/1
 Examines the thread message-queue and compares the queued terms
 with @var{Term} until one unifies or the end of the queue has been
 reached.  In the first case the call succeeds (possibly instantiating
 @var{Term}.  If no term from the queue unifies this call fails.
 
-    \predicate{message_queue_create}{1}{?Queue}
+@item thread_message_queue_create(?@var{Queue})
+@findex thread_message_queue_create/1
+@snindex thread_message_queue_create/1
+@cnindex thread_message_queue_create/1
 If @var{Queue} is an atom, create a named queue.  To avoid ambiguity
-of thread_send_message/2, the name of a queue may not be in use as a
-thread-name.  If @var{Queue} is unbound an anonymous queue is created
-and @var{Queue} is unified to its identifier.
+on @code{thread_send_message/2}, the name of a queue may not be in use
+as a thread-name.  If @var{Queue} is unbound an anonymous queue is
+created and @var{Queue} is unified to its identifier.
 
-    \predicate{message_queue_destroy}{1}{+Queue}
+@item thread_message_queue_destroy(+@var{Queue})
+@findex thread_message_queue_destroy/1
+@snindex thread_message_queue_destroy/1
+@cnindex thread_message_queue_destroy/1
 Destroy a message queue created with message_queue_create/1.  It is
-\emph{not} allows to destroy the queue of a thread.  Neither is it
+@emph{not} allows to destroy the queue of a thread.  Neither is it
 allowed to destroy a queue other threads are waiting for or, for
 anynymous message queues, may try to wait for later.%
-	\bug{None of these constraints are properly enforced by the
-	     system in the current implementation.  It is therefore
-	     advised not to delete queues unless you are absolutely
-	     sure it is safe.}
 
-    \predicate{thread_get_message}{2}{+Queue, ?Term}
-As thread_get_message/1, operating on a given queue. It is allowed (but
-not advised) to get messages from the queue of other threads.
-
-    \predicate{thread_get_message}{2}{+Queue, ?Term}
+@item thread_get_message(+@var{Queue}, +@var{Term})
+@findex thread_get_message/2
+@snindex thread_get_message/2
+@cnindex thread_get_message/2
 As thread_get_message/1, operating on a given queue. It is allowed to
 peek into another thread's message queue, an operation that can be used
 to check whether a thread has swallowed a message sent to it.
 @end table
 
 
-Explicit message queues are designed with the \jargon{worker-pool} model
+Explicit message queues are designed with the @emph{worker-pool} model
 in mind, where multiple threads wait on a single queue and pick up the
 first goal to execute.  Below is a simple implementation where the
 workers execute arbitrary Prolog goals.  Note that this example provides
 no means to tell when all work is done. This must be realised using
 additional synchronisation.
 
-\begin{code}
+@example
 %	create_workers(+Id, +N)
 %	
 %	Create a pool with given Id and number of workers.
@@ -12476,26 +12496,29 @@ do_work(Id) :-
 
 work(Id, Goal) :-
 	thread_send_message(Id, Goal).
-\end{code}
+@end example
 
-
-\subsection{Signalling threads}
+@node Signalling Threads, Threads and Dynamic Predicates,Message Queues, Thread Communication
+@subsection Signalling Threads
 
 These predicates provide a mechanism to make another thread execute some
-goal as an \jargon{interrupt}.  Signalling threads is safe as these
+goal as an @emph{interrupt}.  Signalling threads is safe as these
 interrupts are only checked at safe points in the virtual machine.
 Nevertheless, signalling in multi-threaded environments should be
-handled with care as the receiving thread may hold a \jargon{mutex}
+handled with care as the receiving thread may hold a @emph{mutex}
 (see with_mutex).  Signalling probably only makes sense to start
-debugging threads and to cancel no-longer-needed threads with throw/1,
+debugging threads and to cancel no-longer-needed threads with @code{throw/1},
 where the receiving thread should be designed carefully do handle
 exceptions at any point.
 
 @table @code
-    \predicate{thread_signal}{2}{+ThreadId, :Goal}
+@item thread_signal(+@var{ThreadId}, :@var{Goal})
+@findex thread_signal/2
+@snindex thread_signal/2
+@cnindex thread_signal/2
 Make thread @var{ThreadId} execute @var{Goal} at the first
 opportunity.  In the current implementation, this implies at the first
-pass through the \jargon{Call-port}. The predicate thread_signal/2
+pass through the @emph{Call-port}. The predicate @code{thread_signal/2}
 itself places @var{Goal} into the signalled-thread's signal queue
 and returns immediately.
 
@@ -12504,43 +12527,46 @@ multi-threading, mainly because the status of mutexes cannot be
 guaranteed easily.  At the call-port, the Prolog virtual machine
 holds no locks and therefore the asynchronous execution is safe.
 
-@var{Goal} can be any valid Prolog goal, including throw/1 to make
-the receiving thread generate an exception and trace/0 to start
+@var{Goal} can be any valid Prolog goal, including @code{throw/1} to make
+the receiving thread generate an exception and @code{trace/0} to start
 tracing the receiving thread.
 
-In the Windows version, the receiving thread immediately executes
-the signal if it reaches a Windows GetMessage() call, which generally
-happens of the thread is waiting for (user-)input.
+@comment In the Windows version, the receiving thread immediately executes
+@comment the signal if it reaches a Windows GetMessage() call, which generally
+@comment happens of the thread is waiting for (user-)input.
 @end table
 
+@node Threads and Dynamic Predicates, , Signalling Threads, Thread Communication
+@subsection Threads and Dynamic Predicates
 
-\subsection{Threads and dynamic predicates}	\label{sec:threadlocal}
-
-Besides queues (\secref{msgqueue}) threads can share and exchange
-data using dynamic predicates. The multi-threaded version knows about
-two types of dynamic predicates. By default, a predicate declared
-\jargon{dynamic} (see dynamic/1) is shared by all threads. Each thread
-may assert, retract and run the dynamic predicate. Synchronisation
-inside Prolog guarantees the consistency of the predicate. Updates are
-\jargon{logical}: visible clauses are not affected by assert/retract
+Besides queues threads can share and exchange data using dynamic
+predicates. The multi-threaded version knows about two types of
+dynamic predicates. By default, a predicate declared @emph{dynamic}
+(see @code{dynamic/1}) is shared by all threads. Each thread may
+assert, retract and run the dynamic predicate. Synchronisation inside
+Prolog guarantees the consistency of the predicate. Updates are
+@emph{logical}: visible clauses are not affected by assert/retract
 after a query started on the predicate. In many cases primitive from
-\secref{threadsync} should be used to ensure application invariants on
+thread synchronysation should be used to ensure application invariants on
 the predicate are maintained.
 
 Besides shared predicates, dynamic predicates can be declared with the
-thread_local/1 directive. Such predicates share their attributes, but
-the clause-list is different in each thread.
+@code{thread_local/1} directive. Such predicates share their
+attributes, but the clause-list is different in each thread.
 
 @table @code
-    \prefixop{thread_local}{+Functor/+Arity, \ldots}
-This directive is related to the dynamic/1 directive.  It tells the
-system that the predicate may be modified using assert/1, retract/1,
-etc.\ during execution of the program.  Unlike normal shared dynamic
+@item thread_local(@var{+Functor/Arity}) 
+@findex thread_local/1 (directive)
+@snindex thread_local/1 (directive)
+@cnindex thread_local/1 (directive)
+related to the dynamic/1 directive.  It tells the system that the
+predicate may be modified using @code{assert/1}, @code{retract/1},
+etc, during execution of the program.  Unlike normal shared dynamic
 data however each thread has its own clause-list for the predicate.
 As a thread starts, this clause list is empty.  If there are still
-clauses as the thread terminates these are automatically reclaimed
-by the system (see also volatile/1).  The thread_local property
-implies the properties dynamic and volatile.
+clauses as the thread terminates these are automatically reclaimed by
+the system.  The thread_local property implies
+the property dynamic.
 
 Thread-local dynamic predicates are intended for maintaining
 thread-specific state or intermediate results of a computation.
@@ -12550,34 +12576,31 @@ a file as in the example below as the clause is only visible from the
 thread that loaded the source-file.  All other threads start with an
 empty clause-list.
 
-\begin{code}
+@example
 :- thread_local
 	foo/1.
 
 foo(gnat).
-\end{code}
+@end example
 
-\textbf{DISCLAIMER} Whether or not this declaration is apropriate in
-the sense of the proper mechanism to reach the goal is still debated.
-If you have strong feeling in favour or against, please share them
-in the SWI-Prolog mailing list.
 @end table
 
 
-\section{Thread synchronisation}		\label{sec:threadsync}
+@node Thread Synchronisation, , Thread Communication, Threads
+@section Thread Synchronisation
 
 All internal Prolog operations are thread-safe. This implies two Prolog
 threads can operate on the same dynamic predicate without corrupting the
 consistency of the predicate. This section deals with user-level
-\jargon{mutexes} (called \jargon{monitors} in ADA or
-\jargon{critical-sections} by Microsoft).  A mutex is a
-{\bf MUT}ual {\bf EX}clusive device, which implies at most one thread
-can \jargon{hold} a mutex.
+@emph{mutexes} (called @emph{monitors} in ADA or
+@emph{critical-sections} by Microsoft).  A mutex is a
+@emph{MUT}ual @emph{EX}clusive device, which implies at most one thread
+can @emph{hold} a mutex.
 
 Mutexes are used to realise related updates to the Prolog database.
 With `related', we refer to the situation where a `transaction' implies
 two or more changes to the Prolog database.  For example, we have a
-predicate address/2, representing the address of a person and we want
+predicate @code{address/2}, representing the address of a person and we want
 to change the address by retracting the old and asserting the new
 address.  Between these two operations the database is invalid: this
 person has either no address or two addresses, depending on the
@@ -12585,7 +12608,7 @@ assert/retract order.
 
 Here is how to realise a correct update:
 
-\begin{code}
+@example
 :- initialization
 	mutex_create(addressbook).
 
@@ -12594,63 +12617,86 @@ change_address(Id, Address) :-
 	retractall(address(Id, _)),
 	asserta(address(Id, Address)),
 	mutex_unlock(addressbook).
-\end{code}
+@end example
 
 
 @table @code
-    \predicate{mutex_create}{1}{?MutexId}
-Create a mutex.  if @var{MutexId} is an atom, a \jargon{named} mutex is
+@item mutex_create(?@var{MutexId})
+@findex mutex_create/1
+@snindex mutex_create/1
+@cnindex mutex_create/1
+Create a mutex.  if @var{MutexId} is an atom, a @emph{named} mutex is
 created.  If it is a variable, an anonymous mutex reference is returned.
 There is no limit to the number of mutexes that can be created.
 
-    \predicate{mutex_destroy}{1}{+MutexId}
+@item mutex_destroy(+@var{MutexId})
+@findex mutex_destroy/1
+@snindex mutex_destroy/1
+@cnindex mutex_destroy/1
 Destroy a mutex.  After this call, @var{MutexId} becomes invalid and
-further references yield an \except{existence_error} exception.
+further references yield an @code{existence_error} exception.
 
-    \predicate{with_mutex}{2}{+MutexId, :Goal}
+@item with_mutex(+@var{MutexId}, :@var{Goal})
+@findex with_mutex/2
+@snindex with_mutex/2
+@cnindex with_mutex/2
 Execute @var{Goal} while holding @var{MutexId}.  If @var{Goal} leaves
-choicepointes, these are destroyed (as in once/1).  The mutex is unlocked
+choicepoints, these are destroyed (as in @code{once/1}).  The mutex is unlocked
 regardless of whether @var{Goal} succeeds, fails or raises an exception.
 An exception thrown by @var{Goal} is re-thrown after the mutex has been
-successfully unlocked.  See also mutex_create/2 and call_cleanup/3.
+successfully unlocked.  See also @code{mutex_create/2}.
 
 Although described in the thread-section, this predicate is also
 available in the single-threaded version, where it behaves simply as
 once/1.
 
-    \predicate{mutex_lock}{1}{+MutexId}
-Lock the mutex.  Prolog mutexes are \jargon{recursive} mutexes: they
+@item mutex_lock(+@var{MutexId})
+@findex mutex_lock/1
+@snindex mutex_lock/1
+@cnindex mutex_lock/1
+Lock the mutex.  Prolog mutexes are @emph{recursive} mutexes: they
 can be locked multiple times by the same thread.  Only after unlocking
 it as many times as it is locked, the mutex becomes available for
 locking by other threads. If another thread has locked the mutex the
 calling thread is suspended until to mutex is unlocked.
 
 If @var{MutexId} is an atom, and there is no current mutex with that
-name, the mutex is created automatically using mutex_create/1.  This
+name, the mutex is created automatically using @code{mutex_create/1}.  This
 implies named mutexes need not be declared explicitly.
 
 Please note that locking and unlocking mutexes should be paired
 carefully. Especially make sure to unlock mutexes even if the protected
 code fails or raises an exception. For most common cases use
-with_mutex/2, wich provides a safer way for handling prolog-level
-mutexes.  The predicate call_cleanup/[2-3] is another way to guarantee
-that the mutex is unlocked while retaining non-determinism.
+@code{with_mutex/2}, wich provides a safer way for handling prolog-level
+mutexes.
 
-    \predicate{mutex_trylock}{1}{+MutexId}
+@item mutex_trylock(+@var{MutexId})
+@findex mutex_trylock/1
+@snindex mutex_trylock/1
+@cnindex mutex_trylock/1
 As mutex_lock/1, but if the mutex is held by another thread, this
 predicates fails immediately.
 
-    \predicate{mutex_unlock}{1}{+MutexId}
+@item mutex_unlock(+@var{MutexId})
+@findex mutex_unlock/1
+@snindex mutex_unlock/1
+@cnindex mutex_unlock/1
 Unlock the mutex. This can only be called if the mutex is held by the
-calling thread. If this is not the case, a \except{permission_error}
+calling thread. If this is not the case, a @code{permission_error}
 exception is raised.
 
-    \predicate{mutex_unlock_all}{0}{}
+@item mutex_unlock_all
+@findex mutex_unlock_all/0
+@snindex mutex_unlock_all/0
+@cnindex mutex_unlock_all/0
 Unlock all mutexes held by the current thread.  This call is especially
-useful to handle thread-termination using abort/0 or exceptions.  See
-also thread_signal/2.
+useful to handle thread-termination using @code{abort/0} or exceptions.  See
+also @code{thread_signal/2}.
 
-    \predicate{current_mutex}{3}{?MutexId, ?ThreadId, ?Count}
+@item current_mutex(?@var{MutexId}, ?@var{ThreadId}, ?@var{Count})
+@findex current_mutex/3
+@snindex current_mutex/3
+@cnindex current_mutex/3
 Enumerates all existing mutexes.  If the mutex is held by some thread,
 @var{ThreadId} is unified with the identifier of te holding thread and
 @var{Count} with the recursive count of the mutex. Otherwise,
@@ -12658,8 +12704,7 @@ Enumerates all existing mutexes.  If the mutex is held by some thread,
 @end table
 
 
-
-@node Parallelism, Tabling, Logtalk, Extensions
+@node Parallelism, Tabling, Threads, Extensions
 @chapter Parallelism
 
 @cindex parallelism
