@@ -1659,9 +1659,9 @@ p_hidden(void)
     return (FALSE);
   READ_LOCK(INVISIBLECHAIN.AERWLock);
   chain = RepAtom(INVISIBLECHAIN.Entry);
-  READ_LOCK(INVISIBLECHAIN.AERWLock);
   while (!EndOfPAEntr(chain) && AbsAtom(chain) != at)
     chain = RepAtom(chain->NextOfAE);
+  READ_UNLOCK(INVISIBLECHAIN.AERWLock);
   if (EndOfPAEntr(chain))
     return (FALSE);
   return (TRUE);

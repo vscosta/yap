@@ -1367,7 +1367,7 @@ p_find_dynamic(void)
   {
     Clause *cl = ClauseCodeToClause(q);
     LOCK(cl->ClLock);
-    TRAIL_CLREF(cl->ClFlags);
+    TRAIL_CLREF(cl);
     INC_CLREF_COUNT(cl);
     UNLOCK(cl->ClLock);
   }

@@ -37,6 +37,8 @@ unsigned int      gc_calls = 0;	/* number of times GC has been called */
 
 static Int      tot_gc_time = 0; /* total time spent in GC */
 
+static Int      tot_gc_recovered = 0; /* number of heap objects in all garbage collections */
+
 /* in a single gc */
 UInt     total_marked;	/* number of heap objects marked */
 
@@ -76,8 +78,6 @@ STATIC_PROTO(void sweep_choicepoints, (choiceptr));
 STATIC_PROTO(choiceptr update_B_H, (choiceptr, CELL *, CELL *, CELL *));
 STATIC_PROTO(void compact_heap, (void));
 STATIC_PROTO(void update_relocation_chain, (CELL *, CELL *));
-
-static Int      tot_gc_recovered = 0; /* number of heap objects in all garbage collections */
 
 #include "heapgc.h"
 

@@ -3034,7 +3034,7 @@ find_next_clause(DBRef ref0)
       Clause *cl = ClauseCodeToClause(newp);
 
       LOCK(cl->ClLock);
-      TRAIL_CLREF(cl));
+      TRAIL_CLREF(cl);
       INC_DBREF_COUNT(cl);
       UNLOCK(cl->ClLock);
     }

@@ -86,7 +86,7 @@ consult(Fs) :-
 	'$consult'(Fs).
 
 reconsult(Fs) :-
-	'$has_yap_or',
+	'$has_yap_or', fail,
 	throw(error(context_error(reconsult(Fs),clause),query)).
 reconsult(Fs) :-
 	'$reconsult'(Fs).

@@ -754,7 +754,6 @@ p_create_static_array(void)
 
     WRITE_LOCK(ae->ARWLock);
     pp = RepStaticArrayProp(ae->PropsOfAE);
-    WRITE_LOCK(pp->ArRWLock);
     while (!EndOfPAEntr(pp) && pp->KindOfPE != ArrayProperty)
       pp = RepStaticArrayProp(pp->NextOfPE);
     if (EndOfPAEntr(pp) || pp->ValueOfVE.ints == NULL) {

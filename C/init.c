@@ -722,7 +722,7 @@ InitFlags(void)
   yap_flags[SOURCE_MODE_FLAG] = FALSE;
   yap_flags[CHARACTER_ESCAPE_FLAG] = ISO_CHARACTER_ESCAPES;
   yap_flags[WRITE_QUOTED_STRING_FLAG] = FALSE;
-#if defined(YAPOR) || defined(THREADS)
+#if (defined(YAPOR) || defined(THREADS)) && VSC_FOR_YAPOR
   yap_flags[ALLOW_ASSERTING_STATIC_FLAG] = FALSE;
 #else
   yap_flags[ALLOW_ASSERTING_STATIC_FLAG] = TRUE;
@@ -809,7 +809,7 @@ InitCodes(void)
   heap_regs->clausecode.clause = NIL;
   heap_regs->clausecode.func = NIL;
 
-  heap_regs->invisiblechain.Entry = 0;
+  heap_regs->invisiblechain.Entry = NIL;
   INIT_RWLOCK(heap_regs->invisiblechain.AERWLock);
   
   heap_regs->consultlow = (consult_obj *)AllocCodeSpace(sizeof(consult_obj)*InitialConsultCapacity);

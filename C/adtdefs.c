@@ -274,7 +274,6 @@ UnlockedFunctorGetPredProp(Functor f, Term cur_mod)
   while (p0 && (/* p->KindOfPE != PEProp || only preds in here */
 		(p->ModuleOfPred != cur_mod  && p->ModuleOfPred)))
     p = RepPredProp(p0 = p->NextOfPE);
-  READ_UNLOCK(fe->FRWLock);
   return (p0);
 }
 
@@ -322,8 +321,8 @@ GetPredProp(Atom ap, unsigned int arity)
     return(GetPredPropByAtom(ap, *CurrentModulePtr));
   WRITE_LOCK(ae->ARWLock);
   f = InlinedUnlockedMkFunctor(ae, arity);
-  WRITE_UNLOCK(ae->FRWLock);
-  READ_LOCK(f->ARWLock);
+  WRITE_UNLOCK(ae->ARWLock);
+  READ_LOCK(f->FRWLock);
   p0 = UnlockedFunctorGetPredProp(f, *CurrentModulePtr);
   READ_UNLOCK(f->FRWLock);
   return (p0);
@@ -335,7 +334,7 @@ GetPredPropByFunc(Functor f, Term t)
 {
   Prop p0;
 
-  READ_LOCK(f->ARWLock);
+  READ_LOCK(f->FRWLock);
   p0 = UnlockedFunctorGetPredProp(f, t);
   READ_UNLOCK(f->FRWLock);
   return (p0);
@@ -353,7 +352,7 @@ GetPredPropHavingLock(Atom ap, unsigned int arity)
     GetPredPropByAtomHavingLock(ae, *CurrentModulePtr);
   }
   f = InlinedUnlockedMkFunctor(ae, arity);
-  READ_LOCK(f->ARWLock);
+  READ_LOCK(f->FRWLock);
   p0 = UnlockedFunctorGetPredProp(f, *CurrentModulePtr);
   READ_UNLOCK(f->FRWLock);
   return (p0);

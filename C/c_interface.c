@@ -677,7 +677,7 @@ YapInit(yap_init_args *yap_init)
     InitYaamRegs();
 #endif
     /* slaves, waiting for work */
-    CurrentModule = 1;
+    *CurrentModulePtr = MkIntTerm(1);
     P = GETWORK_FIRST_TIME;
     exec_absmi(FALSE);
     abort_optyap("abstract machine unexpected exit");
