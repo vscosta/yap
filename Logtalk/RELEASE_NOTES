@@ -1,6 +1,6 @@
 =================================================================
 Logtalk - Object oriented extension to Prolog
-Release 2.20.0
+Release 2.20.1
 
 Copyright (c) 1998-2004 Paulo Moura.  All Rights Reserved.
 =================================================================
@@ -8,6 +8,23 @@ Copyright (c) 1998-2004 Paulo Moura.  All Rights Reserved.
 
 RELEASE NOTES
 =============
+
+
+2.20.1 - August 19, 2004
+
+	Added Windows JScript scripts for easy integration of Logtalk with CIAO and 
+	GNU Prolog.
+
+	Added encoding attribute (set to UTF-8) to the xsl:output tag in the 
+	lgtxml.xsl, lgthtml.xsl, and lgtxhtml.xsl files.
+
+	Replaced the Windows JScript scripts lgt2pdf.js and lgt2html.js by their 
+	final versions (the wrong ones shipped with Logtalk version 2.20.0).
+
+	Updated the "errors" example to illustrate possible conflict errors when 
+	using the uses/2 directive.
+
+	Updated the RPM logtalk.spec file to use the .tgz archive extension.
 
 
 2.20.0 - August 16, 2004

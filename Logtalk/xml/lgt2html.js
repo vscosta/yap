@@ -1,15 +1,11 @@
 // =================================================================
 // Logtalk - Object oriented extension to Prolog
-// Release 2.19.2
+// Release 2.20.1
 //
 // Copyright (c) 1998-2004 Paulo Moura.  All Rights Reserved.
 // =================================================================
 
 var WshShell = new ActiveXObject("WScript.Shell");
-
-var html_xslt = logtalk_home + "\\xml\\lgthtml.xsl";
-var xhtml_xslt = logtalk_home + "\\xml\\lgtxhtml.xsl";
-var xslt;
 
 var format = "xhtml";
 // var format = "html";
@@ -48,6 +44,10 @@ else {
 
 logtalk_home = logtalk_home.replace(/\\/g, "\\\\");
 
+var html_xslt = logtalk_home + "\\xml\\lgthtml.xsl";
+var xhtml_xslt = logtalk_home + "\\xml\\lgtxhtml.xsl";
+var xslt;
+
 var f_arg = "";
 var d_arg = "";
 var i_arg = "";
@@ -76,9 +76,9 @@ if (f_arg != "" && f_arg != "xhtml" && f_arg != "html") {
 } else if (f_arg != "")
 	format = f_arg;
 
-var fso = new ActiveXObject("Scripting.FileSystemObject");
+var FSObject = new ActiveXObject("Scripting.FileSystemObject");
 
-if (d_arg != "" && !fso.FolderExists(d_arg)) {
+if (d_arg != "" && !FSObject.FolderExists(d_arg)) {
 	WScript.Echo("Error! directory does not exists: " + d_arg);
 	WScript.Echo("");
 	usage_help();
@@ -103,20 +103,20 @@ if (format == "xhtml")
 else
 	xslt = html_xslt;
 
-fso.CopyFile(logtalk_home + "\\xml\\logtalk.dtd", WshShell.CurrentDirectory + "\\logtalk.dtd");
-fso.CopyFile(logtalk_home + "\\xml\\logtalk.xsd", WshShell.CurrentDirectory + "\\logtalk.xsd");
-fso.CopyFile(logtalk_home + "\\xml\\logtalk.css", directory + "\\logtalk.css");
+FSObject.CopyFile(logtalk_home + "\\xml\\logtalk.dtd", WshShell.CurrentDirectory + "\\logtalk.dtd");
+FSObject.CopyFile(logtalk_home + "\\xml\\logtalk.xsd", WshShell.CurrentDirectory + "\\logtalk.xsd");
+FSObject.CopyFile(logtalk_home + "\\xml\\logtalk.css", directory + "\\logtalk.css");
 
 WScript.Echo("");
 WScript.Echo("converting XML files...");
 
-var files = new Enumerator(fso.GetFolder(WshShell.CurrentDirectory).Files);
+var files = new Enumerator(FSObject.GetFolder(WshShell.CurrentDirectory).Files);
 
 for (files.moveFirst(); !files.atEnd(); files.moveNext()) {
 	var file = files.item().name;
-	if (fso.GetExtensionName(file) == "xml") {
+	if (FSObject.GetExtensionName(file) == "xml") {
 		WScript.Echo("  converting " + file);
-		var html_file = directory + "\\" + fso.GetBaseName(file) + ".html";
+		var html_file = directory + "\\" + FSObject.GetBaseName(file) + ".html";
 		switch (processor) {
 			case "msxsl" :
 				WshShell.Run("msxsl -o " + html_file + " " + file + " " + xslt, true);
@@ -144,8 +144,8 @@ create_index_file();
 WScript.Echo("index file generated");
 WScript.Echo("");
 
-fso.DeleteFile("logtalk.dtd");
-fso.DeleteFile("logtalk.xsd");
+FSObject.DeleteFile("logtalk.dtd");
+FSObject.DeleteFile("logtalk.xsd");
 
 WScript.Quit(0);
 
@@ -170,7 +170,7 @@ function usage_help() {
 
 function create_index_file() {
 
-	var f = fso.CreateTextFile(index_file, true);
+	var f = FSObject.CreateTextFile(index_file, true);
 
 	switch (format) {
 		case "xhtml" :
@@ -194,14 +194,14 @@ function create_index_file() {
 	f.WriteLine("<h1>" + index_title + "</h1>");
 	f.WriteLine("<ul>");
 
-	var files = new Enumerator(fso.GetFolder(WshShell.CurrentDirectory).Files);
+	var files = new Enumerator(FSObject.GetFolder(WshShell.CurrentDirectory).Files);
 
 	for (files.moveFirst(); !files.atEnd(); files.moveNext()) {
 		var file = files.item().name;
-		if (fso.GetExtensionName(file) == "xml") {
-			var html_file = fso.GetBaseName(file) + ".html";
+		if (FSObject.GetExtensionName(file) == "xml") {
+			var html_file = FSObject.GetBaseName(file) + ".html";
 			WScript.Echo("  indexing " + html_file);
-			f.WriteLine("    <li><a href=\"" + html_file + "\">" + fso.GetBaseName(file) + "</a></li>");
+			f.WriteLine("    <li><a href=\"" + html_file + "\">" + FSObject.GetBaseName(file) + "</a></li>");
 		}
 	}
 

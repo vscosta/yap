@@ -2,7 +2,7 @@
 
 ## =================================================================
 ## Logtalk - Object oriented extension to Prolog
-## Release 2.19.2
+## Release 2.20.1
 ##
 ## Copyright (c) 1998-2004 Paulo Moura.  All Rights Reserved.
 ## =================================================================

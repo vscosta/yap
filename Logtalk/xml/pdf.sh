@@ -1,5 +1,12 @@
 #!/bin/sh
 
+## =================================================================
+## Logtalk - Object oriented extension to Prolog
+## Release 2.20.1
+##
+## Copyright (c) 1998-2004 Paulo Moura.  All Rights Reserved.
+## =================================================================
+
 FOP_PATH="/Applications/XML/fop-0.20.5"
 # FOP_PATH="/usr/local/fop-0.20.5"
 

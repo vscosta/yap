@@ -1,6 +1,6 @@
 =================================================================
 Logtalk - Object oriented extension to Prolog
-Release 2.20.0
+Release 2.20.1
 
 Copyright (c) 1998-2004 Paulo Moura.  All Rights Reserved.
 =================================================================
@@ -44,6 +44,10 @@ The following scripts must be run by a user with administration privileges:
 make_ciaolgt.sh
 	makes a shell script named ciaolgt for running Logtalk with CIAO Prolog
 	(the first run of the ciaolgt script must be made as root or using sudo)
+make_ciaolgt.js
+	makes a Windows shortcut named "Logtalk - CIAO" for running Logtalk with 
+	CIAO 1.10 (the first call to the shortcut must be made a user with 
+	administrative rights)
 
 make_eclipselgt.sh
 	makes a shell script named eclipselgt for running Logtalk with ECLiPSe
@@ -55,6 +59,14 @@ make_eclipselgt.js
 
 make_gplgt.sh
 	makes a shell script named gplgt for running Logtalk with GNU Prolog
+make_gplgt.js
+	makes a Windows shortcut named "Logtalk - GNU Prolog" for running Logtalk 
+	with GNU Prolog
+make_gplgt_exe.js
+	makes a new GNU Prolog top level named gplgt.exe and creates a Windows 
+	shortcut named "Logtalk - GNU Prolog" for running it (needs the developer 
+	tools nasm.exe and cp.exe installed; both the developer tools and the GNU 
+	Prolog installation bin directory must be in the system path)
 
 make_qplgt.sh
 	makes a shell script named qplgt for running Logtalk with Qu-Prolog 
@@ -89,7 +101,8 @@ Logtalk installation directory) to be defined. In addition, the shell scripts
 accept as an optional argument a prefix for the location of a link to the 
 scripts (default is /usr/local, creating the links in /usr/local/bin). Please 
 note that the environment variable LOGTALKHOME must be defined in order to run 
-the *lgt scripts that are created by the shell scripts above.
+the *lgt scripts that are created by the shell scripts above or the Windows 
+shortcuts (see the INSTALL file for details on setting the variable).
 
 Note: when Logtalk is manually installed from sources, the shell scripts might 
 not have the executable permission bit set. In that case it will be necessary 

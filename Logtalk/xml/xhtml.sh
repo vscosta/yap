@@ -1,5 +1,12 @@
 #!/bin/sh
 
+## =================================================================
+## Logtalk - Object oriented extension to Prolog
+## Release 2.20.1
+##
+## Copyright (c) 1998-2004 Paulo Moura.  All Rights Reserved.
+## =================================================================
+
 XT_PATH="/Applications/XML/XT"
 # XT_PATH="/usr/local/XT"
 

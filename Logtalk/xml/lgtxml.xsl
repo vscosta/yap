@@ -8,6 +8,7 @@
 <xsl:output
 	method="html"
     indent="yes"
+    encoding="utf-8"
 	doctype-public="-//W3C//DTD HTML 4.01//EN"
 	doctype-system="http://www.w3.org/TR/html4/strict.dtd"/>
 
@@ -16,7 +17,7 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %
 %  Logtalk - Object oriented extension to Prolog
-%  Release 2.20.0
+%  Release 2.20.1
 %
 %  Copyright (c) 1998-2004 Paulo Moura.  All Rights Reserved.
 %

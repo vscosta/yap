@@ -1,6 +1,6 @@
 =================================================================
 Logtalk - Object oriented extension to Prolog
-Release 2.20.0
+Release 2.20.1
 
 Copyright (c) 1998-2004 Paulo Moura.  All Rights Reserved.
 =================================================================
@@ -49,12 +49,12 @@ execution path.
 
 If you use a csh shell, add the following line to your ~/.cshrc file:
 
-	setenv LOGTALKHOME /your/installation/directory/lgt2200
+	setenv LOGTALKHOME /your/installation/directory/lgt2201
 	setenv PATH $PATH:$LOGTALKHOME/xml:$LOGTALKHOME/misc
 
 If you use a bash shell, add the following lines to your ~/.profile file:
 
-	LOGTALKHOME=/your/installation/directory/lgt2200
+	LOGTALKHOME=/your/installation/directory/lgt2201
 	export LOGTALKHOME
 	PATH=$PATH:$LOGTALKHOME/xml:$LOGTALKHOME/misc
 	export PATH

@@ -47,4 +47,16 @@
 			[ccredef],
 			[unknown(warning), misspelt(warning), singletons(warning), plredef(warning), lgtredef(warning), report(on)]),
 		_,
+		true),
+	catch(
+		logtalk_load(
+			[usesrepeated],
+			[unknown(warning), misspelt(warning), singletons(warning), plredef(warning), lgtredef(warning), report(on)]),
+		_,
+		true),
+	catch(
+		logtalk_load(
+			[usesconflict],
+			[unknown(warning), misspelt(warning), singletons(warning), plredef(warning), lgtredef(warning), report(on)]),
+		_,
 		true))).
