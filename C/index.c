@@ -11,8 +11,15 @@
 * File:		index.c							 *
 * comments:	Indexing a Prolog predicate				 *
 *									 *
-* Last rev:     $Date: 2004-06-29 19:04:42 $,$Author: vsc $						 *
+* Last rev:     $Date: 2004-07-23 19:01:14 $,$Author: vsc $						 *
 * $Log: not supported by cvs2svn $
+* Revision 1.92  2004/06/29 19:04:42  vsc
+* fix multithreaded version
+* include new version of Ricardo's profiler
+* new predicat atomic_concat
+* allow multithreaded-debugging
+* small fixes
+*
 * Revision 1.91  2004/06/17 22:07:23  vsc
 * bad bug in indexing code.
 *
@@ -5263,6 +5270,9 @@ replace_lu_block(LogUpdIndex *blk, int flag, PredEntry *ap, yamop *code, int has
     nbegin->opc = begin->opc;
     nbegin->u.xl.x = begin->u.xl.x;
     nbegin->u.xl.l = begin->u.xl.l;
+    if (nbegin->u.xl.l->opc == Yap_opcode(_expand_clauses)) {
+      nbegin->u.xl.l->u.sp.s3++;
+    }
     begin = NEXTOP(begin, xl);
     nbegin = NEXTOP(nbegin, xl);
   }
