@@ -4140,6 +4140,7 @@ ExpandIndex(PredEntry *ap) {
     /* insert myself in the indexing code chain */ 
     nic->SiblingIndex = ic->ChildIndex;
     nic->u.ParentIndex = ic;
+    nic->ClFlags &= ~SwitchRootMask;
     ic->ChildIndex = nic;
     ic->ClRefCount++;
   } else {

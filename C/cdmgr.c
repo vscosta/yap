@@ -423,6 +423,13 @@ kill_first_log_iblock(LogUpdIndex *c, LogUpdIndex *cl, PredEntry *ap)
     Yap_FreeCodeSpace((CODEADDR)c);
   } else {
     c->ClFlags |= ErasedMask;
+    /* try to move up, so that we don't hold an index */
+    if (cl != NULL &&
+	cl->ClFlags & SwitchTableMask) {
+      c->u.ParentIndex = cl->u.ParentIndex;
+      cl->u.ParentIndex->ClRefCount++;
+      cl->ClRefCount--;
+    }
     c->ChildIndex = NULL;
   }
 }

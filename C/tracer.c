@@ -102,7 +102,7 @@ check_trail_consistency(void) {
 */
 
 
- static int vsc_xstop = FALSE;
+static int vsc_xstop = FALSE;
 
 void
 low_level_trace(yap_low_level_port port, PredEntry *pred, CELL *args)

@@ -2099,7 +2099,7 @@ do_pass(void)
     /* index code */
     if (log_update) {
       if (pass_no) {
-	cl_u->lui.ClFlags = LogUpdMask|IndexedPredFlag|IndexMask;
+	cl_u->lui.ClFlags = LogUpdMask|IndexedPredFlag|IndexMask|SwitchRootMask;
 	cl_u->lui.ChildIndex = NULL;
 	cl_u->lui.SiblingIndex = NULL;
 	cl_u->lui.u.pred = CurrentPred;
