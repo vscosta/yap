@@ -173,8 +173,7 @@ ENGINE_OBJECTS = \
 	exec.o grow.o heapgc.o index.o init.o  \
 	iopreds.o depth_bound.o mavar.o modules.o other.o   \
 	parser.o save.o scanner.o sort.o stdpreds.o sysbits.o tracer.o \
-	unify.o userpreds.o utilpreds.o write.o ypsocks.o ypstdio.o \
-	mpi.o mpe.o
+	unify.o userpreds.o utilpreds.o write.o ypsocks.o ypstdio.o @MPI_OBJS@
 
 C_INTERFACE_OBJECTS = \
 	load_foreign.o load_dl.o load_dld.o \
@@ -459,7 +458,7 @@ startup: yap $(PL_SOURCES)
 	echo "['$(srcdir)/pl/init.yap']. save_program(startup)." |  @CROSS_SIMULATOR@ ./yap -b $(srcdir)/pl/boot.yap
 
 yap: $(HEADERS) yap.o @YAPLIB@
-	$(MPI_CC) $(STANDARD_CFLAGS) $(LDFLAGS) -o yap yap.o @YAPLIB@ $(LIBS)
+	$(MPI_CC) $(STANDARD_CFLAGS) $(LDFLAGS) -o yap yap.o @YAPLIB@ $(LIBS) @MPI_LIBS@
 
 libYap.a: $(LIB_OBJECTS)
 	-rm -f libYap.a

@@ -287,18 +287,20 @@ then
 		[AC_DEFINE(HAVE_LIBMPI, 0)])
   if test "$ac_cv_lib_mpi_MPI_Init" = yes
   then
-	#LIBS="$LIBS -lpmpich"
-	YAPMPILIB=YapMPI.a
+	#YAPMPILIB=YapMPI.a
+	MPI_OBJS=mpi.o
   else
     AC_CHECK_LIB(mpich,MPI_Init,
 		[AC_DEFINE(HAVE_LIBMPICH, 1)],
 		[AC_DEFINE(HAVE_LIBMPICH, 0)])
     if test "$ac_cv_lib_mpi_MPI_Init" = yes
     then
-	#LIBS="$LIBS -lpmpich"
-	YAPMPILIB=YapMPI.a
+	#YAPMPILIB=YapMPI.a
+	MPI_OBJS=mpi.o
     else
-	YAPMPILIB=
+	#YAPMPILIB=
+	MPI_OBJS=
+	MPI_CC='$(CC)'
     fi
   fi
   CC=${OLD_CC}
@@ -308,11 +310,23 @@ if test "$yap_cv_mpe" != "no"
 then
   OLD_CC=${CC}
   CC=${MPI_CC}
-  AC_CHECK_LIB(mpe,MPE_Init_log)
+  AC_CHECK_LIB(mpe,MPE_Init_log,
+		[AC_DEFINE(HAVE_LIBMPE, 1)],
+		[AC_DEFINE(HAVE_LIBMPE, 0)])
+  if test "$ac_cv_lib_mpe_MPE_Init_log" = yes
+  then
+	MPI_LIBS="-lmpe"
+	MPI_OBJS="$MPI_OBJS mpe.o"
+  else
+	MPI_LIBS=
+	MPI_OBJS=
+  fi
   CC=${OLD_CC}
 fi
 
 AC_SUBST(YAPMPILIB)
+AC_SUBST(MPI_OBJS)
+AC_SUBST(MPI_LIBS)
 
 AC_PROG_CPP
 
