@@ -2580,7 +2580,7 @@ compaction_phase(tr_fr_ptr old_TR, CELL *current_env, yamop *curp, CELL *max)
     YP_fprintf(YP_stderr,"[GC] Oops on iptop-H (%d) vs %d\n", iptop-(CELL_PTR *)H, total_marked);
 #endif
   if (iptop < (CELL_PTR *)ASP && 10*total_marked < H-H0) {
-#ifdef DEBUG
+#ifdef INSTRUMENT_GC
     int effectiveness = (((H-H0)-total_marked)*100)/(H-H0);
     YP_fprintf(YP_stderr,"[GC] using pointers (%d)\n", effectiveness);
 #endif
