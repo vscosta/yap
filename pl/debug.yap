@@ -802,7 +802,7 @@ debugging :-
 		  nl(user_error)
 		  ;
 		  write(user_error,' ? '), get0(user_input,C),
-		  '$action'(C,P,L,G,NC),
+		  '$action'(C,P,L,G,Module,NC),
 		  '$skipeol'(C)
 		),
 		!.
@@ -847,10 +847,10 @@ debugging :-
 '$skipeol'(10) :- !.
 '$skipeol'(_) :- get0(user,C), '$skipeol'(C).
 
-'$action'(10,call,_,_,continue) :- !,		% newline 	creep
+'$action'(10,call,_,_,_,continue) :- !,		% newline 	creep
 	'$set_yap_flags'(10,1).
-'$action'(10,_,_,_,continue) :- !.		% newline 	creep
-'$action'(33,_,_,_,_) :- !,		% ! g		execute
+'$action'(10,_,_,_,_,continue) :- !.		% newline 	creep
+'$action'(33,_,_,_,_,_) :- !,		% ! g		execute
 	read(user,G),
 	% don't allow yourself to be caught by creep.
 	'$access_yap_flags'(10, CL),
@@ -858,63 +858,71 @@ debugging :-
 	( '$execute'(G) -> true ; true),
 	'$set_yap_flags'(10, CL),
 	!, fail.
-'$action'(60,_,_,_,_) :- !,		% <Depth
+'$action'(60,_,_,_,_,_) :- !,		% <Depth
 	'$new_deb_depth',
 	fail.
-'$action'(94,_,_,G,_) :- !,
-	'$print_deb_sterm'(G), fail.
-'$action'(97,_,_,_,_) :- !, abort.	% a		abort
-'$action'(98,_,_,_,_) :- !, break,	% b		break
+'$action'(94,_,_,G,M,_) :- !,
+	'$print_deb_sterm'(G,M), fail.
+'$action'(0'a,_,_,_,_,_) :- !, abort.	% a		abort
+'$action'(0'd,_,_,_,_,_) :- !, break,	% b		break
 	fail.
-'$action'(99,call,_,_,_) :- !,		% c		creep
+'$action'(0'c,call,_,_,_,_) :- !,		% c		creep
 	'$set_yap_flags'(10,1).
-'$action'(99,exit,_,_,continue) :- !.	% c		creep
-'$action'(99,fail,_,_,continue) :- !,	% c		creep
+'$action'(0'c,exit,_,_,_,continue) :- !.	% c		creep
+'$action'(0'c,fail,_,_,_,continue) :- !,	% c		creep
 	'$set_yap_flags'(10,1).
-'$action'(101,_,_,_,_) :- !,		% e		exit
+'$action'(0'e,_,_,_,_,_) :- !,		% e		exit
 	halt.
-'$action'(102,P,L,_,_) :- !,		% f		fail
+'$action'(0'f,P,L,_,_,_) :- !,		% f		fail
 	( \+ P = fail, !; '$ilgl'(102) ),
 	'$set_value'(spy_sp,fail),
 	'$set_value'(spy_sl,L).
-'$action'(104,_,_,_,_) :- !,		% h		help
+'$action'(0'h,_,_,_,_,_) :- !,		% h		help
 	'$action_help',
 	'$skipeol'(104), fail.
-'$action'(63,_,_,_,_) :- !,		% ?		help
+'$action'(0'?,_,_,_,_,_) :- !,		% ?		help
 	'$action_help',
 	'$skipeol'(104), fail.
-'$action'(112,_,_,G,_) :- !,		% p		print
-	print(user_error,G), nl(user_error),
+'$action'(0'p,_,_,G,Module,_) :- !,	% p		print
+	((Module = prolog ; Module = user) ->
+	    print(user_error,G), nl(user_error)
+	;
+	    print(user_error,Module:G), nl(user_error)
+	),
 	'$skipeol'(112), fail.
-'$action'(100,_,_,G,_) :- !,		% d		display
-	display(user_error,G), nl(user_error),
+'$action'(0'd,_,_,G,Module,_) :- !,	% d		display
+	((Module = prolog ; Module = user) ->
+	    display(user_error,G), nl(user_error)
+	;
+	    display(user_error,Module:G), nl(user_error)
+	),
 	'$skipeol'(100), fail.
-'$action'(113,_,L,_,_) :- !,		% k		quasi skip
+'$action'(0'k,_,L,_,_,_) :- !,		% k		quasi skip
 	'$set_value'(spy_leap,L).
-'$action'(108,_,_,_,_) :- !,		% l		leap
+'$action'(0'l,_,_,_,_,_) :- !,		% l		leap
 	'$set_value'(spy_leap,1).
-'$action'(110,_,_,_,_) :- !,		% n		nodebug
+'$action'(0'n,_,_,_,_._) :- !,		% n		nodebug
 	nodebug.
-'$action'(107,_,_,_,_) :- !,		% k		quasi leap
+'$action'(0'k,_,_,_,_._) :- !,		% k		quasi leap
 	'$set_yap_flags'(10,0).
-'$action'(114,P,L,_,_) :- !,		% r		retry
+'$action'(0'r,P,L,_,_,_) :- !,		% r		retry
 	( P=call, !, '$ilgl'(114); true),
 	'$set_value'(spy_sp,call),
 	'$set_value'(spy_sl,L),
 	write(user_error,'[ retry ]'), nl(user_error).
-'$action'(115,P,L,_,_) :- !,		% s		skip
+'$action'(0's,P,L,_,_,_) :- !,		% s		skip
 	( P=call; P=redo; '$ilgl'(115) ), !,
 	'$set_value'(spy_sl,L).
-'$action'(116,P,L,_,_) :- !,		% t		fast skip
+'$action'(0't,P,L,_,_,_) :- !,		% t		fast skip
 	( P=call; P=redo; '$ilgl'(116) ), !,
 	'$set_value'(spy_sl,L), '$set_value'(spy_fs,1).
-'$action'(43,_,_,G,_) :- !,		% +		spy this
-	functor(G,F,N), spy(F/N),
+'$action'(0'+,_,_,G,M,_) :- !,		% +		spy this
+	functor(G,F,N), spy(M:(F/N)),
 	'$skipeol'(43), fail.
-'$action'(45,_,_,G,_) :- !,		% -		nospy this
-	functor(G,F,N), nospy(F/N),
+'$action'(0'-,_,_,G,M,_) :- !,		% -		nospy this
+	functor(G,F,N), nospy(M:(F/N)),
 	'$skipeol'(45), fail.
-'$action'(C,_,_,_,_) :- '$ilgl'(C).
+'$action'(C,_,_,_,_,_) :- '$ilgl'(C).
 
 
 '$action_help' :-
