@@ -270,15 +270,16 @@ AC_PATH_PROG(SHELL,sh)
 AC_SUBST(INSTALL_COMMAND)
 AC_SUBST(CROSS_SIMULATOR)
 
+
 dnl Check for libraries.
 dnl mingw does not get along well with libm
 dnl cygnus and mingw32 also need wsock32 to use sockets.
 dnl
 if test "$target_os" = "cygwin"
 then
-  INSTALL_COMMAND=install_win32
   if test "$cygwin" = "no"
   then
+    INSTALL_COMMAND=install_win32
     CC="gcc  -mno-cygwin"
     AC_CHECK_LIB(wsock32,main)
     if test "$prefix" = "NONE"
@@ -289,6 +290,7 @@ then
   else
     DLL_LIBS=""
     LIBS="-lcygwin -lkernel32"
+    INSTALL_COMMAND=install_unix
   fi
 elif test "$target_os" = "mingw32" 
 then
@@ -391,6 +393,9 @@ dnl C-flags used to compile a file that will be loaded dynamically
 AC_SUBST(SHLIB_CFLAGS)
 dnl suffix for loadable binary (.so,.dll,.o)
 AC_SUBST(SHLIB_SUFFIX)
+dnl suffix for executable (.exe)
+EXEC_SUFFIX=""
+AC_SUBST(EXEC_SUFFIX)
 dnl how to call the loader
 AC_SUBST(DO_SECOND_LD)
 AC_SUBST(SHLIB_LD)
@@ -565,13 +570,13 @@ dnl Linux has both elf and a.out, in this case we found elf
       *cyg*)
 	# gcc on cygwin seems to have trouble with longjmp
         # and -fomit-frame-point -DBP_FREE
-        if test "$cygwin" = "no"
-        then
-	  YAPLIB="libWYap.a"
-	  SHLIB_SUFFIX=".dll"
-	  NEWSHOBJ="dll"
-        fi
+	YAPLIB="libWYap.a"
+	SHLIB_CFLAGS=""
+	NEWSHOBJ="dll"
+	SHLIB_SUFFIX=".dll"
 	C_PARSER_FLAGS="$C_INTERF_FLAGS"
+	EXEC_SUFFIX=".exe"
+	INSTALL_DLLS=""
 	;;
       *mingw*)
 	# gcc on cygwin seems to have trouble with longjmp
@@ -580,6 +585,7 @@ dnl Linux has both elf and a.out, in this case we found elf
 	SHLIB_SUFFIX=".dll"
 	NEWSHOBJ="dll"
 	C_PARSER_FLAGS="$C_INTERF_FLAGS"
+	EXEC_SUFFIX=".exe"
 	;;
       *)
 	AC_CHECK_LIB(dl,dlopen,

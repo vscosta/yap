@@ -305,7 +305,7 @@ ac_includes_default="\
 # include <unistd.h>
 #endif"
 
-ac_subst_vars='SHELL PATH_SEPARATOR PACKAGE_NAME PACKAGE_TARNAME PACKAGE_VERSION PACKAGE_STRING PACKAGE_BUGREPORT exec_prefix prefix program_transform_name bindir sbindir libexecdir datadir sysconfdir sharedstatedir localstatedir libdir includedir oldincludedir infodir mandir build_alias host_alias target_alias DEFS ECHO_C ECHO_N ECHO_T LIBS CC CFLAGS LDFLAGS CPPFLAGS ac_ct_CC EXEEXT OBJEXT GCC C_INTERF_FLAGS C_PARSER_FLAGS build build_cpu build_vendor build_os host host_cpu host_vendor host_os target target_cpu target_vendor target_os LN_S INSTALL_PROGRAM INSTALL_SCRIPT INSTALL_DATA RANLIB ac_ct_RANLIB INDENT ac_ct_INDENT AR ac_ct_AR MPI_CC ac_ct_MPI_CC INSTALL_INFO INSTALL_COMMAND CROSS_SIMULATOR YAPMPILIB MPI_OBJS MPI_LIBS CPP EGREP INSTALL_DLLS SHLIB_CFLAGS SHLIB_SUFFIX DO_SECOND_LD SHLIB_LD NEWSHOBJ YAPLIB YAP_EXTRAS DLL_LIBS NO_BUILTIN_REGEXP M4 M4GENHDRS M4GENABSMI LIBOBJS LTLIBOBJS'
+ac_subst_vars='SHELL PATH_SEPARATOR PACKAGE_NAME PACKAGE_TARNAME PACKAGE_VERSION PACKAGE_STRING PACKAGE_BUGREPORT exec_prefix prefix program_transform_name bindir sbindir libexecdir datadir sysconfdir sharedstatedir localstatedir libdir includedir oldincludedir infodir mandir build_alias host_alias target_alias DEFS ECHO_C ECHO_N ECHO_T LIBS CC CFLAGS LDFLAGS CPPFLAGS ac_ct_CC EXEEXT OBJEXT GCC C_INTERF_FLAGS C_PARSER_FLAGS build build_cpu build_vendor build_os host host_cpu host_vendor host_os target target_cpu target_vendor target_os LN_S INSTALL_PROGRAM INSTALL_SCRIPT INSTALL_DATA RANLIB ac_ct_RANLIB INDENT ac_ct_INDENT AR ac_ct_AR MPI_CC ac_ct_MPI_CC INSTALL_INFO INSTALL_COMMAND CROSS_SIMULATOR YAPMPILIB MPI_OBJS MPI_LIBS CPP EGREP INSTALL_DLLS SHLIB_CFLAGS SHLIB_SUFFIX EXEC_SUFFIX DO_SECOND_LD SHLIB_LD NEWSHOBJ YAPLIB YAP_EXTRAS DLL_LIBS NO_BUILTIN_REGEXP M4 M4GENHDRS M4GENABSMI LIBOBJS LTLIBOBJS'
 ac_subst_files=''
 
 # Initialize some variables set by options.
@@ -3032,11 +3032,12 @@ fi
 
 
 
+
 if test "$target_os" = "cygwin"
 then
-  INSTALL_COMMAND=install_win32
   if test "$cygwin" = "no"
   then
+    INSTALL_COMMAND=install_win32
     CC="gcc  -mno-cygwin"
 
 
@@ -3100,6 +3101,7 @@ fi
   else
     DLL_LIBS=""
     LIBS="-lcygwin -lkernel32"
+    INSTALL_COMMAND=install_unix
   fi
 elif test "$target_os" = "mingw32"
 then
@@ -4478,6 +4480,8 @@ fi
 
 
 
+EXEC_SUFFIX=""
+
 
 
 
@@ -4813,13 +4817,13 @@ fi
       *cyg*)
 	# gcc on cygwin seems to have trouble with longjmp
         # and -fomit-frame-point -DBP_FREE
-        if test "$cygwin" = "no"
-        then
-	  YAPLIB="libWYap.a"
-	  SHLIB_SUFFIX=".dll"
-	  NEWSHOBJ="dll"
-        fi
+	YAPLIB="libWYap.a"
+	SHLIB_CFLAGS=""
+	NEWSHOBJ="dll"
+	SHLIB_SUFFIX=".dll"
 	C_PARSER_FLAGS="$C_INTERF_FLAGS"
+	EXEC_SUFFIX=".exe"
+	INSTALL_DLLS=""
 	;;
       *mingw*)
 	# gcc on cygwin seems to have trouble with longjmp
@@ -4828,6 +4832,7 @@ fi
 	SHLIB_SUFFIX=".dll"
 	NEWSHOBJ="dll"
 	C_PARSER_FLAGS="$C_INTERF_FLAGS"
+	EXEC_SUFFIX=".exe"
 	;;
       *)
 	echo "$as_me:$LINENO: checking for dlopen in -ldl" >&5
@@ -12010,6 +12015,7 @@ s,@EGREP@,$EGREP,;t t
 s,@INSTALL_DLLS@,$INSTALL_DLLS,;t t
 s,@SHLIB_CFLAGS@,$SHLIB_CFLAGS,;t t
 s,@SHLIB_SUFFIX@,$SHLIB_SUFFIX,;t t
+s,@EXEC_SUFFIX@,$EXEC_SUFFIX,;t t
 s,@DO_SECOND_LD@,$DO_SECOND_LD,;t t
 s,@SHLIB_LD@,$SHLIB_LD,;t t
 s,@NEWSHOBJ@,$NEWSHOBJ,;t t
