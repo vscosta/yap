@@ -46,7 +46,7 @@ Most Prolog compilers support automatic loading of an initialization file, which
 <h3>Compiling and loading your programs<a name="compiling"></a></h3>
 
 <p>
-Your programs will be made of source files containing your objects, protocols and categories. After changing the Prolog working directory to the one containing your files, you can compile them to disk by calling the Logtalk built-in predicate  
+Your programs will be made of source files containing your objects, protocols, and categories. After changing the Prolog working directory to the one containing your files, you can compile them to disk by calling the Logtalk built-in predicate  
 <a title="Consult reference manual" href="../refman/builtins/logtalk_compile1.html"><code>logtalk_compile/1</code></a>:
 </p>
 <pre>
@@ -106,7 +106,7 @@ You can use the following options:
 </dl>
 <dl>
 	<dt><code>misspelt(Option)</code></dt>
-		<dd>Controls the misspelt calls warnings. Possible option values are <code>warning</code> (the usual default) and <code>silent</code> (not recommended).</dd>
+		<dd>Controls the misspelt predicate call warnings. A misspelt call is a call to a predicate which is not defined in the object or category containing the call, is not declared as dynamic, and is not a Logtalk/Prolog built-in predicate. Possible option values are <code>warning</code> (the usual default) and <code>silent</code> (not recommended).</dd>
 </dl>
 <dl>
 	<dt><code>lgtredef(Option)</code></dt>
@@ -193,7 +193,7 @@ If you use Logtalk for batch processing, you probably want to supress most, if n
 To supress printing of the Logtalk startup banner and default flags, set the option <code>startup_message</code> in the config file that you are using to <code>none</code>.
 </p>
 <p>
-To supress printing of compiling and loading messages (including compiling warnings but not error messages), turn off the option <code>report</code> in the used config file.
+To supress printing of compiling and loading messages (including compiling warnings but not compiling error messages), turn off the option <code>report</code> in the used config file.
 </p>
 
 <h2>Debugging Logtalk programs<a name="debugging"></a></h2>
@@ -438,15 +438,15 @@ The debugger pauses at leashed posts when tracing or when finding a spy point fo
 	<dt><code>x</code> &mdash; context</dt>
 		<dd>prints execution context</dd>
 	<dt><code>e</code> &mdash; exception</dt>
-		<dd>prints exception term thrown by current goal</dd>
+		<dd>prints exception term thrown by the current goal</dd>
 	<dt><code>=</code> &mdash; debugging</dt>
 		<dd>prints debugging information</dd>
 	<dt><code>*</code> &mdash; add</dt>
-		<dd>adds a context spy point for current goal</dd>
+		<dd>adds a context spy point for the current goal</dd>
 	<dt><code>+</code> &mdash; add</dt>
-		<dd>adds a predicate spy point for current goal</dd>
+		<dd>adds a predicate spy point for the current goal</dd>
 	<dt><code>-</code> &mdash; remove</dt>
-		<dd>removes a predicate spy point for current goal</dd>
+		<dd>removes a predicate spy point for the current goal</dd>
 	<dt><code>h</code> &mdash; help</dt>
 		<dd>prints list of command options; <code>?</code> can be used in alternative</dd>
 </dl>
@@ -461,7 +461,7 @@ Copyright &copy; <a href="mailto:pmoura@logtalk.org">Paulo Moura</a> &mdash; <a 
 </div>
 
 <div class="footer">
-<p><span class="bleft"><a href="http://validator.w3.org/check/referer">XHTML</a> + <a href="http://jigsaw.w3.org/css-validator/check/referer">CSS</a></span><span class="bright">Last updated on: August 6, 2004</span></p>
+<p><span class="bleft"><a href="http://validator.w3.org/check/referer">XHTML</a> + <a href="http://jigsaw.w3.org/css-validator/check/referer">CSS</a></span><span class="bright">Last updated on: August 20, 2004</span></p>
 </div>
 </body>
 </html>

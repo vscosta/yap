@@ -1,6 +1,6 @@
 // =================================================================
 // Logtalk - Object oriented extension to Prolog
-// Release 2.20.1
+// Release 2.21.0
 //
 // Copyright (c) 1998-2004 Paulo Moura.  All Rights Reserved.
 // =================================================================
@@ -54,14 +54,18 @@ var f = FSObject.CreateTextFile(logtalk_home + "\\bin\\logtalkgp.pl", true);
 f.WriteLine(":- built_in.");
 f.Close();
 
-WshShell.Run("cmd /c type " + logtalk_home + "\\compiler\\logtalk.pl" + " >> " + logtalk_home + "\\bin\\logtalkgp.pl", true);
+WshShell.Run("cmd /c type " + logtalk_home + "\\compiler\\logtalk.pl >> " + logtalk_home + "\\bin\\logtalkgp.pl", true);
 
 FSObject.CopyFile(prolog_path + "\\w32guicons.dll", logtalk_home + "\\bin\\w32guicons.dll");
 
 WshShell.Run("cmd /c gplc --gui-console -o " + logtalk_home + "\\bin\\gplgt.exe " + logtalk_home + "\\bin\\gnu.pl " + logtalk_home + "\\bin\\logtalkgp.pl", true);
 
 var ProgramsPath = WshShell.SpecialFolders("AllUsersPrograms");
-var link = WshShell.CreateShortcut(ProgramsPath + "\\Logtalk - GNU Prolog (precompiled).lnk");
+
+if (!FSObject.FolderExists(ProgramsPath + "\\Logtalk")) 
+	FSObject.CreateFolder(ProgramsPath + "\\Logtalk");
+
+var link = WshShell.CreateShortcut(ProgramsPath + "\\Logtalk\\Logtalk - GNU Prolog (precompiled).lnk");
 link.Arguments = "";
 link.Description = "Runs Logtalk with GNU Prolog";
 link.IconLocation = "app.exe,1";

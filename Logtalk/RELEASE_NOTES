@@ -1,6 +1,6 @@
 =================================================================
 Logtalk - Object oriented extension to Prolog
-Release 2.20.1
+Release 2.21.0
 
 Copyright (c) 1998-2004 Paulo Moura.  All Rights Reserved.
 =================================================================
@@ -8,6 +8,55 @@ Copyright (c) 1998-2004 Paulo Moura.  All Rights Reserved.
 
 RELEASE NOTES
 =============
+
+
+2.21.0 - September 14, 2004
+
+	Added a new predicate directive, alias/3, which allows the definition of 
+	alternative predicate names in order to improve readability of inherited 
+	features and to solve conflicts between implemented, imported, or inherited 
+	predicates.
+
+	Added new example, "aliases", illustrating the use of the new alias/3 
+	predicate directive for improving readability of inherited features.
+
+	Added new example, "diamonds", illustrating problems and solutions for the 
+	"diamond problem" (multi-inheritance conflicts and ambiguities) using the 
+	new alias/3 predicate directive.
+
+	Allow categories to import other categories, i.e. allow categories to be 
+	defined as a composition of other categories. This feature should only be 
+	used when extending a category without breaking its functional cohesion 
+	(for example, when a modified version of a category is needed for importing 
+	into several unrelated objects). 
+
+	Added new example, "engines", illustrating importing a category from another 
+	category.
+
+	Updated the syntax coloring configuration files for the supported text 
+	editors for the new alias/3 predicate directive.
+
+	Added autocomplete strings for Logtalk methods and for Logtalk and Prolog 
+	built-in predicates and directives to the SubEthaEdit 2.x text editor.
+
+	Corrected a bug which prevented compilation of metafiles containing 
+	parametric entities.
+
+
+2.20.2 - August 31, 2004
+
+	Added a Windows JScript script for installing Logtalk. Improved the Windows 
+	JScript scripts used for easy integration of Logtalk with selected Prolog 
+	compilers.
+
+	Improved user manual section on defining object and category metapredicates 
+	and on calling non-stardard Prolog built-in metapredicates. Improved the 
+	description of some compiler options.
+
+	Added some files missing from the "errors" example (which should have been 
+	included in the previous release).
+
+	Added basic syntax coloring support for the BBEdit 8.x text editor.
 
 
 2.20.1 - August 19, 2004

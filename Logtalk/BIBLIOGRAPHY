@@ -16,13 +16,34 @@
 }
 
 
-@techreport{pmoura00,
+@unpublished{pmoura00c,
+	Author = "Paulo Moura",
+	Title = "{Category-Based Composition in Object-Oriented Languages}",
+	month = nov,
+	year = 2000,
+	howpublished = "\url{http://www.logtalk.org/papers/categories_ecoop.pdf}",
+	annote = "Submitted to ECOOP 2001"
+}
+
+
+@techreport{pmoura00b,
 	author = "Paulo Moura",
 	title = "{Logtalk 2.6 Documentation}",
 	institution = "University of Beira Interior, Portugal",
 	number = "DMI 2000/1",
+	month = jul,
 	year = 2000,
 	howpublished = "\url{http://www.logtalk.org/files/trdmi20001a4.pdf.gz}"
+}
+
+
+@unpublished{pmoura00a,
+	Author = "Paulo Moura",
+	Title = "{Category-Based Composition in Object-Oriented Languages}",
+	month = apr,
+	year = 2000,
+	howpublished = "\url{http://www.logtalk.org/papers/categories_oopsla.pdf}",
+	annote = "Submitted to OOPSLA 2000"
 }
 
 

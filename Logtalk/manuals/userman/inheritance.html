@@ -261,7 +261,7 @@ It is not possible to discuss inheritance mechanisms without referring to the lo
 Until now, no solution that we might consider satisfactory for all the problems presented by the multiple inheritance mechanisms has been found. From the simplicity of some extensions that use the Prolog search strategy like <a href="../bibliography.html#McCabe92">[McCabe 92]</a> or <a href="../bibliography.html#Moss94">[Moss 94]</a> and to the sophisticated algorithms of CLOS <a href="../bibliography.html#Bobrow88">[Bobrow 88]</a>, there is no adequate solution for all the situations. Besides, the use of multiple inheritance carries some complex problems in the domain of software engineering, particularly in the reuse and maintenance of the applications. All these problems are substantially reduced if we preferably use in our software development composition mechanisms instead of specialization mechanisms <a href="../bibliography.html#Taenzer89">[Taenzer 89]</a>. Multiple inheritance can and should be seen more as a useful analysis and project abstraction, than as an implementation technique <a href="../bibliography.html#Shan93">[Shan 93]</a>.
 </p>
 <p>
-Nevertheless, Logtalk supports multi-inheritance by enabling an object to extend, instantiate, or specialize more than one object. Beware however that the current Logtalk release does not provide any mechanism for selecting a specific inheritance path or for dealing with inheritance conflicts. The multi-inheritance support implementation does not compromise performance when we use single-inheritance.
+Nevertheless, Logtalk supports multi-inheritance by enabling an object to extend, instantiate, or specialize more than one object. The current Logtalk release provides a predicate directive, <a title="Consult reference manual" href="../refman/directives/alias3.html"><code>alias/3</code></a>, which may be used to solve some multi-inheritance conflicts. Lastly, it should be noted that the multi-inheritance support does not compromise performance when we use single-inheritance.
 </p>
 
 <div class="navbottom">
@@ -273,7 +273,7 @@ Copyright &copy; <a href="mailto:pmoura@logtalk.org">Paulo Moura</a> &mdash; <a 
 </div>
 
 <div class="footer">
-<p><span class="bleft"><a href="http://validator.w3.org/check/referer">XHTML</a> + <a href="http://jigsaw.w3.org/css-validator/check/referer">CSS</a></span><span class="bright">Last updated on: December 23, 2003</span></p>
+<p><span class="bleft"><a href="http://validator.w3.org/check/referer">XHTML</a> + <a href="http://jigsaw.w3.org/css-validator/check/referer">CSS</a></span><span class="bright">Last updated on: September 7, 2004</span></p>
 </div>
 </body>
 </html>

@@ -1,17 +1,18 @@
 =================================================================
 Logtalk - Object oriented extension to Prolog
-Release 2.20.1
+Release 2.21.0
 
 Copyright (c) 1998-2004 Paulo Moura.  All Rights Reserved.
 =================================================================
 
 
-Installing Logtalk is just a matter of decompressing the downloaded 
-archive and copying the resulting directory to a suitable location. 
+Installing Logtalk is just a matter of decompressing the downloaded archive 
+and copying the resulting directory to a suitable location.
+
 The Logtalk directory can reside in any user accessible location. 
-This location depends on the working environment and on the number 
-of users. The "misc" sub-directory contains some shell scripts for 
-easy installation of Logtalk on Unix and Unix-like operating systems.
+This location depends on the working environment and on the number of users.
+The "misc" sub-directory contains some shell scripts for easy installation 
+of Logtalk on Windows, Unix and Unix-like operating systems.
 
 
 INSTALLING FOR A SINGLE USER
@@ -49,12 +50,12 @@ execution path.
 
 If you use a csh shell, add the following line to your ~/.cshrc file:
 
-	setenv LOGTALKHOME /your/installation/directory/lgt2201
+	setenv LOGTALKHOME /your/installation/directory/lgt2210
 	setenv PATH $PATH:$LOGTALKHOME/xml:$LOGTALKHOME/misc
 
 If you use a bash shell, add the following lines to your ~/.profile file:
 
-	LOGTALKHOME=/your/installation/directory/lgt2201
+	LOGTALKHOME=/your/installation/directory/lgt2210
 	export LOGTALKHOME
 	PATH=$PATH:$LOGTALKHOME/xml:$LOGTALKHOME/misc
 	export PATH
@@ -72,8 +73,8 @@ file (you will need to reboot after editing the file):
 	SET LOGTALKHOME=C:\your\installation\folder\
 
 In Windows NT/2000/XP, environment variables are defined using the System 
-properties control panel (if you are a system administrator, you may define 
-LOGTALKHOME as a system variable, otherwise define it as a user variable).
+properties control panel (if you are a system administrator, you should use 
+the JScript install script provided in the "misc" sub-directory).
 
 
 CREATING NEW PROLOG TOP-LEVELS FOR AUTOMATIC LOADING OF LOGTALK

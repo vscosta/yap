@@ -1,6 +1,6 @@
 // =================================================================
 // Logtalk - Object oriented extension to Prolog
-// Release 2.20.1
+// Release 2.21.0
 //
 // Copyright (c) 1998-2004 Paulo Moura.  All Rights Reserved.
 // =================================================================
@@ -62,7 +62,11 @@ f.WriteLine(":- op(200,  fy, -).");
 f.Close();
 
 var ProgramsPath = WshShell.SpecialFolders("AllUsersPrograms");
-var link = WshShell.CreateShortcut(ProgramsPath + "\\Logtalk - CIAO.lnk");
+
+if (!FSObject.FolderExists(ProgramsPath + "\\Logtalk")) 
+	FSObject.CreateFolder(ProgramsPath + "\\Logtalk");
+
+var link = WshShell.CreateShortcut(ProgramsPath + "\\Logtalk\\Logtalk - CIAO.lnk");
 link.Arguments = "-l %LOGTALKHOME%\\bin\\logtalkciao.pl";
 link.Description = "Runs Logtalk with CIAO";
 link.IconLocation = "app.exe,1";

@@ -23,6 +23,7 @@
 				<regex>:-\s(protocol)\(</regex>			
 				<regex>:-\s(category)\(</regex>			
 				<regex>:-\s(end_(object|protocol|category))\.</regex>			
+				<regex>:-\s(alias)\(</regex>			
 				<regex>:-\s(initialization)\(</regex>			
 				<regex>:-\s(info)\(</regex>			
 				<regex>:-\s(mode)\(</regex>			

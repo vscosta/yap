@@ -4,8 +4,8 @@
 
 ;; Author: Paulo Moura
 ;; Creation date: November 15, 2003
-;; Last modification date: July 17, 2004
-;; Version: 0.6
+;; Last modification date: September 7, 2004
+;; Version: 0.61
 
 ;; Installation:
 ;;
@@ -29,7 +29,7 @@
 
 ;; setup 
 
-(defvar logtalk-mode-version "0.6"
+(defvar logtalk-mode-version "0.61"
 	"Logtalk mode version number")
 
 (defvar logtalk-mode-hook nil)
@@ -101,7 +101,7 @@
 		("\\(\\(end_\\(?:category\\|object\\|protocol\\)\\)\\)\\([\.]\\)" 1 'logtalk-directive-face)
 		("\\(category\\|object\\|protocol\\)\\([(]\\)" 1 'logtalk-directive-face)
 		("\\(p\\(?:r\\(?:ivate\\|otected\\)\\|ublic\\)\\)\\([(]\\)" 1 'logtalk-directive-face)
-		("\\(calls\\|d\\(?:iscontiguous\\|ynamic\\)\\|in\\(?:fo\\|itialization\\)\\|m\\(?:\\(?:etapredicat\\|od\\)e\\)\\|op\\|uses\\)\\([(]\\)" 1 'logtalk-directive-face)
+		("\\(alias\\|calls\\|d\\(?:iscontiguous\\|ynamic\\)\\|in\\(?:fo\\|itialization\\)\\|m\\(?:\\(?:etapredicat\\|od\\)e\\)\\|op\\|uses\\)\\([(]\\)" 1 'logtalk-directive-face)
 		("\\(dynamic\\)\\([\.]\\)" 1 'logtalk-directive-face)
 		("\\(\\(?:extend\\|i\\(?:mp\\(?:\\(?:lemen\\|or\\)t\\)\\|nstantiate\\)\\|specialize\\)s\\)\\([(]\\)" 1 'logtalk-directive-face)
 	))

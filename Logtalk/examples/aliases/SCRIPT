@@ -1,0 +1,50 @@
+=================================================================
+Logtalk - Object oriented extension to Prolog
+Release 2.21.0
+
+Copyright (c) 1998-2004 Paulo Moura.  All Rights Reserved.
+=================================================================
+
+
+% start by loading the example:
+
+| ?- logtalk_load(loader).
+...
+
+
+% check the object square(_) public protocol:
+
+| ?- square(_)::current_predicate(Predicate).
+
+Predicate = side/1 ;
+Predicate = width/1 ;
+Predicate = height/1 ;
+Predicate = area/1
+yes
+
+
+% test the side/1 alias:
+
+| ?- square(2)::side(Side).
+
+Side = 2 
+yes
+
+
+% check the object circle(_) public protocol:
+
+| ?- circle(_)::current_predicate(Predicate).
+
+Predicate = r/1 ;
+Predicate = rx/1 ;
+Predicate = ry/1 ;
+Predicate = area/1
+yes
+
+
+% test the r/1 alias:
+
+| ?- circle(3)::r(Radius).
+
+Radius = 3 
+yes

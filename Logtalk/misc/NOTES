@@ -1,6 +1,6 @@
 =================================================================
 Logtalk - Object oriented extension to Prolog
-Release 2.20.1
+Release 2.21.0
 
 Copyright (c) 1998-2004 Paulo Moura.  All Rights Reserved.
 =================================================================
@@ -10,7 +10,8 @@ This directory contains miscellaneous files used in Logtalk packaging,
 installation, and integration with Prolog compilers. Several scripts are 
 included. Those with extension .sh are shell scripts for MacOS X, Linux, 
 and similar systems. Those with extension .js are JScript command-line 
-scripts for Windows; they require WSH 5.6 or later version to be installed.
+scripts for Windows; they require WSH 5.6 or later version to be installed
+and should be run using cscript.exe from the command line.
 
 
 lgt_install.sh
@@ -18,6 +19,12 @@ lgt_install.sh
 	Unix-like operating systems (must be run from this directory by a user with 
 	administration privileges); accepts as an optional argument a prefix for the 
 	installation directory (default is /usr/local)
+lgt_install.js
+	Windows NT/2000/XP JScript script for completing the Logtalk installation 
+	by setting the LOGTALKHOME system environment variable and by creating a 
+	new program group named "Logtalk" in the Windows Start Menu (must be run 
+	from this directory by a user with administration privileges after 
+	decompressing the Logtalk distribution into its final destination)
 
 logtalk.spec
 	specification file for building Linux RPMs

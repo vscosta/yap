@@ -1,0 +1,18 @@
+=================================================================
+Logtalk - Object oriented extension to Prolog
+Release 2.21.0
+
+Copyright (c) 1998-2004 Paulo Moura.  All Rights Reserved.
+=================================================================
+
+
+To load all entities in this example compile and load the loader file:
+
+| ?- logtalk_load(loader).
+
+or, in alternative, compile and load the example metafile:
+
+| ?- logtalk_load(engines).
+
+For a description of this example, please see the comments in the 
+engines.mlgt metafile.
