@@ -160,6 +160,11 @@ Term UpdateTimedVar(Term inv, Term new)
     else
 #endif
       tv->value = new;
+#if defined(SBA) || defined(TABLING)
+    if (Unsigned((Int)(tv)-(Int)(HBREG)) >
+      Unsigned(BBREG)-(Int)(HBREG))
+    TrailVal(timestmp-1) = new;
+#endif    
   } else {
     Term nclock = (Term)H;
     MaBind(&(tv->value), new);

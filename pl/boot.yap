@@ -1144,20 +1144,20 @@ catch(G,C,A) :-
 '$catch'(G,_,_,I,_) :-
         % on entry we push the catch choice point
         X is '$last_choice_pt',
-	'$catch_call'(X,G,I).
+	'$catch_call'(X,G,I, NX),
+	(X = NX -> !, '$erase_catch_elements'(I) ; true).
 % someone sent us a throw.
 '$catch'(_,C,A,_,M) :-
 	array_element('$catch_queue', 1, X), X \= '$',
 	update_array('$catch_queue', 1, '$'),
-	array_element('$catch_queue', 0, catch(_,Lev,Q)),
+	array_element('$catch_queue', 0, catch(_,Lev,Q)), !,
 	update_array('$catch_queue', 0, Q),
 	'$db_clean_queues'(Lev),
+        '$erase_catch_elements'(Lev),
         ( C=X -> '$current_module'(_,M), '$execute'(A) ; throw(X)).
 % normal exit: make sure we only erase what we should erase!
 '$catch'(_,_,_,I,_) :-
-	array_element('$catch_queue', 0, OldCatch),
-	'$erase_catch_elements'(OldCatch, I, Catch),
-	update_array('$catch_queue', 0, Catch),
+        '$erase_catch_elements'(I),
 	fail.
 
 '$erase_catch_elements'(catch(X, J, P), I, Catch) :-
@@ -1165,14 +1165,15 @@ catch(G,C,A) :-
 	  '$erase_catch_elements'(P, I, Catch).
 '$erase_catch_elements'(Catch, _, Catch).
 	  
-'$catch_call'(X,G,I) :-
+'$catch_call'(X,G,I,NX) :-
 	array_element('$catch_queue', 0, OldCatch),
 	update_array('$catch_queue', 0, catch(X,I,OldCatch)),
         '$execute'(G),
-        ( % on exit remove the catch
+	NX is '$last_choice_pt',
+        (
 	  array_element('$catch_queue', 0, catch(X,I,Catch)),
 	  update_array('$catch_queue', 0, Catch)
-        ;
+	;
           % on backtracking reinstate the catch before backtracking to G
 	  array_element('$catch_queue', 0, Catch),
 	  update_array('$catch_queue', 0, catch(X,I,Catch)),
@@ -1195,14 +1196,16 @@ catch(G,C,A) :-
 '$system_catch'(G,_,_,I,_) :-
         % on entry we push the catch choice point
         X is '$last_choice_pt',
-	'$system_catch_call'(X,G,I).
+	'$system_catch_call'(X,G,I,NX),
+	( X = NX -> !, '$erase_catch_elements'(I) ; true).
 % someone sent us a throw.
 '$system_catch'(_,C,A,_,M0) :-
 	array_element('$catch_queue', 1, X), X \= '$',
 	update_array('$catch_queue', 1, '$'),
-	array_element('$catch_queue', 0, catch(_,Lev,Q)),
-	'$db_clean_queues'(Lev),
+	array_element('$catch_queue', 0, catch(_,Lev,Q)), !,
 	update_array('$catch_queue', 0, Q),
+	'$db_clean_queues'(Lev),
+        '$erase_catch_elements'(Lev),
         ( C=X ->
 	    '$current_module'(_,M0),
 	    (A = M:G -> '$mod_switch'(M,G) ; '$mod_switch'(M0,A))
@@ -1211,15 +1214,19 @@ catch(G,C,A) :-
         ).
 % normal exit: make sure we only erase what we should erase!
 '$system_catch'(_,_,_,I,_) :-
-	array_element('$catch_queue', 0, OldCatch),
-	'$erase_catch_elements'(OldCatch, I, Catch),
-	update_array('$catch_queue', 0, Catch),
+        '$erase_catch_elements'(I),
 	fail.
 
-'$system_catch_call'(X,G,I) :-
+'$erase_catch_elements'(I) :-
+	array_element('$catch_queue', 0, OldCatch),
+	'$erase_catch_elements'(OldCatch, I, Catch),
+	update_array('$catch_queue', 0, Catch).
+
+'$system_catch_call'(X,G,I, NX) :-
 	array_element('$catch_queue', 0, OldCatch),
 	update_array('$catch_queue', 0, catch(X,I,OldCatch)),
         '$execute0'(G),
+	NX is '$last_choice_pt',
         ( % on exit remove the catch
 	  array_element('$catch_queue', 0, catch(X,I,Catch)),
 	  update_array('$catch_queue', 0, Catch)

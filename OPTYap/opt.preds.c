@@ -35,12 +35,12 @@ static qg_ans_fr_ptr actual_answer;
 **      Local functions declaration      **
 ** ------------------------------------- */
 
+static int p_default_sequential(void);
 #ifdef YAPOR
 static realtime current_time(void);
 static int yapor_on(void);
 static int start_yapor(void);
 static int p_sequential(void);
-static int p_default_sequential(void);
 static int p_execution_mode(void);
 static int p_performance(void);
 static int p_parallel_new_answer(void);
@@ -105,6 +105,39 @@ void finish_yapor(void) {
 /* ------------------------- **
 **      Local functions      **
 ** ------------------------- */
+
+static
+int p_default_sequential(void) {
+#ifdef YAPOR
+  Term t;
+  t = Deref(ARG1);
+  if (IsVarTerm(t)) {
+    Term ta;
+    if (SEQUENTIAL_IS_DEFAULT)
+      ta = MkAtomTerm(LookupAtom("on"));
+    else
+      ta = MkAtomTerm(LookupAtom("off"));
+    Bind((CELL *)t, ta);
+    return(TRUE);
+  } 
+  if (IsAtomTerm(t)) {
+    char *s;
+    s = RepAtom(AtomOfTerm(t))->StrOfAE;
+    if (strcmp(s, "on") == 0) {
+      SEQUENTIAL_IS_DEFAULT = TRUE;
+      return(TRUE);
+    } 
+    if (strcmp(s,"off") == 0) {
+      SEQUENTIAL_IS_DEFAULT = FALSE;
+      return(TRUE);
+    }
+  }
+  return(FALSE);
+#else
+  return(TRUE);
+#endif
+}
+
 
 #ifdef YAPOR
 static
@@ -171,35 +204,6 @@ int p_sequential(void) {
   pe = RepPredProp(PredProp(at, arity));
   pe->PredFlags |= SequentialPredFlag;
   return (TRUE);
-}
-
-
-static
-int p_default_sequential(void) {
-  Term t;
-  t = Deref(ARG1);
-  if (IsVarTerm(t)) {
-    Term ta;
-    if (SEQUENTIAL_IS_DEFAULT)
-      ta = MkAtomTerm(LookupAtom("on"));
-    else
-      ta = MkAtomTerm(LookupAtom("off"));
-    Bind((CELL *)t, ta);
-    return(TRUE);
-  } 
-  if (IsAtomTerm(t)) {
-    char *s;
-    s = RepAtom(AtomOfTerm(t))->StrOfAE;
-    if (strcmp(s, "on") == 0) {
-      SEQUENTIAL_IS_DEFAULT = TRUE;
-      return(TRUE);
-    } 
-    if (strcmp(s,"off") == 0) {
-      SEQUENTIAL_IS_DEFAULT = FALSE;
-      return(TRUE);
-    }
-  }
-  return(FALSE);
 }
 
 

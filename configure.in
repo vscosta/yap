@@ -12,7 +12,7 @@ AC_SUBST(GCC)
 AC_SUBST(C_INTERF_FLAGS)
 
 AC_CYGWIN
-if test $ac_cv_cygwin = yes  -a "$CC" = "gcc"
+if test "$ac_cv_cygwin" = "yes"  -a "$CC" = "gcc"
 then
   CC="gcc -mno-cygwin"
 fi
