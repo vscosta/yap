@@ -16,7 +16,7 @@
 #define HAVE_LIBMPICH 0
 
 /* Should we use MPI ? */
-#if HAVE_LIBMPI
+#if HAVE_LIBMPI || HAVE_LIBMPICH
  #define HAVE_MPI 1
 #else
  #define HAVE_MPI 0

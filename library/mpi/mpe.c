@@ -9,7 +9,7 @@
 **************************************************************************
 *									 *
 * File:		mpe.c  							 *
-* Last rev:	$Date: 2002-02-22 14:31:45 $				 *
+* Last rev:	$Date: 2002-02-26 15:33:16 $				 *
 * mods:									 *
 * comments:	Interface to an MPE library                              *
 *									 *
@@ -58,37 +58,39 @@ STATIC_PROTO (Int p_log, (void));
 static Int
 p_init()                 /* mpe_open */
 {
-  int retv;
-
-  retv = MPE_Init_log();
-  printf( "MPE_Init_log(): %d\n", retv );
-  return TRUE;
+  return (MPE_Init_log() == 0);
 }
 
 
 static Int
 p_start()                /* mpe_start */
 {
-  int retv;
-
-  retv = MPE_Start_log();
-  printf( "MPE_Start_log(): %d\n", retv );
-  return TRUE;
+  return (MPE_Start_log() == 0);
 }
 
 
 static Int               /* mpe_close(+FileName) */
 p_close()
 {
-  int retv;
+  Term t_str = Deref(ARG1);
+  char *str;
 
-  retv = MPE_Finish_log( "test.log" );
-  printf( "MPE_Finish_log(): %d\n", retv );
-  return TRUE;
+  /* The arg must be bound to an atom. */
+  if (IsVarTerm(t_str)) {
+    Error(INSTANTIATION_ERROR, t_str, "mpe_close");
+    return (FALSE);
+  } else if( !IsAtomTerm(t_str) ) {
+    Error(TYPE_ERROR_ATOM, t_str, "mpe_close");
+    return (FALSE);
+  } else {
+    str = RepAtom(AtomOfTerm(t_str))->StrOfAE;
+  }
+
+  return (MPE_Finish_log(str) == 0);
 }
 
 
-static Int               /* mpe_create_event(-Event) */
+static Int               /* mpe_create_event(?Event) */
 p_create_event()
 {
   Int event_id;
@@ -102,28 +104,95 @@ p_create_state()
 {
   Int start_id, end_id;
   char *descr, *colour;
+  int retv;
 
-  start_id = IntOfTerm(ARG1);
-  end_id = IntOfTerm(ARG2);
+  /* The first and second args must be bount to integer event IDs. */
+  if (IsVarTerm(ARG1)) {
+    Error(INSTANTIATION_ERROR, ARG1, "mpe_create_state");
+    return (FALSE);
+  } else if( !IsIntegerTerm(ARG1) ) {
+    Error(TYPE_ERROR_INTEGER, ARG1, "mpe_create_state");
+    return (FALSE);
+  } else {
+    start_id = IntOfTerm(ARG1);
+  }
+  if (IsVarTerm(ARG2)) {
+    Error(INSTANTIATION_ERROR, ARG2, "mpe_create_state");
+    return (FALSE);
+  } else if( !IsIntegerTerm(ARG2) ) {
+    Error(TYPE_ERROR_INTEGER, ARG2, "mpe_create_state");
+    return (FALSE);
+  } else {
+    end_id = IntOfTerm(ARG2);
+  }
 
-  descr = "State";
-  colour = "red";
+  /* The third and fourth args must be bound to atoms. */
+  if (IsVarTerm(ARG3)) {
+    Error(INSTANTIATION_ERROR, ARG3, "mpe_create_state");
+    return (FALSE);
+  } else if( !IsAtomTerm(ARG3) ) {
+    Error(TYPE_ERROR_ATOM, ARG3, "mpe_create_state");
+    return (FALSE);
+  } else {
+    descr = RepAtom(AtomOfTerm(ARG3))->StrOfAE;
+  }
+  if (IsVarTerm(ARG4)) {
+    Error(INSTANTIATION_ERROR, ARG4, "mpe_create_state");
+    return (FALSE);
+  } else if( !IsAtomTerm(ARG4) ) {
+    Error(TYPE_ERROR_ATOM, ARG4, "mpe_create_state");
+    return (FALSE);
+  } else {
+    colour = RepAtom(AtomOfTerm(ARG4))->StrOfAE;
+  }
 
-  MPE_Describe_state( start_id, end_id, descr, colour );
+  retv = MPE_Describe_state( (int)start_id, (int)end_id, descr, colour );
 
-  return TRUE;
+  return (retv == 0);
 }
 
 
 static Int
-p_log()                  /* mpe_log(+Event) */
+p_log()                  /* mpe_log(+EventType, +EventNum, +EventStr) */
 {
-  Int event_id;
+  Term t_type = Deref(ARG1), t_num = Deref(ARG2), t_str = Deref(ARG3);
+  Int event_id, event;
+  char *descr;
 
-  event_id = IntOfTerm(ARG1);
-  MPE_Log_event( event_id, 0, "Event" );
+  /* The first arg must be bount to integer event type ID. */
+  if (IsVarTerm(t_type)) {
+    Error(INSTANTIATION_ERROR, t_type, "mpe_log");
+    return (FALSE);
+  } else if( !IsIntegerTerm(t_type) ) {
+    Error(TYPE_ERROR_INTEGER, t_type, "mpe_log");
+    return (FALSE);
+  } else {
+    event_id = IntOfTerm(t_type);
+  }
 
-  return TRUE;
+  /* The second arg must be bount to integer event number. */
+  if (IsVarTerm(t_num)) {
+    Error(INSTANTIATION_ERROR, t_num, "mpe_log");
+    return (FALSE);
+  } else if( !IsIntegerTerm(t_num) ) {
+    Error(TYPE_ERROR_INTEGER, t_num, "mpe_log");
+    return (FALSE);
+  } else {
+    event = IntOfTerm(t_num);
+  }
+
+  /* The third arg must be bound to an atom. */
+  if (IsVarTerm(t_str)) {
+    Error(INSTANTIATION_ERROR, t_str, "mpe_log");
+    return (FALSE);
+  } else if( !IsAtomTerm(t_str) ) {
+    Error(TYPE_ERROR_ATOM, t_str, "mpe_log");
+    return (FALSE);
+  } else {
+    descr = RepAtom(AtomOfTerm(t_str))->StrOfAE;
+  }
+
+  return ( MPE_Log_event((int)event_id, (int)event, descr) == 0 );
 }
 
 
@@ -139,10 +208,10 @@ InitMPE(void)
 
   InitCPred( "mpe_open", 0, p_init, SafePredFlag );
   InitCPred( "mpe_start", 0, p_start, SafePredFlag );
-  InitCPred( "mpe_close", 0, p_close, SafePredFlag );
+  InitCPred( "mpe_close", 1, p_close, SafePredFlag );
   InitCPred( "mpe_create_event", 1, p_create_event, SafePredFlag );
-  InitCPred( "mpe_create_state", 2, p_create_state, SafePredFlag );
-  InitCPred( "mpe_log", 1, p_log, SafePredFlag );
+  InitCPred( "mpe_create_state", 4, p_create_state, SafePredFlag );
+  InitCPred( "mpe_log", 3, p_log, SafePredFlag );
 }
 
 #endif /* HAVE_MPE */
