@@ -771,6 +771,36 @@ p_create_static_array(void)
   }
 }
 
+/* has a static array associated (+Name) */
+static Int 
+p_has_static_array(void)
+{
+  Term t = Deref(ARG1);
+
+  if (IsVarTerm(t)) {
+    return (FALSE);
+  }
+  else if (IsAtomTerm(t)) {
+    /* Create a named array */
+    AtomEntry *ae = RepAtom(AtomOfTerm(t));
+    StaticArrayEntry *pp;
+
+    READ_LOCK(ae->ARWLock);
+    pp = RepStaticArrayProp(ae->PropOfAE);
+    while (!EndOfPAEntr(pp) && pp->KindOfPE != ArrayProperty)
+      pp = RepStaticArrayProp(pp->NextOfPE);
+    if (EndOfPAEntr(pp) || pp->ValueOfVE.ints == NULL) {
+      READ_UNLOCK(ae->ARWLock);
+      return (FALSE);
+    } else {
+      READ_UNLOCK(ae->ARWLock);
+      return(TRUE);
+    }
+  } else {
+    return (FALSE);
+  }
+}
+
 /* resize a static array (+Name, + Size, +Props) */
 /* does not work for mmap arrays yet */
 static Int 
@@ -1369,7 +1399,7 @@ p_assign_static(void)
     Error(INSTANTIATION_ERROR,t3,"assign_static");
     return (FALSE);
   }
-  if (indx < 0 || indx >= - ptr->ArrayEArity) {
+   if (indx < 0 || indx >= - ptr->ArrayEArity) {
     WRITE_UNLOCK(ptr->ArRWLock);
     Error(DOMAIN_ERROR_ARRAY_OVERFLOW,t2,"assign_static");
   }
@@ -1543,6 +1573,60 @@ p_sync_mmapped_arrays(void)
   return(TRUE);
 }
 
+/*
+  This is a hack, to steal the first element of a key.
+
+   It first fetches the first element in the chain, and then erases it
+   through its reference.
+
+  Be careful when using this routine. It is especially evil because if
+  the term is ground it should be copied to the stack, as space for
+  the entry may be deleted. For the moment, the terms I want are just
+  integers, so no problemo, amigo.
+
+ */
+static Term
+StealFirstFromDB(DBRef ref)
+{
+  Term TermDB, out;
+
+  if ((TermDB = FetchTermFromDB(ref,3)) == (CELL)0) {
+    /* oops, we are in trouble, not enough stack space */
+    return(TermNil);
+  }
+  if (IsVarTerm(TermDB) || !IsApplTerm(TermDB))
+    /* it's not a wonderful world afterall */
+    return(TermNil);
+  out = ArgOfTerm(1,TermDB);
+  /* now, return what once was there, only nevermore */
+  return(out);
+}
+
+Int
+SetDBForThrow(Term Message)
+{
+  Term cut_pt_term;
+  Atom a = FullLookupAtom("$catch_queue");
+  AtomEntry *ae = RepAtom(a);
+  StaticArrayEntry *ptr;
+  DBRef ref;
+  READ_LOCK(ae->ARWLock);
+  ptr =  RepStaticArrayProp(ae->PropOfAE);    
+  while (!EndOfPAEntr(ptr) && ptr->KindOfPE != ArrayProperty)
+    ptr = RepStaticArrayProp(ptr->NextOfPE);
+  READ_UNLOCK(ae->ARWLock);
+  ref = ptr->ValueOfVE.terms[0];
+
+  cut_pt_term = StealFirstFromDB(ref);
+  if (IsVarTerm(cut_pt_term) || !IsIntegerTerm(cut_pt_term)) {
+    /* ooops, babe we are in trouble */
+    return(-1);
+  }
+  /* OK, we've got the place to cut to, next store the new throw */
+  ptr->ValueOfVE.terms[1] = StoreTermInDB(Message,3);
+  return(IntegerOfTerm(cut_pt_term));  
+}
+
 void 
 InitArrayPreds(void)
 {
@@ -1558,5 +1642,6 @@ InitArrayPreds(void)
   InitCPred("$sync_mmapped_arrays", 0, p_sync_mmapped_arrays, SafePredFlag);
   InitCPred("$compile_array_refs", 0, p_compile_array_refs, SafePredFlag);
   InitCPred("$array_refs_compiled", 0, p_array_refs_compiled, SafePredFlag);
+  InitCPred("$has_static_array", 1, p_has_static_array, TestPredFlag|SafePredFlag);
 }
 

@@ -944,6 +944,10 @@ restore_codes(void)
     heap_regs->dead_clauses = (Clause *)
       AddrAdjust((ADDR)(heap_regs->dead_clauses));
   }
+  if (heap_regs->db_queues != NULL) {
+    heap_regs->db_queues = (struct idb_queue *)
+      AddrAdjust((ADDR)(heap_regs->db_queues));
+  }
   heap_regs->retry_recorded_code = 
     PtoOpAdjust(heap_regs->retry_recorded_code);
   heap_regs->retry_recorded_k_code =

@@ -114,7 +114,7 @@ typedef struct {
 }               SFKeep;
 #endif
 
-typedef struct
+typedef struct idb_queue
 {
   Functor id;		/* identify this as being pointed to by a DBRef */
   Term	EntryTerm;	/* cell bound to itself			*/
@@ -123,6 +123,8 @@ typedef struct
   rwlock_t    QRWLock;         /* a simple lock to protect this entry */
 #endif
   DBRef FirstInQueue, LastInQueue;
+  Int age;        /* the number of catches when we created the queue */
+  struct idb_queue *next, *prev;
 }  db_queue;
 
 #define HashFieldMask		((CELL)0xffL)
@@ -263,7 +265,6 @@ STATIC_PROTO(Int  p_dequeue, (void));
 STATIC_PROTO(Int  p_first_age, (void));
 STATIC_PROTO(Int  p_db_nb_to_ref, (void));
 STATIC_PROTO(Int  p_last_age, (void));
-STATIC_PROTO(Term StealFirstFromDB, (Atom, Int));
 
 #if OS_HANDLES_TR_OVERFLOW
 #define check_trail(x)
@@ -3451,24 +3452,6 @@ p_erase(void)
   return (TRUE);
 }
 
-/* erase(+Ref)	 */
-static Int 
-p_smash(void)
-{
-  Term t1 = Deref(ARG1);
-
-  if (IsVarTerm(t1)) {
-    Error(INSTANTIATION_ERROR, t1, "erase");
-    return (FALSE);
-  }
-  if (!IsDBRefTerm(t1)) {
-    Error(TYPE_ERROR_DBREF, t1, "erase");
-    return (FALSE);
-  }
-  EraseEntry(DBRefOfTerm(t1));
-  return (TRUE);
-}
-
 /* eraseall(+Key)	 */
 static Int 
 p_eraseall(void)
@@ -3799,7 +3782,7 @@ p_init_queue(void)
   db_queue *dbq;
   Term t;
 
-  while ((dbq = (db_queue *)AllocDBSpace(sizeof(db_queue))) == NIL) {
+  while ((dbq = (db_queue *)AllocDBSpace(sizeof(db_queue))) == NULL) {
     if (!growheap(FALSE)) {
       Abort("[ SYSTEM ERROR: YAP failed to reserve space in growheap ]\n");
       return(FALSE);
@@ -3808,11 +3791,16 @@ p_init_queue(void)
   dbq->id = FunctorDBRef;
   dbq->EntryTerm = MkAtomTerm(AbsAtom((AtomEntry *)dbq));
   dbq->Flags = DBClMask;
-  dbq->FirstInQueue = dbq->LastInQueue = NIL;
+  dbq->FirstInQueue = dbq->LastInQueue = NULL;
+  dbq->next = DBQueues;
+  dbq->prev = NULL;
+  DBQueues = dbq;
+  dbq->age = IntOfTerm(GetValue(AtomCatch));
   INIT_RWLOCK(dbq->QRWLock);
   t = MkDBRefTerm((DBRef)dbq);
   return(unify(ARG1, t));
 }
+
 
 static Int 
 p_enqueue(void)
@@ -3887,6 +3875,12 @@ p_dequeue(void)
   WRITE_LOCK(father_key->QRWLock);
   if ((cur_instance = father_key->FirstInQueue) == NIL) {
     /* an empty queue automatically goes away */
+    if (father_key == DBQueues)
+      DBQueues = father_key->next;
+    else 
+      father_key->prev->next = father_key->next;
+    if (father_key->next != NULL)
+      father_key->next->prev = father_key->prev;
     WRITE_UNLOCK(father_key->QRWLock);
     FreeDBSpace((char *) father_key);
     return(FALSE);
@@ -3907,77 +3901,34 @@ p_dequeue(void)
   }
 }
 
-/*
-  This is a hack, to steal the first element of a key.
-
-   It first fetches the first element in the chain, and then erases it
-   through its reference.
-
-  Be careful when using this routine. It is especially evil because if
-  the term is ground it should be copied to the stack, as space for
-  the entry may be deleted. For the moment, the terms I want are just
-  integers, so no problemo, amigo.
-
- */
-static Term
-StealFirstFromDB(Atom key, Int arity)
+static Int
+p_clean_queues(void)
 {
-  Prop            AtProp;
-  Register DBRef  ref;
-  Term            TermDB;
-  Term out;
+  Int myage = IntOfTerm(ARG1);
+  db_queue *ptr;
+  YAPEnterCriticalSection();
+  ptr = DBQueues;
+  while (ptr) {
+    if (ptr->age >= myage) {
+      DBRef cur_instance;
+      db_queue *optr = ptr;
 
-  /* get the DB property */
-  if ((AtProp = FindDBProp(RepAtom(key), 0, arity)) == NIL) {
-    return(TermNil);
+      while ((cur_instance = ptr->FirstInQueue)) {
+	/* release space for cur_instance */
+	ptr->FirstInQueue = (DBRef)(cur_instance->Parent);	
+	ErasePendingRefs(cur_instance);
+	FreeDBSpace((char *) cur_instance);
+      }
+      ptr = ptr->next;
+      FreeDBSpace((char *) optr);
+    } else
+      break;
   }
-  /* get the first entry */
-#ifdef KEEP_OLD_ENTRIES_HANGING_ABOUT
-  ref = RepDBProp(AtProp)->FirstNEr;
-#else
-  ref = RepDBProp(AtProp)->First;
-#endif
-  /* is there anyone home ? */
-  while (ref != NIL
-	 && (ref->Flags & (DBCode | ErasedMask)))
-    ref = NextDBRef(ref);
-  if (ref == NIL) {
-    return(TermNil);
-  }
-  /* get our fine  term */
-  if ((TermDB = GetDBTerm(ref)) == (CELL)0) {
-    /* oops, we are in trouble, not enough stack space */
-    return(TermNil);
-  }
-  if (IsVarTerm(TermDB) || !IsApplTerm(TermDB))
-    /* it's not a wonderful world afterall */
-    return(TermNil);
-  
-  out = ArgOfTerm(1,TermDB);
-  /* next, make it disappear from the DB */
-  EraseEntry(ref);
-  /* now, return what once was there, only nevermore */
-  return(out);
-}
-
-Int
-SetDBForThrow(Term Message)
-{
-  Term cut_pt_term;
-
-  /* who's gonna catch us? */
-  DBModule = 0;
-  cut_pt_term = StealFirstFromDB(AtomCatch, 0);
-  if (IsVarTerm(cut_pt_term) || !IsIntegerTerm(cut_pt_term)) {
-    /* ooops, babe we are in trouble */
-    return(-1);
-  }
-  /* OK, we've got the place to cut to, next store the new throw */
-  if (record(MkFirst, MkAtomTerm(AtomThrow), Message, TermNil) == NIL)
-    return (-1);
-  else
-    /* off we go, to see the wizard of Oz */
-    return(IntegerOfTerm(cut_pt_term));  
+  if (ptr)
+    ptr->prev = NULL;
+  DBQueues = ptr;
+  YAPLeaveCriticalSection();
+  return(TRUE);
 }
 
 /* given a key, find the clock number for the first entry */
@@ -4187,7 +4138,6 @@ InitDBPreds(void)
   InitCPred("$recordzp", 4, p_drcdzp, SafePredFlag|SyncPredFlag);
   InitCPred("$recordaifnot", 3, p_rcdaifnot, SafePredFlag|SyncPredFlag);
   InitCPred("$recordzifnot", 3, p_rcdzifnot, SafePredFlag|SyncPredFlag);
-  InitCPred("$db_smash", 1, p_smash, SafePredFlag|SyncPredFlag);
   InitCPred("erase", 1, p_erase, SafePredFlag|SyncPredFlag);
   InitCPred("erased", 1, p_erased, TestPredFlag | SafePredFlag|SyncPredFlag);
   InitCPred("instance", 2, p_instance, SyncPredFlag);
@@ -4199,6 +4149,7 @@ InitDBPreds(void)
   InitCPred("$db_key", 2, p_db_key, 0);
   InitCPred("$db_enqueue", 2, p_enqueue, SyncPredFlag);
   InitCPred("$db_dequeue", 2, p_dequeue, SyncPredFlag);
+  InitCPred("$db_clean_queues", 1, p_clean_queues, SyncPredFlag);
   InitCPred("$db_first_age", 2, p_first_age, TestPredFlag|SafePredFlag|SyncPredFlag);
   InitCPred("$db_nb_to_ref", 3, p_db_nb_to_ref, TestPredFlag|SafePredFlag);
   InitCPred("$db_last_age", 2, p_last_age, TestPredFlag|SafePredFlag|SyncPredFlag);

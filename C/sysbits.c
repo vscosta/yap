@@ -1099,7 +1099,7 @@ ProcessSIGINT(void)
 	    if (in_readline) {
 	      /* readline must eat a newline, otherwise we will
 		 have to wait before we do the Abort() */
-	    } else {
+	    } else if (!(PrologMode & CritMode)) {
 #endif
 #if defined(__MINGW32__) || _MSC_VER
 	      /* we can't do a direct abort, so ask the system to do it for us */

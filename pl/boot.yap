@@ -43,6 +43,7 @@ true :- true. % otherwise, $$compile will ignore this clause.
 	),
 	'$set_yap_flags'(10,0),
 	'$set_value'('$gc',on),
+	'$init_catch',
 	prompt('  ?- '),
 	(
 	    '$get_value'('$break',0)
@@ -61,13 +62,25 @@ true :- true. % otherwise, $$compile will ignore this clause.
 		( exists('~/prolog.ini') -> [-'~/prolog.ini'] ; true )
 	    ),
 	    '$clean_catch_and_throw',
+	    '$db_clean_queues'(0),
 	    '$startup_reconsult',
 	    '$startup_goals'
 	;
 	    true
 	).
 
-%
+'$init_catch' :-
+	% initialise access to the catch queue
+	( '$has_static_array'('$catch_queue') ->
+	    true
+	;
+	    static_array('$catch_queue',2, term)
+	),
+	update_array('$catch_queue', 0, '$'),
+	update_array('$catch_queue', 1, '$').
+
+
+				%
 % encapsulate $cut_by because of co-routining.
 %
 '$cut_by'(X) :- '$$cut_by'(X).
@@ -1122,9 +1135,9 @@ catch(G,C,A) :-
 	'$catch'(G,C,A).
 
 '$catch'(G,C,A) :-
-	'$get_value'('$catch_counter', I),
+	'$get_value'('$catch', I),
 	I1 is I+1,
-	'$set_value'('$catch_counter', I1),
+	'$set_value'('$catch', I1),
 	'$current_module'(M),
 	'$catch'(G,C,A,I,M).
 
@@ -1134,23 +1147,35 @@ catch(G,C,A) :-
 	'$catch_call'(X,G,I).
 % someone sent us a throw.
 '$catch'(_,C,A,_,M) :-
-        ('$recorded'('$throw',X,R)->true),
-        erase(R),
+	array_element('$catch_queue', 1, X), X \= '$',
+	update_array('$catch_queue', 1, '$'),
+	array_element('$catch_queue', 0, catch(_,Lev,Q)),
+	update_array('$catch_queue', 0, Q),
+	'$db_clean_queues'(Lev),
         ( C=X -> '$current_module'(_,M), '$execute'(A) ; throw(X)).
 % normal exit: make sure we only erase what we should erase!
 '$catch'(_,_,_,I,_) :-
-        '$recorded'('$catch','$catch'(_,J),R), J >= I,
-        erase(R), fail.
+	array_element('$catch_queue', 0, OldCatch),
+	'$erase_catch_elements'(OldCatch, I, Catch),
+	update_array('$catch_queue', 0, Catch),
+	fail.
 
+'$erase_catch_elements'(catch(X, J, P), I, Catch) :-
+          J >= I, !,
+	  '$erase_catch_elements'(P, I, Catch).
+'$erase_catch_elements'(Catch, _, Catch).
+	  
 '$catch_call'(X,G,I) :-
-        '$recorda'('$catch','$catch'(X,I),_),
+	array_element('$catch_queue', 0, OldCatch),
+	update_array('$catch_queue', 0, catch(X,I,OldCatch)),
         '$execute'(G),
         ( % on exit remove the catch
-          ('$recorded'('$catch','$catch'(X,I),R)->true),
-          erase(R)
+	  array_element('$catch_queue', 0, catch(X,I,Catch)),
+	  update_array('$catch_queue', 0, Catch)
         ;
           % on backtracking reinstate the catch before backtracking to G
-          '$recorda'('$catch','$catch'(X,I),_),
+	  array_element('$catch_queue', 0, Catch),
+	  update_array('$catch_queue', 0, catch(X,I,Catch)),
           fail
         ).
 
@@ -1161,9 +1186,9 @@ catch(G,C,A) :-
 % also avoids module preprocessing and goal_expansion
 %
 '$system_catch'(G,C,A) :-
-	'$get_value'('$catch_counter', I),
+	'$get_value'('$catch', I),
 	I1 is I+1,
-	'$set_value'('$catch_counter', I1),
+	'$set_value'('$catch', I1),
 	'$current_module'(M),
 	'$system_catch'(G,C,A,I,M).
 
@@ -1173,8 +1198,11 @@ catch(G,C,A) :-
 	'$system_catch_call'(X,G,I).
 % someone sent us a throw.
 '$system_catch'(_,C,A,_,M0) :-
-        ('$recorded'('$throw',X,R)->true),
-        erase(R),
+	array_element('$catch_queue', 1, X), X \= '$',
+	update_array('$catch_queue', 1, '$'),
+	array_element('$catch_queue', 0, catch(_,Lev,Q)),
+	'$db_clean_queues'(Lev),
+	update_array('$catch_queue', 0, Q),
         ( C=X ->
 	    '$current_module'(_,M0),
 	    (A = M:G -> '$mod_switch'(M,G) ; '$mod_switch'(M0,A))
@@ -1183,27 +1211,30 @@ catch(G,C,A) :-
         ).
 % normal exit: make sure we only erase what we should erase!
 '$system_catch'(_,_,_,I,_) :-
-        '$recorded'('$catch','$catch'(_,J),R), J >= I,
-        erase(R), fail.
+	array_element('$catch_queue', 0, OldCatch),
+	'$erase_catch_elements'(OldCatch, I, Catch),
+	update_array('$catch_queue', 0, Catch),
+	fail.
 
 '$system_catch_call'(X,G,I) :-
-        '$recorda'('$catch','$catch'(X,I),_),
+	array_element('$catch_queue', 0, OldCatch),
+	update_array('$catch_queue', 0, catch(X,I,OldCatch)),
         '$execute0'(G),
         ( % on exit remove the catch
-          ('$recorded'('$catch','$catch'(X,I),R)->true),
-          erase(R)
+	  array_element('$catch_queue', 0, catch(X,I,Catch)),
+	  update_array('$catch_queue', 0, Catch)
         ;
           % on backtracking reinstate the catch before backtracking to G
-          '$recorda'('$catch','$catch'(X,I),_),
+	  array_element('$catch_queue', 0, Catch),
+	  update_array('$catch_queue', 0, catch(X,I,Catch)),
           fail
         ).
 
 throw(A) :-
 	% fetch the point to jump to
-        '$recorded'('$catch','$catch'(X,_),R), !,
-        erase(R),
+	array_element('$catch_queue', 0, catch(X,_,_)), !,
 	% now explain why we are jumping.
-        '$recordz'('$throw',A,_),
+	update_array('$catch_queue', 1, A),
         '$$cut_by'(X),
         fail.
 throw(G) :-
@@ -1218,7 +1249,7 @@ throw(G) :-
 	throw(error(type_error(list,S),T)).
 
 '$clean_catch_and_throw' :-
-	'$set_value'('$catch_counter', 0),
+	'$set_value'('$catch', 0),
 	fail.
 '$clean_catch_and_throw' :-
 	'$recorded'('$catch',_,R),
