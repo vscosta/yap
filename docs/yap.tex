@@ -6586,6 +6586,12 @@ stable, that is, if you insert several pairs with the same @var{Key} it
 is not defined which of them will come out first, and it is possible for
 any of them to come out first depending on the  history of the heap.
 
+@item empty_heap(?@var{Heap})
+@findex empty_heap/1
+@syindex        empty_heap/1
+@cnindex        empty_heap/1
+Succeeds if @var{Heap} is an empty heap.
+
 @item get_from_heap(+@var{Heap},-@var{key},-@var{Datum},-@var{Heap})
 @findex get_from_heap/4
 @syindex        get_from_heap/4
