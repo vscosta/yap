@@ -2,9 +2,9 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %
 %  Logtalk - Object oriented extension to Prolog
-%  Release 2.9.1
+%  Release 2.9.2
 %
-%  Copyright (c) 1998-2001 Paulo Moura.  All Rights Reserved.
+%  Copyright (c) 1998-2002 Paulo Moura.  All Rights Reserved.
 %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
@@ -1009,7 +1009,7 @@ logtalk_version(Major, Minor, Patch) :-
 	\+ integer(Patch),
 	throw(error(type_error(integer, Patch), logtalk_version(Major, Minor, Patch))).
 
-logtalk_version(2, 9, 1).
+logtalk_version(2, 9, 2).
 
 
 
@@ -2713,6 +2713,15 @@ lgt_tr_body(parameter(Arg, Value), arg(Arg, This, Value), Context) :-
 
 
 % Logtalk and Prolog built-in predicates
+
+lgt_tr_body(Pred, _, _) :-
+	lgt_built_in(Pred),
+	\+ lgt_iso_def_pred(Pred),
+	lgt_compiler_option(portability, warning),
+	functor(Pred, Functor, Arity),
+	write('WARNING!  non-ISO defined built-in predicate call: '),
+	writeq(Functor/Arity), nl,
+	fail.
 
 lgt_tr_body(Pred, lgt_call_built_in(Pred, Context), Context) :-
 	lgt_built_in(Pred),
@@ -4598,24 +4607,35 @@ lgt_assert_init :-
 
 % lgt_assert_relation_clauses(+list)
 %
-% called when loading a compiled Logtalk 
-% entity to update Logtalk internal tables
-
-lgt_assert_relation_clauses([]).
+% called when loading a compiled Logtalk entity to update Logtalk 
+% internal tables
+%
+% we may be reloading the entity so we must first retract any old
+% relation clauses before asserting the new ones
 
 lgt_assert_relation_clauses([Clause| Clauses]) :-
-	lgt_assert_relation_clause(Clause),
-	lgt_assert_relation_clauses(Clauses).
-
-
-
-lgt_assert_relation_clause(Clause) :-
-	functor(Clause, Functor, Arity),
 	arg(1, Clause, Entity),
-	functor(Old, Functor, Arity),
-	arg(1, Old, Entity),
-	retractall(Old),
-	assertz(Clause).
+	lgt_retract_old_relation_clauses(Entity),
+	lgt_assert_new_relation_clauses([Clause| Clauses]).
+	
+
+lgt_retract_old_relation_clauses(Entity) :-
+	retractall(lgt_current_object_(Entity, _, _, _, _)),
+	retractall(lgt_current_protocol_(Entity, _)),
+	retractall(lgt_current_category_(Entity, _)),
+	retractall(lgt_implements_protocol_(Entity, _, _)),
+	retractall(lgt_imports_category_(Entity, _, _)),
+	retractall(lgt_instantiates_class_(Entity, _, _)),
+	retractall(lgt_specializes_class_(Entity, _, _)),
+	retractall(lgt_extends_protocol_(Entity, _, _)),
+	retractall(lgt_extends_object_(Entity, _, _)).
+
+
+lgt_assert_new_relation_clauses([]).
+
+lgt_assert_new_relation_clauses([Clause| Clauses]) :-
+	assertz(Clause),
+	lgt_assert_new_relation_clauses(Clauses).
 
 
 
@@ -5019,6 +5039,9 @@ lgt_valid_compiler_option(lgtredef(Option)) :-
 	once((Option == silent; Option == warning)).
 
 lgt_valid_compiler_option(plredef(Option)) :-
+	once((Option == silent; Option == warning)).
+
+lgt_valid_compiler_option(portability(Option)) :-
 	once((Option == silent; Option == warning)).
 
 lgt_valid_compiler_option(report(Option)) :-
@@ -5459,6 +5482,143 @@ lgt_write_xml_close_tag(Stream, Tag) :-
 
 
 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%
+%  table of ISO defined predicates
+%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+lgt_iso_def_pred(true).
+lgt_iso_def_pred(fail).
+lgt_iso_def_pred(call(_)).
+lgt_iso_def_pred(!).
+lgt_iso_def_pred((_; _)).
+lgt_iso_def_pred((_, _)).
+lgt_iso_def_pred((_ -> _)).
+lgt_iso_def_pred((_ -> _; _)).
+lgt_iso_def_pred(catch(_, _, _)).
+lgt_iso_def_pred(throw(_)).
+
+lgt_iso_def_pred((_ = _)).
+lgt_iso_def_pred((_ \= _)).
+lgt_iso_def_pred(unify_with_occurs_check(_, _)).
+
+lgt_iso_def_pred(var(_)).
+lgt_iso_def_pred(nonvar(_)).
+lgt_iso_def_pred(atom(_)).
+lgt_iso_def_pred(atomic(_)).
+lgt_iso_def_pred(number(_)).
+lgt_iso_def_pred(integer(_)).
+lgt_iso_def_pred(float(_)).
+lgt_iso_def_pred(compound(_)).
+
+lgt_iso_def_pred((_ @=< _)).
+lgt_iso_def_pred((_ @< _)).
+lgt_iso_def_pred((_ @>= _)).
+lgt_iso_def_pred((_ @> _)).
+lgt_iso_def_pred((_ == _)).
+lgt_iso_def_pred((_ \== _)).
+
+lgt_iso_def_pred(functor(_, _, _)).
+lgt_iso_def_pred(arg(_, _, _)).
+lgt_iso_def_pred(_ =.. _).
+lgt_iso_def_pred(copy_term(_, _)).
+
+lgt_iso_def_pred(_ is _).
+
+lgt_iso_def_pred((_ =< _)).
+lgt_iso_def_pred((_ < _)).
+lgt_iso_def_pred((_ >= _)).
+lgt_iso_def_pred((_ > _)).
+lgt_iso_def_pred((_ =:= _)).
+lgt_iso_def_pred((_ =\= _)).
+
+lgt_iso_def_pred(clause(_, _)).
+lgt_iso_def_pred(current_predicate(_)).
+
+lgt_iso_def_pred(asserta(_)).
+lgt_iso_def_pred(assertz(_)).
+lgt_iso_def_pred(retract(_)).
+lgt_iso_def_pred(abolish(_)).
+
+lgt_iso_def_pred(findall(_, _, _)).
+lgt_iso_def_pred(bagof(_, _, _)).
+lgt_iso_def_pred(setof(_, _, _)).
+
+lgt_iso_def_pred(current_input(_)).
+lgt_iso_def_pred(current_output(_)).
+lgt_iso_def_pred(set_input(_)).
+lgt_iso_def_pred(set_output(_)).
+lgt_iso_def_pred(open(_, _, _, _)).
+lgt_iso_def_pred(open(_, _, _)).
+lgt_iso_def_pred(close(_, _)).
+lgt_iso_def_pred(close(_)).
+lgt_iso_def_pred(flush_output(_)).
+lgt_iso_def_pred(flush_output).
+lgt_iso_def_pred(stream_property(_, _)).
+lgt_iso_def_pred(at_end_of_stream).
+lgt_iso_def_pred(at_end_of_stream(_)).
+lgt_iso_def_pred(set_stream_position(_, _)).
+
+lgt_iso_def_pred(get_char(_, _)).
+lgt_iso_def_pred(get_char(_)).
+lgt_iso_def_pred(get_code(_, _)).
+lgt_iso_def_pred(get_code(_)).
+lgt_iso_def_pred(peek_char(_, _)).
+lgt_iso_def_pred(peek_char(_)).
+lgt_iso_def_pred(peek_code(_, _)).
+lgt_iso_def_pred(peek_code(_)).
+lgt_iso_def_pred(put_char(_, _)).
+lgt_iso_def_pred(put_char(_)).
+lgt_iso_def_pred(put_code(_, _)).
+lgt_iso_def_pred(put_code(_)).
+lgt_iso_def_pred(nl).
+lgt_iso_def_pred(nl(_)).
+
+lgt_iso_def_pred(get_byte(_, _)).
+lgt_iso_def_pred(get_byte(_)).
+lgt_iso_def_pred(peek_byte(_, _)).
+lgt_iso_def_pred(peek_byte(_)).
+lgt_iso_def_pred(put_byte(_, _)).
+lgt_iso_def_pred(put_byte(_)).
+
+lgt_iso_def_pred(read_term(_, _, _)).
+lgt_iso_def_pred(read_term(_, _)).
+lgt_iso_def_pred(read(_)).
+lgt_iso_def_pred(read(_, _)).
+lgt_iso_def_pred(write_term(_, _, _)).
+lgt_iso_def_pred(write_term(_, _)).
+lgt_iso_def_pred(write(_)).
+lgt_iso_def_pred(write(_, _)).
+lgt_iso_def_pred(writeq(_)).
+lgt_iso_def_pred(writeq(_, _)).
+lgt_iso_def_pred(write_canonical(_)).
+lgt_iso_def_pred(write_canonical(_, _)).
+lgt_iso_def_pred(op(_, _, _)).
+lgt_iso_def_pred(current_op(_, _, _)).
+lgt_iso_def_pred(char_conversion(_, _)).
+lgt_iso_def_pred(current_char_conversion(_, _)).
+
+lgt_iso_def_pred(\+ _).
+lgt_iso_def_pred(once(_)).
+lgt_iso_def_pred(repeat).
+
+lgt_iso_def_pred(atom_length(_, _)).
+lgt_iso_def_pred(atom_concat(_, _, _)).
+lgt_iso_def_pred(sub_atom(_, _, _, _, _)).
+lgt_iso_def_pred(atom_chars(_, _)).
+lgt_iso_def_pred(atom_codes(_, _)).
+lgt_iso_def_pred(char_code(_, _)).
+lgt_iso_def_pred(number_chars(_, _)).
+lgt_iso_def_pred(number_codes(_, _)).
+
+lgt_iso_def_pred(set_prolog_flag(_, _)).
+lgt_iso_def_pred(current_prolog_flag(_, _)).
+lgt_iso_def_pred(halt).
+lgt_iso_def_pred(halt(_)).
+
+
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %
@@ -5470,7 +5630,7 @@ lgt_write_xml_close_tag(Stream, Tag) :-
 lgt_banner :-
 	logtalk_version(Major, Minor, Patch),
 	write('Logtalk '), write(Major), write('.'), write(Minor), write('.'), write(Patch), nl,
-	write('Copyright (c) 1998-2001 Paulo Moura'), nl.
+	write('Copyright (c) 1998-2002 Paulo Moura'), nl.
 
 
 :- initialization(lgt_banner).
