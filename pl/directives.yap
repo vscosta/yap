@@ -87,7 +87,7 @@
 '$exec_directive'(use_module(Fs,I), _, M) :-
 	'$use_module'(M:Fs,I).
 '$exec_directive'(use_module(Fs,F,I), _, M) :-
-	'$use_module'(M:Fs,F,I).
+	'$use_module'(Fs,M:F,I).
 '$exec_directive'(block(BlockSpec), _, _) :-
 	'$block'(BlockSpec).
 '$exec_directive'(wait(BlockSpec), _, _) :-

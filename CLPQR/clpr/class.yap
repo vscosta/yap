@@ -29,6 +29,7 @@
 	    arrangement/2
 	]).
 
+
 :- use_module( clpr, '../clpr', [get_or_add_class/2]).
 
 :- ensure_loaded( '../clpqr/ordering').

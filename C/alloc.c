@@ -12,7 +12,7 @@
 * Last rev:								 *
 * mods:									 *
 * comments:	allocating space					 *
-* version:$Id: alloc.c,v 1.11 2002-01-21 15:26:48 vsc Exp $		 *
+* version:$Id: alloc.c,v 1.12 2002-01-26 05:37:31 vsc Exp $		 *
 *************************************************************************/
 #ifdef SCCS
 static char SccsId[] = "%W% %G%";
@@ -822,12 +822,14 @@ mallinfo(void)
 
 /* user should ask for a lot of memory first */
 
+#define MAX_SPACE 128*1024*1024
+
 static int total_space;
 
 MALLOC_T
 InitWorkSpace(Int s)
 {
-  MALLOC_T ptr = (MALLOC_T)malloc(s);
+  MALLOC_T ptr = (MALLOC_T)malloc(MAX_SPACE);
   total_space = s;
 
   if (ptr == ((MALLOC_T) - 1)) {
@@ -843,6 +845,7 @@ ExtendWorkSpace(Int s)
   MALLOC_T ptr;
   total_space += s;
 
+  if (total_space < MAX_SPACE) return(TRUE);
   ptr = (MALLOC_T)realloc((void *)HeapBase, total_space);
   if (ptr == ((MALLOC_T) - 1)) {
      Error(SYSTEM_ERROR, TermNil, "could not expand stacks %d bytes", s);
