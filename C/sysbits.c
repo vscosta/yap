@@ -1107,56 +1107,25 @@ InteractSIGINT(int ch) {
 #endif
   case 's':
     /* show some statistics */
-#if SHORT_INTS==0
-    YP_fprintf(YP_stderr, "aux. stack: %d ", Unsigned (AuxTop) -
-	       Unsigned (LCL0 + 1));
-    if (Unsigned (AuxSp) <= Unsigned (LCL0))
-      YP_fprintf(YP_stderr, "( 0 bytes used)\n");
-    else
-      YP_fprintf(YP_stderr, "( %d bytes used)\n",
-		 Unsigned (AuxSp) - Unsigned (LCL0 + 1));
-    YP_fprintf(YP_stderr, "heap space: %d ", Unsigned (AuxTop) -
-	       Unsigned (HeapBase));
-    YP_fprintf(YP_stderr, "( %d bytes used for heap",
-	       Unsigned (HeapUsed));
-    YP_fprintf(YP_stderr, " and %d bytes used for trail)\n",
-	       Unsigned (TR) - Unsigned (TrailBase));
-    YP_fprintf(YP_stderr, "stack space: %d ", Unsigned (LCL0) -
-	       Unsigned (H0));
-    YP_fprintf(YP_stderr, "( %d bytes used for local",
-	       Unsigned (LCL0) - Unsigned (ASP));
-    YP_fprintf(YP_stderr, " and %d bytes used for global)\n",
-	       Unsigned (H) - Unsigned (H0));
-#else
-    YP_fprintf(YP_stderr, "aux. stack: %ld ", Unsigned (AuxTop) -
-	       Unsigned (LCL0 + 1));
-    if (Unsigned (AuxSp) <= Unsigned (LCL0))
-      YP_fprintf(YP_stderr, "( 0 bytes used)\n");
-    else
-      YP_fprintf(YP_stderr, "( %ld bytes used)\n",
-		 Unsigned (AuxSp) - Unsigned (LCL0 + 1));
-    YP_fprintf(YP_stderr, "heap space: %ld ", Unsigned (AuxTop) -
-	       Unsigned (HeapBase));
-    YP_fprintf(YP_stderr, "( %ld bytes used for heap",
-	       Unsigned (HeapUsed));
-    YP_fprintf(YP_stderr, " and %ld bytes used for trail)\n",
-	       Unsigned (TR) - Unsigned (TrailBase));
-    YP_fprintf(YP_stderr, "stack space: %ld ", Unsigned (LCL0) -
-	       Unsigned (H0));
-    YP_fprintf(YP_stderr, "( %ld bytes used for local",
-	       Unsigned (LCL0) - Unsigned (ASP));
-    YP_fprintf(YP_stderr, " and %ld bytes used for global)\n",
-	       Unsigned (H) - Unsigned (H0));
-#endif
-#if SHORT_INTS
-    YP_fprintf(YP_stderr, "Runtime: %lds.\n", runtime ());
-    YP_fprintf(YP_stderr, "Cputime: %lds.\n", cputime ());
-    YP_fprintf(YP_stderr, "Walltime: %lds.\n", walltime ());
-#else
-    YP_fprintf(YP_stderr, "Runtime: %ds.\n", runtime ());
-    YP_fprintf(YP_stderr, "Cputime: %ds.\n", cputime ());
-    YP_fprintf(YP_stderr, "Walltime: %ds.\n", walltime ());
-#endif
+    {
+      unsigned long int heap_space_taken = 
+	(unsigned long int)(Unsigned(HeapTop)-Unsigned(HeapBase));
+      double frag = (100.0*(heap_space_taken-HeapUsed))/heap_space_taken;
+      YP_fprintf(YP_stderr, "Code Space:  %ld (%ld bytes used, fragmentation %.3f\%).\n", 
+		 (unsigned long int)(Unsigned (AuxTop) - Unsigned (HeapBase)),
+		 (unsigned long int)(HeapUsed),
+		 frag);
+      YP_fprintf(YP_stderr, "Stack Space: %ld (%ld for Global, %ld for local).\n", 
+		 (unsigned long int)(sizeof(CELL)*(LCL0-H0)),
+		 (unsigned long int)(sizeof(CELL)*(H-H0)),
+		 (unsigned long int)(sizeof(CELL)*(LCL0-ASP)));
+      YP_fprintf(YP_stderr, "Trail Space: %ld (%ld used).\n", 
+		 (unsigned long int)(sizeof(tr_fr_ptr)*(Unsigned(TrailTop)-Unsigned(TrailBase))),
+		 (unsigned long int)(sizeof(tr_fr_ptr)*(Unsigned(TR)-Unsigned(TrailBase))));
+      YP_fprintf(YP_stderr, "Runtime: %lds.\n", (unsigned long int)(runtime ()));
+      YP_fprintf(YP_stderr, "Cputime: %lds.\n", (unsigned long int)(cputime ()));
+      YP_fprintf(YP_stderr, "Walltime: %lds.\n", (unsigned long int)(walltime ()));
+    }
     return(1);
   case EOF:
     return(0);
