@@ -2351,7 +2351,11 @@ fi
 echo "$as_me:$LINENO: result: $ac_cv_target" >&5
 echo "${ECHO_T}$ac_cv_target" >&6
 target=$ac_cv_target
-target_cpu=`echo $ac_cv_target | sed 's/^\([^-]*\)-\([^-]*\)-\(.*\)$/\1/'`
+if test "${tcpu+set}" == set; then
+  target_cpu=$tcpu
+else
+  target_cpu=`echo $ac_cv_target | sed 's/^\([^-]*\)-\([^-]*\)-\(.*\)$/\1/'`
+fi;
 target_vendor=`echo $ac_cv_target | sed 's/^\([^-]*\)-\([^-]*\)-\(.*\)$/\2/'`
 target_os=`echo $ac_cv_target | sed 's/^\([^-]*\)-\([^-]*\)-\(.*\)$/\3/'`
 
@@ -2402,11 +2406,14 @@ then
        if test "$maxperformance" = "yes"
        then
          case "$target_cpu" in
+          athlon)
+           CFLAGS="-march=athlon $CFLAGS"
+	  ;;
           i686*)
-           CFLAGS="-march=pentiumpro $CFLAGS"
+           CFLAGS="-march=i686 $CFLAGS"
           ;;
           i586*)
-           CFLAGS="-march=pentium $CFLAGS"
+           CFLAGS="-march=i586 $CFLAGS"
           ;;
           i486*)
            CFLAGS="-march=i486 $CFLAGS"

@@ -3,7 +3,7 @@ Summary: Prolog Compiler
 Version: 4.5.0
 Packager:     Vitor Santos Costa <vitor@cos.ufrj.br>
 Release: 1
-Source: http://www.ncc.up.pt/~vsc/Yap/Yap4.3/%{name}-%{version}.tar.gz
+Source: http://www.ncc.up.pt/~vsc/Yap/%{name}-%{version}.tar.gz
 Copyright: Perl Artistic License
 Provides: yap
 Requires: readline
@@ -25,7 +25,7 @@ rm -rf $RPM_BUILD_ROOT
 %setup -q
 
 %build
-./configure --prefix=/usr  --enable-coroutining
+./configure --prefix=/usr  --enable-coroutining --enable-max-performance
 make
 
 %install
