@@ -456,6 +456,19 @@ GetValue(Atom a)
     return (TermNil);
   READ_LOCK(RepValProp(p0)->VRWLock);
   out = RepValProp(p0)->ValueOfVE;
+  if (IsApplTerm(out)) {
+    Functor f = FunctorOfTerm(out);
+    if (f == FunctorDouble) {
+      out = MkFloatTerm(FloatOfTerm(out));
+    } else if (f == FunctorLongInt) {
+      out = MkLongIntTerm(LongIntOfTerm(out));
+    }
+#ifdef USE_GMP
+    else {
+      out = MkBigIntTerm(BigIntOfTerm(out));
+    }
+#endif
+  }
   READ_UNLOCK(RepValProp(p0)->VRWLock);
   return (out);
 }
