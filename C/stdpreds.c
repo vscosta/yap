@@ -11,8 +11,11 @@
 * File:		stdpreds.c						 *
 * comments:	General-purpose C implemented system predicates		 *
 *									 *
-* Last rev:     $Date: 2004-12-05 05:07:26 $,$Author: vsc $						 *
+* Last rev:     $Date: 2004-12-08 04:45:03 $,$Author: vsc $						 *
 * $Log: not supported by cvs2svn $
+* Revision 1.77  2004/12/05 05:07:26  vsc
+* name/2 should accept [] as a valid list (string)
+*
 * Revision 1.76  2004/12/05 05:01:25  vsc
 * try to reduce overheads when running with goal expansion enabled.
 * CLPBN fixes
@@ -160,7 +163,7 @@ static Int order=0;
     Int temp;
     order++;
     if (index_code) temp=-order; else temp=order;
-    fprintf(FPreds,"+%p %p %p %l",code_start,code_end, pe, (long int)temp);
+    fprintf(FPreds,"+%p %p %p %ld",code_start,code_end, pe, (long int)temp);
 #if MORE_INFO_FILE
     if (pe->FunctorOfPred->KindOfPE==47872) {
       if (pe->ArityOfPE) {
@@ -263,7 +266,7 @@ showprofres(UInt type) {
 
   ProfPreds=0;
   pr=(clauseentry *) TR;
-  while (fscanf(FPreds,"+%p %p %p %l",&(pr->beg),&(pr->end),&(pr->pp),&(pr->ts)) > 0){
+  while (fscanf(FPreds,"+%p %p %p %ld",&(pr->beg),&(pr->end),&(pr->pp),&(pr->ts)) > 0){
     int c;
     pr->pcs = 0L;
     pr++;
@@ -2770,6 +2773,26 @@ p_unlock_system(void)
   return TRUE;
 }
 
+static Int
+p_enterundefp(void)
+{
+  if (DoingUndefp) {
+    return FALSE;
+  }
+  DoingUndefp = TRUE;
+  return TRUE;
+}
+
+static Int
+p_exitundefp(void)
+{
+  if (DoingUndefp) {
+    DoingUndefp = FALSE;
+    return TRUE;
+  }
+  return FALSE;
+}
+
 #ifndef YAPOR
 static Int
 p_default_sequential(void) {
@@ -2866,6 +2889,8 @@ Yap_InitCPreds(void)
   Yap_InitCPred("$halt", 1, p_halt, SyncPredFlag|HiddenPredFlag);
   Yap_InitCPred("$lock_system", 0, p_lock_system, SafePredFlag|HiddenPredFlag);
   Yap_InitCPred("$unlock_system", 0, p_unlock_system, SafePredFlag|HiddenPredFlag);
+  Yap_InitCPred("$enter_undefp", 0, p_enterundefp, SafePredFlag|HiddenPredFlag);
+  Yap_InitCPred("$exit_undefp", 0, p_exitundefp, SafePredFlag|HiddenPredFlag);
   /* basic predicates for the prolog machine tracer */
   /* they are defined in analyst.c */
   /* Basic predicates for the debugger */

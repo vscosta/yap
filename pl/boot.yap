@@ -38,13 +38,6 @@ true :- true.
 		),
 		'$system_catch'('$enter_top_level',Module,Error,user:'$Error'(Error)).
 
-read_sig :-
-	recorded('$sig_handler',X,_),
-	writeq(X),nl,
-	fail.
-read_sig.
-
-
 '$init_system' :-
         % do catch as early as possible
 	(
@@ -56,7 +49,7 @@ read_sig.
 	'$set_yap_flags'(10,0),
 	set_value('$gc',on),
 	set_value('$verbose',on),
-	(recorded('$in_undefp',_,R), erase(R), fail ; true),
+	('$exit_undefp' -> true ; true),
 	prompt('  ?- '),
 	(
 	    get_value('$break',0)
@@ -733,41 +726,36 @@ not(G) :-    \+ '$execute'(G).
 '$check_callable'(_,_).
 
 % Called by the abstract machine, if no clauses exist for a predicate
-recordaifnot(K,T,R) :-
-	recorded(K,T,R), % force non-det binding to R.
-	'$still_variant'(R,T),
-	!,
-	fail.
-recordaifnot(K,T,R) :-
-	recorda(K,T,R).
-
 '$undefp'([M|G]) :-
-	recordaifnot('$in_undefp','$in_undefp',R),
-	'$do_undefp'(G,M,R).
+	% make sure we do not loop on undefined predicates
+        % for undefined_predicates.
+	'$enter_undefp',
+	'$do_undefp'(G,M).
 
-'$do_undefp'(G,M,R) :-
+'$do_undefp'(G,M) :-
 	functor(G,F,N),
 	recorded('$import','$import'(S,M,F,N),_),
 	S \= M, % can't try importing from the module itself.
 	!,
-	erase(R),
+	'$exit_undefp',
 	'$execute'(S:G).
-'$do_undefp'(G,M,R) :-
+'$do_undefp'(G,M) :-
 	'$is_expand_goal_or_meta_predicate'(G,M),
 	'$system_catch'(goal_expansion(G, M, NG), user, _, fail), !,
-	erase(R),
+	'$exit_undefp',
 	'$execute0'(NG,M).
-'$do_undefp'(G,M,R) :-
+'$do_undefp'(G,M) :-
 	\+ '$undefined'(unknown_predicate_handler(_,_,_), user),
 	'$system_catch'(unknown_predicate_handler(G,M,NG), user, _, fail), !,
 	erase(R),
+	'$exit_undefp',
 	'$execute'(user:NG).
-'$do_undefp'(G,M,R) :-
+'$do_undefp'(G,M) :-
 	recorded('$unknown','$unknown'(M:G,US),_), !,
-	erase(R),
+	'$exit_undefp',
 	'$execute'(user:US).
-'$do_undefp'(_,_,R) :-
-	erase(R),
+'$do_undefp'(_,_) :-
+	'$exit_undefp',
 	fail.
 
 

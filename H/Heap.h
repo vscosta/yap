@@ -10,7 +10,7 @@
 * File:		Heap.h         						 *
 * mods:									 *
 * comments:	Heap Init Structure					 *
-* version:      $Id: Heap.h,v 1.74 2004-12-05 05:01:43 vsc Exp $	 *
+* version:      $Id: Heap.h,v 1.75 2004-12-08 04:45:04 vsc Exp $	 *
 *************************************************************************/
 
 /* information that can be stored in Code Space */
@@ -54,6 +54,7 @@ typedef struct worker_local_struct {
   yamop *prof_end;
   Int    start_line;
   int    uncaught_throw;
+  int    doing_undefp;
   scratch_block scratchpad;
 #ifdef MULTI_ASSIGNMENT_VARIABLES
   Term   woken_goals;
@@ -673,6 +674,7 @@ struct various_codes *Yap_heap_regs;
 #define  SignalLock               Yap_heap_regs->wl[worker_id].signal_lock
 #define  WPP                      Yap_heap_regs->wl[worker_id].wpp
 #define  UncaughtThrow            Yap_heap_regs->wl[worker_id].uncaught_throw
+#define  DoingUndefp              Yap_heap_regs->wl[worker_id].doing_undefp
 #define  ActiveSignals            Yap_heap_regs->wl[worker_id].active_signals
 #define  IPredArity               Yap_heap_regs->wl[worker_id].i_pred_arity
 #define  ProfEnd                  Yap_heap_regs->wl[worker_id].prof_end
@@ -694,6 +696,7 @@ struct various_codes *Yap_heap_regs;
 #define  IPredArity               Yap_heap_regs->wl.i_pred_arity
 #define  ProfEnd                  Yap_heap_regs->wl.prof_end
 #define  UncaughtThrow            Yap_heap_regs->wl.uncaught_throw
+#define  DoingUndefp              Yap_heap_regs->wl.doing_undefp
 #define  StartLine                Yap_heap_regs->wl.start_line
 #define  ScratchPad               Yap_heap_regs->wl.scratchpad
 #ifdef  COROUTINING

@@ -142,3 +142,10 @@ raise_exception(Ball) :- throw(Ball).
 
 on_exception(Pat, G, H) :- catch(G, Pat, H).
 
+read_sig :-
+	recorded('$sig_handler',X,_),
+	writeq(X),nl,
+	fail.
+read_sig.
+
+

@@ -288,6 +288,14 @@ restore(S) :- '$restore'(S).
 
 %%% current ....
 
+recordaifnot(K,T,R) :-
+	recorded(K,T,R), % force non-det binding to R.
+	'$still_variant'(R,T),
+	!,
+	fail.
+recordaifnot(K,T,R) :-
+	recorda(K,T,R).
+
 recordzifnot(K,T,R) :-
 	recorded(K,T,R),
 	'$still_variant'(R,T),
