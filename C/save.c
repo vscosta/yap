@@ -75,6 +75,8 @@ define DEBUG_RESTORE3 to check if the atom chain is still a working
  * Good Luck 
  */
 
+#define DEBUG_RESTORE2 1
+
 #endif
 
 STATIC_PROTO(void  myread, (int, char *, Int));
@@ -1262,16 +1264,19 @@ AdjustDBTerm(Term trm)
     return (AbsPair(p-1));
   }
   if (IsApplTerm(trm)) {
-    int             Arity, i;
     Functor f;
     Term *p0 = p = PtoHeapCellAdjust(RepAppl(trm));
     f = FuncAdjust((Functor)(*p));
     *p = (Term)f ;
-    Arity = ArityOfFunctor(f);
-    p++;
-    for (i = 0; i < Arity; ++i) {
-      *p = AdjustDBTerm(*p);
+    if (!IsExtensionFunctor(f)) {
+      int             Arity, i;
+
+      Arity = ArityOfFunctor(f);
       p++;
+      for (i = 0; i < Arity; ++i) {
+	*p = AdjustDBTerm(*p);
+	p++;
+      }
     }
     return (AbsAppl(p0));
   }
@@ -2489,12 +2494,16 @@ RestoreEntries(PropEntry *pp)
       {
 	FunctorEntry *fe = (FunctorEntry *)pp;
 	Prop p0;
+	fe->NextOfPE =
+	  PropAdjust(fe->NextOfPE);
 	fe->NameOfFE =
 	  AtomAdjust(fe->NameOfFE);
-	p0 = fe->PropsOfFE;
+	p0 = fe->PropsOfFE =
+	  PropAdjust(fe->PropsOfFE);
 	while (!EndOfPAEntr(p0)) {
 	  CleanCode(RepPredProp(p0));
-	  p0 = RepPredProp(p0)->NextOfPE;
+	  p0 = RepPredProp(p0)->NextOfPE =
+	    PropAdjust(RepPredProp(p0)->NextOfPE);
 	}
       }
       break;
@@ -2502,6 +2511,8 @@ RestoreEntries(PropEntry *pp)
       {
 	ValEntry *ve = (ValEntry *)pp;
 	Term      tv = ve->ValueOfVE;
+	ve->NextOfPE =
+	  PropAdjust(ve->NextOfPE);
 	if (IsAtomTerm(tv))
 	  ve->ValueOfVE = AtomTermAdjust(tv);
       }
@@ -2509,6 +2520,8 @@ RestoreEntries(PropEntry *pp)
     case ArrayProperty:
       {
 	ArrayEntry *ae = (ArrayEntry *)pp;
+	ae->NextOfPE =
+	  PropAdjust(ae->NextOfPE);
 	if (ae->ArrayEArity < 0) {
 	  restore_static_array((StaticArrayEntry *)ae);
 	} else {
@@ -2536,7 +2549,12 @@ RestoreEntries(PropEntry *pp)
       }
       break;
     case PEProp:
-      CleanCode((PredEntry *) pp);
+      {
+	PredEntry *pe = (PredEntry *) pp;
+	pe->NextOfPE =
+	  PropAdjust(pe->NextOfPE);
+	CleanCode(pe);
+      }
       break;
     case DBProperty:
     case LogUpdDBProperty:
@@ -2545,22 +2563,33 @@ RestoreEntries(PropEntry *pp)
 #ifdef DEBUG_RESTORE2
       YP_fprintf(errout, "Correcting data base clause at %p\n", pp);
 #endif
-      if (HDiff)
-	RestoreDB((DBEntry *) pp);
+      {
+	DBEntry *de = (DBEntry *) pp;
+	de->NextOfPE =
+	  PropAdjust(de->NextOfPE);
+	if (HDiff)
+	  RestoreDB(de);
+      }
       break;
     case BBProperty:
-      if (HDiff)
-	RestoreBB((BlackBoardEntry *)pp);
+      {
+	BlackBoardEntry *bb = (BlackBoardEntry *) pp;
+	bb->NextOfPE =
+	  PropAdjust(bb->NextOfPE);
+	if (HDiff)
+	  RestoreBB(bb);
+      }
       break;
     case ExpProperty:
     case OpProperty:
     case ModProperty:
-      /* do nothing */
+      pp->NextOfPE =
+	PropAdjust(pp->NextOfPE);
       break;
     default:
       /* OOPS */
       Error(SYSTEM_ERROR, TermNil,
-	    "Invalid Atom Property at %p", pp);
+	    "Invalid Atom Property %d at %p", pp->KindOfPE, pp);
       return;
     }
     pp = RepProp(pp->NextOfPE);
@@ -2582,6 +2611,7 @@ RestoreInvisibleAtoms(void)
 #ifdef DEBUG_RESTORE2		/* useful during debug */
     YP_fprintf(errout, "Restoring %s\n", at->StrOfAE);
 #endif
+    at->PropsOfAE = PropAdjust(at->PropsOfAE);
     RestoreEntries(RepProp(at->PropsOfAE));
     atm = at->NextOfAE;
     at->NextOfAE = atm = AtomAdjust(atm);
@@ -2673,6 +2703,7 @@ restore_heap(void)
 #ifdef DEBUG_RESTORE2			/* useful during debug */
 	YP_fprintf(errout, "Restoring %s\n", at->StrOfAE);
 #endif
+	at->PropsOfAE = PropAdjust(at->PropsOfAE);
 	RestoreEntries(RepProp(at->PropsOfAE));
 	atm = at->NextOfAE = AtomAdjust(at->NextOfAE);
 	at = RepAtom(atm);
