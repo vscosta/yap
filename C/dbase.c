@@ -2054,8 +2054,8 @@ copy_attachments(CELL *ts)
 }
 #endif
 
-static Term 
-GetDBKey(DBRef DBSP)
+static int 
+UnifyDBKey(DBRef DBSP, PropFlags flags, Term t)
 {
   DBProp p = DBSP->Parent;
   Term t1, tf;
@@ -2067,16 +2067,18 @@ GetDBKey(DBRef DBSP)
   } else {
     t1 = Yap_MkNewApplTerm(p->FunctorOfDB,p->ArityOfDB);
   }
-  if (p->KindOfPE & MkCode) {
+  if (p->KindOfPE & CodeDBBit && (flags & CodeDBBit)) {
     Term t[2];
     t[1] = Yap_LookupModule(p->ModuleOfDB);
     t[2] = t1;
     tf = Yap_MkApplTerm(FunctorModule, 2, t);
-  } else {
+  } else if (!(flags & CodeDBBit)) {
     tf = t1;
+  } else {
+    return FALSE;
   }
   READ_UNLOCK(p->DBRWLock);
-  return(tf);
+  return(Yap_unify(tf,t));
 }
 
 
@@ -2946,7 +2948,7 @@ in_rded(void)
       if (ref == NULL
 	  || DEAD_REF(ref)
 	  || !Yap_unify(ARG2,GetDBTerm(ref))
-	  || !Yap_unify(ARG1,GetDBKey(ref))) {
+	  || !UnifyDBKey(ref,0,ARG1)) {
 	UNLOCK(ref->lock);
 	cut_fail();
       } else {
@@ -2998,7 +3000,7 @@ in_rdedp(void)
       if (ref == NULL
 	  || DEAD_REF(ref)
 	  || !Yap_unify(ARG2,GetDBTerm(ref))
-	  || !Yap_unify(ARG1,GetDBKey(ref))) {
+	  || !UnifyDBKey(ref,CodeDBBit,ARG1)) {
 	UNLOCK(ref->lock);
 	cut_fail();
       } else {
@@ -3041,7 +3043,7 @@ p_somercdedp(void)
       if (ref == NULL
 	  || DEAD_REF(ref)
 	  || !Yap_unify(ARG2,GetDBTerm(ref))
-	  || !Yap_unify(ARG1,GetDBKey(ref))) {
+	  || !UnifyDBKey(ref,CodeDBBit,ARG1)) {
 	UNLOCK(ref->lock);
 	cut_fail();
       } else {

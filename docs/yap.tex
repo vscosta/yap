@@ -4968,7 +4968,14 @@ If a term equal to @var{T} up to variable renaming is stored under key
 @saindex recorded/3
 @cyindex recorded/3
 Searches in the internal database under the key @var{K}, a term that
-unifies with @var{T} and whose reference matches @var{R}.
+unifies with @var{T} and whose reference matches @var{R}. This
+built-in may be used in one of two ways:
+@itemize @bullet
+@item @var{K} may be given, in this case the built-in will return all
+elements of the internal data-base that match the key.
+@item @var{R} may be given, if so returning the key and element that
+match the reference.
+@end itemize
 
 @item erase(+@var{R})
 @findex erase/1
