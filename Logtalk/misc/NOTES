@@ -1,6 +1,6 @@
 =================================================================
 Logtalk - Object oriented extension to Prolog
-Release 2.22.2
+Release 2.22.3
 
 Copyright (c) 1998-2004 Paulo Moura.  All Rights Reserved.
 =================================================================
@@ -108,9 +108,9 @@ make_yaplgt.js
 
 make_xsblgt.sh
 	makes a shell script named xsblgt for running Logtalk with XSB (the first 
-	call to the shortcut must be made by a user with administrative rights; 
-	each user will need to rename the file configs/xsb.config to end with the 
-	.P extension and make and edit a copy of the libpaths/libpaths.pl in order 
+	run of the xsblgt script must be made as root or using sudo; each user 
+	will need to rename the file configs/xsb.config to end with the .P 
+	extension and make and edit a copy of the libpaths/libpaths.pl in order 
 	to replace all occurrences of the LOGTALKUSER environment variable with 
 	its value)
 

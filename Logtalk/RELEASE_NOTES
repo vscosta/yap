@@ -1,6 +1,6 @@
 =================================================================
 Logtalk - Object oriented extension to Prolog
-Release 2.22.2
+Release 2.22.3
 
 Copyright (c) 1998-2004 Paulo Moura.  All Rights Reserved.
 =================================================================
@@ -8,6 +8,33 @@ Copyright (c) 1998-2004 Paulo Moura.  All Rights Reserved.
 
 RELEASE NOTES
 =============
+
+
+2.22.3 - December 30, 2004
+
+	Added a configuration file for XSB 2.7.
+
+	Corrected a bug where the use of alternative compilation directories 
+	would fail the first time the logtalk_compile/1-2 or logtalk_load/1-2 
+	predicates are used for a given file or library.
+
+	Corrected a bug in the built-in methods asserta/1 and assertz/1 when 
+	asserting facts into an object being debugged, which resulted in wrong 
+	execution context information being printed when tracing calls to 
+	the asserted facts.
+
+	Corrected a bug in the built-in methods asserta/1 and assertz/1 when 
+	asserting rules into an object being debugged, which resulted in rule 
+	bodies compiled with no information being printed for the rule head 
+	when tracing calls to the asserted rules.
+
+	Corrected a bug in the dynamic creation of objects, protocols, and 
+	categories when the debug flag is on, which resulted in the table of 
+	entities being debugged not being updated.
+
+	Corrected a bug in the handling of exceptions thrown when using the 
+	built-in debugger, which resulted in exceptions always being turned 
+	into failures.
 
 
 2.22.2 - December 24, 2004

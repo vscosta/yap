@@ -2,7 +2,7 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %
 %  Logtalk - Object oriented extension to Prolog
-%  Release 2.22.2
+%  Release 2.22.3
 %
 %  Copyright (c) 1998-2004 Paulo Moura.  All Rights Reserved.
 %
@@ -903,7 +903,6 @@ logtalk_compile(Entities) :-
 logtalk_compile(Entity, Options) :-
 	(atom(Entity), Entity \= []; compound(Entity), Entity \= [_| _]),
 	!,
-	'$lgt_make_alt_dirs',
 	catch(
 		('$lgt_check_compiler_entity'(Entity),
 		 '$lgt_check_compiler_options'(Options),
@@ -913,7 +912,6 @@ logtalk_compile(Entity, Options) :-
 		throw(error(Error, logtalk_compile(Entity, Options)))).
 
 logtalk_compile(Entities, Options) :-
-	'$lgt_make_alt_dirs',
 	catch(
 		('$lgt_check_compiler_entities'(Entities),
 		 '$lgt_check_compiler_options'(Options),
@@ -1075,7 +1073,6 @@ logtalk_load(Entities) :-
 logtalk_load(Entity, Options) :-
 	(atom(Entity), Entity \= []; compound(Entity), Entity \= [_| _]),
 	!,
-	'$lgt_make_alt_dirs',
 	catch(
 		('$lgt_check_compiler_entity'(Entity),
 		 '$lgt_check_compiler_options'(Options),
@@ -1085,7 +1082,6 @@ logtalk_load(Entity, Options) :-
 		throw(error(Error, logtalk_load(Entity, Options)))).
 
 logtalk_load(Entities, Options) :-
-	'$lgt_make_alt_dirs',
 	catch(
 		('$lgt_check_compiler_entities'(Entities),
 		 '$lgt_check_compiler_options'(Options),
@@ -1160,7 +1156,7 @@ current_logtalk_flag(Flag, Value) :-
 	'$lgt_default_flag'(Flag, Value),
 	\+ '$lgt_current_flag_'(Flag, _).
 
-current_logtalk_flag(version, version(2, 22, 2)).
+current_logtalk_flag(version, version(2, 22, 3)).
 
 
 
@@ -1457,7 +1453,7 @@ current_logtalk_flag(version, version(2, 22, 2)).
 	 	'$lgt_assert_ddcl_clause'(DDcl, Head, Scope2)),
 	(Type = (dynamic) ->
 		((\+ \+ PScope = Scope; Sender = SCtn)  ->
-			(('$lgt_once'(Def, Head, Sender2, This, Self, Call); '$lgt_once'(DDef, Head, Sender2, This, Self, Call)) ->
+			(('$lgt_call'(Def, Head, Sender2, This, Self, Call); '$lgt_call'(DDef, Head, Sender2, This, Self, Call)) ->
 				true
 				;
 				functor(Head, Functor, Arity),
@@ -1472,7 +1468,7 @@ current_logtalk_flag(version, version(2, 22, 2)).
 			'$lgt_context'(Ctx, Sender2, This, Self, Prefix, Metavars),
 			'$lgt_tr_body'(Body, TBody, DBody, Ctx),
 			('$lgt_debugging_'(Obj) ->
-				asserta((Call :- ('$lgt_nop'(Body), DBody)))
+				asserta((Call :- ('$lgt_nop'(Body), '$lgt_dbg_head'(Head, Ctx), DBody)))
 				;
 				asserta((Call :- ('$lgt_nop'(Body), TBody))))
 			;
@@ -1493,14 +1489,14 @@ current_logtalk_flag(version, version(2, 22, 2)).
 	 	'$lgt_assert_ddcl_clause'(DDcl, Head, Scope2)),
 	(Type = (dynamic) ->
 		((\+ \+ PScope = Scope; Sender = SCtn)  ->
-			(('$lgt_once'(Def, Head, _, _, _, Call); '$lgt_once'(DDef, Head, _, _, _, Call)) ->
+			(('$lgt_call'(Def, Head, Sender2, This, Self, Call); '$lgt_call'(DDef, Head, Sender2, This, Self, Call)) ->
 				true
 				;
 				functor(Head, Functor, Arity),
 				'$lgt_assert_ddef_clause'(Functor, Arity, Prefix, DDef, _),
-				'$lgt_once'(DDef, Head, _, _, _, Call)),
+				'$lgt_once'(DDef, Head, Sender2, This, Self, Call)),
 			('$lgt_debugging_'(Obj) ->
-				'$lgt_context'(Ctx, Sender, Obj, Obj, Prefix, []),
+				'$lgt_context'(Ctx, Sender2, This, Self, Prefix, []),
 				asserta((Call :- '$lgt_dbg_fact'(Head, Ctx)))
 				;
 				asserta(Call))
@@ -1552,7 +1548,7 @@ current_logtalk_flag(version, version(2, 22, 2)).
 	 	'$lgt_assert_ddcl_clause'(DDcl, Head, Scope2)),
 	(Type = (dynamic) ->
 		((\+ \+ PScope = Scope; Sender = SCtn)  ->
-			(('$lgt_once'(Def, Head, Sender2, This, Self, Call); '$lgt_once'(DDef, Head, Sender2, This, Self, Call)) ->
+			(('$lgt_call'(Def, Head, Sender2, This, Self, Call); '$lgt_call'(DDef, Head, Sender2, This, Self, Call)) ->
 				true
 				;
 				functor(Head, Functor, Arity),
@@ -1567,7 +1563,7 @@ current_logtalk_flag(version, version(2, 22, 2)).
 			'$lgt_context'(Ctx, Sender2, This, Self, Prefix, Metavars),
 			'$lgt_tr_body'(Body, TBody, DBody, Ctx),
 			('$lgt_debugging_'(Obj) ->
-				assertz((Call :- ('$lgt_nop'(Body), DBody)))
+				assertz((Call :- ('$lgt_nop'(Body), '$lgt_dbg_head'(Head, Ctx), DBody)))
 				;
 				assertz((Call :- ('$lgt_nop'(Body), TBody))))
 			;
@@ -1588,14 +1584,14 @@ current_logtalk_flag(version, version(2, 22, 2)).
 	 	'$lgt_assert_ddcl_clause'(DDcl, Head, Scope2)),
 	(Type = (dynamic) ->
 		((\+ \+ PScope = Scope; Sender = SCtn)  ->
-			(('$lgt_once'(Def, Head, _, _, _, Call); '$lgt_once'(DDef, Head, _, _, _, Call)) ->
+			(('$lgt_call'(Def, Head, Sender2, This, Self, Call); '$lgt_call'(DDef, Head, Sender2, This, Self, Call)) ->
 				true
 				;
 				functor(Head, Functor, Arity),
 				'$lgt_assert_ddef_clause'(Functor, Arity, Prefix, DDef, _),
-				'$lgt_once'(DDef, Head, _, _, _, Call)),
+				'$lgt_once'(DDef, Head, Sender2, This, Self, Call)),
 			('$lgt_debugging_'(Obj) ->
-				'$lgt_context'(Ctx, Sender, Obj, Obj, Prefix, []),
+				'$lgt_context'(Ctx, Sender2, This, Self, Prefix, []),
 				assertz((Call :- '$lgt_dbg_fact'(Head, Ctx)))
 				;
 				assertz(Call))
@@ -1630,7 +1626,7 @@ current_logtalk_flag(version, version(2, 22, 2)).
 		('$lgt_call'(Dcl, Head, PScope, Type, _, SCtn, _) ->
 			(Type = (dynamic) ->
 				((\+ \+ PScope = Scope; Sender = SCtn) ->
-					once(('$lgt_once'(Def, Head, _, _, _, Call); '$lgt_once'(DDef, Head, _, _, _, Call))),
+					once(('$lgt_call'(Def, Head, _, _, _, Call); '$lgt_call'(DDef, Head, _, _, _, Call))),
 					clause(Call, TBody),
 					(TBody = ('$lgt_nop'(Body), _) ->
 						true
@@ -1644,7 +1640,7 @@ current_logtalk_flag(version, version(2, 22, 2)).
 				;
 				throw(error(permission_error(access, static_predicate, Head), Obj::clause(Head, Body), Sender)))
 			;
-			('$lgt_once'(DDef, Head, _, _, _, Call) ->	% local dynamic predicate with no scope declaration
+			('$lgt_call'(DDef, Head, _, _, _, Call) ->	% local dynamic predicate with no scope declaration
 				clause(Call, TBody),
 				(TBody = ('$lgt_nop'(Body), _) ->
 					true
@@ -2513,7 +2509,7 @@ current_logtalk_flag(version, version(2, 22, 2)).
 			call(TGoal),
 			Error,
 			('$lgt_dbg_port'(exception, Goal, Error, Ctx, TAction),
-			 (TAction = fail -> fail; TAction = throw -> throw(Error)))),
+			 (TAction = fail -> fail; throw(Error)))),
 		(	'$lgt_dbg_port'(exit, Goal, _, Ctx, EAction),
 			call(EAction)
 			;
@@ -3200,20 +3196,6 @@ current_logtalk_flag(version, version(2, 22, 2)).
 
 
 
-% '$lgt_make_alt_dirs'
-%
-% creates the alternative directories
-
-'$lgt_make_alt_dirs' :-
-	'$lgt_compiler_option'(altdirs, on),
-	'$lgt_alt_directory'(_, Directory),
-	'$lgt_make_directory'(Directory),
-	fail.
-	
-'$lgt_make_alt_dirs'.
-
-
-
 % '$lgt_file_name'(+atom, +atom, -atom)
 %
 % constructs a filename given the type of file and the entity name
@@ -3221,6 +3203,7 @@ current_logtalk_flag(version, version(2, 22, 2)).
 '$lgt_file_name'(Type, Entity, File) :-
 	'$lgt_file_extension'(Type, Extension),
 	(('$lgt_compiler_option'(altdirs, on), '$lgt_alt_directory'(Type, Directory)) ->
+		'$lgt_make_directory'(Directory),
 		atom_concat(Entity, Extension, Aux),
 		atom_concat(Directory, Aux, File)
 		;
@@ -5321,7 +5304,7 @@ current_logtalk_flag(version, version(2, 22, 2)).
 % '$lgt_tr_category_id'(+category_identifier, +atom)
 %
 % from the category identifier construct the set of 
-%  functor prefixes used in the compiled code clauses
+% functor prefixes used in the compiled code clauses
 
 '$lgt_tr_category_id'(Ctg, Mode) :-
 	'$lgt_add_referenced_category'(Ctg),
@@ -7014,10 +6997,15 @@ current_logtalk_flag(version, version(2, 22, 2)).
 % call any defined initialization goal for a dynamically created entity
 
 '$lgt_assert_init' :-
-	'$lgt_pp_fentity_init_'(Goal) ->
+	('$lgt_compiler_option'(debug, on) ->
+		'$lgt_pp_entity'(_, Entity, _, _, _),
+		assertz('$lgt_debugging_'(Entity))
+		;
+		true),
+	('$lgt_pp_fentity_init_'(Goal) ->
 		once(Goal)
 		;
-		true.
+		true).
 
 
 
@@ -8565,6 +8553,8 @@ current_logtalk_flag(version, version(2, 22, 2)).
 	write('  Support for break/0 predicate (supports_break_predicate): '), writeq(Break), nl,
 	'$lgt_default_flag'(iso_initialization_dir, ISO),
 	write('  ISO initialization/1 directive (iso_initialization_dir):  '), write(ISO), nl,
+	'$lgt_default_flag'(startup_message, Startup),
+	write('  Startup message (startup_message):                        '), write(Startup), nl,
 	'$lgt_default_flag'(altdirs, Altdirs),
 	write('  Alternative directories (altdirs):                        '), write(Altdirs), nl, nl.
 
