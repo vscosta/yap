@@ -3771,6 +3771,9 @@ expand_index(PredEntry *ap) {
       /* if we are to commit here, alt will tell us where */
       alt = ipc->u.ld.d;
       ipc = NEXTOP(ipc,ld);
+      /* start of a group, reset stack */
+      sp = stack;
+      stack[0].pos = 0;
       break;
     case _profiled_trust_me:
     case _trust_me:
@@ -3781,6 +3784,9 @@ expand_index(PredEntry *ap) {
     case _trust_me4:
       /* we will commit to this group for sure */
       ipc = NEXTOP(ipc,ld);
+      /* start of a group, reset stack */
+      sp = stack;
+      stack[0].pos = 0;
       break;
     case _trust:
     case _trust_killed:
@@ -3951,10 +3957,6 @@ expand_index(PredEntry *ap) {
 	  /* we found it */
 	  labp = (yamop **)(&(fe->Label));
 	  ipc = NULL;
-	} else if (newpc == FAILCODE) {
-	  /* oops, things went wrong */
-	  labp = NULL;
-	  ipc = NULL;
 	} else {
 	  ipc = newpc;
 	}
@@ -3976,10 +3978,6 @@ expand_index(PredEntry *ap) {
 	  /* we found it */
 	  labp = (yamop **)(&(ae->Label));
 	  ipc = NULL;
-	} else if (ae->Label == (UInt)FAILCODE) {
-	  /* oops, things went wrong */
-	  labp = NULL;
-	  ipc = NULL;
 	} else {
 	  ipc = (yamop *)(ae->Label);
 	}
@@ -3994,6 +3992,10 @@ expand_index(PredEntry *ap) {
 	  alt = NEXTOP(alt,l);
       }
       ipc = NULL;
+      break;
+    case _op_fail:
+      ipc = alt;
+      alt = NULL;
       break;
     default:
       if (alt == NULL) {
@@ -4016,13 +4018,18 @@ expand_index(PredEntry *ap) {
     last = ap->cs.p_code.LastClause;
   } else {
     if (ap->PredFlags & LogUpdatePredFlag) {
-      if (Yap_op_from_opcode(alt->opc) == _trust_logical_pred) {
+      op_numbers op = Yap_op_from_opcode(alt->opc);
+      if (op == _trust_logical_pred) {
 	last = NEXTOP(alt,l)->u.ld.d;
       } else {
 	last = alt->u.ld.d;
       }
     } else {
-      last = PREVOP(alt->u.ld.d,ld);
+      op_numbers op = Yap_op_from_opcode(alt->opc);
+      if (op == _retry ||
+	  op == _trust) {
+	last = PREVOP(alt->u.ld.d,ld);
+      }
     }
     fail_l = (UInt)alt;
     clleft = count_clauses_left(last,ap);
