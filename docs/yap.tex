@@ -10830,17 +10830,17 @@ Sets spy-points on constraints and rules given by @var{Spec}, which is
 is of the form:
 
 @table @asis
-@item @var{_ (variable)}
+@item @var{_} (variable)
 denoting all constraints and rules, or:
 
 @item @var{constraints Cs}
 where @var{Cs} is one of
 @table @asis
 
-@item @var{_ (variable)} 
+@item @var{_} (variable)
 denoting all constraints
 
-@item @var{C,...,C}
+@item @var{C},...,@var{C}
 denoting a list of constraints @var{C}
 
 @item @var{Name}
@@ -10854,10 +10854,10 @@ denoting the constraint of that name and arity
 where @var{Rs} is one of:
 @table @asis
 
-@item @var{_ (variable)} 
+@item @var{_} (variable)
 denoting all rules
 
-@item @var{R,...,R}
+@item @var{R},...,@var{R}
 denoting a list of rules @var{R}
 
 @item @var{Name}
@@ -11088,8 +11088,8 @@ treating 0 as infinity.
 
 @item b
 @dfn{break} calls the built-in predicate @code{break/0}, thus putting
-you at a recursive top-level.  When you end the break (entering
-@ctrl{D}) you will be re-prompted at the port at which you broke. The
+you at a recursive top-level.  When you end the break (entering ^D)
+you will be re-prompted at the port at which you broke. The
 CHR debugger is temporarily switched off as you call the break and will
 be switched on again when you finish the break and go back to the old
 execution.  Any changes to the CHR leashing or to spy-points during the

@@ -3,7 +3,6 @@ BEFORE 4.4:
 - write infinite terms
 - constraints in DB.
 - non-void temporaries going to global
-- warnings in documentation file.
 - fix restore when code is moved around.
 - document new interface functions.
 - mask when installing.
