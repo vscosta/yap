@@ -24,8 +24,7 @@ socket_accept(S,F) :-
 socket_select(Socks, OutSocks, TimeOut, Streams, OutStreams) :-
 	'$check_list'(Socks, socket_select(Socks, OutSocks, TimeOut, Streams, OutStreams)),
 	'$check_list'(Streams, socket_select(Socks, OutSocks, TimeOut, Streams, OutStreams)),
-	'$select_cp_fds'(Socks, [], Fdi),
-	'$select_cp_fds'(Streams, Fdi, Fds),
+	'$select_cp_fds'(Socks, Streams, Fds),
 	'$check_select_time'(TimeOut, Sec, USec, socket_select(Socks, OutSocks, TimeOut, Streams, OutStreams)),
 	'$socket_select'(Fds, Sec, USec, NFds),
 	'$cp_socket_fds'(Socks, NFds, OutSocks, NFdsS),
@@ -42,8 +41,8 @@ socket_select(Socks, OutSocks, TimeOut, Streams, OutStreams) :-
 	throw(error(type_error(list,T),G)).
 
 '$select_cp_fds'([], Fds, Fds).
-'$select_cp_fds'([_-Fd|L], Fds0, Fds) :-
-	'$select_cp_fds'([H|L], [Fd|Fds0], Fds).
+'$select_cp_fds'([_-Fd|L], Fds0, [Fd|Fds]) :-
+	'$select_cp_fds'(L, Fds0, Fds).
 
 '$check_select_time'(V, Sec, USec, Goal) :-
 	var(V), !,
@@ -55,16 +54,28 @@ socket_select(Socks, OutSocks, TimeOut, Streams, OutStreams) :-
 	Sec > 0, USec > 0.
 	
 '$cp_socket_fds'([], Fds, [], Fds).
-'$cp_socket_fds'([_|Scks], [[]|Fds], Out, StrFds) ;- !,
+'$cp_socket_fds'([_|Scks], [[]|Fds], Out, StrFds) :- !,
 	'$cp_socket_fds'(Scks, Fds, Out, StrFds).
-'$cp_socket_fds'([T-Socket|Scks], [Socket|Fds], Out, StrFds) ;-
-	stream_accept(Socket, Client, Stream),
-	'$cp_socket_fds'(Scks, Fds, [T-connection(Client,Stream)|Out], StrFds).
+'$cp_socket_fds'([T-Socket|Scks], [Socket|Fds], [T-connection(Client,Stream)|Out], StrFds) :-
+	socket_accept(Socket, Client, Stream),
+	'$cp_socket_fds'(Scks, Fds, Out, StrFds).
 
-'$cp_stream_fds'([], Fds, [], Fds).
-'$cp_stream_fds'([_|Strs], [[]|Fds], Out) ;- !,
+'$cp_stream_fds'([], Fds, []).
+'$cp_stream_fds'([_|Strs], [[]|Fds], Out) :- !,
 	'$cp_stream_fds'(Strs, Fds, Out).
-'$cp_stream_fds'([T-Stream|Strs], [Stream|Fds], Out, StrFds) ;-
-	stream_accept(Stream, Client, Stream),
-	'$cp_stream_fds'(Strs, Fds, [T-Stream|Out], StrFds).
+'$cp_stream_fds'([Stream|Strs], [Stream|Fds], [Stream|Out]) :-
+	'$cp_stream_fds'(Strs, Fds, Out).
+
+socket_buffering(Sock, Flag, InSize, OutSize) :-
+	var(OutSize), OutSize \= InSize, !,
+	throw(error(instantiation_error,socket_buffering(Sock, Flag, InSize, OutSize))).
+socket_buffering(Sock, Flag, InSize, OutSize) :-
+	'$convert_sock_buff'(InSize, InNumb),
+	'$socket_buffering'(Sock, Flag, InNumb, OutNumb),
+	'$convert_sock_buff'(OutSize, OutNumb).
+
+'$convert_sock_buff'(unbuf, 1) :- !.
+'$convert_sock_buff'(fullbuf, InNumb).
+
+
 

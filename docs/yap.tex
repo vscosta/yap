@@ -4422,6 +4422,15 @@ the IP address for the client in numbers and dots notation.
 @cnindex socket_accept/2
 Accept a connection but do not return client information.
 
+@item socket_buffering(+@var{SOCKET}, -@var{MODE}, -@var{OLD}, +@var{NEW})
+@findex socket_buffering/4
+@syindex socket_buffering/4
+@cnindex socket_buffering/4
+Set buffering for @var{SOCKET} in @code{read} or @code{write}
+@var{MODE}. @var{OLD} is unified with the previous status, and @var{NEW}
+receives the new status which may be one of @code{unbuf} or
+@code{fullbuf}.
+
 @item socket_select(+@var{SOCKETS}, -@var{NEWSTREAMS}, +@var{TIMEOUT}, +@var{STREAMS}, -@var{READSTREAMS})
 @findex socket_select/5
 @syindex socket_select/5
@@ -4443,7 +4452,7 @@ the form @var{KEY-STREAM}, where @var{KEY} was the key for a socket
 with pending data, and @var{STREAM} the stream descriptor resulting
 from accepting the connection.  
 
-@item current_hostname(?@var{HOSTNAME})
+@item current_host(?@var{HOSTNAME})
 Unify @var{HOSTNAME} with an atom representing the fully qualified
 hostname for the current host. Also succeeds if @var{HOSTNAME} is bound
 to the unqualified hostname.

@@ -177,6 +177,10 @@
 #define MAXHOSTNAMELEN 256
 #endif
 
+#ifndef BUFSIZ
+#define BUFSIZ 256
+#endif
+
 #if _MSC_VER || defined(__MINGW32__)
 #define socket_errno WSAGetLastError()
 #define invalid_socket_fd(fd) (fd) == INVALID_SOCKET
@@ -897,6 +901,86 @@ p_socket_accept(void)
 }
 
 static Int
+p_socket_buffering(void)
+{
+  Term t1 = Deref(ARG1);
+  Term t2 = Deref(ARG2);
+  Term t4 = Deref(ARG4);
+  Atom mode;
+  int fd, len;
+  int writing;
+  int bufsize;
+  int sno;
+
+  if ((sno = CheckSocketStream(t1, "socket_buffering/4")) < 0) {
+    return (FALSE);
+  }
+  if (IsVarTerm(t2)) {
+    Error(INSTANTIATION_ERROR,t2,"socket_buffering/4");
+    return(FALSE);
+  }
+  if (!IsAtomTerm(t2)) {
+    Error(TYPE_ERROR_ATOM,t2,"socket_buffering/4");
+    return(FALSE);
+  }
+  mode = AtomOfTerm(t2);
+  if (mode == AtomRead) 
+    writing = FALSE;
+  else if (mode == AtomWrite) 
+    writing = TRUE;
+  else {
+    Error(DOMAIN_ERROR_IO_MODE,t2,"socket_buffering/4");
+    return(FALSE);
+  }
+  fd = GetStreamFd(sno);
+  if (writing) {
+    getsockopt(fd, SOL_SOCKET, SO_SNDBUF, &bufsize, &len);
+  } else {
+    getsockopt(fd, SOL_SOCKET, SO_RCVBUF, &bufsize, &len);
+  }
+  if (!unify(ARG3,MkIntegerTerm(bufsize)))
+    return(FALSE);
+  if (IsVarTerm(t4)) {
+    bufsize = BUFSIZ;
+  }
+  if (!IsIntegerTerm(t4)) {
+    Error(TYPE_ERROR_INTEGER,t4,"socket_buffering/4");
+    return(FALSE);
+  }
+  bufsize = IntegerOfTerm(t4);
+  if (bufsize < 0) {
+    Error(DOMAIN_ERROR_NOT_LESS_THAN_ZERO,t4,"socket_buffering/4");
+    return(FALSE);
+  }
+  if (writing) {
+    setsockopt(fd, SOL_SOCKET, SO_SNDBUF, &bufsize, sizeof(bufsize));
+  } else {
+    setsockopt(fd, SOL_SOCKET, SO_RCVBUF, &bufsize, sizeof(bufsize));
+  }
+  return(TRUE);
+}
+
+static Term 
+select_out_list(Term t1, fd_set *readfds_ptr)
+{
+  if (t1 == TermNil) {
+    return(TermNil);
+  } else {
+    int fd;
+    int sno;
+    Term next = select_out_list(TailOfTerm(t1), readfds_ptr);
+    Term Head = HeadOfTerm(t1);
+
+    sno  = CheckIOStream(Head,"stream_select/5");
+    fd = GetStreamFd(sno);
+    if (FD_ISSET(fd, readfds_ptr))
+      return(MkPairTerm(Head,next));
+    else 
+      return(MkPairTerm(TermNil,next));
+  }
+}
+
+static Int
 p_socket_select(void)
 {
   Term t1 = Deref(ARG1);
@@ -980,40 +1064,29 @@ p_socket_select(void)
 	    "socket_select/5 (select)");
 #endif
   }
-  while (t1 != TermNil) {
-    int fd;
-    int sno;
-
-    Head = HeadOfTerm(t1);
-    sno  = CheckIOStream(Head,"stream_select/5");
-    fd = GetStreamFd(sno);
-    if (FD_ISSET(fd, &readfds))
-      tout = MkPairTerm(Head,tout);
-    else 
-      tout = MkPairTerm(TermNil,tout);
-    t1 = TailOfTerm(t1);
-  }
+  tout = select_out_list(t1, &readfds);
   /* we're done, just pass the info back */
   return(unify(ARG4,tout));
 }
 
+
 static Int
-p_current_hostname(void) {
+p_current_host(void) {
   char oname[MAXHOSTNAMELEN], *name;
   Term t1 = Deref(ARG1), out;
 
   if (!IsVarTerm(t1) && !IsAtomTerm(t1)) {
-    Error(TYPE_ERROR_ATOM,t1,"current_hostname/2");
+    Error(TYPE_ERROR_ATOM,t1,"current_host/2");
     return(FALSE);
   }
   name = oname;
   if (gethostname(name, sizeof(oname)) < 0) {
 #if HAVE_STRERROR
     Error(SYSTEM_ERROR, TermNil, 
-	  "current_hostname/2 (gethostname: %s)", strerror(socket_errno));
+	  "current_host/2 (gethostname: %s)", strerror(socket_errno));
 #else
     Error(SYSTEM_ERROR, TermNil,
-	  "current_hostname/2 (gethostname)");
+	  "current_host/2 (gethostname)");
 #endif
     return(FALSE);
   }
@@ -1024,10 +1097,10 @@ p_current_hostname(void) {
     if((he=gethostbyname(name))==NULL) {
 #if HAVE_STRERROR
       Error(SYSTEM_ERROR, TermNil, 
-	    "current_hostname/2 (gethostbyname: %s)", strerror(socket_errno));
+	    "current_host/2 (gethostbyname: %s)", strerror(socket_errno));
 #else
       Error(SYSTEM_ERROR, TermNil,
-	    "current_hostname/2 (gethostbyname)");
+	    "current_host/2 (gethostbyname)");
 #endif
       return(FALSE);
     }
@@ -1047,7 +1120,7 @@ p_current_hostname(void) {
       int isize = strlen(sin);
       if (isize >= 256) {
 	Error(SYSTEM_ERROR, ARG1,
-	      "current_hostname/2 (input longer than longest FAQ host name)");
+	      "current_host/2 (input longer than longest FAQ host name)");
 	return(FALSE);
       }
       if (name[isize] != '.') return(FALSE);
@@ -1126,8 +1199,9 @@ InitSockets(void)
   InitCPred("socket_connect", 3, p_socket_connect, SafePredFlag|SyncPredFlag);
   InitCPred("socket_listen", 2, p_socket_listen, SafePredFlag|SyncPredFlag);
   InitCPred("socket_accept", 3, p_socket_accept, SafePredFlag|SyncPredFlag);
+  InitCPred("$socket_buffering", 4, p_socket_buffering, SafePredFlag|SyncPredFlag);
   InitCPred("$socket_select", 4, p_socket_select, SafePredFlag|SyncPredFlag);
-  InitCPred("current_hostname", 1, p_current_hostname, SafePredFlag);
+  InitCPred("current_host", 1, p_current_host, SafePredFlag);
   InitCPred("hostname_address", 2, p_hostname_address, SafePredFlag);
 #if _MSC_VER || defined(__MINGW32__)
   {
