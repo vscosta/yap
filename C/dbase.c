@@ -1836,9 +1836,13 @@ record_lu(PredEntry *pe, Term t, int position)
   else
     ipc->opc = Yap_opcode(_unify_idb_term);
   WRITE_LOCK(pe->PRWLock);
+#if defined(YAPOR) || defined(THREADS)
   WPP = pe;
+#endif
   Yap_add_logupd_clause(pe, cl, (position == MkFirst ? 2 : 0));
+#if defined(YAPOR) || defined(THREADS)
   WPP = NULL;
+#endif
   WRITE_UNLOCK(pe->PRWLock);
   return cl;
 }
@@ -3848,9 +3852,11 @@ static void
 EraseLogUpdCl(LogUpdClause *clau)
 {
   PredEntry *ap = clau->ClPred;
+#if defined(YAPOR) || defined(THREADS)
   if (WPP != ap) {
     WRITE_LOCK(ap->PRWLock);
   }
+#endif
   /* no need to erase what has been erased */ 
   if (!(clau->ClFlags & ErasedMask)) {
 
@@ -3897,9 +3903,11 @@ EraseLogUpdCl(LogUpdClause *clau)
     clau->ClRefCount--;
   }
   complete_lu_erase(clau);
+#if defined(YAPOR) || defined(THREADS)
   if (WPP != ap) {
     WRITE_UNLOCK(ap->PRWLock);
   }
+#endif
 }
 
 static void
@@ -3974,9 +3982,11 @@ PrepareToEraseLogUpdClause(LogUpdClause *clau, DBRef dbr)
   if (clau->ClFlags & ErasedMask)
     return;
   clau->ClFlags |= ErasedMask;
+#if defined(YAPOR) || defined(THREADS)
   if (WPP != p) {
     WRITE_LOCK(p->PRWLock);
   }
+#endif
   if (p->cs.p_code.FirstClause != cl) {
     /* we are not the first clause... */
     yamop *prev_code_p = (yamop *)(dbr->Prev->Code);
@@ -4026,9 +4036,11 @@ PrepareToEraseLogUpdClause(LogUpdClause *clau, DBRef dbr)
       p->CodeOfPred = (yamop *)(&(p->OpcodeOfPred)); 
     }
   }
+#if defined(YAPOR) || defined(THREADS)
   if (WPP != p) {
     WRITE_UNLOCK(p->PRWLock);
   }
+#endif
 }
 
 static void 
@@ -4905,6 +4917,7 @@ Yap_ReleaseTermFromDB(DBTerm *ref)
 static Int 
 p_install_thread_local(void)
 {				/* '$is_dynamic'(+P)	 */
+#if THREADS
   PredEntry      *pe;
   Term            t = Deref(ARG1);
   Term            t2 = Deref(ARG2);
@@ -4941,6 +4954,7 @@ p_install_thread_local(void)
   pe->OpcodeOfPred = Yap_opcode(_thread_local);
   pe->CodeOfPred = (yamop *)&pe->OpcodeOfPred;
   WRITE_UNLOCK(pe->PRWLock);
+#endif
   return TRUE;
 }
 

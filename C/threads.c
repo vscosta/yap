@@ -18,14 +18,6 @@
 static char     SccsId[] = "%W% %G%";
 #endif
 
-#if THREADS
-
-/*
- * This file includes the definition of threads in Yap. Threads
- * are supposed to be compatible with the SWI-Prolog thread package.
- *
- */
-
 #include "Yap.h"
 #include "Yatom.h"
 #include "Heap.h"
@@ -35,6 +27,14 @@ static char     SccsId[] = "%W% %G%";
 #if HAVE_STRING_H
 #include <string.h>
 #endif
+
+#if THREADS
+
+/*
+ * This file includes the definition of threads in Yap. Threads
+ * are supposed to be compatible with the SWI-Prolog thread package.
+ *
+ */
 
 static int
 allocate_new_tid(void)
@@ -402,7 +402,6 @@ void Yap_InitThreadPreds(void)
 
 #else
 
-
 static Int 
 p_no_threads(void)
 {				/* '$thread_signal'(+P)	 */
@@ -411,7 +410,7 @@ p_no_threads(void)
 
 void Yap_InitThreadPreds(void)
 {
-  Yap_InitCPred("$no_threads", 0, p_create_thread, 0);
+  Yap_InitCPred("$no_threads", 0, p_no_threads, 0);
 }
 
 

@@ -6329,7 +6329,6 @@ Yap_absmi(int inp)
 	setregs();
 	CACHED_A1() = ARG1;
 	PREG = ap->CodeOfPred;
-	WPP = NULL;
 	WRITE_UNLOCK(ap->PRWLock);
       }
       JMPNext();

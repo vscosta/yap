@@ -6556,12 +6556,12 @@ Yap_FollowIndexingCode(PredEntry *ap, yamop *ipc, Term t1, Term tb, Term tr, yam
     case _unlock_lu:
       ipc = NEXTOP(ipc,e);
       break;
-    case _thread_local:
 #if THREADS
+    case _thread_local:
       ap = Yap_GetThreadPred(ap);
       ipc = ap->CodeOfPred;
-#endif
       break;
+#endif
     case _index_pred:
     case _spy_pred:
       Yap_IPred(ap);

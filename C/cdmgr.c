@@ -1053,7 +1053,9 @@ addclause(Term t, yamop *cp, int mode, int mod)
   }
   Yap_PutValue(AtomAbol, TermNil);
   WRITE_LOCK(p->PRWLock);
+#if defined(YAPOR) || defined(THREADS)
   WPP = p;
+#endif
   pflags = p->PredFlags;
   /* we are redefining a prolog module predicate */
   if (p->ModuleOfPred == 0 && mod != 0) {
@@ -1073,7 +1075,9 @@ addclause(Term t, yamop *cp, int mode, int mod)
     not_was_reconsulted(p, t, TRUE);
   /* always check if we have a valid error first */
   if (Yap_ErrorMessage && Yap_Error_TYPE == PERMISSION_ERROR_MODIFY_STATIC_PROCEDURE) {
+#if defined(YAPOR) || defined(THREADS)
     WPP = NULL;
+#endif
     WRITE_UNLOCK(p->PRWLock);
     return TermNil;
   }
@@ -1127,7 +1131,9 @@ addclause(Term t, yamop *cp, int mode, int mod)
       p->OpcodeOfPred = ((yamop *)(p->CodeOfPred))->opc;
     }
   }
+#if defined(YAPOR) || defined(THREADS)
   WPP = NULL;
+#endif
   WRITE_UNLOCK(p->PRWLock);
   if (pflags & LogUpdatePredFlag) {
     return MkDBRefTerm((DBRef)ClauseCodeToLogUpdClause(cp));
@@ -1608,15 +1614,21 @@ p_purge_clauses(void)
   } else
     return (FALSE);
   WRITE_LOCK(pred->PRWLock);
+#if defined(YAPOR) || defined(THREADS)
   WPP = pred;
+#endif
   if (pred->PredFlags & StandardPredFlag) {
+#if defined(YAPOR) || defined(THREADS)
     WPP = NULL;
+#endif
     WRITE_UNLOCK(pred->PRWLock);
     Yap_Error(PERMISSION_ERROR_MODIFY_STATIC_PROCEDURE, t, "assert/1");
     return (FALSE);
   }
   purge_clauses(pred);
+#if defined(YAPOR) || defined(THREADS)
   WPP = NULL;
+#endif
   WRITE_UNLOCK(pred->PRWLock);
   return (TRUE);
 }
@@ -1714,9 +1726,12 @@ p_rmspy(void)
     WRITE_UNLOCK(pred->PRWLock);
     return (FALSE);
   }
+#if THREADS
   if (!(pred->PredFlags & ThreadLocalPredFlag)) {
     pred->OpcodeOfPred = Yap_opcode(_thread_local);
-  } else if (!(pred->PredFlags & DynamicPredFlag)) {
+  } else
+#endif
+    if (!(pred->PredFlags & DynamicPredFlag)) {
     pred->CodeOfPred = pred->cs.p_code.TrueCodeOfPred;
     pred->OpcodeOfPred = ((yamop *)(pred->CodeOfPred))->opc;
   } else if (pred->OpcodeOfPred == Yap_opcode(_spy_or_trymark)) {
@@ -3066,7 +3081,9 @@ fetch_next_lu_clause(PredEntry *pe, yamop *i_code, Term th, Term tb, Term tr, ya
 
   cl = Yap_FollowIndexingCode(pe, i_code, th, tb, tr, NEXTOP(PredLogUpdClause->CodeOfPred,ld), cp_ptr);
   if (cl == NULL) {
+#if defined(YAPOR) || defined(THREADS)
     WPP = NULL;
+#endif
     WRITE_UNLOCK(pe->PRWLock);
     return FALSE;
   }
@@ -3082,7 +3099,9 @@ fetch_next_lu_clause(PredEntry *pe, yamop *i_code, Term th, Term tb, Term tr, ya
     TRAIL_CLREF(cl);	/* So that fail will erase it */
   }
 #endif
+#if defined(YAPOR) || defined(THREADS)
   WPP = NULL;
+#endif
   WRITE_UNLOCK(pe->PRWLock);
   if (cl->ClFlags & FactMask) {
     if (!Yap_unify(tb, MkAtomTerm(AtomTrue)) ||
@@ -3140,7 +3159,9 @@ p_log_update_clause(void)
   if (pe == NULL || EndOfPAEntr(pe))
     return FALSE;
   WRITE_LOCK(pe->PRWLock);
+#if defined(YAPOR) || defined(THREADS)
   WPP = pe;
+#endif
   if(pe->OpcodeOfPred == INDEX_OPCODE) {
     IPred(pe);
   }
@@ -3154,7 +3175,9 @@ p_continue_log_update_clause(void)
   yamop *ipc = (yamop *)IntegerOfTerm(ARG2);
 
   WRITE_LOCK(pe->PRWLock);
+#if defined(YAPOR) || defined(THREADS)
   WPP = pe;
+#endif
   return fetch_next_lu_clause(pe, ipc, Deref(ARG3), ARG4, ARG5, B->cp_ap, FALSE);
 }
 
@@ -3164,7 +3187,9 @@ fetch_next_lu_clause0(PredEntry *pe, yamop *i_code, Term th, Term tb, yamop *cp_
   LogUpdClause *cl;
 
   cl = Yap_FollowIndexingCode(pe, i_code, th, tb, TermNil, NEXTOP(PredLogUpdClause0->CodeOfPred,ld), cp_ptr);
+#if defined(YAPOR) || defined(THREADS)
   WPP = NULL;
+#endif
   WRITE_UNLOCK(pe->PRWLock);
   if (cl == NULL) {
     return FALSE;
@@ -3223,7 +3248,9 @@ p_log_update_clause0(void)
   if (pe == NULL || EndOfPAEntr(pe))
     return FALSE;
   WRITE_LOCK(pe->PRWLock);
+#if defined(YAPOR) || defined(THREADS)
   WPP = pe;
+#endif
   if(pe->OpcodeOfPred == INDEX_OPCODE) {
     IPred(pe);
   }
@@ -3237,7 +3264,9 @@ p_continue_log_update_clause0(void)
   yamop *ipc = (yamop *)IntegerOfTerm(ARG2);
 
   WRITE_LOCK(pe->PRWLock);
+#if defined(YAPOR) || defined(THREADS)
   WPP = pe;
+#endif
   return fetch_next_lu_clause0(pe, ipc, Deref(ARG3), ARG4, B->cp_ap, FALSE);
 }
 
@@ -3329,7 +3358,9 @@ p_nth_clause(void)
   if (pe == NULL || EndOfPAEntr(pe))
     return FALSE;
   WRITE_LOCK(pe->PRWLock);
+#if defined(YAPOR) || defined(THREADS)
   WPP = pe;
+#endif
   if (!(pe->PredFlags & (SourcePredFlag|LogUpdatePredFlag))) {
     WRITE_UNLOCK(pe->PRWLock);
     return FALSE;
