@@ -442,7 +442,7 @@ abolish(X) :-
 	'$old_abolish'(N,M).
 '$old_abolish'([], _) :- !.
 '$old_abolish'([H|T], M) :- !,  '$old_abolish'(H, M), '$old_abolish'(T, M).
-'$old_abolish'(N/A, M) :-
+'$old_abolish'(N/A, M) :- !,
 	'$abolish'(N, A, M).
 '$old_abolish'(T, M) :-
 	throw(error(type_error(predicate_indicator,T),abolish(M:T))).
