@@ -18,7 +18,9 @@
 #include <stdlib.h>
 
 /* C library used to implement floating point functions */
+#if HAVE_MATH_H
 #include <math.h>
+#endif
 #if HAVE_IEEEFP_H
 #include <ieeefp.h>
 #endif

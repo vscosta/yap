@@ -59,6 +59,7 @@
 #undef  HAVE_IO_H
 #undef  HAVE_LIMITS_H
 #undef  HAVE_MALLOC_H
+#undef  HAVE_MATH_H
 #undef  HAVE_MEMORY_H
 #undef  HAVE_NETDB_H
 #undef  HAVE_NETINET_IN_H
@@ -238,9 +239,11 @@
 #define USE_SOCKET 1
 #endif
 
+#if defined(__hpux)
 /* HP-UX requires extra definitions for X/Open networking */
 #undef _XOPEN_SOURCE
 #define _XOPEN_SOURCE_EXTENDED 0
+#endif
 
 #if HAVE_GMP_H && HAVE_LIBGMP
 #define USE_GMP 1

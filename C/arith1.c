@@ -1381,11 +1381,14 @@ p_round(Term t E_ARGS)
       RERROR();
     }
   }
-
+  
   if (yap_flags[LANGUAGE_MODE_FLAG] == 1) { /* iso */
-    RBIG_FL(rint(dbl));
+    double vl = rint(dbl);
+    RBIG_FL(vl);
   } else {
-    RFLOAT(rint(dbl));
+    double vl = rint(dbl);
+    printf("vl is %d\n", vl);
+    RFLOAT(vl);
   }
 }
 
