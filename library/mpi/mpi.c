@@ -9,14 +9,14 @@
 **************************************************************************
 *									 *
 * File:		mpi.c  							 *
-* Last rev:	$Date: 2002-03-12 20:03:55 $				 *
+* Last rev:	$Date: 2002-03-13 09:01:39 $				 *
 * mods:									 *
 * comments:	Interface to an MPI library                              *
 *									 *
 *************************************************************************/
 
 #ifndef lint
-static char *rcsid = "$Header: /Users/vitor/Yap/yap-cvsbackup/library/mpi/mpi.c,v 1.6 2002-03-12 20:03:55 stasinos Exp $";
+static char *rcsid = "$Header: /Users/vitor/Yap/yap-cvsbackup/library/mpi/mpi.c,v 1.7 2002-03-13 09:01:39 stasinos Exp $";
 #endif
 
 #include "Yap.h"
@@ -56,9 +56,9 @@ static char **mpi_argv;
 
 #define RECV_BUF_SIZE 4*1024
 
-static size_t bufsize;
+static size_t bufsize, bufstrlen;
 static char *buf;
-static int bufptr, bufstrlen;
+static int bufptr;
 
 static void
 expand_buffer( int space )
@@ -69,6 +69,10 @@ expand_buffer( int space )
      do i need to look into arcane allignment issues? */
 
   char *tmp;
+
+#if 0
+  printf( "expanding by %d...", space );
+#endif
 
   tmp = malloc( bufsize + space );
   if( tmp == NULL ) {
@@ -89,6 +93,7 @@ expand_buffer( int space )
   bufsize += space;
 
 #if 0
+  printf("SUCCESS\n");
   printf( "New bufsize: %d\n", bufsize );
 #endif
 }
@@ -408,22 +413,32 @@ p_mpi_bcast3()           /* mpi_bcast( ?data, +root, +max_size ) */
 #if 0
   if( (rank == root) && (max_size < bufstrlen) )
     /* issue a warning? explode? bcast s'thing unparsable? */
+    printf( "MAYDAY: max_size == %d, bufstrlen == %d\n", max_size, bufstrlen );
+    return FALSE;
+  }
 #endif
+  printf( "%d: About to Bcast(): max_size == %d, bufstrlen == %d\n",
+	  rank, max_size, bufstrlen );
 
   /* adjust the buffer size, if necessary */
   if( max_size > bufsize ) {
-    printf("expanding by %d\n", max_size-bufsize);
     expand_buffer( max_size - bufsize );
   }
 
   retv = MPI_Bcast( buf, max_size, MPI_CHAR, root, MPI_COMM_WORLD );
-  if( retv != 0 ) return FALSE;
+  if( retv != MPI_SUCCESS ) {
+    printf( "OOOPS! MPI_Bcast() returned %d.\n", retv );
+    return FALSE;
+  }
+
+  printf( "%d: I'm just after Bcast()ing. strlen(buf) == %d\n",
+	  rank, strlen(buf) );
 
   if( root == rank ) return TRUE;
   else {
     /* ARG1 must be unbound so that it can receive data */
     if( !IsVarTerm(t_data) ) {
-      Error(INSTANTIATION_ERROR, t_root, "mpi_bcast");
+      Error(INSTANTIATION_ERROR, t_data, "mpi_bcast");
       return FALSE;
     }
 
@@ -475,13 +490,9 @@ p_mpi_bcast2()           /* mpi_bcast( ?data, +root ) */
   retv = MPI_Bcast( &bufstrlen, sizeof bufstrlen, MPI_INT, root, MPI_COMM_WORLD );
   if( retv != 0 ) return FALSE;
 
-#if 1
-  printf("I am %d and I think the data is %d bytes long!\n", rank, bufstrlen);
-#endif
-
   /* adjust the buffer size, if necessary */
-  if( bufstrlen-bufsize > 0 ) {
-    printf("expanding by %d\n", bufstrlen-bufsize);
+  if( bufstrlen > bufsize ) {
+    printf("expanding by %d\n", (bufstrlen-bufsize) );
     expand_buffer( bufstrlen - bufsize );
   }
 
@@ -493,7 +504,7 @@ p_mpi_bcast2()           /* mpi_bcast( ?data, +root ) */
   else {
     /* ARG1 must be unbound so that it can receive data */
     if( !IsVarTerm(t_data) ) {
-      Error(INSTANTIATION_ERROR, t_root, "mpi_bcast");
+      Error(INSTANTIATION_ERROR, t_data, "mpi_bcast");
       return FALSE;
     }
 
