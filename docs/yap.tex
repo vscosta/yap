@@ -13348,7 +13348,7 @@ int
 main(int argc, char *argv[]) @{
   if (YAP_FastInit("saved_state") == YAP_BOOT_FROM_SAVED_ERROR)
     exit(1);
-  if (YAP_RunGoal(YAP_MkAtomTerm(LookupAtom("do")))) @{
+  if (YAP_RunGoal(YAP_MkAtomTerm(YAP_LookupAtom("do")))) @{
     printf("Success\n");
     while (YAP_RestartGoal())
       printf("Success\n");
@@ -13365,7 +13365,7 @@ backtracking succeeds, the second it fails and exits.
 To compile this program it should be sufficient to do:
 
 @example
-cc -o exem -I../Yap4.3.0 test.c -lyap -lreadline -lm
+cc -o exem -I../Yap4.3.0 test.c -lYap -lreadline -lm
 @end example
 
 You may need to adjust the libraries and library paths depending on the
