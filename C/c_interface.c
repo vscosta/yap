@@ -10,8 +10,11 @@
 * File:		c_interface.c						 *
 * comments:	c_interface primitives definition 			 *
 *									 *
-* Last rev:	$Date: 2004-11-19 22:08:41 $,$Author: vsc $						 *
+* Last rev:	$Date: 2004-12-08 00:56:35 $,$Author: vsc $						 *
 * $Log: not supported by cvs2svn $
+* Revision 1.58  2004/11/19 22:08:41  vsc
+* replace SYSTEM_ERROR by out OUT_OF_WHATEVER_ERROR whenever appropriate.
+*
 * Revision 1.57  2004/11/18 22:32:31  vsc
 * fix situation where we might assume nonextsing double initialisation of C predicates (use
 * Hidden Pred Flag).
@@ -983,7 +986,7 @@ YAP_CompileClause(Term t)
 {
   yamop *codeaddr;
   int mod = CurrentModule;
-  Term tn = TermNil
+  Term tn = TermNil;
 
   BACKUP_MACHINE_REGS();
 
