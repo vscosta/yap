@@ -1444,6 +1444,9 @@ mark_choicepoints(register choiceptr gc_B, tr_fr_ptr saved_TR)
 	op = rtp->opc;
 	opnum = op_from_opcode(op);
 	goto restart_cp;
+      case _trust_fail:
+	nargs = 0;
+	break;
 #ifdef TABLING
       case _table_answer_resolution:
 	{
@@ -1924,6 +1927,11 @@ sweep_choicepoints(choiceptr gc_B)
 	break;
       } else
 	return;
+    case _trust_fail:
+      sweep_environments(gc_B->cp_env,
+			 EnvSizeInCells,
+			 NULL);
+      break;
     case _or_else:
     case _or_last:
 
