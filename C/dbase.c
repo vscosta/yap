@@ -626,6 +626,8 @@ static CELL *MkDBTerm(register CELL *pt0, register CELL *pt0_end,
       ap2 = RepAppl(d0);
 #ifdef RATIONAL_TREES
       if (ap2 < (CELL *)((CELL)CodeMax-(CELL)tbase)) {
+	*lr++ = ToSmall((CELL)(StoPoint)-(CELL)(tbase));
+	check_trail(lr);
 	*StoPoint++ = d0;
 	++pt0;
 	continue;
@@ -761,6 +763,8 @@ static CELL *MkDBTerm(register CELL *pt0, register CELL *pt0_end,
 #ifdef RATIONAL_TREES
       if (RepPair(d0) < (CELL *)((CELL)CodeMax-(CELL)tbase)) {
 	*StoPoint++ = d0;
+	*lr++ = ToSmall((CELL)(StoPoint)-(CELL)(tbase));
+	check_trail(lr);
 	++pt0;
 	continue;
       }
@@ -860,6 +864,8 @@ static CELL *MkDBTerm(register CELL *pt0, register CELL *pt0_end,
 	if (IsAttachedTerm((CELL)ptd0)) {
 	  Term t[4];
 	  int sz = to_visit-to_visit_base;
+
+	  printf("visiting a constraint %p\n", ptd0);
 
 	  H = (CELL *)to_visit;
 	  /* store the constraint away for now */
