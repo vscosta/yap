@@ -703,7 +703,8 @@ p_softfunctor()
 #endif				/* SFUNC */
 
 #include <math.h>
-*
+
+/*
 static Int
 p_matching_distances(void)
 {
