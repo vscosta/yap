@@ -45,7 +45,6 @@ STATIC_PROTO(COUNT emit_count, (CELL));
 STATIC_PROTO(OPCODE emit_op, (op_numbers));
 STATIC_PROTO(void a_cl, (op_numbers));
 STATIC_PROTO(void a_cle, (op_numbers));
-STATIC_PROTO(void a_cld, (op_numbers));
 STATIC_PROTO(void a_e, (op_numbers));
 STATIC_PROTO(void a_ue, (op_numbers, op_numbers));
 STATIC_PROTO(void a_v, (op_numbers));
@@ -345,16 +344,6 @@ a_cle(op_numbers opcode)
     cl->ClFlags |= LogUpdRuleMask;
   }
   GONEXT(EC);
-}
-
-static void
-a_cld(op_numbers opcode)
-{
-  if (pass_no) {
-    code_p->opc = emit_op(opcode);
-    code_p->u.l.l = (CODEADDR)(((Clause *)code_addr)->u2.ClExt);
-  }
-  GONEXT(l);
 }
 
 inline static void
@@ -1404,8 +1393,6 @@ a_deallocate(void)
       a_cle(_alloc_for_logical_pred);
     a_e(_allocate);
   }
-  if (CurrentPred->PredFlags & LogUpdatePredFlag)
-    a_cld(_dealloc_for_logical_pred);
   if (NEXTOPC == execute_op) {
     cpc = cpc->nextInst;
     a_p(_dexecute);

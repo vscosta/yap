@@ -985,79 +985,19 @@ absmi(int inp)
 	UNLOCK(cl->ClLock);
       }
 #else
-      if (PREG->u.EC.ClENV == 0) {
+      {
 	Clause *cl = (Clause *)PREG->u.EC.ClBase;
+	if (!(cl->ClFlags |= InUseMask)) {
+	  /* Clause *cl = (Clause *)PREG->u.EC.ClBase;
 
-	/* marking a new clause */
-	PREG->u.EC.ClTrail = TR-(tr_fr_ptr)TrailBase;
-	PREG->u.EC.ClENV = LCL0-YENV;
-	cl->ClFlags |= InUseMask;
-	TRAIL_CLREF(cl);
+	  PREG->u.EC.ClTrail = TR-(tr_fr_ptr)TrailBase;
+	  PREG->u.EC.ClENV = LCL0-YENV;*/
+	  cl->ClFlags |= InUseMask;
+	  TRAIL_CLREF(cl);
+	}
       }
 #endif
       PREG = NEXTOP(PREG, EC);
-      GONext();
-      ENDBOp();
-
-      /* exit logical pred               */
-      BOp(dealloc_for_logical_pred, l);
-      {
-	yamop *ecl = (yamop *)PREG->u.l.l;
-	PREG = NEXTOP(PREG, l);
-	/* check first if environment is protected */
-	BEGP(pt0);
-	pt0 = (CELL *) YENV;
-#ifdef FROZEN_STACKS
-	{ 
-	  choiceptr top_b = PROTECT_FROZEN_B(B);
-
-#ifdef SBA
-	  if (pt0 > (CELL *) top_b || pt0 < H) {
-	    GONext();
-	  }
-#else
-	  if (pt0 > (CELL *) top_b) {
-	    GONext();
-	  }
-#endif
-	}
-#else
-	if (pt0 > (CELL *)B) {
-	  GONext();
-	}
-#endif /* FROZEN_STACKS */
-	ENDP(pt0);
-#if defined(YAPOR) || defined(THREADS)
-	{
-	  Clause *cl = (Clause *)(ecl->u.EC.ClBase);
-	  Term tc = AbsPair(((CELL *)&(cl->ClFlags)));
-
-	  /* Question: how do we find the trail cell we want to reset? */
-	  /* Quick hack: search for it */
-	  tr_fr_ptr trp = (((choiceptr) YENV[E_CB])->cp_tr);
-	  while (TrailTerm(trp) != tc) {
-	    trp++;
-	  }
-	  /* the correct solution would be to store this in the environment */
-	  RESET_VARIABLE(&TrailTerm(trp));
-	  LOCK(cl->ClLock);
-	  DEC_CLREF_COUNT(cl);
-	  UNLOCK(cl->ClLock);
-	}
-#else
-	if (ecl->u.EC.ClENV == LCL0-YENV) {
-	  Clause *cl = (Clause *)(ecl->u.EC.ClBase);
-	  /* if the environment is protected we can't do nothing */
-	  /* unmark the clause */
-	  cl->ClFlags &= ~InUseMask;
-	  ecl->u.EC.ClENV = 0;
-	  RESET_VARIABLE((CELL *)((tr_fr_ptr)TrailBase+ecl->u.EC.ClTrail));
-	  if ((cl->ClFlags & ErasedMask) && (ecl->u.EC.ClRefs == 0)) {
-	    ErCl(cl);
-	  }
-	}
-#endif
-      }
       GONext();
       ENDBOp();
 

@@ -651,7 +651,6 @@ RestoreClause(Clause *Cl, int mode)
     case _retry_profiled:
     case _try_logical_pred:
     case _trust_logical_pred:
-    case _dealloc_for_logical_pred:
     case _execute:
     case _dexecute:
     case _jump:

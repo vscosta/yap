@@ -285,7 +285,7 @@ retract(C) :-
 	'$retract'(C,M).
 '$retract'(C,M) :- 
 	'$check_head_and_body'(C,H,B,retract(M:C)),
-	'$is_dynamic'(H, M), !,
+	'$is_dynamic'(H,M), !,
 	'$recordedp'(M:H,(H:-B),R), erase(R).
 '$retract'(C,M) :- 
 	'$check_head_and_body'(C,H,B,retract(M:C)),
@@ -311,7 +311,7 @@ retract(C,R) :- !,
 	db_reference(R), '$is_dynamic'(H,M), !,
 	instance(R,(H:-B)), erase(R).
 '$retract'(C,M,R) :-
-	'$head_and_body'(C,H,B,retract(C,R)),
+	'$check_head_and_body'(C,H,B,retract(C,R)),
 	'$is_dynamic'(H,M), !,
 	var(R),
 	'$recordedp'(M:H,(H:-B),R),

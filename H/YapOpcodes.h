@@ -252,10 +252,9 @@
     OPCODE(profiled_retry_me       ,ld),
     OPCODE(profiled_trust_me       ,ld),
     OPCODE(profiled_retry_and_mark ,ld),
-    OPCODE(try_logical_pred        ,EC),
+    OPCODE(try_logical_pred        ,l),
     OPCODE(trust_logical_pred      ,l),
-    OPCODE(alloc_for_logical_pred  ,l),
-    OPCODE(dealloc_for_logical_pred,l),
+    OPCODE(alloc_for_logical_pred  ,EC),
 #ifdef SFUNC
     OPCODE(get_s_f                 ,),
     OPCODE(put_s_f                 ,),

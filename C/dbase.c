@@ -1225,6 +1225,7 @@ CreateDBStruct(Term Tm, DBProp p, int InFlag)
     pp->Entry = (CELL) Tm;
     pp->Code = NULL;
     pp->DBRefs = NULL;
+    pp->NOfCells = 1;
     INIT_LOCK(pp->lock);
     INIT_DBREF_COUNT(pp);
     return(pp);
@@ -1253,6 +1254,7 @@ CreateDBStruct(Term Tm, DBProp p, int InFlag)
     pp->Entry = (CELL) Tm;
     pp->Code = NULL;
     pp->DBRefs = NULL;
+    pp->NOfCells = 1;
     INIT_LOCK(pp->lock);
     INIT_DBREF_COUNT(pp);
     return(pp);
