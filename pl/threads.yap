@@ -121,7 +121,8 @@ thread_join(Id, Status) :-
 	'$thread_join'(Id0),
 	'$erase_thread_aliases'(Id0),
 	recorded('$thread_exit_status',[Id0|Status],R),
-	erase(R).
+	erase(R),
+	'$thread_destroy'(Id0).
 
 '$erase_thread_aliases'(Id0) :-
 	recorded('$thread_alias',[Id0|_],R),
@@ -305,7 +306,7 @@ message_queue_destroy(Queue) :-
 message_queue_destroy(Name) :-
 	'$do_error'(type_error(atom,Name),message_queue_destroy(Name)).
 
-'$clean_mqueue'(Q) :-
+'$clean_mqueue'(Queue) :-
 	recorded('$msg_queue',q(Queue,_),R),
 	erase(R),
 	fail.

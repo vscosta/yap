@@ -254,9 +254,18 @@ decrease_ref_counter(yamop *ptr, yamop *b, yamop *e, yamop *sc)
 	!(cl->ClRefCount) &&
 	!(cl->ClFlags & InUseMask)) {
       /* last ref to the clause */
+#if defined(YAPOR) || defined(THREADS)
+      /* can't do erase now without risking deadlocks */
+      cl->ClRefCount++;
+      TRAIL_CLREF(cl);
+      UNLOCK(cl->ClLock);
+#else
+      UNLOCK(cl->ClLock);
       Yap_ErLogUpdCl(cl);
+#endif
+    } else {
+      UNLOCK(cl->ClLock);
     }
-    UNLOCK(cl->ClLock);
   }
 }
 
@@ -402,10 +411,13 @@ kill_static_child_indxs(StaticIndex *indx)
 static void
 kill_first_log_iblock(LogUpdIndex *c, LogUpdIndex *parent, PredEntry *ap)
 {
-  LogUpdIndex *ncl = c->ChildIndex;
 
+  LogUpdIndex *ncl;
+  /* parent is always locked, now I lock myself */
+  LOCK(c->ClLock);
   if (parent != NULL &&
       !(c->ClFlags & ErasedMask)) {
+    /* remove myself from parent */
     if (c == parent->ChildIndex) {
       parent->ChildIndex = c->SiblingIndex;
     } else {
@@ -418,6 +430,7 @@ kill_first_log_iblock(LogUpdIndex *c, LogUpdIndex *parent, PredEntry *ap)
   }
   /* make sure that a child cannot remove us */
   c->ClRefCount++;
+  ncl = c->ChildIndex;
   while (ncl != NULL) {
     LogUpdIndex *next = ncl->SiblingIndex;
     kill_first_log_iblock(ncl, c, ap);
@@ -429,21 +442,7 @@ kill_first_log_iblock(LogUpdIndex *c, LogUpdIndex *parent, PredEntry *ap)
       ap->cs.p_code.TrueCodeOfPred == c->ClCode) {
     RemoveMainIndex(ap);
   }
-  if (!((c->ClFlags & InUseMask) || c->ClRefCount)) {
-    if (parent != NULL) {
-      parent->ClRefCount--;
-      if (parent->ClFlags & ErasedMask &&
-	  !(parent->ClFlags & InUseMask) &&
-	  parent->ClRefCount == 0) {
-	/* cool, I can erase the father too. */
-	if (parent->ClFlags & SwitchRootMask) {
-	  kill_first_log_iblock(parent, NULL, ap);
-	} else {
-	  kill_first_log_iblock(parent, parent->u.ParentIndex, ap);
-	}
-      }
-    }
-    decrease_log_indices(c, (yamop *)&(ap->cs.p_code.ExpandCode));
+  decrease_log_indices(c, (yamop *)&(ap->cs.p_code.ExpandCode));
 #ifdef DEBUG
     {
       LogUpdIndex *parent = DBErasedIList, *c0 = NULL;
@@ -457,6 +456,27 @@ kill_first_log_iblock(LogUpdIndex *c, LogUpdIndex *parent, PredEntry *ap)
       }
     }
 #endif
+  if (!((c->ClFlags & InUseMask) || c->ClRefCount)) {
+    if (parent != NULL) {
+      parent->ClRefCount--;
+      if (parent->ClFlags & ErasedMask &&
+	  !(parent->ClFlags & InUseMask) &&
+	  parent->ClRefCount == 0) {
+	/* cool, I can erase the father too. */
+	if (parent->ClFlags & SwitchRootMask) {
+	  UNLOCK(parent->ClLock);
+	  kill_first_log_iblock(parent, NULL, ap);
+	  LOCK(parent->ClLock);
+	} else {
+	  LOCK(parent->u.ParentIndex->ClLock);
+	  UNLOCK(parent->ClLock);
+	  kill_first_log_iblock(parent, parent->u.ParentIndex, ap);
+	  LOCK(parent->ClLock);
+	  UNLOCK(parent->u.ParentIndex->ClLock);
+	}
+      }
+    }
+    UNLOCK(c->ClLock);
     Yap_FreeCodeSpace((CODEADDR)c);
   } else {
 #ifdef DEBUG
@@ -464,6 +484,7 @@ kill_first_log_iblock(LogUpdIndex *c, LogUpdIndex *parent, PredEntry *ap)
     DBErasedIList = c;
 #endif
     c->ClFlags |= ErasedMask;
+#if !defined(THREADS) && !defined(YAPOR)
     /* try to move up, so that we don't hold an index */
     if (parent != NULL &&
 	parent->ClFlags & SwitchTableMask) {
@@ -471,7 +492,9 @@ kill_first_log_iblock(LogUpdIndex *c, LogUpdIndex *parent, PredEntry *ap)
       parent->u.ParentIndex->ClRefCount++;
       parent->ClRefCount--;
     }
+#endif
     c->ChildIndex = NULL;
+    UNLOCK(c->ClLock);
   }
 }
 
@@ -489,7 +512,9 @@ Yap_kill_iblock(ClauseUnion *blk, ClauseUnion *parent_blk, PredEntry *ap)
     LogUpdIndex *c = (LogUpdIndex *)blk;
     if (parent_blk != NULL) {
       LogUpdIndex *cl = (LogUpdIndex *)parent_blk;
+      LOCK(cl->ClLock);
       kill_first_log_iblock(c, cl, ap);
+      UNLOCK(cl->ClLock);
     } else {
       kill_first_log_iblock(c, NULL, ap);
     }
@@ -518,18 +543,28 @@ void
 Yap_ErLogUpdIndex(LogUpdIndex *clau)
 {
   LogUpdIndex *c = clau;
+  if (clau->ClFlags & ErasedMask) {
+    /* nothing I can do, I have been erased already */
+    return;
+  }
   if (c->ClFlags & SwitchRootMask) {
      kill_first_log_iblock(clau, NULL, c->u.pred);
  } else {
     while (!(c->ClFlags & SwitchRootMask)) 
       c = c->u.ParentIndex;
+    LOCK(clau->u.ParentIndex->ClLock);
     kill_first_log_iblock(clau, clau->u.ParentIndex, c->u.pred);
+    UNLOCK(clau->u.ParentIndex->ClLock);
  }
 }
 
 void
 Yap_RemoveLogUpdIndex(LogUpdIndex *cl)
 {
+  if (cl->ClFlags & ErasedMask) {
+    /* nothing I can do, I have been erased already */
+    return;
+  }
   if (cl->ClFlags & SwitchRootMask) {
     kill_first_log_iblock(cl, NULL, cl->u.pred);
   } else {
@@ -537,7 +572,9 @@ Yap_RemoveLogUpdIndex(LogUpdIndex *cl)
     while (!(pcl->ClFlags & SwitchRootMask)) {
       pcl = pcl->u.ParentIndex;
     }
+    LOCK(cl->u.ParentIndex->ClLock);
     kill_first_log_iblock(cl, cl->u.ParentIndex, pcl->u.pred);
+    UNLOCK(cl->u.ParentIndex->ClLock);
   }
 }
 
@@ -3051,7 +3088,6 @@ fetch_next_lu_clause(PredEntry *pe, yamop *i_code, Term th, Term tb, Term tr, ya
 
   cl = Yap_FollowIndexingCode(pe, i_code, th, tb, tr, NEXTOP(PredLogUpdClause->CodeOfPred,ld), cp_ptr);
   if (cl == NULL) {
-    READ_UNLOCK(pe->PRWLock);
     return FALSE;
   }
   rtn = MkDBRefTerm((DBRef)cl);
@@ -3066,7 +3102,9 @@ fetch_next_lu_clause(PredEntry *pe, yamop *i_code, Term th, Term tb, Term tr, ya
     TRAIL_CLREF(cl);	/* So that fail will erase it */
   }
 #endif
-  READ_UNLOCK(pe->PRWLock);
+#if defined(YAPOR) || defined(THREADS)
+  WPP = NULL;
+#endif
   if (cl->ClFlags & FactMask) {
     if (!Yap_unify(tb, MkAtomTerm(AtomTrue)) ||
 	!Yap_unify(tr, rtn))
@@ -3118,15 +3156,33 @@ p_log_update_clause(void)
 {
   PredEntry      *pe;
   Term t1 = Deref(ARG1);
+  Int ret;
 
   pe = get_pred(t1, Deref(ARG2), "clause/3");
   if (pe == NULL || EndOfPAEntr(pe))
     return FALSE;
-  READ_LOCK(pe->PRWLock);
   if(pe->OpcodeOfPred == INDEX_OPCODE) {
-    IPred(pe);
+    WRITE_LOCK(pe->PRWLock);
+#if defined(YAPOR) || defined(THREADS)
+    if (pe->OpcodeOfPred == INDEX_OPCODE)
+#endif
+      IPred(pe);
+    WRITE_UNLOCK(pe->PRWLock);
   }
-  return fetch_next_lu_clause(pe, pe->cs.p_code.TrueCodeOfPred, t1, ARG3, ARG4, P, TRUE);
+#if defined(YAPOR) || defined(THREADS)
+  if (PP != pe) {
+    READ_LOCK(pe->PRWLock);
+    PP = pe;
+  }
+#endif
+  ret = fetch_next_lu_clause(pe, pe->cs.p_code.TrueCodeOfPred, t1, ARG3, ARG4, P, TRUE);
+#if defined(YAPOR) || defined(THREADS)
+  if (PP == pe) {
+    PP = NULL;
+    READ_UNLOCK(pe->PRWLock);
+  }
+#endif
+  return ret;
 }
 
 static Int			/* $hidden_predicate(P) */
@@ -3135,7 +3191,6 @@ p_continue_log_update_clause(void)
   PredEntry *pe = (PredEntry *)IntegerOfTerm(Deref(ARG1));
   yamop *ipc = (yamop *)IntegerOfTerm(ARG2);
 
-  READ_LOCK(pe->PRWLock);
   return fetch_next_lu_clause(pe, ipc, Deref(ARG3), ARG4, ARG5, B->cp_ap, FALSE);
 }
 
@@ -3145,7 +3200,6 @@ fetch_next_lu_clause0(PredEntry *pe, yamop *i_code, Term th, Term tb, yamop *cp_
   LogUpdClause *cl;
 
   cl = Yap_FollowIndexingCode(pe, i_code, th, tb, TermNil, NEXTOP(PredLogUpdClause0->CodeOfPred,ld), cp_ptr);
-  READ_UNLOCK(pe->PRWLock);
   if (cl == NULL) {
     return FALSE;
   }
@@ -3198,15 +3252,31 @@ p_log_update_clause0(void)
 {
   PredEntry      *pe;
   Term           t1 = Deref(ARG1);
+  Int ret;
 
   pe = get_pred(t1, Deref(ARG2), "clause/3");
   if (pe == NULL || EndOfPAEntr(pe))
     return FALSE;
-  READ_LOCK(pe->PRWLock);
   if(pe->OpcodeOfPred == INDEX_OPCODE) {
-    IPred(pe);
+#if defined(YAPOR) || defined(THREADS)
+    if (pe->OpcodeOfPred == INDEX_OPCODE)
+#endif
+      IPred(pe);
   }
-  return fetch_next_lu_clause0(pe, pe->cs.p_code.TrueCodeOfPred, t1, ARG3, P, TRUE);
+#if defined(YAPOR) || defined(THREADS)
+  if (PP != pe) {
+    READ_LOCK(pe->PRWLock);
+    PP = pe;
+  }
+#endif
+  ret = fetch_next_lu_clause0(pe, pe->cs.p_code.TrueCodeOfPred, t1, ARG3, P, TRUE);
+#if defined(YAPOR) || defined(THREADS)
+  if (PP == pe) {
+    PP = NULL;
+    READ_UNLOCK(pe->PRWLock);
+  }
+#endif
+  return ret;
 }
 
 static Int			/* $hidden_predicate(P) */
@@ -3215,7 +3285,6 @@ p_continue_log_update_clause0(void)
   PredEntry *pe = (PredEntry *)IntegerOfTerm(Deref(ARG1));
   yamop *ipc = (yamop *)IntegerOfTerm(ARG2);
 
-  READ_LOCK(pe->PRWLock);
   return fetch_next_lu_clause0(pe, ipc, Deref(ARG3), ARG4, B->cp_ap, FALSE);
 }
 
@@ -3284,7 +3353,12 @@ p_static_clause(void)
   if (pe == NULL || EndOfPAEntr(pe))
     return FALSE;
   if(pe->OpcodeOfPred == INDEX_OPCODE) {
-    IPred(pe);
+    WRITE_LOCK(pe->PRWLock);
+#if defined(YAPOR) || defined(THREADS)
+    if (pe->OpcodeOfPred == INDEX_OPCODE)
+#endif
+      IPred(pe);
+    WRITE_UNLOCK(pe->PRWLock);
   }
   return fetch_next_static_clause(pe, pe->cs.p_code.TrueCodeOfPred, t1, ARG3, ARG4, P, TRUE);
 }
@@ -3304,20 +3378,8 @@ p_nth_clause(void)
   pe = get_pred(t1, Deref(ARG2), "clause/3");
   if (pe == NULL || EndOfPAEntr(pe))
     return FALSE;
-  if(pe->OpcodeOfPred == INDEX_OPCODE) {
-    WRITE_LOCK(pe->PRWLock);
-    if(pe->OpcodeOfPred == INDEX_OPCODE) {
-      IPred(pe);
-    }
-    WRITE_UNLOCK(pe->PRWLock);
-  }
-  READ_LOCK(pe->PRWLock);
   if (!(pe->PredFlags & (SourcePredFlag|LogUpdatePredFlag))) {
-    READ_UNLOCK(pe->PRWLock);
     return FALSE;
-  }
-  if (pe->PredFlags & SourcePredFlag) {
-    READ_UNLOCK(pe->PRWLock);
   }
   /* in case we have to index or to expand code */
   if (pe->ModuleOfPred != IDB_MODULE) {
@@ -3329,11 +3391,11 @@ p_nth_clause(void)
   } else {
       XREGS[2] = MkVarTerm();
   }
-  cl = Yap_NthClause(pe, ncls);
-  if (pe->PredFlags & LogUpdatePredFlag) {
-    READ_UNLOCK(pe->PRWLock);
+  if(pe->OpcodeOfPred == INDEX_OPCODE) {
+    IPred(pe);
   }
-  if (cl == NULL)
+  cl = Yap_NthClause(pe, ncls);
+  if (cl == NULL) 
     return FALSE;
   if (cl->ClFlags & LogUpdatePredFlag) {
 #if defined(YAPOR) || defined(THREADS)

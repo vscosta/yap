@@ -1170,6 +1170,7 @@ init_log_upd_table(LogUpdIndex *ic, union clause_obj *cl_u)
   ic->ChildIndex = NULL;
   ic->ClRefCount = 0;
   ic->u.ParentIndex = (LogUpdIndex *)cl_u;
+  INIT_LOCK(ic->ClLock);
   cl_u->lui.ChildIndex = ic;
   cl_u->lui.ClRefCount++;
 }

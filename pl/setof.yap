@@ -51,7 +51,8 @@ findall(Template, Generator, Answers, SoFar) :-
 	fail.
 % now wraps it all
 '$findall'(_, _, Ref, SoFar, Answers) :-
-	'$collect_for_findall'(Ref, SoFar, Answers).
+	'$catch'(Error,'$clean_findall'(Ref,Error),_),
+	'$collect_for_findall'(Ref, SoFar, Answers), !.
 
 % error handling: be careful to recover all the space we used up
 % in implementing findall.

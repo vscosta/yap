@@ -1661,21 +1661,21 @@ cont_current_atom(void)
     while (i < AtomHashTableSize) {
       READ_LOCK(HashChain[i].AERWLock);
       catom = HashChain[i].Entry;
+      READ_UNLOCK(HashChain[i].AERWLock);
       if (catom != NIL) {
 	break;
       }
-      READ_UNLOCK(HashChain[i].AERWLock);
       i++;
     }
     if (i == AtomHashTableSize) {
       cut_fail();
-    } else {
-      READ_UNLOCK(HashChain[i].AERWLock);
     }
   }
   ap = RepAtom(catom);
   if (Yap_unify_constant(ARG1, MkAtomTerm(catom))) {
+    READ_LOCK(ap->ARWLock);
     if (ap->NextOfAE == NIL) {
+      READ_UNLOCK(ap->ARWLock);
       i++;
       while (i < AtomHashTableSize) {
 	READ_LOCK(HashChain[i].AERWLock);
@@ -1687,19 +1687,18 @@ cont_current_atom(void)
 	i++;
       }
       if (i == AtomHashTableSize) {
-	cut_succeed();
+	cut_fail();
       } else {
 	EXTRA_CBACK_ARG(1,1) = MkAtomTerm(catom);
       }
     } else {
-      READ_LOCK(ap->ARWLock);
       EXTRA_CBACK_ARG(1,1) = MkAtomTerm(ap->NextOfAE);
       READ_UNLOCK(ap->ARWLock);
     }
     EXTRA_CBACK_ARG(1,2) = MkIntTerm(i);
-    return(TRUE);
+    return TRUE;
   } else {
-    return(FALSE);
+    return FALSE;
   }
 }
 

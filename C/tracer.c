@@ -102,7 +102,7 @@ check_trail_consistency(void) {
 */
 
 
-static int vsc_xstop = FALSE;
+int vsc_xstop = FALSE;
 
 CELL old_value = 0L, old_value2 = 0L;
 
@@ -116,7 +116,17 @@ low_level_trace(yap_low_level_port port, PredEntry *pred, CELL *args)
 
   LOCK(heap_regs->low_level_trace_lock);
   vsc_count++;
+  if (vsc_count < 12000) {
+      UNLOCK(heap_regs->low_level_trace_lock);
+      return;
+  }
 #ifdef COMMENTED
+  //  if (vsc_count == 218280)
+  //    vsc_xstop = 1;
+  if (vsc_count < 218200) {
+    UNLOCK(heap_regs->low_level_trace_lock);
+    return;
+  }
   if (port != enter_pred ||
       !pred ||
       pred->ArityOfPE != 4 ||

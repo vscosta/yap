@@ -10,7 +10,7 @@
 * File:		Yap.proto						 *
 * mods:									 *
 * comments:	Function declarations for YAP				 *
-* version:      $Id: Yapproto.h,v 1.46 2004-02-12 12:37:12 vsc Exp $	 *
+* version:      $Id: Yapproto.h,v 1.47 2004-02-19 19:24:45 vsc Exp $	 *
 *************************************************************************/
 
 /* prototype file for Yap */
@@ -187,7 +187,12 @@ void	STD_PROTO(Yap_InitAsmPred,(char *, unsigned long int, int, CPredicate, int)
 void	STD_PROTO(Yap_InitCmpPred,(char *, unsigned long int, CmpPredicate, int));
 void	STD_PROTO(Yap_InitCPredBack,(char *, unsigned long int, unsigned int, CPredicate,CPredicate,int));
 void	STD_PROTO(Yap_InitWorkspace,(int,int,int,int,int,int));
+
+#if defined(YAPOR) || defined(THREADS)
+void	STD_PROTO(Yap_KillStacks,(int));
+#else
 void	STD_PROTO(Yap_KillStacks,(void));
+#endif
 void	STD_PROTO(Yap_InitYaamRegs,(void));
 void    STD_PROTO(Yap_ReInitWallTime, (void));
 int	STD_PROTO(Yap_OpDec,(int,char *,Atom));

@@ -1520,19 +1520,12 @@ CreateDBStruct(Term Tm, DBProp p, int InFlag, int *pstat, UInt extra_size, struc
 	Yap_ReleasePreAllocCodeSpace((ADDR)pp0);
 	return(NULL);
       }
-      /* restore lr to NULL in case there is a TR overflow */
-      dbg->lr = NULL;
 #endif
       if ((InFlag & MkIfNot) && (dbg->found_one = check_if_wvars(p->First, NOfCells, ntp0))) {
 	Yap_ReleasePreAllocCodeSpace((ADDR)pp0);
 	return dbg->found_one;
       }
     } else {
-#ifdef IDB_LINK_TABLE
-      /* make sure lr ends in 0 for check_if_nvars */  
-      /* restore lr to NULL in case there is a TR overflow */
-      dbg->lr = NULL;
-#endif
       flag = DBNoVars;
       if ((InFlag & MkIfNot) && (dbg->found_one = check_if_nvars(p->First, NOfCells, ntp0, dbg))) {
 	Yap_ReleasePreAllocCodeSpace((ADDR)pp0);
@@ -3856,12 +3849,10 @@ complete_lu_erase(LogUpdClause *clau)
 static void
 EraseLogUpdCl(LogUpdClause *clau)
 {
-  PredEntry *ap = clau->ClPred;
-#if defined(YAPOR) || defined(THREADS)
-  if (WPP != ap) {
-    WRITE_LOCK(ap->PRWLock);
-  }
-#endif
+  PredEntry *ap;
+  LOCK(clau->ClLock);
+  ap = clau->ClPred;
+  WRITE_LOCK(ap->PRWLock);
   /* no need to erase what has been erased */ 
   if (!(clau->ClFlags & ErasedMask)) {
 
@@ -3903,16 +3894,15 @@ EraseLogUpdCl(LogUpdClause *clau)
 #endif
     /* we are holding a reference to the clause */
     clau->ClRefCount++;
+    UNLOCK(clau->ClLock);
     Yap_RemoveClauseFromIndex(ap, clau->ClCode);
     /* release the extra reference */
+    LOCK(clau->ClLock);
     clau->ClRefCount--;
   }
   complete_lu_erase(clau);
-#if defined(YAPOR) || defined(THREADS)
-  if (WPP != ap) {
-    WRITE_UNLOCK(ap->PRWLock);
-  }
-#endif
+  UNLOCK(clau->ClLock);
+  WRITE_UNLOCK(ap->PRWLock);
 }
 
 static void

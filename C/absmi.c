@@ -1081,6 +1081,11 @@ Yap_absmi(int inp)
 #if defined(YAPOR) || defined(THREADS)
       PP = PREG->u.p.p;
       READ_LOCK(PP->PRWLock);
+      if (PP->cs.p_code.TrueCodeOfPred != PREG) {
+	PREG = PP->cs.p_code.TrueCodeOfPred;
+	READ_UNLOCK(PP->PRWLock);
+	GONext();
+      }
 #endif
       PREG = NEXTOP(PREG, p);
       GONext();
@@ -1102,7 +1107,6 @@ Yap_absmi(int inp)
 
       /* enter logical pred               */
       BOp(stale_lu_index, Ill);
-      saveregs();
       {
 	yamop *ipc;
 
@@ -1112,17 +1116,18 @@ Yap_absmi(int inp)
 	  ASP = (CELL *) B;
 	}
 #if defined(YAPOR) || defined(THREADS)
-	LOCK(pe->PELock);
+	LOCK(PREG->u.Ill.l1->u.ld.p->PELock);
 	if (*PREG_ADDR != PREG) {
 	  PREG = *PREG_ADDR;
-	  UNLOCK(pe->PELock);
+	  UNLOCK(PREG->u.Ill.l1->u.ld.p->PELock);
 	  JMPNext();
 	}
 #endif
+	saveregs();
 	ipc = Yap_CleanUpIndex(PREG->u.Ill.I);
-	READ_UNLOCK(pe->PRWLock);
-	/* restart index */
 	setregs();
+	UNLOCK(PREG->u.Ill.l1->u.ld.p->PELock);
+	/* restart index */
 	PREG = ipc;
 	if (PREG == NULL) FAIL();
 	CACHED_A1() = ARG1;
@@ -6357,19 +6362,19 @@ Yap_absmi(int inp)
 	if (ASP > (CELL *) B) {
 	  ASP = (CELL *) B;
 	}
- 	saveregs();
 #if defined(YAPOR) || defined(THREADS)
 	LOCK(pe->PELock);
-	if (*PREG_ADDR != PREG)) {
+	if (*PREG_ADDR != PREG) {
 	  PREG = *PREG_ADDR;
 	  UNLOCK(pe->PELock);
 	  JMPNext();
 	}
 #endif
+ 	saveregs();
 	pt0 = Yap_ExpandIndex(pe);
 	/* restart index */
-	UNLOCK(pe->PELock);
 	setregs();
+	UNLOCK(pe->PELock);
  	PREG = pt0;
 	JMPNext();
       }

@@ -60,32 +60,38 @@ store_specs(int new_worker_id, UInt ssize, UInt tsize, Term tgoal, Term tdetach)
     Yap_StoreTermInDB(tgoal,4);
   ThreadHandle[new_worker_id].cmod =
     CurrentModule;
-  if (IsVarTerm(tdetach))
-    tdetach = MkAtomTerm(AtomFalse);
-  ThreadHandle[new_worker_id].tdetach =
-    tdetach;
+  if (IsVarTerm(tdetach)){
+    ThreadHandle[new_worker_id].tdetach =  
+      MkAtomTerm(AtomFalse);
+  } else {
+    ThreadHandle[new_worker_id].tdetach = 
+      tdetach;
+  }
 }
 
 
 static void
-thread_die(void)
+thread_die(int wid)
 {
-  Prop p0 = AbsPredProp(heap_regs->thread_handle[worker_id].local_preds);
+  Prop p0;
 
-  /* kill all thread local preds */
-  while(p0) {
-    PredEntry *ap = RepPredProp(p0);
-    p0 = ap->NextOfPE;
-    Yap_Abolish(ap);
-    Yap_FreeCodeSpace((char *)ap);
-  }
-  Yap_KillStacks();
   LOCK(ThreadHandlesLock);
-  ActiveSignals = 0L;
-  free(ScratchPad.ptr);
-  free(ThreadHandle[worker_id].default_yaam_regs);
-  ThreadHandle[worker_id].in_use = FALSE;
-  pthread_mutex_destroy(&(ThreadHandle[worker_id].tlock));
+  if (ThreadHandle[wid].tdetach == MkAtomTerm(AtomTrue)) {
+    p0 = AbsPredProp(heap_regs->thread_handle[wid].local_preds);
+    /* kill all thread local preds */
+    while(p0) {
+      PredEntry *ap = RepPredProp(p0);
+      p0 = ap->NextOfPE;
+      Yap_Abolish(ap);
+      Yap_FreeCodeSpace((char *)ap);
+    }
+    Yap_KillStacks(wid);
+    heap_regs->wl[wid].active_signals = 0L;
+    free(heap_regs->wl[wid].scratchpad.ptr);
+    free(ThreadHandle[wid].default_yaam_regs);
+    ThreadHandle[wid].in_use = FALSE;
+    pthread_mutex_destroy(&(ThreadHandle[wid].tlock));
+  }
   UNLOCK(ThreadHandlesLock);
 }
 
@@ -113,7 +119,7 @@ thread_run(void *widp)
   tgoal = Yap_MkApplTerm(FunctorThreadRun, 2, tgs);
   pthread_mutex_unlock(&(ThreadHandle[worker_id].tlock));
   out = Yap_RunTopGoal(tgoal);
-  thread_die();
+  thread_die(worker_id);
   return NULL;
 }
 
@@ -132,6 +138,8 @@ p_create_thread(void)
   Term tgoal = Deref(ARG1);
   Term tdetach = Deref(ARG5);
   int new_worker_id = IntegerOfTerm(Deref(ARG6));
+  pthread_attr_t at;
+
   if (new_worker_id == -1) {
     /* YAP ERROR */
     return FALSE;
@@ -140,6 +148,8 @@ p_create_thread(void)
   pthread_mutex_init(&ThreadHandle[new_worker_id].tlock, NULL);
   pthread_mutex_lock(&(ThreadHandle[new_worker_id].tlock));
   store_specs(new_worker_id, ssize, tsize, tgoal, tdetach);
+  pthread_attr_init(&at);
+  pthread_attr_setstacksize(&at, 32*4096);
   if ((ThreadHandle[new_worker_id].ret = pthread_create(&(ThreadHandle[new_worker_id].handle), NULL, thread_run, (void *)(&(ThreadHandle[new_worker_id].id)))) == 0) {
     return TRUE;
   }
@@ -156,12 +166,35 @@ p_thread_self(void)
 static Int
 p_thread_join(void)
 {
-  pthread_t th = ThreadHandle[IntegerOfTerm(Deref(ARG1))].handle;
+  Int tid = IntegerOfTerm(Deref(ARG1));
+  pthread_t th;
   void *retval;
+
+  LOCK(ThreadHandlesLock);
+  if (!ThreadHandle[tid].in_use) {
+    UNLOCK(ThreadHandlesLock);
+    return FALSE;
+  }
+  if (!ThreadHandle[tid].tdetach == MkAtomTerm(AtomTrue)) {
+    UNLOCK(ThreadHandlesLock);
+    return FALSE;
+  }
+  ThreadHandle[tid].tdetach = MkAtomTerm(AtomTrue);
+  th = ThreadHandle[tid].handle;
+  UNLOCK(ThreadHandlesLock);
   if (pthread_join(th, &retval) < 0) {
     /* ERROR */
     return FALSE;
   }
+  return TRUE;
+}
+
+static Int
+p_thread_destroy(void)
+{
+  Int tid = IntegerOfTerm(Deref(ARG1));
+
+  thread_die(tid);
   return TRUE;
 }
 
@@ -179,7 +212,7 @@ p_thread_detach(void)
 static Int
 p_thread_exit(void)
 {
-  thread_die();
+  thread_die(worker_id);
   pthread_exit(NULL);
   return TRUE;
 }
@@ -386,6 +419,7 @@ void Yap_InitThreadPreds(void)
   Yap_InitCPred("$create_thread", 6, p_create_thread, 0);
   Yap_InitCPred("$thread_self", 1, p_thread_self, SafePredFlag);
   Yap_InitCPred("$thread_join", 1, p_thread_join, 0);
+  Yap_InitCPred("$thread_destroy", 1, p_thread_destroy, 0);
   Yap_InitCPred("$detach_thread", 1, p_thread_detach, 0);
   Yap_InitCPred("$thread_exit", 0, p_thread_exit, 0);
   Yap_InitCPred("thread_setconcurrency", 2, p_thread_set_concurrency, 0);

@@ -4129,7 +4129,8 @@ expand_index(struct intermediates *cint) {
       lab = do_index(cls, max, cint, argno+1, fail_l, isfirstcl, clleft, top);
     }
   }
-  *labp = (yamop *)lab; /* in case we have a single clause */
+  if (labp)
+    *labp = (yamop *)lab; /* in case we have a single clause */
   return labp;
 }
 
@@ -4170,8 +4171,7 @@ ExpandIndex(PredEntry *ap) {
 	cl = ClauseCodeToStaticIndex(ap->cs.p_code.TrueCodeOfPred);
 	Yap_kill_iblock((ClauseUnion *)cl, NULL, ap);
       }
-      UNLOCK(ap->PELock);
-      return NULL;
+      return FAILCODE;
     }
   }
  restart_index:
@@ -4214,11 +4214,9 @@ ExpandIndex(PredEntry *ap) {
   }
 #endif
   if ((labp = expand_index(&cint)) == NULL) {
-    UNLOCK(ap->PELock);
-    return NULL;
+    return FAILCODE;
   }
   if (*labp == FAILCODE) {
-    UNLOCK(ap->PELock);
     return FAILCODE;
   }
 #ifdef DEBUG
@@ -4232,21 +4230,18 @@ ExpandIndex(PredEntry *ap) {
     if ((indx_out = Yap_assemble(ASSEMBLING_EINDEX, TermNil, ap, FALSE, &cint)) == NULL) {
       if (!Yap_growheap(FALSE, Yap_Error_Size, NULL)) {
 	Yap_Error(SYSTEM_ERROR, TermNil, Yap_ErrorMessage);
-	UNLOCK(ap->PELock);
-	return NULL;
+	return FAILCODE;
       }
       goto restart_index;
     }
   } else {
     /* single case */
-    UNLOCK(ap->PELock);
     return *labp;
   }
   if (ProfilerOn) {
     Yap_inform_profiler_of_clause(indx_out, ProfEnd, ap); 
   }
   if (indx_out == NULL) {
-    UNLOCK(ap->PELock);
     return FAILCODE;
   }
   *labp = indx_out;
@@ -4268,7 +4263,6 @@ ExpandIndex(PredEntry *ap) {
     nic->SiblingIndex = ic->ChildIndex;
     ic->ChildIndex = nic;
   }
-  UNLOCK(ap->PELock);
   return indx_out;
 }
 
@@ -4749,12 +4743,23 @@ cp_lu_trychain(yamop *codep, yamop *ocodep, yamop *ostart, int flag, PredEntry *
 	if (op != _try_clause) {
 	  LogUpdClause *tgl = ClauseCodeToLogUpdClause(ocodep->u.ld.d);
 	  if (compact_mode) {
+	    LOCK(tgl->ClLock);
 	    tgl->ClRefCount--;
 	    if (tgl->ClFlags & ErasedMask &&
 		!(tgl->ClRefCount) &&
 		!(tgl->ClFlags & InUseMask)) {
+#if defined(YAPOR) || defined(THREADS)
+	      /* can't do erase now without risking deadlocks */
+	      tgl->ClRefCount++;
+	      TRAIL_CLREF(tgl);
+	      UNLOCK(tgl->ClLock);
+#else
 	      /* last ref to the clause */
+	      UNLOCK(tgl->ClLock);
 	      Yap_ErLogUpdCl(tgl);
+#endif
+	    } else {
+	      UNLOCK(tgl->ClLock);
 	    }
 	  }
 	}
@@ -4789,12 +4794,23 @@ cp_lu_trychain(yamop *codep, yamop *ocodep, yamop *ostart, int flag, PredEntry *
       if (compact_mode) {
 	LogUpdClause *tgl = ClauseCodeToLogUpdClause(ocodep->u.ld.d);
 
+	LOCK(tgl->ClLock);
 	tgl->ClRefCount--;
 	if (tgl->ClFlags & ErasedMask &&
 	    !(tgl->ClRefCount) &&
 	    !(tgl->ClFlags & InUseMask)) {
 	  /* last ref to the clause */
+#if defined(YAPOR) || defined(THREADS)
+	      /* can't do erase now without risking deadlocks */
+	  tgl->ClRefCount++;
+	  TRAIL_CLREF(tgl);
+	  UNLOCK(tgl->ClLock);
+#else
+	  UNLOCK(tgl->ClLock);
 	  Yap_ErLogUpdCl(tgl);
+#endif
+	} else {
+	  UNLOCK(tgl->ClLock);
 	}
       }
       ocodep = NEXTOP(ocodep, ld);
@@ -6066,6 +6082,7 @@ remove_from_index(PredEntry *ap, path_stack_entry *sp, ClauseDef *cls, yamop *bg
 }
 
 
+/* clause is locked */
 void
 Yap_RemoveClauseFromIndex(PredEntry *ap, yamop *beg) {
   ClauseDef cl;
@@ -6384,8 +6401,8 @@ Yap_FollowIndexingCode(PredEntry *ap, yamop *ipc, Term t1, Term tb, Term tr, yam
     case _stale_lu_index:
 #if defined(YAPOR) || defined(THREADS)
       LOCK(ap->PELock);
-      if (*jbl != ipc) {
-	ipc = *jbl;
+      if (*jlbl != ipc) {
+	ipc = *jlbl;
 	UNLOCK(ap->PELock);
 	break;
       }
@@ -6586,14 +6603,14 @@ Yap_FollowIndexingCode(PredEntry *ap, yamop *ipc, Term t1, Term tb, Term tr, yam
     case _expand_index:
 #if defined(YAPOR) || defined(THREADS)
       LOCK(ap->PELock);
-      if (*jbl != ipc) {
-	ipc = *jbl;
+      if (*jlbl != ipc) {
+	ipc = *jlbl;
 	UNLOCK(ap->PELock);
 	break;
       }
 #endif
       ipc = ExpandIndex(ap);
-      UNLOCK(pe->PELock);
+      UNLOCK(ap->PELock);
       break;
     case _op_fail:
       /*
@@ -6751,8 +6768,8 @@ Yap_NthClause(PredEntry *ap, Int ncls)
     case _stale_lu_index:
 #if defined(YAPOR) || defined(THREADS)
       LOCK(ap->PELock);
-      if (*jbl != ipc) {
-	ipc = *jbl;
+      if (*jlbl != ipc) {
+	ipc = *jlbl;
 	UNLOCK(ap->PELock);
 	break;
       }
@@ -6814,9 +6831,9 @@ Yap_NthClause(PredEntry *ap, Int ncls)
     case _expand_index:
 #if defined(YAPOR) || defined(THREADS)
       LOCK(ap->PELock);
-      if (*jbl != (yamop *)&(ap->cs.p_code.ExpandCode)) {
-	ipc = *jbl;
-	UNLOCK(pe->PELock);
+      if (*jlbl != (yamop *)&(ap->cs.p_code.ExpandCode)) {
+	ipc = *jlbl;
+	UNLOCK(ap->PELock);
 	break;
       }
 #endif
@@ -6833,12 +6850,6 @@ Yap_NthClause(PredEntry *ap, Int ncls)
       break;
     case _undef_p:
     default:
-#if defined(YAPOR) || defined(THREADS)
-      if (PP == ap) {
-	PP = NULL;
-	READ_UNLOCK(ap->PRWLock);
-      }
-#endif
       return NULL;
     }
   }
