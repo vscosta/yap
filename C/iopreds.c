@@ -867,36 +867,6 @@ ReadlinePutc (int sno, int ch)
   return ((int) ch);
 }
 
-int
-_YAP_GetCharForSIGINT(void)
-{
-  int ch;
-#if  HAVE_LIBREADLINE
-  if ((_YAP_PrologMode & ConsoleGetcMode) && _line != (char *) NULL) {
-    ch = _line[0];
-    free(_line);
-    _line = NULL;
-  } else {
-    _line = readline ("Action (h for help): ");
-    if (_line == (char *)NULL || _line == (char *)EOF) {
-      ch = EOF;
-    } else {
-      ch = _line[0];
-      free(_line);
-      _line = NULL;
-    }
-  }
-#else
-  /* ask for a new line */
-  fprintf(stderr, "Action (h for help): ");
-  ch = getc(stdin);
-  /* first process up to end of line */
-  while ((fgetc(stdin)) != '\n');
-#endif
-  newline = TRUE;
-  return ch;
-}
-
 /*
   reading from the console is complicated because we need to
   know whether to prompt and so on... 
@@ -972,8 +942,38 @@ ReadlineGetc(int sno)
   return(console_post_process_read_char(ch, s, sno));
 }
 
-#endif
+#endif /* HAVE_LIBREADLINE */
 
+
+int
+_YAP_GetCharForSIGINT(void)
+{
+  int ch;
+#if  HAVE_LIBREADLINE
+  if ((_YAP_PrologMode & ConsoleGetcMode) && _line != (char *) NULL) {
+    ch = _line[0];
+    free(_line);
+    _line = NULL;
+  } else {
+    _line = readline ("Action (h for help): ");
+    if (_line == (char *)NULL || _line == (char *)EOF) {
+      ch = EOF;
+    } else {
+      ch = _line[0];
+      free(_line);
+      _line = NULL;
+    }
+  }
+#else
+  /* ask for a new line */
+  fprintf(stderr, "Action (h for help): ");
+  ch = getc(stdin);
+  /* first process up to end of line */
+  while ((fgetc(stdin)) != '\n');
+#endif
+  newline = TRUE;
+  return ch;
+}
 
 /* handle reading from a stream after having found an EOF */
 static int
@@ -4412,6 +4412,51 @@ format(Term tail, Term args, int sno)
 	      pad_max->pos = format_ptr-format_base;
 	      pad_max++;
 	      break;
+#if DEBUG
+	    case 'T':
+	      {
+		Int radix = 16;
+		unsigned *uint_ptr;
+
+		ptr = tmp2;
+		if (size_args)
+		  radix = arg_size;
+		if (IsVarTerm (args)) {
+		FreeAtomSpace(format_base);
+		  Error(INSTANTIATION_ERROR,args,"~T in format/2");
+		  return(FALSE);		
+		} else if (!IsPairTerm (args)) {
+		FreeAtomSpace(format_base);
+		  Error(TYPE_ERROR_LIST,args,"~T in format/2");
+		  return(FALSE);
+		}
+		if (radix > 36 || radix < 2) {
+		FreeAtomSpace(format_base);
+		  Error(DOMAIN_ERROR_RADIX,MkIntTerm(radix),"~T in format/2");
+		  return(FALSE);
+		}
+		arghd = HeadOfTerm (args);
+		args = TailOfTerm (args);
+
+		uint_ptr = (unsigned *)&arghd;
+		for (i = 0; i < sizeof (arghd) / sizeof (unsigned); ++i) {
+		  if (uint_ptr[i] == 0)
+		    format_putc(sno, (int) '0');
+		  while (uint_ptr[i] != 0) {
+		    Int numb = uint_ptr[i] % radix;
+		    if (numb >= 10)
+		      numb += 'a' - 10;
+		    else
+		      numb += '0';
+		    *ptr++ = numb;
+		    uint_ptr[i] = uint_ptr[i] / radix;
+		  }
+		  while (--ptr >= tmp2)
+		    format_putc(sno, (int) *ptr);
+		}
+	      }
+	      break;
+#endif /* DEBUG */
 	    default:
 	      _YAP_FreeAtomSpace(format_base);
 	      return (FALSE);
