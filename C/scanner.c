@@ -257,6 +257,7 @@ get_num(void)
     }
     might_be_float = FALSE;
     *sp++ = ch;
+  restart:
     my_getch();
     if (base == 0) {
       Int ascii = ch;
@@ -266,6 +267,8 @@ get_num(void)
 	/* escape sequence */
 	ch = my_get_quoted_ch();
 	switch (ch) {
+	case 10:
+	  goto restart;
 	case 'a':
 	  ascii = '\a';
 	  break;
@@ -570,6 +573,11 @@ token(void)
 	/* escape sequence */
 	ch = my_get_quoted_ch();
 	switch (ch) {
+	case 10:
+	  /* don't add characters */
+	  printf("I am here\n");
+	  my_get_quoted_ch();
+	  break;
 	case 'a':
 	  *charp++ = '\a';
 	  my_get_quoted_ch();
@@ -978,6 +986,7 @@ fast_tokenizer(void)
 	  if (ch == '\'') {
 	    might_be_float = FALSE;
 	    *sp++ = ch;
+	  restart:
 	    my_fgetch();
 	    if (base == 0) {
 	      Int ascii = ch;
@@ -991,6 +1000,8 @@ fast_tokenizer(void)
 		/* escape sequence */
 		ch = my_fgetch();
 		switch (ch) {
+		case 10:
+		  goto restart;
 		case 'a':
 		  ascii = '\a';
 		  break;
@@ -1305,6 +1316,10 @@ fast_tokenizer(void)
 	    /* escape sequence */
 	    ch = my_fgetch();
 	    switch (ch) {
+	    case 10:
+	      /* just skip */
+	      my_fgetch();
+	      break;
 	    case 'a':
 	      *charp++ = '\a';
 	      my_fgetch();
