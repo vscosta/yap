@@ -2822,11 +2822,27 @@ FetchDBPropFromKey(Term twork, int flag, int new, char *error_mssg)
 }
 
 
-static DBRef 
-nth_recorded_log(LogUpdDBProp AtProp, Int Count)
+static Int 
+lu_nth_recorded(PredEntry *pe, Int Count)
 {
-  Yap_Error(SYSTEM_ERROR, TermNil, Yap_ErrorMessage);
-  return NULL;
+  LogUpdClause *cl;
+
+  XREGS[2] = MkVarTerm();
+  cl = Yap_NthClause(pe, Count);
+  if (cl == NULL)
+    return FALSE;
+#if defined(YAPOR) || defined(THREADS)
+  LOCK(cl->ClLock);
+  TRAIL_CLREF(cl);		/* So that fail will erase it */
+  INC_CLREF_COUNT(cl);
+  UNLOCK(cl->ClLock);
+#else
+  if (!(cl->ClFlags & InUseMask)) {
+    cl->ClFlags |= InUseMask;
+    TRAIL_CLREF(cl);	/* So that fail will erase it */
+  }
+#endif
+  return Yap_unify(MkDBRefTerm((DBRef)cl),ARG3);
 }
 
 
@@ -2837,32 +2853,24 @@ nth_recorded(DBProp AtProp, Int Count)
   Register DBRef  ref;
 
   READ_LOCK(AtProp->DBRWLock);
-  if (AtProp->KindOfPE & 0x1) {
-    ref = nth_recorded_log((LogUpdDBProp)AtProp, Count);
-    if (ref == NULL) {
-      READ_UNLOCK(AtProp->DBRWLock);
-      return FALSE;
-    }
-  } else {
-    ref = AtProp->First;
+  ref = AtProp->First;
+  Count--;
+  while (ref != NULL
+	 && DEAD_REF(ref))
+    ref = NextDBRef(ref);
+  if (ref == NULL) {
+    READ_UNLOCK(AtProp->DBRWLock);
+    return FALSE;
+  }
+  while (Count) {
     Count--;
+    ref = NextDBRef(ref);
     while (ref != NULL
 	   && DEAD_REF(ref))
       ref = NextDBRef(ref);
     if (ref == NULL) {
       READ_UNLOCK(AtProp->DBRWLock);
       return FALSE;
-    }
-    while (Count) {
-      Count--;
-      ref = NextDBRef(ref);
-      while (ref != NULL
-	     && DEAD_REF(ref))
-	ref = NextDBRef(ref);
-      if (ref == NULL) {
-	READ_UNLOCK(AtProp->DBRWLock);
-	return FALSE;
-      }
     }
   }
 #if defined(YAPOR) || defined(THREADS)
@@ -2887,6 +2895,7 @@ p_nth_instance(void)
   DBProp          AtProp;
   Term            TCount;
   Int             Count;
+  PredEntry      *pe;
   Term t3 = Deref(ARG3);
 
   if (!IsVarTerm(t3)) {
@@ -2895,30 +2904,90 @@ p_nth_instance(void)
       return FALSE;
     } else {
       DBRef ref = DBRefOfTerm(t3);
-      LOCK(ref->lock);
-      if (ref == NULL
-	  || DEAD_REF(ref)
-	  || !UnifyDBKey(ref,0,ARG1)
-	  || !UnifyDBNumber(ref,ARG2)) {
-	UNLOCK(ref->lock);
-	return(FALSE);
+      if (ref->Flags & LogUpdMask) {
+	LogUpdClause *cl = (LogUpdClause *)ref;
+	PredEntry *pe;
+	LogUpdClause *ocl;
+	UInt pred_arity, icl = 0;
+	Functor pred_f;
+	Term tpred;
+	Term pred_module;
+
+	LOCK(cl->ClLock);
+	if (cl->ClFlags & ErasedMask) {
+	  UNLOCK(cl->ClLock);
+	  return FALSE;
+	}
+	pe = cl->ClPred;
+	READ_LOCK(pe->PRWLock);
+	ocl = ClauseCodeToLogUpdClause(pe->cs.p_code.FirstClause);
+	pred_module = pe->ModuleOfPred;
+	if (pred_module != IDB_MODULE) {
+	  pred_f = pe->FunctorOfPred;
+	  pred_arity = pe->ArityOfPE;
+	} else {
+	  if (pe->PredFlags & NumberDBPredFlag) {
+	    pred_f = (Functor)MkIntegerTerm(pe->src.IndxId);
+	    pred_arity = 0;
+	  } else {
+	    pred_f = pe->FunctorOfPred;
+	    if (pe->PredFlags & AtomDBPredFlag) {
+	      pred_arity = 0;
+	    } else {
+	      pred_arity = ArityOfFunctor(pred_f);
+	    }
+	  }
+	}
+	do {
+	  icl++;
+	  if (cl == ocl) break;
+	  ocl = ocl->ClNext;
+	} while (ocl != NULL);
+	READ_UNLOCK(pe->PRWLock);
+	UNLOCK(cl->ClLock);
+	if (ocl == NULL) {
+	  return FALSE;
+	}
+	if (!Yap_unify(ARG2,MkIntegerTerm(icl))) {
+	  return FALSE;
+	}
+	if (pred_arity) {
+	  tpred = Yap_MkNewApplTerm(pred_f,pred_arity);
+	} else {
+	  tpred = MkAtomTerm((Atom)pred_f);
+	}
+	if (pred_module == IDB_MODULE) {
+	  return Yap_unify(ARG1,tpred);
+	} else {
+	  Term ttpred, ts[2];
+	  ts[0] = pred_module;
+	  ts[1] = tpred;
+	  ttpred = Yap_MkApplTerm(FunctorModule,pred_arity,ts);
+	  return Yap_unify(ARG1,ttpred);
+	}
       } else {
-	UNLOCK(ref->lock);
-	return(TRUE);
+	LOCK(ref->lock);
+	if (ref == NULL
+	    || DEAD_REF(ref)
+	    || !UnifyDBKey(ref,0,ARG1)
+	    || !UnifyDBNumber(ref,ARG2)) {
+	  UNLOCK(ref->lock);
+	  return FALSE;
+	} else {
+	  UNLOCK(ref->lock);
+	  return TRUE;
+	}
       }
     }
-  }
-  if (EndOfPAEntr(AtProp = FetchDBPropFromKey(Deref(ARG1), 0, FALSE, "nth_instance/3"))) {
-    return(FALSE);
   }
   TCount = Deref(ARG2);
   if (IsVarTerm(TCount)) {
     Yap_Error(INSTANTIATION_ERROR, TCount, "nth_instance/3");
-    return (FALSE);
+    return FALSE;
   }
   if (!IsIntegerTerm(TCount)) {
     Yap_Error(TYPE_ERROR_INTEGER, TCount, "nth_instance/3");
-    return (FALSE);
+    return FALSE;
   }
   Count = IntegerOfTerm(TCount);
   if (Count <= 0) {
@@ -2926,7 +2995,13 @@ p_nth_instance(void)
       Yap_Error(DOMAIN_ERROR_NOT_LESS_THAN_ZERO, TCount, "nth_instance/3");
     else
       Yap_Error(DOMAIN_ERROR_NOT_ZERO, TCount, "nth_instance/3");
-    return (FALSE);
+    return FALSE;
+  }
+  if ((pe = find_lu_entry(Deref(ARG1))) != NULL) {
+    return lu_nth_recorded(pe,Count);
+  }
+  if (EndOfPAEntr(AtProp = FetchDBPropFromKey(Deref(ARG1), 0, FALSE, "nth_instance/3"))) {
+    return FALSE;
   }
   return nth_recorded(AtProp,Count);
 }

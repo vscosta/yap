@@ -477,13 +477,7 @@ MERGE_DLL_OBJS="#"
 IN_UNIX=""
 
 dnl This has to be before $target_os
-if test "$dynamic_loading" = "yes"
-then 
-  YAP_EXTRAS="$SHLIB_CFLAGS $YAP_EXTRAS"
-  YAPLIB=libYap"$SHLIB_SUFFIX"
-else
-  YAPLIB="libYap.a"
-fi
+YAPLIB="libYap.a"
 
 case "$target_os" in
       *linux*)
@@ -662,6 +656,12 @@ dnl Linux has both elf and a.out, in this case we found elf
         fi
 	;;
 esac
+
+if test "$dynamic_loading" = "yes"
+then 
+  YAP_EXTRAS="$SHLIB_CFLAGS $YAP_EXTRAS"
+  YAPLIB=libYap"$SHLIB_SUFFIX"
+fi
 
 if test "$coroutining" = "yes"
   then

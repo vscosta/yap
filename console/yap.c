@@ -468,7 +468,9 @@ init_standard_system(int argc, char *argv[], YAP_init_args *iap)
   /* init memory */
   if (BootMode == YAP_BOOT_FROM_PROLOG ||
       BootMode == YAP_FULL_BOOT_FROM_PROLOG) {
-    BootMode = YAP_Init(iap);
+    int NewBootMode = YAP_Init(iap);
+    if (NewBootMode != YAP_BOOT_FROM_PROLOG && BootMode != YAP_FULL_BOOT_FROM_PROLOG)
+      BootMode = NewBootMode;
   } else {
     BootMode = YAP_Init(iap);
   }
@@ -476,7 +478,7 @@ init_standard_system(int argc, char *argv[], YAP_init_args *iap)
     /* boot failed */
     YAP_Error(iap->ErrorNo,0L,iap->ErrorCause);
   }
-  return(BootMode);
+  return BootMode;
 }
 
 

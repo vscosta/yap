@@ -5407,13 +5407,7 @@ M4="m4"
 MERGE_DLL_OBJS="#"
 IN_UNIX=""
 
-if test "$dynamic_loading" = "yes"
-then
-  YAP_EXTRAS="$SHLIB_CFLAGS $YAP_EXTRAS"
-  YAPLIB=libYap"$SHLIB_SUFFIX"
-else
-  YAPLIB="libYap.a"
-fi
+YAPLIB="libYap.a"
 
 case "$target_os" in
       *linux*)
@@ -5831,6 +5825,12 @@ fi
         fi
 	;;
 esac
+
+if test "$dynamic_loading" = "yes"
+then
+  YAP_EXTRAS="$SHLIB_CFLAGS $YAP_EXTRAS"
+  YAPLIB=libYap"$SHLIB_SUFFIX"
+fi
 
 if test "$coroutining" = "yes"
   then
