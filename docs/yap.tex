@@ -5887,6 +5887,27 @@ must be an atom (named array). The @var{Size} must evaluate to an
 integer.  The @var{Type} must be bound to one of types mentioned
 previously.
 
+@item static_array_properties(?@var{Name}, ?@var{Size}, ?@var{Type})
+@findex static_array_properties/3
+@snindex static_array_properties/3
+@cnindex static_array_properties/3
+Show the properties size and type of a static array with name
+@var{Name}. Can also be used to enumerate all current
+static arrays. 
+
+This built-in will silently fail if the there is no static array with
+that name.
+
+@item static_array_to_term(?@var{Name}, ?@var{Term})
+@findex static_array_to_term/3
+@snindex static_array_to_term/3
+@cnindex static_array_to_term/3
+Convert a static array with name
+@var{Name} to a compound term of name @var{Name}.
+
+This built-in will silently fail if the there is no static array with
+that name.
+
 @item mmapped_array(+@var{Name}, +@var{Size}, +@var{Type}, +@var{File})
 @findex static_array/3
 @snindex static_array/3
@@ -5900,9 +5921,9 @@ system call @code{mmap}. Moreover, mmapped arrays do not store generic
 terms (type @code{term}).
 
 @item close_static_array(+@var{Name})
-@findex close_static_array/3
-@snindex close_static_array/3
-@cnindex close_static_array/3
+@findex close_static_array/1
+@snindex close_static_array/1
+@cnindex close_static_array/1
 Close an existing static array of name @var{Name}. The @var{Name} must
 be an atom (named array). Space for the array will be recovered and
 further accesses to the array will return an error. 
@@ -5920,9 +5941,9 @@ Note that if the array is a mmapped array the size of the mmapped file
 will be actually adjusted to correspond to the size of the array.
 
 @item array_element(+@var{Name}, +@var{Index}, ?@var{Element})
-@findex access_array/3
-@snindex access_array/3
-@cnindex access_array/3
+@findex array_element/3
+@snindex array_element/3
+@cnindex array_element/3
 Unify @var{Element} with @var{Name}[@var{Index}]. It works for both
 static and dynamic arrays, but it is read-only for static arrays, while
 it can be used to unify with an element of a dynamic array.
@@ -5942,6 +5963,25 @@ elements of dynamic arrays, and @code{setarg/3} spends an extra cell for
 every update. For intensive operations we suggest it may be less
 expensive to unify each element of the array with a mutable terms and
 to use the operations on mutable terms.
+
+@item add_to_array_element(+@var{Name}, +@var{Index}, , +@var{Number}, ?@var{NewValue}) 
+@findex add_to_array_element/4
+@snindex add_to_array_element/4
+@cnindex add_to_array_element/4
+Add @var{Number} @var{Name}[@var{Index}] and unify @var{NewValue} with
+the incremented value. Observe that @var{Name}[@var{Index}] must be an
+number. If @var{Name} is a static array the type of the array must be
+@code{int} or @code{float}. If the type of the array is @code{int} you
+only may add integers, if it is @code{float} you may add integers or
+floats. If @var{Name} corresponds to a dynamic array the array element
+must have been previously bound to a number and @code{Number} can be
+any kind of number.
+
+The @code{add_to_array_element/3} built-in actually uses
+@code{setarg/3} to update elements of dynamic arrays. For intensive
+operations we suggest it may be less expensive to unify each element
+of the array with a mutable terms and to use the operations on mutable
+terms.
 
 @end table
 

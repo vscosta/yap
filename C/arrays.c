@@ -715,9 +715,9 @@ p_create_static_array(void)
       props = array_of_ptrs;
     else if (!strcmp(atname, "atom"))
       props = array_of_atoms;
-    else if (!strcmp(atname, "byte"))
+    else if (!strcmp(atname, "char"))
       props = array_of_chars;
-    else if (!strcmp(atname, "unsigned_byte"))
+    else if (!strcmp(atname, "unsigned_char"))
       props = array_of_uchars;
     else if (!strcmp(atname, "term"))
       props = array_of_terms;
@@ -768,7 +768,7 @@ p_create_static_array(void)
 
 /* has a static array associated (+Name) */
 static Int 
-p_has_static_array(void)
+p_static_array_properties(void)
 {
   Term t = Deref(ARG1);
 
@@ -788,12 +788,33 @@ p_has_static_array(void)
       READ_UNLOCK(ae->ARWLock);
       return (FALSE);
     } else {
+      static_array_types tp = pp->ArrayType;
+      Int dim = -pp->ArrayEArity;
+
       READ_UNLOCK(ae->ARWLock);
-      return(TRUE);
+      if (dim <= 0 || !Yap_unify(ARG2,MkIntegerTerm(dim)))
+	return(FALSE);
+      switch(tp) {
+      case array_of_ints:
+	return(Yap_unify(ARG3,MkAtomTerm(Yap_LookupAtom("int"))));
+      case array_of_dbrefs:
+	return(Yap_unify(ARG3,MkAtomTerm(Yap_LookupAtom("dbref"))));
+      case array_of_doubles:
+	return(Yap_unify(ARG3,MkAtomTerm(Yap_LookupAtom("float"))));
+      case array_of_ptrs:
+	return(Yap_unify(ARG3,MkAtomTerm(Yap_LookupAtom("ptr"))));
+      case array_of_chars:
+	return(Yap_unify(ARG3,MkAtomTerm(Yap_LookupAtom("char"))));
+      case array_of_uchars:
+	return(Yap_unify(ARG3,MkAtomTerm(Yap_LookupAtom("unsigned char"))));
+      case array_of_terms:
+	return(Yap_unify(ARG3,MkAtomTerm(Yap_LookupAtom("term"))));
+      case array_of_atoms:
+	return(Yap_unify(ARG3,MkAtomTerm(Yap_LookupAtom("atom"))));
+      }
     }
-  } else {
-    return (FALSE);
   }
+  return (FALSE);
 }
 
 /* resize a static array (+Name, + Size, +Props) */
@@ -1044,10 +1065,10 @@ p_create_mmapped_array(void)
     } else if (!strcmp(atname, "atom")) {
       props = array_of_atoms;
       total_size = size*sizeof(Term);
-    } else if (!strcmp(atname, "byte")) {
+    } else if (!strcmp(atname, "char")) {
       props = array_of_chars;
       total_size = size*sizeof(char);
-    } else if (!strcmp(atname, "unsigned_byte")) {
+    } else if (!strcmp(atname, "unsigned_char")) {
       props = array_of_uchars;
       total_size = size*sizeof(unsigned char);
     } else {
@@ -1426,7 +1447,7 @@ p_assign_static(void)
       }
       if (i > 127 || i < -128) {
 	WRITE_UNLOCK(ptr->ArRWLock);
-	Yap_Error(TYPE_ERROR_BYTE,t3,"assign_static");
+	Yap_Error(TYPE_ERROR_CHAR,t3,"assign_static");
 	return (FALSE);
       }
       ptr->ValueOfVE.chars[indx]= i;
@@ -1449,7 +1470,7 @@ p_assign_static(void)
       }
       if (i > 255 || i < 0) {
 	WRITE_UNLOCK(ptr->ArRWLock);
-	Yap_Error(TYPE_ERROR_UBYTE,t3,"assign_static");
+	Yap_Error(TYPE_ERROR_UCHAR,t3,"assign_static");
 	return (FALSE);
       }
       ptr->ValueOfVE.chars[indx]= i;
@@ -1538,6 +1559,205 @@ p_assign_static(void)
 }
 
 static Int 
+p_add_to_array_element(void)
+{
+  Term t1, t2, t3;
+  StaticArrayEntry *ptr;
+  Int indx;
+
+  t2 = Deref(ARG2);
+  if (IsNonVarTerm(t2)) {
+    if (IsIntTerm(t2))
+      indx = IntOfTerm(t2);
+    else  {
+      union arith_ret v;
+      if (Yap_Eval(t2, &v) == long_int_e) {
+	indx = v.Int;
+      } else {
+	Yap_Error(TYPE_ERROR_INTEGER,t2,"add_to_array_element");
+	return (FALSE);
+      }
+    }
+  } else {
+    Yap_Error(INSTANTIATION_ERROR,t2,"add_to_array_element");
+    return (FALSE);
+  }
+
+  t1 = Deref(ARG1);
+  if (IsVarTerm(t1)) {
+    Yap_Error(INSTANTIATION_ERROR,t1,"add_to_array_element");
+    return(FALSE);
+  }
+  t3 = Deref(ARG3);
+  if (IsVarTerm(t3)) {
+    Yap_Error(INSTANTIATION_ERROR,t3,"add_to_array_element");
+    return(FALSE);
+  }
+  if (!IsAtomTerm(t1)) {
+    if (IsApplTerm(t1)) {
+      CELL *ptr;
+      Functor f = FunctorOfTerm(t1);
+      Term ta;
+
+      /* store the terms to visit */
+      if (IsExtensionFunctor(f)) {
+	Yap_Error(TYPE_ERROR_ARRAY,t1,"add_to_array_element");
+	return(FALSE);
+      }
+      if (indx > 0 && indx > ArityOfFunctor(f)) {
+	Yap_Error(DOMAIN_ERROR_ARRAY_OVERFLOW,t2,"add_to_array_element");
+	return(FALSE);
+      }
+      ptr = RepAppl(t1)+indx+1;
+      ta = RepAppl(t1)[indx+1];
+      if (IsIntegerTerm(ta)) {
+	if (IsIntegerTerm(t3)) {
+	  ta = MkIntegerTerm(IntegerOfTerm(ta)+IntegerOfTerm(t3));
+	} else if (IsFloatTerm(t3)) {
+	  ta = MkFloatTerm(IntegerOfTerm(ta)+FloatOfTerm(t3));
+	} else {
+	  Yap_Error(TYPE_ERROR_NUMBER,t3,"add_to_array_element");
+	  return(FALSE);
+	}
+      } else if (IsFloatTerm(ta)) {
+	if (IsFloatTerm(t3)) {
+	  ta = MkFloatTerm(FloatOfTerm(ta)+IntegerOfTerm(t3));
+	} else if (IsFloatTerm(t3)) {
+	  ta = MkFloatTerm(FloatOfTerm(ta)+FloatOfTerm(t3));
+	} else {
+	  Yap_Error(TYPE_ERROR_NUMBER,t3,"add_to_array_element");
+	  return(FALSE);
+	}
+      } else {
+	Yap_Error(TYPE_ERROR_NUMBER,ta,"add_to_array_element");
+	return(FALSE);
+      }
+#ifdef MULTI_ASSIGNMENT_VARIABLES
+      t3 = MkIntegerTerm(IntegerOfTerm(t3)+1);
+      MaBind(ptr, t3);
+      return(Yap_unify(ARG4,t3));
+#else
+      Yap_Error(SYSTEM_ERROR,t2,"add_to_array_element");
+      return(FALSE);
+#endif
+    } else {
+      Yap_Error(TYPE_ERROR_ATOM,t1,"add_to_array_element");
+      return(FALSE);
+    }
+  }
+  {
+    AtomEntry *ae = RepAtom(AtomOfTerm(t1));
+
+    READ_LOCK(ae->ARWLock);
+    ptr =  RepStaticArrayProp(ae->PropsOfAE);    
+    while (!EndOfPAEntr(ptr) && ptr->KindOfPE != ArrayProperty)
+      ptr = RepStaticArrayProp(ptr->NextOfPE);
+    READ_UNLOCK(ae->ARWLock);
+  }
+
+  if (EndOfPAEntr(ptr)) {
+    Yap_Error(EXISTENCE_ERROR_ARRAY,t1,"add_to_array_element %s", RepAtom(AtomOfTerm(t1))->StrOfAE);
+    return(FALSE);
+  }
+
+  WRITE_LOCK(ptr->ArRWLock);
+  if (ArrayIsDynamic((ArrayEntry *)ptr)) {
+    ArrayEntry *pp = (ArrayEntry *)ptr;
+    CELL *pt;
+    Term ta;
+
+    if (indx < 0 || indx >= pp->ArrayEArity) {
+      Yap_Error(DOMAIN_ERROR_ARRAY_OVERFLOW,t2,"add_to_array_element");
+      READ_UNLOCK(((ArrayEntry *)ptr)->ArRWLock);
+      return(FALSE);
+    }
+    pt = RepAppl(pp->ValueOfVE) + indx + 1;
+    ta = RepAppl(pp->ValueOfVE)[indx+1];
+    if (IsIntegerTerm(ta)) {
+      if (IsIntegerTerm(t3)) {
+	ta = MkIntegerTerm(IntegerOfTerm(ta)+IntegerOfTerm(t3));
+      } else if (IsFloatTerm(t3)) {
+	ta = MkFloatTerm(IntegerOfTerm(ta)+FloatOfTerm(t3));
+      } else {
+	WRITE_UNLOCK(((ArrayEntry *)ptr)->ArRWLock);
+	Yap_Error(TYPE_ERROR_NUMBER,t3,"add_to_array_element");
+	return(FALSE);
+      }
+    } else if (IsFloatTerm(ta)) {
+      if (IsFloatTerm(t3)) {
+	ta = MkFloatTerm(FloatOfTerm(ta)+IntegerOfTerm(t3));
+      } else if (IsFloatTerm(t3)) {
+	ta = MkFloatTerm(FloatOfTerm(ta)+FloatOfTerm(t3));
+      } else {
+	WRITE_UNLOCK(((ArrayEntry *)ptr)->ArRWLock);
+	Yap_Error(TYPE_ERROR_NUMBER,t3,"add_to_array_element");
+	return(FALSE);
+      }
+    } else {
+      WRITE_UNLOCK(((ArrayEntry *)ptr)->ArRWLock);
+      Yap_Error(TYPE_ERROR_NUMBER,ta,"add_to_array_element");
+      return(FALSE);
+    }
+#ifdef MULTI_ASSIGNMENT_VARIABLES
+    /* the evil deed is to be done now */
+    t3 = MkIntegerTerm(IntegerOfTerm(t3)+1);
+    MaBind(pt, t3);
+    WRITE_UNLOCK(((ArrayEntry *)ptr)->ArRWLock);
+    return(Yap_unify(ARG4,t3));
+#else
+    Yap_Error(SYSTEM_ERROR,t2,"add_to_array_element");
+    WRITE_UNLOCK(((ArrayEntry *)ptr)->ArRWLock);
+    return(FALSE);
+#endif
+  }
+
+  /* a static array */
+  if (indx < 0 || indx >= - ptr->ArrayEArity) {
+    WRITE_UNLOCK(ptr->ArRWLock);
+    Yap_Error(DOMAIN_ERROR_ARRAY_OVERFLOW,t2,"add_to_array_element");
+    return(FALSE);
+  }
+  switch (ptr->ArrayType) {
+  case array_of_ints:
+    {
+      Int i = ptr->ValueOfVE.ints[indx];
+      if (!IsIntegerTerm(t3)) {
+	WRITE_UNLOCK(ptr->ArRWLock);
+	Yap_Error(TYPE_ERROR_INTEGER,t3,"add_to_array_element");
+	return(FALSE);
+      }
+      i += IntegerOfTerm(t3);
+      ptr->ValueOfVE.ints[indx] = i;
+      WRITE_UNLOCK(ptr->ArRWLock);
+      return(Yap_unify(ARG4,MkIntegerTerm(i)));
+    }
+    break;
+  case array_of_doubles:
+    {
+      Float fl = ptr->ValueOfVE.floats[indx];
+
+      if (IsFloatTerm(t3)) {
+	fl += FloatOfTerm(t3);
+      } else if (IsIntegerTerm(t3)) {
+	fl += IntegerOfTerm(t3);
+      } else {
+	WRITE_UNLOCK(ptr->ArRWLock);
+	Yap_Error(TYPE_ERROR_NUMBER,t3,"add_to_array_element");
+	return(FALSE);
+      }
+      ptr->ValueOfVE.floats[indx] = fl;
+      WRITE_UNLOCK(ptr->ArRWLock);
+      return(Yap_unify(ARG4,MkFloatTerm(fl)));
+    }
+    break;
+  default:
+    WRITE_UNLOCK(ptr->ArRWLock);
+    Yap_Error(TYPE_ERROR_INTEGER,t2,"add_to_array_element");
+    return(FALSE);
+  }
+}
+
+static Int 
 p_compile_array_refs(void)
 {
   compile_arrays = TRUE;
@@ -1563,6 +1783,130 @@ p_sync_mmapped_arrays(void)
   return(TRUE);
 }
 
+static Int
+p_static_array_to_term(void)
+{
+  Term t = Deref(ARG1);
+
+  if (IsVarTerm(t)) {
+    return (FALSE);
+  } else if (IsAtomTerm(t)) {
+    /* Create a named array */
+    AtomEntry *ae = RepAtom(AtomOfTerm(t));
+    StaticArrayEntry *pp;
+
+    READ_LOCK(ae->ARWLock);
+    pp = RepStaticArrayProp(ae->PropsOfAE);
+    while (!EndOfPAEntr(pp) && pp->KindOfPE != ArrayProperty)
+      pp = RepStaticArrayProp(pp->NextOfPE);
+    if (EndOfPAEntr(pp) || pp->ValueOfVE.ints == NULL) {
+      READ_UNLOCK(ae->ARWLock);
+      return (FALSE);
+    } else {
+      static_array_types tp = pp->ArrayType;
+      Int dim = -pp->ArrayEArity, indx;
+      CELL *base;
+
+      while (H+1+dim > ASP-1024) {
+	if (!Yap_gc(2, ENV, P)) {
+	  Yap_Error(OUT_OF_STACK_ERROR,TermNil,Yap_ErrorMessage);
+	  return(FALSE);
+	} else {
+	  if (H+1+dim > ASP-1024) {
+	    if (!Yap_growstack( sizeof(CELL) * (dim+1-(H-ASP-1024)))) {
+	      Yap_Error(SYSTEM_ERROR, TermNil, Yap_ErrorMessage);
+	      return FALSE;
+	    }
+	  }
+	}
+      }
+      READ_LOCK(pp->ArRWLock);
+      READ_UNLOCK(ae->ARWLock);
+      base = H;
+      *H++ = (CELL)Yap_MkFunctor(AbsAtom(ae),dim);
+      switch(tp) {
+      case array_of_ints:
+	for (indx=0; indx < dim; indx++) {
+	  *H++ = MkIntegerTerm(pp->ValueOfVE.ints[indx]);
+	}
+	break;
+      case array_of_dbrefs:
+	for (indx=0; indx < dim; indx++) {
+	  /* The object is now in use */
+	  Term TRef = pp->ValueOfVE.dbrefs[indx];
+
+	  READ_UNLOCK(pp->ArRWLock);
+	  if (TRef != 0L) {
+	    DBRef ref = DBRefOfTerm(TRef);
+#if defined(YAPOR) || defined(THREADS)
+	    LOCK(ref->lock);
+	    INC_DBREF_COUNT(ref);
+	    TRAIL_REF(ref);	/* So that fail will erase it */
+	    UNLOCK(ref->lock);
+#else
+	    if (!(ref->Flags & InUseMask)) {
+	      ref->Flags |= InUseMask;
+	      TRAIL_REF(ref);	/* So that fail will erase it */
+	    }
+#endif
+	  } else {
+	    TRef = TermNil;
+	  }
+	  *H++ = TRef;
+	}
+	break;
+      case array_of_doubles:
+	for (indx=0; indx < dim; indx++) {
+	  *H++ = MkEvalFl(pp->ValueOfVE.floats[indx]);
+	}
+	break;
+      case array_of_ptrs:
+	for (indx=0; indx < dim; indx++) {
+	  *H++ = MkIntegerTerm((Int)(pp->ValueOfVE.ptrs[indx]));
+	}
+	break;
+      case array_of_chars:
+	for (indx=0; indx < dim; indx++) {
+	  *H++ = MkIntegerTerm((Int)(pp->ValueOfVE.chars[indx]));
+	}
+	break;
+      case array_of_uchars:
+	for (indx=0; indx < dim; indx++) {
+	  *H++ = MkIntegerTerm((Int)(pp->ValueOfVE.uchars[indx]));
+	}
+	break;
+      case array_of_terms:
+	for (indx=0; indx < dim; indx++) {
+	  /* The object is now in use */
+	  DBRef ref = pp->ValueOfVE.terms[indx];
+	  Term TRef;
+
+	  if (ref != NULL) {
+	    TRef = Yap_FetchTermFromDB(ref,3);
+	  } else {
+	    P = (yamop *)FAILCODE;
+	    TRef = TermNil;
+	  }
+	  *H++ = TRef;
+	}
+	break;
+      case array_of_atoms:
+	for (indx=0; indx < dim; indx++) {
+	  Term out;
+	  out = pp->ValueOfVE.atoms[indx];
+	  if (out == 0L)
+	    out = TermNil;
+	  *H++ = out;
+	}
+	break;
+      }
+      READ_UNLOCK(pp->ArRWLock);
+      return Yap_unify(AbsAppl(base),ARG2);
+    }
+  }
+  return(FALSE);
+}
+
 void 
 Yap_InitArrayPreds(void)
 {
@@ -1573,11 +1917,13 @@ Yap_InitArrayPreds(void)
   Yap_InitCPred("resize_static_array", 3, p_resize_static_array, SafePredFlag|SyncPredFlag);
   Yap_InitCPred("mmapped_array", 4, p_create_mmapped_array, SafePredFlag|SyncPredFlag);
   Yap_InitCPred("update_array", 3, p_assign_static, SafePredFlag);
+  Yap_InitCPred("add_to_array_element", 4, p_add_to_array_element, SafePredFlag);
   Yap_InitCPred("array_element", 3, p_access_array, 0);
   Yap_InitCPred("close_static_array", 1, p_close_static_array, SafePredFlag);
   Yap_InitCPred("$sync_mmapped_arrays", 0, p_sync_mmapped_arrays, SafePredFlag);
   Yap_InitCPred("$compile_array_refs", 0, p_compile_array_refs, SafePredFlag);
   Yap_InitCPred("$array_refs_compiled", 0, p_array_refs_compiled, SafePredFlag);
-  Yap_InitCPred("$has_static_array", 1, p_has_static_array, TestPredFlag|SafePredFlag);
+  Yap_InitCPred("$static_array_properties", 3, p_static_array_properties, SafePredFlag);
+  Yap_InitCPred("static_array_to_term", 2, p_static_array_to_term, SafePredFlag);
 }
 

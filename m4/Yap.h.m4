@@ -10,7 +10,7 @@
 * File:		Yap.h.m4						 *
 * mods:									 *
 * comments:	main header file for YAP				 *
-* version:      $Id: Yap.h.m4,v 1.38 2002-11-19 17:10:45 vsc Exp $	 *
+* version:      $Id: Yap.h.m4,v 1.39 2002-11-26 22:28:32 vsc Exp $	 *
 *************************************************************************/
 
 #include "config.h"
@@ -468,6 +468,7 @@ typedef enum {
   TYPE_ERROR_ATOMIC,
   TYPE_ERROR_BYTE,
   TYPE_ERROR_CALLABLE,
+  TYPE_ERROR_CHAR,
   TYPE_ERROR_CHARACTER,
   TYPE_ERROR_COMPOUND,
   TYPE_ERROR_DBREF,
@@ -481,6 +482,7 @@ typedef enum {
   TYPE_ERROR_PREDICATE_INDICATOR,
   TYPE_ERROR_PTR,
   TYPE_ERROR_UBYTE,
+  TYPE_ERROR_UCHAR,
   TYPE_ERROR_VARIABLE,
   UNKNOWN_ERROR
 } yap_error_number;

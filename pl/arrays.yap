@@ -65,3 +65,17 @@ array(Size, Obj) :-
 	'$add_array_entries'(Tail, G, NG).
 
 
+static_array_properties(Name, Size, Type) :-
+	atom(Name), !,
+	'$static_array_properties'(Name, Size, Type).
+static_array_properties(Name, Size, Type) :-
+	var(Name), !,
+	current_atom(Name),
+	'$static_array_properties'(Name, Size, Type).
+static_array_properties(Name, Size, Type) :-
+	'$do_error'(type_error(atom,Name),static_array_properties(Name,Size,Type)).
+
+
+
+	
+

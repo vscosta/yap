@@ -1330,6 +1330,21 @@ Yap_Error (yap_error_number type, Term where, char *format,...)
       serious = TRUE;
     }
     break;
+  case TYPE_ERROR_CHAR:
+    {
+      int i;
+      Term ti[2];
+
+      i = strlen(tmpbuf);
+      ti[0] = MkAtomTerm(Yap_LookupAtom("char"));
+      ti[1] = where;
+      nt[0] = Yap_MkApplTerm(Yap_MkFunctor(Yap_LookupAtom("type_error"),2), 2, ti);
+      tp = tmpbuf+i;
+      psize -= i;
+      fun = Yap_MkFunctor(Yap_LookupAtom("error"),2);
+      serious = TRUE;
+    }
+    break;
   case TYPE_ERROR_CHARACTER:
     {
       int i;
@@ -1517,6 +1532,21 @@ Yap_Error (yap_error_number type, Term where, char *format,...)
 
       i = strlen(tmpbuf);
       ti[0] = MkAtomTerm(Yap_LookupAtom("unsigned_byte"));
+      ti[1] = where;
+      nt[0] = Yap_MkApplTerm(Yap_MkFunctor(Yap_LookupAtom("type_error"),2), 2, ti);
+      tp = tmpbuf+i;
+      psize -= i;
+      fun = Yap_MkFunctor(Yap_LookupAtom("error"),2);
+      serious = TRUE;
+    }
+    break;
+  case TYPE_ERROR_UCHAR:
+    {
+      int i;
+      Term ti[2];
+
+      i = strlen(tmpbuf);
+      ti[0] = MkAtomTerm(Yap_LookupAtom("unsigned_char"));
       ti[1] = where;
       nt[0] = Yap_MkApplTerm(Yap_MkFunctor(Yap_LookupAtom("type_error"),2), 2, ti);
       tp = tmpbuf+i;

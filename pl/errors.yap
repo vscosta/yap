@@ -523,6 +523,9 @@ print_message(Level, Mss) :-
 '$output_error_message'(type_error(callable,W), Where) :-
 	'$format'(user_error,"[ TYPE ERROR- ~w: expected callable goal, got ~w ]~n",
 	[Where,W]).
+'$output_error_message'(type_error(char,W), Where) :-
+	'$format'(user_error,"[ TYPE ERROR- ~w: expected char, got ~w ]~n",
+	[Where,W]).
 '$output_error_message'(type_error(character,W), Where) :-
 	'$format'(user_error,"[ TYPE ERROR- ~w: expected character, got ~w ]~n",
 	[Where,W]).
@@ -576,6 +579,9 @@ print_message(Level, Mss) :-
 	[Where,W]).
 '$output_error_message'(type_error(unsigned_byte,W), Where) :-
 	'$format'(user_error,"[ TYPE ERROR- ~w: expected unsigned byte, got ~w ]~n",
+	[Where,W]).
+'$output_error_message'(type_error(unsigned_char,W), Where) :-
+	'$format'(user_error,"[ TYPE ERROR- ~w: expected unsigned char, got ~w ]~n",
 	[Where,W]).
 '$output_error_message'(type_error(variable,W), Where) :-
 	'$format'(user_error,"[ TYPE ERROR- ~w: expected unbound variable, got ~w ]~n",

@@ -2003,56 +2003,6 @@ list_all_predicates_in_use(void)
 }
 #endif
 
-static Term
-all_calls(void)
-{
-  choiceptr b_ptr = B;
-  CELL *env_ptr = ENV;
-  CELL *bp = NULL;
-  Term ts[3];
-  Functor f = Yap_MkFunctor(AtomLocal,3);
-
-  ts[0] = MkIntegerTerm((Int)P);
-  ts[1] = AbsPair(H);
-  /* walk the environment chain */
-  while (env_ptr != NULL) {
-    bp = H;
-    H += 2;
-    /* notice that MkIntegerTerm may increase the Heap */
-    bp[0] = MkIntegerTerm((Int)env_ptr[E_CP]);
-    if (H >= ASP) {
-      bp[1] = TermNil;
-      return(ts[0]);
-    } else {
-      bp[1] = AbsPair(H);
-    }
-    env_ptr = (CELL *)(env_ptr[E_E]);      
-  }
-  bp[1] = TermNil;
-  ts[2] = AbsPair(H);
-  while (b_ptr != NULL) {
-    bp = H;
-    H += 2;
-    /* notice that MkIntegerTerm may increase the Heap */
-    bp[0] = MkIntegerTerm((Int)b_ptr->cp_ap);
-    if (H >= ASP) {
-      bp[1] = TermNil;
-      return(ts[0]);
-    } else {
-      bp[1] = AbsPair(H);
-    }
-    b_ptr = b_ptr->cp_b;
-  }
-  bp[1] = TermNil;
-  return(Yap_MkApplTerm(f,3,ts));
-}
-
-Term
-Yap_all_calls(void)
-{
-  return all_calls();
-}
-
 static void
 mark_pred(int mark, PredEntry *pe)
 {
@@ -2127,6 +2077,56 @@ do_toggle_static_predicates_in_use(int mask)
 }
 
 #endif
+
+static Term
+all_calls(void)
+{
+  choiceptr b_ptr = B;
+  CELL *env_ptr = ENV;
+  CELL *bp = NULL;
+  Term ts[3];
+  Functor f = Yap_MkFunctor(AtomLocal,3);
+
+  ts[0] = MkIntegerTerm((Int)P);
+  ts[1] = AbsPair(H);
+  /* walk the environment chain */
+  while (env_ptr != NULL) {
+    bp = H;
+    H += 2;
+    /* notice that MkIntegerTerm may increase the Heap */
+    bp[0] = MkIntegerTerm((Int)env_ptr[E_CP]);
+    if (H >= ASP) {
+      bp[1] = TermNil;
+      return(ts[0]);
+    } else {
+      bp[1] = AbsPair(H);
+    }
+    env_ptr = (CELL *)(env_ptr[E_E]);      
+  }
+  bp[1] = TermNil;
+  ts[2] = AbsPair(H);
+  while (b_ptr != NULL) {
+    bp = H;
+    H += 2;
+    /* notice that MkIntegerTerm may increase the Heap */
+    bp[0] = MkIntegerTerm((Int)b_ptr->cp_ap);
+    if (H >= ASP) {
+      bp[1] = TermNil;
+      return(ts[0]);
+    } else {
+      bp[1] = AbsPair(H);
+    }
+    b_ptr = b_ptr->cp_b;
+  }
+  bp[1] = TermNil;
+  return(Yap_MkApplTerm(f,3,ts));
+}
+
+Term
+Yap_all_calls(void)
+{
+  return all_calls();
+}
 
 static Int
 p_current_stack(void)
