@@ -4669,7 +4669,7 @@ p_init_queue(void)
 
   while ((dbq = (db_queue *)AllocDBSpace(sizeof(db_queue))) == NULL) {
     if (!Yap_growheap(FALSE, sizeof(db_queue), NULL)) {
-      Yap_Error(SYSTEM_ERROR, TermNil, Yap_ErrorMessage);
+      Yap_Error(OUT_OF_HEAP_ERROR, TermNil, "in findall");
       return(FALSE);
     }
   }
@@ -4697,9 +4697,11 @@ p_enqueue(void)
     return(FALSE);
   } else
     father_key = (db_queue *)DBRefOfTerm(Father);
-  if ((x = (QueueEntry *)AllocDBSpace(sizeof(QueueEntry))) == NULL) {
-    Yap_Error(OUT_OF_STACK_ERROR, TermNil, "in findall");
-    return FALSE;
+  while ((x = (QueueEntry *)AllocDBSpace(sizeof(QueueEntry))) == NULL) {
+    if (!Yap_growheap(FALSE, sizeof(QueueEntry), NULL)) {
+      Yap_Error(OUT_OF_HEAP_ERROR, TermNil, "in findall");
+      return FALSE;
+    }
   }
   x->DBT = StoreTermInDB(Deref(ARG2), 2);
   if (x->DBT == NULL)
