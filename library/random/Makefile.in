@@ -1,15 +1,17 @@
 #
 # default base directory for YAP installation
+# (EROOT for architecture-dependent files)
 #
 ROOTDIR = @prefix@
+EROOTDIR = @exec_prefix@
 #
 # where the binary should be
 #
-BINDIR = $(ROOTDIR)/bin
+BINDIR = $(EROOTDIR)/bin
 #
 # where YAP should look for libraries
 #
-LIBDIR=$(ROOTDIR)/lib/Yap
+LIBDIR=$(EROOTDIR)/lib/Yap
 #
 #
 CC=@CC@

@@ -7,9 +7,9 @@ ROOTDIR = @prefix@
 #
 BINDIR = $(ROOTDIR)/bin
 #
-# where YAP should look for libraries
+# where YAP should look for architecture-independent Prolog libraries
 #
-LIBDIR=$(ROOTDIR)/lib/Yap
+SHAREDIR=$(ROOTDIR)/share/Yap
 #
 #
 # You shouldn't need to change what follows.
@@ -85,12 +85,8 @@ CHR_EXAMPLES= $(srcdir)/chr/examples/allentable.pl \
 
 
 install: $(CHR_TOP) $(CHR_LICENSE) $(CHR_PROGRAMS) $(CHR_EXAMPLES)
-	-mkdir -p $(DESTDIR)$(LIBDIR)/library
-	-mkdir -p $(DESTDIR)$(LIBDIR)/library/chr
-	-mkdir -p $(DESTDIR)$(LIBDIR)/library/chr/examples
-	for h in $(CHR_TOP); do $(INSTALL_DATA) $$h $(DESTDIR)$(LIBDIR)/library; done
-	for h in $(CHR_LICENSE); do $(INSTALL_DATA) $$h $(DESTDIR)$(LIBDIR)/library; done
-	for h in $(CHR_PROGRAMS); do $(INSTALL_DATA) $$h $(DESTDIR)$(LIBDIR)/library/chr; done
-	for h in $(CHR_EXAMPLES); do $(INSTALL_DATA) $$h $(DESTDIR)$(LIBDIR)/library/chr/examples; done
-
-
+	mkdir -p $(DESTDIR)$(SHAREDIR)/chr/examples
+	for h in $(CHR_TOP); do $(INSTALL_DATA) $$h $(DESTDIR)$(SHAREDIR); done
+	for h in $(CHR_LICENSE); do $(INSTALL_DATA) $$h $(DESTDIR)$(SHAREDIR); done
+	for h in $(CHR_PROGRAMS); do $(INSTALL_DATA) $$h $(DESTDIR)$(SHAREDIR)/chr; done
+	for h in $(CHR_EXAMPLES); do $(INSTALL_DATA) $$h $(DESTDIR)$(SHAREDIR)/chr/examples; done

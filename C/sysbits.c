@@ -20,7 +20,7 @@ static char SccsId[] = "%W% %G%";
 
 /*
  * In this routine we shall try to include the inevitably machine dependant
- * routines. These include, for the moment : Time, A rudimentar form of
+ * routines. These include, for the moment : Time, A rudimentary form of
  * signal handling, OS calls,
  *
  * Vitor Santos Costa, February 1987
@@ -142,7 +142,7 @@ dir_separator (int ch)
 
 void
 InitSysPath(void) {
-  strncpy(FileNameBuf, LIB_DIR, YAP_FILENAME_MAX);
+  strncpy(FileNameBuf, SHARE_DIR, YAP_FILENAME_MAX);
 #ifdef MAC
   strncat(FileNameBuf,":", YAP_FILENAME_MAX);
 #elif ATARI || _MSC_VER || defined(__MINGW32__)
@@ -150,7 +150,7 @@ InitSysPath(void) {
 #else
   strncat(FileNameBuf,"/", YAP_FILENAME_MAX);
 #endif
-  strncat(FileNameBuf, "library", YAP_FILENAME_MAX);
+  strncat(FileNameBuf, "Yap", YAP_FILENAME_MAX);
   PutValue(LookupAtom("system_library_directory"),
 	   MkAtomTerm(LookupAtom(FileNameBuf)));
 }

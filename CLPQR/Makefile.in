@@ -11,6 +11,10 @@ BINDIR = $(ROOTDIR)/bin
 #
 LIBDIR=$(ROOTDIR)/lib/Yap
 #
+# where YAP should look for architecture-independent Prolog libraries
+#
+SHAREDIR=$(ROOTDIR)/share/Yap
+#
 #
 # You shouldn't need to change what follows.
 #
@@ -129,22 +133,21 @@ CLPQR_EXAMPLES_SESSION= $(srcdir)/clpqr/examples/SESSION/010 \
 
 install: $(CLPR_TOP) $(CLPQ_TOP) $(CLPQR_LICENSE) $(CLPQR_PROGRAMS) $(CLPQR_LOCAL)\
 	$(CLPQR_EXAMPLES) $(CLPQR_EXAMPLES_MONASH) $(CLPQR_EXAMPLES_SESSION)
-	-mkdir -p $(DESTDIR)$(LIBDIR)/library
-	-mkdir -p $(DESTDIR)$(LIBDIR)/library/clpq
-	-mkdir -p $(DESTDIR)$(LIBDIR)/library/clpqr
-	-mkdir -p $(DESTDIR)$(LIBDIR)/library/clpr
-	-mkdir -p $(DESTDIR)$(LIBDIR)/library/clpqr/examples
-	-mkdir -p $(DESTDIR)$(LIBDIR)/library/clpqr/examples/SESSION
-	-mkdir -p $(DESTDIR)$(LIBDIR)/library/clpqr/examples/monash
-	for h in $(CLPQ_TOP); do $(INSTALL_DATA) $$h $(DESTDIR)$(LIBDIR)/library; done
-	for h in $(CLPR_TOP); do $(INSTALL_DATA) $$h $(DESTDIR)$(LIBDIR)/library; done
-	for h in $(CLPQR_LICENSE); do $(INSTALL_DATA) $$h $(DESTDIR)$(LIBDIR)/library; done
-	for h in $(CLPQR_PROGRAMS); do $(INSTALL_DATA) $$h $(DESTDIR)$(LIBDIR)/library/clpqr; done
-	for h in $(CLPQ_PROGRAMS); do $(INSTALL_DATA) $$h $(DESTDIR)$(LIBDIR)/library/clpq; done
-	for h in $(CLPR_PROGRAMS); do $(INSTALL_DATA) $$h $(DESTDIR)$(LIBDIR)/library/clpr; done
-	for h in $(CLPQR_LOCAL); do $(INSTALL_DATA) $$h $(DESTDIR)$(LIBDIR)/library/clpqr; done
-	for h in $(CLPQR_EXAMPLES); do $(INSTALL_DATA) $$h $(DESTDIR)$(LIBDIR)/library/clpqr/examples; done
-	for h in $(CLPQR_EXAMPLES_MONASH); do $(INSTALL_DATA) $$h $(DESTDIR)$(LIBDIR)/library/clpqr/examples/monash; done
-	for h in $(CLPQR_EXAMPLES_SESSION); do $(INSTALL_DATA) $$h $(DESTDIR)$(LIBDIR)/library/clpqr/examples/SESSION; done
+	mkdir -p $(DESTDIR)$(SHAREDIR)/clpq
+	mkdir -p $(DESTDIR)$(SHAREDIR)/clpqr
+	mkdir -p $(DESTDIR)$(SHAREDIR)/clpr
+	mkdir -p $(DESTDIR)$(SHAREDIR)/clpqr/examples
+	mkdir -p $(DESTDIR)$(SHAREDIR)/clpqr/examples/SESSION
+	mkdir -p $(DESTDIR)$(SHAREDIR)/clpqr/examples/monash
+	for h in $(CLPQ_TOP); do $(INSTALL_DATA) $$h $(DESTDIR)$(SHAREDIR); done
+	for h in $(CLPR_TOP); do $(INSTALL_DATA) $$h $(DESTDIR)$(SHAREDIR); done
+	for h in $(CLPQR_LICENSE); do $(INSTALL_DATA) $$h $(DESTDIR)$(SHAREDIR); done
+	for h in $(CLPQR_PROGRAMS); do $(INSTALL_DATA) $$h $(DESTDIR)$(SHAREDIR)/clpqr; done
+	for h in $(CLPQ_PROGRAMS); do $(INSTALL_DATA) $$h $(DESTDIR)$(SHAREDIR)/clpq; done
+	for h in $(CLPR_PROGRAMS); do $(INSTALL_DATA) $$h $(DESTDIR)$(SHAREDIR)/clpr; done
+	for h in $(CLPQR_LOCAL); do $(INSTALL_DATA) $$h $(DESTDIR)$(SHAREDIR)/clpqr; done
+	for h in $(CLPQR_EXAMPLES); do $(INSTALL_DATA) $$h $(DESTDIR)$(SHAREDIR)/clpqr/examples; done
+	for h in $(CLPQR_EXAMPLES_MONASH); do $(INSTALL_DATA) $$h $(DESTDIR)$(SHAREDIR)/clpqr/examples/monash; done
+	for h in $(CLPQR_EXAMPLES_SESSION); do $(INSTALL_DATA) $$h $(DESTDIR)$(SHAREDIR)/clpqr/examples/SESSION; done
 
 
