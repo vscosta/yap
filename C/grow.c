@@ -507,6 +507,10 @@ static_growheap(long size, int fix_code)
     fprintf(Yap_stderr, "[HO] Heap overflow %d\n", heap_overflows);
     fprintf(Yap_stderr, "[HO]   growing the heap %ld bytes\n", size);
   }
+  /* CreepFlag is set to force heap expansion */
+  if (CreepFlag == Unsigned(LCL0+1)) {
+    CreepFlag = CalculateStackGap();
+  }
   ASP -= 256;
   TrDiff = LDiff = GDiff = DelayDiff = size;
   XDiff = HDiff = 0;

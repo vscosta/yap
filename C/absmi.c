@@ -10122,7 +10122,7 @@ Yap_absmi(int inp)
 #ifdef LOW_LEVEL_TRACER
       if (Yap_do_low_level_trace) {
 	RESET_VARIABLE(H);
-	H[1] = XREG(PREG->u.xcx.c);
+	H[1] = PREG->u.xcx.c;
 	H[2] = XREG(PREG->u.xcx.xi);
 	low_level_trace(enter_pred,RepPredProp(Yap_GetPredPropByFunc(Yap_MkFunctor(Yap_LookupAtom("functor"),3),0)),H);
       }
@@ -10466,7 +10466,7 @@ Yap_absmi(int inp)
 #ifdef LOW_LEVEL_TRACER
       if (Yap_do_low_level_trace) {
 	RESET_VARIABLE(H);
-	H[1] = XREG(PREG->u.ycx.c);
+	H[1] = PREG->u.ycx.c;
 	H[2] = XREG(PREG->u.ycx.xi);
 	low_level_trace(enter_pred,RepPredProp(Yap_GetPredPropByFunc(Yap_MkFunctor(Yap_LookupAtom("functor"),3),0)),H);
       }

@@ -2299,7 +2299,6 @@ skip_to_arg(ClauseDef *clause, PredEntry *ap, UInt argno, int at_point)
     case _unify_l_bigint:
     case _unify_l_float:
       if (argno == 1) {
-	clause->u.WorkPC = NEXTOP(cl,oc);
 	done = TRUE;
       } else {
 	at_point = FALSE;
@@ -3856,6 +3855,7 @@ expand_index(PredEntry *ap) {
 	sp = push_stack(sp, 1, AbsAppl((CELL *)FunctorOfTerm(t)));
 	ipc = ipc->u.llll.l3;	
       } else {
+	sp = push_stack(sp, argno, t);
 	ipc = ipc->u.llll.l2;	
       }
       break;
@@ -3876,6 +3876,7 @@ expand_index(PredEntry *ap) {
 	sp = push_stack(sp, 1, AbsAppl((CELL *)FunctorOfTerm(t)));
 	ipc = ipc->u.ollll.l3;	
       } else {
+	sp = push_stack(sp, argno, t);
 	ipc = ipc->u.ollll.l2;	
       }
       break;
@@ -3895,6 +3896,7 @@ expand_index(PredEntry *ap) {
 	sp = push_stack(sp, argno, AbsAppl((CELL *)FunctorOfTerm(t)));
 	ipc = ipc->u.xllll.l3;	
       } else {
+	sp = push_stack(sp, argno, t);
 	ipc = ipc->u.xllll.l2;	
       }
       break;
@@ -3916,6 +3918,9 @@ expand_index(PredEntry *ap) {
 	sp = push_stack(sp, -i-1, AbsAppl((CELL *)FunctorOfTerm(t)));
 	ipc = ipc->u.sllll.l3;	
       } else {
+	/* We don't push stack here, instead we go over to next argument
+	   sp = push_stack(sp, -i-1, t);
+	*/
 	ipc = ipc->u.sllll.l2;	
 	i++;
       }
