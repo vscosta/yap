@@ -69,11 +69,11 @@ static int compare_complex(register CELL *pt0, register CELL *pt0_end, register
 	if (out) goto done;
       }
       else {
-	out = 1;
+	out = -1;
 	goto done;
       }
     } else if (IsVarTerm(d1)) {
-      out = -1;
+      out = 1;
       goto done;
     } else {
       if (d0 == d1) continue;
