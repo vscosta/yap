@@ -479,6 +479,18 @@ yap_flag(toplevel_print_options,Opts) :- !,
 	'$check_io_opts'(Opts, yap_flag(toplevel_print_options,Opts)),
 	'$recorda'('$print_options','$toplevel'(Opts),_).
 
+yap_flag(fileerrors,OUT) :-
+	var(OUT), !,
+	'$get_value'(fileerrors,X0),
+	(X0 = [] -> X= 0 ; X = X0),
+	'$transl_to_on_off'(X,OUT).
+yap_flag(fileerrors,on) :- !,
+	'$set_value'(fileerrors,1).
+yap_flag(fileerrors,off) :- !,
+	'$set_value'(fileerrors,0).
+yap_flag(fileerrors,X) :-
+	throw(error(domain_error(flag_value,fileerrors+X),yap_flag(fileerrors,X))).
+
 :- '$recorda'('$print_options','$toplevel'([quoted(true),numbervars(true),portrayed(true)]),_).
 
 yap_flag(host_type,X) :-
@@ -496,6 +508,7 @@ yap_flag(host_type,X) :-
 	    V = dollar_as_lower_case ;
 	    V = double_quotes ;
 %	    V = fast  ;
+	    V = fileerrors  ;
 	    V = gc    ;
 	    V = gc_margin    ;
 	    V = gc_trace     ;
