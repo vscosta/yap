@@ -42,21 +42,21 @@ Yap_cp_as_integer(choiceptr cp)
 
 static inline Int
 CallPredicate(PredEntry *pen, choiceptr cut_pt) {
+#ifdef LOW_LEVEL_TRACER
+  if (Yap_do_low_level_trace)
+    low_level_trace(enter_pred,pen,XREGS+1);
+#endif	/* LOW_LEVEL_TRACE */
   WRITE_LOCK(pen->PRWLock);
 #ifdef DEPTH_LIMIT
   if (DEPTH <= MkIntTerm(1)) {/* I assume Module==0 is prolog */
     if (pen->ModuleOfPred) {
       if (DEPTH == MkIntTerm(0))
-	return(FALSE);
+	return FALSE;
       else DEPTH = RESET_DEPTH();
     }
   } else if (pen->ModuleOfPred)
     DEPTH -= MkIntConstant(2);
 #endif	/* DEPTH_LIMIT */
-#ifdef LOW_LEVEL_TRACER
-  if (Yap_do_low_level_trace)
-    low_level_trace(enter_pred,pen,XREGS+1);
-#endif	/* LOW_LEVEL_TRACE */
   CP = P;
   P = pen->CodeOfPred;
   /* vsc: increment reduction counter at meta-call entry */

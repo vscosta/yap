@@ -2637,7 +2637,6 @@ Yap_assemble(int mode, Term t, PredEntry *ap, int is_fact)
     return NULL;
   }
   pass_no = 1;
-  YAPEnterCriticalSection();
   {
     size =
       (CELL)NEXTOP(NEXTOP(NEXTOP((yamop *)(((DynamicClause *)NULL)->ClCode),ld),sla),e);
@@ -2695,6 +2694,7 @@ Yap_assemble(int mode, Term t, PredEntry *ap, int is_fact)
 	t = ARG1;
 	h0 = H;
 	H = (CELL *)freep;
+	break;
       default:
 	return NULL;
       }
@@ -2705,7 +2705,6 @@ Yap_assemble(int mode, Term t, PredEntry *ap, int is_fact)
     entry_code = do_pass();
     /* make sure we copy after second pass */
     cl->usc.ClSource = x;
-    YAPLeaveCriticalSection();
 #ifdef LOW_PROF
     Yap_prof_end=code_p;
 #endif
@@ -2719,7 +2718,6 @@ Yap_assemble(int mode, Term t, PredEntry *ap, int is_fact)
     }
   }
   entry_code = do_pass();
-  YAPLeaveCriticalSection();
 #ifdef LOW_PROF
   Yap_prof_end=code_p;
 #endif

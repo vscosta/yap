@@ -514,7 +514,7 @@ PredPropByFunc(Functor f, SMALLUNSGN cur_mod)
     PredEntry *p = RepPredProp(p0);
     if (/* p->KindOfPE != 0 || only props */
 	(p->ModuleOfPred == cur_mod || !(p->ModuleOfPred))) {
-      WRITE_UNLOCK(f->FRWLock);
+      WRITE_UNLOCK(fe->FRWLock);
       return (p0);
     }
     p0 = p->NextOfPE;

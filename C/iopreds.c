@@ -2441,7 +2441,9 @@ Yap_CloseStreams (int loud)
 		  Stream[sno].u.socket.domain);
     } 
 #endif
-    else if (!(Stream[sno].status & (Null_Stream_f|Socket_Stream_f|InMemory_Stream_f)))
+    else if (Stream[sno].status & InMemory_Stream_f) {
+      Yap_FreeAtomSpace(Stream[sno].u.mem_string.buf);
+    } else if (!(Stream[sno].status & Null_Stream_f))
       YP_fclose (Stream[sno].u.file.file);
     else {
       if (loud)

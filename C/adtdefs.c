@@ -143,35 +143,50 @@ LookupAtom(char *atom)
 {				/* lookup atom in atom table            */
   register CELL hash;
   register unsigned char *p;
-  Atom a;
+  Atom a, na;
   AtomEntry *ae;
 
   /* compute hash */
   p = (unsigned char *)atom;
   hash = HashFunction(p) % AtomHashTableSize;
-  WRITE_LOCK(HashChain[hash].AERWLock);
+  /* we'll start by holding a read lock in order to avoid contention */
+  READ_LOCK(HashChain[hash].AERWLock);
   a = HashChain[hash].Entry;
   /* search atom in chain */
-  a = SearchAtom((unsigned char *)atom, a);
-  if (a != NIL) {
-    WRITE_UNLOCK(HashChain[hash].AERWLock);
-    return(a);
+  na = SearchAtom((unsigned char *)atom, a);
+  if (na != NIL) {
+    READ_UNLOCK(HashChain[hash].AERWLock);
+    return(na);
   }
+  READ_UNLOCK(HashChain[hash].AERWLock);
+  /* we need a write lock */
+  WRITE_LOCK(HashChain[hash].AERWLock);
+  /* concurrent version of Yap, need to take care */
+#if defined(YAPOR) || defined(THREADS)
+  if (a != HashChain[hash].Entry) {
+    a = HashChain[hash].Entry;
+    na = SearchAtom((unsigned char *)atom, a);
+    if (na != NIL) {
+      WRITE_UNLOCK(HashChain[hash].AERWLock);
+      return(na);
+    }
+  }
+#endif  
   NOfAtoms++;
   /* add new atom to start of chain */
   ae = (AtomEntry *) Yap_AllocAtomSpace((sizeof *ae) + strlen(atom) + 1);
-  a = AbsAtom(ae);
+  na = AbsAtom(ae);
   ae->PropsOfAE = NIL;
   if (ae->StrOfAE != atom)
     strcpy(ae->StrOfAE, atom);
-  ae->NextOfAE = HashChain[hash].Entry;
-  HashChain[hash].Entry = a;
+  ae->NextOfAE = a;
+  HashChain[hash].Entry = na;
   INIT_RWLOCK(ae->ARWLock);
   WRITE_UNLOCK(HashChain[hash].AERWLock);
   if (NOfAtoms > 2*AtomHashTableSize) {
     CreepFlag = Unsigned(LCL0+1);
   }
-  return (a);
+  return na;
 }
 
 Atom
@@ -454,6 +469,7 @@ Yap_GetExpPropHavingLock(AtomEntry *ae, unsigned int arity)
   return (p0);
 }
 
+/* fe is supposed to be locked */
 Prop
 Yap_NewPredPropByFunctor(FunctorEntry *fe, SMALLUNSGN cur_mod)
 {

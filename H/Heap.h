@@ -10,7 +10,7 @@
 * File:		Heap.h         						 *
 * mods:									 *
 * comments:	Heap Init Structure					 *
-* version:      $Id: Heap.h,v 1.48 2003-11-21 16:56:20 vsc Exp $	 *
+* version:      $Id: Heap.h,v 1.49 2003-12-01 17:27:41 vsc Exp $	 *
 *************************************************************************/
 
 /* information that can be stored in Code Space */
@@ -45,6 +45,7 @@ typedef struct various_codes {
   ADDR heap_top;
   struct FREEB  *free_blocks;
 #if defined(YAPOR) || defined(THREADS)
+  rwlock_t  bgl;		 /* protect long critical regions   */
   lockvar  free_blocks_lock;     /* protect the list of free blocks */
 #endif
 #ifdef YAPOR
@@ -587,6 +588,7 @@ typedef struct various_codes {
 #define  DeadClauses              heap_regs->dead_clauses
 #define  SizeOfOverflow           heap_regs->size_of_overflow
 #define  LastWtimePtr             heap_regs->last_wtime
+#define  BGL			  heap_regs->bgl
 #define  FreeBlocks		  heap_regs->free_blocks
 #ifdef  COROUTINING
 #define  WakeUpCode               heap_regs->wake_up_code

@@ -4093,10 +4093,12 @@ ExpandIndex(PredEntry *ap) {
     Yap_DebugPutc(Yap_c_error_stream,'\n');
   }
 #endif
-  if ((labp = expand_index(ap)) == NULL)
+  if ((labp = expand_index(ap)) == NULL) {
     return NULL;
-  if (*labp == FAILCODE)
+  }
+  if (*labp == FAILCODE) {
     return FAILCODE;
+  }
 #ifdef DEBUG
   if (Yap_Option['i' - 'a' + 1]) {
     Yap_ShowCode();
@@ -4121,8 +4123,9 @@ ExpandIndex(PredEntry *ap) {
     Yap_inform_profiler_of_clause(indx_out, Yap_prof_end, ap); 
   }
 #endif
-  if (indx_out == NULL)
+  if (indx_out == NULL) {
     return FAILCODE;
+  }
   *labp = indx_out;
   if (ap->PredFlags & LogUpdatePredFlag) {
     /* add to head of current code children */

@@ -20,26 +20,28 @@
 	throw(error(Type,[Message|local_sp(Message,Envs,CPs)])).
 
 '$Error'(E) :-
-	'$LoopError'(E).
+	'$LoopError'(E,top).
 
-'$LoopError'(_) :-
+'$LoopError'(_, _) :-
 	flush_output(user_output),
 	flush_output(user_error),
 	fail.
-'$LoopError'(Error) :- !,
-	'$process_error'(Error),
+'$LoopError'(Error, Level) :- !,
+	'$process_error'(Error, Level),
 	fail.
-'$LoopError'(_) :-
+'$LoopError'(_, _) :-
 	current_stream(_, write, S),
 	flush_all_streams,
 	fail.
 
-'$process_error'(abort) :- !,
-        '$format'(user_error,"[ Execution Aborted ]~n",[]).
-'$process_error'(error(Msg, Where)) :- !,
+'$process_error'(abort, top) :- !,
+	print_message(informational,abort(user)).
+'$process_error'(abort, _) :- !,
+	throw(abort).
+'$process_error'(error(Msg, Where), _) :- !,
 	'$set_fpu_exceptions',
 	'$print_message'(error,error(Msg, Where)).
-'$process_error'(Throw) :-
+'$process_error'(Throw, _) :-
 	print_message(error,Throw).
 
 print_message(Level, Mss) :-
@@ -79,6 +81,8 @@ print_message(Level, Mss) :-
 	'$format'(user_error, "~n", []).
 
 
+'$do_informational_message'(abort(_)) :- !,
+	'$format'(user_error, "[ Execution Aborted ]~n", []).
 '$do_informational_message'(loading(_,user)) :- !.
 '$do_informational_message'(loading(What,AbsoluteFileName)) :- !,
 	'$show_consult_level'(LC),
@@ -94,6 +98,10 @@ print_message(Level, Mss) :-
 	'$format'(user_error," ]~n", []).
 
 %message(loaded(Past,AbsoluteFileName,user,Msec,Bytes), Prefix, Suffix) :- !,
+'$do_print_message'(no) :- !,
+	'$format'(user_error, "no~n", []).
+'$do_print_message'(yes) :- !,
+	'$format'(user_error, "yes~n", []).
 '$do_print_message'(debug(debug)) :- !,
 	'$format'(user_error,"Debug mode on.",[]).
 '$do_print_message'(debug(off)) :- !,

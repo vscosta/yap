@@ -253,12 +253,12 @@ STATIC_PROTO(DBProp find_int_key, (Int));
 #if OS_HANDLES_TR_OVERFLOW
 #define db_check_trail(x)
 #else
-#define db_check_trail(x) {                           \
-  if (Unsigned(Yap_TrailTop) == Unsigned(x)) {         \
+#define db_check_trail(x) {                            \
+  if (Unsigned(tofref) == Unsigned(x)) {           \
     if(!Yap_growtrail (sizeof(CELL) * 16 * 1024L)) {   \
-      goto error_tr_overflow;                      \
-    }                                              \
-  }                                                \
+      goto error_tr_overflow;                          \
+    }                                                  \
+  }                                                    \
 }
 			
 #endif
@@ -370,7 +370,7 @@ int Yap_DBTrailOverflow(void)
   return(FALSE);
 #endif
 #ifdef IDB_LINK_TABLE
-  return((CELL *)lr > (CELL *)Yap_TrailTop - 1024);
+  return((CELL *)lr > (CELL *)tofref - 2048);
 #endif
 }
 
@@ -687,6 +687,7 @@ static CELL *MkDBTerm(register CELL *pt0, register CELL *pt0_end,
 	      dbentry->NOfRefsTo++;
 	    }
 	    *--tofref = dbentry;
+	    db_check_trail(lr);
 	    /* just continue the loop */
 	    ++ pt0;
 	    continue;
@@ -1340,7 +1341,7 @@ CreateDBStruct(Term Tm, DBProp p, int InFlag, int *pstat, UInt extra_size)
   int NOfLinks = 0;
 #endif
   /* place DBRefs in ConsultStack */
-  DBRef    *TmpRefBase = (DBRef *)ConsultSp;
+  DBRef    *TmpRefBase = (DBRef *)Yap_TrailTop;
   CELL	   *CodeAbs;	/* how much code did we find	 */
   int vars_found;
 
@@ -1788,8 +1789,10 @@ record_lu(PredEntry *pe, Term t, int position)
   LogUpdClause *cl;
   int needs_vars = FALSE;
 
+  WRITE_LOCK(pe->PRWLock);
   ipc = NEXTOP(((LogUpdClause *)NULL)->ClCode,e);
   if ((x = (DBTerm *)CreateDBStruct(t, NULL, 0, &needs_vars, (UInt)ipc)) == NULL) {
+    WRITE_UNLOCK(pe->PRWLock);
     return NULL; /* crash */
   }
   cl = (LogUpdClause *)((ADDR)x-(UInt)ipc);
@@ -1810,6 +1813,7 @@ record_lu(PredEntry *pe, Term t, int position)
   else
     ipc->opc = Yap_opcode(_unify_idb_term);
   Yap_add_logupd_clause(pe, cl, (position == MkFirst ? 2 : 0));
+  WRITE_UNLOCK(pe->PRWLock);
   return cl;
 }
 
@@ -1825,10 +1829,12 @@ p_rcda(void)
   if (!IsVarTerm(Deref(ARG3)))
     return (FALSE);
   pe = find_lu_entry(t1);
+  WRITE_LOCK(pe->PRWLock);
  restart_record:
   Yap_Error_Size = 0;
   if (pe) {
-    LogUpdClause *cl = record_lu(pe, t2, MkFirst);
+    LogUpdClause *cl;
+    cl = record_lu(pe, t2, MkFirst);
     if (cl != NULL) {
       TRAIL_CLREF(cl);
       cl->ClFlags |= InUseMask;
@@ -2560,6 +2566,7 @@ new_lu_int_key(Int key)
   UInt hash_key = (CELL)key % INT_KEYS_SIZE;
   PredEntry *p;
   Prop p0;
+  Functor fe;
   
   if (INT_LU_KEYS == NULL) {
     init_int_lu_keys();
@@ -2570,7 +2577,9 @@ new_lu_int_key(Int key)
       return NULL;
     }
   }
-  p0 = Yap_NewPredPropByFunctor(Yap_MkFunctor(Yap_FullLookupAtom("$integer"),3),2);
+  fe = Yap_MkFunctor(Yap_FullLookupAtom("$integer"),3);
+  WRITE_LOCK(fe->FRWLock);
+  p0 = Yap_NewPredPropByFunctor(fe,2);
   p = RepPredProp(p0);
   p->NextOfPE = INT_LU_KEYS[hash_key];
   p->src.IndxId = key;
@@ -2591,10 +2600,15 @@ new_lu_entry(Term t)
   if (IsApplTerm(t)) {
     Functor f = FunctorOfTerm(t);
 
+    WRITE_LOCK(f->FRWLock);
     p0 = Yap_NewPredPropByFunctor(f,2);
   } else if (IsAtomTerm(t)) {
-    p0 = Yap_NewPredPropByAtom(AtomOfTerm(t),2);
+    Atom at = AtomOfTerm(t);
+
+    WRITE_LOCK(RepAtom(at)->ARWLock);
+    p0 = Yap_NewPredPropByAtom(at,2);
   } else {
+    WRITE_LOCK(f->FRWLock);
     p0 = Yap_NewPredPropByFunctor(FunctorList,2);
   }
   pe = RepPredProp(p0);
@@ -3808,6 +3822,8 @@ complete_lu_erase(LogUpdClause *clau)
 static void
 EraseLogUpdCl(LogUpdClause *clau)
 {
+  PredEntry *ap = clau->ClPred;
+  WRITE_LOCK(ap->PRWLock);
   /* no need to erase what has been erased */ 
   if (!(clau->ClFlags & ErasedMask)) {
 
@@ -3818,22 +3834,22 @@ EraseLogUpdCl(LogUpdClause *clau)
     if (clau->ClPrev != NULL) {
       clau->ClPrev->ClNext = clau->ClNext;
     }
-    if (clau->ClCode == clau->ClPred->cs.p_code.FirstClause) {
+    if (clau->ClCode == ap->cs.p_code.FirstClause) {
       if (clau->ClNext == NULL) {
-	clau->ClPred->cs.p_code.FirstClause = NULL;
+	ap->cs.p_code.FirstClause = NULL;
       } else {
-	clau->ClPred->cs.p_code.FirstClause = clau->ClNext->ClCode;
+	ap->cs.p_code.FirstClause = clau->ClNext->ClCode;
       }
     }
-    if (clau->ClCode == clau->ClPred->cs.p_code.LastClause) {
+    if (clau->ClCode == ap->cs.p_code.LastClause) {
       if (clau->ClPrev == NULL) {
-	clau->ClPred->cs.p_code.LastClause = NULL;
+	ap->cs.p_code.LastClause = NULL;
       } else {
-	clau->ClPred->cs.p_code.LastClause = clau->ClPrev->ClCode;
+	ap->cs.p_code.LastClause = clau->ClPrev->ClCode;
       }
     }
     clau->ClFlags |= ErasedMask;
-    clau->ClPred->cs.p_code.NOfClauses--;
+    ap->cs.p_code.NOfClauses--;
 #ifdef DEBUG
     {
       LogUpdClause *er_head = DBErasedList;
@@ -3849,11 +3865,12 @@ EraseLogUpdCl(LogUpdClause *clau)
 #endif
     /* we are holding a reference to the clause */
     clau->ClRefCount++;
-    Yap_RemoveClauseFromIndex(clau->ClPred, clau->ClCode);
+    Yap_RemoveClauseFromIndex(ap, clau->ClCode);
     /* release the extra reference */
     clau->ClRefCount--;
   }
   complete_lu_erase(clau);
+  WRITE_UNLOCK(ap->PRWLock);
 }
 
 static void

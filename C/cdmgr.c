@@ -145,7 +145,7 @@ static_in_use(PredEntry *p, int check_everything)
 #define ByteAdr(X)   ((Int) &(X))
 
 /* Index a prolog pred, given its predicate entry */
-/* ap is already locked, but IPred is the one who gets rid of the lock. */
+/* ap is already locked. */
 static void 
 IPred(PredEntry *ap)
 {
@@ -192,7 +192,6 @@ IPred(PredEntry *ap)
 #endif
   /* Do not try to index a dynamic predicate  or one whithout args */
   if (is_dynamic(ap)) {
-    WRITE_UNLOCK(ap->PRWLock);
     Yap_Error(SYSTEM_ERROR,TermNil,"trying to index a dynamic predicate");
     return;
   }
@@ -207,7 +206,6 @@ IPred(PredEntry *ap)
     ap->CodeOfPred = ap->cs.p_code.TrueCodeOfPred;
     ap->OpcodeOfPred = ((yamop *)(ap->CodeOfPred))->opc;
   }
-  WRITE_UNLOCK(ap->PRWLock);
 #ifdef DEBUG
   if (Yap_Option['i' - 'a' + 1])
     Yap_DebugPutc(Yap_c_error_stream,'\n');
@@ -347,8 +345,7 @@ cleanup_dangling_indices(yamop *ipc, yamop *beg, yamop *end, yamop *suspend_code
       ipc = NEXTOP(ipc,sl);
       break;
     default:
-      Yap_Error(SYSTEM_ERROR,TermNil,"Bug in Indexing Code");
-      ipc = NULL;
+      Yap_Error(SYSTEM_ERROR,TermNil,"Bug in Indexing Code: opcode %d", op);
     }
   }
 }
@@ -1379,12 +1376,15 @@ p_compile(void)
     return (FALSE);
   if (IsVarTerm(t3) || !IsAtomTerm(t3))
     return (FALSE);
+
   mod = Yap_LookupModule(t3);
+  YAPEnterCriticalSection();
   codeadr = Yap_cclause(t, 2, mod, Deref(ARG3)); /* vsc: give the number of arguments
 			      to cclause in case there is overflow */
   t = Deref(ARG1);        /* just in case there was an heap overflow */
   if (!Yap_ErrorMessage)
     addclause(t, codeadr, (int) (IntOfTerm(t1) & 3), mod);
+  YAPLeaveCriticalSection();
   if (Yap_ErrorMessage) {
     if (IntOfTerm(t1) & 4) {
       Yap_Error(Yap_Error_TYPE, Yap_Error_Term,
@@ -1413,6 +1413,7 @@ p_compile_dynamic(void)
   old_optimize = optimizer_on;
   optimizer_on = FALSE;
   mod = Yap_LookupModule(t3);
+  YAPEnterCriticalSection();
   code_adr = Yap_cclause(t, 3, mod, Deref(ARG3)); /* vsc: give the number of arguments to
 			       cclause() in case there is a overflow */
   t = Deref(ARG1);        /* just in case there was an heap overflow */
@@ -1425,8 +1426,10 @@ p_compile_dynamic(void)
       Yap_Error(Yap_Error_TYPE, Yap_Error_Term, "line %d, %s", Yap_FirstLineInParse(), Yap_ErrorMessage);
     } else
       Yap_Error(Yap_Error_TYPE, Yap_Error_Term, Yap_ErrorMessage);
+    YAPLeaveCriticalSection();
     return (FALSE);
   }
+  YAPLeaveCriticalSection();
   return Yap_unify(ARG5, t);
 }
 
@@ -1508,9 +1511,8 @@ end_consult(void)
     if (pred->OpcodeOfPred == INDEX_OPCODE) {
       IPred(pred);
       /* IPred does the unlocking */
-    } else {
-      WRITE_UNLOCK(pred->PRWLock);
     }
+    WRITE_UNLOCK(pred->PRWLock);
   }
 #endif
   ConsultSp = ConsultBase;
@@ -1648,8 +1650,8 @@ p_setspy(void)
   } else {
     return (FALSE);
   }
- restart_spy:
   WRITE_LOCK(pred->PRWLock);
+ restart_spy:
   if (pred->PredFlags & (CPredFlag | SafePredFlag)) {
     WRITE_UNLOCK(pred->PRWLock);
     return (FALSE);
@@ -2990,11 +2992,14 @@ get_pred(Term t1, Term tmod, char *command)
 static Int
 fetch_next_lu_clause(PredEntry *pe, yamop *i_code, Term th, Term tb, Term tr, yamop *cp_ptr, int first_time)
 {
-  LogUpdClause *cl = Yap_follow_indexing_code(pe, i_code, th, tb, tr, NEXTOP(PredLogUpdClause->CodeOfPred,ld), cp_ptr);
+  LogUpdClause *cl;
   Term rtn;
 
-  if (cl == NULL)
+  cl = Yap_follow_indexing_code(pe, i_code, th, tb, tr, NEXTOP(PredLogUpdClause->CodeOfPred,ld), cp_ptr);
+  if (cl == NULL) {
+    WRITE_UNLOCK(pe->PRWLock);
     return FALSE;
+  }
   rtn = MkDBRefTerm((DBRef)cl);
 #if defined(OR) || defined(THREADS)
   LOCK(cl->ClLock);
@@ -3007,6 +3012,7 @@ fetch_next_lu_clause(PredEntry *pe, yamop *i_code, Term th, Term tb, Term tr, ya
     TRAIL_CLREF(cl);	/* So that fail will erase it */
   }
 #endif
+  WRITE_UNLOCK(pe->PRWLock);
   if (cl->ClFlags & FactMask) {
     if (!Yap_unify(tb, MkAtomTerm(AtomTrue)) ||
 	!Yap_unify(tr, rtn))
@@ -3026,7 +3032,9 @@ fetch_next_lu_clause(PredEntry *pe, yamop *i_code, Term th, Term tb, Term tr, ya
 	YENV = ASP;
 	YENV[E_CB] = (CELL) B;
       }
+      READ_LOCK(pe->PRWLock);
       P = cl->ClCode;
+      READ_UNLOCK(pe->PRWLock);
     }
     return TRUE;
   } else {
@@ -3060,6 +3068,7 @@ p_log_update_clause(void)
   pe = get_pred(t1, Deref(ARG2), "clause/3");
   if (pe == NULL || EndOfPAEntr(pe))
     return FALSE;
+  WRITE_LOCK(pe->PRWLock);
   if(pe->OpcodeOfPred == INDEX_OPCODE) {
     IPred(pe);
   }
@@ -3072,16 +3081,20 @@ p_continue_log_update_clause(void)
   PredEntry *pe = (PredEntry *)IntegerOfTerm(Deref(ARG1));
   yamop *ipc = (yamop *)IntegerOfTerm(ARG2);
 
+  WRITE_LOCK(pe->PRWLock);
   return fetch_next_lu_clause(pe, ipc, Deref(ARG3), ARG4, ARG5, B->cp_ap, FALSE);
 }
 
 static Int
 fetch_next_lu_clause0(PredEntry *pe, yamop *i_code, Term th, Term tb, yamop *cp_ptr, int first_time)
 {
-  LogUpdClause *cl = Yap_follow_indexing_code(pe, i_code, th, tb, TermNil, NEXTOP(PredLogUpdClause0->CodeOfPred,ld), cp_ptr);
+  LogUpdClause *cl;
 
-  if (cl == NULL)
+  cl = Yap_follow_indexing_code(pe, i_code, th, tb, TermNil, NEXTOP(PredLogUpdClause0->CodeOfPred,ld), cp_ptr);
+  WRITE_UNLOCK(pe->PRWLock);
+  if (cl == NULL) {
     return FALSE;
+  }
   if (cl->ClFlags & FactMask) {
     if (!Yap_unify(tb, MkAtomTerm(AtomTrue)))
       return FALSE;
@@ -3100,7 +3113,9 @@ fetch_next_lu_clause0(PredEntry *pe, yamop *i_code, Term th, Term tb, yamop *cp_
 	YENV = ASP;
 	YENV[E_CB] = (CELL) B;
       }
+      READ_LOCK(pe->PRWLock);
       P = cl->ClCode;
+      READ_UNLOCK(pe->PRWLock);
     }
     return TRUE;
   } else {
@@ -3133,6 +3148,7 @@ p_log_update_clause0(void)
   pe = get_pred(t1, Deref(ARG2), "clause/3");
   if (pe == NULL || EndOfPAEntr(pe))
     return FALSE;
+  WRITE_LOCK(pe->PRWLock);
   if(pe->OpcodeOfPred == INDEX_OPCODE) {
     IPred(pe);
   }
@@ -3145,15 +3161,18 @@ p_continue_log_update_clause0(void)
   PredEntry *pe = (PredEntry *)IntegerOfTerm(Deref(ARG1));
   yamop *ipc = (yamop *)IntegerOfTerm(ARG2);
 
+  WRITE_LOCK(pe->PRWLock);
   return fetch_next_lu_clause0(pe, ipc, Deref(ARG3), ARG4, B->cp_ap, FALSE);
 }
 
 static Int
 fetch_next_static_clause(PredEntry *pe, yamop *i_code, Term th, Term tb, Term tr, yamop *cp_ptr, int first_time)
 {
-  StaticClause *cl = (StaticClause *)Yap_follow_indexing_code(pe, i_code, th, tb, tr, NEXTOP(PredStaticClause->CodeOfPred,ld), cp_ptr);
+  StaticClause *cl;
   Term rtn;
 
+  cl = (StaticClause *)Yap_follow_indexing_code(pe, i_code, th, tb, tr, NEXTOP(PredStaticClause->CodeOfPred,ld), cp_ptr);
+  WRITE_UNLOCK(pe->PRWLock);
   if (cl == NULL)
     return FALSE;
   rtn = MkDBRefTerm((DBRef)cl);
@@ -3211,6 +3230,7 @@ p_static_clause(void)
   pe = get_pred(t1, Deref(ARG2), "clause/3");
   if (pe == NULL || EndOfPAEntr(pe))
     return FALSE;
+  WRITE_LOCK(pe->PRWLock);
   if(pe->OpcodeOfPred == INDEX_OPCODE) {
     IPred(pe);
   }
@@ -3223,6 +3243,7 @@ p_continue_static_clause(void)
   PredEntry *pe = (PredEntry *)IntegerOfTerm(Deref(ARG1));
   yamop *ipc = (yamop *)IntegerOfTerm(ARG2);
 
+  WRITE_LOCK(pe->PRWLock);
   return fetch_next_static_clause(pe, ipc, Deref(ARG3), ARG4, ARG5, B->cp_ap, FALSE);
 }
 

@@ -6359,9 +6359,11 @@ Yap_absmi(int inp)
 	to be executed when 
 	running a procedure from within the file that defines it.
       */
+      /* THIS SHOULD BE AN ERROR !!!!! */
       if (PredFromDefCode(PREG)->OpcodeOfPred != INDEX_OPCODE) {
 	/* someone was here before we were */
-	PREG = PredFromDefCode(PREG)->CodeOfPred;
+	Yap_Error(SYSTEM_ERROR,TermNil,"Bad locking");
+	PREG = FAILCODE;
 	WRITE_UNLOCK(PredFromDefCode(PREG)->PRWLock);
 	JMPNext();
       }
@@ -6376,6 +6378,7 @@ Yap_absmi(int inp)
       setregs();
       CACHED_A1() = ARG1;
       PREG = PredFromDefCode(PREG)->CodeOfPred;
+      WRITE_UNLOCK(PredFromDefCode(PREG)->PRWLock);
       JMPNext();
       ENDBOp();
 
@@ -6390,7 +6393,9 @@ Yap_absmi(int inp)
 	  ASP = (CELL *) B;
 	}
  	saveregs();
+	WRITE_LOCK(pe->PRWLock);
 	pt0 = Yap_ExpandIndex(pe);
+	WRITE_UNLOCK(pe->PRWLock);
 	/* restart index */
 	setregs();
  	PREG = pt0;

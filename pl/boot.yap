@@ -233,7 +233,7 @@ repeat :- '$repeat'.
 	'$execute_command'(C,VL,Con).
 '$command'(C,VL,Con) :-
 	( (Con = top ; var(C) ; C = [_|_])  ->  
-	'$execute_command'(C,VL,Con) ;
+	'$execute_command'(C,VL,Con), ! ;
         expand_term(C, EC),
 	'$execute_commands'(EC,VL,Con)
         ).
@@ -421,7 +421,11 @@ repeat :- '$repeat'.
 		'$another',
 		!, fail ;
 		'$do_stop_creep',
-		'$present_answer'(_, no),
+		( '$undefined'('$print_message'(_,_),prolog) -> 
+		   '$present_answer'(user_error,"no~n", [])
+	        ;
+		   print_message(help,no)
+		),
 		fail
 	).
 
@@ -438,7 +442,11 @@ repeat :- '$repeat'.
 	fail.
 '$yes_no'(_,_) :-
 	'$do_stop_creep',
-	'$present_answer'(_, no),
+	( '$undefined'('$print_message'(_,_),prolog) -> 
+	   '$present_answer'(user_error,"no~n", [])
+	;
+	   print_message(help,no)
+	),
 	fail.
 
 % make sure we have Prolog code to force running any delayed goals.
@@ -496,7 +504,11 @@ repeat :- '$repeat'.
 	    fail
 	;
 	    C== 10 -> '$add_nl_outside_console',
-		'$format'(user_error,"yes~n", [])
+		( '$undefined'('$print_message'(_,_),prolog) -> 
+			'$format'(user_error,"yes~n", [])
+	        ;
+		   print_message(help,yes)
+		)
 	;
 	    C== -1 -> halt
 	;
@@ -857,6 +869,7 @@ break :- get_value('$break',BL), NBL is BL+1,
         '$consult'(X),
         '$change_module'(M0).
 '$consult'(X) :-
+	'$lock_system',
 	'$find_in_path'(X,Y,consult(X)),
 	'$open'(Y,'$csult',Stream,0), !,
 	'$current_module'(OldModule),
@@ -883,6 +896,7 @@ break :- get_value('$break',BL), NBL is BL+1,
 	get_value('$consulting',Old),
 	set_value('$consulting',true),
 	recorda('$initialisation','$',_),
+	'$unlock_system',
 	( '$undefined'('$print_message'(_,_),prolog) -> 
 	    ( get_value('$verbose',on) ->
 		'$format'(user_error, "~*|[ consulting ~w... ]~n", [LC,F])
@@ -958,7 +972,7 @@ break :- get_value('$break',BL), NBL is BL+1,
 		prompt('|     '), prompt(_,'| '),
 		'$current_module'(OldModule),
 		'$system_catch'('$enter_command'(Stream,Status), OldModule, Error,
-			 user:'$LoopError'(Error)),
+			 user:'$LoopError'(Error, Status)),
 	!.
 
 '$enter_command'(Stream,Status) :-
@@ -1134,7 +1148,7 @@ throw(Ball) :-
 	erase(R),
 	G \= '$',
 	'$current_module'(M),
-	'$system_catch'(once(M:G), M, Error, user:'$LoopError'(Error)),
+	'$system_catch'(once(M:G), M, Error, user:'$LoopError'(Error, top)),
 	fail.
 '$exec_initialisation_goals'.
 

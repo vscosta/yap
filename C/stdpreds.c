@@ -2468,6 +2468,20 @@ p_set_yap_flags(void)
   return(TRUE);
 }
 
+static Int
+p_lock_system(void)
+{
+  WRITE_LOCK(BGL);
+  return TRUE;
+}
+
+static Int
+p_unlock_system(void)
+{
+  WRITE_UNLOCK(BGL);
+  return TRUE;
+}
+
 #ifndef YAPOR
 static Int
 p_default_sequential(void) {
@@ -2566,6 +2580,8 @@ Yap_InitCPreds(void)
   Yap_InitCPred("halt", 1, p_halt, SyncPredFlag);
   Yap_InitCPred("halt", 0, p_halt0, SyncPredFlag);
   Yap_InitCPred("$host_type", 1, p_host_type, SyncPredFlag);
+  Yap_InitCPred("$lock_system", 0, p_lock_system, SafePredFlag);
+  Yap_InitCPred("$unlock_system", 0, p_unlock_system, SafePredFlag);
   /* basic predicates for the prolog machine tracer */
   /* they are defined in analyst.c */
   /* Basic predicates for the debugger */

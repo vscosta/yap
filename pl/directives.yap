@@ -44,7 +44,7 @@
 '$exec_directive'(multifile(D), _, M) :-
 	'$system_catch'('$multifile'(D, M), M,
 	      Error,
-	      user:'$LoopError'(Error)).
+	      user:'$LoopError'(Error, top)).
 '$exec_directive'(discontiguous(D), _, M) :-
 	'$discontiguous'(D,M).
 '$exec_directive'(initialization(D), _, M) :-
