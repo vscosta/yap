@@ -2957,13 +2957,11 @@ do_read(int inp_stream)
 #if EMACS
   int emacs_cares = FALSE;
 #endif
-  tr_fr_ptr old_TR, TR_before_parse;
     
   if (Stream[inp_stream].status & Binary_Stream_f) {
     Yap_Error(PERMISSION_ERROR_INPUT_BINARY_STREAM, MkAtomTerm(Stream[inp_stream].u.file.name), "read_term/2");
     return(FALSE);
   }
-  old_TR = TR;
   while (TRUE) {
     CELL *old_H;
 
@@ -2981,7 +2979,6 @@ do_read(int inp_stream)
 	if (tokstart != NIL && tokstart->Tok != Ord (eot_tok)) {
 	  /* we got the end of file from an abort */
 	  if (Yap_ErrorMessage == "Abort") {
-	    TR = old_TR;
 	    Yap_clean_tokenizer(tokstart, Yap_VarTable, Yap_AnonVarTable);
 	    return FALSE;
 	  }
@@ -2989,8 +2986,6 @@ do_read(int inp_stream)
 	  Stream[inp_stream].status |= Push_Eof_Stream_f;
 	  Yap_ErrorMessage = "end of file found before end of term";
 	} else {
-	  /* restore TR */
-	  TR = old_TR;
 	  Yap_clean_tokenizer(tokstart, Yap_VarTable, Yap_AnonVarTable);
 	
 	  return (Yap_unify(MkIntegerTerm(StartLine = Stream[inp_stream].linecount),ARG4) &&
@@ -2999,27 +2994,29 @@ do_read(int inp_stream)
       }
     }
   repeat_cycle:
-    TR_before_parse = TR;
-    if (Yap_ErrorMessage || (t = Yap_Parse ()) == 0) {
+    if (Yap_ErrorMessage || (t = Yap_Parse()) == 0) {
       if (Yap_ErrorMessage && (strcmp(Yap_ErrorMessage,"Stack Overflow") == 0)) {
 	/* ignore term we just built */
-	TR = TR_before_parse;
 	H = old_H;
+	tr_fr_ptr old_TR = TR;
+	TR = (tr_fr_ptr)ScannerStack;
 	if (Yap_growstack_in_parser(&old_TR, &tokstart, &Yap_VarTable)) {
+	  ScannerStack = (char *)TR;
+	  TR = old_TR;
 	  old_H = H;
 	  Yap_tokptr = Yap_toktide = tokstart;
 	  Yap_ErrorMessage = NULL;
 	  goto repeat_cycle;
 	}
+	ScannerStack = (char *)TR;
+	TR = old_TR;
       }
-      TR = old_TR;
       if (ParserErrorStyle == QUIET_ON_PARSER_ERROR) {
 	/* just fail */
 	Yap_clean_tokenizer(tokstart, Yap_VarTable, Yap_AnonVarTable);
 	return FALSE;
       } else if (ParserErrorStyle == CONTINUE_ON_PARSER_ERROR) {
 	Yap_ErrorMessage = NULL;
-	TR = TR_before_parse;
 	/* try again */
 	goto repeat_cycle;
       } else {
@@ -3055,14 +3052,17 @@ do_read(int inp_stream)
 
       if (setjmp(Yap_IOBotch) == 0) {
 	v = Yap_VarNames(Yap_VarTable, TermNil);
-	TR = old_TR;
 	break;
       } else {
+	tr_fr_ptr old_TR = TR;
 	/* don't need to recheck tokens */
 	tokstart = NULL;
 	/* restart global */
 	H = old_H;
+	TR = (tr_fr_ptr)ScannerStack;
 	Yap_growstack_in_parser(&old_TR, &tokstart, &Yap_VarTable);
+	ScannerStack = (char *)TR;
+	TR = old_TR;
 	old_H = H;
       }
     }
@@ -3070,7 +3070,6 @@ do_read(int inp_stream)
     return(Yap_unify(t, ARG2) && Yap_unify (v, ARG3) &&
 	   Yap_unify(MkIntTerm(StartLine = tokstart->TokPos),ARG4));
   } else {
-    TR = old_TR;
     Yap_clean_tokenizer(tokstart, Yap_VarTable, Yap_AnonVarTable);
     return(Yap_unify(t, ARG2) && Yap_unify(MkIntTerm(StartLine = tokstart->TokPos),ARG4));
   }

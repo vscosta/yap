@@ -306,8 +306,12 @@ ParseArgs(Atom a, JMPBUFF *FailBuff)
   p = (Term *) ParserAuxSp;
   while (1) {
     Term *tp = (Term *)ParserAuxSp;
+    if (ParserAuxSp+1 > Yap_TrailTop) {
+      Yap_ErrorMessage = "Trail Overflow";
+      FAIL;
+    }
     *tp++ = Unsigned(ParseTerm(999, FailBuff));
-    ParserAuxSp = (tr_fr_ptr)tp;
+    ParserAuxSp = tp;
     ++nargs;
     if (Yap_tokptr->Tok != Ord(Ponctuation_tok))
       break;
@@ -315,7 +319,7 @@ ParseArgs(Atom a, JMPBUFF *FailBuff)
       break;
     NextToken;
   }
-  ParserAuxSp = (tr_fr_ptr)p;
+  ParserAuxSp = (char *)p;
   /*
    * Needed because the arguments for the functor are placed in reverse
    * order 

@@ -12,7 +12,7 @@
 * Last rev:								 *
 * mods:									 *
 * comments:	allocating space					 *
-* version:$Id: alloc.c,v 1.62 2004-10-27 15:56:32 vsc Exp $		 *
+* version:$Id: alloc.c,v 1.63 2004-10-28 20:12:20 vsc Exp $		 *
 *************************************************************************/
 #ifdef SCCS
 static char SccsId[] = "%W% %G%";
@@ -29,6 +29,9 @@ static char SccsId[] = "%W% %G%";
 #endif
 #if HAVE_MALLOC_H
 #include <malloc.h>
+#endif
+#if USE_DL_MALLOC
+#include "dlmalloc.h"
 #endif
 #if HAVE_MEMORY_H
 #include <memory.h>
@@ -54,7 +57,13 @@ static char SccsId[] = "%W% %G%";
 /************************************************************************/
 /* Yap workspace management                                             */
 
-#if USE_SYSTEM_MALLOC
+#if USE_SYSTEM_MALLOC||USE_DL_MALLOC
+
+#if USE_DL_MALLOC
+#define malloc Yap_dlmalloc
+#define free Yap_dlfree
+#define realloc Yap_dlrealloc
+#endif
 
 char *
 Yap_AllocCodeSpace(unsigned int size)
@@ -112,12 +121,23 @@ Yap_ExpandPreAllocCodeSpace(UInt sz0)
     ScratchPad.sz =
     sz = sz + sz0;
 
-  if (!(ptr = realloc(ScratchPad.ptr, sz)))
+  while (!(ptr = realloc(ScratchPad.ptr, sz))) {
+#if USE_DL_MALLOC
+    if (!Yap_growheap(FALSE, sz, NULL)) {
+      return NULL;
+    }
+#else
     return NULL;
+#endif
+  }
   ScratchPad.ptr = ptr;
   AuxSp = (CELL *)(AuxTop = ptr+sz);
   return ptr;
 }
+
+#endif
+
+#if USE_SYSTEM_MALLOC
 
 struct various_codes *heap_regs;
 
@@ -236,15 +256,17 @@ Yap_AllocHole(UInt actual_request, UInt total_size)
 #define snprintf5(A,B,C,D,E)  sprintf(A,C,D,E)
 #endif
 
+#ifdef LIGHT
+#include <stdlib.h>
+#endif
+
+#if !USE_DL_MALLOC
+
 STATIC_PROTO(void FreeBlock, (BlockHeader *));
 STATIC_PROTO(BlockHeader *GetBlock, (unsigned int));
 STATIC_PROTO(char *AllocHeap, (unsigned int));
 STATIC_PROTO(void RemoveFromFreeList, (BlockHeader *));
 STATIC_PROTO(void AddToFreeList, (BlockHeader *));
-
-#ifdef LIGHT
-#include <stdlib.h>
-#endif
 
 #define MinHGap   256*K
 
@@ -494,6 +516,15 @@ FreeCodeSpace(char *p)
   FreeBlock(((BlockHeader *) (p - sizeof(YAP_SEG_SIZE))));
 }
 
+static char *
+AllocCodeSpace(unsigned int size)
+{
+  if (size < SmallSize + 2 * OpCodeSize + 3 * CellSize)
+    return (AllocHeap(SmallSize + 2 * OpCodeSize + 3 * CellSize));
+  return (AllocHeap(size));
+}
+
+
 #if DEBUG_ALLOC
 int vsc_mem_trace;
 #endif
@@ -530,14 +561,6 @@ Yap_FreeAtomSpace(char *p)
   FreeCodeSpace(p);
 }
 
-static char *
-AllocCodeSpace(unsigned int size)
-{
-  if (size < SmallSize + 2 * OpCodeSize + 3 * CellSize)
-    return (AllocHeap(SmallSize + 2 * OpCodeSize + 3 * CellSize));
-  return (AllocHeap(size));
-}
-
 char *
 Yap_AllocCodeSpace(unsigned int size)
 {
@@ -557,6 +580,7 @@ Yap_ExpandPreAllocCodeSpace(UInt sz)
   }
   return Addr(HeapTop) + sizeof(CELL);
 }
+#endif
 
 
 /************************************************************************/
@@ -1229,13 +1253,15 @@ InitHeap(void *heap_addr)
   /* reserve space for specially allocated functors and atoms so that
      their values can be known statically */
   HeapTop = Yap_HeapBase + AdjustSize(sizeof(all_heap_codes));
+#if USE_DL_MALLOC
+  Yap_initdlmalloc();
+#else
   HeapMax = HeapUsed = HeapTop-Yap_HeapBase;
-
-
   /* notice that this forces odd addresses */
   *((YAP_SEG_SIZE *) HeapTop) = InUseFlag;
   HeapTop = HeapTop + sizeof(YAP_SEG_SIZE);
   *((YAP_SEG_SIZE *) HeapTop) = InUseFlag;
+#endif
 
   FreeBlocks = NIL;
 
@@ -1302,7 +1328,9 @@ Yap_InitMemory(int Trail, int Heap, int Stack)
   HeapLim = Yap_GlobalBase;	/* avoid confusions while
 					 * * restoring */
 
+#if !USE_DL_MALLOC
   AuxTop = (ADDR)(AuxSp = (CELL *)Yap_GlobalBase);
+#endif
 
 #ifdef DEBUG
 #if SIZEOF_INT_P!=SIZEOF_INT
@@ -1330,6 +1358,11 @@ Yap_InitMemory(int Trail, int Heap, int Stack)
 void
 Yap_InitExStacks(int Trail, int Stack)
 {
+#if USE_DL_MALLOC
+  ScratchPad.ptr = NULL;
+  ScratchPad.sz = ScratchPad.msz = SCRATCH_START_SIZE;
+  AuxSp = NULL;
+#endif
 }
 
 #if defined(_WIN32)
@@ -1359,6 +1392,10 @@ Yap_ExtendWorkSpaceThroughHole(UInt s)
     /* progress 1 MB */
     WorkSpaceTop += 512*1024;
     if (ExtendWorkSpace(s, MAP_FIXED)) {
+#if USE_DL_MALLOC 
+      Yap_hole_start = (ADDR)WorkSpaceTop0;
+      Yap_hole_end = (ADDR)WorkSpaceTop-s;
+#endif
       return WorkSpaceTop-WorkSpaceTop0;
     }
 #if defined(_WIN32)
@@ -1381,7 +1418,7 @@ Yap_ExtendWorkSpaceThroughHole(UInt s)
 void
 Yap_AllocHole(UInt actual_request, UInt total_size)
 {
-#if USE_MMAP || defined(_WIN32)
+#if (USE_MMAP || defined(_WIN32)) && !USE_DL_MALLOC
   /* where we were when the hole was created,
    also where is the hole store */
   ADDR WorkSpaceTop0 = WorkSpaceTop-total_size;

@@ -130,23 +130,22 @@ AllocScannerMemory(unsigned int size)
 #else
   char *AuxSpScan;
 
-  AuxSpScan = (char *)TR;
+  AuxSpScan = ScannerStack;
   size = AdjustSize(size);
-  TR = (tr_fr_ptr)(AuxSpScan+size);
-#if !OS_HANDLES_TR_OVERFLOW
-  if (Unsigned(Yap_TrailTop) == Unsigned(TR)) {
+  ScannerStack = AuxSpScan+size;
+  if (Yap_TrailTop <= ScannerStack) {
     if(!Yap_growtrail (sizeof(CELL) * 16 * 1024L)) {
       return(NULL);
     }
   }
-#endif
-  return (AuxSpScan);
+  return AuxSpScan;
 #endif
 }
 
 char *
 Yap_AllocScannerMemory(unsigned int size)
 {
+  /* I assume memory has been initialised */
   return AllocScannerMemory(size);
 }
 
@@ -380,7 +379,7 @@ read_quoted_char(int *scan_nextp, int inp_stream, int (*QuotedNxtch)(int))
 static Term
 get_num(int *chp, int *chbuffp, int inp_stream, int (*Nxtch) (int), int (*QuotedNxtch) (int))
 {
-  char *s = (char *)TR, *sp = s;
+  char *s = (char *)ScannerStack, *sp = s;
   int ch = *chp;
   Int val = 0, base = ch - '0';
   int might_be_float = TRUE, has_overflow = FALSE;
@@ -549,6 +548,7 @@ Yap_scan_num(int (*Nxtch) (int))
   int ch, cherr;
 
   Yap_ErrorMessage = NULL;
+  ScannerStack = (char *)TR;
   ch = Nxtch(-1);
   if (ch == '-') {
     sign = -1;
@@ -586,6 +586,7 @@ Yap_tokenizer(int inp_stream)
   Yap_VarTable = NULL;
   Yap_AnonVarTable = NULL;
   Yap_eot_before_eof = FALSE;
+  ScannerStack = (char *)TR;
   l = NIL;
   p = NIL;			/* Just to make lint happy */
   ch = Nxtch(inp_stream);

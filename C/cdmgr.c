@@ -11,8 +11,11 @@
 * File:		cdmgr.c							 *
 * comments:	Code manager						 *
 *									 *
-* Last rev:     $Date: 2004-10-26 20:15:51 $,$Author: vsc $						 *
+* Last rev:     $Date: 2004-10-28 20:12:21 $,$Author: vsc $						 *
 * $Log: not supported by cvs2svn $
+* Revision 1.138  2004/10/26 20:15:51  vsc
+* More bug fixes for overflow handling
+*
 * Revision 1.137  2004/10/22 16:53:19  vsc
 * bug fixes
 *
@@ -2716,7 +2719,7 @@ search_for_static_predicate_in_use(PredEntry *p, int check_everything)
     if (b_ptr)
       pe = PredForChoicePt(b_ptr->cp_ap);
     else
-      return NULL;
+      return FALSE;
     if (pe == p) {
       if (check_everything)
 	return TRUE;
@@ -2789,7 +2792,7 @@ do_toggle_static_predicates_in_use(int mask)
     }
     /* now mark the choicepoint */
     if ((b_ptr)) {
-      if (pe = PredForChoicePt(b_ptr->cp_ap)) {
+      if ((pe = PredForChoicePt(b_ptr->cp_ap))) {
 	mark_pred(mask, pe);
       }
     }

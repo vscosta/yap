@@ -402,6 +402,8 @@ save_regs(int mode)
   putout(Unsigned(HeapUsed));
   /* Then the start of the free code */
   putcellptr(CellPtr(FreeBlocks));
+  putcellptr(AuxSp);
+  putcellptr(CellPtr(AuxTop));
   if (mode == DO_EVERYTHING) {
     /* put the old trail base, just in case it moves again */
     putout(ARG1);
@@ -680,6 +682,8 @@ get_heap_info(void)
   OldHeapTop = (ADDR) get_cellptr();
   OldHeapUsed = (Int) get_cell();
   FreeBlocks = (BlockHeader *) get_cellptr();
+  AuxSp = get_cellptr();
+  AuxTop = (ADDR)get_cellptr();
   HDiff = Unsigned(Yap_HeapBase) - Unsigned(OldHeapBase);
 }
 
@@ -1065,6 +1069,10 @@ RestoreFreeSpace(void)
   if (FreeBlocks != NULL)
     FreeBlocks = BlockAdjust(FreeBlocks);
   bpt = FreeBlocks;
+  if (AuxSp != NULL)
+    AuxSp = CellPtoHeapAdjust(AuxSp);
+  if (AuxTop != NULL)
+    AuxTop = AddrAdjust(AuxTop);
   while (bpt != NULL) {
     if (bpt->b_next != NULL) {
       bsz = bpt->b_next = BlockAdjust(bpt->b_next);

@@ -369,7 +369,9 @@ Unification Routines
 
 EXTERN Int STD_PROTO(Yap_unify,(Term,Term));
 
-EXTERN inline void
+inline EXTERN void STD_PROTO(reset_trail,(tr_fr_ptr));
+
+inline EXTERN void
 reset_trail(tr_fr_ptr TR0) {
   while(TR != TR0) {
     CELL d1;

@@ -247,7 +247,7 @@ typedef struct AliasDescS {
 extern char *Yap_chtype;
 
 /* parser stack, used to be AuxSp, now is ASP */
-#define ParserAuxSp (TR)
+#define ParserAuxSp ScannerStack
 
 /* routines in parser.c */
 VarEntry STD_PROTO(*Yap_LookupVar,(char *));

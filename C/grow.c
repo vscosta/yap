@@ -120,7 +120,7 @@ SetHeapRegs(void)
   Yap_TrailTop = TrailAddrAdjust(Yap_TrailTop);
   Yap_GlobalBase = DelayAddrAdjust(Yap_GlobalBase);
   Yap_LocalBase = LocalAddrAdjust(Yap_LocalBase);
-#if !USE_SYSTEM_MALLOC
+#if !USE_SYSTEM_MALLOC && !USE_DL_MALLOC
   AuxSp = PtoDelayAdjust(AuxSp);
   AuxTop = (ADDR)PtoDelayAdjust((CELL *)AuxTop);
 #endif
@@ -1272,7 +1272,7 @@ Yap_growtrail(long size)
 CELL **
 Yap_shift_visit(CELL **to_visit, CELL ***to_visit_maxp)
 {
-#if USE_SYSTEM_MALLOC
+#if USE_SYSTEM_MALLOC || USE_DL_MALLOC
   CELL **to_visit_max = *to_visit_maxp;
   Int sz1 = (CELL)to_visit_max-(CELL)to_visit;
   Int sz0 = AuxTop - (ADDR)to_visit_maxp, sz, dsz;

@@ -10,8 +10,13 @@
 * File:		c_interface.c						 *
 * comments:	c_interface primitives definition 			 *
 *									 *
-* Last rev:	$Date: 2004-10-06 16:55:46 $,$Author: vsc $						 *
+* Last rev:	$Date: 2004-10-28 20:12:20 $,$Author: vsc $						 *
 * $Log: not supported by cvs2svn $
+* Revision 1.54  2004/10/06 16:55:46  vsc
+* change configure to support big mem configs
+* get rid of extra globals
+* fix trouble with multifile preds
+*
 * Revision 1.53  2004/08/11 16:14:51  vsc
 * whole lot of fixes:
 *   - memory leak in indexing
@@ -912,14 +917,12 @@ X_API Term
 YAP_Read(int (*mygetc)(void))
 {
   Term t;
-  tr_fr_ptr old_TR;
   int sno;
   TokEntry *tokstart;
   
   BACKUP_MACHINE_REGS();
 
   do_getf = mygetc;
-  old_TR = TR;
   sno = Yap_GetFreeStreamD();
   if (sno < 0) {
     Yap_Error(SYSTEM_ERROR,TermNil, "new stream not available for YAP_Read");
@@ -930,13 +933,11 @@ YAP_Read(int (*mygetc)(void))
   Stream[sno].status = Free_Stream_f;
   if (Yap_ErrorMessage)
     {
-      TR = old_TR;
       save_machine_regs();
       return(0);
     }
   t = Yap_Parse();
   Yap_clean_tokenizer(tokstart, Yap_VarTable, Yap_AnonVarTable);
-  TR = old_TR;
 
   RECOVER_MACHINE_REGS();
   return t;

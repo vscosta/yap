@@ -238,6 +238,7 @@
 
 #define  MSHIFTOFFS 1
 
+#undef  USE_DL_MALLOC
 #undef  USE_MALLOC
 #define USE_MMAP    (HAVE_MMAP  & !USE_MALLOC)
 #define USE_SHM	    (HAVE_SHMAT & !HAVE_MMAP & !USE_MALLOC)

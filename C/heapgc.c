@@ -94,7 +94,7 @@ static cont *cont_top0;
 #endif
 static cont *cont_top;
 
-static int
+static void
 gc_growtrail(int committed)
 {
 #if USE_SYSTEM_MALLOC
@@ -112,6 +112,7 @@ gc_growtrail(int committed)
 #endif
   longjmp(Yap_gc_restore, 1);
 #endif
+  
 }
 
 inline static void

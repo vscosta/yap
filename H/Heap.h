@@ -10,7 +10,7 @@
 * File:		Heap.h         						 *
 * mods:									 *
 * comments:	Heap Init Structure					 *
-* version:      $Id: Heap.h,v 1.69 2004-10-27 15:56:34 vsc Exp $	 *
+* version:      $Id: Heap.h,v 1.70 2004-10-28 20:12:22 vsc Exp $	 *
 *************************************************************************/
 
 /* information that can be stored in Code Space */
@@ -95,11 +95,14 @@ typedef int   (*Agc_hook)(Atom);
 
 typedef struct various_codes {
   special_functors funcs;
+  struct malloc_state *av_;
+  ADDR hole_start, hole_end;
   Int heap_used;
   Int heap_max;
   ADDR heap_top;
   ADDR heap_lim;
   struct FREEB  *free_blocks;
+  char *scanner_stack;
 #if defined(YAPOR) || defined(THREADS)
   lockvar  bgl;		 /* protect long critical regions   */
   lockvar  free_blocks_lock;     /* protect the list of free blocks */
@@ -425,10 +428,14 @@ struct various_codes *heap_regs;
 #define heap_regs  ((all_heap_codes *)HEAP_INIT_BASE)
 #endif
 
+#define  Yap_av                  heap_regs->av_
+#define  Yap_hole_start          heap_regs->hole_start
+#define  Yap_hole_end            heap_regs->hole_end
 #define  HeapUsed                heap_regs->heap_used
 #define  HeapMax                 heap_regs->heap_max
 #define  HeapTop                 heap_regs->heap_top
 #define  HeapLim                 heap_regs->heap_lim
+#define  ScannerStack            heap_regs->scanner_stack
 #ifdef YAPOR
 #define  SEQUENTIAL_IS_DEFAULT   heap_regs->seq_def
 #define  GETWORK		 (&(heap_regs->getworkcode               ))
@@ -753,10 +760,11 @@ struct various_codes *heap_regs;
 #define  ReadlinePos              heap_regs->readline_pos
 #endif
 
+#define USE_DL_MALLOC 1
 
 ADDR    STD_PROTO(Yap_ExpandPreAllocCodeSpace, (UInt));
 #define Yap_ReleasePreAllocCodeSpace(x)
-#if USE_SYSTEM_MALLOC
+#if USE_SYSTEM_MALLOC||USE_DL_MALLOC
 ADDR    STD_PROTO(Yap_InitPreAllocCodeSpace, (void));
 EXTERN inline ADDR
 Yap_PreAllocCodeSpace(void)

@@ -632,7 +632,7 @@ dnl Linux has both elf and a.out, in this case we found elf
         # and -fomit-frame-point -DBP_FREE
 	YAPLIB="libWYap.a"
 	SHLIB_CFLAGS=""
-        SHLIB_LD="gcc -shared ../../yap.dll"
+        SHLIB_LD="\$(CC) -shared ../../yap.dll"
 	SHLIB_SUFFIX=".dll"
 	C_PARSER_FLAGS="$C_INTERF_FLAGS"
 	EXEC_SUFFIX=".exe"
@@ -1068,10 +1068,11 @@ AC_DEFINE(USE_MALLOC,1)
 AC_DEFINE(GC_NO_TAGS,1)
 fi
 
-dnl disable smart memory management
+dnl large memory configuration, don't trust Yap allocation routines
 if test "$maxmemory" = yes 
 then
 AC_DEFINE(GC_NO_TAGS,1)
+AC_DEFINE(USE_DL_MALLOC,1)
 fi
 
 mkdir -p  library/mpi

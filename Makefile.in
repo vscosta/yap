@@ -108,7 +108,8 @@ HEADERS = \
 	$(srcdir)/H/amidefs.h $(srcdir)/H/amiops.h $(srcdir)/H/arrays.h \
 	$(srcdir)/H/arith2.h $(srcdir)/H/attvar.h \
 	$(srcdir)/H/clause.h $(srcdir)/H/compile.h \
-	$(srcdir)/H/corout.h $(srcdir)/H/eval.h $(srcdir)/H/heapgc.h   \
+	$(srcdir)/H/corout.h $(srcdir)/H/dlmalloc.h \
+	$(srcdir)/H/eval.h $(srcdir)/H/heapgc.h   \
 	$(srcdir)/H/index.h $(srcdir)/H/iopreds.h \
 	$(srcdir)/H/rheap.h \
 	$(srcdir)/H/tracer.h \
@@ -134,7 +135,8 @@ C_SOURCES= \
 	$(srcdir)/C/bignum.c \
 	$(srcdir)/C/c_interface.c $(srcdir)/C/cdmgr.c $(srcdir)/C/cmppreds.c \
 	$(srcdir)/C/compiler.c $(srcdir)/C/computils.c \
-	$(srcdir)/C/corout.c $(srcdir)/C/dbase.c $(srcdir)/C/errors.c \
+	$(srcdir)/C/corout.c $(srcdir)/C/dbase.c $(srcdir)/C/dlmalloc.c \
+	$(srcdir)/C/errors.c \
 	$(srcdir)/C/eval.c $(srcdir)/C/exec.c $(srcdir)/C/grow.c \
 	$(srcdir)/C/heapgc.c $(srcdir)/C/index.c	   \
 	$(srcdir)/C/init.c $(srcdir)/C/inlines.c	   \
@@ -184,7 +186,7 @@ ENGINE_OBJECTS = \
 	agc.o absmi.o adtdefs.o alloc.o amasm.o analyst.o arrays.o \
 	arith0.o arith1.o arith2.o attvar.o bb.o \
 	cdmgr.o cmppreds.o compiler.o computils.o \
-	corout.o dbase.o errors.o eval.o bignum.o \
+	corout.o dbase.o dlmalloc.o errors.o eval.o bignum.o \
 	exec.o grow.o heapgc.o index.o init.o  inlines.o \
 	iopreds.o depth_bound.o mavar.o modules.o other.o   \
 	parser.o save.o scanner.o sort.o stdpreds.o sysbits.o threads.o \
@@ -315,6 +317,9 @@ corout.o: $(srcdir)/C/corout.c
 
 dbase.o: $(srcdir)/C/dbase.c
 	$(CC) -c $(CFLAGS) $(srcdir)/C/dbase.c -o $@
+
+dlmalloc.o: $(srcdir)/C/dlmalloc.c
+	$(CC) -c $(CFLAGS) $(srcdir)/C/dlmalloc.c -o $@
 
 errors.o: $(srcdir)/C/errors.c
 	$(CC) -c $(CFLAGS) $(srcdir)/C/errors.c -o $@
