@@ -211,7 +211,7 @@ parse_yap_arguments(int argc, char *argv[], yap_init_args *init_args)
   char *p;
   int BootMode = YAP_BOOT_FROM_SAVED_CODE;
   int *ssize;
-
+  
   while (--argc > 0)
     {
       p = *++argv;
@@ -348,6 +348,7 @@ parse_yap_arguments(int argc, char *argv[], yap_init_args *init_args)
 	      argc = 1;
 	    }
 	    init_args->YapPrologBootFile = *argv;
+	    argv++;
 	    init_args->HaltAfterConsult = TRUE;
 	    break;
 	  case 'l':

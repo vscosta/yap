@@ -232,7 +232,7 @@ reconsult(Fs) :-
 	( '$access_yap_flags'(15, 0) -> true ; halt).
 
 '$skip_unix_comments'(Stream) :-
-	'$peek_byte'(Stream, 0'#), !, % 35 is ASCII for #
+	'$peek'(Stream, 0'#), !, % 35 is ASCII for #
 	'$get0_line_codes'(Stream, _),
 	'$skip_unix_comments'(Stream).
 '$skip_unix_comments'(_).

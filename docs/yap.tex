@@ -6196,11 +6196,13 @@ close(mauri_tripa).
 yes
    ?- 
 @end example
-We first opened a stream in write mode and gave it an alias. Next, we
-set @code{user_error} to the stream via the alias. Note that after we
-did so prompts from the system were redirected to the stream
-@code{mauri_tripa}. Last, when we closed the stream we automatically
-redirect the @code{user_error} alias to the original @code{stderr}.
+We execute three commands. First, we open a stream in write mode and
+give it an alias, in this case @code{mauri_tripa}. Next, we set
+@code{user_error} to the stream via the alias. Note that after we did so
+prompts from the system were redirected to the stream
+@code{mauri_tripa}. Last, we close the stream. At this point, YAP
+automatically redirects the @code{user_error} alias to the original
+@code{stderr}.
 
 @item user_input
 @findex user_input (yap_flag/2 option)
