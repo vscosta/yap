@@ -21,10 +21,11 @@
 
 <blockquote>
 <pre>
+logtalk_load(Entity)
 logtalk_load(Entities)
 </pre>
 <p>
-Compiles to disk and then loads to memory a list of entities (objects, protocols or categories) using the default compiler options specified in the Logtalk configuration file. The Logtalk file name extension (by default, <code>.lgt</code>) should be omitted. Note that the argument is a list of entity/file names, not file paths. In other words, the files must exist in your current working directory.
+Compiles to disk and then loads to memory an entity or a list of entities (objects, protocols or categories) using the default compiler options specified in the Logtalk configuration file. The Logtalk file name extension (by default, <code>.lgt</code>) should be omitted. Note that the argument is a list of entity/file names, not file paths. In other words, the files must exist in your current working directory.
 </p>
 <p>
 Note that only the errors related to problems in the predicate argument are listed below. Other exceptions may be thrown by the compiler if any of the loaded entities contain errors.
@@ -35,7 +36,7 @@ Note that only the errors related to problems in the predicate argument are list
 
 <blockquote>
 <pre>
-logtalk_load(+atom_list)
+logtalk_load(@atom_or_atom_list)
 </pre>
 </blockquote>
 
@@ -43,13 +44,15 @@ logtalk_load(+atom_list)
 
 <blockquote>
 	<dl>
-		<dt>Entities is a variable:</dt>
+		<dt>Entity is a variable:</dt>
 			<dd><code>instantiation_error</code></dd>
-		<dt>Entities is neither a variable nor a proper list:</dt>
+		<dt>Entities is a variable or a list with an element which is a variable:</dt>
+			<dd><code>instantiation_error</code></dd>
+		<dt>Entities is neither a variable nor an atom nor a proper list:</dt>
 			<dd><code>type_error(list, Entities)</code></dd>
-		<dt>One of the entities is not an atom:</dt>
+		<dt>An element Entity of the Entities list is neither a variable nor an atom:</dt>
 			<dd><code>type_error(atom, Entity)</code></dd>
-		<dt>One of the entities does not exist in the current working directory:</dt>
+		<dt>Entity or an element Entity of the Entities list does not exist in the current working directory:</dt>
 			<dd><code>existence_error(entity, Entity)</code></dd>
 	</dl>
 </blockquote>
@@ -58,7 +61,7 @@ logtalk_load(+atom_list)
 
 <blockquote>
 <pre>
-| ?- logtalk_load([tree]).
+| ?- logtalk_load(tree).
 
 | ?- logtalk_load([listp, list]).
 </pre>
@@ -69,7 +72,7 @@ logtalk_load(+atom_list)
 <strong><a href="logtalk_compile1.html">Previous</a> | <a href="logtalk_load2.html">Next</a> | <a href="../index.html">Table of Contents</a> | <a href="../../bibliography.html">Bibliography</a> | <a href="../../glossary.html">Glossary</a></strong>
 </p>
 <p class="center">
-Last updated on: August 6, 2002
+Last updated on: January 10, 2003
 </p>
 <hr />
 

@@ -1,13 +1,27 @@
 =================================================================
 Logtalk - Object oriented extension to Prolog
-Release 2.14.6
+Release 2.14.7
 
-Copyright (c) 1998-2002 Paulo Moura.  All Rights Reserved.
+Copyright (c) 1998-2003 Paulo Moura.  All Rights Reserved.
 =================================================================
 
 
 RELEASE NOTES
 =============
+
+
+2.14.7 - January 10, 2003
+
+	Corrected a bug in the built-in methods asserta/1 and assertz/1 when 
+	asserting predicate rules.
+
+	The built-in predicates logtalk_compile/1-2 and logtalk_load/1-2 now 
+	accept both an entity (an atom) or a list of entities (a list of atoms).
+
+	Optimized the code generated when compiling or asserting clauses for 
+	dynamic predicates.
+
+	Optimized protected inheritance performance on some Prolog compilers.
 
 
 2.14.6 - December 31, 2002

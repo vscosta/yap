@@ -1,8 +1,8 @@
 =================================================================
 Logtalk - Object oriented extension to Prolog
-Release 2.14.6
+Release 2.14.7
 
-Copyright (c) 1998-2002 Paulo Moura.  All Rights Reserved.
+Copyright (c) 1998-2003 Paulo Moura.  All Rights Reserved.
 =================================================================
 
 
@@ -23,25 +23,25 @@ Age = 30
 yes
 
 
-% now let's tell joe to grow old:
+% now let's tell joe to get older:
 
-| ?- joePerson::growOld.
+| ?- joePerson::getOlder.
 
 yes
 
 
 % we can verify the effect of the above message from any of the viewpoints:
 
-| ?- joeFilmEnthusiast::age(Age).
+| ?- joeChessPlayer::age(Age).
 
 Age = 31
 yes
 
 
 % because the growOld/0 and the age/1 predicates are implemented using 
-% property sharing, we can send the growOld message to any viewpoint:
+% property sharing, we can send the getOlder/0 message to any viewpoint:
 
-| ?- joeEmployee::growOld.
+| ?- joeEmployee::getOlder.
 
 yes
 
@@ -59,42 +59,38 @@ yes
 % descendant, its the predicate age/1 in the parent that got updated
 
 
-% to illustrate value sharing we use a couple of predicates, counter/1 and
-% incCounter/0, defined in joePerson:
+% to illustrate value sharing we use a couple of predicates, score/1 and
+% setScore/0, defined in joePerson:
 
 
-| ?- joePerson::counter(Counter).
+| ?- joePerson::score(Score).
 
-Counter = 0
+Score = 0
 yes
 
 
-% initially, counter/1 is only defined for joePerson, so every descendant 
+% initially, score/1 is only defined for joePerson, so every descendant 
 % or viewpoint will share its value/definition:
 
-| ?- joeSportsman::counter(Counter).
+| ?-  joeEmployee::score(Score).
 
-Counter = 0
+Score = 0
 yes
 
 
-% but if we decide to increment the counter by sending the incCounter/0 
+% but if we decide to increment the counter by sending the setScore/0 
 % message to a descendant:
 
-| ?- joeFilmEnthusiast::incCounter.
+| ?- joeChessPlayer::(setScore(2200), score(Score)).
 
-yes
-
-| ?- joeFilmEnthusiast::counter(Counter).
-
-Counter = 1
+Score = 2200
 yes
 
 
 % then the descendant will now have a local definition for counter/1,
 % independent of the definition in its parent, joePerson:
 
-| ?- joePerson::counter(Counter).
+| ?- joePerson::score(Score).
 
 Counter = 0
 yes
@@ -103,7 +99,7 @@ yes
 % the other descendants/viewpoints will continue to share the definition 
 % in joePerson:
 
-| ?- joeSportsman::counter(Counter).
+| ?- joeSportsman::score(Score).
 
 Counter = 0
 yes

@@ -1,8 +1,8 @@
 =================================================================
 Logtalk - Object oriented extension to Prolog
-Release 2.14.6
+Release 2.14.7
 
-Copyright (c) 1998-2002 Paulo Moura.  All Rights Reserved.
+Copyright (c) 1998-2003 Paulo Moura.  All Rights Reserved.
 =================================================================
 
 To load all objects in this example consult the viewpoints.loader utility
@@ -16,7 +16,7 @@ sharing and value sharing in Logtalk by calling the built-in predicate
 modification methods asserta/1, assertz/1 and retract/1 either in the 
 context of "this" or in the context of "self".
 
-In this example we have a prototype named joePerson, containing general data
-on joe like its age, name or address, and three descendants/viewpoints named 
-joeSportsman, joeEmployee, and joeFilmEnthusiast. Each descendant contains
-data related to a particular viewpoint about joe.
+In this example we have a prototype named joePerson, containing general 
+data on joe like its age, name or address, and three descendants/viewpoints 
+named joeSportsman, joeEmployee, joeChessPlayer, and joeFilmEnthusiast. Each 
+descendant contains data related to a particular viewpoint about joe.
