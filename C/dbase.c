@@ -4201,12 +4201,55 @@ p_erased(void)
   return (DBRefOfTerm(t)->Flags & ErasedMask);
 }
 
+static Int
+static_instance(StaticClause *cl)
+{
+  if (cl->ClFlags & ErasedMask) {
+    return FALSE;
+  }
+  if (cl->ClFlags & FactMask) {
+    PredEntry *ap = cl->usc.ClPred;
+    if (ap->ArityOfPE == 0) {
+      return Yap_unify(ARG2,MkAtomTerm((Atom)ap->FunctorOfPred));
+    } else {
+      Functor f = ap->FunctorOfPred;
+      UInt arity = ArityOfFunctor(ap->FunctorOfPred), i;
+      Term t2 = Deref(ARG2);
+      CELL *ptr;
+
+      if (IsVarTerm(t2)) {
+	Yap_unify(ARG2, (t2 = Yap_MkNewApplTerm(f,arity)));
+      } else if (!IsApplTerm(t2) || FunctorOfTerm(t2) != f) {
+	return FALSE;
+      }
+      ptr = RepAppl(t2)+1;
+      for (i=0; i<arity; i++) {
+	XREGS[i+1] = ptr[i];
+      }
+      CP = P;
+      YENV = ASP;
+      YENV[E_CB] = (CELL) B;
+      P = cl->ClCode;
+      return TRUE;
+    }
+  } else {
+    Term TermDB;
+
+    while ((TermDB = GetDBTerm(cl->usc.ClSource)) == 0L) {
+      /* oops, we are in trouble, not enough stack space */
+      if (!Yap_gc(2, ENV, P)) {
+	Yap_Error(OUT_OF_STACK_ERROR, TermNil, Yap_ErrorMessage);
+	return(FALSE);
+      }
+    }
+    return Yap_unify(ARG2, TermDB);
+  }
+}
 
 /* instance(+Ref,?Term) */
 static Int 
 p_instance(void)
 {
-  Term            TermDB;
   Term t1 = Deref(ARG1);
   DBRef dbr;
 
@@ -4222,7 +4265,9 @@ p_instance(void)
   } else {
     dbr = DBRefOfTerm(t1);
   }
-  if (dbr->Flags & LogUpdMask) {
+  if (dbr->Flags & StaticMask) {
+    return static_instance((StaticClause *)dbr);
+  } else if (dbr->Flags & LogUpdMask) {
     op_numbers opc;
     LogUpdClause *cl = (LogUpdClause *)dbr;
 
@@ -4259,6 +4304,7 @@ p_instance(void)
     if (opc == _unify_idb_term) {
       return Yap_unify(ARG2, cl->ClSource->Entry);
     } else  {
+      Term            TermDB;
       while ((TermDB = GetDBTerm(cl->ClSource)) == 0L) {
 	/* oops, we are in trouble, not enough stack space */
 	if (!Yap_gc(2, ENV, P)) {
@@ -4269,6 +4315,7 @@ p_instance(void)
       return Yap_unify(ARG2, TermDB);
     }
   } else {
+    Term            TermDB;
     while ((TermDB = GetDBTermFromDBEntry(dbr)) == 0L) {
       /* oops, we are in trouble, not enough stack space */
       if (!Yap_gc(2, ENV, P)) {

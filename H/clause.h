@@ -108,7 +108,10 @@ typedef struct static_clause {
   /* A set of flags describing info on the clause */
   Functor         Id;
   CELL            ClFlags;
-  DBTerm          *ClSource;
+  union {
+    DBTerm          *ClSource;
+    PredEntry       *ClPred;
+  } usc;
   Atom Owner;
   /* The instructions, at least one of the form sl */
   yamop            ClCode[MIN_ARRAY];

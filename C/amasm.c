@@ -2080,7 +2080,7 @@ do_pass(void)
       /* static clause */
       if (pass_no) {
 	cl_u->sc.Id = FunctorDBRef;
-	cl_u->sc.ClFlags = 0;
+	cl_u->sc.ClFlags = StaticMask;
 	cl_u->sc.Owner = Yap_ConsultingFile();
 	if (clause_has_blobs) {
 	  cl_u->sc.ClFlags |= HasBlobsMask;
@@ -2687,7 +2687,7 @@ Yap_assemble(int mode, Term t, PredEntry *ap, int is_fact)
     }
     H = h0;
     cl = (StaticClause *)((CODEADDR)x-(UInt)size);
-    cl->ClSource = x;
+    cl->usc.ClSource = x;
     code_addr = (yamop *)cl;
   } else {
     while ((code_addr = (yamop *) Yap_AllocCodeSpace(size)) == NULL) {

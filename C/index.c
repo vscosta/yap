@@ -3962,6 +3962,7 @@ expand_index(PredEntry *ap) {
       }
     } else {
       op_numbers op = Yap_op_from_opcode(alt->opc);
+	fprintf(stderr,"hello, %d\n", op);
       if (op == _retry ||
 	  op == _trust) {
 	last = PREVOP(alt->u.ld.d,ld);

@@ -396,16 +396,16 @@ kill_static_child_indxs(StaticIndex *indx)
 }
 
 static void
-kill_first_log_iblock(LogUpdIndex *c, LogUpdIndex *cl, PredEntry *ap)
+kill_first_log_iblock(LogUpdIndex *c, LogUpdIndex *parent, PredEntry *ap)
 {
   LogUpdIndex *ncl = c->ChildIndex;
 
-  if (cl != NULL &&
+  if (parent != NULL &&
       !(c->ClFlags & ErasedMask)) {
-    if (c == cl->ChildIndex) {
-      cl->ChildIndex = c->SiblingIndex;
+    if (c == parent->ChildIndex) {
+      parent->ChildIndex = c->SiblingIndex;
     } else {
-      LogUpdIndex *tcl = cl->ChildIndex;
+      LogUpdIndex *tcl = parent->ChildIndex;
       while (tcl->SiblingIndex != c) {
 	tcl = tcl->SiblingIndex;
       }
@@ -421,32 +421,35 @@ kill_first_log_iblock(LogUpdIndex *c, LogUpdIndex *cl, PredEntry *ap)
   }
   c->ClRefCount--;
   /* check if we are still the main index */
-  if (cl == NULL &&
+  if (parent == NULL &&
       ap->cs.p_code.TrueCodeOfPred == c->ClCode) {
     RemoveMainIndex(ap);
   }
   if (!((c->ClFlags & InUseMask) || c->ClRefCount)) {
-    if (cl != NULL) {
-      cl->ClRefCount--;
-      if (cl->ClFlags & ErasedMask && cl->ClRefCount == 0) {
+    if (parent != NULL) {
+      parent->ClRefCount--;
+      if (parent->ClFlags & ErasedMask &&
+	  !(parent->ClFlags & InUseMask) &&
+	  parent->ClRefCount == 0) {
 	/* cool, I can erase the father too. */
-	if (cl->ClFlags & SwitchRootMask) {
-	  kill_first_log_iblock(cl, NULL, ap);
+	if (parent->ClFlags & SwitchRootMask) {
+	  kill_first_log_iblock(parent, NULL, ap);
 	} else {
-	  kill_first_log_iblock(cl, cl->u.ParentIndex, ap);
+	  kill_first_log_iblock(parent, parent->u.ParentIndex, ap);
 	}
       }
     }
     decrease_log_indices(c, (yamop *)&(ap->cs.p_code.ExpandCode));
 #ifdef DEBUG
     {
-      LogUpdIndex *cl = DBErasedIList, *c0 = NULL;
-      while (cl != NULL) {
-	if (c == cl) {
+      LogUpdIndex *parent = DBErasedIList, *c0 = NULL;
+      while (parent != NULL) {
+	if (c == parent) {
 	  if (c0) c0->SiblingIndex = c->SiblingIndex;
 	  else DBErasedIList = c->SiblingIndex;
 	}
-	cl = cl->SiblingIndex;
+	c0 = parent;
+	parent = parent->SiblingIndex;
       }
     }
 #endif
@@ -458,11 +461,11 @@ kill_first_log_iblock(LogUpdIndex *c, LogUpdIndex *cl, PredEntry *ap)
 #endif
     c->ClFlags |= ErasedMask;
     /* try to move up, so that we don't hold an index */
-    if (cl != NULL &&
-	cl->ClFlags & SwitchTableMask) {
-      c->u.ParentIndex = cl->u.ParentIndex;
-      cl->u.ParentIndex->ClRefCount++;
-      cl->ClRefCount--;
+    if (parent != NULL &&
+	parent->ClFlags & SwitchTableMask) {
+      c->u.ParentIndex = parent->u.ParentIndex;
+      parent->u.ParentIndex->ClRefCount++;
+      parent->ClRefCount--;
     }
     c->ChildIndex = NULL;
   }
@@ -1203,7 +1206,7 @@ addclause(Term t, yamop *cp, int mode, int mod)
       if (IsAtomTerm(t) ||
 	  FunctorOfTerm(t) != FunctorAssert) {
 	clp->ClFlags |= FactMask;
-	clp->ClSource = NULL;
+	clp->usc.ClPred = p;
       }
     }
     if (compile_mode)
@@ -3202,7 +3205,7 @@ fetch_next_static_clause(PredEntry *pe, yamop *i_code, Term th, Term tb, Term tr
   } else {
     Term t;
 
-    while ((t = Yap_FetchTermFromDB(cl->ClSource)) == 0L) {
+    while ((t = Yap_FetchTermFromDB(cl->usc.ClSource)) == 0L) {
       if (first_time) {
 	if (!Yap_gc(4, YENV, P)) {
 	  Yap_Error(OUT_OF_STACK_ERROR, TermNil, Yap_ErrorMessage);

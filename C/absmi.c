@@ -1470,8 +1470,9 @@ Yap_absmi(int inp)
 	    yamop *ipc = PREG;
 
 	    while (go_on) {
-	      go_on = FALSE;
 	      op_numbers opnum = Yap_op_from_opcode(ipc->opc);
+
+	      go_on = FALSE;
 	      switch (opnum) {
 #ifdef TABLING
 	      case _table_answer_resolution:
@@ -6569,11 +6570,8 @@ Yap_absmi(int inp)
       JMPNext();
       ENDBOp();
 
+      /* same as retry */
       BOp(retry_killed, ld);
-      goto retry_label;
-      ENDBOp();
-
-      BOp(retry, ld);
     retry_label:
       CACHE_Y(B);
       restore_yaam_regs(NEXTOP(PREG, ld));
@@ -6590,12 +6588,51 @@ Yap_absmi(int inp)
       JMPNext();
       ENDBOp();
 
+      BOp(retry, ld);
+      CACHE_Y(B);
+      restore_yaam_regs(NEXTOP(PREG, ld));
+      restore_at_least_one_arg(PREG->u.ld.s);
+#ifdef FROZEN_STACKS
+      B_YREG = PROTECT_FROZEN_B(B_YREG);
+      set_cut(S_YREG, B->cp_b);
+#else
+      set_cut(S_YREG, B_YREG->cp_b);
+#endif /* FROZEN_STACKS */
+      SET_BB(B_YREG);
+      ENDCACHE_Y();
+      PREG = PREG->u.ld.d;
+      JMPNext();
+      ENDBOp();
+
+      /* same as trust */
       BOp(trust_killed, ld);
-      goto trust_label;
+      CACHE_Y(B);
+#ifdef YAPOR
+      if (SCH_top_shared_cp(B)) {
+	SCH_last_alternative(PREG, B_YREG);
+	restore_at_least_one_arg(PREG->u.ld.s);
+#ifdef FROZEN_STACKS
+        B_YREG = PROTECT_FROZEN_B(B_YREG);
+#endif /* FROZEN_STACKS */
+	set_cut(S_YREG, B->cp_b);
+      }
+      else
+#endif	/* YAPOR */
+      {
+	pop_yaam_regs();
+	pop_at_least_one_arg(PREG->u.ld.s);
+#ifdef FROZEN_STACKS
+        B_YREG = PROTECT_FROZEN_B(B_YREG);
+#endif /* FROZEN_STACKS */
+	set_cut(S_YREG, B);
+      }
+      SET_BB(B_YREG);
+      ENDCACHE_Y();
+      PREG = PREG->u.ld.d;
+      JMPNext();
       ENDBOp();
 
       BOp(trust, ld);
-    trust_label:
       CACHE_Y(B);
 #ifdef YAPOR
       if (SCH_top_shared_cp(B)) {
