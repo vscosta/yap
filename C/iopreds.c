@@ -4165,36 +4165,43 @@ format(volatile Term otail, volatile Term oargs, int sno)
 	    f_putc = format_putc;
 	    break;
 	  do_instantiation_error:
-	    Yap_Error(INSTANTIATION_ERROR, t, "format(\"%s\",_) ", fstr);
+	    Yap_Error_TYPE = INSTANTIATION_ERROR;
 	    goto do_default_error;
 	  do_type_int_error:
-	    Yap_Error(TYPE_ERROR_INTEGER, t, "format(\"%s\",_) ", fstr);
+	    Yap_Error_TYPE = TYPE_ERROR_INTEGER;
 	    goto do_default_error;
 	  do_type_number_error:
-	    Yap_Error(TYPE_ERROR_NUMBER, t, "format(\"%s\",_) ", fstr);
+	    Yap_Error_TYPE = TYPE_ERROR_NUMBER;
 	    goto do_default_error;
 	  do_type_atom_error:
-	    Yap_Error(TYPE_ERROR_ATOM, t, "format(\"%s\",_) ", fstr);
+	    Yap_Error_TYPE = TYPE_ERROR_ATOM;
 	    goto do_default_error;
 	  do_domain_not_less_zero_error:
-	    Yap_Error(DOMAIN_ERROR_NOT_LESS_THAN_ZERO, t, "format(\"%s\",_) ", fstr);
+	    Yap_Error_TYPE = DOMAIN_ERROR_NOT_LESS_THAN_ZERO;
 	    goto do_default_error;
 	  do_domain_error_radix:
-	    Yap_Error(DOMAIN_ERROR_RADIX, t, "format(\"%s\",_) ", fstr);
+	    Yap_Error_TYPE = DOMAIN_ERROR_RADIX;
 	    goto do_default_error;
 	  do_consistency_error:
 	  default:
-	    Yap_Error(CONSISTENCY_ERROR, oargs, "format(\"%s\",_) ", fstr);
+	    Yap_Error_TYPE = CONSISTENCY_ERROR;
 	  do_default_error:
 	    if (tnum <= 8)
 	      targs = NULL;
 	    if (IsAtomTerm(tail)) {
 	      fstr = NULL;
 	    }
+	    {
+	      Term ta[2];
+	      ta[0] = otail;
+	      ta[1] = oargs;
+	      Yap_Error(Yap_Error_TYPE, Yap_MkApplTerm(Yap_MkFunctor(Yap_LookupAtom("format"),2),2,ta), "format/2");
+	    }
 	    if (Stream[sno].status & InMemory_Stream_f) {
 	      Stream[sno].u.mem_string.error_handler = old_handler;
 	    }
 	    format_clean_up(format_base, fstr, targs);
+	    Yap_Error_TYPE = YAP_NO_ERROR;
 	    return FALSE;
 	  }
 	}
