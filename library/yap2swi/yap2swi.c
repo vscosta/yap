@@ -1,7 +1,7 @@
 /* yap2swi.c  */
 /*
  * Project: jpl for Yap Prolog
- * Author: Steve Moyle
+ * Author: Steve Moyle and Vitor Santos Costa
  * Email:  steve.moyle@comlab.ox.ac.uk
  * Date:   21 January 2002
 
@@ -36,7 +36,8 @@ alloc_ring_buf(void)
    YAP: NO EQUIVALENT */
 
 /* dummy function for now (until Vitor comes through!)*/
-X_API void PL_agc_hook(void)
+X_API PL_agc_hook_t
+PL_agc_hook(PL_agc_hook_t entry)
 {
 }
 

@@ -613,6 +613,9 @@ gc :-
 nogc :-
 	yap_flag(gc,off).
 
+garbage_collect_atoms :-
+	'$atom_gc'.
+
 '$force_environment_for_gc'.
 
 '$good_list_of_character_codes'(V) :- var(V), !.

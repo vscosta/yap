@@ -28,6 +28,7 @@ typedef Atom	atom_t;
 typedef	Term    *predicate_t;
 typedef struct  open_query_struct *qid_t;
 typedef long    functor_t;
+typedef int     (*PL_agc_hook_t)(atom_t);
 
 typedef int (*CPredicate)(void);
 
@@ -86,7 +87,7 @@ typedef struct _PL_extension
 /* end from pl-itf.h */
 
 
-extern X_API void PL_agc_hook(void);
+extern X_API PL_agc_hook_t PL_agc_hook(PL_agc_hook_t);
 extern X_API char* PL_atom_chars(atom_t);
 extern X_API term_t PL_copy_term_ref(term_t);
 extern X_API term_t PL_new_term_ref(void);

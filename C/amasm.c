@@ -2389,7 +2389,8 @@ do_pass(void)
     case label_op:
       if (!ystop_found &&
 	  cpc->nextInst != NULL &&
-	  cpc->nextInst->op == mark_initialised_pvars_op) {
+	  (cpc->nextInst->op == mark_initialised_pvars_op ||
+	   cpc->nextInst->op == blob_op)) {
 	ystop_found = TRUE;
 	a_e(_Ystop);
       }

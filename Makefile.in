@@ -110,6 +110,7 @@ HEADERS = \
 	$(srcdir)/H/clause.h $(srcdir)/H/compile.h \
 	$(srcdir)/H/corout.h $(srcdir)/H/eval.h $(srcdir)/H/heapgc.h   \
 	$(srcdir)/H/index.h $(srcdir)/H/iopreds.h \
+	$(srcdir)/H/rheap.h \
 	$(srcdir)/H/tracer.h $(srcdir)/H/yapio.h \
 	$(srcdir)/OPTYap/opt.config.h \
 	$(srcdir)/OPTYap/opt.proto.h $(srcdir)/OPTYap/opt.structs.h \
@@ -121,7 +122,8 @@ HEADERS = \
 	$(srcdir)/OPTYap/alpha_locks_funcs.h
 
 C_SOURCES= \
-	$(srcdir)/C/absmi.c $(srcdir)/C/adtdefs.c $(srcdir)/C/alloc.c \
+	$(srcdir)/C/absmi.c $(srcdir)/C/adtdefs.c \
+	$(srcdir)/C/agc.c $(srcdir)/C/alloc.c \
 	$(srcdir)/C/amasm.c $(srcdir)/C/analyst.c \
 	$(srcdir)/C/arith0.c $(srcdir)/C/arith1.c $(srcdir)/C/arith2.c \
 	$(srcdir)/C/arrays.c \
@@ -138,7 +140,8 @@ C_SOURCES= \
 	$(srcdir)/C/load_aout.c $(srcdir)/C/load_aix.c $(srcdir)/C/load_dll.c \
 	$(srcdir)/C/load_shl.c \
 	$(srcdir)/C/mavar.c $(srcdir)/C/modules.c $(srcdir)/C/other.c       \
-	$(srcdir)/C/parser.c $(srcdir)/C/save.c $(srcdir)/C/scanner.c \
+	$(srcdir)/C/parser.c \
+	$(srcdir)/C/save.c $(srcdir)/C/scanner.c \
 	$(srcdir)/C/sort.c $(srcdir)/C/stdpreds.c $(srcdir)/C/sysbits.c \
 	$(srcdir)/C/tracer.c $(srcdir)/C/unify.c $(srcdir)/C/userpreds.c  \
 	$(srcdir)/C/utilpreds.c $(srcdir)/C/write.c $(srcdir)/console/yap.c \
@@ -169,7 +172,7 @@ PL_SOURCES= \
 	$(srcdir)/pl/yapor.yap $(srcdir)/pl/yio.yap
 
 ENGINE_OBJECTS = \
-	absmi.o adtdefs.o alloc.o amasm.o analyst.o arrays.o \
+	agc.o absmi.o adtdefs.o alloc.o amasm.o analyst.o arrays.o \
 	arith0.o arith1.o arith2.o attvar.o bb.o \
 	cdmgr.o cmppreds.o compiler.o computils.o \
 	corout.o dbase.o errors.o eval.o bignum.o \
@@ -246,6 +249,9 @@ absmi.o: $(srcdir)/C/absmi.c
 
 adtdefs.o: $(srcdir)/C/adtdefs.c
 	$(CC) -c $(CFLAGS) $(srcdir)/C/adtdefs.c -o $@
+
+agc.o: $(srcdir)/C/agc.c
+	$(CC) -c $(CFLAGS) $(srcdir)/C/agc.c -o $@
 
 alloc.o: $(srcdir)/C/alloc.c
 	$(CC) -c $(CFLAGS) $(srcdir)/C/alloc.c -o $@
