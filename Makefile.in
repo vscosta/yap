@@ -25,7 +25,7 @@ INCLUDEDIR=$(ROOTDIR)/include/Yap
 #
 # where to store info files
 #
-INFODIR=$(ROOTDIR)/share/info
+INFODIR=$(SHAREDIR)/info
 
 #
 # Add this flag to YAP_EXTRAS if you need the extension:

@@ -99,18 +99,31 @@ install" and "make info" on the standard directories.
 2.1 Where to install Yap
 
  YAP uses autoconf. Recent versions of Yap try to follow GNU
-conventions on where to place software.
+conventions on where to place software. You can use the --prefix
+configure option to set the ROOTDIR macro and the --exec-prefix option
+to set the EROOTDIR macro (for architecture-dependent files). EROOTDIR
+defaults to ROOTDIR.
 
-  o The main executable is placed at BINDIR. This executable is
-actually a script that calls the Prolog engine, stored at YAPLIBDIR.
+  o The main executable is placed at BINDIR, which defaults at
+$(EROOTDIR)/bin. This executable is actually a script that calls the
+Prolog engine, stored at YAPLIBDIR.
 
-  o LIBDIR is the directory where libraries are stored. YAPLIBDIR is a
-subsdirectory that contains the Prolog engine and a Prolog library.
+  o SHAREDIR is the directory where the Prolog libraries are stored.
+Its default value is $(ROOTDIR)/share. The Prolog libraries are
+machine-independent text files that only need to be installed once,
+even on systems where multiple copies of Yap of the same version are
+installed. (e.g. with different configurations or for different
+architectures sharing a file server.)
+
+  o LIBDIR is the directory where binary libraries are stored. It is
+set to $(EROOTDIR)/lib by default. YAPLIBDIR is a subdirectory (by
+default $(EROOTDIR)/lib/Yap) that contains the Prolog engine and the
+binary Prolog libraries.
 
   o INCLUDEDIR is used if you want to use Yap as a library.
 
-  o INFODIR is where the info help files will be stored. Usually
-/usr/local/info, /usr/info, or /usr/share/info.
+  o INFODIR is where the info help files will be stored. It defaults
+to $(SHAREDIR)/info.
 
 2.2 Which Yap to compile
 
@@ -147,8 +160,7 @@ tabling. This is still experimental.
 
 The system has been mainly tested with GCC, but we have been able to
 compile versions of Yap under lcc in Linux, Sun's cc compiler, IBM's
-xlc, SGI's cc, and Microsoft's Visual C++ 6.0. The HP-UX cc preprocessor
-is known to choke under Yap.
+xlc, SGI's cc, HP's cc, and Microsoft's Visual C++ 6.0.
 
 2.3.1 Yap and GCC
 
@@ -210,6 +222,4 @@ GCC"/"Submodel Options". We next describe a few:
 (b) GCC 2.8.*, EGCS, GCC 2.95.*
 
 	o Check -march=XXX for fun.
-
-
 
