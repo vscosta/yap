@@ -369,7 +369,7 @@ abolish(X) :-
 	'$current_module'(M),
 	'$old_abolish'(X,M).
 
-'$new_abolish'(V,M) :- var(V,N), !,
+'$new_abolish'(V,M) :- var(V), !,
 	'$abolish_all'(M).
 '$new_abolish'(M:PS,_) :- !,
 	'$new_abolish'(PS,M).
