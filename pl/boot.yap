@@ -122,10 +122,12 @@ read_sig.
 
 /* main execution loop							*/
 '$read_vars'(Stream,T,V) :-
-	current_input(Old),
-	'$set_input'(Stream),
-	'$read'(true,T,V),
-	'$set_input'(Old).
+	'$read'(true,T,V,Err,Stream),
+	(nonvar(Err) ->
+	    '$print_message'(error,Err), fail
+	    ;
+	    true
+	).
 
 % reset alarms when entering top-level.
 '$enter_top_level' :-

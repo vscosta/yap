@@ -2836,7 +2836,7 @@ p_get_read_error_handler(void)
 
 static Int
 p_read (void)
-{				/* '$read'(+Flag,?Term,?Vars)    */
+{				/* '$read'(+Flag,?Term,?Vars,-Err)    */
   Term t, v;
   TokEntry *tokstart, *fast_tokenizer (void);
 #if EMACS
@@ -2894,16 +2894,26 @@ p_read (void)
       }
       TR = old_TR;
       if (parser_error_style == QUIET_ON_PARSER_ERROR) {
+	/* just fail */
 	return(FALSE);
-      }
-      if (ErrorMessage) {
-	Error(SYNTAX_ERROR,syntax_error(tokstart),ErrorMessage);
-	return(FALSE);
-      } else if (parser_error_style == FAIL_ON_PARSER_ERROR) {
-	return(FALSE);
+      } else if (parser_error_style == CONTINUE_ON_PARSER_ERROR) {
+	ErrorMessage = NULL;
+	/* try again */
+	goto repeat_cycle;
       } else {
-	Error(SYNTAX_ERROR,syntax_error(tokstart),"SYNTAX ERROR");
-	return(FALSE);
+	Term terr = syntax_error(tokstart);
+	if (ErrorMessage == NULL)
+	  ErrorMessage = "SYNTAX ERROR";
+	
+	if (parser_error_style == EXCEPTION_ON_PARSER_ERROR) {
+	  Error(SYNTAX_ERROR,terr,ErrorMessage);
+	  return(FALSE);
+	} else /* FAIL ON PARSER ERROR */ {
+	  Term t[2];
+	  t[0] = terr;
+	  t[1] = MkAtomTerm(LookupAtom(ErrorMessage));
+	  return(unify(ARG4,MkApplTerm(MkFunctor(LookupAtom("error"),2),2,t)));
+	}
       }
     } else {
       /* parsing succeeded */
@@ -2939,12 +2949,12 @@ p_read (void)
 
 static Int
 p_read2 (void)
-{				/* '$read2'(+Flag,?Term,?Vars,+Stream)    */
+{				/* '$read2'(+Flag,?Term,?Vars,-Err,+Stream)  */
   int old_c_stream = c_input_stream;
   Int out;
 
   /* needs to change c_output_stream for write */
-  c_input_stream = CheckStream (ARG4, Input_Stream_f, "read/3");
+  c_input_stream = CheckStream (ARG5, Input_Stream_f, "read/3");
   if (c_input_stream == -1) {
     c_input_stream = old_c_stream;
     return(FALSE);
@@ -4858,8 +4868,8 @@ InitIOPreds(void)
   InitCPred ("$put_byte", 2, p_put_byte, SafePredFlag|SyncPredFlag);
   InitCPred ("$set_read_error_handler", 1, p_set_read_error_handler, SafePredFlag|SyncPredFlag);
   InitCPred ("$get_read_error_handler", 1, p_get_read_error_handler, SafePredFlag|SyncPredFlag);
-  InitCPred ("$read", 3, p_read, SyncPredFlag);
-  InitCPred ("$read", 4, p_read2, SyncPredFlag);
+  InitCPred ("$read", 4, p_read, SyncPredFlag);
+  InitCPred ("$read", 5, p_read2, SyncPredFlag);
   InitCPred ("$set_input", 1, p_set_input, SafePredFlag|SyncPredFlag);
   InitCPred ("$set_output", 1, p_set_output, SafePredFlag|SyncPredFlag);
   InitCPred ("$skip", 2, p_skip, SafePredFlag|SyncPredFlag);
