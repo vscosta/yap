@@ -82,7 +82,7 @@ process_delete_file_opts(Opts, _, _, _, T) :-
 	throw(error(domain_error(delete_file_option,Opts),T)).
 
 delete_file(File, Dir, Recurse, Ignore) :-
-	file_property(File, Type, _, _, _Permissions, Ignore),
+	file_property(File, Type, _, _, _Permissions, _, Ignore),
 	delete_file(Type, File, Dir, Recurse, Ignore).
 
 delete_file(N, File, _Dir, _Recurse, Ignore) :- number(N), !, % error.
@@ -137,14 +137,19 @@ handle_system_error(Error, off, G) :-
 	throw(error(system_error(Message),G)).
 
 file_property(File, type(Type)) :-
-	file_property(File, Type, _Size, _Date).
+	file_property(File, Type, _Size, _Date, _Permissions, _LinkName).
 file_property(File, size(Size)) :-
-	file_property(File, _Type, Size, _Date).
+	file_property(File, _Type, Size, _Date, _Permissions, _LinkName).
 file_property(File, mod_time(Date)) :-
-	file_property(File, _Type, _Size, Date).
+	file_property(File, _Type, _Size, Date, _Permissions, _LinkName).
+file_property(File, mode(Permissions)) :-
+	file_property(File, _Type, _Size, _Date, Permissions, _LinkName).
+file_property(File, linkto(LinkName)) :-
+	file_property(File, _Type, _Size, _Date, _Permissions, LinkName),
+	atom(LinkName).
 
-file_property(File, Type, Size, Date) :-
-	file_property(File, Type, Size, Date, _Permissions, Error),
+file_property(File, Type, Size, Date, Permissions, LinkName) :-
+	file_property(File, Type, Size, Date, Permissions, LinkName, Error),
 	handle_system_error(Error, off, file_property(File)).
 
 file_exists(File) :-
@@ -154,7 +159,7 @@ file_exists(File) :-
 	\+ atom(File), !,
 	throw(error(type_error(atom,File),file_exists(File))).
 file_exists(File) :-
-	file_property(File, _Type, _Size, _Date, _Permissions, Error),
+	file_property(File, _Type, _Size, _Date, _Permissions, _, Error),
 	var(Error).
 
 file_exists(File, Permissions) :-
@@ -164,7 +169,7 @@ file_exists(File, Permissions) :-
 	\+ atom(File), !,
 	throw(error(type_error(atom,File),file_exists(File, Permissions))).
 file_exists(File, Permissions) :-
-	file_property(File, _Type, _Size, _Date, FPermissions, Error),
+	file_property(File, _Type, _Size, _Date, FPermissions, _, Error),
 	var(Error),
 	process_permissions(Permissions, Perms),
 	FPermissions /\ Perms =:= Perms.

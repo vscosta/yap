@@ -256,25 +256,44 @@ file_property(void)
   fd = AtomName(AtomOfTerm(ARG1));
   if (lstat(fd, &buf) == -1) {
     /* return an error number */
-    return(unify(ARG6, MkIntTerm(errno)));
+    return(unify(ARG7, MkIntTerm(errno)));
   }
   if (S_ISREG(buf.st_mode)) {
-    if (!unify(ARG2, MkAtomTerm(LookupAtom("regular"))))
+    if (!(unify(ARG2, MkAtomTerm(LookupAtom("regular"))) &&
+	  unify(ARG6, YapMkIntTerm(0))))
       return(FALSE);
   } else if (S_ISDIR(buf.st_mode)) {
-    if (!unify(ARG2, MkAtomTerm(LookupAtom("directory"))))
+    if (!(unify(ARG2, MkAtomTerm(LookupAtom("directory"))) &&
+	  unify(ARG6, YapMkIntTerm(0))))
       return(FALSE);
   } else if (S_ISFIFO(buf.st_mode)) {
-    if (!unify(ARG2, MkAtomTerm(LookupAtom("fifo"))))
+    if (!(unify(ARG2, MkAtomTerm(LookupAtom("fifo"))) &&
+	  unify(ARG6, YapMkIntTerm(0))))
       return(FALSE);
   } else if (S_ISLNK(buf.st_mode)) {
     if (!unify(ARG2, MkAtomTerm(LookupAtom("symlink"))))
       return(FALSE);
+#if HAVE_READLINK
+    {
+      char tmp[256];
+      if (readlink(fd,tmp,256) == -1) {
+	return(unify(ARG7, MkIntTerm(errno)));
+      }
+      if(!unify(ARG6,MkAtomTerm(LookupAtom(tmp)))) {
+	return(FALSE);
+      }
+    }
+#else
+    if (!unify(ARG6, YapMkIntTerm(0)))
+      return(FALSE);
+#endif    
   } else if (S_ISSOCK(buf.st_mode)) {
-    if (!unify(ARG2, MkAtomTerm(LookupAtom("socket"))))
+    if (!(unify(ARG2, MkAtomTerm(LookupAtom("socket"))) &&
+	  unify(ARG6, YapMkIntTerm(0))))
       return(FALSE);
   } else {
-    if (!unify(ARG2, MkAtomTerm(LookupAtom("unknown"))))
+    if (!(unify(ARG2, MkAtomTerm(LookupAtom("unknown"))) &&
+	  unify(ARG6, YapMkIntTerm(0))))
       return(FALSE);
   }
 #elif defined(__MINGW32__) || _MSC_VER
@@ -284,7 +303,7 @@ file_property(void)
   fd = AtomName(AtomOfTerm(ARG1));
   if (stat(fd, &buf) != 0) {
     /* return an error number */
-    return(unify(ARG6, MkIntTerm(errno)));
+    return(unify(ARG7, MkIntTerm(errno)));
   }
   if (buf.st_mode & S_IFREG) {
     if (!unify(ARG2, MkAtomTerm(LookupAtom("regular"))))
@@ -774,7 +793,7 @@ init_sys(void)
 {
   UserCPredicate("datime", datime, 2);
   UserCPredicate("list_directory", list_directory, 3);
-  UserCPredicate("file_property", file_property, 6);
+  UserCPredicate("file_property", file_property, 7);
   UserCPredicate("unlink", p_unlink, 2);
   UserCPredicate("mkdir", p_mkdir, 2);
   UserCPredicate("rmdir", p_rmdir, 2);
