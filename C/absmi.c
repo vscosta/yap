@@ -6389,12 +6389,11 @@ Yap_absmi(int inp)
 	if (ASP > (CELL *) B) {
 	  ASP = (CELL *) B;
 	}
-	saveregs();
+ 	saveregs();
 	pt0 = Yap_ExpandIndex(pe);
 	/* restart index */
 	setregs();
-	PREG = pt0;
-	CACHED_A1() = ARG1;
+ 	PREG = pt0;
 	JMPNext();
       }
       ENDBOp();

@@ -229,7 +229,6 @@ typedef	struct pred_entry {
     Int                 IndxId;         /* Index for a certain key */
     struct mfile       *file_srcs;      /* for multifile predicates */
   } src;
-  struct pred_entry *NextPredOfModule; /* next pred for same module   */
 #if defined(YAPOR) || defined(THREADS)
   rwlock_t      PRWLock;        /* a simple lock to protect this entry */
 #endif
@@ -237,7 +236,10 @@ typedef	struct pred_entry {
   tab_ent_ptr   TableOfPred;
 #endif /* TABLING */
   SMALLUNSGN	ModuleOfPred;	/* module for this definition		*/
+  /* This must be at an odd number of cells, otherwise it
+     will not be aligned on RISC machines */
   profile_data  StatisticsForPred; /* enable profiling for predicate  */
+  struct pred_entry *NextPredOfModule; /* next pred for same module   */
 } PredEntry;
 #define PEProp   ((PropFlags)(0x0000))
 

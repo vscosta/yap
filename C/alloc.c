@@ -12,7 +12,7 @@
 * Last rev:								 *
 * mods:									 *
 * comments:	allocating space					 *
-* version:$Id: alloc.c,v 1.41 2003-11-12 12:33:30 vsc Exp $		 *
+* version:$Id: alloc.c,v 1.42 2003-11-28 01:26:53 vsc Exp $		 *
 *************************************************************************/
 #ifdef SCCS
 static char SccsId[] = "%W% %G%";
@@ -255,6 +255,14 @@ AllocHeap(unsigned int size)
 #endif
   if (size < (sizeof(YAP_SEG_SIZE)+sizeof(BlockHeader))/sizeof(CELL))
     size = (sizeof(YAP_SEG_SIZE)+sizeof(BlockHeader))/sizeof(CELL);
+#if SIZEOF_INT_P==4
+  /*  
+      guarantee that the space seen by the user is always aligned at multiples
+      of a double word. This improves alignment, and guarantees correctness
+      for machines which require aligned 64 bits, such as SPARCs.
+   */
+  if ((size & 1) == 0) size++;
+#endif
   LOCK(FreeBlocksLock);
   if ((b = GetBlock(size))) {
     if (b->b_size >= size + 6 + 1) {
@@ -1048,6 +1056,7 @@ InitHeap(void *heap_addr)
 
   HeapMax = HeapUsed = HeapTop-Yap_HeapBase;
 
+  /* notice that this forces odd addresses */
   *((YAP_SEG_SIZE *) HeapTop) = InUseFlag;
   HeapTop = HeapTop + sizeof(YAP_SEG_SIZE);
   *((YAP_SEG_SIZE *) HeapTop) = InUseFlag;

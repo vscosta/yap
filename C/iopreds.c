@@ -132,7 +132,6 @@ STATIC_PROTO (Int p_current_input, (void));
 STATIC_PROTO (Int p_current_output, (void));
 STATIC_PROTO (Int p_write, (void));
 STATIC_PROTO (Int p_write2, (void));
-STATIC_PROTO (Int p_inform_of_clause, (void));
 STATIC_PROTO (Int p_set_read_error_handler, (void));
 STATIC_PROTO (Int p_get_read_error_handler, (void));
 STATIC_PROTO (Int p_read, (void));
