@@ -142,6 +142,8 @@ print_message(Level, Mss) :-
 '$do_print_message'(breakpoints(L)) :- !,
 	'$format'(user_error,'Spy-points set on:', []),
 	'$print_list_of_preds'(L).
+'$do_print_message'(version(Version)) :- !,
+	'$format'(user_error,'YAP version ~a', [Version]).
 '$do_print_message'(Messg) :-
 	'$format'(user_error,'~q',Messg).
 

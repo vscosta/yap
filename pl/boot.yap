@@ -177,10 +177,10 @@ read_sig.
 
 '$version' :- 
 	get_value('$version_name',VersionName),
-	'$format'(user_error, '[ YAP version ~w ]~n', [VersionName]),
+	'$print_message'(help, version(VersionName)),
 	fail.
 '$version' :- recorded('$version',VersionName,_),
-	'$format'(user_error, '~w~n', [VersionName]),
+	'$print_message'(help, VersionName),
 	fail.
 '$version'.
 
