@@ -110,6 +110,21 @@ STATIC_PROTO (int chdir, (char *));
 
 STD_PROTO (void exit, (int));
 
+#ifdef _WIN32
+static void
+WinError(char *yap_error)
+{
+  char msg[256];
+  /* Error, we could not read time */
+    FormatMessage(FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS,
+		  NULL, GetLastError(), 
+		  MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT), msg, 256,
+		  NULL);
+    Error(SYSTEM_ERROR, TermNil, "%s: %s", yap_error, msg);
+}
+#endif /* _WIN32 */
+
+
 #define is_valid_env_char(C) ( ((C) >= 'a' && (C) <= 'z') || ((C) >= 'A' && \
 			       (C) <= 'Z') || (C) == '_' )
 
@@ -249,29 +264,94 @@ void cputime_interval(Int *now,Int *interval)
 
 #elif defined(_WIN32)
 
+#ifdef __GNUC__
+
+/* This is stolen from the Linux kernel.
+   The problem is that mingw32 does not seem to have acces to div */
+#ifndef do_div
+#define do_div(n,base) ({ \
+	unsigned long __upper, __low, __high, __mod; \
+	asm("":"=a" (__low), "=d" (__high):"A" (n)); \
+	__upper = __high; \
+	if (__high) { \
+		__upper = __high % (base); \
+		__high = __high / (base); \
+	} \
+	asm("divl %2":"=a" (__low), "=d" (__mod):"rm" (base), "0" (__low), "1" (__upper)); \
+	asm("":"=A" (n):"a" (__low),"d" (__high)); \
+	__mod; \
+})
+#endif
+
+#endif
+
+
+
 #include <time.h>
 
-static clock_t StartOfTimes, last_time;
+static FILETIME StartOfTimes, last_time;
 
 /* store user time in this variable */
 static void
 InitTime (void)
 {
-  last_time = StartOfTimes = clock();
+  HANDLE hProcess = GetCurrentProcess();
+  FILETIME CreationTime, ExitTime, KernelTime, UserTime;
+  if (!GetProcessTimes(hProcess, &CreationTime, &ExitTime, &KernelTime, &UserTime)) 
+    WinError("could not query cputime");
+  last_time.dwLowDateTime = UserTime.dwLowDateTime;
+  last_time.dwHighDateTime = UserTime.dwHighDateTime;
+  StartOfTimes.dwLowDateTime = UserTime.dwLowDateTime;
+  StartOfTimes.dwHighDateTime = UserTime.dwHighDateTime;
 }
 
 Int
 cputime (void)
 {
-  clock_t t = clock();
-  return((t - StartOfTimes)*1000 / CLOCKS_PER_SEC);
+  HANDLE hProcess = GetCurrentProcess();
+  FILETIME CreationTime, ExitTime, KernelTime, UserTime;
+  if (!GetProcessTimes(hProcess, &CreationTime, &ExitTime, &KernelTime, &UserTime)) 
+    WinError("could not query cputime");
+#ifdef __GNUC__
+  {
+    unsigned long long int t =
+      *(unsigned long long int *)&UserTime - 
+      *(unsigned long long int *)&StartOfTimes;
+    return((Int)do_div(t,10000));
+#endif
+#ifdef _MSC_VER
+    LONG_INTEGER t = *(LONG_INTEGER *)&UserTime - *(LONG_INTEGER *)&StartOfTimes;
+    return((Int)(t/10000));
+#endif
+  }
 }
 
 void cputime_interval(Int *now,Int *interval)
 {
-  clock_t t = clock();
-  *now = ((t - StartOfTimes)*1000) / CLOCKS_PER_SEC;
-  *interval = (t - last_time) * 1000 / CLOCKS_PER_SEC;
+  HANDLE hProcess = GetCurrentProcess();
+  FILETIME CreationTime, ExitTime, KernelTime, UserTime;
+  if (!GetProcessTimes(hProcess, &CreationTime, &ExitTime, &KernelTime, &UserTime)) 
+    WinError("could not query cputime");
+  {
+#ifdef __GNUC__
+    unsigned long long int t1 =
+      *(unsigned long long int *)&UserTime -
+      *(unsigned long long int *)&StartOfTimes;
+    unsigned long long int t2 =
+      *(unsigned long long int *)&UserTime -
+      *(unsigned long long int *)&last_time;
+    *now = (Int)do_div(t1,10000);
+    *interval = (Int)do_div(t2,10000);
+#endif
+#ifdef _MSC_VER
+    LONG_INTEGER t1 = *(LONG_INTEGER *)&UserTime - *(LONG_INTEGER *)&StartOfTimes;
+    LONG_INTEGER t2 = *(LONG_INTEGER *)&UserTime - *(LONG_INTEGER *)&last_time;
+    *now = (Int)(t1/10000);
+    *interval = (Int)(t2/10000);
+#endif
+    last_time.dwLowDateTime = UserTime.dwLowDateTime;
+    last_time.dwHighDateTime = UserTime.dwHighDateTime;
+  }
 }
 
 #elif HAVE_TIMES
@@ -340,6 +420,7 @@ void cputime_interval(Int *now,Int *interval)
   times (&t);
   *now = ((t.tms_utime - StartOfTimes)*1000) / TicksPerSec;
   *interval = (t.tms_utime - last_time) * 1000 / TicksPerSec;
+  last_time = t.tms_utime;
 }
 
 #else /* HAVE_TIMES */
