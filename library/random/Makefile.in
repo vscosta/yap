@@ -84,5 +84,5 @@ install_mingw32: dll
 	$(INSTALL_PROGRAM) -m 755 random.dll $(LIBDIR)/random.dll
 
 clean:
-	rm -f *.o *@SHLIB_SUFFIX@ *~ $(OBJS) *.BAK
+	rm -f *.o *~ $(OBJS) $(SOBJS) *.BAK
 
