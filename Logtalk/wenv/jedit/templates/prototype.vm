@@ -1,0 +1,23 @@
+## template = prototype
+#buffermode ( "logtalk" )
+#prompt ( "Prototype name:" $prototypename )
+#prompt ( "Parents (comma separated):" $parents )
+#if ( $parents )
+:- object($prototypename,
+	extends($parents)).
+#else
+:- object($prototypename).
+#end
+
+#prompt ( "Author name:" $authorname )
+#prompt ( "Comment:" $comment )
+#today ( $date "yy/MM/dd" )
+	:- info([
+		author is '$authorname',
+		date is $date,
+		comment is '$comment').
+
+
+#caret ()
+
+:- end_object.
