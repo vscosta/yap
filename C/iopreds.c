@@ -2688,12 +2688,20 @@ syntax_error (TokEntry * tokptr)
   Int start, err = 0, end;
   Term tf[6];
   Term *error = tf+3;
+  CELL *Hi = H;
 
   start = tokptr->TokPos;
   clean_vars(VarTable);
   while (1) {
     Term ts[2];
 
+    if (H > ASP-1024) {
+      H = Hi;
+      tf[3] = TermNil;
+      err = 0;
+      end = 0;
+      break;
+    }
     if (tokptr == toktide) {
       err = tokptr->TokPos;
       out = count;
@@ -2727,7 +2735,6 @@ syntax_error (TokEntry * tokptr)
     case String_tok:
       {
 	Term t0 = StringToList((char *)info);
-	fprintf(stderr,"looking at string %s\n", (char  *)info);
 	ts[0] = MkApplTerm(MkFunctor(LookupAtom("string"),1),1,&t0);
       }
       break;
@@ -2916,7 +2923,7 @@ p_read (void)
 	}
 	/* we need to force the next reading to also give end of file.*/
 	Stream[c_input_stream].status |= Push_Eof_Stream_f;
-	ErrorMessage = "[ Error: end of file found before end of term ]";
+	ErrorMessage = "end of file found before end of term";
       } else {
 	/* restore TR */
 	TR = old_TR;
@@ -2938,9 +2945,10 @@ p_read (void)
       if (parser_error_style == QUIET_ON_PARSER_ERROR) {
 	return(FALSE);
       }
-      if (ErrorMessage)
-	YP_fprintf (YP_stderr, "%s", ErrorMessage);
-      else {
+      if (ErrorMessage) {
+	Error(SYNTAX_ERROR,syntax_error(tokstart),ErrorMessage);
+	return(FALSE);
+      } else {
 	Error(SYNTAX_ERROR,syntax_error(tokstart),"SYNTAX ERROR");
 	return(FALSE);
       }
@@ -4842,8 +4850,8 @@ InitIOPreds(void)
   InitCPred ("$put_byte", 2, p_put_byte, SafePredFlag|SyncPredFlag);
   InitCPred ("$set_read_error_handler", 1, p_set_read_error_handler, SafePredFlag|SyncPredFlag);
   InitCPred ("$get_read_error_handler", 1, p_get_read_error_handler, SafePredFlag|SyncPredFlag);
-  InitCPred ("$read", 3, p_read, SafePredFlag|SyncPredFlag);
-  InitCPred ("$read", 4, p_read2, SafePredFlag|SyncPredFlag);
+  InitCPred ("$read", 3, p_read, SyncPredFlag);
+  InitCPred ("$read", 4, p_read2, SyncPredFlag);
   InitCPred ("$set_input", 1, p_set_input, SafePredFlag|SyncPredFlag);
   InitCPred ("$set_output", 1, p_set_output, SafePredFlag|SyncPredFlag);
   InitCPred ("$skip", 2, p_skip, SafePredFlag|SyncPredFlag);
