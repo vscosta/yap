@@ -371,10 +371,28 @@ Int unify(Term t0, Term t1)
     return(TRUE);
   } else {
     while(TR != TR0) {
-      CELL *p;
+      CELL d1;
       --TR;
-      p = (CELL *)TrailTerm(TR);
-      RESET_VARIABLE(p);
+      d1 = TrailTerm(TR);
+#ifdef MULTI_ASSIGNMENT_VARIABLES
+      if (IsVarTerm(d1)) {
+#endif
+	CELL *pt = (CELL *)d1;
+	RESET_VARIABLE(pt);
+#ifdef MULTI_ASSIGNMENT_VARIABLES
+      } else {
+	  CELL *pt = RepAppl(d1);
+	  /* AbsAppl means */
+	  /* multi-assignment variable */
+	  /* so the next cell is the old value */ 
+	  TR--;
+#if FROZEN_STACKS
+	  pt[0] = TrailVal(TR);
+#else
+	  pt[0] = TrailTerm(TR);
+#endif
+      }
+#endif
     }
     return(FALSE);
   }

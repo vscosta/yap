@@ -2291,7 +2291,7 @@ over @var{G}.
 If you want @var{G} to be deterministic you should use if-then-else, as
 it is both more efficient and more portable.
 
-@item once(+@var{G}) [IS0]
+@item once(:@var{G}) [IS0]
 @findex once/1
 @snindex once/1
 @cnindex once/1
@@ -4668,7 +4668,7 @@ long as they are not currently in use.
  Deletes the predicate with name @var{P} and arity @var{N}. It will remove
 both static and dynamic predicates.
 
-@item assert_static(+@var{C})
+@item assert_static(:@var{C})
 @findex assert_static/1
 @snindex assert_static/1
 @cnindex assert_static/1
@@ -4676,13 +4676,13 @@ both static and dynamic predicates.
 for a predicate while choice-points for the predicate are availabe has
 undefined results.
 
-@item asserta_static(+@var{C})
+@item asserta_static(:@var{C})
 @findex asserta_static/1
 @snindex asserta_static/1
 @cnindex asserta_static/1
  Adds clause @var{C} to the beginning of a static procedure. 
 
-@item assertz_static(+@var{C})
+@item assertz_static(:@var{C})
 @findex assertz_static/1
 @snindex assertz_static/1
 @cnindex assertz_static/1
