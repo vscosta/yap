@@ -394,7 +394,6 @@ writeTerm(Term t, int p, int depth, int rinfixarg, struct write_globs *wglb)
       targs[0] = t;
       Yap_PutValue(AtomPortray, MkAtomTerm(AtomNil));
       if (EX != 0L) old_EX = EX;
-      /* *--ASP = MkIntTerm(0); */
       sl = Yap_InitSlot(t);      
       Yap_execute_goal(Yap_MkApplTerm(FunctorPortray, 1, targs), 0, 1);
       t = Yap_GetFromSlot(sl);
@@ -782,6 +781,8 @@ Yap_plwrite(Term t, int (*mywrite) (int, int), int flags)
      we cannot make recursive Prolog calls */
   wglb.keep_terms = (flags & (Use_portray_f|To_heap_f)); 
   wglb.Ignore_ops = flags & Ignore_ops_f;
+  /* protect slots for portray */
+  *--ASP = MkIntTerm(0);
   writeTerm(t, 1200, 1, FALSE, &wglb);
 }
 
