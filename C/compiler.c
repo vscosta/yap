@@ -1667,7 +1667,6 @@ get_type_info(Term Goal)
        * FunctorOfTerm(Goal) == FunctorGPrimitive)
        * c_mask |= AtCl|FIsNum;
        */
-
     }
   }
 }
@@ -1725,8 +1724,11 @@ get_cl_info(register Term t)
     }
   }
   else if (IsApplTerm(t)) {
-    c_store = (CELL) FunctorOfTerm(t);
-    c_mask = ApplCl;
+    Functor fun = FunctorOfTerm(t);
+    if (!IsExtensionFunctor(fun)) {
+      c_mask = (CELL)ApplCl;
+      c_store = (CELL)fun;
+    }
   }
   else {
     c_store = (CELL) t;
