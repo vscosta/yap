@@ -9,14 +9,14 @@
 **************************************************************************
 *									 *
 * File:		mpe.c  							 *
-* Last rev:	$Date: 2002-11-18 18:16:43 $				 *
+* Last rev:	$Date: 2003-07-03 15:46:10 $				 *
 * mods:									 *
 * comments:	Interface to an MPE library                              *
 *									 *
 *************************************************************************/
 
 #ifndef lint
-static char *rcsid = "$Header: /Users/vitor/Yap/yap-cvsbackup/library/mpi/mpe.c,v 1.5 2002-11-18 18:16:43 vsc Exp $";
+static char *rcsid = "$Header: /Users/vitor/Yap/yap-cvsbackup/library/mpi/mpe.c,v 1.6 2003-07-03 15:46:10 stasinos Exp $";
 #endif
 
 #include "Yap.h"
@@ -77,10 +77,10 @@ p_close()
 
   /* The arg must be bound to an atom. */
   if (IsVarTerm(t_str)) {
-    Error(INSTANTIATION_ERROR, t_str, "mpe_close");
+    Yap_Error(INSTANTIATION_ERROR, t_str, "mpe_close");
     return (FALSE);
   } else if( !IsAtomTerm(t_str) ) {
-    Error(TYPE_ERROR_ATOM, t_str, "mpe_close");
+    Yap_Error(TYPE_ERROR_ATOM, t_str, "mpe_close");
     return (FALSE);
   } else {
     str = RepAtom(AtomOfTerm(t_str))->StrOfAE;
@@ -96,7 +96,7 @@ p_create_event()
   Int event_id;
 
   event_id = MPE_Log_get_event_number();
-  return unify(ARG1, MkIntegerTerm(event_id));
+  return Yap_unify(ARG1, MkIntegerTerm(event_id));
 }
 
 static Int               /* mpe_create_state(+Event,+Event,+Text,+Colour) */
@@ -110,19 +110,19 @@ p_create_state()
 
   /* The first and second args must be bount to integer event IDs. */
   if (IsVarTerm(t_start)) {
-    Error(INSTANTIATION_ERROR, t_start, "mpe_create_state");
+    Yap_Error(INSTANTIATION_ERROR, t_start, "mpe_create_state");
     return (FALSE);
   } else if( !IsIntegerTerm(t_start) ) {
-    Error(TYPE_ERROR_INTEGER, t_start, "mpe_create_state");
+    Yap_Error(TYPE_ERROR_INTEGER, t_start, "mpe_create_state");
     return (FALSE);
   } else {
     start_id = IntOfTerm(t_start);
   }
   if (IsVarTerm(t_end)) {
-    Error(INSTANTIATION_ERROR, t_end, "mpe_create_state");
+    Yap_Error(INSTANTIATION_ERROR, t_end, "mpe_create_state");
     return (FALSE);
   } else if( !IsIntegerTerm(t_end) ) {
-    Error(TYPE_ERROR_INTEGER, t_end, "mpe_create_state");
+    Yap_Error(TYPE_ERROR_INTEGER, t_end, "mpe_create_state");
     return (FALSE);
   } else {
     end_id = IntOfTerm(t_end);
@@ -130,19 +130,19 @@ p_create_state()
 
   /* The third and fourth args must be bound to atoms. */
   if (IsVarTerm(t_descr)) {
-    Error(INSTANTIATION_ERROR, t_descr, "mpe_create_state");
+    Yap_Error(INSTANTIATION_ERROR, t_descr, "mpe_create_state");
     return (FALSE);
   } else if( !IsAtomTerm(t_descr) ) {
-    Error(TYPE_ERROR_ATOM, t_descr, "mpe_create_state");
+    Yap_Error(TYPE_ERROR_ATOM, t_descr, "mpe_create_state");
     return (FALSE);
   } else {
     descr = RepAtom(AtomOfTerm(t_descr))->StrOfAE;
   }
   if (IsVarTerm(t_colour)) {
-    Error(INSTANTIATION_ERROR, t_colour, "mpe_create_state");
+    Yap_Error(INSTANTIATION_ERROR, t_colour, "mpe_create_state");
     return (FALSE);
   } else if( !IsAtomTerm(t_colour) ) {
-    Error(TYPE_ERROR_ATOM, t_colour, "mpe_create_state");
+    Yap_Error(TYPE_ERROR_ATOM, t_colour, "mpe_create_state");
     return (FALSE);
   } else {
     colour = RepAtom(AtomOfTerm(t_colour))->StrOfAE;
@@ -163,10 +163,10 @@ p_log()                  /* mpe_log(+EventType, +EventNum, +EventStr) */
 
   /* The first arg must be bount to integer event type ID. */
   if (IsVarTerm(t_type)) {
-    Error(INSTANTIATION_ERROR, t_type, "mpe_log");
+    Yap_Error(INSTANTIATION_ERROR, t_type, "mpe_log");
     return (FALSE);
   } else if( !IsIntegerTerm(t_type) ) {
-    Error(TYPE_ERROR_INTEGER, t_type, "mpe_log");
+    Yap_Error(TYPE_ERROR_INTEGER, t_type, "mpe_log");
     return (FALSE);
   } else {
     event_id = IntOfTerm(t_type);
@@ -174,10 +174,10 @@ p_log()                  /* mpe_log(+EventType, +EventNum, +EventStr) */
 
   /* The second arg must be bount to integer event number. */
   if (IsVarTerm(t_num)) {
-    Error(INSTANTIATION_ERROR, t_num, "mpe_log");
+    Yap_Error(INSTANTIATION_ERROR, t_num, "mpe_log");
     return (FALSE);
   } else if( !IsIntegerTerm(t_num) ) {
-    Error(TYPE_ERROR_INTEGER, t_num, "mpe_log");
+    Yap_Error(TYPE_ERROR_INTEGER, t_num, "mpe_log");
     return (FALSE);
   } else {
     event = IntOfTerm(t_num);
@@ -185,10 +185,10 @@ p_log()                  /* mpe_log(+EventType, +EventNum, +EventStr) */
 
   /* The third arg must be bound to an atom. */
   if (IsVarTerm(t_str)) {
-    Error(INSTANTIATION_ERROR, t_str, "mpe_log");
+    Yap_Error(INSTANTIATION_ERROR, t_str, "mpe_log");
     return (FALSE);
   } else if( !IsAtomTerm(t_str) ) {
-    Error(TYPE_ERROR_ATOM, t_str, "mpe_log");
+    Yap_Error(TYPE_ERROR_ATOM, t_str, "mpe_log");
     return (FALSE);
   } else {
     descr = RepAtom(AtomOfTerm(t_str))->StrOfAE;
