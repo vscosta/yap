@@ -1,0 +1,482 @@
+#!/usr/bin/wish -f
+# tkyap -- a TK shell for YAP
+# $Locker:  $
+# $Log: not supported by cvs2svn $
+# Revision 1.1  1997/06/02  16:32:00  vsc
+# Initial revision
+#
+# Revision 1.1  1994/01/26  17:23:18  rvr
+# Luis Damas Version
+#
+# Created On      : Wed Jan 26 17:21:54 1994
+# Last Modified By: Nelma Moreira
+# Last Modified On: Sat Feb  5 20:24:04 1994
+# Update Count    : 39
+# 
+# HISTORY
+
+set service 8081
+
+set YapOptions "-h1000 -s1000"
+
+#
+set  TextFont "*7x13*"
+set version "97"
+
+#option add "*text*Font" $TextFont 
+#option add "*message*Font" $TextFont
+#option add "*list*Font" $TextFont
+
+if {[file exists /vmlinuz]} {
+   set  TextFont "*6x10*"
+   if {[file exists /home/luis/Yap94/linux]} {
+	set homeyap /home/luis/Yap94/linux
+   } else {
+	set homeyap .
+   }
+   set PrologCommand "$homeyap/yap $homeyap/startup -c localhost $service $YapOptions"
+   set SolarisBug 0
+} else {
+   set PrologCommand "ny -h8000 -s1000"
+   set SolarisBug 1
+}
+
+
+
+set MaxHistory 100
+
+###############################################################################
+#  Launch Prolog Proccess
+
+# create server
+
+socket -server client_connection $service
+
+proc client_connection {sock host lixo} {
+    global from_yap to_yap
+    set from_yap $sock
+    set to_yap $sock
+    puts "Got client $sock $host"
+    fconfigure $sock -blocking 0 -buffering none
+    fileevent $sock readable output_from_yap
+}
+
+
+# run yap in parallel
+set pid [eval exec $PrologCommand &]
+
+# make sure we kill Prolog when we are killed
+
+# signal trap SIGINT {ExitTkYap}
+
+
+proc ExitTkYap {} {
+    global  pid
+    SaveHistory
+    exec kill $pid
+    exit
+}
+
+###############################################################################
+# Create a mininal interface
+
+#### create a terminal window with a scrollbar
+
+frame .frame
+
+text .frame.text -bg white -font $TextFont \
+	-yscrollcommand {.frame.scrollbarv set} 
+
+# insert wellcome  message
+
+.frame.text insert end "Welcome to the Tcl/Tk Interface to YAP! ($version)\n"
+set iline {\n\n\n\n\n\n} ; # this is because of bug in solaris version
+
+# add scrollbar
+
+frame .frame.scrollframe  -relief ridge -bd 2
+scrollbar .frame.scrollbarv -command {.frame.text yview}
+pack append .frame.scrollframe .frame.scrollbarv {top  expand filly}
+
+# pack text widget and scrollbar
+
+pack append .frame \
+    .frame.text {left frame center expand fill} \
+    .frame.scrollframe {right frame center filly}
+
+#### Menu ####
+frame .menu -relief raised -borderwidth 1
+#pack .menu1 -before .frame -side top -fill x
+
+menubutton .menu.file -text "File" -menu .menu.file.m -underline 0
+menu .menu.file.m
+.menu.file.m add command -label "Consult" -command {ConsultFile} -underline 0
+.menu.file.m add command -label "Reconsult" \
+	-command {ReconsultFile} -underline 0
+.menu.file.m add separator
+.menu.file.m add command -label "Exit" -command {ExitTkYap} -underline 0
+
+menubutton .menu.exec -text "Execution" -menu .menu.exec.m -underline 0
+menu .menu.exec.m
+.menu.exec.m add command -label "Interrupt" \
+	-command {global tcl_mode; set tcl_mode 0; exec kill SIGINT $pid}
+.menu.exec.m add separator
+.menu.exec.m add command -label "Statistics" -command {YapStats}
+
+pack .menu.file .menu.exec  -side left
+
+menubutton .menu.help -text "Help" -menu .menu.help.m -underline 0
+menu .menu.help.m
+pack .menu.help -side right
+
+#### pack panes together
+pack append . \
+	.menu {top fillx frame n} \
+	.frame {left frame n}
+
+
+proc ReconsultFile {} {
+    global to_yap
+    set file [FileSelect "File to Reconsult" "*.yap"]
+    if {$file!=""} {
+	puts $to_yap "reconsult('$file')."
+	flush $to_yap
+    }
+}
+proc ConsultFile {} {
+    global to_yap
+    set file [FileSelect "File to Consult" "*.yap"]
+    if {$file!=""} {
+	puts $to_yap "consult('$file')."
+	flush $to_yap
+    }
+}
+
+proc YapStats {} {
+    global to_yap from_yap
+    puts $to_yap "statistics."
+    flush $to_yap
+}
+
+############################################################################
+# Handle input from the keyboard
+
+# InputStart is index of start of input
+set InputStart [.frame.text index {end - 1 chars}]
+
+# create a read_only range of text
+.frame.text tag add rdonly 0.0 "$InputStart -0 chars"
+
+# prevent user from modifying previous text by jumping to end of text
+.frame.text tag bind rdonly <Any-Key> {
+   if {[.frame.text compare insert < $InputStart]} {
+	   .frame.text mark set insert end
+   }
+}
+
+# pass ^C to yap
+bind .frame.text <Control-Key-c> {
+   set tcl_mode 0
+   .frame.text yview -pickplace end
+   exec kill SIGINT $pid
+}
+
+
+# add Readline/Emacs like bindings
+bind .frame.text <Control-Key-a> {
+   .frame.text mark set insert $InputStart
+}
+
+bind .frame.text <Control-Key-b> {
+   .frame.text mark set insert {insert -1 chars}
+}
+
+bind .frame.text <Control-Key-d> {
+   .frame.text delete  insert
+}
+
+bind .frame.text <Control-Key-e> {
+   .frame.text mark set insert end
+}
+
+bind .frame.text <Control-Key-f> {
+   .frame.text mark set insert {insert +1 chars}
+}
+
+bind .frame.text <Control-Key-k> {
+   .frame.text delete insert "insert lineend"
+}
+
+bind .frame.text <Key-BackSpace> {
+   if {[.frame.text compare insert > $InputStart]} {
+	.frame.text delete "insert -1 chars"
+   }
+}
+
+bind .frame.text <Key-Delete> {
+   if {[.frame.text compare insert > $InputStart]} {
+	.frame.text delete "insert -1 chars"
+   }
+}
+
+# add history bindings
+set history {}
+set history_len 0
+set history_dir [exec pwd]
+
+if {[file isfile .yap_history]} {
+    set file [open "$history_dir/.yap_history"]
+    while {[gets $file s]>0} {
+	lappend history $s
+	incr history_len
+    }
+    close $file
+}
+set history_ind $history_len
+
+proc SaveHistory {} {
+    global history_len history_ind history history_dir
+    set file [open "$history_dir/.yap_history" w]
+    for {set i 0} {$i<$history_len} {incr i} {
+	puts $file [lindex $history $i]
+    }
+    close $file
+}
+
+proc AddHistory {line} {
+    global history_len history_ind history MaxHistory
+    if {[string length $line]<3} {return}
+    set i [lsearch -exact $history $line]
+    if {$i>=0} {
+	set history [lreplace $history $i $i]
+	incr history_len -1
+    }
+    if {$history_len>$MaxHistory} {
+	set history [lreplace $history 0 0]
+	incr history_len -1
+    }
+    lappend history $line
+    incr history_len
+    set history_ind $history_len
+}
+
+bind .frame.text <Control-Key-p> {
+    if {$history_ind==$history_len} {
+	set CurrentLine [.frame.text get $InputStart "$InputStart lineend"]
+    }
+    if {$history_ind>0} {
+	incr history_ind -1
+	.frame.text delete $InputStart "$InputStart lineend"
+	.frame.text insert $InputStart [lindex $history $history_ind]
+    }
+}
+
+bind .frame.text <Control-Key-n> {
+    if {$history_ind<$history_len} {
+	incr history_ind 
+	.frame.text delete $InputStart "$InputStart lineend"
+        if {$history_ind==$history_len} {
+         	.frame.text insert $InputStart $CurrentLine
+	} else {
+		.frame.text insert $InputStart [lindex $history $history_ind]
+	}
+    }
+}
+
+
+# catch the enter key and send the input line to yap
+
+bind .frame.text <Key-Return> {HandleInputLine}
+
+proc HandleInputLine {} {
+     global InputStart to_yap iline
+     set iline [.frame.text get $InputStart end]
+#     .frame.text insert end "\n"
+     AddHistory $iline
+     puts "sending: '$iline'"
+     puts -nonewline $to_yap "$iline"
+     flush $to_yap
+     set InputStart [.frame.text index end]
+     .frame.text tag add rdonly 1.0 "$InputStart -0 chars"
+}
+
+
+##############################################################################
+# Handle output from Yap
+
+set tcl_mode 0
+set tcl_buf {}
+
+proc out_filter {s} {
+    global tcl_mode tcl_buf InputStart iline SolarisBug
+    while {$s!=""} {
+       set i [string first \001 $s]
+       set j [string first \002 $s]
+       set xflag 0
+       if {$j>=0 && ($i==-1 || $j<$i) } {set xflag 1; set i $j}
+       set new_mode $tcl_mode
+       if {$i<0} {
+	   set ch $s
+	   set s ""
+       } else {
+	   set ch [string range $s 0  [expr $i-1]]
+           set s [string range $s [expr $i+1] end]
+           if {$xflag==0} { set new_mode [expr 1-$tcl_mode] }
+       }
+       # puts "$i $j '$ch' '$s' $xflag"
+       if {$tcl_mode} {
+	   append tcl_buf $ch
+       } else {
+		if {$SolarisBug} {
+		   # under Solaris we get echo on the fisrt line sent to
+		   # Yap. So remove it ...
+		   if {[csubstr $ch 0 [string length $iline]]=="$iline"} {
+		       set ch [string range $ch [string length $iline\r\n] end]
+		       set SolarisBug 0
+		       puts fixed
+		   }
+		}
+	        .frame.text insert "$InputStart" $ch
+		set ll [string length $ch]
+		set InputStart [.frame.text index "$InputStart +$ll chars"]
+	        .frame.text tag add rdonly 1.0 "$InputStart -0 chars"
+	        .frame.text yview -pickplace end
+		update idletasks
+       }
+       if {$xflag} {
+	   puts "eval $tcl_buf"
+	   flush stdout
+	   set res [catch "eval $tcl_buf" errMsg ]
+	   puts "$res $errMsg"
+	   if {$res!=0} {
+	        tkerror $errMsg
+	   }
+	   set tcl_buf {}
+       }
+       set tcl_mode $new_mode
+    }
+}
+
+# this is an idle task routine to handle output from yap
+
+
+proc idle_task {} {
+ global from_yap
+ set got 0
+ while {$got<500} {
+  set fr [select [list  $from_yap] {} {} 0.01]
+  set fr [lindex $fr 0]
+  #puts "fr=$fr"
+  if {$fr != {}} {
+        #puts "reading"
+	set ch [read $from_yap ]
+        incr got [string length $ch]
+	out_filter $ch
+        #puts "read '$ch'"
+  } else {
+    if {$got} { .frame.text yview -pickplace end }
+    flush stdout
+    break
+  }
+ }
+ after 100 idle_task
+}
+
+proc output_from_yap {} {
+    global from_yap
+    set ch [read $from_yap]
+    puts "got: '$ch'"
+    out_filter $ch
+    .frame.text yview -pickplace end
+#    fileevent $from_yap readable output_from_yap
+    update
+}
+
+#### File selection...
+
+proc FileSelectOk {} {
+    global FileSelectRes 
+    set FileSelectRes ok
+}
+
+proc FileSelectCancel {} {
+    global FileSelectRes 
+    set FileSelectRes cancel
+}
+
+proc FileSelectUpdate {} {
+    global FileSelectFilter
+    set wd [exec pwd]
+    set dir [open "|ls -a"]
+    .fileSelect.list delete 0 end
+    while {[gets $dir f]>0} {
+	if {[file isdirectory $f]} {
+	   .fileSelect.list insert end $f
+        } elseif {[string match $FileSelectFilter $f]} {
+	   .fileSelect.list insert end $f
+        }
+    }
+    close $dir
+    .fileSelect.dir configure -text "Dir: $wd"
+}
+
+proc FileSelect {msg filter} {
+    global FileSelectRes FileSelectFilter
+    set FileSelectFilter $filter
+    if {[winfo exists .fileSelect]} {destroy .fileSelect}
+    toplevel .fileSelect
+    message .fileSelect.msg -text $msg -width 300
+    frame .fileSelect.lbox -relief raised -bd 2
+    listbox .fileSelect.list -bd 1 \
+	-yscrollcommand {.fileSelect.scroll set}
+    scrollbar .fileSelect.scroll -bd 2  -command {.fileSelect.list yview}
+    pack append .fileSelect.lbox \
+	.fileSelect.list {left expand fill} \
+	.fileSelect.scroll {right filly}
+    set wd [exec pwd]
+    label .fileSelect.dir -text "Directory: $wd "
+    frame .fileSelect.buttons
+    button .fileSelect.buttons.ok -text "Ok" -command "FileSelectOk"
+    button .fileSelect.buttons.cancel -text "Cancel" -command "FileSelectCancel"
+    pack .fileSelect.buttons.ok .fileSelect.buttons.cancel -side left -padx 10
+    pack append .fileSelect \
+	.fileSelect.msg {top expand fillx } \
+	.fileSelect.dir {expand fillx} \
+	.fileSelect.lbox {expand fillx} \
+        .fileSelect.buttons {expand fillx pady 5} 
+    tk_listboxSingleSelect .fileSelect.list
+    bind .fileSelect.list <Double-ButtonRelease-1> "FileSelectOk"
+    set w .fileSelect
+    wm withdraw $w
+    update idletasks
+    set x [expr [winfo screenwidth $w]/2 - [winfo reqwidth $w]/2 \
+	    - [winfo vrootx [winfo parent $w]]]
+    set y [expr [winfo screenheight $w]/2 - [winfo reqheight $w]/2 \
+	    - [winfo vrooty [winfo parent $w]]]
+    wm geom $w +$x+$y
+    wm deiconify $w
+    set oldFocus [focus]
+    grab .fileSelect
+    while 1 {
+	set FileSelectRes {}
+	FileSelectUpdate
+	update
+	tkwait variable FileSelectRes
+        if {$FileSelectRes=="cancel"} {break}
+        set file [.fileSelect.list curselection ]
+        if {$file!=""} {
+	   set file $wd/[.fileSelect.list get $file]
+	   if {[file isdirectory $file]} {
+		set wd $file
+		cd $file
+	   } else {break}
+        }
+    }
+    destroy .fileSelect
+    focus $oldFocus
+    if {$FileSelectRes=="cancel"} {
+	set file ""
+	cd $wd
+    }
+    return $file
+}

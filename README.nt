@@ -1,0 +1,120 @@
+		COMPILING YAP UNDER WIN32 (WIN95, WIN98, NT, 2000)
+
+Yap should compile under both cygwin and Visual C++ 6.0. We next describe
+how to do it from scratch.
+
+$YAPSRC is the directory where you can find the sources
+$YAPVERSION  is the current version for YAP.
+
+CYGWIN:
+
+	This is our suggested approach as YAP can use GCC features to
+generate faster code. You should install the CygWin environment first,
+as available from sourceware.cygnus.com and mirrors. YAP should
+compile under cygwin 20.1 but we suggest using the newer 1.1.1 (April
+Release), which has a more complete implementation of the WIN32 API
+and uses GCC2.95.2 instead of egcs. The compilation steps under the
+cygwin shell are as follows:
+
+	mkdir cyg
+	CC="gcc -mno-cygwin" $YAPSRC/configure
+	make
+	make install
+
+	The "-mno-cygwin" disables the use of the cygwin dll. The
+compiler will use the mingw32 environment instead.
+
+	You should also check the default installation path which is
+set to "/PROGRA~1/Yap" in the Makefile. This should correspond to
+"/Program Files/Yap".
+
+VISUAL C++:
+
+To the best of my knowledge, Yap compiles cleanly under VC++ release
+6.0.
+
+First, it is a good idea to build Yap as a DLL:
+
+1. create a project named yapdll using File.New. The project will be a
+DLL project, initially *empty*.
+
+NOTICE: Either the project is named yapdll or you must replace
+YAPDLL_EXPORTS to match your project names in c_interface.h and
+c_interface.c.
+
+o add all .c files in the $YAPSRC/C directory and in the
+$YAPSRC/OPTYap directory to the "Source Files" (use FileView).
+
+o add all .h files in the $YAPSRC/H director, $YAPSRC/include directory and in the $YAPSRC/OPTYap subdirectory to the "Header Files".
+
+o include the .h from .m4 files and config.h. You can find these files at $YAPSRC/VC/include.
+
+o You may want to go to Build.Set Active Configuration and set Project Type to Release
+
+o set Project.Project Settings.C/C++.Preprocessor.Additional Include Directories to include the $YAPSRC/H, $YAPSRC/VC/include, $YAPSRC/OPTYap and $YAPSRC/include.
+
+The syntax is:
+
+$YAPSRC\H, $YAPSRC\VC\include, $YAPSRC\OPTYap, $YAPSRC\include
+
+o Build: the system should generate an yap.dll and an yap.lib.
+
+o Copy the yapdll.dll file to your path. The yapdll.lib should be copied to
+where the linker can find it (you can also give the explicit path).
+
+2. create a second project  say wyap with File.New. The project will be a
+WIN32 console project, initially empty.
+
+o add $YAPSRC/console/yap.c to the Source Files.
+
+o add $YAPSRC/VC/include/config.h and the files in $YAPSRC/include/ to
+the Header Files.
+
+o You may want to go to Build.Set Active Configuration and set Project Type to Release
+
+o you will eventually need to bootstrap the system by booting from
+boot.yap, so write:
+
+	-b $YAPSRC\pl\boot.yap
+
+	in Project.Project Settings.Debug.Program Arguments
+
+o You need the sockets and yap libraries. Add
+
+ws2_32.lib yapdll.lib to
+
+to
+
+Project.Project Settings.Link.Object/Library Modules
+
+You may also need to set the Link Path so that VC++ will find yap.lib.
+
+o set Project.Project Settings.C/C++.Preprocessor.Additional Include Directories to include the $YAPSRC/VC/include and $YAPSRC/include.
+
+The syntax is:
+
+$YAPSRC\VC\include, $YAPSRC\include
+
+o Build the system.
+
+o Use Build.Start Debug to boot the system, and then create the saved state with
+
+['$YAPSRC\\pl\\init'].
+save_program(startup).
+^Z
+
+That's it, you've got YAP and the saved state!
+
+The $YAPSRC\VC directory has the make files to build Yap4.3.17 under VC++ 6.0.
+
+Problems with this release:
+
+	o alarm/3 does not work in WIN98. This seems to be a limitation of WIN98.
+	o signals still do not work properly with console applications :-(.
+	o ??
+
+
+Enjoy!
+
+Vitor
+

@@ -1,0 +1,2 @@
+Source files in this directory are prepared to run in the Ciao system, in
+other systems they need minor changes, notably in the header.

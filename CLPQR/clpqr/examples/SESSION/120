@@ -1,0 +1,64 @@
+/tmp/clpq
+
+yes
+| ?- use_module(library('clpqr/monash')).
+{compiling /freyung/christian/sicstus2.1.9.clp/library/clpqr/monash.pl...}
+{loading /freyung/christian/sicstus2.1.9.clp/library/clpqr/printf.ql...}
+{loaded /freyung/christian/sicstus2.1.9.clp/library/clpqr/printf.ql in module printf, 30 msec 27216 bytes}
+{loading /freyung/christian/sicstus2.1.9.clp/library/clpqr/expand.ql...}
+{loaded /freyung/christian/sicstus2.1.9.clp/library/clpqr/expand.ql in module expand, 30 msec 26832 bytes}
+{/freyung/christian/sicstus2.1.9.clp/library/clpqr/monash.pl compiled, 130 msec 54848 bytes}
+
+yes
+| ?- expand, [library('clpqr/examples/monash/pictures')], noexpand.
+{consulting /freyung/christian/sicstus2.1.9.clp/library/clpqr/examples/monash/pictures...}
+{Warning: [DotDashInvis,Text] - singleton variables in box/3 in lines 66-73}
+
+>>> Sample goals: go1/0, go2/0
+{/freyung/christian/sicstus2.1.9.clp/library/clpqr/examples/monash/pictures consulted, 110 msec 12768 bytes}
+
+yes
+| ?- go1.
+.PS 2i
+line from 3.2,1.8 to 0.688979,1.17224 
+line from 0.688979,1.17224 to 2.30239,4.19362 
+line from 2.30239,4.19362 to 3.2,1.8 
+line from 0,1 to 4,2 dashed
+line from 3.5,1 to 2,5 dashed
+line from 0.33,0.5 to 3,5.5 dashed
+ " c1 " at 0,1 rjust 
+ " c2 " at 3.5,1 rjust 
+ " c3 " at 0.33,0.5 rjust 
+.PE
+
+yes
+| ?- go2.
+.PS 3i
+line from 0,0 to 8,10 
+line from 8,10 to 10,10 
+line from 10,10 to 10,1 
+line from 10,1 to 0,0 
+line from 4,5 to 9,10 dashed
+line from 9,10 to 10,5.5 dashed
+line from 10,5.5 to 5,0.5 dashed
+line from 5,0.5 to 4,5 dashed
+line from 0,20 to 0,15 
+line from 0,15 to 10,15 
+line from 10,15 to 10,20 
+line from 10,20 to 0,20 
+line from 0,17.5 to 5,15 dashed
+line from 5,15 to 10,17.5 dashed
+line from 10,17.5 to 5,20 dashed
+line from 5,20 to 0,17.5 dashed
+line from 5,30 to 10,23 
+line from 10,23 to 15,30 
+line from 15,30 to 10,25 
+line from 10,25 to 5,30 
+line from 7.5,26.5 to 12.5,26.5 dashed
+line from 12.5,26.5 to 12.5,27.5 dashed
+line from 12.5,27.5 to 7.5,27.5 dashed
+line from 7.5,27.5 to 7.5,26.5 dashed
+.PE
+
+yes
+| ?- 

@@ -1,0 +1,138 @@
+/tmp/clpq
+
+yes
+| ?- use_module(library('clpqr/monash')).
+{compiling /freyung/christian/sicstus2.1.9.clp/library/clpqr/monash.pl...}
+{loading /freyung/christian/sicstus2.1.9.clp/library/clpqr/printf.ql...}
+{loaded /freyung/christian/sicstus2.1.9.clp/library/clpqr/printf.ql in module printf, 30 msec 27216 bytes}
+{loading /freyung/christian/sicstus2.1.9.clp/library/clpqr/expand.ql...}
+{loaded /freyung/christian/sicstus2.1.9.clp/library/clpqr/expand.ql in module expand, 40 msec 26832 bytes}
+{/freyung/christian/sicstus2.1.9.clp/library/clpqr/monash.pl compiled, 100 msec 54848 bytes}
+
+yes
+| ?- expand, [library('clpqr/examples/monash/critical')], noexpand.
+{consulting /freyung/christian/sicstus2.1.9.clp/library/clpqr/examples/monash/critical...}
+{Warning: [End] - singleton variables in cpm/2 in lines 62-67}
+{Warning: [Es,From,Lc,T] - singleton variables in buildv/3 in lines 81-83}
+{Warning: [H] - singleton variables in buildv/3 in lines 83-85}
+{Warning: [Es,Lc,T,To] - singleton variables in buildv/3 in lines 85-87}
+{Warning: [H] - singleton variables in buildv/3 in lines 87-89}
+{Warning: [H] - singleton variables in addedg/3 in lines 91-93}
+{Warning: [T] - singleton variables in addedg/3 in lines 93-94}
+{Warning: [H] - singleton variables in addedg/3 in lines 94-96}
+{Warning: [I] - singleton variables in early_late/4 in lines 102-106}
+{Warning: [I] - singleton variables in early_late/3 in lines 108-112}
+{Warning: [End] - singleton variables in setearly/5 in lines 118-121}
+{Warning: [Last] - singleton variables in setlate/4 in lines 128-131}
+{Warning: [T] - singleton variables in getnode/4 in lines 136-139}
+{Warning: [H] - singleton variables in getnode/4 in lines 139-141}
+{Warning: [G] - singleton variables in analyse/2 in lines 141-148}
+{Warning: [I] - singleton variables in analyse/2 in lines 148-151}
+{Warning: [Lci] - singleton variables in compute/9 in lines 157-166}
+{Warning: [From] - singleton variables in print_node/1 in lines 176-180}
+{Warning: [From] - singleton variables in print_node/1 in lines 186-191}
+
+>>> Sample goals: go1/0, go2/0, go3/0
+{/freyung/christian/sicstus2.1.9.clp/library/clpqr/examples/monash/critical consulted, 210 msec 18416 bytes}
+
+yes
+| ?- go1.
+            Node    Es      Lc
+Node1 Node2   T       Ls      Ec      Tf      Ff
+--------------------------------------------------
+START NODE  n1      0       0
+--------------------------------------------------
+n1   n2      3       2       3       2       0
+n1     n3      2       0       2       0       0 *
+--------------------------------------------------
+           n2      3       5
+--------------------------------------------------
+n2   n4      2       5       5       2       2
+--------------------------------------------------
+             n3      2       2
+--------------------------------------------------
+n3   n4      5       2       7       0       0 *
+--------------------------------------------------
+END NODE   n4      7       7
+
+yes
+| ?- go2.
+           Node    Es      Lc
+Node1 Node2   T       Ls      Ec      Tf      Ff
+--------------------------------------------------
+            n5      8       8
+--------------------------------------------------
+n5   n6      9       8       17      0       0 *
+n5   n7      5       12      13      4       4
+--------------------------------------------------
+             n6      17      17
+--------------------------------------------------
+n6  n7      0       17      17      0       0 *
+n6   n8      4       19      21      2       2
+--------------------------------------------------
+             n7      17      17
+--------------------------------------------------
+n7  n8      6       17      23      0       0 *
+--------------------------------------------------
+           n4      3       8
+--------------------------------------------------
+n4   n7      4       13      7       10      10
+n4    n5      0       8       3       5       5
+n4     n8      3       20      6       17      17
+--------------------------------------------------
+START NODE  n1      0       0
+--------------------------------------------------
+n1   n2      2       4       2       4       0
+n1     n3      6       0       6       0       0 *
+n1   n4      3       5       3       5       0
+--------------------------------------------------
+             n2      2       6
+--------------------------------------------------
+n2   n3      0       6       2       4       4
+n2     n5      1       7       3       5       5
+n2     n6      4       13      6       11      11
+--------------------------------------------------
+            n3      6       6
+--------------------------------------------------
+n3   n5      2       6       8       0       0 *
+--------------------------------------------------
+END NODE   n8      23      23
+
+yes
+| ?- go3.
+          Node    Es      Lc
+Node1 Node2   T       Ls      Ec      Tf      Ff
+--------------------------------------------------
+START NODE  n1      0       0
+--------------------------------------------------
+n1   n2      4       0       4       0       0 *
+n1   n3      3       4       3       4       2
+n1     n4      4       6       4       6       0
+--------------------------------------------------
+             n2      4       4
+--------------------------------------------------
+n2   n5      7       4       11      0       0 *
+n2   n3      1       6       5       2       0
+n2     n7      8       8       12      4       4
+--------------------------------------------------
+             n3      5       7
+--------------------------------------------------
+n3   n5      4       7       9       2       2
+--------------------------------------------------
+             n4      4       10
+--------------------------------------------------
+n4  n6      2       10      6       6       6
+--------------------------------------------------
+             n5      11      11
+--------------------------------------------------
+n5  n6      1       11      12      0       0 *
+n5   n7      3       13      14      2       2
+--------------------------------------------------
+END NODE     n7      16      16
+--------------------------------------------------
+            n6      12      12
+--------------------------------------------------
+n6  n7      4       12      16      0       0 *
+
+yes
+| ?- 

@@ -1,0 +1,1622 @@
+<title>Changes up to YAP4.3</title>
+
+<BODY BGCOLOR="#FFE4C4">
+
+<H1 ALIGN=CENTER>Changes in YAP4.3</H1>
+
+<H2 ALIGN=CENTER>Yap-4.3.18:</H2>
+<UL>
+      <LI> FIXED: alignment bug with walltime in sparc/solaris.
+      <LI> FIXED: shunting in garbage collector.
+      <LI> FIXED: restore arithmetic operators was broken.
+      <LI> FIXED: restore arrays had never been implemented.
+</UL>
+
+<H2 ALIGN=CENTER>Yap-4.3.17:</H2>
+<UL>
+      <LI> FIXED: recording floating point numbers was broken (report
+      from Ashwin Srinivasan).
+      <LI> FIXED: restore bitmap Pred pointers from calls.
+      <LI> FIXED: restore masks when adjusting the data base.
+      <LI> FIXED: handle pointers to Heap and Appls to Trail correctly
+      in grow().
+      <LI> FIXED: db terms with variables must be adjusted from correct offset (restore db).
+      <LI> FIXED: atomic terms do not need masks (restore db).
+      <LI> FIXED: complex terms in db may also have variables (restore
+      db).
+      <LI> FIXED: Functors are never offsets (sshift).
+      <LI> FIXED: check for NULL pointers when restoring FreeSpace mm.
+      <LI> FIXED: make gcc -mno-cygwin default in cygwin environment.
+      <LI> FIXED: kill COMPRESS_DB_TERM and use new rational tree
+      scheme for DB instead.
+      <LI> FIXED: use new rational_tree scheme in arrays.c, cmmpreds.c, and corout.c.
+      <LI> FIXED: make variant/2,term_variables/2 and friends use new rational_tree scheme.
+      <LI> FIXED: make copy_term/2 use new rational_tree scheme.
+      <LI> FIXED: don't test for age in unify.c.
+      <LI> NEW: cyclic_term/1 and acyclic_term/1 in terms library.
+      <LI> FIXED: use RATIONAL_TREES scheme to in unify_with_occurs_check/2.
+      <LI> FIXED: unify_with_occurs_check/2.
+      <LI> FIXED: make Yap run under SGI's gcc -mabi=64 (gcc buggy? Needs testing).
+      <LI> FIXED: make Yap run under SGI's cc -64.
+      <LI> FIXED: fix alignment bug for 64bits in AllocCMem.
+      <LI> FIXED: make Yap run under HP-UX's cc.
+      <LI> FIXED: avoid labels before brackets with HP-UX cc.
+      <LI> FIXED: get rid of huge masks in dbase.c
+      <LI> FIXED: make Yap run under SGI's cc.
+      <LI> FIXED: avoid smart comparison in non-GNUCC compilers.
+      <LI> FIXED: get rid of unused variables.
+      <LI> FIXED: get rid of warnings with enum types.
+      <LI> NEW: number_atom/2
+      <LI> FIXED: purge unnecessary unify_lvar X0 with in unify_n_voids_last.
+      <LI> FIXED: make it compile again under cygwin pure.
+      <LI> FIXED: documentation for pillow.
+      <LI> FIXED: use Yap.spec and /usr/share/info for recent rpms.
+      <LI> FIXED: configure would check for limits.h twice.
+</UL>
+
+<H2 ALIGN=CENTER>Yap-4.3.16:</H2>
+<UL>
+      <LI> FIXED: handle trail segments when growing heap or local (tabulation).
+      <LI> FIXED: fix backtracking with multi-assignment variables
+      (bug report from Bart Demoen).
+      <LI> FIXED: only insert into relocation chain if heap pointer.
+      <LI> FIXED: handle overflows in substitution stack for tabulation.
+      <LI> FIXED: documentation bug in CHR.
+      <LI> FIXED: how to include opt.mavar.h (bug report from Luis Fernando).
+      <LI> FIXED: trail overflow while doing gc (bug report from GJVanNoord).
+      <LI> FIXED: System would lose [] because the atom looked like
+      NULL (bug report from Rui Camacho).
+</UL>
+
+<H2 ALIGN=CENTER>Yap-4.3.15:</H2>
+<UL>
+      <LI> FIXED: garbage collector now marks all local variables so
+      that we can do early reset on local variables.
+      <LI> FIXED: support second quadrant machines in new scheme for
+      large numbers.
+      <LI> NEW: ord_setproduct/3 in library(ordsets).
+      <LI> NEW: garbage collection for tabled computations.
+      <LI> FIXED: garbage_collect/0 shouldn't affect gc heuristics.
+      <LI> NEW: OPTYap's latest tabulation code.
+      <LI> FIXED: respect debugger printining options.
+      <LI> FIXED: make sure variables are globalised before spying.
+      <LI> FIXED: tabling in autoconf
+      <LI> SPEEDUP: improve variable unification where we know one of
+	the variables is in the heap.
+      <LI> FIXED: when sweeping garbage collector should check for
+      variables posing as blobs (USE_OFFSETS).
+      <LI> FIXED: reduce overheads in functor/3.
+      <LI> FIXED: variant and subsumes must check functor and must
+        check for extensions.
+      <LI> FIXED: activate dorming optimised instructions and fix glist_void_var.
+      <LI> FIXED: performance bug in new multiplication code (only for i386).
+      <LI> FIXED: exit at Error() in Error().
+      <LI> FIXED: grow() had trouble with array ptrs in Trail.
+      <LI> FIXED: include Stasinos patches for gmp, HP-UX and on documentation.
+      <LI> FIXED: recorda_stat_source was passing 0 instead of tagged
+      0, also always initialise ->code!
+      <LI> FIXED: accept multiple block declarations and process them
+      as a conjunction.
+      <LI> FIXED: call_residue/2.
+      <LI> FIXED: block even when you have no - modes.
+      <LI> FIXED: use mkstemp() instead of tmpnam() in alloc.c
+      <LI> FIXED: now I can wake up goals at disjunction, see
+      merge(A,[2],C), A = [1|B], (B = [2]; B = [3]). I had to
+      save temporary registers in a term. Check push_live_regs and
+      restore_regs() for details.
+      <LI> FIXED: ->p field of either now points to true.
+      <LI> FIXED: we must execute woken up goals before ;/2: force
+      stack checking at either.
+      <LI> FIXED: present a single delayed goal per variable Done. 
+      <LI> FIXED: make block/1 and wait/1 directives.
+      <LI> FIXED: make block/1 use when/2.
+      <LI> FIXED: compiling with glibc2.2, gcc-2.96 had small complaints.
+      <LI> FIXED: configure should now work with gmp3.
+      <LI> FIXED: overflow with extremely large terms in copy_term.
+      <LI> FIXED: unification between bignums could fail.
+      <LI> FIXED: improve print_message/2.
+      <LI> FIXED: make number_codes understand inf and nan.
+      <LI> FIXED: parse bigints in files.
+      <LI> FIXED: one should set creep flags whenever adding goals.
+      <LI> FIXED: debugging messages to stderr.
+      <LI> NEW: simpler scheme for delays.
+      <LI> FIXED: (mark_trail) do not mark second assignment to mavar in same choicepoint, helps 5% in mip, zilch in rkf.
+      <LI> FIXED: make goal_expansion and clause_expansion logical and multifile.
+      <LI> FIXED: stackgrow() with biginits.
+      <LI> FIXED: compile bigints properly.
+      <LI> FIXED: ShowCode should know about bigint instructions.
+      <LI> FIXED: arith.yap should understand int != bigint.
+      <LI> FIXED: ==/2 had bugs with attributed variables.
+      <LI> FIXED: make debugger aware of woken goals.
+      <LI> FIXED: bug in debugger with single update semantics dynamic clause. 
+      <LI> FIXED: definition of MAX_WORKSPACE had been deleted from alloc.c??
+      <LI> FIXED: frozen/2 and outputting suspended goals.
+      <LI> FIXED: BlobTermAdjust was not always defined.
+      <LI> FIXED: bad memory allocation in parser.c for _ resulted in cryptic error messages.
+      <LI> FIXED: // error in CHR.
+      <LI> FIXED: syntax error in initialization.
+      <LI> FIXED: syntax error messages again point to the error.
+      <LI> FIXED: add extra copyright info about LUM in manual.
+</UL>
+
+<H2 ALIGN=CENTER>Yap-4.3.14:</H2>
+<UL>
+      <LI> FIXED: gcc/solaris would not compile.
+      <LI> FIXED: gc instrumentation was still giving noise.
+      <LI> FIXED: bug without GMP.
+      <LI> NEW: CHR manual
+</UL>
+
+<H2 ALIGN=CENTER>Yap-4.3.13:</H2>
+<UL>
+      <LI> FIXED: call_residue/2.
+      <LI> FIXED: == in configure.in
+      <LI> NEW: document attributed variables and CLP(Q,R).
+      <LI> NEW: initial support for Apple OS/X, thanks to Paulo Moura for the
+      patch.
+      <LI> FIXED: hash trouble in IDB (thanks to Stasinos Konstantinos
+	for the report)).
+      <LI> SPEEDUP: meta_predicate database is now in dynamic procedures
+	with logical updates.
+      <LI> FIXED: module 0 should always be found in DB.
+      <LI> FIXED: alloc space for get_num from trail.
+      <LI> NEW: discontiguous is a valid operator.
+      <LI> FIXED: gcd/2 operator would break on negative numbers. 
+      <LI> NEW: support for GMP gnu library and longints.
+      <LI> NEW: back to blobs in global.
+      <LI> NEW: new implementation of arithmetic with a function per operator and no switches.
+      <LI> FIXED: ## breakage in OS/X cpp (c_interface.h. thks Paulo Moura).
+      <LI> NEW: new arithmetic code
+      <LI> NEW: CHR (Thanks to Thom Fruewirth)
+      <LI> NEW: itemization bugs in the manual (Stasinos Konstatinos)
+      <LI> NEW: add sequential/0 and parallel/0 directives. 
+      <LI> FIXED: move Codes and Lists to heap_regs as these variables
+  are in fact supposed to be shared between processes.
+      <LI> FIXED: SBA should be able to store bindings in cell.
+      <LI> FIXED: PutAtt and GetAtt might return NULL in SBA.
+      <LI> FIXED: unify and friends would use uninstantiated variables.
+      <LI> FIXED: only install INTERFACE_HEADERS.
+      <LI> FIXED: DO_MATRAIL had reverse order under SBA.
+      <LI> NEW: prolog_load_context/2.
+      <LI> FIXED: allow reutilising aliases to files.
+      <LI> FIXED: replace term_variables by variables_in_term in pl/*.yap.
+      <LI> NEW: dynamic loading support for HP-UX (Stasinos Konstantinos)
+      <LI> FIXED: help info in configure.in and forgotten $ (Stasinos Konstantinos)
+</UL>
+
+<H2 ALIGN=CENTER>Yap-4.3.12:</H2>
+<UL>
+      <LI> NEW: configure compilation process from configure.
+      <LI> FIXED: save/restore should set CurrentModule.
+      <LI> FIXED: InitYaamRegs should not set CurrentModule.
+      <LI> FIXED: load_dld would crash on NULL argv[0].
+      <LI> FIXED: get rid of install_library and build libYap.a by
+      default. Fix minor bugs in yaplib.
+      <LI> FIXED: used TRAIL to remember structure-to-structure
+      bindings in utilpreds.c and cmppreds.c (this avoids
+      overflow noticed by GJVNoord).
+      <LI> FIXED: split yapor_on so that ! is after yapor_on. This
+      should prevent cutting to before the root of the tree.
+      <LI> FIXED: bad handling of libs in load_dl.c (fix from Stasinos
+      Konstantopoulos)
+      <LI> FIXED: free_answer_hash_chain should untag parent pointer
+      (Ricardo Rocha).
+      <LI> FIXED: walltime would compile with cygwin (patch from
+      gzk02612@nifty.com).
+      <LI> FIXED: try_logical_pred was doing nasty things to
+      choice-points in parallel mode.
+</UL>
+
+<H2 ALIGN=CENTER>Yap-4.3.11:</H2>
+<UL>
+      <LI> FIXED: read could fail and not restore the original input
+      stream (noticed by GJ VanNoord).
+      <LI> FIXED: crappy handling of multi-assignment variables while
+      growing stacks (noticed by GJ VanNoord).
+      <LI> FIXED: Bad save/restore machine registers in hppa.
+      <LI> FIXED: Bad initialisation for '_' variables.
+      <LI> FIXED: check null ENV in
+      do_toggle_static_predicates_in_use, this seems to break HP-UX machines.
+      <LI> FIXED: Bad default address on SGI machines.
+      <LI> FIXED: Atom operations were being included too soon.
+      <LI> FIXED: alignment issue in LastWTimePtr with SPARC.
+      <LI> FIXED: Bind needs HBREG in p_save_cp/exec.c.
+      <LI> FIXED: small ints in term_hash.
+      <LI> FIXED: bug in installing CLPQR in Makefile.in (noticed by
+      Luis Castro and GJ VanNoord).
+</UL>
+
+
+<H2 ALIGN=CENTER>Yap-4.3.10:</H2>
+<UL>
+      <LI> FIXED: install info by default in /usr/share/info.
+      <LI> NEW: MULTI_ASSIGNMENT_VARIABLES should work with tabling
+      and or-parallel execution.
+      <LI> FIXED: small glitches with lcc.
+      <LI> FIXED: walltime in parallel system.
+      <LI> FIXED: zombies in ACOW.
+      <LI> NEW: CLPR is now in the YAP distribution.
+      <LI> NEW: sequential tabling can do stack shifting.
+      <LI> NEW: sequential tabling uses standard memory management system.
+      <LI> FIXED: make tracer work with tabling.
+      <LI> FIXED: make exec_goal work with tabling.
+      <LI> NEW: integrated latest OPTYap.
+      <LI> NEW: CIAO's pillow library.
+      <LI> FIXED: verify_attributes should follow SICStus order, or
+      else CLPR will break in critical,go2 :-(.
+      <LI> FIXED: debugger was getting confused by modules that import
+      predicates that are also defined in the module.
+      <LI> FIXED: =.. was messing with constraints, make it SDerefHead.
+      <LI> NEW: print $VAR("string") as string.
+      <LI> NEW: write_term(X,[write_depth(X)] is a legal option in SICStus.
+      <LI> NEW: write_term(X,[portrayed(X)] is a legal option in SICStus.
+      <LI> FIXED: debugger would get confused with undefined procedures.
+      <LI> FIXED: DB compression bug for lists with rational trees on.
+      <LI> FIXED: the blackboard routines are meta-predicates!
+      <LI> FIXED: initialization should be performed on correct module.
+      <LI> FIXED: make initialization/1 an operator.
+      <LI> NEW: print_message and portray_message.
+      <LI> FIXED: do proper meta-predicate processing for user:a :- meta(...).
+      <LI> FIXED: do term expansion from top level and for end_of_file
+      in consult.
+      <LI> FIXED: don't do grammar expansion if term expansion succeeds.
+      <LI> NEW: yap_flag(toplevel_hook,_): this is a goal to be executed before
+      prompting at the top-level.
+      <LI> NEW: variant/2.
+      <LI> FIXED: term_hash was not documented and in the wrong modules.
+      <LI> NEW: first try at ugraphs module.
+      <LI> NEW: SICStus compatible module/1 and yap_flag(typein_module,_).
+      <LI> NEW: SICStus compatible prolog_flag/2 and prolog_flag/3.
+      <LI> FIXED: for SICStus compatibility primitives module is now
+      prolog module.
+      <LI> FIXED: corrent consulted file could get confused.
+      <LI> FIXED: more fixes to top-level and call-residue with
+      attributed variables.
+      <LI> FIXED: call to compare_terms in optimise_ce relied on
+      correct H. Could corrupt the compiler.
+      <LI> FIXED: fix a few bugs on presenting floundered goals.
+      <LI> FIXED: procedures imported into user should be imported by
+      every module (do that by binding the importer to a variable).
+      <LI> FIXED: do not try to debug over commit.
+      <LI> FIXED: make top-level more SICStus like on how to present
+      variable bindings.
+      <LI> NEW: support columns in format/2 and format/3.
+      <LI> FIXED: p_number and friends should check for var before
+      checking for number with corouting support.
+      <LI> FIXED: init was setting WakeUpCode too late.
+      <LI> FIXED: save_program was not restoring WakeUpCode.
+      <LI> FIXED: terms library.
+      <LI> NEW: SICStus compatible prolog_flag/3.
+      <LI> FIXED: \+ \+ nondet1, !, nondet2.
+      <LI> SPEEDUP: improved exec path.
+      <LI> FIXED: hold locks for longer in i_recorded.
+      <LI> CLEANUP: avoid references to corouting data structures in
+      non-corouting code.
+      <LI> NEW: new hashing function for IDB.
+      <LI> FIXED: make profile_data understand modules.
+      <LI> FIXED: first argument for profile_data was inconsistent.
+      <LI> FIXED: broken trail resetting in p_read (thks G.J. VanNoord).
+      <LI> CLEANUP: ANSI-C code cleanup (thks S. Konstantopoulos).
+      <LI> CLEANUP: new Atom.h.m4 file splits some stuff from Yatom.h.m4.
+      <LI> CLEANUP: linkblk with one less argument and faster code
+      (hopefully).
+      <LI> FIXED: get rid of AtomBase.
+      <LI> FIXED: keep ordering between MkFunctor and friends.
+      <LI> FIXED: PreviousHeap is trash.
+      <LI> FIXED: too many calls to MkFunctor in GetPred.
+</UL>
+
+
+<H2 ALIGN=CENTER>Yap-4.3.9:</H2>
+<UL>
+       <LI> FIXED: VC++ compilation was broken.
+       <LI> FIXED: handle trail overflows in Windows.
+       <LI> FIXED: general fixes as cygnus compilation was broken.
+       <LI> FIXED: yap.exp got out of sync.
+       <LI> FIXED: YAP would include too many headers such as
+       sys/time.h and sys/wait.h breaking -mno-cygwin.
+       <LI> FIXED: don't trust in string.h to initialise NULL, this
+       seems to cause weird problems in gcc -mno-cygwin.
+       <LI> FIXED: lack of heap in assembler shouldn't force compiler
+       to restart.
+       <LI> FIXED: C-stack would overflow with PermVar, make this
+       function non-recursive.
+       <LI> FIXED: hint growheap on the least heap it needs.
+       <LI> FIXED: expand stack on overflow while parsing and overflow
+       while creating the var table.
+       <LI> FIXED: move ParserStack to Trail so that we can read in
+       very large terms.
+       <LI> FIXED: recursion of c_optimise would break for very
+       large clauses, replaced it by iteration.
+       <LI> CLEANUP: replace defined for enum in Yatom.h.m4.
+       <LI> FIXED: bug in compiled terms with DBRefs (same field was
+       used for CodePtr and RefPtr).
+       <LI> FIXED: guarantee correct locking for PreAllocCodeSpace();
+       <LI> FIXED: another typo in charsio.
+       <LI> FIXED: always allow asserts but careful, for now system
+       will only recover some space at top-level.
+       <LI> FIXED: In yap.c read false before someone hides it ;-).
+       <LI> CLEANUP: get rid of AtomLive and of AtomFalse.
+       <LI> FIXED: erase/1 and erased/1 now complain on bad arguments.
+       <LI> FIXED: ANALYST would not compile.
+       <LI> FIXED: go round bad FILENAME_MAX in HPUX (Stasinos Konstantopoulos).
+       <LI> CLEANUP: use sed instead of symbolic links in make depended (Stasinos Konstantopoulos).
+       <LI> FIXED: don't check if someone is looking at an environment
+       while asserting.
+       <LI> FIXED: gc always assumed an immediate DBRef.
+       <LI> FIXED: ! now cuts if != instead of < (fixed cut_by).
+       <LI> FIXED: __hpux to __hpux (Stasinos Konstantopoulos).
+       <LI> FIXED: makedepend works again (Stasinos Konstantopoulos).
+       <LI> FIXED: compile under hpux cc (Stasinos Konstantopoulos).
+       <LI> NEW: locking for internal data base.
+       <LI> FIXED: bad cast in DBProp.
+</UL>
+
+<H2 ALIGN=CENTER>Yap-4.3.8:</H2>
+<UL>
+       <LI> FIXED: previous change to ! was wrong.
+       <LI> FIXED: YAP_ARRAYS was still being used in arrays.c and
+       sbaamiops.h.
+       <LI> FIXED: small glitches in the manual.
+       <LI> NEW: change work dir from Yap4 to Yap-4 (that's what
+       everyone else does).
+       <LI> NEW: make install_info
+       <LI> NEW: yap.spec and automatic generation of rpms.
+</UL>
+
+<H2 ALIGN=CENTER>Yap4.3.7:</H2>
+<UL>
+       <LI> FIXED: fix SBA bug in or.cuts.h.
+       <LI> NEW: cut now looks for ==, not <.
+       <LI> NEW: FunctorList is now special.
+       <LI> FIXED: Looking up "." was broken.
+       <LI> FIXED: halt/1 would not send out the error code.
+       <LI> NEW: allow executable Prolog files that call YAP (option -L).
+       <LI> FIXED: bad overflow handling when compiling very large terms.
+       <LI> FIXED: bugs in charsio at open_chars_stream and number_to_chars.
+       <LI> FIXED: search for library() did not use env var YAPLIBDIR.
+       <LI> NEW: parallel locking for MIPS machines.
+       <LI> NEW: parallel locking for Alpha machines.
+       <LI> FIXED: In OPTYAP UNLOCK should be machine dependent.
+       <LI> FIXED: In linux, SBA would mess up with DB because MBIT
+       was in binding_array addresses. Fix that and include a check
+       when we allocate BA space.
+       <LI> NEW: Protect DB updates and use with immediate update
+       semantics.
+       <LI> FIXED: get rid of the stuff on searching whether a
+       predicate is in use for YAPOR, as it wouldn't work.
+       <LI> FIXED: disallow asserting and abolishing static procedures
+       in YAPOR.
+       <LI> NEW: allow asserting database references as arguments for
+       dynamic procedures.
+       <LI> FIXED: consult and friends are now directives (this should
+       avoid trouble with YAPOR).
+       <LI> FIXED: change configure.in for Alpha/Linux.
+       <LI> FIXED: change YAPOR not to try to do parallel execution of
+       consult.
+       <LI> FIXED: protect goals from save_program/2 and also make
+       sure they don't fail.
+       <LI> FIXED: [a] in top level should be executed as a query.
+       <LI> CLEANUP: get rid of c_csult_stream;
+       <LI> FIXED: fix predicates that depended on current_stream
+       returning user name for file.
+       <LI> FIXED: close/1 and close/2 should only close atomic
+       filenames in YAP mode, and should not depend on
+       current_stream/3 returning the original name.
+       <LI> FIXED: current_stream should return real name, not user name.
+       <LI> CLEANUP: add consult/reconsult mode and file name to
+       consult stack.
+       <LI> FIXED: force indexing immediately after consult in
+       YAPOR. This guarantees the system will not get into trouble
+       later trying to generate indexing code for a predicate while
+       someone is entering it.
+       <LI> FIXED: bad init interface with YAPOR.
+       <LI> NEW: support partial locking for predicates.
+       <LI> FIXED: wrong include path in regex's Makefile.in.
+       <LI> FIXED: bb_new was doing a broken property insert.
+       <LI> FIXED: save_program now restores SpyCode so that we can
+       restart saved states with spying data.
+       <LI> FIXED: YapInit wasn't using stack size info from saved
+       states. 
+</UL>
+
+<H2 ALIGN=CENTER>Yap4.3.6:</H2>
+<UL>
+       <LI> FIXED: YapRunGoal wasn't saving/restoring registers
+       properly, thus breaking the alpha platform.
+       <LI> FIXED: could not find saved state.
+       <LI> FIXED: bad substitution in saved states.
+       <LI> NEW: -l option for YAP (consult a Prolog file).
+       <LI> CLEANUP: -l option for YAPOR is now -sl.
+       <LI> CLEANUP: small cleanups in yap.c.
+</UL>
+
+<H2 ALIGN=CENTER>Yap4.3.5:</H2>
+<UL>
+       <LI> NEW: add yap_libdir.
+       <LI> NEW: add splay trees.
+       <LI> NEW: add AVL trees.
+       <LI> FIXED: asserting static predicates would not store the
+       right source.
+       <LI> FIXED: assert would loop with assert((H:-b)).
+       <LI> FIXED: GC bug would not process direct pointers from local or
+       trail to lists in code space. 
+       <LI> NEW: change directory structure.
+       <LI> NEW: support locking for arrays.
+       <LI> NEW: support locking for operators.
+       <LI> NEW: support locking for values.
+       <LI> FIXED: bad comparison with BB in write_val (SBA).
+       <LI> NEW: support locking on alloc/free.
+       <LI> NEW: support locking on blackboard.
+       <LI> NEW: support locking for individual atoms (protects the
+       property list).
+       <LI> NEW: support locking the atom table.
+       <LI> NEW: sequential code should now compile empty locks.
+       <LI> FIXED: YAP again compiles and runs under AIX4.1.
+       <LI> FIXED: support creating YAP DLL with VC++.
+       <LI> FIXED: VC++ didn't understand S_ISDIR()
+       <LI> FIXED: small fixes to yap.tex.
+       <LI> FIXED: unsigned/sign comparison warnings in VC++.
+</UL>
+
+<H2 ALIGN=CENTER>Yap4.3.4:</H2>
+<UL>
+       <LI> FIXED: IRIX6 is now set up load DLLs.
+       <LI> FIXED: Yap4.3.3 had broken register handling in c_interface.c.
+       <LI> FIXED: bug in library/regex/Makefile.in.
+       <LI> FIXED: FreeBSD/ELF is now set up to load DLLs.
+       <LI> FIXED: in_limbo should now be correct.
+       <LI> FIXED: YAPOR would not compile because of macros.
+</UL>
+
+<H2 ALIGN=CENTER>Yap4.3.3:</H2>
+<UL>
+       <LI> FIXED: recover space after every parse/compile in new yap.c.
+       <LI> FIXED: ignore getcwd under simplescalar.
+       <LI> FIXED: only include standard files after YAP headers.
+       <LI> FIXED: save and restore registers correctly under c-interface.
+       <LI> NEW: add YapWrite to C-Interface.
+       <LI> FIXED: mmapped arrays do not compile with simplescalar.
+       <LI> FIXED: force saved states to look up YAP in YAPBINDIR.
+       <LI> FIXED: quoted strings go back to ISO.
+       <LI> FIXED: -DYAP_ARRAYS is no longer an option.
+       <LI> FIXED: get rid of a few of ANSI-C old-style warnings from lcc.
+       <LI> FIXED: TrueFileName had been broken.
+       <LI> FIXED: Yap now configures and compiles with lcc 4.1/Linux.
+       <LI> FIXED: port yap to compile under cygwin 1.1.0/mingw32 and
+       to support winsock2. The new version also supports CreateWaitableTimer.
+       <LI> FIXED: force yap to follow environment variable YAPLIBDIR.
+       <LI> FIXED: force yap to look for dlls in library.
+       <LI> FIXED: replace strcat and strcpy by strncat and strncpy.
+       <LI> FIXED: search for saved states in library.
+       <LI> FIXED: ^c-a in MINGW32.
+       <LI> CLEANUP: ^C handling.
+       <LI> NEW: creating and loading dll now works in YAP/WIN.
+       <LI> NEW: compile core YAP as a dll under MINGW32.
+       <LI> NEW: yap.c is now external to YAP.
+       <LI> NEW: understand Unix paths under WIN32 and MINGW32.
+       <LI> FIXED: make sure you only start compiling objects after
+       having all headers ready.
+       <LI> FIXED: Debugger ($spycalls) should module switches and
+       consulted the table of imported predicates.
+       <LI> FIXED: Compilation bug and warnings under vc++.
+       <LI> FIXED: YAP_ARRAYS required TERM_EXTENSIONS to compile.
+       <LI> FIXED: compile under cygwin's gcc -mno-cygwin, so that YAP
+       won't need the cygwin dll (MINGW32).
+       <LI> FIXED: save.c should reinitialise user streams
+       <LI> FIXED: predentries for functions may change address in save.c
+       <LI> FIXED: SimpleSim does not implement getcwd
+       <LI> FIXED: tracer.c had a C++ comment.
+       <LI> FIXED: ttyname might return NULL, at least in SimpleSim
+       <LI> FIXED: reconsult was broken.
+       <LI> FIXED: bracket messages for syntax errors.
+       <LI> FIXED: scanner would break if AllocScannerSpace failed.
+       <LI> FIXED: bad checking of eof_action in open.
+       <LI> FIXED: mistake in compiling /\.
+       <LI> FIXED: extra clauses in environ.
+       <LI> FIXED: checking list of operators was wrong in op/3.
+       <LI> FIXED: missing variable in error message.
+       <LI> FIXED: reset CreepFlag in Error.
+       <LI> FIXED: wrong error in name(int(X),_).
+       <LI> FIXED: fix writing "\" when writing strings with no
+       character escapes.
+       <LI> NEW: add yap_flag(write_strings,X) as in Ciao.
+       <LI> NEW: add StringToBuffer routine to the c-interface.
+       <LI> NEW: add routines for allocating and releasing database
+       space to the c-interface.
+       <LI> FIXED: change type for unify in CInterface.
+       <LI> FIXED: PlUnGetc should return int, not Int.
+       <LI> FIXED: get rid of C++ comment in save.c.
+</UL>
+
+<H2 ALIGN=CENTER>Yap4.3.2:</H2>
+<UL>
+       <LI> FIXED: Yap can now use shm for memory allocation.
+       <LI> NEW: Yap can use malloc if mmap, shm, and sbrk failed. 
+       <LI> FIXED: sbrk allocation should be working again.
+       <LI> CLEANUP: get rid of unused functions in old alloc.c.
+       <LI> CLEANUP: in Yap.h.m4 make clear when you are in second quadrant
+       <LI> CLEANUP: keep table with all c-predicates. restore now
+       does not need to reinitialise functions.
+       <LI> FIXED: in alloc.c, handle cases where /dev/zero fails properly.
+       <LI> CLEANUP: move atoms and functors into heap_codes.
+       <LI> CLEANUP: move module info to heap_codes.
+       <LI> FIXED: save.c would not restore properly bfunc
+       instructions. Had to add a p field for these instructions.
+       <LI> FIXED: save.c was not always restoring pp->OpcodeOfPred.
+       <LI> FIXED: reset opcode-op hash-table in new calls to
+       InitReverseLookupOpcode.
+       <LI> FIXED: check if emulator shifted when recovering saved states.
+       <LI> NEW: charsio, SICStus compatible reading to and writing
+       from strings.
+       <LI> FIXED: uncaught instantiation errors in eval routines.
+       <LI> NEW: yap_flag(character_escapes,{on,off})
+       <LI> CLEANUP: get rid of config.c.
+</UL>
+
+
+<H2 ALIGN=CENTER>Yap4.3.1:</H2>
+<UL>
+       <LI> FIXED: $call and $spied_call used with one less argument by debugger.
+       <LI> FIXED: bug in repeat from top level.
+       <LI> FIXED: MAX_DEPTH was set too high.
+       <LI> FIXED: use actual definition of repeat.
+       <LI> FIXED: use < to compare cps for !, not == because of (! ->)
+       <LI> FIXED: $set_depth_limit should work with Integer, not Int.
+       <LI> FIXED: Allow Linux to compile without getrusage but using
+       times (problem with glibc/kernel).
+</UL>
+
+
+<P>
+Yap4.3.0 has been released.
+</P>
+
+
+<H1 ALIGN=CENTER>Changes in YAP4.2</H1>
+<P>
+
+<H2 ALIGN=CENTER>Yap4.2.1:</H2>
+<UL>
+       <LI> FIXED: up release number.
+       <LI> FIXED: swap order of first authors in the manual. 
+       <LI> NEW: more patches for OPTYap.
+       <LI> FIXED: not all Linuxen that have fpu_control.h understand
+       _FPU_SETCW.
+</UL>
+
+<H2 ALIGN=CENTER>Yap4.2.0pl18:</H2>
+<UL>
+       <LI> FIXED: DebugPutc.
+       <LI> FIXED: SBA must initialise or set public permanent
+       variables in the SBA.
+       <LI> FIXED: get rid of a Prolog definition for number_codes.
+       <LI> FIXED: YOUNGER out of OPTYap and renamed YOUNGER_CP.
+       <LI> FIXED: don't use offsets to local in SBA.
+       <LI> FIXED: make DelayedB and TopB actual choicepointers to
+       support SBA.
+       <LI> FIXED: memory allocation for FreeBSD.
+       <LI> RW Locks are now in YAP (unused yet).
+       <LI> FIXED: dynamic arrays were getting too complex, allow the
+       heap to point to the global stack and change garbage collector
+       to handle it. YAP_ARRAYS is now compatible with everything ;-)
+       and can stop being an option.
+       <LI> FIXED: cut used < instead of !=.
+       <LI> NEW: new YapOr code from Ricardo.
+       <LI> FIXED: a few complaints with Solaris.
+       <LI> NEW: generate exceptions in ISO mode for HP-UX.
+       <LI> FIXED: use_module relies on ensure_loaded, which is now a directive.
+       <LI> FIXED: 64/32 bit errors in Alpha.
+       <LI> FIXED: SEG_SIZE is pre-defined in HP platform.
+       <LI> FIXED: should call Error only after leaving interrupt
+       handler, otherwise sigsetjmp will overwrite registers.
+       <LI> FIXED: fill CharConversionTable with null chars;
+       <LI> FIXED: warning in PowerPCs.
+</UL>
+
+<H2 ALIGN=CENTER>Yap4.2.0pl17:</H2>
+<UL>
+       <LI> FIXED: more improvements to Eval.
+       <LI> NEW: predicate_property(X,public).
+       <LI> NEW: public/1 directive, handling of source was cleaned up
+       (it used to be broken if one would switch between source and
+       no-source).
+       <LI> NEW: special meta-call handling for ISO mode. Reduce
+       amount of testing for other cases.
+       <LI> CLEANUP: complete cleanup of eval. No more duplicate code,
+       no more reg and fli.
+       <LI> SPEEDUP: move get_spy_creep to yap_flags. This speeds up
+       execute a bit.
+       <LI> NEW: strict_iso mode.
+       <LI> CLEANUP: InitEval.
+       <LI> FIXED: arithmetic should be consistent even after an error.
+       <LI> NEW: implement ISO exception handling for operations
+       between floating-point numbers in Linux.
+       <LI> NEW: handle floating point exceptions.
+       <LI> CLEANUP: get rid of EQUAL_FLOATS and EQUAL_LONG_INTS as
+       they weren't used any longer (and they were wrong anyway).
+       <LI> NEW: add e, I've always liked this constant better than pi.
+       <LI> FIXED: get a better pi.
+       <LI> FIXED: fix round and friends for ISO mode.
+       <LI> NEW: add xor (#) and sign.
+       <LI> FIXED: get rid of finite, change integer the limits in YAP.
+       <LI> FIXED: define atanh and friends for VC++ environments.
+       <LI> FIXED: Get PlGetChar() back in, as users may want a simple
+       interface to the current input for their own dubious purposes.
+       <LI> NEW: yap_flag(discontiguous_warnings, single_var_warnings,
+       redefine_warnings) as in SICStus. This should eventually
+       replace style_check and no_style_check.
+       <LI> FIXED: do not mark or sweep environments twice. This fixes
+       Bart's YAP GC performance bug (as mentioned in comp.lang.prolog!).
+       <LI> NEW: do variable shunting, not that it helps very much.
+       <LI> FIXED: save should only save as many registers as it
+       needs, and the ones it does should be adjusted when restoring. 
+       <LI> NEW: stream_select/3.
+       <LI> NEW: save/2.
+       <LI> NEW: char_conversion/2 and current_char_conversion. Add
+       ISOGetc for this, change scanner for having two getcs (one
+       within strings, the other elsewhere).
+       <LI> FIXED: was recording source for optimised clauses, not
+       just source for module preprocessed clause.
+       <LI> CLEANUP: add specialised versions to PlGetc(): Sockets,
+       EOF, Readline, and Console.
+       <LI> CLEANUP: got rid of PlGetChar();
+       <LI> CLEANUP: replaced PlPutc() by specialised versions for
+       each type of stream: File, Console, Socket, Socket+Console, and Null;
+       <LI> CLEANUP: got rid of PlPutChar();
+       <LI> FIXED: ISO compatible mode for floor and friends.
+       <LI> FIXED: YAP would crash with INTEGER mod 0.
+       <LI> FIXED: miscellaneous error handling in eval.
+       <LI> FIXED: number_chars and friends should be compatible with
+       scanner.
+       <LI> FIXED: stream_property should not work with aliases.
+       <LI> NEW: char_code/2.
+       <LI> FIXED: ISO mode activates fileerrors.
+       <LI> FIXED: avoid using atom_chars within the system.
+       <LI> FIXED: number_chars(X,I) and number_codes/2 with bad I
+       should give error in ISO mode.
+       <LI> FIXED: make ISO abolish/1 succeed for undefined procedures.
+       <LI> FIXED: number_chars and atom_chars should be ISO
+       compatible in ISO mode.
+       <LI> FIXED: errors in call should throw ISO errors.
+       <LI> FIXED: functor/3 should now have standard ISO behaviour on
+       errors.
+       <LI> FIXED: assert(X) would loop.
+       <LI> FIXED: char_conversion/2 is now also a directive.
+       <LI> FIXED: ensure_loaded/1 should be directive and not a built-in.
+       <LI> FIXED: current_predicate/1 should not show system
+       predicates and should be module aware.
+       <LI> FIXED: utilpred.s now compiles with -DEUROTRA.
+       <LI> FIXED: abolish/1 had several nasty bugs, especially in ISO mode.
+       <LI> CLEANUP: got rid of nasty config.cache in main directory.
+       <LI> FIXED: op/3 and set_prolog_flag/2 are directives.
+</UL>
+
+<H2 ALIGN=CENTER>Yap4.2.0pl16:</H2>
+<UL>
+       <LI> FIXED: retractall was broken.
+</UL>
+
+<H2 ALIGN=CENTER>Yap4.2.0pl15:</H2>
+<UL>
+       <LI> FIXED: in catch/3 set module to original module before
+       handling a ball.
+       <LI> SPEEDUP: improve testing with DEPTH_LIMIT.
+       <LI> FIXED: DEPTH_LIMIT should only stop code running under
+       depth_bound_call/2.
+       <LI> FIXED: bug in parse_args (fix from  Stasinos
+       Konstantopoulos <konstant@let.rug.nl>).
+       <LI> FIXED: copy_term/2 should now be able to copy constraints.
+       <LI> FIXED: faster version of copy_term/2 should now handle
+       rational trees.
+       <LI> NEW: generate ps version of manual with make ps.
+       <LI> FIXED: disable save term optimisation for extensions, as
+       we may not have an S ready.
+       <LI> CLEANUP: always use '$execute' instead of call internally.
+       <LI> CLEANUP: get rid of '$user_call' as it should the same as
+       '$execute'.
+       <LI> NEW: separate between the standard catch, that uses the
+       full meta-call, and a system catch, that uses $execute0 and
+       $mod_switch and that should be only used deep within the bowels
+       of the system.
+       <LI> FIXED: expanded head variables of meta_predicates should not be
+       expanded by inner meta-calls.
+       <LI> FIXED: HAVE_STAT was not being generated correctly by autoconf.
+       <LI> NEW: timeout:time_out.
+       <LI> FIXED: make sure catch handlers are processed from within user.
+       <LI> FIXED: processing of style_check by yap_flag(language,_).
+       <LI> FIXED: discontiguous should now be module aware.
+       <LI> FIXED: preprocess calls for meta-predicates from top-level.
+       <LI> FIXED: simplify code that handles the fact that modules
+       from primitives can be called from anywhere.
+       <LI> FIXED: $module_expansion could be called with wrong number
+       of arguments.
+       <LI> FIXED: separate '$execute', the low-level mechanism for
+       meta-call, from '$user_call', that must study meta-predicates. 
+       <LI> FIXED: README.VC
+</UL>
+
+<H2 ALIGN=CENTER>Yap4.2.0pl14:</H2>
+<UL>
+       <LI> FIXED: allow big flags.
+       <LI> FIXED: typos in yap.tex.
+       <LI> NEW: yap_flag(host_type,X), where X comes from configure.
+       <LI> NEW: more cleanups for autoconf.
+       <LI> FIXED: more cleanups for autoconf.
+       <LI> NEW: use -DBP_FREE by default for X86 machines. 
+       <LI> FIXED: make predicate_property more SICStus Prolog
+       compatible.
+       <LI> NEW: language mode now changes action over dynamic and
+       over directives.
+       <LI> NEW: initial DLL support for WIN32.
+       <LI> FIXED: optimise arithmetic for asserted clauses.
+       <LI> FIXED: calling garbage collector from within a
+       C-backtrackable built-in should also have the extra arguments
+       to the choice-point ready. 
+       <LI> NEW: YAP should now be able to load DLLs in WIN32.
+       <LI> FIXED: YAP will now stop creeping after an abort.
+       <LI> FIXED: meta-call within the debugger was externally visible.
+       <LI> FIXED: small ANSI-C compatibility thingies.
+       <LI> FIXED: writeq('aaa===\\''====') now outputs properly.
+       <LI> NEW: yap_flags(update_semantics,logical_assert) if you
+       only want to use logical update semantics for asserted code.
+       <LI> NEW: yap_flags(language,{cprolog,sicstus,iso})
+       <LI> FIXED: do not test for worken goals before !, it slows
+       down execution too much.
+       <LI> NEW: improve the performance of ==/2.
+       <LI> FIXED: compile without COROUTINING
+       <LI> FIXED: manual would not compile.
+</UL>
+
+<H2 ALIGN=CENTER>Yap4.2.0pl13:</H2>
+<UL>
+       <LI> FIXED: term_expansion should be called in user module.
+       <LI> FIXED: include new operation sderef_op when we want to
+       know what a constrained variable is bound to.
+       <LI> FIXED: try_logical_pred depended on B, but B might have
+       been cut. Use trail for the moment.
+       <LI> FIXED: call of project_attributes.
+       <LI> NEW: blackboard routines bb_get, bb_put, bb_delete, bb_update
+       and yap_flag(n_of_integer_keys_in_bb,INT). Includes a new file,
+       bb.c.
+       <LI> NEW: yap_flag(n_of_integer_keys_in_db,INT): dynamically set the
+       number of entries for the hash table used in looking up integer
+       keys for the data-base.
+</UL>
+
+<H2 ALIGN=CENTER>Yap4.2.0pl12:</H2>
+<UL>
+       <LI> NEW: README.VC for VisualC++ users.
+       <LI> FIXED: several small changes for VisualC++.
+       <LI> FIXED: _WIN32 requires LOWTAGS (0x3000000 kind of address)
+       for garbage collection to work.
+       <LI> FIXED: UnifyBound was not handling extensions right.
+       <LI> FIXED: had wrong definition for non-gcc EXTRA_CBACK_ARG.
+       <LI> FIXED: make Yap compile under VisualC++ 6.0 again. 
+       <LI> FIXED: exit_yap would not exit. 
+</UL>
+
+<H2 ALIGN=CENTER>Yap4.2.0pl11:</H2>
+<UL>
+       <LI> FIXED: multifile was not complaining on missing declaration.
+       <LI> FIXED: multifile declarations were not module aware.
+       <LI> CLEANUP: assert/1 and dynamic/1.
+       <LI> FIXED: for the nth time tried to make modules SICStus
+       compatible :-(.
+       <LI> NEW: integrated latest version of YAPOR (SBA and ACOW
+       still do not work).
+</UL>
+
+<H2 ALIGN=CENTER>Yap4.2.0pl10:</H2>
+<UL>
+       <LI> FIXED: could have a bad cut in call(X->Y).
+       <LI> FIXED: add ord_intersect/3 again (same as ord_intersection/3).
+       <LI> FIXED: save_program/2 would not set prompt correctly.
+       <LI> FIXED: bug in stack_shifter after gc (was shifting global pointers).
+       <LI> FIXED: save/1 was broken with coroutining.
+       <LI> FIXED: use_module/2 should handle lists of files.
+       <LI> FIXED: COROUTINING depended on DEBUG code.
+</UL>
+
+<H2 ALIGN=CENTER>Yap4.2.0pl9:</H2>
+<UL>
+       <LI> FIXED: list_to_assoc/2.
+       <LI> FIXED: ANALYST should compile again.
+       <LI> FIXED: ensure_loaded and use_module are not directives!
+       <LI> FIXED: bug in cleaning up for logical update semantics.
+       <LI> FIXED: cuts will now call suspended goals.
+       <LI> FIXED: debugger should now step through meta-predicates correctly.
+       <LI> FIXED: trust_logical_pred did not release trail entry correctly.
+       <LI> FIXED: recordedp might be create a new key in a different mode from
+       the one used to create the dynamic procedure.
+       <LI> FIXED: don't go through $undefp for dynamic procedures.
+       <LI> FIXED: bugs in asserting dynamic procedures from compiled clauses.
+       <LI> FIXED: buglets with multifile/1.
+       <LI> FIXED: do not open directories except as binary files.
+       <LI> NEW: library random.
+       <LI> NEW: assoc now has ord_list_to_assoc/2 and get_assoc/5.
+       <LI> NEW: compatibility module terms for term_utils.
+       <LI> NEW: ordsets now has ord_union/4 and ord_del_element/3.
+       <LI> NEW: add public/1 directive but currently this does nothing.
+       <LI> FIXED: be more precise about which files you have consulted.
+       <LI> FIXED: use_module/2 should not handle lists of files.
+       <LI> FIXED: compare would stop whenever it would find two
+       numbers, even if they were equal.
+       <LI> NEW: attributed variables.
+       <LI> FIXED: coroutining would break \=/2.
+       <LI> NEW: ord_add_element/1 in ordsets.
+       <LI> NEW: empty_assoc/1 in assoc_lists.
+       <LI> CLEANUP: compile under lcc4.1/Linux.
+       <LI> FIXED: storing compressed rational trees on DB was buggy.
+       <LI> FIXED: $unknown(_:_) should not give an error. 
+       <LI> FIXED: ord_intersect/3 now is ord_intersection/3.
+       <LI> FIXED: recursive do_goal would corrupt coroutining
+       information.
+       <LI> FIXED: handle possible overflows in quoted strings.
+       <LI> CLEANUP: move .pl library files to .yap.
+       <LI> CLEANUP: get rid of unused SusRecTop and SusRecBase.
+       <LI> CLEANUP: move HeapUsed, HeapMax and HeapTop to Heap.
+       <LI> FIXED: add MMAP_ADDR for WIN32.
+</UL>
+
+<H2 ALIGN=CENTER>Yap4.2.0pl8:</H2>
+<UL>
+       <LI> NEW: user:goal_expansion/3.
+       <LI> SPEEDUP: use separate table for integer keys to data
+       base. Table size can be configured with -DMAX_DB_INT_KEYS=.
+       <LI> SPEEDUP: increase the size of HashTable, which was
+       ridiculously small.
+       <LI> CLEANUP: allocate heap_regs as heap start.
+       <LI> SPEEDUP: avoid calculation for compile-time keys.
+       <LI> NEW: get_float.
+       <LI> NEW: change the way functors of processed.
+       <LI> CLEANUP: got rid of disgusting GeneralRef type, it has
+       been replaced by Integer.
+       <LI> FIXED: unknown_error should not complain if print is called
+       with undefined portray.
+       <LI> FIXED: delay cuts that go through embeddeded c-calls. This
+       requires two extra registers, DelayedB and TopB.
+       <LI> CLEANUP: LockPred wasn't being used any longer.
+       <LI> FIXED: fact for true was not being asserted.
+       <LI> NEW: now long ints and floats are tagged.
+       <LI> FIXED: array/2 was a safe predicate that could call gc().
+       <LI> FIXED: growstack in cclause should also call gc().
+</UL>
+
+<H2 ALIGN=CENTER>Yap4.2.0pl7:</H2>
+<UL>
+       <LI> FIXED: 8 bit characters would be mangled by char->Int
+       conversion in StringToList.
+       <LI> NEW: Garbage collection should now work for a total space
+       of 1GB on second quadrant (use low_tags).
+       <LI> FIXED: ExtendWorkSpace would not always guarantee aligned size.
+       <LI> NEW: call_with_args/n, meta-call with variable arity (up
+       to 10).
+       <LI> FIXED: array/2 overflow had not been fixed properly.
+       <LI> FIXED: sort and friends would not handle overflow properly.
+       <LI> FIXED: improve manual include small bugs, compatibility stuff.
+       <LI> SPEEDUP: replace opcode(_index_pred) with INDEX_OPCODE.
+       <LI> SPEEDUP: replace opcode(_undef_p) with UNDEF_OPCODE.
+       <LI> FIXED: only optimise common_expressions up to level 5.
+</UL>
+
+<H2 ALIGN=CENTER>Yap4.2.0pl6:</H2>
+<UL>
+       <LI> FIXED: coroutining had been broken when initialisation was
+       reordered.
+       <LI> ISO: predicate_property of static predicates now returns
+       static, instead of compiled.
+       <LI> FIXED: if format/2 ~s would complain for empty strings.
+       <LI> FIXED: bug with too large arrays.
+       <LI> NEW: term_hash/2 and term_hash/4.
+       <LI> FIXED: allow modules in bodies of DCGs.
+       <LI> FIXED: get rid of modules in head before they hit DCGs.
+       <LI> FIXED: current_predicate with modules.
+       <LI> FIXED: $undefined/1 should never collapse.
+       <LI> FIXED: listing would collapse because of :/2. :/2 is not
+       an undefined procedure now. 
+       <LI> FIXED: in saved states replace $* by "$@". 
+       <LI> NEW: user:unknown_predicate_handler/3 from SICStus.
+       <LI> FIXED: declare findall/4 a meta_predicate.
+       <LI> FIXED: switch third and fourth argument to findall/4 to
+       obtain SICStus compatibility.
+       <LI> FIXED: unknown/2 should know about modules.
+       <LI> FIXED: speedup handling of unknown predicates in meta-calls.
+       <LI> FIXED: speedup depth_bound_call(A,D) by using $execute.
+       <LI> FIXED: add chapter on modules to manual.
+       <LI> FIXED: meta_predicates from same module were not being
+       expanded.
+       <LI> FIXED: modules use current module for meta predicate.
+       <LI> REVERSE: default meta_predicates back to user.
+</UL>
+
+
+<H2 ALIGN=CENTER>Yap4.2.0pl5:</H2>
+<UL>
+       <LI>  FIXED: meta_predicate should be a directive, not a
+       standard predicate.
+       <LI>  FIXED: all default meta_predicates should belong to user,
+       not primitives.
+       <LI>  FIXED: give errors when not finding libraries.
+       <LI>  FIXED: load_module/1 and load_module/2 are now directives.
+       <LI>  FIXED: load_module/2 would not accept libraries and had
+       bad error handling.
+       <LI>  FIXED: catch/3 did not have a meta_predicate declaration.
+       <LI>  FIXED: meta predicates were not being expanded correctly.
+       <LI>  FIXED: saved state script was not passing arguments to Yap.
+       <LI>  FIXED: go around gcc bug in current_op for hpux machines.
+       <LI>  FIXED: top level abort would crash in hp machines (TR was
+       overwritten).
+       <LI>  FIXED: error messages for op/3.
+       <LI>  FIXED: ord_member/2 in ordsets.
+</UL>
+
+<H2 ALIGN=CENTER>Yap4.2.0pl4:</H2>
+<UL>
+       <LI>  NEW: the evil recordaifnot/3 and recordzifnot/3 are now in
+       the manual.
+       <LI>  FIXED: include ord_union/2 and ord_member/2 in ordsets.
+       <LI>  FIXED: complain about _:G.
+       <LI>  FIXED: allow modules in heads for assert and friends.
+       <LI>  FIXED: allow modules in multifile and dynamic declarations.
+       <LI>  FIXED: send error messages in modules.yap to user_error.
+       <LI>  FIXED: get rid of error message in eraseall.
+       <LI>  NEW: term_variables/2.
+       <LI>  FIXED: directives had broken ensure_loaded/1 for use_module/1.
+       <LI>  NEW: small performance improvements in unification
+       routines (UnifyGlobalCells).
+</UL>
+
+<H2 ALIGN=CENTER>Yap4.2.0pl3:</H2>
+<UL>
+       <LI>  FIXED: small performance improvements in unification
+       routines.
+       <LI>  FIXED: logical_update semantics were broken in pl2.
+       <LI>  FIXED: findall and friends were broken in pl2.
+       <LI>  FIXED: bind_global within unify_struct
+</UL>
+
+<H2 ALIGN=CENTER>Yap4.2.0pl2:</H2>
+<UL>
+       <LI>  NEW: static arrays of DB terms.
+       <LI>  NEW: close_static_array and resize_static_array now work
+       over mmapped files.
+       <LI>  FIXED: rename delete_static_array to close_static_array.
+       <LI>  FIXED: improve the manual a little bit. Add info in
+       README to Manual.
+       <LI>  FIXED: support for ISO-style atom_chars/2 and number_chars/2.
+       <LI>  NEW: ISO include/1 directive.
+       <LI>  ISO: ensure_loaded/1 is now a directive (and it cannot be
+       called as a procedure).
+       <LI>  NEW: discontiguous/1 directive.
+       <LI>  NEW: process multifile/1 as a directive.
+       <LI>  FIXED: give warning if multifile procedures are used
+       before multifile declaration.
+       <LI>  FIXED: multifile was very severy broken.
+       <LI>  FIXED: initialize/1 now follows ANSI semantics. We have
+       prolog_initialize/1 for SICStus Prolog code.
+       <LI>  FIXED: don't explode if the compiler finds too many
+       variables or if there is not enough code space to store our code.
+       <LI>  NEW: ISO quoted character sequences (note that this means
+       that '\+' will break now).
+       <LI>  FIXED: remove limit on size of strings and quoted atoms.
+       <LI>  FIXED: [    ] is now parsed as [], like other Prologs do.
+       <LI>  FIXED: read-in clauses predicated by modules
+       (mod:clause).
+       <LI>  FIXED: gcc/HP-UX would generate incorrect code for
+       PredForCode. Use an extra temporary (at) and the probably goes
+       away.
+       <LI>  NEW: add "make install-info", "make info" and "make html".
+       <LI>  FIXED: create a README file mentioning the license, get
+       rid of the INSTALL file for now.
+       <LI>  FIXED: don't shadow S, CP, HB in hppa. They have their
+       own registers.
+       <LI>  FIXED: change x86 back to base address 0x10000000 and
+       tags back to opstags for Linux.
+</UL>
+
+<H2 ALIGN=CENTER>Yap4.2.0pl1:</H2>
+<UL>
+	<LI> FIXED: works(?) in HP/UX.
+	<LI> NEW: update_array for dynamic arrays.
+	<LI> FIXED: works in FreeBSD.
+	<LI> FIXED: improvements and additions to configuration scripts
+	<LI> NEW: port to Visual C++ (_MSC_VER)
+	<LI> NEW: major improvements and bug fixes to YAPOR.
+	<LI> CLEANUP: _REG to _
+	<LI> NEW: arrays of bytes and of unsigned bytes.
+	<LI> FIXED: worked a bit on manual.
+	<LI> NEW: resize_static_array/3
+	<LI> NEW: delete_static_array/1
+	<LI> FIXED: ACOW in YAPOR.
+	<LI> FIXED: Error after Error would not notice there was no place
+	to cut back to.
+	<LI> FIXED: SBA in YAPOR.
+	<LI> NEW: version/0 and version/1. Deleted yap_version/1.
+	<LI> NEW: is_mutable/1.
+	<LI> FIXED: recent bug in dif.
+	<LI> SYNCH: with Ricardo Rocha's optyap. SBA is broken.
+	<LI> FIXED: reverse_opcode_lookup table.
+	<LI> NEW: YAP as a library,
+	<UL>
+           <LI> New functions provide an interface for initialising
+	   and calling Yap from external environments. Note that Yap
+	   is still a big chunk.
+	   <LI> Restoring embedded C-functions is now performed by
+	   restore_heap together with InitStaff.
+	   <LI> The code to restore a clause has been updated to use
+	   yamop and GONEXT. The same code does both indices and clauses.
+           <LI> All macros that adjust pointers are now functions,
+           and type-check their arguments.
+           <LI> All functions that restore a stack (from restore,
+           growheap and growlocal) have now been merged in a general
+           function in grow.c. This decreases efficiency slightly, but
+           should improve maintainability.
+	   <LI> InitStaff() now has an argument saying whether we are
+           calling from boot or from restore. Note that most Prolog
+           executions will actually call InitStaff() twice.
+           <LI> initialisation code in yap.c was simplified. Several
+	   functions and variables were moved out to init.c. 
+	   <LI> routines that start new goals were moved out of
+	   cdmgr.c to exec.c.
+        </UL>
+	<LI> FIXED: all clauses should terminate with _Ystop, but we
+	just did emit_op instead of a_e. 
+	<LI> NEW: save_program/2.
+	<LI> NEW: save_program/1. Default startup is now through
+	save_program.
+	<LI> FIXED: break should not remove choice-points.
+	<LI> FIXED: allow (call(X), X) to possibly succeed. It is
+	unclear whether that conforms to the ISO standard, but there
+	is the excuse it is SICStus compatible.
+	<LI> FIXED: $undefp would call a bad $user_call.
+	<LI> FIXED: bad calculations for walltime.
+	<LI> FIXED: bug with depth_bound_call for not and \+.  
+	<LI> FIXED: execute_goal would not recover registers correctly.
+        <LI> NEW: SICStus compatibility predicates including incore/1,
+        callable/1, and simple/1.
+        <LI> NEW: add arity as an extra argument to _struct functions.
+        <LI> FIXED: uninitialised profiling counters.
+        <LI> FIXED: OPTYap had broken unknown=error.
+        <LI> FIXED: small bug in assembling index code.
+        <LI> FIXED: growheap would not fix trail properly.
+        <LI> NEW: logical update semantics for internal data-base.
+        <LI> CLEANUP: indexed code also has a tag.
+        <LI> FIXED: putenv/2 must allocate static memory.
+        <LI> FIXED: remove duplicate clauses in environ/2.
+</UL>
+
+<H2 ALIGN=CENTER>Yap4.2.0:</H2>
+<UL>
+        <LI> NEW: YAP4.2.0 is out
+        <LI> REMOVED: file RELEASE.NOTES
+</UL>
+
+<H1 ALIGN=CENTER>Changes in YAP4.1</H1>
+<P>
+
+<H2 ALIGN=CENTER>Yap4.1.19:</H2>
+<UL>
+        <LI> FIXED: phrase/3 had bad call to $t_body.
+        <LI> FIXED: warnings on alpha.
+        <LI> FIXED: make YAP compile on SGI's cc.
+        <LI> ISO-YAP: accept 0o notation for octal integers.
+        <LI> FIXED: rcdifnot would try to unify with NULL return pointer.
+        <LI> FIXED: when/3 did not link Done variables.
+        <LI> FIXED: bad copying of arguments in co-routining.
+        <LI> NEW: first cut at SBA or-parallel execution.
+        <LI> FIXED: YAP version is now in Makefile.
+        <LI> NEW:  alarm/3 (see manual).
+        <LI> FIXED: errno handling is in io.h.
+</UL>
+
+
+<H2 ALIGN=CENTER>Yap4.1.18:</H2>
+<UL>
+        <LI> FIXED: debugger would not work after change to call.
+        <LI> FIXED: do not trace !G within debugger.
+</UL>
+
+
+<H2 ALIGN=CENTER>Yap4.1.17:</H2>
+<UL>
+        <LI> FIXED: error handler for floats was too enthusiastic in format/3.
+        <LI> FIXED: accept list of dynamic predicates.
+        <LI> NEW: merge new version of Ricardo Rocha's OPTYAP
+        including support for tabulation.
+	<LI> NEW: improve performance of call.
+	<LI> FIXED: trail overflow in heap gc (store_ref_in_dbtable).
+	<LI> FIXED: close fd if mmap fails.
+	<LI> FIXED: IsPrimitiveTerm would succeed on suspended variables.
+	<LI> FIXED: small bug in socket_select.
+        <LI> FIXED: garbage collector would follow old values of
+	multi-assignment variables even if they were not heap
+	pointers.
+	<LI> FIXED: garbage collector was following list of suspended
+	goals as if a variable.
+	<LI> FIXED: call/1 was not importing modules correctly.
+        <LI> NEW: A library. Right now it just consists of
+        several files copied from the Edinburg Prolog library, with
+        little or no change. To use it, you must do "make install" or
+        have LIBDIR in the Makefile set to the YAP source directory.
+        <LI> FIXED: garbage in debugger.
+        <LI> FIXED: fix writing \+ (a,b) properly.
+        <LI> NEW: get rid of addresses for the unify() routines. Unify
+	now receives values, as it should, instead of addresses.
+	<LI> NEW: get rid of the representant stuff for
+	coroutining. Instead of trying to find out if we bound an
+	external variable, from now on we must guarantee that we
+	pass a non-dereferenced external variable (e.g. argument) to
+	the unification routine, otherwise delayed variables may not
+	wake up.
+	<LI> FIXED: get rid of bind_variable.
+	<LI> FIXED: exit_yap was not working (halt).
+	<LI> FIXED: write version number when booting from a saved
+	state.
+</UL>
+
+<H2 ALIGN=CENTER>Yap4.1.16:</H2>
+<UL>
+        <LI> FIXED: don't crash if you're not booting from the
+        standard file (SavedInfo should not assume LookupAtom works).
+        <LI> FIXED: prompt (again).
+        <LI> FIXED: debugging dynamic or source mode procedures would
+        ignore depth limits.
+        <LI> FIXED: -DBP_FREE could lose program counter, if changed
+        by ErCl or ErDBE.
+        <LI> FIXED: global registers could be smashed by the compiler
+        within error handlers (SGI).
+        <LI> FIXED: fix a bug on and thus enable garbage collection of
+        code space.
+        <LI> FIXED: bug in cut_by_y.
+        <LI> FIXED: be less optimistic about when to expand the trail
+        after a sigsegv.
+</UL>
+
+<H2 ALIGN=CENTER>Yap4.1.15:</H2>
+<UL>
+        <LI> FIXED: disable garbage collection of code space.
+        <LI> FIXED: growstack did not know OldH.
+        <LI> FIXED: be conservative about new variables in branches (active_branch).
+        <LI> NEW: change code to artistic license.
+        <LI> FIXED: include errno.h in socket code.
+        <LI> FIXED: strcpy of NULL pointers in sysbits.c.
+        <LI> FIXED: writing \+ (a,b) would not output middle space,
+        confusing the parser.
+        <LI> NEW: initial support for the SBA model (parallelism).
+        <LI> FIXED: make the system more robust when it can't get more
+        memory.
+        <LI> FIXED: recorded with unbounded key was crashing.
+        <LI> CLEANUP: use derefa when we know the possible address for
+        a variable. This avoids reading a memory cell twice.
+        <LI> CLEANUP: make sockets a special stream, make actual
+        reading and writing on sockets work, unify all close
+        operations on sockets, update iopreds to take special care of
+        sockets. Still not working: ungetc on sockets, eof has not
+        been tested.
+        <LI> CLEANUP: conditions on c-interface.
+        <LI> FIXED: growheap could be called with wrong local stack pointer.
+        <LI> NEW: always_prompt_user/0, for those who hide behind pipes
+        and sockets.
+        <LI> FIXED: bug in frozen/2 and friends.
+        <LI> CLEANUP: use Prolog terms in coroutining, avoid NULL pointers.
+        <LI> FIXED: save/restore was breaking corouting.
+        <LI> FIXED: readline does not work under parallel execution.
+        <LI> CLEANUP: cleanup some constructs so that YAP will compile
+        under lcc again.
+        <LI> CLEANUP: follow choicepoint ordering whenever possible.
+        <LI> FIXED: incorrect detection of overflows in index.c.
+</UL>
+
+<H2 ALIGN=CENTER>Yap4.1.14:</H2>
+<UL>
+        <LI> FIXED: texi2dvi failed on the manual because of incorrect
+        placement of @*.
+        <LI> FIXED: RECOVER_MACHINE_REGS for MIPS in Regs.h had
+        somehow lost an E!
+        <LI> FIXED: expand stacks if effectiveness of garbage
+        collection is below 20%.
+        <LI> FIXED: YAP was not checking for excessive number of
+        labels while assembling.
+        <LI> FIXED: get rid of no in sequential init.
+        <LI> FIXED: bug in checking modules for abolish and friends.
+        <LI> FIXED: with readline, prompt even if stderr is not a
+        tty. Also make sure prompt goes to stderr, not to stdout.
+        <LI> NEW: SICStus Prolog compatible socket interface (see
+        manual, still experimental).
+</UL>
+
+<H2 ALIGN=CENTER>Yap4.1.13:</H2>
+<UL>
+        <LI> FIXED: Cygnus/getrusage does not work under WIN95.
+        <LI> FIXED: extraneous push in compiling bvmap for either.
+        <LI> FIXED: long printf in heapgc.c
+        <LI> FIXED: extraneous printf in dbase.c
+        <LI> NEW: sync until leftmost in YAPOR.
+        <LI> NEW: sequential predicates in YAPOR.
+        <LI> FIXED: YAPOR in OPTYap now runs queens.
+</UL>
+
+<H2 ALIGN=CENTER>Yap4.1.12:</H2>
+<UL>
+        <LI> FIXED: make sure that when you backtrack to an erased
+        clause you don't get caught by dangling pointers. 
+        <LI> FIXED: check args to arithmetic comparisons are not free. 
+        <LI> FIXED: make sure you only mark an env var as initialised
+        if the instruction refers it for the first time.
+        <LI> FIXED: Error handler depended on pointer to freed code.
+        <LI> FIXED: always fully gc clean the last environment.
+        <LI> FIXED: new dbref gc cleaner could mess with dbqueues.
+        <LI> FIXED: test if YAP can allocate more memory.
+        <LI> FIXED: YAP now makes procedures dynamic after first assert.
+        <LI> FIXED: because of disjunctions, variables in clauses do not
+        always grow linearly. Change compiler to informe gc of actual
+        live variables in an environment at any point, not including
+        variables outside the current branch (even if at ancestor's
+        branches). Take special care with optimised if-then-elses.
+        <LI> NEW: speedup compact_heap.
+	<LI> FIXED: CheckDBOverflow in MkDBTerm would not reset
+	variables, as it should.
+	<LI> FIXED: recover HB in gc.
+	<LI> NEW: Integer macros for integers that may overflow.
+	<LI> NEW: jump across unmarked cells in downward pass.
+	<LI> NEW: simplify marking longints and doubles.
+	<LI> NEW: small performance improvement in meta-call.
+	<LI> FIXED: make toggle preds robust to meta-calls.
+	<LI> FIXED: bad error handling in evaluable predicates.
+	<LI> NEW: upgrade YAPOR to most recent OPTYAP.
+	<LI> CLEANUP: use the RESET_VARIABLE macro to reset a variable.
+	<LI> FIXED: ITERATIVE_DEEPENING option is now called DEPTH_LIMIT
+	<LI> NEW: simplified autoconf script and Makefile.
+	<LI> FIXED: YAPOR now compiles again and reaches top-level.
+	<LI> CLEANUP: make assembly built-ins accessible as standard
+	predicates. This makes meta-calls somewhat less bulky.
+	<LI> FIXED: YAP could crash while reading in binary files. The
+	problem was that the hash function could return an offset <
+	0.
+	<LI> NEW: in GC check if db terms are in use, and if not reset
+	counters. Further reclaim immediately space for terms erased
+	and not in use (current implementation uses an inefficient
+	unbalanced binary tree).
+	<LI> NEW: in GC untrail unmarked bindings and reset the pointers.
+</UL>
+
+<H2 ALIGN=CENTER>Yap4.1.11:</H2>
+<UL>
+	<LI> NEW: after several requests, added assert_static and friends.
+	<LI> FIXED: bug in adding spaces while writing X is $VAR(2)+...
+	<LI> NEW: stream aliases.
+	<LI> FIXED: ^C-a now works on PUSH_REGS (eg, X86). 
+	<LI> FIXED: catch could remove other valid catches.
+	<LI> FIXED: several cases of non-compatible ISO error handling.
+	<LI> FIXED: current_input and current_output would fail for
+	instantiated arguments.
+	<LI> FIXED: writing $VAR(X) terms could core dump miserably.
+	<LI> FIXED: initialisation was not protected by a catch/3.
+	<LI> FIXED: system would exit after trying to compile Numeric
+	or DBRef goal. 
+	<LI> NEW: improve performance of arithmetic comparisons by
+	inserting them as ops in abstract machine.
+	<LI> FIXED: meta-call would get lost in call((X,Y)). Callable
+	checking is now ISO (almost).
+	<LI> FIXED: recursive compare was not catching term_exts on
+	second argument to comparison.
+	<LI> FIXED: compilation warning on printing Int in alpha.
+	<LI> FIXED: gc would mark terms accessible only from the
+	trail. Change so that these pointers are only relocated, and
+	remove dangling pointers from the trail.
+</UL>
+
+<H2 ALIGN=CENTER>Yap4.1.10:</H2>
+<UL>
+	<LI> FIXED: get rid of ExecuteProlog as used by print/1,
+	execute_goal can do the same.
+	<LI> FIXED: execute_goal should survive garbage collection and/or
+        stack shifting.
+        <LI> FIXED: $undefined succeeded for predicates written in
+	assembly.
+        <LI> FIXED: provide 16 registers (ARG1 to ARG16).
+        <LI> FIXED: some changes to make YAP work without ALIGN_LONGS.
+        <LI> FIXED: old timing bug.
+        <LI> FIXED: bug in generating cut.
+        <LI> FIXED: don't crash if have several errors on the same expression.
+        <LI> FIXED: use strerror instead of sys_errlist.
+        <LI> FIXED: make system more resilient to small ints.
+        <LI> FIXED: system should be more resilient when allocating
+        large chunks of memory.
+        <LI> FIXED: X is cputime should have no rounding problems.
+        <LI> FIXED: silently fail on wrong array accesses.
+        <LI> FIXED: true was not seen as built-in.
+        <LI> FIXED: DEPTH was not always saved correctly in execute_prolog.
+</UL>
+
+<H2 ALIGN=CENTER>Yap4.1.9:</H2>
+<UL>
+        <LI> FIXED: bug in scanner.
+	<LI> FIXED: bug in allocating large chunks of memory under NT,
+	and change to allow YAP to at least run under WIN95/98
+	(memory allocation and timing are not working yet for WIN98).
+</UL>
+
+
+<H2 ALIGN=CENTER>Yap4.1.8:</H2>
+<UL>
+	<LI> FIXED: random would only work in Linux.
+	<LI> FIXED: better names for array_element/3 and update_array/3.
+	<LI> FIXED: array access now does boundary checking, and fails
+	if you try to access an undefined reference.
+	<LI> NEW: profiling now counts calls to non-profiled
+	predicates, included system built-ins. 
+	<LI> FIXED: profiling now does not need to disable indexing. 
+        <LI> FIXED: predicate_property was returning just the name for
+        unbound calls.
+        <LI> NEW: putenv/2. If you want to start shell scripts.
+        <LI> NEW: YAP now supports 8 bits char sets. The default is iso-latin.
+        <LI> NEW: call_residue/2 now available.
+        <LI> FIXED: serious bug in can_unify: HB was not set to
+        H. Should be no problem with B.
+        <LI> FIXED: trim_trail is not compatible with Multi-Assignment
+	variables.
+	<LI> FIXED: under a few cases code could have problems if some
+	was using a dynamic clause and retracted it.
+	<LI> NEW: improve absmi for coroutining.
+	<LI> FIXED: bug in statistics(runtime,T).
+	<LI> NEW: statics(walltime,T) and internal walltime() function
+	<LI> FIXED: changed code that assumed dir_separator could only
+	be a single character. Some MS-DOS systems accept both slash
+	and backslash.
+	<LI> FIXED: for compatibility with other Prologs, YAP now
+	changes directory to the directory 
+	containing the file it is consulting. Don't need to create an
+	init.yap any longer.
+	<LI> NEW: getcwd/1.
+	<LI> FIXED: disallow integer as argument to cd/1 and friends.
+	<LI> FIXED: rand should depend on MAX_RAND; document srandom.
+	<LI> NEW: environ now allows access to a process' environment.
+</UL>
+
+<H2 ALIGN=CENTER>Yap4.1.7:</H2>
+<UL>
+	<LI> FIXED: bug in read_term/singletons. I incorrectly assumed
+	variables were being allocated in order.
+	<LI> FIXED: too much space was being allocated for 64 bit
+	architectures.
+	<LI> FIXED: error handling in data base could collapse.
+	<LI> FIXED: ASP for growheap could be wrong.
+	<LI> FIXED: growheap and growstack forgot about dangling
+	pointers in the trail. 
+	<LI> FIXED: increase margins as garbage collections happens.
+	<LI> FIXED: make recorded and friends restartable for the
+	case there is no space left to copy the new term.
+	<LI> FIXED: make memory allocation routine more generic, try
+	to use temporary files when /dev/zero is not available,
+	control whether we are fetching the right addresses, and
+	close open mmaped stream.
+	<LI> FIXED: make sure we always have an error handler in the
+	debugger.
+	<LI> FIXED: GC should now work with named dynamic arrays and
+	array extensions. Access to named dynamic arrays now goes
+	through the trail.
+	<LI> FIXED: make arg/3 silently fail on negative or 0 first
+	arguments. Breaks the ISO standard, but seems to be compatible
+	with other Prologs.
+	<LI> FIXED: dequeue could leave dangling pointers to the data-base.
+	<LI> FIXED: bad error handling in arithmetic built-ins.
+	<LI> FIXED: absolute_file_name/2 was buggy.
+	<LI> NEW: extend C-interface to allow calling back Prolog.
+	<LI> FIXED: moved to version 98.
+	<LI> FIXED: variable ppc was causing trouble with Rhapsody.
+	<LI> FIXED: GC should now work with coroutining.
+	<LI> FIXED: coroutining had bug with reference chains.
+	<LI> FIXED: error handler called unexisting procedure $close/2.
+	<LI> FIXED: small bug in unknown/2.
+	<LI> CLEANUP: improve meta-call performance by avoiding
+	unnecessary choice-points.
+	<LI> FIXED: assert and source mode are now aware that modules
+	call meta-calls.
+	<LI> FIXED: libraries should be checked for existence before
+	checking for the files themselves.
+	<LI> NEW: dynamic loader now works in Linux/Alpha and in
+	Digital Unix/Alpha! Fixed bugs where YAP would corrupt global
+	variables allocated by external functions.
+	<LI> FIXED: BP_FREE didn't do callee save for PREG, possibly
+	corrupting the caller. Core dumped print/1 on X86.
+	<LI> CLEANUP: separate error handling into separate files.
+	<LI> FIXED: RATIONAL_TREES should now work in all built-ins.
+	<LI> FIXED: make sure the GC does not follow invalid trail
+	entries.
+</UL>
+
+
+<H2 ALIGN=CENTER>Yap4.1.6:</H2>
+<UL>
+	<LI> NEW: execute_goal(Goal) function allows calling
+	Prolog from C. Still under testing, and not yet officially in
+	the interface. Note that execute_goal will destroy all X
+	arguments, and that it only keeps the first solution (it
+	performs an implicit cut).
+	<LI> FIXED: complaints while compiling YAP in WIN/NT platform.
+	<LI> FIXED: debugger got confused when quasi-skipping through
+	inline builtins
+	<LI> FIXED: DEPTH_BOUND_CALL was not restoring depth for retry_c.
+ 	<LI> NEW: compilation flag LOW_LEVEL_TRACER, if this flag is
+	defined, enables detailing execution. Use
+	start_low_level_trace and stop_level_trace, or T from
+	interrupt to access this functionality.
+	<LI> CLEANUP: overflows are now processed within the
+	emulator, not back in the caller.
+	<LI> FIXED: memory allocation during boot could crash returning NULL
+	pointer, system would then crash.
+	<LI> ISO-YAP: many new predicates, major rewrite of manual.
+	<LI> FIXED: debugger should now understand better immediate
+	update semantics (eg, dynamic predicates).
+	<LI> ISO-YAP: all error handling is now ISO style.
+	<LI> FIXED: could not write MIN_INT
+	<LI> ISO-YAP: add Z is float_integer_part(X).
+	<LI> ISO-YAP: add Z is float_fractional_part(X).
+	<LI> ISO-YAP: arg/3 now generates errors.
+	<LI> ISO-YAP: abolish/1 now does errors the YAP way, and
+	only abolishes dynamic procedures. Use abolish/2 to clear
+	static procedures.
+	<LI> break boot.yap file into smaller files.
+	<LI> YAP now compiles well under Linux/Alpha.
+	<LI> X now is called XREGS to avoid problems with Linux/Alpha
+	includes.
+	<LI> Abort now jumps to before the absmi emulator and then
+	does a long cut. This should simplify YapOr, and allow for
+	restricting toplevels. 
+</UL>
+
+
+<H2 ALIGN=CENTER>Yap4.1.5:</H2>
+<UL>
+	<LI> FIXED: MAX_INT on Tags_LowTag was wrong.
+	<LI> NEW: first cut of profiling. Right now, Currently, for
+	static predicates, profiling disables indexing. That should be
+	fixed in the next version.
+	<LI> NEW: source mode debugging is active. Compile with ":-
+	source" and debug/step through all your builtins!
+	<LI> FIXED: major bug in cut_by, since early 4.1 :-(. Affects
+	debugging.
+	<LI> NEW: fetch first op from pred before jumping.
+	<LI> NEW: use SREG to cache A1 for switches and tries.
+	<LI> FIXED: warning messages for SGI CC.
+	<LI> FIXED: warning messages for alphas.
+	<LI> NEW: optimise switch_on_list for the list case.
+	<LI> NEW: WAM registers optimised for MIPS.
+	<LI> FIXED: shadow CP and HB on sparcs. They need every bit of
+	performance we can get them.
+	<LI> FIXED: famous curprio bug in parser, from now on parser
+	backtracks cleanly.
+	<LI> NEW: Got rid of SREG for call-type instructions.
+	<LI> NEW: CPREG in absmi for Suns.
+	<LI> CLEANUP: got rid of obsolete absmi regs.
+	<LI> FIXED: small bug in the Prolog code for unknown/2.
+	<LI> NEW: Small speed improvements for complex absmi
+	instructions.
+</UL>
+
+<H2 ALIGN=CENTER>Yap4.1.4:</H2>
+<UL>
+	<LI> NEW: read_term/3 and new syntax_error option to yap_flag.
+	<LI> FIXED: got rid of fast predicates from compiler.
+	<LI> NEW: Makefile now generates a bootable save state as YAP
+	default.
+	<LI> NEW: started working on manual for 4.1. Fixed info format
+	so that it will generate info files. Add several missing
+	built-ins to manual.
+	<LI> NEW: bootable saved states with arguments, accessible
+	though unix(argv(L))).
+	<LI> NEW: optimised code for tests (var/1 and friends) and
+	arithmetic (is/2).
+	<LI> NEW: much faster code for /\, \/, >> and <<.
+	<LI> FIXED: debugger does not go into recorded/3 and friends.
+</UL>
+
+<H2 ALIGN=CENTER>Yap4.1.3:</H2>
+<UL>
+	<LI> NEW: unix(argv(X)).
+	<LI> FIXED: abs complains if int != Int.
+</UL>
+
+<H2 ALIGN=CENTER>Yap4.1.2:</H2>
+<UL>
+	<LI> NEW: saved states now search for $BINDIR/yap.exe to boot.
+	<LI> FIXED: bugs with handling errors.
+	<LI> FIXED: got rid of $recorded/3 for now.
+	<LI> NEW:  generate specialised code for OR, AND, SHIFT LEFT
+	and SHIFT RIGHT.
+	<LI> FIXED: statistics(runtime,_) now does not count GC time,
+	as in other Prologs. statistics(cputime,_) counts everything.
+	<LI> FIXED: time is returned as an integer, not as a float.
+</UL>
+
+<H2 ALIGN=CENTER>Yap4.1.1:</H2>
+<UL>
+	<LI> CLEANUP: get rid of warnings under Cygnus GCC.
+	<LI> FIXED: Use Windows memory allocation routine, now YAP can
+	recover from saved states for smaller stacks.
+	<LI> CLEANUP: don't use the UNIX define. Use instead configure
+	to say exactly which UNIX feature you need.
+	<LI> FIXED: compiler would not handle correctly unsafe
+	variable from disjunctions.
+	<LI> FIXED: force indexing to ask for more stack if stack runs
+	out. This should help if you have really many clauses.
+	<LI> CLEANUP: clean all error code from C to use the new
+	Error() routine.
+	<LI> NEW: use throw/1 to send system errors.
+	<LI> NEW: catch/3 and throw/1
+	<LI> NEW: load_foreign_file/3 for SunOS4 (tested) and AIX
+	(compiles).
+</UL>
+
+<H2 ALIGN=CENTER>Yap4.1.0:</H2>
+<UL>
+	<LI> NEW: memory mapped arrays.
+	<LI> NEW: make garbage collector expand stack quickly to avoid
+		excessive number of GCs.
+	<LI> NEW: do the same for heap overflow detector.
+	<LI> CLEANUP: cleanup readline code for not using strcpy, strlen and
+		friends. Current code was broken for very large input strings.
+	<LI> NEW: sort and friends implemented in C.
+	<LI> NEW: Removed 256B limitation on atom size while parsing.
+	<LI> CLEANUP: Change AllocCodeSpace to return NULL on code failure,
+		make cclause() call growstack on stack failure.
+	<LI> NEW: Static Arrays!
+	<LI> Split previous support for arrays and co-routines. We now have
+		TERM_EXTENSIONS to control extensions to unification. Tried
+		to redesign the extensions so that they would be modular,
+		the file TermExt.h.m4 shows how to implement an extension.
+	<LI> Got rid of lock_pred and friends. Usage of static predicates is
+		now detected when compilation starts, or when assert
+		is used.
+	<LI> Got rid of hash table in optimise_ce, it wasn't working.
+	<LI> Current predicate access:
+		add new argument to call, so that call can recognise which
+		predicate it is working on.
+		add extra argument to try and frieds, so that they can
+		directly access a predicate.
+	<LI> Internal cleanup
+		Change cdmgr.c and friends so that we now move in a clause 
+		through the Clause structure. Get rid of ptrs, except for
+		save.c.
+	<LI> Changes to immediate update semantics implementation:
+	<UL>
+		<LI> Entries are now removed from the chain immediately,
+		  instead of only when they are physically deleted.
+		<LI> Each entry has an age (positive if entry is from recordz,
+		  negative if from recorda).
+		<LI> When we backtrack to deleted entries, we search the property
+		  list for entries with younger ages.
+		<LI> When we erase a clause, we don't place a fail in
+		  the clause. Instead, we remove the clause from the
+		  chain immediately.
+        </UL>
+	<LI> NEW:
+		MIPS architecture support in Regs.h and absmi.c.
+	<LI> X86 Speedups: 
+	<UL>
+		<LI> Force opcode prefetching for simple instructions in X86
+		<LI> Cache Y for control instructions in X86
+		<LI> Optimise Bind() for X86 by jumping only if we need to 
+		  trail for cases close to the end of the instruction. This
+		  does not seem to improve performance for X86 machines.
+		<LI> Cache SREG usage.
+        </UL>
+	<LI> Cleanup:
+		Move AuxSp and AuxTop to REGS
+		Use Aux for emulator PDL
+	<LI> Cleanup: compiler.h
+		Use enum for compiler ops.
+	<LI> NEW: Indexing
+	<UL>
+		<LI> simplify GC and ORP: instructions do not store
+		  intermediate values in global;
+		<LI> unnecessary instructions purged;
+		<LI> new try_tail like trail_head, but jumps to atomic code
+		<LI> switch on types insts after backtracking now look
+		  like retry and have correct clause information for ORP;
+		<LI> switch_on_type talks to switch_on_func through S, and to
+		  switch on cons through A[0]. I_R disappeared.
+        </UL>
+</UL>

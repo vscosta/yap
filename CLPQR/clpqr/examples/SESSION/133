@@ -1,0 +1,21 @@
+/tmp/clpq
+
+yes
+| ?- [library('clpqr/examples/squares')].
+{consulting /freyung/christian/sicstus2.1.9.clp/library/clpqr/examples/squares.pl...}
+{Warning: [X1,X2,X3,X4,X5,X6,X7,X8,X9] - singleton variables in rectangle/2 in lines 1-40}
+{/freyung/christian/sicstus2.1.9.clp/library/clpqr/examples/squares.pl consulted, 30 msec 2928 bytes}
+
+yes
+| ?- time(rectangle(A,Rs)).
+%%% Timing 00:01:10.950    70.950
+
+A = 33/32,
+Rs = [15/32,9/16,1/4,7/32,1/8,7/16,1/32,5/16,9/32] ? ;
+%%% Timing 00:00:08.730     8.730
+
+A = 69/61,
+Rs = [33/61,36/61,28/61,5/61,2/61,9/61,25/61,7/61,16/61] ? 
+
+yes
+| ?- ^D

@@ -1,0 +1,764 @@
+<HTML>
+<HEAD>
+<!-- Created by texi2html 1.56k + clip patches and <A href="http://www.clip.dia.fi.upm.es/Software">lpdoc</A> from pillow_doc.texi on 17 July 2000 -->
+
+<LINK rel="stylesheet" href="pillow_doc.css" type="text/css">
+<TITLE>The PiLLoW Web Programming Library               - PiLLoW types</TITLE>
+</HEAD>
+<BODY> 
+Go to the <A HREF="pillow_doc_1.html">first</A>, <A HREF="pillow_doc_4.html">previous</A>, <A HREF="pillow_doc_6.html">next</A>, <A HREF="pillow_doc_9.html">last</A> section, <A HREF="pillow_doc_toc.html">table of contents</A>.
+<P><HR><P>
+
+
+<H1><A NAME="SEC13" HREF="pillow_doc_toc.html#TOC13">PiLLoW types</A></H1>
+
+<P>
+<STRONG>Author(s):</STRONG> Daniel Cabeza.
+
+
+<P>
+Here are defined the regular types used in the documentation of the predicates of the PiLLoW package.
+
+
+
+<UL>
+<LI><A HREF="pillow_doc_5.html#SEC14">Usage and interface (pillow_types)</A>
+<LI><A HREF="pillow_doc_5.html#SEC15">Documentation on exports (pillow_types)</A>
+</UL>
+
+
+
+<H2><A NAME="SEC14" HREF="pillow_doc_toc.html#TOC14">Usage and interface (<CODE>pillow_types</CODE>)</A></H2>
+
+<div class="cartouche">
+
+<UL>
+
+<LI><STRONG>Library usage:</STRONG>
+
+<CODE>:- use_module(library(pillow_types)).</CODE>
+
+<LI><STRONG>Exports:</STRONG>
+
+
+<UL>
+
+<LI><EM>Regular Types:</EM>
+
+<A NAME="IDX107"></A>
+<CODE>canonic_html_term/1</CODE>, 
+<A NAME="IDX108"></A>
+<CODE>canonic_xml_term/1</CODE>, 
+<A NAME="IDX109"></A>
+<CODE>html_term/1</CODE>, 
+<A NAME="IDX110"></A>
+<CODE>form_dict/1</CODE>, 
+<A NAME="IDX111"></A>
+<CODE>form_assignment/1</CODE>, 
+<A NAME="IDX112"></A>
+<CODE>form_value/1</CODE>, 
+<A NAME="IDX113"></A>
+<CODE>value_dict/1</CODE>, 
+<A NAME="IDX114"></A>
+<CODE>url_term/1</CODE>, 
+<A NAME="IDX115"></A>
+<CODE>http_request_param/1</CODE>, 
+<A NAME="IDX116"></A>
+<CODE>http_response_param/1</CODE>, 
+<A NAME="IDX117"></A>
+<CODE>http_date/1</CODE>, 
+<A NAME="IDX118"></A>
+<CODE>weekday/1</CODE>, 
+<A NAME="IDX119"></A>
+<CODE>month/1</CODE>, 
+<A NAME="IDX120"></A>
+<CODE>hms_time/1</CODE>.
+
+</UL>
+
+</UL>
+
+</div class="cartouche">
+
+
+
+<H2><A NAME="SEC15" HREF="pillow_doc_toc.html#TOC15">Documentation on exports (<CODE>pillow_types</CODE>)</A></H2>
+<P>
+<A NAME="IDX121"></A>
+<A NAME="IDX122"></A>
+<DL>
+<DT><span class="define">REGTYPE:</span> <B>canonic_html_term/1:</B>
+<DD><A NAME="IDX123"></A>
+
+
+<P>
+A term representing HTML code in canonical, structured way. It is a list of terms defined by the following predicate: 
+
+<PRE>
+canonic_html_item(comment(S)) :-
+        string(S).
+canonic_html_item(declare(S)) :-
+        string(S).
+canonic_html_item(env(Tag,Atts,Terms)) :-
+        atm(Tag),
+        list(Atts,tag_attrib),
+        canonic_html_term(Terms).
+canonic_html_item($(Tag,Atts)) :-
+        atm(Tag),
+        list(Atts,tag_attrib).
+canonic_html_item(S) :-
+        string(S).
+</PRE>
+
+
+<PRE>
+tag_attrib(Att) :-
+        atm(Att).
+tag_attrib(Att=Val) :-
+        atm(Att),
+        string(Val).
+</PRE>
+
+<P>
+Each structure represents one HTML construction: 
+<DL COMPACT>
+
+<DT><STRONG>env(</STRONG><EM>tag</EM><STRONG>,</STRONG><EM>attribs</EM><STRONG>,</STRONG><EM>terms</EM><STRONG>)</STRONG>
+<DD>
+An HTML environment, with name <EM>tag</EM>, list of attributes <EM>attribs</EM> and contents <EM>terms</EM>. 
+
+<DT><STRONG>$(</STRONG><EM>tag</EM><STRONG>,</STRONG><EM>attribs</EM><STRONG>)</STRONG>
+<DD>
+An HTML element of name <EM>tag</EM> and list of attributes <EM>attribs</EM>. <CODE>($)/2</CODE> is defined by the pillow package as an infix, binary operator. 
+
+<DT><STRONG>comment(</STRONG><EM>string</EM><STRONG>)</STRONG>
+<DD>
+An HTML comment (translates to/from <CODE>&#60;!--</CODE><EM>string</EM><CODE>--&#62;</CODE>). 
+
+<DT><STRONG>declare(</STRONG><EM>string</EM><STRONG>)</STRONG>
+<DD>
+An HTML declaration, they are used only in the header (translates to/from <CODE>&#60;!</CODE><EM>string</EM><CODE>&#62;</CODE>). 
+
+<DT><EM>string</EM>
+<DD>
+Normal text is represented as a list of character codes. 
+
+</DL>
+
+<P>
+For example, the term 
+
+<PRE>
+env(a,[href="www.therainforestsite.com"],
+      ["Visit ",img$[src="TRFS.gif"]])
+</PRE>
+
+<P>
+is output to (or parsed from): 
+
+<PRE>
+&#60;a href="www.therainforestsite.com"&#62;Visit &#60;img src="TRFS.gif"&#62;&#60;/a&#62;
+</PRE>
+
+<P>
+<STRONG>Usage:</STRONG> <CODE>canonic_html_term(HTMLTerm)</CODE>
+
+<UL>
+<LI><EM>Description:</EM> <CODE>HTMLTerm</CODE> is a term representing HTML code in canonical form.
+
+</UL>
+
+</DL>
+
+<P>
+<A NAME="IDX124"></A>
+<A NAME="IDX125"></A>
+<DL>
+<DT><span class="define">REGTYPE:</span> <B>canonic_xml_term/1:</B>
+<DD><A NAME="IDX126"></A>
+
+
+<P>
+A term representing XML code in canonical, structured way. It is a list of terms defined by the following predicate (see 
+<A NAME="IDX127"></A>
+<CODE>tag_attrib/1</CODE> definition in 
+<A NAME="IDX128"></A>
+<CODE>canonic_html_term/1</CODE>): 
+
+<PRE>
+canonic_xml_item(Term) :-
+        canonic_html_item(Term).
+canonic_xml_item(xmldecl(Atts)) :-
+        list(Atts,tag_attrib).
+canonic_xml_item(env(Tag,Atts,Terms)) :-
+        atm(Tag),
+        list(Atts,tag_attrib),
+        canonic_xml_term(Terms).
+canonic_xml_item(elem(Tag,Atts)) :-
+        atm(Tag),
+        list(Atts,tag_attrib).
+</PRE>
+
+<P>
+In addition to the structures defined by 
+<A NAME="IDX129"></A>
+<CODE>canonic_html_term/1</CODE> (the <CODE>($)/2</CODE> structure appears only in malformed XML code), the following structures can be used: 
+<DL COMPACT>
+
+<DT><STRONG>elem(</STRONG><EM>tag</EM><STRONG>,</STRONG><EM>atts</EM><STRONG>)</STRONG>
+<DD>
+Specifies an XML empty element of name <EM>tag</EM> and list of attributes <EM>atts</EM>. For example, the term 
+
+<PRE>
+elem(arc,[weigh="3",begin="n1",end="n2"])
+</PRE>
+
+is output to (or parsed from): 
+
+<PRE>
+&#60;arc weigh="3" begin="n1" end="n2"/&#62;
+</PRE>
+
+<DT><STRONG>xmldecl(</STRONG><EM>atts</EM><STRONG>)</STRONG>
+<DD>
+Specifies an XML declaration with attributes <EM>atts</EM> (translates to/from <CODE>&#60;?xml </CODE><EM>atts</EM><CODE>?&#62;</CODE>) 
+
+</DL>
+
+<P>
+<STRONG>Usage:</STRONG> <CODE>canonic_xml_term(XMLTerm)</CODE>
+
+<UL>
+<LI><EM>Description:</EM> <CODE>XMLTerm</CODE> is a term representing XML code in canonical form.
+
+</UL>
+
+</DL>
+
+<P>
+<A NAME="IDX130"></A>
+<A NAME="IDX131"></A>
+<DL>
+<DT><span class="define">REGTYPE:</span> <B>html_term/1:</B>
+<DD><A NAME="IDX132"></A>
+
+
+<P>
+A term which represents HTML or XML code in a structured way. In addition to the structures defined by 
+<A NAME="IDX133"></A>
+<CODE>canonic_html_term/1</CODE> or 
+<A NAME="IDX134"></A>
+<CODE>canonic_xml_term/1</CODE>, the following structures can be used: 
+<DL COMPACT>
+
+<DT><STRONG>begin(</STRONG><EM>tag</EM><STRONG>,</STRONG><EM>atts</EM><STRONG>)</STRONG>
+<DD>
+It translates to the start of an HTML environment of name <EM>tag</EM> and attributes <EM>atts</EM>. There exists also a <STRONG>begin(<EM>tag</EM>)</STRONG> structure. Useful, in conjunction with the next structure, when including in a document output generated by an existing piece of code (e.g. <EM>tag</EM> = <CODE>pre</CODE>). Its use is otherwise discouraged. 
+
+<DT><STRONG>end(</STRONG><EM>tag</EM><STRONG>)</STRONG>
+<DD>
+Translates to the end of an HTML environment of name <EM>tag</EM>. 
+
+<DT><STRONG>start</STRONG>
+<DD>
+Used at the beginning of a document (translates to <CODE>&#60;html&#62;</CODE>). 
+
+<DT><STRONG>end</STRONG>
+<DD>
+Used at the end of a document (translates to <CODE>&#60;/html&#62;</CODE>). 
+
+<DT><CODE>--</CODE>
+<DD>
+Produces a horizontal rule (translates to <CODE>&#60;hr&#62;</CODE>). 
+
+<DT><STRONG>\\</STRONG>
+<DD>
+Produces a line break (translates to <CODE>&#60;br&#62;</CODE>). 
+
+<DT><STRONG>$</STRONG>
+<DD>
+Produces a paragraph break (translates to <CODE>&#60;p&#62;</CODE>). 
+
+<DT><STRONG>image(</STRONG><EM>address</EM><STRONG>)</STRONG>
+<DD>
+Used to include an image of address (URL) <EM>address</EM> (equivalent to <CODE>img$[src=</CODE><EM>address</EM><CODE>]</CODE>). 
+
+<DT><STRONG>image(</STRONG><EM>address</EM><STRONG>,</STRONG><EM>atts</EM><STRONG>)</STRONG>
+<DD>
+As above with the list of attributes <EM>atts</EM>. 
+
+<DT><STRONG>ref(</STRONG><EM>address</EM><STRONG>,</STRONG><EM>text</EM><STRONG>)</STRONG>
+<DD>
+Produces a hypertext link, <EM>address</EM> is the URL of the referenced resource, <EM>text</EM> is the text of the reference (equivalent to <CODE>a([href=</CODE><EM>address</EM><CODE>],</CODE><EM>text</EM><CODE>)</CODE>). 
+
+<DT><STRONG>label(</STRONG><EM>name</EM><STRONG>,</STRONG><EM>text</EM><STRONG>)</STRONG>
+<DD>
+Labels <EM>text</EM> as a target destination with label <EM>name</EM> (equivalent to <CODE>a([name=</CODE><EM>name</EM><CODE>],</CODE><EM>text</EM><CODE>)</CODE>). 
+
+<DT><STRONG>heading(</STRONG><EM>n</EM><STRONG>,</STRONG><EM>text</EM><STRONG>)</STRONG>
+<DD>
+Produces a heading of level <EM>n</EM> (between 1 and 6), <EM>text</EM> is the text to be used as heading. Useful when one wants a heading level relative to another heading (equivalent to <CODE>h</CODE><EM>n</EM><CODE>(</CODE><EM>text</EM><CODE>)</CODE>). 
+
+<DT><STRONG>itemize(</STRONG><EM>items</EM><STRONG>)</STRONG>
+<DD>
+Produces a list of bulleted items, <EM>items</EM> is a list of corresponding HTML terms (translates to a <CODE>&#60;ul&#62;</CODE> environment). 
+
+<DT><STRONG>enumerate(</STRONG><EM>items</EM><STRONG>)</STRONG>
+<DD>
+Produces a list of numbered items, <EM>items</EM> is a list of corresponding HTML terms (translates to a <CODE>&#60;ol&#62;</CODE> environment). 
+
+<DT><STRONG>description(</STRONG><EM>defs</EM><STRONG>)</STRONG>
+<DD>
+Produces a list of defined items, <EM>defs</EM> is a list whose elements are definitions, each of them being a Prolog sequence (composed by <CODE>','/2</CODE> operators). The last element of the sequence is the definition, the other (if any) are the defined terms (translates to a <CODE>&#60;dl&#62;</CODE> environment). 
+
+<DT><STRONG>nice_itemize(</STRONG><EM>img</EM><STRONG>,</STRONG><EM>items</EM><STRONG>)</STRONG>
+<DD>
+Produces a list of bulleted items, using the image <EM>img</EM> as bullet. The predicate 
+<A NAME="IDX135"></A>
+<CODE>icon_address/2</CODE> provides a colored bullet. 
+
+<DT><STRONG>preformatted(</STRONG><EM>text</EM><STRONG>)</STRONG>
+<DD>
+Used to include preformatted text, <EM>text</EM> is a list of HTML terms, each element of the list being a line of the resulting document (translates to a <CODE>&#60;pre&#62;</CODE> environment). 
+
+<DT><STRONG>verbatim(</STRONG><EM>text</EM><STRONG>)</STRONG>
+<DD>
+Used to include text verbatim, special HTML characters (<CODE>&#60;,&#62;,&#38;,"</CODE> and space) are translated into its quoted HTML equivalent. 
+
+<DT><STRONG>prolog_term(</STRONG><EM>term</EM><STRONG>)</STRONG>
+<DD>
+Includes any prolog term <EM>term</EM>, represented in functional notation. Variables are output as <CODE>_</CODE>. 
+
+<DT><STRONG>nl</STRONG>
+<DD>
+Used to include a newline in the HTML source (just to improve human readability). 
+
+<DT><STRONG>entity(</STRONG><EM>name</EM><STRONG>)</STRONG>
+<DD>
+Includes the entity of name <EM>name</EM> (ISO-8859-1 special character). 
+
+<DT><STRONG>start_form(</STRONG><EM>addr</EM><STRONG>,</STRONG><EM>atts</EM><STRONG>)</STRONG>
+<DD>
+Specifies the beginning of a form. <EM>addr</EM> is the address (URL) of the program that will handle the form, and <EM>atts</EM> other attributes of the form, as the method used to invoke it. If <EM>atts</EM> is not present (there is only one argument) the method defaults to POST. 
+
+<DT><STRONG>start_form</STRONG>
+<DD>
+Specifies the beginning of a form without assigning address to the handler, so that the form handler will be the cgi-bin executable producing the form. 
+
+<DT><STRONG>end_form</STRONG>
+<DD>
+Specifies the end of a form. 
+
+<DT><STRONG>checkbox(</STRONG><EM>name</EM><STRONG>,</STRONG><EM>state</EM><STRONG>)</STRONG>
+<DD>
+Specifies an input of type <CODE>checkbox</CODE> with name <EM>name</EM>, <EM>state</EM> is <CODE>on</CODE> if the checkbox is initially checked. 
+
+<DT><STRONG>radio(</STRONG><EM>name</EM><STRONG>,</STRONG><EM>value</EM><STRONG>,</STRONG><EM>selected</EM><STRONG>)</STRONG>
+<DD>
+Specifies an input of type <CODE>radio</CODE> with name <EM>name</EM> (several radio buttons which are interlocked must share their name), <EM>value</EM> is the the value returned by the button, if <EM>selected</EM>=<EM>value</EM> the button is initially checked. 
+
+<DT><STRONG>input(</STRONG><EM>type</EM><STRONG>,</STRONG><EM>atts</EM><STRONG>)</STRONG>
+<DD>
+Specifies an input of type <EM>type</EM> with a list of attributes <EM>atts</EM>. Possible values of <EM>type</EM> are <CODE>text</CODE>, <CODE>hidden</CODE>, <CODE>submit</CODE>, <CODE>reset</CODE>, ldots 
+
+<DT><STRONG>textinput(</STRONG><EM>name</EM><STRONG>,</STRONG><EM>atts</EM><STRONG>,</STRONG><EM>text</EM><STRONG>)</STRONG>
+<DD>
+Specifies an input text area of name <EM>name</EM>. <EM>text</EM> provides the default text to be shown in the area, <EM>atts</EM> a list of attributes. 
+
+<DT><STRONG>option(</STRONG><EM>name</EM><STRONG>,</STRONG><EM>val</EM><STRONG>,</STRONG><EM>options</EM><STRONG>)</STRONG>
+<DD>
+Specifies a simple option selector of name <EM>name</EM>, <EM>options</EM> is the list of available options and <EM>val</EM> is the initial selected option (if <EM>val</EM> is not in <EM>options</EM> the first item is selected by default) (translates to a <CODE>&#60;select&#62;</CODE> environment). 
+
+<DT><STRONG>menu(</STRONG><EM>name</EM><STRONG>,</STRONG><EM>atts</EM><STRONG>,</STRONG><EM>items</EM><STRONG>)</STRONG>
+<DD>
+Specifies a menu of name <EM>name</EM>, list of attributes <EM>atts</EM> and list of options <EM>items</EM>. The elements of the list <EM>items</EM> are marked with the prefix operator <CODE>$</CODE> to indicate that they are selected (translates to a <CODE>&#60;select&#62;</CODE> environment). 
+
+<DT><STRONG>form_reply</STRONG>
+<DD>
+<DT><STRONG>cgi_reply</STRONG>
+<DD>
+This two are equivalent, they do not generate HTML, rather, the CGI protocol requires this content descriptor to be used at the beginning by CGI executables (including form handlers) when replying (translates to <CODE>Content-type: text/html</CODE>). 
+
+<DT><STRONG>pr</STRONG>
+<DD>
+Includes in the page a graphical logo with the message "Developed using the PiLLoW Web programming library", which points to the manual and library source. 
+
+<DT><EM>name</EM><STRONG>(</STRONG><EM>text</EM><STRONG>)</STRONG>
+<DD>
+A term with functor <EM>name</EM>/1, different from the special functors defined herein, represents an HTML environment of name <EM>name</EM> and included text <EM>text</EM>. For example, the term 
+
+<PRE>
+   address('clip@clip.dia.fi.upm.es')
+</PRE>
+
+is translated into the HTML source 
+
+<PRE>
+   &#60;address&#62;clip@clip.dia.fi.upm.es&#60;/address&#62;
+</PRE>
+
+<DT><EM>name</EM><STRONG>(</STRONG><EM>atts</EM><STRONG>,</STRONG><EM>text</EM><STRONG>)</STRONG>
+<DD>
+A term with functor <EM>name</EM>/2, different from the special functors defined herein, represents an HTML environment of name <EM>name</EM>, attributes <EM>atts</EM> and included text <EM>text</EM>. For example, the term 
+
+<PRE>
+
+   a([href='http://www.clip.dia.fi.upm.es/'],"Clip home")
+</PRE>
+
+represents the HTML source 
+
+<PRE>
+   &#60;a href="http://www.clip.dia.fi.upm.es/"&#62;Clip home&#60;/a&#62;
+</PRE>
+
+</DL>
+
+<P>
+<STRONG>Usage:</STRONG> <CODE>html_term(HTMLTerm)</CODE>
+
+<UL>
+<LI><EM>Description:</EM> <CODE>HTMLTerm</CODE> is a term representing HTML code.
+
+</UL>
+
+</DL>
+
+<P>
+<A NAME="IDX136"></A>
+<A NAME="IDX137"></A>
+<DL>
+<DT><span class="define">REGTYPE:</span> <B>form_dict/1:</B>
+<DD><A NAME="IDX138"></A>
+
+
+<P>
+<STRONG>Usage:</STRONG> <CODE>form_dict(Dict)</CODE>
+
+<UL>
+<LI><EM>Description:</EM> <CODE>Dict</CODE> is a dictionary of values of the attributes of a form. It is a list of <CODE>form_assignment</CODE>
+
+</UL>
+
+</DL>
+
+<P>
+<A NAME="IDX139"></A>
+<A NAME="IDX140"></A>
+<DL>
+<DT><span class="define">REGTYPE:</span> <B>form_assignment/1:</B>
+<DD><A NAME="IDX141"></A>
+
+
+<P>
+<STRONG>Usage:</STRONG> <CODE>form_assignment(Eq)</CODE>
+
+<UL>
+<LI><EM>Description:</EM> <CODE>Eq</CODE> is an assignment of value of an attribute of a form. It is defined by:
+
+
+<PRE>
+form_assignment(A=V) :-
+        atm(A),
+        form_value(V).
+</PRE>
+
+
+<PRE>
+form_value(A) :-
+        atm(A).
+form_value(N) :-
+        num(N).
+form_value(L) :-
+        list(L,string).
+</PRE>
+
+ 
+</UL>
+
+</DL>
+
+<P>
+<A NAME="IDX142"></A>
+<A NAME="IDX143"></A>
+<DL>
+<DT><span class="define">REGTYPE:</span> <B>form_value/1:</B>
+<DD><A NAME="IDX144"></A>
+
+
+<P>
+<STRONG>Usage:</STRONG> <CODE>form_value(V)</CODE>
+
+<UL>
+<LI><EM>Description:</EM> <CODE>V</CODE> is a value of an attribute of a form.
+
+</UL>
+
+</DL>
+
+<P>
+<A NAME="IDX145"></A>
+<A NAME="IDX146"></A>
+<DL>
+<DT><span class="define">REGTYPE:</span> <B>value_dict/1:</B>
+<DD><A NAME="IDX147"></A>
+
+
+<P>
+<STRONG>Usage:</STRONG> <CODE>value_dict(Dict)</CODE>
+
+<UL>
+<LI><EM>Description:</EM> <CODE>Dict</CODE> is a dictionary of values. It is a list of pairs <EM>atom</EM>=<EM>constant</EM>.
+
+</UL>
+
+</DL>
+
+<P>
+<A NAME="IDX148"></A>
+<A NAME="IDX149"></A>
+<DL>
+<DT><span class="define">REGTYPE:</span> <B>url_term/1:</B>
+<DD><A NAME="IDX150"></A>
+
+
+<P>
+A term specifying an Internet Uniform Resource Locator. Currently only HTTP URLs are supported. Example: <CODE>http('www.clip.dia.fi.upm.es',80,"/Software/Ciao/")</CODE>. Defined as 
+
+<PRE>
+url_term(http(Host,Port,Document)) :-
+        atm(Host),
+        int(Port),
+        string(Document).
+</PRE>
+
+<P>
+<STRONG>Usage:</STRONG> <CODE>url_term(URL)</CODE>
+
+<UL>
+<LI><EM>Description:</EM> <CODE>URL</CODE> specifies a URL.
+
+</UL>
+
+</DL>
+
+<P>
+<A NAME="IDX151"></A>
+<A NAME="IDX152"></A>
+<DL>
+<DT><span class="define">REGTYPE:</span> <B>http_request_param/1:</B>
+<DD><A NAME="IDX153"></A>
+
+
+<P>
+A parameter of an HTTP request: 
+
+<UL>
+<LI><STRONG>head:</STRONG> Specify that the document content is not wanted.
+
+<LI><STRONG>timeout(</STRONG><EM>T</EM><STRONG>):</STRONG> <EM>T</EM> specifies the time in seconds to wait for the response. Default is 300 seconds.
+
+<LI><STRONG>if_modified_since(</STRONG><EM>Date</EM><STRONG>):</STRONG> Get document only if newer than <EM>Date</EM>. <EM>Date</EM> has the format defined by
+
+<A NAME="IDX154"></A>
+<CODE>http_date/1</CODE>. 
+
+<LI><STRONG>user_agent(</STRONG><EM>Agent</EM><STRONG>):</STRONG> Provides a user-agent field, <EM>Agent</EM> is an atom. The string <CODE>"PiLLoW/1.1"</CODE> (or whatever version of PiLLoW is used) is appended.
+
+<LI><STRONG>authorization(</STRONG><EM>Scheme</EM>,<EM>Params</EM><STRONG>):</STRONG> To provide credentials. See RFC 1945 for details.
+
+<LI><STRONG><EM>option</EM>(</STRONG><EM>Value</EM><STRONG>):</STRONG> Any unary term, being <EM>Value</EM> an atom, can be used to provide another valid option (e.g. <CODE>from('user@machine')</CODE>).
+
+</UL>
+
+<P>
+<STRONG>Usage:</STRONG> <CODE>http_request_param(Request)</CODE>
+
+<UL>
+<LI><EM>Description:</EM> <CODE>Request</CODE> is a parameter of an HTTP request.
+
+</UL>
+
+</DL>
+
+<P>
+<A NAME="IDX155"></A>
+<A NAME="IDX156"></A>
+<DL>
+<DT><span class="define">REGTYPE:</span> <B>http_response_param/1:</B>
+<DD><A NAME="IDX157"></A>
+
+
+<P>
+A parameter of an HTTP response: 
+
+<UL>
+
+<LI><STRONG>content(</STRONG><EM>String</EM><STRONG>):</STRONG> <EM>String</EM> is the document content (list of bytes). If the <CODE>head</CODE> parameter of the HTTP request is used, an empty list is get here.
+
+<LI><STRONG>status(</STRONG><EM>Type,Code,Reason</EM><STRONG>):</STRONG> <EM>Type</EM> is an atom denoting the response type, <EM>Code</EM> is the status code (an integer), and <EM>Reason</EM> is a string holding the reason phrase.
+
+<LI><STRONG>message_date(</STRONG><EM>Date</EM><STRONG>):</STRONG> <EM>Date</EM> is the date of the response, with format defined by
+
+<A NAME="IDX158"></A>
+<CODE>http_date/1</CODE>. 
+
+<LI><STRONG>location(</STRONG><EM>Loc</EM><STRONG>):</STRONG> This parameter appears when the document has moved, <EM>Loc</EM> is an atom holding the new location.
+
+<LI><STRONG>http_server(</STRONG><EM>Server</EM><STRONG>):</STRONG> <EM>Server</EM> is the server responding, as a string.
+
+<LI><STRONG>authenticate(</STRONG><EM>Params</EM><STRONG>):</STRONG> Returned if document is protected, <EM>Params</EM> is a list of chagenges. See RFC 1945 for details.
+
+<LI><STRONG>allow(</STRONG><EM>Methods</EM><STRONG>):</STRONG> <EM>Methods</EM> are the methods allowed by the server, as a list of atoms.
+
+<LI><STRONG>content_encoding(</STRONG><EM>Encoding</EM><STRONG>):</STRONG> <EM>Encoding</EM> is an atom defining the encoding.
+
+<LI><STRONG>content_length(</STRONG><EM>Length</EM><STRONG>):</STRONG> <EM>Length</EM> is the length of the document (an integer).
+
+<LI><STRONG>content_type(</STRONG><EM>Type,Subtype,Params</EM><STRONG>):</STRONG> Specifies the document content type, <EM>Type</EM> and <EM>Subtype</EM> are atoms, <EM>Params</EM> a list of parameters (e.g. <CODE>content_type(text,html,[])</CODE>).
+
+<LI><STRONG>expires(</STRONG><EM>Date</EM><STRONG>):</STRONG> <EM>Date</EM> is the date after which the entity should be considered stale. Format defined by
+
+<A NAME="IDX159"></A>
+<CODE>http_date/1</CODE>. 
+
+<LI><STRONG>last_modified(</STRONG><EM>Date</EM><STRONG>):</STRONG> <EM>Date</EM> is the date at which the sender believes the resource was last modified. Format defined by
+
+<A NAME="IDX160"></A>
+<CODE>http_date/1</CODE>. 
+
+<LI><STRONG>pragma(</STRONG><EM>String</EM><STRONG>):</STRONG> Miscellaneous data.
+
+<LI><STRONG><EM>header</EM>(</STRONG><EM>String</EM><STRONG>):</STRONG> Any other functor <EM>header</EM>/1 is an extension header.
+
+</UL>
+
+<P>
+<STRONG>Usage:</STRONG> <CODE>http_response_param(Response)</CODE>
+
+<UL>
+<LI><EM>Description:</EM> <CODE>Response</CODE> is a parameter of an HTTP response.
+
+</UL>
+
+</DL>
+
+<P>
+<A NAME="IDX161"></A>
+<A NAME="IDX162"></A>
+<DL>
+<DT><span class="define">REGTYPE:</span> <B>http_date/1:</B>
+<DD><A NAME="IDX163"></A>
+
+
+<P>
+<CODE>http_date(Date)</CODE>
+
+
+<P>
+<CODE>Date</CODE> is a term defined as 
+
+<PRE>
+http_date(date(WeekDay,Day,Month,Year,Time)) :-
+        weekday(WeekDay),
+        int(Day),
+        month(Month),
+        int(Year),
+        hms_time(Time).
+</PRE>
+
+<P>
+.
+
+
+<P>
+<STRONG>Usage:</STRONG> <CODE>http_date(Date)</CODE>
+
+<UL>
+<LI><EM>Description:</EM> <CODE>Date</CODE> is a term denoting a date.
+
+</UL>
+
+</DL>
+
+<P>
+<A NAME="IDX164"></A>
+<A NAME="IDX165"></A>
+<DL>
+<DT><span class="define">REGTYPE:</span> <B>weekday/1:</B>
+<DD><A NAME="IDX166"></A>
+
+
+<P>
+A regular type, defined as follows:
+
+<PRE>
+
+<PRE>
+weekday('Monday').
+weekday('Tuesday').
+weekday('Wednesday').
+weekday('Thursday').
+weekday('Friday').
+weekday('Saturday').
+weekday('Sunday').
+</PRE>
+
+</PRE>
+
+</DL>
+
+<P>
+<A NAME="IDX167"></A>
+<A NAME="IDX168"></A>
+<DL>
+<DT><span class="define">REGTYPE:</span> <B>month/1:</B>
+<DD><A NAME="IDX169"></A>
+
+
+<P>
+A regular type, defined as follows:
+
+<PRE>
+
+<PRE>
+month('January').
+month('February').
+month('March').
+month('April').
+month('May').
+month('June').
+month('July').
+month('August').
+month('September').
+month('October').
+month('November').
+month('December').
+</PRE>
+
+</PRE>
+
+</DL>
+
+<P>
+<A NAME="IDX170"></A>
+<A NAME="IDX171"></A>
+<DL>
+<DT><span class="define">REGTYPE:</span> <B>hms_time/1:</B>
+<DD><A NAME="IDX172"></A>
+
+
+<P>
+<STRONG>Usage:</STRONG> <CODE>hms_time(Time)</CODE>
+
+<UL>
+<LI><EM>Description:</EM> <CODE>Time</CODE> is an atom of the form <CODE>hh:mm:ss</CODE>
+
+</UL>
+
+</DL>
+
+<P><HR><P>
+Go to the <A HREF="pillow_doc_1.html">first</A>, <A HREF="pillow_doc_4.html">previous</A>, <A HREF="pillow_doc_6.html">next</A>, <A HREF="pillow_doc_9.html">last</A> section, <A HREF="pillow_doc_toc.html">table of contents</A>.
+</BODY>
+</HTML>

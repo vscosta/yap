@@ -1,0 +1,76 @@
+/tmp/clpq
+
+yes
+| ?- use_module(library('clpqr/monash')).
+{compiling /freyung/christian/sicstus2.1.9.clp/library/clpqr/monash.pl...}
+{loading /freyung/christian/sicstus2.1.9.clp/library/clpqr/printf.ql...}
+{loaded /freyung/christian/sicstus2.1.9.clp/library/clpqr/printf.ql in module printf, 30 msec 27216 bytes}
+{loading /freyung/christian/sicstus2.1.9.clp/library/clpqr/expand.ql...}
+{loaded /freyung/christian/sicstus2.1.9.clp/library/clpqr/expand.ql in module expand, 40 msec 26832 bytes}
+{/freyung/christian/sicstus2.1.9.clp/library/clpqr/monash.pl compiled, 90 msec 54848 bytes}
+
+yes
+| ?- expand, [library('clpqr/examples/monash/option')], noexpand.
+{consulting /freyung/christian/sicstus2.1.9.clp/library/clpqr/examples/monash/option...}
+{Warning: [B,C,P,X] - singleton variables in table/13 in lines 47-54}
+{Warning: [B,P,S] - singleton variables in table/13 in lines 54-55}
+{Warning: [B,C,S] - singleton variables in table/13 in lines 55-56}
+{Warning: [C,P,S,X] - singleton variables in table/13 in lines 56-57}
+
+>>> Sample goals (some with multiple answers):
+    go1(W), go2(S, W), go3(S, W), go4(S, W), go5(S, W)
+{/freyung/christian/sicstus2.1.9.clp/library/clpqr/examples/monash/option consulted, 130 msec 10032 bytes}
+
+yes
+| ?- go1(W).
+
+W = -19/4 ? ;
+
+no
+| ?- go2(S,W).
+
+W = 21/4,
+{S>=0},
+{S<50} ? ;
+
+{W>5},
+{S=221/4-W},
+{W=<21/4} ? ;
+
+no
+| ?- go3(S,W).
+
+{W>=10},
+{S=187/5-W},
+{W=<187/5} ? ;
+
+{W>=10},
+{S=313/5+W} ? ;
+
+no
+| ?- go4(S,W).
+
+W = 57/10,
+{S>=0},
+{S<20} ? ;
+
+{S>=20},
+{S<40},
+{W=257/10-S} ? ;
+
+W = -143/10,
+{S>=40},
+{S<60} ? ;
+
+{S>=60},
+{S<80},
+{W=-743/10+S} ? ;
+
+W = 57/10,
+{S>=80} ? ;
+
+no
+| ?- go5(S,W).
+
+no
+| ?- 

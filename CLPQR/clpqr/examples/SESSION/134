@@ -1,0 +1,52 @@
+/tmp/clpq
+
+yes
+| ?- [library('clpqr/examples/mip')].
+{consulting /freyung/christian/sicstus2.1.9.clp/library/clpqr/examples/mip.pl...}
+{/freyung/christian/sicstus2.1.9.clp/library/clpqr/examples/mip.pl consulted, 2700 msec 97008 bytes}
+
+yes
+| ?- example(1).
+incumbent(14,[1,2])
+incumbent(13,[2,1])
+1:13
+%%% Timing 00:00:00.030     0.030
+
+yes
+| ?- example(2).
+incumbent(-42,[0,2])
+2:-42
+%%% Timing 00:00:00.020     0.020
+
+yes
+| ?- example(flugpl).
+incumbent(1202700,[71,70,70,60,60,0,8,7,16,6,6])
+incumbent(1202400,[72,70,70,60,60,0,9,7,16,6,6])
+incumbent(1202100,[73,70,70,60,60,0,10,7,16,6,6])
+incumbent(1201800,[74,70,70,60,60,0,11,7,16,6,6])
+incumbent(1201500,[75,70,70,60,60,0,12,7,16,6,6])
+flugpl:1201500
+%%% Timing 00:00:45.920    45.920
+
+yes
+| ?- example(flugplan).
+incumbent(1202700,[70,7,70,8,71,0,6,60,6,60,16])
+incumbent(1202400,[70,7,70,9,72,0,6,60,6,60,16])
+incumbent(1202100,[70,7,70,10,73,0,6,60,6,60,16])
+incumbent(1201800,[70,7,70,11,74,0,6,60,6,60,16])
+incumbent(1201500,[70,7,70,12,75,0,6,60,6,60,16])
+flugplan:1201500
+%%% Timing 00:00:19.230    19.230
+
+yes
+| ?- example(sample2).
+incumbent(450,[0,0,1,1,0,0,1,0,1,0,0,0,0,0,1,0,0,1,0,1,0])
+incumbent(430,[0,0,1,0,0,0,1,0,1,0,1,0,0,1,1,1,0,0,0,1,0])
+incumbent(400,[0,0,1,0,0,0,1,1,0,0,1,0,0,1,1,0,1,0,0,1,0])
+incumbent(385,[0,0,1,0,0,0,1,0,1,0,1,1,0,0,1,0,0,1,0,1,0])
+incumbent(375,[0,1,0,0,0,1,1,0,1,0,1,1,0,0,0,0,0,0,1,0,0])
+sample2:375
+%%% Timing 00:00:58.940    58.940
+
+yes
+| ?- 

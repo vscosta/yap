@@ -1,0 +1,1548 @@
+This is pillow_doc.info, produced by Makeinfo version 3.12h from
+pillow_doc.texi.
+
+START-INFO-DIR-ENTRY
+* pillow: (pillow_doc.info).
+	The PiLLoW Web Programming Library
+END-INFO-DIR-ENTRY
+
+   The PiLLoW library ("Programming in Logic Languages on the Web")
+is a public domain Internet/WWW programming library for Logic
+Programming Systems which simplifies the process of writing
+applications for such environment. The library provides facilities
+for generating HTML or XML structured documents by handling them as
+Herbrand terms, producing HTML forms, writing form handlers,
+processing HTML templates, accessing and parsing WWW documents
+(either HTML or XML), accessing code posted at HTTP addresses, etc.
+
+   The PiLLoW library has been developed in the context of the
+&-Prolog and Ciao systems, but it has been adapted to a number of
+popular Logic Programming systems. Note, however, that this manual is
+written for the Ciao system, so if you use it in other systems, minor
+details in the documentation may not completely agree. For example,
+whereas in Ciao the library is a package which loads modules `html'
+and `http', in the other systems it is just one module `pillow'.
+Thus, do not consider the _Library usage_ information in other
+systems.
+
+   PiLLoW is distributed under the GNU Library General Public License.
+
+   Copyright (C) D. Cabeza and M. Hermenegildo
+
+   This document may be freely read, stored, reproduced,
+disseminated, translated or quoted by any means and on any medium
+provided the following conditions are met:
+
+  1. Every reader or user of this document acknowledges that is aware
+     that no guarantee is given regarding its contents, on any
+     account, and specifically concerning veracity, accuracy and
+     fitness for any purpose.
+
+  2. No modification is made other than cosmetic, change of
+     representation format, translation, correction of obvious
+     syntactic errors, or as permitted by the clauses below.
+
+  3. Comments and other additions may be inserted, provided they
+     clearly appear as such; translations or fragments must clearly
+     refer to an original complete version, preferably one that is
+     easily accessed whenever possible.
+
+  4. Translations, comments and other additions or modifications must
+     be dated and their author(s) must be identifiable (possibly via
+     an alias).
+
+  5. This licence is preserved and applies to the whole document with
+     modifications and additions (except for brief quotes),
+     independently of the representation format.
+
+  6. Any reference to the "official version", "original version" or
+     "how to obtain original versions" of the document is preserved
+     verbatim. Any copyright notice in the document is preserved
+     verbatim. Also, the title and author(s) of the original document
+     should be clearly mentioned as such.
+
+  7. In the case of translations, verbatim sentences mentioned in
+     (6.) are preserved in the language of the original document
+     accompanied by verbatim translations to the language of the
+     traslated document. All translations state clearly that the
+     author is not responsible for the translated work. This license
+     is included, at least in the language in which it is referenced
+     in the original version.
+
+  8. Whatever the mode of storage, reproduction or dissemination,
+     anyone able to access a digitized version of this document must
+     be able to make a digitized copy in a format directly usable,
+     and if possible editable, according to accepted, and publicly
+     documented, public standards.
+
+  9. Redistributing this document to a third party requires
+     simultaneous redistribution of this licence, without
+     modification, and in particular without any further condition or
+     restriction, expressed or implied, related or not to this
+     redistribution. In particular, in case of inclusion in a
+     database or collection, the owner or the manager of the database
+     or the collection renounces any right related to this inclusion
+     and concerning the possible uses of the document after
+     extraction from the database or the collection, whether alone or
+     in relation with other documents.
+
+
+   Any incompatibility of the above clauses with legal, contractual
+or judiciary decisions or constraints implies a corresponding
+limitation of reading, usage, or redistribution rights for this
+document, verbatim or modified.
+
+
+File: pillow_doc.info,  Node: Top,  Next: Summary,  Prev: (dir),  Up: (dir)
+
+The PiLLoW Web Programming Library
+**********************************
+
+* Menu:
+
+* Summary::
+* Introduction::
+* HTML/XML/CGI programming::
+* HTTP conectivity::
+* PiLLoW types::
+* References::
+* Predicate/Method Definition Index::
+* Regular Type Definition Index::
+* Global Index::
+
+
+File: pillow_doc.info,  Node: Summary,  Next: Introduction,  Prev: Top,  Up: Top
+
+Summary
+*******
+
+   The PiLLoW library ("Programming in Logic Languages on the Web")
+is a public domain Internet/WWW programming library for Logic
+Programming Systems which simplifies the process of writing
+applications for such environment. The library provides facilities
+for generating HTML or XML structured documents by handling them as
+Herbrand terms, producing HTML forms, writing form handlers,
+processing HTML templates, accessing and parsing WWW documents
+(either HTML or XML), accessing code posted at HTTP addresses, etc.
+
+   The PiLLoW library has been developed in the context of the
+&-Prolog and Ciao systems, but it has been adapted to a number of
+popular Logic Programming systems. Note, however, that this manual is
+written for the Ciao system, so if you use it in other systems, minor
+details in the documentation may not completely agree. For example,
+whereas in Ciao the library is a package which loads modules `html'
+and `http', in the other systems it is just one module `pillow'.
+Thus, do not consider the _Library usage_ information in other
+systems.
+
+   PiLLoW is distributed under the GNU Library General Public License.
+
+
+File: pillow_doc.info,  Node: Introduction,  Next: HTML/XML/CGI programming,  Prev: Summary,  Up: Top
+
+Introduction
+************
+
+   This package implements the PiLLoW library [CHV96]. The following
+three chapters document, respectively, the predicates for
+HTML/XML/CGI programming, the predicate for HTTP conectivity, and the
+types used in the definition of the predicates (key for fully
+understanding the other predicates). You can find a paper and some
+additional information in the `library/pillow/doc' directory of the
+distribution, and in the WWW at
+`http://clip.dia.fi.upm.es/Software/pillow/pillow.html'. There is
+also a _PiLLoW on-line tutorial_ (slides) at
+`http://clip.dia.fi.upm.es/logalg/slides/C_pillow/C_pillow.html'
+which illustrates the basic features and provides a number of
+examples of PiLLoW use.
+
+* Menu:
+
+* Installing PiLLoW::
+* Usage and interface (pillow)::
+
+
+File: pillow_doc.info,  Node: Installing PiLLoW,  Next: Usage and interface (pillow),  Prev: Introduction,  Up: Introduction
+
+Installing PiLLoW
+=================
+
+   To correctly install PiLLoW, first, make sure you downloaded the
+right version of PiLLoW (there are different versions for different
+LP/CLP systems; the version that comes with Ciao is of course the
+right one for Ciao). Then, please follow these steps:
+
+  1. Copy the files in the `images' directory to a WWW accessible
+     directory in your server.
+
+  2. Edit the file `icon_address.pl' and change the fact to point to
+     the URL to be used to access the images above.
+
+  3. In the Ciao system the files are in the correct place, in other
+     systems copy the files `pillow.pl' and `icon_address.pl' to a
+     suitable directory so that your Prolog system will find them.
+
+
+
+File: pillow_doc.info,  Node: Usage and interface (pillow),  Prev: Installing PiLLoW,  Up: Introduction
+
+Usage and interface (`pillow')
+==============================
+
+   * *Library usage:*
+
+     `:- use_package(pillow).'
+
+     or
+
+     `:- module(...,...,[pillow]).'
+
+   * *New operators defined:*
+
+     `$/2' [150,xfx], `$/1' [150,fx].
+
+
+File: pillow_doc.info,  Node: HTML/XML/CGI programming,  Next: HTTP conectivity,  Prev: Introduction,  Up: Top
+
+HTML/XML/CGI programming
+************************
+
+   *Author(s):* Daniel Cabeza, Manuel Hermenegildo, Sacha Varma.
+
+   *Version:* 1.7 (2000/7/12, 19:1:20 CEST)
+
+   *Version of last change:* 1.5#114 (2000/4/11, 20:23:43 CEST)
+
+   This module implements the predicates of the PiLLoW package
+related to HTML/ XML generation and parsing, CGI and form handlers
+programming, and in general all the predicates which do not imply the
+use of the HTTP protocol.
+
+* Menu:
+
+* Usage and interface (html)::
+* Documentation on exports (html)::
+* Documentation on multifiles (html)::
+* Other information (html)::
+
+
+File: pillow_doc.info,  Node: Usage and interface (html),  Next: Documentation on exports (html),  Prev: HTML/XML/CGI programming,  Up: HTML/XML/CGI programming
+
+Usage and interface (`html')
+============================
+
+   * *Library usage:*
+
+     `:- use_module(library(html)).'
+
+   * *Exports:*
+        - _Predicates:_
+
+          `output_html/1', `html2terms/2', `xml2terms/2',
+          `html_template/3', `html_report_error/1',
+          `get_form_input/1', `get_form_value/3',
+          `form_empty_value/1', `form_default/3', `set_cookie/2',
+          `get_cookies/1', `url_query/2', `my_url/1', `url_info/2',
+          `url_info_relative/3', `form_request_method/1',
+          `icon_address/2', `html_protect/1', `http_lines/3'.
+
+        - _Multifiles:_
+
+          `html_expansion/2'.
+
+
+
+
+File: pillow_doc.info,  Node: Documentation on exports (html),  Next: Documentation on multifiles (html),  Prev: Usage and interface (html),  Up: HTML/XML/CGI programming
+
+Documentation on exports (`html')
+=================================
+
+ - PREDICATE: output_html/1:
+     `output_html(HTMLTerm)'
+
+     Outputs `HTMLTerm', interpreted as an `html_term/1', to current
+     output stream.
+
+     *Usage:*
+        - _The following properties should hold at call time:_
+
+          `HTMLTerm' is a term representing HTML code.
+          (`html_term/1')
+
+
+
+ - PREDICATE: html2terms/2:
+     `html2terms(String,Terms)'
+
+     `String' is a character list containing HTML code and `Terms' is
+     its prolog structured representation.
+
+     *Usage 1:*
+        - _Description:_ Translates an HTML-term into the HTML code
+          it represents.
+
+        - _The following properties should hold at call time:_
+
+          `String' is a free variable.   (`var/1')
+
+          `Terms' is a term representing HTML code.   (`html_term/1')
+
+        - _The following properties hold upon exit:_
+
+          `String' is a string (a list of character codes).
+          (`string/1')
+
+     *Usage 2:*
+        - _Description:_ Translates HTML code into a structured
+          HTML-term.
+
+        - _Calls should, and exit will be compatible with:_
+
+          `Terms' is a term representing HTML code in canonical form.
+          (`canonic_html_term/1')
+
+        - _The following properties should hold at call time:_
+
+          `String' is a string (a list of character codes).
+          (`string/1')
+
+        - _The following properties hold upon exit:_
+
+          `Terms' is a term representing HTML code in canonical form.
+          (`canonic_html_term/1')
+
+
+
+ - PREDICATE: xml2terms/2:
+     `xml2terms(String,Terms)'
+
+     `String' is a character list containing XML code and `Terms' is
+     its prolog structured representation.
+
+     *Usage 1:*
+        - _Description:_ Translates a XML-term into the XML code it
+          represents.
+
+        - _The following properties should hold at call time:_
+
+          `String' is a free variable.   (`var/1')
+
+          `Terms' is a term representing HTML code.   (`html_term/1')
+
+        - _The following properties hold upon exit:_
+
+          `String' is a string (a list of character codes).
+          (`string/1')
+
+     *Usage 2:*
+        - _Description:_ Translates XML code into a structured
+          XML-term.
+
+        - _Calls should, and exit will be compatible with:_
+
+          `Terms' is a term representing XML code in canonical form.
+          (`canonic_xml_term/1')
+
+        - _The following properties should hold at call time:_
+
+          `String' is a string (a list of character codes).
+          (`string/1')
+
+        - _The following properties hold upon exit:_
+
+          `Terms' is a term representing XML code in canonical form.
+          (`canonic_xml_term/1')
+
+
+
+ - PREDICATE: html_template/3:
+     `html_template(Chars,Terms,Dict)'
+
+     Interprets `Chars' as an HTML template returning in `Terms' the
+     corresponding structured HTML-term, which includes variables,
+     and unifying `Dict' with a dictionary of those variables (an
+     incomplete list of _name_`='_Var_ pairs). An HTML template is
+     standard HTML code, but in which "slots" can be defined and
+     given an identifier. These slots represent parts of the HTML
+     code in which other HTML code can be inserted, and are
+     represented in the HTML-term as free variables. There are two
+     kinds of variables in templates:
+        * Variables representing page contents. A variable with name
+          _name_ is defined with the special tag `<V>'_name_`</V>'.
+
+        * Variables representing tag attributes. They occur as an
+          attribute or an attribute value starting with `_', followed
+          by its name, which must be formed by alphabetic characters.
+
+
+     As an example, suposse the following HTML template:
+          <html>
+          <body bgcolor=_bgcolor>
+          <v>content</v>
+          </body>
+          </html>
+     The following query in the Ciao toplevel shows how the template
+     is parsed, and the dictionary returned:
+          ?- file_to_string('template.html',_S), html_template(_S,Terms,Dict).
+          
+          Dict = [bgcolor=_A,content=_B|_],
+          Terms = [env(html,[],["
+          ",env(body,[bgcolor=_A],["
+          ",_B,"
+          "]),"
+          "]),"
+          "] ?
+          
+          yes
+     If a dictionary with values is supplied at call time, then
+     variables are unified accordingly inside the template:
+          ?- file_to_string('template.html',_S),
+             html_template(_S,Terms,[content=b("hello world!"),bgcolor="white"]).
+          
+          Terms = [env(html,[],["
+          ",env(body,[bgcolor="white"],["
+          ",b("hello world!"),"
+          "]),"
+          "]),"
+          "] ?
+          
+          yes
+
+     *Usage:*
+        - _Calls should, and exit will be compatible with:_
+
+          `Terms' is a term representing HTML code in canonical form.
+          (`canonic_html_term/1')
+
+          `Dict' is a list.   (`list/1')
+
+        - _The following properties should hold at call time:_
+
+          `Chars' is a string (a list of character codes).
+          (`string/1')
+
+        - _The following properties hold upon exit:_
+
+          `Terms' is a term representing HTML code in canonical form.
+          (`canonic_html_term/1')
+
+          `Dict' is a list.   (`list/1')
+
+
+
+ - PREDICATE: html_report_error/1:
+     *Usage:* `html_report_error(Error)'
+        - _Description:_ Outputs error `Error' as a standard HTML
+          page.
+
+
+
+ - PREDICATE: get_form_input/1:
+     `get_form_input(Dict)'
+
+     Translates input from the form (with either the POST or GET
+     methods, and even with CONTENT_TYPE multipart/form-data) to a
+     dictionary `Dict' of _attribute_=_value_ pairs. It translates
+     empty values (which indicate only the presence of an attribute)
+     to the atom `'$empty'', values with more than one line (from
+     text areas or files) to a list of lines as strings, the rest to
+     atoms or numbers (using `name/2').
+
+     *Usage:*
+        - _The following properties should hold at call time:_
+
+          `Dict' is a free variable.   (`var/1')
+
+        - _The following properties hold upon exit:_
+
+          `Dict' is a dictionary of values of the attributes of a
+          form. It is a list of `form_assignment'  (`form_dict/1')
+
+
+
+ - PREDICATE: get_form_value/3:
+     `get_form_value(Dict,Var,Val)'
+
+     Unifies `Val' with the value for attribute `Var' in dictionary
+     `Dict'. Does not fail: value is `''' if not found (this
+     simplifies the programming of form handlers when they can be
+     accessed directly).
+
+     *Usage:*
+        - _Calls should, and exit will be compatible with:_
+
+          `Val' is a value of an attribute of a form.
+          (`form_value/1')
+
+        - _The following properties should hold at call time:_
+
+          `Dict' is a dictionary of values of the attributes of a
+          form. It is a list of `form_assignment'  (`form_dict/1')
+
+          `Var' is an atom.   (`atm/1')
+
+        - _The following properties hold upon exit:_
+
+          `Val' is a value of an attribute of a form.
+          (`form_value/1')
+
+
+
+ - PREDICATE: form_empty_value/1:
+     *Usage:* `form_empty_value(Term)'
+        - _Description:_ Checks that `Term', a value comming from a
+          text area is empty (can have spaces, newlines and
+          linefeeds).
+
+
+
+ - PREDICATE: form_default/3:
+     *Usage:* `form_default(Val,Default,NewVal)'
+        - _Description:_ Useful when a form is only partially filled,
+          or when the executable can be invoked either by a link or
+          by a form, to set form defaults. If the value of `Val' is
+          empty then `NewVal'=`Default', else `NewVal'=`Val'.
+
+        - _The following properties should hold at call time:_
+
+          `Val' is currently a term which is not a free variable.
+          (`nonvar/1')
+
+          `Default' is currently a term which is not a free variable.
+          (`nonvar/1')
+
+          `NewVal' is a free variable.   (`var/1')
+
+
+
+ - PREDICATE: set_cookie/2:
+     `set_cookie(Name,Value)'
+
+     Sets a cookie of name `Name' and value `Value'. Must be invoked
+     before outputting any data, including the `cgi_reply' html-term.
+
+     *Usage:*
+        - _The following properties should hold at call time:_
+
+          `Name' is an atom.   (`atm/1')
+
+          `Value' is an atomic term (an atom or a number).
+          (`constant/1')
+
+
+
+ - PREDICATE: get_cookies/1:
+     `get_cookies(Cookies)'
+
+     Unifies `Cookies' with a dictionary of _attribute_=_value_ pairs
+     of the active cookies for this URL.
+
+     *Usage:*
+        - _The following properties should hold at call time:_
+
+          `Cookies' is a free variable.   (`var/1')
+
+        - _The following properties hold upon exit:_
+
+          `Cookies' is a dictionary of values. It is a list of pairs
+          _atom_=_constant_.   (`value_dict/1')
+
+
+
+ - PREDICATE: url_query/2:
+     `url_query(Dict,URLArgs)'
+
+     Translates a dictionary `Dict' of parameter values into a string
+     `URLArgs' for appending to a URL pointing to a form handler.
+
+     *Usage:*
+        - _The following properties should hold at call time:_
+
+          `Dict' is a dictionary of values. It is a list of pairs
+          _atom_=_constant_.   (`value_dict/1')
+
+          `URLArgs' is a free variable.   (`var/1')
+
+        - _The following properties hold upon exit:_
+
+          `URLArgs' is a string (a list of character codes).
+          (`string/1')
+
+
+
+ - PREDICATE: my_url/1:
+     `my_url(URL)'
+
+     Unifies `URL' with the Uniform Resource Locator (WWW address) of
+     this cgi executable.
+
+     *Usage:*
+        - _Calls should, and exit will be compatible with:_
+
+          `URL' is a string (a list of character codes).
+          (`string/1')
+
+        - _The following properties hold upon exit:_
+
+          `URL' is a string (a list of character codes).
+          (`string/1')
+
+
+
+ - PREDICATE: url_info/2:
+     `url_info(URL,URLTerm)'
+
+     Translates a URL `URL' to a Prolog structure `URLTerm' which
+     details its various components, and vice-versa. For now non-HTTP
+     URLs make the predicate fail.
+
+     *Usage 1:*
+        - _Calls should, and exit will be compatible with:_
+
+          `URLTerm' specifies a URL.   (`url_term/1')
+
+        - _The following properties should hold at call time:_
+
+          `URL' is an atom.   (`atm/1')
+
+        - _The following properties hold upon exit:_
+
+          `URLTerm' specifies a URL.   (`url_term/1')
+
+     *Usage 2:*
+        - _Calls should, and exit will be compatible with:_
+
+          `URLTerm' specifies a URL.   (`url_term/1')
+
+        - _The following properties should hold at call time:_
+
+          `URL' is a string (a list of character codes).
+          (`string/1')
+
+        - _The following properties hold upon exit:_
+
+          `URLTerm' specifies a URL.   (`url_term/1')
+
+     *Usage 3:*
+        - _The following properties should hold at call time:_
+
+          `URL' is a free variable.   (`var/1')
+
+          `URLTerm' specifies a URL.   (`url_term/1')
+
+        - _The following properties hold upon exit:_
+
+          `URL' is a string (a list of character codes).
+          (`string/1')
+
+
+
+ - PREDICATE: url_info_relative/3:
+     `url_info_relative(URL,BaseURLTerm,URLTerm)'
+
+     Translates a relative URL `URL' which appears in the HTML page
+     refered to by `BaseURLTerm' into `URLTerm', a Prolog structure
+     containing its absolute parameters. Absolute URLs are translated
+     as with `url_info/2'. E.g.
+          url_info_relative("dadu.html",
+                            http('www.foo.com',80,"/bar/scoob.html"), Info)
+     gives `Info = http('www.foo.com',80,"/bar/dadu.html")'.
+
+     *Usage 1:*
+        - _Calls should, and exit will be compatible with:_
+
+          `URLTerm' specifies a URL.   (`url_term/1')
+
+        - _The following properties should hold at call time:_
+
+          `URL' is an atom.   (`atm/1')
+
+          `BaseURLTerm' specifies a URL.   (`url_term/1')
+
+        - _The following properties hold upon exit:_
+
+          `URLTerm' specifies a URL.   (`url_term/1')
+
+     *Usage 2:*
+        - _Calls should, and exit will be compatible with:_
+
+          `URLTerm' specifies a URL.   (`url_term/1')
+
+        - _The following properties should hold at call time:_
+
+          `URL' is a string (a list of character codes).
+          (`string/1')
+
+          `BaseURLTerm' specifies a URL.   (`url_term/1')
+
+        - _The following properties hold upon exit:_
+
+          `URLTerm' specifies a URL.   (`url_term/1')
+
+
+
+ - PREDICATE: form_request_method/1:
+     *Usage:* `form_request_method(Method)'
+        - _Description:_ Unifies `Method' with the method of
+          invocation of the form handler (`GET' or `POST').
+
+        - _The following properties hold upon exit:_
+
+          `Method' is an atom.   (`atm/1')
+
+
+
+ - PREDICATE: icon_address/2:
+     `icon_address(Img,IAddress)'
+
+     The PiLLoW image `Img' has URL `IAddress'.
+
+     *Usage:*
+        - _Calls should, and exit will be compatible with:_
+
+          `Img' is an atom.   (`atm/1')
+
+          `IAddress' is an atom.   (`atm/1')
+
+        - _The following properties hold upon exit:_
+
+          `Img' is an atom.   (`atm/1')
+
+          `IAddress' is an atom.   (`atm/1')
+
+
+
+ - PREDICATE: html_protect/1:
+     `html_protect(Goal)'
+
+     Calls `Goal'. If an error occurs during its execution, or it
+     fails, an HTML page is output informing about the incident.
+     Normaly the whole execution of a CGI is protected thus.
+
+     _Meta-predicate_ with arguments: `html_protect(goal)'.
+
+     *Usage:*
+        - _Calls should, and exit will be compatible with:_
+
+          `Goal' is a term which represents a goal, i.e., an atom or
+          a structure.   (`callable/1')
+
+
+
+ - PREDICATE: http_lines/3:
+     *Usage:* `http_lines(Lines,String,Tail)'
+        - _Description:_ `Lines' is a list of the lines with occur in
+          `String' until `Tail'. The lines may end UNIX-style or
+          DOS-style in `String', in `Lines' they have not end of line
+          characters. Suitable to be used in DCGs.
+
+        - _Calls should, and exit will be compatible with:_
+
+          `Lines' is a list of `string's.   (`list/2')
+
+          `String' is a string (a list of character codes).
+          (`string/1')
+
+          `Tail' is a string (a list of character codes).
+          (`string/1')
+
+
+
+
+File: pillow_doc.info,  Node: Documentation on multifiles (html),  Next: Other information (html),  Prev: Documentation on exports (html),  Up: HTML/XML/CGI programming
+
+Documentation on multifiles (`html')
+====================================
+
+ - PREDICATE: html_expansion/2:
+     The predicate is _multifile_.
+
+     *Usage:* `html_expansion(Term,Expansion)'
+        - _Description:_ Hook predicate to define macros. Expand
+          occurrences of `Term' into `Expansion', in `output_html/1'.
+          Take care to not transform something into itself!
+
+
+
+
+File: pillow_doc.info,  Node: Other information (html),  Prev: Documentation on multifiles (html),  Up: HTML/XML/CGI programming
+
+Other information (`html')
+==========================
+
+   The code uses input from from L. Naish's forms and F. Bueno's
+previous Chat interface. Other people who have contributed is (please
+inform us if we leave out anybody): Markus Fromherz, Samir Genaim.
+
+
+File: pillow_doc.info,  Node: HTTP conectivity,  Next: PiLLoW types,  Prev: HTML/XML/CGI programming,  Up: Top
+
+HTTP conectivity
+****************
+
+   *Author(s):* Daniel Cabeza.
+
+   *Version:* 1.7 (2000/7/12, 19:1:20 CEST)
+
+   *Version of last change:* 1.3#114 (1999/11/24, 0:57:16 MET)
+
+   This module implements the HTTP protocol, which allows retrieving
+data from HTTP servers.
+
+* Menu:
+
+* Usage and interface (http)::
+* Documentation on exports (http)::
+
+
+File: pillow_doc.info,  Node: Usage and interface (http),  Next: Documentation on exports (http),  Prev: HTTP conectivity,  Up: HTTP conectivity
+
+Usage and interface (`http')
+============================
+
+   * *Library usage:*
+
+     `:- use_module(library(http)).'
+
+   * *Exports:*
+        - _Predicates:_
+
+          `fetch_url/3'.
+
+
+
+
+File: pillow_doc.info,  Node: Documentation on exports (http),  Prev: Usage and interface (http),  Up: HTTP conectivity
+
+Documentation on exports (`http')
+=================================
+
+ - PREDICATE: fetch_url/3:
+     `fetch_url(URL,Request,Response)'
+
+     Fetches the document pointed to by `URL' from Internet, using
+     request parameters `Request', and unifies `Response' with the
+     parameters of the response. Fails on timeout. Note that
+     redirections are not handled automatically, that is, if
+     `Response' contains terms of the form
+     `status(redirection,301,_)' and `location(NewURL)', the program
+     should in most cases access location `NewURL'.
+
+     *Usage:* `fetch_url(URL,Request,Response)'
+        - _The following properties should hold at call time:_
+
+          `URL' specifies a URL.   (`url_term/1')
+
+          `Request' is a list of `http_request_param's.   (`list/2')
+
+        - _The following properties hold upon exit:_
+
+          `Response' is a list of `http_response_param's.   (`list/2')
+
+
+
+
+File: pillow_doc.info,  Node: PiLLoW types,  Next: References,  Prev: HTTP conectivity,  Up: Top
+
+PiLLoW types
+************
+
+   *Author(s):* Daniel Cabeza.
+
+   Here are defined the regular types used in the documentation of
+the predicates of the PiLLoW package.
+
+* Menu:
+
+* Usage and interface (pillow_types)::
+* Documentation on exports (pillow_types)::
+
+
+File: pillow_doc.info,  Node: Usage and interface (pillow_types),  Next: Documentation on exports (pillow_types),  Prev: PiLLoW types,  Up: PiLLoW types
+
+Usage and interface (`pillow_types')
+====================================
+
+   * *Library usage:*
+
+     `:- use_module(library(pillow_types)).'
+
+   * *Exports:*
+        - _Regular Types:_
+
+          `canonic_html_term/1', `canonic_xml_term/1', `html_term/1',
+          `form_dict/1', `form_assignment/1', `form_value/1',
+          `value_dict/1', `url_term/1', `http_request_param/1',
+          `http_response_param/1', `http_date/1', `weekday/1',
+          `month/1', `hms_time/1'.
+
+
+
+
+File: pillow_doc.info,  Node: Documentation on exports (pillow_types),  Prev: Usage and interface (pillow_types),  Up: PiLLoW types
+
+Documentation on exports (`pillow_types')
+=========================================
+
+ - REGTYPE: canonic_html_term/1:
+     A term representing HTML code in canonical, structured way. It
+     is a list of terms defined by the following predicate:
+          canonic_html_item(comment(S)) :-
+                  string(S).
+          canonic_html_item(declare(S)) :-
+                  string(S).
+          canonic_html_item(env(Tag,Atts,Terms)) :-
+                  atm(Tag),
+                  list(Atts,tag_attrib),
+                  canonic_html_term(Terms).
+          canonic_html_item($(Tag,Atts)) :-
+                  atm(Tag),
+                  list(Atts,tag_attrib).
+          canonic_html_item(S) :-
+                  string(S).
+
+          tag_attrib(Att) :-
+                  atm(Att).
+          tag_attrib(Att=Val) :-
+                  atm(Att),
+                  string(Val).
+     Each structure represents one HTML construction:
+    *env(*_tag_*,*_attribs_*,*_terms_*)*
+          An HTML environment, with name _tag_, list of attributes
+          _attribs_ and contents _terms_.
+
+    *$(*_tag_*,*_attribs_*)*
+          An HTML element of name _tag_ and list of attributes
+          _attribs_. `($)/2' is defined by the pillow package as an
+          infix, binary operator.
+
+    *comment(*_string_*)*
+          An HTML comment (translates to/from `<!--'_string_`-->').
+
+    *declare(*_string_*)*
+          An HTML declaration, they are used only in the header
+          (translates to/from `<!'_string_`>').
+
+    _string_
+          Normal text is represented as a list of character codes.
+
+     For example, the term
+          env(a,[href="www.therainforestsite.com"],
+                ["Visit ",img$[src="TRFS.gif"]])
+     is output to (or parsed from):
+          <a href="www.therainforestsite.com">Visit <img src="TRFS.gif"></a>
+
+     *Usage:* `canonic_html_term(HTMLTerm)'
+        - _Description:_ `HTMLTerm' is a term representing HTML code
+          in canonical form.
+
+
+
+ - REGTYPE: canonic_xml_term/1:
+     A term representing XML code in canonical, structured way. It is
+     a list of terms defined by the following predicate (see
+     `tag_attrib/1' definition in `canonic_html_term/1'):
+          canonic_xml_item(Term) :-
+                  canonic_html_item(Term).
+          canonic_xml_item(xmldecl(Atts)) :-
+                  list(Atts,tag_attrib).
+          canonic_xml_item(env(Tag,Atts,Terms)) :-
+                  atm(Tag),
+                  list(Atts,tag_attrib),
+                  canonic_xml_term(Terms).
+          canonic_xml_item(elem(Tag,Atts)) :-
+                  atm(Tag),
+                  list(Atts,tag_attrib).
+     In addition to the structures defined by `canonic_html_term/1'
+     (the `($)/2' structure appears only in malformed XML code), the
+     following structures can be used:
+    *elem(*_tag_*,*_atts_*)*
+          Specifies an XML empty element of name _tag_ and list of
+          attributes _atts_. For example, the term
+               elem(arc,[weigh="3",begin="n1",end="n2"])
+          is output to (or parsed from):
+               <arc weigh="3" begin="n1" end="n2"/>
+
+    *xmldecl(*_atts_*)*
+          Specifies an XML declaration with attributes _atts_
+          (translates to/from `<?xml '_atts_`?>')
+
+     *Usage:* `canonic_xml_term(XMLTerm)'
+        - _Description:_ `XMLTerm' is a term representing XML code in
+          canonical form.
+
+
+
+ - REGTYPE: html_term/1:
+     A term which represents HTML or XML code in a structured way. In
+     addition to the structures defined by `canonic_html_term/1' or
+     `canonic_xml_term/1', the following structures can be used:
+    *begin(*_tag_*,*_atts_*)*
+          It translates to the start of an HTML environment of name
+          _tag_ and attributes _atts_. There exists also a
+          *begin(_tag_)* structure. Useful, in conjunction with the
+          next structure, when including in a document output
+          generated by an existing piece of code (e.g. _tag_ =
+          `pre'). Its use is otherwise discouraged.
+
+    *end(*_tag_*)*
+          Translates to the end of an HTML environment of name _tag_.
+
+    *start*
+          Used at the beginning of a document (translates to
+          `<html>').
+
+    *end*
+          Used at the end of a document (translates to `</html>').
+
+    `--'
+          Produces a horizontal rule (translates to `<hr>').
+
+    *\\*
+          Produces a line break (translates to `<br>').
+
+    *$*
+          Produces a paragraph break (translates to `<p>').
+
+    *image(*_address_*)*
+          Used to include an image of address (URL) _address_
+          (equivalent to `img$[src='_address_`]').
+
+    *image(*_address_*,*_atts_*)*
+          As above with the list of attributes _atts_.
+
+    *ref(*_address_*,*_text_*)*
+          Produces a hypertext link, _address_ is the URL of the
+          referenced resource, _text_ is the text of the reference
+          (equivalent to `a([href='_address_`],'_text_`)').
+
+    *label(*_name_*,*_text_*)*
+          Labels _text_ as a target destination with label _name_
+          (equivalent to `a([name='_name_`],'_text_`)').
+
+    *heading(*_n_*,*_text_*)*
+          Produces a heading of level _n_ (between 1 and 6), _text_
+          is the text to be used as heading. Useful when one wants a
+          heading level relative to another heading (equivalent to
+          `h'_n_`('_text_`)').
+
+    *itemize(*_items_*)*
+          Produces a list of bulleted items, _items_ is a list of
+          corresponding HTML terms (translates to a `<ul>'
+          environment).
+
+    *enumerate(*_items_*)*
+          Produces a list of numbered items, _items_ is a list of
+          corresponding HTML terms (translates to a `<ol>'
+          environment).
+
+    *description(*_defs_*)*
+          Produces a list of defined items, _defs_ is a list whose
+          elements are definitions, each of them being a Prolog
+          sequence (composed by `','/2' operators). The last element
+          of the sequence is the definition, the other (if any) are
+          the defined terms (translates to a `<dl>' environment).
+
+    *nice_itemize(*_img_*,*_items_*)*
+          Produces a list of bulleted items, using the image _img_ as
+          bullet. The predicate `icon_address/2' provides a colored
+          bullet.
+
+    *preformatted(*_text_*)*
+          Used to include preformatted text, _text_ is a list of HTML
+          terms, each element of the list being a line of the
+          resulting document (translates to a `<pre>' environment).
+
+    *verbatim(*_text_*)*
+          Used to include text verbatim, special HTML characters
+          (`<,>,&,"' and space) are translated into its quoted HTML
+          equivalent.
+
+    *prolog_term(*_term_*)*
+          Includes any prolog term _term_, represented in functional
+          notation. Variables are output as `_'.
+
+    *nl*
+          Used to include a newline in the HTML source (just to
+          improve human readability).
+
+    *entity(*_name_*)*
+          Includes the entity of name _name_ (ISO-8859-1 special
+          character).
+
+    *start_form(*_addr_*,*_atts_*)*
+          Specifies the beginning of a form. _addr_ is the address
+          (URL) of the program that will handle the form, and _atts_
+          other attributes of the form, as the method used to invoke
+          it. If _atts_ is not present (there is only one argument)
+          the method defaults to POST.
+
+    *start_form*
+          Specifies the beginning of a form without assigning address
+          to the handler, so that the form handler will be the
+          cgi-bin executable producing the form.
+
+    *end_form*
+          Specifies the end of a form.
+
+    *checkbox(*_name_*,*_state_*)*
+          Specifies an input of type `checkbox' with name _name_,
+          _state_ is `on' if the checkbox is initially checked.
+
+    *radio(*_name_*,*_value_*,*_selected_*)*
+          Specifies an input of type `radio' with name _name_
+          (several radio buttons which are interlocked must share
+          their name), _value_ is the the value returned by the
+          button, if _selected_=_value_ the button is initially
+          checked.
+
+    *input(*_type_*,*_atts_*)*
+          Specifies an input of type _type_ with a list of attributes
+          _atts_. Possible values of _type_ are `text', `hidden',
+          `submit', `reset', ldots
+
+    *textinput(*_name_*,*_atts_*,*_text_*)*
+          Specifies an input text area of name _name_. _text_
+          provides the default text to be shown in the area, _atts_ a
+          list of attributes.
+
+    *option(*_name_*,*_val_*,*_options_*)*
+          Specifies a simple option selector of name _name_,
+          _options_ is the list of available options and _val_ is the
+          initial selected option (if _val_ is not in _options_ the
+          first item is selected by default) (translates to a
+          `<select>' environment).
+
+    *menu(*_name_*,*_atts_*,*_items_*)*
+          Specifies a menu of name _name_, list of attributes _atts_
+          and list of options _items_. The elements of the list
+          _items_ are marked with the prefix operator `$' to indicate
+          that they are selected (translates to a `<select>'
+          environment).
+
+    *form_reply*
+
+    *cgi_reply*
+          This two are equivalent, they do not generate HTML, rather,
+          the CGI protocol requires this content descriptor to be
+          used at the beginning by CGI executables (including form
+          handlers) when replying (translates to `Content-type:
+          text/html').
+
+    *pr*
+          Includes in the page a graphical logo with the message
+          "Developed using the PiLLoW Web programming library", which
+          points to the manual and library source.
+
+    _name_*(*_text_*)*
+          A term with functor _name_/1, different from the special
+          functors defined herein, represents an HTML environment of
+          name _name_ and included text _text_. For example, the term
+                  address('clip@clip.dia.fi.upm.es')
+          is translated into the HTML source
+                  <address>clip@clip.dia.fi.upm.es</address>
+
+    _name_*(*_atts_*,*_text_*)*
+          A term with functor _name_/2, different from the special
+          functors defined herein, represents an HTML environment of
+          name _name_, attributes _atts_ and included text _text_.
+          For example, the term
+
+                  a([href='http://www.clip.dia.fi.upm.es/'],"Clip home")
+          represents the HTML source
+                  <a href="http://www.clip.dia.fi.upm.es/">Clip home</a>
+
+     *Usage:* `html_term(HTMLTerm)'
+        - _Description:_ `HTMLTerm' is a term representing HTML code.
+
+
+
+ - REGTYPE: form_dict/1:
+     *Usage:* `form_dict(Dict)'
+        - _Description:_ `Dict' is a dictionary of values of the
+          attributes of a form. It is a list of `form_assignment'
+
+
+
+ - REGTYPE: form_assignment/1:
+     *Usage:* `form_assignment(Eq)'
+        - _Description:_ `Eq' is an assignment of value of an
+          attribute of a form. It is defined by:
+               form_assignment(A=V) :-
+                       atm(A),
+                       form_value(V).
+
+               form_value(A) :-
+                       atm(A).
+               form_value(N) :-
+                       num(N).
+               form_value(L) :-
+                       list(L,string).
+
+
+
+
+ - REGTYPE: form_value/1:
+     *Usage:* `form_value(V)'
+        - _Description:_ `V' is a value of an attribute of a form.
+
+
+
+ - REGTYPE: value_dict/1:
+     *Usage:* `value_dict(Dict)'
+        - _Description:_ `Dict' is a dictionary of values. It is a
+          list of pairs _atom_=_constant_.
+
+
+
+ - REGTYPE: url_term/1:
+     A term specifying an Internet Uniform Resource Locator.
+     Currently only HTTP URLs are supported. Example:
+     `http('www.clip.dia.fi.upm.es',80,"/Software/Ciao/")'. Defined as
+          url_term(http(Host,Port,Document)) :-
+                  atm(Host),
+                  int(Port),
+                  string(Document).
+
+     *Usage:* `url_term(URL)'
+        - _Description:_ `URL' specifies a URL.
+
+
+
+ - REGTYPE: http_request_param/1:
+     A parameter of an HTTP request:
+        * *head:* Specify that the document content is not wanted.
+
+        * *timeout(*_T_*):* _T_ specifies the time in seconds to wait
+          for the response. Default is 300 seconds.
+
+        * *if_modified_since(*_Date_*):* Get document only if newer
+          than _Date_. _Date_ has the format defined by `http_date/1'.
+
+        * *user_agent(*_Agent_*):* Provides a user-agent field,
+          _Agent_ is an atom. The string `"PiLLoW/1.1"' (or whatever
+          version of PiLLoW is used) is appended.
+
+        * *authorization(*_Scheme_,_Params_*):* To provide
+          credentials. See RFC 1945 for details.
+
+        * *_option_(*_Value_*):* Any unary term, being _Value_ an
+          atom, can be used to provide another valid option (e.g.
+          `from('user@machine')').
+
+     *Usage:* `http_request_param(Request)'
+        - _Description:_ `Request' is a parameter of an HTTP request.
+
+
+
+ - REGTYPE: http_response_param/1:
+     A parameter of an HTTP response:
+        * *content(*_String_*):* _String_ is the document content
+          (list of bytes). If the `head' parameter of the HTTP
+          request is used, an empty list is get here.
+
+        * *status(*_Type,Code,Reason_*):* _Type_ is an atom denoting
+          the response type, _Code_ is the status code (an integer),
+          and _Reason_ is a string holding the reason phrase.
+
+        * *message_date(*_Date_*):* _Date_ is the date of the
+          response, with format defined by `http_date/1'.
+
+        * *location(*_Loc_*):* This parameter appears when the
+          document has moved, _Loc_ is an atom holding the new
+          location.
+
+        * *http_server(*_Server_*):* _Server_ is the server
+          responding, as a string.
+
+        * *authenticate(*_Params_*):* Returned if document is
+          protected, _Params_ is a list of chagenges. See RFC 1945
+          for details.
+
+        * *allow(*_Methods_*):* _Methods_ are the methods allowed by
+          the server, as a list of atoms.
+
+        * *content_encoding(*_Encoding_*):* _Encoding_ is an atom
+          defining the encoding.
+
+        * *content_length(*_Length_*):* _Length_ is the length of the
+          document (an integer).
+
+        * *content_type(*_Type,Subtype,Params_*):* Specifies the
+          document content type, _Type_ and _Subtype_ are atoms,
+          _Params_ a list of parameters (e.g.
+          `content_type(text,html,[])').
+
+        * *expires(*_Date_*):* _Date_ is the date after which the
+          entity should be considered stale. Format defined by
+          `http_date/1'.
+
+        * *last_modified(*_Date_*):* _Date_ is the date at which the
+          sender believes the resource was last modified. Format
+          defined by `http_date/1'.
+
+        * *pragma(*_String_*):* Miscellaneous data.
+
+        * *_header_(*_String_*):* Any other functor _header_/1 is an
+          extension header.
+
+     *Usage:* `http_response_param(Response)'
+        - _Description:_ `Response' is a parameter of an HTTP
+          response.
+
+
+
+ - REGTYPE: http_date/1:
+     `http_date(Date)'
+
+     `Date' is a term defined as
+          http_date(date(WeekDay,Day,Month,Year,Time)) :-
+                  weekday(WeekDay),
+                  int(Day),
+                  month(Month),
+                  int(Year),
+                  hms_time(Time).
+     .
+
+     *Usage:* `http_date(Date)'
+        - _Description:_ `Date' is a term denoting a date.
+
+
+
+ - REGTYPE: weekday/1:
+     A regular type, defined as follows:
+               weekday('Monday').
+               weekday('Tuesday').
+               weekday('Wednesday').
+               weekday('Thursday').
+               weekday('Friday').
+               weekday('Saturday').
+               weekday('Sunday').
+
+
+
+
+ - REGTYPE: month/1:
+     A regular type, defined as follows:
+               month('January').
+               month('February').
+               month('March').
+               month('April').
+               month('May').
+               month('June').
+               month('July').
+               month('August').
+               month('September').
+               month('October').
+               month('November').
+               month('December').
+
+
+
+
+ - REGTYPE: hms_time/1:
+     *Usage:* `hms_time(Time)'
+        - _Description:_ `Time' is an atom of the form `hh:mm:ss'
+
+
+
+
+File: pillow_doc.info,  Node: References,  Next: Predicate/Method Definition Index,  Prev: PiLLoW types,  Up: Top
+
+References
+**********
+
+*[CHV96]*
+     D. Cabeza, M. Hermenegildo, and S. Varma.
+     The PiLLoW/CIAO Library for INTERNET/WWW Programming using
+     Computational Logic Systems.
+     In _Proceedings of the 1st Workshop on Logic Programming Tools
+     for   INTERNET Applications_, pages 72-90, JICSLP'96, Bonn,
+     September 1996.
+
+
+File: pillow_doc.info,  Node: Predicate/Method Definition Index,  Next: Regular Type Definition Index,  Prev: References,  Up: Top
+
+Predicate/Method Definition Index
+*********************************
+
+* Menu:
+
+* fetch_url/3:                           Documentation on exports (http).
+* form_default/3:                        Documentation on exports (html).
+* form_empty_value/1:                    Documentation on exports (html).
+* form_request_method/1:                 Documentation on exports (html).
+* get_cookies/1:                         Documentation on exports (html).
+* get_form_input/1:                      Documentation on exports (html).
+* get_form_value/3:                      Documentation on exports (html).
+* html2terms/2:                          Documentation on exports (html).
+* html_expansion/2:                      Documentation on multifiles (html).
+* html_protect/1:                        Documentation on exports (html).
+* html_report_error/1:                   Documentation on exports (html).
+* html_template/3:                       Documentation on exports (html).
+* http_lines/3:                          Documentation on exports (html).
+* icon_address/2:                        Documentation on exports (html).
+* my_url/1:                              Documentation on exports (html).
+* output_html/1:                         Documentation on exports (html).
+* set_cookie/2:                          Documentation on exports (html).
+* url_info/2:                            Documentation on exports (html).
+* url_info_relative/3:                   Documentation on exports (html).
+* url_query/2:                           Documentation on exports (html).
+* xml2terms/2:                           Documentation on exports (html).
+
+
+File: pillow_doc.info,  Node: Regular Type Definition Index,  Next: Global Index,  Prev: Predicate/Method Definition Index,  Up: Top
+
+Regular Type Definition Index
+*****************************
+
+* Menu:
+
+* canonic_html_term/1:                   Documentation on exports (pillow_types).
+* canonic_xml_term/1:                    Documentation on exports (pillow_types).
+* form_assignment/1:                     Documentation on exports (pillow_types).
+* form_dict/1:                           Documentation on exports (pillow_types).
+* form_value/1:                          Documentation on exports (pillow_types).
+* hms_time/1:                            Documentation on exports (pillow_types).
+* html_term/1:                           Documentation on exports (pillow_types).
+* http_date/1:                           Documentation on exports (pillow_types).
+* http_request_param/1:                  Documentation on exports (pillow_types).
+* http_response_param/1:                 Documentation on exports (pillow_types).
+* month/1:                               Documentation on exports (pillow_types).
+* url_term/1:                            Documentation on exports (pillow_types).
+* value_dict/1:                          Documentation on exports (pillow_types).
+* weekday/1:                             Documentation on exports (pillow_types).
+
+
+File: pillow_doc.info,  Node: Global Index,  Prev: Regular Type Definition Index,  Up: Top
+
+Global Index
+************
+
+   This is a global index containing pointers to places where
+concepts,  predicates, modes, properties, types, applications, etc.,
+are referred to  in the text of the document. Note that due to
+limitations of the  `info' format unfortunately only the first
+reference will appear in  online versions of the document.
+
+* Menu:
+
+* $/1:                                   Usage and interface (pillow).
+* $/2:                                   Usage and interface (pillow).
+* CGI <1>:                               HTML/XML/CGI programming.
+* CGI:                                   Introduction.
+* GNU Library General Public License <1>: Summary.
+* GNU Library General Public License:    (none).
+* HTML <1>:                              HTML/XML/CGI programming.
+* HTML:                                  Introduction.
+* HTTP <1>:                              HTTP conectivity.
+* HTTP:                                  Introduction.
+* PiLLoW on-line tutorial:               Introduction.
+* WWW, interfacing with:                 Introduction.
+* XML <1>:                               HTML/XML/CGI programming.
+* XML:                                   Introduction.
+* canonic_html_term/1 <1>:               Documentation on exports (pillow_types).
+* canonic_html_term/1:                   Usage and interface (pillow_types).
+* canonic_xml_term/1 <1>:                Documentation on exports (pillow_types).
+* canonic_xml_term/1:                    Usage and interface (pillow_types).
+* fetch_url/3 <1>:                       Documentation on exports (http).
+* fetch_url/3:                           Usage and interface (http).
+* form_assignment/1 <1>:                 Documentation on exports (pillow_types).
+* form_assignment/1:                     Usage and interface (pillow_types).
+* form_default/3 <1>:                    Documentation on exports (html).
+* form_default/3:                        Usage and interface (html).
+* form_dict/1 <1>:                       Documentation on exports (pillow_types).
+* form_dict/1:                           Usage and interface (pillow_types).
+* form_empty_value/1 <1>:                Documentation on exports (html).
+* form_empty_value/1:                    Usage and interface (html).
+* form_request_method/1 <1>:             Documentation on exports (html).
+* form_request_method/1:                 Usage and interface (html).
+* form_value/1 <1>:                      Documentation on exports (pillow_types).
+* form_value/1:                          Usage and interface (pillow_types).
+* get_cookies/1 <1>:                     Documentation on exports (html).
+* get_cookies/1:                         Usage and interface (html).
+* get_form_input/1 <1>:                  Documentation on exports (html).
+* get_form_input/1:                      Usage and interface (html).
+* get_form_value/3 <1>:                  Documentation on exports (html).
+* get_form_value/3:                      Usage and interface (html).
+* hms_time/1 <1>:                        Documentation on exports (pillow_types).
+* hms_time/1:                            Usage and interface (pillow_types).
+* html2terms/2 <1>:                      Documentation on exports (html).
+* html2terms/2:                          Usage and interface (html).
+* html_expansion/2 <1>:                  Documentation on multifiles (html).
+* html_expansion/2:                      Usage and interface (html).
+* html_protect/1 <1>:                    Documentation on exports (html).
+* html_protect/1:                        Usage and interface (html).
+* html_report_error/1 <1>:               Documentation on exports (html).
+* html_report_error/1:                   Usage and interface (html).
+* html_template/3 <1>:                   Documentation on exports (html).
+* html_template/3:                       Usage and interface (html).
+* html_term/1 <1>:                       Documentation on exports (pillow_types).
+* html_term/1 <2>:                       Usage and interface (pillow_types).
+* html_term/1:                           Documentation on exports (html).
+* http_date/1 <1>:                       Documentation on exports (pillow_types).
+* http_date/1:                           Usage and interface (pillow_types).
+* http_lines/3 <1>:                      Documentation on exports (html).
+* http_lines/3:                          Usage and interface (html).
+* http_request_param/1 <1>:              Documentation on exports (pillow_types).
+* http_request_param/1:                  Usage and interface (pillow_types).
+* http_response_param/1 <1>:             Documentation on exports (pillow_types).
+* http_response_param/1:                 Usage and interface (pillow_types).
+* icon_address.pl:                       Installing PiLLoW.
+* icon_address/2 <1>:                    Documentation on exports (pillow_types).
+* icon_address/2 <2>:                    Documentation on exports (html).
+* icon_address/2:                        Usage and interface (html).
+* library/pillow/doc:                    Introduction.
+* month/1 <1>:                           Documentation on exports (pillow_types).
+* month/1:                               Usage and interface (pillow_types).
+* my_url/1 <1>:                          Documentation on exports (html).
+* my_url/1:                              Usage and interface (html).
+* name/2:                                Documentation on exports (html).
+* output_html/1 <1>:                     Documentation on multifiles (html).
+* output_html/1 <2>:                     Documentation on exports (html).
+* output_html/1:                         Usage and interface (html).
+* pillow.pl:                             Installing PiLLoW.
+* set_cookie/2 <1>:                      Documentation on exports (html).
+* set_cookie/2:                          Usage and interface (html).
+* tag_attrib/1:                          Documentation on exports (pillow_types).
+* url_info/2 <1>:                        Documentation on exports (html).
+* url_info/2:                            Usage and interface (html).
+* url_info_relative/3 <1>:               Documentation on exports (html).
+* url_info_relative/3:                   Usage and interface (html).
+* url_query/2 <1>:                       Documentation on exports (html).
+* url_query/2:                           Usage and interface (html).
+* url_term/1 <1>:                        Documentation on exports (pillow_types).
+* url_term/1:                            Usage and interface (pillow_types).
+* value_dict/1 <1>:                      Documentation on exports (pillow_types).
+* value_dict/1:                          Usage and interface (pillow_types).
+* weekday/1 <1>:                         Documentation on exports (pillow_types).
+* weekday/1:                             Usage and interface (pillow_types).
+* xml2terms/2 <1>:                       Documentation on exports (html).
+* xml2terms/2:                           Usage and interface (html).
+
+
+
+Tag Table:
+Node: Top4321
+Node: Summary4681
+Node: Introduction5915
+Node: Installing PiLLoW6801
+Node: Usage and interface (pillow)7648
+Node: HTML/XML/CGI programming7989
+Node: Usage and interface (html)8702
+Node: Documentation on exports (html)9500
+Node: Documentation on multifiles (html)24047
+Node: Other information (html)24607
+Node: HTTP conectivity24998
+Node: Usage and interface (http)25459
+Node: Documentation on exports (http)25796
+Node: PiLLoW types26836
+Node: Usage and interface (pillow_types)27195
+Node: Documentation on exports (pillow_types)27836
+Node: References44475
+Node: Predicate/Method Definition Index44926
+Node: Regular Type Definition Index46696
+Node: Global Index48051
+
+End Tag Table

@@ -1,0 +1,35 @@
+/tmp/clpr
+
+yes
+| ?- use_module(library('clpqr/monash')).
+{compiling /freyung/christian/sicstus2.1.9.clp/library/clpqr/monash.pl...}
+{loading /freyung/christian/sicstus2.1.9.clp/library/clpqr/printf.ql...}
+{loaded /freyung/christian/sicstus2.1.9.clp/library/clpqr/printf.ql in module printf, 40 msec 27216 bytes}
+{loading /freyung/christian/sicstus2.1.9.clp/library/clpqr/expand.ql...}
+{loaded /freyung/christian/sicstus2.1.9.clp/library/clpqr/expand.ql in module expand, 40 msec 26832 bytes}
+{/freyung/christian/sicstus2.1.9.clp/library/clpqr/monash.pl compiled, 120 msec 54848 bytes}
+
+yes
+| ?- expand, [library('clpqr/examples/monash/invert')], noexpand.
+{consulting /freyung/christian/sicstus2.1.9.clp/library/clpqr/examples/monash/invert...}
+{Warning: [C] - singleton variables in allvec/2 in lines 21-23}
+{Warning: [H] - singleton variables in mylength/2 in lines 27-28}
+{Warning: [H] - singleton variables in mylength/2 in lines 28-31}
+{Warning: [A] - singleton variables in rowtocol/2 in lines 50-51}
+
+>>> Sample goal: go/0
+{/freyung/christian/sicstus2.1.9.clp/library/clpqr/examples/monash/invert consulted, 100 msec 8288 bytes}
+
+yes
+| ?- go.
+ NR = 
+    0.2917     0.0417    -0.2083 
+   -0.0833     0.4167    -0.0833 
+    0.0417    -0.3750     0.2083 
+ T = 
+    1.0000     0.0000     0.0000 
+    0.0000     1.0000     0.0000 
+    0.0000     0.0000     1.0000 
+
+yes
+| ?- ^D

@@ -1,0 +1,51 @@
+#/bin/bash
+# Guess what: this code works for me!
+parent=$(cd ..;pwd)
+version=${PWD##$parent/}
+
+splat
+cd C
+splat
+cd ../H
+splat
+cd ../OPTYap
+splat
+cd ../VC
+splat
+cd include
+splat
+/bin/cp config.h config.h.mine
+/bin/cp ../../linux/*.h .
+/bin/mv config.h.mine config.h
+cd ../../console
+splat
+cd ../docs
+splat
+if test "$1" = "--small"; then
+  make realclean
+else
+  make 
+  make clean
+fi
+cd ../include
+splat
+cd ../library
+splat
+cd regex
+splat
+cd ../../m4
+splat
+cd ../misc
+splat
+cd ../pl
+splat
+cd ../CLPQR
+splat
+cd ../CHR
+splat
+cd ../..
+if test "$1" = "--small"; then
+  tar cvzf "$version".tar.gz "$version"/{INSTALL,README*,changes*,config*,install-sh,Makefile.in,.depend.in,distribute,C,H,VC,console,docs,include,library,m4,misc,pl,LGPL/*.pl,LGPL/pillow/[C-Z]*,LGPL/pillow/*.pl,LGPL/pillow/doc/*info*,build-distr,OPTYap,CLPQR,CHR}
+else
+  tar cvzf "$version".tar.gz "$version"/{INSTALL,README*,changes*,config*,install-sh,Makefile.in,.depend.in,distribute,C,H,VC,console,docs,include,library,m4,misc,pl,LGPL,build-distr,OPTYap,CLPQR,CHR}
+fi

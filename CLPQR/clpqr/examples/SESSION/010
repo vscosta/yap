@@ -1,0 +1,66 @@
+/tmp/clpr
+
+yes
+| ?- use_module(library('clpqr/monash')).
+{compiling /freyung/christian/sicstus2.1.9.clp/library/clpqr/monash.pl...}
+{loading /freyung/christian/sicstus2.1.9.clp/library/clpqr/printf.ql...}
+{loaded /freyung/christian/sicstus2.1.9.clp/library/clpqr/printf.ql in module printf, 30 msec 27216 bytes}
+{loading /freyung/christian/sicstus2.1.9.clp/library/clpqr/expand.ql...}
+{loaded /freyung/christian/sicstus2.1.9.clp/library/clpqr/expand.ql in module expand, 30 msec 26832 bytes}
+{/freyung/christian/sicstus2.1.9.clp/library/clpqr/monash.pl compiled, 100 msec 54848 bytes}
+
+yes
+| ?- expand, [library('clpqr/examples/monash/air')], noexpand.
+{consulting /freyung/christian/sicstus2.1.9.clp/library/clpqr/examples/monash/air...}
+{Warning: [T] - singleton variables in comp/3 in lines 27-28}
+{Warning: [X] - singleton variables in zero/1 in lines 38-40}
+{Warning: [T] - singleton variables in bal_side/3 in lines 45-50}
+{Warning: [X] - singleton variables in add_species/4 in lines 56-57}
+{Warning: [NUM] - singleton variables in add_elements/5 in lines 57-60}
+{Warning: [PROP,X] - singleton variables in add_elements/5 in lines 68-70}
+{Warning: [F1] - singleton variables in go/0 in lines 76-87}
+
+>>> Sample goal: go/0
+{/freyung/christian/sicstus2.1.9.clp/library/clpqr/examples/monash/air consulted, 110 msec 10384 bytes}
+
+yes
+| ?- go.
+species   air 
+molecule   n2 
+molecule   o2 
+atom   o 
+species   fuel 
+molecule   c 
+atom   c 
+species   flue 
+molecule   co2 
+atom   c 
+atom   o 
+molecule   co 
+atom   c 
+atom   o 
+molecule   o2 
+atom   o 
+molecule   n2 
+With base of 1.000000 mol of fuel
+air (just to burn the carbon) = 5.317460 mol
+flue (mol) :6.666667
+
+species   air 
+molecule   n2 
+molecule   o2 
+atom   o 
+species   fuel 
+molecule   c 
+atom   c 
+species   full_comb 
+molecule   co2 
+atom   c 
+atom   o 
+molecule   n2 
+Compared with theoretical air (for complete combustion):
+     4.761905 mol
+Excess = 11.666667% 
+
+yes
+| ?- ^D

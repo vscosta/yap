@@ -1,0 +1,62 @@
+
+/*
+ **********************************************************************
+ *
+ *      CLP(R) Version 2.0	(Example Programs Release)
+ *	(C) Copyright, March 1986, Monash University
+ *
+ **********************************************************************
+ */
+
+%
+% A program to solve the Zebra Puzzle.
+%
+
+zebra(Zebraowner,Drinkswater) :- 
+	houses(s(s(s(s(s(zero))))), List),
+	member(house(  red,  englishman,    _,      _,       _) ,List),
+	member(house(    _,    spaniard,  dog,      _,       _) ,List),
+	member(house(green,           _,    _, coffee,       _) ,List),
+	member(house(    _,   ukrainian,    _,    tea,       _) ,List),
+      sublist([house(ivory,           _,    _,      _,       _) ,
+	       house(green,           _,    _,      _,       _)],List),
+	member(house(    _,           _,snail,      _,old_gold),List),
+	member(house(yellow,          _,    _,      _,   kools),List),
+	eq([H1,H2,house(    _,           _,    _,   milk,      _),H4,H5], List),
+	     eq([house(    _,   norwegian,    _,      _,       _)|Hrest], List),
+	nextto(house(    _,           _,    _,      _,chesterfield),
+	       house(    _,           _,  fox,      _,           _),List),
+	nextto(house(    _,           _,    _,      _,     kools),
+	       house(    _,           _,horse,      _,         _),List),
+	member(house(    _,           _,    _, orange,lucky_strike),List),
+	member(house(    _,    japanese,    _,      _,parliaments),List),
+	nextto(house(    _,   norwegian,    _,      _,          _),
+	       house( blue,           _,    _,      _,          _),List),
+	member(house(    _, Drinkswater,    _,  water,          _),List),
+	member(house(    _,  Zebraowner,zebra,      _,          _),List).
+
+eq(X, X).
+
+houses(zero, []).
+houses(s(N), [house(Color,Nat,Pet,Drink,Cig)|List]) :- houses(N, List).
+
+member(X, [X|R]).
+member(X, [Y|R]) :- member(X, R).
+
+sublist(S, L) :- append(S, S2, L).
+sublist(S, [H|T]) :- sublist(S, T).
+
+append([], L, L).
+append([X|R], Y, [X|T]) :- append(R, Y, T).
+
+nextto(H1, H2, L) :- sublist([H1, H2], L).
+nextto(H1, H2, L) :- sublist([H2, H1], L).
+
+go :-
+	zebra(Zebraowner, Drinkwater),
+	printf("Zebraowner = %, Drinkwater = %\n", [Zebraowner, Drinkwater]).
+
+% Answer:
+%  Zebraowner = japanese, Drinkwater = norwegian
+
+?- printf("\n>>> Sample goal: go/0\n", []).

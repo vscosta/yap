@@ -1,0 +1,34 @@
+
+/*
+ **********************************************************************
+ *
+ *      CLP(R) Version 2.0	(Example Programs Release)
+ *	(C) Copyright, March 1986, Monash University
+ *
+ **********************************************************************
+ */
+
+%
+% Simple recursive formulation of fibonacci numbers.
+% The goal      ?- go       shows how the definition can be used for 
+% both finding a a fibonacci number given its index, and finding the index 
+% of a given fibonacci number.
+%
+
+fib(0, 1).
+fib(1, 1).
+fib(N, X1 + X2) :-
+	N > 1,
+	fib(N - 1, X1), 
+	fib(N - 2, X2).
+
+go:- 	fib(10, Z), 
+	printf("forward: fib(10) = %d\n",[Z]),
+	fib(Y, Z),
+	printf("backward: fib(%d) = %d\n",[Y,Z]).
+
+% Answer:
+%  forward: fib(10) = 89
+%  backward: fib(10) = 89
+
+?- printf("\n>>> Sample goal: go/0\n", []).

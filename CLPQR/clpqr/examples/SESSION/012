@@ -1,0 +1,27 @@
+/tmp/clpr
+
+yes
+| ?- use_module(library('clpqr/monash')).
+{compiling /freyung/christian/sicstus2.1.9.clp/library/clpqr/monash.pl...}
+{loading /freyung/christian/sicstus2.1.9.clp/library/clpqr/printf.ql...}
+{loaded /freyung/christian/sicstus2.1.9.clp/library/clpqr/printf.ql in module printf, 50 msec 27216 bytes}
+{loading /freyung/christian/sicstus2.1.9.clp/library/clpqr/expand.ql...}
+{loaded /freyung/christian/sicstus2.1.9.clp/library/clpqr/expand.ql in module expand, 50 msec 26832 bytes}
+{/freyung/christian/sicstus2.1.9.clp/library/clpqr/monash.pl compiled, 130 msec 54848 bytes}
+
+yes
+| ?- expand, [library('clpqr/examples/monash/complex')], noexpand.
+{consulting /freyung/christian/sicstus2.1.9.clp/library/clpqr/examples/monash/complex...}
+
+>>> Sample goal: go/0
+{/freyung/christian/sicstus2.1.9.clp/library/clpqr/examples/monash/complex consulted, 30 msec 1760 bytes}
+
+yes
+| ?- go.
+
+[32,88,32,61,32]c(1.0,1.0)
+[32,89,32,61,32]c(2.0,2.0)
+[32,90,32,61,32]c(0.0,4.0)
+
+yes
+| ?- ^D

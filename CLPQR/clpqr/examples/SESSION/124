@@ -1,0 +1,33 @@
+/tmp/clpq
+
+yes
+| ?- use_module(library('clpqr/monash')).
+{compiling /freyung/christian/sicstus2.1.9.clp/library/clpqr/monash.pl...}
+{loading /freyung/christian/sicstus2.1.9.clp/library/clpqr/printf.ql...}
+{loaded /freyung/christian/sicstus2.1.9.clp/library/clpqr/printf.ql in module printf, 40 msec 27216 bytes}
+{loading /freyung/christian/sicstus2.1.9.clp/library/clpqr/expand.ql...}
+{loaded /freyung/christian/sicstus2.1.9.clp/library/clpqr/expand.ql in module expand, 40 msec 26832 bytes}
+{/freyung/christian/sicstus2.1.9.clp/library/clpqr/monash.pl compiled, 150 msec 54848 bytes}
+
+yes
+| ?- expand, [library('clpqr/examples/monash/toolpath')], noexpand.
+{consulting /freyung/christian/sicstus2.1.9.clp/library/clpqr/examples/monash/toolpath...}
+{Warning: [T] - singleton variables in lookup/2 in lines 20-22}
+{Warning: [H] - singleton variables in lookup/2 in lines 22-24}
+{Warning: [A,B,X,Y] - singleton variables in get_vars/2 in lines 42-43}
+{Warning: [A,B,C,M] - singleton variables in get_vars/2 in lines 44-45}
+{Warning: [Y2] - singleton variables in get_constraint/2 in lines 57-64}
+{Warning: [C,M,N] - singleton variables in make_db/3 in lines 79-81}
+
+>>> Sample goal: go/0
+{/freyung/christian/sicstus2.1.9.clp/library/clpqr/examples/monash/toolpath consulted, 120 msec 9904 bytes}
+
+yes
+| ?- go.
+G00 X10.000 Y10.000
+G01 X10.000 Y20.000
+G01 X15.000 Y15.000
+G01 X10.000 Y10.000
+
+yes
+| ?- 

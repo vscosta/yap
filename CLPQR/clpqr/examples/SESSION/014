@@ -1,0 +1,25 @@
+/tmp/clpr
+
+yes
+| ?- use_module(library('clpqr/monash')).
+{compiling /freyung/christian/sicstus2.1.9.clp/library/clpqr/monash.pl...}
+{loading /freyung/christian/sicstus2.1.9.clp/library/clpqr/printf.ql...}
+{loaded /freyung/christian/sicstus2.1.9.clp/library/clpqr/printf.ql in module printf, 30 msec 27216 bytes}
+{loading /freyung/christian/sicstus2.1.9.clp/library/clpqr/expand.ql...}
+{loaded /freyung/christian/sicstus2.1.9.clp/library/clpqr/expand.ql in module expand, 30 msec 26832 bytes}
+{/freyung/christian/sicstus2.1.9.clp/library/clpqr/monash.pl compiled, 100 msec 54848 bytes}
+
+yes
+| ?- expand, [library('clpqr/examples/monash/fib')], noexpand.
+{consulting /freyung/christian/sicstus2.1.9.clp/library/clpqr/examples/monash/fib...}
+
+>>> Sample goal: go/0
+{/freyung/christian/sicstus2.1.9.clp/library/clpqr/examples/monash/fib consulted, 10 msec 1664 bytes}
+
+yes
+| ?- go.
+forward: fib(10) = 89
+backward: fib(10) = 89
+
+yes
+| ?- ^D

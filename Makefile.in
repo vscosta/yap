@@ -1,0 +1,555 @@
+#
+# default base directory for YAP installation
+#
+ROOTDIR = @prefix@
+#
+# where the binary should be
+#
+BINDIR = $(ROOTDIR)/bin
+#
+# where YAP should look for libraries
+#
+LIBDIR=$(ROOTDIR)/lib/
+YAPLIBDIR=$(ROOTDIR)/lib/Yap
+#
+# where the includes should be stored
+#
+INCLUDEDIR=$(ROOTDIR)/include/Yap
+#
+# where to store info files
+#
+INFODIR=$(ROOTDIR)/share/info
+
+#
+# Add this flag to YAP_EXTRAS if you need the extension:
+#	-DRATIONAL_TREES: allow unification and builtins over rational trees
+#       -DCOROUTINING: implement extra control primitives
+#       -DANALYST: low level profiler
+#	-DDEPTH_LIMIT: support depth-limits in Prolog execution
+#	-DLOW_LEVEL_TRACER: low level tracing       
+#
+# very experimental stuff, you'll need to contact the developers
+# if you want to use this:
+#       -DENV_COPY: or-parallelism with environment copying, in Muse style.
+#       -DSBA: or-parallelism with sparse binding arrays.
+#       -DACOW: or-parallelism with copy-on-write.
+#       -DTABLING_BATCHED_SCHEDULING: support for tabulation with
+#              batched scheduling
+#       -DTABLING_LOCAL_SCHEDULING: support for tabulation with local scheduling
+#
+#
+# check also optimisation options in INSTALL file.
+#
+YAP_EXTRAS=@YAP_EXTRAS@
+
+#
+# Please do not add YAP_EXTRA flags here: if you do check the flags
+# for c_interface.c
+#
+CC=@CC@
+CFLAGS= @CFLAGS@ $(YAP_EXTRAS) $(DEFS) -I. -I$(srcdir)/H -I$(srcdir)/OPTYap
+C_INTERF_FLAGS= @C_INTERF_FLAGS@ $(YAP_EXTRAS) $(DEFS) -I. -I$(srcdir)/H  -I$(srcdir)/OPTYap -I$(srcdir)/include
+#
+#
+# You shouldn't need to change what follows.
+#
+CPP=@CPP@
+DEFS=@DEFS@
+LIBS=@LIBS@
+LDFLAGS=@LDFLAGS@
+CPPFLAGS=@CPPFLAGS@
+LN_S=@LN_S@
+M4=@M4@
+GCC=@GCC@
+INSTALL=@INSTALL@
+INSTALL_DATA=@INSTALL_DATA@
+INSTALL_INFO=@INSTALL_INFO@
+INSTALL_PROGRAM=@INSTALL_PROGRAM@
+M4GENHDRS=$(srcdir)/@M4GENHDRS@
+M4GENABSMI=$(srcdir)/@M4GENABSMI@
+INDENT=@INDENT@
+SHELL=/bin/sh
+RANLIB=@RANLIB@
+srcdir=@srcdir@
+SHLIB_SUFFIX=@SHLIB_SUFFIX@
+#4.1VPATH=@srcdir@:@srcdir@/OPTYap
+CWD=$(PWD)
+#
+VERSION=Yap-4.3.18
+#
+
+TAG_HEADERS=  Tags_32bits.h Tags_32Ops.h Tags_32LowTag.h\
+	Tags_64bits.h Tags_24bits.h 
+
+GHEADERS = TermExt.h Yap.h Atoms.h Yatom.h sshift.h $(TAG_HEADERS)
+
+INTERFACE_HEADERS = $(srcdir)/include/c_interface.h $(srcdir)/include/yap_structs.h
+
+HEADERS = \
+	$(GHEADERS) $(INTERFACE_HEADERS) \
+	$(srcdir)/H/Regs.h $(srcdir)/H/Yapproto.h \
+	$(srcdir)/H/absmi.h  $(srcdir)/H/alloc.h  $(srcdir)/H/Heap.h \
+	$(srcdir)/H/amidefs.h $(srcdir)/H/amiops.h $(srcdir)/H/arrays.h \
+	$(srcdir)/H/clause.h $(srcdir)/H/compile.h \
+	$(srcdir)/H/corout.h $(srcdir)/H/eval.h $(srcdir)/H/heapgc.h   \
+	$(srcdir)/H/index.h $(srcdir)/H/yapio.h  $(srcdir)/H/tracer.h \
+	$(srcdir)/H/attvar.h $(srcdir)/H/arith2.h \
+	$(srcdir)/OPTYap/opt.config.h \
+	$(srcdir)/OPTYap/opt.proto.h $(srcdir)/OPTYap/opt.structs.h \
+	$(srcdir)/OPTYap/opt.macros.h $(srcdir)/OPTYap/or.macros.h \
+	$(srcdir)/OPTYap/sbaamiops.h $(srcdir)/OPTYap/sbaunify.h \
+	$(srcdir)/OPTYap/tab.structs.h $(srcdir)/OPTYap/x86_locks.h \
+	$(srcdir)/OPTYap/sparc_locks.h $(srcdir)/OPTYap/mips_locks.h \
+	$(srcdir)/OPTYap/mips_locks_funcs.h $(srcdir)/OPTYap/alpha_locks.h \
+	$(srcdir)/OPTYap/alpha_locks_funcs.h
+
+C_SOURCES= \
+	$(srcdir)/C/absmi.c $(srcdir)/C/adtdefs.c $(srcdir)/C/alloc.c \
+	$(srcdir)/C/amasm.c $(srcdir)/C/analyst.c $(srcdir)/C/arrays.c \
+	$(srcdir)/C/attvar.c $(srcdir)/C/bb.c \
+	$(srcdir)/C/c_interface.c $(srcdir)/C/cdmgr.c $(srcdir)/C/cmppreds.c \
+	$(srcdir)/C/compiler.c $(srcdir)/C/computils.c \
+	$(srcdir)/C/corout.c $(srcdir)/C/dbase.c $(srcdir)/C/errors.c \
+	$(srcdir)/C/eval.c $(srcdir)/C/exec.c $(srcdir)/C/grow.c \
+	$(srcdir)/C/heapgc.c $(srcdir)/C/index.c $(srcdir)/C/init.c	   \
+	$(srcdir)/C/iopreds.c $(srcdir)/C/depth_bound.c $(srcdir)/C/load_foreign.c \
+	$(srcdir)/C/load_dl.c $(srcdir)/C/load_dld.c $(srcdir)/C/load_none.c \
+	$(srcdir)/C/load_aout.c $(srcdir)/C/load_aix.c $(srcdir)/C/load_dll.c \
+	$(srcdir)/C/load_shl.c \
+	$(srcdir)/C/mavar.c $(srcdir)/C/modules.c $(srcdir)/C/other.c       \
+	$(srcdir)/C/parser.c $(srcdir)/C/save.c $(srcdir)/C/scanner.c \
+	$(srcdir)/C/sort.c $(srcdir)/C/stdpreds.c $(srcdir)/C/sysbits.c \
+	$(srcdir)/C/tracer.c $(srcdir)/C/unify.c $(srcdir)/C/userpreds.c  \
+	$(srcdir)/C/utilpreds.c $(srcdir)/C/write.c $(srcdir)/console/yap.c \
+	$(srcdir)/C/ypsocks.c $(srcdir)/C/ypstdio.c \
+	$(srcdir)/C/arith0.c $(srcdir)/C/arith1.c $(srcdir)/C/arith2.c \
+	$(srcdir)/C/bignum.c \
+	$(srcdir)/OPTYap/opt.memory.c $(srcdir)/OPTYap/opt.misc.c \
+        $(srcdir)/OPTYap/opt.init.c \
+	$(srcdir)/OPTYap/opt.preds.c $(srcdir)/OPTYap/or.engine.c \
+	$(srcdir)/OPTYap/or.cowengine.c $(srcdir)/OPTYap/or.sbaengine.c \
+	$(srcdir)/OPTYap/or.scheduler.c $(srcdir)/OPTYap/or.cut.c \
+	$(srcdir)/OPTYap/tab.tries.c $(srcdir)/OPTYap/tab.suspend.c
+
+PL_SOURCES= \
+	$(srcdir)/pl/arith.yap $(srcdir)/pl/arrays.yap $(srcdir)/pl/boot.yap \
+	$(srcdir)/pl/checker.yap $(srcdir)/pl/consult.yap \
+	$(srcdir)/pl/corout.yap $(srcdir)/pl/debug.yap \
+	$(srcdir)/pl/directives.yap \
+	$(srcdir)/pl/errors.yap	$(srcdir)/pl/grammar.yap \
+	$(srcdir)/pl/ground.yap $(srcdir)/pl/init.yap \
+	$(srcdir)/pl/depth_bound.yap $(srcdir)/pl/listing.yap \
+	$(srcdir)/pl/load_foreign.yap \
+	$(srcdir)/pl/modules.yap $(srcdir)/pl/preds.yap \
+	$(srcdir)/pl/protect.yap $(srcdir)/pl/setof.yap \
+	$(srcdir)/pl/sockets.yap $(srcdir)/pl/sort.yap \
+	$(srcdir)/pl/strict_iso.yap \
+	$(srcdir)/pl/tabling.yap $(srcdir)/pl/utils.yap \
+	$(srcdir)/pl/yapor.yap $(srcdir)/pl/yio.yap
+
+ENGINE_OBJECTS = \
+	absmi.o adtdefs.o alloc.o amasm.o analyst.o arrays.o \
+	arith0.o arith1.o arith2.o attvar.o bb.o \
+	cdmgr.o cmppreds.o compiler.o computils.o \
+	corout.o dbase.o errors.o eval.o bignum.o \
+	exec.o grow.o heapgc.o index.o init.o  \
+	iopreds.o depth_bound.o mavar.o modules.o other.o       \
+	parser.o save.o scanner.o sort.o stdpreds.o sysbits.o tracer.o \
+	unify.o userpreds.o utilpreds.o write.o ypsocks.o ypstdio.o
+
+C_INTERFACE_OBJECTS = \
+	load_foreign.o load_dl.o load_dld.o \
+	load_none.o load_aout.o load_aix.o load_dll.o load_shl.o \
+	c_interface.o
+
+OR_OBJECTS = \
+	opt.memory.o opt.misc.o opt.init.o opt.preds.o   \
+	or.engine.o or.cowengine.o or.sbaengine.o or.scheduler.o or.cut.o      \
+	tab.tries.o tab.suspend.o
+
+LIB_OBJECTS = $(ENGINE_OBJECTS) $(C_INTERFACE_OBJECTS) $(OR_OBJECTS)
+
+OBJECTS = yap.o $(LIB_OBJECTS)
+
+
+
+all: Makefile $(GHEADERS) startup
+
+
+Makefile: $(srcdir)/Makefile.in
+
+# Header files dependent on type abstraction, either implemented as 
+# inline functions or as macros.
+Yap.h: $(srcdir)/m4/Yap.h.m4  Atoms.h TermExt.h $(srcdir)/H/Regs.h $(M4GENHDRS) $(TAG_HEADERS)
+	$(M4) $(M4GENHDRS) $(srcdir)/m4/Yap.h.m4 > Yap.h
+	$(INDENT) Yap.h
+
+Tags_32bits.h: $(srcdir)/m4/Tags_32bits.h.m4 $(M4GENHDRS)
+	$(M4) $(M4GENHDRS) $(srcdir)/m4/Tags_32bits.h.m4 > Tags_32bits.h
+	$(INDENT) Tags_32bits.h
+
+Tags_32Ops.h: $(srcdir)/m4/Tags_32Ops.h.m4 $(M4GENHDRS)
+	$(M4) $(M4GENHDRS) $(srcdir)/m4/Tags_32Ops.h.m4 > Tags_32Ops.h
+	$(INDENT) Tags_32Ops.h
+
+Tags_32LowTag.h: $(srcdir)/m4/Tags_32LowTag.h.m4 $(M4GENHDRS)
+	$(M4) $(M4GENHDRS) $(srcdir)/m4/Tags_32LowTag.h.m4 > Tags_32LowTag.h
+	$(INDENT) Tags_32LowTag.h
+
+Tags_64bits.h: $(srcdir)/m4/Tags_64bits.h.m4 $(M4GENHDRS)
+	$(M4) $(M4GENHDRS) $(srcdir)/m4/Tags_64bits.h.m4 > Tags_64bits.h
+	$(INDENT) Tags_64bits.h
+
+Tags_24bits.h: $(srcdir)/m4/Tags_24bits.h.m4 $(M4GENHDRS)
+	$(M4) $(M4GENHDRS) $(srcdir)/m4/Tags_24bits.h.m4 > Tags_24bits.h
+	$(INDENT) Tags_24bits.h
+
+TermExt.h: $(srcdir)/m4/TermExt.h.m4 $(M4GENHDRS)
+	$(M4) $(M4GENHDRS) $(srcdir)/m4/TermExt.h.m4 > TermExt.h
+	$(INDENT) TermExt.h
+
+Yatom.h: $(srcdir)/m4/Yatom.h.m4 $(M4GENHDRS)
+	$(M4) $(M4GENHDRS) $(srcdir)/m4/Yatom.h.m4 > Yatom.h
+	$(INDENT) Yatom.h
+
+Atoms.h: $(srcdir)/m4/Atoms.h.m4 $(M4GENHDRS)
+	$(M4) $(M4GENHDRS) $(srcdir)/m4/Atoms.h.m4 > Atoms.h
+	$(INDENT) Atoms.h
+
+sshift.h: $(srcdir)/m4/sshift.h.m4 $(M4GENHDRS)
+	$(M4) $(M4GENHDRS) $(srcdir)/m4/sshift.h.m4 > sshift.h
+	$(INDENT) sshift.h
+
+absmi.o: $(srcdir)/C/absmi.c 
+	$(CC) -c $(CFLAGS) $(ABSMI_FLAGS) $(srcdir)/C/absmi.c -o $@
+
+adtdefs.o: $(srcdir)/C/adtdefs.c
+	$(CC) -c $(CFLAGS) $(srcdir)/C/adtdefs.c -o $@
+
+alloc.o: $(srcdir)/C/alloc.c
+	$(CC) -c $(CFLAGS) $(srcdir)/C/alloc.c -o $@
+
+amasm.o: $(srcdir)/C/amasm.c
+	$(CC) -c $(CFLAGS) $(srcdir)/C/amasm.c -o $@
+
+analyst.o: $(srcdir)/C/analyst.c
+	$(CC) -c $(CFLAGS) $(srcdir)/C/analyst.c -o $@
+
+arith0.o: $(srcdir)/C/arith0.c
+	$(CC) -c $(CFLAGS) $(srcdir)/C/arith0.c -o $@
+
+arith1.o: $(srcdir)/C/arith1.c
+	$(CC) -c $(CFLAGS) $(srcdir)/C/arith1.c -o $@
+
+arith2.o: $(srcdir)/C/arith2.c
+	$(CC) -c $(CFLAGS) $(srcdir)/C/arith2.c -o $@
+
+arrays.o: $(srcdir)/C/arrays.c
+	$(CC) -c $(CFLAGS) $(srcdir)/C/arrays.c -o $@
+
+attvar.o: $(srcdir)/C/attvar.c
+	$(CC) -c $(CFLAGS) $(srcdir)/C/attvar.c -o $@
+
+bb.o: $(srcdir)/C/bb.c
+	$(CC) -c $(CFLAGS) $(srcdir)/C/bb.c -o $@
+
+bignum.o: $(srcdir)/C/bignum.c
+	$(CC) -c $(CFLAGS) $(srcdir)/C/bignum.c -o $@
+
+#special rule for this one: we cannot use -fomit-frame-pointer because this will
+# interface with the outside world.
+c_interface.o: $(srcdir)/C/c_interface.c $(srcdir)/include/c_interface.h
+	$(CC) $(C_INTERF_FLAGS) -c $(srcdir)/C/c_interface.c -o c_interface.o
+
+cdmgr.o: $(srcdir)/C/cdmgr.c
+	$(CC) -c $(CFLAGS) $(srcdir)/C/cdmgr.c -o $@
+
+cmppreds.o: $(srcdir)/C/cmppreds.c
+	$(CC) -c $(CFLAGS) $(srcdir)/C/cmppreds.c -o $@
+
+compiler.o: $(srcdir)/C/compiler.c
+	$(CC) -c $(CFLAGS) $(srcdir)/C/compiler.c -o $@
+
+computils.o: $(srcdir)/C/computils.c
+	$(CC) -c $(CFLAGS) $(srcdir)/C/computils.c -o $@
+
+corout.o: $(srcdir)/C/corout.c
+	$(CC) -c $(CFLAGS) $(srcdir)/C/corout.c -o $@
+
+dbase.o: $(srcdir)/C/dbase.c
+	$(CC) -c $(CFLAGS) $(srcdir)/C/dbase.c -o $@
+
+errors.o: $(srcdir)/C/errors.c
+	$(CC) -c $(CFLAGS) $(srcdir)/C/errors.c -o $@
+
+eval.o: $(srcdir)/C/eval.c
+	$(CC) -c $(CFLAGS) $(srcdir)/C/eval.c -o $@
+
+exec.o: $(srcdir)/C/exec.c
+	$(CC) -c $(CFLAGS) $(srcdir)/C/exec.c -o $@
+
+grow.o: $(srcdir)/C/grow.c
+	$(CC) -c $(CFLAGS) $(srcdir)/C/grow.c -o $@
+
+heapgc.o: $(srcdir)/C/heapgc.c
+	$(CC) -c $(CFLAGS) $(srcdir)/C/heapgc.c -o $@
+
+index.o: $(srcdir)/C/index.c
+	$(CC) -c $(CFLAGS) $(srcdir)/C/index.c -o $@
+
+init.o: $(srcdir)/C/init.c
+	$(CC) -c $(CFLAGS) -DYAP_VERSION=\"$(VERSION)\" $(srcdir)/C/init.c -o $@
+
+iopreds.o: $(srcdir)/C/iopreds.c
+	$(CC) -c $(CFLAGS) $(srcdir)/C/iopreds.c -o $@
+
+depth_bound.o: $(srcdir)/C/depth_bound.c
+	$(CC) -c $(CFLAGS) $(srcdir)/C/depth_bound.c -o $@
+
+load_foreign.o: $(srcdir)/C/load_foreign.c
+	$(CC) -c $(CFLAGS) $(srcdir)/C/load_foreign.c -DSHLIB_SUFFIX=\"$(SHLIB_SUFFIX)\" -o $@
+
+load_dl.o: $(srcdir)/C/load_dl.c
+	$(CC) -c $(CFLAGS) $(srcdir)/C/load_dl.c -o $@
+
+load_aout.o: $(srcdir)/C/load_aout.c
+	$(CC) -c $(CFLAGS) $(srcdir)/C/load_aout.c -o $@
+
+load_aix.o: $(srcdir)/C/load_aix.c
+	$(CC) -c $(CFLAGS) $(srcdir)/C/load_aix.c -o $@
+
+load_dld.o: $(srcdir)/C/load_dld.c
+	$(CC) -c $(CFLAGS) $(srcdir)/C/load_dld.c -o $@
+
+load_dll.o: $(srcdir)/C/load_dll.c
+	$(CC) -c $(CFLAGS) $(srcdir)/C/load_dll.c -o $@
+
+load_shl.o: $(srcdir)/C/load_shl.c
+	$(CC) -c $(CFLAGS) $(srcdir)/C/load_shl.c -o $@
+
+load_none.o: $(srcdir)/C/load_none.c
+	$(CC) -c $(CFLAGS) $(srcdir)/C/load_none.c -o $@
+
+mavar.o: $(srcdir)/C/mavar.c
+	$(CC) -c $(CFLAGS) $(srcdir)/C/mavar.c -o $@
+
+modules.o: $(srcdir)/C/modules.c
+	$(CC) -c $(CFLAGS) $(srcdir)/C/modules.c -o $@
+
+other.o: $(srcdir)/C/other.c
+	$(CC) -c $(CFLAGS) $(srcdir)/C/other.c -o $@
+
+parser.o: $(srcdir)/C/parser.c
+	$(CC) -c $(CFLAGS) $(srcdir)/C/parser.c -o $@
+
+save.o: $(srcdir)/C/save.c
+	$(CC) -c $(CFLAGS) -DYAP_VERSION=\"$(VERSION)\" -DBIN_DIR=\"$(BINDIR)\" -DLIB_DIR=\"$(YAPLIBDIR)\" $(srcdir)/C/save.c -o $@
+
+scanner.o: $(srcdir)/C/scanner.c
+	$(CC) -c $(CFLAGS) $(srcdir)/C/scanner.c -o $@
+
+sort.o: $(srcdir)/C/sort.c
+	$(CC) -c $(CFLAGS) $(srcdir)/C/sort.c -o $@
+
+stdpreds.o: $(srcdir)/C/stdpreds.c
+	$(CC) -c $(CFLAGS) $(srcdir)/C/stdpreds.c -o $@
+
+sysbits.o: $(srcdir)/C/sysbits.c
+	$(CC) -c $(CFLAGS) -DLIB_DIR=\"$(YAPLIBDIR)\" $(srcdir)/C/sysbits.c -o $@
+
+tracer.o: $(srcdir)/C/tracer.c
+	$(CC) -c $(CFLAGS) $(srcdir)/C/tracer.c -o $@
+
+unify.o: $(srcdir)/C/unify.c
+	$(CC) -c $(CFLAGS) $(srcdir)/C/unify.c -o $@
+
+userpreds.o: $(srcdir)/C/userpreds.c
+	$(CC) -c $(CFLAGS) $(srcdir)/C/userpreds.c -o $@
+
+utilpreds.o: $(srcdir)/C/utilpreds.c
+	$(CC) -c $(CFLAGS) $(srcdir)/C/utilpreds.c -o $@
+
+write.o: $(srcdir)/C/write.c
+	$(CC) -c $(CFLAGS) $(srcdir)/C/write.c -o $@
+
+yap.o: $(srcdir)/console/yap.c
+	$(CC) -c $(CFLAGS) -I$(srcdir)/include -DYAP_VERSION=\"$(VERSION)\"  $(srcdir)/console/yap.c -o $@
+
+ypsocks.o: $(srcdir)/C/ypsocks.c
+	$(CC) -c $(CFLAGS) $(srcdir)/C/ypsocks.c -o $@
+
+ypstdio.o: $(srcdir)/C/ypstdio.c
+	$(CC) -c $(CFLAGS) $(srcdir)/C/ypstdio.c -o $@
+
+opt.memory.o: $(srcdir)/OPTYap/opt.memory.c
+	$(CC) -c $(CFLAGS) $(srcdir)/OPTYap/opt.memory.c -o $@
+
+opt.misc.o: $(srcdir)/OPTYap/opt.misc.c
+	$(CC) -c $(CFLAGS) $(srcdir)/OPTYap/opt.misc.c -o $@
+
+opt.init.o: $(srcdir)/OPTYap/opt.init.c
+	$(CC) -c $(CFLAGS) $(srcdir)/OPTYap/opt.init.c -o $@
+
+opt.preds.o: $(srcdir)/OPTYap/opt.preds.c
+	$(CC) -c $(CFLAGS) $(srcdir)/OPTYap/opt.preds.c -o $@
+
+or.cut.o: $(srcdir)/OPTYap/or.cut.c
+	$(CC) -c $(CFLAGS) $(srcdir)/OPTYap/or.cut.c -o $@
+
+or.engine.o: $(srcdir)/OPTYap/or.engine.c
+	$(CC) -c $(CFLAGS) $(srcdir)/OPTYap/or.engine.c -o $@
+
+or.cowengine.o: $(srcdir)/OPTYap/or.cowengine.c
+	$(CC) -c $(CFLAGS) $(srcdir)/OPTYap/or.cowengine.c -o $@
+
+or.sbaengine.o: $(srcdir)/OPTYap/or.sbaengine.c
+	$(CC) -c $(CFLAGS) $(srcdir)/OPTYap/or.sbaengine.c -o $@
+
+or.scheduler.o: $(srcdir)/OPTYap/or.scheduler.c
+	$(CC) -c $(CFLAGS) $(srcdir)/OPTYap/or.scheduler.c -o $@
+
+tab.tries.o: $(srcdir)/OPTYap/tab.tries.c
+	$(CC) -c $(CFLAGS) $(srcdir)/OPTYap/tab.tries.c -o $@
+
+tab.suspend.o: $(srcdir)/OPTYap/tab.suspend.c
+	$(CC) -c $(CFLAGS) $(srcdir)/OPTYap/tab.suspend.c -o $@
+
+#
+
+mycb: $(srcdir)/mycb.c
+	$(CC) $(CFLAGS) $(srcdir)/mycb.c -o mycb
+
+startup: yap $(PL_SOURCES)
+	-rm -f startup
+	echo "['$(srcdir)/pl/init.yap']. save_program(startup)." |  ./yap -b $(srcdir)/pl/boot.yap
+
+yap: $(HEADERS) yap.o @YAPLIB@
+	$(CC) $(STANDARD_CFLAGS) $(LDFLAGS) -o yap yap.o @YAPLIB@ $(LIBS)
+
+libYap.a: $(LIB_OBJECTS)
+	-rm -f libYap.a
+	ar rc libYap.a $(LIB_OBJECTS)
+	$(RANLIB) libYap.a
+
+install: @INSTALL_COMMAND@
+
+install_unix:
+	-mkdir -p $(BINDIR)
+	$(INSTALL_PROGRAM) -m 755 yap $(BINDIR)/yap
+	-mkdir -p $(YAPLIBDIR)
+	$(INSTALL_DATA) -m 644 startup $(YAPLIBDIR)/startup
+	$(INSTALL_DATA) -m 644 libYap.a  $(LIBDIR)/libYap.a
+	(cd $(srcdir) ; tar cf - library) | (cd $(YAPLIBDIR) ; tar xf -)
+	$(INSTALL_DATA) $(srcdir)/LGPL/icon_address.pl $(YAPLIBDIR)/library
+	$(INSTALL_DATA) $(srcdir)/LGPL/pillow.pl $(YAPLIBDIR)/library
+	(cd $(srcdir)/CLPQR ; tar cf - .) | (cd $(YAPLIBDIR)/library ; tar xf -)
+	(cd $(srcdir)/CHR ; tar cf - .) | (cd $(YAPLIBDIR)/library ; tar xf -)
+	@INSTALL_DLLS@ (cd library/regex; make install)
+	-mkdir -p $(INCLUDEDIR)
+	for h in $(INTERFACE_HEADERS); do $(INSTALL) $$h $(INCLUDEDIR); done
+
+install_mingw32:
+	-mkdir $(ROOTDIR)
+	-mkdir $(BINDIR)
+	-mkdir $(ROOTDIR)/lib
+	-mkdir $(YAPLIBDIR)
+	-mkdir $(ROOTDIR)/include
+	-mkdir $(INCLUDEDIR)
+	$(INSTALL_PROGRAM) -m 755 yap.exe $(BINDIR)/yap.exe
+	$(INSTALL_PROGRAM) -m 755 yap.dll $(BINDIR)/yap.dll
+	$(INSTALL_PROGRAM) -m 755 startup $(YAPLIBDIR)/startup
+	$(INSTALL) $(srcdir)/include/c_interface.h $(INCLUDEDIR)/c_interface.h
+	$(INSTALL) config.h $(INCLUDEDIR)/config.h
+	(cd $(srcdir) ; tar cf - library) | (cd $(YAPLIBDIR) ; tar xf -)
+	$(INSTALL_DATA) $(srcdir)/LGPL/icon_address.pl $(YAPLIBDIR)/library
+	$(INSTALL_DATA) $(srcdir)/LGPL/pillow.pl $(YAPLIBDIR)/library
+	(cd $(srcdir)/CLPQR ; tar cf - .) | (cd $(YAPLIBDIR)/library ; tar xf -)
+	(cd $(srcdir)/CHR ; tar cf - .) | (cd $(YAPLIBDIR)/library ; tar xf -)
+	(cd library/regex; make install_mingw32)
+	-mkdir $(INCLUDEDIR)
+	$(INSTALL) $(HEADERS) $(INCLUDEDIR)
+
+install_library: libYap.a
+	$(INSTALL_DATA) -m 644 libYap.a  $(LIBDIR)/libYap.a
+	-mkdir $(INCLUDEDIR)
+	$(INSTALL) $(HEADERS) $(INCLUDEDIR)
+
+##########
+TAGS: $(C_SOURCES) $(PL_SOURCES) $(HEADERS)
+	etags  $(C_SOURCES)  $(PL_SOURCES) $(HEADERS)
+
+depend: $(HEADERS) $(C_SOURCES) 
+	-@if test "$(GCC)" = yes; then\
+	  gcc -MM $(CFLAGS) -I$(srcdir)/include $(C_SOURCES) > .depend;\
+	else\
+          makedepend -f - -- $(CFLAGS) -I$(srcdir)/include -- $(C_SOURCES) |\
+          sed 's|.*/\([^:]*\):|\1:|' > .depend ;\
+	fi
+
+clean:
+	rm -f *.o *~ $(GHEADERS) *.BAK
+
+realclean: clean
+	rm -f yap startup config.log config.cache config.h
+
+dist:
+
+.c.s:
+	$(CC) $(CFLAGS) -S $<
+
+#
+# create a new DLL library on cygwin environments
+#
+# DLLNAME: name of the new dll
+# OBJS: list of object files I want to put in
+# LIBS: list of libraries to link with
+# DEFFILE is the name of the definitions file.
+# BASEFILE temporary 
+# EXPFILE  temporary
+# ENTRY is the entry point  int WINAPI startup (HINSTANCE, DWORD, LPVOID)
+# 
+DLLTOOL=dlltool
+DLLNAME=yap.dll
+DLL_LIBS=-L /usr/lib/mingw -lmoldname -lcrtdll -lkernel32 $(LIBS)
+BASE_FILE=yap.base
+EXP_FILE=yap.exp
+DEF_FILE=$(srcdir)/misc/yap.def
+ENTRY_FUNCTION=_win_yap@12
+#
+libWYap.a: yap.dll
+	$(DLLTOOL) --as=$(AS) --dllname $(DLLNAME) --def $(DEF_FILE) --output-lib libWYap.a
+
+yap.dll: $(HEADERS) $(LIB_OBJECTS) $(DEF_FILE)
+	$(LD) -s --base-file $(BASE_FILE) --dll -o $(DLLNAME) $(LIB_OBJECTS) $(DLL_LIBS) -e $(ENTRY_FUNCTION)
+	$(DLLTOOL) --as=$(AS) --dllname $(DLLNAME) --def $(DEF_FILE) --base-file $(BASE_FILE) --output-exp $(EXP_FILE)
+	$(LD) -s --base-file $(BASE_FILE) $(EXP_FILE) -dll -o $(DLLNAME) $(LIB_OBJECTS) $(DLL_LIBS) -e $(ENTRY_FUNCTION)
+	$(DLLTOOL) --as=$(AS) --dllname $(DLLNAME) --def $(DEF_FILE) --base-file $(BASE_FILE) --output-exp $(EXP_FILE)
+	$(LD) $(EXP_FILE) --dll -o $(DLLNAME) $(LIB_OBJECTS) $(DLL_LIBS) -e $(ENTRY_FUNCTION)
+
+install_info:
+	cd $(srcdir)/docs ; \
+	make info; \
+	$(INSTALL) yap.info* $(INFODIR); \
+	if test -e $(INFODIR)/emacs.bz2; then \
+	  bzip2 --quiet --force $(INFODIR)/yap.info*; \
+	else \
+	  if test -e $(INFODIR)/emacs.gz; then \
+	  gzip --quiet --force $(INFODIR)/yap.info*; \
+	  fi \
+	fi; \
+	$(INSTALL_INFO) --quiet --section "Programming Languages" yap.info $(INFODIR)/dir; \
+	cd ../LGPL/pillow/doc ; \
+	$(INSTALL) pillow_doc.info $(INFODIR); \
+	if test -e $(INFODIR)/emacs.bz2; then \
+	  bzip2 --quiet --force $(INFODIR)/pillow_doc.info; \
+	else \
+	  if test -e $(INFODIR)/emacs.gz; then \
+	  gzip --quiet --force $(INFODIR)/pillow_doc.info; \
+	  fi \
+	fi; \
+	$(INSTALL_INFO) --quiet --section "Programming Languages" --entry="`cat pillow_doc.infoindex`" pillow_doc.info $(INFODIR)/dir
+
+
+# DO NOT DELETE THIS LINE -- make depend depends on it.
+
+include .depend

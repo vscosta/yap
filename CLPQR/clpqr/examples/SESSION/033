@@ -1,0 +1,21 @@
+/tmp/clpr
+
+yes
+| ?- [library('clpqr/examples/squares')].
+{consulting /freyung/christian/sicstus2.1.9.clp/library/clpqr/examples/squares.pl...}
+{Warning: [X1,X2,X3,X4,X5,X6,X7,X8,X9] - singleton variables in rectangle/2 in lines 1-40}
+{/freyung/christian/sicstus2.1.9.clp/library/clpqr/examples/squares.pl consulted, 50 msec 2928 bytes}
+
+yes
+| ?- time(rectangle(A,Rs)).
+%%% Timing 00:00:40.060    40.060
+
+A = 1.03125,
+Rs = [0.46875000000000006,0.5625000000000001,0.24999999999999967,0.21875000000000006,0.1250000000000001,0.4375,0.03124999999999989,0.3124999999999998,0.28124999999999933] ? ;
+%%% Timing 00:00:05.020     5.020
+
+A = 1.131147540983607,
+Rs = [0.5409836065573771,0.5901639344262297,0.45901639344262296,0.08196721311475422,0.032786885245901544,0.14754098360655746,0.409836065573771,0.11475409836065581,0.2622950819672133] ? 
+
+yes
+| ?- ^D

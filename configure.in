@@ -1,0 +1,595 @@
+dnl
+dnl Process this file with autoconf to produce a configure script.
+dnl
+AC_INIT(console/yap.c)
+AC_CONFIG_HEADER(config.h)
+
+dnl store the environment's compilation flags
+mycflags="$CFLAGS"
+
+AC_PROG_CC
+AC_SUBST(GCC)
+AC_SUBST(C_INTERF_FLAGS)
+
+AC_CYGWIN
+if test $ac_cv_cygwin = yes  -a "$CC" = "gcc"
+then
+  CC="gcc -mno-cygwin"
+fi
+AC_MINGW32
+
+dnl Checks for programs.
+AC_PROG_CPP
+AC_PROG_LN_S
+AC_PROG_INSTALL
+AC_PROG_RANLIB
+AC_CHECK_PROGS(INDENT,indent true)
+AC_PATH_PROG(INSTALL_INFO,install-info,true,$PATH:/sbin:/usr/sbin:/usr/etc:/usr/local/sbin)
+
+AC_ARG_ENABLE(rational-trees,
+	[ --enable-rational-trees support infinite rational trees ],
+	rationaltrees="$enableval" ; rationaltrees=no)
+AC_ARG_ENABLE(coroutining,
+	[ --enable-coroutining support co-routining, attributed variables and constraints],
+	rationaltrees="$enableval";coroutining="$enableval", coroutining=no)
+AC_ARG_ENABLE(wam-profile,
+	[ --enable-wam-profile  support low level profiling of abstract machine ],
+	wamprofile="$enableval", wamprofile=no)
+AC_ARG_ENABLE(depth-limit,
+	[ --enable-depth-limit  support depth-bound computation ],
+	depthlimit="$enableval", depthlimit=no)
+AC_ARG_ENABLE(or-parallelism,
+	[ --enable-or-parallelism  support or-parallelism as: env-copy,sba,a-cow ],
+	orparallelism="$enableval", orparallelism=no)
+AC_ARG_ENABLE(low-level-tracer,
+	[ --enable-low-level-tracer  support support for procedure-call tracing ],
+	lowleveltracer="$enableval", lowleveltracer=no)
+AC_ARG_ENABLE(tabling,
+	[ --enable-tabling  support tabling as: batched,local ],
+	tabling="$enableval", tabling=no)
+AC_ARG_ENABLE(max-performance,
+	[ --enable-max-performance  try using the best flags for specific architecture ],
+	maxperformance="$enableval", maxperformance=no)
+AC_ARG_ENABLE(debug-yap,
+	[ --enable-debug-yap  enable C-debugging for YAP ],
+	debugyap="$enableval", debugyap=no)
+	
+AC_ARG_WITH(gmp,
+	[ --with-gmp[=DIR]    use GNU Multiple Precision in DIR],
+	if test $withval = yes; then
+		yap_cv_gmp=yes
+	elif test $withval = no; then
+		yap_cv_gmp=no
+	else
+		yap_cv_gmp=$with_gmp
+		LDFLAGS="$LDFLAGS -L${yap_cv_gmp}/lib"
+		CPPFLAGS="$CPPFLAGS -I${yap_cv_gmp}/include"
+	fi
+	[yap_cv_gmp=yes])
+
+AC_CANONICAL_SYSTEM
+
+AC_DEFINE_UNQUOTED(HOST_ALIAS,"${host_alias}")
+
+if test "$cross_compiling" = "yes"
+then
+  YAP_EXTRAS=
+else
+  AC_SYS_RESTARTABLE_SYSCALLS
+fi
+
+dnl Compilation Flags
+if test "$GCC" = "yes"
+then
+   if test -z "${mycflags}"
+   then
+     if test "$debugyap" = "yes"
+     then
+       CFLAGS="-O -g -Wall -Wstrict-prototypes -Wmissing-prototypes"
+       C_INTERF_FLAGS="-O -g -Wall -Wstrict-prototypes -Wmissing-prototypes"
+     else
+       CFLAGS="-O3 -fomit-frame-pointer -Wall -Wstrict-prototypes -Wmissing-prototypes"
+       C_INTERF_FLAGS="-O3 -Wall -Wstrict-prototypes -Wmissing-prototypes"
+       case "$target_cpu" in
+        i*86*)
+           CFLAGS="-DBP_FREE $CFLAGS"
+        ;;
+        sparc*)
+	  case "$target_os" in
+           *solaris2*|*solaris3*|*sunos5*|*sunos6*)
+             CFLAGS="-mno-app-regs -DOPTIMISE_ALL_REGS_FOR_SPARC=1 $CFLAGS"
+            ;;
+          esac
+        ;;
+       esac
+       if test "$maxperformance" = "yes"
+       then
+         case "$target_cpu" in
+          i686*)
+           CFLAGS="-march=pentiumpro $CFLAGS"
+          ;;
+          i586*)
+           CFLAGS="-march=pentium $CFLAGS"
+          ;;
+          i486*)
+           CFLAGS="-march=i486 $CFLAGS"
+          ;;
+          i386*)
+           CFLAGS="-march=i386 $CFLAGS"
+          ;;
+         esac
+       fi
+     fi
+   fi
+else
+   if test -z "${mycflags}"
+   then
+     case "$target_cpu" in
+       i?86*)
+        if test "$CC" = "lcc"
+         then
+         CFLAGS="-A -A"
+        fi
+        ;;
+       hppa*)
+        if test "$CC" = "cc" -o $CC = c89
+         then
+           if test "$debugyap" = "yes"
+           then
+             CFLAGS="-Ae -g"
+             C_INTERF_FLAGS="-Ae -g"
+           else
+             CFLAGS="-Ae -O3"
+             C_INTERF_FLAGS="-Ae"
+           fi
+        fi
+        ;;
+       hppa*)
+        if test "$CC" = "cc" -o $CC = c89
+         then
+           if test "$debugyap" = "yes"
+           then
+             CFLAGS="-g"
+             C_INTERF_FLAGS="-g"
+           else
+             CFLAGS="-Ae +O4"
+           fi
+        fi
+        ;;
+     esac
+    fi
+    C_INTERF_FLAGS="$CFLAGS"
+fi
+
+AC_SUBST(INSTALL_COMMAND)
+
+dnl Check for libraries.
+dnl mingw does not get along well with libm
+dnl cygnus and mingw32 also need wsock32 to use sockets.
+dnl
+if test "$MINGW32" = "yes"
+then
+  AC_CHECK_LIB(wsock32,main)
+  INSTALL_COMMAND=install_mingw32
+else
+  if test "$CYGWIN" = "yes" -a "$MINGW32" = "no"
+  then
+    AC_CHECK_LIB(wsock32,main)
+    AC_CHECK_LIB(cygwin,main) 
+  fi
+  INSTALL_COMMAND="install_unix"
+  AC_CHECK_LIB(m,sin)
+  AC_CHECK_LIB(socket,socket)
+  AC_CHECK_LIB(termcap,tgetent)
+  AC_CHECK_LIB(readline,readline)
+  AC_CHECK_LIB(gmp,main)
+  AC_CHECK_LIB(nsl,main,
+	have_nsl=yes
+	,
+	have_nsl=no)
+  AC_CHECK_LIB(dl,dlopen,
+dnl Linux has both elf and a.out, in this case we found elf
+	have_dl=yes
+	,
+	have_dl=no)
+fi
+
+dnl System stuff for dynamic linking.
+dnl
+dnl Exports:
+dnl
+dnl "" if we can do dynamic linking, "#" otherwise
+AC_SUBST(INSTALL_DLLS)
+dnl C-flags used to compile a file that will be loaded dynamically
+AC_SUBST(SHLIB_CFLAGS)
+dnl suffix for loadable binary (.so,.dll,.o)
+AC_SUBST(SHLIB_SUFFIX)
+dnl how to call the loader
+AC_SUBST(SHLIB_LD)
+dnl makefile target for building YAP library or dll
+AC_SUBST(NEWSHOBJ)
+dnl objects in YAP library
+AC_SUBST(YAPLIB)
+dnl install_info
+AC_SUBST(INSTALL_INFO)
+dnl let YAP_EXTRAS fall through configure, from the env into Makefile
+AC_SUBST(YAP_EXTRAS)
+
+dnl defaults
+INSTALL_DLLS="#"
+SHLIB_LD="@#"
+NEWSHOBJ="sobjs"
+YAPLIB="libYap.a"
+M4="m4"
+
+case $target_os in
+      *linux*)
+        if test $have_dl = yes
+	then
+	  SHLIB_SUFFIX=".so"
+          SHLIB_LD="ld -shared"
+	  LIBS="$LIBS -ldl"
+	  case $host_cpu in
+	    alpha*)
+	      LDFLAGS="-export-dynamic $LDFLAGS"
+            ;;
+            *)
+	      if test "$CC" != "lcc"
+              then
+	        LDFLAGS="-rdynamic $LDFLAGS"
+              fi
+            ;;
+          esac
+        fi
+        if test $have_nsl = yes
+	 then
+	 LIBS="$LIBS -lnsl"
+        fi
+	if test $CC = gcc
+	 then
+	 SHLIB_CFLAGS="-shared -fPIC"
+	 INSTALL_DLLS=""
+        fi
+	;;
+      *sunos4*)
+	M4="/usr/5bin/m4"
+	LDFLAGS="$LDFLAGS -N"
+        if test $have_nsl = yes
+	 then
+	 LIBS="$LIBS -lnsl"
+        fi
+        SHLIB_SUFFIX=".o"
+	INSTALL_DLLS=""
+	;;
+      *hpux*)
+	#do not use the first memory quadrant
+	AC_DEFINE(FORCE_SECOND_QUADRANT)
+	#this tells ld to export all non-static symbols,
+	#otherwise no external predicates.
+	LDFLAGS="${LDFLAGS} -Wl,-E"
+	M4="/usr/bin/m4"
+	if test $CC = cc -o $CC = c89
+	then
+	 SHLIB_LD="cc ${LDFLAGS} -Wl,-b"
+         SHLIB_SUFFIX=".sl"
+	 SHLIB_CFLAGS="+z"
+	 INSTALL_DLLS=""
+	else
+	 INSTALL_DLLS="#"
+        fi
+	;;
+      *aix*)
+	# To actually use dlls in AIX I'd need to build YAP as a DLL first.
+	# I won't bother for now.
+	#
+        # SHLIB_SUFFIX=".a"
+        #SHLIB_LD="\$(srcdir)/../../ldAix /bin/ld -bhalt:4 -bM:SRE -bE:lib.exp -H512 -T512 -bnoentry"
+	#INSTALL_DLLS=""
+	;;
+      *osf*)
+        SHLIB_SUFFIX=".so"
+        SHLIB_LD="ld -shared -expect_unresolved '*'"
+	;;
+      *irix6*)
+	SHLIB_CFLAGS=""
+	SHLIB_SUFFIX=".so"
+	SHLIB_LD="ld -n32 -shared -rdata_shared"
+	INSTALL_DLLS=""
+	;;
+      *netbsd*|*freebsd*)
+	if echo __ELF__ | ${CC:-cc} -E - | grep -q __ELF__
+        then
+	  #an a.out system 	
+	  SHLIB_CFLAGS=""
+	  SHLIB_SUFFIX=".o"
+        else
+	  #an elf system
+	  LDFLAGS="-Wl,--export-dynamic $LDFLAGS"
+	  SHLIB_CFLAGS="-fPIC"
+	  SHLIB_LD="ld -Bshareable -x"
+	  SHLIB_SUFFIX=".so"
+	  INSTALL_DLLS=""
+        fi
+	;;
+      *cyg*)
+        SHLIB_SUFFIX=".dll"
+        NEWSHOBJ="dll"
+	YAPLIB=yap.dll
+	YAPLIB="libWYap.a"
+	prefix="c:/Program\\ Files/Yap"
+	;;
+      *)
+        if test $have_dl = yes
+	 then
+         SHLIB_SUFFIX=".o"
+	 LIBS="$LIBS -ldl"
+	 if test $CC = gcc
+	 then
+	   SHLIB_CFLAGS="-fPIC"
+	 fi
+        fi
+        if test $have_nsl = yes
+	 then
+	 LIBS="$LIBS -lnsl"
+        fi
+	;;
+esac
+
+if test "$coroutining" = "yes"
+  then
+  YAP_EXTRAS="$YAP_EXTRAS -DCOROUTINING=1"
+fi
+  
+if test "$rationaltrees" = "yes"
+  then
+  YAP_EXTRAS="$YAP_EXTRAS -DRATIONAL_TREES=1"
+fi
+  
+if test "$debugyap" = "yes"
+  then
+  YAP_EXTRAS="$YAP_EXTRAS -DDEBUG=1"
+fi
+  
+if test "$wamprofile" = "yes"
+  then
+  YAP_EXTRAS="$YAP_EXTRAS -DANALYST=1"
+fi
+  
+if test "$depthlimit" = "yes"
+  then
+  YAP_EXTRAS="$YAP_EXTRAS -DDEPTH_LIMIT=1"
+fi
+  
+if test "$lowleveltracer" = "yes"
+  then
+  YAP_EXTRAS="$YAP_EXTRAS -DLOW_LEVEL_TRACER=1"
+fi
+  
+case "$orparallelism" in
+  sba)
+   YAP_EXTRAS="$YAP_EXTRAS -DSBA=1"
+  ;;
+  a-cow)
+   YAP_EXTRAS="$YAP_EXTRAS -DACOW=1"
+  ;;
+  yes|env-copy)
+   YAP_EXTRAS="$YAP_EXTRAS -DENV_COPY=1"
+  ;;
+esac
+
+case "$tabling" in
+  local)
+   YAP_EXTRAS="$YAP_EXTRAS -DTABLING_LOCAL_SCHEDULING=1"
+  ;;
+  yes|batched)
+   YAP_EXTRAS="$YAP_EXTRAS -DTABLING_BATCHED_SCHEDULING=1"
+  ;;
+esac
+
+dnl Checks for header files.
+AC_HEADER_STDC
+AC_HEADER_SYS_WAIT
+AC_CHECK_HEADERS(fcntl.h sys/file.h sys/socket.h sys/types.h sys/time.h)
+AC_CHECK_HEADERS(sys/ucontext.h sys/un.h unistd.h sys/times.h ieeefp.h)
+AC_CHECK_HEADERS(sys/param.h errno.h netdb.h netinet/in.h arpa/inet.h)
+AC_CHECK_HEADERS(string.h memory.h sys/mman.h sys/stat.h stdarg.h ctype.h)
+AC_CHECK_HEADERS(sys/resource.h limits.h siginfo.h time.h fenv.h)
+AC_CHECK_HEADERS(fpu_control.h sys/shm.h regex.h winsock.h winsock2.h)
+AC_CHECK_HEADERS(sys/select.h direct.h)
+if test "$yap_cv_gmp" != "no"
+then
+  AC_CHECK_HEADERS(gmp.h)
+fi
+
+dnl Checks for typedefs, structures, and compiler characteristics.
+AC_C_INLINE
+AC_STRUCT_TM
+AC_CHECK_SIZEOF(int *,4)
+AC_CHECK_SIZEOF(short int,2)
+AC_CHECK_SIZEOF(int,4)
+AC_CHECK_SIZEOF(long int,4)
+AC_CHECK_SIZEOF(long long int,8)
+AC_CHECK_SIZEOF(float,4)
+AC_CHECK_SIZEOF(double,8)
+
+dnl check type of malloc (i.e. char *  or void *)
+AC_MSG_CHECKING(for type of malloc)
+AC_CACHE_VAL(yap_cv_malloct,[
+AC_TRY_RUN(
+	#include <stdlib.h>
+	char *malloc(size_t);
+	int main() {
+	   void *p=malloc(1);
+	   return 0;
+	}
+	,
+	yap_cv_malloct=char,yap_cv_malloct=void,yap_cv_malloct=void)])
+AC_MSG_RESULT($yap_cv_malloct *)
+if test $yap_cv_malloct = void
+then AC_DEFINE(MALLOC_T,void *)
+else AC_DEFINE(MALLOC_T,char *)
+fi
+
+
+dnl check how to generate headers (i.e. should we use GCC inline?)
+AC_MSG_CHECKING(for gcc inline)
+AC_CACHE_VAL(yap_cv_gcc,[
+AC_TRY_RUN(
+	#undef inline
+	inline int f(int x) {return x+1;}
+	int main() { return 0;}
+	,
+	yap_cv_gcc=yes,yap_cv_gcc=no,yap_cv_gcc=yes)])
+AC_MSG_RESULT($yap_cv_gcc)
+if test $yap_cv_gcc = yes 
+then
+M4GENHDRS=m4/gcc_genhdrs.m4
+AC_DEFINE(HAVE_GCC,1)
+else
+M4GENHDRS=m4/cc_genhdrs.m4
+AC_DEFINE(HAVE_GCC,0)
+fi
+AC_SUBST(M4)
+AC_SUBST(M4GENHDRS)
+
+
+dnl check for threaded code
+AC_MSG_CHECKING(for gcc threaded code)
+AC_CACHE_VAL(yap_cv_threaded_code,[
+AC_TRY_RUN(
+	int main() {
+	void *t = &&l2;
+	l1: goto *t;
+	l2: return 0;
+}
+	,
+	yap_cv_threaded_code=yes,yap_cv_threaded_code=no,yap_cv_threaded_code=yes)])
+AC_MSG_RESULT($yap_cv_threaded_code)
+if test $yap_cv_threaded_code = yes && test $yap_cv_gcc = yes
+then
+	AC_DEFINE(USE_THREADED_CODE,1)
+	M4GENABSMI=gen_gcc.m4
+else	
+	AC_DEFINE(USE_THREADED_CODE,0)
+	M4GENABSMI=gen_ansi.m4
+fi
+
+AC_SUBST(M4GENABSMI)
+
+
+dnl check for IEEE floats
+AC_MSG_CHECKING(for IEEE floats)
+AC_CACHE_VAL(yap_cv_ffieee,[
+AC_TRY_RUN(
+	int main() {
+	  union { float f; int i} a;
+	  a.f = 1;
+	  if (a.i==0x3f800000) return 0;
+	  return 1;
+	}
+	,
+	yap_cv_ffieee=yes,yap_cv_ffieee=no,yap_cv_ffieee=yes)])
+AC_MSG_RESULT($yap_cv_ffieee)
+if test $yap_cv_ffieee = yes 
+then
+AC_DEFINE(FFIEEE,1)
+else
+AC_DEFINE(FFIEEE,0)
+fi
+
+dnl check for sigsetjmp
+AC_MSG_CHECKING(for sigsetjmp)
+AC_CACHE_VAL(yap_sigsetjmp,[
+AC_TRY_COMPILE(
+	#include <setjmp.h>
+	,
+	sigjmp_buf         RestartEnv;
+
+	siglongjmp (RestartEnv, 1);
+	,
+	yap_sigsetjmp=yes,yap_sigsetjmp=no)])
+AC_MSG_RESULT($yap_sigsetjmp)
+if test $yap_sigsetjmp = yes 
+then
+AC_DEFINE(HAVE_SIGSETJMP,1)
+else
+AC_DEFINE(HAVE_SIGSETJMP,0)
+fi
+
+dnl check for sigsegv
+AC_MSG_CHECKING(for sigsegv)
+AC_CACHE_VAL(yap_sigsegv,[
+AC_TRY_COMPILE(
+	#include <signal.h>
+	#include <stdio.h>
+	,
+	printf("Signal value is %d\n", SIGSEGV);
+	,
+	yap_sigsegv=yes,yap_sigsegv=no)])
+AC_MSG_RESULT($yap_sigsegv)
+if test $yap_sigsegv = yes 
+then
+AC_DEFINE(HAVE_SIGSEGV,1)
+else
+AC_DEFINE(HAVE_SIGSEGV,0)
+fi
+
+dnl this is copied from the Tcl code
+dnl this code checks whether the system defines an union wait
+AC_MSG_CHECKING([union wait])
+AC_TRY_LINK([#include <sys/types.h> 
+#include <sys/wait.h>], [
+union wait x;
+wait(&x);		/* make sure we can compile wait */
+WIFEXITED(x);		/* Generates compiler error if WIFEXITED
+			 * uses an int. */
+], union_wait_ok=yes, union_wait_ok=no)
+AC_MSG_RESULT($union_wait_ok)
+if test $union_wait_ok = no; then
+    AC_DEFINE(NO_UNION_WAIT)
+fi
+
+dnl check whether the system supports the environ variable
+AC_MSG_CHECKING([environ])
+AC_TRY_LINK([], [
+extern char **environ;
+], environ_ok=yes, environ_ok=no)
+AC_MSG_RESULT($environ_ok)
+if test $environ_ok = yes; then
+    AC_DEFINE(HAVE_ENVIRON)
+fi
+
+dnl Checks for library functions.
+AC_TYPE_SIGNAL
+AC_CHECK_FUNCS(getcwd getwd strtod getrusage chdir signal times siggetmask)
+AC_CHECK_FUNCS(strchr memcpy isatty sbrk shmat mmap random rand sigaction)
+AC_CHECK_FUNCS(snprintf vsnprintf setbuf system link getpwnam dup2 sigprocmask)
+AC_CHECK_FUNCS(labs strncat tmpnam getenv gettimeofday gethrtime putenv)
+AC_CHECK_FUNCS(strerror socket memmove alarm asinh acosh atanh rint)
+AC_CHECK_FUNCS(stat select fetestexcept finite strncpy mkstemp isnan)
+
+dnl check for mpz_xor
+AC_MSG_CHECKING(for mpz_xor)
+AC_CACHE_VAL(yap_mpz_xor,[
+AC_TRY_LINK(
+	#include <gmp.h>
+	void check(mpz_t rop,mpz_t op1,mpz_t op2) {
+	  mpz_xor(rop,op1,op2);
+	}
+	,
+	,
+	yap_mpz_xor=yes,yap_mpz_xor=no)])
+AC_MSG_RESULT($yap_mpz_xor)
+if test $yap_mpz_xor = yes 
+then
+AC_DEFINE(HAVE_MPZ_XOR,1)
+else
+AC_DEFINE(HAVE_MPZ_XOR,0)
+fi
+
+mkdir -p  library/regex
+
+AC_OUTPUT(Makefile library/regex/Makefile .depend)
+
+make depend
+

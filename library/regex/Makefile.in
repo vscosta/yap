@@ -1,0 +1,112 @@
+#
+# default base directory for YAP installation
+#
+ROOTDIR = @prefix@
+#
+# where the binary should be
+#
+BINDIR = $(ROOTDIR)/bin
+#
+# where YAP should look for libraries
+#
+LIBDIR=$(ROOTDIR)/lib/Yap
+#
+#
+CC=@CC@
+CFLAGS= @CFLAGS@ $(YAP_EXTRAS) $(DEFS) -I$(srcdir) -I../.. -I$(srcdir)/../../include
+#
+#
+# You shouldn't need to change what follows.
+#
+INSTALL=@INSTALL@
+INSTALL_DATA=@INSTALL_DATA@
+INSTALL_PROGRAM=@INSTALL_PROGRAM@
+SHELL=/bin/sh
+RANLIB=@RANLIB@
+srcdir=@srcdir@
+SHLIB_CFLAGS=@SHLIB_CFLAGS@
+SHLIB_SUFFIX=@SHLIB_SUFFIX@
+#4.1VPATH=@srcdir@:@srcdir@/OPTYap
+CWD=$(PWD)
+#
+
+OBJS=regexp.o regcomp.o regexec.o regerror.o regfree.o
+SOBJS=regexp@SHLIB_SUFFIX@ regcomp@SHLIB_SUFFIX@ regexec@SHLIB_SUFFIX@ regerror@SHLIB_SUFFIX@ regfree@SHLIB_SUFFIX@ 
+
+#in some systems we just create a single object, in others we need to
+# create a libray
+
+all: @NEWSHOBJ@
+
+sobjs: $(SOBJS) 
+
+dll: regexp@SHLIB_SUFFIX@
+
+regexp.o: $(srcdir)/regexp.c
+	$(CC) -c $(CFLAGS) $(SHLIB_CFLAGS) $(srcdir)/regexp.c -o regexp.o
+
+regcomp.o: $(srcdir)/regcomp.c
+	$(CC) -c $(CFLAGS) $(SHLIB_CFLAGS) $(srcdir)/regcomp.c -o regcomp.o
+
+regerror.o: $(srcdir)/regerror.c
+	$(CC) -c $(CFLAGS) $(SHLIB_CFLAGS) $(srcdir)/regerror.c -o regerror.o
+
+regfree.o: $(srcdir)/regfree.c
+	$(CC) -c $(CFLAGS) $(SHLIB_CFLAGS) $(srcdir)/regfree.c -o regfree.o
+
+regexec.o: $(srcdir)/regexec.c
+	$(CC) -c $(CFLAGS) $(SHLIB_CFLAGS) $(srcdir)/regexec.c -o regexec.o
+
+%.so: %.o
+	@SHLIB_LD@ -o $@ $<
+
+regexp.so: regexp.o
+	@SHLIB_LD@ -o regexp.so regexp.o
+
+regcomp.so: regcomp.o
+	@SHLIB_LD@ -o regcomp.so regcomp.o
+
+regerror.so: regerror.o
+	@SHLIB_LD@ -o regerror.so regerror.o
+
+regfree.so: regfree.o
+	@SHLIB_LD@ -o regfree.so regfree.o
+
+regexec.so: regexec.o
+	@SHLIB_LD@ -o regexec.so regexec.o
+
+#
+# create a new DLL library on cygwin environments
+#
+# DLLNAME: name of the new dll
+# OBJS: list of object files I want to put in
+# LIBS: list of libraries to link with
+# DEFFILE is the name of the definitions file.
+# BASEFILE temporary 
+# EXPFILE  temporary
+# ENTRY is the entry point  int WINAPI startup (HINSTANCE, DWORD, LPVOID)
+# 
+DLLTOOL=dlltool
+DLLNAME=regexp.dll
+DLL_LIBS=-lcrtdll -L../.. -lWYap
+BASE_FILE=regexp.base
+EXP_FILE=regexp.exp
+DEF_FILE=$(srcdir)/regexp.def
+ENTRY_FUNCTION=_win_regexp@12
+#
+regexp.dll: $(OBJS)
+	$(LD) -s --base-file $(BASE_FILE) --dll -o $(DLLNAME) $(OBJS) $(DLL_LIBS) -e $(ENTRY_FUNCTION)
+	$(DLLTOOL) --as=$(AS) --dllname $(DLLNAME) --def $(DEF_FILE) --base-file $(BASE_FILE) --output-exp $(EXP_FILE)
+	$(LD) -s --base-file $(BASE_FILE) $(EXP_FILE) -dll -o $(DLLNAME) $(OBJS) $(DLL_LIBS) -e $(ENTRY_FUNCTION)
+	$(DLLTOOL) --as=$(AS) --dllname $(DLLNAME) --def $(DEF_FILE) --base-file $(BASE_FILE) --output-exp $(EXP_FILE)
+	$(LD) $(EXP_FILE) --dll -o $(DLLNAME) $(OBJS) $(DLL_LIBS) -e $(ENTRY_FUNCTION)
+
+install: all
+	$(INSTALL_PROGRAM) $(SOBJS) $(LIBDIR)
+
+install_mingw32: dll
+	$(INSTALL_PROGRAM) -m 755 regexp.dll $(LIBDIR)/regexp.dll
+
+clean:
+	rm -f *.o *.so *~ $(OBJS) *.BAK
+

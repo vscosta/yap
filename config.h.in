@@ -1,0 +1,178 @@
+
+/* are we using gcc */
+#undef HAVE_GCC
+
+/* should we use gcc threaded code (i.e. goto *adrs) */
+#undef USE_THREADED_CODE
+
+/* Should we use lib readline ? 	*/
+#undef HAVE_LIBREADLINE
+
+/* Should we use gmp ? 	*/
+#undef HAVE_LIBGMP
+
+/* does the compiler support inline ? */
+#undef inline
+
+/* Do we have Ansi headers ?		*/
+#undef STDC_HEADERS
+
+/* Host Name ?				*/
+#undef HOST_ALIAS
+
+#undef HAVE_SYS_WAIT_H
+#undef NO_UNION_WAIT
+
+#undef  HAVE_ARPA_INET_H
+#undef  HAVE_CTYPE_H
+#undef  HAVE_DIRECT_H
+#undef  HAVE_ERRNO_H
+#undef  HAVE_FCNTL_H
+#undef  HAVE_FENV_H
+#undef  HAVE_FPU_CONTROL_H
+#undef  HAVE_IEEEFP_H
+#undef  HAVE_LIMITS_H
+#undef  HAVE_MEMORY_H
+#undef  HAVE_NETDB_H
+#undef  HAVE_NETINET_IN_H
+#undef  HAVE_REGEX_H
+#undef  HAVE_SIGINFO_H
+#undef  HAVE_STDARG_H
+#undef  HAVE_STRING_H
+#undef  HAVE_SYS_FILE_H
+#undef  HAVE_SYS_MMAN_H
+#undef  HAVE_SYS_PARAM_H
+#undef  HAVE_SYS_RESOURCE_H
+#undef  HAVE_SYS_SELECT_H
+#undef  HAVE_SYS_SHM_H
+#undef  HAVE_SYS_SOCKET_H
+#undef  HAVE_SYS_STAT_H
+#undef  HAVE_SYS_TIME_H
+#undef  HAVE_SYS_TIMES_H
+#undef  HAVE_SYS_TYPES_H
+#undef  HAVE_SYS_UCONTEXT_H
+#undef  HAVE_SYS_UN_H
+#undef  HAVE_TIME_H
+#undef  HAVE_UNISTD_H
+#undef  HAVE_WINSOCK_H
+#undef  HAVE_WINSOCK2_H
+#undef  HAVE_GMP_H
+
+/* Do we have restartable syscalls */
+#undef  HAVE_RESTARTABLE_SYSCALLS
+
+/* is 'tms' defined in <sys/time.h> ? */
+#undef  TM_IN_SYS_TIME
+
+/* define type of prt returned by malloc: char or void */
+#undef  MALLOC_T
+
+/* Define byte order			*/
+#undef  WORDS_BIGENDIAN
+
+/* Define sizes of some basic types	*/
+#undef  SIZEOF_INT_P
+#undef  SIZEOF_INT
+#undef  SIZEOF_SHORT_INT
+#undef  SIZEOF_LONG_INT
+#undef  SIZEOF_LONG_LONG_INT
+#undef  SIZEOF_FLOAT
+#undef  SIZEOF_DOUBLE
+
+/* Define representation of floats      */
+/* only one of the following shoud be set */
+/* to add a new representation you must edit FloatOfTerm and MkFloatTerm
+  in adtdefs.c
+*/
+#define  FFIEEE 1
+#undef   FFVAX   		/* manual */
+
+/* Define the standard type of a float argument to a function */
+#define  FAFloat double		/* manual */
+
+/* Define return type for signal	*/
+#undef  RETSIGTYPE
+
+#undef  HAVE_ALARM
+#undef  HAVE_ASINH
+#undef  HAVE_ACOSH
+#undef  HAVE_ATANH
+#undef  HAVE_CHDIR
+#undef  HAVE_DUP2
+#undef  HAVE_FETESTEXCEPT
+#undef  HAVE_FINITE
+#undef  HAVE_GETRUSAGE
+#undef  HAVE_GETCWD
+#undef  HAVE_GETENV
+#undef  HAVE_GETHRTIME
+#undef  HAVE_GETPWNAM
+#undef  HAVE_GETTIMEOFDAY
+#undef  HAVE_GETWD
+#undef  HAVE_ISATTY
+#undef  HAVE_ISNAN
+#undef  HAVE_LABS
+#undef  HAVE_LINK
+#undef  HAVE_MMAP
+#undef  HAVE_MEMCPY
+#undef  HAVE_MEMMOVE
+#undef  HAVE_MKSTEMP
+#undef  HAVE_PUTENV
+#undef  HAVE_RAND
+#undef  HAVE_RANDOM
+#undef  HAVE_RINT
+#undef  HAVE_SBRK
+#undef  HAVE_STAT
+#undef  HAVE_SELECT
+#undef  HAVE_SETBUF
+#undef  HAVE_SHMAT
+#undef  HAVE_SIGACTION
+#undef  HAVE_SIGGETMASK
+#undef  HAVE_SIGNAL
+#undef  HAVE_SIGPROCMASK
+#undef  HAVE_SIGSEGV
+#undef  HAVE_SIGSETJMP
+#undef  HAVE_SNPRINTF
+#undef  HAVE_SOCKET
+#undef  HAVE_STRERROR
+#undef  HAVE_STRNCAT
+#undef  HAVE_STRNCPY
+#undef  HAVE_STRCHR
+#undef  HAVE_STRTOD
+#undef  HAVE_SYSTEM
+#undef  HAVE_TIMES
+#undef  HAVE_TMPNAM
+#undef  HAVE_VSNPRINTF
+#undef  HAVE_ENVIRON
+#undef  HAVE_MPZ_XOR
+
+#define  SELECT_TYPE_ARG1    
+#define  SELECT_TYPE_ARG234  
+#define  SELECT_TYPE_ARG5    
+
+#define  TYPE_SELECT_
+#define  MYTYPE(X) MYTYPE1#X
+
+/* define how to pass the address of a function */
+#define FunAdr(Fn)  Fn
+
+#define  ALIGN_LONGS 1
+#define  LOW_ABSMI 0
+
+#define  MSHIFTOFFS 1
+
+#define USE_MMAP    (HAVE_MMAP)
+#define USE_SHM	    (HAVE_SHMAT & !HAVE_MMAP)
+#define USE_SBRK    (HAVE_SBRK & !HAVE_MMAP & !HAVE_SHMAT)
+
+/* for OSes that do not allow user access to the first
+   quadrant of the memory space */
+#undef FORCE_SECOND_QUADRANT
+
+#if (HAVE_SOCKET || defined(__MINGW32__)) && !defined(SIMICS)
+#define USE_SOCKET 1
+#endif
+
+#if HAVE_GMP_H && HAVE_LIBGMP
+#define USE_GMP 1
+#endif
+

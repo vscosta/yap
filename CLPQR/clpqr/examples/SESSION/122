@@ -1,0 +1,160 @@
+/tmp/clpq
+
+yes
+| ?- use_module(library('clpqr/monash')).
+{compiling /freyung/christian/sicstus2.1.9.clp/library/clpqr/monash.pl...}
+{loading /freyung/christian/sicstus2.1.9.clp/library/clpqr/printf.ql...}
+{loaded /freyung/christian/sicstus2.1.9.clp/library/clpqr/printf.ql in module printf, 30 msec 27216 bytes}
+{loading /freyung/christian/sicstus2.1.9.clp/library/clpqr/expand.ql...}
+{loaded /freyung/christian/sicstus2.1.9.clp/library/clpqr/expand.ql in module expand, 30 msec 26832 bytes}
+{/freyung/christian/sicstus2.1.9.clp/library/clpqr/monash.pl compiled, 100 msec 54848 bytes}
+
+yes
+| ?- expand, [library('clpqr/examples/monash/rlc')], noexpand.
+{consulting /freyung/christian/sicstus2.1.9.clp/library/clpqr/examples/monash/rlc...}
+{Warning: [Comp,Num,X] - singleton variables in get_node_vars/2 in lines 22-26}
+{Warning: [V] - singleton variables in insert/3 in lines 36-37}
+{Warning: [W] - singleton variables in solve/5 in lines 43-47}
+{Warning: [N,V] - singleton variables in zero_currents/1 in lines 47-52}
+{Warning: [Vs] - singleton variables in ground_nodes/2 in lines 69-70}
+{Warning: [I,Vs] - singleton variables in ground_node/2 in lines 70-71}
+{Warning: [I,N1,V] - singleton variables in ground_node/2 in lines 71-72}
+{Warning: [W] - singleton variables in iv_reln/5 in lines 85-89}
+{Warning: [I,W] - singleton variables in iv_reln/5 in lines 89-89}
+{Warning: [V,W] - singleton variables in iv_reln/5 in lines 89-90}
+{Warning: [I,L,W] - singleton variables in iv_reln/5 in lines 95-96}
+{Warning: [L,V,W] - singleton variables in iv_reln/5 in lines 96-97}
+{Warning: [W] - singleton variables in iv_reln/5 in lines 97-98}
+{Warning: [I4,NV4,W] - singleton variables in addcomp/5 in lines 111-127}
+{Warning: [W] - singleton variables in addcomp/5 in lines 129-145}
+{Warning: [L2,X,Y] - singleton variables in subst/4 in lines 150-152}
+{Warning: [Im] - singleton variables in c_real/2 in lines 169-171}
+{Warning: [Re] - singleton variables in c_imag/2 in lines 171-173}
+{Warning: [Ls] - singleton variables in selective_print/2 in lines 190-191}
+{Warning: [Comp,Nodes,Num,X] - singleton variables in print_nodes/3 in lines 198-200}
+{Warning: [Heading_flag,N1] - singleton variables in print_nodes/3 in lines 200-201}
+{Warning: [Comp,Nodes,Num,X] - singleton variables in print_comps/2 in lines 205-207}
+{Warning: [Num] - singleton variables in print_comps/2 in lines 207-208}
+{Warning: [N,X] - singleton variables in heading/2 in lines 212-213}
+{Warning: [I,Ls,V] - singleton variables in member/2 in lines 213-215}
+{Warning: [I,N2,V] - singleton variables in member/2 in lines 215-217}
+{Warning: [R3,W] - singleton variables in go2/0 in lines 285-359}
+
+>>> Sample goals: go1/0, go2/0
+{/freyung/christian/sicstus2.1.9.clp/library/clpqr/examples/monash/rlc consulted, 380 msec 26416 bytes}
+
+yes
+| ?- go1.
+resistor r1: 10 Ohms
+     Node n1
+         Voltage c(10,0)
+         Current c(100/181,-90/181)
+      Node n2
+         Voltage c(810/181,900/181)
+              Current c(-100/181,90/181)
+
+resistor r3: 10 Ohms
+  Node n1
+         Voltage c(10,0)
+         Current c(100/181,-90/181)
+      Node n4
+         Voltage c(810/181,900/181)
+              Current c(-100/181,90/181)
+
+inductor l1: 9/10 Henrys
+      Node n2
+         Voltage c(810/181,900/181)
+              Current c(100/181,-90/181)
+      Node n7
+         Voltage c(0,0)
+          Current c(-100/181,90/181)
+
+inductor l3: 9/10 Henrys
+      Node n4
+         Voltage c(810/181,900/181)
+              Current c(100/181,-90/181)
+      Node n7
+         Voltage c(0,0)
+          Current c(-100/181,90/181)
+
+capacitor c8: 7/1000 Farads
+   Node n4
+         Voltage c(810/181,900/181)
+              Current c(0,0)
+  Node n5
+         Voltage c(810/181,900/181)
+              Current c(0,0)
+
+inductor l5: 9/10 Henrys
+  Node n6
+         Voltage c(810/181,900/181)
+              Current c(100/181,-90/181)
+      Node n7
+         Voltage c(0,0)
+          Current c(-100/181,90/181)
+
+
+yes
+| ?- go2.
+
+COMPONENT CONNECTIONS TO NODE n4
+transistor q1: type bc108    (base, emitter, collector)
+   Node base
+               Voltage c(1325/694,0)
+           Current c(1/11104,0)
+    Node n3
+         Voltage c(2525/1388,0)
+          Current c(-101/11104,0)
+ Node n4
+         Voltage c(-1875/174541,0)
+               Current c(25/2776,0)
+
+resistor r3: 200 Ohms
+       Node n4
+         Voltage c(-1875/174541,0)
+               Current c(-75/1396328,0)
+        Node ground2
+            Voltage c(0,0)
+          Current c(75/1396328,0)
+
+transformer t2: ratio of 1/5
+     Node n4
+         Voltage c(-1875/174541,0)
+               Current c(-3125/349082,0)
+       Node ground2
+            Voltage c(0,0)
+          Current c(3125/349082,0)
+        Node out
+                Voltage c(-9375/174541,0)
+               Current c(625/349082,0)
+ Node ground3
+            Voltage c(0,0)
+          Current c(-625/349082,0)
+
+
+COMPONENT CONNECTIONS TO NODE out
+transformer t2: ratio of 1/5
+   Node n4
+         Voltage c(-1875/174541,0)
+               Current c(-3125/349082,0)
+       Node ground2
+            Voltage c(0,0)
+          Current c(3125/349082,0)
+        Node out
+                Voltage c(-9375/174541,0)
+               Current c(625/349082,0)
+ Node ground3
+            Voltage c(0,0)
+          Current c(-625/349082,0)
+
+resistor r5: 30 Ohms
+    Node out
+                Voltage c(-9375/174541,0)
+               Current c(-625/349082,0)
+        Node ground3
+            Voltage c(0,0)
+          Current c(625/349082,0)
+
+
+yes
+| ?- 

@@ -1,0 +1,182 @@
+/*
+ * CLIP Style Sheet for texi2html
+ *
+ * Version:    1.2
+ * Date:       30th of June 1999
+ * Date:       November 3, 1999
+ * Author(s):  Per Cederberg & Manuel Hermenegildo, 
+ *             per@clip.dia.fi.upm.es, herme@fi.upm.es
+ *
+ *
+ *  This shyle sheet defines CSS styles for the HTML output from
+ *  the 'texi2html' application when used in the context of the 
+ *  lpdoc auto-documenter, and also in some lpdoc indices.  All 
+ *  special markup tags are defined in a special section.
+ *
+ */
+
+
+
+/*
+ *  GLOBAL DOCUMENT STYLE
+ *
+ */
+
+
+/* Page margins and default colors */
+BODY
+{
+	background: url(http:/~clip/images/Clip_bg.gif) silver;
+	color:		black;
+	margin-top:	1.5em;
+	margin-left:	5%;
+	margin-right:	5%;
+	margin-bottom:	1.5em;
+	font-size:	1em;
+	font-family:	sans-serif;
+}
+
+/* Heading style */
+H1, H2, H3, H4, H5, H6, DT
+{
+	font-family:	sans-serif;
+	font-weight:	bold;
+}
+
+/* Heading 1 size change */
+H1
+{
+	font-size:	1.7em;
+}
+
+/* Heading 2 size change */
+H2 {
+	font-size:	1.25em;
+}
+
+/* Links a bold typeface */
+A
+{
+	font-weight:	bold;
+}
+
+/* Unvisited link color */
+A:link
+{
+	color:		#5588ff;
+}
+
+/* Visited link color */
+A:visited
+{
+	color:		#aa66dd;
+}
+
+/* Active link color */
+A:active
+{
+	color:		#cc0000;
+}
+
+
+
+/*
+ *  SPECIAL OUTPUT MARKUP
+ *
+ */
+
+
+/* Document title and information */
+DIV.title
+{
+	text-align:	center;
+}
+
+/* Document title */
+B.applname {
+	color:		#000088;
+}
+
+/* Document title */
+H1.title
+{
+	color:		#000088;
+	font-size:	2em;
+}
+
+/* Application title */
+H1.appltitle {
+	/* color:		#000088; */
+	font-size:	1.7em;
+}
+
+/* Application name */
+H1.applname {
+	color:		#000088;
+	font-size:	1.7em;
+}
+
+/* Predicate definitions, etc */
+SPAN.define
+{
+	font-weight:	bold;
+	color:		#000088;
+}
+
+/* Cartouche environment formatting */
+DIV.cartouche
+{
+	background:	#fffff0;
+	padding-right:	1em;
+	border-style:	solid;
+	border-width:	2pt;
+	border-color:	#000088;
+}
+
+
+
+/*
+ *  SPECIAL STYLE FIXES
+ *
+ */
+
+
+/* Fixes for top level menu lists */
+UL
+{
+	margin-top:	0.5em;	/* A small margin before */
+	margin-bottom:	0.5em;	/* A small margin after */
+	line-height:	1.2em;	/* Space in between lines */
+}
+
+/* Fixes for second level menus */
+UL UL
+{
+	line-height:	1.2em;	/* No space between lines */
+}
+
+/* Fixes for description lists */
+DL
+{
+	margin-top:	0.5em;	/* A small margin before */
+	margin-bottom:	0.5em;	/* A small margin after */
+}
+
+/* Fixes for examples and code parts */
+PRE, CODE, TT
+{
+	color:		#330099;
+}
+
+PRE {
+/*        font-weight:	bold; */
+	font-size:	80%;
+	font-family:	monospace;
+}
+
+/* Fixes to avoid visible links in titles */
+H1 A, H2 A, H3 A, H4 A
+{
+	color:			black;	/* No link coloring */
+	text-decoration:	normal;	/* No link underlining */
+}

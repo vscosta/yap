@@ -1,0 +1,108 @@
+<HTML>
+<HEAD>
+<!-- Created by texi2html 1.56k + clip patches and <A href="http://www.clip.dia.fi.upm.es/Software">lpdoc</A> from pillow_doc.texi on 17 July 2000 -->
+
+<LINK rel="stylesheet" href="pillow_doc.css" type="text/css">
+<TITLE>The PiLLoW Web Programming Library               - HTTP conectivity</TITLE>
+</HEAD>
+<BODY> 
+Go to the <A HREF="pillow_doc_1.html">first</A>, <A HREF="pillow_doc_3.html">previous</A>, <A HREF="pillow_doc_5.html">next</A>, <A HREF="pillow_doc_9.html">last</A> section, <A HREF="pillow_doc_toc.html">table of contents</A>.
+<P><HR><P>
+
+
+<H1><A NAME="SEC10" HREF="pillow_doc_toc.html#TOC10">HTTP conectivity</A></H1>
+
+<P>
+<STRONG>Author(s):</STRONG> Daniel Cabeza.
+
+
+<P>
+<STRONG>Version:</STRONG> 1.7 (2000/7/12, 19:1:20 CEST)
+
+
+<P>
+<STRONG>Version of last change:</STRONG> 1.3#114 (1999/11/24, 0:57:16 MET)
+
+
+<P>
+This module implements the 
+<A NAME="IDX102"></A>
+HTTP protocol, which allows retrieving data from HTTP servers.
+
+
+
+<UL>
+<LI><A HREF="pillow_doc_4.html#SEC11">Usage and interface (http)</A>
+<LI><A HREF="pillow_doc_4.html#SEC12">Documentation on exports (http)</A>
+</UL>
+
+
+
+<H2><A NAME="SEC11" HREF="pillow_doc_toc.html#TOC11">Usage and interface (<CODE>http</CODE>)</A></H2>
+
+<div class="cartouche">
+
+<UL>
+
+<LI><STRONG>Library usage:</STRONG>
+
+<CODE>:- use_module(library(http)).</CODE>
+
+<LI><STRONG>Exports:</STRONG>
+
+
+<UL>
+
+<LI><EM>Predicates:</EM>
+
+<A NAME="IDX103"></A>
+<CODE>fetch_url/3</CODE>.
+
+</UL>
+
+</UL>
+
+</div class="cartouche">
+
+
+
+<H2><A NAME="SEC12" HREF="pillow_doc_toc.html#TOC12">Documentation on exports (<CODE>http</CODE>)</A></H2>
+<P>
+<A NAME="IDX104"></A>
+<A NAME="IDX105"></A>
+<DL>
+<DT><span class="define">PREDICATE:</span> <B>fetch_url/3:</B>
+<DD><A NAME="IDX106"></A>
+
+
+<P>
+<CODE>fetch_url(URL,Request,Response)</CODE>
+
+
+<P>
+Fetches the document pointed to by <CODE>URL</CODE> from Internet, using request parameters <CODE>Request</CODE>, and unifies <CODE>Response</CODE> with the parameters of the response. Fails on timeout. Note that redirections are not handled automatically, that is, if <CODE>Response</CODE> contains terms of the form <CODE>status(redirection,301,_)</CODE> and <CODE>location(NewURL)</CODE>, the program should in most cases access location <CODE>NewURL</CODE>.
+
+
+<P>
+<STRONG>Usage:</STRONG> <CODE>fetch_url(URL,Request,Response)</CODE>
+
+<UL>
+<LI><EM>The following properties should hold at call time:</EM>
+
+<CODE>URL</CODE> specifies a URL.
+ (<CODE>url_term/1</CODE>)
+
+<CODE>Request</CODE> is a list of <CODE>http_request_param</CODE>s.
+ (<CODE>list/2</CODE>)
+<LI><EM>The following properties hold upon exit:</EM>
+
+<CODE>Response</CODE> is a list of <CODE>http_response_param</CODE>s.
+ (<CODE>list/2</CODE>)
+</UL>
+
+</DL>
+
+<P><HR><P>
+Go to the <A HREF="pillow_doc_1.html">first</A>, <A HREF="pillow_doc_3.html">previous</A>, <A HREF="pillow_doc_5.html">next</A>, <A HREF="pillow_doc_9.html">last</A> section, <A HREF="pillow_doc_toc.html">table of contents</A>.
+</BODY>
+</HTML>

@@ -1,0 +1,922 @@
+<HTML>
+<HEAD>
+<!-- Created by texi2html 1.56k + clip patches and <A href="http://www.clip.dia.fi.upm.es/Software">lpdoc</A> from pillow_doc.texi on 17 July 2000 -->
+
+<LINK rel="stylesheet" href="pillow_doc.css" type="text/css">
+<TITLE>The PiLLoW Web Programming Library               - HTML/XML/CGI programming</TITLE>
+</HEAD>
+<BODY> 
+Go to the <A HREF="pillow_doc_1.html">first</A>, <A HREF="pillow_doc_2.html">previous</A>, <A HREF="pillow_doc_4.html">next</A>, <A HREF="pillow_doc_9.html">last</A> section, <A HREF="pillow_doc_toc.html">table of contents</A>.
+<P><HR><P>
+
+
+<H1><A NAME="SEC5" HREF="pillow_doc_toc.html#TOC5">HTML/XML/CGI programming</A></H1>
+
+<P>
+<STRONG>Author(s):</STRONG> Daniel Cabeza, Manuel Hermenegildo, Sacha Varma.
+
+
+<P>
+<STRONG>Version:</STRONG> 1.7 (2000/7/12, 19:1:20 CEST)
+
+
+<P>
+<STRONG>Version of last change:</STRONG> 1.5#114 (2000/4/11, 20:23:43 CEST)
+
+
+<P>
+This module implements the predicates of the PiLLoW package related to 
+<A NAME="IDX15"></A>
+HTML/
+<A NAME="IDX16"></A>
+XML generation and parsing, 
+<A NAME="IDX17"></A>
+CGI and form handlers programming, and in general all the predicates which do not imply the use of the HTTP protocol.
+
+
+
+<UL>
+<LI><A HREF="pillow_doc_3.html#SEC6">Usage and interface (html)</A>
+<LI><A HREF="pillow_doc_3.html#SEC7">Documentation on exports (html)</A>
+<LI><A HREF="pillow_doc_3.html#SEC8">Documentation on multifiles (html)</A>
+<LI><A HREF="pillow_doc_3.html#SEC9">Other information (html)</A>
+</UL>
+
+
+
+<H2><A NAME="SEC6" HREF="pillow_doc_toc.html#TOC6">Usage and interface (<CODE>html</CODE>)</A></H2>
+
+<div class="cartouche">
+
+<UL>
+
+<LI><STRONG>Library usage:</STRONG>
+
+<CODE>:- use_module(library(html)).</CODE>
+
+<LI><STRONG>Exports:</STRONG>
+
+
+<UL>
+
+<LI><EM>Predicates:</EM>
+
+<A NAME="IDX18"></A>
+<CODE>output_html/1</CODE>, 
+<A NAME="IDX19"></A>
+<CODE>html2terms/2</CODE>, 
+<A NAME="IDX20"></A>
+<CODE>xml2terms/2</CODE>, 
+<A NAME="IDX21"></A>
+<CODE>html_template/3</CODE>, 
+<A NAME="IDX22"></A>
+<CODE>html_report_error/1</CODE>, 
+<A NAME="IDX23"></A>
+<CODE>get_form_input/1</CODE>, 
+<A NAME="IDX24"></A>
+<CODE>get_form_value/3</CODE>, 
+<A NAME="IDX25"></A>
+<CODE>form_empty_value/1</CODE>, 
+<A NAME="IDX26"></A>
+<CODE>form_default/3</CODE>, 
+<A NAME="IDX27"></A>
+<CODE>set_cookie/2</CODE>, 
+<A NAME="IDX28"></A>
+<CODE>get_cookies/1</CODE>, 
+<A NAME="IDX29"></A>
+<CODE>url_query/2</CODE>, 
+<A NAME="IDX30"></A>
+<CODE>my_url/1</CODE>, 
+<A NAME="IDX31"></A>
+<CODE>url_info/2</CODE>, 
+<A NAME="IDX32"></A>
+<CODE>url_info_relative/3</CODE>, 
+<A NAME="IDX33"></A>
+<CODE>form_request_method/1</CODE>, 
+<A NAME="IDX34"></A>
+<CODE>icon_address/2</CODE>, 
+<A NAME="IDX35"></A>
+<CODE>html_protect/1</CODE>, 
+<A NAME="IDX36"></A>
+<CODE>http_lines/3</CODE>.
+
+<LI><EM>Multifiles:</EM>
+
+<A NAME="IDX37"></A>
+<CODE>html_expansion/2</CODE>.
+
+</UL>
+
+</UL>
+
+</div class="cartouche">
+
+
+
+<H2><A NAME="SEC7" HREF="pillow_doc_toc.html#TOC7">Documentation on exports (<CODE>html</CODE>)</A></H2>
+<P>
+<A NAME="IDX38"></A>
+<A NAME="IDX39"></A>
+<DL>
+<DT><span class="define">PREDICATE:</span> <B>output_html/1:</B>
+<DD><A NAME="IDX40"></A>
+
+
+<P>
+<CODE>output_html(HTMLTerm)</CODE>
+
+
+<P>
+Outputs <CODE>HTMLTerm</CODE>, interpreted as an 
+<A NAME="IDX41"></A>
+<CODE>html_term/1</CODE>, to current output stream.
+
+
+<P>
+<STRONG>Usage:</STRONG> 
+
+<UL>
+<LI><EM>The following properties should hold at call time:</EM>
+
+<CODE>HTMLTerm</CODE> is a term representing HTML code.
+ (<CODE>html_term/1</CODE>)
+</UL>
+
+</DL>
+
+<P>
+<A NAME="IDX42"></A>
+<A NAME="IDX43"></A>
+<DL>
+<DT><span class="define">PREDICATE:</span> <B>html2terms/2:</B>
+<DD><A NAME="IDX44"></A>
+
+
+<P>
+<CODE>html2terms(String,Terms)</CODE>
+
+
+<P>
+<CODE>String</CODE> is a character list containing HTML code and <CODE>Terms</CODE> is its prolog structured representation.
+
+
+<P>
+<STRONG>Usage 1:</STRONG> 
+
+<UL>
+<LI><EM>Description:</EM> Translates an HTML-term into the HTML code it represents.
+
+<LI><EM>The following properties should hold at call time:</EM>
+
+<CODE>String</CODE> is a free variable.
+ (<CODE>var/1</CODE>)
+
+<CODE>Terms</CODE> is a term representing HTML code.
+ (<CODE>html_term/1</CODE>)
+<LI><EM>The following properties hold upon exit:</EM>
+
+<CODE>String</CODE> is a string (a list of character codes).
+ (<CODE>string/1</CODE>)
+</UL>
+
+<P>
+<STRONG>Usage 2:</STRONG> 
+
+<UL>
+<LI><EM>Description:</EM> Translates HTML code into a structured HTML-term.
+
+<LI><EM>Calls should, and exit will be compatible with:</EM>
+
+<CODE>Terms</CODE> is a term representing HTML code in canonical form.
+ (<CODE>canonic_html_term/1</CODE>)
+<LI><EM>The following properties should hold at call time:</EM>
+
+<CODE>String</CODE> is a string (a list of character codes).
+ (<CODE>string/1</CODE>)
+<LI><EM>The following properties hold upon exit:</EM>
+
+<CODE>Terms</CODE> is a term representing HTML code in canonical form.
+ (<CODE>canonic_html_term/1</CODE>)
+</UL>
+
+</DL>
+
+<P>
+<A NAME="IDX45"></A>
+<A NAME="IDX46"></A>
+<DL>
+<DT><span class="define">PREDICATE:</span> <B>xml2terms/2:</B>
+<DD><A NAME="IDX47"></A>
+
+
+<P>
+<CODE>xml2terms(String,Terms)</CODE>
+
+
+<P>
+<CODE>String</CODE> is a character list containing XML code and <CODE>Terms</CODE> is its prolog structured representation.
+
+
+<P>
+<STRONG>Usage 1:</STRONG> 
+
+<UL>
+<LI><EM>Description:</EM> Translates a XML-term into the XML code it represents.
+
+<LI><EM>The following properties should hold at call time:</EM>
+
+<CODE>String</CODE> is a free variable.
+ (<CODE>var/1</CODE>)
+
+<CODE>Terms</CODE> is a term representing HTML code.
+ (<CODE>html_term/1</CODE>)
+<LI><EM>The following properties hold upon exit:</EM>
+
+<CODE>String</CODE> is a string (a list of character codes).
+ (<CODE>string/1</CODE>)
+</UL>
+
+<P>
+<STRONG>Usage 2:</STRONG> 
+
+<UL>
+<LI><EM>Description:</EM> Translates XML code into a structured XML-term.
+
+<LI><EM>Calls should, and exit will be compatible with:</EM>
+
+<CODE>Terms</CODE> is a term representing XML code in canonical form.
+ (<CODE>canonic_xml_term/1</CODE>)
+<LI><EM>The following properties should hold at call time:</EM>
+
+<CODE>String</CODE> is a string (a list of character codes).
+ (<CODE>string/1</CODE>)
+<LI><EM>The following properties hold upon exit:</EM>
+
+<CODE>Terms</CODE> is a term representing XML code in canonical form.
+ (<CODE>canonic_xml_term/1</CODE>)
+</UL>
+
+</DL>
+
+<P>
+<A NAME="IDX48"></A>
+<A NAME="IDX49"></A>
+<DL>
+<DT><span class="define">PREDICATE:</span> <B>html_template/3:</B>
+<DD><A NAME="IDX50"></A>
+
+
+<P>
+<CODE>html_template(Chars,Terms,Dict)</CODE>
+
+
+<P>
+Interprets <CODE>Chars</CODE> as an HTML template returning in <CODE>Terms</CODE> the corresponding structured HTML-term, which includes variables, and unifying <CODE>Dict</CODE> with a dictionary of those variables (an incomplete list of <EM>name</EM><CODE>=</CODE><EM>Var</EM> pairs). An HTML template is standard HTML code, but in which "slots" can be defined and given an identifier. These slots represent parts of the HTML code in which other HTML code can be inserted, and are represented in the HTML-term as free variables. There are two kinds of variables in templates: 
+
+<UL>
+
+<LI>Variables representing page contents. A variable with name <EM>name</EM> is defined with the special tag <CODE>&#60;V&#62;</CODE><EM>name</EM><CODE>&#60;/V&#62;</CODE>.
+
+<LI>Variables representing tag attributes. They occur as an attribute or an attribute value starting with <CODE>_</CODE>, followed by its name, which must be formed by alphabetic characters.
+
+</UL>
+
+<P>
+As an example, suposse the following HTML template: 
+
+<PRE>
+&#60;html&#62;
+&#60;body bgcolor=_bgcolor&#62;
+&#60;v&#62;content&#60;/v&#62;
+&#60;/body&#62;
+&#60;/html&#62;
+
+</PRE>
+
+<P>
+The following query in the Ciao toplevel shows how the template is parsed, and the dictionary returned: 
+
+<PRE>
+?- file_to_string('template.html',_S), html_template(_S,Terms,Dict). 
+
+Dict = [bgcolor=_A,content=_B|_],
+Terms = [env(html,[],["
+",env(body,[bgcolor=_A],["
+",_B,"
+"]),"
+"]),"
+"] ? 
+
+yes
+</PRE>
+
+<P>
+If a dictionary with values is supplied at call time, then variables are unified accordingly inside the template: 
+
+<PRE>
+?- file_to_string('template.html',_S),
+   html_template(_S,Terms,[content=b("hello world!"),bgcolor="white"]). 
+
+Terms = [env(html,[],["
+",env(body,[bgcolor="white"],["
+",b("hello world!"),"
+"]),"
+"]),"
+"] ? 
+
+yes
+</PRE>
+
+<P>
+<STRONG>Usage:</STRONG> 
+
+<UL>
+<LI><EM>Calls should, and exit will be compatible with:</EM>
+
+<CODE>Terms</CODE> is a term representing HTML code in canonical form.
+ (<CODE>canonic_html_term/1</CODE>)
+
+<CODE>Dict</CODE> is a list.
+ (<CODE>list/1</CODE>)
+<LI><EM>The following properties should hold at call time:</EM>
+
+<CODE>Chars</CODE> is a string (a list of character codes).
+ (<CODE>string/1</CODE>)
+<LI><EM>The following properties hold upon exit:</EM>
+
+<CODE>Terms</CODE> is a term representing HTML code in canonical form.
+ (<CODE>canonic_html_term/1</CODE>)
+
+<CODE>Dict</CODE> is a list.
+ (<CODE>list/1</CODE>)
+</UL>
+
+</DL>
+
+<P>
+<A NAME="IDX51"></A>
+<A NAME="IDX52"></A>
+<DL>
+<DT><span class="define">PREDICATE:</span> <B>html_report_error/1:</B>
+<DD><A NAME="IDX53"></A>
+
+
+<P>
+<STRONG>Usage:</STRONG> <CODE>html_report_error(Error)</CODE>
+
+<UL>
+<LI><EM>Description:</EM> Outputs error <CODE>Error</CODE> as a standard HTML page.
+
+</UL>
+
+</DL>
+
+<P>
+<A NAME="IDX54"></A>
+<A NAME="IDX55"></A>
+<DL>
+<DT><span class="define">PREDICATE:</span> <B>get_form_input/1:</B>
+<DD><A NAME="IDX56"></A>
+
+
+<P>
+<CODE>get_form_input(Dict)</CODE>
+
+
+<P>
+Translates input from the form (with either the POST or GET methods, and even with CONTENT_TYPE multipart/form-data) to a dictionary <CODE>Dict</CODE> of <EM>attribute</EM>=<EM>value</EM> pairs. It translates empty values (which indicate only the presence of an attribute) to the atom <CODE>'$empty'</CODE>, values with more than one line (from text areas or files) to a list of lines as strings, the rest to atoms or numbers (using 
+<A NAME="IDX57"></A>
+<CODE>name/2</CODE>).
+
+
+<P>
+<STRONG>Usage:</STRONG> 
+
+<UL>
+<LI><EM>The following properties should hold at call time:</EM>
+
+<CODE>Dict</CODE> is a free variable.
+ (<CODE>var/1</CODE>)
+<LI><EM>The following properties hold upon exit:</EM>
+
+<CODE>Dict</CODE> is a dictionary of values of the attributes of a form. It is a list of <CODE>form_assignment</CODE>
+ (<CODE>form_dict/1</CODE>)
+</UL>
+
+</DL>
+
+<P>
+<A NAME="IDX58"></A>
+<A NAME="IDX59"></A>
+<DL>
+<DT><span class="define">PREDICATE:</span> <B>get_form_value/3:</B>
+<DD><A NAME="IDX60"></A>
+
+
+<P>
+<CODE>get_form_value(Dict,Var,Val)</CODE>
+
+
+<P>
+Unifies <CODE>Val</CODE> with the value for attribute <CODE>Var</CODE> in dictionary <CODE>Dict</CODE>. Does not fail: value is <CODE>"</CODE> if not found (this simplifies the programming of form handlers when they can be accessed directly).
+
+
+<P>
+<STRONG>Usage:</STRONG> 
+
+<UL>
+<LI><EM>Calls should, and exit will be compatible with:</EM>
+
+<CODE>Val</CODE> is a value of an attribute of a form.
+ (<CODE>form_value/1</CODE>)
+<LI><EM>The following properties should hold at call time:</EM>
+
+<CODE>Dict</CODE> is a dictionary of values of the attributes of a form. It is a list of <CODE>form_assignment</CODE>
+ (<CODE>form_dict/1</CODE>)
+
+<CODE>Var</CODE> is an atom.
+ (<CODE>atm/1</CODE>)
+<LI><EM>The following properties hold upon exit:</EM>
+
+<CODE>Val</CODE> is a value of an attribute of a form.
+ (<CODE>form_value/1</CODE>)
+</UL>
+
+</DL>
+
+<P>
+<A NAME="IDX61"></A>
+<A NAME="IDX62"></A>
+<DL>
+<DT><span class="define">PREDICATE:</span> <B>form_empty_value/1:</B>
+<DD><A NAME="IDX63"></A>
+
+
+<P>
+<STRONG>Usage:</STRONG> <CODE>form_empty_value(Term)</CODE>
+
+<UL>
+<LI><EM>Description:</EM> Checks that <CODE>Term</CODE>, a value comming from a text area is empty (can have spaces, newlines and linefeeds).
+
+</UL>
+
+</DL>
+
+<P>
+<A NAME="IDX64"></A>
+<A NAME="IDX65"></A>
+<DL>
+<DT><span class="define">PREDICATE:</span> <B>form_default/3:</B>
+<DD><A NAME="IDX66"></A>
+
+
+<P>
+<STRONG>Usage:</STRONG> <CODE>form_default(Val,Default,NewVal)</CODE>
+
+<UL>
+<LI><EM>Description:</EM> Useful when a form is only partially filled, or when the executable can be invoked either by a link or by a form, to set form defaults. If the value of <CODE>Val</CODE> is empty then <CODE>NewVal</CODE>=<CODE>Default</CODE>, else <CODE>NewVal</CODE>=<CODE>Val</CODE>.
+
+<LI><EM>The following properties should hold at call time:</EM>
+
+<CODE>Val</CODE> is currently a term which is not a free variable.
+ (<CODE>nonvar/1</CODE>)
+
+<CODE>Default</CODE> is currently a term which is not a free variable.
+ (<CODE>nonvar/1</CODE>)
+
+<CODE>NewVal</CODE> is a free variable.
+ (<CODE>var/1</CODE>)
+</UL>
+
+</DL>
+
+<P>
+<A NAME="IDX67"></A>
+<A NAME="IDX68"></A>
+<DL>
+<DT><span class="define">PREDICATE:</span> <B>set_cookie/2:</B>
+<DD><A NAME="IDX69"></A>
+
+
+<P>
+<CODE>set_cookie(Name,Value)</CODE>
+
+
+<P>
+Sets a cookie of name <CODE>Name</CODE> and value <CODE>Value</CODE>. Must be invoked before outputting any data, including the <CODE>cgi_reply</CODE> html-term.
+
+
+<P>
+<STRONG>Usage:</STRONG> 
+
+<UL>
+<LI><EM>The following properties should hold at call time:</EM>
+
+<CODE>Name</CODE> is an atom.
+ (<CODE>atm/1</CODE>)
+
+<CODE>Value</CODE> is an atomic term (an atom or a number).
+ (<CODE>constant/1</CODE>)
+</UL>
+
+</DL>
+
+<P>
+<A NAME="IDX70"></A>
+<A NAME="IDX71"></A>
+<DL>
+<DT><span class="define">PREDICATE:</span> <B>get_cookies/1:</B>
+<DD><A NAME="IDX72"></A>
+
+
+<P>
+<CODE>get_cookies(Cookies)</CODE>
+
+
+<P>
+Unifies <CODE>Cookies</CODE> with a dictionary of <EM>attribute</EM>=<EM>value</EM> pairs of the active cookies for this URL.
+
+
+<P>
+<STRONG>Usage:</STRONG> 
+
+<UL>
+<LI><EM>The following properties should hold at call time:</EM>
+
+<CODE>Cookies</CODE> is a free variable.
+ (<CODE>var/1</CODE>)
+<LI><EM>The following properties hold upon exit:</EM>
+
+<CODE>Cookies</CODE> is a dictionary of values. It is a list of pairs <EM>atom</EM>=<EM>constant</EM>.
+ (<CODE>value_dict/1</CODE>)
+</UL>
+
+</DL>
+
+<P>
+<A NAME="IDX73"></A>
+<A NAME="IDX74"></A>
+<DL>
+<DT><span class="define">PREDICATE:</span> <B>url_query/2:</B>
+<DD><A NAME="IDX75"></A>
+
+
+<P>
+<CODE>url_query(Dict,URLArgs)</CODE>
+
+
+<P>
+Translates a dictionary <CODE>Dict</CODE> of parameter values into a string <CODE>URLArgs</CODE> for appending to a URL pointing to a form handler.
+
+
+<P>
+<STRONG>Usage:</STRONG> 
+
+<UL>
+<LI><EM>The following properties should hold at call time:</EM>
+
+<CODE>Dict</CODE> is a dictionary of values. It is a list of pairs <EM>atom</EM>=<EM>constant</EM>.
+ (<CODE>value_dict/1</CODE>)
+
+<CODE>URLArgs</CODE> is a free variable.
+ (<CODE>var/1</CODE>)
+<LI><EM>The following properties hold upon exit:</EM>
+
+<CODE>URLArgs</CODE> is a string (a list of character codes).
+ (<CODE>string/1</CODE>)
+</UL>
+
+</DL>
+
+<P>
+<A NAME="IDX76"></A>
+<A NAME="IDX77"></A>
+<DL>
+<DT><span class="define">PREDICATE:</span> <B>my_url/1:</B>
+<DD><A NAME="IDX78"></A>
+
+
+<P>
+<CODE>my_url(URL)</CODE>
+
+
+<P>
+Unifies <CODE>URL</CODE> with the Uniform Resource Locator (WWW address) of this cgi executable.
+
+
+<P>
+<STRONG>Usage:</STRONG> 
+
+<UL>
+<LI><EM>Calls should, and exit will be compatible with:</EM>
+
+<CODE>URL</CODE> is a string (a list of character codes).
+ (<CODE>string/1</CODE>)
+<LI><EM>The following properties hold upon exit:</EM>
+
+<CODE>URL</CODE> is a string (a list of character codes).
+ (<CODE>string/1</CODE>)
+</UL>
+
+</DL>
+
+<P>
+<A NAME="IDX79"></A>
+<A NAME="IDX80"></A>
+<DL>
+<DT><span class="define">PREDICATE:</span> <B>url_info/2:</B>
+<DD><A NAME="IDX81"></A>
+
+
+<P>
+<CODE>url_info(URL,URLTerm)</CODE>
+
+
+<P>
+Translates a URL <CODE>URL</CODE> to a Prolog structure <CODE>URLTerm</CODE> which details its various components, and vice-versa. For now non-HTTP URLs make the predicate fail.
+
+
+<P>
+<STRONG>Usage 1:</STRONG> 
+
+<UL>
+<LI><EM>Calls should, and exit will be compatible with:</EM>
+
+<CODE>URLTerm</CODE> specifies a URL.
+ (<CODE>url_term/1</CODE>)
+<LI><EM>The following properties should hold at call time:</EM>
+
+<CODE>URL</CODE> is an atom.
+ (<CODE>atm/1</CODE>)
+<LI><EM>The following properties hold upon exit:</EM>
+
+<CODE>URLTerm</CODE> specifies a URL.
+ (<CODE>url_term/1</CODE>)
+</UL>
+
+<P>
+<STRONG>Usage 2:</STRONG> 
+
+<UL>
+<LI><EM>Calls should, and exit will be compatible with:</EM>
+
+<CODE>URLTerm</CODE> specifies a URL.
+ (<CODE>url_term/1</CODE>)
+<LI><EM>The following properties should hold at call time:</EM>
+
+<CODE>URL</CODE> is a string (a list of character codes).
+ (<CODE>string/1</CODE>)
+<LI><EM>The following properties hold upon exit:</EM>
+
+<CODE>URLTerm</CODE> specifies a URL.
+ (<CODE>url_term/1</CODE>)
+</UL>
+
+<P>
+<STRONG>Usage 3:</STRONG> 
+
+<UL>
+<LI><EM>The following properties should hold at call time:</EM>
+
+<CODE>URL</CODE> is a free variable.
+ (<CODE>var/1</CODE>)
+
+<CODE>URLTerm</CODE> specifies a URL.
+ (<CODE>url_term/1</CODE>)
+<LI><EM>The following properties hold upon exit:</EM>
+
+<CODE>URL</CODE> is a string (a list of character codes).
+ (<CODE>string/1</CODE>)
+</UL>
+
+</DL>
+
+<P>
+<A NAME="IDX82"></A>
+<A NAME="IDX83"></A>
+<DL>
+<DT><span class="define">PREDICATE:</span> <B>url_info_relative/3:</B>
+<DD><A NAME="IDX84"></A>
+
+
+<P>
+<CODE>url_info_relative(URL,BaseURLTerm,URLTerm)</CODE>
+
+
+<P>
+Translates a relative URL <CODE>URL</CODE> which appears in the HTML page refered to by <CODE>BaseURLTerm</CODE> into <CODE>URLTerm</CODE>, a Prolog structure containing its absolute parameters. Absolute URLs are translated as with 
+<A NAME="IDX85"></A>
+<CODE>url_info/2</CODE>. E.g. 
+
+<PRE>
+url_info_relative("dadu.html",
+                  http('www.foo.com',80,"/bar/scoob.html"), Info)
+</PRE>
+
+<P>
+gives <CODE>Info = http('www.foo.com',80,"/bar/dadu.html")</CODE>.
+
+
+<P>
+<STRONG>Usage 1:</STRONG> 
+
+<UL>
+<LI><EM>Calls should, and exit will be compatible with:</EM>
+
+<CODE>URLTerm</CODE> specifies a URL.
+ (<CODE>url_term/1</CODE>)
+<LI><EM>The following properties should hold at call time:</EM>
+
+<CODE>URL</CODE> is an atom.
+ (<CODE>atm/1</CODE>)
+
+<CODE>BaseURLTerm</CODE> specifies a URL.
+ (<CODE>url_term/1</CODE>)
+<LI><EM>The following properties hold upon exit:</EM>
+
+<CODE>URLTerm</CODE> specifies a URL.
+ (<CODE>url_term/1</CODE>)
+</UL>
+
+<P>
+<STRONG>Usage 2:</STRONG> 
+
+<UL>
+<LI><EM>Calls should, and exit will be compatible with:</EM>
+
+<CODE>URLTerm</CODE> specifies a URL.
+ (<CODE>url_term/1</CODE>)
+<LI><EM>The following properties should hold at call time:</EM>
+
+<CODE>URL</CODE> is a string (a list of character codes).
+ (<CODE>string/1</CODE>)
+
+<CODE>BaseURLTerm</CODE> specifies a URL.
+ (<CODE>url_term/1</CODE>)
+<LI><EM>The following properties hold upon exit:</EM>
+
+<CODE>URLTerm</CODE> specifies a URL.
+ (<CODE>url_term/1</CODE>)
+</UL>
+
+</DL>
+
+<P>
+<A NAME="IDX86"></A>
+<A NAME="IDX87"></A>
+<DL>
+<DT><span class="define">PREDICATE:</span> <B>form_request_method/1:</B>
+<DD><A NAME="IDX88"></A>
+
+
+<P>
+<STRONG>Usage:</STRONG> <CODE>form_request_method(Method)</CODE>
+
+<UL>
+<LI><EM>Description:</EM> Unifies <CODE>Method</CODE> with the method of invocation of the form handler (<CODE>GET</CODE> or <CODE>POST</CODE>).
+
+<LI><EM>The following properties hold upon exit:</EM>
+
+<CODE>Method</CODE> is an atom.
+ (<CODE>atm/1</CODE>)
+</UL>
+
+</DL>
+
+<P>
+<A NAME="IDX89"></A>
+<A NAME="IDX90"></A>
+<DL>
+<DT><span class="define">PREDICATE:</span> <B>icon_address/2:</B>
+<DD><A NAME="IDX91"></A>
+
+
+<P>
+<CODE>icon_address(Img,IAddress)</CODE>
+
+
+<P>
+The PiLLoW image <CODE>Img</CODE> has URL <CODE>IAddress</CODE>.
+
+
+<P>
+<STRONG>Usage:</STRONG> 
+
+<UL>
+<LI><EM>Calls should, and exit will be compatible with:</EM>
+
+<CODE>Img</CODE> is an atom.
+ (<CODE>atm/1</CODE>)
+
+<CODE>IAddress</CODE> is an atom.
+ (<CODE>atm/1</CODE>)
+<LI><EM>The following properties hold upon exit:</EM>
+
+<CODE>Img</CODE> is an atom.
+ (<CODE>atm/1</CODE>)
+
+<CODE>IAddress</CODE> is an atom.
+ (<CODE>atm/1</CODE>)
+</UL>
+
+</DL>
+
+<P>
+<A NAME="IDX92"></A>
+<A NAME="IDX93"></A>
+<DL>
+<DT><span class="define">PREDICATE:</span> <B>html_protect/1:</B>
+<DD><A NAME="IDX94"></A>
+
+
+<P>
+<CODE>html_protect(Goal)</CODE>
+
+
+<P>
+Calls <CODE>Goal</CODE>. If an error occurs during its execution, or it fails, an HTML page is output informing about the incident. Normaly the whole execution of a CGI is protected thus.
+
+
+<P>
+<EM>Meta-predicate</EM> with arguments: <CODE>html_protect(goal)</CODE>.
+
+
+<P>
+<STRONG>Usage:</STRONG> 
+
+<UL>
+<LI><EM>Calls should, and exit will be compatible with:</EM>
+
+<CODE>Goal</CODE> is a term which represents a goal, i.e., an atom or a structure.
+ (<CODE>callable/1</CODE>)
+</UL>
+
+</DL>
+
+<P>
+<A NAME="IDX95"></A>
+<A NAME="IDX96"></A>
+<DL>
+<DT><span class="define">PREDICATE:</span> <B>http_lines/3:</B>
+<DD><A NAME="IDX97"></A>
+
+
+<P>
+<STRONG>Usage:</STRONG> <CODE>http_lines(Lines,String,Tail)</CODE>
+
+<UL>
+<LI><EM>Description:</EM> <CODE>Lines</CODE> is a list of the lines with occur in <CODE>String</CODE> until <CODE>Tail</CODE>. The lines may end UNIX-style or DOS-style in <CODE>String</CODE>, in <CODE>Lines</CODE> they have not end of line characters. Suitable to be used in DCGs.
+
+<LI><EM>Calls should, and exit will be compatible with:</EM>
+
+<CODE>Lines</CODE> is a list of <CODE>string</CODE>s.
+ (<CODE>list/2</CODE>)
+
+<CODE>String</CODE> is a string (a list of character codes).
+ (<CODE>string/1</CODE>)
+
+<CODE>Tail</CODE> is a string (a list of character codes).
+ (<CODE>string/1</CODE>)
+</UL>
+
+</DL>
+
+
+
+<H2><A NAME="SEC8" HREF="pillow_doc_toc.html#TOC8">Documentation on multifiles (<CODE>html</CODE>)</A></H2>
+<P>
+<A NAME="IDX98"></A>
+<A NAME="IDX99"></A>
+<DL>
+<DT><span class="define">PREDICATE:</span> <B>html_expansion/2:</B>
+<DD><A NAME="IDX100"></A>
+
+
+<P>
+The predicate is <EM>multifile</EM>.
+
+
+<P>
+<STRONG>Usage:</STRONG> <CODE>html_expansion(Term,Expansion)</CODE>
+
+<UL>
+<LI><EM>Description:</EM> Hook predicate to define macros. Expand occurrences of <CODE>Term</CODE> into <CODE>Expansion</CODE>, in
+
+<A NAME="IDX101"></A>
+<CODE>output_html/1</CODE>. Take care to not transform something into itself! 
+</UL>
+
+</DL>
+
+
+
+<H2><A NAME="SEC9" HREF="pillow_doc_toc.html#TOC9">Other information (<CODE>html</CODE>)</A></H2>
+
+<P>
+The code uses input from from L. Naish's forms and F. Bueno's previous Chat interface. Other people who have contributed is (please inform us if we leave out anybody): Markus Fromherz, Samir Genaim.
+
+
+<P><HR><P>
+Go to the <A HREF="pillow_doc_1.html">first</A>, <A HREF="pillow_doc_2.html">previous</A>, <A HREF="pillow_doc_4.html">next</A>, <A HREF="pillow_doc_9.html">last</A> section, <A HREF="pillow_doc_toc.html">table of contents</A>.
+</BODY>
+</HTML>

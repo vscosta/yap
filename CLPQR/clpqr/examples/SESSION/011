@@ -1,0 +1,64 @@
+/tmp/clpr
+
+yes
+| ?- use_module(library('clpqr/monash')).
+{compiling /freyung/christian/sicstus2.1.9.clp/library/clpqr/monash.pl...}
+{loading /freyung/christian/sicstus2.1.9.clp/library/clpqr/printf.ql...}
+{loaded /freyung/christian/sicstus2.1.9.clp/library/clpqr/printf.ql in module printf, 30 msec 27216 bytes}
+{loading /freyung/christian/sicstus2.1.9.clp/library/clpqr/expand.ql...}
+{loaded /freyung/christian/sicstus2.1.9.clp/library/clpqr/expand.ql in module expand, 40 msec 26832 bytes}
+{/freyung/christian/sicstus2.1.9.clp/library/clpqr/monash.pl compiled, 100 msec 54848 bytes}
+
+yes
+| ?- expand, [library('clpqr/examples/monash/amplif')], noexpand.
+{consulting /freyung/christian/sicstus2.1.9.clp/library/clpqr/examples/monash/amplif...}
+{Warning: [Collector_Currents] - singleton variables in dc_analysis/3 in lines 1-31}
+{Warning: [Type,Vc] - singleton variables in component_ss/6 in lines 70-75}
+{Warning: [V1,V2] - singleton variables in component_dc/7 in lines 89-90}
+{Warning: [Vbreak,Vreak] - singleton variables in component_dc/7 in lines 93-96}
+{Warning: [Vbreak] - singleton variables in diode_state/5 in lines 96-104}
+{Warning: [Beta] - singleton variables in transistor_state/7 in lines 122-127}
+{Warning: [Beta] - singleton variables in transistor_state/7 in lines 127-133}
+{Warning: [Beta,Vc,Vcesat] - singleton variables in transistor_state/7 in lines 133-139}
+{Warning: [Beta,Vc,Vcesat] - singleton variables in transistor_state/7 in lines 139-144}
+{Warning: [Points] - singleton variables in print_circuit/1 in lines 202-205}
+{Warning: [R1,R2,Rc,Re] - singleton variables in circuit/6 in lines 233-244}
+{Warning: [C1,C2,C3,R1,R2,Rc,Re] - singleton variables in circuit/6 in lines 244-255}
+{Warning: [C1,C3,R1,R2,Re] - singleton variables in circuit/6 in lines 255-264}
+{Warning: [St1,St2,St3,St4,State] - singleton variables in go1/0 in lines 264-274}
+
+>>> Sample goals: go1/0, go2/0
+{/freyung/christian/sicstus2.1.9.clp/library/clpqr/examples/monash/amplif consulted, 360 msec 22640 bytes}
+
+yes
+| ?- go1.
+cc1 at 15 [0.0,0.14400000000000002,0.0,-0.14400000000000002]
+cc2 at -12 [-0.114,0.114]
+gnd at 0 [0.0,-0.030000000000000013,0.030000000000000013]
+a at 0.6 [0.114,-0.14400000000000002,0.0,0.030000000000000013]
+p1 at 0 [0.114,-0.114]
+b at -0.6 [0.0,0.114,-0.114]
+c at 15 [0.0,0.0]
+  diode at d1 [di1,forward]
+  diode at d2 [di1,reverse]
+  resistor at r1 100
+  diode at d3 [di1,forward]
+  diode at d4 [di1,forward]
+  resistor at r2 100
+  transistor at tr [npn,tr0,cutoff]
+  resistor at rc 100
+
+yes
+| ?- go2.
+Stab 0.0019465
+Outresist 0.85711 
+  capacitor at c1 _1483
+  resistor at r1 100
+  resistor at r2 100
+  transistor at tr [npn,tr0,active]
+  resistor at re 100
+  capacitor at c3 _1405
+[[capacitor,c1,_1483,[in,b]],[resistor,r1,100.0,[b,cc1]],[resistor,r2,100.0,[b,gnd]],[transistor,tr,[npn,tr0,active],[b,cc1,e]],[resistor,re,100.0,[e,gnd]],[capacitor,c3,_1405,[e,out]]]
+
+yes
+| ?- ^D

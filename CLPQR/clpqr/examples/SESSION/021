@@ -1,0 +1,55 @@
+/tmp/clpr
+
+yes
+| ?- use_module(library('clpqr/monash')).
+{compiling /freyung/christian/sicstus2.1.9.clp/library/clpqr/monash.pl...}
+{loading /freyung/christian/sicstus2.1.9.clp/library/clpqr/printf.ql...}
+{loaded /freyung/christian/sicstus2.1.9.clp/library/clpqr/printf.ql in module printf, 30 msec 27216 bytes}
+{loading /freyung/christian/sicstus2.1.9.clp/library/clpqr/expand.ql...}
+{loaded /freyung/christian/sicstus2.1.9.clp/library/clpqr/expand.ql in module expand, 40 msec 26832 bytes}
+{/freyung/christian/sicstus2.1.9.clp/library/clpqr/monash.pl compiled, 110 msec 54848 bytes}
+
+yes
+| ?- expand, [library('clpqr/examples/monash/rkf45')], noexpand.
+{consulting /freyung/christian/sicstus2.1.9.clp/library/clpqr/examples/monash/rkf45...}
+{Warning: [Abserr,Incr,Mode,T,Tend,Y] - singleton variables in solve1/2 in lines 77-81}
+{Warning: [Incr,Mode,Relerr,T,Tend,Y] - singleton variables in solve1/2 in lines 87-90}
+{Warning: [Mode] - singleton variables in solve1/2 in lines 95-102}
+{Warning: [Hmode,Out] - singleton variables in iter1/2 in lines 141-148}
+{Warning: [Hmode,Out] - singleton variables in stop_or_iter1/5 in lines 153-157}
+{Warning: [Sum] - singleton variables in stop_or_iter1/5 in lines 157-163}
+{Warning: [Y,Yp] - singleton variables in stop_or_iter1/5 in lines 163-171}
+{Warning: [Out] - singleton variables in check_h/2 in lines 191-194}
+{Warning: [Work] - singleton variables in check_out/3 in lines 204-209}
+{Warning: [Relerr] - singleton variables in check_out/3 in lines 209-215}
+{Warning: [Kop] - singleton variables in check_out/3 in lines 231-235}
+{Warning: [Other] - singleton variables in check_out/3 in lines 244-246}
+{Warning: [Yp] - singleton variables in set_maxtol/6 in lines 289-293}
+{Warning: [H] - singleton variables in set_h1/5 in lines 298-305}
+{Warning: [S,Y,Yp] - singleton variables in check_err/11 in lines 453-456}
+{Warning: [S,Y] - singleton variables in check_err/11 in lines 456-462}
+{Warning: [T] - singleton variables in eval/3 in lines 473-478}
+{Warning: [Y3,Y4] - singleton variables in user_output/2 in lines 478-481}
+{Warning: [Abs,H,Incr,Kop,Nfe,Rer,T,Tend,Tout,Y,Yp] - singleton variables in user_error/3 in lines 481-485}
+{Warning: [Abs,H,Incr,Kop,Nfe,Rer,T,Tend,Tout,Y,Yp] - singleton variables in user_error/3 in lines 485-489}
+{Warning: [Abs,H,Incr,Kop,Nfe,Rer,T,Tend,Tout,Y,Yp] - singleton variables in user_error/3 in lines 489-493}
+
+>>> Sample goal: go/0
+{/freyung/christian/sicstus2.1.9.clp/library/clpqr/examples/monash/rkf45 consulted, 590 msec 41376 bytes}
+
+yes
+| ?- go.
+Point    0.00000 :    0.75000    0.00000
+Point    0.50000 :    0.61969    0.47793
+Point    1.00000 :    0.29417    0.81233
+Point    1.50000 :   -0.10556    0.95809
+Point    2.00000 :   -0.49076    0.93977
+Point    2.50000 :   -0.81440    0.79929
+Point    3.00000 :   -1.05440    0.57522
+
+Iteration finished
+------------------
+ 439  derivative evaluations
+
+yes
+| ?- ^D

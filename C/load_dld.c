@@ -1,0 +1,103 @@
+/*************************************************************************
+*									 *
+*	 YAP Prolog 							 *
+*									 *
+*	Yap Prolog was developed at NCCUP - Universidade do Porto	 *
+*									 *
+* Copyright L.Damas, V.S.Costa and Universidade do Porto 1985-1997	 *
+*									 *
+**************************************************************************
+*									 *
+* File:		load_dld.c						 *
+* comments:	dld based dynamic loaderr of external routines		 *
+*               tested on i486-linuxaout				 *
+*************************************************************************/
+
+#if defined(linux) && !defined(__ELF__) && !defined(__LCC__)
+
+#include "Foreign.h"
+#include <dld.h>
+#include <malloc.h>
+#include <stdio.h>
+
+/*
+ *   YAPFindExecutable(argv[0]) should be called on yap initialization to
+ *   locate the executable of Yap
+*/
+void
+YAPFindExecutable(char *name)
+{
+  /* use dld_find_executable */
+  char *res;
+  if(name != NULL && (res=dld_find_executable(name))) {
+    strcpy(YapExecutable,res);
+  } else {
+    strcpy(YapExecutable,"./yap");
+  }
+}
+
+
+/*
+ * LoadForeign(ofiles,libs,proc_name,init_proc) dynamically loads foreign
+ * code files and libraries and locates an initialization routine
+*/
+int
+LoadForeign(StringList ofiles, StringList libs,
+	       char *proc_name,	YapInitProc *init_proc)
+{
+  static int firstTime = 1;
+  int error;
+  
+  if(firstTime) {
+    error = dld_init(YapExecutable);
+    if(error) {
+      strcpy(LoadMsg,dld_strerror(error));
+      return LOAD_FAILLED;
+    }
+    firstTime=0;
+  }
+
+  while (ofiles) {
+    if((error=dld_link(ofiles->s)) !=0) {
+      strcpy(LoadMsg,dld_strerror(error));
+      return LOAD_FAILLED;
+    }
+    ofiles = ofiles->next;
+  }
+
+
+  /* TODO: handle libs */
+  *init_proc = (YapInitProc) dld_get_func(proc_name);
+  if(! *init_proc) {
+    strcpy(LoadMsg,"Could not locate initialization routine");
+    return LOAD_FAILLED;
+  }
+  if(!dld_function_executable_p(proc_name)) {
+    char **undefs = dld_list_undefined_sym();
+    char **p = undefs;
+    int k = dld_undefined_sym_count;
+    strcpy(LoadMsg,"Could not resolve all symbols");
+    while(k) {
+      YP_printf("[undefined symbol %s]\n",*p++);
+      --k;
+    }
+    free(undefs);
+    return LOAD_FAILLED;
+  }
+
+  return LOAD_SUCCEEDED;
+}
+
+void 
+ShutdownLoadForeign(void)
+{
+}
+
+Int
+ReLoadForeign(StringList ofiles, StringList libs,
+	       char *proc_name,	YapInitProc *init_proc)
+{
+  return(LoadForeign(ofiles,libs, proc_name, init_proc));
+}
+
+#endif

@@ -1,0 +1,46 @@
+/tmp/clpr
+
+yes
+| ?- use_module(library('clpqr/monash')).
+{compiling /freyung/christian/sicstus2.1.9.clp/library/clpqr/monash.pl...}
+{loading /freyung/christian/sicstus2.1.9.clp/library/clpqr/printf.ql...}
+{loaded /freyung/christian/sicstus2.1.9.clp/library/clpqr/printf.ql in module printf, 40 msec 27216 bytes}
+{loading /freyung/christian/sicstus2.1.9.clp/library/clpqr/expand.ql...}
+{loaded /freyung/christian/sicstus2.1.9.clp/library/clpqr/expand.ql in module expand, 30 msec 26832 bytes}
+{/freyung/christian/sicstus2.1.9.clp/library/clpqr/monash.pl compiled, 130 msec 54848 bytes}
+
+yes
+| ?- expand, [library('clpqr/examples/monash/mortgage')], noexpand.
+{consulting /freyung/christian/sicstus2.1.9.clp/library/clpqr/examples/monash/mortgage...}
+{Warning: [Int] - singleton variables in go4/0 in lines 45-51}
+
+>>> Sample goals: go1/0, go2/0, go3/0, go4/0
+{/freyung/christian/sicstus2.1.9.clp/library/clpqr/examples/monash/mortgage consulted, 40 msec 4992 bytes}
+
+yes
+| ?- go1.
+Forward: MP = 1721.65
+Backward: P = 120000
+
+yes
+| ?- go2.
+
+yes
+| ?- mg(P,120,0.01,0,MP), dump([P,MP]).
+
+{P=69.7005220313972*MP} ? 
+
+yes
+| ?- mg(P,120,0.01,B,MP), dump([P,B,MP]).
+
+{P=0.30299477968602706*B+69.7005220313972*MP} ? 
+
+yes
+| ?- mg(999, 3, Int, 0, 400), dump.
+
+nonlin:{_B-_B*Int+_A+400.0=0.0},
+nonlin:{_A-_A*Int+400.0=0.0},
+{_B=599.0+999.0*Int} ? 
+
+yes
+| ?- ^D

@@ -1,0 +1,175 @@
+
+/*
+ **********************************************************************
+ *
+ *      CLP(R) Version 2.0	(Example Programs Release)
+ *	(C) Copyright, March 1986, Monash University
+ *
+ **********************************************************************
+ */
+
+%
+% Convert a propositional formula into disjunctive normal form.
+% There are 15 goals     ?- go1     to    ?- go 15.
+% The goal      ?- go5      is the most substantial.
+%
+
+literal(z0).
+literal(z1).
+literal(z2).
+literal(z3).
+literal(z4).
+literal(z5).
+literal(z6).
+literal(z7).
+literal(z8).
+literal(z9).
+literal(n(X))  :-  literal(X).
+
+/*---------------------------------------------- base cases ------------------*/
+
+norm(X, X)  :- literal(X).
+norm(o(X, Y), o(X, Y))  :- literal(X), literal(Y).
+norm(a(X, Y), a(X, Y))  :- literal(X), literal(Y).
+
+/*---------------------------------------------- OR cases --------------------*/
+
+norm(o(X, Y), o(X1, Y))  :-
+	literal(Y),
+	norm(X, X1).
+norm(o(X, o(Y, Z)), W)  :-
+	norm(o(o(X, Y), Z), W).
+norm(o(X, a(Y1, Y2)), o(X1, Y12))  :-
+	norm(X, X1),
+	norm(a(Y1, Y2), Y12).
+
+/*---------------------------------------------- AND cases -------------------*/
+
+norm(a(X, Y), a(X1, Y))  :-
+	literal(Y),
+	norm(X, X1).
+norm(a(X, a(Y, Z)), W)  :-
+	norm(a(a(X, Y), Z), W).
+norm(a(X, o(Y1, Y2)), a(X1, Y12))  :-
+	norm(X, X1),
+	norm(o(Y1, Y2), Y12).
+
+/*----------------------------------------------------------------------------*/
+/*----------------------------------------------------------------------------*/
+/*---------------------------------------------- base cases ------------------*/
+
+dnf(X, X)  :-  literal(X).
+dnf(o(X, Y), o(X, Y))  :-  literal(X), literal(Y).
+dnf(a(X, Y), a(X, Y))  :-  literal(X), literal(Y).
+
+/*---------------------------------------------- compaction ------------------*/
+
+dnf(n(n(X)), W)  :-  dnf(X, W).
+dnf(n(o(X, Y)), W)  :-  dnf(a(n(X), n(Y)), W).
+dnf(n(a(X, Y)), W)  :-  dnf(o(n(X), n(Y)), W).
+
+/*----------------------------------------------------------------------------*/
+
+dnf(o(X, Y), W)  :-
+	dnf(X, X1),
+	dnf(Y, Y1),
+	norm(o(X1, Y1), W).
+dnf(a(X, Y), a(a(X1, X2), Y))  :-
+	literal(Y),
+	dnf(X, a(X1, X2)).
+dnf(a(X, Y), a(a(Y1, Y2), X))  :-
+	literal(X),
+	dnf(Y, a(Y1, Y2)).
+dnf(a(X, Y), W)  :-
+	dnf(X, a(X1, X2)),
+	dnf(Y, a(Y1, Y2)),
+	norm(a(a(X1, X2), a(Y1, Y2)), W).
+dnf(a(X, Y), W)  :-
+	dnf(X, o(X1, X2)),
+	dnf(Y, Y1),
+	dnf(o(a(X1, Y1), a(X2, Y1)), W).
+dnf(a(X, Y), W)  :-
+	dnf(X, X1),
+	dnf(Y, o(Y1, Y2)),
+	dnf(o(a(X1, Y1), a(X1, Y2)), W).
+
+go1:-  dnf(a(z1, a(z2, o(z3, a(z4, a(z5, z6))))), X),
+	printf("%\n", [X]).
+go2:-  dnf(o(o(z1,o(z2,o(z3,z4))),o(z5,o(z6,o(z7,z8)))),X),
+	printf("%\n", [X]).
+go3:-  dnf(o(o(a(z1,z2),z3),o(a(z4,a(a(z5,z6),z7)),o(z8,z9))),X),
+	printf("%\n", [X]).
+go4:-  dnf(a(a(z1,a(o(z2,z3),z4)),a(z5,o(z6,z7))),X),
+	printf("%\n", [X]).
+go5:-  dnf(n(o(a(n(o(z1,z2)),n(a(z3,z4))),a(n(z5),o(a(z6,a(z7,z8)),z9)))),X),
+	dnf(n(o(a(n(o(z1,z2)),n(a(z3,z4))),a(n(z5),o(a(z6,a(z7,z8)),z9)))),X),
+	printf("%\n", [X]).
+go6:-  dnf(n(a(z1,a(z2,z3))),X),
+	printf("%\n", [X]).
+go7:-  dnf(a(a(o(z1,z2),z3),z4),X),
+	printf("%\n", [X]).
+go8:-  dnf(o(a(z1,z2),a(z3,z4)),X),
+	printf("%\n", [X]).
+go9:-  dnf(a(o(z1,z2),o(z3,z4)),X),
+	printf("%\n", [X]).
+go10:-  dnf(o(a(o(z1,z2),a(z3,z4)),z5),X),
+	printf("%\n", [X]).
+go11:-  dnf(o(o(z1,o(z3,o(z4,a(z4,z5)))),z5),X),
+	printf("%\n", [X]).
+go12:-  dnf(o(z1,o(z2,o(z3,z4))),X),
+	printf("%\n", [X]).
+go13:-  dnf(o(a(z1,z2),n(o(z2,a(z3,z4)))),X),
+	printf("%\n", [X]).
+go14:-  dnf(o(a(n(z0),n(z1)),a(n(z0),n(z2))),X),
+	printf("%\n", [X]).
+go15:-  dnf(o(n(a(z1,z2)),a(o(a(o(z1,z2),z3),z4),z5)),X),
+	printf("%\n", [X]).
+
+% Answers:
+%  1 ?- go1.
+%  o(a(a(z2, z3), z1), a(a(a(a(z5, z6), z4), z2), z1))
+%
+%  2 ?- go2.
+%  o(o(o(o(o(o(o(z1, z2), z3), z4), z5), z6), z7), z8)
+%
+%  3 ?- go3.
+%  o(o(o(o(a(z1, z2), z3), a(a(a(z5, z6), z7), z4)), z8), z9)
+%  
+%  4 ?- go4.
+%  o(o(o(a(a(a(a(z2, z4), z1), z5), z6), a(a(a(a(z2, z4), z1), z5), z7)), a(a(a(a(z3, z4), z1), z5), z6)), a(a(a(a(z3, z4), z1), z5), z7))
+%  
+%  5 ?- go5.
+%  o(o(o(o(o(o(o(o(o(o(o(a(z1, n(n(z5))), a(a(n(z6), n(z9)), z1)), a(a(n(z7), n(z9)), z1)), a(a(n(z8), n(z9)), z1)), a(z2, n(n(z5)))), a(a(n(z6), n(z9)), z2)), a(a(n(z7), n(z9)), z2)), a(a(n(z8), n(z9)), z2)), a(a(z3, z4), n(n(z5)))), a(a(a(z3, z4), n(z6)), n(z9))), a(a(a(z3, z4), n(z7)), n(z9))), a(a(a(z3, z4), n(z8)), n(z9)))
+%  
+%  6 ?- go6.
+%  o(o(n(z1), n(z2)), n(z3))
+%  
+%  7 ?- go7.
+%  o(a(a(z1, z3), z4), a(a(z2, z3), z4))
+%  
+%  8 ?- go8.
+%  o(a(z1, z2), a(z3, z4))
+%  
+%  9 ?- go9.
+%  o(o(o(a(z1, z3), a(z1, z4)), a(z2, z3)), a(z2, z4))
+%  
+%  10 ?- go10.
+%  o(o(a(a(z3, z4), z1), a(a(z3, z4), z2)), z5)
+%  
+%  11 ?- go11.
+%  o(o(o(o(z1, z3), z4), a(z4, z5)), z5)
+%  
+%  12 ?- go12.
+%  o(o(o(z1, z2), z3), z4)
+%  
+%  13 ?- go13.
+%  o(o(a(z1, z2), a(n(z2), n(z3))), a(n(z2), n(z4)))
+%  
+%  14 ?- go14.
+%  o(a(n(z0), n(z1)), a(n(z0), n(z2)))
+%  
+%  15 ?- go15.
+%  o(o(o(o(n(z1), n(z2)), a(a(z1, z3), z5)), a(a(z2, z3), z5)), a(z4, z5))
+%  
+
+?- printf("\n>>> Sample goals: go1/0, ..., go15/0\n", []).
