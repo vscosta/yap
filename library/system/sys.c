@@ -244,9 +244,9 @@ file_property(void)
     /* return an error number */
     return(unify(ARG6, MkIntTerm(errno)));
   }
-  if (buf.st_mode & _S_IFREG) 
+  if (S_ISREG(buf.st_mode)) 
     unify(ARG2, MkAtomTerm(LookupAtom("regular")));
-  else if (buf.st_mode & _S_IFDIR) 
+  else if (S_ISDIR(buf.st_mode)) 
     unify(ARG2, MkAtomTerm(LookupAtom("directory")));
   else if (S_ISFIFO(buf.st_mode)) 
     unify(ARG2, MkAtomTerm(LookupAtom("fifo")));
