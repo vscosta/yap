@@ -264,11 +264,18 @@ static void
 decrease_log_indices(LogUpdIndex *c, yamop *suspend_code)
 {
   /* decrease all reference counters */
-  yamop *beg = c->ClCode,
-    *end = (yamop *)((CODEADDR)c+Yap_SizeOfBlock((CODEADDR)c)),
-    *ipc;
+  yamop *beg = c->ClCode, *end, *ipc;
+  op_numbers op;
   if (c->ClFlags & SwitchTableMask) {
     return;
+  }
+  op = Yap_op_from_opcode(beg->opc);
+  if ((op == _enter_lu_pred ||
+      op == _stale_lu_index) &&
+      beg->u.Ill.l1 != beg->u.Ill.l2) {
+    end = beg->u.Ill.l2;
+  } else {
+    end = (yamop *)((CODEADDR)c+Yap_SizeOfBlock((CODEADDR)c));
   }
   ipc = beg;
   while (ipc < end) {
@@ -286,9 +293,11 @@ decrease_log_indices(LogUpdIndex *c, yamop *suspend_code)
       ipc = NEXTOP(ipc,xxp);
       break;
     case _retry:
+    case _retry_killed:
     case _retry_profiled:
     case _count_retry:
     case _trust:
+    case _trust_killed:
       decrease_ref_counter(ipc->u.ld.d, beg, end, suspend_code);
       ipc = NEXTOP(ipc,ld);
       break;
@@ -312,8 +321,11 @@ decrease_log_indices(LogUpdIndex *c, yamop *suspend_code)
     case _trust_me4:
       ipc = NEXTOP(ipc,ld);
       break;
+    case _enter_lu_pred:
+    case _stale_lu_index:
+      ipc = ipc->u.Ill.l1;
+      break;
     case _try_in:
-    case _try_logical_pred:
     case _trust_logical_pred:
     case _jump:
     case _jump_if_var:

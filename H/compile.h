@@ -130,6 +130,7 @@ typedef enum compiler_op {
   count_retry_op,
   restore_tmps_op,
   restore_tmps_and_skip_op,
+  enter_lu_op,
   empty_call_op,
 #ifdef TABLING
   table_new_answer_op,

@@ -166,6 +166,13 @@ typedef struct yami {
 	 CELL next;
        } fll;
        struct {
+	 struct logic_upd_index  *I;
+	 struct yami             *l1;
+	 struct yami             *l2;
+	 COUNT                    s;
+	 CELL next;
+       } Ill;
+       struct {
 	 struct yami   *l;
 	 CELL next;
        } l;

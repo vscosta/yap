@@ -1570,8 +1570,10 @@ CreateDBStruct(Term Tm, DBProp p, int InFlag, int *pstat)
       linkblk(LinkAr, CellPtr(ppt->Contents-1), (CELL)ppt-(CELL)ppt0);
 #endif
       ppt->Entry = AdjustIDBPtr(tt,(CELL)ppt-(CELL)ppt0);
+#ifdef COROUTINING
       if (ppt->attachments)
 	ppt->attachments = AdjustIDBPtr(ppt->attachments,(CELL)ppt-(CELL)ppt0);
+#endif
     } else {
       ppt->Entry = tt;
     }

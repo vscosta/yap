@@ -1710,7 +1710,9 @@ mark_choicepoints(register choiceptr gc_B, tr_fr_ptr saved_TR, int very_verbose)
       case _retry_me4:
       case _trust_me4:
       case _retry:
+      case _retry_killed:
       case _trust:
+      case _trust_killed:
 	nargs = rtp->u.ld.s;
 	break;
       case _jump:

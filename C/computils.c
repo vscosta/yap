@@ -616,6 +616,7 @@ static char *opformat[] =
   "count_retry_op\t\t%g",
   "restore_temps\t\t%l",
   "restore_temps_and_skip\t\t%l",
+  "enter_lu",
   "empty_call\t\t%l,%d",
 #ifdef TABLING
   "table_new_answer",

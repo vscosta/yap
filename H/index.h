@@ -114,3 +114,8 @@ typedef struct {
 
 #define MAX_ISTACK_DEPTH 32
 
+typedef enum {
+  REFRESH,
+  RECORDA,
+  RECORDZ
+} expand_values;

@@ -579,6 +579,7 @@ source_module(Mod) :-
 	consult(:),
 	current_predicate(:),
 	current_predicate(?,:),
+	depth_bound_call(:,+),
 	ensure_loaded(:),
 	findall(?,:,?),
 	findall(?,:,?,?),

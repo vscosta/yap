@@ -281,11 +281,11 @@ parse_yap_arguments(int argc, char *argv[], YAP_init_args *iap)
 
 	      host = *++argv;
 	      argc--;
-	      if (host != NULL && host[0] == '-')
+	      if (host == NULL || host[0] == '-')
 		YAP_Error("sockets must receive host to connect to");
 	      p1 = *++argv;
 	      argc--;
-	      if (p1[0] == '-')
+	      if (p1 == NULL || p1[0] == '-')
 		YAP_Error("sockets must receive port to connect to");
 	      port = strtol(p1, &ptr, 10);
 	      if (ptr == NULL || ptr[0] != '\0')

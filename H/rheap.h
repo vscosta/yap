@@ -639,7 +639,9 @@ RestoreClause(yamop *pc, PredEntry *pp, int mode)
     case _retry_and_mark:
     case _try_clause:
     case _retry:
+    case _retry_killed:
     case _trust:
+    case _trust_killed:
 #ifdef YAPOR
     case _getwork:
     case _getwork_seq:
@@ -657,12 +659,18 @@ RestoreClause(yamop *pc, PredEntry *pp, int mode)
       pc->u.ld.d = PtoOpAdjust(pc->u.ld.d);
       pc = NEXTOP(pc,ld);
       break;
+    case _enter_lu_pred:
+    case _stale_lu_index:
+      pc->u.Ill.I = (LogUpdIndex *)PtoOpAdjust((yamop *)(pc->u.Ill.I));
+      pc->u.Ill.l1 = PtoOpAdjust(pc->u.Ill.l1);
+      pc->u.Ill.l2 = PtoOpAdjust(pc->u.Ill.l2);
+      pc = NEXTOP(pc,Ill);
+      break;
       /* instructions type l */
     case _enter_profiling:
     case _count_call:
     case _retry_profiled:
     case _count_retry:
-    case _try_logical_pred:
     case _trust_logical_pred:
     case _execute:
     case _dexecute:

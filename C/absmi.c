@@ -1070,11 +1070,29 @@ Yap_absmi(int inp)
 *****************************************************************/
 
       /* enter logical pred               */
-      BOp(try_logical_pred, l);
+      BOp(stale_lu_index, Ill);
+      saveregs();
+      {
+	/* update ASP before calling IPred */
+	ASP = YREG+E_CB;
+	if (ASP > (CELL *) B) {
+	  ASP = (CELL *) B;
+	}
+	PREG = Yap_CleanUpIndex(PREG->u.Ill.I);
+	/* restart index */
+	setregs();
+	CACHED_A1() = ARG1;
+	JMPNext();
+      }
+      ENDBOp();
+
+
+      /* enter logical pred               */
+      BOp(enter_lu_pred, Ill);
       /* mark the indexing code */
       {
-	LogUpdIndex *cl = (LogUpdIndex *)PREG->u.l.l;
-	PREG = NEXTOP(PREG, l);
+	LogUpdIndex *cl = PREG->u.Ill.I;
+	PREG = PREG->u.Ill.l1;
 	LOCK(cl->ClLock);
 	/* indicate the indexing code is being used */
 #if defined(YAPOR) || defined(THREADS)
@@ -1508,7 +1526,9 @@ Yap_absmi(int inp)
 	    case _retry_and_mark:
 	    case _profiled_retry_and_mark:
 	    case _retry:
+	    case _retry_killed:
 	    case _trust:
+	    case _trust_killed:
 	      low_level_trace(retry_pred, PREG->u.ld.p, B->cp_args);
 	      break;
 	    default:
@@ -6281,11 +6301,10 @@ Yap_absmi(int inp)
 	if (ASP > (CELL *) B) {
 	  ASP = (CELL *) B;
 	}
-	Yap_ExpandIndex(pe);
+	PREG = Yap_ExpandIndex(pe);
 	/* restart index */
 	setregs();
 	CACHED_A1() = ARG1;
-	PREG = pe->CodeOfPred;
 	JMPNext();
       }
       ENDBOp();
@@ -6479,7 +6498,12 @@ Yap_absmi(int inp)
       JMPNext();
       ENDBOp();
 
+      BOp(retry_killed, ld);
+      goto retry_label;
+      ENDBOp();
+
       BOp(retry, ld);
+    retry_label:
       CACHE_Y(B);
       restore_yaam_regs(NEXTOP(PREG, ld));
       restore_at_least_one_arg(PREG->u.ld.s);
@@ -6495,7 +6519,12 @@ Yap_absmi(int inp)
       JMPNext();
       ENDBOp();
 
+      BOp(trust_killed, ld);
+      goto trust_label;
+      ENDBOp();
+
       BOp(trust, ld);
+    trust_label:
       CACHE_Y(B);
 #ifdef YAPOR
       if (SCH_top_shared_cp(B)) {

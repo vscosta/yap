@@ -344,6 +344,19 @@ a_cl(op_numbers opcode)
 }
 
 static void
+a_lucl(op_numbers opcode)
+{
+  if (pass_no) {
+    code_p->opc = emit_op(opcode);
+    code_p->u.Ill.I = (LogUpdIndex *)code_addr;
+    code_p->u.Ill.l1 = emit_ilabel(cpc->rnd1);
+    code_p->u.Ill.l2 = emit_ilabel(cpc->rnd2);
+    code_p->u.Ill.s  = cpc->rnd3;
+  }
+  GONEXT(Ill);
+}
+
+static void
 a_cle(op_numbers opcode)
 {
   if (pass_no) {
@@ -2317,9 +2330,6 @@ do_pass(void)
       a_deallocate();
       break;
     case tryme_op:
-      if (log_update && assembling == ASSEMBLING_INDEX) {
-	a_cl(_try_logical_pred);
-      }
       TRYCODE(_try_me, _try_me0);
       break;
     case retryme_op:
@@ -2331,10 +2341,10 @@ do_pass(void)
       }
       TRYCODE(_trust_me, _trust_me0);
       break;
+    case enter_lu_op:
+      a_lucl(_enter_lu_pred);
+      break;
     case try_op:
-      if (log_update) {
-	a_cl(_try_logical_pred);
-      }
       a_gl(_try_clause);
       break;
     case retry_op:

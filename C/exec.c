@@ -1616,7 +1616,7 @@ Yap_InitExecFs(void)
   Yap_InitCPred("$call_with_args", 11, p_execute_9, 0);
   Yap_InitCPred("$call_with_args", 12, p_execute_10, 0);
 #ifdef DEPTH_LIMIT
-  Yap_InitCPred("depth_bound_call", 2, p_execute_depth_limit, 0);
+  Yap_InitCPred("$execute_under_depth_limit", 2, p_execute_depth_limit, 0);
 #endif
   Yap_InitCPred("$execute0", 2, p_execute0, 0);
   Yap_InitCPred("$save_current_choice_point", 1, p_save_cp, 0);

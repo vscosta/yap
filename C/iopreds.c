@@ -211,7 +211,7 @@ unix_upd_stream_info (StreamDesc * s)
   }
 #if USE_SOCKET
   if (Yap_sockets_io &&
-      (YP_fileno (s->u.file.file) == 0))
+      s->u.file.file == NULL)
     {
       s->status |= Socket_Stream_f;
       s->u.socket.domain = af_inet;
@@ -385,9 +385,15 @@ InitStdStream (int sno, SMALLUNSGN flags, YP_File file)
 static void
 InitStdStreams (void)
 {
-  InitStdStream (StdInStream, Input_Stream_f, stdin);
-  InitStdStream (StdOutStream, Output_Stream_f, stdout);
-  InitStdStream (StdErrStream, Output_Stream_f, stderr);
+  if (Yap_sockets_io) {
+    InitStdStream (StdInStream, Input_Stream_f, NULL);
+    InitStdStream (StdOutStream, Output_Stream_f, NULL);
+    InitStdStream (StdErrStream, Output_Stream_f, NULL);
+  } else {
+    InitStdStream (StdInStream, Input_Stream_f, stdin);
+    InitStdStream (StdOutStream, Output_Stream_f, stdout);
+    InitStdStream (StdErrStream, Output_Stream_f, stderr);
+  }
   Yap_c_input_stream = StdInStream;
   Yap_c_output_stream = StdOutStream;
   Yap_c_error_stream = StdErrStream;
@@ -666,7 +672,13 @@ ConsoleSocketPutc (int sno, int ch)
 #if _MSC_VER || defined(__MINGW32__)
   send(s->u.socket.fd,  &c, sizeof(c), 0);
 #else
-  write(s->u.socket.fd,  &c, sizeof(c));
+  if (write(s->u.socket.fd,  &c, sizeof(c)) < 0) {
+#if HAVE_STRERROR
+    Yap_Error(FATAL_ERROR, TermNil, "no access to console: %s", strerror(errno));
+#else
+    Yap_Error(FATAL_ERROR, TermNil, "no access to console");
+#endif
+  }
 #endif
   count_output_char(ch,s);
   return ((int) ch);
