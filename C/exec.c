@@ -1224,7 +1224,7 @@ p_restore_regs2(void)
   if (pt0 > B) {
     /* Wow, we're gonna cut!!! */
 #ifdef YAPOR
-    CUT_prune_to((choiceptr) d0);
+    CUT_prune_to(pt0);
 #else
     B = pt0;
 #endif /* YAPOR */

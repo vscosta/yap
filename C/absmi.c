@@ -1807,7 +1807,7 @@ absmi(int inp)
       /* find something to fool S */
       if (CFREG == Unsigned(LCL0) && ReadTimedVar(WokenGoals) != TermNil) {
 	SREG = (CELL *)RepPredProp(GetPredPropByFunc(MkFunctor(AtomRestoreRegs,2),0));
-	XREGS[0] = XREG(PREG->u.y.y);
+	XREGS[0] = Y[PREG->u.y.y];
 	PREG = NEXTOP(PREG,y);
 	goto creep_either;
       }

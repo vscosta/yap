@@ -158,26 +158,7 @@ AttVarToTerm(CELL *orig)
 static int
 TermToAttVar(Term attvar, Term to)
 {
-  int i = 0;
-  int open = FALSE;
-  
-  while (IsPairTerm(attvar)) {
-    Term t = HeadOfTerm(attvar);
-    if (!IsVarTerm(t)) {
-      if (open) {
-	attvar_record *attv = (attvar_record *)VarOfTerm(Deref(to));
-	if (!PutAtt(attv, i, t))
-	  return(FALSE);
-      } else {
-	if (!BuildNewAttVar(to, i, t))
-	  return(FALSE);
-	open = TRUE;
-      }
-    }
-    i++;
-    attvar = TailOfTerm(attvar);
-  }
-  return(TRUE);
+  return(BuildNewAttVar(to, -1, attvar));
 }
 
 static void
@@ -369,11 +350,13 @@ BuildNewAttVar(Term t, Int i, Term tatt)
 
   attvar_record *attv = (attvar_record *)ReadTimedVar(DelayedVars);
   if (H0 - (CELL *)attv < 1024+(2*NUM_OF_ATTS)) {
-    ARG1 = t;
-    ARG2 = tatt;
+    H[0] = t;
+    H[1] = tatt;
+    H += 2;
     growglobal();
-    t = ARG1;
-    tatt = ARG2;
+    H -= 2;
+    t = H[0];
+    tatt = H[1];
   }
   time = InitVarTime();
   RESET_VARIABLE(&(attv->Value));
@@ -386,7 +369,22 @@ BuildNewAttVar(Term t, Int i, Term tatt)
   attv->NS = UpdateTimedVar(AttsMutableList, (CELL)&(attv->Done));
   Bind((CELL *)t,(CELL)attv);
   UpdateTimedVar(DelayedVars,(CELL)(attv->Atts+2*j));
-  return(PutAtt(attv, i, tatt));
+  /* if i < 0 then we have the list of arguments */
+  if (i < 0) {
+    Int j = 0;
+    while (IsPairTerm(tatt)) {
+      Term t = HeadOfTerm(tatt);
+      /* I need to do this because BuildNewAttVar may shift the stacks */
+      if (!IsVarTerm(t)) {
+	attv->Atts[2*j+1] = t;
+      }
+      j++;
+      tatt = TailOfTerm(tatt);
+    }
+    return(TRUE);
+  } else {
+    return(PutAtt(attv, i, tatt));
+  }
 }
 
 static Int

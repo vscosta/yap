@@ -113,9 +113,10 @@ low_level_trace(yap_low_level_port port, PredEntry *pred, CELL *args)
 
   vsc_count++;
   /* if (vsc_count < 84600) return; */
-  /* if (vsc_count == 6469) {
-     printf("Here I go\n");
-     }
+  /*
+  if (vsc_count == 4376) {
+    printf("Here I go\n");
+  }
   */
   /* if (vsc_count > 500000) exit(0); */
   /* if (gc_calls < 1) return;*/
