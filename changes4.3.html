@@ -14,8 +14,29 @@
 
 <h1>Changes in YAP4.3</h1>
 
+<h2>Yap-4.3.21:</h2>
+<ul>
+	<li>FIXED: open_socket would crash if no more available sockets.</li>
+	<li>FIXED: CLPQR complaints on importing private predicates.</li>
+</ul>
+
 <h2>Yap-4.3.20:</h2>
 <ul>
+	<li>FIXED: 'aaaa''xaaa' was inserting x instead of ' (Miguel Filgueiras).</li>
+	<li>FIXED: fix CHR using merge from prolog instead of ordsets.</li>
+	<li>FIXED: store infinite terms in DB properly (at last).</li>
+	<li>FIXED: execute_7 (Paulo Moura).</li>
+	<li>FIXED: expand meta-call arguments even if they are
+	built-ins (otherwise breaks bb_*).</li>
+	<li>FIXED: always generate FATAL_ERROR on SIGSEGV.</li>
+	<li>FIXED: another GC bug.</li>
+	<li>FIXED: phrase/2 and phrase/3 are meta-predicates.</li>
+	<li>FIXED: use TR instead of H for system.</li>
+	<li>FIXED: absolute_file_name/2 should be SICStus compatible (Nicos Angelopoulos).</li>
+	<li>FIXED: put < debugger back to work (Ines Dutra).</li>
+	<li>FIXED: make rem and mod ISO-compatible operators (Paulo Moura).</li>
+	<li>FIXED: expand consult stack when there are too many
+	predicates (David Page).</li>
 	<li>FIXED: create DLs even when you don't need .so.</li>
 	<li>FIXED: abolish/1.</li>
 	<li>NEW: try to make module system really compatible.</li>
