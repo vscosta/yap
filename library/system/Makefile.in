@@ -83,7 +83,7 @@ sys.dll: $(OBJS)
 install: all
 	$(INSTALL_PROGRAM) $(SOBJS) $(DESTDIR)$(LIBDIR)
 
-install_mingw32: dll
+install_win32: dll
 	$(INSTALL_PROGRAM) -m 755 sys.dll $(LIBDIR)/sys.dll
 
 clean:
