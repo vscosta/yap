@@ -158,8 +158,11 @@ AccessNamedArray(Atom a, Int indx)
     if (ArrayIsDynamic(pp)) {
       Term out;
       READ_LOCK(pp->ArRWLock);
-      if (IsVarTerm(pp->ValueOfVE)) {
+      if (IsVarTerm(pp->ValueOfVE) ||
+	  pp->ArrayEArity <= indx ||
+	  indx < 0) {
 	READ_UNLOCK(pp->ArRWLock);
+	P = (yamop *)FAILCODE;
 	return(MkAtomTerm(AtomFoundVar));
       }
       out = RepAppl(pp->ValueOfVE)[indx+1];
@@ -173,7 +176,7 @@ AccessNamedArray(Atom a, Int indx)
 	/*	Error(DOMAIN_ERROR_ARRAY_OVERFLOW, MkIntegerTerm(indx), "access_array");*/
 	READ_UNLOCK(ptr->ArRWLock);
 	P = (yamop *)FAILCODE;
-	return(TermNil);
+	return(MkAtomTerm(AtomFoundVar));
       }
       switch (ptr->ArrayType) {
 
@@ -302,7 +305,7 @@ p_access_array(void)
 
   if (IsNonVarTerm(t)) {
     if (IsApplTerm(t)) {
-      if (indx >= ArityOfFunctor(FunctorOfTerm(t))) {
+      if (indx >= ArityOfFunctor(FunctorOfTerm(t)) || indx < 0) {
 	/*	Error(DOMAIN_ERROR_ARRAY_OVERFLOW, MkIntegerTerm(indx), "access_array");*/
 	P = (yamop *)FAILCODE;
 	return(FALSE);
