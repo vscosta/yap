@@ -1119,7 +1119,6 @@ init_log_upd_table(LogUpdIndex *ic, union clause_obj *cl_u)
   ic->SiblingIndex = cl_u->lui.ChildIndex;
   ic->ChildIndex = NULL;
   ic->ClRefCount = 0;
-  ic->ClUse = 0L;
   ic->u.ParentIndex = (LogUpdIndex *)cl_u;
   cl_u->lui.ChildIndex = ic;
   cl_u->lui.ClRefCount++;
@@ -2083,7 +2082,6 @@ do_pass(void)
 	cl_u->lui.ChildIndex = NULL;
 	cl_u->lui.SiblingIndex = NULL;
 	cl_u->lui.u.pred = CurrentPred;
-	cl_u->lui.ClUse =  0;
 	cl_u->lui.ClRefCount =  0;
       }
       code_p = cl_u->lui.ClCode;

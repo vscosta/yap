@@ -1103,7 +1103,6 @@ Yap_absmi(int inp)
 	if (!(cl->ClFlags & InUseMask)) {
 	  cl->ClFlags |= InUseMask;
 	  TRAIL_CLREF(cl);
-	  cl->ClUse =  TR-(tr_fr_ptr)(Yap_TrailBase);
 	}
 #endif
 	UNLOCK(cl->ClLock);
@@ -1135,11 +1134,10 @@ Yap_absmi(int inp)
 	  UNLOCK(cl->ClLock);
 	}
 #else
-	if (cl->ClUse == TR-(tr_fr_ptr)(Yap_TrailBase)) {
-	  cl->ClUse = 0;
+	if (B->cp_tr[-1] == CLREF_TO_TRENTRY(cl) &&
+	    B->cp_tr > B->cp_b->cp_tr) {
 	  cl->ClFlags &= ~InUseMask;
-	  /* clear the entry from the trail */
-	  TR = --(B->cp_tr);
+	  TR = --B->cp_tr;
 	  /* next, recover space for the indexing code if it was erased */
 	  if (cl->ClFlags & ErasedMask) {
 	    Yap_RemoveLogUpdIndex(cl);

@@ -45,7 +45,6 @@ typedef struct logic_upd_index {
   /* A lock for manipulating the clause */
   lockvar          ClLock;
 #endif
-  UInt             ClUse;
   union {
     PredEntry *pred;
     struct logic_upd_index *ParentIndex;

@@ -4307,7 +4307,6 @@ replace_index_block(ClauseUnion *parent_block, yamop *cod, yamop *ncod, PredEntr
       *c = parent_block->lui.ChildIndex;
     ncl->SiblingIndex = cl->SiblingIndex;
     ncl->ClRefCount = cl->ClRefCount;
-    ncl->ClUse = 0L;
     ncl->ChildIndex = cl->ChildIndex;
     ncl->u.ParentIndex = cl->u.ParentIndex;
     if (c == cl) {
@@ -4696,7 +4695,6 @@ replace_lu_block(LogUpdIndex *blk, int flag, PredEntry *ap, yamop *code, int has
     return NULL;
   ncl->ClFlags = LogUpdMask|IndexedPredFlag|IndexMask;
   ncl->ClRefCount = 0;
-  ncl->ClUse =  0;
   ncl->u.ParentIndex = blk->u.ParentIndex;
   ncl->ChildIndex = NULL;
   codep = start = ncl->ClCode;
@@ -6091,8 +6089,8 @@ Yap_follow_lu_indexing_code(PredEntry *ap, yamop *ipc, Term t1, Term tb, Term tr
 	  UNLOCK(cl->ClLock);
 	}
 #else
-	if (cl->ClUse == TR-(tr_fr_ptr)(Yap_TrailBase)) {
-	  cl->ClUse = 0;
+	if (B->cp_tr[-1] == CLREF_TO_TRENTRY(cl) &&
+	    B->cp_tr > B->cp_b->cp_tr) {
 	  cl->ClFlags &= ~InUseMask;
 	  /* clear the entry from the trail */
 	  TR = --(B->cp_tr);
@@ -6121,8 +6119,7 @@ Yap_follow_lu_indexing_code(PredEntry *ap, yamop *ipc, Term t1, Term tb, Term tr
 	if (!(cl->ClFlags & InUseMask)) {
 	  cl->ClFlags |= InUseMask;
 	  TRAIL_CLREF(cl);
-	  cl->ClUse =  TR-(tr_fr_ptr)(Yap_TrailBase);
-	}
+	}	
 #endif
 	UNLOCK(cl->ClLock);
       }
