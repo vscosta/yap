@@ -53,10 +53,10 @@ vel(LVs,Vs0,AllDiffs) :-
 find_all_clpbn_vars([], [], [], []) :- !.
 find_all_clpbn_vars([V|Vs], [Var|LV], ProcessedVars, [table(I,Table,Deps,Sizes)|Tables]) :-
 	var_with_deps(V, Table, Deps, Sizes, Ev, Vals), !,
-	Var = var(V,I,Sz,Vals,Ev,_,_),
-	get_dist_size(V,Sz),
 	% variables with evidence should not be processed.
 	(var(Ev) ->
+	    Var = var(V,I,Sz,Vals,Ev,_,_),
+	    get_dist_size(V,Sz),
 	    ProcessedVars = [Var|ProcessedVars0]
 	;
 	    ProcessedVars = ProcessedVars0
@@ -132,6 +132,7 @@ add_table_deps_to_variables([], []).
 add_table_deps_to_variables([var(V,_,_,_,_,Deps,K)|LV], DepGraph) :-
 	steal_deps_for_variable(DepGraph, V, NDepGraph, Deps),
 	compute_size(Deps,[],K),
+%	( clpbn:get_atts(V,[key(Key)]) -> write(Key:K), nl ; true),
 	add_table_deps_to_variables(LV, NDepGraph).
 	
 steal_deps_for_variable([V-Info|DepGraph], V0, NDepGraph, [Info|Deps]) :-
@@ -141,8 +142,8 @@ steal_deps_for_variable(DepGraph, _, DepGraph, []).
 
 compute_size([],Vs,K) :-
 	% use sizes now
-	length(Vs,K).
-%	multiply_sizes(Vs,1,K).
+%	length(Vs,K).
+	multiply_sizes(Vs,1,K).
 compute_size([tab(_,Vs,_)|Tabs],Vs0,K) :-
 	ord_union(Vs,Vs0,VsI),
 	compute_size(Tabs,VsI,K).
@@ -154,7 +155,7 @@ multiply_sizes([V|Vs],K0,K) :-
 	multiply_sizes(Vs,KI,K).
 
 process(LV0, InputVs, Out) :-
-	find_best(LV0, V0, 10000, V, WorkTables, LVI, InputVs),
+	find_best(LV0, V0, -1, V, WorkTables, LVI, InputVs),
 	V \== V0, !,
 	multiply_tables(WorkTables, Table),
 	propagate_evidence(V, Evs),
@@ -165,9 +166,11 @@ process(LV0, _, Out) :-
 	fetch_tables(LV0, WorkTables),
 	multiply_tables(WorkTables, Out).
 
-find_best([], V, _, V, _, [], _).
+find_best([], V, _TF, V, _, [], _).
+%:-
+%	clpbn:get_atts(V,[key(K)]), write(chosen:K:TF), nl.
 find_best([var(V,I,Sz,Vals,Ev,Deps,K)|LV], _, Threshold, VF, NWorktables, LVF, Inputs) :-
-	K < Threshold,
+	( K < Threshold ; Threshold < 0),
 	clpbn_not_var_member(Inputs, V), !,
 	find_best(LV, V, K, VF, WorkTables,LV0, Inputs),
 	(V == VF ->
@@ -310,19 +313,17 @@ include([var(V,P,VSz,D,Ev,Tabs,Est)|LV],tab(T,Vs,Sz),V1,[var(V,P,VSz,D,Ev,Tabs,E
 	clpbn_not_var_member(Vs,V), !,
 	include(LV,tab(T,Vs,Sz),V1,NLV).
 include([var(V,P,VSz,D,Ev,Tabs,_)|LV],Table,NV,[var(V,P,VSz,D,Ev,NTabs,NEst)|NLV]) :-
-	update_tables(Tabs,NTabs,Table,NV,[],NEst),
+	update_tables(Tabs,NTabs,Table,NV),
+	compute_size(NTabs, [], NEst),
+%	( clpbn:get_atts(V,[key(Key)]) -> write(Key:NEst), nl ; true),
 	include(LV,Table,NV,NLV).
 
-update_tables([],[Table],Table,_,AVs,NS) :-
-	Table = tab(_,Vs,_),
-	ord_union(Vs,AVs,TVs),
-	length(TVs,NS).
-update_tables([tab(Tab0,Vs,Sz)|Tabs],[tab(Tab0,Vs,Sz)|NTabs],Table,V,AVs0,NS) :-
+update_tables([],[Table],Table,_).
+update_tables([tab(Tab0,Vs,Sz)|Tabs],[tab(Tab0,Vs,Sz)|NTabs],Table,V) :-
 	clpbn_not_var_member(Vs,V), !,
-	ord_union(Vs,AVs0,AVsI),
-	update_tables(Tabs,NTabs,Table,V,AVsI,NS).
-update_tables([_|Tabs],NTabs,Table,V,AVs0,NS) :-
-	update_tables(Tabs,NTabs,Table,V,AVs0,NS).
+	update_tables(Tabs,NTabs,Table,V).
+update_tables([_|Tabs],NTabs,Table,V) :-
+	update_tables(Tabs,NTabs,Table,V).
 
 bind_vals([],_,_) :- !.
 % simple case, we want a distribution on a single variable.

@@ -11,8 +11,11 @@
 * File:		cdmgr.c							 *
 * comments:	Code manager						 *
 *									 *
-* Last rev:     $Date: 2004-12-16 05:57:23 $,$Author: vsc $						 *
+* Last rev:     $Date: 2004-12-20 21:44:57 $,$Author: vsc $						 *
 * $Log: not supported by cvs2svn $
+* Revision 1.145  2004/12/16 05:57:23  vsc
+* fix overflows
+*
 * Revision 1.144  2004/12/08 00:10:48  vsc
 * more grow fixes
 *
@@ -2033,10 +2036,13 @@ p_compile_dynamic(void)
     addclause(t, code_adr, (int) (IntOfTerm(t1) & 3), mod, &ARG5);
   } 
   if (Yap_ErrorMessage) {
+    if (!Yap_Error_Term)
+      Yap_Error_Term = TermNil;
     if (IntOfTerm(t1) & 4) {
       Yap_Error(Yap_Error_TYPE, Yap_Error_Term, "line %d, %s", Yap_FirstLineInParse(), Yap_ErrorMessage);
-    } else
+    } else {
       Yap_Error(Yap_Error_TYPE, Yap_Error_Term, Yap_ErrorMessage);
+    }
     YAPLeaveCriticalSection();
     return FALSE;
   }

@@ -11,8 +11,11 @@
 * File:		compiler.c						 *
 * comments:	Clause compiler						 *
 *									 *
-* Last rev:     $Date: 2004-12-16 05:57:32 $,$Author: vsc $						 *
+* Last rev:     $Date: 2004-12-20 21:44:57 $,$Author: vsc $						 *
 * $Log: not supported by cvs2svn $
+* Revision 1.56  2004/12/16 05:57:32  vsc
+* fix overflows
+*
 * Revision 1.55  2004/12/05 05:01:23  vsc
 * try to reduce overheads when running with goal expansion enabled.
 * CLPBN fixes
@@ -2949,16 +2952,7 @@ Yap_cclause(volatile Term inp_clause, int NOfArgs, int mod, volatile Term src)
 
   /* check first if there was space for us */
   if (acode == NULL) {
-    /* make sure we have enough space */
-    if (!Yap_growheap(FALSE, Yap_Error_Size, NULL)) {
-      save_machine_regs();
-      my_clause = Deref(ARG1);
-      longjmp(cglobs.cint.CompilerBotch, 2);
-      return(NULL);
-    } else {
-      my_clause = Deref(ARG1);
-      goto restart_compilation;
-    }
+    return NULL;
   } else {
 #ifdef LOW_PROF
     if (ProfilerOn) {

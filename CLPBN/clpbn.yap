@@ -48,8 +48,8 @@
 solver(vel).
 
 %output(xbif(user_error)).
-output(gviz(user_error)).
-%output(no).
+%output(gviz(user_error)).
+output(no).
 
 clpbn_flag(Flag,Option) :-
 	clpbn_flag(Flag, Option, Option).

@@ -11,8 +11,11 @@
 * File:		amasm.c							 *
 * comments:	abstract machine assembler				 *
 *									 *
-* Last rev:     $Date: 2004-12-07 16:54:57 $							 *
+* Last rev:     $Date: 2004-12-20 21:44:56 $							 *
 * $Log: not supported by cvs2svn $
+* Revision 1.68  2004/12/07 16:54:57  vsc
+* fix memory overflow
+*
 * Revision 1.67  2004/12/05 05:01:23  vsc
 * try to reduce overheads when running with goal expansion enabled.
 * CLPBN fixes
@@ -3029,8 +3032,9 @@ Yap_assemble(int mode, Term t, PredEntry *ap, int is_fact, struct intermediates 
     DBTerm *x;
     LogUpdClause *cl;
 
-    if(!(x = fetch_clause_space(&t,size,cip)))
+    if(!(x = fetch_clause_space(&t,size,cip))){
       return NULL;
+    }
     cl = (LogUpdClause *)((CODEADDR)x-(UInt)size);
     cl->ClSource = x;
     cip->code_addr = (yamop *)cl;
@@ -3040,8 +3044,9 @@ Yap_assemble(int mode, Term t, PredEntry *ap, int is_fact, struct intermediates 
       !is_fact) {
     DBTerm *x;
     StaticClause *cl;
-    if(!(x = fetch_clause_space(&t,size,cip)))
+    if(!(x = fetch_clause_space(&t,size,cip))) {
       return NULL;
+    }
     cl = (StaticClause *)((CODEADDR)x-(UInt)size);
     cip->code_addr = (yamop *)cl;
     code_p = do_pass(1, &entry_code, mode, &clause_has_blobs, cip, size);
@@ -3054,6 +3059,7 @@ Yap_assemble(int mode, Term t, PredEntry *ap, int is_fact, struct intermediates 
 
       if (!Yap_growheap(TRUE, size, cip)) {
 	Yap_Error_TYPE = OUT_OF_HEAP_ERROR;
+	Yap_Error_Size = size;
 	return NULL;
       }
     }
