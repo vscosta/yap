@@ -4961,6 +4961,20 @@ with its reference.
 Makes term @var{T} the last record under key @var{K} and unifies @var{R}
 with its reference.
 
+@item recorda_at(+@var{R0},@var{T},-@var{R})
+@findex recorda_at/3
+@snindex recorda_at/3
+@cnindex recorda_at/3
+Makes term @var{T} the record preceeding record with reference
+@var{R0}, and unifies @var{R} with its reference.
+
+@item recordz_at(+@var{R0},@var{T},-@var{R})
+@findex recordz_at/3
+@snindex recordz_at/3
+@cnindex recordz_at/3
+Makes term @var{T} the record following record with reference
+@var{R0}, and unifies @var{R} with its reference.
+
 @item recordaifnot(+@var{K},@var{T},-@var{R})
 @findex recordaifnot/3
 @saindex recordaifnot/3

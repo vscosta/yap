@@ -264,27 +264,24 @@ typedef enum {
 
 /* *********************** DBrefs **************************************/
 
-#define KEEP_ENTRY_AGE 1
-
 typedef struct DB_STRUCT {
   Functor id;		/* allow pointers to this struct to id  */
 			/*   as dbref                           */
-  Term	EntryTerm;	/* cell bound to itself			*/
   CELL Flags;	/* Term Flags				*/
-  SMALLUNSGN NOfRefsTo;	/* Number of references pointing here	*/
+  CELL NOfRefsTo;	/* Number of references pointing here	*/
   struct struct_dbentry  *Parent;	/* key of DBase reference		*/
-  struct yami *Code;	/* pointer to code if this is a clause 	*/
-  struct DB_STRUCT **DBRefs; /* pointer to other references 	*/
+  union {
+    struct yami *Code;	/* pointer to code if this is a clause 	*/
+    struct DB_STRUCT **DBRefs; /* pointer to other references 	*/
+  } u;
   struct DB_STRUCT *Prev; /* Previous element in chain            */
   struct DB_STRUCT *Next; /* Next element in chain                */
 #if defined(YAPOR) || defined(THREADS)
   lockvar   lock;         /* a simple lock to protect this entry */
   Int       ref_count;    /* how many branches are using this entry */
 #endif
-#ifdef KEEP_ENTRY_AGE
-  Int age;                /* entry's age, negative if from recorda,
+  struct DB_STRUCT *p, *n; /* entry's age, negative if from recorda,
 			     positive if it was recordz  */
-#endif /* KEEP_ENTRY_AGE */
 #ifdef COROUTINING
   CELL    attachments;   /* attached terms */   
 #endif
@@ -331,11 +328,7 @@ typedef	struct struct_dbentry {
   DBRef	First;		/* first DBase entry			*/
   DBRef	Last;		/* last DBase entry			*/
   SMALLUNSGN	ModuleOfDB;	/* module for this definition		*/
-#ifdef KEEP_ENTRY_AGE
-  Int         age;		/* age counter                          */
-#else
-  DBRef	FirstNEr;	/* first non-erased DBase entry		*/
-#endif /* KEEP_ENTRY_AGE */
+  DBRef         F0,L0;		/* everyone                          */
 } DBEntry;
 typedef DBEntry *DBProp;
 #define	DBProperty	   ((PropFlags)0x8000)

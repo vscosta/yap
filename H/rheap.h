@@ -470,8 +470,20 @@ RestoreDBEntry(DBRef dbr)
     YP_fprintf(errout, " a var\n");
 #endif
   dbr->Parent = (DBProp)AddrAdjust((ADDR)(dbr->Parent));
-  if (dbr->Code != NIL)
-    dbr->Code = PtoOpAdjust(dbr->Code);
+  if (dbr->Flags & DBCode) {
+    if (dbr->u.Code != NULL)
+      dbr->u.Code = PtoOpAdjust(dbr->u.Code);
+  } else {
+    if (dbr->Flags & DBWithRefs) {
+      DBRef          *cp;
+      DBRef            tm;
+
+      dbr->u.DBRefs = DBRefPAdjust(dbr->u.DBRefs);
+      cp = dbr->u.DBRefs;
+      while ((tm = *--cp) != 0)
+	*cp = DBRefAdjust(tm);
+    }
+  }
   if (dbr->Flags & DBAtomic) {
     if (IsAtomTerm(dbr->Entry))
       dbr->Entry = AtomTermAdjust(dbr->Entry);
@@ -487,13 +499,6 @@ RestoreDBEntry(DBRef dbr)
     dbr->Prev = DBRefAdjust(dbr->Prev);
   if (dbr->Next != NULL)
     dbr->Next = DBRefAdjust(dbr->Next);
-  if (dbr->Flags & DBWithRefs) {
-    DBRef          *cp;
-    DBRef            tm;
-    cp = (DBRef *) ((CODEADDR) dbr + Yap_SizeOfBlock(CodePtr(dbr)));
-    while ((tm = *--cp) != 0)
-      *cp = DBRefAdjust(tm);
-  }
 #ifdef DEBUG_RESTORE2
   YP_fprintf(errout, "Recomputing masks\n");
 #endif
@@ -510,10 +515,6 @@ RestoreDB(DBEntry *pp)
     pp->First = DBRefAdjust(pp->First);
   if (pp->Last != NULL)
     pp->Last = DBRefAdjust(pp->Last);
-#ifndef KEEP_ENTRY_AGE
-  if (pp->FirstNEr != NULL)
-    pp->FirstNEr = DBRefAdjust(pp->FirstNEr);
-#endif
   if (pp->ArityOfDB)
     pp->FunctorOfDB = FuncAdjust(pp->FunctorOfDB);
   else

@@ -57,11 +57,7 @@ static char     SccsId[] = "%W% %G%";
 */
 
 
-#ifdef  KEEP_ENTRY_AGE
 #define DISCONNECT_OLD_ENTRIES 1
-#else
-#define KEEP_OLD_ENTRIES_HANGING_ABOUT 1
-#endif  /* KEEP_ENTRY_AGE */
 
 #ifdef MACYAPBUG
 #define Register
@@ -97,11 +93,7 @@ static char     SccsId[] = "%W% %G%";
 #define ToSmall(V)	((link_entry)(Unsigned(V)>>3))
 #endif
 
-#ifdef KEEP_OLD_ENTRIES_HANGING_ABOUT
-#define DEAD_REF(ref) ((ref)->Flags & ErasedMask)
-#else
 #define DEAD_REF(ref) FALSE
-#endif
 
 #ifdef SFUNC
 
@@ -116,7 +108,6 @@ typedef struct {
 typedef struct idb_queue
 {
   Functor id;		/* identify this as being pointed to by a DBRef */
-  Term	EntryTerm;	/* cell bound to itself			*/
   SMALLUNSGN    Flags;  /* always required */
 #if defined(YAPOR) || defined(THREADS)
   rwlock_t    QRWLock;         /* a simple lock to protect this entry */
@@ -252,13 +243,8 @@ STATIC_PROTO(Int  cont_current_key, (void));
 STATIC_PROTO(Int  cont_current_key_integer, (void));
 STATIC_PROTO(Int  p_rcdstatp, (void));
 STATIC_PROTO(Int  p_somercdedp, (void));
-#ifdef KEEP_OLD_ENTRIES_HANGING_ABOUT
-STATIC_PROTO(int  StillInChain, (yamop *, PredEntry *));
-#endif /* KEEP_OLD_ENTRIES_HANGING_ABOUT */
-#ifdef DISCONNECT_OLD_ENTRIES
 STATIC_PROTO(yamop * find_next_clause, (DBRef));
 STATIC_PROTO(Int  p_jump_to_next_dynamic_clause, (void));
-#endif /* DISCONNECT_OLD_ENTRIES */
 #ifdef SFUNC
 STATIC_PROTO(void  SFVarIn, (Term));
 STATIC_PROTO(void  sf_include, (SFKeep *));
@@ -267,9 +253,6 @@ STATIC_PROTO(Int  p_init_queue, (void));
 STATIC_PROTO(Int  p_enqueue, (void));
 STATIC_PROTO(void keepdbrefs, (DBRef));
 STATIC_PROTO(Int  p_dequeue, (void));
-STATIC_PROTO(Int  p_first_age, (void));
-STATIC_PROTO(Int  p_db_nb_to_ref, (void));
-STATIC_PROTO(Int  p_last_age, (void));
 STATIC_PROTO(void ErDBE, (DBRef));
 
 #if OS_HANDLES_TR_OVERFLOW
@@ -1228,11 +1211,9 @@ CreateDBStruct(Term Tm, DBProp p, int InFlag)
       return(NULL);
     }
     pp->id = FunctorDBRef;
-    pp->EntryTerm = MkAtomTerm(AbsAtom((AtomEntry *)pp));
     pp->Flags = DBVar;
     pp->Entry = (CELL) Tm;
-    pp->Code = NULL;
-    pp->DBRefs = NULL;
+    pp->u.Code = NULL;
     pp->NOfCells = 1;
     INIT_LOCK(pp->lock);
     INIT_DBREF_COUNT(pp);
@@ -1255,11 +1236,9 @@ CreateDBStruct(Term Tm, DBProp p, int InFlag)
       return(NULL);
     }
     pp->id = FunctorDBRef;
-    pp->EntryTerm = MkAtomTerm(AbsAtom((AtomEntry *)pp));
     pp->Flags = flag;
     pp->Entry = (CELL) Tm;
-    pp->Code = NULL;
-    pp->DBRefs = NULL;
+    pp->u.Code = NULL;
     pp->NOfCells = 1;
     INIT_LOCK(pp->lock);
     INIT_DBREF_COUNT(pp);
@@ -1337,7 +1316,6 @@ CreateDBStruct(Term Tm, DBProp p, int InFlag)
 	      return(NULL);
 	    }
 	    pp->id = FunctorDBRef;
-	    pp->EntryTerm = MkAtomTerm(AbsAtom((AtomEntry *)pp));
 	    pp->Flags = DBNoVars|DBComplex|DBWithRefs;
 	    pp->Entry = Tm;
 	    pp->NOfCells = 2;
@@ -1345,8 +1323,7 @@ CreateDBStruct(Term Tm, DBProp p, int InFlag)
 	    dbr->NOfRefsTo++;
 	    pp->Contents[0] = (CELL)NIL;
 	    pp->Contents[1] = (CELL)dbr;
-	    pp->DBRefs = (DBRef *)(pp->Contents+2);
-	    pp->Code = NULL;
+	    pp->u.DBRefs = (DBRef *)(pp->Contents+2);
 	    INIT_LOCK(pp->lock);
 	    INIT_DBREF_COUNT(pp);
 	    Yap_ReleasePreAllocCodeSpace((ADDR)pp0);
@@ -1465,7 +1442,6 @@ CreateDBStruct(Term Tm, DBProp p, int InFlag)
       return(NULL);
     }
     pp->id = FunctorDBRef;
-    pp->EntryTerm = MkAtomTerm(AbsAtom((AtomEntry *)pp));
     INIT_LOCK(pp->lock);
     INIT_DBREF_COUNT(pp);
     pp->Flags = flag;
@@ -1531,11 +1507,7 @@ CreateDBStruct(Term Tm, DBProp p, int InFlag)
       *rfnar++ = NULL;
       while (ptr != tofref)
 	*rfnar++ = *--ptr;
-      pp->DBRefs = rfnar;
-
-    } else {
-
-      pp->DBRefs = NULL;
+      pp->u.DBRefs = rfnar;
 
     }
     Yap_ReleasePreAllocCodeSpace((ADDR)pp0);
@@ -1565,7 +1537,6 @@ new_lu_index(LogUpdDBProp AtProp) {
   }
   *te = NULL;
   index->id = FunctorDBRef;
-  index->EntryTerm = MkAtomTerm(AbsAtom((AtomEntry *)index));
   index->NOfRefsTo = 0;
   index->Prev = index->Next = NIL;
   index->Parent = (DBProp)AtProp;
@@ -1623,41 +1594,128 @@ record(int Flag, Term key, Term t_data, Term t_code)
     }
     lup->NOfEntries++;
   } else {
-#ifdef KEEP_ENTRY_AGE
-    if (Flag & MkFirst)
-      x->age = -(p->age++);
-    else
-      x->age = (p->age++);
-#endif /* KEEP_ENTRY_AGE */
+    if (p->F0 == NULL) {
+      p->F0 = p->L0 = x;
+      x->p = x->n = NULL;
+    } else {
+      if (Flag & MkFirst) {
+	x->n = p->F0;
+	p->F0->p = x;
+	p->F0 = x;
+	x->p = NULL;
+      } else {
+	x->p = p->L0;
+	p->L0->n = x;
+	p->L0 = x;
+	x->n = NULL;
+      }
+    }
   }
   if (p->First == NIL) {
     p->First = p->Last = x;
-#ifdef KEEP_OLD_ENTRIES_HANGING_ABOUT
-    p->FirstNEr = x;
-#endif
     x->Prev = x->Next = NIL;
   } else if (Flag & MkFirst) {
     x->Prev = NIL;
     (p->First)->Prev = x;
     x->Next = p->First;
     p->First = x;
-#ifdef KEEP_OLD_ENTRIES_HANGING_ABOUT
-    p->FirstNEr = x;
-#endif
   } else {
     x->Next = NIL;
     (p->Last)->Next = x;
     x->Prev = p->Last;
     p->Last = x;
-#ifdef KEEP_OLD_ENTRIES_HANGING_ABOUT
-    if (p->FirstNEr == NIL)
-      p->FirstNEr = x;
-#endif
   }
   if (Flag & WithRef) {
-    x->Code = (yamop *) IntegerOfTerm(t_code);
+    x->u.Code = (yamop *) IntegerOfTerm(t_code);
+  }
+  WRITE_UNLOCK(p->DBRWLock);
+  return (x);
+}
+
+/* add a new entry next to an old one */
+static DBRef 
+record_at(int Flag, DBRef r0, Term t_data, Term t_code)
+{
+  Register DBProp p;
+  Register DBRef  x;
+
+
+#ifdef SFUNC
+  FathersPlace = NIL;
+#endif
+  p = r0->Parent;
+  if ((x = CreateDBStruct(t_data, p, Flag)) == NULL) {
+    return (NULL);
+  }
+  TRAIL_REF(x);
+  if (x->Flags & (DBNoVars|DBComplex))
+    x->Mask = EvalMasks(t_data, &x->Key);
+  else
+    x->Mask = x->Key = 0;
+  if (Flag & MkCode)
+    x->Flags |= DBCode;
+  else
+    x->Flags |= DBNoCode;
+  x->Parent = p;
+#if defined(YAPOR) || defined(THREADS)
+  x->Flags |= DBClMask;
+  x->ref_count = 1;
+#else
+  x->Flags |= (InUseMask | DBClMask);
+#endif
+  x->NOfRefsTo = 0;
+  WRITE_LOCK(p->DBRWLock);
+  if (p->KindOfPE & LogUpdDBBit) {
+    LogUpdDBProp lup = (LogUpdDBProp)p;
+    x->Flags |= LogUpdMask;
+    /* index stops being valid */
+    if (lup->Index != NULL) {
+      clean_lu_index(lup->Index);
+      lup->Index = NULL;
+    }
+    lup->NOfEntries++;
   } else {
-    x->Code = NULL;
+    if (Flag & MkFirst) {
+      x->n = r0;
+      x->p = r0->p;
+      if (p->F0 == r0) {
+	p->F0 = x;
+      } else {
+	r0->p->n = x;
+      }
+      r0->p = x;
+    } else {
+      x->p = r0;
+      x->n = r0->n;
+      if (p->L0 == r0) {
+	p->L0 = x;
+      } else {
+	r0->n->p = x;
+      }
+      r0->n = x;
+    }
+  }
+  if (Flag & MkFirst) {
+    x->Prev = r0->Prev;
+    x->Next = r0;
+    if (p->First == r0) {
+      p->First = x;
+    } else {
+      r0->Prev->Next = x;
+    }
+    r0->Prev = x;
+  } else {
+    x->Next = r0->Next;
+    x->Prev = r0;
+    if (p->Last == r0) {
+      p->Last = x;
+    } else {
+      r0->Next->Prev = x;
+    }
+    r0->Next = x;
+  }
+  if (Flag & WithRef) {
+    x->u.Code = (yamop *) IntegerOfTerm(t_code);
   }
   WRITE_UNLOCK(p->DBRWLock);
   return (x);
@@ -1713,6 +1771,54 @@ p_rcdap(void)
     return (FALSE);
  restart_record:
   TRef = MkDBRefTerm(record(MkFirst | MkCode, t1, t2, Unsigned(0)));
+  switch(DBErrorFlag) {
+  case NO_ERROR_IN_DB:
+    return (Yap_unify(ARG3, TRef));
+  case SOVF_ERROR_IN_DB:
+    if (!Yap_gc(3, ENV, P)) {
+      Yap_Error(OUT_OF_STACK_ERROR, TermNil, Yap_ErrorMessage);
+      return(FALSE);
+    }
+    goto recover_record;
+  case TOVF_ERROR_IN_DB:
+    Yap_Error(SYSTEM_ERROR, TermNil, "YAP could not grow trail in recorda/3");
+    return(FALSE);
+  case OVF_ERROR_IN_DB:
+    if (!Yap_growheap(FALSE)) {
+      Yap_Error(SYSTEM_ERROR, TermNil, Yap_ErrorMessage);
+      return(FALSE);
+    } else
+      goto recover_record;
+  default:
+    Yap_Error(DBErrorNumber, DBErrorTerm, DBErrorMsg);
+    return(FALSE);
+  }
+ recover_record:
+  DBErrorFlag = NO_ERROR_IN_DB;
+  t1 = Deref(ARG1);
+  t2 = Deref(ARG2);
+  goto restart_record;
+}
+
+/* recorda_at(+Functor,+Term,-Ref) */
+static Int 
+p_rcda_at(void)
+{
+  /* Idiotic xlc's cpp does not work with ARG1 within MkDBRefTerm */
+  Term            TRef, t1 = Deref(ARG1), t2 = Deref(ARG2);
+
+  if (!IsVarTerm(Deref(ARG3)))
+    return (FALSE);
+  if (IsVarTerm(t1)) {
+      Yap_Error(INSTANTIATION_ERROR, t1, "recorda_at/3");
+      return(FALSE);
+  }
+  if (!IsDBRefTerm(t1)) {
+      Yap_Error(TYPE_ERROR_DBREF, t1, "recorda_at/3");
+      return(FALSE);
+  }
+ restart_record:
+  TRef = MkDBRefTerm(record_at(MkFirst, DBRefOfTerm(t1), t2, Unsigned(0)));
   switch(DBErrorFlag) {
   case NO_ERROR_IN_DB:
     return (Yap_unify(ARG3, TRef));
@@ -1802,6 +1908,54 @@ p_rcdzp(void)
     goto recover_record;
   case TOVF_ERROR_IN_DB:
     Yap_Error(SYSTEM_ERROR, TermNil, "YAP could not grow trail in recorda/3");
+    return(FALSE);
+  case OVF_ERROR_IN_DB:
+    if (!Yap_growheap(FALSE)) {
+      Yap_Error(SYSTEM_ERROR, TermNil, Yap_ErrorMessage);
+      return(FALSE);
+    } else
+      goto recover_record;
+  default:
+    Yap_Error(DBErrorNumber, DBErrorTerm, DBErrorMsg);
+    return(FALSE);
+  }
+ recover_record:
+  DBErrorFlag = NO_ERROR_IN_DB;
+  t1 = Deref(ARG1);
+  t2 = Deref(ARG2);
+  goto restart_record;
+}
+
+/* recordz_at(+Functor,+Term,-Ref) */
+static Int 
+p_rcdz_at(void)
+{
+  /* Idiotic xlc's cpp does not work with ARG1 within MkDBRefTerm */
+  Term            TRef, t1 = Deref(ARG1), t2 = Deref(ARG2);
+
+  if (!IsVarTerm(Deref(ARG3)))
+    return (FALSE);
+  if (IsVarTerm(t1)) {
+      Yap_Error(INSTANTIATION_ERROR, t1, "recordz_at/3");
+      return(FALSE);
+  }
+  if (!IsDBRefTerm(t1)) {
+      Yap_Error(TYPE_ERROR_DBREF, t1, "recordz_at/3");
+      return(FALSE);
+  }
+ restart_record:
+  TRef = MkDBRefTerm(record_at(MkLast, DBRefOfTerm(t1), t2, Unsigned(0)));
+  switch(DBErrorFlag) {
+  case NO_ERROR_IN_DB:
+    return (Yap_unify(ARG3, TRef));
+  case SOVF_ERROR_IN_DB:
+    if (!Yap_gc(3, ENV, P)) {
+      Yap_Error(OUT_OF_STACK_ERROR, TermNil, Yap_ErrorMessage);
+      return(FALSE);
+    }
+    goto recover_record;
+  case TOVF_ERROR_IN_DB:
+    Yap_Error(SYSTEM_ERROR, TermNil, "YAP could not grow trail in recordz_at/3");
     return(FALSE);
   case OVF_ERROR_IN_DB:
     if (!Yap_growheap(FALSE)) {
@@ -2242,15 +2396,10 @@ FetchIntDBPropFromKey(Int key, int flag, int new, char *error_mssg)
     } else {
       p = (DBProp) Yap_AllocAtomSpace(sizeof(*p));
       p->KindOfPE = DBProperty|flag;
-#ifdef KEEP_OLD_ENTRIES_HANGING_ABOUT
-      p->FirstNEr = NIL;
-#endif
-#ifdef KEEP_ENTRY_AGE
-      p->age = 0;
-#endif /* KEEP_ENTRY_AGE */
+      p->F0 = p->L0 = NULL;
     }
     p->ArityOfDB = 0;
-    p->First = p->Last = NIL;
+    p->First = p->Last = NULL;
     p->ModuleOfDB = 0;
     p->FunctorOfDB = fun;
     p->NextOfPE = INT_KEYS[hash_key];
@@ -2350,12 +2499,7 @@ FetchDBPropFromKey(Term twork, int flag, int new, char *error_mssg)
       } else {
 	p = (DBProp) Yap_AllocAtomSpace(sizeof(*p));
 	p->KindOfPE = DBProperty|flag;
-#ifdef KEEP_OLD_ENTRIES_HANGING_ABOUT
-	p->FirstNEr = NIL;
-#endif
-#ifdef KEEP_ENTRY_AGE
-	p->age = 0;
-#endif /* KEEP_ENTRY_AGE */
+	p->F0 = p->L0 = NULL;
       }
       UPDATE_MODE = OLD_UPDATE_MODE;
       p->ArityOfDB = arity;
@@ -2422,11 +2566,7 @@ nth_recorded(DBProp AtProp, Int Count)
       return FALSE;
     }
   } else {
-#ifdef KEEP_OLD_ENTRIES_HANGING_ABOUT
-    ref = AtProp->FirstNEr;
-#else
     ref = AtProp->First;
-#endif
     Count--;
     while (ref != NULL
 	   && DEAD_REF(ref))
@@ -2774,11 +2914,7 @@ i_recorded(DBProp AtProp, Term t3)
   READ_LOCK(AtProp->DBRWLock);
   if (AtProp->KindOfPE & 0x1)
     return(i_log_upd_recorded((LogUpdDBProp)AtProp));
-#ifdef KEEP_OLD_ENTRIES_HANGING_ABOUT
-  ref = AtProp->FirstNEr;
-#else
   ref = AtProp->First;
-#endif
   while (ref != NULL
 	 && DEAD_REF(ref))
     ref = NextDBRef(ref);
@@ -3006,35 +3142,20 @@ c_recorded(int flags)
   READ_LOCK(ref0->Parent->DBRWLock);
   ref = NextDBRef(ref0);
   if (ref == NIL) {
-#ifdef DISCONNECT_OLD_ENTRIES
     if (ref0->Flags & ErasedMask) {
-      Int my_age = ref0->age;
-      /* we were thrown out of the hash chain */
-      ref = ref0->Parent->First;
-      /* search for an old entry */
-      while (ref != NIL && ref->age < my_age)
-	ref = ref->Next;
+      ref = ref0;
+      while ((ref = ref->n) != NULL) {
+	if (!(ref->Flags & ErasedMask))
+	  break;
+      }
       /* we have used the DB entry, so we can remove it now, although
 	 first we have to make sure noone is pointing to it */
-      if (!DBREF_IN_USE(ref0) && (ref0->NOfRefsTo == 0)) {
-	/* I can't free space for a clause if it's still being pointed
-	   to from code */
-	if ((ref0->Flags & DBCode) && ref0->Code) {
-	  Clause *clau = ClauseCodeToClause(ref0->Code);
-	  if (!CL_IN_USE(clau)) {
-	    FreeDBSpace((char *) ref0);
-	  }
-	} else {
-	  FreeDBSpace((char *) ref0);
-	}
-      }
-      if (ref == NIL) {
+      if (ref == NULL) {
 	READ_UNLOCK(ref0->Parent->DBRWLock);
 	cut_fail();
       }
     }
     else
-#endif
       {
 	READ_UNLOCK(ref0->Parent->DBRWLock);
 	cut_fail();
@@ -3274,11 +3395,7 @@ p_first_instance(void)
     return(FALSE);
   }
   READ_LOCK(AtProp->DBRWLock);
-#ifdef KEEP_OLD_ENTRIES_HANGING_ABOUT
-  ref = AtProp->FirstNEr;
-#else
   ref = AtProp->First;
-#endif
   while (ref != NIL
 	 && (ref->Flags & (DBCode | ErasedMask)))
     ref = NextDBRef(ref);
@@ -3348,7 +3465,7 @@ ErasePendingRefs(DBRef entryref)
 
   if (!(entryref->Flags & DBWithRefs))
     return;
-  cp = CellPtr(entryref->DBRefs);
+  cp = CellPtr(entryref->u.DBRefs);
   while ((ref = (DBRef)(*--cp)) != NULL) {
     if ((ref->Flags & DBClMask) && (--(ref->NOfRefsTo) == 0)
 	&& (ref->Flags & ErasedMask))
@@ -3360,29 +3477,8 @@ ErasePendingRefs(DBRef entryref)
 inline static void 
 RemoveDBEntry(DBRef entryref)
 {
-#ifdef  KEEP_OLD_ENTRIES_HANGING_ABOUT
-  DBProp      pp = entryref->Parent;
-#endif
 
   ErasePendingRefs(entryref);
-#ifdef  KEEP_OLD_ENTRIES_HANGING_ABOUT
-  if (entryref->Prev == NIL) {
-    if (entryref->Next == NIL) {
-      pp->First = pp->Last = NIL;
-    } else {
-      (entryref->Next)->Prev = NIL;
-      pp->First = entryref->Next;
-    }
-  } else if (entryref->Next == NIL) {
-    pp->Last = entryref->Prev;
-    (entryref->Prev)->Next = NIL;
-  }
-  else {
-    (entryref->Prev)->Next = entryref->Next;
-    (entryref->Next)->Prev = entryref->Prev;
-  }
-#endif
-#ifdef DISCONNECT_OLD_ENTRIES
   if (entryref->Flags & LogUpdMask) {
     if (entryref->Flags & IndexMask)
       clean_lu_index(entryref);
@@ -3395,18 +3491,27 @@ RemoveDBEntry(DBRef entryref)
 	 || B->cp_ap == RETRY_C_RECORDED_K_CODE 
 	 || B->cp_ap == RETRY_C_DRECORDED_CODE 
 	 || B->cp_ap == RETRY_C_RECORDEDP_CODE) &&
-	EXTRA_CBACK_ARG(3,1) == (CELL)entryref)
+	EXTRA_CBACK_ARG(3,1) == (CELL)entryref) {
       /* make it clear the entry has been released */
 #if defined(YAPOR) || defined(THREADS)
       DEC_DBREF_COUNT(entryref);
 #else 
       entryref->Flags &= ~InUseMask;
 #endif
-    else
-#endif
-      {
-	FreeDBSpace((char *) entryref);
-      }
+      DBErasedMarker->Next = NULL;
+      DBErasedMarker->Parent = entryref->Parent;
+      DBErasedMarker->n = entryref->n;
+      EXTRA_CBACK_ARG(3,1) = (CELL)DBErasedMarker;
+    }
+    if (entryref->p != NULL)
+      entryref->p->n = entryref->n;
+    else 
+      entryref->Parent->F0 = entryref->n;
+    if (entryref->n != NULL)
+      entryref->n->p = entryref->p;
+    else 
+      entryref->Parent->L0 = entryref->p;
+    FreeDBSpace((char *) entryref);
   }
 }
 
@@ -3442,39 +3547,11 @@ clean_lu_index(DBRef index) {
 }
 
 
-#ifdef KEEP_OLD_ENTRIES_HANGING_ABOUT
-/*
- * Check if the clause is still in his father chain, that might not be true
- * if an abolish had happened after the clause was removed 
- */
-/* pred is already locked */
-inline static int 
-StillInChain(CODEADDR cl, PredEntry *pred)
-{
-  register CODEADDR base, end;
-
-
-  if (!(pred->PredFlags & DynamicPredFlag))
-    return (FALSE);
-  base = pred->FirstClause;
-  end = pred->cs.p_code.LastClause;
-  while (cl != base) {
-    if (base == end)
-      return (FALSE);
-    base = NextClause(base);
-  }
-  return (TRUE);
-}
-#endif /* KEEP_OLD_ENTRIES_HANGING_ABOUT */
-
-
-#ifdef DISCONNECT_OLD_ENTRIES
 
 static yamop *
 find_next_clause(DBRef ref0)
 {
   Register DBRef  ref;
-  Int my_age;
   yamop *newp;
 
   /* fetch ref0 from the instruction we just started executing */
@@ -3484,20 +3561,20 @@ find_next_clause(DBRef ref0)
     return(NIL);
   }
 #endif
-  my_age = ref0->age;
-  /* we were thrown out of the hash chain */
-  ref = ref0->Parent->First;
   /* search for an newer entry that is to the left and points to code */
-  while (ref != NIL && (ref->age < my_age || !(ref->Flags & DBCode)))
-    ref = ref->Next;
+  ref = ref0;
+  while ((ref = ref->n) != NULL) {
+    if (!(ref->Flags & ErasedMask))
+      break;
+  }
   /* no extra alternatives to try, let us leave gracefully */
-  if (ref == NIL) {
-    return(NIL);
+  if (ref == NULL) {
+    return(NULL);
   } else {
     /* OK, we found a clause we can jump to, do a bit of hanky pancking with
        the choice-point, so that it believes we are actually working from that
        clause */
-    newp = ref->Code;
+    newp = ref->u.Code;
     /* and next let's tell the world this clause is being used, just
        like if we were executing a standard retry_and_mark */
 #if defined(YAPOR) || defined(THREADS)
@@ -3538,8 +3615,6 @@ p_jump_to_next_dynamic_clause(void)
   return(TRUE);
 }
 
-#endif /* DISCONNECT_OLD_ENTRIES */
-
 static void
 EraseLogUpdCl(Clause *clau)
 {
@@ -3559,11 +3634,6 @@ static void
 MyEraseClause(Clause *clau)
 {
   DBRef           ref;
-#ifdef KEEP_OLD_ENTRIES_HANGING_ABOUT
-  DBRef           next, previous;
-  DBProp          father;
-  PredEntry      *pred;
-#endif
   SMALLUNSGN      clmask;
 
   if (CL_IN_USE(clau))
@@ -3573,62 +3643,6 @@ MyEraseClause(Clause *clau)
     EraseLogUpdCl(clau);
     return;
   }
-#ifdef KEEP_OLD_ENTRIES_HANGING_ABOUT
-  /* after the fail we have a DBRef */
-  ref = (DBRef) NEXTOP(clau->ClCode,ld)->u.d.d;
-  if (DBREF_IN_USE(ref))
-    return;
-  next = ref->Next;
-  previous = ref->Prev;
-  while (next != NIL && next->Flags & DBNoCode)
-    next = next->Next;
-  while (previous != NIL && previous->Flags & DBNoCode)
-    previous = previous->Prev;
-  if (previous != NIL && next != NIL) {
-    yamop  *previous_code = (yamop *)previous->Code;
-
-    previous_code->u.ld.d = next->Code;
-  } else {
-    father = ref->Parent;
-    if ((arity = father->ArityOfDB) == 0) {
-      Atom name = (Atom) father->FunctorOfDB;
-      pred = RepPredProp(PredPropByAtom(name, father->ModuleOfDB));
-    } else {
-      pred = RepPredProp(PredPropByFunc(father->FunctorOfDB, father->ModuleOfDB));
-    }
-    WRITE_LOCK(pred->PRWLock);
-    if (StillInChain((CODEADDR)(clau->ClCode), pred)) {
-      if (previous == NIL && next != NIL) {
-	CODEADDR        second;
-	yamop *last;
-	second = NextClause(pred->FirstClause);
-	pred->FirstClause = second;
-	last = (yamop *)(pred->CodeOfPred);
-	last->u.ld.d = second;
-      } else if (previous != NIL) {
-	yamop *previousoflast = (yamop *)(previous->Code);
-	pred->cs.p_code.LastClause = (CODEADDR)previousoflast;
-	previousoflast->u.ld.d = pred->CodeOfPred;
-      } else {
-	Yap_FreeCodeSpace(((char *) ClauseCodeToClause(pred->CodeOfPred)));
-	pred->cs.p_code.LastClause = pred->FirstClause = NIL;
-	p->OpcodeOfPred = FAIL_OPCODE;
-	p->cs.p_code.TrueCodeOfPred = p->CodeOfPred =
-	  (CODEADDR)(&(p->OpcodeOfPred)); 
-      }
-    }
-  }
-  if ( P == clau->ClCode) {
-    yamop   *nextto;
-    P = RTRYCODE;
-    nextto = RTRYCODE;
-    nextto->u.ld.d = clau->ClCode->u.ld.d;
-    nextto->u.ld.s = clau->ClCode->u.ld.s;
-    nextto->u.ld.p = clau->ClCode->u.ld.p;
-  }
-  WRITE_LOCK(pred->PRWLock);
-#endif /* KEEP_OLD_ENTRIES_HANGING_ABOUT */
-#ifdef DISCONNECT_OLD_ENTRIES
   /*
     I don't need to lock the clause at this point because 
     I am the last one using it anyway.
@@ -3651,16 +3665,13 @@ MyEraseClause(Clause *clau)
       P = np;
     }
   } else {
-#endif /* DISCONNECT_OLD_ENTRIES */
     Yap_FreeCodeSpace((char *)clau);
 #ifdef DEBUG
     if (ref->NOfRefsTo)
       fprintf(Yap_stderr, "Error: references to dynamic clause\n");
 #endif
     RemoveDBEntry(ref);
-#if DISCONNECT_OLD_ENTRIES
   }
-#endif
 }
 
 /*
@@ -3685,7 +3696,7 @@ PrepareToEraseLogUpdClause(Clause *clau, DBRef dbr)
   WRITE_LOCK(p->PRWLock);
   if (p->cs.p_code.FirstClause != cl) {
     /* we are not the first clause... */
-    yamop *prev_code_p = (yamop *)(dbr->Prev->Code);
+    yamop *prev_code_p = (yamop *)(dbr->Prev->u.Code);
     prev_code_p->u.ld.d = code_p->u.ld.d; 
     /* are we the last? */
     if (p->cs.p_code.LastClause == cl)
@@ -3700,7 +3711,7 @@ PrepareToEraseLogUpdClause(Clause *clau, DBRef dbr)
        Yap_opcode(TRYCODE(_try_me, _try_me0, p->ArityOfPE));
     }
   }
-  dbr->Code = NULL;   /* unlink the two now */
+  dbr->u.Code = NULL;   /* unlink the two now */
   if (p->PredFlags & IndexedPredFlag) {
     Yap_RemoveIndexation(p);
   } else {
@@ -3752,13 +3763,6 @@ PrepareToEraseClause(Clause *clau, DBRef dbr)
   /* skip mask */
   code_p = clau->ClCode;
   /* skip retry instruction */
-#ifdef KEEP_OLD_ENTRIES_HANGING_ABOUT
-  code_p = NEXTOP(code_p, ld);
-  /* in this case, a fail will send you back to the next clause */
-  code_p->opc = Yap_opcode(_op_fail);
-  code_p->u.d.d = (CODEADDR)(dbr);
-#endif
-#ifdef DISCONNECT_OLD_ENTRIES
   /* we can remove the entry from the list of alternatives for the
      goal immediately */
   {
@@ -3827,15 +3831,14 @@ PrepareToEraseClause(Clause *clau, DBRef dbr)
   code_p->opc = Yap_opcode(_call_cpred);
   code_p->u.sla.sla_u.p = RepPredProp(Yap_GetPredPropByAtom(Yap_FullLookupAtom("$jump_to_next_dynamic_clause"),0));
   code_p->u.sla.bmap = (CELL *)(dbr);
-#endif /* DISCONNECT_OLD_ENTRIES */
 }
 
 static void 
 ErDBE(DBRef entryref)
 {
 
-  if ((entryref->Flags & DBCode) && entryref->Code) {
-    Clause *clau = ClauseCodeToClause(entryref->Code);
+  if ((entryref->Flags & DBCode) && entryref->u.Code) {
+    Clause *clau = ClauseCodeToClause(entryref->u.Code);
     LOCK(clau->ClLock);
     if (CL_IN_USE(clau) || entryref->NOfRefsTo != 0) {
       PrepareToEraseClause(clau, entryref);
@@ -3854,9 +3857,7 @@ ErDBE(DBRef entryref)
       /* oops, I cannot remove it, but I at least have to tell
 	 the world what's going on */
       entryref->Flags |= ErasedMask;
-#ifdef DISCONNECT_OLD_ENTRIES
       entryref->Next = entryref->Prev = NIL;
-#endif
     }
   }
 }
@@ -3885,15 +3886,6 @@ EraseEntry(DBRef entryref)
       lup->Index = NULL;
     }
   }
-#ifdef KEEP_OLD_ENTRIES_HANGING_ABOUT
-  if (p->FirstNEr == entryref) {
-    DBRef           q = entryref->Next;
-    while (q != NIL && (q->Flags & ErasedMask))
-      q = q->Next;
-    p->FirstNEr = q;
-  }
-#endif /* KEEP_OLD_ENTRIES_HANGING_ABOUT */
-#ifdef DISCONNECT_OLD_ENTRIES
   /* exit the db chain */
   if (entryref->Next != NIL) {
     entryref->Next->Prev = entryref->Prev;
@@ -3906,11 +3898,10 @@ EraseEntry(DBRef entryref)
     p->First = entryref->Next;
   /* make sure we know the entry has been removed from the list */
   entryref->Next = NIL;
-#endif /* DISCONNECT_OLD_ENTRIES */
   if (!DBREF_IN_USE(entryref)) {
     ErDBE(entryref);
-  } else if ((entryref->Flags & DBCode && entryref->Code)) {
-    PrepareToEraseClause(ClauseCodeToClause(entryref->Code), entryref);
+  } else if ((entryref->Flags & DBCode && entryref->u.Code)) {
+    PrepareToEraseClause(ClauseCodeToClause(entryref->u.Code), entryref);
   }
 }
 
@@ -3962,7 +3953,6 @@ p_eraseall(void)
     if (entryref == NIL)
       break;
     next_entryref = NextDBRef(entryref);
-#ifdef DISCONNECT_OLD_ENTRIES
     /* exit the db chain */
     if (entryref->Next != NIL) {
       entryref->Next->Prev = entryref->Prev;
@@ -3975,7 +3965,6 @@ p_eraseall(void)
       p->First = entryref->Next;
     /* make sure we know the entry has been removed from the list */
     entryref->Next = entryref->Prev = NIL;
-#endif
     if (!DBREF_IN_USE(entryref))
       ErDBE(entryref);
     else {
@@ -3983,9 +3972,6 @@ p_eraseall(void)
     }
     entryref = next_entryref;
   } while (entryref != NIL);
-#ifdef KEEP_OLD_ENTRIES_HANGING_ABOUT
-  RepDBProp(AtProp)->FirstNEr = NIL;
-#endif
   WRITE_UNLOCK(p->DBRWLock);
   return (TRUE);
 }
@@ -4303,7 +4289,6 @@ p_init_queue(void)
       }
     }
     dbq->id = FunctorDBRef;
-    dbq->EntryTerm = MkAtomTerm(AbsAtom((AtomEntry *)dbq));
     dbq->Flags = DBClMask;
     dbq->FirstInQueue = dbq->LastInQueue = NULL;
     dbq->prev = NULL;
@@ -4364,7 +4349,7 @@ keepdbrefs(DBRef entryref)
 
   if (!(entryref->Flags & DBWithRefs))
     return;
-  cp = entryref->DBRefs;
+  cp = entryref->u.DBRefs;
   while ((ref = *--cp) != NIL) {
     LOCK(ref->lock);
     if(!(ref->Flags & InUseMask)) {
@@ -4450,98 +4435,6 @@ p_clean_queues(void)
   YAPLeaveCriticalSection();
   return(TRUE);
 }
-
-/* given a key, find the clock number for the first entry */
-/* $db_key_to_nb(+Key,-Int) */ 
-static Int
-p_first_age(void)
-{
-  Term t1 = Deref(ARG1);
-  Term to;
-  DBProp AtProp;
-
-  if (EndOfPAEntr(AtProp = FetchDBPropFromKey(t1, MkCode, FALSE, "first_age/3"))) {
-    return(FALSE);
-  }
-#ifdef KEEP_OLD_ENTRIES_HANGING_ABOUT
-  if (AtProp->FirstNEr == NULL)
-    return(FALSE);
-  to = MkIntegerTerm(AtProp->FirstNEr->age);
-#else
-  if (AtProp->First == NULL)
-    to = MkIntegerTerm(AtProp->age);
-  else
-    to = MkIntegerTerm(AtProp->First->age);
-#endif
-  return(Yap_unify(ARG2,to));
-}
-
-/* given an integer, and a reference to the fist element, find the
-   corresponding reference, if one exists. */
-/* $db_nb_to_ref(+Age,+Key,+M,-Ref) */ 
-static Int
-p_db_nb_to_ref(void)
-{
-  Term t1 = Deref(ARG1);
-  Term t2 = Deref(ARG2);
-  Term tref;
-  DBRef myref;
-  Int age;
-  DBProp AtProp;
-
-  if (IsVarTerm(t1))
-    return(FALSE);
-  if (IsIntTerm(t1))
-    age = IntOfTerm(t1);
-  else if (IsLongIntTerm(t1))
-    age = LongIntOfTerm(t1);
-  else return(FALSE);
-  if (EndOfPAEntr(AtProp = FetchDBPropFromKey(t2, MkCode, FALSE, "recorded/3"))) {
-    return(FALSE);
-  }
-#ifdef KEEP_OLD_ENTRIES_HANGING_ABOUT
-  myref = AtProp->FirstNEr;
-#else
-  myref = AtProp->First;
-#endif
-  while (myref != NIL
-	 && (DEAD_REF(myref)
-	     ||  myref->age < age))
-    myref = NextDBRef(myref);
-  if (myref == NIL || myref->age != age) {
-    return(FALSE);
-  }
-  tref = MkDBRefTerm(myref);
-#if defined(YAPOR) || defined(THREADS)
-  LOCK(myref->lock);
-  TRAIL_REF(myref);	/* So that fail will erase it */
-  INC_DBREF_COUNT(myref);
-  UNLOCK(myref->lock);
-#else
-  if (!(myref->Flags & InUseMask)) {
-    myref->Flags |= InUseMask;
-    TRAIL_REF(myref);	/* So that fail will erase it */
-  }
-#endif
-  return(Yap_unify(ARG3,tref));
-}
-
-/* given a key, find the clock number for the last entry */
-/* $db_last_age(+Key,-Int) */ 
-static Int
-p_last_age(void)
-{
-  Term t1 = Deref(ARG1);
-  DBProp AtProp;
-  Term last_age;
-
-  if ((AtProp = FetchDBPropFromKey(t1, MkCode, FALSE, "$last_age/2")) == NIL) {
-    return(FALSE);
-  }
-  last_age = MkIntegerTerm(AtProp->age);
-  return(Yap_unify(ARG2,last_age));
-}
-
 
 /* set the logical updates flag */
 static Int
@@ -4648,6 +4541,8 @@ Yap_InitDBPreds(void)
 {
   Yap_InitCPred("$recorda", 3, p_rcda, SyncPredFlag);
   Yap_InitCPred("$recordz", 3, p_rcdz, SyncPredFlag);
+  Yap_InitCPred("recorda_at", 3, p_rcda_at, SyncPredFlag);
+  Yap_InitCPred("recordz_at", 3, p_rcdz_at, SyncPredFlag);
   Yap_InitCPred("$recordap", 3, p_rcdap, SyncPredFlag);
   Yap_InitCPred("$recordzp", 3, p_rcdzp, SyncPredFlag);
   Yap_InitCPred("$recordap", 4, p_drcdap, SyncPredFlag);
@@ -4666,9 +4561,6 @@ Yap_InitDBPreds(void)
   Yap_InitCPred("$db_enqueue", 2, p_enqueue, SyncPredFlag);
   Yap_InitCPred("$db_dequeue", 2, p_dequeue, SyncPredFlag);
   Yap_InitCPred("$db_clean_queues", 1, p_clean_queues, SyncPredFlag);
-  Yap_InitCPred("$db_first_age", 2, p_first_age, TestPredFlag|SafePredFlag|SyncPredFlag);
-  Yap_InitCPred("$db_nb_to_ref", 3, p_db_nb_to_ref, TestPredFlag|SafePredFlag);
-  Yap_InitCPred("$db_last_age", 2, p_last_age, TestPredFlag|SafePredFlag|SyncPredFlag);
   Yap_InitCPred("$switch_log_upd", 1, p_slu, SafePredFlag|SyncPredFlag);
   Yap_InitCPred("$log_upd", 1, p_lu, SafePredFlag|SyncPredFlag);
   Yap_InitCPred("$hold_index", 3, p_hold_index, SafePredFlag|SyncPredFlag);

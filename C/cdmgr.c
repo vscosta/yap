@@ -549,10 +549,8 @@ add_first_dynamic(PredEntry *p, yamop *cp, int spy_flag)
   cp->u.ld.s = p->ArityOfPE;
   cp->u.ld.p = p;
   cp->u.ld.d = ncp;
-#ifdef KEEP_ENTRY_AGE
   /* also, keep a backpointer for the days you delete the clause */
   ClauseCodeToClause(cp)->u.ClPrevious = ncp;
-#endif
   /* Don't forget to say who is the only clause for the predicate so
      far */
   p->cs.p_code.LastClause = p->cs.p_code.FirstClause = cp;
@@ -624,11 +622,9 @@ asserta_dynam_clause(PredEntry *p, yamop *cp)
   yamop        *q;
   q = cp;
   LOCK(ClauseCodeToClause(p->cs.p_code.FirstClause)->ClLock);
-#ifdef KEEP_ENTRY_AGE
   /* also, keep backpointers for the days we'll delete all the clause */
   ClauseCodeToClause(p->cs.p_code.FirstClause)->u.ClPrevious = q;
   ClauseCodeToClause(cp)->u.ClPrevious = (yamop *)(p->CodeOfPred);
-#endif
   UNLOCK(ClauseCodeToClause(p->cs.p_code.FirstClause)->ClLock);
   q->u.ld.d = p->cs.p_code.FirstClause;
   q->u.ld.s = p->ArityOfPE;
@@ -723,10 +719,8 @@ assertz_dynam_clause(PredEntry *p, yamop *cp)
   LOCK(ClauseCodeToClause(q)->ClLock);
   q->u.ld.d = cp;
   p->cs.p_code.LastClause = cp;
-#ifdef KEEP_ENTRY_AGE
   /* also, keep backpointers for the days we'll delete all the clause */
   ClauseCodeToClause(cp)->u.ClPrevious = q;
-#endif
   UNLOCK(ClauseCodeToClause(q)->ClLock);
   q = (yamop *)cp;
   if (p->PredFlags & ProfiledPredFlag)

@@ -417,12 +417,8 @@ debugging :-
 	'$flags'(G,M,F,F),
 	F /\ 16'2000 =\= 0, !, % dynamic procedure, immediate semantics
 	repeat,
-	        ( '$db_last_age'(M:G,Max) -> true ; !, fail ),
-		'$get_value'(spy_cl,Cl),
+		'$recordedp'(M:G,Cl,_),
 		'$get_value'(spy_gn,L),
-		Maxx is Max+1,
-		'$set_value'(spy_cl,Maxx),
-		( Cl > Max -> !, fail ; true ),
 		( '$spycall_dynamic'(G,M,Cl) ;
 			('$get_value'(spy_gn,L) -> '$leave_creep', fail ;
 			  Res = redo )
@@ -556,17 +552,12 @@ debugging :-
 	D0 =\= 0,
 	D1 is D0-1.
 
-'$do_execute_dynamic_clause'(G,M,Cl) :-
+'$do_execute_dynamic_clause'(G,M,Clause) :-
 	'$check_depth_for_interpreter'(D),
 	('$undefined'('$set_depth_limit'(_),prolog) -> true ; '$set_depth_limit'(D)),
         CP is '$last_choice_pt',
-	(
-	    '$db_nb_to_ref'(Cl,M:G,Ref),
-	    instance(Ref, (G :- Clause)),
-	    (Clause = true -> true ; '$call'(Clause,CP,Clause,M) )
-	;
-	    Next is Cl+1, '$set_value'(spy_cl,Next), fail
-        ).
+	Clause = (G :- Body),
+	( Body = true -> true ; '$call'(Body,CP,Body,M) ).
 
 '$do_creep_execute'(G,M,Cl) :-
 	 % fast skip should ignore source mode
@@ -622,20 +613,18 @@ debugging :-
 	    Next is Cl+1, '$set_value'(spy_cl,Next), fail
         ).
 
-'$do_creep_execute_dynamic'(G,M,Cl) :-
+'$do_creep_execute_dynamic'(G,M,Clause) :-
 	'$check_depth_for_interpreter'(D),
 	('$undefined'('$set_depth_limit'(_),prolog) -> true ; '$set_depth_limit'(D)),
         CP is '$last_choice_pt',
+	Clause = (G :- Body),
 	(
-	    '$db_nb_to_ref'(Cl,M:G,Ref),
-	    instance(Ref, (G :- Clause)),
-	    (Clause = true -> true ;
-	     % otherwise fast skip may try to interpret assembly builtins.
-             '$get_value'(spy_fs,1) -> '$call'(Clause,CP,Clause,M) ;
-             '$creep_call'(Clause,M,CP)
-            )
+	  Body = true -> true
 	;
-	     Next is Cl+1, '$set_value'(spy_cl,Next), fail
+	  % otherwise fast skip may try to interpret assembly builtins.
+         '$get_value'(spy_fs,1) -> '$call'(Body,CP,Body,M)
+	;
+          '$creep_call'(Body,M,CP)
         ).
 
 '$leave_creep'.
@@ -1030,13 +1019,6 @@ debugging :-
 '$DebugError'(Ball) :- !,
 	throw(Ball).
 
-'$init_spy_cl'(G,M) :-
-	% dynamic, immediate update procedure.
-	'$flags'(G,M,F,F), F /\ 16'2000 =\= 0, !,
-	( '$db_first_age'(M:G,A) ->
-	  '$set_value'(spy_cl, A) ;
-% no clauses for pred.
-	  '$set_value'(spy_cl, 1) ).
 '$init_spy_cl'(_,_) :-
 	'$set_value'(spy_cl, 1).
 

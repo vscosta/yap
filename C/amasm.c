@@ -2596,16 +2596,12 @@ Yap_assemble(int mode)
   }
   pass_no = 1;
   YAPEnterCriticalSection();
-#ifdef KEEP_ENTRY_AGE
   {
     size =
       (CELL)NEXTOP(NEXTOP(NEXTOP((yamop *)(((Clause *)NULL)->ClCode),ld),sla),e);
     if ((CELL)code_p > size)
       size = (CELL)code_p;
   }
-#else
-  size = (CELL)code_p;
-#endif
   while ((code_addr = (yamop *) Yap_AllocCodeSpace(size)) == NULL) {
     if (!Yap_growheap(TRUE)) {
       Yap_Error_TYPE = SYSTEM_ERROR;
