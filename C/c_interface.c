@@ -793,7 +793,7 @@ YapCloseAllOpenStreams(void)
 {
   BACKUP_H();
 
-  return(CloseStreams(FALSE));
+  CloseStreams(FALSE);
 
   RECOVER_H();
 }
@@ -801,10 +801,13 @@ YapCloseAllOpenStreams(void)
 X_API Term
 YapOpenStream(void *fh, char *name, Term nm, int flags)
 {
+  Term retv;
+
   BACKUP_H();
 
-  return(OpenStream((FILE *)fh, name, nm, flags));
+  retv = OpenStream((FILE *)fh, name, nm, flags);
 
   RECOVER_H();
+  return retv;
 }
 
