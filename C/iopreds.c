@@ -4093,6 +4093,7 @@ format(Term tail, Term args, int sno)
 		format_putc(sno, (int) '\n');
 	      column_boundary = 0;
 	      pad_max = pad_entries;
+	      break;
 	    case 'N':
 	      if (!size_args) {
 		arg_size = 1;
