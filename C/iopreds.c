@@ -4605,7 +4605,7 @@ InitIOPreds(void)
   InitCPred ("$change_alias_to_stream", 2, p_change_alias_to_stream, SafePredFlag|SyncPredFlag);
   InitCPred ("$check_if_valid_new_alias", 1, p_check_if_valid_new_alias, TestPredFlag|SafePredFlag|SyncPredFlag);
   InitCPred ("$fetch_stream_alias", 2, p_fetch_stream_alias, SafePredFlag|SyncPredFlag);
-  InitCPred ("$stream", 2, p_stream, SafePredFlag|TestPredFlag),
+  InitCPred ("$stream", 1, p_stream, SafePredFlag|TestPredFlag),
 #if HAVE_SELECT
   InitCPred ("stream_select", 3, p_stream_select, SafePredFlag|SyncPredFlag);
 #endif
