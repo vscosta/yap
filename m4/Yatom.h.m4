@@ -162,6 +162,7 @@ Inline(IsValProperty, PropFlags, int, flags, (flags == ValProperty) )
 	    CodeOfPred holds the address of the	correspondent C-function.
 */
 typedef enum {
+ ThreadLocalPredFlag=0x40000000L, /* local to a thread		*/
   MultiFileFlag =    0x20000000L, /* is multi-file		*/
   UserCPredFlag =    0x10000000L, /* CPred defined by the user	*/
   LogUpdatePredFlag= 0x08000000L, /* dynamic predicate with log. upd. sem.*/
@@ -231,6 +232,7 @@ typedef	struct pred_entry {
   } src;
 #if defined(YAPOR) || defined(THREADS)
   rwlock_t      PRWLock;        /* a simple lock to protect this entry */
+  lockvar       PELock;         /* a simple lock to protect expansion */
 #endif
 #ifdef TABLING
   tab_ent_ptr   TableOfPred;
@@ -501,6 +503,10 @@ Atom		STD_PROTO(Yap_GetOp,(OpEntry *,int *,int));
 Prop	STD_PROTO(Yap_GetAProp,(Atom,PropFlags));
 Prop	STD_PROTO(Yap_GetAPropHavingLock,(AtomEntry *,PropFlags));
 
+#if THREADS
+EXTERN inline PredEntry *STD_PROTO(Yap_GetThreadPred, (PredEntry *));
+#endif
+
 EXTERN inline Prop
 PredPropByFunc(Functor f, SMALLUNSGN cur_mod)
 /* get predicate entry for ap/arity; create it if neccessary.              */
@@ -514,12 +520,19 @@ PredPropByFunc(Functor f, SMALLUNSGN cur_mod)
     PredEntry *p = RepPredProp(p0);
     if (/* p->KindOfPE != 0 || only props */
 	(p->ModuleOfPred == cur_mod || !(p->ModuleOfPred))) {
+#if THREADS
+      /* Thread Local Predicates */
+      if (p->PredFlags & ThreadLocalPredFlag) {
+	WRITE_UNLOCK(fe->FRWLock);
+	return AbsPredProp(Yap_GetThreadPred(p));
+      }
+#endif
       WRITE_UNLOCK(fe->FRWLock);
       return (p0);
     }
     p0 = p->NextOfPE;
   }
-  return(Yap_NewPredPropByFunctor(fe,cur_mod));
+  return Yap_NewPredPropByFunctor(fe,cur_mod);
 }
 
 EXTERN inline Prop
@@ -535,12 +548,19 @@ PredPropByAtom(Atom at, SMALLUNSGN cur_mod)
     PredEntry *pe = RepPredProp(p0);
     if ( pe->KindOfPE == PEProp && 
 	 (pe->ModuleOfPred == cur_mod || !pe->ModuleOfPred)) {
+#if THREADS
+      /* Thread Local Predicates */
+      if (pe->PredFlags & ThreadLocalPredFlag) {
+	WRITE_UNLOCK(ae->ARWLock);
+	return AbsPredProp(Yap_GetThreadPred(pe));
+      }
+#endif
       WRITE_UNLOCK(ae->ARWLock);
       return(p0);
     }
     p0 = pe->NextOfPE;
   }
-  return(Yap_NewPredPropByAtom(ae,cur_mod));
+  return Yap_NewPredPropByAtom(ae,cur_mod);
 }
 
 typedef enum {

@@ -272,6 +272,10 @@ cleanup_dangling_indices(yamop *ipc, yamop *beg, yamop *end, yamop *suspend_code
     case _index_blob:
       ipc = NEXTOP(ipc,e);
       break;
+    case _lock_lu:
+      /* just skip for now, but should worry about locking */
+      ipc = NEXTOP(ipc,p);
+      break;
     case _retry_profiled:
     case _count_retry:
       ipc = NEXTOP(ipc,p);
@@ -344,6 +348,9 @@ cleanup_dangling_indices(yamop *ipc, yamop *beg, yamop *end, yamop *suspend_code
     default:
       Yap_Error(SYSTEM_ERROR,TermNil,"Bug in Indexing Code: opcode %d", op);
     }
+#if defined(YAPOR) || defined(THREADS)
+    ipc = (yamop *)((CELL)ipc & ~1);
+#endif    
   }
 }
 
@@ -1718,13 +1725,15 @@ p_number_of_clauses(void)
   mod = Yap_LookupModule(t2);
   if (IsAtomTerm(t)) {
     Atom a = AtomOfTerm(t);
-    pe = PredPropByAtom(a, mod);
+    pe = Yap_GetPredPropByAtom(a, mod);
   } else if (IsApplTerm(t)) {
     register Functor f = FunctorOfTerm(t);
-    pe = PredPropByFunc(f, mod);
+    pe = Yap_GetPredPropByFunc(f, mod);
   } else {
     return (FALSE);
   }
+  if (EndOfPAEntr(pe))
+    return (FALSE);
   READ_LOCK(RepPredProp(pe)->PRWLock);
   ncl = RepPredProp(pe)->cs.p_code.NOfClauses;
   READ_UNLOCK(RepPredProp(pe)->PRWLock);
@@ -1747,11 +1756,13 @@ p_in_use(void)
   mod = Yap_LookupModule(t2);
   if (IsAtomTerm(t)) {
     Atom at = AtomOfTerm(t);
-    pe = RepPredProp(PredPropByAtom(at, mod));
+    pe = RepPredProp(Yap_GetPredPropByAtom(at, mod));
   } else if (IsApplTerm(t)) {
     Functor         fun = FunctorOfTerm(t);
-    pe = RepPredProp(PredPropByFunc(fun, mod));
+    pe = RepPredProp(Yap_GetPredPropByFunc(fun, mod));
   } else
+    return FALSE;
+  if (EndOfPAEntr(pe))
     return (FALSE);
   READ_LOCK(pe->PRWLock);
   out = static_in_use(pe,TRUE);
@@ -1813,9 +1824,9 @@ p_is_multifile(void)
     return (FALSE);
   mod = Yap_LookupModule(t2);
   if (IsAtomTerm(t)) {
-    pe = RepPredProp(PredPropByAtom(AtomOfTerm(t), mod));
+    pe = RepPredProp(Yap_GetPredPropByAtom(AtomOfTerm(t), mod));
   } else if (IsApplTerm(t)) {
-    pe = RepPredProp(PredPropByFunc(FunctorOfTerm(t), mod));
+    pe = RepPredProp(Yap_GetPredPropByFunc(FunctorOfTerm(t), mod));
   } else
     return(FALSE);
   if (EndOfPAEntr(pe))
@@ -1839,13 +1850,13 @@ p_is_log_updatable(void)
     return (FALSE);
   } else if (IsAtomTerm(t)) {
     Atom at = AtomOfTerm(t);
-    pe = RepPredProp(PredPropByAtom(at, mod));
+    pe = RepPredProp(Yap_GetPredPropByAtom(at, mod));
   } else if (IsApplTerm(t)) {
     Functor         fun = FunctorOfTerm(t);
-    pe = RepPredProp(PredPropByFunc(fun, mod));
+    pe = RepPredProp(Yap_GetPredPropByFunc(fun, mod));
   } else
     return (FALSE);
-  if (pe == NIL)
+  if (EndOfPAEntr(pe))
     return (FALSE);
   READ_LOCK(pe->PRWLock);
   out = (pe->PredFlags & LogUpdatePredFlag);
@@ -1866,13 +1877,13 @@ p_is_source(void)
     return (FALSE);
   } else if (IsAtomTerm(t)) {
     Atom at = AtomOfTerm(t);
-    pe = RepPredProp(PredPropByAtom(at, mod));
+    pe = RepPredProp(Yap_GetPredPropByAtom(at, mod));
   } else if (IsApplTerm(t)) {
     Functor         fun = FunctorOfTerm(t);
-    pe = RepPredProp(PredPropByFunc(fun, mod));
+    pe = RepPredProp(Yap_GetPredPropByFunc(fun, mod));
   } else
     return (FALSE);
-  if (pe == NIL)
+  if (EndOfPAEntr(pe))
     return (FALSE);
   READ_LOCK(pe->PRWLock);
   out = (pe->PredFlags & SourcePredFlag);
@@ -1899,7 +1910,7 @@ p_is_dynamic(void)
     pe = RepPredProp(Yap_GetPredPropByFunc(fun, mod));
   } else
     return (FALSE);
-  if (pe == NIL)
+  if (EndOfPAEntr(pe))
     return (FALSE);
   READ_LOCK(pe->PRWLock);
   out = (pe->PredFlags & (DynamicPredFlag|LogUpdatePredFlag));
@@ -1926,7 +1937,7 @@ p_pred_exists(void)
     pe = RepPredProp(Yap_GetPredPropByFunc(fun, mod));
   } else
     return (FALSE);
-  if (pe == NIL)
+  if (EndOfPAEntr(pe))
     return (FALSE);
   READ_LOCK(pe->PRWLock);
   if (pe->PredFlags & HiddenPredFlag)
@@ -2023,10 +2034,10 @@ p_undefined(void)
     }
     pe = RepPredProp(Yap_GetPredPropByFunc(funt, mod));
   } else {
-    return (FALSE);
+    return TRUE;
   }
-  if (pe == RepPredProp(NIL))
-    return (TRUE);
+  if (EndOfPAEntr(pe))
+    return (FALSE);
   READ_LOCK(pe->PRWLock);
   if (pe->PredFlags & (CPredFlag|UserCPredFlag|TestPredFlag|AsmPredFlag|DynamicPredFlag|LogUpdatePredFlag)) {
     READ_UNLOCK(pe->PRWLock);

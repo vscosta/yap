@@ -344,10 +344,9 @@ repeat :- '$repeat'.
 '$$compile'(G, G0, L, Mod) :-
 	'$head_and_body'(G,H,_), 
 	'$flags'(H, Mod, Fl, Fl),
-	( Fl /\ 0x08000000 =\= 0 -> '$compile'(G,L,G0,Mod)
-	;
-	  Fl /\ 0x00002000 =\= 0 -> '$assertz_dynamic'(L,G,G0,Mod) ;
-	    '$$compile_stat'(G,G0,L,H, Mod) ).
+	is(NFl, /\, Fl, 0x00002000),
+	( NFl \= 0 -> '$assertz_dynamic'(L,G,G0,Mod) ;
+	    '$compile'(G, L, G0, Mod) ).
 
 % process a clause for a static predicate 
 '$$compile_stat'(G,G0,L,H, Mod) :-
@@ -891,7 +890,6 @@ break :- get_value('$break',BL), NBL is BL+1,
 	set_value('$consulting_file',OldF),
 	'$cd'(OldD),
 	( LC == 0 -> prompt(_,'   |: ') ; true),
-	'$exec_initialisation_goals',
 	H is heapused-H0, '$cputime'(TF,_), T is TF-T0,
 	( '$undefined'('$print_message'(_,_),prolog) -> 
 	  ( get_value('$verbose',on) ->
@@ -902,6 +900,7 @@ break :- get_value('$break',BL), NBL is BL+1,
 	;
 	    '$print_message'(informational, loaded(consulted, File, Mod, T, H))
 	),
+	'$exec_initialisation_goals',
 	!.
 
 

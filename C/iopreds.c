@@ -2946,15 +2946,17 @@ do_read(int inp_stream)
 	if (tokstart != NIL && tokstart->Tok != Ord (eot_tok)) {
 	  /* we got the end of file from an abort */
 	  if (Yap_ErrorMessage == "Abort") {
-	  TR = old_TR;
-	  return(FALSE);
-	}
+	    TR = old_TR;
+	    Yap_clean_tokenizer(tokstart, Yap_VarTable, Yap_AnonVarTable);
+	    return FALSE;
+	  }
 	  /* we need to force the next reading to also give end of file.*/
 	  Stream[inp_stream].status |= Push_Eof_Stream_f;
 	  Yap_ErrorMessage = "end of file found before end of term";
 	} else {
 	  /* restore TR */
 	  TR = old_TR;
+	  Yap_clean_tokenizer(tokstart, Yap_VarTable, Yap_AnonVarTable);
 	
 	  return (Yap_unify(MkIntegerTerm(StartLine = Stream[inp_stream].linecount),ARG4) &&
 		  Yap_unify_constant (ARG2, MkAtomTerm (AtomEof)));
@@ -2978,7 +2980,8 @@ do_read(int inp_stream)
       TR = old_TR;
       if (ParserErrorStyle == QUIET_ON_PARSER_ERROR) {
 	/* just fail */
-	return(FALSE);
+	Yap_clean_tokenizer(tokstart, Yap_VarTable, Yap_AnonVarTable);
+	return FALSE;
       } else if (ParserErrorStyle == CONTINUE_ON_PARSER_ERROR) {
 	Yap_ErrorMessage = NULL;
 	TR = TR_before_parse;
@@ -2990,13 +2993,16 @@ do_read(int inp_stream)
 	  Yap_ErrorMessage = "SYNTAX ERROR";
 	
 	if (ParserErrorStyle == EXCEPTION_ON_PARSER_ERROR) {
+	  Yap_clean_tokenizer(tokstart, Yap_VarTable, Yap_AnonVarTable);
 	  Yap_Error(SYNTAX_ERROR,terr,Yap_ErrorMessage);
-	  return(FALSE);
+	  return FALSE;
 	} else /* FAIL ON PARSER ERROR */ {
-	  Term t[2];
+	  Term t[2], t1;
 	  t[0] = terr;
 	  t[1] = MkAtomTerm(Yap_LookupAtom(Yap_ErrorMessage));
-	  return(Yap_unify(MkIntTerm(StartLine = tokstart->TokPos),ARG4) &&
+	  t1 = MkIntegerTerm(StartLine = tokstart->TokPos);
+	  Yap_clean_tokenizer(tokstart, Yap_VarTable, Yap_AnonVarTable);
+	  return(Yap_unify(t1,ARG4) &&
 		 Yap_unify(ARG5,Yap_MkApplTerm(Yap_MkFunctor(Yap_LookupAtom("error"),2),2,t)));
 	}
       }
@@ -3025,10 +3031,12 @@ do_read(int inp_stream)
 	old_H = H;
       }
     }
+    Yap_clean_tokenizer(tokstart, Yap_VarTable, Yap_AnonVarTable);
     return(Yap_unify(t, ARG2) && Yap_unify (v, ARG3) &&
 	   Yap_unify(MkIntTerm(StartLine = tokstart->TokPos),ARG4));
   } else {
     TR = old_TR;
+    Yap_clean_tokenizer(tokstart, Yap_VarTable, Yap_AnonVarTable);
     return(Yap_unify(t, ARG2) && Yap_unify(MkIntTerm(StartLine = tokstart->TokPos),ARG4));
   }
 }
@@ -4500,7 +4508,11 @@ format(Term tail, Term args, int sno)
 static Int
 p_format(void)
 {				/* '$format'(Control,Args)               */
-  return(format(Deref(ARG1),Deref(ARG2), Yap_c_output_stream));
+  Int res;
+  LOCK(BGL);
+  res = format(Deref(ARG1),Deref(ARG2), Yap_c_output_stream);
+  UNLOCK(BGL);
+  return res;
 }
 
 
@@ -4510,14 +4522,17 @@ p_format2(void)
   int old_c_stream = Yap_c_output_stream;
   Int out;
 
+  LOCK(BGL);
   /* needs to change Yap_c_output_stream for write */
   Yap_c_output_stream = CheckStream (ARG1, Output_Stream_f, "format/3");
   if (Yap_c_output_stream == -1) {
     Yap_c_output_stream = old_c_stream;  
+    UNLOCK(BGL);
     return(FALSE);
   }
   out = format(Deref(ARG2),Deref(ARG3),Yap_c_output_stream);
   Yap_c_output_stream = old_c_stream;  
+  UNLOCK(BGL);
   return(out);
 }
 

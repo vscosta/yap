@@ -615,7 +615,6 @@ source_module(Mod) :-
 	^(+,:),
 	\+ : .
 
-
 %
 % if we are asserting something in somewhere else's module,
 % we need this little bird.

@@ -793,6 +793,7 @@ YAP_Read(int (*mygetc)(void))
   Term t;
   tr_fr_ptr old_TR;
   int sno;
+  TokEntry *tokstart;
   
   BACKUP_MACHINE_REGS();
 
@@ -806,7 +807,7 @@ YAP_Read(int (*mygetc)(void))
     return TermNil;
   }
   Stream[sno].stream_getc_for_read = Stream[sno].stream_getc = do_yap_getc;
-  Yap_tokptr = Yap_toktide = Yap_tokenizer(sno);
+  tokstart = Yap_tokptr = Yap_toktide = Yap_tokenizer(sno);
   Stream[sno].status = Free_Stream_f;
   if (Yap_ErrorMessage)
     {
@@ -815,6 +816,7 @@ YAP_Read(int (*mygetc)(void))
       return(0);
     }
   t = Yap_Parse();
+  Yap_clean_tokenizer(tokstart, Yap_VarTable, Yap_AnonVarTable);
   TR = old_TR;
 
   RECOVER_MACHINE_REGS();
@@ -894,7 +896,7 @@ YAP_Init(YAP_init_args *yap_init)
 	      yap_init->SchedulerLoop,
 	      yap_init->DelayedReleaseLoad
 	      );
-  Yap_InitExStacks (Stack, Trail);
+  Yap_InitExStacks (Trail, Stack);
   Yap_InitYaamRegs();
 
 #if HAVE_MPI

@@ -33,6 +33,12 @@
 	'$wake_up_goal'(G, LG).
 '$do_signal'(sig_creep, G) :-
 	'$start_creep'(G).
+'$do_signal'(sig_iti, G) :-
+	'$thread_gfetch'(Goal),
+	% if more signals alive, set creep flag
+	'$continue_signals',
+	'$current_module'(M0),
+	'$execute0'((Goal,M:G),M0).
 % Unix signals
 '$do_signal'(sig_alarm, G) :-
 	'$signal_handler'(sig_alarm, G).

@@ -230,8 +230,9 @@ emit_ilabel(register CELL addr, struct intermediates *cip)
 {
   if (addr & 1)
     return (emit_a(Unsigned(cip->code_addr) + cip->label_offset[addr]));
-  else
+  else {
     return (emit_a(addr));
+  }
 }
 
 inline static CELL *
@@ -547,8 +548,10 @@ inline static void
 a_pair(CELL *seq_ptr, int pass_no, struct intermediates *cip)
 {
   if (pass_no) {
+    CELL lab, lab0 = seq_ptr[1];
+    lab = (CELL) emit_ilabel(lab0, cip);
     seq_ptr[0] = (CELL) emit_a(seq_ptr[0]);
-    seq_ptr[1] = (CELL) emit_ilabel(seq_ptr[1], cip);
+    seq_ptr[1] = lab;
   }
 }
 
@@ -1226,11 +1229,14 @@ a_if(op_numbers opcode, union clause_obj *cl_u, int log_update, yamop *code_p, i
   }
   GONEXT(sl);
   if (pass_no) {
+    CELL lab, lab0;
     for (i = 0; i < imax; i++) {
       a_pair(seq_ptr, pass_no, cip);
       seq_ptr += 2;
     }
-    seq_ptr[1] = (CELL) emit_ilabel(seq_ptr[1], cip);
+    lab0 = seq_ptr[1];
+    lab = (CELL) emit_ilabel(lab0, cip);
+    seq_ptr[1] = lab;
   }
   return code_p;
 }
@@ -1238,12 +1244,13 @@ a_if(op_numbers opcode, union clause_obj *cl_u, int log_update, yamop *code_p, i
 static yamop *
 a_ifnot(op_numbers opcode, yamop *code_p, int pass_no, struct intermediates *cip)
 {
+  CELL *seq_ptr = cip->cpc->arnds;
   if (pass_no) {
     code_p->opc = emit_op(opcode);
-    code_p->u.clll.c = cip->cpc->arnds[0];		    /* tag */
-    code_p->u.clll.l1 = emit_ilabel(cip->cpc->arnds[1], cip);  /* success point */
-    code_p->u.clll.l2 = emit_ilabel(cip->cpc->arnds[2], cip);  /* fail point */
-    code_p->u.clll.l3 = emit_ilabel(cip->cpc->arnds[3], cip);  /* delay point */
+    code_p->u.clll.c = seq_ptr[0];		    /* tag */
+    code_p->u.clll.l1 = emit_ilabel(seq_ptr[1], cip);  /* success point */
+    code_p->u.clll.l2 = emit_ilabel(seq_ptr[2], cip);  /* fail point */
+    code_p->u.clll.l3 = emit_ilabel(seq_ptr[3], cip);  /* delay point */
   }
   GONEXT(clll);
   return code_p;
@@ -2102,7 +2109,7 @@ do_pass(int pass_no, yamop **entry_codep, int assembling, int *clause_has_blobsp
 #ifdef TABLING
   tabled = cip->CurrentPred->PredFlags & TabledPredFlag;
 #endif
-  if (assembling != ASSEMBLING_INDEX) {
+  if (assembling == ASSEMBLING_CLAUSE) {
     if (log_update) {
       if (pass_no) {
 	cl_u->luc.Id = FunctorDBRef;
@@ -2169,6 +2176,17 @@ do_pass(int pass_no, yamop **entry_codep, int assembling, int *clause_has_blobsp
 #endif
       }
       code_p = cl_u->lui.ClCode;
+      *entry_codep = code_p;
+#if defined(YAPOR) || defined(THREADS)
+      if (assembling == ASSEMBLING_INDEX &&
+	  !(cip->CurrentPred->PredFlags & ThreadLocalPredFlag)) {
+	if (pass_no) {
+	  code_p->opc = opcode(_lock_lu);
+	  code_p->u.p.p = cip->CurrentPred;
+	}
+	GONEXT(p);
+      }
+#endif
     } else {
       if (pass_no) {
 	cl_u->si.ClFlags = IndexMask; 
@@ -2176,8 +2194,8 @@ do_pass(int pass_no, yamop **entry_codep, int assembling, int *clause_has_blobsp
 	cl_u->si.SiblingIndex = NULL;
       }
       code_p = cl_u->si.ClCode;
+      *entry_codep = code_p;
     }
-    *entry_codep = code_p;
   }
   while (cip->cpc) {
 
@@ -2441,7 +2459,9 @@ do_pass(int pass_no, yamop **entry_codep, int assembling, int *clause_has_blobsp
 	code_p = TRYCODE(_retry_me, _retry_me0);
       break;
     case trustme_op:
-      if (log_update && assembling == ASSEMBLING_INDEX) {
+      if (log_update &&
+	  (assembling == ASSEMBLING_INDEX ||
+	   assembling == ASSEMBLING_EINDEX)) {
 	code_p = a_cl(_trust_logical_pred, code_p, pass_no, cip);
       }
 #ifdef TABLING
@@ -2777,8 +2797,16 @@ Yap_assemble(int mode, Term t, PredEntry *ap, int is_fact, struct intermediates 
 	save_machine_regs();
 	longjmp(cip->CompilerBotch,3);
       case OUT_OF_TRAIL_ERROR:
-	Yap_growtrail(64 * 1024L);
+	/* don't just return NULL */
+	H = h0;
+	ARG1 = t;
+	if (!Yap_growtrail(64 * 1024L)) {
+	  return NULL;
+	}
 	Yap_Error_TYPE = YAP_NO_ERROR;
+	t = ARG1;
+	h0 = H;
+	H = (CELL *)cip->freep;
 	break;
       case OUT_OF_HEAP_ERROR:
 	/* don't just return NULL */

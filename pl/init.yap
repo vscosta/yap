@@ -129,11 +129,9 @@ system_mode(verbose,off) :- set_value('$verbose',off).
 
 % :- yap_flag(gc_trace,verbose).
 
-:- system_mode(verbose,on).
+:- initialization(system_mode(verbose,on)).
 
 :- module(user).
-
-:- current_module(X), write(X).
 
 :- multifile goal_expansion/3.
 

@@ -165,7 +165,7 @@
     OPCODE(index_dbref             ,e),	
     OPCODE(index_blob              ,e),	
     OPCODE(trust_fail              ,e),		
-    OPCODE(index_pred              ,e),		
+    OPCODE(index_pred              ,e),
     OPCODE(expand_index            ,e),		
     OPCODE(save_b_x                ,x),		
     OPCODE(save_b_y                ,y),		
@@ -255,6 +255,7 @@
     OPCODE(count_retry_me          ,ld),
     OPCODE(count_trust_me          ,ld),
     OPCODE(count_retry_and_mark    ,ld),
+    OPCODE(lock_lu	           ,p),
     OPCODE(enter_lu_pred           ,Ill),
     OPCODE(stale_lu_index          ,Ill),
     OPCODE(trust_logical_pred      ,l),
@@ -263,6 +264,9 @@
     OPCODE(copy_idb_term           ,e),
     OPCODE(retry_killed            ,ld),
     OPCODE(trust_killed            ,ld),
+#if THREADS
+    OPCODE(thread_local            ,e),
+#endif
 #ifdef SFUNC
     OPCODE(get_s_f                 ,),
     OPCODE(put_s_f                 ,),

@@ -120,11 +120,11 @@ reconsult(Fs) :-
 	set_value('$consulting',Old),
 	set_value('$consulting_file',OldF),
 	'$cd'(OldD),
-	'$exec_initialisation_goals',
 	'$current_module'(Mod,OldModule),
 	( LC == 0 -> prompt(_,'   |: ') ; true),
 	H is heapused-H0, '$cputime'(TF,_), T is TF-T0,
 	'$print_message'(informational, loaded(reconsulted, File, Mod, T, H)),
+	'$exec_initialisation_goals',
 	!.
 
 '$start_reconsulting'(F) :-

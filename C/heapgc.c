@@ -20,6 +20,7 @@ static char     SccsId[] = "%W% %G%";
 
 #include "absmi.h"
 #include "yapio.h"
+#include "alloc.h"
 
 
 #define EARLY_RESET 1
@@ -3033,11 +3034,14 @@ do_gc(Int predarity, CELL *current_env, yamop *nextop)
   Int           effectiveness = 0;
   int           gc_trace = FALSE;
 
+#if USE_SYSTEM_MALLOC
+  return 0;
+#endif
 #if COROUTINING
   if (H0 - max < 1024+(2*NUM_OF_ATTS)) {
     if (!Yap_growglobal(&current_env)) {
       Yap_Error(SYSTEM_ERROR, TermNil, Yap_ErrorMessage);
-      return FALSE;
+      return 0;
     }
   }
 #endif
@@ -3075,7 +3079,6 @@ do_gc(Int predarity, CELL *current_env, yamop *nextop)
     }
     return(0);
   }
-  gc_calls++;
   if (gc_trace) {
     fprintf(Yap_stderr, "[gc]\n");
   } else if (gc_verbose) {
@@ -3226,9 +3229,11 @@ call_gc(UInt gc_lim, Int predarity, CELL *current_env, yamop *nextop)
       gc_margin <<= 8;
       gc_margin *= gc_calls;
     }
+    gc_margin *= Yap_page_size;
   }
   if (gc_margin < gc_lim)
     gc_margin = gc_lim;
+  gc_calls++;
   if (gc_on) {
     effectiveness = do_gc(predarity, current_env, nextop);
     if (effectiveness > 90) {

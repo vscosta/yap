@@ -486,6 +486,9 @@ print_message(Level, Mss) :-
 '$output_error_message'(permission_error(modify,operator,W), _) :-
 	'$format'(user_error,"[ PERMISSION ERROR- T cannot declare ~w an operator ]~n",
 	[W]).
+'$output_error_message'(permission_error(modify,dynamic_procedure,_), Where) :-
+	'$format'(user_error,"[ PERMISSION ERROR- ~w: modifying a dynamic procedure ]~n",
+	[Where]).
 '$output_error_message'(permission_error(modify,static_procedure,_), Where) :-
 	'$format'(user_error,"[ PERMISSION ERROR- ~w: modifying a static procedure ]~n",
 	[Where]).

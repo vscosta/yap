@@ -15,7 +15,10 @@
 *									 *
 *************************************************************************/
 
-:- meta_predicate thread_create(:,-,+), thread_at_exit(:).
+:- meta_predicate
+	thread_create(:,-,+),
+	thread_at_exit(:),
+	thread_signal(+,:).
 
 '$top_thread_goal'(G) :-
 	'$current_module'(Module),
@@ -338,3 +341,48 @@ thread_peek_message(Queue, Term) :-
 '$thread_get_message_loop'(Queue, Term, Mutex) :-
 	mutex_unlock(Mutex),
 	fail.
+
+'$thread_local'(X,M) :- var(X), !,
+	'$do_error'(instantiation_error,thread_local(M:X)).
+'$thread_local'(Mod:Spec,_) :- !,
+	'$thread_local'(Spec,Mod).
+'$thread_local'([], _) :- !.
+'$thread_local'([H|L], M) :- !, '$thread_local'(H, M), '$thread_local'(L, M).
+'$thread_local'((A,B),M) :- !, '$thread_local'(A,M), '$thread_local'(B,M).
+'$thread_local'(X,M) :- !,
+	'$thread_local2'(X,M).
+
+'$thread_local2'(A/N, Mod) :- integer(N), atom(A), !,
+	functor(T,A,N),
+	'$flags'(T,Mod,F,F),
+	( '$undefined'(T,Mod) -> '$install_thread_local'(T,Mod);
+	   F /\ 0x08002000 =\= 0 -> '$do_error'(permission_error(modify,dynamic_procedure,A/N),thread_local(Mod:A/N)) ;
+	   '$do_error'(permission_error(modify,static_procedure,A/N),thread_local(Mod:A/N))
+	).
+'$thread_local2'(X,Mod) :- 
+	'$do_error'(type_error(callable,X),thread_local(Mod:X)).
+
+
+thread_signal(Thread, Goal) :-
+	var(Thread), !,
+	'$do_error'(instantiation_error,thread_signal(Thread, Goal)).
+thread_signal(Thread, Goal) :-
+	recorded('$thread_alias',[Thread|Id],_),
+	'$thread_signal'(Id, Goal).
+thread_signal(Thread, Goal) :-
+	integer(Thread), !,
+	'$thread_signal'(Thread, Goal).
+thread_signal(Thread, Goal) :-
+	'$do_error'(type_error(integer,Thread),thread_signal(Thread, Goal)).
+
+'$thread_signal'(Thread, Goal) :-
+	mutex_lock(Thread),
+	( recorded('$thread_signal',[Thread|_],R), erase(R), fail ; true ),
+	recorda('$thread_signal',[Thread|Goal],_),
+	'$signal_thread'(Thread).
+	mutex_unlock(Thread).
+
+'$thread_gfetch'(G) :-
+	'$thread_self'(Id),
+	recorded('$thread_signal',[Id,G],R),
+	erase(R).

@@ -213,6 +213,7 @@ Yap_absmi(int inp)
   /* the registers are all set up, let's swap */
 #ifdef THREADS
   pthread_setspecific(yaamregs_key, (const void *)&absmi_regs);  
+  ThreadHandle[worker_id].current_yaam_regs = &absmi_regs;
 #else
   Yap_regp = &absmi_regs;
 #endif
@@ -318,7 +319,7 @@ Yap_absmi(int inp)
       }
       saveregs();
       if(!Yap_growtrail (sizeof(CELL) * 16 * 1024L)) {
-	Yap_Error(SYSTEM_ERROR,TermNil,"YAP failed to reserve %ld bytes in growtrail",sizeof(CELL) * 16 * 1024L);
+	Yap_Error(OUT_OF_TRAIL_ERROR,TermNil,"YAP failed to reserve %ld bytes in growtrail",sizeof(CELL) * 16 * 1024L);
 	setregs();
 	FAIL();
       }
@@ -1074,22 +1075,45 @@ Yap_absmi(int inp)
 *        enter a logical semantics dynamic predicate             *
 *****************************************************************/
 
+      /* only meaningful with THREADS on! */
+      /* lock logical updates predicate.  */
+      Op(lock_lu, p);
+#if defined(YAPOR) || defined(THREADS)
+      PP = PREG->u.p.p;
+      READ_LOCK(PP->PRWLock);
+#endif
+      PREG = NEXTOP(PREG, p);
+      GONext();
+      ENDOp();
+ 
+
       /* enter logical pred               */
       BOp(stale_lu_index, Ill);
       saveregs();
       {
 	yamop *ipc;
+#if defined(YAPOR) || defined(THREADS)
+	PredEntry *ap = PP;
+#endif
 
 	/* update ASP before calling IPred */
 	ASP = YREG+E_CB;
 	if (ASP > (CELL *) B) {
 	  ASP = (CELL *) B;
 	}
+#if defined(YAPOR) || defined(THREADS)
+	READ_UNLOCK(ap->PRWLock);
+	PP = NULL;
+#endif
 	ipc = Yap_CleanUpIndex(PREG->u.Ill.I);
 	/* restart index */
 	setregs();
 	PREG = ipc;
 	CACHED_A1() = ARG1;
+#if defined(YAPOR) || defined(THREADS)
+	PP = ap;
+	READ_LOCK(ap->PRWLock);
+#endif
 	JMPNext();
       }
       ENDBOp();
@@ -1114,6 +1138,10 @@ Yap_absmi(int inp)
 	}
 #endif
 	UNLOCK(cl->ClLock);
+#if defined(YAPOR) || defined(THREADS)
+	READ_UNLOCK(PP->PRWLock);
+	PP = NULL;
+#endif
       }
       GONext();
       ENDBOp();
@@ -1169,6 +1197,10 @@ Yap_absmi(int inp)
 	INC_CLREF_COUNT(cl);
 	TRAIL_CLREF(cl);
 	UNLOCK(cl->ClLock);
+	if (PP) {
+	  READ_UNLOCK(PP->PRWLock);
+	  PP = NULL;
+	}
       }
 #else
       {
@@ -1216,6 +1248,10 @@ Yap_absmi(int inp)
 	INC_CLREF_COUNT(cl);
 	TRAIL_CLREF(cl);
 	UNLOCK(cl->ClLock);
+	if (PP) {
+	  READ_UNLOCK(PP->PRWLock);
+	  PP = NULL;
+	}
 #else
 	if (!(cl->ClFlags & InUseMask)) {
 	  /* Clause *cl = (Clause *)PREG->u.EC.ClBase;
@@ -1260,6 +1296,10 @@ Yap_absmi(int inp)
 	INC_CLREF_COUNT(cl);
 	TRAIL_CLREF(cl);
 	UNLOCK(cl->ClLock);
+	if (PP) {
+	  READ_UNLOCK(PP->PRWLock);
+	  PP = NULL;
+	}
 #else
 	if (!(cl->ClFlags & InUseMask)) {
 	  /* Clause *cl = (Clause *)PREG->u.EC.ClBase;
@@ -1444,6 +1484,12 @@ Yap_absmi(int inp)
     fail:
       {
 	register tr_fr_ptr pt0 = TR;
+#if defined(YAPOR) || defined(THREADS)
+	if (PP) {
+	  READ_UNLOCK(PP->PRWLock);
+	  PP = NULL;
+	}
+#endif
 	PREG = B->cp_ap;
 	CACHE_TR(B->cp_tr);
 	PREFETCH_OP(PREG);
@@ -2500,6 +2546,12 @@ Yap_absmi(int inp)
       E_YREG = ENV;
 #ifdef DEPTH_LIMIT
       DEPTH = E_YREG[E_DEPTH];
+#endif
+#if defined(YAPOR) || defined(THREADS)
+      if (PP) {
+	READ_UNLOCK(PP->PRWLock);
+	PP = NULL;
+      }
 #endif
       WRITEBACK_Y_AS_ENV();
       JMPNext();
@@ -6269,6 +6321,17 @@ Yap_absmi(int inp)
       JMPNext();
       ENDBOp();
 
+#if THREADS
+      BOp(thread_local, e);
+      {
+	PredEntry *ap = PredFromDefCode(PREG);
+	ap = Yap_GetThreadPred(ap);
+	PREG = ap->CodeOfPred;
+      }
+      JMPNext();
+      ENDBOp();
+#endif
+
       BOp(expand_index, e);
       {
 	PredEntry *pe = PredFromExpandCode(PREG);
@@ -6280,11 +6343,29 @@ Yap_absmi(int inp)
 	  ASP = (CELL *) B;
 	}
  	saveregs();
-	WRITE_LOCK(pe->PRWLock);
+#if defined(YAPOR) || defined(THREADS)
+	if (PP != pe) {
+	  READ_LOCK(pe->PRWLock);
+	}
+	LOCK(pe->PELock);
+	if (*PREG_ADDR != (yamop *)&(pe->cs.p_code.ExpandCode)) {
+	  pt0 = *PREG_ADDR;
+	  UNLOCK(pe->PELock);
+	  if (PP != pe) {
+	    READ_UNLOCK(pe->PRWLock);
+	  }
+	  JMPNext();
+	}
+#endif
 	pt0 = Yap_ExpandIndex(pe);
-	WRITE_UNLOCK(pe->PRWLock);
 	/* restart index */
 	setregs();
+	UNLOCK(pe->PELock);
+#if defined(YAPOR) || defined(THREADS)
+	if (PP != pe) {
+	  READ_UNLOCK(pe->PRWLock);
+	}
+#endif
  	PREG = pt0;
 	JMPNext();
       }
@@ -6570,17 +6651,20 @@ Yap_absmi(int inp)
       if (IsPairTerm(d0)) {
 	/* pair */
 	SREG = RepPair(d0);
+	copy_jmp_address(PREG->u.llll.l1);
 	PREG = PREG->u.llll.l1;
 	JMPNext();
       }
       else if (!IsApplTerm(d0)) {
 	/* constant */
+	copy_jmp_address(PREG->u.llll.l2);
 	PREG = PREG->u.llll.l2;
 	I_R = d0;
 	JMPNext();
       }
       else {
 	/* appl */
+	copy_jmp_address(PREG->u.llll.l3);
 	PREG = PREG->u.llll.l3;
 	SREG = RepAppl(d0);
 	JMPNext();
@@ -6589,6 +6673,7 @@ Yap_absmi(int inp)
       BEGP(pt0);
       deref_body(d0, pt0, swt_unk, swt_nvar);
       /* variable */
+      copy_jmp_address(PREG->u.llll.l4);
       PREG = PREG->u.llll.l4;
       JMPNext();
       ENDP(pt0);
@@ -6617,6 +6702,7 @@ Yap_absmi(int inp)
 	if (IsPairTerm(d0)) {
 	  /* pair */
 #endif
+	  copy_jmp_address(PREG->u.ollll.l1);
 	  PREG = PREG->u.ollll.l1;
 	  SREG = RepPair(d0);
 	  ALWAYS_GONext();
@@ -6632,12 +6718,14 @@ Yap_absmi(int inp)
 	else {
 	  /* appl or constant */
 	  if (IsApplTerm(d0)) {
-	    SREG = RepAppl(d0);
+	    copy_jmp_address(PREG->u.ollll.l3);
 	    PREG = PREG->u.ollll.l3;
+	    SREG = RepAppl(d0);
 	    JMPNext();
 	  } else {
-	    I_R = d0;
+	    copy_jmp_address(PREG->u.ollll.l3);
 	    PREG = PREG->u.ollll.l3;
+	    I_R = d0;
 	    JMPNext();
 	  }
 	}
@@ -6651,6 +6739,7 @@ Yap_absmi(int inp)
 #endif
 	ENDP(pt0);
 	/* variable */
+	copy_jmp_address(PREG->u.ollll.l4);
 	PREG = PREG->u.ollll.l4;
 	JMPNext();
 	ENDD(d0);
@@ -6665,18 +6754,21 @@ Yap_absmi(int inp)
     arg_swt_nvar:
       if (IsPairTerm(d0)) {
 	/* pair */
-	SREG = RepPair(d0);
+	copy_jmp_address(PREG->u.xllll.l1);
 	PREG = PREG->u.xllll.l1;
+	SREG = RepPair(d0);
 	JMPNext();
       }
       else if (!IsApplTerm(d0)) {
 	/* constant */
+	copy_jmp_address(PREG->u.xllll.l2);
 	PREG = PREG->u.xllll.l2;
 	I_R = d0;
 	JMPNext();
       }
       else {
 	/* appl */
+	copy_jmp_address(PREG->u.xllll.l3);
 	PREG = PREG->u.xllll.l3;
 	SREG = RepAppl(d0);
 	JMPNext();
@@ -6685,6 +6777,7 @@ Yap_absmi(int inp)
       BEGP(pt0);
       deref_body(d0, pt0, arg_swt_unk, arg_swt_nvar);
       /* variable */
+      copy_jmp_address(PREG->u.xllll.l4);
       PREG = PREG->u.xllll.l4;
       JMPNext();
       ENDP(pt0);
@@ -6699,18 +6792,21 @@ Yap_absmi(int inp)
     sub_arg_swt_nvar:
       if (IsPairTerm(d0)) {
 	/* pair */
-	SREG = RepPair(d0);
+	copy_jmp_address(PREG->u.sllll.l1);
 	PREG = PREG->u.sllll.l1;
+	SREG = RepPair(d0);
 	JMPNext();
       }
       else if (!IsApplTerm(d0)) {
 	/* constant */
+	copy_jmp_address(PREG->u.sllll.l2);
 	PREG = PREG->u.sllll.l2;
 	I_R = d0;
 	JMPNext();
       }
       else {
 	/* appl */
+	copy_jmp_address(PREG->u.sllll.l3);
 	PREG = PREG->u.sllll.l3;
 	SREG = RepAppl(d0);
 	JMPNext();
@@ -6719,6 +6815,7 @@ Yap_absmi(int inp)
       BEGP(pt0);
       deref_body(d0, pt0, sub_arg_swt_unk, sub_arg_swt_nvar);
       /* variable */
+      copy_jmp_address(PREG->u.sllll.l4);
       PREG = PREG->u.sllll.l4;
       JMPNext();
       ENDP(pt0);
@@ -6737,6 +6834,7 @@ Yap_absmi(int inp)
       BEGP(pt0);
       deref_body(d0, pt0, jump_if_unk, jump0_if_nonvar);
       /* variable */
+      copy_jmp_address(PREG->u.l.l);
       PREG = PREG->u.l.l;
       ENDP(pt0);
       JMPNext();
@@ -6749,6 +6847,7 @@ Yap_absmi(int inp)
       deref_head(d0, jump2_if_unk);
       /* non var */
     jump2_if_nonvar:
+      copy_jmp_address(PREG->u.xl.l);
       PREG = PREG->u.xl.l;
       JMPNext();
 
@@ -6769,12 +6868,14 @@ Yap_absmi(int inp)
       /* not variable */
       if (d0 == PREG->u.clll.c) {
 	/* equal to test value */
+	copy_jmp_address(PREG->u.clll.l2);
 	PREG = PREG->u.clll.l2;
 	JMPNext();
       }
       else {
 	/* different from test value */
 	/* the case to optimise */
+	copy_jmp_address(PREG->u.clll.l1);
 	PREG = PREG->u.clll.l1;
 	JMPNext();
       }
@@ -6783,6 +6884,7 @@ Yap_absmi(int inp)
       deref_body(d0, pt0, if_n_unk, if_n_nvar);
       ENDP(pt0);
       /* variable */
+      copy_jmp_address(PREG->u.clll.l3);
       PREG = PREG->u.clll.l3;
       JMPNext();
       ENDD(d0);
@@ -6815,6 +6917,7 @@ Yap_absmi(int inp)
 	/* a match happens either if we found the value, or if we
 	 * found an empty slot */
 	if (d0 == d1 || d0 == 0) {
+	  copy_jmp_addressa(pt0+1);
 	  PREG = (yamop *) (pt0[1]);
 	  JMPNext();
 	}
@@ -6827,6 +6930,7 @@ Yap_absmi(int inp)
 	    pt0 = (CELL *) (PREG) + hash;
 	    d0 = pt0[0];
 	    if (d0 == d1 || d0 == 0) {
+	      copy_jmp_addressa(pt0+1);
 	      PREG = (yamop *) pt0[1];
 	      JMPNext();
 	    }
@@ -6859,6 +6963,7 @@ Yap_absmi(int inp)
 	/* a match happens either if we found the value, or if we
 	 * found an empty slot */
 	if (d0 == d1 || d0 == 0) {
+	  copy_jmp_addressa(pt0+1);
 	  PREG = (yamop *) (pt0[1]);
 	  JMPNext();
 	}
@@ -6871,6 +6976,7 @@ Yap_absmi(int inp)
 	    pt0 = (CELL *) (PREG) + hash;
 	    d0 = pt0[0];
 	    if (d0 == d1 || d0 == 0) {
+	      copy_jmp_addressa(pt0+1);
 	      PREG = (yamop *) pt0[1];
 	      JMPNext();
 	    }
@@ -6889,9 +6995,11 @@ Yap_absmi(int inp)
 
 	d0 = *SREG++;
 	if (d0 == pt[0]) {
+	  copy_jmp_addressa(pt+1);
 	  PREG = (yamop *) pt[1];
 	  JMPNext();
 	} else {
+	  copy_jmp_addressa(pt+3);
 	  PREG = (yamop *) pt[3];
 	  JMPNext();
 	}
@@ -6906,9 +7014,11 @@ Yap_absmi(int inp)
 
 	d0 = I_R;
 	if (d0 == pt[0]) {
+	  copy_jmp_addressa(pt+1);
 	  PREG = (yamop *) pt[1];
 	  JMPNext();
 	} else {
+	  copy_jmp_addressa(pt+3);
 	  PREG = (yamop *) pt[3];
 	  JMPNext();
 	}
@@ -6924,6 +7034,7 @@ Yap_absmi(int inp)
       while (pt0[0] != d1 && pt0[0] != (CELL)NULL ) {
 	pt0 += 2;
       }
+      copy_jmp_addressa(pt0+1);
       PREG = (yamop *) (pt0[1]);
       JMPNext();
       ENDP(pt0);
@@ -6938,6 +7049,7 @@ Yap_absmi(int inp)
       while (pt0[0] != d1 && pt0[0] != 0L ) {
 	pt0 += 2;
       }
+      copy_jmp_addressa(pt0+1);
       PREG = (yamop *) (pt0[1]);
       JMPNext();
       ENDP(pt0);

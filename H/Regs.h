@@ -10,7 +10,7 @@
 * File:		Regs.h							 *
 * mods:									 *
 * comments:	YAP abstract machine registers				 *
-* version:      $Id: Regs.h,v 1.22 2004-01-23 02:22:20 vsc Exp $	 *
+* version:      $Id: Regs.h,v 1.23 2004-02-05 16:57:01 vsc Exp $	 *
 *************************************************************************/
 
 
@@ -107,6 +107,8 @@ typedef struct
     tr_fr_ptr TR_FZ_;
 #endif /* SBA || TABLING */
 #if defined(YAPOR) || defined(THREADS)
+    struct pred_entry *PP_;
+    yamop **PREG_ADDR_;
     unsigned int worker_id_;
 #ifdef SBA
     choiceptr BSEG_;
@@ -657,6 +659,8 @@ EXTERN inline void restore_B(void) {
 #endif /* SBA || TABLING */
 #if defined(YAPOR) || defined(THREADS)
 #define worker_id         (Yap_REGS.worker_id_)
+#define PP	         (Yap_REGS.PP_)
+#define PREG_ADDR	         (Yap_REGS.PREG_ADDR_)
 #ifdef SBA
 #define BSEG	      Yap_REGS.BSEG_
 #define binding_array Yap_REGS.binding_array_

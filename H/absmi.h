@@ -131,6 +131,9 @@ register void* P1REG asm ("bp"); /* can't use yamop before Yap.h */
 #ifdef YAPOR
 #include "or.macros.h"
 #endif	/* YAPOR */
+#if USE_SYSTEM_MALLOC
+#include "Heap.h"
+#endif
 #ifdef TABLING
 #include "tab.macros.h"
 #endif /* TABLING */
@@ -177,6 +180,7 @@ restore_absmi_regs(REGSTORE * old_regs)
   memcpy(old_regs, Yap_regp, sizeof(REGSTORE));
 #ifdef THREADS
   pthread_setspecific(yaamregs_key, (void *)old_regs);
+  ThreadHandle[worker_id].current_yaam_regs = old_regs;
 #else
   Yap_regp = old_regs;
 #endif
@@ -1148,7 +1152,11 @@ static int
 
 IUnify_complex(CELL *pt0, CELL *pt0_end, CELL *pt1)
 {
-#if SHADOW_REGS
+#if THREADS
+#undef Yap_REGS
+  register REGSTORE *regp = Yap_regp;
+#define Yap_REGS (*regp)
+#elif SHADOW_REGS
 #if defined(B) || defined(TR)
   register REGSTORE *regp = &Yap_REGS;
 
@@ -1160,7 +1168,16 @@ IUnify_complex(CELL *pt0, CELL *pt0_end, CELL *pt1)
   register CELL *HBREG = HB;
 #endif /* SHADOW_HB */
 
+#if USE_SYSTEM_MALLOC
+  CELL  **to_visit_max = (CELL **)Yap_PreAllocCodeSpace(), **to_visit  = (CELL **)AuxSp;
+#define address_to_visit_max (&to_visit_max)
+#define to_visit_base ((CELL **)AuxSp)
+#else
   CELL  **to_visit  = (CELL **)Yap_TrailTop;
+#define to_visit_max ((CELL **)TR)
+#define address_to_visit_max NULL
+#define to_visit_base ((CELL **)Yap_TrailTop)
+#endif
 
 loop:
   while (pt0 < pt0_end) {
@@ -1184,13 +1201,13 @@ loop:
 	if (!IsPairTerm(d1)) {
 	  goto cufail;
 	}
-	if ((CELL *)to_visit-(CELL *)TR < 1024) {
-	  to_visit = Yap_shift_visit(to_visit);
-	}
 #ifdef RATIONAL_TREES
 	/* now link the two structures so that no one else will */
 	/* come here */
 	to_visit -= 4;
+	if (to_visit < to_visit_max) {
+	  to_visit = Yap_shift_visit(to_visit, address_to_visit_max);
+	}
 	to_visit[0] = pt0;
 	to_visit[1] = pt0_end;
 	to_visit[2] = pt1;
@@ -1200,6 +1217,9 @@ loop:
 	/* store the terms to visit */
 	if (pt0 < pt0_end) {
 	  to_visit -= 3;
+	  if (to_visit < to_visit_max) {
+	    to_visit = Yap_shift_visit(to_visit, address_to_visit_max);
+	  }
 	  to_visit[0] = pt0;
 	  to_visit[1] = pt0_end;
 	  to_visit[2] = pt1;
@@ -1229,13 +1249,13 @@ loop:
 	    continue;
 	  goto cufail;
 	}
-	if ((CELL *)to_visit-(CELL *)TR < 1024) {
-	  to_visit = Yap_shift_visit(to_visit);
-	}
 #ifdef RATIONAL_TREES
 	/* now link the two structures so that no one else will */
 	/* come here */
 	to_visit -= 4;
+	if (to_visit < to_visit_max) {
+	  to_visit = Yap_shift_visit(to_visit, address_to_visit_max);
+	}
 	to_visit[0] = pt0;
 	to_visit[1] = pt0_end;
 	to_visit[2] = pt1;
@@ -1245,6 +1265,9 @@ loop:
 	/* store the terms to visit */
 	if (pt0 < pt0_end) {
 	  to_visit -= 3;
+	  if (to_visit < to_visit_max) {
+	    to_visit = Yap_shift_visit(to_visit, address_to_visit_max);
+	  }
 	  to_visit[0] = pt0;
 	  to_visit[1] = pt0_end;
 	  to_visit[2] = pt1;
@@ -1283,7 +1306,7 @@ loop:
     }
   }
   /* Do we still have compound terms to visit */
-  if (to_visit < (CELL **) Yap_TrailTop) {
+  if (to_visit < to_visit_base) {
 #ifdef RATIONAL_TREES
     pt0 = to_visit[0];
     pt0_end = to_visit[1];
@@ -1303,7 +1326,7 @@ loop:
 cufail:
 #ifdef RATIONAL_TREES
   /* failure */
-  while (to_visit < (CELL **) Yap_TrailTop) {
+  while (to_visit < to_visit_base) {
     CELL *pt0;
     pt0 = to_visit[0];
     *pt0 = (CELL)to_visit[3];
@@ -1311,7 +1334,10 @@ cufail:
   }
 #endif
   return (FALSE);
-#if SHADOW_REGS
+#if THREADS
+#undef Yap_REGS
+#define Yap_REGS (*Yap_regp)  
+#elif SHADOW_REGS
 #if defined(B) || defined(TR)
 #undef Yap_REGS
 #endif /* defined(B) || defined(TR) */
@@ -1332,7 +1358,6 @@ iequ_complex(register CELL *pt0, register CELL *pt0_end,
 
 #ifdef RATIONAL_TREES
   register CELL *visited = AuxSp;
-
 #endif
 
 loop:
@@ -1540,4 +1565,12 @@ Yap_regtoregno(wamreg reg)
 	    (DEPTH) -= MkIntConstant(2);
 #else
 #define check_depth(DEPTH, ap)
+#endif
+
+#if defined(THREADS) || defined(YAPOR)
+#define copy_jmp_address(X) (PREG_ADDR = &(X))
+#define copy_jmp_addressa(X) (PREG_ADDR = (yamop **)(X))
+#else
+#define copy_jmp_address(X) 
+#define copy_jmp_addressa(X) 
 #endif

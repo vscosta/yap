@@ -868,10 +868,12 @@ STATIC_PROTO (void my_signal, (int, void (*)(int, siginfo_t  *, ucontext_t *)));
 static void
 HandleSIGSEGV(int   sig,   siginfo_t   *sip, ucontext_t *uap)
 {
+
   if (sip->si_code != SI_NOINFO &&
       sip->si_code == SEGV_MAPERR &&
       (void *)(sip->si_addr) > (void *)(Yap_HeapBase) &&
-      (void *)(sip->si_addr) < (void *)(Yap_TrailTop+64 * 1024L) ) {
+      (void *)(sip->si_addr) < (void *)(Yap_TrailTop+64 * 1024L) &&
+      ! USE_SYSTEM_MALLOC) {
     Yap_growtrail(64 * 1024L);
   }
   else {
@@ -1014,7 +1016,7 @@ SearchForTrailFault(void)
 #ifdef DEBUG
   /*  fprintf(stderr,"Catching a sigsegv at %p with %p\n", TR, TrailTop); */
 #endif
-#if  OS_HANDLES_TR_OVERFLOW
+#if  OS_HANDLES_TR_OVERFLOW && !USE_SYSTEM_MALLOC
   if ((TR > (tr_fr_ptr)Yap_TrailTop-1024  && 
        TR < (tr_fr_ptr)Yap_TrailTop+(64*1024))|| Yap_DBTrailOverflow()) {
     long trsize = 64*2014L;
@@ -1022,7 +1024,7 @@ SearchForTrailFault(void)
       trsize += 64*2014L;
     }
     if (!Yap_growtrail(trsize)) {
-      Yap_Error(SYSTEM_ERROR, TermNil, "YAP failed to reserve %ld bytes in growtrail", 64*1024L);
+      Yap_Error(OUT_OF_TRAIL_ERROR, TermNil, "YAP failed to reserve %ld bytes in growtrail", 64*1024L);
     }
     /* just in case, make sure the OS keeps the signal handler. */
     /*    my_signal_info(SIGSEGV, HandleSIGSEGV); */

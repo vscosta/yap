@@ -14,6 +14,7 @@
 
 #include "Yap.h"
 #include "Foreign.h"
+#include "Yatom.h"
 #include "Heap.h"
 #ifdef HAVE_STRING_H
 #include <string.h>

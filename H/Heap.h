@@ -10,10 +10,13 @@
 * File:		Heap.h         						 *
 * mods:									 *
 * comments:	Heap Init Structure					 *
-* version:      $Id: Heap.h,v 1.51 2004-01-29 13:37:09 vsc Exp $	 *
+* version:      $Id: Heap.h,v 1.52 2004-02-05 16:57:00 vsc Exp $	 *
 *************************************************************************/
 
 /* information that can be stored in Code Space */
+
+#ifndef HEAP_H
+#define HEAP_H 1
 
 #ifndef INT_KEYS_DEFAULT_SIZE
 #define INT_KEYS_DEFAULT_SIZE 256
@@ -66,6 +69,8 @@ typedef struct thandle {
   int id;
   int ret;
   REGSTORE *default_yaam_regs;
+  REGSTORE *current_yaam_regs;
+  struct pred_entry *local_preds;
   pthread_t handle;
 } yap_thandle;
 #endif
@@ -80,7 +85,7 @@ typedef struct various_codes {
   ADDR heap_lim;
   struct FREEB  *free_blocks;
 #if defined(YAPOR) || defined(THREADS)
-  rwlock_t  bgl;		 /* protect long critical regions   */
+  lockvar  bgl;		 /* protect long critical regions   */
   lockvar  free_blocks_lock;     /* protect the list of free blocks */
   worker_local wl[MAX_WORKERS];
 #else
@@ -689,17 +694,44 @@ struct various_codes *heap_regs;
 #endif
 
 
+ADDR    STD_PROTO(Yap_ExpandPreAllocCodeSpace, (UInt));
+#define Yap_ReleasePreAllocCodeSpace(x)
 #if defined(YAPOR) || defined(THREADS)
-ADDR    STD_PROTO(Yap_PreAllocCodeSpace, (void));
-ADDR    STD_PROTO(Yap_ExpandPreAllocCodeSpace, (void));
-void    STD_PROTO(Yap_ReleasePreAllocCodeSpace, (ADDR));
+ADDR    STD_PROTO(Yap_InitPreAllocCodeSpace, (void));
+EXTERN inline ADDR
+Yap_PreAllocCodeSpace(void)
+{
+  ADDR ptr = ScratchPad.ptr;
+  if (ptr) return ptr;
+  return Yap_InitPreAllocCodeSpace();
+}
 #else
 EXTERN inline ADDR
 Yap_PreAllocCodeSpace(void)
 {
   return Addr(HeapTop) + sizeof(CELL);
 }
-#define Yap_ExpandPreAllocCodeSpace() NULL
-#define Yap_ReleasePreAllocCodeSpace(x)
 #endif
 
+#if THREADS
+Prop STD_PROTO(Yap_NewThreadPred, (PredEntry *));
+Prop STD_PROTO(Yap_NewPredPropByFunctor, (Functor, SMALLUNSGN));
+
+EXTERN inline PredEntry *
+Yap_GetThreadPred(PredEntry *ap)
+{
+  Functor f = ap->FunctorOfPred;
+  SMALLUNSGN mod = ap->ModuleOfPred;
+  Prop p0 = AbsPredProp(heap_regs->thread_handle[worker_id].local_preds);
+
+  while(p0) {
+    PredEntry *ap = RepPredProp(p0);
+    if (ap->FunctorOfPred == f &&
+	ap->ModuleOfPred == mod) return ap;
+    p0 = ap->NextOfPE;
+  }
+  return RepPredProp(Yap_NewThreadPred(ap));
+}
+#endif
+
+#endif /* HEAP_H */

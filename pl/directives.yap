@@ -40,6 +40,7 @@
 '$directive'(use_module(_,_)).
 '$directive'(use_module(_,_,_)).
 '$directive'(uncutable(_)).
+'$directive'(thread_local(_)).
 
 '$exec_directive'(multifile(D), _, M) :-
 	'$system_catch'('$multifile'(D, M), M,
@@ -67,6 +68,8 @@
 	'$meta_predicate'(P, M).
 '$exec_directive'(dynamic(P), _, M) :-
 	'$dynamic'(P, M).
+'$exec_directive'(thread_local(P), _, M) :-
+	'$thread_local'(P, M).
 '$exec_directive'(op(P,OPSEC,OP), _, _) :-
 	op(P,OPSEC,OP).
 '$exec_directive'(set_prolog_flag(F,V), _, _) :-
@@ -703,4 +706,17 @@ source_mode(Old,New) :-
 
 source :- '$set_yap_flags'(11,1).
 no_source :- '$set_yap_flags'(11,0).
+
+%
+% allow users to define their own directives.
+%
+user_defined_directive(Dir,_) :-
+	'$directive'(Dir), !.
+user_defined_directive(Dir,Action) :-
+	functor(Dir,Na,Ar),
+	functor(NDir,Na,Ar),
+	'$current_module'(M, prolog),
+	assert_static('$directive'(NDir)),
+	assert_static(('$exec_directive'(Dir, _, _) :- Action)),
+	'$current_module'(_, M).
 

@@ -219,8 +219,8 @@ assertz_static(C) :-
 	    true
 	).
 
-'$assert1'(last,C,C0,Mod,H) :- '$$compile_stat'(C,C0,0,H,Mod).
-'$assert1'(first,C,C0,Mod,H) :- '$$compile_stat'(C,C0,2,H,Mod).
+'$assert1'(last,C,C0,Mod,H) :- '$compile'(C,0,C0,Mod).
+'$assert1'(first,C,C0,Mod,H) :- '$compile'(C,2,C0,Mod).
 
 '$assertz_dynamic'(X, C, C0, Mod) :- (X/\4)=:=0, !,
 	'$head_and_body'(C,H,B),

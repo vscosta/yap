@@ -115,6 +115,9 @@ low_level_trace(yap_low_level_port port, PredEntry *pred, CELL *args)
   /*  extern int gc_calls; */
 
   vsc_count++;
+  if (vsc_count == 71808) vsc_xstop = 1;
+  if (vsc_count < 71000) 
+    return;
 #ifdef COMMENTED
   if (port != enter_pred ||
       !pred ||
@@ -153,6 +156,7 @@ low_level_trace(yap_low_level_port port, PredEntry *pred, CELL *args)
   } 
   if (gc_calls < 1) return;
 #endif
+  fprintf(Yap_stderr,"%lld ", vsc_count);
 #if defined(THREADS) || defined(YAPOR)
   fprintf(Yap_stderr,"(%d)", worker_id);
 #endif

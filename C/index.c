@@ -243,17 +243,23 @@ copy_back(ClauseDef *dest, CELL *pt, int max) {
 
 /* sort a group of clauses by using their tags */
 static void
-sort_group(GroupDef *grp, CELL *top)
+sort_group(GroupDef *grp, CELL *top, struct intermediates *cint)
 {
   int max = (grp->LastClause-grp->FirstClause)+1, i;
   CELL *pt = top;
 
   while (top+2*max > (CELL *)Yap_TrailTop) {
+#if USE_SYSTEM_MALLOC
+    Yap_Error_Size = 2*max*sizeof(CELL);
+    /* grow stack */
+    longjmp(cint->CompilerBotch,4);
+#else
     if (!Yap_growtrail(2*max*CellSize)) {
       Yap_Error(SYSTEM_ERROR,TermNil,"YAP failed to reserve %ld in growtrail",
 		2*max*CellSize);
       return;
     }
+#endif
   }
   /* initialise vector */
   for (i=0; i < max; i++) {
@@ -428,6 +434,9 @@ has_cut(yamop *pc)
 #endif
     case _pop:
     case _index_pred:
+#if THREADS
+    case _thread_local:
+#endif
     case _expand_index:
     case _undef_p:
     case _spy_pred:
@@ -1572,6 +1581,7 @@ add_info(ClauseDef *clause, UInt regno)
     case _skip:
     case _jump_if_var:
     case _try_in:
+    case _lock_lu:
       clause->Tag = (CELL)NULL;
       return;
     case _jump_if_nonvar:
@@ -1586,6 +1596,9 @@ add_info(ClauseDef *clause, UInt regno)
 #endif
     case _pop:
     case _index_pred:
+#if THREADS
+    case _thread_local:
+#endif
     case _expand_index:
     case _undef_p:
     case _spy_pred:
@@ -2961,7 +2974,7 @@ do_nonvar_group(GroupDef *grp, Term t, int compound_term, CELL *sreg, UInt arity
     type_sw = emit_type_switch(switch_on_type_op, cint);
     type_sw->VarEntry = do_var_entries(grp, t, cint, argno, first, clleft, nxtlbl);
     grp->LastClause = cls_move(grp->FirstClause, ap, grp->LastClause, compound_term, argno, last_arg);
-    sort_group(grp,top);
+    sort_group(grp,top,cint);
     type_sw->ConstEntry = 
       type_sw->FuncEntry = 
       type_sw->PairEntry = 
@@ -3164,9 +3177,15 @@ copy_clauses(ClauseDef *max0, ClauseDef *min0, CELL *top, struct intermediates *
 {
   UInt sz = ((max0+1)-min0)*sizeof(ClauseDef);
   while ((char *)top + sz > Yap_TrailTop) {
-    if(!Yap_growtrail (sizeof(CELL) * 16 * 1024L)) {
+#if USE_SYSTEM_MALLOC
+    Yap_Error_Size = sz;
+    /* grow stack */
+    longjmp(cint->CompilerBotch,4);
+#else
+    if(!Yap_growtrail (sz)) {
       longjmp(cint->CompilerBotch,3);
-    }                                              
+    }
+#endif
   }
   memcpy((void *)top, (void *)min0, sz);
   return (ClauseDef *)top;
@@ -3264,7 +3283,7 @@ do_dbref_index(ClauseDef *min, ClauseDef* max, Term t, struct intermediates *cin
 
     Yap_emit(label_op, labl, Zero, cint);
     Yap_emit(index_dbref_op, Zero, Zero, cint);
-    sort_group(group,(CELL *)(group+1));
+    sort_group(group,(CELL *)(group+1),cint);
     do_blobs(group, t, cint, argno, first, fail_l, clleft, (CELL *)group+1);
     return labl;
   }
@@ -3296,7 +3315,7 @@ do_blob_index(ClauseDef *min, ClauseDef* max, Term t, struct intermediates *cint
 
     Yap_emit(label_op, labl, Zero, cint);
     Yap_emit(index_blob_op, Zero, Zero, cint);
-    sort_group(group,(CELL *)(group+1));
+    sort_group(group,(CELL *)(group+1),cint);
     do_blobs(group, t, cint, argno, first, fail_l, clleft, (CELL *)group+1);
     return labl;
   }
@@ -3378,7 +3397,13 @@ Yap_PredIsIndexable(PredEntry *ap)
   } else if (setjres == 2) {
     restore_machine_regs();
     if (!Yap_growheap(FALSE, Yap_Error_Size, NULL)) {
-      Yap_Error(SYSTEM_ERROR, TermNil, Yap_ErrorMessage);
+      Yap_Error(OUT_OF_HEAP_ERROR, TermNil, Yap_ErrorMessage);
+      return FAILCODE;
+    }
+  } else if (setjres == 4) {
+    restore_machine_regs();
+    if (!Yap_growtrail(Yap_Error_Size)) {
+      Yap_Error(OUT_OF_TRAIL_ERROR, TermNil, Yap_ErrorMessage);
       return FAILCODE;
     }
   } else if (setjres != 0) {
@@ -3684,12 +3709,12 @@ static yamop **
 expand_index(struct intermediates *cint) {
   /* first clause */
   PredEntry *ap = cint->CurrentPred;
-  yamop *first = ap->cs.p_code.FirstClause, *last = NULL, *alt = NULL;
+  yamop *first, *last = NULL, *alt = NULL;
   istack_entry *stack, *sp;
   ClauseDef *cls = (ClauseDef *)H, *max;
-  int NClauses = ap->cs.p_code.NOfClauses;
+  int NClauses;
   /* last clause to experiment with */
-  yamop *ipc = ap->cs.p_code.TrueCodeOfPred;
+  yamop *ipc;
   /* labp should point at the beginning of the sequence */
   yamop **labp = NULL;
   Term t = TermNil, *s_reg = NULL;
@@ -3701,6 +3726,9 @@ expand_index(struct intermediates *cint) {
   UInt arity = 0;
   UInt lab, fail_l, clleft, i = 0;
 
+  ipc = ap->cs.p_code.TrueCodeOfPred;
+  first = ap->cs.p_code.FirstClause;
+  NClauses = ap->cs.p_code.NOfClauses;
   sp = stack = (istack_entry *)top;
   labelno = 1;
   stack[0].pos = 0;
@@ -3790,6 +3818,9 @@ expand_index(struct intermediates *cint) {
     case _jump:
       /* just skip for now, but should worry about memory management */
       ipc = ipc->u.l.l;
+      break;
+    case _lock_lu:
+      ipc = NEXTOP(ipc,p);
       break;
     case _jump_if_var:
       if (IsVarTerm(Deref(ARG1))) {
@@ -4037,7 +4068,7 @@ expand_index(struct intermediates *cint) {
   /* don't count last clause if you don't have to */
   if (alt && max->Code == last) max--;
   if (max < cls && labp != NULL) {
-    *labp = FAILCODE;
+      *labp = FAILCODE;
     return labp;
   }
   cint->freep = (char *)(max+1);
@@ -4123,6 +4154,21 @@ ExpandIndex(PredEntry *ap) {
       }
       return NULL;
     }
+  } else if (cb == 4) {
+    restore_machine_regs();
+    if (!Yap_growtrail(Yap_Error_Size)) {
+      save_machine_regs();
+      if (ap->PredFlags & LogUpdatePredFlag) {
+	Yap_kill_iblock((ClauseUnion *)ClauseCodeToLogUpdIndex(ap->cs.p_code.TrueCodeOfPred),NULL, ap);
+      } else {
+	StaticIndex *cl;
+
+	cl = ClauseCodeToStaticIndex(ap->cs.p_code.TrueCodeOfPred);
+	Yap_kill_iblock((ClauseUnion *)cl, NULL, ap);
+      }
+      UNLOCK(ap->PELock);
+      return NULL;
+    }
   }
  restart_index:
   cint.CodeStart = cint.cpc = cint.BlobsStart = cint.icpc = NIL;
@@ -4163,9 +4209,11 @@ ExpandIndex(PredEntry *ap) {
   }
 #endif
   if ((labp = expand_index(&cint)) == NULL) {
+    UNLOCK(ap->PELock);
     return NULL;
   }
   if (*labp == FAILCODE) {
+    UNLOCK(ap->PELock);
     return FAILCODE;
   }
 #ifdef DEBUG
@@ -4176,20 +4224,24 @@ ExpandIndex(PredEntry *ap) {
   /* globals for assembler */
   IPredArity = ap->ArityOfPE;
   if (cint.CodeStart) {
-    if ((indx_out = Yap_assemble(ASSEMBLING_INDEX, TermNil, ap, FALSE, &cint)) == NULL) {
+    if ((indx_out = Yap_assemble(ASSEMBLING_EINDEX, TermNil, ap, FALSE, &cint)) == NULL) {
       if (!Yap_growheap(FALSE, Yap_Error_Size, NULL)) {
 	Yap_Error(SYSTEM_ERROR, TermNil, Yap_ErrorMessage);
+	UNLOCK(ap->PELock);
 	return NULL;
       }
       goto restart_index;
     }
   } else {
+    /* single case */
+    UNLOCK(ap->PELock);
     return *labp;
   }
   if (ProfilerOn) {
     Yap_inform_profiler_of_clause(indx_out, ProfEnd, ap); 
   }
   if (indx_out == NULL) {
+    UNLOCK(ap->PELock);
     return FAILCODE;
   }
   *labp = indx_out;
@@ -4211,6 +4263,7 @@ ExpandIndex(PredEntry *ap) {
     nic->SiblingIndex = ic->ChildIndex;
     ic->ChildIndex = nic;
   }
+  UNLOCK(ap->PELock);
   return indx_out;
 }
 
@@ -4459,7 +4512,9 @@ expand_ctable(yamop *pc, ClauseUnion *blk, struct intermediates *cint, Term at)
       ics->Label = old_ae->Label;    
     }
   }
-  replace_index_block(blk, pc->u.sl.l, (yamop *)target, ap);
+  /* support for threads */
+  if (blk)
+    replace_index_block(blk, pc->u.sl.l, (yamop *)target, ap);
   pc->u.sl.l = (yamop *)target;
   return fetch_centry(target, at, n-1, n);
 }
@@ -5473,6 +5528,9 @@ add_to_index(struct intermediates *cint, int first, path_stack_entry *sp, Clause
     case _expand_index:
       ipc = pop_path(&sp, cls, ap);
       break;
+    case _lock_lu:
+      ipc = NEXTOP(ipc,p);
+      break;
     default:
       sp = kill_unsafe_block(sp, op, ap);
       ipc = pop_path(&sp, cls, ap);
@@ -5501,6 +5559,20 @@ Yap_AddClauseToIndex(PredEntry *ap, yamop *beg, int first) {
   } else if (cb == 2) {
     restore_machine_regs();
     if (!Yap_growheap(FALSE, Yap_Error_Size, NULL)) {
+      save_machine_regs();
+      if (ap->PredFlags & LogUpdatePredFlag) {
+	Yap_kill_iblock((ClauseUnion *)ClauseCodeToLogUpdIndex(ap->cs.p_code.TrueCodeOfPred),NULL, ap);
+      } else {
+	StaticIndex *cl;
+
+	cl = ClauseCodeToStaticIndex(ap->cs.p_code.TrueCodeOfPred);
+	Yap_kill_iblock((ClauseUnion *)cl, NULL, ap);
+      }
+      return;
+    }
+  } else if (cb == 4) {
+    restore_machine_regs();
+    if (!Yap_growtrail(Yap_Error_Size)) {
       save_machine_regs();
       if (ap->PredFlags & LogUpdatePredFlag) {
 	Yap_kill_iblock((ClauseUnion *)ClauseCodeToLogUpdIndex(ap->cs.p_code.TrueCodeOfPred),NULL, ap);
@@ -5949,6 +6021,7 @@ remove_from_index(PredEntry *ap, path_stack_entry *sp, ClauseDef *cls, yamop *bg
 	  ipc = pop_path(&sp, cls, ap);
 	} else {
 	  yamop *newpc = (yamop *)(ae->Label);
+
 	  sp = fetch_new_block(sp, &(ipc->u.sl.l), ap);
 	  sp = cross_block(sp, (yamop **)&(ae->Label), ap);
 	  ipc = newpc;
@@ -5957,6 +6030,9 @@ remove_from_index(PredEntry *ap, path_stack_entry *sp, ClauseDef *cls, yamop *bg
       break;
     case _expand_index:
       ipc = pop_path(&sp, cls, ap);
+      break;
+    case _lock_lu:
+      ipc = NEXTOP(ipc,p);
       break;
     default:
       if (IN_BETWEEN(bg,ipc,lt)) {
@@ -5984,6 +6060,21 @@ Yap_RemoveClauseFromIndex(PredEntry *ap, yamop *beg) {
   } else if (cb == 2) {
     restore_machine_regs();
     if (!Yap_growheap(FALSE, Yap_Error_Size, NULL)) {
+      save_machine_regs();
+      if (ap->PredFlags & LogUpdatePredFlag) {
+	Yap_kill_iblock((ClauseUnion *)ClauseCodeToLogUpdIndex(ap->cs.p_code.TrueCodeOfPred),NULL, ap);
+      } else {
+	StaticIndex *cl;
+
+	cl = ClauseCodeToStaticIndex(ap->cs.p_code.TrueCodeOfPred);
+	Yap_kill_iblock((ClauseUnion *)cl, NULL, ap);
+      }
+      return;
+    }
+    Yap_Error_Size = 0;
+  } else if (cb == 4) {
+    restore_machine_regs();
+    if (!Yap_growtrail(Yap_Error_Size)) {
       save_machine_regs();
       if (ap->PredFlags & LogUpdatePredFlag) {
 	Yap_kill_iblock((ClauseUnion *)ClauseCodeToLogUpdIndex(ap->cs.p_code.TrueCodeOfPred),NULL, ap);
@@ -6449,6 +6540,13 @@ Yap_FollowIndexingCode(PredEntry *ap, yamop *ipc, Term t1, Term tb, Term tr, yam
       */
     case _undef_p:
       return NULL;
+    case _lock_lu:
+      ipc = NEXTOP(ipc,p);
+      break;
+#if THREADS
+    case _thread_local:
+      break;
+#endif
     case _index_pred:
     case _spy_pred:
       Yap_IPred(ap);
@@ -6483,6 +6581,12 @@ Yap_FollowIndexingCode(PredEntry *ap, yamop *ipc, Term t1, Term tb, Term tr, yam
     abolish_incomplete_subgoals(B);
 #endif /* TABLING */
   }
+#if defined(YAPOR) || defined(THREADS)
+  if (PP == ap) {
+    PP = NULL;
+    READ_UNLOCK(ap->PRWLock);
+  }
+#endif
   return NULL;
 }
 
@@ -6589,6 +6693,9 @@ Yap_NthClause(PredEntry *ap, Int ncls)
     case _enter_lu_pred:
       ipc = ipc->u.Ill.l1;
       break;
+    case _lock_lu:
+      ipc = NEXTOP(ipc,p);
+      break;
     case _jump:
       jlbl = &(ipc->u.l.l);
       ipc = ipc->u.l.l;
@@ -6627,14 +6734,19 @@ Yap_NthClause(PredEntry *ap, Int ncls)
     case _op_fail:
       ipc = alt;
       break;
-    case _undef_p:
-      return NULL;
     case _index_pred:
     case _spy_pred:
       Yap_IPred(ap);
       ipc = ap->cs.p_code.TrueCodeOfPred;
       break;
+    case _undef_p:
     default:
+#if defined(YAPOR) || defined(THREADS)
+      if (PP == ap) {
+	PP = NULL;
+	READ_UNLOCK(ap->PRWLock);
+      }
+#endif
       return NULL;
     }
   }
@@ -6839,6 +6951,7 @@ find_caller(PredEntry *ap, yamop *code) {
     case _go_on_cons:
       {
 	AtomSwiEntry *ae;
+	yamop *newpc;
 
 	if (op == _switch_on_cons) {
 	  ae = lookup_c_hash(t,ipc->u.sl.l,ipc->u.sl.s);
@@ -6846,15 +6959,16 @@ find_caller(PredEntry *ap, yamop *code) {
 	  ae = lookup_c(t,ipc->u.sl.l,ipc->u.sl.s);
 	}
 
-	if (ae->Label == (CELL)code) {
+	newpc = (yamop *)(ae->Label);
+	if (newpc == code) {
 	  /* we found it */
 	  return (yamop **)(&(ae->Label));
 	  ipc = NULL;
-	} else if (ae->Label == (UInt)FAILCODE) {
+	} else if (newpc == FAILCODE) {
 	  /* oops, things went wrong */
 	  ipc = alt;
 	} else {
-	  ipc = (yamop *)(ae->Label);
+	  ipc = newpc;
 	}
       }
       break;
@@ -6909,3 +7023,4 @@ Yap_CleanUpIndex(LogUpdIndex *blk)
     return start;
   }
 }
+

@@ -282,7 +282,7 @@ p_cond_create(void)
 {
   pthread_cond_t* condp;
 
-  condp = (SWIMutex *)Yap_AllocCodeSpace(sizeof(pthread_cond_t));
+  condp = (pthread_cond_t *)Yap_AllocCodeSpace(sizeof(pthread_cond_t));
   if (condp == NULL) {
     return FALSE;
   }
@@ -332,6 +332,45 @@ p_cond_wait(void)
   return TRUE;
 }
 
+static Int 
+p_install_thread_local(void)
+{				/* '$is_dynamic'(+P)	 */
+  PredEntry      *pe;
+  Term            t = Deref(ARG1);
+  Term            t2 = Deref(ARG2);
+  SMALLUNSGN      mod = Yap_LookupModule(t2);
+
+  if (IsVarTerm(t)) {
+    return (FALSE);
+  } else if (IsAtomTerm(t)) {
+    Atom at = AtomOfTerm(t);
+    pe = RepPredProp(PredPropByAtom(at, mod));
+  } else if (IsApplTerm(t)) {
+    Functor         fun = FunctorOfTerm(t);
+    pe = RepPredProp(PredPropByFunc(fun, mod));
+  } else
+    return FALSE;
+  WRITE_LOCK(pe->PRWLock);
+  if (pe->PredFlags & (UserCPredFlag|HiddenPredFlag|CArgsPredFlag|SourcePredFlag|SyncPredFlag|TestPredFlag|AsmPredFlag|StandardPredFlag|DynamicPredFlag|CPredFlag|SafePredFlag|IndexedPredFlag|BinaryTestPredFlag|SpiedPredFlag)) {
+    return FALSE;
+  }
+  pe->PredFlags |= ThreadLocalPredFlag;
+  pe->OpcodeOfPred = Yap_opcode(_thread_local);
+  pe->CodeOfPred = (yamop *)&pe->OpcodeOfPred;
+  WRITE_UNLOCK(pe->PRWLock);
+  return TRUE;
+}
+
+static Int 
+p_thread_signal(void)
+{				/* '$thread_signal'(+P)	 */
+  Int wid = IntegerOfTerm(Deref(ARG1));
+  LOCK(heap_regs->wl[wid].signal_lock);
+  ThreadHandle[wid].current_yaam_regs->CreepFlag_ = Unsigned(LCL0);
+  heap_regs->wl[wid].active_signals |= YAP_ITI_SIGNAL;
+  UNLOCK(heap_regs->wl[wid].signal_lock);
+}
+
 void Yap_InitThreadPreds(void)
 {
   Yap_InitCPred("$create_thread", 5, p_create_thread, 0);
@@ -353,6 +392,7 @@ void Yap_InitThreadPreds(void)
   Yap_InitCPred("$cond_signal", 1, p_cond_signal, SafePredFlag);
   Yap_InitCPred("$cond_broadcast", 1, p_cond_broadcast, SafePredFlag);
   Yap_InitCPred("$cond_wait", 2, p_cond_wait, SafePredFlag);
+  Yap_InitCPred("$install_thread_local", 2, p_install_thread_local, SafePredFlag);
 }
 
 

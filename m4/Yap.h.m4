@@ -10,7 +10,7 @@
 * File:		Yap.h.m4						 *
 * mods:									 *
 * comments:	main header file for YAP				 *
-* version:      $Id: Yap.h.m4,v 1.50 2004-01-23 02:23:15 vsc Exp $	 *
+* version:      $Id: Yap.h.m4,v 1.51 2004-02-05 16:57:01 vsc Exp $	 *
 *************************************************************************/
 
 #include "config.h"
@@ -75,6 +75,10 @@
 #ifndef TERM_EXTENSIONS
 #define TERM_EXTENSIONS 1
 #endif
+#endif
+
+#if SUPPORT_THREADS || SUPPORT_CONDOR
+#define USE_SYSTEM_MALLOC 1
 #endif
 
 #if defined(TABLING) || defined(SBA)
@@ -884,7 +888,7 @@ extern int      Yap_argc;
 
 #define MaxModules	256
 
-#ifdef YAPOR
+#if YAPOR
 #define YAPEnterCriticalSection()                                        \
 	{                                                                \
           if (worker_id != GLOBAL_LOCKS_who_locked_heap) {               \
@@ -910,6 +914,25 @@ extern int      Yap_argc;
 	    GLOBAL_LOCKS_who_locked_heap = MAX_WORKERS;                  \
             UNLOCK(GLOBAL_LOCKS_heap_access);                            \
           }                                                              \
+        }
+#elif THREADS
+#define YAPEnterCriticalSection()                                        \
+	{                                                                \
+          LOCK(BGL);                                              \
+          Yap_PrologMode |= CritMode;                                   \
+        }
+#define YAPLeaveCriticalSection()                                        \
+	{                                                                \
+          Yap_PrologMode &= ~CritMode;                                \
+          if (Yap_PrologMode & InterruptMode) {                       \
+	    Yap_PrologMode &= ~InterruptMode;                         \
+	    Yap_ProcessSIGINT();                                      \
+          }                                                            \
+          if (Yap_PrologMode & AbortMode) {                           \
+	    Yap_PrologMode &= ~AbortMode;                             \
+	    Yap_Error(PURE_ABORT, 0, "");                             \
+          }                                                            \
+          UNLOCK(BGL);                                           \
         }
 #else
 #define YAPEnterCriticalSection()                                        \

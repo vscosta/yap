@@ -478,6 +478,7 @@ Yap_NewPredPropByFunctor(FunctorEntry *fe, SMALLUNSGN cur_mod)
   PredEntry *p = (PredEntry *) Yap_AllocAtomSpace(sizeof(*p));
 
   INIT_RWLOCK(p->PRWLock);
+  INIT_LOCK(p->PELock);
   p->KindOfPE = PEProp;
   p->ArityOfPE = fe->ArityOfFE;
   p->cs.p_code.FirstClause = p->cs.p_code.LastClause = NULL;
@@ -505,6 +506,40 @@ Yap_NewPredPropByFunctor(FunctorEntry *fe, SMALLUNSGN cur_mod)
   return (p0);
 }
 
+#if THREADS
+Prop
+Yap_NewThreadPred(PredEntry *ap)
+{
+  PredEntry *p = (PredEntry *) Yap_AllocAtomSpace(sizeof(*p));
+
+  INIT_RWLOCK(p->PRWLock);
+  INIT_LOCK(p->PELock);
+  p->KindOfPE = PEProp;
+  p->ArityOfPE = ap->ArityOfPE;
+  p->cs.p_code.FirstClause = p->cs.p_code.LastClause = NULL;
+  p->cs.p_code.NOfClauses = 0;
+  p->PredFlags = 0L;
+  p->src.OwnerFile = ap->src.OwnerFile;
+  p->OpcodeOfPred = UNDEF_OPCODE;
+  p->CodeOfPred = p->cs.p_code.TrueCodeOfPred = (yamop *)(&(p->OpcodeOfPred)); 
+  p->cs.p_code.ExpandCode = EXPAND_OP_CODE; 
+  p->ModuleOfPred = ap->ModuleOfPred;
+  p->NextPredOfModule = NULL;
+  INIT_LOCK(p->StatisticsForPred.lock);
+  p->StatisticsForPred.NOfEntries = 0;
+  p->StatisticsForPred.NOfHeadSuccesses = 0;
+  p->StatisticsForPred.NOfRetries = 0;
+#ifdef TABLING
+  p->TableOfPred = NULL;
+#endif /* TABLING */
+  /* careful that they don't cross MkFunctor */
+  p->NextOfPE = AbsPredProp(ThreadHandle[worker_id].local_preds);
+  ThreadHandle[worker_id].local_preds = p;
+  p->FunctorOfPred = ap->FunctorOfPred;
+  return AbsPredProp(p);
+}
+#endif
+
 Prop
 Yap_NewPredPropByAtom(AtomEntry *ae, SMALLUNSGN cur_mod)
 {
@@ -514,6 +549,7 @@ Yap_NewPredPropByAtom(AtomEntry *ae, SMALLUNSGN cur_mod)
 /* Printf("entering %s:%s/0\n", RepAtom(AtomOfTerm(ModuleName[cur_mod]))->StrOfAE, ae->StrOfAE); */
 
   INIT_RWLOCK(p->PRWLock);
+  INIT_LOCK(p->PELock);
   p->KindOfPE = PEProp;
   p->ArityOfPE = 0;
   p->cs.p_code.FirstClause = p->cs.p_code.LastClause = NULL;

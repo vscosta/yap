@@ -588,8 +588,8 @@ InitReverseLookupOpcode(void)
   /* clear up table */
   {
     int j;
-    for (j=0; j<=OP_HASH_SIZE; j++) {
-      opeptr[j].opc = NIL;
+    for (j=0; j<OP_HASH_SIZE; j++) {
+      opeptr[j].opc = 0;
       opeptr[j].opnum = _Ystop;
     }
   }
@@ -601,7 +601,7 @@ InitReverseLookupOpcode(void)
     OPCODE opc = Yap_opcode(i);
     int j = rtable_hash_op(opc,hash_size_mask);
 
-    while (opeptr[j].opc != NIL) {
+    while (opeptr[j].opc) {
       if (++j > hash_size_mask)
 	j = 0;	  
     }

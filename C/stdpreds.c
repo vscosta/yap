@@ -702,7 +702,7 @@ p_char_code(void)
 static Int 
 p_name(void)
 {				/* name(?Atomic,?String)		 */
-  char            *String = (char *)TR, *s; /* alloc temp space on trail */
+  char            *String, *s; /* alloc temp space on trail */
   Term            t, NewT, AtomNameT = Deref(ARG1);
 
   ARG2 = Deref(ARG2);
@@ -717,6 +717,7 @@ p_name(void)
       }
       return (Yap_unify(NewT, ARG2));
     } else if (IsIntTerm(AtomNameT)) {
+      char *String = Yap_PreAllocCodeSpace();
 #if SHORT_INTS
       sprintf(String, "%ld", IntOfTerm(AtomNameT));
 #else
@@ -729,6 +730,8 @@ p_name(void)
       }
       return (Yap_unify(NewT, ARG2));
     } else if (IsFloatTerm(AtomNameT)) {
+      char *String = Yap_PreAllocCodeSpace();
+
       sprintf(String, "%f", FloatOfTerm(AtomNameT));
       NewT = Yap_StringToList(String);
       if (!IsVarTerm(ARG2) && !IsPairTerm(ARG2)) {
@@ -737,6 +740,8 @@ p_name(void)
       }
       return (Yap_unify(NewT, ARG2));
     } else if (IsLongIntTerm(AtomNameT)) {
+      char *String = Yap_PreAllocCodeSpace();
+
 #if SHORT_INTS
       sprintf(String, "%ld", LongIntOfTerm(AtomNameT));
 #else
@@ -754,7 +759,7 @@ p_name(void)
     }
   }
   t = ARG2;
-  s = String;
+  s = String = ((AtomEntry *)Yap_PreAllocCodeSpace())->StrOfAE;
   if (!IsVarTerm(t) && t == MkAtomTerm(AtomNil)) {
     return (Yap_unify_constant(ARG1, MkAtomTerm(Yap_LookupAtom(""))));
   }
@@ -776,8 +781,14 @@ p_name(void)
 	Yap_Error(DOMAIN_ERROR_NOT_LESS_THAN_ZERO,Head,"name/2");
       return(FALSE);
     }
-    if (Unsigned(Yap_TrailTop) - Unsigned(s) < MinTrailGap) {
-      Yap_growtrail(sizeof(CELL) * 16 * 1024L);
+    if (s+1 == (char *)AuxSp) {
+      char *nString;
+      
+      *H++ = t;
+      nString = ((AtomEntry *)Yap_ExpandPreAllocCodeSpace(0))->StrOfAE;
+      t = *--H;
+      s = nString+(s-String);
+      String = nString;
     }
     *s++ = i;
     t = TailOfTerm(t);
@@ -816,7 +827,7 @@ p_atom_chars(void)
     return (Yap_unify(NewT, ARG2));
   } else {
     /* ARG1 unbound */
-    char           *String = (char *)TR; /* alloc temp space on trail */
+    char           *String = ((AtomEntry *)Yap_PreAllocCodeSpace())->StrOfAE; /* alloc temp space on trail */
     register Term   t = Deref(ARG2);
     register char  *s = String;
 
@@ -848,8 +859,14 @@ p_atom_chars(void)
 	  Yap_Error(REPRESENTATION_ERROR_CHARACTER_CODE,Head,"atom_chars/2");
 	  return(FALSE);		
 	}
-	if (Unsigned(Yap_TrailTop) - Unsigned(s) < MinTrailGap) {
-	  Yap_growtrail(sizeof(CELL) * 16 * 1024L);
+	if (s+1 == (char *)AuxSp) {
+	  char *nString;
+
+	  *H++ = t;
+	  nString = ((AtomEntry *)Yap_ExpandPreAllocCodeSpace(0))->StrOfAE;
+	  t = *--H;
+	  s = nString+(s-String);
+	  String = nString;
 	}
 	*s++ = i;
 	t = TailOfTerm(t);
@@ -880,8 +897,14 @@ p_atom_chars(void)
 	  Yap_Error(TYPE_ERROR_CHARACTER,Head,"atom_chars/2");
 	  return(FALSE);		
 	}
-	if (Unsigned(Yap_TrailTop) - Unsigned(s) < MinTrailGap) {
-	  Yap_growtrail(sizeof(CELL) * 16 * 1024L);
+	if (s+1 == (char *)AuxSp) {
+	  char *nString;
+
+	  *H++ = t;
+	  nString = ((AtomEntry *)Yap_ExpandPreAllocCodeSpace(0))->StrOfAE;
+	  t = *--H;
+	  s = nString+(s-String);
+	  String = nString;
 	}
 	*s++ = is[0];
 	t = TailOfTerm(t);
@@ -974,7 +997,7 @@ p_atom_codes(void)
     return (Yap_unify(NewT, ARG2));
   } else {
     /* ARG1 unbound */
-    char           *String = (char *)TR; /* alloc temp space on trail */
+    char *String = ((AtomEntry *)Yap_PreAllocCodeSpace())->StrOfAE;
     register Term   t = Deref(ARG2);
     register char  *s = String;
 
@@ -1005,8 +1028,14 @@ p_atom_codes(void)
 	Yap_Error(REPRESENTATION_ERROR_CHARACTER_CODE,Head,"atom_codes/2");
 	return(FALSE);		
       }
-      if (Unsigned(Yap_TrailTop) - Unsigned(s) < MinTrailGap) {
-	Yap_growtrail(sizeof(CELL) * 16 * 1024L);
+      if (s+1 == (char *)AuxSp) {
+	char *nString;
+
+	*H++ = t;
+	nString = ((AtomEntry *)Yap_ExpandPreAllocCodeSpace(0))->StrOfAE;
+	t = *--H;
+	s = nString+(s-String);
+	String = nString;
       }
       *s++ = i;
       t = TailOfTerm(t);
@@ -1116,11 +1145,12 @@ gen_syntax_error(char *s)
 static Int 
 p_number_chars(void)
 {
-  char   *String = (char *)TR; /* alloc temp space on Trail */
+  char   *String; /* alloc temp space on Trail */
   register Term   t = Deref(ARG2), t1 = Deref(ARG1);
   Term NewT;
-  register char  *s = String;
+  register char  *s;
 
+  String = Yap_PreAllocCodeSpace();
   if (IsNonVarTerm(t1)) {
     Term            NewT;
     if (!IsNumTerm(t1)) {
@@ -1178,6 +1208,7 @@ p_number_chars(void)
     Yap_Error(TYPE_ERROR_LIST, t, "number_chars/2");
     return(FALSE);		
   }
+  s = String;
   if (yap_flags[YAP_TO_CHARS_FLAG] == QUINTUS_TO_CHARS) {
     while (t != TermNil) {
       register Term   Head;
@@ -1195,8 +1226,14 @@ p_number_chars(void)
 	Yap_Error(REPRESENTATION_ERROR_CHARACTER_CODE,Head,"number_chars/2");
 	return(FALSE);		
       }
-      if (Unsigned(Yap_TrailTop) - Unsigned(s) < MinTrailGap) {
-	Yap_growtrail(sizeof(CELL) * 16 * 1024L);
+      if (s+1 == (char *)AuxSp) {
+	char *nString;
+
+	*H++ = t;
+	nString = Yap_ExpandPreAllocCodeSpace(0);
+	t = *--H;
+	s = nString+(s-String);
+	String = nString;
       }
       *s++ = i;
       t = TailOfTerm(t);
@@ -1227,8 +1264,14 @@ p_number_chars(void)
 	Yap_Error(TYPE_ERROR_CHARACTER,Head,"number_chars/2");
 	return(FALSE);		
       }
-      if (Unsigned(Yap_TrailTop) - Unsigned(s) < MinTrailGap) {
-	Yap_growtrail(sizeof(CELL) * 16 * 1024L);
+      if (s+1 == (char *)AuxSp) {
+	char *nString;
+
+	*H++ = t;
+	nString = Yap_ExpandPreAllocCodeSpace(0);
+	t = *--H;
+	s = nString+(s-String);
+	String = nString;
       }
       *s++ = is[0];
       t = TailOfTerm(t);
@@ -1252,11 +1295,12 @@ p_number_chars(void)
 static Int 
 p_number_atom(void)
 {
-  char   *String = (char *)TR; /* alloc temp space on Trail */
+  char   *String; /* alloc temp space on Trail */
   register Term   t = Deref(ARG2), t1 = Deref(ARG1);
   Term NewT;
-  register char  *s = String;
+  register char  *s;
 
+  s = String = ((AtomEntry *)Yap_PreAllocCodeSpace())->StrOfAE;
   if (IsNonVarTerm(t1)) {
     if (IsIntTerm(t1)) {
       Term            NewT;
@@ -1312,11 +1356,12 @@ p_number_atom(void)
 static Int 
 p_number_codes(void)
 {
-  char   *String = (char *)TR; /* alloc temp space on Trail */
+  char   *String; /* alloc temp space on Trail */
   register Term   t = Deref(ARG2), t1 = Deref(ARG1);
   Term NewT;
-  register char  *s = String;
+  register char  *s;
 
+  String = Yap_PreAllocCodeSpace();
   if (IsNonVarTerm(t1)) {
     if (IsIntTerm(t1)) {
 #if SHORT_INTS
@@ -1356,6 +1401,7 @@ p_number_codes(void)
     Yap_Error(TYPE_ERROR_LIST, t, "number_codes/2");
     return(FALSE);		
   }
+  s = String; /* alloc temp space on Trail */
   while (t != TermNil) {
     register Term   Head;
     register Int    i;
@@ -1373,8 +1419,14 @@ p_number_codes(void)
       Yap_Error(REPRESENTATION_ERROR_CHARACTER_CODE,Head,"number_codes/2");
       return(FALSE);		
     }
-    if (Unsigned(Yap_TrailTop) - Unsigned(s) < MinTrailGap) {
-      Yap_growtrail(sizeof(CELL) * 16 * 1024L);
+    if (s+1 == (char *)AuxSp) {
+      char *nString;
+
+      *H++ = t;
+      nString = Yap_ExpandPreAllocCodeSpace(0);
+      t = *--H;
+      s = nString+(s-String);
+      String = nString;
     }
     *s++ = i;
     t = TailOfTerm(t);
@@ -2480,14 +2532,14 @@ p_set_yap_flags(void)
 static Int
 p_lock_system(void)
 {
-  WRITE_LOCK(BGL);
+  LOCK(BGL);
   return TRUE;
 }
 
 static Int
 p_unlock_system(void)
 {
-  WRITE_UNLOCK(BGL);
+  UNLOCK(BGL);
   return TRUE;
 }
 

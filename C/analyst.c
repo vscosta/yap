@@ -284,6 +284,9 @@ p_show_op_counters()
   print_instruction(_pop_n);
   print_instruction(_trust_fail);
   print_instruction(_index_pred);
+#if THREADS
+  print_instruction(_thread_local);
+#endif
   print_instruction(_save_b_x);
   print_instruction(_save_b_y);
   print_instruction(_save_pair_x);
@@ -656,6 +659,9 @@ p_show_ops_by_group(void)
     Yap_opcount[_Ystop] +
     Yap_opcount[_Nstop] +
     Yap_opcount[_index_pred] +
+#if THREADS
+    Yap_opcount[_thread_local] +
+#endif
     Yap_opcount[_save_b_x] +
     Yap_opcount[_save_b_y] +
     Yap_opcount[_undef_p] +

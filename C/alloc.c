@@ -12,7 +12,7 @@
 * Last rev:								 *
 * mods:									 *
 * comments:	allocating space					 *
-* version:$Id: alloc.c,v 1.43 2004-01-23 02:20:59 vsc Exp $		 *
+* version:$Id: alloc.c,v 1.44 2004-02-05 16:56:58 vsc Exp $		 *
 *************************************************************************/
 #ifdef SCCS
 static char SccsId[] = "%W% %G%";
@@ -53,10 +53,6 @@ static char SccsId[] = "%W% %G%";
 
 /************************************************************************/
 /* Yap workspace management                                             */
-
-#if THREADS
-#define USE_SYSTEM_MALLOC 1
-#endif
 
 #if USE_SYSTEM_MALLOC
 
@@ -99,7 +95,7 @@ Yap_FreeAtomSpace(char *p)
 /* If you need to dinamically allocate space from the heap, this is
  * the macro you should use */
 ADDR
-Yap_PreAllocCodeSpace(void)
+Yap_InitPreAllocCodeSpace(void)
 {
   char *ptr;
   UInt sz = ScratchPad.msz;
@@ -118,26 +114,20 @@ Yap_PreAllocCodeSpace(void)
 }
 
 ADDR
-Yap_ExpandPreAllocCodeSpace(void)
+Yap_ExpandPreAllocCodeSpace(UInt sz0)
 {
   char *ptr;
   UInt sz = ScratchPad.msz;
+  if (sz0 < SCRATCH_INC_SIZE)
+    sz0 = SCRATCH_INC_SIZE;
   ScratchPad.msz =
     ScratchPad.sz =
-    sz = sz + SCRATCH_INC_SIZE;
-    
-  if (!(ptr = malloc(sz)))
+    sz = sz + sz0;
+
+  if (!(ptr = realloc(ScratchPad.ptr, sz)))
     return NULL;
-  ScratchPad.ptr = ptr;
   AuxSp = (CELL *)(AuxTop = ptr+sz);
   return ptr;
-}
-
-/* Grabbing the HeapTop is an excellent idea for a sequential system,
-   but does work as well in parallel systems. Anyway, this will do for now */
-void
-Yap_ReleasePreAllocCodeSpace(ADDR ptr)
-{
 }
 
 struct various_codes *heap_regs;
@@ -181,8 +171,8 @@ InitExStacks(int Trail, int Stack)
 	       Yap_HeapBase, Yap_GlobalBase, Yap_LocalBase, Yap_TrailTop);
 
     ta = Trail*K;			/* trail area size   */
-    fprintf(stderr, "Heap+Aux: %ld\tLocal+Global: %uld\tTrail: %uld\n",
-	       (long int)(pm - sa - ta), (unsigned long int)sa, (unsigned long int)ta);
+    fprintf(stderr, "Heap+Aux: %lu\tLocal+Global: %lu\tTrail: %lu\n",
+	       (long unsigned)(pm - sa - ta), (long unsigned)sa, (long unsigned)ta);
   }
 #endif /* DEBUG */
 }
@@ -206,13 +196,18 @@ void
 Yap_InitMemory(int Trail, int Heap, int Stack)
 {
   InitHeap();
-  InitExStacks(Trail, Stack);
 }
 
 int
 Yap_ExtendWorkSpace(Int s)
 {
-  return -1;
+  void *bp = (void *)Yap_GlobalBase, *nbp;
+  UInt s0 = (char *)Yap_TrailTop-(char *)Yap_GlobalBase;
+  nbp = realloc(bp, s+s0);
+  Yap_GlobalBase = (char *)nbp;
+  if (nbp == NULL) 
+    return FALSE;
+  return TRUE;
 }
 
 UInt
@@ -540,6 +535,16 @@ Yap_AllocCodeSpace(unsigned int size)
   return AllocCodeSpace(size);
 }
 
+ADDR
+Yap_ExpandPreAllocCodeSpace(UInt sz)
+{
+  if (!Yap_growheap(FALSE, sz, NULL)) {
+    Yap_Error(OUT_OF_HEAP_ERROR, TermNil, Yap_ErrorMessage);
+    return NULL;
+  }
+  return Addr(HeapTop) + sizeof(CELL);
+}
+
 
 /************************************************************************/
 /* Workspace allocation                                                 */
@@ -574,7 +579,6 @@ ExtendWorkSpace(Int s)
   prolog_exec_mode OldPrologMode = Yap_PrologMode;
 
   Yap_PrologMode = ExtendStackMode;
-  s = ((s-1)/Yap_page_size+1)*Yap_page_size;
   b = VirtualAlloc(brk, s, MEM_COMMIT, PAGE_READWRITE);
   if (b) {
   	brk = (LPVOID) ((Int) brk + s);

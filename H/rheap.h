@@ -673,11 +673,15 @@ RestoreClause(yamop *pc, PredEntry *pp, int mode)
       break;
       /* instructions type l */
     case _enter_profiling:
-    case _count_call:
     case _retry_profiled:
+    case _lock_lu:
+    case _count_call:
     case _count_retry:
-    case _trust_logical_pred:
     case _execute:
+      pc->u.p.p = PtoPredAdjust(pc->u.p.p);
+      pc = NEXTOP(pc,p);
+      break;
+    case _trust_logical_pred:
     case _dexecute:
     case _jump:
     case _move_back:
@@ -717,6 +721,9 @@ RestoreClause(yamop *pc, PredEntry *pp, int mode)
 #endif
     case _pop:
     case _index_pred:
+#if THREADS
+    case _thread_local:
+#endif
     case _expand_index:
     case _undef_p:
     case _spy_pred:

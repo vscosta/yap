@@ -769,6 +769,7 @@ InitCodes(void)
     int i;
     for (i=0; i < MAX_WORKERS; i++) {
       heap_regs->thread_handle[i].in_use = FALSE;
+      heap_regs->thread_handle[i].local_preds = NULL;
     }
   }
   heap_regs->thread_handle[0].id = 0;
@@ -778,7 +779,7 @@ InitCodes(void)
   heap_regs->thread_handle[0].handle = pthread_self();
 #endif
 #if defined(YAPOR) || defined(THREADS)
-  INIT_RWLOCK(heap_regs->bgl);
+  INIT_LOCK(heap_regs->bgl);
   INIT_LOCK(heap_regs->free_blocks_lock);
   INIT_LOCK(heap_regs->heap_used_lock);
   INIT_LOCK(heap_regs->heap_top_lock);

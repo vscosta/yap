@@ -125,6 +125,9 @@ char *Yap_chtype = chtype0+1;
 static char *
 AllocScannerMemory(unsigned int size)
 {
+#if USE_SYSTEM_MALLOC
+  return malloc(AdjustSize(size));
+#else
   char *AuxSpScan;
 
   AuxSpScan = (char *)TR;
@@ -138,6 +141,7 @@ AllocScannerMemory(unsigned int size)
   }
 #endif
   return (AuxSpScan);
+#endif
 }
 
 char *
@@ -453,7 +457,8 @@ get_num(int *chp, int *chbuffp, int inp_stream, int (*Nxtch) (int), int (*Quoted
   }
   while (chtype[ch] == NU) {
     Int oval = val;
-    *sp++ = ch;
+    if (ch != '0')
+      *sp++ = ch;
     if (ch - '0' >= base)
       return (MkIntegerTerm(val));
     val = val * base + ch - '0';
@@ -665,6 +670,8 @@ Yap_tokenizer(int inp_stream)
 	    p->TokInfo = eot_tok;
 	    /* serious error now */
 	    return(l);
+	  } else {
+	    e->TokNext = NULL;
 	  }
 	  t->TokNext = e;
 	  t = e;
@@ -690,6 +697,8 @@ Yap_tokenizer(int inp_stream)
 		p->TokInfo = eot_tok;
 		/* serious error now */
 		return(l);
+	      } else {
+		e2->TokNext = NULL;
 	      }
 	      t->TokNext = e2;
 	      t = e2;
@@ -717,6 +726,8 @@ Yap_tokenizer(int inp_stream)
 		p->TokInfo = eot_tok;
 		/* serious error now */
 		return(l);
+	      } else {
+		e2->TokNext = NULL;
 	      }
 	      t->TokNext = e2;
 	      t = e2;
@@ -896,10 +907,43 @@ Yap_tokenizer(int inp_stream)
       e->Tok = Error_tok;
       e->TokInfo = MkAtomTerm(Yap_LookupAtom(Yap_ErrorMessage));
       e->TokPos = GetCurInpPos(inp_stream);
-      e->TokNext = NIL;
+      e->TokNext = NULL;
       Yap_ErrorMessage = NULL;
       p = e;
     }
   } while (kind != eot_tok);
   return (l);
 }
+
+#if USE_SYSTEM_MALLOC
+static
+void clean_vtable(VarEntry *vt)
+{
+  if (vt == NULL)
+    return;
+  clean_vtable(vt->VarLeft);
+  clean_vtable(vt->VarRight);
+  free(vt);
+}
+
+static
+void clean_tokens(TokEntry *tk)
+{
+  while (tk != NULL) {
+    TokEntry *ntk = tk->TokNext;
+    if (tk->Tok == Ord(String_tok)) {
+      free((void *)(tk->TokInfo));
+    }
+    free(tk);
+    tk = ntk;
+  }
+}
+
+void
+Yap_clean_tokenizer(TokEntry *tokstart, VarEntry *vartable, VarEntry *anonvartable)
+{
+  clean_vtable(vartable);
+  clean_vtable(anonvartable);
+  clean_tokens(tokstart);
+}
+#endif

@@ -1542,6 +1542,7 @@ Yap_InitYaamRegs(void)
 #ifdef THREADS
   int myworker_id = worker_id;
   pthread_setspecific(yaamregs_key, (const void *)ThreadHandle[myworker_id].default_yaam_regs);
+  ThreadHandle[myworker_id].current_yaam_regs = ThreadHandle[myworker_id].default_yaam_regs;
   worker_id = myworker_id;
 #else
   Yap_regp = &Yap_standard_regs;
