@@ -219,6 +219,7 @@ Subnodes of Library
 * Pseudo Random:: Pseudo Random Numbers
 * Queues:: Queue Manipulation
 * Random:: Random Numbers
+* Red-Black Trees:: Predicates to add, lookup and delete in red-black binary  trees.
 * RegExp:: Regular Expression Manipulation
 * Splay Trees:: Splay Trees
 * String I/O:: Writing To and Reading From Strings
@@ -6470,6 +6471,7 @@ Library, Extensions, Builtins, Top
 * Pseudo Random:: Pseudo Random Numbers
 * Queues:: Queue Manipulation
 * Random:: Random Numbers
+* Red-Black Trees:: Predicates to add, lookup and delete in red-black binary  trees.
 * RegExp:: Regular Expression Manipulation
 * Splay Trees:: Splay Trees
 * String I/O:: Writing To and Reading From Strings
@@ -6691,7 +6693,8 @@ predicates library uses code originally written by Martin van Emdem and
 published in the Logic Programming Newsletter, Autumn 1981.  A bug in
 this code was fixed by Philip Vasey, in the Logic Programming
 Newsletter, Summer 1982. The library currently only includes routines to
-insert and lookup elements in the tree.
+insert and lookup elements in the tree. Please try red-black trees if
+you need deletion.
 
 @table @code
 @item avl_insert(+@var{Key},?@var{Value},+@var{T0},+@var{TF})
@@ -7214,7 +7217,7 @@ Creates a new list with the same elements as @var{Queue}.
 @end table
 
 
-@node Random, RegExp, Queues, Library
+@node Random, Red-Black Trees, Queues, Library
 @section Random Number Generator
 @cindex queue
 
@@ -7273,7 +7276,48 @@ random number generator. The integer @code{X} must be in the range
 
 @end table
 
-@node RegExp, Splay Trees, Random, Library
+@node Red-Black Trees, RegExp, Random, Library
+@section Red-Black Trees
+@cindex Red-Black Trees
+
+Red-Black trees are balanced search binary trees. They are named because
+nodes can be classified as either red or black. The code we include is
+based on "Introduction to Algorithms", second edition, by Cormen,
+Leiserson, Rivest and Stein.  The library includes routines to insert,
+lookup and delete elements in the tree.
+
+@table @code
+@item insert(+@var{T0},+@var{Key},?@var{Value},+@var{TF})
+@findex insert/4
+@snindex insert/4
+@cnindex insert/4
+Add an element with key @var{Key} and @var{Value} to the tree
+@var{T0} creating a new AVL tree @var{TF}. Duplicated elements are not
+allowed.
+
+@item lookup(+@var{Key},-@var{Value},+@var{T})
+@findex lookup/3
+@snindex lookup/3
+@cnindex lookup/3
+Lookup an element with key @var{Key} in the AVL tree
+@var{T}, returning the value @var{Value}.
+
+@item new(?@var{T})
+@findex new/1
+@snindex new/1
+@cnindex new/1
+Create a new tree.
+
+@item delete(+@var{T},+@var{Key},-@var{TN})
+@findex delete/3
+@snindex delete/3
+@cnindex delete/3
+Delete element with key @var{Key} from the tree @var{T}, returning a new
+tree @var{TN}.
+
+@end table
+
+@node RegExp, Splay Trees, Red-Black Trees, Library
 @section Regular Expressions
 @cindex regular expressions
 

@@ -6,6 +6,8 @@
 	Cormen, Leiserson, Rivest, and Stein,
 	MIT Press
 
+        Author: Vitor Santos Costa
+
 */
 
 
