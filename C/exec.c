@@ -283,7 +283,7 @@ p_execute(void)
 static Int
 p_execute_in_mod(void)
 {				/* '$execute'(Goal)	 */
-  return(do_execute(Deref(ARG1), IntOfTerm(ARG2)));
+  return(do_execute(Deref(ARG1), IntOfTerm(Deref(ARG2))));
 }
 
 inline static Int

@@ -11465,7 +11465,7 @@ absmi(int inp)
       BOp(p_execute, sla);
       { 
 	PredEntry *pen;
-	SMALLUNSGN mod = IntOfTerm(ARG2);
+	SMALLUNSGN mod = IntOfTerm(Deref(ARG2));
 
 	CACHE_Y_AS_ENV(Y);
 #ifndef NO_CHECKING
