@@ -107,7 +107,8 @@ transg( M:G) --> !,
   M:transg( G).
 transg( G) --> [ G ].
 
-run( Mutex, _) :- nonvar(Mutex).
+%vsc: added ! (01/06/06)
+run( Mutex, _) :- nonvar(Mutex), !.
 run( Mutex, G) :- var(Mutex), Mutex=done, call( G).
 
 :- meta_predicate geler(+,:).

@@ -21,8 +21,6 @@ static char     SccsId[] = "%W% %G%";
 #include "absmi.h"
 #include "yapio.h"
 
-#define DEBUG 1
-
 #define EARLY_RESET 1
 #define EASY_SHUNTING 1
 #define HYBRID_SCHEME 1
@@ -104,10 +102,11 @@ gc_lookup_ma_var(CELL *addr, tr_fr_ptr trp) {
     nptr = nptr->next;
   }
   nptr = GC_ALLOC_NEW_MASPACE();
+  optr->next = nptr;
   nptr->addr = addr;
-  nptr->next = optr;
   nptr->trptr = trp;
   nptr->ma_list = live_list;
+  nptr->next = NULL;
   live_list = nptr;
   return(NULL);
 }
@@ -153,6 +152,8 @@ STATIC_PROTO(Int  p_gc, (void));
 static choiceptr current_B;
 
 static tr_fr_ptr sTR;
+
+static CELL *prev_HB;
 #endif
 
 static tr_fr_ptr new_TR;
@@ -322,6 +323,7 @@ push_registers(Int num_regs, yamop *nextop)
   TrailTerm(TR+3) = DelayedVars;
   TR += 4;
 #endif
+  TrailTerm(TR++) = AbsAppl(CurrentModulePtr-1);
   for (i = 1; i <= num_regs; i++)
     TrailTerm(TR++) = (CELL) XREGS[i];
   /* push any live registers we might have hanging around */
@@ -365,6 +367,7 @@ pop_registers(Int num_regs, yamop *nextop)
   DelayedVars = TrailTerm(ptr++);
 #endif
 #endif
+  CurrentModulePtr = RepAppl(TrailTerm(ptr++))+1;
   for (i = 1; i <= num_regs; i++)
     XREGS[i] = TrailTerm(ptr++);
   /* pop any live registers we might have hanging around */
@@ -660,7 +663,7 @@ init_dbtable(tr_fr_ptr trail_ptr) {
 #ifdef DEBUG
 
 #define INSTRUMENT_GC 1
-/*#define CHECK_CHOICEPOINTS 1*/
+#define CHECK_CHOICEPOINTS 1
 
 #ifdef INSTRUMENT_GC
 typedef enum {
@@ -850,7 +853,7 @@ mark_variable(CELL_PTR current)
       if (!MARKED((cnext = *next))) {
 	if (IsVarTerm(cnext) && (CELL)next == cnext) {
 	  /* new global variable to new global variable */
-	  if (current < H && current >= HB && next >= HB) {
+	  if (current < prev_HB && current >= HB && next >= HB && next < prev_HB) {
 #ifdef INSTRUMENT_GC
 	    inc_var(current, current);
 #endif	      
@@ -866,7 +869,7 @@ mark_variable(CELL_PTR current)
 	  }
 	} else {
 	  /* binding to a determinate reference */
-	  if (next >= HB && current < LCL0) {
+	  if (next >= HB && current < LCL0 && cnext != TermFoundVar) {
 	    *current = cnext;
 	    total_marked--;
 	    POP_POINTER();
@@ -1369,6 +1372,9 @@ static void
 mark_choicepoints(register choiceptr gc_B, tr_fr_ptr saved_TR)
 {
 
+#ifdef EASY_SHUNTING
+    HB = H;
+#endif
   while (gc_B != NULL) {
     op_numbers opnum;
     register OPCODE op;
@@ -1376,6 +1382,7 @@ mark_choicepoints(register choiceptr gc_B, tr_fr_ptr saved_TR)
 
 #ifdef EASY_SHUNTING
     current_B = gc_B;
+    prev_HB = HB;
 #endif
     HB = gc_B->cp_h;
 #ifdef INSTRUMENT_GC
@@ -1677,14 +1684,11 @@ into_relocation_chain(CELL_PTR current, CELL_PTR next)
 static void 
 sweep_trail(choiceptr gc_B, tr_fr_ptr old_TR)
 {
-  tr_fr_ptr     trail_ptr, dest, tri = (tr_fr_ptr)db_vec;
+  tr_fr_ptr     trail_ptr, dest;
   Int OldHeapUsed = HeapUsed;
 #ifdef DEBUG
   Int hp_entrs = 0, hp_erased = 0, hp_not_in_use = 0,
     hp_in_use_erased = 0, code_entries = 0;
-#endif
-#if  MULTI_ASSIGNMENT_VARIABLES
-  tr_fr_ptr next_timestamp = NULL;
 #endif
 
   /* adjust cp_tr pointers */
@@ -1814,33 +1818,6 @@ sweep_trail(choiceptr gc_B, tr_fr_ptr old_TR)
 	else
 	  ptr = RepAppl(trail_cell);
 
-	/* now, we must check whether we are looking at a time-stamp */
-	if (next_timestamp == trail_ptr) {
-	  /* we have a time stamp. Problem is: the trail shifted and we can not trust the
-	     current time stamps */
-	  CELL old_cell = *ptr;
-	  int was_marked = MARKED(old_cell);
-	  tr_fr_ptr old_timestamp;
-
-	  if (was_marked)
-	    old_cell = UNMARK_CELL(old_cell);
-	  old_timestamp = (tr_fr_ptr)TrailBase+IntegerOfTerm(old_cell);
-
-	  if (old_timestamp >= trail_ptr) {
-	    /* first time, we found the current timestamp */
-	    old = MkIntTerm(0);
-	  } else {
-	    /* set time stamp to current */
-	    old = old_cell;
-	  }
-	  *ptr = MkIntegerTerm(dest-(tr_fr_ptr)TrailBase);
-	  if (was_marked)
-	    MARK(ptr);
-	} else if (ptr < H0 || UNMARK_CELL(ptr[-1]) == (CELL)FunctorMutable) {
-	  /* yes, we do have a time stamp */
-	  next_timestamp = trail_ptr+2;
-	}
-
 	TrailTerm(dest) = old;
 	TrailTerm(dest+1) = trail_cell;
 	if (MARKED(old)) {
@@ -1853,13 +1830,7 @@ sweep_trail(choiceptr gc_B, tr_fr_ptr old_TR)
 	if (MARKED(trail_cell)) {
 	  UNMARK(&TrailTerm(dest));
 	  if (HEAP_PTR(trail_cell)) {
-	    if (next_timestamp == trail_ptr) {
-	      /* wait until we're over to insert in relocation chain */
-	      TrailTerm(tri) = (CELL)dest;
-	      tri++;
-	    } else {
-	      into_relocation_chain(&TrailTerm(dest), GET_NEXT(trail_cell));
-	    }
+	    into_relocation_chain(&TrailTerm(dest), GET_NEXT(trail_cell));
 	  }
 	}
 	trail_ptr++;
@@ -1876,13 +1847,6 @@ sweep_trail(choiceptr gc_B, tr_fr_ptr old_TR)
       }
       trail_ptr++;
       dest++;
-    }
-  }
-  while (tri > (tr_fr_ptr)db_vec) {
-    tr_fr_ptr x = (tr_fr_ptr)TrailTerm(--tri);
-    CELL trail_cell = TrailTerm(x);
-    if (HEAP_PTR(trail_cell)) {
-      into_relocation_chain(&TrailTerm(x), GET_NEXT(trail_cell));
     }
   }
   new_TR = dest;
@@ -2672,7 +2636,7 @@ compaction_phase(tr_fr_ptr old_TR, CELL *current_env, yamop *curp, CELL *max)
   if (total_marked != iptop-(CELL_PTR *)H && iptop < (CELL_PTR *)ASP -1024)
     YP_fprintf(YP_stderr,"[GC] Oops on iptop-H (%d) vs %d\n", iptop-(CELL_PTR *)H, total_marked);
 #endif
-  if (iptop < (CELL_PTR *)ASP /* && 10*total_marked < H-H0 */) {
+  if (iptop < (CELL_PTR *)ASP && 10*total_marked < H-H0) {
     int effectiveness = (((H-H0)-total_marked)*100)/(H-H0);
 #ifdef DEBUG
     YP_fprintf(YP_stderr,"[GC] using pointers (%d)\n", effectiveness);

@@ -194,7 +194,7 @@ AddBBProp(Term t1, char *msg)
 
   if (IsVarTerm(t1)) {
     Error(INSTANTIATION_ERROR, t1, msg);
-    CurrentModule = old_module;
+    *CurrentModulePtr = MkIntTerm(old_module);
     return(NULL);
   } if (IsAtomTerm(t1)) {
     p = PutBBProp(RepAtom(AtomOfTerm(t1)));
@@ -203,20 +203,20 @@ AddBBProp(Term t1, char *msg)
   } else if (IsApplTerm(t1) && FunctorOfTerm(t1) == FunctorModule) {
     Term mod = ArgOfTerm(1, t1);
     if (!IsVarTerm(mod) ) {
-      CurrentModule = LookupModule(mod);
+      *CurrentModulePtr = MkIntTerm(LookupModule(mod));
       t1 = ArgOfTerm(2, t1);
       p = AddBBProp(t1, msg);
     } else {
       Error(INSTANTIATION_ERROR, t1, msg);
-      CurrentModule = old_module;
+      *CurrentModulePtr = MkIntTerm(old_module);
       return(NULL);
     }
   } else {
     Error(TYPE_ERROR_ATOM, t1, msg);
-    CurrentModule = old_module;
+    *CurrentModulePtr = MkIntTerm(old_module);
     return(NULL);
   }
-  CurrentModule = old_module;
+  *CurrentModulePtr = MkIntTerm(old_module);
   return(p);
 }
 
@@ -228,7 +228,7 @@ FetchBBProp(Term t1, char *msg)
 
   if (IsVarTerm(t1)) {
     Error(INSTANTIATION_ERROR, t1, msg);
-    CurrentModule = old_module;
+    *CurrentModulePtr = MkIntTerm(old_module);
     return(NULL);
   } if (IsAtomTerm(t1)) {
     p = GetBBProp(RepAtom(AtomOfTerm(t1)));
@@ -237,20 +237,20 @@ FetchBBProp(Term t1, char *msg)
   } else if (IsApplTerm(t1) && FunctorOfTerm(t1) == FunctorModule) {
     Term mod = ArgOfTerm(1, t1);
     if (!IsVarTerm(mod) ) {
-      CurrentModule = LookupModule(mod);
+      *CurrentModulePtr = MkIntTerm(LookupModule(mod));
       t1 = ArgOfTerm(2, t1);
       p = FetchBBProp(t1, msg);
     } else {
       Error(INSTANTIATION_ERROR, t1, msg);
-      CurrentModule = old_module;
+      *CurrentModulePtr = MkIntTerm(old_module);
       return(NULL);
     }
   } else {
     Error(TYPE_ERROR_ATOM, t1, msg);
-    CurrentModule = old_module;
+    *CurrentModulePtr = MkIntTerm(old_module);
     return(NULL);
   }
-  CurrentModule = old_module;
+  *CurrentModulePtr = MkIntTerm(old_module);
   return(p);
 }
 

@@ -162,10 +162,11 @@ ineq_one_s_n_i( X, I) :-
 ineq_one_old_s_p_0( [], 	 _, Ix) :-
   arith_eval( Ix < 0).
 ineq_one_old_s_p_0( [Y*Ky|Tail], X, Ix) :-
-  ( Tail = [],
+  %vsc: added -> (01/06/06)
+  ( Tail = [] ->
       arith_eval( -Ix/Ky, Bound),
       update_indep( strict, Y, Ky, Bound)
-  ; Tail = [_|_],
+  ; Tail = [_|_] ->
       arith_eval( 0, Zero),
       get_atts( X, [lin(Lin),type(Type),strictness(Old)]),
       udus( Type, X, Lin, Zero, Old)
@@ -174,11 +175,12 @@ ineq_one_old_s_p_0( [Y*Ky|Tail], X, Ix) :-
 ineq_one_old_s_n_0( [], _, Ix) :-
   arith_eval( Ix > 0).
 ineq_one_old_s_n_0( [Y*Ky|Tail], X, Ix) :-
-  ( Tail = [],
+  %vsc: added -> (01/06/06)
+  ( Tail = [] ->
       arith_eval( -Ky, Coeff),
       arith_eval( Ix/Coeff, Bound),
       update_indep( strict, Y, Coeff, Bound)
-  ; Tail = [_|_],
+  ; Tail = [_|_] ->
       arith_eval( 0, Zero),
       get_atts( X, [lin(Lin),type(Type),strictness(Old)]),
       udls( Type, X, Lin, Zero, Old)
@@ -187,10 +189,11 @@ ineq_one_old_s_n_0( [Y*Ky|Tail], X, Ix) :-
 ineq_one_old_s_p_i( [], I, _, Ix) :-
   arith_eval( Ix+I < 0).
 ineq_one_old_s_p_i( [Y*Ky|Tail], I, X, Ix) :-
-  ( Tail = [],
+  %vsc: added -> (01/06/06)
+  ( Tail = [] ->
       arith_eval( -(Ix+I)/Ky, Bound),
       update_indep( strict, Y, Ky, Bound)
-  ; Tail = [_|_],
+  ; Tail = [_|_] ->
       arith_eval( -I, Bound),
       get_atts( X, [lin(Lin),type(Type),strictness(Old)]),
       udus( Type, X, Lin, Bound, Old)
@@ -199,11 +202,12 @@ ineq_one_old_s_p_i( [Y*Ky|Tail], I, X, Ix) :-
 ineq_one_old_s_n_i( [], 	 I, _, Ix) :-
   arith_eval( -Ix+I < 0).
 ineq_one_old_s_n_i( [Y*Ky|Tail], I, X, Ix) :-
-  ( Tail = [],
+  %vsc: added -> (01/06/06)
+  ( Tail = [] ->
       arith_eval( -Ky, Coeff),
       arith_eval( (Ix-I)/Coeff, Bound),
       update_indep( strict, Y, Coeff, Bound)
-  ; Tail = [_|_],
+  ; Tail = [_|_] ->
       get_atts( X, [lin(Lin),type(Type),strictness(Old)]),
       udls( Type, X, Lin, I, Old)
   ).
@@ -248,10 +252,11 @@ ineq_one_n_n_i( X, I) :-
 ineq_one_old_n_p_0( [], 	 _, Ix) :-
   arith_eval( Ix =< 0).
 ineq_one_old_n_p_0( [Y*Ky|Tail], X, Ix) :-
-  ( Tail = [],
+  %vsc: added -> (01/06/06)
+  ( Tail = [] ->
       arith_eval( -Ix/Ky, Bound),
       update_indep( nonstrict, Y, Ky, Bound)
-  ; Tail = [_|_],
+  ; Tail = [_|_] ->
       arith_eval( 0, Zero),
       get_atts( X, [lin(Lin),type(Type),strictness(Old)]),
       udu( Type, X, Lin, Zero, Old)
@@ -260,11 +265,12 @@ ineq_one_old_n_p_0( [Y*Ky|Tail], X, Ix) :-
 ineq_one_old_n_n_0( [], _, Ix) :-
   arith_eval( Ix >= 0).
 ineq_one_old_n_n_0( [Y*Ky|Tail], X, Ix) :-
-  ( Tail = [],
+  %vsc: added -> (01/06/06)
+  ( Tail = [] ->
       arith_eval( -Ky, Coeff),
       arith_eval( Ix/Coeff, Bound),
       update_indep( nonstrict, Y, Coeff, Bound)
-  ; Tail = [_|_],
+  ; Tail = [_|_] ->
       arith_eval( 0, Zero),
       get_atts( X, [lin(Lin),type(Type),strictness(Old)]),
       udl( Type, X, Lin, Zero, Old)
@@ -273,10 +279,11 @@ ineq_one_old_n_n_0( [Y*Ky|Tail], X, Ix) :-
 ineq_one_old_n_p_i( [], I, _, Ix) :-
   arith_eval( Ix+I =< 0).
 ineq_one_old_n_p_i( [Y*Ky|Tail], I, X, Ix) :-
-  ( Tail = [],
+  %vsc: added -> (01/06/06)
+  ( Tail = [] ->
       arith_eval( -(Ix+I)/Ky, Bound),
       update_indep( nonstrict, Y, Ky, Bound)
-  ; Tail = [_|_],
+  ; Tail = [_|_] ->
       arith_eval( -I, Bound),
       get_atts( X, [lin(Lin),type(Type),strictness(Old)]),
       udu( Type, X, Lin, Bound, Old)
@@ -285,11 +292,12 @@ ineq_one_old_n_p_i( [Y*Ky|Tail], I, X, Ix) :-
 ineq_one_old_n_n_i( [], 	 I, _, Ix) :-
   arith_eval( -Ix+I =< 0).
 ineq_one_old_n_n_i( [Y*Ky|Tail], I, X, Ix) :-
-  ( Tail = [],
+  %vsc: added -> (01/06/06)
+  ( Tail = [] ->
       arith_eval( -Ky, Coeff),
       arith_eval( (Ix-I)/Coeff, Bound),
       update_indep( nonstrict, Y, Coeff, Bound)
-  ; Tail = [_|_],
+  ; Tail = [_|_] ->
       get_atts( X, [lin(Lin),type(Type),strictness(Old)]),
       udl( Type, X, Lin, I, Old)
   ).
@@ -299,11 +307,12 @@ ineq_one_old_n_n_i( [Y*Ky|Tail], I, X, Ix) :-
 
 ineq_more( [],	       I,  _,	 Strictness) :- ineq_ground( Strictness, I).
 ineq_more( [X*K|Tail], Id, Lind, Strictness) :-
-   ( Tail = [], 					% one var: update bound instead of slack introduction
+  %vsc: added -> (01/06/06)
+   ( Tail = [] -> 					% one var: update bound instead of slack introduction
        get_or_add_class( X, _),
        arith_eval( -Id/K, Bound),
        update_indep( Strictness, X, K, Bound)
-   ; Tail = [_|_],
+   ; Tail = [_|_] ->
        ineq_more( Strictness, Lind)
    ).
 

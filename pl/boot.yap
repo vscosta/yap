@@ -662,13 +662,7 @@ incore(G) :- '$execute'(G).
 '$call'(M:_,_,G0) :- var(M), !,
 	throw(error(instantiation_error,call(G0))).
 '$call'(M:G,CP,G0) :- !,
-	( '$current_module'(M) ->
-	    '$call'(G,CP,G0)
-        ;
-	     '$current_module'(Old,M),
-	     ( '$call'(G,CP,G0); '$current_module'(_,Old), fail ),
-	     ( '$current_module'(_,Old); '$current_module'(_,M), fail)
-        ).
+        '$mod_switch'(M,'$call'(G,CP,G0)).
 '$call'((A,B),CP,G0) :- !,
 	'$execute_within'(A,CP,G0),
 	'$execute_within'(B,CP,G0).
@@ -722,14 +716,7 @@ incore(G) :- '$execute'(G).
 '$spied_call'(M:_,_,G0) :- var(M), !,
 	throw(error(instantiation_error,call(G0))).
 '$spied_call'(M:G,CP,G0) :- !,
-	( '$current_module'(M) ->
-	    '$check_callable'(G,M:G),
-	    '$spied_call'(G,CP,G0)
-        ;
-	     '$current_module'(Old,M),
-	     ( '$spied_call'(G,CP,G0); '$current_module'(_,Old), fail ),
-	     ( '$current_module'(_,Old); '$current_module'(_,M), fail)
-        ).
+        '$mod_switch'(M,'$spied_call'(G,CP,G0)).
 '$spied_call'((A,B),CP,G0) :- !,
 	'$execute_within'(A,CP,G0),
 	'$execute_within'(B,CP,G0).
@@ -803,7 +790,7 @@ incore(G) :- '$execute'(G).
 '$undefp'([M|G]) :-
 	functor(G,F,N),
 	'$recorded'('$import','$import'(S,M,F,N),_),
-	S\= M, % can't try importing from the module itself.
+	S \= M, % can't try importing from the module itself.
 	!,
 	'$exec_with_expansion'(G, S, M).
 '$undefp'([M|G]) :-
@@ -894,14 +881,14 @@ break :- '$get_value'('$break',BL), NBL is BL+1,
 	'$get_value'('$consulting',Old),
 	'$set_value'('$consulting',true),
 	'$recorda'('$initialisation','$',_),
-	( '$get_value'($verbose,on) ->
+	( '$get_value'('$verbose',on) ->
 		tab(user_error,LC),
 		'$format'(user_error, "[ consulting ~w... ]~n", [F])
 	    ; true ),
 	'$loop'(Stream,consult),
 	'$end_consult',
 	( LC == 0 -> prompt(_,'   |: ') ; true),
-	( '$get_value'($verbose,on) ->
+	( '$get_value'('$verbose',on) ->
 		tab(user_error,LC) ;
 	true ),
 	H is heapused-H0, T is cputime-T0,

@@ -50,7 +50,8 @@ bb_loop( Opt, Is, Eps) :-
 %
 % added ineqs may have led to binding
 %
-bb_reoptimize( Obj, Inf) :- var( Obj), iterate_dec( Obj, Inf).
+%vsc: added ! (01/06/06)
+bb_reoptimize( Obj, Inf) :- var( Obj), !, iterate_dec( Obj, Inf).
 bb_reoptimize( Obj, Inf) :- nonvar( Obj), Inf = Obj.
 
 bb_better_bound( Inf) :-
@@ -59,7 +60,7 @@ bb_better_bound( Inf) :-
 	arith_eval( Inf < Inc).
 bb_better_bound( _).
 
-:- parallel(bb_branch/3).
+% :- parallel(bb_branch/3).
 
 bb_branch( V, U, _) :- { V =< U }.
 bb_branch( V, _, L) :- { V >= L }.
@@ -69,7 +70,8 @@ vertex_value( [X|Xs], [V|Vs]) :-
 	rhs_value( X, V),
 	vertex_value( Xs, Vs).
 
-rhs_value( Xn, Value) :- nonvar(Xn), Value=Xn.
+%vsc: added ! (01/06/06)
+rhs_value( Xn, Value) :- nonvar(Xn), !, Value=Xn.
 rhs_value( Xn, Value) :- var(Xn),
 	deref_var( Xn, Xd),
 	decompose( Xd, _, R, I),

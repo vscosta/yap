@@ -377,12 +377,12 @@ save_regs(int mode)
     putcellptr((CELL *)TopB);
     putcellptr((CELL *)DelayedB);
     putout(FlipFlop);
+    putcellptr(CurrentModulePtr);
 #ifdef COROUTINING
     putout(DelayedVars);
 #endif
   }
   putcellptr((CELL *)HeapPlus);
-  putout(CurrentModule);
   if (mode == DO_EVERYTHING) {
 #ifdef COROUTINING
     putout(WokenGoals);
@@ -672,12 +672,12 @@ get_regs(int flag)
     TopB = (choiceptr)get_cellptr();
     DelayedB = (choiceptr)get_cellptr();
     FlipFlop = get_cell();
+    CurrentModulePtr = get_cellptr();
 #ifdef COROUTINING
     DelayedVars = get_cell();
 #endif
   }
   HeapPlus = (ADDR)get_cellptr();
-  CurrentModule = get_cell();
   if (flag == DO_EVERYTHING) {
 #ifdef COROUTINING
     WokenGoals = get_cell();
@@ -1082,6 +1082,9 @@ restore_codes(void)
   heap_regs->functor_stream = FuncAdjust(heap_regs->functor_stream);
   heap_regs->functor_stream_pos = FuncAdjust(heap_regs->functor_stream_pos);
   heap_regs->functor_stream_eOS = FuncAdjust(heap_regs->functor_stream_eOS);
+  heap_regs->functor_change_module = FuncAdjust(heap_regs->functor_change_module);
+  heap_regs->functor_current_module = FuncAdjust(heap_regs->functor_current_module);
+  heap_regs->functor_mod_switch = FuncAdjust(heap_regs->functor_mod_switch);
   heap_regs->functor_v_bar = FuncAdjust(heap_regs->functor_v_bar);
   heap_regs->functor_var = FuncAdjust(heap_regs->functor_var);
 #ifdef EUROTRA
@@ -1145,6 +1148,8 @@ restore_regs(int flag)
     HeapPlus = AddrAdjust(HeapPlus);
     if (MyTR)
       MyTR = PtoTRAdjust(MyTR);
+    if (CurrentModulePtr)
+      CurrentModulePtr = PtoGloAdjust(CurrentModulePtr);
 #ifdef COROUTINING
     DelayedVars = AbsAppl(PtoGloAdjust(RepAppl(DelayedVars)));
 #ifdef MULTI_ASSIGNMENT_VARIABLES

@@ -10,7 +10,7 @@
 * File:		Heap.h         						 *
 * mods:									 *
 * comments:	Heap Init Structure					 *
-* version:      $Id: Heap.h,v 1.2 2001-04-16 16:41:04 vsc Exp $	 *
+* version:      $Id: Heap.h,v 1.3 2001-06-06 19:10:51 vsc Exp $	 *
 *************************************************************************/
 
 /* information that can be stored in Code Space */
@@ -237,6 +237,9 @@ typedef struct various_codes {
     functor_stream,
     functor_stream_pos,
     functor_stream_eOS,
+    functor_change_module,
+    functor_current_module,
+    functor_mod_switch,
     functor_v_bar,
     functor_var;
   Term
@@ -415,6 +418,9 @@ typedef struct various_codes {
 #define  FunctorStream            heap_regs->functor_stream
 #define  FunctorStreamPos         heap_regs->functor_stream_pos
 #define  FunctorStreamEOS         heap_regs->functor_stream_eOS
+#define  FunctorChangeModule      heap_regs->functor_change_module
+#define  FunctorCurrentModule     heap_regs->functor_current_module
+#define  FunctorModSwitch         heap_regs->functor_mod_switch
 #define  FunctorVBar              heap_regs->functor_v_bar
 #define  FunctorVar               heap_regs->functor_var
 #define  TermDollarU              heap_regs->term_dollar_u

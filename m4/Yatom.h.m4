@@ -382,7 +382,6 @@ typedef enum {
 } db_term_flags;
 
 #define MaxModules	255
-extern SMALLUNSGN CurrentModule;
 
 typedef	struct {
   Prop	NextOfPE;	     /* used to chain properties		*/

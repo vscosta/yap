@@ -125,13 +125,13 @@ ReOpenLoadForeign(void)
   YapInitProc InitProc = NULL;
 
   while (f_code != NULL) {
-    CurrentModule = f_code->module;
+    *CurrentModulePtr = MkIntTerm(f_code->module);
     if(ReLoadForeign(f_code->objs,f_code->libs,f_code->f,&InitProc)==LOAD_SUCCEEDED) {
       (*InitProc)();
     }
     f_code = f_code->next;
   }
-  CurrentModule = OldModule;
+  *CurrentModulePtr = MkIntTerm(OldModule);
 }
 
 

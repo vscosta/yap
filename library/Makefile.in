@@ -1,0 +1,42 @@
+#
+# default base directory for YAP installation
+#
+ROOTDIR = @prefix@
+#
+# where the binary should be
+#
+BINDIR = $(ROOTDIR)/bin
+#
+# where YAP should look for libraries
+#
+LIBDIR=$(ROOTDIR)/lib/Yap
+#
+#
+# You shouldn't need to change what follows.
+#
+INSTALL=@INSTALL@
+INSTALL_DATA=@INSTALL_DATA@
+INSTALL_PROGRAM=@INSTALL_PROGRAM@
+srcdir=@srcdir@
+
+PROGRAMS= $(srcdir)/assoc.yap \
+	$(srcdir)/atts.yap \
+	$(srcdir)/avl.yap \
+	$(srcdir)/charsio.yap \
+	$(srcdir)/heaps.yap \
+	$(srcdir)/lists.yap \
+	$(srcdir)/ordsets.yap \
+	$(srcdir)/prandom.yap \
+	$(srcdir)/queues.yap \
+	$(srcdir)/random.yap \
+	$(srcdir)/regexp.yap \
+	$(srcdir)/terms.yap \
+	$(srcdir)/timeout.yap \
+	$(srcdir)/trees.yap \
+	$(srcdir)/ugraphs.yap
+
+install: $(PROGRAMS)
+	-mkdir $(DESTDIR)$(LIBDIR)/library
+	$(INSTALL_DATA) $(PROGRAMS) $(DESTDIR)$(LIBDIR)/library
+
+

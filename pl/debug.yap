@@ -31,7 +31,7 @@
 '$suspy'(M:S,P) :- !,
     '$current_module'(Old,M),
     ('$suspy'(S,P),fail ; true), !,
-    '$current_module'(_,Old).
+    '$change_module'(Old).
 '$suspy'([],_) :- !.
 '$suspy'([F|L],M) :- !, ( '$suspy'(F,M) ; '$suspy'(L,M) ).
 '$suspy'(F/N,M) :- !, functor(T,F,N),
@@ -233,13 +233,7 @@ debugging :-
 '$spy'([Module|G]) :- !,
 %    write(user_error,$spym(M,G)), nl,
     (	  Module=prolog -> '$spy'(G);
-          '$current_module'(Module) -> '$spy'(G);
-	  ( $current_module(Old,Module),
-	    ( '$spy'(G);
-	      $current_module(_,Old), fail
-	    ),
-	    ( $current_module(_,Old); $current_module(_,Module),fail)
-	  )
+	  '$mod_switch'(Module, '$spy'(G))
      ).
 '$spy'(true) :- !, '$creep'.
 '$spy'('$cut_by'(M)) :- !, '$cut_by'(M).
@@ -618,9 +612,7 @@ debugging :-
 '$creep_call'(R,_) :- db_reference(R), !,
 	throw(error(type_error(callable,R),meta_call(R))).
 '$creep_call'(M:G,CP) :- !,
-	'$current_module'(Old,M),
-	( '$creep_call'(G,CP); '$current_module'(_,Old), fail ),
-	( '$current_module'(_,Old); '$current_module'(_,M), fail).
+        '$mod_switch'(M, '$creep_call'(G,CP)),
 	'$current_module'(Module),
 	'$spy'([Module|fail]).
 '$creep_call'(fail,_) :- !,
@@ -767,23 +759,11 @@ debugging :-
 	abort.
 '$creep'([Module|'$trace'(P,G,L)]) :- !,
     (     Module=prolog -> '$trace'(P,G,L);
-    	  $current_module(Module) -> '$trace'(P,G,L);
-	  ( $current_module(Old,Module),
-	    ( '$trace'(P,G,L);
-	      $current_module(_,Module), fail
-	    ),
-	    $current_module(_,Old)
-	  )
+	  '$mod_switch'(Module, '$trace'(P,G,L))
      ).
 '$creep'([Module|'$creep_call'(G,CP)]) :- !,
     (     Module=prolog -> '$creep_call'(G,CP);
-    	  $current_module(Module) -> '$creep_call'(G,CP);
-	  ( $current_module(Old,Module),
-	    ( '$creep_call'(G,CP);
-	      $current_module(_,Module), fail
-	    ),
-	    $current_module(_,Old)
-	  )
+	  '$mod_switch'(Module, '$creep_call'(G,P) )
      ).
 '$creep'([_|'$leave_creep']) :- !.
 '$creep'(G) :- '$spy'(G).

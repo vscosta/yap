@@ -70,11 +70,12 @@ p_current_module(void)
     return (0);
   for (i = 0; i < NoOfModules; ++i)
     if (ModuleName[i] == t) {
-      CurrentModule = i;
-      return (1);
+       *CurrentModulePtr = MkIntTerm(i);
+      return (TRUE);
     }
-  ModuleName[CurrentModule = NoOfModules++] = t;
-  return (1);
+    *CurrentModulePtr = MkIntTerm(NoOfModules);
+  ModuleName[NoOfModules++] = t;
+  return (TRUE);
 }
 
 static Int
@@ -85,12 +86,22 @@ p_current_module1(void)
   return (1);
 }
 
+static Int
+p_change_module(void)
+{				/* $change_module(New)		 */
+  Term t = MkIntTerm(LookupModule(Deref(ARG1)));
+  UpdateTimedVar(AbsAppl(CurrentModulePtr-1), t);
+  return (TRUE);
+}
+
 void 
 InitModules(void)
 {
-  ModuleName[CurrentModule = PrimitivesModule = 0] =
+  ModuleName[PrimitivesModule = 0] =
     MkAtomTerm(LookupAtom("prolog"));
+  *CurrentModulePtr = MkIntTerm(0);
   ModuleName[1] = MkAtomTerm(LookupAtom("user"));
   InitCPred("$current_module", 2, p_current_module, SafePredFlag|SyncPredFlag);
   InitCPred("$current_module", 1, p_current_module1, SafePredFlag|SyncPredFlag);
+  InitCPred("$change_module", 1, p_change_module, SafePredFlag|SyncPredFlag);
 }

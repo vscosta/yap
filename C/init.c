@@ -151,11 +151,6 @@ REGSTORE REGS;
 
 #endif
 
-/* module data */
-
-SMALLUNSGN      CurrentModule = 0;
-
-
 /************** Access to yap initial arguments ***************************/
 
 char          **yap_args;
@@ -180,6 +175,8 @@ sigjmp_buf         RestartEnv;	/* used to restart after an abort execution */
 /************ table of C-Predicates *************/
 CPredicate    c_predicates[MAX_C_PREDS];
 cmp_entry     cmp_funcs[MAX_CMP_FUNCS];
+
+static CELL InitModuleAddress;
 
 /**************	declarations local to init.c ************************/
 static char    *optypes[] =
@@ -940,6 +937,9 @@ InitCodes(void)
   heap_regs->functor_stream = MkFunctor (AtomStream, 1);
   heap_regs->functor_stream_pos = MkFunctor (AtomStreamPos, 3);
   heap_regs->functor_stream_eOS = MkFunctor (LookupAtom("end_of_stream"), 1);
+  heap_regs->functor_change_module = MkFunctor (LookupAtom("$change_module"), 1);
+  heap_regs->functor_current_module = MkFunctor (LookupAtom("$current_module"), 1);
+  heap_regs->functor_mod_switch = MkFunctor (LookupAtom("$mod_switch"), 2);
   heap_regs->functor_v_bar = MkFunctor(LookupAtom("|"), 2);
   heap_regs->functor_var = MkFunctor(AtomVar, 1);
 #ifdef EUROTRA
@@ -952,9 +952,9 @@ InitCodes(void)
   heap_regs->yap_lib_dir = NULL;
   heap_regs->size_of_overflow  = 0;
   /* make sure no one else can use these two atoms */
-  CurrentModule = 1;
+  *CurrentModulePtr = MkIntTerm(1);
   heap_regs->pred_goal_expansion = RepPredProp(PredProp(LookupAtom("goal_expansion"),3));
-  CurrentModule = 0;
+  *CurrentModulePtr = MkIntTerm(0);
   heap_regs->dead_clauses = NULL;
   heap_regs->pred_meta_call = RepPredProp(PredProp(heap_regs->atom_meta_call,3));
   ReleaseAtom(AtomOfTerm(heap_regs->term_refound_var));
@@ -1082,6 +1082,7 @@ InitStacks(int Heap,
   /* the emulator will eventually copy them to its own local
      register array, but for now they exist */
 #endif /* PUSH_REGS */
+  CurrentModulePtr = &InitModuleAddress;
 
   /* Init signal handling and time */
   /* also init memory page size, required by later functions */

@@ -44,10 +44,8 @@ $old_depth_bound_call(A,D) :-
 	    '$check_callable'(G,M:G),
 	    '$call_depth_limited'(G,CP,D)
         ;
-	     '$current_module'(Old,M),
 	     '$check_callable'(G,M:G),
-	     ( '$call_depth_limited'(G,CP,D); '$current_module'(_,Old), fail ),
-	     ( '$current_module'(_,Old); '$current_module'(_,M), fail)
+	     '$mod_switch'(M,'$call_depth_limited'(G,CP,D) )
         ).
 '$call_depth_limited'(fail,_,_) :- !, fail.
 '$call_depth_limited'(false,_,_) :- !, false.
@@ -126,15 +124,8 @@ $old_depth_bound_call(A,D) :-
 
 
 '$spied_call_depth_limited'(M:G,CP,D) :- !,
-	( '$current_module'(M) ->
-	    '$check_callable'(G,M:G),
-	    '$spied_call_depth_limited'(G,CP,D)
-        ;
-	     '$current_module'(Old,M),
-	     '$check_callable'(G,M:G),
-	     ( '$spied_call_depth_limited'(G,CP,D); '$current_module'(_,Old), fail ),
-	     ( '$current_module'(_,Old); '$current_module'(_,M), fail)
-        ).
+        '$check_callable'(G,M:G),
+	'$mod_switch'(M,'$spied_call_depth_limited'(G,CP,D)).
 '$spied_call_depth_limited'(fail,_,_) :- !, fail.
 '$spied_call_depth_limited'(false,_,_) :- !, false.
 '$spied_call_depth_limited'(true,_,_) :- !.

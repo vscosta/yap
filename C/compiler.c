@@ -1131,7 +1131,7 @@ c_goal(Term Goal)
 
   if (IsVarTerm(Goal)) {
     Goal = MkApplTerm(FunctorCall, 1, &Goal);
-    CurrentModule = PrimitivesModule;
+    *CurrentModulePtr = MkIntTerm(PrimitivesModule);
   }
   if (IsNumTerm(Goal)) {
     FAIL("goal can not be a number", TYPE_ERROR_CALLABLE, Goal);
@@ -1142,7 +1142,7 @@ c_goal(Term Goal)
     FAIL("goal argument in static procedure can not be a data base reference", TYPE_ERROR_CALLABLE, Goal);
   } else if (IsPairTerm(Goal)) {
     Goal = MkApplTerm(FunctorCall, 1, &Goal);
-    CurrentModule = PrimitivesModule;
+    *CurrentModulePtr = MkIntTerm(PrimitivesModule);
   } else if (IsApplTerm(Goal) && FunctorOfTerm(Goal) == FunctorModule) {
     Term M = ArgOfTerm(1, Goal);
 
@@ -1153,19 +1153,19 @@ c_goal(Term Goal)
       save_machine_regs();
       longjmp(CompilerBotch, 1);
     }
-    CurrentModule = LookupModule(M);
+    *CurrentModulePtr = MkIntTerm(LookupModule(M));
     Goal = ArgOfTerm(2, Goal);
   }
   if (IsVarTerm(Goal)) {
     Goal = MkApplTerm(FunctorCall, 1, &Goal);
-    CurrentModule = PrimitivesModule;
+    *CurrentModulePtr = MkIntTerm(PrimitivesModule);
   }
   if (IsAtomTerm(Goal)) {
     Atom atom = AtomOfTerm(Goal);
 
     if (atom == AtomFail || atom == AtomFalse) {
       emit(fail_op, Zero, Zero);
-      CurrentModule = save_CurrentModule;
+      *CurrentModulePtr = MkIntTerm(save_CurrentModule);
       return;
     }
     else if (atom == AtomTrue || atom == AtomOtherwise) {
@@ -1178,7 +1178,7 @@ c_goal(Term Goal)
 #endif /* TABLING */
 	  emit(procceed_op, Zero, Zero);
       }
-      CurrentModule = save_CurrentModule;
+      *CurrentModulePtr = MkIntTerm(save_CurrentModule);
       return;
     }
     else if (atom == AtomCut) {
@@ -1207,7 +1207,7 @@ c_goal(Term Goal)
 	/* needs to adjust previous commits */
 	adjust_current_commits();
       }
-      CurrentModule = save_CurrentModule;
+      *CurrentModulePtr = MkIntTerm(save_CurrentModule);
       return;
     }
 #ifndef YAPOR
@@ -1247,7 +1247,7 @@ c_goal(Term Goal)
       onbranch = pop_branch();
       emit(pop_or_op, Zero, Zero);
 /*                      --onbranch; */
-      CurrentModule = save_CurrentModule;
+      *CurrentModulePtr = MkIntTerm(save_CurrentModule);
       return;
     }
 #endif /* YAPOR */
@@ -1381,7 +1381,7 @@ c_goal(Term Goal)
 	  c_goal(MkAtomTerm(AtomTrue));
       }
       emit(pop_or_op, Zero, Zero);
-      CurrentModule = save_CurrentModule;
+      *CurrentModulePtr = MkIntTerm(save_CurrentModule);
       return;
     }
     else if (f == FunctorComma) {
@@ -1392,7 +1392,7 @@ c_goal(Term Goal)
       c_goal(ArgOfTerm(1, Goal));
       onlast = save;
       c_goal(t2);
-      CurrentModule = save_CurrentModule;
+      *CurrentModulePtr = MkIntTerm(save_CurrentModule);
       return;
     }
     else if (f == FunctorNot || f == FunctorAltNot) {
@@ -1430,7 +1430,7 @@ c_goal(Term Goal)
       c_goal(MkAtomTerm(AtomTrue));
       ++goalno;
       emit(pop_or_op, Zero, Zero);
-      CurrentModule = save_CurrentModule;
+      *CurrentModulePtr = MkIntTerm(save_CurrentModule);
       return;
     }
     else if (f == FunctorArrow) {
@@ -1449,7 +1449,7 @@ c_goal(Term Goal)
       c_var(comitvar, comit_b_flag, 1);
       onlast = save;
       c_goal(ArgOfTerm(2, Goal));
-      CurrentModule = save_CurrentModule;
+      *CurrentModulePtr = MkIntTerm(save_CurrentModule);
       return;
     }
     else if (f == FunctorEq) {
@@ -1469,7 +1469,23 @@ c_goal(Term Goal)
 	READ_UNLOCK(CurrentPred->PRWLock);
 #endif
       }
-      CurrentModule = save_CurrentModule;
+      *CurrentModulePtr = MkIntTerm(save_CurrentModule);
+      return;
+    } else if (f == FunctorModSwitch) {
+      Term omod = MkVarTerm();
+      Term mod = ArgOfTerm(1, Goal);
+      Term goal = ArgOfTerm(2, Goal);
+      Term a[1];
+      int cp_onlast = onlast;
+      onlast = FALSE;
+      a[0] = omod;
+      c_goal(MkApplTerm(FunctorCurrentModule, 1, a));
+      a[0] = mod;
+      c_goal(MkApplTerm(FunctorChangeModule, 1, a));
+      c_goal(goal);
+      a[0] = omod;
+      onlast = cp_onlast;
+      c_goal(MkApplTerm(FunctorChangeModule, 1, a));
       return;
     } else if (p->PredFlags & BasicPredFlag) {
       int op = p->PredFlags & 0x7f;
@@ -1490,7 +1506,7 @@ c_goal(Term Goal)
 	  READ_UNLOCK(CurrentPred->PRWLock);
 #endif
 	}
-	CurrentModule = save_CurrentModule;
+	*CurrentModulePtr = MkIntTerm(save_CurrentModule);
 	return;
       } else if (op >= _plus && op <= _functor) {
 	if (op == _functor) {
@@ -1514,7 +1530,7 @@ c_goal(Term Goal)
 	  READ_UNLOCK(CurrentPred->PRWLock);
 #endif
 	}
-	CurrentModule = save_CurrentModule;
+	*CurrentModulePtr = MkIntTerm(save_CurrentModule);
 	return;
       } else {
 	c_args(Goal);
@@ -1589,7 +1605,7 @@ c_goal(Term Goal)
 	  READ_UNLOCK(CurrentPred->PRWLock);
 #endif
       }
-      CurrentModule = save_CurrentModule;
+      *CurrentModulePtr = MkIntTerm(save_CurrentModule);
       return;
     } else {
       if (profiling)
@@ -1663,7 +1679,7 @@ c_goal(Term Goal)
     if (!onlast)
       ++goalno;
   }
-  CurrentModule = save_CurrentModule;
+  *CurrentModulePtr = MkIntTerm(save_CurrentModule);
 }
 
 static void
@@ -2745,7 +2761,7 @@ cclause(Term inp_clause, int NOfArgs)
     reset_vars();
     {
       Int osize = 2*sizeof(CELL)*(ASP-H);
-      CurrentModule = save_CurrentModule;
+      *CurrentModulePtr = MkIntTerm(save_CurrentModule);
       ARG1 = my_clause;
       if (!gc(2, ENV, P)) {
 	Error_TYPE = SYSTEM_ERROR;
@@ -2765,7 +2781,7 @@ cclause(Term inp_clause, int NOfArgs)
     /* out of temporary cells */
     restore_machine_regs();
     reset_vars();
-    CurrentModule = save_CurrentModule;
+    *CurrentModulePtr = MkIntTerm(save_CurrentModule);
     if (maxvnum < 16*1024) {
       maxvnum *= 2;
     } else {
@@ -2775,7 +2791,7 @@ cclause(Term inp_clause, int NOfArgs)
     /* not enough heap */
     restore_machine_regs();
     reset_vars();
-    CurrentModule = save_CurrentModule;
+    *CurrentModulePtr = MkIntTerm(save_CurrentModule);
     Error_TYPE = SYSTEM_ERROR;
     Error_Term = TermNil;
     ErrorMessage = "not enough heap space to compile clause";
@@ -2783,7 +2799,7 @@ cclause(Term inp_clause, int NOfArgs)
   }
  restart_compilation:
   if (ErrorMessage != NIL) {
-    CurrentModule = save_CurrentModule;
+    *CurrentModulePtr = MkIntTerm(save_CurrentModule);
     reset_vars();
     return (0);
   }

@@ -94,12 +94,12 @@ freeze(_, G) :-
 
 '$freeze_goal'(V,VG) :-
 	var(VG), !,
-	'$current_module'(M,M),
+	'$current_module'(M),
 	'$freeze'(V, '$redo_freeze'(_Done,V,M:G)).
 '$freeze_goal'(V,M:G) :- !,
 	'$freeze'(V, '$redo_freeze'(_Done,V,M:G)).
 '$freeze_goal'(V,G) :-
-	'$current_module'(M,M),
+	'$current_module'(M),
 	'$freeze'(V, '$redo_freeze'(_Done,V,M:G)).
 
 %
@@ -213,7 +213,7 @@ dif(_, _).
 % support for when/2 built-in
 %
 when(Conds,Goal) :-
-	'$current_module'(Mod,Mod),
+	'$current_module'(Mod),
 	'$prepare_goal_for_when'(Goal, Mod, ModG),
 	'$when'(Conds, ModG, Done, [], LG), !,
 %write(vsc:freezing(LG,Done)),nl,
@@ -240,7 +240,7 @@ when(_,Goal) :-
 '$generate_code_for_when'(Conds, G,
 	( G :- '$when'(Conds, ModG, Done, [], LG), !,
 	'$suspend_when_goals'(LG, Done)) ) :-
-	'$current_module'(Mod,Mod),
+	'$current_module'(Mod),
 	'$prepare_goal_for_when'(G, Mod, ModG).
 
 

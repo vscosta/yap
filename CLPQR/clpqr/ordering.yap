@@ -74,9 +74,8 @@ combine( Ga, Gb, Gc) :-
 % because of bindings and aliasings
 %
 normalize( [], []).
-normalize( G,  Gsgn) :-
-  G=[_|_],
-  keysort( G, Gs),
+normalize( [GH|GT],  Gsgn) :-  %vsc: added list in argument (01/06/06)
+  keysort( [GH|GT], Gs),
   group( Gs, Gsg),
   normalize_vertices( Gsg, Gsgn).
 

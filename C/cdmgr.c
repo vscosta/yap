@@ -1657,7 +1657,7 @@ p_undefined(void)
  restart_undefined:
   if (IsVarTerm(t)) {
     Error(INSTANTIATION_ERROR,ARG1,"undefined/1");
-    CurrentModule = omod;
+    *CurrentModulePtr = MkIntTerm(omod);
     return(FALSE);
   }
   if (IsAtomTerm(t)) {
@@ -1668,7 +1668,7 @@ p_undefined(void)
     if (funt == FunctorModule) {
       Term mod = ArgOfTerm(1, t);
       if (!IsVarTerm(mod) ) {
-	CurrentModule = LookupModule(mod);
+	*CurrentModulePtr = MkIntTerm(LookupModule(mod));
 	t = ArgOfTerm(2, t);
 	goto restart_undefined;
       }
@@ -1676,11 +1676,11 @@ p_undefined(void)
     at = NameOfFunctor(funt);
     arity = ArityOfFunctor(funt);
   } else {
-    CurrentModule = omod;
+    *CurrentModulePtr = MkIntTerm(omod);
     return (FALSE);
   }
   pe = RepPredProp(GetPredProp(at, arity));
-  CurrentModule = omod;
+  *CurrentModulePtr = MkIntTerm(omod);
   if (pe == RepPredProp(NIL))
     return (TRUE);
   READ_LOCK(pe->PRWLock);

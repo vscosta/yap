@@ -444,11 +444,11 @@ install_unix:
 	-mkdir -p $(DESTDIR)$(YAPLIBDIR)
 	$(INSTALL_DATA) -m 644 startup $(DESTDIR)$(YAPLIBDIR)/startup
 	$(INSTALL_DATA) -m 644 libYap.a  $(DESTDIR)$(LIBDIR)/libYap.a
-	(cd $(srcdir) ; tar cf - library) | (cd $(DESTDIR)$(YAPLIBDIR) ; tar xf -)
+	(cd library ; make install)
 	$(INSTALL_DATA) $(srcdir)/LGPL/pillow/icon_address.pl $(DESTDIR)$(YAPLIBDIR)/library
 	$(INSTALL_DATA) $(srcdir)/LGPL/pillow/pillow.pl $(DESTDIR)$(YAPLIBDIR)/library
-	(cd $(srcdir)/CLPQR ; tar cf - .) | (cd $(DESTDIR)$(YAPLIBDIR)/library ; tar xf -)
-	(cd $(srcdir)/CHR ; tar cf - .) | (cd $(DESTDIR)$(YAPLIBDIR)/library ; tar xf -)
+	-(cd CLPQR ; make install)
+	-(cd CHR ; make install)
 	@INSTALL_DLLS@ (cd library/regex; make install)
 	@INSTALL_DLLS@ (cd library/system; make install)
 	-mkdir -p $(DESTDIR)$(INCLUDEDIR)
@@ -467,14 +467,13 @@ install_mingw32:
 	$(INSTALL) $(HEADERS) $(DESTDIR)$(INCLUDEDIR)
 	$(INSTALL) $(srcdir)/include/c_interface.h $(DESTDIR)$(INCLUDEDIR)/c_interface.h
 	$(INSTALL) config.h $(INCLUDEDIR)/config.h
-	(cd $(srcdir) ; tar cf - library) | (cd $(DESTDIR)$(YAPLIBDIR) ; tar xf -)
+	(cd library ; make install)
 	$(INSTALL_DATA) $(srcdir)/LGPL/pillow/icon_address.pl $(DESTDIR)$(YAPLIBDIR)/library
 	$(INSTALL_DATA) $(srcdir)/LGPL/pillow/pillow.pl $(DESTDIR)$(YAPLIBDIR)/library
-	(cd $(srcdir)/CLPQR ; tar cf - .) | (cd $(DESTDIR)$(YAPLIBDIR)/library ; tar xf -)
-	(cd $(srcdir)/CHR ; tar cf - .) | (cd $(DESTDIR)$(YAPLIBDIR)/library ; tar xf -)
+	(cd CLPQR ; make install)
+	(cd CHR ; make install)
 	(cd library/regex; make install_mingw32)
-
-#	(cd library/system; make install_mingw32)
+	(cd library/system; make install_mingw32)
 
 install_library: libYap.a
 	$(INSTALL_DATA) -m 644 libYap.a  $(DESTDIR)$(LIBDIR)/libYap.a

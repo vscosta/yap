@@ -917,6 +917,7 @@ do_goal(CODEADDR CodeAdr, int arity, CELL *pt, int args_to_save, int top)
   B->cp_depth = DEPTH;
 #endif /* DEPTH_LIMIT */
   if (top) {
+    Term t;
 #if COROUTINING
     RESET_VARIABLE((CELL *)GlobalBase);
     DelayedVars = NewTimedVar((CELL)GlobalBase);
@@ -924,6 +925,8 @@ do_goal(CODEADDR CodeAdr, int arity, CELL *pt, int args_to_save, int top)
     MutableList = NewTimedVar(TermNil);
     AttsMutableList = NewTimedVar(TermNil);
 #endif
+    t = NewTimedVar(MkIntTerm(0));
+    CurrentModulePtr = RepAppl(t)+1;
   }
   YENV = ASP = (CELL *)B;
   HB = H;

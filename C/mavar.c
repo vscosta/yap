@@ -24,8 +24,6 @@
 #include "eval.h"
 
 STD_PROTO(static Int p_setarg, (void));
-STD_PROTO(static void CreateTimedVar, (Term));
-STD_PROTO(static void CreateEmptyTimedVar, (void));
 STD_PROTO(static Int p_create_mutable, (void));
 STD_PROTO(static Int p_get_mutable, (void));
 STD_PROTO(static Int p_update_mutable, (void));
@@ -109,56 +107,30 @@ p_setarg(void)
    == B->TR) we will add a little something ;-).    
  */
 
-static void
-CreateTimedVar(Term val)
-{
-  timed_var *tv = (timed_var *)H;
-  tv->clock = MkIntTerm(0);
-#ifdef BEFORE_TRAIL_COMPRESSION
-  tv->clock = MkIntegerTerm((Int)((CELL *)(B->cp_tr)-(CELL *)TrailBase));
-  if (B->cp_tr == TR) {
-    /* we run the risk of not making non-determinate bindings before
-       the end of the night */
-    /* so we just init a TR cell that will not harm anyone */
-    Bind((CELL *)(TR+1),AbsAppl(H-1));
-  }
-#endif
-  tv->value = val;
-  H += sizeof(timed_var)/sizeof(CELL);
-}
-
-static void
-CreateEmptyTimedVar(void)
-{
-  timed_var *tv = (timed_var *)H;
-  tv->clock = MkIntTerm(0);
-#ifdef BEFORE_TRAIL_COMPRESSION
-  tv->clock = MkIntegerTerm((Int)((CELL *)(B->cp_tr)-(CELL *)TrailBase));
-  if (B->cp_tr == TR) {
-    /* we run the risk of not making non-determinate bindings before
-       the end of the night */
-    /* so we just init a TR cell that will not harm anyone */
-    Bind((CELL *)(TR+1),AbsAppl(H-1));
-  }
-#endif
-  RESET_VARIABLE(&(tv->value));
-  H += sizeof(timed_var)/sizeof(CELL);
-}
-
 Term NewTimedVar(CELL val)
 {
-  Term t = AbsAppl(H);
+  timed_var *tv;
+  Term out;
+  out = AbsAppl(H);
   *H++ = (CELL)FunctorMutable;
-  CreateTimedVar(val);
-  return(t);
+  tv = (timed_var *)H;
+  RESET_VARIABLE(&(tv->clock));
+  tv->value = val;
+  H += sizeof(timed_var)/sizeof(CELL);
+  return(out);
 }
 
 Term NewEmptyTimedVar(void)
 {
-  Term t = AbsAppl(H);
+  timed_var *tv;
+  Term out;
+  out = AbsAppl(H);
   *H++ = (CELL)FunctorMutable;
-  CreateEmptyTimedVar();
-  return(t);
+  tv = (timed_var *)H;
+  RESET_VARIABLE(&(tv->clock));
+  RESET_VARIABLE(&(tv->value));
+  H += sizeof(timed_var)/sizeof(CELL);
+  return(out);
 }
 
 Term ReadTimedVar(Term inv)
@@ -173,13 +145,13 @@ Term UpdateTimedVar(Term inv, Term new)
 {
   timed_var *tv = (timed_var *)(RepAppl(inv)+1);
   CELL t = tv->value;
-  tr_fr_ptr timestmp = (tr_fr_ptr)((CELL *)TrailBase + IntegerOfTerm(tv->clock));
+  CELL* timestmp = (CELL *)(tv->clock);
 
-  if (B->cp_tr <= timestmp
+  if (B->cp_h <= timestmp
 #if defined(SBA) || defined(TABLING)
-      && timestmp <= TR
+      && timestmp <= (CELL)H
 #endif
-    ) {
+      ) {
     /* last assignment more recent than last B */
 #if SBA
     if (Unsigned((Int)(tv)-(Int)(H_FZ)) >
@@ -194,9 +166,9 @@ Term UpdateTimedVar(Term inv, Term new)
     TrailVal(timestmp-1) = new;
 #endif    
   } else {
-    Term nclock;
+    Term nclock = (Term)H;
     MaBind(&(tv->value), new);
-    nclock = MkIntegerTerm((Int)((CELL *)TR-(CELL *)TrailBase));
+    *H++ = TermFoundVar;
     MaBind(&(tv->clock), nclock);
   }
   return(t);

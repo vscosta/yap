@@ -31,7 +31,6 @@ static char SccsId[]="%W% %G%";
 #endif
 
 STATIC_PROTO(Int  InitVarTime, (void));
-STATIC_PROTO(Int  CurrentTime, (void));
 
 static CELL *
 AddToQueue(attvar_record *attv)
@@ -96,7 +95,6 @@ CopyAttVar(Term orig, CELL ***to_visit_ptr)
   register attvar_record *attv = (attvar_record *)orig;
   register attvar_record *newv;
   CELL **to_visit = *to_visit_ptr;
-  Term ttime;
   Term time = InitVarTime();
   Int j;
 
@@ -108,9 +106,8 @@ CopyAttVar(Term orig, CELL ***to_visit_ptr)
   newv->sus_id = attvars_ext;
   RESET_VARIABLE(&(newv->Value));
   newv->NS = UpdateTimedVar(AttsMutableList, (CELL)&(newv->Done));
-  ttime = MkIntegerTerm(time);
   for (j = 0; j < NUM_OF_ATTS; j++) {
-    newv->Atts[2*j] = ttime;
+    newv->Atts[2*j] = time;
     to_visit[0] = attv->Atts+2*j;
     to_visit[1] = attv->Atts+2*j+1;
     to_visit[2] = newv->Atts+2*j+1;
@@ -193,31 +190,19 @@ mark_attvar(CELL *orig)
 #endif /* FIXED_STACKS */
 
 static Int
-CurrentTime(void) {
-  return((CELL *)(TR)-(CELL *)TrailBase);
-}
-
-static Int
 InitVarTime(void) {
-  return(0);
-#ifdef BEFORE_TRAIL_COMPRESSION
-  if (B->cp_tr == TR) {
-    /* we run the risk of not making non-determinate bindings before
-       the end of the night */
-    /* so we just init a TR cell that will not harm anyone */
-    Bind((CELL *)(TR+1),AbsAppl(H-1));
-  }
-  return((CELL *)(B->cp_tr)-(CELL *)TrailBase);
-#endif
+  Term t = (CELL)H;
+  *H++ = TermFoundVar;
+  return(t);
 }
 
 static Int
 PutAtt(attvar_record *attv, Int i, Term tatt) {
   Int pos = i*2;
-  tr_fr_ptr timestmp = (tr_fr_ptr)((CELL *)TrailBase+IntegerOfTerm(attv->Atts[pos]));
-  if (B->cp_tr <= timestmp
+  CELL *timestamp = (CELL *)(attv->Atts[pos]);
+  if (B->cp_h <= timestamp
 #if defined(SBA) || defined(TABLING)
-      && timestmp <= TR
+      && timestmp <= H
 #endif
     ) {
 #if defined(SBA)
@@ -236,7 +221,8 @@ PutAtt(attvar_record *attv, Int i, Term tatt) {
   } else {
     Term tnewt;
     MaBind(attv->Atts+pos+1, tatt);
-    tnewt = MkIntegerTerm(CurrentTime());
+    tnewt = (Term)H;
+    *H++ = TermFoundVar;
     MaBind(attv->Atts+pos, tnewt);    
   }
   return(TRUE);
@@ -246,10 +232,10 @@ static Int
 RmAtt(attvar_record *attv, Int i) {
   Int pos = i *2;
   if (!IsVarTerm(attv->Atts[pos+1])) {
-    tr_fr_ptr timestmp = (tr_fr_ptr)((CELL *)TrailBase+IntegerOfTerm(attv->Atts[pos]));
-    if (B->cp_tr <= timestmp
+    CELL *timestmp = (CELL *)(attv->Atts[pos]);
+    if (B->cp_h <= timestmp
 #if defined(SBA) || defined(TABLING)
-	&& timestmp <= TR
+	&& timestmp <= H
 #endif
 	) {
       RESET_VARIABLE(attv->Atts+(pos+1));
@@ -266,8 +252,9 @@ RmAtt(attvar_record *attv, Int i) {
 #else
       MaBind(attv->Atts+(pos+1), (CELL)(attv->Atts+(pos+1)));    
 #endif
-     tnewt = MkIntegerTerm(CurrentTime());
-     MaBind(attv->Atts+pos, tnewt);    
+      tnewt = (Term)H;
+      *H++ = TermFoundVar;
+      MaBind(attv->Atts+pos, tnewt);    
     }
   }
   return(TRUE);
@@ -277,9 +264,8 @@ static Int
 BuildNewAttVar(Term t, Int i, Term tatt)
 {
   /* allocate space in Heap */
-  Term time = InitVarTime();
+  Term time;
   int j;
-  Term ttime;
 
   attvar_record *attv = (attvar_record *)ReadTimedVar(DelayedVars);
   if (H0 - (CELL *)attv < 1024+(2*NUM_OF_ATTS)) {
@@ -289,12 +275,12 @@ BuildNewAttVar(Term t, Int i, Term tatt)
     t = ARG1;
     tatt = ARG2;
   }
+  time = InitVarTime();
   RESET_VARIABLE(&(attv->Value));
   RESET_VARIABLE(&(attv->Done));
   attv->sus_id = attvars_ext;
-  ttime = MkIntegerTerm(time);
   for (j = 0; j < NUM_OF_ATTS; j++) {
-    attv->Atts[2*j] = ttime;
+    attv->Atts[2*j] = time;
     RESET_VARIABLE(attv->Atts+2*j+1);
   }
   attv->NS = UpdateTimedVar(AttsMutableList, (CELL)&(attv->Done));

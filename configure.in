@@ -592,8 +592,10 @@ fi
 
 mkdir -p  library/regex
 mkdir -p  library/system
+mkdir -p  CHR
+mkdir -p  CLPQR
 
-AC_OUTPUT(Makefile library/regex/Makefile library/system/Makefile  .depend)
+AC_OUTPUT(Makefile library/regex/Makefile library/system/Makefile  .depend library/Makefile CHR/Makefile CLPQR/Makefile)
 
 make depend
 

@@ -812,48 +812,6 @@ user_defined_directive(Dir,Action) :-
 	assert_static('$directive'(NDir)),
 	assert_static(('$exec_directive'(Dir, _) :- Action)).
 
-'$mod_switch'(Mod,Pred) :-
-	'$current_module'(Mod), !,
-	'$fast_do'(Pred).
-'$mod_switch'(Mod,Pred) :-
-	'$current_module'(Old,Mod),
-	( '$fast_do'(Pred); '$current_module'(_,Old), fail ),
-	( '$current_module'(_,Old); '$current_module'(_,Mod), fail).
-
-'$fast_do'('$execute_command'(G,V,O)) :- '$execute_command'(G,V,O).
-'$fast_do'('$go_compile_clause'(G,V,N)) :- '$go_compile_clause'(G,V,N).
-'$fast_do'('$multifile'(P)) :- '$multifile'(P).
-'$fast_do'('$discontiguous'(P)) :- '$discontiguous'(P).
-'$fast_do'('$assert'(C,W,R,P)) :- '$assert'(C,W,R,P).
-'$fast_do'('$assert_dynamic'(C,W,R,P)) :- '$assert_dynamic'(C,W,R,P).
-'$fast_do'('$assert_static'(C,W,R,P)) :- '$assert_static'(C,W,R,P).
-'$fast_do'(clause(P,Q)) :- clause(P,Q).
-'$fast_do'(clause(P,Q,R)) :- clause(P,Q,R).
-'$fast_do'(retract(C)) :- retract(C).
-'$fast_do'(retract(C,R)) :- retract(C,R).
-'$fast_do'(retractall(C)) :- retractall(C).
-'$fast_do'(abolish(N,A)) :- abolish(N,A).
-'$fast_do'('$new_abolish'(P)) :- '$new_abolish'(P).
-'$fast_do'('$old_abolish'(P)) :- '$old_abolish'(P).
-'$fast_do'('$dynamic'(S)) :- '$dynamic'(S).
-'$fast_do'(current_predicate(PS)) :- current_predicate(PS).
-'$fast_do'(current_predicate(A,T)) :- current_predicate(A,T).
-'$fast_do'('$predicate_property2'(P,T)) :- '$predicate_property2'(P,T).
-'$fast_do'(unknown(V,H)) :- unknown(V,H).
-'$fast_do'(listing(PE)) :- listing(PE).
-'$fast_do'('$Error'(E)) :- '$Error'(E).
-'$fast_do'('$LoopError'(E)) :- '$LoopError'(E).
-'$fast_do'('$DebugError'(E)) :- '$DebugError'(E).
-'$fast_do'('$exec_with_expansion2'(G,M)) :- '$exec_with_expansion2'(G,M).
-'$fast_do'('$public'(P)) :- '$public'(P).
-'$fast_do'('$module_u_vars'(H,UVars)) :- '$module_u_vars'(H,UVars).
-'$fast_do'(M:G) :- '$mod_switch'(M,G).
-'$fast_do'('$spycalls'(G,Res)) :- '$spycalls'(G,Res).
-'$fast_do'('$profile_data'(P, Parm, Data)) :- '$profile_data'(P, Parm, Data).
-'$fast_do'('$ensure_loaded'(F)) :- '$ensure_loaded'(F).
-'$fast_do'('$consult'(F)) :- '$consult'(F).
-'$fast_do'('$reconsult'(F)) :- '$reconsult'(F).
-
 '$set_toplevel_hook'(_) :- 
 	'$recorded'('$toplevel_hooks',_,R),
 	erase(R),

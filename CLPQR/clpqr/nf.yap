@@ -213,7 +213,7 @@ submit_ne( Norm1) :-
   ( nf_constant( Norm1, K) ->
       arith_eval( K=\=0)
   ; linear( Norm1) ->
-      'solve_=\='( Norm1)
+      'solve_=\\='( Norm1)
   ;
       term_variables( Norm1, Vs),
       geler( Vs, resubmit_ne(Norm1))
@@ -724,7 +724,8 @@ repair_p_log( N, P0,	   P2, R,  L0, L2) :-
   pmerge( Rp, Rq, R).
 
 
-repair_p( Term, P, [Term^P], L0, L0) :- var( Term).
+%vsc: added ! (01/06/06)
+repair_p( Term, P, [Term^P], L0, L0) :- var( Term), !.
 repair_p( Term, P, [],	     L0, L1) :- nonvar( Term),
   repair_p_one( Term, TermN),
   nf_power( P, TermN, TermNP),

@@ -65,17 +65,18 @@ add_linear_ffh( [X*Kx|Xs], Ka, Ys, Kb, Zs) :-
   add_linear_ffh( [],	    X, Kx, Xs, Zs, Ka, _) :- mult_hom( [X*Kx|Xs], Ka, Zs).
   add_linear_ffh( [Y*Ky|Ys], X, Kx, Xs, Zs, Ka, Kb) :-
      nf_ordering( X, Y, Rel),
-     ( Rel = =, arith_eval( Kx*Ka+Ky*Kb, Kz),
+     %vsc: added -> (01/06/06)
+     ( Rel = = -> arith_eval( Kx*Ka+Ky*Kb, Kz),
 		( arith_eval(Kz=:=0) ->
 		    add_linear_ffh( Xs, Ka, Ys, Kb, Zs)
 		;
 		    Zs = [X*Kz|Ztail],
 		    add_linear_ffh( Xs, Ka, Ys, Kb, Ztail)
 		)
-     ; Rel = <, Zs = [X*Kz|Ztail],
+     ; Rel = < -> Zs = [X*Kz|Ztail],
 		arith_eval( Kx*Ka, Kz),
 		add_linear_ffh( Xs, Y, Ky, Ys, Ztail, Kb, Ka)
-     ; Rel = >, Zs = [Y*Kz|Ztail],
+     ; Rel = > -> Zs = [Y*Kz|Ztail],
 		arith_eval( Ky*Kb, Kz),
 		add_linear_ffh( Ys, X, Kx, Xs, Ztail, Ka, Kb)
      ).
@@ -95,17 +96,18 @@ add_linear_f1h( [X*Kx|Xs], Ka, Ys, Zs) :-
   add_linear_f1h( [],	    X, Kx, Xs, Zs, Ka) :- mult_hom( [X*Kx|Xs], Ka, Zs).
   add_linear_f1h( [Y*Ky|Ys], X, Kx, Xs, Zs, Ka) :-
      nf_ordering( X, Y, Rel),
-     ( Rel = =, arith_eval( Kx*Ka+Ky, Kz),
+     %vsc: added -> (01/06/06)
+     ( Rel = = -> arith_eval( Kx*Ka+Ky, Kz),
 		( arith_eval(Kz=:=0) ->
 		    add_linear_f1h( Xs, Ka, Ys, Zs)
 		;
 		    Zs = [X*Kz|Ztail],
 		    add_linear_f1h( Xs, Ka, Ys, Ztail)
 		)
-     ; Rel = <, Zs = [X*Kz|Ztail],
+     ; Rel = < -> Zs = [X*Kz|Ztail],
 		arith_eval( Kx*Ka, Kz),
 		add_linear_f1h( Xs, Ka, [Y*Ky|Ys], Ztail)
-     ; Rel = >, Zs = [Y*Ky|Ztail],
+     ; Rel = > -> Zs = [Y*Ky|Ztail],
 		add_linear_f1h( Ys, X, Kx, Xs, Ztail, Ka)
      ).
 
@@ -124,15 +126,16 @@ add_linear_11h( [X*Kx|Xs], Ys, Zs) :-
   add_linear_11h( [],	    X, Kx, Xs, [X*Kx|Xs]).
   add_linear_11h( [Y*Ky|Ys], X, Kx, Xs, Zs) :-
      nf_ordering( X, Y, Rel),
-     ( Rel = =, arith_eval( Kx+Ky, Kz),
+     %vsc: added -> (01/06/06)
+     ( Rel = = -> arith_eval( Kx+Ky, Kz),
 		( arith_eval(Kz=:=0) ->
 		    add_linear_11h( Xs, Ys, Zs)
 		;
 		    Zs = [X*Kz|Ztail],
 		    add_linear_11h( Xs, Ys, Ztail)
 		)
-     ; Rel = <, Zs = [X*Kx|Ztail], add_linear_11h( Xs, Y, Ky, Ys, Ztail)
-     ; Rel = >, Zs = [Y*Ky|Ztail], add_linear_11h( Ys, X, Kx, Xs, Ztail)
+     ; Rel = < -> Zs = [X*Kx|Ztail], add_linear_11h( Xs, Y, Ky, Ys, Ztail)
+     ; Rel = > -> Zs = [Y*Ky|Ztail], add_linear_11h( Ys, X, Kx, Xs, Ztail)
      ).
 
 mult_linear_factor( Lin, K, Mult) :-
@@ -186,10 +189,10 @@ delete_factor( Vid, Lin, Res, Coeff) :-
 delete_factor_hom( Vid, [Car|Cdr], RCdr, RKoeff) :-
   Car = Var*Koeff,
   compare( R, Var, Vid),
-  ( R = =, RCdr = Cdr, RKoeff=Koeff
-  ; R = <, RCdr = [Car|RCdr1],
+  ( R = = -> RCdr = Cdr, RKoeff=Koeff  %vsc: added -> (01/06/06)
+  ; R = < -> RCdr = [Car|RCdr1],
 	   delete_factor_hom( Vid, Cdr, RCdr1, RKoeff)
-  ; R = >, RCdr = [Car|RCdr1],
+  ; R = > -> RCdr = [Car|RCdr1],
 	   delete_factor_hom( Vid, Cdr, RCdr1, RKoeff)
   ).
 /**/

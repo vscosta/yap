@@ -175,7 +175,7 @@ export_binding( [X-Y|Gs]) :-
 %
 % numerical stabilizer, clp(r) only
 %
-export_binding( Y, X) :- var(Y), Y=X.
+export_binding( Y, X) :- var(Y), !, Y=X. %vsc: added cut here (01/06/06)
 export_binding( Y, X) :- nonvar(Y),
   ( arith_eval( Y=:=0) ->
       arith_eval( 0, X)
@@ -301,17 +301,19 @@ iterate_dec( OptVar, Opt) :-
   % arith_eval( R+I, Now), print(min(Now)), nl,
 
   % dec_step_best( H, Status),
+  %vsc: added -> (01/06/06)
   dec_step( H, Status),
-  ( Status = applied, iterate_dec( OptVar, Opt)
-  ; Status = optimum, arith_eval( R+I, Opt)
+  ( Status = applied -> iterate_dec( OptVar, Opt)
+  ; Status = optimum -> arith_eval( R+I, Opt)
   ).
 
 iterate_inc( OptVar, Opt) :-
   get_atts( OptVar, lin(Lin)),
   decompose( Lin, H, R, I),
   inc_step( H, Status),
-  ( Status = applied, iterate_inc( OptVar, Opt)
-  ; Status = optimum, arith_eval( R+I, Opt)
+  %vsc: added -> (01/06/06)
+  ( Status = applied -> iterate_inc( OptVar, Opt)
+  ; Status = optimum -> arith_eval( R+I, Opt)
   ).
 
 %
@@ -323,7 +325,8 @@ iterate_inc( OptVar, Opt) :-
 dec_step( [],	    optimum).
 dec_step( [V*K|Vs], Status) :-
   get_atts( V, type(W)),
-  ( W = t_U(U),
+  %vsc: added -> (01/06/06)
+  ( W = t_U(U) ->
       ( arith_eval( K > 0) ->
 	 ( lb( V, Vub-Vb-_) ->
 	     Status = applied,
@@ -334,7 +337,7 @@ dec_step( [V*K|Vs], Status) :-
       ;
 	 dec_step( Vs, Status)
       )
-  ; W = t_lU(L,U),
+  ; W = t_lU(L,U) ->
       ( arith_eval( K > 0) ->
 	 Status = applied,
 	 arith_eval( L-U, Init),
@@ -344,7 +347,7 @@ dec_step( [V*K|Vs], Status) :-
       ;
 	 dec_step( Vs, Status)
       )
-  ; W = t_L(L),
+  ; W = t_L(L) ->
       ( arith_eval( K < 0) ->
 	 ( ub( V, Vub-Vb-_) ->
 	     Status = applied,
@@ -355,7 +358,7 @@ dec_step( [V*K|Vs], Status) :-
       ;
 	 dec_step( Vs, Status)
       )
-  ; W = t_Lu(L,U),
+  ; W = t_Lu(L,U) ->
       ( arith_eval( K < 0) ->
 	 Status = applied,
 	 arith_eval( U-L, Init),
@@ -365,14 +368,15 @@ dec_step( [V*K|Vs], Status) :-
       ;
 	 dec_step( Vs, Status)
       )
-  ; W = t_none,
+  ; W = t_none ->
       Status = unlimited(V,t_none)
   ).
 
 inc_step( [],	    optimum).
 inc_step( [V*K|Vs], Status) :-
   get_atts( V, type(W)),
-  ( W = t_U(U),
+  %vsc: added -> (01/06/06)
+  ( W = t_U(U) ->
       ( arith_eval( K < 0) ->
 	 ( lb( V, Vub-Vb-_) ->
 	     Status = applied,
@@ -383,7 +387,7 @@ inc_step( [V*K|Vs], Status) :-
       ;
 	 inc_step( Vs, Status)
       )
-  ; W = t_lU(L,U),
+  ; W = t_lU(L,U) ->
       ( arith_eval( K < 0) ->
 	 Status = applied,
 	 arith_eval( L-U, Init),
@@ -393,7 +397,7 @@ inc_step( [V*K|Vs], Status) :-
       ;
 	 inc_step( Vs, Status)
       )
-  ; W = t_L(L),
+  ; W = t_L(L) ->
       ( arith_eval( K > 0) ->
 	 ( ub( V, Vub-Vb-_) ->
 	     Status = applied,
@@ -404,7 +408,7 @@ inc_step( [V*K|Vs], Status) :-
       ;
 	 inc_step( Vs, Status)
       )
-  ; W = t_Lu(L,U),
+  ; W = t_Lu(L,U) ->
       ( arith_eval( K > 0) ->
 	 Status = applied,
 	 arith_eval( U-L, Init),
@@ -414,7 +418,7 @@ inc_step( [V*K|Vs], Status) :-
       ;
 	 inc_step( Vs, Status)
       )
-  ; W = t_none,
+  ; W = t_none ->
       Status = unlimited(V,t_none)
   ).
 
@@ -635,22 +639,23 @@ solve( Lin) :-
 
 solve( [], _,  I, Bind0,Bind0) :-
   arith_eval( I=:=0).					% redundant or trivially unsat
-solve( H, Lin, _, Bind0,BindT) :-
-  H = [_|_],						% indexing
+%vsc: changed to list in head  (01/06/06)
+solve( [HHd|HTl], Lin, _, Bind0,BindT) :-
   %
   % [] is an empty ord_set, anything will be preferred
   % over 9-9
   %
-  sd( H, [],ClassesUniq, 9-9-0,Category-Selected-_, NV,NVT),
+  sd( [HHd|HTl], [],ClassesUniq, 9-9-0,Category-Selected-_, NV,NVT),
 
   isolate( Selected, Lin, Lin1),
 
-  ( Category = 1,
+  %vsc: added -> (01/06/06)
+  ( Category = 1 ->
       put_atts( Selected, lin(Lin1)),
       decompose( Lin1, Hom, _, Inhom),
       bs_collect_binding( Hom, Selected, Inhom, Bind0,BindT),
       eq_classes( NV, NVT, ClassesUniq)
-  ; Category = 2,
+  ; Category = 2 ->
       get_atts( Selected, class(NewC)),
       class_allvars( NewC, Deps),
       ( ClassesUniq = [_] ->				% rank increasing
@@ -660,7 +665,7 @@ solve( H, Lin, _, Bind0,BindT) :-
 	  bs( Deps, Selected, Lin1)
       ),
       eq_classes( NV, NVT, ClassesUniq)
-  ; Category = 3,
+  ; Category = 3 ->
       put_atts( Selected, lin(Lin1)),
       get_atts( Selected, type(Type)),
       deactivate_bound( Type, Selected),
@@ -670,7 +675,7 @@ solve( H, Lin, _, Bind0,BindT) :-
       decompose( Lin1, Hom, _, Inhom),
       bs_collect_binding( Hom, Selected, Inhom, Bind0,Bind1),
       rcbl( Basis, Bind1,BindT)
-  ; Category = 4,
+  ; Category = 4 ->
       get_atts( Selected, [type(Type),class(NewC)]),
       class_allvars( NewC, Deps),
       ( ClassesUniq = [_] ->				% rank increasing
@@ -750,10 +755,11 @@ preference( A, B, Pref) :-
   A = Px-_-_,
   B = Py-_-_,
   compare( Rel, Px, Py),
-  ( Rel = =, Pref = B
+  %vsc: added -> (01/06/06)
+  ( Rel = = -> Pref = B
 	     % ( arith_eval(abs(Ka)=<abs(Kb)) -> Pref=A ; Pref=B )
-  ; Rel = <, Pref = A
-  ; Rel = >, Pref = B
+  ; Rel = < -> Pref = A
+  ; Rel = > -> Pref = B
   ).
 
 %
@@ -1123,8 +1129,9 @@ rcbl_opt( l(L), X, Continuation, B0,B1) :-
     normalize_scalar( Mop, MopN),
     add_linear_11( MopN, Lin, Lin1),
     decompose( Lin1, Hom, _, Inhom),
-    ( Hom = [],    rcbl( Continuation, B0,B1)	% would not callback
-    ; Hom = [_|_], solve( Hom, Lin1, Inhom, B0,B1)
+  %vsc: added -> (01/06/06)
+    ( Hom = [] ->    rcbl( Continuation, B0,B1)	% would not callback
+    ; Hom = [_|_] -> solve( Hom, Lin1, Inhom, B0,B1)
     )
    ),
     fail
@@ -1141,8 +1148,9 @@ rcbl_opt( u(U), X, Continuation, B0,B1) :-
     normalize_scalar( Mop, MopN),
     add_linear_11( MopN, Lin, Lin1),
     decompose( Lin1, Hom, _, Inhom),
-    ( Hom = [],    rcbl( Continuation, B0,B1)	% would not callback
-    ; Hom = [_|_], solve( Hom, Lin1, Inhom, B0,B1)
+  %vsc: added -> (01/06/06)
+    ( Hom = []    ->  rcbl( Continuation, B0,B1)	% would not callback
+    ; Hom = [_|_] -> solve( Hom, Lin1, Inhom, B0,B1)
     )
    ),
    (
