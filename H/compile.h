@@ -216,7 +216,8 @@ typedef struct intermediates {
   Term *contents;
   struct pred_entry *CurrentPred;  
   jmp_buf CompilerBotch;
-  yamop *code_addr; 
+  yamop *code_addr;
+  yamop *expand_block;
 } CIntermediates;
 
 #define	 SafeVar	0x01

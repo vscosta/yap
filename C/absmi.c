@@ -10,8 +10,11 @@
 *									 *
 * File:		absmi.c							 *
 * comments:	Portable abstract machine interpreter                    *
-* Last rev:     $Date: 2004-03-31 01:03:09 $,$Author: vsc $						 *
+* Last rev:     $Date: 2004-04-14 19:10:22 $,$Author: vsc $						 *
 * $Log: not supported by cvs2svn $
+* Revision 1.127  2004/03/31 01:03:09  vsc
+* support expand group of clauses
+*
 * Revision 1.126  2004/03/19 11:35:42  vsc
 * trim_trail for default machine
 * be more aggressive about try-retry-trust chains.
@@ -1788,9 +1791,9 @@ Yap_absmi(int inp)
 	  /* multi-assignment variable */
 	  /* so the next cell is the old value */ 
 #if FROZEN_STACKS
-	  pt[0] = TrailVal(pt0);
+	  pt[0] = TrailVal(pt0-1);
 #else
-	  pt[0] = TrailTerm(pt0);
+	  pt[0] = TrailTerm(pt0-1);
 #endif /* FROZEN_STACKS */
 	  pt0 -= 2;
 	  goto failloop;
@@ -1838,8 +1841,8 @@ Yap_absmi(int inp)
 	      }                                
 	      pt1++;
 	    } else if (IsApplTerm(d1)) {
-	      TrailTerm(pt0) = TrailTerm(pt0+2) = d1;
 	      TrailTerm(pt0+1) = TrailTerm(pt1+1);
+	      TrailTerm(pt0) = TrailTerm(pt0+2) = d1;
 	      pt0 += 3;
 	      pt1 += 3;
 	    } else if (IsPairTerm(d1)) {
@@ -1872,7 +1875,7 @@ Yap_absmi(int inp)
 	      pt1++;
 	    }
 	    ENDD(d1);                              
-	  }  
+	  }
 	  TR = pt0;
 	}
       }
@@ -9741,6 +9744,7 @@ Yap_absmi(int inp)
 	    pt[0] = TrailVal(--TR);
 #else
 	    pt[0] = TrailTerm(--TR);
+	    TR--;
 #endif
 #endif
 	  }

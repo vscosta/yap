@@ -11,8 +11,11 @@
 * File:		amidefs.h						 *
 * comments:	Abstract machine peculiarities				 *
 *									 *
-* Last rev:     $Date: 2004-03-31 01:03:10 $							 *
+* Last rev:     $Date: 2004-04-14 19:10:40 $							 *
 * $Log: not supported by cvs2svn $
+* Revision 1.23  2004/03/31 01:03:10  vsc
+* support expand group of clauses
+*
 * Revision 1.22  2004/03/10 14:59:55  vsc
 * optimise -> for type tests
 *									 *
@@ -362,6 +365,7 @@ typedef struct yami {
        struct {
 	 COUNT               s1;
 	 COUNT               s2;
+	 COUNT               s3;
 	 struct pred_entry  *p;
 	 CELL next;
        } sp;

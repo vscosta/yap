@@ -11,8 +11,11 @@
 * File:		cdmgr.c							 *
 * comments:	Code manager						 *
 *									 *
-* Last rev:     $Date: 2004-04-07 22:04:03 $,$Author: vsc $						 *
+* Last rev:     $Date: 2004-04-14 19:10:23 $,$Author: vsc $						 *
 * $Log: not supported by cvs2svn $
+* Revision 1.117  2004/04/07 22:04:03  vsc
+* fix memory leaks
+*
 * Revision 1.116  2004/03/31 01:03:09  vsc
 * support expand group of clauses
 *
@@ -275,12 +278,9 @@ decrease_ref_counter(yamop *ptr, yamop *b, yamop *e, yamop *sc)
   }
 }
 
-static vsc_countis;
-
 static void
 cleanup_dangling_indices(yamop *ipc, yamop *beg, yamop *end, yamop *suspend_code)
 {
-  vsc_countis++;
   while (ipc < end) {
     op_numbers op = Yap_op_from_opcode(ipc->opc);
     /* printf("op: %d %p->%p\n", op, ipc, end); */
@@ -400,7 +400,10 @@ decrease_log_indices(LogUpdIndex *c, yamop *suspend_code)
       cop = (yamop *)beg[1];
       beg += 2;
       if (cop->opc == ecs) {
-	Yap_FreeCodeSpace((char *)cop);
+	cop->u.sp.s3--;
+	if (!cop->u.sp.s3) {
+	  Yap_FreeCodeSpace((char *)cop);
+	}
       }
     }
     return;
@@ -429,12 +432,9 @@ kill_static_child_indxs(StaticIndex *indx)
   Yap_FreeCodeSpace((CODEADDR)indx);
 }
 
-int kills;
-
 static void
 kill_off_lu_block(LogUpdIndex *c, LogUpdIndex *parent, PredEntry *ap)
 {
-  kills++;
   decrease_log_indices(c, (yamop *)&(ap->cs.p_code.ExpandCode));
   if (parent != NULL) {
     /* sat bye bye */
