@@ -122,10 +122,7 @@ low_level_trace(yap_low_level_port port, PredEntry *pred, CELL *args)
   /* if (vsc_count > 500000) exit(0); */
   /* if (gc_calls < 1) return;*/
 #if defined(__GNUC__)
-  {
-    choiceptr myB=B;
-    YP_fprintf(YP_stderr,"%llu (%p, %p, %p) ", vsc_count, TR, ENV, myB);
-  }
+  YP_fprintf(YP_stderr,"%llu (%d) ", vsc_count, IntegerOfTerm(DEPTH));
 #endif
   /* check_trail_consistency(); */
   if (pred == NULL) {

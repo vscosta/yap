@@ -1777,7 +1777,6 @@ absmi(int inp)
     NoStackCall:
       /* on X86 machines S will not actually be holding the pointer to pred */
       SREG = (CELL *) PREG->u.sla.p;
-    NoStackCallGotS:
 #ifdef YAPOR
       /* abort_optyap("NoStackCall in function absmi"); */
       if (HeapTop > GlobalBase - MinHeapGap)
@@ -11168,7 +11167,7 @@ absmi(int inp)
 
 	CACHE_Y_AS_ENV(Y);
 #ifndef NO_CHECKING
-	check_stack(NoStackPExec, H);
+	check_stack(NoStackCall, H);
 #endif
 	BEGD(d0);
 	d0 = ARG1;
@@ -11274,11 +11273,6 @@ absmi(int inp)
 	ENDD(d0);
 	ENDCACHE_Y_AS_ENV();
 
-    NoStackPExec:
-      /* on X86 machines S will not actually be holding the pointer to pred */
-      SREG = (CELL *) pen;
-      goto NoStackCallGotS;
-
       }
       ENDBOp();
 
@@ -11291,7 +11285,7 @@ absmi(int inp)
 
 	CACHE_Y_AS_ENV(Y);
 #ifndef NO_CHECKING
-	check_stack(NoStackPWExec, H);
+	check_stack(NoStackCall, H);
 #endif
 	BEGD(d0);
 	d0 = ARG1;
@@ -11423,12 +11417,6 @@ absmi(int inp)
 	ENDP(pt1);
 	ENDD(d0);
 	ENDCACHE_Y_AS_ENV();
-
-    NoStackPWExec:
-	/* on X86 machines S will not actually be holding the pointer to pred */
-	SREG = (CELL *) pen;
-	goto NoStackCallGotS;
-
       }
       ENDBOp();
 
@@ -11439,7 +11427,7 @@ absmi(int inp)
 
 	CACHE_Y_AS_ENV(Y);
 #ifndef NO_CHECKING
-	check_stack(NoStackPWLExec, H);
+	check_stack(NoStackCall, H);
 #endif
 	BEGD(d0);
 	d0 = ARG1;
@@ -11522,6 +11510,16 @@ absmi(int inp)
 	else
 	  d0 = (CELL)B;
 	PREG = (yamop *) pen->CodeOfPred;
+#ifdef DEPTH_LIMIT
+	if (DEPTH <= MkIntTerm(1)) {/* I assume Module==0 is primitives */
+	  if (pen->ModuleOfPred) {
+	    if (DEPTH == MkIntTerm(0))
+	      FAIL();
+	    else DEPTH = RESET_DEPTH();
+	  }
+	} else if (pen->ModuleOfPred)
+	  DEPTH -= MkIntConstant(2);
+#endif	/* DEPTH_LIMIT */
 	/* do deallocate */
 	CPREG = (yamop *) E_Y[E_CP];
 	E_Y = ENV = (CELL *) E_Y[E_E];
@@ -11558,11 +11556,6 @@ absmi(int inp)
 	ENDP(pt1);
 	ENDD(d0);
 	ENDCACHE_Y_AS_ENV();
-
-    NoStackPWLExec:
-	/* on X86 machines S will not actually be holding the pointer to pred */
-	SREG = (CELL *) pen;
-	goto NoStackCallGotS;
 
       }
       ENDBOp();
