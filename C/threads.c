@@ -214,7 +214,6 @@ static Int
 p_thread_exit(void)
 {
   thread_die(worker_id, FALSE);
-   fprintf(stderr,"here i go %d %ld\n", worker_id, ThreadHandle[worker_id].handle);
   pthread_exit(NULL);
   return TRUE;
 }

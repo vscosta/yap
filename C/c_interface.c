@@ -861,7 +861,6 @@ YAP_Init(YAP_init_args *yap_init)
 {
   int restore_result;
   CELL Trail = 0, Stack = 0, Heap = 0;
-  BACKUP_MACHINE_REGS();
 
   Yap_argv = yap_init->Argv;
   Yap_argc = yap_init->Argc;
@@ -895,6 +894,7 @@ YAP_Init(YAP_init_args *yap_init)
 	      yap_init->DelayedReleaseLoad
 	      );
   Yap_InitExStacks (Trail, Stack);
+  BACKUP_MACHINE_REGS();
   Yap_InitYaamRegs();
 
 #if HAVE_MPI

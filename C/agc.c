@@ -326,7 +326,7 @@ clean_atoms(void)
 #endif
 	*patm = at->NextOfAE;
 	atm = at->NextOfAE;
-	agc_collected += Yap_SizeOfBlock((CODEADDR)at);
+	agc_collected += sizeof(AtomEntry)+strlen(at->StrOfAE);
 	Yap_FreeCodeSpace((char *)at);
       }
     }
@@ -346,7 +346,7 @@ clean_atoms(void)
 #endif
       *patm = at->NextOfAE;
       atm = at->NextOfAE;
-      agc_collected += Yap_SizeOfBlock((CODEADDR)at);
+      agc_collected += sizeof(AtomEntry) + strlen(at->StrOfAE);
       Yap_FreeCodeSpace((char *)at);
     }
   }

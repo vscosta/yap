@@ -197,13 +197,13 @@ typedef enum {
 
 /* profile data */
 typedef struct {
-#if defined(YAPOR) || defined(THREADS)
-  lockvar lock;                 /* a simple lock to protect this entry */
-#endif
   YAP_ULONG_LONG	NOfEntries;		/* nbr of times head unification succeeded*/
   YAP_ULONG_LONG   NOfHeadSuccesses;       /* nbr of times head unification succeeded*/
   YAP_ULONG_LONG   NOfRetries;             /* nbr of times a clause for the pred
 				   was retried */
+#if defined(YAPOR) || defined(THREADS)
+  lockvar lock;                 /* a simple lock to protect this entry */
+#endif
 } profile_data;
 
 typedef	struct pred_entry {
@@ -238,10 +238,10 @@ typedef	struct pred_entry {
   tab_ent_ptr   TableOfPred;
 #endif /* TABLING */
   Term 	ModuleOfPred;	/* module for this definition		*/
+  struct pred_entry *NextPredOfModule; /* next pred for same module   */
   /* This must be at an odd number of cells, otherwise it
      will not be aligned on RISC machines */
   profile_data  StatisticsForPred; /* enable profiling for predicate  */
-  struct pred_entry *NextPredOfModule; /* next pred for same module   */
 } PredEntry;
 #define PEProp   ((PropFlags)(0x0000))
 

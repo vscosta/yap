@@ -503,7 +503,7 @@ static dbentry  db_vec, db_vec0;
 
 /* init the table */
 static void
-store_in_dbtable(CODEADDR entry, db_entry_type db_type)
+store_in_dbtable(CODEADDR entry, CODEADDR end, db_entry_type db_type)
 {
   dbentry parent = db_vec0;
   dbentry new = db_vec;
@@ -512,7 +512,7 @@ store_in_dbtable(CODEADDR entry, db_entry_type db_type)
     Yap_growtrail(64 * 1024L);
   new->val = entry;
   new->db_type = db_type;
-  new->lim = entry+Yap_SizeOfBlock((CODEADDR)entry);
+  new->lim = entry+sizeof(DBStruct)+sizeof(CELL)*((DBRef)entry)->DBT.NOfCells;
   new->left = new->right = NULL;
   if (db_vec == db_vec0) {
     db_vec++;
@@ -616,20 +616,26 @@ init_dbtable(tr_fr_ptr trail_ptr) {
       /* for the moment, if all references to the term in the stacks
 	 are only pointers, reset the flag */
       if (FlagOn(DBClMask, flags)) {
-	store_in_dbtable((CODEADDR)DBStructFlagsToDBStruct(pt0), db_entry);
+	DBRef dbr = DBStructFlagsToDBStruct(pt0);
+	store_in_dbtable((CODEADDR)dbr, 
+			 (CODEADDR)dbr+sizeof(DBStruct)+sizeof(CELL)*dbr->DBT.NOfCells,
+			 db_entry);
       } else if (flags & LogUpdMask) {
 	if (flags & IndexMask) {
-	  store_in_dbtable((CODEADDR)ClauseFlagsToLogUpdIndex(pt0), li_entry);	  
+	  LogUpdIndex *li = ClauseFlagsToLogUpdIndex(pt0);
+	  store_in_dbtable((CODEADDR)li, (CODEADDR)li+li->ClSize, li_entry);	  
 	} else {
-	  store_in_dbtable((CODEADDR)ClauseFlagsToLogUpdClause(pt0), lcl_entry);
+	  LogUpdClause *cli = ClauseFlagsToLogUpdClause(pt0);
+	  store_in_dbtable((CODEADDR)cli, (CODEADDR)cli+cli->ClSize, lcl_entry);	  
 	}
       } else {
-	store_in_dbtable((CODEADDR)ClauseFlagsToDynamicClause(pt0), cl_entry);
+	DynamicClause *dcl = ClauseFlagsToDynamicClause(pt0);
+	store_in_dbtable((CODEADDR)dcl, (CODEADDR)dcl->ClSize, dcl_entry);
       }
     }
   }
   while (cl != NULL) {
-    store_in_dbtable((CODEADDR)cl, dcl_entry);
+    store_in_dbtable((CODEADDR)cl, (CODEADDR)cl+cl->ClSize, dcl_entry);
     cl = cl->NextCl;
   }
   if (db_vec == db_vec0) {

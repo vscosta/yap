@@ -3489,7 +3489,7 @@ p_first_instance(void)
 static UInt
 index_sz(LogUpdIndex *x)
 {
-  UInt sz = Yap_SizeOfBlock((CODEADDR)x);
+  UInt sz = x->ClSize;
   x = x->ChildIndex;
   while (x != NULL) {
     sz += index_sz(x);
@@ -3513,7 +3513,7 @@ lu_statistics(PredEntry *pe)
     x = ClauseCodeToLogUpdClause(pe->cs.p_code.FirstClause);
     while (x != NULL) {
       cls++;
-      sz += Yap_SizeOfBlock((CODEADDR)x);
+      sz += x->ClSize;
       x = x->ClNext;
     }
   }
@@ -3549,10 +3549,10 @@ p_key_statistics(void)
   x = p->First;
   while (x != NULL) {
     cls++;
-    sz += Yap_SizeOfBlock((CODEADDR)x);
+    sz += sizeof(DBStruct)+sizeof(CELL)*x->DBT.NOfCells;
     if (x->Code) {
       DynamicClause *cl = ClauseCodeToDynamicClause(x->Code);
-      sz += Yap_SizeOfBlock((CODEADDR)cl);      
+      sz += cl->ClSize;      
     }
     x = NextDBRef(x);
   }
@@ -3574,12 +3574,12 @@ p_total_erased(void)
   /* only for log upds */
   while (cl) {
     cls++;
-    sz += Yap_SizeOfBlock((CODEADDR)cl);
+    sz += cl->ClSize;
     cl = cl->ClNext;
   }
   while (icl) {
     icls++;
-    isz += Yap_SizeOfBlock((CODEADDR)icl);
+    isz += icl->ClSize;
     icl = icl->SiblingIndex;
   }
   return
@@ -3605,7 +3605,7 @@ p_key_erased_statistics(void)
   while (cl) {
     if (cl->ClPred == pe) {
       cls++;
-      sz += Yap_SizeOfBlock((CODEADDR)cl);
+      sz += cl->ClSize;
     }
     cl = cl->ClNext;
   }
@@ -3616,7 +3616,7 @@ p_key_erased_statistics(void)
       c = c->u.ParentIndex;
     if (pe == c->u.pred) {
       icls++;
-      isz += Yap_SizeOfBlock((CODEADDR)icl);
+      isz += c->ClSize;
     }
     icl = icl->SiblingIndex;
   }

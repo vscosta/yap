@@ -383,7 +383,7 @@ decrease_log_indices(LogUpdIndex *c, yamop *suspend_code)
       beg->u.Ill.l1 != beg->u.Ill.l2) {
     end = beg->u.Ill.l2;
   } else {
-    end = (yamop *)((CODEADDR)c+Yap_SizeOfBlock((CODEADDR)c));
+     end = (yamop *)((CODEADDR)c+c->ClSize);
   }
   ipc = beg;
   cleanup_dangling_indices(ipc, beg, end, suspend_code);
@@ -668,8 +668,10 @@ retract_all(PredEntry *p, int in_use)
       do {
 	if (cl->ClFlags & HasBlobsMask) {
 	  DeadClause *dcl = (DeadClause *)cl;
+	  UInt sz = cl->ClSize;
 	  dcl->NextCl = DeadClauses;
 	  dcl->ClFlags = 0;
+	  dcl->ClSize = sz;
 	  DeadClauses = dcl;
 	} else {
 	  Yap_FreeCodeSpace((char *)cl);
@@ -1289,8 +1291,10 @@ Yap_EraseStaticClause(StaticClause *cl, Term mod) {
   WRITE_UNLOCK(ap->PRWLock);
   if (cl->ClFlags & HasBlobsMask || static_in_use(ap,TRUE)) {
     DeadClause *dcl = (DeadClause *)cl;
+    UInt sz = cl->ClSize;
     dcl->NextCl = DeadClauses;
     dcl->ClFlags = 0;
+    dcl->ClSize = sz;
     DeadClauses = dcl;
   } else {
     Yap_FreeCodeSpace((char *)cl);
@@ -1631,8 +1635,10 @@ purge_clauses(PredEntry *pred)
       do {
 	if (cl->ClFlags & HasBlobsMask || in_use) {
 	  DeadClause *dcl = (DeadClause *)cl;
+	  UInt sz = cl->ClSize;
 	  dcl->NextCl = DeadClauses;
 	  dcl->ClFlags = 0;
+	  dcl->ClSize = sz;
 	  DeadClauses = dcl;
 	} else {
 	  Yap_FreeCodeSpace((char *)cl);
@@ -2226,7 +2232,7 @@ static yamop *cur_clause(PredEntry *pe, yamop *codeptr)
 
   cl = ClauseCodeToStaticClause(pe->cs.p_code.FirstClause);
   do {
-    if (IN_BLOCK(codeptr,cl,Yap_SizeOfBlock((CODEADDR)cl))) {
+    if (IN_BLOCK(codeptr,cl,cl->ClSize)) {
       return cl->ClCode;
     }
     if (cl->ClCode == pe->cs.p_code.LastClause)
@@ -2242,7 +2248,7 @@ static yamop *cur_log_upd_clause(PredEntry *pe, yamop *codeptr)
   LogUpdClause *cl;
   cl = ClauseCodeToLogUpdClause(pe->cs.p_code.FirstClause);
   do {
-    if (IN_BLOCK(codeptr,cl->ClCode,Yap_SizeOfBlock((CODEADDR)cl))) {
+    if (IN_BLOCK(codeptr,cl->ClCode,cl->ClSize)) {
       return((yamop *)cl->ClCode);
     }
     cl = cl->ClNext;
@@ -2255,7 +2261,7 @@ static LogUpdIndex *
 find_owner_log_index(LogUpdIndex *cl, yamop *code_p)
 {
   yamop *code_beg = cl->ClCode;
-  yamop *code_end = (yamop *)((char *)cl + Yap_SizeOfBlock((CODEADDR)cl));
+  yamop *code_end = (yamop *)((char *)cl + cl->ClSize);
   
   if (code_p >= code_beg && code_p <= code_end) {
     return cl;
@@ -2275,7 +2281,7 @@ static StaticIndex *
 find_owner_static_index(StaticIndex *cl, yamop *code_p)
 {
   yamop *code_beg = cl->ClCode;
-  yamop *code_end = (yamop *)((char *)cl + Yap_SizeOfBlock((CODEADDR)cl));
+  yamop *code_end = (yamop *)((char *)cl + cl->ClSize);
   
   if (code_p >= code_beg && code_p <= code_end) {
     return cl;
@@ -2595,7 +2601,7 @@ code_in_pred_info(PredEntry *pp, Atom *pat, UInt *parity) {
 static int
 code_in_pred_lu_index(LogUpdIndex *icl, yamop *codeptr) {
   LogUpdIndex *cicl;
-  if (IN_BLOCK(codeptr,icl,Yap_SizeOfBlock((CODEADDR)icl))) {
+  if (IN_BLOCK(codeptr,icl,icl->ClSize)) {
     return TRUE;
   }
   cicl = icl->ChildIndex;
@@ -2610,7 +2616,7 @@ code_in_pred_lu_index(LogUpdIndex *icl, yamop *codeptr) {
 static int
 code_in_pred_s_index(StaticIndex *icl, yamop *codeptr) {
   StaticIndex *cicl;
-  if (IN_BLOCK(codeptr,icl,Yap_SizeOfBlock((CODEADDR)icl))) {
+  if (IN_BLOCK(codeptr,icl,icl->ClSize)) {
     return TRUE;
   }
   cicl = icl->ChildIndex;
@@ -2649,17 +2655,17 @@ code_in_pred(PredEntry *pp, Atom *pat, UInt *parity, yamop *codeptr) {
     char *code_end;
     if (pp->PredFlags & LogUpdatePredFlag) {
       LogUpdClause *cl = ClauseCodeToLogUpdClause(pp->cs.p_code.TrueCodeOfPred);
-      code_end = (char *)cl + Yap_SizeOfBlock((CODEADDR)cl);
+      code_end = (char *)cl + cl->ClSize;
     } else if (!(pp->PredFlags & DynamicPredFlag)) {
       code_end = NULL;
     } else {
       StaticClause *cl = ClauseCodeToStaticClause(pp->cs.p_code.TrueCodeOfPred);
-      code_end = (char *)cl + Yap_SizeOfBlock((CODEADDR)cl);
+      code_end = (char *)cl + cl->ClSize;
     }
     if (pp->PredFlags & LogUpdatePredFlag) {
       LogUpdClause *cl = ClauseCodeToLogUpdClause(clcode);
       do {
-	if (IN_BLOCK(codeptr,(CODEADDR)cl,Yap_SizeOfBlock((CODEADDR)cl))) {
+	if (IN_BLOCK(codeptr,(CODEADDR)cl,cl->ClSize)) {
 	  clause_was_found(pp, pat, parity);
 	  READ_UNLOCK(pp->PRWLock);
 	  return i;
@@ -2669,10 +2675,10 @@ code_in_pred(PredEntry *pp, Atom *pat, UInt *parity, yamop *codeptr) {
       } while (cl != NULL);
     } else if (pp->PredFlags & DynamicPredFlag) {
       do {
-	CODEADDR cl;
+	DynamicClause *cl;
 	
-	cl = (CODEADDR)ClauseCodeToDynamicClause(clcode);
-	if (IN_BLOCK(codeptr,cl,Yap_SizeOfBlock((CODEADDR)cl))) {
+	cl = ClauseCodeToDynamicClause(clcode);
+	if (IN_BLOCK(codeptr,cl,cl->ClSize)) {
 	  clause_was_found(pp, pat, parity);
 	  READ_UNLOCK(pp->PRWLock);
 	  return i;
@@ -2687,7 +2693,7 @@ code_in_pred(PredEntry *pp, Atom *pat, UInt *parity, yamop *codeptr) {
 	
       cl = ClauseCodeToStaticClause(clcode);
       do {
-	if (IN_BLOCK(codeptr,cl,Yap_SizeOfBlock((CODEADDR)cl))) {
+	if (IN_BLOCK(codeptr,cl,cl->ClSize)) {
 	  clause_was_found(pp, pat, parity);
 	  READ_UNLOCK(pp->PRWLock);
 	  return i;
@@ -3471,7 +3477,7 @@ add_code_in_pred(PredEntry *pp) {
 
     clcode = pp->CodeOfPred;
     cl = ClauseCodeToStaticClause(clcode);
-    code_end = (char *)cl + Yap_SizeOfBlock((CODEADDR)cl);
+    code_end = (char *)cl + cl->ClSize;
     Yap_inform_profiler_of_clause(clcode, (yamop *)code_end, pp,0);
     READ_UNLOCK(pp->PRWLock);
     return;
@@ -3481,10 +3487,10 @@ add_code_in_pred(PredEntry *pp) {
     char *code_end;
     if (pp->PredFlags & LogUpdatePredFlag) {
       LogUpdIndex *cl = ClauseCodeToLogUpdIndex(clcode);
-      code_end = (char *)cl + Yap_SizeOfBlock((CODEADDR)cl);
+      code_end = (char *)cl + cl->ClSize;
     } else {
       StaticIndex *cl = ClauseCodeToStaticIndex(clcode);
-      code_end = (char *)cl + Yap_SizeOfBlock((CODEADDR)cl);
+      code_end = (char *)cl + cl->ClSize;
     }
     Yap_inform_profiler_of_clause(clcode, (yamop *)code_end, pp,0);
   }	      
@@ -3495,17 +3501,17 @@ add_code_in_pred(PredEntry *pp) {
       do {
 	char *code_end;
 
-	code_end = (char *)cl + Yap_SizeOfBlock((CODEADDR)cl);
+	code_end = (char *)cl + cl->ClSize;
 	Yap_inform_profiler_of_clause(cl->ClCode, (yamop *)code_end, pp,0);
 	cl = cl->ClNext;
       } while (cl != NULL);
     } else if (pp->PredFlags & DynamicPredFlag) {
       do {
-	CODEADDR cl;
+	DynamicClause *cl;
 	char *code_end;
 
-	cl = (CODEADDR)ClauseCodeToDynamicClause(clcode);
-	code_end = cl + Yap_SizeOfBlock((CODEADDR)cl);
+	cl = ClauseCodeToDynamicClause(clcode);
+ 	code_end = (CODEADDR)cl + cl->ClSize;
 	Yap_inform_profiler_of_clause(clcode, (yamop *)code_end, pp,0);
 	if (clcode == pp->cs.p_code.LastClause)
 	  break;
@@ -3516,7 +3522,7 @@ add_code_in_pred(PredEntry *pp) {
       do {
 	char *code_end;
 
-	code_end = (char *)cl + Yap_SizeOfBlock((CODEADDR)cl);
+	code_end = (char *)cl + cl->ClSize;
 	Yap_inform_profiler_of_clause(cl->ClCode, (yamop *)code_end, pp,0);
 	if (cl->ClCode == pp->cs.p_code.FirstClause)
 	  break;
@@ -3558,7 +3564,7 @@ Yap_dump_code_area_for_profiler(void) {
 static UInt
 index_ssz(StaticIndex *x)
 {
-  UInt sz = Yap_SizeOfBlock((CODEADDR)x);
+  UInt sz = x->ClSize;
   x = x->ChildIndex;
   while (x != NULL) {
     sz += index_ssz(x);
@@ -3576,7 +3582,7 @@ static_statistics(PredEntry *pe)
   if (pe->cs.p_code.NOfClauses) {
     do {
       cls++;
-      sz += Yap_SizeOfBlock((CODEADDR)cl);
+      sz += cl->ClSize;
       if (cl->ClCode == pe->cs.p_code.LastClause)
 	break;
       cl = cl->ClNext;

@@ -10,7 +10,7 @@
 * File:		Regs.h							 *
 * mods:									 *
 * comments:	YAP abstract machine registers				 *
-* version:      $Id: Regs.h,v 1.26 2004-02-12 12:37:11 vsc Exp $	 *
+* version:      $Id: Regs.h,v 1.27 2004-03-05 15:26:33 vsc Exp $	 *
 *************************************************************************/
 
 
@@ -185,7 +185,7 @@ extern int Yap_stack_overflows;
 #define H0   Yap_REGS.H0_	/* base of heap (global) stack            */
 #define LCL0 Yap_REGS.LCL0_	/* local stack base                       */
 
-#if defined(__GNUC__) && defined(sparc) && !defined(__NetBSD__)
+#if defined(__GNUC__) && defined(sparc) && !defined(__NetBSD__) && !defined(THREADS)
 
 #define P    Yap_REGS.P_		/* prolog machine program counter         */
 #define YENV Yap_REGS.YENV_	/* current environment (may differ from   ENV)*/
@@ -193,7 +193,7 @@ extern int Yap_stack_overflows;
 
 register CELL *H asm ("g6");
 register tr_fr_ptr TR asm ("g7");
-#ifdef __svr4__
+#if defined(__svr4__) 
 register choiceptr B asm ("g5");
 #else
 #define  B         Yap_REGS.B_	/* latest choice point            */
@@ -205,7 +205,7 @@ register choiceptr B asm ("g5");
 EXTERN inline void save_machine_regs(void) {
   Yap_REGS.H_   = H;
   Yap_REGS.TR_  = TR;
-#ifdef __svr4__
+#if defined(__svr4__)
   Yap_REGS.B_  = B;
 #endif
 }
@@ -213,7 +213,7 @@ EXTERN inline void save_machine_regs(void) {
 EXTERN inline void restore_machine_regs(void) {
   H = Yap_REGS.H_;
   TR = Yap_REGS.TR_;
-#ifdef __svr4__
+#if defined(__svr4__)
   B = Yap_REGS.B_;
 #endif
 }
@@ -243,18 +243,18 @@ EXTERN inline void restore_H(void) {
 #define RECOVER_H()   save_H(); H = BK_H
 
 EXTERN inline void save_B(void) {
-#ifdef __svr4__
+#if defined(__svr4__)
   Yap_REGS.B_   = B;
 #endif
 }
 
 EXTERN inline void restore_B(void) {
-#ifdef __svr4__
+#if defined(__svr4__)
   B = Yap_REGS.B_;
 #endif
 }
 
-#ifdef __svr4__
+#if defined(__svr4__)
 #define BACKUP_B()  choiceptr BK_B = B; restore_B()
 
 #define RECOVER_B()   save_B(); B = BK_B

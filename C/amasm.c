@@ -99,7 +99,7 @@ STATIC_PROTO(yamop *a_xigl, (op_numbers, yamop *, int, struct PSEUDO *));
 STATIC_PROTO(yamop *a_ucons, (int *, compiler_vm_op, yamop *, int, struct intermediates *));
 STATIC_PROTO(yamop *a_uvar, (yamop *, int, struct intermediates *));
 STATIC_PROTO(yamop *a_wvar, (yamop *, int, struct intermediates *));
-STATIC_PROTO(yamop *do_pass, (int, yamop **, int, int *, struct intermediates *));
+STATIC_PROTO(yamop *do_pass, (int, yamop **, int, int *, struct intermediates *, UInt));
 #ifdef DEBUG_OPCODES
 STATIC_PROTO(void DumpOpCodes, (void));
 #endif
@@ -2075,7 +2075,7 @@ a_f2(int var, cmp_op_info *cmp_info, yamop *code_p, int pass_no, struct intermed
 #endif /* YAPOR */
 
 static yamop *
-do_pass(int pass_no, yamop **entry_codep, int assembling, int *clause_has_blobsp, struct intermediates *cip)
+do_pass(int pass_no, yamop **entry_codep, int assembling, int *clause_has_blobsp, struct intermediates *cip, UInt size)
 {
 #ifdef YAPOR
 #define EITHER_INST 50
@@ -2117,6 +2117,7 @@ do_pass(int pass_no, yamop **entry_codep, int assembling, int *clause_has_blobsp
 	cl_u->luc.ClFlags = LogUpdMask;
 	cl_u->luc.ClRefCount = 0;
 	cl_u->luc.ClPred = cip->CurrentPred;
+	cl_u->luc.ClSize = size;
 	if (*clause_has_blobsp) {
 	  cl_u->luc.ClFlags |= HasBlobsMask;
 	}
@@ -2134,6 +2135,7 @@ do_pass(int pass_no, yamop **entry_codep, int assembling, int *clause_has_blobsp
 	if (*clause_has_blobsp) {
 	  cl_u->ic.ClFlags |= HasBlobsMask;
 	}
+	cl_u->ic.ClSize = size;
 	cl_u->ic.ClRefCount = 0;
 #if defined(YAPOR) || defined(THREADS)
 	INIT_LOCK(cl_u->ic.ClLock);
@@ -2147,6 +2149,7 @@ do_pass(int pass_no, yamop **entry_codep, int assembling, int *clause_has_blobsp
 	cl_u->sc.Id = FunctorDBRef;
 	cl_u->sc.ClFlags = StaticMask;
 	cl_u->sc.ClNext = NULL;
+	cl_u->sc.ClSize = size;
 	if (*clause_has_blobsp) {
 	  cl_u->sc.ClFlags |= HasBlobsMask;
 	}
@@ -2170,6 +2173,7 @@ do_pass(int pass_no, yamop **entry_codep, int assembling, int *clause_has_blobsp
 	cl_u->lui.ChildIndex = NULL;
 	cl_u->lui.SiblingIndex = NULL;
 	cl_u->lui.u.pred = cip->CurrentPred;
+	cl_u->lui.ClSize = size;
 	cl_u->lui.ClRefCount =  0;
 	INIT_LOCK(cl_u->lui.ClLock);
 #if defined(YAPOR) || defined(THREADS)
@@ -2190,6 +2194,7 @@ do_pass(int pass_no, yamop **entry_codep, int assembling, int *clause_has_blobsp
 #endif
     } else {
       if (pass_no) {
+	cl_u->si.ClSize = size;
 	cl_u->si.ClFlags = IndexMask; 
 	cl_u->si.ChildIndex = NULL;
 	cl_u->si.SiblingIndex = NULL;
@@ -2766,14 +2771,14 @@ Yap_assemble(int mode, Term t, PredEntry *ap, int is_fact, struct intermediates 
    * computes labels offsets and total code size 2 - the second pass
    * produces the final version of the code 
    */
-  CELL size;
+  UInt size = 0;
   yamop *entry_code;
   yamop *code_p;
   int clause_has_blobs = FALSE;
 
   cip->label_offset = (int *)cip->freep;
   cip->code_addr = NULL;
-  code_p = do_pass(0, &entry_code, mode, &clause_has_blobs, cip);
+  code_p = do_pass(0, &entry_code, mode, &clause_has_blobs, cip, size);
   size =
     (CELL)NEXTOP(NEXTOP(NEXTOP((yamop *)(((DynamicClause *)NULL)->ClCode),ld),sla),e);
   if ((CELL)code_p > size)
@@ -2845,7 +2850,7 @@ Yap_assemble(int mode, Term t, PredEntry *ap, int is_fact, struct intermediates 
     H = h0;
     cl = (StaticClause *)((CODEADDR)x-(UInt)size);
     cip->code_addr = (yamop *)cl;
-    code_p = do_pass(1, &entry_code, mode, &clause_has_blobs, cip);
+    code_p = do_pass(1, &entry_code, mode, &clause_has_blobs, cip, size);
     /* make sure we copy after second pass */
     cl->usc.ClSource = x;
     ProfEnd=code_p;
@@ -2858,7 +2863,7 @@ Yap_assemble(int mode, Term t, PredEntry *ap, int is_fact, struct intermediates 
       }
     }
   }
-  code_p = do_pass(1, &entry_code, mode, &clause_has_blobs, cip);
+  code_p = do_pass(1, &entry_code, mode, &clause_has_blobs, cip, size);
   ProfEnd=code_p;
   return entry_code;
 }

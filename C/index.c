@@ -2406,23 +2406,27 @@ emit_switch_space(UInt n, UInt item_size, struct intermediates *cint)
   PredEntry *ap = cint->CurrentPred;
 
   if (ap->PredFlags & LogUpdatePredFlag) {
-    LogUpdIndex *cl = (LogUpdIndex *)Yap_AllocCodeSpace(sizeof(LogUpdIndex)+n*item_size);
+    UInt sz = sizeof(LogUpdIndex)+n*item_size;
+    LogUpdIndex *cl = (LogUpdIndex *)Yap_AllocCodeSpace(sz);
     if (cl == NULL) {
       Yap_Error_Size = sizeof(LogUpdIndex)+n*item_size;
       /* grow stack */
       longjmp(cint->CompilerBotch,2);
     }
     cl->ClFlags = SwitchTableMask|LogUpdMask;
+    cl->ClSize = sz;
     /* insert into code chain */
     return cl->ClCode;
   } else {
-    StaticIndex *cl = (StaticIndex *)Yap_AllocCodeSpace(sizeof(StaticIndex)+n*item_size);
+    UInt sz = sizeof(StaticIndex)+n*item_size;
+    StaticIndex *cl = (StaticIndex *)Yap_AllocCodeSpace(sz);
     if (cl == NULL) {
       Yap_Error_Size = sizeof(LogUpdIndex)+n*item_size;
       /* grow stack */
       longjmp(cint->CompilerBotch,2);
     }
     cl->ClFlags = SwitchTableMask;
+    cl->ClSize = sz;
     return cl->ClCode;
     /* insert into code chain */
   }  
@@ -4323,10 +4327,15 @@ cross_block(path_stack_entry *sp, yamop **pipc, PredEntry *ap)
   ClauseUnion *block;
 
   do {
+    UInt bsize;
     while ((--tsp)->flag != block_entry);
     block = tsp->u.cle.block;
+    if (block->lui.ClFlags & LogUpdMask)
+      bsize = block->lui.ClSize;
+    else
+      bsize = block->si.ClSize;
     if (ipc > (yamop *)block &&
-	ipc <= (yamop *)((CODEADDR)block + Yap_SizeOfBlock((CODEADDR)block))) {
+	ipc <= (yamop *)((CODEADDR)block + bsize)) {
       path_stack_entry *nsp = tsp+1;
       for (;tsp<sp;tsp++) {
 	if (tsp->flag == pc_entry) {
@@ -4926,6 +4935,8 @@ insertz_in_lu_block(LogUpdIndex *blk, PredEntry *ap, yamop *code)
 {
   op_numbers op = Yap_op_from_opcode(blk->ClCode->opc);
   yamop *end, *last, *where, *next;
+  UInt bsize;
+
   /* make sure this is something I can work with */
   if (op != _enter_lu_pred && op != _stale_lu_index) {
     if (blk->ClFlags & SwitchRootMask) {
@@ -4937,7 +4948,8 @@ insertz_in_lu_block(LogUpdIndex *blk, PredEntry *ap, yamop *code)
   }
   /* ok, we are in a sequence of try-retry-trust instructions, or something
      similar */
-  end = (yamop *)((CODEADDR)blk+Yap_SizeOfBlock((CODEADDR)blk));
+  bsize = blk->ClSize;
+  end = (yamop *)((CODEADDR)blk+bsize);
   where = last = blk->ClCode->u.Ill.l2;
   next = NEXTOP(NEXTOP(where, ld),p);  /* trust logical followed by trust */
   last = PREVOP(last, ld);
@@ -6158,11 +6170,11 @@ Yap_RemoveClauseFromIndex(PredEntry *ap, yamop *beg) {
   if (ap->PredFlags & LogUpdatePredFlag) {
     LogUpdClause *c = ClauseCodeToLogUpdClause(beg);
     cl.Code =  cl.CurrentCode = beg;
-    last = (yamop *)((CODEADDR)c+Yap_SizeOfBlock((CODEADDR)c));
+    last = (yamop *)((CODEADDR)c+c->ClSize);
   } else {
     StaticClause *c = ClauseCodeToStaticClause(beg);
     cl.Code =  cl.CurrentCode = beg;
-    last = (yamop *)((CODEADDR)c+Yap_SizeOfBlock((CODEADDR)c));
+    last = (yamop *)((CODEADDR)c+c->ClSize);
   }
   sp = push_path(stack, NULL, &cl);
   if (ap->cs.p_code.NOfClauses == 0) {

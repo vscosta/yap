@@ -12,7 +12,7 @@
 * Last rev:								 *
 * mods:									 *
 * comments:	allocating space					 *
-* version:$Id: alloc.c,v 1.47 2004-02-20 18:56:06 vsc Exp $		 *
+* version:$Id: alloc.c,v 1.48 2004-03-05 15:26:32 vsc Exp $		 *
 *************************************************************************/
 #ifdef SCCS
 static char SccsId[] = "%W% %G%";
@@ -56,40 +56,28 @@ static char SccsId[] = "%W% %G%";
 
 #if USE_SYSTEM_MALLOC
 
-int
-Yap_SizeOfBlock(CODEADDR p)
-{
-  return ((UInt *)p)[-1];
-}
-
 char *
 Yap_AllocCodeSpace(unsigned int size)
 {
-  char *ptr = malloc(size+sizeof(UInt));
-  UInt *pi = (UInt *)ptr;
-  pi[0] = size;
-  return (char *)(pi+1);  
+  return malloc(size);
 }
 
 void
 Yap_FreeCodeSpace(char *p)
 {
-  free (p-sizeof(UInt));
+  free (p);
 }
 
 char *
 Yap_AllocAtomSpace(unsigned int size)
 {
-  char *ptr = malloc(size+sizeof(UInt));
-  UInt *pi = (UInt *)ptr;
-  pi[0] = size;
-  return (char *)(pi+1);  
+  return malloc(size);
 }
 
 void
 Yap_FreeAtomSpace(char *p)
 {
-  free (p-sizeof(UInt));
+  free (p);
 }
 
 /* If you need to dinamically allocate space from the heap, this is
@@ -258,14 +246,6 @@ STATIC_PROTO(void AddToFreeList, (BlockHeader *));
 #endif
 
 #define MinHGap   256*K
-
-int
-Yap_SizeOfBlock(CODEADDR p)
-{
-  BlockHeader *b = (BlockHeader *) (p - sizeof(YAP_SEG_SIZE));
-  YAP_SEG_SIZE s = (b->b_size) & ~InUseFlag;
-  return ((s - 1) * sizeof(YAP_SEG_SIZE));
-}
 
 static void
 RemoveFromFreeList(BlockHeader *b)

@@ -46,6 +46,7 @@ typedef struct logic_upd_index {
   /* A lock for manipulating the clause */
   lockvar          ClLock;
 #endif
+  UInt		   ClSize;
   union {
     PredEntry *pred;
     struct logic_upd_index *ParentIndex;
@@ -67,6 +68,7 @@ typedef struct logic_upd_clause {
   /* A lock for manipulating the clause */
   lockvar          ClLock;
 #endif
+  UInt		  ClSize;
   /* extra clause information for logical update indices and facts */
   /* indices that may still backtrack to this clause */
   UInt             ClRefCount;
@@ -88,6 +90,7 @@ typedef struct dynamic_clause {
   /* A lock for manipulating the clause */
   lockvar          ClLock;
 #endif
+  UInt		   ClSize;
   UInt             ClRefCount;
   yamop              *ClPrevious;     /* immediate update clause */
   /* The instructions, at least one of the form sl */
@@ -97,6 +100,7 @@ typedef struct dynamic_clause {
 typedef struct static_index {
   /* A set of flags describing info on the clause */
   CELL            ClFlags;
+  UInt		  ClSize;
   struct static_index *SiblingIndex;
   struct static_index *ChildIndex;
   /* The instructions, at least one of the form sl */
@@ -107,6 +111,7 @@ typedef struct static_clause {
   /* A set of flags describing info on the clause */
   Functor         Id;
   CELL            ClFlags;
+  UInt		  ClSize;
   union {
     DBTerm          *ClSource;
     PredEntry       *ClPred;
@@ -118,12 +123,13 @@ typedef struct static_clause {
 
 typedef struct dead_clause {
   CELL            ClFlags;
-  struct dead_clause *NextCl;       /* dead clause */
 #if defined(YAPOR) || defined(THREADS)
   /* A lock for manipulating the clause */
   lockvar          ClLock;
   UInt             ref_count;
 #endif
+  UInt ClSize;
+  struct dead_clause *NextCl;       /* dead clause */
 } DeadClause;
 
 typedef union clause_obj {

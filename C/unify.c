@@ -295,6 +295,9 @@ cufail:
 #if SHADOW_REGS
 #if defined(B) || defined(TR)
 #undef Yap_REGS
+#if PUSH_REGS
+#define Yap_REGS (*Yap_regp)
+#endif
 #endif /* defined(B) || defined(TR) */
 #endif
 }

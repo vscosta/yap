@@ -10,7 +10,7 @@
 * File:		Yap.proto						 *
 * mods:									 *
 * comments:	Function declarations for YAP				 *
-* version:      $Id: Yapproto.h,v 1.50 2004-03-04 18:33:33 vsc Exp $	 *
+* version:      $Id: Yapproto.h,v 1.51 2004-03-05 15:26:33 vsc Exp $	 *
 *************************************************************************/
 
 /* prototype file for Yap */
@@ -68,7 +68,6 @@ void    STD_PROTO(Yap_atom_gc, (void));
 void    STD_PROTO(Yap_init_agc, (void));
 
 /* alloc.c */
-int	STD_PROTO(Yap_SizeOfBlock,(CODEADDR));
 void	STD_PROTO(Yap_FreeCodeSpace,(char *));
 char   *STD_PROTO(Yap_AllocAtomSpace,(unsigned int));
 char   *STD_PROTO(Yap_AllocCodeSpace,(unsigned int));
