@@ -371,6 +371,8 @@ abolish(X) :-
 
 '$new_abolish'(V,M) :- var(V), !,
 	'$abolish_all'(M).
+'$new_abolish'(A,M) :- var(A), !,
+	'$abolish_all_atoms'(A,M).
 '$new_abolish'(M:PS,_) :- !,
 	'$new_abolish'(PS,M).
 '$new_abolish'(Na/Ar, M) :-
@@ -386,11 +388,16 @@ abolish(X) :-
 	throw(error(type_error(predicate_indicator,T),abolish(M:T))).
 
 '$abolish_all'(M) :-
-        '$current_predicate'(M,_,P),
-	functor(P, Na, Ar),
+        '$current_predicate'(M,Na,Ar),
 	'$new_abolish'(Na/Ar, M),
 	fail.
 '$abolish_all'(_).
+
+'$abolish_all_atoms'(Na, M) :-
+        '$current_predicate'(M,Na,Ar),
+	'$new_abolish'(Na/Ar, M),
+	fail.
+'$abolish_all_atoms'(_,_).
 
 '$check_error_in_predicate_indicator'(V, Msg) :-
 	var(V), !,
@@ -430,6 +437,8 @@ abolish(X) :-
 
 '$old_abolish'(V,M) :- var(V), !,
 	'$abolish_all_old'(M).
+'$old_abolish'(A,M) :- atom(A), !,
+	'$abolish_all_atoms_old'(A,M).
 '$old_abolish'(M:N,_) :- !,
 	'$old_abolish'(N,M).
 '$old_abolish'([], _) :- !.
@@ -440,12 +449,16 @@ abolish(X) :-
 	throw(error(type_error(predicate_indicator,T),abolish(M:T))).
 	
 '$abolish_all_old'(M) :-
-        '$current_predicate'(Mod,_,P),
-	functor(P, Na, Ar),
-	'$old_abolish'(Na/Ar, Mod),
+        '$current_predicate'(Mod,Na,Ar),
+	'$abolish'(Na, Ar, Mod),
 	fail.
 '$abolish_all_old'.
 
+'$abolish_all_atoms_old'(Na, M) :-
+        '$current_predicate'(M,Na,Ar),
+	'$abolish'(Na, Ar, M),
+	fail.
+'$abolish_all_atoms_old'(_,_).
 
 '$abolishd'(T, M) :- '$recordedp'(M:T,_,R), erase(R), fail.
 '$abolishd'(T, M) :- '$kill_dynamic'(T,M), fail.
