@@ -230,51 +230,51 @@ Yap_init_socks(char *host, long interface_port)
 
    r = connect ( s, (struct sockaddr *) &soadr, sizeof(soadr));
    if (r<0) {
-        fprintf(Yap_stderr,"connect failed with %d\n",r);
+        fprintf(stderr,"connect failed with %d\n",r);
    	crash("[ could not connect to interface]");
    }
    /* now reopen stdin stdout and stderr */
 #if HAVE_DUP2 && !defined(__MINGW32__)
    if(dup2(s,0)<0) {
-   	fprintf(Yap_stderr,"could not dup2 stdin\n");
+   	fprintf(stderr,"could not dup2 stdin\n");
    	return;
    }
    if(dup2(s,1)<0) {
-   	fprintf(Yap_stderr,"could not dup2 stdout\n");
+   	fprintf(stderr,"could not dup2 stdout\n");
    	return;
    }
    if(dup2(s,2)<0) {
-   	fprintf(Yap_stderr,"could not dup2 stderr\n");
+   	fprintf(stderr,"could not dup2 stderr\n");
    	return;
    }
 #elif _MSC_VER || defined(__MINGW32__)
    if(_dup2(s,0)<0) {
-   	fprintf(Yap_stderr,"could not dup2 stdin\n");
+   	fprintf(stderr,"could not dup2 stdin\n");
    	return;
    }
    if(_dup2(s,1)<0) {
-   	fprintf(Yap_stderr,"could not dup2 stdout\n");
+   	fprintf(stderr,"could not dup2 stdout\n");
    	return;
    }
    if(_dup2(s,2)<0) {
-   	fprintf(Yap_stderr,"could not dup2 stderr\n");
+   	fprintf(stderr,"could not dup2 stderr\n");
    	return;
    }
 #else
    if(dup2(s,0)<0) {
-   	fprintf(Yap_stderr,"could not dup2 stdin\n");
+   	fprintf(stderr,"could not dup2 stdin\n");
    	return;
    }
    yp_iob[0].cnt = 0;
    yp_iob[0].flags = _YP_IO_SOCK | _YP_IO_READ;
    if(dup2(s,1)<0) {
-   	fprintf(Yap_stderr,"could not dup2 stdout\n");
+   	fprintf(stderr,"could not dup2 stdout\n");
    	return;
    }
    yp_iob[1].cnt = 0;
    yp_iob[1].flags = _YP_IO_SOCK | _YP_IO_WRITE;
    if(dup2(s,2)<0) {
-   	fprintf(Yap_stderr,"could not dup2 stderr\n");
+   	fprintf(stderr,"could not dup2 stderr\n");
    	return;
    }
    yp_iob[2].cnt = 0;
