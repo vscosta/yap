@@ -6037,22 +6037,38 @@ Send to the current user error stream general information on space used and time
 spent by the system.
 @example
 ?- statistics.
-Heap space : 2441216
-        Heap in use: 820220, max. used: 1623516
-Trail space : 131068
-        Trail in use: 16, max. used: 13048
-Stack space : 1523712
-        Global in use: 88, max. used: 658700
-        Local in use: 276, max. used: 515336
+memory (total)        4784124 bytes
+   program space      3055616 bytes:    1392224 in use,      1663392 free
+                                                             2228132  max
+   stack space        1531904 bytes:        464 in use,      1531440 free
+     global stack:                           96 in use,       616684  max
+      local stack:                          368 in use,       546208  max
+   trail stack         196604 bytes:          8 in use,       196596 free
 
+       0.010 sec. for 5 code, 2 stack, and 1 trail space overflows
+       0.130 sec. for 3 garbage collections which collected 421000 bytes
+       0.000 sec. for 0 atom garbage collections which collected 0 bytes
+       0.880 sec. runtime
+       1.020 sec. cputime
+      25.055 sec. elapsed time
 
-90 msec. for 5 heap overflows.
-90 msec. for 3 stack overflows.
-0 msec. for 0 trail overflows.
-800 msec. for 3 garbage collections which 
-             collected 208348 bytes.
-Runtime : 23.07 sec.
 @end example
+The example shows how much memory the system spends. Memory is divided
+into Program Space, Stack Space and Trail. In the example we have 3MB
+allocated for program spaces, with less than half being actually
+used. Yap also shows the maximum amount of heap space having been used
+which was over 2MB.
+
+The stack space is divided into two stacks which grow against each
+other. We are in the top level so very little stack is being used. On
+the other hand, the system did use a lot of global and local stack
+during the previous execution (we refer the reader to a WAM tutorial in
+order to understand what are the global and local stacks).
+
+Yap also shows information on how many memory overflows and garbage
+collections the system executed, and statistics on total execution
+time. Cputime includes all running time, runtime excludes garbage
+collection and stack overflow time.
 
 @item statistics(?@var{Param},-@var{Info})
 @findex statistics/2
