@@ -1,6 +1,6 @@
 =================================================================
 Logtalk - Object oriented extension to Prolog
-Release 2.21.4
+Release 2.21.5
 
 Copyright (c) 1998-2004 Paulo Moura.  All Rights Reserved.
 =================================================================
@@ -8,6 +8,28 @@ Copyright (c) 1998-2004 Paulo Moura.  All Rights Reserved.
 
 RELEASE NOTES
 =============
+
+
+2.21.5 - November 2, 2004
+
+	Added a new optimization compiler flag, "events", which can be used to switch 
+	off event-driven programming support when not needed, on a per-object basis, 
+	resulting in improved message sending performance.
+
+	Small performance optimization to the runtime creation of dynamic objects, 
+	protocols, and categories.
+
+	Updated the error handling code of the built-in predicates create_object/4, 
+	create_protocol/3, and create_category/4 in order to throw an instantiation 
+	error when called with a non-instantiated argument.
+
+	Updated the benchmarks example to calculate and subtract the benchmark loop 
+	time in order to print absolute timings for the benchmarked goals.
+
+	Updated the Qu-Prolog patching instructions to also convert Logtalk source 
+	metafiles.
+
+	Fixed a typo on the XSB compatibility notes in the configs/NOTES file.
 
 
 2.21.4 - October 26, 2004

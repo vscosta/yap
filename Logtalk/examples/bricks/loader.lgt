@@ -3,4 +3,5 @@
 	logtalk_load([
 		brick,
 		brick_stack,
-		stack_monitor])). 
+		stack_monitor],
+		[events(on)])). 

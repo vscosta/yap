@@ -3,4 +3,5 @@
 	logtalk_load([
 		timer, 
 		message_counter,
-		stop_watch])).
+		stop_watch],
+		[events(on)])).

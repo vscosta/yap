@@ -2,7 +2,7 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %
 %  Logtalk - Object oriented extension to Prolog
-%  Release 2.21.4
+%  Release 2.21.5
 %
 %  Copyright (c) 1998-2004 Paulo Moura.  All Rights Reserved.
 %
@@ -287,7 +287,7 @@ protocol_property(Ptc, Prop) :-
 % create_object(+object_identifier, +list, +list, +list)
 
 create_object(Obj, Rels, Dirs, Clauses) :-
-	var(Obj),
+	(var(Obj); var(Rels); var(Dirs); var(Clauses)),
 	throw(error(instantiation_error, create_object(Obj, Rels, Dirs, Clauses))).
 
 create_object(Obj, Rels, Dirs, Clauses) :-
@@ -307,27 +307,27 @@ create_object(Obj, Rels, Dirs, Clauses) :-
 	throw(error(permission_error(replace, protocol, Obj), create_object(Obj, Rels, Dirs, Clauses))).
 
 create_object(Obj, Rels, Dirs, Clauses) :-
-	(var(Rels); \+ '$lgt_proper_list'(Rels)),
+	\+ '$lgt_proper_list'(Rels),
 	throw(error(type_error(list, Rels), create_object(Obj, Rels, Dirs, Clauses))).
 
 create_object(Obj, Rels, Dirs, Clauses) :-
-	(var(Dirs); \+ '$lgt_proper_list'(Dirs)),
+	\+ '$lgt_proper_list'(Dirs),
 	throw(error(type_error(list, Dirs), create_object(Obj, Rels, Dirs, Clauses))).
 
 create_object(Obj, Rels, Dirs, Clauses) :-
-	(var(Clauses); \+ '$lgt_proper_list'(Clauses)),
+	\+ '$lgt_proper_list'(Clauses),
 	throw(error(type_error(list, Clauses), create_object(Obj, Rels, Dirs, Clauses))).
 
 create_object(Obj, Rels, Dirs, Clauses) :-
 	'$lgt_clean_pp_clauses',
 	'$lgt_tr_directive'(object, [Obj| Rels]),
-	'$lgt_tr_directives'([(dynamic)| Dirs]),
+	'$lgt_tr_directive'((dynamic), []),
+	'$lgt_tr_directives'(Dirs),
 	'$lgt_tr_clauses'(Clauses),
 	'$lgt_fix_redef_built_ins',
 	'$lgt_gen_object_clauses',
 	'$lgt_gen_object_directives',
 	'$lgt_assert_tr_entity',
-	'$lgt_report_unknown_entities',
 	'$lgt_clean_pp_clauses'.
 
 
@@ -335,7 +335,7 @@ create_object(Obj, Rels, Dirs, Clauses) :-
 % create_category(+category_identifier, +list, +list, +list)
 
 create_category(Ctg, Rels, Dirs, Clauses) :-
-	var(Ctg),
+	(var(Ctg); var(Rels); var(Dirs); var(Clauses)),
 	throw(error(instantiation_error, create_category(Ctg, Rels, Dirs, Clauses))).
 
 create_category(Ctg, Rels, Dirs, Clauses) :-
@@ -355,27 +355,27 @@ create_category(Ctg, Rels, Dirs, Clauses) :-
 	throw(error(permission_error(replace, protocol, Ctg), create_category(Ctg, Rels, Dirs, Clauses))).
 
 create_category(Ctg, Rels, Dirs, Clauses) :-
-	(var(Rels); \+ '$lgt_proper_list'(Rels)),
+	\+ '$lgt_proper_list'(Rels),
 	throw(error(type_error(list, Rels), create_category(Ctg, Rels, Dirs, Clauses))).
 
 create_category(Ctg, Rels, Dirs, Clauses) :-
-	(var(Dirs); \+ '$lgt_proper_list'(Dirs)),
+	\+ '$lgt_proper_list'(Dirs),
 	throw(error(type_error(list, Dirs), create_category(Ctg, Rels, Dirs, Clauses))).
 
 create_category(Ctg, Rels, Dirs, Clauses) :-
-	(var(Clauses); \+ '$lgt_proper_list'(Clauses)),
+	\+ '$lgt_proper_list'(Clauses),
 	throw(error(type_error(list, Clauses), create_category(Ctg, Rels, Dirs, Clauses))).
 
 create_category(Ctg, Rels, Dirs, Clauses) :-
 	'$lgt_clean_pp_clauses',
 	'$lgt_tr_directive'(category, [Ctg| Rels]),
-	'$lgt_tr_directives'([(dynamic)| Dirs]),
+	'$lgt_tr_directive'((dynamic), []),
+	'$lgt_tr_directives'(Dirs),
 	'$lgt_tr_clauses'(Clauses),
 	'$lgt_fix_redef_built_ins',
 	'$lgt_gen_category_clauses',
 	'$lgt_gen_category_directives',
 	'$lgt_assert_tr_entity',
-	'$lgt_report_unknown_entities',
 	'$lgt_clean_pp_clauses'.
 
 
@@ -383,7 +383,7 @@ create_category(Ctg, Rels, Dirs, Clauses) :-
 % create_protocol(+protocol_identifier, +list, +list)
 
 create_protocol(Ptc, Rels, Dirs) :-
-	var(Ptc),
+	(var(Ptc); var(Rels); var(Dirs)),
 	throw(error(instantiation_error, create_protocol(Ptc, Rels, Dirs))).
 
 create_protocol(Ptc, Rels, Dirs) :-
@@ -403,21 +403,21 @@ create_protocol(Ptc, Rels, Dirs) :-
 	throw(error(permission_error(replace, category, Ptc), create_protocol(Ptc, Rels, Dirs))).
 
 create_protocol(Ptc, Rels, Dirs) :-
-	(var(Rels); \+ '$lgt_proper_list'(Rels)),
+	\+ '$lgt_proper_list'(Rels),
 	throw(error(type_error(list, Rels), create_protocol(Ptc, Rels, Dirs))).
 
 create_protocol(Ptc, Rels, Dirs) :-
-	(var(Dirs); \+ '$lgt_proper_list'(Dirs)),
+	\+ '$lgt_proper_list'(Dirs),
 	throw(error(type_error(list, Dirs), create_protocol(Ptc, Rels, Dirs))).
 
 create_protocol(Ptc, Rels, Dirs) :-
 	'$lgt_clean_pp_clauses',
 	'$lgt_tr_directive'(protocol, [Ptc| Rels]),
-	'$lgt_tr_directives'([(dynamic)| Dirs]),
+	'$lgt_tr_directive'((dynamic), []),
+	'$lgt_tr_directives'(Dirs),
 	'$lgt_gen_protocol_clauses',
 	'$lgt_gen_protocol_directives',
 	'$lgt_assert_tr_entity',
-	'$lgt_report_unknown_entities',
 	'$lgt_clean_pp_clauses'.
 
 
@@ -1123,7 +1123,7 @@ current_logtalk_flag(Flag, Value) :-
 	'$lgt_default_flag'(Flag, Value),
 	\+ '$lgt_current_flag_'(Flag, _).
 
-current_logtalk_flag(version, version(2, 21, 4)).
+current_logtalk_flag(version, version(2, 21, 5)).
 
 
 
@@ -1894,7 +1894,6 @@ current_logtalk_flag(version, version(2, 21, 4)).
 				throw(error(existence_error(predicate_declaration, Pred), Self::Pred, This))))).
 
 
-
 % '$lgt_send_to_object'(@object, ?term, +object)
 
 '$lgt_send_to_object'(Obj, Pred, Sender) :-
@@ -1927,6 +1926,49 @@ current_logtalk_flag(version, version(2, 21, 4)).
 					\+ ('$lgt_before_'(Obj, Pred, Sender, _, BCall), \+ call(BCall)),
 					call(Call),
 					\+ ('$lgt_after_'(Obj, Pred, Sender, _, ACall), \+ call(ACall))
+					;
+					(Scope = p ->
+						throw(error(permission_error(access, private_predicate, Pred), Obj::Pred, Sender))
+						;
+						throw(error(permission_error(access, protected_predicate, Pred), Obj::Pred, Sender))))
+				;
+				('$lgt_built_in'(Pred) ->
+					call(Pred)
+					;
+					throw(error(existence_error(predicate_declaration, Pred), Obj::Pred, Sender))))
+			;
+			throw(error(existence_error(object, Obj), Obj::Pred, Sender))).
+
+
+
+% '$lgt_send_to_object_ne'(@object, ?term, +object)
+
+'$lgt_send_to_object_ne'(Obj, Pred, Sender) :-
+	nonvar(Obj) ->
+		(nonvar(Pred) ->
+			'$lgt_send_to_object_ne_nv'(Obj, Pred, Sender)
+			;
+			throw(error(instantiation_error, Obj::Pred, Sender)))
+		;
+		throw(error(instantiation_error, Obj::Pred, Sender)).
+
+
+
+% '$lgt_send_to_object_ne_nv'(+object, +term, +object)
+
+'$lgt_send_to_object_ne_nv'(Obj, Pred, Sender) :-
+	'$lgt_obj_lookup_cache_'(Obj, Pred, Sender, Obj, Obj, Call) ->
+		call(Call)
+		;
+		('$lgt_current_object_'(Obj, _, Dcl, Def, _, _) ->
+			('$lgt_call'(Dcl, Pred, Scope, _, _, _, _) ->
+				(Scope = p(p(_)) ->
+					functor(Pred, Functor, Arity),
+					functor(GPred, Functor, Arity),
+					'$lgt_once'(Def, GPred, GSender, GThis, GSelf, Call, _),
+					asserta('$lgt_obj_lookup_cache_'(Obj, GPred, GSender, GThis, GSelf, Call)),
+					GPred = Pred, GSender = Sender, GThis = Obj, GSelf = Obj,
+					call(Call)
 					;
 					(Scope = p ->
 						throw(error(permission_error(access, private_predicate, Pred), Obj::Pred, Sender))
@@ -4324,10 +4366,14 @@ current_logtalk_flag(version, version(2, 21, 4)).
 			fail)).
 
 
-'$lgt_tr_msg'(Pred, Obj, '$lgt_send_to_object'(Obj, Pred, This), Ctx) :-
+'$lgt_tr_msg'(Pred, Obj, TPred, Ctx) :-
 	var(Pred) ->											% translation performed at runtime
 		!,
-		'$lgt_this'(Ctx, This)
+		'$lgt_this'(Ctx, This),
+		('$lgt_compiler_option'(events, on) ->
+			TPred = '$lgt_send_to_object'(Obj, Pred, This)
+			;
+			TPred = '$lgt_send_to_object_ne'(Obj, Pred, This))
 		;
 		\+ callable(Pred),									% invalid message
 		throw(type_error(callable, Pred)).
@@ -4467,9 +4513,15 @@ current_logtalk_flag(version, version(2, 21, 4)).
 '$lgt_tr_msg'(Pred, Obj, TPred, Ctx) :-
 	'$lgt_this'(Ctx, This),
 	(var(Obj) ->
-		TPred = '$lgt_send_to_object'(Obj, Pred, This)
+		('$lgt_compiler_option'(events, on) ->
+			TPred = '$lgt_send_to_object'(Obj, Pred, This)
+			;
+			TPred = '$lgt_send_to_object_ne'(Obj, Pred, This))
 		;
-		TPred = '$lgt_send_to_object_nv'(Obj, Pred, This)).
+		('$lgt_compiler_option'(events, on) ->
+			TPred = '$lgt_send_to_object_nv'(Obj, Pred, This)
+			;
+			TPred = '$lgt_send_to_object_ne_nv'(Obj, Pred, This))).
 
 
 
@@ -7186,6 +7238,9 @@ current_logtalk_flag(version, version(2, 21, 4)).
 '$lgt_valid_compiler_option'(debug(Option)) :-
 	once((Option == on; Option == off)).
 
+'$lgt_valid_compiler_option'(events(Option)) :-
+	once((Option == on; Option == off)).
+
 
 
 % '$lgt_valid_flag'(@nonvar)
@@ -7211,6 +7266,7 @@ current_logtalk_flag(version, version(2, 21, 4)).
 '$lgt_valid_flag'(code_prefix).
 '$lgt_valid_flag'(debug).
 '$lgt_valid_flag'(supports_break_predicate).
+'$lgt_valid_flag'(events).
 
 
 
@@ -8151,6 +8207,8 @@ current_logtalk_flag(version, version(2, 21, 4)).
 
 '$lgt_default_flags' :-
 	write('Default compilation flags:'), nl,
+	'$lgt_default_flag'(events, Events),
+	write('  Event-driven programming support (events):                '), write(Events), nl,
 	'$lgt_default_flag'(iso_initialization_dir, ISO),
 	write('  ISO initialization/1 directive (iso_initialization_dir):  '), write(ISO), nl,
 	'$lgt_default_flag'(xml, XML),

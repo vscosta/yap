@@ -207,7 +207,7 @@ A message sent from a compiled object to another object translates to six predic
 </dl>
 </blockquote>
 <p>
-Given that events can be dynamically defined at runtime, there is no room for reducing the number of predicate calls without droping support for event-driven programming. When events are defined, the number of predicate calls grows proportional to the number of events and event handlers (monitors).
+Given that events can be dynamically defined at runtime, there is no room for reducing the number of predicate calls without turning off support for event-driven programming. When events are defined, the number of predicate calls grows proportional to the number of events and event handlers (monitors). Event-driven programming support can be switched off for specific object using the compiler option <a title="Consult compiler option details" href="running.html#options"><code>events</code></a>. Doing so, reduces the number of predicate calls from six to just two.
 </p>
 <p>
 Messages to <em>self</em> and <em>super</em> calls are transparent regarding events and, as such, imply only two predicate calls (the cache lookup and the method call).
@@ -279,7 +279,7 @@ Copyright &copy; <a href="mailto:pmoura@logtalk.org">Paulo Moura</a> &mdash; <a 
 </div>
 
 <div class="footer">
-<p><span class="bleft"><a href="http://validator.w3.org/check/referer">XHTML</a> + <a href="http://jigsaw.w3.org/css-validator/check/referer">CSS</a></span><span class="bright">Last updated on: October 23, 2004</span></p>
+<p><span class="bleft"><a href="http://validator.w3.org/check/referer">XHTML</a> + <a href="http://jigsaw.w3.org/css-validator/check/referer">CSS</a></span><span class="bright">Last updated on: November 2, 2004</span></p>
 </div>
 </body>
 </html>

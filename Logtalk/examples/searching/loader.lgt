@@ -15,4 +15,5 @@
 		heuristic_search1,
 		best_first1,
 		hill_climbing1,
-		performance])).
+		performance],
+		[events(on)])).

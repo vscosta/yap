@@ -3,12 +3,19 @@
 % useful statistics
 
 benchmark(Goal) :-
-	N = 1000000,
+	N = 100000,
 	write('Number of repetitions: '), write(N), nl,
 	'$lgt_cpu_time'(Seconds1),		% defined in the config files
-	benchmark(N, Goal),
+	benchmark(N, true),
 	'$lgt_cpu_time'(Seconds2),
-	Average is (Seconds2 - Seconds1)/N,
+	Looptime is Seconds2 - Seconds1,
+	write('Loop time: '), write(Looptime), write(' seconds'), nl,
+	'$lgt_cpu_time'(Seconds3),
+	benchmark(N, Goal),
+	'$lgt_cpu_time'(Seconds4),
+	Goaltime is Seconds4 - Seconds3,
+	write('Goal time: '), write(Goaltime), write(' seconds'), nl,
+	Average is (Goaltime - Looptime)/N,
 	write('Average time per call: '), write(Average), write(' seconds'), nl,
 	Speed is 1.0/Average,
 	write('Number of calls per second: '), write(Speed), nl.

@@ -1,6 +1,6 @@
 =================================================================
 Logtalk - Object oriented extension to Prolog
-Release 2.21.4
+Release 2.21.5
 
 Copyright (c) 1998-2004 Paulo Moura.  All Rights Reserved.
 =================================================================
@@ -12,24 +12,15 @@ Copyright (c) 1998-2004 Paulo Moura.  All Rights Reserved.
 ...
 
 
-% call the built-in control construct true/0 to measure the overhead of the 
-% benchmark/1 predicate itself:
-
-| ?- benchmark(true).
-
-Number of repetitions: 1000000
-Average time per call: 5.1e-07 seconds
-Number of calls per second: 1960784.31372549
-yes
-
-
 % call the predicate my_length/0 defined in the Prolog database:
 
 | ?- benchmark(my_length([1, 2, 3, 4, 5, 6, 7, 8, 9, 0], _)).
 
-Number of repetitions: 1000000
-Average time per call: 3.07e-06 seconds
-Number of calls per second: 325732.899022801
+Number of repetitions: 100000
+Loop time: 0.04 seconds
+Goal time: 0.31 seconds
+Average time per call: 2.7e-06 seconds
+Number of calls per second: 370370.370370371
 yes
 
 
@@ -37,9 +28,11 @@ yes
 
 | ?- benchmark(module:mod_length([1, 2, 3, 4, 5, 6, 7, 8, 9, 0], _)).
 
-Number of repetitions: 1000000
-Average time per call: 3.17e-06 seconds
-Number of calls per second: 315457.413249211
+Number of repetitions: 100000
+Loop time: 0.04 seconds
+Goal time: 0.31 seconds
+Average time per call: 2.7e-06 seconds
+Number of calls per second: 370370.37037037
 yes
 
 
@@ -47,9 +40,11 @@ yes
 
 | ?- benchmark(object::length([1, 2, 3, 4, 5, 6, 7, 8, 9, 0], _)).
 
-Number of repetitions: 1000000
-Average time per call: 9.14e-06 seconds
-Number of calls per second: 109409.190371991
+Number of repetitions: 100000
+Loop time: 0.0600000000000005 seconds
+Goal time: 0.94 seconds
+Average time per call: 8.79999999999999e-06 seconds
+Number of calls per second: 113636.363636364
 yes
 
 
@@ -58,7 +53,35 @@ yes
 
 | ?- benchmark('$lgt_send_to_object_nv'(object, length([1, 2, 3, 4, 5, 6, 7, 8, 9, 0], _), user)).
 
-Number of repetitions: 1000000
-Average time per call: 5.1e-06 seconds
-Number of calls per second: 196078.431372549
+Number of repetitions: 100000
+Loop time: 0.0499999999999972 seconds
+Goal time: 0.510000000000002 seconds
+Average time per call: 4.60000000000004e-06 seconds
+Number of calls per second: 217391.304347824
+yes
+
+
+% compiled call of the predicate list::length/2 (simulates message sending 
+% from a compiled object to another object with event-driven programming 
+% support switched off and with no top-level overhead):
+
+| ?- benchmark('$lgt_send_to_object_ne_nv'(object, length([1, 2, 3, 4, 5, 6, 7, 8, 9, 0], _), user)).
+
+Number of repetitions: 100000
+Loop time: 0.0500000000000007 seconds
+Goal time: 0.43 seconds
+Average time per call: 3.79999999999999e-06 seconds
+Number of calls per second: 263157.894736843
+yes
+
+
+% create and abolish an elementary dynamic object:
+
+| ?- benchmark((create_object(xpto, [], [], []), abolish_object(xpto))).
+
+Number of repetitions: 100000
+Loop time: 0.039999999999992 seconds
+Goal time: 102.77 seconds
+Average time per call: 0.0010273 seconds
+Number of calls per second: 973.425484279178
 yes

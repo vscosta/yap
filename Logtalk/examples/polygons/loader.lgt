@@ -6,4 +6,5 @@
 		hexagon,
 		pentagon,
 		square,
-		triangle])). 
+		triangle],
+		[events(on)])). 
