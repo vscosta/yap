@@ -364,7 +364,7 @@ p_always_prompt_user(void)
 #if HAVE_LIBREADLINE
      if (s->status & Tty_Stream_f) {
        s->stream_getc = ReadlineGetc;
-       if (Stream[0].status && Tty_Stream_f &&
+       if (Stream[0].status & Tty_Stream_f &&
 	   s->u.file.name == Stream[0].u.file.name)
 	 s->stream_putc = ReadlinePutc;
      } else
@@ -412,7 +412,7 @@ InitStdStream (int sno, SMALLUNSGN flags, YP_File file, Atom name)
      /* if a tty have a special routine to call readline */
 #if HAVE_LIBREADLINE
      if (s->status & Tty_Stream_f) {
-       if (Stream[0].status && Tty_Stream_f &&
+       if (Stream[0].status & Tty_Stream_f &&
 	   s->u.file.name == Stream[0].u.file.name)
 	 s->stream_putc = ReadlinePutc;
        s->stream_getc = ReadlineGetc;
@@ -912,7 +912,7 @@ EOFGetc(int sno)
 #if HAVE_LIBREADLINE
       if (s->status & Tty_Stream_f) {
 	s->stream_getc = ReadlineGetc;
-	if (Stream[0].status && Tty_Stream_f &&
+	if (Stream[0].status & Tty_Stream_f &&
 	    s->u.file.name == Stream[0].u.file.name)
 	 s->stream_putc = ReadlinePutc;
       } else
@@ -1216,7 +1216,7 @@ PlUnGetc (int sno)
 #if HAVE_LIBREADLINE
     if (s->status & Tty_Stream_f) {
       s->stream_getc = ReadlineGetc;
-      if (Stream[0].status && Tty_Stream_f &&
+      if (Stream[0].status & Tty_Stream_f &&
 	  s->u.file.name == Stream[0].u.file.name)
 	s->stream_putc = ReadlinePutc;
     } else
