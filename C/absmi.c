@@ -12036,6 +12036,7 @@ Yap_absmi(int inp)
 	      pen = PredMetaCall;
 	      ARG2 = Yap_cp_as_integer((choiceptr)ENV[E_CB]);
 	      ARG4 = ModuleName[mod];
+	      CACHE_A1();
 	      goto execute_after_comma;
 	    }
 	  }
