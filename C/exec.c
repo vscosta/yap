@@ -446,7 +446,7 @@ p_execute_within(void)
 	/* Wow, we're gonna cut!!! */
 	B = pt0;
 #endif /* YAPOR */
-	HBREG = PROTECT_FROZEN_H(B);
+	HB = PROTECT_FROZEN_H(B);
       }
       return(TRUE);
     } else if (a == AtomFail || a == AtomFalse)
