@@ -29,7 +29,7 @@ STATIC_PROTO(void  send_tracer_message, (char *, char *, Int, char *, CELL *));
 int do_low_level_trace = FALSE;
 static int do_trace_primitives = TRUE;
 
- int
+static int
 TracePutchar(int sno, int ch)
 {
   return(YP_putc(ch, YP_stderr)); /* use standard error stream, which is supposed to be 2*/
