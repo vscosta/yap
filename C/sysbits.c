@@ -1940,13 +1940,27 @@ static Int p_file_age(void)
 /* wrapper for alarm system call */
 #if _MSC_VER || defined(__MINGW32__)
 
-static VOID CALLBACK HandleTimer(LPVOID v, DWORD d1, DWORD d2) {
-  /* force the system to creep */
-  exit(0);
+static DWORD WINAPI
+DoTimerThread(LPVOID targ)
+{
+  Int time = *(Int *)targ;
+  HANDLE htimer;
+  LARGE_INTEGER liDueTime;
+
+  htimer = CreateWaitableTimer(NULL,FALSE,NULL);
+  liDueTime.QuadPart =  -10000000LL*time;
+  /* Copy the relative time into a LARGE_INTEGER. */
+  if (SetWaitableTimer(htimer, &liDueTime,0,NULL,NULL,0) == 0) {
+    return(FALSE);
+  }
+  if (WaitForSingleObject(htimer, INFINITE) != WAIT_OBJECT_0)
+    fprintf(stderr,"WaitForSingleObject failed (%ld)\n", GetLastError());
   p_creep ();
   /* now, say what is going on */
   PutValue(AtomAlarm, MkAtomTerm(AtomTrue));
+  ExitThread(1);
 }
+
 #endif
 
 static Int
@@ -1964,22 +1978,23 @@ p_alarm(void)
 #if _MSC_VER || defined(__MINGW32__)
   {
     Term tout;
-    HANDLE htimer;
-    Int time = -IntegerOfTerm(t);
+    Int time = IntegerOfTerm(t);
     
     if (time != 0) {
-      __int64 due_time; 
-      LARGE_INTEGER liDueTime;
+      DWORD dwThreadId; 
+      HANDLE hThread; 
 
-      htimer = CreateWaitableTimer(NULL,FALSE,NULL);
-      due_time = time;
-      due_time *=  10000000;
-      /* Copy the relative time into a LARGE_INTEGER. */
-      liDueTime.LowPart  = (DWORD) ( due_time & 0xFFFFFFFF );
-      liDueTime.HighPart = (LONG)  ( due_time >> 32 );
-      if (SetWaitableTimer(htimer, &liDueTime,0,HandleTimer,NULL,0) == 0) {
+      hThread = CreateThread( 
+			     NULL,     /* no security attributes */
+			     0,        /* use default stack size */ 
+			     DoTimerThread, /* thread function */
+			     (LPVOID)&time,  /* argument to thread function */
+			     0,        /* use default creation flags  */
+			     &dwThreadId);  /* returns the thread identifier */
+ 
+      /* Check the return value for success. */
+      if (hThread == NULL) {
 	WinError("trying to use alarm");
-	return(FALSE);
       }
     }
     tout = MkIntegerTerm(0);
