@@ -1035,7 +1035,7 @@ mark_environments(CELL_PTR gc_ENV, OPREG size, CELL *pvbmap)
 
 #ifdef DEBUG
     if (size <  0 || size > 512)
-      YP_fprintf(YP_stderr,"Oops, env size %ld\n", (unsigned long int)size);
+      YP_fprintf(YP_stderr,"Oops, env size for %p is %ld\n", gc_ENV, (unsigned long int)size);
 #endif
     /* for each saved variable */
     if (size > EnvSizeInCells) {
