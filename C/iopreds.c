@@ -28,7 +28,7 @@ static char SccsId[] = "%W% %G%";
 #include "Yatom.h"
 #include "Heap.h"
 #include "yapio.h"
-
+#include "iopreds.h"
 #include <stdlib.h>
 #if HAVE_STDARG_H
 #include <stdarg.h>
@@ -80,57 +80,6 @@ static char SccsId[] = "%W% %G%";
 #endif
 #endif
 
-/* if we botched in a LongIO operation */
-jmp_buf IOBotch;
-
-#if HAVE_LIBREADLINE
-
-#if _MSC_VER || defined(__MINGW32__)
-FILE *rl_instream, *rl_outstream;
-#endif
-
-#endif
-
-typedef struct
-  {
-    union {
-      struct {
-	Atom name;
-	Term user_name;
-	YP_File file;
-      } file;
-      struct {
-	char *buf;         /* where the file is being read from/written to */
-	Int max_size;	   /* maximum buffer size (may be changed dynamically) */
-	Int pos;
-      } mem_string;
-      struct {
-#if defined(__MINGW32__) || _MSC_VER
-	HANDLE hdl;
-#else
-	int fd;
-#endif
-      } pipe;
-#if USE_SOCKET
-      struct {
-	socket_domain domain;
-	socket_info flags;
-	int fd;
-      } socket;
-#endif
-    } u;
-    int (* stream_putc)(int, int);  /* function the stream uses for writing */
-    int (* stream_getc)(int);       /* function the stream uses for reading */
-    /* function the stream uses for parser. It may be different if the ISO
-       character conversion is on */
-    int (* stream_getc_for_read)(int);
-    Int charcount, linecount, linepos;
-    Int status;
-    Int och;
-  }
-StreamDesc;
-
-STATIC_PROTO (void InitStdStream, (int, SMALLUNSGN, YP_File, Atom));
 STATIC_PROTO (Int PlIOError, (yap_error_number, Term, char *));
 STATIC_PROTO (int FilePutc, (int, int));
 STATIC_PROTO (int MemPutc, (int, int));
@@ -220,62 +169,18 @@ STATIC_PROTO (Int p_type_of_char, (void));
 STATIC_PROTO (Int GetArgSizeFromChar, (Term *));
 
 
-#define YAP_ERROR NIL
 
+static int parser_error_style = FAIL_ON_PARSER_ERROR;
 
-#define MaxStreams 32
-
-StreamDesc Stream[MaxStreams];
-
-#define	Free_Stream_f		0x000001
-#define Output_Stream_f		0x000002
-#define Input_Stream_f		0x000004
-#define Append_Stream_f		0x000008
-#define Eof_Stream_f		0x000010
-#define Null_Stream_f		0x000020
-#define Tty_Stream_f		0x000040
-#define Socket_Stream_f		0x000080
-#define Binary_Stream_f		0x000100
-#define Eof_Error_Stream_f	0x000200
-#define Reset_Eof_Stream_f	0x000400
-#define Past_Eof_Stream_f	0x000800
-#define Push_Eof_Stream_f	0x001000
-#define Seekable_Stream_f	0x002000
-#define Promptable_Stream_f	0x004000
-#if USE_SOCKET
-#define Client_Socket_Stream_f	0x008000
-#define Server_Socket_Stream_f	0x010000
+#if EMACS
+static int first_char;
 #endif
-#define InMemory_Stream_f	0x020000
-#define Pipe_Stream_f		0x040000
-#define Popen_Stream_f		0x080000
 
 int YP_stdin = 0;
 int YP_stdout = 1;
 int YP_stderr = 2;
 
 int c_input_stream, c_output_stream;
-
-#if EMACS
-static int first_char;
-#endif
-
-#define FAIL_ON_PARSER_ERROR      0
-#define QUIET_ON_PARSER_ERROR     1
-#define CONTINUE_ON_PARSER_ERROR  2
-#define EXCEPTION_ON_PARSER_ERROR 3
-
-static int parser_error_style = FAIL_ON_PARSER_ERROR;
-
-#define StdInStream	0
-#define StdOutStream	1
-#define	StdErrStream	2
-
-#define ALIASES_BLOCK_SIZE 8
-
-#if USE_SOCKET
-extern int YP_sockets_io;
-#endif
 
 /* note: fprintf may be called from anywhere, so please don't try
    to be smart and allocate stack from somewhere else */
@@ -426,6 +331,15 @@ p_always_prompt_user(void)
   return(TRUE);
 }
 
+static int
+is_same_tty(YP_File f1, YP_File f2)
+{
+#if HAVE_TTYNAME
+  return(ttyname(YP_fileno(f1)) == ttyname(YP_fileno(f1)));
+#else
+  return(TRUE);
+#endif  
+}
 
 static void
 InitStdStream (int sno, SMALLUNSGN flags, YP_File file, Atom name)
@@ -463,7 +377,7 @@ InitStdStream (int sno, SMALLUNSGN flags, YP_File file, Atom name)
 #if HAVE_LIBREADLINE
       if (s->status & Tty_Stream_f) {
 	if (Stream[0].status & Tty_Stream_f &&
-	    s->u.file.name == Stream[0].u.file.name)
+	    is_same_tty(s->u.file.file,Stream[0].u.file.file))
 	  s->stream_putc = ReadlinePutc;
 	s->stream_getc = ReadlineGetc;
       } else
@@ -498,7 +412,7 @@ InitStdStream (int sno, SMALLUNSGN flags, YP_File file, Atom name)
   s->status |= Tty_Stream_f|Promptable_Stream_f;
 #endif
 #if HAVE_SETBUF
-  if ((s->status & Tty_Stream_f) && file == stdin)
+  if (s->status & Tty_Stream_f)
     /* make sure input is unbuffered if it comes from stdin, this
        makes life simpler for interrupt handling */
     YP_setbuf (stdin, NULL); 
@@ -508,19 +422,13 @@ InitStdStream (int sno, SMALLUNSGN flags, YP_File file, Atom name)
 
 
 void
-InitPlIO (void)
+InitStdStreams (void)
 {
-  Int i;
-
-  for (i = 0; i < MaxStreams; ++i)
-    Stream[i].status = Free_Stream_f;
   InitStdStream (StdInStream, Input_Stream_f, stdin, AtomUsrIn);
   InitStdStream (StdOutStream, Output_Stream_f, stdout, AtomUsrOut);
   InitStdStream (StdErrStream, Output_Stream_f, stderr, AtomUsrErr);
   c_input_stream = StdInStream;
   c_output_stream = StdOutStream;
-  /* alloca alias array */
-  FileAliases = (AliasDesc)AllocCodeSpace(sizeof(struct AliasDescS)*ALIASES_BLOCK_SIZE);
   /* init standard aliases */
   FileAliases[0].name = AtomUsrIn;
   FileAliases[0].alias_stream = 0;
@@ -530,6 +438,18 @@ InitPlIO (void)
   FileAliases[2].alias_stream = 2;
   NOfFileAliases = 3;
   SzOfFileAliases = ALIASES_BLOCK_SIZE;
+}
+
+void
+InitPlIO (void)
+{
+  Int i;
+
+  for (i = 0; i < MaxStreams; ++i)
+    Stream[i].status = Free_Stream_f;
+  /* alloca alias array */
+  FileAliases = (AliasDesc)AllocCodeSpace(sizeof(struct AliasDescS)*ALIASES_BLOCK_SIZE);
+  InitStdStreams();
 }
 
 static Int
@@ -1006,7 +926,7 @@ EOFGetc(int sno)
       if (s->status & Tty_Stream_f) {
 	s->stream_getc = ReadlineGetc;
 	if (Stream[0].status & Tty_Stream_f &&
-	    s->u.file.name == Stream[0].u.file.name)
+	    is_same_tty(s->u.file.file,Stream[0].u.file.file))
 	 s->stream_putc = ReadlinePutc;
       } else
 #endif
@@ -1349,7 +1269,7 @@ PlUnGetc (int sno)
     if (s->status & Tty_Stream_f) {
       s->stream_getc = ReadlineGetc;
       if (Stream[0].status & Tty_Stream_f &&
-	  s->u.file.name == Stream[0].u.file.name)
+	    is_same_tty(s->u.file.file,Stream[0].u.file.file))
 	s->stream_putc = ReadlinePutc;
     } else
 #endif

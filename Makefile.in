@@ -102,13 +102,15 @@ INTERFACE_HEADERS = $(srcdir)/include/c_interface.h $(srcdir)/include/yap_struct
 
 HEADERS = \
 	$(GHEADERS) $(INTERFACE_HEADERS) \
+	$(srcdir)/H/Heap.h \
 	$(srcdir)/H/Regs.h $(srcdir)/H/Yapproto.h \
-	$(srcdir)/H/absmi.h  $(srcdir)/H/alloc.h  $(srcdir)/H/Heap.h \
+	$(srcdir)/H/absmi.h  $(srcdir)/H/alloc.h \
 	$(srcdir)/H/amidefs.h $(srcdir)/H/amiops.h $(srcdir)/H/arrays.h \
+	$(srcdir)/H/arith2.h $(srcdir)/H/attvar.h \
 	$(srcdir)/H/clause.h $(srcdir)/H/compile.h \
 	$(srcdir)/H/corout.h $(srcdir)/H/eval.h $(srcdir)/H/heapgc.h   \
-	$(srcdir)/H/index.h $(srcdir)/H/yapio.h  $(srcdir)/H/tracer.h \
-	$(srcdir)/H/attvar.h $(srcdir)/H/arith2.h \
+	$(srcdir)/H/index.h $(srcdir)/H/iopreds.h \
+	$(srcdir)/H/tracer.h $(srcdir)/H/yapio.h \
 	$(srcdir)/OPTYap/opt.config.h \
 	$(srcdir)/OPTYap/opt.proto.h $(srcdir)/OPTYap/opt.structs.h \
 	$(srcdir)/OPTYap/opt.macros.h $(srcdir)/OPTYap/or.macros.h \

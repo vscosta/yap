@@ -714,7 +714,7 @@ a_p(op_numbers opcode)
   int comit_ok = (comit_lab == 0);
   Prop fe = (Prop) (cpc->rnd1);
   CELL Flags = RepPredProp(fe)->PredFlags;
-  if (Flags & BasicPredFlag) {
+  if (Flags & AsmPredFlag) {
     op_numbers op;
 
     check_alloc();

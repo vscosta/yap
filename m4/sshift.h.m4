@@ -60,17 +60,12 @@ Inline(FuncAdjust, Functor, Functor, f, (Functor)(CharP(f)+HDiff) )
 Inline(CellPtoHeapAdjust, CELL *, CELL *, ptr, ((CELL *)(CharP(ptr) + HDiff)) )
 #if	USE_OFFSETS
 Inline(AtomAdjust, Atom, Atom, at, (at) )
-Inline(AtomTermAdjust, Term, Term, at, (at) )
 Inline(PropAdjust, Prop, Prop, p, (p) )
 #else
-Inline(AtomAdjust, Atom, Atom, at, (Atom)(CharP(at)+HDiff) )
-#if MMAP_ADDR >= 0x40000000
+Inline(AtomAdjust, Atom, Atom, at, (at == NULL ? (at) : (Atom)(CharP(at)+HDiff) ))
+Inline(PropAdjust, Prop, Prop, p, (p == NULL ? (p) : (Prop)(CharP(p)+HDiff)) )
+#endif
 Inline(AtomTermAdjust, Term, Term, at, (at) )
-#else
-Inline(AtomTermAdjust, Term, Term, at, MkAtomTerm((Atom)(CharP(AtomOfTerm(at)+HDiff))) )
-#endif
-Inline(PropAdjust, Prop, Prop, p, (Prop)(CharP(p)+HDiff) )
-#endif
 #if TAGS_FAST_OPS
 Inline(BlobTermAdjust, Term, Term, t, (t-HDiff) )
 #else
@@ -85,7 +80,8 @@ Inline(CodeAddrAdjust, CODEADDR, CODEADDR, addr, (CODEADDR)(CharP(addr)+HDiff) )
 Inline(BlockAdjust, BlockHeader *, BlockHeader *, addr, (BlockHeader *)(CharP(addr)+HDiff) )
 Inline(PtoOpAdjust, yamop *, yamop *, ptr, ((yamop *)(CharP(ptr) + HDiff)) )
 Inline(PtoHeapCellAdjust, CELL *, CELL *, ptr, ((CELL *)(CharP(ptr) + HDiff)) )
-Inline(PtoPredAdjust, PredEntry *, PredEntry *, ptr, ((CELL *)(CharP(ptr) + HDiff)) )
+Inline(PtoPredAdjust, PredEntry *, PredEntry *, ptr, ((PredEntry *)(CharP(ptr) + HDiff)) )
+Inline(PtoArrayEAdjust, ArrayEntry *, ArrayEntry *, ptr, ((ArrayEntry *)(CharP(ptr) + HDiff)) )
 #if PRECOMPUTE_REGADDRESS
 Inline(XAdjust, AREG, AREG, reg, (AREG)((reg)+XDiff) )
 #else

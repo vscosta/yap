@@ -1453,7 +1453,7 @@ c_goal(Term Goal, int mod)
 #endif
       }
       return;
-    } else if (p->PredFlags & BasicPredFlag) {
+    } else if (p->PredFlags & AsmPredFlag) {
       int op = p->PredFlags & 0x7f;
       if (profiling)
 	emit(enter_profiling_op, (CELL)p, Zero);
@@ -1600,7 +1600,7 @@ c_goal(Term Goal, int mod)
     }
   }
   else {
-    if (p->PredFlags & (CPredFlag | BasicPredFlag)) {
+    if (p->PredFlags & (CPredFlag | AsmPredFlag)) {
 #ifdef YAPOR
       if (p->PredFlags & SyncPredFlag)
 	emit(sync_op, (CELL)p, (CELL)(p->ArityOfPE));

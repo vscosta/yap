@@ -1718,31 +1718,31 @@ InitUnify(void)
   InitCPred("unify_with_occurs_check", 2, p_ocunify, SafePredFlag);
   InitCPred("cyclic_term", 1, p_cyclic, SafePredFlag|TestPredFlag);
   InitCPred("acyclic_term", 1, p_acyclic, SafePredFlag|TestPredFlag);
-  InitAsmPred("$$cut_by", 1, _cut_by, p_cut_by, SafePredFlag | BasicPredFlag);
+  InitAsmPred("$$cut_by", 1, _cut_by, p_cut_by, SafePredFlag);
 
-  InitAsmPred("atom", 1, _atom, p_atom, SafePredFlag | BasicPredFlag);
-  InitAsmPred("atomic", 1, _atomic, p_atomic, SafePredFlag | BasicPredFlag);
-  InitAsmPred("integer", 1, _integer, p_integer, SafePredFlag | BasicPredFlag);
-  InitAsmPred("nonvar", 1, _nonvar, p_nonvar, SafePredFlag | BasicPredFlag);
-  InitAsmPred("number", 1, _number, p_number, SafePredFlag | BasicPredFlag);
-  InitAsmPred("var", 1, _var, p_var, SafePredFlag | BasicPredFlag);
-  InitAsmPred("db_reference", 1, _db_ref, p_db_ref, SafePredFlag | BasicPredFlag);
-  InitAsmPred("primitive", 1, _primitive, p_primitive, SafePredFlag | BasicPredFlag);
-  InitAsmPred("compound", 1, _compound, p_compound, SafePredFlag | BasicPredFlag);
-  InitAsmPred("float", 1, _float, p_float, SafePredFlag | BasicPredFlag);
-  InitAsmPred("=", 2, _equal, p_equal, SafePredFlag | BasicPredFlag);
-  InitAsmPred("\\=", 2, _dif, p_dif, SafePredFlag | BasicPredFlag);
-  InitAsmPred("==", 2, _eq, p_eq, SafePredFlag | BasicPredFlag);
-  InitAsmPred("arg", 3, _arg, p_arg, SafePredFlag | BasicPredFlag);
-  InitAsmPred("functor", 3, _functor, p_functor, SafePredFlag | BasicPredFlag);
-  InitAsmPred("$plus", 3, _plus, p_erroneous_call, SafePredFlag | BasicPredFlag);
-  InitAsmPred("$minus", 3, _minus, p_erroneous_call, SafePredFlag | BasicPredFlag);
-  InitAsmPred("$times", 3, _times, p_erroneous_call, SafePredFlag | BasicPredFlag);
-  InitAsmPred("$div", 3, _div, p_erroneous_call, SafePredFlag | BasicPredFlag);
-  InitAsmPred("$and", 3, _and, p_erroneous_call, SafePredFlag | BasicPredFlag);
-  InitAsmPred("$or", 3, _or, p_erroneous_call, SafePredFlag | BasicPredFlag);
-  InitAsmPred("$sll", 3, _sll, p_erroneous_call, SafePredFlag | BasicPredFlag);
-  InitAsmPred("$slr", 3, _slr, p_erroneous_call, SafePredFlag | BasicPredFlag);
+  InitAsmPred("atom", 1, _atom, p_atom, SafePredFlag);
+  InitAsmPred("atomic", 1, _atomic, p_atomic, SafePredFlag);
+  InitAsmPred("integer", 1, _integer, p_integer, SafePredFlag);
+  InitAsmPred("nonvar", 1, _nonvar, p_nonvar, SafePredFlag);
+  InitAsmPred("number", 1, _number, p_number, SafePredFlag);
+  InitAsmPred("var", 1, _var, p_var, SafePredFlag);
+  InitAsmPred("db_reference", 1, _db_ref, p_db_ref, SafePredFlag);
+  InitAsmPred("primitive", 1, _primitive, p_primitive, SafePredFlag);
+  InitAsmPred("compound", 1, _compound, p_compound, SafePredFlag);
+  InitAsmPred("float", 1, _float, p_float, SafePredFlag);
+  InitAsmPred("=", 2, _equal, p_equal, SafePredFlag);
+  InitAsmPred("\\=", 2, _dif, p_dif, SafePredFlag);
+  InitAsmPred("==", 2, _eq, p_eq, SafePredFlag);
+  InitAsmPred("arg", 3, _arg, p_arg, SafePredFlag);
+  InitAsmPred("functor", 3, _functor, p_functor, SafePredFlag);
+  InitAsmPred("$plus", 3, _plus, p_erroneous_call, SafePredFlag);
+  InitAsmPred("$minus", 3, _minus, p_erroneous_call, SafePredFlag);
+  InitAsmPred("$times", 3, _times, p_erroneous_call, SafePredFlag);
+  InitAsmPred("$div", 3, _div, p_erroneous_call, SafePredFlag);
+  InitAsmPred("$and", 3, _and, p_erroneous_call, SafePredFlag);
+  InitAsmPred("$or", 3, _or, p_erroneous_call, SafePredFlag);
+  InitAsmPred("$sll", 3, _sll, p_erroneous_call, SafePredFlag);
+  InitAsmPred("$slr", 3, _slr, p_erroneous_call, SafePredFlag);
 }
 
 

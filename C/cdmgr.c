@@ -1632,7 +1632,7 @@ p_undefined(void)
   if (pe == RepPredProp(NIL))
     return (TRUE);
   READ_LOCK(pe->PRWLock);
-  if (pe->PredFlags & (CPredFlag|UserCPredFlag|TestPredFlag|BasicPredFlag|DynamicPredFlag)) {
+  if (pe->PredFlags & (CPredFlag|UserCPredFlag|TestPredFlag|AsmPredFlag|DynamicPredFlag)) {
     READ_UNLOCK(pe->PRWLock);
     return(FALSE);
   }
@@ -2258,7 +2258,7 @@ p_system_pred(void)
     return (FALSE);
   if (EndOfPAEntr(pe))
     return(FALSE);
-  return(pe->ModuleOfPred == 0 || pe->PredFlags & (UserCPredFlag|CPredFlag|BinaryTestPredFlag|BasicPredFlag|TestPredFlag));
+  return(pe->ModuleOfPred == 0 || pe->PredFlags & (UserCPredFlag|CPredFlag|BinaryTestPredFlag|AsmPredFlag|TestPredFlag));
 }
 
 static Int			/* $cut_transparent(P) */

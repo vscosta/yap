@@ -513,7 +513,13 @@ InitCPred(char *Name, int Arity, CPredicate code, int flags)
 {
   Atom            atom = LookupAtom(Name);
   PredEntry      *pe;
-  yamop          *p_code = (yamop *)AllocCodeSpace((CELL)NEXTOP(NEXTOP(((yamop *)NULL),sla),e));
+  yamop      *p_code = ((Clause *)NULL)->ClCode;
+  Clause     *cl = (Clause *)AllocCodeSpace((CELL)NEXTOP(NEXTOP(((yamop *)p_code),sla),e)); 
+
+  cl->u.ClValue = 0;
+  cl->ClFlags = 0;
+  cl->Owner = LookupAtom("user");
+  p_code = cl->ClCode;
 
   if (Arity)
     pe = RepPredProp(PredPropByFunc(MkFunctor(atom, Arity),CurrentModule));
@@ -548,8 +554,13 @@ InitCmpPred(char *Name, int Arity, CmpPredicate cmp_code, CPredicate code, int f
 {
   Atom            atom = LookupAtom(Name);
   PredEntry      *pe;
-  yamop          *p_code = (yamop *)AllocCodeSpace((CELL)NEXTOP(NEXTOP(((yamop *)NULL),sla),e));
+  yamop      *p_code = ((Clause *)NULL)->ClCode;
+  Clause     *cl = (Clause *)AllocCodeSpace((CELL)NEXTOP(NEXTOP(((yamop *)p_code),sla),e)); 
 
+  cl->u.ClValue = 0;
+  cl->ClFlags = 0;
+  cl->Owner = LookupAtom("user");
+  p_code = cl->ClCode;
   if (Arity)
     pe = RepPredProp(PredPropByFunc(MkFunctor(atom, Arity),CurrentModule));
   else
@@ -589,10 +600,15 @@ InitAsmPred(char *Name,  int Arity, int code, CPredicate def, int flags)
     pe = RepPredProp(PredPropByFunc(MkFunctor(atom, Arity),CurrentModule));
   else
     pe = RepPredProp(PredPropByAtom(atom,CurrentModule));
-  pe->PredFlags = flags | StandardPredFlag | (code);
+  pe->PredFlags = flags | AsmPredFlag | StandardPredFlag | (code);
   if (def != NULL) {
-    yamop          *p_code = (yamop *)AllocCodeSpace((CELL)NEXTOP(NEXTOP(((yamop *)NULL),sla),e));
+    yamop      *p_code = ((Clause *)NULL)->ClCode;
+    Clause     *cl = (Clause *)AllocCodeSpace((CELL)NEXTOP(NEXTOP(((yamop *)p_code),sla),e)); 
 
+    cl->u.ClValue = 0;
+    cl->ClFlags = 0;
+    cl->Owner = LookupAtom("user");
+    p_code = cl->ClCode;
     p_code->u.sla.l = pe->TrueCodeOfPred = (CODEADDR) def;
     pe->CodeOfPred = pe->FirstClause = pe->LastClause = (CODEADDR) p_code;
     pe->ModuleOfPred = CurrentModule;
@@ -606,7 +622,7 @@ InitAsmPred(char *Name,  int Arity, int code, CPredicate def, int flags)
     pe->StateOfPred = NUMBER_OF_CPREDS;
     NUMBER_OF_CPREDS++;
   } else {
-    pe->FirstClause = pe->LastClause = NIL;
+    pe->FirstClause = pe->LastClause = NULL;
     pe->OpcodeOfPred = opcode(_undef_p);
     pe->TrueCodeOfPred = pe->CodeOfPred =
       (CODEADDR)(&(pe->OpcodeOfPred)); 

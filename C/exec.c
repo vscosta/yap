@@ -1111,7 +1111,7 @@ RunTopGoal(Term t)
   }
   if (pe == NIL ||
       ppe->OpcodeOfPred == UNDEF_OPCODE ||
-      ppe->PredFlags & (UserCPredFlag|CPredFlag|BasicPredFlag) )
+      ppe->PredFlags & (UserCPredFlag|CPredFlag|AsmPredFlag) )
     {
       if (pe != NIL) {
 	READ_UNLOCK(ppe->PRWLock);

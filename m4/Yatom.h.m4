@@ -154,7 +154,7 @@ Constructor(Prop,AbsVal,ValEntry *,p,p)
 Inline(IsValProperty, PropFlags, int, flags, (flags == ValProperty) )
 
 /*	    predicate property entry structure				*/
-/*  BasicPreds are things like var, nonvar, atom ...which are implemented
+/*  AsmPreds are things like var, nonvar, atom ...which are implemented
 	    through dedicated machine instructions. In this case the 8 lower
 	    bits of PredFlags are used to hold the machine instruction code
 	    for	the pred.
@@ -171,7 +171,7 @@ typedef enum {
   MultiFileFlag =    0x040000L,	/* is multi-file		*/
   FastPredFlag =     0x020000L,	/* is "compiled"		*/
   TestPredFlag =     0x010000L,	/* is a test (optim. comit)	*/
-  BasicPredFlag =    0x008000L,	/* inline			*/
+  AsmPredFlag =      0x008000L,	/* inline			*/
   StandardPredFlag=  0x004000L,	/* system predicate		*/
   DynamicPredFlag=   0x002000L,	/* dynamic predicate		*/
   CPredFlag =        0x001000L,	/* written in C			*/

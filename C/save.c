@@ -23,6 +23,7 @@ static char     SccsId[] = "@(#)save.c	1.3 3/15/90";
 #include "yapio.h"
 #include "sshift.h"
 #include "Foreign.h"
+#include "iopreds.h"
 #if HAVE_STRING_H
 #include <string.h>
 #endif
@@ -59,11 +60,11 @@ static char end_msg[256] ="*** End of YAP saved state *****";
 #ifdef DEBUG
 
 /*
- * FOR DEBUGGING define DEBUG_RESTORE0 to check the file stuff,
-define DEBUG_RESTORE1 to see if it is able to prepare the chain,
-define DEBUG_RESTORE2 to see how things are going,
-define DEBUG_RESTORE3 to check if the atom chain is still a working
- * chain,
+ * 
+ #FOR DEBUGGING define DEBUG_RESTORE0 to check the file stuff,
+ #define DEBUG_RESTORE1 to see if it is able to prepare the chain,
+ #define DEBUG_RESTORE2 to see how things are going,
+ #define DEBUG_RESTORE3 to check if the atom chain is still a working chain,
  * define DEBUG_RESTORE4 if you want to set the output for some
  * particular file,
  * define DEBUG_RESTORE5 if you want to see how the stacks are being
@@ -74,8 +75,6 @@ define DEBUG_RESTORE3 to check if the atom chain is still a working
  *
  * Good Luck 
  */
-
-#define DEBUG_RESTORE2 1
 
 #endif
 
@@ -999,6 +998,7 @@ restore_codes(void)
 
     for (i = 0; i < heap_regs->no_of_modules; i++) {
       heap_regs->module_name[i] = AtomTermAdjust(heap_regs->module_name[i]);
+      heap_regs->module_pred[i] = PtoPredAdjust(heap_regs->module_pred[i]);
     }
   }
   heap_regs->atom_abol = AtomAdjust(heap_regs->atom_abol);
@@ -1116,10 +1116,14 @@ restore_codes(void)
 #endif
   heap_regs->term_prolog = AtomTermAdjust(heap_regs->term_prolog);
   heap_regs->term_refound_var = AtomTermAdjust(heap_regs->term_refound_var);
-  heap_regs->dyn_array_list =
-    (struct array_entry *)AddrAdjust((ADDR)heap_regs->dyn_array_list);
-  heap_regs->file_aliases =
-    (struct AliasDescS *)AddrAdjust((ADDR)heap_regs->file_aliases);
+  if (heap_regs->dyn_array_list != NULL) {
+    heap_regs->dyn_array_list =
+      (struct array_entry *)AddrAdjust((ADDR)heap_regs->dyn_array_list);
+  }
+  if (heap_regs->file_aliases != NULL) {
+    heap_regs->file_aliases =
+      (struct AliasDescS *)AddrAdjust((ADDR)heap_regs->file_aliases);
+  }
   heap_regs->yap_lib_dir =
     (char *)AddrAdjust((ADDR)heap_regs->yap_lib_dir);
   heap_regs->pred_goal_expansion =
@@ -1132,6 +1136,8 @@ restore_codes(void)
     (PredEntry *)AddrAdjust((ADDR)heap_regs->pred_throw);
   heap_regs->pred_handle_throw =
     (PredEntry *)AddrAdjust((ADDR)heap_regs->pred_handle_throw);
+  if (heap_regs->dyn_array_list != NULL)
+    heap_regs->dyn_array_list = PtoArrayEAdjust(heap_regs->dyn_array_list);
   if (heap_regs->undef_code != NULL)
     heap_regs->undef_code = (PredEntry *)PtoHeapCellAdjust((CELL *)(heap_regs->undef_code));
   if (heap_regs->creep_code != NULL)
@@ -1266,11 +1272,12 @@ AdjustDBTerm(Term trm)
   if (IsApplTerm(trm)) {
     Functor f;
     Term *p0 = p = PtoHeapCellAdjust(RepAppl(trm));
-    f = FuncAdjust((Functor)(*p));
-    *p = (Term)f ;
+    f = (Functor)*p;
     if (!IsExtensionFunctor(f)) {
       int             Arity, i;
 
+      f = FuncAdjust(f);
+      *p = (Term)f;
       Arity = ArityOfFunctor(f);
       p++;
       for (i = 0; i < Arity; ++i) {
@@ -1553,15 +1560,24 @@ RestoreClause(Clause *Cl)
 	                   
 {
   yamop           *pc;
-  OPREG           cl_type = Cl->ClFlags;
+  OPREG           cl_type = FirstArgOfClType(Cl->ClFlags);
 
   if (cl_type == ApplCl ||
-      (cl_type == ListCl && HeadOfClType(cl_type) == ApplCl))
+      (cl_type == ListCl && HeadOfClType(cl_type) == ApplCl)) {
+#ifdef DEBUG_RESTORE2
+    YP_fprintf(errout, "at %p, appl: %lx -> %lx", Cl, Cl->u.ClValue,
+	       (CELL)FuncAdjust((Functor)(Cl->u.ClValue)));
+#endif
     Cl->u.ClValue = (CELL)FuncAdjust((Functor)(Cl->u.ClValue));
-  else if ((cl_type == AtCl ||
+  }  else if ((cl_type == AtCl ||
 	    (cl_type == ListCl && HeadOfClType(cl_type) == AtCl)) &&
-	   IsAtomTerm(Cl->u.ClValue))
+	      IsAtomTerm(Cl->u.ClValue)) {
+#ifdef DEBUG_RESTORE2
+    YP_fprintf(errout, "at %p, atom: %lx -> %lx", Cl, Cl->u.ClValue,
+	       (CELL)FuncAdjust((Functor)(Cl->u.ClValue)));
+#endif
     Cl->u.ClValue = AtomTermAdjust(Cl->u.ClValue);
+  }
   /* TO DO: log update semantics */
   /* Get the stored operator */
   pc = Cl->ClCode;
@@ -2436,22 +2452,26 @@ CleanCode(PredEntry *pp)
   if (pp->OwnerFile)
     pp->OwnerFile = AtomAdjust(pp->OwnerFile);
   pp->OpcodeOfPred = opcode(op_from_opcode(pp->OpcodeOfPred));
-  if (pp->PredFlags & (CPredFlag|BasicPredFlag)) {
-    if (pp->CodeOfPred != NULL) {
-      if (pp->CodeOfPred == pp->TrueCodeOfPred) {
-	if (pp->PredFlags & CPredFlag)
-	  /* C, assembly + C */
-	  pp->CodeOfPred = pp->TrueCodeOfPred = CCodeAdjust(pp);
-	else
-	  /* assembly */
-	  pp->CodeOfPred = (CODEADDR)AddrAdjust((ADDR)(pp->CodeOfPred));
-      } else {
-	/* comparison */
-	if (pp->PredFlags & BinaryTestPredFlag) {
-	  pp->CodeOfPred = CCodeAdjust(pp);
-	  pp->TrueCodeOfPred = DirectCCodeAdjust(pp);
-	}
-      }
+  if (pp->PredFlags & CPredFlag) {
+    if (pp->PredFlags & BinaryTestPredFlag) {
+      pp->TrueCodeOfPred = DirectCCodeAdjust(pp);
+    } else {
+      /* C, assembly + C */
+      pp->CodeOfPred = pp->TrueCodeOfPred = CCodeAdjust(pp);
+    }
+    pp->CodeOfPred = pp->FirstClause = pp->LastClause =
+      (CODEADDR)AddrAdjust((ADDR)(pp->LastClause));
+    CleanClauses(pp->FirstClause, pp->FirstClause);
+  } else if (pp->PredFlags & AsmPredFlag) {
+    /* assembly */
+    if (pp->FirstClause) {
+      pp->CodeOfPred = (CODEADDR)AddrAdjust((ADDR)(pp->CodeOfPred));
+      pp->FirstClause = (CODEADDR)AddrAdjust((ADDR)(pp->FirstClause));
+      pp->LastClause = (CODEADDR)AddrAdjust((ADDR)(pp->LastClause));
+      CleanClauses(pp->FirstClause, pp->FirstClause);
+    } else {
+      pp->TrueCodeOfPred = pp->CodeOfPred =
+	(CODEADDR)(&(pp->OpcodeOfPred)); 
     }
   } else {
     if (pp->FirstClause)
@@ -2460,6 +2480,8 @@ CleanCode(PredEntry *pp)
       pp->LastClause = CodeAddrAdjust(pp->LastClause);
     pp->CodeOfPred = CodeAddrAdjust(pp->CodeOfPred);
     pp->TrueCodeOfPred = CodeAddrAdjust(pp->TrueCodeOfPred);
+    if (pp->NextPredOfModule)
+      pp->NextPredOfModule = PtoPredAdjust(pp->NextPredOfModule);
     flag = pp->PredFlags;
     FirstC = pp->FirstClause;
     LastC = pp->LastClause;
@@ -2525,6 +2547,8 @@ RestoreEntries(PropEntry *pp)
 	if (ae->ArrayEArity < 0) {
 	  restore_static_array((StaticArrayEntry *)ae);
 	} else {
+	  if (ae->NextArrayE != NULL)
+	    ae->NextArrayE = PtoArrayEAdjust(ae->NextArrayE);
 	  if (IsVarTerm(ae->ValueOfVE))
 	    RESET_VARIABLE(&(ae->ValueOfVE));
 	  else {
@@ -2659,6 +2683,13 @@ RestoreForeignCodeStructure(void)
   }
 }
 
+/* restore the atom entries which are invisible for the user */
+static void 
+RestoreIOStructures(void)
+{
+  InitStdStreams();
+}
+
 /* restores the list of free space, with its curious structure */
 static void 
 RestoreFreeSpace(void)
@@ -2713,6 +2744,7 @@ restore_heap(void)
   }
   RestoreInvisibleAtoms();
   RestoreForeignCodeStructure();
+  RestoreIOStructures();
 }
 
 
@@ -2952,7 +2984,7 @@ UnmarkTrEntries(void)
     if (IsVarTerm(entry)) {
       RESET_VARIABLE((CELL *)entry);
     } else if (IsPairTerm(entry)) {
-      CODEADDR ent = (CODEADDR)RepPair(entry);
+      CODEADDR ent = CodeAddrAdjust((CODEADDR)RepPair(entry));
       register CELL flags;
 
       flags = Flags(ent);
