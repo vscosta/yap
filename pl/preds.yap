@@ -110,7 +110,6 @@ assertz_static(V) :- var(V), !,
 	throw(error(instantiation_error,assertz_static(V))).
 assertz_static(C) :-
 	'$current_module'(Mod),
-	(predicate_property(short(_), dynamic) -> write(yes), nl ; write(no),nl),
 	'$assert_static'(C,Mod,last,_,assertz_static(C)).
 
 '$assert_static'(V,M,_,_,_) :- var(V), !,
