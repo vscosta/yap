@@ -1145,7 +1145,6 @@ PipeGetc(int sno)
   int count;
   count = read(s->u.pipe.fd, &c, sizeof(char));
 #endif
-  printf("reading from pipe %c\n", c);
   if (count == 0) {
     ch = EOF;
   } else if (count > 0) {
