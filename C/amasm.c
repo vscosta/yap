@@ -9,9 +9,10 @@
 **************************************************************************
 *									 *
 * File:		amasm.c							 *
-* Last rev:								 *
-* mods:									 *
 * comments:	abstract machine assembler				 *
+*									 *
+* Last rev:     $Date: 2004-03-10 14:59:55 $							 *
+* $Log: not supported by cvs2svn $									 *
 *									 *
 *************************************************************************/
 #ifdef SCCS
@@ -39,6 +40,7 @@ typedef struct cmp_op_info_struct {
   wamreg x1_arg, x2_arg;
   Int c_arg;
   int c_type;
+  struct clause_info_struct *cl_info;
 } cmp_op_info;
 
 typedef struct clause_info_struct {
@@ -1658,7 +1660,7 @@ a_f2(int var, cmp_op_info *cmp_info, yamop *code_p, int pass_no, struct intermed
   if (opc <= _primitive) {
     if (is_y_var) {
       if (pass_no) {
-	code_p->u.y.y = emit_y(ve);
+	code_p->u.yF.y = emit_y(ve);
 	switch (opc) {
 	case _atom:
 	  code_p->opc = opcode(_p_atom_y);
@@ -1694,12 +1696,19 @@ a_f2(int var, cmp_op_info *cmp_info, yamop *code_p, int pass_no, struct intermed
 	  code_p->opc = opcode(_p_primitive_y);
 	  break;
 	}
+	if (cmp_info->cl_info->commit_lab) {
+	  code_p->u.yF.F = 
+	    emit_a(Unsigned(cip->code_addr) + cip->label_offset[cmp_info->cl_info->commit_lab]);
+	  cmp_info->cl_info->commit_lab = 0;
+	} else {
+	  code_p->u.yF.F = FAILCODE;
+	}
       }
-      GONEXT(y);
+      GONEXT(yF);
       return code_p;
     } else {
       if (pass_no) {
-	code_p->u.x.x = emit_x(ve->NoOfVE & MaskVarAdrs);
+	code_p->u.xF.x = emit_x(ve->NoOfVE & MaskVarAdrs);
 	switch (opc) {
 	case _atom:
 	  code_p->opc = opcode(_p_atom_x);
@@ -1735,8 +1744,15 @@ a_f2(int var, cmp_op_info *cmp_info, yamop *code_p, int pass_no, struct intermed
 	  code_p->opc = opcode(_p_primitive_x);
 	  break;
 	}
+	if (cmp_info->cl_info->commit_lab) {
+	  code_p->u.xF.F = 
+	    emit_a(Unsigned(cip->code_addr) + cip->label_offset[cmp_info->cl_info->commit_lab]);
+	  cmp_info->cl_info->commit_lab = 0;
+	} else {
+	  code_p->u.xF.F = FAILCODE;
+	}
       }
-      GONEXT(x);
+      GONEXT(xF);
       return code_p;
     }
   }
@@ -2102,6 +2118,7 @@ do_pass(int pass_no, yamop **entry_codep, int assembling, int *clause_has_blobsp
   clinfo.commit_lab = 0L;
   clinfo.CurrentPred = cip->CurrentPred;
   cmp_info.c_type = TYPE_XX;
+  cmp_info.cl_info = &clinfo;
   do_not_optimise_uatom = FALSE;
 
   /* Space while for the clause flags */

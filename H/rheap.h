@@ -695,6 +695,10 @@ restore_opcodes(yamop *pc)
     case _write_x_var:
     case _write_x_val:
     case _write_x_loc:
+      pc->u.x.x = XAdjust(pc->u.x.x);
+      pc = NEXTOP(pc,x);
+      break;
+      /* instructions type xF */
     case _p_atom_x:
     case _p_atomic_x:
     case _p_integer_x:
@@ -706,8 +710,8 @@ restore_opcodes(yamop *pc)
     case _p_compound_x:
     case _p_float_x:
     case _p_cut_by_x:
-      pc->u.x.x = XAdjust(pc->u.x.x);
-      pc = NEXTOP(pc,x);
+      pc->u.xF.x = XAdjust(pc->u.xF.x);
+      pc = NEXTOP(pc,xF);
       break;
       /* instructions type y */
     case _save_b_y:
@@ -715,6 +719,10 @@ restore_opcodes(yamop *pc)
     case _write_y_var:
     case _write_y_val: 
     case _write_y_loc:
+      pc->u.y.y = YAdjust(pc->u.y.y);
+      pc = NEXTOP(pc,y);
+      break;
+      /* instructions type yF */
     case _p_atom_y:
     case _p_atomic_y:
     case _p_integer_y:
@@ -726,8 +734,8 @@ restore_opcodes(yamop *pc)
     case _p_compound_y:
     case _p_float_y:
     case _p_cut_by_y:
-      pc->u.y.y = YAdjust(pc->u.y.y);
-      pc = NEXTOP(pc,y);
+      pc->u.yF.y = YAdjust(pc->u.yF.y);
+      pc = NEXTOP(pc,yF);
       break;
       /* instructions type sla */      
     case _p_execute:

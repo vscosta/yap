@@ -1,17 +1,18 @@
 /*************************************************************************
 *									 *
-*	 YAP Prolog    @(#)amidefs.h	1.3 3/15/90
+*	 YAP Prolog    @(#)amidefs.h	1.3 3/15/90                      *
 *									 *
-*	Yiap Prolog was developed at NCCUP - Universidade do Porto	 *
+*	Yap Prolog was developed at NCCUP - Universidade do Porto	 *
 *									 *
 * Copyright L.Damas, V.S.Costa and Universidade do Porto 1985-1997	 *
 *									 *
 **************************************************************************
 *									 *
 * File:		amidefs.h						 *
-* Last rev:								 *
-* mods:									 *
 * comments:	Abstract machine peculiarities				 *
+*									 *
+* Last rev:     $Date: 2004-03-10 14:59:55 $							 *
+* $Log: not supported by cvs2svn $									 *
 *									 *
 *************************************************************************/
 
@@ -408,6 +409,11 @@ typedef struct yami {
        } xf;
        struct {
 	 wamreg                x;
+	 struct yami          *F;
+	 CELL next;
+       } xF;
+       struct {
+	 wamreg                x;
 	 struct yami	       *l;
 	 CELL next;
        } xl; 
@@ -443,6 +449,11 @@ typedef struct yami {
 	 yslot                y;
 	 CELL next;
        } y;
+       struct {
+	 yslot                y;
+	 struct yami         *F;
+	 CELL next;
+       } yF;
        struct {
 	 yslot                y;
 	 wamreg                x;

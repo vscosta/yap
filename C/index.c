@@ -483,6 +483,9 @@ has_cut(yamop *pc)
     case _write_x_var:
     case _write_x_val:
     case _write_x_loc:
+      pc = NEXTOP(pc,x);
+      break;
+      /* instructions type xF */
     case _p_atom_x:
     case _p_atomic_x:
     case _p_integer_x:
@@ -493,13 +496,17 @@ has_cut(yamop *pc)
     case _p_primitive_x:
     case _p_compound_x:
     case _p_float_x:
-      pc = NEXTOP(pc,x);
+    case _p_cut_by_x:
+      pc = NEXTOP(pc,xF);
       break;
       /* instructions type y */
     case _save_b_y:
     case _write_y_var:
     case _write_y_val: 
     case _write_y_loc:
+      pc = NEXTOP(pc,y);
+      break;
+      /* instructions type yF */
     case _p_atom_y:
     case _p_atomic_y:
     case _p_integer_y:
@@ -510,7 +517,8 @@ has_cut(yamop *pc)
     case _p_primitive_y:
     case _p_compound_y:
     case _p_float_y:
-      pc = NEXTOP(pc,y);
+    case _p_cut_by_y:
+      pc = NEXTOP(pc,yF);
       break;
       /* instructions type sla */
     case _p_execute:
@@ -843,12 +851,10 @@ add_info(ClauseDef *clause, UInt regno)
       break;
     case _save_b_x:
     case _commit_b_x:
-    case _p_cut_by_x:
     case _write_x_val:
     case _write_x_loc:
     case _write_x_var:
     case _put_list:
-    case _p_nonvar_x:
       if (regcopy_in(myregs, nofregs, cl->u.x.x)) {
 	clause->Tag = (CELL)NULL;
 	clause->u.t_ptr = (CELL)NULL;
@@ -856,77 +862,85 @@ add_info(ClauseDef *clause, UInt regno)
       }
       cl = NEXTOP(cl,x);
       break;
+    case _p_nonvar_x:
+      if (regcopy_in(myregs, nofregs, cl->u.xF.x)) {
+	clause->Tag = (CELL)NULL;
+	clause->u.t_ptr = (CELL)NULL;
+	return;
+      }
+      cl = NEXTOP(cl,xF);
+      break;
     case _p_number_x:
-      if (regcopy_in(myregs, nofregs, cl->u.x.x)) {
+      if (regcopy_in(myregs, nofregs, cl->u.xF.x)) {
 	clause->Tag = (_number+1)*sizeof(CELL);
 	clause->u.t_ptr = (CELL)NULL;
 	return;
       }
-      cl = NEXTOP(cl,x);
+      cl = NEXTOP(cl,xF);
       break;
     case _p_atomic_x:
-      if (regcopy_in(myregs, nofregs, cl->u.x.x)) {
+      if (regcopy_in(myregs, nofregs, cl->u.xF.x)) {
 	clause->Tag = (_atomic+1)*sizeof(CELL);
 	clause->u.t_ptr = (CELL)NULL;
 	return;
       }
-      cl = NEXTOP(cl,x);
+      cl = NEXTOP(cl,xF);
       break;
     case _p_integer_x:
-      if (regcopy_in(myregs, nofregs, cl->u.x.x)) {
+      if (regcopy_in(myregs, nofregs, cl->u.xF.x)) {
 	clause->Tag = (_integer+1)*sizeof(CELL);
 	clause->u.t_ptr = (CELL)NULL;
 	return;
       }
-      cl = NEXTOP(cl,x);
+      cl = NEXTOP(cl,xF);
       break;
     case _p_primitive_x:
-      if (regcopy_in(myregs, nofregs, cl->u.x.x)) {
+      if (regcopy_in(myregs, nofregs, cl->u.xF.x)) {
 	clause->Tag = (_primitive+1)*sizeof(CELL);
 	clause->u.t_ptr = (CELL)NULL;
 	return;
       }
-      cl = NEXTOP(cl,x);
+      cl = NEXTOP(cl,xF);
       break;
     case _p_compound_x:
-      if (regcopy_in(myregs, nofregs, cl->u.x.x)) {
+      if (regcopy_in(myregs, nofregs, cl->u.xF.x)) {
 	clause->Tag = (_compound+1)*sizeof(CELL);
 	clause->u.t_ptr = (CELL)NULL;
 	return;
       }
-      cl = NEXTOP(cl,x);
+      cl = NEXTOP(cl,xF);
       break;
     case _p_var_x:
-      if (regcopy_in(myregs, nofregs, cl->u.x.x)) {
+      if (regcopy_in(myregs, nofregs, cl->u.xF.x)) {
 	clause->Tag = (_var+1)*sizeof(CELL);
 	clause->u.t_ptr = (CELL)NULL;
 	return;
       }
-      cl = NEXTOP(cl,x);
+      cl = NEXTOP(cl,xF);
       break;
     case _p_db_ref_x:
-      if (regcopy_in(myregs, nofregs, cl->u.x.x)) {
+      if (regcopy_in(myregs, nofregs, cl->u.xF.x)) {
 	clause->Tag = AbsAppl((CELL *)FunctorDBRef);
 	clause->u.t_ptr = (CELL)NULL;
 	return;
       }
-      cl = NEXTOP(cl,x);
+      cl = NEXTOP(cl,xF);
       break;
     case _p_float_x:
-      if (regcopy_in(myregs, nofregs, cl->u.x.x)) {
+      if (regcopy_in(myregs, nofregs, cl->u.xF.x)) {
 	clause->Tag = AbsAppl((CELL *)FunctorDouble);
 	clause->u.t_ptr = (CELL)NULL;
 	return;
       }
-      cl = NEXTOP(cl,x);
+      cl = NEXTOP(cl,xF);
       break;
     case _p_atom_x:
-      if (regcopy_in(myregs, nofregs, cl->u.x.x)) {
+      if (regcopy_in(myregs, nofregs, cl->u.xF.x)) {
 	clause->Tag = (_atom+1)*sizeof(CELL);
 	clause->u.t_ptr = (CELL)NULL;
 	return;
       }
-      cl = NEXTOP(cl,x);
+      cl = NEXTOP(cl,xF);
       break;
     case _get_list:
       if (regcopy_in(myregs, nofregs, cl->u.x.x)) {
@@ -936,13 +950,14 @@ add_info(ClauseDef *clause, UInt regno)
       }
       cl = NEXTOP(cl,x);
       break;
+    case _p_cut_by_x:
+      cl = NEXTOP(cl,xF);
+      break;
     case _save_b_y:
     case _commit_b_y:
     case _write_y_var:
     case _write_y_val: 
     case _write_y_loc:
-    case _p_cut_by_y:
-    case _p_nonvar_y:
       if (cl->u.y.y == ycopy) {
 	clause->Tag = (CELL)NULL;
 	clause->u.t_ptr = (CELL)NULL;
@@ -950,77 +965,88 @@ add_info(ClauseDef *clause, UInt regno)
       }
       cl = NEXTOP(cl,y);
       break;
+    case _p_nonvar_y:
+      if (cl->u.yF.y == ycopy) {
+	clause->Tag = (CELL)NULL;
+	clause->u.t_ptr = (CELL)NULL;
+	return;
+      }
+      cl = NEXTOP(cl,yF);
+      break;
     case _p_atomic_y:
-      if (ycopy == cl->u.y.y) {
+      if (ycopy == cl->u.yF.y) {
 	clause->Tag = (_atomic+1)*sizeof(CELL);
 	clause->u.t_ptr = (CELL)NULL;
 	return;
       }
-      cl = NEXTOP(cl,y);
+      cl = NEXTOP(cl,yF);
       break;
     case _p_integer_y:
-      if (ycopy == cl->u.y.y) {
+      if (ycopy == cl->u.yF.y) {
 	clause->Tag = (_integer+1)*sizeof(CELL);
 	clause->u.t_ptr = (CELL)NULL;
 	return;
       }
-      cl = NEXTOP(cl,y);
+      cl = NEXTOP(cl,yF);
       break;
     case _p_number_y:
-      if (ycopy == cl->u.y.y) {
+      if (ycopy == cl->u.yF.y) {
 	clause->Tag = (_number+1)*sizeof(CELL);
 	clause->u.t_ptr = (CELL)NULL;
 	return;
       }
-      cl = NEXTOP(cl,y);
+      cl = NEXTOP(cl,yF);
       break;
     case _p_primitive_y:
-      if (ycopy == cl->u.y.y) {
+      if (ycopy == cl->u.yF.y) {
 	clause->Tag = (_primitive+1)*sizeof(CELL);
 	clause->u.t_ptr = (CELL)NULL;
 	return;
       }
-      cl = NEXTOP(cl,y);
+      cl = NEXTOP(cl,yF);
       break;
     case _p_compound_y:
-      if (ycopy == cl->u.y.y) {
+      if (ycopy == cl->u.yF.y) {
 	clause->Tag = (_compound+1)*sizeof(CELL);
 	clause->u.t_ptr = (CELL)NULL;
 	return;
       }
-      cl = NEXTOP(cl,y);
+      cl = NEXTOP(cl,yF);
       break;
     case _p_db_ref_y:
-      if (ycopy == cl->u.y.y) {
+      if (ycopy == cl->u.yF.y) {
 	clause->Tag = AbsAppl((CELL *)FunctorDBRef);
 	clause->u.t_ptr = (CELL)NULL;
 	return;
       }
-      cl = NEXTOP(cl,y);
+      cl = NEXTOP(cl,yF);
       break;
     case _p_float_y:
-      if (ycopy == cl->u.y.y) {
+      if (ycopy == cl->u.yF.y) {
 	clause->Tag = AbsAppl((CELL *)FunctorDouble);
 	clause->u.t_ptr = (CELL)NULL;
 	return;
       }
-      cl = NEXTOP(cl,y);
+      cl = NEXTOP(cl,yF);
       break;
     case _p_atom_y:
-      if (cl->u.y.y == ycopy) {
+      if (cl->u.yF.y == ycopy) {
 	clause->Tag = (_atom+1)*sizeof(CELL);
 	clause->u.t_ptr = (CELL)NULL;
 	return;
       }
-      cl = NEXTOP(cl,y);
+      cl = NEXTOP(cl,yF);
       break;
     case _p_var_y:
-      if (cl->u.y.y == ycopy) {
+      if (cl->u.yF.y == ycopy) {
 	clause->Tag = (_var+1)*sizeof(CELL);
 	clause->u.t_ptr = (CELL)NULL;
 	return;
       }
-      cl = NEXTOP(cl,y);
+      cl = NEXTOP(cl,yF);
+      break;
+    case _p_cut_by_y:
+      cl = NEXTOP(cl,yF);
       break;
     case _p_execute:
     case _fcall:

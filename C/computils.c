@@ -9,9 +9,10 @@
 **************************************************************************
 *									 *
 * File:		computils.c						 *
-* Last rev:								 *
-* mods:									 *
 * comments:	some useful routines for YAP's compiler			 *
+*									 *
+* Last rev:     $Date: 2004-03-10 14:59:55 $							 *
+* $Log: not supported by cvs2svn $									 *
 *									 *
 *************************************************************************/
 #ifdef SCCS
@@ -76,9 +77,9 @@ Yap_AllocCMem (int size, struct intermediates *cip)
 int
 Yap_is_a_test_pred (Term arg, Term mod)
 {
-  if (IsVarTerm (arg))
+  if (IsVarTerm (arg)) {
     return FALSE;
-  else if (IsAtomTerm (arg)) {
+  } else if (IsAtomTerm (arg)) {
       Atom At = AtomOfTerm (arg);
       PredEntry *pe = RepPredProp(PredPropByAtom(At, mod));
       if (EndOfPAEntr(pe))
@@ -86,10 +87,17 @@ Yap_is_a_test_pred (Term arg, Term mod)
       return pe->PredFlags & TestPredFlag;
   } else if (IsApplTerm (arg)) {
     Functor f = FunctorOfTerm (arg);
-      PredEntry *pe = RepPredProp(PredPropByFunc(f, mod));
-      if (EndOfPAEntr(pe))
-	return FALSE;
-      return pe->PredFlags & (TestPredFlag|BinaryTestPredFlag);
+    PredEntry *pe = RepPredProp(PredPropByFunc(f, mod));
+    if (EndOfPAEntr(pe))
+      return FALSE;
+    if (pe->PredFlags & AsmPredFlag) {
+      int op = pe->PredFlags & 0x7f;
+      if (op >= _atom && op <= _primitive) {
+	return TRUE;
+      }
+      return FALSE;
+    }      
+    return pe->PredFlags & (TestPredFlag|BinaryTestPredFlag);
   } else {
     return FALSE;
   }

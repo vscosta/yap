@@ -9,9 +9,10 @@
 **************************************************************************
 *									 *
 * File:		YapOpcodes.h						 *
-* Last rev:								 *
-* mods:									 *
 * comments:	Central Table with all YAP opcodes                       *
+*									 *
+* Last rev:     $Date: 2004-03-10 14:59:55 $							 *
+* $Log: not supported by cvs2svn $									 *
 *									 *
 *************************************************************************/
     OPCODE(Ystop                   ,e),
@@ -288,28 +289,28 @@
     OPCODE(unify_s_end             ,),
     OPCODE(write_s_end             ,),
 #endif /* SFUNC */
-    OPCODE(p_atom_x                ,x),			
-    OPCODE(p_atom_y                ,y),
-    OPCODE(p_atomic_x              ,x),			
-    OPCODE(p_atomic_y              ,y),			
-    OPCODE(p_integer_x             ,x),			
-    OPCODE(p_integer_y             ,y),			
-    OPCODE(p_nonvar_x              ,x),			
-    OPCODE(p_nonvar_y              ,y),			
-    OPCODE(p_number_x              ,x),			
-    OPCODE(p_number_y              ,y),			
-    OPCODE(p_var_x                 ,x),			
-    OPCODE(p_var_y                 ,y),			
-    OPCODE(p_compound_x            ,x),			
-    OPCODE(p_compound_y            ,y),			
-    OPCODE(p_float_x	           ,x),			
-    OPCODE(p_float_y	           ,y),			
-    OPCODE(p_db_ref_x              ,x),			
-    OPCODE(p_db_ref_y              ,y),			
-    OPCODE(p_cut_by_x              ,x),			
-    OPCODE(p_cut_by_y              ,y),			
-    OPCODE(p_primitive_x           ,x),		
-    OPCODE(p_primitive_y           ,y),		
+    OPCODE(p_atom_x                ,xF),
+    OPCODE(p_atom_y                ,yF),
+    OPCODE(p_atomic_x              ,xF),			
+    OPCODE(p_atomic_y              ,yF),			
+    OPCODE(p_integer_x             ,xF),			
+    OPCODE(p_integer_y             ,yF),			
+    OPCODE(p_nonvar_x              ,xF),			
+    OPCODE(p_nonvar_y              ,yF),			
+    OPCODE(p_number_x              ,xF),			
+    OPCODE(p_number_y              ,yF),			
+    OPCODE(p_var_x                 ,xF),			
+    OPCODE(p_var_y                 ,yF),			
+    OPCODE(p_compound_x            ,xF),			
+    OPCODE(p_compound_y            ,yF),			
+    OPCODE(p_float_x	           ,xF),			
+    OPCODE(p_float_y	           ,yF),			
+    OPCODE(p_db_ref_x              ,xF),			
+    OPCODE(p_db_ref_y              ,yF),			
+    OPCODE(p_cut_by_x              ,xF),			
+    OPCODE(p_cut_by_y              ,yF),			
+    OPCODE(p_primitive_x           ,xF),		
+    OPCODE(p_primitive_y           ,yF),		
     OPCODE(p_equal                 ,e),			
     OPCODE(p_dif                   ,e),			
     OPCODE(p_eq                    ,e),			

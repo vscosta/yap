@@ -10,8 +10,11 @@
 *									 *
 * File:		absmi.c							 *
 * comments:	Portable abstract machine interpreter                    *
-* Last rev:     $Date: 2004-03-08 19:31:01 $,$Author: vsc $						 *
-* $Log: not supported by cvs2svn $									 *
+* Last rev:     $Date: 2004-03-10 14:59:54 $,$Author: vsc $						 *
+* $Log: not supported by cvs2svn $
+* Revision 1.124  2004/03/08 19:31:01  vsc
+* move to 4.5.3
+*									 *
 *									 *
 *************************************************************************/
 
@@ -7093,98 +7096,106 @@ Yap_absmi(int inp)
 *	Basic Primitive Predicates					 *
 \************************************************************************/
 
-      Op(p_atom_x, x);
+      Op(p_atom_x, xF);
       BEGD(d0);
-      d0 = XREG(PREG->u.x.x);
+      d0 = XREG(PREG->u.xF.x);
       deref_head(d0, atom_x_unk);
     atom_x_nvar:
       if (IsAtomTerm(d0)) {
-	PREG = NEXTOP(PREG, x);
+	PREG = NEXTOP(PREG, xF);
 	GONext();
       }
       else {
-	FAIL();
+	PREG = PREG->u.xF.F;
+	GONext();
       }
 
       BEGP(pt0);
       deref_body(d0, pt0, atom_x_unk, atom_x_nvar);
-      FAIL();
+      PREG = PREG->u.xF.F;
+      GONext();
       ENDP(pt0);
       ENDD(d0);
       ENDOp();
 
-      Op(p_atom_y, y);
+      Op(p_atom_y, yF);
       BEGD(d0);
       BEGP(pt0);
-      pt0 = YREG + PREG->u.y.y;
+      pt0 = YREG + PREG->u.yF.y;
       d0 = *pt0;
       deref_head(d0, atom_y_unk);
     atom_y_nvar:
       if (IsAtomTerm(d0)) {
-	PREG = NEXTOP(PREG, y);
+	PREG = NEXTOP(PREG, yF);
 	GONext();
       }
       else {
-	FAIL();
+	PREG = PREG->u.yF.F;
+	GONext();
       }
 
       derefa_body(d0, pt0, atom_y_unk, atom_y_nvar);
-      FAIL();
+      PREG = PREG->u.yF.F;
+      GONext();
       ENDP(pt0);
       ENDD(d0);
       ENDOp();
 
-      Op(p_atomic_x, x);
+      Op(p_atomic_x, xF);
       BEGD(d0);
-      d0 = XREG(PREG->u.x.x);
+      d0 = XREG(PREG->u.xF.x);
       deref_head(d0, atomic_x_unk);
     atomic_x_nvar:
       /* non variable */
       if (IsAtomicTerm(d0)) {
-	PREG = NEXTOP(PREG, x);
+	PREG = NEXTOP(PREG, xF);
 	GONext();
       }
       else {
-	FAIL();
+	PREG = PREG->u.xF.F;
+	GONext();
       }
 
       BEGP(pt0);
       deref_body(d0, pt0, atomic_x_unk, atomic_x_nvar);
-      FAIL();
+      PREG = PREG->u.xF.F;
+      GONext();
       ENDP(pt0);
       ENDD(d0);
       ENDOp();
 
-      Op(p_atomic_y, y);
+      Op(p_atomic_y, yF);
       BEGD(d0);
       BEGP(pt0);
-      pt0 = YREG + PREG->u.y.y;
+      pt0 = YREG + PREG->u.yF.y;
       d0 = *pt0;
       deref_head(d0, atomic_y_unk);
     atomic_y_nvar:
       /* non variable */
       if (IsAtomicTerm(d0)) {
-	PREG = NEXTOP(PREG, y);
+	PREG = NEXTOP(PREG, yF);
 	GONext();
       }
       else {
-	FAIL();
+	PREG = PREG->u.yF.F;
+	GONext();
       }
 
       derefa_body(d0, pt0, atomic_y_unk, atomic_y_nvar);
-      FAIL();
+      PREG = PREG->u.yF.F;
+      GONext();
       ENDP(pt0);
       ENDD(d0);
       ENDOp();
 
-      Op(p_integer_x, x);
+      Op(p_integer_x, xF);
       BEGD(d0);
-      d0 = XREG(PREG->u.x.x);
+      d0 = XREG(PREG->u.xF.x);
       deref_head(d0, integer_x_unk);
     integer_x_nvar:
       /* non variable */
       if (IsIntTerm(d0)) {
-	PREG = NEXTOP(PREG, x);
+	PREG = NEXTOP(PREG, xF);
 	GONext();
       }
       if (IsApplTerm(d0)) {
@@ -7195,32 +7206,35 @@ Yap_absmi(int inp)
 #ifdef USE_GMP
 	  case (CELL)FunctorBigInt:
 #endif
-	    PREG = NEXTOP(PREG, x);
+	    PREG = NEXTOP(PREG, xF);
 	    GONext();
 	  default:
-	    FAIL();
+	    PREG = PREG->u.xF.F;
+	    GONext();
 	  }
 	}
       }
-      FAIL();
+      PREG = PREG->u.xF.F;
+      GONext();
 
       BEGP(pt0);
       deref_body(d0, pt0, integer_x_unk, integer_x_nvar);
-      FAIL();
+      PREG = PREG->u.xF.F;
+      GONext();
       ENDP(pt0);
       ENDD(d0);
       ENDOp();
 
-      Op(p_integer_y, y);
+      Op(p_integer_y, yF);
       BEGD(d0);
       BEGP(pt0);
-      pt0 = YREG + PREG->u.y.y;
+      pt0 = YREG + PREG->u.yF.y;
       d0 = *pt0;
       deref_head(d0, integer_y_unk);
     integer_y_nvar:
       /* non variable */
       if (IsIntTerm(d0)) {
-	PREG = NEXTOP(PREG, x);
+	PREG = NEXTOP(PREG, xF);
 	GONext();
       }
       if (IsApplTerm(d0)) {
@@ -7231,60 +7245,65 @@ Yap_absmi(int inp)
 #ifdef USE_GMP
 	  case (CELL)FunctorBigInt:
 #endif
-	    PREG = NEXTOP(PREG, y);
+	    PREG = NEXTOP(PREG, yF);
 	    GONext();
 	  default:
-	    FAIL();
+	    PREG = PREG->u.yF.F;
+	    GONext();
 	  }
 	}
       }
-      FAIL();
+      PREG = PREG->u.yF.F;
+      GONext();
 
       derefa_body(d0, pt0, integer_y_unk, integer_y_nvar);
-      FAIL();
+      PREG = PREG->u.yF.F;
+      GONext();
       ENDP(pt0);
       ENDD(d0);
       ENDOp();
 
-      Op(p_nonvar_x, x);
+      Op(p_nonvar_x, xF);
       BEGD(d0);
-      d0 = XREG(PREG->u.x.x);
+      d0 = XREG(PREG->u.xF.x);
       deref_head(d0, nonvar_x_unk);
     nonvar_x_nvar:
-      PREG = NEXTOP(PREG, x);
+      PREG = NEXTOP(PREG, xF);
       GONext();
 
       BEGP(pt0);
       deref_body(d0, pt0, nonvar_x_unk, nonvar_x_nvar);
-      FAIL();
+      PREG = PREG->u.xF.F;
+      GONext();
       ENDP(pt0);
       ENDD(d0);
       ENDOp();
 
-      Op(p_nonvar_y, y);
+      Op(p_nonvar_y, yF);
       BEGD(d0);
       BEGP(pt0);
-      pt0 = YREG + PREG->u.y.y;
+      pt0 = YREG + PREG->u.yF.y;
       d0 = *pt0;
       deref_head(d0, nonvar_y_unk);
     nonvar_y_nvar:
-      PREG = NEXTOP(PREG, y);
+      PREG = NEXTOP(PREG, yF);
       GONext();
 
       derefa_body(d0, pt0, nonvar_y_unk, nonvar_y_nvar);
-      FAIL();
+      PREG = PREG->u.yF.F;
+      GONext();
       ENDP(pt0);
       ENDD(d0);
       ENDOp();
 
-      Op(p_number_x, x);
+      Op(p_number_x, xF);
       BEGD(d0);
-      d0 = XREG(PREG->u.x.x);
+      d0 = XREG(PREG->u.xF.x);
       deref_head(d0, number_x_unk);
     number_x_nvar:
       /* non variable */
       if (IsIntTerm(d0)) {
-	PREG = NEXTOP(PREG, x);
+	PREG = NEXTOP(PREG, xF);
 	GONext();
       }
       if (IsApplTerm(d0)) {
@@ -7296,9 +7315,11 @@ Yap_absmi(int inp)
 #ifdef USE_GMP
 	  case (CELL)FunctorBigInt:
 #endif
-	    PREG = NEXTOP(PREG, x);
+	    PREG = NEXTOP(PREG, xF);
 	    GONext();
 	  default:
+	    PREG = PREG->u.xF.F;
+	    GONext();
 	    FAIL();
 	  } 
 	} 
@@ -7307,22 +7328,23 @@ Yap_absmi(int inp)
 
       BEGP(pt0);
       deref_body(d0, pt0, number_x_unk, number_x_nvar);
-      FAIL();
+      PREG = PREG->u.xF.F;
+      GONext();
       ENDP(pt0);
       ENDD(d0);
       ENDOp();
 
-      Op(p_number_y, x);
+      Op(p_number_y, xF);
       BEGD(d0);
       BEGP(pt0);
-      pt0 = YREG + PREG->u.y.y;
+      pt0 = YREG + PREG->u.yF.y;
       d0 = *pt0;
       deref_head(d0, number_y_unk);
     number_y_nvar:
       /* non variable */
       /* non variable */
       if (IsIntTerm(d0)) {
-	PREG = NEXTOP(PREG, x);
+	PREG = NEXTOP(PREG, xF);
 	GONext();
       }
       if (IsApplTerm(d0)) {
@@ -7334,81 +7356,87 @@ Yap_absmi(int inp)
 #ifdef USE_GMP
 	  case (CELL)FunctorBigInt:
 #endif
-	    PREG = NEXTOP(PREG, y);
+	    PREG = NEXTOP(PREG, yF);
 	    GONext();
 	  default:
-	    FAIL();
+	    PREG = PREG->u.yF.F;
+	    GONext();
 	  } 
 	}
       }
       FAIL();
 
       derefa_body(d0, pt0, number_y_unk, number_y_nvar);
-      FAIL();
-      ENDP(pt0);
-      ENDD(d0);
-      ENDOp();
-
-      Op(p_var_x, x);
-      BEGD(d0);
-      d0 = XREG(PREG->u.x.x);
-      deref_head(d0, var_x_unk);
-    var_x_nvar:
-      /* non variable */
-      FAIL();
-
-      BEGP(pt0);
-      deref_body(d0, pt0, var_x_unk, var_x_nvar);
-      PREG = NEXTOP(PREG, x);
+      PREG = PREG->u.yF.F;
       GONext();
       ENDP(pt0);
       ENDD(d0);
       ENDOp();
 
-      Op(p_var_y, y);
+      Op(p_var_x, xF);
+      BEGD(d0);
+      d0 = XREG(PREG->u.xF.x);
+      deref_head(d0, var_x_unk);
+    var_x_nvar:
+      /* non variable */
+      PREG = PREG->u.xF.F;
+      GONext();
+
+      BEGP(pt0);
+      deref_body(d0, pt0, var_x_unk, var_x_nvar);
+      PREG = NEXTOP(PREG, xF);
+      GONext();
+      ENDP(pt0);
+      ENDD(d0);
+      ENDOp();
+
+      Op(p_var_y, yF);
       BEGD(d0);
       BEGP(pt0);
-      pt0 = YREG + PREG->u.y.y;
+      pt0 = YREG + PREG->u.yF.y;
       d0 = *pt0;
       deref_head(d0, var_y_unk);
     var_y_nvar:
       /* non variable */
-      FAIL();
+      PREG = PREG->u.yF.F;
+      GONext();
 
       derefa_body(d0, pt0, var_y_unk, var_y_nvar);
-      PREG = NEXTOP(PREG, y);
+      PREG = NEXTOP(PREG, yF);
       GONext();
       ENDP(pt0);
       ENDD(d0);
       ENDOp();
 
-      Op(p_db_ref_x, x);
+      Op(p_db_ref_x, xF);
       BEGD(d0);
-      d0 = XREG(PREG->u.x.x);
+      d0 = XREG(PREG->u.xF.x);
       deref_head(d0, dbref_x_unk);
     dbref_x_nvar:
       /* non variable */
       if (IsDBRefTerm(d0)) {
 	/* only allow references to the database, not general references
 	 * to go through. */
-	PREG = NEXTOP(PREG, x);
+	PREG = NEXTOP(PREG, xF);
 	GONext();
       }
       else {
-	FAIL();
+	PREG = PREG->u.xF.F;
+	GONext();
       }
 
       BEGP(pt0);
       deref_body(d0, pt0, dbref_x_unk, dbref_x_nvar);
-      FAIL();
+      PREG = PREG->u.xF.F;
+      GONext();
       ENDP(pt0);
       ENDD(d0);
       ENDOp();
 
-      Op(p_db_ref_y, y);
+      Op(p_db_ref_y, yF);
       BEGD(d0);
       BEGP(pt0);
-      pt0 = YREG + PREG->u.y.y;
+      pt0 = YREG + PREG->u.yF.y;
       d0 = *pt0;
       deref_head(d0, dbref_y_unk);
     dbref_y_nvar:
@@ -7416,161 +7444,176 @@ Yap_absmi(int inp)
       if (IsDBRefTerm(d0)) {
 	/* only allow references to the database, not general references
 	 * to go through. */
-	PREG = NEXTOP(PREG, y);
+	PREG = NEXTOP(PREG, yF);
 	GONext();
       }
       else {
-	FAIL();
+	PREG = PREG->u.yF.F;
+	GONext();
       }
 
       derefa_body(d0, pt0, dbref_y_unk, dbref_y_nvar);
-      FAIL();
+      PREG = PREG->u.yF.F;
+      GONext();
       ENDP(pt0);
       ENDD(d0);
       ENDOp();
 
-      Op(p_primitive_x, x);
+      Op(p_primitive_x, xF);
       BEGD(d0);
-      d0 = XREG(PREG->u.x.x);
+      d0 = XREG(PREG->u.xF.x);
       deref_head(d0, primi_x_unk);
     primi_x_nvar:
       /* non variable */
       if (IsPrimitiveTerm(d0)) {
-	PREG = NEXTOP(PREG, x);
+	PREG = NEXTOP(PREG, xF);
 	GONext();
       }
       else {
-	FAIL();
+	PREG = PREG->u.xF.F;
+	GONext();
       }
 
       BEGP(pt0);
       deref_body(d0, pt0, primi_x_unk, primi_x_nvar);
-      FAIL();
+      PREG = PREG->u.xF.F;
+      GONext();
       ENDP(pt0);
       ENDD(d0);
       ENDOp();
 
-      Op(p_primitive_y, y);
+      Op(p_primitive_y, yF);
       BEGD(d0);
       BEGP(pt0);
-      pt0 = YREG + PREG->u.y.y;
+      pt0 = YREG + PREG->u.yF.y;
       d0 = *pt0;
       deref_head(d0, primi_y_unk);
     primi_y_nvar:
       /* non variable */
       if (IsPrimitiveTerm(d0)) {
-	PREG = NEXTOP(PREG, y);
+	PREG = NEXTOP(PREG, yF);
 	GONext();
       }
       else {
-	FAIL();
+	PREG = PREG->u.yF.F;
+	GONext();
       }
 
       derefa_body(d0, pt0, primi_y_unk, primi_y_nvar);
-      FAIL();
+      PREG = PREG->u.yF.F;
+      GONext();
       ENDP(pt0);
       ENDD(d0);
       ENDOp();
 
-      Op(p_compound_x, x);
+      Op(p_compound_x, xF);
       BEGD(d0);
-      d0 = XREG(PREG->u.x.x);
+      d0 = XREG(PREG->u.xF.x);
       deref_head(d0, compound_x_unk);
     compound_x_nvar:
       /* non variable */
       if (IsPairTerm(d0)) {
-	PREG = NEXTOP(PREG, x);
+	PREG = NEXTOP(PREG, xF);
 	GONext();
       }
       else if (IsApplTerm(d0)) {
 	if (IsExtensionFunctor(FunctorOfTerm(d0))) {
 	  FAIL();
 	}
-	PREG = NEXTOP(PREG, x);
+	PREG = NEXTOP(PREG, xF);
 	GONext();
       }
       else {
-	FAIL();
+	PREG = PREG->u.xF.F;
+	GONext();
       }
 
       BEGP(pt0);
       deref_body(d0, pt0, compound_x_unk, compound_x_nvar);
-      FAIL();
+      PREG = PREG->u.xF.F;
+      GONext();
       ENDP(pt0);
       ENDD(d0);
       ENDOp();
 
-      Op(p_compound_y, y);
+      Op(p_compound_y, yF);
       BEGD(d0);
       BEGP(pt0);
-      pt0 = YREG + PREG->u.y.y;
+      pt0 = YREG + PREG->u.yF.y;
       d0 = *pt0;
       deref_head(d0, compound_y_unk);
     compound_y_nvar:
       /* non variable */
       if (IsPairTerm(d0)) {
-	PREG = NEXTOP(PREG, x);
+	PREG = NEXTOP(PREG, yF);
 	GONext();
       }
       else if (IsApplTerm(d0)) {
 	if (IsExtensionFunctor(FunctorOfTerm(d0))) {
-	  FAIL();
+	  PREG = PREG->u.yF.F;
+	  GONext();
 	}
-	PREG = NEXTOP(PREG, x);
+	PREG = NEXTOP(PREG, yF);
 	GONext();
       }
       else {
-	FAIL();
+	PREG = PREG->u.yF.F;
+	GONext();
       }
 
       derefa_body(d0, pt0, compound_y_unk, compound_y_nvar);
-      FAIL();
+      PREG = PREG->u.yF.F;
+      GONext();
       ENDP(pt0);
       ENDD(d0);
       ENDOp();
 
-      Op(p_float_x, x);
+      Op(p_float_x, xF);
       BEGD(d0);
-      d0 = XREG(PREG->u.x.x);
+      d0 = XREG(PREG->u.xF.x);
       deref_head(d0, float_x_unk);
     float_x_nvar:
       /* non variable */
       if (IsFloatTerm(d0)) {
-	PREG = NEXTOP(PREG, x);
+	PREG = NEXTOP(PREG, xF);
 	GONext();
       }
-      FAIL();
+      PREG = PREG->u.xF.F;
+      GONext();
 
       BEGP(pt0);
       deref_body(d0, pt0, float_x_unk, float_x_nvar);
-      FAIL();
+      PREG = PREG->u.xF.F;
+      GONext();
       ENDP(pt0);
       ENDD(d0);
       ENDOp();
 
-      Op(p_float_y, y);
+      Op(p_float_y, yF);
       BEGD(d0);
       BEGP(pt0);
-      pt0 = YREG + PREG->u.y.y;
+      pt0 = YREG + PREG->u.yF.y;
       d0 = *pt0;
       deref_head(d0, float_y_unk);
     float_y_nvar:
       /* non variable */
       if (IsFloatTerm(d0)) {
-	PREG = NEXTOP(PREG, x);
+	PREG = NEXTOP(PREG, xF);
 	GONext();
       }
-      FAIL();
+      PREG = PREG->u.yF.F;
+      GONext();
 
       derefa_body(d0, pt0, float_y_unk, float_y_nvar);
-      FAIL();
+      PREG = PREG->u.yF.F;
+      GONext();
       ENDP(pt0);
       ENDD(d0);
       ENDOp();
 
-      Op(p_cut_by_x, x);
+      Op(p_cut_by_x, xF);
       BEGD(d0);
-      d0 = XREG(PREG->u.x.x);
+      d0 = XREG(PREG->u.xF.x);
       deref_head(d0, cutby_x_unk);
     cutby_x_nvar:
 #if defined(SBA) && defined(FROZEN_STACKS)
@@ -7601,7 +7644,7 @@ Yap_absmi(int inp)
 	TR = trim_trail(B, TR, HBREG);
       }
       ENDCHO(pt0);
-      PREG = NEXTOP(PREG, x);
+      PREG = NEXTOP(PREG, xF);
       GONext();
 
       BEGP(pt1);
@@ -7613,10 +7656,10 @@ Yap_absmi(int inp)
       ENDD(d0);
       ENDOp();
 
-      Op(p_cut_by_y, y);
+      Op(p_cut_by_y, yF);
       BEGD(d0);
       BEGP(pt0);
-      pt0 = YREG + PREG->u.y.y;
+      pt0 = YREG + PREG->u.yF.y;
       d0 = *pt0;
       deref_head(d0, cutby_y_unk);
     cutby_y_nvar:
@@ -7647,7 +7690,7 @@ Yap_absmi(int inp)
 	HBREG = PROTECT_FROZEN_H(B);
 	TR = trim_trail(B, TR, HBREG);
       }
-      PREG = NEXTOP(PREG, y);
+      PREG = NEXTOP(PREG, yF);
       GONext();
       ENDCHO(pt1);
 
