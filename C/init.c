@@ -1036,7 +1036,7 @@ InitYaamRegs(void)
   AuxSp = (CELL *)AuxTop;
   TR = (tr_fr_ptr)TrailBase;
 #ifdef COROUTINING
-  H = H0 = ((CELL *) GlobalBase)+ 128*1024; //2048;
+  H = H0 = ((CELL *) GlobalBase)+ 2048;
 #else
   H = H0 = (CELL *) GlobalBase;
 #endif
