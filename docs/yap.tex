@@ -5302,17 +5302,12 @@ Renames file @var{F} to @var{G}.
 @cyindex sh/0
 Creates a new shell interaction.
 
-@item shell(+@var{S})
-@findex shell/1
-@snindex shell/1
-@cnindex shell/1
-Passes command @var{S} to the current shell (on UNIX environments).
-
 @item system(+@var{S})
 @findex system/1
 @snindex system/1
 @cyindex system/1
-Passes command @var{S} to the Bourne shell (on UNIX environments).
+Passes command @var{S} to the Bourne shell (on UNIX environments) or the
+current command interpreter in WIN32 environments.
 
 @item unix(+@var{S})
 @findex unix/1
@@ -7450,6 +7445,23 @@ for the command is returned in @var{Status}.
 Fetch the current directory at @var{CurDir}. If @var{NextDir} is bound
 to an atom, make its value the current working directory.
 
+@item sleep(+@var{Time})
+@findex  sleep/1
+@syindex sleep/1
+@cnindex sleep/1
+Block the current process for @var{Time} seconds. The number of seconds
+must be a positive number, and it may an integer or a float. The Unix
+implementation uses @code{usleep} if the number of seconds is below one,
+and @code{sleep} if it is over a second. The WIN32 implementation uses
+@code{Sleep} for both cases.
+
+@item wait(+@var{PID},-@var{Status})
+@findex  wait/2
+@syindex wait/2
+@cnindex wait/2
+Wait until process @var{PID} terminates, and return its exits @var{Status}.
+
+@comment exec(ls,[std,pipe(X),std], P), repeat, get0(X,C), write(C), nl, C = -1, !.
 @end table
 
 

@@ -69,6 +69,20 @@
 
 void PROTO(init_sys, (void));
 
+#if defined(__MINGW32__) || _MSC_VER
+static Term
+WinError(void)
+{
+  char msg[256];
+  /* Error, we could not read time */
+    FormatMessage(FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS,
+		  NULL, GetLastError(), 
+		  MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT), msg, 256,
+		  NULL);
+    return(MkAtomTerm(LookupAtom(msg)));
+}
+#endif
+
 /* Return time in a structure */
 static int
 datime(void)
@@ -392,8 +406,8 @@ execute_command(void)
   inpf = get_handle(ti, 0, tzero);
   outf = get_handle(to, 1, tzero);
   errf = get_handle(te, 2, tzero);
-  if (inpf != -1 || outf != -1 || errf != -1) {
-    /* we are keeping the curent streams */
+  if (inpf == -1 && outf == -1 && errf == -1) {
+    /* we do not keep a curent stream */
     CreationFlags = DETACHED_PROCESS;
   }
   StartupInfo.cb = sizeof(STARTUPINFO);
@@ -417,7 +431,7 @@ execute_command(void)
 		    NULL,
 		    &StartupInfo,
 		    &ProcessInformation) == FALSE) {
-    return(unify(ARG6, MkIntTerm(GetLastError())));
+    return(unify(ARG6, WinError()));
   }
   restore_descriptor(0, inpf, ti, tzero);
   restore_descriptor(1, outf, to, tzero);
@@ -517,13 +531,13 @@ p_wait(void)
   HANDLE proc = OpenProcess(STANDARD_RIGHTS_REQUIRED|SYNCHRONIZE, FALSE, pid);
   DWORD ExitCode;
   if (proc == NULL) {
-    return(unify(ARG3, MkIntTerm(GetLastError())));
+    return(unify(ARG3, WinError()));
   }
   if (WaitForSingleObject(proc, INFINITE) == WAIT_FAILED) {
-    return(unify(ARG3, MkIntTerm(GetLastError())));
+    return(unify(ARG3, WinError()));
   }
   if (GetExitCodeProcess(proc, &ExitCode) == 0) {
-    return(unify(ARG3, MkIntTerm(GetLastError())));
+    return(unify(ARG3, WinError()));
   }
   CloseHandle(proc);
   return(unify(ARG2, MkIntTerm(ExitCode)));
@@ -624,7 +638,7 @@ host_name(void)
   char name[MAX_COMPUTERNAME_LENGTH+1];
   DWORD nSize = MAX_COMPUTERNAME_LENGTH+1;
   if (GetComputerName(name, &nSize) == 0) {
-    return(unify(ARG2, MkIntTerm(GetLastError())));
+    return(unify(ARG2, WinError()));
   }
 #else
 #if HAVE_GETHOSTNAME
@@ -667,10 +681,10 @@ p_kill(void)
      always kill it */
   HANDLE proc = OpenProcess(STANDARD_RIGHTS_REQUIRED|PROCESS_TERMINATE, FALSE, IntOfTerm(ARG1));
   if (proc == NULL) {
-    return(unify(ARG3, MkIntTerm(GetLastError())));
+    return(unify(ARG3, WinError()));
   }
   if (TerminateProcess(proc, -1) == 0) {
-    return(unify(ARG3, MkIntTerm(GetLastError())));
+    return(unify(ARG3, WinError()));
   }
   CloseHandle(proc);
 #else

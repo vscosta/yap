@@ -1,4 +1,4 @@
-/*************************************************************************
+v/*************************************************************************
 *									 *
 *	 YAP Prolog 							 *
 *									 *
@@ -35,6 +35,7 @@
 	make_directory/1,
 	popen/3,
 	rename_file/2,
+	shell/0,
 	shell/1,
 	shell/2,
 	sleep/1,
@@ -45,6 +46,8 @@
 	wait/2,
 	working_directory/2
           ]).
+
+:- use_module(library(lists), [append/3]).
 
 :- load_foreign_files([sys], [], init_sys).
 
@@ -126,6 +129,8 @@ directory_files(File, FileList, Ignore) :-
        handle_system_error(Error, Ignore, directory_files(File, FileList)).
 
 handle_system_error(Error, _Ignore, _G) :- var(Error), !.
+handle_system_error(Error, off, G) :- atom(Error), !,
+	throw(error(system_error(Error),G)).
 handle_system_error(Error, off, G) :-
 	error_message(Error, Message),
 	throw(error(system_error(Message),G)).
@@ -279,7 +284,7 @@ shell :-
 	G = shell,
 	get_shell(Shell),
 	atom_codes(FullCommand, Shell),
-	exec_command(FullCommand, '$stream'(0),'$stream'(0), '$stream'(1), PID, Error),
+	exec_command(FullCommand, '$stream'(0),'$stream'(1), '$stream'(2), PID, Error),
 	handle_system_error(Error, off, G),
 	wait(PID, _Status, Error),
 	handle_system_error(Error, off, G).
@@ -291,7 +296,7 @@ shell(Command) :-
 	atom_codes(Command, SC),
 	append(Shell, SC, ShellCommand),
 	atom_codes(FullCommand, ShellCommand),
-	exec_command(FullCommand, '$stream'(0),'$stream'(0), '$stream'(1), PID, Error),
+	exec_command(FullCommand, '$stream'(0),'$stream'(1), '$stream'(2), PID, Error),
 	handle_system_error(Error, off, G),
 	wait(PID, _Status, Error),
 	handle_system_error(Error, off, G).
@@ -303,7 +308,7 @@ shell(Command, Status) :-
 	atom_codes(Command, SC),
 	append(Shell, SC, ShellCommand),
 	atom_codes(FullCommand, ShellCommand),
-	exec_command(FullCommand, '$stream'(0),'$stream'(0), '$stream'(1), PID, Error),
+	exec_command(FullCommand, '$stream'(0),'$stream'(1), '$stream'(2), PID, Error),
 	handle_system_error(Error, off, G),
 	wait(PID, Status,Error),
 	handle_system_error(Error, off, G).

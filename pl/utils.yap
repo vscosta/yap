@@ -242,9 +242,6 @@ getcwd(D) :- '$getcwd'(SD), atom_codes(D, SD).
 system(A) :- atom(A), !, atom_codes(A,S), '$system'(S).
 system(S) :- '$system'(S).
 
-shell(A) :- atom(A), !, atom_codes(A,S), '$shell'(S).
-shell(S) :- '$shell'(S).
-
 rename(Old,New) :- atom(Old), atom(New), !,
 	name(Old,SOld), name(New,SNew),
 	'$rename'(SOld,SNew).
@@ -264,7 +261,7 @@ unix(environ(X,Y)) :- do_environ(X,Y).
 unix(getcwd(X)) :- getcwd(X).
 unix(shell(V)) :- var(V), !,
 	throw(error(instantiation_error,unix(shell(V)))).
-unix(shell(A)) :- atomic(A), !, shell(A).
+unix(shell(A)) :- atomic(A), !, '$shell'(A).
 unix(shell(V)) :-
 	throw(error(type_error(atomic,V),unix(shell(V)))).
 unix(system(V)) :- var(V), !,
