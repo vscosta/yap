@@ -1381,7 +1381,6 @@ mark_choicepoints(register choiceptr gc_B, tr_fr_ptr saved_TR, int very_verbose)
 	    YP_fprintf(YP_stderr,"[GC]       %s/%d marked %d (%s)\n", RepAtom(NameOfFunctor(pe->FunctorOfPred))->StrOfAE, pe->ArityOfPE, total_marked, op_names[opnum]);
 	}
 	break;
-#endif
       case _trie_retry_var:
       case _trie_trust_var:
       case _trie_retry_val:
@@ -1394,6 +1393,7 @@ mark_choicepoints(register choiceptr gc_B, tr_fr_ptr saved_TR, int very_verbose)
       case _trie_trust_struct:
 	YP_fprintf(YP_stderr,"[GC]       marked %d (%s)\n", total_marked, op_names[opnum]);
 	break;
+#endif
       default:
 	{
 	  PredEntry *pe = (PredEntry *)gc_B->cp_ap->u.ld.p;
