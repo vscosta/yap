@@ -295,7 +295,7 @@ debugging :-
     '$get_value'(spy_cl,CL),		/* save global clause no.	*/
     repeat,		/* we need this to be able to implement retry	*/
 	'$init_spy_cl'(G,Module),
-	'$trace'(call,G,Module,L),	/* inform about call port	*/
+	'$trace'(call,G,Module,L,CF),	/* inform about call port	*/
 	/* the following choice point is where the predicate is  called */
 	( '$get_value'(spy_sp,0),	/* make sure we are not skipping*/
 	  '$system_catch'('$spycalls'(G,Module,Res), Module,
@@ -304,9 +304,9 @@ debugging :-
 			 /* go execute the predicate	*/
 	   ;	/* we get here when the predicate fails */
 	        ( '$get_value'(spy_sl, -1) ->
-		    '$trace'(exception,G,Module,L)
+		    '$trace'(exception,G,Module,L,CF)
 		    ;
-		    '$trace'(fail,G,Module,L) /* inform at fail port		*/
+		    '$trace'(fail,G,Module,L,CF) /* inform at fail port		*/
 		),
 		'$get_value'(spy_sl,L2),/* make sure we are not ...	*/
 		L2 \= L,		/* ... skiping to this level	*/
@@ -314,27 +314,28 @@ debugging :-
 	        '$set_value'(spy_cl,CL),/* restore global value of clause no */
 		'$setflop'(0), 
 		'$set_creep'(SC),	/* restore creep value		*/
-		'$cont_creep', fail ),	/* and exit			*/
+		'$cont_creep'(CF), fail ),	/* and exit			*/
 	'$get_value'(spy_cl,Cla),	/* save no. of clause to try	*/
 	( var(Res),			/* check not redoing		*/
-	  '$trace'(exit,G,Module,L),	/* output message at exit	*/
+	  '$trace'(exit,G,Module,L,CF),	/* output message at exit	*/
 	  '$get_value'(spy_sp,0),	/* check not skipping		*/
-	  '$set_creep'(SC),		/* restore creep value		*/
 	  '$set_value'(spy_cl,CL),	/* restore clause no.		*/
+	  '$set_creep'(SC),		/* restore creep value		*/
 	  '$setflop'(0),
-	  '$cont_creep';		/* exit				*/
+	  '$cont_creep'(CF);		/* exit				*/
 		/* we get here when we want to redo a goal		*/
 		'$set_value'(spy_cl,Cla),/* restore clause no. to try	*/
-		'$trace'(redo,G,Module,L), /* inform user_error		*/
+		'$trace'(redo,G,Module,L,_), /* inform user_error		*/
 		fail			/* to backtrack to spycalls	*/
 	).
 '$do_spy'(G,Mod) :-
 	'$execute0'(G,Mod).	/* this clause applies when we do not want
 				   to spy the goal			*/
 
-'$cont_creep' :-  '$get_value'('$trace',1), '$set_yap_flags'(10,1), fail.
-'$cont_creep' :- '$access_yap_flags'(10,1), !, '$creep'.
-'$cont_creep'.
+'$cont_creep'( _) :-  '$get_value'('$trace',1), '$set_yap_flags'(10,1), fail.
+'$cont_creep'(CF) :- nonvar(CF), !, '$set_yap_flags'(10,1), '$creep'.
+'$cont_creep'( _) :- '$access_yap_flags'(10,1), !, '$creep'.
+'$cont_creep'( _).
 
 '$set_creep'(0) :- !, '$set_yap_flags'(10,0).
 '$set_creep'(_).
@@ -737,12 +738,12 @@ debugging :-
 '$creep'([_|'$leave_creep']) :- !.
 '$creep'(G) :- '$direct_spy'(G).
 
-'$trace'(P,'!'(_),Mod,L) :- !,
-	'$trace'(P,!,Mod,L).
-'$trace'(P,G,Mod,L) :-
+'$trace'(P,'!'(_),Mod,L,NC) :- !,
+	'$trace'(P,!,Mod,L,NC).
+'$trace'(P,G,Mod,L,NC) :-
 	'$chk'(P,L,G,Mod,SL),
-	'$msg'(P,G,Mod,L,SL).
-'$trace'(_,_,_,_).
+	'$msg'(P,G,Mod,L,SL,NC), !.
+'$trace'(_,_,_,_,_).
 
 '$handle_signals'([]).
 '$handle_signals'([S|Rest]) :-
@@ -751,7 +752,7 @@ debugging :-
 	'$handle_signals'(Rest).
 '$handle_signals'([_|Rest]) :- '$handle_signals'(Rest).
 
-'$msg'(P,G,Module,L,SL):-
+'$msg'(P,G,Module,L,SL,NC):-
 	flush_output(user_output),
 	flush_output(user_error),
 	'$get_value'(debug,1),
@@ -770,10 +771,10 @@ debugging :-
 		  nl(user_error)
 		  ;
 		  write(user_error,' ? '), get0(user_input,C),
-		  '$action'(C,P,L,G),
+		  '$action'(C,P,L,G,NC),
 		  '$skipeol'(C)
-		) ,
-		!, fail.
+		),
+		!.
 
 '$unleashed'(call) :- '$get_value'('$leash',L), L /\ 2'1000 =:= 0.
 '$unleashed'(exit) :- '$get_value'('$leash',L), L /\ 2'0100 =:= 0.
@@ -816,9 +817,8 @@ debugging :-
 '$skipeol'(10) :- !.
 '$skipeol'(_) :- get0(user,C), '$skipeol'(C).
 
-'$action'(10,_,_,_) :- !,		% newline 	creep
-	'$set_yap_flags'(10,1).
-'$action'(33,_,_,_) :- !,		% ! g		execute
+'$action'(10,_,_,_,continue) :- !.		% newline 	creep
+'$action'(33,_,_,_,_) :- !,		% ! g		execute
 	read(user,G),
 	% don't allow yourself to be caught by creep.
 	'$access_yap_flags'(10, CL),
@@ -826,83 +826,81 @@ debugging :-
 	( '$execute'(G) -> true ; true),
 	'$set_yap_flags'(10, CL),
 	!, fail.
-'$action'(60,_,_,_) :- !,		% <Depth
+'$action'(60,_,_,_,_) :- !,		% <Depth
 	'$new_deb_depth',
 	fail.
-'$action'(94,_,_,G) :- !,
+'$action'(94,_,_,G,_) :- !,
 	'$print_deb_sterm'(G), fail.
-'$action'(97,_,_,_) :- !, abort.	% a		abort
-'$action'(98,_,_,_) :- !, break,	% b		break
+'$action'(97,_,_,_,_) :- !, abort.	% a		abort
+'$action'(98,_,_,_,_) :- !, break,	% b		break
 	fail.
-'$action'(99,call,_,_) :- !,		% c		creep
-	'$set_yap_flags'(10,1).
-'$action'(101,_,_,_) :- !,		% e		exit
+'$action'(99,call,_,_,_) :- !,		% c		creep
+	'$set_yap_flags'(10,1),
+	'$creep'.
+'$action'(99,exit,_,_,continue) :- !.	% c		creep
+'$action'(99,fail,_,_,continue) :- !,	% c		creep
+	'$set_yap_flags'(10,1),
+	'$creep'.
+'$action'(101,_,_,_,_) :- !,		% e		exit
 	halt.
-'$action'(102,P,L,_) :- !,		% f		fail
+'$action'(102,P,L,_,_) :- !,		% f		fail
 	( \+ P = fail, !; '$ilgl'(102) ),
 	'$set_value'(spy_sp,fail),
 	'$set_value'(spy_sl,L).
-'$action'(104,_,_,_) :- !,		% h		help
-	write(user_error,'newline  creep       a   abort'), nl(user_error),
-	write(user_error,'c        creep       e   exit'), nl(user_error),
-	write(user_error,'f        fail        h   help'), nl(user_error),
-	write(user_error,'l        leap        r   retry'), nl(user_error),
-	write(user_error,'s        skip        t   fastskip'), nl(user_error),
-	write(user_error,'q        quasiskip   k   quasileap'), nl(user_error),
-	write(user_error,'b        break       n   no debug'), nl(user_error),
-	write(user_error,'p        print       d   display'), nl(user_error),
-	write(user_error,'<D       depth D     <   full term'), nl(user_error),
-	write(user_error,'+        spy this    -   nospy this'), nl(user_error),
-	write(user_error,'^        view subg   ^^  view using'), nl(user_error),
-	write(user_error,'! g execute goal'), nl(user_error),
+'$action'(104,_,_,_,_) :- !,		% h		help
+	'$action_help',
 	'$skipeol'(104), fail.
-'$action'(63,_,_,_) :- !,		% ?		help
-	write(user_error,'newline  creep       a   abort'), nl(user_error),
-	write(user_error,'c        creep       e   exit'), nl(user_error),
-	write(user_error,'f        fail        h   help'), nl(user_error),
-	write(user_error,'l        leap        r   retry'), nl(user_error),
-	write(user_error,'s        skip        t   fastskip'), nl(user_error),
-	write(user_error,'q        quasiskip   k   quasileap'), nl(user_error),
-	write(user_error,'b        break       n   no debug'), nl(user_error),
-	write(user_error,'p        print       d   display'), nl(user_error),
-	write(user_error,'<D       depth D     <   full term'), nl(user_error),
-	write(user_error,'+        spy this    -   nospy this'), nl(user_error),
-	write(user_error,'^        view subg   ^^  view using'), nl(user_error),
-	write(user_error,'! g execute goal'), nl(user_error),
+'$action'(63,_,_,_,_) :- !,		% ?		help
+	'$action_help',
 	'$skipeol'(104), fail.
-'$action'(112,_,_,G) :- !,		% p		print
+'$action'(112,_,_,G,_) :- !,		% p		print
 	print(user_error,G), nl(user_error),
 	'$skipeol'(112), fail.
-'$action'(100,_,_,G) :- !,		% d		display
+'$action'(100,_,_,G,_) :- !,		% d		display
 	display(user_error,G), nl(user_error),
 	'$skipeol'(100), fail.
-'$action'(113,_,L,_) :- !,		% k		quasi skip
+'$action'(113,_,L,_,_) :- !,		% k		quasi skip
 	'$set_value'(spy_leap,L).
-'$action'(108,_,_,_) :- !,		% l		leap
+'$action'(108,_,_,_,_) :- !,		% l		leap
 	'$set_value'(spy_leap,1).
-'$action'(110,_,_,_) :- !,		% n		nodebug
+'$action'(110,_,_,_,_) :- !,		% n		nodebug
 	nodebug.
-'$action'(107,_,_,_) :- !,		% k		quasi leap
+'$action'(107,_,_,_,_) :- !,		% k		quasi leap
 	'$set_yap_flags'(10,0).
-'$action'(114,P,L,_) :- !,		% r		retry
+'$action'(114,P,L,_,_) :- !,		% r		retry
 	( P=call, !, '$ilgl'(114); true),
 	'$set_value'(spy_sp,call),
 	'$set_value'(spy_sl,L),
 	write(user_error,'[ retry ]'), nl(user_error).
-'$action'(115,P,L,_) :- !,		% s		skip
+'$action'(115,P,L,_,_) :- !,		% s		skip
 	( P=call; P=redo; '$ilgl'(115) ), !,
 	'$set_value'(spy_sl,L).
-'$action'(116,P,L,_) :- !,		% t		fast skip
+'$action'(116,P,L,_,_) :- !,		% t		fast skip
 	( P=call; P=redo; '$ilgl'(116) ), !,
 	'$set_value'(spy_sl,L), '$set_value'(spy_fs,1).
-'$action'(43,_,_,G) :- !,		% +		spy this
+'$action'(43,_,_,G,_) :- !,		% +		spy this
 	functor(G,F,N), spy(F/N),
 	'$skipeol'(43), fail.
-'$action'(45,_,_,G) :- !,		% -		nospy this
+'$action'(45,_,_,G,_) :- !,		% -		nospy this
 	functor(G,F,N), nospy(F/N),
 	'$skipeol'(45), fail.
-'$action'(C,_,_,_) :- '$ilgl'(C).
+'$action'(C,_,_,_,_) :- '$ilgl'(C).
 
+
+'$action_help' :-
+	format(user_error,"newline  creep       a   abort~n", []),
+	format(user_error,"c        creep       e   exit~n", []),
+	format(user_error,"f        fail        h   help~n", []),
+	format(user_error,"l        leap        r   retry~n", []),
+	format(user_error,"s        skip        t   fastskip~n", []),
+	format(user_error,"q        quasiskip   k   quasileap~n", []),
+	format(user_error,"b        break       n   no debug~n", []),
+	format(user_error,"p        print       d   display~n", []),
+	format(user_error,"<D       depth D     <   full term~n", []),
+	format(user_error,"+        spy this    -   nospy this~n", []),
+	format(user_error,"^        view subg   ^^  view using~n", []),
+	format(user_error,"! g execute goal~n").
+	
 '$ilgl'(C) :- '$skipeol'(C), write(user_error,'[ Illegal option. Use h for help. ]'),
 	nl(user_error), fail.
 

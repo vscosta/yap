@@ -501,9 +501,9 @@ InitDebug(void)
     }
   }
 #endif
-  /* Set at half leash */
+  /* Set at full leash */
   At = LookupAtom("$leash");
-  PutValue(At, MkIntTerm(10));
+  PutValue(At, MkIntTerm(15));
 }
 
 void 
