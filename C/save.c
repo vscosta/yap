@@ -55,13 +55,14 @@ extern char     StartUpFile[];
 
 static char end_msg[256] ="*** End of YAP saved state *****";
 
+
 #ifdef DEBUG
 
 /*
  * FOR DEBUGGING define DEBUG_RESTORE0 to check the file stuff,
- * define DEBUG_RESTORE1 to see if it is able to prepare the chain,
- * define DEBUG_RESTORE2 to see how things are going,
- * define DEBUG_RESTORE3 to check if the atom chain is still a working
+define DEBUG_RESTORE1 to see if it is able to prepare the chain,
+define DEBUG_RESTORE2 to see how things are going,
+define DEBUG_RESTORE3 to check if the atom chain is still a working
  * chain,
  * define DEBUG_RESTORE4 if you want to set the output for some
  * particular file,
@@ -370,14 +371,13 @@ save_regs(int mode)
     putcellptr((CELL *)P);
     putcellptr((CELL *)MyTR);
     putout(CreepFlag);
-    putcellptr((CELL *)TopB);
-    putcellptr((CELL *)DelayedB);
     putout(FlipFlop);
-    putout(CurrentModule);
+    putout(EX);
 #ifdef COROUTINING
     putout(DelayedVars);
 #endif
   }
+  putout(CurrentModule);
   putcellptr((CELL *)HeapPlus);
   if (mode == DO_EVERYTHING) {
 #ifdef COROUTINING
@@ -669,14 +669,12 @@ get_regs(int flag)
     P = (yamop *)get_cellptr();
     MyTR = (tr_fr_ptr)get_cellptr();
     CreepFlag = get_cell();
-    TopB = (choiceptr)get_cellptr();
-    DelayedB = (choiceptr)get_cellptr();
     FlipFlop = get_cell();
-    CurrentModule = get_cell();
 #ifdef COROUTINING
     DelayedVars = get_cell();
 #endif
   }
+  CurrentModule = get_cell();
   HeapPlus = (ADDR)get_cellptr();
   if (flag == DO_EVERYTHING) {
 #ifdef COROUTINING
@@ -879,13 +877,17 @@ restore_codes(void)
   heap_regs->failcode_4 = opcode(_op_fail);
   heap_regs->failcode_5 = opcode(_op_fail);
   heap_regs->failcode_6 = opcode(_op_fail);
+
+  heap_regs->env_for_trustfail_code.op = opcode(_call);
   heap_regs->trustfailcode = opcode(_trust_fail);
-  heap_regs->yescode = opcode(_Ystop);
-#ifdef YAPOR
+
+  heap_regs->env_for_yes_code.op = opcode(_call);
+  heap_regs->yescode.opc = opcode(_Ystop);
+  heap_regs->undef_op = opcode(_undef_p);
+  heap_regs->index_op = opcode(_index_pred);
   heap_regs->nocode.opc = opcode(_Nstop);
+#ifdef YAPOR
   INIT_YAMOP_LTT(&(heap_regs->nocode), 1);
-#else
-  heap_regs->nocode = opcode(_Nstop);
 #endif  /* YAPOR */
 
 #ifdef YAPOR
@@ -936,8 +938,6 @@ restore_codes(void)
     heap_regs->atprompt =
       AtomAdjust(heap_regs->atprompt);
   }
-  heap_regs->undef_op = opcode(_undef_p);
-  heap_regs->index_op = opcode(_index_pred);
   if (heap_regs->char_conversion_table != NULL) {
     heap_regs->char_conversion_table = (char *)
       AddrAdjust((ADDR)heap_regs->char_conversion_table);
@@ -1526,13 +1526,12 @@ DirectCCodeAdjust(PredEntry *pe)
 {
   /* add this code to a list of ccalls that must be adjusted */
   unsigned int i;
-  
   for (i = 0; i < NUMBER_OF_CMPFUNCS; i++) {
     if (cmp_funcs[i].p == pe) {
       return((CODEADDR)(cmp_funcs[i].f));
     }
   }
-  Error(FATAL_ERROR,TermNil,"bad saved state, system corrupted");
+  Error(FATAL_ERROR,TermNil,"bad saved state, ccalls corrupted");
   return(NULL);
 }
 
@@ -2421,6 +2420,7 @@ CleanCode(PredEntry *pp)
   CELL            flag;
   CODEADDR        FirstC, LastC;
 
+
   /* Init takes care of the first 2 cases */
   if (pp->ArityOfPE)
     pp->FunctorOfPred = FuncAdjust(pp->FunctorOfPred);
@@ -2440,8 +2440,10 @@ CleanCode(PredEntry *pp)
 	  pp->CodeOfPred = (CODEADDR)AddrAdjust((ADDR)(pp->CodeOfPred));
       } else {
 	/* comparison */
-	pp->CodeOfPred = CCodeAdjust(pp);
-	pp->TrueCodeOfPred = DirectCCodeAdjust(pp);
+	if (pp->PredFlags & BinaryTestPredFlag) {
+	  pp->CodeOfPred = CCodeAdjust(pp);
+	  pp->TrueCodeOfPred = DirectCCodeAdjust(pp);
+	}
       }
     }
   } else {
@@ -2484,8 +2486,14 @@ RestoreEntries(PropEntry *pp)
     case FunctorProperty:
       {
 	FunctorEntry *fe = (FunctorEntry *)pp;
+	Prop p0;
 	fe->NameOfFE =
 	  AtomAdjust(fe->NameOfFE);
+	p0 = fe->PropsOfFE;
+	while (!EndOfPAEntr(p0)) {
+	  CleanCode(RepPredProp(p0));
+	  p0 = RepPredProp(p0)->NextOfPE;
+	}
       }
       break;
     case ValProperty:
@@ -2905,7 +2913,7 @@ UnmarkTrEntries(void)
   /* initialise a choice point */
   B = (choiceptr)LCL0;
   B--;
-  B->cp_ap = (yamop *)NOCODE;
+  B->cp_ap = NOCODE;
   Entries = (CELL *)TrailBase;
   while ((entry = *Entries++) != (CELL)NULL) {
     if (IsVarTerm(entry)) {
