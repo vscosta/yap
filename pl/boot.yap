@@ -750,12 +750,11 @@ not(A) :-
 '$call'(A, _, _,CurMod) :-
 	(
 	  % goal_expansion is defined, or
-	  '$pred_goal_expansion_on' ->
+	'$pred_goal_expansion_on' ->
 	  '$expand_call'(A,CurMod)
-        ;
-          % this is a meta-predicate
-	  '$flags'(A,CurMod,F,_), F /\ 0x200000 =:= 0x200000 ->
-	  '$expand_call'(A,CurMod)
+        % this is a meta-predicate
+        ; '$flags'(A,CurMod,F,_), F /\ 0x200000 =:= 0x200000 ->
+	  '$expand_call'(A, CurMod)
 	;
 	  '$execute0'(A, CurMod)
 	).

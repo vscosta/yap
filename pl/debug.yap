@@ -498,7 +498,7 @@ debugging :-
         CP is '$last_choice_pt',
 	functor(G,F,N),
 	(
-	    '$meta_predicate'(F,M,N,_) ->
+	'$meta_predicate'(F,M,N,_) ->
 	    '$setflop'(1),
 	    '$creep',
 	    % I need to use call, otherwise I'll be in trouble if G
@@ -553,10 +553,10 @@ debugging :-
 	D1 is D0-1.
 
 '$do_execute_dynamic_clause'(G,M,Clause) :-
+	Clause = (G :- Body),
 	'$check_depth_for_interpreter'(D),
 	('$undefined'('$set_depth_limit'(_),prolog) -> true ; '$set_depth_limit'(D)),
         CP is '$last_choice_pt',
-	Clause = (G :- Body),
 	( Body = true -> true ; '$call'(Body,CP,Body,M) ).
 
 '$do_creep_execute'(G,M,Cl) :-

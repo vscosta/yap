@@ -1508,8 +1508,9 @@ CreateDBStruct(Term Tm, DBProp p, int InFlag)
       while (ptr != tofref)
 	*rfnar++ = *--ptr;
       pp->u.DBRefs = rfnar;
-
-    }
+    } else {
+      pp->u.DBRefs = NULL;
+    }      
     Yap_ReleasePreAllocCodeSpace((ADDR)pp0);
     return (pp);
   }
@@ -1768,30 +1769,31 @@ p_rcdap(void)
   Term            TRef, t1 = Deref(ARG1), t2 = Deref(ARG2);
 
   if (!IsVarTerm(Deref(ARG3)))
-    return (FALSE);
+    return FALSE;
  restart_record:
   TRef = MkDBRefTerm(record(MkFirst | MkCode, t1, t2, Unsigned(0)));
   switch(DBErrorFlag) {
   case NO_ERROR_IN_DB:
-    return (Yap_unify(ARG3, TRef));
+    return Yap_unify(ARG3, TRef);
   case SOVF_ERROR_IN_DB:
     if (!Yap_gc(3, ENV, P)) {
       Yap_Error(OUT_OF_STACK_ERROR, TermNil, Yap_ErrorMessage);
-      return(FALSE);
+      return FALSE;
     }
     goto recover_record;
   case TOVF_ERROR_IN_DB:
     Yap_Error(SYSTEM_ERROR, TermNil, "YAP could not grow trail in recorda/3");
-    return(FALSE);
+    return FALSE;
   case OVF_ERROR_IN_DB:
     if (!Yap_growheap(FALSE)) {
       Yap_Error(SYSTEM_ERROR, TermNil, Yap_ErrorMessage);
-      return(FALSE);
-    } else
+      return FALSE;
+    } else {
       goto recover_record;
+    }
   default:
     Yap_Error(DBErrorNumber, DBErrorTerm, DBErrorMsg);
-    return(FALSE);
+    return FALSE;
   }
  recover_record:
   DBErrorFlag = NO_ERROR_IN_DB;
@@ -3750,7 +3752,8 @@ PrepareToEraseLogUpdClause(Clause *clau, DBRef dbr)
 
 static void 
 PrepareToEraseClause(Clause *clau, DBRef dbr)
-{  yamop          *code_p;
+{
+  yamop          *code_p;
 
   /* no need to erase what has been erased */ 
   if (clau->ClFlags & ErasedMask)
@@ -3900,7 +3903,7 @@ EraseEntry(DBRef entryref)
   entryref->Next = NIL;
   if (!DBREF_IN_USE(entryref)) {
     ErDBE(entryref);
-  } else if ((entryref->Flags & DBCode && entryref->u.Code)) {
+  } else if ((entryref->Flags & DBCode) && entryref->u.Code) {
     PrepareToEraseClause(ClauseCodeToClause(entryref->u.Code), entryref);
   }
 }
