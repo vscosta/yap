@@ -23,7 +23,8 @@
 	sublist/2,
 	substitute/4,
 	suffix/2,
-	sumlist/2
+	sumlist/2,
+        list_concat/2
 	]).
 
 
@@ -265,5 +266,24 @@ sumlist([], Total, Total).
 sumlist([Head|Tail], Sofar, Total) :-
 	Next is Sofar+Head,
 	sumlist(Tail, Next, Total).
+
+
+%   list_concat(Lists, List)
+%   is true when Lists is a list of lists, and List is the
+%   concatenation of these lists.
+
+list_concat(Lists, List) :-
+	list_concat(Lists, [], List).
+
+list_concat([], []).
+list_concat([H|T], L) :-
+	list_concat(H, L, Li),
+	list_concat(T, Li).
+
+list_concat([], L, L).
+list_concat([H|T], [H|Lf], Li) :-
+	list_concat(T, Lf, Li).
+
+
 
 

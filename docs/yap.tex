@@ -2393,6 +2393,14 @@ The predicate holds when at least one of the arguments is ground
 be unified with an atom and @var{L} with the list of the ASCII
 codes for the characters of the external representation of @var{A}.
 
+@item atom_concat(+@var{As},?@var{A})
+@findex atom_concat/2
+@snindex atom_concat/2
+@cnindex atom_concat/2
+The predicate holds when the first argument is a list of atoms, and the
+second unifies with the atom obtained by concatenating all the atoms in
+the first list.
+
 @item atom_length(+@var{A},?@var{I}) [ISO]
 @findex atom_length/2
 @snindex atom_length/2
@@ -5676,6 +5684,12 @@ reading terms. The default value for this flag is @code{off} except in
 @code{on}, or disabled, @code{off}. The default value for this flag is
 @code{on}.
 
+@c You can also use @code{cprolog} mode, which corresponds to @code{off},
+@c @code{iso} mode, which corresponds to @code{on}, and @code{sicstus}
+@c mode, which corresponds to the mode traditionally used in SICStus
+@c Prolog. In this mode back-quoted escape sequences should not close with
+@c a backquote and unrecognised escape codes do not result in error.
+
 @item debug [ISO]
 @findex debug (yap_flag/2 option)
 @*
@@ -5946,6 +5960,11 @@ the current @code{user_output} stream.
 
 By default, the @code{user_output} stream is set to a stream
 corresponding to the Unix @code{stdout} stream.
+
+@item version
+@findex version (yap_flag/2 option)
+@*
+Read-only flag that giving the current version of Yap.
 
 @item write_strings
 @findex  write_strings (yap_flag/2 option)
@@ -6334,6 +6353,13 @@ is bound to the empty list (nil) or a term with functor '.' and arity 2.
 @syindex last/2
 @cnindex last/2
 True when @var{List} is a list and @var{Last} is identical to its last element.
+
+@item list_concat(+@var{Lists},?@var{List})
+@findex list_concat/2
+@snindex list_concat/2
+@cnindex list_concat/2
+True when @var{Lists} is a list of lists and @var{List} is the
+concatenation of @var{Lists}.
 
 @item member(?@var{Element}, ?@var{Set})
 @findex member/2

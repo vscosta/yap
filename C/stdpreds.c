@@ -630,6 +630,67 @@ p_atom_chars(void)
 }
 
 static Int 
+p_atom_concat(void)
+{
+  Term t1 = Deref(ARG1);
+  char *cptr = (char *)PreAllocCodeSpace(), *cpt0;
+  char *top = (char *)AuxSp;
+  char *atom_str;
+  UInt sz;
+
+ restart:
+  cpt0 = cptr;
+  /* we need to have a list */
+  if (IsVarTerm(t1)) {
+    ReleasePreAllocCodeSpace((ADDR)cpt0);
+    Error(INSTANTIATION_ERROR, ARG1, "atom_concat/2");
+    return(FALSE);
+  }
+  while (IsPairTerm(t1)) {
+    Term thead = HeadOfTerm(t1);
+    if (IsVarTerm(thead)) {
+      ReleasePreAllocCodeSpace((ADDR)cpt0);
+      Error(INSTANTIATION_ERROR, ARG1, "atom_concat/2");
+      return(FALSE);
+    }
+    if (!IsAtomTerm(thead)) {
+      ReleasePreAllocCodeSpace((ADDR)cpt0);
+      Error(TYPE_ERROR_ATOM, ARG1, "atom_concat/2");
+      return(FALSE);
+    }
+    atom_str = RepAtom(AtomOfTerm(thead))->StrOfAE;
+    /* check for overflows */
+    sz = strlen(atom_str);
+    if (cptr+sz >= top-1024) {
+      ReleasePreAllocCodeSpace((ADDR)cpt0);
+      if (!growheap(FALSE)) {
+	Abort("[ SYSTEM ERROR: YAP could not grow heap in recorda/3 ]\n");
+	return(FALSE);
+      }
+      goto restart;
+    }
+    memcpy((void *)cptr, (void *)atom_str, sz);
+    cptr += sz;
+    t1 = TailOfTerm(t1);
+    if (IsVarTerm(t1)) {
+      ReleasePreAllocCodeSpace((ADDR)cpt0);
+      Error(INSTANTIATION_ERROR, ARG1, "atom_concat/2");
+      return(FALSE);
+    }
+  }
+  if (t1 == TermNil) {
+    Term tout;
+    cptr[0] = '\0';
+    ReleasePreAllocCodeSpace((ADDR)cpt0);
+    tout = MkAtomTerm(LookupAtom(cpt0));
+    return(unify(ARG2, tout));
+  }
+  ReleasePreAllocCodeSpace((ADDR)cpt0);
+  Error(TYPE_ERROR_LIST, ARG1, "atom_concat/2");
+  return(FALSE);
+}
+
+static Int 
 p_atom_codes(void)
 {
   Term t1 = Deref(ARG1);
@@ -2090,7 +2151,9 @@ p_set_yap_flags(void)
     yap_flags[SOURCE_MODE_FLAG] = value;
     break;
   case CHARACTER_ESCAPE_FLAG:
-    if (value != ISO_CHARACTER_ESCAPES && value != CPROLOG_CHARACTER_ESCAPES)
+    if (value != ISO_CHARACTER_ESCAPES
+	&& value != CPROLOG_CHARACTER_ESCAPES
+	&& value != SICSTUS_CHARACTER_ESCAPES)
       return(FALSE);
     yap_flags[CHARACTER_ESCAPE_FLAG] = value;
     break;
@@ -2161,6 +2224,7 @@ InitCPreds(void)
   InitCPred("number_chars", 2, p_number_chars, SafePredFlag);
   InitCPred("number_atom", 2, p_number_atom, SafePredFlag);
   InitCPred("number_codes", 2, p_number_codes, SafePredFlag);
+  InitCPred("atom_concat", 2, p_atom_concat, SafePredFlag);
   InitCPred("=..", 2, p_univ, SafePredFlag);
   InitCPred("$statistics_trail_max", 1, p_statistics_trail_max, SafePredFlag|SyncPredFlag);
   InitCPred("$statistics_heap_max", 1, p_statistics_heap_max, SafePredFlag|SyncPredFlag);

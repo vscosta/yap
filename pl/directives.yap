@@ -192,6 +192,12 @@ yap_flag(max_arity,X) :-
 yap_flag(max_arity,X) :-
 	throw(error(domain_error(flag_value,max_arity+X),yap_flag(max_arity,X))).
 
+yap_flag(version,X) :-
+	var(X), !,
+	'$get_value'('$version_name',X).
+yap_flag(version,X) :-
+	throw(error(permission_error(modify,flag,version),yap_flag(version,X))).
+
 yap_flag(max_integer,X) :-
 	var(X), !,
 	'$access_yap_flags'(0, 1),
@@ -401,12 +407,18 @@ yap_flag(to_chars_mode,X) :-
 yap_flag(character_escapes,X) :-
 	var(X), !,
 	'$access_yap_flags'(12,Y),	
-	'$transl_to_on_off'(Y,X).
+	'$transl_to_character_escape_modes'(Y,X).
 yap_flag(character_escapes,X) :- !,
-	'$transl_to_on_off'(Y,X), !,
+	'$transl_to_character_escape_modes'(Y,X), !,
 	'$set_yap_flags'(12,Y).
 yap_flag(character_escapes,X) :-
 	throw(error(domain_error(flag_value,character_escapes+X),yap_flag(to_chars_mode,X))).
+
+'$transl_to_character_escape_modes'(0,off) :- !.
+'$transl_to_character_escape_modes'(0,cprolog).
+'$transl_to_character_escape_modes'(1,on) :- !.
+'$transl_to_character_escape_modes'(1,iso).
+'$transl_to_character_escape_modes'(2,sicstus).
 
 yap_flag(update_semantics,X) :-
 	var(X), !,
@@ -547,6 +559,7 @@ yap_flag(host_type,X) :-
             V = user_error ;
 	    V = user_input ;
             V = user_output ;
+            V = version ;
             V = write_strings
 	),
 	yap_flag(V, Out).

@@ -6,6 +6,11 @@
 
 <H2 ALIGN=CENTER>Yap-4.3.19:</H2>
 <UL>
+      <LI> NEW: prolog_flag(version,X).
+      <LI> FIXED: understand 0'\ escape sequences.
+      <LI> NEW: atom_concat/2 (idea from ciao).
+      <LI> NEW: list_concat/2 in library(lists) (idea from ciao).
+      <LI> NEW: allow profile early reset in garbage collector.
       <LI> FIXED: call_residue should *unify* back constraints *after*
       restoring original suspension lists.
       <LI> FIXED: include Mandrake's $(DESTDIR) patches in Makefiles

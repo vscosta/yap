@@ -269,6 +269,111 @@ get_num(void)
     if (base == 0) {
       Int ascii = ch;
 
+      if (ch == '\\' &&
+	  yap_flags[CHARACTER_ESCAPE_FLAG] != CPROLOG_CHARACTER_ESCAPES) {
+	/* escape sequence */
+	ch = my_get_quoted_ch();
+	switch (ch) {
+	case 'a':
+	  ascii = '\a';
+	  break;
+	case 'b':
+	  ascii = '\b';
+	  break;
+	case 'r':
+	  ascii = '\r';
+	  break;
+	case 'f':
+	  ascii = '\f';
+	  break;
+	case 't':
+	  ascii = '\t';
+	  break;
+	case 'n':
+	  ascii = '\n';
+	  break;
+	case 'v':
+	  ascii = '\v';
+	  break;
+	case '\\':
+	  ascii = '\\';
+	  break;
+	case '\'':
+	  ascii = '\'';
+	  break;
+	case '"':
+	  ascii = '"';
+	  break;
+	case '`':
+	  ascii = '`';
+	  break;
+	case '0':
+	case '1':
+	case '2':
+	case '3':
+	case '4':
+	case '5':
+	case '6':
+	case '7':
+	  /* character in octal: maximum of 3 digits, terminates with \ */
+	  {
+	    unsigned char so_far = ch-'0';
+	    my_get_quoted_ch();
+	    if (ch >= '0' && ch < '8') {/* octal */
+	      so_far = so_far*8+(ch-'0');
+	      my_get_quoted_ch();
+	      if (ch >= '0' && ch < '8') { /* octal */
+		ascii = so_far*8+(ch-'0');
+		my_get_quoted_ch();
+		if (ch != '\\') {
+		  ErrorMessage = "invalid octal escape sequence";
+		}
+	      } else if (ch == '\\') {
+		ascii = so_far;
+	      } else {
+		ErrorMessage = "invalid octal escape sequence";
+	      }
+	    } else if (ch == '\\') {
+	      ascii = so_far;
+	    } else {
+	      ErrorMessage = "invalid octal escape sequence";
+	    }
+	  }
+	  break;
+	case 'x':
+	  /* hexadecimal character (YAP allows empty hexadecimal  */
+	  {
+	    unsigned char so_far = 0; 
+	    my_get_quoted_ch();
+	    if (my_isxdigit(ch,'f','F')) {/* hexa */
+	      so_far = so_far * 16 + (chtype[ch] == NU ? ch - '0' :
+				      (my_isupper(ch) ? ch - 'A' : ch - 'a') + 10);
+	      my_get_quoted_ch();
+	      if (my_isxdigit(ch,'f','F')) { /* hexa */
+		ascii = so_far * 16 + (chtype[ch] == NU ? ch - '0' :
+					  (my_isupper(ch) ? ch - 'A' : ch - 'a') + 10);
+		my_get_quoted_ch();
+		if (ch != '\\') {
+		  ErrorMessage = "invalid hexadecimal escape sequence";
+		}
+	      } else if (ch == '\\') {
+		ascii = so_far;
+	      } else {
+		ErrorMessage = "invalid hexadecimal escape sequence";
+	      } 
+	    } else if (ch == '\\') {
+	      ascii = so_far;
+	      my_get_quoted_ch();
+	    }
+	  }
+	  break;
+	default:
+	  /* accept sequence. Note that the ISO standard does not
+	     consider this sequence legal, whereas SICStus would
+	     eat up the escape sequence. */
+	  ErrorMessage = "invalid escape sequence";
+	}
+      }
       /* a quick way to represent ASCII */
       my_getch();
       return (MkIntTerm(ascii));
@@ -886,6 +991,113 @@ fast_tokenizer(void)
 	       * a quick way to
 	       * represent ASCII 
 	       */
+	      if (ch == '\\' &&
+		  yap_flags[CHARACTER_ESCAPE_FLAG] != CPROLOG_CHARACTER_ESCAPES) {
+		/* escape sequence */
+		ch = my_fgetch();
+		switch (ch) {
+		case 'a':
+		  ascii = '\a';
+		  break;
+		case 'b':
+		  ascii = '\b';
+		  break;
+		case 'r':
+		  ascii = '\r';
+		  break;
+		case 'f':
+		  ascii = '\f';
+		  break;
+		case 't':
+		  ascii = '\t';
+		  break;
+		case 'n':
+		  ascii = '\n';
+		  break;
+		case 'v':
+		  ascii = '\v';
+		  break;
+		case '\\':
+		  ascii = '\\';
+		  break;
+		case '\'':
+		  ascii = '\'';
+		  break;
+		case '"':
+		  ascii = '"';
+		  break;
+		case '`':
+		  ascii = '`';
+		  break;
+		case '0':
+		case '1':
+		case '2':
+		case '3':
+		case '4':
+		case '5':
+		case '6':
+		case '7':
+		  /* character in octal: maximum of 3 digits, terminates with \ */
+		  {
+		    unsigned char so_far = ch-'0';
+		    my_fgetch();
+		    if (ch >= '0' && ch < '8') {/* octal */
+		      so_far = so_far*8+(ch-'0');
+		      my_fgetch();
+		      if (ch >= '0' && ch < '8') { /* octal */
+			ascii = so_far*8+(ch-'0');
+			my_fgetch();
+			if (ch != '\\') {
+			  ErrorMessage = "invalid octal escape sequence";
+			}
+		      } else if (ch == '\\') {
+			ascii = so_far;
+		      } else {
+			ErrorMessage = "invalid octal escape sequence";
+		      }
+		    } else if (ch == '\\') {
+		      ascii = so_far;
+		    } else {
+		      ErrorMessage = "invalid octal escape sequence";
+		    }
+		  }
+		  break;
+		case 'x':
+		  /* hexadecimal character (YAP allows empty hexadecimal  */
+		  {
+		    unsigned char so_far = 0; 
+		    my_fgetch();
+		    if (my_isxdigit(ch,'f','F')) {/* hexa */
+		      so_far = so_far * 16 + (chtype[ch] == NU ? ch - '0' :
+					      (my_isupper(ch) ? ch - 'A' : ch - 'a') + 10);
+		      my_fgetch();
+		      if (my_isxdigit(ch,'f','F')) { /* hexa */
+			ascii = so_far * 16 + (chtype[ch] == NU ? ch - '0' :
+					       (my_isupper(ch) ? ch - 'A' : ch - 'a') + 10);
+			my_fgetch();
+			if (ch != '\\') {
+			  ErrorMessage = "invalid hexadecimal escape sequence";
+			}
+		      } else if (ch == '\\') {
+			ascii = so_far;
+		      } else {
+			ErrorMessage = "invalid hexadecimal escape sequence";
+		      } 
+		    } else if (ch == '\\') {
+		      ascii = so_far;
+		      my_fgetch();
+		    } else {
+		      ErrorMessage = "invalid hexadecimal escape sequence";
+		    }
+		  }
+		  break;
+		default:
+		  /* accept sequence. Note that the ISO standard does not
+		     consider this sequence legal, whereas SICStus would
+		     eat up the escape sequence. */
+		  ErrorMessage = "invalid escape sequence";
+		}
+	      }
 	      my_fgetch();
 	      TokenInfo = (CELL) MkIntTerm(ascii);
 	      goto end_of_read_number;

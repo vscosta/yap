@@ -22,6 +22,7 @@ static char     SccsId[] = "%W% %G%";
 #include "yapio.h"
 
 
+/* #define EARLY_RESET 1 */
 /* #define SIMPLE_SHUNTING 1 */
 
 #ifdef MULTI_ASSIGNMENT_VARIABLES
@@ -1025,6 +1026,7 @@ mark_trail(tr_fr_ptr trail_ptr, tr_fr_ptr trail_base, CELL *gc_H, choiceptr gc_B
 	 we must use gc_H to avoid trouble with dangling variables
 	 in the heap */
       if (((hp < gc_H   && hp >= H0) || (hp > (CELL *)gc_B && hp < LCL0) ) && !MARKED(*hp)) {
+#ifdef EARLY_RESET
 	/* reset to be a variable */
 	RESET_VARIABLE(hp);
 	discard_trail_entries++;
@@ -1032,6 +1034,10 @@ mark_trail(tr_fr_ptr trail_ptr, tr_fr_ptr trail_base, CELL *gc_H, choiceptr gc_B
 #ifdef FROZEN_REGS
 	RESET_VARIABLE(&TrailVal(trail_ptr));
 #endif
+#else
+	/* if I have no early reset I have to follow the trail chain */
+	mark_external_reference(&TrailTerm(trail_ptr));	
+#endif /* EARLY_RESET */
       } else {
 	if (hp < (CELL *)HeapTop) {
 	  /* I decided to allow pointers from the Heap back into the trail.
