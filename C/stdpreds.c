@@ -821,64 +821,62 @@ static Int
 p_number_chars(void)
 {
   char   *String = (char *)TR; /* alloc temp space on Trail */
-  register Term   t = Deref(ARG2);
+  register Term   t = Deref(ARG2), t1 = Deref(ARG1);
   Term NewT;
   register char  *s = String;
 
-  if (IsVarTerm(t)) {
-    Term t1 = Deref(ARG1);
-    if (IsVarTerm(t1)) {
-      Error(INSTANTIATION_ERROR, t1, "number_chars/2");
-      return(FALSE);		
-    } else {
-      Term            NewT;
-      if (!IsNumTerm(t1)) {
-	Error(TYPE_ERROR_NUMBER, t1, "number_chars/2");
-	return(FALSE);
-      } else if (IsIntTerm(t1)) {
+  if (IsNonVarTerm(t1)) {
+    Term            NewT;
+    if (!IsNumTerm(t1)) {
+      Error(TYPE_ERROR_NUMBER, t1, "number_chars/2");
+      return(FALSE);
+    } else if (IsIntTerm(t1)) {
 #if SHORT_INTS
-	sprintf(String, "%ld", IntOfTerm(t1));
+      sprintf(String, "%ld", IntOfTerm(t1));
 #else
-	sprintf(String, "%d", IntOfTerm(t1));
+      sprintf(String, "%d", IntOfTerm(t1));
 #endif
-	if (yap_flags[YAP_TO_CHARS_FLAG] == QUINTUS_TO_CHARS) {
-	  NewT = StringToList(String);
-	} else {
-	  NewT = StringToListOfAtoms(String);
-	}
-	return (unify(NewT, ARG2));
-      } else if (IsFloatTerm(t1)) {
-	sprintf(String, "%f", FloatOfTerm(t1));
-	if (yap_flags[YAP_TO_CHARS_FLAG] == QUINTUS_TO_CHARS) {
-	  NewT = StringToList(String);
-	} else {
-	  NewT = StringToListOfAtoms(String);
-	}
-	return (unify(NewT, ARG2));
-      } else if (IsLongIntTerm(t1)) {
-#if SHORT_INTS
-	sprintf(String, "%ld", LongIntOfTerm(t1));
-#else
-	sprintf(String, "%d", LongIntOfTerm(t1));
-#endif
-	if (yap_flags[YAP_TO_CHARS_FLAG] == QUINTUS_TO_CHARS) {
-	  NewT = StringToList(String);
-	} else {
-	  NewT = StringToListOfAtoms(String);
-	}
-	return (unify(NewT, ARG2));
-#if USE_GMP
-      } else if (IsBigIntTerm(t1)) {
-	mpz_get_str(String, 10, BigIntOfTerm(t1));
-	if (yap_flags[YAP_TO_CHARS_FLAG] == QUINTUS_TO_CHARS) {
-	  NewT = StringToList(String);
-	} else {
-	  NewT = StringToListOfAtoms(String);
-	}
-	return (unify(NewT, ARG2));
-#endif
+      if (yap_flags[YAP_TO_CHARS_FLAG] == QUINTUS_TO_CHARS) {
+	NewT = StringToList(String);
+      } else {
+	NewT = StringToListOfAtoms(String);
       }
+      return (unify(NewT, ARG2));
+    } else if (IsFloatTerm(t1)) {
+      sprintf(String, "%f", FloatOfTerm(t1));
+      if (yap_flags[YAP_TO_CHARS_FLAG] == QUINTUS_TO_CHARS) {
+	NewT = StringToList(String);
+      } else {
+	NewT = StringToListOfAtoms(String);
+      }
+      return (unify(NewT, ARG2));
+    } else if (IsLongIntTerm(t1)) {
+#if SHORT_INTS
+      sprintf(String, "%ld", LongIntOfTerm(t1));
+#else
+      sprintf(String, "%d", LongIntOfTerm(t1));
+#endif
+      if (yap_flags[YAP_TO_CHARS_FLAG] == QUINTUS_TO_CHARS) {
+	NewT = StringToList(String);
+      } else {
+	NewT = StringToListOfAtoms(String);
+      }
+      return (unify(NewT, ARG2));
+#if USE_GMP
+    } else if (IsBigIntTerm(t1)) {
+      mpz_get_str(String, 10, BigIntOfTerm(t1));
+      if (yap_flags[YAP_TO_CHARS_FLAG] == QUINTUS_TO_CHARS) {
+	NewT = StringToList(String);
+      } else {
+	NewT = StringToListOfAtoms(String);
+      }
+      return (unify(NewT, ARG2));
+#endif
     }
+  }
+  if (IsVarTerm(t)) {
+    Error(INSTANTIATION_ERROR, t1, "number_chars/2");
+    return(FALSE);		
   }
   if (t == TermNil) {
     return (FALSE);
@@ -956,49 +954,49 @@ static Int
 p_number_atom(void)
 {
   char   *String = (char *)TR; /* alloc temp space on Trail */
-  register Term   t = Deref(ARG2);
+  register Term   t = Deref(ARG2), t1 = Deref(ARG1);
   Term NewT;
   register char  *s = String;
 
-  if (IsVarTerm(t)) {
-    Term t1 = Deref(ARG1);
-    if (IsVarTerm(t1)) {
-      Error(INSTANTIATION_ERROR, t1, "number_chars/2");
-      return(FALSE);		
-    } else {
+  if (IsNonVarTerm(t1)) {
+    if (IsIntTerm(t1)) {
       Term            NewT;
-
-      if (IsIntTerm(t1)) {
 #if SHORT_INTS
-	sprintf(String, "%ld", IntOfTerm(t1));
+      sprintf(String, "%ld", IntOfTerm(t1));
 #else
-	sprintf(String, "%d", IntOfTerm(t1));
+      sprintf(String, "%d", IntOfTerm(t1));
 #endif
-	NewT = MkAtomTerm(LookupAtom(String));
-	return (unify(NewT, ARG2));
-      } else if (IsFloatTerm(t1)) {
-	sprintf(String, "%f", FloatOfTerm(t1));
-	NewT = MkAtomTerm(LookupAtom(String));
-	return (unify(NewT, ARG2));
-      } else if (IsLongIntTerm(t1)) {
+      NewT = MkAtomTerm(LookupAtom(String));
+      return (unify(NewT, ARG2));
+    } else if (IsFloatTerm(t1)) {
+      Term            NewT;
+      sprintf(String, "%f", FloatOfTerm(t1));
+      NewT = MkAtomTerm(LookupAtom(String));
+      return (unify(NewT, ARG2));
+    } else if (IsLongIntTerm(t1)) {
+      Term            NewT;
 #if SHORT_INTS
-	sprintf(String, "%ld", LongIntOfTerm(t1));
+      sprintf(String, "%ld", LongIntOfTerm(t1));
 #else
-	sprintf(String, "%d", LongIntOfTerm(t1));
+      sprintf(String, "%d", LongIntOfTerm(t1));
 #endif
-	NewT = MkAtomTerm(LookupAtom(String));
-	return (unify(NewT, ARG2));
+      NewT = MkAtomTerm(LookupAtom(String));
+      return (unify(NewT, ARG2));
 #if USE_GMP
-      } else if (IsBigIntTerm(t1)) {
-	mpz_get_str(String, 10, BigIntOfTerm(t1));
-	NewT = MkAtomTerm(LookupAtom(String));
-	return (unify(NewT, ARG2));
+    } else if (IsBigIntTerm(t1)) {
+      Term            NewT;
+      mpz_get_str(String, 10, BigIntOfTerm(t1));
+      NewT = MkAtomTerm(LookupAtom(String));
+      return (unify(NewT, ARG2));
 #endif
-      } else {
-	Error(TYPE_ERROR_NUMBER, t1, "number_atom/2");
-	return(FALSE);
-      }
+    } else {
+      Error(TYPE_ERROR_NUMBER, t1, "number_atom/2");
+      return(FALSE);
     }
+  }
+  if (IsVarTerm(t)) {
+      Error(INSTANTIATION_ERROR, t, "number_chars/2");
+      return(FALSE);		
   }
   if (t == TermNil) {
     return (FALSE);
@@ -1019,22 +1017,12 @@ static Int
 p_number_codes(void)
 {
   char   *String = (char *)TR; /* alloc temp space on Trail */
-  register Term   t = Deref(ARG2);
+  register Term   t = Deref(ARG2), t1 = Deref(ARG1);
   Term NewT;
   register char  *s = String;
 
-  if (IsVarTerm(t)) {
-    Term t1;
-    Term            NewT;
-
-    if (IsVarTerm(t1 = Deref(ARG1))) {
-      Error(INSTANTIATION_ERROR, t1, "number_codes/2");
-      return(FALSE);		
-    }
-    if (!IsNumTerm(t1)) {
-      Error(TYPE_ERROR_NUMBER, t1, "number_codes/2");
-      return(FALSE);
-    } else if (IsIntTerm(t1)) {
+  if (IsNonVarTerm(t1)) {
+    if (IsIntTerm(t1)) {
 #if SHORT_INTS
       sprintf(String, "%ld", IntOfTerm(t1));
 #else
@@ -1055,12 +1043,18 @@ p_number_codes(void)
       NewT = StringToList(String);
       return (unify(NewT, ARG2));
 #if USE_GMP
-      } else if (IsBigIntTerm(t1)) {
-	mpz_get_str(String, 10, BigIntOfTerm(t1));
-	NewT = StringToList(String);
-	return (unify(NewT, ARG2));
+    } else if (IsBigIntTerm(t1)) {
+      mpz_get_str(String, 10, BigIntOfTerm(t1));
+      NewT = StringToList(String);
+      return (unify(NewT, ARG2));
 #endif
+    } else {
+      Error(TYPE_ERROR_NUMBER, t1, "number_codes/2");
+      return(FALSE);
     }
+  }
+  if (IsVarTerm(t)) {
+    Error(INSTANTIATION_ERROR, t, "number_codes/2");
   }
   if (t == TermNil) {
     return (FALSE);
