@@ -348,9 +348,9 @@ retract(C,R) :-
 	functor(C, Na, Ar).
 	
 
-retractall(M:V) :-
+retractall(M:V) :- !,
 	'$retractall'(V,M).
-retractall(V) :- !,
+retractall(V) :-
 	'$current_module'(M),
 	'$retractall'(V,M).
 
