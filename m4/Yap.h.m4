@@ -10,7 +10,7 @@
 * File:		Yap.h.m4						 *
 * mods:									 *
 * comments:	main header file for YAP				 *
-* version:      $Id: Yap.h.m4,v 1.17 2002-01-15 17:55:50 stasinos Exp $	 *
+* version:      $Id: Yap.h.m4,v 1.18 2002-01-27 20:40:10 vsc Exp $	 *
 *************************************************************************/
 
 #include "config.h"
@@ -482,7 +482,8 @@ typedef enum {
   CHARACTER_ESCAPE_FLAG = 12,
   WRITE_QUOTED_STRING_FLAG = 13,
   ALLOW_ASSERTING_STATIC_FLAG = 14,
-  HALT_AFTER_CONSULT_FLAG = 15
+  HALT_AFTER_CONSULT_FLAG = 15,
+  FAST_BOOT_FLAG = 16
 } yap_flags;
 
 #define STRING_AS_CHARS		0

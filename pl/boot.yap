@@ -87,9 +87,13 @@ read_sig.
 		'$current_module'(_,prolog)
 	    ;
 		'$current_module'(_,V), '$compile_mode'(_,0),
-		( exists('~/.yaprc') -> [-'~/.yaprc'] ; true ),
-		( exists('~/.prologrc') -> [-'~/.prologrc'] ; true ),
-		( exists('~/prolog.ini') -> [-'~/prolog.ini'] ; true )
+		('$access_yap_flags'(16,0) ->
+		    ( exists('~/.yaprc') -> [-'~/.yaprc'] ; true ),
+		    ( exists('~/.prologrc') -> [-'~/.prologrc'] ; true ),
+		    ( exists('~/prolog.ini') -> [-'~/prolog.ini'] ; true )
+		;
+		    true
+		)
 	    ),
 	    '$db_clean_queues'(0),
 	    '$startup_reconsult',

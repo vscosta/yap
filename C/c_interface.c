@@ -665,6 +665,7 @@ YapInit(yap_init_args *yap_init)
   } else {
     restore_result = FAIL_RESTORE;
   }
+  yap_flags[FAST_BOOT_FLAG] = yap_init->FastBoot;
 #if defined(YAPOR) || defined(TABLING)
   make_root_frames();
 #ifdef YAPOR
@@ -723,6 +724,7 @@ YapFastInit(char saved_state[])
   init_args.YapLibDir = NULL;
   init_args.YapPrologBootFile = NULL;
   init_args.HaltAfterConsult = FALSE;
+  init_args.FastBoot = FALSE;
   init_args.NumberWorkers = 1;
   init_args.SchedulerLoop = 10;
   init_args.DelayedReleaseLoad = 3;

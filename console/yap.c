@@ -280,6 +280,9 @@ parse_yap_arguments(int argc, char *argv[], yap_init_args *init_args)
 	    }
 	    break;
 #endif /* EMACS */
+	  case 'f':
+	    init_args->FastBoot = TRUE;
+	    break;
 #ifdef MPWSHELL
 	  case 'm':
 	    if (*++p == 'p' && *++p == 'w' && *++p == '\0')
@@ -388,6 +391,7 @@ init_standard_system(int argc, char *argv[])
   init_args.YapLibDir = NULL;
   init_args.YapPrologBootFile = NULL;
   init_args.HaltAfterConsult = FALSE;
+  init_args.FastBoot = FALSE;
   init_args.NumberWorkers = 1;
   init_args.SchedulerLoop = 10;
   init_args.DelayedReleaseLoad = 3;
