@@ -233,11 +233,16 @@ bla bla
 #include <sys/resource.h>
 #endif
 
+#if THREADS
+#define StartOfTimes (*(ThreadHandle[worker_id].start_of_timesp))
+#define last_time    (*(ThreadHandle[worker_id].last_timep))
+#else
 /* since the point YAP was started */
 static struct timeval StartOfTimes;
 
 /* since last call to runtime */
 static struct timeval last_time;
+#endif
 
 /* store user time in this variable */
 static void
@@ -245,13 +250,17 @@ InitTime (void)
 {
   struct rusage   rusage;
 
+#if THREADS
+  ThreadHandle[worker_id].start_of_timesp = (struct timeval *)malloc(sizeof(struct timeval));
+  ThreadHandle[worker_id].last_timep = (struct timeval *)malloc(sizeof(struct timeval));
+#endif
   getrusage(RUSAGE_SELF, &rusage);
   last_time.tv_sec = StartOfTimes.tv_sec = rusage.ru_utime.tv_sec;
   last_time.tv_usec = StartOfTimes.tv_usec = rusage.ru_utime.tv_usec;
 }
 
 
-Int
+UInt
 Yap_cputime (void)
 {
  struct rusage   rusage;
@@ -324,7 +333,7 @@ InitTime (void)
   }
 }
 
-Int
+UInt
 Yap_cputime (void)
 {
   HANDLE hProcess = GetCurrentProcess();
@@ -434,7 +443,7 @@ InitTime (void)
   last_time = StartOfTimes = t.tms_utime;
 }
 
-Int
+UInt
 Yap_cputime (void)
 {
   struct tms t;
@@ -475,7 +484,7 @@ InitTime (void)
 }
 
 
-Int
+UInt
 Yap_cputime (void)
 {
   struct timeval   tp;
@@ -2089,11 +2098,16 @@ Yap_InitSysbits (void)
   }
 #endif
   InitPageSize();
-  InitTime ();
   InitWTime ();
   InitRandom ();
   /* let the caller control signals as it sees fit */
   InitSignals ();
+}
+
+void
+Yap_InitTime(void)
+{
+  InitTime();
 }
 
 void

@@ -76,6 +76,10 @@ thread_die(int wid, int always_die)
   Prop p0;
 
   LOCK(ThreadHandlesLock);
+  if (!always_die) {
+    /* called by thread itself */
+    ThreadsTotalTime += Yap_cputime();
+  }
   if (ThreadHandle[wid].tdetach == MkAtomTerm(AtomTrue) ||
       always_die) {
     p0 = AbsPredProp(heap_regs->thread_handle[wid].local_preds);
@@ -88,8 +92,11 @@ thread_die(int wid, int always_die)
     }
     Yap_KillStacks(wid);
     heap_regs->wl[wid].active_signals = 0L;
+    heap_regs->wl[wid].active_signals = 0L;
     free(heap_regs->wl[wid].scratchpad.ptr);
     free(ThreadHandle[wid].default_yaam_regs);
+    free(ThreadHandle[wid].start_of_timesp);
+    free(ThreadHandle[wid].last_timep);
     ThreadHandle[wid].in_use = FALSE;
     pthread_mutex_destroy(&(ThreadHandle[wid].tlock));
   }
@@ -109,8 +116,11 @@ thread_run(void *widp)
   ThreadHandle[myworker_id].default_yaam_regs = standard_regs;
   pthread_setspecific(Yap_yaamregs_key, (void *)standard_regs);
   worker_id = myworker_id;
+  /* I exist */
+  NOfThreadsCreated++;
   Yap_InitExStacks(ThreadHandle[myworker_id].ssize, ThreadHandle[myworker_id].tsize);
   CurrentModule = ThreadHandle[myworker_id].cmod;
+  Yap_InitTime();
   Yap_InitYaamRegs();
   {
     Yap_ReleasePreAllocCodeSpace(Yap_PreAllocCodeSpace());
@@ -176,10 +186,8 @@ p_thread_join(void)
   UNLOCK(ThreadHandlesLock);
   if (pthread_join(ThreadHandle[tid].handle, NULL) < 0) {
     /* ERROR */
-  fprintf(stderr, "join error %d %d\n", tid, errno);
     return FALSE;
   }
-  fprintf(stderr, "join %d\n", tid);
   return TRUE;
 }
 
@@ -406,6 +414,31 @@ p_no_threads(void)
   return FALSE;
 }
 
+static Int 
+p_nof_threads(void)
+{				/* '$nof_threads'(+P)	 */
+  int i = 0, wid;
+  LOCK(ThreadHandlesLock);
+  for (wid = 0; wid < MAX_WORKERS; wid++) {
+    if (ThreadHandle[wid].in_use)
+      i++;
+  }
+  UNLOCK(ThreadHandlesLock);
+  return Yap_unify(ARG1,MkIntegerTerm(i));
+}
+
+static Int 
+p_nof_threads_created(void)
+{				/* '$nof_threads'(+P)	 */
+  return Yap_unify(ARG1,MkIntTerm(NOfThreadsCreated));
+}
+
+static Int 
+p_thread_runtime(void)
+{				/* '$thread_runtime'(+P)	 */
+  return Yap_unify(ARG1,MkIntegerTerm(ThreadsTotalTime));
+}
+
 void Yap_InitThreadPreds(void)
 {
   Yap_InitCPred("$no_threads", 0, p_no_threads, 0);
@@ -430,6 +463,9 @@ void Yap_InitThreadPreds(void)
   Yap_InitCPred("$cond_broadcast", 1, p_cond_broadcast, SafePredFlag);
   Yap_InitCPred("$cond_wait", 2, p_cond_wait, SafePredFlag);
   Yap_InitCPred("$signal_thread", 1, p_thread_signal, SafePredFlag);
+  Yap_InitCPred("$nof_threads", 1, p_nof_threads, SafePredFlag);
+  Yap_InitCPred("$nof_threads_created", 1, p_nof_threads_created, SafePredFlag);
+  Yap_InitCPred("$thread_runtime", 1, p_thread_runtime, SafePredFlag);
 }
 
 #else
@@ -440,9 +476,30 @@ p_no_threads(void)
   return TRUE;
 }
 
+static Int 
+p_nof_threads(void)
+{				/* '$nof_threads'(+P)	 */
+  return Yap_unify(ARG1,MkIntTerm(1));
+}
+
+static Int 
+p_nof_threads_created(void)
+{				/* '$nof_threads'(+P)	 */
+  return Yap_unify(ARG1,MkIntTerm(1));
+}
+
+static Int 
+p_thread_runtime(void)
+{				/* '$thread_runtime'(+P)	 */
+  return Yap_unify(ARG1,MkIntTerm(0));
+}
+
 void Yap_InitThreadPreds(void)
 {
-  Yap_InitCPred("$no_threads", 0, p_no_threads, 0);
+  Yap_InitCPred("$no_threads", 0, p_no_threads, SafePredFlag);
+  Yap_InitCPred("$nof_threads", 1, p_nof_threads, SafePredFlag);
+  Yap_InitCPred("$nof_threads_created", 1, p_nof_threads_created, SafePredFlag);
+  Yap_InitCPred("$thread_runtime", 1, p_thread_runtime, SafePredFlag);
 }
 
 

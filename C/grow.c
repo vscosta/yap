@@ -502,7 +502,7 @@ Yap_AdjustRegs(int n)
 static int
 static_growheap(long size, int fix_code, struct intermediates *cip)
 {
-  Int start_growth_time, growth_time;
+  UInt start_growth_time, growth_time;
   int gc_verbose;
   UInt hole = 0L;
 
@@ -566,7 +566,7 @@ static_growheap(long size, int fix_code, struct intermediates *cip)
 static int
 static_growglobal(long size, CELL **ptr)
 {
-  Int start_growth_time, growth_time;
+  UInt start_growth_time, growth_time;
   int gc_verbose;
 
   /* adjust to a multiple of 256) */
@@ -804,7 +804,7 @@ execute_growstack(long size, int from_trail)
 static int
 growstack(long size)
 {
-  Int start_growth_time, growth_time;
+  UInt start_growth_time, growth_time;
   int gc_verbose;
 
   /* adjust to a multiple of 256) */
@@ -909,7 +909,7 @@ AdjustScannerStacks(TokEntry **tksp, VarEntry **vep)
 int
 Yap_growstack_in_parser(tr_fr_ptr *old_trp, TokEntry **tksp, VarEntry **vep)
 {
-  Int start_growth_time, growth_time;
+  UInt start_growth_time, growth_time;
   int gc_verbose;
   long size  = sizeof(CELL)*(LCL0-(CELL *)Yap_GlobalBase);
 
@@ -966,7 +966,7 @@ Yap_growstack_in_parser(tr_fr_ptr *old_trp, TokEntry **tksp, VarEntry **vep)
 
 static int do_growtrail(long size)
 {
-  Int start_growth_time = Yap_cputime(), growth_time;
+  UInt start_growth_time = Yap_cputime(), growth_time;
   int gc_verbose = Yap_is_gc_verbose();
 
   /* adjust to a multiple of 256) */
@@ -1054,7 +1054,7 @@ Yap_growatomtable(void)
 {
   AtomHashEntry *ntb;
   UInt nsize = 4*AtomHashTableSize-1, i;
-  Int start_growth_time = Yap_cputime(), growth_time;
+  UInt start_growth_time = Yap_cputime(), growth_time;
   int gc_verbose = Yap_is_gc_verbose();
 
   LOCK(SignalLock);

@@ -10,7 +10,7 @@
 * File:		Yap.proto						 *
 * mods:									 *
 * comments:	Function declarations for YAP				 *
-* version:      $Id: Yapproto.h,v 1.48 2004-02-25 19:06:31 rslopes Exp $	 *
+* version:      $Id: Yapproto.h,v 1.49 2004-03-02 16:44:58 vsc Exp $	 *
 *************************************************************************/
 
 /* prototype file for Yap */
@@ -266,7 +266,7 @@ void	STD_PROTO(Yap_signal,(yap_signals));
 
 /* sysbits.c */
 void	STD_PROTO(Yap_set_fpu_exceptions,(int));
-Int	STD_PROTO(Yap_cputime,(void));
+UInt	STD_PROTO(Yap_cputime,(void));
 Int	STD_PROTO(Yap_walltime,(void));
 int	STD_PROTO(Yap_dir_separator,(int));
 int	STD_PROTO(Yap_volume_header,(char *));
@@ -278,6 +278,7 @@ void    STD_PROTO(Yap_cputime_interval,(Int *,Int *));
 void    STD_PROTO(Yap_walltime_interval,(Int *,Int *));
 void	STD_PROTO(Yap_InitSysbits,(void));
 void	STD_PROTO(Yap_InitSysPreds,(void));
+void	STD_PROTO(Yap_InitTime,(void));
 int     STD_PROTO(Yap_TrueFileName, (char *, char *, int));
 int	STD_PROTO(Yap_ProcessSIGINT,(void));
 double  STD_PROTO(Yap_random, (void));

@@ -783,6 +783,9 @@ InitCodes(void)
   heap_regs->thread_handle[0].handle = pthread_self();
   heap_regs->thread_handle[0].handle = pthread_self();
   pthread_mutex_init(&ThreadHandle[0].tlock, NULL);
+  heap_regs->n_of_threads = 1;
+  heap_regs->n_of_threads_created = 1;
+  heap_regs->threads_total_time = 0;
 #endif
 #if defined(YAPOR) || defined(THREADS)
   INIT_LOCK(heap_regs->bgl);
@@ -790,7 +793,6 @@ InitCodes(void)
   INIT_LOCK(heap_regs->heap_used_lock);
   INIT_LOCK(heap_regs->heap_top_lock);
   INIT_LOCK(heap_regs->dead_clauses_lock);
-  heap_regs->n_of_threads = 1;
   heap_regs->heap_top_owner = -1;
   {
     int i;
@@ -1168,6 +1170,8 @@ Yap_InitWorkspace(int Heap,
 #else /* Yap */
   Yap_InitMemory (Trail, Heap, Stack);
 #endif /* YAPOR || TABLING */
+  Yap_InitTime ();
+
   AtomHashTableSize = MaxHash;
   HashChain = (AtomHashEntry *)Yap_AllocAtomSpace(sizeof(AtomHashEntry) * MaxHash);
   if (HashChain == NULL) {

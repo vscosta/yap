@@ -277,7 +277,8 @@ message_queue_create(Cond) :-
 	var(Cond), !,
 	mutex_create(Mutex),
 	'$cond_create'(Cond),
-	recorda('$queue',q(Cond,Mutex,Cond), _).
+	'$mq_iname'(Cond, CName),
+	recorda('$queue',q(Cond,Mutex,Cond,CName), _).
 message_queue_create(Name) :-
 	atom(Name),
 	recorded('$thread_alias',[Name|_],_), !,
@@ -291,18 +292,26 @@ message_queue_create(Name) :-
 '$create_mq'(Name) :-
 	mutex_create(Mutex),
 	'$cond_create'(Cond),
-	recorda('$queue',q(Name,Mutex,Cond),_).
+	'$mq_iname'(Name, CName),
+	recorda('$queue',q(Name,Mutex,Cond, CName),_).
+
+'$mq_iname'(I,X) :-
+	integer(I), !,
+	number_codes(I,Codes),
+	atom_codes(X, [0'$,0'M,0'Q,0'_|Codes]).
+'$mq_iname'(A,X) :-
+	atom_concat('$MQ_NAME_KEY_',A,X).
 
 	
 message_queue_destroy(Name) :-
 	var(Name), !,
 	'$do_error'(instantiation_error,message_queue_destroy(Name)).
 message_queue_destroy(Queue) :-
-	recorded('$queue',q(Queue,Mutex,Cond),R), !,
+	recorded('$queue',q(Queue,Mutex,Cond,CName),R), !,
 	erase(R),
 	'$cond_destroy'(Cond),
 	mutex_destroy(Mutex),
-	'$clean_mqueue'(Queue).
+	'$clean_mqueue'(CName).
 message_queue_destroy(Queue) :-
 	atom(Queue), !,
 	'$do_error'(existence_error(queue,Queue),message_queue_destroy(QUeue)).
@@ -310,7 +319,7 @@ message_queue_destroy(Name) :-
 	'$do_error'(type_error(atom,Name),message_queue_destroy(Name)).
 
 '$clean_mqueue'(Queue) :-
-	recorded('$msg_queue',q(Queue,_),R),
+	recorded(Queue,_,R),
 	erase(R),
 	fail.
 '$clean_mqueue'(_).
@@ -319,9 +328,9 @@ thread_send_message(Queue, Term) :-
 	recorded('$thread_alias',[Queue|Id],_), !,
 	thread_send_message(Id, Term).
 thread_send_message(Queue, Term) :-
-	recorded('$queue',q(Queue,Mutex,Cond),_),
+	recorded('$queue',q(Queue,Mutex,Cond,Key),_),
 	mutex_lock(Mutex),
-	recordz('$msg_queue',q(Queue,Term),_),
+	recordz(Key,Term,_),
 	'$cond_broadcast'(Cond),
 	mutex_unlock(Mutex).
 
@@ -330,29 +339,29 @@ thread_get_message(Term) :-
 	thread_get_message(Id, Term).
 
 thread_get_message(Queue, Term) :-
-	recorded('$queue',q(Queue,Mutex,Cond),_),
+	recorded('$queue',q(Queue,Mutex,Cond,Key),_),
 	mutex_lock(Mutex),
-	'$thread_get_message_loop'(Queue, Term, Mutex, Cond).
+	'$thread_get_message_loop'(Key, Term, Mutex, Cond).
 
-'$thread_get_message_loop'(Queue, Term, Mutex, _) :-
-	recorded('$msg_queue',q(Queue,Term),R), !,
+'$thread_get_message_loop'(Key, Term, Mutex, _) :-
+	recorded(Key,Term,R), !,
 	erase(R),
 	mutex_unlock(Mutex).
-'$thread_get_message_loop'(Queue, Term, Mutex, Cond) :-
+'$thread_get_message_loop'(Key, Term, Mutex, Cond) :-
 	'$cond_wait'(Cond, Mutex),
-	'$thread_get_message_loop'(Queue, Term, Mutex, Cond).
+	'$thread_get_message_loop'(Key, Term, Mutex, Cond).
 
 thread_peek_message(Term) :-
 	'$thread_self'(Id),
 	thread_peek_message(Id, Term).
 
 thread_peek_message(Queue, Term) :-
-	recorded('$queue',q(Queue,Mutex,_),_),
+	recorded('$queue',q(Queue,Mutex,_,Key),_),
 	mutex_lock(Mutex),
-	'$thread_peek_message2'(Queue, Term, Mutex).
+	'$thread_peek_message2'(Key, Term, Mutex).
 
-'$thread_peek_message2'(Queue, Term, Mutex) :-
-	recorded('$msg_queue',q(Queue,Term),_), !,
+'$thread_peek_message2'(Key, Term, Mutex) :-
+	recorded(Key,Term,_), !,
 	mutex_unlock(Mutex).
 '$thread_peek_message2'(_, _, Mutex) :-
 	mutex_unlock(Mutex),

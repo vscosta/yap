@@ -359,7 +359,7 @@ atom_gc(void)
   int           gc_trace = 0;
   
 
-  Int		time_start, agc_time;
+  UInt		time_start, agc_time;
   if (Yap_GetValue(AtomGcTrace) != TermNil)
     gc_trace = 1;
   agc_calls++;

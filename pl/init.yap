@@ -66,6 +66,7 @@ not(G) :-    '$current_module'(Module), '$meta_call'(not(G),Module).
 	 'sockets.yap',
 	 'sort.yap',
 	 'setof.yap',
+	 'statistics.yap',
 	 'strict_iso.yap',
 	 'tabling.yap',
 	 'threads.yap',

@@ -3025,7 +3025,7 @@ do_gc(Int predarity, CELL *current_env, yamop *nextop)
   Int		heap_cells = H-H0;
   int		gc_verbose = is_gc_verbose();
   tr_fr_ptr     old_TR;
-  Int		m_time, c_time, time_start, gc_time;
+  UInt		m_time, c_time, time_start, gc_time;
 #if COROUTINING
   CELL *max = (CELL *)Yap_ReadTimedVar(DelayedVars);
 #else

@@ -10,7 +10,7 @@
 * File:		Heap.h         						 *
 * mods:									 *
 * comments:	Heap Init Structure					 *
-* version:      $Id: Heap.h,v 1.60 2004-02-25 19:06:31 rslopes Exp $	 *
+* version:      $Id: Heap.h,v 1.61 2004-03-02 16:44:55 vsc Exp $	 *
 *************************************************************************/
 
 /* information that can be stored in Code Space */
@@ -76,6 +76,10 @@ typedef struct thandle {
   struct pred_entry *local_preds;
   pthread_t handle;
   pthread_mutex_t tlock;
+#if HAVE_GETRUSAGE
+  struct timeval *start_of_timesp;
+  struct timeval *last_timep;
+#endif
 } yap_thandle;
 #endif
 
@@ -192,12 +196,16 @@ typedef struct various_codes {
   Int   yap_flags_field[NUMBER_OF_YAP_FLAGS];
   char *char_conversion_table;
   char *char_conversion_table2;
+#if THREADS
+  unsigned int n_of_threads;      /* number of threads and processes in system */
+  unsigned int n_of_threads_created;      /* number of threads created since start */
+  UInt  threads_total_time;      /* total run time for dead threads */
+#endif
 #if defined(YAPOR) || defined(THREADS)
   lockvar  heap_used_lock;        /* protect HeapUsed */
   lockvar  heap_top_lock;        /* protect HeapTop */
   lockvar  dead_clauses_lock;        /* protect DeadClauses */
   int      heap_top_owner;
-  unsigned int n_of_threads;      /* number of threads and processes in system */
 #ifdef LOW_LEVEL_TRACER
   lockvar  low_level_trace_lock;
 #endif
@@ -670,6 +678,8 @@ struct various_codes *heap_regs;
 #define  HeapTopLock              heap_regs->heap_top_lock
 #define  HeapTopOwner             heap_regs->heap_top_owner
 #define  NOfThreads               heap_regs->n_of_threads
+#define  NOfThreadsCreated        heap_regs->n_of_threads_created
+#define  ThreadsTotalTime         heap_regs->threads_total_time
 #define  HeapUsedLock             heap_regs->heap_used_lock
 #define  DeadClausesLock          heap_regs->dead_clauses_lock
 #endif

@@ -705,7 +705,7 @@ get_num(char *t)
     return(TermNil);
 }
 
-static Int 
+static UInt 
 runtime(void)
 {
   return(Yap_cputime()-Yap_total_gc_time()-Yap_total_stack_shift_time());
