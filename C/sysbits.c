@@ -1279,29 +1279,40 @@ ReceiveSignal (int s)
     case SIGKILL:
       exit_yap (SIGKILL, "\n\n\n[ Quit signal received ]\n\n");
 #endif
-#if HAVE_SIGACTION
+#if defined(SIGUSR1)
     case SIGUSR1:
       /* force the system to creep */
       p_creep ();
-      /* raise the '$sig_pending' flag */
-      /* NOTE: shouldn't this be a queue? */
-      PutValue(AtomSigPending, MkAtomTerm(LookupAtom("sig_usr1")));
+      /* add to the set of signals pending */
+      {
+	Term t;
+	t = GetValue(AtomSigPending);
+	t = MkPairTerm(MkAtomTerm(LookupAtom("sig_usr1")), t);
+	PutValue(AtomSigPending, t);
+      }
       break;
+#endif /* defined(SIGUSR1) */
+#if defined(SIGUSR2)
     case SIGUSR2:
       /* force the system to creep */
       p_creep ();
-      /* raise the '$sig_pending' flag */
-      /* NOTE: shouldn't this be a queue? */
-      PutValue(AtomSigPending, MkAtomTerm(LookupAtom("sig_usr2")));
+      /* add to the set of signals pending */
+      {
+	Term t;
+	t = GetValue(AtomSigPending);
+	t = MkPairTerm(MkAtomTerm(LookupAtom("sig_usr2")), t);
+	PutValue(AtomSigPending, t);
+      }
       break;
+#endif /* defined(SIGUSR2) */
+#if defined(SIGHUP)
     case SIGHUP:
       /* force the system to creep */
       p_creep ();
       /* raise the '$sig_pending' flag */
-      /* NOTE: shouldn't this be a queue? */
       PutValue(AtomSigPending, MkAtomTerm(LookupAtom("sig_hup")));
       break;
-#endif
+#endif /* defined(SIGHUP) */
     default:
       YP_fprintf(YP_stderr, "\n[ Unexpected signal ]\n");
       exit (EXIT_FAILURE);
@@ -1333,7 +1344,7 @@ InitSignals (void)
   my_signal (SIGKILL, ReceiveSignal);
   my_signal (SIGUSR1, ReceiveSignal);
   my_signal (SIGUSR2, ReceiveSignal);
-  my_signal (SIGHUP, ReceiveSignal);
+  my_signal (SIGHUP,  ReceiveSignal);
   my_signal (SIGALRM, HandleALRM);
 #endif
 #if _MSC_VER || defined(__MINGW32__)

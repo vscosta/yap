@@ -720,17 +720,11 @@ debugging :-
 	),
 	'$execute'(M:Goal).
 '$creep'(G) :-
-	format( 'creeping...~n', [] ),
-	'$get_value'('$sig_pending', Signal),
-	format( 'Signal == ~q~n', [Signal] ),
-	Signal \== [], !,
-	'$set_value'('$sig_pending', []),
-	( '$recorded'('$sig_handler', action(Signal,A),_) ->
-	    '$execute'(A),
-	    G=[M|Goal] 
-	;
-	    true
-	),
+	'$get_value'('$sig_pending', Signals),
+	Signals \== [], !,
+	'$set_value'('$sig_pending', [] ),
+	'$handle_signals'(Signals),
+	G=[M|Goal],
 	'$execute'(M:Goal).
 '$creep'(_) :-
 	'$get_value'('$throw', true), !,
@@ -749,6 +743,13 @@ debugging :-
 	'$chk'(P,L,G,Mod,SL),
 	'$msg'(P,G,Mod,L,SL).
 '$trace'(_,_,_,_).
+
+'$handle_signals'([]).
+'$handle_signals'([S|Rest]) :-
+	'$recorded'('$sig_handler', action(S,A),_),
+	'$execute'(A),
+	'$handle_signals'(Rest).
+'$handle_signals'([_|Rest]).
 
 '$msg'(P,G,Module,L,SL):-
 	flush_output(user_output),
