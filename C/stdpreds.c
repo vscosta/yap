@@ -167,6 +167,7 @@ p_creep(void)
   pred = RepPredProp(PredPropByFunc(MkFunctor(at, 1),0));
   CreepCode = pred;
   CreepFlag = Unsigned(LCL0)-Unsigned(H0);
+  creep_on = TRUE;
   return (TRUE);
 }
 
@@ -2082,6 +2083,14 @@ p_euc_dist(void) {
   Int result = (Int)sqrt(d1*d1+d2*d2+d3*d3);
   return(unify(ARG3,MkIntegerTerm(result)));
 }
+
+volatile int loop_counter = 0;
+
+static Int
+p_loop(void) {
+  while (loop_counter == 0);
+  return(TRUE);
+}
 #endif
 
 void 
@@ -2161,6 +2170,7 @@ InitCPreds(void)
 #endif
 #ifdef INES
   InitCPred("euc_dist", 3, p_euc_dist, SafePredFlag);
+  InitCPred("loop", 0, p_loop, SafePredFlag);
 #endif
 #ifdef DEBUG
   InitCPred("dump_active_goals", 0, p_dump_active_goals, SafePredFlag|SyncPredFlag);
