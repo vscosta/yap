@@ -1977,7 +1977,7 @@ absmi(int inp)
        * *cannot* fail before having woken up all suspended goals.
        */
       /* make sure we are here because of an awoken goal */
-      if (CFREG == Unsigned(LCL0) && !(PrologMode & AbortMode)) {
+      if (CFREG == Unsigned(LCL0) && !(PrologMode & (InterruptMode|AbortMode))) {
 	Term WGs;
 	Term my_goal;
 
@@ -2051,11 +2051,17 @@ absmi(int inp)
       }
       else {
 #endif
-	if (PrologMode & AbortMode) {
-	  PrologMode &= ~AbortMode;
+	if (PrologMode & (AbortMode|InterruptMode)) {
 	  CFREG = CalculateStackGap();
 	  /* same instruction */
-	  if (ProcessSIGINT() < 0) Abort("");
+	  if (PrologMode & InterruptMode) {
+	    PrologMode &= ~InterruptMode;
+	    ProcessSIGINT();
+	  } 
+	  if (PrologMode & AbortMode) {
+	    PrologMode &= ~AbortMode;
+	    Abort("");
+	  }
 	  JMPNext();
 	}
 #if SHADOW_S

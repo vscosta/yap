@@ -1076,7 +1076,7 @@ InteractSIGINT(char ch) {
     /* we can't do a direct abort, so ask the system to do
        it for us */
     p_creep();
-    PutValue(AtomThrow, MkAtomTerm(AtomTrue));
+    PrologMode |= AbortMode;
     return(-1);
   case 'c':
     /* continue */
@@ -1177,16 +1177,6 @@ ProcessSIGINT(void)
 {
   int ch, out;
 
-#if HAVE_ISATTY
-  if (!isatty(0)) {
-    InteractSIGINT('e');
-  }
-#if !HAVE_LIBREADLINE
-  if (in_getc) {
-    return(0);
-  }
-#endif
-#endif
   do {
 #if  HAVE_LIBREADLINE
     if (_line != (char *) NULL && _line != (char *) EOF)
@@ -1227,10 +1217,22 @@ HandleSIGINT (int sig)
 #endif
 {
   my_signal(SIGINT, HandleSIGINT);
-#if (_MSC_VER || defined(__MINGW32__))
-  printf("hello\n");
-  return;
+#if HAVE_ISATTY
+  if (!isatty(0)) {
+    InteractSIGINT('e');
+  }
 #endif
+#if !HAVE_LIBREADLINE
+  if (in_getc) {
+    PrologMode |= InterruptMode;
+    return;
+  }
+#endif
+  if (PrologMode & CritMode) {
+    /* delay processing if we are messing with the Code space */
+    PrologMode |= InterruptMode;
+    return;
+  }
 #ifdef HAVE_SETBUF
   /* make sure we are not waiting for the end of line */
   YP_setbuf (stdin, NULL); 
@@ -1301,7 +1303,7 @@ MSCHandleSignal(DWORD dwCtrlType) {
   case CTRL_C_EVENT:
   case CTRL_BREAK_EVENT:
     p_creep();
-    PrologMode |= AbortMode;
+    PrologMode |= InterruptMode;
     return(TRUE);
   default:
     return(FALSE);

@@ -10,7 +10,7 @@
 * File:		Yap.h.m4						 *
 * mods:									 *
 * comments:	main header file for YAP				 *
-* version:      $Id: Yap.h.m4,v 1.5 2001-06-22 17:53:36 vsc Exp $	 *
+* version:      $Id: Yap.h.m4,v 1.6 2001-06-27 13:22:30 vsc Exp $	 *
 *************************************************************************/
 
 #include "config.h"
@@ -754,14 +754,16 @@ extern int      CurFileNo;
 
 /********* Prolog may be in several modes *******************************/
 
-#define BootMode       1		/* if booting or restoring */
-#define UserMode       2		/* Normal mode */
-#define CritMode       4		/* If we are meddling with the heap */
-#define FullLMode      8		/* to access the hidden atoms chain */
-#define AbortMode     16		/* expecting to abort */
-#define InterruptMode 32		/* under an interrupt */
+typedef enum {
+  BootMode  =   1,		/* if booting or restoring */
+  UserMode  =   2,		/* Normal mode */
+  CritMode  =   4,		/* If we are meddling with the heap */
+  AbortMode =   8,		/* expecting to abort */
+  InterruptMode = 16		/* under an interrupt */
+} prolog_exec_mode;
 
-extern int      PrologMode;
+extern prolog_exec_mode      PrologMode;
+extern int      CritLocks;
 
 #if SIZEOF_INT_P==4
 #if defined(YAPOR) || defined(TABLING)
@@ -802,17 +804,46 @@ extern int      yap_argc;
 	    GLOBAL_LOCKS_who_locked_heap = worker_id;       \
 	  }                                                 \
           PrologMode |= CritMode;                           \
+          CritLocks++;                                      \
         }
 #define YAPLeaveCriticalSection()                                        \
 	{                                                                \
-          if ((PrologMode ^= CritMode) & AbortMode) Abort((char *)NIL);  \
-	  GLOBAL_LOCKS_who_locked_heap = MAX_WORKERS;                    \
-          UNLOCK(GLOBAL_LOCKS_heap_access);                              \
+          CritLocks--;                                                   \
+          if (!CritLocks) {                                              \
+            PrologMode &= ~CritMode;                                     \
+            if (PrologMode & InterruptMode) {                            \
+	      PrologMode &= ~InterruptMode;                              \
+	      ProcessSIGINT();                                           \
+            }                                                            \
+            if (PrologMode & AbortMode) {                                \
+	      PrologMode &= ~AbortMode;                                  \
+	      Abort("");                                                 \
+            }                                                            \
+	    GLOBAL_LOCKS_who_locked_heap = MAX_WORKERS;                  \
+            UNLOCK(GLOBAL_LOCKS_heap_access);                            \
+          }                                                              \
         }
 #else
-#define YAPEnterCriticalSection()     PrologMode |= CritMode;
-#define YAPLeaveCriticalSection() \
-	if((PrologMode ^= CritMode) & AbortMode) Abort((char *)NIL);
+#define YAPEnterCriticalSection()                           \
+	{                                                   \
+          PrologMode |= CritMode;                           \
+          CritLocks++;                                      \
+        }
+#define YAPLeaveCriticalSection()                                        \
+	{                                                                \
+          CritLocks--;                                                   \
+          if (!CritLocks) {                                              \
+            PrologMode &= ~CritMode;                                     \
+            if (PrologMode & InterruptMode) {                            \
+	      PrologMode &= ~InterruptMode;                              \
+	      ProcessSIGINT();                                           \
+            }                                                            \
+            if (PrologMode & AbortMode) {                                \
+	      PrologMode &= ~AbortMode;                                  \
+	      Abort("");                                                 \
+            }                                                            \
+          }                                                              \
+        }
 #endif /* YAPOR */
 
 /* when we are calling the InitStaff procedures */

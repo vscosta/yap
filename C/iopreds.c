@@ -1196,26 +1196,23 @@ ConsoleGetc(int sno)
     strncpy (Prompt, RepAtom (*AtPrompt)->StrOfAE, MAX_PROMPT);
     newline = FALSE;
   }
-  in_getc = TRUE;
 #if HAVE_SIGINTERRUPT
   siginterrupt(SIGINT, TRUE);
 #endif
+  in_getc = TRUE;
   ch = YP_fgetc(s->u.file.file);
+  in_getc = FALSE;
 #if HAVE_SIGINTERRUPT
   siginterrupt(SIGINT, FALSE);
 #endif
-  in_getc = FALSE;
-  if (PrologMode & AbortMode) {
-    PrologMode &= ~AbortMode;
-    CreepFlag = CalculateStackGap();
-    if (ProcessSIGINT() < 0) Abort("");
+  if (PrologMode & InterruptMode) {
+    PrologMode &= ~InterruptMode;
+    ProcessSIGINT();
     newline = TRUE;
-    goto restart;
-  } else if (ch == -1 && errno == EINTR) {
-    errno = 0;
-    PrologMode &= ~AbortMode;
-    if (ProcessSIGINT() < 0) Abort("");
-    newline = TRUE;
+    if (PrologMode & AbortMode) {
+      PrologMode &= ~AbortMode;
+      Abort("");
+    }
     goto restart;
   }
   return(console_post_process_read_char(ch, s, sno));

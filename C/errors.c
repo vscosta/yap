@@ -211,6 +211,7 @@ Abort (char *format,...)
   va_list ap;
   va_start (ap, format);
 
+  PrologMode &= ~AbortMode;
   if (format)
     {
       char ch;

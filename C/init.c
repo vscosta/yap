@@ -138,7 +138,8 @@ char FileNameBuf[YAP_FILENAME_MAX], FileNameBuf2[YAP_FILENAME_MAX];
 
 /********* Prolog State ********************************************/
 
-int             PrologMode = BootMode;
+prolog_exec_mode      PrologMode = BootMode;
+int      CritLocks = 0;
 
 #if PUSH_REGS
 REGSTORE standard_regs;

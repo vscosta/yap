@@ -16,6 +16,11 @@
 
 <h2>Yap-4.3.19:</h2>
 <ul>
+	<li>FIXED: make ^c-a work within gc.</li>
+	<li>FIXED: handle correctly very deep nested terms while gc
+	marking.</li>
+	<li>FIXED: ArityOfFunctor was giving trouble with HP-UX cc
+	(Stasinos Konstantinos).</li>
 	<li>FIXED: ^c works with Yap/MINGW32 (not in cygwin).</li>
 	<li>FIXED: ^c a should never core dump.</li>
 	<li>FIXED: comparison of variables in sub-terms.</li>
