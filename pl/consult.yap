@@ -53,6 +53,11 @@ compile(P) :-
 	'$compile'(P).
 
 % leave compile mode to 1 for native code.
+'$compile'(M:A) :- !,
+        '$current_module'(M0),
+        '$change_module'(M),
+        '$compile'(A),
+        '$change_module'(M0).
 '$compile'(A) :-
 	'$compile_mode'(Old,0),
 	'$reconsult'(A),
