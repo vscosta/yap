@@ -10,7 +10,7 @@
 * File:		Yap.h.m4						 *
 * mods:									 *
 * comments:	main header file for YAP				 *
-* version:      $Id: Yap.h.m4,v 1.60 2004-07-23 21:08:45 vsc Exp $	 *
+* version:      $Id: Yap.h.m4,v 1.61 2004-07-26 16:03:35 vsc Exp $	 *
 *************************************************************************/
 
 #include "config.h"
@@ -638,7 +638,7 @@ and  RefOfTerm(t) : Term -> DBRef = ...
 	if you place things in the lower addresses (power to the libc people).
 */
 
-#if (defined(_AIX) || defined(_WIN32) || defined(sparc) || defined(__sparc) || defined(mips) || defined(__FreeBSD__) || defined(_POWER) || defined(__linux__) || defined(IN_SECOND_QUADRANT)) && !defined(TABLING)
+#if (defined(_AIX) || defined(_WIN32) || defined(sparc) || defined(__sparc) || defined(mips) || defined(__FreeBSD__) || defined(_POWER) || defined(__linux__) || defined(IN_SECOND_QUADRANT) || defined(__CYGWIN__)) && !defined(TABLING)
 #define USE_LOW32_TAGS 1
 #endif
 
