@@ -188,7 +188,7 @@
 
 /*  void UserBackCPredicate(char *name, int *init(), int *cont(), int
     arity, int extra) */
-#define UserBackCPredicate(s,f1,f2,i,i2)  YAP_UserBackCPredicate(s,f,i,i2)
+#define UserBackCPredicate(s,f1,f2,i,i2)  YAP_UserBackCPredicate(s,f1,f2,i,i2)
 
 /*  void UserCPredicate(char *name, int *fn(), int arity) */
 #define UserCPredicateWithArgs(s,f,i1,i2)  YAP_UserCPredicateWithArgs(s,f,i1,i2)
@@ -197,10 +197,10 @@
 #define YapCallProlog(t)  YAP_CallProlog(t)
 
 /*  void cut_fail(void) */
-#define cut_fail()  YAP_cutfail()
+#define cut_fail()  YAP_cut_fail()
 
 /*  void cut_succeed(void) */
-#define cut_succeed()  YAP_cutsucceed()
+#define cut_succeed()  YAP_cut_succeed()
 
 /*  void *AllocSpaceFromYap(int) */
 #define AllocSpaceFromYap(s)  YAP_AllocSpaceFromYap(s)
