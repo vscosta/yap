@@ -155,7 +155,7 @@ char nome[200];
 
 
  f=fopen("PROFPREDS","r");
- if (f==NULL) return -1;
+ if (f==NULL) return (FALSE);
 
 
  i=fscanf(f,"%x - %x - Pred(%ld) - %s",&es,&ee,&p,nome);
@@ -176,12 +176,12 @@ char nome[200];
  fclose(f);
 
  end=(long *) malloc((e2-e1+1)*sizeof(long));
- if (end==NULL) { printf("Not enought mem to process results...\n"); return -1; }
+ if (end==NULL) { printf("Not enought mem to process results...\n"); return (FALSE); }
  memset(end,0, (e2-e1+1)*sizeof(long)); 
 
  
  f=fopen("PROFILING","r"); 
- if (f==NULL) return -1;
+ if (f==NULL) return (FALSE);
  
  i=fscanf(f,"%x",&e);
  total=0; fora=0; 
@@ -198,7 +198,7 @@ char nome[200];
  printf("Total count %ld (other code %ld)\n",total,fora); 
 
  f=fopen("PROFPREDS","r");
- if (f==NULL) return -1;
+ if (f==NULL) return (FALSE);
 
  total2=0;
  do {
@@ -214,6 +214,7 @@ char nome[200];
  printf("Total counted %ld (other code %ld)\n",total2,total-total2); 
  free(end);
 
+ return (TRUE);
 }
 
 

@@ -2918,7 +2918,7 @@ Yap_cclause(Term inp_clause, int NOfArgs, int mod)
       f=fopen("PROFPREDS","a");
   }
   if (f!=NULL) {  
-      fprintf(f,"%x - %x - Pred(%d) - %s/%d\n",acode,PROFSIZE, CodeStart->rnd1, RepAtom(AtomOfTerm(MkAtomTerm((Atom) CodeStart->rnd1)))->StrOfAE, CodeStart->rnd2);
+      fprintf(f,"%x - %x - Pred(%ld) - %s/%d\n",acode,PROFSIZE, CodeStart->rnd1, RepAtom(AtomOfTerm(MkAtomTerm((Atom) CodeStart->rnd1)))->StrOfAE, CodeStart->rnd2);
       fclose(f);
   }
  }
