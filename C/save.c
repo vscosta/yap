@@ -1051,7 +1051,6 @@ restore_codes(void)
   heap_regs->atom_repeat = AtomAdjust(heap_regs->atom_repeat);
   heap_regs->atom_restore_regs = AtomAdjust(heap_regs->atom_restore_regs);
   heap_regs->atom_stack_free = AtomAdjust(heap_regs->atom_stack_free);
-  heap_regs->atom_throw = AtomAdjust(heap_regs->atom_throw);
   heap_regs->atom_true = AtomAdjust(heap_regs->atom_true);
   heap_regs->atom_user = AtomAdjust(heap_regs->atom_user);
   heap_regs->atom_usr_err = AtomAdjust(heap_regs->atom_usr_err);
@@ -1102,6 +1101,7 @@ restore_codes(void)
   heap_regs->functor_stream_eOS = FuncAdjust(heap_regs->functor_stream_eOS);
   heap_regs->functor_change_module = FuncAdjust(heap_regs->functor_change_module);
   heap_regs->functor_current_module = FuncAdjust(heap_regs->functor_current_module);
+  heap_regs->functor_throw = FuncAdjust(heap_regs->functor_throw);
   heap_regs->functor_u_minus = FuncAdjust(heap_regs->functor_u_minus);
   heap_regs->functor_u_plus = FuncAdjust(heap_regs->functor_u_plus);
   heap_regs->functor_v_bar = FuncAdjust(heap_regs->functor_v_bar);

@@ -32,7 +32,7 @@ _^Goal :-
 
 
 findall(Template, Generator, Answers) :-
-	'$check_list'(Answers, findall(Template, Generator, Answers)),
+	'$check_list_for_bags'(Answers, findall(Template, Generator, Answers)),
 	'$init_db_queue'(Ref),
 	'$findall'(Template, Generator, Ref, [], Answers).
 
@@ -84,7 +84,7 @@ findall(Template, Generator, Answers, SoFar) :-
 % This is the setof predicate
 
 setof(Template, Generator, Set) :-
-	'$check_list'(Set, setof(Template, Generator, Set)),
+	'$check_list_for_bags'(Set, setof(Template, Generator, Set)),
 	'$bagof'(Template, Generator, Bag),
 	'$sort'(Bag, Set).
 
@@ -98,7 +98,7 @@ bagof(Template, Generator, Bag) :-
 	'$bagof'(Template, Generator, Bag).
 	
 '$bagof'(Template, Generator, Bag) :-
-	'$check_list'(Bag, bagof(Template, Generator, Bag)),
+	'$check_list_for_bags'(Bag, bagof(Template, Generator, Bag)),
 	'$variables_in_term'(Template, [], TemplateV),
 	'$excess_vars'(Generator, TemplateV, [], FreeVars),
 	FreeVars \== [],
@@ -214,4 +214,11 @@ all(T,G,S) :- '$recorda'('$$one','$',R), (
 '$$split'([T1 same X|Tn],T,X,[T1|S1],S2) :- '$$split'(Tn,T,X,S1,S2).
 '$$split'([T1|Tn],T,X,S1,[T1|S2]) :- '$$split'(Tn,T,X,S1,S2).
 
+
+'$check_list_for_bags'(V, _) :- var(V), !.
+'$check_list_for_bags'([], _) :- !.
+'$check_list_for_bags'([_|B], T) :- !,
+	'$check_list_for_bags'(B,T).
+'$check_list_for_bags'(S, T) :-
+	throw(error(type_error(list,S),T)).
 

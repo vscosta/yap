@@ -22,8 +22,8 @@ socket_accept(S,F) :-
 	socket_accept(S, _, F).
 
 socket_select(Socks, OutSocks, TimeOut, Streams, OutStreams) :-
-	'$check_list'(Socks, socket_select(Socks, OutSocks, TimeOut, Streams, OutStreams)),
-	'$check_list'(Streams, socket_select(Socks, OutSocks, TimeOut, Streams, OutStreams)),
+	'$check_list_for_sockets'(Socks, socket_select(Socks, OutSocks, TimeOut, Streams, OutStreams)),
+	'$check_list_for_sockets'(Streams, socket_select(Socks, OutSocks, TimeOut, Streams, OutStreams)),
 	'$select_cp_fds'(Socks, Streams, Fds),
 	'$check_select_time'(TimeOut, Sec, USec, socket_select(Socks, OutSocks, TimeOut, Streams, OutStreams)),
 	'$socket_select'(Fds, Sec, USec, NFds),
@@ -32,12 +32,12 @@ socket_select(Socks, OutSocks, TimeOut, Streams, OutStreams) :-
 	
 
 /* check whether a list of options is valid */
-'$check_list'(V,G) :- var(V), !,
+'$check_list_for_sockets'(V,G) :- var(V), !,
 	throw(error(instantiation_error,G)).
-'$check_list'([],_) :- !.
-'$check_list'([_|T],G) :- !,
- 	'$check_list'(T,G).
-'$check_io_opts'(T,G) :-
+'$check_list_for_sockets'([],_) :- !.
+'$check_list_for_sockets'([_|T],G) :- !,
+ 	'$check_list_for_sockets'(T,G).
+'$check_list_for_sockets'(T,G) :-
 	throw(error(type_error(list,T),G)).
 
 '$select_cp_fds'([], Fds, Fds).

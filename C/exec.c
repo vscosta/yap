@@ -833,7 +833,6 @@ exec_absmi(int top)
   int lval;
   if (top && (lval = sigsetjmp (RestartEnv, 1)) != 0) {
     if (lval == 1) { /* restart */
-      int depth;
       /* otherwise, SetDBForThrow will fail entering critical mode */
       PrologMode = UserMode;
       /* find out where to cut to */
@@ -846,17 +845,6 @@ exec_absmi(int top)
      /* siglongjmp resets the H hardware register */
       restore_H();
 #endif
-#endif
-      depth = SetDBForThrow(MkAtomTerm(LookupAtom("abort")));
-      if (depth == 0) {
-	Error(SYSTEM_ERROR, TermNil, "database entry for throw corrupted");
-      }
-      /* make the abstract machine jump where we want them to jump to */
-
-#ifdef SBA
-      B = (choiceptr)depth;
-#else
-      B = (choiceptr)(LCL0-depth);
 #endif
       yap_flags[SPY_CREEP_FLAG] = 0;
       CreepFlag = CalculateStackGap();
@@ -1262,19 +1250,37 @@ p_clean_ifcp(void) {
   return(TRUE);
 }
 
+/* This does very nasty stuff!!!!! */
 static Int
 p_jump_env(void) {
   CELL *env = LCL0-IntegerOfTerm(Deref(ARG1)), *prev = NULL, *cur = ENV;
+  choiceptr old, cptr, ocptr;
 
   while (cur != env) {
     prev = cur;
     cur = (CELL *)cur[E_E];
   }
-  ENV[E_CP] = prev[E_CP];
-  ENV[E_E] = prev[E_E];
-  return(TRUE);
+  if (prev != NULL) {
+    CP = (yamop *)(prev[E_CP]);
+  }
+  ENV = env;
+  /* force trail reset */
+  old = (choiceptr)(env[E_CB]);
+  cptr = ocptr = B;
+  while (ocptr->cp_b < old) {
+    ocptr = ocptr->cp_b;
+  }
+  while (cptr != ocptr) {
+    cptr->cp_tr = ocptr->cp_tr;
+    cptr = cptr->cp_b;
+  }
+  /* I could do this, but it is easier to leave the undwindig to the emulator */
+  B->cp_env = env;
+  B->cp_cp = CP;
+  B->cp_h = H;
+  env[CP->u.yx.y] = ARG2;
+  return(FALSE);
 }
-
 
 void 
 InitExecFs(void)
@@ -1305,6 +1311,6 @@ InitExecFs(void)
   InitCPred("$restore_regs", 1, p_restore_regs, SafePredFlag);
   InitCPred("$restore_regs", 2, p_restore_regs2, SafePredFlag);
   InitCPred("$clean_ifcp", 1, p_clean_ifcp, SafePredFlag);
-  InitCPred("$jump_env", 1, p_jump_env, SafePredFlag);
+  InitCPred("$jump_env_and_store_ball", 2, p_jump_env, SafePredFlag);
 }
 

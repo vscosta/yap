@@ -149,7 +149,17 @@ p_env(E_ARGS)
 #if SBA
   RINT((Int)YENV);
 #else
-  RINT(YENV - (CELL *)B);
+  RINT(LCL0 - YENV);
+#endif
+}
+
+static E_FUNC
+p_tr(E_ARGS)
+{
+#if SBA
+  RINT(TR);
+#else
+  RINT(((CELL *)TR)-LCL0);
 #endif
 }
 
@@ -189,6 +199,7 @@ static InitConstEntry InitConstTab[] = {
   {"global_sp", p_globalsp},
   {"$last_choice_pt", p_b},
   {"$env", p_env},
+  {"$tr", p_tr},
   {"stackfree", p_stackfree},
 };
 

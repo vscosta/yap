@@ -4781,7 +4781,7 @@ p_stream(void)
 void
 InitBackIO (void)
 {
-  InitCPredBack ("current_stream", 3, 1, init_cur_s, cont_cur_s, SafePredFlag|SyncPredFlag);
+  InitCPredBack ("$current_stream", 3, 1, init_cur_s, cont_cur_s, SafePredFlag|SyncPredFlag);
 }
 
 void

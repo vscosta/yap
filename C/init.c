@@ -929,7 +929,6 @@ InitCodes(void)
   heap_regs->atom_stack_free = LookupAtom("stackfree");
   AtomStream = LookupAtom ("$stream");
   AtomStreamPos = LookupAtom ("$stream_position");
-  heap_regs->atom_throw = LookupAtom("$throw");
   heap_regs->atom_true = LookupAtom("true");
   AtomSpy = LookupAtom("$spy");
   heap_regs->atom_user = LookupAtom ("user");
@@ -987,6 +986,7 @@ InitCodes(void)
   heap_regs->functor_stream_eOS = MkFunctor (LookupAtom("end_of_stream"), 1);
   heap_regs->functor_change_module = MkFunctor (LookupAtom("$change_module"), 1);
   heap_regs->functor_current_module = MkFunctor (LookupAtom("$current_module"), 1);
+  heap_regs->functor_throw = MkFunctor( LookupAtom("throw"), 1);
   heap_regs->functor_u_minus = MkFunctor (heap_regs->atom_minus, 1);
   heap_regs->functor_u_plus = MkFunctor (heap_regs->atom_plus, 1);
   heap_regs->functor_v_bar = MkFunctor(LookupAtom("|"), 2);

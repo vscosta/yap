@@ -10,7 +10,7 @@
 * File:		Heap.h         						 *
 * mods:									 *
 * comments:	Heap Init Structure					 *
-* version:      $Id: Heap.h,v 1.16 2002-01-01 05:26:25 vsc Exp $	 *
+* version:      $Id: Heap.h,v 1.17 2002-01-07 06:28:03 vsc Exp $	 *
 *************************************************************************/
 
 /* information that can be stored in Code Space */
@@ -197,7 +197,6 @@ typedef struct various_codes {
     atom_repeat,
     atom_restore_regs,
     atom_stack_free,
-    atom_throw,
     atom_true,
     atom_unwritable,
     atom_user,
@@ -254,6 +253,7 @@ typedef struct various_codes {
     functor_stream_eOS,
     functor_change_module,
     functor_current_module,
+    functor_throw,
     functor_u_minus,
     functor_u_plus,
     functor_v_bar,
@@ -388,7 +388,6 @@ typedef struct various_codes {
 #define  AtomRepeat               heap_regs->atom_repeat
 #define  AtomRestoreRegs          heap_regs->atom_restore_regs
 #define  AtomStackFree            heap_regs->atom_stack_free
-#define  AtomThrow                heap_regs->atom_throw
 #define  AtomTrue                 heap_regs->atom_true
 #define  AtomUser                 heap_regs->atom_user
 #define  AtomUsrErr               heap_regs->atom_usr_err
@@ -444,6 +443,7 @@ typedef struct various_codes {
 #define  FunctorChangeModule      heap_regs->functor_change_module
 #define  FunctorCurrentModule     heap_regs->functor_current_module
 #define  FunctorModSwitch         heap_regs->functor_mod_switch
+#define  FunctorThrow             heap_regs->functor_throw
 #define  FunctorUMinus            heap_regs->functor_u_minus
 #define  FunctorUPlus             heap_regs->functor_u_plus
 #define  FunctorVBar              heap_regs->functor_v_bar

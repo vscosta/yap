@@ -1572,60 +1572,6 @@ p_sync_mmapped_arrays(void)
   return(TRUE);
 }
 
-/*
-  This is a hack, to steal the first element of a key.
-
-   It first fetches the first element in the chain, and then erases it
-   through its reference.
-
-  Be careful when using this routine. It is especially evil because if
-  the term is ground it should be copied to the stack, as space for
-  the entry may be deleted. For the moment, the terms I want are just
-  integers, so no problemo, amigo.
-
- */
-static Term
-StealFirstFromDB(DBRef ref)
-{
-  Term TermDB, out;
-
-  if ((TermDB = FetchTermFromDB(ref,3)) == (CELL)0) {
-    /* oops, we are in trouble, not enough stack space */
-    return(TermNil);
-  }
-  if (IsVarTerm(TermDB) || !IsApplTerm(TermDB))
-    /* it's not a wonderful world afterall */
-    return(TermNil);
-  out = ArgOfTerm(1,TermDB);
-  /* now, return what once was there, only nevermore */
-  return(out);
-}
-
-Int
-SetDBForThrow(Term Message)
-{
-  Term cut_pt_term;
-  Atom a = FullLookupAtom("$catch_queue");
-  AtomEntry *ae = RepAtom(a);
-  StaticArrayEntry *ptr;
-  DBRef ref;
-  READ_LOCK(ae->ARWLock);
-  ptr =  RepStaticArrayProp(ae->PropsOfAE);    
-  while (!EndOfPAEntr(ptr) && ptr->KindOfPE != ArrayProperty)
-    ptr = RepStaticArrayProp(ptr->NextOfPE);
-  READ_UNLOCK(ae->ARWLock);
-  ref = ptr->ValueOfVE.terms[0];
-
-  cut_pt_term = StealFirstFromDB(ref);
-  if (IsVarTerm(cut_pt_term) || !IsIntegerTerm(cut_pt_term)) {
-    /* ooops, babe we are in trouble */
-    return(-1);
-  }
-  /* OK, we've got the place to cut to, next store the new throw */
-  ptr->ValueOfVE.terms[1] = StoreTermInDB(Message,3);
-  return(IntegerOfTerm(cut_pt_term));  
-}
-
 void 
 InitArrayPreds(void)
 {

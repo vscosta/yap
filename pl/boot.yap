@@ -30,7 +30,7 @@ true :- true. % otherwise, $$compile will ignore this clause.
 		;
 		    '$format'(user_error,"[~w]~n", [Module])
 		),
-		'$system_catch'('$enter_top_level',Error,user:'$Error'(Error)).
+		'$system_catch'('$enter_top_level',Module,Error,user:'$Error'(Error)).
 
 
 '$init_system' :-
@@ -43,7 +43,6 @@ true :- true. % otherwise, $$compile will ignore this clause.
 	'$set_yap_flags'(10,0),
 	'$set_value'('$gc',on),
 	'$init_catch',
-%	'$init_newcatch',  commented out for now
 	prompt('  ?- '),
 	(
 	    '$get_value'('$break',0)
@@ -61,7 +60,6 @@ true :- true. % otherwise, $$compile will ignore this clause.
 		( exists('~/.prologrc') -> [-'~/.prologrc'] ; true ),
 		( exists('~/prolog.ini') -> [-'~/prolog.ini'] ; true )
 	    ),
-	    '$clean_catch_and_throw',
 	    '$db_clean_queues'(0),
 	    '$startup_reconsult',
 	    '$startup_goals'
@@ -103,7 +101,7 @@ true :- true. % otherwise, $$compile will ignore this clause.
 	'$recorded'('$restore_goal',G,R),
 	erase(R),
 	prompt(_,'   | '),
-	'$system_catch'('$do_yes_no'((G->true),user),Error,user:'$Error'(Error)),
+	'$system_catch'('$do_yes_no'((G->true),user),user,Error,user:'$Error'(Error)),
 	fail.
 '$enter_top_level' :-
 	( '$get_value'('$trace', 1) ->
@@ -138,7 +136,8 @@ true :- true. % otherwise, $$compile will ignore this clause.
 
 '$startup_goals' :-
 	'$recorded'('$startup_goal',G,_),
-	'$system_catch'('$query'((G->true), []),Error,user:'$Error'(Error)),
+	'$current_module'(Module),
+	'$system_catch'('$query'((G->true), []),Module,Error,user:'$Error'(Error)),
 	fail.
 '$startup_goals'.
 
@@ -885,20 +884,20 @@ break :- '$get_value'('$break',BL), NBL is BL+1,
 	'$get_value'('$consulting_file',OldF),
 	'$set_consulting_file'(Stream),
 	H0 is heapused, T0 is cputime,
-	current_stream(File,_,Stream),
+	'$current_stream'(File,_,Stream),
 	'$start_consult'(consult,File,LC),
 	'$get_value'('$consulting',Old),
 	'$set_value'('$consulting',true),
 	'$recorda'('$initialisation','$',_),
 	( '$get_value'('$verbose',on) ->
-		tab(user_error,LC),
+		'$tab'(user_error,LC),
 		'$format'(user_error, "[ consulting ~w... ]~n", [F])
 	    ; true ),
 	'$loop'(Stream,consult),
 	'$end_consult',
 	( LC == 0 -> prompt(_,'   |: ') ; true),
 	( '$get_value'('$verbose',on) ->
-		tab(user_error,LC) ;
+		'$tab'(user_error,LC) ;
 	true ),
 	H is heapused-H0, T is cputime-T0,
 	( '$get_value'('$verbose',off) ->
@@ -954,11 +953,11 @@ break :- '$get_value'('$break',BL), NBL is BL+1,
 	'$current_module'(OldModule),
 	'$change_alias_to_stream'('$loop_stream',Stream),
 	repeat,
-		( current_stream(_,_,Stream) -> true
+		( '$current_stream'(_,_,Stream) -> true
 		 ; '$current_module'(_,OldModule), '$abort_loop'(Stream)
 		),
 		prompt('|     '), prompt(_,'| '),
-		'$system_catch'('$enter_command'(Stream,Status), Error,
+		'$system_catch'('$enter_command'(Stream,Status), OldModule, Error,
 			 user:'$LoopError'(Error)),
 	!,
 	'$exec_initialisation_goals',
@@ -1119,96 +1118,29 @@ expand_term(Term,Expanded) :-
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %   catch/throw implementation
 
-/* new design, not working for now:
+/* new design, not working for now: */
 
 % at each catch point I need to know:
 % what is ball;
 % where was the previous catch	
-newcatch(G, C, A) :-
+catch(G, C, A) :-
+	'$mark_tr'(Ball),
 	array_element('$catch', 0, OldEnv),
 	Env is '$env',
 	update_array('$catch', 0, Env),
 	'$execute'(G),
-	update_array('$catch', 0, Env),
-	array_element('$catch', 1, V),
-	(var(V) ->
-	    true
+	'$force_to_1st'(Ball),
+	( var(Ball) ->
+	    % no throw, just get rid of this.
+	    update_array('$catch', 0, OldEnv)
 	;
-	    !, '$handle_throw'(C, A)
+	    % jmp_env will reset both fields  for me!
+	    !, '$handle_throw'(C, A, Ball)
 	).
 
-'$handle_throw'(C, A) :-
-        % reset info 
-	array_element('$catch', 1, _),
-	array_element('$catch', 2, Ball),
-	(C = Ball ->
-	    '$execute'(A)
-	    ;
-	    throw(Ball)
-	).
-
-newthrow(Ball) :-
-	% say we are throwing something.
-	array_element('$catch', 1, []),
-	update_array('$catch', 2, Ball),
-	array_element('$catch', 0, Env),
-	'$jump_env'(Env).
-
-'$init_newcatch' :-
-	'$create_array'('$catch', 3).
-
-
-*/
-	
-catch(G,C,A) :- var(G), !,
-	throw(error(instantiation_error,catch(G,C,A))).
-catch(G,C,A) :- number(G), !,
-	throw(error(type_error(callable,G),catch(G,C,A))).
-catch(R,C,A) :- db_reference(R), !,
-	throw(error(type_error(callable,R),catch(R,C,A))).
-catch(G,C,A) :-
-	'$catch'(G,C,A).
-
-'$catch'(G,C,A) :-
-	'$get_value'('$catch', I),
-	I1 is I+1,
-	'$set_value'('$catch', I1),
-	'$current_module'(M),
-	'$catch'(G,C,A,I,M).
-
-'$catch'(G,_,_,I,_) :-
-        % on entry we push the catch choice point
-        X is '$last_choice_pt',
-	'$catch_call'(X,G,I, NX),
-	(X = NX -> !, '$erase_catch_elements'(I) ; true).
-% someone sent us a throw.
-'$catch'(_,C,A,_,M) :-
-	array_element('$catch_queue', 1, X), X \= '$',
-	update_array('$catch_queue', 1, '$'),
-	array_element('$catch_queue', 0, catch(_,Lev,Q)), !,
-	update_array('$catch_queue', 0, Q),
-	'$db_clean_queues'(Lev),
-        '$erase_catch_elements'(Lev),
-        ( C=X -> '$current_module'(_,M), '$execute'(A) ; throw(X)).
-% normal exit: make sure we only erase what we should erase!
-'$catch'(_,_,_,I,_) :-
-        '$erase_catch_elements'(I),
-	fail.
-
-'$catch_call'(X,G,I,NX) :-
-	array_element('$catch_queue', 0, OldCatch),
-	update_array('$catch_queue', 0, catch(X,I,OldCatch)),
-        '$execute'(G),
-	NX is '$last_choice_pt',
-        (
-	  array_element('$catch_queue', 0, catch(X,I,Catch)),
-	  update_array('$catch_queue', 0, Catch)
-	;
-          % on backtracking reinstate the catch before backtracking to G
-	  array_element('$catch_queue', 0, Catch),
-	  update_array('$catch_queue', 0, catch(X,I,Catch)),
-          fail
-        ).
+% just create a choice-point
+'$mark_tr'(_).
+'$mark_tr'(_) :- fail.
 
 %
 % system_catch is like catch, but it avoids the overhead of a full
@@ -1216,104 +1148,47 @@ catch(G,C,A) :-
 % This way it
 % also avoids module preprocessing and goal_expansion
 %
-'$system_catch'(G,C,A) :-
-	'$get_value'('$catch', I),
-	I1 is I+1,
-	'$set_value'('$catch', I1),
-	'$current_module'(M),
-	'$system_catch'(G,C,A,I,M).
-
-'$system_catch'(G,_,_,I,_) :-
-        % on entry we push the catch choice point
-        X is '$last_choice_pt',
-	'$system_catch_call'(X,G,I,NX),
-	( X = NX -> !, '$erase_catch_elements'(I) ; true).
-% someone sent us a throw.
-'$system_catch'(_,C,A,_,M) :-
-	array_element('$catch_queue', 1, X), X \= '$',
-	update_array('$catch_queue', 1, '$'),
-	array_element('$catch_queue', 0, catch(_,Lev,Q)), !,
-	update_array('$catch_queue', 0, Q),
-	'$db_clean_queues'(Lev),
-        '$erase_catch_elements'(Lev),
-        ( C=X ->
-	    '$execute'(M:A)
+'$system_catch'(G, M, C, A) :-
+	% check current trail
+	'$mark_tr'(Ball),
+	% update current catch handler
+	array_element('$catch', 0, OldEnv),
+	Env is '$env',
+	update_array('$catch', 0, Env),
+	'$execute0'(G, M),
+	% this says where Ball is, for the benefit of jump_env
+	'$force_to_1st'(Ball),
+	(
+	  var(Ball) ->
+	    % no throw, just get rid of this.
+	    update_array('$catch', 0, OldEnv)
 	;
-	  throw(X)
-        ).
-% normal exit: make sure we only erase what we should erase!
-'$system_catch'(_,_,_,I,_) :-
-        '$erase_catch_elements'(I),
-	fail.
+	    % process the throw, if we can.
+	    !, '$handle_throw'(C, A, Ball)
+	).
 
-'$erase_catch_elements'(I) :-
-	array_element('$catch_queue', 0, OldCatch),
-	'$erase_catch_elements'(OldCatch, I, Catch),
-	update_array('$catch_queue', 0, Catch).
+'$force_to_1st'(_).
 
-'$erase_catch_elements'(catch(_, J, P), I, Catch) :-
-          J >= I, !,
-	  '$erase_catch_elements'(P, I, Catch).
-'$erase_catch_elements'(Catch, _, Catch).
-	  
-'$system_catch_call'(X,G,I, NX) :-
-	array_element('$catch_queue', 0, OldCatch),
-	update_array('$catch_queue', 0, catch(X,I,OldCatch)),
-	'$current_module'(M),
-        '$execute0'(G,M),
-	NX is '$last_choice_pt',
-        ( % on exit remove the catch
-	  array_element('$catch_queue', 0, catch(X,I,Catch)),
-	  update_array('$catch_queue', 0, Catch)
-        ;
-          % on backtracking reinstate the catch before backtracking to G
-	  array_element('$catch_queue', 0, Catch),
-	  update_array('$catch_queue', 0, catch(X,I,Catch)),
-          fail
-        ).
+'$handle_throw'(C, A, '$ball'(Ball)) :-
+        % reset info 
+	(C = Ball ->
+	    '$execute'(A)
+	    ;
+	    throw(Ball)
+	).
 
-throw(A) :-
-	% fetch the point to jump to
-	array_element('$catch_queue', 0, catch(X,_,_)), !,
-	% now explain why we are jumping.
-	update_array('$catch_queue', 1, A),
-        '$$cut_by'(X),
-        fail.
-throw(G) :-
-        '$format'(user_error,"system_error_at(~w)",[G]),
-        abort.
-
+throw(Ball) :-
+	% get this off the unwound computation.
+	copy_term(Ball,NewBall),
+	% get current jump point
+	array_element('$catch', 0, Env),
+	% jump
+	'$jump_env_and_store_ball'(Env, '$ball'(NewBall)).
+% restore bindings.
+throw(_).
 
 '$init_catch' :-
-	% initialise access to the catch queue
-	( '$has_static_array'('$catch_queue') ->
-	    true
-	;
-	    static_array('$catch_queue',2, term)
-	),
-	update_array('$catch_queue', 0, '$'),
-	update_array('$catch_queue', 1, '$').
-
-
-'$check_list'(V, _) :- var(V), !.
-'$check_list'([], _) :- !.
-'$check_list'([_|B], T) :- !,
-	'$check_list'(B,T).
-'$check_list'(S, T) :-
-	throw(error(type_error(list,S),T)).
-
-'$clean_catch_and_throw' :-
-	'$set_value'('$catch', 0),
-	fail.
-'$clean_catch_and_throw' :-
-	'$recorded'('$catch',_,R),
-	erase(R),
-	fail.
-'$clean_catch_and_throw' :-
-	'$recorded'('$throw',_,R),
-	erase(R),
-	fail.
-'$clean_catch_and_throw'.
+	'$create_array'('$catch', 1).
 
 '$exec_initialisation_goals' :-
 	'$recorded'('$blocking_code',_,R),
@@ -1330,7 +1205,8 @@ throw(G) :-
 	'$recorded'('$initialisation',G,R),
 	erase(R),
 	G \= '$',
-	'$system_catch'(once(G), Error, user:'$LoopError'(Error)),
+	'$current_module'(M),
+	'$system_catch'(once(M:G), M, Error, user:'$LoopError'(Error)),
 	fail.
 '$exec_initialisation_goals'.
 
@@ -1340,6 +1216,5 @@ throw(G) :-
 	'$recorded'('$toplevel_hooks',H,_), !,
 	( '$execute'(H) -> true ; true).
 '$run_toplevel_hooks'.
-
 
 

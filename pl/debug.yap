@@ -463,7 +463,7 @@ debugging :-
 	'$creepcall_dynamic_clause'(G,M,Cl).
 
 '$catch_spycall_stdpred'(G,M) :-
-	'$system_catch'('$spycall_stdpred'(G,M), Error, user:'$DebugError'(Error)).
+	'$system_catch'('$spycall_stdpred'(G,M), M, Error, user:'$DebugError'(Error)).
 
 '$spycall_stdpred'(G,M) :-
 	functor(G,F,N),
@@ -480,7 +480,7 @@ debugging :-
 
 
 '$call_clause'(G,M,Cl) :-
-	'$system_catch'('$do_execute_clause'(G,M,Cl),Error,user:'$DebugError'(Error)).
+	'$system_catch'('$do_execute_clause'(G,M,Cl),M,Error,user:'$DebugError'(Error)).
 
 '$do_execute_clause'(G,M,Cl) :-
 	'$some_recordedp'(M:G), !,
@@ -497,7 +497,7 @@ debugging :-
 	'$execute'(G,M,Cl) ; Next is Cl+1, '$set_value'(spy_cl,Next), fail.
 
 '$call_log_updclause'(G,M,Cl,Index) :-
-	'$system_catch'('$do_execute_log_upd_clause'(G,M,Cl,Index),Error,user:'$DebugError'(Error)).
+	'$system_catch'('$do_execute_log_upd_clause'(G,M,Cl,Index),M,Error,user:'$DebugError'(Error)).
 
 '$do_execute_log_upd_clause'(G,M,Cl,Index) :-
 	'$check_depth_for_interpreter'(D),
@@ -526,10 +526,10 @@ debugging :-
 	D1 is D0-1.
 
 '$debug_catch_call'(Clause,M,CP) :-
-	'$system_catch'('$call'(Clause,CP,Clause,M),Error,user:'$DebugError'(Error)).
+	'$system_catch'('$call'(Clause,CP,Clause,M),M,Error,user:'$DebugError'(Error)).
 
 '$call_dynamic_clause'(G,M,Cl) :-
-	'$system_catch'('$do_execute_dynamic_clause'(G,M,Cl),Error,user:'$DebugError'(Error)).
+	'$system_catch'('$do_execute_dynamic_clause'(G,M,Cl),M,Error,user:'$DebugError'(Error)).
 
 '$do_execute_dynamic_clause'(G,M,Cl) :-
 	'$check_depth_for_interpreter'(D),
@@ -544,7 +544,7 @@ debugging :-
         ).
 
 '$creepcallclause'(G,M,Cl) :-
-	'$system_catch'('$do_creep_execute'(G,M,Cl),Error,user:'$DebugError'(Error)).
+	'$system_catch'('$do_creep_execute'(G,M,Cl),M,Error,user:'$DebugError'(Error)).
 
 '$do_creep_execute'(G,M,Cl) :-
 	 % fast skip should ignore source mode
@@ -567,7 +567,7 @@ debugging :-
 	Next is Cl+1, '$set_value'(spy_cl,Next), fail.
 
 '$creepcall_log_upd_clause'(G,M,Cl,Index) :-
-	'$system_catch'('$do_creep_log_upd_execute'(G,M,Cl,Index),Error,user:'$DebugError'(Error)).
+	'$system_catch'('$do_creep_log_upd_execute'(G,M,Cl,Index),M,Error,user:'$DebugError'(Error)).
 
 '$do_creep_log_upd_execute'(G,M,Cl,Index) :-
 	'$check_depth_for_interpreter'(D),
@@ -592,10 +592,10 @@ debugging :-
         ).
 
 '$catch_creep_call'(Clause,M,CP) :-
-	'$system_catch'('$creep_call'(Clause,M,CP),Error,user:'$DebugError'(Error)).
+	'$system_catch'('$creep_call'(Clause,M,CP),M,Error,user:'$DebugError'(Error)).
 
 '$creepcall_dynamic_clause'(G,M,Cl) :-
-	'$system_catch'('$do_creep_execute_dynamic'(G,M,Cl),Error,user:'$DebugError'(Error)).
+	'$system_catch'('$do_creep_execute_dynamic'(G,M,Cl),M,Error,user:'$DebugError'(Error)).
 
 '$do_creep_execute_dynamic'(G,M,Cl) :-
 	'$check_depth_for_interpreter'(D),
@@ -988,6 +988,7 @@ debugging :-
 % do not try to handle other throws or aborts.
 %
 '$DebugError'(T) :- !,
+	'$trace'(exception,T),
 	throw(T).
 
 '$init_spy_cl'(G,M) :-

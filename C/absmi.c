@@ -1277,8 +1277,37 @@ absmi(int inp)
 	    case _retry_profiled:
 	      opnum = op_from_opcode(NEXTOP(B->cp_ap,l)->opc);
 	      goto restart_cp;
-	    default:
+	    case _retry_me:
+	    case _trust_me:
+	    case _profiled_retry_me:
+	    case _profiled_trust_me:
+	    case _retry_me0:
+	    case _trust_me0:
+	    case _retry_me1:
+	    case _trust_me1:
+	    case _retry_me2:
+	    case _trust_me2:
+	    case _retry_me3:
+	    case _trust_me3:
+	    case _retry_me4:
+	    case _trust_me4:
+	    case _retry_and_mark:
+	    case _profiled_retry_and_mark:
+	    case _retry:
+	    case _trust_in:
+	    case _trust:
+	    case _retry_first:
+	    case _trust_first_in:
+	    case _trust_first:
+	    case _retry_tail:
+	    case _trust_tail_in:
+	    case _trust_tail:
+	    case _retry_head:
+	    case _trust_head_in:
+	    case _trust_head:
 	      low_level_trace(retry_pred, (PredEntry *)(PREG->u.ld.p), &(B->cp_a1));
+	    default:
+	      break;
 	    }
 	  }
 #endif	/* LOW_LEVEL_TRACER */

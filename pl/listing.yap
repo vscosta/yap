@@ -75,7 +75,7 @@ portray_clause(Pred) :-
 '$write_clause'(Head,Body) :-
         writeq(Head),
         ( Body = true  ;
-                tab(1), write((:-)),
+                '$tab'(1), write((:-)),
                 '$write_body'(Body,3,',')
         ),
         put("."), nl,
@@ -90,50 +90,50 @@ portray_clause(Pred) :-
         '$write_body'(Q,I,',').
 '$write_body'((P->Q;S),I,_) :-
 	!,
-	nl, tab(I-2), put("("),
+	nl, '$tab'(I-2), put("("),
 	'$write_body'(P,I,'('),
 	put("-"), put(">"),
 	'$write_body'(Q,I,'->'),
 	put(";"),
 	'$write_body'(S,I,';'),
-	tab(1), put(")").
+	'$tab'(1), put(")").
 '$write_body'((P->Q|S),I,_) :-
 	!,
-	nl, tab(I-2), put("("),
+	nl, '$tab'(I-2), put("("),
 	'$write_body'(P,I,'('),
 	put("-"), put(">"),
 	'$write_body'(Q,I,'->'),
 	put("|"),
 	'$write_body'(S,I,'|'),
-	tab(1), put(")").
+	'$tab'(1), put(")").
 '$write_body'((P->Q),I,_) :-
 	!,
-	nl, tab(I-2), put("("),
+	nl, '$tab'(I-2), put("("),
         '$write_body'(P,I,'('),
         put("-"), put(">"),
         '$write_body'(Q,I,'->'),
-        tab(1), put(")").
+        '$tab'(1), put(")").
 '$write_body'((P;Q),I,_) :-
         !,
-        nl, tab(I-2), put("("),
+        nl, '$tab'(I-2), put("("),
         '$write_body'(P,I,'('),
         put(";"),
         '$write_body'(Q,I,';'),
-        tab(1), put(")").
+        '$tab'(1), put(")").
 '$write_body'((P|Q),I,_) :-
         !,
-        nl, tab(I-2), put("("),
+        nl, '$tab'(I-2), put("("),
         '$write_body'(P,I,'('),
         put("|"),
         '$write_body'(Q,I,'|'),
-        tab(1), put(")").
+        '$tab'(1), put(")").
 '$write_body'((P|Q),I,_) :-
         !,
-        nl, tab(I-2), put("("),
+        nl, '$tab'(I-2), put("("),
         '$write_body'(P,I,'('),
         put("|"),
         '$write_body'(Q,I,'|'),
-        tab(1), put(")").
+        '$tab'(1), put(")").
 '$write_body'(X,I,T) :-
         '$beforelit'(T,I),
         writeq(X).
@@ -141,8 +141,8 @@ portray_clause(Pred) :-
 '$aftercomma'(',',I,I) :- !.
 '$aftercomma'(_,I0,I) :- I is I0+3.
 
-'$beforelit'('(',_) :- !, tab(1).
-'$beforelit'(_,I) :- nl, tab(I).
+'$beforelit'('(',_) :- !, '$tab'(1).
+'$beforelit'(_,I) :- nl, '$tab'(I).
 
 '$beautify_vars'(T) :-
 	'$list_get_vars'(T,[],L),

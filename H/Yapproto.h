@@ -10,7 +10,7 @@
 * File:		Yap.proto						 *
 * mods:									 *
 * comments:	Function declarations for YAP				 *
-* version:      $Id: Yapproto.h,v 1.6 2002-01-02 20:56:22 vsc Exp $	 *
+* version:      $Id: Yapproto.h,v 1.7 2002-01-07 06:28:03 vsc Exp $	 *
 *************************************************************************/
 
 /* prototype file for Yap */
@@ -133,7 +133,6 @@ void	STD_PROTO(WakeUp,(CELL *));
 /* dbase.c */
 int     STD_PROTO(DBTrailOverflow,(void));
 CELL	STD_PROTO(EvalMasks,(Term,CELL *));
-Int	STD_PROTO(SetDBForThrow,(Term));
 void	STD_PROTO(InitBackDB,(void));
 void	STD_PROTO(InitDBPreds,(void));
 
@@ -276,7 +275,6 @@ void	STD_PROTO(InitUtilCPreds,(void));
 
 /* yap.c */
 
-void	STD_PROTO(Abort,(char *msg, ...));
 void	STD_PROTO(addclause,(Term,CODEADDR,int,int));
 
 /* ypsocks.c */

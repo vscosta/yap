@@ -207,74 +207,6 @@ exit_yap (int value, char *msg)
   exit(value);
 }
 
-void
-Abort (char *format,...)
-{
-  va_list ap;
-  va_start (ap, format);
-
-  PrologMode &= ~AbortMode;
-  if (format || !strcmp(format,""))
-    {
-      char ch;
-      while ((ch = *format++)!=0)
-	if (ch != '%')
-	  YP_putc (ch, YP_stderr);
-	else
-	  {
-	    switch (*format++)
-	      {
-	      case 'c':
-		YP_putc (va_arg (ap, int), YP_stderr);
-		break;
-	      case 's':
-		YP_fprintf(YP_stderr, "%s", va_arg (ap, char *));
-		break;
-	      case 'd':
-#if SHORT_INTS
-		YP_fprintf(YP_stderr, "%ld", va_arg (ap, Int));
-#else
-		YP_fprintf(YP_stderr, "%d", va_arg (ap, Int));
-#endif
-		break;
-	      case 'x':
-#if SHORT_INTS
-		YP_fprintf(YP_stderr, "%lx", va_arg (ap, Int));
-#else
-		YP_fprintf(YP_stderr, "%x", va_arg (ap, Int));
-#endif
-		break;
-	      }
-	  }
-      YP_putc ('\n', YP_stderr);
-    }
-  va_end (ap);
-#ifdef DEBUGX
-  DumpActiveGoals();
-#endif /* DEBUG */
-  if (PrologMode & BootMode) {
-    exit_yap (1, NIL);
-  } else {
-    PutValue(AtomThrow, MkAtomTerm(AtomFalse));
-    CreepFlag = CalculateStackGap();
-#if PUSH_REGS
-    restore_absmi_regs(&standard_regs);
-#endif
-#if defined(__GNUC__)
-#if (defined(hppa) || defined(__alpha))
-    /* siglongjmp resets the TR hardware register */
-    save_TR();
-#endif
-#if defined(__alpha)
-    /* siglongjmp resets the H hardware register */
-    save_H();
-#endif
-#endif
-    siglongjmp (RestartEnv, 1);
-  }
-}
-
-
 static void detect_bug_location(char *tp, int psize)
 {
   Atom pred_name;
@@ -1806,34 +1738,24 @@ Error (yap_error_number type, Term where, char *format,...)
   }
   nt[1] = MkAtomTerm(LookupAtom(p));
   if (serious) {
-    Int depth;
-
+    choiceptr newb;
+    PredEntry *p = RepPredProp(PredPropByFunc(FunctorThrow,0));
+      
     CreepFlag = CalculateStackGap();
+    ASP--;
+    newb = ((choiceptr)ASP)-1;
+    newb->cp_h     = H;
+    newb->cp_tr    = TR;
+    newb->cp_cp    = CP;
+    newb->cp_ap    = (yamop *)(p->CodeOfPred);
+    newb->cp_env   = ENV;
+    newb->cp_b     = B;
     if (type == PURE_ABORT)
-      depth = SetDBForThrow(MkAtomTerm(LookupAtom("abort")));
+      ARG1 = newb->cp_a1 = MkAtomTerm(LookupAtom("abort"));
     else
-      depth = SetDBForThrow(MkApplTerm(fun, 2, nt));
-    if (depth == -1) {
-      /* if we did not find an error already */
-      if (P != (yamop *)FAILCODE)
-	/* oops, we lost our trap handler, backtrack until the root or
-           until an instance of do_goal */
-	while (B->cp_b != NULL && B->cp_ap != (yamop *) NOCODE)
-	  B = B->cp_b;
-      P = (yamop *)FAILCODE;
-      PrologMode &= ~InErrorMode;
-      return(P);
-    }
-    /* make the abstract machine jump where we want them to jump to */
-#ifdef YAPOR
-#if SBA
-    CUT_prune_to((choiceptr)depth);
-#else
-    CUT_prune_to((choiceptr)(LCL0-depth));
-#endif
-#else
-    B = (choiceptr)(LCL0-depth);
-#endif	/* YAPOR */
+      ARG1 = newb->cp_a1 = MkApplTerm(fun, 2, nt);
+    B = newb;
+    ASP = YENV = (CELL *)B;
     P = (yamop *)FAILCODE;
   }
   PrologMode &= ~InErrorMode;

@@ -31,7 +31,7 @@ ensure_loaded(V) :-
         '$change_module'(M0).
 '$ensure_loaded'(X) :- atom(X), !,
 	'$find_in_path'(X,Y),
-	( open(Y,'$csult',Stream), !,
+	( '$open'(Y, '$csult', Stream, 0), !,
 	     ( '$loaded'(Stream) ->
 		(  '$consulting_file_name'(Stream,TFN),
 		    '$recorded'('$module','$module'(TFN,M,P),_) ->
@@ -43,14 +43,14 @@ ensure_loaded(V) :-
 	       '$record_loaded'(Stream),
 	       '$reconsult'(X,Stream)
 	     ),
-	      close(Stream)
+	     '$close'(Stream)
 	;
 		
 	throw(error(permission_error(input,stream,X),ensure_loaded(X)))
 	).
 '$ensure_loaded'(library(X)) :- !,
 	'$find_in_path'(library(X),Y),
-	( open(Y,'$csult',Stream), !,
+	( '$open'(Y,'$csult',Stream, 0), !,
 	     ( '$loaded'(Stream) ->
 		(  '$consulting_file_name'(Stream,TFN),
 		    '$recorded'('$module','$module'(TFN,M,P),_) ->
@@ -62,7 +62,7 @@ ensure_loaded(V) :-
 	       '$record_loaded'(Stream),
 	       '$reconsult'(Y,Stream)
 	     ),
-	      close(Stream)
+	     '$close'(Stream)
 	;
 	throw(error(permission_error(input,stream,library(X)),ensure_loaded(library(X))))
 	).
@@ -107,17 +107,17 @@ reconsult(Fs) :-
 	'$reconsult'(Fs).
 '$reconsult'(X) :- atom(X), !,
 	'$find_in_path'(X,Y),
-	( open(Y,'$csult',Stream), !,
+	( '$open'(Y,'$csult',Stream,0), !,
 		'$record_loaded'(Stream),
-		'$reconsult'(X,Stream), close(Stream)
+		'$reconsult'(X,Stream), '$close'(Stream)
 	;
 		throw(error(permission_error(input,stream,X),reconsult(X)))
 	).
 '$reconsult'(library(X)) :- !,
 	'$find_in_path'(library(X),Y),
-	( open(Y,'$csult',Stream), !,
+	( '$open'(Y,'$csult',Stream,0), !,
 		'$record_loaded'(Stream),
-		'$reconsult'(library(X),Stream), close(Stream)
+		'$reconsult'(library(X),Stream), '$close'(Stream)
 	;
 		throw(error(permission_error(input,stream,library(X)),reconsult(library(X))))
 	).
@@ -136,7 +136,7 @@ reconsult(Fs) :-
 	'$start_consult'(reconsult,File,LC),
 	'$recorda'('$initialisation','$',_),
 	( '$get_value'('$verbose',on) ->
-		tab(user_error,LC),
+		'$tab'(user_error,LC),
 		'$format'(user_error, "[ reconsulting ~w... ]~n", [F])
 	    ; true ),
 	'$loop'(Stream,reconsult),
@@ -144,7 +144,7 @@ reconsult(Fs) :-
 	'$clear_reconsulting',
 	( LC == 0 -> prompt(_,'   |: ') ; true),
 	( '$get_value'('$verbose',on) ->
-		tab(user_error,LC) ;
+		'$tab'(user_error,LC) ;
 	true ),	
 	H is heapused-H0, T is cputime-T0,
 	( '$get_value'('$verbose',off) ->
@@ -162,11 +162,11 @@ reconsult(Fs) :-
 	'$recorda'('$reconsulting',F,_).
 
 'EMACS_FILE'(F,File0) :-
-	format('''EMACS_RECONSULT''(~w).~n',[File0]),
+	'$format'('''EMACS_RECONSULT''(~w).~n',[File0]),
 	'$getcwd'(OldD),
-	open(F,'$csult',Stream),
+	'$open'(F,'$csult',Stream,0),
 	'$find_in_path'(File0,File),
-	open(File,'$csult',Stream0),
+	'$open'(File,'$csult',Stream0,0),
 	'$get_value'('$consulting_file',OldF),
 	'$set_consulting_file'(Stream0),
 	H0 is heapused, T0 is cputime,
@@ -176,7 +176,7 @@ reconsult(Fs) :-
 	'$start_consult'(reconsult,File,LC),
 	'$recorda'('$initialisation','$',_),
 	( '$get_value'('$verbose',on) ->
-		tab(user_error,LC),
+		'$tab'(user_error,LC),
 		'$format'(user_error, "[ reconsulting ~w... ]~n", [F])
 	    ; true ),
 	'$loop'(Stream,reconsult),
@@ -184,7 +184,7 @@ reconsult(Fs) :-
 	'$clear_reconsulting',
 	( LC == 0 -> prompt(_,'   |: ') ; true),
 	( '$get_value'('$verbose',on) ->
-		tab(user_error,LC) ;
+		'$tab'(user_error,LC) ;
 	true ),	
 	H is heapused-H0, T is cputime-T0,
 	( '$get_value'('$verbose',off) ->
@@ -220,8 +220,8 @@ reconsult(Fs) :-
 '$include'(X, Status) :- atom(X), !,
 	'$find_in_path'(X,Y),
 	'$values'('$included_file',OY,Y),
-	( open(Y,'$csult',Stream), !,
-		'$loop'(Stream,Status), close(Stream)
+	( '$open'(Y,'$csult',Stream,0), !,
+		'$loop'(Stream,Status), '$close'(Stream)
 	;
 		throw(error(permission_error(input,stream,Y),include(X)))
 	),
@@ -236,10 +236,10 @@ reconsult(Fs) :-
 	  '$set_value'('$verbose',off)
 	),
 	'$find_in_path'(X,Y),
-	( open(Y,'$csult',Stream), !,
+	( '$open'(Y,'$csult',Stream,0), !,
 		'$record_loaded'(Stream),
 		( '$access_yap_flags'(15, 0) -> true ; '$skip_unix_comments'(Stream) ),
-		'$reconsult'(X,Stream), close(Stream)
+		'$reconsult'(X,Stream), '$close'(Stream)
 	;
 		'$output_error_message'(permission_error(input,stream,X),reconsult(X))
 	),

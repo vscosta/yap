@@ -35,9 +35,9 @@
 '$make_system_preds'(woken_att_do) :- !.
 '$make_system_preds'(convert_att_var) :- !.
 '$make_system_preds'(Name) :- 
-%	format("~NProtecting ~a",Name),
+%	'$format'("~NProtecting ~a",Name),
 	'$pred_defined_for'(Name,Pred),
-%	format("~NProtecting ~q",Pred),	
+%	'$format'("~NProtecting ~q",Pred),	
 	'$protect_system_pred'(Pred),
 	fail.
 '$make_system_preds'(_).

@@ -292,7 +292,7 @@ seeing(File) :- current_input(Stream),
 	'$user_file_name'(Stream,NFile),
 	( '$user_file_name'(user_input,NFile) -> File = user ; NFile = File).
 
-seen :- current_input(Stream), close(Stream), set_input(user).
+seen :- current_input(Stream), '$close'(Stream), set_input(user).
 
 tell(user) :- !, set_output(user_output).
 tell(F) :- var(F), !,
@@ -309,7 +309,7 @@ telling(File) :- current_output(Stream),
 	'$user_file_name'(Stream,NFile),
 	( '$user_file_name'(user_output,NFile) -> File = user ; File = NFile ).
 
-told :- current_output(Stream), close(Stream), set_output(user).
+told :- current_output(Stream), '$close'(Stream), set_output(user).
 
 
 /* Term IO	*/
@@ -734,7 +734,7 @@ stream_position(user,N) :- !,
 	'$show_stream_position'(user_input,N).
 stream_position(A,N) :- 
 	atom(A),
-	current_stream(_,_,S), '$user_file_name'(S,A), !,
+	'$current_stream'(_,_,S), '$user_file_name'(S,A), !,
 	'$show_stream_position'(S,N).
 stream_position(S,N) :-
 	'$show_stream_position'(S,N).
@@ -743,7 +743,7 @@ stream_position(user,N,M) :- !,
 	'$stream_position'(user_input,N,M).
 stream_position(A,N,M) :- 
 	atom(A),
-	current_stream(_,_,S), '$user_file_name'(S,A), !,
+	'$current_stream'(_,_,S), '$user_file_name'(S,A), !,
 	'$stream_position'(S,N,M).
 stream_position(S,N,M) :-
 	'$stream_position'(S,N,M).
@@ -763,17 +763,17 @@ set_stream_position(user,N) :- !,
 	'$set_stream_position'(user_input,N).
 set_stream_position(A,N) :- 
 	atom(A),
-	current_stream(_,_,S), '$user_file_name'(S,A), !,
+	'$current_stream'(_,_,S), '$user_file_name'(S,A), !,
 	'$set_stream_position'(S,N).
 set_stream_position(S,N) :-
 	'$set_stream_position'(S,N).
 
 stream_property(Stream, Prop) :-  var(Prop), !,
-        (var(Stream) -> current_stream(_,_,Stream) ; true),
+        (var(Stream) -> '$current_stream'(_,_,Stream) ; true),
         '$generate_prop'(Prop),
 	'$stream_property'(Stream, Prop).
 stream_property(Stream, Props) :-  var(Stream), !,
-	current_stream(_,_,Stream),
+	'$current_stream'(_,_,Stream),
 	'$stream_property'(Stream, Props).
 stream_property(Stream, Props) :-
 	'$check_stream'(Stream), !,
@@ -798,7 +798,7 @@ stream_property(Stream, Props) :-
 '$stream_property'(Stream, Props0) :-
 	'$check_stream_props'(Props0, Props),
 	'$check_io_opts'(Props, stream_property(Stream, Props)),
-	current_stream(F,Mode,Stream),
+	'$current_stream'(F,Mode,Stream),
 	'$process_stream_properties'(Props, Stream, F, Mode).
 
 '$check_stream_props'([], []) :- !.
@@ -883,9 +883,9 @@ absolute_file_name(RelFile, AbsFile) :-
 '$exists'(F,Mode,AbsFile) :-
 	'$get_value'(fileerrors,V),
 	'$set_value'(fileerrors,0),
-	( open(F,Mode,S), !,
+	( '$open'(F,Mode,S,0), !,
 	    '$file_name'(S, AbsFile),
-	     close(S), '$set_value'(fileerrors,V);
+	     '$close'(S), '$set_value'(fileerrors,V);
 	     '$set_value'(fileerrors,V), fail).
 
 
@@ -902,3 +902,7 @@ current_char_conversion(X,Y) :-
 	'$fetch_char_conversion'(List,X,Y).
 
 
+current_stream(File, Opts, Stream) :-
+	'$current_stream'(File, Opts, Stream).
+
+	

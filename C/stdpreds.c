@@ -1230,9 +1230,7 @@ static Int
 p_abort(void)
 {				/* abort			 */
   /* make sure we won't go creeping around */
-  CreepFlag = CalculateStackGap();
-  yap_flags[SPY_CREEP_FLAG] = 0;
-  Abort("");
+  Error(PURE_ABORT, TermNil, "");
   return(FALSE);
 }
 
