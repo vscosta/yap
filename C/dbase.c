@@ -4558,7 +4558,8 @@ mega_instance(yamop *code, PredEntry *ap)
     CELL *ptr;
 
     if (IsVarTerm(t2)) {
-      Yap_unify(ARG2, (t2 = Yap_MkNewApplTerm(f,arity)));
+      t2 = Yap_MkNewApplTerm(f,arity);
+      Yap_unify(ARG2, t2);
     } else if (!IsApplTerm(t2) || FunctorOfTerm(t2) != f) {
       return FALSE;
     }

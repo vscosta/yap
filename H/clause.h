@@ -290,12 +290,12 @@ Yap_MkMegaRefTerm(PredEntry *ap,yamop *ipc)
 static inline yamop * 
 Yap_MegaClauseFromTerm(Term t)
 {
-  return (yamop *)IntegerOfTerm(ArgOfTerm(1,t));
+  return (yamop *)IntegerOfTerm(ArgOfTerm(2,t));
 }
 
 static inline PredEntry * 
 Yap_MegaClausePredicateFromTerm(Term t)
 {
-  return (PredEntry *)IntegerOfTerm(ArgOfTerm(2,t));
+  return (PredEntry *)IntegerOfTerm(ArgOfTerm(1,t));
 }
 

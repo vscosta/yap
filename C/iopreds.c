@@ -4165,26 +4165,26 @@ format(volatile Term otail, volatile Term oargs, int sno)
 	    f_putc = format_putc;
 	    break;
 	  do_instantiation_error:
-	    Yap_Error(INSTANTIATION_ERROR, t, "format/2");
+	    Yap_Error(INSTANTIATION_ERROR, t, "format(\"%s\",_) ", fstr);
 	    goto do_default_error;
 	  do_type_int_error:
-	    Yap_Error(TYPE_ERROR_INTEGER, t, "format/2");
+	    Yap_Error(TYPE_ERROR_INTEGER, t, "format(\"%s\",_) ", fstr);
 	    goto do_default_error;
 	  do_type_number_error:
-	    Yap_Error(TYPE_ERROR_NUMBER, t, "format/2");
+	    Yap_Error(TYPE_ERROR_NUMBER, t, "format(\"%s\",_) ", fstr);
 	    goto do_default_error;
 	  do_type_atom_error:
-	    Yap_Error(TYPE_ERROR_ATOM, t, "format/2");
+	    Yap_Error(TYPE_ERROR_ATOM, t, "format(\"%s\",_) ", fstr);
 	    goto do_default_error;
 	  do_domain_not_less_zero_error:
-	    Yap_Error(DOMAIN_ERROR_NOT_LESS_THAN_ZERO, t, "format/2");
+	    Yap_Error(DOMAIN_ERROR_NOT_LESS_THAN_ZERO, t, "format(\"%s\",_) ", fstr);
 	    goto do_default_error;
 	  do_domain_error_radix:
-	    Yap_Error(DOMAIN_ERROR_RADIX, t, "format/2");
+	    Yap_Error(DOMAIN_ERROR_RADIX, t, "format(\"%s\",_) ", fstr);
 	    goto do_default_error;
 	  do_consistency_error:
 	  default:
-	    Yap_Error(CONSISTENCY_ERROR, oargs, "format/2");
+	    Yap_Error(CONSISTENCY_ERROR, oargs, "format(\"%s\",_) ", fstr);
 	  do_default_error:
 	    if (tnum <= 8)
 	      targs = NULL;
