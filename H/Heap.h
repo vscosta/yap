@@ -10,7 +10,7 @@
 * File:		Heap.h         						 *
 * mods:									 *
 * comments:	Heap Init Structure					 *
-* version:      $Id: Heap.h,v 1.19 2002-01-11 15:54:17 stasinos Exp $	 *
+* version:      $Id: Heap.h,v 1.20 2002-01-14 22:25:17 vsc Exp $	 *
 *************************************************************************/
 
 /* information that can be stored in Code Space */
@@ -388,7 +388,7 @@ typedef struct various_codes {
 #define  AtomRead                 heap_regs->atom_read
 #define  AtomRepeat               heap_regs->atom_repeat
 #define  AtomRestoreRegs          heap_regs->atom_restore_regs
-#if USE_SIGACTION
+#if HAVE_SIGACTION
 #define  AtomSigPending           heap_regs->atom_sig_pending
 #endif
 #define  AtomStackFree            heap_regs->atom_stack_free

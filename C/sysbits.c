@@ -1279,6 +1279,7 @@ ReceiveSignal (int s)
     case SIGKILL:
       exit_yap (SIGKILL, "\n\n\n[ Quit signal received ]\n\n");
 #endif
+#if HAVE_SIGACTION
     case SIGUSR1:
       /* force the system to creep */
       p_creep ();
@@ -1300,6 +1301,7 @@ ReceiveSignal (int s)
       /* NOTE: shouldn't this be a queue? */
       PutValue(AtomSigPending, MkAtomTerm(LookupAtom("sig_hup")));
       break;
+#endif
     default:
       YP_fprintf(YP_stderr, "\n[ Unexpected signal ]\n");
       exit (EXIT_FAILURE);
