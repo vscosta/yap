@@ -252,7 +252,9 @@ debugging :-
 '$spy'([Module|'$call'(G)]) :- !,
 	'fetch_goal_module'(G, Module, G1, Mod),
         '$expand_goal'(G1, Mod, Module, NG, NM),
-	'$do_spy'(NG, NM).
+	/* we may execute a system predicate, so we cannot
+	   jump straight to do_spy */
+	'$spy'([NM|NG]).
 '$spy'([Module|G]) :-
 %    '$format'(user_error,"$spym(~w,~w)~n",[Module,G]),
          '$hidden'(G),
@@ -841,6 +843,9 @@ debugging :-
 '$skipeol'(10) :- !.
 '$skipeol'(_) :- get0(user,C), '$skipeol'(C).
 
+'$action'(10,call,_,_,continue) :- !,		% newline 	creep
+	'$set_yap_flags'(10,1),
+	'$creep'.
 '$action'(10,_,_,_,continue) :- !.		% newline 	creep
 '$action'(33,_,_,_,_) :- !,		% ! g		execute
 	read(user,G),
