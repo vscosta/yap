@@ -345,6 +345,8 @@ retractall(V) :- !,
 	'$recordedp'(M:T,_,_), fail.
 '$erase_all_clauses_for_dynamic'(_,_).
 
+abolish(Mod:N,A) :- !,
+	'$abolish'(N,A,Mod).
 abolish(N,A) :-
 	'$current_module'(Mod),
 	'$abolish'(N,A,Mod).
