@@ -120,8 +120,10 @@ SetHeapRegs(void)
   Yap_TrailTop = TrailAddrAdjust(Yap_TrailTop);
   Yap_GlobalBase = DelayAddrAdjust(Yap_GlobalBase);
   Yap_LocalBase = LocalAddrAdjust(Yap_LocalBase);
+#if !USE_SYSTEM_MALLOC
   AuxSp = PtoDelayAdjust(AuxSp);
   AuxTop = (ADDR)PtoDelayAdjust((CELL *)AuxTop);
+#endif
   HeapLim = DelayAddrAdjust(HeapLim);
   /* The registers pointing to one of the stacks */
   ENV = PtoLocAdjust(ENV);

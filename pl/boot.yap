@@ -848,7 +848,6 @@ break :- get_value('$break',BL), NBL is BL+1,
         '$consult'(X),
         '$change_module'(M0).
 '$consult'(X) :-
-	'$lock_system',
 	'$find_in_path'(X,Y,consult(X)),
 	'$open'(Y,'$csult',Stream,0), !,
 	'$current_module'(OldModule),
@@ -875,7 +874,6 @@ break :- get_value('$break',BL), NBL is BL+1,
 	get_value('$consulting',Old),
 	set_value('$consulting',true),
 	recorda('$initialisation','$',_),
-	'$unlock_system',
 	( '$undefined'('$print_message'(_,_),prolog) -> 
 	    ( get_value('$verbose',on) ->
 		'$format'(user_error, "~*|[ consulting ~w... ]~n", [LC,F])
