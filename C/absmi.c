@@ -10,8 +10,11 @@
 *									 *
 * File:		absmi.c							 *
 * comments:	Portable abstract machine interpreter                    *
-* Last rev:     $Date: 2004-09-17 19:34:49 $,$Author: vsc $						 *
+* Last rev:     $Date: 2004-09-17 20:47:35 $,$Author: vsc $						 *
 * $Log: not supported by cvs2svn $
+* Revision 1.144  2004/09/17 19:34:49  vsc
+* simplify frozen/2
+*
 * Revision 1.143  2004/08/16 21:02:04  vsc
 * more fixes for !
 *
@@ -2454,7 +2457,7 @@ Yap_absmi(int inp)
      /* This is easier: I know there is an environment so I cannot do allocate */
     NoStackCommitY:
       /* find something to fool S */
-      if (ActiveSignals & YAP_CDOVF_SIGNAL) {
+      if (!ActiveSignals || ActiveSignals & YAP_CDOVF_SIGNAL) {
 	goto do_commit_b_y;
       }
       if (ActiveSignals != YAP_CREEP_SIGNAL) {
@@ -2469,7 +2472,7 @@ Yap_absmi(int inp)
       /* Problem: have I got an environment or not? */
     NoStackCommitX:
       /* find something to fool S */
-      if (ActiveSignals & YAP_CDOVF_SIGNAL) {
+      if (!ActiveSignals || ActiveSignals & YAP_CDOVF_SIGNAL) {
 	goto do_commit_b_x;
       }
       if (ActiveSignals != YAP_CREEP_SIGNAL) {

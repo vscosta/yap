@@ -3437,16 +3437,54 @@ p_recorded(void)
 	if (!Yap_unify(ARG2, cl->ClSource->Entry)) {
 	  return FALSE;
 	}
-      } else if (!Yap_unify(ARG2,GetDBTerm(cl->ClSource))) {
-	return FALSE;
+      } else {
+	Term TermDB;
+	while ((TermDB = GetDBTerm(cl->ClSource)) == (CELL)0) {
+	  /* oops, we are in trouble, not enough stack space */
+	  if (Yap_Error_TYPE == OUT_OF_ATTVARS_ERROR) {
+	    Yap_Error_TYPE = YAP_NO_ERROR;
+	    if (!Yap_growglobal(NULL)) {
+	      Yap_Error(OUT_OF_ATTVARS_ERROR, TermNil, Yap_ErrorMessage);
+	      return FALSE;
+	    }
+	  } else {
+	    Yap_Error_TYPE = YAP_NO_ERROR;
+	    if (!Yap_gcl(Yap_Error_Size, 3, ENV, P)) {
+	      Yap_Error(OUT_OF_STACK_ERROR, TermNil, Yap_ErrorMessage);
+	      return(FALSE);
+	    }
+	  }
+	}
+	if (!Yap_unify(ARG2,TermDB)) {
+	  return FALSE;
+	}
+	ap = cl->ClPred;
+	return Yap_unify(GetDBLUKey(ap), ARG1);
       }
-      ap = cl->ClPred;
-      return Yap_unify(GetDBLUKey(ap), ARG1);
-    } else if (!Yap_unify(ARG2,GetDBTermFromDBEntry(ref))
-	       || !UnifyDBKey(ref,0,ARG1)) {
-      return FALSE;
     } else {
-      return TRUE;
+      Term TermDB;
+      while ((TermDB = GetDBTermFromDBEntry(ref)) == (CELL)0) {
+	/* oops, we are in trouble, not enough stack space */
+	if (Yap_Error_TYPE == OUT_OF_ATTVARS_ERROR) {
+	  Yap_Error_TYPE = YAP_NO_ERROR;
+	  if (!Yap_growglobal(NULL)) {
+	    Yap_Error(OUT_OF_ATTVARS_ERROR, TermNil, Yap_ErrorMessage);
+	    return FALSE;
+	  }
+	} else {
+	  Yap_Error_TYPE = YAP_NO_ERROR;
+	  if (!Yap_gcl(Yap_Error_Size, 3, ENV, P)) {
+	    Yap_Error(OUT_OF_STACK_ERROR, TermNil, Yap_ErrorMessage);
+	    return(FALSE);
+	  }
+	}
+      }
+      if (!Yap_unify(ARG2,TermDB)
+	  || !UnifyDBKey(ref,0,ARG1)) {
+	return FALSE;
+      }	else {
+	return TRUE;
+      }
     }
   }
   if ((pe = find_lu_entry(twork)) != NULL) {

@@ -194,7 +194,6 @@ copy_complex_term(register CELL *pt0, register CELL *pt0_end, CELL *ptf, CELL *H
       }
       continue;
     }
-    
 
     derefa_body(d0, ptd0, copy_term_unk, copy_term_nvar);
     if (ptd0 >= HLow && ptd0 < H) { 
@@ -1325,7 +1324,7 @@ static int variant_complex(register CELL *pt0, register CELL *pt0_end, register
   register CELL **to_visit = (CELL **)ASP;
   /* make sure that unification always forces trailing */
   HBREG = H;
-  
+ 
 
  loop:
   while (pt0 < pt0_end) {
@@ -1366,6 +1365,8 @@ static int variant_complex(register CELL *pt0, register CELL *pt0_end, register
 	/* now link the two structures so that no one else will */
 	/* come here */
 	to_visit -= 4;
+	if ((CELL *)to_visit < H+1024)
+	  goto out_of_stack;
 	to_visit[0] = pt0;
 	to_visit[1] = pt0_end;
 	to_visit[2] = pt1;
@@ -1375,6 +1376,8 @@ static int variant_complex(register CELL *pt0, register CELL *pt0_end, register
 	/* store the terms to visit */
 	if (pt0 < pt0_end) {
 	  to_visit -= 3;
+	  if ((CELL *)to_visit < H+1024)
+	    goto out_of_stack;
 	  to_visit[0] = pt0;
 	  to_visit[1] = pt0_end;
 	  to_visit[2] = pt1;
@@ -1407,6 +1410,8 @@ static int variant_complex(register CELL *pt0, register CELL *pt0_end, register
 	/* now link the two structures so that no one else will */
 	/* come here */
 	to_visit -= 4;
+	if ((CELL *)to_visit < H+1024)
+	  goto out_of_stack;
 	to_visit[0] = pt0;
 	to_visit[1] = pt0_end;
 	to_visit[2] = pt1;
@@ -1416,6 +1421,8 @@ static int variant_complex(register CELL *pt0, register CELL *pt0_end, register
 	  /* store the terms to visit */
 	  if (pt0 < pt0_end) {
 	    to_visit -= 3;
+	    if ((CELL *)to_visit < H+1024)
+	      goto out_of_stack;
 	    to_visit[0] = pt0;
 	    to_visit[1] = pt0_end;
 	    to_visit[2] = pt1;
@@ -1454,7 +1461,27 @@ static int variant_complex(register CELL *pt0, register CELL *pt0_end, register
     RESET_VARIABLE(pt1);
   }
   HBREG = B->cp_h;
-  return(TRUE);
+  return TRUE;
+
+ out_of_stack:
+  H = HBREG;
+  /* untrail all bindings made by variant */
+#ifdef RATIONAL_TREES
+  while (to_visit < (CELL **)ASP) {
+    pt0 = to_visit[0];
+    pt0_end = to_visit[1];
+    pt1 = to_visit[2];
+    *pt0 = (CELL)to_visit[3];
+    to_visit += 4;
+  }
+#endif
+  while (TR != (tr_fr_ptr)OLDTR) {
+    CELL *pt1 = (CELL *) TrailTerm(--TR);
+    RESET_VARIABLE(pt1);
+  }
+  HBREG = B->cp_h;
+  return -1;
+
 
  fail:
   /* failure */
@@ -1474,7 +1501,7 @@ static int variant_complex(register CELL *pt0, register CELL *pt0_end, register
     RESET_VARIABLE(pt1);
   }
   HBREG = B->cp_h;
-  return(FALSE);
+  return FALSE;
 }
 
 static Int 
@@ -1482,6 +1509,7 @@ p_variant(void) /* variant terms t1 and t2	 */
 {
   Term t1 = Deref(ARG1);
   Term t2 = Deref(ARG2);
+  int out;
 
   if (t1 == t2)
     return (TRUE);
@@ -1496,23 +1524,37 @@ p_variant(void) /* variant terms t1 and t2	 */
   }
   if (IsPairTerm(t1)) {
     if (IsPairTerm(t2)) {
-      return(variant_complex(RepPair(t1)-1,
-			     RepPair(t1)+1,
-			     RepPair(t2)-1));
+      out = variant_complex(RepPair(t1)-1,
+			    RepPair(t1)+1,
+			    RepPair(t2)-1);
+      if (out < 0) goto error;
     }
     else return (FALSE);
   }
-  if (!IsApplTerm(t2)) return(FALSE);
-  {
+  if (!IsApplTerm(t2)) {
+    return FALSE;
+  } else {
     Functor f1 = FunctorOfTerm(t1);
+
     if (f1 != FunctorOfTerm(t2)) return(FALSE);
     if (IsExtensionFunctor(f1)) {
       return(unify_extension(f1, t1, RepAppl(t1), t2));
     }
-    return(variant_complex(RepAppl(t1),
-			   RepAppl(t1)+ArityOfFunctor(f1),
-			   RepAppl(t2)));
+    out = variant_complex(RepAppl(t1),
+			  RepAppl(t1)+ArityOfFunctor(f1),
+			  RepAppl(t2));
+    if (out < 0) goto error;
+    return out;
   }
+ error:
+  if (out == -1) {
+    if (!Yap_gc(2, ENV, P)) {
+      Yap_Error(OUT_OF_STACK_ERROR, TermNil, "in variant");
+      return FALSE;
+    }
+    return p_variant();
+  }
+  return FALSE;
 }
 
 static int subsumes_complex(register CELL *pt0, register CELL *pt0_end, register
