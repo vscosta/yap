@@ -8784,7 +8784,11 @@ variable. In the latter case, YAP discards previous values for the
 attributes.
 @item The built-in @code{get_atts/2} can be used to check the values of
 an attribute associated with a variable.
+<<<<<<< yap.tex
+@item The unification algorithm calls the user-defined predicate
+=======
 @item The unification algoritm calls the user-defined predicate
+>>>>>>> 1.89
 @t{verify_attributes/3} before trying to bind an attributed
 variable. Unification will resume after this call.
 @item The user-defined predicate
@@ -9034,7 +9038,7 @@ the completion of @code{verify_attribute/3}.  Otherwise, there might be a
 danger of recursively invoking @code{verify_attribute/3}, which might bind
 @code{Var}, which is not allowed inside the scope of @code{verify_attribute/3}.
 Deferring unifications into the third argument of @code{verify_attribute/3}
-effectively serializes th calls to @code{verify_attribute/3}.
+effectively serializes the calls to @code{verify_attribute/3}.
 
 Assuming that the code resides in the file @file{domain.yap}, we
 can use it via:
