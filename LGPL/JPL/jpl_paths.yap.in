@@ -1,0 +1,3 @@
+jpl_java_home('@JAVA_HOME@').
+
+
