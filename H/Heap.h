@@ -10,7 +10,7 @@
 * File:		Heap.h         						 *
 * mods:									 *
 * comments:	Heap Init Structure					 *
-* version:      $Id: Heap.h,v 1.3 2001-06-06 19:10:51 vsc Exp $	 *
+* version:      $Id: Heap.h,v 1.4 2001-06-08 13:38:42 vsc Exp $	 *
 *************************************************************************/
 
 /* information that can be stored in Code Space */
@@ -32,7 +32,7 @@ typedef struct various_codes {
   Int heap_used;
   Int heap_max;
   ADDR heap_top;
-  void  *free_blocks;
+  struct FREEB  *free_blocks;
 #if defined(YAPOR) || defined(THREADS)
   lockvar  free_blocks_lock;     /* protect the list of free blocks */
 #endif
@@ -252,7 +252,7 @@ typedef struct various_codes {
   PredEntry *pred_meta_call;
   UInt n_of_file_aliases;
   UInt sz_of_file_aliases;
-  void * file_aliases;
+  struct AliasDescS * file_aliases;
   void *foreign_code_loaded;
   char *yap_lib_dir;
 #if defined(YAPOR) || defined(TABLING)
@@ -429,7 +429,7 @@ typedef struct various_codes {
 #define  PredMetaCall             heap_regs->pred_meta_call
 #define  NOfFileAliases           heap_regs->n_of_file_aliases
 #define  SzOfFileAliases          heap_regs->sz_of_file_aliases
-#define  FileAliases              ((AliasDesc)(heap_regs->file_aliases))
+#define  FileAliases              heap_regs->file_aliases
 #define  ForeignCodeLoaded        heap_regs->foreign_code_loaded
 #define  Yap_LibDir               heap_regs->yap_lib_dir
 #define  DeadClauses              heap_regs->dead_clauses
