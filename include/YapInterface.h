@@ -351,7 +351,7 @@ extern X_API YAP_Module  PROTO(YAP_CreateModule,(YAP_Atom));
 
 /* thread stuff */
 extern X_API int  PROTO(YAP_ThreadSelf,(void));
-extern X_API int  PROTO(YAP_ThreadCreateEngine,(YAP_thread_attr *));
+extern X_API YAP_CELL PROTO(YAP_ThreadCreateEngine,(YAP_thread_attr *));
 extern X_API int  PROTO(YAP_ThreadAttachEngine,(int));
 extern X_API int  PROTO(YAP_ThreadDetachEngine,(int));
 extern X_API int  PROTO(YAP_ThreadDestroyEngine,(int));

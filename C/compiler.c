@@ -11,8 +11,11 @@
 * File:		compiler.c						 *
 * comments:	Clause compiler						 *
 *									 *
-* Last rev:     $Date: 2005-03-04 20:30:11 $,$Author: ricroc $						 *
+* Last rev:     $Date: 2005-03-13 06:26:10 $,$Author: vsc $						 *
 * $Log: not supported by cvs2svn $
+* Revision 1.63  2005/03/04 20:30:11  ricroc
+* bug fixes for YapTab support
+*
 * Revision 1.62  2005/02/21 16:49:39  vsc
 * amd64 fixes
 * library fixes
@@ -1454,7 +1457,7 @@ c_goal(Term Goal, int mod, compiler_struct *cglobs)
     }
     else if (f == FunctorComma) {
       int save = cglobs->onlast;
-      int t2 = ArgOfTerm(2, Goal);
+      Term t2 = ArgOfTerm(2, Goal);
 
       cglobs->onlast = FALSE;
       c_goal(ArgOfTerm(1, Goal), mod, cglobs);

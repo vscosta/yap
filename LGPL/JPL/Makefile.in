@@ -23,7 +23,7 @@ INSTALL_DATA=@INSTALL_DATA@
 INSTALL_PROGRAM=@INSTALL_PROGRAM@
 srcdir=@srcdir@
 
-PROGRAMS= $(srcdir)/jpl.yap
+PROGRAMS= $(srcdir)/jpl.yap  jpl_paths.yap
 
 install: $(PROGRAMS)
 	mkdir -p $(DESTDIR)$(SHAREDIR)/Yap

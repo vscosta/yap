@@ -6,7 +6,40 @@
 	nth1/3,
 	forall/2,
 	between/3,
-	concat_atom/2]).
+	concat_atom/2,
+	volatile/1]).
+
+
+:- multifile user:file_search_path/2.
+
+:- dynamic user:file_search_path/2.
+
+user:file_search_path(swi, Home) :-
+        current_prolog_flag(home, Home).
+user:file_search_path(foreign, swi(ArchLib)) :-
+        current_prolog_flag(arch, Arch),
+        atom_concat('lib/', Arch, ArchLib).
+user:file_search_path(foreign, swi(lib)).
+
+%
+% maybe a good idea to eventually support this in YAP.
+% but for now just ignore it.
+%
+:- meta_predicate volatile(:).
+
+:- op(1150, fx, 'volatile').
+
+volatile(P) :- var(P),
+	throw(error(instantiation_error,volatile(P))).
+volatile(M:P) :-
+	do_volatile(P,M).
+volatile((G1,G2)) :-
+	volatile(G1),
+	volatile(G2).
+volatile(P) :-
+	do_volatile(P,_).
+
+do_volatile(_,_).
 
 :- meta_predicate forall(+,:).
 

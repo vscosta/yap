@@ -10,8 +10,11 @@
 *									 *
 * File:		absmi.c							 *
 * comments:	Portable abstract machine interpreter                    *
-* Last rev:     $Date: 2005-03-07 17:49:14 $,$Author: vsc $						 *
+* Last rev:     $Date: 2005-03-13 06:26:09 $,$Author: vsc $						 *
 * $Log: not supported by cvs2svn $
+* Revision 1.160  2005/03/07 17:49:14  vsc
+* small fixes
+*
 * Revision 1.159  2005/03/04 20:29:55  ricroc
 * bug fixes for YapTab support
 *
@@ -12505,7 +12508,7 @@ Yap_absmi(int inp)
 	      Atom at = AtomOfTerm(d0);
 	      arity = 0;
 	      if (at == AtomCut) {
-		choiceptr cut_pt = (choiceptr)ENV[E_CB];
+		choiceptr cut_pt = (choiceptr)pt0[E_CB];
 		/* find where to cut to */
 		if (SHOULD_CUT_UP_TO(B,cut_pt)) {
 #ifdef YAPOR
@@ -12595,7 +12598,7 @@ Yap_absmi(int inp)
 	  ENDP(pt1);
 	  CACHE_A1();
 	} else if ((Atom)(pen->FunctorOfPred) == AtomCut) {
-	  choiceptr cut_pt = (choiceptr)ENV[E_CB];
+	  choiceptr cut_pt = (choiceptr)pt0[E_CB];
 	  /* find where to cut to */
 	  if (SHOULD_CUT_UP_TO(B,cut_pt)) {
 #ifdef YAPOR

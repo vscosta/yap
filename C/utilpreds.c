@@ -1579,7 +1579,7 @@ static int subsumes_complex(register CELL *pt0, register CELL *pt0_end, register
 {
   register CELL **to_visit = (CELL **)ASP;
   tr_fr_ptr OLDTR = TR, new_tr;
-  int write_mode = TRUE;
+  UInt write_mode = TRUE;
 
 
   HBREG = H;

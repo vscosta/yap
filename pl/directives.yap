@@ -194,9 +194,6 @@ yap_flag(dollar_as_lower_case,on) :- !,
 yap_flag(dollar_as_lower_case,off) :- 
 	'$change_type_of_char'(36,7).
 
-yap_flag(profiling,X) :- (var(X); X = on; X = off), !,
-	'$is_profiled'(X).
-
 yap_flag(call_counting,X) :- (var(X); X = on; X = off), !,
 	'$is_call_counted'(X).
 
@@ -219,6 +216,9 @@ yap_flag(index,X)  :-
 	'$set_yap_flags'(18,X1).
 yap_flag(index,X) :-
 	'$do_error'(domain_error(flag_value,index+X),yap_flag(index,X)).
+
+yap_flag(home,X) :-
+	'$yap_home'(X).
 
 % should match definitions in Yap.h.m4
 '$transl_to_index_mode'(0, off).
@@ -322,6 +322,9 @@ yap_flag(n_of_integer_keys_in_bb,X) :- integer(X), X > 0, !,
 	'$resize_bb_int_keys'(X).
 yap_flag(n_of_integer_keys_in_bb,X) :-
 	'$do_error'(domain_error(flag_value,n_of_integer_keys_in_bb+X),yap_flag(n_of_integer_keys_in_bb,X)).
+
+yap_flag(profiling,X) :- (var(X); X = on; X = off), !,
+	'$is_profiled'(X).
 
 yap_flag(strict_iso,OUT) :-
 	var(OUT), !,
@@ -585,6 +588,7 @@ yap_flag(host_type,X) :-
 	    V = gc_margin    ;
 	    V = gc_trace     ;
 %	    V = hide  ;
+	    V = home  ;
 	    V = host_type  ;
 	    V = index ;
 	    V = informational_messages ;

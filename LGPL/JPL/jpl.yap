@@ -1,4 +1,4 @@
-/*  $Id: jpl.yap,v 1.1 2004-08-27 20:27:56 vsc Exp $
+/*  $Id: jpl.yap,v 1.2 2005-03-13 06:26:12 vsc Exp $
 
     Part of JPL -- SWI-Prolog/Java interface
 
@@ -27,6 +27,9 @@
     by the GNU General Public License. This exception does not however
     invalidate any other reasons why the executable file might be covered by
     the GNU General Public License.
+
+   Adapted to YAP by Vitor Santos Costa.
+
 */
 
 :- module(jpl,
@@ -79,9 +82,10 @@
 :- use_module(library(swi)).
 
 % suppress debugging this library
-:- set_prolog_flag(generate_debug_info, false).
+%:- set_prolog_flag(generate_debug_info, false).
 
-:- load_foreign_files([jpl], ['/opt/j2sdk1.4.2_04/jre/lib/i386/client/libjvm.so'], jpl_install).
+:- initialization(load_jpl_lib).
+
 %:- load_foreign_files([jpl], [], jpl_install).
 
 %------------------------------------------------------------------------------
@@ -4080,7 +4084,8 @@ prolog:error_message(java_exception(Ex)) -->
 :- multifile user:file_search_path/2.
 :- dynamic   user:file_search_path/2.
 
-user:file_search_path(jar, swi(lib)).
+user:(file_search_path(jar, Dir) :-
+	file_search_path(library, Dir)).
 
 
 		 /*******************************
@@ -4250,6 +4255,40 @@ setup_jvm :-
 report_java_setup_problem(E) :-
 	print_message(error, E),
 	check_java_environment.
+
+:- include(jpl_paths).
+
+load_jpl_lib :-
+	jpl_java_home(JavaHome),
+	fetch_arch(Arch),
+	gen_jvm_lib(JavaHome,Arch,JLib),
+	write(JLib),nl,
+	load_foreign_files([jpl], [JLib], jpl_install), !.
+
+fetch_arch(Arch) :-
+	current_prolog_flag(host_type,Name),
+	atom_codes(Name,Codes),
+	gen_arch(Codes,Arch).
+
+gen_arch([0'x,0'8,0'6,0'_,0'6,0'4|_],amd64).
+gen_arch([0'i,_,0'8,0'6|_],i386). % take all versions of X86
+gen_arch([0's,0'p,0'a,0'r,0'c|_],sparc).
+
+gen_jvm_lib(JavaHome,Arch,JLib) :-
+	atom_concat([JavaHome,'/jre/lib/',Arch,'/client/libjvm.so'],JLib),
+	exists(JLib), !.
+gen_jvm_lib(JavaHome,Arch,JLib) :-
+	atom_concat([JavaHome,'/jre/lib/',Arch,'/server/libjvm.so'],JLib),
+	exists(JLib), !.
+gen_jvm_lib(JavaHome,Arch,JLib) :-
+	atom_concat([JavaHome,'/jre/lib/',Arch,'/classic/libjvm.so'],JLib),
+	exists(JLib), !.
+gen_jvm_lib(JavaHome,Arch,JLib) :-
+	atom_concat([JavaHome,'/jre/lib/',Arch,'/libjvm.so'],JLib),
+	exists(JLib), !.
+
+
+:- load_jpl_lib.
 
 :- initialization
    setup_jvm.

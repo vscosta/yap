@@ -2219,6 +2219,12 @@ p_host_type(void) {
   return(Yap_unify(out,ARG1));
 }
 
+static Int
+p_yap_home(void) {
+  Term out = MkAtomTerm(Yap_LookupAtom(YAP_HOME_DIR));
+  return(Yap_unify(out,ARG1));
+}
+
 /*
  * This is responsable for the initialization of all machine dependant
  * predicates
@@ -2391,6 +2397,7 @@ Yap_InitSysPreds(void)
   Yap_InitCPred ("$system", 1, p_system, SafePredFlag|SyncPredFlag|HiddenPredFlag);
   Yap_InitCPred ("$rename", 2, p_mv, SafePredFlag|SyncPredFlag|HiddenPredFlag);
   Yap_InitCPred ("$cd", 1, p_cd, SafePredFlag|SyncPredFlag|HiddenPredFlag);
+  Yap_InitCPred ("$yap_home", 1, p_yap_home, SafePredFlag|SyncPredFlag|HiddenPredFlag);
   Yap_InitCPred ("$getcwd", 1, p_getcwd, SafePredFlag|SyncPredFlag|HiddenPredFlag);
   Yap_InitCPred ("$dir_separator", 1, p_dir_sp, SafePredFlag|HiddenPredFlag);
   Yap_InitCPred ("$alarm", 2, p_alarm, SafePredFlag|SyncPredFlag|HiddenPredFlag);

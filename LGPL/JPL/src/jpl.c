@@ -1,4 +1,4 @@
-/*  $Id: jpl.c,v 1.1 2004-08-27 20:27:32 vsc Exp $
+/*  $Id: jpl.c,v 1.2 2005-03-13 06:26:12 vsc Exp $
 
     Part of JPL -- SWI-Prolog/Java interface
 
@@ -20,6 +20,8 @@
     You should have received a copy of the GNU Lesser General Public
     License along with this library; if not, write to the Free Software
     Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+
+    Ported to YAP by Vitor Santos Costa.
 */
 
 // this source file (jpl.c) combines my Prolog-calls-Java stuff (mostly prefixed 'JNI' or 'jni' here)
@@ -753,18 +755,6 @@ jpl_c_lib_version(void)
 /*
 %T jpl_c_lib_version( -atom)
  */
-
-// ...
-//
-static foreign_t
-jpl_c_java_home(
-    term_t	ta
-    )
-    {
-
-    return  PL_unify_atom_chars(ta,JAVA_HOME);
-    }
-
 
 // ...
 //
@@ -3394,7 +3384,6 @@ PL_extension predspecs[] =
       { "jni_func",			 6, jni_func_4_plc,		       0 },
       { "jpl_c_lib_version",		 1, jpl_c_lib_version_1_plc,	       0 },
       { "jpl_c_lib_version",		 4, jpl_c_lib_version_4_plc,	       0 },
-      { "jpl_java_home",		 1, jpl_c_java_home,       0 },
       { NULL,				 0, NULL,			       0 }
     };
 

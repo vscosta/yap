@@ -13550,7 +13550,7 @@ mkdir -p  LGPL/JPL/java/jpl
 mkdir -p  LGPL/JPL/java/jpl/fli
 mkdir -p  LGPL/JPL/src
 
-                                                                                                                                                      ac_config_files="$ac_config_files Makefile library/regex/Makefile library/system/Makefile library/random/Makefile library/yap2swi/Makefile library/mpi/Makefile .depend library/Makefile CHR/Makefile CLPBN/Makefile CLPQR/Makefile library/Tries/Makefile LGPL/JPL/Makefile LGPL/JPL/src/Makefile LGPL/JPL/java/Makefile"
+                                                                                                                                                                ac_config_files="$ac_config_files Makefile library/regex/Makefile library/system/Makefile library/random/Makefile library/yap2swi/Makefile library/mpi/Makefile .depend library/Makefile CHR/Makefile CLPBN/Makefile CLPQR/Makefile library/Tries/Makefile LGPL/JPL/Makefile LGPL/JPL/src/Makefile LGPL/JPL/java/Makefile LGPL/JPL/jpl_paths.yap"
 cat >confcache <<\_ACEOF
 # This file is a shell script that caches the results of configure
 # tests run on this system so they can be shared between configure
@@ -14090,6 +14090,7 @@ do
   "LGPL/JPL/Makefile" ) CONFIG_FILES="$CONFIG_FILES LGPL/JPL/Makefile" ;;
   "LGPL/JPL/src/Makefile" ) CONFIG_FILES="$CONFIG_FILES LGPL/JPL/src/Makefile" ;;
   "LGPL/JPL/java/Makefile" ) CONFIG_FILES="$CONFIG_FILES LGPL/JPL/java/Makefile" ;;
+  "LGPL/JPL/jpl_paths.yap" ) CONFIG_FILES="$CONFIG_FILES LGPL/JPL/jpl_paths.yap" ;;
   "config.h" ) CONFIG_HEADERS="$CONFIG_HEADERS config.h" ;;
   *) { { echo "$as_me:$LINENO: error: invalid argument: $ac_config_target" >&5
 echo "$as_me: error: invalid argument: $ac_config_target" >&2;}

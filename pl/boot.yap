@@ -950,8 +950,8 @@ break :-
 	S =.. [Name,File], !,
 	'$dir_separator'(D),
 	atom_codes(A,[D]),
-	( user:file_search_path(Name, Dir), '$do_not_creep' ; '$do_not_creep'),
-	atom_concat([Dir,A,File],NFile),
+	( user:file_search_path(Name, Dir), '$do_not_creep' ; '$do_not_creep', fail),
+	'$extend_path'(Dir,A,File,NFile),
 	'$search_in_path'(NFile, NewFile).
 '$find_in_path'(File,NewFile,_) :- atom(File), !,
 	'$search_in_path'(File,NewFile),!.
@@ -964,6 +964,16 @@ break :-
 	recorded('$path',Path,_),
 	atom_concat([Path,File],New),
 	'$exists'(New,'$csult').
+
+'$extend_path'(Dir,A,File,NFile) :-
+	atom(Dir), !,
+	atom_concat([Dir,A,File],NFile).
+'$extend_path'(Name,A,File,NFile) :-
+	nonvar(Name),
+	Name =.. [Dir1,Dir2],
+	( user:file_search_path(Dir1, Dir), '$do_not_creep' ; '$do_not_creep', fail),
+	'$extend_path'(Dir2,A,File,EFile),
+	atom_concat([Dir,A,EFile],NFile).
 
 % term expansion
 %

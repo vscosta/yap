@@ -1092,7 +1092,7 @@ mkdir -p  LGPL/JPL/java/jpl
 mkdir -p  LGPL/JPL/java/jpl/fli
 mkdir -p  LGPL/JPL/src
 
-AC_OUTPUT(Makefile library/regex/Makefile library/system/Makefile library/random/Makefile library/yap2swi/Makefile library/mpi/Makefile .depend library/Makefile CHR/Makefile CLPBN/Makefile CLPQR/Makefile library/Tries/Makefile LGPL/JPL/Makefile LGPL/JPL/src/Makefile LGPL/JPL/java/Makefile)
+AC_OUTPUT(Makefile library/regex/Makefile library/system/Makefile library/random/Makefile library/yap2swi/Makefile library/mpi/Makefile .depend library/Makefile CHR/Makefile CLPBN/Makefile CLPQR/Makefile library/Tries/Makefile LGPL/JPL/Makefile LGPL/JPL/src/Makefile LGPL/JPL/java/Makefile  LGPL/JPL/jpl_paths.yap)
 
 make depend
 

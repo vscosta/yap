@@ -11,8 +11,12 @@
 * File:		stdpreds.c						 *
 * comments:	General-purpose C implemented system predicates		 *
 *									 *
-* Last rev:     $Date: 2005-03-02 19:48:02 $,$Author: vsc $						 *
+* Last rev:     $Date: 2005-03-13 06:26:11 $,$Author: vsc $						 *
 * $Log: not supported by cvs2svn $
+* Revision 1.85  2005/03/02 19:48:02  vsc
+* Fix some possible errors in name/2 and friends, and cleanup code a bit
+* YAP_Error changed.
+*
 * Revision 1.84  2005/03/02 18:35:46  vsc
 * try to make initialisation process more robust
 * try to make name more robust (in case Lookup new atom fails)
@@ -501,7 +505,7 @@ showprofres(UInt type) {
   if (InUnify>0) printf("%p sys: Unify -> %lu (%3.1f%c)\n",(void *) UnifyMode,(unsigned long int)InUnify,(float) InUnify*100/ProfCalls,'%');
   if (InCCall>0) printf("%p sys: C Code -> %lu (%3.1f%c)\n",(void *) CCallMode,(unsigned long int)InCCall,(float) InCCall*100/ProfCalls,'%');
   if (count>0) printf("Unknown:Unknown -> %lu (%3.1f%c)\n",(unsigned long int)count,(float) count*100/ProfCalls,'%');
-  printf("Total of Calls=%u \n",ProfCalls);
+  printf("Total of Calls=%lu \n",(unsigned long int)ProfCalls);
 
   return TRUE;
 }

@@ -201,7 +201,7 @@ p_thread_self(void)
   return Yap_unify(MkIntegerTerm(worker_id), ARG1);
 }
 
-int
+Int
 Yap_thread_self(void)
 {
   if (pthread_getspecific(Yap_yaamregs_key) == NULL)
@@ -209,7 +209,7 @@ Yap_thread_self(void)
   return worker_id;
 }
 
-int
+CELL
 Yap_thread_create_engine(thread_attr *ops)
 {
   int new_id = allocate_new_tid();
@@ -225,7 +225,7 @@ Yap_thread_create_engine(thread_attr *ops)
   return TRUE;
 }
 
-int
+Int
 Yap_thread_attach_engine(int wid)
 {
   pthread_mutex_lock(&(ThreadHandle[wid].tlock));
@@ -241,7 +241,7 @@ Yap_thread_attach_engine(int wid)
   return TRUE;
 }
 
-int
+Int
 Yap_thread_detach_engine(int wid)
 {
   pthread_mutex_lock(&(ThreadHandle[wid].tlock));
@@ -252,7 +252,7 @@ Yap_thread_detach_engine(int wid)
   return TRUE;
 }
 
-int
+Int
 Yap_thread_destroy_engine(int wid)
 {
   pthread_mutex_lock(&(ThreadHandle[wid].tlock));

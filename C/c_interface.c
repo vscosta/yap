@@ -10,8 +10,11 @@
 * File:		c_interface.c						 *
 * comments:	c_interface primitives definition 			 *
 *									 *
-* Last rev:	$Date: 2005-03-04 20:30:10 $,$Author: ricroc $						 *
+* Last rev:	$Date: 2005-03-13 06:26:10 $,$Author: vsc $						 *
 * $Log: not supported by cvs2svn $
+* Revision 1.63  2005/03/04 20:30:10  ricroc
+* bug fixes for YapTab support
+*
 * Revision 1.62  2005/03/02 18:35:44  vsc
 * try to make initialisation process more robust
 * try to make name more robust (in case Lookup new atom fails)
@@ -217,7 +220,7 @@ X_API Term     STD_PROTO(YAP_CreateModule,(Atom));
 X_API int     STD_PROTO(YAP_ThreadSelf,(void));
 X_API int     STD_PROTO(YAP_GetThreadRefCount,(int));
 X_API void    STD_PROTO(YAP_SetThreadRefCount,(int,int));
-X_API int     STD_PROTO(YAP_ThreadCreateEngine,(thread_attr *));
+X_API CELL     STD_PROTO(YAP_ThreadCreateEngine,(thread_attr *));
 X_API int     STD_PROTO(YAP_ThreadAttachEngine,(int));
 X_API int     STD_PROTO(YAP_ThreadDetachEngine,(int));
 X_API int     STD_PROTO(YAP_ThreadDestroyEngine,(int));
@@ -1405,7 +1408,7 @@ YAP_ThreadSelf(void)
 #endif
 } 
 
-X_API int
+X_API CELL
 YAP_ThreadCreateEngine(thread_attr *attr)
 {
 #if USE_THREADS

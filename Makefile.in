@@ -404,7 +404,7 @@ stdpreds.o: $(srcdir)/C/stdpreds.c
 	$(CC) -c $(CFLAGS) $(srcdir)/C/stdpreds.c -o $@
 
 sysbits.o: $(srcdir)/C/sysbits.c
-	$(CC) -c $(CFLAGS) -DLIB_DIR=\"$(YAPLIBDIR)\" -DSHARE_DIR=\"$(SHAREDIR)\" $(srcdir)/C/sysbits.c -o $@
+	$(CC) -c $(CFLAGS) -DYAP_HOME_DIR=\"$(ROOTDIR)\" -DLIB_DIR=\"$(YAPLIBDIR)\" -DSHARE_DIR=\"$(SHAREDIR)\" $(srcdir)/C/sysbits.c -o $@
 
 threads.o: $(srcdir)/C/threads.c
 	$(CC) -c $(CFLAGS) $(srcdir)/C/threads.c -o $@
@@ -558,11 +558,11 @@ install_library: @YAPLIB@
 	$(INSTALL_DATA) libYap.a  $(DESTDIR)$(LIBDIR)/libYap.a
 	mkdir -p $(DESTDIR)$(INCLUDEDIR)
 	for h in $(HEADERS); do $(INSTALL) $$h $(DESTDIR)$(INCLUDEDIR); done
-	@ENABLE_JPL@ (cd LGPL/JPL/java; make install)
 
 install_data:
 	(cd library ; make install)
 	@ENABLE_JPL@ (cd LGPL/JPL ; make install)
+	@ENABLE_JPL@ (cd LGPL/JPL/java; make install)
 	$(INSTALL_DATA) $(srcdir)/LGPL/pillow/icon_address.pl $(DESTDIR)$(SHAREDIR)/Yap/
 	$(INSTALL_DATA) $(srcdir)/LGPL/pillow/pillow.pl $(DESTDIR)$(SHAREDIR)/Yap/
 	(cd CLPQR ; make install)

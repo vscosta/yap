@@ -373,7 +373,7 @@ Yap_Error(yap_error_number type, Term where, char *format,...)
 
 #if DEBUG
   if (Yap_heap_regs && !(Yap_PrologMode & BootMode)) 
-    fprintf(stderr,"***** Processing Error %d (%x,%x) %s***\n", type, ActiveSignals,Yap_PrologMode,format);
+    fprintf(stderr,"***** Processing Error %d (%lx,%x) %s***\n", type, (unsigned long int)ActiveSignals,Yap_PrologMode,format);
   else
     fprintf(stderr,"***** Processing Error %d (%x) %s***\n", type,Yap_PrologMode,format);
 #endif
