@@ -1264,10 +1264,17 @@ p_univ(void)
 	*p++ = Deref(*q++);
       }
       twork = ArrayToList(CellPtr(TR), argno - 1);
+      while (IsIntTerm(twork)) {
+	if (!gc(2, ENV, P)) {
+	  Error(OUT_OF_STACK_ERROR, TermNil, ErrorMessage);
+	  return(FALSE);
+	}    
+	twork = ArrayToList(CellPtr(TR), argno - 1);
+      }
     } else
 #endif
       {
-	if (H+arity*2 > ASP-1024) {
+	while (H+arity*2 > ASP-1024) {
 	  if (!gc(2, ENV, P)) {
 	    Error(OUT_OF_STACK_ERROR, TermNil, ErrorMessage);
 	    return(FALSE);
