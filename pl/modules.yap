@@ -423,11 +423,11 @@ module(N) :-
 	'$system_predicate'(G,M), !,
 	'$c_built_in'(G,M,Gi),
 	(Gi \== G ->
-	   '$module_expansion'(Gi,G1,G2,M,CM,TM,HVars) ;
+	   '$module_expansion'(Gi,Gi,G2,M,CM,TM,HVars) ;
 	 TM = M ->
-	    G2 = G
+	    G2 = G, G1 = G,
 	;
-	    G2 = M:G % atts:
+	    G2 = M:G, G1 = M:G % atts:
 	).
 '$complete_goal_expansion'(G, Mod, _, Mod, G, G, _) :- !.
 '$complete_goal_expansion'(G, GMod, _, _, GMod:G, GMod:G, _).
