@@ -251,11 +251,7 @@ debugging :-
 	'$spy'([Mod|G]).
 '$spy'([Module|G]) :-
 %    '$format'(user_error,"$spym(~w,~w)~n",[Module,G]),
-         ( '$hidden'(G)
-	 ;
-	'$parent_pred'(0,_,_),
-        '$system_predicate'(G)
-	 ),
+         '$hidden'(G),
          !,
 	 /* called from prolog module   */
 	 '$execute0'(G,Module),
@@ -372,7 +368,9 @@ debugging :-
 	  '$undefp'([M|G])
 	).
 '$spycalls'(G,M,_) :-
-	'$flags'(G,M,F,_), F /\ 8'50000 =\= 0,		% Standard and C pred
+	'$system_predicate'(G),
+	'$flags'(G,M,F,_),
+	F /\ 0xc00000 =:= 0,		% but not meta-predicate or cut transparent
 	!,
 	'$catch_spycall_stdpred'(G,M),
 	(true;

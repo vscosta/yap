@@ -606,6 +606,7 @@ static CELL *MkDBTerm(register CELL *pt0, register CELL *pt0_end,
 #ifdef COROUTINING
   Term ConstraintsTerm = TermNil;
   CELL *ConstraintsBottom = NULL;
+  CELL *origH = H;
 #endif
 
  loop:
@@ -932,6 +933,9 @@ static CELL *MkDBTerm(register CELL *pt0, register CELL *pt0_end,
   /* we're done */
   *vars_foundp = vars_found;
   UNWIND_CUNIF();
+#ifdef COROUTINING
+  H = origH;
+#endif
   return(CodeMax);
 
  error:
@@ -947,6 +951,9 @@ static CELL *MkDBTerm(register CELL *pt0, register CELL *pt0_end,
   }
 #endif
   UNWIND_CUNIF();
+#ifdef COROUTINING
+  H = origH;
+#endif
   return(NULL);
 
  error2:
@@ -962,6 +969,9 @@ static CELL *MkDBTerm(register CELL *pt0, register CELL *pt0_end,
   }
 #endif
   UNWIND_CUNIF();
+#ifdef COROUTINING
+  H = origH;
+#endif
   return(NULL);
 
 #if !OS_HANDLES_TR_OVERFLOW
@@ -978,6 +988,9 @@ static CELL *MkDBTerm(register CELL *pt0, register CELL *pt0_end,
   }
 #endif
   UNWIND_CUNIF();
+#ifdef COROUTINING
+  H = origH;
+#endif
   return(NULL);
 #endif
 }
