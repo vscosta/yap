@@ -703,6 +703,7 @@ a_rb(op_numbers opcode)
     code_p->u.xc.x = emit_xreg2();
     code_p->u.xc.c = AbsAppl((CELL *)(Unsigned(code_addr) + label_offset[cpc->rnd1]));
   }
+  clause_has_blobs = TRUE;
   GONEXT(xc);
 }
 
@@ -2342,6 +2343,10 @@ do_pass(void)
       break;
     case cutexit_op:
       a_cut();
+      if (CurrentPred->PredFlags & LogUpdatePredFlag &&
+	  clause_has_blobs &&
+	  !alloc_found)
+	a_cle(_alloc_for_logical_pred);
       a_e(_procceed);
 #ifdef YAPOR
       if (pass_no)
@@ -2406,6 +2411,10 @@ do_pass(void)
       a_l(_skip);
       break;
     case procceed_op:
+      if (CurrentPred->PredFlags & LogUpdatePredFlag &&
+	  clause_has_blobs &&
+	  !alloc_found)
+	a_cle(_alloc_for_logical_pred);
       a_e(_procceed);
       break;
     case call_op:
@@ -2606,7 +2615,7 @@ do_pass(void)
 }
 
 yamop *
-Yap_assemble(int mode)
+Yap_assemble(int mode, Term t, PredEntry *ap, int is_fact)
 {
   /*
    * the assembly proccess is done in two passes: 1 - a first pass
@@ -2636,10 +2645,26 @@ Yap_assemble(int mode)
     if ((CELL)code_p > size)
       size = (CELL)code_p;
   }
-  while ((code_addr = (yamop *) Yap_AllocCodeSpace(size)) == NULL) {
-    if (!Yap_growheap(TRUE, size)) {
-      Yap_Error_TYPE = SYSTEM_ERROR;
-      return NULL;
+  if (mode == ASSEMBLING_CLAUSE && 
+      ap->PredFlags & LogUpdatePredFlag &&
+      !is_fact) {
+    DBTerm *x;
+    LogUpdClause *cl;
+    while ((x = Yap_StoreTermInDBPlusExtraSpace(t, size)) == NULL) {
+      if (!Yap_growheap(TRUE, size)) {
+	Yap_Error_TYPE = SYSTEM_ERROR;
+	return NULL;
+      }
+    }
+    cl = (LogUpdClause *)((CODEADDR)x-(UInt)size);
+    cl->ClSource = x;
+    code_addr = (yamop *)cl;
+  } else {
+    while ((code_addr = (yamop *) Yap_AllocCodeSpace(size)) == NULL) {
+      if (!Yap_growheap(TRUE, size)) {
+	Yap_Error_TYPE = SYSTEM_ERROR;
+	return NULL;
+      }
     }
   }
   //  fprintf(stderr,"vsc: asking for %p\n",code_addr);

@@ -2041,37 +2041,37 @@ Yap_absmi(int inp)
 	ALWAYS_LOOKAHEAD(pt->OpcodeOfPred);
 	PREG = pt->CodeOfPred;
 #ifdef DEPTH_LIMIT
-      if (DEPTH <= MkIntTerm(1)) {/* I assume Module==0 is primitives */
-	if (pt->ModuleOfPred) {
-	  if (DEPTH == MkIntTerm(0))
-	    FAIL();
-	  else DEPTH = RESET_DEPTH();
-	}
-      } else if (pt->ModuleOfPred)
-	DEPTH -= MkIntConstant(2);
+	if (DEPTH <= MkIntTerm(1)) {/* I assume Module==0 is primitives */
+	  if (pt->ModuleOfPred) {
+	    if (DEPTH == MkIntTerm(0))
+	      FAIL();
+	    else DEPTH = RESET_DEPTH();
+	  }
+	} else if (pt->ModuleOfPred)
+	  DEPTH -= MkIntConstant(2);
 #endif	/* DEPTH_LIMIT */
 #ifdef FROZEN_STACKS
-      { 
-	choiceptr top_b = PROTECT_FROZEN_B(B);
+	{ 
+	  choiceptr top_b = PROTECT_FROZEN_B(B);
 #ifdef SBA
-	if (E_YREG > (CELL *) top_b || E_YREG < H) E_YREG = (CELL *) top_b;
+	  if (E_YREG > (CELL *) top_b || E_YREG < H) E_YREG = (CELL *) top_b;
 #else
-	if (E_YREG > (CELL *) top_b) E_YREG = (CELL *) top_b;
+	  if (E_YREG > (CELL *) top_b) E_YREG = (CELL *) top_b;
 #endif /* SBA */
-      }
+	}
 #else
-      if (E_YREG > (CELL *) B) {
-	E_YREG = (CELL *) B;
-      }
+	if (E_YREG > (CELL *) B) {
+	  E_YREG = (CELL *) B;
+	}
 #endif /* FROZEN_STACKS */
-      WRITEBACK_Y_AS_ENV();
-      /* setup GB */
-      E_YREG[E_CB] = (CELL) B;
+	WRITEBACK_Y_AS_ENV();
+	/* setup GB */
+	E_YREG[E_CB] = (CELL) B;
 #ifdef YAPOR
-      SCH_check_requests();
+	SCH_check_requests();
 #endif	/* YAPOR */
-      ALWAYS_GONext();
-      ALWAYS_END_PREFETCH();
+	ALWAYS_GONext();
+	ALWAYS_END_PREFETCH();
       }
       ENDCACHE_Y_AS_ENV();
       ENDBOp();
