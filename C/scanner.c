@@ -1299,8 +1299,8 @@ fast_tokenizer(void)
 	    my_fgetch();
 	    if (ch != quote)
 	      break;
-	    my_fgetch();
 	    *charp++ = ch;
+	    my_fgetch();
 	  } else if (ch == '\\' && yap_flags[CHARACTER_ESCAPE_FLAG] != CPROLOG_CHARACTER_ESCAPES) {
 	    /* escape sequence */
 	    ch = my_fgetch();
