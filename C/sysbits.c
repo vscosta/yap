@@ -1170,7 +1170,7 @@ SearchForTrailFault(void)
     /*    my_signal_info(SIGSEGV, HandleSIGSEGV); */
   } else
 #endif /* OS_HANDLES_TR_OVERFLOW */
-    Yap_Error(FATAL_ERROR, TermNil,
+    Yap_Error(INTERNAL_ERROR, TermNil,
 	  "likely bug in YAP, segmentation violation");
 }
 

@@ -745,7 +745,15 @@ Yap_tokenizer(int inp_stream)
       *charp++ = '\0';
       if (!isvar) {
 	/* don't do this in iso */
-	t->TokInfo = Unsigned(Yap_LookupAtom(TokImage));
+	Atom ae = Yap_LookupAtom(TokImage);
+	if (ae == NIL) {
+	  Yap_ErrorMessage = "Code Space Overflow";
+	  if (p)
+	    p->TokInfo = eot_tok;
+	  /* serious error now */
+	  return l;
+	}
+	t->TokInfo = Unsigned(ae);
 	Yap_ReleasePreAllocCodeSpace((CODEADDR)TokImage);
 	if (ch == '(')
 	  solo_flag = FALSE;

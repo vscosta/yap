@@ -211,6 +211,10 @@ Yap_InitConstExps(void)
 
   for (i = 0; i < sizeof(InitConstTab)/sizeof(InitConstEntry); ++i) {
     AtomEntry *ae = RepAtom(Yap_LookupAtom(InitConstTab[i].OpName));
+    if (ae == NULL) {
+      Yap_Error(OUT_OF_HEAP_ERROR,TermNil,"at InitConstExps");
+      return;
+    }
     WRITE_LOCK(ae->ARWLock);
     if (Yap_GetExpPropHavingLock(ae, 0)) {
       WRITE_UNLOCK(ae->ARWLock);

@@ -11,8 +11,12 @@
 * File:		stdpreds.c						 *
 * comments:	General-purpose C implemented system predicates		 *
 *									 *
-* Last rev:     $Date: 2005-02-21 16:50:04 $,$Author: vsc $						 *
+* Last rev:     $Date: 2005-03-01 22:25:09 $,$Author: vsc $						 *
 * $Log: not supported by cvs2svn $
+* Revision 1.82  2005/02/21 16:50:04  vsc
+* amd64 fixes
+* library fixes
+*
 * Revision 1.81  2005/02/08 04:05:35  vsc
 * fix mess with add clause
 * improves on sigsegv handling
@@ -1005,17 +1009,20 @@ p_name(void)
       NewT = Yap_StringToList(String);
       if (!IsVarTerm(t) && !IsPairTerm(t) && t != TermNil) {
 	Yap_Error(TYPE_ERROR_LIST,ARG2,"name/2");
-	return(FALSE);
+	return FALSE;
       }
-      return (Yap_unify(NewT, ARG2));
+      return Yap_unify(NewT, ARG2);
     } else {
       Yap_Error(TYPE_ERROR_ATOMIC,AtomNameT,"name/2");
       return(FALSE);
     }
   }
   s = String = ((AtomEntry *)Yap_PreAllocCodeSpace())->StrOfAE;
+  if (s == NULL) {
+    return FALSE;
+  }
   if (!IsVarTerm(t) && t == MkAtomTerm(AtomNil)) {
-    return (Yap_unify_constant(ARG1, MkAtomTerm(Yap_LookupAtom(""))));
+    return Yap_unify_constant(ARG1, MkAtomTerm(Yap_LookupAtom("")));
   }
   while (!IsVarTerm(t) && IsPairTerm(t)) {
     Term            Head;
@@ -1023,23 +1030,25 @@ p_name(void)
     Head = HeadOfTerm(t);
     if (IsVarTerm(Head)) {
       Yap_Error(INSTANTIATION_ERROR,Head,"name/2");
-      return(FALSE);
+      return FALSE;
     }
     if (!IsIntTerm(Head)) {
       Yap_Error(TYPE_ERROR_INTEGER,Head,"name/2");
-      return(FALSE);
+      return FALSE;
     }
     i = IntOfTerm(Head);
     if (i < 0 || i > 255) {
       if (i<0)
 	Yap_Error(DOMAIN_ERROR_NOT_LESS_THAN_ZERO,Head,"name/2");
-      return(FALSE);
+      return FALSE;
     }
-    if (s+1 == (char *)AuxSp) {
+    if (s+1 >= (char *)AuxSp-1024) {
       char *nString;
       
       *H++ = t;
       nString = ((AtomEntry *)Yap_ExpandPreAllocCodeSpace(0, NULL))->StrOfAE;
+      if (!nString)
+	return FALSE;
       t = *--H;
       s = nString+(s-String);
       String = nString;
@@ -1056,10 +1065,10 @@ p_name(void)
     if ((NewT = get_num(String)) == TermNil) {
       NewT = MkAtomTerm(Yap_LookupAtom(String));
     }
-    return (Yap_unify_constant(ARG1, NewT));
+    return Yap_unify_constant(ARG1, NewT);
   } else {
     Yap_Error(TYPE_ERROR_LIST,t,"name/2");
-    return(FALSE);
+    return FALSE;
   }
 }
 

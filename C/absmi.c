@@ -10,8 +10,11 @@
 *									 *
 * File:		absmi.c							 *
 * comments:	Portable abstract machine interpreter                    *
-* Last rev:     $Date: 2005-02-08 18:04:17 $,$Author: vsc $						 *
+* Last rev:     $Date: 2005-03-01 22:25:07 $,$Author: vsc $						 *
 * $Log: not supported by cvs2svn $
+* Revision 1.157  2005/02/08 18:04:17  vsc
+* library_directory may not be deterministic (usually it isn't).
+*
 * Revision 1.156  2005/01/13 05:47:25  vsc
 * lgamma broke arithmetic optimisation
 * integer_y has type y
@@ -2003,7 +2006,7 @@ Yap_absmi(int inp)
 #ifdef YAPOR
 	CUT_prune_to((choiceptr) d0);
 #else
-	while (B->cp_b != (choiceptr)d0) {
+	while (B->cp_b < (choiceptr)d0) {
 	  B = B->cp_b;
 	}
       trim_trail:
@@ -2083,7 +2086,7 @@ Yap_absmi(int inp)
 #ifdef YAPOR
 	CUT_prune_to((choiceptr) d0);
 #else
-	while (B->cp_b != (choiceptr)d0) {
+	while (B->cp_b < (choiceptr)d0) {
 	  B = B->cp_b;
 	}
 #endif	/* YAPOR */
@@ -2124,7 +2127,7 @@ Yap_absmi(int inp)
 #ifdef YAPOR
 	CUT_prune_to((choiceptr) d0);
 #else
-	while (B->cp_b != (choiceptr)d0) {
+	while (B->cp_b < (choiceptr)d0) {
 	  B = B->cp_b;
 	}
 #endif	/* YAPOR */
@@ -2182,7 +2185,7 @@ Yap_absmi(int inp)
 #ifdef YAPOR
 	  CUT_prune_to(pt0);
 #else
-	  while (B->cp_b != pt0) {
+	  while (B->cp_b < pt0) {
 	    B = B->cp_b;
 	  }
 #endif	/* YAPOR */
@@ -2215,7 +2218,7 @@ Yap_absmi(int inp)
 #ifdef YAPOR
 	  CUT_prune_to(pt0);
 #else
-	  while (B->cp_b != pt0) {
+	  while (B->cp_b < pt0) {
 	    B = B->cp_b;
 	  }
 #endif	/* YAPOR */
@@ -8479,7 +8482,7 @@ Yap_absmi(int inp)
     float_y_nvar:
       /* non variable */
       if (IsFloatTerm(d0)) {
-	PREG = NEXTOP(PREG, xF);
+	PREG = NEXTOP(PREG, yF);
 	GONext();
       }
       PREG = PREG->u.yF.F;
@@ -8517,7 +8520,7 @@ Yap_absmi(int inp)
 #ifdef YAPOR
 	CUT_prune_to(pt0);
 #else
-	while (B->cp_b != pt0) {
+	while (B->cp_b < pt0) {
 	  B = B->cp_b;
 	}
 #endif /* YAPOR */
@@ -8562,7 +8565,7 @@ Yap_absmi(int inp)
 #ifdef YAPOR
 	CUT_prune_to(pt1);
 #else
-	while (B->cp_b != pt1) {
+	while (B->cp_b < pt1) {
 	  B = B->cp_b;
 	}
 #endif /* YAPOR */

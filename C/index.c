@@ -11,8 +11,11 @@
 * File:		index.c							 *
 * comments:	Indexing a Prolog predicate				 *
 *									 *
-* Last rev:     $Date: 2005-02-25 00:09:06 $,$Author: vsc $						 *
+* Last rev:     $Date: 2005-03-01 22:25:08 $,$Author: vsc $						 *
 * $Log: not supported by cvs2svn $
+* Revision 1.117  2005/02/25 00:09:06  vsc
+* fix fix, otherwise I'd remove two choice-points :-(.
+*
 * Revision 1.116  2005/02/24 21:46:39  vsc
 * Improve error handling routine, trying to make it more robust.
 * Improve hole handling in stack expansion
@@ -5560,7 +5563,7 @@ kill_clause(yamop *ipc, yamop *bg, yamop *lt, path_stack_entry *sp0, PredEntry *
 	  codep = NEXTOP(codep, p);
 	  break;
 	default:
-	  Yap_Error(FATAL_ERROR, TermNil, "Invalid Opcode %d", op);
+	  Yap_Error(INTERNAL_ERROR, TermNil, "Invalid Opcode %d", op);
 	  return sp;
 	}
       }
@@ -5777,7 +5780,7 @@ cp_lu_trychain(yamop *codep, yamop *ocodep, yamop *ostart, int flag, PredEntry *
       ocodep = NEXTOP(ocodep, p);
       break;
     default:
-      Yap_Error(FATAL_ERROR, TermNil, "Invalid Opcode");
+      Yap_Error(INTERNAL_ERROR, TermNil, "Invalid Opcode");
     }
   }
   if (flag == RECORDZ) {

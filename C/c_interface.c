@@ -10,8 +10,11 @@
 * File:		c_interface.c						 *
 * comments:	c_interface primitives definition 			 *
 *									 *
-* Last rev:	$Date: 2005-02-08 18:04:47 $,$Author: vsc $						 *
+* Last rev:	$Date: 2005-03-01 22:25:08 $,$Author: vsc $						 *
 * $Log: not supported by cvs2svn $
+* Revision 1.60  2005/02/08 18:04:47  vsc
+* library_directory may not be deterministic (usually it isn't).
+*
 * Revision 1.59  2004/12/08 00:56:35  vsc
 * missing ;
 *
@@ -388,13 +391,18 @@ YAP_AtomName(Atom a)
 X_API Atom
 YAP_LookupAtom(char *c)
 {
-  Atom a = Yap_LookupAtom(c);
-  if (ActiveSignals & YAP_CDOVF_SIGNAL) {
-    if (!Yap_growheap(FALSE, 0, NULL)) {
-      Yap_Error(OUT_OF_HEAP_ERROR, TermNil, "YAP failed to grow heap: %s", Yap_ErrorMessage);
+  Atom a;
+
+  while (TRUE) {
+    a = Yap_LookupAtom(c);
+    if (a == NIL || (ActiveSignals & YAP_CDOVF_SIGNAL)) {
+      if (!Yap_growheap(FALSE, 0, NULL)) {
+	Yap_Error(OUT_OF_HEAP_ERROR, TermNil, "YAP failed to grow heap: %s", Yap_ErrorMessage);
+      }
+    } else {
+      return a;
     }
   }
-  return a;
 }
 
 X_API Atom
@@ -402,13 +410,16 @@ YAP_FullLookupAtom(char *c)
 {
   Atom at;
 
-  at = Yap_FullLookupAtom(c);
-  if (ActiveSignals & YAP_CDOVF_SIGNAL) {
-    if (!Yap_growheap(FALSE, 0, NULL)) {
-      Yap_Error(OUT_OF_HEAP_ERROR, TermNil, "YAP failed to grow heap: %s", Yap_ErrorMessage);
+  while (TRUE) {
+    at = Yap_FullLookupAtom(c);
+    if (at == NIL || (ActiveSignals & YAP_CDOVF_SIGNAL)) {
+      if (!Yap_growheap(FALSE, 0, NULL)) {
+	Yap_Error(OUT_OF_HEAP_ERROR, TermNil, "YAP failed to grow heap: %s", Yap_ErrorMessage);
+      }
+    } else {
+      return at;
     }
   }
-  return(at);
 }
 
 X_API Term

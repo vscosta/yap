@@ -372,7 +372,7 @@ Yap_Error(yap_error_number type, Term where, char *format,...)
   int psize = YAP_BUF_SIZE;
 
 #if DEBUG
-  fprintf(stderr,"***** Processing Error %d (%x,%x) ***\n", type, ActiveSignals,Yap_PrologMode);
+  /*  fprintf(stderr,"***** Processing Error %d (%x,%x) %s***\n", type, ActiveSignals,Yap_PrologMode,format);*/
 #endif
   if (type == INTERRUPT_ERROR) {
     fprintf(stderr,"%% YAP exiting: cannot handle signal %d\n",
@@ -399,6 +399,7 @@ Yap_Error(yap_error_number type, Term where, char *format,...)
   }
   /* must do this here */
   if (type == FATAL_ERROR
+      || type == INTERNAL_ERROR
 #if USE_SYSTEM_MALLOC 
       || !Yap_heap_regs
 #else
@@ -425,7 +426,7 @@ Yap_Error(yap_error_number type, Term where, char *format,...)
     error_exit_yap (1);
   }
   if (P == (yamop *)(FAILCODE))
-   return(P);
+   return P;
   /* PURE_ABORT may not have set where correctly, BootMode may not have the data terms ready */
   if (type == PURE_ABORT || Yap_PrologMode & BootMode) {
     where = TermNil;

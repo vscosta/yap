@@ -586,7 +586,7 @@ InitReverseLookupOpcode(void)
   if (OP_RTABLE == NULL)
     OP_RTABLE = (opentry *)Yap_AllocCodeSpace(OP_HASH_SIZE*sizeof(struct opcode_tab_entry));
   if (OP_RTABLE == NULL) {
-    Yap_Error(FATAL_ERROR, TermNil,
+    Yap_Error(INTERNAL_ERROR, TermNil,
 	  "Couldn't obtain space for the reverse translation opcode table");
   }
   opeptr = OP_RTABLE;

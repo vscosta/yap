@@ -176,6 +176,8 @@ LookupAtom(char *atom)
   NOfAtoms++;
   /* add new atom to start of chain */
   ae = (AtomEntry *) Yap_AllocAtomSpace((sizeof *ae) + strlen(atom) + 1);
+  if (ae == NULL)
+    return NIL;
   na = AbsAtom(ae);
   ae->PropsOfAE = NIL;
   if (ae->StrOfAE != atom)
@@ -193,7 +195,7 @@ LookupAtom(char *atom)
 Atom
 Yap_LookupAtom(char *atom)
 {				/* lookup atom in atom table            */
-  return(LookupAtom(atom));
+  return LookupAtom(atom);
 }
 
 Atom
@@ -222,7 +224,7 @@ Yap_LookupAtomWithAddress(char *atom, AtomEntry *ae)
   a = HashChain[hash].Entry;
   /* search atom in chain */
   if (SearchAtom(p, a) != NIL) {
-    Yap_Error(FATAL_ERROR,TermNil,"repeated initialisation for atom %s", ae);
+    Yap_Error(INTERNAL_ERROR,TermNil,"repeated initialisation for atom %s", ae);
     WRITE_UNLOCK(HashChain[hash].AERWLock);
     return;
   }
@@ -842,7 +844,7 @@ Yap_GetName(char *s, UInt max, Term t)
   register Int i;
 
   if (IsVarTerm(t) || !IsPairTerm(t))
-    return (FALSE);
+    return FALSE;
   while (IsPairTerm(t)) {
     Head = HeadOfTerm(t);
     if (!IsNumTerm(Head))
@@ -857,7 +859,7 @@ Yap_GetName(char *s, UInt max, Term t)
     }
   }
   *s = '\0';
-  return (TRUE);
+  return TRUE;
 }
 
 #ifdef SFUNC

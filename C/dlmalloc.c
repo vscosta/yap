@@ -264,8 +264,8 @@ static int largebin_index(unsigned int sz) {
        -1 - no bins sorted (not recommended!)
 */
 
-#define FIRST_SORTED_BIN_SIZE MIN_LARGE_SIZE 
-/* #define FIRST_SORTED_BIN_SIZE 65536 */
+/*#define FIRST_SORTED_BIN_SIZE MIN_LARGE_SIZE */
+#define FIRST_SORTED_BIN_SIZE 2056
 
 /*
   Unsorted chunks
