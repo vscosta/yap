@@ -4356,9 +4356,6 @@ pop_path(path_stack_entry **spp, ClauseDef *clp, PredEntry *ap)
   path_stack_entry *sp = *spp;
   yamop *nipc;
 
-  if (Yap_Option['i' - 'a' + 1]) {
-    printf("- %p-->",sp+1);
-  }
   while ((--sp)->flag != pc_entry);
   *spp = sp;
   clp->Code = sp->u.pce.code;
