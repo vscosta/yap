@@ -1,0 +1,4 @@
+{
+	name = "    prototype with protocol";
+	content = "\n:- object(${1:Prototype},\n\timplements(${2:Protocol})).\n\n\t:- info([\n\t\tversion is 1.0,\n\t\tauthor is '${3:Your Name}',\n\t\tdate is ${4:2004}/${5:10}/${6:18},\n\t\tcomment is '${7:Description}']).\n\n$0\n\n:- end_object.\n";
+}

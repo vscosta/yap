@@ -1,6 +1,6 @@
 =================================================================
 Logtalk - Object oriented extension to Prolog
-Release 2.21.1
+Release 2.21.2
 
 Copyright (c) 1998-2004 Paulo Moura.  All Rights Reserved.
 =================================================================
@@ -85,3 +85,7 @@ list, and difflist (replaced by the predicates nth0/3 and nth1/3).
 Logtalk version 2.20.0 updates the semantics of the uses/1 entity directive 
 to accept as argument a single object identifier (this change is needed in 
 order to ensure compatibility with the new uses/2 predicate directive).
+
+Logtalk version 2.21.2 adds a new clause to the code generated when compiling 
+entity in order to support the new alias/1 predicate property, implying 
+recompilation of all objects, protocols, and categories.

@@ -2,7 +2,7 @@
 :- category(determiners).
 
 
-	:- private(determiner/2).
+	:- private(determiner//0).
 
 	determiner --> [the].
 	determiner --> [a].

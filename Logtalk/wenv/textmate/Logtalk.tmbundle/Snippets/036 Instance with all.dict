@@ -1,0 +1,4 @@
+{
+	name = "    instance with all";
+	content = "\n:- object(${1:Instance},\n\timplements(${2:Protocol}),\n\timports(${3:Category}),\n\tinstantiates(${4:Class})).\n\n\t:- info([\n\t\tversion is 1.0,\n\t\tauthor is '${5:Your Name}',\n\t\tdate is ${6:2004}/${7:10}/${8:18},\n\t\tcomment is '${9:Description}']).\n\n$0\n\n:- end_object.\n";
+}

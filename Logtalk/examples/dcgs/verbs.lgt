@@ -2,7 +2,7 @@
 :- category(verbs).
 
 
-	:- private(verb/2).
+	:- private(verb//0).
 
 	verb --> [likes].
 	verb --> [hates].

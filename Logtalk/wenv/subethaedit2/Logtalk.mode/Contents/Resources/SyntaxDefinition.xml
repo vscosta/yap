@@ -37,10 +37,6 @@
 				<regex>:-\s(uses)\(</regex>			
 			</keywords>
 
-			<keywords id="Clause operator" color="#000000" useforautocomplete="no">
-				<regex>(:-)</regex>
-			</keywords>
-
 			<keywords id="Entity Relations" color="#881280" useforautocomplete="yes">
 				<regex>\b(instantiates)\(</regex>
 				<regex>\b(specializes)\(</regex>
@@ -138,7 +134,7 @@
 				<regex>(&gt;=)</regex>
 				<!-- Evaluable functors -->
 				<regex>(\+)</regex>
-				<regex>(-)</regex>
+				<regex>(?&lt;!:)(-)</regex>
 				<regex>(\*)</regex>
 				<regex>(//)</regex>
 				<regex>(/)</regex>
@@ -225,6 +221,10 @@
 			<keywords id="Metapredicate Operators" color="#0000ff" useforautocomplete="no">
 				<regex>(::)(?=(,|[)]))</regex>			
 				<regex>(\*)(?=(,|[)]))</regex>
+			</keywords>
+
+			<keywords id="Clause operator" color="#000000" useforautocomplete="no">
+				<regex>(:-)</regex>
 			</keywords>
 
 		</default>

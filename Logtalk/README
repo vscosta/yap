@@ -1,6 +1,6 @@
 =================================================================
 Logtalk - Object oriented extension to Prolog
-Release 2.21.1
+Release 2.21.2
 
 Copyright (c) 1998-2004 Paulo Moura.  All Rights Reserved.
 =================================================================
@@ -48,8 +48,8 @@ the Logtalk web site or send an email message to:
 
 with the following information:
 
-email address, full name, organization, organization type
-(education, commercial, government,...), prolog compilers used (optional), 
+email address, full name, organization, organization type (education, 
+commercial, government, ...), prolog compilers used (optional), 
 platforms (mac, pc, unix,...) (optional)
 
 

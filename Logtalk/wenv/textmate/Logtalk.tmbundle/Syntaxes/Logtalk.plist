@@ -1,0 +1,210 @@
+{
+	name = "Logtalk";
+	fileTypes = ( lgt, mlgt, config, loader );
+	foldingStartMarker = ":-\\s+(object|protocol|category)(?=[(])";
+	foldingStopMarker = ":-\\s+end_(object|protocol|category)(?=[.])";
+	increaseIndentPattern = ":-$";
+	smartTypingPairs = (
+	   ( "(", ")" ), ( "[", "]" ), ( "{", "}" ),
+	   ( "\"", "\"" ), ( "'", "'" )
+	);
+	highlightPairs = (
+	   ( "(", ")" ), ( "[", "]" ), ( "{", "}" )
+	);
+	foregroundColor = "#000000";
+	backgroundColor = "#ffffff";
+	patterns = (
+		{
+			name = "Block comments";
+			begin = "/\\*"; end = "\\*/";
+			fontStyle = ( italic ); foregroundColor = "#23763A";
+		},
+		{
+			name = "Line Comments";
+			match = "%.*$";
+			fontStyle = ( italic ); foregroundColor = "#23763A";
+		},
+		{
+			name = "Entity opening directives";
+			match = ":-\\s+(object|protocol|category)(?=[(])";
+			foregroundColor = "#881280";
+		},
+		{
+			name = "Entity closing directives";
+			match = ":-\\s+end_(object|protocol|category)(?=[.])";
+			foregroundColor = "#881280";
+		},
+		{
+			name = "Entity relations";
+			match = "\\b(extends|i(nstantiates|mp(orts|lements))|specializes)(?=[(])";
+			foregroundColor = "#881280";
+		},
+		{
+			name = "Entity directives";
+			match = ":-\\s+(calls|in(itialization|fo)|uses)(?=[(])";
+			foregroundColor = "#881280";
+		},
+		{
+			name = "Predicate directives";
+			match = ":-\\s+(alias|info|d(ynamic|iscontiguous)|m(etapredicate|ode|ultifile)|p(ublic|r(otected|ivate))|op|uses)(?=[(])";
+			foregroundColor = "#881280";
+		},
+		{
+			name = "Message sending operators";
+			match = "(::|\\^\\^)";
+			foregroundColor = "#0000ff";
+		},
+		{
+			name = "Mode operators";
+			match = "(\\?|@)";
+			foregroundColor = "#0000ff";
+		},
+		{
+			name = "Term comparison operators";
+			match = "(@=<|@<|@>|@>=|==|\\\\==)";
+			foregroundColor = "#0000ff";
+		},
+		{
+			name = "Arithemtic comparison operators";
+			match = "(=<|<|>|>=|=:=|=\\\\=)";
+			foregroundColor = "#0000ff";
+		},
+		{
+			name = "Bitwise operators";
+			match = "(<<|>>|/\\\\|\\\\/|\\\\)";
+			foregroundColor = "#0000ff";
+		},
+		{
+			name = "Evaluable operators";
+			match = "\\<(mod|rem)\\>";
+			foregroundColor = "#0000ff";
+		},
+		{
+			name = "Evaluable operators";
+			match = "(\\*\\*|\\+|-|\\*|/|//)";
+			foregroundColor = "#0000ff";
+		},
+		{
+			name = "Other operators";
+			match = "(:-|!|\\\\\+|,|;|-->|->|=|\\\=|\\.|=\\.\\.|\\<is\\>)";
+			foregroundColor = "#0000ff";
+		},
+		{
+			name = "Control constructs";
+			match = "\\<(true|fail)\\>";
+			foregroundColor = "#1A1AA6";
+		},
+		{
+			name = "Control constructs";
+			match = "\\<(ca(ll|tch)|throw)(?=[(])";
+			foregroundColor = "#1A1AA6";
+		},
+		{
+			name = "Character and byte input/output";
+			match = "\\<((get|peek|put)_(char|code|byte)|nl)(?=[(])";
+			foregroundColor = "#1A1AA6";
+		},
+		{
+			name = "Character and byte input/output";
+			match = "\\<nl\\>";
+			foregroundColor = "#1A1AA6";
+		},
+		{
+			name = "Atomic term processing";
+			match = "\\<(atom_(length|concat|chars|codes)|sub_atom|char_code|number_(chars|codes))(?=[(])";
+			foregroundColor = "#1A1AA6";
+		},
+		{
+			name = "Term testing";
+			match = "\\<(var|atom|integer|float|atomic|compound|n(onvar|umber))(?=[(])";
+			foregroundColor = "#1A1AA6";
+		},
+		{
+			name = "Term input/output";
+			match = "\\<(read_term|read|write|writeq|write_(canonical|term)|op|current_op|char_conversion|current_char_conversion)(?=[(])";
+			foregroundColor = "#1A1AA6";
+		},
+		{
+			name = "Term creation and decomposition";
+			match = "\\<(arg|copy_term|functor)(?=[(])";
+			foregroundColor = "#1A1AA6";
+		},
+		{
+			name = "Compiling and loading predicates";
+			match = "\\<(logtalk_(compile|load))(?=[(])";
+			foregroundColor = "#1A1AA6";
+		},
+		{
+			name = "Event handling predicates";
+			match = "\\<((abolish|define)_events|current_event)(?=[(])";
+			foregroundColor = "#1A1AA6";
+		},
+		{
+			name = "Flag predicates";
+			match = "\\<((current|set)_logtalk_flag)(?=[(])";
+			foregroundColor = "#1A1AA6";
+		},
+		{
+			name = "Entity creation and abolishing predicates";
+			match = "\\<((create|abolish)_(object|protocol|category))(?=[(])";
+			foregroundColor = "#1A1AA6";
+		},
+		{
+			name = "Reflection predicates";
+			match = "\\<(current_(object|protocol|category)|(object|protocol|category)_property||extends_(object|protocol)|imp(orts_category|lements_protocol)|(instantiates|specializes)_class)(?=[(])";
+			foregroundColor = "#1A1AA6"; },
+		{ name = "Other predicates"; match = "\\<((for|retract)all)(?=[(])"; foregroundColor = "#1A1AA6"; },
+		{
+			name = "Execution context methods";
+			match = "\\<(parameter|se(lf|nder)|this)(?=[(])";
+			foregroundColor = "#1A1AA6";
+		},
+		{
+			name = "Database methods"; match = "\\<(abolish|assert(a|z)|clause|retract|retractall)(?=[(])"; foregroundColor = "#1A1AA6"; },
+		{
+			name = "All solutions methods";
+			match = "\\<((bag|set)of|f(ind|or)all)(?=[(])";
+			foregroundColor = "#1A1AA6";
+		},
+		{
+			name = "Reflection methods";
+			match = "\\<(current_predicate|predicate_property)(?=[(])";
+			foregroundColor = "#1A1AA6";
+		},
+		{
+			name = "Event handler methods";
+			match = "\\<(before|after)(?=[(])";
+			foregroundColor = "#1A1AA6";
+		},
+		{
+			name = "Grammar rule methods";
+			match = "\\<(expand_term|phrase)(?=[(])";
+			foregroundColor = "#1A1AA6";
+		},
+		{
+			name = "Character constants";
+			match = "\\<(0'[0-9a-zA-Z]|0b[0-1]+|0o[0-7]+|0x[0-9a-fA-F]+)\\>";
+			foregroundColor = "#C44B45";
+		},
+		{
+			name = "Numeric constants";
+			match = "\\<([0-9]+\\.?[0-9]*((e|E)(\\+|-)[0-9]+)?)\\>";
+			foregroundColor = "#C44B45";
+		},
+		{
+			name = "Atoms";
+			begin = "'"; end = "'"; swallow = "\\\\.";
+			foregroundColor = "#881314";
+		},
+		{
+			name = "Strings";
+			begin = "\""; end = "\""; swallow = "\\\\.";
+			foregroundColor = "#881314";
+		},
+		{
+			name = "Variables";
+			match = "\\<(\\u|_)\\w*\\>";
+			foregroundColor = "#848AB9";
+		}
+	);
+}

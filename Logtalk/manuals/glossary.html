@@ -69,6 +69,19 @@
 <dt class="glossary"><strong>event</strong><a name="event"></a></dt>
 <dd>The sending of a message to an object. An event can be expressed as an ordered tuple: <code>(Event, Object, Message, Sender)</code>. Logtalk distinguish between the sending of a message - <code>before</code> event - and the return of control to the sender - <code>after</code> event.</dd>
 
+<dt class="glossary"><strong>grammar rule</strong><a name="grammar_rule"></a></dt>
+<dd>An alternative notation for predicates used to parse or generate sentences on some language. This notation hides the arguments used to pass the lists of tokens being processed, thus simplifying the representation of grammars. Grammar rules are represented using the infix operator <code>-->/2</code> instead of the operator used on predicate clauses (<code>:-/2</code>).</dd>
+
+<dd><dl>
+
+<dt class="glossary"><strong>grammar rule non-terminal</strong><a name="non_terminal"></a></dt>
+<dd>A syntactic category of words of phrases. A non-terminal is identified by its name and number of arguments using the notation <code>&lt;name&gt;//&lt;nargs&gt;</code>.</dd>
+
+<dt class="glossary"><strong>grammar rule terminal</strong><a name="terminal"></a></dt>
+<dd>A word or a basic symbol of a language.</dd>
+
+</dl></dd>
+
 <dt class="glossary"><strong>identity</strong><a name="identity"></a></dt>
 <dd>Property of an entity that distinguish it from every other entity. In Logtalk an entity identity can be an atom or a compound term. All Logtalk entities, objects, protocols and categories share the same name space.</dd>
 
@@ -177,7 +190,7 @@ Copyright &copy; <a href="mailto:pmoura@logtalk.org">Paulo Moura</a> &mdash; <a 
 </div>
 
 <div class="footer">
-<p><span class="bleft"><a href="http://validator.w3.org/check/referer">XHTML</a> + <a href="http://jigsaw.w3.org/css-validator/check/referer">CSS</a></span><span class="bright">Last updated on: July 22, 2004</span></p>
+<p><span class="bleft"><a href="http://validator.w3.org/check/referer">XHTML</a> + <a href="http://jigsaw.w3.org/css-validator/check/referer">CSS</a></span><span class="bright">Last updated on: October 5, 2004</span></p>
 </div>
 </body>
 </html>

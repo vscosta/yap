@@ -107,8 +107,7 @@ syn match	logtalkBuiltIn		"\<\(current\|set\)_logtalk_flag\ze("
 
 syn match	logtalkBuiltIn		"\<logtalk_\(compile\|load\)\ze("
 
-syn match	logtalkBuiltIn		"\<forall\ze("
-syn match	logtalkBuiltIn		"\<retractall\ze("
+syn match	logtalkBuiltIn		"\<\(for\|retract\)all\ze("
 
 
 " Logtalk built-in methods

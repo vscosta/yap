@@ -1,6 +1,6 @@
 =================================================================
 Logtalk - Object oriented extension to Prolog
-Release 2.21.1
+Release 2.21.2
 
 Copyright (c) 1998-2004 Paulo Moura.  All Rights Reserved.
 =================================================================
@@ -47,4 +47,21 @@ yes
 | ?- circle(3)::r(Radius).
 
 Radius = 3 
+yes
+
+| ?- circle(3)::predicate_property(r(_), Property).
+
+Property = public ;
+Property = static ;
+Property = declared_in(ellipse(_G266, _G267)) ;
+Property = defined_in(ellipse(_G299, _G300)) ;
+Property = alias(rx(_G177))
+yes
+
+| ?- circle(3)::predicate_property(rx(_), Property).
+
+Property = public ;
+Property = static ;
+Property = declared_in(ellipse(_G261, _G262)) ;
+Property = defined_in(ellipse(_G292, _G293))
 yes

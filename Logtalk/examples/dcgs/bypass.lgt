@@ -5,7 +5,10 @@ bar :-
 
 :- object(bypass).
 
-	:- public(foo/2).
+	:- public(foo//0).
+	:- mode(foo, one).
+	:- info(foo//0, [
+		comment is 'Just the almighty and famous old foo.']).
 
 	foo --> {{bar}}.
 

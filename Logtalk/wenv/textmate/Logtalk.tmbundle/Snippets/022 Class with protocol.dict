@@ -1,0 +1,4 @@
+{
+	name = "    class with protocol";
+	content = "\n:- object(${1:Class},\n\timplements(${2:Protocol}),\n\tspecializes(${3:Superclass})).\n\n\t:- info([\n\t\tversion is 1.0,\n\t\tauthor is '${4:Your Name}',\n\t\tdate is ${5:2004}/${6:10}/${7:18},\n\t\tcomment is '${8:Description}']).\n\n$0\n\n:- end_object.\n";
+}

@@ -1,6 +1,6 @@
 =================================================================
 Logtalk - Object oriented extension to Prolog
-Release 2.21.1
+Release 2.21.2
 
 Copyright (c) 1998-2004 Paulo Moura.  All Rights Reserved.
 =================================================================
@@ -133,8 +133,8 @@ yes
 
 % double bypass using the {}/1 control constructs of grammar rules and Logtalk:
 
-| ?- bypass::foo(_, _).
-    
+| ?- bypass::phrase(foo, _, _).
+
 bar predicate called
 yes
 

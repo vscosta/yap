@@ -1,0 +1,24 @@
+=================================================================
+Logtalk - Object oriented extension to Prolog
+Release 2.21.2
+
+Copyright (c) 1998-2004 Paulo Moura.  All Rights Reserved.
+=================================================================
+
+
+This directory contains files that provide syntax highlighting 
+for editing Logtalk source files with the BBEdit 8.x text editor
+(http://www.barebones.com/products/bbedit/index.shtml).
+
+To install copy the file "logtalk.plist" either to the folder:
+
+	~/Library/Application Support/BBEdit/Language Modules/
+
+or to the folder:
+
+	/Library/Application Support/BBEdit/Language Modules/
+
+(create the folder if it does not exist).
+
+
+THESE SYNTAX COLORING SUPPORT FILES ARE UNDER DEVELOPMENT.

@@ -1,6 +1,6 @@
 =================================================================
 Logtalk - Object oriented extension to Prolog
-Release 2.21.1
+Release 2.21.2
 
 Copyright (c) 1998-2004 Paulo Moura.  All Rights Reserved.
 =================================================================
@@ -8,6 +8,23 @@ Copyright (c) 1998-2004 Paulo Moura.  All Rights Reserved.
 
 RELEASE NOTES
 =============
+
+
+2.21.2 - October 18, 2004
+
+	Added support for declaring grammar rule non-terminals as public, protected, 
+	private, dynamic, or discontiguous using the notation Functor//Arity. Added 
+	support for documenting non-terminals using the info/2 and mode/2 directives.
+
+	Added support for a new alias/1 predicate property.
+
+	New experimental config file for JIProlog 3.0 (see the configs/NOTES file 
+	for details).
+
+	Added a mode bundle for the TextMode 1.0.x (MacOS X) text editor providing 
+	syntax highlighting, folding, and code snippets for editing Logtalk source 
+	files. Corrected a bug in the syntax coloring of the :-/1-2 operator on the 
+	SubEthaEdit 2.x text editor.
 
 
 2.21.1 - September 27, 2004

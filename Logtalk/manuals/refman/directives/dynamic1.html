@@ -24,18 +24,23 @@
 <h4>Description</h4>
 
 <blockquote>
-<pre>dynamic(Predicate)
-dynamic(Predicate1, Predicate2, ...)
-dynamic([Predicate1, Predicate2, ...])</pre>
+<pre>dynamic(Functor/Arity)
+dynamic(Functor1/Arity1, Functor2/Arity2, ...)
+dynamic([Functor1/Arity1, Functor2/Arity2, ...])
+
+dynamic(Functor//Arity)
+dynamic(Functor1//Arity1, Functor2//Arity2, ...)
+dynamic([Functor1//Arity1, Functor2//Arity2, ...])</pre>
 <p>
-	Declares dynamic predicates. Note that an object can be static and have both static and dynamic predicates.
+Declares dynamic predicates and dynamic grammar rule non-terminals. Note that an object can be static and have both static and dynamic predicates/non-terminals.
 </p>
 </blockquote>
 
 <h4>Template and modes</h4>
 
 <blockquote>
-<pre>dynamic(+predicate_indicator_term)</pre>
+<pre>dynamic(+predicate_indicator_term)
+dynamic(+non_terminal_indicator_term)</pre>
 </blockquote>
 
 
@@ -58,7 +63,7 @@ Copyright &copy; <a href="mailto:pmoura@logtalk.org">Paulo Moura</a> &mdash; <a 
 </div>
 
 <div class="footer">
-<p><span class="bleft"><a href="http://validator.w3.org/check/referer">XHTML</a> + <a href="http://jigsaw.w3.org/css-validator/check/referer">CSS</a></span><span class="bright">Last updated on: December 23, 2003</span></p>
+<p><span class="bleft"><a href="http://validator.w3.org/check/referer">XHTML</a> + <a href="http://jigsaw.w3.org/css-validator/check/referer">CSS</a></span><span class="bright">Last updated on: October 4, 2003</span></p>
 </div>
 </body>
 </html>

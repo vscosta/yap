@@ -1,6 +1,6 @@
 =================================================================
 Logtalk - Object oriented extension to Prolog
-Release 2.21.1
+Release 2.21.2
 
 Copyright (c) 1998-2004 Paulo Moura.  All Rights Reserved.
 =================================================================
@@ -29,10 +29,10 @@ directory:
 and copy to it the directory Logtalk Application
 
 
-Altough the file logtalk.pblangspec provides simple syntax coloring for the 
-Logtalk language, it is recommended that you configure Xcode to use the 
-text editor SubEthaEdit as an external editor for editing Logtalk source 
-files.
+Altough the file logtalk.pblangspec provides basic syntax coloring for the 
+Logtalk language, it is recommended that you configure Xcode to use an 
+external text editor such as SubEthaEdit or TextMate for editing Logtalk 
+source files.
 
 
 SUPPORT FOR THIS IDE IS A WORK IN PROGRESS.
