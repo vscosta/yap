@@ -119,17 +119,7 @@ use_module(Mod,F,I) :-
 	'$file_name'(Stream, F).
 
 
-'$module'(reconsult,N,P) :- !,
-	'$abolish_module_data'(N),
-	'$module_dec'(N,P).
-'$module'(consult,N,P) :-
-	( recorded('$module','$module'(F,N,_),_),
-	     '$format'(user_error,"[ Module ~w was already defined in file ~w]~n",[N,F]),
-		'$abolish_module_data'(N),
-		fail
-	;
-	   	true
-	),
+'$module'(_,N,P) :-
 	'$module_dec'(N,P).
 
 '$module'(O,N,P,Opts) :- !,
@@ -179,23 +169,46 @@ module(N) :-
 	'$do_error'(instantiation_error,module(N)).
 module(N) :-
 	atom(N), !,
-	'$current_module'(_,N),
-	get_value('$consulting_file',F),
-	( recordzifnot('$module','$module'(N),_) -> true; true),
-	( recordaifnot('$module','$module'(F,N,[]),_) -> true, true).
+	% set it as current module.
+	'$current_module'(_,N).
 module(N) :-
 	'$do_error'(type_error(atom,N),module(N)).
 
 '$module_dec'(N,P) :-
 	'$current_module'(Old,N),
 	get_value('$consulting_file',F),
-	( recordzifnot('$module','$module'(N),_) -> true; true),
-	recorda('$module','$module'(F,N,P),_),
+	'$add_module_on_file'(N, F, P),
 	( recorded('$importing','$importing'(F),_) ->
 	         true
 	;
-	 		'$import'(P,N,Old)
+	 	'$import'(P,N,Old)
 	).
+
+'$add_module_on_file'(Mod, F, Exports) :-
+	recorded('$module','$module'(F0,Mod,_),R), !,
+	'$add_preexisting_module_on_file'(F, F0, Mod, Exports, R).
+'$add_module_on_file'(Mod, F, Exports) :-
+	recorda('$module','$module'(F,Mod,Exports),_).
+
+% redefining a previously-defined file, no problem.
+'$add_preexisting_module_on_file'(F, F, Mod, Exports, R) :- !,
+	erase(R),
+	( recorded('$import','$import'(M,T,_,_),R), erase(R), fail; true),
+	recorda('$module','$module'(F,Mod,Exports),_).
+'$add_preexisting_module_on_file'(F,F0,Mod,Exports,R) :-
+	repeat,
+	'$format'(user_error, "The module ~a is being redefined.~n    Old file:  ~a~n    New file:  ~a~nDo you really want to redefine it? (y or n)",[Mod,F0,F]),
+	'$mod_scan'(C), !,
+	( C is "y" ->
+	    '$add_preexisting_module_on_file'(F, F, Mod, Exports, R)
+	 ;
+	    '$do_error'(permission_error(module,redefined,Mod),module(Mod,Exports))
+	).
+
+'$mod_scan'(C) :-
+	get0(C),
+	'$skipeol'(C),
+	(C is "y" ; C is "n").
 
 '$import'([],_,_) :- !.
 '$import'([N/K|L],M,T) :-
@@ -250,15 +263,6 @@ module(N) :-
 	 ;
 	   true
     ). 
-
-'$abolish_module_data'(M) :-
-	'$current_module'(T),
-	( recorded('$import','$import'(M,T,_,_),R), erase(R), fail; true),
-	recorded('$module','$module'(_,M,_),R),
-	erase(R),
-	fail.
-'$abolish_module_data'(_).
-
 
 % expand module names in a clause
 '$module_expansion'(((Mod:H) :-B ),((Mod:H) :- B1),((Mod:H) :- BO),M) :- !,

@@ -498,6 +498,9 @@ print_message(Level, Mss) :-
 '$output_error_message'(permission_error(modify,static_procedure_in_use,_), Where) :-
 	'$format'(user_error,"[ PERMISSION ERROR- ~w: modifying a static procedure in use ]~n",
 	[Where]).
+'$output_error_message'(permission_error(module,redefined,Mod), Who) :-
+	'$format'(user_error,"[ PERMISSION ERROR ~w- redefining module ~a in a different file ]~n",
+	[Who,Mod]).
 '$output_error_message'(permission_error(open,source_sink,Stream), Where) :-
 	'$format'(user_error,"[ PERMISSION ERROR- ~w: cannot open file ~w ]~n",
 	[Where,Stream]).
