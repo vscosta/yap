@@ -10,7 +10,7 @@
 * File:		Regs.h							 *
 * mods:									 *
 * comments:	YAP abstract machine registers				 *
-* version:      $Id: Regs.h,v 1.18 2002-11-18 18:13:14 vsc Exp $	 *
+* version:      $Id: Regs.h,v 1.19 2003-02-14 12:06:18 vsc Exp $	 *
 *************************************************************************/
 
 
@@ -56,6 +56,8 @@ EXTERN void restore_H(void);
 EXTERN void save_H(void);
 EXTERN void restore_B(void);
 EXTERN void save_B(void);
+EXTERN void restore_TR(void);
+EXTERN void save_TR(void);
 
 
 typedef struct
