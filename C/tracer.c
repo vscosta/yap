@@ -133,7 +133,7 @@ low_level_trace(yap_low_level_port port, PredEntry *pred, CELL *args)
   /*  if (vsc_count < 24) return; */
   /* if (vsc_count > 500000) exit(0); */
   /* if (gc_calls < 1) return;*/
-  YP_fprintf(YP_stderr,"%lu (%d)", vsc_count, CurrentModule);
+  YP_fprintf(YP_stderr,"%lu %p (%d)", vsc_count, B, CurrentModule);
   /* check_trail_consistency(); */
   if (pred == NULL) {
     return;
@@ -145,6 +145,9 @@ low_level_trace(yap_low_level_port port, PredEntry *pred, CELL *args)
   case enter_pred:
     mname = RepAtom(AtomOfTerm(Module_Name((CODEADDR)pred)))->StrOfAE;
     arity = pred->ArityOfPE;
+    if (arity == 0)
+      s = RepAtom((Atom)pred->FunctorOfPred)->StrOfAE;
+      else
     s = RepAtom(NameOfFunctor((pred->FunctorOfPred)))->StrOfAE;
     /*    if ((pred->ModuleOfPred == 0) && (s[0] == '$'))
 	  return;       */
@@ -165,7 +168,10 @@ low_level_trace(yap_low_level_port port, PredEntry *pred, CELL *args)
     } else {
       mname = RepAtom(AtomOfTerm(Module_Name((CODEADDR)pred)))->StrOfAE;
       arity = pred->ArityOfPE;
-      s = RepAtom(NameOfFunctor((pred->FunctorOfPred)))->StrOfAE;
+      if (arity == 0)
+	s = RepAtom((Atom)pred->FunctorOfPred)->StrOfAE;
+      else
+	s = RepAtom(NameOfFunctor((pred->FunctorOfPred)))->StrOfAE;
       /*    if ((pred->ModuleOfPred == 0) && (s[0] == '$'))
 	    return;      */
       send_tracer_message("RETRY PRODUCER: ", s, 0, mname, NULL);
@@ -179,7 +185,10 @@ low_level_trace(yap_low_level_port port, PredEntry *pred, CELL *args)
     } else {
       mname = RepAtom(AtomOfTerm(Module_Name((CODEADDR)pred)))->StrOfAE;
       arity = pred->ArityOfPE;
-      s = RepAtom(NameOfFunctor((pred->FunctorOfPred)))->StrOfAE;
+      if (arity == 0)
+	s = RepAtom((Atom)pred->FunctorOfPred)->StrOfAE;
+      else
+	s = RepAtom(NameOfFunctor((pred->FunctorOfPred)))->StrOfAE;
       /*    if ((pred->ModuleOfPred == 0) && (s[0] == '$'))
 	    return;      */
       send_tracer_message("RETRY CONSUMER: ", s, 0, mname, NULL);
@@ -188,7 +197,10 @@ low_level_trace(yap_low_level_port port, PredEntry *pred, CELL *args)
   case retry_pred:
     mname = RepAtom(AtomOfTerm(Module_Name((CODEADDR)pred)))->StrOfAE;
     arity = pred->ArityOfPE;
-    s = RepAtom(NameOfFunctor((pred->FunctorOfPred)))->StrOfAE;
+    if (arity == 0)
+      s = RepAtom((Atom)pred->FunctorOfPred)->StrOfAE;
+    else
+      s = RepAtom(NameOfFunctor((pred->FunctorOfPred)))->StrOfAE;
     /*    if ((pred->ModuleOfPred == 0) && (s[0] == '$'))
 	  return;      */
     send_tracer_message("FAIL ", NULL, 0, NULL, args);

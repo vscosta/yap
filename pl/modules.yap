@@ -41,7 +41,7 @@ use_module(File,Imports) :-
 	atom(File), !,
 	'$current_module'(M),
 	'$find_in_path'(File,X),
-	( open(X,$csult,Stream), !,
+	( open(X,'$csult',Stream), !,
 	'$consulting_file_name'(Stream,TrueFileName),
 	( '$loaded'(Stream) -> true
 	     ;
@@ -53,7 +53,7 @@ use_module(File,Imports) :-
 	 close(Stream),
 	 ( var(R) -> true; erased(R) -> true; erase(R)),
 	 ( '$recorded'('$module','$module'(TrueFileName,Mod,Publics),_) ->
-	     $use_preds(Imports,Publics,Mod,M)
+	     '$use_preds'(Imports,Publics,Mod,M)
 	 ;
 	 format(user_error,'[ use_module/2 can not find a module in file ~w]~n',File),
 	 fail
@@ -64,7 +64,7 @@ use_module(File,Imports) :-
 use_module(library(File),Imports) :- !,
 	'$current_module'(M),
 	'$find_in_path'(library(File),X),
-	( open(X,$csult,Stream), !,
+	( open(X,'$csult',Stream), !,
 	'$consulting_file_name'(Stream,TrueFileName),
 	( '$loaded'(Stream) -> true
 	     ;
@@ -76,7 +76,7 @@ use_module(library(File),Imports) :- !,
 	 close(Stream),
 	 ( var(R) -> true; erased(R) -> true; erase(R)),
 	 ( '$recorded'('$module','$module'(TrueFileName,Mod,Publics),_) ->
-	     $use_preds(Imports,Publics,Mod,M)
+	     '$use_preds'(Imports,Publics,Mod,M)
 	 ;
 	 format(user_error,'[ use_module/2 can not find a module in file ~w]~n',[File]),
 	 fail
@@ -177,7 +177,7 @@ module(N) :-
 	throw(error(instantiation_error,module(N))).
 module(N) :-
 	atom(N), !,
-	'$current_module'(Old,N),
+	'$current_module'(_,N),
 	'$get_value'('$consulting_file',F),
 	( recordzifnot('$module','$module'(N),_) -> true; true),
 	( recorded('$module','$module'(F,N,[]),_) ->
@@ -188,8 +188,8 @@ module(N) :-
 	throw(error(type_error(atom,N),module(N))).
 
 '$module_dec'(N,P) :-
-	$current_module(Old,N),
-	$get_value('$consulting_file',F),
+	'$current_module'(Old,N),
+	'$get_value'('$consulting_file',F),
 	( recordzifnot('$module','$module'(N),_) -> true; true),
 	recorda('$module','$module'(F,N,P),_),
 	( '$recorded'('$importing','$importing'(F),_) ->
@@ -201,7 +201,7 @@ module(N) :-
 '$import'([],_,_) :- !.
 '$import'([N/K|L],M,T) :-
 	integer(K), atom(N), !,
-	( $check_import(M,T,N,K) ->
+	( '$check_import'(M,T,N,K) ->
 %	    format(user_error,'[Importing ~w to ~w]~n',[M:N/K,T]),
 	     ( T = user ->
 	       recordz('$import','$import'(M,_,N,K),_)
@@ -216,17 +216,17 @@ module(N) :-
 	format(user_error,'[Illegal pred specification(~w) in module declaration for module ~w]~n',[PS,M]),
 	'$import'(L,M,T).
 
-$check_import(M,T,N,K) :-
+'$check_import'(M,T,N,K) :-
     '$recorded'('$import','$import'(M1,T0,N,K),R), T0 == T, M1 \= M, /* ZP */ !,
     format(user_error,'NAME CLASH: ~w was already imported to module ~w;~n',[M1:N/K,T]),
     format(user_error,'            Do you want to import it from ~w ? [y or n] ',M),
     repeat,
-	get0(C), $skipeol(C),
+	get0(C), '$skipeol'(C),
 	( C is "y" -> erase(R), !;
 	  C is "n" -> !, fail;
 	  write(user_error, ' Please answer with ''y'' or ''n'' '), fail
 	).
-$check_import(_,_,_,_).
+'$check_import'(_,_,_,_).
 
 % $use_preds(Imports,Publics,Mod,M)
 '$use_preds'([],_,_,_) :- !.
@@ -299,7 +299,7 @@ $check_import(_,_,_,_).
 	tell('P0:debug'),
 	write(X),nl,
 	tell(F), fail.
-'$trace_module'(X).
+'$trace_module'(_).
 
 '$trace_module'(X,Y) :- X==Y, !.
 '$trace_module'(X,Y) :-
@@ -309,7 +309,7 @@ $check_import(_,_,_,_).
 	portray_clause(X),
 	portray_clause(Y),
 	tell(F),fail.
-$trace_module(X,Y).
+'$trace_module'(_,_).
 
 %
 % calling the meta-call expansion facility and expand_goal from
@@ -338,7 +338,7 @@ $trace_module(X,Y).
 %       current module for fixing up meta-call arguments
 %       current module for predicate
 %       head variables.
-'$module_expansion'(V,call(MM:V),call(MM:V),M,MM,TM,HVars) :- var(V), !.
+'$module_expansion'(V,call(MM:V),call(MM:V),_M,MM,_TM,_) :- var(V), !.
 '$module_expansion'((A,B),(A1,B1),(AO,BO),M,MM,TM,HVars) :- !,
 	'$module_expansion'(A,A1,AO,M,MM,TM,HVars),
 	'$module_expansion'(B,B1,BO,M,MM,TM,HVars).
@@ -353,9 +353,9 @@ $trace_module(X,Y).
 '$module_expansion'(false,false,false,_,_,_,_) :- !.
 % if I don't know what the module is, I cannot do anything to the goal,
 % so I just put a call for later on.
-'$module_expansion'(M:G,call(M:G),call(M:G),_,_,_,HVars) :- var(M), !.
+'$module_expansion'(M:G,call(M:G),call(M:G),_,_,_,_) :- var(M), !.
 % if M1 is given explicitly process G within M1's context.
-'$module_expansion'(M:G,G1,GO,Mod,MM,TM,HVars) :- !,
+'$module_expansion'(M:G,G1,GO,_Mod,_MM,TM,HVars) :- !,
 	% is this imported from some other module M1?
 	( '$imported_pred'(G, M, M1) ->
 	    % continue recursively...
@@ -435,7 +435,7 @@ $trace_module(X,Y).
 %	'$recorded'('$meta_predicate','$meta_predicate'(M,F,N,D),_), !,
 	'$meta_predicate'(F,M,N,D), !,
 	'$module_u_vars'(N,D,H,UVars).
-'$module_u_vars'(H,[]).
+'$module_u_vars'(_,[]).
 
 '$module_u_vars'(0,_,_,[]) :- !.
 '$module_u_vars'(I,D,H,[Y|L]) :-
@@ -475,14 +475,14 @@ $trace_module(X,Y).
 
 % check if an argument should be expanded
 '$do_expand'(V,HVars) :- var(V), !, '$not_in_vars'(V,HVars).
-'$do_expand'(M:F,_) :- !, fail.
-'$do_expand'(X,_).
+'$do_expand'(_:_,_) :- !, fail.
+'$do_expand'(_,_).
 
-$not_in_vars(_,[]).
-$not_in_vars(V,[X|L]) :- X\==V, $not_in_vars(V,L).
+'$not_in_vars'(_,[]).
+'$not_in_vars'(V,[X|L]) :- X\==V, '$not_in_vars'(V,L).
 
 current_module(Mod) :- 
-	'$recorded'($module,'$module'(Mod),_).
+	'$recorded'('$module','$module'(Mod),_).
 
 current_module(Mod,TFN) :-
 	'$recorded'('$module','$module'(TFN,Mod,_Publics),_).

@@ -116,7 +116,7 @@ freeze(_, G) :-
 '$freeze_goal'(V,VG) :-
 	var(VG), !,
 	'$current_module'(M),
-	'$freeze'(V, '$redo_freeze'(_Done,V,M:G)).
+	'$freeze'(V, '$redo_freeze'(_Done,V,M:VG)).
 '$freeze_goal'(V,M:G) :- !,
 	'$freeze'(V, '$redo_freeze'(_Done,V,M:G)).
 '$freeze_goal'(V,G) :-
@@ -161,7 +161,7 @@ freeze(_, G) :-
 %
 dif(X, Y) :- '$can_unify'(X, Y, LVars), !,
 	LVars = [_|_],
-	'$dif_suspend_on_lvars'(LVars, '$redo_dif'(Done, X, Y)).
+	'$dif_suspend_on_lvars'(LVars, '$redo_dif'(_Done, X, Y)).
 dif(_, _).
 
 
@@ -179,8 +179,8 @@ dif(_, _).
 % we try to increase the number of suspensions; last, the two terms
 % did not unify, we are done, so we succeed and bind the Done variable.
 %
-'$redo_dif'(Done, X, Y, G) :- nonvar(Done), !.
-'$redo_dif'(Done, X, Y, G) :-
+'$redo_dif'(Done, _, _, _) :- nonvar(Done), !.
+'$redo_dif'(_, X, Y, G) :-
 	'$can_unify'(X, Y, LVars), !,
 	LVars = [_|_],
 	'$dif_suspend_on_lvars'(LVars, G).
@@ -191,7 +191,7 @@ dif(_, _).
 %
 % someone else (that is Cond had ;) did the work, do nothing
 %
-'$redo_freeze'(Done, Goal) :- nonvar(Done), !.
+'$redo_freeze'(Done, _) :- nonvar(Done), !.
 %
 % We still have some more conditions: continue the analysis.
 %
@@ -208,8 +208,8 @@ dif(_, _).
 
 %
 % eq is a combination of dif and freeze
-'$redo_eq'(Done, X, Y, Goal, G) :- nonvar(Done), !.
-'$redo_eq'(Done, X, Y, _, G) :-
+'$redo_eq'(Done, _, _, _, _) :- nonvar(Done), !.
+'$redo_eq'(_, X, Y, _, G) :-
 	'$can_unify'(X, Y, LVars),
 	LVars = [_|_], !,
 	'$dif_suspend_on_lvars'(LVars, G).
@@ -220,7 +220,7 @@ dif(_, _).
 
 %
 % ground is similar to freeze
-'$redo_ground'(Done, X, Goal) :- nonvar(Done), !.
+'$redo_ground'(Done, _, _) :- nonvar(Done), !.
 '$redo_ground'(Done, X, Goal) :-
 	'$non_ground'(X, Var), !,
 	'$freeze'(Var, '$redo_ground'(Done, X, Goal)).
@@ -313,7 +313,7 @@ when(_,Goal) :-
 	'$when'(Cond, G, Done, [], LG),
 	!,
 	'$suspend_when_goals'(LG, Done).
-'$when'(Cond, G, '$done') :-
+'$when'(_, G, '$done') :-
 	'$execute'(G).
 
 %
@@ -360,7 +360,7 @@ when(_,Goal) :-
 '$suspend_when_goals'(['$dif_suspend_on_lvars'(LVars, G)|LG], Done) :-
 	var(Done), !,
 	'$dif_suspend_on_lvars'(LVars, G),
-	'$suspend_when_goals'(Ls, Done).
+	'$suspend_when_goals'(LG, Done).
 '$suspend_when_goals'([_|_], _).
 
 %
@@ -377,7 +377,7 @@ when(_,Goal) :-
 % significant as the remaining overheads.
 %
 '$block'(Conds) :-
-	'$generate_blocking_code'(Conds, G, Code),
+	'$generate_blocking_code'(Conds, _, Code),
 	'$$compile'(Code, Code, 5), fail.
 '$block'(_).
 
@@ -397,7 +397,7 @@ when(_,Goal) :-
 %
 % find out what we are blocking on.
 %
-'$extract_head_for_block'((C1, C2), G) :- !,
+'$extract_head_for_block'((C1, _), G) :- !,
 	'$extract_head_for_block'(C1, G).
 '$extract_head_for_block'(C, G) :-
 	functor(C, Na, Ar),
@@ -528,7 +528,7 @@ frozen(V, LG) :-
 	'$process_when'(G, NG).
 '$process_when'(G, G).
 
-'$convert_frozen_goal'(V, LV, _, V, Gs) :- '$is_att_variable'(V), !.
+'$convert_frozen_goal'(V, _, _, V, _) :- '$is_att_variable'(V), !.
 '$convert_frozen_goal'('$redo_dif'(Done, X, Y), LV, Done, [X,Y|LV], dif(X,Y)).
 '$convert_frozen_goal'('$redo_freeze'(Done, FV, G), LV, Done, [FV|LV], G).
 '$convert_frozen_goal'('$redo_eq'(Done, X, Y, G), LV, Done, [X,Y|LV], G).
@@ -578,9 +578,9 @@ call_residue(Goal,Residue) :-
 	'$show_frozen'(Goal,LIV,Residue).
 
 '$purge_and_set_done_goals'([], L, L).
-'$purge_and_set_done_goals'([AttV|G0], [LVars-GS|GF], Atts) :-
+'$purge_and_set_done_goals'([AttV|G0], [_-GS|GF], Atts) :-
 	'$is_att_variable'(AttV), !,
-	attributes:convert_att_var(AttV, Gs),
+	attributes:convert_att_var(AttV, GS),
 	'$purge_and_set_done_goals'(G0, GF, Atts).
 '$purge_and_set_done_goals'(['$redo_dif'(Done, X , Y)|G0], [LVars-dif(X,Y)|GF], Atts) :-
 	var(Done),
@@ -600,15 +600,14 @@ call_residue(Goal,Residue) :-
 	var(Done), !,
 	Done = '$done',
 	'$purge_and_set_done_goals'(G0, GF, Atts).
-'$purge_and_set_done_goals'([G|G0], GF, Atts) :-
-	Done = '$done',
+'$purge_and_set_done_goals'([_|G0], GF, Atts) :-
 	'$purge_and_set_done_goals'(G0, GF, Atts).
 
 
 '$project'(true,_,_,Gs,Gs) :- !.
 '$project'(_,_,_,Gs,Gs) :-
 	'$undefined'(attributes:modules_with_attributes(_)), !.
-'$project'(G,LIV,LAV,Gs,Gs0) :-
+'$project'(_,LIV,LAV,Gs,Gs0) :-
 	attributes:modules_with_attributes(LMods),
 	(LAV = [] ->
 	  Gs = Gs0
@@ -631,24 +630,24 @@ call_residue(Goal,Residue) :-
 	'$execute'(Mod:project_attributes(LIV, LAV)), !,
 	'$all_attvars'(NLAV),
 	'$project_module'(LMods,LIV,NLAV).
-'$project_module'([Mod|LMods], LIV, LAV) :-
+'$project_module'([_|LMods], LIV, LAV) :-
 	'$project_module'(LMods,LIV,LAV).
 
-'$convert_att_vars'([], LIV, L, L).
+'$convert_att_vars'([], _, L, L).
 '$convert_att_vars'([V|LAV], LIV, NGs, NGs0) :-
 	var(V),
 	attributes:convert_att_var(V, G),
 	G \= true,
-	'$variables_in_term'(G,[],GV0),
+%	'$variables_in_term'(G,[],GV0),
         % I'm allowing goals without variables to go through
-	'$sort'(GV0,GV),
+%	'$sort'(GV0,GV),
 %	( GV0 = [] -> true ;
 %	'$sort'(LIV,NLIV), % notice that ordering changes as we introduce constraints
 %	'$vars_interset_for_constr'(GV,NLIV) ), !,
 	!,
 	'$split_goals_for_catv'(G,V,NGs,IGs),
 	'$convert_att_vars'(LAV, LIV, IGs, NGs0).
-'$convert_att_vars'([V|LAV], LIV, Gs, NGs0) :-
+'$convert_att_vars'([_|LAV], LIV, Gs, NGs0) :-
 	'$convert_att_vars'(LAV, LIV, Gs, NGs0).
 
 '$split_goals_for_catv'((G,NG),V,Gs,Gs0) :- !,
@@ -660,7 +659,7 @@ call_residue(Goal,Residue) :-
 '$vars_interset_for_constr'([V1|GV],[V2|LIV]) :-
 	V1 @< V2, !,
 	'$vars_interset_for_constr'(GV,[V2|LIV]).
-'$vars_interset_for_constr'([V1|GV],[V2|LIV]) :-
+'$vars_interset_for_constr'([V1|GV],[_|LIV]) :-
 	'$vars_interset_for_constr'([V1|GV],LIV).
 
 

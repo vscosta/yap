@@ -149,7 +149,7 @@ AccessNamedArray(Atom a, Int indx)
   ArrayEntry *pp; 
 
   READ_LOCK(ae->ARWLock);
-  pp = RepArrayProp(ae->PropOfAE);
+  pp = RepArrayProp(ae->PropsOfAE);
   while (!EndOfPAEntr(pp) && pp->KindOfPE != ArrayProperty)
     pp = RepArrayProp(pp->NextOfPE);
   READ_UNLOCK(ae->ARWLock);
@@ -393,9 +393,9 @@ CreateNamedArray(PropEntry * pp, Int dim, AtomEntry *ae)
 
   p = (ArrayEntry *) AllocAtomSpace(sizeof(*p));
   p->KindOfPE = ArrayProperty;
-  p->NextOfPE = ae->PropOfAE;
+  p->NextOfPE = ae->PropsOfAE;
   INIT_RWLOCK(p->ArRWLock);
-  ae->PropOfAE = AbsArrayProp(p);
+  ae->PropsOfAE = AbsArrayProp(p);
 
   InitNamedArray(p, dim);
 
@@ -446,13 +446,13 @@ CreateStaticArray(AtomEntry *ae, Int dim, static_array_types type, CODEADDR star
   if (EndOfPAEntr(p)) {
     p = (StaticArrayEntry *) AllocAtomSpace(sizeof(*p));
     p->KindOfPE = ArrayProperty;
-    p->NextOfPE = ae->PropOfAE;
+    p->NextOfPE = ae->PropsOfAE;
     INIT_RWLOCK(p->ArRWLock);
     WRITE_LOCK(p->ArRWLock);
   }
   p->ArrayEArity = -dim;
   p->ArrayType = type;
-  ae->PropOfAE = AbsArrayProp((ArrayEntry *)p);
+  ae->PropsOfAE = AbsArrayProp((ArrayEntry *)p);
   WRITE_UNLOCK(ae->ARWLock);
   if (start_addr == NULL) {
     int i;
@@ -578,7 +578,7 @@ ClearNamedArray(CELL *pt0)
   AtomEntry *ae = (AtomEntry *)RepAppl(pt0[-1]);
 
   READ_LOCK(ae->ARWLock);
-  pp = RepProp(ae->PropOfAE);  
+  pp = RepProp(ae->PropsOfAE);  
   while (!EndOfPAEntr(pp) && pp->KindOfPE != ArrayProperty) {
     pp = RepProp(pp->NextOfPE);
   }
@@ -649,7 +649,7 @@ p_create_array(void)
     PropEntry *pp;
 
     WRITE_LOCK(ae->ARWLock);
-    pp = RepProp(ae->PropOfAE);
+    pp = RepProp(ae->PropsOfAE);
     while (!EndOfPAEntr(pp) && pp->KindOfPE != ArrayProperty)
       pp = RepProp(pp->NextOfPE);
     if (EndOfPAEntr(pp)) {
@@ -753,7 +753,7 @@ p_create_static_array(void)
     StaticArrayEntry *pp;
 
     WRITE_LOCK(ae->ARWLock);
-    pp = RepStaticArrayProp(ae->PropOfAE);
+    pp = RepStaticArrayProp(ae->PropsOfAE);
     WRITE_LOCK(pp->ArRWLock);
     while (!EndOfPAEntr(pp) && pp->KindOfPE != ArrayProperty)
       pp = RepStaticArrayProp(pp->NextOfPE);
@@ -786,7 +786,7 @@ p_has_static_array(void)
     StaticArrayEntry *pp;
 
     READ_LOCK(ae->ARWLock);
-    pp = RepStaticArrayProp(ae->PropOfAE);
+    pp = RepStaticArrayProp(ae->PropsOfAE);
     while (!EndOfPAEntr(pp) && pp->KindOfPE != ArrayProperty)
       pp = RepStaticArrayProp(pp->NextOfPE);
     if (EndOfPAEntr(pp) || pp->ValueOfVE.ints == NULL) {
@@ -833,7 +833,7 @@ p_resize_static_array(void)
   else if (IsAtomTerm(t)) {
     /* resize a named array */
     Atom a = AtomOfTerm(t);
-    StaticArrayEntry *pp = RepStaticArrayProp(RepAtom(a)->PropOfAE);
+    StaticArrayEntry *pp = RepStaticArrayProp(RepAtom(a)->PropsOfAE);
 
     while (!EndOfPAEntr(pp) && pp->KindOfPE != ArrayProperty)
       pp = RepStaticArrayProp(pp->NextOfPE);
@@ -868,7 +868,7 @@ p_close_static_array(void)
     PropEntry *pp;
 
     READ_LOCK(ae->ARWLock);
-    pp = RepProp(ae->PropOfAE);
+    pp = RepProp(ae->PropsOfAE);
     while (!EndOfPAEntr(pp) && pp->KindOfPE != ArrayProperty)
       pp = RepProp(pp->NextOfPE);
     READ_UNLOCK(ae->ARWLock);
@@ -1101,7 +1101,7 @@ p_create_mmapped_array(void)
     StaticArrayEntry *pp;
 
     WRITE_LOCK(ae->ARWLock);
-    pp = RepStaticArrayProp(ae->PropOfAE);
+    pp = RepStaticArrayProp(ae->PropsOfAE);
     while (!EndOfPAEntr(pp) && pp->KindOfPE != ArrayProperty)
       pp = RepStaticArrayProp(pp->NextOfPE);
     if (!EndOfPAEntr(pp)) {
@@ -1361,7 +1361,7 @@ p_assign_static(void)
     AtomEntry *ae = RepAtom(AtomOfTerm(t1));
 
     READ_LOCK(ae->ARWLock);
-    ptr =  RepStaticArrayProp(ae->PropOfAE);    
+    ptr =  RepStaticArrayProp(ae->PropsOfAE);    
     while (!EndOfPAEntr(ptr) && ptr->KindOfPE != ArrayProperty)
       ptr = RepStaticArrayProp(ptr->NextOfPE);
     READ_UNLOCK(ae->ARWLock);
@@ -1611,7 +1611,7 @@ SetDBForThrow(Term Message)
   StaticArrayEntry *ptr;
   DBRef ref;
   READ_LOCK(ae->ARWLock);
-  ptr =  RepStaticArrayProp(ae->PropOfAE);    
+  ptr =  RepStaticArrayProp(ae->PropsOfAE);    
   while (!EndOfPAEntr(ptr) && ptr->KindOfPE != ArrayProperty)
     ptr = RepStaticArrayProp(ptr->NextOfPE);
   READ_UNLOCK(ae->ARWLock);

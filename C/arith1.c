@@ -2007,7 +2007,7 @@ InitUnaryExps(void)
   for (i = 0; i < sizeof(InitUnTab)/sizeof(InitUnEntry); ++i) {
     AtomEntry *ae = RepAtom(LookupAtom(InitUnTab[i].OpName));
     WRITE_LOCK(ae->ARWLock);
-    if (LockedGetExpProp(ae, 1)) {
+    if (GetExpPropHavingLock(ae, 1)) {
       WRITE_UNLOCK(ae->ARWLock);
       break;
     }
@@ -2016,8 +2016,8 @@ InitUnaryExps(void)
     p->ArityOfEE = 1;
     p->ENoOfEE = 1;
     p->FOfEE.unary = InitUnTab[i].f;
-    p->NextOfPE = ae->PropOfAE;
-    ae->PropOfAE = AbsExpProp(p);
+    p->NextOfPE = ae->PropsOfAE;
+    ae->PropsOfAE = AbsExpProp(p);
     WRITE_UNLOCK(ae->ARWLock);
   }
   InitCPred("is", 3, p_unary_is, TestPredFlag | SafePredFlag);
@@ -2034,7 +2034,7 @@ ReInitUnaryExps(void)
     AtomEntry *ae = RepAtom(FullLookupAtom(InitUnTab[i].OpName));
 
     WRITE_LOCK(ae->ARWLock);
-    if ((p = LockedGetExpProp(ae, 1)) == NULL) {
+    if ((p = GetExpPropHavingLock(ae, 1)) == NULL) {
       WRITE_UNLOCK(ae->ARWLock);
       return(FALSE);
     }

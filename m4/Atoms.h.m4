@@ -41,7 +41,7 @@ typedef struct PropEntryStruct *Prop;
 /*		 atom structure						*/
 typedef struct AtomEntryStruct {
   Atom            NextOfAE;	/* used	to build hash chains			*/
-  Prop            PropOfAE;	/* property list for this atom			*/
+  Prop            PropsOfAE;	/* property list for this atom			*/
 #if defined(YAPOR) || defined(THREADS)
   rwlock_t        ARWLock;
 #endif

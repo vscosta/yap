@@ -17,12 +17,12 @@
 
 once(G) :- '$execute'(G), !.
 
-if(X,Y,Z) :-
+if(X,Y,_Z) :-
 	CP is '$last_choice_pt',
 	'$execute'(X),
 	'$clean_ifcp'(CP),
 	'$execute'(Y).
-if(X,Y,Z) :-
+if(_X,_Y,Z) :-
 	'$execute'(Z).
 	
 
@@ -341,6 +341,8 @@ current_atom(A) :-				% check
 current_atom(A) :-				% generate
 	'$current_atom'(A).
 
+current_predicate(A,T) :- var(T), !,		% only for the predicate
+	'$current_predicate_no_modules'(A,T).
 current_predicate(A,M:T) :-			% module specified
 	var(M), !,
 	current_module(M),
@@ -352,6 +354,8 @@ current_predicate(A,M:T) :- % module specified
 current_predicate(A,T) :-			% only for the predicate
 	'$current_predicate_no_modules'(A,T).
 
+current_predicate(F) :-	var(F), !,		% only for the predicate
+	'$current_predicate3'(F).
 current_predicate(M:F) :-			% module specified
 	var(M), !,
 	current_module(M),
@@ -364,12 +368,8 @@ current_predicate(F) :-			% only for the predicate
 	'$current_predicate3'(F).
 
 system_predicate(A,P) :-
-	'$mod_switch'(prolog,'$current_predicate_no_modules'(A,T)),
+	'$mod_switch'(prolog,'$current_predicate_no_modules'(A,P)),
 	\+ '$hidden'(A).
-
-'$system_predicate'(Pred) :-
-	'$flags'(Pred,Flags,_),
-	 Flags /\ 8'40000 =\= 0.
 
 system_predicate(P) :- '$system_predicate'(P).
 
@@ -402,7 +402,7 @@ statistics :-
 	'$inform_gc'(NOfGC,TotGCTime,TotGCSize),
 	'$statistics'(Runtime,CPUtime,Walltime,HpSpa,HpInUse,HpMax,TrlSpa, TrlInUse,TrlMax,StkSpa, GlobInU, LocInU,GlobMax,LocMax,NOfHO,TotHOTime,NOfSO,TotSOTime,NOfTO,TotTOTime,NOfGC,TotGCTime,TotGCSize).
 
-'$statistics'(Runtime,CPUtime,Walltime,HpSpa,HpInUse,HpMax,TrlSpa, TrlInUse,TrlMax,StkSpa, GlobInU, LocInU,GlobMax,LocMax,NOfHO,TotHOTime,NOfSO,TotSOTime,NOfTO,TotTOTime,NOfGC,TotGCTime,TotGCSize) :-
+'$statistics'(Runtime,CPUtime,Walltime,HpSpa,HpInUse,_HpMax,TrlSpa, TrlInUse,_TrlMax,StkSpa, GlobInU, LocInU,GlobMax,LocMax,NOfHO,TotHOTime,NOfSO,TotSOTime,NOfTO,TotTOTime,NOfGC,TotGCTime,TotGCSize) :-
 	TotalMemory is HpSpa+StkSpa+TrlSpa,
 	format(user_error,"memory (total)~t~d bytes~35+~n", [TotalMemory]),
 	format(user_error,"   program space~t~d bytes~35+", [HpSpa]),
@@ -573,15 +573,15 @@ predicate_property(Pred,Prop) :-
 	'$is_multifile'(N,A).
 '$predicate_property'(P,imported_from(Mod)) :-
 	functor(P,N,A),
-	'$recorded'($module,$module(_TFN,Mod,Publics),_),
-	$member(N/A,Publics).	/* defined in modules.yap */
+	'$recorded'('$module','$module'(_TFN,Mod,Publics),_),
+	'$member'(N/A,Publics).	/* defined in modules.yap */
 '$predicate_property'(P,public) :-
 	'$is_public'(P).
 '$predicate_property'(P,exported) :-
 	functor(P,N,A),
-	$current_module(M),
-	'$recorded'($module,$module(_TFN,M,Publics),_),
-	$member(N/A,Publics).	/* defined in modules.yap */
+	'$current_module'(M),
+	'$recorded'('$module','$module'(_TFN,M,Publics),_),
+	'$member'(N/A,Publics).	/* defined in modules.yap */
 
 %%% Some "dirty" predicates
 
@@ -593,8 +593,8 @@ predicate_property(Pred,Prop) :-
 '$pred_exists'(Pred) :- \+ '$undefined'(Pred).
 
 
-grow_heap(X) :- $grow_heap(X).
-grow_stack(X) :- $grow_stack(X).
+grow_heap(X) :- '$grow_heap'(X).
+grow_stack(X) :- '$grow_stack'(X).
 
 %
 % gc() expects to be called from "call". Make sure it has an
@@ -615,7 +615,7 @@ profile_data(P, Parm, Data) :- var(P), !,
 profile_data(M:P, Parm, Data) :- var(M), !,
 	throw(error(instantiation_error,profile_data(M:P, Parm, Data))).
 profile_data(M:P, Parm, Data) :- var(M), !,
-	'$mod_switch'(Mod,'$profile_data'(P, Parm, Data)).
+	'$mod_switch'(M,'$profile_data'(P, Parm, Data)).
 profile_data(P, Parm, Data) :-
 	'$profile_data'(P, Parm, Data).
 
@@ -734,21 +734,6 @@ sub_atom(At, Bef, Size, After, SubAt) :-
 '$range_var'(X1,X2,XF) :-
 	X11 is X1+1,
 	'$range_var'(X11,X2,XF).
-
-
-current_predicate(V) :- var(V), !,
-	current_predicate(_,S),
-	functor(S,Na,Ar),
-	V = Na/Ar.
-current_predicate(Na/Ar) :- !,
-	current_predicate(Na,S),
-	\+ '$system_predicate'(S),
-	functor(S,Na,Ar).
-current_predicate(M:X) :- !,
-	'$mod_switch'(M,current_predicate(X)).
-current_predicate(T) :-
-	throw(error(type_error(predicate_indicator,T),current_predicate(T))).
-
 
 '$singletons_in_term'(T,VL) :-
 	'$variables_in_term'(T,[],V10),

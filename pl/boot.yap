@@ -641,13 +641,35 @@ incore(G) :- '$execute'(G).
 	'$iso_check_goal'(G,G0),
 	'$call'(G, CP,G0).
 
+
+','(A,B) :-
+	'$execute_within'(A),
+	'$execute_within'(B).
+
+';'(A,B) :-
+	( '$execute_within'(A) ;
+	  '$execute_within'(B) ).
+
+'|'(A,B) :-
+	( '$execute_within'(A) ;
+	  '$execute_within'(B) ).
+
+'->'(A,B) :-
+	( '$execute_within'(A) ->
+	  '$execute_within'(B) ).
+
+\+(A) :-
+	\+ '$execute_within'(A).
+
+not(A) :-
+	\+ '$execute_within'(A).
+
+Mod:G :- '$mod_switch'(Mod,'$execute_within'(G)).
+
 '$call'(M:_,_,G0) :- var(M), !,
 	throw(error(instantiation_error,call(G0))).
 '$call'(M:G,CP,G0) :- !,
         '$mod_switch'(M,'$call'(G,CP,G0)).
-'$call'((A,B),CP,G0) :- !,
-	'$execute_within'(A,CP,G0),
-	'$execute_within'(B,CP,G0).
 '$call'((X->Y),CP,G0) :- !,
 	(
 	    '$execute_within'(X,CP,G0)

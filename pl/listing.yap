@@ -86,7 +86,7 @@ portray_clause(Pred) :-
         put(","),
         '$aftercomma'(T,IO,I),
         '$write_body'(Q,I,',').
-'$write_body'((P->Q;S),I,T) :-
+'$write_body'((P->Q;S),I,_) :-
 	!,
 	nl, tab(I-2), put("("),
 	'$write_body'(P,I,'('),
@@ -95,7 +95,7 @@ portray_clause(Pred) :-
 	put(";"),
 	'$write_body'(S,I,';'),
 	tab(1), put(")").
-'$write_body'((P->Q|S),I,T) :-
+'$write_body'((P->Q|S),I,_) :-
 	!,
 	nl, tab(I-2), put("("),
 	'$write_body'(P,I,'('),
@@ -104,35 +104,28 @@ portray_clause(Pred) :-
 	put("|"),
 	'$write_body'(S,I,'|'),
 	tab(1), put(")").
-'$write_body'((P->Q),I,T) :-
+'$write_body'((P->Q),I,_) :-
 	!,
 	nl, tab(I-2), put("("),
         '$write_body'(P,I,'('),
         put("-"), put(">"),
         '$write_body'(Q,I,'->'),
         tab(1), put(")").
-'$write_body'((P;Q),I,T) :-
+'$write_body'((P;Q),I,_) :-
         !,
         nl, tab(I-2), put("("),
         '$write_body'(P,I,'('),
         put(";"),
         '$write_body'(Q,I,';'),
         tab(1), put(")").
-'$write_body'((P;Q),I,T) :-
-        !,
-        nl, tab(I-2), put("("),
-        '$write_body'(P,I,'('),
-        put(";"),
-        '$write_body'(Q,I,';'),
-        tab(1), put(")").
-'$write_body'((P|Q),I,T) :-
+'$write_body'((P|Q),I,_) :-
         !,
         nl, tab(I-2), put("("),
         '$write_body'(P,I,'('),
         put("|"),
         '$write_body'(Q,I,'|'),
         tab(1), put(")").
-'$write_body'((P|Q),I,T) :-
+'$write_body'((P|Q),I,_) :-
         !,
         nl, tab(I-2), put("("),
         '$write_body'(P,I,'('),
@@ -169,4 +162,4 @@ portray_clause(Pred) :-
 '$list_transform'([X,Y|L],M) :- X == Y, X = '$VAR'(M), !, N is M+1,
 			'$list_transform'(L,N).
 '$list_transform'('$VAR'(-1).L,M) :- !, '$list_transform'(L,M).
-'$list_transform'(X.L,M) :- '$list_transform'(L,M).
+'$list_transform'(_.L,M) :- '$list_transform'(L,M).

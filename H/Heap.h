@@ -10,7 +10,7 @@
 * File:		Heap.h         						 *
 * mods:									 *
 * comments:	Heap Init Structure					 *
-* version:      $Id: Heap.h,v 1.9 2001-10-03 13:39:14 vsc Exp $	 *
+* version:      $Id: Heap.h,v 1.10 2001-10-30 16:42:05 vsc Exp $	 *
 *************************************************************************/
 
 /* information that can be stored in Code Space */
@@ -99,9 +99,9 @@ typedef struct various_codes {
 #endif
   CELL  *wake_up_code;
 #endif
-  CELL  *creep_code;
-  CELL  *undef_code;
-  CELL  *spy_code;
+  struct pred_entry  *creep_code;
+  struct pred_entry  *undef_code;
+  struct pred_entry  *spy_code;
   int   profiling;
   AtomHashEntry invisiblechain;
   OPCODE dummycode;
@@ -227,6 +227,7 @@ typedef struct various_codes {
     functor_csult,
     functor_cut_by,
     functor_eq,
+    functor_execute_in_mod,
     functor_g_atom,
     functor_g_atomic,
     functor_g_compound,
@@ -259,6 +260,7 @@ typedef struct various_codes {
 #ifdef EUROTRA
     term_dollar_u,
 #endif
+    term_prolog,
     term_refound_var;
   void *last_wtime;
   PredEntry *pred_goal_expansion;
@@ -290,6 +292,7 @@ typedef struct various_codes {
 #define  COMPLETION               ((yamop *)&(heap_regs->tablecompletioncode   ))
 #define  ANSWER_RESOLUTION        ((yamop *)&(heap_regs->tableanswerresolutioncode ))
 #endif /* TABLING */
+#define  FAILCODE                 ((CODEADDR)&(heap_regs->failcode       ))
 #define  FAILCODE                 ((CODEADDR)&(heap_regs->failcode       ))
 #define  TRUSTFAILCODE            ((CODEADDR)&(heap_regs->trustfailcode  ))
 #define  TRUSTFAILCODE            ((CODEADDR)&(heap_regs->trustfailcode  ))
@@ -412,6 +415,7 @@ typedef struct various_codes {
 #define  FunctorCsult             heap_regs->functor_csult
 #define  FunctorCutBy             heap_regs->functor_cut_by
 #define  FunctorEq                heap_regs->functor_eq
+#define  FunctorExecuteInMod      heap_regs->functor_execute_in_mod
 #define  FunctorGAtom             heap_regs->functor_g_atom
 #define  FunctorGAtomic           heap_regs->functor_g_atomic
 #define  FunctorGCompound         heap_regs->functor_g_compound
@@ -441,6 +445,7 @@ typedef struct various_codes {
 #define  FunctorVBar              heap_regs->functor_v_bar
 #define  FunctorVar               heap_regs->functor_var
 #define  TermDollarU              heap_regs->term_dollar_u
+#define  TermProlog               heap_regs->term_prolog
 #define  TermReFoundVar           heap_regs->term_refound_var
 #define  PredGoalExpansion        heap_regs->pred_goal_expansion
 #define  PredMetaCall             heap_regs->pred_meta_call

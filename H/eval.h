@@ -34,7 +34,7 @@
 #ifdef LONG_MIN
 #define Int_MIN  LONG_MIN
 #else
-#define Int_MIN  (-CELL_MAX-(CELL)1)
+#define Int_MIN  (-Int_MAX-(CELL)1)
 #endif
 
 typedef union arith_ret {

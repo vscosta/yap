@@ -64,10 +64,10 @@
 '$t_body'((T->R), ToFill, Last, S, SR, (Tt->Rt)) :- !,
 	'$t_body'(T, ToFill, not_last, S, SR1, Tt),
 	'$t_body'(R, ToFill, Last, SR1, SR, Rt).
-'$t_body'((T;R), _ToFill, _Last, S, SR, (Tt;Rt)) :- !,
+'$t_body'((T;R), ToFill, _Last, S, SR, (Tt;Rt)) :- !,
 	copy_term(ToFill,OtherToFill),
-	'$t_body'(T, _, last, S, SR, Tt),
-	'$t_body'(R, _, last, S, SR, Rt).
+	'$t_body'(T, OtherToFill, last, S, SR, Tt),
+	'$t_body'(R, ToFill, last, S, SR, Rt).
 '$t_body'(M:G, ToFill, Last, S, SR, M:NG) :- !,
 	'$t_body'(G, ToFill, Last, S, SR, NG).
 '$t_body'(T, filled_in, _, S, SR, Tt) :-

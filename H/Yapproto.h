@@ -10,7 +10,7 @@
 * File:		Yap.proto						 *
 * mods:									 *
 * comments:	Function declarations for YAP				 *
-* version:      $Id: Yapproto.h,v 1.3 2001-10-03 13:39:14 vsc Exp $	 *
+* version:      $Id: Yapproto.h,v 1.4 2001-10-30 16:42:05 vsc Exp $	 *
 *************************************************************************/
 
 /* prototype file for Yap */
@@ -36,6 +36,8 @@ Atom	STD_PROTO(LookupAtom,(char *));
 Atom	STD_PROTO(FullLookupAtom,(char *));
 void	STD_PROTO(LookupAtomWithAddress,(char *,AtomEntry *));
 Term	STD_PROTO(MkApplTerm,(Functor,unsigned int,Term *));
+Prop	STD_PROTO(NewPredPropByFunctor,(struct FunctorEntryStruct *, Term));
+Prop	STD_PROTO(NewPredPropByAtom,(struct AtomEntryStruct *, Term));
 Functor	STD_PROTO(UnlockedMkFunctor,(AtomEntry *,unsigned int));
 Functor	STD_PROTO(MkFunctor,(Atom,unsigned int));
 void	STD_PROTO(MkFunctorWithAddress,(Atom,unsigned int,FunctorEntry *));
@@ -52,10 +54,11 @@ CELL	STD_PROTO(*ArgsOfSFTerm,(Term));
 
 int	STD_PROTO(LookupModule,(Term));
 Prop	STD_PROTO(GetPredProp,(Atom,unsigned int));
-Prop	STD_PROTO(GetPredPropByFunc,(Functor));
-Prop	STD_PROTO(LockedGetPredProp,(Atom,unsigned int));
+Prop	STD_PROTO(GetPredPropByAtom,(Atom, Term));
+Prop	STD_PROTO(GetPredPropByFunc,(Functor, Term));
+Prop	STD_PROTO(GetPredPropHavingLock,(Atom,unsigned int));
 Prop	STD_PROTO(GetExpProp,(Atom,unsigned int));
-Prop	STD_PROTO(LockedGetExpProp,(AtomEntry *,unsigned int));
+Prop	STD_PROTO(GetExpPropHavingLock,(AtomEntry *,unsigned int));
 Term    STD_PROTO(Module_Name, (CODEADDR));
 
 
@@ -146,10 +149,11 @@ void	STD_PROTO(InitEval,(void));
 Int	STD_PROTO(EvFArt,(Term));
 
 /* exec.c */
+Term	STD_PROTO(ExecuteCallMetaCall,(void));
+void	STD_PROTO(InitExecFs,(void));
+int	STD_PROTO(RunTopGoal,(Term));
 Int	STD_PROTO(execute_goal,(Term, int));
 int	STD_PROTO(exec_absmi,(int));
-int	STD_PROTO(RunTopGoal,(Term));
-void	STD_PROTO(InitExecFs,(void));
 
 
 /* grow.c */

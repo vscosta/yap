@@ -56,7 +56,7 @@
 '$process_error'(Throw) :-
 	print_message(error,Throw).
 
-print_message(force(Severity), Msg) :- !,
+print_message(force(_Severity), Msg) :- !,
 	print(user_error,Msg).
 print_message(Severity, Msg) :-
 	\+ '$undefined'(user: portray_message(Severity, Msg)),
@@ -290,7 +290,7 @@ print_message(help,M) :-
 '$output_error_message'(system_error(Message), Where) :-
 	format(user_error,"[ SYSTEM ERROR- ~w at ~w]~n",
 	[Message,Where]).
-'$output_error_message'(type_error(T,_,Err,M), Where) :-
+'$output_error_message'(type_error(T,_,Err,M), _Where) :-
 	format(user_error,"[ TYPE ERROR- ~w: expected ~w, got ~w ]~n",
 	[T,Err,M]).
 '$output_error_message'(type_error(array,W), Where) :-

@@ -20,16 +20,10 @@
 
 % These are pseudo declarations
 % so that the user will get a redefining system predicate
-G1 ; G2 :- '$execute'((G1;G2)).
-G1 | G2 :- '$execute'((G1;G2)).
-G1 -> G2 :- '$execute'((G1->G2)).
-','(G1,G2) :- '$execute'((G1,G2)).
 otherwise.
 fail :- fail.
 false :- false.
 !.
-\+ G :- \+ G.
-not(G) :- not(G).
 (:- G) :- '$execute'(G), !.
 '$$!'(CP) :- '$cut_by'(CP).
 

@@ -107,13 +107,15 @@ DumpActiveGoals (void)
       if (pe->PredFlags & (CompiledPredFlag | DynamicPredFlag | FastPredFlag))
 	{
 	  Functor f;
+	  SMALLUNSGN mod = 0;
 
 	  f = pe->FunctorOfPred;
 	  if (pe->KindOfPE && hidden (NameOfFunctor (f)))
 	    goto next;
 	  if (first++ == 1)
 	    YP_fprintf(YP_stderr,"Active ancestors:\n");
-	  plwrite (ModuleName[pe->ModuleOfPred], DebugPutc, 0);
+	  if (pe->ModuleOfPred) mod = IntOfTerm(pe->ModuleOfPred);
+	  plwrite (ModuleName[mod], DebugPutc, 0);
 	  DebugPutc (c_output_stream,':');
 	  if (pe->ArityOfPE == 0) {
 	    plwrite (MkAtomTerm ((Atom)f), DebugPutc, 0);
@@ -161,9 +163,11 @@ DumpActiveGoals (void)
       READ_LOCK(pe->PRWLock);
       {
 	Functor f;
+	SMALLUNSGN mod = 0;
 
 	f = pe->FunctorOfPred;
-	plwrite (ModuleName[pe->ModuleOfPred], DebugPutc, 0);
+	if (pe->ModuleOfPred) mod = IntOfTerm(pe->ModuleOfPred);
+	plwrite (ModuleName[mod], DebugPutc, 0);
 	DebugPutc (c_output_stream,':');
 	if (pe->ArityOfPE == 0) {
 	  plwrite (MkAtomTerm (NameOfFunctor(f)), DebugPutc, 0);

@@ -1720,7 +1720,7 @@ InitBinaryExps(void)
   for (i = 0; i < sizeof(InitBinTab)/sizeof(InitBinEntry); ++i) {
     AtomEntry *ae = RepAtom(LookupAtom(InitBinTab[i].OpName));
     WRITE_LOCK(ae->ARWLock);
-    if (LockedGetExpProp(ae, 2)) {
+    if (GetExpPropHavingLock(ae, 2)) {
       WRITE_UNLOCK(ae->ARWLock);
       break;
     }
@@ -1729,8 +1729,8 @@ InitBinaryExps(void)
     p->ArityOfEE = 2;
     p->ENoOfEE = 2;
     p->FOfEE.binary = InitBinTab[i].f;
-    p->NextOfPE = ae->PropOfAE;
-    ae->PropOfAE = AbsExpProp(p);
+    p->NextOfPE = ae->PropsOfAE;
+    ae->PropsOfAE = AbsExpProp(p);
     WRITE_UNLOCK(ae->ARWLock);
   }
   InitCPred("is", 4, p_binary_is, TestPredFlag | SafePredFlag);
@@ -1747,7 +1747,7 @@ ReInitBinaryExps(void)
     AtomEntry *ae = RepAtom(FullLookupAtom(InitBinTab[i].OpName));
 
     WRITE_LOCK(ae->ARWLock);
-    if ((p = LockedGetExpProp(ae, 2)) == NULL) {
+    if ((p = GetExpPropHavingLock(ae, 2)) == NULL) {
       WRITE_UNLOCK(ae->ARWLock);
       return(FALSE);
     }

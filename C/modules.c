@@ -41,8 +41,11 @@ Module_Name(CODEADDR cap)
        predicate is a meta-call. Otherwise it will still work.
     */
     return(ModuleName[CurrentModule]);
-  else
+  else {
+    if (ap->ModuleOfPred)
+      return (ModuleName[IntOfTerm(ap->ModuleOfPred)]);
     return (ModuleName[ap->ModuleOfPred]);
+  }
 }
 
 int 
@@ -94,6 +97,13 @@ p_change_module(void)
   return (TRUE);
 }
 
+static Int
+p_module_number(void)
+{				/* $change_module(New)		 */
+  Term t = MkIntTerm(LookupModule(Deref(ARG1)));
+  return (unify(ARG2,t));
+}
+
 void 
 InitModules(void)
 {
@@ -104,4 +114,5 @@ InitModules(void)
   InitCPred("$current_module", 2, p_current_module, SafePredFlag|SyncPredFlag);
   InitCPred("$current_module", 1, p_current_module1, SafePredFlag|SyncPredFlag);
   InitCPred("$change_module", 1, p_change_module, SafePredFlag|SyncPredFlag);
+  InitCPred("$module_number", 2, p_module_number, SafePredFlag|SyncPredFlag);
 }

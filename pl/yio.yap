@@ -215,15 +215,9 @@ open(F,T,S,Opts) :-
 	throw(error(instantiation_error,G)).
 '$check_open_eof_action_arg'(error,_) :- !.
 '$check_open_eof_action_arg'(eof_code,_) :- !.
-'$check_open_eof_action_arg'(reset,G) :- !.
+'$check_open_eof_action_arg'(reset,_) :- !.
 '$check_open_eof_action_arg'(X,G) :-
 	throw(error(domain_error(io_mode,eof_action(X)),G)).
-
-'$check_open_alias_arg'(T, G) :- var(X), !,
-	throw(error(instantiation_error,G)).
-'$check_open_eof_action_arg'(T,_) :- atom(T), !.
-'$check_open_alias_arg'(T, G) :- var(X), !,
-	throw(error(type_error(atom,T),G)).
 
 '$check_read_syntax_errors_arg'(X, G) :- var(X), !,
 	throw(error(instantiation_error,G)).
@@ -265,7 +259,7 @@ open(F,T,S,Opts) :-
 '$check_write_max_depth'(X, G) :- var(X), !,
 	throw(error(instantiation_error,G)).
 '$check_write_max_depth'(I,_) :- integer(I), I > 0, !.
-'$check_write_portrayed'(X,G) :-
+'$check_write_max_depth'(X,G) :-
 	throw(error(domain_error(write_option,max_depth(X)),G)).
 
 set_input(Stream) :-
@@ -343,7 +337,7 @@ read_term(Stream, T, Options) :-
 %
 '$preprocess_read_terms_options'([]).
 '$preprocess_read_terms_options'([syntax_errors(NewVal)|L]) :- !,
-	'$get_read_error_handler'(OldVal).
+	'$get_read_error_handler'(OldVal),
 	'$set_value'('$read_term_error_handler', OldVal),
 	'$set_read_error_handler'(NewVal),
 	'$preprocess_read_terms_options'(L).
@@ -363,12 +357,12 @@ read_term(Stream, T, Options) :-
 '$postprocess_read_terms_option'(syntax_errors(_), _, _) :-
 	'$get_value'('$read_term_error_handler', OldVal),
 	'$set_read_error_handler'(OldVal).
-'$postprocess_read_terms_option'(variable_names(Vars), T, VL) :-
+'$postprocess_read_terms_option'(variable_names(Vars), _, VL) :-
 	'$read_term_non_anonymous'(VL, Vars).
 '$postprocess_read_terms_option'(singletons(Val), T, VL) :-
 	'$singletons_in_term'(T, Val1),
 	'$fetch_singleton_names'(Val1,VL,Val).
-'$postprocess_read_terms_option'(variables(Val), T, VL) :-
+'$postprocess_read_terms_option'(variables(Val), T, _) :-
 	'$variables_in_term'(T, [], Val).
 %'$postprocess_read_terms_option'(cycles(Val), _, _).
 
@@ -393,7 +387,7 @@ read_term(Stream, T, Options) :-
 %	V1 @> V2,
 	'$fetch_singleton_names'(Ss, Ns, NSs).
 
-'$add_singleton_if_no_underscore'([95|_],V2,NSs,NSs) :- !.
+'$add_singleton_if_no_underscore'([95|_],_,NSs,NSs) :- !.
 '$add_singleton_if_no_underscore'(Na,V2,NSs,[(Name=V2)|NSs]) :-
 	atom_codes(Name, Na).
 
@@ -459,25 +453,25 @@ write_term(_,_,_).
 	'$process_wt_opts'(Opts, FlagI, Flag, CallBacks).
 '$process_wt_opts'([quoted(false)|Opts], Flag0, Flag, CallBacks) :-
 	FlagI is Flag0 /\ 14,
-	'$process_wt_opts'(Opts, Flag0, Flag, CallBacks).
+	'$process_wt_opts'(Opts, FlagI, Flag, CallBacks).
 '$process_wt_opts'([ignore_ops(true)|Opts], Flag0, Flag, CallBacks) :-
 	FlagI is Flag0 \/ 2,
 	'$process_wt_opts'(Opts, FlagI, Flag, CallBacks).
 '$process_wt_opts'([ignore_ops(false)|Opts], Flag0, Flag, CallBacks) :-
 	FlagI is Flag0 /\ 13,
-	'$process_wt_opts'(Opts, Flag0, Flag, CallBacks).
+	'$process_wt_opts'(Opts, FlagI, Flag, CallBacks).
 '$process_wt_opts'([numbervars(true)|Opts], Flag0, Flag, CallBacks) :-
 	FlagI is Flag0 \/ 4,
 	'$process_wt_opts'(Opts, FlagI, Flag, CallBacks).
 '$process_wt_opts'([numbervars(false)|Opts], Flag0, Flag, CallBacks) :-
 	FlagI is Flag0 /\ 11,
-	'$process_wt_opts'(Opts, Flag0, Flag, CallBacks).
+	'$process_wt_opts'(Opts, FlagI, Flag, CallBacks).
 '$process_wt_opts'([portrayed(true)|Opts], Flag0, Flag, CallBacks) :-
 	FlagI is Flag0 \/ 8,
 	'$process_wt_opts'(Opts, FlagI, Flag, CallBacks).
 '$process_wt_opts'([portrayed(false)|Opts], Flag0, Flag, CallBacks) :-
 	FlagI is Flag0 /\ 7,
-	'$process_wt_opts'(Opts, Flag0, Flag, CallBacks).
+	'$process_wt_opts'(Opts, FlagI, Flag, CallBacks).
 '$process_wt_opts'([max_depth(D)|Opts], Flag0, Flag, [max_depth(D1,D0)|CallBacks]) :-
 	write_depth(D1,D0),
 	write_depth(D,D),
@@ -751,7 +745,7 @@ stream_position(A,N,M) :-
 	atom(A),
 	current_stream(_,_,S), '$user_file_name'(S,A), !,
 	'$stream_position'(S,N,M).
-stream_position(S,N) :-
+stream_position(S,N,M) :-
 	'$stream_position'(S,N,M).
 
 '$stream_position'(S,N,M) :-
@@ -812,7 +806,7 @@ stream_property(Stream, Props) :-
 '$check_stream_props'(Prop, [Prop]).
 
 
-'$process_stream_properties'([], Stream, F, Mode).
+'$process_stream_properties'([], _, _, _).
 '$process_stream_properties'([file_name(F)|Props], Stream, F, Mode) :-
 	'$process_stream_properties'(Props, Stream, F, Mode).
 '$process_stream_properties'([mode(Mode)|Props], Stream, F, Mode) :-
@@ -849,21 +843,21 @@ stream_property(Stream, Props) :-
 	'$past_eof'(Stream), !.
 '$show_stream_eof'(Stream, at) :-
 	'$peek'(Stream,N), N = -1, !.
-'$show_stream_eof'(Stream, not).
+'$show_stream_eof'(_, not).
 	
 '$show_stream_eof_action'(Fl, error) :-
 	Fl /\ 16'0200 =:= 16'0200, !.
 '$show_stream_eof_action'(Fl, reset) :-
 	Fl /\ 16'0400 =:= 16'0400, !.
-'$show_stream_eof_action'(Fl, eof_code).
+'$show_stream_eof_action'(_, eof_code).
 
 '$show_stream_reposition'(Fl, true) :-
 	Fl /\ 16'2000 =:= 16'2000, !.
-'$show_stream_reposition'(Fl, false).
+'$show_stream_reposition'(_, false).
 
 '$show_stream_type'(Fl, binary) :-
 	Fl /\ 16'0100 =:= 16'0100, !.
-'$show_stream_type'(Fl, text).
+'$show_stream_type'(_, text).
 
 at_end_of_stream :-
 	current_input(S),

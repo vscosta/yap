@@ -32,7 +32,7 @@ PutBBProp(AtomEntry *ae)		/* get BBentry for at; */
   BBProp        p;
 
   WRITE_LOCK(ae->ARWLock);
-  p = RepBBProp(p0 = ae->PropOfAE);
+  p = RepBBProp(p0 = ae->PropsOfAE);
   while (p0 != NIL && (!IsBBProperty(p->KindOfPE) ||
 		(p->ModuleOfBB != CurrentModule))) {
     p = RepBBProp(p0 = p->NextOfPE);
@@ -44,8 +44,8 @@ PutBBProp(AtomEntry *ae)		/* get BBentry for at; */
       Error(SYSTEM_ERROR,ARG1,"could not allocate space in bb_put/2");
       return(NULL);
     }
-    p->NextOfPE = ae->PropOfAE;
-    ae->PropOfAE = AbsBBProp(p);
+    p->NextOfPE = ae->PropsOfAE;
+    ae->PropsOfAE = AbsBBProp(p);
     p->ModuleOfBB = CurrentModule;
     p->Element = NULL;
     p->KeyOfBB = AbsAtom(ae);
@@ -111,7 +111,7 @@ GetBBProp(AtomEntry *ae)		/* get BBentry for at; */
   BBProp        p;
 
   READ_LOCK(ae->ARWLock);
-  p = RepBBProp(p0 = ae->PropOfAE);
+  p = RepBBProp(p0 = ae->PropsOfAE);
   while (p0 != NIL && (!IsBBProperty(p->KindOfPE) ||
 		(p->ModuleOfBB != CurrentModule))) {
     p = RepBBProp(p0 = p->NextOfPE);

@@ -202,24 +202,24 @@ typedef struct {
 typedef	struct pred_entry {
   Prop	NextOfPE;	/* used to chain properties	    	*/
   PropFlags	KindOfPE;	/* kind of property		    	*/
-  unsigned int ArityOfPE;	/* arity of property		    	*/
-  SMALLUNSGN	StateOfPred;	/* actual state of predicate 		*/
+  unsigned int  ArityOfPE;	/* arity of property		    	*/
+  Term		ModuleOfPred;	/* module for this definition		*/
+  CELL	        PredFlags;
   CODEADDR	CodeOfPred;	/* code address		    		*/
   CODEADDR	TrueCodeOfPred;	/* if needing to spy or to lock 	*/
-  Functor     FunctorOfPred;	/* functor for Predicate        	*/
+  Functor       FunctorOfPred;	/* functor for Predicate        	*/
   CODEADDR	FirstClause, LastClause;
-  CELL	PredFlags;
-  Atom	OwnerFile;	/* File where the predicate was defined */
+  Atom	        OwnerFile;	/* File where the predicate was defined */
   struct pred_entry *NextPredOfModule; /* next pred for same module   */
 #if defined(YAPOR) || defined(THREADS)
-  rwlock_t    PRWLock;        /* a simple lock to protect this entry */
+  rwlock_t      PRWLock;        /* a simple lock to protect this entry */
 #endif
 #ifdef TABLING
-  tab_ent_ptr TableOfPred;
+  tab_ent_ptr   TableOfPred;
 #endif /* TABLING */
-  OPCODE OpcodeOfPred;	/* undefcode, indexcode, spycode, ....  */
-  profile_data StatisticsForPred; /* enable profiling for predicate  */
-  SMALLUNSGN	ModuleOfPred;	/* module for this definition		*/
+  OPCODE        OpcodeOfPred;	/* undefcode, indexcode, spycode, ....  */
+  profile_data  StatisticsForPred; /* enable profiling for predicate  */
+  SMALLUNSGN	StateOfPred;	/* actual state of predicate 		*/
 } PredEntry;
 #define PEProp   ((PropFlags)(0x0000))
 
@@ -493,86 +493,52 @@ CODEADDR	STD_PROTO(PredIsIndexable,(PredEntry *));
 /* init.c */
 Atom		STD_PROTO(GetOp,(OpEntry *,int *,int));
 
-#ifdef XX_ADTDEFS_C
-#ifndef inline
-
-/* look property list of atom a for kind  */
-EXTERN inline  Prop GetAProp(a,kind)
-Atom a;
-PropFlags kind;
-{	register PropEntry  *pp = RepProp(RepAtom(a)->PropOfAE);
-	while( !EndOfPAEntr(pp) && pp->KindOfPE!=kind) pp=RepProp(pp->NextOfPE);
-	return(AbsProp(pp));
-}
-
-/* get predicate entry for ap/arity; create it if neccessary.		*/
-EXTERN inline  Prop PredProp(ap,arity)
-Atom ap;
-unsigned int arity;
-{
-    Prop p0;
-    PredEntry *p = RepPredProp(p0=RepAtom(ap)->PropOfAE);
-    while(p0 && (p->KindOfPE != 00 || p->ArityOfPE != arity ||
-    		(p->ModuleOfPred &&  p->ModuleOfPred != CurrentModule)))
-    	 p = RepPredProp(p0=p->NextOfPE);
-    if(p0) return(p0);    
-    YAPEnterCriticalSection();
-    p = (PredEntry *) AllocAtomSpace(sizeof(*p));
-    p->KindOfPE = PEProp;
-    p->ArityOfPE = arity;
-    p->FirstClause = p->LastClause = NIL;
-    p->PredFlags = 0L;
-    p->StateOfPred = 0;
-    p->OwnerFile = AtomNil;
-    p->ModuleOfPred = CurrentModule;
-    p->OpcodeOfPred = opcode(_undef_p);
-    p->StatisticsForPred.NOfEntries = 0;
-    p->StatisticsForPred.NOfHeadSuccesses = 0;
-    p->StatisticsForPred.NOfRetries = 0;
-    p->TrueCodeOfPred = p->CodeOfPred = (CODEADDR)(&(p->DefaultCodeOfPred)); 
-    if (arity==0) p->FunctorOfPred = (Functor) ap;
-    else p->FunctorOfPred = MkFunctor(ap,arity);
-    p->NextOfPE = RepAtom(ap)->PropOfAE;
-    RepAtom(ap)->PropOfAE = p0 = AbsPredProp(p);
-    YAPLeaveCriticalSection();
-    return(p0);
-}
-
-EXTERN inline  Term GetValue(a)
-Atom a;
-{
-    Prop p0 = GetAProp(a,ValProperty);
-    if(p0==0) return(MkAtomTerm(AtomNil));
-    return(RepValProp(p0)->ValueOfVE);
-}
-
-
-EXTERN inline  void PutValue(a,v)
-Atom a; Term v;
-{
-    Prop p0 = GetAProp(a,ValProperty);
-    if(p0) RepValProp(p0)->ValueOfVE = v;
-    else {
-    	ValEntry *p;
-	YAPEnterCriticalSection();
-	p = (ValEntry *) AllocAtomSpace(sizeof(ValEntry));
-	p->KindOfPE = ValProperty;
-	p->ValueOfVE = v;
-	p->NextOfPE = RepAtom(a)->PropOfAE;
-	RepAtom(a)->PropOfAE = AbsValProp(p);
-	YAPLeaveCriticalSection();
-     }
-}
-
-#endif /* inline */
-#else
 /* vsc: redefined to GetAProp to avoid conflicts with Windows header files */
 Prop	STD_PROTO(GetAProp,(Atom,PropFlags));
-Prop	STD_PROTO(LockedGetAProp,(AtomEntry *,PropFlags));
+Prop	STD_PROTO(GetAPropHavingLock,(AtomEntry *,PropFlags));
 Prop	STD_PROTO(PredProp,(Atom,unsigned int));
-Prop	STD_PROTO(PredPropByFunc,(Functor));
-#endif /* ADTDEFS_C */
 
+EXTERN inline Prop
+PredPropByFunc(Functor f, Term cur_mod)
+/* get predicate entry for ap/arity; create it if neccessary.              */
+{
+  Prop p0;
+  FunctorEntry *fe = (FunctorEntry *)f;
+
+  WRITE_LOCK(fe->FRWLock);
+  p0 = fe->PropsOfFE;
+  while (p0) {
+    PredEntry *p = RepPredProp(p0);
+    if (/* p->KindOfPE != 0 || only props */
+	(p->ModuleOfPred == cur_mod || !(p->ModuleOfPred))) {
+      WRITE_UNLOCK(f->FRWLock);
+      return (p0);
+    }
+    p0 = p->NextOfPE;
+  }
+  return(NewPredPropByFunctor(fe,cur_mod));
+}
+
+EXTERN inline Prop
+PredPropByAtom(Atom at, Term cur_mod)
+/* get predicate entry for ap/arity; create it if neccessary.              */
+{
+  Prop p0;
+  AtomEntry *ae = RepAtom(at);
+
+  WRITE_LOCK(ae->ARWLock);
+  p0 = ae->PropsOfAE;
+  while (p0) {
+    PredEntry *pe = RepPredProp(p0);
+    if ( pe->KindOfPE == PEProp && 
+	 (pe->ModuleOfPred == cur_mod || !pe->ModuleOfPred)) {
+      WRITE_UNLOCK(ae->ARWLock);
+      return(p0);
+    }
+    p0 = pe->NextOfPE;
+  }
+  return(NewPredPropByAtom(ae,cur_mod));
+}
 
 #if defined(YAPOR) || defined(THREADS)
 void    STD_PROTO(ReleasePreAllocCodeSpace, (ADDR));

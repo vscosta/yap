@@ -36,11 +36,20 @@ do_not_compile_expressions :- '$set_value'('$c_arith',[]).
 '$c_built_in'(IN, IN).
 
 
+'$do_c_built_in'(Mod:G, Mod:GN) :- !,
+	'$do_c_built_in'(G, GN).
 '$do_c_built_in'(\+ G, OUT) :-
 	nonvar(G),
 	G = (A = B),
 	!,
 	OUT = (A \= B).
+'$do_c_built_in'(call(G), OUT) :-
+	nonvar(G),
+	G = (Mod:G1),
+	atom(Mod),
+	!,
+	'$module_number'(Mod,MNum),
+	OUT = '$execute_in_mod'(G1,MNum).
 '$do_c_built_in'(recorded(K,T,R), OUT) :-
 	nonvar(K),
 	!,
@@ -153,8 +162,7 @@ do_not_compile_expressions :- '$set_value'('$c_arith',[]).
 '$expand_expr'(/\, X, Y, O, Q, P) :- !,
 	'$preprocess_args_for_commutative'(X, Y, X1, Y1, E),
 	'$do_and'(E, '$and'(X1,Y1,O), F),
-	'$do_and'(Q, F, P),
-	'$do_and'(Q, '$and'(X,Y,O), P).
+	'$do_and'(Q, F, P).
 '$expand_expr'(\/, X, Y, O, Q, P) :- !,
 	'$preprocess_args_for_commutative'(X, Y, X1, Y1, E),
 	'$do_and'(E, '$or'(X1,Y1,O), F),

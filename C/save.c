@@ -1071,6 +1071,7 @@ restore_codes(void)
   heap_regs->functor_comma = FuncAdjust(heap_regs->functor_comma);
   heap_regs->functor_csult = FuncAdjust(heap_regs->functor_csult);
   heap_regs->functor_eq = FuncAdjust(heap_regs->functor_eq);
+  heap_regs->functor_execute_in_mod = FuncAdjust(heap_regs->functor_execute_in_mod);
   heap_regs->functor_g_atom = FuncAdjust(heap_regs->functor_g_atom);
   heap_regs->functor_g_atomic = FuncAdjust(heap_regs->functor_g_atomic);
   heap_regs->functor_g_compound = FuncAdjust(heap_regs->functor_g_compound);
@@ -1102,6 +1103,7 @@ restore_codes(void)
 #ifdef EUROTRA
   heap_regs->term_dollar_u = AtomTermAdjust(heap_regs->term_dollar_u);
 #endif
+  heap_regs->term_prolog = AtomTermAdjust(heap_regs->term_prolog);
   heap_regs->term_refound_var = AtomTermAdjust(heap_regs->term_refound_var);
   heap_regs->file_aliases =
     (struct AliasDescS *)AddrAdjust((ADDR)heap_regs->file_aliases);
@@ -1112,15 +1114,15 @@ restore_codes(void)
   heap_regs->pred_meta_call =
     (PredEntry *)AddrAdjust((ADDR)heap_regs->pred_meta_call);
   if (heap_regs->undef_code != NULL)
-    heap_regs->undef_code = PtoHeapCellAdjust(heap_regs->undef_code);
+    heap_regs->undef_code = (PredEntry *)PtoHeapCellAdjust((CELL *)(heap_regs->undef_code));
   if (heap_regs->creep_code != NULL)
-    heap_regs->creep_code = PtoHeapCellAdjust(heap_regs->creep_code);
+    heap_regs->creep_code = (PredEntry *)PtoHeapCellAdjust((CELL *)(heap_regs->creep_code));
   if (heap_regs->spy_code != NULL)
-    heap_regs->spy_code = PtoHeapCellAdjust(heap_regs->spy_code);
+    heap_regs->spy_code = (PredEntry *)PtoHeapCellAdjust((CELL *)(heap_regs->spy_code));
 #ifdef COROUTINING
 #ifdef MULTI_ASSIGNMENT_VARIABLES
     if (heap_regs->wake_up_code != NULL)
-      heap_regs->wake_up_code = PtoHeapCellAdjust(heap_regs->wake_up_code);
+      heap_regs->wake_up_code = (PredEntry *)PtoHeapCellAdjust((CELL *)(heap_regs->wake_up_code));
     heap_regs->mutable_list =
       AbsAppl(PtoGloAdjust(RepAppl(heap_regs->mutable_list)));
     heap_regs->atts_mutable_list =
@@ -1726,6 +1728,7 @@ RestoreClause(Clause *Cl)
     case _call:
     case _either:
     case _or_else:
+    case _p_execute:
 #ifdef YAPOR
     case _or_last:
 #endif
@@ -2408,7 +2411,10 @@ CleanCode(PredEntry *pp)
   CODEADDR        FirstC, LastC;
 
   /* Init takes care of the first 2 cases */
-  pp->FunctorOfPred = FuncAdjust(pp->FunctorOfPred);
+  if (pp->ArityOfPE)
+    pp->FunctorOfPred = FuncAdjust(pp->FunctorOfPred);
+  else
+    pp->FunctorOfPred = (Functor)AtomAdjust((Atom)(pp->FunctorOfPred));
   if (pp->OwnerFile)
     pp->OwnerFile = AtomAdjust(pp->OwnerFile);
   pp->OpcodeOfPred = opcode(op_from_opcode(pp->OpcodeOfPred));
@@ -2555,7 +2561,7 @@ RestoreInvisibleAtoms(void)
 #ifdef DEBUG_RESTORE2		/* useful during debug */
     YP_fprintf(errout, "Restoring %s\n", at->StrOfAE);
 #endif
-    RestoreEntries(RepProp(at->PropOfAE));
+    RestoreEntries(RepProp(at->PropsOfAE));
     atm = at->NextOfAE;
     at->NextOfAE = atm = AtomAdjust(atm);
     at = RepAtom(atm);
@@ -2646,7 +2652,7 @@ restore_heap(void)
 #ifdef DEBUG_RESTORE2			/* useful during debug */
 	YP_fprintf(errout, "Restoring %s\n", at->StrOfAE);
 #endif
-	RestoreEntries(RepProp(at->PropOfAE));
+	RestoreEntries(RepProp(at->PropsOfAE));
 	atm = at->NextOfAE = AtomAdjust(at->NextOfAE);
 	at = RepAtom(atm);
       } while (!EndOfPAEntr(at));
@@ -2680,7 +2686,7 @@ ShowAtoms()
       at = RepAtom(HashPtr->Entry);
       do {
 	YP_fprintf(YP_stderr,"Passei ao %s em %x\n", at->StrOfAE, at);
-	ShowEntries(RepProp(at->PropOfAE));
+	ShowEntries(RepProp(at->PropsOfAE));
       } while (!EndOfPAEntr(at = RepAtom(at->NextOfAE)));
     }
     HashPtr++;

@@ -141,7 +141,7 @@ p_flipflop(void)
 
   at = FullLookupAtom("$spy");
   pred = RepPredProp(PredProp(at, 1));
-  SpyCode = CellPtr(&(pred->CodeOfPred));
+  SpyCode = pred;
   return ((int) (FlipFlop = (1 - FlipFlop)));
 }
 
@@ -165,7 +165,7 @@ p_creep(void)
 
   at = FullLookupAtom("$creep");
   pred = RepPredProp(PredProp(at, 1));
-  CreepCode = (CELL *) & (pred->CodeOfPred);
+  CreepCode = pred;
   CreepFlag = Unsigned(LCL0)-Unsigned(H0);
   return (TRUE);
 }
@@ -192,7 +192,7 @@ FindAtom(codeToFind, arity)
       register PredEntry *pp;
       AtomEntry *ae = RepAtom(a);
       READ_LOCK(ae->ARWLock);
-      pp = RepPredProp(RepAtom(a)->PropOfAE);
+      pp = RepPredProp(RepAtom(a)->PropsOfAE);
       while (!EndOfPAEntr(pp) && ((pp->KindOfPE & 0x8000)
 				  || (pp->CodeOfPred != codeToFind)))
 	pp = RepPredProp(pp->NextOfPE);
@@ -1370,7 +1370,10 @@ cont_current_predicate(void)
     cut_fail();
   EXTRA_CBACK_ARG(2,1) = (CELL)MkIntegerTerm((Int)(pp->NextPredOfModule));
   Arity = pp->ArityOfPE;
-  name = NameOfFunctor(pp->FunctorOfPred);
+  if (Arity)
+    name = NameOfFunctor(pp->FunctorOfPred);
+  else
+    name = (Atom)pp->FunctorOfPred;
   return (unify(ARG1,MkAtomTerm(name)) &&
 	  unify(ARG2, MkIntegerTerm(Arity)));
 }
@@ -1406,7 +1409,7 @@ cont_current_op(void)
   if (fix > 3) {
     a = AtomOfTerm(Deref(ARG3));
     READ_LOCK(RepAtom(a)->ARWLock);
-    if (EndOfPAEntr(pp = NextOp(RepOpProp(RepAtom(a)->PropOfAE)))) {
+    if (EndOfPAEntr(pp = NextOp(RepOpProp(RepAtom(a)->PropsOfAE)))) {
       READ_UNLOCK(RepAtom(a)->ARWLock);
       cut_fail();
     }
@@ -1453,13 +1456,13 @@ cont_current_op(void)
       }
       at = RepAtom(a);
       READ_LOCK(at->ARWLock);
-      pp = NextOp(RepOpProp(at->PropOfAE));
+      pp = NextOp(RepOpProp(at->PropsOfAE));
       READ_UNLOCK(at->ARWLock);
     } while (EndOfPAEntr(pp));
     fix = 0;
     EXTRA_CBACK_ARG(3,1) = (CELL) MkAtomTerm(a);
   } else {
-    pp = NextOp(RepOpProp(at->PropOfAE));
+    pp = NextOp(RepOpProp(at->PropsOfAE));
   }
   READ_LOCK(pp->OpRWLock);
   if (fix == 0 && pp->Prefix == 0)
@@ -1553,23 +1556,19 @@ p_debug()
 static Int 
 p_flags(void)
 {				/* $flags(+Functor,?OldFlags,?NewFlags) */
-  Atom            at;
-  int             arity;
   PredEntry      *pe;
   Int             newFl;
 
   Term t1 = Deref(ARG1);
   if (IsVarTerm(t1))
     return (FALSE);
-  if (IsAtomTerm(t1))
-    at = AtomOfTerm(t1), arity = 0;
-  else if (IsApplTerm(t1)) {
+  if (IsAtomTerm(t1)) {
+    pe = RepPredProp(PredProp(AtomOfTerm(t1), 0));
+  } else if (IsApplTerm(t1)) {
     Functor         funt = FunctorOfTerm(t1);
-    at = NameOfFunctor(funt);
-    arity = ArityOfFunctor(funt);
+    pe = RepPredProp(PredPropByFunc(funt, *CurrentModulePtr));
   } else
     return (FALSE);
-  pe = RepPredProp(PredProp(at, arity));
   if (EndOfPAEntr(pe))
     return (FALSE);
   WRITE_LOCK(pe->PRWLock);
@@ -1685,7 +1684,7 @@ p_unhide(void)
   }
   atom = RepAtom(AtomOfTerm(t1));
   WRITE_LOCK(atom->ARWLock);
-  if (atom->PropOfAE != NIL) {
+  if (atom->PropsOfAE != NIL) {
     Error(SYSTEM_ERROR,t1,"cannot unhide an atom in use");
     return(FALSE);
   }
@@ -1698,7 +1697,7 @@ p_unhide(void)
   }
   if (EndOfPAEntr(chain))
     return (FALSE);
-  atom->PropOfAE = chain->PropOfAE;
+  atom->PropsOfAE = chain->PropsOfAE;
   if (old == NIL)
     INVISIBLECHAIN.Entry = chain->NextOfAE;
   else

@@ -82,9 +82,9 @@ is_a_test_pred (Term arg)
   else if (IsApplTerm (arg))
     {
       Functor f = FunctorOfTerm (arg);
-      if (RepPredProp (PredPropByFunc (f)) == NULL)
+      if (RepPredProp (PredPropByFunc (f, *CurrentModulePtr)) == NULL)
 	return (FALSE);
-      return (RepPredProp (PredPropByFunc (f))->PredFlags & TestPredFlag);
+      return (RepPredProp (PredPropByFunc (f, *CurrentModulePtr))->PredFlags & TestPredFlag);
     }
   else
     return (FALSE);
@@ -297,22 +297,36 @@ ShowOp (f)
 	    {
 	      PredEntry *p = RepPredProp ((Prop) arg);
 	      Functor f = p->FunctorOfPred;
-	      plwrite (ModuleName[p->ModuleOfPred], DebugPutc, 0);
+	      UInt arity = p->ArityOfPE;
+	      SMALLUNSGN mod = 0;
+
+	      if (p->ModuleOfPred) mod = IntOfTerm(p->ModuleOfPred);
+	      plwrite (ModuleName[mod], DebugPutc, 0);
 	      DebugPutc (c_output_stream,':');
-	      plwrite (MkAtomTerm (NameOfFunctor (f)), DebugPutc, 0);
+	      if (arity == 0)
+		plwrite (MkAtomTerm ((Atom)f), DebugPutc, 0);
+	      else
+		plwrite (MkAtomTerm (NameOfFunctor (f)), DebugPutc, 0);
 	      DebugPutc (c_output_stream,'/');
-	      plwrite (MkIntTerm (ArityOfFunctor (f)), DebugPutc, 0);
+	      plwrite (MkIntTerm (arity), DebugPutc, 0);
 	    }
 	    break;
 	  case 'P':
 	    {
 	      PredEntry *p = RepPredProp((Prop) rn);
 	      Functor f = p->FunctorOfPred;
-	      plwrite (ModuleName[p->ModuleOfPred], DebugPutc, 0);
+	      UInt arity = p->ArityOfPE;
+	      SMALLUNSGN mod = 0;
+
+	      if (p->ModuleOfPred) mod = IntOfTerm(p->ModuleOfPred);
+	      plwrite (ModuleName[mod], DebugPutc, 0);
 	      DebugPutc (c_output_stream,':');
-	      plwrite (MkAtomTerm (NameOfFunctor (f)), DebugPutc, 0);
+	      if (arity == 0)
+		plwrite (MkAtomTerm ((Atom)f), DebugPutc, 0);
+	      else
+		plwrite (MkAtomTerm (NameOfFunctor (f)), DebugPutc, 0);
 	      DebugPutc (c_output_stream,'/');
-	      plwrite (MkIntTerm (ArityOfFunctor (f)), DebugPutc, 0);
+	      plwrite (MkIntTerm (arity), DebugPutc, 0);
 	    }
 	    break;
 	  case 'f':

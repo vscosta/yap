@@ -312,12 +312,12 @@ OpDec(int p, char *type, Atom a)
       p |= DcrrpFlag;
   }
   WRITE_LOCK(ae->ARWLock);
-  info = RepOpProp(LockedGetAProp(ae, OpProperty));
+  info = RepOpProp(GetAPropHavingLock(ae, OpProperty));
   if (EndOfPAEntr(info)) {
     info = (OpEntry *) AllocAtomSpace(sizeof(OpEntry));
     info->KindOfPE = Ord(OpProperty);
-    info->NextOfPE = RepAtom(a)->PropOfAE;
-    RepAtom(a)->PropOfAE = AbsOpProp(info);
+    info->NextOfPE = RepAtom(a)->PropsOfAE;
+    RepAtom(a)->PropsOfAE = AbsOpProp(info);
     INIT_RWLOCK(info->OpRWLock);
     WRITE_LOCK(info->OpRWLock);
     WRITE_UNLOCK(ae->ARWLock);
@@ -507,17 +507,30 @@ InitDebug(void)
   PutValue(At, MkIntTerm(10));
 }
 
-
 void 
 InitCPred(char *Name, int Arity, CPredicate code, int flags)
 {
   Atom            atom = LookupAtom(Name);
   PredEntry      *pe = RepPredProp(PredProp(atom, Arity));
+  yamop          *p_code = (yamop *)AllocCodeSpace((CELL)NEXTOP(NEXTOP(((yamop *)NULL),sla),e));
 
   pe->PredFlags = flags | StandardPredFlag | CPredFlag;
-  pe->TrueCodeOfPred = pe->CodeOfPred = (CODEADDR) code;
-  pe->OpcodeOfPred = opcode(_Ystop);
-  pe->ModuleOfPred = CurrentModule;
+  p_code->u.sla.l = pe->TrueCodeOfPred = (CODEADDR) code;
+  pe->CodeOfPred = pe->FirstClause = pe->LastClause = (CODEADDR) p_code;
+  if (flags & UserCPredFlag)
+    p_code->opc = pe->OpcodeOfPred = opcode(_call_usercpred);
+  else
+    p_code->opc = pe->OpcodeOfPred = opcode(_call_cpred);
+  p_code->u.sla.l2 = (CELL)NIL;
+  p_code->u.sla.s = -Signed(RealEnvSize);
+  p_code->u.sla.p = (CODEADDR)pe;
+  p_code = NEXTOP(p_code,sla);
+  p_code->opc = opcode(_procceed);
+  { 
+    Term mod = CurrentModule;
+    if (mod) mod = MkIntTerm(mod);
+    pe->ModuleOfPred = mod;
+  }
   if (!(flags & UserCPredFlag)) {
     c_predicates[NUMBER_OF_CPREDS] = code;
     pe->StateOfPred = NUMBER_OF_CPREDS;
@@ -530,9 +543,17 @@ InitCmpPred(char *Name, int Arity, CmpPredicate cmp_code, CPredicate code, int f
 {
   Atom            atom = LookupAtom(Name);
   PredEntry      *pe = RepPredProp(PredProp(atom, Arity));
+  yamop          *p_code = (yamop *)AllocCodeSpace((CELL)NEXTOP(NEXTOP(((yamop *)NULL),sla),e));
 
   pe->PredFlags = flags | StandardPredFlag | CPredFlag;
-  pe->CodeOfPred = (CODEADDR) code;
+  p_code->u.sla.l = pe->TrueCodeOfPred = (CODEADDR) code;
+  pe->CodeOfPred = pe->FirstClause = pe->LastClause = (CODEADDR) p_code;
+    p_code->opc = pe->OpcodeOfPred = opcode(_call_cpred);
+  p_code->u.sla.l2 = (CELL)NIL;
+  p_code->u.sla.s = -Signed(RealEnvSize);
+  p_code->u.sla.p = (CODEADDR)pe;
+  p_code = NEXTOP(p_code,sla);
+  p_code->opc = opcode(_procceed);
   c_predicates[NUMBER_OF_CPREDS] = code;
   pe->StateOfPred = NUMBER_OF_CPREDS;
   NUMBER_OF_CPREDS++;
@@ -550,14 +571,22 @@ InitAsmPred(char *Name,  int Arity, int code, CPredicate def, int flags)
   PredEntry      *pe = RepPredProp(PredProp(atom, Arity));
 	
   pe->PredFlags = flags | StandardPredFlag | (code);
-  pe->FirstClause = pe->LastClause = NIL;
   if (def != NULL) {
-    pe->CodeOfPred = pe->TrueCodeOfPred = (CODEADDR)def;
+    yamop          *p_code = (yamop *)AllocCodeSpace((CELL)NEXTOP(NEXTOP(((yamop *)NULL),sla),e));
+
+    p_code->u.sla.l = pe->TrueCodeOfPred = (CODEADDR) def;
+    pe->CodeOfPred = pe->FirstClause = pe->LastClause = (CODEADDR) p_code;
+    p_code->opc = pe->OpcodeOfPred = opcode(_call_cpred);
+    p_code->u.sla.l2 = (CELL)NIL;
+    p_code->u.sla.s = -Signed(RealEnvSize);
+    p_code->u.sla.p = (CODEADDR)pe;
+    p_code = NEXTOP(p_code,sla);
+    p_code->opc = opcode(_procceed);
     c_predicates[NUMBER_OF_CPREDS] = def;
     pe->StateOfPred = NUMBER_OF_CPREDS;
     NUMBER_OF_CPREDS++;
-    pe->OpcodeOfPred = opcode(_Ystop);
   } else {
+    pe->FirstClause = pe->LastClause = NIL;
     pe->OpcodeOfPred = opcode(_undef_p);
     pe->TrueCodeOfPred = pe->CodeOfPred =
       (CODEADDR)(&(pe->OpcodeOfPred)); 
@@ -915,6 +944,7 @@ InitCodes(void)
   heap_regs->functor_comma = MkFunctor(AtomComma, 2);
   heap_regs->functor_csult = MkFunctor(AtomCsult, 1);
   heap_regs->functor_eq = MkFunctor(AtomEq, 2);
+  heap_regs->functor_execute_in_mod = MkFunctor(LookupAtom("$execute_in_mod"), 2);
   heap_regs->functor_g_atom = MkFunctor(LookupAtom("atom"), 1);
   heap_regs->functor_g_atomic = MkFunctor(LookupAtom("atomic"), 1);
   heap_regs->functor_g_compound = MkFunctor(LookupAtom("compound"), 1);
@@ -947,6 +977,7 @@ InitCodes(void)
 #ifdef EUROTRA
   heap_regs->term_dollar_u = MkAtomTerm(LookupAtom("$u"));
 #endif
+  heap_regs->term_prolog = MkAtomTerm(LookupAtom("prolog"));
   heap_regs->term_refound_var = MkAtomTerm(LookupAtom("$I_FOUND_THE_VARIABLE_AGAIN"));
   heap_regs->n_of_file_aliases = 0;
   heap_regs->file_aliases = NULL;
@@ -955,10 +986,10 @@ InitCodes(void)
   heap_regs->size_of_overflow  = 0;
   /* make sure no one else can use these two atoms */
   *CurrentModulePtr = MkIntTerm(1);
-  heap_regs->pred_goal_expansion = RepPredProp(PredProp(LookupAtom("goal_expansion"),3));
+  heap_regs->pred_goal_expansion = RepPredProp(PredPropByFunc(MkFunctor(LookupAtom("goal_expansion"),3),MkIntTerm(1)));
   *CurrentModulePtr = MkIntTerm(0);
   heap_regs->dead_clauses = NULL;
-  heap_regs->pred_meta_call = RepPredProp(PredProp(heap_regs->atom_meta_call,3));
+  heap_regs->pred_meta_call = RepPredProp(PredPropByFunc(MkFunctor(heap_regs->atom_meta_call,3),MkIntTerm(0)));
   ReleaseAtom(AtomOfTerm(heap_regs->term_refound_var));
 }
 
@@ -1005,7 +1036,7 @@ InitYaamRegs(void)
       UndefCode = NULL;
     } else {
       undefpe = RepPredProp (p);
-      UndefCode = (CELL *) & (undefpe->CodeOfPred);
+      UndefCode = undefpe;
     }
   }
   STATIC_PREDICATES_MARKED = FALSE;
@@ -1136,6 +1167,7 @@ InitStacks(int Heap,
 #else
   InitAbsmi();
 #endif
+  InitModules();
   InitCodes();
   InitOps();
   InitDebug();

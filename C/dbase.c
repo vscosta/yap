@@ -392,12 +392,12 @@ int DBTrailOverflow(void)
 
 /* get DB entry for ap/arity; */
 static Prop 
-LockedFindDBProp(AtomEntry *ae, int CodeDB, unsigned int arity)
+FindDBPropHavingLock(AtomEntry *ae, int CodeDB, unsigned int arity)
 {
   Prop          p0;
   DBProp        p;
 
-  p = RepDBProp(p0 = ae->PropOfAE);
+  p = RepDBProp(p0 = ae->PropsOfAE);
   while (p0 && (((p->KindOfPE & ~0x1) != (CodeDB|DBProperty)) ||
 		(p->ArityOfDB != arity) ||
 		((CodeDB & MkCode) && p->ModuleOfDB && p->ModuleOfDB != DBModule ))) {
@@ -414,7 +414,7 @@ FindDBProp(AtomEntry *ae, int CodeDB, unsigned int arity)
   Prop out;
 
   READ_LOCK(ae->ARWLock);
-  out = LockedFindDBProp(ae, CodeDB, arity);
+  out = FindDBPropHavingLock(ae, CodeDB, arity);
   READ_UNLOCK(ae->ARWLock);
   return(out);
 }
@@ -2106,11 +2106,11 @@ FetchDBPropFromKey(Term twork, int flag, int new, char *error_mssg)
     AtomEntry *ae = RepAtom(At);
 
     WRITE_LOCK(ae->ARWLock);
-    if (EndOfPAEntr(p = RepDBProp(LockedFindDBProp(ae, flag, arity)))) {
+    if (EndOfPAEntr(p = RepDBProp(FindDBPropHavingLock(ae, flag, arity)))) {
      /* create a new DBProp				 */
       int OLD_UPDATE_MODE = UPDATE_MODE;
       if (flag & MkCode) {
-	PredEntry *pp = RepPredProp(LockedGetPredProp(At, arity));
+	PredEntry *pp = RepPredProp(GetPredPropHavingLock(At, arity));
 	if (!EndOfPAEntr(pp)) {
 	  READ_LOCK(pp->PRWLock);
 	  if(pp->PredFlags & LogUpdatePredFlag)
@@ -2146,8 +2146,8 @@ FetchDBPropFromKey(Term twork, int flag, int new, char *error_mssg)
 	p->FunctorOfDB = (Functor) At;
       else
 	p->FunctorOfDB = UnlockedMkFunctor(ae,arity);
-      p->NextOfPE = ae->PropOfAE;
-      ae->PropOfAE = AbsDBProp(p);
+      p->NextOfPE = ae->PropsOfAE;
+      ae->PropsOfAE = AbsDBProp(p);
     }
     WRITE_UNLOCK(ae->ARWLock);
     return(p);
@@ -3123,7 +3123,7 @@ MyEraseClause(Clause *clau)
       Atom name = (Atom) father->FunctorOfDB;
       pred = RepPredProp(PredProp(name, 0));
     } else {
-      pred = RepPredProp(PredPropByFunc(father->FunctorOfDB));
+      pred = RepPredProp(PredPropByFunc(father->FunctorOfDB, *CurrentModulePtr));
     }
     DBModule = father->ModuleOfDB;
     WRITE_LOCK(pred->PRWLock);
@@ -3317,7 +3317,7 @@ PrepareToEraseClause(Clause *clau, DBRef dbr)
       Atom name = (Atom) father->FunctorOfDB;
       pred = RepPredProp(PredProp(name, 0));
     } else {
-      pred = RepPredProp(PredPropByFunc(father->FunctorOfDB));
+      pred = RepPredProp(PredPropByFunc(father->FunctorOfDB, *CurrentModulePtr));
     }
     DBModule = father->ModuleOfDB;
     WRITE_LOCK(pred->PRWLock);
@@ -3598,7 +3598,7 @@ init_current_key(void)
     READ_UNLOCK(HashChain[i].AERWLock);
   }
   READ_LOCK(RepAtom(a)->ARWLock);
-  pp = NextDBProp(RepProp(RepAtom(a)->PropOfAE));
+  pp = NextDBProp(RepProp(RepAtom(a)->PropsOfAE));
   READ_UNLOCK(RepAtom(a)->ARWLock);
   EXTRA_CBACK_ARG(2,3) = MkAtomTerm(a);
   EXTRA_CBACK_ARG(2,2) = MkIntTerm(i);
@@ -3674,7 +3674,7 @@ cont_current_key(void)
       }
     }
     READ_LOCK(RepAtom(a)->ARWLock);
-    if (!EndOfPAEntr(pp = NextDBProp(RepProp(RepAtom(a)->PropOfAE))))
+    if (!EndOfPAEntr(pp = NextDBProp(RepProp(RepAtom(a)->PropsOfAE))))
       EXTRA_CBACK_ARG(2,3)  = (CELL) MkAtomTerm(a);
     READ_UNLOCK(RepAtom(a)->ARWLock);
   }

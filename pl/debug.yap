@@ -28,10 +28,8 @@
 % $suspy does most of the work
 '$suspy'(V,S) :- var(V) , !,
 	throw(error(instantiation_error,spy(V,S))).
-'$suspy'(M:S,P) :- !,
-    '$current_module'(Old,M),
-    ('$suspy'(S,P),fail ; true), !,
-    '$change_module'(Old).
+'$suspy'((M:S),P) :- !,
+    '$mod_switch'(M, '$suspy'(S,P)).
 '$suspy'([],_) :- !.
 '$suspy'([F|L],M) :- !, ( '$suspy'(F,M) ; '$suspy'(L,M) ).
 '$suspy'(F/N,M) :- !, functor(T,F,N),
@@ -46,8 +44,9 @@
 	throw(error(existence_error(procedure,A),spy(A))).
 '$suspy'(A,nospy) :- '$noclausesfor'(A), !,
 	throw(error(existence_error(procedure,A),nospy(A))).
-'$suspy'(A,M) :- current_predicate(A,T), functor(T,F,N),
-	\+ '$undefined'(T), \+ '$system_predicate'(T),
+'$suspy'(A,M) :- current_predicate(A,T),
+	\+ '$undefined'(T), \+ '$system_predicate'(T), !,
+	 functor(T,F,N),
 	'$suspy2'(M,F,N,T).
 
 '$noclausesfor'(A) :- current_predicate(A,T),
@@ -56,12 +55,12 @@
 '$noclausesfor'(_).
 
 '$suspy2'(spy,F,N,T) :- 
-	$current_module(M),
+	'$current_module'(M),
 	'$recorded'('$spy','$spy'(T,M),_), !,
 	format('[ Warning: there is already a spy point on ~w ]~n',M:F/N).
 '$suspy2'(spy,F,N,T) :- !,
 	'$warn_if_undef'(T,F,N),
-	$current_module(M),
+	'$current_module'(M),
 	'$recorda'('$spy','$spy'(T,M),_), 
 	'$set_value'('$spypoint_added', true), 
 	'$set_spy'(T),
@@ -74,7 +73,7 @@
 	'$rm_spy'(T),
 	write(user_error,'[ Spy point on '), write(user_error,F/N), write(user_error,' removed ]'),
 	nl(user_error).
-'$suspy2'(nospy,F,N,T) :-
+'$suspy2'(nospy,F,N,_) :-
 	write(user_error,'[ Warning: there is no spy-point on '),
 	write(user_error,F/N), write(user_error,' ]'), nl(user_error).
 
@@ -84,15 +83,16 @@
 '$warn_if_undef'(_,_,_).
 
 '$pred_being_spied'(G) :-
-	 $current_module(M),'$recorded'('$spy','$spy'(G,M),_),!.
+	'$current_module'(M),
+	'$recorded'('$spy','$spy'(G,M),_), !.
 
-spy L :- '$set_value'('$spypoint_added', false), fail.
+spy _ :- '$set_value'('$spypoint_added', false), fail.
 spy L :- '$suspy'(L,spy), fail.
-spy L :- '$get_value'('$spypoint_added', false), !.
-spy L :- debug.
+spy _ :- '$get_value'('$spypoint_added', false), !.
+spy _ :- debug.
 
 nospy L :- '$suspy'(L,nospy), fail.
-nospy L.
+nospy _.
 
 nospyall :- '$recorded'('$spy','$spy'(T,M),_), functor(T,F,N), '$suspy'(M:F/N,nospy), fail.
 nospyall.
@@ -148,10 +148,10 @@ leash(X) :-
 	'$show_leash_bit'(WasWritten,2'0001,L,fail),
 	write(user_error,') ]'), nl(user_error).
 
-'$show_leash_bit'(Was,Bit,Code,_) :- Bit /\ Code =:= 0, !.
+'$show_leash_bit'(_,Bit,Code,_) :- Bit /\ Code =:= 0, !.
 '$show_leash_bit'(Was,_,_,Name) :- var(Was), !,
 	Was = yes, write(user_error,Name).
-'$show_leash_bit'(Was,_,_,Name) :-
+'$show_leash_bit'(_,_,_,Name) :-
 	write(user_error,','), write(user_error,Name).
 
 '$leashcode'(full,2'1111) :- !.
@@ -249,11 +249,11 @@ debugging :-
 	'$awoken_goals'(LG), !,
 	'$creep',
 	'$wake_up_goal'(G, LG).
-'$spy'([Module|G]) :-
+'$spy'([_Module|G]) :-
 %    '$format'(user_error,"$spym(~w,~w)~n",[Module,G]),
          ( '$hidden'(G)
 	 ;
-	'$parent_pred'(O,A1,A2),
+	'$parent_pred'(0,_,_),
         '$system_predicate'(G)
 	 ),
          !,
@@ -268,7 +268,7 @@ debugging :-
 	'$awoken_goals'(LG), !,
 	'$creep',
 	'$wake_up_goal'(G, LG).
-'$direct_spy'([Module|G]) :-
+'$direct_spy'([_|G]) :-
          '$hidden'(G),
          !,
 	 /* called from prolog module   */
@@ -328,7 +328,7 @@ debugging :-
 	  '$cont_creep';		/* exit				*/
 		/* we get here when we want to redo a goal		*/
 		'$set_value'(spy_cl,Cla),/* restore clause no. to try	*/
-		$current_module(_,Module),
+		'$current_module'(_,Module),
 		'$trace'(redo,G,L),	/* inform user_error		*/
 		fail			/* to backtrack to spycalls	*/
 	).
@@ -349,18 +349,18 @@ debugging :-
 '$spycalls'(Mod:G,Res) :-
 	!,
 	'$mod_switch'(Mod,'$spycalls'(G,Res)).
-'$spycalls'(repeat,Res) :-
+'$spycalls'(repeat,_) :-
 	!,
 	repeat.
-'$spycalls'(fail,Res) :-
+'$spycalls'(fail,_) :-
 	!,
 	fail.
-'$spycalls'(false,Res) :-
+'$spycalls'(false,_) :-
 	!,
 	false.
-'$spycalls'(true,Res) :-
+'$spycalls'(true,_) :-
 	!.
-'$spycalls'(otherwise,Res) :-
+'$spycalls'(otherwise,_) :-
 	!.
 '$spycalls'(\+ G,Res) :-
 	!,
@@ -476,7 +476,7 @@ debugging :-
 '$spycall_stdpred'(G) :-
 	functor(G,F,N),
 	(
-	    '$recorded'('$meta_predicate','$meta_predicate'(Mod,F,N,D),_) ->
+	    '$recorded'('$meta_predicate','$meta_predicate'(_,F,N,_),_) ->
 	    '$setflop'(1),
 	    '$creep',
 	    '$execute0'(G)
@@ -752,25 +752,25 @@ debugging :-
 	'$direct_spy'([M|'!'(CP)]),
 	% clean up any garbage left here by the debugger.
 	'$$cut_by'(CP).
-'$creep_call'('$cut_by'(X),CP) :- !,
+'$creep_call'('$cut_by'(X),_) :- !,
 	'$$cut_by'(X).
 '$creep_call'(repeat,_) :- !,
-	'$current_module'(M),
+	'$current_module'(Module),
 	'$direct_spy'([Module|repeat]).
 '$creep_call'([A|B],_) :- !,
-	'$current_module'(M),
+	'$current_module'(Module),
 	'$direct_spy'([Module|[A|B]]).
 '$creep_call'(A,CP) :-
 	'$undefined'(A), !,
 	'$creep_call_undefined'(A,CP).
-'$creep_call'(A,CP) :-
+'$creep_call'(A,_) :-
 	'$current_module'(Module),
 	'$direct_spy'([Module|A]).
 
 '$creep_call_undefined'(A,CP) :-
 	functor(A,F,N),
 	'$current_module'(M),
-	'$recorded'($import,$import(S,M,F,N),_), !,
+	'$recorded'('$import','$import'(S,M,F,N),_), !,
 	'$creep_call'(S:A,CP).
 '$creep_call_undefined'(G, _) :-
 	( \+ '$undefined'(user:unknown_predicate_handler(_,_,_)),
@@ -792,7 +792,7 @@ debugging :-
 	    true
 	),
 	'$execute'(M:Goal).
-'$creep'(G) :-
+'$creep'(_) :-
 	'$get_value'('$throw', true), !,
 	'$set_value'('$throw', false),
 	abort.
@@ -823,7 +823,7 @@ debugging :-
 		( SL = L -> write(user_error,'>') ; write(user_error,' ')),
 		write(user_error,' ('), write(user_error,L), write(user_error,') '),
 		write(user_error,P), write(user_error,': '),
-		( $current_module(Module), Module\=prolog,
+		( '$current_module'(Module), Module\=prolog,
 			Module\=user -> write(user_error,Module),write(user_error,':');
 		   true
 		),
@@ -979,7 +979,7 @@ debugging :-
 	'$deb_get_sterm_in_g'(L,G,A),
 	recorda('$debug_sub_skel',L,_),
 	nl(user_error), write(user_error,A), nl(user_error), nl(user_error).
-'$print_deb_sterm'(G) :- '$skipeol'(94).
+'$print_deb_sterm'(_) :- '$skipeol'(94).
 
 '$get_sterm_list'(L) :-
 	get0(user_input,C),

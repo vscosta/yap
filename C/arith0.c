@@ -190,7 +190,7 @@ InitConstExps(void)
   for (i = 0; i < sizeof(InitConstTab)/sizeof(InitConstEntry); ++i) {
     AtomEntry *ae = RepAtom(LookupAtom(InitConstTab[i].OpName));
     WRITE_LOCK(ae->ARWLock);
-    if (LockedGetExpProp(ae, 0)) {
+    if (GetExpPropHavingLock(ae, 0)) {
       WRITE_UNLOCK(ae->ARWLock);
       break;
     }
@@ -199,8 +199,8 @@ InitConstExps(void)
     p->ArityOfEE = 0;
     p->ENoOfEE = 0;
     p->FOfEE.constant = InitConstTab[i].f;
-    p->NextOfPE = ae->PropOfAE;
-    ae->PropOfAE = AbsExpProp(p);
+    p->NextOfPE = ae->PropsOfAE;
+    ae->PropsOfAE = AbsExpProp(p);
     WRITE_UNLOCK(ae->ARWLock);
   }
 }
@@ -216,7 +216,7 @@ ReInitConstExps(void)
     AtomEntry *ae = RepAtom(FullLookupAtom(InitConstTab[i].OpName));
 
     WRITE_LOCK(ae->ARWLock);
-    if ((p = LockedGetExpProp(ae, 0)) == NULL) {
+    if ((p = GetExpPropHavingLock(ae, 0)) == NULL) {
       WRITE_UNLOCK(ae->ARWLock);
       return(FALSE);
     }

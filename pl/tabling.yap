@@ -21,7 +21,7 @@ table(X) :- var(X), !,
             fail.
 table((A,B)) :- !, table(A), table(B).
 table(A/N) :- integer(N), atom(A), !,
-              functor(T,A,N), $flags(T,F,F),
+              functor(T,A,N), '$flags'(T,F,F),
               (
                 X is F /\ 8'000100, X =\= 0, !,
                 write(user_error, '[ Warning: '),
@@ -29,7 +29,7 @@ table(A/N) :- integer(N), atom(A), !,
                 write(user_error, ' is already declared as table ]'),
                 nl(user_error)
               ;
-                X is F /\ 8'170000, X =:= 0, !, $table(T)
+                X is F /\ 8'170000, X =:= 0, !, '$table'(T)
               ;
                 write(user_error, '[ Error: '),
                 write(user_error, A/N),
@@ -49,9 +49,9 @@ show_trie(X) :- var(X), !,
                 nl(user_error),
                 fail.
 show_trie(A/N) :- integer(N), atom(A), !,
-                  functor(T,A,N), $flags(T,F,F),
+                  functor(T,A,N), '$flags'(T,F,F),
                   (
-                    X is F /\ 8'000100, X =\= 0, !, $show_trie(T,_)
+                    X is F /\ 8'000100, X =\= 0, !, '$show_trie'(T,_)
                   ;
                     write(user_error, '[ Error: '),
                     write(user_error, A/N),
@@ -71,9 +71,9 @@ abolish_trie(X)   :- var(X), !,
                      nl(user_error),
                      fail.
 abolish_trie(A/N) :- integer(N), atom(A), !,
-                     functor(T,A,N), $flags(T,F,F),
+                     functor(T,A,N), '$flags'(T,F,F),
                      (
-                       X is F /\ 8'000100, X =\= 0, !, $abolish_trie(T)
+                       X is F /\ 8'000100, X =\= 0, !, '$abolish_trie'(T)
                      ;
                        write(user_error, '[ Error: '),
                        write(user_error, A/N),

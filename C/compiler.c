@@ -1095,7 +1095,7 @@ c_functor(Term Goal)
     c_var(t3,f_flag,(unsigned int)_functor);
   } else {
     Functor f = FunctorOfTerm(Goal);
-    Prop p0 = PredPropByFunc(f);
+    Prop p0 = PredPropByFunc(f, *CurrentModulePtr);
     if (profiling)
       emit(enter_profiling_op, (CELL)RepPredProp(p0), Zero);
     c_args(Goal);
@@ -1260,7 +1260,7 @@ c_goal(Term Goal)
   }
   else {
     f = FunctorOfTerm(Goal);
-    p = RepPredProp(p0 = PredPropByFunc(f));
+    p = RepPredProp(p0 = PredPropByFunc(f, *CurrentModulePtr));
     if (f == FunctorOr) {
       CELL l = ++labelno;
       CELL m = ++labelno;
@@ -1451,8 +1451,7 @@ c_goal(Term Goal)
       c_goal(ArgOfTerm(2, Goal));
       *CurrentModulePtr = MkIntTerm(save_CurrentModule);
       return;
-    }
-    else if (f == FunctorEq) {
+    } else if (f == FunctorEq) {
       if (profiling)
 	emit(enter_profiling_op, (CELL)p, Zero);
       c_eq(ArgOfTerm(1, Goal), ArgOfTerm(2, Goal));
@@ -2855,7 +2854,7 @@ cclause(Term inp_clause, int NOfArgs)
       Atom ap = AtomOfTerm(head);
       CurrentPred = RepPredProp(PredProp(ap, 0));
     } else {
-      CurrentPred = RepPredProp(PredPropByFunc(FunctorOfTerm(head)));
+      CurrentPred = RepPredProp(PredPropByFunc(FunctorOfTerm(head),*CurrentModulePtr));
     }
     /* insert extra instructions to count calls */
     READ_LOCK(CurrentPred->PRWLock);

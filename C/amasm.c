@@ -753,7 +753,7 @@ a_p(op_numbers opcode)
 	code_p->u.sdl.s =
 	  emit_count(-Signed(RealEnvSize) - CELLSIZE * cpc->rnd2);
 	code_p->u.sdl.d =
-	  emit_a((CELL) RepPredProp(fe)->CodeOfPred);
+	  emit_a((CELL) RepPredProp(fe)->TrueCodeOfPred);
 	code_p->u.sdl.l =
 	  emit_a(Unsigned(code_addr) + label_offset[comit_lab]);
 	code_p->u.sdl.p =
@@ -765,14 +765,18 @@ a_p(op_numbers opcode)
     }
     else {
       if (pass_no) {
-	if (Flags & UserCPredFlag)
+	if (Flags & UserCPredFlag) {
 	  code_p->opc = emit_op(_call_usercpred);
-	else
-	  code_p->opc = emit_op(_call_cpred);
+	} else {
+	  if (RepPredProp(fe)->FunctorOfPred == FunctorExecuteInMod)
+	    code_p->opc = emit_op(_p_execute);
+	  else
+	    code_p->opc = emit_op(_call_cpred);
+	}
 	code_p->u.sla.s = emit_count(-Signed(RealEnvSize) - CELLSIZE
 				     * (cpc->rnd2));
 	code_p->u.sla.l = emit_a((CELL)
-				 RepPredProp(fe)->CodeOfPred);
+				 RepPredProp(fe)->TrueCodeOfPred);
 	code_p->u.sla.p = emit_a((CELL)
 				 RepPredProp(fe));
 	if (cpc->rnd2)

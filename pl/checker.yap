@@ -35,7 +35,7 @@ style_check([]).
 style_check([H|T]) :- style_check(H), style_check(T).
 
 no_style_check(V) :- var(V), !, fail.
-no_style_check(all) :- $syntax_check_mode(_,off),
+no_style_check(all) :- '$syntax_check_mode'(_,off),
 	'$syntax_check_single_var'(_,off),
 	'$syntax_check_discontiguous'(_,off),
 	'$syntax_check_multiple'(_,off).
@@ -98,10 +98,10 @@ no_style_check([H|T]) :- no_style_check(H), no_style_check(T).
 	'$sv_list'(T,L).
 	
 
-$sv_warning([],_) :- !.
-$sv_warning(SVs,T) :- 
+'$sv_warning'([],_) :- !.
+'$sv_warning'(SVs,T) :- 
 	'$xtract_head'(T,H,Name,Arity),
-	write(user_error,'[ Warning: singleton variable '),
+	write(user_error,'[ Warning: singleton variable'),
 	'$write_svs'(SVs),
 	write(user_error,' in '),
 	write(user_error,Name/Arity),
@@ -123,7 +123,7 @@ $sv_warning(SVs,T) :-
 '$xtract_head'((H,_),H1,Name,Arity) :- !,
 	'$xtract_head'(H,H1,Name,Arity).
 '$xtract_head'((H-->_),HL,Name,Arity) :- !,
-	'$xtract_head'(H,H1,Name,A1),
+	'$xtract_head'(H,_,Name,A1),
 	Arity is A1+2,
 	functor(HL,Name,Arity).
 '$xtract_head'(H,H,Name,Arity) :-
@@ -158,7 +158,7 @@ $sv_warning(SVs,T) :-
 
 '$handle_multiple'(F,A) :-
 	\+ '$first_clause_in_file'(F,A), !.
-'$handle_multiple'(F,A) :-
+'$handle_multiple'(_,_) :-
 	'$get_value'('$consulting',true), !.
 '$handle_multiple'(F,A) :-
 	'$current_module'(M),

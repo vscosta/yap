@@ -1159,7 +1159,7 @@ void InitCoroutPreds(void)
 #endif /* FIXED_STACKS */
   at = LookupAtom("$wake_up_goal");
   pred = RepPredProp(PredProp(at, 2));
-  WakeUpCode = (CELL *) & (pred->CodeOfPred);
+  WakeUpCode = (CELL *) pred;
   InitAttVarPreds();
 #endif /* COROUTINING */
   InitCPred("$read_svar_list", 2, p_read_svar_list, SafePredFlag);

@@ -1604,7 +1604,7 @@ absmi(int inp)
       ENDBOp();
 
     NoStackExecute:
-      SREG = (CELL *) (PREG->u.l.l);
+      SREG = (CELL *) pred_entry(PREG->u.l.l);
 #ifdef YAPOR
       /* abort_optyap("NoStackExecute in function absmi"); */
       if (HeapTop > GlobalBase - MinHeapGap)
@@ -1747,7 +1747,8 @@ absmi(int inp)
 
     NoStackCall:
       /* on X86 machines S will not actually be holding the pointer to pred */
-      SREG = (CELL *) (PREG->u.sla.l);
+      SREG = (CELL *) PREG->u.sla.p;
+    NoStackCallGotS:
 #ifdef YAPOR
       /* abort_optyap("NoStackCall in function absmi"); */
       if (HeapTop > GlobalBase - MinHeapGap)
@@ -1776,7 +1777,7 @@ absmi(int inp)
       if (ASP > (CELL *)B)
 	ASP = (CELL *)B;
       saveregs();
-      gc(PredArity(SREG), Y, NEXTOP(PREG, sla));
+      gc(((PredEntry *)SREG)->ArityOfPE, Y, NEXTOP(PREG, sla));
       setregs();
 
       JMPNext();
@@ -1788,7 +1789,7 @@ absmi(int inp)
     NoStackComitY:
       /* find something to fool S */
       if (CFREG == Unsigned(LCL0) && ReadTimedVar(WokenGoals) != TermNil) {
-	SREG = (CELL *)&(RepPredProp(GetPredProp(AtomRestoreRegs,2))->StateOfPred);
+	SREG = (CELL *)RepPredProp(GetPredProp(AtomRestoreRegs,2));
 	PREG = NEXTOP(PREG,x);
 	XREGS[0] = XREG(PREG->u.y.y);
 	goto creep_either;
@@ -1800,7 +1801,7 @@ absmi(int inp)
     NoStackComitX:
       /* find something to fool S */
       if (CFREG == Unsigned(LCL0) && ReadTimedVar(WokenGoals) != TermNil) {
-	SREG = (CELL *)&(RepPredProp(GetPredProp(AtomRestoreRegs,2))->StateOfPred);
+	SREG = (CELL *)RepPredProp(GetPredProp(AtomRestoreRegs,2));
 	PREG = NEXTOP(PREG,x);
 #if USE_THREADED_CODE
 	if (PREG->opc == (OPCODE)OpAddress[_fcall])
@@ -1826,7 +1827,7 @@ absmi(int inp)
       /* don't forget I cannot creep at ; */
     NoStackEither:
       /* find something to fool S */
-      SREG = (CELL *)&(RepPredProp(GetPredProp(AtomRestoreRegs,1))->StateOfPred);
+      SREG = (CELL *)RepPredProp(GetPredProp(AtomRestoreRegs,1));
 #ifdef YAPOR
       /* abort_optyap("NoStackCall in function absmi"); */
       if (HeapTop > GlobalBase - MinHeapGap)
@@ -1911,7 +1912,7 @@ absmi(int inp)
 
     NoStackDExecute:
       /* set SREG for next instructions */
-      SREG = (CELL *) (PREG->u.l.l);
+      SREG = (CELL *) pred_entry(PREG->u.l.l);
 #ifdef YAPOR
       /* abort_optyap("noStackDExecute in function absmi"); */
       if (HeapTop > GlobalBase - MinHeapGap)
@@ -1945,7 +1946,7 @@ absmi(int inp)
       if (ASP > (CELL *)B)
 	ASP = (CELL *)B;
       saveregs();
-      gc(PredArity(SREG), ENV, CPREG);
+      gc(((PredEntry *)(SREG))->ArityOfPE, ENV, CPREG);
       setregs();
       /* hopefully, gc will succeeded, and we will retry
        * the instruction */
@@ -2005,13 +2006,13 @@ absmi(int inp)
 	  S = SREG;
 #endif
 	  BEGD(d0);
-	  d0 = PredArity(SREG);
+	  d0 = ((PredEntry *)(SREG))->ArityOfPE;
 	  if (d0 == 0) {
-	    my_goal = MkAtomTerm((Atom) PredFunctor(SREG));
+	    my_goal = MkAtomTerm((Atom)((PredEntry *)(SREG))->FunctorOfPred);
 	  }
 	  else {
 	    my_goal = AbsAppl(H);
-	    *H = (CELL) PredFunctor(SREG);
+	    *H = (CELL) ((PredEntry *)(SREG))->FunctorOfPred;
 	    H++;
 	    BEGP(pt1);
 	    pt1 = XREGS + 1;
@@ -2047,12 +2048,12 @@ absmi(int inp)
 	    ENDP(pt1);
 	  }
 	  ENDD(d0);
-	  H[0] = Module_Name((CODEADDR)pred_entry(SREG));
+	  H[0] = Module_Name((CODEADDR)SREG);
 	  H[1] = my_goal;
 	  ARG1 = AbsPair(H);
 	  H += 2;
 	  ARG2 = ListOfWokenGoals();
-	  SREG = (CELL *) (Unsigned(WakeUpCode) - sizeof(SMALLUNSGN));
+	  SREG = (CELL *) (WakeUpCode);
 
 	  /* no more goals to wake up */
 	  UpdateTimedVar(WokenGoals, TermNil);
@@ -2084,13 +2085,13 @@ absmi(int inp)
 	S = SREG;
 #endif
 	BEGD(d0);
-	d0 = PredArity(SREG);
+	d0 = ((PredEntry *)(SREG))->ArityOfPE;
 	if (d0 == 0) {
-	  H[1] = MkAtomTerm((Atom) PredFunctor(SREG));
+	  H[1] = MkAtomTerm((Atom) ((PredEntry *)(SREG))->FunctorOfPred);
 	}
 	else {
 	  H[d0 + 2] = AbsAppl(H);
-	  *H = (CELL) PredFunctor(SREG);
+	  *H = (CELL) ((PredEntry *)(SREG))->FunctorOfPred;
 	  H++;
 	  BEGP(pt1);
 	  pt1 = XREGS + 1;
@@ -2125,20 +2126,20 @@ absmi(int inp)
 	  ENDP(pt1);
 	}
 	ENDD(d0);
-	H[0] = Module_Name((CODEADDR)pred_entry(SREG));
+	H[0] = Module_Name(((CODEADDR)(SREG)));
 	ARG1 = (Term) AbsPair(H);
 
 	H += 2;
 	CFREG = CalculateStackGap();
-	SREG = (CELL *) (Unsigned(CreepCode) - sizeof(SMALLUNSGN));
+	SREG = (CELL *) CreepCode;
 #ifdef COROUTINING
       }
 #endif
 #ifdef LOW_LEVEL_TRACER
       if (do_low_level_trace)
-	low_level_trace(enter_pred,pred_entry(SREG),XREGS+1);
+	low_level_trace(enter_pred,(PredEntry *)(SREG),XREGS+1);
 #endif	/* LOW_LEVEL_TRACE */
-      PREG = (yamop *) PredCode(SREG);
+      PREG = (yamop *) ((PredEntry *)(SREG))->CodeOfPred;
       CACHE_A1();
       JMPNext();
 
@@ -5643,15 +5644,13 @@ absmi(int inp)
       d0 = (CELL) (PREG->u.sla.l);
       PREG = NEXTOP(PREG, sla);
       saveregs();
-      SREG = (CELL *) (*((Int (*)(void)) d0)) ();
-      ENDD(d0);
-
-
+      d0 = (*((Int (*)(void)) d0)) ();
       setregs();
-      if (!SREG) {
+      if (!d0) {
 	FAIL();
       }
       CACHE_A1();
+      ENDD(d0);
       JMPNext();
       ENDBOp();
       
@@ -5903,7 +5902,7 @@ absmi(int inp)
 	READ_UNLOCK(pe->PRWLock);
 	d0 = pe->ArityOfPE;
 	if (d0 == 0) {
-	  H[1] = MkAtomTerm(NameOfFunctor(pe->FunctorOfPred));
+	  H[1] = MkAtomTerm((Atom)(pe->FunctorOfPred));
 	}
 	else {
 	  H[d0 + 2] = AbsAppl(H);
@@ -5957,12 +5956,12 @@ absmi(int inp)
 	    PredEntry *undefpe;
 	    undefpe = RepPredProp (p);
 	    READ_LOCK(undefpe->PRWLock);
-	    UndefCode = (CELL *) & (undefpe->CodeOfPred);
+	    UndefCode = undefpe;
 	    READ_UNLOCK(undefpe->PRWLock);
 	  }
 	}
       }
-      PREG = (yamop *)pred_entry_from_code(UndefCode)->CodeOfPred;
+      PREG = (yamop *)(UndefCode->CodeOfPred);
       CFREG = CalculateStackGap();
       CACHE_A1();
       JMPNext();
@@ -5987,7 +5986,7 @@ absmi(int inp)
 	d0 = pe->ArityOfPE;
       /* save S for ModuleName */
 	if (d0 == 0) {
-	  H[1] = MkAtomTerm(NameOfFunctor(pe->FunctorOfPred));
+	  H[1] = MkAtomTerm((Atom)(pe->FunctorOfPred));
 	} else {
 	  *H = (CELL) pe->FunctorOfPred;
 	  H[d0 + 2] = AbsAppl(H);
@@ -6026,16 +6025,17 @@ absmi(int inp)
       }
       ARG1 = (Term) AbsPair(H);
       H += 2;
-      BEGP(pt0);
-      pt0 = (CELL *) (Unsigned(SpyCode) - sizeof(SMALLUNSGN));
-      P_before_spy = PREG;
-      PREG = (yamop *) PredCode(pt0);
-      CACHE_A1();
+      {
+	PredEntry *pt0;
+	pt0 = SpyCode;
+	P_before_spy = PREG;
+	PREG = (yamop *) (pt0->CodeOfPred);
+	CACHE_A1();
 #ifdef LOW_LEVEL_TRACER
-      if (do_low_level_trace)
-	low_level_trace(enter_pred,(PredEntry *)(PREG->u.sla.p),XREGS+1);
+	if (do_low_level_trace)
+	  low_level_trace(enter_pred,pt0,XREGS+1);
 #endif	/* LOW_LEVEL_TRACE */
-      ENDP(pt0);
+      }
       JMPNext();
 
 /************************************************************************\
@@ -11131,6 +11131,118 @@ absmi(int inp)
       ENDP(pt0);
       ENDD(d0);
       ENDOp();
+
+      BOp(p_execute, sla);
+      { 
+	PredEntry *pen;
+
+	CACHE_Y_AS_ENV(Y);
+	CACHE_A1();
+	BEGD(d0);
+	d0 = ARG1;
+	if (PredGoalExpansion->OpcodeOfPred != UNDEF_OPCODE) {
+	  d0 = ExecuteCallMetaCall();
+	}
+	deref_head(d0, execute_unk);
+      execute_nvar:
+	if (IsApplTerm(d0)) {
+	  Functor f = FunctorOfTerm(d0);
+	  if (IsExtensionFunctor(f)) {
+	    d0 = ExecuteCallMetaCall();
+	    goto execute_nvar;
+	  }
+	  pen = RepPredProp(PredPropByFunc(f, ARG2));
+	  if (pen->PredFlags & MetaPredFlag) {
+	    d0 = ExecuteCallMetaCall();
+	    goto execute_nvar;
+	  }
+	  BEGP(pt1);
+	  pt1 = RepAppl(d0);
+	  BEGD(d2);
+	  for (d2 = ArityOfFunctor(f); d2; d2--) {
+#if SBA
+	    BEGD(d1);
+	    d1 = pt1[d2];
+	    if (d1 == 0)
+	      XREGS[d2] = (CELL)(pt1+d2);
+	    else
+	      XREGS[d2] = d1;
+#else
+	    XREGS[d2] = pt1[d2];
+#endif
+	  }
+	  ENDD(d2);
+	  ENDP(pt1);
+	} else if (IsAtomTerm(d0)) {
+	  pen = RepPredProp(PredPropByAtom(AtomOfTerm(d0), ARG2));
+	} else {
+	  d0 = ExecuteCallMetaCall();
+	  goto execute_nvar;
+	}
+
+#ifndef NO_CHECKING
+	check_stack(NoStackPExec, H);
+#endif
+	/* code copied from call */
+	ENV = E_Y;
+	/* Try to preserve the environment */
+	E_Y = (CELL *) (((char *) Y) + PREG->u.sla.s);
+	CPREG =
+	  (yamop *) NEXTOP(PREG, sla);
+	ALWAYS_LOOKAHEAD(pen->OpcodeOfPred);
+	PREG = (yamop *) pen->CodeOfPred;
+#ifdef DEPTH_LIMIT
+	if (DEPTH <= MkIntTerm(1)) {/* I assume Module==0 is primitives */
+	  if (Module(pt0)) {
+	    if (DEPTH == MkIntTerm(0))
+	      FAIL();
+	    else DEPTH = RESET_DEPTH();
+	  }
+	} else if (Module(pt0))
+	  DEPTH -= MkIntConstant(2);
+#endif	/* DEPTH_LIMIT */
+#ifdef LOW_LEVEL_TRACER
+	if (do_low_level_trace)
+	  low_level_trace(enter_pred,pen,XREGS+1);
+#endif	/* LOW_LEVEL_TRACER */
+#ifdef FROZEN_REGS
+	{ 
+	  choiceptr top_b = PROTECT_FROZEN_B(B);
+#ifdef SBA
+	  if (E_Y > (CELL *) top_b || E_Y < H) E_Y = (CELL *) top_b;
+#else
+	  if (E_Y > (CELL *) top_b) E_Y = (CELL *) top_b;
+#endif
+	}
+#else
+	if (E_Y > (CELL *) B) {
+	  E_Y = (CELL *) B;
+	}
+#endif /* FROZEN_REGS */
+	WRITEBACK_Y_AS_ENV();
+	/* setup GB */
+	E_Y[E_CB] = (CELL) B;
+#ifdef YAPOR
+	SCH_check_requests();
+#endif	/* YAPOR */
+	ALWAYS_GONext();
+	ALWAYS_END_PREFETCH();
+
+	BEGP(pt1);
+	deref_body(d0, pt1, execute_unk, execute_nvar);
+	d0 = ExecuteCallMetaCall();
+	goto execute_nvar;
+	ENDP(pt1);
+	ENDD(d0);
+	ENDCACHE_Y_AS_ENV();
+
+    NoStackPExec:
+      /* on X86 machines S will not actually be holding the pointer to pred */
+      SREG = (CELL *) pen;
+      goto NoStackCallGotS;
+
+      }
+      ENDBOp();
 
 #if !USE_THREADED_CODE
     default:

@@ -287,46 +287,6 @@ yap_flag(language,X) :-
 yap_flag(language,X) :-
 	throw(error(domain_error(flag_value,language+X),yap_flag(language,X))).
 
-'$trans_to_lang_flag'(0,cprolog).
-'$trans_to_lang_flag'(1,iso).
-'$trans_to_lang_flag'(2,sicstus).
-
-'$adjust_language'(cprolog) :-
-	'$switch_log_upd'(0),
-	'$syntax_check_mode'(_,off),
-	'$syntax_check_single_var'(_,off),
-	'$syntax_check_discontiguous'(_,off),
-	'$syntax_check_multiple'(_,off),
-	'$transl_to_on_off'(Y,off), % disable character escapes.
-	'$set_yap_flags'(12,Y),
-	'$set_yap_flags'(14,1),
-	unknown(_,error).
-'$adjust_language'(sicstus) :-
-	'$switch_log_upd'(1),
-	leash(full),
-	'$syntax_check_mode'(_,on),
-	'$syntax_check_single_var'(_,on),
-	'$syntax_check_discontiguous'(_,on),
-	'$syntax_check_multiple'(_,on),
-	'$transl_to_on_off'(X1,on),
-	'$set_yap_flags'(5,X1),
-	'$force_char_conversion',
-	'$set_yap_flags'(14,0),
-	unknown(_,error).
-'$adjust_language'(iso) :-
-	'$switch_log_upd'(2),
-	'$syntax_check_mode'(_,on),
-	'$syntax_check_single_var'(_,on),
-	'$syntax_check_discontiguous'(_,on),
-	'$syntax_check_multiple'(_,on),
-	'$set_yap_flags'(7,1),
-	fileerrors,
-	'$transl_to_on_off'(X1,on),
-	'$set_yap_flags'(5,X1),
-	'$force_char_conversion',
-	'$set_yap_flags'(14,0),
-	unknown(_,error).
-
 yap_flag(debug,X) :-
 	var(X), !,
 	('$get_value'(debug,1) ->
@@ -417,12 +377,6 @@ yap_flag(character_escapes,X) :- !,
 yap_flag(character_escapes,X) :-
 	throw(error(domain_error(flag_value,character_escapes+X),yap_flag(to_chars_mode,X))).
 
-'$transl_to_character_escape_modes'(0,off) :- !.
-'$transl_to_character_escape_modes'(0,cprolog).
-'$transl_to_character_escape_modes'(1,on) :- !.
-'$transl_to_character_escape_modes'(1,iso).
-'$transl_to_character_escape_modes'(2,sicstus).
-
 yap_flag(update_semantics,X) :-
 	var(X), !,
 	( '$log_upd'(I) -> '$convert_upd_sem'(I,X) ).
@@ -480,9 +434,6 @@ yap_flag(user_error,OUT) :-
 yap_flag(user_error,Stream) :-
 	'$change_alias_to_stream'(user_error,Stream).
 
-'$flag_check_alias'(OUT, Alias) :-
-	stream_property(OUT,[alias(Alias)]), !.
-	
 yap_flag(debugger_print_options,OUT) :-
 	var(OUT),
 	'$recorded'('$print_options','$debugger'(OUT),_), !.
@@ -500,30 +451,6 @@ yap_flag(toplevel_print_options,Opts) :- !,
 	'$recorda'('$print_options','$toplevel'(Opts),_).
 
 :- '$recorda'('$print_options','$toplevel'([quoted(true),numbervars(true),portrayed(true)]),_).
-
-'$convert_upd_sem'(0,immediate).
-'$convert_upd_sem'(1,logical).
-'$convert_upd_sem'(2,logical_assert).
-
-'$transl_to_true_false'(0,false).
-'$transl_to_true_false'(1,true).
-
-'$transl_to_on_off'(0,off).
-'$transl_to_on_off'(1,on).
-
-'$transl_to_arity'(X1,X) :- X1 < 0, !, X = unbounded.
-'$transl_to_arity'(X,X).
-
-'$transl_to_rounding_function'(0,down).
-'$transl_to_rounding_function'(1,toward_zero).
-
-'$transl_to_trl_types'(0,chars).
-'$transl_to_trl_types'(1,codes).
-'$transl_to_trl_types'(2,atom).
-
-'$yap_flag_show_tracing'(true, _, on) :- !.
-'$yap_flag_show_tracing'(_, true, verbose) :- !.
-'$yap_flag_show_tracing'(_, _, off).
 
 yap_flag(host_type,X) :-
 	'$host_type'(X).
@@ -570,6 +497,79 @@ yap_flag(host_type,X) :-
 	),
 	yap_flag(V, Out).
 
+'$trans_to_lang_flag'(0,cprolog).
+'$trans_to_lang_flag'(1,iso).
+'$trans_to_lang_flag'(2,sicstus).
+
+'$adjust_language'(cprolog) :-
+	'$switch_log_upd'(0),
+	'$syntax_check_mode'(_,off),
+	'$syntax_check_single_var'(_,off),
+	'$syntax_check_discontiguous'(_,off),
+	'$syntax_check_multiple'(_,off),
+	'$transl_to_on_off'(Y,off), % disable character escapes.
+	'$set_yap_flags'(12,Y),
+	'$set_yap_flags'(14,1),
+	unknown(_,error).
+'$adjust_language'(sicstus) :-
+	'$switch_log_upd'(1),
+	leash(full),
+	'$syntax_check_mode'(_,on),
+	'$syntax_check_single_var'(_,on),
+	'$syntax_check_discontiguous'(_,on),
+	'$syntax_check_multiple'(_,on),
+	'$transl_to_on_off'(X1,on),
+	'$set_yap_flags'(5,X1),
+	'$force_char_conversion',
+	'$set_yap_flags'(14,0),
+	unknown(_,error).
+'$adjust_language'(iso) :-
+	'$switch_log_upd'(2),
+	'$syntax_check_mode'(_,on),
+	'$syntax_check_single_var'(_,on),
+	'$syntax_check_discontiguous'(_,on),
+	'$syntax_check_multiple'(_,on),
+	'$set_yap_flags'(7,1),
+	fileerrors,
+	'$transl_to_on_off'(X1,on),
+	'$set_yap_flags'(5,X1),
+	'$force_char_conversion',
+	'$set_yap_flags'(14,0),
+	unknown(_,error).
+
+'$transl_to_character_escape_modes'(0,off) :- !.
+'$transl_to_character_escape_modes'(0,cprolog).
+'$transl_to_character_escape_modes'(1,on) :- !.
+'$transl_to_character_escape_modes'(1,iso).
+'$transl_to_character_escape_modes'(2,sicstus).
+
+'$convert_upd_sem'(0,immediate).
+'$convert_upd_sem'(1,logical).
+'$convert_upd_sem'(2,logical_assert).
+
+'$transl_to_true_false'(0,false).
+'$transl_to_true_false'(1,true).
+
+'$transl_to_on_off'(0,off).
+'$transl_to_on_off'(1,on).
+
+'$transl_to_arity'(X1,X) :- X1 < 0, !, X = unbounded.
+'$transl_to_arity'(X,X).
+
+'$transl_to_rounding_function'(0,down).
+'$transl_to_rounding_function'(1,toward_zero).
+
+'$transl_to_trl_types'(0,chars).
+'$transl_to_trl_types'(1,codes).
+'$transl_to_trl_types'(2,atom).
+
+'$yap_flag_show_tracing'(true, _, on) :- !.
+'$yap_flag_show_tracing'(_, true, verbose) :- !.
+'$yap_flag_show_tracing'(_, _, off).
+
+'$flag_check_alias'(OUT, Alias) :-
+	stream_property(OUT,[alias(Alias)]), !.
+	
 current_prolog_flag(V,Out) :-
 	(var(V) ; atom(V) ), !,
 	'$show_yap_flag_opts'(V,NOut),
@@ -594,7 +594,7 @@ prolog_flag(F, Old, New) :-
 	throw(error(instantiation_error,prolog_flag(F,Old,New))).
 prolog_flag(F, Old, New) :-
 	current_prolog_flag(F, Old),
-	set_prolog_flag(F, Old).
+	set_prolog_flag(F, New).
 
 prolog_flag(F, Old) :-
 	current_prolog_flag(F, Old).

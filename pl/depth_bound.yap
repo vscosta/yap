@@ -20,15 +20,15 @@
 depth_bound_call(A,D) :-
 	'$execute_under_depth_limit'(A,D).
 
-$old_depth_bound_call(A,D) :-
+'$old_depth_bound_call'(A,D) :-
 	'$check_callable'(A,A),
 	'$user_call_depth_limited'(A, D).
 
-'$user_call_depth_limited'(V,D) :- var(V), !,
+'$user_call_depth_limited'(V,_) :- var(V), !,
 	throw(error(instantiation_error,V)).
-'$user_call_depth_limited'(A,D) :- number(A), !,
-	throw(error(type_error(callable,A),A,D)).
-'$user_call_depth_limited'(R,D) :- db_reference(R), !,
+'$user_call_depth_limited'(A,_) :- number(A), !,
+	throw(error(type_error(callable,A),A)).
+'$user_call_depth_limited'(R,_) :- db_reference(R), !,
 	throw(error(type_error(callable,R),R)).
 '$user_call_depth_limited'(A,D) :-
 	'$access_yap_flags'(10,V),
@@ -100,13 +100,13 @@ $old_depth_bound_call(A,D) :-
 '$call_depth_limited'(not X,CP,D) :- !,
 	'$check_callable'(X, not X),
 	\+ '$call_depth_limited'(X,CP,D).
-'$call_depth_limited'(!,CP,_) :- $$cut_by(CP).
-'$call_depth_limited'(repeat,_,_) :- !, $repeat.
+'$call_depth_limited'(!,CP,_) :- '$$cut_by'(CP).
+'$call_depth_limited'(repeat,_,_) :- !, '$repeat'.
 '$call_depth_limited'([A|B],_,_) :- !, '$csult'([A|B]).
 '$call_depth_limited'(A,CP,D) :-
 	( '$undefined'(A) ->
-		functor(A,F,N), $current_module(M),
-		( '$recorded'($import,$import(S,M,F,N),_) ->
+		functor(A,F,N), '$current_module'(M),
+		( '$recorded'('$import','$import'(S,M,F,N),_) ->
 		  '$call_depth_limited'(S:A,CP,D) ;
 		  get_depth_limit(D0),
 		  '$set_depth_limit'(D),
@@ -179,13 +179,13 @@ $old_depth_bound_call(A,D) :-
 '$spied_call_depth_limited'(not X,CP,D) :- !,
 	'$check_callable'(X, not X),
 	\+ '$spied_call_depth_limited'(X,CP,D).
-'$spied_call_depth_limited'(!,CP,_) :- $$cut_by(CP).
+'$spied_call_depth_limited'(!,CP,_) :- '$$cut_by'(CP).
 '$spied_call_depth_limited'(repeat,_,_) :- !, '$repeat'.
 '$spied_call_depth_limited'([A|B],_,_) :- !, '$csult'([A|B]).
 '$spied_call_depth_limited'(A,CP,D) :-
 	( '$undefined'(A) ->
-		functor(A,F,N), $current_module(M),
-		( '$recorded'($import,$import(S,M,F,N),_) ->
+		functor(A,F,N), '$current_module'(M),
+		( '$recorded'('$import','$import'(S,M,F,N),_) ->
 		  '$spied_call_depth_limited'(S:A,CP,D) ;
 		  get_depth_limit(D0),
 		  '$set_depth_limit'(D),

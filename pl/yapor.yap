@@ -15,8 +15,9 @@
 *									 *
 *************************************************************************/
 
-'$parallel_query'(G,[]) :- !, '$start_yapor', '$execute'(G), !, $parallel_yes_answer.
-'$parallel_query'(G,V)  :- '$start_yapor', '$execute'(G), $parallel_new_answer(V).
+'$parallel_query'(G,[]) :- !, '$start_yapor', '$execute'(G), !,
+'$parallel_yes_answer'.
+'$parallel_query'(G,V)  :- '$start_yapor', '$execute'(G), '$parallel_new_answer'(V).
 
 % ***************************
 % * -------- YAPOR -------- *
@@ -79,7 +80,7 @@ parallel(A/N) :- integer(N), atom(A), !,
                      write(user_error, ' is already declared as sequential ]'),
                      nl(user_error)
                    ;
-                     X is F /\ 8'170000, X =:= 0, !, $sequential(T)
+                     X is F /\ 8'170000, X =:= 0, !, '$sequential'(T)
                    ;
                      write(user_error, '[ Error: '),
                      write(user_error, A/N),

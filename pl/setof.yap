@@ -23,7 +23,7 @@
 
 :- op(50,xfx,same).
 
-Variable^Goal :-
+_^Goal :-
 	'$execute'(Goal).
 
 
@@ -75,11 +75,11 @@ findall(Template, Generator, Answers, SoFar) :-
 % by getting all answers
 '$collect_with_common_vars'(Ref, VarList, SoFar, Solution) :-
 	'$db_dequeue'(Ref, BDEntry), !,
-	BDEntry =  Key-Term,
+	BDEntry =  Key-_,
 	Solution = [BDEntry|Answers],
 	'$variables_in_term'(Key, _, VarList),
 	'$collect_with_common_vars'(Ref, VarList, SoFar, Answers).
-'$collect_with_common_vars'(Ref, VarList, Solution, Solution).
+'$collect_with_common_vars'(_, _, Solution, Solution).
 
 % This is the setof predicate
 
@@ -154,11 +154,11 @@ bagof(Template, Generator, Bag) :-
 '$excess_vars'(bagof(X,P,S), Y, L0, L) :- !,
 	'$variables_in_term'(X+Y, [], NY),
 	'$excess_vars'((P,S), NY, L0, L).
-'$excess_vars'(findall(X,P,S), Y, L0, L) :- !,
+'$excess_vars'(findall(_,_,S), Y, L0, L) :- !,
 	'$excess_vars'(S, Y, L0, L).
-'$excess_vars'(findall(X,P,S0,S), Y, L0, L) :- !,
+'$excess_vars'(findall(_,_,_,S), Y, L0, L) :- !,
 	'$excess_vars'(S, Y, L0, L).
-'$excess_vars'(\+G, _, L0, LF) :- !,
+'$excess_vars'(\+_, _, L0, LF) :- !,
 	L0 = LF.
 '$excess_vars'(_:G, Y, L0, LF) :- !,
 	'$excess_vars'(G, Y, L0, LF).
@@ -171,7 +171,7 @@ bagof(Template, Generator, Bag) :-
 	'$excess_vars'(T1, X, L0, L1),
 	'$recurse_for_excess_vars'(LArgs, X, L1, L).
 
-'$doesnt_include'([], X).
+'$doesnt_include'([], _).
 '$doesnt_include'([Y|L], X) :-
 	Y \== X,
 	'$doesnt_include'(L, X).

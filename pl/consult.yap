@@ -28,9 +28,9 @@ ensure_loaded(V) :-
 	'$find_in_path'(X,Y),
 	( open(Y,'$csult',Stream), !,
 	     ( '$loaded'(Stream) ->
-		(  $consulting_file_name(Stream,TFN),
+		(  '$consulting_file_name'(Stream,TFN),
 		    '$recorded'('$module','$module'(TFN,M,P),_) ->
-			$current_module(T), '$import'(P,M,T)
+			'$current_module'(T), '$import'(P,M,T)
 		;
 		   true
 		)
@@ -51,7 +51,7 @@ ensure_loaded(V) :-
 	     ( '$loaded'(Stream) ->
 		(  '$consulting_file_name'(Stream,TFN),
 		    '$recorded'('$module','$module'(TFN,M,P),_) ->
-			'$current_module'(T), $import(P,M,T)
+			'$current_module'(T), '$import'(P,M,T)
 		;
 		   true
 		)
@@ -158,9 +158,9 @@ reconsult(Fs) :-
 'EMACS_FILE'(F,File0) :-
 	format('''EMACS_RECONSULT''(~w).~n',[File0]),
 	'$getcwd'(OldD),
-	open(F,$csult,Stream),
+	open(F,'$csult',Stream),
 	'$find_in_path'(File0,File),
-	open(File,$csult,Stream0),
+	open(File,'$csult',Stream0),
 	'$get_value'('$consulting_file',OldF),
 	'$set_consulting_file'(Stream0),
 	H0 is heapused, T0 is cputime,
@@ -177,7 +177,7 @@ reconsult(Fs) :-
 	'$end_consult',
 	'$clear_reconsulting',
 	( LC == 0 -> prompt(_,'   |: ') ; true),
-	( '$get_value'($verbose,on) ->
+	( '$get_value'('$verbose',on) ->
 		tab(user_error,LC) ;
 	true ),	
 	H is heapused-H0, T is cputime-T0,
@@ -243,10 +243,10 @@ reconsult(Fs) :-
 	'$peek_byte'(Stream, 0'#), !, % 35 is ASCII for #
 	'$get0_line_codes'(Stream, _),
 	'$skip_unix_comments'(Stream).
-'$skip_unix_comments'(Stream).
+'$skip_unix_comments'(_).
 
 
-prolog_load_context(_, X) :-
+prolog_load_context(_, _) :-
 	'$get_value'('$consulting_file',[]), !, fail.
 prolog_load_context(directory, DirName) :- 
 	'$get_value'('$consulting_file',FileName),

@@ -12,10 +12,10 @@
 '$iso_check_goal'((G1;G2),G0) :- !,
 	'$iso_check_a_goal'(G1,(G1;G2),G0),
 	'$iso_check_a_goal'(G2,(G1;G2),G0).
-'$iso_check_goal'((G1->G2),(G1->G2),G0) :- !,
+'$iso_check_goal'((G1->G2),G0) :- !,
 	'$iso_check_a_goal'(G1,(G1->G2),G0),
 	'$iso_check_a_goal'(G2,(G1->G2),G0).
-'$iso_check_goal'(!,G0) :- !.
+'$iso_check_goal'(!,_) :- !.
 '$iso_check_goal'((G1|G2),G0) :-
 	'$access_yap_flags'(9,1), !,
 	throw(error(domain_error(builtin_procedure,(G1|G2)), call(G0))).
@@ -30,7 +30,7 @@
 	->
 	    true
 	;
-	    throw(error(domain_error(builtin_procedure,G), G))
+	    throw(error(domain_error(builtin_procedure,G), call(G0)))
 	).
 '$iso_check_goal'(_,_).
 
@@ -55,7 +55,7 @@
 '$iso_check_a_goal'((_|_),E,G0) :-
 	'$access_yap_flags'(9,1), !,
 	throw(error(domain_error(builtin_procedure,E), call(G0))).
-'$iso_check_a_goal'((G1|G2),_,G0) :- !.
+'$iso_check_a_goal'((_|_),_,_) :- !.
 '$iso_check_a_goal'(G,_,G0) :- 
 	'$access_yap_flags'(9,1),
 	'$system_predicate'(G),
@@ -64,13 +64,13 @@
 	->
 	    true
 	;
-	    throw(error(domain_error(builtin_procedure,G), G))
+	    throw(error(domain_error(builtin_procedure,G), call(G0)))
 	).
 '$iso_check_a_goal'(_,_,_).
 
-'$check_iso_strict_clause'((G:-B)) :- !,
+'$check_iso_strict_clause'((_:-B)) :- !,
 	'$check_iso_strict_body'(B).
-'$check_iso_strict_clause'(G).
+'$check_iso_strict_clause'(_).
 
 '$check_iso_strict_body'((B1,B2)) :- !,
 	'$check_iso_strict_body'(B1),
