@@ -1,6 +1,6 @@
 =================================================================
 Logtalk - Object oriented extension to Prolog
-Release 2.15.3
+Release 2.15.4
 
 Copyright (c) 1998-2003 Paulo Moura.  All Rights Reserved.
 =================================================================
@@ -8,6 +8,26 @@ Copyright (c) 1998-2003 Paulo Moura.  All Rights Reserved.
 
 RELEASE NOTES
 =============
+
+
+2.15.4 - July 9, 2003
+
+	Corrected a spurious backtracking bug in the DCG rule translator. Added 
+	two more examples of DCGs.
+
+	New config file for XSB 2.6. Updated Logtalk compiler to compile cleanly 
+	under XSB after applying the patch described in configs/NOTES.
+
+	Updated SWI-Prolog config file to hide compiled entity predicates (requires 
+	SWI-Prolog 5.2.3 or later version). New optional file configs/swihook.pl 
+	contains hook code that allows Logtalk entities to be compiled and loaded 
+	using SWI-Prolog load_files/2 and consult/1 predicates.
+
+	Syntax definition file for the Hydra 1.1 (MacOS X) text editor providing 
+	syntax coloring for editing Logtalk source files.
+
+	Updated syntax coloring files for jEdit, NEdit, Vim, and TextPad in order 
+	to recognize character code constants (0'x) and the DCG operator -->/2.
 
 
 2.15.3 - June 27, 2003

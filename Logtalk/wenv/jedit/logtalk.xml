@@ -4,10 +4,10 @@
 
 <!--	jEdit 4.1 Logtalk syntax file
 
-	written by		Paulo Moura
-	version			1.2
-	created on		2 May 2002
-	last revised	3 October 2002
+	written by	Paulo Moura
+	version		1.3
+	created on	2 May 2002
+	last revised	7 July 2003
 	
 	To install, copy this file to the "modes" subdirectory in jEdit 
 	directory installation.   Next, check the "catalog" file in the 
@@ -25,7 +25,7 @@
 		<PROPERTY NAME="tabSize" VALUE="4" />
 	</PROPS>
 
-	<RULES IGNORE_CASE="FALSE">
+	<RULES SET="MAIN" IGNORE_CASE="FALSE">
 	
 		<!-- Comments -->
 		<EOL_SPAN TYPE="COMMENT1">%</EOL_SPAN>
@@ -33,6 +33,8 @@
 			<BEGIN>/*</BEGIN>
 			<END>*/</END>
 		</SPAN>
+
+		<SEQ_REGEXP TYPE="NULL" HASH_CHAR="0">0'[[:alnum:]]</SEQ_REGEXP>
 
 		<!-- String literals -->
 		<SPAN TYPE="LITERAL1" NO_LINE_BREAK="TRUE">
@@ -203,6 +205,8 @@
 			<FUNCTION>before</FUNCTION>
 			<FUNCTION>after</FUNCTION>
 
+			<FUNCTION>phrase</FUNCTION>
+
 			<!-- Control constructs -->
 			<FUNCTION>true</FUNCTION>
 			<FUNCTION>fail</FUNCTION>
@@ -210,6 +214,7 @@
 			<SEQ TYPE="FUNCTION">!</SEQ>
 			<SEQ TYPE="OPERATOR">,</SEQ>
 			<SEQ TYPE="OPERATOR">;</SEQ>
+			<SEQ TYPE="OPERATOR">--&gt;</SEQ>
 			<SEQ TYPE="OPERATOR">-&gt;</SEQ>
 			<FUNCTION>catch</FUNCTION>
 			<FUNCTION>throw</FUNCTION>
@@ -410,7 +415,7 @@
 
 	</RULES>
 
-
+ 
 	<RULES SET="INFO" IGNORE_CASE="FALSE">
 
 		<SPAN TYPE="LITERAL1" NO_LINE_BREAK="TRUE">

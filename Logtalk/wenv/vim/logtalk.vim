@@ -2,7 +2,7 @@
 "
 " Language:	Logtalk
 " Maintainer:	Paulo Moura <pmoura@logtalk.org>
-" Last Change:	2002 September 6
+" Last Change:	2003 July 7
 
 
 " Quit when a syntax file was already loaded:
@@ -27,7 +27,12 @@ syn match	logtalkOperator		":-"
 " Logtalk quoted atoms and strings
 
 syn region	logtalkString		start=+"+	skip=+\\"+	end=+"+
-syn region	logtalkAtom		start=+'+	skip=+\\'+	end=+'+
+syn region	logtalkAtom			start=+'+	skip=+\\'+	end=+'+
+
+
+" Logtalk character code constants
+
+syn match	logtalkNumber		"0'"
 
 
 " Logtalk message sending operators
@@ -38,7 +43,7 @@ syn match	logtalkOperator		"\^\^"
 
 " Logtalk external call
 
-syn region	logtalkExtCall		matchgroup=logtalkExtCallTag		start="{"		matchgroup=logtalkExtCallTag		end="}"		contains=ALL
+syn region	logtalkExtCall			matchgroup=logtalkExtCallTag		start="{"		matchgroup=logtalkExtCallTag		end="}"		contains=ALL
 
 
 " Logtalk opening entity directives
@@ -145,6 +150,8 @@ syn keyword	logtalkBuiltInMethod	setof
 syn keyword	logtalkBuiltInMethod	before
 syn keyword	logtalkBuiltInMethod	after
 
+syn keyword	logtalkBuiltInMethod	phrase
+
 
 " Mode operators
 
@@ -160,6 +167,7 @@ syn keyword	logtalkKeyword		call
 syn match	logtalkOperator		"!"
 syn match	logtalkOperator		","
 syn match	logtalkOperator		";"
+syn match	logtalkOperator		"-->"
 syn match	logtalkOperator		"->"
 syn keyword	logtalkKeyword		catch
 syn keyword	logtalkKeyword		throw
@@ -360,34 +368,36 @@ if version >= 508 || !exists("did_logtalk_syn_inits")
 		command -nargs=+ HiLink hi def link <args>
 	endif
 	
-	HiLink	logtalkBlockComment	Comment
-	HiLink	logtalkLineComment	Comment
+	HiLink	logtalkBlockComment		Comment
+	HiLink	logtalkLineComment		Comment
 
 	HiLink	logtalkOpenEntityDir	Normal
 	HiLink	logtalkOpenEntityDirTag	Statement
 
-	HiLink	logtalkEntity		Normal
+	HiLink	logtalkEntity			Normal
 
-	HiLink	logtalkEntityRel	Normal
-	HiLink	logtalkEntityRelTag	Statement
+	HiLink	logtalkEntityRel		Normal
+	HiLink	logtalkEntityRelTag		Statement
 
 	HiLink	logtalkCloseEntityDir	Statement
 
-	HiLink	logtalkDir		Normal
-	HiLink	logtalkDirTag		Statement
+	HiLink	logtalkDir				Normal
+	HiLink	logtalkDirTag			Statement
 
-	HiLink	logtalkAtom		String
-	HiLink	logtalkString		String
+	HiLink	logtalkAtom				String
+	HiLink	logtalkString			String
 
-	HiLink	logtalkKeyword		Keyword
+	HiLink	logtalkNumber			Normal
 
-	HiLink	logtalkBuiltIn		Keyword
+	HiLink	logtalkKeyword			Keyword
+
+	HiLink	logtalkBuiltIn			Keyword
 	HiLink	logtalkBuiltInMethod	Keyword
 
-	HiLink	logtalkOperator		Operator
+	HiLink	logtalkOperator			Operator
 
-	HiLink	logtalkExtCall		Normal
-	HiLink	logtalkExtCallTag	Operator
+	HiLink	logtalkExtCall			Normal
+	HiLink	logtalkExtCallTag		Operator
 
 	delcommand HiLink
 

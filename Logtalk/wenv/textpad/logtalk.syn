@@ -152,6 +152,7 @@ forall
 setof
 before
 after
+phrase
 
 ; Mode operators
 ?
@@ -164,6 +165,7 @@ call
 !
 ,
 ;
+-->
 ->
 catch
 throw

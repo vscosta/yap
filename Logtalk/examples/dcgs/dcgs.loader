@@ -7,4 +7,6 @@
 		determiners,
 		nouns,
 		verbs,
-		sentence])). 
+		sentence,
+		url,
+		xml])). 

@@ -1,6 +1,6 @@
 =================================================================
 Logtalk - Object oriented extension to Prolog
-Release 2.15.3
+Release 2.15.4
 
 Copyright (c) 1998-2003 Paulo Moura.  All Rights Reserved.
 =================================================================
@@ -32,4 +32,46 @@ yes
 | ?- parsetree::parse([the, girl, likes, the, boy], Tree).
 
 Tree = Tree = s(np(d(the), n(girl)), vp(v(likes), np(d(the), n(boy))))
+yes
+
+
+% conversion between compound terms and XML
+
+| ?- xml::convert(word(child, children), word(singular, plural), XML).
+
+XML = '<word><singular>child</singular><plural>children</plural></word>' 
+yes
+
+| ?- xml::convert(Term, Interpretation, '<word><singular>child</singular><plural>children</plural></word>').
+
+Term = word(child, children)
+Interpretation = word(singular, plural) 
+yes
+
+
+% parsing URLs
+
+| ?- url::parse("http://www.logtalk.org", Components).
+
+Components = [protocol(http), address([www, logtalk, org]), path([]), file('')] 
+yes
+
+| ?- url::parse("http://www.logtalk.org/", Components).
+
+Components = [protocol(http), address([www, logtalk, org]), path(['']), file('')] 
+yes
+
+| ?- url::parse("http://www.logtalk.org/cvs", Components).
+
+Components = [protocol(http), address([www, logtalk, org]), path([cvs]), file('')] 
+yes
+
+| ?- url::parse("http://www.logtalk.org/cvs.html", Components).
+
+Components = [protocol(http), address([www, logtalk, org]), path([]), file('cvs.html')] 
+yes
+
+| ?- url::parse("http://193.136.64.5/files/update", Components).
+
+Components = [protocol(http), address([193, 136, 64, 5]), path([files, update]), file('')] 
 yes
