@@ -566,6 +566,8 @@ predicate_property(Pred,Prop) :-
 
 '$predicate_property'(P,M,_,built_in) :- 
 	'$system_predicate'(P,M), !.
+'$predicate_property'(P,M,_,source) :- 
+	( '$recordedp'(M:P,_,_) -> true ; false).
 '$predicate_property'(P,M,_,dynamic) :-
 	'$is_dynamic'(P,M).
 '$predicate_property'(P,M,_,static) :-
