@@ -4,12 +4,12 @@
 *									 *
 *	Yap Prolog was developed at NCCUP - Universidade do Porto	 *
 *									 *
-* Copyright L.Damas, V.S.Costa and Universidade do Porto 1985-1997	 *
+* Copyright L.Damas, V.S.Costa and Universidade do Porto 1985-2003	 *
 *									 *
 **************************************************************************
 *									 *
 * File:		%W% %G%						 *
-* Last rev:								 *
+* Last rev:	22-1-03							 *
 * mods:									 *
 * comments:	Prolog's scanner					 *
 *									 *
@@ -227,7 +227,7 @@ read_quoted_char(int *scan_nextp, int inp_stream, int (*QuotedNxtch)(int))
   case 'd':
     return 127;
   case 'e':
-    return '\e';
+    return '\x1B';  /* <ESC>, a.k.a. \e */
   case 'f':
     return '\f';
   case 'n':
