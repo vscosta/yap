@@ -1,6 +1,9 @@
 dnl
 dnl Process this file with autoconf to produce a configure script.
 dnl
+
+AC_PREREQ(2.13)
+
 AC_INIT(console/yap.c)
 AC_CONFIG_HEADER(config.h)
 
@@ -13,35 +16,35 @@ AC_SUBST(C_INTERF_FLAGS)
 AC_SUBST(C_PARSER_FLAGS)
 
 AC_ARG_ENABLE(rational-trees,
-	[ --enable-rational-trees support infinite rational trees ],
+	[ --enable-rational-trees    support infinite rational trees ],
 	rationaltrees="$enableval" ; rationaltrees=no)
 AC_ARG_ENABLE(coroutining,
-	[ --enable-coroutining support co-routining, attributed variables and constraints],
+	[ --enable-coroutining       support co-routining, attributed variables and constraints],
 	rationaltrees="$enableval";coroutining="$enableval", coroutining=no)
 AC_ARG_ENABLE(wam-profile,
-	[ --enable-wam-profile  support low level profiling of abstract machine ],
+	[ --enable-wam-profile       support low level profiling of abstract machine ],
 	wamprofile="$enableval", wamprofile=no)
 AC_ARG_ENABLE(depth-limit,
-	[ --enable-depth-limit  support depth-bound computation ],
+	[ --enable-depth-limit       support depth-bound computation ],
 	depthlimit="$enableval", depthlimit=no)
 AC_ARG_ENABLE(or-parallelism,
-	[ --enable-or-parallelism  support or-parallelism as: env-copy,sba,a-cow ],
+	[ --enable-or-parallelism    support or-parallelism as: env-copy,sba,a-cow ],
 	orparallelism="$enableval", orparallelism=no)
 AC_ARG_ENABLE(low-level-tracer,
 	[ --enable-low-level-tracer  support support for procedure-call tracing ],
 	lowleveltracer="$enableval", lowleveltracer=no)
 AC_ARG_ENABLE(tabling,
-	[ --enable-tabling  support tabling as: batched,local ],
+	[ --enable-tabling           support tabling as: batched,local ],
 	tabling="$enableval", tabling=no)
 AC_ARG_ENABLE(max-performance,
-	[ --enable-max-performance  try using the best flags for specific architecture ],
+	[ --enable-max-performance   try using the best flags for specific architecture ],
 	maxperformance="$enableval", maxperformance=no)
 AC_ARG_ENABLE(debug-yap,
-	[ --enable-debug-yap  enable C-debugging for YAP ],
+	[ --enable-debug-yap         enable C-debugging for YAP ],
 	debugyap="$enableval", debugyap=no)
 	
 AC_ARG_WITH(gmp,
-	[ --with-gmp[=DIR]    use GNU Multiple Precision in DIR],
+	[ --with-gmp[=DIR]           use GNU Multiple Precision in DIR],
 	if test $withval = yes; then
 		yap_cv_gmp=yes
 	elif test $withval = no; then
@@ -54,7 +57,7 @@ AC_ARG_WITH(gmp,
 	[yap_cv_gmp=yes])
 
 AC_ARG_WITH(readline,
-	[ --with-readline[=DIR]    use GNU Readline Library in DIR],
+	[ --with-readline[=DIR]      use GNU Readline Library in DIR],
 	if test $withval = yes; then
 		yap_cv_readline=yes
 	elif test $withval = no; then
@@ -65,6 +68,54 @@ AC_ARG_WITH(readline,
 		CPPFLAGS="$CPPFLAGS -I${yap_cv_readline}/include"
 	fi,
 	[yap_cv_readline=yes])
+
+AC_ARG_WITH(heap-space,
+	[ --with-heap-space[=space]  default heap size in Kbytes],
+	if test $withval = yes; then
+		yap_cv_heap_space=0
+	elif test $withval = no; then
+		yap_cv_heap_space=0
+	else
+		yap_cv_heap_space=$withval
+	fi,
+	[yap_cv_heap_space=0])
+
+AC_ARG_WITH(stack-space,
+	[ --with-stack-space[=space] default stack size in Kbytes],
+	if test $withval = yes; then
+		yap_cv_stack_space=0
+	elif test $withval = no; then
+		yap_cv_stack_space=0
+	else
+		yap_cv_stack_space=$withval
+	fi,
+	[yap_cv_stack_space=0])
+
+AC_ARG_WITH(trail-space,
+	[ --with-trail-space[=space] default trail size in Kbytes],
+	if test $withval = yes; then
+		yap_cv_trail_space=0
+	elif test $withval = no; then
+		yap_cv_trail_space=0
+	else
+		yap_cv_trail_space=$withval
+	fi,
+	[yap_cv_trail_space=0])
+
+if test $tabling = yes -o $orparallelism = yes
+then
+	AC_DEFINE(MinHeapSpace, (300*SIZEOF_INT_P))
+	AC_DEFINE(MinStackSpace,(300*SIZEOF_INT_P))
+	AC_DEFINE(MinTrailSpace,( 48*SIZEOF_INT_P))
+else
+	AC_DEFINE(MinHeapSpace, (200*SIZEOF_INT_P))
+	AC_DEFINE(MinStackSpace,(200*SIZEOF_INT_P))
+	AC_DEFINE(MinTrailSpace,( 32*SIZEOF_INT_P))
+fi
+
+eval "AC_DEFINE(UsrHeapSpace,($yap_cv_heap_space))"
+eval "AC_DEFINE(UsrStackSpace,($yap_cv_stack_space))"
+eval "AC_DEFINE(UsrTrailSpace,($yap_cv_trail_space))"
 
 AC_CANONICAL_SYSTEM
 
@@ -280,11 +331,12 @@ case $target_os in
       *hpux*)
 	#do not use the first memory quadrant
 	AC_DEFINE(FORCE_SECOND_QUADRANT)
-	#this tells ld to export all non-static symbols,
-	#otherwise no external predicates.
 	M4="/usr/bin/m4"
+	SHLIB_INTERFACE="load_shl.o"
 	if test $CC = cc -o $CC = c89
 	then
+	 #this tells ld to export all non-static symbols,
+	 #otherwise no external predicates.
 	 SHLIB_LD="ld -b -E ${LDFLAGS}"
          DO_SECOND_LD=""
          SHLIB_SUFFIX=".sl"

@@ -10,7 +10,7 @@
 * File:		Yap.h.m4						 *
 * mods:									 *
 * comments:	main header file for YAP				 *
-* version:      $Id: Yap.h.m4,v 1.16 2002-01-01 05:26:25 vsc Exp $	 *
+* version:      $Id: Yap.h.m4,v 1.17 2002-01-15 17:55:50 stasinos Exp $	 *
 *************************************************************************/
 
 #include "config.h"
@@ -770,32 +770,6 @@ typedef enum {
 
 extern prolog_exec_mode      PrologMode;
 extern int      CritLocks;
-
-#if SIZEOF_INT_P==4
-#if defined(YAPOR) || defined(TABLING)
-#define MinTrailSpace	        192
-#define MinStackSpace		1200
-#define MinHeapSpace	        1200
-#else
-#define MinTrailSpace	        128
-#define MinStackSpace		800
-#define MinHeapSpace	        800
-#endif /* YAPOR || TABLING */
-#else
-#if defined(YAPOR) || defined(TABLING)
-#define MinTrailSpace	        384
-#define MinStackSpace	        2400
-#define MinHeapSpace	        2400
-#else
-#define MinTrailSpace	        256
-#define MinStackSpace		1600
-#define MinHeapSpace		1600
-#endif /* YAPOR || TABLING */
-#endif
-
-#define DefTrailSpace		MinTrailSpace
-#define DefStackSpace	        MinStackSpace
-#define DefHeapSpace	        MinHeapSpace
 
 /************** Access to yap initial arguments ***************************/
 

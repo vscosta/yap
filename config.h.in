@@ -94,6 +94,35 @@
 /* Define the standard type of a float argument to a function */
 #define  FAFloat double		/* manual */
 
+/* Set the minimum and default heap, trail and stack size */
+#undef MinTrailSpace
+#undef MinStackSpace
+#undef  MinHeapSpace
+
+#undef UsrTrailSpace
+#undef UsrStackSpace
+#undef  UsrHeapSpace
+
+#if (UsrTrailSpace > MinTrailSpace)
+  #define DefTrailSpace	UsrTrailSpace
+#else
+  #define DefTrailSpace	MinTrailSpace
+#endif
+
+#if (UsrStackSpace > MinStackSpace)
+  #define DefStackSpace	UsrStackSpace
+#else
+  #define DefStackSpace	MinStackSpace
+#endif
+
+#if (UsrHeapSpace > MinHeapSpace)
+  #define DefHeapSpace	UsrHeapSpace
+#else
+  #define DefHeapSpace	MinHeapSpace
+#endif
+
+
+
 /* Define return type for signal	*/
 #undef  RETSIGTYPE
 
