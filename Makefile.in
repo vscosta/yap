@@ -434,45 +434,44 @@ libYap.a: $(LIB_OBJECTS)
 install: @INSTALL_COMMAND@
 
 install_unix:
-	-mkdir -p $(BINDIR)
-	$(INSTALL_PROGRAM) -m 755 yap $(BINDIR)/yap
-	-mkdir -p $(YAPLIBDIR)
-	$(INSTALL_DATA) -m 644 startup $(YAPLIBDIR)/startup
-	$(INSTALL_DATA) -m 644 libYap.a  $(LIBDIR)/libYap.a
-	(cd $(srcdir) ; tar cf - library) | (cd $(YAPLIBDIR) ; tar xf -)
-	$(INSTALL_DATA) $(srcdir)/LGPL/icon_address.pl $(YAPLIBDIR)/library
-	$(INSTALL_DATA) $(srcdir)/LGPL/pillow.pl $(YAPLIBDIR)/library
-	(cd $(srcdir)/CLPQR ; tar cf - .) | (cd $(YAPLIBDIR)/library ; tar xf -)
-	(cd $(srcdir)/CHR ; tar cf - .) | (cd $(YAPLIBDIR)/library ; tar xf -)
+	-mkdir -p $(DESTDIR)$(BINDIR)
+	$(INSTALL_PROGRAM) -m 755 yap $(DESTDIR)$(BINDIR)/yap
+	-mkdir -p $(DESTDIR)$(YAPLIBDIR)
+	$(INSTALL_DATA) -m 644 startup $(DESTDIR)$(YAPLIBDIR)/startup
+	$(INSTALL_DATA) -m 644 libYap.a  $(DESTDIR)$(LIBDIR)/libYap.a
+	(cd $(srcdir) ; tar cf - library) | (cd $(DESTDIR)$(YAPLIBDIR) ; tar xf -)
+	$(INSTALL_DATA) $(srcdir)/LGPL/icon_address.pl $(DESTDIR)$(YAPLIBDIR)/library
+	$(INSTALL_DATA) $(srcdir)/LGPL/pillow.pl $(DESTDIR)$(YAPLIBDIR)/library
+	(cd $(srcdir)/CLPQR ; tar cf - .) | (cd $(DESTDIR)$(YAPLIBDIR)/library ; tar xf -)
+	(cd $(srcdir)/CHR ; tar cf - .) | (cd $(DESTDIR)$(YAPLIBDIR)/library ; tar xf -)
 	@INSTALL_DLLS@ (cd library/regex; make install)
-	-mkdir -p $(INCLUDEDIR)
-	for h in $(INTERFACE_HEADERS); do $(INSTALL) $$h $(INCLUDEDIR); done
+	-mkdir -p $(DESTDIR)$(INCLUDEDIR)
+	for h in $(INTERFACE_HEADERS); do $(INSTALL) $$h $(DESTDIR)$(INCLUDEDIR); done
 
 install_mingw32:
-	-mkdir $(ROOTDIR)
-	-mkdir $(BINDIR)
-	-mkdir $(ROOTDIR)/lib
-	-mkdir $(YAPLIBDIR)
-	-mkdir $(ROOTDIR)/include
-	-mkdir $(INCLUDEDIR)
-	$(INSTALL_PROGRAM) -m 755 yap.exe $(BINDIR)/yap.exe
-	$(INSTALL_PROGRAM) -m 755 yap.dll $(BINDIR)/yap.dll
-	$(INSTALL_PROGRAM) -m 755 startup $(YAPLIBDIR)/startup
-	$(INSTALL) $(srcdir)/include/c_interface.h $(INCLUDEDIR)/c_interface.h
+	-mkdir $(DESTDIR)$(ROOTDIR)
+	-mkdir $(DESTDIR)$(BINDIR)
+	-mkdir $(DESTDIR)$(ROOTDIR)/lib
+	-mkdir $(DESTDIR)$(YAPLIBDIR)
+	-mkdir $(DESTDIR)$(ROOTDIR)/include
+	-mkdir $(DESTDIR)$(INCLUDEDIR)
+	$(INSTALL_PROGRAM) -m 755 yap.exe $(DESTDIR)$(BINDIR)/yap.exe
+	$(INSTALL_PROGRAM) -m 755 yap.dll $(DESTDIR)$(BINDIR)/yap.dll
+	$(INSTALL_PROGRAM) -m 755 startup $(DESTDIR)$(YAPLIBDIR)/startup
+	$(INSTALL) $(HEADERS) $(DESTDIR)$(INCLUDEDIR)
+	$(INSTALL) $(srcdir)/include/c_interface.h $(DESTDIR)$(INCLUDEDIR)/c_interface.h
 	$(INSTALL) config.h $(INCLUDEDIR)/config.h
-	(cd $(srcdir) ; tar cf - library) | (cd $(YAPLIBDIR) ; tar xf -)
-	$(INSTALL_DATA) $(srcdir)/LGPL/icon_address.pl $(YAPLIBDIR)/library
-	$(INSTALL_DATA) $(srcdir)/LGPL/pillow.pl $(YAPLIBDIR)/library
-	(cd $(srcdir)/CLPQR ; tar cf - .) | (cd $(YAPLIBDIR)/library ; tar xf -)
-	(cd $(srcdir)/CHR ; tar cf - .) | (cd $(YAPLIBDIR)/library ; tar xf -)
+	(cd $(srcdir) ; tar cf - library) | (cd $(DESTDIR)$(YAPLIBDIR) ; tar xf -)
+	$(INSTALL_DATA) $(srcdir)/LGPL/icon_address.pl $(DESTDIR)$(YAPLIBDIR)/library
+	$(INSTALL_DATA) $(srcdir)/LGPL/pillow.pl $(DESTDIR)$(YAPLIBDIR)/library
+	(cd $(srcdir)/CLPQR ; tar cf - .) | (cd $(DESTDIR)$(YAPLIBDIR)/library ; tar xf -)
+	(cd $(srcdir)/CHR ; tar cf - .) | (cd $(DESTDIR)$(YAPLIBDIR)/library ; tar xf -)
 	(cd library/regex; make install_mingw32)
-	-mkdir $(INCLUDEDIR)
-	$(INSTALL) $(HEADERS) $(INCLUDEDIR)
 
 install_library: libYap.a
-	$(INSTALL_DATA) -m 644 libYap.a  $(LIBDIR)/libYap.a
-	-mkdir $(INCLUDEDIR)
-	$(INSTALL) $(HEADERS) $(INCLUDEDIR)
+	$(INSTALL_DATA) -m 644 libYap.a  $(DESTDIR)$(LIBDIR)/libYap.a
+	-mkdir $(DESTDIR)$(INCLUDEDIR)
+	$(INSTALL) $(HEADERS) $(DESTDIR)$(INCLUDEDIR)
 
 ##########
 TAGS: $(C_SOURCES) $(PL_SOURCES) $(HEADERS)
@@ -486,10 +485,10 @@ depend: $(HEADERS) $(C_SOURCES)
           sed 's|.*/\([^:]*\):|\1:|' > .depend ;\
 	fi
 
-clean:
+clean: clean_docs
 	rm -f *.o *~ $(GHEADERS) *.BAK
 
-realclean: clean
+realclean: clean realclean_docs
 	rm -f yap startup config.log config.cache config.h
 
 dist:
@@ -527,27 +526,59 @@ yap.dll: $(HEADERS) $(LIB_OBJECTS) $(DEF_FILE)
 	$(LD) $(EXP_FILE) --dll -o $(DLLNAME) $(LIB_OBJECTS) $(DLL_LIBS) -e $(ENTRY_FUNCTION)
 
 install_info:
-	cd $(srcdir)/docs ; \
 	make info; \
-	$(INSTALL) yap.info* $(INFODIR); \
-	if test -e $(INFODIR)/emacs.bz2; then \
-	  bzip2 --quiet --force $(INFODIR)/yap.info*; \
+	$(INSTALL) yap.info* $(DESTDIR)$(INFODIR); \
+	if test -e $(DESTDIR)$(INFODIR)/emacs.bz2; then \
+	  bzip2 --quiet --force $(DESTDIR)$(INFODIR)/yap.info*; \
 	else \
-	  if test -e $(INFODIR)/emacs.gz; then \
-	  gzip --quiet --force $(INFODIR)/yap.info*; \
+	  if test -e $(DESTDIR)$(INFODIR)/emacs.gz; then \
+	  gzip --quiet --force $(DESTDIR)$(INFODIR)/yap.info*; \
 	  fi \
 	fi; \
-	$(INSTALL_INFO) --quiet --section "Programming Languages" yap.info $(INFODIR)/dir; \
+	$(INSTALL_INFO) --quiet --section "Programming Languages" yap.info $(DESTDIR)$(INFODIR)/dir; \
 	cd ../LGPL/pillow/doc ; \
-	$(INSTALL) pillow_doc.info $(INFODIR); \
-	if test -e $(INFODIR)/emacs.bz2; then \
-	  bzip2 --quiet --force $(INFODIR)/pillow_doc.info; \
+	$(INSTALL) pillow_doc.info $(DESTDIR)$(INFODIR); \
+	if test -e $(DESTDIR)$(INFODIR)/emacs.bz2; then \
+	  bzip2 --quiet --force $(DESTDIR)$(INFODIR)/pillow_doc.info; \
 	else \
-	  if test -e $(INFODIR)/emacs.gz; then \
-	  gzip --quiet --force $(INFODIR)/pillow_doc.info; \
+
+	  if test -e $(DESTDIR)$(INFODIR)/emacs.gz; then \
+	  gzip --quiet --force $(DESTDIR)$(INFODIR)/pillow_doc.info; \
 	  fi \
 	fi; \
 	$(INSTALL_INFO) --quiet --section "Programming Languages" --entry="`cat pillow_doc.infoindex`" pillow_doc.info $(INFODIR)/dir
+
+info: yap.info
+
+yap.info: $(srcdir)/docs/yap.tex 
+	$(MAKEINFO) $(srcdir)/docs/yap.tex
+
+html: yap.html
+
+yap.html: $(srcdir)/docs/yap.tex
+	$(TEXI2HTML) $(srcdir)/docs/yap.tex
+
+dvi: yap.dvi
+
+yap.dvi: $(srcdir)/docs/yap.tex
+	$(TEXI2DVI) $(srcdir)/docs/yap.tex
+
+ps:	yap.ps
+
+yap.ps: $(srcdir)/docs/yap.dvi
+	dvips -o yap.ps $(srcdir)/docs/yap
+
+pdf: yap.pdf
+
+yap.pdf: $(srcdir)/docs/yap.tex
+	$(TEXI2PDF) $(srcdir)/docs/yap.tex
+
+clean_docs:
+	rm -f *.aux *.ca *.cas *.cn *.cns *.cp *.cps *.cy *.cys *.dvi *.fn *.fns *.ky *.log *.sa *.sas *.sn *.sns *.sy *.sys *~ *.tp *.vr *.toc *.pg
+
+realclean_docs: clean_docs
+	rm -f yap.ps yap.html yap_toc.html yap.pdf yap.info*
+
 
 
 # DO NOT DELETE THIS LINE -- make depend depends on it.

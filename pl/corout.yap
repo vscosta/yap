@@ -540,8 +540,12 @@ call_residue(Goal,Residue) :-
           '$set_svar_list'(CurrentList, CurrentAttsList),
 	  '$execute'(NGoal),
 	  '$call_residue_continuation'(NGoal,NResidue),
-	  '$copy_term_but_not_constraints'(NGoal+NResidue,Goal+Residue),
-          ( '$set_svar_list'(OldList,OldAttsList) ; '$set_svar_list'(CurrentList,CurrentAttsList), fail )
+	    ( '$set_svar_list'(OldList,OldAttsList),
+	       Goal = NGoal,
+	       Residue = NResidue
+		;
+		'$set_svar_list'(CurrentList,CurrentAttsList), fail
+	    )
            ;
           '$set_svar_list'(OldList,OldAttsList), fail
         ).

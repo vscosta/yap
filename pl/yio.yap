@@ -34,12 +34,6 @@ open(F,T,S,Opts) :-
 	throw(error(instantiation_error,open(Source,M,T,N))).
 '$open2'(Source,M,T,N) :- nonvar(T), !,
 	throw(error(type_error(variable,T),open(Source,M,T,N))).
-'$open2'(user,read,'$stream'(0),_) :- !.
-'$open2'(user,'$csult','$stream'(0),_) :- !.
-'$open2'(user,_,'$stream'(1),_) :- !.
-'$open2'(user_input,read,'$stream'(0),_) :- !.
-'$open2'(user_input,'$csult','$stream'(0),_) :- !.
-'$open2'(user_output,_,'$stream'(1),_) :- !.
 '$open2'(File,Mode,Stream,N) :-
 	'$open'(File,Mode,Stream,N).
 
@@ -175,7 +169,7 @@ open(F,T,S,Opts) :-
 '$check_open_alias_arg'(X, G) :- var(X), !,
 	throw(error(instantiation_error,G)).
 '$check_open_alias_arg'(X,G) :- atom(X), !,
-	( '$check_if_valid_new_alias'(X), X \= user, X\= user_input, X\=user_output, X\= user_error ->
+	( '$check_if_valid_new_alias'(X), X \= user ->
 	    true ;
 	    throw(error(permission_error(open, source_sink, alias(X)),G))
 	).
@@ -260,7 +254,7 @@ see(F) :- open(F,read,Stream), set_input(Stream).
 
 seeing(File) :- current_input(Stream),
 	'$user_file_name'(Stream,NFile),
-	( NFile = user_input -> File = user ; NFile = File).
+	( '$user_file_name'(user_input,NFile) -> File = user ; NFile = File).
 
 seen :- current_input(Stream), close(Stream), set_input(user).
 
@@ -277,7 +271,7 @@ tell(F) :- open(F,write,Stream), set_output(Stream).
 		
 telling(File) :- current_output(Stream),
 	'$user_file_name'(Stream,NFile),
-	( NFile = user_output -> File = user ; File = NFile ).
+	( '$user_file_name'(user_output,NFile) -> File = user ; File = NFile ).
 
 told :- current_output(Stream), close(Stream), set_output(user).
 
@@ -814,8 +808,6 @@ at_end_of_stream(S) :-
 
 consult_depth(LV) :- '$show_consult_level'(LV).
 
-absolute_file_name(user,user) :- !.
-absolute_file_name(user_input,user_input) :- !.
 absolute_file_name(RelFile,AbsFile) :-
 	'$find_in_path'(RelFile,PathFile),
 	'$exists'(PathFile,'$csult', AbsFile).

@@ -1084,6 +1084,10 @@ restore_codes(void)
   heap_regs->term_dollar_u = AtomTermAdjust(heap_regs->term_dollar_u);
 #endif
   heap_regs->term_refound_var = AtomTermAdjust(heap_regs->term_refound_var);
+  heap_regs->file_aliases =
+    (void *)AddrAdjust((ADDR)heap_regs->file_aliases);
+  heap_regs->yap_lib_dir =
+    (char *)AddrAdjust((ADDR)heap_regs->yap_lib_dir);
   heap_regs->pred_goal_expansion =
     (PredEntry *)AddrAdjust((ADDR)heap_regs->pred_goal_expansion);
   heap_regs->pred_meta_call =

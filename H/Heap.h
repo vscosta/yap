@@ -10,7 +10,7 @@
 * File:		Heap.h         						 *
 * mods:									 *
 * comments:	Heap Init Structure					 *
-* version:      $Id: Heap.h,v 1.1.1.1 2001-04-09 19:53:39 vsc Exp $	 *
+* version:      $Id: Heap.h,v 1.2 2001-04-16 16:41:04 vsc Exp $	 *
 *************************************************************************/
 
 /* information that can be stored in Code Space */
@@ -247,6 +247,9 @@ typedef struct various_codes {
   void *last_wtime;
   PredEntry *pred_goal_expansion;
   PredEntry *pred_meta_call;
+  UInt n_of_file_aliases;
+  UInt sz_of_file_aliases;
+  void * file_aliases;
   void *foreign_code_loaded;
   char *yap_lib_dir;
 #if defined(YAPOR) || defined(TABLING)
@@ -418,6 +421,9 @@ typedef struct various_codes {
 #define  TermReFoundVar           heap_regs->term_refound_var
 #define  PredGoalExpansion        heap_regs->pred_goal_expansion
 #define  PredMetaCall             heap_regs->pred_meta_call
+#define  NOfFileAliases           heap_regs->n_of_file_aliases
+#define  SzOfFileAliases          heap_regs->sz_of_file_aliases
+#define  FileAliases              ((AliasDesc)(heap_regs->file_aliases))
 #define  ForeignCodeLoaded        heap_regs->foreign_code_loaded
 #define  Yap_LibDir               heap_regs->yap_lib_dir
 #define  DeadClauses              heap_regs->dead_clauses

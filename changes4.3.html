@@ -4,6 +4,25 @@
 
 <H1 ALIGN=CENTER>Changes in YAP4.3</H1>
 
+<H2 ALIGN=CENTER>Yap-4.3.19:</H2>
+<UL>
+      <LI> FIXED: call_residue should *unify* back constraints *after*
+      restoring original suspension lists.
+      <LI> FIXED: include Mandrake's $(DESTDIR) patches in Makefiles
+      (by Lenny Cartier).
+      <LI> FIXED: close(user_error) now closes stream currently
+      associated with user_error.
+      <LI> FIXED: open(user_*,X,Y) is not special any longer (SICStus compatibility).
+      <LI> FIXED: prolog_flag({max,min}_integer,X) with GMP.
+      <LI> FIXED: prolog_flag(bounded,false) with GMP.
+      <LI> NEW: prolog_flag(user_{input,output,error},X) (request from
+      Nicos Angelopoulos).
+      <LI> FIXED: allow close(file_alias).
+      <LI> FIXED: user_input, user_output and user_error are now
+      aliases, like all the others.
+      <LI> FIXED: restore YapLibDir.
+</UL>
+
 <H2 ALIGN=CENTER>Yap-4.3.18:</H2>
 <UL>
       <LI> FIXED: alignment bug with walltime in sparc/solaris.

@@ -21,14 +21,6 @@
 %
 true :- true. % otherwise, $$compile will ignore this clause.
 
-% proccess an input clause
-'$$c'(G,G0,L) :-
-	'$head_and_body'(G,H,_), 
-	'$inform_of_clause'(H,L),
-	'$flags'(H, Fl, Fl),
-	( Fl /\ 16'002008 =\= 0 -> '$assertz_dynamic'(L,G,G0) ;
-	    '$$compile_stat'(G,G0,L,H) ).
-
 '$live' :-
 	'$init_system',
 	repeat,
@@ -92,32 +84,11 @@ open(Source,M,T) :- var(M), !,
 	throw(error(instantiation_error,open(Source,M,T))).
 open(Source,M,T) :- nonvar(T), !,
 	throw(error(type_error(variable,T),open(Source,M,T))).
-open(user,read,'$stream'(0)) :- !.
-open(user,'$csult','$stream'(0)) :- !.
-open(user,_,'$stream'(1)) :- !.
-open(user_input,read,'$stream'(0)) :- !.
-open(user_input,'$csult','$stream'(0)) :- !.
-open(user_input,append,'$stream'(0)) :- !.
-open(user_input,write,V) :- !,
-	'$get_value'(fileerrors,1),
-	throw(error(permission_error(open,source_sink,user_input),open(user_input,write,V))).
-open(user_output,write,'$stream'(1)) :- !.
-open(user_output,append,'$stream'(1)) :- !.
-open(user_output,read,'$stream'(1)) :-
-	'$get_value'(fileerrors,1),
-	throw(error(permission_error(open,source_sink,user_input),open(user_input,write,'$stream'(1)))).
 open(File,Mode,Stream) :-
 	'$open'(File,Mode,Stream,0).
 
 close(V) :- var(V), !,
 	throw(error(instantiation_error,close(V))).
-close(user) :- !.
-close(user_input) :- !.
-close(user_output) :- !.
-close(user_error) :- !.
-close('$stream'(0)) :- !.
-close('$stream'(1)) :- !.
-close('$stream'(2)) :- !.
 close(File) :-
 	atom(File), !,
 	(
@@ -125,9 +96,9 @@ close(File) :-
 	    current_stream(_,_,Stream),
 	    '$user_file_name'(Stream,File)
         ->
-	    close(Stream)
+	    '$close'(Stream)
 	;
-	    throw(error(domain_error(stream,File),close(File)))
+	    '$close'(File)
 	).
 close(Stream) :-
 	'$close'(Stream).
@@ -984,7 +955,7 @@ break :- '$get_value'('$break',BL), NBL is BL+1,
 
 '$loop'(Stream,Status) :-
 	'$current_module'(OldModule),
-	'$add_alias_to_stream'('$loop_stream',Stream),
+	'$change_alias_to_stream'('$loop_stream',Stream),
 	repeat,
 		( current_stream(_,_,Stream) -> true
 		 ; '$current_module'(_,OldModule), '$abort_loop'(Stream)
@@ -1035,8 +1006,8 @@ break :- '$get_value'('$break',BL), NBL is BL+1,
 	  '$set_value'(fileerrors,V), fail).
 
 
-'$find_in_path'(user,user) :- !.
-'$find_in_path'(user_input,user) :- !.
+'$find_in_path'(user,user_input) :- !.
+'$find_in_path'(user_input,user_input) :- !.
 '$find_in_path'(library(File),NewFile) :- !,
 	'$find_library_in_path'(File, NewFile).
 '$find_in_path'(File,File) :- '$exists'(File,'$csult'), !.

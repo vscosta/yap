@@ -10,7 +10,7 @@
 * File:		Yap.h.m4						 *
 * mods:									 *
 * comments:	main header file for YAP				 *
-* version:      $Id: Yap.h.m4,v 1.1.1.1 2001-04-09 19:53:46 vsc Exp $	 *
+* version:      $Id: Yap.h.m4,v 1.2 2001-04-16 16:41:04 vsc Exp $	 *
 *************************************************************************/
 
 #include "config.h"
@@ -405,6 +405,7 @@ typedef enum {
   EXISTENCE_ERROR_STREAM,
   INSTANTIATION_ERROR,
   PERMISSION_ERROR_ACCESS_PRIVATE_PROCEDURE,
+  PERMISSION_ERROR_NEW_ALIAS_FOR_STREAM,
   PERMISSION_ERROR_CREATE_ARRAY,
   PERMISSION_ERROR_CREATE_OPERATOR,
   PERMISSION_ERROR_INPUT_BINARY_STREAM,

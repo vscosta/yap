@@ -159,6 +159,10 @@ Built In Predicates
 * Misc:: Miscellaneous Predicates
 
 
+Subnodes of Running
+* Interactive Mode:: Running Yap Interactively
+* Script Mode:: Running Prolog files as scripts
+
 Subnodes of Syntax
 * Formal Syntax:: Syntax of Terms
 * Tokens:: Syntax of Prolog tokens
@@ -374,12 +378,12 @@ We are happy to include in YAP several excellent packages developed
 under separate licenses. Our thanks to the authors for their kind
 authorisation to include these packages.
 
-The packages are, in alphabeticall order:
+The packages are, in alphabetical order:
 
 @itemize @bullet
 @item The CHR package developed at TUM by
-Ludwig-Maximilians-Universitaet Muenchen (LMU) by Dr.\ Fruehwirth Thom
-and by Dr.\ Christian Holzbaur. The package is distributed under license
+Ludwig-Maximilians-Universitaet Muenchen (LMU) by Dr. Fruehwirth Thom
+and by Dr. Christian Holzbaur. The package is distributed under license
 from LMU (Ludwig-Maximilians-University), Munich, Germany:
 
 Permission is granted to copy and distribute modified versions of this
@@ -506,12 +510,16 @@ application, but results in performance loss.
 instructions. This is useful when developing YAP, should not be so
 useful for normal users.
 
+ @item @code{--enable-tabling=@{local,batched@}} allows one of the two
+forms of tabling. This option is still experimental.
+
  @item @code{--enable-parallelism=@{env-copy,sba,a-cow@}} allows
 or-parallelism supported by one of these three forms. This option is
 still highly experimental.
 
- @item @code{--enable-tabling=@{local,batched@}} allows one of the two
-forms of tabling. This option is still experimental.
+ @item @code{--with-gmp[=DIR]} give a path to where one can find the
+@code{GMP} library if not installed in the default path.
+
 @end itemize
 
 Next follow machine dependent details:
@@ -594,8 +602,9 @@ YAP_EXTRAS= ... -m486 -DBP_FREE=1
 
 @item Pentium:
 @example
-YAP_EXTRAS= ... -m486 -malign-loops=2 -malign-jumps=2 -malign-functions=2
-@end examplef
+YAP_EXTRAS= ... -m486 -malign-loops=2 -malign-jumps=2 \
+                      -malign-functions=2
+@end example
 
 @item PentiumPro and other recent Intel and AMD machines:
 PentiumPros are known not to require alignment. Check your version of
@@ -615,16 +624,21 @@ Be careful. At least for some versions of @code{GCC}, compiling with
 @code{-g} seems to result in broken code.
 
 @item WIN32: The cygwin environment is our suggested approach. The
-CygWin environment is available from the URL
-@code{http://sourceware.cygnus.com} and mirrors. Yap should compile
-under cygwin 20.1 but we suggest using the newer 1.1.1 (April Release),
-which has a more complete implementation of the WIN32 API and uses
-GCC2.95.2 instead of egcs. The compilation steps under the cygwin shell
-are as follows:
+CygWin environment is available from the URL:
+
+
+@code{http://sourceware.cygnus.com}
+
+@noindent
+and mirrors. Yap should compile under cygwin 20.1 but we suggest using
+the newer 1.1.1 (April Release), which has a more complete
+implementation of the WIN32 API and uses GCC2.95.2 instead of egcs. The
+compilation steps under the cygwin shell are as follows:
 
 @example
 mkdir cyg
-$YAPSRC/configure --enable-coroutining --enable-max-performance
+$YAPSRC/configure --enable-coroutining \\
+                  --enable-max-performance
 make
 make install
 @end example
@@ -635,8 +649,9 @@ need the cygwin dll. It instead accesses the system's @code{CRTDLL.DLL}
 @code{C} run time library supplied with Win32 platforms through the
 mingw32 interface.
 
-You can also check the default installation path which is set to
-"/PROGRA~1/Yap" in the Makefile. This corresponds to "c:\Program Files\Yap".
+You should check the default installation path which is set to
+@code{/PROGRA~1/Yap} in the standard Makefile. This string will usually
+be expanded into @code{c:\Program Files\Yap} by Windows.
 
 @end table
 
@@ -673,10 +688,11 @@ fetch these files from @var{$YAPSRC\VC\include}.
 @item You may want to go to @code{Build.Set Active Configuration} and set @code{Project
 Type} to @code{Release}
 
-@item set @code{Project.Project Settings.C/C++.Preprocessor.Additional
-Include Directories} to include the directories @var{$YAPSRC\H}, @var{$YAPSRC\VC\include},
-@var{$YAPSRC\OPTYap} and @var{$YAPSRC\include}.
-The syntax is:
+@item To use Yap's own include directories you have to set the Project
+option  @code{Project.Project Settings.C/C++.Preprocessor.Additional
+Include Directories} to include the directories @var{$YAPSRC\H},
+@var{$YAPSRC\VC\include}, @var{$YAPSRC\OPTYap} and
+@var{$YAPSRC\include}.  The syntax is:
 
 @example
 $YAPSRC\H, $YAPSRC\VC\include, $YAPSRC\OPTYap, $YAPSRC\include
@@ -754,7 +770,8 @@ YAP should compile under the Silicon Graphic's @code{cc} compiler,
 although we advise using the GNUCC compiler, if available.
 
 @table @code
-@item 64 bit support should work by using (under Bourne shell syntax):
+@item 64 bit
+Support for 64 bits should work by using (under Bourne shell syntax):
 @example
 CC="cc -64" $YAP_SRC_PATH/configure --...
 @end example
@@ -762,19 +779,27 @@ CC="cc -64" $YAP_SRC_PATH/configure --...
 @node Run, Syntax, Install, Top
 @chapter Running YAP
 
-@cindex booting
-The operating system command for invoking YAP is described
-below.
+@menu
+* Interactive Mode:: Running Yap Interactively
+* Script Mode:: Running Prolog files as scripts
+@end menu
 
-Assuming that YAP is in the user's search path, it can be
-invoked under Unix with the following command:
+@cindex booting
+We next describe how to invoke Yap in Unix systems.
+
+@section Running Yap Interactively
+@node Interactive Mode, Script Mode, ,Running Yap
+
+Most often you will want to use Yap in interactive mode. Assuming that
+YAP is in the user's search path, the top-level can be invoked under
+Unix with the following command:
 
 @example
 yap [-s n] [-h n] [-a n] [-c IP_HOST port ] [filename]
 @end example
 
 @noindent
-where all the arguments and flags are optional and have the following meaning:
+All the arguments and flags are optional and have the following meaning:
 @table @code
 @item -?
 print a short error message.
@@ -790,8 +815,8 @@ compile the Prolog file @var{YAP_FILE} before entering the top-level.
 compile the Prolog file @var{YAP_FILE} and then halt. This option is
 useful for implementing scripts.
 @item -b @var{BOOT_FILE}
-boot from Prolog @var{BOOT_FILE}. The filename must define the predicate
-'$live'/0. 
+boot code is in Prolog file @var{BOOT_FILE}. The filename must define
+the predicate '$live'/0.
 @item -c @t{IP_HOST} @t{port}
 connect standard streams to host @t{IP_HOST} at port @t{port}
 @item filename
@@ -830,12 +855,15 @@ YAP always tries to find saved states from the current directory
 first. If it cannot it will use the environment variable YAPLIBDIR, if
 defined, or search the default library directory.
 
-YAP can now be used to run Prolog files as scripts in Unix systems. A
-simple example is shown next:
+@section Running Yap as a script
+@node Script Mode, ,Interactive Mode, Running Yap
+
+YAP can also be used to run Prolog files as scripts, at least in
+Unix-like environments. A simple example is shown next:
 
 @example
 @cartouche
-#!yap -L $0  "$@"
+#!/usr/local/bin/yap -L $0  "$@"
 #
 # Hello World script file using Yap
 #
@@ -845,13 +873,33 @@ simple example is shown next:
 @end cartouche
 @end example
 
-You should write the first line as shown in the example. The @code{#!}
-characters specify that the Operating System should call @code{yap}. The
-@code{-L} flag indicates that YAP should consult the file "$0" at
-booting and then halt. The remaining arguments are then passed to
-YAP. Note that YAP will skip the first lines if they start with # (the
-comment sign for Unix's shell). YAP will consult the file and
-execute any commands.
+The @code{#!}  characters specify that the script should call the binary
+file Yap. Notice that many systems will require the complete path to the
+Yap binary. The @code{-L} flag indicates that YAP should consult the
+file "$0" at booting and then halt. The remaining arguments are then
+passed to YAP. Note that YAP will skip the first lines if they start
+with @code{#} (the comment sign for Unix's shell). YAP will consult the
+file and execute any commands.
+
+A slightly more sophisticated example is:
+
+@example
+@cartouche
+#!/usr/bin/yap -L $0  "$@"
+#
+# Hello World script file using Yap
+#
+
+:- initialization(main).
+
+main :- write('Hello World'), nl.
+
+@end cartouche
+@end example
+
+The @code{initialization} directive tells Yap to execute the goal main
+after consulting the file. Source code is thus compiled and @code{main}
+executed at the end.
 
 @node Syntax, Loading Programs, Run, Top
 @chapter Syntax
@@ -1061,8 +1109,10 @@ Strings are described by the following rules:
   string --> '"' string_quoted_characters '"'
 
   string_quoted_characters --> '"' '"' string_quoted_characters
-  string_quoted_characters --> '\' escape_sequence string_quoted_characters
-  string_quoted_characters --> string_character string_quoted_characters
+  string_quoted_characters --> '\'
+                          escape_sequence string_quoted_characters
+  string_quoted_characters -->
+                          string_character string_quoted_characters
 
   escape_sequence --> 'a' | 'b' | 'r' | 'f' | 't' | 'n' | 'v'
   escape_sequence --> '\' | '"' | ''' | '`'
@@ -2173,7 +2223,7 @@ Prolog standard the default action is @code{error}).
 
 After defining @code{undefined/1} by:
 @example
-undefined(A) :- write('Undefined predicate: '), write(A), fail.
+undefined(A) :- format('Undefined predicate: ~w~n'), fail.
 @end example
 @noindent
 and executing the goal:
@@ -2397,14 +2447,6 @@ The predicate holds when at least one of the arguments is ground
 (otherwise, an error message will be displayed). The argument @var{I} must
 be unifiable with a number, and the argument @var{L} must be unifiable
 with an atom representing the number.
-
-The ISO-Prolog standard dictates that @code{number_chars/2} should unify
-the second argument with a list of one-char atoms, and not the character
-codes. For compatibility with previous versions of YAP, and
-with other Prolog implementations, YAP unifies the second
-argument with the character codes, as in @code{number_codes/2}. Use the
-@code{set_prolog_flag(to_chars_mode,iso)} to obtain ISO standard
-compatibility.
 
 @item char_code(?@var{A},?@var{I}) [ISO]
 @findex char_code/2
@@ -3109,13 +3151,13 @@ one is returned by @code{stream_property/2}
 @findex close/1
 @syindex close/1
 @cyindex close/1
-Closes the stream @var{S}. If @var{S} does not stand for a stream  currently
-opened an error is reported. The streams @code{user_input},
+Closes the stream @var{S}. If @var{S} does not stand for a stream
+currently opened an error is reported. The streams @code{user_input},
 @code{user_output}, and @code{user_error} can never be closed.
 
-By default, @code{code/1} will also try to close a stream for a given
-file name. This feature is not available in ISO or SICStus languages
-mode and is deprecated.
+By default, give a file name, @code{close/1} will also try to close a
+corresponding open stream. This feature is not available in ISO or
+SICStus languages mode and is deprecated.
 
 @item close(+@var{S},+@var{O}) [ISO]
 @findex close/2
@@ -3517,7 +3559,8 @@ The next argument must be a floating point number. The float @var{F}, the number
 As an example:
 
 @example
-?- format("~8e, ~8E, ~8f, ~8g, ~8G~w",[3.14,3.14,3.14,3.14,3.14,3.14]).
+?- format("~8e, ~8E, ~8f, ~8g, ~8G~w",
+          [3.14,3.14,3.14,3.14,3.14,3.14]).
 3.140000e+00, 3.140000E+00, 3.140000, 3.14, 3.143.14
 @end example
 
@@ -3577,7 +3620,8 @@ The next argument must be an integer, and @var{N} is interpreted as a
 radix, such that @code{2 <= N <= 3} (the default is 8).
 
 @example
-?- format("~2r, 0x~16r, ~r",[150000, 150000, 150000]).
+?- format("~2r, 0x~16r, ~r",
+          [150000, 150000, 150000]).
 100100100111110000, 0x249f0, 444760
 @end example
 
@@ -3589,7 +3633,8 @@ Similar to '~NR'. The next argument must be an integer, and @var{N} is
 interpreted as a radix, such that @code{2 <= N <= 3} (the default is 8).
 
 @example
-?- format("~2r, 0x~16r, ~r",[150000, 150000, 150000]).
+?- format("~2r, 0x~16r, ~r",
+          [150000, 150000, 150000]).
 100100100111110000, 0x249F0, 444760
 @end example
 
@@ -5159,7 +5204,9 @@ simple clock:
 @example
 loop :- loop.
 
-ticker :- write('.'), flush_output, get_value(tick, yes), alarm(1,ticker,_).
+ticker :- write('.'), flush_output,
+          get_value(tick, yes),
+          alarm(1,ticker,_).
 
 :- set_value(tick, yes), alarm(1,ticker,_), loop.
 @end example
@@ -5176,7 +5223,8 @@ a certain procedure does not take longer than a certain amount of time:
 @example
 loop :- loop.
 
-:- alarm(10, throw(ball), _), catch(loop, ball, format('Quota exhausted.~n',[])).
+:- alarm(10, throw(ball), _),
+   catch(loop, ball, format('Quota exhausted.~n',[])).
 @end example
 In this case after @code{10} seconds our @code{loop} is interrupted,
 @code{ball} is thrown,  and the handler writes @code{Quota exhausted}.
@@ -5267,12 +5315,14 @@ list_profile :-
         findall(D-P,profile_data(P,calls,D),LP),
         % sort them
         sort(LP,SLP),
-        % and output (note the most often called predicates will come last
+        % output so that the most often called
+        % predicates will come last:
         write_profile_data(SLP).
 
 write_profile_data([]).
 write_profile_data([D-P|SLP]) :-
-        % just swap the two calls to get most often called predicates first.
+        % swap the two calls if you want the most often
+        %  called predicates first.
         format('~w: ~w~n', [P,D]),
         write_profile_data(SLP).
 @end example
@@ -5509,7 +5559,8 @@ Stack space : 1523712
 90 msec. for 5 heap overflows.
 90 msec. for 3 stack overflows.
 0 msec. for 0 trail overflows.
-800 msec. for 3 garbage collections which collected 208348 bytes.
+800 msec. for 3 garbage collections which 
+             collected 208348 bytes.
 Runtime : 23.07 sec.
 @end example
 
@@ -5596,13 +5647,6 @@ Space in kbytes currently being used and still available for the trail.
 @* 
 This gives the clock time in milliseconds since starting Prolog.
 
-@item write_strings
-@findex  write_strings (yap_flag/2 option)
-@* Writable flag telling whether the system should write lists of
-integers that are writable character codes using the list notation. It
-is @code{on} if enables or @code{off} if disabled. The default value for
-this flag is @code{off}.
-
 @end table
 
 @item yap_flag(?@var{Param},?@var{Value})
@@ -5616,8 +5660,8 @@ Set or read system properties for @var{Param}:
 @item bounded [ISO]
 @findex bounded (yap_flag/2 option)
 @*
-Read-only flag telling whether integers are bounded. Takes the value
-@code{true} for the current version of YAP.
+Read-only flag telling whether integers are bounded. The value depends
+on whether YAP uses the GMP library or not.
 
 @item char_conversion [ISO]
 @findex  char_conversion (yap_flag/2 option)
@@ -5718,13 +5762,17 @@ Read-only flag telling the maximum arity of a functor. Takes the value
 @findex max_integer (yap_flag/2 option)
 @*
 Read-only flag telling the maximum integer in the
-implementation. Depends on machine and Operating System architecture.
+implementation. Depends on machine and Operating System
+architecture, and on whether YAP uses the @code{GMP} multiprecision
+library. If @code{bounded} is false, requestes for @code{max_integer}
+will fail.
 
 @item min_integer [ISO]
 @findex min_integer (yap_flag/2 option)
-@*
-Read-only flag telling the minimum integer in the
-implementation. Depends on machine and Operating System architecture.
+@* Read-only flag telling the minimum integer in the
+implementation. Depends on machine and Operating System architecture,
+and on whether YAP uses the @code{GMP} multiprecision library. If
+@code{bounded} is false, requestes for @code{min_integer} will fail.
 
 @item n_of_integer_keys_in_bb
 @findex n_of_integer_keys_in_bb (yap_flag/2 option)
@@ -5847,6 +5895,64 @@ as in Quintus Prolog, SICStus Prolog, or in the ISO standard. There is
 also an intermediate mode, @code{logical_assert}, where dynamic
 procedures follow logical semantics but the internal data base still
 follows immediate semantics.
+
+@item user_error
+@findex user_error (yap_flag/2 option)
+@*
+If the second argument is bound to a stream, set @code{user_error} to
+this stream. If the second argument is unbound, unify the argument with
+the current @code{user_error} stream.
+
+By default, the @code{user_error} stream is set to a stream
+corresponding to the Unix @code{stderr} stream.
+
+The next example shows how to use this flag:
+@example
+   ?- open( '/dev/null', append, Error,
+           [alias(mauri_tripa)] ).
+
+Error = '$stream'(3) ? ;
+
+no
+   ?- set_prolog_flag(user_error, mauri_tripa).
+
+close(mauri_tripa).
+
+yes
+   ?- 
+@end example
+We first opened a stream in write mode and gave it an alias. Next, we
+set @code{user_error} to the stream via the alias. Note that after we
+did so prompts from the system were redirected to the stream
+@code{mauri_tripa}. Last, when we closed the stream we automatically
+redirect the @code{user_error} alias to the original @code{stderr}.
+
+@item user_input
+@findex user_input (yap_flag/2 option)
+@*
+If the second argument is bound to a stream, set @code{user_input} to
+this stream. If the second argument is unbound, unify the argument with
+the current @code{user_input} stream.
+
+By default, the @code{user_input} stream is set to a stream
+corresponding to the Unix @code{stdin} stream.
+
+@item user_output
+@findex user_output (yap_flag/2 option)
+@*
+If the second argument is bound to a stream, set @code{user_output} to
+this stream. If the second argument is unbound, unify the argument with
+the current @code{user_output} stream.
+
+By default, the @code{user_output} stream is set to a stream
+corresponding to the Unix @code{stdout} stream.
+
+@item write_strings
+@findex  write_strings (yap_flag/2 option)
+@* Writable flag telling whether the system should write lists of
+integers that are writable character codes using the list notation. It
+is @code{on} if enables or @code{off} if disabled. The default value for
+this flag is @code{off}.
 
 @end table
 
@@ -7178,7 +7284,7 @@ s-representation. Note that the vertices without edges will appear in
 @var{Vertices} but not in @var{Edges}. Moreover, it is sufficient for a
 vertice to appear in @var{Edges}.
 @example
-   ?- vertices_edges_to_ugraph([],[1-3,2-4,4-5,1-5],L).
+?- vertices_edges_to_ugraph([],[1-3,2-4,4-5,1-5],L).
 
 L = [1-[3,5],2-[4],3-[],4-[5],5-[]] ? 
 
@@ -7186,7 +7292,7 @@ L = [1-[3,5],2-[4],3-[],4-[5],5-[]] ?
 In this case all edges are defined implicitly. The next example shows
 three unconnected edges:
 @example 
-   ?- vertices_edges_to_ugraph([6,7,8],[1-3,2-4,4-5,1-5],L).
+?- vertices_edges_to_ugraph([6,7,8],[1-3,2-4,4-5,1-5],L).
 
 L = [1-[3,5],2-[4],3-[],4-[5],5-[],6-[],7-[],8-[]] ? 
 
@@ -7199,7 +7305,7 @@ L = [1-[3,5],2-[4],3-[],4-[5],5-[],6-[],7-[],8-[]] ?
 Unify @var{Vertices} with all vertices appearing in graph
 @var{Graph}. In the next example:
 @example
-   ?- vertices([1-[3,5],2-[4],3-[],4-[5],5-[]], V).
+?- vertices([1-[3,5],2-[4],3-[],4-[5],5-[]], V).
 
 L = [1,2,3,4,5]
 @end example
@@ -7211,7 +7317,7 @@ L = [1,2,3,4,5]
 Unify @var{Edges} with all edges appearing in graph
 @var{Graph}. In the next example:
 @example
-   ?- vertices([1-[3,5],2-[4],3-[],4-[5],5-[]], V).
+?- vertices([1-[3,5],2-[4],3-[],4-[5],5-[]], V).
 
 L = [1,2,3,4,5]
 @end example
@@ -7223,9 +7329,12 @@ L = [1,2,3,4,5]
 Unify @var{NewGraph} with a new graph obtained by adding the list of
 vertices @var{Vertices} to the graph @var{Graph}. In the next example:
 @example
-   ?- add_vertices([0,2,9,10,11],[1-[3,5],2-[4],3-[],4-[5],5-[],6-[],7-[],8-[]],NG).
+?- add_vertices([0,2,9,10,11],
+                [1-[3,5],2-[4],3-[],4-[5],
+                 5-[],6-[],7-[],8-[]],  NG).
 
-NG = [0-[],1-[3,5],2-[4],3-[],4-[5],5-[],6-[],7-[],8-[],9-[],10-[],11-[]]
+NG = [0-[],1-[3,5],2-[4],3-[],4-[5],5-[],
+      6-[],7-[],8-[],9-[],10-[],11-[]]
 @end example
 
 @item del_vertices(+@var{Vertices}, +@var{Graph}, -@var{NewGraph})
@@ -7236,7 +7345,8 @@ Unify @var{NewGraph} with a new graph obtained by deleting the list of
 vertices @var{Vertices} and all the edges that start from or go to a
 vertex in @var{Vertices} to the graph @var{Graph}. In the next example:
 @example
-   ?- del_vertices([2,1],[1-[3,5],2-[4],3-[],4-[5],5-[],6-[],7-[2,6],8-[]],NL).
+?- del_vertices([2,1],[1-[3,5],2-[4],3-[],
+                 4-[5],5-[],6-[],7-[2,6],8-[]],NL).
 
 NL = [3-[],4-[5],5-[],6-[],7-[6],8-[]]
 @end example
@@ -7248,7 +7358,8 @@ NL = [3-[],4-[5],5-[],6-[],7-[6],8-[]]
 Unify @var{NewGraph} with a new graph obtained by adding the list of
 edges @var{Edges} to the graph @var{Graph}. In the next example:
 @example
-   ?- add_edges([1-[3,5],2-[4],3-[],4-[5],5-[],6-[],7-[],8-[]],[1-6,2-3,3-2,5-7,3-2,4-5],NL).
+?- add_edges([1-[3,5],2-[4],3-[],4-[5],5-[],6-[],
+              7-[],8-[]],[1-6,2-3,3-2,5-7,3-2,4-5],NL).
 
 NL = [1-[3,5,6],2-[3,4],3-[2],4-[5],5-[7],6-[],7-[],8-[]]
 @end example
@@ -7261,7 +7372,9 @@ Unify @var{NewGraph} with a new graph obtained by removing the list of
 edges @var{Edges} from the graph @var{Graph}. Notice that no vertices
 are deleted. In the next example:
 @example
-   ?- del_edges([1-[3,5],2-[4],3-[],4-[5],5-[],6-[],7-[],8-[]],[1-6,2-3,3-2,5-7,3-2,4-5,1-3],NL).
+?- del_edges([1-[3,5],2-[4],3-[],4-[5],5-[],
+              6-[],7-[],8-[]],
+             [1-6,2-3,3-2,5-7,3-2,4-5,1-3],NL).
 
 NL = [1-[5],2-[4],3-[],4-[],5-[],6-[],7-[],8-[]]
 @end example
@@ -7274,7 +7387,8 @@ Unify @var{NewGraph} with a new graph obtained from @var{Graph} by
 replacing all edges of the form @var{V1-V2} by edges of the form
 @var{V2-V1}. The cost is @code{O(|V|^2)}. In the next example:
 @example
-   ?- transpose([1-[3,5],2-[4],3-[],4-[5],5-[],6-[],7-[],8-[]],NL).
+?- transpose([1-[3,5],2-[4],3-[],
+              4-[5],5-[],6-[],7-[],8-[]], NL).
 
 NL = [1-[],2-[],3-[1],4-[2],5-[1,4],6-[],7-[],8-[]]
 @end example
@@ -7288,7 +7402,9 @@ Unify @var{Vertices} with the list of neighbors of vertex @var{Vertex}
 in @var{Graph}. If the vertice is not in the graph fail. In the next
 example:
 @example
-   ?- neighbors(4,[1-[3,5],2-[4],3-[],4-[1,2,7,5],5-[],6-[],7-[],8-[]],NL).
+?- neighbors(4,[1-[3,5],2-[4],3-[],
+                4-[1,2,7,5],5-[],6-[],7-[],8-[]],
+             NL).
 
 NL = [1,2,7,5]
 @end example
@@ -7300,7 +7416,8 @@ NL = [1,2,7,5]
 Unify @var{Vertices} with the list of neighbours of vertex @var{Vertex}
 in @var{Graph}. In the next example:
 @example
-   ?- neighbours(4,[1-[3,5],2-[4],3-[],4-[1,2,7,5],5-[],6-[],7-[],8-[]],NL).
+?- neighbours(4,[1-[3,5],2-[4],3-[],
+                 4-[1,2,7,5],5-[],6-[],7-[],8-[]], NL).
 
 NL = [1,2,7,5]
 @end example
@@ -7312,9 +7429,12 @@ NL = [1,2,7,5]
 Unify @var{NewGraph} with the graph complementar to @var{Graph}.
  In the next example:
 @example
-   ?- complement([1-[3,5],2-[4],3-[],4-[1,2,7,5],5-[],6-[],7-[],8-[]],NL).
+?- complement([1-[3,5],2-[4],3-[],
+               4-[1,2,7,5],5-[],6-[],7-[],8-[]], NL).
 
-NL = [1-[2,4,6,7,8],2-[1,3,5,6,7,8],3-[1,2,4,5,6,7,8],4-[3,5,6,8],5-[1,2,3,4,6,7,8],6-[1,2,3,4,5,7,8],7-[1,2,3,4,5,6,8],8-[1,2,3,4,5,6,7]]
+NL = [1-[2,4,6,7,8],2-[1,3,5,6,7,8],3-[1,2,4,5,6,7,8],
+      4-[3,5,6,8],5-[1,2,3,4,6,7,8],6-[1,2,3,4,5,7,8],
+      7-[1,2,3,4,5,6,8],8-[1,2,3,4,5,6,7]]
 @end example
 
 @item compose(+@var{LeftGraph}, +@var{RightGraph}, -@var{NewGraph})
@@ -7324,7 +7444,7 @@ NL = [1-[2,4,6,7,8],2-[1,3,5,6,7,8],3-[1,2,4,5,6,7,8],4-[3,5,6,8],5-[1,2,3,4,6,7
 Compose the graphs @var{LeftGraph} and @var{RightGraph} to form @var{NewGraph}.
  In the next example:
 @example
-   ?- compose([1-[2],2-[3]],[2-[4],3-[1,2,4]],L).
+?- compose([1-[2],2-[3]],[2-[4],3-[1,2,4]],L).
 
 L = [1-[4],2-[1,2,4],3-[]]
 @end example
@@ -7337,7 +7457,7 @@ Generate the set of nodes @var{Sort} as a topological sorting of graph
 @var{Graph}, if one is possible.
  In the next example we show how topological sorting works for a linear graph:
 @example
-   ?- top_sort([_138-[_219],_219-[_139], _139-[]],L).
+?- top_sort([_138-[_219],_219-[_139], _139-[]],L).
 
 L = [_138,_219,_139]
 @end example
@@ -7350,7 +7470,7 @@ Generate the graph @var{Closure} as the transitive closure of graph
 @var{Graph}.
  In the next example:
 @example
-   ?- transitive_closure([1-[2,3],2-[4,5],4-[6]],L).
+?- transitive_closure([1-[2,3],2-[4,5],4-[6]],L).
 
 L = [1-[2,3,4,5,6],2-[4,5,6],4-[6]]
 @end example
@@ -7365,8 +7485,9 @@ default, but that can be used to extend the functionality of the
 system. These options can be set at compilation time by enabling the
 related compilation flag, as explained in the @code{Makefile}
 
-Extensions to Traditional Prolog
 @menu
+
+Extensions to Traditional Prolog
 
 * Rational Trees:: Working with Rational Trees
 * Coroutining:: Changing the Execution of Goals
@@ -7488,19 +7609,16 @@ where @code{dif/2} suspends twice, once outside @code{call_residue/2},
 and the other inside:
 
 @example
-   ?- dif(X,Y), call_residue((dif(X,Y),(X = f(Z) ; Y = f(Z))), L).
+?- dif(X,Y),
+       call_residue((dif(X,Y),(X = f(Z) ; Y = f(Z))), L).
 
-X = f(_24)
-Y = _92
-Z = _24
-L = [[_92]-dif(f(_24),_92)]
-dif(f(_24),_92) ;
+X = f(Z),
+L = [[Y]-dif(f(Z),Y)],
+dif(f(Z),Y) ? ;
 
-X = _86
-Y = f(_24)
-Z = _24
-L = [[_86]-dif(_86,f(_24))]
-dif(_86,f(_24)) ;
+Y = f(Z),
+L = [[X]-dif(X,f(Z))],
+dif(X,f(Z)) ? ;
 
 no
 @end example
@@ -8050,34 +8168,37 @@ checked for satisfiability. If you want to overload @{@}/1 with other
 solvers, you can avoid its importation via: @code{use_module(clpq, [])}.
 
 @example
-@var{Constraint} -->   @var{C}
-               | @var{C} , @var{C}                 conjunction
+@var{Constraint} --> @var{C}
+            | @var{C} , @var{C}                 conjunction
 
-@var{C} -->            @var{Expr} =:= @var{Expr}         equation
-               | @var{Expr} = @var{Expr}           equation
-               | @var{Expr} < @var{Expr}           strict inequation
-               | @var{Expr} > @var{Expr}           strict inequation
-               | @var{Expr} =< @var{Expr}          nonstrict inequation
-               | @var{Expr} >= @var{Expr}          nonstrict inequation
-               | @var{Expr} =\= @var{Expr}         disequation
+@var{C} -->          @var{Expr} =:= @var{Expr}         equation
+            | @var{Expr} = @var{Expr}           equation
+            | @var{Expr} < @var{Expr}           strict inequation
+            | @var{Expr} > @var{Expr}           strict inequation
+            | @var{Expr} =< @var{Expr}          nonstrict inequation
+            | @var{Expr} >= @var{Expr}          nonstrict inequation
+            | @var{Expr} =\= @var{Expr}         disequation
 
-@var{Expr} -->         variable              Prolog variable
-               | number                floating point or integer
-               | + @var{Expr}                unary plus
-               | - @var{Expr}                unary minus
-               | @var{Expr} + @var{Expr}           addition
-               | @var{Expr} - @var{Expr}           subtraction
-               | @var{Expr} * @var{Expr}           multiplication
-               | @var{Expr} / @var{Expr}           division
-               | abs(@var{Expr})             absolute value
-               | sin(@var{Expr})             trigonometric sine
-               | cos(@var{Expr})             trigonometric cosine
-               | tan(@var{Expr})             trigonometric tangent
-               | pow(@var{Expr},@var{Expr})        raise to the power
-               | exp(@var{Expr},@var{Expr})        raise to the power
-               | min(@var{Expr},@var{Expr})        minimum of the two arguments
-               | max(@var{Expr},@var{Expr})        maximum of the two arguments
-               | #(Const)              symbolic numerical constants
+@var{Expr} -->       variable             Prolog variable
+            | number                floating point or integer
+            | + @var{Expr}                unary plus
+            | - @var{Expr}                unary minus
+            | @var{Expr} + @var{Expr}           addition
+            | @var{Expr} - @var{Expr}           subtraction
+            | @var{Expr} * @var{Expr}           multiplication
+            | @var{Expr} / @var{Expr}           division
+            | abs(@var{Expr})             absolute value
+            | sin(@var{Expr})             trigonometric sine
+            | cos(@var{Expr})             trigonometric cosine
+            | tan(@var{Expr})             trigonometric tangent
+            | pow(@var{Expr},@var{Expr})        raise to the power
+            | exp(@var{Expr},@var{Expr})        raise to the power
+            | min(@var{Expr},@var{Expr})        minimum of the two
+                                                arguments
+            | max(@var{Expr},@var{Expr})        maximum of the two
+                                                arguments
+            | #(Const)              symbolic numerical
+                                                constant
 @end example
 
 Conjunctive constraints @t{@{-C,C@}} have been made part of the syntax
@@ -9578,7 +9699,8 @@ Id             --> a unique variable
 Guard          --> Ask | Ask & Tell
 Ask            --> Goal
 Tell           --> Goal
-Goal           --> a callable term, including conjunction and disjunction etc.
+Goal           --> a callable term,
+                   including conjunction and disjunction etc.
 
 Body           --> Goal
 
@@ -9709,9 +9831,12 @@ constraints in the simplification rule @code{antisymmetry}, thus it is
 automatically declared passive and the compiler outputs @code{CHR
 eliminated code for head 2 in antisymmetry}.
 @example
-antisymmetry @ X leq Y , Y leq X # Id <=> X=Y pragma passive(Id).
-idempotence  @ X leq Y # Id \ X leq Y <=> true pragma passive(Id).
-transitivity @ X leq Y # Id , Y leq Z ==> X leq Z pragma passive(Id).
+antisymmetry @ X leq Y, Y leq X # Id <=> X=Y
+           pragma passive(Id).
+idempotence  @ X leq Y # Id \ X leq Y <=> true
+           pragma passive(Id).
+transitivity @ X leq Y # Id, Y leq Z ==> X leq Z
+           pragma passive(Id).
 @end example
 Declaring the first head of rule @code{transitivity} passive changes the
 behavior of the handler. It will propagate less depending on the order in
@@ -10279,7 +10404,7 @@ stream.  This allows you to trace programs while they are performing
 file I/O.  The basic format is as follows:
 
 @example
-@var{S} 3   1 try     eratosthenes:absorb(10) @@ prime(9)#<c4>, prime(10)#<c2> ?
+@var{S} 3 1 try eratosthenes:absorb(10) @@ prime(9)#<c4>, prime(10)#<c2> ?
 @end example
 
 @noindent
@@ -10429,7 +10554,7 @@ rule, if it exists.
 @dfn{show rule}
 prints the current rule instantiated by the matched constraints. Example:
 @example
- 8   1 apply   era:absorb(8) @@ prime(4)#<c14> \ prime(8)#<c6> ? .
+ 8 1 apply  era:absorb(8) @@ prime(4)#<c14> \ prime(8)#<c6> ? .
 
  absorb(8) @@
   prime(4)#<c14> \ 
@@ -10705,12 +10830,11 @@ and pragmas @ref{CHR Pragmas}
 offering better grained control.
 
 @item
-The Eclipse library of CHR provided automatic built-in labeling
-through the @code{label_with} declaration. Since it was not widely used
-and can be easily simulated, built-in labeling was dropped.  
-The same effect can be achieved
-by replacing the declaration @code{label_with Constraint
-if Guard} by the simplification rule @code{chr_labeling, Constraint <=>
+The Eclipse library of CHR provided automatic built-in labeling through
+the @code{label_with} declaration. Since it was not widely used and can
+be easily simulated, built-in labeling was dropped.  The same effect can
+be achieved by replacing the declaration @code{label_with Constraint if
+Guard} by the simplification rule @code{chr_labeling, Constraint <=>
 Guard | Constraint', chr_labeling} and by renaming the head in each
 clause @code{Constraint :- Body} into @code{Constraint' :- Body} where
 @code{Constraint'} is a new predicate.  Efficiency can be improved by
@@ -11525,7 +11649,7 @@ a non-zero value if the unification succeeds and zero otherwise.
 The YAP C-interface now includes an utility routine to copy a string
 represented as a list of a character codes to a previously allocated buffer
 @example
-      int      StringToBuffer(Term String, char *buf, unsigned int bufsize)
+      int StringToBuffer(Term String, char *buf, unsigned int bufsize)
 @end example
 @noindent
 The routine copies the list of character codes @code{String} to a
@@ -11634,8 +11758,11 @@ static int start_n100()
           n100_data->next_solution = MkIntTerm(0);
           return(continue_n100());
        @}
-      if(!IsIntTerm(t) || IntOfTerm(t)<0 || IntOfTerm(t)>100) cut_fail();
-      else cut_succeed();
+      if(!IsIntTerm(t) || IntOfTerm(t)<0 || IntOfTerm(t)>100) {
+          cut_fail();
+      } else {
+          cut_succeed();
+      }
 @}
 
 @end example
@@ -11888,11 +12015,11 @@ Initialise a copy of YAP from @var{SavedState}. The copy is
 monolithic and currently must be loaded at the same address where it was
 saved. @code{YapFastInit} is a simpler version of @code{YapInit}.
 
-@item  YapInit(@code{char *} @var{SavedState},@code{int}
-@var{HeapSize},@code{int}  @var{StackSize}, @code{int}
-@var{TrailSize},@code{int}  @var{NumberofWorkers},@code{int}
-@var{SchedulerLoop}, @code{int} @var{DelayedReleaseLoad},@code{int}
-@var{argc},@code{char **}  @var{argv})
+@item  YapInit(@code{char *} @var{SavedState},  @code{int}
+@var{HeapSize}, @code{int} @var{StackSize}, @code{int}
+@var{TrailSize}, @code{int}  @var{NumberofWorkers}, @code{int}
+@var{SchedulerLoop}, @code{int} @var{DelayedReleaseLoad}, @code{int}
+@var{argc}, @code{char **}  @var{argv})
 @findex  YapInit/9
 Initialise YAP. In the future the arguments as a single @code{C}
 structure.
@@ -12154,7 +12281,7 @@ not available in YAP.
 @item YAP implements escape sequences as in the ISO standard. SICStus
 Prolog implements Unix-like escape sequences.
 
-@item YAP implements initialization/1 as in the ISO
+@item YAP implements @code{initialization/1} as per the ISO
 standard. Use @code{prolog_initialization/1} for the SICStus Prolog
 compatible built-in.
 
@@ -12169,10 +12296,8 @@ compatible built-in.
 
 @item The following SICStus Prolog v3 built-ins are not (currently)
 implemented in YAP (note that this is only a partial list):
-@code{call_cleanup/1}, 
-@code{file_search_path/2}, @code{stream_interrupt/3},
-@code{print_message/2},
-@code{portray_message/2}, @code{reinitialize/0}, @code{help/0},
+@code{call_cleanup/1}, @code{file_search_path/2},
+@code{stream_interrupt/3}, @code{reinitialize/0}, @code{help/0},
 @code{help/1}, @code{module/3}, @code{trimcore/0}.
 
       The previous list is incomplete. We also cannot guarantee full
@@ -12412,7 +12537,8 @@ The following is the list of the declarations of the predefined operators:
 @example
 :-op(1200,fx,['?-', ':-']).
 :-op(1200,xfx,[':-','-->']).
-:-op(1150,fx,[block,dynamic,mode,public,multifile,meta_predicate,sequential,table,initialization]).
+:-op(1150,fx,[block,dynamic,mode,public,multifile,meta_predicate,
+              sequential,table,initialization]).
 :-op(1100,xfy,[';','|']).
 :-op(1050,xfy,->).
 :-op(1000,xfy,',').

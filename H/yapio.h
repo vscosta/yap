@@ -211,6 +211,12 @@ typedef enum{       /* we accept two domains for the moment, IPV6 may follow */
       af_unix       /* or AF_FILE */
 } socket_domain;
 
+/* info on aliases */
+typedef struct AliasDescS {
+    Atom name;
+    int alias_stream;
+} * AliasDesc;
+
 Term  STD_PROTO(InitSocketStream,(int, socket_info, socket_domain));
 int   STD_PROTO(CheckSocketStream,(Term, char *));
 socket_domain   STD_PROTO(GetSocketDomain,(int));
@@ -253,7 +259,7 @@ void  STD_PROTO(CloseStream,(int));
 int   STD_PROTO(PlGetchar,(void));
 int   STD_PROTO(PlFGetchar,(void));
 
-extern int c_input_stream, c_output_stream;
+extern int c_input_stream, c_output_stream, c_error_stream;
 
 /* routines in sysbits.c */
 char *STD_PROTO(pfgets,(char *,int,YP_File));

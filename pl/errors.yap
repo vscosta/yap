@@ -212,6 +212,9 @@ print_message(help,M) :-
 '$output_error_message'(permission_error(access,static_procedure,P), Where) :-
 	format(user_error,"[ PERMISSION ERROR- ~w: cannot access static procedure ~w ]~n",
 	[Where,P]).
+'$output_error_message'(permission_error(alias,new,P), Where) :-
+	format(user_error,"[ PERMISSION ERROR- ~w: cannot create alias ~w ]~n",
+	[Where,P]).
 '$output_error_message'(permission_error(create,array,P), Where) :-
 	format(user_error,"[ PERMISSION ERROR- ~w: cannot create array ~w ]~n",
 	[Where,P]).

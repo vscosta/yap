@@ -194,6 +194,7 @@ yap_flag(max_arity,X) :-
 
 yap_flag(max_integer,X) :-
 	var(X), !,
+	'$access_yap_flags'(0, 1),
 	'$access_yap_flags'(3, X).
 yap_flag(max_integer,X) :-
 	integer(X), X > 0, !,
@@ -203,6 +204,7 @@ yap_flag(max_integer,X) :-
 
 yap_flag(min_integer,X) :-
 	var(X), !,
+	'$access_yap_flags'(0, 1),
 	'$access_yap_flags'(4, X).
 yap_flag(min_integer,X) :-
 	integer(X), X < 0, !,
@@ -443,6 +445,26 @@ yap_flag(write_strings,off) :- !,
 yap_flag(write_strings,X) :-
 	throw(error(domain_error(flag_value,write_strings+X),yap_flag(write_strings,X))).
 
+yap_flag(user_input,OUT) :-
+	var(OUT), !,
+	current_stream(user_input,_,OUT).
+yap_flag(user_input,Stream) :-
+	'$change_alias_to_stream'(user_input,Stream).
+
+
+yap_flag(user_output,OUT) :-
+	var(OUT), !,
+	current_stream(user_output,_,OUT).
+yap_flag(user_output,Stream) :-
+	'$change_alias_to_stream'(user_output,Stream).
+
+
+yap_flag(user_error,OUT) :-
+	var(OUT), !,
+	current_stream(user_error,_,OUT).
+yap_flag(user_error,Stream) :-
+	'$change_alias_to_stream'(user_error,Stream).
+
 yap_flag(debugger_print_options,OUT) :-
 	var(OUT),
 	'$recorded'('$print_options','$debugger'(OUT),_), !.
@@ -521,7 +543,11 @@ yap_flag(host_type,X) :-
 	    V = toplevel_print_options ;
 	    V = typein_module ;
 	    V = unknown ;
-	    V = update_semantics
+	    V = update_semantics ;
+            V = user_error ;
+	    V = user_input ;
+            V = user_output ;
+            V = write_strings
 	),
 	yap_flag(V, Out).
 

@@ -1155,6 +1155,27 @@ Error (yap_error_number type, Term where, char *format,...)
       serious = TRUE;
     }
     break;
+  case PERMISSION_ERROR_NEW_ALIAS_FOR_STREAM:
+    {
+      int i;
+      Term ti[3];
+
+#if   HAVE_STRNCAT
+      strncat(p, " in ", psize);
+#else
+      strcat(p, " in ");
+#endif
+      i = strlen(p);
+      ti[0] = MkAtomTerm(LookupAtom("new"));
+      ti[1] = MkAtomTerm(LookupAtom("alias"));
+      ti[2] = where;
+      nt[0] = MkApplTerm(MkFunctor(LookupAtom("permission_error"),3), 3, ti);
+      tp = p+i;
+      psize -= i;
+      fun = MkFunctor(LookupAtom("error"),2);
+      serious = TRUE;
+    }
+    break;
   case PERMISSION_ERROR_OPEN_SOURCE_SINK:
     {
       int i;

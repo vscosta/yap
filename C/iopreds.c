@@ -98,14 +98,6 @@ typedef struct
   }
 StreamDesc;
 
-typedef struct AliasDescS
-  {
-    Atom name;
-    int my_stream;
-    struct AliasDescS *next;
-  }
-* AliasDesc;
-
 STATIC_PROTO (void InitStdStream, (int, SMALLUNSGN, YP_File, Atom));
 STATIC_PROTO (Int PlIOError, (yap_error_number, Term, char *));
 STATIC_PROTO (int FilePutc, (int, int));
@@ -136,7 +128,8 @@ STATIC_PROTO (Term MkStream, (int));
 STATIC_PROTO (Int p_stream_flags, (void));
 STATIC_PROTO (int find_csult_file, (char *, char *, StreamDesc *, char *));
 STATIC_PROTO (Int p_open, (void));
-STATIC_PROTO (void AddAlias, (Atom, int));
+STATIC_PROTO (int AddAlias, (Atom, int));
+STATIC_PROTO (void SetAlias, (Atom, int));
 STATIC_PROTO (void PurgeAlias, (int));
 STATIC_PROTO (int CheckAlias, (Atom));
 STATIC_PROTO (Atom FetchAlias, (int));
@@ -177,6 +170,7 @@ STATIC_PROTO (Int p_show_stream_flags, (void));
 STATIC_PROTO (Int p_show_stream_position, (void));
 STATIC_PROTO (Int p_set_stream_position, (void));
 STATIC_PROTO (Int p_add_alias_to_stream, (void));
+STATIC_PROTO (Int p_change_alias_to_stream, (void));
 STATIC_PROTO (Int p_check_if_valid_new_alias, (void));
 STATIC_PROTO (Int p_fetch_stream_alias, (void));
 STATIC_PROTO (Int GetArgSizeFromThirdArg, (char **, Term *));
@@ -234,12 +228,11 @@ static int parser_error_style = FAIL_ON_PARSER_ERROR;
 #define StdOutStream	1
 #define	StdErrStream	2
 
+#define ALIASES_BLOCK_SIZE 8
 
 #if USE_SOCKET
 extern int YP_sockets_io;
 #endif
-
-static AliasDesc AliasList = NULL;
 
 static void
 unix_upd_stream_info (StreamDesc * s)
@@ -360,8 +353,7 @@ InitStdStream (int sno, SMALLUNSGN flags, YP_File file, Atom name)
       s->stream_putc = FilePutc;
       s->stream_getc = PlGetc;
     }
-    s->u.file.name = name;
-    s->u.file.user_name = MkAtomTerm (name);
+    s->u.file.user_name = MkAtomTerm (s->u.file.name);
   }
   if (CharConversionTable != NULL)
     s->stream_getc_for_read = ISOGetc;
@@ -391,7 +383,17 @@ InitPlIO (void)
   InitStdStream (StdErrStream, Output_Stream_f, YP_stderr, AtomUsrErr);
   c_input_stream = StdInStream;
   c_output_stream = StdOutStream;
-  AliasList = NULL;
+  /* alloca alias array */
+  FileAliases = (AliasDesc)AllocCodeSpace(sizeof(struct AliasDescS)*ALIASES_BLOCK_SIZE);
+  /* init standard aliases */
+  FileAliases[0].name = AtomUsrIn;
+  FileAliases[0].alias_stream = 0;
+  FileAliases[1].name = AtomUsrOut;
+  FileAliases[1].alias_stream = 1;
+  FileAliases[2].name = AtomUsrErr;
+  FileAliases[2].alias_stream = 2;
+  NOfFileAliases = 3;
+  SzOfFileAliases = ALIASES_BLOCK_SIZE;
 }
 
 static Int
@@ -673,11 +675,16 @@ ReadlineGetc(int sno)
     if (newline) {
       char *cptr = Prompt, ch;
 
-      /* don't just output the prompt */
-      while ((ch = *cptr++) != '\0') {
-	console_count_output_char(ch,Stream+StdErrStream,StdErrStream);
+      if ((Stream[FileAliases[2].alias_stream].status & Tty_Stream_f) &&
+	  Stream[FileAliases[2].alias_stream].u.file.name == Stream[sno].u.file.name) {
+	/* don't just output the prompt */
+	while ((ch = *cptr++) != '\0') {
+	  console_count_output_char(ch,Stream+StdErrStream,StdErrStream);
+	}
+	_line = readline (Prompt);
+      } else {
+	_line = readline ("");
       }
-      _line = readline (Prompt);
     } else {
       _line = readline ("");
     }
@@ -1199,8 +1206,11 @@ p_open (void)
   }
   open_mode = AtomOfTerm (t2);
   if (open_mode == AtomRead || open_mode == AtomCsult) {
+    if (open_mode == AtomCsult && AtomOfTerm(file_name) == AtomUsrIn) {
+      return(unify(MkStream(FileAliases[0].alias_stream), ARG3));
+    }
     strncpy(io_mode,"rb", 8);
-	s = Input_Stream_f;
+    s = Input_Stream_f;
   } else if (open_mode == AtomWrite) {
     strncpy(io_mode,"w",8);
 	s = Output_Stream_f;
@@ -1340,7 +1350,33 @@ static Int p_add_alias_to_stream (void)
   }
   at = AtomOfTerm(tname);
   sno = (int)IntOfTerm(ArgOfTerm(1,tstream));
-  AddAlias(at, sno);
+  if (AddAlias(at, sno))
+    return(TRUE);
+  /* we could not create the alias, time to close the stream */
+  CloseStream(sno);
+  Error(PERMISSION_ERROR_NEW_ALIAS_FOR_STREAM, tname, "open/3");
+  return (FALSE);
+}
+
+static Int p_change_alias_to_stream (void)
+{
+  Term tname = Deref(ARG1);
+  Term tstream = Deref(ARG2);
+  Atom at;
+  Int sno;
+
+  if (IsVarTerm(tname)) {
+    Error(INSTANTIATION_ERROR, tname, "$change_alias_to_stream/2");
+    return (FALSE);
+  } else if (!IsAtomTerm (tname)) {
+    Error(TYPE_ERROR_ATOM, tname, "$change_alias_to_stream/2");
+    return (FALSE);
+  }
+  at = AtomOfTerm(tname);
+  if ((sno = CheckStream (tstream, Input_Stream_f | Output_Stream_f | Append_Stream_f | Socket_Stream_f,  "change_stream_alias/2"))
+	  == -1)
+    return(FALSE);
+  SetAlias(at, sno);
   return(TRUE);
 }
 
@@ -1380,7 +1416,7 @@ p_fetch_stream_alias (void)
   default:
     if (IsVarTerm(t2)) {
       Atom at = FetchAlias(sno);
-      if (at == AtomUsrIn)
+      if (at == AtomFoundVar)
 	return(FALSE);
       else 
 	return(unify_constant(t2, MkAtomTerm(at)));
@@ -1524,83 +1560,134 @@ p_open_mem_write_stream (void)   /* $open_mem_write_stream(-Stream) */
   return (unify (ARG1, t));
 }
 
-/* create a new alias arg for stream sno */
 static void
+ExtendAliasArray(void)
+{
+  AliasDesc new;
+  UInt new_size = SzOfFileAliases+ALIASES_BLOCK_SIZE;
+
+  new = (AliasDesc)AllocCodeSpace(sizeof(AliasDesc *)*new_size);
+  memcpy((void *)new, (void *)FileAliases, sizeof(AliasDesc *)*SzOfFileAliases);
+  FreeCodeSpace((ADDR)FileAliases);
+  FileAliases = new;
+  SzOfFileAliases = new_size;
+}
+
+/* create a new alias arg for stream sno */
+static int
 AddAlias (Atom arg, int sno)
 {
   
-  AliasDesc aliasp = AliasList;
+  AliasDesc aliasp = FileAliases, aliasp_max = FileAliases+NOfFileAliases;
 
-  while (aliasp != NULL) {
+  while (aliasp < aliasp_max) {
     if (aliasp->name == arg) {
-      aliasp->my_stream = sno;
+      if (aliasp->alias_stream != sno) {
+	return(FALSE);
+      }
+      return(TRUE);
+    }
+    aliasp++;
+  }
+  /* we have not found an alias neither a hole */
+  if (aliasp == FileAliases+SzOfFileAliases)
+    ExtendAliasArray();
+  NOfFileAliases++;
+  aliasp->name = arg;
+  aliasp->alias_stream = sno;
+  return(TRUE);
+}
+
+/* create a new alias arg for stream sno */
+static void
+SetAlias (Atom arg, int sno)
+{
+  
+  AliasDesc aliasp = FileAliases, aliasp_max = FileAliases+NOfFileAliases;
+
+  while (aliasp < aliasp_max) {
+    if (aliasp->name == arg) {
+      aliasp->alias_stream = sno;
       return;
     }
-    else aliasp = aliasp->next;
+    aliasp++;
   }
-  aliasp = (AliasDesc)AllocAtomSpace(sizeof(struct AliasDescS));
+  /* we have not found an alias, create one */
+  if (aliasp == FileAliases+SzOfFileAliases) 
+    ExtendAliasArray();
+  NOfFileAliases++;
   aliasp->name = arg;
-  aliasp->my_stream = sno;
-  aliasp->next = AliasList;
-  AliasList = aliasp;
+  aliasp->alias_stream = sno;
 }
 
 /* purge all aliases for stream sno */
 static void
 PurgeAlias (int sno)
 {
-  
-  AliasDesc aliasp = AliasList,
-    prev = NULL;
-  
-  while (aliasp != NULL) {
-    if (aliasp->my_stream == sno) {
-      if (prev == NULL)
-	AliasList = aliasp->next;
-      else
-	prev->next = aliasp->next;
-      FreeAtomSpace((char *)aliasp);
-    } else
-      prev = aliasp;
-    aliasp = aliasp->next;
+  AliasDesc aliasp = FileAliases, aliasp_max = FileAliases+NOfFileAliases, new_aliasp = aliasp;
+
+  while (aliasp < aliasp_max) {
+    if (aliasp->alias_stream == sno) {
+      if (aliasp - FileAliases < 3) {
+	/* get back to std streams, but keep alias around */
+	new_aliasp->alias_stream = aliasp-FileAliases;
+	new_aliasp++;
+      } else {
+	NOfFileAliases--;
+      }
+    } else {
+      /* avoid holes in alias array */
+      if (new_aliasp != aliasp) {
+	new_aliasp->alias_stream = aliasp->alias_stream;
+	new_aliasp->name = aliasp->name;
+      }
+      new_aliasp++;
+    }
+    aliasp++;
   }
 }
 
-/* check if arg is an alias */
+/* check if name is an alias */
 static int
 CheckAlias (Atom arg)
 {
-  AliasDesc aliasp = AliasList;
-  while (aliasp != NULL) {
-    if (aliasp->name == arg)
-      return(aliasp->my_stream);
-    else aliasp = aliasp->next;
+  AliasDesc aliasp = FileAliases, aliasp_max = FileAliases+NOfFileAliases;
+
+  while (aliasp < aliasp_max) {
+    if (aliasp->name == arg) {
+      return(aliasp->alias_stream);
+    }
+    aliasp++;
   }
   return(-1);
 }
 
-/* check if arg is an alias */
+/* check if stream has an alias */
 static Atom
 FetchAlias (int sno)
 {
-  AliasDesc aliasp = AliasList;
-  while (aliasp != NULL) {
-    if (aliasp->my_stream == sno)
+  AliasDesc aliasp = FileAliases, aliasp_max = FileAliases+NOfFileAliases;
+
+  while (aliasp < aliasp_max) {
+    if (aliasp->alias_stream == sno) {
       return(aliasp->name);
-    else aliasp = aliasp->next;
+    }
+    aliasp++;
   }
-  return(AtomUsrIn);
+  return(AtomFoundVar);
 }
 
 /* check if arg is an alias */
 static int
 FindAliasForStream (int sno, Atom al)
 {
-  AliasDesc aliasp = AliasList;
-  while (aliasp != NULL) {
-    if (aliasp->my_stream == sno && aliasp->name == al)
+  AliasDesc aliasp = FileAliases, aliasp_max = FileAliases+NOfFileAliases;
+
+  while (aliasp < aliasp_max) {
+    if (aliasp->alias_stream == sno && aliasp->name == al) {
       return(TRUE);
-    else aliasp = aliasp->next;
+    }
+    aliasp++;
   }
   return(FALSE);
 }
@@ -1614,44 +1701,30 @@ CheckStream (Term arg, int kind, char *msg)
     Error(INSTANTIATION_ERROR, arg, msg);
     return (-1);
   }
-  else if (IsAtomTerm (arg))
-    {
-      Atom sname = AtomOfTerm (arg);
-      if (sname == AtomUsrIn)
-	sno = StdInStream;
-      else if (sname == AtomUsrOut)
-	sno = StdOutStream;
-      else if (sname == AtomUsrErr)
-	sno = StdErrStream;
-      else if (sname == AtomUser)
-	{
-	  if (kind & Input_Stream_f)
-	    sno = StdInStream;
-	  if (kind & Output_Stream_f) {
-	    if (sno >= 0)
-	      {
-		Error(PERMISSION_ERROR_INPUT_STREAM, arg,
-		      "ambiguous use of 'user' as a stream");
-		return (-1);
-	      }
-	    else {
-	      sno = StdOutStream;
-	    }
-	  }
+  else if (IsAtomTerm (arg)) {
+    Atom sname = AtomOfTerm (arg);
+
+    if (sname == AtomUser) {
+      if (kind & Input_Stream_f) {
+	if (kind & (Output_Stream_f|Append_Stream_f)) {
+	  Error(PERMISSION_ERROR_INPUT_STREAM, arg,
+		"ambiguous use of 'user' as a stream");
+	  return (-1);	    
 	}
-      else {
-	if ((sno = CheckAlias(sname)) == -1) {
-	  Error(EXISTENCE_ERROR_STREAM, arg, msg);
-	  return(-1);
-	}
+	sname = AtomUsrIn;
+      } else {
+	sname = AtomUsrOut;
       }
     }
-  else if (IsApplTerm (arg) && FunctorOfTerm (arg) == FunctorStream)
-    {
-      arg = ArgOfTerm (1, arg);
-      if (!IsVarTerm (arg) && IsIntTerm (arg))
-	sno = IntOfTerm (arg);
+    if ((sno = CheckAlias(sname)) == -1) {
+      Error(EXISTENCE_ERROR_STREAM, arg, msg);
+      return(-1);
     }
+  } else if (IsApplTerm (arg) && FunctorOfTerm (arg) == FunctorStream) {
+    arg = ArgOfTerm (1, arg);
+    if (!IsVarTerm (arg) && IsIntTerm (arg))
+      sno = IntOfTerm (arg);
+  }
   if (sno < 0)
     {
       Error(DOMAIN_ERROR_STREAM_OR_ALIAS, arg, msg);
@@ -1685,7 +1758,7 @@ p_check_stream (void)
 static Int
 p_check_if_stream (void)
 {				/* '$check_stream'(Stream)                  */
-  return (CheckStream (ARG1, Input_Stream_f | Output_Stream_f | Socket_Stream_f,  "check_stream/1")
+  return (CheckStream (ARG1, Input_Stream_f | Output_Stream_f | Append_Stream_f | Socket_Stream_f,  "check_stream/1")
 	  != -1);
 }
 
@@ -4159,6 +4232,7 @@ InitIOPreds(void)
   InitCPred ("$force_char_conversion", 0, p_force_char_conversion, SyncPredFlag);
   InitCPred ("$disable_char_conversion", 0, p_disable_char_conversion, SyncPredFlag);
   InitCPred ("$add_alias_to_stream", 2, p_add_alias_to_stream, SafePredFlag|SyncPredFlag);
+  InitCPred ("$change_alias_to_stream", 2, p_change_alias_to_stream, SafePredFlag|SyncPredFlag);
   InitCPred ("$check_if_valid_new_alias", 1, p_check_if_valid_new_alias, TestPredFlag|SafePredFlag|SyncPredFlag);
   InitCPred ("$fetch_stream_alias", 2, p_fetch_stream_alias, SafePredFlag|SyncPredFlag);
 #if HAVE_SELECT

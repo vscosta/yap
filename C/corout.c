@@ -894,7 +894,8 @@ can_unify(Term t1, Term t2, Term *Vars)
   if (IsVarTerm(t1)) {
     /* we know for sure  they can't be different */
     if (IsVarTerm(t2)) {
-      /* we need to suspend on both variables ! */
+      /* we need to suspend on both variables because otherwise
+	 Y = susp(_) would not wakeup susp ! */
       *Vars = MkPairTerm(t1,MkPairTerm(t2,TermNil));
       return(TRUE);
     } else {

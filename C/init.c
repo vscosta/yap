@@ -690,7 +690,11 @@ InitFlags(void)
 {
   /* note that heap_regs must be set first */
 
+#if USE_GMP
+  yap_flags[YAP_INT_BOUNDED_FLAG] = 0;
+#else
   yap_flags[YAP_INT_BOUNDED_FLAG] = 1;
+#endif
   yap_flags[MAX_ARITY_FLAG] = -1;
   yap_flags[INTEGER_ROUNDING_FLAG] = 0;
   yap_flags[YAP_MAX_INTEGER_FLAG] = (Int)(~((CELL)1 << (sizeof(Int)*8-1)));
@@ -946,6 +950,8 @@ InitCodes(void)
   heap_regs->term_dollar_u = MkAtomTerm(LookupAtom("$u"));
 #endif
   heap_regs->term_refound_var = MkAtomTerm(LookupAtom("$I_FOUND_THE_VARIABLE_AGAIN"));
+  heap_regs->n_of_file_aliases = 0;
+  heap_regs->file_aliases = NULL;
   heap_regs->foreign_code_loaded = NULL;
   heap_regs->yap_lib_dir = NULL;
   heap_regs->size_of_overflow  = 0;
