@@ -112,7 +112,7 @@ no_style_check([H|T]) :- no_style_check(H), no_style_check(T).
 	'$start_line'(LN), write(user_error,LN),
 	write(user_error,', clause '),
 	( '$get_value'('$consulting',false),
-	   '$first_clause_in_file'(Name,Arity) ->
+	   '$first_clause_in_file'(Name,Arity, OM) ->
 	    ClN = 1 ;
 		'$number_of_clauses'(H,M,ClN0),
 		ClN is ClN0+1
@@ -122,11 +122,11 @@ no_style_check([H|T]) :- no_style_check(H), no_style_check(T).
 	nl(user_error). 
 
 '$xtract_head'((H:-_),OM,M,NH,Name,Arity) :- !,
-        'xtract_head'(H,OM,M,NH,Name,Arity).
+        '$xtract_head'(H,OM,M,NH,Name,Arity).
 '$xtract_head'((H,_),OM,M,H1,Name,Arity) :- !,
 	'$xtract_head'(H,OM,M,H1,Name,Arity).
 '$xtract_head'((H-->_),OM,M,HL,Name,Arity) :- !,
-	'$xtract_head'(H,OM,M,Name,A1),
+	'$xtract_head'(H,M,OM,M,Name,A1),
 	Arity is A1+2,
 	functor(HL,Name,Arity).
 '$xtract_head'(M:H,_,NM,NH,Name,Arity) :- !,
@@ -152,15 +152,15 @@ no_style_check([H|T]) :- no_style_check(H), no_style_check(T).
 
 '$handle_discontiguous'(F,A,M) :-
 	'$recorded'('$discontiguous_defs','$df'(F,A,M),_), !.
-'$handle_discontiguous'(F,A,_) :-
-	'$in_this_file_before'(F,A),
+'$handle_discontiguous'(F,A,M) :-
+	'$in_this_file_before'(F,A,M),
 	write(user_error,'[ Warning: discontiguous definition of '),
 	write(user_error,F/A), write(user_error,' (line '),
 	'$start_line'(LN), write(user_error,LN),
 	write(user_error,') ]'),
 	nl(user_error).
 
-'$handle_multiple'(F,A,_) :-
+'$handle_multiple'(F,A,M) :-
 	\+ '$first_clause_in_file'(F,A,M), !.
 '$handle_multiple'(_,_,_) :-
 	'$get_value'('$consulting',true), !.
