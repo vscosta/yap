@@ -281,8 +281,8 @@ PutAtt(attvar_record *attv, Int i, Term tatt) {
 static Int
 UpdateAtt(attvar_record *attv, Int i, Term tatt) {
   Int pos = i*2;
-
-  if (!IsUnboundVar(attv->Atts[pos+1])) {
+  Term tv = attv->Atts[pos+1];
+  if (!IsVarTerm(tv) || !IsUnboundVar(tv)) {
     tatt = MkPairTerm(tatt, attv->Atts[pos+1]);
   } else {
     tatt = MkPairTerm(tatt, TermNil);
@@ -389,7 +389,7 @@ static Int
 GetAtt(attvar_record *attv, int i) {
   Int pos = i *2;
 #if SBA
-  if (IsUnboundVar(attv->Atts[pos+1]))
+  if (IsVarTerm(attv->Atts[pos+1]) && IsUnboundVar(attv->Atts[pos+1]))
     return((CELL)&(attv->Atts[pos+1]));
 #endif  
   return(attv->Atts[pos+1]);

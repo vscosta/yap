@@ -1691,7 +1691,7 @@ static int subsumes_complex(register CELL *pt0, register CELL *pt0_end, register
     /* cell we created */
     CELL *npt1 = (CELL *)*pt1;
     /* shorten the chain */
-    if (IsUnboundVar(*pt1)) {
+    if (IsVarTerm(*pt1) && IsUnboundVar(*pt1)) {
       RESET_VARIABLE(pt1);
     } else {
       *pt1 = *npt1;
