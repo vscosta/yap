@@ -1461,13 +1461,6 @@ mark_choicepoints(register choiceptr gc_B, tr_fr_ptr saved_TR, int very_verbose)
     if (very_verbose) {
       switch (opnum) {
       case _retry_c:
-	if (gc_B->cp_ap == RETRY_C_RECORDED_CODE 
-	    || gc_B->cp_ap == RETRY_C_RECORDED_K_CODE 
-	    || gc_B->cp_ap == RETRY_C_DRECORDED_CODE 
-	    || gc_B->cp_ap == RETRY_C_RECORDEDP_CODE) {
-	  DBRef entryref = (DBRef)EXTRA_CBACK_ARG(3,1);
-	  entryref->Flags |= GcFoundMask;
-	}
       case _or_else:
       case _or_last:
       case _Nstop:
