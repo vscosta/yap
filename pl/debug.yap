@@ -749,7 +749,7 @@ debugging :-
 	'$recorded'('$sig_handler', action(S,A),_),
 	'$execute'(A),
 	'$handle_signals'(Rest).
-'$handle_signals'([_|Rest]).
+'$handle_signals'([_|Rest]) :- '$handle_signals'(Rest).
 
 '$msg'(P,G,Module,L,SL):-
 	flush_output(user_output),
