@@ -119,8 +119,8 @@
 %
 '$execute_frozen_goal'('$redo_dif'(Done, X, Y), G) :-
 	'$redo_dif'(Done, X, Y, G).
-'$execute_frozen_goal'('$redo_freeze'(Done, _, Goal), _) :-
-	'$redo_freeze'(Done, Goal).
+'$execute_frozen_goal'('$redo_freeze'(Done, V, Goal), _) :-
+	'$redo_freeze'(Done, V, Goal).
 '$execute_frozen_goal'('$redo_eq'(Done, X, Y, Goal), G) :-
 	'$redo_eq'(Done, X, Y, Goal, G).
 '$execute_frozen_goal'('$redo_ground'(Done, X, Goal), _) :-
@@ -210,19 +210,23 @@ dif(_, _).
 %
 % someone else (that is Cond had ;) did the work, do nothing
 %
-'$redo_freeze'(Done, _) :- nonvar(Done), !.
+'$redo_freeze'(Done, _, _) :- nonvar(Done), !.
 %
 % We still have some more conditions: continue the analysis.
 %
-'$redo_freeze'(Done, '$when'(C, G, Done)) :- !,
+'$redo_freeze'(Done, V, '$when'(C, G, Done)) :- !,
 	'$when'(C, G, Done).
 	
+%
+% check if the variable was really bound
+%
+'$redo_freeze'(Done, V, _) :- var(V), !.
 %
 % I can't believe it: we're done and can actually execute our
 % goal. Notice we have to say we are done, otherwise someone else in
 % the disjunction might decide to wake up the goal themselves.
 %
-'$redo_freeze'('$done', G) :-
+'$redo_freeze'('$done', _, G) :-
 	'$execute'(G).
 
 %
