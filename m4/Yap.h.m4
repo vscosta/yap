@@ -10,7 +10,7 @@
 * File:		Yap.h.m4						 *
 * mods:									 *
 * comments:	main header file for YAP				 *
-* version:      $Id: Yap.h.m4,v 1.41 2003-03-10 19:41:20 rslopes Exp $	 *
+* version:      $Id: Yap.h.m4,v 1.42 2003-03-13 15:34:32 rslopes Exp $	 *
 *************************************************************************/
 
 #include "config.h"
@@ -102,7 +102,7 @@
 #undef  USE_THREADED_CODE
 #endif
 #define inline __inline
-#define YAP_VERSION "Yap-4.4.0"
+#define YAP_VERSION "Yap-4.5.0"
 #define BIN_DIR "c:\\Program Files\\Yap\\bin"
 #define LIB_DIR "c:\\Program Files\\Yap\\lib\\Yap"
 #define SHARE_DIR "c:\\Program Files\\Yap\\share\\Yap"
