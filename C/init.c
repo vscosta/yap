@@ -548,7 +548,7 @@ InitCmpPred(char *Name, int Arity, CmpPredicate cmp_code, CPredicate code, int f
   pe->PredFlags = flags | StandardPredFlag | CPredFlag;
   p_code->u.sla.l = pe->TrueCodeOfPred = (CODEADDR) code;
   pe->CodeOfPred = pe->FirstClause = pe->LastClause = (CODEADDR) p_code;
-    p_code->opc = pe->OpcodeOfPred = opcode(_call_cpred);
+  p_code->opc = pe->OpcodeOfPred = opcode(_call_cpred);
   p_code->u.sla.l2 = (CELL)NIL;
   p_code->u.sla.s = -Signed(RealEnvSize);
   p_code->u.sla.p = (CODEADDR)pe;
@@ -561,7 +561,6 @@ InitCmpPred(char *Name, int Arity, CmpPredicate cmp_code, CPredicate code, int f
   cmp_funcs[NUMBER_OF_CMPFUNCS].p = pe;
   cmp_funcs[NUMBER_OF_CMPFUNCS].f = cmp_code;
   NUMBER_OF_CMPFUNCS++;
-  pe->OpcodeOfPred = opcode(_Ystop);
 }
 
 void 
@@ -945,6 +944,7 @@ InitCodes(void)
   heap_regs->functor_csult = MkFunctor(AtomCsult, 1);
   heap_regs->functor_eq = MkFunctor(AtomEq, 2);
   heap_regs->functor_execute_in_mod = MkFunctor(LookupAtom("$execute_in_mod"), 2);
+  heap_regs->functor_execute_within = MkFunctor(LookupAtom("$execute_within"), 1);
   heap_regs->functor_g_atom = MkFunctor(LookupAtom("atom"), 1);
   heap_regs->functor_g_atomic = MkFunctor(LookupAtom("atomic"), 1);
   heap_regs->functor_g_compound = MkFunctor(LookupAtom("compound"), 1);

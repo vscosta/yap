@@ -1072,6 +1072,7 @@ restore_codes(void)
   heap_regs->functor_csult = FuncAdjust(heap_regs->functor_csult);
   heap_regs->functor_eq = FuncAdjust(heap_regs->functor_eq);
   heap_regs->functor_execute_in_mod = FuncAdjust(heap_regs->functor_execute_in_mod);
+  heap_regs->functor_execute_within = FuncAdjust(heap_regs->functor_execute_within);
   heap_regs->functor_g_atom = FuncAdjust(heap_regs->functor_g_atom);
   heap_regs->functor_g_atomic = FuncAdjust(heap_regs->functor_g_atomic);
   heap_regs->functor_g_compound = FuncAdjust(heap_regs->functor_g_compound);
@@ -1729,6 +1730,7 @@ RestoreClause(Clause *Cl)
     case _either:
     case _or_else:
     case _p_execute:
+    case _p_execute_within:
 #ifdef YAPOR
     case _or_last:
 #endif

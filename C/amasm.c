@@ -770,6 +770,8 @@ a_p(op_numbers opcode)
 	} else {
 	  if (RepPredProp(fe)->FunctorOfPred == FunctorExecuteInMod)
 	    code_p->opc = emit_op(_p_execute);
+	  else if (RepPredProp(fe)->FunctorOfPred == FunctorExecuteWithin)
+	    code_p->opc = emit_op(_p_execute_within);
 	  else
 	    code_p->opc = emit_op(_call_cpred);
 	}

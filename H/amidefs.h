@@ -54,7 +54,7 @@ typedef enum {
 } op_numbers;
 
 
-#define _std_top	_p_func2f_yy
+#define _std_top	_p_execute_within
 
 typedef enum {
 	_atom,

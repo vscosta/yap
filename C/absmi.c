@@ -11244,6 +11244,142 @@ absmi(int inp)
       }
       ENDBOp();
 
+
+      BOp(p_execute_within, sla);
+      { 
+	PredEntry *pen;
+
+	CACHE_Y_AS_ENV(Y);
+	CACHE_A1();
+	BEGD(d0);
+	d0 = ARG1;
+	if (PredGoalExpansion->OpcodeOfPred != UNDEF_OPCODE) {
+	  d0 = ExecuteCallMetaCall();
+	}
+	deref_head(d0, execute_within_unk);
+      execute_within_nvar:
+	if (IsApplTerm(d0)) {
+	  Functor f = FunctorOfTerm(d0);
+	  if (IsExtensionFunctor(f)) {
+	    d0 = ExecuteCallMetaCall();
+	    goto execute_within_nvar;
+	  }
+	  pen = RepPredProp(PredPropByFunc(f, *CurrentModulePtr));
+	  if (pen->PredFlags & MetaPredFlag) {
+	    d0 = ExecuteCallMetaCall();
+	    goto execute_within_nvar;
+	  }
+	  BEGP(pt1);
+	  pt1 = RepAppl(d0);
+	  BEGD(d2);
+	  for (d2 = ArityOfFunctor(f); d2; d2--) {
+#if SBA
+	    BEGD(d1);
+	    d1 = pt1[d2];
+	    if (d1 == 0)
+	      XREGS[d2] = (CELL)(pt1+d2);
+	    else
+	      XREGS[d2] = d1;
+#else
+	    XREGS[d2] = pt1[d2];
+#endif
+	  }
+	  ENDD(d2);
+	  ENDP(pt1);
+	} else if (IsAtomTerm(d0)) {
+	  if (AtomOfTerm(d0) == AtomCut) {
+	    choiceptr pt0;
+
+	    pt0 = (choiceptr)(ENV[E_CB]);
+	    if (TopB != NULL && YOUNGER_CP(TopB,pt0)) {  
+	      pt0 = TopB;
+	      if (DelayedB == NULL || YOUNGER_CP(pt0,DelayedB))
+		DelayedB = pt0;
+	    }
+	    /* find where to cut to */
+	    if (SHOULD_CUT_UP_TO(B,pt0)) {
+#ifdef YAPOR
+	      /* Wow, we're gonna cut!!! */
+	      CUT_prune_to(pt0);
+#else
+	      /* Wow, we're gonna cut!!! */
+	      B = pt0;
+#endif /* YAPOR */
+	      HB = PROTECT_FROZEN_H(B);
+	    }
+	    PREG = NEXTOP(PREG, sla);
+	    JMPNext();
+	  }else
+	    pen = RepPredProp(PredPropByAtom(AtomOfTerm(d0), *CurrentModulePtr));
+	} else {
+	  d0 = ExecuteCallMetaCall();
+	  goto execute_within_nvar;
+	}
+
+#ifndef NO_CHECKING
+	check_stack(NoStackPWExec, H);
+#endif
+	/* code copied from call */
+	ENV = E_Y;
+	/* Try to preserve the environment */
+	E_Y = (CELL *) (((char *) Y) + PREG->u.sla.s);
+	CPREG =
+	  (yamop *) NEXTOP(PREG, sla);
+	ALWAYS_LOOKAHEAD(pen->OpcodeOfPred);
+	PREG = (yamop *) pen->CodeOfPred;
+#ifdef DEPTH_LIMIT
+	if (DEPTH <= MkIntTerm(1)) {/* I assume Module==0 is primitives */
+	  if (pen->ModuleOfPred) {
+	    if (DEPTH == MkIntTerm(0))
+	      FAIL();
+	    else DEPTH = RESET_DEPTH();
+	  }
+	} else if (pen->ModuleOfPred)
+	  DEPTH -= MkIntConstant(2);
+#endif	/* DEPTH_LIMIT */
+#ifdef LOW_LEVEL_TRACER
+	if (do_low_level_trace)
+	  low_level_trace(enter_pred,pen,XREGS+1);
+#endif	/* LOW_LEVEL_TRACER */
+#ifdef FROZEN_REGS
+	{ 
+	  choiceptr top_b = PROTECT_FROZEN_B(B);
+#ifdef SBA
+	  if (E_Y > (CELL *) top_b || E_Y < H) E_Y = (CELL *) top_b;
+#else
+	  if (E_Y > (CELL *) top_b) E_Y = (CELL *) top_b;
+#endif
+	}
+#else
+	if (E_Y > (CELL *) B) {
+	  E_Y = (CELL *) B;
+	}
+#endif /* FROZEN_REGS */
+	WRITEBACK_Y_AS_ENV();
+	/* setup GB */
+	E_Y[E_CB] = ENV[E_CB];
+#ifdef YAPOR
+	SCH_check_requests();
+#endif	/* YAPOR */
+	ALWAYS_GONext();
+	ALWAYS_END_PREFETCH();
+
+	BEGP(pt1);
+	deref_body(d0, pt1, execute_within_unk, execute_within_nvar);
+	d0 = ExecuteCallMetaCall();
+	goto execute_within_nvar;
+	ENDP(pt1);
+	ENDD(d0);
+	ENDCACHE_Y_AS_ENV();
+
+    NoStackPWExec:
+	/* on X86 machines S will not actually be holding the pointer to pred */
+	SREG = (CELL *) pen;
+	goto NoStackCallGotS;
+
+      }
+      ENDBOp();
+
 #if !USE_THREADED_CODE
     default:
       PREG = Error(SYSTEM_ERROR, MkIntegerTerm(opcode), "trying to execute invalid YAAM instruction %d", opcode);

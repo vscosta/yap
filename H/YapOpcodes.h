@@ -354,5 +354,6 @@
     OPCODE(p_func2f_xy             ,xyx),
     OPCODE(p_func2f_yx             ,yxx),
     OPCODE(p_func2f_yy             ,yyx),
-    OPCODE(p_execute               ,sla)
+    OPCODE(p_execute               ,sla),
+    OPCODE(p_execute_within        ,sla)
 

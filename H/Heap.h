@@ -10,7 +10,7 @@
 * File:		Heap.h         						 *
 * mods:									 *
 * comments:	Heap Init Structure					 *
-* version:      $Id: Heap.h,v 1.10 2001-10-30 16:42:05 vsc Exp $	 *
+* version:      $Id: Heap.h,v 1.11 2001-10-30 20:35:19 vsc Exp $	 *
 *************************************************************************/
 
 /* information that can be stored in Code Space */
@@ -228,6 +228,7 @@ typedef struct various_codes {
     functor_cut_by,
     functor_eq,
     functor_execute_in_mod,
+    functor_execute_within,
     functor_g_atom,
     functor_g_atomic,
     functor_g_compound,
@@ -416,6 +417,7 @@ typedef struct various_codes {
 #define  FunctorCutBy             heap_regs->functor_cut_by
 #define  FunctorEq                heap_regs->functor_eq
 #define  FunctorExecuteInMod      heap_regs->functor_execute_in_mod
+#define  FunctorExecuteWithin     heap_regs->functor_execute_within
 #define  FunctorGAtom             heap_regs->functor_g_atom
 #define  FunctorGAtomic           heap_regs->functor_g_atomic
 #define  FunctorGCompound         heap_regs->functor_g_compound
