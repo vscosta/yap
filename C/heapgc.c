@@ -1097,7 +1097,7 @@ mark_environments(CELL_PTR gc_ENV, OPREG size, CELL *pvbmap)
     
     size = EnvSize((CELL_PTR) (gc_ENV[E_CP]));	/* size = EnvSize(CP) */
     pvbmap = EnvBMap((CELL_PTR) (gc_ENV[E_CP]));
-#if 1
+#if 0
       if (size < 0) {
 	PredEntry *pe = EnvPreg(gc_ENV[E_CP]);
 	op_numbers op = op_from_opcode(ENV_ToOp(gc_ENV[E_CP]));
