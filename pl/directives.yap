@@ -452,6 +452,19 @@ yap_flag(write_strings,off) :- !,
 yap_flag(write_strings,X) :-
 	'$do_error'(domain_error(flag_value,write_strings+X),yap_flag(write_strings,X)).
 
+yap_flag(stack_dump_on_error,OUT) :-
+	var(OUT), !,
+	'$access_yap_flags'(17,X),
+	'$transl_to_on_off'(X,OUT).
+yap_flag(stack_dump_on_error,on) :- !,
+	'$transl_to_on_off'(X,on),
+	'$set_yap_flags'(17,X).
+yap_flag(stack_dump_on_error,off) :- !,
+	'$transl_to_on_off'(X,off),
+	'$set_yap_flags'(17,X).
+yap_flag(stack_dump_on_error,X) :-
+	'$do_error'(domain_error(flag_value,stack_dump_on_error+X),yap_flag(stack_dump_on_error,X)).
+
 yap_flag(user_input,OUT) :-
 	var(OUT), !,
 	'$flag_check_alias'(OUT, user_input).
@@ -535,6 +548,7 @@ yap_flag(host_type,X) :-
 	    V = redefine_warnings ;
 	    V = single_var_warnings ;
 	    V = strict_iso ;
+	    V = stack_dump_on_error ;
 	    V = syntax_errors ;
 	    V = to_chars_mode ;
 	    V = toplevel_hook ;

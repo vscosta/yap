@@ -4957,7 +4957,7 @@ If a term equal to @var{T} up to variable renaming is stored under key
 
 @item recordzifnot(+@var{K},@var{T},-@var{R})
 @findex recorda/3
-@saindex recorda/3
+@snindex recorda/3
 @cnindex recorda/3
 If a term equal to @var{T} up to variable renaming is stored under key
 @var{K} fail. Otherwise, make term @var{T} the first record under key
@@ -5008,12 +5008,21 @@ this goal fails.
 All terms belonging to the key @code{K} are erased from the internal
 database. The predicate always succeeds.
 
-@item current_key(@var{A},@var{P})
+@item current_key(?@var{A},?@var{K})
 @findex current_key/2
 @syindex current_key/2
 @cnindex current_key/2
-Defines the relation: @var{P} is a currently defined database key whose
-name is the atom @var{A}.
+Defines the relation: @var{K} is a currently defined database key whose
+name is the atom @var{A}. It can be used to generate all the keys for
+the internal data-base.
+
+@item key_statistics(+@var{K},-@var{Entries},-@var{Size})
+@findex key_properties/3
+@snindex key_properties/3
+@cnindex key_properties/3
+Returns several statistics for a key @var{K}. Currently, it says how
+many entries we have for that key, @var{Entries}, and what is the
+total size spent on the key, @var{Size}.
 
 @item get_value(+@var{A},-@var{V})
 @findex get_value/2
@@ -6355,6 +6364,12 @@ numbers there is not guarantee that programs compliant with this mode
 will work the same way in every Prolog and in every platform. We thus
 believe this mode is mostly useful when investigating how a program
 depends on a Prolog's platform specific features.
+
+@item  stack_dump_on_error
+@findex stack_dump_on_error (yap_flag/2 option)
+@*
+If @code{on} show a stack dump when Yap finds an error. The default is
+@code{off}.
 
 @item  syntax_errors
 @findex syntax_errors (yap_flag/2 option)

@@ -79,7 +79,6 @@ STATIC_PROTO(Int  p_call_count_info, (void));
 STATIC_PROTO(Int  p_call_count_set, (void));
 STATIC_PROTO(Int  p_call_count_reset, (void));
 STATIC_PROTO(Int  p_toggle_static_predicates_in_use, (void));
-STATIC_PROTO(void  list_all_predicates_in_use, (void));
 STATIC_PROTO(Atom  YapConsultingFile, (void));
 STATIC_PROTO(Int  PredForCode,(CODEADDR, Atom *, UInt *, SMALLUNSGN *));
 
@@ -1919,90 +1918,6 @@ search_for_static_predicate_in_use(PredEntry *p, int check_everything)
   return(FALSE);
 }
 
-#ifdef DEBUG
-#ifndef ANALYST
-
-static char *op_names[_std_top + 1] =
-{
-#define OPCODE(OP,TYPE) #OP
-#include "YapOpcodes.h"
-#undef  OPCODE
-};
-
-#endif
-
-static void
-list_all_predicates_in_use(void)
-{
-  choiceptr b_ptr = B;
-  CELL *env_ptr = ENV;
-
-  do {
-      /* 
-	 I do not need to check environments for asserts,
-	 only for retracts
-      */
-    while (b_ptr > (choiceptr)env_ptr) {
-      PredEntry *pe = EnvPreg(env_ptr[E_CP]);
-      op_numbers op = Yap_op_from_opcode(ENV_ToOp(env_ptr[E_CP]));
-      if (pe->ArityOfPE)
-	fprintf(Yap_stderr,"   ENV %p  %s/%d %s\n", env_ptr, RepAtom(NameOfFunctor(pe->FunctorOfPred))->StrOfAE, pe->ArityOfPE, op_names[op]);
-      else
-	fprintf(Yap_stderr,"   ENV %p  %s %s\n", env_ptr, RepAtom((Atom)(pe->FunctorOfPred))->StrOfAE, op_names[op]);
-      env_ptr = (CELL *)(env_ptr[E_E]);      
-    }
-  restart_cp:
-    /* now mark the choicepoint */
-    if (b_ptr != NULL) {
-      op_numbers opnum = Yap_op_from_opcode(b_ptr->cp_ap->opc);
-      
-      switch (opnum) {
-      case _or_else:
-      case _or_last:
-      case _Nstop:
-      case _switch_last:
-      case _switch_l_list:
-      case _retry_c:
-      case _retry_userc:
-      case _trust_logical_pred:
-      case _retry_profiled:
-      case _count_retry:
-	{
-	  Atom at;
-	  UInt arity;
-	  SMALLUNSGN mod;
-	  if (PredForCode((CODEADDR)b_ptr->cp_ap, &at, &arity, &mod)) {
-	    if (arity) 
-	      fprintf(Yap_stderr,"CP  %p  %s/%d (%s)\n", b_ptr, RepAtom(at)->StrOfAE, arity, op_names[opnum]);
-	    else
-	      fprintf(Yap_stderr,"CP  %p  %s (%s)\n", b_ptr, RepAtom(at)->StrOfAE, op_names[opnum]);
-	  } else
-	    fprintf(Yap_stderr,"CP  %p  (%s)\n", b_ptr, op_names[opnum]);
-	}
-	break;
-      default:
-	{
-	  PredEntry *pe = (PredEntry *)b_ptr->cp_ap->u.ld.p;
-	  if (pe == NULL) {
-	    fprintf(Yap_stderr,"CP  %p  (%s)\n", b_ptr, op_names[opnum]);
-	  } else
-	    if (pe->ArityOfPE)
-	      fprintf(Yap_stderr,"CP  %p  %s/%d (%s)\n", b_ptr, RepAtom(NameOfFunctor(pe->FunctorOfPred))->StrOfAE, pe->ArityOfPE, op_names[opnum]);
-	    else
-	      fprintf(Yap_stderr,"CP  %p  %s (%s)\n", b_ptr, RepAtom((Atom)(pe->FunctorOfPred))->StrOfAE, op_names[opnum]);
-	}
-      }
-      if (opnum == _retry_profiled || opnum == _count_retry) {
-	opnum = Yap_op_from_opcode(NEXTOP(b_ptr->cp_ap,l)->opc);
-	goto restart_cp;
-      }
-    }
-    env_ptr = b_ptr->cp_env;
-    b_ptr = b_ptr->cp_b;
-  } while (b_ptr != NULL);
-}
-#endif
-
 static void
 mark_pred(int mark, PredEntry *pe)
 {
@@ -2079,16 +1994,11 @@ do_toggle_static_predicates_in_use(int mask)
 #endif
 
 static Term
-all_calls(void)
+all_envs(CELL *env_ptr)
 {
-  choiceptr b_ptr = B;
-  CELL *env_ptr = ENV;
+  Term tf = AbsPair(H);
   CELL *bp = NULL;
-  Term ts[3];
-  Functor f = Yap_MkFunctor(AtomLocal,3);
-
-  ts[0] = MkIntegerTerm((Int)P);
-  ts[1] = AbsPair(H);
+  
   /* walk the environment chain */
   while (env_ptr != NULL) {
     bp = H;
@@ -2097,14 +2007,22 @@ all_calls(void)
     bp[0] = MkIntegerTerm((Int)env_ptr[E_CP]);
     if (H >= ASP) {
       bp[1] = TermNil;
-      return(ts[0]);
+      return tf;
     } else {
       bp[1] = AbsPair(H);
     }
     env_ptr = (CELL *)(env_ptr[E_E]);      
   }
   bp[1] = TermNil;
-  ts[2] = AbsPair(H);
+  return tf;
+}
+
+static Term
+all_cps(choiceptr b_ptr)
+{
+  CELL *bp = NULL;
+  Term tf = AbsPair(H);
+
   while (b_ptr != NULL) {
     bp = H;
     H += 2;
@@ -2112,13 +2030,30 @@ all_calls(void)
     bp[0] = MkIntegerTerm((Int)b_ptr->cp_ap);
     if (H >= ASP) {
       bp[1] = TermNil;
-      return(ts[0]);
+      return tf;
     } else {
       bp[1] = AbsPair(H);
     }
     b_ptr = b_ptr->cp_b;
   }
   bp[1] = TermNil;
+  return tf;
+}
+
+
+static Term
+all_calls(void)
+{
+  Term ts[3];
+  Functor f = Yap_MkFunctor(AtomLocal,3);
+
+  ts[0] = MkIntegerTerm((Int)P);
+  if (yap_flags[STACK_DUMP_ON_ERROR_FLAG]) {
+    ts[1] = all_envs(ENV);
+    ts[1] = all_cps(B);
+  } else {
+    ts[1] = ts[2] = TermNil;
+  }
   return(Yap_MkApplTerm(f,3,ts));
 }
 

@@ -2195,6 +2195,11 @@ p_set_yap_flags(void)
       return(FALSE);
     yap_flags[ALLOW_ASSERTING_STATIC_FLAG] = value;
     break;
+  case STACK_DUMP_ON_ERROR_FLAG:
+    if (value != 0 && value !=  1)
+      return(FALSE);
+    yap_flags[STACK_DUMP_ON_ERROR_FLAG] = value;
+    break;
   default:
     return(FALSE);
   }

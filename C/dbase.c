@@ -3125,6 +3125,28 @@ p_first_instance(void)
   return(Yap_unify(ARG3, TRef));
 }
 
+static Int
+p_key_statistics(void)
+{
+  Register DBProp p;
+  Register DBRef  x;
+  UInt sz = 0, cls = 0;
+  if (EndOfPAEntr(p = FetchDBPropFromKey(Deref(ARG1), 0, TRUE, "key_statistics/3"))) {
+    /* This is not a key property */
+    return(FALSE);
+  }
+  /* count number of clauses and size */
+  x = p->First;
+  while (x != NULL) {
+    cls++;
+    sz += Yap_SizeOfBlock((CODEADDR)x);
+    x = NextDBRef(x);
+  }
+  return(Yap_unify(ARG2,MkIntegerTerm(cls)) &&
+	 Yap_unify(ARG3,MkIntegerTerm(sz)));
+}
+
+
 /*
  * This is called when we are erasing a data base clause, because we may have
  * pending references 
@@ -4463,6 +4485,7 @@ Yap_InitDBPreds(void)
   Yap_InitCPred("$hold_index", 3, p_hold_index, SafePredFlag|SyncPredFlag);
   Yap_InitCPred("$fetch_reference_from_index", 3, p_fetch_reference_from_index, SafePredFlag|SyncPredFlag);
   Yap_InitCPred("$resize_int_keys", 1, p_resize_int_keys, SafePredFlag|SyncPredFlag);
+  Yap_InitCPred("key_statistics", 3, p_key_statistics, SyncPredFlag);
 }
 
 void 
