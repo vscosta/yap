@@ -142,7 +142,7 @@ cleanup_expansion([H,T]) :- cleanup_expansion(H),cleanup_expansion(T).
 cleanup_expansion(G/A) :-
  	atom(G),integer(A),!,
 	compose_var_goal(G/A,GG),
-	\+ clause(user:goal_expansion(GG,M,NG),_), % TODO: match body too
+        \+ user:goal_expansion(GG,M,call_cleanup(M:GG)),
 	assert((   user:goal_expansion(GG,M,NG)
 	       :-  bb_get(expansion_toggle,1)
 	       ->  bb_put(expansion_toggle,0),
