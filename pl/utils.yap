@@ -850,7 +850,9 @@ user_defined_directive(Dir,Action) :-
 '$fast_do'(M:G) :- '$mod_switch'(M,G).
 '$fast_do'('$spycalls'(G,Res)) :- '$spycalls'(G,Res).
 '$fast_do'('$profile_data'(P, Parm, Data)) :- '$profile_data'(P, Parm, Data).
-
+'$fast_do'('$ensure_loaded'(F)) :- '$ensure_loaded'(F).
+'$fast_do'('$consult'(F)) :- '$consult'(F).
+'$fast_do'('$reconsult'(F)) :- '$reconsult'(F).
 
 '$set_toplevel_hook'(_) :- 
 	'$recorded'('$toplevel_hooks',_,R),

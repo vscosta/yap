@@ -68,11 +68,11 @@ static int p_debug_prolog(void);
 ** -------------------------- */
 
 void init_optyap_preds(void) {
+  InitCPred("$default_sequential", 1, p_default_sequential, SafePredFlag);
 #ifdef YAPOR
   InitCPred("$yapor_on", 0, yapor_on, SafePredFlag);
   InitCPred("$start_yapor", 0, start_yapor, SafePredFlag);
   InitCPred("$sequential", 1, p_sequential, SafePredFlag);
-  InitCPred("$default_sequential", 1, p_default_sequential, SafePredFlag);
   InitCPred("execution_mode", 1, p_execution_mode, SafePredFlag);
   InitCPred("performance", 1, p_performance, SafePredFlag);
   InitCPred("$parallel_new_answer", 1, p_parallel_new_answer, SafePredFlag);

@@ -275,12 +275,48 @@ check_mode(write,1, _) :- !.
 check_mode(Mode, G) :-
 	throw(domain_error(io_mode,Mode),G).
 
+shell :-
+	G = shell,
+	get_shell(Shell),
+	atom_codes(FullCommand, Shell),
+	exec_command(FullCommand, '$stream'(0),'$stream'(0), '$stream'(1), PID, Error),
+	handle_system_error(Error, off, G),
+	wait(PID, _Status, Error),
+	handle_system_error(Error, off, G).
+
+shell(Command) :-
+	G = shell(Command),
+	check_command(Command, G),
+	get_shell(Shell),
+	atom_codes(Command, SC),
+	append(Shell, SC, ShellCommand),
+	atom_codes(FullCommand, ShellCommand),
+	exec_command(FullCommand, '$stream'(0),'$stream'(0), '$stream'(1), PID, Error),
+	handle_system_error(Error, off, G),
+	wait(PID, _Status, Error),
+	handle_system_error(Error, off, G).
+
 shell(Command, Status) :-
 	G = shell(Command, Status),
 	check_command(Command, G),
-	do_shell(Status, Error), 
-	( var(Error) -> Status = 0 ; Status = Error).
+	get_shell(Shell),
+	atom_codes(Command, SC),
+	append(Shell, SC, ShellCommand),
+	atom_codes(FullCommand, ShellCommand),
+	exec_command(FullCommand, '$stream'(0),'$stream'(0), '$stream'(1), PID, Error),
+	handle_system_error(Error, off, G),
+	wait(PID, Status,Error),
+	handle_system_error(Error, off, G).
 
+get_shell(Shell) :-
+	getenv('SHELL', Shell0), !,
+	atom_codes(Shell0, Codes),
+	append(Codes," -c ", Shell).
+get_shell(COMSPEC) :-
+	getenv('COMPSEC', Shell),
+	atom_codes(Shell0, Codes),
+	append(Codes," /c ", Shell).
+	   
 system(Command, Status) :-
 	G = system(Command, Status),
 	check_command(Command, G),

@@ -36,6 +36,9 @@
 #if HAVE_SYS_TIME_H && !HAVE_WINSOCK2_H && !_MSC_VER
 #include <sys/time.h>
 #endif
+#if HAVE_IO_H
+#include <io.h>
+#endif
 #if HAVE_WINSOCK2_H
 #include <winsock2.h>
 #ifdef HAVE_SYS_UN_H
@@ -239,7 +242,7 @@ void init_socks(char *host, long interface_port)
    	crash("[ could not connect to interface]");
    }
    /* now reopen stdin stdout and stderr */
-#if HAVE_DUP2
+#if HAVE_DUP2 && !defined(__MINGW32__)
    if(dup2(s,0)<0) {
    	YP_fprintf(YP_stderr,"could not dup2 stdin\n");
    	return;
@@ -252,7 +255,7 @@ void init_socks(char *host, long interface_port)
    	YP_fprintf(YP_stderr,"could not dup2 stderr\n");
    	return;
    }
-#elif _MSC_VER
+#elif _MSC_VER || defined(__MINGW32__)
    if(_dup2(s,0)<0) {
    	YP_fprintf(YP_stderr,"could not dup2 stdin\n");
    	return;
@@ -286,7 +289,11 @@ void init_socks(char *host, long interface_port)
    yp_iob[2].flags = _YP_IO_SOCK | _YP_IO_WRITE;
 #endif
    YP_sockets_io = 1;
+#if _MSC_VER || defined(__MINGW32__)
+   _close(s);
+#else
    close(s);
+#endif
 }
 
 static Int
@@ -436,7 +443,11 @@ p_socket(void)
     out = InitSocketStream(fd, new_socket, af_inet);
   else {
     /* ok, we currently don't support these sockets */
+#if _MSC_VER || defined(__MINGW32__)
+   _close(fd);
+#else
     close(fd);
+#endif
     return(FALSE);
   }
   return(unify(out,ARG4));

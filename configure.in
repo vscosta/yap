@@ -395,7 +395,7 @@ AC_CHECK_HEADERS(sys/param.h errno.h netdb.h netinet/in.h arpa/inet.h)
 AC_CHECK_HEADERS(string.h memory.h sys/mman.h sys/stat.h stdarg.h ctype.h)
 AC_CHECK_HEADERS(sys/resource.h limits.h siginfo.h time.h fenv.h)
 AC_CHECK_HEADERS(fpu_control.h sys/shm.h regex.h winsock.h winsock2.h)
-AC_CHECK_HEADERS(sys/select.h direct.h dirent.h signal.h)
+AC_CHECK_HEADERS(sys/select.h direct.h dirent.h signal.h io.h)
 if test "$yap_cv_gmp" != "no"
 then
   AC_CHECK_HEADERS(gmp.h)

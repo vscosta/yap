@@ -327,8 +327,25 @@ parse_yap_arguments(int argc, char *argv[], yap_init_args *init_args)
 	    output_msg = TRUE;
 	    break;
 #endif
-	  case 'l':
 	  case 'L':
+	    p++;
+	    while (*p != '\0' && (*p == ' ' || *p == '\t'))
+	      p++;
+	    /* skip zeroth argument */
+	    argc--;
+	    if (argc == 0) {
+	      fprintf(stderr," [ YAP unrecoverable error: missing file name with option 'l' ]\n");
+	      exit(1);
+	    }
+	    argv++;
+	    if (p[0] == '-' && p[1] == '-'&& p[2] == '\0') {
+	      /* we're done here */
+	      argc = 1;
+	    }
+	    init_args->YapPrologBootFile = *argv;
+	    init_args->HaltAfterConsult = TRUE;
+	    break;
+	  case 'l':
 	    if ((*argv)[0] == '\0') 
 	      init_args->YapPrologBootFile = *argv;
 	    else {
@@ -340,8 +357,6 @@ parse_yap_arguments(int argc, char *argv[], yap_init_args *init_args)
 	      argv++;
 	      init_args->YapPrologBootFile = *argv;
 	    }
-	    if (p[0] == 'L')
-	      init_args->HaltAfterConsult = TRUE;
 	    break;
 	  case '-':
 	    /* skip remaining arguments */

@@ -866,6 +866,8 @@ break :- '$get_value'('$break',BL), NBL is BL+1,
 	;
 		throw(error(permission_error(input,stream,Y),consult(X)))
 	).
+'$consult'(M:X) :-
+        '$mod_switch'(M,'$consult'(X)).
 '$consult'(library(X)) :- !,
 	'$find_in_path'(library(X),Y),
 	( open(Y,'$csult',Stream), !,

@@ -33,6 +33,7 @@
 #undef  HAVE_FPU_CONTROL_H
 #undef  HAVE_GMP_H
 #undef  HAVE_IEEEFP_H
+#undef  HAVE_IO_H
 #undef  HAVE_LIMITS_H
 #undef  HAVE_MEMORY_H
 #undef  HAVE_NETDB_H

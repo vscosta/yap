@@ -22,7 +22,8 @@
 % * -------- YAPOR -------- *
 % ***************************
 
-default_sequential(X) :- '$default_sequential'(X), !.
+default_sequential(X) :-
+	'$default_sequential'(X), !.
 default_sequential(_).
 
 '$sequential' :-

@@ -885,7 +885,7 @@ Unix-like environments. A simple example is shown next:
 
 @example
 @cartouche
-#!/usr/local/bin/yap -L $0  "$@"
+#!/usr/local/bin/yap -L
 #
 # Hello World script file using Yap
 #
@@ -898,16 +898,16 @@ Unix-like environments. A simple example is shown next:
 The @code{#!}  characters specify that the script should call the binary
 file Yap. Notice that many systems will require the complete path to the
 Yap binary. The @code{-L} flag indicates that YAP should consult the
-file "$0" at booting and then halt. The remaining arguments are then
-passed to YAP. Note that YAP will skip the first lines if they start
-with @code{#} (the comment sign for Unix's shell). YAP will consult the
-file and execute any commands.
+current file when booting and then halt. The remaining arguments are
+then passed to YAP. Note that YAP will skip the first lines if they
+start with @code{#} (the comment sign for Unix's shell). YAP will
+consult the file and execute any commands.
 
 A slightly more sophisticated example is:
 
 @example
 @cartouche
-#!/usr/bin/yap -L $0  "$@"
+#!/usr/bin/yap -L
 #
 # Hello World script file using Yap
 #
@@ -922,6 +922,58 @@ main :- write('Hello World'), nl.
 The @code{initialization} directive tells Yap to execute the goal main
 after consulting the file. Source code is thus compiled and @code{main}
 executed at the end.
+
+By default, arguments to a script are considered arguments to YAP. As an
+example, consider the following script @code{dump_args}:
+
+@example
+@cartouche
+#!/usr/bin/yap -L
+
+main( [] ).
+main( [H|T] ) :-
+        write( H ), nl,
+        main( T ).
+
+:- unix( argv(AllArgs) ), main( AllArgs ).
+
+@end cartouche
+@end example
+
+If you this run this script with the arguments:
+@example
+./dump_args -s 10000
+@end example
+@noindent
+the script will start an YAP process with stack size @code{10MB}, and
+the list of arguments to the process will be empty.
+
+Often one wants to run the script as any other program, and for this it
+is convenient to ignore arguments to YAP. This is possible by using
+@code{L --} as in the next version of @code{dump_args}:
+
+@example
+@cartouche
+#!/usr/bin/yap -L --
+
+main( [] ).
+main( [H|T] ) :-
+        write( H ), nl,
+        main( T ).
+
+:- unix( argv(AllArgs) ), main( AllArgs ).
+
+@end cartouche
+@end example
+
+The @code{--} indicates the next arguments are not for YAP. Instead,
+they must be sent directly to the @code{argv} builtin. Hence, running
+@example
+./dump_args test
+@end example
+@noindent
+will write @code{test} on the standard output.
+
 
 @node Syntax, Loading Programs, Run, Top
 @chapter Syntax
@@ -1546,6 +1598,13 @@ directories are the places where files specified in the form
 @code{library(@var{File})} are searched by the predicates
 @code{consult/1}, @code{reconsult/1}, @code{use_module/1} or
 @code{ensure_loaded/1}.
+
+@item prolog_file_name(+@var{Name},-@var{FullPath})
+@findex prolog_file_name/2
+@syindex prolog_file_name/1
+@cnindex prolog_file_name/2
+Unify @var{FullPath} with the absolute path YAP would use to consult
+file @var{Name}.
 
 @item public @var{P} [ISO]
 @findex public/1 (directive)
@@ -4510,11 +4569,13 @@ support may go away in future versions.
 @findex abolish/1
 @saindex abolish/1
 @caindex abolish/1
-   Deletes the predicate given by @var{PredSpec} from the database. The
+   Deletes the predicate given by @var{PredSpec} from the database. If
+@var{PredSpec} is an unbound variable, delete all predicates for the
+current module. The
 specification must include the name and arity, and it may include module
 information. Under @t{iso} language mode this builtin will only abolish
 dynamic procedures. Under other modes it will abolish any procedures, as
-long as they are not currently in use.
+long as they are not currently in use. 
 
 @item abolish(+@var{P},+@var{N})
 @findex abolish/2
@@ -4609,7 +4670,13 @@ Lists predicate @var{P} if its source code is available.
 @findex portray_clause/1
 @syindex portray_clause/1
 @cnindex portray_clause/1
-Write clause @var{C} as if written by listing.
+Write clause @var{C} as if written by @code{listing/0}.
+
+@item portray_clause(+@var{S},+@var{C})
+@findex portray_clause/2
+@syindex portray_clause/2
+@cnindex portray_clause/2
+Write clause @var{C} on stream @var{S} as if written by @code{listing/0}.
 
 @item current_atom(@var{A})
 @findex current_atom/1
@@ -7232,6 +7299,159 @@ YAP does not currently support opening a @code{charsio} stream in
 @node System, Terms, String I/O, Library
 @section Calling The Operating System from YAP
 @cindex Operating System Utilities
+
+Yap now provides a library of system utilities compatible with the
+SICStus Prolog system library. This library extends and to some point
+replaces the functionality of Operating System access routines. The
+library includes Unix/Linux and Win32 @code{C} code. They
+are available through the @code{use_module(library(system))} command.
+
+@table @code
+
+@item datime(datime(-@var{Year}, -@var{Month}, -@var{DayOfTheMonth},
+-@var{Hour}, -@var{Minute}, -@var{Second})
+@findex  datime/1
+@syindex datime/1
+@cnindex datime/1
+The @code{datime/1} procedure returns the current date and time, with
+information on @var{Year}, @var{Month}, @var{DayOfTheMonth},
+@var{Hour}, @var{Minute}, and @var{Second}. The @var{Hour} is returned
+on local time. This function uses the WIN32
+@code{GetLocalTime} function or the Unix @code{localtime} function.
+
+@example
+   ?- datime(X).
+
+X = datime(2001,5,28,15,29,46) ? 
+@end example
+
+@item delete_file(+@var{File})
+@findex  delete_file/1
+@syindex delete_file/1
+@cnindex delete_file/1
+The @code{delete_file/1} procedure removes file @var{File}. If
+@var{File} is a directory, remove the directory @emph{and all its
+subdirectories}.
+
+@example
+   ?- delete_file(x).
+@end example
+
+@item delete_file(+@var{File},+@var{Opts})
+@findex  delete_file/2
+@syindex delete_file/2
+@cnindex delete_file/2
+The @code{delete_file/2} procedure removes file @var{File} according to
+options @var{Opts}. These options are @code{directory} if one should
+remove directories, @code{recursive} if one should remove directories
+recursively, and @code{ignore} if errors are not to be reported.
+
+This example is equivalent to using the @code{delete_file/1} predicate:
+@example
+   ?- delete_file(x, [recursive]).
+@end example
+
+
+@item directory_files(+@var{Dir},+@var{List})
+@findex  directory_files/2
+@syindex directory_files/2
+@cnindex directory_files/2
+Given a directory @var{Dir},  @code{directory_files/2} procedures a
+listing of all files and directories in the directory:
+@example
+    ?- directory_files('.',L), writeq(L).
+['Makefile.~1~','sys.so','Makefile','sys.o',x,..,'.']
+@end example
+The predicates uses the @code{dirent} family of routines in Unix
+environments, and @code{findfirst} in WIN32.
+
+@item file_exists(+@var{File})
+@findex  file_exists/1
+@syindex file_exists/1
+@cnindex file_exists/1
+The atom @var{File} corresponds to an existing file.
+
+@item file_exists(+@var{File},+@var{Permissions})
+@findex  file_exists/2
+@syindex file_exists/2
+@cnindex file_exists/2
+The atom @var{File} corresponds to an existing file with permissions
+compatible with @var{Permissions}. YAP currently only accepts for
+permissions to be described as a number. The actual meaning of this
+number is Operating System dependent.
+
+@item file_property(+@var{File},?@var{Property})
+@findex  file_property/2
+@syindex file_property/2
+@cnindex file_property/2
+The atom @var{File} corresponds to an existing file, and @var{Property}
+will be unified with a property of this file. The poperties are of the
+form @code{type(@var{Type))}, which gives whether the file is a regular
+file, a directory, a fifo file, or of unknown type;
+@code{size(@var{Size))}, with gives the size for a file, and
+@code{mod_time(@var{Time))}, which gives the last time a file was
+modified according to some Operating System dependent
+timestamp. Properties can be obtained through backtracking:
+
+@example
+   ?- file_property('Makefile',P).
+
+P = type(regular) ? ;
+
+P = size(2375) ? ;
+
+P = mod_time(990826911) ? ;
+
+no
+@end example
+
+@item make_directory(+@var{Dir})
+@findex  make_directory/2
+@syindex make_directory/2
+@cnindex make_directory/2
+Create a directory @var{Dir}. The name of the directory must be an atom.
+
+@item rename_file(+@var{OldFile},+@var{NewFile})
+@findex  rename_file/2
+@syindex rename_file/2
+@cnindex rename_file/2
+Create file @var{OldFile} to @var{NewFile}. This predicate uses the
+@code{C} builtin function @code{rename}.
+
+
+@item environ(?@var{EnvVar},+@var{EnvValue})
+@findex  environ/2
+@syindex environ/2
+@cnindex environ/2
+Unify environment variable @var{EnvVar} with its value @var{EnvValue},
+if there is one. This predicate is backtrackable in Unix systems, but
+not currently in Win32 configurations.
+
+@example
+   ?- environ('HOME',X).
+
+X = 'C:\\cygwin\\home\\administrator' ?
+@end example
+
+@item
+exec(+@var{Command},[+@var{InputStream},+@var{OutputStream},,+@var{ErrorStream},
+-@var{Status})
+@findex  exec/3
+@syindex exec/3
+@cnindex exec/3
+Execute command @var{Command} with its streams connected to
+@var{InputStream}, @var{OutputStream}, and @var{ErrorStream}. The result
+for the command is returned in @var{Status}.
+
+@item working_directory(-@var{CurDir},?@var{NextDir})
+@findex  working_directory/2
+@syindex working_directory/2
+@cnindex working_directory/2
+Fetch the current directory at @var{CurDir}. If @var{NextDir} is bound
+to an atom, make its value the current working directory.
+
+@end table
+
 
 @node Terms, Timeout, System, Library
 @section Utilities On Terms
@@ -12520,7 +12740,8 @@ compatible built-in.
 implemented in YAP (note that this is only a partial list):
 @code{call_cleanup/1}, @code{file_search_path/2},
 @code{stream_interrupt/3}, @code{reinitialize/0}, @code{help/0},
-@code{help/1}, @code{module/3}, @code{trimcore/0}.
+@code{help/1}, @code{trimcore/0}, @code{load_files/1},
+@code{load_files/2}, and @code{require/1}.
 
       The previous list is incomplete. We also cannot guarantee full
 compatibility for other built-ins (although we will try to address any

@@ -51,6 +51,14 @@ static char SccsId[] = "%W% %G%";
 #if HAVE_STRING_H
 #include <string.h>
 #endif
+#if HAVE_FCNTL_H
+/* for O_BINARY and O_TEXT in WIN32 */
+#include <fcntl.h>
+#endif
+#if HAVE_IO_H
+/* Windows */
+#include <io.h>
+#endif
 #if !HAVE_STRNCAT
 #define strncat(X,Y,Z) strcat(X,Y)
 #endif
@@ -1676,9 +1684,14 @@ p_open_pipe_stream (void)
   int sno;
   int filedes[2];
 
-  if (pipe(filedes) != 0) {
-    return (PlIOError (SYSTEM_ERROR,TermNil, "open_pipe_stream/2 could not create pipe"));
-  }
+#if  _MSC_VER || defined(__MINGW32__) 
+  if (_pipe(filedes, 256, O_TEXT) == -1)
+#else
+  if (pipe(filedes) != 0)
+#endif
+    {
+      return (PlIOError (SYSTEM_ERROR,TermNil, "open_pipe_stream/2 could not create pipe"));
+    }
   for (sno = 0; sno < MaxStreams; ++sno)
     if (Stream[sno].status & Free_Stream_f)
       break;

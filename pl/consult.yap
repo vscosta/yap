@@ -15,6 +15,9 @@
 *									 *
 *************************************************************************/
 
+ensure_loaded(V) :-
+	'$ensure_loaded'(V).
+
 '$ensure_loaded'(V) :- var(V), !,
 	throw(error(instantiation_error,ensure_loaded(V))).
 '$ensure_loaded'([]) :- !.
@@ -40,6 +43,8 @@
 		
 	throw(error(permission_error(input,stream,X),ensure_loaded(X)))
 	).
+'$ensure_loaded'(M:X) :-
+        '$mod_switch'(M,'$ensure_loaded'(X)).
 '$ensure_loaded'(library(X)) :- !,
 	'$find_in_path'(library(X),Y),
 	( open(Y,'$csult',Stream), !,
@@ -100,6 +105,8 @@ reconsult(Fs) :-
 	;
 		throw(error(permission_error(input,stream,X),reconsult(X)))
 	).
+'$reconsult'(M:X) :-
+        '$mod_switch'(M,'$reconsult'(X)).
 '$reconsult'(library(X)) :- !,
 	'$find_in_path'(library(X),Y),
 	( open(Y,'$csult',Stream), !,

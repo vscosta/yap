@@ -324,8 +324,8 @@ abolish(X) :-
 abolish(X) :- 
 	'$old_abolish'(X).
 
-'$new_abolish'(V) :-
-	'$check_error_in_predicate_indicator'(V, abolish(V)), !.
+'$new_abolish'(V) :- var(V), !,
+	'$abolish_all'.
 '$new_abolish'(M:PS) :- !,
 	'$mod_switch'(M,'$new_abolish'(PS)).
 '$new_abolish'(Na/Ar) :-
@@ -339,6 +339,12 @@ abolish(X) :-
 	'$current_module'(M),
 	throw(error(permission_error(modify,static_procedure,Na/Ar),abolish(M:Na/Ar))).
 
+'$abolish_all' :-
+        current_predicate(_,P),
+	functor(P, Na, Ar),
+	'$new_abolish'(Na, Ar),
+	fail.
+'$abolish_all'.
 
 '$check_error_in_predicate_indicator'(V, Msg) :-
 	var(V), !,
@@ -377,7 +383,7 @@ abolish(X) :-
 	throw(error(type_error(atom,Na), Msg)).
 
 '$old_abolish'(V) :-
-	'$check_error_in_predicate_indicator'(V, abolish(V)).
+	'$abolish_all'.
 '$old_abolish'(M:N) :- !,
 	'$mod_switch'(M,'$old_abolish'(N)).
 '$old_abolish'([]) :- !.

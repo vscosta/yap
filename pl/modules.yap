@@ -249,7 +249,6 @@ $check_import(_,_,_,_).
 	 ;
 	   true
     ). 
-    	  
 
 
 '$abolish_module_data'(M) :-
@@ -267,12 +266,12 @@ $check_import(_,_,_,_).
 	'$prepare_body_with_correct_modules'(B, M, B0),
 	'$module_u_vars'(H,UVars),	 % collect head variables in
 					 % expanded positions
-	'$module_expansion'(B0,B1,BO,M,UVars). % expand body
+	'$module_expansion'(B0,B1,BO,M,M,M,UVars). % expand body
 '$module_expansion'((H:-B),(H:-B1),(H:-BO)) :-
 	'$module_u_vars'(H,UVars),	 % collect head variables in
 					 % expanded positions
 	'$current_module'(M),
-	'$module_expansion'(B,B1,BO,M,UVars). % expand body
+	'$module_expansion'(B,B1,BO,M,M,M,UVars). % expand body
 %	$trace_module((H:-B),(H:-B1)).
 
 % expand module names in a body
@@ -295,15 +294,15 @@ $check_import(_,_,_,_).
 '$prepare_body_with_correct_modules'(G,M,M:G).
 
 
-$trace_module(X) :-
+'$trace_module'(X) :-
 	telling(F),
 	tell('P0:debug'),
 	write(X),nl,
 	tell(F), fail.
-$trace_module(X).
+'$trace_module'(X).
 
-$trace_module(X,Y) :- X==Y, !.
-$trace_module(X,Y) :-
+'$trace_module'(X,Y) :- X==Y, !.
+'$trace_module'(X,Y) :-
 	telling(F),
 	tell('~/.dbg.modules'),
 	write('***************'), nl,
@@ -330,72 +329,60 @@ $trace_module(X,Y).
 	'$execute0'(G).
 	
 		
-'$complete_goal_expansion'(G, M, _, G1, G2, HVars) :-
-	'$pred_goal_expansion_on',
-	user:goal_expansion(G,M,GI), !,
-	'$prepare_body_with_correct_modules'(GI, M, GF),
-	'$module_expansion'(GF,G1,G2,M,HVars).
-'$complete_goal_expansion'(G, _, _, G, GF, _) :-
-	'$system_predicate'(G), !,
-	'$c_built_in'(G,GF).
-'$complete_goal_expansion'(G, Mod, Mod, G, G, _) :- '$current_module'(Mod), !.
-'$complete_goal_expansion'(G, GMod, _, GMod:G, GMod:G, _).
-
-
 % expand module names in a body
-'$module_expansion'(V,call(M:V),call(M:V),M,HVars) :- var(V), !.
-'$module_expansion'((A,B),(A1,B1),(AO,BO),M,HVars) :- !,
-	'$module_expansion'(A,A1,AO,M,HVars),
-	'$module_expansion'(B,B1,BO,M,HVars).
-'$module_expansion'((A;B),(A1;B1),(AO;BO),M,HVars) :- !,
-	'$module_expansion'(A,A1,AO,M,HVars),
-	'$module_expansion'(B,B1,BO,M,HVars).
-'$module_expansion'((A->B),(A1->B1),(AO->BO),M,HVars) :- !,
-	'$module_expansion'(A,A1,AO,M,HVars),
-	'$module_expansion'(B,B1,BO,M,HVars).
-'$module_expansion'(true,true,true,_,_) :- !.
-'$module_expansion'(fail,fail,fail,_,_) :- !.
-'$module_expansion'(false,false,false,_,_) :- !.
+% args are:
+%       goals to expand
+%       code to pass to compiler
+%       code to pass to listing
+%       current module for looking up preds
+%       current module for fixing up meta-call arguments
+%       current module for predicate
+%       head variables.
+'$module_expansion'(V,call(MM:V),call(MM:V),M,MM,TM,HVars) :- var(V), !.
+'$module_expansion'((A,B),(A1,B1),(AO,BO),M,MM,TM,HVars) :- !,
+	'$module_expansion'(A,A1,AO,M,MM,TM,HVars),
+	'$module_expansion'(B,B1,BO,M,MM,TM,HVars).
+'$module_expansion'((A;B),(A1;B1),(AO;BO),M,MM,TM,HVars) :- !,
+	'$module_expansion'(A,A1,AO,M,MM,TM,HVars),
+	'$module_expansion'(B,B1,BO,M,MM,TM,HVars).
+'$module_expansion'((A->B),(A1->B1),(AO->BO),M,MM,TM,HVars) :- !,
+	'$module_expansion'(A,A1,AO,M,MM,TM,HVars),
+	'$module_expansion'(B,B1,BO,M,MM,TM,HVars).
+'$module_expansion'(true,true,true,_,_,_,_) :- !.
+'$module_expansion'(fail,fail,fail,_,_,_,_) :- !.
+'$module_expansion'(false,false,false,_,_,_,_) :- !.
 % if I don't know what the module is, I cannot do anything to the goal,
 % so I just put a call for later on.
-'$module_expansion'(M:G,call(M:G),call(M:G),_,HVars) :- var(M), !.
-'$module_expansion'(M:(M1:G),G1,GO,M0,HVars) :- !,
-	'$module_expansion'(M1:G,G1,GO,M0,HVars).
-'$module_expansion'(M:G,G1,GO,Mod,HVars) :- !,
+'$module_expansion'(M:G,call(M:G),call(M:G),_,_,_,HVars) :- var(M), !.
+% if M1 is given explicitly process G within M1's context.
+'$module_expansion'(M:G,G1,GO,Mod,MM,TM,HVars) :- !,
 	% is this imported from some other module M1?
 	( '$imported_pred'(G, M, M1) ->
 	    % continue recursively...
-	    '$module_expansion'(M1:G,G1,GO,Mod,HVars)
+	    '$module_expansion'(G,G1,GO,M1,M,TM,HVars)
 	;
 	  (
-	      '$meta_expansion_of_subgoal'(G, M, Mod, NG, HVars, NM) 
+	      '$meta_expansion'(M, M, G, NG, HVars)
 	  ;
-	      G = NG, M = NM
+	      G = NG
 	  ),
-	  '$complete_goal_expansion'(NG, NM, Mod, G1, GO, HVars)
+	  '$complete_goal_expansion'(NG, M, M, TM, G1, GO, HVars)
 	).
 %
 % next, check if this is something imported.
 %
-'$module_expansion'(G, G1, GO, CurMod, HVars) :-
+'$module_expansion'(G, G1, GO, CurMod, MM, TM, HVars) :-
 	% is this imported from some other module M1?
 	( '$imported_pred'(G, CurMod, M1) ->
-	    % continue recursively...
-	    '$module_expansion'(M1:G,G1,GO,CurMod,HVars)
+	    '$module_expansion'(G, G1, GO, M1, MM, TM, HVars)
 	;
-	( '$meta_expansion_of_subgoal'(G, CurMod, CurMod, GI, HVars, GoalModule)
+	( '$meta_expansion'(CurMod, MM, G, GI, HVars)
           ;
-          GI = G, GoalModule = CurMod
+          GI = G
         ),
-	'$complete_goal_expansion'(GI, GoalModule, CurMod, G1, GO, HVars)
+	'$complete_goal_expansion'(GI, CurMod, MM, TM, G1, GO, HVars)
 	).
 
-'$meta_expansion_of_subgoal'(G, GMod, CurMod, GF, HVars, ImportedMod) :-
-	functor(G,F,N),
-	'$recorded'('$import','$import'(ImportedMod,GMod,F,N),_), !,
-	'$meta_expansion'(ImportedMod, CurMod, G, GF, HVars).
-'$meta_expansion_of_subgoal'(G, GMod, CurMod, NG, HVars, GMod) :-
-	'$meta_expansion'(GMod, CurMod, G, NG, HVars).
 
 '$imported_pred'(G, ImportingMod, ExportingMod) :-
 	'$undefined'(ImportingMod:G),
@@ -403,27 +390,40 @@ $trace_module(X,Y).
 	'$recorded'('$import','$import'(ExportingMod,ImportingMod,F,N),_),
 	ExportingMod \= ImportingMod.
 
+% args are:
+%       goal to expand
+%       current module for looking up pred
+%       current module from top-level clause
+%       goal to pass to compiler
+%       goal to pass to listing
+%       head variables.
+'$complete_goal_expansion'(G, M, CM, TM, G1, G2, HVars) :-
+	'$pred_goal_expansion_on',
+	user:goal_expansion(G,M,GI), !,
+	'$module_expansion'(GI,G1,G2,M,CM,TM,HVars).
+'$complete_goal_expansion'(G, _, _, _, G, GF, _) :-
+	'$system_predicate'(G), !,
+	'$c_built_in'(G,GF).
+'$complete_goal_expansion'(G, Mod, _, Mod, G, G, _) :- !.
+'$complete_goal_expansion'(G, GMod, _, _, GMod:G, GMod:G, _).
+
 % meta_predicate declaration
 % records $meta_predicate(SourceModule,Functor,Arity,Declaration)
 
 % directive now meta_predicate Ps :- $meta_predicate(Ps).
 
 '$meta_predicate'((P,Ps)) :- !,
-	$meta_predicate(P),
-	$meta_predicate(Ps).
+	'$meta_predicate'(P),
+	'$meta_predicate'(Ps).
 '$meta_predicate'(P) :-
 	functor(P,F,N),
 	'$current_module'(M1),
 	( M1 = prolog -> M = _ ; M1 = M),
-%	( '$recorded'($meta_predicate,$meta_predicate(M,F,N,_),R), erase(R), fail;
-%	  true
-%	),
-%	recorda('$meta_predicate','$meta_predicate'(M,F,N,P),_),
 	( retractall('$meta_predicate'(F,M,N,_)), fail ; true),
-	asserta($meta_predicate(F,M,N,P)),
+	asserta('$meta_predicate'(F,M,N,P)),
 	'$flags'(P, Fl, Fl),
 	NFlags is Fl \/ 0x200000,
-	'$flags'(P, Fl, NFlags).	
+	'$flags'(P, Fl, NFlags).
 
 % return list of vars in expanded positions on the head of a clause.
 %
@@ -432,8 +432,8 @@ $trace_module(X,Y).
 '$module_u_vars'(H,UVars) :-
 	functor(H,F,N),
 	'$current_module'(M),
-%	'$recorded'($meta_predicate,$meta_predicate(M,F,N,D),_), !,
-	$meta_predicate(F,M,N,D), !,
+%	'$recorded'('$meta_predicate','$meta_predicate'(M,F,N,D),_), !,
+	'$meta_predicate'(F,M,N,D), !,
 	'$module_u_vars'(N,D,H,UVars).
 '$module_u_vars'(H,[]).
 
@@ -490,15 +490,15 @@ current_module(Mod,TFN) :-
 source_module(Mod) :-
 	'$current_module'(Mod).
 
-
-$member(X,[X|_]) :- !.
-$member(X,[_|L]) :- $member(X,L).
+'$member'(X,[X|_]) :- !.
+'$member'(X,[_|L]) :- '$member'(X,L).
 
 %
 % this declaration should only be here, as meta_predicates should belong
 % to the user module, not to the prolog module
 
 :- meta_predicate
+%	[:,:],
 	abolish(:),
 	abolish(:,+),
 	all(?,:,?),
@@ -512,8 +512,11 @@ $member(X,[_|L]) :- $member(X,L).
 	call(:),
 	clause(:,?),
 	clause(:,?,?),
+	compile(:),
+	consult(:),
 	current_predicate(:),
 	current_predicate(?,:),
+	ensure_loaded(:),
 	findall(?,:,?),
 	findall(?,:,?,?),
 	if(:,:,:),
@@ -524,6 +527,7 @@ $member(X,[_|L]) :- $member(X,L).
 	retract(:),
 	retract(:,?),
 	retractall(:),
+	reconsult(:),
 	setof(?,:,?),
 	spy(:),
 	^(+,:),

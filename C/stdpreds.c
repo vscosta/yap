@@ -2012,6 +2012,20 @@ mk_argc_list(void)
   Term t = TermNil;
   while (i < yap_argc) {
     char *arg = yap_args[i];
+    /* check for -L -- */
+    if (arg[0] == '-' && arg[1] == 'L') {
+      arg += 2;
+      while (*arg != '\0' && (*arg == ' ' || *arg == '\t'))
+	arg++;
+      if (*arg == '-' && arg[1] == '-' && arg[2] == '\0') {
+	/* we found the separator */
+	int j;
+	for (j = yap_argc-1; j > i+1; --j) {
+	  t = MkPairTerm(MkAtomTerm(LookupAtom(yap_args[j])),t);
+	}
+      return(t);
+      }
+    }
     if (arg[0] == '-' && arg[1] == '-' && arg[2] == '\0') {
       /* we found the separator */
       int j;
@@ -2173,6 +2187,13 @@ p_set_yap_flags(void)
   return(TRUE);
 }
 
+#ifndef YAPOR
+static Int
+p_default_sequential(void) {
+  return(TRUE);
+}
+#endif
+
 #ifdef DEBUG
 extern void DumpActiveGoals(void);
 
@@ -2257,7 +2278,9 @@ InitCPreds(void)
   InitCPred("unhide", 1, p_unhide, SafePredFlag|SyncPredFlag);
   InitCPred("$hidden", 1, p_hidden, SafePredFlag|SyncPredFlag);
   InitCPred("$has_yap_or", 0, p_has_yap_or, SafePredFlag|SyncPredFlag);
-  InitCPred("$has_tabling", 0, p_has_tabling, SafePredFlag|SyncPredFlag);
+#ifndef YAPOR
+  InitCPred("$default_sequential", 1, p_default_sequential, SafePredFlag|SyncPredFlag);
+#endif
 #ifdef DEBUG
   InitCPred("dump_active_goals", 0, p_dump_active_goals, SafePredFlag|SyncPredFlag);
 #endif

@@ -54,7 +54,13 @@
 #if HAVE_DIRENT_H
 #include <dirent.h>
 #endif
-
+#if HAVE_DIRECT_H
+#include <direct.h>
+#endif
+#if defined(__MINGW32__) || _MSC_VER
+#include <windows.h>
+#include <process.h>
+#endif
 #ifdef __MINGW32__
 #ifdef HAVE_ENVIRON
 #undef HAVE_ENVIRON
@@ -68,7 +74,16 @@ static int
 datime(void)
 {
   Term tf, out[6];
-#ifdef HAVE_TIME
+#if defined(__MINGW32__) || _MSC_VER
+  SYSTEMTIME stime;
+  GetLocalTime(&stime);
+  out[0] = MkIntTerm(stime.wYear);
+  out[1] = MkIntTerm(stime.wMonth);
+  out[2] = MkIntTerm(stime.wDay);
+  out[3] = MkIntTerm(stime.wHour);
+  out[4] = MkIntTerm(stime.wMinute);
+  out[5] = MkIntTerm(stime.wSecond);
+#elif HAVE_TIME
   time_t  tp;
 
   if ((tp = time(NULL)) == -1) {
@@ -106,6 +121,32 @@ list_directory(void)
   Term tf = MkAtomTerm(LookupAtom("[]"));
 
   char *buf = AtomName(AtomOfTerm(ARG1));
+#if defined(__MINGW32__) || _MSC_VER
+  struct _finddata_t c_file;
+  char bs[BUF_SIZE];
+  long hFile;
+
+  bs[0] = '\0';
+#if HAVE_STRNCPY
+  strncpy(bs, buf, BUF_SIZE);
+#else
+  strcpy(bs, buf);
+#endif
+#if HAVE_STRNCAT
+  strncat(bs, "/*", BUF_SIZE);
+#else
+  strncat(bs, "/*");
+#endif
+  if ((hFile = _findfirst(bs, &c_file)) == -1L) {
+    return(unify(ARG2,tf));
+  }
+  tf = MkPairTerm(MkAtomTerm(LookupAtom(c_file.name)), tf);
+  while (_findnext( hFile, &c_file) == 0) {
+    Term ti = MkAtomTerm(LookupAtom(c_file.name));
+    tf = MkPairTerm(ti, tf);
+  }
+  _findclose( hFile );
+#else
 #if HAVE_OPENDIR
  {
    DIR *de;
@@ -121,6 +162,7 @@ list_directory(void)
    closedir(de);
  }
 #endif /* HAVE_OPENDIR */
+#endif
   return(unify(ARG2, tf));
 }
 
@@ -128,10 +170,15 @@ static int
 p_unlink(void)
 {
   char *fd = AtomName(AtomOfTerm(ARG1));
-  if (unlink(fd) == -1) {
-    /* return an error number */
-    return(unify(ARG2, MkIntTerm(errno)));
-  }
+#if defined(__MINGW32__) || _MSC_VER
+  if (_unlink(fd) == -1)
+#else
+  if (unlink(fd) == -1)
+#endif
+    {
+      /* return an error number */
+      return(unify(ARG2, MkIntTerm(errno)));
+    }
   return(TRUE);
 }
 
@@ -139,7 +186,11 @@ static int
 p_mkdir(void)
 {
   char *fd = AtomName(AtomOfTerm(ARG1));
+#if defined(__MINGW32__) || _MSC_VER
+  if (_mkdir(fd) == -1) {
+#else
   if (mkdir(fd, 0777) == -1) {
+#endif
     /* return an error number */
     return(unify(ARG2, MkIntTerm(errno)));
   }
@@ -150,7 +201,11 @@ static int
 p_rmdir(void)
 {
   char *fd = AtomName(AtomOfTerm(ARG1));
+#if defined(__MINGW32__) || _MSC_VER
+  if (_rmdir(fd) == -1) {
+#else
   if (rmdir(fd) == -1) {
+#endif
     /* return an error number */
     return(unify(ARG2, MkIntTerm(errno)));
   }
@@ -181,7 +236,7 @@ static int
 file_property(void)
 {
   char *fd;
-#if HAVE_LSTAT
+#if HAVE_LSTAT 
   struct stat buf;
 
   fd = AtomName(AtomOfTerm(ARG1));
@@ -189,9 +244,9 @@ file_property(void)
     /* return an error number */
     return(unify(ARG6, MkIntTerm(errno)));
   }
-  if (S_ISREG(buf.st_mode)) 
+  if (buf.st_mode & _S_IFREG) 
     unify(ARG2, MkAtomTerm(LookupAtom("regular")));
-  else if (S_ISDIR(buf.st_mode)) 
+  else if (buf.st_mode & _S_IFDIR) 
     unify(ARG2, MkAtomTerm(LookupAtom("directory")));
   else if (S_ISFIFO(buf.st_mode)) 
     unify(ARG2, MkAtomTerm(LookupAtom("fifo")));
@@ -201,10 +256,25 @@ file_property(void)
     unify(ARG2, MkAtomTerm(LookupAtom("socket")));
   else 
     unify(ARG2, MkAtomTerm(LookupAtom("unknown")));
+#elif defined(__MINGW32__) || _MSC_VER
+  /* for some weird reason _stat did not work with mingw32 */
+  struct stat buf;
+
+  fd = AtomName(AtomOfTerm(ARG1));
+  if (stat(fd, &buf) != 0) {
+    /* return an error number */
+    return(unify(ARG6, MkIntTerm(errno)));
+  }
+  if (buf.st_mode & S_IFREG) 
+    unify(ARG2, MkAtomTerm(LookupAtom("regular")));
+  else if (buf.st_mode & S_IFDIR) 
+    unify(ARG2, MkAtomTerm(LookupAtom("directory")));
+  else 
+    unify(ARG2, MkAtomTerm(LookupAtom("unknown")));
+#endif
   unify(ARG3, MkIntTerm(buf.st_size));
   unify(ARG4, MkIntTerm(buf.st_mtime));
   unify(ARG5, MkIntTerm(buf.st_mode));
-#endif
   return(TRUE);
 }
 
@@ -221,7 +291,11 @@ p_mktemp(void)
 #else
   strcpy(tmp, s);
 #endif
+#if defined(__MINGW32__) || _MSC_VER
+  if ((s = _mktemp(tmp)) == NULL) {
+#else
   if ((s = mktemp(tmp)) == NULL) {
+#endif
     /* return an error number */
     return(unify(ARG3, MkIntTerm(errno)));
   }
@@ -247,12 +321,20 @@ static int
 p_environ(void)
 {
 #if HAVE_ENVIRON
+#if defined(__MINGW32__) || _MSC_VER
+  extern char **_environ;
+#else
   extern char **environ;
+#endif
   Term t1 = ARG1;
   Int i;
 
   i = IntOfTerm(t1);
+#if defined(__MINGW32__) || _MSC_VER
+  if (_environ[i] == NULL)
+#else
   if (environ[i] == NULL)
+#endif
     return(FALSE);
   else {
     Term t = BufferToString(environ[i]);
@@ -264,6 +346,37 @@ p_environ(void)
 #endif
 }
 
+#if defined(__MINGW32__) || _MSC_VER
+static int
+get_handle(Term ti, int fd, Term tzero)
+{
+  if (ti == tzero) {
+    int new_fd = _dup(fd);
+    _close(fd);
+    return(new_fd);
+  } else {
+    int sd = YapStreamToFileNo(ti), new_fd;
+    if (sd == fd)
+      return(-1);
+    new_fd = _dup(fd);
+    _close(fd);
+    _dup2(sd, fd);
+    return(new_fd);
+  }
+}
+
+static void
+restore_descriptor(int fd0, int fd, Term t, Term tzero)
+{
+  if (fd != -1) {
+    if (t != tzero) {
+      _close(fd0);
+    }
+    _dup2(fd, fd0);
+  }
+}
+#endif
+
 /* execute a command as a detached process */
 static int
 execute_command(void)
@@ -272,6 +385,46 @@ execute_command(void)
   Term tzero = MkIntTerm(0);
   int res;
   int inpf, outf, errf;
+#if defined(__MINGW32__) || _MSC_VER
+  DWORD CreationFlags = 0;
+  STARTUPINFO StartupInfo;
+  PROCESS_INFORMATION ProcessInformation;
+  inpf = get_handle(ti, 0, tzero);
+  outf = get_handle(to, 1, tzero);
+  errf = get_handle(te, 2, tzero);
+  if (inpf != -1 || outf != -1 || errf != -1) {
+    /* we are keeping the curent streams */
+    CreationFlags = DETACHED_PROCESS;
+  }
+  StartupInfo.cb = sizeof(STARTUPINFO);
+  StartupInfo.lpReserved = NULL;
+  StartupInfo.lpDesktop = NULL; /* inherit */
+  StartupInfo.lpTitle = NULL; /* we do not create a new console window */
+  StartupInfo.dwFlags = STARTF_USESTDHANDLES;
+  StartupInfo.cbReserved2 = 0;
+  StartupInfo.lpReserved2 = NULL;
+  StartupInfo.hStdInput = GetStdHandle(STD_INPUT_HANDLE);
+  StartupInfo.hStdOutput = GetStdHandle(STD_OUTPUT_HANDLE);
+  StartupInfo.hStdError = GetStdHandle(STD_ERROR_HANDLE);
+  /* got stdin, stdout and error as I like it */
+  if (CreateProcess(NULL,
+		    AtomName(AtomOfTerm(ARG1)),
+		    NULL,
+		    NULL,
+		    TRUE,
+		    CreationFlags,
+		    NULL,
+		    NULL,
+		    &StartupInfo,
+		    &ProcessInformation) == FALSE) {
+    return(unify(ARG6, MkIntTerm(GetLastError())));
+  }
+  restore_descriptor(0, inpf, ti, tzero);
+  restore_descriptor(1, outf, to, tzero);
+  restore_descriptor(2, errf, te, tzero);
+  res = ProcessInformation.dwProcessId;
+  return(unify(ARG5,MkIntTerm(res)));  
+#else /* UNIX CODE */
   /* process input first */
   if (ti == tzero) {
     inpf = open("/dev/null", O_RDONLY);
@@ -341,50 +494,7 @@ execute_command(void)
     close(errf);
     return(unify(ARG5,MkIntTerm(res)));
   }
-}
-
-/* execute a command as a detached process */
-static int
-shell(void)
-{
-  char *command = AtomName(AtomOfTerm(ARG1));
-  int pid;
-  /* we are now ready to fork */
-  if ((pid = fork()) < 0) {
-    /* return an error number */
-    return(unify(ARG2, MkIntTerm(errno)));
-  } else if (pid == 0) {
-    char *argv[4];
-    char *shell;
-
-    /* child */
-    /* close current streams, but not std streams */
-    YapCloseAllOpenStreams();
-#if HAVE_GETENV
-    shell = getenv ("SHELL");
-    if (shell == NULL)
-      shell = "/bin/sh";
-#endif
-    argv[0] = shell;
-    argv[1] = "-c";
-    argv[2] = command;
-    argv[3] = NULL;
-    execv("/bin/sh", argv);
-    exit(127);
-    /* we have the streams where we want them, just want to execute now */
-  } else {
-    do {
-      int status;
-
-      /* check for interruptions */
-      if (waitpid(pid, &status, 0) == -1) {
-	if (errno != EINTR)
-	  return -1;
-	return(unify(ARG2, MkIntTerm(errno)));
-      } else
-	return(TRUE);
-    } while(TRUE);
-  }
+#endif /* UNIX code */
 }
 
 /* execute a command as a detached process */
@@ -403,6 +513,21 @@ static int
 p_wait(void)
 {
   Int pid = IntOfTerm(ARG1);
+#if defined(__MINGW32__) || _MSC_VER
+  HANDLE proc = OpenProcess(STANDARD_RIGHTS_REQUIRED|SYNCHRONIZE, FALSE, pid);
+  DWORD ExitCode;
+  if (proc == NULL) {
+    return(unify(ARG3, MkIntTerm(GetLastError())));
+  }
+  if (WaitForSingleObject(proc, INFINITE) == WAIT_FAILED) {
+    return(unify(ARG3, MkIntTerm(GetLastError())));
+  }
+  if (GetExitCodeProcess(proc, &ExitCode) == 0) {
+    return(unify(ARG3, MkIntTerm(GetLastError())));
+  }
+  CloseHandle(proc);
+  return(unify(ARG2, MkIntTerm(ExitCode)));
+#else
   do {
     int status;
 
@@ -415,6 +540,7 @@ p_wait(void)
       return(unify(ARG2, MkIntTerm(status)));
     }
   } while(TRUE);
+#endif
 }
 
 /* execute a command as a detached process */
@@ -428,10 +554,18 @@ p_popen(void)
   int flags;
   
 #if HAVE_POPEN
+#if defined(__MINGW32__) || _MSC_VER
+  /* This will only work for console applications. FIX */
+  if (mode == 0)
+    pfd = _popen(command, "r");
+  else
+    pfd = _popen(command, "w");
+#else
   if (mode == 0)
     pfd = popen(command, "r");
   else
     pfd = popen(command, "w");
+#endif
   if (pfd == NULL) {
     return(unify(ARG4, MkIntTerm(errno)));    
   }
@@ -461,6 +595,11 @@ p_sleep(void)
     else
       usecs = tfl*1000;
   }
+#if defined(__MINGW32__) || _MSC_VER
+  if (secs) usecs = secs*1000;
+  Sleep(usecs);
+  out = 0;
+#else
 #if HAVE_USLEEP
   if (usecs > 0) {
     usleep(usecs);
@@ -472,6 +611,7 @@ p_sleep(void)
       out = sleep(secs);
     }
 #endif
+#endif /* defined(__MINGW32__) || _MSC_VER */
   return(unify(ARG2, MkIntTerm(out)));
 }
 
@@ -480,13 +620,21 @@ p_sleep(void)
 static int
 host_name(void)
 {
-  char name[256];
+#if defined(__MINGW32__) || _MSC_VER
+  char name[MAX_COMPUTERNAME_LENGTH+1];
+  DWORD nSize = MAX_COMPUTERNAME_LENGTH+1;
+  if (GetComputerName(name, &nSize) == 0) {
+    return(unify(ARG2, MkIntTerm(GetLastError())));
+  }
+#else
 #if HAVE_GETHOSTNAME
+  char name[256];
   if (gethostname(name, 256) == -1) {
     /* return an error number */
     return(unify(ARG2, MkIntTerm(errno)));
   }
 #endif
+#endif /* defined(__MINGW32__) || _MSC_VER */
   return(unify(ARG1, MkAtomTerm(LookupAtom(name))));
 }
 
@@ -495,26 +643,42 @@ host_id(void)
 {
 #if HAVE_GETHOSTID
   return(unify(ARG1, MkIntTerm(gethostid())));
+#else
+  return(unify(ARG1, MkIntTerm(0)));
 #endif
 }
 
 static int
 pid(void)
 {
+#if defined(__MINGW32__) || _MSC_VER
+  return(unify(ARG1, MkIntTerm(_getpid())));
+#else
   return(unify(ARG1, MkIntTerm(getpid())));
+#endif
 }
 
 static int
 p_kill(void)
 {
-#if HAVE_KILL
+#if defined(__MINGW32__) || _MSC_VER
+  /* Windows does not support cross-process signals, so we shall do the
+     SICStus thing and assume that a signal to a process will
+     always kill it */
+  HANDLE proc = OpenProcess(STANDARD_RIGHTS_REQUIRED|PROCESS_TERMINATE, FALSE, IntOfTerm(ARG1));
+  if (proc == NULL) {
+    return(unify(ARG3, MkIntTerm(GetLastError())));
+  }
+  if (TerminateProcess(proc, -1) == 0) {
+    return(unify(ARG3, MkIntTerm(GetLastError())));
+  }
+  CloseHandle(proc);
+#else
   if (kill(IntOfTerm(ARG1), IntOfTerm(ARG2)) < 0) {
     /* return an error number */
-    return(unify(ARG2, MkIntTerm(errno)));
+    return(unify(ARG3, MkIntTerm(errno)));
   }
-#else
- oops
-#endif
+#endif /* defined(__MINGW32__) || _MSC_VER */
   return(TRUE); 
 }
 
@@ -542,7 +706,6 @@ init_sys(void)
   UserCPredicate("dir_separator", dir_separator, 1);
   UserCPredicate("p_environ", p_environ, 2);
   UserCPredicate("exec_command", execute_command, 6);
-  UserCPredicate("do_shell", shell, 2);
   UserCPredicate("do_system", do_system, 2);
   UserCPredicate("popen", p_popen, 4);
   UserCPredicate("wait", p_wait, 3);
@@ -561,9 +724,9 @@ init_sys(void)
 
 #include <windows.h>
 
-int WINAPI PROTO(win_system, (HANDLE, DWORD, LPVOID));
+int WINAPI PROTO(win_sys, (HANDLE, DWORD, LPVOID));
 
-int WINAPI win_system(HANDLE hinst, DWORD reason, LPVOID reserved)
+int WINAPI win_sys(HANDLE hinst, DWORD reason, LPVOID reserved)
 {
   switch (reason) 
     {
@@ -576,6 +739,6 @@ int WINAPI win_system(HANDLE hinst, DWORD reason, LPVOID reserved)
     case DLL_THREAD_DETACH:
       break;
     }
-p  return 1;
+  return 1;
 }
 #endif

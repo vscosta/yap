@@ -39,6 +39,12 @@ static char     SccsId[] = "@(#)save.c	1.3 3/15/90";
 #ifdef HAVE_UNISTD_H
 #include <unistd.h>
 #endif
+#ifdef HAVE_SYS_TYPES_H
+#include <sys/types.h>
+#endif
+#ifdef HAVE_SYS_STAT_H
+#include <sys/stat.h>
+#endif
 
 
 /*********  hack for accesing several kinds of terms. Should be cleaned **/
@@ -124,9 +130,7 @@ STATIC_PROTO(void NewFileInfo, (long, long));
 extern int      DefVol;
 #endif
 
-#if _MSC_VER
-#include <sys/types.h>
-#include <sys/stat.h>
+#if HAVE_IO_H
 #include <io.h>
 #endif
 
@@ -254,7 +258,7 @@ open_file(char *ss, int flag)
 #else
 #ifdef O_BINARY
 #if _MSC_VER
-    if ((splfild = open(ss, flag | O_BINARY), _S_IREAD | _S_IWRITE) < 0)
+    if ((splfild = _open(ss, flag | O_BINARY), _S_IREAD | _S_IWRITE) < 0)
 #else
     if ((splfild = open(ss, flag | O_BINARY), 0755) < 0)
 #endif

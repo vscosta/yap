@@ -54,6 +54,12 @@ listing(_).
         '$write_clause'(Pred,Body),
         fail.
 
+portray_clause(Stream, Clause) :-
+        current_output(OldStream),
+	set_output(Stream),
+	portray_clause(Clause),
+	set_output(OldStream).
+
 portray_clause((Pred:-Body)) :- !,
 	'$beautify_vars'((Pred:-Body)),
 	'$write_clause'(Pred,Body).

@@ -1,5 +1,5 @@
 BEFORE 4.4:
-- weird going ons with prompt
+- weird going ons with prompt and readline
 - mixed constraints and delays.
 - write infinite terms
 - constraints in DB.
@@ -13,6 +13,7 @@ BEFORE 4.4:
 - library(system) for WIN32
 - document system(library)
 - document new interface functions.
+- remove pl/nfr.yap and misc/yap.spec from CVS.
 
 TO CHECK:
 - bad register allocation for a(X,Y) :- X is Y+2.3 ?
@@ -70,3 +71,4 @@ DONE:
 - initial port to OS_X
 - listing (Steve Moyle).
 - logtalk.
+- fix bugs from Nicos.

@@ -833,7 +833,7 @@ absolute_file_name(RelFile,AbsFile) :-
 	'$get_value'(fileerrors,V),
 	'$set_value'(fileerrors,0),
 	( open(F,Mode,S), !,
-	    '$user_file_name'(S, AbsFile),
+	    '$file_name'(S, AbsFile),
 	     close(S), '$set_value'(fileerrors,V);
 	     '$set_value'(fileerrors,V), fail).
 
