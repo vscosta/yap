@@ -39,6 +39,12 @@ static char     SccsId[] = "%W% %G%";
 #include <string.h>
 #endif
 
+#ifdef LOW_PROF
+  #include <signal.h>
+  #include <unistd.h>
+  #include <sys/time.h>
+#endif
+
 STD_PROTO(static Int p_setval, (void));
 STD_PROTO(static Int p_value, (void));
 STD_PROTO(static Int p_values, (void));
@@ -93,6 +99,125 @@ STD_PROTO(static Int p_runtime, (void));
 STD_PROTO(static Int p_walltime, (void));
 STD_PROTO(static Int p_access_yap_flags, (void));
 STD_PROTO(static Int p_set_yap_flags, (void));
+
+#ifdef LOW_PROF
+STD_PROTO(static Int useprof,  (void));
+STD_PROTO(static Int useprof0, (void));
+STD_PROTO(static Int profres, (void));
+
+#define TIMER_DEFAULT 1000
+static FILE *fprof;
+
+void prof_alrm(int signo)
+{
+  fprintf(fprof,"%x\n",Yap_regp->P_);
+  return;
+}
+
+static Int set_prof_timer(int msec) {
+static int n=-1;
+struct itimerval t;
+
+  if (msec==0 || n>0) { setitimer(ITIMER_REAL,NULL,NULL); fclose(fprof); n=0; return (TRUE); }
+  if (signal(SIGALRM,prof_alrm) == SIG_ERR) { return (FALSE); }
+
+  if (n==-1) fprof=fopen("PROFILING","w"); 
+  else fprof=fopen("PROFILING","a");
+  if (fprof==NULL) { return(FALSE); }
+
+  n=1;
+  t.it_interval.tv_sec=0;
+  t.it_interval.tv_usec=msec;
+  t.it_value.tv_sec=0;
+  t.it_value.tv_usec=msec;
+  setitimer(ITIMER_REAL,&t,NULL);
+
+return(TRUE);
+}
+
+static Int useprof(void) { 
+  Term p;
+  p=Deref(ARG1); 
+  return (set_prof_timer(IntOfTerm(p)));
+}
+
+static Int useprof0(void) { 
+  return(set_prof_timer(TIMER_DEFAULT));
+}
+
+
+static Int profres(void) { 
+FILE *f;
+long p, p1,p2, total,total2,count,fora, i;
+unsigned long es,ee,e1,e2,e;
+long *end;
+char nome[200];
+
+
+ f=fopen("PROFPREDS","r");
+ if (f==NULL) return -1;
+
+
+ i=fscanf(f,"%x - %x - Pred(%ld) - %s",&es,&ee,&p,nome);
+ p1=p2=p;
+ e1=es;
+ e2=ee;
+
+ while(i>0) {
+   if (p<p1) p1=p;
+   else if (p>p2) p2=p;
+   if (e1>es) e1=es;
+   if (e2<ee) e2=ee;
+   i=fscanf(f,"%x - %x - Pred(%ld) - %s",&es,&ee,&p,nome);
+ }
+ printf("%ld Addresses  from [%x] to [%x]\n",e2-e1,e1,e2);
+ printf("%ld Predicates from (%ld) to (%ld) \n",p2-p1,p1,p2);
+
+ fclose(f);
+
+ end=(long *) malloc((e2-e1+1)*sizeof(long));
+ if (end==NULL) { printf("Not enought mem to process results...\n"); return -1; }
+ memset(end,0, (e2-e1+1)*sizeof(long)); 
+
+ 
+ f=fopen("PROFILING","r"); 
+ if (f==NULL) return -1;
+ 
+ i=fscanf(f,"%x",&e);
+ total=0; fora=0; 
+ while(i>0) {
+   total++;
+   if (e<e1 || e>e2) fora++; 
+   else end[e-e1]++; 
+   i=fscanf(f,"%x",&e);
+ }
+
+ fclose(f); 
+ 
+
+ printf("Total count %ld (other code %ld)\n",total,fora); 
+
+ f=fopen("PROFPREDS","r");
+ if (f==NULL) return -1;
+
+ total2=0;
+ do {
+   i=fscanf(f,"%x - %x - Pred(%ld) - %s",&es,&ee,&p,nome);
+   if (i<=0) break;
+   count=0;
+   while(es<=ee) { count+=end[es-e1]; es++; } 
+   total2+=count;
+   if (count) printf("Pred(%ld) - %s - %ld (%f\%)\n", p,nome,count, ((float) count/total)*100.0);
+ } while(i>0);
+  
+ fclose(f); 
+ printf("Total counted %ld (other code %ld)\n",total2,total-total2); 
+ free(end);
+
+}
+
+
+#endif /* LOW_PROF */
 
 
 static Int 
@@ -2318,6 +2443,11 @@ Yap_InitCPreds(void)
   Yap_InitCPred("unhide", 1, p_unhide, SafePredFlag|SyncPredFlag);
   Yap_InitCPred("$hidden", 1, p_hidden, SafePredFlag|SyncPredFlag);
   Yap_InitCPred("$has_yap_or", 0, p_has_yap_or, SafePredFlag|SyncPredFlag);
+#ifdef LOW_PROF
+  Yap_InitCPred("useprof", 1, useprof, SafePredFlag);
+  Yap_InitCPred("useprof", 0, useprof0, SafePredFlag);
+  Yap_InitCPred("profres", 0, profres, SafePredFlag);
+#endif
 #ifndef YAPOR
   Yap_InitCPred("$default_sequential", 1, p_default_sequential, SafePredFlag|SyncPredFlag);
 #endif
