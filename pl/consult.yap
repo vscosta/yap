@@ -264,7 +264,7 @@ add_to_path(New,Pos) :-
 	'$add_to_path'(Path,Pos).
 
 '$add_to_path'(New,_) :- recorded('$path',New,R), erase(R), fail.
-'$add_to_path'(New,last) :- !, '$recordz'('$path',New,_).
+'$add_to_path'(New,last) :- !, recordz('$path',New,_).
 '$add_to_path'(New,first) :- recorda('$path',New,_).
 
 remove_from_path(New) :- '$check_path'(New,Path),

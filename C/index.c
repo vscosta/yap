@@ -4119,8 +4119,6 @@ ExpandIndex(PredEntry *ap) {
   yamop **labp;
   int cb;
 
-  extern long long int vsc_count;
-  printf("vsc_count: %lld\n", vsc_count);
   Yap_Error_Size = 0;
   if ((cb = setjmp(Yap_CompilerBotch)) == 3) {
     restore_machine_regs();
