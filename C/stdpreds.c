@@ -11,8 +11,11 @@
 * File:		stdpreds.c						 *
 * comments:	General-purpose C implemented system predicates		 *
 *									 *
-* Last rev:     $Date: 2004-05-14 17:11:30 $,$Author: vsc $						 *
+* Last rev:     $Date: 2004-06-16 14:12:53 $,$Author: vsc $						 *
 * $Log: not supported by cvs2svn $
+* Revision 1.68  2004/05/14 17:11:30  vsc
+* support BigNums in interface
+*
 * Revision 1.67  2004/05/14 16:33:45  vsc
 * add Yap_ReadBuffer
 *
@@ -1044,6 +1047,70 @@ p_atom_concat(void)
       if (!Yap_growheap(FALSE, sz+1024, NULL)) {
 	Yap_Error(SYSTEM_ERROR, TermNil, Yap_ErrorMessage);
 	return(FALSE);
+      }
+      goto restart;
+    }
+    memcpy((void *)cptr, (void *)atom_str, sz);
+    cptr += sz;
+    t1 = TailOfTerm(t1);
+    if (IsVarTerm(t1)) {
+      Yap_ReleasePreAllocCodeSpace((ADDR)cpt0);
+      Yap_Error(INSTANTIATION_ERROR, ARG1, "atom_concat/2");
+      return(FALSE);
+    }
+  }
+  if (t1 == TermNil) {
+    Term tout;
+    cptr[0] = '\0';
+    tout = MkAtomTerm(Yap_LookupAtom(cpt0));
+    Yap_ReleasePreAllocCodeSpace((ADDR)cpt0);
+    return(Yap_unify(ARG2, tout));
+  }
+  Yap_ReleasePreAllocCodeSpace((ADDR)cpt0);
+  Yap_Error(TYPE_ERROR_LIST, ARG1, "atom_concat/2");
+  return(FALSE);
+}
+
+static Int 
+p_atomic_concat(void)
+{
+  Term t1 = Deref(ARG1);
+  char *cptr = ((AtomEntry *)Yap_PreAllocCodeSpace())->StrOfAE, *cpt0;
+  char *top = (char *)AuxSp;
+  char *atom_str;
+  UInt sz;
+
+ restart:
+  cpt0 = cptr;
+  /* we need to have a list */
+  if (IsVarTerm(t1)) {
+    Yap_ReleasePreAllocCodeSpace((ADDR)cpt0);
+    Yap_Error(INSTANTIATION_ERROR, ARG1, "atom_concat/2");
+    return(FALSE);
+  }
+  while (IsPairTerm(t1)) {
+    Term thead = HeadOfTerm(t1);
+    if (IsVarTerm(thead)) {
+      Yap_ReleasePreAllocCodeSpace((ADDR)cpt0);
+      Yap_Error(INSTANTIATION_ERROR, ARG1, "atom_concat/2");
+      return(FALSE);
+    }
+    if (!IsAtomicTerm(thead)) {
+      Yap_ReleasePreAllocCodeSpace((ADDR)cpt0);
+      Yap_Error(TYPE_ERROR_ATOM, ARG1, "atom_concat/2");
+      return(FALSE);
+    }
+    if (IsAtomTerm(thead)) {
+      atom_str = RepAtom(AtomOfTerm(thead))->StrOfAE;
+      /* check for overflows */
+      sz = strlen(atom_str);
+      if (cptr+sz >= top-1024) {
+	Yap_ReleasePreAllocCodeSpace((ADDR)cpt0);
+	if (!Yap_growheap(FALSE, sz+1024, NULL)) {
+	  Yap_Error(SYSTEM_ERROR, TermNil, Yap_ErrorMessage);
+	  return(FALSE);
+	}
+      } else if (IsIntegerTerm(thead)) {
       }
       goto restart;
     }
@@ -2682,6 +2749,7 @@ Yap_InitCPreds(void)
   Yap_InitCPred("number_atom", 2, p_number_atom, SafePredFlag);
   Yap_InitCPred("number_codes", 2, p_number_codes, SafePredFlag);
   Yap_InitCPred("atom_concat", 2, p_atom_concat, SafePredFlag);
+  Yap_InitCPred("atomic_concat", 2, p_atomic_concat, SafePredFlag);
   Yap_InitCPred("=..", 2, p_univ, 0);
   Yap_InitCPred("$statistics_trail_max", 1, p_statistics_trail_max, SafePredFlag|SyncPredFlag);
   Yap_InitCPred("$statistics_heap_max", 1, p_statistics_heap_max, SafePredFlag|SyncPredFlag);

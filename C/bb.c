@@ -272,7 +272,7 @@ p_bb_get(void)
     return(FALSE);
   READ_LOCK(p->BBRWLock);  
   while ((out = Yap_FetchTermFromDB(p->Element)) == 0L) {
-    if (!Yap_gc(2, YENV, P)) {
+    if (!Yap_gc(2, ENV, P)) {
       Yap_Error(OUT_OF_STACK_ERROR, TermNil, Yap_ErrorMessage);
       return(TermNil);
     }
@@ -292,7 +292,7 @@ p_bb_delete(void)
   if (p == NULL || p->Element == NULL)
     return(FALSE);
   while ((out = Yap_FetchTermFromDB(p->Element)) == 0L) {
-    if (!Yap_gc(2, YENV, P)) {
+    if (!Yap_gc(2, ENV, P)) {
       Yap_Error(OUT_OF_STACK_ERROR, TermNil, Yap_ErrorMessage);
       return(TermNil);
     }
@@ -316,7 +316,7 @@ p_bb_update(void)
     return(FALSE);
   WRITE_LOCK(p->BBRWLock);  
   while ((out = Yap_FetchTermFromDB(p->Element)) == 0L) {
-    if (!Yap_gc(3, YENV, P)) {
+    if (!Yap_gc(3, ENV, P)) {
       Yap_Error(OUT_OF_STACK_ERROR, TermNil, Yap_ErrorMessage);
       return(TermNil);
     }

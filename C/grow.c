@@ -183,6 +183,12 @@ SetStackRegs(void)
   TR_FZ = PtoTRAdjust(TR_FZ);
 #endif /* TABLING */
   YENV = PtoLocAdjust(YENV);
+#ifdef COROUTINING
+  DelayedVars = AbsAppl(PtoGloAdjust(RepAppl(DelayedVars)));
+  MutableList = AbsAppl(PtoGloAdjust(RepAppl(MutableList)));
+  AttsMutableList = AbsAppl(PtoGloAdjust(RepAppl(AttsMutableList)));
+  WokenGoals = AbsAppl(PtoGloAdjust(RepAppl(WokenGoals)));
+#endif
 }
 
 static void
