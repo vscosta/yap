@@ -205,8 +205,8 @@ p_thread_detach(void)
 static Int
 p_thread_exit(void)
 {
-  fprintf(stderr,"here i go %d %ld\n", worker_id, ThreadHandle[worker_id].handle);
   thread_die(worker_id, FALSE);
+   fprintf(stderr,"here i go %d %ld\n", worker_id, ThreadHandle[worker_id].handle);
   pthread_exit(NULL);
   return TRUE;
 }
