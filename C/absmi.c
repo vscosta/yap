@@ -11363,6 +11363,7 @@ Yap_absmi(int inp)
 	pen = PredMetaCall;
 	ARG2 = Yap_cp_as_integer(B);
 	ARG4 = ModuleName[mod];
+	CACHE_A1();
 	goto execute_end;
 	ENDP(pt1);
 

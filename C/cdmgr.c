@@ -85,8 +85,8 @@ STATIC_PROTO(Int  PredForCode,(yamop *, Atom *, UInt *, SMALLUNSGN *));
 #define TRYCODE(G,F,N) ( (N)<5 ? (op_numbers)((int)F+(N)*3) : G)
 #define NEXTOP(V,TYPE)    ((yamop *)(&((V)->u.TYPE.next)))
 
-#define IN_BLOCK(P,B,SZ)     ((CODEADDR)(P) > (CODEADDR)(B) && \
-			      (CODEADDR)(P) <= (CODEADDR)(B)+(SZ))
+#define IN_BLOCK(P,B,SZ)     ((CODEADDR)(P) >= (CODEADDR)(B) && \
+			      (CODEADDR)(P) < (CODEADDR)(B)+(SZ))
 
 /******************************************************************
   
@@ -2540,9 +2540,9 @@ code_in_pred(PredEntry *pp, Atom *pat, UInt *parity, yamop *codeptr) {
 	CODEADDR cl;
 	
 	if (!(pp->PredFlags & DynamicPredFlag)) {
-	  cl = (CODEADDR)ClauseCodeToDynamicClause(clcode);
-	} else {
 	  cl = (CODEADDR)ClauseCodeToStaticClause(clcode);
+	} else {
+	  cl = (CODEADDR)ClauseCodeToDynamicClause(clcode);
 	}
 	if (IN_BLOCK(codeptr,cl,Yap_SizeOfBlock((CODEADDR)cl))) {
 	  clause_was_found(pp, pat, parity);
