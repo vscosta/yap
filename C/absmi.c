@@ -2105,7 +2105,12 @@ absmi(int inp)
 	  } 
 	  if (PrologMode & AbortMode) {
 	    PrologMode &= ~AbortMode;
+	    ASP = Y+E_CB;
+	    if (ASP > (CELL *)B)
+	      ASP = (CELL *)B;
+	    saveregs();
 	    Error(PURE_ABORT, TermNil, "");
+	    setregs();
 	  }
 	  JMPNext();
 	}

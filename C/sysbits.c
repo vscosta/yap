@@ -1936,9 +1936,11 @@ static Int p_file_age(void)
 }
 
 /* wrapper for alarm system call */
-#if defined(_WIN32)
+#if _MSC_VER || defined(__MINGW32__)
+
 static VOID CALLBACK HandleTimer(LPVOID v, DWORD d1, DWORD d2) {
   /* force the system to creep */
+  exit(0);
   p_creep ();
   /* now, say what is going on */
   PutValue(AtomAlarm, MkAtomTerm(AtomTrue));
@@ -1960,16 +1962,25 @@ p_alarm(void)
 #if _MSC_VER || defined(__MINGW32__)
   {
     Term tout;
-    HANDLE htimer = CreateWaitableTimer(NULL,FALSE,NULL);
-    LARGE_INTEGER due_time;
-    __int64 timeout = -IntegerOfTerm(t);
-    due_time.QuadPart =  timeout;
+    HANDLE htimer;
+    Int time = -IntegerOfTerm(t);
+    
+    if (time != 0) {
+      __int64 due_time; 
+      LARGE_INTEGER liDueTime;
 
-    if (SetWaitableTimer(htimer, &due_time,0,HandleTimer,NULL,TRUE) == 0) {
-	  Error(SYSTEM_ERROR, TermNil,
-			 "alarm not available in this configuration");
-      return(FALSE);
-	}
+      htimer = CreateWaitableTimer(NULL,FALSE,NULL);
+      due_time = time;
+      due_time *=  10000000;
+      /* Copy the relative time into a LARGE_INTEGER. */
+      liDueTime.LowPart  = (DWORD) ( due_time & 0xFFFFFFFF );
+      liDueTime.HighPart = (LONG)  ( due_time >> 32 );
+      if (SetWaitableTimer(htimer, &liDueTime,0,HandleTimer,NULL,0) == 0) {
+	Error(SYSTEM_ERROR, TermNil,
+	      "alarm not available in this configuration");
+	return(FALSE);
+      }
+    }
     tout = MkIntegerTerm(0);
     return(unify(ARG2,tout));
   }
