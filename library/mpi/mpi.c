@@ -4,19 +4,19 @@
 *									 *
 *	Yap Prolog was developed at NCCUP - Universidade do Porto	 *
 *									 *
-* Copyright S. Konstantopoulos and Universidade do Porto 2002     	 *
+* Copyright S. Konstantopoulos and Universidade do Porto 2002-2003     	 *
 *									 *
 **************************************************************************
 *									 *
 * File:		mpi.c  							 *
-* Last rev:	$Date: 2003-06-26 14:35:52 $				 *
+* Last rev:	$Date: 2003-07-03 15:01:18 $				 *
 * mods:									 *
-* comments:	Internal interface to MPI libraries                      *
+* comments:	Interface to MPI libraries                               *
 *									 *
 *************************************************************************/
 
 #ifndef lint
-static char *rcsid = "$Header: /Users/vitor/Yap/yap-cvsbackup/library/mpi/mpi.c,v 1.19 2003-06-26 14:35:52 stasinos Exp $";
+static char *rcsid = "$Header: /Users/vitor/Yap/yap-cvsbackup/library/mpi/mpi.c,v 1.20 2003-07-03 15:01:18 stasinos Exp $";
 #endif
 
 #include "Yap.h"
@@ -33,6 +33,9 @@ static char *rcsid = "$Header: /Users/vitor/Yap/yap-cvsbackup/library/mpi/mpi.c,
 #include <string.h>
 #include <mpi.h>
 
+Term    STD_PROTO(YAP_Read, (int (*)(void)));
+void    STD_PROTO(YAP_Write, (Term, void (*)(int), int));
+
 STATIC_PROTO (Int p_mpi_open, (void));
 STATIC_PROTO (Int p_mpi_close, (void));
 STATIC_PROTO (Int p_mpi_send, (void));
@@ -43,21 +46,22 @@ STATIC_PROTO (Int p_mpi_barrier, (void));
 
 
 /*
- * Auxiliary Data and Functions
+ * Auxiliary Data
  */
 
 static Int rank, numprocs, namelen;
 static char processor_name[MPI_MAX_PROCESSOR_NAME];
 
-/* used by the parser */
-static int StartLine;
-
 static Int mpi_argc;
 static char **mpi_argv;
 
-/* mini-stream */
-
+/* this should eventually be moved to config.h */
 #define RECV_BUF_SIZE 1024*32
+
+
+/* 
+ * A simple stream
+ */
 
 static size_t bufsize, bufstrlen;
 static char *buf;
@@ -95,105 +99,23 @@ expand_buffer( int space )
   bufsize += space;
 }
 
-static int
-mpi_putc(Int stream, Int ch)
+static void
+mpi_putc(Int ch)
 {
   if( ch > 0 ) {
     if( bufptr >= bufsize ) expand_buffer( RECV_BUF_SIZE );
     buf[bufptr++] = ch;
   }
-  return ch;
 }
 
 static Int
-mpi_getc(Int stream)
+mpi_getc(void)
 {
-  return buf[bufptr++];
-}
-
-static Int
-mpi_eob(void)
-{
-  return (bufptr<bufstrlen) && (buf[bufptr] != EOF);
+  if( bufptr < bufsize ) return buf[bufptr++];
+  else return -1;
 }
 
 
-/* Term parser */
-
-static Term
-mpi_parse(void)
-{
-  Term t;
-  TokEntry *tokstart;
-  tr_fr_ptr old_TR, TR_before_parse;
-
-  old_TR = TR;
-  while( TRUE ) {
-    CELL *old_H;
-
-    /* Scans the term using stack space */
-    Yap_eot_before_eof = FALSE;
-
-    /* the first arg is the getc_for_read, diff only if CharConv is on */
-    tokstart = Yap_tokptr = Yap_toktide = Yap_tokenizer(mpi_getc, mpi_getc);
-
-    /* preserve value of H after scanning: otherwise we may lose strings
-       and floats */
-    old_H = H;
-
-    if ( mpi_eob() && !Yap_eot_before_eof) {
-      if (tokstart != NIL && tokstart->Tok != Ord (eot_tok)) {
-	/* we got the end of file from an abort */
-	if (Yap_ErrorMessage == "Abort") {
-	  TR = old_TR;
-	  return TermNil;
-	}
-	/* we need to force the next reading to also give end of file.*/
-	buf[bufptr] = EOF;
-	Yap_ErrorMessage = "[ Error: end of file found before end of term ]";
-      } else {
-	/* restore TR */
-	TR = old_TR;
-
-	return (Yap_unify_constant(t, MkAtomTerm(AtomEof)));
-      }
-    }
-  repeat_cycle:
-    TR_before_parse = TR;
-    if( (t = Yap_Parse())==0 || Yap_ErrorMessage ) {
-      if (Yap_ErrorMessage && (strcmp(Yap_ErrorMessage,"Stack Overflow") == 0)) {
-	/* ignore term we just built */
-	TR = TR_before_parse;
-	H = old_H;
-	if (Yap_growstack_in_parser(&old_TR, &tokstart, &Yap_VarTable)) {
-	  old_H = H;
-	  Yap_tokptr = Yap_toktide = tokstart;
-	  Yap_ErrorMessage = NULL;
-	  goto repeat_cycle;
-	}
-      }
-      TR = old_TR;
-
-      /*
-	behave as if ParserErrorStyle were QUIET_ON_PARSER_ERROR,
-	(see iopreds.c), except with bombing Yap instead of simply
-	failing the predicate: the parse cannot fail unless there
-	is a problem with the transmission that went unnoticed or
-	a bug in the pretty printer.
-      */
-      Yap_Error(SYSTEM_ERROR, TermNil, "Failed to parse MPI_Recv()'ed term" );
-      Yap_exit( EXIT_FAILURE );
-
-    } else {
-      /* parsing succeeded */
-      break;
-    }
-  }
-    
-  TR = old_TR;
-  return t;
-}
-    
 
 
 /*
@@ -286,21 +208,19 @@ p_mpi_send()             /* mpi_send(+data, +destination, +tag) */
     tag  = IntOfTerm( t_tag );
   }
 
-  bufptr = 0;
   /* Turn the term into its ASCII representation */
-  Yap_plwrite( t_data, mpi_putc, Quote_illegal_f|Handle_vars_f );
-  bufstrlen = (size_t)bufptr;
+  bufptr = 0;
+  YAP_Write( t_data, mpi_putc, Quote_illegal_f|Handle_vars_f );
 
   /* The buf is not NULL-terminated and does not have the
      trailing ". " required by the parser */
-  mpi_putc( 0, '.' );
-  mpi_putc( 0, ' ' );
-
-  buf[bufptr] = 0;
-  bufstrlen = bufptr + 1;
-  bufptr = 0;
+  mpi_putc( '.' );
+  mpi_putc( ' ' );
+  mpi_putc( 0 );
+  bufstrlen = strlen(buf);
 
   /* send the data */
+  bufptr = 0;
   retv = MPI_Send( &buf[bufptr], bufstrlen, MPI_CHAR, dest, tag, MPI_COMM_WORLD );
   if( retv != MPI_SUCCESS ) return FALSE;
 
@@ -382,14 +302,15 @@ p_mpi_receive()          /* mpi_receive(-data, ?orig, ?tag) */
   }
 
   /* parse received string into a Prolog term */
+
   bufptr = 0;
-  t = mpi_parse();
+  t = YAP_Read( mpi_getc );
 
   if( t == TermNil ) {
     retv = FALSE;
   }
   else {
-    retv = Yap_unify(t, ARG1);
+    retv = Yap_unify(t, t_data);
   }
 
   return retv;
@@ -417,14 +338,15 @@ p_mpi_bcast3()           /* mpi_bcast( ?data, +root, +max_size ) */
       Yap_Error(INSTANTIATION_ERROR, t_data, "mpi_bcast");
       return FALSE;
     }
-    bufptr = 0;
     /* Turn the term into its ASCII representation */
-    Yap_plwrite( t_data, mpi_putc, Quote_illegal_f|Handle_vars_f );
+    bufptr = 0;
+    YAP_Write( t_data, mpi_putc, Quote_illegal_f|Handle_vars_f );
     /* NULL-terminate the string and add the ". " termination
        required by the parser. */
-    buf[bufptr] = 0;
-    strcat( buf, ". " );
-    bufstrlen = bufptr + 2;
+    mpi_putc( '.' );
+    mpi_putc( ' ' );
+    mpi_putc( 0 );
+    bufstrlen = strlen(buf);
   }
 
   /* The third argument must be bound to an integer (the maximum length
@@ -465,7 +387,7 @@ p_mpi_bcast3()           /* mpi_bcast( ?data, +root, +max_size ) */
     bufptr = 0;
 
     /* parse received string into a Prolog term */
-    return Yap_unify(mpi_parse(), ARG1);
+    return Yap_unify( YAP_Read(mpi_getc), ARG1 );
   }    
 }
 
@@ -500,7 +422,7 @@ p_mpi_bcast2()           /* mpi_bcast( ?data, +root ) */
     }
     bufptr = 0;
     /* Turn the term into its ASCII representation */
-    Yap_plwrite( t_data, mpi_putc, Quote_illegal_f|Handle_vars_f );
+    YAP_Write( t_data, mpi_putc, Quote_illegal_f|Handle_vars_f );
     /* NULL-terminate the string and add the ". " termination
        required by the parser. */
     buf[bufptr] = 0;
@@ -545,14 +467,7 @@ p_mpi_bcast2()           /* mpi_bcast( ?data, +root ) */
     bufstrlen = strlen(buf);
     bufptr = 0;
 
-    /* parse received string into a Prolog term */
-    {
-      Term t_tmp;
-
-      t_tmp = mpi_parse();
-      Yap_unify(ARG1, t_tmp);
-    }
-    return TRUE;
+    return Yap_unify(YAP_Read( mpi_getc ), ARG1);
   }
 }
 
