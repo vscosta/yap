@@ -10,7 +10,7 @@
 * File:		TermExt.h						 *
 * mods:									 *
 * comments:	Extensions to standard terms for YAP			 *
-* version:      $Id: TermExt.h.m4,v 1.5 2001-12-17 18:31:11 vsc Exp $	 *
+* version:      $Id: TermExt.h.m4,v 1.6 2002-06-03 16:14:30 vsc Exp $	 *
 *************************************************************************/
 
 #if USE_OFFSETS
@@ -207,6 +207,8 @@ Inline(IsAttachedTerm, Int, Term, t, FALSE)
 
 
 #endif
+
+inline EXTERN int STD_PROTO(unify_extension,(Functor, CELL, CELL *, CELL));
 
 EXTERN int  STD_PROTO(unify_extension,(Functor, CELL, CELL *, CELL));
 

@@ -1043,8 +1043,6 @@ Macros to check the limits of stacks
 #define UNWIND_CUNIF()
 #endif
 
-inline EXTERN int STD_PROTO(unify_extension,(Functor, CELL, CELL *, CELL));
-
 #define UnifyBound_TEST_ATTACHED(f,d0,pt0,d1)                          \
  if (IsExtensionFunctor(f)) {                                          \
    if (unify_extension(f, d0, RepAppl(d0), d1))                        \
