@@ -2936,17 +2936,17 @@ p_get_read_error_handler(void)
 }
 
 static Int
-p_read (void)
-{				/* '$read'(+Flag,?Term,?Vars,-Pos,-Err)    */
+do_read(int inp_stream)
+{
   Term t, v;
-  TokEntry *tokstart, *fast_tokenizer (void);
+  TokEntry *tokstart;
 #if EMACS
   int emacs_cares = FALSE;
 #endif
   tr_fr_ptr old_TR, TR_before_parse;
     
-  if (Stream[Yap_c_input_stream].status & Binary_Stream_f) {
-    Yap_Error(PERMISSION_ERROR_INPUT_BINARY_STREAM, MkAtomTerm(Stream[Yap_c_input_stream].u.file.name), "read_term/2");
+  if (Stream[inp_stream].status & Binary_Stream_f) {
+    Yap_Error(PERMISSION_ERROR_INPUT_BINARY_STREAM, MkAtomTerm(Stream[inp_stream].u.file.name), "read_term/2");
     return(FALSE);
   }
   old_TR = TR;
@@ -2955,17 +2955,11 @@ p_read (void)
 
     /* Scans the term using stack space */
     Yap_eot_before_eof = FALSE;
-    if ((Stream[Yap_c_input_stream].status & (Promptable_Stream_f|Pipe_Stream_f|Socket_Stream_f|Eof_Stream_f|InMemory_Stream_f)) ||
-	CharConversionTable != NULL ||
-	Stream[Yap_c_input_stream].stream_getc != PlGetc)
-      tokstart = Yap_tokptr = Yap_toktide = Yap_tokenizer (Stream[Yap_c_input_stream].stream_getc_for_read, Stream[Yap_c_input_stream].stream_getc);
-    else {
-      tokstart = Yap_tokptr = Yap_toktide = Yap_fast_tokenizer ();
-    }
+    tokstart = Yap_tokptr = Yap_toktide = Yap_tokenizer (inp_stream);
     /* preserve value of H after scanning: otherwise we may lose strings
        and floats */
     old_H = H;
-    if ((Stream[Yap_c_input_stream].status & Eof_Stream_f)
+    if ((Stream[inp_stream].status & Eof_Stream_f)
 	&& !Yap_eot_before_eof) {
       if (tokstart != NIL && tokstart->Tok != Ord (eot_tok)) {
 	/* we got the end of file from an abort */
@@ -2974,13 +2968,13 @@ p_read (void)
 	  return(FALSE);
 	}
 	/* we need to force the next reading to also give end of file.*/
-	Stream[Yap_c_input_stream].status |= Push_Eof_Stream_f;
+	Stream[inp_stream].status |= Push_Eof_Stream_f;
 	Yap_ErrorMessage = "end of file found before end of term";
       } else {
 	/* restore TR */
 	TR = old_TR;
 	
-	return (Yap_unify(MkIntegerTerm(StartLine = Stream[Yap_c_input_stream].linecount),ARG4) &&
+	return (Yap_unify(MkIntegerTerm(StartLine = Stream[inp_stream].linecount),ARG4) &&
 		Yap_unify_constant (ARG2, MkAtomTerm (AtomEof)));
       }
     }
@@ -3057,21 +3051,22 @@ p_read (void)
 }
 
 static Int
+p_read (void)
+{				/* '$read'(+Flag,?Term,?Vars,-Pos,-Err)    */
+  return(do_read(Yap_c_input_stream));
+}
+
+static Int
 p_read2 (void)
 {				/* '$read2'(+Flag,?Term,?Vars,-Pos,-Err,+Stream)  */
-  int old_c_stream = Yap_c_input_stream;
-  Int out;
+  int inp_stream;
 
   /* needs to change Yap_c_output_stream for write */
-  Yap_c_input_stream = CheckStream (ARG6, Input_Stream_f, "read/3");
-  if (Yap_c_input_stream == -1) {
-    Yap_c_input_stream = old_c_stream;
+  inp_stream = CheckStream (ARG6, Input_Stream_f, "read/3");
+  if (inp_stream == -1) {
     return(FALSE);
   }
-  out = p_read();
-  Yap_c_input_stream = old_c_stream;  
-  return(out);
-  
+  return(do_read(inp_stream));
 }
 
 static Int

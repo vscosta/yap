@@ -21,6 +21,7 @@
 #include "Yap.h"
 #include "clause.h"
 #include "yapio.h"
+#include "iopreds.h"
 #define HAS_YAP_H 1
 #include "yap_structs.h"
 #ifdef YAPOR
@@ -788,12 +789,22 @@ YAP_Read(int (*mygetc)(void))
 {
   Term t;
   tr_fr_ptr old_TR;
+  int sno;
   
   BACKUP_MACHINE_REGS();
 
   do_getf = mygetc;
   old_TR = TR;
-  Yap_tokptr = Yap_toktide = Yap_tokenizer(do_yap_getc, do_yap_getc);
+  for (sno = 0; sno < MaxStreams; ++sno)
+    if (Stream[sno].status & Free_Stream_f)
+      break;
+  if (sno == MaxStreams) {
+    Yap_Error(SYSTEM_ERROR,TermNil, "new stream not available for YAP_Read");
+    return TermNil;
+  }
+  Stream[sno].stream_getc_for_read = Stream[sno].stream_getc = do_yap_getc;
+  Yap_tokptr = Yap_toktide = Yap_tokenizer(sno);
+  Stream[sno].status = Free_Stream_f;
   if (Yap_ErrorMessage)
     {
       TR = old_TR;

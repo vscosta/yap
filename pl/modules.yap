@@ -441,7 +441,7 @@ module(N) :-
 	functor(P,F,N),
 	( M1 = prolog -> M = _ ; M1 = M),
 	( retractall('$meta_predicate'(F,M,N,_)), fail ; true),
-	asserta('$meta_predicate'(F,M,N,P)),
+	asserta(prolog:'$meta_predicate'(F,M,N,P)),
 	'$flags'(P, M1, Fl, Fl),
 	NFlags is Fl \/ 0x200000,
 	'$flags'(P, M1, Fl, NFlags).

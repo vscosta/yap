@@ -574,8 +574,7 @@ yap_flag(host_type,X) :-
 	'$syntax_check_single_var'(_,off),
 	'$syntax_check_discontiguous'(_,off),
 	'$syntax_check_multiple'(_,off),
-	'$transl_to_on_off'(Y,off), % disable character escapes.
-	'$set_yap_flags'(12,Y),
+	'$set_yap_flags'(12,0), % disable character escapes.
 	'$set_yap_flags'(14,1),
 	'$set_fpu_exceptions',
 	unknown(_,error).
@@ -590,6 +589,8 @@ yap_flag(host_type,X) :-
 	'$set_yap_flags'(5,X1),
 	'$force_char_conversion',
 	'$set_yap_flags'(14,0),
+	% CHARACTER_ESCAPE
+	'$set_yap_flags'(12,1),
 	'$set_fpu_exceptions',
 	fileerrors,
 	unknown(_,error).
@@ -599,12 +600,17 @@ yap_flag(host_type,X) :-
 	'$syntax_check_single_var'(_,on),
 	'$syntax_check_discontiguous'(_,on),
 	'$syntax_check_multiple'(_,on),
+	% YAP_TO_CHARS
 	'$set_yap_flags'(7,1),
 	fileerrors,
 	'$transl_to_on_off'(X1,on),
+	% CHAR_CONVERSION
 	'$set_yap_flags'(5,X1),
 	'$force_char_conversion',
+	% ALLOW_ASSERTING_STATIC
 	'$set_yap_flags'(14,0),
+	% CHARACTER_ESCAPE
+	'$set_yap_flags'(12,1),
 	'$set_fpu_exceptions',
 	unknown(_,error).
 

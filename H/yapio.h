@@ -267,8 +267,7 @@ VarEntry STD_PROTO(*Yap_LookupVar,(char *));
 Term STD_PROTO(Yap_VarNames,(VarEntry *,Term));
 
 /* routines ins scanner.c */
-TokEntry STD_PROTO(*Yap_tokenizer,(int (*)(int), int (*)(int)));
-TokEntry STD_PROTO(*Yap_fast_tokenizer,(void));
+TokEntry STD_PROTO(*Yap_tokenizer,(int));
 Term     STD_PROTO(Yap_scan_num,(int (*)(int)));
 char	 STD_PROTO(*Yap_AllocScannerMemory,(unsigned int));
 

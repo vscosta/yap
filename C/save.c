@@ -311,7 +311,7 @@ get_header_cell(void)
   int count = 0, n;
   while (count < sizeof(CELL)) {
     if ((n = read(splfild, &l, sizeof(CELL)-count)) < 0) {
-      Yap_ErrorMessage = "corrupt saved state";
+      Yap_ErrorMessage = "corrupt saved state (too short)";
       return(0L);
     }
     count += n;
@@ -601,7 +601,7 @@ check_header(CELL *info, CELL *ATrail, CELL *AStack, CELL *AHeap)
   /* skip the first line */
   do {
     if (read(splfild, pp, 1) < 0) {
-      Yap_ErrorMessage = "corrupt saved state";
+      Yap_ErrorMessage = "corrupt saved state (failed to read first line)";
       return(FAIL_RESTORE);
     }
   } while (pp[0] != 1);
@@ -611,18 +611,18 @@ check_header(CELL *info, CELL *ATrail, CELL *AStack, CELL *AHeap)
     int count = 0, n, to_read = Unsigned(strlen(msg) + 1);
     while (count < to_read) {
       if ((n = read(splfild, pp, to_read-count)) < 0) {
-	Yap_ErrorMessage = "corrupt saved state";
+	Yap_ErrorMessage = "corrupt saved state (header too short)";
 	return(FAIL_RESTORE);
       }
       count += n;
     }
   }
   if (pp[0] != 'Y' && pp[1] != 'A' && pp[0] != 'P') {
-    Yap_ErrorMessage = "corrupt saved state";
+    Yap_ErrorMessage = "corrupt saved state (should say YAP)";
     return(FAIL_RESTORE);
   }
   if (strcmp(pp, msg) != 0) {
-    Yap_ErrorMessage = "saved state for different version of YAP";
+    Yap_ErrorMessage = "corrupt saved state (different version of YAP)";
     return(FAIL_RESTORE);
   }
   /* check info on header */
@@ -635,7 +635,7 @@ check_header(CELL *info, CELL *ATrail, CELL *AStack, CELL *AHeap)
   if (Yap_ErrorMessage)
      return(FAIL_RESTORE);
   if (mode != DO_EVERYTHING && mode != DO_ONLY_CODE) {
-    Yap_ErrorMessage = "corrupt saved state";
+    Yap_ErrorMessage = "corrupt saved state (bad type)";
     return(FAIL_RESTORE);
   }
   /* ignore info on stacks size */
@@ -786,7 +786,7 @@ CopyCode(void)
   /* skip the local and global data structures */
   CELL j = get_cell();
   if (j != Unsigned(&GLOBAL) - Unsigned(Yap_HeapBase)) {
-    Yap_Error(FATAL_ERROR,TermNil,"bad saved state, system corrupted");
+    Yap_Error(FATAL_ERROR,TermNil,"bad saved state (code space size does not match)");
   }
   myread(splfild, (char *) Yap_HeapBase, j);
 #ifdef USE_HEAP
@@ -795,7 +795,7 @@ CopyCode(void)
 #else
   j = get_cell();
   if (j != Unsigned(BaseAllocArea) - Unsigned(&HashChain)) {
-    Yap_Error(FATAL_ERROR,TermNil,"bad saved state, system corrupted");
+    Yap_Error(FATAL_ERROR,TermNil,"bad saved state (Base to Hash does not match)");
   }
   myread(splfild, (char *) &HashChain, j);
   j = get_cell();
@@ -859,7 +859,7 @@ get_coded(int flag, OPCODE old_ops[])
   /* Check CRC */
   myread(splfild, my_end_msg, 256);
   if (strcmp(end_msg,my_end_msg) != 0)
-    Yap_Error(FATAL_ERROR,TermNil,"bad saved state, system corrupted");
+    Yap_Error(FATAL_ERROR,TermNil,"corrupt saved state (bad trailing CRC)");
   return(funcs_moved);
 }
 
@@ -1280,7 +1280,12 @@ OpenRestore(char *inpf, char *YapLibDir, CELL *Astate, CELL *ATrail, CELL *AStac
       }
     }
   }
-  Yap_Error(SYSTEM_ERROR, TermNil, Yap_ErrorMessage);
+  /* could not open file */
+  if (Yap_ErrorMessage == NULL) {
+    Yap_Error(SYSTEM_ERROR,TermNil,"could not open %s,",inpf);
+  } else {
+    Yap_Error(SYSTEM_ERROR, TermNil, Yap_ErrorMessage);
+  }
   Yap_ErrorMessage = NULL;
   return(FAIL_RESTORE);
 }
