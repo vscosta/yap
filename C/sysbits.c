@@ -1240,11 +1240,11 @@ HandleALRM (int s, siginfo_t   *x, ucontext_t *y)
 HandleALRM(int s)
 #endif
 {
+  my_signal (SIGALRM, HandleALRM);
   /* force the system to creep */
   p_creep ();
   /* now, say what is going on */
   PutValue(AtomAlarm, MkAtomTerm(AtomTrue));
-  my_signal (SIGALRM, HandleALRM);
 }
 #endif
 
@@ -1934,7 +1934,7 @@ p_alarm(void)
     Int left;
     Term tout;
 
-    left = alarm(IntOfTerm(t));
+    left = alarm(IntegerOfTerm(t));
     tout = MkIntegerTerm(left);
     return(unify(ARG2,tout));
   }

@@ -313,17 +313,26 @@ YP_putc(int ch, int sno)
 int
 YP_fflush(int sno)
 {
+#if HAVE_LIBREADLINE
+  if (Stream[sno].status & Tty_Stream_f &&
+      Stream[sno].status & Output_Stream_f) {
+    if (ReadlinePos != ReadlineBuf) {
+      ReadlinePos[0] = '\0';
+      fputs( ReadlineBuf, Stream[sno].u.file.file);
+    }
+    ReadlinePos = ReadlineBuf;
+  }
+#endif
   if ( (Stream[sno].status & Output_Stream_f) &&
        ! (Stream[sno].status & 
          (Null_Stream_f|
 	  InMemory_Stream_f|
 	  Socket_Stream_f|
 	  Pipe_Stream_f|
-	  Free_Stream_f)) )
+	  Free_Stream_f)) ) {
     return(fflush(Stream[sno].u.file.file));
-  else
+  } else
     return(0);
-  return(fflush(Stream[sno].u.file.file));
 }
 
 static void
@@ -883,7 +892,6 @@ ReadlineGetc(int sno)
 	}
       }
     }
-    YP_fflush (YP_stdout);
     /* Only sends a newline if we are at the start of a line */
     if (_line != NULL && _line != (char *) EOF)
       free (_line);
@@ -901,7 +909,7 @@ ReadlineGetc(int sno)
 	}
 	_line = readline (Prompt);
       } else {
-	_line = readline ("");
+	_line = readline (NULL);
       }
     } else {
       if (ReadlinePos != ReadlineBuf) {
@@ -909,7 +917,7 @@ ReadlineGetc(int sno)
 	ReadlinePos = ReadlineBuf;
 	_line = readline (ReadlineBuf);
       } else {
-	_line = readline ("");
+	_line = readline (NULL);
       }
     }
     newline=FALSE;
@@ -4352,8 +4360,7 @@ p_flush (void)
   int sno = CheckStream (ARG1, Output_Stream_f, "flush_output/1");
   if (sno < 0)
     return (FALSE);
-  if (!(Stream[sno].status & (Null_Stream_f|Socket_Stream_f|Pipe_Stream_f|InMemory_Stream_f)))
-    YP_fflush (sno);
+  YP_fflush (sno);
   return (TRUE);
 }
 

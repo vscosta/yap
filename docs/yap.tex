@@ -5388,8 +5388,9 @@ a certain procedure does not take longer than a certain amount of time:
 @example
 loop :- loop.
 
-:- alarm(10, throw(ball), _),
-   catch(loop, ball, format('Quota exhausted.~n',[])).
+:-   catch((alarm(10, throw(ball), _),loop),
+        ball,
+        format('Quota exhausted.~n',[])).
 @end example
 In this case after @code{10} seconds our @code{loop} is interrupted,
 @code{ball} is thrown,  and the handler writes @code{Quota exhausted}.
@@ -6294,7 +6295,7 @@ Library, Extensions, Builtins, Top
 
 @end menu
  
-@node Apply Macros, Association Trees, , Library
+@node Apply Macros, Association Lists, , Library
 @section Apply Macros
 @cindex macros
 
@@ -6352,11 +6353,11 @@ applying the predicate @var{Pred} to all list elements on which
       arguments of @var{TermIn}
 
 @item sumargs(+@var{Pred}, +@var{Term}, ?@var{AccIn}, ?@var{AccOut})
-@findex sumargs/3
-@snindex sumargs/3
-@cnindex sumargs/3
-      Calls the predicate @var{Pred} on all arguments of @var{Term} and collects a
-      result in @var{Accumulator}
+@findex sumargs/4
+@snindex sumargs/4
+@cnindex sumargs/4
+  Calls the predicate @var{Pred} on all arguments of @var{Term} and
+collects a  result in @var{Accumulator}
 
 @item mapnodes(+@var{Pred}, +@var{TermIn}, ?@var{TermOut}) 
 @findex mapnodes/3
@@ -6372,10 +6373,10 @@ applying the predicate @var{Pred} to all list elements on which
       Succeeds if the predicate @var{Pred} succeeds on all sub-terms of
       @var{Term} (depth-first and left-to-right order)
 
-@item sumnodes(+@var{Pred}, +var{Term}, ?@var{AccIn}, ?@var{AccOut})
-@findex sumnodes/3
-@snindex sumnodes/3
-@cnindex sumnodes/3
+@item sumnodes(+@var{Pred}, +@var{Term}, ?@var{AccIn}, ?@var{AccOut})
+@findex sumnodes/4
+@snindex sumnodes/4
+@cnindex sumnodes/4
       Calls the predicate @var{Pred} on all sub-terms of @var{Term} and
 collect a result in @var{Accumulator} (depth-first and left-to-right order)
 @end table

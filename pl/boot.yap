@@ -15,7 +15,6 @@
 *									 *
 *************************************************************************/
 
-'$qery'((?-)).
 %
 % This one should come first so that disjunctions and long distance
 % cuts are compiled right with co-routining.
@@ -150,6 +149,10 @@ nl.
 	'$read'(true,T,V),
 	set_input(Old).
 
+% reset alarms when entering top-level.
+'$enter_top_level' :-
+        '$alarm'(0, _),
+	fail.
 '$enter_top_level' :-
 	'$clean_up_dead_clauses',
 	fail.
