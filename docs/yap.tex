@@ -3922,6 +3922,14 @@ Good night Hello+[1,2]
 @end example
 
 @end table
+The number of arguments, @code{N}, may be given as an integer, or it
+may be given as an extra argument. The next example shows a small
+procedure to write a variable number of @code{a} characters:
+
+@example
+write_many_as(N) :-
+        format("~*c",[N,0'a]).
+@end example
 
 The @code{format/2} built-in also allows for formatted output.  One can
 specify column boundaries and fill the intermediate space by a padding

@@ -35,8 +35,7 @@
 	fail.
 
 '$process_error'(abort) :- !,
-        write(user_error,'[ Execution Aborted ]'),
-        nl(user_error).
+        '$format'(user_error,'[ Execution Aborted ]~n').
 '$process_error'(error(Msg, Where)) :- !,
 	'$set_fpu_exceptions',
 	'$print_message'(error,error(Msg, Where)).
@@ -54,10 +53,9 @@ print_message(Level, Mss) :-
 '$print_message'(error,error(syntax_error(A,B,C,D,E,F),_)) :- !,
 	'$output_error_message'(syntax_error(A,B,C,D,E,F), 'SYNTAX ERROR').
 '$print_message'(error,error(Msg,[Info|local_sp(Where,Envs,CPs)])) :-
-	'$show_cps'(CPs),
-	'$show_envs'(Envs),
 	'$prepare_loc'(Info,Where,Location),
-	'$output_error_message'(Msg, Location), !.
+	'$output_error_message'(Msg, Location), !,
+	'$do_stack_dump'(Envs, CPs).
 '$print_message'(error,Throw) :-
 	'$format'(user_error,"[ No handler for error ~w ]~n", [Throw]).
 '$print_message'(informational,M) :-
@@ -136,15 +134,82 @@ print_message(Level, Mss) :-
 	'$format'(user_error,"~n      ~w",[P]),
 	'$print_list_of_preds'(L).
 
-'$show_cps'(List) :-
-	'$format'(user_error,"[ Goals with alternatives open:~n",[]),
-        '$print_stack'(List),
-	'$format'(user_error,"  ]~n",[]).
+'$do_stack_dump'(Envs, CPs) :-
+	'$preprocess_stack'(CPs,PCPs),
+	'$preprocess_stack'(Envs,PEnvs),
+	'$say_stack_dump'(PEnvs, PCPs),
+	'$show_cps'(PCPs),
+	'$show_envs'(PEnvs),
+	'$close_stack_dump'(PEnvs, PCPs).
 
+'$preprocess_stack'([], []).
+'$preprocess_stack'([G|Gs], NGs) :-
+	'$pred_for_code'(G,Name,Arity,Mod,Clause),
+	'$beautify_stack_goal'(Name,Arity,Mod,Clause,Gs,NGs).
+	
+'$beautify_stack_goal'(Name,Arity,Module,0,Gs,NGs) :- !,
+	'$preprocess_stack'(Gs,NGs).
+'$beautify_stack_goal'(Name,Arity,Module,Clause,Gs,NGs) :-
+	functor(G,Name,Arity),
+	'$hidden_predicate'(G,Module), !,
+	'$beautify_hidden_goal'(Name,Arity,Module,Clause,Gs,NGs).
+'$beautify_stack_goal'(Name,Arity,Module,Clause,Gs,[cl(Name,Arity,Module,Clause)|NGs]) :-
+	'$preprocess_stack'(Gs,NGs).
+
+
+'$beautify_hidden_goal'('$yes_no',_,_,_,_,[]) :- !.
+'$beautify_hidden_goal'('$do_yes_no',_,_,_,_,[]) :- !.
+'$beautify_hidden_goal'('$query',_,_,_,_,[]) :- !.
+% The user should never know these exist.
+'$beautify_hidden_goal'('$csult',_,prolog,ClNo,Gs,NGs) :- !,
+	'$preprocess_stack'(Gs, NGs).
+'$beautify_hidden_goal'('$recordedp',_,prolog,ClNo,Gs,NGs) :- !,
+	'$preprocess_stack'(Gs, NGs).
+'$beautify_hidden_goal'('$system_catch',_,prolog,ClNo,Gs,NGs) :- !,
+	'$preprocess_stack'(Gs, NGs).
+'$beautify_hidden_goal'('$execute_command',_,prolog,ClNo,Gs,NGs) :- !,
+	'$preprocess_stack'(Gs, NGs).
+'$beautify_hidden_goal'('$process_directive',_,prolog,ClNo,Gs,NGs) :- !,
+	'$preprocess_stack'(Gs, NGs).
+'$beautify_hidden_goal'('$catch',_,prolog,ClNo,Gs,NGs) :- !,
+	'$preprocess_stack'(Gs, NGs).
+'$beautify_hidden_goal'('$loop',_,prolog,ClNo,Gs,NGs) :- !,
+	'$preprocess_stack'(Gs, NGs).
+'$beautify_hidden_goal'('$consult',1,prolog,ClNo,Gs,NGs) :- !,
+	'$preprocess_stack'(Gs, NGs).
+'$beautify_hidden_goal'('$undefp',1,prolog,ClNo,Gs,NGs) :- !,
+	'$preprocess_stack'(Gs, NGs).
+'$beautify_hidden_goal'('$consult',2,prolog,ClNo,Gs,[cl(consult,1,prolog,ClNo)|NGs]) :- !,
+	'$preprocess_stack'(Gs, NGs).
+'$beautify_hidden_goal'('$listing',_,prolog,ClNo,Gs,[cl(listing,1,prolog,ClNo)|NGs]) :- !,
+	'$preprocess_stack'(Gs, NGs).
+'$beautify_hidden_goal'('$call',Args,prolog,ClNo,Gs,[cl(call,Args,prolog,ClNo)|NGs]) :- !,
+	'$preprocess_stack'(Gs, NGs).
+'$beautify_hidden_goal'('$current_predicate',Args,prolog,ClNo,Gs,[cl(current_predicate,Args,prolog,ClNo)|NGs]) :- !,
+	'$preprocess_stack'(Gs, NGs).
+'$beautify_hidden_goal'('$list_clauses',_,prolog,ClNo,Gs,[cl(listing,1,prolog,ClNo)|NGs]) :- !,
+	'$preprocess_stack'(Gs, NGs).
+'$beautify_hidden_goal'(Name,Args,Mod,ClNo,Gs,[cl(Name,Args,Mod,ClNo)|NGs]) :-
+	'$preprocess_stack'(Gs, NGs).
+
+
+'$say_stack_dump'([], []) :- !.
+'$say_stack_dump'(_, _) :-
+	'$format'(user_error,"[ Stack dump for error:", []).
+	
+'$close_stack_dump'([], []) :- !.
+'$close_stack_dump'(_, _) :-
+	'$format'(user_error," ]~n", []).
+	
+'$show_cps'([]) :- !.
+'$show_cps'(List) :-
+	'$format'(user_error,"~n   choice-points (goals with alternatives left):",[]),
+        '$print_stack'(List).
+
+'$show_envs'([]) :- !.
 '$show_envs'(List) :-
-	'$format'(user_error,"[ Goals left to continue:~n",[]),
-        '$print_stack'(List),
-	'$format'(user_error,"  ]~n",[]).
+	'$format'(user_error,"~n   environments (partially executed clauses):",[]),
+        '$print_stack'(List).
 
 '$prepare_loc'(Info,Where,Location) :- integer(Where), !,
 	'$pred_for_code'(Where,Name,Arity,Mod,Clause),
@@ -152,21 +217,15 @@ print_message(Level, Mss) :-
 '$prepare_loc'(Info,Where,Info).
 
 '$print_stack'([]).
-'$print_stack'([G|List]) :-
-	'$pred_for_code'(G,Name,Arity,Mod,Clause),
-	(
-	  Name = '$yes_no' ; Name = '$query' ; Name = '$do_yes_no' ->
-	   true
-	;
-	  '$show_goal'(Clause,Name,Arity,Mod),
-	  '$print_stack'(List)
-	).
+'$print_stack'([cl(Name,Arity,Mod,Clause)|List]) :-
+	'$show_goal'(Clause,Name,Arity,Mod),
+	'$print_stack'(List).
 
 '$show_goal'(-1,Name,Arity,Mod) :- !,
-	'$format'("      ~a:~a/~d at indexing code~n",[Mod,Name,Arity]).
+	'$format'("~n      ~a:~a/~d at indexing code",[Mod,Name,Arity]).
 '$show_goal'(0,Name,Arity,Mod) :- !.
 '$show_goal'(I,Name,Arity,Mod) :-
-	'$format'("      ~a:~a/~d at clause ~d~n",[Mod,Name,Arity,I]).
+	'$format'("~n      ~a:~a/~d at clause ~d",[Mod,Name,Arity,I]).
 
 '$construct_code'(-1,Name,Arity,Mod,Where,Location) :- !,
 	number_codes(Arity,ArityCode),
