@@ -1971,7 +1971,7 @@ cont_current_op(void)
     do {
       if ((a = at->NextOfAE) == NIL) {
 	i++;
-	while (TRUE) {
+	while (i < AtomHashTableSize) {
 	  READ_LOCK(HashChain[i].AERWLock);
 	  a = HashChain[i].Entry;
 	  READ_UNLOCK(HashChain[i].AERWLock);
