@@ -1127,8 +1127,12 @@ c_goal(Term Goal, int mod)
   if (IsApplTerm(Goal) && FunctorOfTerm(Goal) == FunctorModule) {
     Term M = ArgOfTerm(1, Goal);
 
-    if (!IsVarTerm(M) && !IsAtomTerm(M)) {
-      Yap_Error_TYPE = TYPE_ERROR_ATOM;
+    if (IsVarTerm(M) || !IsAtomTerm(M)) {
+      if (IsVarTerm(M)) {	
+	Yap_Error_TYPE = INSTANTIATION_ERROR;
+      } else {
+	Yap_Error_TYPE = TYPE_ERROR_ATOM;
+      }
       Yap_Error_Term = M;
       Yap_ErrorMessage = "in module name";
       save_machine_regs();
@@ -1137,18 +1141,16 @@ c_goal(Term Goal, int mod)
     Goal = ArgOfTerm(2, Goal);
     mod = Yap_LookupModule(M);
   }
-  if (IsNumTerm(Goal)) {
+  if (IsVarTerm(Goal)) {
+    Goal = Yap_MkApplTerm(FunctorCall, 1, &Goal);
+  } else if (IsNumTerm(Goal)) {
     FAIL("goal can not be a number", TYPE_ERROR_CALLABLE, Goal);
-  }
-  else if (IsRefTerm(Goal)) {
+  } else if (IsRefTerm(Goal)) {
     Yap_Error_TYPE = TYPE_ERROR_DBREF;
     Yap_Error_Term = Goal;
     FAIL("goal argument in static procedure can not be a data base reference", TYPE_ERROR_CALLABLE, Goal);
   }
   else if (IsPairTerm(Goal)) {
-    Goal = Yap_MkApplTerm(FunctorCall, 1, &Goal);
-  }
-  else if (IsVarTerm(Goal)) {
     Goal = Yap_MkApplTerm(FunctorCall, 1, &Goal);
   }
   if (IsAtomTerm(Goal)) {
