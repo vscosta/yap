@@ -2373,7 +2373,7 @@ p_still_variant(void)
 
     while ((link = *lp++)) {
       Term t2 = Deref(old_h[link-1]);
-      if (IsUnboundVar((CELL)(dbt->Contents+(link-1)))) {
+      if (IsUnboundVar(dbt->Contents+(link-1))) {
 	if (IsVarTerm(t2)) {
 	  Yap_unify(t2,MkAtomTerm(AtomFoundVar));
 	} else {

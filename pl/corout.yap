@@ -57,8 +57,8 @@
 %'$wake_up_goal'([Module1|Continuation],G) :-
 %	'$write'(4,vsc_woke:G+[Module1|Continuation]:'
 %'), fail.
-'$wake_up_goal'([Module1|Continuation], LG0) :-
-	'$sort'(LG0,LG),
+'$wake_up_goal'([Module1|Continuation], LG) :-
+%write(waking:LG),nl,
 	'$execute_woken_system_goals'(LG),
 	'$do_continuation'(Continuation, Module1).
 
@@ -95,7 +95,6 @@
 '$execute_woken_system_goal'('$att_do'(V,New)) :-
 	( '$frozen_goals'(V, Goals) ->
 	    '$call_atts'(V,New),
-%	    write(vsc:Goals),nl,
 	    '$execute_frozen_goals'(Goals)
 	 ;
 	    '$call_atts'(V,New)
@@ -706,8 +705,14 @@ call_residue(Goal,Residue) :-
 	'$process_when'(G, NG).
 '$process_when'(G, G).
 
+%'$freeze'(V,G) :-
+%	attributes:get_att(V, 0, Gs), write(G+Gs),nl,fail.
 '$freeze'(V,G) :-
 	attributes:update_att(V, 0, G).
+
+'$goal_in'(G,[G1|_]) :- G == G1, !.
+'$goal_in'(G,[_|Gs]) :-	
+	'$goal_in'(G,Gs).
 
 '$frozen_goals'(V,Gs) :-
 	var(V),

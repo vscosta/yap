@@ -10,7 +10,7 @@
 * File:		Yap.h.m4						 *
 * mods:									 *
 * comments:	main header file for YAP				 *
-* version:      $Id: Yap.h.m4,v 1.65 2004-09-17 19:34:52 vsc Exp $	 *
+* version:      $Id: Yap.h.m4,v 1.66 2004-09-18 14:03:42 vsc Exp $	 *
 *************************************************************************/
 
 #include "config.h"
@@ -769,10 +769,10 @@ extern int Yap_output_msg;
 Destructor(Term, VarOf, Term *, t, t)
 #if SBA
 Inline0(MkVarTerm, Term, (*H = 0, H++))
-Inline(IsUnboundVar, int, Term, t, t == 0)
+Inline(IsUnboundVar, int, Term *, t, *(t) == 0)
 #else
 Inline0(MkVarTerm, Term, (*H = (CELL) H, H++))
-Inline(IsUnboundVar, int, Term, t, *VarOfTerm(t) == (t))
+Inline(IsUnboundVar, int, Term *, t, *(t) == (Term)(t))
 #endif
 Inline(PtrOfTerm, CELL *, Term, t, *(CELL *)(t))
 

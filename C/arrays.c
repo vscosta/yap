@@ -684,7 +684,7 @@ p_create_array(void)
       ArrayEntry *app = (ArrayEntry *) pp;
 
       WRITE_UNLOCK(ae->ARWLock);
-      if (!IsVarTerm(app->ValueOfVE) || !IsUnboundVar(app->ValueOfVE))
+      if (!IsVarTerm(app->ValueOfVE) || !IsUnboundVar(&app->ValueOfVE))
 	Yap_Error(PERMISSION_ERROR_CREATE_ARRAY,t,"create_array",
 	      ae->StrOfAE);
       else {
@@ -781,7 +781,7 @@ p_create_static_array(void)
 	return(FALSE);
       return (TRUE);
     } else if (ArrayIsDynamic(app)) {
-      if (IsVarTerm(app->ValueOfVE) && IsUnboundVar(app->ValueOfVE)) {
+      if (IsVarTerm(app->ValueOfVE) && IsUnboundVar(&app->ValueOfVE)) {
 	pp = CreateStaticArray(ae, size, props, NULL, pp);
 	if (pp == NULL)
 	  return(FALSE);

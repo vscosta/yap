@@ -1022,7 +1022,7 @@ check_global(void) {
 	       ArityOfFunctor((Functor)ccurr));*/
 	vars[gc_func]++;
       }
-      else if (IsUnboundVar((CELL)current)) vars[gc_var]++;
+      else if (IsUnboundVar(current)) vars[gc_var]++;
       else vars[gc_ref]++;
     } else if (IsApplTerm(ccurr)) {
       /*      printf("%p: f->%p\n",current,RepAppl(ccurr)); */

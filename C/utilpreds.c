@@ -410,7 +410,8 @@ Yap_CopyTerm(Term inp) {
 static Int 
 p_copy_term(void)		/* copy term t to a new instance  */
 {
-  return(Yap_unify(ARG2,CopyTerm(ARG1)));
+  Term t = CopyTerm(ARG1); 
+  return Yap_unify(ARG2,t);
 }
 
 static int copy_complex_term_no_delays(register CELL *pt0, register CELL *pt0_end, CELL *ptf, CELL *HLow)
@@ -1734,7 +1735,7 @@ static int subsumes_complex(register CELL *pt0, register CELL *pt0_end, register
     /* cell we created */
     CELL *npt1 = (CELL *)*pt1;
     /* shorten the chain */
-    if (IsVarTerm(*pt1) && IsUnboundVar(*pt1)) {
+    if (IsVarTerm(*pt1) && IsUnboundVar(pt1)) {
       RESET_VARIABLE(pt1);
     } else {
       *pt1 = *npt1;

@@ -98,7 +98,7 @@ CopyAttVar(CELL *orig, CELL ***to_visit_ptr, CELL *res)
 	to_visit[0] = vt-1;
 	to_visit[1] = vt;
 	to_visit[2] = newv->Atts+2*j+1;
-	to_visit[3] = vt;
+	to_visit[3] = (CELL *)vt[-1];
 	to_visit += 4;
       }
     } else if (IsVarTerm(t) && IsAtomicTerm(t)) {
@@ -161,7 +161,7 @@ WakeAttVar(CELL* pt1, CELL reg2)
 	return;
       }
       if (susp2 >= attv) {
-	if (!IsVarTerm(susp2->Value) || !IsUnboundVar(susp2->Value)) {
+	if (!IsVarTerm(susp2->Value) || !IsUnboundVar(&susp2->Value)) {
 	  /* oops, our goal is on the queue to be woken */
 	  if (!Yap_unify(susp2->Value, (CELL)pt1)) {
 	    AddFailToQueue();
@@ -176,7 +176,7 @@ WakeAttVar(CELL* pt1, CELL reg2)
       return;
     }
   }
-  if (!IsVarTerm(attv->Value) || !IsUnboundVar(attv->Value)) {
+  if (!IsVarTerm(attv->Value) || !IsUnboundVar(&attv->Value)) {
     /* oops, our goal is on the queue to be woken */
     if (!Yap_unify(attv->Value, reg2)) {
       AddFailToQueue();
@@ -283,7 +283,7 @@ static Int
 UpdateAtt(attvar_record *attv, Int i, Term tatt) {
   Int pos = i*2;
   Term tv = attv->Atts[pos+1];
-  if (!IsVarTerm(tv) || !IsUnboundVar(tv)) {
+  if (!IsVarTerm(tv) || !IsUnboundVar(attv->Atts+pos+1)) {
     tatt = MkPairTerm(tatt, attv->Atts[pos+1]);
   } else {
     tatt = MkPairTerm(tatt, TermNil);
@@ -390,7 +390,7 @@ static Int
 GetAtt(attvar_record *attv, int i) {
   Int pos = i *2;
 #if SBA
-  if (IsVarTerm(attv->Atts[pos+1]) && IsUnboundVar(attv->Atts[pos+1]))
+  if (IsVarTerm(attv->Atts[pos+1]) && IsUnboundVar(attv->Atts+pos+1))
     return((CELL)&(attv->Atts[pos+1]));
 #endif  
   return(attv->Atts[pos+1]);
@@ -404,7 +404,7 @@ FreeAtt(attvar_record *attv, int i) {
 
 static Int
 BindAttVar(attvar_record *attv) {
-  if (IsVarTerm(attv->Done) && IsUnboundVar(attv->Done)) {
+  if (IsVarTerm(attv->Done) && IsUnboundVar(&attv->Done)) {
     /* make sure we are not trying to bind a variable against itself */
     if (!IsVarTerm(attv->Value)) {
       Bind_Global(&(attv->Done), attv->Value);
@@ -450,7 +450,7 @@ AllAttVars(Term t) {
     return(t);
   } else {
     attvar_record *attv = (attvar_record *)VarOfTerm(t);
-    if (!IsVarTerm(attv->Done) || !IsUnboundVar(attv->Done))
+    if (!IsVarTerm(attv->Done) || !IsUnboundVar(&attv->Done))
       return(AllAttVars(attv->NS));
     else return(MkPairTerm(t,AllAttVars(attv->NS)));
   }
@@ -665,7 +665,7 @@ p_attvar_bound(void)
   return(IsVarTerm(t) &&
 	 IsAttachedTerm(t) &&
 	 ((attvar_record *)VarOfTerm(t))->sus_id == attvars_ext &&
-         !IsUnboundVar(((attvar_record *)VarOfTerm(t))->Done));
+         !IsUnboundVar(&((attvar_record *)VarOfTerm(t))->Done));
 }
 
 #else
