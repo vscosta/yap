@@ -148,11 +148,7 @@ DumpActiveGoals (void)
 	    Yap_plwrite(MkAtomTerm(Yap_LookupAtom("repeat ")), Yap_DebugPutc, 0);
 	  }
       case _or_last:
-#ifdef YAPOR
-	pe = PredFromOr(b_ptr->cp_cp->u.ldl.bl);
-#else
 	pe = b_ptr->cp_cp->u.sla.p0;
-#endif /* YAPOR */
 	break;
       case _retry_profiled:
 	opnum = Yap_op_from_opcode(NEXTOP(b_ptr->cp_ap,l)->opc);
