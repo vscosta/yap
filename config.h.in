@@ -44,6 +44,8 @@
 #undef  HAVE_SIGNAL_H
 #undef  HAVE_STDARG_H
 #undef  HAVE_STRING_H
+#undef  HAVE_STROPTS_H
+#undef  HAVE_SYS_CONF_H
 #undef  HAVE_SYS_FILE_H
 #undef  HAVE_SYS_MMAN_H
 #undef  HAVE_SYS_PARAM_H

@@ -36,6 +36,9 @@
 '$directive'(sequential(_)).
 '$directive'(block(_)).
 '$directive'(wait(_)).
+'$directive'(use_module(_)).
+'$directive'(use_module(_,_)).
+'$directive'(use_module(_,_,_)).
 
 '$exec_directive'(multifile(D), _, M) :-
 	'$system_catch'('$multifile'(D, M), M,
@@ -67,18 +70,24 @@
 	op(P,OPSEC,OP).
 '$exec_directive'(set_prolog_flag(F,V), _, _) :-
 	set_prolog_flag(F,V).
-'$exec_directive'(ensure_loaded(F), _, _) :-
-	'$ensure_loaded'(F).
+'$exec_directive'(ensure_loaded(F), _, M) :-
+	'$ensure_loaded'(M:F).
 '$exec_directive'(char_conversion(IN,OUT), _, _) :-
 	char_conversion(IN,OUT).
 '$exec_directive'(public(P), _, M) :-
 	'$public'(P, M).
-'$exec_directive'(compile(F), _, _) :-
-	'$compile'(F).
-'$exec_directive'(reconsult(Fs), _, _) :-
-	'$reconsult'(Fs).
-'$exec_directive'(consult(Fs), _, _) :-
+'$exec_directive'(compile(F), _, M) :-
+	'$compile'(M:F).
+'$exec_directive'(reconsult(Fs), _, M) :-
+	'$reconsult'(M:Fs).
+'$exec_directive'(consult(Fs), _, M) :-
 	'$consult'(Fs).
+'$exec_directive'(use_module(Fs), _, M) :-
+	'$use_module'(M:Fs).
+'$exec_directive'(use_module(Fs,I), _, M) :-
+	'$use_module'(M:Fs,I).
+'$exec_directive'(use_module(Fs,F,I), _, M) :-
+	'$use_module'(M:Fs,F,I).
 '$exec_directive'(block(BlockSpec), _, _) :-
 	'$block'(BlockSpec).
 '$exec_directive'(wait(BlockSpec), _, _) :-

@@ -19,35 +19,41 @@
 
 :- '$switch_log_upd'(1).
 
-use_module(V) :- var(V), !,
+use_module(M) :-
+	'$use_module'(M).
+
+'$use_module'(V) :- var(V), !,
 	throw(error(instantiation_error,use_module(V))).	
-use_module([]) :- !.
-use_module([A|B]) :- !,
-	use_module(A),
-	use_module(B).
-use_module(M:F) :- atom(M), !,
+'$use_module'([]) :- !.
+'$use_module'([A|B]) :- !,
+	'$use_module'(A),
+	'$use_module'(B).
+'$use_module'(M:F) :- atom(M), !,
         '$current_module'(M0),
         '$change_module'(M),
-        use_module(F),
+        '$use_module'(F),
         '$change_module'(M0).
-use_module(File) :- 
+'$use_module'(File) :- 
 	'$find_in_path'(File,X),
 	(  '$recorded'('$module','$module'(_,X,Publics),_) ->
-		use_module(File,Publics)
+		'$use_module'(File,Publics)
 	;
 		'$ensure_loaded'(File)
 	).
 
-use_module(File,Imports) :- var(File), !,
+use_module(M,I) :-
+	'$use_module'(M, I).
+
+'$use_module'(File,Imports) :- var(File), !,
 	throw(error(instantiation_error,use_module(File,Imports))).	
-use_module(File,Imports) :- var(Imports), !,
+'$use_module'(File,Imports) :- var(Imports), !,
 	throw(error(instantiation_error,use_module(File,Imports))).	
-use_module(M:F, Imports) :- atom(M), !,
+'$use_module'(M:F, Imports) :- atom(M), !,
         '$current_module'(M0),
         '$change_module'(M),
-        use_module(F, Imports),
+        '$use_module'(F, Imports),
         '$change_module'(M0).
-use_module(File,Imports) :-
+'$use_module'(File,Imports) :-
 	atom(File), !,
 	'$current_module'(M),
 	'$find_in_path'(File,X),
@@ -71,7 +77,7 @@ use_module(File,Imports) :-
     ;  
 	throw(error(permission_error(input,stream,X),use_module(X,Imports)))
     ).
-use_module(library(File),Imports) :- !,
+'$use_module'(library(File),Imports) :- !,
 	'$current_module'(M),
 	'$find_in_path'(library(File),X),
 	( '$open'(X,'$csult',Stream,0), !,
@@ -94,10 +100,13 @@ use_module(library(File),Imports) :- !,
     ;  
 	throw(error(permission_error(input,stream,library(X)),use_module(library(X),Imports)))
     ).
-use_module(V,Decls) :- 
+'$use_module'(V,Decls) :- 
 	throw(error(type_error(atom,V),use_module(V,Decls))).
 	
-use_module(Module,File,Imports) :-
+use_module(M,F,I) :-
+	'$use_module'(M,F,I).
+
+'$use_module'(Module,File,Imports) :-
 	'$current_module'(M),
 	'$find_in_path'(File,X),
 	( '$open'(X,'$csult',Stream,0), !,
@@ -120,7 +129,7 @@ use_module(Module,File,Imports) :-
     ;  
 	throw(error(permission_error(input,stream,library(X)),use_module(Module,File,Imports)))
     ).
-use_module(Module,V,Decls) :- 
+'$use_module'(Module,V,Decls) :- 
 	throw(error(type_error(atom,V),use_module(Module,V,Decls))).
 	
 '$consulting_file_name'(Stream,F)  :-
@@ -160,9 +169,9 @@ use_module(Module,V,Decls) :-
 	throw(error(instantiation_error,M)).
 '$process_module_decls_option'(At,_) :- 
 	atom(At), 
-	use_module(At).
+	'$use_module'(At).
 '$process_module_decls_option'(library(L),_) :- 
-	use_module(library(L)).
+	'$use_module'(library(L)).
 '$process_module_decls_option'(hidden(Bool),M) :- 
 	'$process_hidden_module'(Bool, M).
 '$process_module_decls_option'(Opt,M) :- 
@@ -567,6 +576,13 @@ source_module(Mod) :-
 	bb_put(:,+),
 	bb_delete(:,?),
 	bb_update(:,?,?),
+	use_module(:),
+	use_module(:,?),
+	use_module(?,:,?),
+	consult(:),
+	reconsult(:),
+	compile(:),
+	ensure_loaded(:),
 	call_with_args(:),
 	call_with_args(:,?),
 	call_with_args(:,?,?),
