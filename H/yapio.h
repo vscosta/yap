@@ -4,12 +4,12 @@
 *									 *
 *	Yap Prolog was developed at NCCUP - Universidade do Porto	 *
 *									 *
-* Copyright L.Damas, V.S.Costa and Universidade do Porto 1985-1997	 *
+* Copyright L.Damas, V.S.Costa and Universidade do Porto 1985-2003	 *
 *									 *
 **************************************************************************
 *									 *
-* File:		io.h							 *
-* Last rev:	19/2/88							 *
+* File:		yapio.h							 *
+* Last rev:	22/1/03							 *
 * mods:									 *
 * comments:	Input/Output information				 *
 *									 *
@@ -189,7 +189,7 @@ typedef	 struct	TOKEN {
   struct TOKEN *TokNext;
 } TokEntry;
 
-#define	Ord(X) ((int) X)
+#define	Ord(X) ((int) (X))
 
 #define	NextToken GNextToken()
 
@@ -266,7 +266,7 @@ extern int Yap_eot_before_eof;
 VarEntry STD_PROTO(*Yap_LookupVar,(char *));
 Term STD_PROTO(Yap_VarNames,(VarEntry *,Term));
 
-/* routines ins scanner.c */
+/* routines in scanner.c */
 TokEntry STD_PROTO(*Yap_tokenizer,(int));
 Term     STD_PROTO(Yap_scan_num,(int (*)(int)));
 char	 STD_PROTO(*Yap_AllocScannerMemory,(unsigned int));
