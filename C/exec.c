@@ -1523,7 +1523,7 @@ Yap_InitYaamRegs(void)
   Yap_StartSlots();
 #if COROUTINING
   RESET_VARIABLE((CELL *)Yap_GlobalBase);
-  DelayedVars = Yap_NewTimedVar((CELL)Yap_GlobalBase);
+  DelayedVars = Yap_NewTimedVar(MkIntTerm(0));
   WokenGoals = Yap_NewTimedVar(TermNil);
   MutableList = Yap_NewTimedVar(TermNil);
   AttsMutableList = Yap_NewTimedVar(TermNil);

@@ -79,7 +79,7 @@ CopyAttVar(CELL *orig, CELL ***to_visit_ptr, CELL *res)
   Int j;
 
   /* add a new attributed variable */
-  newv = (attvar_record *)Yap_ReadTimedVar(DelayedVars);
+  newv = DelayTop();
   if (H0 - (CELL *)newv < 1024+(2*NUM_OF_ATTS))
     return FALSE;
   RESET_VARIABLE(&(newv->Done));
@@ -113,7 +113,7 @@ CopyAttVar(CELL *orig, CELL ***to_visit_ptr, CELL *res)
   }
   *to_visit_ptr = to_visit;
   *res = (CELL)&(newv->Done);
-  Yap_UpdateTimedVar(DelayedVars, (CELL)(newv->Atts+2*j));
+  SetDelayTop(attv->Atts+2*j);
   return(TRUE);
 }
 
@@ -342,7 +342,7 @@ BuildNewAttVar(Term t, Int i, Term tatt)
   Term time;
   int j;
 
-  attvar_record *attv = (attvar_record *)Yap_ReadTimedVar(DelayedVars);
+  attvar_record *attv = DelayTop();
   if (H0 - (CELL *)attv < 1024+(2*NUM_OF_ATTS)) {
     return FALSE;
   }
@@ -356,7 +356,7 @@ BuildNewAttVar(Term t, Int i, Term tatt)
   }
   attv->NS = Yap_UpdateTimedVar(AttsMutableList, (CELL)&(attv->Done));
   Bind((CELL *)t,(CELL)attv);
-  Yap_UpdateTimedVar(DelayedVars,(CELL)(attv->Atts+2*j));
+  SetDelayTop(attv->Atts+2*j);
   /* avoid trouble in gc */
   /* if i < 0 then we have the list of arguments */
   if (i < 0) {

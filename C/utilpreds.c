@@ -23,6 +23,7 @@ static char     SccsId[] = "@(#)utilpreds.c	1.3";
 #include "Heap.h"
 #include "yapio.h"
 #include "eval.h"
+#include "attvar.h"
 
 typedef struct {
 	Term            old_var;
@@ -206,7 +207,7 @@ copy_complex_term(register CELL *pt0, register CELL *pt0_end, CELL *ptf, CELL *H
 	CELL **bp[1];
 
 	if (dvars == NULL) {
-	  dvars = (CELL *)Yap_ReadTimedVar(DelayedVars);
+	  dvars = (CELL *)DelayTop();
 	} 	
 	if (ptd0 >= dvars) {
 	  *ptf++ = (CELL) ptd0;
@@ -686,8 +687,10 @@ static Int
 p_copy_term_no_delays(void)		/* copy term t to a new instance  */
 {
   Term t = CopyTermNoDelays(ARG1);
-  if (t == 0L)
+  if (t == 0L) {
+    printf("Error\n");
     return FALSE;
+  }
   /* be careful, there may be a stack shift here */
   return(Yap_unify(ARG2,t));
 }

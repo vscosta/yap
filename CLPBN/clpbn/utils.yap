@@ -14,6 +14,7 @@ check_for_hidden_vars([V|Vs], AllVs0, [V|NVs]) :-
 	check_for_hidden_vars(IVs, AllVs, NVs).
 
 check_for_extra_variables(V,AllVs0, AllVs, Vs, IVs) :-
+	var(V),
 	clpbn:get_atts(V, [dist(_,_,[V1|LV])]), !,
 	add_old_variables([V1|LV], AllVs0, AllVs, Vs, IVs).
 check_for_extra_variables(_,AllVs, AllVs, Vs, Vs).

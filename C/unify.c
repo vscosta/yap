@@ -467,7 +467,7 @@ unify_nvar:
 unify_nvar_nvar:
   /* both arguments are bound */
   if (d0 == d1)
-    return (TRUE);
+    return TRUE;
   if (IsPairTerm(d0)) {
     if (!IsPairTerm(d1)) {
       return (FALSE);
@@ -530,12 +530,12 @@ unify_var_nvar:
   if (pt0 < H0) Yap_WakeUp(pt0);
  bind_unify4:
 #endif
-  return (TRUE);
+  return TRUE;
 
 #if TRAILING_REQUIRES_BRANCH
 unify_var_nvar_trail:
   DO_TRAIL(pt0);
-  return (TRUE);
+  return TRUE;
 #endif
 
   deref_body(d1, pt1, unify_var_unk, unify_var_nvar);

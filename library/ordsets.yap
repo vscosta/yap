@@ -184,9 +184,9 @@ ord_intersection([Head1|Tail1], [Head2|Tail2], Intersection, Difference) :-
 
 ord_intersection(=, Head,  Tail1, _,     Tail2, [Head|Intersection], Difference) :-
 	ord_intersection(Tail1, Tail2, Intersection, Difference).
-ord_intersection(<, Head1,     Tail1, Head2, Tail2, Intersection, [Head1|Difference]) :-
+ord_intersection(<, Head1,     Tail1, Head2, Tail2, Intersection, Difference) :-
 	ord_intersection(Tail1, [Head2|Tail2], Intersection, Difference).
-ord_intersection(>, Head1, Tail1, Head2,     Tail2, Intersection, [Head2|Difference]) :-
+ord_intersection(>, Head1, Tail1, Head2,  Tail2, Intersection, [Head2|Difference]) :-
 	ord_intersection([Head1|Tail1], Tail2, Intersection, Difference).
 
 

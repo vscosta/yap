@@ -546,20 +546,36 @@ frozen(V, LG) :-
 
 
 call_residue(Goal,Residue) :-
+	var(Goal), !,
+	'$do_error'(instantiation_error,call_residue(Goal,Residue)).
+call_residue(Module:Goal,Residue) :-
+	atom(Module), !,
+	'$call_residue'(Goal,Module,Residue).
+call_residue(Goal,Residue) :-
+	'$current_module'(Module),
+	'$call_residue'(Goal,Module,Residue).
+	
+'$call_residue'(Goal,Module,Residue) :-
 	'$read_svar_list'(OldAttsList),
 	'$copy_term_but_not_constraints'(Goal, NGoal),
 	(  create_mutable([], CurrentAttsList),
           '$set_svar_list'(CurrentAttsList),
-	  '$execute'(NGoal),
-	  '$call_residue_continuation'(NGoal,NResidue),
+	  '$system_catch'(NGoal,Module,Error,'$residue_catch_trap'(Error,OldAttsList)),
+
+	    '$call_residue_continuation'(NGoal,NResidue),
 	    ( '$set_svar_list'(OldAttsList),
-	       '$copy_term_but_not_constraints'(NGoal+NResidue, Goal+Residue)
+		'$copy_term_but_not_constraints'(NGoal+NResidue, Goal+Residue)
 		;
 		'$set_svar_list'(CurrentAttsList), fail
 	    )
            ;
           '$set_svar_list'(OldAttsList), fail
         ).
+
+% make sure we set the suspended goal list to its previous state!
+'$residue_catch_trap'(Error,OldAttsList) :-
+	'$set_svar_list'(OldAttsList),
+	throw(Error).
 
 %
 % goal needs to be in a different procedure to catch suspended goals.
@@ -600,6 +616,7 @@ call_residue(Goal,Residue) :-
 	'$undefined'(modules_with_attributes(LAV),attributes), !,
 	'$fetch_delays'(Vs, LGs, []).
 '$project'([V|LAV],LIV,LDs) :-
+	attvar(V), !,
 	attributes:modules_with_attributes(LMods),
 	'$pick_vars_for_project'(LIV,NLIV),
 	'$project_module'(LMods,NLIV,[V|LAV]),
@@ -634,11 +651,11 @@ call_residue(Goal,Residue) :-
 	
 '$do_convert_att_vars'([], _, []).
 '$do_convert_att_vars'([V|LAV], LIV, NGs) :-
-	var(V),
+	attvar(V),
 	attributes:convert_att_var(V,G),
-	'$do_not_creep',
 	G \= true,
 	!,
+	'$do_not_creep',
 	'$split_goals_for_catv'(G,V,NGs,IGs),
 	'$do_convert_att_vars'(LAV, LIV, IGs).
 '$do_convert_att_vars'([_|LAV], LIV, Gs) :-

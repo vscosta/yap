@@ -122,7 +122,9 @@ sort_vars_by_key(AVars,SortedAVars, UnifiableVars) :-
 
 get_keys([], []).
 get_keys([V|AVars], [K-V|KeysVars]) :-
-	get_atts(V, [key(K)]),
+	get_atts(V, [key(K)]), !,
+	get_keys(AVars, KeysVars).
+get_keys([V|AVars], KeysVars) :-  % may be non-CLPBN vars.
 	get_keys(AVars, KeysVars).
 
 merge_same_key([], [], _, []).
@@ -130,7 +132,7 @@ merge_same_key([K1-V1,K2-V2|Vs], SortedAVars, Ks, UnifiableVars) :-
 	K1 == K2, !, V1 = V2,
 	merge_same_key([K1-V1|Vs], SortedAVars, Ks, UnifiableVars).
 merge_same_key([K1-V1,K2-V2|Vs], [V1|SortedAVars], Ks, [K1|UnifiableVars]) :-
-	(in_keys(K1, Ks) ; \+ \+ K1 = K2), !, 
+	(in_keys(K1, Ks) ; \+ \+ K1 == K2), !, 
 	add_to_keys(K1, Ks, NKs),
 	merge_same_key([K2-V2|Vs], SortedAVars, NKs, UnifiableVars).
 merge_same_key([K-V|Vs], [V|SortedAVars], Ks, UnifiableVars) :-
@@ -219,27 +221,29 @@ bind_clpbn(T, Var, Key, Domain, Table, Parents) :- var(T),
 	    bind_evidence_from_extra_var(Ev,T)
 	;
 	  true).
-bind_clpbn(_, Var, _, _) :-
+bind_clpbn(_, Var, _, _, _, _) :-
 	use(bnt),
 	check_if_bnt_done(Var), !.
-bind_clpbn(_, Var, _, _) :-
+bind_clpbn(_, Var, _, _, _, _) :-
 	use(vel),
 	check_if_vel_done(Var), !.
-bind_clpbn(T, Var, Key0, _) :-
+bind_clpbn(T, Var, Key0, _, _, _) :-
 	get_atts(Var, [key(Key0)]), !,
 	(
 	  Key = Key0 -> true
 	;
-	  format(user_error, "trying to force evidence ~w through unification with key ~w~n",[T, Key])
+	  add_evidence(Var,T)
 	).
 
 fresh_attvar(Var, NVar) :-
 	get_atts(Var, LAtts),
 	put_atts(NVar, LAtts).
 
+% I will now allow two CLPBN variables to be bound together.
+%bind_clpbns(Key, Domain, Table, Parents, Key, Domain, Table, Parents).
 bind_clpbns(Key, Domain, Table, Parents, Key1, Domain1, Table1, Parents1) :- 
 	Key == Key1, !,
-	( Domain == Domain1, Table == Table1, Parents == Parents1 -> true ; throw(error(domain_error(bayesian_domain),bind_clpbns))).
+	( Domain == Domain1, Table == Table1, Parents == Parents1 -> true ; throw(error(domain_error(bayesian_domain),bind_clpbns(var(Key, Domain, Table, Parents),var(Key1, Domain1, Table1, Parents1))))).
 bind_clpbns(_, _, _, _, _, _, _, _) :-
 	format(user_error, "unification of two bayesian vars not supported~n").
 

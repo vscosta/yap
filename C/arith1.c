@@ -343,12 +343,8 @@ p_log(Term t E_ARGS)
     }
   }
 
-  if (dbl > 0) {
+  if (dbl >= 0) {
     RFLOAT(log(dbl));
-  } else if (dbl == 0) {
-    Yap_Error(DOMAIN_ERROR_NOT_ZERO, t, "log(%f)", dbl);
-    P = (yamop *)FAILCODE;
-    RERROR();
   } else {
     Yap_Error(DOMAIN_ERROR_NOT_LESS_THAN_ZERO, t, "log(%f)", dbl);
     P = (yamop *)FAILCODE;
@@ -401,12 +397,8 @@ p_log10(Term t E_ARGS)
     }
   }
 
-  if (dbl > 0) {
+  if (dbl >= 0) {
     RFLOAT(log10(dbl));
-  } else if (dbl == 0) {
-    Yap_Error(DOMAIN_ERROR_NOT_ZERO, t, "log10(%f)", dbl);
-    P = (yamop *)FAILCODE;
-    RERROR();
   } else {
     Yap_Error(DOMAIN_ERROR_NOT_LESS_THAN_ZERO, t, "log10(%f)", dbl);
     P = (yamop *)FAILCODE;

@@ -54,6 +54,16 @@ typedef struct attvar_struct {
 #define AbsAttVar(attvar_ptr)	AbsAppl(((CELL *)(attvar_ptr)))
 #define RepAttVar(val)		((attvar_record *)RepAppl(val))
 
+static inline attvar_record *
+DelayTop(void) {
+  return (attvar_record *)((CELL *)Yap_GlobalBase+IntegerOfTerm(Yap_ReadTimedVar(DelayedVars)));
+}
+
+static inline void
+SetDelayTop(CELL *new_top) {
+  Yap_UpdateTimedVar(DelayedVars, MkIntegerTerm((CELL)(new_top-(CELL *)Yap_GlobalBase)));
+}
+
 #endif
 
 

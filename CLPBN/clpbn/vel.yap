@@ -39,7 +39,8 @@ check_if_vel_done(Var) :-
 	get_atts(Var, [size(_)]), !.
 
 vel(LVs0,Vs0,AllDiffs) :-
-	get_rid_of_ev_vars(LVs0,LVs),
+	sort(LVs0,LVs1),
+	get_rid_of_ev_vars(LVs1,LVs),
 	do_vel(LVs,Vs0,AllDiffs).
 	       
 do_vel([],_,_) :- !.

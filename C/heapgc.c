@@ -21,6 +21,7 @@ static char     SccsId[] = "%W% %G%";
 #include "absmi.h"
 #include "yapio.h"
 #include "alloc.h"
+#include "attvar.h"
 
 
 #define EARLY_RESET 1
@@ -3335,13 +3336,13 @@ do_gc(Int predarity, CELL *current_env, yamop *nextop)
   effectiveness = 0;
   gc_trace = FALSE;
 #if COROUTINING
-  max = (CELL *)Yap_ReadTimedVar(DelayedVars);
-  if (H0 - max < 1024+(2*NUM_OF_ATTS)) {
+  max = (CELL *)DelayTop();
+  while (H0 - max < 1024+(2*NUM_OF_ATTS)) {
     if (!Yap_growglobal(&current_env)) {
       Yap_Error(OUT_OF_STACK_ERROR, TermNil, Yap_ErrorMessage);
       return 0;
     }
-    max = (CELL *)Yap_ReadTimedVar(DelayedVars);
+    max = (CELL *)DelayTop();
   }
 #else
   max = NULL;
@@ -3404,7 +3405,7 @@ do_gc(Int predarity, CELL *current_env, yamop *nextop)
     current_env = (CELL *)*ASP;
     ASP++;
 #if COROUTINING
-    max = (CELL *)Yap_ReadTimedVar(DelayedVars);
+    max = (CELL *)DelayTop();
 #endif
   }
 #endif
@@ -3427,7 +3428,7 @@ do_gc(Int predarity, CELL *current_env, yamop *nextop)
       current_env = (CELL *)*ASP;
       ASP++;
 #if COROUTINING
-      max = (CELL *)Yap_ReadTimedVar(DelayedVars);
+      max = (CELL *)DelayTop();
 #endif
     }
     memset((void *)bp, 0, alloc_sz);
