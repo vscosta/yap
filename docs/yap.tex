@@ -209,10 +209,11 @@ Subnodes of Database
 * BlackBoard:: Storing and Fetching Terms in the BlackBoard
 
 Subnodes of Library
-* Association Lists:: Binary Tree Implementation of Association Lists
+* Apply Macros:: Apply a Predicate to a list or to sub-terms.
+* Association Lists:: Binary Tree Implementation of Association Lists.
 * AVL Trees:: Predicates to add and lookup balanced binary  trees.
 * Heaps:: Labelled binary tree where the key of each node is less
-    than or equal to the keys of its sons
+    than or equal to the keys of its children.
 * Lists:: List Manipulation
 * Ordered Sets:: Ordered Set Manipulation
 * Pseudo Random:: Pseudo Random Numbers
@@ -6271,10 +6272,11 @@ most files in the library are from the Edinburgh Prolog library.
 @menu
  
 Library, Extensions, Builtins, Top
-* Association Lists:: Binary Tree Implementation of Association Lists
+* Apply Macros:: Apply a Predicate to a list or to sub-terms.
+* Association Lists:: Binary Tree Implementation of Association Lists.
 * AVL Trees:: Predicates to add and lookup balanced binary  trees.
 * Heaps:: Labelled binary tree where the key of each node is less
-    than or equal to the keys of its sons
+    than or equal to the keys of its children.
 * Lists:: List Manipulation
 * Ordered Sets:: Ordered Set Manipulation
 * Pseudo Random:: Pseudo Random Numbers
@@ -6292,7 +6294,124 @@ Library, Extensions, Builtins, Top
 
 @end menu
  
-@node Association Lists, AVL Trees, , Library
+@node Apply Macros, Association Trees, , Library
+@section Apply Macros
+@cindex macros
+
+This library provides a set of utilities to apply a predicate to all
+elements of a list or to all sub-terms of a term. They allow one to
+easily perform the most common do-loop constructs in Prolog. To avoid
+performance degradation due to @code{apply/2}, each call creates an
+equivalent Prolog program, without meta-calls, which is executed by the
+Prolog engine instead. Note that if the equivalent Prolog program
+already exists, it will be simply used.
+
+The following routines are available once included with the
+@code{use_module(library(apply_macros))} command.
+
+@table @code
+@item maplist(+@var{Pred}, ?@var{ListIn}, ?@var{ListOut})
+@findex maplist/3
+@snindex maplist/3
+@cnindex maplist/3
+      Creates @var{ListOut} by applying the predicate @var{Pred} to all
+elements of @var{ListIn}.
+
+@item checklist(+@var{Pred}, +@var{List})
+@findex checklist/2
+@snindex checklist/2
+@cnindex checklist/2
+      Succeeds if the predicate @var{Pred} succeeds on all elements of @var{List}.
+
+@item selectlist(+@var{Pred}, +@var{ListIn}, ?@var{ListOut})
+@findex selectlist/3
+@snindex selectlist/3
+@cnindex selectlist/3
+      Creates @var{ListOut} of all list elements of @var{ListIn} that pass a given test
+
+@item convlist(+@var{Pred}, +@var{ListIn}, ?@var{ListOut})
+@findex convlist/3
+@snindex convlist/3
+@cnindex convlist/3
+      A combination of maplist and selectlist: creates @var{ListOut} by
+applying the predicate @var{Pred} to all list elements on which
+@var{Pred} succeeds
+
+@item sumlist(+@var{Pred}, +@var{List}, ?@var{AccIn}, ?@var{AccOut})
+@findex sumlist/4
+@snindex sumlist/4
+@cnindex sumlist/4
+      Calls @var{Pred} on all elements of List and collects a result in
+@var{Accumulator}.
+
+@item mapargs(+@var{Pred}, ?@var{TermIn}, ?@var{TermOut})
+@findex mapargs/3
+@snindex mapargs/3
+@cnindex mapargs/3
+      Creates @var{TermOut} by applying the predicate @var{Pred} to all
+      arguments of @var{TermIn}
+
+@item sumargs(+@var{Pred}, +@var{Term}, ?@var{AccIn}, ?@var{AccOut})
+@findex sumargs/3
+@snindex sumargs/3
+@cnindex sumargs/3
+      Calls the predicate @var{Pred} on all arguments of @var{Term} and collects a
+      result in @var{Accumulator}
+
+@item mapnodes(+@var{Pred}, +@var{TermIn}, ?@var{TermOut}) 
+@findex mapnodes/3
+@snindex mapnodes/3
+@cnindex mapnodes/3
+      Creates @var{TermOut} by applying the predicate @var{Pred}
+      to all sub-terms of @var{TermIn} (depth-first and left-to-right order)
+
+@item checknodes(+@var{Pred}, +@var{Term}) 
+@findex checknodes/3
+@snindex checknodes/3
+@cnindex checknodes/3
+      Succeeds if the predicate @var{Pred} succeeds on all sub-terms of
+      @var{Term} (depth-first and left-to-right order)
+
+@item sumnodes(+@var{Pred}, +var{Term}, ?@var{AccIn}, ?@var{AccOut})
+@findex sumnodes/3
+@snindex sumnodes/3
+@cnindex sumnodes/3
+      Calls the predicate @var{Pred} on all sub-terms of @var{Term} and
+collect a result in @var{Accumulator} (depth-first and left-to-right order)
+@end table
+
+Examples:
+
+@example
+%given
+plus(X,Y,Z) :- Z is X + Y.
+plus_if_pos(X,Y,Z) :- Y > 0, Z is X + Y.
+vars(X, Y, [X|Y]) :- var(X), !.
+vars(_, Y, Y).
+trans(TermIn, TermOut) :-
+  (compound(TermIn) ; atom(TermIn)),
+  TermIn =.. [p|Args],
+  TermOut =..[q|Args],
+  !.
+trans(X,X).
+
+%success
+
+maplist(plus(1), [1,2,3,4], [2,3,4,5]).
+checklist(var, [X,Y,Z]).
+selectlist(<(0), [-1,0,1], [1]).
+convlist(plus_if_pos(1), [-1,0,1], [2]).
+sumlist(plus, [1,2,3,4], 1, 11).
+mapargs(number_atom,s(1,2,3), s('1','2','3')).
+sumargs(vars, s(1,X,2,Y), [], [Y,X]).
+mapnodes(trans, p(a,p(b,a),c), q(a,q(b,a),c)).
+checknodes(\==(T), p(X,p(Y,X),Z)).
+sumnodes(vars, [c(X), p(X,Y), q(Y)], [], [Y,Y,X,X]).
+% another one
+maplist(mapargs(number_atom),[c(1),s(1,2,3)],[c('1'),s('1','2','3')]).
+@end example
+
+@node Association Lists, AVL Trees, Apply Macros, Library
 @section Association Lists
 @cindex association list
 
