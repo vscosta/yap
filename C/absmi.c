@@ -10,8 +10,11 @@
 *									 *
 * File:		absmi.c							 *
 * comments:	Portable abstract machine interpreter                    *
-* Last rev:     $Date: 2005-03-04 20:29:55 $,$Author: ricroc $						 *
+* Last rev:     $Date: 2005-03-07 17:49:14 $,$Author: vsc $						 *
 * $Log: not supported by cvs2svn $
+* Revision 1.159  2005/03/04 20:29:55  ricroc
+* bug fixes for YapTab support
+*
 * Revision 1.158  2005/03/01 22:25:07  vsc
 * fix pruning bug
 * make DL_MALLOC less enthusiastic about walking through buckets.
@@ -281,8 +284,8 @@ void prof_alrm(int signo, siginfo_t *si, ucontext_t *sc)
      fprintf(FProf,"%p %p\n", (void *) oldpc, P);
      return;
   }
-#endif
   fprintf(FProf,"0 %p\n", PREG);
+#endif
   return;
 }
 

@@ -185,7 +185,7 @@ myread(int fd, char *buff, Int len)
   while (len > 0) {
     int nchars = read(fd, buff, len);
     if (nchars < 0) {
-      return do_system_error(PERMISSION_ERROR_INPUT_PAST_END_OF_STREAM, "bad read on saved state", );
+      return do_system_error(PERMISSION_ERROR_INPUT_PAST_END_OF_STREAM, "bad read on saved state");
     }
     len -= nchars;
     buff += nchars;
