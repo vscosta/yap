@@ -41,9 +41,25 @@ cd ../pl
 splat
 cd ../CLPQR
 splat
-cd ../CHR
+cd clpq
 splat
-cd ../..
+cd ../clpqr
+splat
+cd examples
+splat
+cd SESSION
+splat
+cd ../monash
+splat
+cd ../../../clpr
+splat
+cd ../../CHR
+splat
+cd chr
+splat
+cd examples
+splat
+cd ../../../..
 if test "$1" = "--small"; then
   tar cvzf "$version".tar.gz "$version"/{INSTALL,README*,changes*,config*,install-sh,Makefile.in,.depend.in,distribute,C,H,VC,console,docs,include,library,m4,misc,pl,LGPL/README,LGPL/CVS,LGPL/pillow/[C-Z]*,LGPL/pillow/*.pl,LGPL/pillow/doc/*info*,build-distr,OPTYap,CLPQR,CHR}
 else

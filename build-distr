@@ -30,9 +30,9 @@ splat() {
 . distribute --small
 cp $YAP_DIR/../"$version".tar.gz $PAGE_DIR/"$version"-small.tar.gz
 cd /usr/src/RPM/SPECS
-cp $YAP_DIR/misc/yap.spec .
+cp $YAP_DIR/misc/Yap.spec .
 mv $YAP_DIR/../"$version".tar.gz ../SOURCES
-rpm -ba yap.spec
+rpm -ba Yap.spec
 cd /usr/src/RPM
 mv SRPMS/Yap* $PAGE_DIR
 mv RPMS/*/Yap* $PAGE_DIR
