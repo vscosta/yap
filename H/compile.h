@@ -150,6 +150,8 @@ typedef enum compiler_op {
   f_val_op,
   enter_profiling_op,
   retry_profiled_op,
+  count_call_op,
+  count_retry_op,
   restore_tmps_op,
   restore_tmps_and_skip_op,
   empty_call_op,
@@ -272,4 +274,6 @@ extern int IPredArity;
 extern jmp_buf CompilerBotch;
 
 extern int profiling;
+
+extern int call_counting;
 

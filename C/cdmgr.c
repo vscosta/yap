@@ -74,6 +74,10 @@ STATIC_PROTO(Int  p_compile_mode, (void));
 STATIC_PROTO(Int  p_is_profiled, (void));
 STATIC_PROTO(Int  p_profile_info, (void));
 STATIC_PROTO(Int  p_profile_reset, (void));
+STATIC_PROTO(Int  p_is_call_counted, (void));
+STATIC_PROTO(Int  p_call_count_info, (void));
+STATIC_PROTO(Int  p_call_count_set, (void));
+STATIC_PROTO(Int  p_call_count_reset, (void));
 STATIC_PROTO(Int  p_toggle_static_predicates_in_use, (void));
 #ifdef DEBUG
 STATIC_PROTO(void  list_all_predicates_in_use, (void));
@@ -380,6 +384,8 @@ retract_all(PredEntry *p, int in_use)
       p->OpcodeOfPred = cpt->opc;
       if (p->PredFlags & ProfiledPredFlag) {
 	((yamop *)lclause)->opc = opcode(_profiled_trust_me);
+      } else if (p->PredFlags & CountPredFlag) {
+	((yamop *)lclause)->opc = opcode(_count_trust_me);
       } else {
 	((yamop *)lclause)->opc = opcode(TRYCODE(_trust_me, _trust_me0, PredArity(p)));
       }
@@ -520,6 +526,8 @@ add_first_dynamic(PredEntry *p, CODEADDR cp, int spy_flag)
    *  backtrack to the previous block */
   if (p->PredFlags & ProfiledPredFlag)
     ((yamop *)cp)->opc = opcode(_profiled_retry_and_mark);
+  else if (p->PredFlags & CountPredFlag)
+    ((yamop *)cp)->opc = opcode(_count_retry_and_mark);
   else
     ((yamop *)cp)->opc = opcode(_retry_and_mark);
   ((yamop *)cp)->u.ld.s = p->ArityOfPE;
@@ -567,6 +575,11 @@ asserta_stat_clause(PredEntry *p, CODEADDR cp, int spy_flag)
       q->opc = opcode(_profiled_trust_me);
     else
       q->opc = opcode(_profiled_retry_me);
+  } else if (p->PredFlags & CountPredFlag) {
+    if (p->FirstClause == p->LastClause)
+      q->opc = opcode(_count_trust_me);
+    else
+      q->opc = opcode(_count_retry_me);
   } else {
     if (p->FirstClause == p->LastClause) {
 #ifdef TABLING
@@ -606,9 +619,11 @@ asserta_dynam_clause(PredEntry *p, CODEADDR cp)
   q->u.ld.s = p->ArityOfPE;
   q->u.ld.p = p;
   if (p->PredFlags & ProfiledPredFlag)
-    ((yamop *)cp)->opc = opcode(_retry_and_mark);
-  else
     ((yamop *)cp)->opc = opcode(_profiled_retry_and_mark);
+  else if (p->PredFlags & CountPredFlag)
+    ((yamop *)cp)->opc = opcode(_count_retry_and_mark);
+  else
+    ((yamop *)cp)->opc = opcode(_retry_and_mark);
   ((yamop *)cp)->u.ld.s = p->ArityOfPE;
   ((yamop *)cp)->u.ld.p = p;
   p->FirstClause = cp;
@@ -630,6 +645,12 @@ assertz_stat_clause(PredEntry *p, CODEADDR cp, int spy_flag)
       p->TrueCodeOfPred = p->FirstClause;
     } else
       pt->opc = opcode(_profiled_retry_me);
+  } else if (p->PredFlags & CountPredFlag) {
+    if (p->FirstClause == p->LastClause) {
+      pt->opc = opcode(TRYCODE(_try_me, _try_me0, PredArity(p)));
+      p->TrueCodeOfPred = p->FirstClause;
+    } else
+      pt->opc = opcode(_count_retry_me);
   } else {
     if (p->FirstClause == p->LastClause) {
 #ifdef TABLING
@@ -653,6 +674,8 @@ assertz_stat_clause(PredEntry *p, CODEADDR cp, int spy_flag)
   pt = (yamop *)cp;
   if (p->PredFlags & ProfiledPredFlag) {
     pt->opc = opcode(_profiled_trust_me);
+  } else if (p->PredFlags & CountPredFlag) {
+    pt->opc = opcode(_count_trust_me);
   } else {
 #ifdef TABLING
     if (is_tabled(p))
@@ -693,6 +716,8 @@ assertz_dynam_clause(PredEntry *p, CODEADDR cp)
   q = (yamop *)cp;
   if (p->PredFlags & ProfiledPredFlag)
     q->opc = opcode(_profiled_retry_and_mark);
+  else if (p->PredFlags & CountPredFlag)
+    q->opc = opcode(_count_retry_and_mark);
   else
     q->opc = opcode(_retry_and_mark);
   q->u.ld.d = p->CodeOfPred;
@@ -1779,6 +1804,9 @@ search_for_static_predicate_in_use(PredEntry *p, int check_everything)
       case _retry_profiled:
 	opnum = op_from_opcode(NEXTOP(b_ptr->cp_ap,l)->opc);
 	goto restart_cp;
+      case _count_retry:
+	opnum = op_from_opcode(NEXTOP(b_ptr->cp_ap,l)->opc);
+	goto restart_cp;
       default:
 	pe = (PredEntry *)(b_ptr->cp_ap->u.ld.p);
       }
@@ -1829,7 +1857,6 @@ static char *op_names[_std_top + 1] =
 
 #endif
 
-
 static void
 list_all_predicates_in_use(void)
 {
@@ -1865,6 +1892,7 @@ list_all_predicates_in_use(void)
       case _retry_userc:
       case _trust_logical_pred:
       case _retry_profiled:
+      case _count_retry:
 	{
 	  Atom at;
 	  Int arity;
@@ -1890,7 +1918,7 @@ list_all_predicates_in_use(void)
 	      YP_fprintf(YP_stderr,"CP  %p  %d (%s)\n", b_ptr, RepAtom((Atom)(pe->FunctorOfPred))->StrOfAE, op_names[opnum]);
 	}
       }
-      if (opnum == _retry_profiled) {
+      if (opnum == _retry_profiled || opnum == _count_retry) {
 	opnum = op_from_opcode(NEXTOP(b_ptr->cp_ap,l)->opc);
 	goto restart_cp;
       }
@@ -1956,6 +1984,9 @@ do_toggle_static_predicates_in_use(int mask)
 	pe = NULL;
 	break;
       case _retry_profiled:
+	opnum = op_from_opcode(NEXTOP(b_ptr->cp_ap,l)->opc);
+	goto restart_cp;
+      case _count_retry:
 	opnum = op_from_opcode(NEXTOP(b_ptr->cp_ap,l)->opc);
 	goto restart_cp;
       default:
@@ -2168,6 +2199,75 @@ p_profile_reset(void)
   pe->StatisticsForPred.NOfHeadSuccesses = 0;
   pe->StatisticsForPred.NOfRetries = 0;
   UNLOCK(pe->StatisticsForPred.lock);
+  return(TRUE);
+}
+
+static Int
+p_is_call_counted(void)
+{
+  Term t = Deref(ARG1);
+  char *s;
+
+  if (IsVarTerm(t)) {
+    Term ta;
+
+    if (CALL_COUNTING) ta = MkAtomTerm(LookupAtom("on"));
+    else ta = MkAtomTerm(LookupAtom("off"));
+    BIND((CELL *)t,ta,bind_is_call_counted);
+#ifdef COROUTINING
+    DO_TRAIL(CellPtr(t), ta);
+    if (CellPtr(t) < H0) WakeUp((CELL *)t);
+  bind_is_call_counted:
+#endif
+    return(TRUE);
+  } else if (!IsAtomTerm(t)) return(FALSE);
+  s = RepAtom(AtomOfTerm(t))->StrOfAE;
+  if (strcmp(s,"on") == 0) {
+    CALL_COUNTING = TRUE;
+    return(TRUE);
+  } else if (strcmp(s,"off") == 0) {
+    CALL_COUNTING = FALSE;
+    return(TRUE);
+  }
+  return(FALSE);
+}
+
+static Int
+p_call_count_info(void)
+{
+  return(unify(MkIntegerTerm(ReductionsCounter),ARG1) &&
+	 unify(MkIntegerTerm(PredEntriesCounter),ARG2) &&
+	 unify(MkIntegerTerm(PredEntriesCounter),ARG3));
+}
+
+static Int
+p_call_count_reset(void)
+{
+  ReductionsCounter = 0;
+  ReductionsCounterOn = FALSE;
+  PredEntriesCounter = 0;
+  PredEntriesCounterOn = FALSE;
+  RetriesCounter = 0;
+  RetriesCounterOn = FALSE;
+  return(TRUE);
+}
+
+static Int
+p_call_count_set(void)
+{
+  int do_calls = IntOfTerm(ARG2);
+  int do_retries = IntOfTerm(ARG4);
+  int do_entries = IntOfTerm(ARG6);
+
+  if (do_calls)
+    ReductionsCounter = IntegerOfTerm(Deref(ARG1));
+  ReductionsCounterOn = do_calls;
+  if (do_retries)
+    RetriesCounter = IntegerOfTerm(Deref(ARG3));
+  RetriesCounterOn = do_retries;
+  if (do_entries)
+    PredEntriesCounter = IntegerOfTerm(Deref(ARG5));
+  PredEntriesCounterOn = do_entries;
   return(TRUE);
 }
 
@@ -2393,6 +2493,10 @@ InitCdMgr(void)
   InitCPred("$is_profiled", 1, p_is_profiled, SafePredFlag|SyncPredFlag);
   InitCPred("$profile_info", 3, p_profile_info, SafePredFlag|SyncPredFlag);
   InitCPred("$profile_reset", 2, p_profile_reset, SafePredFlag|SyncPredFlag);
+  InitCPred("$is_call_counted", 1, p_is_call_counted, SafePredFlag|SyncPredFlag);
+  InitCPred("$call_count_info", 3, p_call_count_info, SafePredFlag|SyncPredFlag);
+  InitCPred("$call_count_set", 6, p_call_count_set, SafePredFlag|SyncPredFlag);
+  InitCPred("$call_count_reset", 0, p_call_count_reset, SafePredFlag|SyncPredFlag);
   InitCPred("$toggle_static_predicates_in_use", 0, p_toggle_static_predicates_in_use, SafePredFlag|SyncPredFlag);
   InitCPred("$set_pred_module", 2, p_set_pred_module, SafePredFlag);
   InitCPred("$parent_pred", 3, p_parent_pred, SafePredFlag);

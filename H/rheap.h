@@ -599,6 +599,8 @@ RestoreClause(Clause *Cl, int mode)
     case _trust_me:
     case _profiled_retry_me:
     case _profiled_trust_me:
+    case _count_retry_me:
+    case _count_trust_me:
     case _try_me0:
     case _retry_me0:
     case _trust_me0:
@@ -617,6 +619,7 @@ RestoreClause(Clause *Cl, int mode)
     case _spy_or_trymark:
     case _try_and_mark:
     case _profiled_retry_and_mark:
+    case _count_retry_and_mark:
     case _retry_and_mark:
     case _try_clause:
     case _retry:
@@ -646,7 +649,9 @@ RestoreClause(Clause *Cl, int mode)
       break;
       /* instructions type l */
     case _enter_profiling:
+    case _count_call:
     case _retry_profiled:
+    case _count_retry:
     case _try_logical_pred:
     case _trust_logical_pred:
     case _execute:

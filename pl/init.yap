@@ -58,6 +58,7 @@ false :- fail.
 	 % with meta-predicate expansion being invoked
 	 'modules.yap',
 	 'profile.yap',
+	 'callcount.yap',
 	 'load_foreign.yap',
 	 'sockets.yap',
 	 'sort.yap',

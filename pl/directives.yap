@@ -181,6 +181,9 @@ yap_flag(dollar_as_lower_case,off) :-
 yap_flag(profiling,X) :- (var(X); X = on; X = off), !,
 	'$is_profiled'(X).
 
+yap_flag(call_counting,X) :- (var(X); X = on; X = off), !,
+	'$is_call_counted'(X).
+
 yap_flag(bounded,X) :-
 	var(X), !,
 	'$access_yap_flags'(0, X1),

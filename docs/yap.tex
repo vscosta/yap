@@ -155,6 +155,7 @@ Built In Predicates
 * OS:: Access to Operating System Functionality
 * Term Modification:: Updating Prolog Terms
 * Profiling:: Profiling Prolog Execution
+* Calls Execution Limits:: Limiting the Maximum Number of Reductions
 * Arrays:: Supporting Global and Local Arrays
 * Preds:: Information on Predicates
 * Misc:: Miscellaneous Predicates
@@ -2034,6 +2035,7 @@ Builtins, Debugging, Syntax, Top
 * OS:: Access to Operating System Functionality
 * Term Modification:: Updating Prolog Terms
 * Profiling:: Profiling Prolog Execution
+* Calls Execution Limits:: Limiting the Maximum Number of Reductions
 * Arrays:: Supporting Global and Local Arrays
 * Preds:: Information on Predicates
 * Misc:: Miscellaneous Predicates
@@ -5646,7 +5648,7 @@ Unify the current value of mutable term @var{M} with term @var{D}.
 Set the current value of mutable term @var{M} to term @var{D}.
 @end table
 
-@node Profiling, Arrays, Term Modification, Top
+@node Profiling, Call Counting, Term Modification, Top
 @section Profiling Prolog Programs
 
 @cindex profiling
@@ -5720,6 +5722,61 @@ Number of times a call to the procedure was backtracked to and retried.
 @snindex profiled_reset/0
 @cnindex profiled_reset/0
 Reset all profiling information.
+
+@end table
+
+@node Call Counting, Arrays, Profiling, Top
+@section Counting Calls
+
+@cindex Counting Calls
+Predicates compiled with YAP's flag @code{call_counting} set to
+@code{on} update counters on the numbers of calls and of
+retries. Counters are actually decreasing counters, so that they can be
+used as timers.  Three counters are available:
+@itemize @bullet
+@item @code{calls}: number of predicate calls since execution started or since
+system was reset; 
+@item @code{retries}: number of retries for predicates called since
+execution started or since counters were reset;
+@item @code{calls_and_retries}: count both on predicate calls and
+retries.
+@end itemize
+These counters can be used to find out how many calls a certain
+goal takes to execute. They can also be used as timers.
+
+These are  the predicates that access and manipulate the call counters:
+
+@table @code
+@item call_count_data(-@var{Calls}, -@var{Retries}, -@var{CallsAndRetries})
+@findex call_count_data/3
+@snindex call_count_data/3
+@cnindex call_count_data/3
+Give current call count data. The first argument gives the current value
+for the @var{Calls} counter, next the @var{Retries} counter, and last
+the @var{CallsAndRetries} counter.
+
+@item call_count_reset
+@findex call_count_data/0
+@snindex call_count_data/0
+@cnindex call_count_data/0
+Reset call count counters. All timers are also reset.
+
+@item call_count(?@var{CallsMax}, ?@var{RetriesMax}, ?@var{CallsAndRetriesMax})
+@findex call_count_data/3
+@snindex call_count_data/3
+@cnindex call_count_data/3
+Set call count counter as timers. YAP will generate an exception
+if one of the instantiated call counters decreases to 0. YAP will ignore
+unbound arguments:
+@itemize @bullet
+@item @var{CallsMax}: throw the exception @code{call_counter} when the
+counter @code{calls} reaches 0;
+@item @var{RetriesMax}: throw the exception @code{retry_counter} when the
+counter @code{retries} reaches 0;
+@item @var{CallsAndRetriesMax}: throw the exception
+@code{call_and_retry_counter} when the counter @code{calls_and_retries}
+reaches 0.
+@end itemize
 
 @end table
 
@@ -6035,6 +6092,14 @@ arguments to Yap after @code{--}.
 @*
 Read-only flag telling whether integers are bounded. The value depends
 on whether YAP uses the GMP library or not.
+
+@item  profiling
+@findex call_counting (yap_flag/2 option)
+@*
+If @code{off} (default) do not compile call counting information for
+procedures. If @code{on} compile predicates so that they calls and
+retries to the predicate may be counted. Profiling data can be read through the
+@code{call_count_data/3} built-in.
 
 @item char_conversion [ISO]
 @findex  char_conversion (yap_flag/2 option)

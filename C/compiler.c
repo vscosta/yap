@@ -73,7 +73,7 @@ static Ventry *vtable;
 
 CExpEntry *common_exps;
 
-int   n_common_exps, profiling;
+int   n_common_exps, profiling, call_counting;
 
 static int goalno, level, onlast, onhead, onbranch, cur_branch;
 
@@ -1097,6 +1097,8 @@ c_functor(Term Goal, int mod)
     Prop p0 = PredPropByFunc(f, mod);
     if (profiling)
       emit(enter_profiling_op, (CELL)RepPredProp(p0), Zero);
+    else if (call_counting)
+      emit(count_call_op, (CELL)RepPredProp(p0), Zero);
     c_args(Goal);
     emit(safe_call_op, (CELL)p0 , Zero);
     emit(empty_call_op, Zero, Zero);
@@ -1177,6 +1179,8 @@ c_goal(Term Goal, int mod)
 
       if (profiling)
 	emit(enter_profiling_op, (CELL)RepPredProp(PredPropByAtom(AtomCut,0)), Zero);
+      else if (call_counting)
+	emit(count_call_op, (CELL)RepPredProp(PredPropByAtom(AtomCut,0)), Zero);
       if (onlast) {
 	/* never a problem here with a -> b, !, c ; d */
 	emit(deallocate_op, Zero, Zero);
@@ -1208,6 +1212,8 @@ c_goal(Term Goal, int mod)
 
       if (profiling)
 	emit(enter_profiling_op, (CELL)RepPredProp(PredPropByAtom(AtomRepeat,0)), Zero);
+      else if (call_counting)
+	emit(count_call_op, (CELL)RepPredProp(PredPropByAtom(AtomRepeat,0)), Zero);
       or_found = 1;
       push_branch(onbranch, TermNil);
       cur_branch++;
@@ -1245,6 +1251,8 @@ c_goal(Term Goal, int mod)
     /* if we are profiling, make sure we register we entered this predicate */
     if (profiling)
       emit(enter_profiling_op, (CELL)p, Zero);
+    if (call_counting)
+      emit(count_call_op, (CELL)p, Zero);
   }
   else {
     f = FunctorOfTerm(Goal);
@@ -1438,6 +1446,8 @@ c_goal(Term Goal, int mod)
     } else if (f == FunctorEq) {
       if (profiling)
 	emit(enter_profiling_op, (CELL)p, Zero);
+      else if (call_counting)
+	emit(count_call_op, (CELL)p, Zero);
       c_eq(ArgOfTerm(1, Goal), ArgOfTerm(2, Goal));
       if (onlast) {
 	emit(deallocate_op, Zero, Zero);
@@ -1457,6 +1467,8 @@ c_goal(Term Goal, int mod)
       int op = p->PredFlags & 0x7f;
       if (profiling)
 	emit(enter_profiling_op, (CELL)p, Zero);
+      else if (call_counting)
+	emit(count_call_op, (CELL)p, Zero);
       if (op >= _atom && op <= _primitive) {
 	c_test(op, ArgOfTerm(1, Goal));
 	if (onlast) {
@@ -1574,6 +1586,8 @@ c_goal(Term Goal, int mod)
     } else {
       if (profiling)
 	emit(enter_profiling_op, (CELL)p, Zero);
+      else if (call_counting)
+	emit(count_call_op, (CELL)p, Zero);
       c_args(Goal);
     }
   }
@@ -2820,10 +2834,17 @@ cclause(Term inp_clause, int NOfArgs, int mod)
     /* insert extra instructions to count calls */
     READ_LOCK(CurrentPred->PRWLock);
     if ((CurrentPred->PredFlags & ProfiledPredFlag) ||
-	(PROFILING && (CurrentPred->FirstClause == NIL)))
+	(PROFILING && (CurrentPred->FirstClause == NIL))) {
       profiling = TRUE;
-    else
+      call_counting = FALSE;
+    } else if ((CurrentPred->PredFlags & CountPredFlag) ||
+	       (CALL_COUNTING && (CurrentPred->FirstClause == NIL))) {
+      call_counting = TRUE;
       profiling = FALSE;
+    } else {
+      profiling = FALSE;
+      call_counting = FALSE;
+    }
     READ_UNLOCK(CurrentPred->PRWLock);
   }
   /* phase 1 : produce skeleton code and variable information              */

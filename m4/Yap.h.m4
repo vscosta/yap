@@ -10,7 +10,7 @@
 * File:		Yap.h.m4						 *
 * mods:									 *
 * comments:	main header file for YAP				 *
-* version:      $Id: Yap.h.m4,v 1.29 2002-06-17 15:28:00 vsc Exp $	 *
+* version:      $Id: Yap.h.m4,v 1.30 2002-09-03 14:28:08 vsc Exp $	 *
 *************************************************************************/
 
 #include "config.h"
@@ -102,7 +102,7 @@
 #undef  USE_THREADED_CODE
 #endif
 #define inline __inline
-#define YAP_VERSION "Yap-4.3.21"
+#define YAP_VERSION "Yap-4.3.23"
 #define BIN_DIR "c:\\Program Files\\Yap\\bin"
 #define LIB_DIR "c:\\Program Files\\Yap\\lib\\Yap"
 #define SHARE_DIR "c:\\Program Files\\Yap\\share\\Yap"
@@ -218,6 +218,19 @@
 #define SHORT_INTS 1
 #else
 #define SHORT_INTS 0
+#endif
+
+#ifdef USE_GMP
+#ifdef __GNUC__
+typedef long long int SIGNED_YAP_LONG_LONG;
+typedef unsigned long long int YAP_LONG_LONG;
+#else
+typedef long int      SIGNED_YAP_LONG_LONG;
+typedef unsigned long int YAP_LONG_LONG;
+#endif
+#else
+typedef long int      SIGNED_YAP_LONG_LONG;
+typedef unsigned long int YAP_LONG_LONG;
 #endif
 
 #if DEBUG
@@ -390,6 +403,7 @@ typedef enum {
   FATAL_ERROR,
   INTERNAL_ERROR,
   PURE_ABORT,
+  CALL_COUNTER_UNDERFLOW,
   /* ISO_ERRORS */
   DOMAIN_ERROR_ARRAY_OVERFLOW,
   DOMAIN_ERROR_ARRAY_TYPE,
@@ -435,9 +449,11 @@ typedef enum {
   PERMISSION_ERROR_OUTPUT_TEXT_STREAM,
   PERMISSION_ERROR_RESIZE_ARRAY,
   PERMISSION_ERROR_REPOSITION_STREAM,
+  PRED_ENTRY_COUNTER_UNDERFLOW,
   REPRESENTATION_ERROR_CHARACTER,
   REPRESENTATION_ERROR_CHARACTER_CODE,
   REPRESENTATION_ERROR_MAX_ARITY,
+  RETRY_COUNTER_UNDERFLOW,
   SYNTAX_ERROR,
   SYSTEM_ERROR,
   TYPE_ERROR_ARRAY,

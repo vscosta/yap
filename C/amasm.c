@@ -2532,6 +2532,12 @@ do_pass(void)
     case retry_profiled_op:
       a_pl(_retry_profiled, (PredEntry *)(cpc->rnd1));
       break;
+    case count_call_op:
+      a_pl(_count_call, (PredEntry *)(cpc->rnd1));
+      break;
+    case count_retry_op:
+      a_pl(_count_retry, (PredEntry *)(cpc->rnd1));
+      break;
     case fetch_args_for_bccall:
       if (cpc->nextInst->op != bccall_op) {
 	Error(SYSTEM_ERROR, TermNil, "compiling binary test", (int) cpc->op);

@@ -1462,6 +1462,7 @@ mark_choicepoints(register choiceptr gc_B, tr_fr_ptr saved_TR, int very_verbose)
       case _retry_userc:
       case _trust_logical_pred:
       case _retry_profiled:
+      case _count_retry:
 	{
 	  Atom at;
 	  Int arity;
@@ -1594,6 +1595,7 @@ mark_choicepoints(register choiceptr gc_B, tr_fr_ptr saved_TR, int very_verbose)
 	break;
       case _trust_logical_pred:
       case _retry_profiled:
+      case _count_retry:
 	rtp = NEXTOP(rtp,l); 
 	op = rtp->opc;
 	opnum = op_from_opcode(op);
@@ -1706,6 +1708,8 @@ mark_choicepoints(register choiceptr gc_B, tr_fr_ptr saved_TR, int very_verbose)
       case _trust_me:
       case _profiled_retry_me:
       case _profiled_trust_me:
+      case _count_retry_me:
+      case _count_trust_me:
       case _retry_me0:
       case _trust_me0:
       case _retry_me1:
@@ -1718,6 +1722,7 @@ mark_choicepoints(register choiceptr gc_B, tr_fr_ptr saved_TR, int very_verbose)
       case _trust_me4:
       case _retry_and_mark:
       case _profiled_retry_and_mark:
+      case _count_retry_and_mark:
       case _retry:
       case _trust_in:
       case _trust:
@@ -2201,6 +2206,7 @@ sweep_choicepoints(choiceptr gc_B)
       break;
     case _trust_logical_pred:
     case _retry_profiled:
+    case _count_retry:
       rtp = NEXTOP(rtp,l);
       op = rtp->opc;
       opnum = op_from_opcode(op);

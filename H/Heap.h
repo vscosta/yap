@@ -10,7 +10,7 @@
 * File:		Heap.h         						 *
 * mods:									 *
 * comments:	Heap Init Structure					 *
-* version:      $Id: Heap.h,v 1.29 2002-06-05 01:34:06 vsc Exp $	 *
+* version:      $Id: Heap.h,v 1.30 2002-09-03 14:28:07 vsc Exp $	 *
 *************************************************************************/
 
 /* information that can be stored in Code Space */
@@ -26,6 +26,15 @@ typedef struct atom_hash_entry {
 #endif
   Atom Entry;
 } AtomHashEntry;
+
+typedef struct reduction_counters {
+  YAP_LONG_LONG reductions;
+  YAP_LONG_LONG reductions_retries;
+  YAP_LONG_LONG retries;
+  int reductions_on;
+  int reductions_retries_on;
+  int retries_on;
+} red_counters;
 
 typedef int   (*Agc_hook)(Atom);
 
@@ -113,6 +122,7 @@ typedef struct various_codes {
   struct pred_entry  *undef_code;
   struct pred_entry  *spy_code;
   int   profiling;
+  int   call_counting;
   AtomHashEntry invisiblechain;
   OPCODE dummycode;
   Int maxdepth, maxlist;
@@ -288,6 +298,7 @@ typedef struct various_codes {
   UInt n_of_file_aliases;
   UInt sz_of_file_aliases;
   struct AliasDescS * file_aliases;
+  struct reduction_counters call_counters;
   void *foreign_code_loaded;
   char *yap_lib_dir;
   Agc_hook  agc_hook;
@@ -331,6 +342,7 @@ typedef struct various_codes {
 #define  OP_RTABLE                heap_regs->op_rtable
 #endif
 #define  PROFILING                heap_regs->profiling
+#define  CALL_COUNTING            heap_regs->call_counting
 #define  UPDATE_MODE              heap_regs->update_mode
 #define  RETRY_C_RECORDED_CODE    heap_regs->retry_recorded_code
 #define  RETRY_C_RECORDED_K_CODE  heap_regs->retry_recorded_k_code
@@ -483,6 +495,12 @@ typedef struct various_codes {
 #define  NOfFileAliases           heap_regs->n_of_file_aliases
 #define  SzOfFileAliases          heap_regs->sz_of_file_aliases
 #define  FileAliases              heap_regs->file_aliases
+#define  ReductionsCounter        heap_regs->call_counters.reductions
+#define  PredEntriesCounter       heap_regs->call_counters.reductions_retries
+#define  RetriesCounter           heap_regs->call_counters.retries
+#define  ReductionsCounterOn      heap_regs->call_counters.reductions_on
+#define  PredEntriesCounterOn     heap_regs->call_counters.reductions_retries_on
+#define  RetriesCounterOn         heap_regs->call_counters.retries_on
 #define  ForeignCodeLoaded        heap_regs->foreign_code_loaded
 #define  Yap_LibDir               heap_regs->yap_lib_dir
 #define  AGCHook                  heap_regs->agc_hook
@@ -491,10 +509,10 @@ typedef struct various_codes {
 #define  SizeOfOverflow           heap_regs->size_of_overflow
 #define  LastWtimePtr             heap_regs->last_wtime
 #ifdef  COROUTINING
-#define WakeUpCode                heap_regs->wake_up_code
-#define WokenGoals                heap_regs->woken_goals
-#define MutableList               heap_regs->mutable_list
-#define AttsMutableList           heap_regs->atts_mutable_list
+#define  WakeUpCode               heap_regs->wake_up_code
+#define  WokenGoals               heap_regs->woken_goals
+#define  MutableList              heap_regs->mutable_list
+#define  AttsMutableList          heap_regs->atts_mutable_list
 #endif
 #if defined(YAPOR) || defined(THREADS)
 #define  FreeBlocksLock           heap_regs->free_blocks_lock

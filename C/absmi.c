@@ -459,7 +459,7 @@ absmi(int inp)
       GONext();
       ENDOp();
 
-      /* profiled_enter_me    Label,NArgs */
+      /* profiled_retry    Label,NArgs */
       Op(retry_profiled, l);
       LOCK(((PredEntry *)(PREG->u.l.l))->StatisticsForPred.lock);
       ((PredEntry *)(PREG->u.l.l))->StatisticsForPred.NOfRetries++;
@@ -519,6 +519,111 @@ absmi(int inp)
       LOCK(((PredEntry *)(PREG->u.ld.p))->StatisticsForPred.lock);
       ((PredEntry *)(PREG->u.ld.p))->StatisticsForPred.NOfRetries++;
       UNLOCK(((PredEntry *)(PREG->u.ld.p))->StatisticsForPred.lock);
+      PREG = NEXTOP(PREG, ld);
+      GONext();
+      ENDOp();
+
+/*****************************************************************
+*        Call count instructions                                 *
+*****************************************************************/
+
+      /* count_enter_me    Label,NArgs */
+      Op(count_call, l);
+      ReductionsCounter--;
+      if (ReductionsCounter == 0 && ReductionsCounterOn) {
+	Error(CALL_COUNTER_UNDERFLOW,TermNil,"");
+	JMPNext();
+      } 
+      PredEntriesCounter--;
+      if (PredEntriesCounter == 0 && PredEntriesCounterOn) {
+	Error(PRED_ENTRY_COUNTER_UNDERFLOW,TermNil,"");
+	JMPNext();
+      } 
+      PREG = NEXTOP(PREG, l);
+      GONext();
+      ENDOp();
+
+      /* count_retry    Label,NArgs */
+      Op(count_retry, l);
+      RetriesCounter--;
+      if (RetriesCounter == 0 && RetriesCounterOn) {
+	Error(RETRY_COUNTER_UNDERFLOW,TermNil,"");
+	JMPNext();
+      } 
+      PredEntriesCounter--;
+      if (PredEntriesCounter == 0 && PredEntriesCounterOn) {
+	Error(PRED_ENTRY_COUNTER_UNDERFLOW,TermNil,"");
+	JMPNext();
+      } 
+      PREG = NEXTOP(PREG, l);
+      GONext();
+      ENDOp();
+
+      /* count_retry_me    Label,NArgs */
+      Op(count_retry_me, ld);
+      CACHE_Y(B);
+      /* After retry, cut should be pointing at the parent
+       * choicepoint for the current B */
+      RetriesCounter--;
+      if (RetriesCounter == 0 && RetriesCounterOn) {
+	Error(RETRY_COUNTER_UNDERFLOW,TermNil,"");
+	JMPNext();
+      } 
+      PredEntriesCounter--;
+      if (PredEntriesCounter == 0 && PredEntriesCounterOn) {
+	Error(PRED_ENTRY_COUNTER_UNDERFLOW,TermNil,"");
+	JMPNext();
+      } 
+      restore_yaam_regs(PREG->u.ld.d);
+      restore_args(PREG->u.ld.s);
+#ifdef FROZEN_STACKS
+      S_Y = (CELL *)PROTECT_FROZEN_B(B_Y);
+      set_cut(S_Y, B->cp_b);
+#else
+      set_cut(S_Y, B_Y->cp_b);
+#endif /* FROZEN_STACKS */
+      SET_BB(B_Y);
+      ENDCACHE_Y();
+      PREG = NEXTOP(PREG, ld);
+      GONext();
+      ENDOp();
+
+      /* count_trust_me    UnusedLabel,NArgs */
+      Op(count_trust_me, ld);
+      CACHE_Y(B);
+#ifdef YAPOR
+      if (SCH_top_shared_cp(B)) {
+	SCH_last_alternative(PREG, B_Y);
+	restore_args(PREG->u.ld.s);
+#ifdef FROZEN_STACKS
+	B_Y = PROTECT_FROZEN_B(B_Y);
+#endif /* FROZEN_STACKS */
+	set_cut(S_Y, B->cp_b);
+      }
+      else
+#endif	/* YAPOR */
+      {
+	pop_yaam_regs();
+	pop_args(PREG->u.ld.s);
+	/* After trust, cut should be pointing at the new top
+	 * choicepoint */
+#ifdef FROZEN_STACKS
+	S_Y = (CELL *)PROTECT_FROZEN_B(B_Y);
+#endif /* FROZEN_STACKS */
+	set_cut(S_Y, B);
+      }
+      SET_BB(B_Y);
+      ENDCACHE_Y();
+      RetriesCounter--;
+      if (RetriesCounter == 0) {
+	Error(RETRY_COUNTER_UNDERFLOW,TermNil,"");
+	JMPNext();
+      } 
+      PredEntriesCounter--;
+      if (PredEntriesCounter == 0) {
+	Error(PRED_ENTRY_COUNTER_UNDERFLOW,TermNil,"");
+	JMPNext();
+      } 
       PREG = NEXTOP(PREG, ld);
       GONext();
       ENDOp();
@@ -1071,6 +1176,21 @@ absmi(int inp)
 
       ENDBOp();
 
+      BOp(count_retry_and_mark, ld);
+      RetriesCounter--;
+      if (RetriesCounter == 0) {
+	Error(RETRY_COUNTER_UNDERFLOW,TermNil,"");
+	JMPNext();
+      } 
+      PredEntriesCounter--;
+      if (PredEntriesCounter == 0) {
+	Error(PRED_ENTRY_COUNTER_UNDERFLOW,TermNil,"");
+	JMPNext();
+      } 
+      goto actual_retry_and_mark;
+      /* enter a retry dynamic */
+      ENDBOp();
+
       BOp(profiled_retry_and_mark, ld);
       LOCK(((PredEntry *)(PREG->u.ld.p))->StatisticsForPred.lock);
       ((PredEntry *)(PREG->u.ld.p))->StatisticsForPred.NOfRetries++;
@@ -1080,6 +1200,7 @@ absmi(int inp)
 
       /* retry_and_mark   Label,NArgs     */
       BOp(retry_and_mark, ld);
+    actual_retry_and_mark:
 #ifdef YAPOR
       CUT_wait_leftmost();
 #endif /* YAPOR */

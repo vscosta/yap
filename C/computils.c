@@ -604,6 +604,8 @@ static char *opformat[] =
   "function_to_al\t%v,%B",
   "enter_profiling\t\t%g",
   "retry_profiled\t\t%g",
+  "count_call_op\t\t%g",
+  "count_retry_op\t\t%g",
   "restore_temps\t\t%l",
   "restore_temps_and_skip\t\t%l",
   "empty_call\t\t%l,%d",

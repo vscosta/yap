@@ -157,6 +157,9 @@ DumpActiveGoals (void)
       case _retry_profiled:
 	opnum = op_from_opcode(NEXTOP(b_ptr->cp_ap,l)->opc);
 	goto restart_cp;
+      case _count_retry_me:
+	opnum = op_from_opcode(NEXTOP(b_ptr->cp_ap,l)->opc);
+	goto restart_cp;
       default:
 	pe = (PredEntry *)(b_ptr->cp_ap->u.ld.p);
       }
@@ -417,6 +420,26 @@ Error (yap_error_number type, Term where, char *format,...)
     fun = MkFunctor(LookupAtom("abort"),2);
     serious = TRUE;
     break;
+  case CALL_COUNTER_UNDERFLOW:
+    /* Do a long jump */
+    PredEntriesCounter--;
+    JumpToEnv(MkAtomTerm(LookupAtom("call_counter")));
+    P = (yamop *)FAILCODE;
+    PrologMode &= ~InErrorMode;
+    return(P);
+  case PRED_ENTRY_COUNTER_UNDERFLOW:
+    /* Do a long jump */
+    JumpToEnv(MkAtomTerm(LookupAtom("call_and_retry_counter")));
+    P = (yamop *)FAILCODE;
+    PrologMode &= ~InErrorMode;
+    return(P);
+  case RETRY_COUNTER_UNDERFLOW:
+    /* Do a long jump */
+    PredEntriesCounter--;
+    JumpToEnv(MkAtomTerm(LookupAtom("retry_counter")));
+    P = (yamop *)FAILCODE;
+    PrologMode &= ~InErrorMode;
+    return(P);
   case DOMAIN_ERROR_ARRAY_OVERFLOW:
     {
       int i;

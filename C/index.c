@@ -252,6 +252,8 @@ emit_cp_inst(compiler_vm_op op, yamop * Address, int Flag, int NClausesAfter)
   indexed_code_for_cut = NIL;
   if (op != try_op && profiling)
     emit(retry_profiled_op, Unsigned(CurrentPred), Zero);
+  else if (op != try_op && call_counting)
+    emit(count_retry_op, Unsigned(CurrentPred), Zero);
   if (NGroups == 1)
     Flag = Flag | LoneGroup;
   else if (Flag & LastGroup) {
@@ -1335,6 +1337,8 @@ PredIsIndexable(PredEntry *ap)
   CurrentPred = ap;
   if (CurrentPred->PredFlags & ProfiledPredFlag)
     profiling = TRUE;
+  else if (CurrentPred->PredFlags & CountPredFlag)
+    call_counting = TRUE;
   else
     profiling = FALSE;
   IPredArity = ap->ArityOfPE;
