@@ -47,14 +47,14 @@ static __inline__ void _read_lock(rwlock_t *rw)
 {
 	register rwlock_t *lp asm("g1");
 	lp = rw;
-	__asm__ __volatile__("
-	mov	%%o7, %%g4
-	call	___rw_read_enter
-	 ldstub	[%%g1 + 3], %%g2
-"	: /* no outputs */
-	: "r" (lp)
+	asm __volatile__("mov	%%o7, %%g4\n\t" \
+	"call	___rw_read_enter\n\t" \
+	"ldstub	[%%g1 + 3], %%g2\n" \
+	: /* no outputs */ \
+	: "r" (lp) \
 	: "g2", "g4", "g7", "memory", "cc");
 }
+
 
 #define READ_LOCK(lock) \
 do {	_read_lock(&(lock)); \
@@ -64,12 +64,12 @@ static __inline__ void _read_unlock(rwlock_t *rw)
 {
 	register rwlock_t *lp asm("g1");
 	lp = rw;
-	__asm__ __volatile__("
-	mov	%%o7, %%g4
-	call	___rw_read_exit
-	 ldstub	[%%g1 + 3], %%g2
-"	: /* no outputs */
-	: "r" (lp)
+	asm __volatile__( \
+	"mov	%%o7, %%g4\n\t" \
+	"call	___rw_read_exit\n\t" \
+        "ldstub	[%%g1 + 3], %%g2\n" \
+	: /* no outputs */ \
+	: "r" (lp) \
 	: "g2", "g4", "g7", "memory", "cc");
 }
 
@@ -81,12 +81,12 @@ static __inline__ void write_lock(rwlock_t *rw)
 {
 	register rwlock_t *lp asm("g1");
 	lp = rw;
-	__asm__ __volatile__("
-	mov	%%o7, %%g4
-	call	___rw_write_enter
-	 ldstub	[%%g1 + 3], %%g2
-"	: /* no outputs */
-	: "r" (lp)
+	asm __volatile__( \
+	"mov	%%o7, %%g4\n\t"\
+	"call	___rw_write_enter\n\t" \
+	"ldstub	[%%g1 + 3], %%g2\n\t" \
+	: /* no outputs */ \
+	: "r" (lp) \
 	: "g2", "g4", "g7", "memory", "cc");
 }
 

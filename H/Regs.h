@@ -10,7 +10,7 @@
 * File:		Regs.h							 *
 * mods:									 *
 * comments:	YAP abstract machine registers				 *
-* version:      $Id: Regs.h,v 1.15 2002-05-14 18:24:33 vsc Exp $	 *
+* version:      $Id: Regs.h,v 1.16 2002-10-21 22:14:28 vsc Exp $	 *
 *************************************************************************/
 
 
@@ -101,7 +101,8 @@ typedef struct
     choiceptr B_FZ_;
     tr_fr_ptr TR_FZ_;
 #endif
-#ifdef YAPOR
+#if defined(YAPOR) || defined(THREADS)
+    unsigned int worker_id_;
 #ifdef SBA
     choiceptr BSEG_;
     struct or_frame *frame_head_, *frame_tail_;
@@ -110,7 +111,7 @@ typedef struct
     int  sba_end_;
     int  sba_size_;
 #endif /* SBA */
-#endif /* YAPOR */
+#endif /* YAPOR || THREADS */
 #if PUSH_REGS
     /* On a X86 machine, the best solution is to keep the
        X registers on a global variable, whose address is known between
@@ -634,7 +635,8 @@ EXTERN inline void restore_B(void) {
 #define B_FZ          REGS.B_FZ_
 #define TR_FZ         REGS.TR_FZ_
 #endif
-#ifdef YAPOR
+#if defined(YAPOR) || defined(THREADS)
+#define worker_id         (REGS.worker_id_)
 #ifdef SBA
 #define BSEG	      REGS.BSEG_
 #define binding_array REGS.binding_array_

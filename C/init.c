@@ -834,6 +834,7 @@ InitCodes(void)
   INIT_LOCK(heap_regs->heap_used_lock);
   INIT_LOCK(heap_regs->heap_top_lock);
   INIT_LOCK(heap_regs->dead_clauses_lock);
+  heap_regs->heap_top_owner = -1;
 #endif /* YAPOR */
   heap_regs->clausecode.arity = 0;
   heap_regs->clausecode.clause = NIL;
@@ -1194,6 +1195,9 @@ InitStacks(int Heap,
      register array, but for now they exist */
 #endif /* PUSH_REGS */
 
+#ifdef THREADS
+  regp->worker_id_ = 0;
+#endif
   /* Init signal handling and time */
   /* also init memory page size, required by later functions */
   InitSysbits ();

@@ -10,7 +10,7 @@
 * File:		Yap.h.m4						 *
 * mods:									 *
 * comments:	main header file for YAP				 *
-* version:      $Id: Yap.h.m4,v 1.33 2002-10-17 01:37:46 vsc Exp $	 *
+* version:      $Id: Yap.h.m4,v 1.34 2002-10-21 22:14:29 vsc Exp $	 *
 *************************************************************************/
 
 #include "config.h"
@@ -327,6 +327,7 @@ typedef CELL Term;
 #if !defined(YAPOR) && !defined(THREADS)
 #include <nolocks.h>
 #else
+typedef volatile int lockvar;
 #ifdef i386
 #include <x86_locks.h>
 #endif

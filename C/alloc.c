@@ -12,7 +12,7 @@
 * Last rev:								 *
 * mods:									 *
 * comments:	allocating space					 *
-* version:$Id: alloc.c,v 1.24 2002-10-17 01:37:46 vsc Exp $		 *
+* version:$Id: alloc.c,v 1.25 2002-10-21 22:14:28 vsc Exp $		 *
 *************************************************************************/
 #ifdef SCCS
 static char SccsId[] = "%W% %G%";
@@ -165,7 +165,6 @@ FreeBlock(BlockHeader *b)
   }
   b->b_size &= ~InUseFlag;
   LOCK(FreeBlocksLock);
-  LOCK(GLOBAL_LOCKS_alloc_block);
   /* check if we can collapse with other blocsks */
   /* check previous */
   sp = &(b->b_size) - 1;
@@ -199,7 +198,6 @@ FreeBlock(BlockHeader *b)
   if (!HEAPTOP_OWNER(worker_id)) {
     UNLOCK(HeapTopLock);
   }
-  UNLOCK(GLOBAL_LOCKS_alloc_block);
   UNLOCK(FreeBlocksLock);
 }
 
@@ -244,7 +242,6 @@ AllocHeap(unsigned int size)
   if (size < 6)
     size = 6;
   LOCK(FreeBlocksLock);
-  LOCK(GLOBAL_LOCKS_alloc_block);
   if ((b = GetBlock(size))) {
     if (b->b_size >= size + 6 + 1) {
       n = (BlockHeader *) (((YAP_SEG_SIZE *) b) + size + 1);
@@ -255,7 +252,6 @@ AllocHeap(unsigned int size)
     sp = &(b->b_size) + b->b_size;
     *sp = b->b_size | InUseFlag;
     b->b_size |= InUseFlag;
-    UNLOCK(GLOBAL_LOCKS_alloc_block);
     UNLOCK(FreeBlocksLock);
     return (Addr(b) + sizeof(YAP_SEG_SIZE));
   }
@@ -311,7 +307,6 @@ AllocHeap(unsigned int size)
   if (HeapUsed > HeapMax)
     HeapMax = HeapUsed;
   HeapPlus = HeapTop + MinHGap / CellSize;
-  UNLOCK(GLOBAL_LOCKS_alloc_block);
   UNLOCK(HeapUsedLock);
   b->b_size = size | InUseFlag;
   sp = &(b->b_size) + size;

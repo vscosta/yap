@@ -1229,11 +1229,9 @@ CreateDBStruct(Term Tm, DBProp p, int InFlag)
     INIT_LOCK(pp->lock);
     INIT_DBREF_COUNT(pp);
     return(pp);
-
   } else if (IsAtomOrIntTerm(Tm)) {
     Register DBRef  pp;
     SMALLUNSGN      flag;
-
 
     tt = Tm;
     flag = DBAtomic;
@@ -1274,8 +1272,10 @@ CreateDBStruct(Term Tm, DBProp p, int InFlag)
       ntp = MkDBTerm(VarOfTerm(Tm), VarOfTerm(Tm), ntp0, ntp0+1, ntp0-1,
 		     &attachments,
 		     &vars_found);
-	if (ntp == NULL)
-	  return(NULL);
+      if (ntp == NULL) {
+	ReleasePreAllocCodeSpace((ADDR)pp0);
+	return(NULL);
+      }
     } else
 #endif
     if (IsPairTerm(Tm)) {
@@ -1287,6 +1287,7 @@ CreateDBStruct(Term Tm, DBProp p, int InFlag)
 #endif
 		     &vars_found);
       if (ntp == NULL) {
+	ReleasePreAllocCodeSpace((ADDR)pp0);
 	return(NULL);
       }
     }
@@ -1340,6 +1341,7 @@ CreateDBStruct(Term Tm, DBProp p, int InFlag)
 	    pp->Code = NULL;
 	    INIT_LOCK(pp->lock);
 	    INIT_DBREF_COUNT(pp);
+	    ReleasePreAllocCodeSpace((ADDR)pp0);
 	    return(pp);
 	  }
 #ifdef USE_GMP
@@ -1375,13 +1377,17 @@ CreateDBStruct(Term Tm, DBProp p, int InFlag)
 		       &attachments,
 #endif
 		       &vars_found);
-	if (ntp == NULL)
+	if (ntp == NULL) {
+	  ReleasePreAllocCodeSpace((ADDR)pp0);
 	  return(NULL);
+	}
       }
     } 
     CodeAbs = (CELL *)((CELL)ntp-(CELL)ntp0);
-    if (DBErrorFlag)
+    if (DBErrorFlag) {
+      ReleasePreAllocCodeSpace((ADDR)pp0);
       return (NULL);	/* Error Situation */
+    }
     NOfCells = ntp - ntp0;	/* End Of Code Info */
 #ifdef IDB_LINK_TABLE
     *lr++ = 0;
@@ -1398,13 +1404,16 @@ CreateDBStruct(Term Tm, DBProp p, int InFlag)
       CodeAbs += CellPtr(lr) - CellPtr(LinkAr);
       if ((CELL *)((char *)ntp0+(CELL)CodeAbs) > AuxSp) {
 	DBErrorFlag = OVF_ERROR_IN_DB;
+	ReleasePreAllocCodeSpace((ADDR)pp0);
 	return(NULL);
       }
       /* restore lr to NULL in case there is a TR overflow */
       lr = NULL;
 #endif
-      if ((InFlag & MkIfNot) && (found_one = check_if_wvars(p->First, NOfCells, ntp0)))
+      if ((InFlag & MkIfNot) && (found_one = check_if_wvars(p->First, NOfCells, ntp0))) {
+	ReleasePreAllocCodeSpace((ADDR)pp0);
 	return (found_one);
+      }
     } else {
 #ifdef IDB_LINK_TABLE
       /* make sure lr ends in 0 for check_if_nvars */  
@@ -1412,13 +1421,16 @@ CreateDBStruct(Term Tm, DBProp p, int InFlag)
       lr = NULL;
 #endif
       flag = DBNoVars;
-      if ((InFlag & MkIfNot) && (found_one = check_if_nvars(p->First, NOfCells, ntp0)))
+      if ((InFlag & MkIfNot) && (found_one = check_if_nvars(p->First, NOfCells, ntp0))) {
+	ReleasePreAllocCodeSpace((ADDR)pp0);
 	return (found_one);
+      }
     }
     if (tofref != TmpRefBase) {
       CodeAbs += TmpRefBase - tofref + 1;
       if ((CELL *)((char *)ntp0+(CELL)CodeAbs) > AuxSp) {
 	DBErrorFlag = OVF_ERROR_IN_DB;
+	ReleasePreAllocCodeSpace((ADDR)pp0);
 	return(NULL);
       }
       flag |= DBWithRefs;
@@ -1430,6 +1442,7 @@ CreateDBStruct(Term Tm, DBProp p, int InFlag)
       DBErrorNumber = SYSTEM_ERROR;
       DBErrorTerm = TermNil;
       DBErrorMsg = "trying to store term larger than 256KB";
+      ReleasePreAllocCodeSpace((ADDR)pp0);
       return(NULL);
     }
 #endif
@@ -1440,6 +1453,7 @@ CreateDBStruct(Term Tm, DBProp p, int InFlag)
       DBErrorNumber = SYSTEM_ERROR;
       DBErrorTerm = TermNil;
       DBErrorMsg = "heap crashed against stacks";
+      ReleasePreAllocCodeSpace((ADDR)pp0);
       return(NULL);
     }
     pp->id = FunctorDBRef;

@@ -3,7 +3,6 @@
 ** ----------------- */
 
 typedef double realtime;
-typedef volatile int lockvar;
 typedef unsigned long bitmap;
 #define MAX_WORKERS (sizeof(bitmap) * 8 - 1)
 

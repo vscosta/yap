@@ -1,4 +1,4 @@
-dnl
+Mdnl
 dnl Process this file with autoconf to produce a configure script.
 dnl
 
@@ -36,6 +36,9 @@ AC_ARG_ENABLE(low-level-tracer,
 AC_ARG_ENABLE(tabling,
 	[ --enable-tabling           support tabling as: batched,local ],
 	tabling="$enableval", tabling=no)
+AC_ARG_ENABLE(threads,
+	[ --enable-threads           support system threads ],
+	threads="$enableval", threads=no)
 AC_ARG_ENABLE(max-performance,
 	[ --enable-max-performance   try using the best flags for specific architecture ],
 	maxperformance="$enableval", maxperformance=no)
@@ -148,7 +151,7 @@ AC_ARG_WITH(trail-space,
 	fi,
 	[yap_cv_trail_space=0])
 
-if test "$tabling" = yes -o "$orparallelism" = yes
+if test "$tabling" = yes -o "$orparallelism" = yes -o "$threads" = yes
 then
 	AC_DEFINE(MinHeapSpace, (400*SIZEOF_INT_P))
 	AC_DEFINE(MinStackSpace,(300*SIZEOF_INT_P))
@@ -629,6 +632,11 @@ fi
 if test "$lowleveltracer" = "yes"
   then
   YAP_EXTRAS="$YAP_EXTRAS -DLOW_LEVEL_TRACER=1"
+fi
+  
+if test "$threads" = "yes"
+  then
+  YAP_EXTRAS="$YAP_EXTRAS -DTHREADS=1"
 fi
   
 case "$orparallelism" in

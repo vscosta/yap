@@ -16,9 +16,7 @@
 #define INIT_LOCK(LOCK_VAR)    ((LOCK_VAR) = 0)
 #define LOCK(LOCK_VAR)         do {                                     \
                                  if (TRY_LOCK(&(LOCK_VAR))) break;      \
-			         SIMICS_SERVICE(START_COUNTER, 11);     \
 		                 while (IS_LOCKED(LOCK_VAR)) continue;  \
-			         SIMICS_SERVICE(STOP_COUNTER, 11);      \
 		               } while (1)
 #define IS_LOCKED(LOCK_VAR)    ((LOCK_VAR) != 0)
 #define IS_UNLOCKED(LOCK_VAR)  ((LOCK_VAR) == 0)

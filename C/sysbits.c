@@ -2231,3 +2231,92 @@ int WINAPI win_yap(HANDLE hinst, DWORD reason, LPVOID reserved)
 }
 #endif
 
+#if defined(YAPOR) || defined(THREADS)
+#ifdef sparc
+void STD_PROTO(rw_lock_voodoo,(void));
+
+void
+rw_lock_voodoo(void) {
+  /* code taken from the Linux kernel, it handles shifting between locks */
+  /* Read/writer locks, as usual this is overly clever to make it as fast as possible. */
+	/* caches... */
+	__asm__ __volatile__(
+"___rw_read_enter_spin_on_wlock:\n"
+"	orcc	%g2, 0x0, %g0\n"
+"	be,a	___rw_read_enter\n"
+"	 ldstub	[%g1 + 3], %g2\n"
+"	b	___rw_read_enter_spin_on_wlock\n"
+"	 ldub	[%g1 + 3], %g2\n"
+"___rw_read_exit_spin_on_wlock:\n"
+"	orcc	%g2, 0x0, %g0\n"
+"	be,a	___rw_read_exit\n"
+"	 ldstub	[%g1 + 3], %g2\n"
+"	b	___rw_read_exit_spin_on_wlock\n"
+"	 ldub	[%g1 + 3], %g2\n"
+"___rw_write_enter_spin_on_wlock:\n"
+"	orcc	%g2, 0x0, %g0\n"
+"	be,a	___rw_write_enter\n"
+"	 ldstub	[%g1 + 3], %g2\n"
+"	b	___rw_write_enter_spin_on_wlock\n"
+"	 ld	[%g1], %g2\n"
+"\n"
+"	.globl	___rw_read_enter\n"
+"___rw_read_enter:\n"
+"	orcc	%g2, 0x0, %g0\n"
+"	bne,a	___rw_read_enter_spin_on_wlock\n"
+"	 ldub	[%g1 + 3], %g2\n"
+"	ld	[%g1], %g2\n"
+"	add	%g2, 1, %g2\n"
+"	st	%g2, [%g1]\n"
+"	retl\n"
+"	 mov	%g4, %o7\n"
+"	.globl	___rw_read_exit\n"
+"___rw_read_exit:\n"
+"	orcc	%g2, 0x0, %g0\n"
+"	bne,a	___rw_read_exit_spin_on_wlock\n"
+"	 ldub	[%g1 + 3], %g2\n"
+"	ld	[%g1], %g2\n"
+"	sub	%g2, 0x1ff, %g2\n"
+"	st	%g2, [%g1]\n"
+"	retl\n"
+"	 mov	%g4, %o7\n"
+"	.globl	___rw_write_enter\n"
+"___rw_write_enter:\n"
+"	orcc	%g2, 0x0, %g0\n"
+"	bne	___rw_write_enter_spin_on_wlock\n"
+"	 ld	[%g1], %g2\n"
+"	andncc	%g2, 0xff, %g0\n"
+"	bne,a	___rw_write_enter_spin_on_wlock\n"
+"	 stb	%g0, [%g1 + 3]\n"
+"	retl\n"
+"	 mov	%g4, %o7\n"
+   );
+}
+#endif /* sparc */
+
+
+#ifdef i386
+asm(
+
+".align	4\n"
+".globl	__write_lock_failed\n"
+"__write_lock_failed:\n"
+"	lock;   addl	$" RW_LOCK_BIAS_STR ",(%eax)\n"
+"1:	cmpl	$" RW_LOCK_BIAS_STR ",(%eax)\n"
+"	jne	1b\n"
+"	lock;   subl	$" RW_LOCK_BIAS_STR ",(%eax)\n"
+"	jnz	__write_lock_failed\n"
+"	ret\n"
+".align	4\n"
+".globl	__read_lock_failed\n"
+"__read_lock_failed:\n"
+"	lock ; incl	(%eax)\n"
+"1:	cmpl	$1,(%eax)\n"
+"	js	1b\n"
+"	lock ; decl	(%eax)\n"
+"	js	__read_lock_failed\n"
+"	ret\n"
+
+);
+#endif /* i386 */
+#endif /* YAPOR || THREADS */

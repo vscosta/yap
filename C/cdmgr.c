@@ -1762,7 +1762,7 @@ p_compile_mode(void)
   return (TRUE);
 }
 
-#if !defined(YAPOR) && !defined(THREADS)
+#if !defined(YAPOR)
 static yamop *next_clause(PredEntry *pe, CODEADDR codeptr)
 {
   CODEADDR clcode, cl;
@@ -2008,12 +2008,6 @@ all_calls(void)
   return(MkApplTerm(f,3,ts));
 }
 
-static Int
-p_current_stack(void)
-{
-  return(unify(ARG1,all_calls()));
-}
-
 static void
 mark_pred(int mark, PredEntry *pe)
 {
@@ -2088,6 +2082,16 @@ do_toggle_static_predicates_in_use(int mask)
 }
 
 #endif
+
+static Int
+p_current_stack(void)
+{
+#ifdef YAPOR
+  return(FALSE);
+#else
+  return(unify(ARG1,all_calls()));
+#endif
+}
 
 /* This predicate is to be used by reconsult to mark all predicates
    currently in use as being executed.
