@@ -760,7 +760,7 @@ dynamic_predicate(P,Sem) :-
 	'$is_dynamic'(T, Mod), !.  % all dynamic predicates are public.
 '$is_public'(T, Mod) :-
 	'$flags'(T,Mod,F,F),
-	F\/0x00400000 \== 0.
+	F\/0x00400000 =\= 0.
 
 hide_predicate(V) :- var(V), !,
 	'$do_error'(instantiation_error,hide_predicate(V)).

@@ -759,7 +759,7 @@ RestoreClause(yamop *pc, PredEntry *pp, int mode)
       break;
       /* instructions type x */
     case _save_b_x:
-    case _comit_b_x:
+    case _commit_b_x:
     case _get_list:
     case _put_list:
     case _write_x_var:
@@ -781,7 +781,7 @@ RestoreClause(yamop *pc, PredEntry *pp, int mode)
       break;
       /* instructions type y */
     case _save_b_y:
-    case _comit_b_y:
+    case _commit_b_y:
     case _write_y_var:
     case _write_y_val: 
     case _write_y_loc:
@@ -1312,7 +1312,7 @@ RestoreClause(yamop *pc, PredEntry *pp, int mode)
       pc->u.ycx.xi = XAdjust(pc->u.ycx.xi);
       pc = NEXTOP(pc,ycx);
       break;
-      /* instructions type lxx */
+      /* instructions type ycx */
     case _p_func2s_y_cv:
       pc->u.ycx.y  = YAdjust(pc->u.ycx.y);
       if (IsAtomTerm(pc->u.ycx.c))
@@ -1320,26 +1320,29 @@ RestoreClause(yamop *pc, PredEntry *pp, int mode)
       pc->u.ycx.xi = XAdjust(pc->u.ycx.xi);
       pc = NEXTOP(pc,ycx);
       break;
-      /* instructions type lxx */
+      /* instructions type llxx */
     case _call_bfunc_xx:
-      pc->u.lxx.p  = PtoPredAdjust(pc->u.lxx.p);
-      pc->u.lxx.x1 = XAdjust(pc->u.lxx.x1);
-      pc->u.lxx.x2 = XAdjust(pc->u.lxx.x2);
-      pc = NEXTOP(pc,lxx);
+      pc->u.llxx.p  = PtoPredAdjust(pc->u.llxx.p);
+      pc->u.llxx.f  = PtoOpAdjust(pc->u.llxx.f);
+      pc->u.llxx.x1 = XAdjust(pc->u.llxx.x1);
+      pc->u.llxx.x2 = XAdjust(pc->u.llxx.x2);
+      pc = NEXTOP(pc,llxx);
       break;
-      /* instructions type lxy */
+      /* instructions type llxy */
     case _call_bfunc_yx:
     case _call_bfunc_xy:
-      pc->u.lxy.p = PtoPredAdjust(pc->u.lxy.p);
-      pc->u.lxy.x = XAdjust(pc->u.lxy.x);
-      pc->u.lxy.y = YAdjust(pc->u.lxy.y);
-      pc = NEXTOP(pc,lxy);
+      pc->u.llxy.p = PtoPredAdjust(pc->u.llxy.p);
+      pc->u.llxy.f = PtoOpAdjust(pc->u.llxy.f);
+      pc->u.llxy.x = XAdjust(pc->u.llxy.x);
+      pc->u.llxy.y = YAdjust(pc->u.llxy.y);
+      pc = NEXTOP(pc,llxy);
       break;
     case _call_bfunc_yy:
-      pc->u.lyy.p  = PtoPredAdjust(pc->u.lyy.p);
-      pc->u.lyy.y1 = YAdjust(pc->u.lyy.y1);
-      pc->u.lyy.y2 = YAdjust(pc->u.lyy.y2);
-      pc = NEXTOP(pc,lyy);
+      pc->u.llyy.p  = PtoPredAdjust(pc->u.llyy.p);
+      pc->u.llyy.f = PtoOpAdjust(pc->u.llxy.f);
+      pc->u.llyy.y1 = YAdjust(pc->u.llyy.y1);
+      pc->u.llyy.y2 = YAdjust(pc->u.llyy.y2);
+      pc = NEXTOP(pc,llyy);
       break;
     }
   } while (TRUE);

@@ -633,7 +633,7 @@ debugging :-
 '$deb_inc_in_sterm_oldie'(C,[],C).
 
 '$get_sterm_list'(L0,C,N,L) :-
-	( C =:= "^", N \== 0 -> get0(CN),
+	( C =:= "^", N =\= 0 -> get0(CN),
 				'$get_sterm_list'([N|L0],CN,0,L) ;
 	  C >= "0", C =< "9" -> NN is 10*N+C-"0", get0(CN),
 				'$get_sterm_list'(L0,CN,NN,L);

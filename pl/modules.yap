@@ -442,6 +442,10 @@ module(N) :-
 '$meta_predicate'(M:D, _) :- !,
 	'$meta_predicate'(D, M).
 '$meta_predicate'(P, M1) :-
+	'$install_meta_predicate'(P, M1).
+
+
+'$install_meta_predicate'(P, M1) :-
 	functor(P,F,N),
 	( M1 = prolog -> M = _ ; M1 = M),
 	( retractall('$meta_predicate'(F,M,N,_)), fail ; true),
@@ -537,8 +541,10 @@ source_module(Mod) :-
 '$member'(X,[X|_]) :- !.
 '$member'(X,[_|L]) :- '$member'(X,L).
 
+% comma has its own problems.
+:- '$install_meta_predicate'((:,:), prolog).
+
 :- meta_predicate
-%	[:,:],
 	abolish(:),
 	abolish(:,+),
 	all(?,:,?),

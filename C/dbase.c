@@ -684,7 +684,13 @@ static CELL *MkDBTerm(register CELL *pt0, register CELL *pt0_end,
 	    lr--;
 #endif
 	    if (!(dbentry->Flags & StaticMask)) {
-	      dbentry->NOfRefsTo++;
+	      if (dbentry->Flags & LogUpdMask) {
+		LogUpdClause *cl = (LogUpdClause *)dbentry;
+
+		cl->ClRefCount++;
+	      } else {
+		dbentry->NOfRefsTo++;
+	      }
 	    }
 	    *--tofref = dbentry;
 	    db_check_trail(lr);
@@ -1229,7 +1235,12 @@ CreateDBWithDBRef(Term Tm, DBProp p)
     INIT_DBREF_COUNT(pp);
     ppt = &(pp->DBT);
   }
-  dbr->NOfRefsTo++;
+  if (dbr->Flags & LogUpdMask) {
+    LogUpdClause *cl = (LogUpdClause *)dbr;
+    cl->ClRefCount++;
+  } else {
+    dbr->NOfRefsTo++;
+  }
   ppt->Entry = Tm;
   ppt->NOfCells = 0;
   ppt->Contents[0] = (CELL)NULL;
@@ -1835,7 +1846,11 @@ p_rcda(void)
     cl = record_lu(pe, t2, MkFirst);
     if (cl != NULL) {
       TRAIL_CLREF(cl);
+#if defined(YAPOR) || defined(THREADS)
+      INC_CLREF_COUNT(cl);
+#else
       cl->ClFlags |= InUseMask;
+#endif
       TRef = MkDBRefTerm((DBRef)cl);
     } else {
       TRef = TermNil;
@@ -1978,7 +1993,11 @@ p_rcdz(void)
     LogUpdClause *cl = record_lu(pe, t2, MkLast);
     if (cl != NULL) {
       TRAIL_CLREF(cl);
+#if defined(YAPOR) || defined(THREADS)
+      INC_CLREF_COUNT(cl);
+#else
       cl->ClFlags |= InUseMask;
+#endif
       TRef = MkDBRefTerm((DBRef)cl);
     } else {
       TRef = TermNil;
@@ -4706,12 +4725,14 @@ keepdbrefs(DBTerm *entryref)
     return;
   }
   while ((ref = *--cp) != NIL) {
-    LOCK(ref->lock);
-    if(!(ref->Flags & InUseMask)) {
-      ref->Flags |= InUseMask;
-      TRAIL_REF(ref);	/* So that fail will erase it */
+    if (!(ref->Flags & LogUpdMask)) {
+      LOCK(ref->lock);
+      if(!(ref->Flags & InUseMask)) {
+	ref->Flags |= InUseMask;
+	TRAIL_REF(ref);	/* So that fail will erase it */
+      }
+      UNLOCK(ref->lock);
     }
-    UNLOCK(ref->lock);
   }
 
 }

@@ -353,4 +353,3 @@ succ(M,N) :- integer(M), !, '$plus'(M,1,N).
 succ(M,N) :- integer(N), !,  N > 0, '$plus'(N,-1,M).
 succ(0,1).
 
-

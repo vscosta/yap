@@ -452,10 +452,11 @@ p_acomp(void)
     Yap_Error(INSTANTIATION_ERROR, t2, "=:=/2");
     return(FALSE);
   }
+  if (IsFloatTerm(t1) && IsFloatTerm(t2)) {
+    return(flt_cmp(FloatOfTerm(t1)-FloatOfTerm(t2)));
+  }
   if (IsIntegerTerm(t1) && IsIntegerTerm(t2)) {
     return(int_cmp(IntegerOfTerm(t1)-IntegerOfTerm(t2)));
-  } if (IsFloatTerm(t1) && IsFloatTerm(t2)) {
-    return(flt_cmp(FloatOfTerm(t1)-FloatOfTerm(t2)));
   }
   bt1 = Yap_Eval(t1, &v1);
   switch (bt1) {
@@ -532,10 +533,10 @@ a_eq(Term t1, Term t2)
     Yap_Error(INSTANTIATION_ERROR, t2, "=:=/2");
     return(FALSE);
   }
-  if (IsIntegerTerm(t1) && IsIntegerTerm(t2))
-    return (IntegerOfTerm(t1) == IntegerOfTerm(t2));
   if (IsFloatTerm(t1) && IsFloatTerm(t2))
     return (FloatOfTerm(t1) == FloatOfTerm(t2));
+  if (IsIntegerTerm(t1) && IsIntegerTerm(t2))
+    return (IntegerOfTerm(t1) == IntegerOfTerm(t2));
   bt1 = Yap_Eval(t1, &v1);
   switch (bt1) {
   case  long_int_e:
@@ -611,10 +612,10 @@ a_dif(Term t1, Term t2)
     Yap_Error(INSTANTIATION_ERROR, t2, "=\\=/2");
     return(FALSE);
   }
-  if (IsIntegerTerm(t1) && IsIntegerTerm(t2))
-    return (IntegerOfTerm(t1) != IntegerOfTerm(t2));
   if (IsFloatTerm(t1) && IsFloatTerm(t2))
     return (FloatOfTerm(t1) != FloatOfTerm(t2));
+  if (IsIntegerTerm(t1) && IsIntegerTerm(t2))
+    return (IntegerOfTerm(t1) != IntegerOfTerm(t2));
   bt1 = Yap_Eval(t1, &v1);
   switch (bt1) {
   case  long_int_e:
@@ -690,10 +691,10 @@ a_gt(Term t1, Term t2)
     Yap_Error(INSTANTIATION_ERROR, t2, ">/2");
     return(FALSE);
   }
-  if (IsIntegerTerm(t1) && IsIntegerTerm(t2))
-    return (IntegerOfTerm(t1) > IntegerOfTerm(t2));
   if (IsFloatTerm(t1) && IsFloatTerm(t2))
     return (FloatOfTerm(t1) > FloatOfTerm(t2));
+  if (IsIntegerTerm(t1) && IsIntegerTerm(t2))
+    return (IntegerOfTerm(t1) > IntegerOfTerm(t2));
   bt1 = Yap_Eval(t1, &v1);
   switch (bt1) {
   case  long_int_e:
@@ -769,10 +770,10 @@ a_ge(Term t1, Term t2)
     Yap_Error(INSTANTIATION_ERROR, t1, ">=/2");
     return(FALSE);
   }
-  if (IsIntegerTerm(t1) && IsIntegerTerm(t2))
-    return (IntegerOfTerm(t1) >= IntegerOfTerm(t2));
   if (IsFloatTerm(t1) && IsFloatTerm(t2))
     return (FloatOfTerm(t1) >= FloatOfTerm(t2));
+  if (IsIntegerTerm(t1) && IsIntegerTerm(t2))
+    return (IntegerOfTerm(t1) >= IntegerOfTerm(t2));
   bt1 = Yap_Eval(t1, &v1);
   switch (bt1) {
   case  long_int_e:
@@ -848,10 +849,10 @@ a_lt(Term t1, Term t2)
     Yap_Error(INSTANTIATION_ERROR, t2, "</2");
     return(FALSE);
   }
-  if (IsIntegerTerm(t1) && IsIntegerTerm(t2))
-    return (IntegerOfTerm(t1) < IntegerOfTerm(t2));
   if (IsFloatTerm(t1) && IsFloatTerm(t2))
     return (FloatOfTerm(t1) < FloatOfTerm(t2));
+  if (IsIntegerTerm(t1) && IsIntegerTerm(t2))
+    return (IntegerOfTerm(t1) < IntegerOfTerm(t2));
   bt1 = Yap_Eval(t1, &v1);
   switch (bt1) {
   case  long_int_e:
@@ -927,10 +928,10 @@ a_le(Term t1, Term t2)
     Yap_Error(INSTANTIATION_ERROR, t2, "=</2");
     return(FALSE);
   }
-  if (IsIntegerTerm(t1) && IsIntegerTerm(t2))
-    return (IntegerOfTerm(t1) <= IntegerOfTerm(t2));
   if (IsFloatTerm(t1) && IsFloatTerm(t2))
     return (FloatOfTerm(t1) <= FloatOfTerm(t2));
+  if (IsIntegerTerm(t1) && IsIntegerTerm(t2))
+    return (IntegerOfTerm(t1) <= IntegerOfTerm(t2));
   bt1 = Yap_Eval(t1, &v1);
   switch (bt1) {
   case  long_int_e:

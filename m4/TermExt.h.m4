@@ -10,7 +10,7 @@
 * File:		TermExt.h						 *
 * mods:									 *
 * comments:	Extensions to standard terms for YAP			 *
-* version:      $Id: TermExt.h.m4,v 1.10 2003-08-27 13:37:10 vsc Exp $	 *
+* version:      $Id: TermExt.h.m4,v 1.11 2003-12-27 00:38:53 vsc Exp $	 *
 *************************************************************************/
 
 #if USE_OFFSETS
@@ -117,18 +117,21 @@ Destructor(Term, FloatOf, Float, t, *(Float *)(RepAppl(t)+1))
 
 #if SIZEOF_DOUBLE == 2*SIZEOF_LONG_INT
 
-#ifdef i386X
-#define DOUBLE_ALIGNED(ADDR) TRUE
-#else
-/* first, need to address the alignment problem */
-#define DOUBLE_ALIGNED(ADDR) ((CELL)(ADDR) & 0x4)
-#endif
-
 inline EXTERN Float STD_PROTO(CpFloatUnaligned,(CELL *));
-
 
 inline EXTERN void STD_PROTO(AlignGlobalForDouble,(void));
 
+#define DOUBLE_ALIGNED(ADDR) ((CELL)(ADDR) & 0x4)
+
+#ifdef i386
+inline EXTERN Float
+CpFloatUnaligned(CELL *ptr)
+{
+  return *((Float *)(ptr+1));
+}
+
+#else
+/* first, need to address the alignment problem */
 inline EXTERN Float
 CpFloatUnaligned(CELL *ptr)
 {
@@ -137,6 +140,8 @@ CpFloatUnaligned(CELL *ptr)
   u.d[1] = ptr[2];
   return(u.f);
 }
+
+#endif
 
 Inline(MkFloatTerm, Term, Float, dbl, (AlignGlobalForDouble(), H[0] = (CELL)FunctorDouble,  *(Float *)(H+1) = dbl, H[3]=((3*sizeof(CELL)+EndSpecials)|MBIT), H+=4, AbsAppl(H-4)))
 

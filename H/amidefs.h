@@ -167,6 +167,16 @@ typedef struct yami {
 	 CELL next;
        } fll;
        struct {
+	 wamreg               x;
+	 struct yami         *f;
+	 CELL next;
+       } fx;
+       struct {
+	 yslot                y;
+	 struct yami         *f;
+	 CELL next;
+       } fy;
+       struct {
 	 struct logic_upd_index  *I;
 	 struct yami             *l1;
 	 struct yami             *l2;
@@ -265,25 +275,28 @@ typedef struct yami {
        } sllll;
        struct {
 	 struct pred_entry    *p;
+	 struct yami          *f;
 	 wamreg                x1;
 	 wamreg                x2;
 	 wamreg                flags;
 	 CELL next;
-       } lxx;
+       } llxx;
        struct {
-	 struct pred_entry  *p;
+	 struct pred_entry    *p;
+	 struct yami          *f;
 	 wamreg                x;
 	 yslot                 y;
 	 wamreg                flags;
 	 CELL next;
-       } lxy;
+       } llxy;
        struct {
-	 struct pred_entry  *p;
+	 struct pred_entry    *p;
+	 struct yami          *f;
 	 wamreg                y1;
 	 yslot                 y2;
 	 wamreg                flags;
 	 CELL next;
-       } lyy;
+       } llyy;
        struct {
 	 OPCODE              pop;
 	 struct yami               *l1;

@@ -82,21 +82,21 @@ int
 Yap_is_a_test_pred (Term arg, SMALLUNSGN mod)
 {
   if (IsVarTerm (arg))
-    return (FALSE);
+    return FALSE;
   else if (IsAtomTerm (arg)) {
       Atom At = AtomOfTerm (arg);
       PredEntry *pe = RepPredProp(PredPropByAtom(At, mod));
       if (EndOfPAEntr(pe))
-	return (FALSE);
-      return (pe->PredFlags & TestPredFlag);
+	return FALSE;
+      return pe->PredFlags & TestPredFlag;
   } else if (IsApplTerm (arg)) {
     Functor f = FunctorOfTerm (arg);
       PredEntry *pe = RepPredProp(PredPropByFunc(f, mod));
       if (EndOfPAEntr(pe))
-	return (FALSE);
-      return (pe->PredFlags & TestPredFlag);
+	return FALSE;
+      return pe->PredFlags & (TestPredFlag|BinaryTestPredFlag);
   } else {
-    return (FALSE);
+    return FALSE;
   }
 }
 
@@ -516,6 +516,7 @@ static char *opformat[] =
   "put_num\t\t%n,%r",
   "get_float\t\t%l,%r",
   "put_float\t\t%l,%r",
+  "align_float",
   "get_longint\t\t%l,%r",
   "put_longint\t\t%l,%r",
   "get_bigint\t\t%l,%r",
@@ -568,7 +569,7 @@ static char *opformat[] =
   "pushpop_or",
   "pop_or",
   "save_by\t\t%v",
-  "comit_by\t\t%v",
+  "commit_by\t\t%v",
   "patch_by\t\t%v",
   "try\t\t%g\t%x",
   "retry\t\t%g\t%x",

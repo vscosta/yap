@@ -1606,30 +1606,64 @@ Yap_absmi(int inp)
 	    if ((ADDR) pt1 >= Yap_TrailBase)
 #endif /* SBA */
 	      {
+		pt0 = (tr_fr_ptr) pt1;
 		goto failloop;
 	      }
 #endif /* FROZEN_STACKS */
 	    flags = *pt1;
 #if defined(YAPOR) || defined(THREADS)
-	    if (!FlagOn(DBClMask, flags)) {
+	    if (FlagOn(DBClMask, flags)) {
+	      DBRef dbr = DBStructFlagsToDBStruct(pt1);
+	      int erase;
+
+	      LOCK(dbr->lock);
+	      DEC_DBREF_COUNT(dbr);
+	      erase = (dbr->Flags & ErasedMask) && (dbr->ref_count == 0);
+	      UNLOCK(dbr->lock);
+	      if (erase) {
+		saveregs();
+		Yap_ErDBE(dbr);
+		setregs();
+	      }
+	    } else {
 	      if (flags & LogUpdMask) {
-		LogUpdClause *cl = ClauseFlagsToLogUpdClause(pt1);
-		int erase;
-		LOCK(cl->ClLock);
-		DEC_CLREF_COUNT(cl);
-		erase = (cl->ClFlags & ErasedMask) && !(cl->ClRefCount);
-		UNLOCK(cl->ClLock);
-		if (erase) {
-		  saveregs();
-		  /* at this point, 
-		     we are the only ones accessing the clause,
-		     hence we don't need to have a lock it */
-		  Yap_ErLogUpdCl(cl);
-		  setregs();
+		if (flags & IndexMask) {
+		  LogUpdIndex *cl = ClauseFlagsToLogUpdIndex(pt1);
+		  int erase;
+
+		  LOCK(cl->ClLock);
+		  DEC_CLREF_COUNT(cl);
+		  erase = (cl->ClFlags & ErasedMask) && !(cl->ClRefCount);
+		  UNLOCK(cl->ClLock);
+		  if (erase) {
+		    saveregs();
+		    /* at this point, 
+		       we are the only ones accessing the clause,
+		       hence we don't need to have a lock it */
+		    Yap_ErLogUpdIndex(cl);
+		    setregs();
+		  }
+		} else {
+		  LogUpdClause *cl = ClauseFlagsToLogUpdClause(pt1);
+		  int erase;
+
+		  LOCK(cl->ClLock);
+		  DEC_CLREF_COUNT(cl);
+		  erase = (cl->ClFlags & ErasedMask) && !(cl->ClRefCount);
+		  UNLOCK(cl->ClLock);
+		  if (erase) {
+		    saveregs();
+		    /* at this point, 
+		       we are the only ones accessing the clause,
+		       hence we don't need to have a lock it */
+		    Yap_ErLogUpdCl(cl);
+		    setregs();
+		  }
 		}
 	      } else {
 		DynamicClause *cl = ClauseFlagsToDynamicClause(pt1);
 		int erase;
+
 		LOCK(cl->ClLock);
 		DEC_CLREF_COUNT(cl);
 		erase = (cl->ClFlags & ErasedMask) && !(cl->ClRefCount);
@@ -1642,19 +1676,6 @@ Yap_absmi(int inp)
 		  Yap_ErCl(cl);
 		  setregs();
 		}
-	      }
-	    } else {
-	      DBRef dbr = DBStructFlagsToDBStruct(pt1);
-	      int erase;
-
-	      LOCK(dbr->lock);
-	      DEC_DBREF_COUNT(dbr);
-	      erase = (dbr->Flags & ErasedMask) && (dbr->ref_count == 0);
-	      UNLOCK(dbr->lock);
-	      if (erase) {
-		saveregs();
-		Yap_ErDBE(dbr);
-		setregs();
 	      }
 	    }
 #else
@@ -1810,15 +1831,15 @@ Yap_absmi(int inp)
       GONext();
       ENDOp();
 
-      /* comit_b_x    Xi                 */
-      Op(comit_b_x, x);
+      /* commit_b_x    Xi                 */
+      Op(commit_b_x, x);
       BEGD(d0);
       d0 = XREG(PREG->u.x.x);
 #ifdef COROUTINING
       CACHE_Y_AS_ENV(YREG);
-      check_stack(NoStackComitX, H);
+      check_stack(NoStackCommitX, H);
       ENDCACHE_Y_AS_ENV();
-    do_comit_b_x:
+    do_commit_b_x:
 #endif
       /* skip a void call and a label */
       PREG = NEXTOP(NEXTOP(NEXTOP(PREG, x),sla),l);
@@ -1847,15 +1868,15 @@ Yap_absmi(int inp)
       GONext();
       ENDOp();
 
-      /* comit_b_y    Yi                 */
-      Op(comit_b_y, y);
+      /* commit_b_y    Yi                 */
+      Op(commit_b_y, y);
       BEGD(d0);
       d0 = YREG[PREG->u.y.y];
 #ifdef COROUTINING
       CACHE_Y_AS_ENV(YREG);
-      check_stack(NoStackComitY, H);
+      check_stack(NoStackCommitY, H);
       ENDCACHE_Y_AS_ENV();
-    do_comit_b_y:
+    do_commit_b_y:
 #endif
       PREG = NEXTOP(NEXTOP(NEXTOP(PREG, y),sla),l);
       {
@@ -2199,7 +2220,7 @@ Yap_absmi(int inp)
 #ifdef COROUTINING
 
      /* This is easier: I know there is an environment so I cannot do allocate */
-    NoStackComitY:
+    NoStackCommitY:
       /* find something to fool S */
       if (CFREG == Unsigned(LCL0) && Yap_ReadTimedVar(WokenGoals) != TermNil) {
 	SREG = (CELL *)RepPredProp(Yap_GetPredPropByFunc(Yap_MkFunctor(AtomRestoreRegs,2),0));
@@ -2208,10 +2229,10 @@ Yap_absmi(int inp)
 	goto creep_either;
       }
       /* don't do debugging and friends here */
-      goto do_comit_b_y;
+      goto do_commit_b_y;
 
       /* Problem: have I got an environment or not? */
-    NoStackComitX:
+    NoStackCommitX:
       /* find something to fool S */
       if (CFREG == Unsigned(LCL0) && Yap_ReadTimedVar(WokenGoals) != TermNil) {
 	SREG = (CELL *)RepPredProp(Yap_GetPredPropByFunc(Yap_MkFunctor(AtomRestoreRegs,2),0));
@@ -2235,7 +2256,7 @@ Yap_absmi(int inp)
 	goto creep_either;
       }
       /* don't do debugging and friends here */
-      goto do_comit_b_x;
+      goto do_commit_b_x;
 
       /* don't forget I cannot creep at ; */
     NoStackEither:
@@ -6352,31 +6373,33 @@ Yap_absmi(int inp)
 
       BOp(index_pred, e);
       saveregs();
-      WRITE_LOCK(PredFromDefCode(PREG)->PRWLock);
+      {
+	PredEntry *ap = PredFromDefCode(PREG);
+	WRITE_LOCK(ap->PRWLock);
 #if defined(YAPOR) || defined(THREADS)
       /*
 	we do not lock access to the predicate,
 	we must take extra care here
       */
-      if (PredFromDefCode(PREG)->OpcodeOfPred != INDEX_OPCODE) {
-	/* someone was here before we were */
-	Yap_Error(SYSTEM_ERROR,TermNil,"Bad locking");
-	PREG = PredFromDefCode(PREG)->CodeOfPred;
-	WRITE_UNLOCK(PredFromDefCode(PREG)->PRWLock);
-	JMPNext();
-      }
+	if (ap->OpcodeOfPred != INDEX_OPCODE) {
+	  /* someone was here before we were */
+	  PREG = ap->CodeOfPred;
+	  WRITE_UNLOCK(ap->PRWLock);
+	  JMPNext();
+	}
 #endif
       /* update ASP before calling IPred */
-      ASP = YREG+E_CB;
-      if (ASP > (CELL *) B) {
-	ASP = (CELL *) B;
-      }
-      Yap_IPred(PredFromDefCode(PREG));
+	ASP = YREG+E_CB;
+	if (ASP > (CELL *) B) {
+	  ASP = (CELL *) B;
+	}
+	Yap_IPred(ap);
       /* IPred can generate errors, it thus must get rid of the lock itself */
-      setregs();
-      CACHED_A1() = ARG1;
-      PREG = PredFromDefCode(PREG)->CodeOfPred;
-      WRITE_UNLOCK(PredFromDefCode(PREG)->PRWLock);
+	setregs();
+	CACHED_A1() = ARG1;
+	PREG = ap->CodeOfPred;
+	WRITE_UNLOCK(ap->PRWLock);
+      }
       JMPNext();
       ENDBOp();
 
@@ -9246,12 +9269,12 @@ Yap_absmi(int inp)
       ENDD(d0);
       ENDOp();
 
-      BOp(call_bfunc_xx, lxx);
+      BOp(call_bfunc_xx, llxx);
       BEGD(d0);
       BEGD(d1);
-      d0 = XREG(PREG->u.lxx.x1);
+      d0 = XREG(PREG->u.llxx.x1);
     call_bfunc_xx_nvar:
-      d1 = XREG(PREG->u.lxx.x2);
+      d1 = XREG(PREG->u.llxx.x2);
     call_bfunc_xx2_nvar:
       deref_head(d0, call_bfunc_xx_unk);
       deref_head(d1, call_bfunc_xx2_unk);
@@ -9259,37 +9282,46 @@ Yap_absmi(int inp)
 	int flags;
 
 	Int v = IntOfTerm(d0) - IntOfTerm(d1);
-	flags = PREG->u.lxx.flags;
-	PREG = NEXTOP(PREG, lxx);
+	flags = PREG->u.llxx.flags;
 	if (v > 0) {
 	  if (flags & GT_OK_IN_CMP) {
+	    PREG = NEXTOP(PREG, llxx);
 	    JMPNext();
-	  } else
-	    FAIL();
+	  } else {
+	    PREG = PREG->u.llxx.f;
+	    JMPNext();
+	  }    
 	} else if (v < 0) {
 	  if (flags & LT_OK_IN_CMP) {
+	    PREG = NEXTOP(PREG, llxx);
 	    JMPNext();
-	  } else
-	    FAIL();
+	  } else {
+	    PREG = PREG->u.llxx.f;
+	    JMPNext();
+	  }
 	} else /* if (v == 0) */ {
 	  if (flags & EQ_OK_IN_CMP) {
+	    PREG = NEXTOP(PREG, llxx);
 	    JMPNext();
-	  } else
-	    FAIL();
+	  } else {
+	    PREG = PREG->u.llxx.f;
+	    JMPNext();
+	  }
 	}
       } 
     exec_bin_cmp_xx:
       {
-	 CmpPredicate f = PREG->u.lxx.p->cs.d_code;
-	 PREG = NEXTOP(PREG, lxx);
+	 CmpPredicate f = PREG->u.llxx.p->cs.d_code;
 	 saveregs();
 	 d0 = (CELL) (f) (d0,d1);
 
       }
       setregs();
       if (!d0) {
-	FAIL();
+	PREG = PREG->u.llxx.f;
+	JMPNext();
       }
+      PREG = NEXTOP(PREG, llxx);
       JMPNext();
 
       BEGP(pt0);
@@ -9306,12 +9338,12 @@ Yap_absmi(int inp)
       ENDD(d0);
       ENDBOp();
 
-      BOp(call_bfunc_yx, lxy);
+      BOp(call_bfunc_yx, llxy);
       BEGD(d0);
       BEGD(d1);
       BEGP(pt0);
-      pt0 = YREG + PREG->u.lxy.y;
-      d1 = XREG(PREG->u.lxy.x);
+      pt0 = YREG + PREG->u.llxy.y;
+      d1 = XREG(PREG->u.llxy.x);
       d0 = *pt0;
       ENDP(pt0);
       deref_head(d0, call_bfunc_yx_unk);
@@ -9322,36 +9354,45 @@ Yap_absmi(int inp)
 	int flags;
 
 	Int v = IntOfTerm(d0) - IntOfTerm(d1);
-	flags = PREG->u.lxy.flags;
-	PREG = NEXTOP(PREG, lxy);
+	flags = PREG->u.llxy.flags;
 	if (v > 0) {
 	  if (flags & GT_OK_IN_CMP) {
+	    PREG = NEXTOP(PREG, llxy);
 	    JMPNext();
-	  } else
-	    FAIL();
+	  } else {
+	    PREG = PREG->u.llxy.f;
+	    JMPNext();
+	  }
 	} else if (v < 0) {
 	  if (flags & LT_OK_IN_CMP) {
+	    PREG = NEXTOP(PREG, llxy);
 	    JMPNext();
-	  } else
-	    FAIL();
+	  } else {
+	    PREG = PREG->u.llxy.f;
+	    JMPNext();
+	  }
 	} else /* if (v == 0) */ {
 	  if (flags & EQ_OK_IN_CMP) {
+	    PREG = NEXTOP(PREG, llxy);
 	    JMPNext();
-	  } else
-	    FAIL();
+	  } else {
+	    PREG = PREG->u.llxy.f;
+	    JMPNext();
+	  }
 	}
       } 
     exec_bin_cmp_yx:
       {
-	CmpPredicate f = PREG->u.lxy.p->cs.d_code;
-	PREG = NEXTOP(PREG, lxy);
+	CmpPredicate f = PREG->u.llxy.p->cs.d_code;
 	saveregs();
 	d0 = (CELL) (f) (d0,d1);
       }
       setregs();
       if (!d0) {
-	FAIL();
+	PREG = PREG->u.llxy.f;
+	JMPNext();
       }
+      PREG = NEXTOP(PREG, llxy);
       JMPNext();
 
       BEGP(pt0);
@@ -9368,12 +9409,12 @@ Yap_absmi(int inp)
       ENDD(d0);
       ENDBOp();
 
-      BOp(call_bfunc_xy, lxy);
+      BOp(call_bfunc_xy, llxy);
       BEGD(d0);
       BEGD(d1);
       BEGP(pt0);
-      pt0 = YREG + PREG->u.lxy.y;
-      d0 = XREG(PREG->u.lxy.x);
+      pt0 = YREG + PREG->u.llxy.y;
+      d0 = XREG(PREG->u.llxy.x);
       d1 = *pt0;
       ENDP(pt0);
       deref_head(d0, call_bfunc_xy_unk);
@@ -9384,36 +9425,45 @@ Yap_absmi(int inp)
 	int flags;
 
 	Int v = IntOfTerm(d0) - IntOfTerm(d1);
-	flags = PREG->u.lxy.flags;
-	PREG = NEXTOP(PREG, lxy);
+	flags = PREG->u.llxy.flags;
 	if (v > 0) {
 	  if (flags & GT_OK_IN_CMP) {
+	    PREG = NEXTOP(PREG, llxy);
 	    JMPNext();
-	  } else
-	    FAIL();
+	  } else {
+	    PREG = PREG->u.llxy.f;
+	    JMPNext();
+	  }
 	} else if (v < 0) {
 	  if (flags & LT_OK_IN_CMP) {
+	    PREG = NEXTOP(PREG, llxy);
 	    JMPNext();
-	  } else
-	    FAIL();
+	  } else {
+	    PREG = PREG->u.llxy.f;
+	    JMPNext();
+	  }
 	} else /* if (v == 0) */ {
 	  if (flags & EQ_OK_IN_CMP) {
+	    PREG = NEXTOP(PREG, llxy);
 	    JMPNext();
-	  } else
-	    FAIL();
+	  } else {
+	    PREG = PREG->u.llxy.f;
+	    JMPNext();
+	  }
 	}
       } 
     exec_bin_cmp_xy:
       {
-	CmpPredicate f = PREG->u.lxy.p->cs.d_code;
-	PREG = NEXTOP(PREG, lxy);
+	CmpPredicate f = PREG->u.llxy.p->cs.d_code;
 	saveregs();
 	d0 = (CELL) (f) (d0,d1);
       }
       setregs();
       if (!d0) {
-	FAIL();
+	PREG = PREG->u.llxy.f;
+	JMPNext();
       }
+      PREG = NEXTOP(PREG, llxy);
       JMPNext();
 
       BEGP(pt0);
@@ -9430,13 +9480,13 @@ Yap_absmi(int inp)
       ENDD(d0);
       ENDBOp();
 
-      BOp(call_bfunc_yy, lyy);
+      BOp(call_bfunc_yy, llyy);
       BEGD(d0);
       BEGD(d1);
       BEGP(pt0);
-      pt0 = YREG + PREG->u.lyy.y1;
+      pt0 = YREG + PREG->u.llyy.y1;
       BEGP(pt1);
-      pt1 = YREG + PREG->u.lyy.y2;
+      pt1 = YREG + PREG->u.llyy.y2;
       d0 = *pt0;
       d1 = *pt1;
       ENDP(pt1);
@@ -9449,36 +9499,45 @@ Yap_absmi(int inp)
 	int flags;
 
 	Int v = IntOfTerm(d0) - IntOfTerm(d1);
-	flags = PREG->u.lyy.flags;
-	PREG = NEXTOP(PREG, lyy);
+	flags = PREG->u.llyy.flags;
 	if (v > 0) {
 	  if (flags & GT_OK_IN_CMP) {
+	    PREG = NEXTOP(PREG, llyy);
 	    JMPNext();
-	  } else
-	    FAIL();
+	  } else {
+	    PREG = PREG->u.llyy.f;
+	    JMPNext();
+	  }
 	} else if (v < 0) {
 	  if (flags & LT_OK_IN_CMP) {
+	    PREG = NEXTOP(PREG, llyy);
 	    JMPNext();
-	  } else
-	    FAIL();
+	  } else {
+	    PREG = PREG->u.llyy.f;
+	    JMPNext();
+	  }
 	} else /* if (v == 0) */ {
 	  if (flags & EQ_OK_IN_CMP) {
+	    PREG = NEXTOP(PREG, llyy);
 	    JMPNext();
-	  } else
-	    FAIL();
+	  } else {
+	    PREG = PREG->u.llyy.f;
+	    JMPNext();
+	  }
 	}
       } 
     exec_bin_cmp_yy:
       {
-	CmpPredicate f = PREG->u.lyy.p->cs.d_code;
-	PREG = NEXTOP(PREG, lyy);
+	CmpPredicate f = PREG->u.llyy.p->cs.d_code;
 	saveregs();
 	d0 = (CELL) (f) (d0,d1);
       }
       setregs();
       if (!d0) {
-	FAIL();
+	PREG = PREG->u.llyy.f;
+	JMPNext();
       }
+      PREG = NEXTOP(PREG, llyy);
       JMPNext();
 
       BEGP(pt0);

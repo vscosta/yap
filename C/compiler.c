@@ -233,8 +233,8 @@ c_var(Term t, Int argno, unsigned int arity, unsigned int level)
   case save_b_flag:
     Yap_emit(save_b_op, (CELL) v, Zero);
     break;
-  case comit_b_flag:
-    Yap_emit(comit_b_op, (CELL) v, Zero);
+  case commit_b_flag:
+    Yap_emit(commit_b_op, (CELL) v, Zero);
     Yap_emit(empty_call_op, Zero, Zero);
     Yap_emit(restore_tmps_and_skip_op, Zero, Zero);
     break;
@@ -451,6 +451,9 @@ c_arg(Int argno, Term t, unsigned int arity, unsigned int level)
 
       /* use a special list to store the blobs */
       cpc = icpc;
+      if (IsFloatTerm(t)) {
+	Yap_emit(align_float_op, Zero, Zero);
+      }
       Yap_emit(label_op, l1, Zero);
       if (IsFloatTerm(t)) {
 	/* let us do floats first */
@@ -1265,10 +1268,10 @@ c_goal(Term Goal, int mod)
       int save = onlast;
       int savegoalno = goalno;
       int frst = TRUE;
-      int comitflag = 0;
-      int looking_at_comit = FALSE;
-      int optimizing_comit = FALSE;
-      Term comitvar = 0;
+      int commitflag = 0;
+      int looking_at_commit = FALSE;
+      int optimizing_commit = FALSE;
+      Term commitvar = 0;
       PInstr *FirstP = cpc, *savecpc, *savencpc;
 
       push_branch(onbranch, TermNil);
@@ -1277,32 +1280,32 @@ c_goal(Term Goal, int mod)
       or_found = 1;
       do {
 	arg = ArgOfTerm(1, Goal);
-	looking_at_comit = IsApplTerm(arg) &&
+	looking_at_commit = IsApplTerm(arg) &&
 		FunctorOfTerm(arg) == FunctorArrow;
 	if (frst) {
-	  if (optimizing_comit) {
+	  if (optimizing_commit) {
 	    Yap_emit(label_op, l, Zero);
 	    l = ++labelno;
 	  }
 	  Yap_emit_3ops(push_or_op, l, Zero, Zero);
-	  if (looking_at_comit &&
+	  if (looking_at_commit &&
 	      Yap_is_a_test_pred(ArgOfTerm(1, arg), mod)) {
 	    /*
 	     * let them think they are still the
 	     * first 
 	     */
-	    Yap_emit(comit_opt_op, l, Zero);
-	    optimizing_comit = TRUE;
+	    Yap_emit(commit_opt_op, l, Zero);
+	    optimizing_commit = TRUE;
 	  }
 	  else {
-	    optimizing_comit = FALSE;
+	    optimizing_commit = FALSE;
 	    Yap_emit_3ops(either_op, l,  Zero, Zero);
 	    Yap_emit(restore_tmps_op, Zero, Zero);
 	    frst = FALSE;
 	  }
 	}
 	else {
-	  optimizing_comit = FALSE;
+	  optimizing_commit = FALSE;
 	  Yap_emit(label_op, l, Zero);
 	  Yap_emit(pushpop_or_op, Zero, Zero);
 	  Yap_emit_3ops(orelse_op, l = ++labelno, Zero, Zero);
@@ -1311,8 +1314,8 @@ c_goal(Term Goal, int mod)
 	 * if(IsApplTerm(arg) &&
 	 * FunctorOfTerm(arg)==FunctorArrow) { 
 	 */
-	if (looking_at_comit) {
-	  if (!optimizing_comit && !comitflag) {
+	if (looking_at_commit) {
+	  if (!optimizing_commit && !commitflag) {
 	    /* This instruction is placed before
 	     * the disjunction. This means that
 	     * the program counter must point
@@ -1323,8 +1326,8 @@ c_goal(Term Goal, int mod)
 	    int my_goalno = goalno;
 
 	    goalno = savegoalno;
-	    comitflag = labelno;
-	    comitvar = MkVarTerm();
+	    commitflag = labelno;
+	    commitvar = MkVarTerm();
 	    if (H == (CELL *)freep0) {
 	      /* oops, too many new variables */
 	      save_machine_regs();
@@ -1334,8 +1337,8 @@ c_goal(Term Goal, int mod)
 	    savencpc = FirstP->nextInst;
 	    cpc = FirstP;
 	    onbranch = pop_branch();
-	    c_var(comitvar, save_b_flag, 1, 0);
-	    push_branch(onbranch,  comitvar);
+	    c_var(commitvar, save_b_flag, 1, 0);
+	    push_branch(onbranch,  commitvar);
 	    onbranch = cur_branch;
 	    cpc->nextInst = savencpc;
 	    cpc = savecpc;
@@ -1344,8 +1347,8 @@ c_goal(Term Goal, int mod)
 	  save = onlast;
 	  onlast = FALSE;
 	  c_goal(ArgOfTerm(1, arg), mod);
-	  if (!optimizing_comit) {
-	    c_var((Term) comitvar, comit_b_flag,
+	  if (!optimizing_commit) {
+	    c_var((Term) commitvar, commit_b_flag,
 		  1, 0);
 	  }
 	  onlast = save;
@@ -1364,10 +1367,10 @@ c_goal(Term Goal, int mod)
 	       && FunctorOfTerm(Goal) == FunctorOr);
       Yap_emit(pushpop_or_op, Zero, Zero);
       Yap_emit(label_op, l, Zero);
-      if (!optimizing_comit)
+      if (!optimizing_commit)
 	Yap_emit(orlast_op, Zero, Zero);
       else {
-	optimizing_comit = FALSE;	/* not really necessary */
+	optimizing_commit = FALSE;	/* not really necessary */
       }
       c_goal(Goal, mod);
       /*              --onbranch; */
@@ -1394,25 +1397,25 @@ c_goal(Term Goal, int mod)
       CELL label = (labelno += 2);
       CELL end_label = (labelno += 2);
       int save = onlast;
-      Term comitvar;
+      Term commitvar;
 
-      comitvar = MkVarTerm();
+      commitvar = MkVarTerm();
       if (H == (CELL *)freep0) {
 	/* oops, too many new variables */
 	save_machine_regs();
 	longjmp(Yap_CompilerBotch,4);
       }
-      push_branch(onbranch, comitvar);
+      push_branch(onbranch, commitvar);
       ++cur_branch;
       onbranch = cur_branch;
       or_found = 1;
       onlast = FALSE;
-      c_var(comitvar, save_b_flag, 1, 0);
+      c_var(commitvar, save_b_flag, 1, 0);
       Yap_emit_3ops(push_or_op, label, Zero, Zero);
       Yap_emit_3ops(either_op, label,  Zero, Zero);
       Yap_emit(restore_tmps_op, Zero, Zero);
       c_goal(ArgOfTerm(1, Goal), mod);
-      c_var(comitvar, comit_b_flag, 1, 0);
+      c_var(commitvar, commit_b_flag, 1, 0);
       onlast = save;
       Yap_emit(fail_op, end_label, Zero);
       Yap_emit(pushpop_or_op, Zero, Zero);
@@ -1428,19 +1431,19 @@ c_goal(Term Goal, int mod)
       return;
     }
     else if (f == FunctorArrow) {
-      Term comitvar;
+      Term commitvar;
       int save = onlast;
 
-      comitvar = MkVarTerm();
+      commitvar = MkVarTerm();
       if (H == (CELL *)freep0) {
 	/* oops, too many new variables */
 	save_machine_regs();
 	longjmp(Yap_CompilerBotch,4);
       }
       onlast = FALSE;
-      c_var(comitvar, save_b_flag, 1, 0);
+      c_var(commitvar, save_b_flag, 1, 0);
       c_goal(ArgOfTerm(1, Goal), mod);
-      c_var(comitvar, comit_b_flag, 1, 0);
+      c_var(commitvar, commit_b_flag, 1, 0);
       onlast = save;
       c_goal(ArgOfTerm(2, Goal), mod);
       return;
@@ -1549,8 +1552,7 @@ c_goal(Term Goal, int mod)
 	  current_p0 = p0;
 	  c_var(t2, bt2_flag, 2, 0);
 	}
-      }
-      else {
+      } else {
 	Term a2 = ArgOfTerm(2,Goal);
 	Term t1 = MkVarTerm();
 	if (H == (CELL *)freep0) {
@@ -1732,7 +1734,7 @@ usesvar(int ic)
     return (TRUE);
   switch (ic) {
   case save_b_op:
-  case comit_b_op:
+  case commit_b_op:
   case patch_b_op:
   case save_appl_op:
   case save_pair_op:
@@ -2484,7 +2486,7 @@ c_layout(void)
       Contents[rn] = NIL;
       ++Uses[rn];
       break;
-    case comit_b_op:
+    case commit_b_op:
 #ifdef TABLING_INNER_CUTS
       cut_mark->op = clause_with_cut_op;
 #endif /* TABLING_INNER_CUTS */

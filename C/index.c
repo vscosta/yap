@@ -57,7 +57,7 @@ static char     SccsId[] = "%W% %G%";
 #endif
 
 UInt STATIC_PROTO(do_index, (ClauseDef *,ClauseDef *,PredEntry *,UInt,UInt,int,int,CELL *));
-UInt STATIC_PROTO(do_compound_index, (ClauseDef *,ClauseDef *,Term *t,PredEntry *,UInt,UInt,UInt,UInt,int,int,int,CELL *));
+UInt STATIC_PROTO(do_compound_index, (ClauseDef *,ClauseDef *,Term *t,PredEntry *,UInt,UInt,UInt,UInt,int,int,int,CELL *,int));
 UInt STATIC_PROTO(do_dbref_index, (ClauseDef *,ClauseDef *,Term,PredEntry *,UInt,UInt,int,int,CELL *));
 UInt STATIC_PROTO(do_blob_index, (ClauseDef *,ClauseDef *,Term,PredEntry *,UInt,UInt,int,int,CELL *));
 
@@ -337,8 +337,8 @@ has_cut(yamop *pc)
     case _cut_e:
     case _p_cut_by_y:
     case _p_cut_by_x:
-    case _comit_b_y:
-    case _comit_b_x:
+    case _commit_b_y:
+    case _commit_b_x:
       return TRUE;
     case _try_me:
     case _retry_me:
@@ -781,21 +781,21 @@ has_cut(yamop *pc)
     case _p_arg_y_cv:
       pc = NEXTOP(pc,ycx);
       break;
-      /* instructions type lxx */
+      /* instructions type ycx */
     case _p_func2s_y_cv:
       pc = NEXTOP(pc,ycx);
       break;
-      /* instructions type lxx */
+      /* instructions type llxx */
     case _call_bfunc_xx:
-      pc = NEXTOP(pc,lxx);
+      pc = NEXTOP(pc,llxx);
       break;
-      /* instructions type lxy */
+      /* instructions type llxy */
     case _call_bfunc_yx:
     case _call_bfunc_xy:
-      pc = NEXTOP(pc,lxy);
+      pc = NEXTOP(pc,llxy);
       break;
     case _call_bfunc_yy:
-      pc = NEXTOP(pc,lyy);
+      pc = NEXTOP(pc,llyy);
       break;
     }
   } while (TRUE);
@@ -833,7 +833,7 @@ add_info(ClauseDef *clause, UInt regno)
       cl = NEXTOP(cl,e);
       break;
     case _save_b_x:
-    case _comit_b_x:
+    case _commit_b_x:
     case _p_cut_by_x:
     case _write_x_val:
     case _write_x_loc:
@@ -928,7 +928,7 @@ add_info(ClauseDef *clause, UInt regno)
       cl = NEXTOP(cl,x);
       break;
     case _save_b_y:
-    case _comit_b_y:
+    case _commit_b_y:
     case _write_y_var:
     case _write_y_val: 
     case _write_y_loc:
@@ -1499,14 +1499,14 @@ add_info(ClauseDef *clause, UInt regno)
       cl = NEXTOP(cl,ycx);
       break;
     case _call_bfunc_xx:
-      cl = NEXTOP(cl,lxx);
+      cl = NEXTOP(cl,llxx);
       break;
     case _call_bfunc_yx:
     case _call_bfunc_xy:
-      cl = NEXTOP(cl,lxy);
+      cl = NEXTOP(cl,llxy);
       break;
     case _call_bfunc_yy:
-      cl = NEXTOP(cl,lyy);
+      cl = NEXTOP(cl,llyy);
       break;
     case _Ystop:
     case _Nstop:
@@ -2715,7 +2715,7 @@ do_consts(GroupDef *grp, Term t, PredEntry *ap, int compound_term, CELL *sreg, U
 	if (ap->PredFlags & LogUpdatePredFlag && max > min)
 	  ics->Label = suspend_indexing(min, max, ap);
 	else
-	  ics->Label = do_compound_index(min, max, sreg, ap, compound_term, arity, argno+1, nxtlbl, first, last_arg, clleft, top);
+	  ics->Label = do_compound_index(min, max, sreg, ap, compound_term, arity, argno+1, nxtlbl, first, last_arg, clleft, top, TRUE);
       } else if (ap->PredFlags & LogUpdatePredFlag) {
 	ics->Label = suspend_indexing(min, max, ap);
       } else {
@@ -2804,7 +2804,7 @@ do_funcs(GroupDef *grp, Term t, PredEntry *ap, UInt argno, int first, int last_a
       } else {
 	sreg = NULL;
       }
-      ifs->Label = do_compound_index(min, max, sreg, ap, 0, ArityOfFunctor(f), argno+1, nxtlbl, first, last_arg, clleft, top);
+      ifs->Label = do_compound_index(min, max, sreg, ap, 0, ArityOfFunctor(f), argno+1, nxtlbl, first, last_arg, clleft, top, TRUE);
     }
     grp->FirstClause = min = max+1;
   }
@@ -2832,7 +2832,7 @@ do_pair(GroupDef *grp, Term t, PredEntry *ap, UInt argno, int first, int last_ar
   if (min != max && !IsPairTerm(t)) {
     return suspend_indexing(min, max, ap);
   }
-  return do_compound_index(min, max, (IsPairTerm(t) ? RepPair(t) : NULL), ap, 0, 2, argno+1, nxtlbl, first, last_arg, clleft, top);
+  return do_compound_index(min, max, (IsPairTerm(t) ? RepPair(t) : NULL), ap, 0, 2, argno+1, nxtlbl, first, last_arg, clleft, top, TRUE);
 }
 
 static void
@@ -3161,12 +3161,12 @@ copy_clauses(ClauseDef *max0, ClauseDef *min0, CELL *top)
 
 /* execute an index inside a structure */
 static UInt
-do_compound_index(ClauseDef *min0, ClauseDef* max0, Term* sreg, PredEntry *ap, UInt i, UInt arity, UInt argno, UInt fail_l, int first, int last_arg, int clleft, CELL *top)
+do_compound_index(ClauseDef *min0, ClauseDef* max0, Term* sreg, PredEntry *ap, UInt i, UInt arity, UInt argno, UInt fail_l, int first, int last_arg, int clleft, CELL *top, int done_work)
 {
   int ret_lab = 0, *newlabp;
   CELL *top0 = top;
   ClauseDef *min, *max;
-  int found_index = FALSE, done_work = FALSE, lu_pred = ap->PredFlags & LogUpdatePredFlag;
+  int found_index = FALSE, lu_pred = ap->PredFlags & LogUpdatePredFlag;
 
   newlabp = & ret_lab;
   if (min0 == max0) {
@@ -3212,7 +3212,7 @@ do_compound_index(ClauseDef *min0, ClauseDef* max0, Term* sreg, PredEntry *ap, U
       if (sreg == NULL || !isvt) {
 	found_index = TRUE;
       } else {
-	done_work = TRUE;
+	done_work |= TRUE;
       }
     }
     top = top0;
@@ -4053,17 +4053,17 @@ expand_index(PredEntry *ap) {
 	    sp--;
 	  }
 	}
-	lab = do_compound_index(cls, max, s_reg, ap, i, arity, argno, fail_l, isfirstcl, is_last_arg, clleft, top);
+	lab = do_compound_index(cls, max, s_reg, ap, i, arity, argno, fail_l, isfirstcl, is_last_arg, clleft, top, FALSE);
       }
     } else if (IsPairTerm(sp[-1].val) && sp > stack) {
-      lab = do_compound_index(cls, max, s_reg, ap, i, 2, argno, fail_l, isfirstcl, is_last_arg, clleft, top);
+      lab = do_compound_index(cls, max, s_reg, ap, i, 2, argno, fail_l, isfirstcl, is_last_arg, clleft, top, FALSE);
     } else {
       Functor f = (Functor)RepAppl(sp[-1].val);
       /* we are continuing within a compound term */
       if (IsExtensionFunctor(f)) {
 	lab = do_index(cls, max, ap, argno+1, fail_l, isfirstcl, clleft, top);
       } else {
-	lab = do_compound_index(cls, max, s_reg, ap, i, ArityOfFunctor(f), argno, fail_l, isfirstcl, is_last_arg, clleft, top);
+	lab = do_compound_index(cls, max, s_reg, ap, i, ArityOfFunctor(f), argno, fail_l, isfirstcl, is_last_arg, clleft, top, FALSE);
       }
     }
   } else {
@@ -4768,6 +4768,10 @@ replace_lu_block(LogUpdIndex *blk, int flag, PredEntry *ap, yamop *code, int has
   ncl->ClRefCount = 0;
   ncl->u.ParentIndex = blk->u.ParentIndex;
   ncl->ChildIndex = NULL;
+#if defined(YAPOR) || defined(THREADS)
+  INIT_LOCK(ncl->ClLock);
+  INIT_CLREF_COUNT(ncl);
+#endif
   codep = start = ncl->ClCode;
   /* ok, we've allocated and set up things, now let's finish */
   codep->opc = Yap_opcode(_enter_lu_pred);

@@ -622,7 +622,7 @@ fix_compiler_instructions(PInstr *pcpc)
     case save_pair_op:
     case save_appl_op:
     case save_b_op:
-    case comit_b_op:
+    case commit_b_op:
       pcpc->rnd1 = GlobalAdjust(pcpc->rnd1);
       break;
     default:

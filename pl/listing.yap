@@ -56,6 +56,9 @@ listing(V) :-
 	'$do_error'(domain_error(predicate_spec,Name),listing(Name)).
 
 '$list_clauses'(Stream, M, Pred) :-
+	'$flags'(Pred,M,Flags,Flags),
+	% has to be dynamic, source, or log update.
+	Flags /\ 0x08402000 =\= 0,
 	'$clause'(Pred, M, Body),
 	'$portray_clause'(Stream,(Pred:-Body)),
         fail.

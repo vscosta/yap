@@ -30,6 +30,7 @@ typedef enum compiler_op {
   put_num_op,
   get_float_op,
   put_float_op,
+  align_float_op,
   get_longint_op,
   put_longint_op,
   get_bigint_op,
@@ -82,7 +83,7 @@ typedef enum compiler_op {
   pushpop_or_op,
   pop_or_op,
   save_b_op,
-  comit_b_op,
+  commit_b_op,
   patch_b_op,
   try_op,
   retry_op,
@@ -103,7 +104,7 @@ typedef enum compiler_op {
   if_nonvar_op,
   save_pair_op,
   save_appl_op,
-  comit_opt_op,
+  commit_opt_op,
   unify_local_op,
   write_local_op,
   unify_last_list_op,
@@ -219,7 +220,7 @@ typedef struct CEXPENTRY {
 
 
 #define save_b_flag	   10000
-#define comit_b_flag	   10001
+#define commit_b_flag	   10001
 #define save_appl_flag	   10002
 #define save_pair_flag	   10004
 #define f_flag		   10008

@@ -495,7 +495,7 @@ Yap_InitCmpPred(char *Name, unsigned long int Arity, CmpPredicate cmp_code, int 
   Atom            atom = Yap_LookupAtom(Name);
   PredEntry      *pe;
   yamop      *p_code = ((StaticClause *)NULL)->ClCode;
-  StaticClause     *cl = (StaticClause *)Yap_AllocCodeSpace((CELL)NEXTOP(NEXTOP(((yamop *)p_code),lxx),e)); 
+  StaticClause     *cl = (StaticClause *)Yap_AllocCodeSpace((CELL)NEXTOP(NEXTOP(((yamop *)p_code),llxx),e)); 
 
   cl->ClFlags = 0;
   p_code = cl->ClCode;
@@ -508,11 +508,12 @@ Yap_InitCmpPred(char *Name, unsigned long int Arity, CmpPredicate cmp_code, int 
   pe->cs.d_code = cmp_code;
   pe->ModuleOfPred = CurrentModule;
   p_code->opc = pe->OpcodeOfPred = Yap_opcode(_call_bfunc_xx);
-  p_code->u.lxx.p = pe;
-  p_code->u.lxx.x1 = Yap_emit_x(1);
-  p_code->u.lxx.x2 = Yap_emit_x(2);
-  p_code->u.lxx.flags = Yap_compile_cmp_flags(pe);
-  p_code = NEXTOP(p_code,lxx);
+  p_code->u.llxx.p = pe;
+  p_code->u.llxx.f = FAILCODE;
+  p_code->u.llxx.x1 = Yap_emit_x(1);
+  p_code->u.llxx.x2 = Yap_emit_x(2);
+  p_code->u.llxx.flags = Yap_compile_cmp_flags(pe);
+  p_code = NEXTOP(p_code,llxx);
   p_code->opc = Yap_opcode(_procceed);
 }
 
@@ -751,6 +752,7 @@ InitCodes(void)
 #endif /* YAPOR */
 
 #if defined(YAPOR) || defined(THREADS)
+  INIT_RWLOCK(heap_regs->bgl);
   INIT_LOCK(heap_regs->free_blocks_lock);
   INIT_LOCK(heap_regs->heap_used_lock);
   INIT_LOCK(heap_regs->heap_top_lock);

@@ -122,7 +122,7 @@ static int asm_error = FALSE;
 
 static int assembling;
 
-static CELL comit_lab;
+static CELL commit_lab;
 
 static int do_not_optimize_uatom = FALSE;
 
@@ -742,7 +742,6 @@ check_alloc(void)
 static void
 a_p(op_numbers opcode)
 {				/* emit opcode & predicate code address */
-  int comit_ok = (comit_lab == 0);
   Prop fe = (Prop) (cpc->rnd1);
   CELL Flags = RepPredProp(fe)->PredFlags;
   if (Flags & AsmPredFlag) {
@@ -769,16 +768,11 @@ a_p(op_numbers opcode)
       longjmp(Yap_CompilerBotch, 1);
     }
     a_e(op);
-    if (!comit_ok) {
-      Yap_Error(SYSTEM_ERROR, TermNil,"internal assembler error for commit");
-      save_machine_regs();
-      longjmp(Yap_CompilerBotch, 1);
-    }
     return;
   }
   if (Flags & CPredFlag) {
     check_alloc();
-    if (!comit_ok && (Flags & TestPredFlag)) {
+    if (commit_lab && (Flags & TestPredFlag)) {
       if (pass_no) {
 	if (Flags & UserCPredFlag) {
 	  Yap_Error(SYSTEM_ERROR, TermNil,
@@ -790,13 +784,12 @@ a_p(op_numbers opcode)
 	code_p->u.sdl.s =
 	  emit_count(-Signed(RealEnvSize) - CELLSIZE * cpc->rnd2);
 	code_p->u.sdl.l =
-	  emit_a(Unsigned(code_addr) + label_offset[comit_lab]);
+	  emit_a(Unsigned(code_addr) + label_offset[commit_lab]);
 	code_p->u.sdl.p =
 	  emit_pe(RepPredProp(fe));
       }
       GONEXT(sdl);
-      comit_lab = 0;
-      comit_ok = TRUE;
+      commit_lab = 0;
     }
     else {
       if (pass_no) {
@@ -825,11 +818,6 @@ a_p(op_numbers opcode)
 	}
       }
       GONEXT(sla);
-    }
-    if (!comit_ok) {
-      Yap_Error(SYSTEM_ERROR, TermNil, "internal assembler error for commit");
-      save_machine_regs();
-      longjmp(Yap_CompilerBotch,1);
     }
     return;
   }
@@ -865,11 +853,6 @@ a_p(op_numbers opcode)
     if (pass_no)
       code_p->u.p.p = RepPredProp(fe);
     GONEXT(p);
-  }
-  if (!comit_ok) {
-    Yap_Error(SYSTEM_ERROR, TermNil, "internal assembler error for commit");
-    save_machine_regs();
-    longjmp(Yap_CompilerBotch,1);
   }
 }
 
@@ -968,21 +951,35 @@ a_bfunc(CELL pred)
     if (ve->KindOfVE == PermVar) {
       if (pass_no) {
 	code_p->opc = emit_op(_call_bfunc_yy);
-	code_p->u.lxy.p = RepPredProp(((Prop)pred));
-	code_p->u.lyy.y1 = v1;
-	code_p->u.lyy.y2 = emit_yreg(var_offset);
-	code_p->u.lyy.flags = compile_cmp_flags(RepAtom(NameOfFunctor(RepPredProp(((Prop)pred))->FunctorOfPred))->StrOfAE);
+	code_p->u.llyy.p = RepPredProp(((Prop)pred));
+	if (commit_lab) {
+	  code_p->u.llyy.f = 
+	    emit_a(Unsigned(code_addr) + label_offset[commit_lab]);
+	  commit_lab = 0;
+	} else {
+	  code_p->u.llyy.f = FAILCODE;
+	}
+	code_p->u.llyy.y1 = v1;
+	code_p->u.llyy.y2 = emit_yreg(var_offset);
+	code_p->u.llyy.flags = compile_cmp_flags(RepAtom(NameOfFunctor(RepPredProp(((Prop)pred))->FunctorOfPred))->StrOfAE);
       }
-      GONEXT(lyy);
+      GONEXT(llyy);
     } else {
       if (pass_no) {
 	code_p->opc = emit_op(_call_bfunc_yx);
-	code_p->u.lxy.p = RepPredProp(((Prop)pred));
-	code_p->u.lxy.x = emit_xreg(var_offset);
-	code_p->u.lxy.y = v1;
-	code_p->u.lxy.flags = compile_cmp_flags(RepAtom(NameOfFunctor(RepPredProp(((Prop)pred))->FunctorOfPred))->StrOfAE);
+	code_p->u.llxy.p = RepPredProp(((Prop)pred));
+	if (commit_lab) {
+	  code_p->u.llxy.f = 
+	    emit_a(Unsigned(code_addr) + label_offset[commit_lab]);
+	  commit_lab = 0;
+	} else {
+	  code_p->u.llxy.f = FAILCODE;
+	}
+	code_p->u.llxy.x = emit_xreg(var_offset);
+	code_p->u.llxy.y = v1;
+	code_p->u.llxy.flags = compile_cmp_flags(RepAtom(NameOfFunctor(RepPredProp(((Prop)pred))->FunctorOfPred))->StrOfAE);
       }
-      GONEXT(lxy);
+      GONEXT(llxy);
     }
   } else {
     wamreg x1 = emit_xreg(var_offset);
@@ -992,21 +989,35 @@ a_bfunc(CELL pred)
     if (ve->KindOfVE == PermVar) {
       if (pass_no) {
 	code_p->opc = emit_op(_call_bfunc_xy);
-	code_p->u.lxy.p = RepPredProp(((Prop)pred));
-	code_p->u.lxy.x = x1;
-	code_p->u.lxy.y = emit_yreg(var_offset);
-	code_p->u.lxy.flags = compile_cmp_flags(RepAtom(NameOfFunctor(RepPredProp(((Prop)pred))->FunctorOfPred))->StrOfAE);
+	code_p->u.llxy.p = RepPredProp(((Prop)pred));
+	if (commit_lab) {
+	  code_p->u.llxy.f = 
+	    emit_a(Unsigned(code_addr) + label_offset[commit_lab]);
+	  commit_lab = 0;
+	} else {
+	  code_p->u.llxy.f = FAILCODE;
+	}
+	code_p->u.llxy.x = x1;
+	code_p->u.llxy.y = emit_yreg(var_offset);
+	code_p->u.llxy.flags = compile_cmp_flags(RepAtom(NameOfFunctor(RepPredProp(((Prop)pred))->FunctorOfPred))->StrOfAE);
       }
-      GONEXT(lxy);
+      GONEXT(llxy);
     } else {
       if (pass_no) {
 	code_p->opc = emit_op(_call_bfunc_xx);
-	code_p->u.lxy.p = RepPredProp(((Prop)pred));
-	code_p->u.lxx.x1 = x1;
-	code_p->u.lxx.x2 = emit_xreg(var_offset);
-	code_p->u.lxx.flags = compile_cmp_flags(RepAtom(NameOfFunctor(RepPredProp(((Prop)pred))->FunctorOfPred))->StrOfAE);
+	code_p->u.llxx.p = RepPredProp(((Prop)pred));
+	if (commit_lab) {
+	  code_p->u.llxx.f = 
+	    emit_a(Unsigned(code_addr) + label_offset[commit_lab]);
+	  commit_lab = 0;
+	} else {
+	  code_p->u.llxx.f = FAILCODE;
+	}
+	code_p->u.llxx.x1 = x1;
+	code_p->u.llxx.x2 = emit_xreg(var_offset);
+	code_p->u.llxx.flags = compile_cmp_flags(RepAtom(NameOfFunctor(RepPredProp(((Prop)pred))->FunctorOfPred))->StrOfAE);
       }
-      GONEXT(lxx);
+      GONEXT(llxx);
     }
   }
 }
@@ -2047,7 +2058,7 @@ do_pass(void)
   code_p = code_addr;
   cl_u = (union clause_obj *)code_p;
   cpc = CodeStart;
-  comit_lab = 0L;
+  commit_lab = 0L;
   /* Space while for the clause flags */
   log_update = CurrentPred->PredFlags & LogUpdatePredFlag;
   dynamic = CurrentPred->PredFlags & DynamicPredFlag;
@@ -2115,6 +2126,10 @@ do_pass(void)
 	cl_u->lui.SiblingIndex = NULL;
 	cl_u->lui.u.pred = CurrentPred;
 	cl_u->lui.ClRefCount =  0;
+#if defined(YAPOR) || defined(THREADS)
+	INIT_LOCK(cl_u->lui.ClLock);
+	INIT_CLREF_COUNT(&(cl_u->lui));
+#endif
       }
       code_p = cl_u->lui.ClCode;
     } else {
@@ -2331,8 +2346,8 @@ do_pass(void)
     case patch_b_op:
       a_v(_save_b_x);
       break;
-    case comit_b_op:
-      a_v(_comit_b_x);
+    case commit_b_op:
+      a_v(_commit_b_x);
     #ifdef YAPOR
       if (pass_no)
 	PUT_YAMOP_CUT(entry_code);
@@ -2390,7 +2405,7 @@ do_pass(void)
       break;
     case trustme_op:
       if (log_update && assembling == ASSEMBLING_INDEX) {
-	a_gl(_trust_logical_pred);
+	a_cl(_trust_logical_pred);
       }
 #ifdef TABLING
       if (tabled)
@@ -2593,8 +2608,8 @@ do_pass(void)
     case mark_live_regs_op:
       a_bregs();
       break;
-    case comit_opt_op:
-      comit_lab = cpc->rnd1;
+    case commit_opt_op:
+      commit_lab = cpc->rnd1;
       break;
     case fetch_args_vv_op:
       a_fetch_vv();
@@ -2630,6 +2645,18 @@ do_pass(void)
 	longjmp(Yap_CompilerBotch, 1);
       }
       a_bfunc(cpc->nextInst->rnd2);
+      break;
+    case align_float_op:
+      /* install a blob */
+#if SIZEOF_DOUBLE == 2*SIZEOF_LONG_INT
+      if (pass_no) {
+	if ((CELL)code_p & 0x4)
+	  GONEXT(e);
+      } else {
+	if (!((CELL)code_p & 0x4))
+	  GONEXT(e);
+      }
+#endif
       break;
     case blob_op:
       /* install a blob */
