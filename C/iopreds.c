@@ -170,7 +170,7 @@ STATIC_PROTO (Int GetArgSizeFromChar, (Term *));
 
 
 
-static int parser_error_style = FAIL_ON_PARSER_ERROR;
+static int parser_error_style = EXCEPTION_ON_PARSER_ERROR;
 
 #if EMACS
 static int first_char;
@@ -2900,7 +2900,7 @@ p_read (void)
 	Error(SYNTAX_ERROR,syntax_error(tokstart),ErrorMessage);
 	return(FALSE);
       } else if (parser_error_style == FAIL_ON_PARSER_ERROR) {
-	return (FALSE);
+	return(FALSE);
       } else {
 	Error(SYNTAX_ERROR,syntax_error(tokstart),"SYNTAX ERROR");
 	return(FALSE);

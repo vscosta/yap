@@ -79,7 +79,7 @@ read_sig.
 	(
 	    '$get_value'('$break',0)
 	->
-	    '$set_read_error_handler'(fail),
+	    '$set_read_error_handler'(error),
 	    % after an abort, make sure all spy points are gone.
 	    '$clean_debugging_info',
 	    % simple trick to find out if this is we are booting from Prolog.
