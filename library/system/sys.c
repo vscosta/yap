@@ -8,8 +8,11 @@
 *									 *
 **************************************************************************
 *									 *
-* $Id: sys.c,v 1.19 2004-07-23 03:37:17 vsc Exp $									 *
+* $Id: sys.c,v 1.20 2004-07-23 19:02:09 vsc Exp $									 *
 * mods:		$Log: not supported by cvs2svn $
+* mods:		Revision 1.19  2004/07/23 03:37:17  vsc
+* mods:		fix heap overflow in YAP_LookupAtom
+* mods:		
 * mods:		Revision 1.18  2004/01/26 12:51:33  vsc
 * mods:		should be datime/1 not date/1
 * mods:		
@@ -341,7 +344,7 @@ file_property(void)
 static int
 p_mktemp(void)
 {
-#if HAVE_MKTEMP
+#if HAVE_MKTEMP || defined(__MINGW32__) || _MSC_VER
   char *s, tmp[BUF_SIZE];
   s = YAP_AtomName(YAP_AtomOfTerm(YAP_ARG1));
 #if HAVE_STRNCPY
@@ -351,15 +354,19 @@ p_mktemp(void)
 #endif
 #if defined(__MINGW32__) || _MSC_VER
   if ((s = _mktemp(tmp)) == NULL) {
-#else
-  if ((s = mktemp(tmp)) == NULL) {
-#endif
     /* return an error number */
     return(YAP_Unify(YAP_ARG3, YAP_MkIntTerm(errno)));
   }
   return(YAP_Unify(YAP_ARG2,YAP_MkAtomTerm(YAP_LookupAtom(s))));
 #else
- oops
+  if ((s = mktemp(tmp)) == NULL) {
+    /* return an error number */
+    return(YAP_Unify(YAP_ARG3, YAP_MkIntTerm(errno)));
+  }
+  return YAP_Unify(YAP_ARG2,YAP_MkAtomTerm(YAP_LookupAtom(s)));
+#endif
+#else
+  return FALSE;
 #endif
   return(TRUE); 
 }
@@ -370,7 +377,7 @@ p_tpmnam(void)
 #if HAVE_TMPNAM
   return(YAP_Unify(YAP_ARG1,YAP_MkAtomTerm(YAP_LookupAtom(tmpnam(NULL)))));
 #else
-oops
+  return FALSE;
 #endif
 }
 

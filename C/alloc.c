@@ -12,7 +12,7 @@
 * Last rev:								 *
 * mods:									 *
 * comments:	allocating space					 *
-* version:$Id: alloc.c,v 1.52 2004-07-22 21:32:20 vsc Exp $		 *
+* version:$Id: alloc.c,v 1.53 2004-07-23 19:02:09 vsc Exp $		 *
 *************************************************************************/
 #ifdef SCCS
 static char SccsId[] = "%W% %G%";
@@ -882,7 +882,10 @@ ExtendWorkSpace(Int s, int fixed_allocation)
     }
   } else if (a < WorkSpaceTop) {
     /* try again */
-    return ExtendWorkSpace(s, fixed_allocation);
+    int res = ExtendWorkSpace(s, fixed_allocation);
+    /* release memory back to system */
+    munmap(a, s);
+    return res;
   }
   WorkSpaceTop = (char *) a + s;
   Yap_PrologMode = OldPrologMode;
