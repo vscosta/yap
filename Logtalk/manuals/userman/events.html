@@ -8,7 +8,7 @@
 
 <head>
 	<title>Event-driven programming</title>
-	<link rel="stylesheet" href="../styles.css" type="text/css">
+	<link rel="stylesheet" href="../styles.css" type="text/css" />
 </head>
 
 <body>
@@ -151,10 +151,10 @@ The existence of monitored messages should not affect the processing of the rema
 The established semantics for monitors actions consists on considering its success as a necessary condition so that a message can succeed:
 </p>
 <ul>
-	<li>All actions associated to events of type <code>before</code> must succeed, so that the message processing can start.
+	<li>All actions associated to events of type <code>before</code> must succeed, so that the message processing can start.</li>
 </ul>
 <ul>
-	<li>All actions associated to events of type <code>after</code> also have to succeed so that the message itself succeeds. The failure of any action associated to an event of type <code>after</code> forces backtracking over the message execution (the failure of a monitor never causes backtracking over the preceding monitor actions).
+	<li>All actions associated to events of type <code>after</code> also have to succeed so that the message itself succeeds. The failure of any action associated to an event of type <code>after</code> forces backtracking over the message execution (the failure of a monitor never causes backtracking over the preceding monitor actions).</li>
 </ul>
 <p>
 Note that this is the most general choice. If we wish a transparent presence of monitors in a message processing, we just have to define the monitor actions in such a way that they never fail (which is very simple to accomplish).
@@ -286,7 +286,7 @@ To stop tracing, we can use the <code>abolish_events/5</code> built-in predicate
 <strong><a href="inheritance.html">Previous</a> | <a href="errors.html">Next</a> | <a href="index.html">Table of Contents</a> | <a href="../bibliography.html">Bibliography</a> | <a href="../glossary.html">Glossary</a></strong>
 </p>
 <p class="center">
-Last updated on: July 29, 2002
+Last updated on: August 6, 2002
 </p>
 <hr />
 

@@ -41,6 +41,11 @@ p {
 	font-style: normal;
 }
 
+p.blockquote {
+	color: navy;
+	font-family: sans-serif;
+	font-style: italic;
+}
 
 body {
 	color: black;
@@ -74,8 +79,5 @@ dl.predicate {
 
 
 blockquote {
-	color: navy;
-	font-family: sans-serif;
-	font-style: italic;
 	margin-left: 2em;
 }

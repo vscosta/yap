@@ -8,7 +8,7 @@
 
 <head>
 	<title>Objects</title>
-	<link rel="stylesheet" href="../styles.css" type="text/css">
+	<link rel="stylesheet" href="../styles.css" type="text/css" />
 </head>
 
 <body>
@@ -77,6 +77,7 @@ If an object implements protocols and imports categories then we will write:
 </pre>
 <p>
 In object-oriented programming objects are usually organized in hierarchies that enable interface and code sharing by inheritance. In Logtalk, we can construct prototype-based hierarchies by writing:
+</p>
 <pre>
     :- object(Prototype,
             extends(Parent)).
@@ -85,6 +86,7 @@ In object-oriented programming objects are usually organized in hierarchies that
 </pre>
 <p>
 We can also have class-based hierarchies by defining instantiation and specialization relations between objects. To define an object as a class instance we will write: 
+</p>
 <pre>
     :- object(Object,
             instantiates(Class)).
@@ -93,6 +95,7 @@ We can also have class-based hierarchies by defining instantiation and specializ
 </pre>
 <p>
 A class may specialize another class, its superclass:
+</p>
 <pre>
     :- object(Class,
             specializes(Superclass)).
@@ -101,6 +104,7 @@ A class may specialize another class, its superclass:
 </pre>
 <p>
 If we are defining a reflexive system where every class is also an object, we will probably be using the following pattern:
+</p>
 <pre>
     :- object(Class,
             instantiates(Metaclass),
@@ -110,8 +114,10 @@ If we are defining a reflexive system where every class is also an object, we wi
 </pre>
 <p>
 In short, an object can be a <em>stand-alone</em> object or be part of an object hierarchy. The hierarchy can be prototype-based (defined by extending other objects) or class-based (with instantiation and specialization relations). An object may also implement one or more protocols or import one or more categories.
+</p>
 <p>
 A <em>stand-alone</em> object is always compiled as a prototype, that is, a self-describing object. If we want to use classes and instances, then we will need to specify at least an instantiation or a specialization relation. The best way to do this is to define a set of objects that provide the basis of a reflective system <a href="../bibliography.html#Cointe87">[Cointe 87</a>, <a href="../bibliography.html#Moura94">Moura 94]</a>. For example:
+</p>
 <pre>
     :- object(object,               % default root of the inheritance graph
             instantiates(class)).   % predicates common to all objects
@@ -181,7 +187,7 @@ Note that we can't use this method with the message sending operators (<a title=
             ... .
 </pre>
 <p>
-This is more efficient because the cost of the method <code>this/1</code> is only one single term unification, while <code>parameter/2</code> implies an <code>arg/3</code> call (an ISO Prolog Standard defined built-in predicate). The drawback is that we must check all calls of <code>this/1</code> if we change the object name.
+Both solutions are equally efficient because the cost of the methods <code>this/1</code> and <code>parameter/2</code> is only one single variable unification. The drawback of the second solution is that we must check all calls of <code>this/1</code> if we change the object name.
 </p>
 <p>
 Parametric objects are by convention stored in source files named after the objects with the object arity appended. For instance, if we define an object named <code>sort(Type)</code>, we may save it in a <code>sort1.lgt</code> text file. This way it is easy to avoid file name clashes when saving Logtalk entities that have the same functor but different arities.
@@ -449,7 +455,7 @@ Logtalk defines a pseudo-object named <code>user</code> that contains all user p
 <strong><a href="messages.html">Previous</a> | <a href="protocols.html">Next</a> | <a href="index.html">Table of Contents</a> | <a href="../bibliography.html">Bibliography</a> | <a href="../glossary.html">Glossary</a></strong>
 </p>
 <p class="center">
-Last updated on: July 29, 2002
+Last updated on: August 15, 2002
 </p>
 <hr />
 

@@ -1,6 +1,6 @@
 =================================================================
 Logtalk - Object oriented extension to Prolog
-Release 2.14.1
+Release 2.14.2
 
 Copyright (c) 1998-2002 Paulo Moura.  All Rights Reserved.
 =================================================================
@@ -32,5 +32,10 @@ any loader utility file.
 
 Some of the code in this library is based on public domain Prolog code, 
 in particular, code adopted from the Edinburgh Prolog library.
+
+By default, compiling any group of entities described above generates a .xml 
+documenting file for each compiled entity (object, category, or protocol).
+See the xml sub-directory for instructions on how to browse the .xml files 
+for on-line reading or how to convert the files to print-ready format.
 
 All source files are formatted using four-spaces tabs.

@@ -14,7 +14,7 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %
 %  Logtalk - Object oriented extension to Prolog
-%  Release 2.14.1
+%  Release 2.14.2
 %
 %  Copyright (c) 1998-2002 Paulo Moura.  All Rights Reserved.
 %
@@ -45,7 +45,7 @@
 
 <xsl:template match="logtalk/entity">
 	<xsl:if test="comment">
-		<blockquote><xsl:value-of select="comment" /></blockquote>
+		<blockquote><p class="blockquote"><xsl:value-of select="comment" /></p></blockquote>
 	</xsl:if>
 	<dl>
 	<xsl:if test="authors">
@@ -65,12 +65,14 @@
 		<dt>compilation:</dt>
 			<dd><code><xsl:value-of select="compilation" /></code></dd>
 	</dl>
-	<dl>
-	<xsl:for-each select="info">
-		<dt><xsl:value-of select="key" />:</dt>
-			<dd><code><xsl:value-of select="value" /></code></dd>
-	</xsl:for-each>
-	</dl>
+	<xsl:if test="info">
+		<dl>
+		<xsl:for-each select="info">
+			<dt><xsl:value-of select="key" />:</dt>
+				<dd><code><xsl:value-of select="value" /></code></dd>
+		</xsl:for-each>
+		</dl>
+	</xsl:if>
 </xsl:template>
 
 
@@ -185,7 +187,7 @@
 <xsl:template match="*/predicate">
 	<h4 class="code"><xsl:value-of select="name" /></h4>
 	<xsl:if test="comment">
-		<blockquote><xsl:value-of select="comment" /></blockquote>
+		<blockquote><p class="blockquote"><xsl:value-of select="comment" /></p></blockquote>
 	</xsl:if>
 	<dl class="predicate">
 		<dt>compilation:</dt>
@@ -205,12 +207,14 @@
 		</xsl:for-each>
 		</xsl:if>
 	</dl>
-	<dl class="predicate">
-		<xsl:for-each select="info">
-		<dt><xsl:value-of select="key" />:</dt>
-			<dd><code><xsl:value-of select="value" /></code></dd>
-		</xsl:for-each>
-	</dl>
+	<xsl:if test="info">
+		<dl class="predicate">
+			<xsl:for-each select="info">
+			<dt><xsl:value-of select="key" />:</dt>
+				<dd><code><xsl:value-of select="value" /></code></dd>
+			</xsl:for-each>
+		</dl>
+	</xsl:if>
 </xsl:template>
 
 

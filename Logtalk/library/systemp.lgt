@@ -5,8 +5,8 @@
 	:- info([
 		version is 1.0,
 		authors is 'Paulo Moura',
-		date is 2002/5/10,
-		comment is 'Operating system file system protocol.']).
+		date is 2002/8/4,
+		comment is 'Operating system protocol.']).
 
 
 	:- public(make_directory/1).
@@ -88,6 +88,24 @@
 	:- info(rename_file/2, [
 		comment is 'Renames a file. Fails if the file does not exist or cannot be renamed.',
 		argnames is ['Old', 'New']]).
+
+
+	:- public(environment/2).
+
+	:- mode(environment(?atom, ?atom), zero_or_more).
+
+	:- info(environment/2, [
+		comment is 'Environment variable value.',
+		argnames is ['Variable', 'Value']]).
+
+
+	:- public(date_time/6).
+
+	:- mode(date_time(?integer, ?integer, ?integer, ?integer, ?integer, ?integer), zero_or_one).
+
+	:- info(date_time/6, [
+		comment is 'System date and time.',
+		argnames is ['Year', 'Month', 'Day', 'Hour', 'Min', 'Sec']]).
 
 
 :- end_protocol.

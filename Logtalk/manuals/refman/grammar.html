@@ -8,7 +8,7 @@
 
 	<head>
 		<title>Logtalk Grammar</title>
-		<link rel="stylesheet" href="../styles.css" type="text/css">
+		<link rel="stylesheet" href="../styles.css" type="text/css" />
 	</head>
 
 <body>
@@ -39,42 +39,35 @@ The Logtalk grammar is here described using Backus-Naur Form syntax. Non-termina
 		<dt>object ::=</dt>
 			<dd>begin_object_directive [object_directives] [clauses] end_object_directive.</dd>
 	</dl>
-	<p>
 	<dl>
 		<dt>begin_object_directive ::=</dt>
 			<dd>"<code>:- object(</code>" object_identifier [ "<code>,</code>" object_relations] "<code>).</code>"</dd>
 	</dl>
-	<p>
 	<dl>
 		<dt>end_object_directive ::=</dt>
 			<dd>"<code>:- end_object.</code>"</dd>
 	</dl>
-	<p>
 	<dl>
 		<dt>object_relations ::=</dt>
 			<dd>prototype_relations |</dd>
 			<dd>non_prototype_relations</dd>
 	</dl>
-	<p>
 	<dl>
 		<dt>prototype_relations ::=</dt>
 			<dd>prototype_relation |</dd>
 			<dd>prototype_relation "<code>,</code>" prototype_relations</dd>
 	</dl>
-	<p>
 	<dl>
 		<dt>prototype_relation ::=</dt>
 			<dd>implements_protocols |</dd>
 			<dd>imports_categories |</dd>
 			<dd>extends_objects</dd>
 	</dl>
-	<p>
 	<dl>
 		<dt>non_prototype_relations ::=</dt>
 			<dd>non_prototype_relation |</dd>
 			<dd>non_prototype_relation "<code>,</code>" non_prototype_relations</dd>
 	</dl>
-	<p>
 	<dl>
 		<dt>non_prototype_relation ::=</dt>
 			<dd>implements_protocols |</dd>
@@ -92,12 +85,10 @@ The Logtalk grammar is here described using Backus-Naur Form syntax. Non-termina
 		<dt>category ::=</dt>
 			<dd>begin_category_directive [category_directives] [clauses] end_category_directive.</dd>
 	</dl>
-	<p>
 	<dl>
 		<dt>begin_category_directive ::=</dt>
 			<dd>"<code>:- category(</code>" category_identifier [ "<code>,</code>" implements_protocols] "<code>).</code>"</dd>
 	</dl>
-	<p>
 	<dl>
 		<dt>end_category_directive ::=</dt>
 			<dd>"<code>:- end_category.</code>"</dd>
@@ -112,15 +103,13 @@ The Logtalk grammar is here described using Backus-Naur Form syntax. Non-termina
 		<dt>protocol ::=</dt>
 			<dd>begin_protocol_directive [protocol_directives] end_protocol_directive.</dd>
 	</dl>
-	<p>
 	<dl>
 		<dt>begin_protocol_directive ::=</dt>
 			<dd>"<code>:- protocol(</code>" protocol_identifier [ "<code>,</code>" extends_protocols] "<code>).</code>"</dd>
 	</dl>
-	<p>
 	<dl>
 		<dt>end_protocol_directive ::=</dt>
-			<dd>"<code>:- end_protocol.</code>"
+			<dd>"<code>:- end_protocol.</code>"</dd>
 	</dl>
 </blockquote>
 
@@ -132,27 +121,22 @@ The Logtalk grammar is here described using Backus-Naur Form syntax. Non-termina
 		<dt>implements_protocols ::=</dt>
 			<dd>"<code>implements(</code>" implemented_protocols "<code>)</code>"</dd>
 	</dl>
-	<p>
 	<dl>
 		<dt>extends_protocols ::=</dt>
 			<dd>"<code>extends(</code>" extended_protocols "<code>)</code>"</dd>
 	</dl>
-	<p>
 	<dl>
 		<dt>imports_categories ::=</dt>
 			<dd>"<code>imports(</code>" imported_categories "<code>)</code>"</dd>
 	</dl>
-	<p>
 	<dl>
 		<dt>extends_objects ::=</dt>
 			<dd>"<code>extends(</code>" extended_objects "<code>)</code>"</dd>
 	</dl>
-	<p>
 	<dl>
 		<dt>instantiates_classes ::=</dt>
 			<dd>"<code>instantiates(</code>" instantiated_objects "<code>)</code>"</dd>
 	</dl>
-	<p>
 	<dl>
 		<dt>specializes_classes ::=</dt>
 			<dd>"<code>specializes(</code>" specialized_objects "<code>)</code>"</dd>
@@ -166,19 +150,16 @@ The Logtalk grammar is here described using Backus-Naur Form syntax. Non-termina
 				<dd>implemented_protocol_sequence |</dd>
 				<dd>implemented_protocol_list</dd>
 		</dl>
-		<p>
 		<dl>
 			<dt>implemented_protocol ::=</dt>
 				<dd>protocol_identifier |</dd>
 				<dd>scope "<code>::</code>" protocol_identifier</dd>
 		</dl>
-		<p>
 		<dl>
 			<dt>implemented_protocol_sequence ::=</dt>
 				<dd>implemented_protocol |</dd>
 				<dd>implemented_protocol "<code>,</code>" implemented_protocol_sequence</dd>
 		</dl>
-		<p>
 		<dl>
 			<dt>implemented_protocol_list ::=</dt>
 				<dd>"<code>[</code>" implemented_protocol_sequence "<code>]</code>"</dd>
@@ -193,19 +174,16 @@ The Logtalk grammar is here described using Backus-Naur Form syntax. Non-termina
 				<dd>extended_protocol_sequence |</dd>
 				<dd>extended_protocol_list</dd>
 		</dl>
-		<p>
 		<dl>
 			<dt>extended_protocol ::=</dt>
 				<dd>protocol_identifier |</dd>
 				<dd>scope "<code>::</code>" protocol_identifier</dd>
 		</dl>
-		<p>
 		<dl>
 			<dt>extended_protocol_sequence ::=</dt>
 				<dd>extended_protocol |</dd>
 				<dd>extended_protocol "<code>,</code>" extended_protocol_sequence</dd>
 		</dl>
-		<p>
 		<dl>
 			<dt>extended_protocol_list ::=</dt>
 				<dd>"<code>[</code>" extended_protocol_sequence "<code>]</code>"</dd>
@@ -220,19 +198,16 @@ The Logtalk grammar is here described using Backus-Naur Form syntax. Non-termina
 				<dd>imported_category_sequence |</dd>
 				<dd>imported_category_list</dd>
 		</dl>
-		<p>
 		<dl>
 			<dt>imported_category ::=</dt>
 				<dd>category_identifier |</dd>
 				<dd>scope "<code>::</code>" category_identifier</dd>
 		</dl>
-		<p>
 		<dl>
 			<dt>imported_category_sequence ::=</dt>
 				<dd>imported_category |</dd>
 				<dd>imported_category "<code>,</code>" imported_category_sequence</dd>
 		</dl>
-		<p>
 		<dl>
 			<dt>imported_category_list ::=</dt>
 				<dd>"<code>[</code>" imported_category_sequence "<code>]</code>"</dd>
@@ -247,19 +222,16 @@ The Logtalk grammar is here described using Backus-Naur Form syntax. Non-termina
 				<dd>extended_object_sequence |</dd>
 				<dd>extended_object_list</dd>
 		</dl>
-		<p>
 		<dl>
 			<dt>extended_object ::=</dt>
 				<dd>object_identifier |</dd>
 				<dd>scope "<code>::</code>" object_identifier</dd>
 		</dl>
-		<p>
 		<dl>
 			<dt>extended_object_sequence ::=</dt>
 				<dd>extended_object |</dd>
 				<dd>extended_object "<code>,</code>" extended_object_sequence</dd>
 		</dl>
-		<p>
 		<dl>
 			<dt>extended_object_list ::=</dt>
 				<dd>"<code>[</code>" extended_object_sequence "<code>]</code>"</dd>
@@ -274,19 +246,16 @@ The Logtalk grammar is here described using Backus-Naur Form syntax. Non-termina
 				<dd>instantiated_object_sequence |</dd>
 				<dd>instantiated_object_list</dd>
 		</dl>
-		<p>
 		<dl>
 			<dt>instantiated_object ::=</dt>
 				<dd>object_identifier |</dd>
 				<dd>scope "<code>::</code>" object_identifier</dd>
 		</dl>
-		<p>
 		<dl>
 			<dt>instantiated_object_sequence ::=</dt>
 				<dd>instantiated_object</dd>
 				<dd>instantiated_object "<code>,</code>" instantiated_object_sequence |</dd>
 		</dl>
-		<p>
 		<dl>
 			<dt>instantiated_object_list ::=</dt>
 				<dd>"<code>[</code>" instantiated_object_sequence "<code>]</code>"</dd>
@@ -301,19 +270,16 @@ The Logtalk grammar is here described using Backus-Naur Form syntax. Non-termina
 				<dd>specialized_object_sequence |</dd>
 				<dd>specialized_object_list</dd>
 		</dl>
-		<p>
 		<dl>
 			<dt>specialized_object ::=</dt>
 				<dd>object_identifier |</dd>
 				<dd>scope "<code>::</code>" object_identifier</dd>
 		</dl>
-		<p>
 		<dl>
 			<dt>specialized_object_sequence ::=</dt>
 				<dd>specialized_object |</dd>
 				<dd>specialized_object "<code>,</code>" specialized_object_sequence</dd>
 		</dl>
-		<p>
 		<dl>
 			<dt>specialized_object_list ::=</dt>
 				<dd>"<code>[</code>" specialized_object_sequence "<code>]</code>"</dd>
@@ -342,20 +308,17 @@ The Logtalk grammar is here described using Backus-Naur Form syntax. Non-termina
 			<dd>entity_identifier_sequence |</dd>
 			<dd>entity_identifier_list</dd>
 	</dl>
-	<p>
 	<dl>
 		<dt>entity_identifier ::=</dt>
 			<dd>object_identifier |</dd>
 			<dd>protocol_identifier |</dd>
 			<dd>category_identifier</dd>
 	</dl>
-	<p>
 	<dl>
 		<dt>entity_identifier_sequence ::=</dt>
 			<dd>entity_identifier |</dd>
 			<dd>entity_identifier "<code>,</code>" entity_identifier_sequence</dd>
 	</dl>
-	<p>
 	<dl>
 		<dt>entity_identifier_list ::=</dt>
 			<dd>"<code>[</code>" entity_identifier_sequence "<code>]</code>"</dd>
@@ -369,19 +332,16 @@ The Logtalk grammar is here described using Backus-Naur Form syntax. Non-termina
 				<dd>object_identifier_sequence |</dd>
 				<dd>object_identifier_list</dd>
 		</dl>
-		<p>
 		<dl>
 			<dt>object_identifier ::=</dt>
 				<dd><i>atom</i> |</dd>
 				<dd><i>compound</i></dd>
 		</dl>
-		<p>
 		<dl>
 			<dt>object_identifier_sequence ::=</dt>
 				<dd>object_identifier |</dd>
 				<dd>object_identifier "<code>,</code>" object_identifier_sequence</dd>
 		</dl>
-		<p>
 		<dl>
 			<dt>object_identifier_list ::=</dt>
 				<dd>"<code>[</code>" object_identifier_sequence "<code>]</code>"</dd>
@@ -396,18 +356,15 @@ The Logtalk grammar is here described using Backus-Naur Form syntax. Non-termina
 				<dd>category_identifier_sequence |</dd>
 				<dd>category_identifier_list</dd>
 		</dl>
-		<p>
 		<dl>
 			<dt>category_identifier ::=</dt>
 				<dd><i>atom</i></dd>
 		</dl>
-		<p>
 		<dl>
 			<dt>category_identifier_sequence ::=</dt>
 				<dd>category_identifier |</dd>
 				<dd>category_identifier "<code>,</code>" category_identifier_sequence</dd>
 		</dl>
-		<p>
 		<dl>
 			<dt>category_identifier_list ::=</dt>
 				<dd>"<code>[</code>" category_identifier_sequence "<code>]</code>"</dd>
@@ -422,19 +379,16 @@ The Logtalk grammar is here described using Backus-Naur Form syntax. Non-termina
 				<dd>protocol_identifier_sequence |</dd>
 				<dd>protocol_identifier_list</dd>
 		</dl>
-		<p>
 		<dl>
 
 			<dt>protocol_identifier ::=</dt>
 				<dd><i>atom</i></dd>
 		</dl>
-		<p>
 		<dl>
 			<dt>protocol_identifier_sequence ::=</dt>
 				<dd>protocol_identifier |</dd>
 				<dd>protocol_identifier "<code>,</code>" protocol_identifier_sequence</dd>
 		</dl>
-		<p>
 		<dl>
 			<dt>protocol_identifier_list ::=</dt>
 				<dd>"<code>[</code>" protocol_identifier_sequence "<code>]</code>"</dd>
@@ -455,7 +409,6 @@ The Logtalk grammar is here described using Backus-Naur Form syntax. Non-termina
 				<dd>object_directive |</dd>
 				<dd>object_directive object_directives</dd>
 		</dl>
-		<p>
 		<dl>
 			<dt>object_directive ::=</dt>
 				<dd>"<code>:- initialization(</code>" <i>callable</i> "<code>).</code>" |</dd>
@@ -474,7 +427,6 @@ The Logtalk grammar is here described using Backus-Naur Form syntax. Non-termina
 				<dd>category_directive |</dd>
 				<dd>category_directive category_directives</dd>
 		</dl>
-		<p>
 		<dl>
 			<dt>category_directive ::=</dt>
 				<dd>"<code>:- initialization(</code>" <i>callable</i> "<code>).</code>" |</dd>
@@ -493,7 +445,6 @@ The Logtalk grammar is here described using Backus-Naur Form syntax. Non-termina
 				<dd>protocol_directive |</dd>
 				<dd>protocol_directive protocol_directives</dd>
 		</dl>
-		<p>
 		<dl>
 			<dt>protocol_directive ::=</dt>
 				<dd>"<code>:- initialization(</code>" <i>callable</i> "<code>).</code>" |</dd>
@@ -510,7 +461,6 @@ The Logtalk grammar is here described using Backus-Naur Form syntax. Non-termina
 				<dd>predicate_directive |</dd>
 				<dd>predicate_directive predicate_directives</dd>
 		</dl>
-		<p>
 		<dl>
 			<dt>predicate_directive ::=</dt>
 				<dd>scope_directive |</dd>
@@ -521,84 +471,69 @@ The Logtalk grammar is here described using Backus-Naur Form syntax. Non-termina
 				<dd><i>dynamic_directive</i> |</dd>
 				<dd><i>discontiguous_directive</i></dd>
 		</dl>
-		<p>
 		<dl>
 			<dt>scope_directive ::=</dt>
 				<dd>"<code>:- public(</code>" predicate_indicator_term "<code>).</code>" |</dd>
 				<dd>"<code>:- protected(</code>" predicate_indicator_term "<code>).</code>" |</dd>
 				<dd>"<code>:- private(</code>" predicate_indicator_term "<code>).</code>"</dd>
 		</dl>
-		<p>
 		<dl>
 			<dt>mode_directive ::=</dt>
 				<dd>"<code>:- mode(</code>" predicate_mode_term "<code>,</code>" number_of_solutions "<code>).</code>"</dd>
 		</dl>
-
 		<dl>
 			<dt>metapredicate_directive ::=</dt>
 				<dd>"<code>:- metapredicate(</code>" metapredicate_mode_indicator "<code>).</code>"</dd>
 		</dl>
-
 		<dl>
 			<dt>info_directive ::=</dt>
 				<dd>"<code>:- info(</code>" predicate_indicator "<code>,</code>" info_list "<code>).</code>"</dd>
 		</dl>
-
 		<dl>
 			<dt>predicate_indicator_term ::=</dt>
 				<dd><i>predicate_indicator</i> |</dd>
 				<dd>predicate_indicator_sequence |</dd>
 				<dd>predicate_indicator_list</dd>
 		</dl>
-
 		<dl>
 			<dt>predicate_indicator_sequence ::=</dt>
 				<dd><i>predicate_indicator</i> |</dd>
 				<dd><i>predicate_indicator</i> "<code>,</code>" predicate_indicator_sequence</dd>
 		</dl>
-
 		<dl>
 			<dt>predicate_indicator_list ::=</dt>
 				<dd>"<code>[</code>" predicate_indicator_sequence "<code>]</code>"</dd>
 		</dl>
-
 		<dl>
 			<dt>predicate_mode_term ::=</dt>
 				<dd><i>atom</i> "<code>(</code>" mode_terms "<code>)</code>"</dd>
 		</dl>
-
 		<dl>
 			<dt>mode_terms ::=</dt>
 				<dd>mode_term |</dd>
 				<dd>mode_term "<code>,</code>" mode_terms</dd>
 		</dl>
-
 		<dl>
 			<dt>mode_term ::=</dt>
 				<dd>"<code>@</code>" [type] | "<code>+</code>" [type] | "<code>-</code>" [type] | "<code>?</code>" [type]</dd>
 		</dl>
-
 		<dl>
 			<dt>metapredicate_mode_indicator ::=</dt>
 				<dd><i>atom</i> "<code>(</code>" metapredicate_terms "<code>)</code>"</dd>
 		</dl>
-
 		<dl>
 			<dt>metapredicate_terms ::=</dt>
 				<dd>metapredicate_term |</dd>
 				<dd>metapredicate_term "<code>,</code>" metapredicate_terms</dd>
 		</dl>
-
 		<dl>
 			<dt>metapredicate_term ::=</dt>
 				<dd>"<code>::</code>" | "<code>*</code>"</dd>
 		</dl>
-
 		<dl>
 			<dt>type ::=</dt>
 				<dd>prolog_type | logtalk_type | user_defined_type</dd>
 		</dl>
-
 		<dl>
 			<dt>prolog_type ::=</dt>
 				<dd>"<code>term</code>" | "<code>nonvar</code>" | "<code>var</code>" |</dd>
@@ -606,30 +541,25 @@ The Logtalk grammar is here described using Backus-Naur Form syntax. Non-termina
 				<dd>"<code>atomic</code>" | "<code>atom</code>" |</dd>
 				<dd>"<code>number</code>" | "<code>integer</code>" | "<code>float</code>"</dd>
 		</dl>
-
 		<dl>
 			<dt>logtalk_type ::=</dt>
 				<dd>"<code>object</code>" | "<code>category</code>" | "<code>protocol</code>" |</dd>
 				<dd>"<code>event</code>"</dd>
 		</dl>
-
 		<dl>
 			<dt>user_defined_type ::=</dt>
 				<dd><i>atom</i> |</dd>
 				<dd><i>compound</i></dd>
 		</dl>
-
 		<dl>
 			<dt>number_of_solutions ::=</dt>
 				<dd>"<code>zero</code>" | "<code>zero_or_one</code>" | "<code>zero_or_more</code>" | "<code>one</code>" | "<code>one_or_more</code>" | "<code>error</code>"</dd>
 		</dl>
-
 		<dl>
 			<dt>info_list ::=</dt>
 				<dd>"<code>[]</code>" |</dd>
 				<dd>"<code>[</code>" info_item "<code>is</code>" <i>nonvar</i> "<code>|</code>" info_list "<code>]</code>"</dd>
 		</dl>
-
 		<dl>
 			<dt>info_item ::=</dt>
 				<dd>"<code>comment</code>" | "<code>authors</code>" | "<code>version</code>" | "<code>date</code>" | "<code>parnames</code>" |</dd>
@@ -644,67 +574,56 @@ The Logtalk grammar is here described using Backus-Naur Form syntax. Non-termina
 <h3><a class="back" title="Return to index" href="index.html#clauses" name="clauses">Clauses and goals</a></h3>
 
 <blockquote>
-
 	<dl>
 		<dt>goal ::=</dt>
 			<dd><i>callable</i> |</dd>
 			<dd>message_call |</dd>
 			<dd>external_call |</dd>
 	</dl>
-
 	<dl>
 		<dt>message_call ::=</dt>
 			<dd>message_to_object |</dd>
 			<dd>message_to_self |</dd>
 			<dd>message_to_super</dd>
 	</dl>
-
 	<dl>
 		<dt>message_to_object ::=</dt>
 			<dd>receivers "<code>::</code>" messages</dd>
 	</dl>
-
 	<dl>
 		<dt>message_to_self ::=</dt>
 			<dd>"<code>::</code>" messages</dd>
 	</dl>
-
 	<dl>
 		<dt>message_to_super ::=</dt>
 			<dd>"<code>^^</code>" message</dd>
 	</dl>
-
 	<dl>
 		<dt>messages ::=</dt>
 			<dd>message |</dd>
 			<dd>"<code>(</code>" message "<code>,</code>" messages "<code>)</code>" |</dd>
 			<dd>"<code>(</code>" message "<code>;</code>" messages "<code>)</code>"</dd>
 	</dl>
-
 	<dl>
 		<dt>message ::=</dt>
 			<dd><i>callable</i> |</dd>
 			<dd><i>variable</i></dd>
 	</dl>
-
 	<dl>
 		<dt>receivers ::=</dt>
 			<dd>receiver |</dd>
 			<dd>"<code>(</code>" receiver "<code>,</code>" receivers "<code>)</code>" |</dd>
 			<dd>"<code>(</code>" receiver "<code>;</code>" receivers "<code>)</code>"</dd>
 	</dl>
-
 	<dl>
 		<dt>receiver ::=</dt>
 			<dd>object_identifier |</dd>
 			<dd><i>variable</i></dd>
 	</dl>
-
 	<dl>
 		<dt>external_call ::=</dt>
 			<dd>"<code>{</code>" <i>callable</i> "<code>}</code>"</dd>
 	</dl>
-
 </blockquote>
 
 <h3><a class="back" title="Return to index" href="index.html#entity_properties" name="entity_properties">Entity properties</a></h3>
@@ -716,14 +635,12 @@ The Logtalk grammar is here described using Backus-Naur Form syntax. Non-termina
 			<dd>"<code>dynamic</code>" |</dd>
 			<dd>"<code>built_in</code>"</dd>
 	</dl>
-	<p>
 	<dl>
 		<dt>object_property ::=</dt>
 			<dd>"<code>static</code>" |</dd>
 			<dd>"<code>dynamic</code>" |</dd>
 			<dd>"<code>built_in</code>"</dd>
 	</dl>
-	<p>
 	<dl>
 		<dt>protocol_property ::=</dt>
 			<dd>"<code>static</code>" |</dd>
@@ -756,7 +673,7 @@ The Logtalk grammar is here described using Backus-Naur Form syntax. Non-termina
 <strong><a href="index.html">Previous</a> | <a href="index.html">Next</a> | <a href="index.html">Table of Contents</a> | <a href="../bibliography.html">Bibliography</a> | <a href="../glossary.html">Glossary</a></strong>
 </p>
 <p class="center">
-Last updated on: July 29, 2002
+Last updated on: August 6, 2002
 </p>
 <hr />
 

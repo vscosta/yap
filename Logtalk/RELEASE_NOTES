@@ -1,6 +1,6 @@
 =================================================================
 Logtalk - Object oriented extension to Prolog
-Release 2.14.1
+Release 2.14.2
 
 Copyright (c) 1998-2002 Paulo Moura.  All Rights Reserved.
 =================================================================
@@ -8,6 +8,26 @@ Copyright (c) 1998-2002 Paulo Moura.  All Rights Reserved.
 
 RELEASE NOTES
 =============
+
+
+2.14.2 - August 26, 2002
+
+	Calls to built-in method parameter/2 are now compiled inline, improving 
+	call performance.
+
+	Updated Logtalk compiler to clean temporary compilation predicates after 
+	compiling an entity instead of only before compilation.
+
+	Updated YAP 4.3.x config file for better Logtalk integration by hiding 
+	all internal compiler, runtime, and compiled entities static predicates.
+
+	Updated GNU Prolog config file for better Logtalk integration by hiding 
+	all internal compiler, runtime, and compiled entities predicates.
+
+	Updated the XSLT conversion scripts lgtxml.xsl and lgthtml.xsl to correct 
+	some HTML conformance errors in the generated pages.
+
+	Corrected some XHTML conformance errors in the manual pages.
 
 
 2.14.1 - July 31, 2002
