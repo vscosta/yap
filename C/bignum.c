@@ -53,6 +53,13 @@ PreAllocBigNum(void)
   return(ret);
 }
 
+void
+CleanBigNum(void)
+{
+  H = pre_alloc_base;
+  pre_alloc_base = NULL;
+}
+
 MP_INT *
 InitBigNum(Int in)
 {

@@ -139,6 +139,7 @@ p_mod(Term t1, Term t2 E_ARGS)
 	  MP_INT *new = PreAllocBigNum();
 	  Int r = mpz_mod_ui(new, l1, i2);
 
+	  CleanBigNum();
 	  RINT((mpz_sgn(l1) ? r : -r));
 	} else if (i2 == 0) {
 	  goto zero_divisor;
@@ -146,6 +147,7 @@ p_mod(Term t1, Term t2 E_ARGS)
 	  MP_INT *new = PreAllocBigNum();
 	  Int r = mpz_mod_ui(new, l1, -i2);
 
+	  CleanBigNum();
 	  RINT((mpz_sgn(l1) ? r : -r));
 	}
       }
@@ -211,6 +213,7 @@ p_mod(Term t1, Term t2 E_ARGS)
 	MP_INT *new = PreAllocBigNum();
 	Int r = mpz_mod_ui(new, v1.big, v2.Int);
 
+	CleanBigNum();
 	RINT((mpz_sgn(v1.big) ? r : -r));
       } else if (v2.Int == 0) {
 	goto zero_divisor;
@@ -218,6 +221,7 @@ p_mod(Term t1, Term t2 E_ARGS)
 	MP_INT *new = PreAllocBigNum();
 	Int r = mpz_mod_ui(new, v1.big, -v2.Int);
 
+	CleanBigNum();
 	RINT((mpz_sgn(v1.big) ? r : -r));
       }
     case double_e:
@@ -267,6 +271,7 @@ fdiv_bigint(MP_INT *b1,MP_INT *b2)
     mpf_set_z(f2, b2);
     mpf_div(f1, f1, f2);
     res = mpf_get_d(f1);
+    CleanBigNum();
     return(res);
   } else {
     return(f1/f2);
@@ -450,6 +455,7 @@ mpz_xor(MP_INT *new, MP_INT *r1, MP_INT *r2)
   mpz_com(n3,  r2);
   mpz_and(n3, n3, new);
   mpz_ior(new, n2, n3);
+  CleanBigNum();
 }
 #endif
 #endif

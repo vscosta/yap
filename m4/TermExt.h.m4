@@ -10,7 +10,7 @@
 * File:		TermExt.h						 *
 * mods:									 *
 * comments:	Extensions to standard terms for YAP			 *
-* version:      $Id: TermExt.h.m4,v 1.2 2001-06-06 10:38:10 stasinos Exp $	 *
+* version:      $Id: TermExt.h.m4,v 1.3 2001-09-18 15:14:11 vsc Exp $	 *
 *************************************************************************/
 
 #if USE_OFFSETS
@@ -160,10 +160,10 @@ Inline(IsLongIntTerm, int, Term, t, IsApplTerm(t) && FunctorOfTerm(t) == Functor
 
 
 MP_INT *STD_PROTO(PreAllocBigNum,(void));
-void    STD_PROTO(ClearAllocBigNum,(void));
 MP_INT *STD_PROTO(InitBigNum,(Int));
 Term    STD_PROTO(MkBigIntTerm, (MP_INT *));
 MP_INT *STD_PROTO(BigIntOfTerm, (Term));
+void    STD_PROTO(CleanBigNum,(void));
 
 Inline(IsBigIntTerm, int, Term, t, IsApplTerm(t) && FunctorOfTerm(t) == FunctorBigInt)
 
