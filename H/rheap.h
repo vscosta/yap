@@ -327,12 +327,12 @@ restore_codes(void)
   if (heap_regs->spy_code != NULL)
     heap_regs->spy_code = (PredEntry *)PtoHeapCellAdjust((CELL *)(heap_regs->spy_code));
 #ifdef COROUTINING
-    if (heap_regs->wake_up_code != NULL)
-      heap_regs->wake_up_code = (PredEntry *)PtoHeapCellAdjust((CELL *)(heap_regs->wake_up_code));
-    heap_regs->mutable_list =
-      AbsAppl(PtoGloAdjust(RepAppl(heap_regs->mutable_list)));
-    heap_regs->atts_mutable_list =
-      AbsAppl(PtoGloAdjust(RepAppl(heap_regs->atts_mutable_list)));
+  if (heap_regs->wake_up_code != NULL)
+    heap_regs->wake_up_code = (PredEntry *)PtoHeapCellAdjust((CELL *)(heap_regs->wake_up_code));
+  heap_regs->mutable_list =
+    AbsAppl(PtoGloAdjust(RepAppl(heap_regs->mutable_list)));
+  heap_regs->atts_mutable_list =
+    AbsAppl(PtoGloAdjust(RepAppl(heap_regs->atts_mutable_list)));
 #endif
   if (heap_regs->last_wtime != NULL)
     heap_regs->last_wtime = (void *)PtoHeapCellAdjust((CELL *)(heap_regs->last_wtime));

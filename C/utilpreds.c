@@ -86,7 +86,7 @@ copy_complex_term(register CELL *pt0, register CELL *pt0_end, CELL *ptf, CELL *H
 	*ptf = AbsPair(H);
 	ptf++;
 #ifdef RATIONAL_TREES
-	if (to_visit + 4 >= (CELL **)H0) {
+	if (to_visit + 4 >= (CELL **)GlobalBase) {
 	  goto heap_overflow;
 	}
 	to_visit[0] = pt0;
@@ -98,7 +98,7 @@ copy_complex_term(register CELL *pt0, register CELL *pt0_end, CELL *ptf, CELL *H
 	to_visit += 4;
 #else
 	if (pt0 < pt0_end) {
-	  if (to_visit + 3 >= (CELL **)H0) {
+	  if (to_visit + 3 >= (CELL **)GlobalBase) {
 	    goto heap_overflow;
 	  }
 	  to_visit[0] = pt0;
@@ -136,7 +136,7 @@ copy_complex_term(register CELL *pt0, register CELL *pt0_end, CELL *ptf, CELL *H
 	ptf++;
 	/* store the terms to visit */
 #ifdef RATIONAL_TREES
-	if (to_visit + 4 >= (CELL **)H0) {
+	if (to_visit + 4 >= (CELL **)GlobalBase) {
 	  goto heap_overflow;
 	}
 	to_visit[0] = pt0;
@@ -148,7 +148,7 @@ copy_complex_term(register CELL *pt0, register CELL *pt0_end, CELL *ptf, CELL *H
 	to_visit += 4;
 #else
 	if (pt0 < pt0_end) {
-	  if (to_visit + 3 >= (CELL **)H0) {
+	  if (to_visit + 3 >= (CELL **)GlobalBase) {
 	    goto heap_overflow;
 	  }
 	  to_visit[0] = pt0;
@@ -422,7 +422,7 @@ static int copy_complex_term_no_delays(register CELL *pt0, register CELL *pt0_en
 	*ptf = AbsPair(H);
 	ptf++;
 #ifdef RATIONAL_TREES
-	if (to_visit + 4 >= (CELL **)H0) {
+	if (to_visit + 4 >= (CELL **)GlobalBase) {
 	  goto heap_overflow;
 	}
 	to_visit[0] = pt0;
@@ -434,7 +434,7 @@ static int copy_complex_term_no_delays(register CELL *pt0, register CELL *pt0_en
 	to_visit += 4;
 #else
 	if (pt0 < pt0_end) {
-	  if (to_visit + 3 >= (CELL **)H0) {
+	  if (to_visit + 3 >= (CELL **)GlobalBase) {
 	    goto heap_overflow;
 	  }
 	  to_visit[0] = pt0;
@@ -470,7 +470,7 @@ static int copy_complex_term_no_delays(register CELL *pt0, register CELL *pt0_en
 	ptf++;
 	/* store the terms to visit */
 #ifdef RATIONAL_TREES
-	if (to_visit + 4 >= (CELL **)H0) {
+	if (to_visit + 4 >= (CELL **)GlobalBase) {
 	  goto heap_overflow;
 	}
 	to_visit[0] = pt0;
@@ -481,7 +481,7 @@ static int copy_complex_term_no_delays(register CELL *pt0, register CELL *pt0_en
 	*pt0 = AbsAppl(H);
 	to_visit += 4;
 #else
-	if (to_visit + 3 >= (CELL **)H0) {
+	if (to_visit + 3 >= (CELL **)GlobalBase) {
 	  goto heap_overflow;
 	}
 	if (pt0 < pt0_end) {

@@ -12,7 +12,7 @@
 * Last rev:								 *
 * mods:									 *
 * comments:	allocating space					 *
-* version:$Id: alloc.c,v 1.19 2002-05-19 19:04:33 vsc Exp $		 *
+* version:$Id: alloc.c,v 1.20 2002-07-17 20:25:30 vsc Exp $		 *
 *************************************************************************/
 #ifdef SCCS
 static char SccsId[] = "%W% %G%";
@@ -844,7 +844,11 @@ mallinfo(void)
 
 /* user should ask for a lot of memory first */
 
+#ifdef __linux
+#define MAX_SPACE 420*1024*1024
+#else
 #define MAX_SPACE 128*1024*1024
+#endif
 
 static int total_space;
 
@@ -856,10 +860,13 @@ InitWorkSpace(Int s)
 #ifdef M_MMAP_MAX
   mallopt(M_MMAP_MAX, 0);
 #endif
-  ptr = (MALLOC_T)malloc(MAX_SPACE);
+  if (s < MAX_SPACE)
+    ptr = (MALLOC_T)malloc(MAX_SPACE);
+  else 
+    ptr = (MALLOC_T)malloc(s);
   total_space = s;
 
-  if (ptr == ((MALLOC_T) - 1)) {
+  if (ptr == NULL) {
      Error(FATAL_ERROR, TermNil, "could not allocate %d bytes", s);
      return(NULL);
   }
@@ -874,7 +881,7 @@ ExtendWorkSpace(Int s)
 
   if (total_space < MAX_SPACE) return(TRUE);
   ptr = (MALLOC_T)realloc((void *)HeapBase, total_space);
-  if (ptr == ((MALLOC_T) - 1)) {
+  if (ptr == NULL) {
      Error(SYSTEM_ERROR, TermNil, "could not expand stacks %d bytes", s);
      return(FALSE);
   }

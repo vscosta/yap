@@ -978,7 +978,7 @@ Macros to check the limits of stacks
 	if((b) <= H) { BIND_GLOBAL2((b),(CELL) (a),l2,l1); }      \
 	else if ((a) <= H) { Bind_Local((b),(CELL) (a));  goto l1;} \
 	else { Bind_Local((a),(CELL) (b));  goto l1;}             \
-     }
+     } else goto l1;
 
 /* I know (a) <= H */
 #define UnifyGlobalRegCells(a, b, l1, l2)                         \
@@ -987,7 +987,8 @@ Macros to check the limits of stacks
      } else if((a) < (b)){                                        \
 	if((b) <= H) { BIND_GLOBAL2((b),(CELL) (a),l2,l1); }      \
 	Bind_Local((b),(CELL) (a));                               \
-     }
+	goto l1;				                  \
+     } else goto l1;
 
 #else
 #define UnifyCells(a, b, l1, l2)                                  \

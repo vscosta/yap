@@ -615,6 +615,17 @@ p_is_attvar(void)
 	 ((attvar_record *)VarOfTerm(t))->sus_id == attvars_ext);
 }
 
+/* check if we are not redoing effort */
+static Int
+p_attvar_bound(void)
+{
+  Term t = Deref(ARG1);
+  return(IsVarTerm(t) &&
+	 IsAttachedTerm(t) &&
+	 ((attvar_record *)VarOfTerm(t))->sus_id == attvars_ext &&
+         !IsUnboundVar(((attvar_record *)VarOfTerm(t))->Done));
+}
+
 void InitAttVarPreds(void)
 {
   attas[attvars_ext].bind_op = WakeAttVar;
@@ -633,7 +644,8 @@ void InitAttVarPreds(void)
   InitCPred("n_of_atts", 1, p_n_atts, SafePredFlag);
   InitCPred("bind_attvar", 1, p_bind_attvar, SafePredFlag);
   InitCPred("all_attvars", 1, p_all_attvars, SafePredFlag);
-  InitCPred("$is_att_variable", 1, p_is_attvar, SafePredFlag);
+  InitCPred("$is_att_variable", 1, p_is_attvar, SafePredFlag|TestPredFlag);
+  InitCPred("$att_bound", 1, p_attvar_bound, SafePredFlag|TestPredFlag);
 }
 
 #endif /* COROUTINING */

@@ -2239,6 +2239,14 @@ Meta-call where @var{Name} is the name of the procedure to be called and
 the @var{Ai} are the arguments. The number of arguments varies between 0
 and 10.
 
+If @var{Name} is a complex term, then @code{call_with_args/n} behaves as
+@code{call/n}:
+
+@example
+call(p(X1,...,Xm), Y1,...,Yn) :- p(X1,...,Xm,Y1,...,Yn).
+@end example
+
+
 @item +@var{P}
  The same as @code{call(@var{P})}. This feature has been kept to provide
 compatibility with C-Prolog. When compiling a goal, YAP

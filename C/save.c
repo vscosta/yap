@@ -1475,6 +1475,7 @@ Restore(char *s)
     break;
   case DO_ONLY_CODE:
     UnmarkTrEntries();
+    InitYaamRegs();
     break;
   }
   ReOpenLoadForeign();

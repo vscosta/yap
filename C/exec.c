@@ -568,14 +568,34 @@ p_execute_0(void)
   Term            t = Deref(ARG1);
   SMALLUNSGN      mod = LookupModule(Deref(ARG2));
   Prop            pe;
-  Atom            a;
 
-  if (!IsAtomTerm(t)) {
-    Error(TYPE_ERROR_ATOM,ARG1,"call_with_args/1");
-    return(FALSE);
+  if (IsAtomTerm(t)) {
+    Atom            a;
+    a = AtomOfTerm(t);
+    pe = PredPropByAtom(a, mod);
+  } else if (IsApplTerm(t)) {
+    Functor f = FunctorOfTerm(t);
+    Int Arity, i;
+    CELL *ptr;
+
+    if (IsExtensionFunctor(f)) {
+      Error(TYPE_ERROR_CALLABLE, t, "call_with_args/1");
+      return(FALSE);
+    }
+    pe = PredPropByFunc(f, mod);
+    Arity = ArityOfFunctor(f);
+    ptr = RepAppl(t)+1;
+    for (i=1;i<=Arity;i++) {
+      XREGS[i] = *ptr++;
+    }
+  } else {
+    CELL *ptr;
+
+    pe = PredPropByFunc(MkFunctor(AtomDot,2), mod);
+    ptr = RepPair(t);
+    XREGS[1] = ptr[0];
+    XREGS[2] = ptr[1];
   }
-  a = AtomOfTerm(t);
-  pe = PredPropByAtom(a, mod);
   return (CallPredicate(RepPredProp(pe), B));
 }
 
@@ -585,15 +605,43 @@ p_execute_1(void)
   Term            t = Deref(ARG1);
   SMALLUNSGN      mod = LookupModule(Deref(ARG3));
   Prop            pe;
-  Atom            a;
 
   if (!IsAtomTerm(t)) {
     Error(TYPE_ERROR_ATOM,ARG1,"call_with_args/2");
     return(FALSE);
   }
-  a = AtomOfTerm(t);
-  ARG1 = ARG2;
-  pe = PredPropByFunc(MkFunctor(a,1),mod);
+  if (IsAtomTerm(t)) {
+    Atom            a;
+    a = AtomOfTerm(t);
+    ARG1 = ARG2;
+    pe = PredPropByFunc(MkFunctor(a,1),mod);
+  } else if (IsApplTerm(t)) {
+    Functor f = FunctorOfTerm(t);
+    Int Arity, i;
+    Atom a;
+    CELL *ptr;
+
+    if (IsExtensionFunctor(f)) {
+      Error(TYPE_ERROR_CALLABLE, t, "call_with_args/2");
+      return(FALSE);
+    }
+    Arity = ArityOfFunctor(f);
+    a = NameOfFunctor(f);
+    pe = PredPropByFunc(MkFunctor(a,Arity+1), mod);
+    XREGS[Arity+1] = ARG2;
+    ptr = RepAppl(t)+1;
+    for (i=1;i<=Arity;i++) {
+      XREGS[i] = *ptr++;
+    }
+  } else {
+    CELL *ptr;
+
+    pe = PredPropByFunc(MkFunctor(AtomDot,3), mod);
+    ptr = RepPair(t);
+    XREGS[3] = ARG2;
+    XREGS[1] = ptr[0];
+    XREGS[2] = ptr[1];
+  }
   return (CallPredicate(RepPredProp(pe), B));
 }
 
@@ -603,16 +651,42 @@ p_execute_2(void)
   Term            t = Deref(ARG1);
   SMALLUNSGN      mod = LookupModule(Deref(ARG4));
   Prop            pe;
-  Atom            a;
 
-  if (!IsAtomTerm(t)) {
-    Error(TYPE_ERROR_ATOM,ARG1,"call_with_args/3");
-    return(FALSE);
+  if (IsAtomTerm(t)) {
+    Atom            a;
+    a = AtomOfTerm(t);
+    ARG1 = ARG2;
+    ARG2 = ARG3;
+    pe = PredPropByFunc(MkFunctor(a,2),mod);
+  } else if (IsApplTerm(t)) {
+    Functor f = FunctorOfTerm(t);
+    Int Arity, i;
+    Atom a;
+    CELL *ptr;
+
+    if (IsExtensionFunctor(f)) {
+      Error(TYPE_ERROR_CALLABLE, t, "call_with_args/3");
+      return(FALSE);
+    }
+    Arity = ArityOfFunctor(f);
+    a = NameOfFunctor(f);
+    pe = PredPropByFunc(MkFunctor(a,Arity+2), mod);
+    XREGS[Arity+2] = ARG3;
+    XREGS[Arity+1] = ARG2;
+    ptr = RepAppl(t)+1;
+    for (i=1;i<=Arity;i++) {
+      XREGS[i] = *ptr++;
+    }
+  } else {
+    CELL *ptr;
+
+    pe = PredPropByFunc(MkFunctor(AtomDot,4), mod);
+    ptr = RepPair(t);
+    XREGS[4] = ARG3;
+    XREGS[3] = ARG2;
+    XREGS[1] = ptr[0];
+    XREGS[2] = ptr[1];
   }
-  a = AtomOfTerm(t);
-  ARG1 = ARG2;
-  ARG2 = ARG3;
-  pe = PredPropByFunc(MkFunctor(a, 2),mod);
   return (CallPredicate(RepPredProp(pe), B));
 }
 
@@ -622,17 +696,49 @@ p_execute_3(void)
   Term            t = Deref(ARG1);
   SMALLUNSGN      mod = LookupModule(Deref(ARG5));
   Prop            pe;
-  Atom            a;
 
   if (!IsAtomTerm(t)) {
     Error(TYPE_ERROR_ATOM,ARG1,"call_with_args/4");
     return(FALSE);
   }
-  a = AtomOfTerm(t);
-  ARG1 = ARG2;
-  ARG2 = ARG3;
-  ARG3 = ARG4;
-  pe = PredPropByFunc(MkFunctor(a, 3),mod);
+  if (IsAtomTerm(t)) {
+    Atom            a;
+    a = AtomOfTerm(t);
+    ARG1 = ARG2;
+    ARG2 = ARG3;
+    ARG3 = ARG4;
+    pe = PredPropByFunc(MkFunctor(a,3),mod);
+  } else if (IsApplTerm(t)) {
+    Functor f = FunctorOfTerm(t);
+    Int Arity, i;
+    Atom a;
+    CELL *ptr;
+
+    if (IsExtensionFunctor(f)) {
+      Error(TYPE_ERROR_CALLABLE, t, "call_with_args/2");
+      return(FALSE);
+    }
+    Arity = ArityOfFunctor(f);
+    a = NameOfFunctor(f);
+    pe = PredPropByFunc(MkFunctor(a,Arity+3), mod);
+    XREGS[Arity+3] = ARG4;
+    XREGS[Arity+2] = ARG3;
+    XREGS[Arity+1] = ARG2;
+    ptr = RepAppl(t)+1;
+    for (i=1;i<=Arity;i++) {
+      XREGS[i] = *ptr++;
+    }
+  } else {
+    CELL *ptr;
+
+    pe = PredPropByFunc(MkFunctor(AtomDot,5), mod);
+    ptr = RepPair(t);
+    XREGS[5] = ARG4;
+    XREGS[4] = ARG3;
+    XREGS[3] = ARG2;
+    XREGS[1] = ptr[0];
+    XREGS[2] = ptr[1];
+  }
   return (CallPredicate(RepPredProp(pe), B));
 }
 
@@ -642,18 +748,48 @@ p_execute_4(void)
   Term            t = Deref(ARG1);
   SMALLUNSGN      mod = LookupModule(Deref(ARG6));
   Prop            pe;
-  Atom            a;
 
-  if (!IsAtomTerm(t)) {
-    Error(TYPE_ERROR_ATOM,ARG1,"call_with_args/5");
-    return(FALSE);
+  if (IsAtomTerm(t)) {
+    Atom            a;
+    a = AtomOfTerm(t);
+    ARG1 = ARG2;
+    ARG2 = ARG3;
+    ARG3 = ARG4;
+    ARG4 = ARG5;
+    pe = PredPropByFunc(MkFunctor(a,4),mod);
+  } else if (IsApplTerm(t)) {
+    Functor f = FunctorOfTerm(t);
+    Int Arity, i;
+    Atom a;
+    CELL *ptr;
+
+    if (IsExtensionFunctor(f)) {
+      Error(TYPE_ERROR_CALLABLE, t, "call_with_args/5");
+      return(FALSE);
+    }
+    Arity = ArityOfFunctor(f);
+    a = NameOfFunctor(f);
+    pe = PredPropByFunc(MkFunctor(a,Arity+4), mod);
+    XREGS[Arity+4] = ARG5;
+    XREGS[Arity+3] = ARG4;
+    XREGS[Arity+2] = ARG3;
+    XREGS[Arity+1] = ARG2;
+    ptr = RepAppl(t)+1;
+    for (i=1;i<=Arity;i++) {
+      XREGS[i] = *ptr++;
+    }
+  } else {
+    CELL *ptr;
+
+    pe = PredPropByFunc(MkFunctor(AtomDot,6), mod);
+    ptr = RepPair(t);
+    XREGS[6] = ARG5;
+    XREGS[5] = ARG4;
+    XREGS[4] = ARG3;
+    XREGS[3] = ARG2;
+    XREGS[1] = ptr[0];
+    XREGS[2] = ptr[1];
   }
-  a = AtomOfTerm(t);
-  ARG1 = ARG2;
-  ARG2 = ARG3;
-  ARG3 = ARG4;
-  ARG4 = ARG5;
-  pe = PredPropByFunc(MkFunctor(a, 4),mod);
   return (CallPredicate(RepPredProp(pe), B));
 }
 
@@ -663,19 +799,51 @@ p_execute_5(void)
   Term            t = Deref(ARG1);
   SMALLUNSGN      mod = LookupModule(Deref(ARG7));
   Prop            pe;
-  Atom            a;
 
-  if (!IsAtomTerm(t)) {
-    Error(TYPE_ERROR_ATOM,ARG1,"call_with_args/6");
-    return(FALSE);
+  if (IsAtomTerm(t)) {
+    Atom            a;
+    a = AtomOfTerm(t);
+    ARG1 = ARG2;
+    ARG2 = ARG3;
+    ARG3 = ARG4;
+    ARG4 = ARG5;
+    ARG5 = ARG6;
+    pe = PredPropByFunc(MkFunctor(a,5),mod);
+  } else if (IsApplTerm(t)) {
+    Functor f = FunctorOfTerm(t);
+    Int Arity, i;
+    Atom a;
+    CELL *ptr;
+
+    if (IsExtensionFunctor(f)) {
+      Error(TYPE_ERROR_CALLABLE, t, "call_with_args/6");
+      return(FALSE);
+    }
+    Arity = ArityOfFunctor(f);
+    a = NameOfFunctor(f);
+    pe = PredPropByFunc(MkFunctor(a,Arity+5), mod);
+    XREGS[Arity+5] = ARG6;
+    XREGS[Arity+4] = ARG5;
+    XREGS[Arity+3] = ARG4;
+    XREGS[Arity+2] = ARG3;
+    XREGS[Arity+1] = ARG2;
+    ptr = RepAppl(t)+1;
+    for (i=1;i<=Arity;i++) {
+      XREGS[i] = *ptr++;
+    }
+  } else {
+    CELL *ptr;
+
+    pe = PredPropByFunc(MkFunctor(AtomDot,7), mod);
+    ptr = RepPair(t);
+    XREGS[7] = ARG6;
+    XREGS[6] = ARG5;
+    XREGS[5] = ARG4;
+    XREGS[4] = ARG3;
+    XREGS[3] = ARG2;
+    XREGS[1] = ptr[0];
+    XREGS[2] = ptr[1];
   }
-  a = AtomOfTerm(t);
-  ARG1 = ARG2;
-  ARG2 = ARG3;
-  ARG3 = ARG4;
-  ARG4 = ARG5;
-  ARG5 = ARG6;
-  pe = PredPropByFunc(MkFunctor(a, 5),mod);
   return (CallPredicate(RepPredProp(pe), B));
 }
 
@@ -685,20 +853,54 @@ p_execute_6(void)
   Term            t = Deref(ARG1);
   SMALLUNSGN      mod = LookupModule(Deref(ARG8));
   Prop            pe;
-  Atom            a;
 
-  if (!IsAtomTerm(t)) {
-    Error(TYPE_ERROR_ATOM,ARG1,"call_with_args/7");
-    return(FALSE);
+  if (IsAtomTerm(t)) {
+    Atom            a;
+    a = AtomOfTerm(t);
+    ARG1 = ARG2;
+    ARG2 = ARG3;
+    ARG3 = ARG4;
+    ARG4 = ARG5;
+    ARG5 = ARG6;
+    ARG6 = ARG7;
+    pe = PredPropByFunc(MkFunctor(a,6),mod);
+  } else if (IsApplTerm(t)) {
+    Functor f = FunctorOfTerm(t);
+    Int Arity, i;
+    Atom a;
+    CELL *ptr;
+
+    if (IsExtensionFunctor(f)) {
+      Error(TYPE_ERROR_CALLABLE, t, "call_with_args/7");
+      return(FALSE);
+    }
+    Arity = ArityOfFunctor(f);
+    a = NameOfFunctor(f);
+    pe = PredPropByFunc(MkFunctor(a,Arity+6), mod);
+    XREGS[Arity+6] = ARG7;
+    XREGS[Arity+5] = ARG6;
+    XREGS[Arity+4] = ARG5;
+    XREGS[Arity+3] = ARG4;
+    XREGS[Arity+2] = ARG3;
+    XREGS[Arity+1] = ARG2;
+    ptr = RepAppl(t)+1;
+    for (i=1;i<=Arity;i++) {
+      XREGS[i] = *ptr++;
+    }
+  } else {
+    CELL *ptr;
+
+    pe = PredPropByFunc(MkFunctor(AtomDot,8), mod);
+    ptr = RepPair(t);
+    XREGS[8] = ARG7;
+    XREGS[7] = ARG6;
+    XREGS[6] = ARG5;
+    XREGS[5] = ARG4;
+    XREGS[4] = ARG3;
+    XREGS[3] = ARG2;
+    XREGS[1] = ptr[0];
+    XREGS[2] = ptr[1];
   }
-  a = AtomOfTerm(t);
-  ARG1 = ARG2;
-  ARG2 = ARG3;
-  ARG3 = ARG4;
-  ARG4 = ARG5;
-  ARG5 = ARG6;
-  ARG6 = ARG7;
-  pe = PredPropByFunc(MkFunctor(a, 6),mod);
   return (CallPredicate(RepPredProp(pe), B));
 }
 
@@ -708,21 +910,57 @@ p_execute_7(void)
   Term            t = Deref(ARG1);
   SMALLUNSGN      mod = LookupModule(Deref(ARG9));
   Prop            pe;
-  Atom            a;
 
-  if (!IsAtomTerm(t)) {
-    Error(TYPE_ERROR_ATOM,ARG1,"call_with_args/8");
-    return(FALSE);
+  if (IsAtomTerm(t)) {
+    Atom            a;
+    a = AtomOfTerm(t);
+    ARG1 = ARG2;
+    ARG2 = ARG3;
+    ARG3 = ARG4;
+    ARG4 = ARG5;
+    ARG5 = ARG6;
+    ARG6 = ARG7;
+    ARG7 = ARG8;
+    pe = PredPropByFunc(MkFunctor(a,7),mod);
+  } else if (IsApplTerm(t)) {
+    Functor f = FunctorOfTerm(t);
+    Int Arity, i;
+    Atom a;
+    CELL *ptr;
+
+    if (IsExtensionFunctor(f)) {
+      Error(TYPE_ERROR_CALLABLE, t, "call_with_args/8");
+      return(FALSE);
+    }
+    Arity = ArityOfFunctor(f);
+    a = NameOfFunctor(f);
+    pe = PredPropByFunc(MkFunctor(a,Arity+7), mod);
+    XREGS[Arity+7] = ARG8;
+    XREGS[Arity+6] = ARG7;
+    XREGS[Arity+5] = ARG6;
+    XREGS[Arity+4] = ARG5;
+    XREGS[Arity+3] = ARG4;
+    XREGS[Arity+2] = ARG3;
+    XREGS[Arity+1] = ARG2;
+    ptr = RepAppl(t)+1;
+    for (i=1;i<=Arity;i++) {
+      XREGS[i] = *ptr++;
+    }
+  } else {
+    CELL *ptr;
+
+    pe = PredPropByFunc(MkFunctor(AtomDot,9), mod);
+    ptr = RepPair(t);
+    XREGS[9] = ARG8;
+    XREGS[8] = ARG7;
+    XREGS[7] = ARG6;
+    XREGS[6] = ARG5;
+    XREGS[5] = ARG4;
+    XREGS[4] = ARG3;
+    XREGS[3] = ARG2;
+    XREGS[1] = ptr[0];
+    XREGS[2] = ptr[1];
   }
-  a = AtomOfTerm(t);
-  ARG1 = ARG2;
-  ARG2 = ARG3;
-  ARG3 = ARG4;
-  ARG4 = ARG5;
-  ARG5 = ARG6;
-  ARG6 = ARG7;
-  ARG7 = ARG8;
-  pe = PredPropByFunc(MkFunctor(a, 7),mod);
   return (CallPredicate(RepPredProp(pe), B));
 }
 
@@ -732,22 +970,60 @@ p_execute_8(void)
   Term            t = Deref(ARG1);
   SMALLUNSGN      mod = LookupModule(Deref(ARG10));
   Prop            pe;
-  Atom            a;
 
-  if (!IsAtomTerm(t)) {
-    Error(TYPE_ERROR_ATOM,ARG1,"call_with_args/9");
-    return(FALSE);
+  if (IsAtomTerm(t)) {
+    Atom            a;
+    a = AtomOfTerm(t);
+    ARG1 = ARG2;
+    ARG2 = ARG3;
+    ARG3 = ARG4;
+    ARG4 = ARG5;
+    ARG5 = ARG6;
+    ARG6 = ARG7;
+    ARG7 = ARG8;
+    ARG8 = ARG9;
+    pe = PredPropByFunc(MkFunctor(a,8),mod);
+  } else if (IsApplTerm(t)) {
+    Functor f = FunctorOfTerm(t);
+    Int Arity, i;
+    Atom a;
+    CELL *ptr;
+
+    if (IsExtensionFunctor(f)) {
+      Error(TYPE_ERROR_CALLABLE, t, "call_with_args/9");
+      return(FALSE);
+    }
+    Arity = ArityOfFunctor(f);
+    a = NameOfFunctor(f);
+    pe = PredPropByFunc(MkFunctor(a,Arity+8), mod);
+    XREGS[Arity+8] = ARG9;
+    XREGS[Arity+7] = ARG8;
+    XREGS[Arity+6] = ARG7;
+    XREGS[Arity+5] = ARG6;
+    XREGS[Arity+4] = ARG5;
+    XREGS[Arity+3] = ARG4;
+    XREGS[Arity+2] = ARG3;
+    XREGS[Arity+1] = ARG2;
+    ptr = RepAppl(t)+1;
+    for (i=1;i<=Arity;i++) {
+      XREGS[i] = *ptr++;
+    }
+  } else {
+    CELL *ptr;
+
+    pe = PredPropByFunc(MkFunctor(AtomDot,10), mod);
+    ptr = RepPair(t);
+    XREGS[10] = ARG9;
+    XREGS[9] = ARG8;
+    XREGS[8] = ARG7;
+    XREGS[7] = ARG6;
+    XREGS[6] = ARG5;
+    XREGS[5] = ARG4;
+    XREGS[4] = ARG3;
+    XREGS[3] = ARG2;
+    XREGS[1] = ptr[0];
+    XREGS[2] = ptr[1];
   }
-  a = AtomOfTerm(t);
-  ARG1 = ARG2;
-  ARG2 = ARG3;
-  ARG3 = ARG4;
-  ARG4 = ARG5;
-  ARG5 = ARG6;
-  ARG6 = ARG7;
-  ARG7 = ARG8;
-  ARG8 = ARG9;
-  pe = PredPropByFunc(MkFunctor(a, 8),mod);
   return (CallPredicate(RepPredProp(pe), B));
 }
 
@@ -757,23 +1033,63 @@ p_execute_9(void)
   Term            t = Deref(ARG1);
   SMALLUNSGN      mod = LookupModule(Deref(ARG11));
   Prop            pe;
-  Atom            a;
 
-  if (!IsAtomTerm(t)) {
-    Error(TYPE_ERROR_ATOM,ARG1,"call_with_args/10");
-    return(FALSE);
+  if (IsAtomTerm(t)) {
+    Atom            a;
+    a = AtomOfTerm(t);
+    ARG1 = ARG2;
+    ARG2 = ARG3;
+    ARG3 = ARG4;
+    ARG4 = ARG5;
+    ARG5 = ARG6;
+    ARG6 = ARG7;
+    ARG7 = ARG8;
+    ARG8 = ARG9;
+    ARG9 = ARG10;
+    pe = PredPropByFunc(MkFunctor(a,9),mod);
+  } else if (IsApplTerm(t)) {
+    Functor f = FunctorOfTerm(t);
+    Int Arity, i;
+    Atom a;
+    CELL *ptr;
+
+    if (IsExtensionFunctor(f)) {
+      Error(TYPE_ERROR_CALLABLE, t, "call_with_args/10");
+      return(FALSE);
+    }
+    Arity = ArityOfFunctor(f);
+    a = NameOfFunctor(f);
+    pe = PredPropByFunc(MkFunctor(a,Arity+9), mod);
+    XREGS[Arity+9] = ARG10;
+    XREGS[Arity+8] = ARG9;
+    XREGS[Arity+7] = ARG8;
+    XREGS[Arity+6] = ARG7;
+    XREGS[Arity+5] = ARG6;
+    XREGS[Arity+4] = ARG5;
+    XREGS[Arity+3] = ARG4;
+    XREGS[Arity+2] = ARG3;
+    XREGS[Arity+1] = ARG2;
+    ptr = RepAppl(t)+1;
+    for (i=1;i<=Arity;i++) {
+      XREGS[i] = *ptr++;
+    }
+  } else {
+    CELL *ptr;
+
+    pe = PredPropByFunc(MkFunctor(AtomDot,11), mod);
+    ptr = RepPair(t);
+    XREGS[11] = ARG10;
+    XREGS[10] = ARG9;
+    XREGS[9] = ARG8;
+    XREGS[8] = ARG7;
+    XREGS[7] = ARG6;
+    XREGS[6] = ARG5;
+    XREGS[5] = ARG4;
+    XREGS[4] = ARG3;
+    XREGS[3] = ARG2;
+    XREGS[1] = ptr[0];
+    XREGS[2] = ptr[1];
   }
-  a = AtomOfTerm(t);
-  ARG1 = ARG2;
-  ARG2 = ARG3;
-  ARG3 = ARG4;
-  ARG4 = ARG5;
-  ARG5 = ARG6;
-  ARG6 = ARG7;
-  ARG7 = ARG8;
-  ARG8 = ARG9;
-  ARG9 = ARG10;
-  pe = PredPropByFunc(MkFunctor(a, 9),mod);
   return (CallPredicate(RepPredProp(pe), B));
 }
 
@@ -783,24 +1099,66 @@ p_execute_10(void)
   Term            t = Deref(ARG1);
   SMALLUNSGN      mod = LookupModule(Deref(ARG12));
   Prop            pe;
-  Atom            a;
 
-  if (!IsAtomTerm(t)) {
-    Error(TYPE_ERROR_ATOM,ARG1,"call_with_args/11");
-    return(FALSE);
+  if (IsAtomTerm(t)) {
+    Atom            a;
+    a = AtomOfTerm(t);
+    ARG1 = ARG2;
+    ARG2 = ARG3;
+    ARG3 = ARG4;
+    ARG4 = ARG5;
+    ARG5 = ARG6;
+    ARG6 = ARG7;
+    ARG7 = ARG8;
+    ARG8 = ARG9;
+    ARG9 = ARG10;
+    ARG10 = ARG11;
+    pe = PredPropByFunc(MkFunctor(a,10),mod);
+  } else if (IsApplTerm(t)) {
+    Functor f = FunctorOfTerm(t);
+    Int Arity, i;
+    Atom a;
+    CELL *ptr;
+
+    if (IsExtensionFunctor(f)) {
+      Error(TYPE_ERROR_CALLABLE, t, "call_with_args/11");
+      return(FALSE);
+    }
+    Arity = ArityOfFunctor(f);
+    a = NameOfFunctor(f);
+    pe = PredPropByFunc(MkFunctor(a,Arity+10), mod);
+    XREGS[Arity+10] = ARG11;
+    XREGS[Arity+9] = ARG10;
+    XREGS[Arity+8] = ARG9;
+    XREGS[Arity+7] = ARG8;
+    XREGS[Arity+6] = ARG7;
+    XREGS[Arity+5] = ARG6;
+    XREGS[Arity+4] = ARG5;
+    XREGS[Arity+3] = ARG4;
+    XREGS[Arity+2] = ARG3;
+    XREGS[Arity+1] = ARG2;
+    ptr = RepAppl(t)+1;
+    for (i=1;i<=Arity;i++) {
+      XREGS[i] = *ptr++;
+    }
+  } else {
+    CELL *ptr;
+
+    pe = PredPropByFunc(MkFunctor(AtomDot,12), mod);
+    ptr = RepPair(t);
+    XREGS[12] = ARG11;
+    XREGS[11] = ARG10;
+    XREGS[10] = ARG9;
+    XREGS[9] = ARG8;
+    XREGS[8] = ARG7;
+    XREGS[7] = ARG6;
+    XREGS[6] = ARG5;
+    XREGS[5] = ARG4;
+    XREGS[4] = ARG3;
+    XREGS[3] = ARG2;
+    XREGS[1] = ptr[0];
+    XREGS[2] = ptr[1];
   }
-  a = AtomOfTerm(t);
-  ARG1 = ARG2;
-  ARG2 = ARG3;
-  ARG3 = ARG4;
-  ARG4 = ARG5;
-  ARG5 = ARG6;
-  ARG6 = ARG7;
-  ARG7 = ARG8;
-  ARG8 = ARG9;
-  ARG9 = ARG10;
-  ARG10 = ARG11;
-  pe = PredPropByFunc(MkFunctor(a, 10),mod);
   return (CallPredicate(RepPredProp(pe), B));
 }
 
@@ -1204,19 +1562,15 @@ p_restore_regs2(void)
     Error(INSTANTIATION_ERROR,t,"support for coroutining");    
     return(FALSE);
   }
+  d0 = Deref(ARG2);
   if (!IsAtomTerm(t)) {
     restore_regs(t);
   }
-  d0 = Deref(ARG2);
   if (IsVarTerm(d0)) {
     Error(INSTANTIATION_ERROR,d0,"support for coroutining");    
     return(FALSE);
   }
-#if SBA
   if (!IsIntegerTerm(d0)) {
-#else
-  if (!IsIntTerm(d0)) {
-#endif
     return(FALSE);
   }
 #if SBA

@@ -2065,7 +2065,9 @@ GetDBTerm(DBRef DBSP)
 #endif
 #ifdef COROUTINING
     if (DBSP->attachments != 0L)  {
+      *--ASP = (CELL)HOld;
       copy_attachments((CELL *)AdjustIDBPtr(DBSP->attachments,(CELL)(HOld-1)));
+      HOld = CellPtr(*ASP++);
     }
 #endif
     return (AdjustIDBPtr((Term)(DBSP->Entry),Unsigned(HOld)-sizeof(CELL)));

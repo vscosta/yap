@@ -408,9 +408,9 @@ oc_unify_var_nvar:
   /* d0 and pt1 are unbound */
   UnifyCells(pt0, pt1, uc1, uc2);
 #ifdef COROUTINING
- uc1:
   DO_TRAIL(pt0, (CELL)pt1);
   if (pt0 < H0) WakeUp(pt0);
+ uc1:
 #endif
   return (TRUE);
 #ifdef COROUTINING
