@@ -2899,14 +2899,10 @@ p_read (void)
       if (ErrorMessage) {
 	Error(SYNTAX_ERROR,syntax_error(tokstart),ErrorMessage);
 	return(FALSE);
+      } else if (parser_error_style == FAIL_ON_PARSER_ERROR) {
+	return (FALSE);
       } else {
 	Error(SYNTAX_ERROR,syntax_error(tokstart),"SYNTAX ERROR");
-	return(FALSE);
-      }
-      if (parser_error_style == FAIL_ON_PARSER_ERROR) {
-	return (FALSE);
-      } else if (parser_error_style == EXCEPTION_ON_PARSER_ERROR) {
-	Error(SYSTEM_ERROR,TermNil,NULL);
 	return(FALSE);
       }
     } else {

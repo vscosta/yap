@@ -4737,8 +4737,8 @@ absmi(int inp)
       ENDD(d0);
       if (mpz_cmp(BigIntOfTerm(d0),BigIntOfTerm(PREG->u.oc.c)))
 	FAIL();
-#endif
       PREG = NEXTOP(PREG, oc);
+#endif
 #ifdef USE_GMP
       ENDP(pt0);
 #endif
@@ -4784,8 +4784,8 @@ absmi(int inp)
       ENDD(d0);
       if (mpz_cmp(BigIntOfTerm(d0),BigIntOfTerm(PREG->u.oc.c)))
 	FAIL();
-#endif
       PREG = NEXTOP(PREG, oc);
+#endif
 #ifdef USE_GMP
       ENDP(pt0);
 #endif
