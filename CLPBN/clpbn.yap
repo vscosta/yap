@@ -23,7 +23,7 @@
 :- multifile
 	user:term_expansion/2.
 
-:- attribute key/1, dist/3, evidence/1, done/1, starter/0.
+:- attribute key/1, dist/3, evidence/1, starter/0.
 
 
 :- use_module('clpbn/bnt', [dump_as_bnt/2,

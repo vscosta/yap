@@ -60,7 +60,8 @@ do_vel(LVs,Vs0,AllDiffs) :-
 %
 get_rid_of_ev_vars([],[]).
 get_rid_of_ev_vars([V|LVs0],LVs) :-
-	clpbn:get_atts(V, [evidence(_)]), !,
+	clpbn:get_atts(V, [evidence(Ev)]), !,
+	put_atts(V, [posterior([],Ev,[],[])]), !,
 	get_rid_of_ev_vars(LVs0,LVs).
 get_rid_of_ev_vars([V|LVs0],[V|LVs]) :-
 	get_rid_of_ev_vars(LVs0,LVs).
@@ -387,17 +388,16 @@ divide_by_sum([P|Ps0],Sum,[PN|Ps]) :-
 %
 attribute_goal(V, G) :-
 	get_atts(V, [posterior(Vs,Vals,Ps,AllDiffs)]), !,
-	massage_out(Vs, Vals, Ps, G, AllDiffs).
-attribute_goal(V, true) :-
-	get_atts(V, [evidence(Ev)]), Ev = V.
+	massage_out(Vs, Vals, Ps, G, AllDiffs, V).
 
-massage_out(Vs, [D], [P], p(CEqs)=P, AllDiffs) :- !,
+massage_out([], Ev, _, V=Ev, _, V) :- !.
+massage_out(Vs, [D], [P], p(CEqs)=P, AllDiffs, _) :- !,
 	gen_eqs(Vs,D,Eqs),
 	add_alldiffs(AllDiffs,Eqs,CEqs).
-massage_out(Vs, [D|Ds], [P|Ps], (p(CEqs)=P,G) , AllDiffs) :-
+massage_out(Vs, [D|Ds], [P|Ps], (p(CEqs)=P,G) , AllDiffs, V) :-
 	gen_eqs(Vs,D,Eqs),
 	add_alldiffs(AllDiffs,Eqs,CEqs),
-	massage_out(Vs, Ds, Ps, G, AllDiffs).
+	massage_out(Vs, Ds, Ps, G, AllDiffs, V).
 
 gen_eqs([V], [D], (V=D)) :- !.
 gen_eqs([V], D, (V=D)) :- !.
