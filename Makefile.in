@@ -559,12 +559,11 @@ install_info:
 	  fi \
 	fi; \
 	$(INSTALL_INFO) --quiet --section "Programming Languages" yap.info $(DESTDIR)$(INFODIR)/dir; \
-	cd ../LGPL/pillow/doc ; \
+	cd $(srcdir)/LGPL/pillow/doc ; \
 	$(INSTALL) pillow_doc.info $(DESTDIR)$(INFODIR); \
 	if test -e $(DESTDIR)$(INFODIR)/emacs.bz2; then \
 	  bzip2 --quiet --force $(DESTDIR)$(INFODIR)/pillow_doc.info; \
 	else \
-
 	  if test -e $(DESTDIR)$(INFODIR)/emacs.gz; then \
 	  gzip --quiet --force $(DESTDIR)$(INFODIR)/pillow_doc.info; \
 	  fi \
