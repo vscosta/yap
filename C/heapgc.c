@@ -1718,6 +1718,10 @@ mark_choicepoints(register choiceptr gc_B, tr_fr_ptr saved_TR, int very_verbose)
 	nargs = 0;
 	break;
 #endif
+      case _profiled_retry_and_mark:
+      case _count_retry_and_mark:
+      case _retry_and_mark:
+	ClauseCodeToClause(gc_B->cp_ap)->ClFlags |= GcFoundMask;
 #ifdef DEBUG
       case _retry_me:
       case _trust_me:
@@ -1735,9 +1739,6 @@ mark_choicepoints(register choiceptr gc_B, tr_fr_ptr saved_TR, int very_verbose)
       case _trust_me3:
       case _retry_me4:
       case _trust_me4:
-      case _retry_and_mark:
-      case _profiled_retry_and_mark:
-      case _count_retry_and_mark:
       case _retry:
       case _trust_in:
       case _trust:
