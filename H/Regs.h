@@ -10,7 +10,7 @@
 * File:		Regs.h							 *
 * mods:									 *
 * comments:	YAP abstract machine registers				 *
-* version:      $Id: Regs.h,v 1.19 2003-02-14 12:06:18 vsc Exp $	 *
+* version:      $Id: Regs.h,v 1.20 2003-02-14 12:20:57 vsc Exp $	 *
 *************************************************************************/
 
 
@@ -56,9 +56,6 @@ EXTERN void restore_H(void);
 EXTERN void save_H(void);
 EXTERN void restore_B(void);
 EXTERN void save_B(void);
-EXTERN void restore_TR(void);
-EXTERN void save_TR(void);
-
 
 typedef struct
   {
@@ -333,6 +330,9 @@ EXTERN inline void restore_B(void) {
 
 #define RECOVER_B()  save_B(); B = BK_B
 
+EXTERN void restore_TR(void);
+EXTERN void save_TR(void);
+
 EXTERN inline void save_TR(void) {
   Yap_REGS.TR_ = TR;
 }
@@ -484,6 +484,9 @@ EXTERN inline void restore_B(void) {
 #define BACKUP_B()  choiceptr BK_B = B; restore_B()
 
 #define RECOVER_B()  save_B(); B = BK_B
+
+EXTERN void restore_TR(void);
+EXTERN void save_TR(void);
 
 EXTERN inline void save_TR(void) {
   Yap_REGS.TR_ = TR;

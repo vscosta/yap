@@ -33,7 +33,7 @@ STATIC_PROTO(void  ConvDBList, (Term, char *,CELL));
 
 static int agc_calls;
 
-static Int agc_collected;
+static unsigned long int agc_collected;
 
 static Int tot_agc_time = 0; /* total time spent in GC */
 

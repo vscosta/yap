@@ -41,7 +41,7 @@ static Int      tot_gc_time = 0; /* total time spent in GC */
 static Int      tot_gc_recovered = 0; /* number of heap objects in all garbage collections */
 
 /* in a single gc */
-static Int     total_marked;	/* number of heap objects marked */
+static unsigned long int   total_marked;	/* number of heap objects marked */
 
 struct gc_ma_h_entry *live_list;
 
@@ -1480,9 +1480,9 @@ mark_choicepoints(register choiceptr gc_B, tr_fr_ptr saved_TR, int very_verbose)
       case _count_retry:
 	{
 	  Atom at;
-	  UInt arity;
+	  unsigned long int arity;
 	  SMALLUNSGN mod;
-	  if (Yap_PredForCode(gc_B->cp_ap, &at, &arity, &mod)) {
+	  if (Yap_PredForCode(gc_B->cp_ap, &at, (UInt *)(&arity), &mod)) {
 	    if (arity) 
 	      fprintf(Yap_stderr,"[GC]       %s/%ld marked %ld (%s)\n", RepAtom(at)->StrOfAE, arity, total_marked, op_names[opnum]);
 	    else
@@ -2962,7 +2962,7 @@ compaction_phase(tr_fr_ptr old_TR, CELL *current_env, yamop *curp, CELL *max)
 #ifdef HYBRID_SCHEME
 #ifdef DEBUG
   if (total_marked != iptop-(CELL_PTR *)H && iptop < (CELL_PTR *)ASP -1024)
-    fprintf(Yap_stderr,"[GC] Oops on iptop-H (%ld) vs %ld\n", iptop-(CELL_PTR *)H, total_marked);
+    fprintf(Yap_stderr,"[GC] Oops on iptop-H (%ld) vs %ld\n", (unsigned long int)(iptop-(CELL_PTR *)H), total_marked);
 #endif
   if (iptop < (CELL_PTR *)ASP && 10*total_marked < H-H0) {
 #ifdef INSTRUMENT_GC
