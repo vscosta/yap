@@ -19,7 +19,8 @@ INSTALL_DATA=@INSTALL_DATA@
 INSTALL_PROGRAM=@INSTALL_PROGRAM@
 srcdir=@srcdir@
 
-PROGRAMS= $(srcdir)/assoc.yap \
+PROGRAMS= $(srcdir)/apply_macros.yap \
+	$(srcdir)/assoc.yap \
 	$(srcdir)/atts.yap \
 	$(srcdir)/avl.yap \
 	$(srcdir)/charsio.yap \

@@ -15,6 +15,7 @@
 *									 *
 *************************************************************************/
 
+'$qery'((?-)).
 %
 % This one should come first so that disjunctions and long distance
 % cuts are compiled right with co-routining.

@@ -50,6 +50,7 @@ CC=@CC@
 CPPFLAGS=@CPPFLAGS@  -I. -I$(srcdir)/H -I$(srcdir)/OPTYap
 CFLAGS= @CFLAGS@ $(YAP_EXTRAS) $(DEFS) $(CPPFLAGS)
 C_INTERF_FLAGS= @C_INTERF_FLAGS@ $(YAP_EXTRAS) $(DEFS) $(CPPFLAGS) -I$(srcdir)/include
+C_PARSER_FLAGS= @C_PARSER_FLAGS@ $(YAP_EXTRAS) $(DEFS) $(CPPFLAGS) -I$(srcdir)/include
 #
 #
 # You shouldn't need to change what follows.
@@ -348,7 +349,7 @@ other.o: $(srcdir)/C/other.c
 	$(CC) -c $(CFLAGS) $(srcdir)/C/other.c -o $@
 
 parser.o: $(srcdir)/C/parser.c
-	$(CC) -c $(CFLAGS) $(srcdir)/C/parser.c -o $@
+	$(CC) -c $(C_PARSER_FLAGS) $(srcdir)/C/parser.c -o $@
 
 save.o: $(srcdir)/C/save.c
 	$(CC) -c $(CFLAGS) -DYAP_VERSION=\"$(VERSION)\" -DBIN_DIR=\"$(BINDIR)\" -DLIB_DIR=\"$(YAPLIBDIR)\" $(srcdir)/C/save.c -o $@
