@@ -11,8 +11,15 @@
 * File:		stdpreds.c						 *
 * comments:	General-purpose C implemented system predicates		 *
 *									 *
-* Last rev:     $Date: 2004-06-29 19:04:42 $,$Author: vsc $						 *
+* Last rev:     $Date: 2004-07-23 21:08:44 $,$Author: vsc $						 *
 * $Log: not supported by cvs2svn $
+* Revision 1.70  2004/06/29 19:04:42  vsc
+* fix multithreaded version
+* include new version of Ricardo's profiler
+* new predicat atomic_concat
+* allow multithreaded-debugging
+* small fixes
+*
 * Revision 1.69  2004/06/16 14:12:53  vsc
 * miscellaneous fixes
 *
@@ -1163,7 +1170,7 @@ p_atomic_concat(void)
 #if HAVE_SNPRINTF
       snprintf(cptr, (top-cptr)-1024,"%ld", (long int)IntegerOfTerm(thead));
 #else
-      sprintf(cptr,"%ld", IntegerOfTerm(thead));
+      sprintf(cptr,"%ld", (long int)IntegerOfTerm(thead));
 #endif
       while (*cptr && cptr < top-1024) cptr++;
     } else if (IsFloatTerm(thead)) {

@@ -10,7 +10,7 @@
 * File:		Yap.h.m4						 *
 * mods:									 *
 * comments:	main header file for YAP				 *
-* version:      $Id: Yap.h.m4,v 1.59 2004-07-15 15:47:08 vsc Exp $	 *
+* version:      $Id: Yap.h.m4,v 1.60 2004-07-23 21:08:45 vsc Exp $	 *
 *************************************************************************/
 
 #include "config.h"
@@ -233,7 +233,7 @@ typedef long int      YAP_LONG_LONG;
 typedef unsigned long int YAP_ULONG_LONG;
 #endif
 
-#if HAVE_SIGPROF
+#if HAVE_SIGPROF && __linux__
 #define LOW_PROF 1
 #endif
 

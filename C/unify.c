@@ -26,7 +26,7 @@ STATIC_PROTO(int    rtable_hash_op, (OPCODE));
 STATIC_PROTO(void   InitReverseLookupOpcode, (void));
 #endif
 
-int
+static int
 rational_tree_loop(CELL *pt0, CELL *pt0_end, CELL **to_visit0)
 {
   CELL **to_visit = to_visit0;
@@ -115,7 +115,7 @@ rational_tree(Term d0) {
     Functor f = (Functor)(*pt0);
     CELL **to_visit = (CELL **)H;
 
-    return(rational_tree_loop(pt0, pt0+ArityOfFunctor(f), to_visit));
+    return rational_tree_loop(pt0, pt0+ArityOfFunctor(f), to_visit);
   } else
     return(FALSE);
 }

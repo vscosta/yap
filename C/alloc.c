@@ -12,7 +12,7 @@
 * Last rev:								 *
 * mods:									 *
 * comments:	allocating space					 *
-* version:$Id: alloc.c,v 1.53 2004-07-23 19:02:09 vsc Exp $		 *
+* version:$Id: alloc.c,v 1.54 2004-07-23 21:08:44 vsc Exp $		 *
 *************************************************************************/
 #ifdef SCCS
 static char SccsId[] = "%W% %G%";
@@ -603,7 +603,7 @@ InitWorkSpace(Int s)
       Yap_Error(FATAL_ERROR,TermNil,"VirtualAlloc failed");
       return(0);
     }
-    fprintf(stderr,"% Warning: YAP reserving space at variable address %p\n", b);
+    fprintf(stderr,"%% Warning: YAP reserving space at variable address %p\n", b);
   }
   brk = BASE_ADDRESS;
 

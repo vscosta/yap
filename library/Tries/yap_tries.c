@@ -276,3 +276,26 @@ static int p_print_trie(void) {
   print_trie((TrNode) YAP_IntOfTerm(arg_trie));
   return TRUE;
 }
+
+#ifdef _WIN32
+
+#include <windows.h>
+
+int WINAPI PROTO(win_tries, (HANDLE, DWORD, LPVOID));
+
+int WINAPI win_tries(HANDLE hinst, DWORD reason, LPVOID reserved)
+{
+  switch (reason) 
+    {
+    case DLL_PROCESS_ATTACH:
+      break;
+    case DLL_PROCESS_DETACH:
+      break;
+    case DLL_THREAD_ATTACH:
+      break;
+    case DLL_THREAD_DETACH:
+      break;
+    }
+  return 1;
+}
+#endif

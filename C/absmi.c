@@ -10,8 +10,14 @@
 *									 *
 * File:		absmi.c							 *
 * comments:	Portable abstract machine interpreter                    *
-* Last rev:     $Date: 2004-07-22 21:32:20 $,$Author: vsc $						 *
+* Last rev:     $Date: 2004-07-23 21:08:44 $,$Author: vsc $						 *
 * $Log: not supported by cvs2svn $
+* Revision 1.140  2004/07/22 21:32:20  vsc
+* debugger fixes
+* initial support for JPL
+* bad calls to garbage collector and gc
+* debugger fixes
+*
 * Revision 1.139  2004/07/03 03:29:24  vsc
 * make it compile again on non-linux machines
 *
@@ -11960,8 +11966,10 @@ Yap_absmi(int inp)
 
 }
 
+int	     STD_PROTO(Yap_absmiEND,(void));
+
 /* dummy function that is needed for profiler */
-int Yap_absmiEND()
+int Yap_absmiEND(void)
 {
   return 1;
 }
