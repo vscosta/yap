@@ -23,7 +23,7 @@ static char     SccsId[] = "%W% %G%";
 
 #define EARLY_RESET 1
 #ifndef TABLING
-//#define EASY_SHUNTING 1
+#define EASY_SHUNTING 1
 #endif
 #define HYBRID_SCHEME 1
 
@@ -1666,9 +1666,10 @@ sweep_trail(choiceptr gc_B, tr_fr_ptr old_TR)
 	  }
 	} else if ((CELL *)trail_cell < (CELL *)HeapTop) {
 	  /* we may have pointers from the heap back into the cell */
+	  CELL *next =  GET_NEXT(*CellPtr(trail_cell));
 	  UNMARK(CellPtr(trail_cell));
-	  if (HEAP_PTR(trail_cell)) {
-	    into_relocation_chain(CellPtr(trail_cell), GET_NEXT(*(CELL *)trail_cell));
+	  if (HEAP_PTR(*CellPtr(trail_cell))) {
+	    into_relocation_chain(CellPtr(trail_cell),next);
 	  }
 	}
 #ifdef FROZEN_STACKS
