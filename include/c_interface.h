@@ -331,13 +331,11 @@ static Int (*YapIArityOfFunctor)() = YapArityOfFunctor;
 extern X_API void *PROTO(YapExtraSpace,(void));
 #ifdef IndirectCalls
 static void *(*YapIExtraSpace)() = YapExtraSpace;
-#define ExtraSpace() (*YapExtraSpace)()
-#else
-#define ExtraSpace() YapExtraSpace()
+#define YapExtraSpace() (*YapExtraSpace)()
 #endif
 
-#define  PRESERVE_DATA(ptr, type) (ptr = (type *)ExtraSpace())
-#define PRESERVED_DATA(ptr, type) (ptr = (type *)ExtraSpace())
+#define  PRESERVE_DATA(ptr, type) (ptr = (type *)YapExtraSpace())
+#define PRESERVED_DATA(ptr, type) (ptr = (type *)YapExtraSpace())
 
 /*   Int      unify(Term a, Term b) */
 extern X_API Int PROTO(YapUnify,(Term, Term));

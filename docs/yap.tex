@@ -12736,7 +12736,8 @@ static int start_n100()
 
 The routine starts by getting the dereference value of the argument.
 The call to @code{PRESERVE_DATA} is used to initialize the memory which will
-hold the information to be preserved across backtracking.
+hold the information to be preserved across backtracking. The first
+argument is the variable we shall use, and the second its type.
 
 If the argument of the predicate is a variable, the routine initializes the 
 structure to be preserved across backtracking with the information
@@ -12799,7 +12800,8 @@ call to
 @noindent
 where @code{name} is a string with the name of the predicate, @code{init} and
 @code{cont} are the C functions used to start and continue the execution of
-the predicate, and @code{arity} is the predicate arity.
+the predicate, @code{arity} is the predicate arity, and @code{sizeof} is
+the size of the data to be preserved in the stack.
 
 @node Loading Objects, Sav&Rest, Writing C, C-Interface
 @section Loading Object Files
