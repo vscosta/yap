@@ -57,7 +57,8 @@
 %'$wake_up_goal'([Module1|Continuation],G) :-
 %	'$write'(4,vsc_woke:G+[Module1|Continuation]:'
 %'), fail.
-'$wake_up_goal'([Module1|Continuation], LG) :-
+'$wake_up_goal'([Module1|Continuation], LG0) :-
+	'$sort'(LG0,LG),
 	'$execute_woken_system_goals'(LG),
 	'$do_continuation'(Continuation, Module1).
 
@@ -93,7 +94,8 @@
 %
 '$execute_woken_system_goal'('$att_do'(V,New)) :-
 	( '$frozen_goals'(V, Goals) ->
-	    '$call_atts'(V,New),	
+	    '$call_atts'(V,New),
+%	    write(vsc:Goals),nl,
 	    '$execute_frozen_goals'(Goals)
 	 ;
 	    '$call_atts'(V,New)

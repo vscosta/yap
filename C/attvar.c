@@ -161,7 +161,6 @@ WakeAttVar(CELL* pt1, CELL reg2)
 	return;
       }
       if (susp2 >= attv) {
-	if (susp2 == attv) return;
 	if (!IsVarTerm(susp2->Value) || !IsUnboundVar(susp2->Value)) {
 	  /* oops, our goal is on the queue to be woken */
 	  if (!Yap_unify(susp2->Value, (CELL)pt1)) {

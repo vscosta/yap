@@ -131,6 +131,7 @@ do_execute(Term t, Term mod)
     /* disable creeping when we do goal expansion */
     if (ActiveSignals & YAP_CREEP_SIGNAL) {
       ActiveSignals &= ~YAP_CREEP_SIGNAL;
+      CreepFlag = CalculateStackGap();
       DelayedTrace = TRUE;
     }
     UNLOCK(SignalLock);
