@@ -11167,6 +11167,9 @@ absmi(int inp)
 	int mod = IntOfTerm(ARG2);
 
 	CACHE_Y_AS_ENV(Y);
+#ifndef NO_CHECKING
+	check_stack(NoStackPExec, H);
+#endif
 	BEGD(d0);
 	d0 = ARG1;
 	if (PredGoalExpansion->OpcodeOfPred != UNDEF_OPCODE) {
@@ -11218,9 +11221,6 @@ absmi(int inp)
 	  goto execute_nvar;
 	}
 
-#ifndef NO_CHECKING
-	check_stack(NoStackPExec, H);
-#endif
 	/* code copied from call */
 	ENV = E_Y;
 	/* Try to preserve the environment */
@@ -11288,7 +11288,11 @@ absmi(int inp)
 	PredEntry *pen;
 	int mod = CurrentModule;
 
+
 	CACHE_Y_AS_ENV(Y);
+#ifndef NO_CHECKING
+	check_stack(NoStackPWExec, H);
+#endif
 	BEGD(d0);
 	d0 = ARG1;
 	if (PredGoalExpansion->OpcodeOfPred != UNDEF_OPCODE) {
@@ -11364,9 +11368,6 @@ absmi(int inp)
 	  goto execute_within_nvar;
 	}
 
-#ifndef NO_CHECKING
-	check_stack(NoStackPWExec, H);
-#endif
 	/* code copied from call */
 	ENV = E_Y;
 	/* Try to preserve the environment */
@@ -11437,6 +11438,9 @@ absmi(int inp)
 	int mod = CurrentModule;
 
 	CACHE_Y_AS_ENV(Y);
+#ifndef NO_CHECKING
+	check_stack(NoStackPWLExec, H);
+#endif
 	BEGD(d0);
 	d0 = ARG1;
 	if (PredGoalExpansion->OpcodeOfPred != UNDEF_OPCODE) {
@@ -11517,9 +11521,6 @@ absmi(int inp)
 	  d0 = ENV[E_CB];
 	else
 	  d0 = (CELL)B;
-#ifndef NO_CHECKING
-	check_stack(NoStackPWLExec, H);
-#endif
 	PREG = (yamop *) pen->CodeOfPred;
 	/* do deallocate */
 	CPREG = (yamop *) E_Y[E_CP];
