@@ -1,4 +1,4 @@
-\input texinfo @c -*-texinfo-*-
+\input texinfo @c -*- mode: texinfo; coding: latin-1; -*-
 
 @c %**start of header
 @setfilename yap.info
@@ -375,7 +375,7 @@ mailing list, send a request to @email{majordomo@@ncc.up.pt} with body
 
 Online documentation is available for YAP at:
 
-	@url{http://www.ncc.up.pt/~vsc/Yap/}
+        @url{http://www.ncc.up.pt/~vsc/Yap/}
 
 Recent versions of Yap, including both source and selected binaries,
 can be found from this same URL.
@@ -743,10 +743,10 @@ the @code{Header Files}.
 @code{boot.yap}, so write:
 
 @example
-	-b $YAPSRC\pl\boot.yap
+        -b $YAPSRC\pl\boot.yap
 @end example
 
-	in @code{Project.Project Settings.Debug.Program Arguments}.
+        in @code{Project.Project Settings.Debug.Program Arguments}.
 
 @item You need the sockets and yap libraries. Add
 
@@ -6418,39 +6418,39 @@ with the @code{use_module(library(heaps))} command.
 @table @code
 
 @item add_to_heap(+@var{Heap},+@var{key},+@var{Datum},-@var{NewHeap})
-@findex	add_to_heap/4
-@syindex	add_to_heap/4
-@cnindex	add_to_heap/4
+@findex add_to_heap/4
+@syindex        add_to_heap/4
+@cnindex        add_to_heap/4
 Inserts the new @var{Key-Datum} pair into the heap. The insertion is not
 stable, that is, if you insert several pairs with the same @var{Key} it
 is not defined which of them will come out first, and it is possible for
 any of them to come out first depending on the  history of the heap.
 
 @item get_from_heap(+@var{Heap},-@var{key},-@var{Datum},-@var{Heap})
-@findex	get_from_heap/4
-@syindex	get_from_heap/4
-@cnindex	get_from_heap/4
+@findex get_from_heap/4
+@syindex        get_from_heap/4
+@cnindex        get_from_heap/4
 Returns the @var{Key-Datum} pair in @var{OldHeap} with the smallest
 @var{Key}, and also a @var{Heap} which is the @var{OldHeap} with that
 pair deleted.
 
 @item heap_size(+@var{Heap}, -@var{Size})
-@findex	heap_size/2
-@syindex	heap_size/2
-@cnindex	heap_size/2
+@findex heap_size/2
+@syindex        heap_size/2
+@cnindex        heap_size/2
 Reports the number of elements currently in the heap.
 
 @item heap_to_list(+@var{Heap}, -@var{List})
-@findex	heap_to_list/2
-@syindex	heap_to_list/2
-@cnindex	heap_to_list/2
+@findex heap_to_list/2
+@syindex        heap_to_list/2
+@cnindex        heap_to_list/2
 Returns the current set of @var{Key-Datum} pairs in the @var{Heap} as a
 @var{List}, sorted into ascending order of @var{Keys}.
 
 @item list_to_heap(+@var{List}, -@var{Heap})
-@findex	list_to_heap/2
-@syindex	list_to_heap/2
-@cnindex	list_to_heap/2
+@findex list_to_heap/2
+@syindex        list_to_heap/2
+@cnindex        list_to_heap/2
 Takes a list of @var{Key-Datum} pairs (such as keysort could be used to sort)
 and forms them into a heap.
 
@@ -7381,10 +7381,10 @@ number is Operating System dependent.
 @cnindex file_property/2
 The atom @var{File} corresponds to an existing file, and @var{Property}
 will be unified with a property of this file. The poperties are of the
-form @code{type(@var{Type))}, which gives whether the file is a regular
+form @code{type(@var{Type})}, which gives whether the file is a regular
 file, a directory, a fifo file, or of unknown type;
-@code{size(@var{Size))}, with gives the size for a file, and
-@code{mod_time(@var{Time))}, which gives the last time a file was
+@code{size(@var{Size})}, with gives the size for a file, and
+@code{mod_time(@var{Time})}, which gives the last time a file was
 modified according to some Operating System dependent
 timestamp. Properties can be obtained through backtracking:
 
@@ -8048,13 +8048,13 @@ suspended.
 YAP now supports the attributed variables packaged developed at OFAI by
 Christian Holzbaur. Attributes are a means of declaring that an
 arbitrary term is a property for a variable. These properties can be
-update during forward execution. Moreover, the unification algorithm is
+updated during forward execution. Moreover, the unification algorithm is
 aware of attributed variables and will call user defined handlers when
 trying to unify these variables.
 
 Attributed variables provide an elegant abstraction over which one can
 extend Prolog systems. Their main application so far has been in
-implement constraint handlers, such as Holzbaur's CLPQR and Fruewirth
+implementing constraint handlers, such as Holzbaur's CLPQR and Fruewirth
 and Holzbaur's CHR, but other applications have been proposed in the
 literature.
 
@@ -8108,7 +8108,7 @@ where each @var{AttributeSpec} has the form (@var{Name}/@var{Arity}).
 One single such declaration is allowed per module @var{Module}.
 
 Although the YAP module system is predicate based, attributes are local
-to modules. This is is implemented by rewriting all calls to the
+to modules. This is implemented by rewriting all calls to the
 builtins that manipulate attributes so that attribute names are
 preprocessed depending on the module.  The @code{user:goal_expansion/3}
 mechanism is used for this purpose.
@@ -8220,8 +8220,8 @@ a @var{Goal}. Should fail when no interpretation is available.
 
 @node Projecting Attributes, Attribute Examples, Displaying Attributes, Attributed Variables
 
-Constraint solvers must be able project a set of constraints to a set of
-variables. This is useful when displaying the solution to a goal, but
+Constraint solvers must be able to project a set of constraints to a set
+of variables. This is useful when displaying the solution to a goal, but
 may also be used to manipulate computations. The user-defined
 @code{project_attributes/2} is responsible for implementing this
 projection.
@@ -8253,7 +8253,7 @@ and these constraints are the ones that will have an
 @node Attribute Examples, ,Projecting Attributes, Attributed Variables
 
 The following two examples example is taken from the SICStus Prolog manual. It
-sketchs the implementation of simple a finite domain ``solver''.  Note
+sketches the implementation of a simple finite domain ``solver''.  Note
 that an industrial strength solver would have to provide a wider range
 of functionality and that it quite likely would utilize a more efficient
 representation for the domains proper.  The module exports a single
@@ -8317,7 +8317,7 @@ domain(X, List) :-
 
 Note that the ``implied binding'' @code{Other=El} was deferred until after
 the completion of @code{verify_attribute/3}.  Otherwise, there might be a
-danger of recursively invoke @code{verify_attribute/3}, which might bind
+danger of recursively invoking @code{verify_attribute/3}, which might bind
 @code{Var}, which is not allowed inside the scope of @code{verify_attribute/3}.
 Deferring unifications into the third argument of @code{verify_attribute/3}
 effectively serializes th calls to @code{verify_attribute/3}.
@@ -13046,5 +13046,3 @@ The following is the list of the declarations of the predefined operators:
 @contents
 
 @bye
-
-
