@@ -4240,9 +4240,11 @@ ExpandIndex(PredEntry *ap) {
     /* single case */
     return *labp;
   }
+#ifdef LOW_PROF
   if (ProfilerOn) {
-    Yap_inform_profiler_of_clause(indx_out, ProfEnd, ap); 
+    Yap_inform_profiler_of_clause(indx_out, ProfEnd, ap,-1); 
   }
+#endif /* LOW_PROF */
   if (indx_out == NULL) {
     return FAILCODE;
   }
