@@ -1018,6 +1018,10 @@ SearchForTrailFault(void)
 static RETSIGTYPE
 HandleSIGSEGV(int   sig)
 {
+  if (PrologMode & ExtendStackMode) {
+    fprintf(stderr,  "[ FATAL ERROR: OS memory allocation crashed: bailing out ]~n");
+    exit(1);
+  }
   SearchForTrailFault();
 }
 
@@ -1914,27 +1918,32 @@ static Int p_putenv(void)
 /* set a variable in YAP's environment */
 static Int p_file_age(void)
 {
+  char *file_name = RepAtom(AtomOfTerm(Deref(ARG1)))->StrOfAE;
+  if (strcmp(file_name,"user_input") == 0) {
+    return(unify(ARG2,MkIntTerm(-1)));
+  }
 #if HAVE_LSTAT 
-  struct stat buf;
-  char *file_name = RepAtom(AtomOfTerm(Deref(ARG1)))->StrOfAE;
+ {
+   struct stat buf;
 
-  if (lstat(file_name, &buf) == -1) {
-    /* file does not exist, but was opened? Return -1 */
-    return(unify(ARG2, MkIntTerm(-1)));
-  }
-  return(unify(ARG2, MkIntegerTerm(buf.st_mtime)));
+   if (lstat(file_name, &buf) == -1) {
+     /* file does not exist, but was opened? Return -1 */
+     return(unify(ARG2, MkIntTerm(-1)));
+   }
+   return(unify(ARG2, MkIntegerTerm(buf.st_mtime)));
+ }
 #elif defined(__MINGW32__) || _MSC_VER
-  /* for some weird reason _stat did not work with mingw32 */
-  struct _stat buf;
-  char *file_name = RepAtom(AtomOfTerm(Deref(ARG1)))->StrOfAE;
+  {
+    struct _stat buf;
 
-  if (_stat(file_name, &buf) != 0) {
-    /* return an error number */
-    return(unify(ARG2, MkIntTerm(-1)));
+    if (_stat(file_name, &buf) != 0) {
+      /* return an error number */
+      return(unify(ARG2, MkIntTerm(-1)));
+    }
+    return(unify(ARG2, MkIntegerTerm(buf.st_mtime)));
   }
-  return(unify(ARG2, MkIntegerTerm(buf.st_mtime)));
 #else
-  return(unify(ARG2, MkIntTerm(0)));
+  return(unify(ARG2, MkIntTerm(-1)));
 #endif
 }
 

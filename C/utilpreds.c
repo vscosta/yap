@@ -309,12 +309,15 @@ CopyTerm(Term inp) {
       if ((res = copy_complex_term(Hi-2, Hi-1, Hi, Hi)) < 0) {
 	ARG1 = t;
 	if (res == -1) { /* handle overflow */
-	  gc(2, ENV, P);
+	  if (!gc(2, ENV, P)) {
+	    Error(OUT_OF_STACK_ERROR, TermNil, ErrorMessage);
+	    return(FALSE);
+	  }
 	  t = Deref(ARG1);
 	  goto restart_attached;
 	} else { /* handle overflow */
 	  if (!growheap(FALSE)) {
-	    Error(SYSTEM_ERROR, TermNil, "YAP failed to reserve space in growheap");
+	    Error(SYSTEM_ERROR, TermNil, ErrorMessage);
 	    return(FALSE);
 	  }
 	  t = Deref(ARG1);
@@ -342,12 +345,15 @@ CopyTerm(Term inp) {
       if ((res = copy_complex_term(ap-1, ap+1, Hi, Hi)) < 0) {
 	ARG1 = t;
 	if (res == -1) { /* handle overflow */
-	  gc(2, ENV, P);
+	  if (!gc(2, ENV, P)) {
+	    Error(OUT_OF_STACK_ERROR, TermNil, ErrorMessage);
+	    return(FALSE);
+	  }
 	  t = Deref(ARG1);
 	  goto restart_list;
 	} else { /* handle overflow */
 	  if (!growheap(FALSE)) {
-	    Error(SYSTEM_ERROR, TermNil, "YAP failed to reserve space in growheap");
+	    Error(SYSTEM_ERROR, TermNil, ErrorMessage);
 	    return(FALSE);
 	  }
 	  t = Deref(ARG1);
@@ -374,12 +380,15 @@ CopyTerm(Term inp) {
       if ((res = copy_complex_term(ap, ap+ArityOfFunctor(f), HB0+1, HB0)) < 0) {
 	ARG1 = t;
 	if (res == -1) {
-	  gc(2, ENV, P);
+	  if (!gc(2, ENV, P)) {
+	    Error(OUT_OF_STACK_ERROR, TermNil, ErrorMessage);
+	    return(FALSE);
+	  }
 	  t = Deref(ARG1);
 	  goto restart_appl;
 	} else { /* handle overflow */
 	  if (!growheap(FALSE)) {
-	    Error(SYSTEM_ERROR, TermNil, "YAP failed to reserve space in growheap");
+	    Error(SYSTEM_ERROR, TermNil, ErrorMessage);
 	    return(FALSE);
 	  }
 	  t = Deref(ARG1);
@@ -604,12 +613,15 @@ CopyTermNoDelays(Term inp) {
     res = copy_complex_term_no_delays(ap-1, ap+1, H-2, H-2);
     if (res) {
       if (res == -1) { /* handle overflow */
-	gc(2, ENV, P);
+	if (!gc(2, ENV, P)) {
+	  Error(OUT_OF_STACK_ERROR, TermNil, ErrorMessage);
+	  return(FALSE);
+	}
 	t = Deref(ARG1);
 	goto restart_list;
       } else { /* handle overflow */
 	if (!growheap(FALSE)) {
-	  Error(SYSTEM_ERROR, TermNil, "YAP failed to reserve space in growheap");
+	  Error(SYSTEM_ERROR, TermNil, ErrorMessage);
 	  return(FALSE);
 	}
 	t = Deref(ARG1);
@@ -633,12 +645,15 @@ CopyTermNoDelays(Term inp) {
     res = copy_complex_term_no_delays(ap, ap+ArityOfFunctor(f), HB0+1, HB0);
     if (res) {
       if (res == -1) {
-	gc(2, ENV, P);
+	if (!gc(2, ENV, P)) {
+	  Error(OUT_OF_STACK_ERROR, TermNil, ErrorMessage);
+	  return(FALSE);
+	}
 	t = Deref(ARG1);
 	goto restart_appl;
       } else { /* handle overflow */
 	if (!growheap(FALSE)) {
-	  Error(SYSTEM_ERROR, TermNil, "YAP failed to reserve space in growheap");
+	  Error(SYSTEM_ERROR, TermNil, ErrorMessage);
 	  return(FALSE);
 	}
 	t = Deref(ARG1);

@@ -52,10 +52,13 @@ print_message(Level, Mss) :-
 	user:portray_message(Severity, Msg), !.
 '$print_message'(error,error(syntax_error(A,B,C,D,E,F),_)) :- !,
 	'$output_error_message'(syntax_error(A,B,C,D,E,F), 'SYNTAX ERROR').
-'$print_message'(error,error(Msg,[Info|local_sp(Where,Envs,CPs)])) :-
+'$print_message'(error,error(Msg,[Info|local_sp(Where,Envs,CPs)])) :- !,
 	'$prepare_loc'(Info,Where,Location),
 	'$output_error_message'(Msg, Location), !,
 	'$do_stack_dump'(Envs, CPs).
+% old format: don't want a stack dump.
+'$print_message'(error,error(Type,Where)) :- !,
+	'$output_error_message'(Type, Where).
 '$print_message'(error,Throw) :-
 	'$format'(user_error,"[ No handler for error ~w ]~n", [Throw]).
 '$print_message'(informational,M) :-
@@ -197,6 +200,8 @@ print_message(Level, Mss) :-
 '$beautify_hidden_goal'('$reconsult',1,prolog,ClNo,Gs,NGs) :- !,
 	'$preprocess_stack'(Gs, NGs).
 '$beautify_hidden_goal'('$undefp',1,prolog,ClNo,Gs,NGs) :- !,
+	'$preprocess_stack'(Gs, NGs).
+'$beautify_hidden_goal'('$repeat',0,prolog,ClNo,Gs,[cl(repeat,0,prolog,ClNo)|NGs]) :- !,
 	'$preprocess_stack'(Gs, NGs).
 '$beautify_hidden_goal'('$consult',2,prolog,ClNo,Gs,[cl(consult,1,prolog,ClNo)|NGs]) :- !,
 	'$preprocess_stack'(Gs, NGs).
@@ -392,6 +397,15 @@ print_message(Level, Mss) :-
 	[Where]).
 '$output_error_message'(instantiation_error, Where) :-
 	'$format'(user_error,"[ INSTANTIATION ERROR- ~w: expected bound value ]~n",
+	[Where]).
+'$output_error_message'(out_of_heap_error, Where) :-
+	'$format'(user_error,"[ OUT OF HEAP SPACE ERROR- ~w ]~n",
+	[Where]).
+'$output_error_message'(out_of_stack_error, Where) :-
+	'$format'(user_error,"[ OUT OF STACK SPACE ERROR- ~w ]~n",
+	[Where]).
+'$output_error_message'(out_of_trail_error, Where) :-
+	'$format'(user_error,"[ OUT OF TRAIL SPACE ERROR- ~w ]~n",
 	[Where]).
 '$output_error_message'(permission_error(access,private_procedure,P), Where) :-
 	'$format'(user_error,"[ PERMISSION ERROR- ~w: cannot see clauses for ~w ]~n",

@@ -168,6 +168,8 @@ if test "$use_condor" = yes
 then
   use_malloc="yes"
   CC="condor_compile $CC"
+  dnl no readline with condor.
+  yap_cv_readline="no"
 fi
 
 dnl Compilation Flags

@@ -300,8 +300,7 @@ cl_position(yamop *ptr)
   fprintf(stderr,"  %s\n", tp);
 }
 
-static void
-error_exit_yap (int value)
+static void dump_stack()
 {
   choiceptr b_ptr = B;
   CELL *env_ptr = ENV;
@@ -324,6 +323,13 @@ error_exit_yap (int value)
     }
     fprintf(stderr," ]\n");
   }
+}
+
+
+static void
+error_exit_yap (int value)
+{
+  dump_stack();
   exit_yap(value);
 }
 
@@ -892,6 +898,45 @@ Error (yap_error_number type, Term where, char *format,...)
 
       i = strlen(tmpbuf);
       nt[0] = MkAtomTerm(LookupAtom("instantiation_error"));
+      tp = tmpbuf+i;
+      psize -= i;
+      fun = MkFunctor(LookupAtom("error"),2);
+      serious = TRUE;
+    }
+    break;
+  case OUT_OF_HEAP_ERROR:
+    {
+      int i;
+
+      dump_stack();
+      i = strlen(tmpbuf);
+      nt[0] = MkAtomTerm(LookupAtom("out_of_stack_error"));
+      tp = tmpbuf+i;
+      psize -= i;
+      fun = MkFunctor(LookupAtom("error"),2);
+      serious = TRUE;
+    }
+    break;
+  case OUT_OF_STACK_ERROR:
+    {
+      int i;
+
+      dump_stack();
+      i = strlen(tmpbuf);
+      nt[0] = MkAtomTerm(LookupAtom("out_of_stack_error"));
+      tp = tmpbuf+i;
+      psize -= i;
+      fun = MkFunctor(LookupAtom("error"),2);
+      serious = TRUE;
+    }
+    break;
+  case OUT_OF_TRAIL_ERROR:
+    {
+      int i;
+
+      dump_stack();
+      i = strlen(tmpbuf);
+      nt[0] = MkAtomTerm(LookupAtom("out_of_trail_error"));
       tp = tmpbuf+i;
       psize -= i;
       fun = MkFunctor(LookupAtom("error"),2);
@@ -1505,7 +1550,15 @@ Error (yap_error_number type, Term where, char *format,...)
     /* This is used by some complex procedures to detect there was an error */
     ErrorMessage = RepAtom(AtomOfTerm(nt[0]))->StrOfAE;
   }
-  nt[1] = MkPairTerm(MkAtomTerm(LookupAtom(tmpbuf)), all_calls());
+  switch (type) {
+  case OUT_OF_HEAP_ERROR:
+  case OUT_OF_STACK_ERROR:
+  case OUT_OF_TRAIL_ERROR:
+    nt[1] = MkAtomTerm(LookupAtom(tmpbuf));
+    break;
+  default:
+    nt[1] = MkPairTerm(MkAtomTerm(LookupAtom(tmpbuf)), all_calls());
+  }
   if (serious) {
     if (type == PURE_ABORT)
       JumpToEnv(MkAtomTerm(LookupAtom("abort")));

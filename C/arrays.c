@@ -442,7 +442,7 @@ AllocateStaticArraySpace(StaticArrayEntry *p, static_array_types atype, Int arra
   while ((p->ValueOfVE.floats = (Float *) AllocAtomSpace(asize) ) == NULL) {
     YAPLeaveCriticalSection();
     if (!growheap(FALSE)) {
-      Error(SYSTEM_ERROR, TermNil, "YAP failed to reserve space in growheap");
+      Error(SYSTEM_ERROR, TermNil, ErrorMessage);
       return;
     }
     YAPEnterCriticalSection();
@@ -636,11 +636,14 @@ p_create_array(void)
     farray = MkFunctor(AtomArray, size);
     if (H+1+size > ASP-1024) {
       if (!gc(2, ENV, P)) {
-	Error(SYSTEM_ERROR,TermNil,"YAP could not grow stack in array/2");
+	Error(OUT_OF_STACK_ERROR,TermNil,ErrorMessage);
 	return(FALSE);
       } else {
 	if (H+1+size > ASP-1024) {
-	  growstack( sizeof(CELL) * (size+1-(H-ASP-1024)));
+	  if (!growstack( sizeof(CELL) * (size+1-(H-ASP-1024)))) {
+	    Error(SYSTEM_ERROR, TermNil, ErrorMessage);
+	    return FALSE;
+	  }
 	}
       }
       goto restart;
@@ -666,7 +669,7 @@ p_create_array(void)
       if (H+1+size > ASP-1024) {
 	WRITE_UNLOCK(ae->ARWLock);
 	if (!gc(2, ENV, P)) {
-	  Error(SYSTEM_ERROR,TermNil,"YAP could not grow stack in array/2");
+	  Error(OUT_OF_STACK_ERROR,TermNil,ErrorMessage);
 	  return(FALSE);
 	} else
 	  goto restart;
@@ -684,7 +687,7 @@ p_create_array(void)
       else {
 	if (H+1+size > ASP-1024) {
 	  if (!gc(2, ENV, P)) {
-	    Error(SYSTEM_ERROR,TermNil,"YAP could not grow stack in array/2");
+	    Error(OUT_OF_STACK_ERROR,TermNil,ErrorMessage);
 	    return(FALSE);
 	  } else
 	    goto restart;

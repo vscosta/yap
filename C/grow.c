@@ -26,6 +26,10 @@
 #include <string.h>
 #endif
 
+#if !HAVE_STRNCAT
+#define strncat(s0,s1,sz)   strcat(s0,s1)
+#endif
+
 static int heap_overflows = 0;
 static Int total_heap_overflow_time = 0;
 
@@ -476,7 +480,9 @@ local_growheap(long size, int fix_code)
 
   /* adjust to a multiple of 256) */
   size = AdjustPageSize(size);
+  ErrorMessage = NULL;
   if (!ExtendWorkSpace(size)) {
+    strncat(ErrorMessage,": heap crashed against stacks", MAX_ERROR_MSG_SIZE);
     return(FALSE);
   }
   start_growth_time = cputime();
@@ -522,7 +528,9 @@ local_growglobal(long size, CELL **ptr)
 
   /* adjust to a multiple of 256) */
   size = AdjustPageSize(size);
+  ErrorMessage = NULL;
   if (!ExtendWorkSpace(size)) {
+    strncat(ErrorMessage,": global crashed against local", MAX_ERROR_MSG_SIZE);
     return(FALSE);
   }
   start_growth_time = cputime();
@@ -654,7 +662,11 @@ growheap(int fix_code)
 #ifdef TABLING
   fix_tabling_info();
 #endif
-  return(sz >= sizeof(CELL) * 16 * 1024L);
+  if (sz >= sizeof(CELL) * 16 * 1024L) {
+    return (TRUE);
+  }
+  /* failed */
+  return(FALSE);
 }
 
 int
@@ -686,7 +698,9 @@ growstack(long size)
 #endif
   /* adjust to a multiple of 256) */
   size = AdjustPageSize(size);
+  ErrorMessage = NULL;
   if (!ExtendWorkSpace(size)) {
+    strncat(ErrorMessage,": local crashed against global", MAX_ERROR_MSG_SIZE);
     return(FALSE);
   }
   start_growth_time = cputime();
@@ -803,7 +817,9 @@ growstack_in_parser(tr_fr_ptr *old_trp, TokEntry **tksp, VarEntry **vep)
 #endif
   /* adjust to a multiple of 256) */
   size = AdjustPageSize(size);
+  ErrorMessage = NULL;
   if (!ExtendWorkSpace(size)) {
+    strncat(ErrorMessage,": parser stack overflowed", MAX_ERROR_MSG_SIZE);
     return(FALSE);
   }
   start_growth_time = cputime();
@@ -861,7 +877,9 @@ growtrail(long size)
     YP_fprintf(YP_stderr, "[TO] Trail overflow %d\n", trail_overflows);
     YP_fprintf(YP_stderr, "[TO]    growing the trail %ld bytes\n", size);
   }
+  ErrorMessage = NULL;
   if (!ExtendWorkSpace(size)) {
+    strncat(ErrorMessage,": trail stack overflowed", MAX_ERROR_MSG_SIZE);
     return(FALSE);
   }
   YAPEnterCriticalSection();

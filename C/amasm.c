@@ -2606,7 +2606,10 @@ assemble(int mode)
   size = (CELL)code_p;
 #endif
   while ((code_addr = (CODEADDR) AllocCodeSpace(size)) == NULL) {
-    growheap(TRUE);
+    if (!growheap(TRUE)) {
+      Error_TYPE = SYSTEM_ERROR;
+      return (NIL);
+    }
   }
   do_pass();
   YAPLeaveCriticalSection();

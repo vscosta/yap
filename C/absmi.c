@@ -299,7 +299,7 @@ absmi(int inp)
 #endif
       if (!growheap(FALSE)) {
 	saveregs();
-	Error(SYSTEM_ERROR, TermNil, "YAP failed to reserve space in growheap");
+	Error(SYSTEM_ERROR, TermNil, "YAP failed to grow heap: %s", ErrorMessage);
 	setregs();
 	FAIL();
       }
@@ -1918,7 +1918,9 @@ absmi(int inp)
       if (ASP > (CELL *)B)
 	ASP = (CELL *)B;
       saveregs();
-      gc(((PredEntry *)SREG)->ArityOfPE, Y, NEXTOP(PREG, sla));
+      if (!gc(((PredEntry *)SREG)->ArityOfPE, Y, NEXTOP(PREG, sla))) {
+	Error(OUT_OF_STACK_ERROR,TermNil,ErrorMessage);
+      }
       setregs();
 
       JMPNext();
@@ -1990,7 +1992,9 @@ absmi(int inp)
       if (ASP > (CELL *)B)
 	ASP = (CELL *)B;
       saveregs();
-      gc(0, Y, NEXTOP(PREG, sla));
+      if (!gc(0, Y, NEXTOP(PREG, sla))) {
+	Error(OUT_OF_STACK_ERROR,TermNil,ErrorMessage);
+      }
       setregs();
       JMPNext();
 
@@ -2072,7 +2076,9 @@ absmi(int inp)
       if (ASP > (CELL *)B)
 	ASP = (CELL *)B;
       saveregs();
-      gc(((PredEntry *)(SREG))->ArityOfPE, (CELL *)Y[E_E], (yamop *)Y[E_CP]);
+      if (!gc(((PredEntry *)(SREG))->ArityOfPE, (CELL *)Y[E_E], (yamop *)Y[E_CP])) {
+	Error(OUT_OF_STACK_ERROR,TermNil,ErrorMessage);
+      }
       setregs();
       /* hopefully, gc will succeeded, and we will retry
        * the instruction */
@@ -2086,7 +2092,9 @@ absmi(int inp)
       if (ASP > (CELL *)B)
 	ASP = (CELL *)B;
       saveregs();
-      gc(((PredEntry *)(SREG))->ArityOfPE, ENV, CPREG);
+      if (!gc(((PredEntry *)(SREG))->ArityOfPE, ENV, CPREG)) {
+	Error(OUT_OF_STACK_ERROR,TermNil,ErrorMessage);
+      }
       setregs();
       /* hopefully, gc will succeeded, and we will retry
        * the instruction */
@@ -10564,8 +10572,13 @@ absmi(int inp)
 	if (pt1+d1 > ENV || pt1+d1 > (CELL *)B) {
 	  /* make sure we have something to show for our trouble */
 	  saveregs();
-	  gc(0, Y, NEXTOP(NEXTOP(PREG,xxx),sla));
-	  setregs();
+	  if (!gc(0, Y, NEXTOP(NEXTOP(PREG,xxx),sla))) {
+	    Error(OUT_OF_STACK_ERROR,TermNil,ErrorMessage);
+	    setregs();
+	    JMPNext();
+	  } else {
+	    setregs();
+	  }
 	  goto restart_func2s;
 	}
 	while ((Int)d1--) {
@@ -10672,8 +10685,13 @@ absmi(int inp)
 	if (pt1+d1 > ENV || pt1+d1 > (CELL *)B) {
 	  /* make sure we have something to show for our trouble */
 	  saveregs();
-	  gc(0, Y, NEXTOP(NEXTOP(PREG,xcx),sla));
-	  setregs();
+	  if (!gc(0, Y, NEXTOP(NEXTOP(PREG,xcx),sla))) {
+	    Error(OUT_OF_STACK_ERROR,TermNil,ErrorMessage);
+	    setregs();
+	    JMPNext();
+	  } else {
+	    setregs();
+	  }
 	  goto restart_func2s_cv;
 	}
 	while ((Int)d1--) {
@@ -10777,8 +10795,13 @@ absmi(int inp)
       if (pt1+d1 > ENV || pt1+d1 > (CELL *)B) {
 	/* make sure we have something to show for our trouble */
 	saveregs();
-	gc(0, Y, NEXTOP(NEXTOP(PREG,xxc),sla));
-	setregs();
+	if (!gc(0, Y, NEXTOP(NEXTOP(PREG,xxc),sla))) {
+	  Error(OUT_OF_STACK_ERROR,TermNil,ErrorMessage);
+	  setregs();
+	  JMPNext();
+	} else {
+	  setregs();
+	}
 	goto restart_func2s_vc;
       }
       while ((Int)d1--) {
@@ -10879,8 +10902,13 @@ absmi(int inp)
 	if (pt1+d1 > ENV || pt1+d1 > (CELL *)B) {
 	  /* make sure we have something to show for our trouble */
 	  saveregs();
-	  gc(0, Y, NEXTOP(NEXTOP(PREG,yxx),sla));
-	  setregs();
+	  if (!gc(0, Y, NEXTOP(NEXTOP(PREG,yxx),sla))) {
+	    Error(OUT_OF_STACK_ERROR,TermNil,ErrorMessage);
+	    setregs();
+	    JMPNext();
+	  } else {
+	    setregs();
+	  }
 	  goto restart_func2s_y;
 	}
 	while ((Int)d1--) {
@@ -11009,8 +11037,13 @@ absmi(int inp)
 	if (pt1+d1 > ENV || pt1+d1 > (CELL *)B) {
 	  /* make sure we have something to show for our trouble */
 	  saveregs();
-	  gc(0, Y, NEXTOP(NEXTOP(PREG,ycx),sla));
-	  setregs();
+	  if (!gc(0, Y, NEXTOP(NEXTOP(PREG,ycx),sla))) {
+	    Error(OUT_OF_STACK_ERROR,TermNil,ErrorMessage);
+	    setregs();
+	    JMPNext();
+	  } else {
+	    setregs();
+	  }
 	  goto restart_func2s_y_cv;
 	}
 	while ((Int)d1--) {
@@ -11148,8 +11181,13 @@ absmi(int inp)
       if (pt1+d1 > ENV || pt1+d1 > (CELL *)B) {
 	/* make sure we have something to show for our trouble */
 	saveregs();
-	gc(0, Y, NEXTOP(NEXTOP(PREG,yxc),sla));
-	setregs();
+	if (!gc(0, Y, NEXTOP(NEXTOP(PREG,yxc),sla))) {
+	  Error(OUT_OF_STACK_ERROR,TermNil,ErrorMessage);
+	  setregs();
+	  JMPNext();
+	} else {
+	  setregs();
+	}
 	goto restart_func2s_y_vc;
       }
       while ((Int)d1--) {
@@ -11533,8 +11571,13 @@ absmi(int inp)
 	if (pt1+d1 > ENV || pt1+d1 > (CELL *)B) {
 	  /* make sure we have something to show for our trouble */
 	  saveregs();
-	  gc(3, Y, NEXTOP(NEXTOP(PREG,e),sla));
-	  setregs();
+	  if (!gc(3, Y, NEXTOP(NEXTOP(PREG,e),sla))) {
+	    Error(OUT_OF_STACK_ERROR,TermNil,ErrorMessage);
+	    setregs();
+	    JMPNext();
+	  } else {
+	    setregs();
+	  }
 	  goto restart_functor;
 	}
 	while ((Int)d1--) {

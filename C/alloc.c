@@ -12,7 +12,7 @@
 * Last rev:								 *
 * mods:									 *
 * comments:	allocating space					 *
-* version:$Id: alloc.c,v 1.22 2002-09-02 17:33:00 vsc Exp $		 *
+* version:$Id: alloc.c,v 1.23 2002-10-10 05:58:48 vsc Exp $		 *
 *************************************************************************/
 #ifdef SCCS
 static char SccsId[] = "%W% %G%";
@@ -46,6 +46,15 @@ static char SccsId[] = "%W% %G%";
 #ifdef USE_SBRK
 #undef USE_SBRK
 #endif
+#endif
+
+#if !HAVE_SNPRINTF
+#define snprintf(A,B,C)  sprintf(A,C)
+#define snprintf(A,B,C,D)  sprintf(A,C,D)
+#define snprintf(A,B,C,D,E)  sprintf(A,C,D,E)
+#define snprintf(A,B,C,D,E,F)  sprintf(A,C,D,E,F)
+#define snprintf(A,B,C,D,E,F,G)  sprintf(A,C,D,E,F,G)
+#define snprintf(A,B,C,D,E,F,G,H)  sprintf(A,C,D,E,F,G,H)
 #endif
 
 STATIC_PROTO(void FreeBlock, (BlockHeader *));
@@ -390,12 +399,26 @@ int
 ExtendWorkSpace(Int s)
 {
   LPVOID b;
+  prolog_exec_mode OldPrologMode = PrologMode;
+
+  PrologMode = ExtendStackMode;
   s = ((s-1)/page_size+1)*page_size;
   b = VirtualAlloc(brk, s, MEM_COMMIT, PAGE_READWRITE);
   if (b) {
   	brk = (LPVOID) ((Int) brk + s);
+	PrologMode = OldPrologMode;
 	return TRUE;
   }
+  ErrorMessage = ErrorSay;
+#if HAVE_STRERROR
+  snprintf(ErrorMessage, MAX_ERROR_MSG_SIZE,
+	    "VirtualAlloc could not commit %ld bytes",
+	    s);
+#else
+  snprintf(ErrorMessage, MAX_ERROR_MSG_SIZE,
+	   "mkstemp could not create temporary file %s", file);
+#endif /* HAVE_STRERROR */
+  PrologMode = OldPrologMode;
   return FALSE;
 }
 
@@ -412,8 +435,8 @@ InitWorkSpace(Int s)
     YP_fprintf(YP_stderr,"[ Warning: YAP reserving space at a variable address ]\n");
     b = VirtualAlloc(0x0, MAX_WORKSPACE, MEM_RESERVE, PAGE_NOACCESS);
     if (b == NULL) {
-      YP_fprintf(YP_stderr,"[ FATAL ERROR: YAP failed to reserve space ]\n");
-      exit(1);
+      Error(FATAL_ERROR,"VirtualAlloc failed");
+      return(0);
     }
   }
   brk = BASE_ADDRESS;
@@ -421,8 +444,8 @@ InitWorkSpace(Int s)
   if (ExtendWorkSpace(s)) {
     return BASE_ADDRESS;
   } else {
-    YP_fprintf(YP_stderr,"[ FATAL ERROR: YAP failed to reserve space ]\n");
-    exit(1);
+    Error(FATAL_ERROR,"VirtualAlloc Failed");
+    return(0);
   }
 }
 
@@ -468,14 +491,14 @@ InitWorkSpace(Int s)
   a = mmap(((void *)MMAP_ADDR), (size_t) s, PROT_READ | PROT_WRITE | PROT_EXEC,
 	   MAP_PRIVATE | MAP_ANONYMOUS | MAP_FIXED, -1, 0);
   if (a != (MALLOC_T)MMAP_ADDR) {
-    Error(SYSTEM_ERROR, TermNil, "mmap could not map ANON at %p, got %p", (void *)MMAP_ADDR, a);
+    Error(FATAL_ERROR, TermNil, "mmap could not map ANON at %p, got %p", (void *)MMAP_ADDR, a);
     return(NULL);
   }
 #elif defined(__APPLE__)
   a = mmap(((void *)MMAP_ADDR), (size_t) s, PROT_READ | PROT_WRITE | PROT_EXEC,
 	   MAP_PRIVATE | MAP_ANON | MAP_FIXED, -1, 0);
   if (a != (MALLOC_T)MMAP_ADDR) {
-    Error(SYSTEM_ERROR, TermNil, "mmap could not map ANON at %p, got %p", (void *)MMAP_ADDR,a );
+    Error(FATAL_ERROR, TermNil, "mmap could not map ANON at %p, got %p", (void *)MMAP_ADDR,a );
     return(NULL);
   }
 #else
@@ -486,9 +509,9 @@ InitWorkSpace(Int s)
     strncpy(file,"/tmp/YAP.TMPXXXXXX", 256);
     if (mkstemp(file) == -1) {
 #if HAVE_STRERROR
-      Error(SYSTEM_ERROR, TermNil, "mkstemp could not create temporary file %s (%s)", file, strerror(errno));
+      Error(FATAL_ERROR, TermNil, "mkstemp could not create temporary file %s (%s)", file, strerror(errno));
 #else
-      Error(SYSTEM_ERROR, TermNil, "mkstemp could not create temporary file %s", file);
+      Error(FATAL_ERROR, TermNil, "mkstemp could not create temporary file %s", file);
 #endif
       return NULL;
     }
@@ -503,19 +526,22 @@ InitWorkSpace(Int s)
 #endif /* HAVE_MKSTEMP */
     fd = open(file, O_CREAT|O_RDWR);
     if (fd < 0) {
-      Error(SYSTEM_ERROR, TermNil, "mmap could not open %s", file);
+      Error(FATAL_ERROR, TermNil, "mmap could not open %s", file);
       return NULL;
     }
     if (lseek(fd, s, SEEK_SET) < 0) {
-      Error(SYSTEM_ERROR, TermNil, "mmap could not lseek in mmapped file %s", file);
+      Error(FATAL_ERROR, TermNil, "mmap could not lseek in mmapped file %s", file);
+      close(fd);
       return FALSE;
     }
     if (write(fd, "", 1) < 0) {
-      Error(SYSTEM_ERROR, TermNil, "mmap could not write in mmapped file %s", file);
+      Error(FATAL_ERROR, TermNil, "mmap could not write in mmapped file %s", file);
+      close(fd);
       return NULL;
     }
     if (unlink(file) < 0) {
-      Error(SYSTEM_ERROR,TermNil, "mmap could not unlink mmapped file %s", file);
+      Error(FATAL_ERROR,TermNil, "mmap could not unlink mmapped file %s", file);
+      close(fd);
       return NULL;
     }
   }
@@ -523,7 +549,7 @@ InitWorkSpace(Int s)
   a = mmap(((void *)MMAP_ADDR), (size_t) s, PROT_READ | PROT_WRITE | PROT_EXEC,
 	   MAP_PRIVATE | MAP_FIXED, fd, 0);
   if (a != (MALLOC_T)MMAP_ADDR) {
-    Error(SYSTEM_ERROR, TermNil, "mmap could not map at %p, got %p", (void *)MMAP_ADDR, a);
+    Error(FATAL_ERROR, TermNil, "mmap could not map at %p, got %p", (void *)MMAP_ADDR, a);
     return NULL;
   }
 #else
@@ -535,7 +561,7 @@ InitWorkSpace(Int s)
     return NULL;
   }
   if (close(fd) == -1) {
-    Error(SYSTEM_ERROR, TermNil, "while closing mmaped file");
+    Error(FATAL_ERROR, TermNil, "while closing mmaped file");
     return NULL;
   }
 #endif
@@ -563,27 +589,36 @@ ExtendWorkSpace(Int s)
 #else
 
   MALLOC_T a;
+  prolog_exec_mode OldPrologMode = PrologMode;
 
 #if defined(_AIX) || defined(__hpux)
+  PrologMode = ExtendStackMode;
   a = mmap(WorkSpaceTop, (size_t) s, PROT_READ | PROT_WRITE | PROT_EXEC,
 		    MAP_PRIVATE | MAP_ANONYMOUS, -1, 0);
 
 #elif defined(__APPLE__)
+  PrologMode = ExtendStackMode;
   a = mmap(WorkSpaceTop, (size_t) s, PROT_READ | PROT_WRITE | PROT_EXEC,
 		    MAP_PRIVATE | MAP_ANON | MAP_FIXED, -1, 0);
 #else
   int fd;
+  PrologMode = ExtendStackMode;
   fd = open("/dev/zero", O_RDWR);
   if (fd < 0) {
 #if HAVE_MKSTEMP
     char file[256];
     strncpy(file,"/tmp/YAP.TMPXXXXXX",256);
     if (mkstemp(file) == -1) {
+      ErrorMessage = ErrorSay;
 #if HAVE_STRERROR
-      Error(SYSTEM_ERROR, TermNil, "mkstemp could not create temporary file %s (%s)", file, strerror(errno));
+      snprintf(ErrorMessage, MAX_ERROR_MSG_SIZE,
+		"mkstemp could not create temporary file %s (%s)",
+		file, strerror(errno));
 #else
-      Error(SYSTEM_ERROR, TermNil, "mkstemp could not create temporary file %s", file);
+      snprintf(ErrorMessage, MAX_ERROR_MSG_SIZE,
+		"mkstemp could not create temporary file %s", file);
 #endif /* HAVE_STRERROR */
+      PrologMode = OldPrologMode;
       return FALSE;
     }
 #else
@@ -597,47 +632,79 @@ ExtendWorkSpace(Int s)
 #endif /* HAVE_MKSTEMP */
     fd = open(file, O_CREAT|O_RDWR);
     if (fd < 0) {
-      Error(SYSTEM_ERROR, TermNil, "mmap could not open %s", file);
+      ErrorMessage = ErrorSay;
+      snprintf(ErrorMessage, MAX_ERROR_MSG_SIZE,
+		"mmap could not open %s", file);
+      PrologMode = OldPrologMode;
       return FALSE;
     }
     if (lseek(fd, s, SEEK_SET) < 0) {
-      Error(SYSTEM_ERROR, TermNil, "mmap could not lseek in mmapped file %s", file);
+      ErrorMessage = ErrorSay;
+      snprintf(ErrorMessage, MAX_ERROR_MSG_SIZE,
+		"mmap could not lseek in mmapped file %s", file);
+      PrologMode = OldPrologMode;
+      close(fd);
       return FALSE;
     }
     if (write(fd, "", 1) < 0) {
-      Error(SYSTEM_ERROR, TermNil, "mmap could not write in mmapped file %s", file);
+      ErrorMessage = ErrorSay;
+      snprintf(ErrorMessage, MAX_ERROR_MSG_SIZE,
+		"mmap could not write in mmapped file %s", file);
+      PrologMode = OldPrologMode;
+      close(fd);
       return FALSE;
     }
     if (unlink(file) < 0) {
-      Error(SYSTEM_ERROR, TermNil, "mmap could not unlink mmapped file %s", file);
+      ErrorMessage = ErrorSay;
+      snprintf(ErrorMessage, MAX_ERROR_MSG_SIZE,
+		"mmap could not unlink mmapped file %s", file);
+      PrologMode = OldPrologMode;
+      close(fd);
       return FALSE;
     }
   }
   a = mmap(WorkSpaceTop, (size_t) s, PROT_READ | PROT_WRITE | PROT_EXEC,
-		    MAP_PRIVATE | MAP_FIXED, fd, 0);
-  if (close(fd) == -1) {
-#if HAVE_STRERROR
-    Error(SYSTEM_ERROR, TermNil, "mmap could not close file (%s) ]\n", strerror(errno));
-#else
-    Error(SYSTEM_ERROR, TermNil, "mmap could not close file ]\n");
+		    MAP_PRIVATE
+#ifndef __linux
+	   /* use  MAP_FIXED, otherwise God knows where you will be placed */
+	   |MAP_FIXED
 #endif
+	   , fd, 0);
+  if (close(fd) == -1) {
+    ErrorMessage = ErrorSay;
+#if HAVE_STRERROR
+    snprintf(ErrorMessage, MAX_ERROR_MSG_SIZE,
+	      "mmap could not close file (%s) ]\n", strerror(errno));
+#else
+    snprintf(ErrorMessage, MAX_ERROR_MSG_SIZE,
+	      "mmap could not close file ]\n");
+#endif
+    PrologMode = OldPrologMode;
     return FALSE;
   }
 #endif
   if (a == (MALLOC_T) - 1) {
+    ErrorMessage = ErrorSay;
 #if HAVE_STRERROR
-    Error(SYSTEM_ERROR, TermNil, "could not allocate %d bytes (%s)", (int)s, strerror(errno));
+    snprintf(ErrorMessage, MAX_ERROR_MSG_SIZE,
+	      "could not allocate %d bytes (%s)", (int)s, strerror(errno));
 #else
-    Error(SYSTEM_ERROR, TermNil, "could not allocate %d bytes", (int)s);
+    snprintf(ErrorMessage, MAX_ERROR_MSG_SIZE,
+	      "could not allocate %d bytes", (int)s);
 #endif
+    PrologMode = OldPrologMode;
     return FALSE;
   }
   if (a != WorkSpaceTop) {
-    Error(SYSTEM_ERROR, TermNil, "mmap could not grow memory at %p, got %p", WorkSpaceTop, a );
+    ErrorMessage = ErrorSay;
+    snprintf(ErrorMessage, MAX_ERROR_MSG_SIZE,
+	      "mmap could not grow memory at %p, got %p", WorkSpaceTop, a );
+    PrologMode = OldPrologMode;
     return FALSE;
   }
   
   WorkSpaceTop = (char *) a + s;
+  PrologMode = OldPrologMode;
   return TRUE;
 #endif /* YAPOR */
 }
@@ -688,21 +755,33 @@ ExtendWorkSpace(Int s)
 {
   MALLOC_T ptr;
   int shm_id;
+  prolog_exec_mode OldPrologMode = PrologMode;
 
+  PrologMode = ExtendStackMode;
   /* mapping heap area */
   if((shm_id = shmget(IPC_PRIVATE, (size_t)s, SHM_R|SHM_W)) == -1) {
-    Error(SYSTEM_ERROR, TermNil, "could not shmget %d bytes", s);
+    ErrorMessage = ErrorSay;
+    snprintf(ErrorMessage, MAX_ERROR_MSG_SIZE,
+	      "could not shmget %d bytes", s);
+    PrologMode = OldPrologMode;
     return(FALSE);
    }
   if((ptr = (MALLOC_T)shmat(shm_id, WorkSpaceTop, 0)) == (MALLOC_T) -1) {
-    Error(SYSTEM_ERROR, TermNil, "could not shmat at %p", MMAP_ADDR);
+    ErrorMessage = ErrorSay;
+    snprintf(ErrorMessage, MAX_ERROR_MSG_SIZE,
+	      "could not shmat at %p", MMAP_ADDR);
+    PrologMode = OldPrologMode;
     return(FALSE);
   }
   if (shmctl(shm_id, IPC_RMID, 0) != 0) {
-    Error(SYSTEM_ERROR, TermNil, "could not remove shm segment", shm_id);
+    ErrorMessage = ErrorSay;
+    snprintf(ErrorMessage, MAX_ERROR_MSG_SIZE,
+	      "could not remove shm segment", shm_id);
+    PrologMode = OldPrologMode;
     return(FALSE);
   }
   WorkSpaceTop = (char *) ptr + s;
+  PrologMode = OldPrologMode;
   return(TRUE);
 }
 
@@ -751,10 +830,17 @@ int
 ExtendWorkSpace(Int s)
 {
   MALLOC_T ptr = (MALLOC_T)sbrk(s);
+  prolog_exec_mode OldPrologMode = PrologMode;
+
+  PrologMode = ExtendStackMode;
   if (ptr == ((MALLOC_T) - 1)) {
-     Error(SYSTEM_ERROR, TermNil, "could not expand stacks over %d bytes", s);
-     return(FALSE);
+    ErrorMessage = ErrorSay;
+    snprintf(ErrorMessage, MAX_ERROR_MSG_SIZE,
+	      , "could not expand stacks over %d bytes", s);
+    PrologMode = OldPrologMode;
+    return(FALSE);
   }
+  PrologMode = OldPrologMode;
   return TRUE;
 }
 
@@ -874,22 +960,34 @@ int
 ExtendWorkSpace(Int s)
 {
   MALLOC_T ptr;
-  total_space += s;
+  prolog_exec_mode OldPrologMode = PrologMode;
 
+  PrologMode = ExtendStackMode;
+  total_space += s;
   if (total_space < MAX_SPACE) return(TRUE);
   ptr = (MALLOC_T)realloc((void *)HeapBase, total_space);
   if (ptr == NULL) {
-     Error(SYSTEM_ERROR, TermNil, "could not expand stacks %d bytes", s);
-     return(FALSE);
+    ErrorMessage = ErrorSay;
+    snprintf(ErrorMessage, MAX_ERROR_MSG_SIZE,
+	      "could not allocate %d bytes", s);
+    PrologMode = OldPrologMode;
+    return(FALSE);
   }
   if (ptr != (MALLOC_T)HeapBase) {
-     Error(SYSTEM_ERROR, TermNil, "could not expand contiguous stacks  %d bytes", s);
-     return(FALSE);
+    ErrorMessage = ErrorSay;
+    snprintf(ErrorMessage, MAX_ERROR_MSG_SIZE,
+	      "could not expand contiguous stacks  %d bytes", s);
+    PrologMode = OldPrologMode;
+    return(FALSE);
   }
   if ((CELL)ptr & MBIT) {
-     Error(SYSTEM_ERROR, TermNil, "memory at %p conflicts with MBIT %lx", ptr, MBIT);
-     return(FALSE);
+    ErrorMessage = ErrorSay;
+    snprintf(ErrorMessage, MAX_ERROR_MSG_SIZE,
+	      "memory at %p conflicts with MBIT %lx", ptr, MBIT);
+    PrologMode = OldPrologMode;
+    return(FALSE);
   }
+  PrologMode = OldPrologMode;
   return TRUE;
 }
 

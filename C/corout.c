@@ -564,7 +564,10 @@ freeze_goal(Term t, Term g)
     if (H0 - (CELL *)vs < 1024) {
       ARG1 = t;
       ARG2 = g;
-      growglobal(NULL);
+      if (!growglobal(NULL)) {
+	Error(SYSTEM_ERROR, t, ErrorMessage);
+	return FALSE;
+      }
       t = ARG1;
       g = ARG2;
     }

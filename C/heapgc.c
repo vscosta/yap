@@ -742,6 +742,9 @@ vsc_stop(void) {
   return(1);
 }
 
+#endif
+
+#ifdef CHECK_GLOBAL
 static void
 check_global(void) {
   CELL *current;
@@ -814,8 +817,9 @@ check_global(void) {
   vars[gc_susp] = 0;
 #endif
 }
-#endif
-
+#else
+#define check_global()
+#endif /* CHECK_GLOBAL */
 
 /* mark a heap object and all heap objects accessible from it */
 
@@ -2975,7 +2979,10 @@ do_gc(Int predarity, CELL *current_env, yamop *nextop)
 
 #if COROUTINING
   if (H0 - (CELL *)ReadTimedVar(DelayedVars) < 1024+(2*NUM_OF_ATTS)) {
-    growglobal(&current_env);
+    if (!growglobal(&current_env)) {
+      Error(SYSTEM_ERROR, TermNil, ErrorMessage);
+      return FALSE;
+    }
   }
 #endif
 #ifdef INSTRUMENT_GC
@@ -3028,7 +3035,7 @@ do_gc(Int predarity, CELL *current_env, yamop *nextop)
   if (HeapTop >= GlobalBase - MinHeapGap) {
     *--ASP = (CELL)current_env;
     if (!growheap(FALSE)) {
-      Error(SYSTEM_ERROR, TermNil, "YAP could not grow heap before garbage collection");
+      Error(SYSTEM_ERROR, TermNil, ErrorMessage);
       return(FALSE);
     }
     current_env = (CELL *)*ASP;
@@ -3086,9 +3093,7 @@ do_gc(Int predarity, CELL *current_env, yamop *nextop)
     YP_fprintf(YP_stderr, "[GC]   Left %ld cells free in stacks.\n",
 	       (unsigned long int)(ASP-H));
   }
-#ifdef DEBUG
   check_global();
-#endif
   return(effectiveness);
 }
 
@@ -3171,9 +3176,7 @@ gc(Int predarity, CELL *current_env, yamop *nextop)
       gc_margin = gap;
     while (gc_margin >= gap && !growstack(gc_margin))
       gc_margin = gc_margin/2;
-#ifdef DEBUG
     check_global();
-#endif
     return(gc_margin >= gap);
   }
   /*

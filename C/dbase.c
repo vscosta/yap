@@ -1657,7 +1657,7 @@ p_rcda(void)
     return (unify(ARG3, TRef));
   case SOVF_ERROR_IN_DB:
     if (!gc(3, ENV, P)) {
-      Error(SYSTEM_ERROR, TermNil, "YAP could not grow stack in recorda/3");
+      Error(OUT_OF_STACK_ERROR, TermNil, ErrorMessage);
       return(FALSE);
     }
     goto recover_record;
@@ -1666,7 +1666,7 @@ p_rcda(void)
     return(FALSE);
   case OVF_ERROR_IN_DB:
     if (!growheap(FALSE)) {
-      Error(SYSTEM_ERROR, TermNil, "YAP could not grow heap in recorda/3");
+      Error(SYSTEM_ERROR, TermNil, ErrorMessage);
       return(FALSE);
     } else
       goto recover_record;
@@ -1696,7 +1696,7 @@ p_rcdap(void)
     return (unify(ARG3, TRef));
   case SOVF_ERROR_IN_DB:
     if (!gc(3, ENV, P)) {
-      Error(SYSTEM_ERROR, TermNil, "YAP could not grow stack in recorda/3");
+      Error(OUT_OF_STACK_ERROR, TermNil, ErrorMessage);
       return(FALSE);
     }
     goto recover_record;
@@ -1705,7 +1705,7 @@ p_rcdap(void)
     return(FALSE);
   case OVF_ERROR_IN_DB:
     if (!growheap(FALSE)) {
-      Error(SYSTEM_ERROR, TermNil, "YAP could not grow heap in recorda/3");
+      Error(SYSTEM_ERROR, TermNil, ErrorMessage);
       return(FALSE);
     } else
       goto recover_record;
@@ -1735,7 +1735,7 @@ p_rcdz(void)
     return (unify(ARG3, TRef));
   case SOVF_ERROR_IN_DB:
     if (!gc(3, ENV, P)) {
-      Error(SYSTEM_ERROR, TermNil, "YAP could not grow stack in recordz/3");
+      Error(OUT_OF_STACK_ERROR, TermNil, ErrorMessage);
       return(FALSE);
     }
     goto recover_record;
@@ -1744,7 +1744,7 @@ p_rcdz(void)
     return(FALSE);
   case OVF_ERROR_IN_DB:
     if (!growheap(FALSE)) {
-      Error(SYSTEM_ERROR, TermNil, "YAP could not grow heap in recordz/3");
+      Error(SYSTEM_ERROR, TermNil, ErrorMessage);
       return(FALSE);
     } else
       goto recover_record;
@@ -1774,7 +1774,7 @@ p_rcdzp(void)
     return (unify(ARG3, TRef));
   case SOVF_ERROR_IN_DB:
     if (!gc(3, ENV, P)) {
-      Error(SYSTEM_ERROR, TermNil, "YAP could not grow stack in recordz/3");
+      Error(OUT_OF_STACK_ERROR, TermNil, ErrorMessage);
       return(FALSE);
     }
     goto recover_record;
@@ -1783,7 +1783,7 @@ p_rcdzp(void)
     return(FALSE);
   case OVF_ERROR_IN_DB:
     if (!growheap(FALSE)) {
-      Error(SYSTEM_ERROR, TermNil, "YAP could not grow heap in recordz/3");
+      Error(SYSTEM_ERROR, TermNil, ErrorMessage);
       return(FALSE);
     } else
       goto recover_record;
@@ -1821,7 +1821,7 @@ p_rcdstatp(void)
     return (unify(ARG4,TRef));
   case SOVF_ERROR_IN_DB:
     if (!gc(3, ENV, P)) {
-      Error(SYSTEM_ERROR, TermNil, "YAP could not grow stack in record_stat_source/3");
+      Error(OUT_OF_STACK_ERROR, TermNil, ErrorMessage);
       return(FALSE);
     }
     goto recover_record;
@@ -1830,7 +1830,7 @@ p_rcdstatp(void)
     return(FALSE);
   case OVF_ERROR_IN_DB:
     if (!growheap(FALSE)) {
-      Error(SYSTEM_ERROR, TermNil, "YAP could not grow heap in record_stat_source/3");
+      Error(SYSTEM_ERROR, TermNil, ErrorMessage);
       return(FALSE);
     } else
       goto recover_record;
@@ -1863,7 +1863,7 @@ p_drcdap(void)
     return (unify(ARG3, TRef));
   case SOVF_ERROR_IN_DB:
     if (!gc(4, ENV, P)) {
-      Error(SYSTEM_ERROR, TermNil, "YAP could not grow stack in recorda/3");
+      Error(OUT_OF_STACK_ERROR, TermNil, ErrorMessage);
       return(FALSE);
     }
     goto recover_record;
@@ -1872,7 +1872,7 @@ p_drcdap(void)
     return(FALSE);
   case OVF_ERROR_IN_DB:
     if (!growheap(FALSE)) {
-      Error(SYSTEM_ERROR, TermNil, "YAP could not grow heap in recorda/3");
+      Error(SYSTEM_ERROR, TermNil, ErrorMessage);
       return(FALSE);
     } else
       goto recover_record;
@@ -1906,7 +1906,7 @@ p_drcdzp(void)
     return (unify(ARG3, TRef));
   case SOVF_ERROR_IN_DB:
     if (!gc(4, ENV, P)) {
-      Error(SYSTEM_ERROR, TermNil, "YAP could not grow stack in recordz/3");
+      Error(OUT_OF_STACK_ERROR, TermNil, ErrorMessage);
       return(FALSE);
     }
     goto recover_record;
@@ -1915,7 +1915,7 @@ p_drcdzp(void)
     return(FALSE);
   case OVF_ERROR_IN_DB:
     if (!growheap(FALSE)) {
-      Error(SYSTEM_ERROR, TermNil, "YAP could not grow heap in recordz/3");
+      Error(SYSTEM_ERROR, TermNil, ErrorMessage);
       return(FALSE);
     } else
       goto recover_record;
@@ -1951,7 +1951,7 @@ p_rcdaifnot(void)
     return (unify(ARG3, TRef));
   case SOVF_ERROR_IN_DB:
     if (!gc(3, ENV, P)) {
-      Error(SYSTEM_ERROR, TermNil, "YAP could not grow stack in recordaifnot/3");
+      Error(OUT_OF_STACK_ERROR, TermNil, ErrorMessage);
       return(FALSE);
     }
     goto recover_record;
@@ -1960,7 +1960,7 @@ p_rcdaifnot(void)
     return(FALSE);
   case OVF_ERROR_IN_DB:
     if (!growheap(FALSE)) {
-      Error(SYSTEM_ERROR, TermNil, "YAP could not grow heap in recordzifnot/3");
+      Error(SYSTEM_ERROR, TermNil, ErrorMessage);
       return(FALSE);
     } else
       goto recover_record;
@@ -1993,7 +1993,7 @@ p_rcdzifnot(void)
     return (unify(ARG3, TRef));
   case SOVF_ERROR_IN_DB:
     if (!gc(3, ENV, P)) {
-      Error(SYSTEM_ERROR, TermNil, "YAP could not grow stack in recordaifnot/3");
+      Error(OUT_OF_STACK_ERROR, TermNil, ErrorMessage);
       return(FALSE);
     }
     goto recover_record;
@@ -2002,7 +2002,7 @@ p_rcdzifnot(void)
     return(FALSE);
   case OVF_ERROR_IN_DB:
     if (!growheap(FALSE)) {
-      Error(SYSTEM_ERROR, TermNil, "YAP could not grow heap in recordzifnot/3");
+      Error(SYSTEM_ERROR, TermNil, ErrorMessage);
       return(FALSE);
     } else
       goto recover_record;
@@ -2330,7 +2330,7 @@ i_log_upd_recorded(LogUpdDBProp AtProp)
     if (AtProp->Index == NULL) {
       if((AtProp->Index = new_lu_index(AtProp)) == NULL) {
 	if (!growheap(FALSE)) {
-	  Error(SYSTEM_ERROR, TermNil, "YAP failed to reserve space in growheap");
+	  Error(SYSTEM_ERROR, TermNil, ErrorMessage);
 	  cut_fail();
 	}
 	twork = Deref(ARG2);
@@ -2361,7 +2361,10 @@ i_log_upd_recorded(LogUpdDBProp AtProp)
       /* make sure the garbage collector sees what we want it to see! */
       EXTRA_CBACK_ARG(3,1) = AbsAppl((CELL *)ep);
       /* oops, we are in trouble, not enough stack space */
-      gc(3, ENV, CP);
+      if (!gc(3, ENV, CP)) {
+	Error(OUT_OF_STACK_ERROR, TermNil, ErrorMessage);
+	return(FALSE);
+      }
       PreviousHeap = H;
       twork = Deref(ARG2);
     }
@@ -2405,7 +2408,10 @@ i_log_upd_recorded(LogUpdDBProp AtProp)
 	/* make sure the garbage collector sees what we want it to see! */
 	EXTRA_CBACK_ARG(3,1) = AbsAppl((CELL *)ep);
 	/* oops, we are in trouble, not enough stack space */
-	gc(3, ENV, CP);
+	if(!gc(3, ENV, CP)) {
+	  Error(OUT_OF_STACK_ERROR, TermNil, ErrorMessage);
+	  return(FALSE);
+	}
 	PreviousHeap = H;
       }
       if (unify(ARG2, TermDB))
@@ -2555,7 +2561,10 @@ i_recorded(DBProp AtProp)
       /* make sure the garbage collector sees what we want it to see! */
       EXTRA_CBACK_ARG(3,1) = (CELL)ref;
       /* oops, we are in trouble, not enough stack space */
-      gc(3, ENV, CP);
+      if (!gc(3, ENV, CP)) {
+	Error(OUT_OF_STACK_ERROR, TermNil, ErrorMessage);
+	return(FALSE);
+      }
       twork = Deref(ARG2);
       t3 = Deref(ARG3);
     }
@@ -2614,7 +2623,10 @@ i_recorded(DBProp AtProp)
 	EXTRA_CBACK_ARG(3,2) = MkIntegerTerm(((Int)mask));
 	EXTRA_CBACK_ARG(3,3) = MkIntegerTerm(((Int)key));
 	/* oops, we are in trouble, not enough stack space */
-	gc(3, ENV, CP);
+	if (!gc(3, ENV, CP)) {
+	  Error(OUT_OF_STACK_ERROR, TermNil, ErrorMessage);
+	  return(FALSE);
+	}
 	READ_LOCK(AtProp->DBRWLock);
       }
     } while (TRUE);
@@ -2676,7 +2688,10 @@ c_log_upd_recorded(DBRef *ep, int flags)
       /* make sure the garbage collector sees what we want it to see! */
       EXTRA_CBACK_ARG(3,1) = AbsAppl((CELL *)ep);
       /* oops, we are in trouble, not enough stack space */
-      gc(3, ENV, CP);
+      if (!gc(3, ENV, CP)) {
+	Error(OUT_OF_STACK_ERROR, TermNil, ErrorMessage);
+	return(FALSE);
+      }
       PreviousHeap = H;
     }
     unify(ARG2, TermDB);
@@ -2704,7 +2719,10 @@ c_log_upd_recorded(DBRef *ep, int flags)
 	/* make sure the garbage collector sees what we want it to see! */
 	EXTRA_CBACK_ARG(3,1) = AbsAppl((CELL *)ep);
 	/* oops, we are in trouble, not enough stack space */
-	gc(3, ENV, CP);
+	if (!gc(3, ENV, CP)) {
+	  Error(OUT_OF_STACK_ERROR, TermNil, ErrorMessage);
+	  return(FALSE);
+	}
 	PreviousHeap = H;
       }
       if (unify(ARG2, TermDB))
@@ -2815,7 +2833,10 @@ c_recorded(int flags)
       /* make sure the garbage collector sees what we want it to see! */
       EXTRA_CBACK_ARG(3,1) = (CELL)ref;
       /* oops, we are in trouble, not enough stack space */
-      gc(3, ENV, CP);
+      if (!gc(3, ENV, CP)) {
+	Error(OUT_OF_STACK_ERROR, TermNil, ErrorMessage);
+	return(FALSE);
+      }
       PreviousHeap = H;
     }
     unify(ARG2, TermDB);
@@ -2845,7 +2866,10 @@ c_recorded(int flags)
 	/* make sure the garbage collector sees what we want it to see! */
 	EXTRA_CBACK_ARG(3,1) = (CELL)ref;
 	/* oops, we are in trouble, not enough stack space */
-	gc(3, ENV, CP);
+	if (!gc(3, ENV, CP)) {
+	  Error(OUT_OF_STACK_ERROR, TermNil, ErrorMessage);
+	  return(FALSE);
+	}
 	PreviousHeap = H;
       }
       if (unify(ARG2, TermDB))
@@ -3005,7 +3029,10 @@ p_first_instance(void)
 #endif
   while ((TermDB = GetDBTerm(ref)) == (CELL)0) {
     /* oops, we are in trouble, not enough stack space */
-    gc(3, ENV, P);
+    if (!gc(3, ENV, P)) {
+      Error(OUT_OF_STACK_ERROR, TermNil, ErrorMessage);
+      return(FALSE);
+    }
   }
   if (IsVarTerm(TermDB)) {
     unify(TermDB, ARG2);
@@ -3701,7 +3728,10 @@ p_instance(void)
   }
   while ((TermDB = GetDBTerm(dbr)) == (CELL)0) {
     /* oops, we are in trouble, not enough stack space */
-    gc(2, ENV, P);
+    if (!gc(2, ENV, P)) {
+      Error(OUT_OF_STACK_ERROR, TermNil, ErrorMessage);
+      return(FALSE);
+    }
     t1 = Deref(ARG1);
   }
   return (unify(ARG2, TermDB));
@@ -3889,7 +3919,10 @@ FetchTermFromDB(DBRef ref, int args)
   Term TDB;
   while ((TDB = GetDBTerm(ref)) == (CELL)0) {
     /* oops, we are in trouble, not enough stack space */
-    gc(args, ENV, P);
+    if (!gc(args, ENV, P)) {
+      Error(OUT_OF_STACK_ERROR, TermNil, ErrorMessage);
+      return(TermNil);
+    }
   }
   return(TDB);
 }
@@ -3916,7 +3949,7 @@ StoreTermInDB(int arg, int nargs)
       break;
     case SOVF_ERROR_IN_DB:
       if (!gc(nargs, ENV, P)) {
-	Error(SYSTEM_ERROR, TermNil, "YAP could not grow stack in enqueue/2");
+	Error(OUT_OF_STACK_ERROR, TermNil, ErrorMessage);
 	return(FALSE);
       } else {
 	t = Deref(XREGS[arg]);
@@ -3927,7 +3960,7 @@ StoreTermInDB(int arg, int nargs)
       return(FALSE);
     case OVF_ERROR_IN_DB:
       if (!growheap(FALSE)) {
-	Error(SYSTEM_ERROR, TermNil, "YAP could not grow heap in enqueue/2");
+	Error(SYSTEM_ERROR, TermNil, ErrorMessage);
 	return(FALSE);
       } else {
 	t = Deref(XREGS[arg]);
@@ -3953,7 +3986,7 @@ p_init_queue(void)
   } else {
     while ((dbq = (db_queue *)AllocDBSpace(sizeof(db_queue))) == NULL) {
       if (!growheap(FALSE)) {
-	Error(SYSTEM_ERROR, TermNil, "YAP failed to reserve space in growheap");
+	Error(SYSTEM_ERROR, TermNil, ErrorMessage);
 	return(FALSE);
       }
     }

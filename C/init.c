@@ -112,6 +112,9 @@ int             optimizer_on = TRUE;
 
 int             compile_mode = 0;
 
+/******************* storing error messages ****************************/
+char      ErrorSay[MAX_ERROR_MSG_SIZE];
+
 /******************* intermediate buffers **********************/
 
 char FileNameBuf[YAP_FILENAME_MAX], FileNameBuf2[YAP_FILENAME_MAX];

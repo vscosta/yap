@@ -1901,7 +1901,7 @@ p_open_mem_read_stream (void)   /* $open_mem_read_stream(+List,-Stream) */
   }
   while ((nbuf = (char *)AllocAtomSpace((sl+1)*sizeof(char))) == NULL) {
     if (!growheap(FALSE)) {
-      Error(SYSTEM_ERROR, TermNil, "YAP could not grow heap in open_mem_read_stream");
+      Error(SYSTEM_ERROR, TermNil, ErrorMessage);
       return(FALSE);
     }
   }
@@ -1955,7 +1955,7 @@ p_open_mem_write_stream (void)   /* $open_mem_write_stream(-Stream) */
 
   while ((nbuf = (char *)AllocAtomSpace(page_size*sizeof(char))) == NULL) {
     if (!growheap(FALSE)) {
-      Error(SYSTEM_ERROR, TermNil, "YAP could not grow heap in open_mem_write_stream");
+      Error(SYSTEM_ERROR, TermNil, ErrorMessage);
       return(FALSE);
     }
   }
@@ -2412,7 +2412,7 @@ p_peek_mem_write_stream (void)
     if (H + 1024 >= ASP) {
       H = HI;
       if (!gc(3, ENV, P)) {
-	Error(SYSTEM_ERROR, TermNil, "YAP could not grow stack in peek_mem_write_stream/2");
+	Error(OUT_OF_STACK_ERROR, TermNil, ErrorMessage);
 	return(FALSE);
       }
       i = 0;
@@ -3516,6 +3516,8 @@ static  pads pad_entries[16], *pad_max = pad_entries;
 
 static int
 format_putc(int sno, int ch) {
+  if (format_buf_size == -1)
+    return(EOF);
   if (ch == 10) {
     char *ptr = format_base;
 #if MAC || _MSC_VER
@@ -3537,7 +3539,7 @@ format_putc(int sno, int ch) {
       char *newbuf;
 
       if ((newbuf = AllocAtomSpace(new_max_size*sizeof(char))) == NULL) {
-	FreeAtomSpace(format_base);
+	format_buf_size = -1;
 	Error(SYSTEM_ERROR, TermNil, "YAP could not grow heap for format/2");
 	return(EOF);
       }
@@ -3678,6 +3680,10 @@ format(Term tail, Term args, int sno)
   format_error = FALSE;
   while (!IsVarTerm (head) && IsIntTerm (head))
     {
+      if (format_buf_size == -1) {
+	FreeAtomSpace(format_base);
+	return(FALSE);
+      }
       ch = IntOfTerm (head);
       if (ch == '~')
 	{
@@ -4330,6 +4336,10 @@ format(Term tail, Term args, int sno)
       head = HeadOfTerm (tail);
       tail = TailOfTerm (tail);
     }
+  if (format_buf_size == -1) {
+    FreeAtomSpace(format_base);
+    return(FALSE);
+  }
   for (ptr = format_base; ptr < format_ptr; ptr++) {
     Stream[sno].stream_putc(sno, *ptr);
   }
@@ -4650,7 +4660,7 @@ p_char_conversion(void)
     CharConversionTable2 = AllocCodeSpace(NUMBER_OF_CHARS*sizeof(char));
     while (CharConversionTable2 == NULL) {
       if (!growheap(FALSE)) {
-	Error(SYSTEM_ERROR, TermNil, "YAP could not grow heap in char_conversion/2");
+	Error(SYSTEM_ERROR, TermNil, ErrorMessage);
 	return(FALSE);
       }
     }

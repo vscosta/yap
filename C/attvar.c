@@ -353,7 +353,10 @@ BuildNewAttVar(Term t, Int i, Term tatt)
     H[0] = t;
     H[1] = tatt;
     H += 2;
-    growglobal(NULL);
+    if (!growglobal(NULL)) {
+      Error(SYSTEM_ERROR, t, ErrorMessage);
+      return FALSE;
+    }
     H -= 2;
     t = H[0];
     tatt = H[1];

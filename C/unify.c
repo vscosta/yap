@@ -1616,7 +1616,10 @@ p_functor(void)			/* functor(?,?,?) */
     *pt1++ = d0;
     d0 = AbsAppl(H);
     if (pt1+d1 > ENV - CreepFlag) {
-      gc(3, ENV, P);
+      if (!gc(3, ENV, P)) {
+	Error(OUT_OF_STACK_ERROR, TermNil, ErrorMessage);
+	return(FALSE);
+      }
       goto restart;
     }
     while (d1-- > 0) {
@@ -1650,6 +1653,7 @@ p_functor(void)			/* functor(?,?,?) */
   ENDD(d1);
 
   BEGP(pt1);
+
   deref_body(d0, pt1, func_var_2unk, func_var_2nvar);
   Error(INSTANTIATION_ERROR,(CELL)pt1,"functor/3");
   ENDP(pt1);

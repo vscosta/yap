@@ -10,7 +10,7 @@
 * File:		Yap.h.m4						 *
 * mods:									 *
 * comments:	main header file for YAP				 *
-* version:      $Id: Yap.h.m4,v 1.31 2002-09-23 17:06:13 vsc Exp $	 *
+* version:      $Id: Yap.h.m4,v 1.32 2002-10-10 05:58:49 vsc Exp $	 *
 *************************************************************************/
 
 #include "config.h"
@@ -434,6 +434,9 @@ typedef enum {
   EXISTENCE_ERROR_SOURCE_SINK,
   EXISTENCE_ERROR_STREAM,
   INSTANTIATION_ERROR,
+  OUT_OF_HEAP_ERROR,
+  OUT_OF_STACK_ERROR,
+  OUT_OF_TRAIL_ERROR,
   PERMISSION_ERROR_ACCESS_PRIVATE_PROCEDURE,
   PERMISSION_ERROR_NEW_ALIAS_FOR_STREAM,
   PERMISSION_ERROR_CREATE_ARRAY,
@@ -762,6 +765,10 @@ typedef struct opcode_tab_entry {
 /******************* controlling the compiler ****************************/
 extern int      optimizer_on;
 
+/******************* storing error messages ****************************/
+#define MAX_ERROR_MSG_SIZE 256
+extern char      ErrorSay[MAX_ERROR_MSG_SIZE];
+
 /********************* how to write a Prolog term ***********************/
 
 /********* Prolog may be in several modes *******************************/
@@ -773,7 +780,8 @@ typedef enum {
   AbortMode =   8,		/* expecting to abort */
   InterruptMode = 16,		/* under an interrupt */
   InErrorMode = 32,		/* under an interrupt */
-  ConsoleGetcMode = 64		/* blocked reading from console */
+  ConsoleGetcMode = 64,		/* blocked reading from console */
+  ExtendStackMode = 128		/* trying to extend stack */
 } prolog_exec_mode;
 
 extern prolog_exec_mode      PrologMode;

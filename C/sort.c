@@ -59,7 +59,7 @@ build_new_list(CELL *pt, Term t)
     pt += 2;
     if (pt > ASP - 4096) {
       if (!gc(2, ENV, P)) {
-	Error(SYSTEM_ERROR, TermNil, "YAP could not grow stack in sort/2");
+	Error(OUT_OF_STACK_ERROR, TermNil, ErrorMessage);
 	return(FALSE);
       }
       t = Deref(ARG1);

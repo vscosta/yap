@@ -602,7 +602,7 @@ YAP_AllocSpaceFromYap(unsigned int size)
 
   if ((ptr = AllocCodeSpace(size)) == NULL) {
     if (!growheap(FALSE)) {
-      Error(SYSTEM_ERROR, TermNil, "YAP failed to reserve space in growheap");
+      Error(SYSTEM_ERROR, TermNil, ErrorMessage);
       return(NULL);
     }
   }

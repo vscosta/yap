@@ -2444,6 +2444,7 @@ if test "$use_condor" = yes
 then
   use_malloc="yes"
   CC="condor_compile $CC"
+    yap_cv_readline="no"
 fi
 
 if test "$GCC" = "yes"
@@ -4611,6 +4612,14 @@ _ACEOF
 	    INSTALL_DLLS="#"
           fi
         fi
+	#do not use realloc() from HP-UX 10.20 together with MPI
+	if test ${target_os} = hpux10.20
+	then
+	  cat >>confdefs.h <<\_ACEOF
+#define MPI_AVOID_REALLOC 1
+_ACEOF
+
+	fi
 	;;
       *aix*)
 	# To actually use dlls in AIX I'd need to build YAP as a DLL first.
@@ -4836,7 +4845,7 @@ fi
 if test "$use_april" = "yes"
   then
    YAP_EXTRAS="$YAP_EXTRAS -DDEPTH_LIMIT=1 -DAPRIL"
-   LDFLAGS="$LDFLAGS -L./"
+   LDFLAGS="$LDFLAGS -L."
    LIBS="$LIBS -lApril"
 fi
 

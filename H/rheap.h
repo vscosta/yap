@@ -1073,7 +1073,7 @@ RestoreClause(Clause *Cl, int mode)
 
 	i = pc->u.s.s;
 	startcode = oldcode = (CELL *)NEXTOP(pc,s);
-	for (j = 0; j < i; ++j) {
+	for (j = 0; j < i; j++) {
 	  Functor oldfunc = (Functor)(oldcode[0]);
 	  CODEADDR oldjmp = (CODEADDR)(oldcode[1]);
 	  if (oldfunc != NULL) {
@@ -1100,7 +1100,7 @@ RestoreClause(Clause *Cl, int mode)
 	startcode =
 #endif
 	  oldcode = (CELL *)NEXTOP(pc,s);
-	for (j = 0; j < i; ++j) {
+	for (j = 0; j < i; j++) {
 #if !USE_OFFSETS
 	  Term oldatom = oldcode[0];
 #endif

@@ -87,8 +87,6 @@ STATIC_PROTO(void  list_all_predicates_in_use, (void));
 
 static int      compile_mode = 1;
 
-static char     ErrorSay[256];
-
 /******************************************************************
   
 			EXECUTING PROLOG CLAUSES
@@ -733,7 +731,7 @@ static void  expand_consult(void)
   /* I assume it always works ;-) */
   while ((new_cl = (consult_obj *)AllocCodeSpace(sizeof(consult_obj)*ConsultCapacity)) == NULL) {
     if (!growheap(FALSE)) {
-      Error(SYSTEM_ERROR,TermNil,"Could not expand consult space: Heap crashed against Stacks");
+      Error(SYSTEM_ERROR,TermNil,ErrorMessage);
       return;
     }
   }

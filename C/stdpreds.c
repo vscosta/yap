@@ -668,7 +668,7 @@ p_atom_concat(void)
     if (cptr+sz >= top-1024) {
       ReleasePreAllocCodeSpace((ADDR)cpt0);
       if (!growheap(FALSE)) {
-	Error(SYSTEM_ERROR, TermNil, "YAP could not grow heap in atom_concat/2 ]\n");
+	Error(SYSTEM_ERROR, TermNil, ErrorMessage);
 	return(FALSE);
       }
       goto restart;
@@ -1179,7 +1179,10 @@ p_univ(void)
       if (H > ASP - 1024) {
 	/* restore space */
 	H = Ar;
-	gc(2, ENV, P);
+	if (!gc(2, ENV, P)) {
+	  Error(OUT_OF_STACK_ERROR, TermNil, ErrorMessage);
+	  return(FALSE);
+	}
 	twork = TailOfTerm(Deref(ARG2));
 	goto build_compound;
       }
@@ -1244,7 +1247,10 @@ p_univ(void)
 #endif
       {
 	if (H+arity*2 > ASP-1024) {
-	  gc(2, ENV, P);
+	  if (!gc(2, ENV, P)) {
+	    Error(OUT_OF_STACK_ERROR, TermNil, ErrorMessage);
+	    return(FALSE);
+	  }
 	  tin = Deref(ARG1);
 	}
 	twork = ArrayToList(RepAppl(tin) + 1, arity);

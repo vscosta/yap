@@ -141,8 +141,6 @@ jmp_buf CompilerBotch;
 
 #define IsNewVar(v) (Addr(v)<freep0 || Addr(v)>freep)
 
-static char ErrorSay[80];
-
 inline static void pop_code(void);
 
 inline static void
@@ -2768,15 +2766,13 @@ cclause(Term inp_clause, int NOfArgs, int mod)
       Int osize = 2*sizeof(CELL)*(ASP-H);
       ARG1 = my_clause;
       if (!gc(2, ENV, P)) {
-	Error_TYPE = SYSTEM_ERROR;
+	Error_TYPE = OUT_OF_STACK_ERROR;
 	Error_Term = my_clause;
-	ErrorMessage = "not enough stack";
       }
       if (osize > ASP-H) {
 	if (!growstack(2*sizeof(CELL)*(ASP-H))) {
 	  Error_TYPE = SYSTEM_ERROR;
 	  Error_Term = my_clause;
-	  ErrorMessage = "not enough stack";
 	}
       }
       my_clause = ARG1;
@@ -2796,7 +2792,6 @@ cclause(Term inp_clause, int NOfArgs, int mod)
     reset_vars();
     Error_TYPE = SYSTEM_ERROR;
     Error_Term = TermNil;
-    ErrorMessage = "not enough heap space to compile clause";
     return(0);
   }
  restart_compilation:
