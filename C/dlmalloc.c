@@ -176,7 +176,7 @@ yapsbrk(long size)
   newHeapTop = HeapTop+size;
   if (Yap_hole_start && newHeapTop > Yap_hole_start) {
     oldHeapTop = Yap_hole_end;
-    newHeapTop = oldHeapTop+size;;
+    newHeapTop = oldHeapTop+size;
     Yap_hole_start = Yap_hole_end = NULL;
   }
   if (newHeapTop > HeapLim - MinHeapGap) {
@@ -2893,6 +2893,7 @@ Yap_initdlmalloc(void)
   Yap_av = (struct malloc_state *)HeapTop;
   memset((void *)Yap_av, 0, sizeof(struct malloc_state));
   HeapTop += sizeof(struct malloc_state);
+  HeapTop = (ADDR)ALIGN_SIZE(HeapTop,2*SIZEOF_LONG_LONG_INT);
   HeapMax = HeapUsed = HeapTop-Yap_HeapBase;
 }
 
