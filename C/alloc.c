@@ -12,7 +12,7 @@
 * Last rev:								 *
 * mods:									 *
 * comments:	allocating space					 *
-* version:$Id: alloc.c,v 1.60 2004-09-30 19:51:53 vsc Exp $		 *
+* version:$Id: alloc.c,v 1.61 2004-10-26 20:15:47 vsc Exp $		 *
 *************************************************************************/
 #ifdef SCCS
 static char SccsId[] = "%W% %G%";
@@ -563,8 +563,6 @@ Yap_ExpandPreAllocCodeSpace(UInt sz)
 /* #define MAX_WORKSPACE 0x40000000L */
 #define MAX_WORKSPACE 0x80000000L
 
-#define ALLOC_SIZE (64*1024)
-
 static LPVOID brk;
 
 static int
@@ -573,11 +571,10 @@ ExtendWorkSpace(Int s, int fixed_allocation)
   LPVOID b = brk;
   prolog_exec_mode OldPrologMode = Yap_PrologMode;
 
-  s = ((s+ (ALLOC_SIZE-1))/ALLOC_SIZE)*ALLOC_SIZE;
   Yap_PrologMode = ExtendStackMode;
-  if (fixed_allocation)
+  if (fixed_allocation) {
     b = VirtualAlloc(b, s, MEM_RESERVE, PAGE_NOACCESS);
-  else {
+  } else {
     b = VirtualAlloc(NULL, s, MEM_RESERVE, PAGE_NOACCESS);
     if (b && b < brk) {
       return ExtendWorkSpace(s, fixed_allocation);
@@ -1337,7 +1334,6 @@ Yap_ExtendWorkSpaceThroughHole(UInt s)
 {
 #if USE_MMAP || defined(_WIN32)
   MALLOC_T WorkSpaceTop0 = WorkSpaceTop;
-
 #if SIZEOF_INT_P==4
   while (WorkSpaceTop < (MALLOC_T)0xc0000000L) {
     /* progress 1 MB */
@@ -1348,16 +1344,16 @@ Yap_ExtendWorkSpaceThroughHole(UInt s)
 #if defined(_WIN32)
     /* 487 happens when you step over someone else's memory */
     if (GetLastError() != 487) {
-      /* I could not manage to allocate the memory*/
-      fprintf(stderr,"I am in trouble here\n");
-      break;
+      WorkSpaceTop = WorkSpaceTop0;
+      return -1;
     }
 #endif
   }
   WorkSpaceTop = WorkSpaceTop0;
 #endif
-  if (ExtendWorkSpace(s, 0))
+  if (ExtendWorkSpace(s, 0)) {
     return WorkSpaceTop-WorkSpaceTop0;
+  }
 #endif
   return -1;
 }

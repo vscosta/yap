@@ -11,8 +11,17 @@
 * File:		YapOpcodes.h						 *
 * comments:	Central Table with all YAP opcodes                       *
 *									 *
-* Last rev:     $Date: 2004-09-27 20:45:04 $							 *
+* Last rev:     $Date: 2004-10-26 20:16:04 $							 *
 * $Log: not supported by cvs2svn $
+* Revision 1.24  2004/09/27 20:45:04  vsc
+* Mega clauses
+* Fixes to sizeof(expand_clauses) which was being overestimated
+* Fixes to profiling+indexing
+* Fixes to reallocation of memory after restoring
+* Make sure all clauses, even for C, end in _Ystop
+* Don't reuse space for Streams
+* Fix Stream_F on StreaNo+1
+*
 * Revision 1.23  2004/03/31 01:03:10  vsc
 * support expand group of clauses
 *
@@ -152,7 +161,7 @@
 #ifdef YAPOR
     OPCODE(or_last                 ,sla),
 #else
-    OPCODE(or_last                 ,e),
+    OPCODE(or_last                 ,p),
 #endif /* YAPOR */
     OPCODE(call_cpred              ,sla),		
     OPCODE(call_usercpred          ,sla),

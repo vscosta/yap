@@ -11,8 +11,11 @@
 * File:		cdmgr.c							 *
 * comments:	Code manager						 *
 *									 *
-* Last rev:     $Date: 2004-10-22 16:53:19 $,$Author: vsc $						 *
+* Last rev:     $Date: 2004-10-26 20:15:51 $,$Author: vsc $						 *
 * $Log: not supported by cvs2svn $
+* Revision 1.137  2004/10/22 16:53:19  vsc
+* bug fixes
+*
 * Revision 1.136  2004/10/06 16:55:46  vsc
 * change configure to support big mem configs
 * get rid of extra globals
@@ -180,11 +183,7 @@ STATIC_PROTO(void  kill_first_log_iblock,(LogUpdIndex *, LogUpdIndex *, PredEntr
 			      (CODEADDR)(P) < (CODEADDR)(B)+(SZ))
 
 static PredEntry *
-PredForChoicePt(choiceptr cp) {
-  yamop *p_code = cp->cp_ap;
-
-  if (cp == NULL)
-    return NULL;
+PredForChoicePt(yamop *p_code) {
   while (TRUE) {
     op_numbers opnum = Yap_op_from_opcode(p_code->opc);
     switch(opnum) {
@@ -220,9 +219,9 @@ PredForChoicePt(choiceptr cp) {
       }
     case _or_last:
 #ifdef YAPOR
-      return p_code->u.ldl.p;
-#else
       return p_code->u.sla.p0;
+#else
+      return p_code->u.p.p;
 #endif
       break;
     case _trust_logical_pred:
@@ -242,7 +241,9 @@ PredForChoicePt(choiceptr cp) {
 
 PredEntry *
 Yap_PredForChoicePt(choiceptr cp) {
-  return PredForChoicePt(cp);
+  if (cp == NULL)
+    return NULL;
+  return PredForChoicePt(cp->cp_ap);
 }
 
 /******************************************************************
@@ -2712,7 +2713,10 @@ search_for_static_predicate_in_use(PredEntry *p, int check_everything)
     }
     /* now mark the choicepoint */
     
-    pe = PredForChoicePt(b_ptr);
+    if (b_ptr)
+      pe = PredForChoicePt(b_ptr->cp_ap);
+    else
+      return NULL;
     if (pe == p) {
       if (check_everything)
 	return TRUE;
@@ -2784,8 +2788,10 @@ do_toggle_static_predicates_in_use(int mask)
       env_ptr = (CELL *)(env_ptr[E_E]);
     }
     /* now mark the choicepoint */
-    if ((pe = PredForChoicePt(b_ptr))) {
+    if ((b_ptr)) {
+      if (pe = PredForChoicePt(b_ptr->cp_ap)) {
 	mark_pred(mask, pe);
+      }
     }
     env_ptr = b_ptr->cp_env;
     b_ptr = b_ptr->cp_b;
@@ -3068,8 +3074,25 @@ PredForCode(yamop *codeptr, Atom *pat, UInt *parity, Term *pmodule) {
 }
 
 Int
-Yap_PredForCode(yamop *codeptr, Atom *pat, UInt *parity, Term *pmodule) {
-  return PredForCode(codeptr, pat, parity, pmodule);
+Yap_PredForCode(yamop *codeptr, find_pred_type where_from, Atom *pat, UInt *parity, Term *pmodule) {
+  PredEntry *p;
+
+  if (where_from == FIND_PRED_FROM_CP) {
+    p = PredForChoicePt(codeptr);
+  } else if (where_from == FIND_PRED_FROM_ENV) {
+    p = EnvPreg(codeptr);
+  } else {
+    return PredForCode(codeptr, pat, parity, pmodule);
+  }
+  if (p == NULL) {
+    return 0;
+  }
+  clause_was_found(p, pat, parity);
+  if (p->ModuleOfPred == PROLOG_MODULE)
+    *pmodule = ModuleName[0];
+  else
+    *pmodule = p->ModuleOfPred;
+  return -1;
 }
 
 

@@ -11,8 +11,11 @@
 * File:		amasm.c							 *
 * comments:	abstract machine assembler				 *
 *									 *
-* Last rev:     $Date: 2004-09-30 21:37:40 $							 *
+* Last rev:     $Date: 2004-10-26 20:15:48 $							 *
 * $Log: not supported by cvs2svn $
+* Revision 1.64  2004/09/30 21:37:40  vsc
+* fixes for thread support
+*
 * Revision 1.63  2004/09/27 20:45:02  vsc
 * Mega clauses
 * Fixes to sizeof(expand_clauses) which was being overestimated
@@ -2803,7 +2806,7 @@ do_pass(int pass_no, yamop **entry_codep, int assembling, int *clause_has_blobsp
 	} while (either_inst[either_cont]->opc != opcode(_either));
       }
 #else
-      code_p = a_e(_or_last, code_p, pass_no);
+      code_p = a_pl(_or_last, cip->CurrentPred, code_p, pass_no);
 #endif	/* YAPOR */
       clinfo.dealloc_found = FALSE;
       break;

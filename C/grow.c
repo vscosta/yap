@@ -552,7 +552,7 @@ static_growheap(long size, int fix_code, struct intermediates *cip)
     minimal_request = size;
     size = Yap_ExtendWorkSpaceThroughHole(size);
     if (size < 0) {
-      strncat(Yap_ErrorMessage,": heap crashed against stacks", MAX_ERROR_MSG_SIZE);
+      Yap_ErrorMessage = "Database crashed against Stacks";
       return FALSE;
     }
   }
@@ -560,8 +560,8 @@ static_growheap(long size, int fix_code, struct intermediates *cip)
   gc_verbose = Yap_is_gc_verbose();
   heap_overflows++;
   if (gc_verbose) {
-    fprintf(Yap_stderr, "[HO] Heap overflow %d\n", heap_overflows);
-    fprintf(Yap_stderr, "[HO]   growing the heap %ld bytes\n", size);
+    fprintf(Yap_stderr, "%% Database overflow %d\n", heap_overflows);
+    fprintf(Yap_stderr, "%%   growing the heap %ld bytes\n", size);
   }
   /* CreepFlag is set to force heap expansion */
   if (ActiveSignals == YAP_CDOVF_SIGNAL) {
@@ -592,8 +592,8 @@ static_growheap(long size, int fix_code, struct intermediates *cip)
   growth_time = Yap_cputime()-start_growth_time;
   total_heap_overflow_time += growth_time;
   if (gc_verbose) {
-    fprintf(Yap_stderr, "[HO]   took %g sec\n", (double)growth_time/1000);
-    fprintf(Yap_stderr, "[HO] Total of %g sec expanding heap \n", (double)total_heap_overflow_time/1000);
+    fprintf(Yap_stderr, "%%   took %g sec\n", (double)growth_time/1000);
+    fprintf(Yap_stderr, "%% Total of %g sec expanding Database\n", (double)total_heap_overflow_time/1000);
   }
   return(TRUE);
 }
@@ -609,15 +609,15 @@ static_growglobal(long size, CELL **ptr)
   size = AdjustPageSize(size);
   Yap_ErrorMessage = NULL;
   if (!Yap_ExtendWorkSpace(size)) {
-    strncat(Yap_ErrorMessage,": global crashed against local", MAX_ERROR_MSG_SIZE);
+    Yap_ErrorMessage = "Global Stack crashed against Local Stack";
     return(FALSE);
   }
   start_growth_time = Yap_cputime();
   gc_verbose = Yap_is_gc_verbose();
   delay_overflows++;
   if (gc_verbose) {
-    fprintf(Yap_stderr, "[DO] Delay overflow %d\n", delay_overflows);
-    fprintf(Yap_stderr, "[DO]   growing the stacks %ld bytes\n", size);
+    fprintf(Yap_stderr, "%% DO Delay overflow %d\n", delay_overflows);
+    fprintf(Yap_stderr, "%% DO   growing the stacks %ld bytes\n", size);
   }
   ASP -= 256;
   YAPEnterCriticalSection();
@@ -635,8 +635,8 @@ static_growglobal(long size, CELL **ptr)
   growth_time = Yap_cputime()-start_growth_time;
   total_delay_overflow_time += growth_time;
   if (gc_verbose) {
-    fprintf(Yap_stderr, "[DO]   took %g sec\n", (double)growth_time/1000);
-    fprintf(Yap_stderr, "[DO] Total of %g sec expanding stacks \n", (double)total_delay_overflow_time/1000);
+    fprintf(Yap_stderr, "%% DO   took %g sec\n", (double)growth_time/1000);
+    fprintf(Yap_stderr, "%% DO Total of %g sec expanding stacks \n", (double)total_delay_overflow_time/1000);
   }
   return(TRUE);
 }
@@ -985,7 +985,7 @@ execute_growstack(long size0, int from_trail)
 
     size = Yap_ExtendWorkSpaceThroughHole(minimal_request);
     if (size < 0) {
-      strncat(Yap_ErrorMessage,": heap crashed against stacks", MAX_ERROR_MSG_SIZE);
+      Yap_ErrorMessage = "Database crashed against stacks";
       return FALSE;
     }
     YAPEnterCriticalSection();
@@ -1173,7 +1173,7 @@ Yap_growstack_in_parser(tr_fr_ptr *old_trp, TokEntry **tksp, VarEntry **vep)
   size = AdjustPageSize(size);
   Yap_ErrorMessage = NULL;
   if (!Yap_ExtendWorkSpace(size)) {
-    strncat(Yap_ErrorMessage,": parser stack overflowed", MAX_ERROR_MSG_SIZE);
+    Yap_ErrorMessage = "Parser stack overflowed";
     return(FALSE);
   }
   start_growth_time = Yap_cputime();

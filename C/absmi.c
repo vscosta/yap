@@ -10,8 +10,11 @@
 *									 *
 * File:		absmi.c							 *
 * comments:	Portable abstract machine interpreter                    *
-* Last rev:     $Date: 2004-10-14 22:14:52 $,$Author: vsc $						 *
+* Last rev:     $Date: 2004-10-26 20:15:36 $,$Author: vsc $						 *
 * $Log: not supported by cvs2svn $
+* Revision 1.149  2004/10/14 22:14:52  vsc
+* don't use a cached version of ARG1 in choice-points
+*
 * Revision 1.148  2004/09/30 21:37:40  vsc
 * fixes for thread support
 *
@@ -6730,7 +6733,7 @@ Yap_absmi(int inp)
 #ifdef YAPOR
       Op(or_last, sla);
 #else
-      Op(or_last, e);
+      Op(or_last, p);
 #endif	/* YAPOR */
       BEGCHO(pt0);
       pt0 = B;
@@ -6759,7 +6762,7 @@ Yap_absmi(int inp)
 #ifdef YAPOR
       PREG = NEXTOP(PREG, sla);
 #else
-      PREG = NEXTOP(PREG, e);
+      PREG = NEXTOP(PREG, p);
 #endif	/* YAPOR */
       SET_BB(PROTECT_FROZEN_B(B));
       GONext();

@@ -299,3 +299,17 @@ Yap_MegaClausePredicateFromTerm(Term t)
   return (PredEntry *)IntegerOfTerm(ArgOfTerm(1,t));
 }
 
+typedef enum {
+  FIND_PRED_FROM_ANYWHERE,
+  FIND_PRED_FROM_CP,
+  FIND_PRED_FROM_ENV
+} find_pred_type;
+
+Int	STD_PROTO(Yap_PredForCode,(yamop *, find_pred_type, Atom *, UInt *, Term *));
+#ifdef DEBUG
+void    STD_PROTO(Yap_bug_location,(yamop *));
+#endif
+
+
+
+

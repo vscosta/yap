@@ -34,7 +34,7 @@
 STATIC_PROTO (int hidden, (Atom));
 STATIC_PROTO (int legal_env, (CELL *));
 void STD_PROTO (DumpActiveGoals, (void));
-STATIC_PROTO (void detect_bug_location, (yamop *,char *, int));
+STATIC_PROTO (void detect_bug_location, (yamop *,find_pred_type,char *, int));
 
 #define ONHEAP(ptr) (CellPtr(ptr) >= CellPtr(Yap_HeapBase)  && CellPtr(ptr) < CellPtr(HeapTop))
 
@@ -174,14 +174,14 @@ DumpActiveGoals (void)
 #endif /* DEBUG */
 
 static void
-detect_bug_location(yamop *yap_pc, char *tp, int psize)
+detect_bug_location(yamop *yap_pc, find_pred_type where_from, char *tp, int psize)
 {
   Atom pred_name;
   UInt pred_arity;
   Term pred_module;
   Int cl;
 
-  if ((cl = Yap_PredForCode(yap_pc, &pred_name, &pred_arity, &pred_module))
+  if ((cl = Yap_PredForCode(yap_pc, where_from, &pred_name, &pred_arity, &pred_module))
       == 0) {
     /* system predicate */
 #if   HAVE_SNPRINTF
@@ -258,10 +258,10 @@ detect_bug_location(yamop *yap_pc, char *tp, int psize)
 }
 
 static void
-cl_position(yamop *ptr)
+cl_position(yamop *ptr, find_pred_type where_from)
 {
   char tp[256];
-  detect_bug_location(ptr, tp, 256);
+  detect_bug_location(ptr, where_from, tp, 256);
   fprintf(stderr,"  %s\n", tp);
 }
 
@@ -279,7 +279,7 @@ dump_stack(void)
     if (b_ptr != NULL) {
       fprintf(stderr," %% Goals with open alternatives:\n");
       while (b_ptr != NULL) {
-	cl_position(b_ptr->cp_ap);
+	cl_position(b_ptr->cp_ap, FIND_PRED_FROM_CP);
 	b_ptr = b_ptr->cp_b;
       }
       fprintf(stderr,"\n");
@@ -287,7 +287,7 @@ dump_stack(void)
     if (env_ptr != NULL) {
       fprintf(stderr," %% Goals left to continue:\n");
       while (env_ptr != NULL) {
-	cl_position((yamop *)(env_ptr[E_CP]));
+	cl_position((yamop *)(env_ptr[E_CP]), FIND_PRED_FROM_ENV);
 	env_ptr = (CELL *)(env_ptr[E_E]);      
       }
       fprintf(stderr,"\n");
@@ -307,16 +307,13 @@ error_exit_yap (int value)
 
 #ifdef DEBUG
 
-#include <stdio.h>
-
-/*
-static void
-bug_location(yamop *pc)
+void
+Yap_bug_location(yamop *pc)
 {
-  detect_bug_location(pc, (char *)H, 256);
+  detect_bug_location(pc, FIND_PRED_FROM_ANYWHERE, (char *)H, 256);
   fprintf(stderr,"%s\n",(char *)H);
 }
-*/
+
 #endif
 
 /* This needs to be a static because I can't trust the stack (WIN32), and
@@ -427,7 +424,7 @@ Yap_Error(yap_error_number type, Term where, char *format,...)
     {
       fprintf(stderr,"%% Internal YAP Error: %s exiting....\n",tmpbuf);
       serious = TRUE;
-      detect_bug_location(P, tmpbuf, YAP_BUF_SIZE);
+      detect_bug_location(P, FIND_PRED_FROM_ANYWHERE, tmpbuf, YAP_BUF_SIZE);
       fprintf(stderr,"%% Bug found while executing %s\n",tmpbuf);
       error_exit_yap (1);
     }

@@ -11,8 +11,13 @@
 * File:		rheap.h							 *
 * comments:	walk through heap code					 *
 *									 *
-* Last rev:     $Date: 2004-10-06 16:55:47 $,$Author: vsc $						 *
+* Last rev:     $Date: 2004-10-26 20:16:18 $,$Author: vsc $						 *
 * $Log: not supported by cvs2svn $
+* Revision 1.44  2004/10/06 16:55:47  vsc
+* change configure to support big mem configs
+* get rid of extra globals
+* fix trouble with multifile preds
+*
 * Revision 1.43  2004/09/27 20:45:04  vsc
 * Mega clauses
 * Fixes to sizeof(expand_clauses) which was being overestimated
@@ -648,7 +653,10 @@ restore_opcodes(yamop *pc)
       pc->u.Ill.l2 = PtoOpAdjust(pc->u.Ill.l2);
       pc = pc->u.Ill.l1;
       break;
-      /* instructions type l */
+      /* instructions type p */
+#if !defined(YAPOR)
+    case _or_last:
+#endif
     case _enter_profiling:
     case _retry_profiled:
     case _lock_lu:
@@ -701,9 +709,6 @@ restore_opcodes(yamop *pc)
     case _write_void:
     case _write_list:
     case _write_l_list:
-#if !defined(YAPOR)
-    case _or_last:
-#endif
     case _pop:
     case _index_pred:
 #if THREADS

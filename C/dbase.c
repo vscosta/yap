@@ -251,9 +251,7 @@ STATIC_PROTO(PredEntry *new_lu_int_key, (Int));
 STATIC_PROTO(PredEntry *find_lu_entry, (Term));
 STATIC_PROTO(DBProp find_int_key, (Int));
 
-#if OS_HANDLES_TR_OVERFLOW
-#define db_check_trail(x)
-#elif USE_SYSTEM_MALLOC
+#if USE_SYSTEM_MALLOC
 #define db_check_trail(x) {                            \
   if (Unsigned(dbg->tofref) == Unsigned(x)) {          \
     goto error_tr_overflow;                            \
@@ -262,9 +260,7 @@ STATIC_PROTO(DBProp find_int_key, (Int));
 #else
 #define db_check_trail(x) {                            \
   if (Unsigned(dbg->tofref) == Unsigned(x)) {          \
-    if(!Yap_growtrail (sizeof(CELL) * 16 * 1024L)) {   \
-      goto error_tr_overflow;                          \
-    }                                                  \
+    goto error_tr_overflow;                            \
   }                                                    \
 }
 #endif
@@ -690,16 +686,16 @@ static CELL *MkDBTerm(register CELL *pt0, register CELL *pt0_end,
       ap2 = RepAppl(d0);
 #ifdef RATIONAL_TREES
       if (ap2 >= tbase && ap2 < StoPoint) {
+	db_check_trail(dbg->lr+1);
 	*dbg->lr++ = ToSmall((CELL)(StoPoint)-(CELL)(tbase));
-	db_check_trail(dbg->lr);
 	*StoPoint++ = d0;
 	++pt0;
 	continue;
       }
 #endif
 #ifdef IDB_LINK_TABLE
+      db_check_trail(dbg->lr+1);
       *dbg->lr++ = ToSmall((CELL)(StoPoint)-(CELL)(tbase));
-      db_check_trail(dbg->lr);
 #endif
       f = (Functor)(*ap2);
       if (IsExtensionFunctor(f)) {
@@ -808,15 +804,15 @@ static CELL *MkDBTerm(register CELL *pt0, register CELL *pt0_end,
       CELL *ap2 = RepPair(d0);
       if (ap2 >= tbase && ap2 < StoPoint) {
 	*StoPoint++ = d0;
+	db_check_trail(dbg->lr+1);
 	*dbg->lr++ = ToSmall((CELL)(StoPoint)-(CELL)(tbase));
-	db_check_trail(dbg->lr);
 	++pt0;
 	continue;
       }
 #endif
 #ifdef IDB_LINK_TABLE
+      db_check_trail(dbg->lr+1);
       *dbg->lr++ = ToSmall((CELL)(StoPoint)-(CELL)(tbase));
-      db_check_trail(dbg->lr);
 #endif
 #ifdef IDB_USE_MBIT
       *StoPoint++ =
@@ -901,8 +897,8 @@ static CELL *MkDBTerm(register CELL *pt0, register CELL *pt0_end,
 	/* the copy we keep will be the current displacement   */
 	*StoPoint = (CELL)StoPoint;
 	StoPoint++;
+	db_check_trail(dbg->lr+1);
 	*dbg->lr++ = ToSmall(displacement);
-	db_check_trail(dbg->lr);
 #endif
 #endif
 	/* indicate we found variables */
@@ -933,8 +929,8 @@ static CELL *MkDBTerm(register CELL *pt0, register CELL *pt0_end,
       } else  {
 	/* references need to be offset at read time */
 #ifdef IDB_LINK_TABLE
+	db_check_trail(dbg->lr+1);
 	*dbg->lr++ = ToSmall(displacement);
-	db_check_trail(dbg->lr);
 #endif
 	/* store the offset */
 #ifdef IDB_USE_MBIT
@@ -1077,8 +1073,8 @@ sf_include(SFKeep *sfp, struct db_globs *dbg)
   if (sfp->SFather != NIL)
     *(sfp->SFather) = AbsAppl(displacement);
   *StoPoint++ = FunctorOfTerm(Tm);
+  db_check_trail(dbg->lr+1);
   *dbg->lr++ = ToSmall(displacement + 1);
-  db_check_trail(dbg->lr);
   *StoPoint++ = (Term) (displacement + 1);
   while (*tp) {
     arg_no = *tp++;
@@ -1086,8 +1082,8 @@ sf_include(SFKeep *sfp, struct db_globs *dbg)
     if (IsVarTerm(tvalue)) {
       if (((VarKeep *) tvalue)->NOfVars != 0) {
 	*StoPoint++ = arg_no;
+	db_check_trail(dbg->lr+1);
 	*dbg->lr++ = ToSmall(displacement + j);
-	db_check_trail(dbg->lr);
 	if (((VarKeep *) tvalue)->New == 0)
 	  *StoPoint++ = ((VarKeep *) tvalue)->New = Unsigned(displacement + j);
 	else
