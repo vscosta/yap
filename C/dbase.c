@@ -3863,7 +3863,11 @@ EraseLogUpdCl(LogUpdClause *clau)
       DBErasedList = clau;
     }
 #endif
+    /* we are holding a reference to the clause */
+    clau->ClRefCount++;
     Yap_RemoveClauseFromIndex(clau->ClPred, clau->ClCode);
+    /* release the extra reference */
+    clau->ClRefCount--;
   }
   complete_lu_erase(clau);
 }
