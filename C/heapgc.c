@@ -222,19 +222,6 @@ exchange(CELL_PTR * b, UInt i, UInt j)
 }
 
 static UInt
-gc_random(UInt l, UInt h) 
-{
-#if HAVE_RANDOM
-  return (random () % (h-l+1))+l;
-#elif HAVE_RAND
-  return (rand () % (h-l+1))+l;
-#else
-  return ((h+l)/2);
-#endif
-}
-
-
-static UInt
 partition(CELL *a[], UInt p, UInt r)
 { 
   CELL *x;
@@ -288,17 +275,8 @@ insort(CELL *a[], UInt p, UInt q)
 }
 
 
-static int
-randomised_partition(CELL *a[], UInt p, UInt r)
-{
-  UInt m = gc_random(p,r);
-  exchange(a, p, m);
-  return partition(a, p, r);
-}
-
-
 static void
-randomised_quicksort(CELL *a[], UInt p, UInt r)
+quicksort(CELL *a[], UInt p, UInt r)
 { 
   UInt q;
   if (p < r) {
@@ -306,9 +284,10 @@ randomised_quicksort(CELL *a[], UInt p, UInt r)
       insort(a, p, r);
       return;
     }
-    q = randomised_partition (a, p, r);  
-    randomised_quicksort(a, p, q-1);
-    randomised_quicksort(a, q + 1, r);
+    exchange(a, p, (p+r)/2);
+    q = partition (a, p, r);  
+    quicksort(a, p, q-1);
+    quicksort(a, q + 1, r);
   }
 }
 
@@ -675,8 +654,8 @@ init_dbtable(tr_fr_ptr trail_ptr) {
 
 #ifdef DEBUG
 
-#define INSTRUMENT_GC 1
-/*#define CHECK_CHOICEPOINTS 1*/
+/*#define INSTRUMENT_GC 1*/
+#define CHECK_CHOICEPOINTS 1
 
 #ifdef INSTRUMENT_GC
 typedef enum {
@@ -2567,11 +2546,21 @@ compaction_phase(tr_fr_ptr old_TR, CELL *current_env, yamop *curp, CELL *max)
     YP_fprintf(YP_stderr,"[GC] Oops on iptop-H (%d) vs %d\n", iptop-(CELL_PTR *)H, total_marked);
 #endif
   if (iptop < (CELL_PTR *)ASP-1024 && 10*total_marked < H-H0) {
-    randomised_quicksort((CELL_PTR *)H, 0, (iptop-(CELL_PTR *)H)-1);
+#ifdef DEBUG
+    int effectiveness = (((H-H0)-total_marked)*100)/(H-H0);
+    fprintf(stderr,"using pointers (%d)\n", effectiveness);
+#endif
+    quicksort((CELL_PTR *)H, 0, (iptop-(CELL_PTR *)H)-1);
     icompact_heap();
   } else
 #endif /* HYBRID_SCHEME */
-    compact_heap();
+    {
+#ifdef DEBUG
+      int effectiveness = (((H-H0)-total_marked)*100)/(H-H0);
+      fprintf(stderr,"not using pointers (%d)\n", effectiveness);
+#endif
+      compact_heap();
+    }
 }
 
 static Int
@@ -2735,6 +2724,10 @@ gc(Int predarity, CELL *current_env, yamop *nextop)
   gc_margin = gc_margin << 8;
   if (gc_on)
     effectiveness = do_gc(predarity, current_env, nextop);
+  if (effectiveness > 90) {
+    while (gc_margin < H-H0) 
+      gc_margin <<= 1;
+  }
   /* expand the stak if effectiveness is less than 20 % */
   if (ASP - H < gc_margin || !gc_on || effectiveness < 20) {
     if (ASP-H > gc_margin)
