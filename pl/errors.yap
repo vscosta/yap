@@ -56,7 +56,7 @@ print_message(informational,M) :-
 print_message(warning,M) :-
 	format(user_error,"[ Warning: ", []),
 	'$do_print_message'(M),
-	format(user_error," ]", []).
+	format(user_error," ]~n", []).
 print_message(help,M) :-
 	format(user_error,"help on ~p",[M]).
 
@@ -65,6 +65,9 @@ print_message(help,M) :-
 	format(user_error,"[ The debugger will first creep -- showing everything (trace) ]~n",[]).
 '$do_print_message'(format(Msg, Args)) :- !,
 	format(user_error,Msg,Args).
+'$do_print_message'(import(Pred,To,From,private)) :-
+	format(user_error,"importing private predicate ~w:~w to ~w",
+	[From,Pred,To]).
 '$do_print_message'(Messg) :-
 	format(user_error,"~q",Messg).
 

@@ -245,8 +245,7 @@ module(N) :-
 	'$use_preds'(Ps,Publics,Mod,M).
 '$use_preds'(N/K,Publics,M,Mod) :-
     (  '$member'(N/K,Publics) -> true ;
-		format(user_error,'[ Warning: there is no exported predicate ~w in module ~w]~n',
-			   [N/K,M])
+	print_message(warning,import(N/K,Mod,M,private))
     ),
     ( '$check_import'(M,Mod,N,K) -> 
 	%	     format(user_error,'[ Importing ~w to ~w]~n',[M:N/K,Mod]),
