@@ -1349,16 +1349,13 @@ Yap_RunTopGoal(Term t)
     return(FALSE);
   }
   ppe = RepPredProp(pe);
-  if (pe != NIL) {
-    READ_LOCK(ppe->PRWLock);
-  } else if (pe == NIL) {
+  if (pe == NIL) {
     /* we must always start the emulator with Prolog code */
-    return(FALSE);
+    return FALSE;
   }
+  READ_LOCK(ppe->PRWLock);
   CodeAdr = ppe->CodeOfPred;
-  if (pe != NIL) {
-    READ_UNLOCK(ppe->PRWLock);
-  }
+  READ_UNLOCK(ppe->PRWLock);
   if (Yap_TrailTop - HeapTop < 2048) {
     Yap_PrologMode = BootMode;
     Yap_Error(SYSTEM_ERROR,TermNil,

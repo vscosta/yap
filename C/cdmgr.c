@@ -3146,8 +3146,8 @@ fetch_next_lu_clause(PredEntry *pe, yamop *i_code, Term th, Term tb, Term tr, ya
 #endif
 #if defined(YAPOR) || defined(THREADS)
   if (PP == pe) {
-    PP = NULL;
     READ_UNLOCK(pe->PRWLock);
+    PP = NULL;
   }
 #endif
 #if defined(YAPOR) || defined(THREADS)
@@ -3172,9 +3172,7 @@ fetch_next_lu_clause(PredEntry *pe, yamop *i_code, Term th, Term tb, Term tr, ya
 	YENV = ASP;
 	YENV[E_CB] = (CELL) B;
       }
-      READ_LOCK(pe->PRWLock);
       P = cl->ClCode;
-      READ_UNLOCK(pe->PRWLock);
     }
     return TRUE;
   } else {
@@ -3242,8 +3240,8 @@ fetch_next_lu_clause0(PredEntry *pe, yamop *i_code, Term th, Term tb, yamop *cp_
   cl = Yap_FollowIndexingCode(pe, i_code, th, tb, TermNil, NEXTOP(PredLogUpdClause0->CodeOfPred,ld), cp_ptr);
 #if defined(YAPOR) || defined(THREADS)
   if (PP == pe) {
-    PP = NULL;
     READ_UNLOCK(pe->PRWLock);
+    PP = NULL;
   }
 #endif
   if (cl == NULL) {
@@ -3267,9 +3265,7 @@ fetch_next_lu_clause0(PredEntry *pe, yamop *i_code, Term th, Term tb, yamop *cp_
 	YENV = ASP;
 	YENV[E_CB] = (CELL) B;
       }
-      READ_LOCK(pe->PRWLock);
       P = cl->ClCode;
-      READ_UNLOCK(pe->PRWLock);
     }
     return TRUE;
   } else {

@@ -1083,6 +1083,7 @@ Yap_absmi(int inp)
       READ_LOCK(PP->PRWLock);
       if (PP->cs.p_code.TrueCodeOfPred != PREG) {
 	PREG = PP->cs.p_code.TrueCodeOfPred;
+	PP = NULL;
 	READ_UNLOCK(PP->PRWLock);
 	GONext();
       }
@@ -6377,10 +6378,6 @@ Yap_absmi(int inp)
 #endif
  	saveregs();
 	pt0 = Yap_ExpandIndex(pe);
-	if (PP == NULL) {
-	  READ_UNLOCK(pe->PRWLock);
-	  PP = pe;
-	}
 	/* restart index */
 	setregs();
 	UNLOCK(pe->PELock);

@@ -3280,6 +3280,7 @@ c_recorded(int flags)
 static Int
 lu_recorded(PredEntry *pe) {
   op_numbers opc = Yap_op_from_opcode(P->opc);
+
   if (opc == _procceed) {
     P = pe->CodeOfPred;
   } else {
