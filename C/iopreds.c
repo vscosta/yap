@@ -926,6 +926,7 @@ ReadlineGetc(int sno)
       ProcessSIGINT();
       PrologMode &= ~ConsoleGetcMode;
       if (PrologMode & AbortMode) {
+	Error(PURE_ABORT, TermNil, "");
 	ErrorMessage = "Abort";
 	return(console_post_process_read_char(EOF, s, sno));
       }
@@ -1301,6 +1302,7 @@ ConsoleGetc(int sno)
     PrologMode &= ~ConsoleGetcMode;
     newline = TRUE;
     if (PrologMode & AbortMode) {
+      Error(PURE_ABORT, TermNil, "");
       ErrorMessage = "Abort";
       return(console_post_process_read_char(EOF, s, sno));
     }

@@ -1072,7 +1072,6 @@ InteractSIGINT(int ch) {
     if (PrologMode & ConsoleGetcMode) {
       PrologMode |= AbortMode;
     } else {
-      getc(stdin);
       Error(PURE_ABORT, TermNil, "");
       /* in case someone mangles the P register */
 #if  _MSC_VER || defined(__MINGW32__)
@@ -1235,6 +1234,7 @@ HandleSIGINT (int sig)
 #if HAVE_LIBREADLINE
     if (PrologMode & ConsoleGetcMode) {
       fprintf(stderr, "Action (h for help): ");
+      rl_point = rl_end = 0;
 #if HAVE_RL_SET_PROMPT
       rl_set_prompt("Action (h for help): ");
 #endif
