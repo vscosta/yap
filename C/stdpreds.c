@@ -9,9 +9,10 @@
 **************************************************************************
 *									 *
 * File:		stdpreds.c						 *
-* Last rev:								 *
-* mods:									 *
 * comments:	General-purpose C implemented system predicates		 *
+*									 *
+* Last rev:     $Date: 2004-04-27 15:14:36 $,$Author: vsc $						 *
+* $Log: not supported by cvs2svn $									 *
 *									 *
 *************************************************************************/
 #ifdef SCCS
@@ -65,7 +66,6 @@ STD_PROTO(static Int p_number_codes, (void));
 STD_PROTO(static Int p_univ, (void));
 STD_PROTO(static Int p_abort, (void));
 STD_PROTO(static Int p_halt, (void));
-STD_PROTO(static Int p_halt0, (void));
 STD_PROTO(static Int init_current_atom, (void));
 STD_PROTO(static Int cont_current_atom, (void));
 STD_PROTO(static Int init_current_predicate, (void));
@@ -1717,26 +1717,8 @@ p_halt(void)
     return(FALSE);
   }
   out = IntegerOfTerm(t);
-  if (yap_flags[HALT_AFTER_CONSULT_FLAG]) {
-    Yap_exit(out);
-  } else {
-    fprintf(Yap_stderr, "\n\n[ Prolog execution halted ]\n");
-    Yap_exit(out);
-  }
-  return (TRUE);
-}
-
-
-static Int 
-p_halt0(void)
-{				/* halt				 */
-  if (yap_flags[HALT_AFTER_CONSULT_FLAG]) {
-    Yap_exit(0);
-  } else {
-    fprintf(Yap_stderr, "\n\n[ Prolog execution halted ]\n");
-    Yap_exit(0);
-  }
-  return (TRUE);
+  Yap_exit(out);
+  return TRUE;
 }
 
 
@@ -2726,8 +2708,7 @@ Yap_InitCPreds(void)
   Yap_InitCPred("$access_yap_flags", 2, p_access_yap_flags, SafePredFlag);
   Yap_InitCPred("$set_yap_flags", 2, p_set_yap_flags, SafePredFlag|SyncPredFlag);
   Yap_InitCPred("abort", 0, p_abort, SyncPredFlag);
-  Yap_InitCPred("halt", 1, p_halt, SyncPredFlag);
-  Yap_InitCPred("halt", 0, p_halt0, SyncPredFlag);
+  Yap_InitCPred("$halt", 1, p_halt, SyncPredFlag);
   Yap_InitCPred("$host_type", 1, p_host_type, SyncPredFlag);
   Yap_InitCPred("$lock_system", 0, p_lock_system, SafePredFlag);
   Yap_InitCPred("$unlock_system", 0, p_unlock_system, SafePredFlag);

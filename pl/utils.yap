@@ -687,3 +687,13 @@ version(T) :-
 	recorda('$toplevel_hooks',H,_),
 	fail.
 '$set_toplevel_hook'(_).
+
+halt(X) :- '$halt'(X).
+
+halt :-
+	'$print_message'(informational, halt),
+	'$halt'(0).
+
+halt(X) :-
+	'$halt'(X).
+

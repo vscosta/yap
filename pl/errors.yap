@@ -81,6 +81,8 @@ print_message(Level, Mss) :-
 	'$format'(user_error, '~n', []).
 
 
+'$do_informational_message'(halt) :- !,
+	'$format'(user_error, '[ Prolog execution halted ]~n', []).
 '$do_informational_message'(abort(_)) :- !,
 	'$format'(user_error, '[ Execution Aborted ]~n', []).
 '$do_informational_message'(loading(_,user)) :- !.
