@@ -57,6 +57,7 @@
 #undef  HAVE_IEEEFP_H
 #undef  HAVE_IO_H
 #undef  HAVE_LIMITS_H
+#undef  HAVE_MACH_O_DYLD_H
 #undef  HAVE_MALLOC_H
 #undef  HAVE_MATH_H
 #undef  HAVE_MEMORY_H
@@ -167,6 +168,7 @@
 #undef  HAVE_MKSTEMP
 #undef  HAVE_MKTEMP
 #undef  HAVE_MMAP
+#undef  HAVE_NSLINKMODULE
 #undef  HAVE_OPENDIR
 #undef  HAVE_POPEN
 #undef  HAVE_PUTENV

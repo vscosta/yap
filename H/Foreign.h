@@ -38,6 +38,10 @@
 #define LOAD_DL 1
 #endif /* LOAD_DL */
 
+#if HAVE_NSLINKMODULE
+#define LOAD_DYLD 1
+#endif /* LOAD_DYLD */
+
 #if defined(sparc) || defined(__sparc)
 #undef NO_DYN
 #if (!defined(__svr4__) && !defined(__SVR4))

@@ -138,7 +138,7 @@ C_SOURCES= \
 	$(srcdir)/C/load_foreign.c \
 	$(srcdir)/C/load_dl.c $(srcdir)/C/load_dld.c $(srcdir)/C/load_none.c \
 	$(srcdir)/C/load_aout.c $(srcdir)/C/load_aix.c $(srcdir)/C/load_dll.c \
-	$(srcdir)/C/load_shl.c \
+	$(srcdir)/C/load_shl.c $(srcdir)/C/load_dyld.c \
 	$(srcdir)/C/mavar.c $(srcdir)/C/modules.c $(srcdir)/C/other.c       \
 	$(srcdir)/C/parser.c \
 	$(srcdir)/C/save.c $(srcdir)/C/scanner.c \
@@ -183,7 +183,7 @@ ENGINE_OBJECTS = \
 	unify.o userpreds.o utilpreds.o write.o ypsocks.o ypstdio.o @MPI_OBJS@
 
 C_INTERFACE_OBJECTS = \
-	load_foreign.o load_dl.o load_dld.o \
+	load_foreign.o load_dl.o load_dld.o load_dyld.o \
 	load_none.o load_aout.o load_aix.o load_dll.o load_shl.o \
 	c_interface.o
 
@@ -351,6 +351,9 @@ load_dld.o: $(srcdir)/C/load_dld.c
 
 load_dll.o: $(srcdir)/C/load_dll.c
 	$(CC) -c $(CFLAGS) $(srcdir)/C/load_dll.c -o $@
+
+load_dyld.o: $(srcdir)/C/load_dyld.c
+	$(CC) -c $(CFLAGS) $(srcdir)/C/load_dyld.c -o $@
 
 load_shl.o: $(srcdir)/C/load_shl.c
 	$(CC) -c $(CFLAGS) $(srcdir)/C/load_shl.c -o $@
