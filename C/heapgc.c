@@ -3161,19 +3161,21 @@ Yap_gc(Int predarity, CELL *current_env, yamop *nextop)
 #endif
   if (Yap_GetValue(AtomGc) != TermNil)
     gc_on = TRUE;
-  if (IsIntTerm(Tgc_margin = Yap_GetValue(AtomGcMargin)))
+  if (IsIntTerm(Tgc_margin = Yap_GetValue(AtomGcMargin))) {
     gc_margin = IntOfTerm(Tgc_margin);
-  else {
+  } else {
     if (gc_calls < 8) 
       gc_margin <<= gc_calls;
     else
       gc_margin <<= 8;
   }
-  if (gc_margin < 0 || gc_margin > 4000)
+  if (gc_margin < 0 || gc_margin > 4000) {
     gc_margin = (LCL0 - H0) >> 9;
+  }
   gc_margin = gc_margin << 8;
-  if (gc_on)
+  if (gc_on) {
     effectiveness = do_gc(predarity, current_env, nextop);
+  }
   if (effectiveness > 90) {
     while (gc_margin < H-H0) 
       gc_margin <<= 1;

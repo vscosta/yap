@@ -423,9 +423,9 @@ module(N) :-
 	'$system_predicate'(G,M), !,
 	'$c_built_in'(G,M,Gi),
 	(Gi \== G ->
-	   '$module_expansion'(Gi,Gi,G2,M,CM,TM,HVars) ;
-	 TM = M ->
-	    G2 = G, G1 = G,
+	   '$module_expansion'(Gi,Gi,G2,M,CM,TM,HVars)
+	 ; TM = M ->
+	    G2 = G, G1 = G
 	;
 	    G2 = M:G, G1 = M:G % atts:
 	).

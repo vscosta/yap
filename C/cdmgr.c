@@ -1279,7 +1279,7 @@ p_purge_clauses(void)
     RemoveIndexation(pred);
   Yap_PutValue(AtomAbol, MkAtomTerm(AtomTrue));
   q = pred->cs.p_code.FirstClause;
-  in_use = static_in_use(pred,FALSE);
+  in_use = static_in_use(pred,TRUE);
   if (q != NIL)
     do {
       q1 = q;
@@ -1845,6 +1845,12 @@ search_for_static_predicate_in_use(PredEntry *p, int check_everything)
   choiceptr b_ptr = B;
   CELL *env_ptr = ENV;
 
+  if (check_everything) {
+    PredEntry *pe = EnvPreg(P);
+    if (p == pe) return(TRUE);
+    pe = EnvPreg(CP);
+    if (p == pe) return(TRUE);
+  }
   do {
     /* check first environments that are younger than our latest choicepoint */
     if (check_everything) {
