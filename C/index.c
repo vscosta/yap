@@ -2873,8 +2873,8 @@ emit_protection_choicepoint(int first, int clleft, UInt nxtlbl, PredEntry *ap)
 	but should work.
       */
       Yap_emit(retryme_op, (CELL)TRUSTFAILCODE, 0);
-    } else {
 #endif
+    } else {
       Yap_emit(trustme_op, 0, 0);
     }
   }

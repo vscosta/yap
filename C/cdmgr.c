@@ -1491,21 +1491,6 @@ p_showconslultlev(void)
 static void
 end_consult(void)
 {
-#if defined(YAPOR) || defined(THREADS)
-  consult_obj  *fp;
-
-  /* force indexing for static and dynamic update predicates
-     after consult and not when all hell may break loose ! */
-  for (fp = ConsultSp; fp < ConsultBase; ++fp) {
-    PredEntry *pred = RepPredProp(fp->p);
-    WRITE_LOCK(pred->PRWLock);
-    if (pred->OpcodeOfPred == INDEX_OPCODE) {
-      IPred(pred);
-      /* IPred does the unlocking */
-    }
-    WRITE_UNLOCK(pred->PRWLock);
-  }
-#endif
   ConsultSp = ConsultBase;
   ConsultBase = ConsultSp+ConsultSp->c;
   ConsultSp += 3;
