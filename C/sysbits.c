@@ -1301,7 +1301,6 @@ MSCHandleSignal(DWORD dwCtrlType) {
   case CTRL_C_EVENT:
   case CTRL_BREAK_EVENT:
     p_creep();
-    PutValue(AtomThrow, MkAtomTerm(AtomTrue));
     PrologMode |= AbortMode;
     return(TRUE);
   default:
