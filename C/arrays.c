@@ -1637,7 +1637,7 @@ InitArrayPreds(void)
   InitCPred("resize_static_array", 3, p_resize_static_array, SafePredFlag|SyncPredFlag);
   InitCPred("mmapped_array", 4, p_create_mmapped_array, SafePredFlag|SyncPredFlag);
   InitCPred("update_array", 3, p_assign_static, SafePredFlag);
-  InitCPred("array_element", 3, p_access_array, SafePredFlag);
+  InitCPred("array_element", 3, p_access_array, 0);
   InitCPred("close_static_array", 1, p_close_static_array, SafePredFlag);
   InitCPred("$sync_mmapped_arrays", 0, p_sync_mmapped_arrays, SafePredFlag);
   InitCPred("$compile_array_refs", 0, p_compile_array_refs, SafePredFlag);
