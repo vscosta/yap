@@ -316,16 +316,16 @@ ord_member(>,El,[H|T]) :-
 ord_union([], []).
 ord_union([Set|Sets], Union) :-
     length([Set|Sets], NumberOfSets),
-    merge_all(NumberOfSets, [Set|Sets], Union, []).
+    ord_union_all(NumberOfSets, [Set|Sets], Union, []).
 
-merge_all(N,Sets0,Union,Sets) :-
+ord_union_all(N,Sets0,Union,Sets) :-
     (  N=:=1  -> Sets0=[Union|Sets]
     ;  N=:=2  -> Sets0=[Set1,Set2|Sets], 
-                 merge(Set1,Set2,Union)
+                 ord_union(Set1,Set2,Union)
     ;  A is N>>1,
        Z is N-A,
-       merge_all(A, Sets0, X, Sets1),
-       merge_all(Z, Sets1, Y, Sets),
-       merge(X, Y, Union)
+       ord_union_all(A, Sets0, X, Sets1),
+       ord_union_all(Z, Sets1, Y, Sets),
+       ord_union(X, Y, Union)
     ).
 

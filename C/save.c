@@ -2104,6 +2104,7 @@ RestoreClause(Clause *Cl)
     case _p_slr_vv:
     case _p_arg_vv:
     case _p_func2s_vv:
+    case _p_func2f_xx:
       pc->u.xxx.x  = XAdjust(pc->u.xxx.x);
       pc->u.xxx.x1 = XAdjust(pc->u.xxx.x1);
       pc->u.xxx.x2 = XAdjust(pc->u.xxx.x2);
@@ -2140,6 +2141,13 @@ RestoreClause(Clause *Cl)
       pc->u.xcx.xi = XAdjust(pc->u.xcx.xi);
       pc = NEXTOP(pc,xcx);
       break;
+      /* instructions type xyx */
+    case _p_func2f_xy:
+      pc->u.xyx.x = XAdjust(pc->u.xyx.x);
+      pc->u.xyx.x1 = XAdjust(pc->u.xyx.x1);
+      pc->u.xyx.y2  = YAdjust(pc->u.xyx.y2);
+      pc = NEXTOP(pc,xyx);
+      break;
       /* instructions type yxx */
     case _p_plus_y_vv:
     case _p_minus_y_vv:
@@ -2151,10 +2159,18 @@ RestoreClause(Clause *Cl)
     case _p_slr_y_vv:
     case _p_arg_y_vv:
     case _p_func2s_y_vv:
+    case _p_func2f_yx:
       pc->u.yxx.y  = YAdjust(pc->u.yxx.y);
       pc->u.yxx.x1 = XAdjust(pc->u.yxx.x1);
       pc->u.yxx.x2 = XAdjust(pc->u.yxx.x2);
       pc = NEXTOP(pc,yxx);
+      break;
+      /* instructions type yyx */
+    case _p_func2f_yy:
+      pc->u.yyx.y1 = YAdjust(pc->u.yyx.y1);
+      pc->u.yyx.y2 = YAdjust(pc->u.yyx.y2);
+      pc->u.yyx.x = XAdjust(pc->u.yyx.x);
+      pc = NEXTOP(pc,yyx);
       break;
       /* instructions type yxc */
     case _p_plus_y_vc:
