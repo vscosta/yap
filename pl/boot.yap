@@ -300,7 +300,7 @@ repeat :- '$repeat'.
 	'$go_compile_clause'(G,V,5),
 	fail.
 '$continue_with_command'(consult,V,G) :-
-	'$go_compile_clause'(G,V,5),
+	'$go_compile_clause'(G,V,13),
 	fail.
 '$continue_with_command'(top,V,G) :-
 	'$query'(G,V).
@@ -328,7 +328,7 @@ repeat :- '$repeat'.
 		'$check_term'(G,V) ; true ),
 	'$precompile_term'(G, G0, G1).
 
-% proccess an input clause
+% process an input clause
 '$$compile'(G,G0,L) :-
 	'$head_and_body'(G,H,_), 
 	'$inform_of_clause'(H,L),

@@ -174,13 +174,16 @@ assertz_static(C) :-
 '$assertz_dynamic'(X,C,C0) :- (X/\4)=:=0, !,
 	'$head_and_body'(C,H,B),
 	'$assertat_d'(last,H,B,C0,_).
-'$assertz_dynamic'(_,C,C0) :- 
+'$assertz_dynamic'(X,C,C0) :- 
 	'$head_and_body'(C,H,B), functor(H,N,A),
-	( '$check_if_reconsulted'(N,A) ->
+	('$check_if_reconsulted'(N,A) ->
 		true
 		 ;
+	  (X/\8)=:=0 ->
 		'$inform_as_reconsulted'(N,A),
 		'$remove_all_d_clauses'(H)
+		 ;
+		true
 	),
 	'$assertat_d'(last,H,B,C0,_).
 
