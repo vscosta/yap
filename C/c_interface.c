@@ -10,8 +10,15 @@
 * File:		c_interface.c						 *
 * comments:	c_interface primitives definition 			 *
 *									 *
-* Last rev:	$Date: 2004-10-28 20:12:20 $,$Author: vsc $						 *
+* Last rev:	$Date: 2004-10-31 02:18:03 $,$Author: vsc $						 *
 * $Log: not supported by cvs2svn $
+* Revision 1.55  2004/10/28 20:12:20  vsc
+* Use Doug Lea's malloc as an alternative to YAP's standard malloc
+* don't use TR directly in scanner/parser, this avoids trouble with ^C while
+* consulting large files.
+* pass gcc -mno-cygwin to library compilation in cygwin environment (cygwin should
+* compile out of the box now).
+*
 * Revision 1.54  2004/10/06 16:55:46  vsc
 * change configure to support big mem configs
 * get rid of extra globals
@@ -968,6 +975,7 @@ YAP_CompileClause(Term t)
 {
   yamop *codeaddr;
   int mod = CurrentModule;
+  Term tn = TermNil
 
   BACKUP_MACHINE_REGS();
 
@@ -977,7 +985,7 @@ YAP_CompileClause(Term t)
   codeaddr = Yap_cclause (t,0, mod, t);
   if (codeaddr != NULL) {
     t = Deref(ARG1); /* just in case there was an heap overflow */
-    Yap_addclause (t, codeaddr, TRUE, mod, TermNil);
+    Yap_addclause (t, codeaddr, TRUE, mod, &tn);
   }
   YAPLeaveCriticalSection();
 

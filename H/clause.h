@@ -185,7 +185,7 @@ void    STD_PROTO(Yap_InitComma,(void));
 
 /* cdmgr.c */
 void	STD_PROTO(Yap_IPred,(PredEntry *, UInt));
-int	STD_PROTO(Yap_addclause,(Term,yamop *,int,Term,Term));
+int	STD_PROTO(Yap_addclause,(Term,yamop *,int,Term,Term*));
 void	STD_PROTO(Yap_add_logupd_clause,(PredEntry *,LogUpdClause *,int));
 void	STD_PROTO(Yap_kill_iblock,(ClauseUnion *,ClauseUnion *,PredEntry *));
 void	STD_PROTO(Yap_cleanup_dangling_indices,(yamop *,yamop *,yamop *,yamop *));

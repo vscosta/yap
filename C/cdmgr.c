@@ -11,8 +11,15 @@
 * File:		cdmgr.c							 *
 * comments:	Code manager						 *
 *									 *
-* Last rev:     $Date: 2004-10-28 20:12:21 $,$Author: vsc $						 *
+* Last rev:     $Date: 2004-10-31 02:18:03 $,$Author: vsc $						 *
 * $Log: not supported by cvs2svn $
+* Revision 1.139  2004/10/28 20:12:21  vsc
+* Use Doug Lea's malloc as an alternative to YAP's standard malloc
+* don't use TR directly in scanner/parser, this avoids trouble with ^C while
+* consulting large files.
+* pass gcc -mno-cygwin to library compilation in cygwin environment (cygwin should
+* compile out of the box now).
+*
 * Revision 1.138  2004/10/26 20:15:51  vsc
 * More bug fixes for overflow handling
 *
@@ -1482,7 +1489,7 @@ is_fact(Term t)
 }
 
 static int
-addclause(Term t, yamop *cp, int mode, Term mod, Term t4ref)
+addclause(Term t, yamop *cp, int mode, Term mod, Term *t4ref)
 /*
  *
  mode
@@ -1608,8 +1615,8 @@ addclause(Term t, yamop *cp, int mode, Term mod, Term t4ref)
   } else {
     tf = Yap_MkStaticRefTerm((StaticClause *)cp);
   }
-  if (t4ref != TermNil) {
-    if (!Yap_unify(t4ref,tf)) {
+  if (*t4ref != TermNil) {
+    if (!Yap_unify(*t4ref,tf)) {
       return FALSE;
     }
   }
@@ -1628,7 +1635,7 @@ addclause(Term t, yamop *cp, int mode, Term mod, Term t4ref)
 }
 
 int
-Yap_addclause(Term t, yamop *cp, int mode, Term mod, Term t4ref) {
+Yap_addclause(Term t, yamop *cp, int mode, Term mod, Term *t4ref) {
   return addclause(t, cp, mode, mod, t4ref);
 }
 
@@ -1875,6 +1882,7 @@ p_compile(void)
   Term            t = Deref(ARG1);
   Term            t1 = Deref(ARG2);
   Term            mod = Deref(ARG4);
+  Term            tn = TermNil;
   yamop           *codeadr;
 
   if (IsVarTerm(t1) || !IsIntTerm(t1))
@@ -1887,7 +1895,7 @@ p_compile(void)
 			      to cclause in case there is overflow */
   t = Deref(ARG1);        /* just in case there was an heap overflow */
   if (!Yap_ErrorMessage)
-    addclause(t, codeadr, (int) (IntOfTerm(t1) & 3), mod, TermNil);
+    addclause(t, codeadr, (int) (IntOfTerm(t1) & 3), mod, &tn);
   YAPLeaveCriticalSection();
   if (Yap_ErrorMessage) {
     if (IntOfTerm(t1) & 4) {
@@ -1922,7 +1930,7 @@ p_compile_dynamic(void)
   if (!Yap_ErrorMessage) {
     
     optimizer_on = old_optimize;
-    addclause(t, code_adr, (int) (IntOfTerm(t1) & 3), mod, ARG5);
+    addclause(t, code_adr, (int) (IntOfTerm(t1) & 3), mod, &ARG5);
   } 
   if (Yap_ErrorMessage) {
     if (IntOfTerm(t1) & 4) {
