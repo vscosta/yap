@@ -1,4 +1,4 @@
-/*  $Id: jpl.yap,v 1.2 2005-03-13 06:26:12 vsc Exp $
+/*  $Id: jpl.yap,v 1.3 2005-03-15 18:29:24 vsc Exp $
 
     Part of JPL -- SWI-Prolog/Java interface
 
@@ -834,6 +834,9 @@ jpl_new_array(boolean, Len, A) :-
     jNewBooleanArray(Len, A).
 
 jpl_new_array(byte, Len, A) :-
+    jNewByteArray(Len, A).
+
+jpl_new_array(char_byte, Len, A) :-
     jNewByteArray(Len, A).
 
 jpl_new_array(char, Len, A) :-
@@ -3013,7 +3016,7 @@ jpl_cache_type_of_ref(T, @(Tag)) :-
     (	\+ ground(T)
     ->	write('[jpl_cache_type_of_ref/2: arg 1 is not ground]'), nl,
 	fail
-    ;	\+ atom(Tag)
+    ;	\+ integer(Tag)
     ->	write('[jpl_cache_type_of_ref/2: arg 2 is not an atomic-tag ref]'), nl,
 	fail
     ;	Tag == null
@@ -3319,10 +3322,7 @@ jpl_is_object_type(T) :-
 %   could check initial character(s) or length? or adopt strong/weak scheme...
 
 jpl_is_ref(@(Y)) :-
-    atom(Y),	    % presumably a (garbage-collectable) tag
-    Y \== void,	    % not a ref
-    Y \== false,    % not a ref
-    Y \== true.	    % not a ref
+    integer(Y).	    % presumably a (garbage-collectable) tag
 
 %------------------------------------------------------------------------------
 
@@ -3454,6 +3454,7 @@ jpl_primitive_buffer_to_array(T, Xc, Bp, I, Size, [Vc|Vcs]) :-
 jpl_primitive_type(boolean).
 jpl_primitive_type(char).
 jpl_primitive_type(byte).
+jpl_primitive_type(char_byte).
 jpl_primitive_type(short).
 jpl_primitive_type(int).
 jpl_primitive_type(long).
@@ -3844,9 +3845,9 @@ jpl_value_to_type_1(A, class([java,lang],['String'])) :-   % yes it's a "value"
 
 jpl_value_to_type_1(I, T) :-
     integer(I),
-    (	I >= 0	->  (	I < 128	    ->	T = char_byte
-		    ;	I < 32768   ->	T = char_short
-		    ;	I < 65536   ->	T = char_int
+    (	I >= 0	->  (	I < 128	    ->	T = byte % char_byte
+		    ;	I < 32768   ->	T = short % char_short
+		    ;	I < 65536   ->	T = int % char_int
 				    ;	T = int		% was pos_int
 		    )
     ;	I >= -128   ->	T = byte			% was neg_byte
@@ -4262,7 +4263,6 @@ load_jpl_lib :-
 	jpl_java_home(JavaHome),
 	fetch_arch(Arch),
 	gen_jvm_lib(JavaHome,Arch,JLib),
-	write(JLib),nl,
 	load_foreign_files([jpl], [JLib], jpl_install), !.
 
 fetch_arch(Arch) :-

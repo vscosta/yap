@@ -6,9 +6,14 @@
 	nth1/3,
 	forall/2,
 	between/3,
+	term_to_atom/2,
 	concat_atom/2,
 	volatile/1]).
 
+
+:- use_module(library(charsio),[write_to_chars/2,read_from_chars/2]).
+
+:- use_module(library(lists),[nth/3]).
 
 :- multifile user:file_search_path/2.
 
@@ -54,6 +59,14 @@ absolute_file_name(library(File), Opts, Path) :- !,
 absolute_file_name(File, Opts, Path) :-
 	absolute_file_name(File, Path).
 
+
+term_to_atom(Term,Atom) :-
+	nonvar(Atom), !,
+	atom_codes(Atom,S),
+	read_from_chars(S,Term).
+term_to_atom(Term,Atom) :-
+	write_to_chars(Term,S),
+	atom_codes(Atom,S).
 
 concat_atom(List, Separator, New) :-
 	add_separator_to_list(List, Separator, NewList),

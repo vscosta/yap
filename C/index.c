@@ -11,8 +11,11 @@
 * File:		index.c							 *
 * comments:	Indexing a Prolog predicate				 *
 *									 *
-* Last rev:     $Date: 2005-03-04 20:30:12 $,$Author: ricroc $						 *
+* Last rev:     $Date: 2005-03-15 18:29:23 $,$Author: vsc $						 *
 * $Log: not supported by cvs2svn $
+* Revision 1.119  2005/03/04 20:30:12  ricroc
+* bug fixes for YapTab support
+*
 * Revision 1.118  2005/03/01 22:25:08  vsc
 * fix pruning bug
 * make DL_MALLOC less enthusiastic about walking through buckets.
@@ -3850,7 +3853,7 @@ static ClauseDef *
 copy_clauses(ClauseDef *max0, ClauseDef *min0, CELL *top, struct intermediates *cint)
 {
   UInt sz = ((max0+1)-min0)*sizeof(ClauseDef);
-  while ((char *)top + sz > Yap_TrailTop) {
+  if ((char *)top + sz >= Yap_TrailTop-4096) {
     Yap_Error_Size = sz;
     /* grow stack */
     longjmp(cint->CompilerBotch,4);

@@ -10,8 +10,13 @@
 * File:		c_interface.c						 *
 * comments:	c_interface primitives definition 			 *
 *									 *
-* Last rev:	$Date: 2005-03-13 06:26:10 $,$Author: vsc $						 *
+* Last rev:	$Date: 2005-03-15 18:29:23 $,$Author: vsc $						 *
 * $Log: not supported by cvs2svn $
+* Revision 1.64  2005/03/13 06:26:10  vsc
+* fix excessive pruning in meta-calls
+* fix Term->int breakage in compiler
+* improve JPL (at least it does something now for amd64).
+*
 * Revision 1.63  2005/03/04 20:30:10  ricroc
 * bug fixes for YapTab support
 *
@@ -1129,12 +1134,16 @@ YAP_Init(YAP_init_args *yap_init)
   }
   if (yap_init->SavedState != NULL ||
       yap_init->YapPrologBootFile == NULL) {
+#if SUPPORT_CONDOR || SUPPORT_THREADS
+    restore_result = YAP_FULL_BOOT_FROM_PROLOG;
+#else
     restore_result = Yap_Restore(yap_init->SavedState, yap_init->YapLibDir);
     if (restore_result == FAIL_RESTORE) {
       yap_init->ErrorNo = Yap_Error_TYPE;
       yap_init->ErrorCause = Yap_ErrorMessage;
       return YAP_BOOT_FROM_SAVED_ERROR;
     }
+#endif
   } else {
     restore_result = FAIL_RESTORE;
   }

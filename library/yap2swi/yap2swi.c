@@ -688,24 +688,31 @@ get_term(arg_types **buf)
   /* now build the error string */
   case PL_VARIABLE:
     t = YAP_MkVarTerm();
+    ptr++;
     break;
   case PL_ATOM:
     t = YAP_MkAtomTerm((YAP_Atom)ptr->arg.a);
+    ptr++;
     break;
   case PL_INTEGER:
     t = YAP_MkIntTerm(ptr->arg.l);
+    ptr++;
     break;
   case PL_FLOAT:
     t = YAP_MkFloatTerm(ptr->arg.dbl);
+    ptr++;
     break;
   case PL_POINTER:
     t = YAP_MkIntTerm((long int)(ptr->arg.p));
+    ptr++;
     break;
   case PL_STRING:
     t = YAP_BufferToString(ptr->arg.s);
+    ptr++;
     break;
   case PL_TERM:
     t = YAP_GetFromSlot(ptr->arg.t);
+    ptr++;
     break;
   case PL_CHARS:
     t = YAP_MkAtomTerm(YAP_LookupAtom(ptr->arg.s));
@@ -734,16 +741,17 @@ get_term(arg_types **buf)
       term_t loc;
 
       loc = YAP_NewSlots(2);
+      ptr++;
       YAP_PutInSlot(loc,get_term(&ptr));
       YAP_PutInSlot(loc+1,get_term(&ptr));
       t = YAP_MkPairTerm(YAP_GetFromSlot(loc),YAP_GetFromSlot(loc+1));
     }
     break;
   default:
-    fprintf(stderr, "PL_FUNCTOR not implemented yet\n");
+    fprintf(stderr, "type %d not implemented yet\n", type);
     exit(1);
   }
-  ptr++;
+  *buf = ptr;
   return t;
 }
 
@@ -816,13 +824,6 @@ X_API int PL_unify_term(term_t l,...)
 /* SAM TO DO */
 X_API void PL_register_atom(atom_t atom)
 {
-  YAP_Term ti = YAP_GetValue((YAP_Atom)atom);
-  if (ti == YAP_MkAtomTerm(YAP_LookupAtom("[]"))) {
-    YAP_PutValue((YAP_Atom)atom, YAP_MkIntTerm(1));
-  } else if (YAP_IsIntTerm(ti)) {
-    long int i = YAP_IntOfTerm(ti);
-    YAP_PutValue((YAP_Atom)atom, YAP_MkIntTerm(i++));
-  }
 }
 
 /* SWI: void PL_unregister_atom(atom_t atom)
@@ -830,13 +831,6 @@ X_API void PL_register_atom(atom_t atom)
 /* SAM TO DO */
 X_API void PL_unregister_atom(atom_t atom)
 {
-  YAP_Term ti = YAP_GetValue((YAP_Atom)atom);
-  if (YAP_IsIntTerm(ti)) {
-    long int i = YAP_IntOfTerm(ti);
-    if (i == 1)
-      YAP_PutValue((YAP_Atom)atom, YAP_MkAtomTerm(YAP_LookupAtom("[]")));
-    YAP_PutValue((YAP_Atom)atom, YAP_MkIntTerm(i--));
-  }
 }
 
 X_API int PL_get_string_chars(term_t t, char **s, int *len)
