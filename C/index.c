@@ -2284,7 +2284,7 @@ do_var_clauses(ClauseDef *c0, ClauseDef *cf, int var_group, PredEntry *ap, UInt 
 
 static void
 do_var_group(GroupDef *grp, PredEntry *ap, UInt labl, int var_group, int first, int clleft, UInt nxtlbl) {
-  return do_var_clauses(grp->FirstClause, grp->LastClause, var_group, ap, labl, first, clleft, nxtlbl);
+  do_var_clauses(grp->FirstClause, grp->LastClause, var_group, ap, labl, first, clleft, nxtlbl);
 }
 
 static void
