@@ -10,7 +10,7 @@
 * File:		Heap.h         						 *
 * mods:									 *
 * comments:	Heap Init Structure					 *
-* version:      $Id: Heap.h,v 1.22 2002-01-28 04:30:40 vsc Exp $	 *
+* version:      $Id: Heap.h,v 1.23 2002-01-30 03:49:50 vsc Exp $	 *
 *************************************************************************/
 
 /* information that can be stored in Code Space */
@@ -270,7 +270,7 @@ typedef struct various_codes {
   void *last_wtime;
   PredEntry *pred_goal_expansion;
   PredEntry *pred_meta_call;
-  PredEntry *pred_catch;
+  PredEntry *pred_dollar_catch;
   PredEntry *pred_throw;
   PredEntry *pred_handle_throw;
   UInt n_of_file_aliases;
@@ -461,7 +461,7 @@ typedef struct various_codes {
 #define  TermReFoundVar           heap_regs->term_refound_var
 #define  PredGoalExpansion        heap_regs->pred_goal_expansion
 #define  PredMetaCall             heap_regs->pred_meta_call
-#define  PredCatch                heap_regs->pred_catch
+#define  PredDollarCatch          heap_regs->pred_dollar_catch
 #define  PredThrow                heap_regs->pred_throw
 #define  PredHandleThrow          heap_regs->pred_handle_throw
 #define  NOfFileAliases           heap_regs->n_of_file_aliases

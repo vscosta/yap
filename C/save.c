@@ -1122,8 +1122,8 @@ restore_codes(void)
     (PredEntry *)AddrAdjust((ADDR)heap_regs->pred_goal_expansion);
   heap_regs->pred_meta_call =
     (PredEntry *)AddrAdjust((ADDR)heap_regs->pred_meta_call);
-  heap_regs->pred_catch =
-    (PredEntry *)AddrAdjust((ADDR)heap_regs->pred_catch);
+  heap_regs->pred_dollar_catch =
+    (PredEntry *)AddrAdjust((ADDR)heap_regs->pred_dollar_catch);
   heap_regs->pred_throw =
     (PredEntry *)AddrAdjust((ADDR)heap_regs->pred_throw);
   heap_regs->pred_handle_throw =

@@ -1012,7 +1012,7 @@ InitCodes(void)
   CurrentModule = 0;
   heap_regs->dead_clauses = NULL;
   heap_regs->pred_meta_call = RepPredProp(PredPropByFunc(MkFunctor(heap_regs->atom_meta_call,4),0));
-  heap_regs->pred_catch = RepPredProp(PredPropByFunc(MkFunctor(LookupAtom("catch"),3),0));
+  heap_regs->pred_dollar_catch = RepPredProp(PredPropByFunc(MkFunctor(LookupAtom("$catch"),3),0));
   heap_regs->pred_throw = RepPredProp(PredPropByFunc(FunctorThrow,0));
   heap_regs->pred_handle_throw = RepPredProp(PredPropByFunc(MkFunctor(LookupAtom("$handle_throw"),3),0));
   ReleaseAtom(AtomOfTerm(heap_regs->term_refound_var));

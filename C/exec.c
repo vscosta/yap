@@ -1252,24 +1252,28 @@ p_clean_ifcp(void) {
 
 Int
 JumpToEnv(Term t) {
-  yamop *min = (yamop *)(PredCatch->CodeOfPred);
-  yamop *max = (yamop *)(PredThrow->CodeOfPred);
-  CELL *cur = ENV, *env;
-  yamop *cpe = (yamop *)(cur[E_CP]);
+  yamop *pos = (yamop *)(PredDollarCatch->LastClause);
+  CELL *env;
 
-  while (cpe < min || cpe > max) {
-    cur = (CELL *)cur[E_E];
-    cpe = (yamop *)(cur[E_CP]);
-  }
-  CP = cpe;
-  env = (CELL *)cur[E_E];
-  YENV = ENV = (CELL *)(env[E_E]);
-  while (B->cp_b < (choiceptr)env) {
+  do {
+    /* find the first choicepoint that may be a catch */
+    while (B->cp_ap != pos) {
+      B = B->cp_b;
+    }
+    /* is it a continuation? */
+    env = B->cp_env;
+    while (env > ENV)
+      ENV = (CELL *)ENV[E_E];
+    /* yes, we found it ! */
+    if (env == ENV) break;
+    /* oops, try next */
     B = B->cp_b;
-  }
-  B->cp_cp = (yamop *)(env[E_CP]);
+  } while (TRUE);
+  /* step one environment above */
+  B->cp_cp = (yamop *)env[E_CP];
   B->cp_ap = (yamop *)(PredHandleThrow->LastClause);
-  B->cp_env = ENV;
+  B->cp_env = (CELL *)env[E_E];
+  /* cannot recover Heap because of copy term :-( */
   B->cp_h = H;
   /* I could backtrack here, but it is easier to leave the unwinding
      to the emulator */
