@@ -610,7 +610,10 @@ check_header(void)
      saved space */
   hp_size = get_cell();
   while (hp_size > Unsigned(AuxTop) - Unsigned(HeapBase)) {
-    growheap(FALSE);
+    if(!growheap(FALSE)) {
+      Error(SYSTEM_ERROR,TermNil,ErrorMessage);
+      return(FALSE);      
+    }
   }
   if (mode == DO_EVERYTHING) {
     if ((lc_size = get_cell())+(gb_size=get_cell()) > Unsigned(LocalBase) - Unsigned(GlobalBase)) {
@@ -853,6 +856,7 @@ static void
 restore_heap_regs(void)
 {
   HeapPlus = AddrAdjust(HeapPlus);
+  HeapTop = AddrAdjust(HeapTop);
   *((YAP_SEG_SIZE *) HeapTop) = InUseFlag;
   HeapMax = HeapUsed = OldHeapUsed;
   restore_codes();
