@@ -175,8 +175,8 @@ OCUnify_complex(register CELL *pt0, register CELL *pt0_end,
 	to_visit[1] = pt0_end;
 	to_visit[2] = pt1;
 	/* we want unification of rational trees to fail */
-	to_visit[3] = (CELL *)d0;
-	to_visit[4] = (CELL *)d1;
+	to_visit[3] = (CELL *)*pt0;
+	to_visit[4] = (CELL *)*pt1;
 	to_visit += 5;
 	*pt0 = TermFoundVar;
 	*pt1 = TermFoundVar;
@@ -225,8 +225,8 @@ OCUnify_complex(register CELL *pt0, register CELL *pt0_end,
 	to_visit[0] = pt0;
 	to_visit[1] = pt0_end;
 	to_visit[2] = pt1;
-	to_visit[3] = (CELL *)d0;
-	to_visit[4] = (CELL *)d1;
+	to_visit[3] = (CELL *)*pt0;
+	to_visit[4] = (CELL *)*pt1;
 	to_visit += 5;
 	*pt0 = TermFoundVar;
 	*pt1 = TermFoundVar;
