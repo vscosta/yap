@@ -1083,8 +1083,8 @@ Yap_absmi(int inp)
       READ_LOCK(PP->PRWLock);
       if (PP->cs.p_code.TrueCodeOfPred != PREG) {
 	PREG = PP->cs.p_code.TrueCodeOfPred;
-	PP = NULL;
 	READ_UNLOCK(PP->PRWLock);
+	PP = NULL;
 	GONext();
       }
 #endif
