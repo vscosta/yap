@@ -18,7 +18,7 @@ cd pillow
 splat
 cd examples
 splat
-cd ../../../include
+cd  ../../../include
 splat
 /bin/cp config.h config.h.mine
 /bin/cp ../../../bins/cyg/*.h .
