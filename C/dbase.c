@@ -319,8 +319,8 @@ static void remove_from_table() {
 inline static CELL *cpcells(CELL *to, CELL *from, Int n)
 {
 #if HAVE_MEMMOVE
-  memmove((void *)to, (void *)from, (size_t)((n+1)*sizeof(CELL)));
-  return(to+n+1);
+  memmove((void *)to, (void *)from, (size_t)(n*sizeof(CELL)));
+  return(to+n);
 #else
   while (n-- >= 0) {
     *to++ = *from++;
@@ -648,7 +648,7 @@ static CELL *MkDBTerm(register CELL *pt0, register CELL *pt0_end,
 #endif
 	    st[0] = (CELL)f;
 	    st[1] = ap2[1];
-	    st[2] = ap2[2];
+	    st[2] = ((2*sizeof(CELL)+EndSpecials)|MBIT);
 	    /* now reserve space */
 	    CodeMax = st+3;
 	    ++pt0;
@@ -667,11 +667,12 @@ static CELL *MkDBTerm(register CELL *pt0, register CELL *pt0_end,
 #endif
 	    st[0] = (CELL)f;
 	    {
-	      Int sz = 1+
+	      Int sz = 
 		sizeof(MP_INT)+
 		(((MP_INT *)(ap2+1))->_mp_alloc*sizeof(mp_limb_t));
-	      memcpy((void *)(st+1), (void *)(ap2+1), sz*CellSize);
-	      CodeMax = st+(1+sz);
+	      memcpy((void *)(st+1), (void *)(ap2+1), sz);
+	      CodeMax = st+1+sz/CellSize;
+	      *CodeMax++ = (sz+CellSize+EndSpecials)|MBIT;
 	    }
 	    ++pt0;
 	    continue;
@@ -689,9 +690,11 @@ static CELL *MkDBTerm(register CELL *pt0, register CELL *pt0_end,
 #endif
 	    st[0] = (CELL)f;
 	    st[1] = ap2[1];
-	    st[2] = ap2[2];
 #if  SIZEOF_DOUBLE == 2*SIZEOF_LONG_INT
-	    st[3] = ap2[3];
+	    st[2] = ap2[2];
+	    st[3] = ((3*sizeof(CELL)+EndSpecials)|MBIT);
+#else
+	    st[2] = ((2*sizeof(CELL)+EndSpecials)|MBIT);
 #endif
 	    /* now reserve space */
 	    CodeMax = st+(2+SIZEOF_DOUBLE/SIZEOF_LONG_INT);
@@ -1205,11 +1208,12 @@ CreateDBStruct(Term Tm, DBProp p, int InFlag)
 	    CELL *fp = RepAppl(Tm);
 
 	    ntp0[1] = fp[1];
-	    ntp0[2] = fp[2];
 #if SIZEOF_DOUBLE == 2*SIZEOF_LONG_INT
-	    ntp0[3] = fp[3];
+	    ntp0[2] = fp[2];
+	    ntp0[3] = ((3*sizeof(CELL)+EndSpecials)|MBIT);
 	    ntp = ntp0+4;
 #else
+	    ntp0[2] = ((2*sizeof(CELL)+EndSpecials)|MBIT);
 	    ntp = ntp0+3;
 #endif
 	  }
@@ -1245,20 +1249,22 @@ CreateDBStruct(Term Tm, DBProp p, int InFlag)
 	case (CELL)FunctorBigInt:
 	  {
 	    CELL *pt = RepAppl(Tm);
-	    Int sz = 1+
+	    Int sz =
 	      sizeof(MP_INT)+
 	      (((MP_INT *)(pt+1))->_mp_alloc*sizeof(mp_limb_t));
 
-	    memcpy((void *)(ntp0+1), (void *)(pt+1), sz*CellSize);
-	    ntp = ntp0+(1+sz);
+	    memcpy((void *)(ntp0+1), (void *)(pt+1), sz);
+	    ntp = ntp0+sz/sizeof(CELL)+1;
+	    *ntp++ = (sz+CellSize+EndSpecials)|MBIT;
 	  }
+	  break;
 #endif
 	default: /* LongInt */
 	  {
 	    CELL *pt = RepAppl(Tm);
 
 	    ntp0[1] = pt[1];
-	    ntp0[2] = pt[2];
+	    ntp0[2] = ((2*sizeof(CELL)+EndSpecials)|MBIT);
 	    ntp = ntp0+3;
 	  }
 	  break;
@@ -1275,7 +1281,7 @@ CreateDBStruct(Term Tm, DBProp p, int InFlag)
     CodeAbs = (CELL *)((CELL)ntp-(CELL)ntp0);
     if (DBErrorFlag)
       return (NULL);	/* Error Situation */
-    NOfCells = (ntp - 1) - ntp0;	/* End Of Code Info */
+    NOfCells = ntp - ntp0;	/* End Of Code Info */
 #ifdef IDB_LINK_TABLE
     *lr++ = 0;
     NOfLinks = (lr - LinkAr);
@@ -1363,7 +1369,7 @@ CreateDBStruct(Term Tm, DBProp p, int InFlag)
 	nar += NOfCells+1;
 #endif
       } else {
-	nar = pp->Contents + Unsigned(NOfCells)+1;
+	nar = pp->Contents + Unsigned(NOfCells);
       }
 #ifdef IDB_LINK_TABLE
       woar = WordPtr(nar);

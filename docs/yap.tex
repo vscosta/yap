@@ -5620,7 +5620,8 @@ Succeeds if @var{M} are current modules associated to the file @var{F}.
 @findex statistics/0
 @saindex statistics/0
 @cyindex statistics/0
-Gives general information on space used and time spent by  the system.
+Send to the current user error stream general information on space used and time
+spent by the system.
 @example
 ?- statistics.
 Heap space : 2441216
@@ -11490,7 +11491,7 @@ static int my_process_id(void)
 @{
      Term pid = MkIntTerm(getpid());
      Term out = ARG1;
-     return(unify(&out,&pid));
+     return(unify(out,pid));
 @}
 
 void init_my_predicates()
@@ -11503,7 +11504,8 @@ void init_my_predicates()
 The commands to compile the above file depend on the operating
 system. Under Linux (i386 and Alpha) you should use:
 @example
-      gcc  -shared -fPIC my_process.c -o my_process.o
+      gcc -c -shared -fPIC my_process.c -o my_process.o
+      ld -shared -o my_process.so my_process.o
 @end example
 @noindent
 Under Solaris2 it is sufficient to use:

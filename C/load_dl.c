@@ -60,7 +60,7 @@ LoadForeign(StringList ofiles, StringList libs,
     if((handle=dlopen(FileNameBuf,RTLD_LAZY|RTLD_GLOBAL)) == 0)
 #endif
     {
-fprintf(stderr,"calling dlopen with error %s\n", dlerror());
+      fprintf(stderr,"calling dlopen with error %s\n", dlerror());
 /*      strcpy(LoadMsg,dlerror());*/
       return LOAD_FAILLED;
     }
