@@ -229,6 +229,8 @@ assert(C,R) :-
 	'$current_module'(M),
 	'$assert_dynamic'(C,M,last,R,assert(C,R)).
 
+clause(M:P,Q) :- !,
+	'$clause'(P,M,Q).
 clause(V,Q) :-
 	'$current_module'(M),
 	'$clause'(V,M,Q).
@@ -245,7 +247,7 @@ clause(V,Q) :-
 	 '$recordedp'(Mod:P,(P:-Q),_). 
 '$clause'(P,M,Q) :-
 	'$some_recordedp'(M:P), !,
-	 '$recordedp'(M:P,(P:-Q),_).
+	'$recordedp'(M:P,(P:-Q),_).
 '$clause'(P,M,Q) :-
 	( '$system_predicate'(P,M) -> true ;
 	    '$number_of_clauses'(P,M,N), N > 0 ),
@@ -253,8 +255,10 @@ clause(V,Q) :-
 	'$do_error'(permission_error(access,private_procedure,Name/Arity),
 	      clause(M:P,Q)).
 
+clause(M:P,Q,R) :- !,
+	'$clause'(P,M,Q,R).
 clause(V,Q,R) :-
-	'$current_module'(V,M,Q,R),
+	'$current_module'(M),
 	'$clause'(V,M,Q,R).
 
 '$clause'(V,M,Q,R) :- var(V), !, 
