@@ -1737,7 +1737,7 @@ p_number_of_clauses(void)
     return (FALSE);
   }
   if (EndOfPAEntr(pe))
-    return (FALSE);
+    return FALSE;
   READ_LOCK(RepPredProp(pe)->PRWLock);
   ncl = RepPredProp(pe)->cs.p_code.NOfClauses;
   READ_UNLOCK(RepPredProp(pe)->PRWLock);
@@ -1767,7 +1767,7 @@ p_in_use(void)
   } else
     return FALSE;
   if (EndOfPAEntr(pe))
-    return (FALSE);
+    return FALSE;
   READ_LOCK(pe->PRWLock);
   out = static_in_use(pe,TRUE);
   READ_UNLOCK(pe->PRWLock);
@@ -1834,7 +1834,7 @@ p_is_multifile(void)
   } else
     return(FALSE);
   if (EndOfPAEntr(pe))
-    return (FALSE);
+    return FALSE;
   READ_LOCK(pe->PRWLock);
   out = (pe->PredFlags & MultiFileFlag);
   READ_UNLOCK(pe->PRWLock);
@@ -1861,7 +1861,7 @@ p_is_log_updatable(void)
   } else
     return (FALSE);
   if (EndOfPAEntr(pe))
-    return (FALSE);
+    return FALSE;
   READ_LOCK(pe->PRWLock);
   out = (pe->PredFlags & LogUpdatePredFlag);
   READ_UNLOCK(pe->PRWLock);
@@ -1888,7 +1888,7 @@ p_is_source(void)
   } else
     return (FALSE);
   if (EndOfPAEntr(pe))
-    return (FALSE);
+    return FALSE;
   READ_LOCK(pe->PRWLock);
   out = (pe->PredFlags & SourcePredFlag);
   READ_UNLOCK(pe->PRWLock);
@@ -1915,7 +1915,7 @@ p_is_dynamic(void)
   } else
     return (FALSE);
   if (EndOfPAEntr(pe))
-    return (FALSE);
+    return FALSE;
   READ_LOCK(pe->PRWLock);
   out = (pe->PredFlags & (DynamicPredFlag|LogUpdatePredFlag));
   READ_UNLOCK(pe->PRWLock);
@@ -1942,7 +1942,7 @@ p_pred_exists(void)
   } else
     return (FALSE);
   if (EndOfPAEntr(pe))
-    return (FALSE);
+    return FALSE;
   READ_LOCK(pe->PRWLock);
   if (pe->PredFlags & HiddenPredFlag)
     return(FALSE);
@@ -1983,7 +1983,7 @@ p_set_pred_module(void)
   } else
     return (FALSE);
   if (EndOfPAEntr(pe))
-    return (FALSE);
+    return FALSE;
   WRITE_LOCK(pe->PRWLock);
   {
     SMALLUNSGN mod = Yap_LookupModule(Deref(ARG2));
@@ -2041,18 +2041,18 @@ p_undefined(void)
     return TRUE;
   }
   if (EndOfPAEntr(pe))
-    return (FALSE);
+    return TRUE;
   READ_LOCK(pe->PRWLock);
   if (pe->PredFlags & (CPredFlag|UserCPredFlag|TestPredFlag|AsmPredFlag|DynamicPredFlag|LogUpdatePredFlag)) {
     READ_UNLOCK(pe->PRWLock);
-    return(FALSE);
+    return FALSE;
   }
   if (pe->OpcodeOfPred == UNDEF_OPCODE) {
     READ_UNLOCK(pe->PRWLock);
-    return (TRUE);
+    return TRUE;
   }
   READ_UNLOCK(pe->PRWLock);
-  return (FALSE);
+  return FALSE;
 }
 
 /*
@@ -2088,7 +2088,7 @@ p_kill_dynamic(void)
   } else
     return (FALSE);
   if (EndOfPAEntr(pe))
-    return (TRUE);
+    return TRUE;
   WRITE_LOCK(pe->PRWLock);
   if (!(pe->PredFlags & (DynamicPredFlag|LogUpdatePredFlag))) {
     WRITE_UNLOCK(pe->PRWLock);

@@ -62,7 +62,8 @@ compile(P) :-
         '$change_module'(M0).
 '$compile'(A) :-
 	'$compile_mode'(Old,0),
-	'$reconsult'(A),
+        '$current_module'(M0),
+	'$reconsult'(A, M0),
 	'$compile_mode'(_,Old).
 
 consult(Fs) :-
@@ -75,32 +76,36 @@ reconsult(Fs) :-
 	'$has_yap_or', fail,
 	'$do_error'(context_error(reconsult(Fs),clause),query).
 reconsult(Fs) :-
-	'$reconsult'(Fs).
-
-'$reconsult'(V) :- var(V), !,
-	'$do_error'(instantiation_error,reconsult(V)).
-'$reconsult'([]) :- !.
-'$reconsult'(M:X) :- atom(M), !,
         '$current_module'(M0),
-        '$change_module'(M),
-        '$reconsult'(X),
-        '$change_module'(M0).
-'$reconsult'([F|Fs]) :- !,
-	'$reconsult'(F),
-	'$reconsult'(Fs).
-'$reconsult'(X) :-
+	'$reconsult'(Fs, M0).
+
+'$reconsult'(V, _) :- var(V), !,
+	'$do_error'(instantiation_error,reconsult(V)).
+'$reconsult'([], _) :- !.
+'$reconsult'(M:X, _) :-
+	(
+	  atom(M)
+	->
+	  '$reconsult'(X, M)
+	  ;
+	  '$do_error'(type_error(atom,M),reconsult(M:X))
+	).
+'$reconsult'([F|Fs], M) :- !,
+	'$reconsult'(F, M),
+	'$reconsult'(Fs, M).
+'$reconsult'(X, M) :-
 	'$find_in_path'(X,Y,reconsult(X)),
 	'$open'(Y,'$csult',Stream,0), !,
-        '$current_module'(M),
 	'$reconsult'(X,M,Stream),
 	'$close'(Stream).
-'$reconsult'(X) :-
-	'$do_error'(permission_error(input,stream,X),reconsult(X)).
+'$reconsult'(X, M) :-
+	'$do_error'(permission_error(input,stream,X),reconsult(M:X)).
 
 '$reconsult'(F,M,Stream) :-
 	'$record_loaded'(Stream, M),
 	fail.
-'$reconsult'(F, OldModule, Stream) :-
+'$reconsult'(F, ContextModule, Stream) :-
+	'$current_module'(OldModule,ContextModule),
 	'$getcwd'(OldD),
 	get_value('$consulting_file',OldF),
 	'$set_consulting_file'(Stream),

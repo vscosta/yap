@@ -774,10 +774,6 @@ version(T) :-
 '$assert_version'(T) :- recordz('$version',T,_), fail.
 '$assert_version'(_).
 
-term_hash(X,Y) :-
-	term_hash(X,-1,16'1000000,Y).
-
-
 '$set_toplevel_hook'(_) :- 
 	recorded('$toplevel_hooks',_,R),
 	erase(R),

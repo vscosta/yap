@@ -212,7 +212,7 @@ print_message(Level, Mss) :-
 	'$preprocess_stack'(Gs, I, NGs).
 '$beautify_hidden_goal'('$loop',_,prolog,ClNo,Gs,I,NGs) :- !,
 	'$preprocess_stack'(Gs, I, NGs).
-'$beautify_hidden_goal'('$consult',1,prolog,ClNo,Gs,I,NGs) :- !,
+'$beautify_hidden_goal'('$consult',3,prolog,ClNo,Gs,I,NGs) :- !,
 	'$preprocess_stack'(Gs, I, NGs).
 '$beautify_hidden_goal'('$reconsult',_,prolog,ClNo,Gs,I,NGs) :- !,
 	'$preprocess_stack'(Gs, I, NGs).
@@ -224,7 +224,7 @@ print_message(Level, Mss) :-
 	'$preprocess_stack'(Gs, I, NGs).
 '$beautify_hidden_goal'('$recorded_with_key',3,prolog,ClNo,Gs,I,[cl(recorded,3,prolog,ClNo)|NGs]) :- !,
 	'$preprocess_stack'(Gs, I, NGs).
-'$beautify_hidden_goal'('$consult',2,prolog,ClNo,Gs,I,[cl(consult,1,prolog,ClNo)|NGs]) :- !,
+'$beautify_hidden_goal'('$consult',3,prolog,ClNo,Gs,I,[cl(consult,1,prolog,ClNo)|NGs]) :- !,
 	'$preprocess_stack'(Gs, I, NGs).
 '$beautify_hidden_goal'('$findall_with_common_vars',_,prolog,ClNo,Gs,I,[cl(findall,4,prolog,ClNo)|NGs]) :- !,
 	'$preprocess_stack'(Gs, I, NGs).

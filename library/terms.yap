@@ -18,7 +18,7 @@
 :- module(terms, [
 	term_hash/2,
 	term_hash/4,
-	term_variablesb/2,
+	term_variables/2,
 	variant/2,
 	subsumes/2,
 	subsumes_chk/2,

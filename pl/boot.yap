@@ -833,28 +833,28 @@ break :- get_value('$break',BL), NBL is BL+1,
 '$csult'(V, _) :- var(V), !,
 	'$do_error'(instantiation_error,consult(V)).
 '$csult'([], _).
-'$csult'([-F|L], M) :- !, '$reconsult'(M:F), '$csult'(L, M).
-'$csult'([F|L], M) :- '$consult'(M:F), '$csult'(L, M).
+'$csult'([-F|L], M) :- !, '$reconsult'(F, M), '$csult'(L, M).
+'$csult'([F|L], M) :- '$consult'(F, M), '$csult'(L, M).
 
-'$consult'(V) :- var(V), !,
+'$consult'(V, _) :- var(V), !,
 	'$do_error'(instantiation_error,consult(V)).
-'$consult'([]) :- !.
-'$consult'([F|Fs]) :- !,
-	'$consult'(F),
-	'$consult'(Fs).
-'$consult'(M:X) :- atom(M), !,
-        '$current_module'(M0),
-        '$change_module'(M),
-        '$consult'(X),
-        '$change_module'(M0).
-'$consult'(X) :-
+'$consult'([], _) :- !.
+'$consult'([F|Fs], M) :- !,
+	'$consult'(F, M),
+	'$consult'(Fs, M).
+'$consult'(M:X, _) :- !,
+	( atom(M) ->
+	    '$consult'(X, M)
+	;
+	    '$do_error'(type_error(atom,M),[M:X])
+	).
+'$consult'(X, OldModule) :-
 	'$find_in_path'(X,Y,consult(X)),
 	'$open'(Y,'$csult',Stream,0), !,
-	'$current_module'(OldModule),
         '$consult'(X,OldModule,Stream),
 	'$close'(Stream).
-'$consult'(X) :-
-	'$do_error'(permission_error(input,stream,X),consult(X)).
+'$consult'(X, _) :-
+	'$do_error'(permission_error(input,stream,X),[X]).
 
 
 '$consult'(_,Module,Stream) :-
@@ -865,6 +865,7 @@ break :- get_value('$break',BL), NBL is BL+1,
 	!,
 	'$reconsult'(F,Module,Stream).
 '$consult'(F,Mod,Stream) :-
+	'$current_module'(OldModule, Mod),
 	'$getcwd'(OldD),
 	get_value('$consulting_file',OldF),
 	'$set_consulting_file'(Stream),
@@ -886,6 +887,7 @@ break :- get_value('$break',BL), NBL is BL+1,
 	'$add_multifile_clauses'(File),
 	set_value('$consulting',Old),
 	set_value('$consulting_file',OldF),
+	'$current_module'(NewMod,OldModule),
 	'$cd'(OldD),
 	( LC == 0 -> prompt(_,'   |: ') ; true),
 	H is heapused-H0, '$cputime'(TF,_), T is TF-T0,
@@ -896,7 +898,7 @@ break :- get_value('$break',BL), NBL is BL+1,
 	     true
 	  )
 	;
-	    '$print_message'(informational, loaded(consulted, File, Mod, T, H))
+	    '$print_message'(informational, loaded(consulted, File, NewMod, T, H))
 	),
 	'$exec_initialisation_goals',
 	!.
