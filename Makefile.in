@@ -518,7 +518,7 @@ dist:
 # 
 DLLTOOL=dlltool
 DLLNAME=yap.dll
-DLL_LIBS=-L /usr/lib/mingw -lmoldname -lkernel32 $(LIBS)
+DLL_LIBS=-L /usr/lib/mingw -lmsvcrt -lmingw32  -lkernel32 $(LIBS)
 BASE_FILE=yap.base
 EXP_FILE=yap.exp
 DEF_FILE=$(srcdir)/misc/yap.def
