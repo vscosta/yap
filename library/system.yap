@@ -282,8 +282,7 @@ check_mode(Mode, G) :-
 
 shell :-
 	G = shell,
-	get_shell(Shell),
-	atom_codes(FullCommand, Shell),
+	get_shell0(FullCommand),
 	exec_command(FullCommand, '$stream'(0),'$stream'(1), '$stream'(2), PID, Error),
 	handle_system_error(Error, off, G),
 	wait(PID, _Status, Error),
@@ -313,11 +312,18 @@ shell(Command, Status) :-
 	wait(PID, Status,Error),
 	handle_system_error(Error, off, G).
 
+get_shell0(Shell) :-
+	getenv('SHELL', Shell), !.
+get_shell0(Shell) :-
+	win,
+	getenv('COMSPEC', Shell0).
+
 get_shell(Shell) :-
 	getenv('SHELL', Shell0), !,
 	atom_codes(Shell0, Codes),
 	append(Codes," -c ", Shell).
 get_shell(Shell) :-
+	win,
 	getenv('COMPSEC', Shell0),
 	atom_codes(Shell0, Codes),
 	append(Codes," /c ", Shell).

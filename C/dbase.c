@@ -1475,7 +1475,7 @@ record(int Flag, Term key, Term t_data, Term t_code)
   }
   if ((Flag & MkIfNot) && found_one)
     return (NULL);
-  TRAIL_REF(&(x->Flags));
+  TRAIL_REF(x);
   if (x->Flags & (DBNoVars|DBComplex))
     x->Mask = EvalMasks(t_data, &x->Key);
   else
@@ -2266,13 +2266,13 @@ i_log_upd_recorded(LogUpdDBProp AtProp)
     if (unify(ARG3, TRef)) {
 #if defined(YAPOR) || defined(THREADS)
       LOCK(ref->lock);
-      TRAIL_REF(&(ref->Flags));	/* So that fail will erase it */
+      TRAIL_REF(ref);		/* So that fail will erase it */
       INC_DBREF_COUNT(ref);
       UNLOCK(ref->lock);
 #else
       if (!(ref->Flags & InUseMask)) {
 	ref->Flags |= InUseMask;
-	TRAIL_REF(&(ref->Flags));	/* So that fail will erase it */
+	TRAIL_REF(ref);	/* So that fail will erase it */
       }
 #endif
       cut_succeed();
@@ -2285,25 +2285,25 @@ i_log_upd_recorded(LogUpdDBProp AtProp)
     EXTRA_CBACK_ARG(3,1) = AbsAppl((CELL *)ep);
 #if defined(YAPOR) || defined(THREADS)
     LOCK(table->lock);
-    TRAIL_REF(&(table->Flags));	/* So that fail will erase it */
+    TRAIL_REF(table);		/* So that fail will erase it */
     INC_DBREF_COUNT(table);
     UNLOCK(table->lock);
     LOCK(ref->lock);
-    TRAIL_REF(&(ref->Flags));	/* So that fail will erase it */
+    TRAIL_REF(ref);		/* So that fail will erase it */
     INC_DBREF_COUNT(ref);
     UNLOCK(ref->lock);
 #else
     if (!(table->Flags & InUseMask)) {
       table->Flags |= InUseMask;
       if (B->cp_tr == TR) {
-	TRAIL_REF(&(table->Flags));	/* So that fail will erase it */
+	TRAIL_REF(table);		/* So that fail will erase it */
 	
 	B->cp_tr = TR;    /* protect this entry so that it will not be
 			     undone by backtracking */
 	
       } else {
 	Term new;
-	TRAIL_REF(&(table->Flags));	/* So that fail will erase it */
+	TRAIL_REF(table);		/* So that fail will erase it */
 	/* swap this with what was pointed by the choicepoint */
 	new = TrailTerm(TR-1);
 	TrailTerm(TR-1) = TrailTerm(B->cp_tr);
@@ -2321,7 +2321,7 @@ i_log_upd_recorded(LogUpdDBProp AtProp)
     }
     if (!(ref->Flags & InUseMask)) {
       ref->Flags |= InUseMask;
-      TRAIL_REF(&(ref->Flags));	/* So that fail will erase it */
+      TRAIL_REF(ref);		/* So that fail will erase it */
     }
 #endif
     return (unify(ARG3, TRef));
@@ -2469,13 +2469,13 @@ i_recorded(DBProp AtProp)
   TRef = MkDBRefTerm(ref);
 #if defined(YAPOR) || defined(THREADS)
   LOCK(ref->lock);
-  TRAIL_REF(&(ref->Flags));	/* So that fail will erase it */
+  TRAIL_REF(ref);		/* So that fail will erase it */
   INC_DBREF_COUNT(ref);
   UNLOCK(ref->lock);
 #else
   if (!(ref->Flags & InUseMask)) {
     ref->Flags |= InUseMask;
-    TRAIL_REF(&(ref->Flags));	/* So that fail will erase it */
+    TRAIL_REF(ref);		/* So that fail will erase it */
   }
 #endif
   return (unify(ARG3, TRef));
@@ -2562,13 +2562,13 @@ c_log_upd_recorded(DBRef *ep, int flags)
   EXTRA_CBACK_ARG(3,1) = AbsAppl((CELL *)ep);
 #if defined(YAPOR) || defined(THREADS)
   LOCK(ref->lock);
-  TRAIL_REF(&(ref->Flags));	/* So that fail will erase it */
+  TRAIL_REF(ref);	/* So that fail will erase it */
   INC_DBREF_COUNT(ref);
   UNLOCK(ref->lock);
 #else 
  if (!(ref->Flags & InUseMask)) {
     ref->Flags |= InUseMask;
-    TRAIL_REF(&(ref->Flags));	/* So that fail will erase it */
+    TRAIL_REF(ref);	/* So that fail will erase it */
   }
 #endif
   if (!unify(ARG3, TRef))
@@ -2705,13 +2705,13 @@ c_recorded(int flags)
   EXTRA_CBACK_ARG(3,1) = (CELL)ref;
 #if defined(YAPOR) || defined(THREADS)
   LOCK(ref->lock);
-  TRAIL_REF(&(ref->Flags));	/* So that fail will erase it */
+  TRAIL_REF(ref);	/* So that fail will erase it */
   INC_DBREF_COUNT(ref);
   UNLOCK(ref->lock);
 #else 
   if (!(ref->Flags & InUseMask)) {
     ref->Flags |= InUseMask;
-    TRAIL_REF(&(ref->Flags));	/* So that fail will erase it */
+    TRAIL_REF(ref);	/* So that fail will erase it */
   }
 #endif
   return (unify(ARG3, TRef));
@@ -2843,13 +2843,13 @@ p_first_instance(void)
   /* we have a pointer to the term available */
 #if defined(YAPOR) || defined(THREADS)
   LOCK(ref->lock);
-  TRAIL_REF(&(ref->Flags));	/* So that fail will erase it */
+  TRAIL_REF(ref);	/* So that fail will erase it */
   INC_DBREF_COUNT(ref);
   UNLOCK(ref->lock);
 #else 
   if (!(ref->Flags & InUseMask)) {
     ref->Flags |= InUseMask;
-    TRAIL_REF(&(ref->Flags));	/* So that fail will erase it */
+    TRAIL_REF(ref);	/* So that fail will erase it */
   }
 #endif
   while ((TermDB = GetDBTerm(ref)) == (CELL)0) {
@@ -3031,14 +3031,14 @@ find_next_clause(DBRef ref0)
       Clause *cl = ClauseCodeToClause(newp);
 
       LOCK(cl->ClLock);
-      TRAIL_REF(&(cl->ClFlags));
+      TRAIL_CLREF(cl));
       INC_DBREF_COUNT(cl);
       UNLOCK(cl->ClLock);
     }
 #else 
     if (!DynamicFlags(newp) & InUseMask) {
       DynamicFlags(newp) |= InUseMask;
-      TRAIL_REF(&DynamicFlags(newp));
+      TRAIL_CLREF(ClauseCodeToClause(newp));
     }
 #endif
     return(newp);
@@ -3451,6 +3451,24 @@ p_erase(void)
   return (TRUE);
 }
 
+/* erase(+Ref)	 */
+static Int 
+p_smash(void)
+{
+  Term t1 = Deref(ARG1);
+
+  if (IsVarTerm(t1)) {
+    Error(INSTANTIATION_ERROR, t1, "erase");
+    return (FALSE);
+  }
+  if (!IsDBRefTerm(t1)) {
+    Error(TYPE_ERROR_DBREF, t1, "erase");
+    return (FALSE);
+  }
+  EraseEntry(DBRefOfTerm(t1));
+  return (TRUE);
+}
+
 /* eraseall(+Key)	 */
 static Int 
 p_eraseall(void)
@@ -3844,7 +3862,7 @@ keepdbrefs(DBRef entryref)
     LOCK(ref->lock);
     if(!(ref->Flags & InUseMask)) {
       ref->Flags |= InUseMask;
-      TRAIL_REF(&(ref->Flags));	/* So that fail will erase it */
+      TRAIL_REF(ref);	/* So that fail will erase it */
     }
     UNLOCK(ref->lock);
   }
@@ -3890,7 +3908,6 @@ p_dequeue(void)
 }
 
 /*
-
   This is a hack, to steal the first element of a key.
 
    It first fetches the first element in the chain, and then erases it
@@ -4028,13 +4045,13 @@ p_db_nb_to_ref(void)
   tref = MkDBRefTerm(myref);
 #if defined(YAPOR) || defined(THREADS)
   LOCK(myref->lock);
-  TRAIL_REF(&(myref->Flags));	/* So that fail will erase it */
+  TRAIL_REF(myref);	/* So that fail will erase it */
   INC_DBREF_COUNT(myref);
   UNLOCK(myref->lock);
 #else
   if (!(myref->Flags & InUseMask)) {
     myref->Flags |= InUseMask;
-    TRAIL_REF(&(myref->Flags));	/* So that fail will erase it */
+    TRAIL_REF(myref);	/* So that fail will erase it */
   }
 #endif
   return(unify(ARG3,tref));
@@ -4103,13 +4120,13 @@ p_hold_index(void)
   /* now, stash the index */ 
 #if defined(YAPOR) || defined(THREADS)
   LOCK(index->lock);
-  TRAIL_REF(&(index->Flags));	/* So that fail will erase it */
+  TRAIL_REF(index);	/* So that fail will erase it */
   INC_DBREF_COUNT(index);
   UNLOCK(index->lock);
 #else
   if (!(index->Flags & InUseMask)) {
     index->Flags |= InUseMask;
-    TRAIL_REF(&(index->Flags));
+    TRAIL_REF(index);
   }
 #endif
   return(unify(ARG2, MkDBRefTerm(index)) &&
@@ -4133,13 +4150,13 @@ p_fetch_reference_from_index(void)
   el = (DBRef)(table->Contents[pos]);
 #if defined(YAPOR) || defined(THREADS)
   LOCK(el->lock);
-  TRAIL_REF(&(el->Flags));	/* So that fail will erase it */
+  TRAIL_REF(el);	/* So that fail will erase it */
   INC_DBREF_COUNT(el);
   UNLOCK(el->lock);
 #else
   if (!(el->Flags & InUseMask)) {
     el->Flags |= InUseMask;
-    TRAIL_REF(&(el->Flags));
+    TRAIL_REF(el);
   }
 #endif
   return(unify(ARG3, MkDBRefTerm(el)));
@@ -4170,6 +4187,7 @@ InitDBPreds(void)
   InitCPred("$recordzp", 4, p_drcdzp, SafePredFlag|SyncPredFlag);
   InitCPred("$recordaifnot", 3, p_rcdaifnot, SafePredFlag|SyncPredFlag);
   InitCPred("$recordzifnot", 3, p_rcdzifnot, SafePredFlag|SyncPredFlag);
+  InitCPred("$db_smash", 1, p_smash, SafePredFlag|SyncPredFlag);
   InitCPred("erase", 1, p_erase, SafePredFlag|SyncPredFlag);
   InitCPred("erased", 1, p_erased, TestPredFlag | SafePredFlag|SyncPredFlag);
   InitCPred("instance", 2, p_instance, SyncPredFlag);

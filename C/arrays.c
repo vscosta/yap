@@ -234,12 +234,12 @@ AccessNamedArray(Atom a, Int indx)
 #if defined(YAPOR) || defined(THREADS)
 	    LOCK(ref->lock);
 	    INC_DBREF_COUNT(ref);
-	    TRAIL_REF(&(ref->Flags));	/* So that fail will erase it */
+	    TRAIL_REF(ref);	/* So that fail will erase it */
 	    UNLOCK(ref->lock);
 #else
 	    if (!(ref->Flags & InUseMask)) {
 	      ref->Flags |= InUseMask;
-	      TRAIL_REF(&(ref->Flags));	/* So that fail will erase it */
+	      TRAIL_REF(ref);	/* So that fail will erase it */
 	    }
 #endif
 	  } else {

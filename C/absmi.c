@@ -904,11 +904,11 @@ absmi(int inp)
 #if defined(YAPOR) || defined(THREADS)
 	/* just store a reference */
 	INC_CLREF_COUNT(cl);
-	TRAIL_REF(&(cl->ClFlags));
+	TRAIL_CLREF(cl);
 #else
 	if (!(cl->ClFlags & InUseMask)) {
 	  cl->ClFlags |= InUseMask;
-	  TRAIL_REF(&(cl->ClFlags));
+	  TRAIL_CLREF(cl);
 	  cl->u2.ClUse =  TR-(tr_fr_ptr)(TrailBase);
 	}
 #endif
@@ -967,7 +967,7 @@ absmi(int inp)
 	LOCK(cl->ClLock);
 	/* always add an extra reference */
 	INC_CLREF_COUNT(cl);
-	TRAIL_REF(&(cl->ClFlags));
+	TRAIL_CLREF(cl);
 	UNLOCK(cl->ClLock);
       }
 #else
@@ -978,7 +978,7 @@ absmi(int inp)
 	PREG->u.EC.ClTrail = TR-(tr_fr_ptr)TrailBase;
 	PREG->u.EC.ClENV = LCL0-YENV;
 	cl->ClFlags |= InUseMask;
-	TRAIL_REF(&(cl->ClFlags));
+	TRAIL_CLREF(cl);
       }
 #endif
       PREG = NEXTOP(PREG, EC);
@@ -1104,14 +1104,12 @@ absmi(int inp)
 #if defined(YAPOR) || defined(THREADS)
       INC_CLREF_COUNT(ClauseCodeToClause(PREG));
       UNLOCK(DynamicLock(PREG));
-      TRAIL_REF((CELL *)&DynamicFlags(PREG));
+      TRAIL_CLREF(ClauseCodeToClause(PREG));
 #else
       if (FlagOff(InUseMask, DynamicFlags(PREG))) {
-	CELL *pt0 = (CELL *)&DynamicFlags(PREG);
 
 	SetFlag(InUseMask, DynamicFlags(PREG));
-	
-	TRAIL_REF(pt0);
+	TRAIL_CLREF(ClauseCodeToClause(PREG));
       }
 #endif
       PREG = NEXTOP(PREG,ld);
@@ -1149,14 +1147,13 @@ absmi(int inp)
       ENDCACHE_Y();
 #if defined(YAPOR) || defined(THREADS)
       INC_CLREF_COUNT(ClauseCodeToClause(PREG));
-      TRAIL_REF((CELL *)&DynamicFlags(PREG));
+      TRAIL_CLREF(ClauseCodeToClause(PREG));
       UNLOCK(DynamicLock(PREG));
 #else
       if (FlagOff(InUseMask, DynamicFlags(PREG))) {
-	CELL *pt0 = (CELL *)&DynamicFlags(PREG);
 
 	SetFlag(InUseMask, DynamicFlags(PREG));
-	TRAIL_REF(pt0);
+	TRAIL_CLREF(ClauseCodeToClause(PREG));
       }
 #endif
       PREG = NEXTOP(PREG,ld);
@@ -1212,7 +1209,7 @@ absmi(int inp)
 #endif /* SBA */
 	    {
 	      TR = TR_FZ;
-	      TRAIL_REF(pt0);
+	      TRAIL_LINK(pt0);
 	    }
 #endif /* FROZEN_REGS */
 	  SP = SP0;

@@ -299,7 +299,12 @@ Binding Macros for Multiple Assignment Variables.
 #endif /* TABLING */
 
 
-#define TRAIL_REF(REF)     TrailTerm(TR++) = AbsPair(((CELL *)(REF)))
+#define REF_TO_TRENTRY(REF)     AbsPair(((CELL *)&((REF)->Flags)))
+#define CLREF_TO_TRENTRY(REF)     AbsPair(((CELL *)&((REF)->ClFlags)))
+
+#define TRAIL_REF(REF)     TrailTerm(TR++) = REF_TO_TRENTRY(REF)
+#define TRAIL_CLREF(REF)     TrailTerm(TR++) = CLREF_TO_TRENTRY(REF)
+#define TRAIL_LINK(REF)     TrailTerm(TR++) = AbsPair((CELL *)(REF))
 
 #define Bind(A,D)          TRAIL(A,D); *(A) = (D)
 

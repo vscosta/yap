@@ -113,14 +113,14 @@ CallProlog(PredEntry *pen, unsigned int arity, Int position)
 	  Clause *cl = ClauseCodeToClause(q);
 
 	  LOCK(cl->ClLock);
-	  TRAIL_REF(&(cl->ClFlags));
+	  TRAIL_CLREF(cl);
 	  INC_DBREF_COUNT(cl);
 	  UNLOCK(cl->ClLock);
 	}
 #else 
 	if (!(ClauseCodeToClause(q)->ClFlags & InUseMask)) {
 	  OPREG     *opp = &(ClauseCodeToClause(q)->ClFlags);
-	  TRAIL_REF(opp);
+	  TRAIL_CLREF(ClauseCodeToClause(q));
 	  *opp |= InUseMask;
 	}
 #endif

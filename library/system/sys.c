@@ -673,6 +673,16 @@ pid(void)
 }
 
 static int
+win(void)
+{
+#if defined(__MINGW32__) || _MSC_VER
+  return(TRUE);
+#else
+  return(FALSE);
+#endif
+}
+
+static int
 p_kill(void)
 {
 #if defined(__MINGW32__) || _MSC_VER
@@ -732,6 +742,7 @@ init_sys(void)
   UserCPredicate("rename_file", rename_file, 3);
   UserCPredicate("sleep", p_sleep, 2);
   UserCPredicate("error_message", error_message, 2);
+  UserCPredicate("win", win, 0);
 }
 
 #ifdef _WIN32

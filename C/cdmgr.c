@@ -1413,14 +1413,14 @@ p_find_dynamic(void)
   {
     Clause *cl = ClauseCodeToClause(q);
     LOCK(cl->ClLock);
-    TRAIL_REF((CELL *)(cl->ClFlags));
+    TRAIL_CLREF(cl->ClFlags);
     INC_CLREF_COUNT(cl);
     UNLOCK(cl->ClLock);
   }
 #else
   if (!(ClauseCodeToClause(q)->ClFlags & InUseMask)) {
     OPREG     *opp = &(ClauseCodeToClause(q)->ClFlags);
-    TRAIL_REF(opp);
+    TRAIL_CLREF(ClauseCodeToClause(q));
     *opp |= InUseMask;
   }
 #endif

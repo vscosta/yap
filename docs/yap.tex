@@ -7445,6 +7445,36 @@ for the command is returned in @var{Status}.
 Fetch the current directory at @var{CurDir}. If @var{NextDir} is bound
 to an atom, make its value the current working directory.
 
+@item shell
+@findex  shell/0
+@syindex shell/0
+@cnindex shell/0
+Start a new shell and leave Yap in background until the shell
+completes. Yap uses the shell given by the environment variable
+@code{SHELL}. In WIN32 environment YAP will use @code{COMSPEC} if
+@code{SHELL} is undefined.
+
+@item shell(+@var{Command})
+@findex  shell/1
+@syindex shell/1
+@cnindex shell/1
+Execute command @var{Command} under a new shell. Yap will be in
+background until the command completes. In Unix environments Yap uses
+the shell given by the environment variable @code{SHELL} with the option
+@code{" -c "}. In WIN32 environment YAP will use @code{COMSPEC} if
+@code{SHELL} is undefined, in this case with the option @code{" /c "}.
+
+@item shell(+@var{Command},-@var{Status})
+@findex  shell/1
+@syindex shell/1
+@cnindex shell/1
+Execute command @var{Command} under a new shell and unify @var{Status}
+with the exit for the command. Yap will be in background until the
+command completes. In Unix environments Yap uses the shell given by the
+environment variable @code{SHELL} with the option @code{" -c "}. In
+WIN32 environment YAP will use @code{COMSPEC} if @code{SHELL} is
+undefined, in this case with the option @code{" /c "}.
+
 @item sleep(+@var{Time})
 @findex  sleep/1
 @syindex sleep/1
