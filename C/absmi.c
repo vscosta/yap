@@ -5686,7 +5686,7 @@ absmi(int inp)
 	saveregs();
 	save_machine_regs();
 
-	SREG = (CELL *) YapExecute((CPredicate)(((PredEntry *)p)->CodeOfPred));
+	SREG = (CELL *) YapExecute((CPredicate)(((PredEntry *)p)->TrueCodeOfPred));
       }
 
       restore_machine_regs();

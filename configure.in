@@ -89,7 +89,7 @@ then
         ;;
         sparc*)
 	  case "$target_os" in
-           *solaris2*|*solaris3*|*sunos5*|*sunos6*)
+           *solaris[2-9]*)
              CFLAGS="-mno-app-regs -DOPTIMISE_ALL_REGS_FOR_SPARC=1 $CFLAGS"
             ;;
           esac
@@ -218,6 +218,7 @@ AC_SUBST(SHLIB_CFLAGS)
 dnl suffix for loadable binary (.so,.dll,.o)
 AC_SUBST(SHLIB_SUFFIX)
 dnl how to call the loader
+AC_SUBST(DO_SECOND_LD)
 AC_SUBST(SHLIB_LD)
 dnl makefile target for building YAP library or dll
 AC_SUBST(NEWSHOBJ)
@@ -231,6 +232,7 @@ AC_SUBST(YAP_EXTRAS)
 dnl defaults
 INSTALL_DLLS="#"
 SHLIB_LD="@#"
+DO_SECOND_LD="#"
 NEWSHOBJ="sobjs"
 YAPLIB="libYap.a"
 M4="m4"
@@ -241,6 +243,7 @@ case $target_os in
 	then
 	  SHLIB_SUFFIX=".so"
           SHLIB_LD="ld -shared"
+          DO_SECOND_LD=""
 	  LIBS="$LIBS -ldl"
 	  case $host_cpu in
 	    alpha*)
@@ -283,6 +286,7 @@ case $target_os in
 	if test $CC = cc -o $CC = c89
 	then
 	 SHLIB_LD="ld -b -E ${LDFLAGS}"
+         DO_SECOND_LD=""
          SHLIB_SUFFIX=".sl"
 	 SHLIB_CFLAGS="+z"
 	 INSTALL_DLLS=""
@@ -301,10 +305,12 @@ case $target_os in
       *osf*)
         SHLIB_SUFFIX=".so"
         SHLIB_LD="ld -shared -expect_unresolved '*'"
+        DO_SECOND_LD=""
 	;;
       *irix6*)
 	SHLIB_CFLAGS=""
 	SHLIB_SUFFIX=".so"
+        DO_SECOND_LD=""
 	SHLIB_LD="ld -n32 -shared -rdata_shared"
 	INSTALL_DLLS=""
 	;;
@@ -319,6 +325,7 @@ case $target_os in
 	  LDFLAGS="-Wl,--export-dynamic $LDFLAGS"
 	  SHLIB_CFLAGS="-fPIC"
 	  SHLIB_LD="ld -Bshareable -x"
+          DO_SECOND_LD=""
 	  SHLIB_SUFFIX=".so"
 	  INSTALL_DLLS=""
         fi
@@ -338,6 +345,7 @@ case $target_os in
 	 then
          SHLIB_SUFFIX=".o"
 	 LIBS="$LIBS -ldl"
+	 INSTALL_DLLS=""
 	 if test $CC = gcc
 	 then
 	   SHLIB_CFLAGS="-fPIC"

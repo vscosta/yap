@@ -148,9 +148,21 @@ file_property(File, Type, Size, Date) :-
 	handle_system_error(Error, off, file_property(File)).
 
 file_exists(File) :-
+	var(File), !,
+	throw(error(instantiation_error,file_exists(File))).
+file_exists(File) :-
+	\+ atom(File), !,
+	throw(error(type_error(atom,File),file_exists(File))).
+file_exists(File) :-
 	file_property(File, _Type, _Size, _Date, _Permissions, Error),
 	var(Error).
 
+file_exists(File, Permissions) :-
+	var(File), !,
+	throw(error(instantiation_error,file_exists(File, Permissions))).
+file_exists(File, Permissions) :-
+	\+ atom(File), !,
+	throw(error(type_error(atom,File),file_exists(File, Permissions))).
 file_exists(File, Permissions) :-
 	file_property(File, _Type, _Size, _Date, FPermissions, Error),
 	var(Error),

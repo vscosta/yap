@@ -57,23 +57,23 @@ regfree.o: $(srcdir)/regfree.c
 regexec.o: $(srcdir)/regexec.c
 	$(CC) -c $(CFLAGS) $(SHLIB_CFLAGS) $(srcdir)/regexec.c -o regexec.o
 
-%@SHLIB_SUFFIX@: %.o
-	@SHLIB_LD@ -o $@ $<
+@DO_SECOND_LD@%@SHLIB_SUFFIX@: %.o
+@DO_SECOND_LD@	@SHLIB_LD@ -o $@ $<
 
-regexp@SHLIB_SUFFIX@: regexp.o
-	@SHLIB_LD@ -o regexp@SHLIB_SUFFIX@ regexp.o
+@DO_SECOND_LD@regexp@SHLIB_SUFFIX@: regexp.o
+@DO_SECOND_LD@	@SHLIB_LD@ -o regexp@SHLIB_SUFFIX@ regexp.o
 
-regcomp@SHLIB_SUFFIX@: regcomp.o
-	@SHLIB_LD@ -o regcomp@SHLIB_SUFFIX@ regcomp.o
+@DO_SECOND_LD@regcomp@SHLIB_SUFFIX@: regcomp.o
+@DO_SECOND_LD@	@SHLIB_LD@ -o regcomp@SHLIB_SUFFIX@ regcomp.o
 
-regerror@SHLIB_SUFFIX@: regerror.o
-	@SHLIB_LD@ -o regerror@SHLIB_SUFFIX@ regerror.o
+@DO_SECOND_LD@regerror@SHLIB_SUFFIX@: regerror.o
+@DO_SECOND_LD@	@SHLIB_LD@ -o regerror@SHLIB_SUFFIX@ regerror.o
 
-regfree@SHLIB_SUFFIX@: regfree.o
-	@SHLIB_LD@ -o regfree@SHLIB_SUFFIX@ regfree.o
+@DO_SECOND_LD@regfree@SHLIB_SUFFIX@: regfree.o
+@DO_SECOND_LD@	@SHLIB_LD@ -o regfree@SHLIB_SUFFIX@ regfree.o
 
-regexec@SHLIB_SUFFIX@: regexec.o
-	@SHLIB_LD@ -o regexec@SHLIB_SUFFIX@ regexec.o
+@DO_SECOND_LD@regexec@SHLIB_SUFFIX@: regexec.o
+@DO_SECOND_LD@	@SHLIB_LD@ -o regexec@SHLIB_SUFFIX@ regexec.o
 
 #
 # create a new DLL library on cygwin environments

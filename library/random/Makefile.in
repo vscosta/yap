@@ -45,11 +45,11 @@ dll: random@SHLIB_SUFFIX@
 random.o: $(srcdir)/random.c
 	$(CC) -c $(CFLAGS) $(SHLIB_CFLAGS) $(srcdir)/random.c -o random.o
 
-%@SHLIB_SUFFIX@: %.o
-	@SHLIB_LD@ -o $@ $<
+@DO_SECOND_LD@%@SHLIB_SUFFIX@: %.o
+@DO_SECOND_LD@	@SHLIB_LD@ -o $@ $<
 
-random@SHLIB_SUFFIX@: random.o
-	@SHLIB_LD@ -o random@SHLIB_SUFFIX@ random.o
+@DO_SECOND_LD@random@SHLIB_SUFFIX@: random.o
+@DO_SECOND_LD@	@SHLIB_LD@ -o random@SHLIB_SUFFIX@ random.o
 
 #
 # create a new DLL library on cygwin environments
