@@ -386,18 +386,20 @@ print_message(Level, Mss) :-
 	'$dump_syntax_error_term'(I1,J1,R).
 
 '$dump_error_token'(atom(A)) :- !,
-	'$format'(user_error," ~a", [A]).
+	'$format'(user_error,"~a", [A]).
 '$dump_error_token'(number(N)) :- !,
-	'$format'(user_error," ~w", [N]).
+	'$format'(user_error,"~w", [N]).
 '$dump_error_token'(var(_,S,_)) :- !,
-	'$format'(user_error," ~s ", [S]).
+	'$format'(user_error,"~s ", [S]).
 '$dump_error_token'(string(S)) :- !,
-	'$format'(user_error," ""~s""", [S]).
+	'$format'(user_error,"""~s""", [S]).
 '$dump_error_token'('(') :-
 	'$format'(user_error,"(", []).
 '$dump_error_token'(')') :-
 	'$format'(user_error," )", []).
+'$dump_error_token'(',') :-
+	'$format'(user_error," , ", []).
 '$dump_error_token'(A) :-
-	'$format'(user_error," ~a", [A]).
+	'$format'(user_error," ~a ", [A]).
 
 

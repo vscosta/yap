@@ -244,7 +244,7 @@ p_to_s_group([Vertex|Vertices], EdgeSet, [Vertex-Neibs|G]) :-
 	p_to_s_group(Vertices, RestEdges, G).
  
  
-p_to_s_group([V-X|Edges], V, [X|Neibs], RestEdges) :- !,
+p_to_s_group([V1-X|Edges], V2, [X|Neibs], RestEdges) :- V1 == V2, !,
 	p_to_s_group(Edges, V, Neibs, RestEdges).
 p_to_s_group(Edges, _, [], Edges).
  

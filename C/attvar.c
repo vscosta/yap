@@ -170,13 +170,6 @@ WakeAttVar(CELL* pt1, CELL reg2)
   CELL *myH = H;
   CELL *bind_ptr;
 
-  if (!IsVarTerm(attv->Value) || !IsUnboundVar(attv->Value)) {
-    /* oops, our goal is on the queue to be woken */
-    if (!unify(attv->Value, reg2)) {
-      AddFailToQueue();
-    }
-    return;
-  }
   if (IsVarTerm(reg2)) {
     if (IsAttachedTerm(reg2)) {
       attvar_record *susp2 = (attvar_record *)VarOfTerm(reg2);
@@ -203,6 +196,13 @@ WakeAttVar(CELL* pt1, CELL reg2)
       Bind(VarOfTerm(reg2), (CELL)pt1);
       return;
     }
+  }
+  if (!IsVarTerm(attv->Value) || !IsUnboundVar(attv->Value)) {
+    /* oops, our goal is on the queue to be woken */
+    if (!unify(attv->Value, reg2)) {
+      AddFailToQueue();
+    }
+    return;
   }
   bind_ptr = AddToQueue(attv);
   if (IsNonVarTerm(reg2)) {
