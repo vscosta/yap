@@ -23,7 +23,7 @@ static char     SccsId[] = "%W% %G%";
 
 #define EARLY_RESET 1
 #ifndef TABLING
-#define EASY_SHUNTING 1
+//#define EASY_SHUNTING 1
 #endif
 #define HYBRID_SCHEME 1
 
@@ -52,7 +52,7 @@ STATIC_PROTO(Int  p_gc, (void));
 #ifdef EASY_SHUNTING
 static choiceptr current_B;
 
-static tr_fr_ptr sTR;
+static tr_fr_ptr sTR, sTR0;
 
 static CELL *prev_HB;
 #endif
@@ -90,7 +90,12 @@ typedef struct {
   int nof;
 } cont;
 
-static cont *cont_top0, *cont_top;
+#ifdef EASY_SHUNTING
+#define cont_top0 (cont *)sTR
+#else
+static cont *cont_top0;
+#endif
+static cont *cont_top;
 
 inline static void
 PUSH_CONTINUATION(CELL *v, int nof) {
@@ -1094,8 +1099,11 @@ mark_environments(CELL_PTR gc_ENV, OPREG size, CELL *pvbmap)
 static void
 mark_trail(tr_fr_ptr trail_ptr, tr_fr_ptr trail_base, CELL *gc_H, choiceptr gc_B)
 {
+#ifdef EASY_SHUNTING
+  tr_fr_ptr begsTR = NULL, endsTR = NULL;
+#endif
   cont *old_cont_top0 = cont_top0;
-  GC_NEW_MAHASH((gc_ma_h_inner_struct *)db_vec);
+  GC_NEW_MAHASH((gc_ma_h_inner_struct *)cont_top0);
   while (trail_ptr > trail_base) {
     register CELL trail_cell;
     
@@ -1139,11 +1147,21 @@ mark_trail(tr_fr_ptr trail_ptr, tr_fr_ptr trail_base, CELL *gc_H, choiceptr gc_B
 	  discard_trail_entries++;
 #ifdef EASY_SHUNTING
 	if (hp < gc_H   && hp >= H0) {
-	  CELL *cptr = (CELL *)trail_cell;
+	  tr_fr_ptr nsTR = (tr_fr_ptr)cont_top0;
+          CELL *cptr = (CELL *)trail_cell;
 
-	  TrailTerm(sTR) = *hp;
-	  TrailTerm(sTR+1) = trail_cell;
-	  sTR += 2;
+	  if ((ADDR)nsTR > TrailTop-1024)
+	    growtrail(64 * 1024L);
+	  TrailTerm(nsTR) = (CELL)NULL;
+	  TrailTerm(nsTR+1) = *hp;
+	  TrailTerm(nsTR+2) = trail_cell;
+	  if (begsTR == NULL)
+	    begsTR = nsTR;
+	  else
+	    TrailTerm(endsTR) = (CELL)nsTR;
+	  endsTR = nsTR;
+	  cont_top0 = cont_top = (cont *)(nsTR+3);
+	  gc_ma_h_top = (gc_ma_h_inner_struct *)(nsTR+3);
 	  RESET_VARIABLE(cptr);
 	  MARK(cptr);
 	}
@@ -1221,7 +1239,17 @@ mark_trail(tr_fr_ptr trail_ptr, tr_fr_ptr trail_base, CELL *gc_H, choiceptr gc_B
     live_list = live_list->ma_list;
   }
 #endif
-  cont_top0 = cont_top = old_cont_top0;
+  cont_top0 = old_cont_top0;
+#ifdef EASY_SHUNTING
+  while (begsTR != NULL) {
+    tr_fr_ptr newsTR = (tr_fr_ptr)TrailTerm(begsTR);
+    TrailTerm(sTR) = TrailTerm(begsTR+1);
+    TrailTerm(sTR+1) = TrailTerm(begsTR+2);
+    begsTR = newsTR;
+    sTR += 2;
+  } 
+#endif
+  cont_top = cont_top0;
 }
 
 /*
@@ -1511,6 +1539,7 @@ mark_choicepoints(register choiceptr gc_B, tr_fr_ptr saved_TR)
 #endif
       }
 	
+
       /* for each saved register */
       for (saved_reg = &gc_B->cp_a1;
 	   /* assumes we can count registers in CP this
@@ -2470,11 +2499,12 @@ icompact_heap(void)
 
 #ifdef EASY_SHUNTING
 static void
-set_conditionals(tr_fr_ptr TRo) {
-  while (sTR != TRo) {
-    CELL *cptr = (CELL *)TrailTerm(sTR-1);
-    *cptr = TrailTerm(sTR-2);
+set_conditionals(tr_fr_ptr sTR) {
+  while (sTR != sTR0) {
+    CELL *cptr;
     sTR -= 2;
+    cptr = (CELL *)TrailTerm(sTR+1);
+    *cptr = TrailTerm(sTR);
   } 
 }
 #endif
@@ -2490,12 +2520,12 @@ marking_phase(tr_fr_ptr old_TR, CELL *current_env, yamop *curp, CELL *max)
 {
 
 #ifdef EASY_SHUNTING
-  tr_fr_ptr TRo;
-  sTR = (tr_fr_ptr)PreAllocCodeSpace();
-  TRo = sTR;
   current_B = B;
 #endif
   init_dbtable(old_TR);
+#ifdef EASY_SHUNTING
+  sTR0 = (tr_fr_ptr)db_vec;
+#endif
   cont_top0 = cont_top = (cont *)db_vec;
   /* These two must be marked first so that our trail optimisation won't lose
      values */
@@ -2507,8 +2537,7 @@ marking_phase(tr_fr_ptr old_TR, CELL *current_env, yamop *curp, CELL *max)
   mark_environments(current_env, EnvSize(curp), EnvBMap((CELL *)curp));
   mark_choicepoints(B, old_TR);	/* choicepoints, and environs  */
 #ifdef EASY_SHUNTING
-  set_conditionals(TRo);
-  ReleasePreAllocCodeSpace((ADDR)sTR);
+  set_conditionals(sTR);
 #endif
 }
 
@@ -2603,7 +2632,6 @@ do_gc(Int predarity, CELL *current_env, yamop *nextop)
     old_vars = new_vars = 0;
     TrueHB = HB;
     num_bs = 0;
-    printf("vsc: Starting with %p: %x vs %p->%p %p->\n", (CELL *)0x90da350, *(CELL *)0x90da350, AtomBase, HeapTop, H0);
   }
 #endif
 #ifdef DEBUG
@@ -2695,7 +2723,6 @@ do_gc(Int predarity, CELL *current_env, yamop *nextop)
 	       (unsigned long int)(ASP-H));
   }
 #ifdef DEBUG
-printf("vsc: Finishing with %p: %x vs %p->%p %p->\n", (CELL *)0x90da350, *(CELL *)0x90da350, AtomBase, HeapTop, H0);
   check_global();
 #endif
   return(effectiveness);

@@ -1053,6 +1053,7 @@
         if (B->cp_tr > DepFr_cons_cp(dep_fr)->cp_tr)
           TABLING_ERROR_MESSAGE("B->cp_tr > DepFr_cons_cp(dep_fr)->cp_tr (completion)");
 #endif /* TABLING_ERRORS */
+	printf("vsc1: looking from dep_fr %p to B %p\n", dep_fr, B);
         rebind_variables(DepFr_cons_cp(dep_fr)->cp_tr, B->cp_tr);
 #ifdef TABLING_ERRORS
         if (TR != B->cp_tr) {

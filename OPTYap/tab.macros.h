@@ -399,12 +399,9 @@ void rebind_variables(tr_fr_ptr rebind_tr, tr_fr_ptr end_tr) {
     TABLING_ERROR_MESSAGE("rebind_tr < end_tr (function rebind_variables)");
 #endif /* TABLING_ERRORS */
   /* rebind loop */
-  printf("LCL0 is %p TR %p\n", LCL0, TR);
   NEW_MAHASH((ma_h_inner_struct *)H);
-  printf("new cicle from %p at %p\n", rebind_tr, end_tr);
   while (rebind_tr != end_tr) {
     CELL ref = (CELL) TrailTerm(--rebind_tr);
-    printf("doing %x at %p\n", ref, rebind_tr);
     /* check for global or local variables */
     if (IsVarTerm(ref)) {
       /* rebind variable */
