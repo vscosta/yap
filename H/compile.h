@@ -263,6 +263,8 @@ extern PInstr *icpc, *BlobsStart;
 
 extern char *freep, *freep0;
 
+extern int *label_offset;
+
 extern int IPredArity;
 
 extern jmp_buf CompilerBotch;

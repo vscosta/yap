@@ -117,7 +117,7 @@ static yamop *code_p;
 
 static CODEADDR code_addr;
 static int pass_no;
-static int *label_offset;
+int *label_offset;
 static OPREG var_offset;
 static int is_y_var;
 
@@ -2392,6 +2392,9 @@ do_pass(void)
 	  save_machine_regs();
 	  longjmp(CompilerBotch,3);	  
 	}
+	
+	if ( (char *)(label_offset+cpc->rnd1) > freep)
+	  freep = (char *)(label_offset+cpc->rnd1);
 	label_offset[cpc->rnd1] = (CELL) code_p;
       }
       /* reset dealloc_found in case there was a branch */
@@ -2569,12 +2572,11 @@ assemble(int mode)
    * computes labels offsets and total code size 2 - the second pass
    * produces the final version of the code 
    */
-  int *workspace = (int *)freep;
   CELL size;
 
   code_addr = NIL;
   assembling = mode;
-  label_offset = workspace;
+  label_offset = (int *)freep;
   pass_no = 0;
   asm_error = FALSE;
   do_pass();

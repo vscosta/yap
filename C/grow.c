@@ -654,6 +654,8 @@ growheap(int fix_code)
       BlobsStart = cpc = (PInstr *)GlobalAddrAdjust((ADDR)cpc);
     }
     fix_compiler_instructions(cpc);
+    freep = (char *)GlobalAddrAdjust((ADDR)freep);
+    label_offset = (int *)GlobalAddrAdjust((ADDR)label_offset);
   }
 #ifdef TABLING
   fix_tabling_info();
