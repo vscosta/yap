@@ -870,7 +870,7 @@ exec_absmi(int top)
 #endif
       yap_flags[SPY_CREEP_FLAG] = 0;
       CreepFlag = CalculateStackGap();
-#if defined(__GNUC__) && defined(hppa)
+#if defined(__GNUC__) && (defined(hppa) || defined(__alpha))
      /* siglongjmp resets the TR hardware register */
       restore_TR();
 #endif

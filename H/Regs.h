@@ -10,7 +10,7 @@
 * File:		Regs.h							 *
 * mods:									 *
 * comments:	YAP abstract machine registers				 *
-* version:      $Id: Regs.h,v 1.3 2001-06-06 19:10:51 vsc Exp $	 *
+* version:      $Id: Regs.h,v 1.4 2001-06-27 15:46:26 vsc Exp $	 *
 *************************************************************************/
 
 
@@ -318,6 +318,14 @@ EXTERN inline void restore_B(void) {
 #define BACKUP_B()  choiceptr BK_B = B; restore_B()
 
 #define RECOVER_B()  save_B(); B = BK_B
+
+EXTERN inline void save_TR(void) {
+  REGS.TR_ = TR;
+}
+
+EXTERN inline void restore_TR(void) {
+  TR = REGS.TR_;
+}
 
 #elif defined(__GNUC__) && defined(mips)
 

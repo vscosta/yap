@@ -258,7 +258,7 @@ Abort (char *format,...)
 #if PUSH_REGS
     restore_absmi_regs(&standard_regs);
 #endif
-#if defined(__GNUC__) && defined(hppa)
+#if defined(__GNUC__) && (defined(hppa) || defined(__alpha))
     /* siglongjmp resets the TR hardware register */
     save_TR();
 #endif
