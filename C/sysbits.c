@@ -314,7 +314,8 @@ cputime (void)
     unsigned long long int t =
       *(unsigned long long int *)&UserTime - 
       *(unsigned long long int *)&StartOfTimes;
-    return((Int)do_div(t,10000));
+    do_div(t,10000);
+    return((Int)t);
 #endif
 #ifdef _MSC_VER
     LONG_INTEGER t = *(LONG_INTEGER *)&UserTime - *(LONG_INTEGER *)&StartOfTimes;
@@ -337,8 +338,10 @@ void cputime_interval(Int *now,Int *interval)
     unsigned long long int t2 =
       *(unsigned long long int *)&UserTime -
       *(unsigned long long int *)&last_time;
-    *now = (Int)do_div(t1,10000);
-    *interval = (Int)do_div(t2,10000);
+    do_div(t1,10000);
+    *now = (Int)t1;
+    do_div(t2,10000);
+    *interval = (Int)t2;
 #endif
 #ifdef _MSC_VER
     LONG_INTEGER t1 = *(LONG_INTEGER *)&UserTime - *(LONG_INTEGER *)&StartOfTimes;
