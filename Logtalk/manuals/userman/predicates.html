@@ -164,6 +164,18 @@ An object (or category) predicate can be static or dynamic. By default, all obje
 Because each Logtalk entity is compiled independently from other entities, this directive must be included in every object or category that contains a definition for the described predicate (even if the predicate declaration is inherited from other entity). If we omit the dynamic declaration then the predicate definition will be compiled to static code. Note that any static object may declare and define dynamic predicates.
 </p>
 
+<h3>Operator directive<a name="op"></a></h3>
+
+<p>
+An object (or category) predicate can be declared as an operator using the familiar <a title="Consult reference manual" href="../refman/directives/op3.html"><code>op/3</code></a> directive:
+</p>
+<pre>
+    :- op(Priority, Specifier, Operator).
+</pre>
+<p>
+Operators are local to the object (or category) where they are declared. This means that, if you declare a public predicate as an operator, you cannot use operator notation when sending to an object (where the predicate is visible) the respective message (as this would imply visibility of the operator declaration in the context of the <em>sender</em> of the message).
+</p>
+
 <h3>Documenting directive<a name="info"></a></h3>
 
 <p>
@@ -380,7 +392,7 @@ Copyright &copy; <a href="mailto:pmoura@logtalk.org">Paulo Moura</a> &mdash; <a 
 </div>
 
 <div class="footer">
-<p><span class="bleft"><a href="http://validator.w3.org/check/referer">XHTML</a> + <a href="http://jigsaw.w3.org/css-validator/check/referer">CSS</a></span><span class="bright">Last updated on: December 23, 2003</span></p>
+<p><span class="bleft"><a href="http://validator.w3.org/check/referer">XHTML</a> + <a href="http://jigsaw.w3.org/css-validator/check/referer">CSS</a></span><span class="bright">Last updated on: February 11, 2004</span></p>
 </div>
 </body>
 </html>

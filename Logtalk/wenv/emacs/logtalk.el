@@ -1,11 +1,11 @@
 ;; logtalk.el -- font lock support for Logtalk (http://www.logtalk.org/)
 
-;; Copyright (C) 2003 Paulo Moura
+;; Copyright (C) 2003-2004 Paulo Moura
 
 ;; Author: Paulo Moura
 ;; Creation date: November 15, 2003
-;; Last modification date: February 2, 2004
-;; Version: 0.5
+;; Last modification date: February 23, 2004
+;; Version: 0.51
 
 ;; Installation:
 ;;
@@ -15,6 +15,7 @@
 ;; (autoload 'logtalk-mode "logtalk" "Major mode for editing Logtalk programs." t)
 ;; (setq auto-mode-alist (cons '("\\.lgt\\'" . logtalk-mode) auto-mode-alist))
 ;; (setq auto-mode-alist (cons '("\\.loader\\'" . logtalk-mode) auto-mode-alist))
+;; (setq auto-mode-alist (cons '("\\.config\\'" . logtalk-mode) auto-mode-alist))
 
 
 

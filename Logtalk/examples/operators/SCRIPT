@@ -1,0 +1,46 @@
+=================================================================
+Logtalk - Object oriented extension to Prolog
+Release 2.16.0
+
+Copyright (c) 1998-2004 Paulo Moura.  All Rights Reserved.
+=================================================================
+
+
+
+% operators declared inside an object are not visible outside:
+
+| ?- double::(I double J).
+
+Syntax error: Operator expected
+
+
+% you must use instead:
+
+| ?- double::double(I, J).
+
+I = 1
+J = 2 ;
+
+I = 2
+J = 4 ;
+
+I = 3
+J = 6 
+
+Yes
+
+
+% operators also affect inputing of terms, enabling this example to work:
+
+| ?- triple::triple(I, J).
+
+I = 1
+J = 3 ;
+
+I = 2
+J = 6 ;
+
+I = 3
+J = 9 
+
+Yes

@@ -1,6 +1,6 @@
 =================================================================
 Logtalk - Object oriented extension to Prolog
-Release 2.15.6
+Release 2.16.0
 
 Copyright (c) 1998-2004 Paulo Moura.  All Rights Reserved.
 =================================================================
@@ -8,6 +8,40 @@ Copyright (c) 1998-2004 Paulo Moura.  All Rights Reserved.
 
 RELEASE NOTES
 =============
+
+
+2.16.0 - March 3, 2004
+
+	Logtalk is now distributed under the Artistic License 2.0.
+
+	Operators declared inside an entity are now local to the entity, not 
+	affecting the global operator table (complying with the Logtalk language 
+	specification). Input and output of terms from inside objects and 
+	categories now work as expected in the presence of local operator 
+	declarations. Added a new example named "operators".
+
+	Updated built-in method predicate_property/2 for returning metapredicate/1 
+	properties for both Logtalk and Prolog metapredicates.
+
+	Added support for calls to non-ISO Prolog standard built-in metapredicates 
+	inside objects and categories. Added support for the declaration of non-ISO 
+	Prolog standard metapredicates in the config files.
+
+	Small change to the way the Logtalk compiler reports the compilation of
+	entities. Small optimizations to the compilation of Logtalk source files.
+
+	Corrected a bug where calls to Logtalk built-in predicates would be 
+	reported as non-portable when the value of compiler option portability is 
+	set to warning.
+
+	New config file for Qu-Prolog 6.4 (see the configs/NOTES file for details).
+
+	Corrected a problem with the syntax coloring of quoted atoms and strings 
+	in the SubEthaEdit text editor. Added more accurate syntax highlight for
+	built-in methods and built-in predicates.
+
+	Updated the syntax coloring configuration files for all supported text 
+	editors to recognize the file extension used by the config files.
 
 
 2.15.6 - February 9, 2004

@@ -20,5 +20,13 @@
         Extensions = (loader);
         ComputerLanguage = prolog;
         AppliesToBuildRules = no;
+    },
+    {
+        Identifier = sourcecode.logtalk.config;
+        BasedOn = sourcecode.logtalk;
+        Name = "Logtalk config file";
+        Extensions = (config);
+        ComputerLanguage = prolog;
+        AppliesToBuildRules = no;
     }
 )

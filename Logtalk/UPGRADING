@@ -1,6 +1,6 @@
 =================================================================
 Logtalk - Object oriented extension to Prolog
-Release 2.15.6
+Release 2.16.0
 
 Copyright (c) 1998-2004 Paulo Moura.  All Rights Reserved.
 =================================================================
@@ -36,18 +36,18 @@ files: the first argument is now always a list of entities even if we want
 to compile or load a single entity.
 
 Logtalk version 2.9.0 changes compiled code functors postfixes from "_sdcl" 
-and "_sdef" to  "_idcl"	and "_idef", impliying recompilation of all objects, 
+and "_sdef" to  "_idcl"	and "_idef", implying recompilation of all objects, 
 protocols, and categories.
 
 Logtalk version 2.10.0 changes some of the semantics of object dynamic 
 predicates. See the release notes for a description of the changes.
 
-Logtalk version 2.14.4 removes the definition of the depracated built-in 
+Logtalk version 2.14.4 removes the definition of the deprecated built-in 
 predicate logtalk_version/3 (use current_logtalk_flag/3 instead).
 
 Logtalk version 2.14.5 changes compiled code in order to correct a bug 
 where sending messages such as true/0 to an unknown object will succeeded 
-instead of throwing the expected exception, impliying recompilation of all 
+instead of throwing the expected exception, implying recompilation of all 
 objects, protocols, and categories.
 
 Logtalk version 2.14.7 changes compiled code in order to optimize the 
@@ -60,8 +60,13 @@ to apply this change to take advantage of automatic generation of documenting
 files.
 
 Logtalk version 2.15.3 changes the format of the runtime entity tables, 
-impliying recompilation of all objects, protocols, and categories.
+implying recompilation of all objects, protocols, and categories.
 
 Logtalk version 2.15.6 renamed the compiler option "named_anonymous_vars" to 
 "underscore_vars" and changed the possible option values form "on/off" to 
 "dont_care/singletons".
+
+Logtalk 2.16.0 improves support for the declaration and use of operators 
+local to objects and categories. Recompilation of any objects and categories 
+contain operator declarations is needed in order to take advantage of the 
+improvements made.

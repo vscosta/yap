@@ -2,7 +2,7 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %
 %  Logtalk - Object oriented extension to Prolog
-%  Release 2.15.6
+%  Release 2.16.0
 %
 %  Copyright (c) 1998-2004 Paulo Moura.  All Rights Reserved.
 %
@@ -128,6 +128,9 @@
 :- dynamic('$lgt_referenced_object_'/1).		% '$lgt_referenced_object_'(Object)
 :- dynamic('$lgt_referenced_protocol_'/1).		% '$lgt_referenced_protocol_'(Protocol)
 :- dynamic('$lgt_referenced_category_'/1).		% '$lgt_referenced_category_'(Category)
+
+:- dynamic('$lgt_global_op_'/3).				% '$lgt_global_op_'(Priority, Specifier, Operator)
+:- dynamic('$lgt_local_op_'/3).					% '$lgt_local_op_'(Priority, Specifier, Operator)
 
 
 
@@ -1073,7 +1076,7 @@ current_logtalk_flag(Flag, Value) :-
 	'$lgt_default_flag'(Flag, Value),
 	\+ '$lgt_flag_'(Flag, _).
 
-current_logtalk_flag(version, version(2, 15, 6)).
+current_logtalk_flag(version, version(2, 16, 0)).
 
 
 
@@ -1190,16 +1193,18 @@ current_logtalk_flag(version, version(2, 15, 6)).
 	 Prop = declared_in(TContainer);
 	 '$lgt_once'(Def, Pred, _, _, _, _, DContainer),
 	 Prop = defined_in(DContainer);
-	 Meta \= no,
-	 Prop = metapredicate(Meta)).
+	 Meta \= no, Prop = metapredicate(Meta)).
 
 '$lgt_predicate_property'(_, Pred, Prop, _, Scope) :-
 	'$lgt_built_in_method'(Pred, PScope),
 	!,
+	functor(Pred, Functor, Arity),
+	functor(Meta, Functor, Arity),
 	\+ \+ PScope = Scope,
 	('$lgt_scope'(Prop, PScope);
 	 Prop = static;
-	 Prop = built_in).
+	 Prop = built_in;
+	 ('$lgt_metapredicate'(Meta) -> Prop = metapredicate(Meta))).
 
 '$lgt_predicate_property'(_, Pred, Prop, _, _) :-
 	'$lgt_built_in'(Pred),
@@ -1208,7 +1213,7 @@ current_logtalk_flag(version, version(2, 15, 6)).
 	(Prop = (public);
 	 ('$lgt_predicate_property'(Pred, (dynamic)) -> Prop = (dynamic); Prop = static);
 	 Prop = built_in;
-	 ('$lgt_pl_metapredicate'(Meta) -> Prop = metapredicate(Meta))).
+	 ('$lgt_metapredicate'(Meta) -> Prop = metapredicate(Meta))).
 
 
 % '$lgt_scope'(?atom, ?term).
@@ -1944,7 +1949,7 @@ user0__def(Pred, _, _, _, Pred, user).
 	'$lgt_file_name'(prolog, Entity, File),
 	'$lgt_load_prolog_code'(File),
 	('$lgt_compiler_option'(report, on) ->
-		write('<<<  '), writeq(Entity), write(' loaded'), nl
+		write('<<< '), writeq(Entity), write(' loaded'), nl
 		;
 		true).
 
@@ -1957,27 +1962,27 @@ user0__def(Pred, _, _, _, Pred, user).
 '$lgt_report_redefined_entity'(Entity) :-
 	'$lgt_current_object_'(Entity, _, _, _, _, _),
 	!,
-	write('WARNING!  redefining object '), write(Entity), nl.
+	write('> WARNING!  redefining object '), write(Entity), nl.
 
 '$lgt_report_redefined_entity'(Entity) :-		% parametric objects
-	atom_codes(Entity, Codes),
-	'$lgt_append'(Codes1, Codes2, Codes),
-	catch(number_codes(Arity, Codes2), _, fail),
-	atom_codes(Functor, Codes1),
-	functor(Loaded, Functor, Arity),
-	'$lgt_current_object_'(Loaded, _, _, _, _, _),
+	atom_codes(Entity, Codes),					% this is a quick and dirty hack
+	'$lgt_compiler_option'(code_prefix, Atom),	% assuming that code_prefix does
+	atom_codes(Atom, Code),						% not change between entity
+	'$lgt_append'(Code, Codes, Codes2),			% compilations
+	'$lgt_append'(Codes2, '_', Prefix),
+	'$lgt_current_object_'(_, Prefix, _, _, _, _),
 	!,
-	write('WARNING!  redefining object '), write(Entity), nl.
+	write('> WARNING!  redefining object '), write(Entity), nl.
 
 '$lgt_report_redefined_entity'(Entity) :-
 	'$lgt_current_protocol_'(Entity, _, _),
 	!,
-	write('WARNING!  redefining protocol '), write(Entity), nl.
+	write('> WARNING!  redefining protocol '), write(Entity), nl.
 
 '$lgt_report_redefined_entity'(Entity) :-
 	'$lgt_current_category_'(Entity, _, _),
 	!,
-	write('WARNING!  redefining category '), write(Entity), nl.
+	write('> WARNING!  redefining category '), write(Entity), nl.
 
 '$lgt_report_redefined_entity'(_).
 	
@@ -2004,14 +2009,13 @@ user0__def(Pred, _, _, _, Pred, user).
 	\+ '$lgt_needs_recompilation'(Entity),
 	!,
 	('$lgt_compiler_option'(report, on) ->
-		nl, write('>>>  compiling '), writeq(Entity),	
-		nl, write('>>>  '), writeq(Entity), write(' is up-to-date'), nl
+		nl, write('>>> compiling '), writeq(Entity), write('... up-to-date'), nl
 		;
 		true).
 
 '$lgt_compile_entity'(Entity) :-
 	('$lgt_compiler_option'(report, on) ->
-		nl, write('>>>  compiling '), writeq(Entity), nl	
+		nl, write('>>> compiling '), writeq(Entity), write('...'), nl
 		;
 		true),
 	'$lgt_clean_up',
@@ -2021,7 +2025,7 @@ user0__def(Pred, _, _, _, Pred, user).
 	'$lgt_report_unknown_entities',
 	'$lgt_clean_up',
 	('$lgt_compiler_option'(report, on) ->
-		write('>>>  '), writeq(Entity), write(' compiled'), nl
+		write('>>> '), writeq(Entity), write(' compiled'), nl
 		;
 		true).
 
@@ -2111,6 +2115,7 @@ user0__def(Pred, _, _, _, Pred, user).
 		open(File, read, Stream),
 		Error,
 		'$lgt_compiler_error_handler'(Stream, Error)),
+	'$lgt_save_op_table',
 	catch(
 		(read_term(Stream, Term, [singletons(Singletons1)]),
 		 '$lgt_filter_dont_care_vars'(Singletons1, Singletons2),
@@ -2118,6 +2123,7 @@ user0__def(Pred, _, _, _, Pred, user).
 		 '$lgt_tr_file'(Stream, Term)),
 		Error,
 		'$lgt_compiler_error_handler'(Stream, Error)),
+	'$lgt_restores_op_table',
 	close(Stream),
 	'$lgt_fix_redef_built_ins',
 	'$lgt_find_misspelt_calls',
@@ -2173,13 +2179,13 @@ user0__def(Pred, _, _, _, Pred, user).
 '$lgt_report_singletons'([Singleton| Singletons], Term) :-
 	('$lgt_compiler_option'(singletons, warning),
 	 '$lgt_compiler_option'(report, on)) ->
-		write('WARNING!'),
+		write('> WARNING!'),
 		\+ \+ ( '$lgt_report_singletons_aux'([Singleton| Singletons], Term, Names),
 				write('  singleton variables: '), write(Names), nl,
 				(Term = (:- _) ->
-					write('          in directive: ')
+					write('>           in directive: ')
 					;
-					write('          in clause: ')),
+					write('>           in clause: ')),
 				write(Term), nl)
 		;
 		true.
@@ -2195,14 +2201,15 @@ user0__def(Pred, _, _, _, Pred, user).
 
 % '$lgt_compiler_error_handler'(@term, +term)
 %
-% close the stream opened for reading the entity 
-% file and report the compilation error found
+% closes the stream opened for reading the entity file, restores
+% the operator table, and reports the compilation error found
 
 '$lgt_compiler_error_handler'(Stream, Error) :-
 	(nonvar(Stream) ->
 		close(Stream)
 		;
 		true),
+	'$lgt_restores_op_table',
 	'$lgt_report_compiler_error'(Error),
 	throw(Error).
 
@@ -2214,26 +2221,26 @@ user0__def(Pred, _, _, _, Pred, user).
 
 '$lgt_report_compiler_error'(error(Error, directive(Directive))) :-
 	!,
-	write('ERROR!    '), writeq(Error), nl,
-	write('          in directive: '), write((:- Directive)), nl.
+	write('> ERROR!  '), writeq(Error), nl,
+	write('>         in directive: '), write((:- Directive)), nl.
 
 '$lgt_report_compiler_error'(error(Error, clause(Clause))) :-
 	!,
-	write('ERROR!    '), writeq(Error), nl,
-	write('          in clause: '), write(Clause), nl.
+	write('> ERROR!  '), writeq(Error), nl,
+	write('>         in clause: '), write(Clause), nl.
 
 '$lgt_report_compiler_error'(error(Error, dcgrule(Rule))) :-
 	!,
-	write('ERROR!    '), writeq(Error), nl,
-	write('          in grammar rule: '), write((Rule)), nl.
+	write('> ERROR!  '), writeq(Error), nl,
+	write('>         in grammar rule: '), write((Rule)), nl.
 
 '$lgt_report_compiler_error'(error(Error, Term)) :-
 	!,
-	write('ERROR!    '), writeq(Error), nl,
-	write('          in: '), write(Term), nl.
+	write('> ERROR!  '), writeq(Error), nl,
+	write('>         in: '), write(Term), nl.
 
 '$lgt_report_compiler_error'(Error) :-
-	write('ERROR!    '), writeq(Error), nl.
+	write('> ERROR!  '), writeq(Error), nl.
 
 
 
@@ -2279,7 +2286,9 @@ user0__def(Pred, _, _, _, Pred, user).
 	retractall('$lgt_calls_pred_'(_)),
 	retractall('$lgt_referenced_object_'(_)),
 	retractall('$lgt_referenced_protocol_'(_)),
-	retractall('$lgt_referenced_category_'(_)).
+	retractall('$lgt_referenced_category_'(_)),
+	retractall('$lgt_global_op_'(_, _, _)),
+	retractall('$lgt_local_op_'(_, _, _)).
 
 
 
@@ -2330,7 +2339,52 @@ user0__def(Pred, _, _, _, Pred, user).
 	listing('$lgt_flag_'/2),
 	listing('$lgt_referenced_object_'/1),
 	listing('$lgt_referenced_protocol_'/1),
-	listing('$lgt_referenced_category_'/1).
+	listing('$lgt_referenced_category_'/1),
+	listing('$lgt_global_op_'/3),
+	listing('$lgt_local_op_'/3).
+
+
+
+% '$lgt_save_op_table'
+%
+% saves current operator table
+
+'$lgt_save_op_table' :-
+	forall(
+		current_op(Priority, Specifier, Operator),
+		asserta('$lgt_global_op_'(Priority, Specifier, Operator))).
+
+
+
+% '$lgt_restores_op_table'
+%
+% restores current operator table
+
+'$lgt_restores_op_table' :-
+	forall(
+		retract('$lgt_local_op_'(_, Specifier, Operator)),
+		op(0, Specifier, Operator)),
+	retractall('$lgt_global_op_'(_, _, ',')),	% ','/2 cannot be an argument to op/3
+	forall(
+		retract('$lgt_global_op_'(Priority2, Specifier2, Operator2)),
+		op(Priority2, Specifier2, Operator2)).
+
+
+
+% '$lgt_assert_local_ops'(+integer, +operator_specifier, +atom_or_atom_list)
+%
+% asserts local operators
+
+'$lgt_assert_local_ops'(_, _, []) :-
+	!.
+
+'$lgt_assert_local_ops'(Priority, Specifier, [Operator| Operators]) :-
+	!,
+	asserta('$lgt_local_op_'(Priority, Specifier, Operator)),
+	'$lgt_assert_local_ops'(Priority, Specifier, Operators).
+
+'$lgt_assert_local_ops'(Priority, Specifier, Operator) :-
+	asserta('$lgt_local_op_'(Priority, Specifier, Operator)).
 
 
 
@@ -2483,7 +2537,7 @@ user0__def(Pred, _, _, _, Pred, user).
 		('$lgt_valid_op_specifier'(Specifier) ->
 			('$lgt_valid_op_names'(Operators) ->
 				op(Priority, Specifier, Operators),
-				assertz('$lgt_directive_'(op(Priority, Specifier, Operators)))
+				'$lgt_assert_local_ops'(Priority, Specifier, Operators)
 				;
 				throw(type_error(operator_name, Operators)))
 			;
@@ -2787,7 +2841,7 @@ user0__def(Pred, _, _, _, Pred, user).
 	throw(permission_error(define, dynamic_predicate, Functor/Arity)).
 
 
-% redefinition of built-in methods
+% redefinition of Logtalk built-in methods
 
 '$lgt_tr_head'(Head, _, _) :-
 	'$lgt_built_in_method'(Head, _),
@@ -2803,7 +2857,7 @@ user0__def(Pred, _, _, _, Pred, user).
 	'$lgt_compiler_option'(report, on),
 	\+ '$lgt_redefined_built_in_'(Head, _, _),		% not already reported?
 	functor(Head, Functor, Arity),
-	write('WARNING!  redefining a Logtalk built-in predicate: '),
+	write('> WARNING!  redefining a Logtalk built-in predicate: '),
 	writeq(Functor/Arity), nl,
 	fail.
 
@@ -2816,7 +2870,7 @@ user0__def(Pred, _, _, _, Pred, user).
 	'$lgt_compiler_option'(report, on),
 	\+ '$lgt_redefined_built_in_'(Head, _, _),		% not already reported?
 	functor(Head, Functor, Arity),
-	write('WARNING!  redefining a Prolog built-in predicate: '),
+	write('> WARNING!  redefining a Prolog built-in predicate: '),
 	writeq(Functor/Arity), nl,
 	fail.
 
@@ -3029,17 +3083,76 @@ user0__def(Pred, _, _, _, Pred, user).
 	!.
 
 
+% term input predicates that need to be operator aware
+
+'$lgt_tr_body'(read_term(Stream, Term, Options), '$lgt_iso_read_term'(Stream, Term, Options, Operators), _) :-
+	bagof(op(Priority, Specifier, Operator), '$lgt_local_op_'(Priority, Specifier, Operator), Operators),
+	!.
+
+'$lgt_tr_body'(read_term(Term, Options), '$lgt_iso_read_term'(Term, Options, Operators), _) :-
+	bagof(op(Priority, Specifier, Operator), '$lgt_local_op_'(Priority, Specifier, Operator), Operators),
+	!.
+
+'$lgt_tr_body'(read(Stream, Term), '$lgt_iso_read'(Stream, Term, Operators), _) :-
+	bagof(op(Priority, Specifier, Operator), '$lgt_local_op_'(Priority, Specifier, Operator), Operators),
+	!.
+
+'$lgt_tr_body'(read(Term), '$lgt_iso_read'(Term, Operators), _) :-
+	bagof(op(Priority, Specifier, Operator), '$lgt_local_op_'(Priority, Specifier, Operator), Operators),
+	!.
+
+
+% term output predicates that need to be operator aware
+
+'$lgt_tr_body'(write_term(Stream, Term, Options), '$lgt_iso_write_term'(Stream, Term, Options, Operators), _) :-
+	('$lgt_member'(ignore_ops(Value), Options) -> Value \== true; true),
+	bagof(op(Priority, Specifier, Operator), '$lgt_local_op_'(Priority, Specifier, Operator), Operators),
+	!.
+
+'$lgt_tr_body'(write_term(Term, Options), '$lgt_iso_write_term'(Term, Options, Operators), _) :-
+	('$lgt_member'(ignore_ops(Value), Options) -> Value \== true; true),
+	bagof(op(Priority, Specifier, Operator), '$lgt_local_op_'(Priority, Specifier, Operator), Operators),
+	!.
+
+'$lgt_tr_body'(write(Stream, Term), '$lgt_iso_write'(Stream, Term, Operators), _) :-
+	bagof(op(Priority, Specifier, Operator), '$lgt_local_op_'(Priority, Specifier, Operator), Operators),
+	!.
+
+'$lgt_tr_body'(write(Term), '$lgt_iso_write'(Term, Operators), _) :-
+	bagof(op(Priority, Specifier, Operator), '$lgt_local_op_'(Priority, Specifier, Operator), Operators),
+	!.
+
+'$lgt_tr_body'(writeq(Stream, Term), '$lgt_iso_writeq'(Stream, Term, Operators), _) :-
+	bagof(op(Priority, Specifier, Operator), '$lgt_local_op_'(Priority, Specifier, Operator), Operators),
+	!.
+
+'$lgt_tr_body'(writeq(Term), '$lgt_iso_writeq'(Term, Operators), _) :-
+	bagof(op(Priority, Specifier, Operator), '$lgt_local_op_'(Priority, Specifier, Operator), Operators),
+	!.
+
+
 % Logtalk and Prolog built-in predicates
 
 '$lgt_tr_body'(Pred, _, _) :-
-	'$lgt_built_in'(Pred),
+	'$lgt_pl_built_in'(Pred),
 	\+ '$lgt_iso_def_pred'(Pred),
 	'$lgt_compiler_option'(portability, warning),
 	'$lgt_compiler_option'(report, on),
 	functor(Pred, Functor, Arity),
-	write('WARNING!  non-ISO defined built-in predicate call: '),
+	write('> WARNING!  non-ISO defined built-in predicate call: '),
 	writeq(Functor/Arity), nl,
 	fail.
+
+'$lgt_tr_body'(Pred, TPred, Context) :-
+	'$lgt_pl_built_in'(Pred),
+	functor(Pred, Functor, Arity),
+	functor(Meta, Functor, Arity), 
+	'$lgt_pl_metapredicate'(Meta),
+	!,
+	Pred =.. [_| Args],
+	Meta =.. [_| MArgs],
+	'$lgt_tr_margs'(Args, MArgs, Context, TArgs),
+	TPred =.. [Functor| TArgs].
 
 '$lgt_tr_body'(Pred, '$lgt_call_built_in'(Pred, Context), Context) :-
 	'$lgt_built_in'(Pred),
@@ -3066,6 +3179,25 @@ user0__def(Pred, _, _, _, Pred, user).
 	'$lgt_append'(Args, [Sender, This, Self], Args2),
 	TCondition =.. [PPrefix|Args2],
 	assertz('$lgt_calls_pred_'(Functor/Arity)).
+
+
+
+% '$lgt_tr_margs'(@list, @list, +term, -list)
+%
+% translates the meta-arguments contained in the list of 
+% arguments of a call to a metapredicate
+
+'$lgt_tr_margs'([], [], _, []).
+
+'$lgt_tr_margs'([Arg| Args], [MArg| MArgs], Context, [TArg| TArgs]) :-
+	'$lgt_tr_marg'(MArg, Arg, Context, TArg),
+	'$lgt_tr_margs'(Args, MArgs, Context, TArgs).
+
+
+'$lgt_tr_marg'(*, Arg, _, Arg).
+
+'$lgt_tr_marg'(::, Arg, Context, TArg) :-
+	'$lgt_tr_body'(Arg, TArg, Context).
 
 
 
@@ -3489,6 +3621,206 @@ user0__def(Pred, _, _, _, Pred, user).
 
 
 
+% '$lgt_iso_read_term'(@stream, ?term, +read_options_list, @list)
+%
+% wraps read_term/3 call with the necessary operator settings
+
+'$lgt_iso_read_term'(Stream, Term, Options, Operators) :-
+	catch(
+		('$lgt_save_operators'(Operators, Saved),
+		 '$lgt_add_operators'(Operators),
+		 read_term(Stream, Term, Options),
+		 '$lgt_remove_operators'(Operators)),
+		Error,
+		'$lgt_iso_read_error_handler'(Operators, Saved, Error)).
+
+
+
+% '$lgt_iso_read_term'(?term, +read_options_list, @list)
+%
+% wraps read_term/2 call with the necessary operator settings
+
+'$lgt_iso_read_term'(Term, Options, Operators) :-
+	catch(
+		('$lgt_save_operators'(Operators, Saved),
+		 '$lgt_add_operators'(Operators),
+		 read_term(Term, Options),
+		 '$lgt_remove_operators'(Operators)),
+		Error,
+		'$lgt_iso_read_error_handler'(Operators, Saved, Error)).
+
+
+
+% '$lgt_iso_read'(@stream, ?term, @list)
+%
+% wraps read/2 call with the necessary operator settings
+
+'$lgt_iso_read'(Stream, Term, Operators) :-
+	catch(
+		('$lgt_save_operators'(Operators, Saved),
+		 '$lgt_add_operators'(Operators),
+		 read(Stream, Term),
+		 '$lgt_remove_operators'(Operators)),
+		Error,
+		'$lgt_iso_read_error_handler'(Operators, Saved, Error)).
+
+
+
+% '$lgt_iso_read'(?term, @list)
+%
+% wraps read/1 call with the necessary operator settings
+
+'$lgt_iso_read'(Term, Operators) :-
+	catch(
+		('$lgt_save_operators'(Operators, Saved),
+		 '$lgt_add_operators'(Operators),
+		 read(Term),
+		 '$lgt_remove_operators'(Operators)),
+		Error,
+		'$lgt_iso_read_error_handler'(Operators, Saved, Error)).
+
+
+
+% '$lgt_iso_write_term'(@stream_or_alias, @term, @write_options_list, @list)
+%
+% wraps write_term/3 call with the necessary operator settings
+
+'$lgt_iso_write_term'(Stream, Term, Options, Operators) :-
+	catch(
+		('$lgt_save_operators'(Operators, Saved),
+		 '$lgt_add_operators'(Operators),
+		 write_term(Stream, Term, Options),
+		 '$lgt_remove_operators'(Operators)),
+		Error,
+		'$lgt_iso_read_error_handler'(Operators, Saved, Error)).
+
+
+
+% '$lgt_iso_write_term'(@term, @write_options_list, @list)
+%
+% wraps write_term/2 call with the necessary operator settings
+
+'$lgt_iso_write_term'(Term, Options, Operators) :-
+	catch(
+		('$lgt_save_operators'(Operators, Saved),
+		 '$lgt_add_operators'(Operators),
+		 write_term(Term, Options),
+		 '$lgt_remove_operators'(Operators)),
+		Error,
+		'$lgt_iso_read_error_handler'(Operators, Saved, Error)).
+
+
+
+% '$lgt_iso_write'(@stream_or_alias, @term, @list)
+%
+% wraps write/2 call with the necessary operator settings
+
+'$lgt_iso_write'(Stream, Term, Operators) :-
+	catch(
+		('$lgt_save_operators'(Operators, Saved),
+		 '$lgt_add_operators'(Operators),
+		 write(Stream, Term),
+		 '$lgt_remove_operators'(Operators)),
+		Error,
+		'$lgt_iso_read_error_handler'(Operators, Saved, Error)).
+
+
+
+% '$lgt_iso_write'(@term, @list)
+%
+% wraps write/1 call with the necessary operator settings
+
+'$lgt_iso_write'(Term, Operators):-
+	catch(
+		('$lgt_save_operators'(Operators, Saved),
+		 '$lgt_add_operators'(Operators),
+		 write(Term),
+		 '$lgt_remove_operators'(Operators)),
+		Error,
+		'$lgt_iso_read_error_handler'(Operators, Saved, Error)).
+
+
+
+% '$lgt_iso_writeq'(@stream_or_alias, @term, @list)
+%
+% wraps writeq/2 call with the necessary operator settings
+
+'$lgt_iso_writeq'(Stream, Term, Operators) :-
+	catch(
+		('$lgt_save_operators'(Operators, Saved),
+		 '$lgt_add_operators'(Operators),
+		 writeq(Stream, Term),
+		 '$lgt_remove_operators'(Operators)),
+		Error,
+		'$lgt_iso_read_error_handler'(Operators, Saved, Error)).
+
+
+
+% '$lgt_iso_writeq'(@term, @list)
+%
+% wraps writeq/1 call with the necessary operator settings
+
+'$lgt_iso_writeq'(Term, Operators) :-
+	catch(
+		('$lgt_save_operators'(Operators, Saved),
+		 '$lgt_add_operators'(Operators),
+		 writeq(Term),
+		 '$lgt_remove_operators'(Operators)),
+		Error,
+		'$lgt_iso_read_error_handler'(Operators, Saved, Error)).
+
+
+
+% '$lgt_save_operators'(@list, -list)
+%
+% save currently defined operators that might be
+% redefined when a list of operators is added
+
+'$lgt_save_operators'(Operators, Saved) :-
+	findall(
+		op(Priority, Specifier, Operator),
+		('$lgt_member'(op(_, _, Operator), Operators),
+		 current_op(Priority, Specifier, Operator)),
+		Saved).
+
+
+
+% '$lgt_add_operators'(@list)
+%
+% adds operators to the global operator table
+
+'$lgt_add_operators'([]).
+
+'$lgt_add_operators'([op(Priority, Specifier, Operator)| Operators]) :-
+	op(Priority, Specifier, Operator),
+	'$lgt_add_operators'(Operators).
+
+
+
+% '$lgt_remove_operators'(@list)
+%
+% remove operators from the global operator table
+
+'$lgt_remove_operators'([]).
+
+'$lgt_remove_operators'([op(_, Specifier, Operator)| Operators]) :-
+	op(0, Specifier, Operator),
+	'$lgt_remove_operators'(Operators).
+
+
+
+% '$lgt_iso_read_error_handler'(@list, @list, @nonvar)
+%
+% restores operator table to the its state before the call
+% to one of the '$lgt_iso_read...' raised an error
+
+'$lgt_iso_read_error_handler'(Operators, Saved, Error) :-
+	'$lgt_remove_operators'(Operators),
+	'$lgt_add_operators'(Saved),
+	throw(Error).
+
+
+
 % '$lgt_simplify_body'(+callable, -callable)
 %
 % remove redundant calls to true/0 from a translated clause body
@@ -3788,7 +4120,7 @@ user0__def(Pred, _, _, _, Pred, user).
 		('$lgt_referenced_object_'(Obj), \+ ('$lgt_current_object_'(Obj, _, _, _, _, _); '$lgt_entity_'(_, Obj, _, _))),
 		Objs),
 	(Objs \= [] ->
-		write('WARNING!  references to unknown objects:    '), writeq(Objs), nl
+		write('> WARNING!  references to unknown objects:    '), writeq(Objs), nl
 		;
 		true).
 
@@ -3804,7 +4136,7 @@ user0__def(Pred, _, _, _, Pred, user).
 		('$lgt_referenced_protocol_'(Ptc), \+ ('$lgt_current_protocol_'(Ptc, _, _); '$lgt_entity_'(_, Ptc, _, _))),
 		Ptcs),
 	(Ptcs \= [] ->
-		write('WARNING!  references to unknown protocols:  '), writeq(Ptcs), nl
+		write('> WARNING!  references to unknown protocols:  '), writeq(Ptcs), nl
 		;
 		true).
 
@@ -3820,7 +4152,7 @@ user0__def(Pred, _, _, _, Pred, user).
 		('$lgt_referenced_category_'(Ctg), \+ ('$lgt_current_category_'(Ctg, _, _); '$lgt_entity_'(_, Ctg, _, _))),
 		Ctgs),
 	(Ctgs \= [] ->
-		write('WARNING!  references to unknown categories: '), writeq(Ctgs), nl
+		write('> WARNING!  references to unknown categories: '), writeq(Ctgs), nl
 		;
 		true).
 
@@ -4693,6 +5025,8 @@ user0__def(Pred, _, _, _, Pred, user).
 
 
 % '$lgt_fix_redef_built_ins'(+clause, -clause)
+%
+% fix calls to redefined built-in predicates
 
 '$lgt_fix_redef_built_ins'((Head:-Body), (Head:-Fixed)) :-
 	!,
@@ -4747,6 +5081,17 @@ user0__def(Pred, _, _, _, Pred, user).
 	!,
 	'$lgt_fix_redef_built_ins'(Pred, TPred).
 
+'$lgt_fix_redef_built_ins'(Pred, TPred) :-
+	'$lgt_pl_built_in'(Pred),
+	functor(Pred, Functor, Arity),
+	functor(Meta, Functor, Arity), 
+	'$lgt_pl_metapredicate'(Meta),
+	!,
+	Pred =.. [_| Args],
+	Meta =.. [_| MArgs],
+	'$lgt_fix_redef_built_ins_in_margs'(Args, MArgs, TArgs),
+	TPred =.. [Functor| TArgs].
+
 '$lgt_fix_redef_built_ins'('$lgt_call_built_in'(Pred, Context), TPred) :-
 	!,
 	('$lgt_redefined_built_in_'(Pred, Context, TPred) ->
@@ -4755,6 +5100,25 @@ user0__def(Pred, _, _, _, Pred, user).
 		'$lgt_fix_redef_built_ins'(Pred, TPred)).
 
 '$lgt_fix_redef_built_ins'(Pred, Pred).
+
+
+
+% '$lgt_fix_redef_built_ins_in_margs'(@list, @list, -list)
+%
+% fix calls to redefined built-in predicates in non-standard
+% metapredicate arguments
+
+'$lgt_fix_redef_built_ins_in_margs'([], [], []).
+
+'$lgt_fix_redef_built_ins_in_margs'([Arg| Args], [MArg| MArgs], [TArg| TArgs]) :-
+	'$lgt_fix_redef_built_ins_in_marg'(MArg, Arg, TArg),
+	'$lgt_fix_redef_built_ins_in_margs'(Args, MArgs, TArgs).
+
+
+'$lgt_fix_redef_built_ins_in_marg'(*, Arg, Arg).
+
+'$lgt_fix_redef_built_ins_in_marg'(::, Arg, TArg) :-
+	'$lgt_fix_redef_built_ins'(Arg, TArg).
 
 
 
@@ -4778,7 +5142,7 @@ user0__def(Pred, _, _, _, Pred, user).
 '$lgt_report_misspelt_calls'([Pred| Preds]) :-
 	('$lgt_compiler_option'(misspelt, warning),
 	 '$lgt_compiler_option'(report, on)) ->
-		write('WARNING!  these static predicates are called but never defined: '),
+		write('> WARNING!  these static predicates are called but never defined: '),
 		writeq([Pred| Preds]), nl
 		;
 		true.
@@ -5237,20 +5601,30 @@ user0__def(Pred, _, _, _, Pred, user).
 
 
 
-% built-in Prolog metapredicates
+% built-in metapredicates
 
-'$lgt_pl_metapredicate'(catch(::, *, ::)).
+'$lgt_metapredicate'(Meta) :-
+	'$lgt_lgt_metapredicate'(Meta).
 
-'$lgt_pl_metapredicate'(bagof(*, ::, *)).
-'$lgt_pl_metapredicate'(setof(*, ::, *)).
-'$lgt_pl_metapredicate'(findall(*, ::, *)).
+'$lgt_metapredicate'(Meta) :-
+	'$lgt_pl_metapredicate'(Meta).		% defined in the config files
 
-'$lgt_pl_metapredicate'(forall(::, ::)).
 
-'$lgt_pl_metapredicate'(call(::)).
-'$lgt_pl_metapredicate'(once(::)).
 
-'$lgt_pl_metapredicate'(\+ (::)).
+% built-in Logtalk (and Prolog) metapredicates
+
+'$lgt_lgt_metapredicate'(catch(::, *, ::)).
+
+'$lgt_lgt_metapredicate'(bagof(*, ::, *)).
+'$lgt_lgt_metapredicate'(setof(*, ::, *)).
+'$lgt_lgt_metapredicate'(findall(*, ::, *)).
+
+'$lgt_lgt_metapredicate'(forall(::, ::)).
+
+'$lgt_lgt_metapredicate'(call(::)).
+'$lgt_lgt_metapredicate'(once(::)).
+
+'$lgt_lgt_metapredicate'(\+ (::)).
 
 
 
@@ -5357,7 +5731,19 @@ user0__def(Pred, _, _, _, Pred, user).
 
 '$lgt_valid_op_specifier'(Specifier) :-
 	nonvar(Specifier),
-	once('$lgt_member'(Specifier, [fx, fy, xfx, xfy, yfx, xf, yf])).
+	'$lgt_op_specifier'(Specifier).
+
+
+
+% '$lgt_op_specifier'(@nonvar)
+
+'$lgt_op_specifier'(fx).
+'$lgt_op_specifier'(fy).
+'$lgt_op_specifier'(xfx).
+'$lgt_op_specifier'(xfy).
+'$lgt_op_specifier'(yfx).
+'$lgt_op_specifier'(xf).
+'$lgt_op_specifier'(yf).
 
 
 
@@ -5366,7 +5752,14 @@ user0__def(Pred, _, _, _, Pred, user).
 '$lgt_valid_op_names'(Operators) :-
 	nonvar(Operators),
 	'$lgt_convert_to_list'(Operators, List),
-	forall('$lgt_member'(Operator, List), atom(Operator)).
+	'$lgt_valid_op_names_aux'(List).
+
+
+'$lgt_valid_op_names_aux'([]).
+
+'$lgt_valid_op_names_aux'([Operator| Operators]) :-
+	atom(Operator),
+	'$lgt_valid_op_names_aux'(Operators).
 
 
 
@@ -5386,7 +5779,17 @@ user0__def(Pred, _, _, _, Pred, user).
 	Pred =.. [_| Args],
 	forall(
 		'$lgt_member'(Arg, Args),
-		(nonvar(Arg), functor(Arg, Functor, Arity), Arity =< 1, '$lgt_member'(Functor, [?, +, -, @]))).
+		(nonvar(Arg), functor(Arg, Functor, Arity), Arity =< 1,
+		 '$lgt_pred_arg_instantiation_mode'(Functor))).
+
+
+
+% '$lgt_pred_arg_instantiation_mode'(@nonvar)
+
+'$lgt_pred_arg_instantiation_mode'(?).
+'$lgt_pred_arg_instantiation_mode'(+).
+'$lgt_pred_arg_instantiation_mode'(-).
+'$lgt_pred_arg_instantiation_mode'(@).
 
 
 
@@ -5394,7 +5797,18 @@ user0__def(Pred, _, _, _, Pred, user).
 
 '$lgt_valid_number_of_solutions'(Solutions) :-
 	nonvar(Solutions),
-	once('$lgt_member'(Solutions, [zero, one, zero_or_one, zero_or_more, one_or_more, error])).
+	'$lgt_pred_number_of_solutions'(Solutions).
+
+
+
+% '$lgt_pred_number_of_solutions'(@nonvar)
+
+'$lgt_pred_number_of_solutions'(zero).
+'$lgt_pred_number_of_solutions'(one).
+'$lgt_pred_number_of_solutions'(zero_or_one).
+'$lgt_pred_number_of_solutions'(zero_or_more).
+'$lgt_pred_number_of_solutions'(one_or_more).
+'$lgt_pred_number_of_solutions'(error).
 
 
 
@@ -6369,7 +6783,7 @@ user0__def(Pred, _, _, _, Pred, user).
 	'$lgt_default_flag'(unknown, Unknown),
 	write('  Unknown entities (unknown):                              '), write(Unknown), nl,
 	'$lgt_default_flag'(misspelt, Misspelt),
-	write('  Misspelt predicates (misspelt):                          '), write(Misspelt), nl,
+	write('  Misspelt predicate calls (misspelt):                     '), write(Misspelt), nl,
 	'$lgt_default_flag'(singletons, Singletons),
 	write('  Singletons variables (singletons):                       '), write(Singletons), nl,
 	'$lgt_default_flag'(lgtredef, Lgtredef),

@@ -15,7 +15,7 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %
 %  Logtalk - Object oriented extension to Prolog
-%  Release 2.15.6
+%  Release 2.16.0
 %
 %  Copyright (c) 1998-2004 Paulo Moura.  All Rights Reserved.
 %
@@ -25,6 +25,7 @@
 
 <xsl:template match="/">
 	<xsl:processing-instruction name="xml-stylesheet">type="text/css" href="styles.css"</xsl:processing-instruction>
+
 	<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
 	<head>
         <meta http-equiv="content-type" content="text/html; charset=utf-8" />

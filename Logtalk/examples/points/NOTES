@@ -1,6 +1,6 @@
 =================================================================
 Logtalk - Object oriented extension to Prolog
-Release 2.15.6
+Release 2.16.0
 
 Copyright (c) 1998-2004 Paulo Moura.  All Rights Reserved.
 =================================================================
@@ -23,8 +23,8 @@ You can find the original description of this example (and a solution using
 SICStus Objects) at the URL:
 http://www.sics.se/ps/sicstus/sicstus_32.html#SEC254
 
-Suppose you wish to represent one point in a two-dimensional space. The
-protocol you will have to define consists on the operation move/2, wish
+Suppose you wish to represent points in a two-dimensional space. The
+protocol you will have to define consists on the operation move/2, which
 allows you to move one point to a new position, and on the operation
 print/0, which prints the point position. From the base class point,
 which contains the indicated operations, we wish to build three
@@ -35,8 +35,8 @@ Finally, a class bounded_history_point combining the functionality of
 classes bounded_point and history_point.
 
 At first sight, this looks like the kind of ideal problem to illustrate
-the advantages of the multiple inheritance mechanisms. This type of
-solution holds, however, several problems. If the methods move/2 and
+the advantages of the multiple inheritance mechanisms. However, this type 
+of solution holds several problems. If the methods move/2 and
 print/0 are inherited by bounded_history_point of classes
 history_point and bounded_point simultaneously, then one point will be
 moved and shown twice. If the inheritance is carried out, for each
