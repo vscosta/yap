@@ -709,29 +709,35 @@ assertz_dynam_clause(PredEntry *p, CODEADDR cp)
 
 static void  expand_consult(void)
 {
-  register consult_obj *new_cl, *new_cb, *new_cs, *pp;
+  consult_obj *new_cl, *new_cb, *new_cs, *old_top;
+  UInt old_sz = ConsultCapacity-1, i;
+  Int diff;
+  
 
-  /* fetch the top of the old stacks */
-  pp = ConsultLow + ConsultCapacity;
+  old_top = ConsultBase+ConsultCapacity;
   /* now increment consult capacity */
   ConsultCapacity += InitialConsultCapacity;
   /* I assume it always works ;-) */
   new_cl = (consult_obj *)AllocCodeSpace(sizeof(consult_obj)*ConsultCapacity);
-  if (new_cl == NIL) {
+  if (new_cl == NULL) {
     Error(SYSTEM_ERROR,TermNil,"Could not expand consult space: Heap crashed against Stacks");
     return;
   }
-  new_cs = new_cl + ConsultCapacity;
-  new_cb = ConsultBase + (new_cl - ConsultLow);
+  new_cb = new_cl + (ConsultSp-ConsultBase);
+  new_cs = new_cl + (InitialConsultCapacity+1);
   /* start copying */
-  while (pp > ConsultSp)
-    *--new_cs = *--pp;
+  memcpy((void *)(new_cs), (void *)(ConsultSp), (ConsultCapacity-(InitialConsultCapacity+1))*sizeof(consult_obj));
   /* copying done, release old space */
   FreeCodeSpace((char *)ConsultLow);
   /* next, set up pointers correctly */
+  diff = (char *)new_cb-(char *)ConsultBase;
   ConsultSp = new_cs;
   ConsultBase = new_cb;
   ConsultLow = new_cl;
+  /* adjust consultbase pointers */
+  for (i = 0; i < old_sz; i++) {
+    new_cs->c = (consult_obj *)((void *)(new_cs->c)+diff);
+  }
 }
 
 /* p was already locked */
