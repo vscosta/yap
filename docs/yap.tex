@@ -2382,6 +2382,13 @@ a matching @code{catch/3}, or until reaching top-level.
 @cnindex garbage_collect/0
 The goal @code{garbage_collect} forces a garbage collection.
 
+@item garbage_collect_atoms
+@findex garbage_collect_atoms/0
+@syindex garbage_collect_atoms/0
+@cnindex garbage_collect_atoms/0
+The goal @code{garbage_collect} forces a garbage collection of the atoms
+in the data-base. Currently, only atoms are recovered.
+
 @item gc
 @findex gc/0
 @syindex gc/0
@@ -4963,7 +4970,7 @@ erased.
 If @var{R} refers to a clause or a recorded term, @var{T} is unified
 with its most general instance. If @var{R} refers to an unit clause
 @var{C}, then @var{T} is unified with @code{@var{C} :- true}. When
-@var{R} is not a reference to an existing clause or a recorded term,
+@var{R} is not a reference to an existing clause or to a recorded term,
 this goal fails.
 
 @item eraseall(+@var{R})
