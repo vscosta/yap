@@ -2036,7 +2036,12 @@ GetDBTerm(DBRef DBSP)
     pt = CellPtr(DBSP->Contents);
     NOf = DBSP->NOfCells;
     if (H+NOf > ASP-CalculateStackGap()) {
-      return((Term)0);
+      if (PrologMode & InErrorMode) {
+	if (H+NOf > ASP)
+	  exit_yap( 1, "No Stack for Error Handling\n");
+      } else {
+	return((Term)0);
+      }
     }
     HeapPtr = cpcells(HOld, pt, NOf);
     pt += HeapPtr - HOld;
