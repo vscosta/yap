@@ -46,11 +46,11 @@ variable named $LOGTALKHOME pointing to the Logtalk installation for use with
 your Prolog compilers. If you use a csh shell, add the following line to your 
 ~/.cshrc file:
 
-	setenv LOGTALKHOME "/your/installation/directory/lgt2190"
+	setenv LOGTALKHOME "/your/installation/directory/lgt2191"
 
 If you use a bash shell, add the following lines to your ~/.profile file:
 
-	LOGTALKHOME="/your/installation/directory/lgt2190"
+	LOGTALKHOME="/your/installation/directory/lgt2191"
 	export LOGTALKHOME
 
 When using the provided shell script for installing Logtalk, a symbolic link 
