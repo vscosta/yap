@@ -1,13 +1,18 @@
 =================================================================
 Logtalk - Object oriented extension to Prolog
-Release 2.17.1
+Release 2.17.2
 
 Copyright (c) 1998-2004 Paulo Moura.  All Rights Reserved.
 =================================================================
 
 
-% some queries dealing with instance/class hierarchies:
+% start by loading the example:
 
+| ?- logtalk_load(loader).
+...
+
+
+% some queries dealing with instance/class hierarchies:
 
 | ?- object::ancestors(Ancestors).
 

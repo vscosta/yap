@@ -1,13 +1,36 @@
 =================================================================
 Logtalk - Object oriented extension to Prolog
-Release 2.17.1
+Release 2.17.2
 
 Copyright (c) 1998-2004 Paulo Moura.  All Rights Reserved.
 =================================================================
 
 
-To load all entities in this example consult the dynpred.loader 
-utility file (note that this is a Prolog file).
+To load all entities in this example compile and load the loader file:
 
-This folder contains examples of using some of the built-in database  
-handling methods.
+| ?- logtalk_load(loader).
+
+This folder contains examples of using some of the built-in database 
+handling methods. Two hierarchies are provided, one prototype-based, 
+and the other class-based, in order to illustrate the differences 
+between asserting predicates in a class and in a prototype.
+
+The following objects are defined:
+
+	root
+		root of the protoype hierarchy; declares and defines a public,
+		dynamic predicate
+	descendant
+		simple prototype extending the root prototype
+
+	class
+		root of the class hierarchy; declares and defines a public predicate
+	metaclass
+		class metaclass
+	instance
+		simple instance of class class
+
+	prototype
+		simple prototype used to illustrate how the scope of asserted 
+		predicates depends on the target object (this, self, or a explicit 
+		object)

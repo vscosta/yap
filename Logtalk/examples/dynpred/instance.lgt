@@ -1,1 +1,6 @@
-:- object(instance,	instantiates(class)).:- end_object.
+
+:- object(instance,
+	instantiates(class)).
+
+
+:- end_object.

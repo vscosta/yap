@@ -1,12 +1,14 @@
 =================================================================
 Logtalk - Object oriented extension to Prolog
-Release 2.17.1
+Release 2.17.2
 
 Copyright (c) 1998-2004 Paulo Moura.  All Rights Reserved.
 =================================================================
 
-To load most objects in this example consult the parametric.loader 
-utility file (note that the *.loader files are Prolog files).
 
-This folder contains two examples of parametric objects dealing
-with time and date values.
+To load all entities in this example compile and load the loader file:
+
+| ?- logtalk_load(loader).
+
+This folder contains two examples of parametric objects dealing with 
+time and date values.

@@ -1,6 +1,6 @@
 =================================================================
 Logtalk - Object oriented extension to Prolog
-Release 2.17.1
+Release 2.17.2
 
 Copyright (c) 1998-2004 Paulo Moura.  All Rights Reserved.
 =================================================================
@@ -8,6 +8,36 @@ Copyright (c) 1998-2004 Paulo Moura.  All Rights Reserved.
 
 RELEASE NOTES
 =============
+
+
+2.17.2 - June 14, 2004
+
+	Updated the Logtalk compiler to allow compilation of source files which 
+	contain only directives and no entity definition.
+
+	Simplified loading of library and example entities by using Logtalk source 
+	files as loader files.
+
+	Some improvements to the documentation, including the QUICK_START file and 
+	the User Manual for first-time users, and to the example descriptions.
+
+	Corrected a bug in handling of local object operators that are also global 
+	operators.
+
+	Corrected a bug where dynamic directives are not being generated for dynamic 
+	predicates that lack a scope directive or an initial set of clauses.
+
+	Corrected a bug where local dynamic predicates would need a private scope 
+	directive in order to allow clauses of the predicate to be retracted.
+
+	Simplified compilation of dynamic and discontiguous predicate directives.
+
+	Added new "logic" example implementing a translator from logic propositions 
+	to conjunctive normal form.
+
+	Corrected a problem with wrong end-on-lines on some files.
+
+	Added a shell script for easy integration of Logtalk with CIAO Prolog.
 
 
 2.17.1 - June 7, 2004

@@ -1,17 +1,23 @@
 =================================================================
 Logtalk - Object oriented extension to Prolog
-Release 2.17.1
+Release 2.17.2
 
 Copyright (c) 1998-2004 Paulo Moura.  All Rights Reserved.
 =================================================================
 
-To load all objects in this example consult the symdiff.loader utility
-file (note that the *.loader files are Prolog files).
+
+To load all entities in this example compile and load the loader file:
+
+| ?- logtalk_load(loader).
+
+You will also need to load the library hierarchies_loader file.
+Alternatively, you may load the library all-loader file to load 
+all library entities.
 
 This folder contains an example of using parametric objects to implement
 symbolic expression differentiation and simplification.
 
-Limitations:
+Current limitations:
 
 	- the expression that we intend to differentiate or simplify 
 	must be a compound term. Accepted functors are *, +, -, **, and log.

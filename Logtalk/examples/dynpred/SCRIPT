@@ -1,12 +1,18 @@
 =================================================================
 Logtalk - Object oriented extension to Prolog
-Release 2.17.1
+Release 2.17.2
 
 Copyright (c) 1998-2004 Paulo Moura.  All Rights Reserved.
 =================================================================
 
 
-% Sending to descendant the message p/1, returns the definition in root:
+% start by loading the example:
+
+| ?- logtalk_load(loader).
+...
+
+
+% sending to descendant the message p/1, returns the definition in root:
 
 | ?- descendant::p(Value).
 
@@ -14,7 +20,7 @@ Value = root
 yes
 
 
-% Asserting a local definition for p/1 in descendant overrides the inherited 
+% asserting a local definition for p/1 in descendant overrides the inherited 
 % definition:
 
 | ?- descendant::(assertz(p(descendant)), p(Value)).
@@ -23,7 +29,7 @@ Value = descendant
 yes
 
 
-% If we retract the local definition, again the inherited definition form root
+% if we retract the local definition, again the inherited definition form root
 % will be used:
 
 | ?- descendant::(retractall(p(_)), p(Value)).
@@ -48,7 +54,7 @@ X = class
 yes
 
 
-% If we assert a clause for a new predicate, p2/1, in the class
+% if we assert a clause for a new predicate, p2/1, in the class
 % (a side-effect being a dynamic declaration of the predicate):
 
 | ?- class::assertz(p2(class)).
@@ -71,7 +77,7 @@ X = class
 yes
 
 
-% Using a prototype, assert three new predicates (the method object_assert/0 
+% using a prototype, assert three new predicates (the method object_assert/0 
 % asserts the predicate public_predicate/0 from outside the prototype; the 
 % method self_assert/0 asserts the predicate protected_predicate/0 in self; 
 % the method this_assert/0 asserts the predicate private_predicate/0 in this):

@@ -1,13 +1,16 @@
 =================================================================
 Logtalk - Object oriented extension to Prolog
-Release 2.17.1
+Release 2.17.2
 
 Copyright (c) 1998-2004 Paulo Moura.  All Rights Reserved.
 =================================================================
 
-To load all objects in this example consult the reflection.loader utility
-file (note that the *.loader files are Prolog files). Run this example with 
-no other examples loaded at the same time.
+
+Run this example with no other examples loaded at the same time.
+
+To load all entities in this example compile and load the loader file:
+
+| ?- logtalk_load(loader).
 
 This folder contains an example that shows how to implement a reflective
 class-based system. There are three main classes:

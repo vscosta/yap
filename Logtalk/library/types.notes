@@ -1,13 +1,15 @@
 =================================================================
 Logtalk - Object oriented extension to Prolog
-Release 2.17.1
+Release 2.17.2
 
 Copyright (c) 1998-2004 Paulo Moura.  All Rights Reserved.
 =================================================================
 
 
-To load all objects in this group consult the types.loader utility 
-file.
+To load all entities in this group load the types_loader.lgt utility 
+file:
+
+	| ?- logtalk_load(types_loader).
 
 These objects implement predicates over common Prolog terms and 
 structures like lists, diffrence lists, binary trees, dictionaries, 

@@ -1,17 +1,18 @@
 =================================================================
 Logtalk - Object oriented extension to Prolog
-Release 2.17.1
+Release 2.17.2
 
 Copyright (c) 1998-2004 Paulo Moura.  All Rights Reserved.
 =================================================================
 
 
-To load all objects in this example consult the birds.loader utility
-file.
+To load all entities in this example compile and load the loader file:
 
-You will also need to also load the library/hierarchies.loader file.
-Note that the *.loader files are Prolog files. Alternatively, you may 
-load the library all.loader file to load all library entities.
+| ?- logtalk_load(loader).
+
+You will also need to also load the library/hierarchies_loader file.
+Alternatively, you may load the library loader file to load all 
+library entities.
 
 
 This folder contains an example of a bird identification expert system 

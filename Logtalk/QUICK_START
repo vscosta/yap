@@ -1,6 +1,6 @@
 =================================================================
 Logtalk - Object oriented extension to Prolog
-Release 2.17.1
+Release 2.17.2
 
 Copyright (c) 1998-2004 Paulo Moura.  All Rights Reserved.
 =================================================================
@@ -16,7 +16,7 @@ Quick start
 of the main Logtalk concepts.
 
 3. Go back to the index.html file and select the User Manual link and then 
-the Installing and running Logtalk link. This will provide you with a basic 
+the Installing and running Logtalk links. This will provide you with a basic 
 understanding of how to start Logtalk and compile and load Logtalk code.
 
 
@@ -27,48 +27,76 @@ or workaround is needed for your compiler.
 
 2. Start your Prolog compiler.
 
-3. Compile and load the config file for your Prolog compiler.
+3. Change the current working directory of your Prolog session to the Logtalk 
+installation directory. If you don't know which predicate to use, check the 
+configs/NOTES file or your Prolog reference manual.
 
-4. Compile and load the Logtalk pre-processor/runtime found in the compiler 
+4. Compile and load the config file for your Prolog compiler.
+
+5. Compile and load the Logtalk pre-processor/runtime found in the compiler 
 sub-directory.
 
 Note that both the configuration files and the compiler/preprocessor files 
 are Prolog files. The predicate called to load these files depends on your 
 Prolog compiler (consult your Prolog compiler documentation or take a look 
-at the definition of the predicate $lgt_load_prolog_code/1 in the config file. 
+at the definition of the predicate $lgt_load_prolog_code/1 in the config 
+file. For most command-line compilers, you could type at the Prolog prompt 
+something like:
+
+	| ?- ['configs/foo.config', 'compiler/logtalk.pl'].
+
+Replace the file name foo.config with the appropriated config file name for 
+your compiler.
 
 
-Now you can try some of the included examples:
+Now you may try some of the included examples:
 
-1. Open the examples sub-directory. There you find several sub-directories
-with ready to run examples and a NOTES file containing a brief description 
-of each example. Select and open one of the examples sub-directory.
+1. Change the working directory of your Prolog compiler to the library 
+directory and then type at the Prolog prompt the following query:
+
+	| ?- logtalk_load(all_loader).
+
+This will load all the library entities that you will need in order to run 
+the Logtalk examples.
+
+2. Open the examples sub-directory. There you find several sub-directories
+with ready to run examples and a NOTES file containing general instructions 
+and a brief description of each example. Select and open one of the examples 
+sub-directory.
 
 3. Read the example NOTES file. Some examples are dependent on other examples 
-or on library objects. You may need to load additional files before running 
-the chosen example.
+or on library objects (already loaded on step one). You may need to load 
+additional files before running the chosen example.
 
 4. Change the working directory of your Prolog compiler to the example 
-directory. If you don't know what predicate to use, check the configs/NOTES 
-file or your Prolog reference manual.
+directory.
 
-5. Compile and load the file named <example name>.loader. This will compile 
-and load all the example files. Note that the loader file is a Prolog file.
+5. Compile and load the loader file for the example as described in the NOTES 
+and SCRIPT files. For most examples, the loader file is named loader.lgt.
+Therefore, you will need to type the query:
 
-6. Open the example SCRIPT file. One by one, copy-and-paste or drag-and-drop 
-the queries in the file to your Prolog top-level.
+	| ?- logtalk_load(loader).
 
-7. Enjoy!
+This will compile and load all the example files.
+
+6. Open the example SCRIPT file, which contains sample queries that you 
+may try by copying-and-pasting or draging-and-droping them on your Prolog 
+interpreter top-level.
 
 
 Ready to start writing your own programs?
 
-1. Take a look at the wenv sub-directory. There you will find syntax 
+1. Read the User Manual sections on Programming in Logtalk and Running and 
+debugging Logtalk programs.
+
+2. Take a look at the wenv sub-directory. There you will find syntax 
 configuration files for popular text editors that enable syntax coloring 
 when editing Logtalk source files.
 
-2. Create a sub-directory with a suitable name to hold all the files of your 
+3. Create a sub-directory with a suitable name to hold all the files of your 
 application.
 
-3. Copy to this sub-directory a *.loader file from one of the example 
-directories and modify it to load your own source files.
+4. Copy to this sub-directory a loader file from one of the example directories 
+and modify it to load your own source files.
+
+5. Have fun!

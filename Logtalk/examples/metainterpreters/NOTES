@@ -1,12 +1,24 @@
 =================================================================
 Logtalk - Object oriented extension to Prolog
-Release 2.17.1
+Release 2.17.2
 
 Copyright (c) 1998-2004 Paulo Moura.  All Rights Reserved.
 =================================================================
 
-To load all objects in this library consult the metainterpreters.loader utility
-file.
 
-This example contains simple meta-interpreters for pure Prolog encapsulated in 
-Logtalk objects.
+To load all entities in this example compile and load the loader file:
+
+| ?- logtalk_load(loader).
+
+This example contains simple meta-interpreters for pure Prolog encapsulated 
+in Logtalk objects:
+
+	solver
+		simple meta-interpreter for pure Prolog
+
+	proof_tree
+		simple meta-interpreter for pure Prolog returning the proof tree
+		for successful queries
+
+	tracer
+		simple meta-interpreter for pure Prolog that traces proof construction

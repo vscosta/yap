@@ -1,13 +1,14 @@
 =================================================================
 Logtalk - Object oriented extension to Prolog
-Release 2.17.1
+Release 2.17.2
 
 Copyright (c) 1998-2004 Paulo Moura.  All Rights Reserved.
 =================================================================
 
 
-To load all entities in this example consult the dcgs.loader 
-utility file (note that this is a Prolog file).
+To load all entities in this example compile and load the loader file:
+
+| ?- logtalk_load(loader).
 
 This folder contains the following examples of using DCGs inside 
 objects and categories:

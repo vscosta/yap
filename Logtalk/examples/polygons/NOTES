@@ -1,20 +1,20 @@
 =================================================================
 Logtalk - Object oriented extension to Prolog
-Release 2.17.1
+Release 2.17.2
 
 Copyright (c) 1998-2004 Paulo Moura.  All Rights Reserved.
 =================================================================
 
-To load all objects in this example consult the polygons.loader utility
-file (note that the *.loader files are Prolog files).
 
-You will need to load the objects in the roots and relations 
-examples (consulting the corresponding roots.loader and relations.loader 
-files).
+To load all entities in this example compile and load the loader file:
+
+| ?- logtalk_load(loader).
+
+You will need to load the objects in the roots and relations examples.
 
 You will also need to consult the following files in the library directory: 
-events.loader, types.loader, metapredicates.loader, and hierarchies.loader.
-Alternatively, you may load the library/all.loader file to load all library 
+events_loader, types_loader, metapredicates_loader, and hierarchies_loader.
+Alternatively, you may load the library all_loader file to load all library 
 entities.
 
 In this example we have several types of polygons that can be concentric.

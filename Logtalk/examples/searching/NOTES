@@ -1,21 +1,46 @@
 =================================================================
 Logtalk - Object oriented extension to Prolog
-Release 2.17.1
+Release 2.17.2
 
 Copyright (c) 1998-2004 Paulo Moura.  All Rights Reserved.
 =================================================================
 
-To load all objects in this example consult the searching.loader utility
-file (note that the *.loader files are Prolog files).
+
+To load all entities in this example compile and load the loader file:
+
+| ?- logtalk_load(loader).
 
 You will need to also load the objects in the roots example.
 
 You will also need to load the following files in the library directory: 
-dates.loader, types.loader, events.loader, metapredicates.loader, and 
-hierarchies.loader. Alternatively, you can just load the all.loader file.
+dates_loader, types_loader, events_loader, metapredicates_loader, and 
+hierarchies_loader. Alternatively, you can just load the library all_loader 
+file.
 
 Some of the code in this folder is adopted from the book "Prolog Programming
 for Artificial Intelligence" by Ivan Bratko.
 
 For a description of the search problems, please see a classical AI book 
 (such as the one above) or visit the url <http://www.plastelina.net/games>.
+
+This example defines two hierarchies of objects, one for representing 
+state-spaces and another for representing search methods:
+
+	state_space
+		farmer
+		water_jug
+		heuristic_state_space
+			bridge
+			eight_puzzle
+			miss_cann
+
+	search_strategy
+		blind_search(Bound)
+			breadth_first(Bound)
+			depth_first(Bound)
+		heuristic_search(Threshold)
+			best_first(Threshold)
+			hill_climbing(Threshold)
+
+Taken together, these two hierarchies implement a framework for solving 
+state-space search problems in Logtalk.

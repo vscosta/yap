@@ -1,18 +1,18 @@
 =================================================================
 Logtalk - Object oriented extension to Prolog
-Release 2.17.1
+Release 2.17.2
 
 Copyright (c) 1998-2004 Paulo Moura.  All Rights Reserved.
 =================================================================
 
 
-To load all objects in this example consult the roots.loader utility
-file (note that the *.loader files are Prolog files).
+To load all entities in this example compile and load the loader file:
+
+| ?- logtalk_load(loader).
 
 You will need to consult the following files in the library directory: 
-events.loader, types.loader, and hierarchies.loader. Alternatively, you 
-may load the library/all.loader file to load all library entities.
-
+events_loader, types_loader, and hierarchies_loader. Alternatively, you 
+may simply load the library all_loader file to load all library entities.
 
 This folder contains rewritten versions of some of the objects provided 
 with previous, 1.x versions, of the Logtalk system. They are intended to 
@@ -20,3 +20,32 @@ help the conversion of applications from Logtalk 1.x to 2.x and to
 support most of the other examples provided with the current Logtalk
 package.
 
+Short description of each example entity:
+
+	class
+		default metaclass for all classes
+	classp
+		protocol of class class
+
+	abstract_class
+		default metaclass for all abstract classes
+	abstract_classp
+		protocol of class abstract_class
+	
+	object
+		root class for class-based hierarchies
+	objectp
+		protocol of class object
+	
+	initialization
+		category defining methods for object initialization
+	
+	proto
+		root prototype for prototype-based hierarchies
+	protop
+		protocol for prototype proto
+
+	nil
+		object used to represent a void reference
+
+Please note that the entities above are just example definitions.

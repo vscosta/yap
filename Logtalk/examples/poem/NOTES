@@ -1,11 +1,12 @@
 The example in this folder is an adpation of an example of POEM, an 
 object-oriented extension to Prolog developed by Ben Staveley-Taylor.
 
-To load all objects in this example consult the poem.loader utility
-file (note that the *.loader files are Prolog files).
+To load all entities in this example compile and load the loader file:
 
-Contrary to the other cases, to test this example consult the file 
-SCRIPT and then call the predicate run/0 to run the example.
+| ?- logtalk_load(loader).
+
+Contrary to the other cases, to test this example consult the Prolog 
+file SCRIPT and then call the predicate run/0 to run the example.
 
 Original author contact:
 

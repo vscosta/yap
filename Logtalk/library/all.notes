@@ -1,11 +1,13 @@
 
 =================================================================
 Logtalk - Object oriented extension to Prolog
-Release 2.17.1
+Release 2.17.2
 
 Copyright (c) 1998-2004 Paulo Moura.  All Rights Reserved.
 =================================================================
 
 
-The all.loader file will load all the entities loaded by the other
-loader files.
+The all_loader.lgt file will load all the entities loaded by the other
+loader files:
+
+	| ?- logtalk_load(all_loader).

@@ -1,15 +1,22 @@
 =================================================================
 Logtalk - Object oriented extension to Prolog
-Release 2.17.1
+Release 2.17.2
 
 Copyright (c) 1998-2004 Paulo Moura.  All Rights Reserved.
 =================================================================
 
-This folder contains several examples of Logtalk programs. Most of 
-these examples need objects, protocols, and categories that are
-defined in the Logtalk standard library or in other examples, so 
+
+This folder contains several examples of Logtalk programs. A brief 
+description of each example is included below.
+
+Each example contains a NOTES file and a loader utility file that may 
+be used to load all the example entities. In addtion, most examples 
+contain a SCRIPT file with sample queries for your to try.
+
+Most of these examples need objects, protocols, and categories that 
+are defined in the Logtalk standard library or in other examples, so 
 you should load them first (see the NOTES files inside the library 
-folder and inside each example folder).
+folder and the NOTES file inside each example folder).
 
 Some examples may redefine objects already loaded from other examples.
 You may want to restart Logtalk after trying each example.
@@ -42,7 +49,7 @@ classvars
 	example of implementation of class variables (as found in Smalltalk)
 
 dcgs
-	example of using DCG rules inside objects and categories
+	examples of using DCG rules inside objects and categories
 
 dynpred
 	example of using some of the built-in database handling methods
@@ -59,6 +66,10 @@ instmethods
 
 lo
 	examples adopted from the Francis G. McCabe L&O system
+
+logic
+	example of a translator of logic propostions to clauses in conjunctive 
+	normal form
 
 lpa
 	examples adopted from the LPA Prolog++ system

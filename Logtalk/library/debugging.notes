@@ -1,15 +1,17 @@
 =================================================================
 Logtalk - Object oriented extension to Prolog
-Release 2.17.1
+Release 2.17.2
 
 Copyright (c) 1998-2004 Paulo Moura.  All Rights Reserved.
 =================================================================
 
 
-To load all objects in this group consult the debugging.loader utility 
-file.
+To load all entities in this group load the debugging_loader.lgt utility 
+file:
 
-You will need to load FIRST the events.loader file otherwise you will get 
+	| ?- logtalk_load(debugging_loader).
+
+You will need to load FIRST the events_loader.lgt file otherwise you will get 
 a runtime error.
 
 

@@ -1,13 +1,15 @@
 =================================================================
 Logtalk - Object oriented extension to Prolog
-Release 2.17.1
+Release 2.17.2
 
 Copyright (c) 1998-2004 Paulo Moura.  All Rights Reserved.
 =================================================================
 
 
-To load all objects in this group consult the hierarchies.loader 
-utility file.
+To load all entities in this group load the hierarchies_loader.lgt 
+utility file:
+
+	| ?- logtalk_load(hierarchies_loader).
 
 These objects implement reflection predicates over class/instance 
 and prototype hierarchies.

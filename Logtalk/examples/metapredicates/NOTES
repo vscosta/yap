@@ -1,18 +1,29 @@
 =================================================================
 Logtalk - Object oriented extension to Prolog
-Release 2.17.1
+Release 2.17.2
 
 Copyright (c) 1998-2004 Paulo Moura.  All Rights Reserved.
 =================================================================
 
-To load all objects in this library consult the metapredicates.loader utility
-file.
 
-You will also need to load the library/types.loader file (note that the 
-*.loader files are Prolog files). Alternatively, you may load the 
-library/all.loader file to load all library entities.
+To load all entities in this example compile and load the loader file:
 
+| ?- logtalk_load(loader).
+
+You will also need to load the library types_loader file. Alternatively, 
+you may load the library all_loader file to load all library entities.
 
 This example shows the use of metapredicates in Logtalk. Metapredicates are 
 predicates whose head contains arguments that will be called as goals in the 
 body of the predicate definition.
+
+This example defines two objects:
+
+	sort(_)
+		this is a parametric object containing a method that implements the
+		quicksort sorting algorithm; the parameter is interpreted as the type
+		of the elements being sorted
+	
+	tracer
+		this object implements a metapredicate that is used by sort(_) to 
+		trace the sorting algorithm steps

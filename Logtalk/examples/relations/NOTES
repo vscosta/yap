@@ -1,12 +1,14 @@
 =================================================================
 Logtalk - Object oriented extension to Prolog
-Release 2.17.1
+Release 2.17.2
 
 Copyright (c) 1998-2004 Paulo Moura.  All Rights Reserved.
 =================================================================
 
-To load all objects in this library consult the relations.loader utility
-file (note that the *.loader files are Prolog files).
+
+To load all entities in this example compile and load the loader file:
+
+| ?- logtalk_load(loader).
 
 You will also need to also load the objects in the roots example.
 

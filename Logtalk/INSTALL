@@ -1,6 +1,6 @@
 =================================================================
 Logtalk - Object oriented extension to Prolog
-Release 2.17.1
+Release 2.17.2
 
 Copyright (c) 1998-2004 Paulo Moura.  All Rights Reserved.
 =================================================================
@@ -46,14 +46,25 @@ variable named $LOGTALKHOME pointing to the Logtalk installation for use with
 your Prolog compilers. If you use a csh shell, add the following line to your 
 ~/.cshrc file:
 
-	setenv LOGTALKHOME "/your/installation/directory/lgt2171"
+	setenv LOGTALKHOME "/your/installation/directory/lgt2172"
 
 If you use a bash shell, add the following lines to your ~/.profile file:
 
-	LOGTALKHOME="/your/installation/directory/lgt2171"
+	LOGTALKHOME="/your/installation/directory/lgt2172"
 	export LOGTALKHOME
 
 When using the provided shell script for installing Logtalk, a symbolic link 
 to the Logtalk installation directory is automatically created. The link is 
 named "logtalk". In this case, use this symbolic link to define the 
 environment variable in order to avoid breaking it when upgrading Logtalk.
+
+
+CREATING NEW PROLOG TOP-LEVELS FOR AUTOMATIC LOADING OF LOGTALK
+
+Most Prolog compilers allows the user to define an initialization file that 
+is automatically consulted at startup. This initialization file may contain 
+directives for loading other files, such as the Logtalk configuration file 
+and the Logtalk compiler. The the "misc" sub-directory contains several shell 
+scripts for automating the creation of this initialization files for some 
+popular Prolog compilers. In addition, be sure to read the configs/NOTES file 
+notes on the Prolog compilers that you intend to use. 
