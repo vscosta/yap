@@ -1055,10 +1055,6 @@ void (*handler)(int);
 #endif
 
 
-#if  HAVE_LIBREADLINE
-static  char *_line = NULL;
-#endif
-
 static int
 InteractSIGINT(char ch) {
   switch (ch) {
@@ -1172,16 +1168,21 @@ ProcessSIGINT(void)
 
   do {
 #if  HAVE_LIBREADLINE
-    if (_line != (char *) NULL && _line != (char *) EOF)
-      free (_line);
-    _line = readline ("Action (h for help): ");
-    if (_line == (char *)NULL || _line == (char *)EOF) {
-      ch = EOF;
-      continue;
+    if (_line != (char *) NULL) {
+      ch = _line[0];
+      free(_line);
+      _line = NULL;
+    } else {
+      _line = readline ("Action (h for help): ");
+      if (_line == (char *)NULL || _line == (char *)EOF) {
+	ch = EOF;
+	continue;
+      } else {
+	ch = _line[0];
+	free(_line);
+	_line = NULL;
+      }
     }
-    ch = _line[0];
-    free(_line);
-    _line = NULL;
 #else
     /* ask for a new line */
     fprintf(stderr, "Action (h for help): ");
@@ -1215,7 +1216,8 @@ HandleSIGINT (int sig)
     PrologMode |= InterruptMode;
 #if HAVE_LIBREADLINE
     if (in_getc) {
-      siglongjmp(readline_jmpbuf, 0);
+      fprintf(stderr, "Action (h for help): ");
+      rl_set_prompt("Action (h for help): ");
     }
 #endif
     return;

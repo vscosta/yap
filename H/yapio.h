@@ -319,5 +319,6 @@ extern jmp_buf IOBotch;
 extern int in_getc;
 
 #ifdef HAVE_LIBREADLINE
-extern sigjmp_buf readline_jmpbuf;
+extern char *_line;
 #endif
+

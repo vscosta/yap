@@ -88,8 +88,6 @@ int  in_getc = FALSE;
 FILE *rl_instream, *rl_outstream;
 #endif
 
-sigjmp_buf readline_jmpbuf;
-
 #endif
 
 typedef struct
@@ -821,7 +819,7 @@ extern void add_history (const char *);
 
 static char *ttyptr = NULL;
 
-static char *_line = (char *) NULL;
+char *_line = (char *) NULL;
 
 static int cur_out_sno = 2;
 
@@ -881,17 +879,6 @@ ReadlineGetc(int sno)
 
   while (ttyptr == NULL) {
     in_getc = TRUE;
-    /* Do it the gnu way */
-    if (sigsetjmp(readline_jmpbuf, TRUE)) {
-      if (PrologMode & InterruptMode) {
-	PrologMode &= ~InterruptMode;
-	ProcessSIGINT();
-	if (PrologMode & AbortMode) {
-	  PrologMode &= ~AbortMode;
-	  Abort("");
-	}
-      }
-    }
     /* Only sends a newline if we are at the start of a line */
     if (_line != NULL && _line != (char *) EOF)
       free (_line);
@@ -919,6 +906,16 @@ ReadlineGetc(int sno)
       } else {
 	_line = readline (NULL);
       }
+    }
+    /* Do it the gnu way */
+    if (PrologMode & InterruptMode) {
+      PrologMode &= ~InterruptMode;
+      ProcessSIGINT();
+      if (PrologMode & AbortMode) {
+	PrologMode &= ~AbortMode;
+	Abort("");
+      }
+      continue;
     }
     newline=FALSE;
     strncpy (Prompt, RepAtom (*AtPrompt)->StrOfAE, MAX_PROMPT);
