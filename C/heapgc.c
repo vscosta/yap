@@ -157,7 +157,7 @@ POPSWAP_POINTER(CELL_PTR *vp) {
 */
 
 static inline void
-exchange(CELL_PTR * b, UInt i, UInt j)
+exchange(CELL_PTR * b, Int i, Int j)
 { 
   CELL *t = b[j];
 
@@ -166,7 +166,7 @@ exchange(CELL_PTR * b, UInt i, UInt j)
 }
 
 static UInt
-partition(CELL *a[], UInt p, UInt r)
+partition(CELL *a[], Int p, Int r)
 { 
   CELL *x;
   UInt i, j;
@@ -175,7 +175,7 @@ partition(CELL *a[], UInt p, UInt r)
   i = p+1;
   j = r;
 
-  while (a[j] > x) {
+  while (a[j] > x && i < j) {
     j--;
   }
   while (a[i] < x && i < j) {
@@ -185,7 +185,7 @@ partition(CELL *a[], UInt p, UInt r)
     exchange(a, i, j);
     i++;
     j--;
-    while (a[j] > x) {
+    while (a[j] > x && i < j) {
       j--;
     }
     while (a[i] < x && i < j) {
@@ -199,7 +199,7 @@ partition(CELL *a[], UInt p, UInt r)
 }
 
 static void
-insort(CELL *a[], UInt p, UInt q)
+insort(CELL *a[], Int p, Int q)
 {
   UInt j;
     
@@ -220,7 +220,7 @@ insort(CELL *a[], UInt p, UInt q)
 
 
 static void
-quicksort(CELL *a[], UInt p, UInt r)
+quicksort(CELL *a[], Int p, Int r)
 { 
   UInt q;
   if (p < r) {
@@ -572,7 +572,7 @@ init_dbtable(tr_fr_ptr trail_ptr) {
 #ifdef DEBUG
 
 #define INSTRUMENT_GC 1
-#define CHECK_CHOICEPOINTS 1  
+/* #define CHECK_CHOICEPOINTS 1  */
 
 #ifdef INSTRUMENT_GC
 typedef enum {
