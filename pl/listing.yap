@@ -35,8 +35,8 @@ listing(V) :-
 '$listing'(V,Mod,Stream) :- var(V), !,
 	'$current_predicate_no_modules'(Mod,_,Pred),
         '$list_clauses'(Stream,Mod,Pred).
-'$listing'(M:V,_,_) :- !,
-	'$listing'(V,M).
+'$listing'(M:V,_,Stream) :- !,
+	'$listing'(V,M,Stream).
 '$listing'([],_,_) :- !.
 '$listing'([X|Rest], M, Stream) :-
         !,
