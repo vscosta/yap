@@ -533,7 +533,6 @@ typedef CELL label;
 #define pred_entry(X)		((PredEntry *)(Unsigned(X)-(CELL)(&(((PredEntry *)NULL)->StateOfPred))))
 #define pred_entry_from_code(X)		((PredEntry *)(Unsigned(X)-(CELL)(&(((PredEntry *)NULL)->CodeOfPred))))
 #define PredFromDefCode(X)	((PredEntry *)(Unsigned(X)-(CELL)(&(((PredEntry *)NULL)->OpcodeOfPred))))
-#define Flags(X)		pred_entry(X)->StateOfPred
 #define PredCode(X)		pred_entry(X)->CodeOfPred
 #define PredOpCode(X)		pred_entry(X)->OpcodeOfPred
 #define TruePredCode(X)		pred_entry(X)->TrueCodeOfPred

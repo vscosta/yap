@@ -143,6 +143,11 @@ typedef struct yami {
 	 CELL next;
        } d;
        struct {
+	 CODEADDR            d;
+	 struct pred_entry  *p;
+	 CELL next;
+       } dp;
+       struct {
 	 Int  ClTrail;
 	 Int  ClENV;
 	 Int  ClRefs;
@@ -235,6 +240,22 @@ typedef struct yami {
 	 CELL next;
        } llll;
        struct {
+	 wamreg                     x;
+	 struct yami               *l1;
+	 struct yami               *l2;
+	 struct yami               *l3;
+	 struct yami               *l4;
+	 CELL next;
+       } xllll;
+       struct {
+	 COUNT                      s;
+	 struct yami               *l1;
+	 struct yami               *l2;
+	 struct yami               *l3;
+	 struct yami               *l4;
+	 CELL next;
+       } sllll;
+       struct {
 	 struct pred_entry    *p;
 	 wamreg                x1;
 	 wamreg                x2;
@@ -313,6 +334,11 @@ typedef struct yami {
 	 COUNT               s;
 	 CELL next;
        } s;
+       struct {
+	 COUNT               s;
+	 struct pred_entry  *p;
+	 CELL next;
+       } sp;
        struct {
 	 COUNT               s;
 	 CELL                c;
@@ -430,6 +456,8 @@ typedef yamop yamopp;
 
 
 #define NEXTOP(V,TYPE)    ((yamop *)(&((V)->u.TYPE.next)))
+
+#define PREVOP(V,TYPE)    ((yamop *)((CODEADDR)(V)-(CELL)NEXTOP((yamop *)NULL,TYPE)))
 
 #if defined(TABLING) || defined(SBA)
 typedef struct trail_frame {
@@ -554,12 +582,12 @@ typedef struct choicept {
 #endif
 #define RealEnvSize	(EnvSizeInCells*sizeof(CELL))
 
-#define ENV_Size(cp)       (((yamop *)((CODEADDR)(cp) - (CELL)NEXTOP((yamop *)NIL,sla)))->u.sla.s)
-#define ENV_ToP(cp)        (((yamop *)((CODEADDR)(cp) - (CELL)NEXTOP((yamop *)NIL,sla)))->u.sla.sla_u.p)
-#define ENV_ToOp(cp)       (((yamop *)((CODEADDR)(cp) - (CELL)NEXTOP((yamop *)NIL,sla)))->opc)
+#define ENV_Size(cp)       (((yamop *)((CODEADDR)(cp) - (CELL)NEXTOP((yamop *)NULL,sla)))->u.sla.s)
+#define ENV_ToP(cp)        (((yamop *)((CODEADDR)(cp) - (CELL)NEXTOP((yamop *)NULL,sla)))->u.sla.sla_u.p)
+#define ENV_ToOp(cp)       (((yamop *)((CODEADDR)(cp) - (CELL)NEXTOP((yamop *)NULL,sla)))->opc)
 #define EnvSize(cp)        ((-ENV_Size(cp))/(OPREG)sizeof(CELL))
-#define EnvBMap(p)         (((yamop *)((CODEADDR)(p) - (CELL)NEXTOP((yamop *)NIL,sla)))->u.sla.bmap)
-#define EnvPreg(p)         (((yamop *)((CODEADDR)(p) - (CELL)NEXTOP((yamop *)NIL,sla)))->u.sla.p0)
+#define EnvBMap(p)         (((yamop *)((CODEADDR)(p) - (CELL)NEXTOP((yamop *)NULL,sla)))->u.sla.bmap)
+#define EnvPreg(p)         (((yamop *)((CODEADDR)(p) - (CELL)NEXTOP((yamop *)NULL,sla)))->u.sla.p0)
 
 /* access to instructions */
 

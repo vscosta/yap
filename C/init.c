@@ -446,10 +446,9 @@ Yap_InitCPred(char *Name, unsigned long int Arity, CPredicate code, int flags)
 {
   Atom            atom = Yap_LookupAtom(Name);
   PredEntry      *pe;
-  yamop      *p_code = ((Clause *)NULL)->ClCode;
-  Clause     *cl = (Clause *)Yap_AllocCodeSpace((CELL)NEXTOP(NEXTOP(((yamop *)p_code),sla),e)); 
+  yamop      *p_code = ((StaticClause *)NULL)->ClCode;
+  StaticClause     *cl = (StaticClause *)Yap_AllocCodeSpace((CELL)NEXTOP(NEXTOP(((yamop *)p_code),sla),e)); 
 
-  cl->u.ClValue = 0;
   cl->ClFlags = 0;
   cl->Owner = Yap_LookupAtom("user");
   p_code = cl->ClCode;
@@ -481,10 +480,9 @@ Yap_InitCmpPred(char *Name, unsigned long int Arity, CmpPredicate cmp_code, int 
 {
   Atom            atom = Yap_LookupAtom(Name);
   PredEntry      *pe;
-  yamop      *p_code = ((Clause *)NULL)->ClCode;
-  Clause     *cl = (Clause *)Yap_AllocCodeSpace((CELL)NEXTOP(NEXTOP(((yamop *)p_code),lxx),e)); 
+  yamop      *p_code = ((StaticClause *)NULL)->ClCode;
+  StaticClause     *cl = (StaticClause *)Yap_AllocCodeSpace((CELL)NEXTOP(NEXTOP(((yamop *)p_code),lxx),e)); 
 
-  cl->u.ClValue = 0;
   cl->ClFlags = 0;
   cl->Owner = Yap_LookupAtom("user");
   p_code = cl->ClCode;
@@ -519,10 +517,9 @@ Yap_InitAsmPred(char *Name,  unsigned long int Arity, int code, CPredicate def, 
   pe->cs.f_code =  def;
   pe->ModuleOfPred = CurrentModule;
   if (def != NULL) {
-    yamop      *p_code = ((Clause *)NULL)->ClCode;
-    Clause     *cl = (Clause *)Yap_AllocCodeSpace((CELL)NEXTOP(NEXTOP(((yamop *)p_code),sla),e)); 
+    yamop      *p_code = ((StaticClause *)NULL)->ClCode;
+    StaticClause     *cl = (StaticClause *)Yap_AllocCodeSpace((CELL)NEXTOP(NEXTOP(((yamop *)p_code),sla),e)); 
 
-    cl->u.ClValue = 0;
     cl->ClFlags = 0;
     cl->Owner = Yap_LookupAtom("user");
     p_code = cl->ClCode;
@@ -587,18 +584,17 @@ Yap_InitCPredBack(char *Name, unsigned long int Arity, unsigned int Extra, CPred
   if (pe->cs.p_code.FirstClause != NIL)
     CleanBack(pe, Start, Cont);
   else {
-    Clause *cl;
-    yamop      *code = ((Clause *)NULL)->ClCode;
+    StaticClause *cl;
+    yamop      *code = ((StaticClause *)NULL)->ClCode;
     pe->PredFlags = CompiledPredFlag | StandardPredFlag;
 #ifdef YAPOR
     pe->PredFlags |= SequentialPredFlag;
 #endif /* YAPOR */
-    cl = (Clause *)Yap_AllocCodeSpace((CELL)NEXTOP(NEXTOP(NEXTOP(code,lds),lds),e));
+    cl = (StaticClause *)Yap_AllocCodeSpace((CELL)NEXTOP(NEXTOP(NEXTOP(code,lds),lds),e));
     if (cl == NIL) {
       Yap_Error(SYSTEM_ERROR,TermNil,"No Heap Space in InitCPredBack");
       return;
     }
-    cl->u.ClValue = 0;
     cl->ClFlags = 0;
     cl->Owner = Yap_LookupAtom("user");
     code = cl->ClCode;
@@ -710,7 +706,7 @@ InitCodes(void)
   INIT_YAMOP_LTT(&(heap_regs->tableanswerresolutioncode), 0);
 #endif /* YAPOR */
 #endif /* TABLING */
-  heap_regs->failcode = Yap_opcode(_op_fail);
+  heap_regs->failcode->opc = Yap_opcode(_op_fail);
   heap_regs->failcode_1 = Yap_opcode(_op_fail);
   heap_regs->failcode_2 = Yap_opcode(_op_fail);
   heap_regs->failcode_3 = Yap_opcode(_op_fail);
@@ -721,17 +717,17 @@ InitCodes(void)
   heap_regs->env_for_trustfail_code.op = Yap_opcode(_call);
   heap_regs->env_for_trustfail_code.s = -Signed(RealEnvSize);
   heap_regs->env_for_trustfail_code.l2 = NULL;
-  heap_regs->trustfailcode = Yap_opcode(_trust_fail);
+  heap_regs->trustfailcode->opc = Yap_opcode(_trust_fail);
 
   heap_regs->env_for_yes_code.op = Yap_opcode(_call);
   heap_regs->env_for_yes_code.s = -Signed(RealEnvSize);
   heap_regs->env_for_yes_code.l2 = NULL;
-  heap_regs->yescode.opc = Yap_opcode(_Ystop);
+  heap_regs->yescode->opc = Yap_opcode(_Ystop);
   heap_regs->undef_op = Yap_opcode(_undef_p);
   heap_regs->index_op = Yap_opcode(_index_pred);
   heap_regs->fail_op = Yap_opcode(_op_fail);
 
-  heap_regs->nocode.opc = Yap_opcode(_Nstop);
+  heap_regs->nocode->opc = Yap_opcode(_Nstop);
 
   ((yamop *)(&heap_regs->rtrycode))->opc = Yap_opcode(_retry_and_mark);
   ((yamop *)(&heap_regs->rtrycode))->u.ld.s = 0;
@@ -748,9 +744,9 @@ InitCodes(void)
   heap_regs->n_of_threads = 1;
   heap_regs->heap_top_owner = -1;
 #endif /* YAPOR */
-  heap_regs->clausecode.arity = 0;
-  heap_regs->clausecode.clause = NULL;
-  heap_regs->clausecode.func = NIL;
+  heap_regs->clausecode->arity = 0;
+  heap_regs->clausecode->clause = NULL;
+  heap_regs->clausecode->func = NIL;
 
   heap_regs->invisiblechain.Entry = NIL;
   INIT_RWLOCK(heap_regs->invisiblechain.AERWLock);

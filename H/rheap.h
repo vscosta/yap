@@ -53,7 +53,7 @@ restore_codes(void)
   INIT_YAMOP_LTT(&(heap_regs->tableanswerresolutioncode), 0);
 #endif /* YAPOR */
 #endif /* TABLING */
-  heap_regs->failcode = Yap_opcode(_op_fail);
+  heap_regs->failcode->opc = Yap_opcode(_op_fail);
   heap_regs->failcode_1 = Yap_opcode(_op_fail);
   heap_regs->failcode_2 = Yap_opcode(_op_fail);
   heap_regs->failcode_3 = Yap_opcode(_op_fail);
@@ -62,19 +62,16 @@ restore_codes(void)
   heap_regs->failcode_6 = Yap_opcode(_op_fail);
 
   heap_regs->env_for_trustfail_code.op = Yap_opcode(_call);
-  heap_regs->trustfailcode = Yap_opcode(_trust_fail);
+  heap_regs->trustfailcode->opc = Yap_opcode(_trust_fail);
 
   heap_regs->env_for_yes_code.op = Yap_opcode(_call);
-  heap_regs->yescode.opc = Yap_opcode(_Ystop);
+  heap_regs->yescode->opc = Yap_opcode(_Ystop);
   heap_regs->undef_op = Yap_opcode(_undef_p);
   heap_regs->index_op = Yap_opcode(_index_pred);
   heap_regs->fail_op = Yap_opcode(_op_fail);
-  heap_regs->nocode.opc = Yap_opcode(_Nstop);
+  heap_regs->nocode->opc = Yap_opcode(_Nstop);
 #ifdef YAPOR
   INIT_YAMOP_LTT(&(heap_regs->nocode), 1);
-#endif  /* YAPOR */
-
-#ifdef YAPOR
   INIT_YAMOP_LTT(&(heap_regs->rtrycode), 1);
 #endif /* YAPOR */
   ((yamop *)(&heap_regs->rtrycode))->opc = Yap_opcode(_retry_and_mark);
@@ -83,17 +80,17 @@ restore_codes(void)
       PtoOpAdjust(((yamop *)(&heap_regs->rtrycode))->u.ld.d);
   {
     int             arity;
-    arity = heap_regs->clausecode.arity;
-    if (heap_regs->clausecode.clause != NIL)
-      heap_regs->clausecode.clause =
-	PtoOpAdjust(heap_regs->clausecode.clause);
+    arity = heap_regs->clausecode->arity;
+    if (heap_regs->clausecode->clause != NIL)
+      heap_regs->clausecode->clause =
+	PtoOpAdjust(heap_regs->clausecode->clause);
     if (arity) {
-      heap_regs->clausecode.func =
-	FuncAdjust(heap_regs->clausecode.func); 
+      heap_regs->clausecode->func =
+	FuncAdjust(heap_regs->clausecode->func); 
     } else {
       /* an atom */
-      heap_regs->clausecode.func =
-	(Functor)AtomAdjust((Atom)(heap_regs->clausecode.func));
+      heap_regs->clausecode->func =
+	(Functor)AtomAdjust((Atom)(heap_regs->clausecode->func));
     }
   }
   /* restore consult stack. It consists of heap pointers, so it
@@ -131,7 +128,7 @@ restore_codes(void)
       AddrAdjust((ADDR)heap_regs->char_conversion_table2);
   }
   if (heap_regs->dead_clauses != NULL) {
-    heap_regs->dead_clauses = (Clause *)
+    heap_regs->dead_clauses = (DeadClause *)
       AddrAdjust((ADDR)(heap_regs->dead_clauses));
   }
   heap_regs->retry_recorded_code = 
@@ -562,38 +559,32 @@ RestoreBB(BlackBoardEntry *pp)
 
 /* Restores a prolog clause, in its compiled form */
 static void 
-RestoreClause(Clause *Cl, int mode)
+RestoreClause(yamop *pc, PredEntry *pp, int mode)
 /*
  * Cl points to the start of the code, IsolFlag tells if we have a single
  * clause for this predicate or not 
  */
-	                   
 {
-  yamop           *pc;
-  OPREG           cl_type = FirstArgOfClType(Cl->ClFlags);
-
   if (mode == ASSEMBLING_CLAUSE) {
-    if (cl_type == ApplCl ||
-	(cl_type == ListCl && HeadOfClType(cl_type) == ApplCl)) {
-#ifdef DEBUG_RESTORE2
-      YP_fprintf(errout, "at %p, appl: %lx -> %lx", Cl, Cl->u.ClValue,
-		 (CELL)FuncAdjust((Functor)(Cl->u.ClValue)));
-#endif
-      Cl->u.ClValue = (CELL)FuncAdjust((Functor)(Cl->u.ClValue));
-    }  else if ((cl_type == AtCl ||
-		 (cl_type == ListCl && HeadOfClType(cl_type) == AtCl)) &&
-		IsAtomTerm(Cl->u.ClValue)) {
-#ifdef DEBUG_RESTORE2
-      if (IsAtomTerm(Cl->u.ClValue))
-	YP_fprintf(errout, "at %p, atom: %lx -> %lx", Cl, Cl->u.ClValue,
-		   AtomTermAdjust(Cl->u.ClValue));
-#endif
-      Cl->u.ClValue = AtomTermAdjust(Cl->u.ClValue);
+    if (pp->PredFlags & DynamicPredFlag) {
+      DynamicClause *cl = ClauseCodeToDynamicClause(pc);
+      if (cl->ClPrevious != NULL) {
+	cl->ClPrevious = PtoOpAdjust(cl->ClPrevious);
+      }
+      cl->Owner = AtomAdjust(cl->Owner);
+    } else if (pp->PredFlags & LogUpdatePredFlag) {
+      LogUpdClause *cl = ClauseCodeToLogUpdClause(pc);
+      
+      if (cl->ClFlags & LogUpdRuleMask) {
+	cl->u2.ClExt = PtoOpAdjust(cl->u2.ClExt);
+      }
+      cl->Owner = AtomAdjust(cl->Owner);
+    } else {
+      StaticClause *cl = ClauseCodeToStaticClause(pc);
+     
+      cl->Owner = AtomAdjust(cl->Owner);
     }
   }
-  /* TO DO: log update semantics */
-  /* Get the stored operator */
-  pc = Cl->ClCode;
   do {
     op_numbers op = Yap_op_from_opcode(pc->opc);
     pc->opc = Yap_opcode(op);
@@ -638,12 +629,6 @@ RestoreClause(Clause *Cl, int mode)
     case _try_clause:
     case _retry:
     case _trust:
-    case _retry_first:
-    case _trust_first:
-    case _retry_tail:
-    case _trust_tail:
-    case _retry_head:
-    case _trust_head:
 #ifdef YAPOR
     case _getwork:
     case _getwork_seq:
@@ -673,8 +658,8 @@ RestoreClause(Clause *Cl, int mode)
     case _jump:
     case _move_back:
     case _skip:
-    case _try_in:
     case _jump_if_var:
+    case _try_in:
       pc->u.l.l = PtoOpAdjust(pc->u.l.l);
       pc = NEXTOP(pc,l);
       break;
@@ -1035,35 +1020,41 @@ RestoreClause(Clause *Cl, int mode)
       pc->u.lds.p = PtoPredAdjust(pc->u.lds.p);
       pc = NEXTOP(pc,lds);
       break;
-      /* instructions type ldl */
-    case _trust_in:
-    case _trust_first_in:
-    case _trust_tail_in:
-    case _trust_head_in:
-      pc->u.ldl.p = PtoPredAdjust(pc->u.ldl.p);
-      pc->u.ldl.d = PtoOpAdjust(pc->u.ldl.d);
-      pc->u.ldl.bl = PtoOpAdjust(pc->u.ldl.bl);
-      pc = NEXTOP(pc,ldl);
-      break;
       /* instructions type llll */
     case _switch_on_type:
-    case _switch_list_nl:
-    case _switch_on_head:
       pc->u.llll.l1 = PtoOpAdjust(pc->u.llll.l1);
       pc->u.llll.l2 = PtoOpAdjust(pc->u.llll.l2);
       pc->u.llll.l3 = PtoOpAdjust(pc->u.llll.l3);
       pc->u.llll.l4 = PtoOpAdjust(pc->u.llll.l4);
       pc = NEXTOP(pc,llll);
       break;
-      /* instructions type lll */
-    case _switch_on_nonv:
-    case _switch_nv_list:
-      pc->u.lll.l1 = PtoOpAdjust(pc->u.lll.l1);
-      pc->u.lll.l2 = PtoOpAdjust(pc->u.lll.l2);
-      pc->u.lll.l3 = PtoOpAdjust(pc->u.lll.l3);
-      pc = NEXTOP(pc,lll);
+      /* instructions type xllll */
+    case _switch_list_nl:
+      pc->u.ollll.pop = Yap_opcode(Yap_op_from_opcode(pc->u.ollll.pop));
+      pc->u.ollll.l1 = PtoOpAdjust(pc->u.llll.l1);
+      pc->u.ollll.l2 = PtoOpAdjust(pc->u.llll.l2);
+      pc->u.ollll.l3 = PtoOpAdjust(pc->u.llll.l3);
+      pc->u.ollll.l4 = PtoOpAdjust(pc->u.llll.l4);
+      pc = NEXTOP(pc,ollll);
       break;
-      /* instructions type cll */
+      /* instructions type xllll */
+    case _switch_on_arg_type:
+      pc->u.xllll.x = XAdjust(pc->u.xllll.x);
+      pc->u.xllll.l1 = PtoOpAdjust(pc->u.xllll.l1);
+      pc->u.xllll.l2 = PtoOpAdjust(pc->u.xllll.l2);
+      pc->u.xllll.l3 = PtoOpAdjust(pc->u.xllll.l3);
+      pc->u.xllll.l4 = PtoOpAdjust(pc->u.xllll.l4);
+      pc = NEXTOP(pc,xllll);
+      break;
+      /* instructions type sllll */
+    case _switch_on_sub_arg_type:
+      pc->u.sllll.l1 = PtoOpAdjust(pc->u.sllll.l1);
+      pc->u.sllll.l2 = PtoOpAdjust(pc->u.sllll.l2);
+      pc->u.sllll.l3 = PtoOpAdjust(pc->u.sllll.l3);
+      pc->u.sllll.l4 = PtoOpAdjust(pc->u.sllll.l4);
+      pc = NEXTOP(pc,sllll);
+      break;
+      /* instructions type lll */
     case _if_not_then:
       {
 	Term t = pc->u.cll.c;
@@ -1073,15 +1064,6 @@ RestoreClause(Clause *Cl, int mode)
       pc->u.cll.l1 = PtoOpAdjust(pc->u.cll.l1);
       pc->u.cll.l2 = PtoOpAdjust(pc->u.cll.l2);
       pc = NEXTOP(pc,cll);
-      break;
-      /* instructions type ollll */
-    case _switch_list_nl_prefetch:
-      pc->u.ollll.pop = Yap_opcode(Yap_op_from_opcode(pc->u.ollll.pop));
-      pc->u.ollll.l1 = PtoOpAdjust(pc->u.ollll.l1);
-      pc->u.ollll.l2 = PtoOpAdjust(pc->u.ollll.l2);
-      pc->u.ollll.l3 = PtoOpAdjust(pc->u.ollll.l3);
-      pc->u.ollll.l4 = PtoOpAdjust(pc->u.ollll.l4);
-      pc = NEXTOP(pc,ollll);
       break;
       /* switch_on_func */
     case _switch_on_func:
@@ -1196,15 +1178,6 @@ RestoreClause(Clause *Cl, int mode)
 	}
 	pc = (yamop *)oldcode;
       }
-      break;
-      /* instructions type slll */
-    case _switch_last:
-    case _switch_l_list:
-      pc->u.slll.p = PtoPredAdjust(pc->u.slll.p);
-      pc->u.slll.l1 = PtoOpAdjust(pc->u.slll.l1);
-      pc->u.slll.l2 = PtoOpAdjust(pc->u.slll.l2);
-      pc->u.slll.l3 = PtoOpAdjust(pc->u.slll.l3);
-      pc = NEXTOP(pc,slll);
       break;
       /* instructions type xxx */
     case _p_plus_vv:
@@ -1344,11 +1317,11 @@ RestoreClause(Clause *Cl, int mode)
  * and ending with Last, First may be equal to Last 
  */
 static void 
-CleanClauses(yamop *First, yamop *Last)
+CleanClauses(yamop *First, yamop *Last, PredEntry *pp)
 {
   yamop *cl = First;
   do {
-    RestoreClause(ClauseCodeToClause(cl), ASSEMBLING_CLAUSE);
+    RestoreClause(cl, pp, ASSEMBLING_CLAUSE);
     if (cl == Last) return;
     cl = NextClause(cl);
   } while (TRUE);
@@ -1472,7 +1445,7 @@ CleanCode(PredEntry *pp)
     /* assembly */
     if (pp->CodeOfPred) {
       pp->CodeOfPred = PtoOpAdjust(pp->CodeOfPred);
-      CleanClauses(pp->CodeOfPred, pp->CodeOfPred);
+      CleanClauses(pp->CodeOfPred, pp->CodeOfPred, pp);
     }
   } else {
     yamop        *FirstC, *LastC;
@@ -1495,12 +1468,12 @@ CleanCode(PredEntry *pp)
 #ifdef	DEBUG_RESTORE2
     YP_fprintf(errout, "at %lx Correcting clauses from %lx to %lx\n", *(OPCODE *) FirstC, FirstC, LastC);
 #endif
-    CleanClauses(FirstC, LastC);
+    CleanClauses(FirstC, LastC, pp);
     if (flag & (DynamicPredFlag|IndexedPredFlag)) {
 #ifdef	DEBUG_RESTORE2
       YP_fprintf(errout, "Correcting dynamic/indexed code\n");
 #endif
-      RestoreClause(ClauseCodeToClause(pp->cs.p_code.TrueCodeOfPred), ASSEMBLING_INDEX);
+      RestoreClause(pp->cs.p_code.TrueCodeOfPred,pp, ASSEMBLING_INDEX);
     }
   }
   /* we are pointing at ourselves */

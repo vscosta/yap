@@ -226,9 +226,9 @@ STATIC_PROTO(Int  co_rdedp, (void));
 STATIC_PROTO(Int  p_first_instance, (void));
 STATIC_PROTO(void  ErasePendingRefs, (DBRef));
 STATIC_PROTO(void  RemoveDBEntry, (DBRef));
-STATIC_PROTO(void  EraseLogUpdCl, (Clause *));
-STATIC_PROTO(void  MyEraseClause, (Clause *));
-STATIC_PROTO(void  PrepareToEraseClause, (Clause *, DBRef));
+STATIC_PROTO(void  EraseLogUpdCl, (LogUpdClause *));
+STATIC_PROTO(void  MyEraseClause, (DynamicClause *));
+STATIC_PROTO(void  PrepareToEraseClause, (DynamicClause *, DBRef));
 STATIC_PROTO(void  EraseEntry, (DBRef));
 STATIC_PROTO(Int  p_erase, (void));
 STATIC_PROTO(Int  p_eraseall, (void));
@@ -3584,7 +3584,7 @@ find_next_clause(DBRef ref0)
        like if we were executing a standard retry_and_mark */
 #if defined(YAPOR) || defined(THREADS)
     {
-      Clause *cl = ClauseCodeToClause(newp);
+      DynamicClause *cl = ClauseCodeToDynamicClause(newp);
 
       LOCK(cl->ClLock);
       TRAIL_CLREF(cl);
@@ -3594,7 +3594,7 @@ find_next_clause(DBRef ref0)
 #else 
     if (!DynamicFlags(newp) & InUseMask) {
       DynamicFlags(newp) |= InUseMask;
-      TRAIL_CLREF(ClauseCodeToClause(newp));
+      TRAIL_CLREF(ClauseCodeToDynamicClause(newp));
     }
 #endif
     return(newp);
@@ -3621,8 +3621,10 @@ p_jump_to_next_dynamic_clause(void)
 }
 
 static void
-EraseLogUpdCl(Clause *clau)
+EraseLogUpdCl(LogUpdClause *clau)
 {
+  if (CL_IN_USE(clau))
+    return;
   if (clau->ClFlags & IndexMask) {
     Yap_RemoveLogUpdIndex(clau);
   } else {
@@ -3636,7 +3638,7 @@ EraseLogUpdCl(Clause *clau)
 }
 
 static void
-MyEraseClause(Clause *clau)
+MyEraseClause(DynamicClause *clau)
 {
   DBRef           ref;
   SMALLUNSGN      clmask;
@@ -3644,10 +3646,6 @@ MyEraseClause(Clause *clau)
   if (CL_IN_USE(clau))
     return;
   clmask = clau->ClFlags;
-  if (clmask & LogUpdMask) {
-    EraseLogUpdCl(clau);
-    return;
-  }
   /*
     I don't need to lock the clause at this point because 
     I am the last one using it anyway.
@@ -3684,7 +3682,17 @@ MyEraseClause(Clause *clau)
   lock on the current predicate
 */
 void 
-Yap_ErCl(Clause *clau)
+Yap_ErLogUpdCl(LogUpdClause *clau)
+{
+  EraseLogUpdCl(clau);
+}
+
+/*
+  This predicate is supposed to be called with a
+  lock on the current predicate
+*/
+void 
+Yap_ErCl(DynamicClause *clau)
 {
   MyEraseClause(clau);
 }
@@ -3692,12 +3700,15 @@ Yap_ErCl(Clause *clau)
 #define TRYCODE(G,F,N) ( (N)<5 ? (op_numbers)((int)(F)+(N)*3) : G)
 
 static void 
-PrepareToEraseLogUpdClause(Clause *clau, DBRef dbr)
+PrepareToEraseLogUpdClause(LogUpdClause *clau, DBRef dbr)
 {
   yamop          *code_p = clau->ClCode;
   PredEntry *p = (PredEntry *)(code_p->u.ld.p);
   yamop *cl = code_p;
 
+  if (clau->ClFlags & ErasedMask)
+    return;
+  clau->ClFlags |= ErasedMask;
   WRITE_LOCK(p->PRWLock);
   if (p->cs.p_code.FirstClause != cl) {
     /* we are not the first clause... */
@@ -3720,8 +3731,7 @@ PrepareToEraseLogUpdClause(Clause *clau, DBRef dbr)
   if (p->PredFlags & IndexedPredFlag) {
     Yap_RemoveIndexation(p);
   } else {
-    if (!(clau->ClFlags & InUseMask))
-      EraseLogUpdCl(clau);
+    EraseLogUpdCl(clau);
   }
   if (p->cs.p_code.FirstClause == p->cs.p_code.LastClause) {
     if (p->cs.p_code.FirstClause != NULL) {
@@ -3731,11 +3741,9 @@ PrepareToEraseLogUpdClause(Clause *clau, DBRef dbr)
       if (p->PredFlags & SpiedPredFlag) {
 	p->OpcodeOfPred = Yap_opcode(_spy_pred);
 	p->CodeOfPred = (yamop *)(&(p->OpcodeOfPred)); 
-	p->StateOfPred = StaticMask | SpiedMask;
       } else {
 	p->CodeOfPred = p->cs.p_code.TrueCodeOfPred;
 	p->OpcodeOfPred = p->cs.p_code.TrueCodeOfPred->opc;
-	p->StateOfPred = StaticMask;
       }
     } else {
       p->OpcodeOfPred = FAIL_OPCODE;
@@ -3750,11 +3758,12 @@ PrepareToEraseLogUpdClause(Clause *clau, DBRef dbr)
       p->CodeOfPred = (yamop *)(&(p->OpcodeOfPred)); 
     }
   }
+  p->cs.p_code.NOfClauses--;
   WRITE_UNLOCK(p->PRWLock);
 }
 
 static void 
-PrepareToEraseClause(Clause *clau, DBRef dbr)
+PrepareToEraseClause(DynamicClause *clau, DBRef dbr)
 {
   yamop          *code_p;
 
@@ -3762,10 +3771,6 @@ PrepareToEraseClause(Clause *clau, DBRef dbr)
   if (clau->ClFlags & ErasedMask)
     return;
   clau->ClFlags |= ErasedMask;
-  if (clau->ClFlags & LogUpdMask) {
-    PrepareToEraseLogUpdClause(clau, dbr);
-    return;
-  }    
   /* skip mask */
   code_p = clau->ClCode;
   /* skip retry instruction */
@@ -3777,17 +3782,17 @@ PrepareToEraseClause(Clause *clau, DBRef dbr)
     /* first we get the next clause */
     yamop *next = code_p->u.ld.d;
     /* then we get the previous clause */
-    yamop *previous =  clau->u.ClPrevious;
+    yamop *previous =  clau->ClPrevious;
     yamop *clau_code;
 
     /* next we check if we still have clauses left in the chain */
     if (previous != next) {
       yamop  *previous_code = (yamop *)previous;
-      Clause *next_cl = ClauseCodeToClause(next);
+      DynamicClause *next_cl = ClauseCodeToDynamicClause(next);
       /* we do, let's say the previous now backtracks to the next */
       previous_code->u.ld.d = next;
       /* and tell next who it is the previous element */
-      next_cl->u.ClPrevious = previous_code;
+      next_cl->ClPrevious = previous_code;
     }
     /* that's it about setting up the code, now let's tell the
        predicate entry that a clause left. */
@@ -3817,7 +3822,7 @@ PrepareToEraseClause(Clause *clau, DBRef dbr)
       }
 #endif
       /* nothing left here, let's clean the shop */
-      Yap_FreeCodeSpace(((char *) ClauseCodeToClause(pred->CodeOfPred)));
+      Yap_FreeCodeSpace(((char *) ClauseCodeToDynamicClause(pred->CodeOfPred)));
       pred->cs.p_code.LastClause = pred->cs.p_code.FirstClause = NULL;
       pred->OpcodeOfPred = FAIL_OPCODE;
       pred->cs.p_code.TrueCodeOfPred = pred->CodeOfPred =
@@ -3827,6 +3832,7 @@ PrepareToEraseClause(Clause *clau, DBRef dbr)
     } else if (clau_code == pred->cs.p_code.LastClause) {
       pred->cs.p_code.LastClause = previous;
     }
+    pred->cs.p_code.NOfClauses--;
     WRITE_UNLOCK(pred->PRWLock);
   }
   /* make sure we don't directly point to anyone else */
@@ -3845,17 +3851,32 @@ ErDBE(DBRef entryref)
 {
 
   if ((entryref->Flags & DBCode) && entryref->Code) {
-    Clause *clau = ClauseCodeToClause(entryref->Code);
-    LOCK(clau->ClLock);
-    if (CL_IN_USE(clau) || entryref->NOfRefsTo != 0) {
-      PrepareToEraseClause(clau, entryref);
-      UNLOCK(clau->ClLock);
+    if (entryref->Flags & LogUpdMask) {
+      LogUpdClause *clau = ClauseCodeToLogUpdClause(entryref->Code);
+      LOCK(clau->ClLock);
+      if (CL_IN_USE(clau) || entryref->NOfRefsTo != 0) {
+	PrepareToEraseLogUpdClause(clau, entryref);
+	UNLOCK(clau->ClLock);
+      } else {
+	if (!(clau->ClFlags & ErasedMask))
+	  PrepareToEraseLogUpdClause(clau, entryref);
+	UNLOCK(clau->ClLock);
+	/* the clause must have left the chain */
+	EraseLogUpdCl(clau);
+      }
     } else {
-      if (!(clau->ClFlags & ErasedMask))
+      DynamicClause *clau = ClauseCodeToDynamicClause(entryref->Code);
+      LOCK(clau->ClLock);
+      if (CL_IN_USE(clau) || entryref->NOfRefsTo != 0) {
 	PrepareToEraseClause(clau, entryref);
-      UNLOCK(clau->ClLock);
-      /* the clause must have left the chain */
-      MyEraseClause(clau);
+	UNLOCK(clau->ClLock);
+      } else {
+	if (!(clau->ClFlags & ErasedMask))
+	  PrepareToEraseClause(clau, entryref);
+	UNLOCK(clau->ClLock);
+	/* the clause must have left the chain */
+	MyEraseClause(clau);
+      }
     }
   } else if (!(DBREF_IN_USE(entryref))) {
     if (entryref->NOfRefsTo == 0) 
@@ -3908,7 +3929,11 @@ EraseEntry(DBRef entryref)
   if (!DBREF_IN_USE(entryref)) {
     ErDBE(entryref);
   } else if ((entryref->Flags & DBCode) && entryref->Code) {
-    PrepareToEraseClause(ClauseCodeToClause(entryref->Code), entryref);
+    if (p->KindOfPE & LogUpdDBBit) {
+      PrepareToEraseLogUpdClause(ClauseCodeToLogUpdClause(entryref->Code), entryref);
+    } else {
+      PrepareToEraseClause(ClauseCodeToDynamicClause(entryref->Code), entryref);
+    }
   }
 }
 

@@ -107,8 +107,8 @@ STATIC_PROTO(void  restore_codes, (void));
 STATIC_PROTO(void  ConvDBList, (Term, char *,CELL));
 STATIC_PROTO(Term  AdjustDBTerm, (Term));
 STATIC_PROTO(void  RestoreDB, (DBEntry *));
-STATIC_PROTO(void  RestoreClause, (Clause *,int));
-STATIC_PROTO(void  CleanClauses, (yamop *, yamop *));
+STATIC_PROTO(void  RestoreClause, (yamop *, PredEntry *, int));
+STATIC_PROTO(void  CleanClauses, (yamop *, yamop *,PredEntry *));
 STATIC_PROTO(void  rehash, (CELL *, int, int));
 STATIC_PROTO(void  CleanCode, (PredEntry *));
 STATIC_PROTO(void  RestoreEntries, (PropEntry *));
@@ -1379,17 +1379,21 @@ UnmarkTrEntries(void)
     if (IsVarTerm(entry)) {
       RESET_VARIABLE((CELL *)entry);
     } else if (IsPairTerm(entry)) {
-      CODEADDR ent = CodeAddrAdjust((CODEADDR)RepPair(entry));
+      CELL *ent = CellPtoHeapAdjust(RepPair(entry));
       register CELL flags;
 
-      flags = Flags(ent);
+      flags = *ent;
       ResetFlag(InUseMask, flags);
-      Flags(ent) = flags;
+      *ent = flags;
       if (FlagOn(ErasedMask, flags)) {
 	if (FlagOn(DBClMask, flags)) {
-	  Yap_ErDBE((DBRef) (ent - (CELL) &(((DBRef) NIL)->Flags)));
+	  Yap_ErDBE(DBStructFlagsToDBStruct(ent));
 	} else {
-	  Yap_ErCl(ClauseFlagsToClause(ent));
+	  if (flags & LogUpdMask) {
+	    Yap_ErLogUpdCl(ClauseFlagsToLogUpdClause(ent));
+	  } else {
+	    Yap_ErCl(ClauseFlagsToDynamicClause(ent));
+	  }
 	}
       }
     }

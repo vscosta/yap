@@ -62,8 +62,6 @@ STATIC_PROTO(void push_registers, (Int, yamop *));
 STATIC_PROTO(void marking_phase, (tr_fr_ptr, CELL *, yamop *, CELL *));
 STATIC_PROTO(void compaction_phase, (tr_fr_ptr, CELL *, yamop *, CELL *));
 STATIC_PROTO(void pop_registers, (Int, yamop *));
-STATIC_PROTO(void store_ref_in_dbtable, (DBRef));
-STATIC_PROTO(DBRef find_ref_in_dbtable, (DBRef));
 STATIC_PROTO(void init_dbtable, (tr_fr_ptr));
 STATIC_PROTO(void mark_db_fixed, (CELL *));
 STATIC_PROTO(void mark_regs, (tr_fr_ptr));
@@ -479,19 +477,27 @@ count_cells_marked(void)
 /* straightforward binary tree scheme that, given a key, finds a
    matching dbref */  
 
+typedef enum {
+  db_entry,
+  cl_entry,
+  lcl_entry,
+  dcl_entry
+} db_entry_type;
+
 typedef struct db_entry {
-  DBRef val;
+  CODEADDR val;
+  db_entry_type db_type;
   struct db_entry *left;
-  CELL *lim;
+  CODEADDR lim;
   struct db_entry *right;
 } *dbentry;
 
-static dbentry db_vec, db_vec0;
+static dbentry  db_vec, db_vec0;
 
 
 /* init the table */
 static void
-store_ref_in_dbtable(DBRef entry)
+store_in_dbtable(CODEADDR entry, db_entry_type db_type)
 {
   dbentry parent = db_vec0;
   dbentry new = db_vec;
@@ -499,7 +505,8 @@ store_ref_in_dbtable(DBRef entry)
   if ((ADDR)new > Yap_TrailTop-1024)
     Yap_growtrail(64 * 1024L);
   new->val = entry;
-  new->lim = (CELL *)((CODEADDR)entry+Yap_SizeOfBlock((CODEADDR)entry));
+  new->db_type = db_type;
+  new->lim = entry+Yap_SizeOfBlock((CODEADDR)entry);
   new->left = new->right = NULL;
   if (db_vec == db_vec0) {
     db_vec++;
@@ -525,51 +532,15 @@ store_ref_in_dbtable(DBRef entry)
   }
 }
 
-/* init the table */
-static void
-store_cl_in_dbtable(Clause *cl)
-{
-  dbentry parent = db_vec0;
-  dbentry new = db_vec;
-
-  if ((ADDR)new > Yap_TrailTop-1024)
-    Yap_growtrail(64 * 1024L);
-  new->val = (DBRef)cl;
-  new->lim = (CELL *)((CODEADDR)cl + Yap_SizeOfBlock((CODEADDR)cl));
-  new->left = new->right = NULL;
-  if (db_vec == db_vec0) {
-    db_vec++;
-    return;
-  }
-  db_vec++;
-  parent = db_vec0;
- beg:
-  if ((DBRef)cl < parent->val) {
-    if (parent->right == NULL) {
-      parent->right = new;
-    } else {
-      parent = parent->right;
-      goto beg;
-    }
-  } else {
-    if (parent->left == NULL) {
-      parent->left = new;
-    } else {
-      parent = parent->left;
-      goto beg;
-    }
-  }
-}
-
 /* find an element in the dbentries table */
-static DBRef
-find_ref_in_dbtable(DBRef entry)
+static dbentry
+find_ref_in_dbtable(CODEADDR entry)
 {
   dbentry current = db_vec0;
 
   while (current != NULL) {
-    if (current->val < entry && current->lim > (CELL *)entry) {
-      return(current->val);
+    if (current->val < entry && current->lim > entry) {
+      return(current);
     }
     if (entry < current->val)
       current = current->right;
@@ -581,16 +552,30 @@ find_ref_in_dbtable(DBRef entry)
 
 static void 
 mark_db_fixed(CELL *ptr) {
-  DBRef el;
+  dbentry el;
 
-  el = find_ref_in_dbtable((DBRef)ptr);
-  if (el != NULL)
-    el->Flags |= GcFoundMask;
+  el = find_ref_in_dbtable((CODEADDR)ptr);
+  if (el != NULL) {
+    switch (el->db_type) {
+    case db_entry:
+      ((DBRef)(el->val))->Flags |= GcFoundMask;
+      break;
+    case cl_entry:
+      ((DynamicClause *)(el->val))->ClFlags |= GcFoundMask;
+      break;
+    case lcl_entry:
+      ((LogUpdClause *)(el->val))->ClFlags |= GcFoundMask;
+      break;
+    case dcl_entry:
+      ((DeadClause *)(el->val))->ClFlags |= GcFoundMask;
+      break;
+    }
+  }
 }
 
 static void 
 init_dbtable(tr_fr_ptr trail_ptr) {
-  Clause *cl = DeadClauses;
+  DeadClause *cl = DeadClauses;
 
   db_vec0 = db_vec = (dbentry)TR;
   while (trail_ptr > (tr_fr_ptr)Yap_TrailBase) {
@@ -603,7 +588,6 @@ init_dbtable(tr_fr_ptr trail_ptr) {
     if (!IsVarTerm(trail_cell) && IsPairTerm(trail_cell)) {
       CELL *pt0 = RepPair(trail_cell);
       /* DB pointer */ 
-      CODEADDR entry;
       CELL flags;
 
 #ifdef FROZEN_STACKS  /* TRAIL */
@@ -619,20 +603,21 @@ init_dbtable(tr_fr_ptr trail_ptr) {
       }
 #endif /* FROZEN_STACKS */
 
-      flags = Flags((CELL)pt0);
+      flags = *pt0;
       /* for the moment, if all references to the term in the stacks
 	 are only pointers, reset the flag */
-      entry = ((CODEADDR)pt0 - (CELL) &(((DBRef) NIL)->Flags));
       if (FlagOn(DBClMask, flags)) {
-	store_ref_in_dbtable((DBRef)entry);
+	store_in_dbtable((CODEADDR)DBStructFlagsToDBStruct(pt0), db_entry);
+      } else if (flags & LogUpdMask) {
+	store_in_dbtable((CODEADDR)ClauseFlagsToLogUpdClause(pt0), lcl_entry);
       } else {
-	store_cl_in_dbtable((Clause *)entry);
+	store_in_dbtable((CODEADDR)ClauseFlagsToDynamicClause(pt0), cl_entry);
       }
     }
   }
   while (cl != NULL) {
-    store_cl_in_dbtable(cl);
-    cl = cl->u.NextCl;
+    store_in_dbtable((CODEADDR)cl, dcl_entry);
+    cl = cl->NextCl;
   }
   if (db_vec == db_vec0) {
     /* could not find any entries: probably using LOG UPD semantics */
@@ -1121,15 +1106,12 @@ mark_environments(CELL_PTR gc_ENV, OPREG size, CELL *pvbmap)
   while (gc_ENV != NULL) {	/* no more environments */
     Int bmap = 0;
     int currv = 0;
-    Clause *cl;
 
 #ifdef DEBUG
     if (size <  0 || size > 512)
       fprintf(Yap_stderr,"Oops, env size for %p is %ld\n", gc_ENV, (unsigned long int)size);
 #endif
-    if ((cl = (Clause *)find_ref_in_dbtable((DBRef)gc_ENV[E_CP])) != NULL) {
-      cl->ClFlags |= GcFoundMask;
-    }
+    mark_db_fixed((CELL *)gc_ENV[E_CP]);
     /* for each saved variable */
     if (size > EnvSizeInCells) {
       int tsize = size - EnvSizeInCells;
@@ -1435,14 +1417,10 @@ mark_choicepoints(register choiceptr gc_B, tr_fr_ptr saved_TR, int very_verbose)
     op_numbers opnum;
     register OPCODE op;
     yamop *rtp = gc_B->cp_ap;
-    Clause *cl;
 
-    if ((cl = (Clause *)find_ref_in_dbtable((DBRef)rtp)) != NULL) {
-      cl->ClFlags |= GcFoundMask;
-    }
-    if ((cl = (Clause *)find_ref_in_dbtable((DBRef)(gc_B->cp_b))) != NULL) {
-      cl->ClFlags |= GcFoundMask;
-    }
+    mark_db_fixed((CELL *)rtp);
+    mark_db_fixed((CELL *)(gc_B->cp_ap));
+    mark_db_fixed((CELL *)(gc_B->cp_cp));
 #ifdef EASY_SHUNTING
     current_B = gc_B;
     prev_HB = HB;
@@ -1472,8 +1450,6 @@ mark_choicepoints(register choiceptr gc_B, tr_fr_ptr saved_TR, int very_verbose)
       case _or_else:
       case _or_last:
       case _Nstop:
-      case _switch_last:
-      case _switch_l_list:
       case _retry_userc:
       case _trust_logical_pred:
       case _retry_profiled:
@@ -1582,10 +1558,6 @@ mark_choicepoints(register choiceptr gc_B, tr_fr_ptr saved_TR, int very_verbose)
 	  /* this is the last choice point, the work is done  ;-) */
 	  return;
 	}
-      case _switch_last:
-      case _switch_l_list:
-	nargs = rtp->u.slll.s;
-	break;
       case _retry_c:
       case _retry_userc:
 	if (gc_B->cp_ap == RETRY_C_RECORDED_CODE 
@@ -1721,7 +1693,7 @@ mark_choicepoints(register choiceptr gc_B, tr_fr_ptr saved_TR, int very_verbose)
       case _profiled_retry_and_mark:
       case _count_retry_and_mark:
       case _retry_and_mark:
-	ClauseCodeToClause(gc_B->cp_ap)->ClFlags |= GcFoundMask;
+	ClauseCodeToDynamicClause(gc_B->cp_ap)->ClFlags |= GcFoundMask;
 #ifdef DEBUG
       case _retry_me:
       case _trust_me:
@@ -1740,19 +1712,14 @@ mark_choicepoints(register choiceptr gc_B, tr_fr_ptr saved_TR, int very_verbose)
       case _retry_me4:
       case _trust_me4:
       case _retry:
-      case _trust_in:
       case _trust:
-      case _retry_first:
-      case _trust_first_in:
-      case _trust_first:
-      case _retry_tail:
-      case _trust_tail_in:
-      case _trust_tail:
-      case _retry_head:
-      case _trust_head_in:
-      case _trust_head:
 	nargs = rtp->u.ld.s;
 	break;
+      case _jump:
+	rtp = rtp->u.l.l;
+	op = rtp->opc;
+	opnum = Yap_op_from_opcode(op);
+	goto restart_cp;
       default:
 	fprintf(Yap_stderr, "OOps in GC: Unexpected opcode: %d\n", opnum);
 	nargs = 0;
@@ -1832,7 +1799,6 @@ sweep_trail(choiceptr gc_B, tr_fr_ptr old_TR)
   Int hp_entrs = 0, hp_erased = 0, hp_not_in_use = 0,
     hp_in_use_erased = 0, code_entries = 0;
 #endif
-  Clause **cptr, *cl;
 
 #ifndef FROZEN_STACKS
   /* 
@@ -1932,7 +1898,7 @@ sweep_trail(choiceptr gc_B, tr_fr_ptr old_TR)
 	  continue;
 	}
 #endif /* FROZEN_STACKS */
-	flags = Flags((CELL)pt0);
+	flags = *pt0;
 #ifdef DEBUG
 	hp_entrs++;
 	if (!FlagOn(GcFoundMask, flags)) {
@@ -1958,25 +1924,42 @@ sweep_trail(choiceptr gc_B, tr_fr_ptr old_TR)
 	      Yap_ErDBE(dbr);
 	    }
 	  } else {
-	    Clause *cl = ClauseFlagsToClause((CELL)pt0);
-	    int erase;
-	    DEC_CLREF_COUNT(cl);
-	    cl->ClFlags &= ~InUseMask;
-	    erase = (cl->ClFlags & ErasedMask)
+	    if (flags & LogUpdMask) {
+	      LogUpdClause *cl = ClauseFlagsToLogUpdClause(pt0);
+	      int erase;
+	      DEC_CLREF_COUNT(cl);
+	      cl->ClFlags &= ~InUseMask;
+	      erase = (cl->ClFlags & ErasedMask)
 #if  defined(YAPOR) || defined(THREADS)
-	      && (cl->ref_count == 0)
+		&& (cl->ref_count == 0)
 #endif
 	      ;
-	    if (erase) {
-	      /* at this point, 
-		 no one is accessing the clause */
-	      Yap_ErCl(cl);
+	      if (erase) {
+		/* at this point, 
+		   no one is accessing the clause */
+		Yap_ErLogUpdCl(cl);
+	      }
+	    } else {
+	      DynamicClause *cl = ClauseFlagsToDynamicClause(pt0);
+	      int erase;
+	      DEC_CLREF_COUNT(cl);
+	      cl->ClFlags &= ~InUseMask;
+	      erase = (cl->ClFlags & ErasedMask)
+#if  defined(YAPOR) || defined(THREADS)
+		&& (cl->ref_count == 0)
+#endif
+	      ;
+	      if (erase) {
+		/* at this point, 
+		   no one is accessing the clause */
+		Yap_ErCl(cl);
+	      }
 	    }
 	  }
 	  RESET_VARIABLE(&TrailTerm(dest));
 	  discard_trail_entries++;
 	} else {
-	  Flags((CELL)pt0) = ResetFlag(GcFoundMask, flags);
+	  *pt0 = ResetFlag(GcFoundMask, flags);
 	}
 #if  MULTI_ASSIGNMENT_VARIABLES
       } else {
@@ -2057,18 +2040,23 @@ sweep_trail(choiceptr gc_B, tr_fr_ptr old_TR)
 	       (unsigned long int)((OldHeapUsed-HeapUsed)/(OldHeapUsed/100)),
 	       (unsigned long int)OldHeapUsed);
   }
-  cptr = &(DeadClauses);
-  cl = DeadClauses;
-  while (cl != NULL) {
-    if (!(cl->ClFlags & GcFoundMask)) {
-      char *ocl = (char *)cl;
-      cl = cl->u.NextCl;
-      *cptr = cl;
-      Yap_FreeCodeSpace(ocl);
-    } else {
-      cl->ClFlags &= ~GcFoundMask;
-      cptr = &(cl->u.NextCl);
-      cl = cl->u.NextCl;
+  {
+    DeadClause **cptr;
+    DeadClause *cl;
+
+    cptr = &(DeadClauses);
+    cl = DeadClauses;
+    while (cl != NULL) {
+      if (!(cl->ClFlags & GcFoundMask)) {
+	char *ocl = (char *)cl;
+	cl = cl->NextCl;
+	*cptr = cl;
+	Yap_FreeCodeSpace(ocl);
+      } else {
+	cl->ClFlags &= ~GcFoundMask;
+	cptr = &(cl->NextCl);
+	cl = cl->NextCl;
+      }
     }
   }
 }
@@ -2232,6 +2220,11 @@ sweep_choicepoints(choiceptr gc_B)
     case _retry_profiled:
     case _count_retry:
       rtp = NEXTOP(rtp,l);
+      op = rtp->opc;
+      opnum = Yap_op_from_opcode(op);
+      goto restart_cp;
+    case _jump:
+      rtp = rtp->u.l.l;
       op = rtp->opc;
       opnum = Yap_op_from_opcode(op);
       goto restart_cp;

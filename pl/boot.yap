@@ -265,11 +265,11 @@ repeat :- '$repeat'.
 
 '$execute_command'(C,_,top) :- var(C), !,
 	'$do_error'(instantiation_error,meta_call(C)).
-'$execute_command'(end_of_file,_,_).
 '$execute_command'(C,_,top) :- number(C), !,
 	'$do_error'(type_error(callable,C),meta_call(C)).
 '$execute_command'(R,_,top) :- db_reference(R), !,
 	'$do_error'(type_error(callable,R),meta_call(R)).
+'$execute_command'(end_of_file,_,_) :- !.
 '$execute_command'((:-G),_,Option) :- !,
 	'$current_module'(M),
 	'$process_directive'(G, Option, M),
@@ -880,7 +880,7 @@ break :- '$get_value'('$break',BL), NBL is BL+1,
 
 '$csult'(V, _) :- var(V), !,
 	'$do_error'(instantiation_error,consult(V)).
-'$csult'([], _) :- !.
+'$csult'([], _).
 '$csult'([-F|L], M) :- !, '$reconsult'(M:F), '$csult'(L, M).
 '$csult'([F|L], M) :- '$consult'(M:F), '$csult'(L, M).
 

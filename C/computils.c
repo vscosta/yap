@@ -267,8 +267,50 @@ Yap_bip_name(Int op, char *s) {
 #ifdef DEBUG
 
 static void
-ShowOp (f)
-     char *f;
+write_address(CELL address)
+{
+  if (address < (CELL)AtomBase) {
+    Yap_DebugPutc(Yap_c_error_stream,'L');
+    Yap_plwrite (MkIntTerm (address), Yap_DebugPutc, 0);
+  } else if (address == (CELL) FAILCODE) {
+    Yap_plwrite (MkAtomTerm (AtomFail), Yap_DebugPutc, 0);
+  } else {
+    char buf[32], *p = buf;
+
+#if HAVE_SNPRINTF
+    snprintf(buf,32,"%x",address);
+#else
+    snprintf(buf,"%x",address);
+#endif
+    p[31] = '\0'; /* so that I don't have to worry */
+    Yap_DebugPutc(Yap_c_error_stream,'0');
+    Yap_DebugPutc(Yap_c_error_stream,'x');
+    while (*p != '\0') {
+      Yap_DebugPutc(Yap_c_error_stream,*p++);
+    }
+  }
+}
+
+static void
+write_functor(Functor f)
+{
+  if (IsExtensionFunctor(f)) {
+    if (f == FunctorDBRef) {
+      Yap_plwrite(MkAtomTerm(Yap_LookupAtom("DBRef")), Yap_DebugPutc, 0);
+    } else if (f == FunctorLongInt) {
+      Yap_plwrite(MkAtomTerm(Yap_LookupAtom("LongInt")), Yap_DebugPutc, 0);
+    } else if (f == FunctorDouble) {
+      Yap_plwrite(MkAtomTerm(Yap_LookupAtom("Double")), Yap_DebugPutc, 0);
+    }
+  } else {
+    Yap_plwrite(MkAtomTerm(NameOfFunctor (f)), Yap_DebugPutc, 0);
+    Yap_DebugPutc (Yap_c_error_stream,'/');
+    Yap_plwrite(MkIntTerm(ArityOfFunctor (f)), Yap_DebugPutc, 0);
+  }
+}
+
+static void
+ShowOp (char *f)
 {
   char ch;
   while ((ch = *f++) != 0)
@@ -291,7 +333,7 @@ ShowOp (f)
 	    }
 	    break;		
 	  case 'l':
-	    Yap_plwrite (MkIntTerm (arg), Yap_DebugPutc, 0);
+	    write_address (arg);
 	    break;
 	  case 'B':
 	    {
@@ -367,19 +409,7 @@ ShowOp (f)
 	    }
 	    break;
 	  case 'f':
-	    if (IsExtensionFunctor((Functor)arg)) {
-	      if ((Functor)arg == FunctorDBRef) {
-		Yap_plwrite(MkAtomTerm(Yap_LookupAtom("DBRef")), Yap_DebugPutc, 0);
-	      } else if ((Functor)arg == FunctorLongInt) {
-		Yap_plwrite(MkAtomTerm(Yap_LookupAtom("LongInt")), Yap_DebugPutc, 0);
-	      } else if ((Functor)arg == FunctorDouble) {
-		Yap_plwrite(MkAtomTerm(Yap_LookupAtom("Double")), Yap_DebugPutc, 0);
-	      }
-	    } else {
-	      Yap_plwrite(MkAtomTerm(NameOfFunctor ((Functor) arg)), Yap_DebugPutc, 0);
-	      Yap_DebugPutc (Yap_c_error_stream,'/');
-	      Yap_plwrite(MkIntTerm(ArityOfFunctor ((Functor) arg)), Yap_DebugPutc, 0);
-	    }
+	    write_functor((Functor)arg);
 	    break;
 	  case 'r':
 	    Yap_DebugPutc (Yap_c_error_stream,'A');
@@ -388,27 +418,14 @@ ShowOp (f)
 	  case 'h':
 	    {
 	      CELL my_arg = *cptr++;
-	      if (my_arg & 1)
-		Yap_plwrite (MkIntTerm (my_arg),
-			 Yap_DebugPutc, 0);
-	      else if (my_arg == (CELL) FAILCODE)
-		Yap_plwrite (MkAtomTerm (AtomFail), Yap_DebugPutc, 0);
-	      else
-		Yap_plwrite (MkIntegerTerm ((Int) my_arg),
-			 Yap_DebugPutc, 0);
+	      write_address(my_arg);
 	    }
 	    break;
 	  case 'g':
-	    if (arg & 1)
-	      Yap_plwrite (MkIntTerm (arg),
-		       Yap_DebugPutc, 0);
-	    else if (arg == (CELL) FAILCODE)
-	      Yap_plwrite (MkAtomTerm (AtomFail), Yap_DebugPutc, 0);
-	    else
-	      Yap_plwrite (MkIntegerTerm ((Int) arg), Yap_DebugPutc, 0);
+	    write_address(arg);
 	    break;
 	  case 'i':
-	    Yap_plwrite (MkIntTerm (arg), Yap_DebugPutc, 0);
+	    write_address (arg);
 	    break;
 	  case 'j':
 	    {
@@ -441,59 +458,40 @@ ShowOp (f)
 	  case 'c':
 	    {
 	      int i;
-	      for (i = 0; i < arg; ++i)
-		{
-		  CELL my_arg;
-		  if (*cptr)
-		    {
-		      Yap_plwrite ((Term) * cptr++, Yap_DebugPutc, 0);
-		    }
-		  else
-		    {
-		      Yap_plwrite (MkIntTerm (0), Yap_DebugPutc, 0);
-		      cptr++;
-		    }
-		  Yap_DebugPutc (Yap_c_error_stream,'\t');
-		  my_arg = *cptr++;
-		  if (my_arg & 1)
-		    Yap_plwrite (MkIntTerm (my_arg),
-			     Yap_DebugPutc, 0);
-		  else if (my_arg == (CELL) FAILCODE)
-		    Yap_plwrite (MkAtomTerm (AtomFail), Yap_DebugPutc, 0);
-		  else
-		    Yap_plwrite (MkIntegerTerm ((Int) my_arg), Yap_DebugPutc, 0);
-		  Yap_DebugPutc (Yap_c_error_stream,'\n');
+	      for (i = 0; i < arg; ++i) {
+		CELL my_arg;
+		Yap_DebugPutc(Yap_c_error_stream,'\t');
+		if (*cptr) {
+		  Yap_plwrite ((Term) * cptr++, Yap_DebugPutc, 0);
+		} else {
+		  Yap_plwrite (MkIntTerm (0), Yap_DebugPutc, 0);
+		  cptr++;
 		}
+		Yap_DebugPutc (Yap_c_error_stream,'\t');
+		my_arg = *cptr++;
+		write_address (my_arg);
+		if (i+1 < arg)
+		  Yap_DebugPutc (Yap_c_error_stream,'\n');
+	      }
 	    }
 	    break;
 	  case 'e':
 	    {
 	      int i;
-	      for (i = 0; i < arg; ++i)
-		{
-		  CELL my_arg;
-		  if (*cptr)
-		    {
-		      Yap_plwrite (MkAtomTerm (NameOfFunctor ((Functor) * cptr)), Yap_DebugPutc, 0);
-		      Yap_DebugPutc (Yap_c_error_stream,'/');
-		      Yap_plwrite (MkIntTerm (ArityOfFunctor ((Functor) * cptr++)), Yap_DebugPutc, 0);
-		    }
-		  else
-		    {
-		      Yap_plwrite (MkIntTerm (0), Yap_DebugPutc, 0);
-		      cptr++;
-		    }
-		  Yap_DebugPutc (Yap_c_error_stream,'\t');
-		  my_arg = *cptr++;
-		  if (my_arg & 1)
-		    Yap_plwrite (MkIntTerm (my_arg),
-			     Yap_DebugPutc, 0);
-		  else if (my_arg == (CELL) FAILCODE)
-		    Yap_plwrite (MkAtomTerm (AtomFail), Yap_DebugPutc, 0);
-		  else
-		    Yap_plwrite (MkIntegerTerm ((Int) my_arg), Yap_DebugPutc, 0);
-		  Yap_DebugPutc (Yap_c_error_stream,'\n');
+	      for (i = 0; i < arg; ++i)	{
+		CELL my_arg = cptr[0], lbl = cptr[1];
+		Yap_DebugPutc(Yap_c_error_stream,'\t');
+		if (my_arg) {
+		  write_functor((Functor)my_arg);
+		} else {
+		  Yap_plwrite(MkIntTerm (0), Yap_DebugPutc, 0);
 		}
+		Yap_DebugPutc(Yap_c_error_stream,'\t');
+		write_address(lbl);
+		cptr += 2;
+		if (i+1 < arg)
+		  Yap_DebugPutc(Yap_c_error_stream,'\n');
+	      }
 	    }
 	    break;
 	  default:
@@ -554,6 +552,7 @@ static char *opformat[] =
   "deallocate",
   "try_me_else\t\t%l\t%x",
   "jump\t\t%l",
+  "jump\t\t%l",
   "procceed",
   "call\t\t%p,%d,%z",
   "execute\t\t%p",
@@ -576,42 +575,14 @@ static char *opformat[] =
   "retry\t\t%g\t%x",
   "trust\t\t%g\t%x",
   "try_in\t\t%g\t%x",
-  "retry_in\t\t%g\t%x",
-  "trust_in\t\t%g\t%x",
-  "try_first\t\t%g\t%x",
-  "retry_first\t\t%g\t%x",
-  "trust_first\t\t%g\t%x",
-  "try_first in\t\t%g\t%x",
-  "retry_first in\t\t%g\t%x",
-  "trust_first in\t\t%g\t%x",
-  "try_tail\t\t%g\t%x",
-  "retry_tail\t\t%g\t%x",
-  "trust_tail\t\t%g\t%x",
-  "try_tail_in\t\t%g\t%x",
-  "retry_tail_in\t\t%g\t%x",
-  "trust_tail_in\t\t%g\t%x",
-  "try_head\t\t%g\t%x",
-  "retry_head\t\t%g\t%x",
-  "trust_head\t\t%g\t%x",
-  "try_head_in\t\t%g\t%x",
-  "retry_head_in\t\t%g\t%x",
-  "trust_head_in\t\t%g\t%x",
-  "try_last_first\t\t%g\t%x",
-  "try_last_head\t\t%g\t%x",
   "jump_if_var\t\t%g",
+  "cache_arg\t%r",
+  "cache_sub_arg\t%d",
   "switch_on_type\t%h\t%h\t%h\t%h",
-  "switch_on_type_if_nonvar\t%h\t%h\t%h",
-  "switch_on_type_of_last\t%h\t%h\t%h",
-  "switch_on_type_of_head\t%h\t%h\t%h\t%h",
-  "switch_on_list_or_nil\t%h\t%h\t%h\t%h",
-  "switch_if_list_or_nil\t%h\t%h\t%h",
-  "switch_on_last_list_or_nil\t%h\t%h\t%h",
   "switch_on_constant\t%i\n%c",
-  "if_a_constant\t%i\t%h\n%c",
-  "go_if_ equals_constant\t%o\t%h\t%h",
+  "if_constant\t%i\t%h\n%c",
   "switch_on_functor\t%i\n%e",
-  "if_a_functor\t%i\t%h\n%e",
-  "go_if_equals_functor\t%j\t%h\t%h",
+  "if_functor\t%i\t%h\n%e",
   "if_not_then\t%i\t%h\t%h\t%h",
   "save_pair\t%v",
   "save_appl\t%v",

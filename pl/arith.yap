@@ -352,7 +352,6 @@ do_not_compile_expressions :- '$set_value'('$c_arith',[]).
 '$binary_op_as_integer'(gcd,16).
 '$binary_op_as_integer'(min,17).
 '$binary_op_as_integer'(max,18).
-'$binary_op_as_integer'(atan2,19).
 %'$binary_op_as_integer'(gcdmult,28).
 
 /* Arithmetics					*/

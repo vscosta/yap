@@ -1669,8 +1669,7 @@ static InitBinEntry InitBinTab[] = {
   {"exp", p_power},
   {"gcd", p_gcd},
   {"min", p_min},
-  {"max", p_max},
-  {"atan2", p_atan2}
+  {"max", p_max}
 };
 
 static Int 

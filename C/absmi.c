@@ -1079,7 +1079,7 @@ Yap_absmi(int inp)
       BOp(try_logical_pred, l);
       /* mark the indexing code */
       {
-	Clause *cl = (Clause *)PREG->u.l.l;
+	LogUpdClause *cl = (LogUpdClause *)PREG->u.l.l;
 	PREG = NEXTOP(PREG, l);
 	LOCK(cl->ClLock);
 	/* indicate the indexing code is being used */
@@ -1104,7 +1104,7 @@ Yap_absmi(int inp)
       /* unmark the indexing code */
       /* mark the indexing code */
       {
-	Clause *cl = (Clause *)PREG->u.l.l;
+	LogUpdClause *cl = (LogUpdClause *)PREG->u.l.l;
 	PREG = NEXTOP(PREG, l);
 	/* check if we are the ones using this code */
 #if defined(YAPOR) || defined(THREADS)
@@ -1113,12 +1113,12 @@ Yap_absmi(int inp)
 	/* clear the entry from the trail */
 	TR = --(B->cp_tr);
 	/* actually get rid of the code */
-	if (!CL_IN_USE(cl) && cl->ClFlags & ErasedMask) {
+	if (cl->ref_count == 0 && cl->ClFlags & ErasedMask) {
 	  UNLOCK(cl->ClLock);
 	  /* I am the last one using this clause, hence I don't need a lock
 	     to dispose of it 
 	  */
-	  Yap_ErCl(cl);
+	  Yap_ErLogUpdCl(cl);
 	} else {
 	  UNLOCK(cl->ClLock);
 	}
@@ -1130,7 +1130,7 @@ Yap_absmi(int inp)
 	  TR = --(B->cp_tr);
 	  /* next, recover space for the indexing code if it was erased */
 	  if (cl->ClFlags & ErasedMask) {
-	    Yap_ErCl(cl);
+	    Yap_ErLogUpdCl(cl);
 	  }
 	}
 #endif
@@ -1144,7 +1144,7 @@ Yap_absmi(int inp)
       /* we have our own copy for the clause */
 #if defined(YAPOR) || defined(THREADS)
       {
-	Clause *cl = (Clause *)PREG->u.EC.ClBase;
+	LogUpdClause *cl = (LogUpdClause *)PREG->u.EC.ClBase;
 
 	LOCK(cl->ClLock);
 	/* always add an extra reference */
@@ -1154,7 +1154,7 @@ Yap_absmi(int inp)
       }
 #else
       {
-	Clause *cl = (Clause *)PREG->u.EC.ClBase;
+	LogUpdClause *cl = (LogUpdClause *)PREG->u.EC.ClBase;
 	if (!(cl->ClFlags |= InUseMask)) {
 	  /* Clause *cl = (Clause *)PREG->u.EC.ClBase;
 
@@ -1223,14 +1223,14 @@ Yap_absmi(int inp)
       SET_BB(B_YREG);
       ENDCACHE_Y();
 #if defined(YAPOR) || defined(THREADS)
-      INC_CLREF_COUNT(ClauseCodeToClause(PREG));
+      INC_CLREF_COUNT(ClauseCodeToDynamicClause(PREG));
       UNLOCK(DynamicLock(PREG));
-      TRAIL_CLREF(ClauseCodeToClause(PREG));
+      TRAIL_CLREF(ClauseCodeToDynamicClause(PREG));
 #else
       if (FlagOff(InUseMask, DynamicFlags(PREG))) {
 
 	SetFlag(InUseMask, DynamicFlags(PREG));
-	TRAIL_CLREF(ClauseCodeToClause(PREG));
+	TRAIL_CLREF(ClauseCodeToDynamicClause(PREG));
       }
 #endif
       PREG = NEXTOP(PREG,ld);
@@ -1285,14 +1285,14 @@ Yap_absmi(int inp)
       SET_BB(B_YREG);
       ENDCACHE_Y();
 #if defined(YAPOR) || defined(THREADS)
-      INC_CLREF_COUNT(ClauseCodeToClause(PREG));
-      TRAIL_CLREF(ClauseCodeToClause(PREG));
+      INC_CLREF_COUNT(ClauseCodeToDynamicClause(PREG));
+      TRAIL_CLREF(ClauseCodeToDynamicClause(PREG));
       UNLOCK(DynamicLock(PREG));
 #else
       if (FlagOff(InUseMask, DynamicFlags(PREG))) {
 
 	SetFlag(InUseMask, DynamicFlags(PREG));
-	TRAIL_CLREF(ClauseCodeToClause(PREG));
+	TRAIL_CLREF(ClauseCodeToDynamicClause(PREG));
       }
 #endif
       PREG = NEXTOP(PREG,ld);
@@ -1395,7 +1395,7 @@ Yap_absmi(int inp)
 	      break;
 	    case _table_retry_me:
 	    case _table_trust_me:
-	      low_level_trace(retry_pred, (PredEntry *)(PREG->u.lds.p), (CELL *)(((gen_cp_ptr)B)+1));
+	      low_level_trace(retry_pred, PREG->u.lds.p, (CELL *)(((gen_cp_ptr)B)+1));
 	      break;
 #endif
 	    case _or_else:
@@ -1403,15 +1403,11 @@ Yap_absmi(int inp)
 	      low_level_trace(retry_or, (PredEntry *)PREG, &(B->cp_a1));
 	      break;
 	    case _trust_logical_pred:
-	      low_level_trace(retry_pred, (PredEntry *)(NEXTOP(PREG,l)->u.ld.p), &(B->cp_a1));
-	      break;
-	    case _switch_last:
-	    case _switch_l_list:
-	      low_level_trace(retry_pred, (PredEntry *)(PREG->u.slll.p), &(B->cp_a1));
+	      low_level_trace(retry_pred, NEXTOP(PREG,l)->u.ld.p, B->cp_args);
 	      break;
 	    case _retry_c:
 	    case _retry_userc:
-	      low_level_trace(retry_pred, (PredEntry *)(PREG->u.lds.p), &(B->cp_a1));
+	      low_level_trace(retry_pred, PREG->u.lds.p, B->cp_args);
 	      break;
 	    case _retry_profiled:
 	      opnum = Yap_op_from_opcode(NEXTOP(B->cp_ap,l)->opc);
@@ -1433,18 +1429,9 @@ Yap_absmi(int inp)
 	    case _retry_and_mark:
 	    case _profiled_retry_and_mark:
 	    case _retry:
-	    case _trust_in:
 	    case _trust:
-	    case _retry_first:
-	    case _trust_first_in:
-	    case _trust_first:
-	    case _retry_tail:
-	    case _trust_tail_in:
-	    case _trust_tail:
-	    case _retry_head:
-	    case _trust_head_in:
-	    case _trust_head:
-	      low_level_trace(retry_pred, (PredEntry *)(PREG->u.ld.p), &(B->cp_a1));
+	      low_level_trace(retry_pred, PREG->u.ld.p, B->cp_args);
+	      break;
 	    default:
 	      break;
 	    }
@@ -1474,39 +1461,55 @@ Yap_absmi(int inp)
 #endif
 	  {
 	    register CELL flags;
+	    CELL *pt0 = RepPair(d1);
 
-	    d1 = (CELL) RepPair(d1);
 #ifdef FROZEN_STACKS  /* TRAIL */
             /* avoid frozen segments */
 #ifdef SBA
-	    if ((ADDR) d1 >= HeapTop)
+	    if ((ADDR) pt0 >= HeapTop)
 #else
-	    if ((ADDR) d1 >= Yap_TrailBase)
+	    if ((ADDR) pt0 >= Yap_TrailBase)
 #endif
 	      {
-		pt0 = (tr_fr_ptr) d1;
+		pt0 = (tr_fr_ptr) pt0;
 		goto failloop;
 	      }
 #endif /* FROZEN_STACKS */
-	    flags = Flags(d1);
+	    flags = *pt0;
 #if defined(YAPOR) || defined(THREADS)
 	    if (!FlagOn(DBClMask, flags)) {
-	      Clause *cl = ClauseFlagsToClause(d1);
-	      int erase;
-	      LOCK(cl->ClLock);
-	      DEC_CLREF_COUNT(cl);
-	      erase = (cl->ClFlags & ErasedMask) && (cl->ref_count == 0);
-	      UNLOCK(cl->ClLock);
-	      if (erase) {
-		saveregs();
-		/* at this point, 
-		   we are the only ones accessing the clause,
-		   hence we don't need to have a lock it */
-		Yap_ErCl(cl);
-		setregs();
+	      if (flags & LogUpdMask) {
+		LogUpdClause *cl = ClauseFlagsToLogUpdClause(pt0);
+		int erase;
+		LOCK(cl->ClLock);
+		DEC_CLREF_COUNT(cl);
+		erase = (cl->ClFlags & ErasedMask) && (cl->ref_count == 0);
+		UNLOCK(cl->ClLock);
+		if (erase) {
+		  saveregs();
+		  /* at this point, 
+		     we are the only ones accessing the clause,
+		     hence we don't need to have a lock it */
+		  Yap_ErLogUpdCl(cl);
+		  setregs();
+	      } else {
+		DynamicClause *cl = ClauseFlagsToDynamicClause(pt0);
+		int erase;
+		LOCK(cl->ClLock);
+		DEC_CLREF_COUNT(cl);
+		erase = (cl->ClFlags & ErasedMask) && (cl->ref_count == 0);
+		UNLOCK(cl->ClLock);
+		if (erase) {
+		  saveregs();
+		  /* at this point, 
+		     we are the only ones accessing the clause,
+		     hence we don't need to have a lock it */
+		  Yap_ErCl(cl);
+		  setregs();
+		}
 	      }
 	    } else {
-	      DBRef dbr = DBStructFlagsToDBStruct(d1);
+	      DBRef dbr = DBStructFlagsToDBStruct(pt0);
 	      int erase;
 
 	      LOCK(dbr->lock);
@@ -1521,22 +1524,19 @@ Yap_absmi(int inp)
 	    }
 #else
 	    ResetFlag(InUseMask, flags);
-	    Flags(d1) = flags;
-	    /* vsc???	    if (FlagOn(StaticMask, flags)) {
-	       if (FlagOff(SpiedMask, flags)) {
-	       PredCode(d1) = TruePredCode(d1);
-	         }
-	       }
-	       else
-	    */
+	    *pt0 = flags;
 	    if (FlagOn(ErasedMask, flags)) {
 	      if (FlagOn(DBClMask, flags)) {
 		saveregs();
-		Yap_ErDBE(DBStructFlagsToDBStruct(d1));
+		Yap_ErDBE(DBStructFlagsToDBStruct(pt0));
 		setregs();
 	      } else {
 		saveregs();
-		Yap_ErCl(ClauseFlagsToClause(d1));
+		if (flags & LogUpdMask) {
+		  Yap_ErLogUpdCl(ClauseFlagsToLogUpdClause(pt0));
+		} else {
+		  Yap_ErCl(ClauseFlagsToDynamicClause(pt0));
+		}
 		setregs();
 	      }
 	    }
@@ -6257,7 +6257,7 @@ Yap_absmi(int inp)
       /* Point AP to the code that follows this instruction */
       store_at_least_one_arg(PREG->u.ld.s);
       store_yaam_regs(NEXTOP(PREG, ld), 0);
-      PREG = (yamop *) (PREG->u.ld.d);
+      PREG = PREG->u.ld.d;
       set_cut(S_YREG, B);
       B = B_YREG;
 #ifdef YAPOR
@@ -6265,19 +6265,6 @@ Yap_absmi(int inp)
 #endif	/* YAPOR */
       SET_BB(B_YREG);
       ENDCACHE_Y();
-      JMPNext();
-      ENDBOp();
-
-      /* do a jump, but make sure the alternative pointer is set to
-	 point to the next instruction */
-      BOp(try_in, l);
-#ifdef YAPOR
-      if (SCH_top_shared_cp(B)) {
-	SCH_new_alternative(PREG, NEXTOP(PREG,l));
-      } else
-#endif /* YAPOR */
-      B->cp_ap = NEXTOP(PREG,l);
-      PREG = (yamop *) (PREG->u.l.l);
       JMPNext();
       ENDBOp();
 
@@ -6293,23 +6280,7 @@ Yap_absmi(int inp)
 #endif /* FROZEN_STACKS */
       SET_BB(B_YREG);
       ENDCACHE_Y();
-      PREG = (yamop *) (PREG->u.ld.d);
-      JMPNext();
-      ENDBOp();
-
-      BOp(trust_in, ldl);
-      CACHE_Y(B);
-      restore_yaam_regs(PREG->u.ldl.bl);
-      restore_at_least_one_arg(PREG->u.ldl.s);
-#ifdef FROZEN_STACKS
-      B_YREG = PROTECT_FROZEN_B(B_YREG);
-      set_cut(S_YREG, B->cp_b);
-#else
-      set_cut(S_YREG, B_YREG->cp_b);
-#endif /* FROZEN_STACKS */
-      SET_BB(B_YREG);
-      ENDCACHE_Y();
-      PREG = (yamop *) (PREG->u.ldl.d);
+      PREG = PREG->u.ld.d;
       JMPNext();
       ENDBOp();
 
@@ -6336,638 +6307,16 @@ Yap_absmi(int inp)
       }
       SET_BB(B_YREG);
       ENDCACHE_Y();
-      PREG = (yamop *) (PREG->u.ld.d);
+      PREG = PREG->u.ld.d;
       JMPNext();
       ENDBOp();
-
-/************************************************************************\
-* retry_first and trust_first go straight to the first arg.             *
-\************************************************************************/
 
-      /* relies  on an extra S */
-      BOp(retry_first, ld);
-      CACHE_Y(B);
-      restore_yaam_regs(NEXTOP(PREG, ld));
-      restore_at_least_one_arg(PREG->u.ld.s);
-#ifdef FROZEN_STACKS
-      B_YREG = PROTECT_FROZEN_B(B_YREG);
-      set_cut(S_YREG, B->cp_b);
-#else
-      set_cut(S_YREG, B_YREG->cp_b);
-#endif /* FROZEN_STACKS */
-      SET_BB(B_YREG);
-      ENDCACHE_Y();
-      /* recover the value of SREG */
-      BEGD(d0);
-      d0 = ARG1;
-      /* der it first */
-      PREG = (yamop *) (PREG->u.ld.d);
-      deref_head(d0,retry_first_unk);
-    retry_first_nvar:
-      if (IsPairTerm(d0)) {
-	/* pair */
-	SREG = RepPair(d0);
-	JMPNext();
-#ifdef DEBUG
-      } else if (!IsApplTerm(d0)) {
-	/* this should not happen */
-	saveregs();
-	Yap_Error(SYSTEM_ERROR, d0,"argument to retry_first is a constant");
-	setregs();
-	JMPNext();
-#endif /* DEBUG */
-      } else {
-	/* appl */
-	/* pair */
-	SREG = RepAppl(d0)+1;
-	JMPNext();
-      }
-
-      BEGP(pt0);
-      deref_body(d0, pt0, retry_first_unk, retry_first_nvar);
-      /* this should never happen */
-#ifdef DEBUG
-      saveregs();
-      Yap_Error(SYSTEM_ERROR, d0, "unbound argument to retry_first");
-      setregs();
+      BOp(try_in, l);
+      B->cp_ap = NEXTOP(PREG, l);
+      PREG = PREG->u.l.l;
       JMPNext();
-#endif /* DEBUG */
-      ENDP(pt0);
-      ENDD(d0);
       ENDBOp();
 
-
-      /* just like retry_first, but set B->cp_ap to point to the
-	 beginning of the next group */
-      BOp(trust_first_in, ldl);
-      CACHE_Y(B);
-      restore_yaam_regs(PREG->u.ldl.bl);
-      restore_at_least_one_arg(PREG->u.ldl.s);
-#ifdef FROZEN_STACKS
-      B_YREG = PROTECT_FROZEN_B(B_YREG);
-      set_cut(S_YREG, B->cp_b);
-#else
-      set_cut(S_YREG, B_YREG->cp_b);
-#endif /* FROZEN_STACKS */
-      SET_BB(B_YREG);
-      ENDCACHE_Y();
-      /* recover the value of SREG */
-      BEGD(d0);
-      d0 = ARG1;
-      /* deref it first */
-      PREG = (yamop *) (PREG->u.lds.f);
-      deref_head(d0,trust_first_in_unk);
-    trust_first_in_nvar:
-      if (IsPairTerm(d0)) {
-	/* pair */
-	SREG = RepPair(d0);
-	JMPNext();
-#ifdef DEBUG
-      } else if (!IsApplTerm(d0)) {
-	/* this should not happen */
-	saveregs();
-	Yap_Error(SYSTEM_ERROR, d0, "argument to trust_first_in is a constant");
-	setregs();
-	JMPNext();
-#endif /* DEBUG */
-      } else {
-	/* appl */
-	/* pair */
-	SREG = RepAppl(d0)+1;
-	JMPNext();
-      }
-
-      BEGP(pt0);
-      deref_body(d0, pt0, trust_first_in_unk, trust_first_in_nvar);
-      /* this should never happen */
-#ifdef DEBUG
-      saveregs();
-      Yap_Error(SYSTEM_ERROR, d0,"unbound argument to trust_first_in");
-      setregs();
-      JMPNext();
-#endif /* DEBUG */
-      ENDP(pt0);
-      ENDD(d0);
-      ENDBOp();
-
-      /* recover S and avoid doing a get_list or get_struct */
-      BOp(trust_first, ld);
-      CACHE_Y(B);
-#ifdef YAPOR
-      if (SCH_top_shared_cp(B)) {
-	SCH_last_alternative(PREG, B_YREG);
-	restore_at_least_one_arg(PREG->u.ld.s);
-#ifdef FROZEN_STACKS
-	B_YREG = PROTECT_FROZEN_B(B_YREG);
-#endif /* FROZEN_STACKS */
-	set_cut(S_YREG, B->cp_b);
-      }
-      else
-#endif	/* YAPOR */
-      {
-	pop_yaam_regs();
-	pop_at_least_one_arg(PREG->u.ld.s);
-#ifdef FROZEN_STACKS
-	B_YREG = PROTECT_FROZEN_B(B_YREG);
-#endif /* FROZEN_STACKS */
-	set_cut(S_YREG, B);
-      }
-      SET_BB(B_YREG);
-      ENDCACHE_Y();
-      /* recover the value of SREG */
-      BEGD(d0);
-      d0 = ARG1;
-      /* deref it first */
-      PREG = (yamop *) (PREG->u.ld.d);
-      deref_head(d0,trust_first_unk);
-    trust_first_nvar:
-      if (IsPairTerm(d0)) {
-	/* pair */
-	SREG = RepPair(d0);
-	JMPNext();
-#ifdef DEBUG
-      } else if (!IsApplTerm(d0)) {
-	/* this should not happen */
-	saveregs();
-	Yap_Error(SYSTEM_ERROR,d0,"argument to trust_first is a constant");
-	setregs();
-	JMPNext();
-#endif /* DEBUG */
-      } else {
-	/* appl */
-	/* pair */
-	SREG = RepAppl(d0)+1;
-	JMPNext();
-      }
-
-      BEGP(pt0);
-      deref_body(d0, pt0, trust_first_unk, trust_first_nvar);
-      /* this should never happen */
-#ifdef DEBUG
-      saveregs();
-      Yap_Error(SYSTEM_ERROR,(CELL)pt0,"argument to trust_first is a variable");
-      setregs();
-      JMPNext();
-#endif /* DEBUG */
-      ENDP(pt0);
-      ENDD(d0);
-      ENDBOp();
-
-
-/************************************************************************\
-* retry_tail and trust_tail go straight to the tail of a list           *
-\************************************************************************/
-
-      /* relies  on an extra S */
-      BOp(retry_tail, ld);
-      CACHE_Y(B);
-      restore_yaam_regs(NEXTOP(PREG, ld));
-      restore_at_least_one_arg(PREG->u.ld.s);
-#ifdef FROZEN_STACKS
-      B_YREG = PROTECT_FROZEN_B(B_YREG);
-      set_cut(S_YREG, B->cp_b);
-#else
-      set_cut(S_YREG, B_YREG->cp_b);
-#endif /* FROZEN_STACKS */
-      SET_BB(B_YREG);
-      ENDCACHE_Y();
-      /* recover the value of SREG */
-      BEGD(d0);
-      d0 = ARG1;
-      /* deref it first */
-      deref_head(d0,retry_tail_unk);
-    retry_tail_nvar:
-      PREG = (yamop *) (PREG->u.ld.d);
-      if (IsPairTerm(d0)) {
-	/* pair */
-	SREG = RepPair(d0)+1;
-	JMPNext();
-#ifdef DEBUG
-      } else if (!IsApplTerm(d0)) {
-	/* this should not happen */
-	saveregs();
-	Yap_Error(SYSTEM_ERROR,d0,"argument to retry_tail is a constant");
-	setregs();
-	JMPNext();
-#endif /* DEBUG */
-      } else {
-	/* appl */
-#ifdef DEBUG
-	/* this should never happen */
-	saveregs();
-	Yap_Error(SYSTEM_ERROR,d0,"argument to retry_tail is a compound term");
-	setregs();
-	JMPNext();
-#endif
-      }
-
-      BEGP(pt0);
-      deref_body(d0, pt0, retry_tail_unk, retry_tail_nvar);
-      /* this should never happen */
-#ifdef DEBUG
-      saveregs();
-      Yap_Error(SYSTEM_ERROR,(CELL)pt0,"unbound argument to retry_tail");
-      setregs();
-      JMPNext();
-#endif /* DEBUG */
-      ENDP(pt0);
-      ENDD(d0);
-      ENDBOp();
-
-
-      /* just like retry_tail, but set B->cp_ap to point to the
-	 beginning of the next group */
-      BOp(trust_tail_in, ldl);
-      CACHE_Y(B);
-      restore_yaam_regs(PREG->u.ldl.bl);
-      restore_at_least_one_arg(PREG->u.ldl.s);
-#ifdef FROZEN_STACKS
-      B_YREG = PROTECT_FROZEN_B(B_YREG);
-      set_cut(S_YREG, B->cp_b);
-#else
-      set_cut(S_YREG, B_YREG->cp_b);
-#endif /* FROZEN_STACKS */
-      SET_BB(B_YREG);
-      ENDCACHE_Y();
-      /* recover the value of SREG */
-      BEGD(d0);
-      d0 = ARG1;
-      /* deref it first */
-      PREG = (yamop *) (PREG->u.lds.f);
-      deref_head(d0,trust_tail_in_unk);
-    trust_tail_in_nvar:
-      if (IsPairTerm(d0)) {
-	/* pair */
-	SREG = RepPair(d0)+1;
-	JMPNext();
-#ifdef DEBUG
-      } else if (!IsApplTerm(d0)) {
-	/* this should not happen */
-	saveregs();
-	Yap_Error(SYSTEM_ERROR, d0, "argument to trust_tail_in is a constant");
-	setregs();
-	JMPNext();
-#endif /* DEBUG */
-      } else {
-	/* appl */
-#ifdef DEBUG
-	saveregs();
-	Yap_Error(SYSTEM_ERROR, d0, "argument to trust_tail_in is a compound term");
-	setregs();
-	JMPNext();
-#endif
-      }
-
-      BEGP(pt0);
-      deref_body(d0, pt0, trust_tail_in_unk, trust_tail_in_nvar);
-      /* this should never happen */
-#ifdef DEBUG
-      saveregs();
-      Yap_Error(SYSTEM_ERROR, (CELL)pt0, "unbound argument to trust_tail_in");
-      setregs();
-      JMPNext();
-#endif /* DEBUG */
-      ENDP(pt0);
-      ENDD(d0);
-      ENDBOp();
-
-      /* recover S and avoid doing a get_list or get_struct */
-      BOp(trust_tail, ld);
-      CACHE_Y(B);
-#ifdef YAPOR
-      if (SCH_top_shared_cp(B)) {
-	SCH_last_alternative(PREG, B_YREG);
-	restore_at_least_one_arg(PREG->u.ld.s);
-#ifdef FROZEN_STACKS
-	B_YREG = PROTECT_FROZEN_B(B_YREG);
-#endif /* FROZEN_STACKS */
-	set_cut(S_YREG, B->cp_b);
-      }
-      else
-#endif /* YAPOR */
-      {
-	pop_yaam_regs();
-	pop_at_least_one_arg(PREG->u.ld.s);
-#ifdef FROZEN_STACKS
-	B_YREG = PROTECT_FROZEN_B(B_YREG);
-#endif /* FROZEN_STACKS */
-	set_cut(S_YREG, B);
-      }
-      SET_BB(B_YREG);
-      ENDCACHE_Y();
-      /* recover the value of SREG */
-      BEGD(d0);
-      d0 = ARG1;
-      /* deref it first */
-      PREG = (yamop *) (PREG->u.ld.d);
-      deref_head(d0,trust_tail_unk);
-    trust_tail_nvar:
-      if (IsPairTerm(d0)) {
-	/* pair */
-	SREG = RepPair(d0)+1;
-	JMPNext();
-#ifdef DEBUG
-      } else if (!IsApplTerm(d0)) {
-	/* this should not happen */
-	saveregs();
-	Yap_Error(SYSTEM_ERROR, d0, "argument to trust_tail is a constant");
-	setregs();
-	JMPNext();
-#endif /* DEBUG */
-      } else {
-	/* appl */
-#ifdef DEBUG
-	/* this should ever happen */
-	saveregs();
-	Yap_Error(SYSTEM_ERROR, d0, "argument to trust_tail is a constant");
-	setregs();
-	JMPNext();
-#endif /* DEBUG */
-      }
-
-      BEGP(pt0);
-      deref_body(d0, pt0, trust_tail_unk, trust_tail_nvar);
-      /* this should never happen */
-#ifdef DEBUG
-      saveregs();
-      Yap_Error(SYSTEM_ERROR, (CELL)pt0, "unbound argument to trust_tail");
-      setregs();
-      JMPNext();
-#endif /* DEBUG */
-      ENDP(pt0);
-      ENDD(d0);
-      ENDBOp();
-
-
-/************************************************************************\
-* retry_head and trust_head assume the first argument is known          *
-\************************************************************************/
-
-      /* retry an instruction, and avoid a get and unify */
-      BOp(retry_head, ld);
-      CACHE_Y(B);
-      restore_yaam_regs(NEXTOP(PREG, ld));
-      restore_at_least_one_arg(PREG->u.ld.s);
-#ifdef FROZEN_STACKS
-      B_YREG = PROTECT_FROZEN_B(B_YREG);
-      set_cut(S_YREG, B->cp_b);
-#else
-      set_cut(S_YREG, B_YREG->cp_b);
-#endif /* FROZEN_STACKS */
-      SET_BB(B_YREG);
-      ENDCACHE_Y();
-      /* recover the value of SREG */
-      BEGD(d0);
-      BEGP(pt0);
-      d0 = ARG1;
-      /* deref it first */
-      PREG = (yamop *) (PREG->u.ld.d);
-      deref_head(d0,retry_head_unk);
-    retry_head_nvar:
-      if (IsPairTerm(d0)) {
-	/* pair */
-	pt0 = RepPair(d0);
-	/* get the head of the list or the first argument of the struct */
-	d0 = *pt0;
-      inner_retry_head:
-	/* inform that we were reading a structure or list */
-	SP[-1] = (CELL)(pt0+1);
-	SP[-2] = READ_MODE;
-	SP -= 2;
-	deref_head(d0,retry_head_first_unk);
-      retry_head_first_nvar:
-	if (IsPairTerm(d0)) {
-	  SREG = RepPair(d0);
-	  JMPNext();
-#ifdef DEBUG
-	} else if (!IsApplTerm(d0)) {
-	  /* this should not happen */
-	  saveregs();
-	  Yap_Error(SYSTEM_ERROR, d0, "constant argument to retry_head");
-	  setregs();
-	  JMPNext();
-#endif /* DEBUG */
-	} else {
-	  /* appl */
-	  /* pair */
-	  SREG = RepAppl(d0)+1;
-	  JMPNext();
-	}
-
-	deref_body(d0, pt0, retry_head_first_unk, retry_head_first_nvar);
-	/* this should never happen */
-#ifdef DEBUG
-	saveregs();
-	Yap_Error(SYSTEM_ERROR, (CELL)pt0, "unbound argument to retry_head");
-	setregs();
-	JMPNext();
-      } else if (!IsApplTerm(d0)) {
-	/* this should not happen */
-	saveregs();
-	Yap_Error(SYSTEM_ERROR, d0, "constant argument to retry_head");
-	setregs();
-	JMPNext();
-#endif /* DEBUG */
-      } else {
-	/* appl */
-	/* pair */
-	pt0 = RepAppl(d0)+1;
-	d0 = *pt0;
-	goto inner_retry_head;
-      }
-
-      deref_body(d0, pt0, retry_head_unk, retry_head_nvar);
-      /* this should never happen */
-#ifdef DEBUG
-      saveregs();
-      Yap_Error(SYSTEM_ERROR, (CELL)pt0, "unbound argument to retry_head");
-      setregs();
-      JMPNext();
-#endif /* DEBUG */
-      ENDP(pt0);
-      ENDD(d0);
-      ENDBOp();
-
-      /* This is a retry head that closes a subblock */
-      BOp(trust_head_in, ldl);
-      CACHE_Y(B);
-      restore_yaam_regs(PREG->u.ldl.bl);
-      restore_at_least_one_arg(PREG->u.ldl.s);
-#ifdef FROZEN_STACKS
-      B_YREG = PROTECT_FROZEN_B(B_YREG);
-      set_cut(S_YREG, B->cp_b);
-#else
-      set_cut(S_YREG, B_YREG->cp_b);
-#endif /* FROZEN_STACKS */
-      SET_BB(B_YREG);
-      ENDCACHE_Y();
-      /* recover the value of SREG */
-      BEGD(d0);
-      BEGP(pt0);
-      d0 = ARG1;
-      /* deref it first */
-      PREG = (yamop *) (PREG->u.ldl.d);
-      deref_head(d0,trust_head_in_unk);
-    trust_head_in_nvar:
-      if (IsPairTerm(d0)) {
-	/* pair */
-	pt0 = RepPair(d0);
-	/* get the head of the list or the first argument of the struct */
-	d0 = *pt0;
-      inner_trust_head_in:
-	/* inform that we were reading a structure or list */
-	SP[-1] = (CELL)(pt0+1);
-	SP[-2] = READ_MODE;
-	SP -= 2;
-	deref_head(d0,trust_head_in_first_unk);
-      trust_head_in_first_nvar:
-	if (IsPairTerm(d0)) {
-	  SREG = RepPair(d0);
-	  JMPNext();
-#ifdef DEBUG
-	} else if (!IsApplTerm(d0)) {
-	  /* this should not happen */
-	  saveregs();
-	  Yap_Error(SYSTEM_ERROR, d0, "head of argument to trust_head_in is a constant");
-	  setregs();
-	  JMPNext();
-#endif /* DEBUG */
-	} else {
-	  /* appl */
-	  /* pair */
-	  SREG = RepAppl(d0)+1;
-	  JMPNext();
-	}
-
-	deref_body(d0, pt0, trust_head_in_first_unk, trust_head_in_first_nvar);
-	/* this should never happen */
-#ifdef DEBUG
-	saveregs();
-	Yap_Error(SYSTEM_ERROR, d0, "head of argument to trust_head_in is unbound");
-	setregs();
-	JMPNext();
-      } else if (!IsApplTerm(d0)) {
-	/* this should not happen */
-	saveregs();
-	Yap_Error(SYSTEM_ERROR, d0, "argument to trust_head_in is a constant");
-	setregs();
-	JMPNext();
-#endif /* DEBUG */
-      } else {
-	/* appl */
-	/* pair */
-	pt0 = RepAppl(d0)+1;
-	d0 = *pt0;
-	goto inner_trust_head_in;
-      }
-
-      deref_body(d0, pt0, trust_head_in_unk, trust_head_in_nvar);
-      /* this should never happen */
-#ifdef DEBUG
-      saveregs();
-      Yap_Error(SYSTEM_ERROR, d0, "unbound argument to trust_head_in");
-      setregs();
-      JMPNext();
-#endif /* DEBUG */
-      ENDP(pt0);
-      ENDD(d0);
-      ENDBOp();
-
-
-      BOp(trust_head, ld);
-      CACHE_Y(B);
-#ifdef YAPOR
-      if (SCH_top_shared_cp(B)) {
-	SCH_last_alternative(PREG, B_YREG);
-	restore_at_least_one_arg(PREG->u.ld.s);
-#ifdef FROZEN_STACKS
-	B_YREG = PROTECT_FROZEN_B(B_YREG);
-#endif /* FROZEN_STACKS */
-	set_cut(S_YREG, B->cp_b);
-      }
-      else
-#endif /* YAPOR */
-      {
-	pop_yaam_regs();
-	pop_at_least_one_arg(PREG->u.ld.s);
-#ifdef FROZEN_STACKS
-	B_YREG = PROTECT_FROZEN_B(B_YREG);
-#endif /* FROZEN_STACKS */
-	set_cut(S_YREG, B);
-      }
-      SET_BB(B_YREG);
-      ENDCACHE_Y();
-      /* recover the value of SREG */
-      BEGD(d0);
-      BEGP(pt0);
-      d0 = ARG1;
-      /* deref it first */
-      PREG = (yamop *) (PREG->u.ld.d);
-      deref_head(d0,trust_head_unk);
-    trust_head_nvar:
-      if (IsPairTerm(d0)) {
-	/* pair */
-	pt0 = RepPair(d0);
-	/* get the head of the list or the first argument of the struct */
-	d0 = *pt0;
-      inner_trust_head:
-	/* inform that we were reading a structure or list */
-	SP[-1] = (CELL)(pt0+1);
-	SP[-2] = READ_MODE;
-	SP -= 2;
-	deref_head(d0,trust_head_first_unk);
-      trust_head_first_nvar:
-	if (IsPairTerm(d0)) {
-	  SREG = RepPair(d0);
-	  JMPNext();
-#ifdef DEBUG
-	} else if (!IsApplTerm(d0)) {
-	  /* this should not happen */
-	  saveregs();
-	  Yap_Error(SYSTEM_ERROR, d0, "head of argument to trust_head is a constant");
-	  setregs();
-	  JMPNext();
-#endif /* DEBUG */
-	} else {
-	  /* appl */
-	  /* pair */
-	  SREG = RepAppl(d0)+1;
-	  JMPNext();
-	}
-
-	deref_body(d0, pt0, trust_head_first_unk, trust_head_first_nvar);
-	/* this should never happen */
-#ifdef DEBUG
-	saveregs();
-	Yap_Error(SYSTEM_ERROR, d0, "unbound head of argument to trust_head");
-	setregs();
-	JMPNext();
-      } else if (!IsApplTerm(d0)) {
-	/* this should not happen */
-	saveregs();
-	Yap_Error(SYSTEM_ERROR, d0, "argument to trust_head is a constant");
-	setregs();
-	JMPNext();
-#endif /* DEBUG */
-      } else {
-	/* appl */
-	/* pair */
-	pt0 = RepAppl(d0)+1;
-	d0 = *pt0;
-	goto inner_trust_head;
-      }
-
-      deref_body(d0, pt0, trust_head_unk, trust_head_nvar);
-      /* this should never happen */
-#ifdef DEBUG
-      saveregs();
-      Yap_Error(SYSTEM_ERROR, d0, "unbound argument to trust_head");
-      setregs();
-      JMPNext();
-#endif /* DEBUG */
-      ENDP(pt0);
-      ENDD(d0);
-      ENDBOp();
 
 
 /************************************************************************\
@@ -6983,18 +6332,18 @@ Yap_absmi(int inp)
       if (IsPairTerm(d0)) {
 	/* pair */
 	SREG = RepPair(d0);
-	PREG = (yamop *) (PREG->u.llll.l1);
+	PREG = PREG->u.llll.l1;
 	JMPNext();
       }
       else if (!IsApplTerm(d0)) {
 	/* constant */
-	PREG = (yamop *) (PREG->u.llll.l2);
+	PREG = PREG->u.llll.l2;
 	I_R = d0;
 	JMPNext();
       }
       else {
 	/* appl */
-	PREG = (yamop *) (PREG->u.llll.l3);
+	PREG = PREG->u.llll.l3;
 	SREG = RepAppl(d0);
 	JMPNext();
       }
@@ -7002,91 +6351,9 @@ Yap_absmi(int inp)
       BEGP(pt0);
       deref_body(d0, pt0, swt_unk, swt_nvar);
       /* variable */
-      PREG = (yamop *) (PREG->u.llll.l4);
+      PREG = PREG->u.llll.l4;
       JMPNext();
       ENDP(pt0);
-      ENDD(d0);
-      ENDBOp();
-
-      BOp(switch_on_nonv, lll);
-      BEGD(d0);
-      d0 = ARG1;
-      deref_head(d0, swnv_unk);
-    swnv_nvar:
-      if (IsPairTerm(d0)) {
-	/* pair */
-	SREG = RepPair(d0);
-	PREG = (yamop *) (PREG->u.lll.l1);
-	JMPNext();
-      }
-      else if (!IsApplTerm(d0)) {
-	/* constant */
-	PREG = (yamop *) (PREG->u.lll.l2);
-	I_R = d0;
-	JMPNext();
-      }
-      else {
-	/* appl */
-	PREG = (yamop *) (PREG->u.lll.l3);
-	SREG = RepAppl(d0);
-	JMPNext();
-      }
-
-      BEGP(pt0);
-      deref_body(d0, pt0, swnv_unk, swnv_nvar);
-#ifdef DEBUG
-      /* This should never happen */
-      saveregs();
-      Yap_Error(SYSTEM_ERROR, d0, "unbound argument to switch_nonvar");
-      setregs();
-      JMPNext();
-#endif
-      ENDP(pt0);
-      ENDD(d0);
-      ENDBOp();
-
-      BOp(jump_if_var, l);
-      BEGD(d0);
-      d0 = CACHED_A1();
-      deref_head(d0, jump_if_unk);
-      /* non var */
-    jump_if_nonvar:
-      PREG = NEXTOP(PREG, l);
-      JMPNext();
-
-      BEGP(pt0);
-      deref_body(d0, pt0, jump_if_unk, jump_if_nonvar);
-      /* variable */
-      PREG = (yamop *) (PREG->u.l.l);
-      ENDP(pt0);
-      JMPNext();
-      ENDD(d0);
-      ENDBOp();
-
-      BOp(if_not_then, cll);
-      BEGD(d0);
-      d0 = CACHED_A1();
-      deref_head(d0, if_n_unk);
-    if_n_nvar:
-      /* not variable */
-      if (d0 == PREG->u.cll.c) {
-	/* equal to test value */
-	PREG = (yamop *) PREG->u.cll.l2;
-	JMPNext();
-      }
-      else {
-	/* different from test value */
-	/* the case to optimise */
-	PREG = (yamop *) PREG->u.cll.l1;
-	JMPNext();
-      }
-
-      BEGP(pt0);
-      deref_body(d0, pt0, if_n_unk, if_n_nvar);
-      ENDP(pt0);
-      /* variable */
-      PREG = (yamop *) PREG->u.cll.l2;
-      JMPNext();
       ENDD(d0);
       ENDBOp();
 
@@ -7097,69 +6364,7 @@ Yap_absmi(int inp)
        * a variable;
        * 
        */
-      BOp(switch_list_nl, llll);
-      BEGD(d0);
-      d0 = CACHED_A1();
-#if UNIQUE_TAG_FOR_PAIRS
-      deref_list_head(d0, swlnl_unk);
-    swlnl_list:
-#else
-      deref_head(d0, swlnl_unk);
-      /* non variable */
-    swlnl_nvar:
-      if (IsPairTerm(d0)) {
-	/* pair */
-#endif
-	PREG = (yamop *) (PREG->u.llll.l1);
-	SREG = RepPair(d0);
-	JMPNext();
-#if UNIQUE_TAG_FOR_PAIRS
-      swlnl_nlist:
-	if (d0 == TermNil) {
-#else
-      }
-      else if (d0 == TermNil) {
-#endif
-	/* empty list */
-	PREG = (yamop *) (PREG->u.llll.l2);
-	JMPNext();
-      }
-      else {
-	/* appl or constant */
-	if (IsApplTerm(d0)) {
-	  SREG = RepAppl(d0);
-	  PREG = (yamop *) (PREG->u.llll.l3);
-	  JMPNext();
-	} else {
-	  I_R = d0;
-	  PREG = (yamop *) (PREG->u.llll.l3);
-	  JMPNext();
-	}
-      }
-
-      BEGP(pt0);
-#if UNIQUE_TAG_FOR_PAIRS
-    swlnl_unk:
-      deref_list_body(d0, pt0, swlnl_list, swlnl_nlist);
-#else
-      deref_body(d0, pt0, swlnl_unk, swlnl_nvar);
-#endif
-      ENDP(pt0);
-      /* variable */
-      PREG = (yamop *) (PREG->u.llll.l4);
-      JMPNext();
-      ENDD(d0);
-      ENDBOp();
-
-      /* specialised case where the arguments may be:
-       * a list;
-       * the empty list;
-       * some other atom;
-       * a variable;
-       * and we know where we are jumping to!
-       * 
-       */
-      BOp(switch_list_nl_prefetch, ollll);
+      BOp(switch_list_nl, ollll);
       ALWAYS_LOOKAHEAD(PREG->u.ollll.pop);
       BEGD(d0);
       d0 = CACHED_A1();
@@ -7214,49 +6419,119 @@ Yap_absmi(int inp)
       }
       ENDBOp();
 
-      BOp(switch_nv_list, lll);
+      BOp(switch_on_arg_type, xllll);
       BEGD(d0);
-      d0 = ARG1;
-      deref_head(d0, swnvl_unk);
-    swnvl_nvar:
+      d0 = XREG(PREG->u.xllll.x);
+      deref_head(d0, arg_swt_unk);
+      /* nonvar */
+    arg_swt_nvar:
       if (IsPairTerm(d0)) {
 	/* pair */
 	SREG = RepPair(d0);
-	PREG = (yamop *) (PREG->u.lll.l1);
+	PREG = PREG->u.xllll.l1;
 	JMPNext();
       }
-      else if (d0 == TermNil) {
-	/* empty list */
-	PREG = (yamop *) (PREG->u.lll.l2);
+      else if (!IsApplTerm(d0)) {
+	/* constant */
+	PREG = PREG->u.xllll.l2;
+	I_R = d0;
 	JMPNext();
       }
       else {
-	/* appl or other constant */
-	if (IsApplTerm(d0)) {
-	  PREG = (yamop *) (PREG->u.lll.l3);
-	  SREG = RepAppl(d0);
-	  JMPNext();
-	} else {
-	  PREG = (yamop *) (PREG->u.lll.l3);
-	  I_R = d0;
-	  JMPNext();
-	}
-      ALWAYS_END_PREFETCH();
+	/* appl */
+	PREG = PREG->u.xllll.l3;
+	SREG = RepAppl(d0);
+	JMPNext();
+      }
 
       BEGP(pt0);
-      deref_body(d0, pt0, swnvl_unk, swnvl_nvar);
-#ifdef DEBUG
-      /* This should never happen */
-      saveregs();
-      Yap_Error(SYSTEM_ERROR, d0, "switch_nv_list has unbound argument");
-      setregs();
+      deref_body(d0, pt0, arg_swt_unk, arg_swt_nvar);
+      /* variable */
+      PREG = PREG->u.xllll.l4;
       JMPNext();
-#endif /* DEBUG */
       ENDP(pt0);
-
       ENDD(d0);
       ENDBOp();
-
+
+      BOp(switch_on_sub_arg_type, sllll);
+      BEGD(d0);
+      d0 = SREG[PREG->u.sllll.s];
+      deref_head(d0, sub_arg_swt_unk);
+      /* nonvar */
+    sub_arg_swt_nvar:
+      if (IsPairTerm(d0)) {
+	/* pair */
+	SREG = RepPair(d0);
+	PREG = PREG->u.sllll.l1;
+	JMPNext();
+      }
+      else if (!IsApplTerm(d0)) {
+	/* constant */
+	PREG = PREG->u.sllll.l2;
+	I_R = d0;
+	JMPNext();
+      }
+      else {
+	/* appl */
+	PREG = PREG->u.sllll.l3;
+	SREG = RepAppl(d0);
+	JMPNext();
+      }
+
+      BEGP(pt0);
+      deref_body(d0, pt0, sub_arg_swt_unk, sub_arg_swt_nvar);
+      /* variable */
+      PREG = PREG->u.sllll.l4;
+      JMPNext();
+      ENDP(pt0);
+      ENDD(d0);
+      ENDBOp();
+
+      BOp(jump_if_var, l);
+      BEGD(d0);
+      d0 = CACHED_A1();
+      deref_head(d0, jump_if_unk);
+      /* non var */
+    jump_if_nonvar:
+      PREG = NEXTOP(PREG, l);
+      JMPNext();
+
+      BEGP(pt0);
+      deref_body(d0, pt0, jump_if_unk, jump_if_nonvar);
+      /* variable */
+      PREG = PREG->u.l.l;
+      ENDP(pt0);
+      JMPNext();
+      ENDD(d0);
+      ENDBOp();
+
+      BOp(if_not_then, cll);
+      BEGD(d0);
+      d0 = CACHED_A1();
+      deref_head(d0, if_n_unk);
+    if_n_nvar:
+      /* not variable */
+      if (d0 == PREG->u.cll.c) {
+	/* equal to test value */
+	PREG = PREG->u.cll.l2;
+	JMPNext();
+      }
+      else {
+	/* different from test value */
+	/* the case to optimise */
+	PREG = PREG->u.cll.l1;
+	JMPNext();
+      }
+
+      BEGP(pt0);
+      deref_body(d0, pt0, if_n_unk, if_n_nvar);
+      ENDP(pt0);
+      /* variable */
+      PREG = PREG->u.cll.l2;
+      JMPNext();
+      ENDD(d0);
+      ENDBOp();
+
 /************************************************************************\
 * 	Indexing on ARG1							*
 \************************************************************************/
@@ -7416,145 +6691,13 @@ Yap_absmi(int inp)
 	else
 	  pt0 += 2;
       }
-      PREG = (yamop *) (PREG->u.sl.l);
+      PREG = PREG->u.sl.l;
       JMPNext();
       ENDP(pt0);
       ENDD(d0);
       ENDD(d1);
       ENDBOp();
 
-/************************************************************************\
-* 	Indexing on the Head of a list					*
-\************************************************************************/
-
-      BOp(switch_on_head, llll);
-      BEGD(d0);
-      BEGP(pt0);
-      pt0 = SREG;
-      d0 = *pt0;
-      deref_head(d0, swh_unk);
-      /* nonvar */
-    swh_nvar:
-      /* advance S if not a list */
-      ++SREG;
-      if (IsPairTerm(d0)) {
-	/* pair */
-	PREG = (yamop *) (PREG->u.llll.l1);
-	/* push: we are entering within a list */
-	SP[-1] = (CELL) SREG;
-	SP[-2] = READ_MODE;
-	SP -= 2;
-	SREG = RepPair(d0);
-	JMPNext();
-      }
-      else if (!IsApplTerm(d0)) {
-	/* constant */
-	PREG = (yamop *) (PREG->u.llll.l2);
-	I_R = d0;
-	JMPNext();
-      }
-      else {
-	/* appl */
-	/* jump */
-	PREG = (yamop *) (PREG->u.llll.l3);
-	/* push: we are entering the compound term */
-	SP[-1] = (CELL) SREG;
-	SP[-2] = READ_MODE;
-	SP -= 2;
-	SREG = RepAppl(d0);
-	JMPNext();
-      }
-
-      derefa_body(d0, pt0, swh_unk, swh_nvar);
-      ENDP(pt0);
-      /* variable */
-      PREG = (yamop *) (PREG->u.llll.l4);
-      JMPNext();
-      ENDD(d0);
-      ENDBOp();
-
-/************************************************************************\
-* Switch for final block, we know the information is in a choicepoint   *
-\************************************************************************/
-      BOp(switch_last, slll);
-      BEGD(d0);
-      d0 = B->cp_a1;
-      deref_head(d0, swl_unk);
-    swl_nvar:
-      if (IsPairTerm(d0)) {
-	/* pair */
-	SREG = RepPair(d0);
-	PREG = (yamop *) (PREG->u.slll.l1);
-	JMPNext();
-      }
-      else if (!IsApplTerm(d0)) {
-	/* constant */
-	PREG = (yamop *) (PREG->u.slll.l2);
-	I_R = d0;
-	JMPNext();
-      }
-      else {
-	/* appl */
-	PREG = (yamop *) (PREG->u.slll.l3);
-	SREG = RepAppl(d0);
-	JMPNext();
-      }
-
-      BEGP(pt0);
-      deref_body(d0, pt0, swl_unk, swl_nvar);
-#ifdef DEBUG
-      /* This should never happen */
-      saveregs();
-      Yap_Error(SYSTEM_ERROR, d0, "switch_last has unbound argument");
-      setregs();
-      JMPNext();
-#endif
-      ENDP(pt0);
-      ENDD(d0);
-      ENDBOp();
-
-      BOp(switch_l_list, slll);
-      BEGD(d0);
-      d0 = B->cp_a1;
-      deref_head(d0, swll_unk);
-    swll_nvar:
-      if (IsPairTerm(d0)) {
-	/* pair */
-	SREG = RepPair(d0);
-	PREG = (yamop *) (PREG->u.slll.l1);
-	JMPNext();
-      }
-      else if (d0 == TermNil) {
-	/* empty list */
-	PREG = (yamop *) (PREG->u.slll.l2);
-	JMPNext();
-      }
-      else {
-	/* anything else */
-	if (IsApplTerm(d0)) {
-	  PREG = (yamop *) (PREG->u.slll.l3);
-	  SREG = RepAppl(d0);
-	  JMPNext();
-	} else {
-	  PREG = (yamop *) (PREG->u.slll.l3);
-	  I_R = d0;
-	  JMPNext();
-	}
-      }
-
-      BEGP(pt0);
-      deref_body(d0, pt0, swll_unk, swll_nvar);
-#ifdef DEBUG
-      /* This should never happen */
-      saveregs();
-      Yap_Error(SYSTEM_ERROR, d0, "switch_l_list has unbound argument");
-      setregs();
-      JMPNext();
-#endif
-      ENDP(pt0);
-      ENDD(d0);
-      ENDBOp();
-
 /************************************************************************\
 *	Basic Primitive Predicates					 *
 \************************************************************************/

@@ -10,7 +10,7 @@
 * File:		Heap.h         						 *
 * mods:									 *
 * comments:	Heap Init Structure					 *
-* version:      $Id: Heap.h,v 1.39 2003-03-20 15:10:16 vsc Exp $	 *
+* version:      $Id: Heap.h,v 1.40 2003-04-30 17:45:53 vsc Exp $	 *
 *************************************************************************/
 
 /* information that can be stored in Code Space */
@@ -58,7 +58,7 @@ typedef struct various_codes {
   yamop tableanswerresolutioncode;
 #endif /* TABLING */
   yamop comma_code[5];
-  OPCODE failcode;
+  yamop failcode[1];
   OPCODE failcode_1;
   OPCODE failcode_2;
   OPCODE failcode_3;
@@ -77,7 +77,7 @@ typedef struct various_codes {
     struct pred_entry *p;
     struct pred_entry *p0;
   } env_for_trustfail_code; /* sla */
-  OPCODE trustfailcode;
+  yamop trustfailcode[1];
   struct {
     OPCODE op;
 #ifdef YAPOR
@@ -90,14 +90,14 @@ typedef struct various_codes {
     struct pred_entry *p;
     struct pred_entry *p0;
   } env_for_yes_code; /* sla */
-  yamop yescode;
-  yamop nocode;
-  yamop rtrycode;
+  yamop yescode[1];
+  yamop nocode[1];
+  yamop rtrycode[1];
   struct {
     OPREG arity;
     struct yami *clause;
     Functor func;
-  } clausecode;
+  } clausecode[1];
   union CONSULT_OBJ *consultsp;
   union CONSULT_OBJ *consultbase;
   union CONSULT_OBJ *consultlow;
@@ -127,7 +127,7 @@ typedef struct various_codes {
   int   compiler_compile_mode;
   struct pred_entry   *compiler_current_pred;
   AtomHashEntry invisiblechain;
-  OPCODE dummycode;
+  OPCODE dummycode[1];
   UInt maxdepth, maxlist;
   int update_mode;
   Atom atprompt;
@@ -159,7 +159,7 @@ typedef struct various_codes {
   Term  module_name[MaxModules];
   struct pred_entry *module_pred[MaxModules];
   SMALLUNSGN   no_of_modules;
-  struct clause_struct *dead_clauses;
+  struct dead_clause *dead_clauses;
   int   primitives_module;
   int   user_module;
   Atom
@@ -314,8 +314,6 @@ typedef struct various_codes {
   struct PSEUDO *compiler_CodeStart;
   struct PSEUDO *compiler_icpc;
   struct PSEUDO *compiler_BlobsStart;
-  int   compiler_clause_mask;
-  CELL  compiler_clause_store;
   int  *compiler_label_offset;
   UInt   i_pred_arity;
   int   compiler_profiling;
@@ -350,14 +348,13 @@ typedef struct various_codes {
 #define  ANSWER_RESOLUTION        ((yamop *)&(heap_regs->tableanswerresolutioncode ))
 #endif /* TABLING */
 #define  COMMA_CODE               heap_regs->comma_code
-#define  FAILCODE                 ((CODEADDR)&(heap_regs->failcode       ))
-#define  FAILCODE                 ((CODEADDR)&(heap_regs->failcode       ))
-#define  TRUSTFAILCODE            ((CODEADDR)&(heap_regs->trustfailcode  ))
-#define  YESCODE                  (&(heap_regs->yescode                  ))
-#define  NOCODE                   (&(heap_regs->nocode                   ))
-#define  RTRYCODE                 (&(heap_regs->rtrycode                 ))
-#define  DUMMYCODE                (&(heap_regs->dummycode                ))
-#define  CLAUSECODE               (&(heap_regs->clausecode               ))
+#define  FAILCODE                 heap_regs->failcode
+#define  TRUSTFAILCODE            heap_regs->trustfailcode
+#define  YESCODE                  heap_regs->yescode
+#define  NOCODE                   heap_regs->nocode
+#define  RTRYCODE                 heap_regs->rtrycode
+#define  DUMMYCODE                heap_regs->dummycode
+#define  CLAUSECODE               heap_regs->clausecode
 #define  INVISIBLECHAIN           heap_regs->invisiblechain
 #define  max_depth                heap_regs->maxdepth
 #define  max_list                 heap_regs->maxlist
@@ -535,8 +532,6 @@ typedef struct various_codes {
 #define  CodeStart                heap_regs->compiler_CodeStart
 #define  icpc                     heap_regs->compiler_icpc
 #define  BlobsStart               heap_regs->compiler_BlobsStart
-#define  clause_mask              heap_regs->compiler_clause_mask
-#define  clause_store             heap_regs->compiler_clause_store
 #define  label_offset             heap_regs->compiler_label_offset
 #define  IPredArity               heap_regs->i_pred_arity
 #define  profiling                heap_regs->compiler_profiling

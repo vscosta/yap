@@ -162,6 +162,7 @@ Inline(IsValProperty, PropFlags, int, flags, (flags == ValProperty) )
 	    CodeOfPred holds the address of the	correspondent C-function.
 */
 typedef enum {
+  InUsePredFlag =    0x4000000L,	/* count calls to pred */
   CountPredFlag =    0x2000000L,	/* count calls to pred */
   HiddenPredFlag =   0x1000000L,	/* invisible predicate */
   CArgsPredFlag =    0x800000L,	/* SWI-like C-interface pred. */
@@ -211,9 +212,10 @@ typedef	struct pred_entry {
   unsigned int  ArityOfPE;	/* arity of property		    	*/
   union 	{
     struct {
-       struct yami   *TrueCodeOfPred;	/* code address		    		*/
-       struct yami   *FirstClause;
-       struct yami   *LastClause;
+      struct yami   *TrueCodeOfPred;	/* code address		    		*/
+      struct yami   *FirstClause;
+      struct yami   *LastClause;
+      UInt 	      NOfClauses;
     } p_code;
     CPredicate    f_code;
     CmpPredicate  d_code;
@@ -229,7 +231,6 @@ typedef	struct pred_entry {
 #endif /* TABLING */
   SMALLUNSGN	ModuleOfPred;	/* module for this definition		*/
   profile_data  StatisticsForPred; /* enable profiling for predicate  */
-  SMALLUNSGN	StateOfPred;	/* actual state of predicate 		*/
 } PredEntry;
 #define PEProp   ((PropFlags)(0x0000))
 
@@ -255,8 +256,7 @@ typedef enum {
   DBClMask      =  0x0800, /* informs this is a data base structure */
   LogUpdRuleMask=  0x0400, /* informs the code is for a log upd rule with env */
   LogUpdMask    =  0x0200, /* informs this is a logic update index. */
-  StaticMask    =  0x0100, /* dealing with static predicates */
-  SpiedMask     =  0x0080  /* this predicate is being spied */
+  StaticMask    =  0x0100  /* dealing with static predicates */
 /* other flags belong to DB */
 } dbentry_flags;
 
@@ -289,7 +289,7 @@ typedef struct DB_STRUCT {
   Term Contents[MIN_ARRAY]; /* stored term	       		*/
 } DBStruct;
 
-#define DBStructFlagsToDBStruct(X) ((DBRef)((X) - (CELL) &(((DBRef) NIL)->Flags)))
+#define DBStructFlagsToDBStruct(X) ((DBRef)((char *)(X) - (CELL) &(((DBRef) NIL)->Flags)))
 
 #if defined(YAPOR) || defined(THREADS)
 #define INIT_DBREF_COUNT(X) (X)->ref_count = 0

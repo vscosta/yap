@@ -36,9 +36,7 @@ STATIC_PROTO(void c_eq, (Term, Term));
 STATIC_PROTO(void c_test, (Int, Term));
 STATIC_PROTO(void c_bifun, (Int, Term, Term, Term, int));
 STATIC_PROTO(void c_goal, (Term, int));
-STATIC_PROTO(void get_type_info, (Term));
 STATIC_PROTO(void c_body, (Term, int));
-STATIC_PROTO(void get_cl_info, (Term));
 STATIC_PROTO(void c_head, (Term));
 STATIC_PROTO(int usesvar, (int));
 STATIC_PROTO(CELL *init_bvarray, (int));
@@ -1679,41 +1677,11 @@ c_goal(Term Goal, int mod)
 }
 
 static void
-get_type_info(Term Goal)
-{
-  if (IsNonVarTerm(Goal) && IsApplTerm(Goal)) {
-    if (clause_mask == VarCl &&
-	ArgOfTerm(1, Goal) == (Term) clause_store) {
-      if (FunctorOfTerm(Goal) == FunctorGVar)
-	clause_mask |= FIsVar;
-      else if (FunctorOfTerm(Goal) == FunctorGAtom)
-	clause_mask |= AtCl | FIsAtom;
-      else if (FunctorOfTerm(Goal) == FunctorGInteger)
-	clause_mask |= AtCl | FIsNum;
-      /*
-       * vsc: with the new scheme floats are structs, so
-       * the simple index switch cannot differentiate them
-       * from structs:
-       * else if (FunctorOfTerm(Goal) == FunctorGAtomic ||
-       * FunctorOfTerm(Goal) == FunctorGPrimitive)
-       * clause_mask |= AtCl|FIsNum;
-       */
-    }
-  }
-}
-
-static void
 c_body(Term Body, int mod)
 {
   onhead = FALSE;
   BodyStart = cpc;
   goalno = 1;
-  if (IsNonVarTerm(Body) && IsApplTerm(Body)) {
-    if (FunctorOfTerm(Body) == FunctorComma)
-      get_type_info(ArgOfTerm(1, Body));
-    else
-      get_type_info(Body);
-  }
   while (IsNonVarTerm(Body) && IsApplTerm(Body)
 	 && FunctorOfTerm(Body) == FunctorComma) {
     Term t2 = ArgOfTerm(2, Body);
@@ -1729,42 +1697,6 @@ c_body(Term Body, int mod)
   }
   onlast = TRUE;
   c_goal(Body, mod);
-}
-
-static void
-get_cl_info(register Term t)
-{
-  if (IsVarTerm(t)) {
-    clause_mask = VarCl;
-    clause_store = (CELL) t;
-  }
-  else if (IsPairTerm(t)) {
-    clause_mask = ListCl;
-    t = HeadOfTerm(t);
-    if (IsVarTerm(t))
-      clause_mask |= FHeadVar;
-    else if (IsPairTerm(t))
-      clause_mask |= FHeadList;
-    else if (IsApplTerm(t)) {
-      clause_store = (CELL) FunctorOfTerm(t);
-      clause_mask |= FHeadAppl;
-    }
-    else {
-      clause_store = (CELL) t;
-      clause_mask |= FHeadCons;
-    }
-  }
-  else if (IsApplTerm(t)) {
-    Functor fun = FunctorOfTerm(t);
-    if (!IsExtensionFunctor(fun)) {
-      clause_mask = (CELL)ApplCl;
-      clause_store = (CELL)fun;
-    }
-  }
-  else {
-    clause_store = (CELL) t;
-    clause_mask = AtCl;
-  }
 }
 
 static void
@@ -1784,7 +1716,6 @@ c_head(Term t)
   f = FunctorOfTerm(t);
   Yap_emit(name_op, (CELL) NameOfFunctor(f), ArityOfFunctor(f));
   c_args(t, 0);
-  get_cl_info(ArgOfTerm(1, t));
 }
 
 /* number of permanent variables in the clause */
@@ -2793,7 +2724,6 @@ Yap_cclause(Term inp_clause, int NOfArgs, int mod)
     return (0);
   }
   SaveH = H;
-  clause_mask = 0;
   or_found = 0;
   Yap_ErrorMessage = NULL;
   /* initialize variables for code generation                              */

@@ -400,8 +400,8 @@ Yap_NewPredPropByFunctor(FunctorEntry *fe, SMALLUNSGN cur_mod)
   p->KindOfPE = PEProp;
   p->ArityOfPE = fe->ArityOfFE;
   p->cs.p_code.FirstClause = p->cs.p_code.LastClause = NULL;
+  p->cs.p_code.NOfClauses = 0;
   p->PredFlags = 0L;
-  p->StateOfPred = 0;
   p->OwnerFile = AtomNil;
   p->OpcodeOfPred = UNDEF_OPCODE;
   p->CodeOfPred = p->cs.p_code.TrueCodeOfPred = (yamop *)(&(p->OpcodeOfPred)); 
@@ -435,8 +435,8 @@ Yap_NewPredPropByAtom(AtomEntry *ae, SMALLUNSGN cur_mod)
   p->KindOfPE = PEProp;
   p->ArityOfPE = 0;
   p->cs.p_code.FirstClause = p->cs.p_code.LastClause = NULL;
+  p->cs.p_code.NOfClauses = 0;
   p->PredFlags = 0L;
-  p->StateOfPred = 0;
   p->OwnerFile = AtomNil;
   p->OpcodeOfPred = UNDEF_OPCODE;
   p->CodeOfPred = p->cs.p_code.TrueCodeOfPred = (yamop *)(&(p->OpcodeOfPred)); 

@@ -143,16 +143,16 @@ CallClause(PredEntry *pen, Int position)
       CLAUSECODE->arity = pen->ArityOfPE;
       CLAUSECODE->func = pen->FunctorOfPred;
       while (position > 1) {
-	while (ClauseCodeToClause(q)->ClFlags & ErasedMask)
+	while (ClauseCodeToDynamicClause(q)->ClFlags & ErasedMask)
 	  q = NextClause(q);
 	position--;
 	q = NextClause(q);
       }
-      while (ClauseCodeToClause(q)->ClFlags & ErasedMask)
+      while (ClauseCodeToDynamicClause(q)->ClFlags & ErasedMask)
 	q = NextClause(q);
 #if defined(YAPOR) || defined(THREADS)
       {
-	Clause *cl = ClauseCodeToClause(q);
+	DynamicClause *cl = ClauseCodeToDynamicClause(q);
 	
 	LOCK(cl->ClLock);
 	TRAIL_CLREF(cl);
@@ -160,9 +160,9 @@ CallClause(PredEntry *pen, Int position)
 	UNLOCK(cl->ClLock);
       }
 #else 
-      if (!(ClauseCodeToClause(q)->ClFlags & InUseMask)) {
-	CELL     *opp = &(ClauseCodeToClause(q)->ClFlags);
-	TRAIL_CLREF(ClauseCodeToClause(q));
+      if (!(ClauseCodeToDynamicClause(q)->ClFlags & InUseMask)) {
+	CELL     *opp = &(ClauseCodeToDynamicClause(q)->ClFlags);
+	TRAIL_CLREF(ClauseCodeToDynamicClause(q));
 	*opp |= InUseMask;
       }
 #endif
