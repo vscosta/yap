@@ -223,7 +223,7 @@ min_of_heap(t(_,_,t(Key1,Datum1,Lson,Rson)), Key1, Datum1, Key2, Datum2) :-
 	min_of_heap(Lson, Rson, Key2, Datum2).
 
 
-min_of_heap(t(Ka,Da,_,_), t(Kb,Db,_,_), Kb, Db) :-
+min_of_heap(t(Ka,_Da,_,_), t(Kb,Db,_,_), Kb, Db) :-
 	Kb @< Ka, !.
 min_of_heap(t(Ka,Da,_,_), _, Ka, Da).
 min_of_heap(t, t(Kb,Db,_,_), Kb, Db).

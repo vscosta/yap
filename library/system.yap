@@ -289,7 +289,7 @@ win_popen(0, Command, ForReading, Result) :-
 	exec_command(Command, 0, ForWriting, 2, _, Result),
 	close(ForWriting).
 win_popen(1, Command, ForWriting, Result) :-
-	open_pipe_streams(Stream, ForWriting),
+	open_pipe_streams(ForReading, ForWriting),
 	exec_command(Command, ForReading, 1, 2, _, Result),
 	close(ForReading).
 	
@@ -358,7 +358,7 @@ get_shell0(Shell) :-
 	getenv('SHELL', Shell), !.
 get_shell0(Shell) :-
 	win, !,
-	getenv('COMSPEC', Shell0).
+	getenv('COMSPEC', Shell).
 get_shell0('/bin/sh').
 
 get_shell(Shell) :-
