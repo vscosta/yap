@@ -301,6 +301,11 @@ p_execute_within(void)
   Prop            pe;
   Atom            a;
   SMALLUNSGN      mod = LookupModule(tmod);
+#ifdef SBA
+  choiceptr cut_pt = (choiceptr)IntegerOfTerm(Deref(ARG2));
+#else
+  choiceptr cut_pt = (choiceptr)(LCL0-IntegerOfTerm(Deref(ARG2)));
+#endif
 
  restart_exec:
   if (yap_flags[SPY_CREEP_FLAG]) {
@@ -355,7 +360,7 @@ p_execute_within(void)
 	XREGS[i] = *pt++;
 #endif
       }
-      return (CallPredicate(pen, B));
+      return (CallPredicate(pen, cut_pt));
     }
   } else if (IsAtomOrIntTerm(t)) {
     if (IsIntTerm(t)) {
@@ -365,24 +370,19 @@ p_execute_within(void)
     if (a == AtomTrue || a == AtomOtherwise)
       return(TRUE);
     else if (a == AtomCut) {
-#ifdef SBA
-      choiceptr pt0 = (choiceptr)IntegerOfTerm(Deref(ARG2));
-#else
-      choiceptr pt0 = (choiceptr)(LCL0-IntegerOfTerm(Deref(ARG2)));
-#endif
-      if (TopB != NULL && YOUNGER_CP(TopB,pt0)) {  
-	pt0 = TopB;
-	if (DelayedB == NULL || YOUNGER_CP(pt0,DelayedB))
-	  DelayedB = pt0;
+      if (TopB != NULL && YOUNGER_CP(TopB,cut_pt)) {  
+	cut_pt = TopB;
+	if (DelayedB == NULL || YOUNGER_CP(cut_pt,DelayedB))
+	  DelayedB = cut_pt;
       }
       /* find where to cut to */
-      if (SHOULD_CUT_UP_TO(B,pt0)) {
+      if (SHOULD_CUT_UP_TO(B,cut_pt)) {
 #ifdef YAPOR
 	/* Wow, we're gonna cut!!! */
-	CUT_prune_to(pt0);
+	CUT_prune_to(cut_pt);
 #else
 	/* Wow, we're gonna cut!!! */
-	B = pt0;
+	B = cut_pt;
 #endif /* YAPOR */
 	HB = PROTECT_FROZEN_H(B);
       }
@@ -392,7 +392,7 @@ p_execute_within(void)
     } else {
       /* call may not define new system predicates!! */
       pe = PredPropByAtom(a, mod);
-      return (CallPredicate(RepPredProp(pe), B));
+      return (CallPredicate(RepPredProp(pe), cut_pt));
     }
   } else {
     /* Is Pair Term */
