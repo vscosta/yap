@@ -45,6 +45,9 @@ AC_ARG_ENABLE(pthread-locking,
 AC_ARG_ENABLE(max-performance,
 	[ --enable-max-performance   try using the best flags for specific architecture ],
 	maxperformance="$enableval", maxperformance=no)
+AC_ARG_ENABLE(max-memory,
+	[ --enable-max-memory     try using the best flags for using the memory to the most ],
+	maxmemory="$enableval", maxmemory=no)
 AC_ARG_ENABLE(debug-yap,
 	[ --enable-debug-yap         enable C-debugging for YAP ],
 	debugyap="$enableval", debugyap=no)
@@ -1062,6 +1065,13 @@ dnl disable smart memory management
 if test "$use_malloc" = yes 
 then
 AC_DEFINE(USE_MALLOC,1)
+AC_DEFINE(GC_NO_TAGS,1)
+fi
+
+dnl disable smart memory management
+if test "$maxmemory" = yes 
+then
+AC_DEFINE(GC_NO_TAGS,1)
 fi
 
 mkdir -p  library/mpi

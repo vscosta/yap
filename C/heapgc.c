@@ -32,11 +32,6 @@ static char     SccsId[] = "%W% %G%";
 
 /* global variables for garbage collection */
 
-#ifndef DEBUG
-static
-#endif
-static Int      Tot_Gc_Recovered = 0; /* number of heap objects in all garbage collections */
-
 /* in a single gc */
 static unsigned long int   total_marked;	/* number of heap objects marked */
 
@@ -3449,7 +3444,7 @@ do_gc(Int predarity, CELL *current_env, yamop *nextop)
   }
   gc_time += (c_time-time_start);
   TotGcTime += gc_time;
-  Tot_Gc_Recovered += heap_cells-total_marked;
+  TotGcRecovered += heap_cells-total_marked;
   if (gc_verbose) {
     fprintf(Yap_stderr, "%% GC %d took %g sec, total of %g sec doing GC so far.\n", GcCalls, (double)gc_time/1000, (double)TotGcTime/1000);
     fprintf(Yap_stderr, "%%  Left %ld cells free in stacks.\n",
@@ -3494,7 +3489,7 @@ p_inform_gc(void)
 {
   Term tn = MkIntegerTerm(TotGcTime);
   Term tt = MkIntegerTerm(GcCalls);
-  Term ts = MkIntegerTerm((Tot_Gc_Recovered*sizeof(CELL)));
+  Term ts = MkIntegerTerm((TotGcRecovered*sizeof(CELL)));
  
   return(Yap_unify(tn, ARG2) && Yap_unify(tt, ARG1) && Yap_unify(ts, ARG3));
 

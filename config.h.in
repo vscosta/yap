@@ -287,3 +287,6 @@
 #undef HAVE_GCC
 #endif
 #endif
+
+#undef GC_NO_TAGS
+
