@@ -457,7 +457,7 @@ get_num(int *chp, int *chbuffp, int inp_stream, int (*Nxtch) (int), int (*Quoted
     if (ch - '0' >= base)
       return (MkIntegerTerm(val));
     val = val * base + ch - '0';
-    if (oval >= val && oval != 0) /* overflow */
+    if (val/base != oval || val -oval*base != ch-'0') /* overflow */
       has_overflow = (has_overflow || TRUE);
     ch = Nxtch(inp_stream);
   }

@@ -134,15 +134,6 @@ restore_codes(void)
     heap_regs->dead_clauses = (Clause *)
       AddrAdjust((ADDR)(heap_regs->dead_clauses));
   }
-  /* vsc: FIXME !!!!! */
-  if (heap_regs->db_queues != NULL) {
-    heap_regs->db_queues = (struct idb_queue *)
-      AddrAdjust((ADDR)(heap_regs->db_queues));
-  }
-  if (heap_regs->db_queues_cache != NULL) {
-    heap_regs->db_queues_cache = (struct idb_queue *)
-      AddrAdjust((ADDR)(heap_regs->db_queues_cache));
-  }
   heap_regs->retry_recorded_code = 
     PtoOpAdjust(heap_regs->retry_recorded_code);
   heap_regs->retry_recorded_k_code =

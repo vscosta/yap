@@ -113,8 +113,6 @@ typedef struct idb_queue
   rwlock_t    QRWLock;         /* a simple lock to protect this entry */
 #endif
   DBRef FirstInQueue, LastInQueue;
-  Int age;        /* the number of catches when we created the queue */
-  struct idb_queue *next, *prev;
 }  db_queue;
 
 #define HashFieldMask		((CELL)0xffL)
@@ -4287,24 +4285,15 @@ p_init_queue(void)
   db_queue *dbq;
   Term t;
 
-  if (DBQueuesCache) {
-    dbq = DBQueuesCache;
-    DBQueuesCache = dbq->next;
-  } else {
-    while ((dbq = (db_queue *)AllocDBSpace(sizeof(db_queue))) == NULL) {
-      if (!Yap_growheap(FALSE)) {
-	Yap_Error(SYSTEM_ERROR, TermNil, Yap_ErrorMessage);
-	return(FALSE);
-      }
+  while ((dbq = (db_queue *)AllocDBSpace(sizeof(db_queue))) == NULL) {
+    if (!Yap_growheap(FALSE)) {
+      Yap_Error(SYSTEM_ERROR, TermNil, Yap_ErrorMessage);
+      return(FALSE);
     }
-    dbq->id = FunctorDBRef;
-    dbq->Flags = DBClMask;
-    dbq->FirstInQueue = dbq->LastInQueue = NULL;
-    dbq->prev = NULL;
   }
-  dbq->next = DBQueues;
-  DBQueues = dbq;
-  dbq->age = IntOfTerm(Yap_GetValue(AtomCatch));
+  dbq->id = FunctorDBRef;
+  dbq->Flags = DBClMask;
+  dbq->FirstInQueue = dbq->LastInQueue = NULL;
   INIT_RWLOCK(dbq->QRWLock);
   t = MkDBRefTerm((DBRef)dbq);
   return(Yap_unify(ARG1, t));
@@ -4388,15 +4377,8 @@ p_dequeue(void)
   WRITE_LOCK(father_key->QRWLock);
   if ((cur_instance = father_key->FirstInQueue) == NULL) {
     /* an empty queue automatically goes away */
-    if (father_key == DBQueues)
-      DBQueues = father_key->next;
-    else 
-      father_key->prev->next = father_key->next;
-    if (father_key->next != NULL)
-      father_key->next->prev = father_key->prev;
-    father_key->next = DBQueuesCache;
-    DBQueuesCache = father_key;
     WRITE_UNLOCK(father_key->QRWLock);
+    FreeDBSpace((char *)father_key);
     return(FALSE);
   } else {
     Term TDB;
@@ -4418,30 +4400,6 @@ p_dequeue(void)
 static Int
 p_clean_queues(void)
 {
-  Int myage = IntOfTerm(ARG1);
-  db_queue *ptr;
-  YAPEnterCriticalSection();
-  ptr = DBQueues;
-  while (ptr) {
-    if (ptr->age >= myage) {
-      DBRef cur_instance;
-      db_queue *optr = ptr;
-
-      while ((cur_instance = ptr->FirstInQueue)) {
-	/* release space for cur_instance */
-	ptr->FirstInQueue = (DBRef)(cur_instance->Parent);	
-	ErasePendingRefs(cur_instance);
-	FreeDBSpace((char *) cur_instance);
-      }
-      ptr = ptr->next;
-      FreeDBSpace((char *) optr);
-    } else
-      break;
-  }
-  if (ptr)
-    ptr->prev = NULL;
-  DBQueues = ptr;
-  YAPLeaveCriticalSection();
   return(TRUE);
 }
 

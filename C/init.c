@@ -794,8 +794,6 @@ InitCodes(void)
   */
   heap_regs->primitives_module = 0;
   heap_regs->user_module = 1;
-  heap_regs->db_queues = NULL;
-  heap_regs->db_queues_cache = NULL;
   heap_regs->atom_abol = Yap_LookupAtom("$abol");
   AtomAltNot = Yap_LookupAtom("not");
   heap_regs->atom_append = Yap_LookupAtom ("append");

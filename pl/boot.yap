@@ -97,6 +97,7 @@ read_sig.
 		    true
 		)
 	    ),
+	    '$db_clean_queues'(0),
 	    '$startup_reconsult',
 	    '$startup_goals'
 	;
@@ -515,7 +516,6 @@ repeat :- '$repeat'.
         '$flush_all_streams',
 	fail.
 '$present_answer'((?-), Answ) :-
-	'$format'(user_error,"~n", []),
 	'$get_value'('$break',BL),
 	( BL \= 0 -> 	'$format'(user_error, "[~p] ",[BL]) ;
 			true ),
@@ -528,14 +528,24 @@ repeat :- '$repeat'.
 '$another' :-
 	'$format'(user_error," ? ",[]),
 	'$get0'(user_input,C),
-	(   C== 0'; ->  '$skip'(user_input,10), fail
+	(   C== 0'; ->  '$skip'(user_input,10),
+	    '$add_nl_outside_console',
+	    fail
 	;
-	    C== 10 -> '$format'(user_error,"~n", [])
+	    C== 10 -> '$add_nl_outside_console',
+		'$format'(user_error,"yes~n", [])
 	;
 	    C== -1 -> halt
 	;
 	    '$skip'(user_input,10), '$ask_again_for_another'
 	).
+
+'$add_nl_outside_console' :-
+	'$is_same_tty'(user_input, user_error), !.
+'$add_nl_outside_console' :-
+	'$format'(user_error,"~n",[]).
+	
+	
 
 '$ask_again_for_another' :-
 	'$format'(user_error,"Action (\";\" for more choices, <return> for exit)", []),
@@ -545,7 +555,8 @@ repeat :- '$repeat'.
         '$flush_all_streams',
 	fail.
 '$write_answer'(Vs, LBlk, LAnsw) :-
-	'$purge_dontcares'(Vs,NVs),
+	'$purge_dontcares'(Vs,IVs),
+	'$sort'(IVs, NVs),
 	'$prep_answer_var_by_var'(NVs, LAnsw, LBlk),
 	'$name_vars_in_goals'(LAnsw, Vs, NLAnsw),
         '$write_vars_and_goals'(NLAnsw).
@@ -594,24 +605,22 @@ repeat :- '$repeat'.
 
 '$write_remaining_vars_and_goals'([]).
 '$write_remaining_vars_and_goals'([G1|LG]) :-
-	'$format'(user_error,",",[]),
+	'$format'(user_error,",~n",[]),
 	'$write_goal_output'(G1),
 	'$write_remaining_vars_and_goals'(LG).
 
 '$write_goal_output'(var([V|VL])) :-
-	'$format'(user_error,"~n~s",[V]),
+	'$format'(user_error,"~s",[V]),
 	'$write_output_vars'(VL).
 '$write_goal_output'(nonvar([V|VL],B)) :-
-	'$format'(user_error,"~n~s",[V]),
+	'$format'(user_error,"~s",[V]),
 	'$write_output_vars'(VL),
 	'$format'(user_error," = ", []),
         ( '$recorded'('$print_options','$toplevel'(Opts),_) ->
 	   write_term(user_error,B,Opts) ;
 	   '$format'(user_error,"~w",[B])
         ).
-	
 '$write_goal_output'(_-G) :-
-	'$format'(user_error,"~n",[]),
         ( '$recorded'('$print_options','$toplevel'(Opts),_) ->
 	   write_term(user_error,G,Opts) ;
 	   '$format'(user_error,"~w",[G])

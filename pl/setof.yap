@@ -53,9 +53,12 @@ findall(Template, Generator, Answers, SoFar) :-
 '$findall'(_, _, Ref, SoFar, Answers) :-
 	'$collect_for_findall'(Ref, SoFar, Answers).
 
-'$clean_findall'(Ref,_) :-
-	'$db_dequeue'(Ref,_),
-	fail.
+% error handling: be careful to recover all the space we used up
+% in implementing findall.
+%
+'$clean_findall'(Ref,Ball) :-
+	'$db_dequeue'(Ref,_), !,
+	'$clean_findall'(Ref,Ball).
 '$clean_findall'(_,Ball) :-
 	% get this off the unwound computation.
 	copy_term(Ball,NewBall),

@@ -313,7 +313,7 @@ p_fdiv(Term t1, Term t2 E_ARGS)
       {
 	Int i1 = IntegerOfTerm(t1);
 	Float f2 = mpz_get_d(Yap_BigIntOfTerm(t2));
-	RFLOAT(i1/f2);
+	RFLOAT(((Float)i1/f2));
       }
 #endif
     default:

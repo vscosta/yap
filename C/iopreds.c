@@ -789,6 +789,18 @@ p_setprompt (void)
 }
 
 static Int
+p_is_same_tty (void)
+{				/* 'prompt(Atom)                 */
+  int sni = CheckStream (ARG1, Input_Stream_f, "put/2");
+  int sno = CheckStream (ARG2, Output_Stream_f, "put/2");
+  return (
+	  (Stream[sni].status & Tty_Stream_f) &&
+	  (Stream[sno].status & Tty_Stream_f) &&
+	  is_same_tty(Stream[sno].u.file.file,Stream[sni].u.file.file)
+	  );
+}
+
+static Int
 p_prompt (void)
 {				/* prompt(Old,New)       */
   Term t = Deref (ARG2);
@@ -5071,6 +5083,7 @@ Yap_InitIOPreds(void)
   Yap_InitCPred ("current_input", 1, p_current_input, SafePredFlag|SyncPredFlag);
   Yap_InitCPred ("current_output", 1, p_current_output, SafePredFlag|SyncPredFlag);
   Yap_InitCPred ("prompt", 1, p_setprompt, SafePredFlag|SyncPredFlag);
+  Yap_InitCPred ("$is_same_tty", 2, p_is_same_tty, SafePredFlag|SyncPredFlag);
   Yap_InitCPred ("prompt", 2, p_prompt, SafePredFlag|SyncPredFlag);
   Yap_InitCPred ("always_prompt_user", 0, p_always_prompt_user, SafePredFlag|SyncPredFlag);
   Yap_InitCPred ("write_depth", 2, p_write_depth, SafePredFlag|SyncPredFlag);
