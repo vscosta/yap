@@ -2797,7 +2797,7 @@ do_consts(GroupDef *grp, Term t, PredEntry *ap, int compound_term, CELL *sreg, U
   n = count_consts(grp);
   lbl = new_label();
   Yap_emit(label_op, lbl, Zero);
-  cs = emit_cswitch(n, nxtlbl, ap);
+  cs = emit_cswitch(n, (UInt)FAILCODE, ap);
   for (i = 0; i < n; i++) {
     AtomSwiEntry *ics;
     ClauseDef *max = min;
@@ -2866,7 +2866,7 @@ do_funcs(GroupDef *grp, Term t, PredEntry *ap, UInt argno, int first, int last_a
   lbl = new_label();
   Yap_emit(label_op, lbl, Zero);
   /* generate a switch */
-  fs = emit_fswitch(n, nxtlbl, ap);
+  fs = emit_fswitch(n, (UInt)FAILCODE, ap);
   for (i = 0; i < n ; i++) {
     Functor f = (Functor)RepAppl(min->Tag);
     FuncSwiEntry *ifs;
@@ -3732,7 +3732,7 @@ expand_index(PredEntry *ap) {
   /* this is will be used as a new PC */
   CELL *top = (CELL *) TR;
   UInt arity = 0;
-  UInt lab, fail_l, clleft, arg0 = 0;
+  UInt lab, fail_l, clleft, i = 0;
 
   sp = stack = (istack_entry *)top;
   labelno = 1;
@@ -3842,9 +3842,9 @@ expand_index(PredEntry *ap) {
     case _switch_on_type:
       t = Deref(ARG1);
       argno = 1;
+      i = 0;
       sp = reset_stack(stack);
       if (IsVarTerm(t)) {
-	arg0 = 1;
 	labp = &(ipc->u.llll.l4);
 	ipc = ipc->u.llll.l4;
       } else if (IsPairTerm(t)) {
@@ -3856,7 +3856,6 @@ expand_index(PredEntry *ap) {
 	sp = push_stack(sp, 1, AbsAppl((CELL *)FunctorOfTerm(t)));
 	ipc = ipc->u.llll.l3;	
       } else {
-	arg0 = 1;
 	ipc = ipc->u.llll.l2;	
       }
       break;
@@ -3864,8 +3863,8 @@ expand_index(PredEntry *ap) {
       t = Deref(ARG1);
       sp = reset_stack(stack);
       argno = 1;
+      i = 0;
       if (IsVarTerm(t)) {	
-	arg0 = 1;
 	labp = &(ipc->u.ollll.l4);
 	ipc = ipc->u.ollll.l4;
       } else if (IsPairTerm(t)) {
@@ -3877,15 +3876,14 @@ expand_index(PredEntry *ap) {
 	sp = push_stack(sp, 1, AbsAppl((CELL *)FunctorOfTerm(t)));
 	ipc = ipc->u.ollll.l3;	
       } else {
-	arg0 = 1;
 	ipc = ipc->u.ollll.l2;	
       }
       break;
     case _switch_on_arg_type:
       argno = arg_from_x(ipc->u.xllll.x);
+      i = 0;
       t = Deref(XREGS[argno]);
       if (IsVarTerm(t)) {
-	arg0 = 1;
 	labp = &(ipc->u.xllll.l4);
 	ipc = ipc->u.xllll.l4;
       } else if (IsPairTerm(t)) {
@@ -3897,33 +3895,29 @@ expand_index(PredEntry *ap) {
 	sp = push_stack(sp, argno, AbsAppl((CELL *)FunctorOfTerm(t)));
 	ipc = ipc->u.xllll.l3;	
       } else {
-	arg0 = argno;
 	ipc = ipc->u.xllll.l2;	
       }
       break;
     case _switch_on_sub_arg_type:
-      {
-	COUNT argno = ipc->u.sllll.s;
-
-	t = Deref(s_reg[ipc->u.sllll.s]);
-	if (argno != arity-1) is_last_arg = FALSE;
-	t = Deref(s_reg[argno]);
-	if (IsVarTerm(t)) {
-	  arg0 = argno+1;
-	  labp = &(ipc->u.sllll.l4);
-	  ipc = ipc->u.sllll.l4;
-	} else if (IsPairTerm(t)) {
-	  s_reg = RepPair(t);
-	  sp = push_stack(sp, -argno-1, AbsPair(NULL));
-	  labp = &(ipc->u.sllll.l1);
-	  ipc = ipc->u.sllll.l1;
-	} else if (IsApplTerm(t)) {
-	  sp = push_stack(sp, -argno-1, AbsAppl((CELL *)FunctorOfTerm(t)));
-	  ipc = ipc->u.sllll.l3;	
-	} else {
-	  arg0 = argno+1;
-	  ipc = ipc->u.sllll.l2;	
-	}
+      i = ipc->u.sllll.s;
+      t = Deref(s_reg[i]);
+      if (i != arity-1) is_last_arg = FALSE;
+      t = Deref(s_reg[i]);
+      if (IsVarTerm(t)) {
+	labp = &(ipc->u.sllll.l4);
+	ipc = ipc->u.sllll.l4;
+	i++;
+      } else if (IsPairTerm(t)) {
+	s_reg = RepPair(t);
+	sp = push_stack(sp, -i-1, AbsPair(NULL));
+	labp = &(ipc->u.sllll.l1);
+	ipc = ipc->u.sllll.l1;
+      } else if (IsApplTerm(t)) {
+	sp = push_stack(sp, -i-1, AbsAppl((CELL *)FunctorOfTerm(t)));
+	ipc = ipc->u.sllll.l3;	
+      } else {
+	ipc = ipc->u.sllll.l2;	
+	i++;
       }
       break;
     case _if_not_then:
@@ -3987,17 +3981,12 @@ expand_index(PredEntry *ap) {
       }
       break;
     case _expand_index:
-      if (alt != NULL) {
-	if (ap->PredFlags & LogUpdatePredFlag) {
-	  op_numbers fop = Yap_op_from_opcode(alt->opc);
-	  if (fop == _enter_lu_pred) 
-	    alt = alt->u.Ill.l1;
-	  if (fop == _trust_logical_pred) 
-	    alt = NEXTOP(alt,l);
-	  first = alt->u.ld.d;
-	} else {
-	  first = PREVOP(alt->u.ld.d,ld);
-	}
+      if (alt != NULL && ap->PredFlags & LogUpdatePredFlag) {
+	op_numbers fop = Yap_op_from_opcode(alt->opc);
+	if (fop == _enter_lu_pred) 
+	  alt = alt->u.Ill.l1;
+	if (fop == _trust_logical_pred) 
+	  alt = NEXTOP(alt,l);
       }
       ipc = NULL;
       break;
@@ -4045,6 +4034,8 @@ expand_index(PredEntry *ap) {
   } else {
     max = install_clauses(cls, ap, stack, first, last);
   }
+  /* don't count last clause if you don't have to */
+  if (alt && max->Code == last) max--;
   if (max < cls && labp != NULL) {
     *labp = FAILCODE;
     return labp;
@@ -4055,7 +4046,7 @@ expand_index(PredEntry *ap) {
       !IsVarTerm(sp[-1].val) &&
       IsAtomOrIntTerm(sp[-1].val)) {
     /* if an atom or int continue from where we stopped */
-    arg0 = -sp[-1].pos;
+    i = -sp[-1].pos;
     sp[-1].pos = 0;
     sp--;
     /* we have to put the right masks now */
@@ -4069,7 +4060,7 @@ expand_index(PredEntry *ap) {
   CodeStart = cpc = NULL;
   
   if (!IsVarTerm(sp[-1].val) && IsPairTerm(sp[-1].val) && sp > stack) {
-    lab = do_compound_index(cls, max, s_reg, ap, arg0, 2, argno+1, fail_l, isfirstcl, is_last_arg, clleft, top);
+    lab = do_compound_index(cls, max, s_reg, ap, i, 2, argno+1, fail_l, isfirstcl, is_last_arg, clleft, top);
   } else if (!IsVarTerm(sp[-1].val) && IsApplTerm(sp[-1].val) && sp > stack) {
     /* we are continuing within a compound term */
     Functor f = (Functor)RepAppl(sp[-1].val);
@@ -4079,7 +4070,7 @@ expand_index(PredEntry *ap) {
       else
 	lab = do_blob_index(cls, max, t, ap, argno, fail_l, isfirstcl, clleft, top);
     } else {
-      lab = do_compound_index(cls, max, s_reg, ap, arg0, ArityOfFunctor(f), argno, fail_l, isfirstcl, is_last_arg, clleft, top);
+      lab = do_compound_index(cls, max, s_reg, ap, i, ArityOfFunctor(f), argno, fail_l, isfirstcl, is_last_arg, clleft, top);
     }
   } else {
     if (argno == ap->ArityOfPE) {
@@ -4161,6 +4152,8 @@ ExpandIndex(PredEntry *ap) {
 #endif
   if ((labp = expand_index(ap)) == NULL)
     return NULL;
+  if (*labp == FAILCODE)
+    return FAILCODE;
 #ifdef DEBUG
   if (Yap_Option['i' - 'a' + 1]) {
     Yap_ShowCode();
@@ -5979,6 +5972,8 @@ lu_clause(yamop *ipc)
   LogUpdClause *c;
   CELL *p = (CELL *)ipc;
 
+  if (ipc == FAILCODE)
+    return NULL;
   while ((c = ClauseCodeToLogUpdClause(p))->Id != FunctorDBRef ||
 	 !(c->ClFlags & LogUpdMask) ||
 	 (c->ClFlags & (IndexMask|DynamicMask|SwitchTableMask|SwitchRootMask))) {
@@ -6047,14 +6042,14 @@ Yap_follow_lu_indexing_code(PredEntry *ap, yamop *ipc, Term t1, Term tb, Term tr
 
     switch(op) {
     case _try_in:
+      update_clause_choice_point(NEXTOP(ipc,l), ap_pc);
       ipc = ipc->u.l.l;
-      B->cp_ap = NEXTOP(ipc,ld);
       break;
     case _try_clause:
       if (b0 == NULL)
 	store_clause_choice_point(t1, tb, tr, NEXTOP(ipc,ld), ap, ap_pc, cp_pc);
       else
-	B->cp_ap = NEXTOP(ipc,ld);
+	update_clause_choice_point(NEXTOP(ipc,ld), ap_pc);
       return lu_clause(ipc->u.ld.d);
     case _try_me:
     case _try_me1:
@@ -6064,7 +6059,7 @@ Yap_follow_lu_indexing_code(PredEntry *ap, yamop *ipc, Term t1, Term tb, Term tr
       if (b0 == NULL)
 	store_clause_choice_point(t1, tb, tr, ipc->u.ld.d, ap, ap_pc, cp_pc);
       else
-	B->cp_ap = ipc->u.ld.d;
+	update_clause_choice_point(ipc->u.ld.d, ap_pc);
       ipc = NEXTOP(ipc,ld);
       break;
     case _retry:
@@ -6281,8 +6276,12 @@ Yap_follow_lu_indexing_code(PredEntry *ap, yamop *ipc, Term t1, Term tb, Term tr
     case _expand_index:
       ipc = ExpandIndex(ap);
       break;
-    case _undef_p:
     case _op_fail:
+      /*
+	ipc = (yamop *)IntegerOfTerm(B->cp_args[1]);
+	break;
+      */
+    case _undef_p:
       return NULL;
     case _index_pred:
     case _spy_pred:
@@ -6533,6 +6532,15 @@ find_caller(PredEntry *ap, yamop *code) {
       break;
     case _expand_index:
       ipc = alt;
+      alt = NULL;
+      break;
+    case _op_fail:
+      if (alt == NULL) {
+	return NULL;
+      } else {
+	ipc = alt;
+	alt = NULL;
+      }
       break;
     default:
       if (alt == NULL) {
@@ -6562,6 +6570,7 @@ Yap_CleanUpIndex(LogUpdIndex *blk)
     /* I have to kill this block */
     yamop **caller, *new;
     caller = find_caller(ap, blk->ClCode);
+    if (caller == NULL) return NULL;
     *caller = new = replace_lu_block(blk, REFRESH, ap, NULL, FALSE);
     return new;
   } else {
