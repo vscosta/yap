@@ -116,6 +116,10 @@ typedef struct clause_struct {
 #define        CL_IN_USE(X) ((X)->ClFlags & InUseMask)
 #endif
 
+/* amasm.c */
+wamreg	STD_PROTO(Yap_emit_x,(CELL));
+wamreg  STD_PROTO(Yap_compile_cmp_flags,(PredEntry *));
+
 /* cdmgr.c */
 void	STD_PROTO(Yap_RemoveLogUpdIndex,(Clause *));
 void	STD_PROTO(Yap_IPred,(PredEntry *));

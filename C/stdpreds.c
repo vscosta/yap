@@ -312,7 +312,7 @@ strtod(s, pe)
 static char *cur_char_ptr;
 
 static int
-get_char_from_string(void)
+get_char_from_string(int s)
 {
   if (cur_char_ptr[0] == '\0')
     return(-1);

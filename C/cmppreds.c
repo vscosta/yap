@@ -30,17 +30,11 @@ STATIC_PROTO(Int compare, (Term, Term));
 STATIC_PROTO(Int p_compare, (void));
 STATIC_PROTO(Int p_acomp, (void));
 STATIC_PROTO(Int a_eq, (Term,Term));
-STATIC_PROTO(Int p_eq, (void));
 STATIC_PROTO(Int a_dif, (Term,Term));
-STATIC_PROTO(Int p_dif, (void));
 STATIC_PROTO(Int a_gt, (Term, Term));
-STATIC_PROTO(Int p_gt, (void));
 STATIC_PROTO(Int a_ge, (Term,Term));
-STATIC_PROTO(Int p_ge, (void));
 STATIC_PROTO(Int a_lt, (Term,Term));
-STATIC_PROTO(Int p_lt, (void));
 STATIC_PROTO(Int a_le, (Term,Term));
-STATIC_PROTO(Int p_le, (void));
 STATIC_PROTO(Int p_noteq, (void));
 STATIC_PROTO(Int p_gen_lt, (void));
 STATIC_PROTO(Int p_gen_le, (void));
@@ -604,12 +598,6 @@ a_eq(Term t1, Term t2)
 }
 
 static Int 
-p_eq(void)
-{				/* A =:= B		 */
-  return(a_eq(Deref(ARG1),Deref(ARG2)));
-}
-
-static Int 
 a_dif(Term t1, Term t2)
 {				/* A =\\= B		 */
   blob_type bt1;
@@ -686,12 +674,6 @@ a_dif(Term t1, Term t2)
   default:
     return(FALSE);
   }
-}
-
-static Int 
-p_dif(void)
-{				/* A =\\= B		 */
-  return(a_dif(Deref(ARG1),Deref(ARG2)));
 }
 
 static Int 
@@ -774,12 +756,6 @@ a_gt(Term t1, Term t2)
 }
 
 static Int 
-p_gt(void)
-{				/* A > B		 */
-  return(a_gt(Deref(ARG1),Deref(ARG2)));
-}
-
-static Int 
 a_ge(Term t1, Term t2)
 {				/* A >= B		 */
   blob_type bt1;
@@ -856,12 +832,6 @@ a_ge(Term t1, Term t2)
   default:
     return(FALSE);
   }
-}
-
-static Int 
-p_ge(void)
-{				/* A >= B		 */
-  return(a_ge(Deref(ARG1),Deref(ARG2)));
 }
 
 static Int 
@@ -944,12 +914,6 @@ a_lt(Term t1, Term t2)
 }
 
 static Int 
-p_lt(void)
-{				/* A < B		 */
-  return(a_lt(Deref(ARG1),Deref(ARG2)));
-}
-
-static Int 
 a_le(Term t1, Term t2)
 {				/* A <= B */
   blob_type bt1;
@@ -1028,11 +992,6 @@ a_le(Term t1, Term t2)
   }
 }
 
-static Int 
-p_le(void)
-{				/* A =< B		 */
-  return(a_le(Deref(ARG1),Deref(ARG2)));
-}
 
 static Int 
 p_noteq(void)
@@ -1068,12 +1027,12 @@ p_gen_ge(void)
 void 
 Yap_InitCmpPreds(void)
 {
-  Yap_InitCmpPred("=:=", 2, a_eq, p_eq, SafePredFlag | BinaryTestPredFlag);
-  Yap_InitCmpPred("=\\=", 2, a_dif, p_dif, SafePredFlag | BinaryTestPredFlag);
-  Yap_InitCmpPred(">", 2, a_gt, p_gt,  SafePredFlag | BinaryTestPredFlag);
-  Yap_InitCmpPred("=<", 2, a_le, p_le, SafePredFlag | BinaryTestPredFlag);
-  Yap_InitCmpPred("<", 2, a_lt, p_lt, SafePredFlag | BinaryTestPredFlag);
-  Yap_InitCmpPred(">=", 2, a_ge, p_ge, SafePredFlag | BinaryTestPredFlag);
+  Yap_InitCmpPred("=:=", 2, a_eq, SafePredFlag | BinaryTestPredFlag);
+  Yap_InitCmpPred("=\\=", 2, a_dif, SafePredFlag | BinaryTestPredFlag);
+  Yap_InitCmpPred(">", 2, a_gt,  SafePredFlag | BinaryTestPredFlag);
+  Yap_InitCmpPred("=<", 2, a_le, SafePredFlag | BinaryTestPredFlag);
+  Yap_InitCmpPred("<", 2, a_lt, SafePredFlag | BinaryTestPredFlag);
+  Yap_InitCmpPred(">=", 2, a_ge, SafePredFlag | BinaryTestPredFlag);
   Yap_InitCPred("$a_compare", 3, p_acomp, TestPredFlag | SafePredFlag);
   Yap_InitCPred("\\==", 2, p_noteq, TestPredFlag | SafePredFlag);
   Yap_InitCPred("@<", 2, p_gen_lt, TestPredFlag | SafePredFlag);

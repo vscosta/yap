@@ -477,12 +477,12 @@ Yap_InitCPred(char *Name, unsigned long int Arity, CPredicate code, int flags)
 }
 
 void 
-Yap_InitCmpPred(char *Name, unsigned long int Arity, CmpPredicate cmp_code, CPredicate code, int flags)
+Yap_InitCmpPred(char *Name, unsigned long int Arity, CmpPredicate cmp_code, int flags)
 {
   Atom            atom = Yap_LookupAtom(Name);
   PredEntry      *pe;
   yamop      *p_code = ((Clause *)NULL)->ClCode;
-  Clause     *cl = (Clause *)Yap_AllocCodeSpace((CELL)NEXTOP(NEXTOP(((yamop *)p_code),sla),e)); 
+  Clause     *cl = (Clause *)Yap_AllocCodeSpace((CELL)NEXTOP(NEXTOP(((yamop *)p_code),lxx),e)); 
 
   cl->u.ClValue = 0;
   cl->ClFlags = 0;
@@ -496,11 +496,12 @@ Yap_InitCmpPred(char *Name, unsigned long int Arity, CmpPredicate cmp_code, CPre
   pe->CodeOfPred = p_code;
   pe->cs.d_code = cmp_code;
   pe->ModuleOfPred = CurrentModule;
-  p_code->opc = pe->OpcodeOfPred = Yap_opcode(_call_cpred);
-  p_code->u.sla.sla_u.p = pe;
-  p_code->u.sla.bmap = NULL;
-  p_code->u.sla.s = -Signed(RealEnvSize);
-  p_code = NEXTOP(p_code,sla);
+  p_code->opc = pe->OpcodeOfPred = Yap_opcode(_call_bfunc_xx);
+  p_code->u.lxx.p = pe;
+  p_code->u.lxx.x1 = Yap_emit_x(1);
+  p_code->u.lxx.x2 = Yap_emit_x(2);
+  p_code->u.lxx.flags = Yap_compile_cmp_flags(pe);
+  p_code = NEXTOP(p_code,lxx);
   p_code->opc = Yap_opcode(_procceed);
 }
 

@@ -244,6 +244,12 @@ emit_x(CELL xarg)
 #endif /* PRECOMPUTE_REGADDRESS */
 }
 
+wamreg
+Yap_emit_x(CELL xarg)
+{
+  return emit_x(xarg);
+}
+
 inline static yamop *
 emit_a(CELL a)
 {
@@ -903,6 +909,11 @@ compile_cmp_flags(char *s)
   return(0);
 }
 
+wamreg
+Yap_compile_cmp_flags(PredEntry *pred)
+{
+  return compile_cmp_flags(RepAtom(NameOfFunctor(pred->FunctorOfPred))->StrOfAE);
+}
 
 static void
 a_bfunc(CELL pred)
