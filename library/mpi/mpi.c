@@ -9,14 +9,14 @@
 **************************************************************************
 *									 *
 * File:		mpi.c  							 *
-* Last rev:	$Date: 2002-10-03 17:32:40 $				 *
+* Last rev:	$Date: 2002-10-29 13:58:21 $				 *
 * mods:									 *
 * comments:	Interface to an MPI library                              *
 *									 *
 *************************************************************************/
 
 #ifndef lint
-static char *rcsid = "$Header: /Users/vitor/Yap/yap-cvsbackup/library/mpi/mpi.c,v 1.9 2002-10-03 17:32:40 stasinos Exp $";
+static char *rcsid = "$Header: /Users/vitor/Yap/yap-cvsbackup/library/mpi/mpi.c,v 1.10 2002-10-29 13:58:21 stasinos Exp $";
 #endif
 
 #include "Yap.h"
@@ -241,13 +241,17 @@ mpi_parse(void)
     
   old_TR = TR;
   while( TRUE ) {
-    CELL *old_H = H;
+    CELL *old_H;
 
     /* Scans the term using stack space */
     eot_before_eof = FALSE;
 
     /* the first arg is the getc_for_read, diff only if CharConv is on */
     tokstart = tokptr = toktide = tokenizer( mpi_getc, mpi_getc );
+
+    /* preserve value of H after scanning: otherwise we may lose strings
+       and floats */
+    old_H = H;
 
     if ( mpi_eob() && !eot_before_eof) {
       if (tokstart != NIL && tokstart->Tok != Ord (eot_tok)) {
@@ -279,6 +283,7 @@ mpi_parse(void)
 	/* ignore term we just built */
 	H = old_H;
 	if (growstack_in_parser(&old_TR, &tokstart, &VarTable)) {
+	  old_H = H;
 	  tokptr = toktide = tokstart;
 	  ErrorMessage = NULL;
 	  goto repeat_cycle;
