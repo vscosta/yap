@@ -10,8 +10,11 @@
 *									 *
 * File:		absmi.c							 *
 * comments:	Portable abstract machine interpreter                    *
-* Last rev:     $Date: 2004-09-30 21:37:40 $,$Author: vsc $						 *
+* Last rev:     $Date: 2004-10-14 22:14:52 $,$Author: vsc $						 *
 * $Log: not supported by cvs2svn $
+* Revision 1.148  2004/09/30 21:37:40  vsc
+* fixes for thread support
+*
 * Revision 1.147  2004/09/30 19:51:53  vsc
 * fix overflow from within clause/2
 *
@@ -890,7 +893,7 @@ Yap_absmi(int inp)
       check_trail(TR);
       CACHE_Y(YREG);
       {
-	register CELL x1 = CACHED_A1();
+	register CELL x1 = ARG1;
 
 	store_yaam_regs(PREG->u.ld.d, 1);
 	B_YREG->cp_a1 = x1;
@@ -958,12 +961,12 @@ Yap_absmi(int inp)
       CACHE_Y(YREG);
 #ifdef HAVE_FEW_REGS
       store_yaam_regs(PREG->u.ld.d, 2);
-      B_YREG->cp_a1 = CACHED_A1();
+      B_YREG->cp_a1 = ARG1;
       B_YREG->cp_a2 = ARG2;
 #else
       {
 	register CELL x2 = ARG2;
-	register CELL x1 = CACHED_A1();
+	register CELL x1 = ARG1;
 
 	store_yaam_regs(PREG->u.ld.d, 2);
 	B_YREG->cp_a1 = x1;
@@ -1036,12 +1039,12 @@ Yap_absmi(int inp)
       CACHE_Y(YREG);
 #ifdef HAVE_FEW_REGS
       store_yaam_regs(PREG->u.ld.d, 3);
-      B_YREG->cp_a1 = CACHED_A1();
+      B_YREG->cp_a1 = ARG1;
       B_YREG->cp_a2 = ARG2;
       B_YREG->cp_a3 = ARG3;
 #else
       {
-	register CELL x1 = CACHED_A1();
+	register CELL x1 = ARG1;
 	register CELL x2 = ARG2;
 	register CELL x3 = ARG3;
 
@@ -1120,13 +1123,13 @@ Yap_absmi(int inp)
       CACHE_Y(YREG);
       store_yaam_regs(PREG->u.ld.d, 4);
 #ifdef HAVE_FEW_REGS
-      B_YREG->cp_a1 = CACHED_A1();
+      B_YREG->cp_a1 = ARG1;
       B_YREG->cp_a2 = ARG2;
       B_YREG->cp_a3 = ARG3;
       B_YREG->cp_a4 = ARG4;
 #else
       {
-	register CELL x1 = CACHED_A1();
+	register CELL x1 = ARG1;
 	register CELL x2 = ARG2;
 	register CELL x3 = ARG3;
 	register CELL x4 = ARG4;
@@ -7336,7 +7339,7 @@ Yap_absmi(int inp)
       /* Point AP to the code that follows this instruction */
       {
 	register CELL x2 = ARG2;
-	register CELL x1 = CACHED_A1();
+	register CELL x1 = ARG1;
 
 	store_yaam_regs(NEXTOP(PREG, l), 2);
 	B_YREG->cp_a1 = x1;
@@ -7359,7 +7362,7 @@ Yap_absmi(int inp)
       /* Point AP to the code that follows this instruction */
       {
 	store_yaam_regs(NEXTOP(PREG, l), 3);
-	B_YREG->cp_a1 = CACHED_A1();
+	B_YREG->cp_a1 = ARG1;
 	B_YREG->cp_a2 = ARG2;
 	B_YREG->cp_a3 = ARG3;
       }
@@ -7380,7 +7383,7 @@ Yap_absmi(int inp)
       /* Point AP to the code that follows this instruction */
       {
 	store_yaam_regs(NEXTOP(PREG, l), 4);
-	B_YREG->cp_a1 = CACHED_A1();
+	B_YREG->cp_a1 = ARG1;
 	B_YREG->cp_a2 = ARG2;
 	B_YREG->cp_a3 = ARG3;
 	B_YREG->cp_a4 = ARG4;

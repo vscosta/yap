@@ -10,7 +10,7 @@
 * File:		Yap.h.m4						 *
 * mods:									 *
 * comments:	main header file for YAP				 *
-* version:      $Id: Yap.h.m4,v 1.71 2004-10-08 17:20:03 vsc Exp $	 *
+* version:      $Id: Yap.h.m4,v 1.72 2004-10-14 22:14:53 vsc Exp $	 *
 *************************************************************************/
 
 #include "config.h"
@@ -682,7 +682,7 @@ and  RefOfTerm(t) : Term -> DBRef = ...
 #if IN_SECOND_QUADRANT
 #define INVERT_RBIT 1 /* RBIT is 1 by default */
 #endif
-#endif !GC_NO_TAGS
+#endif /* !GC_NO_TAGS  */
 
 #else
 
@@ -693,7 +693,7 @@ and  RefOfTerm(t) : Term -> DBRef = ...
 #define RBIT     /* 0x20000000 */ MKTAG(0x1,0)  /* relocation chain bit */
 #define MBIT     /* 0x40000000 */ MKTAG(0x2,0)	/* mark bit */
 #endif
-#endif !GC_NO_TAGS
+#endif /* !GC_NO_TAGS */
 
 #endif
 

@@ -1995,12 +1995,12 @@ p_alarm(void)
 
     left = alarm(IntegerOfTerm(t));
     tout = MkIntegerTerm(left);
-    return(Yap_unify(ARG2,tout));
+    return Yap_unify(ARG2,tout);
   }
 #else
   /* not actually trying to set the alarm */
   if (IntegerOfTerm(t) == 0)
-    return(TRUE);
+    return TRUE;
   Yap_Error(SYSTEM_ERROR, TermNil,
 	"alarm not available in this configuration");
   return(FALSE);
