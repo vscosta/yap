@@ -1,6 +1,6 @@
 =================================================================
 Logtalk - Object oriented extension to Prolog
-Release 2.22.0
+Release 2.22.1
 
 Copyright (c) 1998-2004 Paulo Moura.  All Rights Reserved.
 =================================================================
@@ -8,6 +8,32 @@ Copyright (c) 1998-2004 Paulo Moura.  All Rights Reserved.
 
 RELEASE NOTES
 =============
+
+
+2.22.1 - December 6, 2004
+
+	Improved installation instructions. Updated the Windows installation 
+	JScript script to add the Logtalk directories "misc" and "xml" to the 
+	system PATH environment variable and to reuse the environment variable 
+	LOGTALKUSER if already defined.
+
+	Added helper batch scripts (misc/cplgtdirs.bat, xml/lgt2html.bat, and 
+	xml/lgt2pdf.bat) for easily running the corresponding Windows JScript 
+	scripts from the command-line (the two xml/lgt2*.bat scripts run the 
+	corresponding *.js scripts stored in the %LOGTALKUSER%/xml directory 
+	in order to support user customization).
+
+	Updated the lgt2html.* and lgt2pdf.* shell scripts to use the environment 
+	variable LOGTALKUSER instead of LOGTALKHOME for finding supporting files, 
+	thus allowing for end-user customization of the scripts and their related 
+	files.
+
+	Added documentation on read-only compiler flags (which are defined in the 
+	configuration files) to the User Manual.
+
+	Updated the misc/lgt_install.js JScript installer script to workaround a 
+	Windows Scripting Host bug which may result in broken shortcuts in the 
+	created "Logtalk" program group.
 
 
 2.22.0 - November 29, 2004

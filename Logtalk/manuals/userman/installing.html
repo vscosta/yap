@@ -149,6 +149,23 @@ Configuration files provide the glue code between the Logtalk preprocessor/runti
 <p>
 Logtalk already includes ready to use configuration files for most academic and commercial Prolog compilers. If a configuration file is not available for the compiler that you intend to use, then you need to build a new one, starting from the included <code>template.config</code> file. Start by making a copy of the template file. Carefully check (or complete if needed) each listed definition. If your Prolog compiler conforms to the ISO standard, this task should only take you a few minutes. In most cases, you can borrow code from some of the predefined configuration files. If you are unsure that your Prolog compiler provides all the ISO predicates needed by Logtalk, try to run the system by setting the unknown predicate error handler to report as an error any call to a missing predicate. Better yet, switch to a modern, ISO compliant, Prolog compiler. If you send me your configuration file, with a reference to the target Prolog compiler, maybe I can include it in the next release of Logtalk.
 </p>
+<p>
+The configuration files specifies default values for all the Logtalk compiler options and flags. Most of these compiler option and flags are described in the <a href="running.html#options">next</a> section. A few of these flags have read-only values which cannot be changed at runtime. These are:
+</p>
+<blockquote>
+<dl>
+	<dt><code>startup_message</code></dt>
+		<dd>Controls the messages printed by Logtalk at startup. Possible flag values are <code>flags</code> (the usual default; prints the Logtalk banner and a list of all compiler options and flags values), <code>banner</code> (prints only the Logtalk banner), and <code>none</code> (suppress all startup messages; useful for batch processing).</dd>
+</dl>
+<dl>
+	<dt><code>iso_initialization_dir</code></dt>
+		<dd>Informs Logtalk if the Prolog compiler supports the <code>initialization/1</code> directive as specified in the ISO standard. Note that some Prolog compilers support this directive but without the ISO specified semantics. Possible flag values are <code>true</code> and <code>false</code>.</dd>
+</dl>
+<dl>
+	<dt><code>supports_break_predicate</code></dt>
+		<dd>Informs Logtalk if the Prolog compiler supports a <code>break/0</code> predicate (which can be used by the Logtalk built-in debugger). Possible flag values are <code>true</code> and <code>false</code>.</dd>
+</dl>
+</blockquote>
 
 <h3>Logtalk compiler and runtime<a name="compiler"></a></h3>
 
@@ -183,7 +200,7 @@ Copyright &copy; <a href="mailto:pmoura@logtalk.org">Paulo Moura</a> &mdash; <a 
 </div>
 
 <div class="footer">
-<p><span class="bleft"><a href="http://validator.w3.org/check/referer">XHTML</a> + <a href="http://jigsaw.w3.org/css-validator/check/referer">CSS</a></span><span class="bright">Last updated on: August 17, 2004</span></p>
+<p><span class="bleft"><a href="http://validator.w3.org/check/referer">XHTML</a> + <a href="http://jigsaw.w3.org/css-validator/check/referer">CSS</a></span><span class="bright">Last updated on: December 1, 2004</span></p>
 </div>
 </body>
 </html>

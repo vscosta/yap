@@ -1,6 +1,6 @@
 =================================================================
 Logtalk - Object oriented extension to Prolog
-Release 2.22.0
+Release 2.22.1
 
 Copyright (c) 1998-2004 Paulo Moura.  All Rights Reserved.
 =================================================================
@@ -122,12 +122,13 @@ lgt2pdf.js
 	option doctype(standalone) in order to workaround a bug on the XALAN 
 	processor used by this processor.
 
-	These script assumes that the LOGTALKHOME environment variable is defined
+	These script assumes that the LOGTALKUSER environment variable is defined
 	and that the chosen XSL-FO processor is available in the path.
 	The scripts should be called from the directory containing the .xml files 
 	you wish to convert. Call the scripts with the help option for a description 
 	of the available optional parameters (type "cscript lgt2pdf.js help" or 
-	"lgt2pdf.sh -h").
+	"lgt2pdf.sh -h"; depending on your Logtalk installation, you may simply need 
+	to type lgt2pdf in order to run the script).
 
 
 lgt2html.sh
@@ -149,13 +150,14 @@ lgt2html.js
 		* Microsoft MSXSL (only for the JScript script)
 			http://msdn.microsoft.com/library/en-us/dnxml/html/msxsl.asp
 
-	These scripts assumes that the LOGTALKHOME environment variable is defined 
+	These scripts assumes that the LOGTALKUSER environment variable is defined 
 	and that the chosen XSLT processor is available in the path.
 
 	The scripts should be called from the directory containing the .xml files 
 	you wish to convert. Call the scripts with the help option for a description 
-	of the available optional parameters (type "cscript lgt2pdf.js help" or 
-	"lgt2pdf.sh -h").
+	of the available optional parameters (type "cscript lgt2html.js help" or 
+	"lgt2html.sh -h"; depending on your Logtalk installation, you may simply need 
+	to type lgt2html in order to run the script).
 
 
 html.sh

@@ -2,13 +2,13 @@
 
 ## =================================================================
 ## Logtalk - Object oriented extension to Prolog
-## Release 2.22.0
+## Release 2.22.1
 ##
 ## Copyright (c) 1998-2004 Paulo Moura.  All Rights Reserved.
 ## =================================================================
 
-a4_xsl="$LOGTALKHOME/xml/lgtpdfa4.xsl"
-us_xsl="$LOGTALKHOME/xml/lgtpdfus.xsl"
+a4_xsl="$LOGTALKUSER/xml/lgtpdfa4.xsl"
+us_xsl="$LOGTALKUSER/xml/lgtpdfus.xsl"
 
 format=a4
 # format=us
@@ -37,9 +37,9 @@ usage_help()
 	exit 1
 }
 
-if ! [ $LOGTALKHOME ]
+if ! [ $LOGTALKUSER ]
 then
-	echo "Error! The environment variable LOGTALKHOME must be defined first!"
+	echo "Error! The environment variable LOGTALKUSER must be defined first!"
 	exit 1
 else
 
@@ -91,8 +91,8 @@ else
 		xsl=$us_xsl
 	fi
 
-	cp $LOGTALKHOME/xml/logtalk.dtd .
-	cp $LOGTALKHOME/xml/logtalk.xsd .
+	cp $LOGTALKUSER/xml/logtalk.dtd .
+	cp $LOGTALKUSER/xml/logtalk.xsd .
 
 	echo
 	echo "converting XML files to PDF..."

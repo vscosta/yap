@@ -2,13 +2,13 @@
 
 ## =================================================================
 ## Logtalk - Object oriented extension to Prolog
-## Release 2.22.0
+## Release 2.22.1
 ##
 ## Copyright (c) 1998-2004 Paulo Moura.  All Rights Reserved.
 ## =================================================================
 
-html_xslt="$LOGTALKHOME/xml/lgthtml.xsl"
-xhtml_xslt="$LOGTALKHOME/xml/lgtxhtml.xsl"
+html_xslt="$LOGTALKUSER/xml/lgthtml.xsl"
+xhtml_xslt="$LOGTALKUSER/xml/lgtxhtml.xsl"
 
 format=xhtml
 
@@ -84,9 +84,9 @@ create_index_file()
 }
 
 
-if ! [ $LOGTALKHOME ]
+if ! [ $LOGTALKUSER ]
 then
-	echo "Error! The environment variable LOGTALKHOME must be defined first!"
+	echo "Error! The environment variable LOGTALKUSER must be defined first!"
 	exit 1
 else
 
@@ -150,9 +150,9 @@ else
 		xslt=$html_xslt
 	fi
 
-	cp $LOGTALKHOME/xml/logtalk.dtd .
-	cp $LOGTALKHOME/xml/logtalk.xsd .
-	cp $LOGTALKHOME/xml/logtalk.css $directory
+	cp $LOGTALKUSER/xml/logtalk.dtd .
+	cp $LOGTALKUSER/xml/logtalk.xsd .
+	cp $LOGTALKUSER/xml/logtalk.css $directory
 
 	echo
 	echo "converting XML files..."

@@ -1,6 +1,6 @@
 // =================================================================
 // Logtalk - Object oriented extension to Prolog
-// Release 2.22.0
+// Release 2.22.1
 //
 // Copyright (c) 1998-2004 Paulo Moura.  All Rights Reserved.
 // =================================================================
@@ -27,10 +27,22 @@ WScript.Echo("");
 WScript.Echo("  " + WshShell.CurrentDirectory);
 WScript.Echo("");
 
-WshUserEnv.Item("LOGTALKUSER") = WshShell.SpecialFolders("MyDocuments") + "\\logtalk";
-WScript.Echo("Defined user environment variable LOGTALKUSER pointing to:");
+if (WshUserEnv.Item("LOGTALKUSER")) {
+	WScript.Echo("Reusing user environment variable LOGTALKUSER pointing to:");
+	WScript.Echo("");
+	WScript.Echo("  " + WshUserEnv.Item("LOGTALKUSER"));
+}
+else {
+	WshUserEnv.Item("LOGTALKUSER") = WshShell.SpecialFolders("MyDocuments") + "\\logtalk";
+	WScript.Echo("Defined user environment variable LOGTALKUSER pointing to:");
+	WScript.Echo("");
+	WScript.Echo("  " + WshShell.SpecialFolders("MyDocuments") + "\\logtalk");
+}
 WScript.Echo("");
-WScript.Echo("  " + WshShell.SpecialFolders("MyDocuments") + "\\logtalk");
+
+WshSystemEnv.Item("PATH") = WshSystemEnv.Item("PATH") + ";%LOGTALKHOME%\\misc;%LOGTALKHOME%\\xml";
+WScript.Echo("Added Logtalk misc and xml directories to the system PATH environment");
+WScript.Echo("variable.");
 WScript.Echo("");
 
 FSObject.CopyFile(WshShell.CurrentDirectory + "\\BIBLIOGRAPHY", WshShell.CurrentDirectory + "\\BIBLIOGRAPHY.txt");
@@ -45,57 +57,61 @@ var ProgramsPath = WshShell.SpecialFolders("AllUsersPrograms");
 if (!FSObject.FolderExists(ProgramsPath + "\\Logtalk")) 
 	FSObject.CreateFolder(ProgramsPath + "\\Logtalk");
 
-var link = WshShell.CreateShortcut(ProgramsPath + "\\Logtalk\\Logtalk Web Site.lnk");
+var link = WshShell.CreateShortcut(ProgramsPath + "\\Logtalk\\Logtalk Web Site.url");
 
-link.Description = "Go to Logtalk Web Site";
 link.TargetPath = "http://www.logtalk.org/";
 link.Save();
 
 link = WshShell.CreateShortcut(ProgramsPath + "\\Logtalk\\Logtalk HTML Documentation.lnk");
 
 link.Description = "Browse Logtalk Documentation";
-link.TargetPath = "%LOGTALKHOME%\\manuals\\index.html";
+link.TargetPath = WshShell.CurrentDirectory + "\\manuals\\index.html";
 link.Save();
 
 link = WshShell.CreateShortcut(ProgramsPath + "\\Logtalk\\Logtalk ReadMe.lnk");
 
 link.Description = "Open Logtalk ReadMe";
-link.TargetPath = "%LOGTALKHOME%\\README.txt";
+link.TargetPath = WshShell.CurrentDirectory + "\\README.txt";
 link.Save();
 
 link = WshShell.CreateShortcut(ProgramsPath + "\\Logtalk\\Logtalk Quick Start.lnk");
 
 link.Description = "Open Logtalk Quick Start";
-link.TargetPath = "%LOGTALKHOME%\\QUICK_START.txt";
+link.TargetPath = WshShell.CurrentDirectory + "\\QUICK_START.txt";
 link.Save();
 
 link = WshShell.CreateShortcut(ProgramsPath + "\\Logtalk\\Logtalk Bibliography.lnk");
 
 link.Description = "Open Logtalk Bibliography";
-link.TargetPath = "%LOGTALKHOME%\\BIBLIOGRAPHY.txt";
+link.TargetPath = WshShell.CurrentDirectory + "\\BIBLIOGRAPHY.txt";
 link.Save();
 
 link = WshShell.CreateShortcut(ProgramsPath + "\\Logtalk\\Logtalk License.lnk");
 
 link.Description = "Open Logtalk License";
-link.TargetPath = "%LOGTALKHOME%\\LICENSE.txt";
+link.TargetPath = WshShell.CurrentDirectory + "\\LICENSE.txt";
 link.Save();
 
 link = WshShell.CreateShortcut(ProgramsPath + "\\Logtalk\\Logtalk Release Notes.lnk");
 
 link.Description = "Open Logtalk Release Notes";
-link.TargetPath = "%LOGTALKHOME%\\RELEASE_NOTES.txt";
+link.TargetPath = WshShell.CurrentDirectory + "\\RELEASE_NOTES.txt";
 link.Save();
 
 link = WshShell.CreateShortcut(ProgramsPath + "\\Logtalk\\Logtalk Upgrading.lnk");
 
-link.Description = "Open Logtalk Upgrading";
-link.TargetPath = "%LOGTALKHOME%\\UPGRADING.txt";
+link.Description = "Open Logtalk Upgrading instructions";
+link.TargetPath = WshShell.CurrentDirectory + "\\UPGRADING.txt";
 link.Save();
 
 WScript.Echo('Logtalk installation completed. You will need to restart in order');
 WScript.Echo('to activate the new system environment variables and use the items');
 WScript.Echo('in the new Logtalk program group.');
+WScript.Echo('');
+WScript.Echo('Users should run the batch script cplgtdirs in order to copy the');
+WScript.Echo('Logtalk user-modifiable files to their home directories. The path');
+WScript.Echo('to the cplgtdirs, lgt2pdf, and lgt2html batch scripts has been to');
+WScript.Echo('the system path environment variable.');
 WScript.Echo('');
 
 WScript.Quit(0);

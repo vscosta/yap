@@ -1,6 +1,6 @@
 // =================================================================
 // Logtalk - Object oriented extension to Prolog
-// Release 2.22.0
+// Release 2.22.1
 //
 // Copyright (c) 1998-2004 Paulo Moura.  All Rights Reserved.
 // =================================================================
@@ -25,14 +25,14 @@ var WshSystemEnv = WshShell.Environment("SYSTEM");
 var WshUserEnv = WshShell.Environment("USER");
 var logtalk_home;
 
-if (WshProcessEnv.Item("LOGTALKHOME"))
-	logtalk_home = WshProcessEnv.Item("LOGTALKHOME");
-else if (WshSystemEnv.Item("LOGTALKHOME"))
-	logtalk_home = WshSystemEnv.Item("LOGTALKHOME");
-else if (WshUserEnv.Item("LOGTALKHOME"))
-	logtalk_home = WshUserEnv.Item("LOGTALKHOME")
+if (WshProcessEnv.Item("LOGTALKUSER"))
+	logtalk_home = WshProcessEnv.Item("LOGTALKUSER");
+else if (WshSystemEnv.Item("LOGTALKUSER"))
+	logtalk_home = WshSystemEnv.Item("LOGTALKUSER");
+else if (WshUserEnv.Item("LOGTALKUSER"))
+	logtalk_home = WshUserEnv.Item("LOGTALKUSER")
 else {
-	WScript.Echo("Error! The environment variable LOGTALKHOME must be defined first!");
+	WScript.Echo("Error! The environment variable LOGTALKUSER must be defined first!");
 	usage_help();
 	WScript.Quit(1);
 }

@@ -1,6 +1,6 @@
 =================================================================
 Logtalk - Object oriented extension to Prolog
-Release 2.22.0
+Release 2.22.1
 
 Copyright (c) 1998-2004 Paulo Moura.  All Rights Reserved.
 =================================================================
@@ -77,13 +77,13 @@ If you use a csh shell, add the following line to your ~/.cshrc file:
 
 	setenv LOGTALKHOME /your/logtalk/installation/directory
 	setenv LOGTALKUSER $HOME/logtalk
-	setenv PATH $PATH:$LOGTALKHOME/xml:$LOGTALKHOME/misc
+	setenv PATH $PATH:$LOGTALKUSER/xml:$LOGTALKHOME/misc
 
 If you use a bash shell, add the following lines to your ~/.profile file:
 
 	LOGTALKHOME=/your/logtalk/installation/directory
 	LOGTALKUSER=$HOME/logtalk
-	PATH=$PATH:$LOGTALKHOME/xml:$LOGTALKHOME/misc
+	PATH=$PATH:$LOGTALKUSER/xml:$LOGTALKHOME/misc
 	export PATH LOGTALKHOME LOGTALKUSER
 
 When using the provided shell script for installing Logtalk, a symbolic link 
@@ -99,7 +99,7 @@ file (you will need to reboot after editing the file):
 	SET LOGTALKHOME=C:\your\installation\folder\
 	SET LOGTALKUSER=%HOMEPATH%\logtalk
 
-In Windows NT/2000/XP, environment variables are defined using the System 
+In Windows 2000/XP, environment variables are defined using the System 
 properties control panel (if you are a system administrator, you should use 
 the JScript install script provided in the "misc" sub-directory; this script 
 sets both the LOGTALKHOME and the LOGTALKUSER environment variables).
@@ -110,13 +110,13 @@ sets both the LOGTALKHOME and the LOGTALKUSER environment variables).
 In Logtalk, a library is simply a directory containing source files. Library 
 paths can be declared using a dynamic predicate. This allows compiling and 
 loading of libraries and library files to be performed without worries about 
-library paths. In the "libpaths" directory you will find a sample file which 
-you can copy and edit to match your Logtalk installation and your Prolog 
-compiler and operating-system requirements. See the "libpaths/NOTES" file for 
-more details.
+library paths. In the "$LOGTALKUSER/libpaths" directory you will find a sample 
+file which you can edit to match your Logtalk installation and your Prolog 
+compiler and operating-system requirements. For more details, see the file 
+"$LOGTALKUSER/libpaths/NOTES".
 
 
-2.3 Customizing prolog configuration files
+2.3 Customizing Prolog configuration files
 
 Logtalk interfaces with a specific Prolog compiler via a configuration file 
 that can be found on the "$LOGTALKUSER/configs" directory. These configuration 
@@ -129,6 +129,17 @@ the default flags that you may want to change are: "portability", "altdirs",
 documentation-related flags ("xml", "xsl", "xmlspec", and "doctype"). Be sure 
 to read the "$LOGTALKUSER/configs/NOTES" file for Prolog specific notes; some 
 Prolog compilers do not support the whole range of compilation flags.  
+
+
+2.4 Customizing documentation processing scripts and supporting files
+
+Logtalk provides, in the "$LOGTALKUSER/xml" directory, a set of shell scripts, 
+CSS and XSLT style-sheets, and DTD and XML Schema files for processing the XML 
+documenting files that are automatically generated when you compile source 
+files. You may want to customize these scripts and their supporting files to 
+modify the layout or style of the resulting PDF/(X)HTML files or to write new 
+scripts and transformations to generate other formats. For more details, see 
+the file "$LOGTALKUSER/xml/NOTES".
 
 
 CREATING NEW PROLOG TOP-LEVELS FOR AUTOMATIC LOADING OF LOGTALK
