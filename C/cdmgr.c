@@ -11,8 +11,11 @@
 * File:		cdmgr.c							 *
 * comments:	Code manager						 *
 *									 *
-* Last rev:     $Date: 2004-09-07 16:48:04 $,$Author: vsc $						 *
+* Last rev:     $Date: 2004-09-08 17:56:45 $,$Author: vsc $						 *
 * $Log: not supported by cvs2svn $
+* Revision 1.130  2004/09/07 16:48:04  vsc
+* fix bug in unwinding trail at amiops.h
+*
 * Revision 1.129  2004/09/07 16:25:22  vsc
 * memory management bug fixes
 *
@@ -1187,6 +1190,22 @@ addcl_permission_error(AtomEntry *ap, Int Arity, int in_use)
   }
 }
 
+
+static int
+is_fact(Term t)
+{
+  Term a1;
+
+  if (IsAtomTerm(t))
+    return TRUE;
+  if (FunctorOfTerm(t) != FunctorAssert)
+    return TRUE;
+  a1 = ArgOfTerm(2, t);
+  if (a1 == MkAtomTerm(AtomTrue))
+    return TRUE;
+  return FALSE;
+}
+
 static Term
 addclause(Term t, yamop *cp, int mode, int mod)
 /*
@@ -1257,16 +1276,14 @@ addclause(Term t, yamop *cp, int mode, int mod)
     if (pflags & LogUpdatePredFlag) {
       LogUpdClause     *clp = ClauseCodeToLogUpdClause(cp);
       clp->ClFlags |= LogUpdMask;
-      if (IsAtomTerm(t) ||
-	  FunctorOfTerm(t) != FunctorAssert) {
+      if (is_fact(t)) {
 	clp->ClFlags |= FactMask;
 	clp->ClSource = NULL;
       }
     } else {
       StaticClause     *clp = ClauseCodeToStaticClause(cp);
       clp->ClFlags |= StaticMask;
-      if (IsAtomTerm(t) ||
-	  FunctorOfTerm(t) != FunctorAssert) {
+      if (is_fact(t)) {
 	clp->ClFlags |= FactMask;
 	clp->usc.ClPred = p;
       }
@@ -3544,7 +3561,7 @@ p_static_clause(void)
       IPred(pe);
     WRITE_UNLOCK(pe->PRWLock);
   }
-  return fetch_next_static_clause(pe, pe->cs.p_code.TrueCodeOfPred, t1, ARG3, ARG4, P, TRUE);
+  return fetch_next_static_clause(pe, pe->cs.p_code.TrueCodeOfPred, ARG1, ARG3, ARG4, P, TRUE);
 }
 
 static Int			/* $hidden_predicate(P) */
