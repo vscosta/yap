@@ -574,7 +574,7 @@ ArrayToList(register Term *tp, int nof)
 }
 
 int
-GetName(char *s, Term t)
+GetName(char *s, UInt max, Term t)
 {
   register Term Head;
   register Int i;
@@ -590,6 +590,9 @@ GetName(char *s, Term t)
       return (FALSE);
     *s++ = i;
     t = TailOfTerm(t);
+    if (--max == 0) {
+      Error(FATAL_ERROR,t,"not enough space for GetName");      
+    }
   }
   *s = '\0';
   return (TRUE);

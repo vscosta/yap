@@ -311,6 +311,9 @@ notify_constrained( [M|Ms], X) :-
 %
 % Approximation because debug state might change between calls ...
 %
+
+:- start_low_level_trace.
+
 run_suspensions( Slots) :-
 	getval( debug, State),
 	( State == off ->
@@ -319,6 +322,8 @@ run_suspensions( Slots) :-
 	    run_suspensions_loop_d( Slots)
 	),
 	true.
+
+:- stop_low_level_trace.
 
 run_suspensions_loop( []).
 run_suspensions_loop( [A|As]) :-

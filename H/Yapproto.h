@@ -10,7 +10,7 @@
 * File:		Yap.proto						 *
 * mods:									 *
 * comments:	Function declarations for YAP				 *
-* version:      $Id: Yapproto.h,v 1.5 2001-11-15 00:01:43 vsc Exp $	 *
+* version:      $Id: Yapproto.h,v 1.6 2002-01-02 20:56:22 vsc Exp $	 *
 *************************************************************************/
 
 /* prototype file for Yap */
@@ -30,7 +30,7 @@ Int	     STD_PROTO(absmi,(int));
 
 /* adtdefs.c */
 Term	STD_PROTO(ArrayToList,(Term *,int));
-int	STD_PROTO(GetName,(char *,Term));
+int	STD_PROTO(GetName,(char *,UInt,Term));
 Term	STD_PROTO(GetValue,(Atom));
 Atom	STD_PROTO(LookupAtom,(char *));
 Atom	STD_PROTO(FullLookupAtom,(char *));

@@ -1611,11 +1611,10 @@ p_shell (void)
 #else
 #if HAVE_SYSTEM 
   char *shell;
-#define command ((char *)TR)
   register int bourne = FALSE;
   Term t1 = Deref (ARG1);
 
-  if (!GetName (command, t1)) {
+  if (!GetName (FileNameBuf, YAP_FILENAME_MAX, t1)) {
     Error(SYSTEM_ERROR,t1,"invalid argument to shell/1");
     return(FALSE);
   }
@@ -1626,14 +1625,14 @@ p_shell (void)
     bourne = TRUE;
   /* CloseStreams(TRUE); */
   if (bourne)
-    return (system (command) == 0);
+    return (system (FileNameBuf) == 0);
   else
     {
       int status = -1;
       int child = fork ();
       if (child == 0)
 	{			/* let the children go */
-	  execl (shell, shell, "-c", command, NIL);
+	  execl (shell, shell, "-c", FileNameBuf, NIL);
 	  exit (TRUE);
 	}
       {				/* put the father on wait */
@@ -1671,9 +1670,8 @@ static Int
 p_system (void)
 {				/* '$system'(+SystCommand)	       */
 #ifdef HAVE_SYSTEM
-#define command ((char *)TR)
   Term t1 = Deref (ARG1);
-  if (!GetName (command, t1)) {
+  if (!GetName (FileNameBuf, YAP_FILENAME_MAX, t1)) {
     Error(SYSTEM_ERROR,t1,"argument to system/1 is not valid");
     return(FALSE);
   }
@@ -1681,7 +1679,7 @@ p_system (void)
 #if _MSC_VER
   _flushall();
 #endif
-  return (system (command) == 0);
+  return (system (FileNameBuf) == 0);
 #else
 #ifdef MSH
   register char *shell;
@@ -1708,12 +1706,12 @@ p_mv (void)
   char oldname[YAP_FILENAME_MAX], newname[YAP_FILENAME_MAX];
   Term t1 = Deref (ARG1);
   Term t2 = Deref (ARG2);
-  if (!GetName (FileNameBuf, t1)) {
+  if (!GetName (FileNameBuf, YAP_FILENAME_MAX, t1)) {
     Error(SYSTEM_ERROR,t1,"first argument to rename/2 is not valid");
     return(FALSE);
   }
   TrueFileName (FileNameBuf, oldname, FALSE);
-  if (!GetName (FileNameBuf, t2)) {
+  if (!GetName (FileNameBuf, YAP_FILENAME_MAX, t2)) {
     Error(SYSTEM_ERROR,t2,"second argument to rename/2 is not valid");
     return(FALSE);
   }
@@ -1740,7 +1738,7 @@ p_cd (void)
   Term t1 = Deref (ARG1);
   if (t1 == TermNil)
     return(TRUE);
-  if (!GetName (FileNameBuf, t1)) {
+  if (!GetName (FileNameBuf, YAP_FILENAME_MAX, t1)) {
     Error(SYSTEM_ERROR,t1,"argument to cd/1 is not valid");
     return(FALSE);
   }
@@ -1754,7 +1752,7 @@ p_cd (void)
 #else
 #ifdef MACYAP
   Term t1 = Deref (ARG1);
-  if (!GetName (FileNameBuf, t1)) {
+  if (!GetName (FileNameBuf, YAP_FILENAME_MAX, t1)) {
     Error(SYSTEM_ERROR,t1,"argument to cd/1 is not valid");
     return(FALSE);
   }

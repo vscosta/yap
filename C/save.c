@@ -529,7 +529,7 @@ do_save(int mode) {
   NewFileInfo('YAPS', 'MYap');
 #endif
   Term t1 = Deref(ARG1);
-  if (!GetName(FileNameBuf, t1)) {
+  if (!GetName(FileNameBuf, YAP_FILENAME_MAX, t1)) {
     Error(TYPE_ERROR_LIST,t1,"save/1");
     return(FALSE);
   }
@@ -2988,7 +2988,7 @@ p_restore(void)
   int mode;
 
   Term t1 = Deref(ARG1);
-  if (!GetName(FileNameBuf, t1)) {
+  if (!GetName(FileNameBuf, YAP_FILENAME_MAX, t1)) {
     Error(TYPE_ERROR_LIST,t1,"restore/1");
     return(FALSE);
   }
