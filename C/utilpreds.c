@@ -64,6 +64,7 @@ clean_dirty_tr(tr_fr_ptr TR0) {
       if (IsVarTerm(p)) {
 	RESET_VARIABLE(p);
       } else {
+	/* copy downwards */
 	TrailTerm(TR0+1) = TrailTerm(pt);
 	TrailTerm(TR0) = TrailTerm(TR0+2) = p;
 	pt+=2;
@@ -254,7 +255,7 @@ copy_complex_term(register CELL *pt0, register CELL *pt0_end, CELL *ptf, CELL *H
 
   /* restore our nice, friendly, term to its original state */
   HB = HB0;
-  reset_trail(TR0);
+  clean_dirty_tr(TR0);
   return 0;
 
  overflow:
@@ -290,7 +291,7 @@ copy_complex_term(register CELL *pt0, register CELL *pt0_end, CELL *ptf, CELL *H
     *pt0 = (CELL)to_visit[3];
   }
 #endif
-  clean_dirty_tr(TR0);
+  reset_trail(TR0);
   return -2;
 }
 
@@ -309,20 +310,20 @@ CopyTerm(Term inp) {
       Hi = H+1;
       H += 2;
       if ((res = copy_complex_term(Hi-2, Hi-1, Hi, Hi)) < 0) {
-	ARG1 = t;
+	ARG3 = t;
 	if (res == -1) { /* handle overflow */
-	  if (!Yap_gc(2, ENV, P)) {
+	  if (!Yap_gc(3, ENV, P)) {
 	    Yap_Error(OUT_OF_STACK_ERROR, TermNil, Yap_ErrorMessage);
 	    return(FALSE);
 	  }
-	  t = Deref(ARG1);
+	  t = Deref(ARG3);
 	  goto restart_attached;
 	} else { /* handle overflow */
 	  if (!Yap_ExpandPreAllocCodeSpace(0)) {
 	    Yap_Error(OUT_OF_HEAP_ERROR, TermNil, Yap_ErrorMessage);
 	    return(FALSE);
 	  }
-	  t = Deref(ARG1);
+	  t = Deref(ARG3);
 	  goto restart_attached;
 	}
       }
@@ -345,20 +346,20 @@ CopyTerm(Term inp) {
     {
       int res;
       if ((res = copy_complex_term(ap-1, ap+1, Hi, Hi)) < 0) {
-	ARG1 = t;
+	ARG3 = t;
 	if (res == -1) { /* handle overflow */
-	  if (!Yap_gc(2, ENV, P)) {
+	  if (!Yap_gc(3, ENV, P)) {
 	    Yap_Error(OUT_OF_STACK_ERROR, TermNil, Yap_ErrorMessage);
 	    return(FALSE);
 	  }
-	  t = Deref(ARG1);
+	  t = Deref(ARG3);
 	  goto restart_list;
 	} else { /* handle overflow */
 	  if (!Yap_ExpandPreAllocCodeSpace(0)) {
 	    Yap_Error(OUT_OF_HEAP_ERROR, TermNil, Yap_ErrorMessage);
 	    return(FALSE);
 	  }
-	  t = Deref(ARG1);
+	  t = Deref(ARG3);
 	  goto restart_list;
 	}
       }
@@ -380,20 +381,20 @@ CopyTerm(Term inp) {
     {
       int res;
       if ((res = copy_complex_term(ap, ap+ArityOfFunctor(f), HB0+1, HB0)) < 0) {
-	ARG1 = t;
+	ARG3 = t;
 	if (res == -1) {
-	  if (!Yap_gc(2, ENV, P)) {
+	  if (!Yap_gc(3, ENV, P)) {
 	    Yap_Error(OUT_OF_STACK_ERROR, TermNil, Yap_ErrorMessage);
 	    return(FALSE);
 	  }
-	  t = Deref(ARG1);
+	  t = Deref(ARG3);
 	  goto restart_appl;
 	} else { /* handle overflow */
 	  if (!Yap_ExpandPreAllocCodeSpace(0)) {
 	    Yap_Error(OUT_OF_HEAP_ERROR, TermNil, Yap_ErrorMessage);
 	    return(FALSE);
 	  }
-	  t = Deref(ARG1);
+	  t = Deref(ARG3);
 	  goto restart_appl;
 	}
       }

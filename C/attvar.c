@@ -81,7 +81,7 @@ CopyAttVar(CELL *orig, CELL ***to_visit_ptr, CELL *res)
   /* add a new attributed variable */
   newv = (attvar_record *)Yap_ReadTimedVar(DelayedVars);
   if (H0 - (CELL *)newv < 1024+(2*NUM_OF_ATTS))
-    return(FALSE);
+    return FALSE;
   RESET_VARIABLE(&(newv->Done));
   newv->sus_id = attvars_ext;
   RESET_VARIABLE(&(newv->Value));
