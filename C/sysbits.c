@@ -30,8 +30,11 @@ static char SccsId[] = "%W% %G%";
 #if  _MSC_VER || defined(__MINGW32__)
 #define _WIN32_WINNT 0x0400
 #endif
-#include "absmi.h"
+#include "Yap.h"
+#include "Yatom.h"
+#include "Heap.h"
 #include "yapio.h"
+#include "eval.h"
 #include "alloc.h"
 #include <math.h>
 #if STDC_HEADERS
@@ -135,7 +138,7 @@ dir_separator (int ch)
   return (ch == ':');
 #elif ATARI || _MSC_VER
   return (ch == '\\');
-#elif defined(__MINGW32__)
+#elif defined(__MINGW32__) || defined(__CYGWIN__)
   return (ch == '\\' || ch == '/');
 #else
   return (ch == '/');
