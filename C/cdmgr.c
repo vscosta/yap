@@ -1900,26 +1900,7 @@ do_toggle_static_predicates_in_use(int mask)
     while (b_ptr > (choiceptr)env_ptr) {
       PredEntry *pe = EnvPreg(env_ptr[E_CP]);
       
-<<<<<<< cdmgr.c
       mark_pred(mask, pe);
-=======
-      if (pe != NULL && FALSE) {
-	op_numbers op = op_from_opcode(ENV_ToOp(env_ptr[E_CP]));
-	if (pe->ArityOfPE)
-	  YP_fprintf(YP_stderr,"ENV %p  %s/%d %s\n", env_ptr, RepAtom(NameOfFunctor(pe->FunctorOfPred))->StrOfAE, pe->ArityOfPE, op_names[op]);
-	else
-	  YP_fprintf(YP_stderr,"ENV %p  %s %s\n", env_ptr, RepAtom((Atom)(pe->FunctorOfPred))->StrOfAE, op_names[op]);
-	if (env_ptr == 0x21d0b24) {
-	  CELL *next_ee = (CELL *)(env_ptr[E_E]);
-	  do {
-	    YP_fprintf(YP_stderr,"looking for parent %p with CP %x value %x\n", next_ee, next_ee[E_CP], EnvPreg(next_ee[E_CP]));
-	    next_ee = (CELL *)(next_ee[E_E]);
-	   } while (next_ee != 0x21d0f28);
-	}
-
-	mark_pred(mask, pe);
-      }
->>>>>>> 1.22
       env_ptr = (CELL *)(env_ptr[E_E]);
     }
     /* now mark the choicepoint */
