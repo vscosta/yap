@@ -551,7 +551,8 @@ predicate_property(Pred,Prop) :-
 '$predicate_property'(P,M,_,dynamic) :-
 	'$is_dynamic'(P,M).
 '$predicate_property'(P,M,_,static) :-
-	\+ '$is_dynamic'(P,M).
+	\+ '$is_dynamic'(P,M),
+	\+ '$undefined'(P,M).
 '$predicate_property'(P,M,_,meta_predicate(P)) :-
 	functor(P,Na,Ar),
 	user:'$meta_predicate'(M,Na,Ar,P).
