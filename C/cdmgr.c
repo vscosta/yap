@@ -754,7 +754,8 @@ not_was_reconsulted(PredEntry *p, Term t, int mode)
 	Int Arity = p->ArityOfPE;
 	
 #ifdef DEBUG
-	list_all_predicates_in_use();
+	if(0)
+	  list_all_predicates_in_use();
 #endif
 	ErrorMessage = ErrorSay;
 	Error_Term = t;
@@ -864,6 +865,8 @@ addclause(Term t, CODEADDR cp, int mode, int mod)
     spy_flag = TRUE;
   if (mode == consult)
     not_was_reconsulted(p, t, TRUE);
+  if (Error_TYPE == PERMISSION_ERROR_MODIFY_STATIC_PROCEDURE)
+    return;
   if (!is_dynamic(p)) {
     Clause     *clp = ClauseCodeToClause(cp);
     clp->ClFlags |= StaticMask;
