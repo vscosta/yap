@@ -1398,6 +1398,8 @@ cont_current_predicate(void)
   if (pp == NULL)
     cut_fail();
   EXTRA_CBACK_ARG(3,1) = (CELL)MkIntegerTerm((Int)(pp->NextPredOfModule));
+  if (pp->FunctorOfPred == FunctorModule)
+    return(FALSE);
   Arity = pp->ArityOfPE;
   if (Arity)
     name = NameOfFunctor(pp->FunctorOfPred);
