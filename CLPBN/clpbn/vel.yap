@@ -52,7 +52,7 @@ check_for_hidden_vars([V|Vs], AllVs0, [V|NVs]) :-
 	check_for_hidden_vars(IVs, AllVs, NVs).
 
 check_for_extra_variables(V,AllVs0, AllVs, Vs, IVs) :-
-	clpbn:get_atts(V, [dist(([_|_].[V1|LV])=>_)]), !,
+	clpbn:get_atts(V, [dist((([_|_].[V1|LV])->_))]), !,
 	add_old_variables([V1|LV], AllVs0, AllVs, Vs, IVs).
 check_for_extra_variables(_,AllVs, AllVs, Vs, Vs).
 
@@ -70,7 +70,7 @@ find_all_clpbn_vars([V|Vs], [var(V,I,Sz,Vals,_,_)|LV], [table(I,Table,Deps,Sizes
 	find_all_clpbn_vars(Vs, LV, Tables).
 
 var_with_deps(V, Table, Deps, Sizes, Vals) :-
-	clpbn:get_atts(V, [dist(D=>Vals)]),
+	clpbn:get_atts(V, [dist((D->Vals))]),
 	from_dist_get(D,Vals,OTable,VDeps),
 	reorder_table([V|VDeps],Sizes,OTable,Deps,Table).
 
@@ -182,7 +182,7 @@ get_sizes([V|Deps], [Sz|Sizes]) :-
 get_dist_els(V,Sz) :-
 	get_atts(V, [size(Sz)]), !.
 get_dist_els(V,Sz) :-
-	clpbn:get_atts(V, [dist(_=>Vals)]), !,
+	clpbn:get_atts(V, [dist((_->Vals))]), !,
 	length(Vals,Sz),
 	put_atts(V, [size(Sz)]).
 
@@ -299,7 +299,7 @@ multiply_tables([tab(Tab1,Deps1,Szs1), tab(Tab2,Deps2,Sz2)| Tables], Out) :-
 
 
 propagate_evidence(V, Evs) :-
-	clpbn:get_atts(V, [evidence(Ev),dist(_=>Out)]), !,
+	clpbn:get_atts(V, [evidence(Ev),dist((_->Out))]), !,
 	generate_szs_with_evidence(Out,Ev,Evs).
 propagate_evidence(_, _).
 
@@ -435,7 +435,7 @@ update_tables([_|Tabs],NTabs,Table,V,AVs0,NS) :-
 bind_vals([],_,_) :- !.
 % simple case, we want a distribution on a single variable.
 %bind_vals([V],Ps) :- !,
-%	clpbn:get_atts(V, [dist(_=>Vals)]),
+%	clpbn:get_atts(V, [dist((_->Vals))]),
 %	put_atts(V, posterior([V], Vals, Ps)).
 % complex case, we want a joint distribution, do it on a leader.
 % should split on cliques ?
@@ -450,7 +450,7 @@ get_all_combs(Vs, Vals) :-
 
 get_all_doms([], []).
 get_all_doms([V|Vs], [D|Ds]) :-
-	clpbn:get_atts(V, [dist(_=>D)]),
+	clpbn:get_atts(V, [dist((_->D))]),
 	get_all_doms(Vs, Ds).
 
 ms([], []).

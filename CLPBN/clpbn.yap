@@ -1,6 +1,6 @@
 
 
-:- module(clpbn, [{}/1).
+:- module(clpbn, [{}/1]).
 
 :- use_module(library(atts)).
 :- use_module(library(lists)).
@@ -27,7 +27,7 @@
 		    check_if_bnt_done/1
 		    ]).
 
-:- use_module('clpn/vel', [vel/3,
+:- use_module('clpbn/vel', [vel/3,
 		    check_if_vel_done/1
 		    ]).
 
@@ -41,7 +41,7 @@ use(vel).
 %	key_entry(Key,Indx),
 %	array_element(clpbn,Indx,El),
 %	attributes:put_att(El,3,indx(Indx)),
-	put_atts(El,[key(Key),dist(E=>Domain)]),
+	put_atts(El,[key(Key),dist((E->Domain))]),
 	extract_dist(Dist, E, Domain),
 	add_evidence(Var,El).
 
@@ -130,8 +130,8 @@ compile_second_constraint(Constraint, Vars, NVars, clpbn:put_atts(EVar,[dist(NC)
 	check_constraint(Constraint, Vars, NVars, NC).
 
 check_constraint(Constraint, _, _, Constraint) :- var(Constraint), !.
-check_constraint((A=>D), _, _, (A=>D)) :- var(A), !.
-check_constraint((([A|B].L)=>D), Vars, NVars, (([A|B].NL)=>D)) :- !,
+check_constraint((A->D), _, _, (A->D)) :- var(A), !.
+check_constraint((([A|B].L)->D), Vars, NVars, (([A|B].NL)->D)) :- !,
 	check_cpt_input_vars(L, Vars, NVars, NL).
 check_constraint(Dist, _, _, Dist).
 
@@ -256,11 +256,11 @@ get_bnode(Var, Goal) :-
 	include_evidence(Var, Goal0, Key, Goali),
 	include_starter(Var, Goali, Key, Goal).
 
-include_evidence(Var, Goal0, Key, ((Key<--Ev),Goal0)) :-
+include_evidence(Var, Goal0, Key, ((Key:-Ev),Goal0)) :-
 	get_atts(Var, [evidence(Ev)]), !.
 include_evidence(_, Goal0, _, Goal0).
 
-include_starter(Var, Goal0, Key, ((<--Key),Goal0)) :-
+include_starter(Var, Goal0, Key, ((:-Key),Goal0)) :-
 	get_atts(Var, [starter]), !.
 include_starter(_, Goal0, _, Goal0).
 
@@ -366,13 +366,4 @@ reset_clpbn.
 user:term_expansion((A :- {}), ( :- true )) :-	 !, % evidence
 	prolog_load_context(module, M),
 	add_to_evidence(M:A).
-user:term_expansion((A :- B), (A :- (LCs,NB))) :-			% expands heads
-	fetch_skolems(B, B0, Skolems, []),
-	Skolems \= [],
-	skolem_vars(Skolems, Vars),
-	copy_term(Vars+A, NVars+NA),
-	skolem_new_vars(Skolems, NVars, NSkolems),
-	compile_skolems(NSkolems, Vars, NVars, NA, LCs),
-	handle_body_goals(B0, B1),
-	fresh_vars(Vars, NVars, NB, B1).
 

@@ -170,7 +170,7 @@ send_var_sizes([V|Vs], CommandStream) :-
 	send_var_sizes(Vs, CommandStream).
 
 
-dist_size((_=>Vs), _, L) :- !,
+dist_size((_->Vs), _, L) :- !,
 	length(Vs,L).
 dist_size((_._=Vs), I0, If) :- !,
 	length(Vs,L),
@@ -201,7 +201,7 @@ dump_cpds([V|Vs], CommandStream, Answer) :-
 %
 % this is a discrete distribution
 %
-dump_dist((average.Ss)=>Vs, V, CommandStream, Answer) :- !,
+dump_dist(((average.Ss)->Vs), V, CommandStream, Answer) :- !,
 	vals_map(Vs, 1, Map),
 	get_atts(V, [topord(I)]),
 	my_format(CommandStream, "bnet.CPD{~w} = deterministic_CPD(bnet, ~w, inline('round(mean([",['$VAR'(I),'$VAR'(I)]),
@@ -209,7 +209,7 @@ dump_dist((average.Ss)=>Vs, V, CommandStream, Answer) :- !,
 	length(Ss, Len),
 	dump_indices(0,Len,CommandStream),
 	send_command(CommandStream, Answer, "]))'));~n",[]).
-dump_dist((sum.Ss)=>Vs, V, CommandStream, Answer) :- !,
+dump_dist(((sum.Ss)->Vs), V, CommandStream, Answer) :- !,
 	vals_map(Vs, 1, Map),
 	get_atts(V, [topord(I)]),
 	my_format(CommandStream, "bnet.CPD{~w} = deterministic_CPD(bnet, ~w, inline('sum([",['$VAR'(I),'$VAR'(I)]),
@@ -217,7 +217,7 @@ dump_dist((sum.Ss)=>Vs, V, CommandStream, Answer) :- !,
 	length(Ss, Len),
 	dump_indices(0,Len,CommandStream),
 	send_command(CommandStream, Answer, "])'));~n",[]).
-dump_dist((normalised_average(N).Ss)=>Vs, V, CommandStream, Answer) :- !,
+dump_dist(((normalised_average(N).Ss)->Vs), V, CommandStream, Answer) :- !,
 	vals_map(Vs, 1, Map),
 	get_atts(V, [topord(I)]),
 	my_format(CommandStream, "bnet.CPD{~w} = deterministic_CPD(bnet, ~w, inline('round((sum([",['$VAR'(I),'$VAR'(I)]),
@@ -226,7 +226,7 @@ dump_dist((normalised_average(N).Ss)=>Vs, V, CommandStream, Answer) :- !,
 	dump_indices(0,Len,CommandStream),
 	N2 is N//2,
 	send_command(CommandStream, Answer, "])+~d)/~d)'));~n",[N2,N]).
-dump_dist(([H|T].Ss0)=>Vs, V, CommandStream, Answer) :- !,
+dump_dist((([H|T].Ss0)->Vs), V, CommandStream, Answer) :- !,
 	Ds = [H|T],
 	vals_map(Vs, 1, Map),
 	get_atts(V, [topord(I)]),
@@ -238,7 +238,7 @@ dump_dist(([H|T].Ss0)=>Vs, V, CommandStream, Answer) :- !,
 	keysort(KDs0,KDs),
 	dump_elements(KDs, CommandStream),
 	send_command(CommandStream, Answer, "]);~n",[]).
-dump_dist(([H|T]=>Vs), V, CommandStream, Answer) :-
+dump_dist(([H|T]->Vs), V, CommandStream, Answer) :-
 	vals_map(Vs, 1, Map),
 	get_atts(V, [topord(I)]),
 	my_format(CommandStream, "bnet.CPD{~w} = tabular_CPD(bnet, ~w, [ ",['$VAR'(I),'$VAR'(I)]),

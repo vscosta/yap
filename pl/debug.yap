@@ -83,10 +83,19 @@
 	 ).
 '$do_suspy'(S, F, N, T, M) :-
 	 '$system_predicate'(T,M),
+	'$flags'(T,Mod,F,F),
+	F /\ 0x118dd080 =\= 0,
 	 ( S = spy ->
 	     '$do_error'(permission_error(access,private_procedure,T),spy(M:F/N))
 	 ;
 	     '$do_error'(permission_error(access,private_procedure,T),nospy(M:F/N))
+	 ).
+'$do_suspy'(S, F, N, T, M) :-
+	 '$undefined'(T,M), !,
+	 ( S = spy ->
+	     '$print_message'(warning,no_match(spy(M:F/N)))
+	 ;
+	     '$print_message'(warning,no_match(nospy(M:F/N)))
 	 ).
 '$do_suspy'(S,F,N,T,M) :-
 	'$suspy2'(S,F,N,T,M).
@@ -391,7 +400,9 @@ debugging :-
 
 % 
 '$spycall'(G, M, _) :-
-	'$access_yap_flags'(10,0), !,
+	( '$access_yap_flags'(10,0);
+	  '$system_predicate'(G,M), \+ '$meta_predicate'(G,M)
+	), !,
 	'$execute_nonstop'(G, M).
 '$spycall'(G, M, InControl) :-
 	'$flags'(G,M,F,F),
