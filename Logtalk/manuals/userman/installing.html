@@ -20,13 +20,13 @@
 The Logtalk system can be installed in any directory that is accessible to the user. The installation process consists merely in decompressing an archive file that will lead to a new directory with the structure/contents described below. The decompression process naturally depends on the operative system that you are using.
 </p>
 
-<h4>Mac OS</h4>
+<h4>Mac OS 8.x, 9.x</h4>
 
 <p>
 The Macintosh version is included in the file <code>lgt2xx.sea.bin</code>, a <code>MacBinary</code> encoded, self-extracting archive. Your web browser should automatically decode the file, giving you a <code>.sea</code> self-extracting archive that you double-click to install Logtalk. If not, drag and drop the <code>.bin</code> file in a utility like <code>StuffIt Expander</code> or <code>MacBinaryII+</code>.
 </p>
 
-<h4>Linux, Unix</h4>
+<h4>MacOS X, BSD, Linux, Unix</h4>
 
 <p>
 The Linux/Unix version is included in the file <code>lgt2xx.tar.gz</code>. In order to decompress and install the system we can use the following commands:
@@ -204,7 +204,7 @@ If you have more than a few source files then you may want to use a loader utili
 <h3><a class="back" title="Return to index" name="options" href="index.html#installing_options">Compiler options</a></h3>
 
 <p>
-The <a title="Consult reference manual" href="../refman/builtins/logtalk_load1.html"><code>logtalk_load/1</code></a> and <a title="Consult reference manual" href="../refman/builtins/logtalk_compile1.html"><code>logtalk_compile/1</code></a> always use the set of default compiler options specified in the Logtalk configuration files. Although the default options cover the usual cases, you may want to use a different set of options while compiling or loading Logtalk source files. This can be accomplished by using the <a title="Consult reference manual" href="../refman/builtins/logtalk_load2.html"><code>logtalk_load/2</code></a> or the <a title="Consult reference manual" href="../refman/builtins/logtalk_compile2.html"><code>logtalk_compile/2</code></a> built-in predicates. These two predicates accept a list of options affecting how a Logtalk source file is compiled and loaded:
+The <a title="Consult reference manual" href="../refman/builtins/logtalk_load1.html"><code>logtalk_load/1</code></a> and <a title="Consult reference manual" href="../refman/builtins/logtalk_compile1.html"><code>logtalk_compile/1</code></a> always use the set of default compiler options specified in the Logtalk configuration files. Although the default options cover the usual cases, you may want to use a different set of options while compiling or loading some of your Logtalk source files. This can be accomplished by using the <a title="Consult reference manual" href="../refman/builtins/logtalk_load2.html"><code>logtalk_load/2</code></a> or the <a title="Consult reference manual" href="../refman/builtins/logtalk_compile2.html"><code>logtalk_compile/2</code></a> built-in predicates. These two predicates accept a list of options affecting how a Logtalk source file is compiled and loaded:
 </p>
 <pre>
     | ?- logtalk_compile(Files, Options).
@@ -242,6 +242,10 @@ You can use the following options:
 		<dd>Controls the Prolog built-in predicates redefinition warnings. Possible option values are <code>warning</code> (can be very verbose if your code redefines a lot of Prolog built-in predicates) and <code>silent</code> (the usual default).</dd>
 </dl>
 <dl>
+	<dt><code>portability(Option)</code></dt>
+		<dd>Controls the calling of non-ISO defined built-in predicates warnings. Possible option values are <code>warning</code> and <code>silent</code> (the usual default).</dd>
+</dl>
+<dl>
 	<dt><code>xml(Option)</code></dt>
 		<dd>Controls the automatic generation of documenting files in XML format. Possible option values are <code>on</code> (the usual default) and <code>off</code>.</dd>
 </dl>
@@ -263,7 +267,7 @@ You can use the following options:
 <strong><a href="configuration.html">Previous</a> | <a href="programming.html">Next</a> | <a href="index.html">Table of Contents</a> | <a href="../bibliography.html">Bibliography</a> | <a href="../glossary.html">Glossary</a></strong>
 </p>
 <p class="center">
-Last updated on: October 16, 2001
+Last updated on: December 30, 2001
 </p>
 <hr />
 

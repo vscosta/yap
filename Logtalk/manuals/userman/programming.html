@@ -28,7 +28,7 @@ Logtalk, as an object-oriented extension to Prolog, shares with it the same pref
 		<dd>Logtalk objects, coupled with event-driven programming features enable easy implementation of frame-like systems and similar structured knowledge representations.</dd>
 </dl>
 <dl>
-	<dt><strong>Blackboard systems, Agent-based systems and systems with complex object relationships</strong></dt>
+	<dt><strong>Blackboard systems, agent-based systems and systems with complex object relationships</strong></dt>
 		<dd>Logtalk support for event-driven programming can provide a basis for the dynamic and reactive nature of these types of applications.</dd>
 </dl>
 <dl>
@@ -63,6 +63,12 @@ A Logtalk source file must contain only one entity, either an object, a category
 Any Logtalk source file can contain arbitrary directives and clauses before the opening entity directive. These directives and clauses will not be compiled by the Logtalk pre-processor and will be copied unchanged to the beginning of the corresponding Prolog output file. This feature is included to help the integration of Logtalk with other Prolog extensions like, for example, constraint programming extensions.
 </p>
 
+<h3><a class="back" title="Return to index" name="portability" href="index.html#programming_portability">Portable programs</a></h3>
+
+<p>
+Logtalk is compatible with almost all modern Prolog compilers. However, this does not mean that our Logtalk programs will have the same level of portability. If possible, we should only use in our programs Logtalk built-in predicates and ISO Prolog defined built-in predicates. If we need to use built-in predicates that may not be available in other Prolog compilers, we should try to encapsulate the non-portable code in a minimum of objects and provide a portable <strong>interface</strong> for that code. An example will be code that access operating-system specific features. The Logtalk compiler can warn us of the use of non-ISO defined built-in predicates by using the <code>portability/1</code> compiler option.
+</p>
+
 <h3><a class="back" title="Return to index" name="errors" href="index.html#programming_errors">Avoiding common errors</a></h3>
 
 <p>
@@ -89,7 +95,7 @@ Logtalk error handling strongly depends on the ISO compliance of the chosen Prol
 <strong><a href="installing.html">Previous</a> | <a href="index.html">Next</a> | <a href="index.html">Table of Contents</a> | <a href="../bibliography.html">Bibliography</a> | <a href="../glossary.html">Glossary</a></strong>
 </p>
 <p class="center">
-Last updated on: February 10, 2001
+Last updated on: December 30, 2001
 </p>
 <hr />
 
