@@ -11,8 +11,11 @@
 * File:		cdmgr.c							 *
 * comments:	Code manager						 *
 *									 *
-* Last rev:     $Date: 2005-02-08 18:04:57 $,$Author: vsc $						 *
+* Last rev:     $Date: 2005-02-25 03:39:44 $,$Author: vsc $						 *
 * $Log: not supported by cvs2svn $
+* Revision 1.152  2005/02/08 18:04:57  vsc
+* library_directory may not be deterministic (usually it isn't).
+*
 * Revision 1.151  2005/02/08 04:05:23  vsc
 * fix mess with add clause
 * improves on sigsegv handling
@@ -3885,7 +3888,7 @@ p_continue_log_update_clause(void)
   READ_LOCK(pe->PRWLock);
   PP = pe;
 #endif
-  return fetch_next_lu_clause(pe, ipc, Deref(ARG3), ARG4, ARG5, B->cp_ap, FALSE);
+  return fetch_next_lu_clause(pe, ipc, Deref(ARG3), ARG4, ARG5, B->cp_cp, FALSE);
 }
 
 static Int
@@ -3991,7 +3994,7 @@ p_continue_log_update_clause0(void)
   READ_LOCK(pe->PRWLock);
   PP = pe;
 #endif
-  return fetch_next_lu_clause0(pe, ipc, Deref(ARG3), ARG4, B->cp_ap, FALSE);
+  return fetch_next_lu_clause0(pe, ipc, Deref(ARG3), ARG4, B->cp_cp, FALSE);
 }
 
 static Int
