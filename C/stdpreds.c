@@ -2078,16 +2078,6 @@ p_has_yap_or(void)
 }
 
 
-static Int 
-p_has_tabling(void)
-{
-#ifdef TABLING
-  return(TRUE);
-#else
-  return(FALSE);
-#endif
-}
-
 static Int
 p_set_yap_flags(void)
 {
