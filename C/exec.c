@@ -870,9 +870,15 @@ exec_absmi(int top)
 #endif
       yap_flags[SPY_CREEP_FLAG] = 0;
       CreepFlag = CalculateStackGap();
-#if defined(__GNUC__) && (defined(hppa) || defined(__alpha))
+#if defined(__GNUC__)
+#if defined(hppa) || defined(__alpha)
      /* siglongjmp resets the TR hardware register */
       restore_TR();
+#endif
+#if defined(__alpha)
+     /* siglongjmp resets the H hardware register */
+      restore_H();
+#endif
 #endif
       P = (yamop *)FAILCODE;
     }
