@@ -1188,7 +1188,6 @@ throw(Ball) :-
 	'$jump_env_and_store_ball'(NewBall).
 
 
-	
 % just create a choice-point
 '$catch'(_,_,_).
 '$catch'(_,_,_) :- fail.

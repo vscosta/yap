@@ -1315,6 +1315,6 @@ InitExecFs(void)
   InitCPred("$restore_regs", 1, p_restore_regs, SafePredFlag);
   InitCPred("$restore_regs", 2, p_restore_regs2, SafePredFlag);
   InitCPred("$clean_ifcp", 1, p_clean_ifcp, SafePredFlag);
-  InitCPred("$jump_env_and_store_ball", 1, p_jump_env, SafePredFlag);
+  InitCPred("$jump_env_and_store_ball", 1, p_jump_env, 0);
 }
 

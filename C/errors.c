@@ -207,7 +207,8 @@ exit_yap (int value, char *msg)
   exit(value);
 }
 
-static void detect_bug_location(char *tp, int psize)
+static void
+detect_bug_location(char *tp, int psize)
 {
   Atom pred_name;
   Int pred_arity;
