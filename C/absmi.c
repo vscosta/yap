@@ -10,8 +10,15 @@
 *									 *
 * File:		absmi.c							 *
 * comments:	Portable abstract machine interpreter                    *
-* Last rev:     $Date: 2004-06-29 19:04:40 $,$Author: vsc $						 *
+* Last rev:     $Date: 2004-07-03 03:29:24 $,$Author: vsc $						 *
 * $Log: not supported by cvs2svn $
+* Revision 1.138  2004/06/29 19:04:40  vsc
+* fix multithreaded version
+* include new version of Ricardo's profiler
+* new predicat atomic_concat
+* allow multithreaded-debugging
+* small fixes
+*
 * Revision 1.137  2004/06/23 17:24:19  vsc
 * New comment-based message style
 * Fix thread support (at least don't deadlock with oneself)
@@ -173,10 +180,12 @@ push_live_regs(yamop *pco)
 
 #define TestMode (GCMode | GrowHeapMode | GrowStackMode | ErrorHandlingMode | InErrorMode | AbortMode)
 int Yap_absmiEND(void);
+
 void prof_alrm(int signo, siginfo_t *si, ucontext_t *sc);
 
 void prof_alrm(int signo, siginfo_t *si, ucontext_t *sc)
 {
+#if __linux__
   void * oldpc=(void *) sc->uc_mcontext.gregs[14]; /* 14= REG_EIP */
 
   if (Yap_PrologMode & TestMode) {
@@ -190,7 +199,7 @@ void prof_alrm(int signo, siginfo_t *si, ucontext_t *sc)
      fprintf(FProf,"%p %p\n", (void *) oldpc, P);
      return;
   }
-
+#endif
   fprintf(FProf,"0 %p\n", PREG);
   return;
 }
