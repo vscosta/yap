@@ -20,7 +20,7 @@
 #include <sys/types.h>
 #endif
 #include "YapInterface.h"
-#if HAVE_REGEX_H
+#if HAVE_REGEXEC
 #include "regex.h"
 #define yap_regcomp(A,B,C) regcomp(A,B,C)
 #define yap_regexec(A,B,C,D,E) regexec(A,B,C,D,E)

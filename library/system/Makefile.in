@@ -67,7 +67,7 @@ sys.o: $(srcdir)/sys.c
 # 
 DLLTOOL=dlltool
 DLLNAME=sys.dll
-DLL_LIBS=-L /usr/lib/mingw -lmoldname -lcrtdll -lkernel32 -L../.. -lWYap
+DLL_LIBS=@DLL_LIBS@ -L../.. -lWYap
 BASE_FILE=sys.base
 EXP_FILE=sys.exp
 DEF_FILE=$(srcdir)/sys.def

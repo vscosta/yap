@@ -67,7 +67,7 @@ yap2swi.o: $(srcdir)/yap2swi.c
 # 
 DLLTOOL=dlltool
 DLLNAME=yap2swi.dll
-DLL_LIBS=-L /usr/lib/mingw -lmoldname -lcrtdll -lkernel32 -L../.. -lWYap
+DLL_LIBS=@DLL_LIBS@ -L../.. -lWYap
 BASE_FILE=yap2swi.base
 EXP_FILE=yap2swi.exp
 DEF_FILE=$(srcdir)/yap2swi.def

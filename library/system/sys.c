@@ -300,10 +300,10 @@ file_property(void)
   }
 #elif defined(__MINGW32__) || _MSC_VER
   /* for some weird reason _stat did not work with mingw32 */
-  struct stat buf;
+  struct _stat buf;
 
   fd = YAP_AtomName(YAP_AtomOfTerm(YAP_ARG1));
-  if (stat(fd, &buf) != 0) {
+  if (_stat(fd, &buf) != 0) {
     /* return an error number */
     return(YAP_Unify(YAP_ARG7, YAP_MkIntTerm(errno)));
   }

@@ -91,7 +91,7 @@ regexec.o: $(srcdir)/regexec.c
 # 
 DLLTOOL=dlltool
 DLLNAME=regexp.dll
-DLL_LIBS=-L /usr/lib/mingw -lcrtdll -L../.. -lWYap
+DLL_LIBS=@DLL_LIBS@ -L../.. -lWYap
 BASE_FILE=regexp.base
 EXP_FILE=regexp.exp
 DEF_FILE=$(srcdir)/regexp.def

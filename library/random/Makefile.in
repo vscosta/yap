@@ -67,7 +67,7 @@ random.o: $(srcdir)/random.c
 # 
 DLLTOOL=dlltool
 DLLNAME=random.dll
-DLL_LIBS=-L /usr/lib/mingw -lmoldname -lcrtdll -lkernel32 -L../.. -lWYap
+DLL_LIBS=@DLL_LIBS@ -L../.. -lWYap
 BASE_FILE=random.base
 EXP_FILE=random.exp
 DEF_FILE=$(srcdir)/random.def
