@@ -56,6 +56,7 @@ read_sig.
 	'$set_yap_flags'(10,0),
 	set_value('$gc',on),
 	set_value('$verbose',on),
+	(recorded('$in_undefp',_,R), erase(R), fail ; true),
 	prompt('  ?- '),
 	(
 	    get_value('$break',0)
@@ -731,23 +732,42 @@ not(G) :-    \+ '$execute'(G).
 '$check_callable'(_,_).
 
 % Called by the abstract machine, if no clauses exist for a predicate
+recordaifnot(K,T,R) :-
+	recorded(K,T,R), % force non-det binding to R.
+	'$still_variant'(R,T),
+	!,
+	fail.
+recordaifnot(K,T,R) :-
+	recorda(K,T,R).
+
 '$undefp'([M|G]) :-
+	recordaifnot('$in_undefp','$in_undefp',R),
+	'$do_undefp'(G,M,R).
+
+'$do_undefp'(G,M,R) :-
 	functor(G,F,N),
 	recorded('$import','$import'(S,M,F,N),_),
 	S \= M, % can't try importing from the module itself.
 	!,
+	erase(R),
 	'$execute'(S:G).
-'$undefp'([M|G]) :-
+'$do_undefp'(G,M,R) :-
 	'$is_expand_goal_or_meta_predicate'(G,M),
-	user:goal_expansion(G, M, NG), !,
+	'$system_catch'(goal_expansion(G, M, NG), user, _, fail), !,
+	erase(R),
 	'$execute0'(NG,M).
-'$undefp'([M|G]) :-
+'$do_undefp'(G,M,R) :-
 	\+ '$undefined'(unknown_predicate_handler(_,_,_), user),
-	user:unknown_predicate_handler(G,M,NG), !,
+	'$system_catch'(unknown_predicate_handler(G,M,NG), user, _, fail), !,
+	erase(R),
 	'$execute'(user:NG).
-'$undefp'([M|G]) :-
+'$do_undefp'(G,M,R) :-
 	recorded('$unknown','$unknown'(M:G,US),_), !,
+	erase(R),
 	'$execute'(user:US).
+'$do_undefp'(_,_,R) :-
+	erase(R),
+	fail.
 
 
 /* This is the break predicate,
