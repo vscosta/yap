@@ -478,7 +478,11 @@ statistics(stack_shifts,[NOfHO,NOfSO,NOfTO]) :-
 	'$inform_stack_overflows'(NOfSO,_),
 	'$inform_trail_overflows'(NOfTO,_).
 
+key_statistics(Key, NOfEntries, TotalSize) :-
+	key_statistics(Key, NOfEntries, ClSize, IndxSize),
+	TotalSize is ClSize+IndxSize.
 
+	
 %%% The unknown predicate,
 %	informs about what the user wants to be done when
 %	there are no clauses for a certain predicate */
