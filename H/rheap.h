@@ -346,107 +346,45 @@ restore_codes(void)
 
 /* Restoring the heap */
 
-/* Converts a structure of the DB, as it was saved in the heap */
-/* uses a variable base */
-static void 
-ConvDBStruct(Term Struct, char *tbase, CELL size)
-{
-  CELL            *TermP;
-  Functor         f;
-  int             Arity, i;
-
-  TermP = (CELL *)(tbase + (CELL)RepAppl(Struct));
-  f = (Functor)(*TermP);
-  if (IsExtensionFunctor(f)) {
-    return;
-  }
-  f = FuncAdjust(f);
-  *(Functor *)TermP = f;
-  Arity = ArityOfFunctor(f);
-  TermP++;
-  for (i = 0; i < Arity; i++) {
-    register Term   t = *TermP;
-    if (IsVarTerm(t)) {
-      /* do nothing */
-    } else if (IsAtomTerm(t)) {
-      /* these are the only ones that may actually need to be changed */
-      *TermP = AtomTermAdjust(t);
-    } else if (IsApplTerm(t)) {
-      CELL offset = (CELL)RepAppl(t);
-      if (offset > size) {
-	*TermP = AbsAppl(CellPtoHeapAdjust(RepAppl(t)));
-      } else {
-	ConvDBStruct(t, tbase, size);
-      }
-    } else if (IsPairTerm(t)) {
-      ConvDBList(t, tbase, size);
-    }
-    TermP++;
-  }
-}
-
-/* Converts a list of the DB, as it was saved in the heap */
-/* uses a variable base */
-static void 
-ConvDBList(Term List, char *tbase, CELL size)
-{
-  CELL            *TermP;
-  int             i;
-  TermP = (CELL *)(tbase + (CELL) RepPair(List));
-  for (i = 0; i < 2; i++) {
-    register Term   t = *TermP;
-    if (IsVarTerm(t)) {
-      /* do nothing */
-    } else if (IsAtomTerm(t))
-      *TermP = AtomTermAdjust(t);
-    else if (IsPairTerm(t))
-      ConvDBList(t, tbase, size);
-    else if (IsApplTerm(t)) {
-      CELL offset = (CELL)RepAppl(t);
-      if (offset > size) {
-	*TermP = AbsAppl(CellPtoHeapAdjust(RepAppl(t)));
-      } else {
-	ConvDBStruct(t, tbase, size);
-      }
-    }
-    TermP++;
-  }
-}
-
 /* adjusts terms stored in the data base, when they have no variables */
 static Term 
-AdjustDBTerm(Term trm)
+AdjustDBTerm(Term trm, Term *p_base)
 {
-  Term           *p;
-  
   if (IsAtomTerm(trm))
-    return (AtomTermAdjust(trm));
+    return AtomTermAdjust(trm);
   if (IsPairTerm(trm)) {
+    Term           *p;
+
     p = PtoHeapCellAdjust(RepPair(trm));
-    *p = AdjustDBTerm(*p);
-    ++p;
-    *p = AdjustDBTerm(*p);
-    return (AbsPair(p-1));
+    if (p > p_base) {
+      p[0] = AdjustDBTerm(p[0], p);
+      p[1] = AdjustDBTerm(p[1], p);
+    }
+    return AbsPair(p);
   }
   if (IsApplTerm(trm)) {
+    Term           *p;
     Functor f;
     Term *p0 = p = PtoHeapCellAdjust(RepAppl(trm));
-    f = (Functor)*p;
-    if (!IsExtensionFunctor(f)) {
-      int             Arity, i;
+    /* if it is before the current position, then we are looking
+       at old code */
+    if (p > p_base) {
+      f = (Functor)p[0];
+      if (!IsExtensionFunctor(f)) {
+	UInt             Arity, i;
 
-      f = FuncAdjust(f);
-      *p = (Term)f;
-      Arity = ArityOfFunctor(f);
-      p++;
-      for (i = 0; i < Arity; ++i) {
-	*p = AdjustDBTerm(*p);
-	p++;
+	f = FuncAdjust(f);
+	*p++ = (Term)f;
+	Arity = ArityOfFunctor(f);
+	for (i = 0; i < Arity; ++i) {
+	  *p = AdjustDBTerm(*p, p0);
+	  p++;
+	}
       }
     }
-    return (AbsAppl(p0));
+    return AbsAppl(p0);
   }
-  return (trm);
+  return trm;
 }
 
 static void
@@ -454,70 +392,46 @@ RestoreDBTerm(DBTerm *dbr)
 {
 #ifdef COROUTINING
   if (dbr->attachments)
-    dbr->attachments = AdjustDBTerm(dbr->attachments);
+    dbr->attachments = AdjustDBTerm(dbr->attachments, dbr->Contents);
 #endif
-  if (dbr->DBRefs !=  NULL)
+  if (dbr->DBRefs !=  NULL) {
+    DBRef          *cp;
+    DBRef            tm;
+
     dbr->DBRefs = DBRefPAdjust(dbr->DBRefs);
-  if (IsAtomTerm(dbr->Entry)) {
-    dbr->Entry = AtomTermAdjust(dbr->Entry);
-    return;
+    cp = dbr->DBRefs;
+    while ((tm = *--cp) != 0)
+      *cp = DBRefAdjust(tm);
   }
-  if (IsApplTerm(dbr->Entry)) {
-      ConvDBStruct(dbr->Entry, CharP(dbr->Contents-1), dbr->NOfCells*sizeof(CELL));
-  } else if (IsPairTerm(dbr->Entry)) {
-    ConvDBList(dbr->Entry, CharP(dbr->Contents-1), dbr->NOfCells*sizeof(CELL));
-  }
+  dbr->Entry = AdjustDBTerm(dbr->Entry, dbr->Contents);
 }
 
 static void
 RestoreDBEntry(DBRef dbr)
 {
 #ifdef DEBUG_RESTORE
-  YP_fprintf(errout, "Restoring at %x", dbr);
+  fprintf(stderr, "Restoring at %x", dbr);
   if (dbr->Flags & DBAtomic)
-    YP_fprintf(errout, " an atomic term\n");
+    fprintf(stderr, " an atomic term\n");
   else if (dbr->Flags & DBNoVars)
-    YP_fprintf(errout, " with no vars\n");
+    fprintf(stderr, " with no vars\n");
   else if (dbr->Flags & DBComplex)
-    YP_fprintf(errout, " complex term\n");
+    fprintf(stderr, " complex term\n");
   else if (dbr->Flags & DBIsRef)
-    YP_fprintf(errout, " a ref\n");
+    fprintf(stderr, " a ref\n");
   else
-    YP_fprintf(errout, " a var\n");
+    fprintf(stderr, " a var\n");
 #endif
+  RestoreDBTerm(&(dbr->DBT));
   dbr->Parent = (DBProp)AddrAdjust((ADDR)(dbr->Parent));
-#ifdef COROUTINING
-  if (dbr->DBT.attachments)
-    dbr->DBT.attachments = AdjustDBTerm(dbr->DBT.attachments);
-#endif
   if (dbr->Code != NULL)
     dbr->Code = PtoOpAdjust(dbr->Code);
-  if (dbr->Flags & DBWithRefs) {
-    DBRef          *cp;
-    DBRef            tm;
-
-    dbr->DBT.DBRefs = DBRefPAdjust(dbr->DBT.DBRefs);
-    cp = dbr->DBT.DBRefs;
-    while ((tm = *--cp) != 0)
-      *cp = DBRefAdjust(tm);
-  }
-  if (dbr->Flags & DBAtomic) {
-    if (IsAtomTerm(dbr->DBT.Entry))
-      dbr->DBT.Entry = AtomTermAdjust(dbr->DBT.Entry);
-  } else if (dbr->Flags & DBNoVars)
-    dbr->DBT.Entry = (CELL) AdjustDBTerm((Term) dbr->DBT.Entry);
-  else if (dbr->Flags & DBComplex) {
-    if (IsApplTerm(dbr->DBT.Entry))
-      ConvDBStruct(dbr->DBT.Entry, CharP(dbr->DBT.Contents-1), dbr->DBT.NOfCells*sizeof(CELL));
-    else
-      ConvDBList(dbr->DBT.Entry, CharP(dbr->DBT.Contents-1), dbr->DBT.NOfCells*sizeof(CELL));
-  }
   if (dbr->Prev != NULL)
     dbr->Prev = DBRefAdjust(dbr->Prev);
   if (dbr->Next != NULL)
     dbr->Next = DBRefAdjust(dbr->Next);
 #ifdef DEBUG_RESTORE2
-  YP_fprintf(errout, "Recomputing masks\n");
+  fprintf(stderr, "Recomputing masks\n");
 #endif
   recompute_mask(dbr);
 }
@@ -567,48 +481,26 @@ static void
 RestoreBB(BlackBoardEntry *pp)
 {
   if (pp->Element) {
-    register DBTerm  *dbr;
-
-    pp->Element = (DBTerm *)AdjustDBTerm((Term)pp->Element);
-    dbr = pp->Element;
-    RestoreDBTerm(dbr);
+    pp->Element = DBTermAdjust(pp->Element);
+    RestoreDBTerm(pp->Element);
   }
   pp->KeyOfBB = AtomAdjust(pp->KeyOfBB);
 }
 
-/* Restores a prolog clause, in its compiled form */
 static void 
-RestoreClause(yamop *pc, PredEntry *pp, int mode)
-/*
- * Cl points to the start of the code, IsolFlag tells if we have a single
- * clause for this predicate or not 
- */
+restore_opcodes(yamop *pc)
 {
-  if (mode == ASSEMBLING_CLAUSE) {
-    if (pp->PredFlags & DynamicPredFlag) {
-      DynamicClause *cl = ClauseCodeToDynamicClause(pc);
-      if (cl->ClPrevious != NULL) {
-	cl->ClPrevious = PtoOpAdjust(cl->ClPrevious);
-      }
-    } else if (pp->PredFlags & LogUpdatePredFlag) {
-      LogUpdClause *cl = ClauseCodeToLogUpdClause(pc);
-      
-      if (cl->ClFlags & LogUpdRuleMask) {
-	cl->ClExt = PtoOpAdjust(cl->ClExt);
-      }
-    }
-  }
   do {
     op_numbers op = Yap_op_from_opcode(pc->opc);
     pc->opc = Yap_opcode(op);
 #ifdef DEBUG_RESTORE2
-    YP_fprintf(errout, "%s\n", op_names[op]);
+    fprintf(stderr, "%s ", op_names[op]);
 #endif
     switch (op) {
     case _Ystop:
     case _Nstop:
 #ifdef DEBUG_RESTORE2
-      YP_fprintf(errout, "left OK\n");
+      fprintf(stderr, "OK\n");
 #endif
       return;
       /* instructions type ld */
@@ -705,6 +597,8 @@ RestoreClause(yamop *pc, PredEntry *pp, int mode)
       /* instructions type e */
     case _unify_idb_term:
     case _copy_idb_term:
+      /* don't need no _Ystop to know we're done */
+      return;
     case _trust_fail:
     case _op_fail:
     case _cut:
@@ -1129,7 +1023,7 @@ RestoreClause(yamop *pc, PredEntry *pp, int mode)
 	  oldcode += 2;
 	}
 	rehash(startcode, i, Funcs);
-	pc = (yamop *)oldcode;
+	pc = NEXTOP(pc,sl);
       }
       break;
       /* switch_on_cons */
@@ -1158,7 +1052,7 @@ RestoreClause(yamop *pc, PredEntry *pp, int mode)
 #if !USE_OFFSETS
 	rehash(startcode, i, Atomics);
 #endif
-	pc = (yamop *)oldcode;
+	pc = NEXTOP(pc,sl);
       }
       break;
     case _go_on_func:
@@ -1357,6 +1251,66 @@ RestoreClause(yamop *pc, PredEntry *pp, int mode)
   } while (TRUE);
 }
 
+/* Restores a prolog clause, in its compiled form */
+static void 
+RestoreStaticClause(StaticClause *cl, PredEntry *pp)
+/*
+ * Cl points to the start of the code, IsolFlag tells if we have a single
+ * clause for this predicate or not 
+ */
+{
+  if (cl->ClFlags & FactMask) {
+    cl->usc.ClPred = PtoPredAdjust(cl->usc.ClPred);
+  } else {
+    cl->usc.ClSource = DBTermAdjust(cl->usc.ClSource);
+  }
+  if (cl->ClNext) {
+    cl->ClNext = PtoStCAdjust(cl->ClNext);
+  }
+  restore_opcodes(cl->ClCode);
+}
+
+/* Restores a prolog clause, in its compiled form */
+static void 
+RestoreDynamicClause(DynamicClause *cl, PredEntry *pp)
+/*
+ * Cl points to the start of the code, IsolFlag tells if we have a single
+ * clause for this predicate or not 
+ */
+{
+  if (cl->ClPrevious != NULL) {
+    cl->ClPrevious = PtoOpAdjust(cl->ClPrevious);
+  }
+  INIT_LOCK(cl->ClLock);
+  restore_opcodes(cl->ClCode);
+}
+
+/* Restores a prolog clause, in its compiled form */
+static void 
+RestoreLUClause(LogUpdClause *cl, PredEntry *pp)
+/*
+ * Cl points to the start of the code, IsolFlag tells if we have a single
+ * clause for this predicate or not 
+ */
+{
+  INIT_LOCK(cl->ClLock);
+  if (cl->ClFlags & LogUpdRuleMask) {
+    cl->ClExt = PtoOpAdjust(cl->ClExt);
+  }
+  if (cl->ClSource) {
+    cl->ClSource = DBTermAdjust(cl->ClSource);
+    RestoreDBTerm(cl->ClSource);
+  }
+  if (cl->ClPrev) {
+    cl->ClPrev = PtoLUCAdjust(cl->ClPrev);
+  }
+  if (cl->ClNext) {
+    cl->ClNext = PtoLUCAdjust(cl->ClNext);
+  }
+  cl->ClPred = PtoPredAdjust(cl->ClPred);
+  restore_opcodes(cl->ClCode);
+}
+
 /*
  * Restores a group of clauses for the same predicate, starting with First
  * and ending with Last, First may be equal to Last 
@@ -1368,25 +1322,65 @@ CleanClauses(yamop *First, yamop *Last, PredEntry *pp)
     LogUpdClause *cl = ClauseCodeToLogUpdClause(First);
 
     while (cl != NULL) {
-      RestoreClause(cl->ClCode, pp, ASSEMBLING_CLAUSE);
+      RestoreLUClause(cl, pp);
       cl = cl->ClNext;
     }
   } else if (pp->PredFlags & DynamicPredFlag) {
     yamop *cl = First;
 
     do {
-      RestoreClause(cl, pp, ASSEMBLING_CLAUSE);
+      RestoreDynamicClause(ClauseCodeToDynamicClause(cl), pp);
       if (cl == Last) return;
       cl = NextDynamicClause(cl);
     } while (TRUE);
   } else {
-    yamop *cl = First;
+    StaticClause *cl = ClauseCodeToStaticClause(First);
 
     do {
-      RestoreClause(cl, pp, ASSEMBLING_CLAUSE);
-      if (cl == Last) return;
-      cl = ClauseCodeToStaticClause(cl)->ClNext->ClCode;
+      RestoreStaticClause(cl, pp);
+      if (cl->ClCode == Last) return;
+      cl = cl->ClNext;
     } while (TRUE);
+  }
+}
+
+
+static void 
+CleanLUIndex(LogUpdIndex *idx)
+{
+  idx->ClRefCount = 0;
+  INIT_LOCK(idx->ClLock);
+  if (idx->ClFlags & SwitchRootMask) {
+    idx->u.pred = PtoPredAdjust(idx->u.pred);
+  } else {
+    idx->u.ParentIndex = LUIndexAdjust(idx->u.ParentIndex);
+  }
+  if (idx->SiblingIndex) {
+    idx->SiblingIndex = LUIndexAdjust(idx->SiblingIndex);
+    CleanLUIndex(idx->SiblingIndex);
+  }
+  if (idx->ChildIndex) {
+    idx->ChildIndex = LUIndexAdjust(idx->ChildIndex);
+    CleanLUIndex(idx->ChildIndex);
+  }
+  if (!(idx->ClFlags & SwitchTableMask)) {
+    restore_opcodes(idx->ClCode);
+  }
+}
+
+static void 
+CleanSIndex(StaticIndex *idx)
+{
+  if (idx->SiblingIndex) {
+    idx->SiblingIndex = SIndexAdjust(idx->SiblingIndex);
+    CleanSIndex(idx->SiblingIndex);
+  }
+  if (idx->ChildIndex) {
+    idx->ChildIndex = SIndexAdjust(idx->ChildIndex);
+    CleanSIndex(idx->ChildIndex);
+  }
+  if (!(idx->ClFlags & SwitchTableMask)) {
+    restore_opcodes(idx->ClCode);
   }
 }
 
@@ -1476,7 +1470,7 @@ restore_static_array(StaticArrayEntry *ae)
 	  if (reg == NULL) {
 	    base++;
 	  } else {
-	    *base++ = reg = (DBTerm *)AdjustDBTerm((Term)reg);
+	    *base++ = reg = DBTermAdjust(reg);
 	    RestoreDBTerm(reg);
 	  }
 	}
@@ -1532,14 +1526,23 @@ CleanCode(PredEntry *pp)
       return;
     }
 #ifdef	DEBUG_RESTORE2
-    YP_fprintf(errout, "at %lx Correcting clauses from %lx to %lx\n", *(OPCODE *) FirstC, FirstC, LastC);
+    fprintf(stderr, "at %ux Correcting clauses from %p to %p\n", *(OPCODE *) FirstC, FirstC, LastC);
 #endif
     CleanClauses(FirstC, LastC, pp);
-    if (flag & (DynamicPredFlag|IndexedPredFlag)) {
+    if (flag & IndexedPredFlag) {
 #ifdef	DEBUG_RESTORE2
-      YP_fprintf(errout, "Correcting dynamic/indexed code\n");
+      fprintf(stderr, "Correcting indexed code\n");
 #endif
-      RestoreClause(pp->cs.p_code.TrueCodeOfPred,pp, ASSEMBLING_INDEX);
+      if (flag & LogUpdatePredFlag) {
+	CleanLUIndex(ClauseCodeToLogUpdIndex(pp->cs.p_code.TrueCodeOfPred));
+      } else {
+	CleanSIndex(ClauseCodeToStaticIndex(pp->cs.p_code.TrueCodeOfPred));
+      } 
+    } else if (flag & DynamicPredFlag) {
+#ifdef	DEBUG_RESTORE2
+      fprintf(stderr, "Correcting dynamic code\n");
+#endif
+      RestoreDynamicClause(ClauseCodeToDynamicClause(pp->cs.p_code.TrueCodeOfPred),pp);
     }
   }
   /* we are pointing at ourselves */
@@ -1627,7 +1630,7 @@ RestoreEntries(PropEntry *pp)
     case CodeLogUpdDBProperty:
     case CodeDBProperty:
 #ifdef DEBUG_RESTORE2
-      YP_fprintf(errout, "Correcting data base clause at %p\n", pp);
+      fprintf(stderr, "Correcting data base clause at %p\n", pp);
 #endif
       {
 	DBEntry *de = (DBEntry *) pp;

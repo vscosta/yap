@@ -29,7 +29,6 @@ static char     SccsId[] = "@(#)agc.c	1.3 3/15/90";
 #endif
 
 STATIC_PROTO(void  RestoreEntries, (PropEntry *));
-STATIC_PROTO(void  ConvDBList, (Term, char *,CELL));
 
 static int agc_calls;
 
@@ -124,8 +123,13 @@ AtomAdjust(Atom a)
 #define DelayAddrAdjust(P) (P)
 #define DBRefAdjust(P) (P)
 #define DBRefPAdjust(P) (P)
+#define DBTermAdjust(P) (P)
+#define LUIndexAdjust(P) (P)
+#define SIndexAdjust(P) (P)
 #define LocalAddrAdjust(P) (P)
 #define GlobalAddrAdjust(P) (P)
+#define PtoLUCAdjust(P) (P)
+#define PtoStCAdjust(P) (P)
 #define PtoArrayEAdjust(P) (P)
 #define PtoDelayAdjust(P) (P)
 #define PtoGloAdjust(P) (P)

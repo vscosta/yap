@@ -102,12 +102,10 @@ STATIC_PROTO(void  get_insts, (OPCODE []));
 STATIC_PROTO(void  get_hash, (void));
 STATIC_PROTO(void  CopyCode, (void));
 STATIC_PROTO(void  CopyStacks, (void));
-STATIC_PROTO(int   get_coded, (int, OPCODE []));
+STATIC_PROTO(void  get_coded, (int, OPCODE []));
 STATIC_PROTO(void  restore_codes, (void));
-STATIC_PROTO(void  ConvDBList, (Term, char *,CELL));
-STATIC_PROTO(Term  AdjustDBTerm, (Term));
+STATIC_PROTO(Term  AdjustDBTerm, (Term, Term *));
 STATIC_PROTO(void  RestoreDB, (DBEntry *));
-STATIC_PROTO(void  RestoreClause, (yamop *, PredEntry *, int));
 STATIC_PROTO(void  CleanClauses, (yamop *, yamop *,PredEntry *));
 STATIC_PROTO(void  rehash, (CELL *, int, int));
 STATIC_PROTO(void  CleanCode, (PredEntry *));
@@ -122,11 +120,10 @@ STATIC_PROTO(void  ShowEntries, (PropEntry *));
 STATIC_PROTO(int   OpenRestore, (char *, char *, CELL *, CELL *, CELL *, CELL *));
 STATIC_PROTO(void  CloseRestore, (void));
 STATIC_PROTO(int  check_opcodes, (OPCODE []));
-STATIC_PROTO(void  RestoreHeap, (OPCODE [], int));
+STATIC_PROTO(void  RestoreHeap, (OPCODE []));
 STATIC_PROTO(Int  p_restore, (void));
 STATIC_PROTO(void  restore_heap_regs, (void));
 STATIC_PROTO(void  restore_regs, (int));
-STATIC_PROTO(void  ConvDBStruct, (Term, char *, CELL));
 #ifdef MACYAP
 STATIC_PROTO(void NewFileInfo, (long, long));
 extern int      DefVol;
@@ -828,11 +825,10 @@ CopyTrailEntries(void)
 }
 
 /* get things which are saved in the file */
-static int 
+static void 
 get_coded(int flag, OPCODE old_ops[])
 {
   char my_end_msg[256];
-  int funcs_moved = FALSE;
 
   get_regs(flag);
   get_insts(old_ops);
@@ -850,7 +846,6 @@ get_coded(int flag, OPCODE old_ops[])
   myread(splfild, my_end_msg, 256);
   if (strcmp(end_msg,my_end_msg) != 0)
     Yap_Error(FATAL_ERROR,TermNil,"corrupt saved state (bad trailing CRC)");
-  return(funcs_moved);
 }
 
 /* restore some heap registers */
@@ -1305,13 +1300,13 @@ check_opcodes(OPCODE old_ops[])
 }
 
 static void 
-RestoreHeap(OPCODE old_ops[], int functions_moved)
+RestoreHeap(OPCODE old_ops[])
 {
   int heap_moved = (OldHeapBase != Yap_HeapBase), opcodes_moved;
 
   opcodes_moved = check_opcodes(old_ops);
   /* opcodes_moved has side-effects and should be tried first */
-  if (heap_moved || opcodes_moved || functions_moved) {
+  if (heap_moved || opcodes_moved) {
     restore_heap();
   }
   /* This must be done after restore_heap */
@@ -1319,8 +1314,15 @@ RestoreHeap(OPCODE old_ops[], int functions_moved)
     RestoreFreeSpace();
   }
   Yap_InitAbsmi();
-  if (!(Yap_ReInitConstExps() && Yap_ReInitUnaryExps() && Yap_ReInitBinaryExps()))
+  if (opcodes_moved) {
+    Yap_InitCPreds();
+    Yap_InitBackCPreds();
+  }
+  if (!(Yap_ReInitConstExps() &&
+	Yap_ReInitUnaryExps() &&
+	Yap_ReInitBinaryExps())) {
     Yap_Error(SYSTEM_ERROR, TermNil, "arithmetic operator not in saved state");
+  }
 #ifdef DEBUG_RESTORE1
   fprintf(errout, "phase 1 done\n");
 #endif
@@ -1399,7 +1401,6 @@ static int
 Restore(char *s, char *lib_dir)
 {
   int restore_mode;
-  int funcs_moved;
 
   OPCODE old_ops[_std_top+1];
 
@@ -1408,11 +1409,11 @@ Restore(char *s, char *lib_dir)
     return(FALSE);
   Yap_ShutdownLoadForeign();
   in_limbo = TRUE;
-  funcs_moved = get_coded(restore_mode, old_ops);
+  get_coded(restore_mode, old_ops);
   restore_regs(restore_mode);
   in_limbo = FALSE;
   /*#endif*/
-  RestoreHeap(old_ops, funcs_moved);
+  RestoreHeap(old_ops);
   switch(restore_mode) {
   case DO_EVERYTHING:
     if (OldHeapBase != Yap_HeapBase ||

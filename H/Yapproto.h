@@ -10,7 +10,7 @@
 * File:		Yap.proto						 *
 * mods:									 *
 * comments:	Function declarations for YAP				 *
-* version:      $Id: Yapproto.h,v 1.43 2004-02-05 16:57:01 vsc Exp $	 *
+* version:      $Id: Yapproto.h,v 1.44 2004-02-06 02:26:23 vsc Exp $	 *
 *************************************************************************/
 
 /* prototype file for Yap */
@@ -214,6 +214,7 @@ Term    STD_PROTO(Yap_UpdateTimedVar,(Term, Term));
 SMALLUNSGN	STD_PROTO(Yap_LookupModule,(Term));
 Term    STD_PROTO(Yap_Module_Name, (CODEADDR));
 void    STD_PROTO(Yap_InitModules, (void));
+void    STD_PROTO(Yap_InitModulesC, (void));
 
 #if HAVE_MPI
 /* mpi.c */

@@ -890,7 +890,6 @@ YAP_Init(YAP_init_args *yap_init)
   } else {
     Heap = yap_init->HeapSize;
   }
-
   Yap_InitWorkspace(Heap, Stack, Trail,
 	      yap_init->NumberWorkers,
 	      yap_init->SchedulerLoop,

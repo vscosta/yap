@@ -2689,6 +2689,7 @@ Yap_InitCPreds(void)
   Yap_InitCoroutPreds();
   Yap_InitArrayPreds();
   Yap_InitLoadForeign();
+  Yap_InitModulesC();
 
   Yap_InitUserCPreds();
   Yap_InitUtilCPreds();

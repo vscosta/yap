@@ -2170,8 +2170,8 @@ do_pass(int pass_no, yamop **entry_codep, int assembling, int *clause_has_blobsp
 	cl_u->lui.SiblingIndex = NULL;
 	cl_u->lui.u.pred = cip->CurrentPred;
 	cl_u->lui.ClRefCount =  0;
-#if defined(YAPOR) || defined(THREADS)
 	INIT_LOCK(cl_u->lui.ClLock);
+#if defined(YAPOR) || defined(THREADS)
 	INIT_CLREF_COUNT(&(cl_u->lui));
 #endif
       }

@@ -77,6 +77,9 @@ Inline(AtomEntryAdjust, AtomEntry *, AtomEntry *, at, (AtomEntry *)(CharP(at)+HD
 Inline(ConsultObjAdjust, union CONSULT_OBJ *, union CONSULT_OBJ *, co, (union CONSULT_OBJ *)(CharP(co)+HDiff) )
 Inline(DBRefAdjust, DBRef, DBRef, dbr, (DBRef)(CharP(dbr)+HDiff) )
 Inline(DBRefPAdjust, DBRef *, DBRef *, dbrp, (DBRef *)(CharP(dbrp)+HDiff) )
+Inline(DBTermAdjust, DBTerm *, DBTerm *, dbtp, (DBTerm *)(CharP(dbtp)+HDiff) )
+Inline(SIndexAdjust, struct static_index *, struct static_index *, si, (struct static_index *)(CharP(si)+HDiff) )
+Inline(LUIndexAdjust, struct logic_upd_index *, struct logic_upd_index *, lui, (struct logic_upd_index *)(CharP(lui)+HDiff) )
 Inline(CodeAdjust, Term, Term, dbr, ((Term)(dbr)+HDiff) )
 Inline(AddrAdjust, ADDR, ADDR, addr, (ADDR)(CharP(addr)+HDiff) )
 Inline(CodeAddrAdjust, CODEADDR, CODEADDR, addr, (CODEADDR)(CharP(addr)+HDiff) )
@@ -85,6 +88,8 @@ Inline(PtoOpAdjust, yamop *, yamop *, ptr, ((yamop *)(CharP(ptr) + HDiff)) )
 Inline(PtoHeapCellAdjust, CELL *, CELL *, ptr, ((CELL *)(CharP(ptr) + HDiff)) )
 Inline(PtoPredAdjust, PredEntry *, PredEntry *, ptr, ((PredEntry *)(CharP(ptr) + HDiff)) )
 Inline(PtoArrayEAdjust, ArrayEntry *, ArrayEntry *, ptr, ((ArrayEntry *)(CharP(ptr) + HDiff)) )
+Inline(PtoLUCAdjust, struct logic_upd_clause *, struct logic_upd_clause *, ptr, ((struct logic_upd_clause *)(CharP(ptr) + HDiff)) )
+Inline(PtoStCAdjust, struct static_clause *, struct static_clause *, ptr, ((struct static_upd_clause *)(CharP(ptr) + HDiff)) )
 #if PRECOMPUTE_REGADDRESS
 Inline(XAdjust, wamreg, wamreg, reg, (wamreg)((reg)+XDiff) )
 #else
