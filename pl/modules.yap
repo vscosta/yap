@@ -362,6 +362,7 @@ module(N) :-
 % if I don't know what the module is, I cannot do anything to the goal,
 % so I just put a call for later on.
 '$module_expansion'(M:G,call(M:G),call(M:G),_,_,_,_) :- var(M), !.
+'$module_expansion'(M:G,call(M:G),call(M:G),_,_,_,_) :- var(G), !.
 % if M1 is given explicitly process G within M1's context.
 '$module_expansion'(M:G,G1,GO,_Mod,_MM,TM,HVars) :- !,
 	% is this imported from some other module M1?
