@@ -98,7 +98,7 @@ TAG_HEADERS=  Tags_32bits.h Tags_32Ops.h Tags_32LowTag.h\
 
 GHEADERS = TermExt.h Yap.h Atoms.h Yatom.h sshift.h $(TAG_HEADERS)
 
-INTERFACE_HEADERS = $(srcdir)/include/c_interface.h $(srcdir)/include/yap_structs.h
+INTERFACE_HEADERS = $(srcdir)/include/c_interface.h $(srcdir)/include/yap_structs.h $(srcdir)/include/YapInterface.h
 
 HEADERS = \
 	$(GHEADERS) $(INTERFACE_HEADERS) \
