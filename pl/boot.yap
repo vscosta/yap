@@ -22,6 +22,10 @@ true :- true. % otherwise, $$compile will ignore this clause.
 
 '$live' :-
 	'$init_system',
+        '$init_catch',
+        '$do_live'.
+
+'$do_live' :-
 	repeat,
 		'$set_input'(user),'$set_output'(user),
 		'$current_module'(Module),
@@ -69,7 +73,6 @@ read_sig.
 		       (nl,writeq('[ Received user signal 2 ]'),nl,halt)), _),
 	'$set_yap_flags'(10,0),
 	'$set_value'('$gc',on),
-	'$init_catch',
 	prompt('  ?- '),
 	(
 	    '$get_value'('$break',0)
@@ -845,7 +848,7 @@ break :- '$get_value'('$break',BL), NBL is BL+1,
 	'$set_value'('$break',NBL),
 	current_output(OutStream), current_input(InpStream),
 	'$format'(user_error, "[ Break (level ~w) ]~n", [NBL]),
-	'$live',
+	'$do_live',
 	!,
 	'$set_value'('$live',true),
 	'$set_value'(spy_sl,SPY_SL),
