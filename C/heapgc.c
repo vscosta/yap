@@ -3156,7 +3156,7 @@ do_gc(Int predarity, CELL *current_env, yamop *nextop)
 	       (unsigned long int)(ASP-H));
   }
   check_global();
-  return(effectiveness);
+  return effectiveness;
 }
 
 static int
@@ -3229,7 +3229,6 @@ call_gc(UInt gc_lim, Int predarity, CELL *current_env, yamop *nextop)
       gc_margin <<= 8;
       gc_margin *= gc_calls;
     }
-    gc_margin *= Yap_page_size;
   }
   if (gc_margin < gc_lim)
     gc_margin = gc_lim;
@@ -3244,7 +3243,7 @@ call_gc(UInt gc_lim, Int predarity, CELL *current_env, yamop *nextop)
     effectiveness = 0;
   }
   /* expand the stack if effectiveness is less than 20 % */
-  if (ASP - H < gc_margin ||
+  if (ASP - H < gc_margin/sizeof(CELL) ||
       effectiveness < 20) {
     return (Yap_growstack(gc_margin));
   }
@@ -3258,13 +3257,13 @@ call_gc(UInt gc_lim, Int predarity, CELL *current_env, yamop *nextop)
 int 
 Yap_gc(Int predarity, CELL *current_env, yamop *nextop)
 {
-  return call_gc(128, predarity, current_env, nextop);
+  return call_gc(4096, predarity, current_env, nextop);
 }
 
 int 
 Yap_gcl(UInt gc_lim, Int predarity, CELL *current_env, yamop *nextop)
 {
-  return call_gc(gc_lim, predarity, current_env, nextop);
+  return call_gc(gc_lim+CalculateStackGap()*sizeof(CELL), predarity, current_env, nextop);
 }
 
 

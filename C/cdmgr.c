@@ -2634,7 +2634,10 @@ PredForCode(yamop *codeptr, Atom *pat, UInt *parity, Term *pmodule) {
     PredEntry *pp = ModulePred[i_table];
     while (pp != NULL) {
       if ((found = code_in_pred(pp,  pat, parity, codeptr)) != 0) {
-	*pmodule = i_table;
+	if (i_table)
+	  *pmodule = ModuleName[i_table];
+	else
+	  *pmodule = TermProlog;
 	return(found);
       }
       pp = pp->NextPredOfModule;

@@ -2450,6 +2450,7 @@ GetDBTerm(DBTerm *DBSP)
 	  fprintf(Yap_stderr, "\n\n [ FATAL ERROR: No Stack for Error Handling ]\n");
 	  Yap_exit( 1);
       } else {
+	Yap_Error_Size = NOf*sizeof(CELL);
 	return((Term)0);
       }
     }
@@ -3057,7 +3058,7 @@ i_recorded(DBProp AtProp, Term t3)
       /* make sure the garbage collector sees what we want it to see! */
       EXTRA_CBACK_ARG(3,1) = (CELL)ref;
       /* oops, we are in trouble, not enough stack space */
-      if (!Yap_gc(3, ENV, CP)) {
+      if (!Yap_gcl(Yap_Error_Size, 3, ENV, CP)) {
 	Yap_Error(OUT_OF_STACK_ERROR, TermNil, Yap_ErrorMessage);
 	return(FALSE);
       }
@@ -3119,7 +3120,7 @@ i_recorded(DBProp AtProp, Term t3)
 	EXTRA_CBACK_ARG(3,2) = MkIntegerTerm(((Int)mask));
 	EXTRA_CBACK_ARG(3,3) = MkIntegerTerm(((Int)key));
 	/* oops, we are in trouble, not enough stack space */
-	if (!Yap_gc(3, ENV, CP)) {
+	if (!Yap_gcl(Yap_Error_Size, 3, ENV, CP)) {
 	  Yap_Error(OUT_OF_STACK_ERROR, TermNil, Yap_ErrorMessage);
 	  return(FALSE);
 	}
@@ -3206,7 +3207,7 @@ c_recorded(int flags)
       /* make sure the garbage collector sees what we want it to see! */
       EXTRA_CBACK_ARG(3,1) = (CELL)ref;
       /* oops, we are in trouble, not enough stack space */
-      if (!Yap_gc(3, ENV, CP)) {
+      if (!Yap_gcl(Yap_Error_Size, 3, ENV, CP)) {
 	Yap_Error(OUT_OF_STACK_ERROR, TermNil, Yap_ErrorMessage);
 	return(FALSE);
       }
@@ -3239,7 +3240,7 @@ c_recorded(int flags)
 	/* make sure the garbage collector sees what we want it to see! */
 	EXTRA_CBACK_ARG(3,1) = (CELL)ref;
 	/* oops, we are in trouble, not enough stack space */
-	if (!Yap_gc(3, ENV, CP)) {
+	if (!Yap_gcl(Yap_Error_Size, 3, ENV, CP)) {
 	  Yap_Error(OUT_OF_STACK_ERROR, TermNil, Yap_ErrorMessage);
 	  return(FALSE);
 	}
@@ -3475,7 +3476,7 @@ p_first_instance(void)
 #endif
   while ((TermDB = GetDBTermFromDBEntry(ref)) == (CELL)0) {
     /* oops, we are in trouble, not enough stack space */
-    if (!Yap_gc(3, ENV, P)) {
+    if (!Yap_gcl(Yap_Error_Size, 3, ENV, P)) {
       Yap_Error(OUT_OF_STACK_ERROR, TermNil, Yap_ErrorMessage);
       return(FALSE);
     }
@@ -4328,7 +4329,7 @@ static_instance(StaticClause *cl)
 
     while ((TermDB = GetDBTerm(cl->usc.ClSource)) == 0L) {
       /* oops, we are in trouble, not enough stack space */
-      if (!Yap_gc(2, ENV, P)) {
+      if (!Yap_gcl(Yap_Error_Size, 2, ENV, P)) {
 	Yap_Error(OUT_OF_STACK_ERROR, TermNil, Yap_ErrorMessage);
 	return(FALSE);
       }
@@ -4398,7 +4399,7 @@ p_instance(void)
       Term            TermDB;
       while ((TermDB = GetDBTerm(cl->ClSource)) == 0L) {
 	/* oops, we are in trouble, not enough stack space */
-	if (!Yap_gc(2, ENV, P)) {
+	if (!Yap_gcl(Yap_Error_Size, 2, ENV, P)) {
 	  Yap_Error(OUT_OF_STACK_ERROR, TermNil, Yap_ErrorMessage);
 	  return(FALSE);
 	}
@@ -4409,7 +4410,7 @@ p_instance(void)
     Term            TermDB;
     while ((TermDB = GetDBTermFromDBEntry(dbr)) == 0L) {
       /* oops, we are in trouble, not enough stack space */
-      if (!Yap_gc(2, ENV, P)) {
+      if (!Yap_gcl(Yap_Error_Size, 2, ENV, P)) {
 	Yap_Error(OUT_OF_STACK_ERROR, TermNil, Yap_ErrorMessage);
 	return(FALSE);
       }
@@ -4810,7 +4811,7 @@ p_dequeue(void)
       father_key->FirstInQueue = cur_instance->next;
     WRITE_UNLOCK(father_key->QRWLock);
     while ((TDB = GetDBTerm(cur_instance->DBT)) == 0L) {
-      if (!Yap_gc(2, YENV, P)) {
+      if (!Yap_gcl(Yap_Error_Size, 2, YENV, P)) {
 	Yap_Error(OUT_OF_STACK_ERROR, TermNil, Yap_ErrorMessage);
 	return FALSE;
       }

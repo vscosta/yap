@@ -10,7 +10,7 @@
 * File:		Yap.h.m4						 *
 * mods:									 *
 * comments:	main header file for YAP				 *
-* version:      $Id: Yap.h.m4,v 1.51 2004-02-05 16:57:01 vsc Exp $	 *
+* version:      $Id: Yap.h.m4,v 1.52 2004-02-12 17:09:17 vsc Exp $	 *
 *************************************************************************/
 
 #include "config.h"
@@ -332,20 +332,26 @@ typedef CELL Term;
 
 #if !defined(YAPOR) && !defined(THREADS)
 #include <nolocks.h>
-#else
+#elif USE_PTHREAD_LOCKING
+typedef pthread_mutex_t lockvar;
+typedef pthread_rwlock_t rwlock_t;
+#include <pthread_locks.h>
+#elif defined(i386)
 typedef volatile int lockvar;
-#ifdef i386
 #include <x86_locks.h>
-#endif
-#if defined(sparc) || defined(__sparc)
+#elif defined(sparc) || defined(__sparc)
+typedef volatile int lockvar;
 #include <sparc_locks.h>
-#endif
-#ifdef mips
+#elif defined(mips)
+typedef volatile int lockvar;
 #include <mips_locks.h>
-#endif
-#ifdef __alpha
+#elif defined(__alpha)
+typedef volatile int lockvar;
 #include <alpha_locks.h>
-#endif
+#else
+typedef pthread_mutex_t lockvar;
+typedef pthread_rwlock_t rwlock_t;
+#include <pthread_locks.h>
 #endif
 
 /********************** use an auxiliary function for ranges ************/

@@ -119,7 +119,8 @@ HEADERS = \
 	$(srcdir)/OPTYap/tab.structs.h $(srcdir)/OPTYap/x86_locks.h \
 	$(srcdir)/OPTYap/sparc_locks.h $(srcdir)/OPTYap/mips_locks.h \
 	$(srcdir)/OPTYap/mips_locks_funcs.h $(srcdir)/OPTYap/alpha_locks.h \
-	$(srcdir)/OPTYap/alpha_locks_funcs.h
+	$(srcdir)/OPTYap/alpha_locks_funcs.h \
+	$(srcdir)/OPTYap/pthread_locks.h
 
 C_SOURCES= \
 	$(srcdir)/C/absmi.c $(srcdir)/C/adtdefs.c \

@@ -730,14 +730,18 @@ restore_opcodes(yamop *pc)
       break;
       /* instructions type sla */      
     case _p_execute:
-      goto sla_full;
+      pc->u.sla.sla_u.p = PtoPredAdjust(pc->u.sla.sla_u.p);
+      if (pc->u.sla.sla_u.mod != 0) {
+	pc->u.sla.sla_u.mod = AtomTermAdjust(pc->u.sla.sla_u.mod);
+      }
+      pc->u.sla.p0 = PtoPredAdjust(pc->u.sla.p0);
+      pc = NEXTOP(pc,sla);
     case _fcall:
     case _call:
 #ifdef YAPOR
     case _or_last:
 #endif
       pc->u.sla.sla_u.p = PtoPredAdjust(pc->u.sla.sla_u.p);
-    sla_full:
       if (pc->u.sla.bmap != NULL) {
 	pc->u.sla.bmap = CellPtoHeapAdjust(pc->u.sla.bmap);
       }
@@ -1521,6 +1525,9 @@ CleanCode(PredEntry *pp)
     pp->FunctorOfPred = FuncAdjust(pp->FunctorOfPred);
   else
     pp->FunctorOfPred = (Functor)AtomAdjust((Atom)(pp->FunctorOfPred));
+  if (pp->ModuleOfPred) {
+    pp->ModuleOfPred = AtomTermAdjust(pp->ModuleOfPred);
+  }
   if (pp->ModuleOfPred != IDB_MODULE) {
     if (pp->src.OwnerFile && pp->ModuleOfPred != IDB_MODULE)
       pp->src.OwnerFile = AtomAdjust(pp->src.OwnerFile);

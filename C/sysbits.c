@@ -2275,7 +2275,7 @@ int WINAPI win_yap(HANDLE hinst, DWORD reason, LPVOID reserved)
 }
 #endif
 
-#if defined(YAPOR) || defined(THREADS)
+#if (defined(YAPOR) || defined(THREADS)) && !defined(USE_PTHREAD_LOCKING)
 #ifdef sparc
 void STD_PROTO(rw_lock_voodoo,(void));
 

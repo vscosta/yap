@@ -1771,7 +1771,7 @@ init_current_predicate(void)
   Term t1 = Deref(ARG1);
 
   if (IsVarTerm(t1) || !IsAtomTerm(t1)) cut_fail();
-  EXTRA_CBACK_ARG(3,1) = t1;
+  EXTRA_CBACK_ARG(3,1) = MkIntegerTerm((Int)Yap_ModulePred(t1));
   return (cont_current_predicate());
 }
 
