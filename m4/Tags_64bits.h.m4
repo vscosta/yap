@@ -11,7 +11,7 @@
 * Last rev:	December 90						 *
 * mods:									 *
 * comments:	Original Tag Scheme for machines with 32 bits adresses   *
-* version:      $Id: Tags_64bits.h.m4,v 1.1.1.1 2001-04-09 19:53:46 vsc Exp $	 *
+* version:      $Id: Tags_64bits.h.m4,v 1.2 2001-06-27 15:14:02 vsc Exp $	 *
 *************************************************************************/
 
 #define TAG_64BITS 1
@@ -44,7 +44,7 @@ property list
 #define MaskPrim    /* 0x0ffffff8L */ ((((UInt)1) << (SHIFT_HIGH_TAG))-8)
 #define	NumberTag   /* 0x30000001L */ MKTAG(0x1,1)
 #define	AtomTag	    /* 0x10000001L */ MKTAG(0x0,1)
-#define MAX_ABS_INT /* 0xfe00000LL */ (((UInt)1) << (63-(2+4)))
+#define MAX_ABS_INT /* 0xfe00000LL */ (((Int)1) << (63-(2+4)))
 
 /* bits that should not be used by anyone but us */
 #define YAP_PROTECTED_MASK 0xe000000000000000L
