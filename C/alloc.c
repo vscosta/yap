@@ -12,7 +12,7 @@
 * Last rev:								 *
 * mods:									 *
 * comments:	allocating space					 *
-* version:$Id: alloc.c,v 1.15 2002-02-26 16:45:11 stasinos Exp $		 *
+* version:$Id: alloc.c,v 1.16 2002-02-26 17:41:53 vsc Exp $		 *
 *************************************************************************/
 #ifdef SCCS
 static char SccsId[] = "%W% %G%";
@@ -140,10 +140,6 @@ FreeBlock(BlockHeader *b)
 
   /* sanity check */
   sp = &(b->b_size) + (b->b_size & ~InUseFlag);
-  if (Addr(b) <= Addr(0x90c7a24) && sp >= (YAP_SEG_SIZE *)0x90c7a24) {
-    extern int do_low_level_trace;
-      fprintf(stderr,"vsc: Here3\n");
-  }
   if (*sp != b->b_size) {
 #if !SHORT_INTS
     YP_fprintf(YP_stderr, "** sanity check failed in FreeBlock %p %x %x\n",
@@ -233,9 +229,6 @@ AllocHeap(unsigned int size)
     b->b_size |= InUseFlag;
     UNLOCK(GLOBAL_LOCKS_alloc_block);
     UNLOCK(FreeBlocksLock);
-    if (Addr(b) <= Addr(0x90c7a24) && 
-	Addr(b)+(size*sizeof(CELL)+sizeof(YAP_SEG_SIZE)) >= Addr(0x90c7a24))
-      fprintf(stderr,"vsc: Here1\n");
     return (Addr(b) + sizeof(YAP_SEG_SIZE));
   }
   UNLOCK(FreeBlocksLock);
@@ -298,9 +291,6 @@ AllocHeap(unsigned int size)
   if (!HEAPTOP_OWNER(worker_id)) {
     UNLOCK(HeapTopLock);
   }
-  if (Addr(b) <= Addr(0x90c7a24) && 
-      Addr(b)+(size*sizeof(CELL)+sizeof(YAP_SEG_SIZE)) >= Addr(0x90c7a24))
-    fprintf(stderr,"vsc: Here2\nn");
   return (Addr(b) + sizeof(YAP_SEG_SIZE));
 }
 
