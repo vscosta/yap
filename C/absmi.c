@@ -1929,6 +1929,8 @@ absmi(int inp)
       /* try performing garbage collection */
 
       ASP = Y+E_CB;
+      if (ASP > (CELL *)B)
+	ASP = (CELL *)B;
       saveregs();
       gc(PredArity(SREG), ENV, CPREG);
       setregs();

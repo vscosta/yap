@@ -466,7 +466,7 @@ show_heads( [H|Hs], I, D, If) :-
 	( Hs=[] ->
 	    If = I
 	; H=r(_,_), Hs=[k(_,_)|_] ->
-	    errput(0' ), errput(0'\), errput(0' ),
+	    errput(0' ), errput(0'\\ ), errput(0' ),
 	    J is I+D,
 	    show_heads( Hs, J, D, If)
 	;

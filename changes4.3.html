@@ -6,6 +6,8 @@
 
 <H2 ALIGN=CENTER>Yap-4.3.19:</H2>
 <UL>
+      <LI> FIXED: functor/3 was generating too many deallocates at the
+      end of a clause.
       <LI> FIXED: call_residue/2 should not allow constraints to
       escape (use copy_term_no_variables/2 to avoid this).
       <LI> SPEEDUP: optimise away true/0 at the end of a clause.

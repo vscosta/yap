@@ -113,6 +113,13 @@ check_trail_consistency(void) {
 }
 */
 
+static char *op_names[_std_top + 1] =
+{
+#define OPCODE(OP,TYPE) #OP
+#include "YapOpcodes.h"
+#undef  OPCODE
+};
+
 void
 low_level_trace(yap_low_level_port port, PredEntry *pred, CELL *args)
 {
@@ -122,7 +129,7 @@ low_level_trace(yap_low_level_port port, PredEntry *pred, CELL *args)
   extern int gc_calls;
 
   vsc_count++;
-  /* if (vsc_count < 420430) return; */
+  if (vsc_count < 2810) return;
   /* if (vsc_count > 500000) exit(0); */
   /* if (gc_calls < 1) return;*/
   YP_fprintf(YP_stderr,"%lu ",vsc_count);

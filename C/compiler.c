@@ -1099,8 +1099,6 @@ c_functor(Term Goal)
     if (profiling)
       emit(enter_profiling_op, (CELL)RepPredProp(p0), Zero);
     c_args(Goal);
-    if (onlast)
-      emit(deallocate_op, Zero, Zero);
     emit(safe_call_op, (CELL)p0 , Zero);
     emit(empty_call_op, Zero, Zero);
     emit(restore_tmps_and_skip_op, Zero, Zero);
