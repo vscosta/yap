@@ -1217,7 +1217,9 @@ HandleSIGINT (int sig)
 #if HAVE_LIBREADLINE
     if (in_getc) {
       fprintf(stderr, "Action (h for help): ");
+#if HAVE_RL_SET_PROMPT
       rl_set_prompt("Action (h for help): ");
+#endif
     }
 #endif
     return;

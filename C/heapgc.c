@@ -2605,7 +2605,7 @@ do_gc(Int predarity, CELL *current_env, yamop *nextop)
   if (GetValue(AtomGcTrace) != TermNil)
     gc_trace = 1;
   /* sanity check: can we still do garbage_collection ? */
-  if (TrailTop & (MBIT|RBIT)) {
+  if ((CELL)TrailTop & (MBIT|RBIT)) {
     /* oops, we can't */
     if (gc_verbose) {
       YP_fprintf(YP_stderr, "[GC] LCLO at %p clashes with gc bits: %lx\n", LCL0, (MBIT|RBIT));

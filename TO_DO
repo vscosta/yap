@@ -5,8 +5,7 @@ BEFORE 4.4:
 - fix restore when code is moved around.
 - document new interface functions.
 - mask when installing.
-- Yap core dumps under simple configure/make in WIN32
-- check leash(full). [-user]. a(X) :- call(setof(Z,call(c(Z)),X)). a(X) :- b(X). b(X) :- c(X). c(1). c(2). end_of_file. spy a/1. a(X).
+- debugger: leash(full). [-user]. a(X) :- call(setof(Z,call(c(Z)),X)). a(X) :- b(X). b(X) :- c(X). c(1). c(2). end_of_file. spy a/1. a(X).
 
 TO CHECK:
 - bad register allocation for a(X,Y) :- X is Y+2.3 ?
@@ -88,4 +87,4 @@ DONE:
 - warnings in documentation file.
 - make gc work after mutable var changes (done)
 - knap-sack (done)
-
+- Yap core dumps under simple configure/make in WIN32

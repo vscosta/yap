@@ -134,6 +134,7 @@
 #undef  HAVE_RANDOM
 #undef  HAVE_RENAME
 #undef  HAVE_RINT
+#undef  HAVE_RL_SET_PROMPT
 #undef  HAVE_SBRK
 #undef  HAVE_SELECT
 #undef  HAVE_SETBUF
