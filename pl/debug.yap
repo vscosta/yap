@@ -273,7 +273,6 @@ debugging :-
 %    '$format'(user_error,"$spym(~w,~w)~n",[Module,G]),
         '$is_push_pred_mod'(G,Module),
          !,
-	 /* called from prolog module   */
  	 '$creep',
 	 '$execute0'(G,Module).
 '$spy'([Mod|G]) :-
@@ -290,7 +289,7 @@ debugging :-
 	'$creep',
 	'$wake_up_goal'(G, LG).
 '$direct_spy'([M|G]) :-
-         '$hidden'(G),
+         '$hidden_predicate'(G,M),
          !,
 	 (
 	   G = '$leave_creep'
@@ -301,6 +300,11 @@ debugging :-
 	   '$execute0'(G,M),
 	   '$creep'
 	 ).
+'$direct_spy'([M|G]) :-
+        '$is_push_pred_mod'(G,M),
+         !,
+ 	 '$creep',
+	 '$execute0'(G,M).
 '$direct_spy'([Mod|G]) :-
 	'$do_spy'(G, Mod).
 

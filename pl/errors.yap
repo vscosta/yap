@@ -167,6 +167,10 @@ print_message(Level, Mss) :-
 % The user should never know these exist.
 '$beautify_hidden_goal'('$csult',_,prolog,ClNo,Gs,NGs) :- !,
 	'$preprocess_stack'(Gs, NGs).
+'$beautify_hidden_goal'('$use_module',2,prolog,ClNo,Gs,NGs) :- !,
+	'$preprocess_stack'(Gs, NGs).
+'$beautify_hidden_goal'('$ensure_loaded',_,prolog,ClNo,Gs,NGs) :- !,
+	'$preprocess_stack'(Gs, NGs).
 '$beautify_hidden_goal'('$recordedp',_,prolog,ClNo,Gs,NGs) :- !,
 	'$preprocess_stack'(Gs, NGs).
 '$beautify_hidden_goal'('$continue_with_command',_,prolog,ClNo,Gs,NGs) :- !,
@@ -199,9 +203,11 @@ print_message(Level, Mss) :-
 	'$preprocess_stack'(Gs, NGs).
 '$beautify_hidden_goal'('$consult',1,prolog,ClNo,Gs,NGs) :- !,
 	'$preprocess_stack'(Gs, NGs).
-'$beautify_hidden_goal'('$reconsult',1,prolog,ClNo,Gs,NGs) :- !,
+'$beautify_hidden_goal'('$reconsult',_,prolog,ClNo,Gs,NGs) :- !,
 	'$preprocess_stack'(Gs, NGs).
 '$beautify_hidden_goal'('$undefp',1,prolog,ClNo,Gs,NGs) :- !,
+	'$preprocess_stack'(Gs, NGs).
+'$beautify_hidden_goal'('$use_module',2,prolog,ClNo,Gs,NGs) :- !,
 	'$preprocess_stack'(Gs, NGs).
 '$beautify_hidden_goal'('$repeat',0,prolog,ClNo,Gs,[cl(repeat,0,prolog,ClNo)|NGs]) :- !,
 	'$preprocess_stack'(Gs, NGs).
@@ -222,6 +228,8 @@ print_message(Level, Mss) :-
 '$beautify_hidden_goal'('$current_predicate',Args,prolog,ClNo,Gs,[cl(current_predicate,Args,prolog,ClNo)|NGs]) :- !,
 	'$preprocess_stack'(Gs, NGs).
 '$beautify_hidden_goal'('$list_clauses',_,prolog,ClNo,Gs,[cl(listing,1,prolog,ClNo)|NGs]) :- !,
+	'$preprocess_stack'(Gs, NGs).
+'$beautify_hidden_goal'('$use_module',1,prolog,ClNo,Gs,[cl(use_module,1,prolog,ClNo)|NGs]) :- !,
 	'$preprocess_stack'(Gs, NGs).
 '$beautify_hidden_goal'(Name,Args,Mod,ClNo,Gs,[cl(Name,Args,Mod,ClNo)|NGs]) :-
 	'$preprocess_stack'(Gs, NGs).
