@@ -1105,9 +1105,6 @@ Yap_absmi(int inp)
       saveregs();
       {
 	yamop *ipc;
-#if defined(YAPOR) || defined(THREADS)
-	PredEntry *ap = PP;
-#endif
 
 	/* update ASP before calling IPred */
 	ASP = YREG+E_CB;
@@ -1115,19 +1112,20 @@ Yap_absmi(int inp)
 	  ASP = (CELL *) B;
 	}
 #if defined(YAPOR) || defined(THREADS)
-	READ_UNLOCK(ap->PRWLock);
-	PP = NULL;
+	LOCK(pe->PELock);
+	if (*PREG_ADDR != PREG) {
+	  PREG = *PREG_ADDR;
+	  UNLOCK(pe->PELock);
+	  JMPNext();
+	}
 #endif
 	ipc = Yap_CleanUpIndex(PREG->u.Ill.I);
+	READ_UNLOCK(pe->PRWLock);
 	/* restart index */
 	setregs();
 	PREG = ipc;
 	if (PREG == NULL) FAIL();
 	CACHED_A1() = ARG1;
-#if defined(YAPOR) || defined(THREADS)
-	PP = ap;
-	READ_LOCK(ap->PRWLock);
-#endif
 	JMPNext();
       }
       ENDBOp();
@@ -6361,28 +6359,17 @@ Yap_absmi(int inp)
 	}
  	saveregs();
 #if defined(YAPOR) || defined(THREADS)
-	if (PP != pe) {
-	  READ_LOCK(pe->PRWLock);
-	}
 	LOCK(pe->PELock);
-	if (*PREG_ADDR != (yamop *)&(pe->cs.p_code.ExpandCode)) {
-	  pt0 = *PREG_ADDR;
+	if (*PREG_ADDR != PREG)) {
+	  PREG = *PREG_ADDR;
 	  UNLOCK(pe->PELock);
-	  if (PP != pe) {
-	    READ_UNLOCK(pe->PRWLock);
-	  }
 	  JMPNext();
 	}
 #endif
 	pt0 = Yap_ExpandIndex(pe);
 	/* restart index */
-	setregs();
 	UNLOCK(pe->PELock);
-#if defined(YAPOR) || defined(THREADS)
-	if (PP != pe) {
-	  READ_UNLOCK(pe->PRWLock);
-	}
-#endif
+	setregs();
  	PREG = pt0;
 	JMPNext();
       }

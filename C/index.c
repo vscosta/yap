@@ -6382,6 +6382,14 @@ Yap_FollowIndexingCode(PredEntry *ap, yamop *ipc, Term t1, Term tb, Term tr, yam
       ipc = NEXTOP(ipc,l);
       break;
     case _stale_lu_index:
+#if defined(YAPOR) || defined(THREADS)
+      LOCK(ap->PELock);
+      if (*jbl != ipc) {
+	ipc = *jbl;
+	UNLOCK(ap->PELock);
+	break;
+      }
+#endif
       while (TRUE) {
 	yamop *nipc = clean_up_index(ipc->u.Ill.I, jlbl, ap);
 	if (nipc == NULL) {
@@ -6391,6 +6399,7 @@ Yap_FollowIndexingCode(PredEntry *ap, yamop *ipc, Term t1, Term tb, Term tr, yam
 	  H[2] = tr;
 	  H += 3;
 	  if (!Yap_growheap(FALSE, Yap_Error_Size, NULL)) {
+	    UNLOCK(ap->PELock);
 	    Yap_Error(OUT_OF_HEAP_ERROR, TermNil, Yap_ErrorMessage);
 	    return NULL;
 	  }
@@ -6399,6 +6408,7 @@ Yap_FollowIndexingCode(PredEntry *ap, yamop *ipc, Term t1, Term tb, Term tr, yam
 	  tb = H[1];
 	  tr = H[2];
 	} else {
+	  UNLOCK(ap->PELock);
 	  ipc = nipc;
 	  break;
 	}
@@ -6574,7 +6584,16 @@ Yap_FollowIndexingCode(PredEntry *ap, yamop *ipc, Term t1, Term tb, Term tr, yam
       }
       break;
     case _expand_index:
+#if defined(YAPOR) || defined(THREADS)
+      LOCK(ap->PELock);
+      if (*jbl != ipc) {
+	ipc = *jbl;
+	UNLOCK(ap->PELock);
+	break;
+      }
+#endif
       ipc = ExpandIndex(ap);
+      UNLOCK(pe->PELock);
       break;
     case _op_fail:
       /*
@@ -6629,12 +6648,6 @@ Yap_FollowIndexingCode(PredEntry *ap, yamop *ipc, Term t1, Term tb, Term tr, yam
     abolish_incomplete_subgoals(B);
 #endif /* TABLING */
   }
-#if defined(YAPOR) || defined(THREADS)
-  if (PP == ap) {
-    PP = NULL;
-    READ_UNLOCK(ap->PRWLock);
-  }
-#endif
   return NULL;
 }
 
@@ -6736,15 +6749,25 @@ Yap_NthClause(PredEntry *ap, Int ncls)
     case _trust_logical_pred:
       ipc = NEXTOP(ipc,l);
     case _stale_lu_index:
+#if defined(YAPOR) || defined(THREADS)
+      LOCK(ap->PELock);
+      if (*jbl != ipc) {
+	ipc = *jbl;
+	UNLOCK(ap->PELock);
+	break;
+      }
+#endif
       while (TRUE) {
 	yamop *nipc = clean_up_index(ipc->u.Ill.I, jlbl, ap);
 	if (nipc == NULL) {
 	  /* not enough space */
 	  if (!Yap_growheap(FALSE, Yap_Error_Size, NULL)) {
+	    UNLOCK(ap->PELock);
 	    Yap_Error(OUT_OF_HEAP_ERROR, TermNil, Yap_ErrorMessage);
 	    return NULL;
 	  }
 	} else {
+	  UNLOCK(ap->PELock);
 	  ipc = nipc;
 	  break;
 	}
@@ -6789,7 +6812,16 @@ Yap_NthClause(PredEntry *ap, Int ncls)
       ipc = ipc->u.clll.l3;
       break;
     case _expand_index:
+#if defined(YAPOR) || defined(THREADS)
+      LOCK(ap->PELock);
+      if (*jbl != (yamop *)&(ap->cs.p_code.ExpandCode)) {
+	ipc = *jbl;
+	UNLOCK(pe->PELock);
+	break;
+      }
+#endif
       ipc = ExpandIndex(ap);
+      UNLOCK(ap->PELock);
       break;
     case _op_fail:
       ipc = alt;

@@ -3051,10 +3051,7 @@ fetch_next_lu_clause(PredEntry *pe, yamop *i_code, Term th, Term tb, Term tr, ya
 
   cl = Yap_FollowIndexingCode(pe, i_code, th, tb, tr, NEXTOP(PredLogUpdClause->CodeOfPred,ld), cp_ptr);
   if (cl == NULL) {
-#if defined(YAPOR) || defined(THREADS)
-    WPP = NULL;
-#endif
-    WRITE_UNLOCK(pe->PRWLock);
+    READ_UNLOCK(pe->PRWLock);
     return FALSE;
   }
   rtn = MkDBRefTerm((DBRef)cl);
@@ -3069,10 +3066,7 @@ fetch_next_lu_clause(PredEntry *pe, yamop *i_code, Term th, Term tb, Term tr, ya
     TRAIL_CLREF(cl);	/* So that fail will erase it */
   }
 #endif
-#if defined(YAPOR) || defined(THREADS)
-  WPP = NULL;
-#endif
-  WRITE_UNLOCK(pe->PRWLock);
+  READ_UNLOCK(pe->PRWLock);
   if (cl->ClFlags & FactMask) {
     if (!Yap_unify(tb, MkAtomTerm(AtomTrue)) ||
 	!Yap_unify(tr, rtn))
@@ -3128,10 +3122,7 @@ p_log_update_clause(void)
   pe = get_pred(t1, Deref(ARG2), "clause/3");
   if (pe == NULL || EndOfPAEntr(pe))
     return FALSE;
-  WRITE_LOCK(pe->PRWLock);
-#if defined(YAPOR) || defined(THREADS)
-  WPP = pe;
-#endif
+  READ_LOCK(pe->PRWLock);
   if(pe->OpcodeOfPred == INDEX_OPCODE) {
     IPred(pe);
   }
@@ -3144,10 +3135,7 @@ p_continue_log_update_clause(void)
   PredEntry *pe = (PredEntry *)IntegerOfTerm(Deref(ARG1));
   yamop *ipc = (yamop *)IntegerOfTerm(ARG2);
 
-  WRITE_LOCK(pe->PRWLock);
-#if defined(YAPOR) || defined(THREADS)
-  WPP = pe;
-#endif
+  READ_LOCK(pe->PRWLock);
   return fetch_next_lu_clause(pe, ipc, Deref(ARG3), ARG4, ARG5, B->cp_ap, FALSE);
 }
 
@@ -3157,10 +3145,7 @@ fetch_next_lu_clause0(PredEntry *pe, yamop *i_code, Term th, Term tb, yamop *cp_
   LogUpdClause *cl;
 
   cl = Yap_FollowIndexingCode(pe, i_code, th, tb, TermNil, NEXTOP(PredLogUpdClause0->CodeOfPred,ld), cp_ptr);
-#if defined(YAPOR) || defined(THREADS)
-  WPP = NULL;
-#endif
-  WRITE_UNLOCK(pe->PRWLock);
+  READ_UNLOCK(pe->PRWLock);
   if (cl == NULL) {
     return FALSE;
   }
@@ -3217,10 +3202,7 @@ p_log_update_clause0(void)
   pe = get_pred(t1, Deref(ARG2), "clause/3");
   if (pe == NULL || EndOfPAEntr(pe))
     return FALSE;
-  WRITE_LOCK(pe->PRWLock);
-#if defined(YAPOR) || defined(THREADS)
-  WPP = pe;
-#endif
+  READ_LOCK(pe->PRWLock);
   if(pe->OpcodeOfPred == INDEX_OPCODE) {
     IPred(pe);
   }
@@ -3233,10 +3215,7 @@ p_continue_log_update_clause0(void)
   PredEntry *pe = (PredEntry *)IntegerOfTerm(Deref(ARG1));
   yamop *ipc = (yamop *)IntegerOfTerm(ARG2);
 
-  WRITE_LOCK(pe->PRWLock);
-#if defined(YAPOR) || defined(THREADS)
-  WPP = pe;
-#endif
+  READ_LOCK(pe->PRWLock);
   return fetch_next_lu_clause0(pe, ipc, Deref(ARG3), ARG4, B->cp_ap, FALSE);
 }
 
@@ -3247,7 +3226,6 @@ fetch_next_static_clause(PredEntry *pe, yamop *i_code, Term th, Term tb, Term tr
   Term rtn;
 
   cl = (StaticClause *)Yap_FollowIndexingCode(pe, i_code, th, tb, tr, NEXTOP(PredStaticClause->CodeOfPred,ld), cp_ptr);
-  WRITE_UNLOCK(pe->PRWLock);
   if (cl == NULL)
     return FALSE;
   rtn = MkDBRefTerm((DBRef)cl);
@@ -3305,7 +3283,6 @@ p_static_clause(void)
   pe = get_pred(t1, Deref(ARG2), "clause/3");
   if (pe == NULL || EndOfPAEntr(pe))
     return FALSE;
-  WRITE_LOCK(pe->PRWLock);
   if(pe->OpcodeOfPred == INDEX_OPCODE) {
     IPred(pe);
   }
@@ -3327,13 +3304,20 @@ p_nth_clause(void)
   pe = get_pred(t1, Deref(ARG2), "clause/3");
   if (pe == NULL || EndOfPAEntr(pe))
     return FALSE;
-  WRITE_LOCK(pe->PRWLock);
-#if defined(YAPOR) || defined(THREADS)
-  WPP = pe;
-#endif
-  if (!(pe->PredFlags & (SourcePredFlag|LogUpdatePredFlag))) {
+  if(pe->OpcodeOfPred == INDEX_OPCODE) {
+    WRITE_LOCK(pe->PRWLock);
+    if(pe->OpcodeOfPred == INDEX_OPCODE) {
+      IPred(pe);
+    }
     WRITE_UNLOCK(pe->PRWLock);
+  }
+  READ_LOCK(pe->PRWLock);
+  if (!(pe->PredFlags & (SourcePredFlag|LogUpdatePredFlag))) {
+    READ_UNLOCK(pe->PRWLock);
     return FALSE;
+  }
+  if (pe->PredFlags & SourcePredFlag) {
+    READ_UNLOCK(pe->PRWLock);
   }
   /* in case we have to index or to expand code */
   if (pe->ModuleOfPred != IDB_MODULE) {
@@ -3345,11 +3329,11 @@ p_nth_clause(void)
   } else {
       XREGS[2] = MkVarTerm();
   }
-  if(pe->OpcodeOfPred == INDEX_OPCODE) {
-    IPred(pe);
-  }
   cl = Yap_NthClause(pe, ncls);
-  if (cl == NULL) 
+  if (pe->PredFlags & LogUpdatePredFlag) {
+    READ_UNLOCK(pe->PRWLock);
+  }
+  if (cl == NULL)
     return FALSE;
   if (cl->ClFlags & LogUpdatePredFlag) {
 #if defined(YAPOR) || defined(THREADS)
@@ -3373,7 +3357,6 @@ p_continue_static_clause(void)
   PredEntry *pe = (PredEntry *)IntegerOfTerm(Deref(ARG1));
   yamop *ipc = (yamop *)IntegerOfTerm(ARG2);
 
-  WRITE_LOCK(pe->PRWLock);
   return fetch_next_static_clause(pe, ipc, Deref(ARG3), ARG4, ARG5, B->cp_ap, FALSE);
 }
 
