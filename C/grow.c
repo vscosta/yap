@@ -142,8 +142,6 @@ SetHeapRegs(void)
   AttsMutableList = AbsAppl(PtoGloAdjust(RepAppl(AttsMutableList)));
   WokenGoals = AbsAppl(PtoGloAdjust(RepAppl(WokenGoals)));
 #endif
-  if (CurrentModulePtr)
-    CurrentModulePtr = PtoGloAdjust(CurrentModulePtr);
 }
 
 static void
@@ -182,8 +180,6 @@ SetStackRegs(void)
   YENV = PtoLocAdjust(YENV);
   if (MyTR)
     MyTR = PtoTRAdjust(MyTR);
-  if (CurrentModulePtr)
-    CurrentModulePtr = PtoGloAdjust(CurrentModulePtr);
 }
 
 static void

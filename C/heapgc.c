@@ -359,7 +359,6 @@ push_registers(Int num_regs, yamop *nextop)
   TrailTerm(TR+3) = DelayedVars;
   TR += 4;
 #endif
-  TrailTerm(TR++) = AbsAppl(CurrentModulePtr-1);
   for (i = 1; i <= num_regs; i++)
     TrailTerm(TR++) = (CELL) XREGS[i];
   /* push any live registers we might have hanging around */
@@ -403,7 +402,6 @@ pop_registers(Int num_regs, yamop *nextop)
   DelayedVars = TrailTerm(ptr++);
 #endif
 #endif
-  CurrentModulePtr = RepAppl(TrailTerm(ptr++))+1;
   for (i = 1; i <= num_regs; i++)
     XREGS[i] = TrailTerm(ptr++);
   /* pop any live registers we might have hanging around */

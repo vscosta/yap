@@ -29,15 +29,10 @@ if(_X,_Y,Z) :-
 call_with_args(V) :- var(V), !,
 	throw(error(instantiation_error,call_with_args(V))).
 call_with_args(M:A) :- !,
-	( '$current_module'(M) ->
-	    call_with_args(A)
-        ;
-	     '$current_module'(Old,M),
-	     ( call_with_args(A); '$current_module'(_,Old), fail ),
-	     ( '$current_module'(_,Old); '$current_module'(_,M), fail)
-        ).
+	'$call_with_args'(A,M).
 call_with_args(A) :- atom(A), !,
-	'$call_with_args'(A).
+	'$current_module'(M),
+	'$call_with_args'(A,M).
 call_with_args(A) :- 
 	throw(error(type_error(atom,A),call_with_args(A))).
 	
@@ -45,135 +40,90 @@ call_with_args(A) :-
 call_with_args(V,A1) :- var(V), !,
 	throw(error(instantiation_error,call_with_args(V,A1))).
 call_with_args(M:A,A1) :- !,
-	( '$current_module'(M) ->
-	    call_with_args(A,A1)
-        ;
-	     '$current_module'(Old,M),
-	     ( call_with_args(A,A1); '$current_module'(_,Old), fail ),
-	     ( '$current_module'(_,Old); '$current_module'(_,M), fail)
-        ).
+	'$call_with_args'(A,A1,M).
 call_with_args(A,A1) :- atom(A), !,
-	'$call_with_args'(A,A1).
+	'$current_module'(M),
+	'$call_with_args'(A,A1,M).
 call_with_args(A,A1) :- 
 	throw(error(type_error(atom,A),call_with_args(A,A1))).
 	
 call_with_args(V,A1,A2) :- var(V), !,
 	throw(error(instantiation_error,call_with_args(V,A1,A2))).
 call_with_args(M:A,A1,A2) :- !,
-	( '$current_module'(M) ->
-	    call_with_args(A,A1,A2)
-        ;
-	     '$current_module'(Old,M),
-	     ( call_with_args(A,A1,A2); '$current_module'(_,Old), fail ),
-	     ( '$current_module'(_,Old); '$current_module'(_,M), fail)
-        ).
+	'$call_with_args'(A,A1,A2,M).
 call_with_args(A,A1,A2) :- atom(A), !,
-	'$call_with_args'(A,A1,A2).
+	'$current_module'(M),
+	'$call_with_args'(A,A1,A2,M).
 call_with_args(A,A1,A2) :- 
 	throw(error(type_error(atom,A),call_with_args(A,A1,A2))).
 	
 call_with_args(V,A1,A2,A3) :- var(V), !,
 	throw(error(instantiation_error,call_with_args(V,A1,A2,A3))).
 call_with_args(M:A,A1,A2,A3) :- !,
-	( '$current_module'(M) ->
-	    call_with_args(A,A1,A2,A3)
-        ;
-	     '$current_module'(Old,M),
-	     ( call_with_args(A,A1,A2,A3); '$current_module'(_,Old), fail ),
-	     ( '$current_module'(_,Old); '$current_module'(_,M), fail)
-        ).
+	'$call_with_args'(A,A1,A2,A3,M).
 call_with_args(A,A1,A2,A3) :- atom(A), !,
-	'$call_with_args'(A,A1,A2,A3).
+	'$current_module'(M),
+	'$call_with_args'(A,A1,A2,A3,M).
 call_with_args(A,A1,A2,A3) :- 
 	throw(error(type_error(atom,A),call_with_args(A,A1,A2,A3))).
 	
 call_with_args(V,A1,A2,A3,A4) :- var(V), !,
 	throw(error(instantiation_error,call_with_args(V,A1,A2,A3,A4))).
 call_with_args(M:A,A1,A2,A3,A4) :- !,
-	( '$current_module'(M) ->
-	    call_with_args(A,A1,A2,A3,A4)
-        ;
-	     '$current_module'(Old,M),
-	     ( call_with_args(A,A1,A2,A3,A4); '$current_module'(_,Old), fail ),
-	     ( '$current_module'(_,Old); '$current_module'(_,M), fail)
-        ).
+	'$call_with_args'(A,A1,A2,A3,A4,M).
 call_with_args(A,A1,A2,A3,A4) :- atom(A), !,
-	'$call_with_args'(A,A1,A2,A3,A4).
+	'$current_module'(M),
+	'$call_with_args'(A,A1,A2,A3,A4,M).
 call_with_args(A,A1,A2,A3,A4) :- 
 	throw(error(type_error(atom,A),call_with_args(A,A1,A2,A3,A4))).
 	
 call_with_args(V,A1,A2,A3,A4,A5) :- var(V), !,
 	throw(error(instantiation_error,call_with_args(V,A1,A2,A3,A4,A5))).
 call_with_args(M:A,A1,A2,A3,A4,A5) :- !,
-	( '$current_module'(M) ->
-	    call_with_args(A,A1,A2,A3,A4,A5)
-        ;
-	     '$current_module'(Old,M),
-	     ( call_with_args(A,A1,A2,A3,A4,A5); '$current_module'(_,Old), fail ),
-	     ( '$current_module'(_,Old); '$current_module'(_,M), fail)
-        ).
+	'$call_with_args'(A,A1,A2,A3,A4,A5,M).
 call_with_args(A,A1,A2,A3,A4,A5) :- atom(A), !,
-	'$call_with_args'(A,A1,A2,A3,A4,A5).
+	'$current_module'(M),
+	'$call_with_args'(A,A1,A2,A3,A4,A5,M).
 call_with_args(A,A1,A2,A3,A4,A5) :- 
 	throw(error(type_error(atom,A),call_with_args(A,A1,A2,A3,A4,A5))).
 	
 call_with_args(V,A1,A2,A3,A4,A5,A6) :- var(V), !,
 	throw(error(instantiation_error,call_with_args(V,A1,A2,A3,A4,A5,A6))).
 call_with_args(M:A,A1,A2,A3,A4,A5,A6) :- !,
-	( '$current_module'(M) ->
-	    call_with_args(A,A1,A2,A3,A4,A5,A6)
-        ;
-	     '$current_module'(Old,M),
-	     ( call_with_args(A,A1,A2,A3,A4,A5,A6); '$current_module'(_,Old), fail ),
-	     ( '$current_module'(_,Old); '$current_module'(_,M), fail)
-        ).
+	'$call_with_args'(A,A1,A2,A3,A4,A5,A6,M).
 call_with_args(A,A1,A2,A3,A4,A5,A6) :- atom(A), !,
-	'$call_with_args'(A,A1,A2,A3,A4,A5,A6).
+	'$current_module'(M),
+	'$call_with_args'(A,A1,A2,A3,A4,A5,A6,M).
 call_with_args(A,A1,A2,A3,A4,A5,A6) :- 
 	throw(error(type_error(atom,A),call_with_args(A,A1,A2,A3,A4,A5,A6))).
 	
 call_with_args(V,A1,A2,A3,A4,A5,A6,A7) :- var(V), !,
 	throw(error(instantiation_error,call_with_args(V,A1,A2,A3,A4,A5,A6,A7))).
 call_with_args(M:A,A1,A2,A3,A4,A5,A6,A7) :- !,
-	( '$current_module'(M) ->
-	    call_with_args(A,A1,A2,A3,A4,A5,A6,A7)
-        ;
-	     '$current_module'(Old,M),
-	     ( call_with_args(A,A1,A2,A3,A4,A5,A6,A7); '$current_module'(_,Old), fail ),
-	     ( '$current_module'(_,Old); '$current_module'(_,M), fail)
-        ).
+	'$call_with_args'(A,A1,A2,A3,A4,A5,A6,A7,M).
 call_with_args(A,A1,A2,A3,A4,A5,A6,A7) :- atom(A), !,
-	'$call_with_args'(A,A1,A2,A3,A4,A5,A6,A7).
+	'$current_module'(M),
+	'$call_with_args'(A,A1,A2,A3,A4,A5,A6,A7,M).
 call_with_args(A,A1,A2,A3,A4,A5,A6,A7) :- 
 	throw(error(type_error(atom,A),call_with_args(A,A1,A2,A3,A4,A5,A6,A7))).
 	
 call_with_args(V,A1,A2,A3,A4,A5,A6,A7,A8) :- var(V), !,
 	throw(error(instantiation_error,call_with_args(V,A1,A2,A3,A4,A5,A6,A7,A8))).
 call_with_args(M:A,A1,A2,A3,A4,A5,A6,A7,A8) :- !,
-	( '$current_module'(M) ->
-	    call_with_args(A,A1,A2,A3,A4,A5,A6,A7,A8)
-        ;
-	     '$current_module'(Old,M),
-	     ( call_with_args(A,A1,A2,A3,A4,A5,A6,A7,A8); '$current_module'(_,Old), fail ),
-	     ( '$current_module'(_,Old); '$current_module'(_,M), fail)
-        ).
+	'$call_with_args'(A,A1,A2,A3,A4,A5,A6,A7,A8,M).
 call_with_args(A,A1,A2,A3,A4,A5,A6,A7,A8) :- atom(A), !,
-	'$call_with_args'(A,A1,A2,A3,A4,A5,A6,A7,A8).
+	'$current_module'(M),
+	'$call_with_args'(A,A1,A2,A3,A4,A5,A6,A7,A8,M).
 call_with_args(A,A1,A2,A3,A4,A5,A6,A7,A8) :- 
 	throw(error(type_error(atom,A),call_with_args(A,A1,A2,A3,A4,A5,A6,A7,A8))).
 	
 call_with_args(V,A1,A2,A3,A4,A5,A6,A7,A8,A9) :- var(V), !,
 	throw(error(instantiation_error,call_with_args(V,A1,A2,A3,A4,A5,A6,A7,A8,A9))).
 call_with_args(M:A,A1,A2,A3,A4,A5,A6,A7,A8,A9) :- !,
-	( '$current_module'(M) ->
-	    call_with_args(A,A1,A2,A3,A4,A5,A6,A7,A8,A9)
-        ;
-	     '$current_module'(Old,M),
-	     ( call_with_args(A,A1,A2,A3,A4,A5,A6,A7,A8,A9); '$current_module'(_,Old), fail ),
-	     ( '$current_module'(_,Old); '$current_module'(_,M), fail)
-        ).
+	'$current_module'(M),
+	'$call_with_args'(A,A1,A2,A3,A4,A5,A6,A7,A8,A9,M).
 call_with_args(A,A1,A2,A3,A4,A5,A6,A7,A8,A9) :- atom(A), !,
-	'$call_with_args'(A,A1,A2,A3,A4,A5,A6,A7,A8,A9).
+	'$call_with_args'(A,A1,A2,A3,A4,A5,A6,A7,A8,A9,M).
 call_with_args(A,A1,A2,A3,A4,A5,A6,A7,A8,A9) :- 
 	throw(error(type_error(atom,A),call_with_args(A,A1,A2,A3,A4,A5,A6,A7,A8,A9))).
 	
@@ -181,15 +131,10 @@ call_with_args(A,A1,A2,A3,A4,A5,A6,A7,A8,A9) :-
 call_with_args(V,A1,A2,A3,A4,A5,A6,A7,A8,A9,A10) :- var(V), !,
 	throw(error(instantiation_error,call_with_args(V,A1,A2,A3,A4,A5,A6,A7,A8,A9,A10))).
 call_with_args(M:A,A1,A2,A3,A4,A5,A6,A7,A8,A9,A10) :- !,
-	( '$current_module'(M) ->
-	    call_with_args(A,A1,A2,A3,A4,A5,A6,A7,A8,A9,A10)
-        ;
-	     '$current_module'(Old,M),
-	     ( call_with_args(A,A1,A2,A3,A4,A5,A6,A7,A8,A9,A10); '$current_module'(_,Old), fail ),
-	     ( '$current_module'(_,Old); '$current_module'(_,M), fail)
-        ).
+	'$call_with_args'(A,A1,A2,A3,A4,A5,A6,A7,A8,A9,A10,M).
 call_with_args(A,A1,A2,A3,A4,A5,A6,A7,A8,A9,A10) :- atom(A), !,
-	'$call_with_args'(A,A1,A2,A3,A4,A5,A6,A7,A8,A9,A10).
+	'$current_module'(M),
+	'$call_with_args'(A,A1,A2,A3,A4,A5,A6,A7,A8,A9,A10,M).
 call_with_args(A,A1,A2,A3,A4,A5,A6,A7,A8,A9,A10) :- 
 	throw(error(type_error(atom,A),call_with_args(A,A1,A2,A3,A4,A5,A6,A7,A8,A9,A10))).
 	
@@ -342,46 +287,56 @@ current_atom(A) :-				% generate
 	'$current_atom'(A).
 
 current_predicate(A,T) :- var(T), !,		% only for the predicate
-	'$current_predicate_no_modules'(A,T).
+	'$current_module'(M),
+	'$current_predicate_no_modules'(M,A,T).
 current_predicate(A,M:T) :-			% module specified
 	var(M), !,
 	current_module(M),
 	M \= prolog,
-	'$mod_switch'(M,'$current_predicate_no_modules'(A,T)).
+	'$current_predicate_no_modules'(M,A,T).
+current_predicate(A,M:T) :- % module specified
+	nonvar(T),
+	!,	
+	'$pred_exists'(T,M).
 current_predicate(A,M:T) :- % module specified
 	!,
-	'$mod_switch'(M,'$current_predicate_no_modules'(A,T)).
+	'$current_predicate_no_modules'(M,A,T).
 current_predicate(A,T) :-			% only for the predicate
-	'$current_predicate_no_modules'(A,T).
+	'$current_module'(M),
+	'$current_predicate_no_modules'(M,A,T).
 
 current_predicate(F) :-	var(F), !,		% only for the predicate
-	'$current_predicate3'(F).
+	'$current_module'(M),
+	'$current_predicate3'(M,F).
 current_predicate(M:F) :-			% module specified
 	var(M), !,
-	current_module(M),
+	'$current_module'(M),
 	M \= prolog,
-	'$mod_switch'(M,'$current_predicate3'(F)).
+	'$current_predicate3'(M,F).
 current_predicate(M:F) :- % module specified
 	!,
-	'$mod_switch'(M,'$current_predicate3'(F)).
+	'$current_predicate3'(M,F).
 current_predicate(F) :-			% only for the predicate
-	'$current_predicate3'(F).
+	'$current_module'(M),
+	'$current_predicate3'(M,F).
 
 system_predicate(A,P) :-
-	'$mod_switch'(prolog,'$current_predicate_no_modules'(A,P)),
+	'$current_predicate_no_modules'(prolog,A,P),
 	\+ '$hidden'(A).
 
 system_predicate(P) :- '$system_predicate'(P).
 
-'$current_predicate_no_modules'(A,T) :-
-	'$current_predicate'(A,Arity),
+'$current_predicate_no_modules'(M,A,T) :-
+	'$current_predicate'(M,A,Arity),
+	\+ '$hidden'(A),
 	functor(T,A,Arity),
-	'$pred_exists'(T).
+	'$pred_exists'(T,M).
 
-'$current_predicate3'(A/Arity) :-
-	'$current_predicate'(A,Arity),
+'$current_predicate3'(M,A/Arity) :-
+	'$current_predicate'(M,A,Arity),
+	\+ '$hidden'(A),
 	functor(T,A,Arity),
-	'$pred_exists'(T).
+	'$pred_exists'(T,M).
 
 %%% User interface for statistics
 
@@ -472,44 +427,43 @@ statistics(stack_shifts,[NOfHO,NOfSO,NOfTO]) :-
 %	informs about what the user wants to be done when
 %	there are no clauses for a certain predicate */
 
+unknown(V0,V) :-
+	'$current_module'(M),
+	'$unknown'(V0,V,M).
 
 % query mode
-unknown(V0,V) :- var(V), !,
+'$unknown'(V0,V,_) :- var(V), !,
 	'$ask_unknown_flag'(V),
 	V = V0.
 % handle modules.
-unknown(V0,Mod:Handler) :-
-	( '$current_module'(Mod) ->
-	    unknown(V0,Handler)
-	;
-	    '$mod_switch'(Mod,unknown(V0,Handler))
-	).
+'$unknown'(V0,Mod:Handler,_) :-
+	'$unknown'(V0,Handler,Mod).
 % check if we have one we like.
-unknown(_,New) :- 
-	'$valid_unknown_handler'(New), fail.
+'$unknown'(_,New,Mod) :- 
+	'$valid_unknown_handler'(New,Mod), fail.
 % clean up previous unknown predicate handlers
-unknown(Old,New) :-
+'$unknown'(Old,New,Mod) :-
 	'$recorded'('$unknown','$unknown'(_,MyOld),Ref), !,
 	erase(Ref),
 	'$cleanup_unknown_handler'(MyOld,Old),
-	'$new_unknown'(New).
+	'$new_unknown'(New, Mod).
 % store the new one.
-unknown(fail,New) :-
-	'$new_unknown'(New).
+'$unknown'(fail,New,Mod) :-
+	'$new_unknown'(New, Mod).
 
-'$valid_unknown_handler'(V) :-
+'$valid_unknown_handler'(V,_) :-
 	var(V), !,
 	throw(error(instantiation_error,yap_flag(unknown,V))).
-'$valid_unknown_handler'(fail) :- !.
-'$valid_unknown_handler'(error) :- !.
-'$valid_unknown_handler'(warning) :- !.
-'$valid_unknown_handler'(S) :-
+'$valid_unknown_handler'(fail,_) :- !.
+'$valid_unknown_handler'(error,_) :- !.
+'$valid_unknown_handler'(warning,_) :- !.
+'$valid_unknown_handler'(S,M) :-
 	functor(S,_,1),
 	arg(1,S,A),
 	var(A), 
-	\+ '$undefined'(S),
+	\+ '$undefined'(S,M),
 	!.
-'$valid_unknown_handler'(S) :-
+'$valid_unknown_handler'(S,_) :-
 	throw(error(domain_error(flag_value,unknown+S),yap_flag(unknown,S))).
 
 '$ask_unknown_flag'(Old) :-
@@ -521,14 +475,13 @@ unknown(fail,New) :-
 '$cleanup_unknown_handler'('$unknown_warning'(_),warning) :- !.
 '$cleanup_unknown_handler'(Handler, Handler).
 
-'$new_unknown'(fail) :- !.
-'$new_unknown'(error) :- !,
+'$new_unknown'(fail,_) :- !.
+'$new_unknown'(error,_) :- !,
 	'$recorda'('$unknown','$unknown'(P,'$unknown_error'(P)),_).
-'$new_unknown'(warning) :- !,
+'$new_unknown'(warning,_) :- !,
 	'$recorda'('$unknown','$unknown'(P,'$unknown_warning'(P)),_).
-'$new_unknown'(X) :-
+'$new_unknown'(X,M) :-
 	arg(1,X,A),
-	'$current_module'(M),
 	'$recorda'('$unknown','$unknown'(A,M:X),_).
 
 '$unknown_error'(P) :-
@@ -542,44 +495,40 @@ unknown(fail,New) :-
 	fail.
 
 predicate_property(Mod:Pred,Prop) :- !,
-	( '$current_module'(Mod) ->
-	    '$predicate_property2'(Pred,Prop)
-	;
-	    '$mod_switch'(Mod,'$predicate_property2'(Pred,Prop))
-	).
+	'$predicate_property2'(Pred,Prop,Mod).
 predicate_property(Pred,Prop) :- 
-	'$predicate_property2'(Pred,Prop).
+	'$current_module'(Mod),
+	'$predicate_property2'(Pred,Prop,Mod).
 
-'$predicate_property2'(Pred,Prop) :- var(Pred), !,
-	'$current_predicate'(_,Pred),
-	'$pred_exists'(Pred),
-	'$predicate_property'(Pred,Prop).
-'$predicate_property2'(Pred,Prop) :- 
-	'$predicate_property'(Pred,Prop),
-	'$pred_exists'(Pred).
+'$predicate_property2'(Pred,Prop,M) :- var(Pred), !,
+	'$current_predicate'(M,_,Pred),
+	'$pred_exists'(Pred,M),
+	'$predicate_property'(Pred,M,Prop).
+'$predicate_property2'(M:Pred,Prop,_) :-
+	'$predicate_property'(Pred,Prop,M).
+'$predicate_property2'(Pred,Prop,Mod) :- 
+	'$predicate_property'(Pred,Mod,Prop),
+	'$pred_exists'(Pred,Mod).
 
-'$predicate_property'(P,built_in) :- 
+'$predicate_property'(P,M,built_in) :- 
 	'$system_predicate'(P), !.
-'$predicate_property'(P,dynamic) :-
-	'$is_dynamic'(P).
-'$predicate_property'(P,static) :-
-	\+ '$is_dynamic'(P).
-'$predicate_property'(P,meta_predicate(P)) :-
-	'$current_module'(M),
+'$predicate_property'(P,M,dynamic) :-
+	'$is_dynamic'(P,M).
+'$predicate_property'(P,M,static) :-
+	\+ '$is_dynamic'(P,M).
+'$predicate_property'(P,M,meta_predicate(P)) :-
 	functor(P,Na,Ar),
-	recorded('$meta_predicate','$meta_predicate'(M,Na,Ar,P),_).
-'$predicate_property'(P,multifile) :-
-	functor(P,N,A),
-	'$is_multifile'(N,A).
-'$predicate_property'(P,imported_from(Mod)) :-
+	user:'$meta_predicate'(M,Na,Ar,P).
+'$predicate_property'(P,M,multifile) :-
+	'$is_multifile'(P,M).
+'$predicate_property'(P,_,imported_from(Mod)) :-
 	functor(P,N,A),
 	'$recorded'('$module','$module'(_TFN,Mod,Publics),_),
 	'$member'(N/A,Publics).	/* defined in modules.yap */
-'$predicate_property'(P,public) :-
-	'$is_public'(P).
-'$predicate_property'(P,exported) :-
+'$predicate_property'(P,M,public) :-
+	'$is_public'(P,M).
+'$predicate_property'(P,M,exported) :-
 	functor(P,N,A),
-	'$current_module'(M),
 	'$recorded'('$module','$module'(_TFN,M,Publics),_),
 	'$member'(N/A,Publics).	/* defined in modules.yap */
 
@@ -589,8 +538,8 @@ predicate_property(Pred,Prop) :-
 % this predicate shows the code produced by the compiler
 '$show_code' :- '$debug'(0'f).
 
-'$pred_exists'(Pred) :- '$is_dynamic'(Pred), !.
-'$pred_exists'(Pred) :- \+ '$undefined'(Pred).
+'$pred_exists'(Pred,M) :- '$is_dynamic'(Pred,M), !.
+'$pred_exists'(Pred,M) :- \+ '$undefined'(Pred,M).
 
 
 grow_heap(X) :- '$grow_heap'(X).
@@ -611,22 +560,27 @@ nogc :-
 '$force_environment_for_gc'.
 
 profile_data(P, Parm, Data) :- var(P), !,
-	'$profile_data_for_var'(P, Parm, Data).
-profile_data(M:P, Parm, Data) :- var(M), !,
-	throw(error(instantiation_error,profile_data(M:P, Parm, Data))).
-profile_data(M:P, Parm, Data) :- var(M), !,
-	'$mod_switch'(M,'$profile_data'(P, Parm, Data)).
-profile_data(P, Parm, Data) :-
-	'$profile_data'(P, Parm, Data).
+	'$current_module'(M),
+	'$profile_data'(P, Parm, Data, M).
 
-'$profile_data'(Na/Ar,Parm,Data) :-
-	'$profile_info'(Na, Ar, Stats),
+'$profile_data'(P, Parm, Data,M) :- var(P), !,
+	'$profile_data_for_var'(P, Parm, Data,M).
+'$profile_data'(M:P, Parm, Data, _) :- var(M), !,
+	throw(error(instantiation_error,profile_data(M:P, Parm, Data))).
+'$profile_data'(M:P, Parm, Data, _) :- 
+	'$profile_data'(P, Parm, Data, M).
+'$profile_data'(P, Parm, Data, M) :-
+	'$profile_data2'(P, Parm, Data, M).
+
+'$profile_data2'(Na/Ar,Parm,Data, M) :-
+	functor(P, Na, Ar),
+	'$profile_info'(M, P, Stats),
 	'$profile_say'(Stats, Parm, Data).
 
-'$profile_data_for_var'(Name/Arity, Parm, Data) :-
-	'$current_predicate'(_,P),
+'$profile_data_for_var'(Name/Arity, Parm, Data, M) :-
+	'$current_predicate'(M,_,P),
 	functor(P, Name, Arity),
-	'$profile_info'(Name, Arity, Stats),
+	'$profile_info'(M, P, Stats),
 	'$profile_say'(Stats, Parm, Data).
 
 
@@ -635,9 +589,9 @@ profile_data(P, Parm, Data) :-
 '$profile_say'('$profile'(_, _, Backtracks), retries, Backtracks).
 
 profile_reset :-
-	current_predicate(_,P0),
-	functor(P0, Name, Arity),
-	'$profile_reset'(Name, Arity),
+	current_module(M),
+	'$current_predicate'(M,_,P0),
+	'$profile_reset'(M, P0),
 	fail.
 profile_reset.
 
@@ -798,8 +752,10 @@ user_defined_directive(Dir,_) :-
 user_defined_directive(Dir,Action) :-
 	functor(Dir,Na,Ar),
 	functor(NDir,Na,Ar),
+	'$current_module'(M, prolog),
 	assert_static('$directive'(NDir)),
-	assert_static(('$exec_directive'(Dir, _) :- Action)).
+	assert_static(('$exec_directive'(Dir, _, _) :- Action)),
+	'$current_module'(_, M).
 
 '$set_toplevel_hook'(_) :- 
 	'$recorded'('$toplevel_hooks',_,R),

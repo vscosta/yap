@@ -79,9 +79,9 @@ void init_optyap_preds(void) {
   InitCPred("$parallel_yes_answer", 0, p_parallel_yes_answer, SafePredFlag);
 #endif /* YAPOR */
 #ifdef TABLING
-  InitCPred("$table", 1, p_table, SafePredFlag);
-  InitCPred("$abolish_trie", 1, p_abolish_trie, SafePredFlag);
-  InitCPred("$show_trie", 2, p_show_trie, SafePredFlag);
+  InitCPred("$table", 2, p_table, SafePredFlag);
+  InitCPred("$do_abolish_trie", 2, p_abolish_trie, SafePredFlag);
+  InitCPred("$show_trie", 3, p_show_trie, SafePredFlag);
 #endif /* TABLING */
 #ifdef STATISTICS
   InitCPred("show_frames", 0, p_show_frames, SafePredFlag);
@@ -183,25 +183,31 @@ int start_yapor(void) {
 
 static
 int p_sequential(void) {
-  Term t;
+  Term t, tmod;
   Atom at;
   int arity;
   PredEntry *pe;
+  SMALLUNSGN mod;
 
   t = Deref(ARG1);
+  tmod = Deref(ARG2);
+  if (IsVarTerm(tmod) || !IsAtomTerm(tmod)) {
+    return(FALSE);
+  }
+  mod = LookupModule(tmod);
   if (IsAtomTerm(t)) {
     at = AtomOfTerm(t);
     arity = 0;
+    pe = RepPredProp(PredPropByAtom(at, mod));
   } else if (IsApplTerm(t)) {
     Functor func = FunctorOfTerm(t);
     at = NameOfFunctor(func);
     arity = ArityOfFunctor(func);
+    pe = RepPredProp(PredPropByFunc(func, mod));
   } else {
     abort_optyap("unknown term in function p_sequential");
-    at = NULL; /* just to avoid gcc warning */
-    arity = 0; /* just to avoid gcc warning */
+    return(FALSE);
   }
-  pe = RepPredProp(PredProp(at, arity));
   pe->PredFlags |= SequentialPredFlag;
   return (TRUE);
 }
@@ -449,25 +455,28 @@ void answer_to_stdout(char *answer) {
 #ifdef TABLING
 static
 int p_table(void) {
-  Term t;
-  Atom at;
-  int arity;
+  Term t, t2;
   PredEntry *pe;
   tab_ent_ptr te;
   sg_node_ptr sg_node;
+  SMALLUNSGN mod;
 
   t = Deref(ARG1);
+  t2 = Deref(ARG2);
+  if (IsVarTerm(t2) || !IsAtomTerm(t2)) {
+    return (FALSE);
+  } else {
+    mod = LookupModule(t2);
+  }
   if (IsAtomTerm(t)) {
-    at = AtomOfTerm(t);
-    arity = 0;
+    Atom at = AtomOfTerm(t);
+    pe = RepPredProp(PredPropByAtom(at, mod));
   } else if (IsApplTerm(t)) {
     Functor func = FunctorOfTerm(t);
-    at = NameOfFunctor(func);
-    arity = ArityOfFunctor(func);
+    pe = RepPredProp(PredPropByFunc(func, mod));
   } else
     return (FALSE);
 
-  pe = RepPredProp(PredProp(at, arity));
   pe->PredFlags |= TabledPredFlag;
   new_subgoal_trie_node(sg_node, 0, NULL, NULL, NULL);
   new_table_entry(te, sg_node);
@@ -479,25 +488,31 @@ int p_table(void) {
 
 static
 int p_abolish_trie(void) {
-  Term t;
-  Atom at;
-  int arity;
+  Term t, tmod;
+  SMALLUNSGN mod;
   tab_ent_ptr tab_ent;
   sg_hash_ptr hash;
   sg_node_ptr sg_node;
+  UInt arity;
 
   t = Deref(ARG1);
+  tmod = Deref(ARG2);
+   if (IsVarTerm(tmod) || !IsAtomTerm(tmod)) {
+    return (FALSE);
+  } else {
+    mod = LookupModule(tmod);
+  } 
   if (IsAtomTerm(t)) {
-    at = AtomOfTerm(t);
+    Atom at = AtomOfTerm(t);
+    tab_ent = RepPredProp(PredPropByAtom(at, mod))->TableOfPred;
     arity = 0;
   } else if (IsApplTerm(t)) {
     Functor func = FunctorOfTerm(t);
-    at = NameOfFunctor(func);
+    tab_ent = RepPredProp(PredPropByFunc(func, mod))->TableOfPred;
     arity = ArityOfFunctor(func);
   } else
     return (FALSE);
 
-  tab_ent = RepPredProp(PredProp(at, arity))->TableOfPred;
   hash = TabEnt_hash_chain(tab_ent);
   TabEnt_hash_chain(tab_ent) = NULL;
   free_subgoal_hash_chain(hash);
@@ -513,24 +528,32 @@ int p_abolish_trie(void) {
 
 static
 int p_show_trie(void) {
-  Term t1, t2;
-  Atom at;
-  int arity;
+  Term t1, t2, tmod;
   PredEntry *pe;
+  SMALLUNSGN mod;
+  Atom at;
+  UInt arity;
 
   t1 = Deref(ARG1);
+  tmod = Deref(ARG2);
+   if (IsVarTerm(tmod) || !IsAtomTerm(tmod)) {
+    return (FALSE);
+  } else {
+    mod = LookupModule(tmod);
+  } 
   if (IsAtomTerm(t1)) {
     at = AtomOfTerm(t1);
     arity = 0;
+    pe = RepPredProp(PredPropByAtom(at, mod));
   } else if (IsApplTerm(t1)) {
     Functor func = FunctorOfTerm(t1);
     at = NameOfFunctor(func);
     arity = ArityOfFunctor(func);
+    pe = RepPredProp(PredPropByFunc(func, mod));
   } else
-    return(FALSE);
-  pe = RepPredProp(PredProp(at, arity));
+    return (FALSE);
  
-  t2 = Deref(ARG2);
+  t2 = Deref(ARG3);
   if (IsVarTerm(t2)) {
     Term ta = MkAtomTerm(LookupAtom("stdout"));
     Bind((CELL *)t2, ta);

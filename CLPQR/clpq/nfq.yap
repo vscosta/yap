@@ -43,7 +43,7 @@
 	    solve/1
 	]).
 
-:- ensure_loaded( nf).
+:- ensure_loaded(nf).
 
 transg( resubmit_eq(Nf)) -->
   {

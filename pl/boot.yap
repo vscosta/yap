@@ -242,12 +242,11 @@ repeat :- '$repeat'.
 '$execute_command'(R,_,top) :- db_reference(R), !,
 	throw(error(type_error(callable,R),meta_call(R))).
 '$execute_command'((:-G),_,Option) :- !,
-	'$process_directive'(G, Option),
+	'$current_module'(M),
+	'$process_directive'(G, Option, M),
 	fail.
 '$execute_command'((?-G),V,_) :- !,
 	'$execute_command'(G,V,top).
-'$execute_command'((Mod:G),V,Option) :- !,
-	'$mod_switch'(Mod,'$execute_command'(G,V,Option)).
 '$execute_command'(G,V,Option) :- '$continue_with_command'(Option,V,G).
 
 %
@@ -257,38 +256,44 @@ repeat :- '$repeat'.
 % SICStus accepts everything in files
 % YAP accepts everything everywhere
 % 
-'$process_directive'(G, top) :-
+'$process_directive'(G, top, M) :-
 	'$access_yap_flags'(8, 0), !, % YAP mode, go in and do it,
-	'$process_directive'(G, consult).
-'$process_directive'(G, top) :- !,
+	'$process_directive'(G, consult, M).
+'$process_directive'(G, top, _) :- !,
 	throw(error(context_error((:- G),clause),query)).
 %
 % always allow directives.
 %
-'$process_directive'(D, Mode) :-
+'$process_directive'(D, Mode, M) :-
 	'$directive'(D), !,
-	( '$exec_directive'(D, Mode) -> true ; true ).
+	( '$exec_directive'(D, Mode, M) -> true ; true ).
 %
 % allow multiple directives
 %
-'$process_directive'((G1,G2), Mode) :-
+'$process_directive'((G1,G2), Mode, M) :-
 	'$all_directives'(G1),
 	'$all_directives'(G2), !,
-	'$exec_directives'(G1, Mode),
-	'$exec_directives'(G2, Mode).
+	'$exec_directives'(G1, Mode, M),
+	'$exec_directives'(G2, Mode, M).
+%
+% allow modules
+%
+'$process_directive'(M:G, Mode, _) :- !,
+	'$process_directive'(G, Mode, M).
 %
 % ISO does not allow goals (use initialization).
 %
-'$process_directive'(D, _) :-
+'$process_directive'(D, _, M) :-
 	'$access_yap_flags'(8, 1), !, % ISO Prolog mode, go in and do it,
 	throw(error(context_error((:- D),query),directive)).
 %
 % but YAP and SICStus does.
 %
-'$process_directive'(G, _) :-
-	'$current_module'(M),
+'$process_directive'(G, _, M) :-
 	( '$do_yes_no'(M:G) -> true ; '$format'(user_error,":- ~w:~w failed.~n",[M,G]) ).
 
+'$all_directives'(M:G1) :- !,
+	'$all_directives'(G1).
 '$all_directives'((G1,G2)) :- !,
 	'$all_directives'(G1),
 	'$all_directives'(G2).
@@ -309,7 +314,7 @@ repeat :- '$repeat'.
 % module prefixes all over the place, although unnecessarily so.
 %
 '$go_compile_clause'(M:G,V,N) :- !,
-	'$mod_switch'(M,'$go_compile_clause'(G,V,N)).
+	'$go_compile_clause'(G,V,N,Mod).
 '$go_compile_clause'((M:G :- B),V,N) :- !,
 	'$current_module'(M1),
 	(M1 = M ->
@@ -317,35 +322,39 @@ repeat :- '$repeat'.
         ;
 	   '$preprocess_clause_before_mod_change'((G:-B),M1,M,NG)
 	),
-	'$mod_switch'(M,'$go_compile_clause'(NG,V,N)).
+	'$go_compile_clause'(NG,V,N,M).
 '$go_compile_clause'(G,V,N) :-
-	'$prepare_term'(G,V,G0,G1),
-	'$$compile'(G1,G0,N).
+	'$current_module'(Mod),
+	'$go_compile_clause'(G,V,N,Mod).
 
-'$prepare_term'(G,V,G0,G1) :-
+'$go_compile_clause'(G, V, N, Mod) :-
+	'$prepare_term'(G, V, G0, G1, Mod),
+	'$$compile'(G1, G0, N, Mod).
+
+'$prepare_term'(G,V,G0,G1, Mod) :-
 	( '$get_value'('$syntaxcheckflag',on) ->
 		'$check_term'(G,V) ; true ),
-	'$precompile_term'(G, G0, G1).
+	'$precompile_term'(G, G0, G1, Mod).
 
 % process an input clause
-'$$compile'(G,G0,L) :-
+'$$compile'(G, G0, L, Mod) :-
 	'$head_and_body'(G,H,_), 
 	'$inform_of_clause'(H,L),
-	'$flags'(H, Fl, Fl),
-	( Fl /\ 16'002008 =\= 0 -> '$assertz_dynamic'(L,G,G0) ;
-	    '$$compile_stat'(G,G0,L,H) ).
+	'$flags'(H, Mod, Fl, Fl),
+	( Fl /\ 16'002008 =\= 0 -> '$assertz_dynamic'(L,G,G0,Mod) ;
+	    '$$compile_stat'(G,G0,L,H, Mod) ).
 
 % process a clause for a static predicate 
-'$$compile_stat'(G,G0,L,H) :-
-      '$compile'(G,L),
+'$$compile_stat'(G,G0,L,H, Mod) :-
+      '$compile'(G,L,Mod),
       % first occurrence of this predicate in this file,
       % check if we need to erase the source and if 
       % it is a multifile procedure.
-      '$flags'(H,Fl,Fl),
+      '$flags'(H,Mod,Fl,Fl),
       ( '$get_value'('$abol',true)
          ->
-            ( Fl /\ 16'400000 =\= 0 -> '$erase_source'(H) ; true ),
-	    ( Fl /\ 16'040000 =\= 0 -> '$check_multifile_pred'(H,Fl) ; true )
+            ( Fl /\ 16'400000 =\= 0 -> '$erase_source'(H, Mod) ; true ),
+	    ( Fl /\ 16'040000 =\= 0 -> '$check_multifile_pred'(H,Mod,Fl) ; true )
         ;
             true
       ),	    
@@ -354,42 +363,40 @@ repeat :- '$repeat'.
         true
       ;
 	% and store our clause
-	'$store_stat_clause'(G0, H, L)
+	'$store_stat_clause'(G0, H, L, Mod)
       ).
 
-'$store_stat_clause'(G0, H, L) :-
+'$store_stat_clause'(G0, H, L, M) :-
 	'$head_and_body'(G0,H0,B0),
-	'$record_stat_source'(H,(H0:-B0),L,R),
-	functor(H, Na, Ar),
-	( '$is_multifile'(Na,Ar) -> 
+	'$record_stat_source'(M:H,(H0:-B0),L,R),
+	( '$is_multifile'(H,M) -> 
 	    '$get_value'('$consulting_file',F),
-	    '$current_module'(M),
+	    functor(H, Na, Ar),
 	    '$recordz'('$multifile'(_,_,_), '$mf'(Na,Ar,M,F,R), _) 
 	;
 	   true
         ).	
 
-'$erase_source'(G) :- functor(G, Na, A),
-	'$is_multifile'(Na,A), !,
-	'$erase_mf_source'(Na,A).
-'$erase_source'(G) :- '$recordedp'(G,_,R), erase(R), fail.
-'$erase_source'(_).
+'$erase_source'(G, M) :- 
+	'$is_multifile'(G, M), !,
+	functor(G, Na, Ar),
+	'$erase_mf_source'(Na, Ar, M).
+'$erase_source'(G, M) :- '$recordedp'(M:G,_,R), erase(R), fail.
+'$erase_source'(_, _).
 
-'$erase_mf_source'(Na,A) :-
+'$erase_mf_source'(Na, Ar, M) :-
 	'$get_value'('$consulting_file',F),
-	'$current_module'(M),
 	'$recorded'('$multifile'(_,_,_), '$mf'(Na,A,M,F,R), R1),
 	erase(R1),
 	erase(R),
 	fail.
-'$erase_mf_source'(Na,A) :-
+'$erase_mf_source'(Na, A, M) :-
 	'$get_value'('$consulting_file',F),
-	'$current_module'(M),
 	'$recorded'('$multifile_dynamic'(_,_,_), '$mf'(Na,A,M,F,R), R1),
 	erase(R1),
 	erase(R),
 	fail.
-'$erase_mf_source'(_,_).
+'$erase_mf_source'(_,_,_).
 
 '$check_if_reconsulted'(N,A) :-
 	'$recorded'('$reconsulted',X,_),
@@ -416,9 +423,9 @@ repeat :- '$repeat'.
 % ***************************
 
 '$query'(G,V) :-
-	\+ '$undefined'('$yapor_on'),
+	\+ '$undefined'('$yapor_on', prolog),
 	'$yapor_on',
-        \+ '$undefined'('$start_yapor'),
+        \+ '$undefined'('$start_yapor', prolog),
 	'$parallelizable'(G), !,
 	'$parallel_query'(G,V),
 	fail.
@@ -614,31 +621,31 @@ incore(G) :- '$execute'(G).
 %
 % standard meta-call, called if $execute could not do everything.
 %
-'$meta_call'(G) :-
+'$meta_call'(G, M) :-
 	'$save_current_choice_point'(CP),
-	'$call'(G, CP, G).
+	'$call'(G, CP, G, M).
 
 %
 % do it in ISO mode.
 %
-'$meta_call'(G,_ISO) :-
+'$meta_call'(G,_ISO,M) :-
 	'$iso_check_goal'(G,G),
 	'$save_current_choice_point'(CP),
-	'$call'(G, CP, G).
+	'$call'(G, CP, G, M).
 
-'$meta_call'(G, CP, G0) :-
-	'$call'(G, CP,G0).
+'$meta_call'(G, CP, G0, M) :-
+	'$call'(G, CP, G0, M).
 
-'$spied_meta_call'(G) :-
+'$spied_meta_call'(G, M) :-
 	'$save_current_choice_point'(CP),
-	'$spied_call'(G, CP, G).
+	'$spied_call'(G, CP, G, M).
 
-'$spied_meta_call'(G, CP, G0) :-
-	'$spied_call'(G, CP, G0).
+'$spied_meta_call'(G, CP, G0, M) :-
+	'$spied_call'(G, CP, G0, M).
 
-'$call'(G, CP, G0, _) :-  /* iso version */
+'$call'(G, CP, G0, _, M) :-  /* iso version */
 	'$iso_check_goal'(G,G0),
-	'$call'(G, CP,G0).
+	'$call'(G, CP, G0, M).
 
 
 ','(A,B) :-
@@ -663,115 +670,110 @@ incore(G) :- '$execute'(G).
 not(A) :-
 	\+ '$execute_within'(A).
 
-Mod:G :- '$mod_switch'(Mod,'$execute_within'(G)).
-
-'$call'(M:_,_,G0) :- var(M), !,
+'$call'(M:_,_,G0,_) :- var(M), !,
 	throw(error(instantiation_error,call(G0))).
-'$call'(M:G,CP,G0) :- !,
-        '$mod_switch'(M,'$call'(G,CP,G0)).
-'$call'((X->Y),CP,G0) :- !,
+'$call'(M:G,CP,G0,_) :- !,
+        '$call'(G,CP,G0,M).
+'$call'((X,Y),CP,G0,M) :- !,
+        '$execute_within'(X,CP,G0,M),
+        '$execute_within'(Y,CP,G0,M).
+'$call'((X->Y),CP,G0,M) :- !,
 	(
-	    '$execute_within'(X,CP,G0)
+	    '$execute_within'(X,CP,G0,M)
           ->
-	    '$execute_within'(Y,CP,G0)
+	    '$execute_within'(Y,CP,G0,M)
 	).
-'$call'((X->Y; Z),CP,G0) :- !,
+'$call'((X->Y; Z),CP,G0,M) :- !,
 	(
-	    '$execute_within'(X,CP,G0)
+	    '$execute_within'(X,CP,G0,M)
          ->
-	    '$execute_within'(Y,CP,G0)
+	    '$execute_within'(Y,CP,G0,M)
         ;
-	    '$execute_within'(Z,CP,G0)
+	    '$execute_within'(Z,CP,G0,M)
 	).
-'$call'((A;B),CP,G0) :- !,
+'$call'((A;B),CP,G0,M) :- !,
 	(
-	    '$execute_within'(A,CP,G0)
+	    '$execute_within'(A,CP,G0,M)
         ;
-	    '$execute_within'(B,CP,G0)
+	    '$execute_within'(B,CP,G0,M)
 	).
-'$call'((A|B),CP, G0) :- !,
+'$call'((A|B),CP, G0,M) :- !,
 	(
-	    '$execute_within'(A,CP,G0)
+	    '$execute_within'(A,CP,G0,M)
         ;
-	    '$execute_within'(B,CP,G0)
+	    '$execute_within'(B,CP,G0,M)
 	).
-'$call'(\+ X, _, _) :- !,
+'$call'(\+ X, _, _,_) :- !,
 	\+ '$execute'(X).
-'$call'(not(X), _, _) :- !,
+'$call'(not(X), _, _,_) :- !,
 	\+ '$execute'(X).
-'$call'(!, CP, _) :- !,
+'$call'(!, CP, _,_) :- !,
 	'$$cut_by'(CP).
-'$call'([A|B],_, _) :- !,
+'$call'([A|B],_, _,_) :- !,
 	'$csult'([A|B]).
-'$call'(A, _, _) :-
+'$call'(A, _, _,CurMod) :-
 	(
 	  % goal_expansion is defined, or
 	  '$pred_goal_expansion_on'
         ;
           % this is a meta-predicate
-	  '$flags'(A,F,_), F /\ 0x200000 =:= 0x200000
+	  '$flags'(A,CurMod,F,_), F /\ 0x200000 =:= 0x200000
 	), !,
-	'$current_module'(CurMod),
 	'$exec_with_expansion'(A, CurMod, CurMod).
-'$call'(A, _, _) :-
-	'$execute0'(A).
+'$call'(A, _, _, M) :-
+	'$execute0'(A, M).
 
-'$spied_call'(M:_,_,G0) :- var(M), !,
-	throw(error(instantiation_error,call(G0))).
-'$spied_call'(M:G,CP,G0) :- !,
-        '$mod_switch'(M,'$spied_call'(G,CP,G0)).
-'$spied_call'((A,B),CP,G0) :- !,
-	'$execute_within'(A,CP,G0),
-	'$execute_within'(B,CP,G0).
-'$spied_call'((X->Y),CP,G0) :- !,
+'$spied_call'((A,B),CP,G0,M) :- !,
+	'$execute_within'(A,CP,G0,M),
+	'$execute_within'(B,CP,G0,M).
+'$spied_call'((X->Y),CP,G0,M) :- !,
 	(
-	    '$execute_within'(X,CP,G0)
+	    '$execute_within'(X,CP,G0,M)
           ->
-	    '$execute_within'(Y,CP,G0)
+	    '$execute_within'(Y,CP,G0,M)
 	).
-'$spied_call'((X->Y; Z),CP,G0) :- !,
+'$spied_call'((X->Y; Z),CP,G0,M) :- !,
 	(
-	    '$execute_within'(X,CP,G0)
+	    '$execute_within'(X,CP,G0,M)
          ->
-	    '$execute_within'(Y,CP,G0)
+	    '$execute_within'(Y,CP,G0,M)
         ;
-	    '$execute_within'(Z,CP,G0)
+	    '$execute_within'(Z,CP,G0,M)
 	).
-'$spied_call'((A;B),CP,G0) :- !,
+'$spied_call'((A;B),CP,G0,M) :- !,
 	(
-	    '$execute_within'(A,CP,G0)
+	    '$execute_within'(A,CP,G0,M)
         ;
-	    '$execute_within'(B,CP,G0)
+	    '$execute_within'(B,CP,G0,M)
 	).
-'$spied_call'((A|B),CP,G0) :- !,
+'$spied_call'((A|B),CP,G0,M) :- !,
 	(
-	    '$execute_within'(A,CP,G0)
+	    '$execute_within'(A,CP,G0,M)
         ;
-	    '$execute_within'(B,CP,G0)
+	    '$execute_within'(B,CP,G0,M)
 	).
-'$spied_call'(\+ X,_,_) :- !,
+'$spied_call'(\+ X,_,_,M) :- !,
 	\+ '$execute'(X).
-'$spied_call'(not X,_,_) :- !,
+'$spied_call'(not X,_,_,_) :- !,
 	\+ '$execute'(X).
-'$spied_call'(!,CP,_) :-
+'$spied_call'(!,CP,_,_) :-
 	'$$cut_by'(CP).
-'$spied_call'([A|B],_,_) :- !,
+'$spied_call'([A|B],_,_,_) :- !,
 	'$csult'([A|B]).
-'$spied_call'(A, _CP, _G0) :-
+'$spied_call'(A, _CP, _G0, CurMod) :-
 	(
 	  % goal_expansion is defined, or
 	  '$pred_goal_expansion_on'
         ;
           % this is a meta-predicate
-	  '$flags'(A,F,_), F /\ 0x200000 =:= 0x200000
+	  '$flags'(A,CurMod,F,_), F /\ 0x200000 =:= 0x200000
 	), !,
-	'$current_module'(CurMod),
 	'$exec_with_expansion'(A, CurMod, CurMod).
-'$spied_call'(A,CP,G0) :-
-	( '$undefined'(A) ->
-		functor(A,F,N), '$current_module'(M),
+'$spied_call'(A, CP, G0, M) :-
+	( '$undefined'(A, M) ->
+		functor(A,F,N),
 		( '$recorded'('$import','$import'(S,M,F,N),_) ->
-		  '$spied_call'(S:A,CP,G0) ;
+		  '$spied_call'(S:A,CP,G0,M) ;
 		  '$spy'(A)
 	        )
 	    ;
@@ -797,10 +799,10 @@ Mod:G :- '$mod_switch'(Mod,'$execute_within'(G)).
 	!,
 	'$exec_with_expansion'(G, S, M).
 '$undefp'([M|G]) :-
-	\+ '$undefined'(user:unknown_predicate_handler(_,_,_)),
+	\+ '$undefined'(unknown_predicate_handler(_,_,_), user),
 	user:unknown_predicate_handler(G,M,NG), !,
 	'$execute'(M:NG).
-'$undefp'([_|G]) :- '$is_dynamic'(G), !, fail.
+'$undefp'([M|G]) :- '$is_dynamic'(G, M), !, fail.
 '$undefp'([M|G]) :-
 	'$recorded'('$unknown','$unknown'(M:G,US),_), !,
 	'$execute'(user:US).
@@ -857,7 +859,11 @@ break :- '$get_value'('$break',BL), NBL is BL+1,
 		throw(error(permission_error(input,stream,Y),consult(X)))
 	).
 '$consult'(M:X) :- !,
-        '$mod_switch'(M,'$consult'(X)).
+	% set the type-in module
+        '$current_module'(Mod),
+        module(M),
+        '$consult'(X),
+        '$current_module'(Mod).
 '$consult'(library(X)) :- !,
 	'$find_in_path'(library(X),Y),
 	( '$open'(Y,'$csult',Stream,0), !,
@@ -1058,19 +1064,19 @@ remove_from_path(New) :- '$check_path'(New,Path),
 % return two arguments: Expanded0 is the term after "USER" expansion.
 %                       Expanded is the final expanded term.
 %
-'$precompile_term'(Term, Expanded0, Expanded) :-
+'$precompile_term'(Term, Expanded0, Expanded, Mod) :-
 	(
 	    '$access_yap_flags'(9,1)      /* strict_iso on */
         ->
-	    '$expand_term_modules'(Term, Expanded0, Expanded),
+	    '$expand_term_modules'(Term, Expanded0, Expanded, Mod),
 	    '$check_iso_strict_clause'(Expanded0)
         ;
-	    '$expand_term_modules'(Term, Expanded0, ExpandedI),
+	    '$expand_term_modules'(Term, Expanded0, ExpandedI, Mod),
 	    '$expand_array_accesses_in_term'(ExpandedI,Expanded)
 	).
 
 expand_term(Term,Expanded) :-
-	( \+ '$undefined'(user:term_expansion(_,_)),
+	( \+ '$undefined'(term_expansion(_,_), user),
 	  user:term_expansion(Term,Expanded)
         ;
 	  '$expand_term_grammar'(Term,Expanded)
@@ -1105,8 +1111,8 @@ expand_term(Term,Expanded) :-
 %
 % Module system expansion
 %
-'$expand_term_modules'(A,B,C) :- '$module_expansion'(A,B,C), !.
-'$expand_term_modules'(A,A,A).
+'$expand_term_modules'(A,B,C,M) :- '$module_expansion'(A,B,C,M), !.
+'$expand_term_modules'(A,A,A,_).
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -1164,7 +1170,7 @@ catch(G,C,A) :-
 
 %
 % system_catch is like catch, but it avoids the overhead of a full
-% meta-call by calling '$execute0' and '$mod_switch' instead of $execute.
+% meta-call by calling '$execute0' instead of $execute.
 % This way it
 % also avoids module preprocessing and goal_expansion
 %
@@ -1189,8 +1195,8 @@ catch(G,C,A) :-
 	'$db_clean_queues'(Lev),
         '$erase_catch_elements'(Lev),
         ( C=X ->
-	    '$current_module'(_,M0),
-	    (A = M:G -> '$mod_switch'(M,G) ; '$mod_switch'(M0,A))
+	    (A = M:G -> '$execute'(A) ;
+		'$current_module'(_,M0), '$execute'(M0:A) )
 	;
 	  throw(X)
         ).
@@ -1212,7 +1218,8 @@ catch(G,C,A) :-
 '$system_catch_call'(X,G,I, NX) :-
 	array_element('$catch_queue', 0, OldCatch),
 	update_array('$catch_queue', 0, catch(X,I,OldCatch)),
-        '$execute0'(G),
+	'$current_module'(M),
+        '$execute0'(G,M),
 	NX is '$last_choice_pt',
         ( % on exit remove the catch
 	  array_element('$catch_queue', 0, catch(X,I,Catch)),

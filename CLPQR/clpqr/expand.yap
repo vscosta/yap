@@ -195,3 +195,4 @@ l2conj( [X|Xs], Conj) :-
   ( Xs = [], Conj = X
   ; Xs = [_|_], Conj = (X,Xc), l2conj( Xs, Xc)
   ).
+

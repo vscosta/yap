@@ -59,8 +59,8 @@
 print_message(force(_Severity), Msg) :- !,
 	print(user_error,Msg).
 print_message(Severity, Msg) :-
-	\+ '$undefined'(user: portray_message(Severity, Msg)),
-	user: portray_message(Severity, Msg), !.
+	\+ '$undefined'(portray_message(Severity, Msg), user),
+	user:portray_message(Severity, Msg), !.
 print_message(error,error(Msg,Where)) :-
 	'$output_error_message'(Msg, Where), !.
 print_message(error,Throw) :-

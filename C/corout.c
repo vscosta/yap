@@ -1158,8 +1158,8 @@ void InitCoroutPreds(void)
   attas[susp_ext].mark_op = mark_suspended_goal;
 #endif /* FIXED_STACKS */
   at = LookupAtom("$wake_up_goal");
-  pred = RepPredProp(PredProp(at, 2));
-  WakeUpCode = (CELL *) pred;
+  pred = RepPredProp(PredPropByFunc(MkFunctor(at, 2),0));
+  WakeUpCode = pred;
   InitAttVarPreds();
 #endif /* COROUTINING */
   InitCPred("$read_svar_list", 2, p_read_svar_list, SafePredFlag);

@@ -121,17 +121,17 @@ void
 ReOpenLoadForeign(void)
 {
   ForeignObj *f_code = ForeignCodeLoaded;
-  int OldModule = CurrentModule;
+  SMALLUNSGN OldModule = CurrentModule;
   YapInitProc InitProc = NULL;
 
   while (f_code != NULL) {
-    *CurrentModulePtr = MkIntTerm(f_code->module);
+    CurrentModule = f_code->module;
     if(ReLoadForeign(f_code->objs,f_code->libs,f_code->f,&InitProc)==LOAD_SUCCEEDED) {
       (*InitProc)();
     }
     f_code = f_code->next;
   }
-  *CurrentModulePtr = MkIntTerm(OldModule);
+  CurrentModule = OldModule;
 }
 
 

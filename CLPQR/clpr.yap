@@ -10,9 +10,9 @@
 %  Author: Christian Holzbaur           christian@ai.univie.ac.at %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-:- sequential.
+% :- sequential.
 
-:- default_sequential(X), write(X), nl.
+% :- default_sequential(X), write(X), nl.
 
 :- module( clpr, [
                         {}/1, 
@@ -43,8 +43,8 @@ this_linear_solver( clpr).
 
 :- ensure_loaded( 
 	[
-	    'clpr/itf3',
-	    'clpr/store'			% early because of macros
+	    'clpqr/itf3',
+	    'clpqr/store'			% early because of macros
 						% but after itf3
 	]).
 
@@ -54,11 +54,11 @@ this_linear_solver( clpr).
 
 :- ensure_loaded( 
 	[
-	    'clpr/project',
-	    'clpr/bv',
-	    'clpr/ineq',
-	    'clpr/redund',
-	    'clpr/fourmotz',
-	    'clpr/bb',
-	    'clpr/dump'
+	    'clpqr/project',
+	    'clpqr/bv',
+	    'clpqr/ineq',
+	    'clpqr/redund',
+	    'clpqr/fourmotz',
+	    'clpqr/bb',
+	    'clpqr/dump'
 	]).

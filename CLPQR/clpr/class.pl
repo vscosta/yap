@@ -110,3 +110,4 @@ delete_first( [Y|Ys], X, Res) :-
       Res = [Y|Tail],
       delete_first( Ys, X, Tail)
   ).
+

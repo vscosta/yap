@@ -32,6 +32,7 @@
 %
 % Tell the system how to present frozen goals.
 %
+
 :- assert((extensions_to_present_answer(Level) :-
 	   '$show_frozen_goals'(Level))).
 
@@ -75,17 +76,18 @@
 '$do_continuation'('$restore_regs'(X,Y), _) :- !,
 	'$restore_regs'(X,Y).
 '$do_continuation'(Continuation, Module1) :-
-	'$mod_switch'(Module1,'$execute_continuation'(Continuation,Module1)).
+	'$execute_continuation'(Continuation,Module1).
 
 '$execute_continuation'(Continuation, Module1) :-
-	'$undefined'(Continuation), !,
+	'$undefined'(Continuation, Module1), !,
         '$undefp'([Module1|Continuation]).
-'$execute_continuation'(Continuation, _) :-
+'$execute_continuation'(Continuation, Mod) :-
          % do not do meta-expansion nor any fancy stuff.
-	 '$execute0'(Continuation).
+'$module_number'(Mod,_),
+	'$execute0'(Continuation, Mod).
 
 
-'$execute_woken_system_goals'([]). 
+'$execute_woken_system_goals'([]).
 '$execute_woken_system_goals'([G|LG]) :-
 	'$execute_woken_system_goal'(G, G),
 	'$execute_woken_system_goals'(LG).
@@ -252,7 +254,8 @@ when(_,Goal) :-
 %
 '$declare_when'(Cond, G) :-
 	'$generate_code_for_when'(Cond, G, Code),
-	'$$compile'(Code, Code, 5), fail.
+	'$current_module'(Module),
+	'$$compile'(Code, Code, 5, Module), fail.
 '$declare_when'(_,_).
 
 %
@@ -378,7 +381,8 @@ when(_,Goal) :-
 %
 '$block'(Conds) :-
 	'$generate_blocking_code'(Conds, _, Code),
-	'$$compile'(Code, Code, 5), fail.
+	'$current_module'(Mod),
+	'$$compile'(Code, Code, 5, Module), fail.
 '$block'(_).
 
 '$generate_blocking_code'(Conds, G, Code) :-
@@ -458,7 +462,8 @@ when(_,Goal) :-
 '$wait'(Na/Ar) :-
 	functor(S, Na, Ar),
 	arg(1, S, A),
-	'$$compile'((S :- var(A), !, freeze(A, S)), (S :- var(A), !, freeze(A, S)), 5), fail.
+	'$current_module'(M),
+	'$$compile'((S :- var(A), !, freeze(A, S)), (S :- var(A), !, freeze(A, S)), 5, M), fail.
 '$wait'(_).
 
 frozen(V, G) :- nonvar(V), !, G = true.
@@ -606,7 +611,7 @@ call_residue(Goal,Residue) :-
 
 '$project'(true,_,_,Gs,Gs) :- !.
 '$project'(_,_,_,Gs,Gs) :-
-	'$undefined'(attributes:modules_with_attributes(_)), !.
+	'$undefined'(modules_with_attributes(_), attributes), !.
 '$project'(_,LIV,LAV,Gs,Gs0) :-
 	attributes:modules_with_attributes(LMods),
 	(LAV = [] ->
@@ -626,7 +631,7 @@ call_residue(Goal,Residue) :-
 
 '$project_module'([], _, _).
 '$project_module'([Mod|LMods], LIV, LAV) :-
-	\+ '$undefined'(Mod:project_attributes(LIV, LAV)),
+	\+ '$undefined'(project_attributes(LIV, LAV), Mod),
 	'$execute'(Mod:project_attributes(LIV, LAV)), !,
 	'$all_attvars'(NLAV),
 	'$project_module'(LMods,LIV,NLAV).

@@ -37,58 +37,65 @@ default_sequential(_).
 	'$initialization'('$default_sequential'(X)),
 	'$default_sequential'(off).
 
-'$sequential_directive'(X) :- var(X), !,
+'$sequential_directive'(X,_) :- var(X), !,
                  write(user_error, '[ Error: argument to sequential/1 should be a predicate ]'),
                  nl(user_error),
                  fail.
-'$sequential_directive'((A,B)) :- !, sequential(A), sequential(B).
-'$sequential_directive'(A/N) :- integer(N), atom(A), !,
-                   functor(T,A,N), '$flags'(T,F,F),
+'$sequential_directive'((A,B),M) :- !,
+	'$sequential_directive'(A,M), '$sequential_directive'(B,M).
+'$sequential_directive'(M:A,_) :- !,
+	'$sequential_directive'(A,M).
+'$sequential_directive'(A/N,M) :- integer(N), atom(A), !,
+                   functor(T,A,N),
+	           '$flags'(T,M,F,F),
                    (
                      X is F /\ 8'000040, X =\= 0, !,
                      write(user_error, '[ Warning: '),
-                     write(user_error, A/N),
+                     write(user_error, M:A/N),
                      write(user_error, ' is already declared as sequential ]'),
                      nl(user_error)
                    ;
-                     X is F /\ 8'170000, X =:= 0, !, '$sequential'(T)
+                     X is F /\ 8'170000, X =:= 0, !, '$sequential'(T,M)
                    ;
                      write(user_error, '[ Error: '),
-                     write(user_error, A/N),
+                     write(user_error, M:A/N),
                      write(user_error, ' cannot be declared as sequential ]'),
                      nl(user_error),
                      fail
                    ).
-'$sequential_directive'(X) :- write(user_error, '[ Error: '),
+'$sequential_directive'(X,_) :- write(user_error, '[ Error: '),
                  write(user_error, X),
                  write(user_error, ' is an invalid argument to sequential/1 ]'),
                  nl(user_error),
                  fail.
 
-parallel(X) :- var(X), !,
+'$parallel_directive'(X,M) :- var(X), !,
                  write(user_error, '[ Error: argument to parallel/1 should be a predicate ]'),
                  nl(user_error),
                  fail.
-parallel((A,B)) :- !, parallel(A), parallel(B).
-
-parallel(A/N) :- integer(N), atom(A), !,
-                   functor(T,A,N), '$flags'(T,F,F),
+'$parallel_directive'((A,B),M) :- !,
+	'$parallel_directive'(A,M),
+	'parallel_directive'(B,M).
+'$parallel_directive'(M:A,_) :- !,
+	'$parallel_directive'(A,M).
+'$parallel_directive'(A/N,M) :- integer(N), atom(A), !,
+                   functor(T,A,N), '$flags'(T,M,F,F),
                    (
                      NF is F /\ \(8'000040), '$flags'(T,F,NF) ;
                      write(user_error, '[ Warning: '),
-                     write(user_error, A/N),
+                     write(user_error, M:A/N),
                      write(user_error, ' is already declared as sequential ]'),
                      nl(user_error)
                    ;
                      X is F /\ 8'170000, X =:= 0, !, '$sequential'(T)
                    ;
                      write(user_error, '[ Error: '),
-                     write(user_error, A/N),
+                     write(user_error, M:A/N),
                      write(user_error, ' cannot be declared as parallel ]'),
                      nl(user_error),
                      fail
                    ).
-sequential(X) :- write(user_error, '[ Error: '),
+'$parallel_directive'(X,_) :- write(user_error, '[ Error: '),
                  write(user_error, X),
                  write(user_error, ' is an invalid argument to parallel/1 ]'),
                  nl(user_error),

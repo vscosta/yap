@@ -27,7 +27,6 @@ CLPQR_PROGRAMS= $(srcdir)/clpqr/arith.pl \
 	$(srcdir)/clpqr/fourmotz.pl \
 	$(srcdir)/clpqr/ineq.yap \
 	$(srcdir)/clpqr/itf3.pl \
-	$(srcdir)/clpqr/nf.yap \
 	$(srcdir)/clpqr/ordering.yap \
 	$(srcdir)/clpqr/project.pl \
 	$(srcdir)/clpqr/redund.pl \
@@ -38,19 +37,21 @@ CLPQR_LOCAL= \
 	$(srcdir)/clpqr/monash.pl \
 	$(srcdir)/clpqr/printf.pl
 
-CLPR_PROGRAMS= $(srcdir)/clpr/arith_r.pl \
-	$(srcdir)/clpr/class.pl\
+CLPR_PROGRAMS= $(srcdir)/clpr/arith_r.yap \
+	$(srcdir)/clpr/class.yap\
 	$(srcdir)/clpr/geler.yap \
+	$(srcdir)/clpr/nf.yap \
 	$(srcdir)/clpr/nfr.yap
 
-CLPQ_PROGRAMS= $(srcdir)/clpq/arith_q.pl \
-	$(srcdir)/clpq/class.pl\
+CLPQ_PROGRAMS= $(srcdir)/clpq/arith_q.yap \
+	$(srcdir)/clpq/class.yap \
 	$(srcdir)/clpq/geler.yap \
+	$(srcdir)/clpr/nf.yap \
 	$(srcdir)/clpq/nfq.yap
 
 CLPR_TOP= $(srcdir)/clpr.yap
 
-CLPQ_TOP= $(srcdir)/clpq.pl
+CLPQ_TOP= $(srcdir)/clpq.yap
 
 CLPQR_LICENSE= $(srcdir)/CLPQR.LICENSE
 
@@ -135,16 +136,15 @@ install: $(CLPR_TOP) $(CLPQ_TOP) $(CLPQR_LICENSE) $(CLPQR_PROGRAMS) $(CLPQR_LOCA
 	-mkdir $(DESTDIR)$(LIBDIR)/library/clpqr/examples
 	-mkdir $(DESTDIR)$(LIBDIR)/library/clpqr/examples/SESSION
 	-mkdir $(DESTDIR)$(LIBDIR)/library/clpqr/examples/monash
-	$(INSTALL_DATA) $(CLPQ_TOP) $(DESTDIR)$(LIBDIR)/library
-	$(INSTALL_DATA) $(CLPR_TOP) $(DESTDIR)$(LIBDIR)/library
-	$(INSTALL_DATA) $(CLPQR_LICENSE) $(DESTDIR)$(LIBDIR)/library
-	$(INSTALL_DATA) $(CLPQR_PROGRAMS) $(DESTDIR)$(LIBDIR)/library/clpq
-	$(INSTALL_DATA) $(CLPQ_PROGRAMS) $(DESTDIR)$(LIBDIR)/library/clpq
-	$(INSTALL_DATA) $(CLPQR_PROGRAMS) $(DESTDIR)$(LIBDIR)/library/clpr
-	$(INSTALL_DATA) $(CLPR_PROGRAMS) $(DESTDIR)$(LIBDIR)/library/clpr
-	$(INSTALL_DATA) $(CLPQR_LOCAL) $(DESTDIR)$(LIBDIR)/library/clpqr
-	$(INSTALL_DATA) $(CLPQR_EXAMPLES) $(DESTDIR)$(LIBDIR)/library/clpqr/examples
-	$(INSTALL_DATA) $(CLPQR_EXAMPLES_MONASH) $(DESTDIR)$(LIBDIR)/library/clpqr/examples/monash
-	$(INSTALL_DATA) $(CLPQR_EXAMPLES_SESSION) $(DESTDIR)$(LIBDIR)/library/clpqr/examples/SESSION
+	for h in $(CLPQ_TOP); do $(INSTALL_DATA) $$h $(DESTDIR)$(LIBDIR)/library; done
+	for h in $(CLPR_TOP); do $(INSTALL_DATA) $$h $(DESTDIR)$(LIBDIR)/library; done
+	for h in $(CLPQR_LICENSE); do $(INSTALL_DATA) $$h $(DESTDIR)$(LIBDIR)/library; done
+	for h in $(CLPQR_PROGRAMS); do $(INSTALL_DATA) $$h $(DESTDIR)$(LIBDIR)/library/clpqr; done
+	for h in $(CLPQ_PROGRAMS); do $(INSTALL_DATA) $$h $(DESTDIR)$(LIBDIR)/library/clpq; done
+	for h in $(CLPR_PROGRAMS); do $(INSTALL_DATA) $$h $(DESTDIR)$(LIBDIR)/library/clpr; done
+	for h in $(CLPQR_LOCAL); do $(INSTALL_DATA) $$h $(DESTDIR)$(LIBDIR)/library/clpqr; done
+	for h in $(CLPQR_EXAMPLES); do $(INSTALL_DATA) $$h $(DESTDIR)$(LIBDIR)/library/clpqr/examples; done
+	for h in $(CLPQR_EXAMPLES_MONASH); do $(INSTALL_DATA) $$h $(DESTDIR)$(LIBDIR)/library/clpqr/examples/monash; done
+	for h in $(CLPQR_EXAMPLES_SESSION); do $(INSTALL_DATA) $$h $(DESTDIR)$(LIBDIR)/library/clpqr/examples/SESSION; done
 
 

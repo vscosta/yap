@@ -858,7 +858,7 @@ a_empty_call(void)
       code_p->opc = emit_op(_fcall);
   }
   if (pass_no) {
-    PredEntry *pe = RepPredProp(GetPredProp(AtomTrue,0));
+    PredEntry *pe = RepPredProp(GetPredPropByAtom(AtomTrue,0));
     code_p->u.sla.s = emit_count(-Signed(RealEnvSize) - CELLSIZE *
 				   cpc->rnd2);
     code_p->u.sla.l = emit_a((CELL)&(pe->StateOfPred));
@@ -1184,7 +1184,7 @@ a_either(op_numbers opcode, CELL opr, CELL lab)
 #endif /* YAPOR */
 {
   if (pass_no) {
-    Prop fe = GetPredProp(AtomTrue,0);
+    Prop fe = GetPredPropByAtom(AtomTrue,0);
     code_p->opc = emit_op(opcode);
     code_p->u.sla.s = emit_count(opr);
     code_p->u.sla.l = emit_a(lab);

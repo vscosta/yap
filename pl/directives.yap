@@ -37,58 +37,60 @@
 '$directive'(block(_)).
 '$directive'(wait(_)).
 
-'$exec_directive'(multifile(D), _) :-
-	'$system_catch'('$multifile'(D),
+'$exec_directive'(multifile(D), _, M) :-
+	'$system_catch'('$multifile'(D, M),
 	      Error,
 	      user:'$LoopError'(Error)).
-'$exec_directive'(discontiguous(D), _) :-
-	'$discontiguous'(D).
-'$exec_directive'(op(D), _) :-
-	'$discontiguous'(D).
-'$exec_directive'(initialization(D), _) :-
-	'$initialization'(D).
-'$exec_directive'(parallel, _) :-
+'$exec_directive'(discontiguous(D), _, M) :-
+	'$discontiguous'(D,M).
+'$exec_directive'(initialization(D), _, M) :-
+	'$initialization'(M:D).
+'$exec_directive'(parallel, _, _) :-
 	'$parallel'.
-'$exec_directive'(sequential, _) :-
+'$exec_directive'(sequential, _, _) :-
 	'$sequential'.
-'$exec_directive'(sequential(G), _) :-
-	'$sequential_directive'(G).
-'$exec_directive'(include(F), Status) :-
+'$exec_directive'(sequential(G), _, M) :-
+	'$sequential_directive'(G, M).
+'$exec_directive'(parallel(G), _, M) :-
+	'$parallel_directive'(G, M).
+'$exec_directive'(include(F), Status, _) :-
 	'$include'(F, Status).
-'$exec_directive'(module(N,P), Status) :-
+'$exec_directive'(module(N,P), Status, _) :-
 	'$module'(Status,N,P).
-'$exec_directive'(module(N,P,Op), Status) :-
+'$exec_directive'(module(N,P,Op), Status, _) :-
 	'$module'(Status,N,P,Op).
-'$exec_directive'(meta_predicate(P), _) :-
-	'$meta_predicate'(P).
-'$exec_directive'(dynamic(P), _) :-
-	'$dynamic'(P).
-'$exec_directive'(op(P,OPSEC,OP), _) :-
+'$exec_directive'(meta_predicate(P), _, M) :-
+	'$meta_predicate'(P, M).
+'$exec_directive'(dynamic(P), _, M) :-
+	'$dynamic'(P, M).
+'$exec_directive'(op(P,OPSEC,OP), _, _) :-
 	op(P,OPSEC,OP).
-'$exec_directive'(set_prolog_flag(F,V), _) :-
+'$exec_directive'(set_prolog_flag(F,V), _, _) :-
 	set_prolog_flag(F,V).
-'$exec_directive'(ensure_loaded(F), _) :-
+'$exec_directive'(ensure_loaded(F), _, _) :-
 	'$ensure_loaded'(F).
-'$exec_directive'(char_conversion(IN,OUT), _) :-
+'$exec_directive'(char_conversion(IN,OUT), _, _) :-
 	char_conversion(IN,OUT).
-'$exec_directive'(public(P), _) :-
-	'$public'(P).
-'$exec_directive'(compile(F), _) :-
+'$exec_directive'(public(P), _, M) :-
+	'$public'(P, M).
+'$exec_directive'(compile(F), _, _) :-
 	'$compile'(F).
-'$exec_directive'(reconsult(Fs), _) :-
+'$exec_directive'(reconsult(Fs), _, _) :-
 	'$reconsult'(Fs).
-'$exec_directive'(consult(Fs), _) :-
+'$exec_directive'(consult(Fs), _, _) :-
 	'$consult'(Fs).
-'$exec_directive'(block(BlockSpec), _) :-
+'$exec_directive'(block(BlockSpec), _, _) :-
 	'$block'(BlockSpec).
-'$exec_directive'(wait(BlockSpec), _) :-
+'$exec_directive'(wait(BlockSpec), _, _) :-
 	'$wait'(BlockSpec).
+'$exec_directive'(table(PredSpec), _, M) :-
+	'$table'(PredSpec, M).
 
-'$exec_directives'((G1,G2), Mode) :- !,
-	'$exec_directives'(G1, Mode),
-	'$exec_directives'(G2, Mode).
-'$exec_directives'(G, Mode) :-
-	'$exec_directive'(G, Mode).
+'$exec_directives'((G1,G2), Mode, M) :- !,
+	'$exec_directives'(G1, Mode, M),
+	'$exec_directives'(G2, Mode, M).
+'$exec_directives'(G, Mode, M) :-
+	'$exec_directive'(G, Mode, M).
 
 
 
@@ -397,7 +399,7 @@ yap_flag(toplevel_hook,G) :- !,
 
 yap_flag(typein_module,X) :-
 	var(X), !,
-	current_module(X).
+	'$current_module'(X).
 yap_flag(typein_module,X) :-
 	module(X).
 

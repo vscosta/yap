@@ -1789,7 +1789,7 @@ absmi(int inp)
     NoStackComitY:
       /* find something to fool S */
       if (CFREG == Unsigned(LCL0) && ReadTimedVar(WokenGoals) != TermNil) {
-	SREG = (CELL *)RepPredProp(GetPredProp(AtomRestoreRegs,2));
+	SREG = (CELL *)RepPredProp(GetPredPropByFunc(MkFunctor(AtomRestoreRegs,2),0));
 	PREG = NEXTOP(PREG,x);
 	XREGS[0] = XREG(PREG->u.y.y);
 	goto creep_either;
@@ -1801,7 +1801,7 @@ absmi(int inp)
     NoStackComitX:
       /* find something to fool S */
       if (CFREG == Unsigned(LCL0) && ReadTimedVar(WokenGoals) != TermNil) {
-	SREG = (CELL *)RepPredProp(GetPredProp(AtomRestoreRegs,2));
+	SREG = (CELL *)RepPredProp(GetPredPropByFunc(MkFunctor(AtomRestoreRegs,2),0));
 	PREG = NEXTOP(PREG,x);
 #if USE_THREADED_CODE
 	if (PREG->opc == (OPCODE)OpAddress[_fcall])
@@ -1827,7 +1827,7 @@ absmi(int inp)
       /* don't forget I cannot creep at ; */
     NoStackEither:
       /* find something to fool S */
-      SREG = (CELL *)RepPredProp(GetPredProp(AtomRestoreRegs,1));
+      SREG = (CELL *)RepPredProp(GetPredPropByFunc(MkFunctor(AtomRestoreRegs,1),0));
 #ifdef YAPOR
       /* abort_optyap("NoStackCall in function absmi"); */
       if (HeapTop > GlobalBase - MinHeapGap)
@@ -5948,7 +5948,7 @@ absmi(int inp)
 
 	at = FullLookupAtom("$undefp");
 	{
-	  Prop p = GetPredProp (at, 1);
+	  Prop p = GetPredPropByFunc(MkFunctor(at, 1),0);
 	  if (p == NIL) {
 	    CFREG = CalculateStackGap();
 	    FAIL();
@@ -9557,7 +9557,7 @@ absmi(int inp)
       Op(p_dif, e);
 #ifdef LOW_LEVEL_TRACER
       if (do_low_level_trace)
-	low_level_trace(enter_pred,RepPredProp(GetPredProp(LookupAtom("\\="),2)),XREGS+1);
+	low_level_trace(enter_pred,RepPredProp(GetPredPropByFunc(MkFunctor(LookupAtom("\\="),2),0)),XREGS+1);
 #endif	/* LOW_LEVEL_TRACE */
       BEGD(d0);
       BEGD(d1);
@@ -9651,7 +9651,7 @@ absmi(int inp)
       Op(p_eq, e);
 #ifdef LOW_LEVEL_TRACER
       if (do_low_level_trace)
-	low_level_trace(enter_pred,RepPredProp(GetPredProp(LookupAtom("=="),2)),XREGS+1);
+	low_level_trace(enter_pred,RepPredProp(GetPredPropByFunc(MkFunctor(LookupAtom("=="),2),0)),XREGS+1);
 #endif	/* LOW_LEVEL_TRACE */
       BEGD(d0);
       BEGD(d1);
@@ -9775,7 +9775,7 @@ absmi(int inp)
 	H[0] = XREG(PREG->u.xxx.x1);
 	H[1] = XREG(PREG->u.xxx.x2);
 	RESET_VARIABLE(H+2);
-	low_level_trace(enter_pred,RepPredProp(GetPredProp(LookupAtom("arg"),3)),H);
+	low_level_trace(enter_pred,RepPredProp(GetPredPropByFunc(MkFunctor(LookupAtom("arg"),3),0)),H);
       }
 #endif	/* LOW_LEVEL_TRACE */
       BEGD(d0);
@@ -9864,7 +9864,7 @@ absmi(int inp)
 	H[0] =  t;
 	H[1] = XREG(PREG->u.xxc.xi);
 	RESET_VARIABLE(H+2);
-	low_level_trace(enter_pred,RepPredProp(GetPredProp(LookupAtom("arg"),3)),H);
+	low_level_trace(enter_pred,RepPredProp(GetPredPropByFunc(MkFunctor(LookupAtom("arg"),3),0)),H);
 	H = Ho;
       }
 #endif	/* LOW_LEVEL_TRACE */
@@ -9935,7 +9935,7 @@ absmi(int inp)
 	H[0] = XREG(PREG->u.yxx.x1);
 	H[1] = XREG(PREG->u.yxx.x2);
 	RESET_VARIABLE(H+2);
-	low_level_trace(enter_pred,RepPredProp(GetPredProp(LookupAtom("arg"),3)),H);
+	low_level_trace(enter_pred,RepPredProp(GetPredPropByFunc(MkFunctor(LookupAtom("arg"),3),0)),H);
       }
 #endif	/* LOW_LEVEL_TRACE */
       BEGD(d0);
@@ -10038,7 +10038,7 @@ absmi(int inp)
 	H[0] =  t;
 	H[1] = XREG(PREG->u.yxc.xi);
 	RESET_VARIABLE(H+2);
-	low_level_trace(enter_pred,RepPredProp(GetPredProp(LookupAtom("arg"),3)),H);
+	low_level_trace(enter_pred,RepPredProp(GetPredPropByFunc(MkFunctor(LookupAtom("arg"),3),0)),H);
 	H = Ho;
       }
 #endif	/* LOW_LEVEL_TRACE */
@@ -10125,7 +10125,7 @@ absmi(int inp)
 	RESET_VARIABLE(H);
 	H[1] = XREG(PREG->u.xxx.x1);
 	H[2] = XREG(PREG->u.xxx.x2);
-	low_level_trace(enter_pred,RepPredProp(GetPredProp(LookupAtom("functor"),3)),H);
+	low_level_trace(enter_pred,RepPredProp(GetPredPropByFunc(MkFunctor(LookupAtom("functor"),3),0)),H);
       }
 #endif	/* LOW_LEVEL_TRACE */
       /* We have to build the structure */
@@ -10230,7 +10230,7 @@ absmi(int inp)
 	RESET_VARIABLE(H);
 	H[1] = XREG(PREG->u.xcx.c);
 	H[2] = XREG(PREG->u.xcx.xi);
-	low_level_trace(enter_pred,RepPredProp(GetPredProp(LookupAtom("functor"),3)),H);
+	low_level_trace(enter_pred,RepPredProp(GetPredPropByFunc(MkFunctor(LookupAtom("functor"),3),0)),H);
       }
 #endif	/* LOW_LEVEL_TRACE */
       BEGD(d0);
@@ -10325,7 +10325,7 @@ absmi(int inp)
 	RESET_VARIABLE(H);
 	H[1] = XREG(PREG->u.xxc.xi);
 	H[2] = ti;
-	low_level_trace(enter_pred,RepPredProp(GetPredProp(LookupAtom("functor"),3)),H);
+	low_level_trace(enter_pred,RepPredProp(GetPredPropByFunc(MkFunctor(LookupAtom("functor"),3),0)),H);
 	H = hi;
       }
 #endif	/* LOW_LEVEL_TRACE */
@@ -10410,7 +10410,7 @@ absmi(int inp)
 	RESET_VARIABLE(H);
 	H[1] = XREG(PREG->u.yxx.x1);
 	H[2] = XREG(PREG->u.yxx.x2);
-	low_level_trace(enter_pred,RepPredProp(GetPredProp(LookupAtom("functor"),3)),H);
+	low_level_trace(enter_pred,RepPredProp(GetPredPropByFunc(MkFunctor(LookupAtom("functor"),3),0)),H);
       }
 #endif	/* LOW_LEVEL_TRACE */
       /* We have to build the structure */
@@ -10533,7 +10533,7 @@ absmi(int inp)
 	RESET_VARIABLE(H);
 	H[1] = XREG(PREG->u.ycx.c);
 	H[2] = XREG(PREG->u.ycx.xi);
-	low_level_trace(enter_pred,RepPredProp(GetPredProp(LookupAtom("functor"),3)),H);
+	low_level_trace(enter_pred,RepPredProp(GetPredPropByFunc(MkFunctor(LookupAtom("functor"),3),0)),H);
       }
 #endif	/* LOW_LEVEL_TRACE */
       /* We have to build the structure */
@@ -10650,7 +10650,7 @@ absmi(int inp)
 	RESET_VARIABLE(H);
 	H[1] = XREG(PREG->u.yxc.xi);
 	H[2] = ti;
-	low_level_trace(enter_pred,RepPredProp(GetPredProp(LookupAtom("functor"),3)),H);
+	low_level_trace(enter_pred,RepPredProp(GetPredPropByFunc(MkFunctor(LookupAtom("functor"),3),0)),H);
 	H = hi;
       }
 #endif	/* LOW_LEVEL_TRACE */
@@ -10758,7 +10758,7 @@ absmi(int inp)
 	H[0] = XREG(PREG->u.xxx.x);
 	RESET_VARIABLE(H+1);
 	RESET_VARIABLE(H+2);
-	low_level_trace(enter_pred,RepPredProp(GetPredProp(LookupAtom("functor"),3)),H);
+	low_level_trace(enter_pred,RepPredProp(GetPredPropByFunc(MkFunctor(LookupAtom("functor"),3),0)),H);
       }
 #endif	/* LOW_LEVEL_TRACE */
       BEGD(d0);
@@ -10804,7 +10804,7 @@ absmi(int inp)
 	H[0] = XREG(PREG->u.xyx.x);
 	RESET_VARIABLE(H+1);
 	RESET_VARIABLE(H+2);
-	low_level_trace(enter_pred,RepPredProp(GetPredProp(LookupAtom("functor"),3)),H);
+	low_level_trace(enter_pred,RepPredProp(GetPredPropByFunc(MkFunctor(LookupAtom("functor"),3),0)),H);
       }
 #endif	/* LOW_LEVEL_TRACE */
       BEGD(d0);
@@ -10853,7 +10853,7 @@ absmi(int inp)
 	H[0] = XREG(PREG->u.yxx.x2);
 	RESET_VARIABLE(H+1);
 	RESET_VARIABLE(H+2);
-	low_level_trace(enter_pred,RepPredProp(GetPredProp(LookupAtom("functor"),3)),H);
+	low_level_trace(enter_pred,RepPredProp(GetPredPropByFunc(MkFunctor(LookupAtom("functor"),3),0)),H);
       }
 #endif	/* LOW_LEVEL_TRACE */
       BEGD(d0);
@@ -10902,7 +10902,7 @@ absmi(int inp)
 	H[0] = XREG(PREG->u.yyx.x);
 	RESET_VARIABLE(H+1);
 	RESET_VARIABLE(H+2);
-	low_level_trace(enter_pred,RepPredProp(GetPredProp(LookupAtom("functor"),3)),H);
+	low_level_trace(enter_pred,RepPredProp(GetPredPropByFunc(MkFunctor(LookupAtom("functor"),3),0)),H);
       }
 #endif	/* LOW_LEVEL_TRACE */
       BEGD(d0);
@@ -10951,7 +10951,7 @@ absmi(int inp)
       Op(p_functor, e);
 #ifdef LOW_LEVEL_TRACER
       if (do_low_level_trace)
-	low_level_trace(enter_pred,RepPredProp(GetPredProp(LookupAtom("functor"),3)),XREGS+1);
+	low_level_trace(enter_pred,RepPredProp(GetPredPropByFunc(MkFunctor(LookupAtom("functor"),3),0)),XREGS+1);
 #endif	/* LOW_LEVEL_TRACE */
       restart_functor:
       BEGD(d0);
@@ -11135,24 +11135,33 @@ absmi(int inp)
       BOp(p_execute, sla);
       { 
 	PredEntry *pen;
+	int mod = IntOfTerm(ARG2);
 
 	CACHE_Y_AS_ENV(Y);
 	BEGD(d0);
 	d0 = ARG1;
 	if (PredGoalExpansion->OpcodeOfPred != UNDEF_OPCODE) {
-	  d0 = ExecuteCallMetaCall();
+	  d0 = ExecuteCallMetaCall(mod);
 	}
 	deref_head(d0, execute_unk);
       execute_nvar:
 	if (IsApplTerm(d0)) {
 	  Functor f = FunctorOfTerm(d0);
 	  if (IsExtensionFunctor(f)) {
-	    d0 = ExecuteCallMetaCall();
+	    d0 = ExecuteCallMetaCall(mod);
 	    goto execute_nvar;
 	  }
-	  pen = RepPredProp(PredPropByFunc(f, ARG2));
+	  pen = RepPredProp(PredPropByFunc(f, mod));
 	  if (pen->PredFlags & MetaPredFlag) {
-	    d0 = ExecuteCallMetaCall();
+	    if (f == FunctorModule) {
+	      Term tmod = LookupModule(ArgOfTerm(1,d0));
+	      if (!IsVarTerm(tmod) && IsAtomTerm(tmod)) {
+		mod = LookupModule(tmod);
+		d0 = ArgOfTerm(2,d0);
+		goto execute_nvar;
+	      }
+	    }
+	    d0 = ExecuteCallMetaCall(mod);
 	    goto execute_nvar;
 	  }
 	  BEGP(pt1);
@@ -11174,9 +11183,9 @@ absmi(int inp)
 	  ENDP(pt1);
 	  CACHE_A1();
 	} else if (IsAtomTerm(d0)) {
-	  pen = RepPredProp(PredPropByAtom(AtomOfTerm(d0), ARG2));
+	  pen = RepPredProp(PredPropByAtom(AtomOfTerm(d0), mod));
 	} else {
-	  d0 = ExecuteCallMetaCall();
+	  d0 = ExecuteCallMetaCall(mod);
 	  goto execute_nvar;
 	}
 
@@ -11230,7 +11239,7 @@ absmi(int inp)
 
 	BEGP(pt1);
 	deref_body(d0, pt1, execute_unk, execute_nvar);
-	d0 = ExecuteCallMetaCall();
+	d0 = ExecuteCallMetaCall(mod);
 	goto execute_nvar;
 	ENDP(pt1);
 	ENDD(d0);
@@ -11248,24 +11257,34 @@ absmi(int inp)
       BOp(p_execute_within, sla);
       { 
 	PredEntry *pen;
+	int mod = CurrentModule;
 
 	CACHE_Y_AS_ENV(Y);
 	BEGD(d0);
 	d0 = ARG1;
 	if (PredGoalExpansion->OpcodeOfPred != UNDEF_OPCODE) {
-	  d0 = ExecuteCallMetaCall();
+	  d0 = ExecuteCallMetaCall(mod);
 	}
 	deref_head(d0, execute_within_unk);
       execute_within_nvar:
 	if (IsApplTerm(d0)) {
 	  Functor f = FunctorOfTerm(d0);
 	  if (IsExtensionFunctor(f)) {
-	    d0 = ExecuteCallMetaCall();
+	    d0 = ExecuteCallMetaCall(mod);
 	    goto execute_within_nvar;
 	  }
-	  pen = RepPredProp(PredPropByFunc(f, *CurrentModulePtr));
+	  pen = RepPredProp(PredPropByFunc(f, mod));
 	  if (pen->PredFlags & MetaPredFlag) {
-	    d0 = ExecuteCallMetaCall();
+	    if (f == FunctorModule) {
+	      Term tmod;
+	      tmod = ArgOfTerm(1,d0);
+	      if (!IsVarTerm(tmod) && IsAtomTerm(tmod)) {
+		mod = LookupModule(tmod);
+		d0 = ArgOfTerm(2,d0);
+		goto execute_within_nvar;
+	      }
+	    }
+	    d0 = ExecuteCallMetaCall(mod);
 	    goto execute_within_nvar;
 	  }
 	  BEGP(pt1);
@@ -11310,9 +11329,9 @@ absmi(int inp)
 	    PREG = NEXTOP(PREG, sla);
 	    JMPNext();
 	  }else
-	    pen = RepPredProp(PredPropByAtom(AtomOfTerm(d0), *CurrentModulePtr));
+	    pen = RepPredProp(PredPropByAtom(AtomOfTerm(d0), mod));
 	} else {
-	  d0 = ExecuteCallMetaCall();
+	  d0 = ExecuteCallMetaCall(mod);
 	  goto execute_within_nvar;
 	}
 
@@ -11366,7 +11385,7 @@ absmi(int inp)
 
 	BEGP(pt1);
 	deref_body(d0, pt1, execute_within_unk, execute_within_nvar);
-	d0 = ExecuteCallMetaCall();
+	d0 = ExecuteCallMetaCall(mod);
 	goto execute_within_nvar;
 	ENDP(pt1);
 	ENDD(d0);
@@ -11383,24 +11402,33 @@ absmi(int inp)
       BOp(p_last_execute_within, sla);
       { 
 	PredEntry *pen;
+	int mod = CurrentModule;
 
 	CACHE_Y_AS_ENV(Y);
 	BEGD(d0);
 	d0 = ARG1;
 	if (PredGoalExpansion->OpcodeOfPred != UNDEF_OPCODE) {
-	  d0 = ExecuteCallMetaCall();
+	  d0 = ExecuteCallMetaCall(mod);
 	}
 	deref_head(d0, last_execute_within_unk);
       last_execute_within_nvar:
 	if (IsApplTerm(d0)) {
 	  Functor f = FunctorOfTerm(d0);
 	  if (IsExtensionFunctor(f)) {
-	    d0 = ExecuteCallMetaCall();
+	    d0 = ExecuteCallMetaCall(mod);
 	    goto last_execute_within_nvar;
 	  }
-	  pen = RepPredProp(PredPropByFunc(f, *CurrentModulePtr));
+	  pen = RepPredProp(PredPropByFunc(f, mod));
 	  if (pen->PredFlags & MetaPredFlag) {
-	    d0 = ExecuteCallMetaCall();
+	    if (f == FunctorModule) {
+	      Term tmod = ArgOfTerm(1,d0);
+	      if (!IsVarTerm(tmod) && IsAtomTerm(tmod)) {
+		mod = LookupModule(tmod);
+		d0 = ArgOfTerm(2,d0);
+		goto last_execute_within_nvar;
+	      }
+	    }
+	    d0 = ExecuteCallMetaCall(mod);
 	    goto last_execute_within_nvar;
 	  }
 	  BEGP(pt1);
@@ -11445,9 +11473,9 @@ absmi(int inp)
 	    PREG = NEXTOP(PREG, sla);
 	    JMPNext();
 	  }else
-	    pen = RepPredProp(PredPropByAtom(AtomOfTerm(d0), *CurrentModulePtr));
+	    pen = RepPredProp(PredPropByAtom(AtomOfTerm(d0), mod));
 	} else {
-	  d0 = ExecuteCallMetaCall();
+	  d0 = ExecuteCallMetaCall(mod);
 	  goto last_execute_within_nvar;
 	}
 
@@ -11489,7 +11517,7 @@ absmi(int inp)
 
 	BEGP(pt1);
 	deref_body(d0, pt1, last_execute_within_unk, last_execute_within_nvar);
-	d0 = ExecuteCallMetaCall();
+	d0 = ExecuteCallMetaCall(mod);
 	goto last_execute_within_nvar;
 	ENDP(pt1);
 	ENDD(d0);

@@ -26,75 +26,73 @@
 % First part : setting and reseting spy points
 
 % $suspy does most of the work
-'$suspy'(V,S) :- var(V) , !,
-	throw(error(instantiation_error,spy(V,S))).
-'$suspy'((M:S),P) :- !,
-    '$mod_switch'(M, '$suspy'(S,P)).
-'$suspy'([],_) :- !.
-'$suspy'([F|L],M) :- !, ( '$suspy'(F,M) ; '$suspy'(L,M) ).
-'$suspy'(F/N,M) :- !, functor(T,F,N),
+'$suspy'(V,S,M) :- var(V) , !,
+	throw(error(instantiation_error,M:spy(V,S))).
+'$suspy'((M:S),P,_) :- !,
+    '$suspy'(S,P,M).
+'$suspy'([],_,_) :- !.
+'$suspy'([F|L],S,M) :- !, ( '$suspy'(F,S,M) ; '$suspy'(L,S,M) ).
+'$suspy'(F/N,S,M) :- !, functor(T,F,N),
     ( '$system_predicate'(T) ->
 	 throw(error(permission_error(access,private_procedure,F/N),spy(F/N,S)));
-	'$undefined'(T) ->
+	'$undefined'(T,M) ->
 	 throw(error(existence_error(procedure,F/N),spy(F/N,S)));
-	 '$suspy2'(M,F,N,T) ).
-'$suspy'(A,S) :- \+ atom(A) , !, 
+	 '$suspy2'(S,F,N,T,M) ).
+'$suspy'(A,S,_) :- \+ atom(A) , !, 
         throw(error(type_error(predicate_indicator,A),spy(A,S))).
-'$suspy'(A,spy) :- '$noclausesfor'(A), !,
+'$suspy'(A,spy,M) :- '$noclausesfor'(A,M), !,
 	throw(error(existence_error(procedure,A),spy(A))).
-'$suspy'(A,nospy) :- '$noclausesfor'(A), !,
+'$suspy'(A,nospy,M) :- '$noclausesfor'(A,M), !,
 	throw(error(existence_error(procedure,A),nospy(A))).
-'$suspy'(A,M) :- current_predicate(A,T),
-	\+ '$undefined'(T), \+ '$system_predicate'(T),
+'$suspy'(A,S,M) :- current_predicate(A,M:T),
+	\+ '$undefined'(T,M), \+ '$system_predicate'(T),
 	 functor(T,F,N),
-	'$suspy2'(M,F,N,T).
+	'$suspy2'(S,F,N,T,M).
 
-'$noclausesfor'(A) :- current_predicate(A,T),
-	\+ '$undefined'(T) , \+ '$system_predicate'(T) ,
+'$noclausesfor'(A,M) :- current_predicate(A,M:T),
+	\+ '$undefined'(T,M) , \+ '$system_predicate'(T) ,
 	!, fail .
-'$noclausesfor'(_).
+'$noclausesfor'(_,_).
 
-'$suspy2'(spy,F,N,T) :- 
-	'$current_module'(M),
+'$suspy2'(spy,F,N,T,M) :- 
 	'$recorded'('$spy','$spy'(T,M),_), !,
-	format('[ Warning: there is already a spy point on ~w ]~n',M:F/N).
-'$suspy2'(spy,F,N,T) :- !,
-	'$warn_if_undef'(T,F,N),
-	'$current_module'(M),
+	'$format'(user_error, "[ Warning: there is already a spy point on ~w:~w/~w ]~n",[M,F,N]).
+'$suspy2'(spy,F,N,T,M) :- !,
+	'$warn_if_undef'(T,F,N,M),
 	'$recorda'('$spy','$spy'(T,M),_), 
 	'$set_value'('$spypoint_added', true), 
-	'$set_spy'(T),
-	write(user_error,'[ Spy point set on '), write(user_error,F/N),
-	write(user_error,' ]'), nl(user_error).
-'$suspy2'(nospy,F,N,T) :- 
-	'$current_module'(M),
+	'$set_spy'(T,M),
+	'$format'(user_error,"[ Spy point set on ~w:~w/~w ]~n", [M,F,N]).
+'$suspy2'(nospy,F,N,T,M) :- 
 	'$recorded'('$spy','$spy'(T,M),R), !,
 	erase(R),
-	'$rm_spy'(T),
-	write(user_error,'[ Spy point on '), write(user_error,F/N), write(user_error,' removed ]'),
-	nl(user_error).
-'$suspy2'(nospy,F,N,_) :-
-	write(user_error,'[ Warning: there is no spy-point on '),
-	write(user_error,F/N), write(user_error,' ]'), nl(user_error).
+	'$rm_spy'(T,M),
+	'$format'(user_error,"[ Spy point on ~w:~w/~w removed ]~n", [M,F,N]).
+'$suspy2'(nospy,F,N,_,M) :-
+	'$format'(user_error,"[ Warning: there is no spy point on ~w:~w/~w ]~n", [M,F,N]).
 
-'$warn_if_undef'(T,F,N) :-  '$undefined'(T), !,
+'$warn_if_undef'(T,F,N,M) :-  '$undefined'(T,M), !,
 	write(user_error,'[ Warning: you have no clauses for '),
-	write(user_error,F/N), write(user_error,' ]'), nl(user_error).
-'$warn_if_undef'(_,_,_).
+	write(user_error,M:F/N), write(user_error,' ]'), nl(user_error).
+'$warn_if_undef'(_,_,_,_).
 
-'$pred_being_spied'(G) :-
-	'$current_module'(M),
+'$pred_being_spied'(G, M) :-
 	'$recorded'('$spy','$spy'(G,M),_), !.
 
 spy _ :- '$set_value'('$spypoint_added', false), fail.
-spy L :- '$suspy'(L,spy), fail.
+spy L :-
+	'$current_module'(M),
+	'$suspy'(L, spy, M), fail.
 spy _ :- '$get_value'('$spypoint_added', false), !.
 spy _ :- debug.
 
-nospy L :- '$suspy'(L,nospy), fail.
+nospy L :-
+	'$current_module'(M),
+	'$suspy'(L, nospy, M), fail.
 nospy _.
 
-nospyall :- '$recorded'('$spy','$spy'(T,M),_), functor(T,F,N), '$suspy'(M:F/N,nospy), fail.
+nospyall :-
+	'$recorded'('$spy','$spy'(T,M),_), functor(T,F,N), '$suspy'(F/N,nospy,M), fail.
 nospyall.
 
 % debug mode -> debug flag = 1
@@ -249,7 +247,7 @@ debugging :-
 	'$awoken_goals'(LG), !,
 	'$creep',
 	'$wake_up_goal'(G, LG).
-'$spy'([_Module|G]) :-
+'$spy'([Module|G]) :-
 %    '$format'(user_error,"$spym(~w,~w)~n",[Module,G]),
          ( '$hidden'(G)
 	 ;
@@ -258,41 +256,37 @@ debugging :-
 	 ),
          !,
 	 /* called from prolog module   */
-	 '$execute0'(G),
+	 '$execute0'(G,Module),
  	 '$creep'.
-'$spy'(G) :-
-	'$do_spy'(G).
+'$spy'([Mod|G]) :-
+	'$do_spy'(G,Mod).
 
 
 '$direct_spy'(G) :-
 	'$awoken_goals'(LG), !,
 	'$creep',
 	'$wake_up_goal'(G, LG).
-'$direct_spy'([_|G]) :-
+'$direct_spy'([M|G]) :-
          '$hidden'(G),
          !,
 	 /* called from prolog module   */
-	 '$execute0'(G),
+	 '$execute0'(G,M),
 	 '$creep'.
-'$direct_spy'(G) :-
-	'$do_spy'(G).
+'$direct_spy'([Mod|G]) :-
+	'$do_spy'(G, Mod).
 
 
-'$do_spy'([Module|G]) :- !,
-    (	  Module=prolog -> '$do_spy'(G);
-	  '$mod_switch'(Module, '$do_spy'(G))
-     ).
-'$do_spy'(true) :- !, '$creep'.
-'$do_spy'('$cut_by'(M)) :- !, '$cut_by'(M).
-'$do_spy'(G) :-
+'$do_spy'(true, _) :- !, '$creep'.
+'$do_spy'('$cut_by'(M), _) :- !, '$cut_by'(M).
+'$do_spy'(G, Module) :-
 %   write(user_error,$spy(G)), nl,
     '$get_value'(debug,1),		/* ditto if debug off		*/
     '$get_value'(spy_fs,0),		/* ditto if fast skipping	*/
     ( '$access_yap_flags'(10,0) ->	/* if not creeping ...		*/
-	      '$pred_being_spied'(G)    /* ... spy only if at a spy-point */
+	      '$pred_being_spied'(G,M)  /* ... spy only if at a spy-point */
 	; true
     ),
-%    ( \+ '$undefined'(user_error_spy(_)) -> user_error_spy(G) ;
+%    ( \+ '$undefined'(user_error_spy(_), user) -> user_error_spy(G) ;
 %	true );
     !,					/* you sure want to spy this ... */
     '$get_value'(spy_gn,L),		/* get goal no.			*/
@@ -301,16 +295,14 @@ debugging :-
     '$access_yap_flags'(10,SC),
     '$set_yap_flags'(10,1),		/* set creep on			*/
     '$get_value'(spy_cl,CL),		/* save global clause no.	*/
-    '$current_module'(Module),
     repeat,		/* we need this to be able to implement retry	*/
-	'$init_spy_cl'(G),
-	'$trace'(call,G,L),		/* inform about call port	*/
+	'$init_spy_cl'(G,Module),
+	'$trace'(call,G,Module,L),	/* inform about call port	*/
 	/* the following choice point is where the predicate is  called */
 	( '$get_value'(spy_sp,0),	/* make sure we are not skipping*/
-	  '$current_module'(_,Module),
-	  '$spycalls'(G,Res)		/* go execute the predicate	*/
+	  '$spycalls'(G,Module,Res)	/* go execute the predicate	*/
 	   ;	/* we get here when the predicate fails */
-	  	'$trace'(fail,G,L),	/* inform at fail port		*/
+	  	'$trace'(fail,G,Module,L), /* inform at fail port		*/
 		'$get_value'(spy_sl,L2),/* make sure we are not ...	*/
 		L2 \= L,		/* ... skiping to this level	*/
 		!,			/* if not prepare to exit spy	*/
@@ -320,7 +312,7 @@ debugging :-
 		'$cont_creep', fail ),	/* and exit			*/
 	'$get_value'(spy_cl,Cla),	/* save no. of clause to try	*/
 	( var(Res),			/* check not redoing		*/
-	  '$trace'(exit,G,L),		/* output message at exit	*/
+	  '$trace'(exit,G,Module,L),	/* output message at exit	*/
 	  '$get_value'(spy_sp,0),	/* check not skipping		*/
 	  '$set_creep'(SC),		/* restore creep value		*/
 	  '$set_value'(spy_cl,CL),	/* restore clause no.		*/
@@ -328,11 +320,11 @@ debugging :-
 	  '$cont_creep';		/* exit				*/
 		/* we get here when we want to redo a goal		*/
 		'$set_value'(spy_cl,Cla),/* restore clause no. to try	*/
-		'$current_module'(_,Module),
-		'$trace'(redo,G,L),	/* inform user_error		*/
+		'$trace'(redo,G,Module,L), /* inform user_error		*/
 		fail			/* to backtrack to spycalls	*/
 	).
-'$do_spy'(G) :- '$execute0'(G).	/* this clause applies when we do not want
+'$do_spy'(G,Mod) :-
+	'$execute0'(G,Mod).	/* this clause applies when we do not want
 				   to spy the goal			*/
 
 '$cont_creep' :-  '$get_value'('$trace',1), '$set_yap_flags'(10,1), fail.
@@ -343,79 +335,79 @@ debugging :-
 '$set_creep'(_).
 
 %'$spycalls'(G,_) :- write(user_error,'$spycalls'(G)), nl(user_error), fail.
-'$spycalls'([_|_],_) :- !, fail.
-'$spycalls'('!'(CP),_) :-
-	'$call'(!, CP, !).
-'$spycalls'(Mod:G,Res) :-
+'$spycalls'([_|_],_,_) :- !, fail.
+'$spycalls'('!'(CP),Mod,_) :-
+	'$call'(!, CP, !,Mod).
+'$spycalls'(Mod:G,_,Res) :-
 	!,
-	'$mod_switch'(Mod,'$spycalls'(G,Res)).
-'$spycalls'(repeat,_) :-
+        '$spycalls'(G,Mod,Res).
+'$spycalls'(repeat,_,_) :-
 	!,
 	repeat.
-'$spycalls'(fail,_) :-
+'$spycalls'(fail,_,_) :-
 	!,
 	fail.
-'$spycalls'(false,_) :-
+'$spycalls'(false,_,_) :-
 	!,
 	false.
-'$spycalls'(true,_) :-
+'$spycalls'(true,_,_) :-
 	!.
-'$spycalls'(otherwise,_) :-
+'$spycalls'(otherwise,_,_) :-
 	!.
-'$spycalls'(\+ G,Res) :-
+'$spycalls'(\+ G,Mod,Res) :-
 	!,
 	CP is '$last_choice_pt',
-	'$spycalls'('$call'((\+ G), CP, (\+ G)),Res).
-'$spycalls'(not(G),Res) :-
+	'$spycalls'('$call'((\+ G), CP, (\+ G),Mod),Mod,Res).
+'$spycalls'(not(G),Mod,Res) :-
 	!,
 	CP is '$last_choice_pt',
-	'$spycalls'('$call'(not(G), CP, not(G)),Res).
-'$spycalls'(G,Res) :-                                   % undefined predicate
-	'$undefined'(G), !,
-	functor(G,F,N), '$current_module'(M),
+	'$spycalls'('$call'(not(G), CP, not(G),Mod),Mod,Res).
+'$spycalls'(G,M,Res) :-                                % undefined predicate
+	'$undefined'(G, M), !,
+	functor(G,F,N),
 	( '$recorded'('$import','$import'(S,M,F,N),_) ->
-	  '$spycalls'(S:G,Res) ;
+	  '$spycalls'(G,S,Res) ;
 	  '$undefp'([M|G])
 	).
-'$spycalls'(G,_) :-
-	'$flags'(G,F,_), F /\ 8'50000 =\= 0,		% Standard and C pred
+'$spycalls'(G,M,_) :-
+	'$flags'(G,M,F,_), F /\ 8'50000 =\= 0,		% Standard and C pred
 	!,
-	'$catch_spycall_stdpred'(G),
+	'$catch_spycall_stdpred'(G,M),
 	(true;
 		'$get_value'(spy_sp,P), P \= 0, !, fail),
 	( true;
 		'$get_value'(spy_sp,P1), P1 \= 0, !, fail)
 	.
-'$spycalls'(G,Res) :-		% asserts and retracts can complicate live
+'$spycalls'(G,M,Res) :-		% asserts and retracts can complicate live
 	( '$get_value'(spy_sp,0) -> true ; !, fail ),
-	'$flags'(G,F,F),
+	'$flags'(G,M,F,F),
 	F /\ 16'2000 =\= 0, !, % dynamic procedure, immediate semantics
 	repeat,
-	        '$db_last_age'(G,Max),	
+	        '$db_last_age'(M:G,Max),	
 		'$get_value'(spy_cl,Cl),
 		'$get_value'(spy_gn,L),
 		Maxx is Max+1,
 		'$set_value'(spy_cl,Maxx),
 		( Cl > Max -> !, fail ; true ),
-		( '$spycall_dynamic'(G,Cl) ;
+		( '$spycall_dynamic'(G,M,Cl) ;
 			('$get_value'(spy_gn,L) -> '$leave_creep', fail ;
 			  Res = redo )
 		),
 		( true ;
 		  '$get_value'(spy_sp,P), P \= 0, !, fail )
 	.
-'$spycalls'(G,Res) :-
+'$spycalls'(G,M,Res) :-
 	( '$get_value'(spy_sp,0) -> true ; !, fail ),
-	'$flags'(G,F,F),
+	'$flags'(G,M,F,F),
 	F /\ 16'8 =\= 0, !, % dynamic procedure, logical update semantics
-	'$hold_index'(G, Index, Max), % hold an index on the procedure state when we called this goal
+	'$hold_index'(M:G, Index, Max), % hold an index on the procedure state when we called this goal
 	repeat,
 		'$get_value'(spy_cl,Cl),
 		'$get_value'(spy_gn,L),
 		Maxx is Max+1,
 		'$set_value'(spy_cl,Maxx),
 		( Cl > Max -> !, fail ; true),
-		( '$log_upd_spycall'(G,Cl,Index) ;
+		( '$log_upd_spycall'(G,M,Cl,Index) ;
 			('$get_value'(spy_gn,L) ->
 				'$leave_creep', fail ; % to backtrack to repeat
 				Res = redo )
@@ -424,16 +416,16 @@ debugging :-
 		  '$get_value'(spy_sp,P), P \= 0, !, fail
 	      )
 	.
-'$spycalls'(G,Res) :-
+'$spycalls'(G,M,Res) :-
 	( '$get_value'(spy_sp,0) -> true ; !, fail ),
 	repeat,
-	        '$number_of_clauses'(G,Max),
+	        '$number_of_clauses'(G,M,Max),
 		'$get_value'(spy_cl,Cl),
 		'$get_value'(spy_gn,L),
 		Maxx is Max+1,
 		'$set_value'(spy_cl,Maxx),
 		( Cl > Max -> !, fail ; true),
-		( '$spycall'(G,Cl) ;
+		( '$spycall'(G,M,Cl) ;
 			('$get_value'(spy_gn,L) ->
 				'$leave_creep', fail ; % to backtrack to repeat
 				Res = redo )
@@ -442,149 +434,149 @@ debugging :-
 		  '$get_value'(spy_sp,P), P \= 0, !, fail )
 	.
 
-'$spycall'(G,Cl) :-
+'$spycall'(G,M,Cl) :-
 	'$access_yap_flags'(10,0),
 	!,
 	'$setflop'(0),
-	'$call_clause'(G,Cl).
-'$spycall'(G,Cl) :-
+	'$call_clause'(G,M,Cl).
+'$spycall'(G,M,Cl) :-
 	'$setflop'(0),
-	'$creepcallclause'(G,Cl).
+	'$creepcallclause'(G,M,Cl).
 
-'$log_upd_spycall'(G,Cl,Index) :-
+'$log_upd_spycall'(G,M,Cl,Index) :-
 	'$access_yap_flags'(10,0),
 	!,
 	'$setflop'(0),
-	'$call_log_updclause'(G,Cl,Index).
-'$log_upd_spycall'(G,Cl,Index) :-
+	'$call_log_updclause'(G,M,Cl,Index).
+'$log_upd_spycall'(G,M,Cl,Index) :-
 	'$setflop'(0),
-	'$creepcall_log_upd_clause'(G,Cl,Index).
+	'$creepcall_log_upd_clause'(G,M,Cl,Index).
 
 % this is to be used only for dynamic predicates
-'$spycall_dynamic'(G,Cl) :-
+'$spycall_dynamic'(G,M,Cl) :-
 	'$access_yap_flags'(10,0),
 	!,
 	'$setflop'(0),
-	'$call_dynamic_clause'(G,Cl).
-'$spycall_dynamic'(G,Cl) :-
+	'$call_dynamic_clause'(G,M,Cl).
+'$spycall_dynamic'(G,M,Cl) :-
 	'$setflop'(0),
-	'$creepcall_dynamic_clause'(G,Cl).
+	'$creepcall_dynamic_clause'(G,M,Cl).
 
-'$catch_spycall_stdpred'(G) :-
-	'$system_catch'('$spycall_stdpred'(G), Error, user:'$DebugError'(Error)).
+'$catch_spycall_stdpred'(G,M) :-
+	'$system_catch'('$spycall_stdpred'(G,M), Error, user:'$DebugError'(Error)).
 
-'$spycall_stdpred'(G) :-
+'$spycall_stdpred'(G,M) :-
 	functor(G,F,N),
 	(
-	    '$recorded'('$meta_predicate','$meta_predicate'(_,F,N,_),_) ->
+	    user:'$meta_predicate'(F,M,N,_) ->
 	    '$setflop'(1),
 	    '$creep',
-	    '$execute0'(G)
+	    '$execute0'(G,M)
 	;
 	    '$setflop'(1),
-	    '$execute0'(G)
+	    '$execute0'(G,M)
 	),
 	'$setflop'(0).
 
 
-'$call_clause'(G,Cl) :-
-	'$system_catch'('$do_execute_clause'(G,Cl),Error,user:'$DebugError'(Error)).
+'$call_clause'(G,M,Cl) :-
+	'$system_catch'('$do_execute_clause'(G,M,Cl),Error,user:'$DebugError'(Error)).
 
-'$do_execute_clause'(G,Cl) :-
-	'$some_recordedp'(G), !,
+'$do_execute_clause'(G,M,Cl) :-
+	'$some_recordedp'(M:G), !,
 	'$check_depth_for_interpreter'(D),
-	('$undefined'('$set_depth_limit'(_)) -> true ; '$set_depth_limit'(D)),
+	('$undefined'('$set_depth_limit'(_),prolog) -> true ; '$set_depth_limit'(D)),
         CP is '$last_choice_pt',
 	(
-	    '$fetch_clause'(G,Cl,Clause),
-	    (Clause = true -> true ; '$debug_catch_call'(Clause,CP) )
+	    '$fetch_clause'(G,M,Cl,Clause),
+	    (Clause = true -> true ; '$debug_catch_call'(Clause,M,CP) )
 	;
 	     Next is Cl+1, '$set_value'(spy_cl,Next), fail
         ).
-'$do_execute_clause'(G,Cl) :-
-	'$execute'(G,Cl) ; Next is Cl+1, '$set_value'(spy_cl,Next), fail.
+'$do_execute_clause'(G,M,Cl) :-
+	'$execute'(G,M,Cl) ; Next is Cl+1, '$set_value'(spy_cl,Next), fail.
 
-'$call_log_updclause'(G,Cl,Index) :-
-	'$system_catch'('$do_execute_log_upd_clause'(G,Cl,Index),Error,user:'$DebugError'(Error)).
+'$call_log_updclause'(G,M,Cl,Index) :-
+	'$system_catch'('$do_execute_log_upd_clause'(G,M,Cl,Index),Error,user:'$DebugError'(Error)).
 
-'$do_execute_log_upd_clause'(G,Cl,Index) :-
+'$do_execute_log_upd_clause'(G,M,Cl,Index) :-
 	'$check_depth_for_interpreter'(D),
-	('$undefined'('$set_depth_limit'(_)) -> true ; '$set_depth_limit'(D)),
+	('$undefined'('$set_depth_limit'(_),prolog) -> true ; '$set_depth_limit'(D)),
         CP is '$last_choice_pt',
 	(
 	    (Index = [] ->
                /* We have a single clause */
 	       Cl = 1,
-               clause(G, Clause)
+               '$clause'(G, M, Clause)
             ;
 	      Cl1 is Cl-1,
 	      '$fetch_reference_from_index'(Index, Cl1, Ref),
               instance(Ref, (G :- Clause))
             ),
-	    (Clause = true -> true ; '$debug_catch_call'(Clause,CP) )
+	    (Clause = true -> true ; '$debug_catch_call'(Clause,M,CP) )
 	;
 	     Next is Cl+1, '$set_value'(spy_cl,Next), fail
         ).
 
 '$check_depth_for_interpreter'(10000000) :-
-	'$undefined'(get_depth_limit(_)), !.
+	'$undefined'(get_depth_limit(_), prolog), !.
 '$check_depth_for_interpreter'(D1) :-
 	get_depth_limit(D0),
 	D0 =\= 0,
 	D1 is D0-1.
 
-'$debug_catch_call'(Clause,CP) :-
-	'$system_catch'('$call'(Clause,CP,Clause),Error,user:'$DebugError'(Error)).
+'$debug_catch_call'(Clause,M,CP) :-
+	'$system_catch'('$call'(Clause,CP,Clause,M),Error,user:'$DebugError'(Error)).
 
-'$call_dynamic_clause'(G,Cl) :-
-	'$system_catch'('$do_execute_dynamic_clause'(G,Cl),Error,user:'$DebugError'(Error)).
+'$call_dynamic_clause'(G,M,Cl) :-
+	'$system_catch'('$do_execute_dynamic_clause'(G,M,Cl),Error,user:'$DebugError'(Error)).
 
-'$do_execute_dynamic_clause'(G,Cl) :-
+'$do_execute_dynamic_clause'(G,M,Cl) :-
 	'$check_depth_for_interpreter'(D),
-	('$undefined'('$set_depth_limit'(_)) -> true ; '$set_depth_limit'(D)),
+	('$undefined'('$set_depth_limit'(_),prolog) -> true ; '$set_depth_limit'(D)),
         CP is '$last_choice_pt',
 	(
-	    '$db_nb_to_ref'(Cl,G,Ref),
+	    '$db_nb_to_ref'(Cl,M:G,Mod,Ref),
 	    instance(Ref, (G :- Clause)),
-	    (Clause = true -> true ; '$debug_catch_call'(Clause,CP) )
+	    (Clause = true -> true ; '$debug_catch_call'(Clause,M,CP) )
 	;
 	    Next is Cl+1, '$set_value'(spy_cl,Next), fail
         ).
 
-'$creepcallclause'(G,Cl) :-
-	'$system_catch'('$do_creep_execute'(G,Cl),Error,user:'$DebugError'(Error)).
+'$creepcallclause'(G,M,Cl) :-
+	'$system_catch'('$do_creep_execute'(G,M,Cl),Error,user:'$DebugError'(Error)).
 
-'$do_creep_execute'(G,Cl) :-
+'$do_creep_execute'(G,M,Cl) :-
 	 % fast skip should ignore source mode
 	'$get_value'(spy_fs,0),
-	'$some_recordedp'(G),
+	'$some_recordedp'(M:G),
 	 !,
 	'$check_depth_for_interpreter'(D),
-	('$undefined'('$set_depth_limit'(_)) -> true ; '$set_depth_limit'(D)),
+	('$undefined'('$set_depth_limit'(_),prolog) -> true ; '$set_depth_limit'(D)),
         CP is '$last_choice_pt',
 	(
-	    '$fetch_clause'(G,Cl,Clause),
+	    '$fetch_clause'(G,M,Cl,Clause),
 	    (Clause = true -> true ;
-             '$catch_creep_call'(Clause,CP)
+             '$catch_creep_call'(Clause,M,CP)
             )
 	;
 	    Next is Cl+1, '$set_value'(spy_cl,Next), fail
         ).
-'$do_creep_execute'(G,Cl) :-
-	'$creep_execute'(G,Cl) ;
+'$do_creep_execute'(G,M,Cl) :-
+	'$creep_execute'(G,M,Cl) ;
 	Next is Cl+1, '$set_value'(spy_cl,Next), fail.
 
-'$creepcall_log_upd_clause'(G,Cl,Index) :-
-	'$system_catch'('$do_creep_log_upd_execute'(G,Cl,Index),Error,user:'$DebugError'(Error)).
+'$creepcall_log_upd_clause'(G,M,Cl,Index) :-
+	'$system_catch'('$do_creep_log_upd_execute'(G,M,Cl,Index),Error,user:'$DebugError'(Error)).
 
-'$do_creep_log_upd_execute'(G,Cl,Index) :-
+'$do_creep_log_upd_execute'(G,M,Cl,Index) :-
 	'$check_depth_for_interpreter'(D),
-	('$undefined'('$set_depth_limit'(_)) -> true ; '$set_depth_limit'(D)),
+	('$undefined'('$set_depth_limit'(_),prolog) -> true ; '$set_depth_limit'(D)),
         ( CP is '$last_choice_pt',
 	  (Index = [] ->
              /* We have a single clause */
 	     Cl = 1,
-             clause(G, Clause)
+             '$clause'(G, M, Clause)
             ;
 	    Cl1 is Cl-1,
 	    '$fetch_reference_from_index'(Index, Cl1, Ref),
@@ -592,30 +584,30 @@ debugging :-
 	  ),
           (Clause = true -> true ;
 		% otherwise fast skip may try to interpret assembly builtins.
-             '$get_value'(spy_fs,1) -> '$debug_catch_call'(Clause,CP) ;
-             '$catch_creep_call'(Clause,CP)
+             '$get_value'(spy_fs,1) -> '$debug_catch_call'(Clause,M,CP) ;
+             '$catch_creep_call'(Clause,M,CP)
             )
 	;
 	    Next is Cl+1, '$set_value'(spy_cl,Next), fail
         ).
 
-'$catch_creep_call'(Clause,CP) :-
-	'$system_catch'('$creep_call'(Clause,CP),Error,user:'$DebugError'(Error)).
+'$catch_creep_call'(Clause,M,CP) :-
+	'$system_catch'('$creep_call'(Clause,M,CP),Error,user:'$DebugError'(Error)).
 
-'$creepcall_dynamic_clause'(G,Cl) :-
-	'$system_catch'('$do_creep_execute_dynamic'(G,Cl),Error,user:'$DebugError'(Error)).
+'$creepcall_dynamic_clause'(G,M,Cl) :-
+	'$system_catch'('$do_creep_execute_dynamic'(G,M,Cl),Error,user:'$DebugError'(Error)).
 
-'$do_creep_execute_dynamic'(G,Cl) :-
+'$do_creep_execute_dynamic'(G,M,Cl) :-
 	'$check_depth_for_interpreter'(D),
-	('$undefined'('$set_depth_limit'(_)) -> true ; '$set_depth_limit'(D)),
+	('$undefined'('$set_depth_limit'(_),prolog) -> true ; '$set_depth_limit'(D)),
         CP is '$last_choice_pt',
 	(
-	    '$db_nb_to_ref'(Cl,G,Ref),
+	    '$db_nb_to_ref'(Cl,M:G,Ref),
 	    instance(Ref, (G :- Clause)),
 	    (Clause = true -> true ;
 	     % otherwise fast skip may try to interpret assembly builtins.
-             '$get_value'(spy_fs,1) -> '$debug_catch_call'(Clause,CP) ;
-             '$catch_creep_call'(Clause,CP)
+             '$get_value'(spy_fs,1) -> '$debug_catch_call'(Clause,M,CP) ;
+             '$catch_creep_call'(Clause,M,CP)
             )
 	;
 	     Next is Cl+1, '$set_value'(spy_cl,Next), fail
@@ -623,14 +615,14 @@ debugging :-
 
 '$leave_creep'.
 
-'$creep_execute'(G,Cl) :-
+'$creep_execute'(G,M,Cl) :-
 	'$creep',
-	'$execute'(G,Cl).
+	'$execute'(G,M,Cl).
 
-'$fetch_clause'(G,ClNum,Body) :-
+'$fetch_clause'(G,M,ClNum,Body) :-
 	% I'd like an easier way to keep a counter
 	'$set_value'('$fetching_clauses',1),
-	'$recordedp'(G,Clause,_),
+	'$recordedp'(M:G,Clause,_),
 	'$get_value'('$fetching_clauses',Num),
 	( Num = ClNum ->
 	    !,
@@ -643,140 +635,106 @@ debugging :-
 
 
 %'$creep_call'(G,_) :- write(user_error,'$creepcall'(G)), nl(user_error), fail.
-'$creep_call'(V,_) :- var(V), !,
-	throw(error(instantiation_error,meta_call(V))).
-'$creep_call'(A,_) :- number(A), !,
-	throw(error(type_error(callable,A),meta_call(A))).
-'$creep_call'(R,_) :- db_reference(R), !,
-	throw(error(type_error(callable,R),meta_call(R))).
-'$creep_call'(M:G,CP) :- !,
-        '$mod_switch'(M, '$creep_call'(G,CP)),
-	'$current_module'(Module),
+'$creep_call'(V,M,_) :- var(V), !,
+	throw(error(instantiation_error,meta_call(M:V))).
+'$creep_call'(A,M,_) :- number(A), !,
+	throw(error(type_error(callable,A),meta_call(M:A))).
+'$creep_call'(R,M,_) :- db_reference(R), !,
+	throw(error(type_error(callable,R),meta_call(M:R))).
+'$creep_call'(M:G,_,CP) :- !,
+        '$creep_call'(G,M,CP).
+'$creep_call'(fail,Module,_) :- !,
 	'$direct_spy'([Module|fail]).
-'$creep_call'(fail,_) :- !,
-	'$current_module'(Module),
-	'$direct_spy'([Module|fail]).
-'$creep_call'(false,_) :- !,
-	'$current_module'(Module),
+'$creep_call'(false,Module,_) :- !,
 	'$direct_spy'([Module|false]).
-'$creep_call'(true,_) :- !,
-	'$current_module'(Module),
+'$creep_call'(true,Module,_) :- !,
 	'$direct_spy'([Module|true]).
-'$creep_call'(otherwise,_) :- !,
-	'$current_module'(Module),
+'$creep_call'(otherwise,Module,_) :- !,
 	'$direct_spy'([Module|otherwise]).
-'$creep_call'((A,B),CP) :- !,
-	'$creep_call'(A,CP), '$creep_call'(B,CP).
-'$creep_call'((X->Y; Z),CP) :- !,
-	( '$creep_call'(X,CP), !, '$creep_call'(Y,CP); '$creep_call'(Z,CP)).
-'$creep_call'((A;B),CP) :- !,
-	('$creep_call'(A,CP) ; '$creep_call'(B,CP)).
-'$creep_call'((A|B),CP) :- !,
-	('$creep_call'(A,CP) ; '$creep_call'(B,CP)).
-'$creep_call'(atom(A),_) :- !,
-	'$current_module'(Module),
+'$creep_call'((A,B),Module,CP) :- !,
+	'$creep_call'(A,Module,CP), '$creep_call'(B,Module,CP).
+'$creep_call'((X->Y; Z),Module,CP) :- !,
+	( '$creep_call'(X,Module,CP), !, '$creep_call'(Y,Module,CP); '$creep_call'(Z,Module,CP)).
+'$creep_call'((A;B),Module,CP) :- !,
+	('$creep_call'(A,Module,CP) ; '$creep_call'(B,Module,CP)).
+'$creep_call'((A|B),Module,CP) :- !,
+	('$creep_call'(A,Module,CP) ; '$creep_call'(B,Module,CP)).
+'$creep_call'(atom(A),Module,_) :- !,
 	'$direct_spy'([Module|atom(A)]).
-'$creep_call'(atomic(A),_) :- !,
-	'$current_module'(Module),
+'$creep_call'(atomic(A),Module,_) :- !,
 	'$direct_spy'([Module|atomic(A)]).
-'$creep_call'(integer(A),_) :- !,
-	'$current_module'(Module),
+'$creep_call'(integer(A),Module,_) :- !,
 	'$direct_spy'([Module|integer(A)]).
-'$creep_call'(nonvar(A),_) :- !,
-	'$current_module'(Module),
+'$creep_call'(nonvar(A),Module,_) :- !,
 	'$direct_spy'([Module|nonvar(A)]).
-'$creep_call'(var(A),_) :- !,
-	'$current_module'(Module),
+'$creep_call'(var(A),Module,_) :- !,
 	'$direct_spy'([Module|var(A)]).
-'$creep_call'(number(A),_) :- !,
-	'$current_module'(Module),
+'$creep_call'(number(A),Module,_) :- !,
 	'$direct_spy'([Module|number(A)]).
-'$creep_call'(prismitive(A),_) :- !,
-	'$current_module'(Module),
+'$creep_call'(prismitive(A),Module,_) :- !,
 	'$direct_spy'([Module|primitive(A)]).
-'$creep_call'(compound(A),_) :- !,
-	'$current_module'(Module),
+'$creep_call'(compound(A),Module,_) :- !,
 	'$direct_spy'([Module|compound(A)]).
-'$creep_call'(float(A),_) :- !,
-	'$current_module'(Module),
+'$creep_call'(float(A),Module,_) :- !,
 	'$direct_spy'([Module|float(A)]).
-'$creep_call'(db_reference(A),_) :- !,
-	'$current_module'(Module),
+'$creep_call'(db_reference(A),Module,_) :- !,
 	'$direct_spy'([Module|db_reference(A)]).
-'$creep_call'(\+ X,_) :- !,
-	'$current_module'(Module),
+'$creep_call'(\+ X,Module,_) :- !,
 	'$direct_spy'([Module|(\+ X)]).
-'$creep_call'(not X,_) :- !,
-	'$current_module'(Module),
+'$creep_call'(not X,Module,_) :- !,
 	'$direct_spy'([Module|not(X)]).
-'$creep_call'(X=Y,_) :- !,
-	'$current_module'(Module),
+'$creep_call'(X=Y,Module,_) :- !,
 	'$direct_spy'([Module|X=Y]).
-'$creep_call'(X\=Y,_) :- !,
-	'$current_module'(Module),
+'$creep_call'(X\=Y,Module,_) :- !,
 	'$direct_spy'([Module|X\=Y]).
-'$creep_call'(X==Y,_) :- !,
-	'$current_module'(Module),
+'$creep_call'(X==Y,Module,_) :- !,
 	'$direct_spy'([Module|X==Y]).
-'$creep_call'(X>Y,_) :- !,
-	'$current_module'(Module),
+'$creep_call'(X>Y,Module,_) :- !,
 	'$direct_spy'([Module|X>Y]).
-'$creep_call'(X>=Y,_) :- !,
-	'$current_module'(Module),
+'$creep_call'(X>=Y,Module,_) :- !,
 	'$direct_spy'([Module|X>=Y]).
-'$creep_call'(X<Y,_) :- !,
-	'$current_module'(Module),
+'$creep_call'(X<Y,Module,_) :- !,
 	'$direct_spy'([Module|X<Y]).
-'$creep_call'(X=<Y,_) :- !,
-	'$current_module'(Module),
+'$creep_call'(X=<Y,Module,_) :- !,
 	'$direct_spy'([Module|X=<Y]).
-'$creep_call'(X=:=Y,_) :- !,
-	'$current_module'(Module),
+'$creep_call'(X=:=Y,Module,_) :- !,
 	'$direct_spy'([Module|X=:=Y]).
-'$creep_call'(X=\=Y,_) :- !,
-	'$current_module'(Module),
+'$creep_call'(X=\=Y,Module,_) :- !,
 	'$direct_spy'([Module|X=\=Y]).
-'$creep_call'(arg(X,Y,Z),_) :- !,
-	'$current_module'(Module),
+'$creep_call'(arg(X,Y,Z),Module,_) :- !,
 	'$direct_spy'([Module|arg(X,Y,Z)]).
-'$creep_call'(functor(X,Y,Z),_) :- !,
-	'$current_module'(Module),
+'$creep_call'(functor(X,Y,Z),Module,_) :- !,
 	'$direct_spy'([Module|functor(X,Y,Z)]).
-'$creep_call'((X->Y),CP) :- !,
+'$creep_call'((X->Y),Module,CP) :- !,
 	CP1 is '$last_choice_pt',
-	'$creep_call'(X,CP),
+	'$creep_call'(X,Module,CP),
 	'$$cut_by'(CP1),
-	'$creep_call'(Y,CP).
-'$creep_call'(!,CP) :- !,
-	'$current_module'(M),
-	'$direct_spy'([M|'!'(CP)]),
+	'$creep_call'(Y,Module,CP).
+'$creep_call'(!,Module,CP) :- !,
+	'$direct_spy'([Module|'!'(CP)]),
 	% clean up any garbage left here by the debugger.
 	'$$cut_by'(CP).
-'$creep_call'('$cut_by'(X),_) :- !,
+'$creep_call'('$cut_by'(X),Module,_) :- !,
 	'$$cut_by'(X).
-'$creep_call'(repeat,_) :- !,
-	'$current_module'(Module),
+'$creep_call'(repeat,Module,_) :- !,
 	'$direct_spy'([Module|repeat]).
-'$creep_call'([A|B],_) :- !,
-	'$current_module'(Module),
+'$creep_call'([A|B],Module,_) :- !,
 	'$direct_spy'([Module|[A|B]]).
-'$creep_call'(A,CP) :-
-	'$undefined'(A), !,
-	'$creep_call_undefined'(A,CP).
-'$creep_call'(A,_) :-
-	'$current_module'(Module),
+'$creep_call'(A,Module,CP) :-
+	'$undefined'(A,Module), !,
+	'$creep_call_undefined'(A,Module,CP).
+'$creep_call'(A,Module,_) :-
 	'$direct_spy'([Module|A]).
 
-'$creep_call_undefined'(A,CP) :-
+'$creep_call_undefined'(A,M,CP) :-
 	functor(A,F,N),
-	'$current_module'(M),
 	'$recorded'('$import','$import'(S,M,F,N),_), !,
 	'$creep_call'(S:A,CP).
-'$creep_call_undefined'(G, _) :-
-	( \+ '$undefined'(user:unknown_predicate_handler(_,_,_)),
-	  user:unknown_predicate_handler(G,M,NG) ->
-	  '$creep_call'(M:NG) ;
-	   '$is_dynamic'(G) -> fail ;
+'$creep_call_undefined'(G, M, _) :-
+	( \+ '$undefined'(unknown_predicate_handler(_,_,_), user),
+	  user:unknown_predicate_handler(G,NM,NG) ->
+	  '$creep_call'(NM:NG) ;
+	   '$is_dynamic'(G, M) -> fail ;
 	    '$recorded'('$unknown','$unknown'(M:G,US),_),
 	    '$creep_call'(user:US,_)
         ).
@@ -796,35 +754,31 @@ debugging :-
 	'$get_value'('$throw', true), !,
 	'$set_value'('$throw', false),
 	abort.
-'$creep'([Module|'$trace'(P,G,L)]) :- !,
-    (     Module=prolog -> '$trace'(P,G,L);
-	  '$mod_switch'(Module, '$trace'(P,G,L))
-     ).
-'$creep'([Module|'$creep_call'(G,CP)]) :- !,
-    (     Module=prolog -> '$creep_call'(G,CP);
-	  '$mod_switch'(Module, '$creep_call'(G,CP) )
-     ).
+'$creep'([_|'$trace'(P,G,Module,L)]) :- !,
+	'$trace'(P,G,Module,L).
+'$creep'([_|'$creep_call'(G,Mod,CP)]) :- !,
+	'$creep_call'(G,Mod,CP).
 '$creep'([_|'$leave_creep']) :- !.
 '$creep'(G) :- '$direct_spy'(G).
 
-'$trace'(P,'!'(_),L) :- !,
-	'$trace'(P,!,L).
-'$trace'(P,G,L) :-
-	'$chk'(P,L,G,SL),
-	'$msg'(P,G,L,SL).
-'$trace'(_,_,_).
+'$trace'(P,'!'(_),Mod,L) :- !,
+	'$trace'(P,!,Mod,L).
+'$trace'(P,G,Mod,L) :-
+	'$chk'(P,L,G,Mod,SL),
+	'$msg'(P,G,Mod,L,SL).
+'$trace'(_,_,_,_).
 
-'$msg'(P,G,L,SL):-
+'$msg'(P,G,Module,L,SL):-
 	flush_output(user_output),
 	flush_output(user_error),
 	'$get_value'(debug,1),
 	repeat,
-		('$pred_being_spied'(G) -> write(user_error,'*') ; write(user_error,' ')),
+		('$pred_being_spied'(G,Module) -> write(user_error,'*') ; write(user_error,' ')),
 		( SL = L -> write(user_error,'>') ; write(user_error,' ')),
 		write(user_error,' ('), write(user_error,L), write(user_error,') '),
 		write(user_error,P), write(user_error,': '),
-		( '$current_module'(Module), Module\=prolog,
-			Module\=user -> write(user_error,Module),write(user_error,':');
+		( Module\=prolog,
+		  Module\=user -> write(user_error,Module),write(user_error,':');
 		   true
 		),
 		'$debugger_write'(user_error,G),
@@ -868,16 +822,16 @@ debugging :-
 	write(user_error,[chk,L,P,Leap,SP,SC,SL,FS,CL,G]), nl(user_error),
 	fail.
 */
-'$chk'(_,_,[_|_],_) :- !, fail.
-'$chk'(P,L,G,SL) :-
+'$chk'(_,_,[_|_],_,_) :- !, fail.
+'$chk'(P,L,G,Mod,SL) :-
 	'$get_value'(spy_leap,Leap),
 	(Leap = 0 -> true;			      % not leaping
-		('$pred_being_spied'(G) ; Leap = L),  % leaping or quasileaping
+		('$pred_being_spied'(G,Mod) ; Leap = L),  % leaping or quasileaping
 		'$set_value'(spy_leap,0) ),
 	'$get_value'(spy_sp,SP),
 	(SP = 0; SP = P),		% the current skipport or no skipport
 	'$access_yap_flags'(10,SC),
-	(SC = 1; '$pred_being_spied'(G)),
+	(SC = 1; '$pred_being_spied'(G,Mod)),
 	'$get_value'(spy_sl,SL),
 	(SL = 0; SL = L, '$set_value'(spy_sl,0), '$set_value'(spy_fs,0)),
 	'$set_value'(spy_sp,0), !.
@@ -1029,13 +983,13 @@ debugging :-
 '$DebugError'(T) :- !,
 	throw(T).
 
-'$init_spy_cl'(G) :-
+'$init_spy_cl'(G,M) :-
 	% dynamic, immediate update procedure.
-	'$flags'(G,F,F), F /\ 16'2000 =\= 0, !,
-	( '$db_first_age'(G,A) ->
+	'$flags'(G,M,F,F), F /\ 16'2000 =\= 0, !,
+	( '$db_first_age'(M:G,A) ->
 	  '$set_value'(spy_cl, A) ;
 % no clauses for pred.
 	  '$set_value'(spy_cl, 1) ).
-'$init_spy_cl'(_) :-
+'$init_spy_cl'(_,_) :-
 	'$set_value'(spy_cl, 1).
 

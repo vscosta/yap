@@ -88,9 +88,9 @@ install: $(CHR_TOP) $(CHR_LICENSE) $(CHR_PROGRAMS) $(CHR_EXAMPLES)
 	-mkdir $(DESTDIR)$(LIBDIR)/library
 	-mkdir $(DESTDIR)$(LIBDIR)/library/chr
 	-mkdir $(DESTDIR)$(LIBDIR)/library/chr/examples
-	$(INSTALL_DATA) $(CHR_TOP) $(DESTDIR)$(LIBDIR)/library
-	$(INSTALL_DATA) $(CHR_LICENSE) $(DESTDIR)$(LIBDIR)/library
-	$(INSTALL_DATA) $(CHR_PROGRAMS) $(DESTDIR)$(LIBDIR)/library/chr
-	$(INSTALL_DATA) $(CHR_EXAMPLES) $(DESTDIR)$(LIBDIR)/library/chr/examples
+	for h in $(CHR_TOP); do $(INSTALL_DATA) $$h $(DESTDIR)$(LIBDIR)/library; done
+	for h in $(CHR_LICENSE); do $(INSTALL_DATA) $$h $(DESTDIR)$(LIBDIR)/library; done
+	for h in $(CHR_PROGRAMS); do $(INSTALL_DATA) $$h $(DESTDIR)$(LIBDIR)/library/chr; done
+	for h in $(CHR_EXAMPLES); do $(INSTALL_DATA) $$h $(DESTDIR)$(LIBDIR)/library/chr/examples; done
 
 

@@ -114,6 +114,7 @@ run( Mutex, G) :- var(Mutex), Mutex=done, call( G).
 
 :- meta_predicate geler(+,:).
 %
+
 geler( Vars, Goal) :-
   attach( Vars, run(_Mutex,Goal)).
 

@@ -26,7 +26,7 @@ static char     SccsId[] = "%W% %G%";
 #endif
 
 static BBProp 
-PutBBProp(AtomEntry *ae)		/* get BBentry for at; */
+PutBBProp(AtomEntry *ae, SMALLUNSGN mod)		/* get BBentry for at; */
 {
   Prop          p0;
   BBProp        p;
@@ -34,7 +34,7 @@ PutBBProp(AtomEntry *ae)		/* get BBentry for at; */
   WRITE_LOCK(ae->ARWLock);
   p = RepBBProp(p0 = ae->PropsOfAE);
   while (p0 != NIL && (!IsBBProperty(p->KindOfPE) ||
-		(p->ModuleOfBB != CurrentModule))) {
+		(p->ModuleOfBB != mod))) {
     p = RepBBProp(p0 = p->NextOfPE);
   }
   if (p0 == NIL) {
@@ -46,7 +46,7 @@ PutBBProp(AtomEntry *ae)		/* get BBentry for at; */
     }
     p->NextOfPE = ae->PropsOfAE;
     ae->PropsOfAE = AbsBBProp(p);
-    p->ModuleOfBB = CurrentModule;
+    p->ModuleOfBB = mod;
     p->Element = NULL;
     p->KeyOfBB = AbsAtom(ae);
     p->KindOfPE = BBProperty;
@@ -57,7 +57,7 @@ PutBBProp(AtomEntry *ae)		/* get BBentry for at; */
 }
 
 static BBProp 
-PutIntBBProp(Int key)			/* get BBentry for at; */
+PutIntBBProp(Int key, SMALLUNSGN mod)	/* get BBentry for at; */
 {
   Prop          p0;
   BBProp        p;
@@ -82,7 +82,7 @@ PutIntBBProp(Int key)			/* get BBentry for at; */
   p = RepBBProp(p0);
   while (p0 != NIL && (!IsBBProperty(p->KindOfPE) ||
 		       key != (Int)(p->KeyOfBB) ||
-		(p->ModuleOfBB != CurrentModule))) {
+		(p->ModuleOfBB != mod))) {
     p = RepBBProp(p0 = p->NextOfPE);
   }
   if (p0 == NIL) {
@@ -93,7 +93,7 @@ PutIntBBProp(Int key)			/* get BBentry for at; */
       Error(SYSTEM_ERROR,ARG1,"could not allocate space in bb_put/2");
       return(NULL);
     }
-    p->ModuleOfBB = CurrentModule;
+    p->ModuleOfBB = mod;
     p->Element = NULL;
     p->KeyOfBB = (Atom)key;
     p->KindOfPE = BBProperty;
@@ -105,7 +105,7 @@ PutIntBBProp(Int key)			/* get BBentry for at; */
 }
 
 static BBProp 
-GetBBProp(AtomEntry *ae)		/* get BBentry for at; */
+GetBBProp(AtomEntry *ae, SMALLUNSGN mod)		/* get BBentry for at; */
 {
   Prop          p0;
   BBProp        p;
@@ -113,7 +113,7 @@ GetBBProp(AtomEntry *ae)		/* get BBentry for at; */
   READ_LOCK(ae->ARWLock);
   p = RepBBProp(p0 = ae->PropsOfAE);
   while (p0 != NIL && (!IsBBProperty(p->KindOfPE) ||
-		(p->ModuleOfBB != CurrentModule))) {
+		(p->ModuleOfBB != mod))) {
     p = RepBBProp(p0 = p->NextOfPE);
   }
   READ_UNLOCK(ae->ARWLock);
@@ -124,7 +124,7 @@ GetBBProp(AtomEntry *ae)		/* get BBentry for at; */
 }
 
 static BBProp 
-GetIntBBProp(Int key)			/* get BBentry for at; */
+GetIntBBProp(Int key, SMALLUNSGN mod)		/* get BBentry for at; */
 {
   Prop          p0;
   BBProp        p;
@@ -137,7 +137,7 @@ GetIntBBProp(Int key)			/* get BBentry for at; */
   p = RepBBProp(p0);
   while (p0 != NIL && (!IsBBProperty(p->KindOfPE) ||
 		       key != (Int)(p->KeyOfBB) ||
-		(p->ModuleOfBB != CurrentModule))) {
+		(p->ModuleOfBB != mod))) {
     p = RepBBProp(p0 = p->NextOfPE);
   }
   if (p0 == NIL) {
@@ -187,70 +187,62 @@ resize_bb_int_keys(UInt new_size) {
 }
 
 static BBProp
-AddBBProp(Term t1, char *msg)
+AddBBProp(Term t1, char *msg, SMALLUNSGN mod)
 {
-  SMALLUNSGN old_module = CurrentModule;
   BBProp p;
 
+ restart:
   if (IsVarTerm(t1)) {
     Error(INSTANTIATION_ERROR, t1, msg);
-    *CurrentModulePtr = MkIntTerm(old_module);
     return(NULL);
   } if (IsAtomTerm(t1)) {
-    p = PutBBProp(RepAtom(AtomOfTerm(t1)));
+    p = PutBBProp(RepAtom(AtomOfTerm(t1)), mod);
   } else if (IsIntegerTerm(t1)) {
-    p = PutIntBBProp(IntegerOfTerm(t1));
+    p = PutIntBBProp(IntegerOfTerm(t1), mod);
   } else if (IsApplTerm(t1) && FunctorOfTerm(t1) == FunctorModule) {
-    Term mod = ArgOfTerm(1, t1);
-    if (!IsVarTerm(mod) ) {
-      *CurrentModulePtr = MkIntTerm(LookupModule(mod));
+    Term tmod = ArgOfTerm(1, t1);
+    if (!IsVarTerm(tmod) ) {
       t1 = ArgOfTerm(2, t1);
-      p = AddBBProp(t1, msg);
+      mod = LookupModule(tmod);
+      goto restart;
     } else {
       Error(INSTANTIATION_ERROR, t1, msg);
-      *CurrentModulePtr = MkIntTerm(old_module);
       return(NULL);
     }
   } else {
     Error(TYPE_ERROR_ATOM, t1, msg);
-    *CurrentModulePtr = MkIntTerm(old_module);
     return(NULL);
   }
-  *CurrentModulePtr = MkIntTerm(old_module);
   return(p);
 }
 
 static BBProp
-FetchBBProp(Term t1, char *msg)
+FetchBBProp(Term t1, char *msg, SMALLUNSGN mod)
 {
-  SMALLUNSGN old_module = CurrentModule;
   BBProp p;
 
+ restart:
   if (IsVarTerm(t1)) {
     Error(INSTANTIATION_ERROR, t1, msg);
-    *CurrentModulePtr = MkIntTerm(old_module);
     return(NULL);
   } if (IsAtomTerm(t1)) {
-    p = GetBBProp(RepAtom(AtomOfTerm(t1)));
+    p = GetBBProp(RepAtom(AtomOfTerm(t1)), mod);
   } else if (IsIntegerTerm(t1)) {
-    p = GetIntBBProp(IntegerOfTerm(t1));
+    p = GetIntBBProp(IntegerOfTerm(t1), mod);
   } else if (IsApplTerm(t1) && FunctorOfTerm(t1) == FunctorModule) {
-    Term mod = ArgOfTerm(1, t1);
-    if (!IsVarTerm(mod) ) {
-      *CurrentModulePtr = MkIntTerm(LookupModule(mod));
+    Term tmod = ArgOfTerm(1, t1);
+    if (!IsVarTerm(tmod) ) {
+      mod = LookupModule(tmod);
       t1 = ArgOfTerm(2, t1);
-      p = FetchBBProp(t1, msg);
+      goto restart;
     } else {
       Error(INSTANTIATION_ERROR, t1, msg);
-      *CurrentModulePtr = MkIntTerm(old_module);
       return(NULL);
     }
   } else {
     Error(TYPE_ERROR_ATOM, t1, msg);
-    *CurrentModulePtr = MkIntTerm(old_module);
     return(NULL);
   }
-  *CurrentModulePtr = MkIntTerm(old_module);
   return(p);
 }
 
@@ -258,7 +250,7 @@ static Int
 p_bb_put(void)
 {
   Term t1 = Deref(ARG1);
-  BBProp p = AddBBProp(t1, "bb_put/2");
+  BBProp p = AddBBProp(t1, "bb_put/2", CurrentModule);
   if (p == NULL)
     return(FALSE);
   WRITE_LOCK(p->BBRWLock);    
@@ -274,7 +266,7 @@ static Int
 p_bb_get(void)
 {
   Term t1 = Deref(ARG1);
-  BBProp p = FetchBBProp(t1, "bb_get/2");
+  BBProp p = FetchBBProp(t1, "bb_get/2", CurrentModule);
   Term out;
   if (p == NULL || p->Element == NULL)
     return(FALSE);
@@ -291,7 +283,7 @@ p_bb_delete(void)
   BBProp p;
   Term out;
 
-  p = FetchBBProp(t1, "bb_delete/2");
+  p = FetchBBProp(t1, "bb_delete/2", CurrentModule);
   if (p == NULL || p->Element == NULL)
     return(FALSE);
   out = FetchTermFromDB(p->Element,3);
@@ -309,7 +301,7 @@ p_bb_update(void)
   BBProp p;
   Term out;
 
-  p = FetchBBProp(t1, "bb_update/3");
+  p = FetchBBProp(t1, "bb_update/3", CurrentModule);
   if (p == NULL || p->Element == NULL)
     return(FALSE);
   WRITE_LOCK(p->BBRWLock);  

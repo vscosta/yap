@@ -65,12 +65,14 @@ no_style_check([H|T]) :- no_style_check(H), no_style_check(T).
 
 '$check_term'(T,_) :-
 	'$get_value'('$syntaxcheckdiscontiguous',on),
-	'$xtract_head'(T,_,F,A),
-	'$handle_discontiguous'(F,A), fail.
+	'$current_module'(M),
+	'$xtract_head'(T,M,NM,H,F,A),
+	'$handle_discontiguous'(F,A,NM), fail.
 '$check_term'(T,_) :-
 	'$get_value'('$syntaxcheckmultiple',on),
-	'$xtract_head'(T,_,F,A),
-	'$handle_multiple'(F,A), fail.
+	'$current_module'(M),
+	'$xtract_head'(T,M,NM,H,F,A),
+	'$handle_multiple'(F,A,NM), fail.
 '$check_term'(T,VL) :-
 	'$get_value'('$syntaxchecksinglevar',on),
 	( '$chk_binding_vars'(T),
@@ -99,8 +101,9 @@ no_style_check([H|T]) :- no_style_check(H), no_style_check(T).
 	
 
 '$sv_warning'([],_) :- !.
-'$sv_warning'(SVs,T) :- 
-	'$xtract_head'(T,H,Name,Arity),
+'$sv_warning'(SVs,T) :-
+	'$current_module'(OM),
+	'$xtract_head'(T,OM,M,H,Name,Arity),
 	write(user_error,'[ Warning: singleton variable'),
 	'$write_svs'(SVs),
 	write(user_error,' in '),
@@ -111,22 +114,24 @@ no_style_check([H|T]) :- no_style_check(H), no_style_check(T).
 	( '$get_value'('$consulting',false),
 	   '$first_clause_in_file'(Name,Arity) ->
 	    ClN = 1 ;
-		'$number_of_clauses'(H,ClN0),
+		'$number_of_clauses'(H,M,ClN0),
 		ClN is ClN0+1
 	),
 	write(user_error,ClN), 
 	write(user_error,') ]'),
 	nl(user_error). 
 
-'$xtract_head'((H:-_),H,Name,Arity) :- !,
-	functor(H,Name,Arity).
-'$xtract_head'((H,_),H1,Name,Arity) :- !,
-	'$xtract_head'(H,H1,Name,Arity).
-'$xtract_head'((H-->_),HL,Name,Arity) :- !,
-	'$xtract_head'(H,_,Name,A1),
+'$xtract_head'((H:-_),OM,M,NH,Name,Arity) :- !,
+        'xtract_head'(H,OM,M,NH,Name,Arity).
+'$xtract_head'((H,_),OM,M,H1,Name,Arity) :- !,
+	'$xtract_head'(H,OM,M,H1,Name,Arity).
+'$xtract_head'((H-->_),OM,M,HL,Name,Arity) :- !,
+	'$xtract_head'(H,OM,M,Name,A1),
 	Arity is A1+2,
 	functor(HL,Name,Arity).
-'$xtract_head'(H,H,Name,Arity) :-
+'$xtract_head'(M:H,_,NM,NH,Name,Arity) :- !,
+	'$xtract_head'(H,M,NM,NH,Name,Arity).
+'$xtract_head'(H,M,M,H,Name,Arity) :-
 	functor(H,Name,Arity).
 
 '$write_svs'([H]) :- !, write(user_error,' '), '$write_svs1'([H]).
@@ -145,10 +150,9 @@ no_style_check([H|T]) :- no_style_check(H), no_style_check(T).
 	'$write_str_in_stderr'(T).
 
 
-'$handle_discontiguous'(F,A) :-
-	'$current_module'(M),
+'$handle_discontiguous'(F,A,M) :-
 	'$recorded'('$discontiguous_defs','$df'(F,A,M),_), !.
-'$handle_discontiguous'(F,A) :-
+'$handle_discontiguous'(F,A,_) :-
 	'$in_this_file_before'(F,A),
 	write(user_error,'[ Warning: discontiguous definition of '),
 	write(user_error,F/A), write(user_error,' (line '),
@@ -156,22 +160,21 @@ no_style_check([H|T]) :- no_style_check(H), no_style_check(T).
 	write(user_error,') ]'),
 	nl(user_error).
 
-'$handle_multiple'(F,A) :-
-	\+ '$first_clause_in_file'(F,A), !.
-'$handle_multiple'(_,_) :-
+'$handle_multiple'(F,A,_) :-
+	\+ '$first_clause_in_file'(F,A,M), !.
+'$handle_multiple'(_,_,_) :-
 	'$get_value'('$consulting',true), !.
-'$handle_multiple'(F,A) :-
-	'$current_module'(M),
+'$handle_multiple'(F,A,M) :-
 	'$recorded'('$predicate_defs','$predicate_defs'(F,A,M,Fil),_), !,
-	'$multiple_has_been_defined'(Fil,F/A), !.
-'$handle_multiple'(F,A) :-
+	'$multiple_has_been_defined'(Fil, F/A, M), !.
+'$handle_multiple'(F,A,M) :-
 	( '$recorded'('$reconsulting',Fil,_) -> true ),
-	'$current_module'(M),
 	'$recorda'('$predicate_defs','$predicate_defs'(F,A,M,Fil),_).
 
-'$multiple_has_been_defined'(_,F/A) :- 
-	'$is_multifile'(F,A), !.
-'$multiple_has_been_defined'(Fil,P) :-
+'$multiple_has_been_defined'(_, F/A, M) :-
+	functor(S, F, A),
+	'$is_multifile'(S, M), !.
+'$multiple_has_been_defined'(Fil,P,_) :-
 	'$recorded'('$reconsulting',F,_), !,
 	'$test_if_well_reconsulting'(F,Fil,P).
 
@@ -184,59 +187,52 @@ no_style_check([H|T]) :- no_style_check(H), no_style_check(T).
 	write(user_error,') ]'),
 	nl(user_error).	
 
-'$multifile'(V) :- var(V), !,
+'$multifile'(V, _) :- var(V), !,
 	throw(error(instantiation_error,multifile(V))).
-'$multifile'((X,Y)) :- '$multifile'(X), '$multifile'(Y).
-'$multifile'(Mod:PredSpec) :- !,
-	( '$current_module'(Mod) ->
-	    '$multifile'(PredSpec)
-	;
-	    '$mod_switch'(Mod,'$multifile'(PredSpec))
-	).
-'$multifile'(N/A) :-
+'$multifile'((X,Y), M) :- '$multifile'(X, M), '$multifile'(Y, M).
+'$multifile'(Mod:PredSpec, _) :- !,
+	'$multifile'(PredSpec, Mod).
+'$multifile'(N/A, M) :-
 	'$get_value'('$consulting_file',F),
-	'$current_module'(M),
 	'$recordzifnot'('$multifile_defs','$defined'(F,N,A,M),_),
 	fail.
-'$multifile'(N/A) :-
-	'$is_multifile'(N,A), !.
-'$multifile'(N/A) :- !,
-	'$new_multifile'(N,A).
-'$multifile'(P) :-
-	throw(error(type_error(predicate_indicator,P),multifile(P))).
+'$multifile'(N/A, M) :-
+         functor(S,N,A),
+	'$is_multifile'(S, M), !.
+'$multifile'(N/A, M) :- !,
+	'$new_multifile'(N,A,M).
+'$multifile'(P, M) :-
+	throw(error(type_error(predicate_indicator,P),multifile(M:P))).
 
-'$discontiguous'(V) :- var(V), !,
-	throw(error(instantiation_error,discontiguous(V))).
-'$discontiguous'((X,Y)) :- !,
-	'$discontiguous'(X),
-	'$discontiguous'(Y).
-'$discontiguous'(M:A) :- !,
-	'$mod_switch'(M,'$discontiguous'(A)).
-'$discontiguous'(N/A) :- !,
-	'$current_module'(M),
+'$discontiguous'(V,M) :- var(V), !,
+	throw(error(instantiation_error,M:discontiguous(V))).
+'$discontiguous'((X,Y),M) :- !,
+	'$discontiguous'(X,M),
+	'$discontiguous'(Y,M).
+'$discontiguous'(M:A,_) :- !,
+	'$discontiguous'(A,M).
+'$discontiguous'(N/A, M) :- !,
 	( '$recordzifnot'('$discontiguous_defs','$df'(N,A,M),_) ->
 	    true
 	;
 	    true
 	).
-'$discontiguous'(P) :-
-	throw(error(type_error(predicate_indicator,P),discontiguous(P))).
+'$discontiguous'(P,M) :-
+	throw(error(type_error(predicate_indicator,P),M:discontiguous(P))).
 
 %
 % did we declare multifile properly?
 %
-'$check_multifile_pred'(Hd, _) :-
+'$check_multifile_pred'(Hd, M, _) :-
 	functor(Hd,Na,Ar),
 	'$get_value'('$consulting_file',F),
-	'$current_module'(M),	
 	'$recorded'('$multifile_defs','$defined'(F,Na,Ar,M),_), !.
 % oops, we did not.
-'$check_multifile_pred'(Hd, Fl) :-
+'$check_multifile_pred'(Hd, M, Fl) :-
 	% so this is not a multi-file predicate any longer.
 	functor(Hd,Na,Ar),
 	NFl is \(16'040000 ) /\ Fl,
-	'$flags'(Hd,Fl,NFl),
-	'$current_module'(M),
+	'$flags'(Hd,M,Fl,NFl),
 	'$clear_multifile_pred'(Na,Ar,M),
 	'$warn_mfile'(Na,Ar).
 

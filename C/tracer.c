@@ -133,7 +133,7 @@ low_level_trace(yap_low_level_port port, PredEntry *pred, CELL *args)
   /*  if (vsc_count < 24) return; */
   /* if (vsc_count > 500000) exit(0); */
   /* if (gc_calls < 1) return;*/
-  YP_fprintf(YP_stderr,"%lu %p (%d)", vsc_count, B, CurrentModule);
+  YP_fprintf(YP_stderr,"%lu (%d)", vsc_count, CurrentModule);
   /* check_trail_consistency(); */
   if (pred == NULL) {
     return;

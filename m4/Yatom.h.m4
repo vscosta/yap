@@ -203,7 +203,7 @@ typedef	struct pred_entry {
   Prop	NextOfPE;	/* used to chain properties	    	*/
   PropFlags	KindOfPE;	/* kind of property		    	*/
   unsigned int  ArityOfPE;	/* arity of property		    	*/
-  Term		ModuleOfPred;	/* module for this definition		*/
+  int		ModuleOfPred;	/* module for this definition		*/
   CELL	        PredFlags;
   CODEADDR	CodeOfPred;	/* code address		    		*/
   CODEADDR	TrueCodeOfPred;	/* if needing to spy or to lock 	*/
@@ -496,10 +496,9 @@ Atom		STD_PROTO(GetOp,(OpEntry *,int *,int));
 /* vsc: redefined to GetAProp to avoid conflicts with Windows header files */
 Prop	STD_PROTO(GetAProp,(Atom,PropFlags));
 Prop	STD_PROTO(GetAPropHavingLock,(AtomEntry *,PropFlags));
-Prop	STD_PROTO(PredProp,(Atom,unsigned int));
 
 EXTERN inline Prop
-PredPropByFunc(Functor f, Term cur_mod)
+PredPropByFunc(Functor f, SMALLUNSGN cur_mod)
 /* get predicate entry for ap/arity; create it if neccessary.              */
 {
   Prop p0;
@@ -520,7 +519,7 @@ PredPropByFunc(Functor f, Term cur_mod)
 }
 
 EXTERN inline Prop
-PredPropByAtom(Atom at, Term cur_mod)
+PredPropByAtom(Atom at, SMALLUNSGN cur_mod)
 /* get predicate entry for ap/arity; create it if neccessary.              */
 {
   Prop p0;

@@ -68,23 +68,25 @@ AllocCMem (int size)
 }
 
 int
-is_a_test_pred (Term arg)
+is_a_test_pred (Term arg, SMALLUNSGN mod)
 {
   if (IsVarTerm (arg))
     return (FALSE);
   else if (IsAtomTerm (arg))
     {
       Atom At = AtomOfTerm (arg);
-      if (RepPredProp (PredProp (At, 0)) == NULL)
+      PredEntry *pe = RepPredProp(PredPropByAtom(At, mod));
+      if (EndOfPAEntr(pe))
 	return (FALSE);
-      return (RepPredProp (PredProp (At, 0))->PredFlags & TestPredFlag);
+      return (pe->PredFlags & TestPredFlag);
     }
   else if (IsApplTerm (arg))
     {
       Functor f = FunctorOfTerm (arg);
-      if (RepPredProp (PredPropByFunc (f, *CurrentModulePtr)) == NULL)
+      PredEntry *pe = RepPredProp(PredPropByFunc(f, mod));
+      if (EndOfPAEntr(pe))
 	return (FALSE);
-      return (RepPredProp (PredPropByFunc (f, *CurrentModulePtr))->PredFlags & TestPredFlag);
+      return (pe->PredFlags & TestPredFlag);
     }
   else
     return (FALSE);

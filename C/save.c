@@ -377,7 +377,7 @@ save_regs(int mode)
     putcellptr((CELL *)TopB);
     putcellptr((CELL *)DelayedB);
     putout(FlipFlop);
-    putcellptr(CurrentModulePtr);
+    putout(CurrentModule);
 #ifdef COROUTINING
     putout(DelayedVars);
 #endif
@@ -672,7 +672,7 @@ get_regs(int flag)
     TopB = (choiceptr)get_cellptr();
     DelayedB = (choiceptr)get_cellptr();
     FlipFlop = get_cell();
-    CurrentModulePtr = get_cellptr();
+    CurrentModule = get_cell();
 #ifdef COROUTINING
     DelayedVars = get_cell();
 #endif
@@ -1097,7 +1097,6 @@ restore_codes(void)
   heap_regs->functor_stream_eOS = FuncAdjust(heap_regs->functor_stream_eOS);
   heap_regs->functor_change_module = FuncAdjust(heap_regs->functor_change_module);
   heap_regs->functor_current_module = FuncAdjust(heap_regs->functor_current_module);
-  heap_regs->functor_mod_switch = FuncAdjust(heap_regs->functor_mod_switch);
   heap_regs->functor_u_minus = FuncAdjust(heap_regs->functor_u_minus);
   heap_regs->functor_u_plus = FuncAdjust(heap_regs->functor_u_plus);
   heap_regs->functor_v_bar = FuncAdjust(heap_regs->functor_v_bar);
@@ -1164,8 +1163,6 @@ restore_regs(int flag)
     HeapPlus = AddrAdjust(HeapPlus);
     if (MyTR)
       MyTR = PtoTRAdjust(MyTR);
-    if (CurrentModulePtr)
-      CurrentModulePtr = PtoGloAdjust(CurrentModulePtr);
 #ifdef COROUTINING
     DelayedVars = AbsAppl(PtoGloAdjust(RepAppl(DelayedVars)));
 #ifdef MULTI_ASSIGNMENT_VARIABLES

@@ -61,26 +61,28 @@ CallPredicate(PredEntry *pen, choiceptr cut_pt) {
 }
 
 inline static Int
-CallMetaCall(void) {
+CallMetaCall(SMALLUNSGN mod) {
   ARG2 = current_cp_as_integer(); /* p_save_cp */
   ARG3 = ARG1;
+  ARG4 = ModuleName[mod];
   return (CallPredicate(PredMetaCall, B));
 }
 
 Term
-ExecuteCallMetaCall(void) {
-  Term ts[3];
+ExecuteCallMetaCall(SMALLUNSGN mod) {
+  Term ts[4];
   ts[0] = ARG1;
   ts[1] = current_cp_as_integer(); /* p_save_cp */
   ts[2] = ARG1;
-  return(MkApplTerm(PredMetaCall->FunctorOfPred,3,ts));
+  ts[3] = ModuleName[mod];
+  return(MkApplTerm(PredMetaCall->FunctorOfPred,4,ts));
 }
 
 static Int
-CallError(yap_error_number err)
+CallError(yap_error_number err, SMALLUNSGN mod)
 {
   if (yap_flags[LANGUAGE_MODE_FLAG] == 1) {
-    return(CallMetaCall());
+    return(CallMetaCall(mod));
   } else {
     Error(err, ARG1, "call/1");
     return(FALSE);
@@ -189,42 +191,51 @@ p_save_cp(void)
 }
 
 inline static Int
-EnterCreepMode(PredEntry *pen) {
-  PredEntry *PredSpy = RepPredProp(PredPropByFunc(FunctorSpy,*CurrentModulePtr));
-  ARG1 = MkPairTerm(Module_Name((CODEADDR)(pen)),ARG1);
+EnterCreepMode(PredEntry *pen, Term t) {
+  PredEntry *PredSpy = RepPredProp(PredPropByFunc(FunctorSpy,0));
+  ARG1 = MkPairTerm(Module_Name((CODEADDR)(pen)),t);
   CreepFlag = CalculateStackGap();
   P_before_spy = P;
   return (CallPredicate(PredSpy, B));
 }
 
 inline static Int
-do_execute(Term t)
+do_execute(Term t, int mod)
 {
-
   if (PredGoalExpansion->OpcodeOfPred != UNDEF_OPCODE) {
-    return(CallMetaCall());
+    return(CallMetaCall(mod));
   }
+ restart_exec:
   if (IsVarTerm(t)) {
-    return CallError(INSTANTIATION_ERROR);
+    return CallError(INSTANTIATION_ERROR, mod);
   } else if (IsApplTerm(t)) {
     register Functor f = FunctorOfTerm(t);
     register CELL *pt;
     PredEntry *pen;
     unsigned int i, arity;
 
+    f = FunctorOfTerm(t);
     if (IsExtensionFunctor(f)) {
-      return CallError(TYPE_ERROR_CALLABLE);
+      return CallError(TYPE_ERROR_CALLABLE, mod);
     }
     arity = ArityOfFunctor(f);
     
-    pen = RepPredProp(PredPropByFunc(f, *CurrentModulePtr));
+    pen = RepPredProp(PredPropByFunc(f, mod));
     /* You thought we would be over by now */
     /* but no meta calls require special preprocessing */
     if (pen->PredFlags & MetaPredFlag) {
-      return(CallMetaCall());
+      if (f == FunctorModule) {
+	Term tmod = ArgOfTerm(1,t);
+	if (!IsVarTerm(tmod) && IsAtomTerm(tmod)) {
+	  mod = LookupModule(tmod);
+	  t = ArgOfTerm(2,t);
+	  goto restart_exec;
+	}
+      }
+      return(CallMetaCall(mod));
     }
     if (yap_flags[SPY_CREEP_FLAG]) {
-      return(EnterCreepMode(pen));
+      return(EnterCreepMode(pen, t));
     }
     /* now let us do what we wanted to do from the beginning !! */
     /* I cannot use the standard macro here because
@@ -252,16 +263,16 @@ do_execute(Term t)
     else if (a == AtomFail || a == AtomFalse)
       return(FALSE);
     /* call may not define new system predicates!! */
-    pe = RepPredProp(PredPropByAtom(a, *CurrentModulePtr));
+    pe = RepPredProp(PredPropByAtom(a, mod));
     if (yap_flags[SPY_CREEP_FLAG]) {
-      return(EnterCreepMode(pe));
+      return(EnterCreepMode(pe, t));
     }
     return (CallPredicate(pe, B));
   } else if (IsIntTerm(t)) {
-    return CallError(TYPE_ERROR_CALLABLE);
+    return CallError(TYPE_ERROR_CALLABLE, mod);
   } else {
     /* Is Pair Term */
-    return(CallMetaCall());
+    return(CallMetaCall(mod));
   }
 }
 
@@ -269,21 +280,13 @@ static Int
 p_execute(void)
 {				/* '$execute'(Goal)	 */
   Term            t = Deref(ARG1);
-  return(do_execute(t));
+  return(do_execute(t, CurrentModule));
 }
 
 static Int
 p_execute_in_mod(void)
 {				/* '$execute'(Goal)	 */
-  if (ARG2 != ModuleName[CurrentModule]) {
-    /* switch modules, but do it in Prolog */
-    Term ts[2];
-
-    ts[0] = ARG2;
-    ts[1] = ARG1;
-    ARG1 = MkApplTerm(FunctorModule, 2, ts);
-  }
-  return(do_execute(Deref(ARG1)));
+  return(do_execute(Deref(ARG1), IntOfTerm(ARG2)));
 }
 
 inline static Int
@@ -292,62 +295,54 @@ CallMetaCallWithin(void)
   return (CallPredicate(PredMetaCall, B));
 }
 
-/* '$execute_within'(Goal,CutPt,OrigGoal)	 */
+/* '$execute_within'(Goal,CutPt,OrigGoal,Mod)	 */
 static Int
 p_execute_within(void)
 { 
   Term            t = Deref(ARG1);
+  Term            tmod = Deref(ARG4);
   unsigned int    arity;
   Prop            pe;
   Atom            a;
+  SMALLUNSGN      mod = LookupModule(tmod);
 
  restart_exec:
   if (PredGoalExpansion->OpcodeOfPred != UNDEF_OPCODE) {
     return(CallMetaCallWithin());
   } else  if (IsVarTerm(t)) {
-    return CallError(INSTANTIATION_ERROR);
+    return CallError(INSTANTIATION_ERROR, mod);
   } else if (IsApplTerm(t)) {
     register Functor f = FunctorOfTerm(t);
     register unsigned int    i;
     register CELL *pt;
 
     if (IsExtensionFunctor(f)) {
-      return CallError(TYPE_ERROR_CALLABLE);
+      return CallError(TYPE_ERROR_CALLABLE, mod);
     }
     
-    if (f == FunctorModule) {
-      Term mod = ArgOfTerm(1, t);
-      if (mod == ModuleName[CurrentModule]) {
-	/* we can skip this operation */
-	/* should catch most cases */
-	t = ArgOfTerm(2, t);
-	goto restart_exec;
-      } else {
-	/* I can't do better because I don't have a way of restoring the module */
-	return(CallMetaCallWithin());
-      }
-    } else {
+    {
       PredEntry *pen;
       arity = ArityOfFunctor(f);
       a = NameOfFunctor(f);
 
-      if (CurrentModule)
-	pe = PredPropByFunc(f, *CurrentModulePtr);
-      else {
-	pe = GetPredPropByFunc(f, *CurrentModulePtr);
-	if (pe == NIL) {
-	  return(CallMetaCallWithin());
-	}
-      }
+      pe = PredPropByFunc(f, mod);
       pen = RepPredProp(pe);
       /* You thought we would be over by now */
       /* but no meta calls require special preprocessing */
       if (pen->PredFlags & MetaPredFlag) {
+	if (f == FunctorModule) {
+	  Term tmod = ArgOfTerm(1,t);
+	  if (!IsVarTerm(tmod) && IsAtomTerm(tmod)) {
+	    mod = LookupModule(tmod);
+	    t = ArgOfTerm(2,t);
+	    goto restart_exec;
+	  }
+	}
 	return(CallMetaCallWithin());
       }
       /* at this point check if we should enter creep mode */ 
       if (yap_flags[SPY_CREEP_FLAG]) {
-	return(EnterCreepMode(pen));
+	return(EnterCreepMode(pen,t));
       }
       /* now let us do what we wanted to do from the beginning !! */
       /* I cannot use the standard macro here because
@@ -369,7 +364,7 @@ p_execute_within(void)
     }
   } else if (IsAtomOrIntTerm(t)) {
     if (IsIntTerm(t)) {
-      return CallError(TYPE_ERROR_CALLABLE);
+      return CallError(TYPE_ERROR_CALLABLE, mod);
     }    
     a = AtomOfTerm(t);
     if (a == AtomTrue || a == AtomOtherwise)
@@ -401,9 +396,9 @@ p_execute_within(void)
       return(FALSE);
     } else {
       /* call may not define new system predicates!! */
-      pe = PredPropByAtom(a, *CurrentModulePtr);
+      pe = PredPropByAtom(a, mod);
       if (yap_flags[SPY_CREEP_FLAG]) {
-	return(EnterCreepMode(RepPredProp(pe)));
+	return(EnterCreepMode(RepPredProp(pe),t));
       }
       return (CallPredicate(RepPredProp(pe), B));
     }
@@ -423,12 +418,12 @@ p_execute_within2(void)
   if (PredGoalExpansion->OpcodeOfPred != UNDEF_OPCODE) {
     return(CallMetaCallWithin());
   } else  if (IsVarTerm(t)) {
-    return CallError(INSTANTIATION_ERROR);
+    return CallError(INSTANTIATION_ERROR, CurrentModule);
   } else if (IsApplTerm(t)) {
     register Functor f = FunctorOfTerm(t);
 
     if (IsExtensionFunctor(f)) {
-      return CallError(TYPE_ERROR_CALLABLE);
+      return CallError(TYPE_ERROR_CALLABLE, CurrentModule);
     }
     
     {
@@ -438,7 +433,7 @@ p_execute_within2(void)
       register unsigned int    i;
       unsigned int arity = ArityOfFunctor(f);
 
-      pe = PredPropByFunc(f, *CurrentModulePtr);
+      pe = PredPropByFunc(f, CurrentModule);
       pen = RepPredProp(pe);
       /* You thought we would be over by now */
       /* but no meta calls require special preprocessing */
@@ -447,7 +442,7 @@ p_execute_within2(void)
       }
       /* at this point check if we should enter creep mode */ 
       if (yap_flags[SPY_CREEP_FLAG]) {
-	return(EnterCreepMode(pen));
+	return(EnterCreepMode(pen,t));
       }
       /* now let us do what we wanted to do from the beginning !! */
       /* I cannot use the standard macro here because
@@ -498,13 +493,13 @@ p_execute_within2(void)
       return(FALSE);
     }
     /* call may not define new system predicates!! */
-    pe = PredPropByAtom(a, *CurrentModulePtr);
+    pe = PredPropByAtom(a, CurrentModule);
     if (yap_flags[SPY_CREEP_FLAG]) {
-      return(EnterCreepMode(RepPredProp(pe)));
+      return(EnterCreepMode(RepPredProp(pe),t));
     }
     return (CallPredicate(RepPredProp(pe), B));
   } else if (IsIntTerm(t)) {
-    return CallError(TYPE_ERROR_CALLABLE);
+    return CallError(TYPE_ERROR_CALLABLE, CurrentModule);
   } else {
     /* Is Pair Term */
     return(CallMetaCallWithin());
@@ -514,14 +509,16 @@ p_execute_within2(void)
 
 static Int
 p_execute0(void)
-{				/* '$execute'(Goal)	 */
+{				/* '$execute0'(Goal,Mod)	 */
   Term            t = Deref(ARG1);
+  Term            tmod = Deref(ARG2);
   unsigned int    arity;
   Prop            pe;
+  SMALLUNSGN      mod = LookupModule(tmod);
 
   if (IsAtomTerm(t)) {
     Atom a = AtomOfTerm(t);
-    pe = PredPropByAtom(a, *CurrentModulePtr);
+    pe = PredPropByAtom(a, mod);
   } else if (IsApplTerm(t)) {
     register Functor f = FunctorOfTerm(t);
     register unsigned int    i;
@@ -545,7 +542,7 @@ p_execute0(void)
       XREGS[i] = *pt++;
 #endif
     }
-    pe = GetPredPropByFunc(f, *CurrentModulePtr);
+    pe = PredPropByFunc(f, mod);
   } else
     return (FALSE);	/* for the moment */
   /*	N = arity; */
@@ -557,11 +554,12 @@ static Int
 p_execute_0(void)
 {				/* '$execute_0'(Goal)	 */
   Term            t = Deref(ARG1);
+  SMALLUNSGN      mod = LookupModule(Deref(ARG2));
   Prop            pe;
   Atom            a;
 
   a = AtomOfTerm(t);
-  pe = PredPropByAtom(a, *CurrentModulePtr);
+  pe = PredPropByAtom(a, mod);
   return (CallPredicate(RepPredProp(pe), B));
 }
 
@@ -569,18 +567,13 @@ static Int
 p_execute_1(void)
 {				/* '$execute_0'(Goal)	 */
   Term            t = Deref(ARG1);
+  SMALLUNSGN      mod = LookupModule(Deref(ARG3));
   Prop            pe;
   Atom            a;
 
   a = AtomOfTerm(t);
   ARG1 = ARG2;
-  if (CurrentModule)
-    pe = PredProp(a, 1);
-  else {
-    pe = GetPredProp(a, 1);
-    if (pe == NIL)
-      return(FALSE);
-  }
+  pe = PredPropByFunc(MkFunctor(a,1),mod);
   return (CallPredicate(RepPredProp(pe), B));
 }
 
@@ -588,19 +581,14 @@ static Int
 p_execute_2(void)
 {				/* '$execute_2'(Goal)	 */
   Term            t = Deref(ARG1);
+  SMALLUNSGN      mod = LookupModule(Deref(ARG4));
   Prop            pe;
   Atom            a;
 
   a = AtomOfTerm(t);
   ARG1 = ARG2;
   ARG2 = ARG3;
-  if (CurrentModule)
-    pe = PredProp(a, 2);
-  else {
-    pe = GetPredProp(a, 2);
-    if (pe == NIL)
-      return(FALSE);
-  }
+  pe = PredPropByFunc(MkFunctor(a, 2),mod);
   return (CallPredicate(RepPredProp(pe), B));
 }
 
@@ -608,6 +596,7 @@ static Int
 p_execute_3(void)
 {				/* '$execute_3'(Goal)	 */
   Term            t = Deref(ARG1);
+  SMALLUNSGN      mod = LookupModule(Deref(ARG5));
   Prop            pe;
   Atom            a;
 
@@ -615,13 +604,7 @@ p_execute_3(void)
   ARG1 = ARG2;
   ARG2 = ARG3;
   ARG3 = ARG4;
-  if (CurrentModule)
-    pe = PredProp(a, 3);
-  else {
-    pe = GetPredProp(a, 3);
-    if (pe == NIL)
-      return(FALSE);
-  }
+  pe = PredPropByFunc(MkFunctor(a, 3),mod);
   return (CallPredicate(RepPredProp(pe), B));
 }
 
@@ -629,6 +612,7 @@ static Int
 p_execute_4(void)
 {				/* '$execute_4'(Goal)	 */
   Term            t = Deref(ARG1);
+  SMALLUNSGN      mod = LookupModule(Deref(ARG6));
   Prop            pe;
   Atom            a;
 
@@ -637,13 +621,7 @@ p_execute_4(void)
   ARG2 = ARG3;
   ARG3 = ARG4;
   ARG4 = ARG5;
-  if (CurrentModule)
-    pe = PredProp(a, 4);
-  else {
-    pe = GetPredProp(a, 4);
-    if (pe == NIL)
-      return(FALSE);
-  }
+  pe = PredPropByFunc(MkFunctor(a, 4),mod);
   return (CallPredicate(RepPredProp(pe), B));
 }
 
@@ -651,6 +629,7 @@ static Int
 p_execute_5(void)
 {				/* '$execute_5'(Goal)	 */
   Term            t = Deref(ARG1);
+  SMALLUNSGN      mod = LookupModule(Deref(ARG7));
   Prop            pe;
   Atom            a;
 
@@ -660,13 +639,7 @@ p_execute_5(void)
   ARG3 = ARG4;
   ARG4 = ARG5;
   ARG5 = ARG6;
-  if (CurrentModule)
-    pe = PredProp(a, 5);
-  else {
-    pe = GetPredProp(a, 5);
-    if (pe == NIL)
-      return(FALSE);
-  }
+  pe = PredPropByFunc(MkFunctor(a, 5),mod);
   return (CallPredicate(RepPredProp(pe), B));
 }
 
@@ -674,6 +647,7 @@ static Int
 p_execute_6(void)
 {				/* '$execute_6'(Goal)	 */
   Term            t = Deref(ARG1);
+  SMALLUNSGN      mod = LookupModule(Deref(ARG8));
   Prop            pe;
   Atom            a;
 
@@ -684,13 +658,7 @@ p_execute_6(void)
   ARG4 = ARG5;
   ARG5 = ARG6;
   ARG6 = ARG7;
-  if (CurrentModule)
-    pe = PredProp(a, 6);
-  else {
-    pe = GetPredProp(a, 6);
-    if (pe == NIL)
-      return(FALSE);
-  }
+  pe = PredPropByFunc(MkFunctor(a, 6),mod);
   return (CallPredicate(RepPredProp(pe), B));
 }
 
@@ -698,6 +666,7 @@ static Int
 p_execute_7(void)
 {				/* '$execute_7'(Goal)	 */
   Term            t = Deref(ARG1);
+  SMALLUNSGN      mod = LookupModule(Deref(ARG9));
   Prop            pe;
   Atom            a;
 
@@ -709,13 +678,7 @@ p_execute_7(void)
   ARG5 = ARG6;
   ARG6 = ARG7;
   ARG7 = ARG8;
-  if (CurrentModule)
-    pe = PredProp(a, 7);
-  else {
-    pe = GetPredProp(a, 7);
-    if (pe == NIL)
-      return(FALSE);
-  }
+  pe = PredPropByFunc(MkFunctor(a, 6),mod);
   return (CallPredicate(RepPredProp(pe), B));
 }
 
@@ -723,6 +686,7 @@ static Int
 p_execute_8(void)
 {				/* '$execute_8'(Goal)	 */
   Term            t = Deref(ARG1);
+  SMALLUNSGN      mod = LookupModule(Deref(ARG10));
   Prop            pe;
   Atom            a;
 
@@ -735,13 +699,7 @@ p_execute_8(void)
   ARG6 = ARG7;
   ARG7 = ARG8;
   ARG8 = ARG9;
-  if (CurrentModule)
-    pe = PredProp(a, 8);
-  else {
-    pe = GetPredProp(a, 8);
-    if (pe == NIL)
-      return(FALSE);
-  }
+  pe = PredPropByFunc(MkFunctor(a, 8),mod);
   return (CallPredicate(RepPredProp(pe), B));
 }
 
@@ -749,6 +707,7 @@ static Int
 p_execute_9(void)
 {				/* '$execute_9'(Goal)	 */
   Term            t = Deref(ARG1);
+  SMALLUNSGN      mod = LookupModule(Deref(ARG11));
   Prop            pe;
   Atom            a;
 
@@ -762,13 +721,7 @@ p_execute_9(void)
   ARG7 = ARG8;
   ARG8 = ARG9;
   ARG9 = ARG10;
-  if (CurrentModule)
-    pe = PredProp(a, 9);
-  else {
-    pe = GetPredProp(a, 9);
-    if (pe == NIL)
-      return(FALSE);
-  }
+  pe = PredPropByFunc(MkFunctor(a, 9),mod);
   return (CallPredicate(RepPredProp(pe), B));
 }
 
@@ -776,6 +729,7 @@ static Int
 p_execute_10(void)
 {				/* '$execute_10'(Goal)	 */
   Term            t = Deref(ARG1);
+  SMALLUNSGN      mod = LookupModule(Deref(ARG12));
   Prop            pe;
   Atom            a;
 
@@ -790,13 +744,7 @@ p_execute_10(void)
   ARG8 = ARG9;
   ARG9 = ARG10;
   ARG10 = ARG11;
-  if (CurrentModule)
-    pe = PredProp(a, 10);
-  else {
-    pe = GetPredProp(a, 10);
-    if (pe == NIL)
-      return(FALSE);
-  }
+  pe = PredPropByFunc(MkFunctor(a, 10),mod);
   return (CallPredicate(RepPredProp(pe), B));
 }
 
@@ -825,20 +773,36 @@ p_pred_goal_expansion_on(void) {
 static Int 
 p_at_execute(void)
 {				/* '$execute'(Goal,ClauseNumber) */
-  Term            t = Deref(ARG1), t2 = Deref(ARG2);
-  unsigned int arity;
+  Term            t = Deref(ARG1), tmod = Deref(ARG2), t2 = Deref(ARG3);
+  unsigned	  int arity;
   Prop            pe;
   Atom            a;
+  SMALLUNSGN      mod = LookupModule(tmod);
 
-  if (IsAtomTerm(t))
-    arity = 0, a = AtomOfTerm(t);
-  else if (IsApplTerm(t)) {
+ restart_exec:
+  if (IsAtomTerm(t)) {
+    a = AtomOfTerm(t);
+    pe = PredPropByAtom(a, mod);
+    arity = 0;
+  } else if (IsApplTerm(t)) {
     register Functor f = FunctorOfTerm(t);
     register unsigned int    i;
     register CELL *pt;
 
     if (IsBlobFunctor(f))
       return(FALSE);
+    if (f == FunctorModule) {
+      Term tmod = ArgOfTerm(1,t);
+      if (!IsVarTerm(tmod) && IsAtomTerm(tmod)) {
+	mod = LookupModule(tmod);
+	t = ArgOfTerm(2,t);
+	goto restart_exec;
+      }
+      if (IsVarTerm(tmod)) {
+	Error(INSTANTIATION_ERROR, ARG1, "calling clause in debugger");
+      }
+      Error(TYPE_ERROR_ATOM, ARG1, "calling clause in debugger");
+    }
     arity = ArityOfFunctor(f);
     a = NameOfFunctor(f);
     /* I cannot use the standard macro here because
@@ -857,19 +821,13 @@ p_at_execute(void)
 #else
       XREGS[i] = *pt++;
 #endif
+      pe = PredPropByFunc(f,mod);
   } else
     return (FALSE);	/* for the moment */
   if (IsVarTerm(t2) || !IsIntTerm(t2))
     return (FALSE);
   /* N = arity; */
   /* call may not define new system predicates!! */
-  if (CurrentModule) {
-    pe = PredProp(a, arity);
-  } else {
-    pe = GetPredProp(a, arity);
-    if (pe == NIL)
-      return(FALSE);
-  }
   return (CallClause(RepPredProp(pe), arity, IntOfTerm(t2)));
 }
 
@@ -973,7 +931,6 @@ do_goal(CODEADDR CodeAdr, int arity, CELL *pt, int args_to_save, int top)
   B->cp_depth = DEPTH;
 #endif /* DEPTH_LIMIT */
   if (top) {
-    Term t;
 #if COROUTINING
     RESET_VARIABLE((CELL *)GlobalBase);
     DelayedVars = NewTimedVar((CELL)GlobalBase);
@@ -981,14 +938,12 @@ do_goal(CODEADDR CodeAdr, int arity, CELL *pt, int args_to_save, int top)
     MutableList = NewTimedVar(TermNil);
     AttsMutableList = NewTimedVar(TermNil);
 #endif
-    t = NewTimedVar(MkIntTerm(0));
-    CurrentModulePtr = RepAppl(t)+1;
   }
   YENV = ASP = (CELL *)B;
   HB = H;
   YENV[E_CB] = Unsigned (B);
   P = (yamop *) CodeAdr;
-  S = CellPtr (RepPredProp (PredProp (AtomCall, 1)));	/* A1 mishaps */
+  S = CellPtr (RepPredProp (PredPropByFunc (MkFunctor(AtomCall, 1),0)));	/* A1 mishaps */
   TopB = B;
 
   return(exec_absmi(top));
@@ -996,7 +951,7 @@ do_goal(CODEADDR CodeAdr, int arity, CELL *pt, int args_to_save, int top)
 
 
 Int
-execute_goal(Term t, int nargs)
+execute_goal(Term t, int nargs, SMALLUNSGN mod)
 {
   Int             out;
   CODEADDR        CodeAdr;
@@ -1021,7 +976,7 @@ execute_goal(Term t, int nargs)
   if (IsAtomTerm(t)) {
     Atom a = AtomOfTerm(t);
     pt = NULL;
-    pe = PredPropByAtom(a, *CurrentModulePtr);
+    pe = PredPropByAtom(a, mod);
   } else if (IsApplTerm(t)) {
     Functor f = FunctorOfTerm(t);
 
@@ -1033,31 +988,23 @@ execute_goal(Term t, int nargs)
        otherwise I would dereference the argument and
        might skip a svar */
     pt = RepAppl(t)+1;
-    pe = GetPredPropByFunc(f, *CurrentModulePtr);
+    pe = PredPropByFunc(f, mod);
   } else {
     Error(TYPE_ERROR_CALLABLE,t,"call/1");
     return(FALSE);
   }
   ppe = RepPredProp(pe);
-  if (pe != NIL) {
-    READ_LOCK(ppe->PRWLock);
+  if (pe == NIL) {
+    return(CallMetaCall(mod));
   }
-  if (pe == NIL ||
-      ppe->OpcodeOfPred == UNDEF_OPCODE ||
-      ppe->PredFlags & (UserCPredFlag|CPredFlag|BasicPredFlag) ) {
-    if (pe != NIL) {
-      READ_UNLOCK(ppe->PRWLock);
-    }
-    return(CallMetaCall());
-  }
+  READ_LOCK(ppe->PRWLock);
   if (IsAtomTerm(t)) {
-    Atom at = AtomOfTerm(t);
-    CodeAdr = RepPredProp (PredPropByAtom(at, *CurrentModulePtr))->CodeOfPred;
+    CodeAdr = RepPredProp (pe)->CodeOfPred;
     READ_UNLOCK(ppe->PRWLock);
     out = do_goal(CodeAdr, 0, pt, nargs, FALSE);
   } else {
     Functor f = FunctorOfTerm(t);
-    CodeAdr = RepPredProp (PredPropByFunc (f, *CurrentModulePtr))->CodeOfPred;
+    CodeAdr = RepPredProp (pe)->CodeOfPred;
     READ_UNLOCK(ppe->PRWLock);
     out = do_goal(CodeAdr, ArityOfFunctor(f), pt, nargs, FALSE);
   }
@@ -1181,7 +1128,7 @@ RunTopGoal(Term t)
   if (IsAtomTerm(t)) {
     Atom a = AtomOfTerm(t);
     pt = NULL;
-    pe = PredPropByAtom(a, *CurrentModulePtr);
+    pe = PredPropByAtom(a, CurrentModule);
     arity = 0;
   } else if (IsApplTerm(t)) {
     Functor f = FunctorOfTerm(t);
@@ -1193,7 +1140,7 @@ RunTopGoal(Term t)
     /* I cannot use the standard macro here because
        otherwise I would dereference the argument and
        might skip a svar */
-    pe = GetPredPropByFunc(f, *CurrentModulePtr);
+    pe = GetPredPropByFunc(f, CurrentModule);
     pt = RepAppl(t)+1;
     arity = ArityOfFunctor(f); 
   } else {
@@ -1325,10 +1272,10 @@ InitExecFs(void)
 {
   InitCPred("$execute", 1, p_execute, 0);
   InitCPred("$execute_in_mod", 2, p_execute_in_mod, 0);
-  InitCPred("$execute_within", 3, p_execute_within, 0);
+  InitCPred("$execute_within", 4, p_execute_within, 0);
   InitCPred("$execute_within", 1, p_execute_within2, 0);
   InitCPred("$last_execute_within", 1, p_execute_within2, 0);
-  InitCPred("$execute", 2, p_at_execute, 0);
+  InitCPred("$execute", 3, p_at_execute, 0);
   InitCPred("$call_with_args", 1, p_execute_0, 0);
   InitCPred("$call_with_args", 2, p_execute_1, 0);
   InitCPred("$call_with_args", 3, p_execute_2, 0);
@@ -1343,7 +1290,7 @@ InitExecFs(void)
 #ifdef DEPTH_LIMIT
   InitCPred("$execute_under_depth_limit", 2, p_execute_depth_limit, 0);
 #endif
-  InitCPred("$execute0", 1, p_execute0, 0);
+  InitCPred("$execute0", 2, p_execute0, 0);
   InitCPred("$save_current_choice_point", 1, p_save_cp, 0);
   InitCPred("$pred_goal_expansion_on", 0, p_pred_goal_expansion_on, SafePredFlag);
   InitCPred("$restore_regs", 1, p_restore_regs, SafePredFlag);

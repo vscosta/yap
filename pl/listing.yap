@@ -20,39 +20,41 @@
 */
 
 listing :-
-        '$current_predicate_no_modules'(_,Pred),
-        '$list_clauses'(Pred).
+	'$current_module'(Mod),
+        '$current_predicate_no_modules'(Mod,_,Pred),
+        '$list_clauses'(Mod,Pred).
 listing.
 
 
-listing(V) :- var(V), !.       % ignore variables
-listing(M:V) :- !,
-	'$mod_switch'(M,'$listing'(V)).
-listing([]) :- !.
-listing([X|Rest]) :-
-        !,
-        listing(X),
-        listing(Rest).
-listing(X) :-
-	'$listing'(X).
+listing(V) :-
+	'$current_module'(M),
+	'$listing'(V,M).
 
-'$listing'(X) :-
+'$listing'(V,_) :- var(V), !.       % ignore variables
+'$listing'(M:V,_) :- !,
+	'$listing'(V,M).
+'$listing'([],_) :- !.
+'$listing'([X|Rest], M) :-
+        !,
+        '$listing'(X, M),
+        '$listing'(Rest, M).
+'$listing'(X, M) :-
         '$funcspec'(X,Name,Arity),
-        '$current_predicate_no_modules'(Name,Pred),
+        '$current_predicate_no_modules'(M,Name,Pred),
         functor(Pred,Name,Arity),
-        '$list_clauses'(Pred).
-'$listing'(_).
+        '$list_clauses'(M,Pred).
+'$listing'(_,_).
 
 '$funcspec'(Name/Arity,Name,Arity) :- !, atom(Name).
 '$funcspec'(Name,Name,_) :- atom(Name), !.
 '$funcspec'(Name,_,_) :- write('! Invalid procedure specification : '),
 			write(Name), nl.
 
-'$list_clauses'(Pred) :-
-	( '$recordedp'(Pred,_,_) -> nl ),
+'$list_clauses'(M,Pred) :-
+	( '$recordedp'(M:Pred,_,_) -> nl ),
 	fail.
-'$list_clauses'(Pred) :-
-        '$recordedp'(Pred,(Pred:-Body),_),
+'$list_clauses'(M,Pred) :-
+        '$recordedp'(M:Pred,(Pred:-Body),_),
 	'$beautify_vars'((Pred:-Body)),
         '$write_clause'(Pred,Body),
         fail.

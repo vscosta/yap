@@ -24,6 +24,11 @@ ensure_loaded(V) :-
 '$ensure_loaded'([F|Fs]) :- !,
 	'$ensure_loaded'(F),
 	'$ensure_loaded'(Fs).
+'$ensure_loaded'(M:X) :- !,
+        '$current_module'(M0),
+        '$change_module'(M),
+        '$ensure_loaded'(X),
+        '$change_module'(M0).
 '$ensure_loaded'(X) :- atom(X), !,
 	'$find_in_path'(X,Y),
 	( open(Y,'$csult',Stream), !,
@@ -43,8 +48,6 @@ ensure_loaded(V) :-
 		
 	throw(error(permission_error(input,stream,X),ensure_loaded(X)))
 	).
-'$ensure_loaded'(M:X) :- !,
-        '$mod_switch'(M,'$ensure_loaded'(X)).
 '$ensure_loaded'(library(X)) :- !,
 	'$find_in_path'(library(X),Y),
 	( open(Y,'$csult',Stream), !,
@@ -106,7 +109,10 @@ reconsult(Fs) :-
 		throw(error(permission_error(input,stream,X),reconsult(X)))
 	).
 '$reconsult'(M:X) :- !,
-        '$mod_switch'(M,'$reconsult'(X)).
+        '$current_module'(M0),
+        '$change_module'(M),
+        '$reconsult'(X),
+        '$change_module'(M0).
 '$reconsult'(library(X)) :- !,
 	'$find_in_path'(library(X),Y),
 	( open(Y,'$csult',Stream), !,

@@ -10,7 +10,7 @@
 * File:		Yap.proto						 *
 * mods:									 *
 * comments:	Function declarations for YAP				 *
-* version:      $Id: Yapproto.h,v 1.4 2001-10-30 16:42:05 vsc Exp $	 *
+* version:      $Id: Yapproto.h,v 1.5 2001-11-15 00:01:43 vsc Exp $	 *
 *************************************************************************/
 
 /* prototype file for Yap */
@@ -36,8 +36,8 @@ Atom	STD_PROTO(LookupAtom,(char *));
 Atom	STD_PROTO(FullLookupAtom,(char *));
 void	STD_PROTO(LookupAtomWithAddress,(char *,AtomEntry *));
 Term	STD_PROTO(MkApplTerm,(Functor,unsigned int,Term *));
-Prop	STD_PROTO(NewPredPropByFunctor,(struct FunctorEntryStruct *, Term));
-Prop	STD_PROTO(NewPredPropByAtom,(struct AtomEntryStruct *, Term));
+Prop	STD_PROTO(NewPredPropByFunctor,(struct FunctorEntryStruct *, SMALLUNSGN));
+Prop	STD_PROTO(NewPredPropByAtom,(struct AtomEntryStruct *, SMALLUNSGN));
 Functor	STD_PROTO(UnlockedMkFunctor,(AtomEntry *,unsigned int));
 Functor	STD_PROTO(MkFunctor,(Atom,unsigned int));
 void	STD_PROTO(MkFunctorWithAddress,(Atom,unsigned int,FunctorEntry *));
@@ -53,10 +53,9 @@ CELL	STD_PROTO(*ArgsOfSFTerm,(Term));
 #endif
 
 int	STD_PROTO(LookupModule,(Term));
-Prop	STD_PROTO(GetPredProp,(Atom,unsigned int));
-Prop	STD_PROTO(GetPredPropByAtom,(Atom, Term));
-Prop	STD_PROTO(GetPredPropByFunc,(Functor, Term));
-Prop	STD_PROTO(GetPredPropHavingLock,(Atom,unsigned int));
+Prop	STD_PROTO(GetPredPropByAtom,(Atom, int));
+Prop	STD_PROTO(GetPredPropByFunc,(Functor, int));
+Prop	STD_PROTO(GetPredPropHavingLock,(Atom,unsigned int,SMALLUNSGN));
 Prop	STD_PROTO(GetExpProp,(Atom,unsigned int));
 Prop	STD_PROTO(GetExpPropHavingLock,(AtomEntry *,unsigned int));
 Term    STD_PROTO(Module_Name, (CODEADDR));
@@ -120,7 +119,7 @@ int	STD_PROTO(iequ,(Term,Term));
 void	STD_PROTO(InitCmpPreds,(void));
 
 /* compiler.c */
-CODEADDR	STD_PROTO(cclause,(Term, int));
+CODEADDR	STD_PROTO(cclause,(Term, int, int));
 
 /* computils.c */
 
@@ -149,10 +148,10 @@ void	STD_PROTO(InitEval,(void));
 Int	STD_PROTO(EvFArt,(Term));
 
 /* exec.c */
-Term	STD_PROTO(ExecuteCallMetaCall,(void));
+Term	STD_PROTO(ExecuteCallMetaCall,(SMALLUNSGN mod));
 void	STD_PROTO(InitExecFs,(void));
 int	STD_PROTO(RunTopGoal,(Term));
-Int	STD_PROTO(execute_goal,(Term, int));
+Int	STD_PROTO(execute_goal,(Term, int, SMALLUNSGN));
 int	STD_PROTO(exec_absmi,(int));
 
 
@@ -278,7 +277,7 @@ void	STD_PROTO(InitUtilCPreds,(void));
 /* yap.c */
 
 void	STD_PROTO(Abort,(char *msg, ...));
-void	STD_PROTO(addclause,(Term,CODEADDR,int));
+void	STD_PROTO(addclause,(Term,CODEADDR,int,int));
 
 /* ypsocks.c */
 void	STD_PROTO(InitSockets,(void));

@@ -75,7 +75,7 @@
 
 % ----------------------------------- deref ------------------------------------ %
 
-:- mode deref( +, -).
+%:- mode deref( +, -).
 %
 deref( Lin, Lind) :-
   split( Lin, H, I),
@@ -84,7 +84,7 @@ deref( Lin, Lind) :-
   log_deref( Len, H, [], Restd),
   add_linear_11( Nonvar, Restd, Lind).
 
-:- mode log_deref( +, +, -, -).
+%:- mode log_deref( +, +, -, -).
 %
 log_deref( 0, Vs,	      Vs, Lin) :- !,
   arith_eval( 0, Z),
@@ -126,9 +126,11 @@ lin_deref( [v(K,[X^1])|Vs], Li, Lo) :-
 %
 % If we see a nonvar here, this is a fault
 %
+
 deref_var( X, Lin) :-
   get_atts( X, lin(Lin)), !.
-deref_var( X, Lin) :-				% create a linear var
+
+deref_var( X, Lin) :-		% create a linear var
   arith_eval( 0, Z),
   arith_eval( 1, One),
   Lin = [Z,Z,X*One],
@@ -513,7 +515,7 @@ ub( X, Ub) :-
   basis( X, Deps),
   ub_first( Deps, X, Ub).
 
-:- mode ub_first( +, ?, -).
+%:- mode ub_first( +, ?, -).
 %
 ub_first( [Dep|Deps], X, Tightest) :-
   ( get_atts( Dep, [lin(Lin),type(Type)]),
@@ -527,7 +529,7 @@ ub_first( [Dep|Deps], X, Tightest) :-
 %
 % Invariant: Ub >= 0 and decreasing
 %
-:- mode ub( +, ?, +, -).
+%:- mode ub( +, ?, +, -).
 %
 ub( [], 	_, T0,T0).
 ub( [Dep|Deps], X, T0,T1) :-
@@ -545,7 +547,7 @@ lb( X, Lb) :-
   basis( X, Deps),
   lb_first( Deps, X, Lb).
 
-:- mode lb_first( +, ?, -).
+%:- mode lb_first( +, ?, -).
 %
 lb_first( [Dep|Deps], X, Tightest) :-
   ( get_atts( Dep, [lin(Lin),type(Type)]),
@@ -559,7 +561,7 @@ lb_first( [Dep|Deps], X, Tightest) :-
 %
 % Invariant: Lb =< 0 and increasing
 %
-:- mode lb( +, ?, +, -).
+%:- mode lb( +, ?, +, -).
 %
 lb( [], 	_, T0,T0).
 lb( [Dep|Deps], X, T0,T1) :-
@@ -576,7 +578,7 @@ lb( [Dep|Deps], X, T0,T1) :-
 %
 % Lb =< 0 for feasible rows
 %
-:- mode lb_inner( +, ?, +, -, -).
+%:- mode lb_inner( +, ?, +, -, -).
 %
 lb_inner( t_l(L), X, Lin, t_L(L), Lb) :-
   nf_rhs_x( Lin, X, Rhs, K),
@@ -602,7 +604,7 @@ lb_inner( t_lu(L,U), X, Lin, W, Lb) :-
 %
 % Ub >= 0 for feasible rows
 %
-:- mode ub_inner( +, ?, +, -, -).
+%:- mode ub_inner( +, ?, +, -, -).
 %
 ub_inner( t_l(L), X, Lin, t_L(L), Ub) :-
   nf_rhs_x( Lin, X, Rhs, K),

@@ -9,7 +9,7 @@ BINDIR = $(ROOTDIR)/bin
 #
 # where YAP should look for libraries
 #
-LIBDIR=$(ROOTDIR)/lib/
+LIBDIR=$(ROOTDIR)/lib
 YAPLIBDIR=$(ROOTDIR)/lib/Yap
 #
 # where the includes should be stored

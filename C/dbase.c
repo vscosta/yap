@@ -164,8 +164,6 @@ static Term      DBErrorTerm; /* error term */
 static char     *DBErrorMsg;       /* Error Message */
 static DBRef    *tofref;	/* place the refs also up	 */
 
-static SMALLUNSGN      DBModule;
-
 CELL *next_float = NULL;
 
 #ifdef SFUNC
@@ -197,7 +195,7 @@ STATIC_PROTO(void linkblk,(link_entry *,CELL *));
 STATIC_PROTO(CELL *linkcells,(CELL *,Int));
 #endif
 STATIC_PROTO(Int cmpclls,(CELL *,CELL *,Int));
-STATIC_PROTO(Prop FindDBProp,(AtomEntry *, int, unsigned int));
+STATIC_PROTO(Prop FindDBProp,(AtomEntry *, int, unsigned int, SMALLUNSGN));
 STATIC_PROTO(CELL  CalcKey, (Term));
 STATIC_PROTO(CELL  *MkDBTerm, (CELL *, CELL *, CELL *, CELL *, CELL *, int *));
 STATIC_PROTO(DBRef  CreateDBStruct, (Term, DBProp, int));
@@ -392,7 +390,7 @@ int DBTrailOverflow(void)
 
 /* get DB entry for ap/arity; */
 static Prop 
-FindDBPropHavingLock(AtomEntry *ae, int CodeDB, unsigned int arity)
+FindDBPropHavingLock(AtomEntry *ae, int CodeDB, unsigned int arity, SMALLUNSGN dbmod)
 {
   Prop          p0;
   DBProp        p;
@@ -400,7 +398,7 @@ FindDBPropHavingLock(AtomEntry *ae, int CodeDB, unsigned int arity)
   p = RepDBProp(p0 = ae->PropsOfAE);
   while (p0 && (((p->KindOfPE & ~0x1) != (CodeDB|DBProperty)) ||
 		(p->ArityOfDB != arity) ||
-		((CodeDB & MkCode) && p->ModuleOfDB && p->ModuleOfDB != DBModule ))) {
+		((CodeDB & MkCode) && p->ModuleOfDB && p->ModuleOfDB != dbmod))) {
     p = RepDBProp(p0 = p->NextOfPE);
   }
   return (p0);
@@ -409,12 +407,12 @@ FindDBPropHavingLock(AtomEntry *ae, int CodeDB, unsigned int arity)
 
 /* get DB entry for ap/arity; */
 static Prop 
-FindDBProp(AtomEntry *ae, int CodeDB, unsigned int arity)
+FindDBProp(AtomEntry *ae, int CodeDB, unsigned int arity, SMALLUNSGN dbmod)
 {
   Prop out;
 
   READ_LOCK(ae->ARWLock);
-  out = FindDBPropHavingLock(ae, CodeDB, arity);
+  out = FindDBPropHavingLock(ae, CodeDB, arity, dbmod);
   READ_UNLOCK(ae->ARWLock);
   return(out);
 }
@@ -1551,7 +1549,6 @@ p_rcda(void)
   /* Idiotic xlc's cpp does not work with ARG1 within MkDBRefTerm */
   Term            TRef, t1 = Deref(ARG1), t2 = Deref(ARG2);
 
-  DBModule = 0;
   if (!IsVarTerm(Deref(ARG3)))
     return (FALSE);
  restart_record:
@@ -1591,7 +1588,6 @@ p_rcdap(void)
 {
   Term            TRef, t1 = Deref(ARG1), t2 = Deref(ARG2);
 
-  DBModule = CurrentModule;
   if (!IsVarTerm(Deref(ARG3)))
     return (FALSE);
  restart_record:
@@ -1631,7 +1627,6 @@ p_rcdz(void)
 {
   Term            TRef, t1 = Deref(ARG1), t2 = Deref(ARG2);
 
-  DBModule = 0;
   if (!IsVarTerm(Deref(ARG3)))
     return (FALSE);
  restart_record:
@@ -1671,7 +1666,6 @@ p_rcdzp(void)
 {
   Term            TRef, t1 = Deref(ARG1), t2 = Deref(ARG2);
 
-  DBModule = CurrentModule;
   if (!IsVarTerm(Deref(ARG3)))
     return (FALSE);
  restart_record:
@@ -1713,7 +1707,6 @@ p_rcdstatp(void)
   int mk_first;
   Term TRef;
 
-  DBModule = CurrentModule;
   if (IsVarTerm(t3) || !IsIntTerm(t3))
     return (FALSE);
   if (IsVarTerm(t3) || !IsIntTerm(t3))
@@ -1759,7 +1752,6 @@ p_drcdap(void)
 {
   Term            TRef, t1 = Deref(ARG1), t2 = Deref(ARG2), t4 = Deref(ARG4);
 
-  DBModule = CurrentModule;
   if (!IsVarTerm(Deref(ARG3)))
     return (FALSE);
   if (IsVarTerm(t4) || !IsIntegerTerm(t4))
@@ -1803,7 +1795,6 @@ p_drcdzp(void)
 {
   Term            TRef, t1 = Deref(ARG1), t2 = Deref(ARG2), t4 =  Deref(ARG4);
 
-  DBModule = CurrentModule;
   if (!IsVarTerm(Deref(ARG3)))
     return (FALSE);
   if (IsVarTerm(t4) || !IsIntegerTerm(t4))
@@ -1849,7 +1840,6 @@ p_rcdaifnot(void)
   DBRef           db_ref;
 
  restart_record:
-  DBModule = 0;
   if (!IsVarTerm(Deref(ARG3)))
     return (FALSE);
   found_one = NIL;
@@ -1892,7 +1882,6 @@ p_rcdzifnot(void)
   DBRef           db_ref;
 
  restart_record:
-  DBModule = 0;
   if (!IsVarTerm(Deref(ARG3)))
     return (FALSE);
   found_one = NIL;
@@ -2062,7 +2051,7 @@ FetchIntDBPropFromKey(Int key, int flag, int new, char *error_mssg)
     }
     p->ArityOfDB = 0;
     p->First = p->Last = NIL;
-    p->ModuleOfDB = DBModule;
+    p->ModuleOfDB = 0;
     p->FunctorOfDB = fun;
     p->NextOfPE = INT_KEYS[hash_key];
     INIT_RWLOCK(p->DBRWLock);
@@ -2078,7 +2067,37 @@ FetchDBPropFromKey(Term twork, int flag, int new, char *error_mssg)
 {
   Atom At;
   Int arity;
+  SMALLUNSGN dbmod;
 
+  if (flag & MkCode) {
+    if (IsVarTerm(twork)) {
+      Error(INSTANTIATION_ERROR, twork, error_mssg);
+      return(RepDBProp(NIL));
+    }
+    if (!IsApplTerm(twork)) {
+      Error(SYSTEM_ERROR, twork, "missing module");
+      return(RepDBProp(NIL));
+    } else {
+      Functor f = FunctorOfTerm(twork);
+      Term tmod;
+      if (f != FunctorModule) {
+	Error(SYSTEM_ERROR, twork, "missing module");
+	return(RepDBProp(NIL));
+      }
+      tmod = ArgOfTerm(1, twork);
+      if (IsVarTerm(tmod)) {
+	Error(INSTANTIATION_ERROR, twork, "var in module");
+	return(RepDBProp(NIL));
+      }
+      if (!IsAtomTerm(tmod)) {
+	Error(TYPE_ERROR_ATOM, twork, "not atom in module");
+	return(RepDBProp(NIL));
+      }
+      dbmod = LookupModule(tmod);
+      twork = ArgOfTerm(2, twork);
+    }
+  } else
+    dbmod = 0;
   if (IsVarTerm(twork)) {
     Error(INSTANTIATION_ERROR, twork, error_mssg);
     return(RepDBProp(NIL));
@@ -2106,11 +2125,13 @@ FetchDBPropFromKey(Term twork, int flag, int new, char *error_mssg)
     AtomEntry *ae = RepAtom(At);
 
     WRITE_LOCK(ae->ARWLock);
-    if (EndOfPAEntr(p = RepDBProp(FindDBPropHavingLock(ae, flag, arity)))) {
+    if (EndOfPAEntr(p = RepDBProp(FindDBPropHavingLock(ae, flag, arity, dbmod)))) {
      /* create a new DBProp				 */
       int OLD_UPDATE_MODE = UPDATE_MODE;
       if (flag & MkCode) {
-	PredEntry *pp = RepPredProp(GetPredPropHavingLock(At, arity));
+	PredEntry *pp;
+	pp = RepPredProp(GetPredPropHavingLock(At, arity, dbmod));
+
 	if (!EndOfPAEntr(pp)) {
 	  READ_LOCK(pp->PRWLock);
 	  if(pp->PredFlags & LogUpdatePredFlag)
@@ -2139,7 +2160,7 @@ FetchDBPropFromKey(Term twork, int flag, int new, char *error_mssg)
       UPDATE_MODE = OLD_UPDATE_MODE;
       p->ArityOfDB = arity;
       p->First = p->Last = NIL;
-      p->ModuleOfDB = DBModule;
+      p->ModuleOfDB = dbmod;
       /* This is NOT standard but is QUITE convenient */
       INIT_RWLOCK(p->DBRWLock);
       if (arity == 0)
@@ -2152,7 +2173,7 @@ FetchDBPropFromKey(Term twork, int flag, int new, char *error_mssg)
     WRITE_UNLOCK(ae->ARWLock);
     return(p);
   } else
-    return(RepDBProp(FindDBProp(RepAtom(At), flag, arity)));
+    return(RepDBProp(FindDBProp(RepAtom(At), flag, arity, dbmod)));
 }
 
 /* Finds a term recorded under the key ARG1			 */
@@ -2335,7 +2356,6 @@ p_db_key(void)
   Register Term   twork = Deref(ARG1);	/* fetch the key */
   DBProp          AtProp;
 
-  DBModule = 0;
   if (EndOfPAEntr(AtProp = FetchDBPropFromKey(twork, 0, TRUE, "db_key/3"))) {
     /* should never happen */
     return(FALSE);
@@ -2733,7 +2753,6 @@ in_rded(void)
 					 * ARG1 */
 
 
-  DBModule = 0;
   if (EndOfPAEntr(AtProp = FetchDBPropFromKey(twork, 0, FALSE, "recorded/3"))) {
     if (b0 == B)
       cut_fail();
@@ -2754,7 +2773,6 @@ in_rded_with_key(void)
 static Int 
 co_rded(void)
 {
-  DBModule = 0;
   return (c_recorded(0));
 }
 
@@ -2767,7 +2785,6 @@ in_rdedp(void)
   Register Term   twork = Deref(ARG1);	/* initially working with
 					 * ARG1 */
 
-  DBModule = CurrentModule;
   if (EndOfPAEntr(AtProp = FetchDBPropFromKey(twork, MkCode, FALSE, "recorded/3"))) {
     if (b0 == B)
       cut_fail();
@@ -2781,7 +2798,6 @@ in_rdedp(void)
 static Int 
 co_rdedp(void)
 {
-  DBModule = CurrentModule;
   return (c_recorded(MkCode));
 }
 
@@ -2793,7 +2809,6 @@ p_somercdedp(void)
   DBProp            AtProp;
   Register Term   twork = Deref(ARG1);	/* initially working with
 						 * ARG1 */
-  DBModule = CurrentModule;
   if (EndOfPAEntr(AtProp = FetchDBPropFromKey(twork, MkCode, FALSE, "some_recorded/3"))) {
     return(FALSE);
   }
@@ -2823,7 +2838,6 @@ p_first_instance(void)
   if (!IsVarTerm(ARG3)) {
     cut_fail();
   }
-  DBModule = CurrentModule;
   if (EndOfPAEntr(AtProp = FetchDBPropFromKey(twork, 0, FALSE, "first_instance/3"))) {
     return(FALSE);
   }
@@ -3121,11 +3135,10 @@ MyEraseClause(Clause *clau)
     father = ref->Parent;
     if ((arity = father->ArityOfDB) == 0) {
       Atom name = (Atom) father->FunctorOfDB;
-      pred = RepPredProp(PredProp(name, 0));
+      pred = RepPredProp(PredPropByAtom(name, father->ModuleOfDB));
     } else {
-      pred = RepPredProp(PredPropByFunc(father->FunctorOfDB, *CurrentModulePtr));
+      pred = RepPredProp(PredPropByFunc(father->FunctorOfDB, father->ModuleOfDB));
     }
-    DBModule = father->ModuleOfDB;
     WRITE_LOCK(pred->PRWLock);
     if (StillInChain((CODEADDR)(clau->ClCode), pred)) {
       if (previous == NIL && next != NIL) {
@@ -3315,11 +3328,10 @@ PrepareToEraseClause(Clause *clau, DBRef dbr)
     /* inefficient, but that will do for the moment, sir. */
     if (father->ArityOfDB == 0) {
       Atom name = (Atom) father->FunctorOfDB;
-      pred = RepPredProp(PredProp(name, 0));
+      pred = RepPredProp(PredPropByAtom(name, father->ModuleOfDB));
     } else {
-      pred = RepPredProp(PredPropByFunc(father->FunctorOfDB, *CurrentModulePtr));
+      pred = RepPredProp(PredPropByFunc(father->FunctorOfDB, father->ModuleOfDB));
     }
-    DBModule = father->ModuleOfDB;
     WRITE_LOCK(pred->PRWLock);
     /* got my pred entry, let's have some fun! */
     clau_code = (CODEADDR)(clau->ClCode);
@@ -3465,7 +3477,6 @@ p_eraseall(void)
   Register DBRef  entryref;
   DBProp          p;
 
-  DBModule = 0;
   if (EndOfPAEntr(p = FetchDBPropFromKey(twork, 0, FALSE, "eraseall/3"))) {
     return(TRUE);
   }
@@ -3947,7 +3958,6 @@ p_first_age(void)
   Term to;
   DBProp AtProp;
 
-  DBModule = CurrentModule;
   if (EndOfPAEntr(AtProp = FetchDBPropFromKey(t1, MkCode, FALSE, "first_age/3"))) {
     return(FALSE);
   }
@@ -3984,7 +3994,6 @@ p_db_nb_to_ref(void)
   else if (IsLongIntTerm(t1))
     age = LongIntOfTerm(t1);
   else return(FALSE);
-  DBModule = CurrentModule;
   if (EndOfPAEntr(AtProp = FetchDBPropFromKey(t2, MkCode, FALSE, "recorded/3"))) {
     return(FALSE);
   }
@@ -4024,7 +4033,6 @@ p_last_age(void)
   DBProp AtProp;
   Term last_age;
 
-  DBModule = CurrentModule;
   if ((AtProp = FetchDBPropFromKey(t1, MkCode, FALSE, "$last_age/2")) == NIL) {
     return(FALSE);
   }
@@ -4065,7 +4073,6 @@ p_hold_index(void)
   DBRef index;
 
 
-  DBModule = CurrentModule;
   if (EndOfPAEntr(AtProp = (LogUpdDBProp)FetchDBPropFromKey(Deref(ARG1), MkCode, FALSE, "recorded/3"))) {
     return(FALSE);
   }
@@ -4173,16 +4180,16 @@ InitBackDB(void)
   InitCPredBack("recorded", 3, 3, in_rded, co_rded, SyncPredFlag);
   /* internal version, just to prevent the debugger from nosying around */
   RETRY_C_RECORDED_CODE = NEXTOP((yamop *)
-    (RepPredProp(PredProp(LookupAtom("recorded"), 3))->FirstClause),lds);
+    (RepPredProp(PredPropByFunc(MkFunctor(LookupAtom("recorded"), 3),0))->FirstClause),lds);
   InitCPredBack("$recorded_with_key", 3, 3, in_rded_with_key, co_rded, SyncPredFlag);
   RETRY_C_RECORDED_K_CODE = NEXTOP((yamop *)
-    (RepPredProp(PredProp(LookupAtom("$recorded_with_key"), 3))->FirstClause),lds);
+    (RepPredProp(PredPropByFunc(MkFunctor(LookupAtom("$recorded_with_key"), 3),0))->FirstClause),lds);
   InitCPredBack("$recorded", 3, 3, in_rded, co_rded, SyncPredFlag);
   RETRY_C_DRECORDED_CODE = NEXTOP((yamop *)
-    (RepPredProp(PredProp(LookupAtom("$recorded"), 3))->FirstClause),lds);
+    (RepPredProp(PredPropByFunc(MkFunctor(LookupAtom("$recorded"), 3),0))->FirstClause),lds);
   InitCPredBack("$recordedp", 3, 3, in_rdedp, co_rdedp, SyncPredFlag);
   RETRY_C_RECORDEDP_CODE = NEXTOP((yamop *)
-    (RepPredProp(PredProp(LookupAtom("$recordedp"), 3))->FirstClause),lds);
+    (RepPredProp(PredPropByFunc(MkFunctor(LookupAtom("$recordedp"), 3),0))->FirstClause),lds);
   InitCPredBack("current_key", 2, 4, init_current_key, cont_current_key,
 		SyncPredFlag);
 }

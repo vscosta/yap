@@ -376,7 +376,7 @@ YapCallProlog(Term t)
   Int out;
   BACKUP_MACHINE_REGS();
 
-  out = execute_goal(t,0);
+  out = execute_goal(t, 0, CurrentModule);
 
   RECOVER_MACHINE_REGS();
   return(out);
@@ -594,14 +594,16 @@ YapCompileClause(Term t)
 {
   char *ErrorMessage;
   CODEADDR codeaddr;
+  int mod = CurrentModule;
+
   BACKUP_MACHINE_REGS();
 
   ErrorMessage = NULL;
   ARG1 = t;
-  codeaddr = cclause (t,0);
+  codeaddr = cclause (t,0, mod);
   if (codeaddr != NULL) {
     t = Deref(ARG1); /* just in case there was an heap overflow */
-    addclause (t, codeaddr, TRUE);
+    addclause (t, codeaddr, TRUE, mod);
   }
 
   RECOVER_MACHINE_REGS();
@@ -677,7 +679,7 @@ YapInit(yap_init_args *yap_init)
     InitYaamRegs();
 #endif
     /* slaves, waiting for work */
-    *CurrentModulePtr = MkIntTerm(1);
+    CurrentModule = 1;
     P = GETWORK_FIRST_TIME;
     exec_absmi(FALSE);
     abort_optyap("abstract machine unexpected exit");

@@ -202,9 +202,9 @@ module(N) :-
 '$import'([N/K|L],M,T) :-
 	integer(K), atom(N), !,
 	( '$check_import'(M,T,N,K) ->
-%	    format(user_error,'[Importing ~w to ~w]~n',[M:N/K,T]),
+%	    format(user_error,'[vsc1: Importing ~w to ~w]~n',[M:N/K,T]),
 	     ( T = user ->
-	       recordz('$import','$import'(M,_,N,K),_)
+	       recordz('$import','$import'(M,user,N,K),_)
              ;
 	       recorda('$import','$import'(M,T,N,K),_)
              )
@@ -241,15 +241,15 @@ module(N) :-
     ( '$check_import'(M,Mod,N,K) -> 
 	%	     format(user_error,'[ Importing ~w to ~w]~n',[M:N/K,Mod]),
         %            '$trace_module'(importing(M:N/K,Mod)),
+%         format(user_error,'[vsc2: Importing ~w to ~w]~n',[M:N/K,T]),
 	  (Mod = user ->
-             recordz('$import','$import'(M,_,N,K),_)
+             recordz('$import','$import'(M,user,N,K),_)
 	     ;
 	     recorda('$import','$import'(M,Mod,N,K),_)
           )
 	 ;
 	   true
     ). 
-
 
 '$abolish_module_data'(M) :-
 	'$current_module'(T),
@@ -261,16 +261,14 @@ module(N) :-
 
 
 % expand module names in a clause
-'$module_expansion'(((Mod:H) :-B ),((Mod:H) :- B1),((Mod:H) :- BO)) :- !,
-	'$current_module'(M),
+'$module_expansion'(((Mod:H) :-B ),((Mod:H) :- B1),((Mod:H) :- BO),M) :- !,
 	'$prepare_body_with_correct_modules'(B, M, B0),
-	'$module_u_vars'(H,UVars),	 % collect head variables in
+	'$module_u_vars'(H,UVars,M),	 % collect head variables in
 					 % expanded positions
 	'$module_expansion'(B0,B1,BO,M,M,M,UVars). % expand body
-'$module_expansion'((H:-B),(H:-B1),(H:-BO)) :-
-	'$module_u_vars'(H,UVars),	 % collect head variables in
+'$module_expansion'((H:-B),(H:-B1),(H:-BO),M) :-
+	'$module_u_vars'(H,UVars,M),	 % collect head variables in
 					 % expanded positions
-	'$current_module'(M),
 	'$module_expansion'(B,B1,BO,M,M,M,UVars). % expand body
 %	$trace_module((H:-B),(H:-B1)).
 
@@ -317,16 +315,16 @@ module(N) :-
 %
 '$exec_with_expansion'(G0, GoalMod, CurMod) :-
 	'$meta_expansion'(GoalMod, CurMod, G0, GF, []), !,
-	'$mod_switch'(GoalMod,'$exec_with_expansion2'(GF,GoalMod)).
+	'$exec_with_expansion2'(GF,GoalMod).
 '$exec_with_expansion'(G, GoalMod, _) :-
-	'$mod_switch'(GoalMod,'$exec_with_expansion2'(G,GoalMod)).
+	'$exec_with_expansion2'(G,GoalMod).
 
 '$exec_with_expansion2'(G, M) :-
 	'$pred_goal_expansion_on',
 	user:goal_expansion(G,M,GF), !,
 	'$execute'(M:GF).
-'$exec_with_expansion2'(G, _) :- !,
-	'$execute0'(G).
+'$exec_with_expansion2'(G, M) :- !,
+	'$execute0'(G, M).
 	
 		
 % expand module names in a body
@@ -385,7 +383,7 @@ module(N) :-
 
 
 '$imported_pred'(G, ImportingMod, ExportingMod) :-
-	'$undefined'(ImportingMod:G),
+	'$undefined'(G, ImportingMod),
 	functor(G,F,N),
 	'$recorded'('$import','$import'(ExportingMod,ImportingMod,F,N),_),
 	ExportingMod \= ImportingMod.
@@ -412,30 +410,31 @@ module(N) :-
 
 % directive now meta_predicate Ps :- $meta_predicate(Ps).
 
-'$meta_predicate'((P,Ps)) :- !,
-	'$meta_predicate'(P),
-	'$meta_predicate'(Ps).
-'$meta_predicate'(P) :-
+:- dynamic user:'$meta_predicate'/4.
+
+'$meta_predicate'((P,Ps), M) :- !,
+	'$meta_predicate'(P, M),
+	'$meta_predicate'(Ps, M).
+'$meta_predicate'(M:D, _) :- !,
+	'$meta_predicate'(D, M).
+'$meta_predicate'(P, M1) :-
 	functor(P,F,N),
-	'$current_module'(M1),
 	( M1 = prolog -> M = _ ; M1 = M),
-	( retractall('$meta_predicate'(F,M,N,_)), fail ; true),
-	asserta('$meta_predicate'(F,M,N,P)),
-	'$flags'(P, Fl, Fl),
+	( retractall(user:'$meta_predicate'(F,M,N,_)), fail ; true),
+	asserta(user:'$meta_predicate'(F,M,N,P)),
+	'$flags'(P, M1, Fl, Fl),
 	NFlags is Fl \/ 0x200000,
-	'$flags'(P, Fl, NFlags).
+	'$flags'(P, M1, Fl, NFlags).
 
 % return list of vars in expanded positions on the head of a clause.
 %
 % these variables should not be expanded by meta-calls in the body of the goal.
 %
-'$module_u_vars'(H,UVars) :-
+'$module_u_vars'(H,UVars,M) :-
 	functor(H,F,N),
-	'$current_module'(M),
-%	'$recorded'('$meta_predicate','$meta_predicate'(M,F,N,D),_), !,
-	'$meta_predicate'(F,M,N,D), !,
+	user:'$meta_predicate'(F,M,N,D), !,
 	'$module_u_vars'(N,D,H,UVars).
-'$module_u_vars'(_,[]).
+'$module_u_vars'(_,[],_).
 
 '$module_u_vars'(0,_,_,[]) :- !.
 '$module_u_vars'(I,D,H,[Y|L]) :-
@@ -452,8 +451,7 @@ module(N) :-
 
 '$meta_expansion'(Mod,MP,G,G1,HVars) :- 
 	functor(G,F,N),
-%	'$recorded'('$meta_predicate','$meta_predicate'(Mod,F,N,D),_), !,
-	'$meta_predicate'(F,Mod,N,D), !,
+	user:'$meta_predicate'(F,Mod,N,D), !,
 	functor(G1,F,N),
 %	format(user_error,'[expanding ~w:~w in ~w',[Mod,G,MP]),
 	'$meta_expansion_loop'(N,D,G,G1,HVars,MP).
@@ -492,10 +490,6 @@ source_module(Mod) :-
 
 '$member'(X,[X|_]) :- !.
 '$member'(X,[_|L]) :- '$member'(X,L).
-
-%
-% this declaration should only be here, as meta_predicates should belong
-% to the user module, not to the prolog module
 
 :- meta_predicate
 %	[:,:],
@@ -560,7 +554,7 @@ source_module(Mod) :-
 %    a:assert(g :- user:b))
 %
 '$preprocess_clause_before_mod_change'((H:-B),M,M1,(H:-B1)) :-
-	'$mod_switch'(M1,'$module_u_vars'(H,UVars)),
+	'$module_u_vars'(H,UVars,M1),
 	'$preprocess_body_before_mod_change'(B,M,UVars,B1).
 
 '$preprocess_body_before_mod_change'(V,M,_,call(M:V)) :- var(V), !.
@@ -583,6 +577,5 @@ source_module(Mod) :-
 	'$system_predicate'(G), !.
 '$preprocess_body_before_mod_change'(G,M,_,M:G).
 
-	
 :- '$switch_log_upd'(0).
 

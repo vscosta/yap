@@ -110,15 +110,17 @@ system_mode(verbose,off) :- '$set_value'('$verbose',off).
 
 :- module(user).
 
+:- multifile library_directory/1.
+
 :- dynamic_predicate(library_directory/1, logical).
 
 :- multifile goal_expansion/3.
 
 :- dynamic_predicate(goal_expansion/3, logical).
 
-:- multifile term_expansion/3.
+:- multifile term_expansion/2.
 
-:- dynamic_predicate(term_expansion/3, logical).
+:- dynamic_predicate(term_expansion/2, logical).
 
 :- get_value(system_library_directory,D), assert(library_directory(D)).
 

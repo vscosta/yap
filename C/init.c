@@ -169,8 +169,6 @@ sigjmp_buf         RestartEnv;	/* used to restart after an abort execution */
 CPredicate    c_predicates[MAX_C_PREDS];
 cmp_entry     cmp_funcs[MAX_CMP_FUNCS];
 
-static CELL InitModuleAddress;
-
 /**************	declarations local to init.c ************************/
 static char    *optypes[] =
 {"", "xfx", "xfy", "yfx", "xf", "yf", "fx", "fy"};
@@ -511,9 +509,13 @@ void
 InitCPred(char *Name, int Arity, CPredicate code, int flags)
 {
   Atom            atom = LookupAtom(Name);
-  PredEntry      *pe = RepPredProp(PredProp(atom, Arity));
+  PredEntry      *pe;
   yamop          *p_code = (yamop *)AllocCodeSpace((CELL)NEXTOP(NEXTOP(((yamop *)NULL),sla),e));
 
+  if (Arity)
+    pe = RepPredProp(PredPropByFunc(MkFunctor(atom, Arity),CurrentModule));
+  else
+    pe = RepPredProp(PredPropByAtom(atom,CurrentModule));
   pe->PredFlags = flags | StandardPredFlag | CPredFlag;
   p_code->u.sla.l = pe->TrueCodeOfPred = (CODEADDR) code;
   pe->CodeOfPred = pe->FirstClause = pe->LastClause = (CODEADDR) p_code;
@@ -528,7 +530,6 @@ InitCPred(char *Name, int Arity, CPredicate code, int flags)
   p_code->opc = opcode(_procceed);
   { 
     Term mod = CurrentModule;
-    if (mod) mod = MkIntTerm(mod);
     pe->ModuleOfPred = mod;
   }
   if (!(flags & UserCPredFlag)) {
@@ -542,12 +543,17 @@ void
 InitCmpPred(char *Name, int Arity, CmpPredicate cmp_code, CPredicate code, int flags)
 {
   Atom            atom = LookupAtom(Name);
-  PredEntry      *pe = RepPredProp(PredProp(atom, Arity));
+  PredEntry      *pe;
   yamop          *p_code = (yamop *)AllocCodeSpace((CELL)NEXTOP(NEXTOP(((yamop *)NULL),sla),e));
 
+  if (Arity)
+    pe = RepPredProp(PredPropByFunc(MkFunctor(atom, Arity),CurrentModule));
+  else
+    pe = RepPredProp(PredPropByAtom(atom,CurrentModule));
   pe->PredFlags = flags | StandardPredFlag | CPredFlag;
   p_code->u.sla.l = pe->TrueCodeOfPred = (CODEADDR) code;
   pe->CodeOfPred = pe->FirstClause = pe->LastClause = (CODEADDR) p_code;
+  pe->ModuleOfPred = CurrentModule;
   p_code->opc = pe->OpcodeOfPred = opcode(_call_cpred);
   p_code->u.sla.l2 = (CELL)NIL;
   p_code->u.sla.s = -Signed(RealEnvSize);
@@ -567,14 +573,19 @@ void
 InitAsmPred(char *Name,  int Arity, int code, CPredicate def, int flags)
 {
   Atom            atom = LookupAtom(Name);
-  PredEntry      *pe = RepPredProp(PredProp(atom, Arity));
+  PredEntry      *pe;
 	
+  if (Arity)
+    pe = RepPredProp(PredPropByFunc(MkFunctor(atom, Arity),CurrentModule));
+  else
+    pe = RepPredProp(PredPropByAtom(atom,CurrentModule));
   pe->PredFlags = flags | StandardPredFlag | (code);
   if (def != NULL) {
     yamop          *p_code = (yamop *)AllocCodeSpace((CELL)NEXTOP(NEXTOP(((yamop *)NULL),sla),e));
 
     p_code->u.sla.l = pe->TrueCodeOfPred = (CODEADDR) def;
     pe->CodeOfPred = pe->FirstClause = pe->LastClause = (CODEADDR) p_code;
+    pe->ModuleOfPred = CurrentModule;
     p_code->opc = pe->OpcodeOfPred = opcode(_call_cpred);
     p_code->u.sla.l2 = (CELL)NIL;
     p_code->u.sla.s = -Signed(RealEnvSize);
@@ -634,7 +645,10 @@ InitCPredBack(char *Name, int Arity, int Extra, CPredicate Start, CPredicate Con
   PredEntry      *pe;
   Atom            atom = LookupAtom(Name);
 
-  pe = RepPredProp(PredProp(atom, Arity));
+  if (Arity)
+    pe = RepPredProp(PredPropByFunc(MkFunctor(atom, Arity),CurrentModule));
+  else
+    pe = RepPredProp(PredPropByAtom(atom,CurrentModule));
   if (pe->FirstClause != NIL)
     CleanBack(pe, Start, Cont);
   else {
@@ -753,11 +767,11 @@ InitCodes(void)
   heap_regs->seq_def = TRUE;
   heap_regs->getworkfirsttimecode.opc = opcode(_getwork_first_time);
   heap_regs->getworkcode.opc = opcode(_getwork);
-  heap_regs->getworkcode.u.ld.p = (CODEADDR)RepPredProp(PredProp(LookupAtom("$getwork"), 0));
+  heap_regs->getworkcode.u.ld.p = (CODEADDR)RepPredProp(PredPropByAtom(LookupAtom("$getwork"), 0));
   INIT_YAMOP_LTT(&(heap_regs->getworkcode), 0);
   heap_regs->getworkcode_seq.opc = opcode(_getwork_seq);
   INIT_YAMOP_LTT(&(heap_regs->getworkcode_seq), 0);
-  heap_regs->getworkcode_seq.u.ld.p = (CODEADDR)RepPredProp(PredProp(LookupAtom("$getwork_seq"), 0));
+  heap_regs->getworkcode_seq.u.ld.p = (CODEADDR)RepPredProp(PredPropByAtom(LookupAtom("$getwork_seq"), 0));
 #endif /* YAPOR */
 #ifdef TABLING
   heap_regs->tablecompletioncode.opc = opcode(_table_completion);
@@ -970,7 +984,6 @@ InitCodes(void)
   heap_regs->functor_stream_eOS = MkFunctor (LookupAtom("end_of_stream"), 1);
   heap_regs->functor_change_module = MkFunctor (LookupAtom("$change_module"), 1);
   heap_regs->functor_current_module = MkFunctor (LookupAtom("$current_module"), 1);
-  heap_regs->functor_mod_switch = MkFunctor (LookupAtom("$mod_switch"), 2);
   heap_regs->functor_u_minus = MkFunctor (heap_regs->atom_minus, 1);
   heap_regs->functor_u_plus = MkFunctor (heap_regs->atom_plus, 1);
   heap_regs->functor_v_bar = MkFunctor(LookupAtom("|"), 2);
@@ -986,12 +999,16 @@ InitCodes(void)
   heap_regs->yap_lib_dir = NULL;
   heap_regs->size_of_overflow  = 0;
   /* make sure no one else can use these two atoms */
-  *CurrentModulePtr = MkIntTerm(1);
-  heap_regs->pred_goal_expansion = RepPredProp(PredPropByFunc(MkFunctor(LookupAtom("goal_expansion"),3),MkIntTerm(1)));
-  *CurrentModulePtr = MkIntTerm(0);
+  heap_regs->pred_goal_expansion = RepPredProp(PredPropByFunc(MkFunctor(LookupAtom("goal_expansion"),3),1));
+  CurrentModule = 0;
   heap_regs->dead_clauses = NULL;
-  heap_regs->pred_meta_call = RepPredProp(PredPropByFunc(MkFunctor(heap_regs->atom_meta_call,3),MkIntTerm(0)));
+  heap_regs->pred_meta_call = RepPredProp(PredPropByFunc(MkFunctor(heap_regs->atom_meta_call,4),0));
   ReleaseAtom(AtomOfTerm(heap_regs->term_refound_var));
+  {
+    /* make sure we know about the module predicate */
+    PredEntry *modp = RepPredProp(PredPropByFunc(heap_regs->functor_module,0));
+    modp->PredFlags |= MetaPredFlag;
+  }
 }
 
 static void 
@@ -1032,7 +1049,7 @@ InitYaamRegs(void)
 #endif
   at = FullLookupAtom("$undefp");
   {
-    Prop p = GetPredProp (at, 1);
+    Prop p = GetPredPropByFunc(MkFunctor(at, 1),0);
     if (p == NIL) {
       UndefCode = NULL;
     } else {
@@ -1116,7 +1133,6 @@ InitStacks(int Heap,
   /* the emulator will eventually copy them to its own local
      register array, but for now they exist */
 #endif /* PUSH_REGS */
-  CurrentModulePtr = &InitModuleAddress;
 
   /* Init signal handling and time */
   /* also init memory page size, required by later functions */

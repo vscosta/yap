@@ -22,8 +22,8 @@ static char SccsId[] = "%W% %G%";
 #define ADTDEFS_C
 
 #include "Yap.h"
-Prop	STD_PROTO(PredPropByFunc,(Functor, Term));
-Prop	STD_PROTO(PredPropByAtom,(Atom, Term));
+Prop	STD_PROTO(PredPropByFunc,(Functor, SMALLUNSGN));
+Prop	STD_PROTO(PredPropByAtom,(Atom, SMALLUNSGN));
 #include "Yatom.h"
 #include "Heap.h"
 #include "yapio.h"
@@ -263,22 +263,7 @@ GetAProp(Atom a, PropFlags kind)
 }
 
 inline static Prop
-UnlockedFunctorGetPredProp(Functor f, Term cur_mod)
-     /* get predicate entry for ap/arity;               */
-{
-  Prop p0;
-  FunctorEntry *fe = (FunctorEntry *)f;
-  PredEntry *p;
-
-  p = RepPredProp(p0 = fe->PropsOfFE);
-  while (p0 && (/* p->KindOfPE != PEProp || only preds in here */
-		(p->ModuleOfPred != cur_mod  && p->ModuleOfPred)))
-    p = RepPredProp(p0 = p->NextOfPE);
-  return (p0);
-}
-
-inline static Prop
-GetPredPropByAtomHavingLock(AtomEntry* ae, Term cur_mod)
+GetPredPropByAtomHavingLock(AtomEntry* ae, int cur_mod)
 /* get predicate entry for ap/arity; create it if neccessary.              */
 {
   Prop p0;
@@ -296,7 +281,7 @@ GetPredPropByAtomHavingLock(AtomEntry* ae, Term cur_mod)
 }
 
 Prop
-GetPredPropByAtom(Atom at, Term cur_mod)
+GetPredPropByAtom(Atom at, int cur_mod)
 /* get predicate entry for ap/arity; create it if neccessary.              */
 {
   Prop p0;
@@ -309,39 +294,39 @@ GetPredPropByAtom(Atom at, Term cur_mod)
 }
 
 
+static inline Prop
+GetPredPropByFuncHavingLock(Functor f, SMALLUNSGN cur_mod)
+/* get predicate entry for ap/arity; create it if neccessary.              */
+{
+  Prop p0;
+  FunctorEntry *fe = (FunctorEntry *)f;
+
+  p0 = fe->PropsOfFE;
+  while (p0) {
+    PredEntry *p = RepPredProp(p0);
+    if (/* p->KindOfPE != 0 || only props */
+	(p->ModuleOfPred == cur_mod || !(p->ModuleOfPred))) {
+      return (p0);
+    }
+    p0 = p->NextOfPE;
+  }
+  return(NIL);
+}
+
 Prop
-GetPredProp(Atom ap, unsigned int arity)
+GetPredPropByFunc(Functor f, int cur_mod)
      /* get predicate entry for ap/arity;               */
 {
   Prop p0;
-  AtomEntry *ae = RepAtom(ap);
-  Functor f;
 
-  if (arity == 0)
-    return(GetPredPropByAtom(ap, *CurrentModulePtr));
-  WRITE_LOCK(ae->ARWLock);
-  f = InlinedUnlockedMkFunctor(ae, arity);
-  WRITE_UNLOCK(ae->ARWLock);
   READ_LOCK(f->FRWLock);
-  p0 = UnlockedFunctorGetPredProp(f, *CurrentModulePtr);
+  p0 = GetPredPropByFuncHavingLock(f, cur_mod);
   READ_UNLOCK(f->FRWLock);
   return (p0);
 }
 
 Prop
-GetPredPropByFunc(Functor f, Term t)
-     /* get predicate entry for ap/arity;               */
-{
-  Prop p0;
-
-  READ_LOCK(f->FRWLock);
-  p0 = UnlockedFunctorGetPredProp(f, t);
-  READ_UNLOCK(f->FRWLock);
-  return (p0);
-}
-
-Prop
-GetPredPropHavingLock(Atom ap, unsigned int arity)
+GetPredPropHavingLock(Atom ap, unsigned int arity, SMALLUNSGN mod)
      /* get predicate entry for ap/arity;               */
 {
   Prop p0;
@@ -349,11 +334,11 @@ GetPredPropHavingLock(Atom ap, unsigned int arity)
   Functor f;
 
   if (arity == 0) {
-    GetPredPropByAtomHavingLock(ae, *CurrentModulePtr);
+    GetPredPropByAtomHavingLock(ae, mod);
   }
   f = InlinedUnlockedMkFunctor(ae, arity);
   READ_LOCK(f->FRWLock);
-  p0 = UnlockedFunctorGetPredProp(f, *CurrentModulePtr);
+  p0 = GetPredPropByFuncHavingLock(f, mod);
   READ_UNLOCK(f->FRWLock);
   return (p0);
 }
@@ -388,11 +373,12 @@ GetExpPropHavingLock(AtomEntry *ae, unsigned int arity)
 }
 
 Prop
-NewPredPropByFunctor(FunctorEntry *fe, Term cur_mod)
+NewPredPropByFunctor(FunctorEntry *fe, SMALLUNSGN cur_mod)
 {
   Prop p0;
   PredEntry *p = (PredEntry *) AllocAtomSpace(sizeof(*p));
-  Int m = IntOfTerm(cur_mod);
+
+  /*  printf("entering %s:%s/%d\n", RepAtom(AtomOfTerm(ModuleName[cur_mod]))->StrOfAE, RepAtom(fe->NameOfFE)->StrOfAE, fe->ArityOfFE); */
 
   INIT_RWLOCK(p->PRWLock);
   p->KindOfPE = PEProp;
@@ -403,12 +389,9 @@ NewPredPropByFunctor(FunctorEntry *fe, Term cur_mod)
   p->OwnerFile = AtomNil;
   p->OpcodeOfPred = UNDEF_OPCODE;
   p->TrueCodeOfPred = p->CodeOfPred = (CODEADDR)(&(p->OpcodeOfPred)); 
-  if (m == 0)
-    p->ModuleOfPred = 0;
-  else
-    p->ModuleOfPred = cur_mod;
-  p->NextPredOfModule = ModulePred[m];
-  ModulePred[m] = p;
+  p->ModuleOfPred = cur_mod;
+  p->NextPredOfModule = ModulePred[cur_mod];
+  ModulePred[cur_mod] = p;
   INIT_LOCK(p->StatisticsForPred.lock);
   p->StatisticsForPred.NOfEntries = 0;
   p->StatisticsForPred.NOfHeadSuccesses = 0;
@@ -425,11 +408,12 @@ NewPredPropByFunctor(FunctorEntry *fe, Term cur_mod)
 }
 
 Prop
-NewPredPropByAtom(AtomEntry *ae, Term cur_mod)
+NewPredPropByAtom(AtomEntry *ae, SMALLUNSGN cur_mod)
 {
   Prop p0;
   PredEntry *p = (PredEntry *) AllocAtomSpace(sizeof(*p));
-  int m = IntOfTerm(cur_mod);
+
+/* Printf("entering %s:%s/0\n", RepAtom(AtomOfTerm(ModuleName[cur_mod]))->StrOfAE, ae->StrOfAE); */
 
   INIT_RWLOCK(p->PRWLock);
   p->KindOfPE = PEProp;
@@ -440,12 +424,9 @@ NewPredPropByAtom(AtomEntry *ae, Term cur_mod)
   p->OwnerFile = AtomNil;
   p->OpcodeOfPred = UNDEF_OPCODE;
   p->TrueCodeOfPred = p->CodeOfPred = (CODEADDR)(&(p->OpcodeOfPred)); 
-  if (!m)
-    p->ModuleOfPred = 0;
-  else
-    p->ModuleOfPred = cur_mod;
-  p->NextPredOfModule = ModulePred[m];
-  ModulePred[m] = p;
+  p->ModuleOfPred = cur_mod;
+  p->NextPredOfModule = ModulePred[cur_mod];
+  ModulePred[cur_mod] = p;
   INIT_LOCK(p->StatisticsForPred.lock);
   p->StatisticsForPred.NOfEntries = 0;
   p->StatisticsForPred.NOfHeadSuccesses = 0;
@@ -459,25 +440,6 @@ NewPredPropByAtom(AtomEntry *ae, Term cur_mod)
   p->FunctorOfPred = (Functor)AbsAtom(ae);
   WRITE_UNLOCK(ae->ARWLock);
   return (p0);
-}
-
-Prop
-PredProp(Atom ap, unsigned int arity)
-     /* get predicate entry for ap/arity; create it if neccessary.              */
-{
-  Prop p0;
-  AtomEntry *ae;
-  Functor f;
-
-  if (arity == 0) {
-    return(PredPropByAtom(ap, *CurrentModulePtr));
-  }
-  ae = RepAtom(ap);
-  WRITE_LOCK(ae->ARWLock);
-  f = InlinedUnlockedMkFunctor(ae, arity);
-  p0 = PredPropByFunc(f, *CurrentModulePtr);
-  WRITE_UNLOCK(ae->ARWLock);
-  return(p0);
 }
 
 Term

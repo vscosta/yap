@@ -134,7 +134,7 @@ do_verify_attributes([], _, _, []).
 do_verify_attributes([Mod|Mods], AttVar, Binding, [Mod:Goal|Goals]) :-
 	existing_attribute(_,Mod,Key),
 	get_att(AttVar,Key,_),
-	Mod:current_predicate(verify_attributes, verify_attributes(_,_,_)), !,
+	current_predicate(verify_attributes, Mod:verify_attributes(_,_,_)), !,
 	do_verify_attributes(Mods, AttVar, Binding, Goals),
 	Mod:verify_attributes(AttVar, Binding, Goal).
 do_verify_attributes([_|Mods], AttVar, Binding, Goals) :-
@@ -171,7 +171,7 @@ fetch_att_goals([_|LMods], Att, LGoal) :-
 call_module_attributes(Mod, AttV, G1) :-
 	existing_attribute(_,Mod,Key),
 	get_att(AttV,Key,_), !,
-	Mod:current_predicate(attribute_goal, attribute_goal(AttV,G1)),
+	current_predicate(attribute_goal, Mod:attribute_goal(AttV,G1)),
 	Mod:attribute_goal(AttV, G1).
 
 simplify_trues((A,B), NG) :- !,

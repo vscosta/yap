@@ -31,6 +31,7 @@ arith_module( nfr).
 :- dynamic
 	user:goal_expansion/3.
 %
+
 user:goal_expansion(arith_eval(Term,Res), Module, Expansion) :-
 	arith_module( Module),
 	compile_R( Term, Res, Code),

@@ -250,7 +250,7 @@ void	STD_PROTO(emit,(compiler_vm_op,Int,CELL));
 void	STD_PROTO(emit_3ops,(compiler_vm_op,CELL,CELL,CELL));
 CELL   *STD_PROTO(emit_extra_size,(compiler_vm_op,CELL,int));
 char   *STD_PROTO(AllocCMem,(int));
-int	STD_PROTO(is_a_test_pred,(Term));
+int	STD_PROTO(is_a_test_pred,(Term, SMALLUNSGN));
 void    STD_PROTO(bip_name,(Int, char *));
 #ifdef DEBUG
 void	STD_PROTO(ShowCode,(void));

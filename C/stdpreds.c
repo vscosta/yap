@@ -140,7 +140,7 @@ p_flipflop(void)
   PredEntry      *pred;
 
   at = FullLookupAtom("$spy");
-  pred = RepPredProp(PredProp(at, 1));
+  pred = RepPredProp(PredPropByFunc(MkFunctor(at, 1),0));
   SpyCode = pred;
   return ((int) (FlipFlop = (1 - FlipFlop)));
 }
@@ -164,7 +164,7 @@ p_creep(void)
   PredEntry      *pred;
 
   at = FullLookupAtom("$creep");
-  pred = RepPredProp(PredProp(at, 1));
+  pred = RepPredProp(PredPropByFunc(MkFunctor(at, 1),0));
   CreepCode = pred;
   CreepFlag = Unsigned(LCL0)-Unsigned(H0);
   return (TRUE);
@@ -1362,26 +1362,29 @@ init_current_atom(void)
 static Int 
 cont_current_predicate(void)
 {
-  PredEntry      *pp = (PredEntry *)IntegerOfTerm(EXTRA_CBACK_ARG(2,1));
+  PredEntry      *pp = (PredEntry *)IntegerOfTerm(EXTRA_CBACK_ARG(3,1));
   UInt Arity;
   Atom name;
 
   if (pp == NULL)
     cut_fail();
-  EXTRA_CBACK_ARG(2,1) = (CELL)MkIntegerTerm((Int)(pp->NextPredOfModule));
+  EXTRA_CBACK_ARG(3,1) = (CELL)MkIntegerTerm((Int)(pp->NextPredOfModule));
   Arity = pp->ArityOfPE;
   if (Arity)
     name = NameOfFunctor(pp->FunctorOfPred);
   else
     name = (Atom)pp->FunctorOfPred;
-  return (unify(ARG1,MkAtomTerm(name)) &&
-	  unify(ARG2, MkIntegerTerm(Arity)));
+  return (unify(ARG2,MkAtomTerm(name)) &&
+	  unify(ARG3, MkIntegerTerm(Arity)));
 }
 
 static Int 
 init_current_predicate(void)
 {
-  EXTRA_CBACK_ARG(2,1) = (CELL)MkIntegerTerm((Int)ModulePred[CurrentModule]);
+  Term t1 = Deref(ARG1);
+
+  if (IsVarTerm(t1) || !IsAtomTerm(t1)) cut_fail();
+  EXTRA_CBACK_ARG(3,1) = (CELL)MkIntegerTerm((Int)ModulePred[LookupModule(t1)]);
   return (cont_current_predicate());
 }
 
@@ -1555,43 +1558,51 @@ p_debug()
 
 static Int 
 p_flags(void)
-{				/* $flags(+Functor,?OldFlags,?NewFlags) */
+{				/* $flags(+Functor,+Mod,?OldFlags,?NewFlags) */
   PredEntry      *pe;
   Int             newFl;
-
   Term t1 = Deref(ARG1);
+  Term t2 = Deref(ARG2);
+  int mod;
+
+  if (IsVarTerm(t1))
+    return (FALSE);
+  if (!IsAtomTerm(t2)) {
+    return(FALSE);
+  }
+  mod = LookupModule(t2);
   if (IsVarTerm(t1))
     return (FALSE);
   if (IsAtomTerm(t1)) {
-    pe = RepPredProp(PredProp(AtomOfTerm(t1), 0));
+    pe = RepPredProp(PredPropByAtom(AtomOfTerm(t1), mod));
   } else if (IsApplTerm(t1)) {
     Functor         funt = FunctorOfTerm(t1);
-    pe = RepPredProp(PredPropByFunc(funt, *CurrentModulePtr));
+    pe = RepPredProp(PredPropByFunc(funt, mod));
   } else
     return (FALSE);
   if (EndOfPAEntr(pe))
     return (FALSE);
   WRITE_LOCK(pe->PRWLock);
-  if (!unify_constant(ARG2, MkIntTerm(pe->PredFlags))) {
+  if (!unify_constant(ARG3, MkIntTerm(pe->PredFlags))) {
     WRITE_UNLOCK(pe->PRWLock);
     return(FALSE);
   }
-  ARG3 = Deref(ARG3);
-  if (IsVarTerm(ARG3)) {
+  ARG4 = Deref(ARG4);
+  if (IsVarTerm(ARG4)) {
     WRITE_UNLOCK(pe->PRWLock);
     return (TRUE);
-  } else if (!IsIntTerm(ARG3)) {
+  } else if (!IsIntTerm(ARG4)) {
     union arith_ret v;
 
-    if (Eval(ARG3, &v) == long_int_e) {
+    if (Eval(ARG4, &v) == long_int_e) {
 	newFl = v.Int;
     } else {
       WRITE_UNLOCK(pe->PRWLock);
-      Error(TYPE_ERROR_INTEGER, ARG3, "flags");
+      Error(TYPE_ERROR_INTEGER, ARG4, "flags");
       return(FALSE);
     }
   } else
-    newFl = IntOfTerm(ARG3);
+    newFl = IntOfTerm(ARG4);
   pe->PredFlags = (SMALLUNSGN) newFl;
   WRITE_UNLOCK(pe->PRWLock);
   return (TRUE);
@@ -2005,10 +2016,10 @@ p_set_yap_flags(void)
     if (value < 0 || value > 2)
       return(FALSE);
     if (value == 1) {
-      heap_regs->pred_meta_call = RepPredProp(PredProp(heap_regs->atom_meta_call,4));
+      heap_regs->pred_meta_call = RepPredProp(PredPropByFunc(MkFunctor(AtomMetaCall,4),0));
       set_fpu_exceptions(TRUE);
     } else {
-      heap_regs->pred_meta_call = RepPredProp(PredProp(heap_regs->atom_meta_call,3));
+      heap_regs->pred_meta_call = RepPredProp(PredPropByFunc(MkFunctor(AtomMetaCall,4),0));
       set_fpu_exceptions(FALSE);
     }
     yap_flags[LANGUAGE_MODE_FLAG] = value;
@@ -2073,7 +2084,7 @@ InitBackCPreds(void)
 {
   InitCPredBack("$current_atom", 1, 2, init_current_atom, cont_current_atom,
 		SafePredFlag|SyncPredFlag);
-  InitCPredBack("$current_predicate", 2, 1, init_current_predicate, cont_current_predicate,
+  InitCPredBack("$current_predicate", 3, 1, init_current_predicate, cont_current_predicate,
 		SafePredFlag|SyncPredFlag);
   InitCPredBack("current_op", 3, 3, init_current_op, cont_current_op,
 		SafePredFlag|SyncPredFlag);
@@ -2134,7 +2145,7 @@ InitCPreds(void)
   InitCPred("$debug", 1, p_debug, SafePredFlag|SyncPredFlag);
 #endif
   /* Accessing and changing the flags for a predicate */
-  InitCPred("$flags", 3, p_flags, SafePredFlag|SyncPredFlag);
+  InitCPred("$flags", 4, p_flags, SafePredFlag|SyncPredFlag);
   /* hiding and unhiding some predicates */
   InitCPred("hide", 1, p_hide, SafePredFlag|SyncPredFlag);
   InitCPred("unhide", 1, p_unhide, SafePredFlag|SyncPredFlag);

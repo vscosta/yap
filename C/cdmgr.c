@@ -52,8 +52,6 @@ STATIC_PROTO(void do_toggle_static_predicates_in_use, (int));
 STATIC_PROTO(void recover_log_upd_clause, (Clause *));
 STATIC_PROTO(PredEntry *NextPred, (PredEntry *,AtomEntry *));
 STATIC_PROTO(Int  p_number_of_clauses, (void));
-STATIC_PROTO(Int  p_find_dynamic, (void));
-STATIC_PROTO(Int  p_next_dynamic, (void));
 STATIC_PROTO(Int  p_compile, (void));
 STATIC_PROTO(Int  p_compile_dynamic, (void));
 STATIC_PROTO(Int  p_purge_clauses, (void));
@@ -66,7 +64,6 @@ STATIC_PROTO(Int  p_undefined, (void));
 STATIC_PROTO(Int  p_in_use, (void));
 STATIC_PROTO(Int  p_new_multifile, (void));
 STATIC_PROTO(Int  p_is_multifile, (void));
-STATIC_PROTO(Int  p_is_logical_updatable, (void));
 STATIC_PROTO(Int  p_optimizer_on, (void));
 STATIC_PROTO(Int  p_optimizer_off, (void));
 STATIC_PROTO(Int  p_in_this_f_before, (void));
@@ -79,7 +76,6 @@ STATIC_PROTO(Int  p_is_profiled, (void));
 STATIC_PROTO(Int  p_profile_info, (void));
 STATIC_PROTO(Int  p_profile_reset, (void));
 STATIC_PROTO(Int  p_toggle_static_predicates_in_use, (void));
-STATIC_PROTO(Int  p_search_for_static_predicate_in_use, (void));
 
 #define PredArity(p) (p->ArityOfPE)
 #define TRYCODE(G,F,N) ( (N)<5 ? (op_numbers)((int)F+(N)*3) : G)
@@ -787,34 +783,35 @@ addcl_permission_error(AtomEntry *ap, Int Arity)
 
 
 void
-addclause(Term t, CODEADDR cp, int mode)
+addclause(Term t, CODEADDR cp, int mode, int mod)
 /*
  * mode		0  assertz 1  consult 2  asserta				 
  */
 {
-  AtomEntry      *ap;
-  Int             Arity;
   PredEntry      *p;
   int             spy_flag = FALSE;
-  SMALLUNSGN      mod = CurrentModule;
+  Atom           at;
+  UInt           Arity;
 
 
   if (IsApplTerm(t) && FunctorOfTerm(t) == FunctorAssert)
     t = ArgOfTerm(1, t);
   if (IsAtomTerm(t)) {
+    at = AtomOfTerm(t);
+    p = RepPredProp(PredPropByAtom(at, mod));
     Arity = 0;
-    ap = RepAtom(AtomOfTerm(t));
   } else {
     Functor f = FunctorOfTerm(t);
-    ap = RepAtom(NameOfFunctor(f));
     Arity = ArityOfFunctor(f);
+    at = NameOfFunctor(f);
+    p = RepPredProp(PredPropByFunc(f, mod));
   }
-  p = RepPredProp(PredProp(AbsAtom(ap), Arity));
   PutValue(AtomAbol, TermNil);
   WRITE_LOCK(p->PRWLock);
   /* we are redefining a prolog module predicate */
   if (mod != 0 && p->ModuleOfPred == 0) {
-    addcl_permission_error(ap, Arity);
+    WRITE_UNLOCK(p->PRWLock);
+    addcl_permission_error(RepAtom(at), Arity);
     return;
   }
   /* The only problem we have now is when we need to throw away
@@ -824,7 +821,7 @@ addclause(Term t, CODEADDR cp, int mode)
     if (!RemoveIndexation(p)) {
       /* should never happen */
       WRITE_UNLOCK(p->PRWLock);
-      addcl_permission_error(ap,Arity);
+      addcl_permission_error(RepAtom(at),Arity);
       return;
     }
   }
@@ -877,12 +874,13 @@ addclause(Term t, CODEADDR cp, int mode)
 
 static Int 
 p_in_this_f_before(void)
-{				/* '$in_this_file_before'(N,A) */
+{				/* '$in_this_file_before'(N,A,M) */
   unsigned int    arity;
   Atom            at;
   Term            t;
   register consult_obj  *fp;
   Prop            p0;
+  SMALLUNSGN      mod;
 
   if (IsVarTerm(t = Deref(ARG1)) && !IsAtomTerm(t))
     return (FALSE);
@@ -892,7 +890,14 @@ p_in_this_f_before(void)
     return (FALSE);
   else
     arity = IntOfTerm(t);
-  p0 = PredProp(at, arity);
+  if (IsVarTerm(t = Deref(ARG3)) && !IsAtomTerm(t))
+    return (FALSE);
+  else
+    mod = LookupModule(t);
+  if (arity)
+    p0 = PredPropByFunc(MkFunctor(at, arity),CurrentModule);
+  else
+    p0 = PredPropByAtom(at, CurrentModule);
   if (ConsultSp == ConsultBase || (fp = ConsultSp)->p == p0)
     return (FALSE);
   else
@@ -908,12 +913,14 @@ p_in_this_f_before(void)
 
 static Int 
 p_first_cl_in_f(void)
-{				/* '$first_cl_in_file'(+N,+Ar) */
+{				/* '$first_cl_in_file'(+N,+Ar,+Mod) */
   unsigned int    arity;
   Atom            at;
   Term            t;
   register consult_obj  *fp;
   Prop            p0;
+  SMALLUNSGN      mod;
+  
 
   if (IsVarTerm(t = Deref(ARG1)) && !IsAtomTerm(t))
     return (FALSE);
@@ -923,7 +930,14 @@ p_first_cl_in_f(void)
     return (FALSE);
   else
     arity = IntOfTerm(t);
-  p0 = PredProp(at, arity);
+  if (IsVarTerm(t = Deref(ARG3)) && !IsAtomTerm(t))
+    return (FALSE);
+  else
+    mod = LookupModule(t);
+  if (arity)
+    p0 = PredPropByFunc(MkFunctor(at, arity),mod);
+  else
+    p0 = PredPropByAtom(at, mod);
   for (fp = ConsultSp; fp < ConsultBase; ++fp)
     if (fp->p == p0)
       break;
@@ -948,7 +962,10 @@ p_mk_cl_not_first(void)
     return (FALSE);
   else
     arity = IntOfTerm(t);
-  p0 = PredProp(at, arity);
+  if (arity)
+    p0 = PredPropByFunc(MkFunctor(at, arity),CurrentModule);
+  else
+    p0 = PredPropByAtom(at, CurrentModule);
   --ConsultSp;
   ConsultSp->p = p0;
   return (TRUE);
@@ -991,18 +1008,23 @@ where_new_clause(pred_prop, mode)
 
 static Int 
 p_compile(void)
-{				/* '$compile'(+C,+Flags) */
+{				/* '$compile'(+C,+Flags, Mod) */
   Term            t = Deref(ARG1);
   Term            t1 = Deref(ARG2);
+  Term            t3 = Deref(ARG3);
   CODEADDR        codeadr;
+  Int mod;
 
   if (IsVarTerm(t1) || !IsIntTerm(t1))
     return (FALSE);
-  codeadr = cclause(t, 2); /* vsc: give the number of arguments
+  if (IsVarTerm(t3) || !IsAtomTerm(t3))
+    return (FALSE);
+  mod = LookupModule(t3);
+  codeadr = cclause(t, 2, mod); /* vsc: give the number of arguments
 			      to cclause in case there is overflow */
   t = Deref(ARG1);        /* just in case there was an heap overflow */
   if (!ErrorMessage)
-    addclause(t, codeadr, (int) (IntOfTerm(t1) & 3));
+    addclause(t, codeadr, (int) (IntOfTerm(t1) & 3), mod);
   if (ErrorMessage) {
     if (IntOfTerm(t1) & 4) {
       Error(Error_TYPE, Error_Term,
@@ -1016,25 +1038,30 @@ p_compile(void)
 
 static Int 
 p_compile_dynamic(void)
-{				/* '$compile_dynamic'(+C,+Flags,-Ref) */
+{				/* '$compile_dynamic'(+C,+Flags,Mod,-Ref) */
   Term            t = Deref(ARG1);
   Term            t1 = Deref(ARG2);
+  Term            t3 = Deref(ARG3);
   Clause         *cl;
   CODEADDR        code_adr;
   int             old_optimize;
+  Int mod;
 
   if (IsVarTerm(t1) || !IsIntTerm(t1))
     return (FALSE);
+  if (IsVarTerm(t3) || !IsAtomTerm(t3))
+    return (FALSE);
   old_optimize = optimizer_on;
   optimizer_on = FALSE;
-  code_adr = cclause(t, 3); /* vsc: give the number of arguments to
+  mod = LookupModule(t3);
+  code_adr = cclause(t, 3, mod); /* vsc: give the number of arguments to
 			       cclause() in case there is a overflow */
   t = Deref(ARG1);        /* just in case there was an heap overflow */
   if (!ErrorMessage) {
     
     optimizer_on = old_optimize;
     cl = ClauseCodeToClause(code_adr);
-    addclause(t, code_adr, (int) (IntOfTerm(t1) & 3));
+    addclause(t, code_adr, (int) (IntOfTerm(t1) & 3), mod);
   }
   if (ErrorMessage) {
     if (IntOfTerm(t1) & 4) {
@@ -1047,7 +1074,7 @@ p_compile_dynamic(void)
   if (!(cl->ClFlags & LogUpdMask))
     cl->ClFlags = DynamicMask;
   t = MkIntegerTerm((Int)code_adr);
-  return(unify(ARG3, t));
+  return(unify(ARG4, t));
 }
 
 
@@ -1145,17 +1172,23 @@ p_purge_clauses(void)
 {				/* '$purge_clauses'(+Func) */
   PredEntry      *pred;
   Term            t = Deref(ARG1);
+  Term            t2 = Deref(ARG2);
   CODEADDR        q, q1;
+  int             mod;
 
   PutValue(AtomAbol, MkAtomTerm(AtomNil));
   if (IsVarTerm(t))
     return (FALSE);
+  if (IsVarTerm(t2) || !IsAtomTerm(t2)) {
+    return (FALSE);
+  }
+  mod = LookupModule(t2);
   if (IsAtomTerm(t)) {
     Atom at = AtomOfTerm(t);
-    pred = RepPredProp(PredProp(at, 0));
+    pred = RepPredProp(PredPropByAtom(at, mod));
   } else if (IsApplTerm(t)) {
     Functor         fun = FunctorOfTerm(t);
-    pred = RepPredProp(PredPropByFunc(fun, *CurrentModulePtr));
+    pred = RepPredProp(PredPropByFunc(fun, mod));
   } else
     return (FALSE);
   WRITE_LOCK(pred->PRWLock);
@@ -1197,24 +1230,30 @@ p_purge_clauses(void)
 
 static Int 
 p_setspy(void)
-{				/* '$set_spy'(+Fun)	 */
+{				/* '$set_spy'(+Fun,+M)	 */
   Atom            at;
   PredEntry      *pred;
   CELL            fg;
   Term            t;
+  Term            t2;
+  SMALLUNSGN	  mod;
 
   at = FullLookupAtom("$spy");
-  pred = RepPredProp(PredProp(at, 1));
+  pred = RepPredProp(PredPropByFunc(MkFunctor(at, 1),0));
   SpyCode = pred;
   t = Deref(ARG1);
+  t2 = Deref(ARG2);
   if (IsVarTerm(t))
     return (FALSE);
+  if (IsVarTerm(t2) || !IsAtomTerm(t2))
+    return (FALSE);
+  mod = LookupModule(t2);
   if (IsAtomTerm(t)) {
     Atom at = AtomOfTerm(t);
-    pred = RepPredProp(PredProp(at, 0));
+    pred = RepPredProp(PredPropByAtom(at, mod));
   } else if (IsApplTerm(t)) {
     Functor fun = FunctorOfTerm(t);
-    pred = RepPredProp(PredPropByFunc(fun, *CurrentModulePtr));
+    pred = RepPredProp(PredPropByFunc(fun, mod));
   } else {
     return (FALSE);
   }
@@ -1249,20 +1288,26 @@ p_setspy(void)
 
 static Int 
 p_rmspy(void)
-{				/* '$rm_spy'(+T)	 */
+{				/* '$rm_spy'(+T,+Mod)	 */
   Atom            at;
   PredEntry      *pred;
   Term            t;
+  Term            t2;
+  SMALLUNSGN	  mod;
 
   t = Deref(ARG1);
+  t2 = Deref(ARG2);
+  if (IsVarTerm(t2) || !IsAtomTerm(t2))
+    return (FALSE);
+  mod = LookupModule(t2);
   if (IsVarTerm(t))
     return (FALSE);
   if (IsAtomTerm(t)) {
     at = AtomOfTerm(t);
-    pred = RepPredProp(PredProp(at, 0));
+    pred = RepPredProp(PredPropByAtom(at, mod));
   } else if (IsApplTerm(t)) {
     Functor fun = FunctorOfTerm(t);
-    pred = RepPredProp(PredPropByFunc(fun, *CurrentModulePtr));
+    pred = RepPredProp(PredPropByFunc(fun, mod));
   } else
     return (FALSE);
   WRITE_LOCK(pred->PRWLock);
@@ -1294,19 +1339,25 @@ p_rmspy(void)
 
 static Int 
 p_number_of_clauses(void)
-{				/* '$number_of_clauses'(Predicate,N) */
+{				/* '$number_of_clauses'(Predicate,M,N) */
   Term            t = Deref(ARG1);
+  Term            t2 = Deref(ARG2);
   int ncl = 0;
   Prop            pe;
   CODEADDR        q;
   int             testing;
+  int             mod;
 
+  if (IsVarTerm(t2)  || !IsAtomTerm(t2)) {
+    return(FALSE);
+  }
+  mod = LookupModule(t2);
   if (IsAtomTerm(t)) {
     Atom a = AtomOfTerm(t);
-    pe = PredProp(a, 0);
+    pe = PredPropByAtom(a, mod);
   } else if (IsApplTerm(t)) {
     register Functor f = FunctorOfTerm(t);
-    pe = PredPropByFunc(f, *CurrentModulePtr);
+    pe = PredPropByFunc(f, mod);
   } else
     return (FALSE);
   q = RepPredProp(pe)->FirstClause;
@@ -1328,113 +1379,29 @@ p_number_of_clauses(void)
   }
   READ_UNLOCK(RepPredProp(pe)->PRWLock);
   t = MkIntTerm(ncl);
-  return (unify_constant(ARG2, t));
-}
-
-static Int 
-p_find_dynamic(void)
-{				/* '$find_dynamic'(+G,+N,-C) */
-  Term            t = Deref(ARG1);
-  Prop            pe;
-  CODEADDR        q;
-  int             position;
-
-  if (IsAtomTerm(t)) {
-    Atom a = AtomOfTerm(t);
-    pe = PredProp(a, 0);
-  } else if (IsApplTerm(t)) {
-    register Functor f = FunctorOfTerm(t);
-    pe = PredPropByFunc(f, *CurrentModulePtr);
-  } else
-    return (FALSE);
-  q = RepPredProp(pe)->FirstClause;
-  t = Deref(ARG2);
-  if (IsVarTerm(t) || !IsIntTerm(t))
-    return (FALSE);
-  position = IntOfTerm(t);
-  READ_LOCK(RepPredProp(pe)->PRWLock);
-  if (!(RepPredProp(pe)->PredFlags & DynamicPredFlag))
-    return (FALSE);
-  while (position > 1) {
-    while (ClauseCodeToClause(q)->ClFlags & ErasedMask)
-      q = NextClause(q);
-    position--;
-    q = NextClause(q);
-  }
-  while (ClauseCodeToClause(q)->ClFlags & ErasedMask)
-    q = NextClause(q);
-#if defined(YAPOR) || defined(THREADS)
-  {
-    Clause *cl = ClauseCodeToClause(q);
-    LOCK(cl->ClLock);
-    TRAIL_CLREF(cl);
-    INC_CLREF_COUNT(cl);
-    UNLOCK(cl->ClLock);
-  }
-#else
-  if (!(ClauseCodeToClause(q)->ClFlags & InUseMask)) {
-    OPREG     *opp = &(ClauseCodeToClause(q)->ClFlags);
-    TRAIL_CLREF(ClauseCodeToClause(q));
-    *opp |= InUseMask;
-  }
-#endif
-  READ_UNLOCK(RepPredProp(pe)->PRWLock);
-  t = MkIntegerTerm((Int)q);
-  return (unify(ARG3, t));
-}
-
-static Int 
-p_next_dynamic(void)
-{				/* '$next_dynamic'(+G,+C,-N) */
-  Term            t = Deref(ARG1);
-  Prop            pe;
-  CODEADDR        q, oldq;
-  int             position;
-
-  t = Deref(ARG2);
-  if (IsVarTerm(t) || !IsIntegerTerm(t))
-    return (FALSE);
-  if (IsAtomTerm(t)) {
-    Atom a = AtomOfTerm(t);
-    pe = PredProp(a, 0);
-  } else if (IsApplTerm(t)) {
-    register Functor f = FunctorOfTerm(t);
-    pe = PredPropByFunc(f, *CurrentModulePtr);
-  } else
-    return (FALSE);
-  q = RepPredProp(pe)->FirstClause;
-  READ_LOCK(RepPredProp(pe)->PRWLock);
-  if (!(RepPredProp(pe)->PredFlags & DynamicPredFlag))
-    return (FALSE);
-  oldq = (CODEADDR)IntegerOfTerm(t);
-  position = 1;
-  while (q != oldq) {
-    if (!(ClauseCodeToClause(q)->ClFlags & ErasedMask))
-      position++;
-    q = NextClause(q);
-  }
-  if (!(ClauseCodeToClause(q)->ClFlags & ErasedMask))
-    position++;
-  READ_UNLOCK(RepPredProp(pe)->PRWLock);
-  t = MkIntTerm(position);
   return (unify_constant(ARG3, t));
 }
 
 static Int 
 p_in_use(void)
-{				/* '$in_use'(+P)	 */
+{				/* '$in_use'(+P,+Mod)	 */
   Term            t = Deref(ARG1);
+  Term            t2 = Deref(ARG2);
   PredEntry      *pe;
   Int            out;
+  int            mod;
 
   if (IsVarTerm(t))
     return (FALSE);
+  if (IsVarTerm(t2) || !IsAtomTerm(t2))
+    return (FALSE);
+  mod = LookupModule(t2);
   if (IsAtomTerm(t)) {
     Atom at = AtomOfTerm(t);
-    pe = RepPredProp(PredProp(at, 0));
+    pe = RepPredProp(PredPropByAtom(at, mod));
   } else if (IsApplTerm(t)) {
     Functor         fun = FunctorOfTerm(t);
-    pe = RepPredProp(PredPropByFunc(fun, *CurrentModulePtr));
+    pe = RepPredProp(PredPropByFunc(fun, mod));
   } else
     return (FALSE);
   READ_LOCK(pe->PRWLock);
@@ -1445,11 +1412,12 @@ p_in_use(void)
 
 static Int 
 p_new_multifile(void)
-{				/* '$new_multifile'(+N,+Ar)	 */
+{				/* '$new_multifile'(+N,+Ar,+Mod)  */
   Atom            at;
   int             arity;
   PredEntry      *pe;
   Term            t = Deref(ARG1);
+  SMALLUNSGN      mod = LookupModule(Deref(ARG3));
 
   if (IsVarTerm(t))
     return (FALSE);
@@ -1464,7 +1432,10 @@ p_new_multifile(void)
     arity = IntOfTerm(t);
   else
     return (FALSE);
-  pe = RepPredProp(PredProp(at, arity));
+  if (arity == 0) 
+    pe = RepPredProp(PredPropByAtom(at, mod));
+  else 
+    pe = RepPredProp(PredPropByFunc(MkFunctor(at, arity),mod));
   WRITE_LOCK(pe->PRWLock);
   pe->PredFlags |= MultiFileFlag;
   WRITE_UNLOCK(pe->PRWLock);
@@ -1474,62 +1445,30 @@ p_new_multifile(void)
 
 static Int 
 p_is_multifile(void)
-{				/* '$is_multifile'(+N,+Ar)	 */
-  Atom            at;
-  int             arity;
+{				/* '$is_multifile'(+S,+Mod)	 */
   PredEntry      *pe;
   Term            t = Deref(ARG1);
+  Term            t2 = Deref(ARG2);
   Int		  out;
+  int		  mod;
 
   if (IsVarTerm(t))
     return (FALSE);
-  if (IsAtomTerm(t))
-    at = AtomOfTerm(t);
-  else
+  if (IsVarTerm(t2))
     return (FALSE);
-  t = Deref(ARG2);
-  if (IsVarTerm(t))
+  if (!IsAtomTerm(t2))
     return (FALSE);
-  if (IsIntTerm(t))
-    arity = IntOfTerm(t);
-  else
-    return (FALSE);
-  pe = RepPredProp(PredProp(at, arity));
-  if (pe == NIL)
+  mod = LookupModule(t2);
+  if (IsAtomTerm(t)) {
+    pe = RepPredProp(PredPropByAtom(AtomOfTerm(t), mod));
+  } else if (IsApplTerm(t)) {
+    pe = RepPredProp(PredPropByFunc(FunctorOfTerm(t), mod));
+  } else
+    return(FALSE);
+  if (EndOfPAEntr(pe))
     return (FALSE);
   READ_LOCK(pe->PRWLock);
   out = (pe->PredFlags & MultiFileFlag);
-  READ_UNLOCK(pe->PRWLock);
-  return(out);
-}
-
-static Int 
-p_is_logical_updatable(void)
-{				/* '$is_logical_updatable'(+N,+Ar)	 */
-  Atom            at;
-  int             arity;
-  PredEntry      *pe;
-  Term            t = Deref(ARG1);
-  Int             out;
-
-  if (IsVarTerm(t))
-    return (FALSE);
-  if (IsAtomTerm(t))
-    at = AtomOfTerm(t);
-  else
-    return (FALSE);
-  t = Deref(ARG2);
-  if (IsVarTerm(t))
-    return (FALSE);
-  if (IsIntTerm(t))
-    arity = IntOfTerm(t);
-  else
-    return (FALSE);
-  pe = RepPredProp(PredProp(at, arity));
-  if (pe == NIL)
-    return (FALSE);
-  READ_LOCK(pe->PRWLock);
-  out = (pe->PredFlags & LogUpdatePredFlag);
   READ_UNLOCK(pe->PRWLock);
   return(out);
 }
@@ -1539,16 +1478,18 @@ p_is_dynamic(void)
 {				/* '$is_dynamic'(+P)	 */
   PredEntry      *pe;
   Term            t = Deref(ARG1);
+  Term            t2 = Deref(ARG2);
   Int             out;
-  
+  SMALLUNSGN      mod = LookupModule(t2);
+
   if (IsVarTerm(t)) {
     return (FALSE);
   } else if (IsAtomTerm(t)) {
     Atom at = AtomOfTerm(t);
-    pe = RepPredProp(PredProp(at, 0));
+    pe = RepPredProp(PredPropByAtom(at, mod));
   } else if (IsApplTerm(t)) {
     Functor         fun = FunctorOfTerm(t);
-    pe = RepPredProp(PredPropByFunc(fun, *CurrentModulePtr));
+    pe = RepPredProp(PredPropByFunc(fun, mod));
   } else
     return (FALSE);
   if (pe == NIL)
@@ -1562,31 +1503,40 @@ p_is_dynamic(void)
 static Int 
 p_set_pred_module(void)
 {				/* '$set_pred_module'(+P,+Mod)	 */
-  Atom            at;
-  int             arity;
   PredEntry      *pe;
   Term            t = Deref(ARG1);
+  SMALLUNSGN      mod = CurrentModule;
+
+ restart_set_pred:
   if (IsVarTerm(t)) {
     return (FALSE);
   } else if (IsAtomTerm(t)) {
-    at = AtomOfTerm(t);
-    arity = 0;
+    pe = RepPredProp(PredPropByAtom(AtomOfTerm(t), mod));
   } else if (IsApplTerm(t)) {
     Functor         fun = FunctorOfTerm(t);
-    at = NameOfFunctor(fun);
-    arity = ArityOfFunctor(fun);
+    if (fun == FunctorModule) {
+      Term tmod = ArgOfTerm(1, t);
+      if (IsVarTerm(tmod) ) {
+	Error(INSTANTIATION_ERROR,ARG1,"set_pred_module/1");
+	return(FALSE);
+      }
+      if (!IsAtomTerm(tmod) ) {
+	Error(TYPE_ERROR_ATOM,ARG1,"set_pred_module/1");
+	return(FALSE);
+      }
+      mod = LookupModule(tmod);
+      t = ArgOfTerm(2, t);
+      goto restart_set_pred;
+    }
+    pe = RepPredProp(PredPropByFunc(fun, mod));
   } else
     return (FALSE);
-  pe = RepPredProp(PredProp(at, arity));
-  if (pe == NIL)
+  if (EndOfPAEntr(pe))
     return (FALSE);
   WRITE_LOCK(pe->PRWLock);
   {
     SMALLUNSGN mod = LookupModule(Deref(ARG2));
-    if (mod)
-      pe->ModuleOfPred = MkIntTerm(mod);
-    else
-      pe->ModuleOfPred = 0;
+    pe->ModuleOfPred = mod;
   }
   WRITE_UNLOCK(pe->PRWLock);
   return(TRUE);
@@ -1594,12 +1544,23 @@ p_set_pred_module(void)
 
 static Int 
 p_undefined(void)
-{				/* '$undefined'(P)	 */
+{				/* '$undefined'(P,Mod)	 */
   PredEntry      *pe;
   Term            t;
-  Term tmod = *CurrentModulePtr;
+  Term            t2;
+  SMALLUNSGN      mod;
 
   t = Deref(ARG1);
+  t2 = Deref(ARG2);
+  if (IsVarTerm(t2)) {
+    Error(INSTANTIATION_ERROR,ARG2,"undefined/1");
+    return(FALSE);
+  }
+  if (!IsAtomTerm(t2)) {
+    Error(TYPE_ERROR_ATOM,ARG2,"undefined/1");
+    return(FALSE);
+  }
+  mod = LookupModule(t2);
  restart_undefined:
   if (IsVarTerm(t)) {
     Error(INSTANTIATION_ERROR,ARG1,"undefined/1");
@@ -1607,24 +1568,24 @@ p_undefined(void)
   }
   if (IsAtomTerm(t)) {
     Atom at = AtomOfTerm(t);
-    pe = RepPredProp(GetPredPropByAtom(at,tmod));
+    pe = RepPredProp(GetPredPropByAtom(at,mod));
   } else if (IsApplTerm(t)) {
     Functor         funt = FunctorOfTerm(t);
     if (funt == FunctorModule) {
-      Term mod = ArgOfTerm(1, t);
-      if (IsVarTerm(mod) ) {
+      Term tmod = ArgOfTerm(1, t);
+      if (IsVarTerm(tmod) ) {
 	Error(INSTANTIATION_ERROR,ARG1,"undefined/1");
 	return(FALSE);
       }
-      if (!IsAtomTerm(mod) ) {
+      if (!IsAtomTerm(tmod) ) {
 	Error(TYPE_ERROR_ATOM,ARG1,"undefined/1");
 	return(FALSE);
       }
-      tmod = MkIntTerm(LookupModule(mod));
+      mod = LookupModule(tmod);
       t = ArgOfTerm(2, t);
       goto restart_undefined;
     }
-    pe = RepPredProp(GetPredPropByFunc(funt, tmod));
+    pe = RepPredProp(GetPredPropByFunc(funt, mod));
   } else {
     return (FALSE);
   }
@@ -1650,20 +1611,32 @@ p_undefined(void)
 
 static Int 
 p_kill_dynamic(void)
-{				/* '$kill_dynamic'(P)       */
+{				/* '$kill_dynamic'(P,M)       */
   PredEntry      *pe;
   Term            t;
-  
+  Term            t2;
+  SMALLUNSGN      mod;
+
+  t2 = Deref(ARG2);
+  if (IsVarTerm(t2)) {
+    Error(INSTANTIATION_ERROR,ARG2,"undefined/1");
+    return(FALSE);
+  }
+  if (!IsAtomTerm(t2)) {
+    Error(TYPE_ERROR_ATOM,ARG2,"undefined/1");
+    return(FALSE);
+  }
+  mod = LookupModule(t2);
   t = Deref(ARG1);
   if (IsAtomTerm(t)) {
     Atom at = AtomOfTerm(t);
-    pe = RepPredProp(PredProp(at, 0));
+    pe = RepPredProp(PredPropByAtom(at, mod));
   } else if (IsApplTerm(t)) {
     Functor         funt = FunctorOfTerm(t);
-    pe = RepPredProp(PredPropByFunc(funt, *CurrentModulePtr));
+    pe = RepPredProp(PredPropByFunc(funt, mod));
   } else
     return (FALSE);
-  if (pe == NIL)
+  if (EndOfPAEntr(pe))
     return (TRUE);
   WRITE_LOCK(pe->PRWLock);
   if (!(pe->PredFlags & DynamicPredFlag)) {
@@ -1845,43 +1818,6 @@ do_toggle_static_predicates_in_use(int mask)
 
 #endif
 
-static Int
-p_search_for_static_predicate_in_use(void)
-{
-#if defined(YAPOR) || defined(THREADS)
-  return(FALSE);
-#else
-  PredEntry      *pe;
-  Term		  t;
-  Int             out;
-  
-  t = Deref(ARG1);
-  if (IsAtomTerm(t)) {
-    Atom at = AtomOfTerm(t);
-    pe = RepPredProp(PredProp(at, 0));
-  }  else if (IsApplTerm(t)) {
-    Functor         funt = FunctorOfTerm(ARG1);
-    pe = RepPredProp(PredPropByFunc(funt, *CurrentModulePtr));
-  } else
-    return(FALSE);
-  /* do nothing if we are in consult */
-  if (STATIC_PREDICATES_MARKED)
-    return (pe->StateOfPred & InUseMask);
-  /* if it was not defined, surely it was not in use */
-  if (pe == NIL)
-    return (TRUE);
-  READ_LOCK(pe->PRWLock);
-  if (pe->PredFlags & (BasicPredFlag|StandardPredFlag|DynamicPredFlag|CPredFlag)) {
-    READ_UNLOCK(pe->PRWLock);
-    return(FALSE);
-  }
-  out = search_for_static_predicate_in_use(pe, TRUE);
-  READ_UNLOCK(pe->PRWLock);  
-  return(out);
-#endif
-}
-
-
 /* This predicate is to be used by reconsult to mark all predicates
    currently in use as being executed.
 
@@ -2039,22 +1975,30 @@ p_is_profiled(void)
 static Int
 p_profile_info(void)
 {
-  Term tname = Deref(ARG1);
-  Term tarity = Deref(ARG2);
+  Term tmod = Deref(ARG1);
+  Term tfun = Deref(ARG2);
+  int mod;
   Term out;
   PredEntry *pe;
-  Int arity;
-  Atom name;
   Term p[3];
 
-  if (IsVarTerm(tname) || !IsAtomTerm(tname))
+  if (IsVarTerm(tmod) || !IsAtomTerm(tmod))
     return(FALSE);
-  if (IsVarTerm(tarity) || !IsIntTerm(tarity))
+  mod = LookupModule(tmod);
+  if (IsVarTerm(tfun)) {
     return(FALSE);
-  name = AtomOfTerm(tname);
-  arity = IntOfTerm(tarity);
-  pe = RepPredProp(GetPredProp(name, arity));
-  if (pe == NULL)
+  } else if (IsApplTerm(tfun)) {
+    Functor f = FunctorOfTerm(tfun);
+    if (IsExtensionFunctor(f)) {
+      return(FALSE);
+    }
+    pe = RepPredProp(GetPredPropByFunc(f, mod));
+  } else if (IsAtomTerm(tfun)) {
+    pe = RepPredProp(GetPredPropByAtom(AtomOfTerm(tfun), mod));
+  } else {
+    return(FALSE);
+  }
+  if (EndOfPAEntr(pe))
     return(FALSE);
   LOCK(pe->StatisticsForPred.lock);
   if (!(pe->StatisticsForPred.NOfEntries)) {
@@ -2072,20 +2016,28 @@ p_profile_info(void)
 static Int
 p_profile_reset(void)
 {
-  Term tname = Deref(ARG1);
-  Term tarity = Deref(ARG2);
+  Term tmod = Deref(ARG1);
+  Term tfun = Deref(ARG2);
+  int mod;
   PredEntry *pe;
-  Int arity;
-  Atom name;
 
-  if (IsVarTerm(tname) || !IsAtomTerm(tname))
+  if (IsVarTerm(tmod) || !IsAtomTerm(tmod))
     return(FALSE);
-  if (IsVarTerm(tarity) || !IsIntTerm(tarity))
+  mod = LookupModule(tmod);
+  if (IsVarTerm(tfun)) {
     return(FALSE);
-  name = AtomOfTerm(tname);
-  arity = IntOfTerm(tarity);
-  pe = RepPredProp(GetPredProp(name, arity));
-  if (pe == NULL)
+  } else if (IsApplTerm(tfun)) {
+    Functor f = FunctorOfTerm(tfun);
+    if (IsExtensionFunctor(f)) {
+      return(FALSE);
+    }
+    pe = RepPredProp(GetPredPropByFunc(f, mod));
+  } else if (IsAtomTerm(tfun)) {
+    pe = RepPredProp(GetPredPropByAtom(AtomOfTerm(tfun), mod));
+  } else {
+    return(FALSE);
+  }
+  if (EndOfPAEntr(pe))
     return(FALSE);
   LOCK(pe->StatisticsForPred.lock);
   pe->StatisticsForPred.NOfEntries = 0;
@@ -2124,21 +2076,23 @@ p_parent_pred(void)
 	 unify(ARG3, MkIntTerm(arity)));
 }
 
-static Int			/* $parent_pred(Module, Name, Arity) */
+static Int			/* $system_predicate(P) */
 p_system_pred(void)
 {
   PredEntry      *pe;
-  Term mod       = *CurrentModulePtr;
 
   Term t1 = Deref(ARG1);
- restart:
+ restart_system_pred:
   if (IsVarTerm(t1))
     return (FALSE);
   if (IsAtomTerm(t1)) {
-    pe = RepPredProp(PredPropByAtom(AtomOfTerm(t1), mod));
+    pe = RepPredProp(GetPredPropByAtom(AtomOfTerm(t1), 0));
   } else if (IsApplTerm(t1)) {
     Functor         funt = FunctorOfTerm(t1);
-    if (funt == FunctorModule) {
+    if (IsExtensionFunctor(funt)) {
+      return(FALSE);
+    } 
+    while (funt == FunctorModule) {
       Term nmod = ArgOfTerm(1, t1);
       if (IsVarTerm(nmod)) {
 	Error(INSTANTIATION_ERROR,ARG1,"system_predicate/1");
@@ -2148,13 +2102,14 @@ p_system_pred(void)
 	Error(TYPE_ERROR_ATOM,ARG1,"system_predicate/1");
 	return(FALSE);
       }
-      mod = MkIntTerm(LookupModule(nmod));
       t1 = ArgOfTerm(2, t1);
-      goto restart;
+      goto restart_system_pred;
     }
-    pe = RepPredProp(PredPropByFunc(funt, mod));
+    pe = RepPredProp(GetPredPropByFunc(funt, 0));
   } else
     return (FALSE);
+  if (EndOfPAEntr(pe))
+    return(FALSE);
   return(pe->ModuleOfPred == 0);
 }
 
@@ -2165,33 +2120,29 @@ InitCdMgr(void)
   InitCPred("$start_consult", 3, p_startconsult, SafePredFlag|SyncPredFlag);
   InitCPred("$show_consult_level", 1, p_showconslultlev, SafePredFlag);
   InitCPred("$end_consult", 0, p_endconsult, SafePredFlag|SyncPredFlag);
-  InitCPred("$set_spy", 1, p_setspy, SafePredFlag|SyncPredFlag);
-  InitCPred("$rm_spy", 1, p_rmspy, SafePredFlag|SyncPredFlag);
+  InitCPred("$set_spy", 2, p_setspy, SafePredFlag|SyncPredFlag);
+  InitCPred("$rm_spy", 2, p_rmspy, SafePredFlag|SyncPredFlag);
   /* gc() may happen during compilation, hence these predicates are
 	now unsafe */
-  InitCPred("$compile", 2, p_compile, SyncPredFlag);
-  InitCPred("$compile_dynamic", 3, p_compile_dynamic, SyncPredFlag);
-  InitCPred("$purge_clauses", 1, p_purge_clauses, SafePredFlag|SyncPredFlag);
-  InitCPred("$in_use", 1, p_in_use, TestPredFlag | SafePredFlag|SyncPredFlag);
-  InitCPred("$is_logical_updatable", 1, p_is_logical_updatable, TestPredFlag | SafePredFlag);
-  InitCPred("$is_dynamic", 1, p_is_dynamic, TestPredFlag | SafePredFlag);
-  InitCPred("$number_of_clauses", 2, p_number_of_clauses, SafePredFlag|SyncPredFlag);
-  InitCPred("$find_dynamic", 3, p_find_dynamic, SafePredFlag|SyncPredFlag);
-  InitCPred("$next_dynamic", 3, p_next_dynamic, SafePredFlag|SyncPredFlag);
-  InitCPred("$undefined", 1, p_undefined, SafePredFlag|TestPredFlag);
+  InitCPred("$compile", 3, p_compile, SyncPredFlag);
+  InitCPred("$compile_dynamic", 4, p_compile_dynamic, SyncPredFlag);
+  InitCPred("$purge_clauses", 2, p_purge_clauses, SafePredFlag|SyncPredFlag);
+  InitCPred("$in_use", 2, p_in_use, TestPredFlag | SafePredFlag|SyncPredFlag);
+  InitCPred("$is_dynamic", 2, p_is_dynamic, TestPredFlag | SafePredFlag);
+  InitCPred("$number_of_clauses", 3, p_number_of_clauses, SafePredFlag|SyncPredFlag);
+  InitCPred("$undefined", 2, p_undefined, SafePredFlag|TestPredFlag);
   InitCPred("$optimizer_on", 0, p_optimizer_on, SafePredFlag|SyncPredFlag);
   InitCPred("$clean_up_dead_clauses", 0, p_clean_up_dead_clauses, SyncPredFlag);
   InitCPred("$optimizer_off", 0, p_optimizer_off, SafePredFlag|SyncPredFlag);
   InitCPred("$kill_dynamic", 1, p_kill_dynamic, SafePredFlag|SyncPredFlag);
-  InitCPred("$in_this_file_before", 2, p_in_this_f_before, SafePredFlag);
-  InitCPred("$first_clause_in_file", 2, p_first_cl_in_f, SafePredFlag);
+  InitCPred("$in_this_file_before", 3, p_in_this_f_before, SafePredFlag);
+  InitCPred("$first_clause_in_file", 3, p_first_cl_in_f, SafePredFlag);
   InitCPred("$mk_cl_not_first", 2, p_mk_cl_not_first, SafePredFlag);
-  InitCPred("$new_multifile", 2, p_new_multifile, SafePredFlag|SyncPredFlag);
+  InitCPred("$new_multifile", 3, p_new_multifile, SafePredFlag|SyncPredFlag);
   InitCPred("$is_multifile", 2, p_is_multifile, TestPredFlag | SafePredFlag);
   InitCPred("$is_profiled", 1, p_is_profiled, SafePredFlag|SyncPredFlag);
   InitCPred("$profile_info", 3, p_profile_info, SafePredFlag|SyncPredFlag);
   InitCPred("$profile_reset", 2, p_profile_reset, SafePredFlag|SyncPredFlag);
-  InitCPred("$search_for_static_predicates_in_use", 1, p_search_for_static_predicate_in_use, TestPredFlag|SafePredFlag|SyncPredFlag);
   InitCPred("$toggle_static_predicates_in_use", 0, p_toggle_static_predicates_in_use, SafePredFlag|SyncPredFlag);
   InitCPred("$set_pred_module", 2, p_set_pred_module, SafePredFlag);
   InitCPred("$parent_pred", 3, p_parent_pred, SafePredFlag);

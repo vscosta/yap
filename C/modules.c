@@ -42,8 +42,6 @@ Module_Name(CODEADDR cap)
     */
     return(ModuleName[CurrentModule]);
   else {
-    if (ap->ModuleOfPred)
-      return (ModuleName[IntOfTerm(ap->ModuleOfPred)]);
     return (ModuleName[ap->ModuleOfPred]);
   }
 }
@@ -73,10 +71,10 @@ p_current_module(void)
     return (0);
   for (i = 0; i < NoOfModules; ++i)
     if (ModuleName[i] == t) {
-       *CurrentModulePtr = MkIntTerm(i);
+       CurrentModule = i;
       return (TRUE);
     }
-    *CurrentModulePtr = MkIntTerm(NoOfModules);
+    CurrentModule = NoOfModules;
   ModuleName[NoOfModules++] = t;
   return (TRUE);
 }
@@ -92,8 +90,8 @@ p_current_module1(void)
 static Int
 p_change_module(void)
 {				/* $change_module(New)		 */
-  Term t = MkIntTerm(LookupModule(Deref(ARG1)));
-  UpdateTimedVar(AbsAppl(CurrentModulePtr-1), t);
+  SMALLUNSGN mod = LookupModule(Deref(ARG1));
+  CurrentModule = mod;
   return (TRUE);
 }
 
@@ -101,7 +99,9 @@ static Int
 p_module_number(void)
 {				/* $change_module(New)		 */
   Term t = MkIntTerm(LookupModule(Deref(ARG1)));
-  return (unify(ARG2,t));
+  unify(t,ARG2);
+  ARG2 = t;
+  return(TRUE);
 }
 
 void 
@@ -109,10 +109,10 @@ InitModules(void)
 {
   ModuleName[PrimitivesModule = 0] =
     MkAtomTerm(LookupAtom("prolog"));
-  *CurrentModulePtr = MkIntTerm(0);
+  CurrentModule = 0;
   ModuleName[1] = MkAtomTerm(LookupAtom("user"));
   InitCPred("$current_module", 2, p_current_module, SafePredFlag|SyncPredFlag);
   InitCPred("$current_module", 1, p_current_module1, SafePredFlag|SyncPredFlag);
   InitCPred("$change_module", 1, p_change_module, SafePredFlag|SyncPredFlag);
-  InitCPred("$module_number", 2, p_module_number, SafePredFlag|SyncPredFlag);
+  InitCPred("$module_number", 2, p_module_number, SafePredFlag);
 }

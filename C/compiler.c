@@ -34,10 +34,10 @@ STATIC_PROTO(void c_arg, (Int, Term, unsigned int));
 STATIC_PROTO(void c_args, (Term));
 STATIC_PROTO(void c_eq, (Term, Term));
 STATIC_PROTO(void c_test, (Int, Term));
-STATIC_PROTO(void c_bifun, (Int, Term, Term, Term));
-STATIC_PROTO(void c_goal, (Term));
+STATIC_PROTO(void c_bifun, (Int, Term, Term, Term, int));
+STATIC_PROTO(void c_goal, (Term, int));
 STATIC_PROTO(void get_type_info, (Term));
-STATIC_PROTO(void c_body, (Term));
+STATIC_PROTO(void c_body, (Term, int));
 STATIC_PROTO(void get_cl_info, (Term));
 STATIC_PROTO(void c_head, (Term));
 STATIC_PROTO(int usesvar, (int));
@@ -702,7 +702,7 @@ bip_cons	   Op,Xk,Ri,C
 
  */
 static void
-c_bifun(Int Op, Term t1, Term t2, Term t3)
+c_bifun(Int Op, Term t1, Term t2, Term t3, int mod)
 {
   /* compile Z = X Op Y  arithmetic function */
   /* first we fetch the arguments */
@@ -821,7 +821,7 @@ c_bifun(Int Op, Term t1, Term t2, Term t3)
 	if (IsNumTerm(t1)) {
 	  /* we will always fail */
 	  if (i2)
-	    c_goal(MkAtomTerm(AtomFalse));
+	    c_goal(MkAtomTerm(AtomFalse), mod);
 	} else if (!IsAtomTerm(t1)) {
 	  char s[32];
 
@@ -892,7 +892,7 @@ c_bifun(Int Op, Term t1, Term t2, Term t3)
 	} else if (IsApplTerm(t2)) {
 	  Functor f = FunctorOfTerm(t2);
 	  if (i1 < 1 || i1 > ArityOfFunctor(f)) {
-	    c_goal(MkAtomTerm(AtomFalse));
+	    c_goal(MkAtomTerm(AtomFalse), mod);
 	  } else {
 	    c_eq(ArgOfTerm(i1, t2), t3);
 	  }
@@ -906,7 +906,7 @@ c_bifun(Int Op, Term t1, Term t2, Term t3)
 	    c_eq(TailOfTerm(t2), t3);
 	    return;
 	  default:
-	    c_goal(MkAtomTerm(AtomFalse));
+	    c_goal(MkAtomTerm(AtomFalse), mod);
 	    return;
 	  }
 	}
@@ -1066,13 +1066,13 @@ c_bifun(Int Op, Term t1, Term t2, Term t3)
 }
 
 static void
-c_functor(Term Goal)
+c_functor(Term Goal, int mod)
 {
   Term t1 = ArgOfTerm(1, Goal);
   Term t2 = ArgOfTerm(2, Goal);
   Term t3 = ArgOfTerm(3, Goal);
   if (IsVarTerm(t1) && IsNewVar(t1)) {
-    c_bifun(_functor, t2, t3, t1);
+    c_bifun(_functor, t2, t3, t1, mod);
   } else if (IsNonVarTerm(t1)) {
     /* just split the structure */
     if (IsAtomicTerm(t1)) {
@@ -1095,7 +1095,7 @@ c_functor(Term Goal)
     c_var(t3,f_flag,(unsigned int)_functor);
   } else {
     Functor f = FunctorOfTerm(Goal);
-    Prop p0 = PredPropByFunc(f, *CurrentModulePtr);
+    Prop p0 = PredPropByFunc(f, mod);
     if (profiling)
       emit(enter_profiling_op, (CELL)RepPredProp(p0), Zero);
     c_args(Goal);
@@ -1122,16 +1122,14 @@ IsTrueGoal(Term t) {
 }
 
 static void
-c_goal(Term Goal)
+c_goal(Term Goal, int mod)
 {
   Functor f;
   PredEntry *p;
   Prop p0;
-  int save_CurrentModule = CurrentModule;
 
   if (IsVarTerm(Goal)) {
     Goal = MkApplTerm(FunctorCall, 1, &Goal);
-    *CurrentModulePtr = MkIntTerm(PrimitivesModule);
   }
   if (IsNumTerm(Goal)) {
     FAIL("goal can not be a number", TYPE_ERROR_CALLABLE, Goal);
@@ -1142,7 +1140,6 @@ c_goal(Term Goal)
     FAIL("goal argument in static procedure can not be a data base reference", TYPE_ERROR_CALLABLE, Goal);
   } else if (IsPairTerm(Goal)) {
     Goal = MkApplTerm(FunctorCall, 1, &Goal);
-    *CurrentModulePtr = MkIntTerm(PrimitivesModule);
   } else if (IsApplTerm(Goal) && FunctorOfTerm(Goal) == FunctorModule) {
     Term M = ArgOfTerm(1, Goal);
 
@@ -1153,19 +1150,17 @@ c_goal(Term Goal)
       save_machine_regs();
       longjmp(CompilerBotch, 1);
     }
-    *CurrentModulePtr = MkIntTerm(LookupModule(M));
     Goal = ArgOfTerm(2, Goal);
+    mod = LookupModule(M);
   }
   if (IsVarTerm(Goal)) {
     Goal = MkApplTerm(FunctorCall, 1, &Goal);
-    *CurrentModulePtr = MkIntTerm(PrimitivesModule);
   }
   if (IsAtomTerm(Goal)) {
     Atom atom = AtomOfTerm(Goal);
 
     if (atom == AtomFail || atom == AtomFalse) {
       emit(fail_op, Zero, Zero);
-      *CurrentModulePtr = MkIntTerm(save_CurrentModule);
       return;
     }
     else if (atom == AtomTrue || atom == AtomOtherwise) {
@@ -1178,13 +1173,12 @@ c_goal(Term Goal)
 #endif /* TABLING */
 	  emit(procceed_op, Zero, Zero);
       }
-      *CurrentModulePtr = MkIntTerm(save_CurrentModule);
       return;
     }
     else if (atom == AtomCut) {
 
       if (profiling)
-	emit(enter_profiling_op, (CELL)RepPredProp(PredProp(AtomCut,0)), Zero);
+	emit(enter_profiling_op, (CELL)RepPredProp(PredPropByAtom(AtomCut,0)), Zero);
       if (onlast) {
 	/* never a problem here with a -> b, !, c ; d */
 	emit(deallocate_op, Zero, Zero);
@@ -1207,7 +1201,6 @@ c_goal(Term Goal)
 	/* needs to adjust previous commits */
 	adjust_current_commits();
       }
-      *CurrentModulePtr = MkIntTerm(save_CurrentModule);
       return;
     }
 #ifndef YAPOR
@@ -1216,7 +1209,7 @@ c_goal(Term Goal)
       CELL l2 = ++labelno;
 
       if (profiling)
-	emit(enter_profiling_op, (CELL)RepPredProp(PredProp(AtomRepeat,0)), Zero);
+	emit(enter_profiling_op, (CELL)RepPredProp(PredPropByAtom(AtomRepeat,0)), Zero);
       or_found = 1;
       push_branch(onbranch, TermNil);
       cur_branch++;
@@ -1247,20 +1240,17 @@ c_goal(Term Goal)
       onbranch = pop_branch();
       emit(pop_or_op, Zero, Zero);
 /*                      --onbranch; */
-      *CurrentModulePtr = MkIntTerm(save_CurrentModule);
       return;
     }
 #endif /* YAPOR */
-    else
-      f = MkFunctor(atom, 0);
-    p = RepPredProp(p0 = PredProp(atom, 0));
+    p = RepPredProp(p0 = PredPropByAtom(atom, mod));
     /* if we are profiling, make sure we register we entered this predicate */
     if (profiling)
       emit(enter_profiling_op, (CELL)p, Zero);
   }
   else {
     f = FunctorOfTerm(Goal);
-    p = RepPredProp(p0 = PredPropByFunc(f, *CurrentModulePtr));
+    p = RepPredProp(p0 = PredPropByFunc(f, mod));
     if (f == FunctorOr) {
       CELL l = ++labelno;
       CELL m = ++labelno;
@@ -1289,7 +1279,7 @@ c_goal(Term Goal)
 	  }
 	  emit_3ops(push_or_op, l, Zero, Zero);
 	  if (looking_at_comit &&
-	      is_a_test_pred(ArgOfTerm(1, arg))) {
+	      is_a_test_pred(ArgOfTerm(1, arg), mod)) {
 	    /*
 	     * let them think they are still the
 	     * first 
@@ -1346,16 +1336,16 @@ c_goal(Term Goal)
 	  }
 	  save = onlast;
 	  onlast = FALSE;
-	  c_goal(ArgOfTerm(1, arg));
+	  c_goal(ArgOfTerm(1, arg), mod);
 	  if (!optimizing_comit) {
 	    c_var((Term) comitvar, comit_b_flag,
 		  1);
 	  }
 	  onlast = save;
-	  c_goal(ArgOfTerm(2, arg));
+	  c_goal(ArgOfTerm(2, arg), mod);
 	}
 	else
-	  c_goal(ArgOfTerm(1, Goal));
+	  c_goal(ArgOfTerm(1, Goal), mod);
 	if (!onlast) {
 	  emit(jump_op, m, Zero);
 	}
@@ -1372,16 +1362,15 @@ c_goal(Term Goal)
       else {
 	optimizing_comit = FALSE;	/* not really necessary */
       }
-      c_goal(Goal);
+      c_goal(Goal, mod);
       /*              --onbranch; */
       onbranch = pop_branch();
       if (!onlast) {
 	emit(label_op, m, Zero);
 	if ((onlast = save))
-	  c_goal(MkAtomTerm(AtomTrue));
+	  c_goal(MkAtomTerm(AtomTrue), mod);
       }
       emit(pop_or_op, Zero, Zero);
-      *CurrentModulePtr = MkIntTerm(save_CurrentModule);
       return;
     }
     else if (f == FunctorComma) {
@@ -1389,10 +1378,9 @@ c_goal(Term Goal)
       int t2 = ArgOfTerm(2, Goal);
 
       onlast = FALSE;
-      c_goal(ArgOfTerm(1, Goal));
+      c_goal(ArgOfTerm(1, Goal), mod);
       onlast = save;
-      c_goal(t2);
-      *CurrentModulePtr = MkIntTerm(save_CurrentModule);
+      c_goal(t2, mod);
       return;
     }
     else if (f == FunctorNot || f == FunctorAltNot) {
@@ -1416,7 +1404,7 @@ c_goal(Term Goal)
       emit_3ops(push_or_op, label, Zero, Zero);
       emit_3ops(either_op, label,  Zero, Zero);
       emit(restore_tmps_op, Zero, Zero);
-      c_goal(ArgOfTerm(1, Goal));
+      c_goal(ArgOfTerm(1, Goal), mod);
       c_var(comitvar, comit_b_flag, 1);
       onlast = save;
       emit(fail_op, end_label, Zero);
@@ -1427,10 +1415,9 @@ c_goal(Term Goal)
       onlast = save;
       /*              --onbranch; */
       onbranch = pop_branch();
-      c_goal(MkAtomTerm(AtomTrue));
+      c_goal(MkAtomTerm(AtomTrue), mod);
       ++goalno;
       emit(pop_or_op, Zero, Zero);
-      *CurrentModulePtr = MkIntTerm(save_CurrentModule);
       return;
     }
     else if (f == FunctorArrow) {
@@ -1445,11 +1432,10 @@ c_goal(Term Goal)
       }
       onlast = FALSE;
       c_var(comitvar, save_b_flag, 1);
-      c_goal(ArgOfTerm(1, Goal));
+      c_goal(ArgOfTerm(1, Goal), mod);
       c_var(comitvar, comit_b_flag, 1);
       onlast = save;
-      c_goal(ArgOfTerm(2, Goal));
-      *CurrentModulePtr = MkIntTerm(save_CurrentModule);
+      c_goal(ArgOfTerm(2, Goal), mod);
       return;
     } else if (f == FunctorEq) {
       if (profiling)
@@ -1468,23 +1454,6 @@ c_goal(Term Goal)
 	READ_UNLOCK(CurrentPred->PRWLock);
 #endif
       }
-      *CurrentModulePtr = MkIntTerm(save_CurrentModule);
-      return;
-    } else if (f == FunctorModSwitch) {
-      Term omod = MkVarTerm();
-      Term mod = ArgOfTerm(1, Goal);
-      Term goal = ArgOfTerm(2, Goal);
-      Term a[1];
-      int cp_onlast = onlast;
-      onlast = FALSE;
-      a[0] = omod;
-      c_goal(MkApplTerm(FunctorCurrentModule, 1, a));
-      a[0] = mod;
-      c_goal(MkApplTerm(FunctorChangeModule, 1, a));
-      c_goal(goal);
-      a[0] = omod;
-      onlast = cp_onlast;
-      c_goal(MkApplTerm(FunctorChangeModule, 1, a));
       return;
     } else if (p->PredFlags & BasicPredFlag) {
       int op = p->PredFlags & 0x7f;
@@ -1505,16 +1474,16 @@ c_goal(Term Goal)
 	  READ_UNLOCK(CurrentPred->PRWLock);
 #endif
 	}
-	*CurrentModulePtr = MkIntTerm(save_CurrentModule);
 	return;
       } else if (op >= _plus && op <= _functor) {
 	if (op == _functor) {
-	  c_functor(Goal);
+	  c_functor(Goal, mod);
 	} else {
 	  c_bifun(op,
 		  ArgOfTerm(1, Goal),
 		  ArgOfTerm(2, Goal),
-		  ArgOfTerm(3, Goal));
+		  ArgOfTerm(3, Goal),
+		  mod);
 	}
 	if (onlast) {
 	  emit(deallocate_op, Zero, Zero);
@@ -1529,7 +1498,6 @@ c_goal(Term Goal)
 	  READ_UNLOCK(CurrentPred->PRWLock);
 #endif
 	}
-	*CurrentModulePtr = MkIntTerm(save_CurrentModule);
 	return;
       } else {
 	c_args(Goal);
@@ -1604,7 +1572,6 @@ c_goal(Term Goal)
 	  READ_UNLOCK(CurrentPred->PRWLock);
 #endif
       }
-      *CurrentModulePtr = MkIntTerm(save_CurrentModule);
       return;
     } else {
       if (profiling)
@@ -1678,7 +1645,6 @@ c_goal(Term Goal)
     if (!onlast)
       ++goalno;
   }
-  *CurrentModulePtr = MkIntTerm(save_CurrentModule);
 }
 
 static void
@@ -1707,7 +1673,7 @@ get_type_info(Term Goal)
 }
 
 static void
-c_body(Term Body)
+c_body(Term Body, int mod)
 {
   onhead = FALSE;
   BodyStart = cpc;
@@ -1728,11 +1694,11 @@ c_body(Term Body)
       Body = ArgOfTerm(1, Body);
       break;
     }
-    c_goal(ArgOfTerm(1, Body));
+    c_goal(ArgOfTerm(1, Body), mod);
     Body = t2;
   }
   onlast = TRUE;
-  c_goal(Body);
+  c_goal(Body, mod);
 }
 
 static void
@@ -2739,7 +2705,7 @@ c_optimize(PInstr *pc)
 }
 
 CODEADDR
-cclause(Term inp_clause, int NOfArgs)
+cclause(Term inp_clause, int NOfArgs, int mod)
 {				/* compile a prolog clause, copy of clause myst be in ARG1 */
   /* returns address of code for clause */
   Term head, body;
@@ -2750,7 +2716,6 @@ cclause(Term inp_clause, int NOfArgs)
   int botch_why;
   volatile Term my_clause = inp_clause;
   /* may botch while doing a different module */
-  volatile int save_CurrentModule = CurrentModule;
 
   /* first, initialise CompilerBotch to handle all cases of interruptions */
   ErrorMessage = NIL;
@@ -2760,7 +2725,6 @@ cclause(Term inp_clause, int NOfArgs)
     reset_vars();
     {
       Int osize = 2*sizeof(CELL)*(ASP-H);
-      *CurrentModulePtr = MkIntTerm(save_CurrentModule);
       ARG1 = my_clause;
       if (!gc(2, ENV, P)) {
 	Error_TYPE = SYSTEM_ERROR;
@@ -2780,7 +2744,6 @@ cclause(Term inp_clause, int NOfArgs)
     /* out of temporary cells */
     restore_machine_regs();
     reset_vars();
-    *CurrentModulePtr = MkIntTerm(save_CurrentModule);
     if (maxvnum < 16*1024) {
       maxvnum *= 2;
     } else {
@@ -2790,7 +2753,6 @@ cclause(Term inp_clause, int NOfArgs)
     /* not enough heap */
     restore_machine_regs();
     reset_vars();
-    *CurrentModulePtr = MkIntTerm(save_CurrentModule);
     Error_TYPE = SYSTEM_ERROR;
     Error_Term = TermNil;
     ErrorMessage = "not enough heap space to compile clause";
@@ -2798,7 +2760,6 @@ cclause(Term inp_clause, int NOfArgs)
   }
  restart_compilation:
   if (ErrorMessage != NIL) {
-    *CurrentModulePtr = MkIntTerm(save_CurrentModule);
     reset_vars();
     return (0);
   }
@@ -2852,9 +2813,9 @@ cclause(Term inp_clause, int NOfArgs)
     /* find out which predicate we are compiling for */
     if (IsAtomTerm(head)) {
       Atom ap = AtomOfTerm(head);
-      CurrentPred = RepPredProp(PredProp(ap, 0));
+      CurrentPred = RepPredProp(PredPropByAtom(ap, mod));
     } else {
-      CurrentPred = RepPredProp(PredPropByFunc(FunctorOfTerm(head),*CurrentModulePtr));
+      CurrentPred = RepPredProp(PredPropByFunc(FunctorOfTerm(head),mod));
     }
     /* insert extra instructions to count calls */
     READ_LOCK(CurrentPred->PRWLock);
@@ -2868,7 +2829,7 @@ cclause(Term inp_clause, int NOfArgs)
   /* phase 1 : produce skeleton code and variable information              */
   c_head(head);
   emit(allocate_op, Zero, Zero);
-  c_body(body);
+  c_body(body, mod);
   /* Insert blobs at the very end */ 
   if (BlobsStart != NULL) {
     cpc->nextInst = BlobsStart;

@@ -379,7 +379,7 @@ writeTerm(Term t, int p, int depth, int rinfixarg)
       Term targs[1];
       targs[0] = t;
       PutValue(AtomPortray, MkAtomTerm(AtomNil));
-      execute_goal(MkApplTerm(FunctorPortray, 1, targs),0);
+      execute_goal(MkApplTerm(FunctorPortray, 1, targs), 0, 1);
       Use_portray = TRUE;
       if (GetValue(AtomPortray) == MkAtomTerm(AtomTrue))
 	return;
@@ -456,7 +456,7 @@ writeTerm(Term t, int p, int depth, int rinfixarg)
       Term targs[1];
       targs[0] = t;
       PutValue(AtomPortray, MkAtomTerm(AtomNil));
-      execute_goal(MkApplTerm(FunctorPortray, 1, targs),0);
+      execute_goal(MkApplTerm(FunctorPortray, 1, targs),0, 1);
       Use_portray = TRUE;
       if (GetValue(AtomPortray) == MkAtomTerm(AtomTrue))
 	return;

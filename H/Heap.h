@@ -10,7 +10,7 @@
 * File:		Heap.h         						 *
 * mods:									 *
 * comments:	Heap Init Structure					 *
-* version:      $Id: Heap.h,v 1.12 2001-10-31 20:16:48 vsc Exp $	 *
+* version:      $Id: Heap.h,v 1.13 2001-11-15 00:01:40 vsc Exp $	 *
 *************************************************************************/
 
 /* information that can be stored in Code Space */
@@ -97,7 +97,7 @@ typedef struct various_codes {
   Term   mutable_list;
   Term   atts_mutable_list;
 #endif
-  CELL  *wake_up_code;
+  PredEntry  *wake_up_code;
 #endif
   struct pred_entry  *creep_code;
   struct pred_entry  *undef_code;
@@ -253,7 +253,6 @@ typedef struct various_codes {
     functor_stream_eOS,
     functor_change_module,
     functor_current_module,
-    functor_mod_switch,
     functor_u_minus,
     functor_u_plus,
     functor_v_bar,
@@ -295,8 +294,6 @@ typedef struct various_codes {
 #define  ANSWER_RESOLUTION        ((yamop *)&(heap_regs->tableanswerresolutioncode ))
 #endif /* TABLING */
 #define  FAILCODE                 ((CODEADDR)&(heap_regs->failcode       ))
-#define  FAILCODE                 ((CODEADDR)&(heap_regs->failcode       ))
-#define  TRUSTFAILCODE            ((CODEADDR)&(heap_regs->trustfailcode  ))
 #define  TRUSTFAILCODE            ((CODEADDR)&(heap_regs->trustfailcode  ))
 #define  YESCODE                  ((CODEADDR)&(heap_regs->yescode        ))
 #define  NOCODE                   ((CODEADDR)&(heap_regs->nocode         ))

@@ -500,8 +500,8 @@ format(Stream, S, A) :- '$format'(Stream, S, A).
 
 /* interface to user portray	*/
 '$portray'(T) :-
-	\+ '$undefined'(portray(_)),
-	portray(T), !,
+	\+ '$undefined'(portray(_),user),
+	user:portray(T), !,
 	'$set_value'('$portray',true), fail.
 '$portray'(_) :- '$set_value'('$portray',false), fail.
 
