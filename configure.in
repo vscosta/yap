@@ -48,6 +48,9 @@ AC_ARG_ENABLE(cygwin,
 AC_ARG_ENABLE(dynamic_loading,
 	[ --enable-dynamic-loading    compile Yap as a DLL ],
 	dynamic_loading="$enableval", dynamic_loading=no)
+AC_ARG_ENABLE(use_malloc,
+	[ --enable-use-malloc    use malloc to allocate memory ],
+	use_malloc="$enableval", use_malloc=no)
 	
 AC_ARG_WITH(gmp,
 	[ --with-gmp[=DIR]           use GNU Multiple Precision in DIR],
@@ -567,7 +570,8 @@ AC_HEADER_STDC
 AC_HEADER_SYS_WAIT
 AC_CHECK_HEADERS(arpa/inet.h ctype.h direct.h dirent.h dlfcn.h)
 AC_CHECK_HEADERS(errno.h fcntl.h)
-AC_CHECK_HEADERS(fenv.h fpu_control.h ieeefp.h io.h limits.h memory.h)
+AC_CHECK_HEADERS(fenv.h fpu_control.h ieeefp.h io.h limits.h)
+AC_CHECK_HEADERS(malloc.h memory.h)
 AC_CHECK_HEADERS(netdb.h netinet/in.h regex.h)
 AC_CHECK_HEADERS(siginfo.h signal.h stdarg.h string.h stropts.h)
 AC_CHECK_HEADERS(sys/conf.h sys/file.h)
@@ -833,6 +837,12 @@ else
   dnl be conservative: if the test failed, assume fflush(NULL) is
   dnl not working properly
   AC_DEFINE(BROKEN_FFLUSH_NULL,1)
+fi
+
+dnl disable smart memory management
+if test $use_malloc = yes 
+then
+AC_DEFINE(USE_MALLOC,1)
 fi
 
 mkdir -p  library/regex

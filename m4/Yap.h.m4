@@ -10,7 +10,7 @@
 * File:		Yap.h.m4						 *
 * mods:									 *
 * comments:	main header file for YAP				 *
-* version:      $Id: Yap.h.m4,v 1.24 2002-03-12 04:07:10 vsc Exp $	 *
+* version:      $Id: Yap.h.m4,v 1.25 2002-05-19 19:04:33 vsc Exp $	 *
 *************************************************************************/
 
 #include "config.h"
@@ -249,11 +249,11 @@ extern char     Option[20];
 #endif
 #endif /* !IN_SECOND_QUADRANT */
 
-#if defined(MMAP_ADDR) && (HAVE_MMAP || HAVE_SHMAT || _WIN32) && !__simplescalar__
+#if defined(MMAP_ADDR) && (USE_MMAP || USE_SHMAT || _WIN32) && !__simplescalar__
 #define HEAP_INIT_BASE  (MMAP_ADDR)
 #define AtomBase        ((char *)MMAP_ADDR)
 #else
-#define HEAP_INIT_BASE  (HeapBase)
+#define HEAP_INIT_BASE  ((CELL)HeapBase)
 #define AtomBase        (HeapBase)
 #endif
 
@@ -616,6 +616,15 @@ and  RefOfTerm(t) : Term -> DBRef = ...
 
 #define	TermSize    sizeof(Term)
 
+/************* variables related to memory allocation *******************/
+/* must be before TermExt.h */
+extern ADDR     HeapBase,
+		     LocalBase,
+		     GlobalBase,
+		     TrailBase, TrailTop,
+		     ForeignCodeBase, ForeignCodeTop, ForeignCodeMax;
+
+
 /* applies to unbound variables */
 Destructor(Term, VarOf, Term *, t, t)
 #if SBA
@@ -658,15 +667,6 @@ Inline(IsIntTerm, int, Term, t, CHKTAG((t), NumberTag))
 #else
 #define FlIsInt(X)	( FALSE )
 #endif
-
-
-/************* variables related to memory allocation *******************/
-     /* must be before TermExt.h */
-extern ADDR     HeapBase,
-		     LocalBase,
-		     GlobalBase,
-		     TrailBase, TrailTop,
-		     ForeignCodeBase, ForeignCodeTop, ForeignCodeMax;
 
 
 /*

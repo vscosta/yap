@@ -49,7 +49,7 @@ Int LoadForeign( StringList ofiles, StringList libs,
       return LOAD_FAILLED;
     }
 
-    ofiles->handle = malloc( sizeof(shl_t) );
+    ofiles->handle = AllocCodeSpace( sizeof(shl_t) );
     *(shl_t *)ofiles->handle = shl_load( FileNameBuf, BIND_DEFERRED, 0 );
     if( *(shl_t *)ofiles->handle == NULL ) {
       strerror_r( errno, LoadMsg, 512 );
@@ -110,7 +110,7 @@ void ShutdownLoadForeign( void )
 	perror( NULL );
 	return;
       }
-      free( objs->handle );
+      FreeCodeSpace( objs->handle );
       objs = objs->next;
     }
 
@@ -122,7 +122,7 @@ void ShutdownLoadForeign( void )
 	perror( NULL );
 	return;
       }
-      free( libs->handle );
+      FreeCodeSpace( libs->handle );
       libs = libs->next;
     }
     f_code = f_code->next;

@@ -1129,13 +1129,13 @@ p_floor(Term t E_ARGS)
     if (yap_flags[LANGUAGE_MODE_FLAG] == 1) { /* iso */
       MP_INT *big = BigIntOfTerm(t);
       Int sz = 2+mpz_sizeinbase(big,10);
-      char *s = malloc(sz);
+      char *s = AllocCodeSpace(sz);
 
       if (s != NULL) {
 	mpz_get_str(s, 10, BigIntOfTerm(t));
 	Error(TYPE_ERROR_FLOAT, t, "X is floor(%s)", IntegerOfTerm(t));
 	P = (yamop *)FAILCODE;
-	free(s);
+	FreeCodeSpace(s);
 	RERROR();
       } else {
 	Error(TYPE_ERROR_FLOAT, t, "X is floor(t)");
@@ -1167,12 +1167,12 @@ p_floor(Term t E_ARGS)
       if (yap_flags[LANGUAGE_MODE_FLAG] == 1) { /* iso */
 	MP_INT *big = v.big;
 	Int sz = 2+mpz_sizeinbase(big,10);
-	char *s = malloc(sz);
+	char *s = AllocCodeSpace(sz);
 
 	if (s != NULL) {
 	  mpz_get_str(s, 10, BigIntOfTerm(t));
 	  Error(TYPE_ERROR_FLOAT, t, "X is floor(%s)", IntegerOfTerm(t));
-	  free(s);
+	  FreeCodeSpace(s);
 	  P = (yamop *)FAILCODE;
 	  RERROR();
 	} else {
@@ -1225,12 +1225,12 @@ p_ceiling(Term t E_ARGS)
     if (yap_flags[LANGUAGE_MODE_FLAG] == 1) { /* iso */
       MP_INT *big = BigIntOfTerm(t);
       Int sz = 2+mpz_sizeinbase(big,10);
-      char *s = malloc(sz);
+      char *s = AllocCodeSpace(sz);
 
       if (s != NULL) {
 	mpz_get_str(s, 10, BigIntOfTerm(t));
 	Error(TYPE_ERROR_FLOAT, t, "X is ceiling(%s)", IntegerOfTerm(t));
-	free(s);
+	FreeCodeSpace(s);
 	P = (yamop *)FAILCODE;
 	RERROR();
       } else {
@@ -1263,12 +1263,12 @@ p_ceiling(Term t E_ARGS)
       if (yap_flags[LANGUAGE_MODE_FLAG] == 1) { /* iso */
 	MP_INT *big = v.big;
 	Int sz = 2+mpz_sizeinbase(big,10);
-	char *s = malloc(sz);
+	char *s = AllocCodeSpace(sz);
 
 	if (s != NULL) {
 	  mpz_get_str(s, 10, BigIntOfTerm(t));
 	  Error(TYPE_ERROR_FLOAT, t, "X is ceiling(%s)", IntegerOfTerm(t));
-	  free(s);
+	  FreeCodeSpace(s);
 	  P = (yamop *)FAILCODE;
 	  RERROR();
 	} else {
@@ -1321,12 +1321,12 @@ p_round(Term t E_ARGS)
     if (yap_flags[LANGUAGE_MODE_FLAG] == 1) { /* iso */
       MP_INT *big = BigIntOfTerm(t);
       Int sz = 2+mpz_sizeinbase(big,10);
-      char *s = malloc(sz);
+      char *s = AllocCodeSpace(sz);
 
       if (s != NULL) {
 	mpz_get_str(s, 10, BigIntOfTerm(t));
 	Error(TYPE_ERROR_FLOAT, t, "X is round(%s)", IntegerOfTerm(t));
-	free(s);
+	FreeCodeSpace(s);
 	P = (yamop *)FAILCODE;
 	RERROR();
       } else {
@@ -1359,12 +1359,12 @@ p_round(Term t E_ARGS)
       if (yap_flags[LANGUAGE_MODE_FLAG] == 1) { /* iso */
 	MP_INT *big = v.big;
 	Int sz = 2+mpz_sizeinbase(big,10);
-	char *s = malloc(sz);
+	char *s = AllocCodeSpace(sz);
 
 	if (s == NULL) {
 	  mpz_get_str(s, 10, BigIntOfTerm(t));
 	  Error(TYPE_ERROR_FLOAT, t, "X is round(%s)", IntegerOfTerm(t));
-	  free(s);
+	  FreeCodeSpace(s);
 	  P = (yamop *)FAILCODE;
 	  RERROR();
 	} else {
@@ -1417,12 +1417,12 @@ p_truncate(Term t E_ARGS)
     if (yap_flags[LANGUAGE_MODE_FLAG] == 1) { /* iso */
       MP_INT *big = BigIntOfTerm(t);
       Int sz = 2+mpz_sizeinbase(big,10);
-      char *s = malloc(sz);
+      char *s = AllocCodeSpace(sz);
 
       if (s != NULL) {
 	mpz_get_str(s, 10, BigIntOfTerm(t));
 	Error(TYPE_ERROR_FLOAT, t, "X is truncate(%s)", IntegerOfTerm(t));
-	free(s);
+	FreeCodeSpace(s);
 	P = (yamop *)FAILCODE;
 	RERROR();
       } else {
@@ -1455,12 +1455,12 @@ p_truncate(Term t E_ARGS)
       if (yap_flags[LANGUAGE_MODE_FLAG] == 1) { /* iso */
 	MP_INT *big = v.big;
 	Int sz = 2+mpz_sizeinbase(big,10);
-	char *s = malloc(sz);
+	char *s = AllocCodeSpace(sz);
 
 	if (s == NULL) {
 	  mpz_get_str(s, 10, BigIntOfTerm(t));
 	  Error(TYPE_ERROR_FLOAT, t, "X is truncate(%s)", IntegerOfTerm(t));
-	  free(s);
+	  FreeCodeSpace(s);
 	  P = (yamop *)FAILCODE;
 	  RERROR();
 	} else {
@@ -1725,12 +1725,12 @@ p_ffracp(Term t E_ARGS)
     if (yap_flags[LANGUAGE_MODE_FLAG] == 1) { /* iso */
       MP_INT *big = BigIntOfTerm(t);
       Int sz = 2+mpz_sizeinbase(big,10);
-      char *s = malloc(sz);
+      char *s = AllocCodeSpace(sz);
 
       if (s != NULL) {
 	mpz_get_str(s, 10, BigIntOfTerm(t));
 	Error(TYPE_ERROR_FLOAT, t, "X is float_fractional_part(%s)", IntegerOfTerm(t));
-	free(s);
+	FreeCodeSpace(s);
 	P = (yamop *)FAILCODE;
 	RERROR();
       } else {
@@ -1763,12 +1763,12 @@ p_ffracp(Term t E_ARGS)
       if (yap_flags[LANGUAGE_MODE_FLAG] == 1) { /* iso */
 	MP_INT *big = v.big;
 	Int sz = 2+mpz_sizeinbase(big,10);
-	char *s = malloc(sz);
+	char *s = AllocCodeSpace(sz);
 
 	if (s == NULL) {
 	  mpz_get_str(s, 10, BigIntOfTerm(t));
 	  Error(TYPE_ERROR_FLOAT, t, "X is float_fractional_part(%s)", IntegerOfTerm(t));
-	  free(s);
+	  FreeCodeSpace(s);
 	  P = (yamop *)FAILCODE;
 	  RERROR();
 	} else {
@@ -1817,12 +1817,12 @@ p_fintp(Term t E_ARGS)
     if (yap_flags[LANGUAGE_MODE_FLAG] == 1) { /* iso */
       MP_INT *big = BigIntOfTerm(t);
       Int sz = 2+mpz_sizeinbase(big,10);
-      char *s = malloc(sz);
+      char *s = AllocCodeSpace(sz);
 
       if (s == NULL) {
 	mpz_get_str(s, 10, BigIntOfTerm(t));
 	Error(TYPE_ERROR_FLOAT, t, "X is float_integer_part(%s)", IntegerOfTerm(t));
-	free(s);
+	FreeCodeSpace(s);
 	P = (yamop *)FAILCODE;
 	RERROR();
       } else {
@@ -1855,12 +1855,12 @@ p_fintp(Term t E_ARGS)
       if (yap_flags[LANGUAGE_MODE_FLAG] == 1) { /* iso */
 	MP_INT *big = v.big;
 	Int sz = 2+mpz_sizeinbase(big,10);
-	char *s = malloc(sz);
+	char *s = AllocCodeSpace(sz);
 
 	if (s == NULL) {
 	  mpz_get_str(s, 10, BigIntOfTerm(t));
 	  Error(TYPE_ERROR_FLOAT, t, "X is float_integer_part(%s)", IntegerOfTerm(t));
-	  free(s);
+	  FreeCodeSpace(s);
 	  P = (yamop *)FAILCODE;
 	  RERROR();
 	} else {

@@ -12,7 +12,7 @@
 * Last rev:								 *
 * mods:									 *
 * comments:	allocating space					 *
-* version:$Id: alloc.c,v 1.18 2002-03-12 04:07:09 vsc Exp $		 *
+* version:$Id: alloc.c,v 1.19 2002-05-19 19:04:33 vsc Exp $		 *
 *************************************************************************/
 #ifdef SCCS
 static char SccsId[] = "%W% %G%";
@@ -26,6 +26,9 @@ static char SccsId[] = "%W% %G%";
 #include "yapio.h"
 #if HAVE_STRING_H
 #include <string.h>
+#endif
+#if HAVE_MALLOC_H
+#include <malloc.h>
 #endif
 #if HAVE_MEMORY_H
 #include <memory.h>
@@ -848,7 +851,12 @@ static int total_space;
 MALLOC_T
 InitWorkSpace(Int s)
 {
-  MALLOC_T ptr = (MALLOC_T)malloc(MAX_SPACE);
+  MALLOC_T ptr;
+
+#ifdef M_MMAP_MAX
+  mallopt(M_MMAP_MAX, 0);
+#endif
+  ptr = (MALLOC_T)malloc(MAX_SPACE);
   total_space = s;
 
   if (ptr == ((MALLOC_T) - 1)) {

@@ -58,6 +58,7 @@
 #undef  HAVE_IEEEFP_H
 #undef  HAVE_IO_H
 #undef  HAVE_LIMITS_H
+#undef  HAVE_MALLOC_H
 #undef  HAVE_MEMORY_H
 #undef  HAVE_NETDB_H
 #undef  HAVE_NETINET_IN_H
@@ -235,9 +236,10 @@
 
 #define  MSHIFTOFFS 1
 
-#define USE_MMAP    (HAVE_MMAP)
-#define USE_SHM	    (HAVE_SHMAT & !HAVE_MMAP)
-#define USE_SBRK    (HAVE_SBRK & !HAVE_MMAP & !HAVE_SHMAT)
+#undef  USE_MALLOC
+#define USE_MMAP    (HAVE_MMAP  & !USE_MALLOC)
+#define USE_SHM	    (HAVE_SHMAT & !HAVE_MMAP & !USE_MALLOC)
+#define USE_SBRK    (HAVE_SBRK  & !HAVE_MMAP & !HAVE_SHMAT & !USE_MALLOC)
 
 /* for OSes that do not allow user access to the first
    quadrant of the memory space */
