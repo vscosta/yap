@@ -14154,6 +14154,26 @@ collection, so you should use something like:
 If the execution fails, garbage collection might still have changed
 the term, so you should not use the input argument again.
 
+An alternative is to use @emph{slots}, as shown next:
+
+@example
+  long sl = YAP_InitSlot(scoreTerm);
+
+  out = YAP_RunGoal(t);
+  t = YAP_GetFromSlot(sl);
+  YAP_RecoverSlots(1);
+  if (out == 0) {
+     return FALSE;
+  }
+}
+@end example
+Slots are safe houses in the stack, preserved by the garbage collector
+and the stack shifter. In this case, we use a slot to preserve @var{t}
+during the execution of @code{YAP_RunGoal}. When the execution of
+@var{t} is over we read the (possibly changed) value of @var{t} back
+from the slot @var{sl} and tell YAP that the slot @var{sl} is not
+needed and can be given back to the system.
+
 @item  @code{int} YAP_RestartGoal(@code{void})
 @findex YAP_RestartGoal/0
 Look for the next solution to the current query by forcing YAP to backtrack.
