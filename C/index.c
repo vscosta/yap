@@ -3408,7 +3408,6 @@ Yap_PredIsIndexable(PredEntry *ap)
       return FAILCODE;
     }
   } else if (setjres != 0) {
-    printf("at %d\n", vsc_index);
     if (!Yap_growheap(FALSE, Yap_Error_Size, NULL)) {
       Yap_Error(SYSTEM_ERROR, TermNil, Yap_ErrorMessage);
       return FAILCODE;
@@ -4364,16 +4363,10 @@ pop_path(path_stack_entry **spp, ClauseDef *clp, PredEntry *ap)
   clp->Tag = sp->u.pce.tag;
   if (sp->u.pce.pi_pc == NULL) {
     *spp = sp;
-    if (Yap_Option['i' - 'a' + 1]) {
-      printf("%p\n", sp);
-    }
     return NULL;
   }
   nipc = *(sp->u.pce.pi_pc);
   *spp = cross_block(sp, sp->u.pce.pi_pc, ap);
-  if (Yap_Option['i' - 'a' + 1]) {
-    printf("%p\n",*spp);
-  }
   return nipc;
 }
 
