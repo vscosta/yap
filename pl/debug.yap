@@ -710,6 +710,14 @@ debugging :-
 	'$direct_spy'([Module|A]).
 
 %'$creep'(G) :- $current_module(M),write(user_error,[creep,M,G]),nl(user_error),fail.
+% skip calls to assembly versions of execute.
+'$creep'([_|'$execute_in_mod'(G,ModNum)]) :- !,
+	'$module_number'(Mod,ModNum),
+	'$creep'([Mod|G]).
+'$creep'([M|'$execute_within'(G)]) :- !,
+	'$creep'([M|G]).
+'$creep'([M|'$last_execute_within'(G)]) :- !,
+	'$creep'([M|G]).
 '$creep'(G) :-
 	'$get_value'('$alarm', true), !,
 	'$set_value'('$alarm', []),

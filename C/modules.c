@@ -97,10 +97,16 @@ p_change_module(void)
 
 static Int
 p_module_number(void)
-{				/* $change_module(New)		 */
-  Term t = MkIntTerm(LookupModule(Deref(ARG1)));
-  unify(t,ARG2);
-  ARG2 = t;
+{				/* $module_number(Mod,Num)		 */
+  Term tname = Deref(ARG1);
+  Term t;
+  if (IsVarTerm(tname)) {
+    return(unify(tname, ModuleName[IntOfTerm(Deref(ARG2))]));
+  }else {
+    t = MkIntTerm(LookupModule(Deref(ARG1)));
+    unify(t,ARG2);
+    ARG2 = t;
+  }
   return(TRUE);
 }
 

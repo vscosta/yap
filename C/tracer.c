@@ -102,12 +102,6 @@ check_trail_consistency(void) {
 }
 */
 
-static char *op_names[_std_top + 1] =
-{
-#define OPCODE(OP,TYPE) #OP
-#include "YapOpcodes.h"
-#undef  OPCODE
-};
 
 void
 low_level_trace(yap_low_level_port port, PredEntry *pred, CELL *args)
@@ -115,14 +109,14 @@ low_level_trace(yap_low_level_port port, PredEntry *pred, CELL *args)
   char *s;
   char *mname;
   Int arity;
-  extern int gc_calls;
+  /*  extern int gc_calls; */
 
   vsc_count++;
   /*  if (vsc_count < 49036000) return; */
   /* if (vsc_count > 500000) exit(0); */
   /* if (gc_calls < 1) return;*/
 #if defined(__GNUC__)
-  YP_fprintf(YP_stderr,"%llu (%d) ", vsc_count, IntegerOfTerm(DEPTH));
+  YP_fprintf(YP_stderr,"%llu (%p %p) ", vsc_count, P, CP);
 #endif
   /* check_trail_consistency(); */
   if (pred == NULL) {
