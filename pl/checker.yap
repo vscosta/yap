@@ -11,8 +11,15 @@
 * File:		checker.yap						 *
 * comments:	style checker for Prolog				 *
 *									 *
-* Last rev:     $Date: 2004-06-29 19:04:46 $,$Author: vsc $						 *
+* Last rev:     $Date: 2004-06-29 19:12:01 $,$Author: vsc $						 *
 * $Log: not supported by cvs2svn $
+* Revision 1.14  2004/06/29 19:04:46  vsc
+* fix multithreaded version
+* include new version of Ricardo's profiler
+* new predicat atomic_concat
+* allow multithreaded-debugging
+* small fixes
+*
 * Revision 1.13  2004/03/19 11:35:42  vsc
 * trim_trail for default machine
 * be more aggressive about try-retry-trust chains.
@@ -115,7 +122,7 @@ no_style_check([H|T]) :- no_style_check(H), no_style_check(T).
 '$sv_warning'(SVs,T) :-
 	'$current_module'(OM),
 	'$xtract_head'(T,OM,M,H,Name,Arity),
-	write(user_error,'[ Warning: singleton variable'),
+	write(user_error,'% Warning: singleton variable'),
 	'$write_svs'(SVs),
 	write(user_error,' in '),
 	write(user_error,Name/Arity),
@@ -129,7 +136,7 @@ no_style_check([H|T]) :- no_style_check(H), no_style_check(T).
 		ClN is ClN0+1
 	),
 	write(user_error,ClN), 
-	write(user_error,') ]'),
+	write(user_error,')'),
 	nl(user_error). 
 
 '$xtract_head'(V,M,M,V,call,1) :- var(V), !.
@@ -166,10 +173,10 @@ no_style_check([H|T]) :- no_style_check(H), no_style_check(T).
 	recorded('$discontiguous_defs','$df'(F,A,M),_), !.
 '$handle_discontiguous'(F,A,M) :-
 	'$in_this_file_before'(F,A,M),
-	write(user_error,'[ Warning: discontiguous definition of '),
+	write(user_error,'% Warning: discontiguous definition of '),
 	write(user_error,F/A), write(user_error,' (line '),
 	'$start_line'(LN), write(user_error,LN),
-	write(user_error,') ]'),
+	write(user_error,')'),
 	nl(user_error).
 
 '$handle_multiple'(F,A,M) :-
@@ -192,11 +199,11 @@ no_style_check([H|T]) :- no_style_check(H), no_style_check(T).
 
 '$test_if_well_reconsulting'(F,F,_) :- !.
 '$test_if_well_reconsulting'(_,Fil,P) :-
-	write(user_error,'[ Warning: predicate '),
+	write(user_error,'% Warning: predicate '),
 	write(user_error,P), write(user_error,' already defined in '),
 	write(user_error,Fil), write(user_error,' (line '),
 	'$start_line'(LN), write(user_error,LN),
-	write(user_error,') ]'),
+	write(user_error,')'),
 	nl(user_error).	
 
 '$multifile'(V, _) :- var(V), !,
@@ -250,11 +257,11 @@ no_style_check([H|T]) :- no_style_check(H), no_style_check(T).
 	'$warn_mfile'(Na,Ar).
 
 '$warn_mfile'(F,A) :-
-	write(user_error,'[ Warning: predicate '),
+	write(user_error,'% Warning: predicate '),
 	write(user_error,F/A), write(user_error,' was a multifile predicate '),
 	write(user_error,' (line '),
 	'$start_line'(LN), write(user_error,LN),
-	write(user_error,') ]'),
+	write(user_error,')'),
 	nl(user_error).	
 
 
