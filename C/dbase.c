@@ -276,7 +276,7 @@ recover_from_record_error(int nargs)
     }
     goto recover_record;
   case OUT_OF_TRAIL_ERROR:
-    if (!Yap_growtrail(64 * 1024L)) {
+    if (!Yap_growtrail(64 * 1024L, FALSE)) {
       Yap_Error(OUT_OF_TRAIL_ERROR, TermNil, "YAP could not grow trail in recorda/3");
       return FALSE;
     }
@@ -826,9 +826,9 @@ static CELL *MkDBTerm(register CELL *pt0, register CELL *pt0_end,
       d0 = ArityOfFunctor(f);
       pt0 = ap2+1;
       pt0_end = ap2 + d0;
+      CheckDBOverflow(d0+1);
       /* prepare for our new compound term */
       /* first the functor */
-      CheckDBOverflow(d0);
       *CodeMax++ = (CELL)f;
       /* we'll be working here */
       StoPoint = CodeMax;

@@ -11,8 +11,12 @@
 * File:		index.c							 *
 * comments:	Indexing a Prolog predicate				 *
 *									 *
-* Last rev:     $Date: 2004-12-21 17:17:15 $,$Author: vsc $						 *
+* Last rev:     $Date: 2004-12-28 22:20:35 $,$Author: vsc $						 *
 * $Log: not supported by cvs2svn $
+* Revision 1.111  2004/12/21 17:17:15  vsc
+* miscounting of variable-only clauses in groups might lead to bug in indexing
+* code.
+*
 * Revision 1.110  2004/12/06 04:50:22  vsc
 * fix bug in removing first clause of a try sequence (lu preds)
 *
@@ -486,7 +490,7 @@ sort_group(GroupDef *grp, CELL *top, struct intermediates *cint)
     /* grow stack */
     longjmp(cint->CompilerBotch,4);
 #else
-    if (!Yap_growtrail(2*max*CellSize)) {
+    if (!Yap_growtrail(2*max*CellSize, TRUE)) {
       Yap_Error(OUT_OF_TRAIL_ERROR,TermNil,"YAP failed to reserve %ld in growtrail",
 		2*max*CellSize);
       return;
@@ -4047,7 +4051,7 @@ Yap_PredIsIndexable(PredEntry *ap, UInt NSlots)
   } else if (setjres == 4) {
     restore_machine_regs();
     recover_from_failed_susp_on_cls(&cint, 0);
-    if (!Yap_growtrail(Yap_Error_Size)) {
+    if (!Yap_growtrail(Yap_Error_Size, FALSE)) {
       Yap_Error(OUT_OF_TRAIL_ERROR, TermNil, Yap_ErrorMessage);
       return FAILCODE;
     }
@@ -5001,7 +5005,7 @@ ExpandIndex(PredEntry *ap, int ExtraArgs) {
     }
   } else if (cb == 4) {
     restore_machine_regs();
-    if (!Yap_growtrail(Yap_Error_Size)) {
+    if (!Yap_growtrail(Yap_Error_Size, FALSE)) {
       save_machine_regs();
       if (ap->PredFlags & LogUpdatePredFlag) {
 	Yap_kill_iblock((ClauseUnion *)ClauseCodeToLogUpdIndex(ap->cs.p_code.TrueCodeOfPred),NULL, ap);
@@ -6835,7 +6839,7 @@ Yap_AddClauseToIndex(PredEntry *ap, yamop *beg, int first) {
     save_machine_regs();
   } else if (cb == 4) {
     restore_machine_regs();
-    Yap_growtrail(Yap_Error_Size);
+    Yap_growtrail(Yap_Error_Size, FALSE);
     save_machine_regs();
   }
   if (cb) {
@@ -7351,7 +7355,7 @@ Yap_RemoveClauseFromIndex(PredEntry *ap, yamop *beg) {
     save_machine_regs();
   } else if (cb == 4) {
     restore_machine_regs();
-    Yap_growtrail(Yap_Error_Size);
+    Yap_growtrail(Yap_Error_Size, FALSE);
     save_machine_regs();
   }
   Yap_Error_Size = 0;

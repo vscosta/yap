@@ -883,7 +883,7 @@ HandleSIGSEGV(int   sig,   siginfo_t   *sip, ucontext_t *uap)
       sip->si_code == SEGV_MAPERR &&
       (void *)(sip->si_addr) > (void *)(Yap_HeapBase) &&
       (void *)(sip->si_addr) < (void *)(Yap_TrailTop+64 * 1024L)) {
-    Yap_growtrail(64 * 1024L);
+    Yap_growtrail(64 * 1024L, TRUE);
   }  else
 #endif
     {
@@ -1034,7 +1034,7 @@ SearchForTrailFault(void)
     while ((CELL)TR > (CELL)Yap_TrailTop+trsize) {
       trsize += 64*2014L;
     }
-    if (!Yap_growtrail(trsize)) {
+    if (!Yap_growtrail(trsize, TRUE)) {
       Yap_Error(OUT_OF_TRAIL_ERROR, TermNil, "YAP failed to reserve %ld bytes in growtrail", 64*1024L);
     }
     /* just in case, make sure the OS keeps the signal handler. */

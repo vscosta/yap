@@ -588,7 +588,7 @@ Yap_InitAsmPred(char *Name,  unsigned long int Arity, int code, CPredicate def, 
   pe->ModuleOfPred = CurrentModule;
   if (def != NULL) {
     yamop      *p_code = ((StaticClause *)NULL)->ClCode;
-    StaticClause     *cl = (StaticClause *)Yap_AllocCodeSpace((CELL)NEXTOP(NEXTOP(((yamop *)p_code),sla),e)); 
+    StaticClause     *cl = (StaticClause *)Yap_AllocCodeSpace((CELL)NEXTOP(NEXTOP(NEXTOP(((yamop *)p_code),sla),e),e)); 
 
     cl->ClFlags = 0;
     p_code = cl->ClCode;
@@ -599,6 +599,8 @@ Yap_InitAsmPred(char *Name,  unsigned long int Arity, int code, CPredicate def, 
     p_code->u.sla.sla_u.p = pe;
     p_code = NEXTOP(p_code,sla);
     p_code->opc = Yap_opcode(_procceed);
+    p_code = NEXTOP(p_code,e);
+    p_code->opc = Yap_opcode(_Ystop);
   } else {
     pe->OpcodeOfPred = Yap_opcode(_undef_p);
     pe->CodeOfPred =  (yamop *)(&(pe->OpcodeOfPred)); 

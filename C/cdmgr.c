@@ -11,8 +11,12 @@
 * File:		cdmgr.c							 *
 * comments:	Code manager						 *
 *									 *
-* Last rev:     $Date: 2004-12-20 21:44:57 $,$Author: vsc $						 *
+* Last rev:     $Date: 2004-12-28 22:20:35 $,$Author: vsc $						 *
 * $Log: not supported by cvs2svn $
+* Revision 1.146  2004/12/20 21:44:57  vsc
+* more fixes to CLPBN
+* fix some Yap overflows.
+*
 * Revision 1.145  2004/12/16 05:57:23  vsc
 * fix overflows
 *
@@ -1993,7 +1997,7 @@ p_compile(void)
     return (FALSE);
 
   YAPEnterCriticalSection();
-  codeadr = Yap_cclause(t, 2, mod, Deref(ARG3)); /* vsc: give the number of arguments
+  codeadr = Yap_cclause(t, 4, mod, Deref(ARG3)); /* vsc: give the number of arguments
 			      to cclause in case there is overflow */
   t = Deref(ARG1);        /* just in case there was an heap overflow */
   if (!Yap_ErrorMessage)

@@ -11,8 +11,12 @@
 * File:		stdpreds.c						 *
 * comments:	General-purpose C implemented system predicates		 *
 *									 *
-* Last rev:     $Date: 2004-12-08 04:45:03 $,$Author: vsc $						 *
+* Last rev:     $Date: 2004-12-28 22:20:36 $,$Author: vsc $						 *
 * $Log: not supported by cvs2svn $
+* Revision 1.78  2004/12/08 04:45:03  vsc
+* polish changes to undefp
+* get rid of a few warnings
+*
 * Revision 1.77  2004/12/05 05:07:26  vsc
 * name/2 should accept [] as a valid list (string)
 *
@@ -271,7 +275,7 @@ showprofres(UInt type) {
     pr->pcs = 0L;
     pr++;
     if (pr > (clauseentry *)Yap_TrailTop - 1024) {
-      Yap_growtrail(64 * 1024L);
+      Yap_growtrail(64 * 1024L, TRUE);
     }
     ProfPreds++;
 

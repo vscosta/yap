@@ -57,7 +57,7 @@
 
 STATIC_PROTO(int my_getch, (int (*) (int)));
 STATIC_PROTO(Term float_send, (char *));
-STATIC_PROTO(Term get_num, (int *, int *, int, int (*) (int), int (*) (int),UInt));
+STATIC_PROTO(Term get_num, (int *, int *, int, int (*) (int), int (*) (int),char *,UInt));
 
 /* token table with some help from Richard O'Keefe's PD scanner */
 static char chtype0[NUMBER_OF_CHARS+1] =
@@ -122,6 +122,12 @@ EF,
 #define chtype (chtype0+1)
 char *Yap_chtype = chtype0+1;
 
+/* in case there is an overflow */
+typedef struct scanner_extra_alloc {
+  struct scanner_extra_alloc *next;
+  void *filler;
+} ScannerExtraBlock;
+
 static char *
 AllocScannerMemory(unsigned int size)
 {
@@ -132,13 +138,52 @@ AllocScannerMemory(unsigned int size)
 
   AuxSpScan = ScannerStack;
   size = AdjustSize(size);
-  ScannerStack = AuxSpScan+size;
-  if (Yap_TrailTop <= ScannerStack) {
-    if(!Yap_growtrail (sizeof(CELL) * 16 * 1024L)) {
+  if (ScannerExtraBlocks) {
+    struct scanner_extra_alloc *ptr;
+
+    if (!(ptr = (struct scanner_extra_alloc *)malloc(size+sizeof(ScannerExtraBlock)))) {
       return NULL;
     }
+    ptr->next = ScannerExtraBlocks;
+    ScannerExtraBlocks = ptr;
+    return (char *)(ptr+1);
+  } else if (Yap_TrailTop <= AuxSpScan+size) {
+    UInt alloc_size = sizeof(CELL) * 16 * 1024L;
+ 
+    if (size > alloc_size)
+      alloc_size = size;
+    if(!Yap_growtrail (alloc_size, TRUE)) {
+      struct scanner_extra_alloc *ptr;
+
+      printf("In trouble\n");
+      if (!(ptr = (struct scanner_extra_alloc *)malloc(size+sizeof(ScannerExtraBlock)))) {
+      printf(" oops\n");
+	return NULL;
+      }
+      ptr->next = ScannerExtraBlocks;
+      ScannerExtraBlocks = ptr;
+      return (char *)(ptr+1);
+    }
   }
+  ScannerStack = AuxSpScan+size;
   return AuxSpScan;
+#endif
+}
+
+static void
+PopScannerMemory(char *block, unsigned int size)
+{
+#if USE_SYSTEM_MALLOC
+  return free(block);
+#else
+  if (block == ScannerStack-size) {
+    ScannerStack -= size;
+  } else if (block == (char *)(ScannerExtraBlocks+1)) {
+    struct scanner_extra_alloc *ptr = ScannerExtraBlocks;
+
+    ScannerExtraBlocks = ptr->next;
+    free(ptr);
+  }
 #endif
 }
 
@@ -377,9 +422,9 @@ read_quoted_char(int *scan_nextp, int inp_stream, int (*QuotedNxtch)(int))
 /* reads a number, either integer or float */
 
 static Term
-get_num(int *chp, int *chbuffp, int inp_stream, int (*Nxtch) (int), int (*QuotedNxtch) (int), UInt max_size)
+get_num(int *chp, int *chbuffp, int inp_stream, int (*Nxtch) (int), int (*QuotedNxtch) (int), char *s, UInt max_size)
 {
-  char *s = (char *)ScannerStack, *sp = s;
+  char *sp = s;
   int ch = *chp;
   Int val = 0, base = ch - '0';
   int might_be_float = TRUE, has_overflow = FALSE;
@@ -394,7 +439,7 @@ get_num(int *chp, int *chbuffp, int inp_stream, int (*Nxtch) (int), int (*Quoted
     *sp++ = ch;
     if (--max_size == 0) {
       Yap_ErrorMessage = "Number Too Long";
-      return (TermNil);
+      return TermNil;
     }
     base = 10 * base + ch - '0';
     ch = Nxtch(inp_stream);
@@ -402,12 +447,12 @@ get_num(int *chp, int *chbuffp, int inp_stream, int (*Nxtch) (int), int (*Quoted
   if (ch == '\'') {
     if (base > 36) {
       Yap_ErrorMessage = "Admissible bases are 0..36";
-      return (TermNil);
+      return TermNil;
     }
     might_be_float = FALSE;
     if (--max_size == 0) {
       Yap_ErrorMessage = "Number Too Long";
-      return (TermNil);
+      return TermNil;
     }
     *sp++ = ch;
     ch = Nxtch(inp_stream);
@@ -422,7 +467,7 @@ get_num(int *chp, int *chbuffp, int inp_stream, int (*Nxtch) (int), int (*Quoted
       /* a quick way to represent ASCII */
       if (scan_extra)
 	*chp = Nxtch(inp_stream);
-      return (MkIntTerm(ascii));
+      return MkIntTerm(ascii);
     } else if (base >= 10 && base <= 36) {
       int upper_case = 'A' - 11 + base;
       int lower_case = 'a' - 11 + base;
@@ -431,7 +476,7 @@ get_num(int *chp, int *chbuffp, int inp_stream, int (*Nxtch) (int), int (*Quoted
 	Int oval = val;
 	if (--max_size == 0) {
 	  Yap_ErrorMessage = "Number Too Long";
-	  return (TermNil);
+	  return TermNil;
 	}
 	*sp++ = ch;
 	val = val * base + (chtype[ch] == NU ? ch - '0' :
@@ -445,7 +490,7 @@ get_num(int *chp, int *chbuffp, int inp_stream, int (*Nxtch) (int), int (*Quoted
     might_be_float = FALSE;
     if (--max_size == 0) {
       Yap_ErrorMessage = "Number Too Long";
-      return (TermNil);
+      return TermNil;
     }
     *sp++ = ch;
     ch = Nxtch(inp_stream);
@@ -453,7 +498,7 @@ get_num(int *chp, int *chbuffp, int inp_stream, int (*Nxtch) (int), int (*Quoted
       Int oval = val;
       if (--max_size == 0) {
 	Yap_ErrorMessage = "Number Too Long";
-	return (TermNil);
+	return TermNil;
       }
       *sp++ = ch;
       val = val * 16 + (chtype[ch] == NU ? ch - '0' :
@@ -498,7 +543,7 @@ get_num(int *chp, int *chbuffp, int inp_stream, int (*Nxtch) (int), int (*Quoted
     if (ch == '.') {
       if (--max_size == 0) {
 	Yap_ErrorMessage = "Number Too Long";
-	return (TermNil);
+	return TermNil;
       }
       *sp++ = '.';
       if (chtype[ch = Nxtch(inp_stream)] != NU) {
@@ -506,13 +551,13 @@ get_num(int *chp, int *chbuffp, int inp_stream, int (*Nxtch) (int), int (*Quoted
 	*chp = ch;
 	*--sp = '\0';
 	if (has_overflow)
-	  return(read_int_overflow(s,base,val));
-	return (MkIntegerTerm(val));
+	  return read_int_overflow(s,base,val);
+	return MkIntegerTerm(val);
       }
       do {
 	if (--max_size == 0) {
 	  Yap_ErrorMessage = "Number Too Long";
-	  return (TermNil);
+	  return TermNil;
 	}
 	*sp++ = ch;
       }
@@ -524,7 +569,7 @@ get_num(int *chp, int *chbuffp, int inp_stream, int (*Nxtch) (int), int (*Quoted
 
       if (--max_size == 0) {
 	Yap_ErrorMessage = "Number Too Long";
-	return (TermNil);
+	return TermNil;
       }
       *sp++ = ch;
       ch = Nxtch(inp_stream);
@@ -532,7 +577,7 @@ get_num(int *chp, int *chbuffp, int inp_stream, int (*Nxtch) (int), int (*Quoted
 	cbuff = '-';
 	if (--max_size == 0) {
 	  Yap_ErrorMessage = "Number Too Long";
-	  return (TermNil);
+	  return TermNil;
 	}
 	*sp++ = '-';
 	ch = Nxtch(inp_stream);
@@ -556,35 +601,35 @@ get_num(int *chp, int *chbuffp, int inp_stream, int (*Nxtch) (int), int (*Quoted
 	*sp0 = '\0';
 	for (sp = s; sp < sp0; sp++) {
 	  if (*sp == '.')
-	    return (float_send(s));
+	    return float_send(s);
 	}
-	return(MkIntegerTerm(val));
+	return MkIntegerTerm(val);
       }
       do {
 	if (--max_size == 0) {
 	  Yap_ErrorMessage = "Number Too Long";
-	  return (TermNil);
+	  return TermNil;
 	}
 	*sp++ = ch;
       } while (chtype[ch = Nxtch(inp_stream)] == NU);
     }
     *sp = '\0';
     *chp = ch;
-    return (float_send(s));
+    return float_send(s);
   } else if (has_overflow) {
     *sp = '\0';
     /* skip base */
     *chp = ch;
     if (s[0] == '0' && (s[1] == 'x' || s[1] == 'X'))
-      return(read_int_overflow(s+2,16,val));
+      return read_int_overflow(s+2,16,val);
     if (s[1] == '\'')
-      return(read_int_overflow(s+2,base,val));
+      return read_int_overflow(s+2,base,val);
     if (s[2] == '\'')
-      return(read_int_overflow(s+3,base,val));
-    return(read_int_overflow(s,base,val));
+      return read_int_overflow(s+3,base,val);
+    return read_int_overflow(s,base,val);
   } else {
     *chp = ch;
-    return (MkIntegerTerm(val));
+    return MkIntegerTerm(val);
   }
 }
 
@@ -596,16 +641,14 @@ Yap_scan_num(int (*Nxtch) (int))
   Term out;
   int sign = 1;
   int ch, cherr;
-  UInt tsize;
+  char *ptr;
 
   Yap_ErrorMessage = NULL;
   ScannerStack = (char *)TR;
-  tsize = Yap_TrailTop-ScannerStack;
-  if (tsize < 4096) {
-    if(!Yap_growtrail (sizeof(CELL) * 16 * 1024L)) {
-      Yap_ErrorMessage = "Trail Overflow";
-      return TermNil;
-    }
+  ScannerExtraBlocks = NULL;
+  if (!(ptr = AllocScannerMemory(4096))) {
+    Yap_ErrorMessage = "Trail Overflow";
+    return TermNil;
   }
   ch = Nxtch(-1);
   if (ch == '-') {
@@ -618,7 +661,8 @@ Yap_scan_num(int (*Nxtch) (int))
     return(TermNil);
   }
   cherr = 0;
-  out = get_num(&ch, &cherr, -1, Nxtch, Nxtch, tsize);
+  out = get_num(&ch, &cherr, -1, Nxtch, Nxtch, ptr, 4096);
+  PopScannerMemory(ptr, 4096);
   if (sign == -1) {
     if (IsIntegerTerm(out))
       out = MkIntegerTerm(-IntegerOfTerm(out));
@@ -645,6 +689,7 @@ Yap_tokenizer(int inp_stream)
   Yap_AnonVarTable = NULL;
   Yap_eot_before_eof = FALSE;
   ScannerStack = (char *)TR;
+  ScannerExtraBlocks = NULL;
   l = NULL;
   p = NULL;			/* Just to make lint happy */
   ch = Nxtch(inp_stream);
@@ -717,18 +762,18 @@ Yap_tokenizer(int inp_stream)
     case NU:
       {
 	int cherr, cha = ch;
-	UInt tsize = Yap_TrailTop-ScannerStack;
+	char *ptr;
+
 	cherr = 0;
-	if (tsize < 4096) {
-	  if(!Yap_growtrail (sizeof(CELL) * 16 * 1024L)) {
-	    Yap_ErrorMessage = "Trail Overflow";
-	    if (p)
-	      t->TokInfo = eot_tok;
-	    /* serious error now */
-	    return l;
-	  }
+	if (!(ptr = AllocScannerMemory(4096))) {
+	  Yap_ErrorMessage = "Trail Overflow";
+	  if (p)
+	    t->TokInfo = eot_tok;
+	  /* serious error now */
+	  return l;
 	}
-	t->TokInfo = get_num(&cha,&cherr,inp_stream,Nxtch,QuotedNxtch,tsize);
+	t->TokInfo = get_num(&cha,&cherr,inp_stream,Nxtch,QuotedNxtch,ptr,4096);
+	PopScannerMemory(ptr, 4096);
 	ch = cha;
 	if (cherr) {
 	  TokEntry *e;
@@ -1016,6 +1061,12 @@ void clean_tokens(TokEntry *tk)
 void
 Yap_clean_tokenizer(TokEntry *tokstart, VarEntry *vartable, VarEntry *anonvartable)
 {
+  scanner_extra_alloc *ptr = ScannerExtraBlocks;
+  while (ptr) {
+    scanner_extra_alloc *next = ptr->next;
+    free(ptr);
+    ptr = next;
+  }
   clean_vtable(vartable);
   clean_vtable(anonvartable);
   clean_tokens(tokstart);

@@ -1216,7 +1216,7 @@ Yap_growstack_in_parser(tr_fr_ptr *old_trp, TokEntry **tksp, VarEntry **vep)
   return(TRUE);  
 }
 
-static int do_growtrail(long size)
+static int do_growtrail(long size, int contiguous)
 {
   UInt start_growth_time = Yap_cputime(), growth_time;
   int gc_verbose = Yap_is_gc_verbose();
@@ -1243,6 +1243,11 @@ static int do_growtrail(long size)
 #else
   if (!Yap_ExtendWorkSpace(size)) {
     Yap_ErrorMessage = NULL;
+    if (contiguous) {
+      /* I can't expand in this case */
+      trail_overflows--;
+      return FALSE;
+    }
     execute_growstack(size, TRUE);
   }
   YAPEnterCriticalSection();
@@ -1267,9 +1272,9 @@ static int do_growtrail(long size)
 
 /* Used by do_goal() when we're short of stack space */
 int
-Yap_growtrail(long size)
+Yap_growtrail(long size, int contiguous)
 {
-  return do_growtrail(size);
+  return do_growtrail(size, contiguous);
 }
 
 CELL **
@@ -1293,7 +1298,7 @@ Yap_shift_visit(CELL **to_visit, CELL ***to_visit_maxp)
   return (CELL **)((char *)newb+(sz1+dsz));
 #else
   CELL **old_top = (CELL **)Yap_TrailTop;
-  if (do_growtrail(64 * 1024L)) {
+  if (do_growtrail(64 * 1024L, FALSE)) {
     CELL **dest = (CELL **)((char *)to_visit+64 * 1024L);
     cpcellsd((CELL *)dest, (CELL *)to_visit, (CELL)((CELL *)old_top-(CELL *)to_visit));
     return dest;

@@ -753,7 +753,6 @@ not(G) :-    \+ '$execute'(G).
 '$do_undefp'(G,M) :-
 	\+ '$undefined'(unknown_predicate_handler(_,_,_), user),
 	'$system_catch'(unknown_predicate_handler(G,M,NG), user, _, fail), !,
-	erase(R),
 	'$exit_undefp',
 	'$execute'(user:NG).
 '$do_undefp'(G,M) :-

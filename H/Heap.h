@@ -10,7 +10,7 @@
 * File:		Heap.h         						 *
 * mods:									 *
 * comments:	Heap Init Structure					 *
-* version:      $Id: Heap.h,v 1.75 2004-12-08 04:45:04 vsc Exp $	 *
+* version:      $Id: Heap.h,v 1.76 2004-12-28 22:20:36 vsc Exp $	 *
 *************************************************************************/
 
 /* information that can be stored in Code Space */
@@ -45,6 +45,8 @@ typedef struct scratch_block_struct {
 } scratch_block;
 
 typedef struct worker_local_struct {
+  char *scanner_stack;
+  struct scanner_extra_alloc *scanner_extra_blocks;
 #if defined(YAPOR) || defined(THREADS)
   lockvar  signal_lock;        /* protect signal handlers from IPIs */
   struct pred_entry *wpp;
@@ -104,7 +106,6 @@ typedef struct various_codes {
   ADDR heap_top;
   ADDR heap_lim;
   struct FREEB  *free_blocks;
-  char *scanner_stack;
 #if defined(YAPOR) || defined(THREADS)
   lockvar  bgl;		 /* protect long critical regions   */
   lockvar  free_blocks_lock;     /* protect the list of free blocks */
@@ -439,7 +440,6 @@ struct various_codes *Yap_heap_regs;
 #define  HeapMax                 Yap_heap_regs->heap_max
 #define  HeapTop                 Yap_heap_regs->heap_top
 #define  HeapLim                 Yap_heap_regs->heap_lim
-#define  ScannerStack            Yap_heap_regs->scanner_stack
 #ifdef YAPOR
 #define  SEQUENTIAL_IS_DEFAULT   Yap_heap_regs->seq_def
 #define  GETWORK		 (&(Yap_heap_regs->getworkcode               ))
@@ -671,6 +671,8 @@ struct various_codes *Yap_heap_regs;
 #define  WakeUpCode               Yap_heap_regs->wake_up_code
 #endif
 #if defined(YAPOR) || defined(THREADS)
+#define  ScannerStack             Yap_heap_regs->wl[worker_id].scanner_stack
+#define  ScannerExtraAlloc        Yap_heap_regs->wl[worker_id].scanner_extra_alloc
 #define  SignalLock               Yap_heap_regs->wl[worker_id].signal_lock
 #define  WPP                      Yap_heap_regs->wl[worker_id].wpp
 #define  UncaughtThrow            Yap_heap_regs->wl[worker_id].uncaught_throw
@@ -692,6 +694,8 @@ struct various_codes *Yap_heap_regs;
 #define  Yap_old_TR               Yap_heap_regs->wl[worker_id].old_TR
 #define  TrustLUCode              Yap_heap_regs->wl[worker_id].trust_lu_code
 #else
+#define  ScannerStack             Yap_heap_regs->wl.scanner_stack
+#define  ScannerExtraBlocks       Yap_heap_regs->wl.scanner_extra_blocks
 #define  ActiveSignals            Yap_heap_regs->wl.active_signals
 #define  IPredArity               Yap_heap_regs->wl.i_pred_arity
 #define  ProfEnd                  Yap_heap_regs->wl.prof_end

@@ -11,8 +11,12 @@
 * File:		amasm.c							 *
 * comments:	abstract machine assembler				 *
 *									 *
-* Last rev:     $Date: 2004-12-20 21:44:56 $							 *
+* Last rev:     $Date: 2004-12-28 22:20:35 $							 *
 * $Log: not supported by cvs2svn $
+* Revision 1.69  2004/12/20 21:44:56  vsc
+* more fixes to CLPBN
+* fix some Yap overflows.
+*
 * Revision 1.68  2004/12/07 16:54:57  vsc
 * fix memory overflow
 *
@@ -2970,7 +2974,7 @@ fetch_clause_space(Term* tp, UInt size, struct intermediates *cip)
     case OUT_OF_TRAIL_ERROR:
       /* don't just return NULL */
       ARG1 = *tp;
-      if (!Yap_growtrail(64 * 1024L)) {
+      if (!Yap_growtrail(64 * 1024L, FALSE)) {
 	return NULL;
       }
       Yap_Error_TYPE = YAP_NO_ERROR;

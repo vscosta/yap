@@ -463,7 +463,7 @@ writeTerm(Term t, int p, int depth, int rinfixarg, struct write_globs *wglb)
 	{
 	  char *s = (char *)TR;
 	  while (s+2+mpz_sizeinbase(Yap_BigIntOfTerm(t), 10) > (char *)Yap_TrailTop)
-	    Yap_growtrail(2+mpz_sizeinbase(Yap_BigIntOfTerm(t), 10));
+	    Yap_growtrail(2+mpz_sizeinbase(Yap_BigIntOfTerm(t), 10), TRUE);
 	  mpz_get_str(s, 10, Yap_BigIntOfTerm(t));
 	  wrputs(s,wglb->writech);
 	}

@@ -10,8 +10,13 @@
 *									 *
 * File:		absmi.c							 *
 * comments:	Portable abstract machine interpreter                    *
-* Last rev:     $Date: 2004-12-05 05:01:21 $,$Author: vsc $						 *
+* Last rev:     $Date: 2004-12-28 22:20:34 $,$Author: vsc $						 *
 * $Log: not supported by cvs2svn $
+* Revision 1.154  2004/12/05 05:01:21  vsc
+* try to reduce overheads when running with goal expansion enabled.
+* CLPBN fixes
+* Handle overflows when allocating big clauses properly.
+*
 * Revision 1.153  2004/11/19 22:08:35  vsc
 * replace SYSTEM_ERROR by out OUT_OF_WHATEVER_ERROR whenever appropriate.
 *
@@ -469,7 +474,7 @@ Yap_absmi(int inp)
 	ASP = YREG+E_CB;
       }
       saveregs();
-      if(!Yap_growtrail (sizeof(CELL) * 16 * 1024L)) {
+      if(!Yap_growtrail (sizeof(CELL) * 16 * 1024L, FALSE)) {
 	Yap_Error(OUT_OF_TRAIL_ERROR,TermNil,"YAP failed to reserve %ld bytes in growtrail",sizeof(CELL) * 16 * 1024L);
 	setregs();
 	FAIL();
@@ -12638,7 +12643,7 @@ Yap_absmi(int inp)
 	}
 	if (ActiveSignals & YAP_TROVF_SIGNAL) {
 	  saveregs_and_ycache();
-	  if(!Yap_growtrail (sizeof(CELL) * 16 * 1024L)) {
+	  if(!Yap_growtrail (sizeof(CELL) * 16 * 1024L, FALSE)) {
 	    Yap_Error(OUT_OF_TRAIL_ERROR,TermNil,"YAP failed to reserve %ld bytes in growtrail",sizeof(CELL) * 16 * 1024L);
 	    setregs_and_ycache();
 	    FAIL();
