@@ -1,6 +1,6 @@
 =================================================================
 Logtalk - Object oriented extension to Prolog
-Release 2.22.5
+Release 2.23.0
 
 Copyright (c) 1998-2005 Paulo Moura.  All Rights Reserved.
 =================================================================
@@ -8,6 +8,35 @@ Copyright (c) 1998-2005 Paulo Moura.  All Rights Reserved.
 
 RELEASE NOTES
 =============
+
+
+2.23.0 - February 21, 2005
+
+	Optimized the code generated for local calls to the built-in predicates 
+	asserta/1, assertz/1, retract/1, and retractall/1, when the argument is 
+	a dynamic predicate declared by a scope directive in the object making 
+	the calls.
+
+	Added caching of predicate compiled forms for dynamic facts when used 
+	with the database built-in methods clause/2, asserta/1, assertz/1, 
+	retract/1, and retractall/1, resulting in a significant performance 
+	improvement when using an object's dynamic database. Improved performance 
+	of the database built-in methods abolish/1, asserta/1, assertz/1, clause/2, 
+	retract/1, and retractall/1 when the cache is not used.
+
+	Corrected a bug on the implementation of the built-in methods asserta/1 
+	and assertz/1 that prevented asserting of rules.
+
+	Corrected a bug on the implementation of built-in methods retractall/1, 
+	retract/1, and clause/2 that allowed access to local dynamic predicates 
+	from outside the container object.
+
+	Added a runtime error handler for top-level ::/2 calls which tries to deal
+	with exceptions thrown by calling non-existing predicates by translating 
+	Logtalk generated internal predicate names to user names.
+
+	Print the total number of warnings after a call to the Logtalk built-in 
+	predicates logtalk_compile/1-2 and logtalk_load/1-2.
 
 
 2.22.5 - February 9, 2005
