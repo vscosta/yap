@@ -291,7 +291,6 @@ Yap_absmi(int inp)
       restore_absmi_regs(old_regs);
 #endif
       if (!Yap_growheap(FALSE, 0)) {
-	saveregs();
 	Yap_Error(SYSTEM_ERROR, TermNil, "YAP failed to grow heap: %s", Yap_ErrorMessage);
 	setregs();
 	FAIL();
@@ -370,7 +369,7 @@ Yap_absmi(int inp)
       /* try_me    Label,NArgs */
       Op(try_me, ld);
       /* check if enough space between trail and codespace */
-      check_trail();
+      check_trail(TR);
       /* I use YREG =to go through the choicepoint. Usually YREG =is in a
        * register, but sometimes (X86) not. In this case, have a
        * new register to point at YREG =*/
@@ -696,7 +695,7 @@ Yap_absmi(int inp)
 *****************************************************************/
       /* try_me0    Label,NArgs */
       Op(try_me0, ld);
-      check_trail();
+      check_trail(TR);
       CACHE_Y(YREG);
       store_yaam_regs(PREG->u.ld.d, 0);
       set_cut(S_YREG, B);
@@ -755,7 +754,7 @@ Yap_absmi(int inp)
 
       /* try_me1    Label,NArgs */
       Op(try_me1, ld);
-      check_trail();
+      check_trail(TR);
       CACHE_Y(YREG);
       {
 	register CELL x1 = CACHED_A1();
@@ -822,7 +821,7 @@ Yap_absmi(int inp)
 
       /* try_me2    Label,NArgs */
       Op(try_me2, ld);
-      check_trail();
+      check_trail(TR);
       CACHE_Y(YREG);
 #ifdef HAVE_FEW_REGS
       store_yaam_regs(PREG->u.ld.d, 2);
@@ -900,7 +899,7 @@ Yap_absmi(int inp)
 
       /* try_me3    Label,NArgs */
       Op(try_me3, ld);
-      check_trail();
+      check_trail(TR);
       CACHE_Y(YREG);
 #ifdef HAVE_FEW_REGS
       store_yaam_regs(PREG->u.ld.d, 3);
@@ -984,7 +983,7 @@ Yap_absmi(int inp)
 
       /* try_me4    Label,NArgs */
       Op(try_me4, ld);
-      check_trail();
+      check_trail(TR);
       CACHE_Y(YREG);
       store_yaam_regs(PREG->u.ld.d, 4);
 #ifdef HAVE_FEW_REGS
@@ -1079,7 +1078,7 @@ Yap_absmi(int inp)
       BOp(try_logical_pred, l);
       /* mark the indexing code */
       {
-	LogUpdClause *cl = (LogUpdClause *)PREG->u.l.l;
+	LogUpdIndex *cl = (LogUpdIndex *)PREG->u.l.l;
 	PREG = NEXTOP(PREG, l);
 	LOCK(cl->ClLock);
 	/* indicate the indexing code is being used */
@@ -1091,7 +1090,7 @@ Yap_absmi(int inp)
 	if (!(cl->ClFlags & InUseMask)) {
 	  cl->ClFlags |= InUseMask;
 	  TRAIL_CLREF(cl);
-	  cl->u2.ClUse =  TR-(tr_fr_ptr)(Yap_TrailBase);
+	  cl->ClUse =  TR-(tr_fr_ptr)(Yap_TrailBase);
 	}
 #endif
 	UNLOCK(cl->ClLock);
@@ -1104,7 +1103,7 @@ Yap_absmi(int inp)
       /* unmark the indexing code */
       /* mark the indexing code */
       {
-	LogUpdClause *cl = (LogUpdClause *)PREG->u.l.l;
+	LogUpdIndex *cl = (LogUpdIndex *)PREG->u.l.l;
 	PREG = NEXTOP(PREG, l);
 	/* check if we are the ones using this code */
 #if defined(YAPOR) || defined(THREADS)
@@ -1118,19 +1117,19 @@ Yap_absmi(int inp)
 	  /* I am the last one using this clause, hence I don't need a lock
 	     to dispose of it 
 	  */
-	  Yap_ErLogUpdCl(cl);
+	  Yap_RemoveLogUpdIndex(cl);
 	} else {
 	  UNLOCK(cl->ClLock);
 	}
 #else
-	if (cl->u2.ClUse == TR-(tr_fr_ptr)(Yap_TrailBase)) {
-	  cl->u2.ClUse = 0;
+	if (cl->ClUse == TR-(tr_fr_ptr)(Yap_TrailBase)) {
+	  cl->ClUse = 0;
 	  cl->ClFlags &= ~InUseMask;
 	  /* clear the entry from the trail */
 	  TR = --(B->cp_tr);
 	  /* next, recover space for the indexing code if it was erased */
 	  if (cl->ClFlags & ErasedMask) {
-	    Yap_ErLogUpdCl(cl);
+	    Yap_RemoveLogUpdIndex(cl);
 	  }
 	}
 #endif
@@ -1169,6 +1168,91 @@ Yap_absmi(int inp)
       GONext();
       ENDBOp();
 
+      /* copy database term               */
+      BOp(copy_idb_term, e);
+      {
+	LogUpdClause *cl = ClauseCodeToLogUpdClause(PREG);
+	Term t;
+
+	t = Yap_FetchTermFromDB(cl->ClSource, 3);
+	if (!Yap_IUnify(ARG2, t)) {
+	  FAIL();
+	}
+	if (!Yap_IUnify(ARG3, MkDBRefTerm((DBRef)cl))) {
+	  FAIL();
+	}
+
+#if defined(YAPOR) || defined(THREADS)
+
+	LOCK(cl->ClLock);
+	/* always add an extra reference */
+	INC_CLREF_COUNT(cl);
+	TRAIL_CLREF(cl);
+	UNLOCK(cl->ClLock);
+#else
+	if (!(cl->ClFlags |= InUseMask)) {
+	  /* Clause *cl = (Clause *)PREG->u.EC.ClBase;
+
+	  PREG->u.EC.ClTrail = TR-(tr_fr_ptr)Yap_TrailBase;
+	  PREG->u.EC.ClENV = LCL0-YENV;*/
+	  cl->ClFlags |= InUseMask;
+	  TRAIL_CLREF(cl);
+	}
+#endif
+      }
+      PREG = CPREG;
+      YREG = ENV;
+#ifdef DEPTH_LIMIT
+      DEPTH = YREG[E_DEPTH];
+#endif
+      GONext();
+      ENDBOp();
+
+
+      /* unify with database term               */
+      BOp(unify_idb_term, e);
+      {
+	LogUpdClause *cl = ClauseCodeToLogUpdClause(PREG);
+
+	if (!Yap_IUnify(ARG2, cl->ClSource->Entry)) {
+	  FAIL();
+	}
+	if (!Yap_IUnify(ARG3, MkDBRefTerm((DBRef)cl))) {
+	  FAIL();
+	}
+
+	/* say that an environment is using this clause */
+	/* we have our own copy for the clause */
+#if defined(YAPOR) || defined(THREADS)
+
+	LOCK(cl->ClLock);
+	/* always add an extra reference */
+	INC_CLREF_COUNT(cl);
+	TRAIL_CLREF(cl);
+	UNLOCK(cl->ClLock);
+#else
+	if (!(cl->ClFlags |= InUseMask)) {
+	  /* Clause *cl = (Clause *)PREG->u.EC.ClBase;
+
+	  PREG->u.EC.ClTrail = TR-(tr_fr_ptr)Yap_TrailBase;
+	  PREG->u.EC.ClENV = LCL0-YENV;*/
+	  cl->ClFlags |= InUseMask;
+	  TRAIL_CLREF(cl);
+	}
+#endif
+      }
+      PREG = CPREG;
+      YREG = ENV;
+#ifdef DEPTH_LIMIT
+      DEPTH = YREG[E_DEPTH];
+#endif
+      GONext();
+      ENDBOp();
+
+
+
+
+
 /*****************************************************************
 *        try and retry of dynamic predicates                     *
 *****************************************************************/
@@ -1185,7 +1269,7 @@ Yap_absmi(int inp)
 
       /* try_and_mark   Label,NArgs       */
       BOp(try_and_mark, ld);
-      check_trail();
+      check_trail(TR);
 #if defined(YAPOR) || defined(THREADS)
 #ifdef YAPOR
       /* The flags I check here should never change during execution */
@@ -1461,25 +1545,25 @@ Yap_absmi(int inp)
 #endif
 	  {
 	    register CELL flags;
-	    CELL *pt0 = RepPair(d1);
+	    CELL *pt1 = RepPair(d1);
 
 #ifdef FROZEN_STACKS  /* TRAIL */
             /* avoid frozen segments */
 #ifdef SBA
-	    if ((ADDR) pt0 >= HeapTop)
+	    if ((ADDR) pt1 >= HeapTop)
 #else
-	    if ((ADDR) pt0 >= Yap_TrailBase)
+	    if ((ADDR) pt1 >= Yap_TrailBase)
 #endif
 	      {
-		pt0 = (tr_fr_ptr) pt0;
+		pt1 = (tr_fr_ptr) pt1;
 		goto failloop;
 	      }
 #endif /* FROZEN_STACKS */
-	    flags = *pt0;
+	    flags = *pt1;
 #if defined(YAPOR) || defined(THREADS)
 	    if (!FlagOn(DBClMask, flags)) {
 	      if (flags & LogUpdMask) {
-		LogUpdClause *cl = ClauseFlagsToLogUpdClause(pt0);
+		LogUpdClause *cl = ClauseFlagsToLogUpdClause(pt1);
 		int erase;
 		LOCK(cl->ClLock);
 		DEC_CLREF_COUNT(cl);
@@ -1493,7 +1577,7 @@ Yap_absmi(int inp)
 		  Yap_ErLogUpdCl(cl);
 		  setregs();
 	      } else {
-		DynamicClause *cl = ClauseFlagsToDynamicClause(pt0);
+		DynamicClause *cl = ClauseFlagsToDynamicClause(pt1);
 		int erase;
 		LOCK(cl->ClLock);
 		DEC_CLREF_COUNT(cl);
@@ -1509,7 +1593,7 @@ Yap_absmi(int inp)
 		}
 	      }
 	    } else {
-	      DBRef dbr = DBStructFlagsToDBStruct(pt0);
+	      DBRef dbr = DBStructFlagsToDBStruct(pt1);
 	      int erase;
 
 	      LOCK(dbr->lock);
@@ -1524,18 +1608,18 @@ Yap_absmi(int inp)
 	    }
 #else
 	    ResetFlag(InUseMask, flags);
-	    *pt0 = flags;
+	    *pt1 = flags;
 	    if (FlagOn(ErasedMask, flags)) {
 	      if (FlagOn(DBClMask, flags)) {
 		saveregs();
-		Yap_ErDBE(DBStructFlagsToDBStruct(pt0));
+		Yap_ErDBE(DBStructFlagsToDBStruct(pt1));
 		setregs();
 	      } else {
 		saveregs();
 		if (flags & LogUpdMask) {
-		  Yap_ErLogUpdCl(ClauseFlagsToLogUpdClause(pt0));
+		  Yap_ErLogUpdCl(ClauseFlagsToLogUpdClause(pt1));
 		} else {
-		  Yap_ErCl(ClauseFlagsToDynamicClause(pt0));
+		  Yap_ErCl(ClauseFlagsToDynamicClause(pt1));
 		}
 		setregs();
 	      }
@@ -1756,6 +1840,11 @@ Yap_absmi(int inp)
 	PredEntry *pt0;
 	CACHE_Y_AS_ENV(YREG);
 	pt0 = PREG->u.p.p;
+#ifdef LOW_LEVEL_TRACER
+	if (Yap_do_low_level_trace) {
+	  low_level_trace(enter_pred,pt0,XREGS+1);
+	}
+#endif	/* LOW_LEVEL_TRACE */
 	CACHE_A1();
 	ALWAYS_LOOKAHEAD(pt0->OpcodeOfPred);
 	BEGD(d0);
@@ -1776,11 +1865,6 @@ Yap_absmi(int inp)
 	} else if (pt0->ModuleOfPred)
 	  DEPTH -= MkIntConstant(2);
 #endif	/* DEPTH_LIMIT */
-#ifdef LOW_LEVEL_TRACER
-	if (Yap_do_low_level_trace) {
-	  low_level_trace(enter_pred,pt0,XREGS+1);
-	}
-#endif	/* LOW_LEVEL_TRACE */
       /* this is the equivalent to setting up the stack */
 	ALWAYS_GONext();
 	ALWAYS_END_PREFETCH();
@@ -1789,14 +1873,31 @@ Yap_absmi(int inp)
       ENDBOp();
 
     NoStackExecute:
-      SREG = (CELL *) PREG->u.p.p;
-      if (CFREG == (CELL)(LCL0+1))
-	{
-	  ASP = YREG+E_CB;
-	  if (ASP > (CELL *)B)
-	    ASP = (CELL *)B;
-	  goto noheapleft;
+      if (CFREG == (CELL)(LCL0+2)) {
+	PredEntry *ap = PREG->u.p.p;
+	if (ap->PredFlags & HiddenPredFlag) {
+	  /* we have to execute the instruction without performing the test */
+	  CACHE_Y_AS_ENV(YREG);
+	  CACHE_A1();
+	  ALWAYS_LOOKAHEAD(ap->OpcodeOfPred);
+	  PREG = ap->CodeOfPred;
+	  E_YREG[E_CB] = (CELL)B;
+	  check_depth(DEPTH, ap);
+	  ALWAYS_GONext();
+	  ALWAYS_END_PREFETCH();
+	  ENDCACHE_Y_AS_ENV();
+	} else {
+	  SREG = (CELL *) ap;
+	  goto creep;
 	}
+      }
+      SREG = (CELL *) PREG->u.p.p;
+      if (CFREG == (CELL)(LCL0+1)) {
+	ASP = YREG+E_CB;
+	if (ASP > (CELL *)B)
+	  ASP = (CELL *)B;
+	goto noheapleft;
+      }
       if (CFREG != CalculateStackGap())
 	goto creep;
       else
@@ -1805,7 +1906,11 @@ Yap_absmi(int inp)
       /* dexecute    Label               */
 /* joint deallocate and execute */
       BOp(dexecute, p);
-      CACHE_Y_AS_ENV(YREG);
+#ifdef LOW_LEVEL_TRACER
+      if (Yap_do_low_level_trace)
+	low_level_trace(enter_pred,PREG->u.p.p,XREGS+1);
+#endif	/* LOW_LEVEL_TRACER */ 
+     CACHE_Y_AS_ENV(YREG);
       {
 	PredEntry *pt0;
 
@@ -1825,10 +1930,6 @@ Yap_absmi(int inp)
 	} else if (pt0->ModuleOfPred)
 	  DEPTH -= MkIntConstant(2);
 #endif	/* DEPTH_LIMIT */
-#ifdef LOW_LEVEL_TRACER
-	if (Yap_do_low_level_trace)
-	  low_level_trace(enter_pred,pt0,XREGS+1);
-#endif	/* LOW_LEVEL_TRACER */
 	PREG = pt0->CodeOfPred;
 	ALWAYS_LOOKAHEAD(pt0->OpcodeOfPred);
 	/* do deallocate */
@@ -1873,6 +1974,10 @@ Yap_absmi(int inp)
       ENDBOp();
 
       BOp(call, sla);
+#ifdef LOW_LEVEL_TRACER
+      if (Yap_do_low_level_trace)
+	low_level_trace(enter_pred,PREG->u.sla.sla_u.p,XREGS+1);
+#endif	/* LOW_LEVEL_TRACER */
       CACHE_Y_AS_ENV(YREG);
       {
 	PredEntry *pt;
@@ -1897,10 +2002,6 @@ Yap_absmi(int inp)
       } else if (pt->ModuleOfPred)
 	DEPTH -= MkIntConstant(2);
 #endif	/* DEPTH_LIMIT */
-#ifdef LOW_LEVEL_TRACER
-      if (Yap_do_low_level_trace)
-	low_level_trace(enter_pred,pt,XREGS+1);
-#endif	/* LOW_LEVEL_TRACER */
 #ifdef FROZEN_STACKS
       { 
 	choiceptr top_b = PROTECT_FROZEN_B(B);
@@ -1929,6 +2030,46 @@ Yap_absmi(int inp)
 
     NoStackCall:
       /* on X86 machines S will not actually be holding the pointer to pred */
+      if (CFREG == (CELL)(LCL0+2)) {
+	PredEntry *ap = PREG->u.sla.sla_u.p;
+	if (ap->PredFlags & HiddenPredFlag) {
+	  CACHE_Y_AS_ENV(YREG);
+	  CACHE_A1();
+	  ENV = E_YREG;
+	  /* Try to preserve the environment */
+	  E_YREG = (CELL *) (((char *) YREG) + PREG->u.sla.s);
+	  CPREG = NEXTOP(PREG, sla);
+	  ALWAYS_LOOKAHEAD(ap->OpcodeOfPred);
+	  PREG = ap->CodeOfPred;
+	  check_depth(DEPTH, ap);
+#ifdef FROZEN_STACKS
+	  { 
+	    choiceptr top_b = PROTECT_FROZEN_B(B);
+#ifdef SBA
+	    if (E_YREG > (CELL *) top_b || E_YREG < H) E_YREG = (CELL *) top_b;
+#else
+	    if (E_YREG > (CELL *) top_b) E_YREG = (CELL *) top_b;
+#endif
+	  }
+#else
+	  if (E_YREG > (CELL *) B) {
+	    E_YREG = (CELL *) B;
+	  }
+#endif /* FROZEN_STACKS */
+	  WRITEBACK_Y_AS_ENV();
+	  /* setup GB */
+	  E_YREG[E_CB] = (CELL) B;
+#ifdef YAPOR
+	  SCH_check_requests();
+#endif	/* YAPOR */
+	  ALWAYS_GONext();
+	  ALWAYS_END_PREFETCH();
+	  ENDCACHE_Y_AS_ENV();
+	} else {
+	  SREG = (CELL *) ap;
+	  goto creepc;
+	}
+      }
       SREG = (CELL *) PREG->u.sla.sla_u.p;
       if (CFREG == (CELL)(LCL0+1)) {
 	ASP = (CELL *) (((char *) YREG) + PREG->u.sla.s);
@@ -1946,8 +2087,6 @@ Yap_absmi(int inp)
 	}
       }
 #endif
-      if (CFREG != CalculateStackGap())
-	goto creepc;
       ASP = (CELL *) (((char *) YREG) + PREG->u.sla.s);
       if (ASP > (CELL *)B)
 	ASP = (CELL *)B;
@@ -2084,6 +2223,47 @@ Yap_absmi(int inp)
       goto creep;
 
     NoStackDExecute:
+      if (CFREG == (CELL)(LCL0+2)) {
+	PredEntry *ap = PREG->u.p.p;
+
+	if (ap->PredFlags & HiddenPredFlag) {
+	  CACHE_Y_AS_ENV(YREG);
+	  CACHE_A1();
+	  check_depth(DEPTH, ap);
+	  PREG = ap->CodeOfPred;
+	  ALWAYS_LOOKAHEAD(ap->OpcodeOfPred);
+	  /* do deallocate */
+	  CPREG = (yamop *) E_YREG[E_CP];
+	  E_YREG = ENV = (CELL *) E_YREG[E_E];
+#ifdef FROZEN_STACKS
+	  { 
+	    choiceptr top_b = PROTECT_FROZEN_B(B);
+
+#ifdef SBA
+	    if (E_YREG > (CELL *) top_b || E_YREG < H) E_YREG = (CELL *) top_b;
+#else
+	    if (E_YREG > (CELL *) top_b) E_YREG = (CELL *) top_b;
+#endif
+	    else E_YREG = (CELL *)((CELL)E_YREG + ENV_Size(CPREG));
+	  }
+#else
+	  if (E_YREG > (CELL *)B) {
+	    E_YREG = (CELL *)B;
+	  } else {
+	    E_YREG = (CELL *) ((CELL) E_YREG + ENV_Size(CPREG));
+	  }
+#endif /* FROZEN_STACKS */
+	  WRITEBACK_Y_AS_ENV();
+	  /* setup GB */
+	  E_YREG[E_CB] = (CELL) B;
+	  ALWAYS_GONext();
+	  ALWAYS_END_PREFETCH();
+	  ENDCACHE_Y_AS_ENV();
+	} else {
+	  SREG = (CELL *) ap;
+	  goto creepde;
+	}
+      }
       /* set SREG for next instructions */
       SREG = (CELL *) PREG->u.p.p;
       if (CFREG == (CELL)(LCL0+1)) {
@@ -2322,7 +2502,7 @@ Yap_absmi(int inp)
 #ifdef COROUTINING
       }
 #endif
-#ifdef LOW_LEVEL_TRACER
+#ifdef LOW_LEvel_TRACER
       if (Yap_do_low_level_trace)
 	low_level_trace(enter_pred,(PredEntry *)(SREG),XREGS+1);
 #endif	/* LOW_LEVEL_TRACE */
@@ -6097,6 +6277,42 @@ Yap_absmi(int inp)
       JMPNext();
       ENDBOp();
 
+      BOp(expand_index, e);
+      saveregs();
+      {
+	PredEntry *pe = PredFromExpandCode(PREG);
+	/* update ASP before calling IPred */
+	ASP = YREG+E_CB;
+	if (ASP > (CELL *) B) {
+	  ASP = (CELL *) B;
+	}
+	Yap_ExpandIndex(pe);
+	/* restart index */
+	setregs();
+	CACHED_A1() = ARG1;
+	PREG = pe->CodeOfPred;
+	JMPNext();
+      }
+      ENDBOp();
+
+      BOp(check_var_for_index, xxp);
+      {
+	CELL *pt0 = XREGS+PREG->u.xxp.x;
+	do {
+	  if (!IsVarTerm(*pt0)) {
+	    saveregs();
+	    Yap_RemoveIndexation(PREG->u.xxp.p);
+	    setregs();
+	    PREG = PREG->u.xxp.p->CodeOfPred;
+	    JMPNext();
+	  }
+	  pt0++;
+	} while (pt0 <= XREGS+PREG->u.xxp.x1);
+      }
+      PREG = NEXTOP(PREG,xxp);
+      JMPNext();
+      ENDBOp();
+
       BOp(undef_p, e);
       /* save S for module name */
       { 
@@ -6179,7 +6395,7 @@ Yap_absmi(int inp)
       BOp(spy_pred, e);
       {
 	PredEntry *pe = PredFromDefCode(PREG);
-	if (!(FlipFlop ^= 1)) {
+	if (FlipFlop == 0) {
 	  READ_LOCK(pe->PRWLock);
 	  PREG = pe->cs.p_code.TrueCodeOfPred;
 	  READ_UNLOCK(pe->PRWLock);
@@ -6252,7 +6468,7 @@ Yap_absmi(int inp)
 \************************************************************************/
 
       BOp(try_clause, ld);
-      check_trail();
+      check_trail(TR);
       CACHE_Y(YREG);
       /* Point AP to the code that follows this instruction */
       store_at_least_one_arg(PREG->u.ld.s);
@@ -6538,7 +6754,7 @@ Yap_absmi(int inp)
 
 #define HASH_SHIFT 6
 
-      BOp(switch_on_func, s);
+      BOp(switch_on_func, sl);
       BEGD(d1);
       d1 = *SREG++;
       /* we use a very simple hash function to find elements in a
@@ -6546,10 +6762,10 @@ Yap_absmi(int inp)
       {
 	register CELL
 	/* first, calculate the mask */
-	  Mask = (PREG->u.s.s - 1) << 1,	/* next, calculate the hash function */
+	  Mask = (PREG->u.sl.s - 1) << 1,	/* next, calculate the hash function */
 	  hash = d1 >> (HASH_SHIFT - 1) & Mask;
 
-	PREG = NEXTOP(PREG, s);
+	PREG = (yamop *)(PREG->u.sl.l);
 	/* PREG now points at the beginning of the hash table */
 	BEGP(pt0);
 	/* pt0 will always point at the item */
@@ -6582,7 +6798,7 @@ Yap_absmi(int inp)
       ENDD(d1);
       ENDBOp();
 
-      BOp(switch_on_cons, s);
+      BOp(switch_on_cons, sl);
       BEGD(d1);
       d1 = I_R;
       /* we use a very simple hash function to find elements in a
@@ -6590,10 +6806,10 @@ Yap_absmi(int inp)
       {
 	register CELL
 	/* first, calculate the mask */
-	  Mask = (PREG->u.s.s - 1) << 1,	/* next, calculate the hash function */
+	  Mask = (PREG->u.sl.s - 1) << 1,	/* next, calculate the hash function */
 	  hash = d1 >> (HASH_SHIFT - 1) & Mask;
 
-	PREG = NEXTOP(PREG, s);
+	PREG = (yamop *)(PREG->u.sl.l);
 	/* PREG now points at the beginning of the hash table */
 	BEGP(pt0);
 	/* pt0 will always point at the item */
@@ -6626,77 +6842,81 @@ Yap_absmi(int inp)
       ENDD(d1);
       ENDBOp();
 
-      BOp(go_on_func, fll);
+      BOp(go_on_func, sl);
       BEGD(d0);
-      d0 = *SREG++;
-      if (d0 == (CELL) (PREG->u.fll.f)) {
-	PREG = (yamop *) (PREG->u.fll.l1);
-	JMPNext();
-      }
-      else {
-	PREG = (yamop *) (PREG->u.fll.l2);
-	JMPNext();
+      {
+	CELL *pt = (CELL *)(PREG->u.sl.l);
+
+	d0 = *SREG++;
+	if (d0 == pt[0]) {
+	  PREG = (yamop *) pt[1];
+	  JMPNext();
+	} else {
+	  PREG = (yamop *) pt[3];
+	  JMPNext();
+	}
       }
       ENDD(d0);
       ENDBOp();
 
-      BOp(go_on_cons, cll);
+      BOp(go_on_cons, sl);
       BEGD(d0);
-      d0 = I_R;
-      if (d0 == PREG->u.cll.c) {
-	PREG = (yamop *) (PREG->u.cll.l1);
-	JMPNext();
-      }
-      else {
-	PREG = (yamop *) (PREG->u.cll.l2);
-	JMPNext();
+      {
+	CELL *pt = (CELL *)(PREG->u.sl.l);
+
+	d0 = I_R;
+	if (d0 == pt[0]) {
+	  PREG = (yamop *) pt[1];
+	  JMPNext();
+	} else {
+	  PREG = (yamop *) pt[3];
+	  JMPNext();
+	}
       }
       ENDD(d0);
       ENDBOp();
 
       BOp(if_func, sl);
       BEGD(d1);
-      d1 = *SREG++;
-      BEGD(d0);
       BEGP(pt0);
-      d0 = PREG->u.sl.s;
-      pt0 = (CELL *) NEXTOP(PREG, sl);
-      while (d0-- > 0) {
-	if (pt0[0] == d1) {
-	  PREG = (yamop *) (pt0[1]);
-	  JMPNext();
-	}
-	else
-	  pt0 += 2;
+      pt0 = (CELL *) PREG->u.sl.l;
+      d1 = *SREG++;
+      while (pt0[0] != d1 && pt0[0] != (CELL)NULL ) {
+	pt0 += 2;
       }
-      PREG = PREG->u.sl.l;
+      PREG = (yamop *) (pt0[1]);
       JMPNext();
       ENDP(pt0);
-      ENDD(d0);
       ENDD(d1);
       ENDBOp();
 
       BOp(if_cons, sl);
       BEGD(d1);
-      d1 = I_R;
-      BEGD(d0);
       BEGP(pt0);
-      d0 = PREG->u.sl.s;
-      pt0 = (CELL *) NEXTOP(PREG, sl);
-      while (d0-- > 0) {
-	if (pt0[0] == d1) {
-	  PREG = (yamop *) (pt0[1]);
-	  JMPNext();
-	}
-	else
-	  pt0 += 2;
+      pt0 = (CELL *) PREG->u.sl.l;
+      d1 = I_R;
+      while (pt0[0] != d1 && pt0[0] != 0L ) {
+	pt0 += 2;
       }
-      PREG = PREG->u.sl.l;
+      PREG = (yamop *) (pt0[1]);
       JMPNext();
       ENDP(pt0);
-      ENDD(d0);
       ENDD(d1);
       ENDBOp();
+
+      Op(index_dbref, e);
+      PREG = NEXTOP(PREG, e);
+      I_R = AbsAppl(SREG-1);
+      GONext();
+      ENDOp();
+      
+      Op(index_blob, e);
+      PREG = NEXTOP(PREG, e);
+      I_R = MkIntTerm(SREG[0]);
+      GONext();
+      ENDOp();
+      
+
 
 /************************************************************************\
 *	Basic Primitive Predicates					 *
@@ -9193,15 +9413,29 @@ Yap_absmi(int inp)
 	while (TR != pt0) {
 	  BEGD(d1);
 	  d1 = TrailTerm(--TR);
+	  if (IsVarTerm(d1)) {
 #if defined(SBA) && defined(YAPOR)
-	  /* clean up the trail when we backtrack */
-	  if (Unsigned((Int)(d1)-(Int)(H_FZ)) >
-	      Unsigned((Int)(B_FZ)-(Int)(H_FZ))) {
-	    RESET_VARIABLE(STACK_TO_SBA(d1));
-	  } else
+	    /* clean up the trail when we backtrack */
+	    if (Unsigned((Int)(d1)-(Int)(H_FZ)) >
+		Unsigned((Int)(B_FZ)-(Int)(H_FZ))) {
+	      RESET_VARIABLE(STACK_TO_SBA(d1));
+	    } else
 #endif
-	    /* normal variable */
-	    RESET_VARIABLE(d1);
+	      /* normal variable */
+	      RESET_VARIABLE(d1);
+#ifdef MULTI_ASSIGNMENT_VARIABLES
+	  } else /* if (IsApplTerm(d1)) */ {
+	    CELL *pt = RepAppl(d1);
+	    /* AbsAppl means */
+	    /* multi-assignment variable */
+	    /* so the next cell is the old value */ 
+#if FROZEN_STACKS
+	    pt[0] = TrailVal(--TR);
+#else
+	    pt[0] = TrailTerm(--TR);
+#endif
+#endif
+	  }
 	  ENDD(d1);
 	}
 	HBREG = B->cp_h;
@@ -10983,8 +11217,7 @@ Yap_absmi(int inp)
 #ifndef NO_CHECKING
 	check_stack(NoStackPExecute, H);
 #endif
-	CPREG =
-	  (yamop *) NEXTOP(PREG, sla);
+	CPREG = NEXTOP(PREG, sla);
 	ALWAYS_LOOKAHEAD(pen->OpcodeOfPred);
 	PREG = pen->CodeOfPred;
 #ifdef DEPTH_LIMIT
@@ -11030,7 +11263,7 @@ Yap_absmi(int inp)
 #ifdef COROUTINING
 	if (CFREG == Unsigned(LCL0)) {
 	  if (Yap_ReadTimedVar(WokenGoals) != TermNil)
-	    goto creep;
+	    goto creep_pe;
 	  else {
 	    CFREG = CalculateStackGap();
 	    goto execute_end;
@@ -11038,7 +11271,7 @@ Yap_absmi(int inp)
 	}
 #endif
 	if (CFREG != CalculateStackGap())
-	  goto creep;
+	  goto creep_pe;
 	saveregs();
 	if (!Yap_gc(((PredEntry *)SREG)->ArityOfPE, ENV, NEXTOP(PREG, sla))) {
 	  Yap_Error(OUT_OF_STACK_ERROR,TermNil,Yap_ErrorMessage);
@@ -11048,6 +11281,10 @@ Yap_absmi(int inp)
 	ENDCACHE_Y_AS_ENV();
       }
       ENDBOp();
+
+    creep_pe:			/* do creep in call                                     */
+      CPREG = NEXTOP(PREG, sla);
+      goto creep;
 
       BOp(p_execute_tail, e);
       {
@@ -11264,18 +11501,52 @@ Yap_absmi(int inp)
 	WRITEBACK_Y_AS_ENV();
 	SREG = (CELL *) pen;
 	ASP = E_YREG;
+	if (CFREG == (CELL)(LCL0+1)) {
+	  CFREG = CalculateStackGap();
+	  saveregs();
+	  if (!Yap_growheap(FALSE, 0)) {
+	    Yap_Error(SYSTEM_ERROR, TermNil, "YAP failed to grow heap: %s", Yap_ErrorMessage);
+	    setregs();
+	    FAIL();
+	  }
+	  setregs();
+	  goto execute_after_comma;
+	}
 #ifdef COROUTINING
 	if (CFREG == Unsigned(LCL0)) {
 	  if (Yap_ReadTimedVar(WokenGoals) != TermNil)
-	    goto creep;
+	    goto execute_after_comma;
 	  else {
 	    CFREG = CalculateStackGap();
 	    goto execute_after_comma;
 	  }
 	}
 #endif
+	/* debugger */
+	if (CFREG == (CELL)(LCL0+2)) {
+	  if (pen->PredFlags & HiddenPredFlag) {
+	    PREG = pen->CodeOfPred;
+	    ALWAYS_LOOKAHEAD(pen->OpcodeOfPred);
+	    E_YREG[E_CB] = (CELL)B;
+#ifdef DEPTH_LIMIT
+	    if (DEPTH <= MkIntTerm(1)) {/* I assume Module==0 is primitives */
+	      if (pen->ModuleOfPred) {
+		if (DEPTH == MkIntTerm(0))
+		  FAIL();
+		else DEPTH = RESET_DEPTH();
+	      }
+	    } else if (pen->ModuleOfPred) {
+	      DEPTH -= MkIntConstant(2);
+	    }
+#endif	/* DEPTH_LIMIT */
+	/* do deallocate */
+	    WRITEBACK_Y_AS_ENV();
+	    ALWAYS_GONext();
+	    ALWAYS_END_PREFETCH();
+	  } else goto creep;
+	}
 	if (CFREG != CalculateStackGap())
-	  goto creep;
+	  goto execute_after_comma;
 	ASP = (CELL *) (((char *) YREG) + PREG->u.sla.s);
 	if (ASP > (CELL *)B)
 	  ASP = (CELL *)B;
