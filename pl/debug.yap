@@ -874,7 +874,7 @@ debugging :-
 '$action'(60,_,_,_,_,_) :- !,		% <Depth
 	'$new_deb_depth',
 	fail.
-'$action'(94,_,_,G,_) :- !,
+'$action'(0'^,_,_,G,_,_) :- !,
 	'$print_deb_sterm'(G), fail.
 '$action'(0'a,_,_,_,_,_) :- !, abort.	% a		abort
 '$action'(0'b,_,_,_,_,_) :- !, break,	% b		break
