@@ -10,8 +10,12 @@
 *									 *
 * File:		absmi.c							 *
 * comments:	Portable abstract machine interpreter                    *
-* Last rev:     $Date: 2004-12-28 22:20:34 $,$Author: vsc $						 *
+* Last rev:     $Date: 2005-01-13 05:47:25 $,$Author: vsc $						 *
 * $Log: not supported by cvs2svn $
+* Revision 1.155  2004/12/28 22:20:34  vsc
+* some extra bug fixes for trail overflows: some cannot be recovered that easily,
+* some can.
+*
 * Revision 1.154  2004/12/05 05:01:21  vsc
 * try to reduce overheads when running with goal expansion enabled.
 * CLPBN fixes
@@ -8099,7 +8103,7 @@ Yap_absmi(int inp)
     integer_y_nvar:
       /* non variable */
       if (IsIntTerm(d0)) {
-	PREG = NEXTOP(PREG, xF);
+	PREG = NEXTOP(PREG, yF);
 	GONext();
       }
       if (IsApplTerm(d0)) {

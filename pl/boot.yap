@@ -203,48 +203,49 @@ repeat :- '$repeat'.
 
 '$command'(C,VL,Con) :-
 	'$access_yap_flags'(9,1), !,
-	'$execute_command'(C,VL,Con).
+	'$execute_command'(C,VL,Con,C).
 '$command'(C,VL,Con) :-
 	( (Con = top ; var(C) ; C = [_|_])  ->  
-	'$execute_command'(C,VL,Con), ! ;
+	'$execute_command'(C,VL,Con,C), ! ;
         expand_term(C, EC),
-	'$execute_commands'(EC,VL,Con)
+	'$execute_commands'(EC,VL,Con,C)
         ).
 
 %
 % Hack in case expand_term has created a list of commands.
 %
-'$execute_commands'(V,_,_) :- var(V), !,
-	'$do_error'(instantiation_error,meta_call(V)).
-'$execute_commands'([],_,_) :- !, fail.
-'$execute_commands'([C|Cs],VL,Con) :- !,
+'$execute_commands'(V,_,_,Source) :- var(V), !,
+	'$do_error'(instantiation_error,meta_call(Source)).
+'$execute_commands'([],_,_,_) :- !, fail.
+'$execute_commands'([C|Cs],VL,Con,Source) :- !,
 	(
-	  '$execute_command'(C,VL,Con)
+	  '$execute_command'(C,VL,Con,Source)
 	;
-	  '$execute_commands'(Cs,VL,Con)
+	  '$execute_commands'(Cs,VL,Con,Source)
 	),
 	fail.
-'$execute_commands'(C,VL,Con) :-
-	'$execute_command'(C,VL,Con).
+'$execute_commands'(C,VL,Con,Source) :-
+	'$execute_command'(C,VL,Con,Source).
 
 %
 %
 %
 
-'$execute_command'(C,_,top) :- var(C), !,
-	'$do_error'(instantiation_error,meta_call(C)).
-'$execute_command'(C,_,top) :- number(C), !,
-	'$do_error'(type_error(callable,C),meta_call(C)).
-'$execute_command'(R,_,top) :- db_reference(R), !,
-	'$do_error'(type_error(callable,R),meta_call(R)).
-'$execute_command'(end_of_file,_,_) :- !.
-'$execute_command'((:-G),_,Option) :- !,
+'$execute_command'(C,_,top,Source) :- var(C), !,
+	'$do_error'(instantiation_error,meta_call(Source)).
+'$execute_command'(C,_,top,Source) :- number(C), !,
+	'$do_error'(type_error(callable,C),meta_call(Source)).
+'$execute_command'(R,_,top,Source) :- db_reference(R), !,
+	'$do_error'(type_error(callable,R),meta_call(Source)).
+'$execute_command'(end_of_file,_,_,_) :- !.
+'$execute_command'((:-G),_,Option,_) :- !,
 	'$current_module'(M),
 	'$process_directive'(G, Option, M),
 	fail.
-'$execute_command'((?-G),V,_) :- !,
-	'$execute_command'(G,V,top).
-'$execute_command'(G,V,Option) :- '$continue_with_command'(Option,V,G).
+'$execute_command'((?-G),V,_,Source) :- !,
+	'$execute_command'(G,V,top,Source).
+'$execute_command'(G,V,Option,Source) :-
+	'$continue_with_command'(Option,V,G,Source).
 
 %
 % This command is very different depending on the language mode we are in.
@@ -297,40 +298,40 @@ repeat :- '$repeat'.
 '$all_directives'(G) :- !,
 	'$directive'(G).
 
-'$continue_with_command'(reconsult,V,G) :-
-	'$go_compile_clause'(G,V,5),
+'$continue_with_command'(reconsult,V,G,Source) :-
+	'$go_compile_clause'(G,V,5,Source),
 	fail.
-'$continue_with_command'(consult,V,G) :-
-	'$go_compile_clause'(G,V,13),
+'$continue_with_command'(consult,V,G,Source) :-
+	'$go_compile_clause'(G,V,13,Source),
 	fail.
-'$continue_with_command'(top,V,G) :-
+'$continue_with_command'(top,V,G,_) :-
 	'$query'(G,V).
 
 %
 % not 100% compatible with SICStus Prolog, as SICStus Prolog would put
 % module prefixes all over the place, although unnecessarily so.
 %
-'$go_compile_clause'(Mod:G,V,N) :- !,
-	'$go_compile_clause'(G,V,N,Mod).
-'$go_compile_clause'((M:G :- B),V,N) :- !,
+'$go_compile_clause'(Mod:G,V,N,Source) :- !,
+	'$go_compile_clause'(G,V,N,Mod,Source).
+'$go_compile_clause'((M:G :- B),V,N,Source) :- !,
 	'$current_module'(M1),
 	(M1 = M ->
 	   NG = (G :- B)
         ;
 	   '$preprocess_clause_before_mod_change'((G:-B),M1,M,NG)
 	),
-	'$go_compile_clause'(NG,V,N,M).
-'$go_compile_clause'(G,V,N) :-
+	'$go_compile_clause'(NG,V,N,M,Source).
+'$go_compile_clause'(G,V,N,Source) :-
 	'$current_module'(Mod),
-	'$go_compile_clause'(G,V,N,Mod).
+	'$go_compile_clause'(G,V,N,Mod,Source).
 
-'$go_compile_clause'(G, V, N, Mod) :-
-	'$prepare_term'(G, V, G0, G1, Mod),
+'$go_compile_clause'(G, V, N, Mod, Source) :-
+	'$prepare_term'(G, V, G0, G1, Mod, Source),
 	'$$compile'(G1, G0, N, Mod).
 
-'$prepare_term'(G,V,G0,G1, Mod) :-
+'$prepare_term'(G, V, G0, G1, Mod, Source) :-
 	( get_value('$syntaxcheckflag',on) ->
-		'$check_term'(G,V,Mod) ; true ),
+		'$check_term'(Source, V, Mod) ; true ),
 	'$precompile_term'(G, G0, G1, Mod).
 
 % process an input clause
@@ -753,12 +754,10 @@ not(G) :-    \+ '$execute'(G).
 '$do_undefp'(G,M) :-
 	\+ '$undefined'(unknown_predicate_handler(_,_,_), user),
 	'$system_catch'(unknown_predicate_handler(G,M,NG), user, _, fail), !,
-	'$execute'(user:NG),
-	'$exit_undefp'.
+	( once('$execute'(user:NG)) -> '$exit_undefp' ; '$exit_undefp', fail).
 '$do_undefp'(G,M) :-
 	recorded('$unknown','$unknown'(M:G,US),_), !,
-	'$execute'(user:US),
-	'$exit_undefp'.
+	( once('$execute'(user:US)) -> '$exit_undefp' ; '$exit_undefp', fail).
 '$do_undefp'(_,_) :-
 	'$exit_undefp',
 	fail.

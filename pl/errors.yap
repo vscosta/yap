@@ -11,8 +11,11 @@
 * File:		errors.yap						 *
 * comments:	error messages for YAP					 *
 *									 *
-* Last rev:     $Date: 2004-11-19 21:32:53 $,$Author: vsc $						 *
+* Last rev:     $Date: 2005-01-13 05:47:27 $,$Author: vsc $						 *
 * $Log: not supported by cvs2svn $
+* Revision 1.58  2004/11/19 21:32:53  vsc
+* change abort so that it won't be caught by handlers.
+*
 * Revision 1.57  2004/10/27 15:56:34  vsc
 * bug fixes on memory overflows and on clauses :- fail being ignored by clause.
 *
@@ -156,12 +159,16 @@ print_message(Level, Mss) :-
 '$do_print_message'(breakpoints(L)) :- !,
 	format(user_error,'Spy-points set on:', []),
 	'$print_list_of_preds'(L).
+'$do_print_message'(clauses_not_together(P,LN)) :- !,
+	format(user_error, 'Discontiguous definition of ~q, at line ~d.',[P,LN]).
 '$do_print_message'(debug(debug)) :- !,
 	format(user_error,'Debug mode on.',[]).
 '$do_print_message'(debug(off)) :- !,
 	format(user_error,'Debug mode off.',[]).
 '$do_print_message'(debug(trace)) :- !,
 	format(user_error,'Trace mode on.',[]).
+'$do_print_message'(defined_elsewhere(P,F,LN)) :- !,
+	format(user_error, 'predicate ~q, at line ~d, previously defined in file ~a.',[P,LN,F]).
 '$do_print_message'(import(Pred,To,From,private)) :- !,
 	format(user_error,'Importing private predicate ~w:~w to ~w.',
 	[From,Pred,To]).
@@ -176,16 +183,37 @@ print_message(Level, Mss) :-
 '$do_print_message'(no_match(P)) :- !,
 	format(user_error,'No matching predicate for ~w.',
 	[P]).
-'$do_print_message'(trace_command(C)) :- !,
-	format(user_error,'Invalid trace command: ~c', [C]).
+'$do_print_message'(leash([A|B])) :- !,
+	format(user_error,'Leashing set to ~w.',
+	[[A|B]]).
+'$do_print_message'(singletons(SVs,P,LN,CLN)) :- !,
+	format(user_error, 'Singleton variable',[]),
+	'$write_svs'(SVs),
+	format(user_error, ' in ~q at line ~d, clause ~d.',[P,LN,CLN]).
 '$do_print_message'(trace_help) :- !,
-	format(user_error,'  Please enter a valid debugger command (h for help).', []).
+	yap_flag(user_error,'  Please enter a valid debugger command (h for help).', []).
 '$do_print_message'(version(Version)) :- !,
 	format(user_error,'YAP version ~a', [Version]).
 '$do_print_message'(yes) :- !,
 	format(user_error, 'yes', []).
 '$do_print_message'(Messg) :-
 	format(user_error,'~q',Messg).
+
+'$write_svs'([H]) :- !, write(user_error,' '), '$write_svs1'([H]).
+'$write_svs'(SVs) :- write(user_error,'s '), '$write_svs1'(SVs).
+
+'$write_svs1'([H]) :- !,
+        '$write_str_in_stderr'(H).
+'$write_svs1'([H|T]) :- 
+        '$write_str_in_stderr'(H),
+        write(user_error,','),
+        '$write_svs1'(T).
+
+'$write_str_in_stderr'([]).
+'$write_str_in_stderr'([C|T]) :-
+	put(user_error,C),
+	'$write_str_in_stderr'(T).
+
 
 '$print_list_of_preds'([]).
 '$print_list_of_preds'([P|L]) :-

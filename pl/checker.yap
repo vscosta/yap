@@ -11,8 +11,11 @@
 * File:		checker.yap						 *
 * comments:	style checker for Prolog				 *
 *									 *
-* Last rev:     $Date: 2004-06-29 19:12:01 $,$Author: vsc $						 *
+* Last rev:     $Date: 2005-01-13 05:47:27 $,$Author: vsc $						 *
 * $Log: not supported by cvs2svn $
+* Revision 1.15  2004/06/29 19:12:01  vsc
+* fix checker messages
+*
 * Revision 1.14  2004/06/29 19:04:46  vsc
 * fix multithreaded version
 * include new version of Ricardo's profiler
@@ -122,22 +125,14 @@ no_style_check([H|T]) :- no_style_check(H), no_style_check(T).
 '$sv_warning'(SVs,T) :-
 	'$current_module'(OM),
 	'$xtract_head'(T,OM,M,H,Name,Arity),
-	write(user_error,'% Warning: singleton variable'),
-	'$write_svs'(SVs),
-	write(user_error,' in '),
-	write(user_error,Name/Arity),
-	write(user_error,' (line '),
-	'$start_line'(LN), write(user_error,LN),
-	write(user_error,', clause '),
+	'$start_line'(LN),
 	( get_value('$consulting',false),
 	   '$first_clause_in_file'(Name,Arity, OM) ->
 	    ClN = 1 ;
 		'$number_of_clauses'(H,M,ClN0),
 		ClN is ClN0+1
 	),
-	write(user_error,ClN), 
-	write(user_error,')'),
-	nl(user_error). 
+	print_message(warning,singletons(SVs,(M:Name/Arity),LN,ClN)).
 
 '$xtract_head'(V,M,M,V,call,1) :- var(V), !.
 '$xtract_head'((H:-_),OM,M,NH,Name,Arity) :- !,
@@ -153,31 +148,12 @@ no_style_check([H|T]) :- no_style_check(H), no_style_check(T).
 '$xtract_head'(H,M,M,H,Name,Arity) :-
 	functor(H,Name,Arity).
 
-'$write_svs'([H]) :- !, write(user_error,' '), '$write_svs1'([H]).
-'$write_svs'(SVs) :- write(user_error,'s '), '$write_svs1'(SVs).
-
-'$write_svs1'([H]) :- !,
-        '$write_str_in_stderr'(H).
-'$write_svs1'([H|T]) :- 
-        '$write_str_in_stderr'(H),
-        write(user_error,','),
-        '$write_svs1'(T).
-
-'$write_str_in_stderr'([]).
-'$write_str_in_stderr'([C|T]) :-
-	put(user_error,C),
-	'$write_str_in_stderr'(T).
-
-
 '$handle_discontiguous'(F,A,M) :-
 	recorded('$discontiguous_defs','$df'(F,A,M),_), !.
 '$handle_discontiguous'(F,A,M) :-
 	'$in_this_file_before'(F,A,M),
-	write(user_error,'% Warning: discontiguous definition of '),
-	write(user_error,F/A), write(user_error,' (line '),
-	'$start_line'(LN), write(user_error,LN),
-	write(user_error,')'),
-	nl(user_error).
+	'$start_line'(LN),
+	print_message(warning,clauses_not_together((M:Name/Arity),LN)).
 
 '$handle_multiple'(F,A,M) :-
 	\+ '$first_clause_in_file'(F,A,M), !.
@@ -199,12 +175,8 @@ no_style_check([H|T]) :- no_style_check(H), no_style_check(T).
 
 '$test_if_well_reconsulting'(F,F,_) :- !.
 '$test_if_well_reconsulting'(_,Fil,P) :-
-	write(user_error,'% Warning: predicate '),
-	write(user_error,P), write(user_error,' already defined in '),
-	write(user_error,Fil), write(user_error,' (line '),
-	'$start_line'(LN), write(user_error,LN),
-	write(user_error,')'),
-	nl(user_error).	
+	'$start_line'(LN), 
+	print_message(warning,defined_elsewhere((M:Name/Arity),Fil,LN)).
 
 '$multifile'(V, _) :- var(V), !,
 	'$do_error'(instantiation_error,multifile(V)).

@@ -1086,7 +1086,7 @@ p_lgamma(Term t E_ARGS)
   Functor f = AritFunctorOfTerm(t);
   union arith_ret v;
   blob_type bt;
-  Float dbl, out;
+  Float dbl;
 
   switch (BlobOfFunctor(f)) {
   case long_int_e:
@@ -1123,8 +1123,11 @@ p_lgamma(Term t E_ARGS)
   }
 
 #if HAVE_LGAMMA
-  out = lgamma(dbl);
-  RFLOAT(out);
+ {
+   Float out;
+   out = lgamma(dbl);
+   RFLOAT(out);
+ }
 #else
   RERROR();
 #endif
@@ -2014,7 +2017,6 @@ static InitUnEntry InitUnTab[] = {
   {"asin", p_asin},
   {"acos", p_acos},
   {"atan", p_atan},
-  {"lgamma", p_lgamma},
   {"asinh", p_asinh},
   {"acosh", p_acosh},
   {"atanh", p_atanh},
@@ -2028,7 +2030,8 @@ static InitUnEntry InitUnTab[] = {
   {"msb", p_msb},
   {"float_fractional_part", p_ffracp},
   {"float_integer_part", p_fintp},
-  {"sign", p_sign}
+  {"sign", p_sign},
+  {"lgamma", p_lgamma},
 };
 
 static Int 

@@ -322,6 +322,7 @@ do_not_compile_expressions :- set_value('$c_arith',[]).
 '$unary_op_as_integer'(float_fractional_part,27).
 '$unary_op_as_integer'(float_integer_part,28).
 '$unary_op_as_integer'(sign,29).
+'$unary_op_as_integer'(lgamma,30).
 
 '$binary_op_as_integer'(+,0).
 '$binary_op_as_integer'(-,1).
