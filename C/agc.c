@@ -365,7 +365,7 @@ atom_gc(void)
   agc_calls++;
   agc_collected = 0;
   if (gc_trace) {
-    fprintf(Yap_stderr, "[agc]\n");
+    fprintf(Yap_stderr, "AGC]\n");
   } else if (gc_verbose) {
     fprintf(Yap_stderr, "[AGC] Start of atom garbage collection %d:\n", agc_calls);
   }

@@ -16,8 +16,7 @@
 *************************************************************************/
 
 #include "Yap.h"
-#include "Yatom.h"
-#include "Heap.h"
+#include "clause.h"
 #include "eval.h"
 #include "heapgc.h"
 #if HAVE_ERRNO_H
@@ -1542,6 +1541,7 @@ p_assign_static(void)
     {
       
       Term t0 = ptr->ValueOfVE.dbrefs[indx];
+      DBRef p = DBRefOfTerm(t3);
       
       if (!IsDBRefTerm(t3)) {
 	WRITE_UNLOCK(ptr->ArRWLock);
@@ -1549,9 +1549,22 @@ p_assign_static(void)
 	return (FALSE);
       }
       ptr->ValueOfVE.dbrefs[indx]= t3;
-      if (t0 != 0L)
-	DBRefOfTerm(t0)->NOfRefsTo--;
-      DBRefOfTerm(t3)->NOfRefsTo++;
+      if (t0 != 0L) {
+	DBRef ptr = DBRefOfTerm(t0);
+	if (ptr->Flags & LogUpdMask) {
+	  LogUpdClause *lup = (LogUpdClause *)ptr;
+	  lup->ClRefCount--;
+	} else {
+	  ptr->NOfRefsTo--;
+	}
+      }
+      
+      if (p->Flags & LogUpdMask) {
+	LogUpdClause *lup = (LogUpdClause *)p;
+	lup->ClRefCount++;
+      } else {
+	p->NOfRefsTo++;
+      }
     }
     break;
 
