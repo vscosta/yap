@@ -1783,7 +1783,16 @@ p_cd (void)
 #if  __simplescalar__
   strncpy(yap_pwd,FileNameBuf2,YAP_FILENAME_MAX);
 #endif
-  return (!chdir (FileNameBuf2));
+  if (chdir (FileNameBuf2) < 0) {
+#if HAVE_STRERROR
+    Error(SYSTEM_ERROR, t1, 
+	"cd(%s): %s", FileNameBuf2, strerror(errno));
+#else
+    Error(SYSTEM_ERROR,t1,"cd(%s)", FileNameBuf2);
+#endif
+    return(FALSE);
+  }
+  return(TRUE);
 #else
 #ifdef MACYAP
   Term t1 = Deref (ARG1);
