@@ -346,7 +346,7 @@ debugging :-
 	'$call'(!, CP, !,Mod).
 '$spycalls'(Mod:G,_,Res) :-
 	!,
-        '$spycalls'(G,Mod,Res).
+	'$spycalls'(G,Mod,Res).
 '$spycalls'(repeat,_,_) :-
 	!,
 	repeat.
@@ -471,15 +471,18 @@ debugging :-
 	'$do_creep_execute_dynamic'(G,M,Cl).
 
 '$spycall_stdpred'(G,M) :-
+        CP is '$last_choice_pt',
 	functor(G,F,N),
 	(
 	    user:'$meta_predicate'(F,M,N,_) ->
 	    '$setflop'(1),
 	    '$creep',
-	    '$execute0'(G,M)
+	    % I need to use call, otherwise I'll be in trouble if G
+	    % is a meta-call.
+	    '$call'(G,CP,G,M)
 	;
 	    '$setflop'(1),
-	    '$execute0'(G,M)
+	    '$call'(G,CP,G,M)
 	),
 	'$setflop'(0).
 
