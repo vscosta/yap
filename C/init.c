@@ -1070,7 +1070,15 @@ InitCodes(void)
   heap_regs->getworkcode.u.ld.p = (CODEADDR)RepPredProp(PredPropByAtom(LookupAtom("$getwork"), 0));
   heap_regs->getworkcode_seq.u.ld.p = (CODEADDR)RepPredProp(PredPropByAtom(LookupAtom("$getwork_seq"), 0));
 #endif
+  heap_regs->db_erased_marker =
+    (DBRef)AllocCodeSpace(sizeof(DBStruct));
+  heap_regs->db_erased_marker->id = FunctorDBRef;
+  heap_regs->db_erased_marker->Flags = ErasedMask;
+  heap_regs->db_erased_marker->Code = NULL;
+  INIT_LOCK(heap_regs->db_erased_marker->lock);
+  INIT_DBREF_COUNT(heap_regs->db_erased_marker);
 }
+
 
 static void 
 InitVersion(void)

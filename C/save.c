@@ -1158,6 +1158,8 @@ restore_codes(void)
 #endif
   if (heap_regs->last_wtime != NULL)
     heap_regs->last_wtime = (void *)PtoHeapCellAdjust((CELL *)(heap_regs->last_wtime));
+  heap_regs->db_erased_marker =
+    DBRefAdjust(heap_regs->db_erased_marker);
 }
 
 /* restore some heap registers */

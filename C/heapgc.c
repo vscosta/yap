@@ -583,7 +583,7 @@ init_dbtable(tr_fr_ptr trail_ptr) {
       flags = Flags((CELL)pt0);
       /* for the moment, if all references to the term in the stacks
 	 are only pointers, reset the flag */
-      if (FlagOn(DBClMask, flags) && !FlagOn(LogUpdMask, flags)) {
+      if (FlagOn(DBClMask, flags)) {
 	if (FlagOn(DBNoVars, flags)) {
 	  CODEADDR entry = ((CODEADDR)pt0 - (CELL) &(((DBRef) NIL)->Flags));
 	  store_ref_in_dbtable((DBRef)entry);
@@ -879,7 +879,14 @@ mark_variable(CELL_PTR current)
       if ((Functor)cnext == FunctorDBRef) {
 	DBRef tref = DBRefOfTerm(ccur);
 	/* make sure the reference is marked as in use */
-	tref->Flags |= GcFoundMask;
+	if ((tref->Flags & ErasedMask) &&
+	    tref->Parent != NULL &&
+	    tref->Parent->KindOfPE & LogUpdDBBit) {
+	  *current = MkDBRefTerm(DBErasedMarker);
+	  MARK(current);
+	} else {
+	  tref->Flags |= GcFoundMask;
+	}
       } else {
 	mark_db_fixed(next);
       }
@@ -930,6 +937,7 @@ mark_variable(CELL_PTR current)
 	POP_CONTINUATION();
       }
     }
+    if (next < H0) POP_CONTINUATION();
 #ifdef INSTRUMENT_GC
     inc_vars_of_type(next,gc_func);
 #endif
@@ -982,7 +990,14 @@ mark_external_reference(CELL *ptr) {
 	if ((Functor)(*next) == FunctorDBRef) {
 	  DBRef tref = DBRefOfTerm(reg);
 	  /* make sure the reference is marked as in use */
-	  tref->Flags |= GcFoundMask;
+	  if ((tref->Flags & ErasedMask) &&
+	      tref->Parent != NULL &&
+	      tref->Parent->KindOfPE & LogUpdDBBit) {
+	    *ptr = MkDBRefTerm(DBErasedMarker);
+	    MARK(ptr);
+	  } else {
+	    tref->Flags |= GcFoundMask;
+	  }
 	} else {
 	  mark_db_fixed(next);
 	}
@@ -1852,8 +1867,8 @@ sweep_trail(choiceptr gc_B, tr_fr_ptr old_TR)
 	}
 #endif
       
-	if (!FlagOn(GcFoundMask, flags)) {
-	  if (FlagOn(DBClMask, flags)  && !FlagOn(LogUpdMask, flags)) {
+	if (!FlagOn(GcFoundMask, flags) && !FlagOn(LogUpdMask, flags)) {
+	  if (FlagOn(DBClMask, flags)) {
 	    Flags((CELL)pt0) = ResetFlag(InUseMask, flags);
 	    if (FlagOn(ErasedMask, flags)) {
 	      ErDBE((DBRef) ((CELL)pt0 - (CELL) &(((DBRef) NIL)->Flags)));
@@ -3076,7 +3091,7 @@ static Int
 p_gc(void)
 {
 #ifndef FIXED_STACKS
-  do_gc(0, ENV, CP);
+  do_gc(0, ENV, P);
 #endif  /* FIXED_STACKS */
   return(TRUE);
 }

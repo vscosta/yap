@@ -10,7 +10,7 @@
 * File:		Heap.h         						 *
 * mods:									 *
 * comments:	Heap Init Structure					 *
-* version:      $Id: Heap.h,v 1.26 2002-05-23 03:52:34 vsc Exp $	 *
+* version:      $Id: Heap.h,v 1.27 2002-06-04 00:46:32 vsc Exp $	 *
 *************************************************************************/
 
 /* information that can be stored in Code Space */
@@ -282,6 +282,7 @@ typedef struct various_codes {
   PredEntry *pred_throw;
   PredEntry *pred_handle_throw;
   struct array_entry *dyn_array_list;
+  struct DB_STRUCT *db_erased_marker;
   UInt n_of_file_aliases;
   UInt sz_of_file_aliases;
   struct AliasDescS * file_aliases;
@@ -474,6 +475,7 @@ typedef struct various_codes {
 #define  PredThrow                heap_regs->pred_throw
 #define  PredHandleThrow          heap_regs->pred_handle_throw
 #define  DynArrayList             heap_regs->dyn_array_list
+#define  DBErasedMarker           heap_regs->db_erased_marker
 #define  NOfFileAliases           heap_regs->n_of_file_aliases
 #define  SzOfFileAliases          heap_regs->sz_of_file_aliases
 #define  FileAliases              heap_regs->file_aliases

@@ -3684,10 +3684,18 @@ p_instance(void)
 {
   Term            TermDB;
   Term t1 = Deref(ARG1);
+  DBRef dbr;
 
   if (IsVarTerm(t1) || !IsDBRefTerm(t1))
     return (FALSE);
-  while ((TermDB = GetDBTerm(DBRefOfTerm(t1))) == (CELL)0) {
+  dbr = DBRefOfTerm(t1);
+  if (dbr->Flags & ErasedMask) {
+    /* instance/2 of erased terms should fail under log update
+       semantics */
+    if (dbr->Parent != NULL && dbr->Parent->KindOfPE & LogUpdDBBit)
+      return(FALSE);
+  }
+  while ((TermDB = GetDBTerm(dbr)) == (CELL)0) {
     /* oops, we are in trouble, not enough stack space */
     gc(2, ENV, P);
     t1 = Deref(ARG1);
