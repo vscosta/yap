@@ -35,6 +35,11 @@
 	    ord_list_to_assoc/2
 	]).
 
+:- use_module( library(ordsets),
+	[
+	  merge/3
+	]).
+
 % -----------------------------------------------------------------
 %
 % *** MACROS ***
@@ -92,7 +97,7 @@ sbag_member( Elem, A) :-
 sbag_union( A, B, C) :-
 	assoc_to_list( A, As),
 	assoc_to_list( B, Bs),
-	prolog:merge( As, Bs, Cs),
+	merge( As, Bs, Cs),
 	ord_list_to_assoc( Cs, C).
 
 sbag_add_element( S1, E, S2) :- put_assoc( E, S1, 0, S2).

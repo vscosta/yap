@@ -25,7 +25,12 @@
 	    sbag_del_element/3
 	]).
 
-% -----------------------------------------------------------------
+:- use_module( library(ordsets),
+	[
+	  merge/3
+	]).
+
+   % -----------------------------------------------------------------
 %
 % *** MACROS ***
 %
@@ -68,7 +73,7 @@ sbag_member( E, [Head|Tail], _) :-
 sbag_union( A, B, C) :-
 	sort( A, As),
 	sort( B, Bs),
-	prolog:merge( As, Bs, C).
+	merge( As, Bs, C).
 
 sbag_add_element( Set1, Elem, Set2) :- Set2 = [Elem|Set1].
 
