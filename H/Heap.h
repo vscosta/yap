@@ -10,7 +10,7 @@
 * File:		Heap.h         						 *
 * mods:									 *
 * comments:	Heap Init Structure					 *
-* version:      $Id: Heap.h,v 1.68 2004-10-10 00:23:54 vsc Exp $	 *
+* version:      $Id: Heap.h,v 1.69 2004-10-27 15:56:34 vsc Exp $	 *
 *************************************************************************/
 
 /* information that can be stored in Code Space */
@@ -64,6 +64,8 @@ typedef struct worker_local_struct {
   unsigned int      gc_calls;	/* number of times GC has been called */ 
   Int      tot_gc_time; /* total time spent in GC */
   Int      tot_gc_recovered; /* number of heap objects in all garbage collections */
+  jmp_buf  gc_restore; /* where to jump if garbage collection crashes */
+  struct trail_frame *old_TR;
 } worker_local;
 
 #ifdef THREADS
@@ -672,6 +674,8 @@ struct various_codes *heap_regs;
 #define  GcCalls                  heap_regs->wl[worker_id].gc_calls
 #define  TotGcTime                heap_regs->wl[worker_id].tot_gc_time
 #define  TotGcRecovered           heap_regs->wl[worker_id].tot_gc_recovered
+#define  Yap_gc_restore           heap_regs->wl[worker_id].gc_restore
+#define  Yap_old_TR               heap_regs->wl[worker_id].old_TR
 #else
 #define  ActiveSignals            heap_regs->wl.active_signals
 #define  DelayedTrace	          heap_regs->wl.delayed_trace
@@ -687,6 +691,8 @@ struct various_codes *heap_regs;
 #define  GcCalls                  heap_regs->wl.gc_calls
 #define  TotGcTime                heap_regs->wl.tot_gc_time
 #define  TotGcRecovered           heap_regs->wl.tot_gc_recovered
+#define  Yap_gc_restore           heap_regs->wl.gc_restore
+#define  Yap_old_TR               heap_regs->wl.old_TR
 #endif
 #define  profiling                heap_regs->compiler_profiling
 #define  call_counting            heap_regs->compiler_call_counting

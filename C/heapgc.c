@@ -94,14 +94,35 @@ static cont *cont_top0;
 #endif
 static cont *cont_top;
 
+static int
+gc_growtrail(int committed)
+{
+#if USE_SYSTEM_MALLOC
+  TR = Yap_old_TR;
+#endif
+  if (!Yap_growtrail(64 * 1024L)) {
+    /* could not find more trail */
+    longjmp(Yap_gc_restore, 2);
+  }
+#if USE_SYSTEM_MALLOC
+#if !GC_NO_TAGS
+  if (committed) {
+    longjmp(Yap_gc_restore, 2);
+  }
+#endif
+  longjmp(Yap_gc_restore, 1);
+#endif
+}
+
 inline static void
 PUSH_CONTINUATION(CELL *v, int nof) {
   cont *x;
   if (nof == 0) return;
   x = cont_top;
   x++;
-  if ((ADDR)x > Yap_TrailTop-1024)
-    Yap_growtrail(64 * 1024L);
+  if ((ADDR)x > Yap_TrailTop-1024) {
+    gc_growtrail(TRUE);
+  }
   x->v = v;
   x->nof = nof;
   cont_top = x;
@@ -277,7 +298,7 @@ GC_ALLOC_NEW_MASPACE(void)
 {
   gc_ma_hash_entry *new = gc_ma_h_top;
   if ((char *)gc_ma_h_top > Yap_TrailTop-1024)
-    Yap_growtrail(64 * 1024L);
+    gc_growtrail(FALSE);
   gc_ma_h_top++;
   cont_top = (cont *)gc_ma_h_top;
 #ifdef EASY_SHUNTING
@@ -492,11 +513,8 @@ RBMalloc(UInt size)
   ADDR new = db_vec;
 
   db_vec += size; 
- if ((ADDR)db_vec > Yap_TrailTop-1024) {
-    Yap_growtrail(64 * 1024L);
-#if USE_SYSTEM_MALLOC
-    /* TODO */
-#endif    
+  if ((ADDR)db_vec > Yap_TrailTop-1024) {
+    gc_growtrail(FALSE);
   }
   return (rb_red_blk_node *)new;
 }
@@ -655,7 +673,7 @@ TreeInsertHelp(rb_red_blk_node* z) {
   x=db_root->left;
   while( x != nil) {
     y=x;
-    if (x->key > z->key) { /* x.key > z.key */
+    if (x->key < z->key) { /* x.key > z.key */
       x=x->left;
     } else { /* x,key <= z.key */
       x=x->right;
@@ -663,7 +681,7 @@ TreeInsertHelp(rb_red_blk_node* z) {
   }
   z->parent=y;
   if ( (y == db_root) ||
-       (y->key > z->key)) { /* y.key > z.key */
+       (y->key < z->key)) { /* y.key > z.key */
     y->left=z;
   } else {
     y->right=z;
@@ -3297,25 +3315,32 @@ compaction_phase(tr_fr_ptr old_TR, CELL *current_env, yamop *curp, CELL *max)
 static Int
 do_gc(Int predarity, CELL *current_env, yamop *nextop)
 {
-  Int		heap_cells = H-H0;
-  int		gc_verbose = is_gc_verbose();
-  tr_fr_ptr     old_TR;
+  Int		heap_cells;
+  int		gc_verbose;
+  tr_fr_ptr     old_TR = NULL;
   UInt		m_time, c_time, time_start, gc_time;
-#if COROUTINING
-  CELL *max = (CELL *)Yap_ReadTimedVar(DelayedVars);
-#else
-  CELL *max = NULL;
-#endif
-  Int           effectiveness = 0;
-  int           gc_trace = FALSE;
+  CELL *max;
+  Int           effectiveness;
+  int           gc_trace;
 
+  if (setjmp(Yap_gc_restore) == 2) {
+    /* we cannot recover, fail system */
+    Yap_Error(OUT_OF_TRAIL_ERROR,TermNil,"could not expand trail during garbage collection");
+  }
+  heap_cells = H-H0;
+  gc_verbose = is_gc_verbose();
+  effectiveness = 0;
+  gc_trace = FALSE;
 #if COROUTINING
+  max = (CELL *)Yap_ReadTimedVar(DelayedVars);
   if (H0 - max < 1024+(2*NUM_OF_ATTS)) {
     if (!Yap_growglobal(&current_env)) {
       Yap_Error(SYSTEM_ERROR, TermNil, Yap_ErrorMessage);
       return 0;
     }
   }
+#else
+  max = NULL;
 #endif
 #ifdef INSTRUMENT_GC
   {
@@ -3354,7 +3379,7 @@ do_gc(Int predarity, CELL *current_env, yamop *nextop)
   }
 #endif
   if (gc_trace) {
-    fprintf(Yap_stderr, "[gc]\n");
+    fprintf(Yap_stderr, "%% gc\n");
   } else if (gc_verbose) {
     fprintf(Yap_stderr, "%% Start of garbage collection %d:\n", GcCalls);
 #ifndef EARLY_RESET
@@ -3403,7 +3428,7 @@ do_gc(Int predarity, CELL *current_env, yamop *nextop)
 #endif
   /* get the number of active registers */
   YAPEnterCriticalSection();
-  old_TR = TR;
+  Yap_old_TR = old_TR = TR;
   push_registers(predarity, nextop);
   marking_phase(old_TR, current_env, nextop, max);
   m_time = Yap_cputime();

@@ -10,7 +10,7 @@
 * File:		Yap.h.m4						 *
 * mods:									 *
 * comments:	main header file for YAP				 *
-* version:      $Id: Yap.h.m4,v 1.72 2004-10-14 22:14:53 vsc Exp $	 *
+* version:      $Id: Yap.h.m4,v 1.73 2004-10-27 15:56:34 vsc Exp $	 *
 *************************************************************************/
 
 #include "config.h"
@@ -467,6 +467,7 @@ typedef enum {
   OUT_OF_STACK_ERROR,
   OUT_OF_TRAIL_ERROR,
   OUT_OF_ATTVARS_ERROR,
+  OUT_OF_AUXSPACE_ERROR,
   PERMISSION_ERROR_ACCESS_PRIVATE_PROCEDURE,
   PERMISSION_ERROR_NEW_ALIAS_FOR_STREAM,
   PERMISSION_ERROR_CREATE_ARRAY,

@@ -265,6 +265,44 @@ STATIC_PROTO(DBProp find_int_key, (Int));
 }
 #endif
 
+static int
+recover_from_record_error(int nargs)
+{
+  switch(Yap_Error_TYPE) {
+  case OUT_OF_STACK_ERROR:
+    if (!Yap_gc(nargs, ENV, P)) {
+      Yap_Error(OUT_OF_STACK_ERROR, TermNil, Yap_ErrorMessage);
+      return FALSE;
+    }
+    goto recover_record;
+  case OUT_OF_TRAIL_ERROR:
+    if (!Yap_growtrail(64 * 1024L)) {
+      Yap_Error(OUT_OF_TRAIL_ERROR, TermNil, "YAP could not grow trail in recorda/3");
+      return FALSE;
+    }
+    goto recover_record;
+  case OUT_OF_HEAP_ERROR:
+    if (!Yap_growheap(FALSE, Yap_Error_Size, NULL)) {
+      Yap_Error(OUT_OF_HEAP_ERROR, Yap_Error_Term, Yap_ErrorMessage);
+      return FALSE;
+    }
+    goto recover_record;
+  case OUT_OF_AUXSPACE_ERROR:
+    if (!Yap_ExpandPreAllocCodeSpace(Yap_Error_Size)) {
+      Yap_Error(OUT_OF_AUXSPACE_ERROR, Yap_Error_Term, Yap_ErrorMessage);
+      return FALSE;
+    }
+    goto recover_record;
+  default:
+    Yap_Error(Yap_Error_TYPE, Yap_Error_Term, Yap_ErrorMessage);
+    return FALSE;
+  }
+ recover_record:
+  Yap_Error_Size = 0;
+  Yap_Error_TYPE = YAP_NO_ERROR;
+  return TRUE;
+}
+
 
 #ifdef SUPPORT_HASH_TABLES
 /* related property and hint on number of entries */
@@ -990,7 +1028,7 @@ static CELL *MkDBTerm(register CELL *pt0, register CELL *pt0_end,
   return(CodeMax);
 
  error:
-  Yap_Error_TYPE = OUT_OF_HEAP_ERROR;
+  Yap_Error_TYPE = OUT_OF_AUXSPACE_ERROR;
   Yap_Error_Size = 1024+((char *)AuxSp-(char *)CodeMaxBase);
   *vars_foundp = vars_found;
 #ifdef RATIONAL_TREES
@@ -1525,7 +1563,7 @@ CreateDBStruct(Term Tm, DBProp p, int InFlag, int *pstat, UInt extra_size, struc
       CodeAbs += CellPtr(dbg->lr) - CellPtr(dbg->LinkAr);
       if ((CELL *)((char *)ntp0+(CELL)CodeAbs) > AuxSp) {
 	Yap_Error_Size = (UInt)DBLength(CodeAbs);
-	Yap_Error_TYPE = OUT_OF_HEAP_ERROR;
+	Yap_Error_TYPE = OUT_OF_AUXSPACE_ERROR;
 	Yap_ReleasePreAllocCodeSpace((ADDR)pp0);
 	return(NULL);
       }
@@ -1545,9 +1583,9 @@ CreateDBStruct(Term Tm, DBProp p, int InFlag, int *pstat, UInt extra_size, struc
       CodeAbs += (TmpRefBase - dbg->tofref) + 1;
       if ((CELL *)((char *)ntp0+(CELL)CodeAbs) > AuxSp) {
 	Yap_Error_Size = (UInt)DBLength(CodeAbs);
-	Yap_Error_TYPE = OUT_OF_HEAP_ERROR;
+	Yap_Error_TYPE = OUT_OF_AUXSPACE_ERROR;
 	Yap_ReleasePreAllocCodeSpace((ADDR)pp0);
-	return(NULL);
+	return NULL;
       }
       flag |= DBWithRefs;
     }
@@ -1872,8 +1910,8 @@ p_rcda(void)
   if (!IsVarTerm(Deref(ARG3)))
     return (FALSE);
   pe = find_lu_entry(t1);
- restart_record:
   Yap_Error_Size = 0;
+ restart_record:
   if (pe) {
     LogUpdClause *cl;
     cl = record_lu(pe, t2, MkFirst);
@@ -1891,35 +1929,15 @@ p_rcda(void)
   } else { 
     TRef = MkDBRefTerm(record(MkFirst, t1, t2, Unsigned(0)));
   }
-  switch(Yap_Error_TYPE) {
-  case YAP_NO_ERROR:
-    return (Yap_unify(ARG3, TRef));
-  case OUT_OF_STACK_ERROR:
-    if (!Yap_gc(3, ENV, P)) {
-      Yap_Error(OUT_OF_STACK_ERROR, TermNil, Yap_ErrorMessage);
-      return(FALSE);
-    }
-    goto recover_record;
-  case OUT_OF_TRAIL_ERROR:
-    if (!Yap_growtrail(64 * 1024L)) {
-      Yap_Error(OUT_OF_TRAIL_ERROR, TermNil, "YAP could not grow trail in recorda/3");
-      return(FALSE);
-    }
-    goto recover_record;
-  case OUT_OF_HEAP_ERROR:
-    if (!Yap_ExpandPreAllocCodeSpace(Yap_Error_Size)) {
+  if (Yap_Error_TYPE != YAP_NO_ERROR) {
+    if (recover_from_record_error(3)) {
+      t2 = Deref(ARG2);
+      goto restart_record;
+    } else {
       return FALSE;
     }
-    goto recover_record;
-  default:
-    Yap_Error(Yap_Error_TYPE, Yap_Error_Term, Yap_ErrorMessage);
-    return(FALSE);
   }
- recover_record:
-  Yap_Error_TYPE = YAP_NO_ERROR;
-  t1 = Deref(ARG1);
-  t2 = Deref(ARG2);
-  goto restart_record;
+  return Yap_unify(ARG3, TRef);
 }
 
 /* '$recordap'(+Functor,+Term,-Ref) */
@@ -1930,38 +1948,20 @@ p_rcdap(void)
 
   if (!IsVarTerm(Deref(ARG3)))
     return FALSE;
- restart_record:
   Yap_Error_Size = 0;
+ restart_record:
   TRef = MkDBRefTerm(record(MkFirst | MkCode, t1, t2, Unsigned(0)));
-  switch(Yap_Error_TYPE) {
-  case YAP_NO_ERROR:
-    return Yap_unify(ARG3, TRef);
-  case OUT_OF_STACK_ERROR:
-    if (!Yap_gc(3, ENV, P)) {
-      Yap_Error(OUT_OF_STACK_ERROR, TermNil, Yap_ErrorMessage);
+
+  if (Yap_Error_TYPE != YAP_NO_ERROR) {
+    if (recover_from_record_error(3)) {
+      t1 = Deref(ARG1);
+      t2 = Deref(ARG2);
+      goto restart_record;
+    } else {
       return FALSE;
     }
-    goto recover_record;
-  case OUT_OF_TRAIL_ERROR:
-    if(!Yap_growtrail (sizeof(CELL) * 16 * 1024L)) {
-      Yap_Error(OUT_OF_TRAIL_ERROR, TermNil, "YAP could not grow trail in recorda/3");
-      return FALSE;
-    }
-    goto recover_record;
-  case OUT_OF_HEAP_ERROR:
-    if (!Yap_ExpandPreAllocCodeSpace(Yap_Error_Size)) {
-      return FALSE;
-    }
-    goto recover_record;
-  default:
-    Yap_Error(Yap_Error_TYPE, Yap_Error_Term, Yap_ErrorMessage);
-    return FALSE;
   }
- recover_record:
-  Yap_Error_TYPE = YAP_NO_ERROR;
-  t1 = Deref(ARG1);
-  t2 = Deref(ARG2);
-  goto restart_record;
+  return Yap_unify(ARG3, TRef);
 }
 
 /* recorda_at(+Functor,+Term,-Ref) */
@@ -1981,38 +1981,19 @@ p_rcda_at(void)
       Yap_Error(TYPE_ERROR_DBREF, t1, "recorda_at/3");
       return(FALSE);
   }
- restart_record:
   Yap_Error_Size = 0;
+ restart_record:
   TRef = MkDBRefTerm(record_at(MkFirst, DBRefOfTerm(t1), t2, Unsigned(0)));
-  switch(Yap_Error_TYPE) {
-  case YAP_NO_ERROR:
-    return (Yap_unify(ARG3, TRef));
-  case OUT_OF_STACK_ERROR:
-    if (!Yap_gc(3, ENV, P)) {
-      Yap_Error(OUT_OF_STACK_ERROR, TermNil, Yap_ErrorMessage);
-      return(FALSE);
-    }
-    goto recover_record;
-  case OUT_OF_TRAIL_ERROR:
-    if(!Yap_growtrail (sizeof(CELL) * 16 * 1024L)) {
-      Yap_Error(OUT_OF_TRAIL_ERROR, TermNil, "YAP could not grow trail in recorda/3");
+  if (Yap_Error_TYPE != YAP_NO_ERROR) {
+    if (recover_from_record_error(3)) {
+      t1 = Deref(ARG1);
+      t2 = Deref(ARG2);
+      goto restart_record;
+    } else {
       return FALSE;
     }
-    goto recover_record;
-  case OUT_OF_HEAP_ERROR:
-    if (!Yap_ExpandPreAllocCodeSpace(Yap_Error_Size)) {
-      return FALSE;
-    }
-    goto recover_record;
-  default:
-    Yap_Error(Yap_Error_TYPE, Yap_Error_Term, Yap_ErrorMessage);
-    return(FALSE);
   }
- recover_record:
-  Yap_Error_TYPE = YAP_NO_ERROR;
-  t1 = Deref(ARG1);
-  t2 = Deref(ARG2);
-  goto restart_record;
+  return Yap_unify(ARG3, TRef);
 }
 
 /* recordz(+Functor,+Term,-Ref) */
@@ -2025,8 +2006,8 @@ p_rcdz(void)
   if (!IsVarTerm(Deref(ARG3)))
     return (FALSE);
   pe = find_lu_entry(t1);
- restart_record:
   Yap_Error_Size = 0;
+ restart_record:
   if (pe) {
     LogUpdClause *cl = record_lu(pe, t2, MkLast);
     if (cl != NULL) {
@@ -2043,35 +2024,16 @@ p_rcdz(void)
   } else { 
     TRef = MkDBRefTerm(record(MkLast, t1, t2, Unsigned(0)));
   }
-  switch(Yap_Error_TYPE) {
-  case YAP_NO_ERROR:
-    return (Yap_unify(ARG3, TRef));
-  case OUT_OF_STACK_ERROR:
-    if (!Yap_gc(3, ENV, P)) {
-      Yap_Error(OUT_OF_STACK_ERROR, TermNil, Yap_ErrorMessage);
+  if (Yap_Error_TYPE != YAP_NO_ERROR) {
+    if (recover_from_record_error(3)) {
+      t1 = Deref(ARG1);
+      t2 = Deref(ARG2);
+      goto restart_record;
+    } else {
       return FALSE;
     }
-    goto recover_record;
-  case OUT_OF_TRAIL_ERROR:
-    if(!Yap_growtrail (sizeof(CELL) * 16 * 1024L)) {
-      Yap_Error(OUT_OF_TRAIL_ERROR, TermNil, "YAP could not grow trail in recorda/3");
-      return FALSE;
-    }
-    goto recover_record;
-  case OUT_OF_HEAP_ERROR:
-    if (!Yap_ExpandPreAllocCodeSpace(Yap_Error_Size)) {
-      return FALSE;
-    }
-    goto recover_record;
-  default:
-    Yap_Error(Yap_Error_TYPE, Yap_Error_Term, Yap_ErrorMessage);
-    return(FALSE);
   }
- recover_record:
-  Yap_Error_TYPE = YAP_NO_ERROR;
-  t1 = Deref(ARG1);
-  t2 = Deref(ARG2);
-  goto restart_record;
+  return Yap_unify(ARG3, TRef);
 }
 
 /* recordz(+Functor,+Term,-Ref) */
@@ -2081,43 +2043,23 @@ Yap_Recordz(Atom at, Term t2)
   PredEntry *pe;
 
   pe = find_lu_entry(MkAtomTerm(at));
- restart_record:
   Yap_Error_Size = 0;
+ restart_record:
   if (pe) {
     record_lu(pe, t2, MkLast);
   } else { 
     record(MkLast, MkAtomTerm(at), t2, Unsigned(0));
   }
-  if (YAP_NO_ERROR == Yap_Error_TYPE) {
-    return TRUE;
+  if (Yap_Error_TYPE != YAP_NO_ERROR) {
+    ARG1 = t2;
+    if (recover_from_record_error(1)) {
+      t2 = ARG1;
+      goto restart_record;
+    } else {
+      return FALSE;
+    }
   }
-  ARG1 = t2;
-  switch(Yap_Error_TYPE) {
-  case OUT_OF_STACK_ERROR:
-    if (!Yap_gc(1, ENV, P)) {
-      Yap_Error(OUT_OF_STACK_ERROR, TermNil, Yap_ErrorMessage);
-      return FALSE;
-    }
-    goto recover_record;
-  case OUT_OF_TRAIL_ERROR:
-    if(!Yap_growtrail (sizeof(CELL) * 16 * 1024L)) {
-      Yap_Error(OUT_OF_TRAIL_ERROR, TermNil, "YAP could not grow trail in recorda/3");
-      return FALSE;
-    }
-    goto recover_record;
-  case OUT_OF_HEAP_ERROR:
-    if (!Yap_ExpandPreAllocCodeSpace(Yap_Error_Size)) {
-      return FALSE;
-    }
-    goto recover_record;
-  default:
-    Yap_Error(Yap_Error_TYPE, Yap_Error_Term, Yap_ErrorMessage);
-    return(FALSE);
-  }
- recover_record:
-  Yap_Error_TYPE = YAP_NO_ERROR;
-  t2 = Deref(ARG1);
-  goto restart_record;
+  return TRUE;
 }
 
 /* '$recordzp'(+Functor,+Term,-Ref) */
@@ -2128,38 +2070,19 @@ p_rcdzp(void)
 
   if (!IsVarTerm(Deref(ARG3)))
     return (FALSE);
- restart_record:
   Yap_Error_Size = 0;
+ restart_record:
   TRef = MkDBRefTerm(record(MkLast | MkCode, t1, t2, Unsigned(0)));
-  switch(Yap_Error_TYPE) {
-  case YAP_NO_ERROR:
-    return (Yap_unify(ARG3, TRef));
-  case OUT_OF_STACK_ERROR:
-    if (!Yap_gc(3, ENV, P)) {
-      Yap_Error(OUT_OF_STACK_ERROR, TermNil, Yap_ErrorMessage);
-      return(FALSE);
-    }
-    goto recover_record;
-  case OUT_OF_TRAIL_ERROR:
-    if(!Yap_growtrail (sizeof(CELL) * 16 * 1024L)) {
-      Yap_Error(OUT_OF_TRAIL_ERROR, TermNil, "YAP could not grow trail in recorda/3");
+  if (Yap_Error_TYPE != YAP_NO_ERROR) {
+    if (recover_from_record_error(3)) {
+      t1 = Deref(ARG1);
+      t2 = Deref(ARG2);
+      goto restart_record;
+    } else {
       return FALSE;
     }
-    goto recover_record;
-  case OUT_OF_HEAP_ERROR:
-    if (!Yap_ExpandPreAllocCodeSpace(Yap_Error_Size)) {
-      return FALSE;
-    }
-    goto recover_record;
-  default:
-    Yap_Error(Yap_Error_TYPE, Yap_Error_Term, Yap_ErrorMessage);
-    return(FALSE);
   }
- recover_record:
-  Yap_Error_TYPE = YAP_NO_ERROR;
-  t1 = Deref(ARG1);
-  t2 = Deref(ARG2);
-  goto restart_record;
+  return Yap_unify(ARG3, TRef);
 }
 
 /* recordz_at(+Functor,+Term,-Ref) */
@@ -2179,38 +2102,19 @@ p_rcdz_at(void)
       Yap_Error(TYPE_ERROR_DBREF, t1, "recordz_at/3");
       return(FALSE);
   }
- restart_record:
   Yap_Error_Size = 0;
+ restart_record:
   TRef = MkDBRefTerm(record_at(MkLast, DBRefOfTerm(t1), t2, Unsigned(0)));
-  switch(Yap_Error_TYPE) {
-  case YAP_NO_ERROR:
-    return (Yap_unify(ARG3, TRef));
-  case OUT_OF_STACK_ERROR:
-    if (!Yap_gc(3, ENV, P)) {
-      Yap_Error(OUT_OF_STACK_ERROR, TermNil, Yap_ErrorMessage);
-      return(FALSE);
-    }
-    goto recover_record;
-  case OUT_OF_TRAIL_ERROR:
-    if(!Yap_growtrail (sizeof(CELL) * 16 * 1024L)) {
-      Yap_Error(OUT_OF_TRAIL_ERROR, TermNil, "YAP could not grow trail in recorda/3");
+  if (Yap_Error_TYPE != YAP_NO_ERROR) {
+    if (recover_from_record_error(3)) {
+      t1 = Deref(ARG1);
+      t2 = Deref(ARG2);
+      goto restart_record;
+    } else {
       return FALSE;
     }
-    goto recover_record;
-  case OUT_OF_HEAP_ERROR:
-    if (!Yap_ExpandPreAllocCodeSpace(Yap_Error_Size)) {
-      return FALSE;
-    }
-    goto recover_record;
-  default:
-    Yap_Error(Yap_Error_TYPE, Yap_Error_Term, Yap_ErrorMessage);
-    return(FALSE);
   }
- recover_record:
-  Yap_Error_TYPE = YAP_NO_ERROR;
-  t1 = Deref(ARG1);
-  t2 = Deref(ARG2);
-  goto restart_record;
+  return Yap_unify(ARG3, TRef);
 }
 
 /* '$record_stat_source'(+Functor,+Term) */
@@ -2226,41 +2130,23 @@ p_rcdstatp(void)
   if (IsVarTerm(t3) || !IsIntTerm(t3))
     return (FALSE);
   mk_first = ((IntOfTerm(t3) % 4) == 2);
- restart_record:
   Yap_Error_Size = 0;
+ restart_record:
   if (mk_first)
     TRef = MkDBRefTerm(record(MkFirst | MkCode, t1, t2, MkIntTerm(0)));
   else
     TRef = MkDBRefTerm(record(MkLast | MkCode, t1, t2, MkIntTerm(0)));
-  switch(Yap_Error_TYPE) {
-  case YAP_NO_ERROR:
-    return (Yap_unify(ARG4,TRef));
-  case OUT_OF_STACK_ERROR:
-    if (!Yap_gc(3, ENV, P)) {
-      Yap_Error(OUT_OF_STACK_ERROR, TermNil, Yap_ErrorMessage);
-      return(FALSE);
-    }
-    goto recover_record;
-  case OUT_OF_TRAIL_ERROR:
-    if(!Yap_growtrail (sizeof(CELL) * 16 * 1024L)) {
-      Yap_Error(OUT_OF_TRAIL_ERROR, TermNil, "YAP could not grow trail in recorda/3");
+  if (Yap_Error_TYPE != YAP_NO_ERROR) {
+    if (recover_from_record_error(4)) {
+      t1 = Deref(ARG1);
+      t2 = Deref(ARG2);
+      t3 = Deref(ARG3);
+      goto restart_record;
+    } else {
       return FALSE;
     }
-    goto recover_record;
-  case OUT_OF_HEAP_ERROR:
-    if (!Yap_ExpandPreAllocCodeSpace(Yap_Error_Size)) {
-      return FALSE;
-    }
-    goto recover_record;
-  default:
-    Yap_Error(Yap_Error_TYPE, Yap_Error_Term, Yap_ErrorMessage);
-    return(FALSE);
   }
- recover_record:
-  Yap_Error_TYPE = YAP_NO_ERROR;
-  t1 = Deref(ARG1);
-  t2 = Deref(ARG2);
-  goto restart_record;
+  return Yap_unify(ARG4, TRef);
 }
 
 /* '$recordap'(+Functor,+Term,-Ref,+CRef) */
@@ -2273,40 +2159,21 @@ p_drcdap(void)
     return (FALSE);
   if (IsVarTerm(t4) || !IsIntegerTerm(t4))
     return (FALSE);
- restart_record:
   Yap_Error_Size = 0;
+ restart_record:
   TRef = MkDBRefTerm(record(MkFirst | MkCode | WithRef,
 			    t1, t2, t4));
-  switch(Yap_Error_TYPE) {
-  case YAP_NO_ERROR:
-    return (Yap_unify(ARG3, TRef));
-  case OUT_OF_STACK_ERROR:
-    if (!Yap_gc(4, ENV, P)) {
-      Yap_Error(OUT_OF_STACK_ERROR, TermNil, Yap_ErrorMessage);
-      return(FALSE);
-    }
-    goto recover_record;
-  case OUT_OF_TRAIL_ERROR:
-    if(!Yap_growtrail (sizeof(CELL) * 16 * 1024L)) {
-      Yap_Error(OUT_OF_TRAIL_ERROR, TermNil, "YAP could not grow trail in recorda/3");
+  if (Yap_Error_TYPE != YAP_NO_ERROR) {
+    if (recover_from_record_error(4)) {
+      t1 = Deref(ARG1);
+      t2 = Deref(ARG2);
+      t4 = Deref(ARG4);
+      goto restart_record;
+    } else {
       return FALSE;
     }
-    goto recover_record;
-  case OUT_OF_HEAP_ERROR:
-    if (!Yap_ExpandPreAllocCodeSpace(Yap_Error_Size)) {
-      return FALSE;
-    }
-    goto recover_record;
-  default:
-    Yap_Error(Yap_Error_TYPE, Yap_Error_Term, Yap_ErrorMessage);
-    return(FALSE);
   }
- recover_record:
-  Yap_Error_TYPE = YAP_NO_ERROR;
-  t1 = Deref(ARG1);
-  t2 = Deref(ARG2);
-  t4 = Deref(ARG4);
-  goto restart_record;
+  return Yap_unify(ARG3, TRef);
 }
 
 /* '$recordzp'(+Functor,+Term,-Ref,+CRef) */
@@ -2323,36 +2190,17 @@ p_drcdzp(void)
   Yap_Error_Size = 0;
   TRef = MkDBRefTerm(record(MkLast | MkCode | WithRef,
 			    t1, t2, t4));
-  switch(Yap_Error_TYPE) {
-  case YAP_NO_ERROR:
-    return Yap_unify(ARG3, TRef);
-  case OUT_OF_STACK_ERROR:
-    if (!Yap_gc(4, ENV, P)) {
-      Yap_Error(OUT_OF_STACK_ERROR, TermNil, Yap_ErrorMessage);
-      return(FALSE);
-    }
-    goto recover_record;
-  case OUT_OF_TRAIL_ERROR:
-    if(!Yap_growtrail (sizeof(CELL) * 16 * 1024L)) {
-      Yap_Error(OUT_OF_TRAIL_ERROR, TermNil, "YAP could not grow trail in recorda/3");
+  if (Yap_Error_TYPE != YAP_NO_ERROR) {
+    if (recover_from_record_error(4)) {
+      t1 = Deref(ARG1);
+      t2 = Deref(ARG2);
+      t4 = Deref(ARG4);
+      goto restart_record;
+    } else {
       return FALSE;
     }
-    goto recover_record;
-  case OUT_OF_HEAP_ERROR:
-    if (!Yap_ExpandPreAllocCodeSpace(Yap_Error_Size)) {
-      return FALSE;
-    }
-    goto recover_record;
-  default:
-    Yap_Error(Yap_Error_TYPE, Yap_Error_Term, Yap_ErrorMessage);
-    return(FALSE);
   }
- recover_record:
-  Yap_Error_TYPE = YAP_NO_ERROR;
-  t1 = Deref(ARG1);
-  t2 = Deref(ARG2);
-  t4 = Deref(ARG4);
-  goto restart_record;
+  return Yap_unify(ARG3, TRef);
 }
 
 static Int
@@ -4893,40 +4741,15 @@ StoreTermInDB(Term t, int nargs)
   Yap_Error_Size = 0;
   while ((x = (DBTerm *)CreateDBStruct(t, (DBProp)NULL,
 			  InQueue, &needs_vars, 0, &dbg)) == NULL) {
-    switch(Yap_Error_TYPE) {
-    case YAP_NO_ERROR:
-#ifdef DEBUG
-      Yap_Error(SYSTEM_ERROR, TermNil, "no error but null return in enqueue/2");
-#endif
+    if (Yap_Error_TYPE == YAP_NO_ERROR) {
       break;
-    case OUT_OF_STACK_ERROR:
+    } else {
       XREGS[nargs+1] = t;
-      if (!Yap_gc(nargs+1, ENV, P)) {
-	Yap_Error(OUT_OF_STACK_ERROR, TermNil, Yap_ErrorMessage);
-	return(FALSE);
-      } else {
+      if (recover_from_record_error(nargs+1)) {	
 	t = Deref(XREGS[nargs+1]);
-	break;
-      }
-    case OUT_OF_TRAIL_ERROR:
-      XREGS[nargs+1] = t;
-      if(!Yap_growtrail (sizeof(CELL) * 16 * 1024L)) {
-	Yap_Error(OUT_OF_TRAIL_ERROR, TermNil, "YAP could not grow trail in recorda/3");
-	return FALSE;
       } else {
-	t = Deref(XREGS[nargs+1]);
-	break;
-      }      
-    case OUT_OF_HEAP_ERROR:
-      XREGS[nargs+1] = t;
-      if (!Yap_ExpandPreAllocCodeSpace(Yap_Error_Size)) {
 	return FALSE;
       }
-      t = Deref(XREGS[nargs+1]);
-      break;
-    default:
-      Yap_Error(Yap_Error_TYPE, Yap_Error_Term, Yap_ErrorMessage);
-      return(FALSE);
     }
   }
   return(x);

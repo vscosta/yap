@@ -11,8 +11,11 @@
 * File:		index.c							 *
 * comments:	Indexing a Prolog predicate				 *
 *									 *
-* Last rev:     $Date: 2004-10-22 16:53:19 $,$Author: vsc $						 *
+* Last rev:     $Date: 2004-10-27 15:56:33 $,$Author: vsc $						 *
 * $Log: not supported by cvs2svn $
+* Revision 1.103  2004/10/22 16:53:19  vsc
+* bug fixes
+*
 * Revision 1.102  2004/10/04 18:56:19  vsc
 * fixes for thread support
 * fix indexing bug (serious)
@@ -7835,11 +7838,6 @@ Yap_FollowIndexingCode(PredEntry *ap, yamop *ipc, Term Terms[3], yamop *ap_pc, y
       Terms[1] = XREGS[ap->ArityOfPE+4];
       Terms[2] = XREGS[ap->ArityOfPE+5];
       break;
-    case _op_fail:
-      /*
-	ipc = (yamop *)IntegerOfTerm(B->cp_args[1]);
-	break;
-      */
     case _undef_p:
       return NULL;
     case _lock_lu:
@@ -7873,6 +7871,9 @@ Yap_FollowIndexingCode(PredEntry *ap, yamop *ipc, Term Terms[3], yamop *ap_pc, y
       Terms[1] = XREGS[ap->ArityOfPE+4];
       Terms[2] = XREGS[ap->ArityOfPE+5];
       break;
+    case _op_fail:
+      if (ipc == FAILCODE)
+	return NULL;
     default:
       if (b0) {
 #ifdef YAPOR

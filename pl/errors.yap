@@ -11,8 +11,12 @@
 * File:		errors.yap						 *
 * comments:	error messages for YAP					 *
 *									 *
-* Last rev:     $Date: 2004-10-04 18:56:20 $,$Author: vsc $						 *
+* Last rev:     $Date: 2004-10-27 15:56:34 $,$Author: vsc $						 *
 * $Log: not supported by cvs2svn $
+* Revision 1.56  2004/10/04 18:56:20  vsc
+* fixes for thread support
+* fix indexing bug (serious)
+*
 * Revision 1.55  2004/09/17 19:34:53  vsc
 * simplify frozen/2
 *
@@ -476,7 +480,7 @@ print_message(Level, Mss) :-
 	format(user_error,'% INSTANTIATION ERROR- ~w: expected bound value~n',
 	[Where]).
 '$output_error_message'(out_of_heap_error, Where) :-
-	format(user_error,'% OUT OF HEAP SPACE ERROR- ~w~n',
+	format(user_error,'% OUT OF DATABASE SPACE ERROR- ~w~n',
 	[Where]).
 '$output_error_message'(out_of_stack_error, Where) :-
 	format(user_error,'% OUT OF STACK SPACE ERROR- ~w~n',
@@ -486,6 +490,9 @@ print_message(Level, Mss) :-
 	[Where]).
 '$output_error_message'(out_of_attvars_error, Where) :-
 	format(user_error,'% OUT OF STACK SPACE ERROR- ~w~n',
+	[Where]).
+'$output_error_message'(out_of_auxspace_error, Where) :-
+	format(user_error,'% OUT OF AUXILIARY STACK SPACE ERROR- ~w~n',
 	[Where]).
 '$output_error_message'(permission_error(access,private_procedure,P), Where) :-
 	format(user_error,'% PERMISSION ERROR- ~w: cannot see clauses for ~w~n',

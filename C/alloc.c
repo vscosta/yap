@@ -12,7 +12,7 @@
 * Last rev:								 *
 * mods:									 *
 * comments:	allocating space					 *
-* version:$Id: alloc.c,v 1.61 2004-10-26 20:15:47 vsc Exp $		 *
+* version:$Id: alloc.c,v 1.62 2004-10-27 15:56:32 vsc Exp $		 *
 *************************************************************************/
 #ifdef SCCS
 static char SccsId[] = "%W% %G%";
@@ -494,23 +494,39 @@ FreeCodeSpace(char *p)
   FreeBlock(((BlockHeader *) (p - sizeof(YAP_SEG_SIZE))));
 }
 
+#if DEBUG_ALLOC
+int vsc_mem_trace;
+#endif
+
 /* If you need to dinamically allocate space from the heap, this is
  * the macro you should use */
 void
 Yap_FreeCodeSpace(char *p)
 {
+#if DEBUG_ALLOC
+  if (vsc_mem_trace)
+    printf("-%p\n",p);
+#endif
   FreeCodeSpace(p);
 }
 
 char *
 Yap_AllocAtomSpace(unsigned int size)
 {
-  return (AllocHeap(size));
+  char *out = AllocHeap(size);
+#if DEBUG_ALLOC
+  if (vsc_mem_trace) printf("+%p/%d\n",out,size);
+#endif
+  return out;
 }
 
 void
 Yap_FreeAtomSpace(char *p)
 {
+#if DEBUG_ALLOC
+  if (vsc_mem_trace)
+    printf("-%p\n",p);
+#endif
   FreeCodeSpace(p);
 }
 
@@ -525,7 +541,11 @@ AllocCodeSpace(unsigned int size)
 char *
 Yap_AllocCodeSpace(unsigned int size)
 {
-  return AllocCodeSpace(size);
+  char *out = AllocCodeSpace(size);
+#if DEBUG_ALLOC
+  if (vsc_mem_trace) printf("+%p/%d\n",out,size);
+#endif
+  return out;
 }
 
 ADDR
