@@ -1876,12 +1876,12 @@ do_toggle_static_predicates_in_use(int mask)
 	  YP_fprintf(YP_stderr,"ENV %p  %s/%d %s\n", env_ptr, RepAtom(NameOfFunctor(pe->FunctorOfPred))->StrOfAE, pe->ArityOfPE, op_names[op]);
 	else
 	  YP_fprintf(YP_stderr,"ENV %p  %s %s\n", env_ptr, RepAtom((Atom)(pe->FunctorOfPred))->StrOfAE, op_names[op]);
-	if (env_ptr == 0x21d0b24) {
+	if (env_ptr == (CELL *)0x21d0b24) {
 	  CELL *next_ee = (CELL *)(env_ptr[E_E]);
 	  do {
 	    YP_fprintf(YP_stderr,"looking for parent %p with CP %x value %x\n", next_ee, next_ee[E_CP], EnvPreg(next_ee[E_CP]));
 	    next_ee = (CELL *)(next_ee[E_E]);
-	   } while (next_ee != 0x21d0f28);
+	   } while (next_ee != (CELL *)0x21d0f28);
 	}
 
 	mark_pred(mask, pe);
