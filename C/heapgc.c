@@ -292,7 +292,11 @@ GC_ALLOC_NEW_MASPACE(void)
     growtrail(64 * 1024L);
   gc_ma_h_top++;
   cont_top = (cont *)gc_ma_h_top;
+#ifdef EASY_SHUNTING
   sTR = (tr_fr_ptr)cont_top;
+#else
+  cont_top0 = cont_top;
+#endif
   return(new);
 }
 
@@ -344,7 +348,11 @@ GC_NEW_MAHASH(gc_ma_h_inner_struct *top) {
   }
   gc_ma_h_top = top;
   cont_top = (cont *)gc_ma_h_top;
+#ifdef EASY_SHUNTING
   sTR = (tr_fr_ptr)cont_top;
+#else
+  cont_top0 = cont_top;
+#endif
   live_list = NULL;
 }
 
@@ -1264,8 +1272,8 @@ mark_trail(tr_fr_ptr trail_ptr, tr_fr_ptr trail_base, CELL *gc_H, choiceptr gc_B
     live_list = live_list->ma_list;
   }
 #endif
-  sTR = (tr_fr_ptr)old_cont_top0;
 #ifdef EASY_SHUNTING
+  sTR = (tr_fr_ptr)old_cont_top0;
   while (begsTR != NULL) {
     tr_fr_ptr newsTR = (tr_fr_ptr)TrailTerm(begsTR);
     TrailTerm(sTR) = TrailTerm(begsTR+1);
@@ -1273,6 +1281,8 @@ mark_trail(tr_fr_ptr trail_ptr, tr_fr_ptr trail_base, CELL *gc_H, choiceptr gc_B
     begsTR = newsTR;
     sTR += 2;
   } 
+#else
+  cont_top0 = old_cont_top0;
 #endif
   cont_top = cont_top0;
 }
@@ -2549,9 +2559,11 @@ marking_phase(tr_fr_ptr old_TR, CELL *current_env, yamop *curp, CELL *max)
   init_dbtable(old_TR);
 #ifdef EASY_SHUNTING
   sTR0 = (tr_fr_ptr)db_vec;
+  sTR = (tr_fr_ptr)db_vec;
+#else
+  cont_top0 = (cont *)db_vec;
 #endif
   cont_top = (cont *)db_vec;
-  sTR = (tr_fr_ptr)db_vec;
   /* These two must be marked first so that our trail optimisation won't lose
      values */
   mark_regs(old_TR);		/* active registers & trail */

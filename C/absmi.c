@@ -1965,6 +1965,17 @@ absmi(int inp)
 #endif
       if (CFREG != CalculateStackGap())
 	goto creepde;
+      /* try performing garbage collection */
+
+      ASP = Y+E_CB;
+      if (ASP > (CELL *)B)
+	ASP = (CELL *)B;
+      saveregs();
+      gc(((PredEntry *)(SREG))->ArityOfPE, (CELL *)Y[E_E], (yamop *)Y[E_CP]);
+      setregs();
+      /* hopefully, gc will succeeded, and we will retry
+       * the instruction */
+      JMPNext();
 
     NoStackExec:
 

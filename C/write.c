@@ -252,7 +252,7 @@ IsStringTerm(Term string)	/* checks whether this is a string */
     if (IsVarTerm(hd)) return(FALSE);
     if (!IsIntTerm(hd)) return(FALSE);
     ch = IntOfTerm(HeadOfTerm(string));
-    if (ch < 0 || ch > 255)
+    if ((ch < ' ' || ch > 255) && ch != '\n' && ch != '\t')
       return(FALSE);
     string = TailOfTerm(string);
     if (IsVarTerm(string)) return(FALSE);
