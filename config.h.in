@@ -165,6 +165,7 @@
 #undef  HAVE_ISNAN
 #undef  HAVE_KILL
 #undef  HAVE_LABS
+#undef  HAVE_LGAMMA
 #undef  HAVE_LINK
 #undef  HAVE_LOCALTIME
 #undef  HAVE_LSTAT
