@@ -3403,7 +3403,9 @@ do_gc(Int predarity, CELL *current_env, yamop *nextop)
     }
     current_env = (CELL *)*ASP;
     ASP++;
+#if COROUTINING
     max = (CELL *)Yap_ReadTimedVar(DelayedVars);
+#endif
   }
 #endif
   time_start = Yap_cputime();
@@ -3422,7 +3424,9 @@ do_gc(Int predarity, CELL *current_env, yamop *nextop)
       bp = (char *)Yap_ExpandPreAllocCodeSpace(alloc_sz, NULL);
       current_env = (CELL *)*ASP;
       ASP++;
+#if COROUTINING
       max = (CELL *)Yap_ReadTimedVar(DelayedVars);
+#endif
     }
     if (!bp)
       return 0;
