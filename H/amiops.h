@@ -369,39 +369,44 @@ Unification Routines
 
 EXTERN Int STD_PROTO(Yap_unify,(Term,Term));
 
+EXTERN inline void
+reset_trail(tr_fr_ptr TR0) {
+  while(TR != TR0) {
+    CELL d1;
+    --TR;
+    d1 = TrailTerm(TR);
+#ifdef MULTI_ASSIGNMENT_VARIABLES
+    if (IsVarTerm(d1)) {
+#endif
+      CELL *pt = (CELL *)d1;
+      RESET_VARIABLE(pt);
+#ifdef MULTI_ASSIGNMENT_VARIABLES
+    } else {
+      CELL *pt = RepAppl(d1);
+      /* AbsAppl means */
+      /* multi-assignment variable */
+      /* so the next cell is the old value */ 
+#if FROZEN_STACKS
+      pt[0] = TrailVal(TR-1);
+#else
+      pt[0] = TrailTerm(TR-1);
+#endif /* FROZEN_STACKS */
+      TR -= 2;
+    }
+#endif
+  }
+}
+
 EXTERN inline
 Int Yap_unify(Term t0, Term t1)
 {
   tr_fr_ptr TR0 = TR;
 
   if (Yap_IUnify(t0,t1)) {
-    return(TRUE);
+    return TRUE;
   } else {
-    while(TR != TR0) {
-      CELL d1;
-      --TR;
-      d1 = TrailTerm(TR);
-#ifdef MULTI_ASSIGNMENT_VARIABLES
-      if (IsVarTerm(d1)) {
-#endif
-	CELL *pt = (CELL *)d1;
-	RESET_VARIABLE(pt);
-#ifdef MULTI_ASSIGNMENT_VARIABLES
-      } else {
-	  CELL *pt = RepAppl(d1);
-	  /* AbsAppl means */
-	  /* multi-assignment variable */
-	  /* so the next cell is the old value */ 
-#if FROZEN_STACKS
-	  pt[0] = TrailVal(TR-1);
-#else
-	  pt[0] = TrailTerm(TR-1);
-#endif /* FROZEN_STACKS */
-	  TR -= 2;
-      }
-#endif
-    }
-    return(FALSE);
+    reset_trail(TR0);
+    return FALSE;
   }
 }
 

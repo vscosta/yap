@@ -254,8 +254,8 @@ copy_complex_term(register CELL *pt0, register CELL *pt0_end, CELL *ptf, CELL *H
 
   /* restore our nice, friendly, term to its original state */
   HB = HB0;
-  clean_dirty_tr(TR0);
-  return(0);
+  reset_trail(TR0);
+  return 0;
 
  overflow:
   /* oops, we're in trouble */
@@ -272,8 +272,8 @@ copy_complex_term(register CELL *pt0, register CELL *pt0_end, CELL *ptf, CELL *H
     *pt0 = (CELL)to_visit[3];
   }
 #endif
-  clean_dirty_tr(TR0);
-  return(-1);
+  reset_trail(TR0);
+  return -1;
 
  heap_overflow:
   /* oops, we're in trouble */
@@ -291,7 +291,7 @@ copy_complex_term(register CELL *pt0, register CELL *pt0_end, CELL *ptf, CELL *H
   }
 #endif
   clean_dirty_tr(TR0);
-  return(-2);
+  return -2;
 }
 
 static Term

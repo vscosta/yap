@@ -366,6 +366,7 @@ BuildNewAttVar(Term t, Int i, Term tatt)
   attv->NS = Yap_UpdateTimedVar(AttsMutableList, (CELL)&(attv->Done));
   Bind((CELL *)t,(CELL)attv);
   Yap_UpdateTimedVar(DelayedVars,(CELL)(attv->Atts+2*j));
+  /* avoid trouble in gc */
   /* if i < 0 then we have the list of arguments */
   if (i < 0) {
     Int j = 0;
