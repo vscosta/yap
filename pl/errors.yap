@@ -494,11 +494,11 @@ print_message(Level, Mss) :-
 	'$format'(user_error," ~s ", [S]).
 '$dump_error_token'(string(S)) :- !,
 	'$format'(user_error," ""~s""", [S]).
-'$dump_error_token'('(') :-
+'$dump_error_token'('(') :- !,
 	'$format'(user_error,"(", []).
-'$dump_error_token'(')') :-
+'$dump_error_token'(')') :- !,
 	'$format'(user_error," )", []).
-'$dump_error_token'(',') :-
+'$dump_error_token'(',') :- !,
 	'$format'(user_error," ,", []).
 '$dump_error_token'(A) :-
 	'$format'(user_error," ~a", [A]).
