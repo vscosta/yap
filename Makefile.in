@@ -90,7 +90,7 @@ TEXI2PDF=texi2pdf
 #4.1VPATH=@srcdir@:@srcdir@/OPTYap
 CWD=$(PWD)
 #
-VERSION=Yap-4.3.23
+VERSION=Yap-4.4.0
 #
 
 TAG_HEADERS=  Tags_32bits.h Tags_32Ops.h Tags_32LowTag.h\
