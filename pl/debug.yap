@@ -21,6 +21,9 @@
 
 -----------------------------------------------------------------------------*/
 
+'$!'(CP) :-
+	'$call'(!, CP, !,Mod).
+
 :- op(900,fx,[spy,nospy]).
 
 % First part : setting and reseting spy points
@@ -103,6 +106,7 @@ debug :- '$set_value'(debug,1), write(user_error,'[ Debug mode on ]'), nl(user_e
 nodebug :- nospyall,
 	'$set_value'(debug,0),
 	'$set_value'('$trace',0),
+	'$set_yap_flags'(10,0),
 	'$format'(user_error,"[ Debug mode off ]~n",[]).
 
 trace :- '$get_value'('$trace',1), !.
@@ -358,7 +362,7 @@ debugging :-
 '$set_creep'(_).
 
 %'$spycalls'(G,_) :- write(user_error,'$spycalls'(G)), nl(user_error), fail.
-'$spycalls'('!'(CP),Mod,_) :-
+'$spycalls'('$!'(CP),Mod,_) :-
 	'$call'(!, CP, !,Mod).
 '$spycalls'(Mod:G,_,Res) :-
 	!,
@@ -713,7 +717,7 @@ debugging :-
 	'$$cut_by'(CP1),
 	'$creep_call'(Y,Module,CP).
 '$creep_call'(!,Module,CP) :- !,
-	'$direct_spy'([Module|'!'(CP)]),
+	'$direct_spy'([Module|'$!'(CP)]),
 	% clean up any garbage left here by the debugger.
 	'$$cut_by'(CP).
 '$creep_call'('$cut_by'(X),_,_) :- !,
@@ -760,7 +764,7 @@ debugging :-
 	'$creep'([M|G]).
 '$creep'(G) :- '$direct_spy'(G).
 
-'$trace'(P,'!'(_),Mod,L,NC) :- !,
+'$trace'(P,'$!'(_),Mod,L,NC) :- !,
 	'$trace'(P,!,Mod,L,NC).
 '$trace'(P,G,Mod,L,NC) :-
 	'$chk'(P,L,G,Mod,SL),
@@ -844,8 +848,7 @@ debugging :-
 '$skipeol'(_) :- get0(user,C), '$skipeol'(C).
 
 '$action'(10,call,_,_,continue) :- !,		% newline 	creep
-	'$set_yap_flags'(10,1),
-	'$creep'.
+	'$set_yap_flags'(10,1).
 '$action'(10,_,_,_,continue) :- !.		% newline 	creep
 '$action'(33,_,_,_,_) :- !,		% ! g		execute
 	read(user,G),
@@ -864,12 +867,10 @@ debugging :-
 '$action'(98,_,_,_,_) :- !, break,	% b		break
 	fail.
 '$action'(99,call,_,_,_) :- !,		% c		creep
-	'$set_yap_flags'(10,1),
-	'$creep'.
+	'$set_yap_flags'(10,1).
 '$action'(99,exit,_,_,continue) :- !.	% c		creep
 '$action'(99,fail,_,_,continue) :- !,	% c		creep
-	'$set_yap_flags'(10,1),
-	'$creep'.
+	'$set_yap_flags'(10,1).
 '$action'(101,_,_,_,_) :- !,		% e		exit
 	halt.
 '$action'(102,P,L,_,_) :- !,		% f		fail

@@ -1414,7 +1414,7 @@ p_arg(void)
 	save_hb();
 	if ((Int)d0 <= 0 ||
 	    (Int)d0 > ArityOfFunctor((Functor) d1) ||
-	    IUnify((CELL)(pt0+d0), ARG3) == FALSE) {
+	    IUnify(pt0[d0], ARG3) == FALSE) {
 	  /* don't complain here for Prolog compatibility 
 	  if ((Int)d0 <= 0) {
 	    Error(DOMAIN_ERROR_NOT_LESS_THAN_ZERO,
