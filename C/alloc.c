@@ -12,7 +12,7 @@
 * Last rev:								 *
 * mods:									 *
 * comments:	allocating space					 *
-* version:$Id: alloc.c,v 1.17 2002-03-08 06:33:16 vsc Exp $		 *
+* version:$Id: alloc.c,v 1.18 2002-03-12 04:07:09 vsc Exp $		 *
 *************************************************************************/
 #ifdef SCCS
 static char SccsId[] = "%W% %G%";
@@ -374,7 +374,7 @@ AllocCodeSpace(unsigned int size)
 /*   int FreeWorkSpace() - release workspace                            */
 /************************************************************************/
 
-#ifdef _WIN32
+#if defined(_WIN32) || defined(__CYGWIN__)
 
 #include "windows.h"
 
