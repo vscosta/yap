@@ -519,6 +519,9 @@ p_name(void)
 	Error(DOMAIN_ERROR_NOT_LESS_THAN_ZERO,Head,"name/2");
       return(FALSE);
     }
+    if (Unsigned(TrailTop) - Unsigned(s) < MinTrailGap) {
+      growtrail(sizeof(CELL) * 16 * 1024L);
+    }
     *s++ = i;
     t = TailOfTerm(t);
   }
@@ -588,6 +591,9 @@ p_atom_chars(void)
 	  Error(REPRESENTATION_ERROR_CHARACTER_CODE,Head,"atom_chars/2");
 	  return(FALSE);		
 	}
+	if (Unsigned(TrailTop) - Unsigned(s) < MinTrailGap) {
+	  growtrail(sizeof(CELL) * 16 * 1024L);
+	}
 	*s++ = i;
 	t = TailOfTerm(t);
 	if (IsVarTerm(t)) {
@@ -616,6 +622,9 @@ p_atom_chars(void)
 	if (is[1] != '\0') {
 	  Error(TYPE_ERROR_CHARACTER,Head,"atom_chars/2");
 	  return(FALSE);		
+	}
+	if (Unsigned(TrailTop) - Unsigned(s) < MinTrailGap) {
+	  growtrail(sizeof(CELL) * 16 * 1024L);
 	}
 	*s++ = is[0];
 	t = TailOfTerm(t);
@@ -738,6 +747,9 @@ p_atom_codes(void)
       if (i < 0 || i > 255) {
 	Error(REPRESENTATION_ERROR_CHARACTER_CODE,Head,"atom_codes/2");
 	return(FALSE);		
+      }
+      if (Unsigned(TrailTop) - Unsigned(s) < MinTrailGap) {
+	growtrail(sizeof(CELL) * 16 * 1024L);
       }
       *s++ = i;
       t = TailOfTerm(t);
@@ -926,6 +938,9 @@ p_number_chars(void)
 	Error(REPRESENTATION_ERROR_CHARACTER_CODE,Head,"number_chars/2");
 	return(FALSE);		
       }
+      if (Unsigned(TrailTop) - Unsigned(s) < MinTrailGap) {
+	growtrail(sizeof(CELL) * 16 * 1024L);
+      }
       *s++ = i;
       t = TailOfTerm(t);
       if (IsVarTerm(t)) {
@@ -954,6 +969,9 @@ p_number_chars(void)
       if (is[1] != '\0') {
 	Error(TYPE_ERROR_CHARACTER,Head,"number_chars/2");
 	return(FALSE);		
+      }
+      if (Unsigned(TrailTop) - Unsigned(s) < MinTrailGap) {
+	growtrail(sizeof(CELL) * 16 * 1024L);
       }
       *s++ = is[0];
       t = TailOfTerm(t);
@@ -1097,6 +1115,9 @@ p_number_codes(void)
     if (i < 0 || i > 255) {
       Error(REPRESENTATION_ERROR_CHARACTER_CODE,Head,"number_codes/2");
       return(FALSE);		
+    }
+    if (Unsigned(TrailTop) - Unsigned(s) < MinTrailGap) {
+      growtrail(sizeof(CELL) * 16 * 1024L);
     }
     *s++ = i;
     t = TailOfTerm(t);
