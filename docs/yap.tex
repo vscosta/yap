@@ -847,7 +847,7 @@ CC="cc -64" $YAP_SRC_PATH/configure --...
 @cindex booting
 We next describe how to invoke Yap in Unix systems.
 
-@node Running Yap Interactively,Running Prolog Files, ,Run
+@node Running Yap Interactively, ,Running Prolog Files,Run
 @section Running Yap Interactively
 
 Most often you will want to use Yap in interactive mode. Assuming that
@@ -924,7 +924,7 @@ YAP will try to find library files from the YAPSHAREDIR/library
 directory.
 @end itemize
 
-@node Running Prolog Files, ,Interactive Mode, Run
+@node Running Prolog Files, Running Yap Interactively, , Run
 @section Running Prolog Files
 
 YAP can also be used to run Prolog files as scripts, at least in
@@ -2473,9 +2473,9 @@ be @code{unknown}, and the second argument should be either
 @code{error}, @code{warning}, @code{fail}, or a goal.
 
 @item user:unknown_predicate_handler(+G,+M,?NG)
-@findex user:unknown_predicate_handler/3
-@syindex user:unknown_predicate_handler/3
-@cnindex user:unknown_predicate_handler/3
+@findex unknown_predicate_handler/3
+@syindex unknown_predicate_handler/3
+@cnindex unknown_predicate_handler/3
 The user may also define clauses for
 @code{user:unknown_predicate_handler/3} hook predicate. This
 user-defined procedure is called before any system processing for the
@@ -5312,9 +5312,9 @@ for DCG rules is applied, together with the arithmetic optimizer
 whenever the compilation of arithmetic expressions is in progress.
 
 @item user:goal_expansion(+@var{G},+@var{M},-@var{NG})
-@findex user:goal_expansion/3
-@snindex user:goal_expansion/3
-@cnindex user:goal_expansion/3
+@findex goal_expansion/3
+@snindex goal_expansion/3
+@cnindex goal_expansion/3
 Yap now supports @code{goal_expansion/3}. This is an user-defined
 procedure that is called after term expansion when compiling or
 asserting goals for each sub-goal in a clause. The first argument is

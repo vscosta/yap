@@ -12,7 +12,13 @@ cd ../OPTYap
 splat
 cd ../VC
 splat
-cd include
+cd ../LGPL
+splat
+cd pillow
+splat
+cd examples
+splat
+cd ../../../include
 splat
 /bin/cp config.h config.h.mine
 /bin/cp ../../../bins/cyg/*.h .

@@ -46,15 +46,14 @@ typedef struct PropEntryStruct *Prop;
 /* I can only define the structure after I define the actual atoms */
 
 /*		 atom structure						*/
-typedef struct AtomEntryStruct
-{
-  Atom NextOfAE;		/* used to build hash chains                    */
-  Prop PropsOfAE;		/* property list for this atom                  */
+typedef struct AtomEntryStruct {
+  Atom            NextOfAE;	/* used	to build hash chains			*/
+  Prop            PropsOfAE;	/* property list for this atom			*/
 #if defined(YAPOR) || defined(THREADS)
-  rwlock_t ARWLock;
+  rwlock_t        ARWLock;
 #endif
-
-  char StrOfAE[MIN_ARRAY];	/* representation of atom as a string           */
+  
+  char            StrOfAE[MIN_ARRAY];	/* representation of atom as a string		*/
 }
 AtomEntry;
 
@@ -79,20 +78,18 @@ AtomEntry;
 typedef SFLAGS PropFlags;
 
 /*	    basic property entry structure				*/
-typedef struct PropEntryStruct
-{
-  Prop NextOfPE;		/* used to chain properties                     */
-  PropFlags KindOfPE;		/* kind of property                             */
-}
-PropEntry;
+typedef	struct PropEntryStruct {
+    Prop    NextOfPE;	/* used	to chain properties			*/
+    PropFlags    KindOfPE;	/* kind	of property				*/
+    } PropEntry;
 
 /* ************************* Functors  **********************************/
 
-     /*         Functor data type
-        abstype Functor =       atom # int
-        with MkFunctor(a,n) = ...
-        and  NameOfFunctor(f) = ...
-        and  ArityOfFunctor(f) = ...                                    */
+     /*		Functor	data type
+      abstype Functor =	atom # int
+      with MkFunctor(a,n) = ...
+      and  NameOfFunctor(f) = ...
+      and  ArityOfFunctor(f) = ...					*/
 
 #define	MaxArity	    255
 
@@ -100,17 +97,16 @@ PropEntry;
 #define FunctorProperty   ((PropFlags)(0xbb00))
 
 /* functor property */
-typedef struct FunctorEntryStruct
-{
-  Prop NextOfPE;		/* used to chain properties     */
-  PropFlags KindOfPE;		/* kind of property             */
-  unsigned int ArityOfFE;	/* arity of functor             */
-  Atom NameOfFE;		/* back pointer to owner atom   */
-  Prop PropsOfFE;		/* pointer to list of properties for this functor */
+typedef struct FunctorEntryStruct {
+    Prop	NextOfPE;	/* used	to chain properties	*/
+    PropFlags	KindOfPE;	/* kind	of property		*/
+    unsigned int ArityOfFE;	/* arity of functor		*/
+    Atom	NameOfFE;       /* back pointer to owner atom   */
+    Prop	PropsOfFE;      /* pointer to list of properties for this functor */
 #if defined(YAPOR) || defined(THREADS)
-  rwlock_t FRWLock;
+    rwlock_t        FRWLock;
 #endif
-}
-FunctorEntry;
+} FunctorEntry;
 
 typedef FunctorEntry *Functor;
+

@@ -228,15 +228,6 @@ inline EXTERN Atom AtomAdjust(Atom at)
 
 
 
-inline EXTERN Term AtomTermAdjust(Term);
-
-inline EXTERN Term AtomTermAdjust(Term at)
-{
-	return (Term) ((at) );
-}
-
-
-
 inline EXTERN Prop PropAdjust(Prop);
 
 inline EXTERN Prop PropAdjust(Prop p)
@@ -251,11 +242,20 @@ inline EXTERN Atom AtomAdjust(Atom);
 
 inline EXTERN Atom AtomAdjust(Atom at)
 {
-	return (Atom) ((Atom)(CharP(at)+HDiff) );
+	return (Atom) ((at == NULL ? (at) : (Atom)(CharP(at)+HDiff) ));
 }
 
 
-#if MMAP_ADDR >= 0x40000000
+
+inline EXTERN Prop PropAdjust(Prop);
+
+inline EXTERN Prop PropAdjust(Prop p)
+{
+	return (Prop) ((p == NULL ? (p) : (Prop)(CharP(p)+HDiff)) );
+}
+
+
+#endif
 
 inline EXTERN Term AtomTermAdjust(Term);
 
@@ -265,27 +265,6 @@ inline EXTERN Term AtomTermAdjust(Term at)
 }
 
 
-#else
-
-inline EXTERN Term AtomTermAdjust(Term);
-
-inline EXTERN Term AtomTermAdjust(Term at)
-{
-	return (Term) (MkAtomTerm((Atom)(CharP(AtomOfTerm(at)+HDiff))) );
-}
-
-
-#endif
-
-inline EXTERN Prop PropAdjust(Prop);
-
-inline EXTERN Prop PropAdjust(Prop p)
-{
-	return (Prop) ((Prop)(CharP(p)+HDiff) );
-}
-
-
-#endif
 #if TAGS_FAST_OPS
 
 inline EXTERN Term BlobTermAdjust(Term);
@@ -393,7 +372,16 @@ inline EXTERN PredEntry * PtoPredAdjust(PredEntry *);
 
 inline EXTERN PredEntry * PtoPredAdjust(PredEntry * ptr)
 {
-	return (PredEntry *) (((CELL *)(CharP(ptr) + HDiff)) );
+	return (PredEntry *) (((PredEntry *)(CharP(ptr) + HDiff)) );
+}
+
+
+
+inline EXTERN ArrayEntry * PtoArrayEAdjust(ArrayEntry *);
+
+inline EXTERN ArrayEntry * PtoArrayEAdjust(ArrayEntry * ptr)
+{
+	return (ArrayEntry *) (((ArrayEntry *)(CharP(ptr) + HDiff)) );
 }
 
 

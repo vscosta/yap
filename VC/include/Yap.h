@@ -17,7 +17,7 @@
 * File:		Yap.h.m4						 *
 * mods:									 *
 * comments:	main header file for YAP				 *
-* version:      $Id: Yap.h,v 1.8 2002-02-04 16:12:54 vsc Exp $	 *
+* version:      $Id: Yap.h,v 1.9 2002-06-01 04:29:01 vsc Exp $	 *
 *************************************************************************/
 
 #include "config.h"
@@ -71,7 +71,7 @@
 #endif /* YAPOR */
 
 #if defined(YAPOR) || defined(TABLING)
-#undef TRAILING_REQUIRES_BRANCH
+#undef TRAILING_REQUIRES_BRANCH 
 #endif /* YAPOR || TABLING */
 
 #if ANALYST
@@ -100,7 +100,7 @@
 #endif
 #endif
 
-#ifdef _MSC_VER			/* Microsoft's Visual C++ Compiler */
+#ifdef _MSC_VER /* Microsoft's Visual C++ Compiler */
 /* adjust a config.h from mingw32 to work with vc++ */
 #ifdef HAVE_GCC
 #undef  HAVE_GCC
@@ -136,7 +136,7 @@
 
 #if HAVE_GCC
 #define MIN_ARRAY 0
-#define DUMMY_FILLER_FOR_ABS_TYPE
+#define DUMMY_FILLER_FOR_ABS_TYPE 
 #else
 #define MIN_ARRAY 1
 #define DUMMY_FILLER_FOR_ABS_TYPE int dummy;
@@ -219,7 +219,7 @@
 
 #endif
 
-/*   */ typedef double Float;
+/*   */ typedef double  Float;
 
 #if SIZEOF_INT<SIZEOF_INT_P
 #define SHORT_INTS 1
@@ -228,7 +228,7 @@
 #endif
 
 #if DEBUG
-extern char Option[20];
+extern char     Option[20];
 #endif
 
 /* #define FORCE_SECOND_QUADRANT 1 */
@@ -239,7 +239,6 @@ extern char Option[20];
 #endif
 
 #if !IN_SECOND_QUADRANT
-#define USE_OFFSETS	1
 #if __linux__ || __FreeBSD__ || __NetBSD__ || mips || __APPLE__
 #if defined(YAPOR) && defined(__alpha)
 #define MMAP_ADDR 0x40000000
@@ -250,18 +249,18 @@ extern char Option[20];
 #else
 #define MMAP_ADDR 0x09000000
 #endif
-#elif __svr4__
+#elif __svr4__ || defined(__SVR4)
 #define MMAP_ADDR 0x02000000
-#elif _WIN32
+#elif defined(_WIN32) || defined(__CYGWIN__)
 #define MMAP_ADDR 0x30000000L
 #endif
 #endif /* !IN_SECOND_QUADRANT */
 
-#if defined(MMAP_ADDR) && (HAVE_MMAP || HAVE_SHMAT || _WIN32) && !__simplescalar__
+#if defined(MMAP_ADDR) && (USE_MMAP || USE_SHMAT || _WIN32) && !__simplescalar__
 #define HEAP_INIT_BASE  (MMAP_ADDR)
 #define AtomBase        ((char *)MMAP_ADDR)
 #else
-#define HEAP_INIT_BASE  (HeapBase)
+#define HEAP_INIT_BASE  ((CELL)HeapBase)
 #define AtomBase        (HeapBase)
 #endif
 
@@ -290,7 +289,7 @@ typedef CELL SFLAGS;
 typedef BITS16 SFLAGS;
 #endif
 
-typedef char *ADDR;
+typedef char   *ADDR;
 typedef CELL OFFSET;
 typedef unsigned char *CODEADDR;
 
@@ -385,7 +384,7 @@ typedef CELL Term;
 #define siglongjmp(Env, Arg) longjmp(Env, Arg)
 #endif
 
-extern sigjmp_buf RestartEnv;	/* used to restart after an abort */
+extern sigjmp_buf    RestartEnv;   /* used to restart after an abort */
 
 /* Support for arrays */
 #include "arrays.h"
@@ -393,9 +392,8 @@ extern sigjmp_buf RestartEnv;	/* used to restart after an abort */
 /************ variables	concerned with Error Handling	*************/
 
 /* Types of Errors */
-typedef enum
-{
-  NO_ERROR,
+typedef enum {
+  YAP_NO_ERROR,
   FATAL_ERROR,
   INTERNAL_ERROR,
   PURE_ABORT,
@@ -469,15 +467,13 @@ typedef enum
   TYPE_ERROR_UBYTE,
   TYPE_ERROR_VARIABLE,
   UNKNOWN_ERROR
-}
-yap_error_number;
+} yap_error_number;
 
-extern char *ErrorMessage;	/* used to pass error messages          */
-extern Term Error_Term;		/* used to pass error terms */
-extern yap_error_number Error_TYPE;	/* used to pass the error */
+extern char    *ErrorMessage;	/* used to pass error messages		*/
+extern Term     Error_Term;	/* used to pass error terms */
+extern yap_error_number  Error_TYPE;	/* used to pass the error */
 
-typedef enum
-{
+typedef enum {
   YAP_INT_BOUNDED_FLAG = 0,
   MAX_ARITY_FLAG = 1,
   INTEGER_ROUNDING_FLAG = 2,
@@ -495,8 +491,7 @@ typedef enum
   ALLOW_ASSERTING_STATIC_FLAG = 14,
   HALT_AFTER_CONSULT_FLAG = 15,
   FAST_BOOT_FLAG = 16
-}
-yap_flags;
+} yap_flags;
 
 #define STRING_AS_CHARS		0
 #define STRING_AS_ATOM		2
@@ -524,46 +519,46 @@ yap_flags;
 /***********************************************************************/
 
      /*
-        absrectype Term = Int + Float + Atom + Pair + Appl + Ref + Var
+absrectype Term	= Int + Float +	Atom + Pair + Appl + Ref + Var
 
-        with AbsAppl(t) : *CELL -> Term
-        and  RepAppl(t) : Term -> *CELL
+with AbsAppl(t)	: *CELL	-> Term
+and  RepAppl(t)	: Term -> *CELL
 
-        and  AbsPair(t) : *CELL -> Term
-        and  RepPair(t) : Term -> *CELL
+and  AbsPair(t)	: *CELL	-> Term
+and  RepPair(t)	: Term -> *CELL
 
-        and  IsIntTerm(t) = ...
-        and  IsAtomTerm(t) = ...
-        and  IsVarTerm(t) = ...
-        and  IsPairTerm(t) = ...
-        and  IsApplTerm(t) = ...
-        and  IsFloatTerm(t) = ...
-        and  IsRefTerm(t) = ...
-        and  IsNonVarTerm(t) = ! IsVar(t)
-        and  IsNumterm(t) = IsIntTerm(t) || IsFloatTerm(t)
-        and  IsAtomicTerm(t) = IsNumTerm(t) || IsAtomTerm(t)
-        and  IsPrimitiveTerm(t) = IsAtomicTerm(t) || IsRefTerm(t)
+and  IsIntTerm(t) = ...
+and  IsAtomTerm(t) = ...
+and  IsVarTerm(t) = ...
+and  IsPairTerm(t) = ...
+and  IsApplTerm(t) = ...
+and  IsFloatTerm(t) = ...
+and  IsRefTerm(t) = ...
+and  IsNonVarTerm(t) = ! IsVar(t)
+and  IsNumterm(t) = IsIntTerm(t) || IsFloatTerm(t)
+and  IsAtomicTerm(t) = IsNumTerm(t) || IsAtomTerm(t)
+and  IsPrimitiveTerm(t) = IsAtomicTerm(t) || IsRefTerm(t)
 
-        and  MkIntTerm(n) = ...
-        and  MkFloatTerm(f) = ...
-        and  MkAtomTerm(a) = ...
-        and  MkVarTerm(r) = ...
-        and  MkApplTerm(f,n,args) = ...
-        and  MkPairTerm(hd,tl) = ...
-        and  MkRefTerm(R) = ...
+and  MkIntTerm(n) = ...
+and  MkFloatTerm(f) = ...
+and  MkAtomTerm(a) = ...
+and  MkVarTerm(r) = ...
+and  MkApplTerm(f,n,args) = ...
+and  MkPairTerm(hd,tl) = ...
+and  MkRefTerm(R) = ...
 
-        and  PtrOfTerm(t) : Term -> CELL * = ...
-        and  IntOfTerm(t) : Term -> int = ...
-        and  FloatOfTerm(t) : Term -> flt = ...
-        and  AtomOfTerm(t) : Term -> Atom = ...
-        and  VarOfTerm(t) : Term -> *Term = ....
-        and  HeadOfTerm(t) : Term -> Term = ...
-        and  TailOfTerm(t) : Term -> Term = ...
-        and  FunctorOfTerm(t) : Term -> Functor = ...
-        and  ArgOfTerm(i,t)  : Term -> Term= ...
-        and  RefOfTerm(t) : Term -> DBRef = ...
+and  PtrOfTerm(t) : Term -> CELL * = ...
+and  IntOfTerm(t) : Term -> int	= ...
+and  FloatOfTerm(t) : Term -> flt = ...
+and  AtomOfTerm(t) : Term -> Atom = ...
+and  VarOfTerm(t) : Term -> *Term = ....
+and  HeadOfTerm(t) : Term -> Term = ...
+and  TailOfTerm(t) : Term -> Term = ...
+and  FunctorOfTerm(t) :	Term ->	Functor	= ...
+and  ArgOfTerm(i,t)  : Term -> Term= ...
+and  RefOfTerm(t) : Term -> DBRef = ...
 
-      */
+*/
 
 /* 
    YAP can use several different tag schemes, according to the kind of
@@ -613,7 +608,7 @@ yap_flags;
 #define RBIT     0x40000000
 
 #if IN_SECOND_QUADRANT
-#define INVERT_RBIT 1		/* RBIT is 1 by default */
+#define INVERT_RBIT 1 /* RBIT is 1 by default */
 #endif
 
 #else
@@ -621,149 +616,124 @@ yap_flags;
 #if defined(SBA) && defined(__linux__)
 #define MBIT     /* 0x20000000 */ MKTAG(0x1,0)	/* mark bit */
 #else
-#define RBIT     /* 0x20000000 */ MKTAG(0x1,0)	/* relocation chain bit */
+#define RBIT     /* 0x20000000 */ MKTAG(0x1,0)  /* relocation chain bit */
 #define MBIT     /* 0x40000000 */ MKTAG(0x2,0)	/* mark bit */
 #endif
 #endif
 
 #define	TermSize    sizeof(Term)
 
+/************* variables related to memory allocation *******************/
+/* must be before TermExt.h */
+extern ADDR     HeapBase,
+		     LocalBase,
+		     GlobalBase,
+		     TrailBase, TrailTop,
+		     ForeignCodeBase, ForeignCodeTop, ForeignCodeMax;
+
+
 /* applies to unbound variables */
 
-inline EXTERN Term *VarOfTerm (Term t);
+inline EXTERN Term * VarOfTerm(Term t);
 
-inline EXTERN Term *
-VarOfTerm (Term t)
+inline EXTERN Term * VarOfTerm(Term t)
 {
-  return (Term *) (t);
+	return (Term *) (t);
 }
 
 
 #if SBA
 
-inline EXTERN Term MkVarTerm (void);
+inline EXTERN Term MkVarTerm(void);
 
-inline EXTERN Term
-MkVarTerm ()
+inline EXTERN Term MkVarTerm()
 {
-  return (Term) ((*H = 0, H++));
+	return (Term) ((*H = 0, H++));
 }
 
 
 
-inline EXTERN int IsUnboundVar (Term);
+inline EXTERN int IsUnboundVar(Term);
 
-inline EXTERN int
-IsUnboundVar (Term t)
+inline EXTERN int IsUnboundVar(Term t)
 {
-  return (int) (t == 0);
-}
-
-
-#else
-
-inline EXTERN Term MkVarTerm (void);
-
-inline EXTERN Term
-MkVarTerm ()
-{
-  return (Term) ((*H = (CELL) H, H++));
-}
-
-
-
-inline EXTERN int IsUnboundVar (Term);
-
-inline EXTERN int
-IsUnboundVar (Term t)
-{
-  return (int) (*VarOfTerm (t) == (t));
-}
-
-
-#endif
-
-inline EXTERN CELL *PtrOfTerm (Term);
-
-inline EXTERN CELL *
-PtrOfTerm (Term t)
-{
-  return (CELL *) (*(CELL *) (t));
-}
-
-
-
-
-inline EXTERN Functor FunctorOfTerm (Term);
-
-inline EXTERN Functor
-FunctorOfTerm (Term t)
-{
-  return (Functor) (*RepAppl (t));
-}
-
-
-#if IN_SECOND_QUADRANT
-
-inline EXTERN Term MkAtomTerm (Atom);
-
-inline EXTERN Term
-MkAtomTerm (Atom a)
-{
-  return (Term) (TAGGEDA (AtomTag, (CELL *) (a) - (CELL *) HEAP_INIT_BASE));
-}
-
-
-
-inline EXTERN Atom AtomOfTerm (Term t);
-
-inline EXTERN Atom
-AtomOfTerm (Term t)
-{
-  return (Atom) ((CELL *) HEAP_INIT_BASE + NonTagPart (t));
+	return (int) (t == 0);
 }
 
 
 #else
 
-inline EXTERN Term MkAtomTerm (Atom);
+inline EXTERN Term MkVarTerm(void);
 
-inline EXTERN Term
-MkAtomTerm (Atom a)
+inline EXTERN Term MkVarTerm()
 {
-  return (Term) (TAGGEDA (AtomTag, (a)));
+	return (Term) ((*H = (CELL) H, H++));
 }
 
 
 
-inline EXTERN Atom AtomOfTerm (Term t);
+inline EXTERN int IsUnboundVar(Term);
 
-inline EXTERN Atom
-AtomOfTerm (Term t)
+inline EXTERN int IsUnboundVar(Term t)
 {
-  return (Atom) (NonTagPart (t));
+	return (int) (*VarOfTerm(t) == (t));
 }
 
 
 #endif
 
-inline EXTERN int IsAtomTerm (Term);
+inline EXTERN CELL * PtrOfTerm(Term);
 
-inline EXTERN int
-IsAtomTerm (Term t)
+inline EXTERN CELL * PtrOfTerm(Term t)
 {
-  return (int) (CHKTAG ((t), AtomTag));
+	return (CELL *) (*(CELL *)(t));
 }
 
 
 
 
-inline EXTERN Term MkIntTerm (Int);
+inline EXTERN Functor FunctorOfTerm(Term);
 
-inline EXTERN Term
-MkIntTerm (Int n)
+inline EXTERN Functor FunctorOfTerm(Term t)
 {
-  return (Term) (TAGGED (NumberTag, (n)));
+	return (Functor) (*RepAppl(t));
+}
+
+
+
+inline EXTERN Term MkAtomTerm(Atom);
+
+inline EXTERN Term MkAtomTerm(Atom a)
+{
+	return (Term) (TAGGEDA(AtomTag, (CELL)(a)-HEAP_INIT_BASE));
+}
+
+
+
+inline EXTERN Atom AtomOfTerm(Term t);
+
+inline EXTERN Atom AtomOfTerm(Term t)
+{
+	return (Atom) (HEAP_INIT_BASE+NonTagPart(t));
+}
+
+
+
+inline EXTERN int IsAtomTerm(Term);
+
+inline EXTERN int IsAtomTerm(Term t)
+{
+	return (int) (CHKTAG((t), AtomTag));
+}
+
+
+
+
+inline EXTERN Term MkIntTerm(Int);
+
+inline EXTERN Term MkIntTerm(Int n)
+{
+	return (Term) (TAGGED(NumberTag, (n)));
 }
 
 
@@ -772,22 +742,20 @@ MkIntTerm (Int n)
   overflow problems are possible
 */
 
-inline EXTERN Term MkIntConstant (Int);
+inline EXTERN Term MkIntConstant(Int);
 
-inline EXTERN Term
-MkIntConstant (Int n)
+inline EXTERN Term MkIntConstant(Int n)
 {
-  return (Term) (NONTAGGED (NumberTag, (n)));
+	return (Term) (NONTAGGED(NumberTag, (n)));
 }
 
 
 
-inline EXTERN int IsIntTerm (Term);
+inline EXTERN int IsIntTerm(Term);
 
-inline EXTERN int
-IsIntTerm (Term t)
+inline EXTERN int IsIntTerm(Term t)
 {
-  return (int) (CHKTAG ((t), NumberTag));
+	return (int) (CHKTAG((t), NumberTag));
 }
 
 
@@ -812,14 +780,6 @@ IsIntTerm (Term t)
 #endif
 
 
-/************* variables related to memory allocation *******************/
-     /* must be before TermExt.h */
-extern ADDR HeapBase,
-  LocalBase,
-  GlobalBase,
-  TrailBase, TrailTop, ForeignCodeBase, ForeignCodeTop, ForeignCodeMax;
-
-
 /*
   There are two types of functors:
 
@@ -835,32 +795,29 @@ extern ADDR HeapBase,
 #define IsAccessFunc(func)		((func) == FunctorAccess)
 
 
-inline EXTERN Term MkIntegerTerm (Int);
+inline EXTERN Term MkIntegerTerm(Int);
 
-inline EXTERN Term
-MkIntegerTerm (Int n)
+inline EXTERN Term MkIntegerTerm(Int n)
 {
-  return (Term) (IntInBnd (n) ? MkIntTerm (n) : MkLongIntTerm (n));
+	return (Term) (IntInBnd(n) ? MkIntTerm(n) : MkLongIntTerm(n));
 }
 
 
 
-inline EXTERN int IsIntegerTerm (Term);
+inline EXTERN int IsIntegerTerm(Term);
 
-inline EXTERN int
-IsIntegerTerm (Term t)
+inline EXTERN int IsIntegerTerm(Term t)
 {
-  return (int) (IsIntTerm (t) || IsLongIntTerm (t));
+	return (int) (IsIntTerm(t) || IsLongIntTerm(t));
 }
 
 
 
-inline EXTERN Int IntegerOfTerm (Term);
+inline EXTERN Int IntegerOfTerm(Term);
 
-inline EXTERN Int
-IntegerOfTerm (Term t)
+inline EXTERN Int IntegerOfTerm(Term t)
 {
-  return (Int) (IsIntTerm (t) ? IntOfTerm (t) : LongIntOfTerm (t));
+	return (Int) (IsIntTerm(t) ? IntOfTerm(t) : LongIntOfTerm(t));
 }
 
 
@@ -877,63 +834,57 @@ IntegerOfTerm (Term t)
 /*************** High level macros to access arguments ******************/
 
 
-inline EXTERN Term ArgOfTerm (int i, Term t);
+inline EXTERN Term ArgOfTerm(int i, Term t);
 
-inline EXTERN Term
-ArgOfTerm (int i, Term t)
+inline EXTERN Term ArgOfTerm(int i, Term t)
 {
-  return (Term) (Derefa (RepAppl (t) + (i)));
+	return (Term) (Derefa(RepAppl(t) + (i)));
 }
 
 
 
-inline EXTERN Term HeadOfTerm (Term);
+inline EXTERN Term HeadOfTerm(Term);
 
-inline EXTERN Term
-HeadOfTerm (Term t)
+inline EXTERN Term HeadOfTerm(Term t)
 {
-  return (Term) (Derefa (RepPair (t)));
+	return (Term) (Derefa(RepPair(t)));
 }
 
 
 
-inline EXTERN Term TailOfTerm (Term);
+inline EXTERN Term TailOfTerm(Term);
 
-inline EXTERN Term
-TailOfTerm (Term t)
+inline EXTERN Term TailOfTerm(Term t)
 {
-  return (Term) (Derefa (RepPair (t) + 1));
+	return (Term) (Derefa(RepPair(t) + 1));
 }
 
 
 
 
-inline EXTERN Term ArgOfTermCell (int i, Term t);
+inline EXTERN Term ArgOfTermCell(int i, Term t);
 
-inline EXTERN Term
-ArgOfTermCell (int i, Term t)
+inline EXTERN Term ArgOfTermCell(int i, Term t)
 {
-  return (Term) ((CELL) (RepAppl (t) + (i)));
+	return (Term) ((CELL)(RepAppl(t) + (i)));
 }
 
 
 
-inline EXTERN Term HeadOfTermCell (Term);
+inline EXTERN Term HeadOfTermCell(Term);
 
-inline EXTERN Term
-HeadOfTermCell (Term t)
+inline EXTERN Term HeadOfTermCell(Term t)
 {
-  return (Term) ((CELL) (RepPair (t)));
+	return (Term) ((CELL)(RepPair(t)));
 }
 
 
 
-inline EXTERN Term TailOfTermCell (Term);
+inline EXTERN Term TailOfTermCell(Term);
 
-inline EXTERN Term
-TailOfTermCell (Term t)
+inline EXTERN Term TailOfTermCell(Term t)
 {
-  return (Term) ((CELL) (RepPair (t) + 1));
+	return (Term) ((CELL)(RepPair(t) + 1));
 }
 
 
@@ -942,7 +893,7 @@ TailOfTermCell (Term t)
 #define	MaxHash	    1001
 
 /************ variables	concerned with save and restore	*************/
-extern int splfild;
+extern int      splfild;
 
 #define FAIL_RESTORE  0
 #define DO_EVERYTHING 1
@@ -953,13 +904,13 @@ extern int splfild;
 
 /******************** using Emacs mode ********************************/
 
-extern int emacs_mode;
+extern int      emacs_mode;
 
 #endif
 
 
 /************ variable concerned with version number *****************/
-extern char version_number[];
+extern char    version_number[];
 
 /********* common instructions codes*************************/
 
@@ -968,45 +919,45 @@ extern char version_number[];
 #if USE_THREADED_CODE
 
 /************ reverse lookup of instructions *****************/
-typedef struct opcode_tab_entry
-{
+typedef struct opcode_tab_entry {
   OPCODE opc;
   op_numbers opnum;
-}
-opentry;
+} opentry;
 
 #endif
 
 /******************* controlling the compiler ****************************/
-extern int optimizer_on;
+extern int      optimizer_on;
 
 /******************* the line for the current parse **********************/
-extern int StartLine;
-extern int StartCh;
-extern int CurFileNo;
+extern int      StartLine;
+extern int      StartCh;
+extern int      CurFileNo;
 
 /********************* how to write a Prolog term ***********************/
 
 /********* Prolog may be in several modes *******************************/
 
-typedef enum
-{
-  BootMode = 1,			/* if booting or restoring */
-  UserMode = 2,			/* Normal mode */
-  CritMode = 4,			/* If we are meddling with the heap */
-  AbortMode = 8,		/* expecting to abort */
+typedef enum {
+  BootMode  =   1,		/* if booting or restoring */
+  UserMode  =   2,		/* Normal mode */
+  CritMode  =   4,		/* If we are meddling with the heap */
+  AbortMode =   8,		/* expecting to abort */
   InterruptMode = 16,		/* under an interrupt */
-  InErrorMode = 32		/* under an interrupt */
-}
-prolog_exec_mode;
+  InErrorMode = 32,		/* under an interrupt */
+  ConsoleGetcMode = 64		/* blocked reading from console */
+} prolog_exec_mode;
 
-extern prolog_exec_mode PrologMode;
-extern int CritLocks;
+extern prolog_exec_mode      PrologMode;
+extern int      CritLocks;
 
 /************** Access to yap initial arguments ***************************/
 
-extern char **yap_args;
-extern int yap_argc;
+extern char   **yap_args;
+extern int      yap_argc;
+
+/******************* controlling debugging ****************************/
+extern int      creep_on;
 
 #ifdef YAPOR
 #define YAPEnterCriticalSection()                           \
@@ -1064,31 +1015,29 @@ extern int yap_argc;
 
 /********* whether we should try to compile array references ******************/
 
-extern int compile_arrays;
+extern int  compile_arrays;
 
 /********* mutable variables ******************/
 
 /* I assume that the size of this structure is a multiple of the size
    of CELL!!! */
-typedef struct TIMED_MAVAR
-{
+typedef struct TIMED_MAVAR{
   CELL value;
   CELL clock;
-}
-timed_var;
+} timed_var;
 
 /********* while debugging you may need some info ***********************/
 
 #if DEBUG
-extern int output_msg;
+extern int      output_msg;
 #endif
 
 #if EMACS
-extern char emacs_tmp[], emacs_tmp2[];
+extern char     emacs_tmp[], emacs_tmp2[];
 #endif
 
 #if HAVE_SIGNAL
-extern int snoozing;
+extern int      snoozing;
 #endif
 
 #if defined(YAPOR) || defined(TABLING)
@@ -1100,3 +1049,4 @@ extern int snoozing;
 #if SBA
 #include "sbaunify.h"
 #endif
+
