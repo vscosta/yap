@@ -8,8 +8,11 @@
 *									 *
 **************************************************************************
 *									 *
-* $Id: sys.c,v 1.18 2004-01-26 12:51:33 vsc Exp $									 *
+* $Id: sys.c,v 1.19 2004-07-23 03:37:17 vsc Exp $									 *
 * mods:		$Log: not supported by cvs2svn $
+* mods:		Revision 1.18  2004/01/26 12:51:33  vsc
+* mods:		should be datime/1 not date/1
+* mods:		
 * mods:		Revision 1.17  2004/01/26 12:41:06  vsc
 * mods:		bug fixes
 * mods:		
@@ -141,6 +144,7 @@ static int
 list_directory(void)
 {
   YAP_Term tf = YAP_MkAtomTerm(YAP_LookupAtom("[]"));
+  long sl = YAP_InitSlot(tf);
 
   char *buf = YAP_AtomName(YAP_AtomOfTerm(YAP_ARG1));
 #if defined(__MINGW32__) || _MSC_VER
@@ -162,14 +166,13 @@ list_directory(void)
   if ((hFile = _findfirst(bs, &c_file)) == -1L) {
     return(YAP_Unify(YAP_ARG2,tf));
   }
-  tf = YAP_MkPairTerm(YAP_MkAtomTerm(YAP_LookupAtom(c_file.name)), tf);
+  YAP_PutInSlot(sl, YAP_MkPairTerm(YAP_MkAtomTerm(YAP_LookupAtom(c_file.name)), YAP_GetFromSlot(sl)));
   while (_findnext( hFile, &c_file) == 0) {
     YAP_Term ti = YAP_MkAtomTerm(YAP_LookupAtom(c_file.name));
-    tf = YAP_MkPairTerm(ti, tf);
+    YAP_PutInSlot(sl,YAP_MkPairTerm(ti, YAP_GetFromSlot(sl)));
   }
   _findclose( hFile );
-#else
-#if HAVE_OPENDIR
+#elif HAVE_OPENDIR
  {
    DIR *de;
    struct dirent *dp;
@@ -179,13 +182,13 @@ list_directory(void)
    }
    while ((dp = readdir(de))) {
      YAP_Term ti = YAP_MkAtomTerm(YAP_LookupAtom(dp->d_name));
-     tf = YAP_MkPairTerm(ti, tf);
+     YAP_PutInSlot(sl,YAP_MkPairTerm(ti, YAP_GetFromSlot(sl)));
    }
    closedir(de);
  }
 #endif /* HAVE_OPENDIR */
-#endif
-  return(YAP_Unify(YAP_ARG2, tf));
+  tf = YAP_GetFromSlot(sl);
+  return YAP_Unify(YAP_ARG2, tf);
 }
 
 static int

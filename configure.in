@@ -82,6 +82,21 @@ AC_ARG_WITH(gmp,
 	fi,
 	[yap_cv_gmp=yes])
 
+AC_ARG_WITH(java,
+	[ --with-java=JAVA_HOME           use Java instalation in JAVA_HOME],
+	if test "$withval" = yes; then
+		yap_cv_java="$JAVA_HOME"
+		dynamic_loading=yes
+		threads=yes
+	elif test "$withval" = no; then
+		yap_cv_java=no
+	else
+		yap_cv_java=$with_java
+		dynamic_loading=yes
+		threads=yes
+	fi,
+	[yap_cv_java=no])
+
 AC_ARG_WITH(readline,
 	[ --with-readline[=DIR]      use GNU Readline Library in DIR],
 	if test "$withval" = yes; then
@@ -348,6 +363,14 @@ then
   fi
 fi
 
+if test "$yap_cv_java" = no
+then
+	ENABLE_JAVA="@#"   
+else
+	ENABLE_JAVA=""
+	JAVA_HOME="$yap_cv_java"
+fi
+
 MPI_OBJS=
 if test "$yap_cv_mpi" != "no"
 then
@@ -432,6 +455,8 @@ AC_SUBST(INSTALL_INFO)
 dnl let YAP_EXTRAS fall through configure, from the env into Makefile
 AC_SUBST(YAP_EXTRAS)
 AC_SUBST(NO_BUILTIN_REGEXP)
+AC_SUBST(ENABLE_JAVA)
+AC_SUBST(JAVA_HOME)
 
 dnl defaults
 INSTALL_DLLS="#"
@@ -439,14 +464,6 @@ SHLIB_LD="@#"
 DO_SECOND_LD="#"
 M4="m4"
 MERGE_DLL_OBJS="#"
-
-if test "$dynamic_loading" = "yes"
-then 
-  YAP_EXTRAS="$SHLIB_CFLAGS $YAP_EXTRAS"
-  YAPLIB=libYap"$SHLIB_SUFFIX"
-else
- YAPLIB="libYap.a"
-fi
 
 case "$target_os" in
       *linux*)
@@ -624,6 +641,14 @@ dnl Linux has both elf and a.out, in this case we found elf
         fi
 	;;
 esac
+
+if test "$dynamic_loading" = "yes"
+then 
+  YAP_EXTRAS="$SHLIB_CFLAGS $YAP_EXTRAS"
+  YAPLIB=libYap"$SHLIB_SUFFIX"
+else
+ YAPLIB="libYap.a"
+fi
 
 if test "$coroutining" = "yes"
   then
@@ -1037,8 +1062,12 @@ mkdir -p  library/Tries
 mkdir -p  library/yap2swi
 mkdir -p  CHR
 mkdir -p  CLPQR
+mkdir -p  CLPBN
+mkdir -p  LGPL
+mkdir -p  LGPL/JPL_from_Prolog
+mkdir -p  LGPL/JPL_from_Prolog/src
 
-AC_OUTPUT(Makefile library/regex/Makefile library/system/Makefile library/random/Makefile library/yap2swi/Makefile library/mpi/Makefile .depend library/Makefile CHR/Makefile CLPQR/Makefile library/Tries/Makefile)
+AC_OUTPUT(Makefile library/regex/Makefile library/system/Makefile library/random/Makefile library/yap2swi/Makefile library/mpi/Makefile .depend library/Makefile CHR/Makefile CLPBN/Makefile CLPQR/Makefile library/Tries/Makefile LGPL/JPL_from_Prolog/Makefile LGPL/JPL_from_Prolog/src/Makefile)
 
 make depend
 

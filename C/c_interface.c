@@ -10,8 +10,14 @@
 * File:		c_interface.c						 *
 * comments:	c_interface primitives definition 			 *
 *									 *
-* Last rev:	$Date: 2004-07-22 21:32:20 $,$Author: vsc $						 *
+* Last rev:	$Date: 2004-07-23 03:37:16 $,$Author: vsc $						 *
 * $Log: not supported by cvs2svn $
+* Revision 1.51  2004/07/22 21:32:20  vsc
+* debugger fixes
+* initial support for JPL
+* bad calls to garbage collector and gc
+* debugger fixes
+*
 * Revision 1.50  2004/06/29 19:04:41  vsc
 * fix multithreaded version
 * include new version of Ricardo's profiler
@@ -340,7 +346,13 @@ YAP_AtomName(Atom a)
 X_API Atom
 YAP_LookupAtom(char *c)
 {
-  return(Yap_LookupAtom(c));
+  Atom a = Yap_LookupAtom(c);
+  if (ActiveSignals & YAP_CDOVF_SIGNAL) {
+    if (!Yap_growheap(FALSE, 0, NULL)) {
+      Yap_Error(OUT_OF_HEAP_ERROR, TermNil, "YAP failed to grow heap: %s", Yap_ErrorMessage);
+    }
+  }
+  return a;
 }
 
 X_API Atom
@@ -349,6 +361,11 @@ YAP_FullLookupAtom(char *c)
   Atom at;
 
   at = Yap_FullLookupAtom(c);
+  if (ActiveSignals & YAP_CDOVF_SIGNAL) {
+    if (!Yap_growheap(FALSE, 0, NULL)) {
+      Yap_Error(OUT_OF_HEAP_ERROR, TermNil, "YAP failed to grow heap: %s", Yap_ErrorMessage);
+    }
+  }
   return(at);
 }
 
@@ -947,6 +964,11 @@ YAP_CompileClause(Term t)
   }
   YAPLeaveCriticalSection();
 
+  if (ActiveSignals & YAP_CDOVF_SIGNAL) {
+    if (!Yap_growheap(FALSE, 0, NULL)) {
+      Yap_Error(OUT_OF_HEAP_ERROR, TermNil, "YAP failed to grow heap: %s", Yap_ErrorMessage);
+    }
+  }
   RECOVER_MACHINE_REGS();
   return(Yap_ErrorMessage);
 }

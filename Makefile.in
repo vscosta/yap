@@ -111,7 +111,9 @@ HEADERS = \
 	$(srcdir)/H/corout.h $(srcdir)/H/eval.h $(srcdir)/H/heapgc.h   \
 	$(srcdir)/H/index.h $(srcdir)/H/iopreds.h \
 	$(srcdir)/H/rheap.h \
-	$(srcdir)/H/tracer.h $(srcdir)/H/yapio.h \
+	$(srcdir)/H/tracer.h \
+	$(srcdir)/H/threads.h \
+	$(srcdir)/H/yapio.h \
 	$(srcdir)/OPTYap/opt.config.h \
 	$(srcdir)/OPTYap/opt.proto.h $(srcdir)/OPTYap/opt.structs.h \
 	$(srcdir)/OPTYap/opt.macros.h $(srcdir)/OPTYap/or.macros.h \
@@ -512,6 +514,7 @@ install_unix: startup
 	@INSTALL_DLLS@ (cd library/system; make install)
 	@INSTALL_DLLS@ (cd library/yap2swi; make install)
 	@INSTALL_DLLS@ (cd library/Tries; make install)
+	@ENABLE_JAVA@ @INSTALL_DLLS@ (cd LGPL/JPL_from_Prolog/src; make install)
 	mkdir -p $(DESTDIR)$(INCLUDEDIR)
 	for h in $(INTERFACE_HEADERS); do $(INSTALL) $$h $(DESTDIR)$(INCLUDEDIR); done
 
@@ -540,10 +543,12 @@ install_library: @YAPLIB@
 
 install_data:
 	(cd library ; make install)
+	@ENABLE_JAVA@ (cd LGPL/JPL_from_Prolog ; make install)
 	$(INSTALL_DATA) $(srcdir)/LGPL/pillow/icon_address.pl $(DESTDIR)$(SHAREDIR)/Yap/
 	$(INSTALL_DATA) $(srcdir)/LGPL/pillow/pillow.pl $(DESTDIR)$(SHAREDIR)/Yap/
 	(cd CLPQR ; make install)
 	(cd CHR ; make install)
+	(cd CLPBN ; make install)
 
 
 ##########
