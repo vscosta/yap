@@ -318,7 +318,7 @@ CopyTerm(Term inp) {
 	  t = Deref(ARG3);
 	  goto restart_attached;
 	} else { /* handle overflow */
-	  if (!Yap_ExpandPreAllocCodeSpace(0)) {
+	  if (!Yap_ExpandPreAllocCodeSpace(0,NULL)) {
 	    Yap_Error(OUT_OF_HEAP_ERROR, TermNil, Yap_ErrorMessage);
 	    return(FALSE);
 	  }
@@ -354,7 +354,7 @@ CopyTerm(Term inp) {
 	  t = Deref(ARG3);
 	  goto restart_list;
 	} else { /* handle overflow */
-	  if (!Yap_ExpandPreAllocCodeSpace(0)) {
+	  if (!Yap_ExpandPreAllocCodeSpace(0,NULL)) {
 	    Yap_Error(OUT_OF_HEAP_ERROR, TermNil, Yap_ErrorMessage);
 	    return(FALSE);
 	  }
@@ -389,7 +389,7 @@ CopyTerm(Term inp) {
 	  t = Deref(ARG3);
 	  goto restart_appl;
 	} else { /* handle overflow */
-	  if (!Yap_ExpandPreAllocCodeSpace(0)) {
+	  if (!Yap_ExpandPreAllocCodeSpace(0,NULL)) {
 	    Yap_Error(OUT_OF_HEAP_ERROR, TermNil, Yap_ErrorMessage);
 	    return(FALSE);
 	  }
@@ -629,7 +629,7 @@ CopyTermNoDelays(Term inp) {
 	t = Deref(ARG1);
 	goto restart_list;
       } else { /* handle overflow */
-	if (!Yap_ExpandPreAllocCodeSpace(0)) {
+	if (!Yap_ExpandPreAllocCodeSpace(0,NULL)) {
 	  Yap_Error(OUT_OF_HEAP_ERROR, TermNil, Yap_ErrorMessage);
 	  return(FALSE);
 	}
@@ -661,7 +661,7 @@ CopyTermNoDelays(Term inp) {
 	t = Deref(ARG1);
 	goto restart_appl;
       } else { /* handle overflow */
-	if (!Yap_ExpandPreAllocCodeSpace(0)) {
+	if (!Yap_ExpandPreAllocCodeSpace(0,NULL)) {
 	  Yap_Error(OUT_OF_HEAP_ERROR, TermNil, Yap_ErrorMessage);
 	  return(FALSE);
 	}

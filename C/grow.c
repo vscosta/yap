@@ -1279,7 +1279,7 @@ Yap_shift_visit(CELL **to_visit, CELL ***to_visit_maxp)
   CELL **to_visit_max = *to_visit_maxp;
   Int sz1 = (CELL)to_visit_max-(CELL)to_visit;
   Int sz0 = AuxTop - (ADDR)to_visit_maxp, sz, dsz;
-  char *newb = Yap_ExpandPreAllocCodeSpace(0);
+  char *newb = Yap_ExpandPreAllocCodeSpace(0, NULL);
 
   /* check new size */
   sz = AuxTop-newb;

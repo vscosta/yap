@@ -11,8 +11,13 @@
 * File:		cdmgr.c							 *
 * comments:	Code manager						 *
 *									 *
-* Last rev:     $Date: 2004-11-18 22:32:31 $,$Author: vsc $						 *
+* Last rev:     $Date: 2004-12-05 05:01:23 $,$Author: vsc $						 *
 * $Log: not supported by cvs2svn $
+* Revision 1.142  2004/11/18 22:32:31  vsc
+* fix situation where we might assume nonextsing double initialisation of C predicates (use
+* Hidden Pred Flag).
+* $host_type was double initialised.
+*
 * Revision 1.141  2004/11/04 18:22:31  vsc
 * don't ever use memory that has been freed (that was done by LU).
 * generic fixes for WIN32 libraries
@@ -306,7 +311,6 @@ static_in_use(PredEntry *p, int check_everything)
 
 #define is_dynamic(pe)  (pe->PredFlags & DynamicPredFlag)
 #define is_static(pe) 	(pe->PredFlags & CompiledPredFlag)
-#define is_fast(pe)	(pe->PredFlags & FastPredFlag)
 #define is_logupd(pe)	(pe->PredFlags & LogUpdatePredFlag)
 #ifdef TABLING
 #define is_tabled(pe)   (pe->PredFlags & TabledPredFlag)
@@ -1580,6 +1584,64 @@ addclause(Term t, yamop *cp, int mode, Term mod, Term *t4ref)
   }
   if (pflags & SpiedPredFlag)
     spy_flag = TRUE;
+  if (p == PredGoalExpansion) {
+    Term tg = ArgOfTerm(1, tf);
+    Term tm = ArgOfTerm(2, tf);
+
+    if (IsVarTerm(tg) || IsVarTerm(tm)) {
+      if (!IsVarTerm(tg)) {
+	/* this is the complicated case, first I need to inform
+	   predicates for this functor */ 
+	PRED_GOAL_EXPANSION_FUNC = TRUE;
+	if (IsAtomTerm(tg)) {
+	  AtomEntry *ae = RepAtom(AtomOfTerm(tg));
+	  Prop p0 = ae->PropsOfAE;
+	  int found = FALSE;
+
+	  while (p0) {
+	    PredEntry *pe = RepPredProp(p0);
+	    if (pe->KindOfPE == PEProp) {
+	      pe->PredFlags |= GoalExPredFlag;
+	      found = TRUE;
+	    }
+	    p0 = pe->NextOfPE;
+	  }
+	  if (!found) {
+	    PredEntry *npe = RepPredProp(PredPropByAtom(AtomOfTerm(tg),IDB_MODULE));
+	    npe->PredFlags |= GoalExPredFlag;	    
+	  }
+	} else if (IsApplTerm(tg)) {
+	  FunctorEntry *fe = (FunctorEntry *)FunctorOfTerm(tg);
+	  Prop p0;
+	  int found = FALSE;
+
+	  p0 = fe->PropsOfFE;
+	  while (p0) {
+	    PredEntry *pe = RepPredProp(p0);
+
+	    pe->PredFlags |= GoalExPredFlag;
+	    found = TRUE;
+	  }
+	  if (!found) {
+	    PredEntry *npe = RepPredProp(PredPropByFunc(fe,IDB_MODULE));
+	    npe->PredFlags |= GoalExPredFlag;	    
+	  }
+	}
+      } else {
+	PRED_GOAL_EXPANSION_ALL = TRUE;
+      }
+    } else {
+      if (IsAtomTerm(tm)) {
+	if (IsAtomTerm(tg)) {
+	  PredEntry *p = RepPredProp(PredPropByAtom(AtomOfTerm(tg), tm));
+	  p->PredFlags |= GoalExPredFlag;
+	} else if (IsApplTerm(tg)) {
+	  PredEntry *p = RepPredProp(PredPropByFunc(FunctorOfTerm(tg), tm));
+	  p->PredFlags |= GoalExPredFlag;
+	}
+      }
+    }
+  }
   if (mode == consult)
     not_was_reconsulted(p, t, TRUE);
   /* always check if we have a valid error first */
@@ -2438,6 +2500,91 @@ p_is_dynamic(void)
 }
 
 static Int 
+p_is_metapredicate(void)
+{				/* '$is_metapredicate'(+P)	 */
+  PredEntry      *pe;
+  Term            t = Deref(ARG1);
+  Term            mod = Deref(ARG2);
+  Int             out;
+
+  if (IsVarTerm(t)) {
+    return (FALSE);
+  } else if (IsAtomTerm(t)) {
+    Atom at = AtomOfTerm(t);
+    pe = RepPredProp(Yap_GetPredPropByAtom(at, mod));
+  } else if (IsApplTerm(t)) {
+    Functor         fun = FunctorOfTerm(t);
+    pe = RepPredProp(Yap_GetPredPropByFunc(fun, mod));
+  } else
+    return (FALSE);
+  if (EndOfPAEntr(pe))
+    return FALSE;
+  READ_LOCK(pe->PRWLock);
+  out = (pe->PredFlags & MetaPredFlag);
+  READ_UNLOCK(pe->PRWLock);
+  return out;
+}
+
+static Int 
+p_is_expandgoalormetapredicate(void)
+{				/* '$is_expand_goal_predicate'(+P)	 */
+  PredEntry      *pe;
+  Term            t = Deref(ARG1);
+  Term            mod = Deref(ARG2);
+  Int             out;
+
+  if (PRED_GOAL_EXPANSION_ALL)
+    return TRUE;
+  if (IsVarTerm(t)) {
+    return (FALSE);
+  } else if (IsAtomTerm(t)) {
+    Atom at = AtomOfTerm(t);
+    pe = RepPredProp(Yap_GetPredPropByAtom(at, mod));
+    if (EndOfPAEntr(pe)) {
+      if (PRED_GOAL_EXPANSION_FUNC) {
+	Prop p1 = RepAtom(at)->PropsOfAE;
+
+	while (p1) {
+	  PredEntry *pe = RepPredProp(p1);
+
+	  if (pe->KindOfPE == PEProp) {
+	    if (pe->PredFlags & GoalExPredFlag) {
+	      PredPropByAtom(at, mod);
+	      return TRUE;
+	    } else {
+	      return FALSE;
+	    }
+	  }
+	  p1 = pe->NextOfPE;
+	}
+      }
+      return FALSE;
+    }
+  } else if (IsApplTerm(t)) {
+    Functor         fun = FunctorOfTerm(t);
+    pe = RepPredProp(Yap_GetPredPropByFunc(fun, mod));
+    if (EndOfPAEntr(pe)) {
+      if (PRED_GOAL_EXPANSION_FUNC) {
+	FunctorEntry *fe = (FunctorEntry *)fun;
+	if (fe->PropsOfFE &&
+	    (RepPredProp(fe->PropsOfFE)->PredFlags & GoalExPredFlag)) {
+	  PredPropByFunc(fun, mod);
+	  return TRUE;
+	}
+      }
+      return FALSE;
+    }
+  } else {
+    return FALSE;
+  }
+
+  READ_LOCK(pe->PRWLock);
+  out = (pe->PredFlags & (GoalExPredFlag|MetaPredFlag));
+  READ_UNLOCK(pe->PRWLock);
+  return(out);
+}
+
+static Int 
 p_pred_exists(void)
 {				/* '$pred_exists'(+P,+M)	 */
   PredEntry      *pe;
@@ -2610,7 +2757,7 @@ p_kill_dynamic(void)
   pe->cs.p_code.LastClause = pe->cs.p_code.FirstClause = NIL;
   pe->OpcodeOfPred = UNDEF_OPCODE;
   pe->cs.p_code.TrueCodeOfPred = pe->CodeOfPred = (yamop *)(&(pe->OpcodeOfPred)); 
-  pe->PredFlags = 0L;
+  pe->PredFlags = pe->PredFlags & GoalExPredFlag;
   WRITE_UNLOCK(pe->PRWLock);
   return (TRUE);
 }
@@ -4184,6 +4331,8 @@ Yap_InitCdMgr(void)
   Yap_InitCPred("$purge_clauses", 2, p_purge_clauses, SafePredFlag|SyncPredFlag|HiddenPredFlag);
   Yap_InitCPred("$in_use", 2, p_in_use, TestPredFlag | SafePredFlag|SyncPredFlag|HiddenPredFlag);
   Yap_InitCPred("$is_dynamic", 2, p_is_dynamic, TestPredFlag | SafePredFlag|HiddenPredFlag);
+  Yap_InitCPred("$is_metapredicate", 2, p_is_metapredicate, TestPredFlag | SafePredFlag|HiddenPredFlag);
+  Yap_InitCPred("$is_expand_goal_or_meta_predicate", 2, p_is_expandgoalormetapredicate, TestPredFlag | SafePredFlag|HiddenPredFlag);
   Yap_InitCPred("$is_log_updatable", 2, p_is_log_updatable, TestPredFlag | SafePredFlag|HiddenPredFlag);
   Yap_InitCPred("$is_source", 2, p_is_source, TestPredFlag | SafePredFlag|HiddenPredFlag);
   Yap_InitCPred("$pred_exists", 2, p_pred_exists, TestPredFlag | SafePredFlag|HiddenPredFlag);

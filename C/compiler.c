@@ -11,8 +11,11 @@
 * File:		compiler.c						 *
 * comments:	Clause compiler						 *
 *									 *
-* Last rev:     $Date: 2004-11-19 22:08:41 $,$Author: vsc $						 *
+* Last rev:     $Date: 2004-12-05 05:01:23 $,$Author: vsc $						 *
 * $Log: not supported by cvs2svn $
+* Revision 1.54  2004/11/19 22:08:41  vsc
+* replace SYSTEM_ERROR by out OUT_OF_WHATEVER_ERROR whenever appropriate.
+*
 * Revision 1.53  2004/09/03 03:11:08  vsc
 * memory management fixes
 *
@@ -2742,44 +2745,44 @@ c_optimize(PInstr *pc)
 }
 
 yamop *
-Yap_cclause(Term inp_clause, int NOfArgs, int mod, Term src)
+Yap_cclause(volatile Term inp_clause, int NOfArgs, int mod, volatile Term src)
 {				/* compile a prolog clause, copy of clause myst be in ARG1 */
   /* returns address of code for clause */
   Term head, body;
   yamop *acode;
+  Term my_clause;
 
   volatile int maxvnum = 512;
   int botch_why;
-  volatile Term my_clause = inp_clause;
   /* may botch while doing a different module */
   /* first, initialise cglobs->cint.CompilerBotch to handle all cases of interruptions */
-  compiler_struct cglobs;
+ compiler_struct cglobs;
 
-  Yap_ErrorMessage = NULL;
-  Yap_Error_Size = 0;
+ /* make sure we know there was no error yet */
+ Yap_ErrorMessage = NULL;
   if ((botch_why = setjmp(cglobs.cint.CompilerBotch)) == 3) {
     /* out of local stack, just duplicate the stack */
     restore_machine_regs();
     reset_vars(cglobs.vtable);
     {
       Int osize = 2*sizeof(CELL)*(ASP-H);
-      ARG1 = my_clause;
-      *H++ = src;
+      ARG1 = inp_clause;
+      ARG3 = src;
 
       YAPLeaveCriticalSection();
-      if (!Yap_gcl(Yap_Error_Size, 2, ENV, P)) {
+      if (!Yap_gcl(Yap_Error_Size, 3, ENV, P)) {
 	Yap_Error_TYPE = OUT_OF_STACK_ERROR;
-	Yap_Error_Term = my_clause;
+	Yap_Error_Term = inp_clause;
       }
       if (osize > ASP-H) {
 	if (!Yap_growstack(2*sizeof(CELL)*(ASP-H))) {
 	  Yap_Error_TYPE = OUT_OF_STACK_ERROR;
-	  Yap_Error_Term = my_clause;
+	  Yap_Error_Term = inp_clause;
 	}
       }
       YAPEnterCriticalSection();
-      src = *--H;
-      my_clause = ARG1;
+      src = ARG3;
+      inp_clause = ARG1;
     }
   } else if (botch_why == 4) {
     /* out of temporary cells */
@@ -2799,12 +2802,15 @@ Yap_cclause(Term inp_clause, int NOfArgs, int mod, Term src)
     return(0);
   }
  restart_compilation:
+  my_clause = inp_clause;
   if (Yap_ErrorMessage != NULL) {
     reset_vars(cglobs.vtable);
     return (0);
   }
   HB = H;
   Yap_ErrorMessage = NULL;
+  Yap_Error_Size = 0;
+  Yap_Error_TYPE = YAP_NO_ERROR;
   /* initialize variables for code generation                              */
   
   cglobs.cint.CodeStart = cglobs.cint.cpc = NULL;
@@ -2939,7 +2945,6 @@ Yap_cclause(Term inp_clause, int NOfArgs, int mod, Term src)
   /* check first if there was space for us */
   if (acode == NULL) {
     /* make sure we have enough space */
-    reset_vars(cglobs.vtable);
     if (!Yap_growheap(FALSE, Yap_Error_Size, NULL)) {
       save_machine_regs();
       my_clause = Deref(ARG1);

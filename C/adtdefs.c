@@ -526,10 +526,16 @@ Yap_NewPredPropByFunctor(FunctorEntry *fe, Term cur_mod)
 #endif /* TABLING */
   /* careful that they don't cross MkFunctor */
   p->NextOfPE = fe->PropsOfFE;
+  if (PRED_GOAL_EXPANSION_FUNC) {
+    if (fe->PropsOfFE &&
+	(RepPredProp(fe->PropsOfFE)->PredFlags & GoalExPredFlag)) {
+      p->PredFlags |= GoalExPredFlag;
+    }
+  }
   fe->PropsOfFE = p0 = AbsPredProp(p);
   p->FunctorOfPred = (Functor)fe;
   WRITE_UNLOCK(fe->FRWLock);
-  return (p0);
+  return p0;
 }
 
 #if THREADS
@@ -599,10 +605,25 @@ Yap_NewPredPropByAtom(AtomEntry *ae, Term cur_mod)
 #endif /* TABLING */
   /* careful that they don't cross MkFunctor */
   p->NextOfPE = ae->PropsOfAE;
+  if (PRED_GOAL_EXPANSION_FUNC) {
+    Prop p1 = ae->PropsOfAE;
+
+    while (p1) {
+      PredEntry *pe = RepPredProp(p1);
+
+      if (pe->KindOfPE == PEProp) {
+	if (pe->PredFlags & GoalExPredFlag) {
+	  p->PredFlags |= GoalExPredFlag;
+	}
+	break;
+      }
+      p1 = pe->NextOfPE;
+    }
+  }
   ae->PropsOfAE = p0 = AbsPredProp(p);
   p->FunctorOfPred = (Functor)AbsAtom(ae);
   WRITE_UNLOCK(ae->ARWLock);
-  return (p0);
+  return p0;
 }
 
 Prop

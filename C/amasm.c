@@ -11,8 +11,11 @@
 * File:		amasm.c							 *
 * comments:	abstract machine assembler				 *
 *									 *
-* Last rev:     $Date: 2004-11-19 22:08:41 $							 *
+* Last rev:     $Date: 2004-12-05 05:01:23 $							 *
 * $Log: not supported by cvs2svn $
+* Revision 1.66  2004/11/19 22:08:41  vsc
+* replace SYSTEM_ERROR by out OUT_OF_WHATEVER_ERROR whenever appropriate.
+*
 * Revision 1.65  2004/10/26 20:15:48  vsc
 * More bug fixes for overflow handling
 *
@@ -2938,6 +2941,63 @@ do_pass(int pass_no, yamop **entry_codep, int assembling, int *clause_has_blobsp
   return code_p;
 }
 
+
+static DBTerm *
+fetch_clause_space(Term* tp, UInt size, struct intermediates *cip)
+{
+  CELL *h0 = H;
+  DBTerm *x;
+
+  /* This stuff should be just about fetching the space from the data-base,
+     unfortunately we have to do all sorts of error handling :-( */
+  H = (CELL *)cip->freep;
+  while ((x = Yap_StoreTermInDBPlusExtraSpace(*tp, size)) == NULL) {
+
+    H = h0;
+    switch (Yap_Error_TYPE) {
+    case OUT_OF_STACK_ERROR:
+      Yap_Error_Size = 256+((char *)cip->freep - (char *)H);
+      save_machine_regs();
+      longjmp(cip->CompilerBotch,3);
+    case OUT_OF_TRAIL_ERROR:
+      /* don't just return NULL */
+      ARG1 = *tp;
+      if (!Yap_growtrail(64 * 1024L)) {
+	return NULL;
+      }
+      Yap_Error_TYPE = YAP_NO_ERROR;
+      *tp = ARG1;
+      break;
+    case OUT_OF_AUXSPACE_ERROR:
+      ARG1 = *tp;
+      if (!Yap_ExpandPreAllocCodeSpace(Yap_Error_Size, (void *)cip)) {
+	H = (CELL *)H[-1];
+	return NULL;
+      }
+      Yap_Error_TYPE = YAP_NO_ERROR;
+      *tp = ARG1;
+      break;
+    case OUT_OF_HEAP_ERROR:
+      /* don't just return NULL */
+      ARG1 = *tp;
+      if (!Yap_growheap(TRUE, size, cip)) {
+	H = (CELL *)H[-1];
+	return NULL;
+      }
+      Yap_Error_TYPE = YAP_NO_ERROR;
+      *tp = ARG1;
+      break;
+    default:
+      return NULL;
+    }
+    h0 = H;
+    H = (CELL *)cip->freep;
+  }
+  H = h0;
+  return x;
+}
+
+
 yamop *
 Yap_assemble(int mode, Term t, PredEntry *ap, int is_fact, struct intermediates *cip)
 {
@@ -2965,18 +3025,9 @@ Yap_assemble(int mode, Term t, PredEntry *ap, int is_fact, struct intermediates 
       !is_fact) {
     DBTerm *x;
     LogUpdClause *cl;
-    CELL *h0 = H;
 
-    H = (CELL *)cip->freep;
-    while ((x = Yap_StoreTermInDBPlusExtraSpace(t, size)) == NULL) {
-      *H++ = (CELL)h0;
-      if (!Yap_growheap(TRUE, size, cip)) {
-	Yap_Error_TYPE = OUT_OF_HEAP_ERROR;
-	return NULL;
-      }
-      h0 = (CELL *)*--H;
-    }
-    H = h0;
+    if(!(x = fetch_clause_space(&t,size,cip)))
+      return NULL;
     cl = (LogUpdClause *)((CODEADDR)x-(UInt)size);
     cl->ClSource = x;
     cip->code_addr = (yamop *)cl;
@@ -2986,36 +3037,8 @@ Yap_assemble(int mode, Term t, PredEntry *ap, int is_fact, struct intermediates 
       !is_fact) {
     DBTerm *x;
     StaticClause *cl;
-
-    while ((x = Yap_StoreTermInDBPlusExtraSpace(t, size)) == NULL) {
-
-      switch (Yap_Error_TYPE) {
-      case OUT_OF_STACK_ERROR:
-	Yap_Error_Size = 256+((char *)cip->freep - (char *)H);
-	save_machine_regs();
-	longjmp(cip->CompilerBotch,3);
-      case OUT_OF_TRAIL_ERROR:
-	/* don't just return NULL */
-	ARG1 = t;
-	if (!Yap_growtrail(64 * 1024L)) {
-	  return NULL;
-	}
-	Yap_Error_TYPE = YAP_NO_ERROR;
-	t = ARG1;
-	break;
-      case OUT_OF_HEAP_ERROR:
-	/* don't just return NULL */
-	ARG1 = t;
-	if (!Yap_growheap(TRUE, size, cip)) {
-	  return NULL;
-	}
-	Yap_Error_TYPE = YAP_NO_ERROR;
-	t = ARG1;
-	break;
-      default:
-	return NULL;
-      }
-    }
+    if(!(x = fetch_clause_space(&t,size,cip)))
+      return NULL;
     cl = (StaticClause *)((CODEADDR)x-(UInt)size);
     cip->code_addr = (yamop *)cl;
     code_p = do_pass(1, &entry_code, mode, &clause_has_blobs, cip, size);

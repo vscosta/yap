@@ -11,8 +11,11 @@
 * File:		index.c							 *
 * comments:	Indexing a Prolog predicate				 *
 *									 *
-* Last rev:     $Date: 2004-11-19 22:08:42 $,$Author: vsc $						 *
+* Last rev:     $Date: 2004-12-05 05:01:24 $,$Author: vsc $						 *
 * $Log: not supported by cvs2svn $
+* Revision 1.108  2004/11/19 22:08:42  vsc
+* replace SYSTEM_ERROR by out OUT_OF_WHATEVER_ERROR whenever appropriate.
+*
 * Revision 1.107  2004/11/19 17:14:14  vsc
 * a few fixes for 64 bit compiling.
 *
@@ -7864,10 +7867,8 @@ Yap_FollowIndexingCode(PredEntry *ap, yamop *ipc, Term Terms[3], yamop *ap_pc, y
       break;
 #endif
     case _spy_pred:
-      if (!(ap->PredFlags & MetaPredFlag)) {
-	ipc = ap->cs.p_code.TrueCodeOfPred;
-	break;
-      }
+      ipc = ap->cs.p_code.TrueCodeOfPred;
+      break;
     case _index_pred:
       XREGS[ap->ArityOfPE+1] = (CELL)s_reg;
       XREGS[ap->ArityOfPE+2] = (CELL)t;

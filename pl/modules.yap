@@ -309,34 +309,7 @@ module(N) :-
 	tell(F),fail.
 '$trace_module'(_,_).
 
-%
-% calling the meta-call expansion facility and expand_goal from
-% a meta-call.
-%
-'$expand_goal'(G0, GoalMod, CurMod, G, NM) :-
-	'$expand_goal2'(G0,GoalMod,G1,NM),
-	( '$meta_expansion'(GoalMod, CurMod, G1, GF, []) ->
-		G = GF
-	;
-	        G = G1
-	).
-
-'$expand_goal2'(G, M, NG, NM) :-
-	'$undefined'(G,M),
-	functor(G,F,N),
-	recorded('$import','$import'(ExportingMod,M,F,N),_),
-	ExportingMod \= M,
-	!,
-	'$expand_goal2'(G, ExportingMod, NG, NM).
-'$expand_goal2'(G, M, GF, M) :-
-	'$pred_goal_expansion_on',
-	% make sure we do not try to expand conjs, etc...
-	user:goal_expansion(G,M,GF0), !,
-	% allow recursive goal expansion
-	'$expand_goal2'(GF0,M,GF,M).
-'$expand_goal2'(G, M, G, M). 
 	
-		
 % expand module names in a body
 % args are:
 %       goals to expand

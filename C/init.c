@@ -881,6 +881,8 @@ InitCodes(void)
   }
   Yap_heap_regs->system_profiling = FALSE;
   Yap_heap_regs->system_call_counting = FALSE;
+  Yap_heap_regs->system_pred_goal_expansion_all = FALSE;
+  Yap_heap_regs->system_pred_goal_expansion_func = FALSE;
   Yap_heap_regs->system_pred_goal_expansion_on = FALSE;
   Yap_heap_regs->update_mode = UPDATE_MODE_LOGICAL;
   Yap_heap_regs->consultbase = Yap_heap_regs->consultsp =

@@ -169,11 +169,12 @@ ra_equate( _Theory, A, B) --> [ {A=B} ].		% later
 
 purify_head( Term, NewTerm) :-
 % vsc: doesn't really exist in YAP, ignore it for now.
-  ( prolog:dcg_expansion( Term, []/*undef layout*/, Exp, _) ->
-      true
-  ;
-      Term = Exp
-  ),
+%  ( prolog:dcg_expansion( Term, []/*undef layout*/, Exp, _) ->
+%      true
+%  ;
+%      Term = Exp
+%  ),
+	Term = Exp,
   ( Exp = ?-(_) ->				% don't touch these
       fail
   ; Exp = :-(_) ->				% expanded via goal_expansion

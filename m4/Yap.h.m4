@@ -10,7 +10,7 @@
 * File:		Yap.h.m4						 *
 * mods:									 *
 * comments:	main header file for YAP				 *
-* version:      $Id: Yap.h.m4,v 1.74 2004-11-18 22:32:40 vsc Exp $	 *
+* version:      $Id: Yap.h.m4,v 1.75 2004-12-05 05:01:43 vsc Exp $	 *
 *************************************************************************/
 
 #include "config.h"
@@ -570,7 +570,8 @@ typedef enum {
   YAP_DEBUG_SIGNAL   = 0x1000,		/* received start debug */
   YAP_BREAK_SIGNAL   = 0x2000,		/* received break signal */
   YAP_STACK_DUMP_SIGNAL= 0x4000,	/* received stack dump signal */
-  YAP_STATISTICS_SIGNAL= 0x8000		/* received statistics */
+  YAP_STATISTICS_SIGNAL= 0x8000,		/* received statistics */
+  YAP_DELAY_CREEP_SIGNAL= 0x10000	/* received a creep but should not do it */
 } yap_signals;
 
 #define NUMBER_OF_YAP_FLAGS     INDEXING_MODE_FLAG+1

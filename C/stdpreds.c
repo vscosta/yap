@@ -11,8 +11,13 @@
 * File:		stdpreds.c						 *
 * comments:	General-purpose C implemented system predicates		 *
 *									 *
-* Last rev:     $Date: 2004-12-02 06:06:46 $,$Author: vsc $						 *
+* Last rev:     $Date: 2004-12-05 05:01:25 $,$Author: vsc $						 *
 * $Log: not supported by cvs2svn $
+* Revision 1.75  2004/12/02 06:06:46  vsc
+* fix threads so that they at least start
+* allow error handling to work with threads
+* replace heap_base by Yap_heap_base, according to Yap's convention for globals.
+*
 * Revision 1.74  2004/11/19 22:08:43  vsc
 * replace SYSTEM_ERROR by out OUT_OF_WHATEVER_ERROR whenever appropriate.
 *
@@ -939,7 +944,7 @@ p_name(void)
       char *nString;
       
       *H++ = t;
-      nString = ((AtomEntry *)Yap_ExpandPreAllocCodeSpace(0))->StrOfAE;
+      nString = ((AtomEntry *)Yap_ExpandPreAllocCodeSpace(0, NULL))->StrOfAE;
       t = *--H;
       s = nString+(s-String);
       String = nString;
@@ -1017,7 +1022,7 @@ p_atom_chars(void)
 	  char *nString;
 
 	  *H++ = t;
-	  nString = ((AtomEntry *)Yap_ExpandPreAllocCodeSpace(0))->StrOfAE;
+	  nString = ((AtomEntry *)Yap_ExpandPreAllocCodeSpace(0,NULL))->StrOfAE;
 	  t = *--H;
 	  s = nString+(s-String);
 	  String = nString;
@@ -1055,7 +1060,7 @@ p_atom_chars(void)
 	  char *nString;
 
 	  *H++ = t;
-	  nString = ((AtomEntry *)Yap_ExpandPreAllocCodeSpace(0))->StrOfAE;
+	  nString = ((AtomEntry *)Yap_ExpandPreAllocCodeSpace(0,NULL))->StrOfAE;
 	  t = *--H;
 	  s = nString+(s-String);
 	  String = nString;
@@ -1279,7 +1284,7 @@ p_atom_codes(void)
 	char *nString;
 
 	*H++ = t;
-	nString = ((AtomEntry *)Yap_ExpandPreAllocCodeSpace(0))->StrOfAE;
+	nString = ((AtomEntry *)Yap_ExpandPreAllocCodeSpace(0,NULL))->StrOfAE;
 	t = *--H;
 	s = nString+(s-String);
 	String = nString;
@@ -1477,7 +1482,7 @@ p_number_chars(void)
 	char *nString;
 
 	*H++ = t;
-	nString = Yap_ExpandPreAllocCodeSpace(0);
+	nString = Yap_ExpandPreAllocCodeSpace(0,NULL);
 	t = *--H;
 	s = nString+(s-String);
 	String = nString;
@@ -1515,7 +1520,7 @@ p_number_chars(void)
 	char *nString;
 
 	*H++ = t;
-	nString = Yap_ExpandPreAllocCodeSpace(0);
+	nString = Yap_ExpandPreAllocCodeSpace(0,NULL);
 	t = *--H;
 	s = nString+(s-String);
 	String = nString;
@@ -1670,7 +1675,7 @@ p_number_codes(void)
       char *nString;
 
       *H++ = t;
-      nString = Yap_ExpandPreAllocCodeSpace(0);
+      nString = Yap_ExpandPreAllocCodeSpace(0,NULL);
       t = *--H;
       s = nString+(s-String);
       String = nString;

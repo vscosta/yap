@@ -64,13 +64,14 @@ add_old_variables([_|LV], AllVs0, AllVs, Vs, IVs) :-
 	add_old_variables(LV, AllVs0, AllVs, Vs, IVs).
 
 find_all_clpbn_vars([], [], []) :- !.
-find_all_clpbn_vars([V|Vs], [var(V,I,Sz,Vals,_,_)|LV], [table(I,Table,Deps,Sizes)|Tables]) :-
-	var_with_deps(V, Table, Deps, Sizes, Vals), !,
+find_all_clpbn_vars([V|Vs], [var(V,I,Sz,Vals,Ev,_,_)|LV], [table(I,Table,Deps,Sizes)|Tables]) :-
+	var_with_deps(V, Table, Deps, Sizes, Ev, Vals), !,
 	get_dist_els(V,Sz),
 	find_all_clpbn_vars(Vs, LV, Tables).
 
-var_with_deps(V, Table, Deps, Sizes, Vals) :-
+var_with_deps(V, Table, Deps, Sizes, Ev, Vals) :-
 	clpbn:get_atts(V, [dist((D->Vals))]),
+	( clpbn:get_atts(V, [evidence(Ev)]) -> true ; true),
 	from_dist_get(D,Vals,OTable,VDeps),
 	reorder_table([V|VDeps],Sizes,OTable,Deps,Table).
 
@@ -243,7 +244,7 @@ add_table_deps([V|Deps], I, Deps0, Table, Sizes, DepGraph0, [V-tab(Table,Deps0,S
 	add_table_deps(Deps, I, Deps0, Table, Sizes, DepGraph0, DepGraph).
 
 add_table_deps_to_variables([], []).
-add_table_deps_to_variables([var(V,_,_,_,Deps,K)|LV], DepGraph) :-
+add_table_deps_to_variables([var(V,_,_,_,_,Deps,K)|LV], DepGraph) :-
 	steal_deps_for_variable(DepGraph, V, NDepGraph, Deps),
 	compute_size(Deps,[],K),
 	add_table_deps_to_variables(LV, NDepGraph).
@@ -280,14 +281,14 @@ process(LV0, _, Out) :-
 	multiply_tables(WorkTables, Out).
 
 find_best([], V, _, V, _, [], _).
-find_best([var(V,I,Sz,Vals,Deps,K)|LV], _, Threshold, VF, NWorktables, LVF, Inputs) :-
-	K < Threshold,
+find_best([var(V,I,Sz,Vals,Ev,Deps,K)|LV], _, Threshold, VF, NWorktables, LVF, Inputs) :-
+	( K < Threshold ; K = Threshold, nonvar(Ev)),
 	not_var_member(Inputs, V), !,
 	find_best(LV, V, K, VF, WorkTables,LV0, Inputs),
 	(V == VF ->
 	    LVF = LV0, Deps = NWorktables
 	;
-	    LVF = [var(V,I,Sz,Vals,Deps,K)|LV0], WorkTables = NWorktables
+	    LVF = [var(V,I,Sz,Vals,Ev,Deps,K)|LV0], WorkTables = NWorktables
 	).
 find_best([V|LV], V0, Threshold, VF, WorkTables, [V|LVF], Inputs) :-
 	find_best(LV, V0, Threshold, VF, WorkTables, LVF, Inputs).
@@ -311,7 +312,7 @@ generate_szs_with_evidence([_|Out],Ev,[not_ok|Evs]) :-
 
 
 fetch_tables([], []).
-fetch_tables([var(_,_,_,_,Deps,_)|LV0], Tables) :-
+fetch_tables([var(_,_,_,_,_,Deps,_)|LV0], Tables) :-
 	append(Deps,Tables0,Tables),
 	fetch_tables(LV0, Tables0).
 
@@ -414,10 +415,10 @@ project_inner_loop(I,Sz,[_|Evs],NBase,F,Table,Ent0,Ent) :- !,
 	
 	
 include([],_,_,[]).
-include([var(V,P,VSz,D,Tabs,Est)|LV],tab(T,Vs,Sz),V1,[var(V,P,VSz,D,Tabs,Est)|NLV]) :-
+include([var(V,P,VSz,D,Ev,Tabs,Est)|LV],tab(T,Vs,Sz),V1,[var(V,P,VSz,D,Ev,Tabs,Est)|NLV]) :-
 	not_var_member(Vs,V), !,
 	include(LV,tab(T,Vs,Sz),V1,NLV).
-include([var(V,P,VSz,D,Tabs,_)|LV],Table,NV,[var(V,P,VSz,D,NTabs,NEst)|NLV]) :-
+include([var(V,P,VSz,D,Ev,Tabs,_)|LV],Table,NV,[var(V,P,VSz,D,Ev,NTabs,NEst)|NLV]) :-
 	update_tables(Tabs,NTabs,Table,NV,[],NEst),
 	include(LV,Table,NV,NLV).
 

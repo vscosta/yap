@@ -10,7 +10,7 @@
 * File:		Heap.h         						 *
 * mods:									 *
 * comments:	Heap Init Structure					 *
-* version:      $Id: Heap.h,v 1.73 2004-12-02 06:06:47 vsc Exp $	 *
+* version:      $Id: Heap.h,v 1.74 2004-12-05 05:01:43 vsc Exp $	 *
 *************************************************************************/
 
 /* information that can be stored in Code Space */
@@ -50,7 +50,6 @@ typedef struct worker_local_struct {
   struct pred_entry *wpp;
 #endif
   UInt   active_signals;
-  UInt   delayed_trace;
   UInt   i_pred_arity;
   yamop *prof_end;
   Int    start_line;
@@ -187,6 +186,8 @@ typedef struct various_codes {
   struct pred_entry  *spy_code;
   int   system_profiling;
   int   system_call_counting;
+  int   system_pred_goal_expansion_all;
+  int   system_pred_goal_expansion_func;
   int   system_pred_goal_expansion_on;
   int   compiler_optimizer_on;
   int   compiler_compile_mode;
@@ -470,6 +471,8 @@ struct various_codes *Yap_heap_regs;
 #endif
 #define  PROFILING                Yap_heap_regs->system_profiling
 #define  CALL_COUNTING            Yap_heap_regs->system_call_counting
+#define  PRED_GOAL_EXPANSION_ALL  Yap_heap_regs->system_pred_goal_expansion_all
+#define  PRED_GOAL_EXPANSION_FUNC Yap_heap_regs->system_pred_goal_expansion_func
 #define  PRED_GOAL_EXPANSION_ON   Yap_heap_regs->system_pred_goal_expansion_on
 #define  UPDATE_MODE              Yap_heap_regs->update_mode
 #define  RETRY_C_RECORDED_CODE    Yap_heap_regs->retry_recorded_code
@@ -671,7 +674,6 @@ struct various_codes *Yap_heap_regs;
 #define  WPP                      Yap_heap_regs->wl[worker_id].wpp
 #define  UncaughtThrow            Yap_heap_regs->wl[worker_id].uncaught_throw
 #define  ActiveSignals            Yap_heap_regs->wl[worker_id].active_signals
-#define  DelayedTrace	          Yap_heap_regs->wl[worker_id].delayed_trace
 #define  IPredArity               Yap_heap_regs->wl[worker_id].i_pred_arity
 #define  ProfEnd                  Yap_heap_regs->wl[worker_id].prof_end
 #define  StartLine                Yap_heap_regs->wl[worker_id].start_line
@@ -689,7 +691,6 @@ struct various_codes *Yap_heap_regs;
 #define  TrustLUCode              Yap_heap_regs->wl[worker_id].trust_lu_code
 #else
 #define  ActiveSignals            Yap_heap_regs->wl.active_signals
-#define  DelayedTrace	          Yap_heap_regs->wl.delayed_trace
 #define  IPredArity               Yap_heap_regs->wl.i_pred_arity
 #define  ProfEnd                  Yap_heap_regs->wl.prof_end
 #define  UncaughtThrow            Yap_heap_regs->wl.uncaught_throw
@@ -766,7 +767,7 @@ struct various_codes *Yap_heap_regs;
 #define  ReadlinePos              Yap_heap_regs->readline_pos
 #endif
 
-ADDR    STD_PROTO(Yap_ExpandPreAllocCodeSpace, (UInt));
+ADDR    STD_PROTO(Yap_ExpandPreAllocCodeSpace, (UInt, void *));
 #define Yap_ReleasePreAllocCodeSpace(x)
 #if USE_SYSTEM_MALLOC||USE_DL_MALLOC
 ADDR    STD_PROTO(Yap_InitPreAllocCodeSpace, (void));

@@ -130,13 +130,12 @@ do_execute(Term t, Term mod)
 {
   /* first do predicate expansion, even before you process signals.
      This way you don't get to spy goal_expansion(). */
-  if (PRED_GOAL_EXPANSION_ON) {
+  if (PRED_GOAL_EXPANSION_ALL) {
     LOCK(SignalLock);
     /* disable creeping when we do goal expansion */
     if (ActiveSignals & YAP_CREEP_SIGNAL) {
       ActiveSignals &= ~YAP_CREEP_SIGNAL;
       CreepFlag = CalculateStackGap();
-      DelayedTrace = TRUE;
     }
     UNLOCK(SignalLock);
     return CallMetaCall(mod);
@@ -161,7 +160,7 @@ do_execute(Term t, Term mod)
     pen = RepPredProp(PredPropByFunc(f, mod));
     /* You thought we would be over by now */
     /* but no meta calls require special preprocessing */
-    if (pen->PredFlags & MetaPredFlag) {
+    if (pen->PredFlags & (GoalExPredFlag|MetaPredFlag)) {
       if (f == FunctorModule) {
 	Term tmod = ArgOfTerm(1,t);
 	if (!IsVarTerm(tmod) && IsAtomTerm(tmod)) {
@@ -256,11 +255,7 @@ p_execute0(void)
   unsigned int    arity;
   Prop            pe;
 
-  if (ActiveSignals || DelayedTrace) {
-    if (DelayedTrace) {
-      DelayedTrace = FALSE;
-      ActiveSignals |= YAP_CREEP_SIGNAL;
-    }
+  if (ActiveSignals) {
     return EnterCreepMode(t, mod);
   }
  restart_exec:
@@ -1537,7 +1532,6 @@ Yap_InitYaamRegs(void)
   WPP = NULL;
   PREG_ADDR = NULL;
 #endif
-  DelayedTrace = FALSE;
 }
 
 static Int

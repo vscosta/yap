@@ -2166,6 +2166,11 @@ p_first_signal(void)
     UNLOCK(SignalLock);
     return Yap_unify(ARG1, MkAtomTerm(Yap_LookupAtom("sig_alarm")));
   }
+  if (ActiveSignals & YAP_DELAY_CREEP_SIGNAL) {
+    ActiveSignals &= ~(YAP_CREEP_SIGNAL|YAP_DELAY_CREEP_SIGNAL);
+    UNLOCK(SignalLock);
+    return Yap_unify(ARG1, MkAtomTerm(Yap_LookupAtom("sig_delay_creep")));
+  }
   if (ActiveSignals & YAP_CREEP_SIGNAL) {
     ActiveSignals &= ~YAP_CREEP_SIGNAL;
     UNLOCK(SignalLock);
@@ -2224,6 +2229,9 @@ p_continue_signals(void)
   }
   if (ActiveSignals & YAP_CREEP_SIGNAL) {
     Yap_signal(YAP_CREEP_SIGNAL);
+  }
+  if (ActiveSignals & YAP_DELAY_CREEP_SIGNAL) {
+    Yap_signal(YAP_DELAY_CREEP_SIGNAL|YAP_CREEP_SIGNAL);
   }
   if (ActiveSignals & YAP_TRACE_SIGNAL) {
     Yap_signal(YAP_TRACE_SIGNAL);

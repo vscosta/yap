@@ -644,13 +644,6 @@ not(G) :-    \+ '$execute'(G).
 '$meta_call'(G, CP, G0, M) :-
 	'$call'(G, CP, G0, M).
 
-'$spied_meta_call'(G, M) :-
-	'$save_current_choice_point'(CP),
-	'$spied_call'(G, CP, G, M).
-
-'$spied_meta_call'(G, CP, G0, M) :-
-	'$spied_call'(G, CP, G0, M).
-
 '$call'(G, CP, G0, _, M) :-  /* iso version */
 	'$iso_check_goal'(G,G0),
 	'$call'(G, CP, G0, M).
@@ -705,89 +698,26 @@ not(G) :-    \+ '$execute'(G).
 	'$$cut_by'(CP).
 '$call'([A|B], _, _, M) :- !,
 	'$csult'([A|B], M).
-'$call'(A, _, _,CurMod) :-
-	(
-	  % goal_expansion is defined, or
-	'$pred_goal_expansion_on' ->
-	  '$expand_call'(A,CurMod)
-        % this is a meta-predicate
-        ; '$flags'(A,CurMod,F,_), F /\ 0x200000 =:= 0x200000 ->
-	  '$expand_call'(A, CurMod)
+'$call'(G, CP, G0, CurMod) :-
+	( '$is_expand_goal_or_meta_predicate'(G,CurMod) ->
+	   (
+	     user:goal_expansion(G, CurMod, NG) ->
+	       '$call'(NG, CP, G0,CurMod)
+	     ;
+	       % repeat other code.
+             '$is_metapredicate'(G,CurMod) ->
+	       (
+	         '$meta_expansion'(CurMod,CurMod,G,NG,[]) ->
+	         '$execute0'(NG, CurMod)
+	       ;
+	         '$execute0'(G, CurMod)
+	       )
+	   ;
+	     '$execute0'(G, CurMod)
+	   )
 	;
-	  '$execute0'(A, CurMod)
+	  '$execute0'(G, CurMod)
 	).
-
-'$expand_call'(A,CurMod) :-
-	'$expand_goal'(A, CurMod, CurMod, NG, NMod),
-	'$execute0'(NG, NMod).
-
-'$spied_call'((A,B),CP,G0,M) :- !,
-	'$call'(A,CP,G0,M),
-	'$call'(B,CP,G0,M).
-'$spied_call'((X->Y),CP,G0,M) :- !,
-	(
-	    '$call'(X,CP,G0,M)
-          ->
-	    '$call'(Y,CP,G0,M)
-	).
-'$spied_call'((X->Y; Z),CP,G0,M) :- !,
-	(
-	    '$call'(X,CP,G0,M)
-         ->
-	    '$call'(Y,CP,G0,M)
-        ;
-	    '$call'(Z,CP,G0,M)
-	).
-'$spied_call'((A;B),CP,G0,M) :- !,
-	(
-	    '$call'(A,CP,G0,M)
-        ;
-	    '$call'(B,CP,G0,M)
-	).
-'$spied_call'((A|B),CP,G0,M) :- !,
-	(
-	    '$call'(A,CP,G0,M)
-        ;
-	    '$call'(B,CP,G0,M)
-	).
-'$spied_call'(\+ X,_,_,M) :- !,
-	\+ '$execute'(M:X).
-'$spied_call'(not X,_,_,M) :- !,
-	\+ '$execute'(M:X).
-'$spied_call'(!,CP,_,_) :-
-	'$$cut_by'(CP).
-'$spied_call'([A|B],_,_,M) :- !,
-	'$csult'([A|B], M).
-'$spied_call'(A, CP, G0, CurMod) :-
-	(
-	  % goal_expansion is defined, or
-	  '$pred_goal_expansion_on'
-	 ->
-	  '$finish_spied_call'(A,CurMod)
-        ;
-          % this is a meta-predicate
-	  '$flags'(A,CurMod,F,_), F /\ 0x200000 =:= 0x200000
-	 ->
-	  '$finish_spied_call'(A,CurMod)
-	;
-	  % finish_it_off (careful with co-routining)
-	  '$std_spied_call'(A, CP, G0, CurMod)
-	).
-
-'$finish_spied_call'(A,CurMod) :-
-	'$expand_goal'(A, CurMod, CurMod, NG, NMod),
-	'$execute0'(NG, NMod).
-
-'$std_spied_call'(A, CP, G0, M) :-
-	( '$undefined'(A, M) ->
-		functor(A,F,N),
-		( recorded('$import','$import'(S,M,F,N),_) ->
-		  '$spied_call'(S:A,CP,G0,M) ;
-		  '$spy'(A)
-	        )
-	    ;
-	       '$spy'(A)
-	 ).
 
 '$check_callable'(V,G) :- var(V), !,
 	'$current_module'(Mod),
@@ -806,8 +736,11 @@ not(G) :-    \+ '$execute'(G).
 	recorded('$import','$import'(S,M,F,N),_),
 	S \= M, % can't try importing from the module itself.
 	!,
-	'$expand_goal'(G, S, M, NG, NMod),
-	'$execute0'(NG, NMod).
+	'$execute'(S:G).
+'$undefp'([M|G]) :-
+	'$is_expand_goal_or_meta_predicate'(G,M),
+	user:goal_expansion(G, M, NG), !,
+	'$execute0'(NG,M).
 '$undefp'([M|G]) :-
 	\+ '$undefined'(unknown_predicate_handler(_,_,_), user),
 	user:unknown_predicate_handler(G,M,NG), !,

@@ -104,7 +104,7 @@ DumpActiveGoals (void)
 	READ_UNLOCK(pe->PRWLock);
 	break;
       }
-      if (pe->PredFlags & (CompiledPredFlag | DynamicPredFlag | FastPredFlag))
+      if (pe->PredFlags & (CompiledPredFlag | DynamicPredFlag))
 	{
 	  Functor f;
 	  Term mod = TermProlog;

@@ -51,84 +51,6 @@ extract_dist(p(Domain, Tab, []), Tab, Domain) :- !.
 extract_dist(p(Domain, Tab, Inps), (Tab.Inps), Domain).
 extract_dist(p(Domain, Tab), Tab, Domain).
 	
-key_entry(Key, I) :-
-	hash_table_size(Size),
-	term_hash(Key, -1, Size, Hash),
-	collision(Hash, Size, I),
-	( array_element(keys, I, El) ->
-	    update_array(keys, I, Key)
-	;
-	    El = Key),
- 	!.
-
-% go from beginning
-collision(Size, Size, I) :- !,
-	collision(0, Size, I).
-collision(Hash, _, Hash).
-collision(Hash, Size, I) :-
-	Hash1 is Hash+1,
-	collision(Hash1, Size, I).
-
-%
-% just fetch skolems so that we can process them carefully.
-%
-fetch_skolems(A, A) --> { var(A) }, !. %meta-calls
-fetch_skolems((A,B), (NA,NB)) --> !,
-	fetch_skolems(A, NA),
-	fetch_skolems(B, NB).
-% do not allow disjunctive clauses, at least for now.
-fetch_skolems((A;B), (A;B)) --> !.
-fetch_skolems((A|B), (A|B)) --> !.
-fetch_skolems((A->B), (NA->NB)) --> !,
-	fetch_skolems(A, NA),
-	fetch_skolems(B, NB).
-fetch_skolems(M:A, M:NA) --> !,
-	fetch_skolems(A, NA).
-fetch_skolems(X = { Constraints }, true)  --> !,
-	[ [X|Constraints] ].
-fetch_skolems(G, G) --> [].
-
-%
-% just fetch skolems so that we can process them carefully.
-%
-handle_body_goals((A,B), (NA,NB)) :- !,
-	handle_body_goals(A, NA),
-	handle_body_goals(B, NB).
-% do not allow disjunctive clauses, at least for now.
-handle_body_goals((A;B), (A;B)) :- !.
-handle_body_goals((A|B), (A|B)) :- !.
-handle_body_goals((A->B), (NA->NB)) :- !,
-	handle_body_goals(A, NA),
-	handle_body_goals(B, NB).
-handle_body_goals(M:A, M:NA) :- !,
-	handle_body_goals(A, NA).
-handle_body_goals(findall(V,G,L), (findall(V,G,L), aggs:fix_vars(L))) :- !.
-handle_body_goals(setof(V,G,L), (setof(V,G,L),aggs:fix_vars(L))) :- !.
-handle_body_goals(bagof(V,G,L), (bagof(V,G,L),aggs:fix_vars(L))) :- !.
-handle_body_goals(G, G).
-
-
-compile_skolems([[X|Constraints]], Vars, NVars, A, Code) :- !,
-	compile_skolem(X, Vars, NVars, A, Code, Constraints).
-compile_skolems([[X|Constraints]|Cs], Vars, NVars, A, (Code, RCode)) :-
-	compile_skolem(X, Vars, NVars, A, Code, Constraints),
-	compile_skolems(Cs, Vars, NVars, A, RCode).
-
-compile_skolem(EVar, Vars, NVars, Head, Code, Constraints) :-
-	compile_constraints(Constraints, Vars, NVars, Head, Code, EVar).
-
-compile_constraints((A : B), Vars, NVars, Head, (CA , CB), EVar) :- !,
-	compile_first_constraint(A, Head, CA, EVar),
-	compile_second_constraint(B, Vars, NVars, CB, EVar).
-
-compile_first_constraint(SkKey, Head, (KeyGoal, /* cycle(Key,EVar), */ array_element(clpbn, Id, EVar), clpbn:put_atts(EVar,[key(KeyDesc),indx(Id)])), EVar) :-
-	functor(SkKey, Name, _),!,
-	SkKey =..  [_|Key],
-	generate_key_goal(Head, Name, Key, KeyGoal, KeyDesc, Id).
-
-compile_second_constraint(Constraint, Vars, NVars, clpbn:put_atts(EVar,[dist(NC)]), EVar) :-
-	check_constraint(Constraint, Vars, NVars, NC).
-
 check_constraint(Constraint, _, _, Constraint) :- var(Constraint), !.
 check_constraint((A->D), _, _, (A->D)) :- var(A), !.
 check_constraint((([A|B].L)->D), Vars, NVars, (([A|B].NL)->D)) :- !,
@@ -308,9 +230,17 @@ verify_attributes(Var, T, Goals) :-
 verify_attributes(_, _, []).
 
 
-bind_clpbn(T, _, Key, Dist) :- var(T),
+bind_clpbn(T, Var, Key, Dist) :- var(T),
 	get_atts(T, [key(Key1),dist(Dist1)]), !,
-	bind_clpbns(Key, Dist, Key1, Dist1).
+	bind_clpbns(Key, Dist, Key1, Dist1),
+	(
+	  get_atts(T, [evidence(Ev1)]) ->
+	    bind_evidence_from_extra_var(Ev1,Var)
+	;
+	  get_atts(Var, [evidence(Ev)]) ->
+	    bind_evidence_from_extra_var(Ev,T)
+	;
+	  true).
 bind_clpbn(_, Var, _, _) :-
 	use(bnt),
 	check_if_bnt_done(Var), !.
@@ -333,6 +263,12 @@ bind_clpbns(Key, Dist, Key, Dist1) :- !,
 	( Dist = Dist1 -> true ; throw(error(domain_error(bayesian_domain),bind_clpbns))).
 bind_clpbns(_, _, _, _, _) :-
 	format(user_error, "unification of two bayesian vars not supported~n").
+
+bind_evidence_from_extra_var(Ev1,Var) :-
+	get_atts(Var, [evidence(Ev0)]),!,Ev0 = Ev1.
+bind_evidence_from_extra_var(Ev1,Var) :-
+	put_atts(Var, [evidence(Ev1)]).
+	
 
 :- yap_flag(toplevel_hook,clpbn:init_clpbn).
 

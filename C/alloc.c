@@ -12,7 +12,7 @@
 * Last rev:								 *
 * mods:									 *
 * comments:	allocating space					 *
-* version:$Id: alloc.c,v 1.67 2004-12-02 06:06:45 vsc Exp $		 *
+* version:$Id: alloc.c,v 1.68 2004-12-05 05:01:22 vsc Exp $		 *
 *************************************************************************/
 #ifdef SCCS
 static char SccsId[] = "%W% %G%";
@@ -111,7 +111,7 @@ Yap_InitPreAllocCodeSpace(void)
 }
 
 ADDR
-Yap_ExpandPreAllocCodeSpace(UInt sz0)
+Yap_ExpandPreAllocCodeSpace(UInt sz0, void *cip)
 {
   char *ptr;
   UInt sz = ScratchPad.msz;
@@ -123,7 +123,7 @@ Yap_ExpandPreAllocCodeSpace(UInt sz0)
 
   while (!(ptr = realloc(ScratchPad.ptr, sz))) {
 #if USE_DL_MALLOC
-    if (!Yap_growheap(FALSE, sz, NULL)) {
+    if (!Yap_growheap((cip!=NULL), sz, cip)) {
       return NULL;
     }
 #else
@@ -572,9 +572,9 @@ Yap_AllocCodeSpace(unsigned int size)
 }
 
 ADDR
-Yap_ExpandPreAllocCodeSpace(UInt sz)
+Yap_ExpandPreAllocCodeSpace(UInt sz, void *cip)
 {
-  if (!Yap_growheap(FALSE, sz, NULL)) {
+  if (!Yap_growheap((cip!=NULL), sz, cip)) {
     Yap_Error(OUT_OF_HEAP_ERROR, TermNil, Yap_ErrorMessage);
     return NULL;
   }

@@ -10,8 +10,11 @@
 *									 *
 * File:		absmi.c							 *
 * comments:	Portable abstract machine interpreter                    *
-* Last rev:     $Date: 2004-11-19 22:08:35 $,$Author: vsc $						 *
+* Last rev:     $Date: 2004-12-05 05:01:21 $,$Author: vsc $						 *
 * $Log: not supported by cvs2svn $
+* Revision 1.153  2004/11/19 22:08:35  vsc
+* replace SYSTEM_ERROR by out OUT_OF_WHATEVER_ERROR whenever appropriate.
+*
 * Revision 1.152  2004/11/19 17:14:12  vsc
 * a few fixes for 64 bit compiling.
 *
@@ -2391,7 +2394,7 @@ Yap_absmi(int inp)
 
     NoStackCall:
       /* on X86 machines S will not actually be holding the pointer to pred */
-      if (ActiveSignals == YAP_CREEP_SIGNAL) {
+      if (ActiveSignals & YAP_CREEP_SIGNAL) {
 	PredEntry *ap = PREG->u.sla.sla_u.p;
 	if (ap->PredFlags & HiddenPredFlag) {
 	  CACHE_Y_AS_ENV(YREG);
@@ -2458,7 +2461,7 @@ Yap_absmi(int inp)
 	 so I don't need to redo it.
        */ 
     NoStackDeallocate:
-      if (ActiveSignals == YAP_CREEP_SIGNAL) {
+      if (ActiveSignals & YAP_CREEP_SIGNAL) {
 	GONext();
       }
       ASP = YREG;
@@ -2494,7 +2497,7 @@ Yap_absmi(int inp)
       if (!ActiveSignals || ActiveSignals & YAP_CDOVF_SIGNAL) {
 	goto do_commit_b_y;
       }
-      if (ActiveSignals != YAP_CREEP_SIGNAL) {
+      if (!(ActiveSignals & YAP_CREEP_SIGNAL)) {
 	SREG = (CELL *)RepPredProp(Yap_GetPredPropByFunc(Yap_MkFunctor(AtomRestoreRegs,2),0));
 	XREGS[0] = YREG[PREG->u.y.y];
 	PREG = NEXTOP(PREG,y);
@@ -2509,7 +2512,7 @@ Yap_absmi(int inp)
       if (!ActiveSignals || ActiveSignals & YAP_CDOVF_SIGNAL) {
 	goto do_commit_b_x;
       }
-      if (ActiveSignals != YAP_CREEP_SIGNAL) {
+      if (!(ActiveSignals & YAP_CREEP_SIGNAL)) {
 	SREG = (CELL *)RepPredProp(Yap_GetPredPropByFunc(Yap_MkFunctor(AtomRestoreRegs,2),0));
 #if USE_THREADED_CODE
 	if (PREG->opc == (OPCODE)OpAddress[_fcall])
@@ -2535,7 +2538,7 @@ Yap_absmi(int inp)
 
       /* don't forget I cannot creep at ; */
     NoStackEither:
-      if (ActiveSignals == YAP_CREEP_SIGNAL) {
+      if (ActiveSignals & YAP_CREEP_SIGNAL) {
 	goto either_notest;
       }
       /* find something to fool S */
@@ -2611,7 +2614,7 @@ Yap_absmi(int inp)
       goto creep;
 
     NoStackDExecute:
-      if (ActiveSignals == YAP_CREEP_SIGNAL) {
+      if (ActiveSignals & YAP_CREEP_SIGNAL) {
 	PredEntry *ap = PREG->u.p.p;
 
 	if (ap->PredFlags & HiddenPredFlag) {
@@ -12237,7 +12240,7 @@ Yap_absmi(int inp)
 	    goto execute_metacall;
 	  }
 	  pen = RepPredProp(PredPropByFunc(f, mod));
-	  if (pen->PredFlags & MetaPredFlag) {
+	  if (pen->PredFlags & (MetaPredFlag|GoalExPredFlag)) {
 	    if (f == FunctorModule) {
 	      Term tmod = ArgOfTerm(1,d0);
 	      if (!IsVarTerm(tmod) && IsAtomTerm(tmod)) {
@@ -12289,7 +12292,7 @@ Yap_absmi(int inp)
 		goto execute_metacall;
 	    }
 	  }
-	  if (PRED_GOAL_EXPANSION_ON) {
+	  if (PRED_GOAL_EXPANSION_ALL) {
 	    goto execute_metacall;
 	  }
 
@@ -12313,7 +12316,7 @@ Yap_absmi(int inp)
 	  ENDP(pt1);
 	  CACHE_A1();
 	} else if (IsAtomTerm(d0)) {
-	  if (PRED_GOAL_EXPANSION_ON) {
+	  if (PRED_GOAL_EXPANSION_ALL) {
 	    goto execute_metacall;
 	  } else {
 	    pen = RepPredProp(PredPropByAtom(AtomOfTerm(d0), mod));
@@ -12424,7 +12427,7 @@ Yap_absmi(int inp)
 	}
 #endif /* FROZEN_STACKS */
 	arity = pen->ArityOfPE;
-	if (pen->PredFlags & MetaPredFlag) {
+	if (pen->PredFlags & (MetaPredFlag|GoalExPredFlag)) {
 	  mod = pt0[-EnvSizeInCells-3];
 	  if (pen->FunctorOfPred == FunctorComma) {
 	    SREG = RepAppl(d0);
@@ -12502,7 +12505,7 @@ Yap_absmi(int inp)
 		goto execute_comma_comma2;
 	      } else {
 		pen = RepPredProp(PredPropByFunc(f,mod));
-		if (pen->PredFlags & MetaPredFlag) {
+		if (pen->PredFlags & (MetaPredFlag|GoalExPredFlag)) {
 		  goto execute_metacall_after_comma;
 		}
 		arity = pen->ArityOfPE;

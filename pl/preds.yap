@@ -691,7 +691,7 @@ dynamic(X) :-
 	( F/\ 0x19D1FA80 =:= 0, '$undefined'(T,Mod) -> NF is F \/ 0x00002000, '$flags'(T, Mod, F, NF);
 	    F /\ 0x00002000 =:= 0x00002000 -> true;                     % dynamic
 	    F /\ 0x08000000 =:= 0x08000000 -> true ;      % LU
-	    F /\ 0x00000400 =:= 0x00000400, '$undefined'(T,Mod) -> F1 is F /\ \(0x400), N1F is F1 \/ 0x00002000, NF is N1F /\ \(0x00420000), '$flags'(T,Mod,F,NF);
+	    F /\ 0x00000400 =:= 0x00000400, '$undefined'(T,Mod) -> F1 is F /\ \(0x400), N1F is F1 \/ 0x00002000, NF is N1F /\ \(0x00400000), '$flags'(T,Mod,F,NF);
 	    '$do_error'(permission_error(modify,static_procedure,A/N),dynamic(Mod:A/N))
 	).
 '$dynamic2'(X,Mod) :- 
@@ -704,7 +704,7 @@ dynamic(X) :-
 	    F/\ 0x19D1FA80 =:= 0, '$undefined'(T,Mod) -> NF is F \/ 0x08000400, '$flags'(T,Mod,F,NF);
 	    F /\ 0x08000000 =:= 0x08000000 -> true ;      % LU
 	    F /\ 0x00002000 =:= 0x00002000 -> true;      % dynamic
-	    F /\ 0x00000400 =:= 0x00000400 , '$undefined'(T,Mod) -> N1F is F \/ 0x08000000, NF is N1F /\ \(0x00420000), '$flags'(T,Mod,F,NF);
+	    F /\ 0x00000400 =:= 0x00000400 , '$undefined'(T,Mod) -> N1F is F \/ 0x08000000, NF is N1F /\ \(0x00400000), '$flags'(T,Mod,F,NF);
 	    '$do_error'(permission_error(modify,static_procedure,A/N),dynamic(Mod:A/N))
 	).
 '$logical_updatable'(X,Mod) :- 

@@ -590,3 +590,4 @@ get_arg(C1, Arg0, Arg, C) :-
 	ttyget0(C2),
 	get_arg(C2, Arg1, Arg, C).
 get_arg(C1, Arg, Arg, C1).
+
