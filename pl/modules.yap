@@ -317,18 +317,23 @@ module(N) :-
 % calling the meta-call expansion facility and expand_goal from
 % a meta-call.
 %
-'$exec_with_expansion'(G0, GoalMod, CurMod) :-
+'$expand_goal'(G0, GoalMod, CurMod, G, NM) :-
 	'$meta_expansion'(GoalMod, CurMod, G0, GF, []), !,
-	'$exec_with_expansion2'(GF,GoalMod).
-'$exec_with_expansion'(G, GoalMod, _) :-
-	'$exec_with_expansion2'(G,GoalMod).
+	'$expand_goal2'(GF,GoalMod,G,NM).
+'$expand_goal'(G, GoalMod, _, NG, NM) :-
+	'$expand_goal2'(G, GoalMod, NG, NM).
 
-'$exec_with_expansion2'(G, M) :-
+'$expand_goal2'(G, M, NG, NM) :-
+	'$undefined'(G,M),
+	functor(G,F,N),
+	'$recorded'('$import','$import'(ExportingMod,M,F,N),_),
+	ExportingMod \= M,
+	!,
+	'$expand_goal2'(G, ExportingMod, NG, NM).
+'$expand_goal2'(G, M, GF, M) :-
 	'$pred_goal_expansion_on',
-	user:goal_expansion(G,M,GF), !,
-	'$execute'(M:GF).
-'$exec_with_expansion2'(G, M) :- !,
-	'$execute0'(G, M).
+	user:goal_expansion(G,M,GF), !.
+'$expand_goal2'(G, M, G, M). 
 	
 		
 % expand module names in a body

@@ -750,7 +750,8 @@ not(A) :-
           % this is a meta-predicate
 	  '$flags'(A,CurMod,F,_), F /\ 0x200000 =:= 0x200000
 	), !,
-	'$exec_with_expansion'(A, CurMod, CurMod).
+	'$expand_goal'(A, CurMod, CurMod, NG, NMod),
+	'$execute0'(NG, NMod).
 '$call'(A, _, _, M) :-
 	'$execute0'(A, M).
 
@@ -799,7 +800,8 @@ not(A) :-
           % this is a meta-predicate
 	  '$flags'(A,CurMod,F,_), F /\ 0x200000 =:= 0x200000
 	), !,
-	'$exec_with_expansion'(A, CurMod, CurMod).
+	'$expand_goal'(A, CurMod, CurMod, NG, NMod),
+	'$execute0'(NG, NMod).
 '$spied_call'(A, CP, G0, M) :-
 	( '$undefined'(A, M) ->
 		functor(A,F,N),
@@ -828,7 +830,8 @@ not(A) :-
 	'$recorded'('$import','$import'(S,M,F,N),_),
 	S \= M, % can't try importing from the module itself.
 	!,
-	'$exec_with_expansion'(G, S, M).
+	'$expand_goal'(G, S, M, NG, NMod),
+	'$execute0'(NG, NMod).
 '$undefp'([M|G]) :-
 	\+ '$undefined'(unknown_predicate_handler(_,_,_), user),
 	user:unknown_predicate_handler(G,M,NG), !,

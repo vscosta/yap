@@ -190,10 +190,11 @@ p_save_cp(void)
   return(TRUE);
 }
 
-inline static Int
+static Int
 EnterCreepMode(SMALLUNSGN mod) {
   PredEntry *PredSpy = RepPredProp(PredPropByFunc(FunctorSpy,0));
-  ARG1 = MkPairTerm(ModuleName[mod],ARG1);
+  Term tn = MkApplTerm(MkFunctor(AtomMetaCall,1),1,&ARG1);
+  ARG1 = MkPairTerm(ModuleName[mod],tn);
   CreepFlag = CalculateStackGap();
   P_before_spy = P;
   return (CallPredicate(PredSpy, B));
@@ -1189,6 +1190,7 @@ p_restore_regs(void)
 static Int
 p_restore_regs2(void)
 {
+
   Term t = Deref(ARG1), d0;
   choiceptr pt0;
   if (IsVarTerm(t)) {

@@ -249,6 +249,10 @@ debugging :-
 	'$wake_up_goal'(G, LG).
 '$spy'([_|Mod:G]) :- !,
 	'$spy'([Mod|G]).
+'$spy'([Module|'$call'(G)]) :- !,
+	'fetch_goal_module'(G, Module, G1, Mod),
+        '$expand_goal'(G1, Mod, Module, NG, NM),
+	'$do_spy'(NG, NM).
 '$spy'([Module|G]) :-
 %    '$format'(user_error,"$spym(~w,~w)~n",[Module,G]),
          '$hidden'(G),
@@ -259,7 +263,12 @@ debugging :-
 '$spy'([Mod|G]) :-
 	'$do_spy'(G,Mod).
 
-
+'fetch_goal_module'(V, M, V, M) :- var(V), !.
+'fetch_goal_module'(M:G, _, NG, Mod) :- !,
+	 'fetch_goal_module'(G, M, NG, Mod).
+'fetch_goal_module'(G, M, G, M).
+ 
+ 
 '$direct_spy'(G) :-
 	'$awoken_goals'(LG), !,
 	'$creep',
