@@ -2066,9 +2066,6 @@ p_same_file(void) {
     /* file does not exist, but was opened? Return -1 */
     return(FALSE);
   }
-  if (strcmp(f1,f2) == 0) {
-    printf("Here I go with %s and %s\n", f1, f2);
-  }
   return(buf1.st_ino == buf2.st_ino &&
 	 buf1.st_dev == buf2.st_dev);
 #else
