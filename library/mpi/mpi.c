@@ -9,14 +9,14 @@
 **************************************************************************
 *									 *
 * File:		mpi.c  							 *
-* Last rev:	$Date: 2002-11-18 18:16:51 $				 *
+* Last rev:	$Date: 2002-11-21 15:54:38 $				 *
 * mods:									 *
 * comments:	Interface to an MPI library                              *
 *									 *
 *************************************************************************/
 
 #ifndef lint
-static char *rcsid = "$Header: /Users/vitor/Yap/yap-cvsbackup/library/mpi/mpi.c,v 1.16 2002-11-18 18:16:51 vsc Exp $";
+static char *rcsid = "$Header: /Users/vitor/Yap/yap-cvsbackup/library/mpi/mpi.c,v 1.17 2002-11-21 15:54:38 stasinos Exp $";
 #endif
 
 #include "Yap.h"
@@ -315,7 +315,7 @@ p_mpi_send()             /* mpi_send(+data, +destination, +tag) */
 
   bufptr = 0;
   /* Turn the term into its ASCII representation */
-  Yap_plwrite( t_data, mpi_putc, 5 );
+  Yap_plwrite( t_data, mpi_putc, Quote_illegal_f|Handle_vars_f );
   bufstrlen = (size_t)bufptr;
 
   /* The buf is not NULL-terminated and does not have the
@@ -457,7 +457,7 @@ p_mpi_receive()          /* mpi_receive(-data, ?orig, ?tag) */
   /* check up on mpi_parse():
      convert the newly-parsed term back to text and print */
   bufptr = 0;
-  Yap_plwrite( t_data, mpi_putc, 5 );
+  Yap_plwrite( t_data, mpi_putc, Quote_illegal_f|Handle_vars_f );
   mpi_putc( 0, '.' );
   mpi_putc( 0, ' ' );
   buf[bufptr] = 0;
@@ -498,7 +498,7 @@ p_mpi_bcast3()           /* mpi_bcast( ?data, +root, +max_size ) */
     }
     bufptr = 0;
     /* Turn the term into its ASCII representation */
-    Yap_plwrite( t_data, mpi_putc, 5 );
+    Yap_plwrite( t_data, mpi_putc, Quote_illegal_f|Handle_vars_f );
     /* NULL-terminate the string and add the ". " termination
        required by the parser. */
     buf[bufptr] = 0;
@@ -585,7 +585,7 @@ p_mpi_bcast2()           /* mpi_bcast( ?data, +root ) */
     }
     bufptr = 0;
     /* Turn the term into its ASCII representation */
-    Yap_plwrite( t_data, mpi_putc, 5 );
+    Yap_plwrite( t_data, mpi_putc, Quote_illegal_f|Handle_vars_f );
     /* NULL-terminate the string and add the ". " termination
        required by the parser. */
     buf[bufptr] = 0;
