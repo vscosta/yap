@@ -9,14 +9,14 @@
 **************************************************************************
 *									 *
 * File:		mpi.c  							 *
-* Last rev:	$Date: 2002-10-03 17:28:37 $				 *
+* Last rev:	$Date: 2002-10-03 17:32:40 $				 *
 * mods:									 *
 * comments:	Interface to an MPI library                              *
 *									 *
 *************************************************************************/
 
 #ifndef lint
-static char *rcsid = "$Header: /Users/vitor/Yap/yap-cvsbackup/library/mpi/mpi.c,v 1.8 2002-10-03 17:28:37 stasinos Exp $";
+static char *rcsid = "$Header: /Users/vitor/Yap/yap-cvsbackup/library/mpi/mpi.c,v 1.9 2002-10-03 17:32:40 stasinos Exp $";
 #endif
 
 #include "Yap.h"
@@ -469,7 +469,7 @@ p_mpi_receive()          /* mpi_receive(-data, ?orig, ?tag) */
     return FALSE;
   }
 
-#if 1
+#if 0
   printf("About to receive %d chars from %d\n", bufstrlen, orig);
 #endif
 
@@ -498,7 +498,7 @@ p_mpi_receive()          /* mpi_receive(-data, ?orig, ?tag) */
     return FALSE;
   }
 
-#if 1
+#if 0
   {
     int aa;
     MPI_Get_count( &status, MPI_CHAR, &aa );
@@ -509,7 +509,7 @@ p_mpi_receive()          /* mpi_receive(-data, ?orig, ?tag) */
   /* parse received string into a Prolog term */
   bufptr = 0;
   retv = unify(t_data, mpi_parse());
-#if 1
+#if 0
   printf("mpi_receive: t_data == %d, retv == %d\n", t_data, retv);
 #endif
 
@@ -627,11 +627,9 @@ p_mpi_bcast2()           /* mpi_bcast( ?data, +root ) */
     }
     bufptr = 0;
     /* Turn the term into its ASCII representation */
-puts("1");
     plwrite( t_data, mpi_putc, 5 );
     /* NULL-terminate the string and add the ". " termination
        required by the parser. */
-puts("1");
     buf[bufptr] = 0;
     strcat( buf, ". " );
     bufstrlen = bufptr + 2;
