@@ -81,7 +81,7 @@
 '$exec_directive'(reconsult(Fs), _, M) :-
 	'$reconsult'(M:Fs).
 '$exec_directive'(consult(Fs), _, M) :-
-	'$consult'(Fs).
+	'$consult'(M:Fs).
 '$exec_directive'(use_module(Fs), _, M) :-
 	'$use_module'(M:Fs).
 '$exec_directive'(use_module(Fs,I), _, M) :-

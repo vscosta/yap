@@ -242,7 +242,7 @@ alarm(Interval, Goal, Left) :-
 	'$alarm'(Interval, Left).
 
 on_signal(Signal,OldAction,default) :-
-	recorded('$sig_handler', default(Signal,Action), Ref),
+	recorded('$sig_handler', default(Signal,Action), _Ref),
 	on_signal(Signal,OldAction,Action).
 on_signal(Signal,OldAction,Action) :-
 	recorded('$sig_handler', action(Signal,OldAction), Ref),
