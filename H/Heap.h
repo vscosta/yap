@@ -10,7 +10,7 @@
 * File:		Heap.h         						 *
 * mods:									 *
 * comments:	Heap Init Structure					 *
-* version:      $Id: Heap.h,v 1.25 2002-05-14 18:24:33 vsc Exp $	 *
+* version:      $Id: Heap.h,v 1.26 2002-05-23 03:52:34 vsc Exp $	 *
 *************************************************************************/
 
 /* information that can be stored in Code Space */
@@ -281,6 +281,7 @@ typedef struct various_codes {
   PredEntry *pred_dollar_catch;
   PredEntry *pred_throw;
   PredEntry *pred_handle_throw;
+  struct array_entry *dyn_array_list;
   UInt n_of_file_aliases;
   UInt sz_of_file_aliases;
   struct AliasDescS * file_aliases;
@@ -472,6 +473,7 @@ typedef struct various_codes {
 #define  PredDollarCatch          heap_regs->pred_dollar_catch
 #define  PredThrow                heap_regs->pred_throw
 #define  PredHandleThrow          heap_regs->pred_handle_throw
+#define  DynArrayList             heap_regs->dyn_array_list
 #define  NOfFileAliases           heap_regs->n_of_file_aliases
 #define  SzOfFileAliases          heap_regs->sz_of_file_aliases
 #define  FileAliases              heap_regs->file_aliases

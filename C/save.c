@@ -1114,6 +1114,8 @@ restore_codes(void)
 #endif
   heap_regs->term_prolog = AtomTermAdjust(heap_regs->term_prolog);
   heap_regs->term_refound_var = AtomTermAdjust(heap_regs->term_refound_var);
+  heap_regs->dyn_array_list =
+    (struct array_entry *)AddrAdjust((ADDR)heap_regs->dyn_array_list);
   heap_regs->file_aliases =
     (struct AliasDescS *)AddrAdjust((ADDR)heap_regs->file_aliases);
   heap_regs->yap_lib_dir =

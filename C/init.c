@@ -1008,6 +1008,7 @@ InitCodes(void)
 #endif
   heap_regs->term_prolog = MkAtomTerm(LookupAtom("prolog"));
   heap_regs->term_refound_var = MkAtomTerm(LookupAtom("$I_FOUND_THE_VARIABLE_AGAIN"));
+  heap_regs->dyn_array_list = NULL;
   heap_regs->n_of_file_aliases = 0;
   heap_regs->file_aliases = NULL;
   heap_regs->foreign_code_loaded = NULL;

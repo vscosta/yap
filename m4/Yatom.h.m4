@@ -416,14 +416,15 @@ Inline(IsBBProperty, PropFlags, int, flags, (flags == BBProperty))
 
 /*		array property entry structure				*/
 /*		first case is for dynamic arrays */
-typedef	struct {
+typedef	struct array_entry {
   Prop	NextOfPE;	/* used	to chain properties		*/
   PropFlags   KindOfPE;	/* kind of property			*/
   Int		ArrayEArity;	/* Arity of Array (positive)		*/
 #if defined(YAPOR) || defined(THREADS)
   rwlock_t ArRWLock;            /* a read-write lock to protect the entry */
-#endif
-  Term  ValueOfVE;		/* Pointer to the actual array		*/
+#endif 
+  struct array_entry  *NextArrayE; /* Pointer to the actual array		*/
+ Term  ValueOfVE;		/* Pointer to the actual array		*/
 } ArrayEntry;
 
 /* second case is for static arrays */

@@ -369,6 +369,14 @@ push_registers(Int num_regs, yamop *nextop)
 {
   int             i;
 
+  /* push array entries first */
+  ArrayEntry *al = DynArrayList;
+  while (al != NULL) {
+    if (al->ArrayEArity > 0) {
+      TrailTerm(TR++) = al->ValueOfVE;
+    }
+    al = al->NextArrayE;
+  }
 #ifdef COROUTINING
   TrailTerm(TR) = WokenGoals;
   TrailTerm(TR+1) = MutableList;
@@ -411,6 +419,14 @@ pop_registers(Int num_regs, yamop *nextop)
   int             i;
   tr_fr_ptr ptr = TR;
 
+  /* pop array entries first */
+  ArrayEntry *al = DynArrayList;
+  while (al != NULL) {
+    if (al->ArrayEArity > 0) {
+      al->ValueOfVE = TrailTerm(ptr++);
+    }
+    al = al->NextArrayE;
+  }
 #ifdef COROUTINING
 #ifdef MULTI_ASSIGNMENT_VARIABLES
   WokenGoals = TrailTerm(ptr++);
@@ -1206,11 +1222,12 @@ mark_trail(tr_fr_ptr trail_ptr, tr_fr_ptr trail_base, CELL *gc_H, choiceptr gc_B
 #endif
       }
     } else if (IsPairTerm(trail_cell)) {
-      /* do nothing */
+      /* can safely ignore this */
     }
 #if  MULTI_ASSIGNMENT_VARIABLES
     else {
       tr_fr_ptr *lkp;
+      CELL *cptr = RepAppl(trail_cell);
       /* This is a bit complex. The idea is that we may have several
 	 trailings for the same mavar in the same trail segment. Essentially,
 	 the problem arises because of !. What we want is to ignore all but
@@ -1221,14 +1238,14 @@ mark_trail(tr_fr_ptr trail_ptr, tr_fr_ptr trail_base, CELL *gc_H, choiceptr gc_B
 
 	 Solution: we keep a list of all found entries and search in the end
       */
-      if (!(lkp = gc_lookup_ma_var(RepAppl(trail_cell), trail_ptr))) {
+      if (!(lkp = gc_lookup_ma_var(cptr, trail_ptr))) {
 	if (HEAP_PTR(trail_cell)) {
 	  /* fool the gc into thinking this is a variable */
-	  TrailTerm(trail_ptr) = (CELL)RepAppl(trail_cell);
+	  TrailTerm(trail_ptr) = (CELL)cptr;
 	  mark_external_reference(&(TrailTerm(trail_ptr)));
 	  /* reset the gc to believe the original tag */
 	  TrailTerm(trail_ptr) = AbsAppl((CELL *)TrailTerm(trail_ptr));
-	}
+	} 
 	trail_ptr --;
       } else {
 	tr_fr_ptr trp = (*lkp)-1;
