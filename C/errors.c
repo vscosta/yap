@@ -113,7 +113,7 @@ DumpActiveGoals (void)
 	  if (pe->KindOfPE && hidden (NameOfFunctor (f)))
 	    goto next;
 	  if (first++ == 1)
-	    YP_fprintf(YP_stderr,"Active ancestors:\n");
+	    fprintf(stderr,"Active ancestors:\n");
 	  if (pe->ModuleOfPred) mod = IntOfTerm(pe->ModuleOfPred);
 	  plwrite (ModuleName[mod], DebugPutc, 0);
 	  DebugPutc (c_output_stream,':');
@@ -131,7 +131,7 @@ DumpActiveGoals (void)
       ep = (CELL *) ep[E_E];
     }
   first = 1;
-  YP_fprintf(YP_stderr,"Active Choice-Points:\n");
+  fprintf(stderr,"Active Choice-Points:\n");
   while (TRUE)
     {
       PredEntry *pe;
@@ -352,7 +352,7 @@ Error (yap_error_number type, Term where, char *format,...)
       tmpbuf[0] = '\0';
     }
     va_end (ap);
-    YP_fprintf(YP_stderr,"[ Fatal YAP Error: %s exiting.... ]\n",tmpbuf);
+    fprintf(stderr,"[ Fatal YAP Error: %s exiting.... ]\n",tmpbuf);
     exit_yap (1);
   }
   if (P == (yamop *)(FAILCODE))
@@ -400,15 +400,15 @@ Error (yap_error_number type, Term where, char *format,...)
   switch (type) {
   case INTERNAL_ERROR:
     {
-      YP_fprintf(YP_stderr,"[ Internal YAP Error: %s exiting.... ]\n",tmpbuf);
+      fprintf(stderr,"[ Internal YAP Error: %s exiting.... ]\n",tmpbuf);
       serious = TRUE;
       detect_bug_location(tmpbuf, YAP_BUF_SIZE);
-      YP_fprintf(YP_stderr,"[ Bug found while executing %s ]\n",tmpbuf);
+      fprintf(stderr,"[ Bug found while executing %s ]\n",tmpbuf);
       exit_yap (1);
     }
   case FATAL_ERROR:
     {
-      YP_fprintf(YP_stderr,"[ Fatal YAP Error: %s exiting.... ]\n",tmpbuf);
+      fprintf(stderr,"[ Fatal YAP Error: %s exiting.... ]\n",tmpbuf);
       exit_yap (1);
     }
   case PURE_ABORT:
