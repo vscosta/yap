@@ -281,7 +281,7 @@ debugging :-
     '$get_value'(debug,1),		/* ditto if debug off		*/
     '$get_value'(spy_fs,0),		/* ditto if fast skipping	*/
     ( '$access_yap_flags'(10,0) ->	/* if not creeping ...		*/
-	      '$pred_being_spied'(G,M)  /* ... spy only if at a spy-point */
+	      '$pred_being_spied'(G,Module)  /* ... spy only if at a spy-point */
 	; true
     ),
 %    ( \+ '$undefined'(user_error_spy(_), user) -> user_error_spy(G) ;
@@ -536,7 +536,7 @@ debugging :-
 	('$undefined'('$set_depth_limit'(_),prolog) -> true ; '$set_depth_limit'(D)),
         CP is '$last_choice_pt',
 	(
-	    '$db_nb_to_ref'(Cl,M:G,Mod,Ref),
+	    '$db_nb_to_ref'(Cl,M:G,Ref),
 	    instance(Ref, (G :- Clause)),
 	    (Clause = true -> true ; '$debug_catch_call'(Clause,M,CP) )
 	;
@@ -714,7 +714,7 @@ debugging :-
 	'$direct_spy'([Module|'!'(CP)]),
 	% clean up any garbage left here by the debugger.
 	'$$cut_by'(CP).
-'$creep_call'('$cut_by'(X),Module,_) :- !,
+'$creep_call'('$cut_by'(X),_,_) :- !,
 	'$$cut_by'(X).
 '$creep_call'(repeat,Module,_) :- !,
 	'$direct_spy'([Module|repeat]).

@@ -210,8 +210,8 @@ repeat :- '$repeat'.
 %
 % Hack in case expand_term has created a list of commands.
 %
-'$execute_commands'(V,VL,Con) :- var(V), !,
-	throw(error(instantiation_error,meta_call(C))).
+'$execute_commands'(V,_,_) :- var(V), !,
+	throw(error(instantiation_error,meta_call(V))).
 '$execute_commands'([],_,_) :- !, fail.
 '$execute_commands'([C|_],VL,Con) :-
 	'$execute_command'(C,VL,Con).
@@ -275,14 +275,14 @@ repeat :- '$repeat'.
 %
 '$process_directive'(D, _, M) :-
 	'$access_yap_flags'(8, 1), !, % ISO Prolog mode, go in and do it,
-	throw(error(context_error((:- D),query),directive)).
+	throw(error(context_error((:- M:D),query),directive)).
 %
 % but YAP and SICStus does.
 %
 '$process_directive'(G, _, M) :-
 	( '$do_yes_no'(G,M) -> true ; '$format'(user_error,":- ~w:~w failed.~n",[M,G]) ).
 
-'$all_directives'(M:G1) :- !,
+'$all_directives'(_:G1) :- !,
 	'$all_directives'(G1).
 '$all_directives'((G1,G2)) :- !,
 	'$all_directives'(G1),
@@ -376,13 +376,13 @@ repeat :- '$repeat'.
 
 '$erase_mf_source'(Na, Ar, M) :-
 	'$get_value'('$consulting_file',F),
-	'$recorded'('$multifile'(_,_,_), '$mf'(Na,A,M,F,R), R1),
+	'$recorded'('$multifile'(_,_,_), '$mf'(Na,Ar,M,F,R), R1),
 	erase(R1),
 	erase(R),
 	fail.
-'$erase_mf_source'(Na, A, M) :-
+'$erase_mf_source'(Na, Ar, M) :-
 	'$get_value'('$consulting_file',F),
-	'$recorded'('$multifile_dynamic'(_,_,_), '$mf'(Na,A,M,F,R), R1),
+	'$recorded'('$multifile_dynamic'(_,_,_), '$mf'(Na,Ar,M,F,R), R1),
 	erase(R1),
 	erase(R),
 	fail.
@@ -406,7 +406,7 @@ repeat :- '$repeat'.
 
 /* Executing a query */
 
-'$query'(end_of_file,V).
+'$query'(end_of_file,_).
 
 % ***************************
 % * -------- YAPOR -------- *
@@ -598,7 +598,7 @@ repeat :- '$repeat'.
 	'$name_vars_in_goals1'(NGVL, I, IF).
 '$name_vars_in_goals1'([NV|NGVL], I0, IF) :-
 	nonvar(NV),
-	'$name_vars_in_goals1'(NGVL, II, IF).
+	'$name_vars_in_goals1'(NGVL, I0, IF).
 
 '$write_output_vars'([]).
 '$write_output_vars'([V|VL]) :-
@@ -748,9 +748,9 @@ not(A) :-
 	    '$execute_within'(B,CP,G0,M)
 	).
 '$spied_call'(\+ X,_,_,M) :- !,
-	\+ '$execute'(X).
-'$spied_call'(not X,_,_,_) :- !,
-	\+ '$execute'(X).
+	\+ '$execute'(M:X).
+'$spied_call'(not X,_,_,M) :- !,
+	\+ '$execute'(M:X).
 '$spied_call'(!,CP,_,_) :-
 	'$$cut_by'(CP).
 '$spied_call'([A|B],_,_,M) :- !,
@@ -1229,7 +1229,7 @@ catch(G,C,A) :-
 	'$system_catch_call'(X,G,I,NX),
 	( X = NX -> !, '$erase_catch_elements'(I) ; true).
 % someone sent us a throw.
-'$system_catch'(_,C,A,_,M0) :-
+'$system_catch'(_,C,A,_,M) :-
 	array_element('$catch_queue', 1, X), X \= '$',
 	update_array('$catch_queue', 1, '$'),
 	array_element('$catch_queue', 0, catch(_,Lev,Q)), !,
@@ -1237,8 +1237,7 @@ catch(G,C,A) :-
 	'$db_clean_queues'(Lev),
         '$erase_catch_elements'(Lev),
         ( C=X ->
-	    (A = M:G -> '$execute'(A) ;
-		'$current_module'(_,M0), '$execute'(M0:A) )
+	    '$execute'(M:A)
 	;
 	  throw(X)
         ).
@@ -1252,7 +1251,7 @@ catch(G,C,A) :-
 	'$erase_catch_elements'(OldCatch, I, Catch),
 	update_array('$catch_queue', 0, Catch).
 
-'$erase_catch_elements'(catch(X, J, P), I, Catch) :-
+'$erase_catch_elements'(catch(_, J, P), I, Catch) :-
           J >= I, !,
 	  '$erase_catch_elements'(P, I, Catch).
 '$erase_catch_elements'(Catch, _, Catch).

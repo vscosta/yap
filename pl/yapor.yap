@@ -70,9 +70,7 @@ default_sequential(_).
                  fail.
 
 '$parallel_directive'(X,M) :- var(X), !,
-                 write(user_error, '[ Error: argument to parallel/1 should be a predicate ]'),
-                 nl(user_error),
-                 fail.
+	throw(error(instantiation_error,parallel(M:X))).
 '$parallel_directive'((A,B),M) :- !,
 	'$parallel_directive'(A,M),
 	'parallel_directive'(B,M).

@@ -66,12 +66,12 @@ no_style_check([H|T]) :- no_style_check(H), no_style_check(T).
 '$check_term'(T,_) :-
 	'$get_value'('$syntaxcheckdiscontiguous',on),
 	'$current_module'(M),
-	'$xtract_head'(T,M,NM,H,F,A),
+	'$xtract_head'(T,M,NM,_,F,A),
 	'$handle_discontiguous'(F,A,NM), fail.
 '$check_term'(T,_) :-
 	'$get_value'('$syntaxcheckmultiple',on),
 	'$current_module'(M),
-	'$xtract_head'(T,M,NM,H,F,A),
+	'$xtract_head'(T,M,NM,_,F,A),
 	'$handle_multiple'(F,A,NM), fail.
 '$check_term'(T,VL) :-
 	'$get_value'('$syntaxchecksinglevar',on),
@@ -121,6 +121,7 @@ no_style_check([H|T]) :- no_style_check(H), no_style_check(T).
 	write(user_error,') ]'),
 	nl(user_error). 
 
+'$xtract_head'(V,M,M,V,call,1) :- var(V), !.
 '$xtract_head'((H:-_),OM,M,NH,Name,Arity) :- !,
         '$xtract_head'(H,OM,M,NH,Name,Arity).
 '$xtract_head'((H,_),OM,M,H1,Name,Arity) :- !,

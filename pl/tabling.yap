@@ -53,9 +53,7 @@ show_trie(X) :-
 	'$show_trie'(X, M).
 
 '$show_trie'(X, M) :- var(X), !,
-                write(user_error, '[ Error: argument to trie/1 should be a predicate ]'),
-                nl(user_error),
-                fail.
+	throw(error(instantiation_error,show_trie(M:X))).
 '$show_trie'((A,B), _) :- !, '$show_trie'(A, M), '$show_trie'(B, M).
 '$show_trie'(M:A, _) :- !, '$show_trie'(A, M).
 '$show_trie'(A/N, M) :- integer(N), atom(A), !,
@@ -70,7 +68,7 @@ show_trie(X) :-
                     fail
                   ).
 '$show_trie'(X, M) :- write(user_error, '[ Error: '),
-                write(user_error, X),
+                write(user_error, M:X),
                 write(user_error, ' is an invalid argument to trie/1 ]'),
                 nl(user_error),
                 fail.
@@ -79,7 +77,7 @@ abolish_trie(X)   :-
 	'$current_module'(M),
 	'$abolish_trie'(X, M).
 
-'$abolish_trie'(X, M)   :- var(X), !,
+'$abolish_trie'(X, _M)   :- var(X), !,
                      write(user_error, '[ Error: argument to abolish_trie/1 should be a predicate ]'),
                      nl(user_error),
                      fail.
@@ -97,7 +95,7 @@ abolish_trie(X)   :-
                        fail
                      ).
 '$abolish_trie'(X,M)   :- write(user_error, '[ Error: '),
-                     write(user_error, X),
+                     write(user_error, M:X),
                      write(user_error, ' is an invalid argument to abolish_trie/1 ]'),
                      nl(user_error),
                      fail.

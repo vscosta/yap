@@ -381,7 +381,7 @@ when(_,Goal) :-
 %
 '$block'(Conds) :-
 	'$generate_blocking_code'(Conds, _, Code),
-	'$current_module'(Mod),
+	'$current_module'(Module),
 	'$$compile'(Code, Code, 5, Module), fail.
 '$block'(_).
 

@@ -4089,7 +4089,7 @@ p_first_age(void)
 
 /* given an integer, and a reference to the fist element, find the
    corresponding reference, if one exists. */
-/* $db_nb_to_ref(+Age,+Key,-Ref) */ 
+/* $db_nb_to_ref(+Age,+Key,+M,-Ref) */ 
 static Int
 p_db_nb_to_ref(void)
 {

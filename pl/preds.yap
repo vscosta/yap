@@ -237,7 +237,7 @@ clause(V,Q) :-
 	throw(error(instantiation_error,M:clause(V,Q))).
 '$clause'(C,M,Q) :- number(C), !,
 	throw(error(type_error(callable,C),M:clause(C,Q))).
-'$clause'(R,Q) :- db_reference(R), !,
+'$clause'(R,M,Q) :- db_reference(R), !,
 	throw(error(type_error(callable,R),M:clause(R,Q))).
 '$clause'(M:P,_,Q) :- !,
 	'$clause'(P,M,Q).
@@ -262,7 +262,7 @@ clause(V,Q,R) :-
 '$clause'(C,M,Q,R) :- number(C), !,
 	throw(error(type_error(callable,C),clause(C,M:Q,R))).
 '$clause'(R,M,Q,R1) :- db_reference(R), !,
-	throw(error(type_error(callable,R),clause(R,Q,R1))).
+	throw(error(type_error(callable,R),clause(R,M:Q,R1))).
 '$clause'(M:P,_,Q,R) :- !,
 	'$clause'(P,M,Q,R).
 '$clause'(P,Mod,Q,R) :-
@@ -353,9 +353,8 @@ abolish(N,A) :-
 	throw(error(instantiation_error,abolish(M:N,A))).
 '$abolish'(N,A,M) :- var(A), !,
 	throw(error(instantiation_error,abolish(M:N,A))).
-	throw(error(instantiation_error,abolish(M:N,A))).
 '$abolish'(N,A,M) :-
-	( '$recorded'('$predicate_defs','$predicate_defs'(N,A,_),R) -> erase(R) ),
+	( '$recorded'('$predicate_defs','$predicate_defs'(N,A,M,_),R) -> erase(R) ),
 	fail.
 '$abolish'(N,A,M) :- functor(T,N,A),
 		( '$is_dynamic'(T, M) -> '$abolishd'(T,M) ;
@@ -467,7 +466,7 @@ abolish(X) :-
 '$abolishs'(G, M) :- '$in_use'(G, M), !,
 	functor(G,Name,Arity),
 	throw(error(permission_error(modify,static_procedure_in_use,Name/Arity),abolish(M:G))).
-'$abolishs'(G, _) :- '$system_predicate'(G), !,
+'$abolishs'(G, M) :- '$system_predicate'(G), !,
 	functor(G,Name,Arity),
 	throw(error(permission_error(modify,static_procedure,Name/Arity),abolish(M:G))).
 '$abolishs'(G, Module) :-
@@ -496,7 +495,7 @@ dynamic(X) :- '$access_yap_flags'(8, 0), !,
 dynamic(X) :-
 	throw(error(context_error(dynamic(X),declaration),query)).
 
-'$dynamic'(X,_) :- var(X), !,
+'$dynamic'(X,M) :- var(X), !,
 	throw(error(instantiation_error,dynamic(M:X))).
 '$dynamic'(Mod:Spec,_) :- !,
 	'$dynamic'(Spec,Mod).
@@ -565,6 +564,7 @@ dynamic_predicate(P,Sem) :-
 '$public'([],_) :- !.
 '$public'([H|L], M) :- !, '$public'(H, M), '$public'(L, M).
 '$public'(A/N, Mod) :- integer(N), atom(A), !,
+	functor(T,A,N),
 	'$do_make_public'(T, Mod).
 '$public'(X, Mod) :- 
 	throw(error(type_error(callable,X),dynamic(Mod:X))).

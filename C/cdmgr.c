@@ -778,7 +778,7 @@ not_was_reconsulted(PredEntry *p, Term t, int mode)
 }
 
 static void
-addcl_permission_error(AtomEntry *ap, Int Arity) 
+addcl_permission_error(AtomEntry *ap, Int Arity, int in_use) 
 {
   Term t, ti[2];
 
@@ -788,16 +788,29 @@ addcl_permission_error(AtomEntry *ap, Int Arity)
   ErrorMessage = ErrorSay;
   Error_Term = t;
   Error_TYPE = PERMISSION_ERROR_MODIFY_STATIC_PROCEDURE;
-  if (Arity == 0)
-    sprintf(ErrorMessage, "static predicate %s is in use", ap->StrOfAE);
-  else
-    sprintf(ErrorMessage,
+  if (in_use) {
+    if (Arity == 0)
+      sprintf(ErrorMessage, "static predicate %s is in use", ap->StrOfAE);
+    else
+      sprintf(ErrorMessage,
 #if SHORT_INTS
-	    "static predicate %s/%ld is in use",
+	      "static predicate %s/%ld is in use",
 #else
-	    "static predicate %s/%d is in use",
+	      "static predicate %s/%d is in use",
 #endif
-	    ap->StrOfAE, Arity);
+	      ap->StrOfAE, Arity);
+  } else {
+    if (Arity == 0)
+      sprintf(ErrorMessage, "system predicate %s", ap->StrOfAE);
+    else
+      sprintf(ErrorMessage,
+#if SHORT_INTS
+	      "system predicate %s/%ld",
+#else
+	      "system predicate %s/%d",
+#endif
+	      ap->StrOfAE, Arity);
+  }
 }
 
 
@@ -830,7 +843,7 @@ addclause(Term t, CODEADDR cp, int mode, int mod)
   /* we are redefining a prolog module predicate */
   if (p->ModuleOfPred == 0 && mod != 0) {
     WRITE_UNLOCK(p->PRWLock);
-    addcl_permission_error(RepAtom(at), Arity);
+    addcl_permission_error(RepAtom(at), Arity, FALSE);
     return;
   }
   /* The only problem we have now is when we need to throw away
@@ -840,7 +853,7 @@ addclause(Term t, CODEADDR cp, int mode, int mod)
     if (!RemoveIndexation(p)) {
       /* should never happen */
       WRITE_UNLOCK(p->PRWLock);
-      addcl_permission_error(RepAtom(at),Arity);
+      addcl_permission_error(RepAtom(at),Arity,TRUE);
       return;
     }
   }

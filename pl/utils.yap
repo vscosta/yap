@@ -123,6 +123,7 @@ call_with_args(M:A,A1,A2,A3,A4,A5,A6,A7,A8,A9) :- !,
 	'$current_module'(M),
 	'$call_with_args'(A,A1,A2,A3,A4,A5,A6,A7,A8,A9,M).
 call_with_args(A,A1,A2,A3,A4,A5,A6,A7,A8,A9) :- atom(A), !,
+	'$current_module'(M),
 	'$call_with_args'(A,A1,A2,A3,A4,A5,A6,A7,A8,A9,M).
 call_with_args(A,A1,A2,A3,A4,A5,A6,A7,A8,A9) :- 
 	throw(error(type_error(atom,A),call_with_args(A,A1,A2,A3,A4,A5,A6,A7,A8,A9))).
@@ -296,7 +297,8 @@ current_predicate(A,M:T) :-			% module specified
 	'$current_predicate_no_modules'(M,A,T).
 current_predicate(A,M:T) :- % module specified
 	nonvar(T),
-	!,	
+	!,
+	functor(T,A,_),
 	'$pred_exists'(T,M).
 current_predicate(A,M:T) :- % module specified
 	!,
@@ -510,7 +512,7 @@ predicate_property(Pred,Prop) :-
 	'$predicate_property'(Pred,Mod,Prop),
 	'$pred_exists'(Pred,Mod).
 
-'$predicate_property'(P,M,built_in) :- 
+'$predicate_property'(P,_,built_in) :- 
 	'$system_predicate'(P), !.
 '$predicate_property'(P,M,dynamic) :-
 	'$is_dynamic'(P,M).
