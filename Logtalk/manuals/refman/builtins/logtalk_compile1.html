@@ -21,8 +21,10 @@
 logtalk_compile(Entities)
 </pre>
 <p>
-Compiles to disk a list of Logtalk entities (objects, protocols, or categories) using the default compiler options specified in the Logtalk configuration file. The Logtalk file name extension (by default, <code>.lgt</code>) should be omitted. Note that the argument is a list of entity/file names, not file paths.
-
+Compiles to disk a list of entities (objects, protocols, or categories) using the default compiler options specified in the Logtalk configuration file. The Logtalk file name extension (by default, <code>.lgt</code>) should be omitted. Note that the argument is a list of entity/file names, not file paths. In other words, the files must exist in your current working directory.
+</p>
+<p>
+Note that only the errors related to problems in the predicate argument are listed below. Other exceptions may be thrown by the compiler if any of the compiled entities contain errors.
 </p>
 </blockquote>
 
@@ -34,7 +36,7 @@ logtalk_compile(+atom_list)
 </pre>
 </blockquote>
 
-<h3>Errors</h3>
+<h4>Errors</h4>
 
 <blockquote>
 	<dl>
@@ -64,7 +66,7 @@ logtalk_compile(+atom_list)
 <strong><a href="define_events5.html">Previous</a> | <a href="logtalk_compile2.html">Next</a> | <a href="../index.html">Table of Contents</a> | <a href="../../bibliography.html">Bibliography</a> | <a href="../../glossary.html">Glossary</a></strong>
 </p>
 <p class="center">
-Last updated on: October 1, 2000
+Last updated on: October 22, 2001
 </p>
 <hr />
 

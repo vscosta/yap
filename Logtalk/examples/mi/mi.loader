@@ -2,9 +2,9 @@
 :- initialization(
 	logtalk_load([
 		space,
-		space_time,
 		time,
+		space_time,
 
 		space3,
-		space_time4,
-		time1])).
+		time1,
+		space_time4])).

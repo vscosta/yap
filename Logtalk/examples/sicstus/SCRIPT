@@ -1,6 +1,6 @@
 =================================================================
 Logtalk - Object oriented extension to Prolog
-Release 2.8.4
+Release 2.9.1
 
 Copyright (c) 1998-2001 Paulo Moura.  All Rights Reserved.
 =================================================================
@@ -9,7 +9,7 @@ Copyright (c) 1998-2001 Paulo Moura.  All Rights Reserved.
 | ?- sort(rational)::sort([1/8, 2/7, 6/5, 2/9, 1/3], Sorted).
 
 Sorted = [1/8, 2/9, 2/7, 1/3, 6/5]
-yes.
+yes
 
 
 | ?- sort(colours)::sort([orange, indigo, red, yellow, violet, blue, green], Sorted).
@@ -27,19 +27,19 @@ yes
 | ?- red_circle(3)::color(Color).
 
 Color = red
-yes.
+yes
 
 
 | ?- red_circle(3)::area(Area).
 
 Area = 28.274334
-yes.
+yes
 
 
 | ?- red_circle(3)::ancestors(As).
 
 As = [circle(3, red), ellipse(3, 3, red)]
-yes.
+yes
 
 
 
@@ -69,7 +69,7 @@ Side = 2
 Width = 2
 Height = 2
 Area = 4
-yes.
+yes
 
 
 | ?- square(2)::current_predicate(Pred).

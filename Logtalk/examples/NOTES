@@ -1,12 +1,12 @@
 =================================================================
 Logtalk - Object oriented extension to Prolog
-Release 2.8.4
+Release 2.9.1
 
 Copyright (c) 1998-2001 Paulo Moura.  All Rights Reserved.
 =================================================================
 
 This folder contains several examples of Logtalk programs. Most of 
-these examples need objects, protocols and categories that are
+these examples need objects, protocols, and categories that are
 defined in the Logtalk standard library or in other examples, so 
 you should load them first (see the NOTES file inside each example 
 folder).
@@ -35,6 +35,9 @@ bricks
 
 classvars
 	example of implementation of class variables (as found in Smalltalk)
+
+errors
+	example showing the Logtalk compiler warning and error reporting
 
 inheritance
 	examples of public, protected and private inheritance with both 
@@ -84,7 +87,7 @@ roots
 	objects, protocols and categories needed by most of the other examples
 
 searching
-	state-space searching frame work
+	state-space searching framework
 	example adopted from Ivan Bratko's "Prolog Programming for Artificial 
 	Intelligence" book
 
@@ -93,7 +96,7 @@ sicstus
 
 symdiff
 	example of using parametric objects to implement symbolic expression 
-	differentiation and simplification.
+	differentiation and simplification
 
 viewpoints
 	example on how to implement property and value sharing with prototypes

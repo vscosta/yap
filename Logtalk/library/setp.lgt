@@ -121,7 +121,6 @@
 	:- public(subset/2).
 
 	:- mode(subset(+set, +set), zero_or_one).
-	:- mode(subset(?set, +set), zero_or_more).
 
 	:- info(subset/2, [
 		comment is 'True if Subset is a subset of Set.',

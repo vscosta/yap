@@ -11,9 +11,6 @@
 		parnames is ['Bound']]).
 
 
-	:- calls(state_space).
-
-
 	:- uses(list).
 
 

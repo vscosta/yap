@@ -2,7 +2,7 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %
 %  Logtalk - Object oriented extension to Prolog
-%  Release 2.8.4
+%  Release 2.9.1
 %
 %  Copyright (c) 1998-2001 Paulo Moura.  All Rights Reserved.
 %
@@ -45,14 +45,14 @@
 
 
 
-% defined events and monitors
+% tables of defined events and monitors
 
 :- dynamic(lgt_before_/5).					% lgt_before_(Obj, Msg, Sender, Monitor, Call)
 :- dynamic(lgt_after_/5).					% lgt_after_(Obj, Msg, Sender, Monitor, Call)
 
 
 
-% loaded entities and respective relationships
+% tables of loaded entities and respective relationships
 
 :- dynamic(lgt_current_protocol_/2).		% lgt_current_protocol_(Ptc, Prefix)
 :- dynamic(lgt_current_category_/2).		% lgt_current_category_(Ctg, Prefix)
@@ -67,6 +67,7 @@
 
 
 
+
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %
 %  pre-processor directives
@@ -74,8 +75,6 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 
-
-% dynamic declarations
 
 :- dynamic(lgt_dcl_/1).						% lgt_dcl_(Clause)
 :- dynamic(lgt_def_/1).						% lgt_def_(Clause)
@@ -89,7 +88,7 @@
 :- dynamic(lgt_private_/1).					% lgt_private_(Functor/Arity)
 :- dynamic(lgt_metapredicate_/1).			% lgt_metapredicate_(Pred)
 
-:- dynamic(lgt_object_/9).					% lgt_object_(Obj, Prefix, Dcl, Def, Super, SDcl, SDef, DDcl, DDef)
+:- dynamic(lgt_object_/9).					% lgt_object_(Obj, Prefix, Dcl, Def, Super, IDcl, IDef, DDcl, DDef)
 :- dynamic(lgt_category_/4).				% lgt_category_(Ctg, Prefix, Dcl, Def)
 :- dynamic(lgt_protocol_/3).				% lgt_protocol_(Ptc, Prefix, Dcl)
 
@@ -100,9 +99,9 @@
 
 :- dynamic(lgt_implemented_protocol_/4).	% lgt_implemented_protocol_(Ptc, Prefix, Dcl, Scope)
 :- dynamic(lgt_imported_category_/5).		% lgt_imported_category_(Ctg, Prefix, Dcl, Def, Scope)
-:- dynamic(lgt_extended_object_/10).		% lgt_extended_object_(Parent, Prefix, Dcl, Def, Super, SDcl, SDef, DDcl, DDef, Scope)
-:- dynamic(lgt_instantiated_class_/10).		% lgt_instantiated_class_(Class, Prefix, Dcl, Def, Super, SDcl, SDef, DDcl, DDef, Scope)
-:- dynamic(lgt_specialized_class_/10).		% lgt_specialized_class_(Superclass, Prefix, Dcl, Def, Super, SDcl, SDef, DDcl, DDef, Scope)
+:- dynamic(lgt_extended_object_/10).		% lgt_extended_object_(Parent, Prefix, Dcl, Def, Super, IDcl, IDef, DDcl, DDef, Scope)
+:- dynamic(lgt_instantiated_class_/10).		% lgt_instantiated_class_(Class, Prefix, Dcl, Def, Super, IDcl, IDef, DDcl, DDef, Scope)
+:- dynamic(lgt_specialized_class_/10).		% lgt_specialized_class_(Superclass, Prefix, Dcl, Def, Super, IDcl, IDef, DDcl, DDef, Scope)
 :- dynamic(lgt_extended_protocol_/4).		% lgt_extended_protocol_(Ptc2, Prefix, Dcl, Scope)
 
 :- dynamic(lgt_entity_/4).					% lgt_entity_(Type, Entity, Prefix, Dcl)
@@ -123,12 +122,16 @@
 
 :- dynamic(lgt_current_compiler_option_/2).	% lgt_current_compiler_option_(Option, Value)
 
+:- dynamic(lgt_referenced_object_/1).		% lgt_referenced_object_(Object)
+:- dynamic(lgt_referenced_protocol_/1).		% lgt_referenced_protocol_(Protocol)
+:- dynamic(lgt_referenced_category_/1).		% lgt_referenced_object_(Category)
+
 
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %
-%  top level runtime predicate
+%  top level runtime predicate for message sending: ::/2
 %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
@@ -306,7 +309,8 @@ create_object(Obj, Rels, Dirs, Clauses) :-
 	lgt_fix_redef_built_ins,
 	lgt_gen_object_clauses,
 	lgt_gen_object_directives,
-	lgt_assert_tr_entity.
+	lgt_assert_tr_entity,
+	lgt_report_unknown_entities.
 
 
 
@@ -352,7 +356,8 @@ create_category(Ctg, Rels, Dirs, Clauses) :-
 	lgt_fix_redef_built_ins,
 	lgt_gen_category_clauses,
 	lgt_gen_category_directives,
-	lgt_assert_tr_entity.
+	lgt_assert_tr_entity,
+	lgt_report_unknown_entities.
 
 
 
@@ -392,7 +397,8 @@ create_protocol(Ptc, Rels, Dirs) :-
 	lgt_tr_directives(Dirs),
 	lgt_gen_protocol_clauses,
 	lgt_gen_protocol_directives,
-	lgt_assert_tr_entity.
+	lgt_assert_tr_entity,
+	lgt_report_unknown_entities.
 
 
 
@@ -409,7 +415,7 @@ abolish_object(Obj) :-
 abolish_object(Obj) :-
 	lgt_current_object_(Obj, Prefix, _, _, _) ->
 		(object_property(Obj, (dynamic)) ->
-			lgt_once(Prefix, Dcl, Def, Super, SDcl, SDef, DDcl, DDef),
+			lgt_once(Prefix, Dcl, Def, Super, IDcl, IDef, DDcl, DDef),
 			forall(
 				lgt_call(Def, _, _, _, _, Pred),
 				(functor(Pred, Functor, Arity),
@@ -423,8 +429,8 @@ abolish_object(Obj) :-
 			abolish(Def/5),
 			abolish(Def/6),
 			abolish(Super/6),
-			abolish(SDcl/6),
-			abolish(SDef/6),
+			abolish(IDcl/6),
+			abolish(IDef/6),
 			abolish(DDcl/4),
 			abolish(DDef/5),
 			abolish(Prefix/7),
@@ -523,7 +529,7 @@ implements_protocol(Entity, Ptc, Scope) :-
 implements_protocol(Entity, Ptc, Scope) :-
 	nonvar(Scope),
 	\+ lgt_member(Scope, [(public), protected, private]),
-	throw(error(type_error(entity_scope, Scope), implements_protocol(Entity, Ptc, Scope))).
+	throw(error(type_error(scope, Scope), implements_protocol(Entity, Ptc, Scope))).
 
 implements_protocol(Entity, Ptc, Scope) :-
 	lgt_implements_protocol_(Entity, Ptc, Scope).
@@ -555,7 +561,7 @@ imports_category(Obj, Ctg, Scope) :-
 imports_category(Obj, Ctg, Scope) :-
 	nonvar(Scope),
 	\+ lgt_member(Scope, [(public), protected, private]),
-	throw(error(type_error(entity_scope, Scope), imports_category(Obj, Ctg, Scope))).
+	throw(error(type_error(scope, Scope), imports_category(Obj, Ctg, Scope))).
 
 imports_category(Obj, Ctg, Scope) :-
 	lgt_imports_category_(Obj, Ctg, Scope).
@@ -587,7 +593,7 @@ instantiates_class(Obj, Class, Scope) :-
 instantiates_class(Obj, Class, Scope) :-
 	nonvar(Scope),
 	\+ lgt_member(Scope, [(public), protected, private]),
-	throw(error(type_error(entity_scope, Scope), instantiates_class(Obj, Class, Scope))).
+	throw(error(type_error(scope, Scope), instantiates_class(Obj, Class, Scope))).
 
 instantiates_class(Obj, Class, Scope) :-
 	lgt_instantiates_class_(Obj, Class, Scope).
@@ -619,7 +625,7 @@ specializes_class(Class, Superclass, Scope) :-
 specializes_class(Class, Superclass, Scope) :-
 	nonvar(Scope),
 	\+ lgt_member(Scope, [(public), protected, private]),
-	throw(error(type_error(entity_scope, Scope), specializes_class(Class, Superclass, Scope))).
+	throw(error(type_error(scope, Scope), specializes_class(Class, Superclass, Scope))).
 
 specializes_class(Class, Superclass, Scope) :-
 	lgt_specializes_class_(Class, Superclass, Scope).
@@ -651,7 +657,7 @@ extends_protocol(Ptc1, Ptc2, Scope) :-
 extends_protocol(Ptc1, Ptc2, Scope) :-
 	nonvar(Scope),
 	\+ lgt_member(Scope, [(public), protected, private]),
-	throw(error(type_error(entity_scope, Scope), extends_protocol(Ptc1, Ptc2, Scope))).
+	throw(error(type_error(scope, Scope), extends_protocol(Ptc1, Ptc2, Scope))).
 
 extends_protocol(Ptc1, Ptc2, Scope) :-
 	lgt_extends_protocol_(Ptc1, Ptc2, Scope).
@@ -683,7 +689,7 @@ extends_object(Prototype, Parent, Scope) :-
 extends_object(Prototype, Parent, Scope) :-
 	nonvar(Scope),
 	\+ lgt_member(Scope, [(public), protected, private]),
-	throw(error(type_error(entity_scope, Scope), extends_object(Prototype, Parent, Scope))).
+	throw(error(type_error(scope, Scope), extends_object(Prototype, Parent, Scope))).
 
 extends_object(Prototype, Parent, Scope) :-
 	lgt_extends_object_(Prototype, Parent, Scope).
@@ -859,11 +865,11 @@ logtalk_compile(Entities) :-
 logtalk_compile(Entities, Options) :-
 	catch(
 		(lgt_check_compiler_entities(Entities),
-		 lgt_check_compiler_options(Options)),
+		 lgt_check_compiler_options(Options),
+		 lgt_set_compiler_options(Options),
+		 lgt_compile_entities(Entities)),
 		Error,
-		throw(error(Error, logtalk_compile(Entities, Options)))),
-	lgt_set_compiler_options(Options),
-	lgt_compile_entities(Entities).
+		throw(error(Error, logtalk_compile(Entities, Options)))).
 
 
 
@@ -939,10 +945,13 @@ lgt_check_compiler_option(Option) :-
 
 
 
+% lgt_set_compiler_options(+list)
+%
+% sets the compiler options
+
 lgt_set_compiler_options(Options) :-
 	retractall(lgt_current_compiler_option_(_, _)),
 	lgt_assert_compiler_options(Options).
-
 
 
 lgt_assert_compiler_options([]).
@@ -956,7 +965,7 @@ lgt_assert_compiler_options([Option| Options]) :-
 
 % logtalk_load(+list)
 %
-% compiles to disk and then load to memory a 
+% compiles to disk and then loads to memory a 
 % list of entities using default options
 
 logtalk_load(Entities) :-
@@ -969,17 +978,17 @@ logtalk_load(Entities) :-
 
 % logtalk_load(+list, +list)
 %
-% compiles to disk and then load to memory a 
+% compiles to disk and then loads to memory a 
 % list of entities using a list of options
 
 logtalk_load(Entities, Options) :-
 	catch(
 		(lgt_check_compiler_entities(Entities),
-		 lgt_check_compiler_options(Options)),
+		 lgt_check_compiler_options(Options),
+		 lgt_set_compiler_options(Options),
+		 lgt_load_entities(Entities)),
 		Error,
-		throw(error(Error, logtalk_load(Entities, Options)))),
-	lgt_set_compiler_options(Options),
-	lgt_load_entities(Entities).
+		throw(error(Error, logtalk_load(Entities, Options)))).
 
 
 
@@ -1000,7 +1009,7 @@ logtalk_version(Major, Minor, Patch) :-
 	\+ integer(Patch),
 	throw(error(type_error(integer, Patch), logtalk_version(Major, Minor, Patch))).
 
-logtalk_version(2, 8, 4).
+logtalk_version(2, 9, 1).
 
 
 
@@ -1012,6 +1021,8 @@ logtalk_version(2, 8, 4).
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 
+
+% current_predicate/1 built-in method
 
 lgt_current_predicate(Obj, Pred, Sender, _) :-
 	nonvar(Pred),
@@ -1055,7 +1066,7 @@ lgt_current_predicate(Obj, Functor/Arity, Sender, Scope) :-
 
 % lgt_cp_filter(+list, -list)
 %
-% removes duplicated predicates and predicates that have been redeclared
+% removes duplicated and redeclared predicates 
 
 lgt_cp_filter([], []).
 
@@ -1075,6 +1086,8 @@ lgt_cp_remove_all([Data| Rest], Filter, [Data| Rest2]) :-
 	lgt_cp_remove_all(Rest, Filter, Rest2).
 
 
+
+% predicate_property/2 built-in method
 
 lgt_predicate_property(Obj, Pred, Prop, Sender, _) :-
 	var(Pred),
@@ -1125,12 +1138,16 @@ lgt_predicate_property(_, Pred, Prop, _, _) :-
 
 
 % lgt_scope(?atom, ?term).
+%
+% converts between user and system scope terms
 
 lgt_scope(private, p).
 lgt_scope(protected, p(p)).
 lgt_scope((public), p(p(p))).
 
 
+
+% abolish/1 built-in method
 
 lgt_abolish(Obj, Pred, Sender, _) :-
 	var(Pred),
@@ -1190,6 +1207,8 @@ lgt_abolish(Obj, Functor/Arity, Sender, Scope) :-
 		throw(error(existence_error(predicate_declaration, Pred), Obj::abolish(Functor/Arity), Sender))).
 
 
+
+% asserta/1 built-in method
 
 lgt_asserta(Obj, Clause, Sender, _) :-
 	var(Clause),
@@ -1270,6 +1289,8 @@ lgt_asserta(Obj, Head, Sender, Scope) :-
 
 
 
+% assertz/1 built-in method
+
 lgt_assertz(Obj, Clause, Sender, _) :-
 	var(Clause),
 	throw(error(instantiation_error, Obj::assertz(Clause), Sender)).
@@ -1349,6 +1370,8 @@ lgt_assertz(Obj, Head, Sender, Scope) :-
 
 
 
+% clause/2 built-in method
+
 lgt_clause(Obj, Head, Body, Sender, _) :-
 	var(Head),
 	throw(error(instantiation_error, Obj::clause(Head, Body), Sender)).
@@ -1389,6 +1412,8 @@ lgt_clause(Obj, Head, Body, Sender, Scope) :-
 		throw(error(existence_error(predicate_declaration, Head), Obj::clause(Head, Body), Sender))).
 
 
+
+% retract/1 built-in method
 
 lgt_retract(Obj, Clause, Sender, _) :-
 	var(Clause),
@@ -1450,6 +1475,8 @@ lgt_retract(Obj, Head, Sender, Scope) :-
 
 
 
+% retractall/1 built-in method
+
 lgt_retractall(Obj, Head, Sender, _) :-
 	var(Head),
 	throw(error(instantiation_error, Obj::retractall(Head), Sender)).
@@ -1493,24 +1520,17 @@ lgt_retractall(Obj, Head, Sender, Scope) :-
 
 
 
+% lgt_send_to_self(+object, ?term, +object)
+
 lgt_send_to_self(Self, Pred, This) :-
 	nonvar(Pred) ->
-		lgt_current_object_(Self, _, Dcl, Def, _),
-		(lgt_call(Dcl, Pred, Scope, _, _, SContainer, _) ->
-		 	((Scope = p(_); This = SContainer) ->
-				lgt_once(Def, Pred, This, Self, Self, Call, _),
-				call(Call)
-				;
-				throw(error(permission_error(access, private_predicate, Pred), Self::Pred, This)))
-			;
-			(lgt_built_in(Pred) ->
-				call(Pred)
-				;
-				throw(error(existence_error(predicate_declaration, Pred), Self::Pred, This))))
+		lgt_send_to_self_nv(Self, Pred, This)
 		;
 		throw(error(instantiation_error, Self::Pred, This)).
 
 
+
+% lgt_send_to_self_nv(+object, +term, +object)
 
 lgt_send_to_self_nv(Self, Pred, This) :-
 	lgt_current_object_(Self, _, Dcl, Def, _),
@@ -1527,6 +1547,8 @@ lgt_send_to_self_nv(Self, Pred, This) :-
 			throw(error(existence_error(predicate_declaration, Pred), Self::Pred, This)))).
 
 
+
+% lgt_send_to_object(@object, ?term, +object)
 
 lgt_send_to_object(Obj, Pred, Sender) :-
 	nonvar(Obj) ->
@@ -1557,6 +1579,8 @@ lgt_send_to_object(Obj, Pred, Sender) :-
 
 
 
+% lgt_send_to_object_nv(+object, +term, +object)
+
 lgt_send_to_object_nv(Obj, Pred, Sender) :-
 	lgt_current_object_(Obj, _, Dcl, Def, _) ->
 		(lgt_call(Dcl, Pred, Scope, _, _, _, _) ->
@@ -1580,28 +1604,17 @@ lgt_send_to_object_nv(Obj, Pred, Sender) :-
 
 
 
+% lgt_send_to_super(+object, ?term, +object, +object)
+
 lgt_send_to_super(Self, Pred, This, Sender) :-
 	nonvar(Pred) ->
-		lgt_current_object_(Self, _, Dcl, _, _),
-		(lgt_call(Dcl, Pred, Scope, _, _, SContainer, _) ->
-		 	((Scope = p(_); This = SContainer) ->
-				lgt_current_object_(This, _, _, _, Super),
-				lgt_once(Super, Pred, Sender, This, Self, Call, Container),
-				(Container \= This ->
-					call(Call)
-					;
-					throw(error(endless_loop(Pred), ^^Pred, This)))
-				;
-				throw(error(permission_error(access, private_predicate, Pred), ^^Pred, This)))
-			;
-			(lgt_built_in(Pred) ->
-				call(Pred)
-				;
-				throw(error(existence_error(predicate_declaration, Pred), ^^Pred, This))))
+		lgt_send_to_super_nv(Self, Pred, This, Sender)
 		;
 		throw(error(instantiation_error, ^^Pred, This)).
 
 
+
+% lgt_send_to_super_nv(+object, +term, +object, +object)
 
 lgt_send_to_super_nv(Self, Pred, This, Sender) :-
 	lgt_current_object_(Self, _, Dcl, _, _),
@@ -1623,6 +1636,8 @@ lgt_send_to_super_nv(Self, Pred, This, Sender) :-
 
 
 
+% lgt_metacall_in_object(+object, ?term, +object)
+%
 % metacalls in predicate definitions
 
 lgt_metacall_in_object(Obj, Pred, Sender) :-
@@ -1642,6 +1657,8 @@ lgt_metacall_in_object(Obj, Pred, Sender) :-
 
 
 
+% lgt_call_built_in(+term, +term)
+%
 % needed for runtime translation of dynamic clauses
 
 lgt_call_built_in(Pred, Context) :-
@@ -1659,13 +1676,16 @@ lgt_call_built_in(Pred, Context) :-
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %
-%  built-in entities
+%  built-in pseudo-object user
+%
+%  represents the Prolog database (excluding built-in predicates)
 %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 
 
-% built-in pseudo-object user (representing the Prolog database)
+% the following clauses correspond to a virtual 
+% compilation of the pseudo-object user
 
 lgt_current_object_(user, user0_, user0__dcl, user0__def, _).
 
@@ -1702,6 +1722,9 @@ user0__def(Pred, _, _, _, Pred, user).
 
 
 % lgt_hidden_functor(+atom)
+%
+% hidden functors include Logtalk pre-processor and runtime internal functors
+% and those used in the compiled code of objects, protocols, and categories
 
 lgt_hidden_functor(Functor) :-
 	atom_concat(lgt_, _, Functor).
@@ -1730,6 +1753,8 @@ lgt_hidden_functor(Functor) :-
 
 
 % lgt_load_entities(+list)
+%
+% compiles to disk and then loads to memory a list of entities
 
 lgt_load_entities([]).
 
@@ -1740,21 +1765,44 @@ lgt_load_entities([Entity| Entities]) :-
 
 
 % lgt_load_entity(+atom)
+%
+% compiles to disk and then loads to memory an entity
 
 lgt_load_entity(Entity) :-
+	(lgt_compiler_option(report, on) ->
+		nl, write('>>>  compiling '), writeq(Entity), nl
+		;
+		true),
 	lgt_compile_entity(Entity),
+	lgt_entity_(Type, _, _, _),
+	(lgt_current_entity(Entity) ->
+		write('WARNING!  redefining '), write(Entity), write(' '),
+		writeq(Type), nl
+		;
+		true),
 	lgt_file_name(prolog, Entity, File),
 	lgt_load_prolog_code(File),
 	(lgt_compiler_option(report, on) ->
-		writeq(Entity),
-		lgt_entity_(Type, _, _, _),
+		write('<<<  '), writeq(Entity),
 		write(' '), write(Type), write(' loaded'), nl
 		;
 		true).
 
 
+lgt_current_entity(Obj) :-
+	lgt_current_object_(Obj, _, _, _, _).
+
+lgt_current_entity(Ptc) :-
+	lgt_current_protocol_(Ptc, _).
+
+lgt_current_entity(Ctg) :-
+	lgt_current_category_(Ctg, _).
+	
+
 
 % lgt_compile_entities(+list)
+%
+% compiles to disk a list of entities
 
 lgt_compile_entities([]).
 
@@ -1765,15 +1813,20 @@ lgt_compile_entities([Entity| Entities]) :-
 
 
 % lgt_compile_entity(+atom)
+%
+% compiles to disk an entity
 
 lgt_compile_entity(Entity) :-
 	lgt_tr_entity(Entity),
 	lgt_write_tr_entity(Entity),
-	lgt_write_entity_doc(Entity).
+	lgt_write_entity_doc(Entity),
+	lgt_report_unknown_entities.
 
 
 
 % lgt_write_tr_entity(+atom)
+%
+% writes to disk the entity compiled code
 
 lgt_write_tr_entity(Entity) :-
 	lgt_file_name(prolog, Entity, File),
@@ -1792,6 +1845,8 @@ lgt_write_tr_entity(Entity) :-
 
 
 % lgt_write_entity_doc(+atom)
+%
+% writes to disk the entity documentation in XML format
 
 lgt_write_entity_doc(Entity) :-
 	lgt_compiler_option(xml, on) ->
@@ -1811,6 +1866,8 @@ lgt_write_entity_doc(Entity) :-
 
 
 % lgt_file_name(+atom, +atom, -atom)
+%
+% constructs a filename given the type of file and the entity name
 
 lgt_file_name(Type, Entity, File) :-
 	lgt_file_extension(Type, Extension),
@@ -1819,6 +1876,8 @@ lgt_file_name(Type, Entity, File) :-
 
 
 % lgt_tr_entity(+atom)
+%
+% compiles an entity storing the resulting code in memory
 
 lgt_tr_entity(Entity) :-
 	lgt_clean_up,
@@ -1842,6 +1901,8 @@ lgt_tr_entity(Entity) :-
 
 
 
+% lgt_tr_file(+stream, +term)
+
 lgt_tr_file(_, end_of_file) :-
 	!.
 
@@ -1854,20 +1915,21 @@ lgt_tr_file(Stream, Term) :-
 
 
 % lgt_report_singletons(+list, +term)
+%
+% report the singleton variables found while compiling an entity term
 
 lgt_report_singletons([], _).
 
 lgt_report_singletons([Singleton| Singletons], Term) :-
 	lgt_compiler_option(singletons, warning) ->
-		write('Logtalk compiler warning!'), nl,
+		write('WARNING!'),
 		\+ \+ ( lgt_report_singletons_aux([Singleton| Singletons], Term, Names),
-				write('  singleton variable(s): '), write(Names), nl,
-				write('  in term: '), write(Term), nl,
-				(lgt_entity_(Type, Entity, _, _) ->
-					write('  inside '), write(Type), write(': '),
-					writeq(Entity), nl
+				write('  singleton variables: '), write(Names), nl,
+				(Term = (:- _) ->
+					write('          in directive: ')
 					;
-					true))
+					write('          in clause: ')),
+				write(Term), nl)
 		;
 		true.
 
@@ -1880,83 +1942,42 @@ lgt_report_singletons_aux([Name = Var| Singletons], Term, [Name| Names]) :-
 
 
 
+% lgt_compiler_error_handler(@term, +term)
+%
+% close the stream opened for reading the entity 
+% file and report the compilation error found
+
 lgt_compiler_error_handler(Stream, Error) :-
 	(nonvar(Stream) ->
 		close(Stream)
 		;
 		true),
 	lgt_report_compiler_error(Error),
-	fail.
+	throw(Error).
 
 
 
-lgt_report_compiler_error(invalid_directive_arg(Error, Cause, Dir)) :-
+% lgt_report_compiler_error(+term)
+%
+% reports a compilation error
+
+lgt_report_compiler_error(error(Error, directive(Directive))) :-
 	!,
-	write('Logtalk compiler error!'), nl,
-	write('  invalid argument in directive: '),
-	writeq((:-Dir)), nl,
-	write('  '), write(Error), write(': '), write(Cause), nl,
-	(lgt_entity_(Type, Entity, _, _) ->
-		write('  inside '), write(Type), write(': '),
-		writeq(Entity), nl
-		;
-		true).
+	write('ERROR!    '), writeq(Error), nl,
+	write('          in directive: '), write((:- Directive)), nl.
 
-lgt_report_compiler_error(invalid_directive(Error, Dir)) :-
+lgt_report_compiler_error(error(Error, clause(Clause))) :-
 	!,
-	write('Logtalk compiler error!'), nl,
-	write('  invalid or unsupported directive: '),
-	writeq((:-Dir)), nl,
-	write('  '), write(Error), nl,
-	(lgt_entity_(Type, Entity, _, _) ->
-		write('  inside '), write(Type), write(': '),
-		writeq(Entity), nl
-		;
-		true).
+	write('ERROR!    '), writeq(Error), nl,
+	write('          in clause: '), write(Clause), nl.
 
-lgt_report_compiler_error(invalid_clause(Error, Cause, Clause)) :-
+lgt_report_compiler_error(error(Error, Term)) :-
 	!,
-	write('Logtalk compiler error!'), nl,
-	write('  invalid clause: '),
-	writeq(Clause), nl,
-	write('  '), write(Error), write(': '), write(Cause), nl,
-	(lgt_entity_(Type, Entity, _, _) ->
-		write('  inside '), write(Type), write(': '),
-		writeq(Entity), nl
-		;
-		true).
-
-lgt_report_compiler_error(invalid_clause(Error, Clause)) :-
-	!,
-	write('Logtalk compiler error!'), nl,
-	write('  invalid clause: '),
-	writeq(Clause), nl,
-	write('  '), write(Error), nl,
-	(lgt_entity_(Type, Entity, _, _) ->
-		write('  inside '), write(Type), write(': '),
-		writeq(Entity), nl
-		;
-		true).
-
-lgt_report_compiler_error(invalid_clause(Clause)) :-
-	!,
-	write('Logtalk compiler error!'), nl,
-	write('  could not translate clause: '),
-	writeq(Clause), nl,
-	(lgt_entity_(Type, Entity, _, _) ->
-		write('  inside '), write(Type), write(': '),
-		writeq(Entity), nl
-		;
-		true).
+	write('ERROR!    '), writeq(Error), nl,
+	write('          in: '), write(Term), nl.
 
 lgt_report_compiler_error(Error) :-
-	write('Logtalk compiler error!'), nl,
-	write('  '), writeq(Error), nl,
-	(lgt_entity_(Type, Entity, _, _) ->
-		write('  inside '), write(Type), write(': '),
-		writeq(Entity), nl
-		;
-		true).
+	write('ERROR!    '), writeq(Error), nl.
 
 
 
@@ -1997,7 +2018,10 @@ lgt_clean_up :-
 	retractall(lgt_feclause_(_)),
 	retractall(lgt_redefined_built_in_(_, _, _)),
 	retractall(lgt_defs_pred_(_)),
-	retractall(lgt_calls_pred_(_)).
+	retractall(lgt_calls_pred_(_)),
+	retractall(lgt_referenced_object_(_)),
+	retractall(lgt_referenced_protocol_(_)),
+	retractall(lgt_referenced_category_(_)).
 
 
 
@@ -2040,11 +2064,16 @@ lgt_dump_all :-
 	listing(lgt_redefined_built_in_/3),
 	listing(lgt_defs_pred_/1),
 	listing(lgt_calls_pred_/1),
-	listing(lgt_current_compiler_option_/2).
+	listing(lgt_current_compiler_option_/2),
+	listing(lgt_referenced_object_/1),
+	listing(lgt_referenced_protocol_/1),
+	listing(lgt_referenced_category_/1).
 
 
 
 % lgt_tr_terms(+list)
+%
+% translates a list of entity terms (clauses and/or directives)
 
 lgt_tr_terms([]).
 
@@ -2055,6 +2084,8 @@ lgt_tr_terms([Term| Terms]) :-
 
 
 % lgt_tr_term(+term)
+%
+% translates an entity term (either a clause or a directive)
 
 lgt_tr_term((Head:-Body)) :-
 	!,
@@ -2070,6 +2101,8 @@ lgt_tr_term(Fact) :-
 
 
 % lgt_tr_directives(+list)
+%
+% translates a list of entity directives
 
 lgt_tr_directives([]).
 
@@ -2080,16 +2113,18 @@ lgt_tr_directives([Dir| Dirs]) :-
 
 
 % lgt_tr_directive(+term)
+%
+% translates an entity directive
 
 lgt_tr_directive(Dir) :-
 	var(Dir),
-	throw(invalid_directive(instantiation_error, Dir)).
+	throw(error(instantiantion_error, directive(Dir))).
 
 lgt_tr_directive(Dir) :-
 	\+ lgt_entity_(_, _, _, _),		% directive occurs before opening entity directive
 	functor(Dir, Functor, Arity),
 	lgt_lgt_closing_directive(Functor/Arity),	% opening directive missing/missplet
-	throw(invalid_directive(unmatched_directive_error, Dir)).
+	throw(error(unmatched_directive, directive(Dir))).
 
 lgt_tr_directive(Dir) :-
 	\+ lgt_entity_(_, _, _, _),		% directive occurs before opening entity directive
@@ -2104,24 +2139,25 @@ lgt_tr_directive(Dir) :-
 	Dir =.. [Functor| Args],
 	catch(
 		lgt_tr_directive(Functor, Args),
-		directive_error(Error, Cause),
-		throw(invalid_directive_arg(Error, Cause, Dir))),
+		Error,
+		throw(error(Error, directive(Dir)))),
 	!.
 
 lgt_tr_directive(Dir) :-
-	throw(invalid_directive(unknown_directive_error, Dir)).
+	throw(error(domain_error(directive, Dir), directive(Dir))).
 
 
 
 % lgt_tr_directive(+atom, +list)
-
+%
+% translates a directive and its (possibly empty) list of arguments
 
 lgt_tr_directive(object, [Obj| Rels]) :-
 	lgt_valid_object_id(Obj) ->
 		lgt_tr_object_id(Obj),
 		lgt_tr_object_relations(Rels, Obj)
 		;
-		throw(directive_error(object_identifier, Obj)).
+		throw(type_error(object_identifier, Obj)).
 
 lgt_tr_directive(end_object, []) :-
 	lgt_entity_(object, _, _, _).
@@ -2132,7 +2168,7 @@ lgt_tr_directive(protocol, [Ptc| Rels]) :-
 		lgt_tr_protocol_id(Ptc),
 		lgt_tr_protocol_relations(Rels, Ptc)
 		;
-		throw(directive_error(protocol_identifier, Ptc)).
+		throw(type_error(protocol_identifier, Ptc)).
 
 
 lgt_tr_directive(end_protocol, []) :-
@@ -2144,7 +2180,7 @@ lgt_tr_directive(category, [Ctg| Rels]) :-
 		lgt_tr_category_id(Ctg),
 		lgt_tr_category_relations(Rels, Ctg)
 		;
-		throw(directive_error(category_identifier, Ctg)).
+		throw(type_error(category_identifier, Ctg)).
 
 
 lgt_tr_directive(end_category, []) :-
@@ -2168,7 +2204,7 @@ lgt_tr_directive(initialization, [Goal]) :-
 		lgt_tr_body(Goal, TGoal, Context),
 		assertz(lgt_entity_init_(TGoal))
 		;
-		throw(directive_error(callable, Goal)).
+		throw(type_error(callable, Goal)).
 
 
 lgt_tr_directive(op, [Priority, Specifier, Operators]) :-
@@ -2178,11 +2214,11 @@ lgt_tr_directive(op, [Priority, Specifier, Operators]) :-
 				op(Priority, Specifier, Operators),
 				assertz(lgt_directive_(op(Priority, Specifier, Operators)))
 				;
-				throw(directive_error(operator_name, Operators)))
+				throw(type_error(operator_name, Operators)))
 			;
-			throw(directive_error(operator_specifier, Specifier)))
+			throw(type_error(operator_specifier, Specifier)))
 		;
-		throw(directive_error(operator_priority, Priority)).
+		throw(type_error(operator_priority, Priority)).
 
 
 lgt_tr_directive(uses, Objs) :-
@@ -2190,9 +2226,10 @@ lgt_tr_directive(uses, Objs) :-
 	forall(
 		lgt_member(Obj, Objs2),
 		(lgt_valid_object_id(Obj) ->
+			lgt_add_referenced_object(Obj),
 			assertz(lgt_uses_(Obj))
 			;
-			throw(directive_error(object_identifier, Obj)))).
+			throw(type_error(object_identifier, Obj)))).
 
 
 lgt_tr_directive(calls, Ptcs) :-
@@ -2200,9 +2237,10 @@ lgt_tr_directive(calls, Ptcs) :-
 	forall(
 		lgt_member(Ptc, Ptcs2),
 		(lgt_valid_protocol_id(Ptc) ->
+			lgt_add_referenced_protocol(Ptc),
 			assertz(lgt_calls_(Ptc))
 			;
-			throw(directive_error(protocol_identifier, Ptc)))).
+			throw(type_error(protocol_identifier, Ptc)))).
 
 
 lgt_tr_directive(info, [List]) :-
@@ -2210,17 +2248,17 @@ lgt_tr_directive(info, [List]) :-
 	(lgt_valid_info_list(List) ->
 		assertz(lgt_info_(List))
 		;
-		throw(directive_error(type_error(info_list), List))).
+		throw(type_error(info_list, List))).
 
 
 lgt_tr_directive(info, [Pred, List]) :-
-	(lgt_valid_pred_ind(Pred) ->
+	lgt_valid_pred_ind(Pred) ->
 		(lgt_valid_info_list(List) ->
 			assertz(lgt_info_(Pred, List))
 			;
-			throw(directive_error(type_error(info_list), List)))
+			throw(type_error(info_list, List)))
 		;
-		throw(directive_error(predicate_indicator, Pred))).
+		throw(type_error(predicate_indicator, Pred)).
 
 
 
@@ -2231,7 +2269,7 @@ lgt_tr_directive((public), Preds) :-
 		(lgt_valid_pred_ind(Pred) ->
 			assertz(lgt_public_(Pred))
 			;
-			throw(directive_error(predicate_indicator, Pred)))).
+			throw(type_error(predicate_indicator, Pred)))).
 
 
 lgt_tr_directive(protected, Preds) :-
@@ -2241,7 +2279,7 @@ lgt_tr_directive(protected, Preds) :-
 		(lgt_valid_pred_ind(Pred) ->
 			assertz(lgt_protected_(Pred))
 			;
-			throw(directive_error(predicate_indicator, Pred)))).
+			throw(type_error(predicate_indicator, Pred)))).
 
 
 lgt_tr_directive(private, Preds) :-
@@ -2251,7 +2289,7 @@ lgt_tr_directive(private, Preds) :-
 		(lgt_valid_pred_ind(Pred) ->
 			assertz(lgt_private_(Pred))
 			;
-			throw(directive_error(predicate_indicator, Pred)))).
+			throw(type_error(predicate_indicator, Pred)))).
 
 
 lgt_tr_directive((dynamic), Preds) :-
@@ -2261,7 +2299,7 @@ lgt_tr_directive((dynamic), Preds) :-
 		(lgt_valid_pred_ind(Pred) ->
 			assertz(lgt_dynamic_(Pred))
 			;
-			throw(directive_error(predicate_indicator, Pred)))).
+			throw(type_error(predicate_indicator, Pred)))).
 
 
 lgt_tr_directive((discontiguous), Preds) :-
@@ -2271,7 +2309,7 @@ lgt_tr_directive((discontiguous), Preds) :-
 		(lgt_valid_pred_ind(Pred) ->
 			assertz(lgt_discontiguous_(Pred))
 			;
-			throw(directive_error(predicate_indicator, Pred)))).
+			throw(type_error(predicate_indicator, Pred)))).
 
 
 lgt_tr_directive(metapredicate, Preds) :-
@@ -2281,7 +2319,7 @@ lgt_tr_directive(metapredicate, Preds) :-
 		(lgt_valid_metapred_term(Pred) ->
 			assertz(lgt_metapredicate_(Pred))
 			;
-			throw(directive_error(metapredicate_term, Pred)))).
+			throw(type_error(metapredicate_term, Pred)))).
 
 
 lgt_tr_directive((mode), [Mode, Solutions]) :-
@@ -2289,13 +2327,15 @@ lgt_tr_directive((mode), [Mode, Solutions]) :-
 		(lgt_valid_number_of_solutions(Solutions) ->
 			assertz(lgt_mode_(Mode, Solutions))
 			;
-			throw(directive_error(number_of_solutions, Solutions)))
+			throw(type_error(number_of_solutions, Solutions)))
 		;
-		throw(directive_error(mode_term, Mode)).
+		throw(type_error(mode_term, Mode)).
 
 
 
 % lgt_tr_object_relations(+list, +term)
+%
+% translates the relations of an object with other entities
 
 lgt_tr_object_relations([], _).
 
@@ -2304,11 +2344,13 @@ lgt_tr_object_relations([Clause| Clauses], Obj) :-
 	(lgt_tr_object_relation(Functor, Arguments, Obj) ->
 		lgt_tr_object_relations(Clauses, Obj)
 		;
-		throw(directive_error(relation_clause, Functor))).
+		throw(type_error(relation_clause, Functor))).
 
 
 
 % lgt_tr_object_relation(+atom, +list, +term)
+%
+% translates a relation between an object (the last argument) with other entities
 
 lgt_tr_object_relation(implements, Ptcs, Obj) :-
 	lgt_convert_to_list(Ptcs, List),
@@ -2333,6 +2375,8 @@ lgt_tr_object_relation(extends, Parents, Prototype) :-
 
 
 % lgt_tr_protocol_relations(+list, +term)
+%
+% translates the relations of a protocol with other entities
 
 lgt_tr_protocol_relations([], _).
 
@@ -2344,6 +2388,8 @@ lgt_tr_protocol_relations([Clause| Clauses], Obj) :-
 
 
 % lgt_tr_protocol_relation(+atom, +list, +term)
+%
+% translates a relation between a protocol (the last argument) with other entities
 
 lgt_tr_protocol_relation(extends, Ptcs, Ptc) :-
 	!,
@@ -2356,6 +2402,8 @@ lgt_tr_protocol_relation(Unknown, _, _) :-
 
 
 % lgt_tr_category_relations(+list, +term)
+%
+% translates the relations of a category with other entities
 
 lgt_tr_category_relations([], _).
 
@@ -2367,6 +2415,8 @@ lgt_tr_category_relations([Clause| Clauses], Obj) :-
 
 
 % lgt_tr_category_relation(+atom, +list, +term)
+%
+% translates a relation between a category (the last argument) with other entities
 
 lgt_tr_category_relation(implements, Ptcs, Ctg) :-
 	!,
@@ -2392,25 +2442,29 @@ lgt_tr_clauses([Clause| Clauses]) :-
 
 lgt_tr_clause(Clause) :-
 	\+ lgt_entity_(_, _, _, _),		% clause occurs before opening entity directive
-	assertz(lgt_feclause_(Clause)),
-	!.
+	!,
+	assertz(lgt_feclause_(Clause)).
 
 lgt_tr_clause(Clause) :-
 	lgt_entity_(_, _, Prefix, _),
 	lgt_prefix(Context, Prefix),
 	catch(
 		lgt_tr_clause(Clause, TClause, Context),
-		clause_error(Error, Cause),
-		throw(invalid_clause(Error, Cause, Clause))),
+		Error,
+		throw(error(Error, clause(Clause)))),
 	assertz(lgt_eclause_(TClause)),
 	!.
 
 lgt_tr_clause(Clause) :-
-	throw(invalid_clause(Clause)).
+	throw(error(unknown_error, clause(Clause))).
 
 
 
 % lgt_tr_clause(+clause, +clause, +term)
+
+lgt_tr_clause((Head:-_), _, _) :-
+	\+ lgt_callable(Head),
+	throw(type_error(callable, Head)).
 
 lgt_tr_clause((Head:-Body), (THead:-TBody), Context) :-
 	!,
@@ -2420,43 +2474,52 @@ lgt_tr_clause((Head:-Body), (THead:-TBody), Context) :-
 	lgt_tr_body(Body, Body2, Context),
 	lgt_simplify_body(Body2, TBody).
 
+lgt_tr_clause(Fact, _, _) :-
+	\+ lgt_callable(Fact),
+	throw(type_error(callable, Fact)).
+
 lgt_tr_clause(Fact, TFact, Context) :-
 	lgt_tr_head(Fact, TFact, Context).
 
 
 
 % lgt_tr_head(+callable, -callable, +term)
+%
+% translates an entity clause head
+
+
+% redefinition of built-in methods
 
 lgt_tr_head(Head, _, _) :-
 	lgt_built_in_method(Head, _),
-	functor(Head, Functor, Arity),
-	throw(clause_error(built_in_method_redef_error, Functor/Arity)).
+	throw(permission_error(modify, built_in_method, Head)).
+
+
+% redefinition of Logtalk built-in predicates
 
 lgt_tr_head(Head, _, _) :-
 	lgt_lgt_built_in(Head),
 	lgt_compiler_option(lgtredef, warning),
 	\+ lgt_redefined_built_in_(Head, _, _),		% not already reported?
 	functor(Head, Functor, Arity),
-	lgt_entity_(Type, Entity, _, _),
-	write('Logtalk compiler warning!'), nl,
-	write('  redefining a Logtalk built-in predicate: '),
+	write('WARNING!  redefining a Logtalk built-in predicate: '),
 	writeq(Functor/Arity), nl,
-	write('  inside '), write(Type), write(': '),
-	writeq(Entity), nl,
 	fail.
+
+
+% redefinition of Prolog built-in predicates
 
 lgt_tr_head(Head, _, _) :-
 	lgt_pl_built_in(Head),
 	lgt_compiler_option(plredef, warning),
 	\+ lgt_redefined_built_in_(Head, _, _),		% not already reported?
 	functor(Head, Functor, Arity),
-	lgt_entity_(Type, Entity, _, _),
-	write('Logtalk compiler warning!'), nl,
-	write('  redefining a Prolog built-in predicate: '),
+	write('WARNING!  redefining a Prolog built-in predicate: '),
 	writeq(Functor/Arity), nl,
-	write('  inside '), write(Type), write(': '),
-	writeq(Entity), nl,
 	fail.
+
+
+% translate the head of a clause of a user defined predicate
 
 lgt_tr_head(Head, THead, Context) :-
 	functor(Head, Functor, Arity),
@@ -2473,7 +2536,11 @@ lgt_tr_head(Head, THead, Context) :-
 
 
 % lgt_tr_body(+callable, -callable, +term)
+%
+% translates an entity clause body
 
+
+% meta-calls
 
 lgt_tr_body(Pred, TPred, Context) :-
 	var(Pred),
@@ -2487,9 +2554,13 @@ lgt_tr_body(Pred, TPred, Context) :-
 		TPred = lgt_metacall_in_object(This, Pred, This)).
 
 
+% pre-processor bypass (call of external code)
+
 lgt_tr_body({Pred}, Pred, _) :-
 	!.
 
+
+% bagof/3 and setof/3 existential quantifiers
 
 lgt_tr_body(Var^Pred, Var^TPred, Context) :-
 	!,
@@ -2619,7 +2690,7 @@ lgt_tr_body(retractall(Pred), lgt_retractall(This, Pred, This, _), Context) :-
 	lgt_this(Context, This).
 
 
-% inline methods
+% inline methods (translated to a single unification with the corresponding context argument)
 
 lgt_tr_body(sender(Sender), true, Context) :-
 	lgt_sender(Context, Sender),
@@ -2648,10 +2719,14 @@ lgt_tr_body(Pred, lgt_call_built_in(Pred, Context), Context) :-
 	!.
 
 
+% invalid goal
+
 lgt_tr_body(Pred, _, _) :-
 	\+ lgt_callable(Pred),
-	throw(clause_error(callable, Pred)).
+	throw(type_error(callable, Pred)).
 
+
+% goal is a call to a user predicate
 
 lgt_tr_body(Condition, TCondition, Context) :-
 	Condition =.. [Functor|Args],
@@ -2667,17 +2742,38 @@ lgt_tr_body(Condition, TCondition, Context) :-
 
 
 
+% lgt_tr_msg(@object, @term, -term, +term)
+%
+% translates the sending of a message to an object
+
+
+% message broadcasting
+
 lgt_tr_msg(Obj, Pred, TPred, Context) :-
 	nonvar(Obj),
 	(Obj = (_, _); Obj = (_; _)),
 	!,
 	lgt_tr_msg_broadcasting(Obj, Pred, TPred, Context).
 
+
+% invalid object identifier
+
 lgt_tr_msg(Obj, _, _, _) :-
 	nonvar(Obj),
 	\+ lgt_valid_object_id(Obj),
 	!,
-	throw(clause_error(object_identifier, Obj)).
+	throw(type_error(object_identifier, Obj)).
+
+
+% remember the object receiving the message to later check if it's known
+
+lgt_tr_msg(Obj, _, _, _) :-
+	nonvar(Obj),
+	lgt_add_referenced_object(Obj),
+	fail.
+
+
+% non-instantiated message: traslation performed at runtime
 
 lgt_tr_msg(Obj, Pred, lgt_send_to_object(Obj, Pred, This), Context) :-
 	var(Pred),
@@ -2793,10 +2889,15 @@ lgt_tr_msg(Obj, retractall(Pred), lgt_retractall(Obj, Pred, This, p(p(_))), Cont
 	lgt_this(Context, This).
 
 
+% invalid goal
+
 lgt_tr_msg(_, Pred, _, _) :-
 	\+ lgt_callable(Pred),
-	throw(clause_error(callable, Pred)).
+	throw(type_error(callable, Pred)).
 
+
+% message is not a built-in control construct or a call to a built-in 
+% (meta-)predicate: translation performed at runtime
 
 lgt_tr_msg(Obj, Pred, lgt_send_to_object(Obj, Pred, This), Context) :-
 	var(Obj),
@@ -2808,6 +2909,13 @@ lgt_tr_msg(Obj, Pred, lgt_send_to_object_nv(Obj, Pred, This), Context) :-
 	lgt_this(Context, This).
 
 
+
+% lgt_tr_self_msg(@term, -term, +term)
+%
+% translates the sending of a message to self
+
+
+% non-instantiated message: traslation performed at runtime
 
 lgt_tr_self_msg(Pred, lgt_send_to_self(Self, Pred, This), Context) :-
 	var(Pred),
@@ -2932,10 +3040,15 @@ lgt_tr_self_msg(retractall(Pred), lgt_retractall(Self, Pred, This, p(_)), Contex
 	lgt_this(Context, This).
 
 
+% invalid goal
+
 lgt_tr_self_msg(Pred, _, _) :-
 	\+ lgt_callable(Pred),
-	throw(clause_error(callable, Pred)).
+	throw(type_error(callable, Pred)).
 
+
+% message is not a built-in control construct or a call to a built-in 
+% (meta-)predicate: translation performed at runtime
 
 lgt_tr_self_msg(Pred, lgt_send_to_self_nv(Self, Pred, This), Context) :-
 	!,
@@ -2958,12 +3071,20 @@ lgt_tr_msg_broadcasting((Obj1; Obj2), Pred, (TP1; TP2), Context) :-
 
 
 
-% calling redefined predicates (super)
+% lgt_tr_super_sending(@term, -term, +term)
+%
+% translates calling of redefined predicates (super calls)
+
+
+% invalid goal
 
 lgt_tr_super_sending(Pred, _, _) :-
 	nonvar(Pred),
 	\+ lgt_callable(Pred),
-	throw(clause_error(callable, Pred)).
+	throw(type_error(callable, Pred)).
+
+
+% translation performed at runtime
 
 lgt_tr_super_sending(Pred, lgt_send_to_super(Self, Pred, This, Sender), Context) :-
 	var(Pred),
@@ -2980,6 +3101,9 @@ lgt_tr_super_sending(Pred, lgt_send_to_super_nv(Self, Pred, This, Sender), Conte
 
 
 % lgt_extract_metavars(+callable, -list)
+%
+% constructs a list of all variables that occur
+% in a position corresponding to a meta-argument
 
 lgt_extract_metavars(Pred, Metavars) :-
 	functor(Pred, Functor, Arity),
@@ -2992,11 +3116,7 @@ lgt_extract_metavars(Pred, Metavars) :-
 		Metavars = []).
 
 
-
 % lgt_extract_metavars(+list, +list, -list)
-%
-% constructs a list of all variables that occur
-% in a position corresponding to a meta-argument
 
 lgt_extract_metavars([], [], []).
 
@@ -3011,9 +3131,9 @@ lgt_extract_metavars([_| Args], [_| MArgs], Metavars) :-
 
 
 
-% remove redundant calls to true/0 from a clause body
-%
 % lgt_simplify_body(+callable, -callable)
+%
+% remove redundant calls to true/0 from a translated clause body
 
 lgt_simplify_body((A;B), (SA;SB)) :-
 	!,
@@ -3042,21 +3162,29 @@ lgt_simplify_body(B, B).
 
 
 
-% lgt_tr_object_id(+callable)
+% lgt_tr_object_id(+object_identifier)
+%
+% from the object identifier construct the set of 
+% functor prefixes used in the compiled code clauses
 
 lgt_tr_object_id(Obj) :-
-	lgt_construct_object_functors(Obj, Prefix, Dcl, Def, Super, SDcl, SDef, DDcl, DDef),
-	assertz(lgt_object_(Obj, Prefix, Dcl, Def, Super, SDcl, SDef, DDcl, DDef)),
-	Term =.. [Prefix, Dcl, Def, Super, SDcl, SDef, DDcl, DDef],
+	lgt_add_referenced_object(Obj),
+	lgt_construct_object_functors(Obj, Prefix, Dcl, Def, Super, IDcl, IDef, DDcl, DDef),
+	assertz(lgt_object_(Obj, Prefix, Dcl, Def, Super, IDcl, IDef, DDcl, DDef)),
+	Term =.. [Prefix, Dcl, Def, Super, IDcl, IDef, DDcl, DDef],
 	assertz(lgt_entity_functors_(Term)),
 	assertz(lgt_rclause_(lgt_current_object_(Obj, Prefix, Dcl, Def, Super))),
 	assertz(lgt_entity_(object, Obj, Prefix, Dcl)).
 
 
 
-% lgt_tr_category_id(+callable)
+% lgt_tr_category_id(+category_identifier)
+%
+% from the category identifier construct the set of 
+%  functor prefixes used in the compiled code clauses
 
 lgt_tr_category_id(Ctg) :-
+	lgt_add_referenced_category(Ctg),
 	lgt_construct_category_functors(Ctg, Prefix, Dcl, Def),
 	assertz(lgt_category_(Ctg, Prefix, Dcl, Def)),
 	Term =.. [Prefix, Dcl, Def],
@@ -3066,9 +3194,13 @@ lgt_tr_category_id(Ctg) :-
 
 
 
-% lgt_tr_protocol_id(+atom)
+% lgt_tr_protocol_id(+protocol_identifier)
+%
+% from the protocol identifier construct the set of  
+% functor prefixes used in the compiled code clauses
 
 lgt_tr_protocol_id(Ptc) :-
+	lgt_add_referenced_protocol(Ptc),
 	lgt_construct_protocol_functors(Ptc, Prefix, Dcl),
 	assertz(lgt_protocol_(Ptc, Prefix, Dcl)),
 	Term =.. [Prefix, Dcl],
@@ -3078,121 +3210,247 @@ lgt_tr_protocol_id(Ptc) :-
 
 
 
-% lgt_tr_implements_protocol(+list, +identifier)
+% lgt_tr_implements_protocol(+list, +object_identifier)
+% lgt_tr_implements_protocol(+list, +category_identifier)
+%
+% translates an "implementents" relation between 
+%  a category or an object and a list of protocols
 
 lgt_tr_implements_protocol([], _).
 
 lgt_tr_implements_protocol([Ref| Refs], ObjOrCtg) :-
-	lgt_valid_entity_scope(Ref) ->
+	lgt_valid_scope(Ref) ->
 		(lgt_scope_id(Ref, Scope, Ptc),
 		 (lgt_valid_protocol_id(Ptc) ->
+		 	lgt_add_referenced_protocol(Ptc),
 			assertz(lgt_rclause_(lgt_implements_protocol_(ObjOrCtg, Ptc, Scope))),
 			lgt_construct_protocol_functors(Ptc, Prefix, Dcl),
 			assertz(lgt_implemented_protocol_(Ptc, Prefix, Dcl, Scope)),
 			lgt_tr_implements_protocol(Refs, ObjOrCtg)
 			;
-			throw(directive_error(protocol_identifier, Ptc))))
+			throw(type_error(protocol_identifier, Ptc))))
 		;
-		throw(directive_error(entity_scope, Ref)).
+		throw(type_error(scope, Ref)).
 
 
 
-% lgt_tr_imports_category(+list, +identifier)
+% lgt_tr_imports_category(+list, +object_identifier)
+%
+% translates an "imports" relation between 
+% an object and a list of categories 
 
 lgt_tr_imports_category([], _).
 
 lgt_tr_imports_category([Ref| Refs], Obj) :-
-	lgt_valid_entity_scope(Ref) ->
+	lgt_valid_scope(Ref) ->
 		(lgt_scope_id(Ref, Scope, Ctg),
 		 (lgt_valid_category_id(Ctg) ->
+		 	lgt_add_referenced_category(Ctg),
 			assertz(lgt_rclause_(lgt_imports_category_(Obj, Ctg, Scope))),
 			lgt_construct_category_functors(Ctg, Prefix, Dcl, Def),
 			assertz(lgt_imported_category_(Ctg, Prefix, Dcl, Def, Scope)),
 			lgt_tr_imports_category(Refs, Obj)
 			;
-			throw(directive_error(category_identifier, Ctg))))
+			throw(type_error(category_identifier, Ctg))))
 		;
-		throw(directive_error(entity_scope, Ref)).
+		throw(type_error(scope, Ref)).
 
 
 
-% lgt_tr_instantiates_class(+list, +identifier)
+% lgt_tr_instantiates_class(+list, +object_identifier)
+%
+% translates an "instantiates" relation between 
+% an instance and a list of classes
 
 lgt_tr_instantiates_class([], _).
 
 lgt_tr_instantiates_class([Ref| Refs], Obj) :-
-	lgt_valid_entity_scope(Ref) ->
+	lgt_valid_scope(Ref) ->
 		(lgt_scope_id(Ref, Scope, Class),
 		 (lgt_valid_object_id(Class) ->
+		 	lgt_add_referenced_object(Class),
 			assertz(lgt_rclause_(lgt_instantiates_class_(Obj, Class, Scope))),
-			lgt_construct_object_functors(Class, Prefix, Dcl, Def, Super, SDcl, SDef, DDcl, DDef),
-			assertz(lgt_instantiated_class_(Class, Prefix, Dcl, Def, Super, SDcl, SDef, DDcl, DDef, Scope)),
+			lgt_construct_object_functors(Class, Prefix, Dcl, Def, Super, IDcl, IDef, DDcl, DDef),
+			assertz(lgt_instantiated_class_(Class, Prefix, Dcl, Def, Super, IDcl, IDef, DDcl, DDef, Scope)),
 			lgt_tr_instantiates_class(Refs, Obj)
 			;
-			throw(directive_error(object_identifier, Class))))
+			throw(type_error(object_identifier, Class))))
 		;
-		throw(directive_error(entity_scope, Ref)).
+		throw(type_error(scope, Ref)).
 
 
 
-% lgt_tr_specializes_class(+list, +identifier)
+% lgt_tr_specializes_class(+list, +object_identifier)
+%
+% translates a "specializes" relation between 
+% a class and a list of superclasses
 
 lgt_tr_specializes_class([], _).
 
 lgt_tr_specializes_class([Ref| Refs], Class) :-
-	lgt_valid_entity_scope(Ref) ->
+	lgt_valid_scope(Ref) ->
 		(lgt_scope_id(Ref, Scope, Superclass),
 		 (lgt_valid_object_id(Superclass) ->
+		 	lgt_add_referenced_object(Superclass),
 			assertz(lgt_rclause_(lgt_specializes_class_(Class, Superclass, Scope))),
-			lgt_construct_object_functors(Superclass, Prefix, Dcl, Def, Super, SDcl, SDef, DDcl, DDef),
-			assertz(lgt_specialized_class_(Superclass, Prefix, Dcl, Def, Super, SDcl, SDef, DDcl, DDef, Scope)),
+			lgt_construct_object_functors(Superclass, Prefix, Dcl, Def, Super, IDcl, IDef, DDcl, DDef),
+			assertz(lgt_specialized_class_(Superclass, Prefix, Dcl, Def, Super, IDcl, IDef, DDcl, DDef, Scope)),
 			lgt_tr_specializes_class(Refs, Class)
 			;
-			throw(directive_error(object_identifier, Superclass))))
+			throw(type_error(object_identifier, Superclass))))
 		;
-		throw(directive_error(entity_scope, Ref)).
+		throw(type_error(scope, Ref)).
 
 
 
-% lgt_tr_extends_object(+list, +identifier)
+% lgt_tr_extends_object(+list, +object_identifier)
+%
+% translates an "extends" relation between 
+% a prototype and a list of parents
 
 lgt_tr_extends_object([], _).
 
 lgt_tr_extends_object([Ref| Refs], Obj) :-
-	lgt_valid_entity_scope(Ref) ->
+	lgt_valid_scope(Ref) ->
 		(lgt_scope_id(Ref, Scope, Parent),
 		 (lgt_valid_object_id(Parent) ->
+		 	lgt_add_referenced_object(Parent),
 			assertz(lgt_rclause_(lgt_extends_object_(Obj, Parent, Scope))),
-			lgt_construct_object_functors(Parent, Prefix, Dcl, Def, Super, SDcl, SDef, DDcl, DDef),
-			assertz(lgt_extended_object_(Parent, Prefix, Dcl, Def, Super, SDcl, SDef, DDcl, DDef, Scope)),
+			lgt_construct_object_functors(Parent, Prefix, Dcl, Def, Super, IDcl, IDef, DDcl, DDef),
+			assertz(lgt_extended_object_(Parent, Prefix, Dcl, Def, Super, IDcl, IDef, DDcl, DDef, Scope)),
 			lgt_tr_extends_object(Refs, Obj)
 			;
-			throw(directive_error(object_identifier, Parent))))
+			throw(type_error(object_identifier, Parent))))
 		;
-		throw(directive_error(entity_scope, Ref)).
+		throw(type_error(scope, Ref)).
 
 
 
-% lgt_tr_extends_protocol(+list, +identifier)
+% lgt_tr_extends_protocol(+list, +protocol_identifier)
+%
+% translates an "extends" relation between 
+% a protocol and a list of protocols
 
 lgt_tr_extends_protocol([], _).
 
 lgt_tr_extends_protocol([Ref| Refs], Ptc1) :-
-	lgt_valid_entity_scope(Ref) ->
+	lgt_valid_scope(Ref) ->
 		(lgt_scope_id(Ref, Scope, Ptc2),
 		 (lgt_valid_protocol_id(Ptc2) ->
+		 	lgt_add_referenced_protocol(Ptc2),
 			assertz(lgt_rclause_(lgt_extends_protocol_(Ptc1, Ptc2, Scope))),
 			lgt_construct_protocol_functors(Ptc2, Prefix, Dcl),
 			assertz(lgt_extended_protocol_(Ptc2, Prefix, Dcl, Scope)),
 			lgt_tr_extends_protocol(Refs, Ptc1)
 			;
-			throw(directive_error(protocol_identifier, Ptc2))))
+			throw(type_error(protocol_identifier, Ptc2))))
 		;
-		throw(directive_error(entity_scope, Ref)).
+		throw(type_error(scope, Ref)).
+
+
+
+% lgt_add_referenced_object(+object_identifier)
+%
+% assert the name of an object referenced by the entity that we are compiling
+
+lgt_add_referenced_object(Obj) :-
+	lgt_referenced_object_(Obj) ->
+		true
+		;
+		assertz(lgt_referenced_object_(Obj)).
+
+
+
+% lgt_add_referenced_protocol(+protocol_identifier)
+%
+% assert the name of a protocol referenced by the entity that we are compiling
+
+lgt_add_referenced_protocol(Ptc) :-
+	lgt_referenced_protocol_(Ptc) ->
+		true
+		;
+		assertz(lgt_referenced_protocol_(Ptc)).
+
+
+
+% lgt_add_referenced_category(+category_identifier)
+%
+% assert the name of a category referenced by the entity that we are compiling
+
+lgt_add_referenced_category(Ctg) :-
+	lgt_referenced_category_(Ctg) ->
+		true
+		;
+		assertz(lgt_referenced_category_(Ctg)).
+
+
+
+% lgt_report_unknown_entities
+%
+% report any unknown referenced entities found while compiling an entity
+% (if the corresponding compiler option is not set to "silent")
+
+lgt_report_unknown_entities :-
+	lgt_compiler_option(unknown, warning) ->
+		lgt_report_unknown_objects,
+		lgt_report_unknown_protocols,
+		lgt_report_unknown_categories
+		;
+		true.	
+
+
+
+% lgt_report_unknown_objects
+%
+% report any unknown referenced objects found while compiling an entity
+
+lgt_report_unknown_objects :-
+	findall(
+		Obj,
+		(lgt_referenced_object_(Obj), \+ (lgt_current_object_(Obj, _, _, _, _); lgt_entity_(_, Obj, _, _))),
+		Objs),
+	(Objs \= [] ->
+		write('WARNING!  references to unknown objects:    '), writeq(Objs), nl
+		;
+		true).
+
+
+
+% lgt_report_unknown_protocols
+%
+% report any unknown referenced protocols found while compiling an entity
+
+lgt_report_unknown_protocols :-
+	findall(
+		Ptc,
+		(lgt_referenced_protocol_(Ptc), \+ (lgt_current_protocol_(Ptc, _); lgt_entity_(_, Ptc, _, _))),
+		Ptcs),
+	(Ptcs \= [] ->
+		write('WARNING!  references to unknown protocols:  '), writeq(Ptcs), nl
+		;
+		true).
+
+
+
+% lgt_report_unknown_categories
+%
+% report any unknown referenced categories found while compiling an entity
+
+lgt_report_unknown_categories :-
+	findall(
+		Ctg,
+		(lgt_referenced_category_(Ctg), \+ (lgt_current_category_(Ctg, _); lgt_entity_(_, Ctg, _, _))),
+		Ctgs),
+	(Ctgs \= [] ->
+		write('WARNING!  references to unknown categories: '), writeq(Ctgs), nl
+		;
+		true).
 
 
 
 % lgt_add_def_clause(+atom, +integer, +atom, +term)
+%
+% adds a "def clause" (used to translate a predicate call)
 
 lgt_add_def_clause(Functor, Arity, Prefix, Context) :-
 	functor(Head, Functor, Arity),
@@ -3222,19 +3480,23 @@ lgt_add_def_clause(Functor, Arity, Prefix, Context) :-
 
 
 % lgt_assert_dynamic_def_clause(+atom, +integer, +atom, +atom, -callable)
+%
+% asserts a dynamic "def clause" (used to translate a predicate call)
 
 lgt_assert_dynamic_def_clause(Functor, Arity, OPrefix, DDef, Call) :-
 	lgt_construct_predicate_functor(OPrefix, Functor, Arity, PPrefix),
 	functor(Pred, Functor, Arity),
 	Pred =.. [_| Args],
 	lgt_append(Args, [Sender, This, Self], TArgs),
-	Call =.. [PPrefix|TArgs],
+	Call =.. [PPrefix| TArgs],
 	Clause =.. [DDef, Pred, Sender, This, Self, Call],
 	assertz(Clause).
 
 
 
 % lgt_assert_dynamic_dcl_clause(+term, +atom)
+%
+% asserts a dynamic predicate declaration
 
 lgt_assert_dynamic_dcl_clause(Pred, DDcl) :-
 	functor(Pred, Functor, Arity),
@@ -3245,6 +3507,8 @@ lgt_assert_dynamic_dcl_clause(Pred, DDcl) :-
 
 
 % lgt_gen_directives(+atom)
+%
+% generates entity directives
 
 lgt_gen_directives(object) :-
 	lgt_gen_object_directives.
@@ -3281,26 +3545,36 @@ lgt_gen_protocol_directives :-
 
 
 lgt_gen_object_dynamic_directives :-
-	lgt_object_(_, Prefix, Dcl, Def, Super, SDcl, SDef, DDcl, DDef),
-	assertz(lgt_directive_(dynamic(DDcl/4))),
-	assertz(lgt_directive_(dynamic(DDef/5))),
-	lgt_entity_comp_mode_((dynamic)),
-	!,
+	lgt_entity_comp_mode_((dynamic)) ->
+		lgt_gen_dynamic_object_dynamic_directives
+		;
+		lgt_gen_static_object_dynamic_directives.
+
+
+
+lgt_gen_dynamic_object_dynamic_directives :-
+	lgt_object_(_, Prefix, Dcl, Def, Super, IDcl, IDef, DDcl, DDef),
 	assertz(lgt_directive_(dynamic(Prefix/7))),
 	assertz(lgt_directive_(dynamic(Dcl/4))),
 	assertz(lgt_directive_(dynamic(Dcl/6))),
 	assertz(lgt_directive_(dynamic(Def/5))),
 	assertz(lgt_directive_(dynamic(Def/6))),
 	assertz(lgt_directive_(dynamic(Super/6))),
-	assertz(lgt_directive_(dynamic(SDcl/6))),
-	assertz(lgt_directive_(dynamic(SDef/6))),
+	assertz(lgt_directive_(dynamic(IDcl/6))),
+	assertz(lgt_directive_(dynamic(IDef/6))),
+	assertz(lgt_directive_(dynamic(DDcl/4))),
+	assertz(lgt_directive_(dynamic(DDef/5))),
 	forall(
 		(lgt_def_(Clause), Clause \= (_ :- _)),
 		(arg(5, Clause, Call), functor(Call, Functor, Arity),
 		 assertz(lgt_directive_(dynamic(Functor/Arity))))).
 
-lgt_gen_object_dynamic_directives :-
-	lgt_object_(_, _, _, Def, _, _, _, _, _),
+
+
+lgt_gen_static_object_dynamic_directives :-
+	lgt_object_(_, _, _, Def, _, _, _, DDcl, DDef),
+	assertz(lgt_directive_(dynamic(DDcl/4))),
+	assertz(lgt_directive_(dynamic(DDef/5))),
 	lgt_dynamic_(Functor/Arity),
 	functor(Pred, Functor, Arity),
 	Clause =.. [Def, Pred, _, _, _, TPred],
@@ -3309,7 +3583,7 @@ lgt_gen_object_dynamic_directives :-
 	assertz(lgt_directive_(dynamic(TFunctor/TArity))),
 	fail.
 
-lgt_gen_object_dynamic_directives.
+lgt_gen_static_object_dynamic_directives.
 
 
 
@@ -3387,7 +3661,9 @@ lgt_gen_local_dcl_clauses :-
 	((lgt_public_(Functor/Arity), Scope = p(p(p)));
 	 (lgt_protected_(Functor/Arity), Scope = p(p));
 	 (lgt_private_(Functor/Arity), Scope = p)),
-	((lgt_entity_comp_mode_((dynamic)); lgt_dynamic_(Functor/Arity)) -> Compilation = (dynamic); Compilation = static),
+	((lgt_entity_comp_mode_((dynamic)); lgt_dynamic_(Functor/Arity)) ->
+		Compilation = (dynamic);
+		Compilation = static),
 	functor(Meta, Functor, Arity),
 	(lgt_metapredicate_(Meta) -> Meta2 = Meta; Meta2 = no),
 	functor(Pred, Functor, Arity),
@@ -3561,6 +3837,7 @@ lgt_gen_prototype_linking_dcl_clauses :-
 	assertz(lgt_dcl_((Head:-Body2))).
 
 
+
 lgt_gen_prototype_implements_dcl_clauses :-
 	lgt_object_(Obj, _, ODcl, _, _, _, _, _, _),
 	Head =.. [ODcl, Pred, Scope, Compilation, Meta, Obj, Container],
@@ -3703,9 +3980,9 @@ lgt_gen_prototype_super_clauses.
 
 lgt_gen_ic_clauses :-
 	lgt_gen_ic_dcl_clauses,
-	lgt_gen_ic_sdcl_clauses,
+	lgt_gen_ic_idcl_clauses,
 	lgt_gen_ic_def_clauses,
-	lgt_gen_ic_sdef_clauses,
+	lgt_gen_ic_idef_clauses,
 	lgt_gen_ic_super_clauses.
 
 
@@ -3737,16 +4014,16 @@ lgt_gen_ic_hierarchy_dcl_clauses :-
 lgt_gen_ic_hierarchy_dcl_clauses :-
 	lgt_object_(Obj, _, ODcl, _, _, _, _, _, _),
 	Head =.. [ODcl, Pred, Scope, Compilation, Meta, SContainer, TContainer],
-	lgt_instantiated_class_(_, _, _, _, _, CSDcl, _, _, _, EScope),
+	lgt_instantiated_class_(_, _, _, _, _, CIDcl, _, _, _, EScope),
 	(EScope = (public) ->
-		Body =.. [CSDcl, Pred, Scope, Compilation, Meta, SContainer, TContainer]
+		Body =.. [CIDcl, Pred, Scope, Compilation, Meta, SContainer, TContainer]
 		;
 		(EScope = protected ->
-			Call =.. [CSDcl, Pred, Scope2, Compilation, Meta, SContainer, TContainer],
+			Call =.. [CIDcl, Pred, Scope2, Compilation, Meta, SContainer, TContainer],
 			Body = (Call, (Scope2 = p -> Scope = p; Scope = p(p)))
 			;
 			Scope = p,
-			Call =.. [CSDcl, Pred, Scope2, Compilation, Meta, SContainer2, TContainer],
+			Call =.. [CIDcl, Pred, Scope2, Compilation, Meta, SContainer2, TContainer],
 			Body = (Call, (Scope2 = p -> SContainer = SContainer2; SContainer = Obj)))),
 	assertz(lgt_dcl_((Head:-Body))),
 	fail.
@@ -3755,17 +4032,19 @@ lgt_gen_ic_hierarchy_dcl_clauses.
 
 
 
-lgt_gen_ic_sdcl_clauses :-
-	lgt_gen_ic_linking_sdcl_clauses,
-	lgt_gen_ic_protocol_sdcl_clauses,
-	lgt_gen_ic_category_sdcl_clauses,
-	lgt_gen_ic_hierarchy_sdcl_clauses.
+% generates instance/class inherited declaration clauses
+
+lgt_gen_ic_idcl_clauses :-
+	lgt_gen_ic_linking_idcl_clauses,
+	lgt_gen_ic_protocol_idcl_clauses,
+	lgt_gen_ic_category_idcl_clauses,
+	lgt_gen_ic_hierarchy_idcl_clauses.
 
 
 
-lgt_gen_ic_linking_sdcl_clauses :-
-	lgt_object_(Obj, _, Dcl, _, _, SDcl, _, DDcl, _),
-	Head =.. [SDcl, Pred, Scope, Compilation, Meta, Obj, Obj],
+lgt_gen_ic_linking_idcl_clauses :-
+	lgt_object_(Obj, _, Dcl, _, _, IDcl, _, DDcl, _),
+	Head =.. [IDcl, Pred, Scope, Compilation, Meta, Obj, Obj],
 	Body =.. [Dcl, Pred, Scope, Compilation, Meta],
 	assertz(lgt_dcl_((Head:-Body))),
 	Body2 =.. [DDcl, Pred, Scope, Compilation, Meta],
@@ -3774,9 +4053,9 @@ lgt_gen_ic_linking_sdcl_clauses :-
 
 
 
-lgt_gen_ic_protocol_sdcl_clauses :-
-	lgt_object_(Obj, _, _, _, _, OSDcl, _, _, _),
-	Head =.. [OSDcl, Pred, Scope, Compilation, Meta, Obj, Container],
+lgt_gen_ic_protocol_idcl_clauses :-
+	lgt_object_(Obj, _, _, _, _, OIDcl, _, _, _),
+	Head =.. [OIDcl, Pred, Scope, Compilation, Meta, Obj, Container],
 	lgt_implemented_protocol_(_, _, PDcl, EScope),
 	(EScope = (public) ->
 		Body =.. [PDcl, Pred, Scope, Compilation, Meta, Container]
@@ -3790,13 +4069,13 @@ lgt_gen_ic_protocol_sdcl_clauses :-
 	assertz(lgt_dcl_((Head:-Body))),
 	fail.
 
-lgt_gen_ic_protocol_sdcl_clauses.
+lgt_gen_ic_protocol_idcl_clauses.
 
 
 
-lgt_gen_ic_category_sdcl_clauses :-
-	lgt_object_(Obj, _, _, _, _, OSDcl, _, _, _),
-	Head =.. [OSDcl, Pred, Scope, Compilation, Meta, Obj, Container],
+lgt_gen_ic_category_idcl_clauses :-
+	lgt_object_(Obj, _, _, _, _, OIDcl, _, _, _),
+	Head =.. [OIDcl, Pred, Scope, Compilation, Meta, Obj, Container],
 	lgt_imported_category_(_, _, CDcl, _, EScope),
 	(EScope = (public) ->
 		Body =.. [CDcl, Pred, Scope, Compilation, Meta, Container]
@@ -3810,28 +4089,28 @@ lgt_gen_ic_category_sdcl_clauses :-
 	assertz(lgt_dcl_((Head:-Body))),
 	fail.
 
-lgt_gen_ic_category_sdcl_clauses.
+lgt_gen_ic_category_idcl_clauses.
 
 
 
-lgt_gen_ic_hierarchy_sdcl_clauses :-
-	lgt_object_(Obj, _, _, _, _, CSDcl, _, _, _),
-	Head =.. [CSDcl, Pred, Scope, Compilation, Meta, SContainer, TContainer],
-	lgt_specialized_class_(_, _, _, _, _, SSDcl, _, _, _, EScope),
+lgt_gen_ic_hierarchy_idcl_clauses :-
+	lgt_object_(Obj, _, _, _, _, CIDcl, _, _, _),
+	Head =.. [CIDcl, Pred, Scope, Compilation, Meta, SContainer, TContainer],
+	lgt_specialized_class_(_, _, _, _, _, SIDcl, _, _, _, EScope),
 	(EScope = (public) ->
-		Body =.. [SSDcl, Pred, Scope, Compilation, Meta, SContainer, TContainer]
+		Body =.. [SIDcl, Pred, Scope, Compilation, Meta, SContainer, TContainer]
 		;
 		(EScope = protected ->
-			Call =.. [SSDcl, Pred, Scope2, Compilation, Meta, SContainer, TContainer],
+			Call =.. [SIDcl, Pred, Scope2, Compilation, Meta, SContainer, TContainer],
 			Body = (Call, (Scope2 = p -> Scope = p; Scope = p(p)))
 			;
 			Scope = p,
-			Call =.. [SSDcl, Pred, Scope2, Compilation, Meta, SContainer2, TContainer],
+			Call =.. [SIDcl, Pred, Scope2, Compilation, Meta, SContainer2, TContainer],
 			Body = (Call, (Scope2 = p -> SContainer = SContainer2; SContainer = Obj)))),
 	assertz(lgt_dcl_((Head:-Body))),
 	fail.
 
-lgt_gen_ic_hierarchy_sdcl_clauses.
+lgt_gen_ic_hierarchy_idcl_clauses.
 
 
 
@@ -3881,8 +4160,8 @@ lgt_gen_ic_hierarchy_def_clauses :-
 	lgt_object_(Obj, _, _, ODef, _, _, _, _, _),
 	lgt_rclause_(lgt_instantiates_class_(Obj, Class, _)),
 	Head =.. [ODef, Pred, Sender, Obj, Self, Call, Container],
-	lgt_instantiated_class_(Class, _, _, _, _, _, CSDef, _, _, _),
-	Body =.. [CSDef, Pred, Sender, Class, Self, Call, Container],
+	lgt_instantiated_class_(Class, _, _, _, _, _, CIDef, _, _, _),
+	Body =.. [CIDef, Pred, Sender, Class, Self, Call, Container],
 	assertz(lgt_def_((Head:-Body))),
 	fail.
 
@@ -3891,16 +4170,16 @@ lgt_gen_ic_hierarchy_def_clauses.
 
 
 
-lgt_gen_ic_sdef_clauses :-
-	lgt_gen_ic_linking_sdef_clauses,
-	lgt_gen_ic_category_sdef_clauses,
-	lgt_gen_ic_hierarchy_sdef_clauses.
+lgt_gen_ic_idef_clauses :-
+	lgt_gen_ic_linking_idef_clauses,
+	lgt_gen_ic_category_idef_clauses,
+	lgt_gen_ic_hierarchy_idef_clauses.
 
 
 
-lgt_gen_ic_linking_sdef_clauses :-
-	lgt_object_(Obj, _, _, Def, _, _, SDef, _, DDef),
-	Head =.. [SDef, Pred, Sender, This, Self, Call, Obj],
+lgt_gen_ic_linking_idef_clauses :-
+	lgt_object_(Obj, _, _, Def, _, _, IDef, _, DDef),
+	Head =.. [IDef, Pred, Sender, This, Self, Call, Obj],
 	Body =.. [Def, Pred, Sender, This, Self, Call],
 	assertz(lgt_def_((Head:-Body))),
 	Body2 =.. [DDef, Pred, Sender, This, Self, Call],
@@ -3908,30 +4187,30 @@ lgt_gen_ic_linking_sdef_clauses :-
 
 
 
-lgt_gen_ic_category_sdef_clauses :-
-	lgt_object_(Obj, _, _, _, _, _, OSDef, _, _),
+lgt_gen_ic_category_idef_clauses :-
+	lgt_object_(Obj, _, _, _, _, _, OIDef, _, _),
 	lgt_rclause_(lgt_imports_category_(Obj, Ctg, _)),
-	Head =.. [OSDef, Pred, Sender, Obj, Self, Call, Ctg],
+	Head =.. [OIDef, Pred, Sender, Obj, Self, Call, Ctg],
 	lgt_imported_category_(Ctg, _, _, CDef, _),
 	Body =.. [CDef, Pred, Sender, Obj, Self, Call],
 	assertz(lgt_def_((Head:-Body))),	
 	fail.
 
 
-lgt_gen_ic_category_sdef_clauses.
+lgt_gen_ic_category_idef_clauses.
 
 
 
-lgt_gen_ic_hierarchy_sdef_clauses :-
-	lgt_object_(Class, _, _, _, _, _, CSDef, _, _),
+lgt_gen_ic_hierarchy_idef_clauses :-
+	lgt_object_(Class, _, _, _, _, _, CIDef, _, _),
 	lgt_rclause_(lgt_specializes_class_(Class, Super, _)),
-	Head =.. [CSDef, Pred, Sender, Class, Self, Call, Container],
-	lgt_specialized_class_(Super, _, _, _, _, _, SSDef, _, _, _),
-	Body =.. [SSDef, Pred, Sender, Super, Self, Call, Container],
+	Head =.. [CIDef, Pred, Sender, Class, Self, Call, Container],
+	lgt_specialized_class_(Super, _, _, _, _, _, SIDef, _, _, _),
+	Body =.. [SIDef, Pred, Sender, Super, Self, Call, Container],
 	assertz(lgt_def_((Head:-Body))),
 	fail.
 
-lgt_gen_ic_hierarchy_sdef_clauses.
+lgt_gen_ic_hierarchy_idef_clauses.
 
 
 
@@ -3951,8 +4230,8 @@ lgt_gen_ic_super_clauses :-
 	lgt_object_(Obj, _, _, _, OSuper, _, _, _, _),
 	lgt_rclause_(lgt_instantiates_class_(Obj, Class, _)),
 	Head =.. [OSuper, Pred, Sender, Obj, Obj, Call, Container],
-	lgt_instantiated_class_(Class, _, _, _, _, _, CSDef, _, _, _),
-	Body =.. [CSDef, Pred, Sender, Class, Obj, Call, Container],
+	lgt_instantiated_class_(Class, _, _, _, _, _, CIDef, _, _, _),
+	Body =.. [CIDef, Pred, Sender, Class, Obj, Call, Container],
 	assertz(lgt_def_((Head:-Body))),
 	fail.
 
@@ -3962,14 +4241,19 @@ lgt_gen_ic_super_clauses :-
 	lgt_object_(Class, _, _, _, CSuper, _, _, _, _),
 	lgt_rclause_(lgt_specializes_class_(Class, Super, _)),
 	Head =.. [CSuper, Pred, Sender, Class, Self, Call, Container],
-	lgt_specialized_class_(Super, _, _, _, _, _, SSDef, _, _, _),
-	Body =.. [SSDef, Pred, Sender, Super, Self, Call, Container],
+	lgt_specialized_class_(Super, _, _, _, _, _, SIDef, _, _, _),
+	Body =.. [SIDef, Pred, Sender, Super, Self, Call, Container],
 	assertz(lgt_def_((Head:-Body))),
 	fail.
 
 lgt_gen_ic_super_clauses.
 
 
+
+% lgt_fix_redef_built_ins
+%
+% fix the calls of any redefined built-in predicate in all entity clauses 
+% and initialization goals
 
 lgt_fix_redef_built_ins :-
 	retract(lgt_eclause_(Clause)),
@@ -4072,18 +4356,28 @@ lgt_report_misspelt_calls([]).
 
 lgt_report_misspelt_calls([Pred| Preds]) :-
 	lgt_compiler_option(misspelt, warning) ->
-		lgt_entity_(Type, Entity, _, _),
-		write('Logtalk compiler warning!'), nl,
-		write('  these static predicates are called but never defined: '), nl,
-		write('    '), writeq([Pred| Preds]), nl, 
-		write('  inside '), write(Type), write(': '),
-		writeq(Entity), nl
+		write('WARNING!  these static predicates are called but never defined: '),
+		writeq([Pred| Preds]), nl
 		;
 		true.
 
 
 
+% lgt_write_directives(+stream)
+%
+% writes the Logtalk and user directives
+
 lgt_write_directives(Stream) :-
+	lgt_write_lgt_directives(Stream),
+	lgt_write_user_directives(Stream).
+
+
+
+% lgt_write_lgt_directives(+stream)
+%
+% writes the Logtalk message sending operator directives
+
+lgt_write_lgt_directives(Stream) :-
 	write_term(Stream, ':- ', []),
 	write_term(Stream, op(600, xfy, ::), [quoted(true)]),
 	write_term(Stream, '.', []), nl(Stream),
@@ -4092,15 +4386,23 @@ lgt_write_directives(Stream) :-
 	write_term(Stream, '.', []), nl(Stream),
 	write_term(Stream, ':- ', []),
 	write_term(Stream, op(600,  fx, ^^), [quoted(true)]),
-	write_term(Stream, '.', []), nl(Stream),
+	write_term(Stream, '.', []), nl(Stream).
+
+
+
+% lgt_write_user_directives(+stream)
+%
+% writes the user directives
+
+lgt_write_user_directives(Stream) :-
 	lgt_directive_(Dir),
-		write_term(Stream, ':- ', []),
-		write_term(Stream, Dir, [quoted(true)]),
-		write_term(Stream, '.', []),
-		nl(Stream),
+	write_term(Stream, ':- ', []),
+	write_term(Stream, Dir, [quoted(true)]),
+	write_term(Stream, '.', []),
+	nl(Stream),
 	fail.
 
-lgt_write_directives(_).
+lgt_write_user_directives(_).
 
 
 
@@ -4164,6 +4466,12 @@ lgt_write_entity_clauses(_).
 
 
 
+% lgt_write_init_call(+stream)
+%
+% writes the initialization call for the compiled entity that will assert 
+% the relation clauses and call any declared initialization goal when the
+% entity is loaded
+
 lgt_write_init_call(Stream) :-
 	lgt_compiler_option(iso_initialization_dir, true),
 	!,
@@ -4192,6 +4500,10 @@ lgt_write_init_call(Stream) :-
 		true).
 
 
+
+% lgt_assert_tr_entity
+%
+% adds a dynamically created entity to memory
 
 lgt_assert_tr_entity :-
 	lgt_assert_directives,
@@ -4272,6 +4584,10 @@ lgt_assert_relation_clauses.
 
 
 
+% lgt_assert_init
+%
+% call any defined initialization goal for a dynamically created entity
+
 lgt_assert_init :-
 	lgt_fentity_init_(Goal) ->
 		once(Goal)
@@ -4304,8 +4620,10 @@ lgt_assert_relation_clause(Clause) :-
 
 
 % lgt_construct_object_functors(+compound, -atom, -atom, -atom, -atom, -atom, -atom, -atom, -atom)
+%
+% constructs all the functors used in the compiled code of an object
 
-lgt_construct_object_functors(Obj, Prefix, Dcl, Def, Super, SDcl, SDef, DDcl, DDef) :-
+lgt_construct_object_functors(Obj, Prefix, Dcl, Def, Super, IDcl, IDef, DDcl, DDef) :-
 	functor(Obj, Functor, Arity),
 	number_codes(Arity, Codes),
 	atom_codes(Atom, Codes),
@@ -4314,14 +4632,16 @@ lgt_construct_object_functors(Obj, Prefix, Dcl, Def, Super, SDcl, SDef, DDcl, DD
 	atom_concat(Prefix, '_dcl', Dcl),
 	atom_concat(Prefix, '_def', Def),
 	atom_concat(Prefix, '_super', Super),
-	atom_concat(Prefix, '_sdcl', SDcl),
-	atom_concat(Prefix, '_sdef', SDef),
+	atom_concat(Prefix, '_idcl', IDcl),
+	atom_concat(Prefix, '_idef', IDef),
 	atom_concat(Prefix, '_ddcl', DDcl),
 	atom_concat(Prefix, '_ddef', DDef).
 
 
 
 % lgt_construct_protocol_functors(+compound, -atom, -atom)
+%
+% constructs all the functors used in the compiled code of a protocol
 
 lgt_construct_protocol_functors(Ptc, Prefix, Dcl) :-
 	functor(Ptc, Functor, Arity),
@@ -4334,6 +4654,8 @@ lgt_construct_protocol_functors(Ptc, Prefix, Dcl) :-
 
 
 % lgt_construct_category_functors(+compound, -atom, -atom, -atom)
+%
+% constructs all the functors used in the compiled code of a category
 
 lgt_construct_category_functors(Ctg, Prefix, Dcl, Def) :-
 	functor(Ctg, Functor, Arity),
@@ -4347,6 +4669,8 @@ lgt_construct_category_functors(Ctg, Prefix, Dcl, Def) :-
 
 
 % lgt_construct_predicate_functor(+atom, +atom, +integer, -atom)
+%
+% constructs the functor used for a compiled predicate
 
 lgt_construct_predicate_functor(EPrefix, Functor, Arity, PPrefix) :-
 	atom_concat(EPrefix, Functor, Aux),
@@ -4559,9 +4883,9 @@ lgt_valid_protocol_id(Term) :-
 
 
 
-% lgt_valid_entity_scope(@term)
+% lgt_valid_scope(@term)
 	
-lgt_valid_entity_scope(Term) :-
+lgt_valid_scope(Term) :-
 	nonvar(Term),	
 	(Term = (Scope::_) ->
 		nonvar(Scope),
@@ -4644,6 +4968,8 @@ lgt_valid_number_of_solutions(Solutions) :-
 
 
 % lgt_valid_info_list(@list)
+%
+% true if the argument is a list of key-value pairs
 
 lgt_valid_info_list([]).
 
@@ -4679,6 +5005,9 @@ lgt_valid_compiler_option(xml(Option)) :-
 
 lgt_valid_compiler_option(xsl(File)) :-
 	atom(File).
+
+lgt_valid_compiler_option(unknown(Option)) :-
+	once((Option == silent; Option == warning)).
 
 lgt_valid_compiler_option(singletons(Option)) :-
 	once((Option == silent; Option == warning)).
@@ -4756,6 +5085,10 @@ lgt_lgt_built_in(current_event(_, _, _, _, _)).
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 
+
+% lgt_write_xml_file(+stream)
+%
+% writes a XML file containing the documentation of a compiled entity
 
 lgt_write_xml_file(Stream) :-
 	lgt_write_xml_header(Stream),
@@ -4879,6 +5212,10 @@ lgt_relation_to_xml_filename(Relation, File) :-
 
 
 
+% lgt_write_xml_predicates(+stream)
+%
+% writes the predicate documentation
+
 lgt_write_xml_predicates(Stream) :-
 	lgt_write_xml_open_tag(Stream, predicates, []),
 	lgt_write_xml_public_predicates(Stream),
@@ -4887,6 +5224,10 @@ lgt_write_xml_predicates(Stream) :-
 	lgt_write_xml_close_tag(Stream, predicates).
 
 
+
+% lgt_write_xml_public_predicates(+stream)
+%
+% writes the documentation of public predicates
 
 lgt_write_xml_public_predicates(Stream) :-
 	lgt_write_xml_open_tag(Stream, (public), []),
@@ -4899,6 +5240,10 @@ lgt_write_xml_public_predicates(Stream) :-
 
 
 
+% lgt_write_xml_protected_predicates(+stream)
+%
+% writes the documentation protected predicates
+
 lgt_write_xml_protected_predicates(Stream) :-
 	lgt_write_xml_open_tag(Stream, protected, []),
 	lgt_protected_(Functor/Arity),
@@ -4910,6 +5255,10 @@ lgt_write_xml_protected_predicates(Stream) :-
 
 
 
+% lgt_write_xml_private_predicates(+stream)
+%
+% writes the documentation of private predicates
+
 lgt_write_xml_private_predicates(Stream) :-
 	lgt_write_xml_open_tag(Stream, private, []),
 	lgt_private_(Functor/Arity),
@@ -4920,6 +5269,10 @@ lgt_write_xml_private_predicates(Stream) :-
 	lgt_write_xml_close_tag(Stream, private).
 
 
+
+% lgt_write_xml_predicate(+stream, +atom/+integer, +term)
+%
+% writes the documentation of a predicate
 
 lgt_write_xml_predicate(Stream, Functor/Arity, Scope) :-
 	((lgt_entity_comp_mode_((dynamic)); lgt_dynamic_(Functor/Arity)) ->
@@ -5129,4 +5482,3 @@ lgt_banner :-
 %  end!
 %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-

@@ -4,8 +4,8 @@
 <html>
 
 	<head>
-		<title>Logtalk 2.8.4 Grammar</title>
-		<link rel=stylesheet  href="../styles.css" type="text/css">
+		<title>Logtalk Grammar</title>
+		<link rel=stylesheet href="../styles.css" type="text/css">
 	</head>
 
 <body>
@@ -167,7 +167,7 @@ The Logtalk grammar is here described using Backus-Naur Form syntax. Non-termina
 		<dl>
 			<dt>implemented_protocol ::=</dt>
 				<dd>protocol_identifier |</dd>
-				<dd>entity_scope "<code>::</code>" protocol_identifier</dd>
+				<dd>scope "<code>::</code>" protocol_identifier</dd>
 		</dl>
 		<p>
 		<dl>
@@ -194,7 +194,7 @@ The Logtalk grammar is here described using Backus-Naur Form syntax. Non-termina
 		<dl>
 			<dt>extended_protocol ::=</dt>
 				<dd>protocol_identifier |</dd>
-				<dd>entity_scope "<code>::</code>" protocol_identifier</dd>
+				<dd>scope "<code>::</code>" protocol_identifier</dd>
 		</dl>
 		<p>
 		<dl>
@@ -221,7 +221,7 @@ The Logtalk grammar is here described using Backus-Naur Form syntax. Non-termina
 		<dl>
 			<dt>imported_category ::=</dt>
 				<dd>category_identifier |</dd>
-				<dd>entity_scope "<code>::</code>" category_identifier</dd>
+				<dd>scope "<code>::</code>" category_identifier</dd>
 		</dl>
 		<p>
 		<dl>
@@ -248,7 +248,7 @@ The Logtalk grammar is here described using Backus-Naur Form syntax. Non-termina
 		<dl>
 			<dt>extended_object ::=</dt>
 				<dd>object_identifier |</dd>
-				<dd>entity_scope "<code>::</code>" object_identifier</dd>
+				<dd>scope "<code>::</code>" object_identifier</dd>
 		</dl>
 		<p>
 		<dl>
@@ -275,7 +275,7 @@ The Logtalk grammar is here described using Backus-Naur Form syntax. Non-termina
 		<dl>
 			<dt>instantiated_object ::=</dt>
 				<dd>object_identifier |</dd>
-				<dd>entity_scope "<code>::</code>" object_identifier</dd>
+				<dd>scope "<code>::</code>" object_identifier</dd>
 		</dl>
 		<p>
 		<dl>
@@ -302,7 +302,7 @@ The Logtalk grammar is here described using Backus-Naur Form syntax. Non-termina
 		<dl>
 			<dt>specialized_object ::=</dt>
 				<dd>object_identifier |</dd>
-				<dd>entity_scope "<code>::</code>" object_identifier</dd>
+				<dd>scope "<code>::</code>" object_identifier</dd>
 		</dl>
 		<p>
 		<dl>
@@ -317,10 +317,10 @@ The Logtalk grammar is here described using Backus-Naur Form syntax. Non-termina
 		</dl>
 	</blockquote>
 
-	<h4><a class="back" title="Return to index" href="index.html#entity_scope" name="entity_scope">Entity scope</a></h4>
+	<h4><a class="back" title="Return to index" href="index.html#scope" name="scope">Entity scope</a></h4>
 	<blockquote>
 		<dl>
-			<dt>entity_scope ::=</dt>
+			<dt>scope ::=</dt>
 				<dd>"<code>public</code>" |</dd>
 				<dd>"<code>protected</code>" |</dd>
 				<dd>"<code>private</code>"</dd>
@@ -633,28 +633,20 @@ The Logtalk grammar is here described using Backus-Naur Form syntax. Non-termina
 				<dd>"<code>argnames</code>" | "<code>definition</code>" | "<code>redefinition</code>" | "<code>allocation</code>" |</dd>
 				<dd><i>atom</i></dd>
 		</dl>
-
-
 	</blockquote>
 
 </blockquote>
 
 
-<h3><a class="back" title="Return to index" href="index.html#clauses" name="clauses">Clauses</a></h3>
+<h3><a class="back" title="Return to index" href="index.html#clauses" name="clauses">Clauses and goals</a></h3>
 
 <blockquote>
-	<dl>
-		<dt>clauses ::=</dt>
-			<dd><i>clause |</i></dd>
-			<dd><i>clause</i> clauses</dd>
-	</dl>
 
 	<dl>
 		<dt>goal ::=</dt>
 			<dd><i>callable</i> |</dd>
 			<dd>message_call |</dd>
 			<dd>external_call |</dd>
-			<dd>built_in_method_call</dd>
 	</dl>
 
 	<dl>
@@ -710,13 +702,6 @@ The Logtalk grammar is here described using Backus-Naur Form syntax. Non-termina
 			<dd>"<code>{</code>" <i>callable</i> "<code>}</code>"</dd>
 	</dl>
 
-	<dl>
-		<dt>built_in_method_call ::=</dt>
-			<dd>"<code>self(</code>" <i>variable</i> "<code>)</code>" |</dd>
-			<dd>"<code>this(</code>" <i>variable</i> "<code>)</code>" |</dd>
-			<dd>"<code>sender(</code>" <i>variable</i> "<code>)</code>" |</dd>
-			<dd>"<code>parameter(</code>" <i>integer</i> "<code>,</code>" <i>variable</i> "<code>)</code>"</dd>
-	</dl>
 </blockquote>
 
 <h3><a class="back" title="Return to index" href="index.html#entity_properties" name="entity_properties">Entity properties</a></h3>
@@ -768,7 +753,7 @@ The Logtalk grammar is here described using Backus-Naur Form syntax. Non-termina
 <strong><a href="index.html">Previous</a> | <a href="index.html">Next</a> | <a href="index.html">Table of Contents</a> | <a href="../bibliography.html">Bibliography</a> | <a href="../glossary.html">Glossary</a></strong>
 </p>
 <p class="center">
-Last updated on: February 10, 2001
+Last updated on: November 26, 2001
 </p>
 <hr />
 

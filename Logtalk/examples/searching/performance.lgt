@@ -66,7 +66,7 @@
 		write('average branching degree: '), write(Average), nl,
 		write('maximum branching degree: '), write(Maximum), nl,
 		write('time: '), write(Time), nl,
-		!.
+		::retractall(transitions(_, _, _)).		% clean up for next solution
 
 
 	transitions(Number) :-
@@ -87,9 +87,8 @@
 			 findall(State2, ::transitions(State1, State2, _), States2),
 			 list::length(States2, Length)),
 			Lengths),
-		list::sort(Lengths, SortedLengths),
-		SortedLengths = [Minimum| _],
-		list::reverse(SortedLengths, [Maximum| _]),
+		list::min(Lengths, Minimum),
+		list::max(Lengths, Maximum),
 		numberlist::sum(Lengths, Sum),
 		list::length(Lengths, Length),
 		Average is Sum / Length.
@@ -116,12 +115,14 @@
 	before(_, solve(_, _, _), _) :-
 		!,
 		time::cpu_time(Time),
-		::assertz(start_time(Time)).
+		::retractall(start_time(_)),
+		::asserta(start_time(Time)).
 
 	before(_, solve(_, _, _, _), _) :-
 		!,
 		time::cpu_time(Time),
-		::assertz(start_time(Time)).
+		::retractall(start_time(_)),
+		::asserta(start_time(Time)).
 
 
 	after(_, next_state(S1, S2), _) :-
@@ -145,7 +146,8 @@
 	after(_, solve(_, _, Solution), _) :-
 		!,
 		time::cpu_time(Time),
-		::assertz(end_time(Time)),
+		::retractall(end_time(_)),
+		::asserta(end_time(Time)),
 		list::length(Solution, Length),
 		::retractall(solution_length(_)),
 		::asserta(solution_length(Length)).
@@ -153,11 +155,11 @@
 	after(_, solve(_, _, Solution, _), _) :-
 		!,
 		time::cpu_time(Time),
-		::assertz(end_time(Time)),
+		::retractall(end_time(_)),
+		::asserta(end_time(Time)),
 		list::length(Solution, Length),
 		::retractall(solution_length(_)),
 		::asserta(solution_length(Length)).
 
 
 :- end_object.
-

@@ -1,17 +1,18 @@
 
 :- initialization(
 	logtalk_load([
-		best_first1,
+		state_space,
+		water_jug,
+		farmer,
+		heuristic_state_space,
+		bridge,
+		eight_puzzle,
+		miss_cann,
+		search_strategy,
 		blind_search1,
 		breadth_first1,
 		depth_first1,
-		eight_puzzle,
-		farmer,
 		heuristic_search1,
-		heuristic_state_space,
+		best_first1,
 		hill_climbing1,
-		miss_cann,
-		performance,
-		search_strategy,
-		state_space,
-		water_jug])).
+		performance])).

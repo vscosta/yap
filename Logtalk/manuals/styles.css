@@ -40,7 +40,9 @@ body {
 }
 
 h1, h2, h3, h4, h5, h6 {
-	color: maroon; font-family: helvetica, arial, sans-serif; }
+	color: maroon;
+	font-family: helvetica, arial, sans-serif;
+}
 
 .center { text-align: center; }
 

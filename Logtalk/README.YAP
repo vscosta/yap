@@ -1,6 +1,6 @@
 =================================================================
 Logtalk - Object oriented extension to Prolog
-Release 2.8.4
+Release 2.9.1
 
 Copyright (c) 1998-2001 Paulo Moura.  All Rights Reserved.
 =================================================================
@@ -16,6 +16,6 @@ Logtalk documentation or by using the call:
 
 | ?- use_module(library(logtalk)).
 
-Note that, although we load Logtalk using the @code{use_module/1} 
-built-in predicate, the system is not packaged as a module not does 
-it use modules in its implementation.
+Note that, although we load Logtalk using the use_module/1 built-in 
+predicate, the system is not packaged as a module nor does it use 
+modules in its implementation.

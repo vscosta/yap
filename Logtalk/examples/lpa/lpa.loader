@@ -1,15 +1,15 @@
 
 :- initialization(
 	logtalk_load([
-		cylinders,
-		distributor,
-		electrical,
-		engine,
 		fault,
+		mechanical,
+		engine,
+		cylinders,
+		electrical,
+		starting,
+		sparking,
+		plugs,
+		distributor,
 		fuel_system,
 		lights,
-		mechanical,
-		plugs,
-		sparking,
-		starter_motor,
-		starting])).
+		starter_motor])).

@@ -1,7 +1,7 @@
 
 :- initialization(
 	logtalk_load([
-		circle2,
 		ellipse3,
+		circle2,
 		line2,
 		point2])).

@@ -1,7 +1,7 @@
 
 <?xml version="1.0"?>
 
-<xsd:schema xmlns:xsd="http://www.w3.org/2000/10/XMLSchema">
+<xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema">
 
 
 <xsd:annotation>
@@ -15,7 +15,7 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %
 %  Logtalk - Object oriented extension to Prolog
-%  Release 2.8.4
+%  Release 2.9.1
 %
 %  Copyright (c) 1998-2001 Paulo Moura.  All Rights Reserved.
 %

@@ -48,16 +48,16 @@ When defining category predicates, we need to remember that a category can be im
         :- mode(set_attribute(+nonvar, +nonvar), one).
 
         :- public(get_attribute/2).
-        :- mode(get_attribute(?nonvar, ?nonvar), zero_or_many).
+        :- mode(get_attribute(?nonvar, ?nonvar), zero_or_more).
 
         :- public(del_attribute/2).
-        :- mode(del_attribute(?nonvar, ?nonvar), zero_or_many).
+        :- mode(del_attribute(?nonvar, ?nonvar), zero_or_more).
 
         :- public(del_attributes/2).
         :- mode(del_attributes(@term, @term), one).
 
         :- private(attribute_/2).
-        :- mode(attribute_(?nonvar, ?nonvar), zero_or_many).
+        :- mode(attribute_(?nonvar, ?nonvar), zero_or_more).
         :- dynamic(attribute_/2).
 
 
@@ -146,7 +146,7 @@ After compiling and loading this object and our category, we can now try queries
 <strong><a href="lists.html">Previous</a> | <a href="reflection.html">Next</a> | <a href="index.html">Table of Contents</a> | <a href="../bibliography.html">Bibliography</a> | <a href="../glossary.html">Glossary</a></strong>
 </p>
 <p class="center">
-Last updated on: July 4, 2000
+Last updated on: March 12, 2001
 </p>
 <hr />
 

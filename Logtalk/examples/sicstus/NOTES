@@ -1,6 +1,6 @@
 =================================================================
 Logtalk - Object oriented extension to Prolog
-Release 2.8.4
+Release 2.9.1
 
 Copyright (c) 1998-2001 Paulo Moura.  All Rights Reserved.
 =================================================================
@@ -10,5 +10,5 @@ The examples in this folder are adopted from the SICStus Prolog manual.
 To load all objects in this example consult the sicstus.loader utility
 file (note that the *.loader files are Prolog files).
 
-You will also need to load the follwing files in library directory: 
+You will also need to load the following files in library directory: 
 hierarchies.loader and types.loader.

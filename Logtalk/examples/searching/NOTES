@@ -1,6 +1,6 @@
 =================================================================
 Logtalk - Object oriented extension to Prolog
-Release 2.8.4
+Release 2.9.1
 
 Copyright (c) 1998-2001 Paulo Moura.  All Rights Reserved.
 =================================================================
@@ -12,9 +12,10 @@ You will need to also load the objects in the roots example.
 
 You will also need to load the following files in the library directory: 
 dates.loader, types.loader, events.loader, metapredicates.loader, and 
-hierarchies.loader.
+hierarchies.loader. Alternatively, you can just load the all.loader file.
 
 Some of the code in this folder is adopted from the book "Prolog Programming
 for Artificial Intelligence" by Ivan Bratko.
 
-The object "performance" only provides correct results for the first solution.
+For a description of the search problems, please see a classical AI book 
+(such as the one above) or visit the url <http://www.plastelina.net/games>.

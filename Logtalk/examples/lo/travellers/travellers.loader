@@ -1,6 +1,10 @@
 
 :- initialization(
 	logtalk_load([
+		quick1,
+
+		location2,
+
 		aberdeen,
 		aberystwyth,
 		birmingham,
@@ -30,15 +34,12 @@
 		salesman,
 
 		circular,
+		incremental,
+		presort,
 		driving,
 		geographic2,
-		incremental,
 		metric1,
 		permute,
-		presort,
-
-		location2,
 
 		descend,
-		quick1,
 		natural])).

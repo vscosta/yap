@@ -2,9 +2,10 @@
 :- initialization(
 	logtalk_load([
 		descriptors,
-		expert,
 
 		order,
+
+		expert,
 
 		falconiforms,				% orders
 		passerformes,

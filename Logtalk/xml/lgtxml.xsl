@@ -1,7 +1,13 @@
 <?xml version="1.0"?>
 <xsl:stylesheet
 	version="1.0"
-	xmlns:xsl="http://www.w3.org/TR/WD-xsl">
+	xmlns:xsl="http://www.w3.org/1999/XSL/Transform">
+
+
+<xsl:output
+	method="html"
+	doctype-public="-//W3C//DTD HTML 4.01//EN"
+	doctype-system="http://www.w3.org/TR/html4/strict.dtd"/>
 
 
 <!-- 
@@ -131,8 +137,8 @@
 </xsl:template>
 
 
-<xsl:template match="logtalk/relations/*" xml:space="preserve">
-	<dd><code><xsl:value-of select="scope" /> <a><xsl:attribute name="href"><xsl:value-of select="file" />.xml</xsl:attribute><xsl:value-of select="name" /></a></code></dd>
+<xsl:template match="logtalk/relations/*">
+	<dd><code><xsl:value-of select="scope" /><xsl:text> </xsl:text><a><xsl:attribute name="href"><xsl:value-of select="file" />.xml</xsl:attribute><xsl:value-of select="name" /></a></code></dd>
 </xsl:template>
 
 
@@ -176,7 +182,7 @@
 </xsl:template>
 
 
-<xsl:template match="predicate">
+<xsl:template match="*/predicate">
 	<h4 class="code"><xsl:value-of select="name" /></h4>
 	<xsl:if test="comment">
 		<blockquote><xsl:value-of select="comment" /></blockquote>
@@ -194,8 +200,8 @@
 		</xsl:if>
 		<xsl:if test="mode">
 		<dt>mode - number of solutions:</dt>
-		<xsl:for-each select="mode" xml:space="preserve">
-			<dd><code><xsl:value-of select="template" /> - <xsl:value-of select="solutions" /></code></dd>
+		<xsl:for-each select="mode">
+			<dd><code><xsl:value-of select="template" /><xsl:text> - </xsl:text><xsl:value-of select="solutions" /></code></dd>
 		</xsl:for-each>
 		</xsl:if>
 	</dl>

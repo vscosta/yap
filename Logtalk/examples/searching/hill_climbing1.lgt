@@ -25,7 +25,6 @@
 		Space::goal_state(State).
 
 	hill(Space, State, Threshold, Path, Solution, SoFar, Total) :-
-		SoFar < Threshold,
 		findall(
 			(Estimate, Cost, Next),
 			(Space::next_state(State, Next, Cost),
@@ -34,9 +33,10 @@
              Estimate is Guess + Cost),
 			States),
 		list::sort(States, SortedStates),
-		list::member((_, Cost, Next), SortedStates),
-		SoFar2 is SoFar + Cost,
-		hill(Space, Next, Threshold, [State| Path], Solution, SoFar2, Total).
+		list::member((_, Cost2, Next2), SortedStates),
+		SoFar2 is SoFar + Cost2,
+		SoFar2 =< Threshold,
+		hill(Space, Next2, Threshold, [State| Path], Solution, SoFar2, Total).
 
 
 :- end_object.

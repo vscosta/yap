@@ -31,8 +31,8 @@
 
 	expand(Path, l(State,F/G), Threshold, Tree, Solved, Solution, Space, Cost) :-
 		F =< Threshold,
-		(bagof(Next/Cost,
-			(Space::next_state(State, Next, Cost), \+ list::member(Next, Path)),
+		(bagof(Next/Cost2,
+			(Space::next_state(State, Next, Cost2), \+ list::member(Next, Path)),
 			Successors) ->
 				succlist(G, Successors, Trees, Threshold, Space),
 				bestf(Trees, F2, Threshold),

@@ -1,9 +1,9 @@
 
 :- initialization(
 	logtalk_load([
-		bounded_coordinate,
-		bounded_history_point,
-		bounded_point,
-		history_point,
 		point,
-		point_history])).
+		point_history,
+		bounded_coordinate,
+		bounded_point,
+		bounded_history_point,
+		history_point])).

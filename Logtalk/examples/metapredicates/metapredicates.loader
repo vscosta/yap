@@ -1,5 +1,5 @@
 
 :- initialization(
 	logtalk_load([
-		sort1, 
-		tracer])). 
+		tracer,
+		sort1])). 

@@ -1,6 +1,6 @@
 =================================================================
 Logtalk - Object oriented extension to Prolog
-Release 2.8.4
+Release 2.9.1
 
 Copyright (c) 1998-2001 Paulo Moura.  All Rights Reserved.
 =================================================================
@@ -51,6 +51,36 @@ protected/0 - private
 
 yes
 
+
+% descendant1 extends public::prototype1
+
+| ?- descendant1::interface.
+
+interface/0 - public
+public/0 - public
+protected/0 - protected
+
+yes
+
+
+% descendant2 extends public::prototype2
+
+| ?- descendant2::interface.
+
+interface/0 - public
+public/0 - protected
+protected/0 - protected
+
+yes
+
+
+% descendant3 extends public::prototype3
+
+| ?- descendant3::interface.
+
+interface/0 - public
+
+yes
 
 
 % object (root of the inheritance graph) interface

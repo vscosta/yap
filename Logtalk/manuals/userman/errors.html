@@ -51,6 +51,12 @@ The Logtalk pre-processor/compiler uses the <code>read_term/3</code> ISO Prolog 
 If all the (Prolog) terms in a source file are valid, then there is a set of errors or potential errors, described below, that the pre-processor will try to detect and report, depending on the used compiler options (see the <A HREF="installing.html#options">Installing and running Logtalk</A> section of this manual for details).
 </p>
 
+<h3><a class="back" title="Return to index" name="wunknown" href="index.html#errors_wunknown">Unknown entities</a></h3>
+
+<p>
+The Logtalk pre-processor/compiler will warn us of any referenced entity that is not currently loaded. The warning may reveal a misspell entity name or just an entity that it will be loaded next.
+</p>
+
 <h3><a class="back" title="Return to index" name="wsingletons" href="index.html#errors_wsingletons">Singleton variables</a></h3>
 
 <p>
@@ -75,7 +81,7 @@ Similar to the redefinition of Prolog built-in predicates, the Logtalk compiler 
 An error will be thrown if we attempt to redefine a Logtalk built-in method inside an entity. The default behaviour is to report the error and abort the compilation of the offending entity. 
 </p>
 
-<h3><a class="back" title="Return to index" name="wmethods" href="index.html#errors_wmisspell">Misspell calls of local predicates</a></h3>
+<h3><a class="back" title="Return to index" name="wmisspell" href="index.html#errors_wmisspell">Misspell calls of local predicates</a></h3>
 
 <p>
 A warning will be reported if Logtalk finds (in the body of a predicate definition) a call to a local predicate that is not defined, built-in (either in Prolog or in Logtalk) or declared dynamic. In most cases these calls are simple misspell errors.
@@ -117,7 +123,7 @@ The message sending mechanisms always check if the receiver of a message is a de
 <strong><a href="events.html">Previous</a> | <a href="documenting.html">Next</a> | <a href="index.html">Table of Contents</a> | <a href="../bibliography.html">Bibliography</a> | <a href="../glossary.html">Glossary</a></strong>
 </p>
 <p class="center">
-Last updated on: February 10, 2001
+Last updated on: October 16, 2001
 </p>
 <hr />
 

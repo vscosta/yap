@@ -2,8 +2,8 @@
 :- initialization(
 	logtalk_load([
 		concentric,
+		polygon,
 		hexagon,
 		pentagon,
-		polygon,
 		square,
 		triangle])). 

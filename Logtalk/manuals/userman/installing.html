@@ -84,6 +84,7 @@ In the Logtalk installation directory, you will find the following files and dir
 		<dd><code>...</code> - other examples</dd>
 	<dt><code>library</code></dt>
 		<dd><code>NOTES</code> - short description of the library contents</dd>
+		<dd><code>all.loader</code> - loader utility file for all library entities</dd>
 		<dd><code>...</code> - library source files</dd>
 	<dt><code>manuals</code></dt>
 		<dd><code>NOTES</code> - notes on the provided documentation</dd>
@@ -95,7 +96,7 @@ In the Logtalk installation directory, you will find the following files and dir
 		<dd><code>NOTES</code> - notes on the automatic generation of XML documentation files</dd>
 		<dd><code>logtalk.css</code> - cascade style sheet file for the HTML output of the XSLT conversion of the XML files</dd>
 		<dd><code>logtalk.dtd</code> - Document Type Description file describing the structure of the XML files</dd>
-		<dd><code>logtalk.xsl</code> - transformation style sheet to output HTML code from the XML files</dd>
+		<dd><code>lgthtml.xsl</code> - transformation style sheet to output HTML code from the XML files</dd>
 		<dd><code>...</code> - other XML related files</dd>
 </dl>
 
@@ -221,6 +222,10 @@ In fact, the <code>logtalk_load/1</code> and <code>logtalk_compile/1</code> pred
 You can use the following options:
 </p>
 <dl>
+	<dt><code>unknown(Option)</code></dt>
+		<dd>Controls the unknown entity warnings, resulting from loading an entity that references some other entity that is not currently loaded. Possible option values are <code>warning</code> (the usual default) and <code>silent</code>.</dd>
+</dl>
+<dl>
 	<dt><code>singletons(Option)</code></dt>
 		<dd>Controls the singleton variable warnings. Possible option values are <code>warning</code> (the usual default) and <code>silent</code> (not recommended unless you have already checked your code and want to avoid false singletons warnings like some Prolog compilers report for variables that start with an underscore).</dd>
 </dl>
@@ -242,7 +247,7 @@ You can use the following options:
 </dl>
 <dl>
 	<dt><code>xsl(File)</code></dt>
-		<dd>Sets the XSLT file to be used with the automatically generated XML documenting files. The default value is <code>logtalk.xsl</code>.</dd>
+		<dd>Sets the XSLT file to be used with the automatically generated XML documenting files. The default value is <code>lgtxml.xsl</code>.</dd>
 </dl>
 <dl>
 	<dt><code>report(Option)</code></dt>
@@ -258,7 +263,7 @@ You can use the following options:
 <strong><a href="configuration.html">Previous</a> | <a href="programming.html">Next</a> | <a href="index.html">Table of Contents</a> | <a href="../bibliography.html">Bibliography</a> | <a href="../glossary.html">Glossary</a></strong>
 </p>
 <p class="center">
-Last updated on: February 10, 2001
+Last updated on: October 16, 2001
 </p>
 <hr />
 

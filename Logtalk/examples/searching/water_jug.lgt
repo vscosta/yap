@@ -31,7 +31,7 @@
 
 	next_state((X, Y), (Z, 3)) :-
 		X > 0, Y < 3,
-		Aux is X + Y, Aux >= 4,
+		Aux is X + Y, Aux >= 3,
 		Z is X - (3 - Y).
 
 	next_state((X, Y),(Z, 0)) :-

@@ -1,6 +1,6 @@
 =================================================================
 Logtalk - Object oriented extension to Prolog
-Release 2.8.4
+Release 2.9.1
 
 Copyright (c) 1998-2001 Paulo Moura.  All Rights Reserved.
 =================================================================
@@ -43,8 +43,8 @@ CC.<__>..........MMMC
 ..........<__>.MMMCCC
 
 Cost = 15,
-Path = [((3,3),esq,0,0),((2,2),dir,1,1),((3,2),esq,0,1),((3,0),dir,0,3),((3,1),esq,0,2),((1,1),dir,2,2),((2,2),esq,1,1),((0,2),dir,3,1),((0,3),esq,3,0),((0,1),dir,3,2),((0,2),esq,3,1),((0,0),dir,3,3)],
-Initial = ((3,3),esq,0,0)
+Path = [((3,3),left,0,0),((2,2),right,1,1),((3,2),left,0,1),((3,0),right,0,3),((3,1),left,0,2),((1,1),right,2,2),((2,2),left,1,1),((0,2),right,3,1),((0,3),left,3,0),((0,1),right,3,2),((0,2),left,3,1),((0,0),right,3,3)],
+Initial = ((3,3),left,0,0)
 yes
 
 
@@ -65,16 +65,43 @@ C..........<__>.MMMCC
 CC.<__>..........MMMC
 ..........<__>.MMMCCC
 solution length: 12
-number of state transitions: 27
-ratio solution length / state transitions: 0.4444444444444444
-minimum branching degree: 2
-average branching degree: 2.5555555555555554
+number of state transitions: 26
+ratio solution length / state transitions: 0.461538
+minimum branching degree: 1
+average branching degree: 2.30769
 maximum branching degree: 3
-time: 0.067999999999756255
+time: 0.02
 
 Cost = 15,
-Path = [((3,3),esq,0,0),((2,2),dir,1,1),((3,2),esq,0,1),((3,0),dir,0,3),((3,1),esq,0,2),((1,1),dir,2,2),((2,2),esq,1,1),((0,2),dir,3,1),((0,3),esq,3,0),((0,1),dir,3,2),((0,2),esq,3,1),((0,0),dir,3,3)],
-Initial = ((3,3),esq,0,0) ? 
+Path = [((3,3),left,0,0),((2,2),right,1,1),((3,2),left,0,1),((3,0),right,0,3),((3,1),left,0,2),((1,1),right,2,2),((2,2),left,1,1),((0,2),right,3,1),((0,3),left,3,0),((0,1),right,3,2),((0,2),left,3,1),((0,0),right,3,3)],
+Initial = ((3,3),left,0,0) ? 
+
+yes
+
+
+% bridge problem, solved using a hill climbing strategy
+
+| ?- performance::init, bridge::initial_state(Initial), hill_climbing(30)::solve(bridge, Initial, Path, Cost), bridge::print_path(Path), performance::report.
+
+ _|____________|_ lamp 1 3 6 8 12 
+1 3  lamp _|____________|_ 6 8 12 
+3  _|____________|_ lamp 1 6 8 12 
+1 3 6  lamp _|____________|_ 8 12 
+3 6  _|____________|_ lamp 1 8 12 
+3 6 8 12  lamp _|____________|_ 1 
+6 8 12  _|____________|_ lamp 1 3 
+1 3 6 8 12  lamp _|____________|_ 
+solution length: 8
+state transitions: 346
+ratio solution length / state transitions: 0.0231214
+minimum branching degree: 1
+average branching degree: 7.42453
+maximum branching degree: 15
+time: 0.28
+
+Initial = [], right, [1, 3, 6, 8, 12]
+Path = [ ([], right, [1, 3, 6, 8, 12]), ([1, 3], left, [6, 8, 12]), ([3], right, [1, 6, 8, 12]), ([1, 3, 6], left, [8, 12]), ([3, 6], right, [1, 8|...]), ([3, 6|...], left, [1]), ([6|...], right, [...|...]), ([...|...], ..., ...)]
+Cost = 29 
 
 yes
 
@@ -104,11 +131,11 @@ yes
 
 solution length: 6
 number of state transitions: 105
-ratio solution length / state transitions: 0.05714285714285714
+ratio solution length / state transitions: 0.0571429
 minimum branching degree: 2
-average branching degree: 3.6315789473684212
+average branching degree: 3.63158
 maximum branching degree: 4
-time: 0.20000000000027285
+time: 0.02
 
 Path = [(0,0),(0,3),(3,0),(3,3),(4,2),(0,2)],
 Initial = (0,0) ? 
@@ -144,14 +171,14 @@ yes
 
 solution length: 8
 number of state transitions: 12
-ratio solution length / state transitions: 0.6666666666666666
+ratio solution length / state transitions: 0.666667
 
 
 
 minimum branching degree: 1
-average branching degree: 2.0
+average branching degree: 2
 maximum branching degree: 3
-time: 0.021999999999934516
+time: 0.00
 
 Path = [(0,0),(4,0),(4,3),(0,3),(3,0),(3,3),(4,2),(0,2)],
 Initial = (0,0) ? 
@@ -190,9 +217,9 @@ solution length: 6
 number of state transitions: 15
 ratio solution length / state transitions: 0.4
 minimum branching degree: 2
-average branching degree: 3.1333333333333333
+average branching degree: 3.13333
 maximum branching degree: 4
-time: 0.050000000000181899
+time: 0.01
 
 Cost = 5,
 Path = [[2/1,1/2,1/3,3/3,3/2,3/1,2/2,1/1,2/3],[2/2,1/2,1/3,3/3,3/2,3/1,2/1,1/1,2/3],[2/3,1/2,1/3,3/3,3/2,3/1,2/1,1/1,2/2],[1/3,1/2,2/3,3/3,3/2,3/1,2/1,1/1,2/2],[1/2,1/3,2/3,3/3,3/2,3/1,2/1,1/1,2/2],[2/2,1/3,2/3,3/3,3/2,3/1,2/1,1/1,1/2]],
@@ -232,9 +259,9 @@ solution length: 6
 number of state transitions: 15
 ratio solution length / state transitions: 0.4
 minimum branching degree: 2
-average branching degree: 3.1333333333333333
+average branching degree: 3.13333
 maximum branching degree: 4
-time: 0.046000000000276486
+time: 0.02
 
 Cost = 5,
 Path = [[2/1,1/2,1/3,3/3,3/2,3/1,2/2,1/1,2/3],[2/2,1/2,1/3,3/3,3/2,3/1,2/1,1/1,2/3],[2/3,1/2,1/3,3/3,3/2,3/1,2/1,1/1,2/2],[1/3,1/2,2/3,3/3,3/2,3/1,2/1,1/1,2/2],[1/2,1/3,2/3,3/3,3/2,3/1,2/1,1/1,2/2],[2/2,1/3,2/3,3/3,3/2,3/1,2/1,1/1,1/2]],
