@@ -8,8 +8,11 @@
 *									 *
 **************************************************************************
 *									 *
-* $Id: sys.c,v 1.17 2004-01-26 12:41:06 vsc Exp $									 *
+* $Id: sys.c,v 1.18 2004-01-26 12:51:33 vsc Exp $									 *
 * mods:		$Log: not supported by cvs2svn $
+* mods:		Revision 1.17  2004/01/26 12:41:06  vsc
+* mods:		bug fixes
+* mods:		
 * mods:		Revision 1.16  2003/01/27 15:55:40  vsc
 * mods:		use CVS Id
 * mods:		
@@ -127,7 +130,7 @@ datime(void)
 #else
   oops
 #endif /* HAVE_TIME */
-  tf = YAP_MkApplTerm(YAP_MkFunctor(YAP_LookupAtom("date"),6), 6, out);
+  tf = YAP_MkApplTerm(YAP_MkFunctor(YAP_LookupAtom("datime"),6), 6, out);
   return(YAP_Unify(YAP_ARG1, tf));
 }
 
