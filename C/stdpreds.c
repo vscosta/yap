@@ -1051,7 +1051,7 @@ p_number_atom(void)
   }
   s = RepAtom(AtomOfTerm(t))->StrOfAE;
   if ((NewT = get_num(s)) == TermNil) {
-    Yap_Error(SYNTAX_ERROR, Deref(ARG2), "number_atom/2", String);
+    Yap_Error(SYNTAX_ERROR, gen_syntax_error("number_atom"), "while scanning %s", s);
     return (FALSE);
   }
   return (Yap_unify(ARG1, NewT));
