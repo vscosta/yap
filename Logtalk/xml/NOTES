@@ -1,6 +1,6 @@
 =================================================================
 Logtalk - Object oriented extension to Prolog
-Release 2.13.0
+Release 2.14.1
 
 Copyright (c) 1998-2002 Paulo Moura.  All Rights Reserved.
 =================================================================
@@ -19,7 +19,7 @@ files and the links to the .css files in the generated .html files assume
 that all files reside in the same directory.
 
 The choice of the default .xsl file to use is made in the config files by 
-the lgt_default_compiler_option/2 predicate. You can also choose a different 
+the '$lgt_default_flag'/2 predicate. You can also choose a different 
 .xsl file by using the xsl/1 compiler option in the logtalk_compile/2 or 
 logtalk_load/2 calls. The default file is lgtxml.xsl (described below).
 
@@ -87,11 +87,24 @@ logtalk.css
 html.sh
 
 	Sample Unix shell script to batch convert .xml files to .html files.
+	The script also generates an index.html file that contains links to all 
+	converted files. The title of the index.html can be given as a parameter 
+	to the script.
 	Edit the script to match your environment before running it.
 	Requires James Clarck XT processor (http://www.jclark.com/xml/xt.html).
 
 
-html.bat
+htmlnt.cmd
+
+	Sample Windows NT batch script to convert .xml files to .html files.
+	The script also generates an index.html file that contains links to all 
+	converted files. The title of the index.html can be given as a parameter 
+	to the script.
+	Edit the script to match your environment before running it.
+	Requires James Clarck XT processor (http://www.jclark.com/xml/xt.html).
+
+
+htmldos.bat
 
 	Sample DOS batch script to convert .xml files to .html files.
 	Edit the script to match your environment before running it.

@@ -39,7 +39,7 @@
 
 
 	today :-
-		{lgt_current_date(Year, Month, Day)},
+		{'$lgt_current_date'(Year, Month, Day)},
 		parameter(1, Year),
 		parameter(2, Month),
 		parameter(3, Day).

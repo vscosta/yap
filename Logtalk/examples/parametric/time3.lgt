@@ -36,7 +36,7 @@
 
 
 	now :-
-		{lgt_current_time(Hours, Mins, Secs)},
+		{'$lgt_current_time'(Hours, Mins, Secs)},
 		parameter(1, Hours),
 		parameter(2, Mins),
 		parameter(3, Secs).
