@@ -160,6 +160,7 @@ print_message(Level, Mss) :-
 '$beautify_hidden_goal'('$yes_no',_,_,_,_,[]) :- !.
 '$beautify_hidden_goal'('$do_yes_no',_,_,_,_,[]) :- !.
 '$beautify_hidden_goal'('$query',_,_,_,_,[]) :- !.
+'$beautify_hidden_goal'('$enter_top_level',_,_,_,_,[]) :- !.
 % The user should never know these exist.
 '$beautify_hidden_goal'('$csult',_,prolog,ClNo,Gs,NGs) :- !,
 	'$preprocess_stack'(Gs, NGs).
@@ -293,7 +294,7 @@ print_message(Level, Mss) :-
 	'$format'(user_error,"[ DOMAIN ERROR- ~w: number ~w not newline ]~n",
 	[Where,N]).
 '$output_error_message'(domain_error(not_zero,N), Where) :-
-	'$format'(user_error,"[ DOMAIN ERROR- ~w: number ~w not zero ]~n",
+	'$format'(user_error,"[ DOMAIN ERROR- ~w: ~w is not allowed in the domain  ]~n",
 	[Where,N]).
 '$output_error_message'(domain_error(operator_priority,N), Where) :-
 	'$format'(user_error,"[ DOMAIN ERROR- ~w: ~w invalid operator priority ]~n",
@@ -439,6 +440,8 @@ print_message(Level, Mss) :-
 '$output_error_message'(representation_error(max_arity), Where) :-
 	'$format'(user_error,"[ REPRESENTATION ERROR- ~w: number too big ]~n",
 	[Where]).
+'$output_error_message'(syntax_error(G,0,Msg,[],0,0), Where) :- !,
+	'$format'(user_error,"[ SYNTAX ERROR in ~w: ~a ]~n",[G,Msg]).
 '$output_error_message'(syntax_error(_,Position,_,Term,Pos,Start), Where) :-
 	'$format'(user_error,"[ ~w ",[Where]),
 	'$dump_syntax_error_line'(Start,Position),

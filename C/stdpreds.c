@@ -831,6 +831,18 @@ p_atom_split(void)
   return(unify_constant(ARG3,to1) && unify_constant(ARG4,to2));
 }
 
+static Term
+gen_syntax_error(char *s)
+{
+  Term ts[6], ti[2];
+  ti[0] = ARG1;
+  ti[1] = ARG2;
+  ts[0] = MkApplTerm(MkFunctor(LookupAtom(s),2),2,ti);
+  ts[1] = ts[4] = ts[5] = MkIntTerm(0);
+  ts[2] = MkAtomTerm(LookupAtom("number syntax"));
+  ts[3] = TermNil;
+  return(MkApplTerm(MkFunctor(LookupAtom("syntax_error"),6),6,ts));
+}
 
 static Int 
 p_number_chars(void)
@@ -893,10 +905,7 @@ p_number_chars(void)
     Error(INSTANTIATION_ERROR, t1, "number_chars/2");
     return(FALSE);		
   }
-  if (t == TermNil) {
-    return (FALSE);
-  }
-  if (!IsPairTerm(t)) {
+  if (!IsPairTerm(t) && t != TermNil) {
     Error(TYPE_ERROR_LIST, t, "number_chars/2");
     return(FALSE);		
   }
@@ -959,7 +968,7 @@ p_number_chars(void)
   }
   *s++ = '\0';
   if ((NewT = get_num(String)) == TermNil) {
-    Error(SYNTAX_ERROR, Deref(ARG2), "number_chars/2", String);
+    Error(SYNTAX_ERROR, gen_syntax_error("number_chars"), "while scanning %s", String);
     return (FALSE);
   }
   return (unify(ARG1, NewT));
@@ -1012,9 +1021,6 @@ p_number_atom(void)
   if (IsVarTerm(t)) {
       Error(INSTANTIATION_ERROR, t, "number_chars/2");
       return(FALSE);		
-  }
-  if (t == TermNil) {
-    return (FALSE);
   }
   if (!IsAtomTerm(t)) {
     Error(TYPE_ERROR_LIST, t, "number_atom/2");
@@ -1071,10 +1077,7 @@ p_number_codes(void)
   if (IsVarTerm(t)) {
     Error(INSTANTIATION_ERROR, t, "number_codes/2");
   }
-  if (t == TermNil) {
-    return (FALSE);
-  }
-  if (!IsPairTerm(t)) {
+  if (!IsPairTerm(t) && t != TermNil) {
     Error(TYPE_ERROR_LIST, t, "number_codes/2");
     return(FALSE);		
   }
@@ -1107,7 +1110,7 @@ p_number_codes(void)
   }
   *s++ = '\0';
   if ((NewT = get_num(String)) == TermNil) {
-    Error(SYNTAX_ERROR, Deref(ARG2), "number_chars/2", String);
+    Error(SYNTAX_ERROR, gen_syntax_error("number_codes"), "while scanning %s", String);
     return (FALSE);
   }
   return (unify(ARG1, NewT));
