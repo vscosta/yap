@@ -722,7 +722,7 @@ InitFlags(void)
   yap_flags[SOURCE_MODE_FLAG] = FALSE;
   yap_flags[CHARACTER_ESCAPE_FLAG] = ISO_CHARACTER_ESCAPES;
   yap_flags[WRITE_QUOTED_STRING_FLAG] = FALSE;
-#if (defined(YAPOR) || defined(THREADS)) && PURE_YAPOR
+#if (defined(YAPOR) || defined(THREADS)) && PUREe_YAPOR
   yap_flags[ALLOW_ASSERTING_STATIC_FLAG] = FALSE;
 #else
   yap_flags[ALLOW_ASSERTING_STATIC_FLAG] = TRUE;
@@ -953,6 +953,7 @@ InitCodes(void)
   heap_regs->functor_g_number = MkFunctor(LookupAtom("number"), 1);
   heap_regs->functor_g_primitive = MkFunctor(LookupAtom("primitive"), 1);
   heap_regs->functor_g_var = MkFunctor(AtomGVar, 1);
+  heap_regs->functor_last_execute_within = MkFunctor(LookupAtom("$last_execute_within"), 1);
   heap_regs->functor_list = MkFunctor(LookupAtom("."), 2);
   heap_regs->functor_module = MkFunctor(LookupAtom(":"), 2);
 #ifdef MULTI_ASSIGNMENT_VARIABLES

@@ -643,7 +643,7 @@ incore(G) :- '$execute'(G).
 
 ','(A,B) :-
 	'$execute_within'(A),
-	'$execute_within'(B).
+	'$last_execute_within'(B).
 
 ';'(A,B) :-
 	( '$execute_within'(A) ;

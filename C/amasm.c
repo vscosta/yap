@@ -772,6 +772,8 @@ a_p(op_numbers opcode)
 	    code_p->opc = emit_op(_p_execute);
 	  else if (RepPredProp(fe)->FunctorOfPred == FunctorExecuteWithin)
 	    code_p->opc = emit_op(_p_execute_within);
+	  else if (RepPredProp(fe)->FunctorOfPred == FunctorLastExecuteWithin)
+	    code_p->opc = emit_op(_p_last_execute_within);
 	  else
 	    code_p->opc = emit_op(_call_cpred);
 	}

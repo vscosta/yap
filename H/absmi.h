@@ -151,7 +151,7 @@ int  STD_PROTO(iequ_complex, (CELL *, CELL *,CELL *));
 
 #ifdef ANALYST
 
-static char *op_names[_p_execute_within + 1] =
+static char *op_names[_std_top + 1] =
 {
 #define OPCODE(OP,TYPE) #OP
 #include "YapOpcodes.h"

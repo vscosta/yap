@@ -64,7 +64,6 @@ inline static Int
 CallMetaCall(void) {
   ARG2 = current_cp_as_integer(); /* p_save_cp */
   ARG3 = ARG1;
-  WRITE_LOCK(PredMetaCall->PRWLock);
   return (CallPredicate(PredMetaCall, B));
 }
 
@@ -195,7 +194,6 @@ EnterCreepMode(PredEntry *pen) {
   ARG1 = MkPairTerm(Module_Name((CODEADDR)(pen)),ARG1);
   CreepFlag = CalculateStackGap();
   P_before_spy = P;
-  WRITE_LOCK(PredSpy->PRWLock);
   return (CallPredicate(PredSpy, B));
 }
 
@@ -291,7 +289,6 @@ p_execute_in_mod(void)
 inline static Int
 CallMetaCallWithin(void)
 {
-  WRITE_LOCK(PredMetaCall->PRWLock);
   return (CallPredicate(PredMetaCall, B));
 }
 
@@ -1330,6 +1327,7 @@ InitExecFs(void)
   InitCPred("$execute_in_mod", 2, p_execute_in_mod, 0);
   InitCPred("$execute_within", 3, p_execute_within, 0);
   InitCPred("$execute_within", 1, p_execute_within2, 0);
+  InitCPred("$last_execute_within", 1, p_execute_within2, 0);
   InitCPred("$execute", 2, p_at_execute, 0);
   InitCPred("$call_with_args", 1, p_execute_0, 0);
   InitCPred("$call_with_args", 2, p_execute_1, 0);

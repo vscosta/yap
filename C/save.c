@@ -1081,6 +1081,7 @@ restore_codes(void)
   heap_regs->functor_g_number = FuncAdjust(heap_regs->functor_g_number);
   heap_regs->functor_g_primitive = FuncAdjust(heap_regs->functor_g_primitive);
   heap_regs->functor_g_var = FuncAdjust(heap_regs->functor_g_var);
+  heap_regs->functor_last_execute_within = FuncAdjust(heap_regs->functor_last_execute_within);
   heap_regs->functor_list = FuncAdjust(heap_regs->functor_list);
   heap_regs->functor_module = FuncAdjust(heap_regs->functor_module);
 #ifdef MULTI_ASSIGNMENT_VARIABLES
@@ -1731,6 +1732,7 @@ RestoreClause(Clause *Cl)
     case _or_else:
     case _p_execute:
     case _p_execute_within:
+    case _p_last_execute_within:
 #ifdef YAPOR
     case _or_last:
 #endif

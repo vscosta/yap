@@ -11380,6 +11380,129 @@ absmi(int inp)
       }
       ENDBOp();
 
+      BOp(p_last_execute_within, sla);
+      { 
+	PredEntry *pen;
+
+	CACHE_Y_AS_ENV(Y);
+	BEGD(d0);
+	d0 = ARG1;
+	if (PredGoalExpansion->OpcodeOfPred != UNDEF_OPCODE) {
+	  d0 = ExecuteCallMetaCall();
+	}
+	deref_head(d0, last_execute_within_unk);
+      last_execute_within_nvar:
+	if (IsApplTerm(d0)) {
+	  Functor f = FunctorOfTerm(d0);
+	  if (IsExtensionFunctor(f)) {
+	    d0 = ExecuteCallMetaCall();
+	    goto last_execute_within_nvar;
+	  }
+	  pen = RepPredProp(PredPropByFunc(f, *CurrentModulePtr));
+	  if (pen->PredFlags & MetaPredFlag) {
+	    d0 = ExecuteCallMetaCall();
+	    goto last_execute_within_nvar;
+	  }
+	  BEGP(pt1);
+	  pt1 = RepAppl(d0);
+	  BEGD(d2);
+	  for (d2 = ArityOfFunctor(f); d2; d2--) {
+#if SBA
+	    BEGD(d1);
+	    d1 = pt1[d2];
+	    if (d1 == 0)
+	      XREGS[d2] = (CELL)(pt1+d2);
+	    else
+	      XREGS[d2] = d1;
+#else
+	    XREGS[d2] = pt1[d2];
+#endif
+	  }
+	  ENDD(d2);
+	  ENDP(pt1);
+	  CACHE_A1();
+	} else if (IsAtomTerm(d0)) {
+	  if (AtomOfTerm(d0) == AtomCut) {
+	    choiceptr pt0;
+
+	    pt0 = (choiceptr)(ENV[E_CB]);
+	    if (TopB != NULL && YOUNGER_CP(TopB,pt0)) {  
+	      pt0 = TopB;
+	      if (DelayedB == NULL || YOUNGER_CP(pt0,DelayedB))
+		DelayedB = pt0;
+	    }
+	    /* find where to cut to */
+	    if (SHOULD_CUT_UP_TO(B,pt0)) {
+#ifdef YAPOR
+	      /* Wow, we're gonna cut!!! */
+	      CUT_prune_to(pt0);
+#else
+	      /* Wow, we're gonna cut!!! */
+	      B = pt0;
+#endif /* YAPOR */
+	      HB = PROTECT_FROZEN_H(B);
+	    }
+	    PREG = NEXTOP(PREG, sla);
+	    JMPNext();
+	  }else
+	    pen = RepPredProp(PredPropByAtom(AtomOfTerm(d0), *CurrentModulePtr));
+	} else {
+	  d0 = ExecuteCallMetaCall();
+	  goto last_execute_within_nvar;
+	}
+
+	ALWAYS_LOOKAHEAD(pen->OpcodeOfPred);
+	BEGD(d0);
+	d0 = ENV[E_CB];
+#ifndef NO_CHECKING
+	check_stack(NoStackPWLExec, H);
+#endif
+	PREG = (yamop *) pen->CodeOfPred;
+	/* do deallocate */
+	CPREG = (yamop *) E_Y[E_CP];
+	E_Y = ENV = (CELL *) E_Y[E_E];
+#ifdef FROZEN_REGS
+	{ 
+	  choiceptr top_b = PROTECT_FROZEN_B(B);
+
+#ifdef SBA
+	  if (E_Y > (CELL *) top_b || E_Y < H) E_Y = (CELL *) top_b;
+#else
+	  if (E_Y > (CELL *) top_b) E_Y = (CELL *) top_b;
+#endif
+	  else E_Y = (CELL *)((CELL)E_Y + ENV_Size(CPREG));
+	}
+#else
+	if (E_Y > (CELL *)B) {
+	  E_Y = (CELL *)B;
+	}
+	else {
+	  E_Y = (CELL *) ((CELL) E_Y + ENV_Size(CPREG));
+	}
+#endif /* FROZEN_REGS */
+	WRITEBACK_Y_AS_ENV();
+	/* setup GB */
+	E_Y[E_CB] = d0;
+	ENDD(d0);
+	ALWAYS_GONext();
+	ALWAYS_END_PREFETCH();
+
+	BEGP(pt1);
+	deref_body(d0, pt1, last_execute_within_unk, last_execute_within_nvar);
+	d0 = ExecuteCallMetaCall();
+	goto last_execute_within_nvar;
+	ENDP(pt1);
+	ENDD(d0);
+	ENDCACHE_Y_AS_ENV();
+
+    NoStackPWLExec:
+	/* on X86 machines S will not actually be holding the pointer to pred */
+	SREG = (CELL *) pen;
+	goto NoStackCallGotS;
+
+      }
+      ENDBOp();
+
 #if !USE_THREADED_CODE
     default:
       PREG = Error(SYSTEM_ERROR, MkIntegerTerm(opcode), "trying to execute invalid YAAM instruction %d", opcode);

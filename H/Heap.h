@@ -10,7 +10,7 @@
 * File:		Heap.h         						 *
 * mods:									 *
 * comments:	Heap Init Structure					 *
-* version:      $Id: Heap.h,v 1.11 2001-10-30 20:35:19 vsc Exp $	 *
+* version:      $Id: Heap.h,v 1.12 2001-10-31 20:16:48 vsc Exp $	 *
 *************************************************************************/
 
 /* information that can be stored in Code Space */
@@ -237,6 +237,7 @@ typedef struct various_codes {
     functor_g_number,
     functor_g_primitive,
     functor_g_var,
+    functor_last_execute_within,
     functor_list,
     functor_module,
 #ifdef MULTI_ASSIGNMENT_VARIABLES
@@ -426,6 +427,7 @@ typedef struct various_codes {
 #define  FunctorGNumber           heap_regs->functor_g_number
 #define  FunctorGPrimitive        heap_regs->functor_g_primitive
 #define  FunctorGVar              heap_regs->functor_g_var
+#define  FunctorLastExecuteWithin     heap_regs->functor_last_execute_within
 #define  FunctorList              heap_regs->functor_list
 #define  FunctorModule            heap_regs->functor_module
 #ifdef MULTI_ASSIGNMENT_VARIABLES
