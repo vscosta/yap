@@ -11,8 +11,13 @@
 * File:		index.c							 *
 * comments:	Indexing a Prolog predicate				 *
 *									 *
-* Last rev:     $Date: 2004-12-05 05:01:24 $,$Author: vsc $						 *
+* Last rev:     $Date: 2004-12-06 04:50:22 $,$Author: vsc $						 *
 * $Log: not supported by cvs2svn $
+* Revision 1.109  2004/12/05 05:01:24  vsc
+* try to reduce overheads when running with goal expansion enabled.
+* CLPBN fixes
+* Handle overflows when allocating big clauses properly.
+*
 * Revision 1.108  2004/11/19 22:08:42  vsc
 * replace SYSTEM_ERROR by out OUT_OF_WHATEVER_ERROR whenever appropriate.
 *
@@ -5539,7 +5544,7 @@ kill_clause(yamop *ipc, yamop *bg, yamop *lt, path_stack_entry *sp0, PredEntry *
       }
     } else {
       if (IN_BETWEEN(bg, start->u.Ill.l1->u.ld.d, lt)) {
-	start->u.Ill.l1->u.l.l = FAILCODE;
+	start->u.Ill.l1->u.ld.d = FAILCODE;
       }
     }
     start->opc = Yap_opcode(_stale_lu_index);
