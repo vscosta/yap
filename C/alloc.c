@@ -12,7 +12,7 @@
 * Last rev:								 *
 * mods:									 *
 * comments:	allocating space					 *
-* version:$Id: alloc.c,v 1.7 2001-05-21 20:00:05 vsc Exp $		 *
+* version:$Id: alloc.c,v 1.8 2001-06-08 13:39:07 vsc Exp $		 *
 *************************************************************************/
 #ifdef SCCS
 static char SccsId[] = "%W% %G%";
@@ -87,7 +87,7 @@ RemoveFromFreeList(BlockHeader *b)
       b->b_next_size = p;
   }
   else {
-    BlockHeader **q = (BlockHeader **) &FreeBlocks;
+    BlockHeader **q = &FreeBlocks;
 
     while ((*q) != b)
       q = &((*q)->b_next_size);
@@ -109,7 +109,7 @@ AddToFreeList(BlockHeader *b)
   YAP_SEG_SIZE *sp;
 
   /* insert on list of free blocks */
-  q = (BlockHeader **) &FreeBlocks;
+  q = &FreeBlocks;
   sp = &(b->b_size) + b->b_size;
   *sp = b->b_size;
   LOCK(HeapUsedLock);
@@ -182,7 +182,7 @@ GetBlock(unsigned int n)
 
   if (FreeBlocks == NIL)
     return (NIL);
-  p = (BlockHeader **) &FreeBlocks;
+  p = &FreeBlocks;
   while (((b = *p) != NIL) && b->b_size < n)
     p = &b->b_next_size;
   if (b == NIL || b->b_size < n)
