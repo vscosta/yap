@@ -293,7 +293,7 @@ then
     AC_CHECK_LIB(mpich,MPI_Init,
 		[AC_DEFINE(HAVE_LIBMPICH, 1)],
 		[AC_DEFINE(HAVE_LIBMPICH, 0)])
-    if test "$ac_cv_lib_mpi_MPI_Init" = yes
+    if test "$ac_cv_lib_mpich_MPI_Init" = yes
     then
 	#YAPMPILIB=YapMPI.a
 	MPI_OBJS=mpi.o
