@@ -149,6 +149,7 @@ AlignGlobalForDouble(void)
           DO_TRAIL(TERM, VAL)
 
 #ifdef TERM_EXTENSIONS
+
 #define Trail(TERM, VAL, LAB)                             \
         if (IN_BETWEEN(HBREG,TERM,B) &&                   \
             ((TERM) < (CELL *)B_FZ))                      \
@@ -186,19 +187,19 @@ AlignGlobalForDouble(void)
 
 #ifdef TERM_EXTENSIONS
 #define Trail_Global(TERM, VAL, LAB)              \
- 	if ((TERM) < HBREG) goto LAB
+ 	if ((TERM) >= HBREG) goto LAB
 #else
 #define Trail_Global(TERM, VAL, LAB)              \
           TRAIL_GLOBAL(TERM, VAL)
 #endif
 
-#define DO_MATRAIL(TERM, OLDVAL, NEWVAL)    \
-{                                \
-  register tr_fr_ptr r = TR;        \
-  TR = r + 2;                    \
-  TrailTerm(r) = (OLDVAL);           \
-  TrailTerm(r+1) = AbsAppl((CELL *)(TERM));  \
-  TrailVal(r+1) = (NEWVAL);        \
+#define DO_MATRAIL(TERM, OLDVAL, NEWVAL)                    \
+{                                                           \
+  register tr_fr_ptr r = TR;                                \
+  TR = r + 2;                                               \
+  TrailVal(r) = (OLDVAL);                                   \
+  TrailTerm(r) = TrailTerm(r+1) = AbsAppl((CELL *)(TERM));  \
+  TrailVal(r+1) = (NEWVAL);                                 \
 }
 
 #define MATRAIL(TERM, OVAL, VAL)                  \

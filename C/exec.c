@@ -426,7 +426,7 @@ p_execute_within(void)
     if (a == AtomTrue || a == AtomOtherwise)
       return(TRUE);
     else if (a == AtomCut) {
-#if defined(SBA) && defined(FROZEN_REGS)
+#ifdef SBA
       choiceptr pt0 = (choiceptr)IntegerOfTerm(Deref(ARG2));
 #else
       choiceptr pt0 = (choiceptr)(LCL0-IntegerOfTerm(Deref(ARG2)));
@@ -479,9 +479,10 @@ p_execute0(void)
   Prop            pe;
   Atom            a;
 
-  if (IsAtomTerm(t))
-    arity = 0, a = AtomOfTerm(t);
-  else if (IsApplTerm(t)) {
+  if (IsAtomTerm(t)) {
+    arity = 0;
+    a = AtomOfTerm(t);
+  } else if (IsApplTerm(t)) {
     register Functor f = FunctorOfTerm(t);
     register unsigned int    i;
     register CELL *pt;
@@ -873,7 +874,7 @@ exec_absmi(int top)
       }
       /* make the abstract machine jump where we want them to jump to */
 
-#if defined(SBA) && defined(FROZEN_REGS)
+#ifdef SBA
       B = (choiceptr)depth;
 #else
       B = (choiceptr)(LCL0-depth);

@@ -10,7 +10,7 @@
 * File:		Yap.h.m4						 *
 * mods:									 *
 * comments:	main header file for YAP				 *
-* version:      $Id: Yap.h.m4,v 1.7 2001-06-27 15:00:10 vsc Exp $	 *
+* version:      $Id: Yap.h.m4,v 1.8 2001-07-04 16:48:54 uid49918 Exp $	 *
 *************************************************************************/
 
 #include "config.h"
@@ -76,6 +76,20 @@
 #ifdef  COROUTINING
 #ifndef TERM_EXTENSIONS
 #define TERM_EXTENSIONS 1
+#endif
+#endif
+
+#ifdef SBA
+#ifdef YAPOR
+#ifndef FROZEN_STACKS
+#define FROZEN_STACKS 1
+#endif
+#endif
+#endif
+
+#ifdef TABLING
+#ifndef FROZEN_STACKS
+#define FROZEN_STACKS 1
 #endif
 #endif
 

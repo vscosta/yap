@@ -2,15 +2,11 @@ BEFORE 4.4:
 - mixed attributes and delays.
 - write infinite terms
 - constraints in DB.
-- fix SBA plus co-routining
 - non-void temporaries going to global
 - timestamps on files.
 - warnings in documentation file.
-- system library
 - fix restore when code is moved around.
-- library(system) for WIN32
 - document new interface functions.
-- ^C can break code.
 - add more precision when outputting floats.
 - make statistics/0 better looking.
 - mask when installing.
@@ -21,8 +17,6 @@ TO CHECK:
 TABLING
 - pass all tabling tests from Kostis and Bart paper
 - handle floats, long ints and friends in tables.
-- make gc work after mutable var changes.
-- knap-sack
 
 PARALLELISM
 - copying: Fix stack copying after new stack.
@@ -85,3 +79,10 @@ DONE:
 - check library(random)
 - document system(library)
 - interrupt handling in WIN32
+- ^C can break code.
+- system library
+- library(system) for WIN32
+
+TO DO (tabling)
+- make gc work after mutable var changes.
+- knap-sack

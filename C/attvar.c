@@ -30,7 +30,7 @@ static char SccsId[]="%W% %G%";
 #define NULL (void *)0
 #endif
 
-STATIC_PROTO(Int  InitVarTime, (void));
+STATIC_PROTO(Term  InitVarTime, (void));
 
 static CELL *
 AddToQueue(attvar_record *attv)
@@ -189,22 +189,37 @@ mark_attvar(CELL *orig)
 
 #endif /* FIXED_STACKS */
 
-static Int
+#if FROZEN_STACKS
+static Term
+CurrentTime(void) {
+  return(MkIntegerTerm(TR-(tr_fr_ptr)TrailBase));
+}
+#endif
+
+static Term
 InitVarTime(void) {
+#if FROZEN_STACKS
+  if (B->cp_tr == TR) {
+    /* we run the risk of not making non-determinate bindings before
+       the end of the night */
+    /* so we just init a TR cell that will not harm anyone */
+    Bind((CELL *)(TR+1),AbsAppl(H-1));
+  }
+  return(MkIntegerTerm(B->cp_tr-(tr_fr_ptr)TrailBase));
+#else
   Term t = (CELL)H;
   *H++ = TermFoundVar;
   return(t);
+#endif
 }
 
 static Int
 PutAtt(attvar_record *attv, Int i, Term tatt) {
   Int pos = i*2;
-  CELL *timestmp = (CELL *)(attv->Atts[pos]);
-  if (B->cp_h <= timestmp
-#if defined(SBA) || defined(TABLING)
-      && timestmp <= H
-#endif
-    ) {
+#if FROZEN_STACKS
+  tr_fr_ptr timestmp = (tr_fr_ptr)TrailBase+IntegerOfTerm(attv->Atts[pos]);
+  if (B->cp_tr <= timestmp
+      && timestmp <= TR) {
 #if defined(SBA)
     if (Unsigned((Int)(attv)-(Int)(H_FZ)) >
 	Unsigned((Int)(B_FZ)-(Int)(H_FZ))) {
@@ -213,11 +228,20 @@ PutAtt(attvar_record *attv, Int i, Term tatt) {
     } else
 #endif
       attv->Atts[pos+1] = tatt;
-#if defined(SBA) || defined(TABLING)
     if (Unsigned((Int)(attv)-(Int)(HBREG)) >
-      Unsigned(BBREG)-(Int)(HBREG))
-    TrailVal(timestmp-1) = tatt;
-#endif    
+	Unsigned(BBREG)-(Int)(HBREG))
+      TrailVal(timestmp-1) = tatt;
+  } else {
+    Term tnewt;
+    MaBind(attv->Atts+pos+1, tatt);
+    tnewt = CurrentTime();
+    MaBind(attv->Atts+pos, tnewt);    
+  }
+#else
+  CELL *timestmp = (CELL *)(attv->Atts[pos]);
+  if (B->cp_h <= timestmp)
+  {
+      attv->Atts[pos+1] = tatt;
   } else {
     Term tnewt;
     MaBind(attv->Atts+pos+1, tatt);
@@ -225,6 +249,7 @@ PutAtt(attvar_record *attv, Int i, Term tatt) {
     *H++ = TermFoundVar;
     MaBind(attv->Atts+pos, tnewt);    
   }
+#endif
   return(TRUE);
 }
 
@@ -232,18 +257,30 @@ static Int
 RmAtt(attvar_record *attv, Int i) {
   Int pos = i *2;
   if (!IsVarTerm(attv->Atts[pos+1])) {
-    CELL *timestmp = (CELL *)(attv->Atts[pos]);
-    if (B->cp_h <= timestmp
-#if defined(SBA) || defined(TABLING)
-	&& timestmp <= H
-#endif
-	) {
+#if FROZEN_STACKS
+    tr_fr_ptr timestmp = (tr_fr_ptr)TrailBase+IntegerOfTerm(attv->Atts[pos]);
+    if (B->cp_tr <= timestmp
+	&& timestmp <= TR) {
       RESET_VARIABLE(attv->Atts+(pos+1));
-#if defined(SBA) || defined(TABLING)
-    if (Unsigned((Int)(attv)-(Int)(HBREG)) >
-      Unsigned(BBREG)-(Int)(HBREG))
-    TrailVal(timestmp-1) = attv->Atts[pos+1];
-#endif    
+      if (Unsigned((Int)(attv)-(Int)(HBREG)) >
+	  Unsigned(BBREG)-(Int)(HBREG))
+	TrailVal(timestmp-1) = attv->Atts[pos+1];
+    } else {
+      /* reset the variable */
+      Term tnewt;
+#ifdef SBA
+      MaBind(attv->Atts+(pos+1), 0L);    
+#else
+      MaBind(attv->Atts+(pos+1), (CELL)(attv->Atts+(pos+1)));    
+#endif
+      tnewt = CurrentTime();
+      MaBind(attv->Atts+pos, tnewt);    
+    }
+  }
+#else
+    CELL *timestmp = (CELL *)(attv->Atts[pos]);
+    if (B->cp_h <= timestmp) {
+      RESET_VARIABLE(attv->Atts+(pos+1));
     } else {
       /* reset the variable */
       Term tnewt;
@@ -257,6 +294,7 @@ RmAtt(attvar_record *attv, Int i) {
       MaBind(attv->Atts+pos, tnewt);    
     }
   }
+#endif
   return(TRUE);
 }
 

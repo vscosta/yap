@@ -28,107 +28,6 @@ static char     SccsId[] = "%W% %G%";
 #define HYBRID_SCHEME 1
 
 
-#ifdef MULTI_ASSIGNMENT_VARIABLES
-/* 
-   Based in opt.mavar.h. This is a set of routines to find out if a
-   ma trail entry has appeared before in the same trail segment. All ma
-   entries for the same cell are then linked. At the end of mark_trail() only
-   one will remain.
-*/
-
-#define GC_MAVARS_HASH_SIZE 512
-
-typedef struct gc_ma_h_entry {
-  CELL* addr;
-  tr_fr_ptr trptr;
-  struct gc_ma_h_entry* ma_list;
-  struct gc_ma_h_entry *next;
-} gc_ma_h_inner_struct;
-
-extern struct gc_ma_h_entry *live_list;
-
-typedef struct {
-  UInt timestmp;
-  struct gc_ma_h_entry val;
-} gc_ma_hash_entry;
-
-static gc_ma_hash_entry gc_ma_hash_table[GC_MAVARS_HASH_SIZE];
-
-static UInt timestamp;    /* an unsigned int */
-
-static inline unsigned int
-GC_MAVAR_HASH(CELL *addr) {
-#if SIZEOF_INT_P==8
-  return((((unsigned int)((CELL)(addr)))>>3)%GC_MAVARS_HASH_SIZE);
-#else
-  return((((unsigned int)((CELL)(addr)))>>2)%GC_MAVARS_HASH_SIZE); 
-#endif
-}
-
-gc_ma_h_inner_struct *gc_ma_h_top;
-
-static inline struct gc_ma_h_entry *
-GC_ALLOC_NEW_MASPACE(void)
-{
-  gc_ma_h_inner_struct *new = gc_ma_h_top;
-  if ((char *)gc_ma_h_top > TrailTop-1024)
-    growtrail(64 * 1024L);
-  gc_ma_h_top++;
-  return(new);
-}
-
-static inline tr_fr_ptr*
-gc_lookup_ma_var(CELL *addr, tr_fr_ptr trp) {
-  unsigned int i = GC_MAVAR_HASH(addr);
-  struct gc_ma_h_entry *nptr, *optr;
-
-  if (gc_ma_hash_table[i].timestmp != timestamp) {
-    gc_ma_hash_table[i].timestmp = timestamp;
-    gc_ma_hash_table[i].val.addr = addr;
-    gc_ma_hash_table[i].val.next = NULL;
-    gc_ma_hash_table[i].val.trptr = trp;
-    gc_ma_hash_table[i].val.ma_list = live_list;
-    live_list = &(gc_ma_hash_table[i].val);
-    return(NULL);
-  }
-  if (gc_ma_hash_table[i].val.addr == addr) {
-    return(&(gc_ma_hash_table[i].val.trptr));
-  }
-  optr = &(gc_ma_hash_table[i].val);
-  nptr = gc_ma_hash_table[i].val.next;
-  while (nptr != NULL) {
-    if (nptr->addr == addr) {
-      return(&(nptr->trptr));
-    }
-    optr = nptr;
-    nptr = nptr->next;
-  }
-  nptr = GC_ALLOC_NEW_MASPACE();
-  optr->next = nptr;
-  nptr->addr = addr;
-  nptr->trptr = trp;
-  nptr->ma_list = live_list;
-  nptr->next = NULL;
-  live_list = nptr;
-  return(NULL);
-}
-
-static inline void
-GC_NEW_MAHASH(gc_ma_h_inner_struct *top) {
-  UInt time = ++timestamp;
-  if (time == 0) {
-    unsigned int i;
-    /* damn, we overflowed */
-    for (i = 0; i < GC_MAVARS_HASH_SIZE; i++)
-      gc_ma_hash_table[i].timestmp = 0;
-    time = ++timestamp;
-  }
-  gc_ma_h_top = top;
-  live_list = NULL;
-}
-
-#endif
-
 /* global variables for garbage collection */
 
 #ifndef DEBUG
@@ -340,6 +239,109 @@ quicksort(CELL *a[], UInt p, UInt r)
 #endif /* HYBRID_SCHEME */
 
 
+#ifdef MULTI_ASSIGNMENT_VARIABLES
+/* 
+   Based in opt.mavar.h. This is a set of routines to find out if a
+   ma trail entry has appeared before in the same trail segment. All ma
+   entries for the same cell are then linked. At the end of mark_trail() only
+   one will remain.
+*/
+
+#define GC_MAVARS_HASH_SIZE 512
+
+typedef struct gc_ma_h_entry {
+  CELL* addr;
+  tr_fr_ptr trptr;
+  struct gc_ma_h_entry* ma_list;
+  struct gc_ma_h_entry *next;
+} gc_ma_h_inner_struct;
+
+extern struct gc_ma_h_entry *live_list;
+
+typedef struct {
+  UInt timestmp;
+  struct gc_ma_h_entry val;
+} gc_ma_hash_entry;
+
+static gc_ma_hash_entry gc_ma_hash_table[GC_MAVARS_HASH_SIZE];
+
+static UInt timestamp;    /* an unsigned int */
+
+static inline unsigned int
+GC_MAVAR_HASH(CELL *addr) {
+#if SIZEOF_INT_P==8
+  return((((unsigned int)((CELL)(addr)))>>3)%GC_MAVARS_HASH_SIZE);
+#else
+  return((((unsigned int)((CELL)(addr)))>>2)%GC_MAVARS_HASH_SIZE); 
+#endif
+}
+
+gc_ma_h_inner_struct *gc_ma_h_top;
+
+static inline struct gc_ma_h_entry *
+GC_ALLOC_NEW_MASPACE(void)
+{
+  gc_ma_h_inner_struct *new = gc_ma_h_top;
+  if ((char *)gc_ma_h_top > TrailTop-1024)
+    growtrail(64 * 1024L);
+  gc_ma_h_top++;
+  cont_top0 = cont_top = (cont *)gc_ma_h_top;
+  return(new);
+}
+
+static inline tr_fr_ptr*
+gc_lookup_ma_var(CELL *addr, tr_fr_ptr trp) {
+  unsigned int i = GC_MAVAR_HASH(addr);
+  struct gc_ma_h_entry *nptr, *optr;
+
+  if (gc_ma_hash_table[i].timestmp != timestamp) {
+    gc_ma_hash_table[i].timestmp = timestamp;
+    gc_ma_hash_table[i].val.addr = addr;
+    gc_ma_hash_table[i].val.next = NULL;
+    gc_ma_hash_table[i].val.trptr = trp;
+    gc_ma_hash_table[i].val.ma_list = live_list;
+    live_list = &(gc_ma_hash_table[i].val);
+    return(NULL);
+  }
+  if (gc_ma_hash_table[i].val.addr == addr) {
+    return(&(gc_ma_hash_table[i].val.trptr));
+  }
+  optr = &(gc_ma_hash_table[i].val);
+  nptr = gc_ma_hash_table[i].val.next;
+  while (nptr != NULL) {
+    if (nptr->addr == addr) {
+      return(&(nptr->trptr));
+    }
+    optr = nptr;
+    nptr = nptr->next;
+  }
+  nptr = GC_ALLOC_NEW_MASPACE();
+  optr->next = nptr;
+  nptr->addr = addr;
+  nptr->trptr = trp;
+  nptr->ma_list = live_list;
+  nptr->next = NULL;
+  live_list = nptr;
+  return(NULL);
+}
+
+static inline void
+GC_NEW_MAHASH(gc_ma_h_inner_struct *top) {
+  UInt time = ++timestamp;
+  if (time == 0) {
+    unsigned int i;
+    /* damn, we overflowed */
+    for (i = 0; i < GC_MAVARS_HASH_SIZE; i++)
+      gc_ma_hash_table[i].timestmp = 0;
+    time = ++timestamp;
+  }
+  gc_ma_h_top = top;
+  cont_top0 = cont_top = (cont *)gc_ma_h_top;
+  live_list = NULL;
+}
+
+#endif
+
 /* find all accessible objects on the heap and squeeze out all the rest */
 
 
@@ -534,7 +536,7 @@ init_dbtable(tr_fr_ptr trail_ptr) {
       /* DB pointer */ 
       CELL flags;
 
-#ifdef FROZEN_REGS  /* TRAIL */
+#ifdef FROZEN_STACKS  /* TRAIL */
             /* avoid frozen segments */
       if (
 #ifdef SBA
@@ -545,7 +547,7 @@ init_dbtable(tr_fr_ptr trail_ptr) {
 	  ) {
 	continue;
       }
-#endif /* FROZEN_REGS */
+#endif /* FROZEN_STACKS */
 
       flags = Flags((CELL)pt0);
       /* for the moment, if all references to the term in the stacks
@@ -1094,6 +1096,7 @@ mark_environments(CELL_PTR gc_ENV, OPREG size, CELL *pvbmap)
 static void
 mark_trail(tr_fr_ptr trail_ptr, tr_fr_ptr trail_base, CELL *gc_H, choiceptr gc_B)
 {
+  cont *old_cont_top0 = cont_top0;
   GC_NEW_MAHASH((gc_ma_h_inner_struct *)db_vec);
   while (trail_ptr > trail_base) {
     register CELL trail_cell;
@@ -1114,7 +1117,7 @@ mark_trail(tr_fr_ptr trail_ptr, tr_fr_ptr trail_base, CELL *gc_H, choiceptr gc_B
 	RESET_VARIABLE(hp);
 	discard_trail_entries++;
 	RESET_VARIABLE(&TrailTerm(trail_ptr));
-#ifdef FROZEN_REGS
+#ifdef FROZEN_STACKS
 	RESET_VARIABLE(&TrailVal(trail_ptr));
 #endif
 #else
@@ -1129,7 +1132,7 @@ mark_trail(tr_fr_ptr trail_ptr, tr_fr_ptr trail_base, CELL *gc_H, choiceptr gc_B
       } else if ((hp < (CELL *)gc_B && hp >= gc_H) || hp > (CELL *)TrailBase) {
 	/* clean the trail, avoid dangling pointers! */
 	RESET_VARIABLE(&TrailTerm(trail_ptr));
-#ifdef FROZEN_REGS
+#ifdef FROZEN_STACKS
 	RESET_VARIABLE(&TrailVal(trail_ptr));
 #endif
 	discard_trail_entries++;
@@ -1147,7 +1150,7 @@ mark_trail(tr_fr_ptr trail_ptr, tr_fr_ptr trail_base, CELL *gc_H, choiceptr gc_B
 	  MARK(cptr);
 	}
 #endif
-#ifdef FROZEN_REGS
+#ifdef FROZEN_STACKS
 	mark_external_reference(&TrailVal(trail_ptr));
 #endif
       }
@@ -1174,9 +1177,6 @@ mark_trail(tr_fr_ptr trail_ptr, tr_fr_ptr trail_base, CELL *gc_H, choiceptr gc_B
 	  mark_external_reference(&(TrailTerm(trail_ptr)));
 	  /* reset the gc to believe the original tag */
 	  TrailTerm(trail_ptr) = AbsAppl((CELL *)TrailTerm(trail_ptr));
-#ifdef FROZEN_REGS
-	  mark_external_reference(&TrailVal(trail_ptr));
-#endif
 	}
 	trail_ptr --;
       } else {
@@ -1185,12 +1185,12 @@ mark_trail(tr_fr_ptr trail_ptr, tr_fr_ptr trail_base, CELL *gc_H, choiceptr gc_B
 	/* we can safely ignore this little monster */
 	discard_trail_entries += 2;
 	RESET_VARIABLE(&TrailTerm(trail_ptr));
-#ifdef FROZEN_REGS
+#ifdef FROZEN_STACKS
 	RESET_VARIABLE(&TrailVal(trail_ptr));
 #endif
 	trail_ptr--;
 	RESET_VARIABLE(&TrailTerm(trail_ptr));
-#ifdef FROZEN_REGS
+#ifdef FROZEN_STACKS
 	RESET_VARIABLE(&TrailVal(trail_ptr));
 #endif
       }
@@ -1204,15 +1204,26 @@ mark_trail(tr_fr_ptr trail_ptr, tr_fr_ptr trail_base, CELL *gc_H, choiceptr gc_B
     if (HEAP_PTR(trail_cell)) {
       mark_external_reference(&TrailTerm(live_list->trptr-1));
     }
+#ifdef FROZEN_STACKS
+    if (HEAP_PTR(TrailVal(trail_ptr))) {
+      mark_external_reference(&TrailVal(trail_ptr));
+    }
+#endif
     /*
       swap the two so that the sweep_trail() knows we have
       a multi-assignment binding
     */
     TrailTerm(live_list->trptr) = TrailTerm(live_list->trptr-1);
     TrailTerm(live_list->trptr-1) = trail_cell2;
+#ifdef FROZEN_STACKS
+    if (HEAP_PTR(TrailVal(trail_ptr-1))) {
+      mark_external_reference(&TrailVal(trail_ptr-1));
+    }
+#endif
     live_list = live_list->ma_list;
   }
 #endif
+  cont_top0 = cont_top = old_cont_top0;
 }
 
 /*
@@ -1326,12 +1337,16 @@ mark_choicepoints(register choiceptr gc_B, tr_fr_ptr saved_TR)
 #endif /* CHECK_CHOICEPOINTS */
     {
       /* find out how many cells are still alive in the trail */
+#ifndef FROZEN_STACKS
       UInt d0 = discard_trail_entries, diff, orig;
       orig = saved_TR-gc_B->cp_tr;
+#endif
       mark_trail(saved_TR, gc_B->cp_tr, gc_B->cp_h, gc_B);
       saved_TR = gc_B->cp_tr;
+#ifndef FROZEN_STACKS
       diff = discard_trail_entries-d0;
       gc_B->cp_tr = (tr_fr_ptr)(orig-diff);
+#endif /* FROZEN_STACKS */
     }
   restart_cp:
     if (opnum == _or_else || opnum == _or_last) {
@@ -1569,7 +1584,11 @@ sweep_trail(choiceptr gc_B, tr_fr_ptr old_TR)
     hp_in_use_erased = 0, code_entries = 0;
 #endif
 
-  /* adjust cp_tr pointers */
+#ifndef FROZEN_STACKS
+  /* 
+     adjust cp_tr pointers,
+     we don't compress TR if we have freeze.
+   */
  {
    Int size = old_TR-(tr_fr_ptr)TrailBase;
    size -= discard_trail_entries;
@@ -1579,6 +1598,8 @@ sweep_trail(choiceptr gc_B, tr_fr_ptr old_TR)
      gc_B = gc_B->cp_b;
    }
  }
+#endif /* FROZEN_STACKS */
+
   /* first, whatever we dumped on the trail. Easier just to do
      the registers separately?  */
   for (trail_ptr = old_TR; trail_ptr < TR; trail_ptr++) {
@@ -1598,14 +1619,19 @@ sweep_trail(choiceptr gc_B, tr_fr_ptr old_TR)
 
     trail_cell = TrailTerm(trail_ptr);
 
+#ifdef FROZEN_STACKS
+    /* it is complex to recover cells with frozen segments */
+    TrailVal(dest) = TrailVal(trail_ptr);
+#else
+    /* recover a trail cell */
     if (trail_cell == (CELL)trail_ptr) {
+      TrailTerm(dest) = trail_cell;
       trail_ptr++;
       /* just skip cell */
-    } else {
-      TrailTerm(dest) = trail_cell;
-#ifdef FROZEN_REGS
-      TrailVal(dest) = TrailVal(trail_ptr);
+    } else
 #endif
+    {
+      TrailTerm(dest) = trail_cell;
       if (IsVarTerm(trail_cell)) {
 	/* we need to check whether this is a honest to god trail entry */
 	if ((CELL *)trail_cell < H && MARKED(*(CELL *)trail_cell) && (CELL *)trail_cell >= H0) {
@@ -1619,7 +1645,7 @@ sweep_trail(choiceptr gc_B, tr_fr_ptr old_TR)
 	    into_relocation_chain(CellPtr(trail_cell), GET_NEXT(*(CELL *)trail_cell));
 	  }
 	}
-#ifdef FROZEN_REGS
+#ifdef FROZEN_STACKS
 	if (MARKED(TrailVal(dest))) {
 	  UNMARK(&TrailVal(dest));
 	  if (HEAP_PTR(TrailVal(dest))) {
@@ -1632,7 +1658,7 @@ sweep_trail(choiceptr gc_B, tr_fr_ptr old_TR)
 	CELL flags;
 
 
-#ifdef FROZEN_REGS  /* TRAIL */
+#ifdef FROZEN_STACKS  /* TRAIL */
 	/* process all segments */
 	if (
 #ifdef SBA
@@ -1645,7 +1671,7 @@ sweep_trail(choiceptr gc_B, tr_fr_ptr old_TR)
 	  dest++;
 	  continue;
 	}
-#endif /* FROZEN_REGS */
+#endif /* FROZEN_STACKS */
 	flags = Flags((CELL)pt0);
 #ifdef DEBUG
 	if (FlagOn(DBClMask, flags) && !FlagOn(LogUpdMask, flags)) {
@@ -1696,6 +1722,15 @@ sweep_trail(choiceptr gc_B, tr_fr_ptr old_TR)
 	    into_relocation_chain(&TrailTerm(dest), GET_NEXT(old));
 	  }
 	}
+#ifdef FROZEN_STACKS
+	TrailVal(dest) = TrailVal(trail_ptr);
+	if (MARKED(TrailVal(dest))) {
+	  UNMARK(&TrailVal(dest));
+	  if (HEAP_PTR(TrailVal(dest))) {
+	    into_relocation_chain(&TrailVal(dest), GET_NEXT(TrailTerm(dest)));
+	  }
+	}
+#endif
 	dest++;
 	if (MARKED(trail_cell)) {
 	  UNMARK(&TrailTerm(dest));
@@ -1704,7 +1739,7 @@ sweep_trail(choiceptr gc_B, tr_fr_ptr old_TR)
 	  }
 	}
 	trail_ptr++;
-#ifdef FROZEN_REGS
+#ifdef FROZEN_STACKS
 	TrailVal(dest) = TrailVal(trail_ptr);
 	if (MARKED(TrailVal(dest))) {
 	  UNMARK(&TrailVal(dest));

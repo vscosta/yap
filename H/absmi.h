@@ -801,28 +801,14 @@ Macros to check the limits of stacks
 #define YAPOR_update_alternative(CUR_ALT, NEW_ALT)
 #endif /* YAPOR */
 
-#ifdef SBA
-#ifdef YAPOR
-#ifndef FROZEN_REGS
-#define FROZEN_REGS 1
-#endif
-#endif
-#endif
-
-#ifdef TABLING
-#ifndef FROZEN_REGS
-#define FROZEN_REGS 1
-#endif
-#endif
-
-#if defined(FROZEN_REGS) && !defined(BFZ_TRAIL_SCHEME)
+#if defined(FROZEN_STACKS) && !defined(BFZ_TRAIL_SCHEME)
 #define SET_BB(V)    BBREG = (V)
 #else
 #define SET_BB(V)
 #endif
 
 
-#ifdef FROZEN_REGS
+#ifdef FROZEN_STACKS
 #ifdef SBA
 #define PROTECT_FROZEN_H(CPTR)                                  \
        ((Unsigned((Int)((CPTR)->cp_h)-(Int)(H_FZ)) <            \
@@ -1110,40 +1096,58 @@ inline EXTERN int STD_PROTO(unify_extension,(Functor, CELL, CELL *, CELL));
 #endif
 
 
-#if defined(SBA) || defined(MULTI_ASSIGNMENT_VARIABLES)
-#define trim_trail()
-#elif FROZEN_REGS
-	{ tr_fr_ptr pt1, pt0;                                               \
-	  pt1 = TR;                                                         \
-	  pt0 = TR = B->cp_tr;		                                    \
-	  BEGD(d0);                                                         \
-	  d0 = Unsigned(HBREG);                                             \
-	  while (pt0 < pt1)                                                 \
-	    BEGD(d1);                                                       \
-	      if (IsVarTerm(d1 = TrailTerm(pt0))) {                         \
-	        if (d1 < d0 || d1 > Unsigned(B)) {                          \
-	          DO_TRAIL(d1, TrailVal(pt0));                              \
-                }                                                           \
-            pt0++;                                                          \
- 	    ENDD(d1);                                                       \
-	  ENDD(d0);                                                         \
-        }
+#if FROZEN_STACKS
+static inline tr_fr_ptr
+trim_trail(choiceptr b, tr_fr_ptr tr, CELL *hbreg)
+{
+  tr_fr_ptr pt1, pt0;
+  pt1 = tr;
+  pt0 = TR = B->cp_tr;
+  BEGD(d0);
+  d0 = Unsigned(hbreg);
+  while (pt0 < pt1) {
+    BEGD(d1);
+    if (IsVarTerm(d1 = TrailTerm(pt0))) {
+      if (d1 < d0 || d1 > Unsigned(B)) { 
+	DO_TRAIL(d1, TrailVal(pt0));     
+      }                                  
+      pt0++;                                 
+    } else {
+      DO_TRAIL(d1, TrailVal(pt0));
+      pt0++;                                 
+    }
+    ENDD(d1);                              
+  }  
+  ENDD(d0);                                
+  return(TR);
+}
+
+#elif defined(SBA) || defined(MULTI_ASSIGNMENT_VARIABLES)
+
+#define trim_trail(B, TR, HBREG)  (TR)
+
 #else
-#define trim_trail()                                                        \
-	  { tr_fr_ptr pt1, pt0;                                             \
-	  pt1 = TR;                                                         \
-	  pt0 = TR = B->cp_tr;		                                    \
-	  BEGD(d0);                                                         \
-	  d0 = Unsigned(HBREG);                                             \
-	  while (pt0 < pt1)                                                 \
-	      BEGD(d1);                                                     \
-	       if (IsVarTerm(d1 = *pt0++)) {                                \
-		 if (d1 < d0 || d1 > Unsigned(B))                           \
-		   *TR++ = d1;                                              \
-	       }                                                            \
-	      ENDD(d1);                                                     \
-	  ENDD(d0);                                                         \
-	  }
-#endif /* FROZEN_REGS */
+static inline tr_fr_ptr
+trim_trail(choiceptr b, tr_fr_ptr tr, CELL *hbreg)
+{
+  tr_fr_ptr pt1, pt0;
+  pt1 = TR;
+  pt0 = TR = B->cp_tr;
+  BEGD(d0);
+  d0 = Unsigned(HBREG);
+  while (pt0 < pt1) {
+    BEGD(d1);
+    if (IsVarTerm(d1 = TrailTerm(pt0))) {
+      if (d1 < d0 || d1 > Unsigned(B)) { 
+	DO_TRAIL(d1, TrailVal(pt0));     
+      }                                  
+      pt0++;                                 
+      ENDD(d1);                              
+      ENDD(d0);                                
+    }
+  }  
+  return(TR);
+}
+#endif /* FROZEN_STACKS */
 
 

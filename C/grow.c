@@ -275,6 +275,9 @@ AdjustTrail(int adjusting_heap)
   /* moving the trail is simple */
   while (ptt != (tr_fr_ptr)TrailBase) {
     register CELL reg = TrailTerm(ptt-1);
+#ifdef FROZEN_STACKS
+    register CELL reg2 = TrailVal(ptt-1);
+#endif
 
     ptt--;
     if (IsVarTerm(reg)) {
@@ -309,6 +312,24 @@ AdjustTrail(int adjusting_heap)
       TrailTerm(ptt) = AdjustAppl(reg);
 #endif
     }
+#ifdef FROZEN_STACKS
+    if (IsVarTerm(reg2)) {
+      if (IsOldLocal(reg2))
+	TrailVal(ptt) = LocalAdjust(reg2);
+      else if (IsOldGlobal(reg2))
+	TrailVal(ptt) = GlobalAdjust(reg2);
+      else if (IsOldDelay(reg2))
+	TrailVal(ptt) = DelayAdjust(reg2);
+      else if (IsOldTrail(reg2))
+	TrailVal(ptt) = TrailAdjust(reg2);
+      else if (IsOldCode(reg2))
+	TrailVal(ptt) = CodeAdjust(reg2);
+    } else if (IsApplTerm(reg2)) {
+      TrailVal(ptt) = AdjustAppl(reg2);
+    } else if (IsPairTerm(reg2)) {
+      TrailVal(ptt) = AdjustPair(reg2);
+    }
+#endif
   }
 
 }

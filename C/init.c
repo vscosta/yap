@@ -47,20 +47,6 @@ static char     SccsId[] = "%W% %G%";
 #include <string.h>
 #endif
 
-#ifdef SBA
-#ifdef YAPOR
-#ifndef FROZEN_REGS
-#define FROZEN_REGS 1
-#endif
-#endif
-#endif
-
-#ifdef TABLING
-#ifndef FROZEN_REGS
-#define FROZEN_REGS 1
-#endif
-#endif
-
 #ifdef DEBUG
 #ifdef MACC
 STATIC_PROTO(void  InTTYLine, (char *));
@@ -1017,14 +1003,14 @@ InitYaamRegs(void)
     }
   }
   STATIC_PREDICATES_MARKED = FALSE;
-#ifdef FROZEN_REGS
+#ifdef FROZEN_STACKS
   H = HB = H0 = H_FZ = H_BASE;
 #ifdef SBA
   BSEG =
 #endif /* SBA */
   BBREG = B_FZ = B_BASE;
   TR = TR_FZ = TR_BASE;
-#endif /* FROZEN_REGS */
+#endif /* FROZEN_STACKS */
   CreepFlag = CalculateStackGap();
 
 }

@@ -390,7 +390,7 @@ absmi(int inp)
        * choicepoint for the current B */
       restore_yaam_regs(PREG->u.ld.d);
       restore_at_least_one_arg(PREG->u.ld.s);
-#ifdef FROZEN_REGS
+#if defined(SBA) && defined(FROZEN_REGS)
       S_Y = (CELL *)PROTECT_FROZEN_B(B_Y);
       set_cut(S_Y, B->cp_b);
 #else
@@ -1370,7 +1370,11 @@ absmi(int inp)
 	  /* multi-assignment variable */
 	  /* so the next cell is the old value */ 
 	  pt0--;
+#if FROZEN_STACKS
+	  pt[0] = TrailVal(pt0);
+#else
 	  pt[0] = TrailTerm(pt0);
+#endif
 	  goto failloop;
 	}
 #endif
@@ -1404,7 +1408,7 @@ absmi(int inp)
 #endif	/* YAPOR */
 	SET_BB(PROTECT_FROZEN_B(B));
 	HBREG = PROTECT_FROZEN_H(B);
-	trim_trail();
+	TR = trim_trail(B, TR, HBREG);
       }
       ENDD(d0);
       GONext();
@@ -1426,7 +1430,7 @@ absmi(int inp)
 #endif	/* YAPOR */
 	SET_BB(PROTECT_FROZEN_B(B));
 	HBREG = PROTECT_FROZEN_H(B);
-	trim_trail();
+	TR = trim_trail(B, TR, HBREG);
       }
       ENDD(d0);
       GONext();
@@ -1447,7 +1451,7 @@ absmi(int inp)
 #endif	/* YAPOR */
 	SET_BB(PROTECT_FROZEN_B(B));
 	HBREG = PROTECT_FROZEN_H(B);
-	trim_trail();
+	TR = trim_trail(B, TR, HBREG);
       }
       ENDD(d0);
       GONext();
@@ -1505,7 +1509,7 @@ absmi(int inp)
 #endif	/* YAPOR */
 	  SET_BB(PROTECT_FROZEN_B(B));
 	  HBREG = PROTECT_FROZEN_H(pt0);
-	  trim_trail();
+	  TR = trim_trail(B, TR, HBREG);
 	}
       }
       ENDD(d0);
@@ -1538,7 +1542,7 @@ absmi(int inp)
 #endif	/* YAPOR */
 	  SET_BB(PROTECT_FROZEN_B(B));
 	  HBREG = PROTECT_FROZEN_H(pt0);
-	  trim_trail();
+	  TR = trim_trail(B, TR, HBREG);
 	}
       }
       ENDD(d0);
@@ -2118,6 +2122,10 @@ absmi(int inp)
 #ifdef COROUTINING
       }
 #endif
+#ifdef LOW_LEVEL_TRACER
+      if (do_low_level_trace)
+	low_level_trace(enter_pred,pred_entry(SREG),XREGS+1);
+#endif	/* LOW_LEVEL_TRACE */
       PREG = (yamop *) PredCode(SREG);
       CACHE_A1();
       JMPNext();
@@ -6010,6 +6018,10 @@ absmi(int inp)
       pt0 = (CELL *) (Unsigned(SpyCode) - sizeof(SMALLUNSGN));
       PREG = (yamop *) PredCode(pt0);
       CACHE_A1();
+#ifdef LOW_LEVEL_TRACER
+      if (do_low_level_trace)
+	low_level_trace(enter_pred,(PredEntry *)(PREG->u.sla.p),XREGS+1);
+#endif	/* LOW_LEVEL_TRACE */
       ENDP(pt0);
       JMPNext();
 
@@ -7717,7 +7729,7 @@ absmi(int inp)
 	B = pt0;
 #endif /* YAPOR */
 	HBREG = PROTECT_FROZEN_H(B);
-	trim_trail();
+	TR = trim_trail(B, TR, HBREG);
       }
       ENDCHO(pt0);
       PREG = NEXTOP(PREG, x);
@@ -7766,7 +7778,7 @@ absmi(int inp)
 	B = pt1;
 #endif /* YAPOR */
 	HBREG = PROTECT_FROZEN_H(B);
-	trim_trail();
+	TR = trim_trail(B, TR, HBREG);
       }
       PREG = NEXTOP(PREG, y);
       GONext();
