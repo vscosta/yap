@@ -56,7 +56,7 @@ print_message(Level, Mss) :-
 	'$format'(user_error,"[ No handler for error ~w ]~n", [error(Msg,Info)]).
 '$print_message'(error,error(syntax_error(A,B,C,D,E,F),_)) :- !,
 	'$output_error_message'(syntax_error(A,B,C,D,E,F), 'SYNTAX ERROR').
-'$print_message'(error,error(Msg,[Info|local_sp(Where,Envs,CPs)])) :- !,
+'$print_message'(error,error(Msg,[Info|local_sp(Where,Envs,CPs)])) :-
 	'$prepare_loc'(Info,Where,Location),
 	'$output_error_message'(Msg, Location), !,
 	'$do_stack_dump'(Envs, CPs).
