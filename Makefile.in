@@ -2,7 +2,8 @@
 # default base directory for YAP installation
 # (EROOT for architecture-dependent files)
 #
-ROOTDIR = @prefix@
+prefix = @prefix@
+ROOTDIR = $(prefix)
 EROOTDIR = @exec_prefix@
 #
 # where the binary should be
@@ -57,10 +58,6 @@ CPPFLAGS=@CPPFLAGS@  -I. -I$(srcdir)/H -I$(srcdir)/OPTYap
 CFLAGS= @CFLAGS@ $(YAP_EXTRAS) $(DEFS) $(CPPFLAGS)
 C_INTERF_FLAGS= @C_INTERF_FLAGS@ $(YAP_EXTRAS) $(DEFS) $(CPPFLAGS) -I$(srcdir)/include
 C_PARSER_FLAGS= @C_PARSER_FLAGS@ $(YAP_EXTRAS) $(DEFS) $(CPPFLAGS)
-#
-# where YAP should look for architecture-independent Prolog libraries
-#
-SHAREDIR=$(ROOTDIR)/share/Yap
 #
 #
 # You shouldn't need to change what follows.
@@ -499,8 +496,8 @@ install_library: libYap.a
 
 install_data:
 	(cd library ; make install)
-	$(INSTALL_DATA) $(srcdir)/LGPL/pillow/icon_address.pl $(DESTDIR)$(SHAREDIR)/Yap
-	$(INSTALL_DATA) $(srcdir)/LGPL/pillow/pillow.pl $(DESTDIR)$(SHAREDIR)/Yap
+	$(INSTALL_DATA) $(srcdir)/LGPL/pillow/icon_address.pl $(DESTDIR)$(SHAREDIR)/Yap/
+	$(INSTALL_DATA) $(srcdir)/LGPL/pillow/pillow.pl $(DESTDIR)$(SHAREDIR)/Yap/
 	(cd CLPQR ; make install)
 	(cd CHR ; make install)
 

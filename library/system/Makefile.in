@@ -2,7 +2,8 @@
 # default base directory for YAP installation
 # (EROOT for architecture-dependent files)
 #
-ROOTDIR = @prefix@
+prefix = @prefix@
+ROOTDIR = $(prefix)
 EROOTDIR = @exec_prefix@
 #
 # where the binary should be
