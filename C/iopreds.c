@@ -4082,7 +4082,7 @@ format(Term tail, Term args, int sno)
 	    goto do_default_error;
 	  do_consistency_error:
 	  default:
-	    Yap_Error(CONSISTENCY_ERROR, t, "format/2");
+	    Yap_Error(CONSISTENCY_ERROR, args, "format/2");
 	  do_default_error:
 	    if (tnum <= 8)
 	      targs = NULL;
