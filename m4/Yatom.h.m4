@@ -162,7 +162,7 @@ Inline(IsValProperty, PropFlags, int, flags, (flags == ValProperty) )
 	    CodeOfPred holds the address of the	correspondent C-function.
 */
 typedef enum {
-  UnCutAblePredFlag= 0x8000000L	/* Predicate may not be cut */
+  UnCutAblePredFlag= 0x8000000L,	/* Predicate may not be cut */
   CountPredFlag =    0x4000000L,	/* count calls to pred */
   HiddenPredFlag =   0x2000000L,	/* invisible predicate */
   CArgsPredFlag =    0x1000000L,	/* SWI-like C-interface pred. */
@@ -190,7 +190,7 @@ typedef enum {
   SequentialPredFlag=0x000020L,	/* may not create par. choice points!*/
 #endif /* YAPOR */
   ProfiledPredFlag = 0x000010L, /* pred is being profiled	 */
-  LogUpdatePredFlag= 0x000008L,	/* dynamic predicate with log. upd. sem.*/
+  LogUpdatePredFlag= 0x000008L	/* dynamic predicate with log. upd. sem.*/
 } pred_flag;
 
 /* profile data */
