@@ -481,10 +481,13 @@ count_cells_marked(void)
 /* straightforward binary tree scheme that, given a key, finds a
    matching dbref */  
 
+#define XOR_BIT 32
+
 typedef enum {
   db_entry,
   cl_entry,
   lcl_entry,
+  li_entry,
   dcl_entry
 } db_entry_type;
 
@@ -546,7 +549,7 @@ find_ref_in_dbtable(CODEADDR entry)
     if (current->val < entry && current->lim > entry) {
       return(current);
     }
-    if (entry < current->val)
+    if (((CELL)entry ^ (CELL)(current->val)) & XOR_BIT)
       current = current->right;
     else
       current = current->left;
@@ -569,6 +572,9 @@ mark_db_fixed(CELL *ptr) {
       break;
     case lcl_entry:
       ((LogUpdClause *)(el->val))->ClFlags |= GcFoundMask;
+      break;
+    case li_entry:
+      ((LogUpdIndex *)(el->val))->ClFlags |= GcFoundMask;
       break;
     case dcl_entry:
       ((DeadClause *)(el->val))->ClFlags |= GcFoundMask;
@@ -613,7 +619,11 @@ init_dbtable(tr_fr_ptr trail_ptr) {
       if (FlagOn(DBClMask, flags)) {
 	store_in_dbtable((CODEADDR)DBStructFlagsToDBStruct(pt0), db_entry);
       } else if (flags & LogUpdMask) {
-	store_in_dbtable((CODEADDR)ClauseFlagsToLogUpdClause(pt0), lcl_entry);
+	if (flags & IndexMask) {
+	  store_in_dbtable((CODEADDR)ClauseFlagsToLogUpdIndex(pt0), li_entry);	  
+	} else {
+	  store_in_dbtable((CODEADDR)ClauseFlagsToLogUpdClause(pt0), lcl_entry);
+	}
       } else {
 	store_in_dbtable((CODEADDR)ClauseFlagsToDynamicClause(pt0), cl_entry);
       }

@@ -12,7 +12,7 @@
 * Last rev:								 *
 * mods:									 *
 * comments:	allocating space					 *
-* version:$Id: alloc.c,v 1.35 2003-10-14 13:10:26 vsc Exp $		 *
+* version:$Id: alloc.c,v 1.36 2003-10-19 00:33:10 vsc Exp $		 *
 *************************************************************************/
 #ifdef SCCS
 static char SccsId[] = "%W% %G%";
@@ -237,8 +237,6 @@ AllocHeap(unsigned int size)
 #if SIZEOF_INT_P==8
   size = (((size + 7) & 0xfffffffffffffff8LL) >> 3) + 2;	/* size in dwords + 2 */
 #endif
-  if (size < 6)
-    size = 6;
   LOCK(FreeBlocksLock);
   if ((b = GetBlock(size))) {
     if (b->b_size >= size + 6 + 1) {
