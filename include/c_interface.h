@@ -180,8 +180,8 @@
 #define PRESERVED_DATA(ptr, type) (ptr = (type *)YAP_ExtraSpace())
 
 /*   YAP_Int      unify(YAP_Term a, YAP_Term b) */
-#define unify()  YAP_Unify(t, t)
-#define YapUnify()  YAP_Unify(t, t)
+#define unify(t1,t2)  YAP_Unify(t1, t2)
+#define YapUnify(t1,t2)  YAP_Unify(t1, t2)
 
 /*  void UserCPredicate(char *name, int *fn(), int arity) */
 #define UserCPredicate(s,f,i)  YAP_UserCPredicate(s,f,i);
