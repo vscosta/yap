@@ -15,24 +15,6 @@
 *									 *
 *************************************************************************/
 
-'$Error'(_) :-
-	current_stream(_,_,Stream),
-	'$close'(Stream),
-	fail.
-'$Error'(_) :-
-	set_input(user_input),
-	set_output(user_output),
-	fail.
-'$Error'(_) :-
-	'$set_read_error_handler'(fail),
-	fail.
-'$Error'(_) :-
-	'$clean_debugging_info',
-	'$get_value'('$user_module',V),
-	( V=[] -> '$current_module'(_,prolog);
-		  '$current_module'(_,V), '$compile_mode'(_,0)
-	),
-	fail.
 '$Error'(E) :-
 	'$LoopError'(E).
 
