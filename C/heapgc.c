@@ -3556,8 +3556,8 @@ call_gc(UInt gc_lim, Int predarity, CELL *current_env, yamop *nextop)
       gc_margin <<= GcCalls;
     else {
       /* next grow linearly */
-      /* don't do this: it forces the system to ask for ever more stack!!
 	 gc_margin <<= 8;
+      /* don't do this: it forces the system to ask for ever more stack!!
 	 gc_margin *= GcCalls;
       */
     }
