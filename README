@@ -18,16 +18,17 @@ and Linux 2.* (RedHat 4.0 through 5.2, Debian 2.*) in both the x86 and
 alpha platforms. It has been built on Windows NT 4.0 using Cygwin from
 Cygnus Solutions (see README.cygwin) and using Visual C++ 6.0.
 
-The overall copyright and permission notice for Yap4.2 can be found in
+The overall copyright and permission notice for Yap4.5 can be found in
 the Artistic file in this directory. Yap follows the Perl Artistic
-license, and it is thus non-copylefted freeware. The Yap distribution
-contains copylefted free software under the LGPL from Universidade
-Politecnica de Madrid, software from the Austrian Research Institute
-for Artificial Intelligence (OFAI) under the OFAI license, and
-software from Ludwig-Maximilians-Universitaet Muenchen (LMU) under the
-LMU license. We would like to take the opportunity to thank the
-developers of these packages for their kindness in allowing YAP to
-distribute these packages.
+license 2. YAP can also be distributed under the LGPL.
+
+The Yap distribution contains copylefted free software under the LGPL
+from Universidade Politecnica de Madrid, software from the Austrian
+Research Institute for Artificial Intelligence (OFAI) under the OFAI
+license, and software from Ludwig-Maximilians-Universitaet Muenchen
+(LMU) under the LMU license. We would like to take the opportunity to
+thank the developers of these packages for their kindness in allowing
+YAP to distribute these packages.
 
 If you have a question about this software, desire to add code, found
 a bug, want to request a feature, or wonder how to get further
