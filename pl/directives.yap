@@ -462,24 +462,27 @@ yap_flag(write_strings,X) :-
 
 yap_flag(user_input,OUT) :-
 	var(OUT), !,
-	stream_property(OUT,[alias(user_input)]).
+	'$flag_check_alias'(OUT, user_input).
+	
 yap_flag(user_input,Stream) :-
 	'$change_alias_to_stream'(user_input,Stream).
 
-
 yap_flag(user_output,OUT) :-
 	var(OUT), !,
-	stream_property(OUT,[alias(user_output)]).
+	'$flag_check_alias'(OUT, user_output).
 yap_flag(user_output,Stream) :-
 	'$change_alias_to_stream'(user_output,Stream).
 
 
 yap_flag(user_error,OUT) :-
 	var(OUT), !,
-	stream_property(OUT,[alias(user_error)]).
+	'$flag_check_alias'(OUT, user_error).
 yap_flag(user_error,Stream) :-
 	'$change_alias_to_stream'(user_error,Stream).
 
+'$flag_check_alias'(OUT, Alias) :-
+	stream_property(OUT,[alias(Alias)]), !.
+	
 yap_flag(debugger_print_options,OUT) :-
 	var(OUT),
 	'$recorded'('$print_options','$debugger'(OUT),_), !.

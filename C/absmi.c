@@ -1242,6 +1242,18 @@ absmi(int inp)
 		}
 	      }
 	      break;
+	    case _trie_retry_var:
+	    case _trie_retry_val:
+	    case _trie_retry_atom:
+	    case _trie_retry_list:
+	    case _trie_retry_struct:
+	    case _trie_trust_var:
+	    case _trie_trust_val:
+	    case _trie_trust_atom:
+	    case _trie_trust_list:
+	    case _trie_trust_struct:
+	      low_level_trace(retry_table_consumer, NULL, NULL);
+	      break;
 	    case _table_retry_me:
 	    case _table_trust_me:
 	      low_level_trace(retry_pred, (PredEntry *)(PREG->u.lds.p), (CELL *)(((gen_cp_ptr)B)+1));
