@@ -48,8 +48,6 @@ static unsigned long int   total_marked;	/* number of heap objects marked */
 static unsigned long int   total_smarked;
 #endif
 
-struct gc_ma_h_entry *live_list;
-
 STATIC_PROTO(Int  p_inform_gc, (void));
 STATIC_PROTO(Int  p_gc, (void));
 
@@ -258,18 +256,10 @@ quicksort(CELL *a[], Int p, Int r)
 
 #define GC_MAVARS_HASH_SIZE 512
 
-typedef struct gc_ma_h_entry {
-  CELL* addr;
-  tr_fr_ptr trptr;
-  struct gc_ma_h_entry* ma_list;
-  struct gc_ma_h_entry *next;
-} gc_ma_h_inner_struct;
-
-extern struct gc_ma_h_entry *live_list;
-
-typedef struct {
+typedef struct gc_ma_hash_entry_struct {
   UInt timestmp;
-  struct gc_ma_h_entry val;
+  CELL* addr;
+  struct gc_ma_hash_entry_struct *next;
 } gc_ma_hash_entry;
 
 static gc_ma_hash_entry gc_ma_hash_table[GC_MAVARS_HASH_SIZE];
@@ -285,12 +275,12 @@ GC_MAVAR_HASH(CELL *addr) {
 #endif
 }
 
-gc_ma_h_inner_struct *gc_ma_h_top;
+gc_ma_hash_entry *gc_ma_h_top;
 
-static inline struct gc_ma_h_entry *
+static inline gc_ma_hash_entry *
 GC_ALLOC_NEW_MASPACE(void)
 {
-  gc_ma_h_inner_struct *new = gc_ma_h_top;
+  gc_ma_hash_entry *new = gc_ma_h_top;
   if ((char *)gc_ma_h_top > Yap_TrailTop-1024)
     Yap_growtrail(64 * 1024L);
   gc_ma_h_top++;
@@ -300,47 +290,37 @@ GC_ALLOC_NEW_MASPACE(void)
 #else
   cont_top0 = cont_top;
 #endif
-  return(new);
+  return new;
 }
 
-static inline tr_fr_ptr*
+static inline gc_ma_hash_entry*
 gc_lookup_ma_var(CELL *addr, tr_fr_ptr trp) {
   unsigned int i = GC_MAVAR_HASH(addr);
-  struct gc_ma_h_entry *nptr, *optr;
+  gc_ma_hash_entry *nptr, *optr = NULL;
 
   if (gc_ma_hash_table[i].timestmp != timestamp) {
     gc_ma_hash_table[i].timestmp = timestamp;
-    gc_ma_hash_table[i].val.addr = addr;
-    gc_ma_hash_table[i].val.next = NULL;
-    gc_ma_hash_table[i].val.trptr = trp;
-    gc_ma_hash_table[i].val.ma_list = live_list;
-    live_list = &(gc_ma_hash_table[i].val);
-    return(NULL);
+    gc_ma_hash_table[i].addr = addr;
+    gc_ma_hash_table[i].next = NULL;
+    return NULL;
   }
-  if (gc_ma_hash_table[i].val.addr == addr) {
-    return(&(gc_ma_hash_table[i].val.trptr));
-  }
-  optr = &(gc_ma_hash_table[i].val);
-  nptr = gc_ma_hash_table[i].val.next;
-  while (nptr != NULL) {
-    if (nptr->addr == addr) {
-      return(&(nptr->trptr));
-    }
+  nptr = gc_ma_hash_table+i;
+  while (nptr) {
     optr = nptr;
+    if (nptr->addr == addr) {
+      return nptr;
+    }
     nptr = nptr->next;
   }
   nptr = GC_ALLOC_NEW_MASPACE();
   optr->next = nptr;
   nptr->addr = addr;
-  nptr->trptr = trp;
-  nptr->ma_list = live_list;
   nptr->next = NULL;
-  live_list = nptr;
-  return(NULL);
+  return NULL;
 }
 
 static inline void
-GC_NEW_MAHASH(gc_ma_h_inner_struct *top) {
+GC_NEW_MAHASH(gc_ma_hash_entry *top) {
   UInt time = ++timestamp;
   if (time == 0) {
     unsigned int i;
@@ -356,7 +336,6 @@ GC_NEW_MAHASH(gc_ma_h_inner_struct *top) {
 #else
   cont_top0 = cont_top;
 #endif
-  live_list = NULL;
 }
 
 #endif
@@ -1241,13 +1220,12 @@ mark_trail(tr_fr_ptr trail_ptr, tr_fr_ptr trail_base, CELL *gc_H, choiceptr gc_B
   tr_fr_ptr begsTR = NULL, endsTR = NULL;
 #endif
   cont *old_cont_top0 = cont_top0;
-  GC_NEW_MAHASH((gc_ma_h_inner_struct *)cont_top0);
-  while (trail_ptr > trail_base) {
+
+  GC_NEW_MAHASH((gc_ma_hash_entry *)cont_top0);
+  while (trail_base < trail_ptr) {
     register CELL trail_cell;
     
-    trail_ptr--;
-    
-    trail_cell = TrailTerm(trail_ptr);
+    trail_cell = TrailTerm(trail_base);
 
     if (IsVarTerm(trail_cell)) {
       CELL *hp = (CELL *)trail_cell;
@@ -1260,32 +1238,32 @@ mark_trail(tr_fr_ptr trail_ptr, tr_fr_ptr trail_base, CELL *gc_H, choiceptr gc_B
 	/* reset to be a variable */
 	RESET_VARIABLE(hp);
 	discard_trail_entries++;
-	RESET_VARIABLE(&TrailTerm(trail_ptr));
+	RESET_VARIABLE(&TrailTerm(trail_base));
 #ifdef FROZEN_STACKS
-	RESET_VARIABLE(&TrailVal(trail_ptr));
+	RESET_VARIABLE(&TrailVal(trail_base));
 #endif
 #else
 	/* if I have no early reset I have to follow the trail chain */
-	mark_external_reference(&TrailTerm(trail_ptr));	
-	UNMARK(&TrailTerm(trail_ptr));
+	mark_external_reference(&TrailTerm(trail_base));	
+	UNMARK(&TrailTerm(trail_base));
 #endif /* EARLY_RESET */
-      } else if (hp < (CELL *)HeapTop) {
+      } else if (hp < (CELL *)Yap_GlobalBase || hp > (CELL *)Yap_TrailTop) {
 	  /* I decided to allow pointers from the Heap back into the trail.
 	   The point of doing so is to have dynamic arrays */
 	mark_external_reference(hp);
       } else if ((hp < (CELL *)gc_B && hp >= gc_H) || hp > (CELL *)Yap_TrailBase) {
 	/* clean the trail, avoid dangling pointers! */
-	RESET_VARIABLE(&TrailTerm(trail_ptr));
+	RESET_VARIABLE(&TrailTerm(trail_base));
 #ifdef FROZEN_STACKS
-	RESET_VARIABLE(&TrailVal(trail_ptr));
+	RESET_VARIABLE(&TrailVal(trail_base));
 #endif
 	discard_trail_entries++;
       } else {
-	if (trail_cell == (CELL)trail_ptr)
+	if (trail_cell == (CELL)trail_base)
 	  discard_trail_entries++;
 #ifdef FROZEN_STACKS
 	else
-	  mark_external_reference(&TrailVal(trail_ptr));
+	  mark_external_reference(&TrailVal(trail_base));
 #endif
 #ifdef EASY_SHUNTING
 	if (hp < gc_H   && hp >= H0) {
@@ -1304,7 +1282,7 @@ mark_trail(tr_fr_ptr trail_ptr, tr_fr_ptr trail_base, CELL *gc_H, choiceptr gc_B
 	  endsTR = nsTR;
 	  cont_top = (cont *)(nsTR+3);
 	  sTR = (tr_fr_ptr)cont_top;
-	  gc_ma_h_top = (gc_ma_h_inner_struct *)(nsTR+3);
+	  gc_ma_h_top = (gc_ma_hash_entry *)(nsTR+3);
 	  RESET_VARIABLE(cptr);
 	  MARK(cptr);
 	}
@@ -1315,7 +1293,6 @@ mark_trail(tr_fr_ptr trail_ptr, tr_fr_ptr trail_base, CELL *gc_H, choiceptr gc_B
     }
 #if  MULTI_ASSIGNMENT_VARIABLES
     else {
-      tr_fr_ptr *lkp;
       CELL *cptr = RepAppl(trail_cell);
       /* This is a bit complex. The idea is that we may have several
 	 trailings for the same mavar in the same trail segment. Essentially,
@@ -1323,57 +1300,48 @@ mark_trail(tr_fr_ptr trail_ptr, tr_fr_ptr trail_base, CELL *gc_H, choiceptr gc_B
 	 the last entry, or in this case, all but the first entry with the last
 	 value.
 
-	 Problem: we can only mark when we know it is the *last*.
-
-	 Solution: we keep a list of all found entries and search in the end
       */
-      if (!(lkp = gc_lookup_ma_var(cptr, trail_ptr))) {
+      if (!gc_lookup_ma_var(cptr, trail_base)) {
+	/* first time we see it*/
 	if (HEAP_PTR(trail_cell)) {
 	  /* fool the gc into thinking this is a variable */
-	  TrailTerm(trail_ptr) = (CELL)cptr;
-	  mark_external_reference(&(TrailTerm(trail_ptr)));
+	  TrailTerm(trail_base) = (CELL)cptr;
+	  mark_external_reference(&(TrailTerm(trail_base)));
 	  /* reset the gc to believe the original tag */
-	  TrailTerm(trail_ptr) = AbsAppl((CELL *)TrailTerm(trail_ptr));
+	  TrailTerm(trail_base) = AbsAppl((CELL *)TrailTerm(trail_base));
+	}
+	trail_base++;
+	mark_external_reference(&(TrailTerm(trail_base)));
+	trail_base ++;
+	if (HEAP_PTR(trail_cell)) {
+	  /* fool the gc into thinking this is a variable */
+	  TrailTerm(trail_base) = (CELL)cptr;
+	  mark_external_reference(&(TrailTerm(trail_base)));
+	  /* reset the gc to believe the original tag */
+	  TrailTerm(trail_base) = AbsAppl((CELL *)TrailTerm(trail_base));
 	} 
-	trail_ptr -= 2;
       } else {
-	tr_fr_ptr trp = (*lkp)-1;
-	TrailTerm(trp) = TrailTerm(trail_ptr-1);
 	/* we can safely ignore this little monster */
-	discard_trail_entries += 2;
-	RESET_VARIABLE(&TrailTerm(trail_ptr));
+	discard_trail_entries += 3;
+	RESET_VARIABLE(&TrailTerm(trail_base));
 #ifdef FROZEN_STACKS
-	RESET_VARIABLE(&TrailVal(trail_ptr));
+	RESET_VARIABLE(&TrailVal(trail_base));
 #endif
-	trail_ptr--;
-	RESET_VARIABLE(&TrailTerm(trail_ptr));
+	trail_base++;
+	RESET_VARIABLE(&TrailTerm(trail_base));
 #ifdef FROZEN_STACKS
-	RESET_VARIABLE(&TrailVal(trail_ptr));
+	RESET_VARIABLE(&TrailVal(trail_base));
 #endif
-	trail_ptr--;
-	RESET_VARIABLE(&TrailTerm(trail_ptr));
+	trail_base++;
+	RESET_VARIABLE(&TrailTerm(trail_base));
+#ifdef FROZEN_STACKS
+	RESET_VARIABLE(&TrailVal(trail_base));
+#endif
       }
     }
 #endif
+    trail_base++;
   }
-#if  MULTI_ASSIGNMENT_VARIABLES
-  while (live_list != NULL) {
-    CELL trail_cell = TrailTerm(live_list->trptr-1);
-    CELL trail_cell2 = TrailTerm(live_list->trptr);
-    if (HEAP_PTR(trail_cell)) {
-      mark_external_reference(&TrailTerm(live_list->trptr-1));
-    }
-#ifdef FROZEN_STACKS
-    if (HEAP_PTR(TrailVal(trail_ptr))) {
-      mark_external_reference(&TrailVal(trail_ptr));
-    }
-    if (HEAP_PTR(TrailVal(trail_ptr-1))) {
-      mark_external_reference(&TrailVal(trail_ptr-1));
-    }
-#endif
-    live_list = live_list->ma_list;
-  }
-#endif
 #ifdef EASY_SHUNTING
   sTR = (tr_fr_ptr)old_cont_top0;
   while (begsTR != NULL) {
