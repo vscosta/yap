@@ -213,7 +213,7 @@ all(T,G,S) :-
 % $$set does its best to preserve space
 '$$set'(S,R) :- 
        '$$build'(S0,R),
-       copy_term(S0,S).
+	S = S0.
 
 '$$build'(Ns,R) :- '$db_dequeue'(R,X), !,
 	  '$$build'(S,R), '$$join'(S,X,Ns).
