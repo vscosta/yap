@@ -3795,7 +3795,7 @@ format(Term tail, Term args, int sno)
       if (ch == '*') {
 	ch = *fptr++;
 	has_repeats = TRUE;
-	if (targ > tnum) {
+	if (targ > tnum-1) {
 	  goto do_consistency_error;
 	}
 	repeats = fetch_index_from_args(targs[targ++]);
@@ -3817,7 +3817,7 @@ format(Term tail, Term args, int sno)
       switch (ch) {
       case 'a':
 	/* print an atom */
-	if (has_repeats || targ > tnum)
+	if (has_repeats || targ > tnum-1)
 	  goto do_consistency_error;
 	t = targs[targ++];
 	if (IsVarTerm(t))
@@ -3830,7 +3830,7 @@ format(Term tail, Term args, int sno)
 	{
 	  Int nch, i;
 
-	  if (targ > tnum)
+	  if (targ > tnum-1)
 	    goto do_consistency_error;
 	  t = targs[targ++];
 	  if (IsVarTerm(t))
@@ -3855,7 +3855,7 @@ format(Term tail, Term args, int sno)
 	  Float fl;
 	  char *ptr;
 
-	  if (targ > tnum)
+	  if (targ > tnum-1)
 	    goto do_consistency_error;
 	  t = targs[targ++];
 	  if (IsVarTerm(t))
@@ -3888,7 +3888,7 @@ format(Term tail, Term args, int sno)
 	case 'd':
 	case 'D':
 	  /* print a decimal, using weird . stuff */
-	  if (targ > tnum)
+	  if (targ > tnum-1)
 	    goto do_consistency_error;
 	  t = targs[targ++];
 	  if (IsVarTerm(t))
@@ -3944,7 +3944,7 @@ format(Term tail, Term args, int sno)
 	      Int numb, radix, div = 1;
 
 	      /* print a decimal, using weird . stuff */
-	      if (targ > tnum)
+	      if (targ > tnum-1)
 		goto do_consistency_error;
 	      t = targs[targ++];
 	      if (IsVarTerm(t))
@@ -3982,7 +3982,7 @@ format(Term tail, Term args, int sno)
 	      break;
 	    }
 	  case 's':
-	    if (targ > tnum)
+	    if (targ > tnum-1)
 	      goto do_consistency_error;
 	    t = targs[targ++];
 	    if (!format_print_str (sno, repeats, has_repeats, t)) {
@@ -3990,12 +3990,12 @@ format(Term tail, Term args, int sno)
 	    }
 	    break;
 	  case 'i':
-	    if (targ > tnum || has_repeats)
+	    if (targ > tnum-1 || has_repeats)
 	      goto do_consistency_error;
 	    targ++;
 	    break;
 	  case 'k':
-	    if (targ > tnum || has_repeats)
+	    if (targ > tnum-1 || has_repeats)
 	      goto do_consistency_error;
 	    t = targs[targ++];
 	    *--ASP = MkIntTerm(0);
@@ -4003,7 +4003,7 @@ format(Term tail, Term args, int sno)
 	    ASP++;
 	    break;
 	  case 'p':
-	    if (targ > tnum || has_repeats)
+	    if (targ > tnum-1 || has_repeats)
 	      goto do_consistency_error;
 	    t = targs[targ++];
 	    *--ASP = MkIntTerm(0);
@@ -4027,7 +4027,7 @@ format(Term tail, Term args, int sno)
 	    ASP++;
 	    break;
 	  case 'q':
-	    if (targ > tnum || has_repeats)
+	    if (targ > tnum-1 || has_repeats)
 	      goto do_consistency_error;
 	    t = targs[targ++];
 	    *--ASP = MkIntTerm(0);
@@ -4035,7 +4035,7 @@ format(Term tail, Term args, int sno)
 	    ASP++;
 	    break;
 	  case 'w':
-	    if (targ > tnum || has_repeats)
+	    if (targ > tnum-1 || has_repeats)
 	      goto do_consistency_error;
 	    t = targs[targ++];
 	    *--ASP = MkIntTerm(0);
