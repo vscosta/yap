@@ -10,7 +10,7 @@
 * File:		Yap.h.m4						 *
 * mods:									 *
 * comments:	main header file for YAP				 *
-* version:      $Id: Yap.h.m4,v 1.42 2003-03-13 15:34:32 rslopes Exp $	 *
+* version:      $Id: Yap.h.m4,v 1.43 2003-03-20 15:10:17 vsc Exp $	 *
 *************************************************************************/
 
 #include "config.h"
@@ -220,17 +220,12 @@
 #define SHORT_INTS 0
 #endif
 
-#ifdef USE_GMP
 #ifdef __GNUC__
-typedef long long int SIGNEDYap_LONG_LONG;
-typedef unsigned long long int YAP_LONG_LONG;
+typedef long long int YAP_LONG_LONG;
+typedef unsigned long long int YAP_ULONG_LONG;
 #else
-typedef long int      SIGNEDYap_LONG_LONG;
-typedef unsigned long int YAP_LONG_LONG;
-#endif
-#else
-typedef long int      SIGNEDYap_LONG_LONG;
-typedef unsigned long int YAP_LONG_LONG;
+typedef long int      YAP_LONG_LONG;
+typedef unsigned long int YAP_ULONG_LONG;
 #endif
 
 #if DEBUG

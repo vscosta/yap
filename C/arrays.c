@@ -450,11 +450,16 @@ AllocateStaticArraySpace(StaticArrayEntry *p, static_array_types atype, Int arra
 }
 
 /* ae and p are assumed to be locked, if they exist */
-static void
+static StaticArrayEntry *
 CreateStaticArray(AtomEntry *ae, Int dim, static_array_types type, CODEADDR start_addr, StaticArrayEntry *p)
 {
   if (EndOfPAEntr(p)) {
-    p = (StaticArrayEntry *) Yap_AllocAtomSpace(sizeof(*p));
+    while ((p = (StaticArrayEntry *) Yap_AllocAtomSpace(sizeof(*p))) == NULL) {
+      if (!Yap_growheap(FALSE)) {
+	Yap_Error(SYSTEM_ERROR, TermNil, Yap_ErrorMessage);
+	return NULL;
+      }
+    }
     p->KindOfPE = ArrayProperty;
     p->NextOfPE = ae->PropsOfAE;
     INIT_RWLOCK(p->ArRWLock);
@@ -468,6 +473,8 @@ CreateStaticArray(AtomEntry *ae, Int dim, static_array_types type, CODEADDR star
     int i;
 
     AllocateStaticArraySpace(p, type, dim);
+    if (p->ValueOfVE.ints == NULL)
+      return p;
     switch(type) {
     case array_of_ints:
       for (i = 0; i < dim; i++)
@@ -504,6 +511,7 @@ CreateStaticArray(AtomEntry *ae, Int dim, static_array_types type, CODEADDR star
     p->ValueOfVE.chars = (char *)start_addr;
   }
   WRITE_UNLOCK(p->ArRWLock);
+  return p;
 }
 
 static void
@@ -747,11 +755,15 @@ p_create_static_array(void)
 
     app = (ArrayEntry *) pp;
     if (EndOfPAEntr(pp) || pp->ValueOfVE.ints == NULL) {
-      CreateStaticArray(ae, size, props, NULL, pp);
+      pp = CreateStaticArray(ae, size, props, NULL, pp);
+      if (pp == NULL || pp->ValueOfVE.ints == NULL)
+	return(FALSE);
       return (TRUE);
     } else if (ArrayIsDynamic(app)) {
       if (IsVarTerm(app->ValueOfVE) && IsUnboundVar(app->ValueOfVE)) {
-	CreateStaticArray(ae, size, props, NULL, pp);
+	pp = CreateStaticArray(ae, size, props, NULL, pp);
+	if (pp == NULL)
+	  return(FALSE);
 	return (TRUE);
       } else {
 	Yap_Error(PERMISSION_ERROR_CREATE_ARRAY,t,"cannot create static array over dynamic array");

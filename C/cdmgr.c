@@ -2263,9 +2263,9 @@ p_profile_info(void)
     UNLOCK(pe->StatisticsForPred.lock);
     return(FALSE);
   }
-  p[0] = MkIntegerTerm(pe->StatisticsForPred.NOfEntries);
-  p[1] = MkIntegerTerm(pe->StatisticsForPred.NOfHeadSuccesses);
-  p[2] = MkIntegerTerm(pe->StatisticsForPred.NOfRetries);
+  p[0] = Yap_MkULLIntTerm(pe->StatisticsForPred.NOfEntries);
+  p[1] = Yap_MkULLIntTerm(pe->StatisticsForPred.NOfHeadSuccesses);
+  p[2] = Yap_MkULLIntTerm(pe->StatisticsForPred.NOfRetries);
   UNLOCK(pe->StatisticsForPred.lock);
   out = Yap_MkApplTerm(Yap_MkFunctor(AtomProfile,3),3,p);
   return(Yap_unify(ARG3,out));

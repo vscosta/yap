@@ -10,7 +10,7 @@
 * File:		Yap.proto						 *
 * mods:									 *
 * comments:	Function declarations for YAP				 *
-* version:      $Id: Yapproto.h,v 1.32 2003-01-13 14:02:50 vsc Exp $	 *
+* version:      $Id: Yapproto.h,v 1.33 2003-03-20 15:10:17 vsc Exp $	 *
 *************************************************************************/
 
 /* prototype file for Yap */
@@ -93,6 +93,7 @@ void   STD_PROTO(Yap_InitAttVarPreds,(void));
 void   STD_PROTO(Yap_InitBBPreds,(void));
 
 /* bignum.c */
+Term   STD_PROTO(Yap_MkULLIntTerm,(YAP_ULONG_LONG));
 void   STD_PROTO(Yap_InitBigNums,(void));
 
 /* c_interface.c */

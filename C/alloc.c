@@ -12,7 +12,7 @@
 * Last rev:								 *
 * mods:									 *
 * comments:	allocating space					 *
-* version:$Id: alloc.c,v 1.31 2003-01-29 14:47:07 vsc Exp $		 *
+* version:$Id: alloc.c,v 1.32 2003-03-20 15:10:13 vsc Exp $		 *
 *************************************************************************/
 #ifdef SCCS
 static char SccsId[] = "%W% %G%";
@@ -232,10 +232,10 @@ AllocHeap(unsigned int size)
   YAP_SEG_SIZE *sp;
 
 #if SIZEOF_INT_P==4
-  size = (((size + 7) & 0xffffff8) >> 2) + 2;	/* size in dwords + 2 */
+  size = (((size + 7) & 0xfffffff8L) >> 2) + 2;	/* size in dwords + 2 */
 #endif
 #if SIZEOF_INT_P==8
-  size = (((size + 7) & 0xffffff8) >> 3) + 2;	/* size in dwords + 2 */
+  size = (((size + 7) & 0xfffffffffffffff8LL) >> 3) + 2;	/* size in dwords + 2 */
 #endif
   if (size < 6)
     size = 6;

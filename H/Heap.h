@@ -10,7 +10,7 @@
 * File:		Heap.h         						 *
 * mods:									 *
 * comments:	Heap Init Structure					 *
-* version:      $Id: Heap.h,v 1.38 2003-02-24 11:00:58 vsc Exp $	 *
+* version:      $Id: Heap.h,v 1.39 2003-03-20 15:10:16 vsc Exp $	 *
 *************************************************************************/
 
 /* information that can be stored in Code Space */
@@ -28,9 +28,9 @@ typedef struct atom_hash_entry {
 } AtomHashEntry;
 
 typedef struct reduction_counters {
-  YAP_LONG_LONG reductions;
-  YAP_LONG_LONG reductions_retries;
-  YAP_LONG_LONG retries;
+  YAP_ULONG_LONG reductions;
+  YAP_ULONG_LONG reductions_retries;
+  YAP_ULONG_LONG retries;
   int reductions_on;
   int reductions_retries_on;
   int retries_on;

@@ -196,9 +196,9 @@ typedef struct {
 #if defined(YAPOR) || defined(THREADS)
   lockvar lock;                 /* a simple lock to protect this entry */
 #endif
-  Int	NOfEntries;		/* nbr of times head unification succeeded*/
-  Int   NOfHeadSuccesses;       /* nbr of times head unification succeeded*/
-  Int   NOfRetries;             /* nbr of times a clause for the pred
+  YAP_ULONG_LONG	NOfEntries;		/* nbr of times head unification succeeded*/
+  YAP_ULONG_LONG   NOfHeadSuccesses;       /* nbr of times head unification succeeded*/
+  YAP_ULONG_LONG   NOfRetries;             /* nbr of times a clause for the pred
 				   was retried */
 } profile_data;
 

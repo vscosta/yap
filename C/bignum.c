@@ -208,6 +208,31 @@ Yap_BigIntOfTerm(Term t)
 
 #endif
 
+Term
+Yap_MkULLIntTerm(YAP_ULONG_LONG n)
+{
+#ifdef __GNUC__
+  if (n != (UInt)n) {
+#if USE_GMP
+    /* try to scan it as a bignum */
+    MP_INT *new = Yap_PreAllocBigNum();
+    
+    mpz_init(new);
+    mpz_set_ui(new, n>>32);
+    mpz_mul_2exp(new, new, 32);
+    mpz_add_ui(new, new, (UInt)n);
+    return(Yap_MkBigIntTerm(new));
+#else
+    return(MkFloatTerm(n));
+#endif
+  } else {
+    return MkIntegerTerm(n);
+  }
+#else
+  return MkIntegerTerm(n);
+#endif
+}
+
 static Int 
 p_is_bignum(void)
 {
