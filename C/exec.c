@@ -191,9 +191,9 @@ p_save_cp(void)
 }
 
 inline static Int
-EnterCreepMode(void) {
+EnterCreepMode(SMALLUNSGN mod) {
   PredEntry *PredSpy = RepPredProp(PredPropByFunc(FunctorSpy,0));
-  ARG1 = MkPairTerm(ModuleName[CurrentModule],ARG1);
+  ARG1 = MkPairTerm(ModuleName[mod],ARG1);
   CreepFlag = CalculateStackGap();
   P_before_spy = P;
   return (CallPredicate(PredSpy, B));
@@ -203,7 +203,7 @@ inline static Int
 do_execute(Term t, int mod)
 {
   if (yap_flags[SPY_CREEP_FLAG]) {
-    return(EnterCreepMode());
+    return(EnterCreepMode(mod));
   } else if (PredGoalExpansion->OpcodeOfPred != UNDEF_OPCODE) {
     return(CallMetaCall(mod));
   }
@@ -304,7 +304,7 @@ p_execute_within(void)
 
  restart_exec:
   if (yap_flags[SPY_CREEP_FLAG]) {
-    return(EnterCreepMode());
+    return(EnterCreepMode(mod));
   } else  if (PredGoalExpansion->OpcodeOfPred != UNDEF_OPCODE) {
     return(CallMetaCallWithin());
     /* at this point check if we should enter creep mode */ 
@@ -408,7 +408,7 @@ p_execute_within2(void)
   Prop            pe;
 
   if (yap_flags[SPY_CREEP_FLAG]) {
-    return(EnterCreepMode());
+    return(EnterCreepMode(CurrentModule));
   } else if (PredGoalExpansion->OpcodeOfPred != UNDEF_OPCODE) {
     return(CallMetaCallWithin());
   } else  if (IsVarTerm(t)) {
@@ -1262,6 +1262,19 @@ p_clean_ifcp(void) {
   return(TRUE);
 }
 
+static Int
+p_jump_env(void) {
+  CELL *env = LCL0-IntegerOfTerm(Deref(ARG1)), *prev = NULL, *cur = ENV;
+
+  while (cur != env) {
+    prev = cur;
+    cur = (CELL *)cur[E_E];
+  }
+  ENV[E_CP] = prev[E_CP];
+  ENV[E_E] = prev[E_E];
+  return(TRUE);
+}
+
 
 void 
 InitExecFs(void)
@@ -1292,5 +1305,6 @@ InitExecFs(void)
   InitCPred("$restore_regs", 1, p_restore_regs, SafePredFlag);
   InitCPred("$restore_regs", 2, p_restore_regs2, SafePredFlag);
   InitCPred("$clean_ifcp", 1, p_clean_ifcp, SafePredFlag);
+  InitCPred("$jump_env", 1, p_jump_env, SafePredFlag);
 }
 
