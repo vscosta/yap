@@ -148,5 +148,9 @@ file_search_path(system, Dir) :-
 
 :- dynamic_predicate(library_directory/1, logical).
 
+library_directory(D) :-
+	getenv('YAPSHAREDIR', D).
+
 :- get_value(system_library_directory,D), assert(library_directory(D)).
+
 
