@@ -2604,6 +2604,15 @@ do_gc(Int predarity, CELL *current_env, yamop *nextop)
 #endif
   if (GetValue(AtomGcTrace) != TermNil)
     gc_trace = 1;
+  /* sanity check: can we still do garbage_collection ? */
+  if (TrailTop & (MBIT|RBIT)) {
+    /* oops, we can't */
+    if (gc_verbose) {
+      YP_fprintf(YP_stderr, "[GC] LCLO at %p clashes with gc bits: %lx\n", LCL0, (MBIT|RBIT));
+      YP_fprintf(YP_stderr, "[GC] garbage collection disallowed\n");
+    }
+    return(0);
+  }
   gc_calls++;
   if (gc_trace) {
     YP_fprintf(YP_stderr, "[gc]\n");
@@ -2744,7 +2753,7 @@ gc(Int predarity, CELL *current_env, yamop *nextop)
     while (gc_margin < H-H0) 
       gc_margin <<= 1;
   }
-  /* expand the stak if effectiveness is less than 20 % */
+  /* expand the stack if effectiveness is less than 20 % */
   if (ASP - H < gc_margin || !gc_on || effectiveness < 20) {
     UInt gap = CalculateStackGap();
     if (ASP-H > gc_margin)
