@@ -839,7 +839,8 @@ debugging :-
 	'$set_yap_flags'(10, CL),
 	!, fail.
 '$action'(60,_,_,_) :- !,		% <Depth
-	'$new_deb_depth'.
+	'$new_deb_depth',
+	fail.
 '$action'(94,_,_,G) :- !,
 	'$print_deb_sterm'(G), fail.
 '$action'(97,_,_,_) :- !, abort.	% a		abort
@@ -947,14 +948,17 @@ debugging :-
 	'$deb_get_sterm_in_g'(T,G,A1),
 	arg(H,A1,A).
 
-'$new_deb_depth' :- '$get_deb_depth'(0,D),
-	( '$recorded'('$debug_depth',_,R) -> erase(R) ; true ),
-	( D \= 0 -> recorda('$debug_depth',D,_) ),
-	fail.
+'$new_deb_depth' :-
+	'$get_deb_depth'(0,D),
+	'$set_deb_depth'(D).
 
 '$get_deb_depth'(X0,XF) :-
 	get0(user_input,C),
-	'$get_depth_handle_char'(C,X0,XF).
+	'$get_depth_handle_char'(C,X0,XI),
+	'$post_process_depth'(XI, XF).
+
+'$post_process_depth'(0, 10) :- !.
+'$post_process_depth'(X, X).
 
 '$get_depth_handle_char'(10,X,X) :- !.
 '$get_depth_handle_char'(C,X0,XF) :-
@@ -962,6 +966,20 @@ debugging :-
 	XI is X0*10+C-"0",
 	'$get_deb_depth'(XI,XF).
 '$get_depth_handle_char'(C,X,X) :- '$skipeol'(C).
+
+'$set_deb_depth'(D) :-
+	recorded('$print_options','$debugger'(L),R), !,
+	'$delete_if_there'(L, max_depth(_), LN),
+	erase(R),
+	'$recorda'('$print_options','$debugger'([max_depth(D)|LN]),_).
+'$set_deb_depth'(D) :-
+	'$recorda'('$print_options','$debugger'([quoted(true),numbervars(true),portrayed(true),max_depth(D)]),_).
+	
+'$delete_if_there'([], _, []).
+'$delete_if_there'([T|L], T, LN) :- !,
+	'$delete_if_there'(L, T, LN).
+'$delete_if_there'([Q|L], T, [Q|LN]) :-
+	'$delete_if_there'(L, T, LN).
 
 '$DebugError'(error(Msg, Where )) :- !,
 	'$output_error_message'(Msg, Where), !,
