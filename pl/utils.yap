@@ -632,8 +632,8 @@ profile_data(P, Parm, Data) :- var(P), !,
 	'$profile_say'(Stats, Parm, Data).
 
 '$profile_data_for_var'(Name/Arity, Parm, Data, M) :-
-	'$current_predicate'(M,_,P),
-	functor(P, Name, Arity),
+	'$current_predicate'(M,Name,Arity),
+	functor(P,Na,Ar),
 	'$profile_info'(M, P, Stats),
 	'$profile_say'(Stats, Parm, Data).
 
@@ -644,8 +644,9 @@ profile_data(P, Parm, Data) :- var(P), !,
 
 profile_reset :-
 	current_module(M),
-	'$current_predicate'(M,_,P0),
-	'$profile_reset'(M, P0),
+	'$current_predicate'(M,Na,Ar),
+	functor(P,Na,Ar),
+	'$profile_reset'(M, P),
 	fail.
 profile_reset.
 
