@@ -468,7 +468,16 @@ To compile YAP it should be sufficient to:
 
 @item @code{cd ARCH}.
 
-@item @code{../configure}.
+@item @code{../configure ...options...}. 
+
+Notice that by default @code{configure} gives you a vanilla
+configuration. For instance, in order to use coroutining and/or CLP
+you need to do
+
+@example
+../configure --enable-coroutining ...options...
+@end example
+Please @pxref{Configuration Options} for extra options.
 
 @item check the Makefile for any extensions or changes you want to
 make.
