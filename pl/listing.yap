@@ -20,129 +20,131 @@
 */
 
 listing :-
+	current_output(Stream),
 	'$current_module'(Mod),
         '$current_predicate_no_modules'(Mod,_,Pred),
-        '$list_clauses'(Mod,Pred).
+        '$list_clauses'(Stream,Mod,Pred).
 listing.
 
 
 listing(V) :-
+	current_output(Stream),
 	'$current_module'(M),
-	'$listing'(V,M).
+	'$listing'(V,M,Stream).
 
-'$listing'(V,_) :- var(V), !.       % ignore variables
-'$listing'(M:V,_) :- !,
+'$listing'(V,Mod,Stream) :- var(V), !,
+	'$current_predicate_no_modules'(Mod,_,Pred),
+        '$list_clauses'(Stream,Mod,Pred).
+'$listing'(M:V,_,_) :- !,
 	'$listing'(V,M).
-'$listing'([],_) :- !.
-'$listing'([X|Rest], M) :-
+'$listing'([],_,_) :- !.
+'$listing'([X|Rest], M, Stream) :-
         !,
-        '$listing'(X, M),
-        '$listing'(Rest, M).
-'$listing'(X, M) :-
+        '$listing'(X, M, Stream),
+        '$listing'(Rest, M, Stream).
+'$listing'(X, M, Stream) :-
         '$funcspec'(X,Name,Arity),
         '$current_predicate_no_modules'(M,Name,Pred),
         functor(Pred,Name,Arity),
-        '$list_clauses'(M,Pred).
-'$listing'(_,_).
+        '$list_clauses'(Stream,M,Pred).
+'$listing'(_,_,_).
 
 '$funcspec'(Name/Arity,Name,Arity) :- !, atom(Name).
 '$funcspec'(Name,Name,_) :- atom(Name), !.
-'$funcspec'(Name,_,_) :- write('! Invalid procedure specification : '),
-			write(Name), nl.
+'$funcspec'(Name,_,_) :-
+	'$do_error'(domain_error(predicate_spec,Name),listing(Name)).
 
-'$list_clauses'(M,Pred) :-
-	( '$recordedp'(M:Pred,_,_) -> nl ),
+'$list_clauses'(Stream, M, Pred) :-
+	( '$recordedp'(M:Pred,_,_) -> nl(Stream) ),
 	fail.
-'$list_clauses'(M,Pred) :-
+'$list_clauses'(Stream, M, Pred) :-
         '$recordedp'(M:Pred,(Pred:-Body),_),
-	'$beautify_vars'((Pred:-Body)),
-        '$write_clause'(Pred,Body),
+	'$portray_clause'(Stream,(Pred:-Body)),
         fail.
 
 portray_clause(Stream, Clause) :-
-        current_output(OldStream),
-	set_output(Stream),
-	portray_clause(Clause),
-	set_output(OldStream).
+	'$portray_clause'(Stream, Clause),
+	fail.
+portray_clause(_, _).
 
-portray_clause((Pred:-Body)) :- !,
+portray_clause(Clause) :-
+        current_output(Stream),
+	'$portray_clause'(Stream, Clause),
+	fail.
+portray_clause(_).
+
+'$portray_clause'(Stream, (Pred :- true)) :- !,
+	'$beautify_vars'(Pred),
+	'$format'(Stream, "~q.~n", [Pred]).
+'$portray_clause'(Stream, (Pred:-Body)) :-
 	'$beautify_vars'((Pred:-Body)),
-	'$write_clause'(Pred,Body).
-portray_clause(Pred) :- 
-	'$beautify_vars'((Pred:-true)),
-	'$write_clause'(Pred,true).
+	'$format'(Stream, "~q :-", [Pred]),
+	'$write_body'(Body, 3, ',', Stream),
+	'$format'(Stream, ".~n", []).
 
-'$write_clause'(Head,Body) :-
-        writeq(Head),
-        ( Body = true  ;
-                '$tab'(1), write((:-)),
-                '$write_body'(Body,3,',')
-        ),
-        put("."), nl,
-        !.
-
-'$write_body'(X,I,T) :- var(X), !, '$beforelit'(T,I), writeq('_').
-'$write_body'((P,Q), IO, T) :-
+'$write_body'(X,I,T,Stream) :- var(X), !,
+	'$beforelit'(T,I,Stream),
+	writeq(Stream, '_').
+'$write_body'((P,Q), I, T, Stream) :-
         !,
-        '$write_body'(P,IO,T),
-        put(","),
-        '$aftercomma'(T,IO,I),
-        '$write_body'(Q,I,',').
-'$write_body'((P->Q;S),I,_) :-
+        '$write_body'(P,I,T, Stream),
+        put(Stream, ","),
+        '$write_body'(Q,I,',',Stream).
+'$write_body'((P->Q;S),I,_, Stream) :-
 	!,
-	nl, '$tab'(I-2), put("("),
-	'$write_body'(P,I,'('),
-	put("-"), put(">"),
-	'$write_body'(Q,I,'->'),
-	put(";"),
-	'$write_body'(S,I,';'),
-	'$tab'(1), put(")").
-'$write_body'((P->Q|S),I,_) :-
+	'$format'(Stream, "~n~*c(",[I,0' ]),
+	I1 is I+2,
+	'$write_body'(P,I1,'(',Stream),
+	'$format'(Stream, " ->",[]),
+	'$write_disj'((Q;S),I,I1,'->',Stream),
+	'$format'(Stream, "~n~*c)",[I,0' ]).
+'$write_body'((P->Q|S),I,_,Stream) :-
 	!,
-	nl, '$tab'(I-2), put("("),
-	'$write_body'(P,I,'('),
-	put("-"), put(">"),
-	'$write_body'(Q,I,'->'),
-	put("|"),
-	'$write_body'(S,I,'|'),
-	'$tab'(1), put(")").
-'$write_body'((P->Q),I,_) :-
+	'$format'(Stream, "~n~*c(",[I,0' ]),
+	I1 is I+2,
+	'$write_body'(P,I,'(',Stream),
+	'$format'(Stream, " ->",[]),
+	'$write_disj'((Q|S),I,I1,'->',Stream),
+	'$format'(Stream, "~n~*c)",[I,0' ]).
+'$write_body'((P->Q),I,_,Stream) :-
 	!,
-	nl, '$tab'(I-2), put("("),
-        '$write_body'(P,I,'('),
-        put("-"), put(">"),
-        '$write_body'(Q,I,'->'),
-        '$tab'(1), put(")").
-'$write_body'((P;Q),I,_) :-
+	'$format'(Stream, "~n~*c(",[I,0' ]),
+	I1 is I+2,
+        '$write_body'(P,I1,'(',Stream),
+	'$format'(Stream, " ->",[]),
+        '$write_body'(Q,I1,'->',Stream),
+	'$format'(Stream, "~n~*c)",[I,0' ]).
+'$write_body'((P;Q),I,_,Stream) :-
         !,
-        nl, '$tab'(I-2), put("("),
-        '$write_body'(P,I,'('),
-        put(";"),
-        '$write_body'(Q,I,';'),
-        '$tab'(1), put(")").
-'$write_body'((P|Q),I,_) :-
+	'$format'(Stream, "~n~*c(",[I,0' ]),
+	I1 is I+2,
+	'$write_disj'((P;Q),I,I1,'->',Stream),
+	'$format'(Stream, "~n~*c)",[I,0' ]).
+'$write_body'((P|Q),I,_,Stream) :-
         !,
-        nl, '$tab'(I-2), put("("),
-        '$write_body'(P,I,'('),
-        put("|"),
-        '$write_body'(Q,I,'|'),
-        '$tab'(1), put(")").
-'$write_body'((P|Q),I,_) :-
-        !,
-        nl, '$tab'(I-2), put("("),
-        '$write_body'(P,I,'('),
-        put("|"),
-        '$write_body'(Q,I,'|'),
-        '$tab'(1), put(")").
-'$write_body'(X,I,T) :-
-        '$beforelit'(T,I),
-        writeq(X).
+	'$format'(Stream, "~n~*c(",[I,0' ]),
+	I1 is I+2,
+	'$write_disj'((P|Q),I,I1,'->',Stream),
+	'$format'(Stream, "~n~*c)",[I,0' ]).
+'$write_body'(X,I,T,Stream) :-
+        '$beforelit'(T,I,Stream),
+        '$format'(Stream,"~q",[X]).
 
-'$aftercomma'(',',I,I) :- !.
-'$aftercomma'(_,I0,I) :- I is I0+3.
 
-'$beforelit'('(',_) :- !, '$tab'(1).
-'$beforelit'(_,I) :- nl, '$tab'(I).
+'$write_disj'((Q;S),I0,I,C,Stream) :- !,
+	'$write_body'(Q,I,C,Stream),
+	'$format'(Stream, "~n~*c;",[I0,0' ]),
+	'$write_disj'(S,I0,I,';',Stream).
+'$write_disj'((Q|S),I0,I,C,Stream) :- !,
+	'$write_body'(Q,I,C,Stream),
+	'$format'(Stream, "~n~*c|",[I0,0' ]),
+	'$write_disj'(S,I0,I,'|',Stream).
+'$write_disj'(S,I0,I,C,Stream) :-
+	'$write_body'(S,I,C,Stream).
+	
+
+'$beforelit'('(',_,Stream) :- !, '$format'(Stream," ",[]).
+'$beforelit'(_,I,Stream) :- '$format'(Stream,"~n~*c",[I,0' ]).
 
 '$beautify_vars'(T) :-
 	'$list_get_vars'(T,[],L),
