@@ -10,7 +10,7 @@
 * File:		Yap.h.m4						 *
 * mods:									 *
 * comments:	main header file for YAP				 *
-* version:      $Id: Yap.h.m4,v 1.27 2002-05-28 17:28:25 vsc Exp $	 *
+* version:      $Id: Yap.h.m4,v 1.28 2002-06-01 01:46:06 vsc Exp $	 *
 *************************************************************************/
 
 #include "config.h"
@@ -386,7 +386,7 @@ extern sigjmp_buf    RestartEnv;   /* used to restart after an abort */
 
 /* Types of Errors */
 typedef enum {
-  NO_ERROR,
+  YAP_NO_ERROR,
   FATAL_ERROR,
   INTERNAL_ERROR,
   PURE_ABORT,

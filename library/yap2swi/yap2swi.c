@@ -185,6 +185,11 @@ buf_writer(int c)
   *bf++ = c;
 }
 
+#if !HAVE_SNPRINTF
+#define snprintf(X,Y,Z,A) sprintf(X,Z,A)
+#endif
+
+
 X_API int PL_get_chars(term_t l, char **sp, unsigned flags)
 {
   Term t = YapGetFromSlot(l);
@@ -937,12 +942,12 @@ PL_exception(qid_t q)
 }
 
 X_API int
-PL_initialise(int argc, char **argv, char **environ)
+PL_initialise(int myargc, char **myargv, char **myenviron)
 {
   yap_init_args init_args;
 
-  init_args.Argv = argv;
-  init_args.Argc = argc;
+  init_args.Argv = myargv;
+  init_args.Argc = myargc;
   init_args.SavedState = "startup";
   init_args.HeapSize = 0;
   init_args.StackSize = 0;
@@ -1102,7 +1107,7 @@ X_API int Sprintf(char *format,...)
 
 int WINAPI PROTO(win_yap2swi, (HANDLE, DWORD, LPVOID));
 
-int WINAPI win_sys(HANDLE hinst, DWORD reason, LPVOID reserved)
+int WINAPI win_yap2swi(HANDLE hinst, DWORD reason, LPVOID reserved)
 {
   switch (reason) 
     {

@@ -27,7 +27,7 @@ static char     SccsId[] = "%W% %G%";
 #include "Heap.h"
 #include "eval.h"
 
-yap_error_number YAP_matherror = NO_ERROR;
+yap_error_number YAP_matherror = YAP_NO_ERROR;
 
 #define E_FUNC   blob_type
 #define E_ARGS   arith_retptr o

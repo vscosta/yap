@@ -160,7 +160,7 @@ extern X_API int PL_is_variable(term_t);
 extern X_API int PL_term_type(term_t);
 /* end PL_is_* functions =============================*/
 extern X_API void PL_halt(int);
-extern X_API int PL_initialise(int, char **, char **);
+extern X_API int  PL_initialise(int, char **, char **);
 extern X_API void PL_close_foreign_frame(fid_t);
 extern X_API void PL_discard_foreign_frame(fid_t);
 extern X_API fid_t PL_open_foreign_frame(void);
@@ -176,7 +176,7 @@ extern X_API void PL_close_query(qid_t);
 extern X_API term_t PL_exception(qid_t);
 extern X_API int PL_call_predicate(module_t, int, predicate_t, term_t);
 extern X_API int PL_call(term_t, module_t);
-extern X_API void PL_register_extensions(PL_extension *e);
+extern X_API void PL_register_extensions(PL_extension *);
 
 
 extern X_API int Sprintf(char *,...);

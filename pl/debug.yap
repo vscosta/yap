@@ -35,49 +35,78 @@
     '$suspy'(S,P,M).
 '$suspy'([],_,_) :- !.
 '$suspy'([F|L],S,M) :- !, ( '$suspy'(F,S,M) ; '$suspy'(L,S,M) ).
-'$suspy'(F/N,S,M) :- !, functor(T,F,N),
-    ( '$system_predicate'(T,M) ->
-	 throw(error(permission_error(access,private_procedure,F/N),spy(F/N,S)));
-	'$undefined'(T,M) ->
-	 throw(error(existence_error(procedure,F/N),spy(F/N,S)));
-	 '$suspy2'(S,F,N,T,M) ).
-'$suspy'(A,S,_) :- \+ atom(A) , !, 
-        throw(error(type_error(predicate_indicator,A),spy(A,S))).
-'$suspy'(A,spy,M) :- '$noclausesfor'(A,M), !,
-	throw(error(existence_error(procedure,A),spy(A))).
-'$suspy'(A,nospy,M) :- '$noclausesfor'(A,M), !,
-	throw(error(existence_error(procedure,A),nospy(A))).
-'$suspy'(A,S,M) :- current_predicate(A,M:T),
-	\+ '$undefined'(T,M), \+ '$system_predicate'(T,M),
-	 functor(T,F,N),
-	'$suspy2'(S,F,N,T,M).
+'$suspy'(F/N,S,M) :- !,
+	functor(T,F,N),
+	'$do_suspy'(S, F, N, T, M).
+'$suspy'(A,S,M) :- atom(A), !,
+	'$suspy_predicates_by_name'(A,S,M).
+'$suspy'(P,spy,M) :- !,
+	 throw(error(domain_error(predicate_spec,P)),spy(M:P)).
+'$suspy'(P,nospy,M) :-
+	 throw(error(domain_error(predicate_spec,P)),nospy(M:P)).
 
-'$noclausesfor'(A,M) :- current_predicate(A,M:T),
-	\+ '$undefined'(T,M) , \+ '$system_predicate'(T,M) ,
-	!, fail .
-'$noclausesfor'(_,_).
+'$suspy_predicates_by_name'(A,S,M) :-
+	% just check one such predicate exists
+	(
+	  current_predicate(A,M:_)
+	;
+	  '$recorded'('$import','$import'(EM,M,A,_),_)
+	),
+	!,
+	'$do_suspy_predicates_by_name'(A,S,M).
+'$suspy_predicates_by_name'(A,spy,M) :- !,
+	'$print_message'(warning,no_match(spy(M:A))).
+'$suspy_predicates_by_name'(A,nospy,M) :-
+	'$print_message'(warning,no_match(nospy(M:A))).
+	
+'$do_suspy_predicates_by_name'(A,S,M) :-
+	current_predicate(A,M:T),
+	functor(T,A,N),
+	'$do_suspy'(S, A, N, T, M).
+'$do_suspy_predicates_by_name'(A, S, M) :-
+	'$recorded'('$import','$import'(EM,M,A,N),_), !,
+	functor(T,A,N),
+	'$do_suspy'(S, A, N, T, EM).
+
+
+%
+% protect against evil arguments.
+%
+'$do_suspy'(S, F, N, T, M) :-
+	'$recorded'('$import','$import'(EM,M,F,N),_), !,
+	'$do_suspy'(S, F, N, T, EM).
+'$do_suspy'(S, F, N, T, M) :-
+	 '$undefined'(T,M), !,
+	 ( S = spy ->
+	     '$print_message'(warning,no_match(spy(M:F/N)))
+	 ;
+	     '$print_message'(warning,no_match(nospy(M:F/N)))
+	 ).
+'$do_suspy'(S, F, N, T, M) :-
+	 '$system_predicate'(T,M),
+	 ( S = spy ->
+	     throw(error(permission_error(access,private_procedure,T),spy(M:F/N)))
+	 ;
+	     throw(error(permission_error(access,private_procedure,T),nospy(M:F/N)))
+	 ).
+'$do_suspy'(S,F,N,T,M) :-
+	'$suspy2'(S,F,N,T,M).
 
 '$suspy2'(spy,F,N,T,M) :- 
 	'$recorded'('$spy','$spy'(T,M),_), !,
-	'$format'(user_error, "[ Warning: there is already a spy point on ~w:~w/~w ]~n",[M,F,N]).
+	'$print_message'(informational,breakp(bp(debugger,plain,M:T,M:F/N,N),add,already)).
 '$suspy2'(spy,F,N,T,M) :- !,
-	'$warn_if_undef'(T,F,N,M),
 	'$recorda'('$spy','$spy'(T,M),_), 
 	'$set_value'('$spypoint_added', true), 
 	'$set_spy'(T,M),
-	'$format'(user_error,"[ Spy point set on ~w:~w/~w ]~n", [M,F,N]).
+	'$print_message'(informational,breakp(bp(debugger,plain,M:T,M:F/N,N),add,ok)).
 '$suspy2'(nospy,F,N,T,M) :- 
 	'$recorded'('$spy','$spy'(T,M),R), !,
 	erase(R),
 	'$rm_spy'(T,M),
-	'$format'(user_error,"[ Spy point on ~w:~w/~w removed ]~n", [M,F,N]).
+	'$print_message'(informational,breakp(bp(debugger,plain,M:T,M:F/N,N),remove,last)).
 '$suspy2'(nospy,F,N,_,M) :-
-	'$format'(user_error,"[ Warning: there is no spy point on ~w:~w/~w ]~n", [M,F,N]).
-
-'$warn_if_undef'(T,F,N,M) :-  '$undefined'(T,M), !,
-	write(user_error,'[ Warning: you have no clauses for '),
-	write(user_error,M:F/N), write(user_error,' ]'), nl(user_error).
-'$warn_if_undef'(_,_,_,_).
+	'$print_message'(informational,breakp(no,breakpoint_for,M:F/N)).
 
 '$pred_being_spied'(G, M) :-
 	'$recorded'('$spy','$spy'(G,M),_), !.
@@ -101,17 +130,18 @@ nospyall.
 % debug mode -> debug flag = 1
 
 debug :- '$get_value'(debug,1), !.
-debug :- '$set_value'(debug,1), write(user_error,'[ Debug mode on ]'), nl(user_error).
+debug :- '$set_value'(debug,1),
+	'$print_message'(informational,debug(debug)).
 
 nodebug :- nospyall,
 	'$set_value'(debug,0),
 	'$set_value'('$trace',0),
 	'$set_yap_flags'(10,0),
-	'$format'(user_error,"[ Debug mode off ]~n",[]).
+	'$print_message'(informational,debug(off)).
 
 trace :- '$get_value'('$trace',1), !.
 trace :-
-	'$format'(user_error,"[ Trace mode on ]~n",[]),
+	'$print_message'(informational,debug(trace)),
 	'$set_value'('$trace',1),
 	'$set_value'(debug,1),
 	'$set_value'(spy_sl,0),
@@ -122,7 +152,7 @@ trace :-
 notrace :- 
 	'$set_value'('$trace',0),
 	'$set_value'(debug,0),
-	'$format'(user_error,"[ Trace and Debug mode off ]",[]).
+	'$print_message'(informational,debug(off)).
 
 /*-----------------------------------------------------------------------------
 
@@ -133,37 +163,34 @@ notrace :-
 
 leash(X) :- var(X),
 	throw(error(instantiation_error,leash(X))).
-leash(X) :- '$leashcode'(X,Code),
+leash(X) :-
+	'$leashcode'(X,Code),
 	'$set_value'('$leash',Code),
-	'$show_leash'(Code), !.
+	'$show_leash'(informational,Code), !.
 leash(X) :-
 	throw(error(type_error(leash_mode,X),leash(X))).
 
-'$show_leash'(0) :- write(user_error,'[ No leashing ]'), nl(user_error).
-'$show_leash'(L) :-
-	'$leashcode'(Code,L),
-	write(user_error,'[ Leashing set to '), write(user_error,Code),
-	write(user_error,' ('),
-	'$show_leash_bit'(WasWritten,2'1000,L,call),
-	'$show_leash_bit'(WasWritten,2'0100,L,exit),
-	'$show_leash_bit'(WasWritten,2'0010,L,redo),
-	'$show_leash_bit'(WasWritten,2'0001,L,fail),
-	write(user_error,') ]'), nl(user_error).
+'$show_leash'(Msg,0) :-
+	'$print_message'(Msg,leash([])).
+'$show_leash'(Msg,Code) :-
+	'$check_leash_bit'(Code,2'1000,L3,call,LF),
+	'$check_leash_bit'(Code,2'0100,L2,exit,L3),
+	'$check_leash_bit'(Code,2'0010,L1,redo,L2),
+	'$check_leash_bit'(Code,2'0001,[],fail,L1),
+	'$print_message'(Msg,leash(LF)).
 
-'$show_leash_bit'(_,Bit,Code,_) :- Bit /\ Code =:= 0, !.
-'$show_leash_bit'(Was,_,_,Name) :- var(Was), !,
-	Was = yes, write(user_error,Name).
-'$show_leash_bit'(_,_,_,Name) :-
-	write(user_error,','), write(user_error,Name).
+'$check_leash_bit'(Code,Bit,L0,_,L0) :- Bit /\ Code =:= 0, !.
+'$check_leash_bit'(_,_,L0,Name,[Name|L0]).
 
 '$leashcode'(full,2'1111) :- !.
 '$leashcode'(on,2'1111) :- !.
 '$leashcode'(half,2'1010) :- !.
 '$leashcode'(loose,2'1000) :- !.
 '$leashcode'(off,2'0000) :- !.
+'$leashcode'(none,2'0000) :- !.
 %'$leashcode'([L|M],Code) :- !, '$leashcode_list'([L|M],Code).
-'$leashcode'([L|M],Code) :- !, ( var(Code) -> '$list2Code'([L|M],Code)
-					    ; '$code2List'(Code,[L|M]) ).
+'$leashcode'([L|M],Code) :- !,
+	'$list2Code'([L|M],Code).
 '$leashcode'(N,N) :- integer(N), N >= 0, N =< 2'1111.
 
 '$list2Code'(V,_) :- var(V), !,
@@ -176,16 +203,6 @@ leash(X) :-
 '$list2Code'([redo|L],N) :- '$list2Code'(L,N1), N is 2'0010 + N1.
 '$list2Code'([fail|L],N) :- '$list2Code'(L,N1), N is 2'0001 + N1.
 
-'$code2List'(0,[]) :- !.
-'$code2List'(N,[call|L]) :- X is N /\ 2'1000, X \= 0, !,
-	M is N-X, '$code2List'(M,L).
-'$code2List'(N,[exit|L]) :- X is N /\ 2'0100, X \= 0, !,
-	M is N-X, '$code2List'(M,L).
-'$code2List'(N,[redo|L]) :- X is N /\ 2'0010, X \= 0, !,
-	M is N-X, '$code2List'(M,L).
-'$code2List'(N,[fail|L]) :- X is N /\ 2'0001, X \= 0, !,
-	M is N-X, '$code2List'(M,L).
-
 /*-----------------------------------------------------------------------------
 
 				debugging
@@ -193,29 +210,15 @@ leash(X) :-
 -----------------------------------------------------------------------------*/
 
 debugging :-
-	'$get_value'(debug,1) ->
-		write(user_error,'[ Debug mode is switched on ]') ,
-		nl(user_error),
-		'$debugging_mode'
-		;
-		write(user_error,'[ Debug mode is switched off ]') ,
-		nl(user_error)
-	.
-	
-'$debugging_mode' :-
-	( '$recorded'('$spy',_,_) -> '$show_spies' ;
-		   write(user_error,'[ Warning: there are no spy-points set ]') ,
-		   nl(user_error) ),
+	( '$get_value'(debug,1) ->
+	    '$print_message'(help,debug(debug))
+	    ;
+	    '$print_message'(help,debug(off))
+	),
+	findall(M:(N/A),('$recorded'('$spy','$spy'(T,M),_),functor(T,N,A)),L),
+	'$print_message'(help,breakpoints(L)),
 	'$get_value'('$leash',Leash),
-	'$show_leash'(Leash).
-
-'$show_spies' :-
-	write(user_error,'[ Spy points set on :'), nl(user_error),
-	( '$recorded'('$spy','$spy'(T,M),_), functor(T,F,N),
-		write(user_error,'        '),write(user_error,M:F/N),nl(user_error),
-		fail ;
-	  write(user_error,' ]'), nl(user_error) ).
-
+	'$show_leash'(help,Leash).
 
 /*-----------------------------------------------------------------------------
 
@@ -918,18 +921,18 @@ debugging :-
 
 
 '$action_help' :-
-	format(user_error,"newline  creep       a   abort~n", []),
-	format(user_error,"c        creep       e   exit~n", []),
-	format(user_error,"f        fail        h   help~n", []),
-	format(user_error,"l        leap        r   retry~n", []),
-	format(user_error,"s        skip        t   fastskip~n", []),
-	format(user_error,"q        quasiskip   k   quasileap~n", []),
-	format(user_error,"b        break       n   no debug~n", []),
-	format(user_error,"p        print       d   display~n", []),
-	format(user_error,"<D       depth D     <   full term~n", []),
-	format(user_error,"+        spy this    -   nospy this~n", []),
-	format(user_error,"^        view subg   ^^  view using~n", []),
-	format(user_error,"! g execute goal~n").
+	'$format'(user_error,"newline  creep       a   abort~n", []),
+	'$format'(user_error,"c        creep       e   exit~n", []),
+	'$format'(user_error,"f        fail        h   help~n", []),
+	'$format'(user_error,"l        leap        r   retry~n", []),
+	'$format'(user_error,"s        skip        t   fastskip~n", []),
+	'$format'(user_error,"q        quasiskip   k   quasileap~n", []),
+	'$format'(user_error,"b        break       n   no debug~n", []),
+	'$format'(user_error,"p        print       d   display~n", []),
+	'$format'(user_error,"<D       depth D     <   full term~n", []),
+	'$format'(user_error,"+        spy this    -   nospy this~n", []),
+	'$format'(user_error,"^        view subg   ^^  view using~n", []),
+	'$format'(user_error,"! g execute goal~n").
 	
 '$ilgl'(C) :- '$skipeol'(C), write(user_error,'[ Illegal option. Use h for help. ]'),
 	nl(user_error), fail.

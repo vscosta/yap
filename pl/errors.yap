@@ -53,34 +53,79 @@ print_message(Level, Mss) :-
 	'$format'(user_error,"[ No handler for error ~w ]~n", [Throw]).
 '$print_message'(informational,M) :-
 	( '$get_value'('$verbose',on) ->
-	    '$do_print_message'(M) ;
+	    '$do_informational_message'(M) ;
 	    true
 	).
 '$print_message'(warning,M) :-
-	'$do_print_message'(M).
+	'$format'(user_error, "[ ", []),
+	'$do_print_message'(M),
+	'$format'(user_error, " ]~n", []).
 '$print_message'(help,M) :-
-	'$format'(user_error,"help on ~p",[M]).
+	'$do_print_message'(M),
+	'$format'(user_error, "~n", []).
 
 
-'$do_print_message'(loading(_,user)) :- !.
-'$do_print_message'(loading(What,AbsoluteFileName)) :- !,
+'$do_informational_message'(loading(_,user)) :- !.
+'$do_informational_message'(loading(What,AbsoluteFileName)) :- !,
 	'$show_consult_level'(LC),
 	'$format'(user_error, "~*|[ ~a ~a... ]~n", [LC, What, AbsoluteFileName]).
-'$do_print_message'(loaded(_,user,_,_,_)) :- !.
-'$do_print_message'(loaded(What,AbsoluteFileName,Mod,Time,Space)) :- !,
+'$do_informational_message'(loaded(_,user,_,_,_)) :- !.
+'$do_informational_message'(loaded(What,AbsoluteFileName,Mod,Time,Space)) :- !,
 	'$show_consult_level'(LC0),
 	LC is LC0+1,
 	'$format'(user_error, "~*|[ ~a ~a in module ~a, ~d msec ~d bytes ]~n", [LC, What, AbsoluteFileName,Mod,Time,Space]).
+'$do_informational_message'(M) :-
+	'$format'("[ ", []),
+	'$do_print_message'(M),
+	'$format'(" ]~n", []).
+
+
 %message(loaded(Past,AbsoluteFileName,user,Msec,Bytes), Prefix, Suffix) :- !,
+'$do_print_message'(debug(debug)) :- !,
+	'$format'(user_error,"Debug mode on.",[]).
+'$do_print_message'(debug(off)) :- !,
+	'$format'(user_error,"Debug mode off.",[]).
 '$do_print_message'(debug(trace)) :- !,
-	'$format'(user_error,"[ The debugger will first creep -- showing everything (trace) ]~n",[]).
+	'$format'(user_error,"Trace mode on.",[]).
 '$do_print_message'('$format'(Msg, Args)) :- !,
 	'$format'(user_error,Msg,Args).
-'$do_print_message'(import(Pred,To,From,private)) :-
-	'$format'(user_error,"importing private predicate ~w:~w to ~w",
+'$do_print_message'(import(Pred,To,From,private)) :- !,
+	'$format'(user_error,"Importing private predicate ~w:~w to ~w.",
 	[From,Pred,To]).
+'$do_print_message'(no_match(P)) :- !,
+	'$format'(user_error,"No matching predicate for ~w.",
+	[P]).
+'$do_print_message'(breakp(bp(debugger,_,_,M:F/N,_),add,already)) :- !,
+	'$format'(user_error,"There is already a spy point on ~w:~w/~w.",
+	[M,F,N]).	
+'$do_print_message'(breakp(bp(debugger,_,_,M:F/N,_),add,ok)) :- !,
+	'$format'(user_error,"Spy point set on ~w:~w/~w.",
+	[M,F,N]).	
+'$do_print_message'(breakp(bp(debugger,_,_,M:F/N,_),remove,last)) :- !,
+	'$format'(user_error,"Spy point on ~w:~w/~w removed.",
+	[M,F,N]).
+'$do_print_message'(breakp(no,breakpoint_for,M:F/N)) :- !,
+	'$format'(user_error,"There is no spy point on ~w:~w/~w.",
+	[M,F,N]).
+'$do_print_message'(leash([])) :- !,
+	'$format'(user_error,"No leashing.",
+	[M,F,N]).
+'$do_print_message'(leash([A|B])) :- !,
+	'$format'(user_error,"Leashing set to ~w.",
+	[[A|B]]).
+'$do_print_message'(breakpoints([])) :- !,
+	'$format'(user_error,"There are no spy-points set.",
+	[M,F,N]).
+'$do_print_message'(breakpoints(L)) :- !,
+	'$format'(user_error,"Spy-points set on:", []),
+	'$print_list_of_preds'(L).
 '$do_print_message'(Messg) :-
 	'$format'(user_error,"~q",Messg).
+
+'$print_list_of_preds'([]).
+'$print_list_of_preds'([P|L]) :-
+	'$format'(user_error,"~n      ~w",[P]),
+	'$print_list_of_preds'(L).
 
 '$output_error_message'(context_error(Goal,Who),Where) :-
 	'$format'(user_error,"[ CONTEXT ERROR- ~w: ~w appeared in ~w ]~n",
@@ -141,6 +186,9 @@ print_message(Level, Mss) :-
 	[Where,N]).
 '$output_error_message'(domain_error(operator_specifier,N), Where) :-
 	'$format'(user_error,"[ DOMAIN ERROR- ~w: ~w invalid operator specifier ]~n",
+	[Where,N]).
+'$output_error_message'(domain_error(predicate_spec,N), Where) :-
+	'$format'(user_error,"[ DOMAIN ERROR- ~w: ~w invalid predicate specifier ]~n",
 	[Where,N]).
 '$output_error_message'(domain_error(read_option,N), Where) :-
 	'$format'(user_error,"[ DOMAIN ERROR- ~w: ~w invalid option to read ]~n",

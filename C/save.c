@@ -18,12 +18,14 @@
 static char     SccsId[] = "@(#)save.c	1.3 3/15/90";
 #endif
 
+#if _MSC_VER || defined(__MINGW32__)
+#include <windows.h>
+#endif
 #include "absmi.h"
 #include "alloc.h"
 #include "yapio.h"
 #include "sshift.h"
 #include "Foreign.h"
-#include "iopreds.h"
 #if HAVE_STRING_H
 #include <string.h>
 #endif
@@ -46,11 +48,11 @@ static char     SccsId[] = "@(#)save.c	1.3 3/15/90";
 #ifdef HAVE_SYS_STAT_H
 #include <sys/stat.h>
 #endif
+#include "iopreds.h"
+
 
 
 /*********  hack for accesing several kinds of terms. Should be cleaned **/
-
-#define AbsTerm(V) ((Term) (V))
 
 extern char     StartUpFile[];
 

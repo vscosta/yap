@@ -28,7 +28,6 @@ static char SccsId[] = "%W% %G%";
 #include "Yatom.h"
 #include "Heap.h"
 #include "yapio.h"
-#include "iopreds.h"
 #include <stdlib.h>
 #if HAVE_STDARG_H
 #include <stdarg.h>
@@ -79,6 +78,7 @@ static char SccsId[] = "%W% %G%";
 #define S_ISDIR(x) (((x)&_S_IFDIR)==_S_IFDIR)
 #endif
 #endif
+#include "iopreds.h"
 
 STATIC_PROTO (Int PlIOError, (yap_error_number, Term, char *));
 STATIC_PROTO (int FilePutc, (int, int));
