@@ -52,10 +52,10 @@
 typedef	CELL YAP_SEG_SIZE;
 
 typedef	struct FREEB {
-	YAP_SEG_SIZE		b_size;
-	struct FREEB		*b_next;
-	struct FREEB		*b_next_size;
-	} BlockHeader;
+  YAP_SEG_SIZE		b_size;
+  struct FREEB		*b_next;
+  struct FREEB		*b_next_size;
+} BlockHeader;
 
 #define MinBlockSize	(sizeof(BlockHeader)+sizeof(YAP_SEG_SIZE))
 #define MaxBlockSize	0xffffff

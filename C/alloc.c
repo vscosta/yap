@@ -12,7 +12,7 @@
 * Last rev:								 *
 * mods:									 *
 * comments:	allocating space					 *
-* version:$Id: alloc.c,v 1.37 2003-10-28 01:16:02 vsc Exp $		 *
+* version:$Id: alloc.c,v 1.38 2003-10-30 11:31:05 vsc Exp $		 *
 *************************************************************************/
 #ifdef SCCS
 static char SccsId[] = "%W% %G%";
@@ -342,9 +342,6 @@ Yap_ReleasePreAllocCodeSpace(ADDR ptr)
 static void
 FreeCodeSpace(char *p)
 {
-  if (p == 0x2adc37e4) {
-    printf("Erasing my block\n");
-  }
   FreeBlock(((BlockHeader *) (p - sizeof(YAP_SEG_SIZE))));
 }
 
@@ -714,6 +711,7 @@ ExtendWorkSpace(Int s, int fixed_allocation)
   }
   if (fixed_allocation) {
     if (a != WorkSpaceTop) {
+      munmap((void *)a, (size_t)s);
       Yap_ErrorMessage = Yap_ErrorSay;
       snprintf5(Yap_ErrorMessage, MAX_ERROR_MSG_SIZE,
 		"mmap could not grow memory at %p, got %p", WorkSpaceTop, a );
@@ -1139,10 +1137,12 @@ Yap_AllocHole(UInt actual_request, UInt total_size)
   YAP_SEG_SIZE bsiz = (WorkSpaceTop0-HeapTop)/sizeof(CELL)-2*sizeof(YAP_SEG_SIZE)/sizeof(CELL);
 
   /* push HeapTop to after hole */
-  HeapTop = WorkSpaceTop-actual_request;
-  *((YAP_SEG_SIZE *) HeapTop) = InUseFlag;
+  HeapTop = WorkSpaceTop-(actual_request-sizeof(YAP_SEG_SIZE));
+  ((YAP_SEG_SIZE *) HeapTop)[0] = InUseFlag;
   /* now simulate a block */
-  endb->b_size = (HeapTop-WorkSpaceTop0)/sizeof(CELL) | InUseFlag;
+  ((YAP_SEG_SIZE *) HeapTop)[-1] =
+    endb->b_size =
+    (HeapTop-WorkSpaceTop0)/sizeof(YAP_SEG_SIZE) | InUseFlag;
   newb->b_size = bsiz;
   AddToFreeList(newb);
 }

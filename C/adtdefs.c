@@ -461,8 +461,6 @@ Yap_NewPredPropByFunctor(FunctorEntry *fe, SMALLUNSGN cur_mod)
   PredEntry *p = (PredEntry *) Yap_AllocAtomSpace(sizeof(*p));
 
   extern long long int vsc_count;
-  if (p == 0x9183b68) printf("%lld entering %s:%s/%d\n", vsc_count, 
-RepAtom(AtomOfTerm(ModuleName[cur_mod]))->StrOfAE, RepAtom(fe->NameOfFE)->StrOfAE, fe->ArityOfFE);
 
   INIT_RWLOCK(p->PRWLock);
   p->KindOfPE = PEProp;

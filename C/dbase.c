@@ -1476,7 +1476,7 @@ CreateDBStruct(Term Tm, DBProp p, int InFlag, int *pstat)
       }
     }
     if (tofref != TmpRefBase) {
-      CodeAbs += TmpRefBase - tofref + 1;
+      CodeAbs += (TmpRefBase - tofref) + 1;
       if ((CELL *)((char *)ntp0+(CELL)CodeAbs) > AuxSp) {
 	Yap_Error_Size = (UInt)DBLength(CodeAbs);
 	DBErrorFlag = OVF_ERROR_IN_DB;
@@ -1494,7 +1494,7 @@ CreateDBStruct(Term Tm, DBProp p, int InFlag, int *pstat)
 #endif
 #endif
     if (p == NULL) {
-      ppt = (DBTerm *)AllocDBSpace(sizeof(DBTerm)+(UInt)CodeAbs);
+      ppt = (DBTerm *)AllocDBSpace(DBLength(CodeAbs));
       if (ppt == NULL) {
 	Yap_ReleasePreAllocCodeSpace((ADDR)pp0);
 	return generate_dberror_msg(OVF_ERROR_IN_DB, (UInt)DBLength(CodeAbs), "heap crashed against stacks");
@@ -4106,9 +4106,9 @@ p_instance_module(void)
     if (IsIntegerTerm(t1)) 
       dbr = (DBRef)IntegerOfTerm(t1);
     else
-      return (FALSE);
+      return FALSE;
     /* limited sanity checking */
-    if (dbr->id != FunctorDBRef) {
+    if (dbr > (DBRef)Yap_HeapBase && dbr < (DBRef)HeapTop && dbr->id != FunctorDBRef) {
       return FALSE;
     }
   } else {

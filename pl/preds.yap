@@ -292,15 +292,20 @@ clause(V,Q) :-
 '$clause'(P,M,Q) :-
 	'$clause'(P,M,Q,_).
 
-clause(P,Q,R) :- db_reference(R), !,
-	instance(R,T),
-	( T = (H :- B) -> P = H, Q = B ; P=T, Q = true).
+clause(P,Q,R) :- var(P), !,
+	'$current_module'(M),
+	'$clause'(P,M,Q,R).
 clause(M:P,Q,R) :- !,
 	'$clause'(P,M,Q,R).
 clause(V,Q,R) :-
 	'$current_module'(M),
 	'$clause'(V,M,Q,R).
 
+'$clause'(P,M,Q,R) :-
+	'$instance_module'(R,M0), !,
+	M0 = M,
+	instance(R,T),
+	( T = (H :- B) -> P = H, Q = B ; P=T, Q = true).
 '$clause'(V,M,Q,_) :- var(V), !, 
 	'$do_error'(instantiation_error,M:clause(V,Q)).
 '$clause'(C,M,Q,_) :- number(C), !,

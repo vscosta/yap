@@ -4737,6 +4737,8 @@ replace_lu_block(LogUpdIndex *blk, int flag, PredEntry *ap, yamop *code, int has
   pcl = blk->u.ParentIndex;
   ncl->SiblingIndex = pcl->ChildIndex;
   pcl->ChildIndex = ncl;
+  /* we have a new pointer to our clause */
+  pcl->ClRefCount++;
   if (!(blk->ClFlags & ErasedMask)) {
     Yap_kill_iblock((ClauseUnion *)blk, (ClauseUnion *)pcl, ap);
   }

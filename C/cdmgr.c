@@ -394,7 +394,7 @@ kill_first_log_iblock(LogUpdIndex *c, LogUpdIndex *cl, PredEntry *ap)
       tcl->SiblingIndex = c->SiblingIndex;
     }
   }
-  /* make sure that a child cannot remove ourselves */
+  /* make sure that a child cannot remove us */
   c->ClRefCount++;
   while (ncl != NULL) {
     LogUpdIndex *next = ncl->SiblingIndex;
@@ -422,8 +422,7 @@ kill_first_log_iblock(LogUpdIndex *c, LogUpdIndex *cl, PredEntry *ap)
     decrease_log_indices(c, (yamop *)&(ap->cs.p_code.ExpandCode));
     Yap_FreeCodeSpace((CODEADDR)c);
   } else {
-    c->ClFlags |= (ErasedMask|SwitchRootMask);
-    c->u.pred = ap;
+    c->ClFlags |= ErasedMask;
     c->ChildIndex = NULL;
   }
 }
@@ -470,7 +469,14 @@ Yap_kill_iblock(ClauseUnion *blk, ClauseUnion *parent_blk, PredEntry *ap)
 void 
 Yap_ErLogUpdIndex(LogUpdIndex *clau)
 {
-  kill_first_log_iblock(clau, NULL, clau->u.pred);
+  LogUpdIndex *c = clau;
+  if (c->ClFlags & SwitchRootMask) {
+     kill_first_log_iblock(clau, NULL, c->u.pred);
+ } else {
+    while (!(c->ClFlags & SwitchRootMask)) 
+      c = c->u.ParentIndex;
+    kill_first_log_iblock(clau, clau->u.ParentIndex, c->u.pred);
+ }
 }
 
 void
