@@ -2818,45 +2818,6 @@ Succeeds if terms @var{X} and @var{Y} are not unifiable.
 @cnindex term_variables/2
 Unify the second argument with the list of variables occurring in @var{T}.
 
-@item term_hash(+@var{T},+@var{Depth},+@var{Max},-@var{O})
-@findex term_hash/4
-@syindex term_hash/4
-@cnindex term_hash/4
-Unify the last argument with a number, called the hash function for
-term. This integer can be used to implement efficient term access
-schemes. The number @var{O} is such that:
-@itemize @bullet
-@item The function only considers constants and functors from @var{T} up
-to depth @var{Depth} are considered. The @emph{depth} of a term is defined as
-follows:
-@itemize @minus
-@item The depth of a constant of is 1.
-@item The depth of term is 1 plus the maximum depth of its sub-terms.
-@end itemize
-
-@item If a variable is found up to depth @var{Depth}, @var{O} will be
-left unbound.
-
-@item If @var{Depth} is bound to -1, the term will be fully
-investigated. If the term is bound to an infinite rational tree, the
-predicate will loop.
-
-@item If the term includes floating point numbers or integers whose
-absolute value is larger than 7829367, than the result is considered to
-be implementation defined. Otherwise, the result is platform indepent.
-
-@item The variable @var{Max} must be bound to a positive
-integer. If bound, @var{O} will be in the range going from 0 up to, but
-not including, @var{Max}.
-@end itemize
-
-@item term_hash(+@var{T},-@var{O})
-@findex term_hash/2
-@syindex term_hash/2
-@cnindex term_hash/2
-Simplified version of @code{term_hash/4} such that @var{Depth} is bound
-to -1 and @var{Max} is bound to a large platform-indepent integer.
-
 @item unify_with_occurs_check(?T1,?T2) [ISO]
 @findex unify_with_occurs_check/2
 @syindex unify_with_occurs_check/2
@@ -8124,7 +8085,7 @@ Wait until process @var{PID} terminates, and return its exits @var{Status}.
 The next routines provide a set of commonly used utilities to manipulate
 terms. Most of these utilities have been implemented in @code{C} for
 efficiency. They are available through the
-@code{use_module(library(timeout))} command.
+@code{use_module(library(terms))} command.
 
 @table @code
 
