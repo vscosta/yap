@@ -45,6 +45,9 @@ AC_ARG_ENABLE(debug-yap,
 AC_ARG_ENABLE(cygwin,
 	[ --enable-cygwin            use cygwin library in WIN32 ],
 	cygwin="$enableval", cygwin=no)
+AC_ARG_ENABLE(dynamic_loading,
+	[ --enable-dynamic-loading    compile Yap as a DLL ],
+	dynamic_loading="$enableval", dynamic_loading=no)
 	
 AC_ARG_WITH(gmp,
 	[ --with-gmp[=DIR]           use GNU Multiple Precision in DIR],
@@ -371,7 +374,6 @@ INSTALL_DLLS="#"
 SHLIB_LD="@#"
 DO_SECOND_LD="#"
 NEWSHOBJ="sobjs"
-YAPLIB="libYap.a"
 M4="m4"
 
 case $target_os in
@@ -500,6 +502,14 @@ case $target_os in
         fi
 	;;
 esac
+
+if test "$dynamic_loading" = "yes"
+then 
+  YAP_EXTRAS="$SHLIB_CFLAGS $YAP_EXTRAS"
+  YAPLIB=libYap"$SHLIB_SUFFIX"
+else
+ YAPLIB="libYap.a"
+fi
 
 if test "$coroutining" = "yes"
   then

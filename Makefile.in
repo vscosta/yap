@@ -456,7 +456,7 @@ mycb: $(srcdir)/mycb.c
 
 startup: yap $(PL_SOURCES)
 	-rm -f startup
-	echo "['$(srcdir)/pl/init.yap']. save_program(startup)." |  @CROSS_SIMULATOR@ ./yap -b $(srcdir)/pl/boot.yap
+	echo "['$(srcdir)/pl/init.yap']. module(user). save_program(startup)." |  @CROSS_SIMULATOR@ ./yap -b $(srcdir)/pl/boot.yap
 
 yap: $(HEADERS) yap.o @YAPLIB@
 	$(MPI_CC) $(STANDARD_CFLAGS) $(LDFLAGS) -o yap yap.o @YAPLIB@ $(LIBS) @MPI_LIBS@
@@ -465,6 +465,9 @@ libYap.a: $(LIB_OBJECTS)
 	-rm -f libYap.a
 	$(AR) rc libYap.a $(LIB_OBJECTS)
 	$(RANLIB) libYap.a
+
+@DO_SECOND_LD@libYap@SHLIB_SUFFIX@: $(LIB_OBJECTS)
+@DO_SECOND_LD@	@SHLIB_LD@ -o libYap@SHLIB_SUFFIX@ $(LIB_OBJECTS) $(LIBS)
 
 install: install_bin install_data
 
@@ -497,7 +500,7 @@ install_win32: startup
 	(cd library/system; make install_win32)
 	(cd library/random; make install_win32)
 
-install_library: libYap.a
+install_library: @YAPLIB@
 	$(INSTALL_DATA) libYap.a  $(DESTDIR)$(LIBDIR)/libYap.a
 	mkdir -p $(DESTDIR)$(INCLUDEDIR)
 	for h in $(HEADERS); do $(INSTALL) $$h $(DESTDIR)$(INCLUDEDIR); done
