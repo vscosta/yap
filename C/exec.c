@@ -1575,3 +1575,4 @@ Yap_InitExecFs(void)
   Yap_InitCPred("$uncaught_throw", 0, p_uncaught_throw, HiddenPredFlag);
 }
 
+
