@@ -348,8 +348,9 @@ shell(Command) :-
 	G = shell(Command),
 	check_command(Command, G),
 	get_shell(Shell),
-	atom_codes(Command, SC),
-	append(Shell, SC, ShellCommand),
+	atom_codes(Command, SC0),
+	protect_command(SC0, SC),
+	append(Shell, [0'"|SC], ShellCommand),
 	atom_codes(FullCommand, ShellCommand),
 	exec_command(FullCommand, 0, 1, 2, PID, Error),
 	handle_system_error(Error, off, G),
@@ -360,13 +361,19 @@ shell(Command, Status) :-
 	G = shell(Command, Status),
 	check_command(Command, G),
 	get_shell(Shell),
-	atom_codes(Command, SC),
-	append(Shell, SC, ShellCommand),
+	atom_codes(Command, SC0),
+	protect_command(SC0, SC),
+	append(Shell, [0'"|SC], ShellCommand),
 	atom_codes(FullCommand, ShellCommand),
 	exec_command(FullCommand, 0, 1, 2, PID, Error),
 	handle_system_error(Error, off, G),
 	wait(PID, Status,Error),
 	handle_system_error(Error, off, G).
+
+
+protect_command([], [0'"]).
+protect_command([H|L], [H|NL]) :-
+	protect_command(L, NL).
 
 get_shell0(Shell) :-
 	getenv('SHELL', Shell), !.
