@@ -477,20 +477,42 @@ garbage_collect_atoms :-
 '$good_character_code'(X) :- integer(X), X > -2, X < 256.
 
 atom_concat(X,Y,At) :-
-	var(X), var(Y), !,
-	atom_length(At,Len),
-	'$atom_contact_split'(At,0,Len,X,Y).
-/* Let atom_chars do our error handling */
-atom_concat(X,Y,At) :-
-	atom_concat([X,Y],At).
+	(
+	  nonvar(X),  nonvar(Y)
+	->
+	  atom_concat([X,Y],At)
+	;
+	  atom(At) ->
+	  atom_length(At,Len),
+	  '$atom_contact_split'(At,0,Len,X,Y)
+	;
+	  var(At) ->
+	  '$do_error'(instantiation_error,atom_concat(X,Y,At))
+	;
+	  '$do_error'(type_error(atom,At),atomic_concant(X,Y,At))
+	).
 
 atomic_concat(X,Y,At) :-
-	var(X), var(Y), !,
-	atom_length(At,Len),
-	'$atom_contact_split'(At,0,Len,X,Y).
-/* Let atom_chars do our error handling */
-atomic_concat(X,Y,At) :-
-	atomic_concat([X,Y],At).
+	(
+	  nonvar(X),  nonvar(Y)
+	->
+	  atomic_concat([X,Y],At)
+	;
+	  atom(At) ->
+	  atom_length(At,Len),
+	  '$atom_contact_split'(At,0,Len,X,Y)
+	;
+	  number(At) ->
+	  number_codes(At,Codes),
+	  '$append'(X0,Y0,Codes),
+	  name(X,X0),
+	  name(Y,Y0)
+	;
+	  var(At) ->
+	  '$do_error'(instantiation_error,atomic_concat(X,Y,At))
+	;
+	  '$do_error'(type_error(atomic,At),atomic_concant(X,Y,At))
+	).
 
 '$atom_contact_split'(At,Len,Len,X,Y) :- !,
 	'$atom_split'(At,Len,X,Y).

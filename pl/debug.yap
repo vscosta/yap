@@ -459,15 +459,14 @@ debugging :-
 '$action'(10,_,_,_,_) :- 			% newline 	creep
 	( recorded('$spy_skip',_,R), erase(R), fail ; true ),
 	'$set_yap_flags'(10,1).
-'$action'(33,_,_,_,_) :- !,			% ! g		execute
+'$action'(0'!,_,_,_,_) :- !,			% ! g		execute
 	read(user,G),
 	% don't allow yourself to be caught by creep.
 	'$access_yap_flags'(10, CL),
 	'$set_yap_flags'(10, 0),
 	( '$execute'(G) -> true ; true),
 	'$set_yap_flags'(10, CL),
-	!,
-	'$skipeol'(33),
+%	'$skipeol'(0'!),
 	fail.
 '$action'(0'<,_,_,_,_) :- !,			% <Depth
 	'$new_deb_depth',

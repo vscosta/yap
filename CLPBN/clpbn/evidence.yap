@@ -25,9 +25,9 @@
 :- dynamic node/4, reachable_from_evidence/2, evidence/2.
 
 %
-% new evidence storagea algorithm. The idea is that instead of 
+% new evidence storage algorithm. The idea is that instead of 
 % redoing all the evidence every time we query the network, we shall
-% keep a precompiled version around. The precompiled
+% keep a precompiled version around.
 %
 % the format is as follows:
 %  evidence_store:parent(Key,ParentList,[EvidenceChildren])
