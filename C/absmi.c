@@ -10208,7 +10208,7 @@ Yap_absmi(int inp)
 #ifdef LOW_LEVEL_TRACER
       if (Yap_do_low_level_trace) {
 	RESET_VARIABLE(H);
-	H[1] = XREG(PREG->u.ycx.c);
+	H[1] = PREG->u.ycx.c;
 	H[2] = XREG(PREG->u.ycx.xi);
 	low_level_trace(enter_pred,RepPredProp(Yap_GetPredPropByFunc(Yap_MkFunctor(Yap_LookupAtom("functor"),3),0)),H);
       }
@@ -11077,8 +11077,7 @@ Yap_absmi(int inp)
 #else
 	if (E_YREG > (CELL *)B) {
 	  E_YREG = (CELL *)B;
-	}
-	else {
+	} else {
 	  E_YREG = (CELL *) ((CELL) E_YREG+ ENV_Size(CPREG));
 	}
 #endif /* FROZEN_STACKS */
@@ -11089,6 +11088,7 @@ Yap_absmi(int inp)
 	    SREG = RepAppl(d0);
 	    BEGD(d1);
 	    d1 = SREG[2];
+	  execute_comma_comma:
 	    /* create an to execute the call */
 	    deref_head(d1, execute_comma_comma_unk);
 	  execute_comma_comma_nvar:
@@ -11097,8 +11097,15 @@ Yap_absmi(int inp)
 	      E_YREG[-EnvSizeInCells-2]  = MkIntegerTerm((Int)PredPropByAtom(AtomOfTerm(d1),mod));
 	    } else if (IsApplTerm(d1)) {
 	      Functor f = FunctorOfTerm(d1);
-	      if (IsExtensionFunctor(f) || f == FunctorModule) {
+	      if (IsExtensionFunctor(f)) {
 		goto execute_metacall_after_comma;
+	      } else if (f == FunctorModule) {
+		Term tmod = ArgOfTerm(1, d1);
+		if (IsVarTerm(tmod) || !IsAtomTerm(tmod))
+		  goto execute_metacall_after_comma;
+		mod = Yap_LookupModule(tmod);
+		d1 = RepAppl(d1)[2];
+		goto execute_comma_comma;
 	      } else {
 		E_YREG[-EnvSizeInCells-2]  = MkIntegerTerm((Int)PredPropByFunc(f,mod));
 	      }
@@ -11116,6 +11123,7 @@ Yap_absmi(int inp)
 	    E_YREG -= EnvSizeInCells+3;
 	    d0 = SREG[1];
 	    CPREG = NEXTOP(COMMA_CODE,sla);
+	  execute_comma_comma2:
 	    /* create an to execute the call */
 	    deref_head(d0, execute_comma_comma2_unk);
 	  execute_comma_comma2_nvar:
@@ -11144,7 +11152,12 @@ Yap_absmi(int inp)
 	    } else if (IsApplTerm(d0)) {
 	      Functor f = FunctorOfTerm(d0);
 	      if (IsExtensionFunctor(f) || f == FunctorModule) {
-		goto execute_metacall_after_comma;
+		Term tmod = ArgOfTerm(1, d0);
+		if (IsVarTerm(tmod) || !IsAtomTerm(tmod))
+		  goto execute_metacall_after_comma;
+		mod = Yap_LookupModule(tmod);
+		d0 = RepAppl(d0)[2];
+		goto execute_comma_comma2;
 	      } else {
 		pen = RepPredProp(PredPropByFunc(f,mod));
 		if (pen->PredFlags & MetaPredFlag) {
@@ -11177,7 +11190,7 @@ Yap_absmi(int inp)
 	      execute_metacall_after_comma:
 	      ARG1 = ARG3 = d0;
 	      pen = PredMetaCall;
-	      ARG2 = Yap_cp_as_integer((choiceptr)ENV[E_CB]);
+	      ARG2 = Yap_cp_as_integer((choiceptr)pt0[E_CB]);
 	      ARG4 = ModuleName[mod];
 	      CACHE_A1();
 	      goto execute_after_comma;

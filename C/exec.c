@@ -331,130 +331,6 @@ p_execute_in_mod(void)
   return(do_execute(Deref(ARG1), IntOfTerm(Deref(ARG2))));
 }
 
-inline static Int
-CallMetaCallWithin(SMALLUNSGN mod, choiceptr cpt)
-{
-  if (yap_flags[SPY_CREEP_FLAG]) {
-    return(EnterCreepMode(mod));
-  }
-  return (CallPredicate(PredMetaCall, cpt));
-}
-
-/* '$execute_within'(Goal,CutPt,OrigGoal,Mod)	 */
-static Int
-p_execute_within(void)
-{ 
-  Term            t = Deref(ARG1);
-  Term            tmod = Deref(ARG4);
-  unsigned int    arity;
-  Prop            pe;
-  Atom            a;
-  SMALLUNSGN      mod = Yap_LookupModule(tmod);
-#ifdef SBA
-  choiceptr cut_pt = (choiceptr)IntegerOfTerm(Deref(ARG2));
-#else
-  choiceptr cut_pt = (choiceptr)(LCL0-IntegerOfTerm(Deref(ARG2)));
-#endif
-
- restart_exec:
-  if (IsVarTerm(t)) {
-    return CallError(INSTANTIATION_ERROR, mod);
-  } else if (IsApplTerm(t)) {
-    register Functor f = FunctorOfTerm(t);
-    register unsigned int    i;
-    register CELL *pt;
-
-    if (IsExtensionFunctor(f)) {
-      return CallError(TYPE_ERROR_CALLABLE, mod);
-    }
-    
-    {
-      PredEntry *pen;
-      arity = ArityOfFunctor(f);
-      a = NameOfFunctor(f);
-
-      pe = PredPropByFunc(f, mod);
-      pen = RepPredProp(pe);
-      /* You thought we would be over by now */
-      /* but no meta calls require special preprocessing */
-      if (pen->PredFlags & MetaPredFlag) {
-	if (f == FunctorModule) {
-	  Term tmod = ArgOfTerm(1,t);
-	  if (!IsVarTerm(tmod) && IsAtomTerm(tmod)) {
-	    mod = Yap_LookupModule(tmod);
-	    t = ArgOfTerm(2,t);
-	    goto restart_exec;
-	  }
-	}
-	if (mod != CurrentModule)
-	  return(CallMetaCallWithin(mod, B));
-      }
-      /* at this point check if we should enter creep mode */ 
-      if (yap_flags[SPY_CREEP_FLAG]) {
-	return(EnterCreepMode(mod));
-      } else if (PRED_GOAL_EXPANSION_ON) {
-	return(CallMetaCallWithin(mod, B));
-      } else {
-	/* now let us do what we wanted to do from the beginning !! */
-	/* I cannot use the standard macro here because
-	   otherwise I would dereference the argument and
-	   might skip a svar */
-	pt = RepAppl(t)+1;
-	for (i = 1; i <= arity; ++i) {
-#if SBA
-	  Term d0 = *pt++;
-	  if (d0 == 0)
-	    XREGS[i] = (CELL)(pt-1);
-	  else
-	    XREGS[i] = d0;
-#else
-	  XREGS[i] = *pt++;
-#endif
-	}
-	return (CallPredicate(pen, B));
-      }
-    }
-  } else if (IsAtomOrIntTerm(t)) {
-    if (IsIntTerm(t)) {
-      return CallError(TYPE_ERROR_CALLABLE, mod);
-    }    
-    a = AtomOfTerm(t);
-    if (a == AtomTrue || a == AtomOtherwise)
-      return(TRUE);
-    else if (a == AtomCut) {
-      /* find where to cut to */
-      if (SHOULD_CUT_UP_TO(B,cut_pt)) {
-#ifdef YAPOR
-	/* Wow, we're gonna cut!!! */
-	CUT_prune_to(cut_pt);
-#else
-	/* Wow, we're gonna cut!!! */
-	B = cut_pt;
-#endif /* YAPOR */
-#ifdef TABLING
-        abolish_incomplete_subgoals(B);
-#endif /* TABLING */
-	HB = PROTECT_FROZEN_H(B);
-      }
-      return(TRUE);
-    } else if (a == AtomFail || a == AtomFalse) {
-      return(FALSE);
-    } else {
-      /* call may not define new system predicates!! */
-      if (yap_flags[SPY_CREEP_FLAG]) {
-	return(EnterCreepMode(mod));
-      } else if (PRED_GOAL_EXPANSION_ON) {
-	return(CallMetaCallWithin(mod, B));
-      }
-      pe = PredPropByAtom(a, mod);
-      return (CallPredicate(RepPredProp(pe), B));
-    }
-  } else {
-    /* Is Pair Term */
-    return(CallMetaCallWithin(mod,B));
-  }
-}
-
 static Int
 p_execute0(void)
 {				/* '$execute0'(Goal,Mod)	 */
@@ -1722,7 +1598,6 @@ Yap_InitExecFs(void)
   Yap_InitComma();
   Yap_InitCPred("$execute", 1, p_execute, 0);
   Yap_InitCPred("$execute_in_mod", 2, p_execute_in_mod, 0);
-  Yap_InitCPred("$execute_within", 4, p_execute_within, 0);
   Yap_InitCPred("$execute", 3, p_at_execute, 0);
   Yap_InitCPred("$call_with_args", 2, p_execute_0, 0);
   Yap_InitCPred("$call_with_args", 3, p_execute_1, 0);

@@ -693,41 +693,41 @@ incore(G) :- '$execute'(G).
 '$call'(M:G,CP,G0,_) :- !,
         '$call'(G,CP,G0,M).
 '$call'((X,Y),CP,G0,M) :- !,
-        '$execute_within'(X,CP,G0,M),
-        '$execute_within'(Y,CP,G0,M).
+        '$call'(X,CP,G0,M),
+        '$call'(Y,CP,G0,M).
 '$call'((X->Y),CP,G0,M) :- !,
 	(
-	    '$execute_within'(X,CP,G0,M)
+	    '$call'(X,CP,G0,M)
           ->
-	    '$execute_within'(Y,CP,G0,M)
+	    '$call'(Y,CP,G0,M)
 	).
 '$call'((X->Y; Z),CP,G0,M) :- !,
 	(
-	    '$execute_within'(X,CP,G0,M)
+	    '$call'(X,CP,G0,M)
          ->
-	    '$execute_within'(Y,CP,G0,M)
+	    '$call'(Y,CP,G0,M)
         ;
-	    '$execute_within'(Z,CP,G0,M)
+	    '$call'(Z,CP,G0,M)
 	).
 '$call'((A;B),CP,G0,M) :- !,
 	(
-	    '$execute_within'(A,CP,G0,M)
+	    '$call'(A,CP,G0,M)
         ;
-	    '$execute_within'(B,CP,G0,M)
+	    '$call'(B,CP,G0,M)
 	).
 '$call'((X->Y| Z),CP,G0,M) :- !,
 	(
-	    '$execute_within'(X,CP,G0,M)
+	    '$call'(X,CP,G0,M)
          ->
-	    '$execute_within'(Y,CP,G0,M)
+	    '$call'(Y,CP,G0,M)
         ;
-	    '$execute_within'(Z,CP,G0,M)
+	    '$call'(Z,CP,G0,M)
 	).
 '$call'((A|B),CP, G0,M) :- !,
 	(
-	    '$execute_within'(A,CP,G0,M)
+	    '$call'(A,CP,G0,M)
         ;
-	    '$execute_within'(B,CP,G0,M)
+	    '$call'(B,CP,G0,M)
 	).
 '$call'(\+ X, _, _,_) :- !,
 	\+ '$execute'(X).
@@ -754,33 +754,33 @@ incore(G) :- '$execute'(G).
 	'$execute0'(NG, NMod).
 
 '$spied_call'((A,B),CP,G0,M) :- !,
-	'$execute_within'(A,CP,G0,M),
-	'$execute_within'(B,CP,G0,M).
+	'$call'(A,CP,G0,M),
+	'$call'(B,CP,G0,M).
 '$spied_call'((X->Y),CP,G0,M) :- !,
 	(
-	    '$execute_within'(X,CP,G0,M)
+	    '$call'(X,CP,G0,M)
           ->
-	    '$execute_within'(Y,CP,G0,M)
+	    '$call'(Y,CP,G0,M)
 	).
 '$spied_call'((X->Y; Z),CP,G0,M) :- !,
 	(
-	    '$execute_within'(X,CP,G0,M)
+	    '$call'(X,CP,G0,M)
          ->
-	    '$execute_within'(Y,CP,G0,M)
+	    '$call'(Y,CP,G0,M)
         ;
-	    '$execute_within'(Z,CP,G0,M)
+	    '$call'(Z,CP,G0,M)
 	).
 '$spied_call'((A;B),CP,G0,M) :- !,
 	(
-	    '$execute_within'(A,CP,G0,M)
+	    '$call'(A,CP,G0,M)
         ;
-	    '$execute_within'(B,CP,G0,M)
+	    '$call'(B,CP,G0,M)
 	).
 '$spied_call'((A|B),CP,G0,M) :- !,
 	(
-	    '$execute_within'(A,CP,G0,M)
+	    '$call'(A,CP,G0,M)
         ;
-	    '$execute_within'(B,CP,G0,M)
+	    '$call'(B,CP,G0,M)
 	).
 '$spied_call'(\+ X,_,_,M) :- !,
 	\+ '$execute'(M:X).
