@@ -3096,19 +3096,9 @@ p_gc(void)
   return(TRUE);
 }
 
-static Int
-p_atom_gc(void)
-{
-#ifndef FIXED_STACKS
-  atom_gc();
-#endif  /* FIXED_STACKS */
-  return(TRUE);
-}
-
 void 
 init_gc(void)
 {
   InitCPred("$gc", 0, p_gc, 0);
   InitCPred("$inform_gc", 3, p_inform_gc, 0);
-  InitCPred("$atom_gc", 0, p_atom_gc, 0);
 }

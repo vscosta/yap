@@ -963,4 +963,5 @@ InitGrowPreds(void)
 	InitCPred("$inform_heap_overflows", 2, p_inform_heap_overflows, SafePredFlag);
 	InitCPred("$inform_stack_overflows", 2, p_inform_stack_overflows, SafePredFlag);
 	init_gc();
+	init_agc();
 }

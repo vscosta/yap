@@ -397,9 +397,10 @@ statistics :-
 	'$inform_stack_overflows'(NOfSO,TotSOTime),
 	'$inform_trail_overflows'(NOfTO,TotTOTime),
 	'$inform_gc'(NOfGC,TotGCTime,TotGCSize),
-	'$statistics'(Runtime,CPUtime,Walltime,HpSpa,HpInUse,HpMax,TrlSpa, TrlInUse,TrlMax,StkSpa, GlobInU, LocInU,GlobMax,LocMax,NOfHO,TotHOTime,NOfSO,TotSOTime,NOfTO,TotTOTime,NOfGC,TotGCTime,TotGCSize).
+	'$inform_agc'(NOfAGC,TotAGCTime,TotAGCSize),
+	'$statistics'(Runtime,CPUtime,Walltime,HpSpa,HpInUse,HpMax,TrlSpa, TrlInUse,TrlMax,StkSpa, GlobInU, LocInU,GlobMax,LocMax,NOfHO,TotHOTime,NOfSO,TotSOTime,NOfTO,TotTOTime,NOfGC,TotGCTime,TotGCSize,NOfAGC,TotAGCTime,TotAGCSize).
 
-'$statistics'(Runtime,CPUtime,Walltime,HpSpa,HpInUse,_HpMax,TrlSpa, TrlInUse,_TrlMax,StkSpa, GlobInU, LocInU,GlobMax,LocMax,NOfHO,TotHOTime,NOfSO,TotSOTime,NOfTO,TotTOTime,NOfGC,TotGCTime,TotGCSize) :-
+'$statistics'(Runtime,CPUtime,Walltime,HpSpa,HpInUse,_HpMax,TrlSpa, TrlInUse,_TrlMax,StkSpa, GlobInU, LocInU,GlobMax,LocMax,NOfHO,TotHOTime,NOfSO,TotSOTime,NOfTO,TotTOTime,NOfGC,TotGCTime,TotGCSize,NOfAGC,TotAGCTime,TotAGCSize) :-
 	TotalMemory is HpSpa+StkSpa+TrlSpa,
 	'$format'(user_error,"memory (total)~t~d bytes~35+~n", [TotalMemory]),
 	'$format'(user_error,"   program space~t~d bytes~35+", [HpSpa]),
@@ -427,6 +428,9 @@ statistics :-
 	TotGCTimeF is float(TotGCTime)/1000,
 	'$format'(user_error,"~t~3f~12+ sec. for ~w garbage collections which collected ~d bytes~n",
 	       [TotGCTimeF,NOfGC,TotGCSize]),
+	TotAGCTimeF is float(TotAGCTime)/1000,
+	'$format'(user_error,"~t~3f~12+ sec. for ~w atom garbage collections which collected ~d bytes~n",
+	       [TotAGCTimeF,NOfAGC,TotAGCSize]),
 	RTime is float(Runtime)/1000,
 	'$format'(user_error,"~t~3f~12+ sec. runtime~n", [RTime]),
 	CPUTime is float(CPUtime)/1000,
@@ -434,7 +438,7 @@ statistics :-
 	WallTime is float(Walltime)/1000,
 	'$format'(user_error,"~t~3f~12+ sec. elapsed time~n~n", [WallTime]),
 	fail.
-'$statistics'(_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_).
+'$statistics'(_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_).
 
 statistics(runtime,[T,L]) :-
 	'$runtime'(T,L).

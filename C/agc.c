@@ -31,6 +31,14 @@ static char     SccsId[] = "@(#)agc.c	1.3 3/15/90";
 STATIC_PROTO(void  RestoreEntries, (PropEntry *));
 STATIC_PROTO(void  ConvDBList, (Term, char *,CELL));
 
+static int agc_calls;
+
+static Int agc_collected;
+
+static Int tot_agc_time = 0; /* total time spent in GC */
+
+static Int tot_agc_recovered = 0; /* number of heap objects in all garbage collections */
+
 #define AtomMarkedBit 1
 
 static inline void
@@ -335,6 +343,7 @@ clean_atoms(void)
 #endif
 	*patm = at->NextOfAE;
 	atm = at->NextOfAE;
+	agc_collected += SizeOfBlock((char *)at);
 	FreeCodeSpace((char *)at);
       }
     }
@@ -353,6 +362,7 @@ clean_atoms(void)
 #endif
       *patm = at->NextOfAE;
       atm = at->NextOfAE;
+      agc_collected += SizeOfBlock((char *)at);
       FreeCodeSpace((char *)at);
     }
   }
@@ -361,8 +371,59 @@ clean_atoms(void)
 void
 atom_gc(void)
 {
+  int		gc_verbose = is_gc_verbose();
+  int           gc_trace = 0;
+  
+
+  Int		time_start, agc_time;
+  if (GetValue(AtomGcTrace) != TermNil)
+    gc_trace = 1;
+  agc_calls++;
+  agc_collected = 0;
+  if (gc_trace) {
+    YP_fprintf(YP_stderr, "[agc]\n");
+  } else if (gc_verbose) {
+    YP_fprintf(YP_stderr, "[AGC] Start of atom garbage collection %d:\n", agc_calls);
+  }
+  time_start = cputime();
+  /* get the number of active registers */
+  YAPEnterCriticalSection();
   mark_stacks();
   mark_atoms();
   clean_atoms();
-  LookupAtom("!");
+  YAPLeaveCriticalSection();
+  agc_time = cputime()-time_start;
+  tot_agc_time += agc_time;
+  tot_agc_recovered += agc_collected;
+  if (gc_verbose) {
+    YP_fprintf(YP_stderr, "[AGC] collected %d bytes.\n", agc_collected);
+    YP_fprintf(YP_stderr, "[AGC] GC %d took %g sec, total of %g sec doing GC so far.\n", agc_calls, (double)agc_time/1000, (double)tot_agc_time/1000);
+  }
+}
+
+static Int
+p_atom_gc(void)
+{
+#ifndef FIXED_STACKS
+  atom_gc();
+#endif  /* FIXED_STACKS */
+  return(TRUE);
+}
+
+static Int
+p_inform_agc(void)
+{
+  Term tn = MkIntegerTerm(tot_agc_time);
+  Term tt = MkIntegerTerm(agc_calls);
+  Term ts = MkIntegerTerm(tot_agc_recovered);
+
+  return(unify(tn, ARG2) && unify(tt, ARG1) && unify(ts, ARG3));
+
+}
+
+void 
+init_agc(void)
+{
+  InitCPred("$atom_gc", 0, p_atom_gc, 0);
+  InitCPred("$inform_agc", 3, p_inform_agc, 0);
 }

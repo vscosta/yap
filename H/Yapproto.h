@@ -10,7 +10,7 @@
 * File:		Yap.proto						 *
 * mods:									 *
 * comments:	Function declarations for YAP				 *
-* version:      $Id: Yapproto.h,v 1.19 2002-06-04 18:21:55 vsc Exp $	 *
+* version:      $Id: Yapproto.h,v 1.20 2002-06-05 03:59:50 vsc Exp $	 *
 *************************************************************************/
 
 /* prototype file for Yap */
@@ -64,6 +64,7 @@ Term    STD_PROTO(Module_Name, (CODEADDR));
 
 /* agc.c */
 void    STD_PROTO(atom_gc, (void));
+void    STD_PROTO(init_agc, (void));
 
 /* alloc.c */
 int	STD_PROTO(SizeOfBlock,(CODEADDR));
