@@ -4490,8 +4490,8 @@ kill_clause(yamop *ipc, path_stack_entry *sp, PredEntry *ap)
 	    path_stack_entry *nsp = sp;
     
 	    while ((--nsp)->flag != block_entry);
-	    Yap_kill_iblock(sp->u.cle.block, nsp->u.cle.block, ap);
 	    *sp->u.cle.entry_code = ipc->u.ld.d;
+	    Yap_kill_iblock(sp->u.cle.block, nsp->u.cle.block, ap);
 	    return sp;
 	  } else {
 	    codep = NEXTOP(codep,ld);
@@ -5526,10 +5526,7 @@ remove_from_index(PredEntry *ap, path_stack_entry *sp, ClauseDef *cls, yamop *bg
       if (IsPairTerm(cls->Tag)) {
 	yamop *nipc = ipc->u.llll.l1;
 	current_arity = 2;
-	move_next(cls, 1);
-	if (nipc == FAILCODE) {
-	  ipc = pop_path(&sp, cls, ap);
-	} else if (IN_BETWEEN(bg,nipc,lt)) {
+	if (IN_BETWEEN(bg,nipc,lt)) {
 	  /* jump straight to clause */
 	  ipc->u.llll.l1 = FAILCODE;
 	  ipc = pop_path(&sp, cls, ap);
@@ -5540,12 +5537,7 @@ remove_from_index(PredEntry *ap, path_stack_entry *sp, ClauseDef *cls, yamop *bg
 	}
       } else if (IsAtomOrIntTerm(cls->Tag)) {
 	yamop *nipc = ipc->u.llll.l2;
-	move_next(cls, 1);
-	if (nipc == FAILCODE) {
-	  /* jump straight to clause */
-	  ipc->u.llll.l2 = cls->CurrentCode;
-	  ipc = pop_path(&sp, cls, ap);
-	} else if (IN_BETWEEN(bg,nipc,lt)) {
+	if (IN_BETWEEN(bg,nipc,lt)) {
 	  /* jump straight to clause */
 	  ipc->u.llll.l2 = FAILCODE;
 	  ipc = pop_path(&sp, cls, ap);
@@ -5555,10 +5547,7 @@ remove_from_index(PredEntry *ap, path_stack_entry *sp, ClauseDef *cls, yamop *bg
 	}
       } else if (IsApplTerm(cls->Tag)) {
 	yamop *nipc = ipc->u.llll.l3;
-	if (nipc == FAILCODE) {
-	  /* jump straight to clause */
-	  ipc = pop_path(&sp, cls, ap);
-	} else if (IN_BETWEEN(bg,nipc,lt)) {
+	if (IN_BETWEEN(bg,nipc,lt)) {
 	  /* jump straight to clause */
 	  ipc->u.llll.l3 = FAILCODE;
 	  ipc = pop_path(&sp, cls, ap);
@@ -5584,10 +5573,7 @@ remove_from_index(PredEntry *ap, path_stack_entry *sp, ClauseDef *cls, yamop *bg
       if (IsPairTerm(cls->Tag)) {
 	yamop *nipc = ipc->u.ollll.l1;
 	current_arity = 2;
-	move_next(cls, 1);
-	if (nipc == FAILCODE) {
-	  ipc = pop_path(&sp, cls, ap);
-	} else if (IN_BETWEEN(bg,nipc,lt)) {
+	if (IN_BETWEEN(bg,nipc,lt)) {
 	  /* jump straight to clause */
 	  ipc->u.ollll.l1 = FAILCODE;
 	  ipc = pop_path(&sp, cls, ap);
@@ -5598,12 +5584,7 @@ remove_from_index(PredEntry *ap, path_stack_entry *sp, ClauseDef *cls, yamop *bg
 	}
       } else if (IsAtomOrIntTerm(cls->Tag)) {
 	yamop *nipc = ipc->u.ollll.l2;
-	move_next(cls, 1);
-	if (nipc == FAILCODE) {
-	  /* jump straight to clause */
-	  ipc->u.ollll.l2 = cls->CurrentCode;
-	  ipc = pop_path(&sp, cls, ap);
-	} else if (IN_BETWEEN(bg,nipc,lt)) {
+	if (IN_BETWEEN(bg,nipc,lt)) {
 	  /* jump straight to clause */
 	  ipc->u.ollll.l2 = FAILCODE;
 	  ipc = pop_path(&sp, cls, ap);
@@ -5613,10 +5594,7 @@ remove_from_index(PredEntry *ap, path_stack_entry *sp, ClauseDef *cls, yamop *bg
 	}
       } else if (IsApplTerm(cls->Tag)) {
 	yamop *nipc = ipc->u.ollll.l3;
-	if (nipc == FAILCODE) {
-	  /* jump straight to clause */
-	  ipc = pop_path(&sp, cls, ap);
-	} else if (IN_BETWEEN(bg,nipc,lt)) {
+	if (IN_BETWEEN(bg,nipc,lt)) {
 	  /* jump straight to clause */
 	  ipc->u.ollll.l3 = FAILCODE;
 	  ipc = pop_path(&sp, cls, ap);
@@ -5642,10 +5620,7 @@ remove_from_index(PredEntry *ap, path_stack_entry *sp, ClauseDef *cls, yamop *bg
       }
       if (IsPairTerm(cls->Tag)) {
 	yamop *nipc = ipc->u.xllll.l1;
-	move_next(cls, 1);
-	if (nipc == FAILCODE) {
-	  ipc = pop_path(&sp, cls, ap);
-	} else if (IN_BETWEEN(bg,nipc,lt)) {
+	if (IN_BETWEEN(bg,nipc,lt)) {
 	  /* jump straight to clause */
 	  ipc->u.xllll.l1 = FAILCODE;
 	  ipc = pop_path(&sp, cls, ap);
@@ -5656,12 +5631,7 @@ remove_from_index(PredEntry *ap, path_stack_entry *sp, ClauseDef *cls, yamop *bg
 	}
       } else if (IsAtomOrIntTerm(cls->Tag)) {
 	yamop *nipc = ipc->u.xllll.l2;
-	move_next(cls, 1);
-	if (nipc == FAILCODE) {
-	  /* jump straight to clause */
-	  ipc->u.xllll.l2 = cls->CurrentCode;
-	  ipc = pop_path(&sp, cls, ap);
-	} else if (IN_BETWEEN(bg,nipc,lt)) {
+	if (IN_BETWEEN(bg,nipc,lt)) {
 	  /* jump straight to clause */
 	  ipc->u.xllll.l2 = FAILCODE;
 	  ipc = pop_path(&sp, cls, ap);
@@ -5671,10 +5641,7 @@ remove_from_index(PredEntry *ap, path_stack_entry *sp, ClauseDef *cls, yamop *bg
 	}
       } else if (IsApplTerm(cls->Tag)) {
 	yamop *nipc = ipc->u.xllll.l3;
-	if (nipc == FAILCODE) {
-	  /* jump straight to clause */
-	  ipc = pop_path(&sp, cls, ap);
-	} else if (IN_BETWEEN(bg,nipc,lt)) {
+	if (IN_BETWEEN(bg,nipc,lt)) {
 	  /* jump straight to clause */
 	  ipc->u.xllll.l3 = FAILCODE;
 	  ipc = pop_path(&sp, cls, ap);
@@ -5696,10 +5663,7 @@ remove_from_index(PredEntry *ap, path_stack_entry *sp, ClauseDef *cls, yamop *bg
       add_arg_info(cls, ap, ipc->u.sllll.s+1);
       if (IsPairTerm(cls->Tag)) {
 	yamop *nipc = ipc->u.sllll.l1;
-	move_next(cls, 1);
-	if (nipc == FAILCODE) {
-	  ipc = pop_path(&sp, cls, ap);
-	} else if (IN_BETWEEN(bg,nipc,lt)) {
+	if (IN_BETWEEN(bg,nipc,lt)) {
 	  /* jump straight to clause */
 	  ipc->u.sllll.l1 = FAILCODE;
 	  ipc = pop_path(&sp, cls, ap);
@@ -5710,12 +5674,7 @@ remove_from_index(PredEntry *ap, path_stack_entry *sp, ClauseDef *cls, yamop *bg
 	}
       } else if (IsAtomOrIntTerm(cls->Tag)) {
 	yamop *nipc = ipc->u.sllll.l2;
-	move_next(cls, 1);
-	if (nipc == FAILCODE) {
-	  /* jump straight to clause */
-	  ipc->u.sllll.l2 = cls->CurrentCode;
-	  ipc = pop_path(&sp, cls, ap);
-	} else if (IN_BETWEEN(bg,nipc,lt)) {
+	if (IN_BETWEEN(bg,nipc,lt)) {
 	  /* jump straight to clause */
 	  ipc->u.sllll.l2 = FAILCODE;
 	  ipc = pop_path(&sp, cls, ap);
@@ -5725,10 +5684,7 @@ remove_from_index(PredEntry *ap, path_stack_entry *sp, ClauseDef *cls, yamop *bg
 	}
       } else if (IsApplTerm(cls->Tag)) {
 	yamop *nipc = ipc->u.sllll.l3;
-	if (nipc == FAILCODE) {
-	  /* jump straight to clause */
-	  ipc = pop_path(&sp, cls, ap);
-	} else if (IN_BETWEEN(bg,nipc,lt)) {
+	if (IN_BETWEEN(bg,nipc,lt)) {
 	  /* jump straight to clause */
 	  ipc->u.sllll.l3 = FAILCODE;
 	  ipc = pop_path(&sp, cls, ap);
