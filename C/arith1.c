@@ -1124,8 +1124,10 @@ p_lgamma(Term t E_ARGS)
 
 #if HAVE_LGAMMA
   out = lgamma(dbl);
-#endif
   RFLOAT(out);
+#else
+  RERROR();
+#endif
 }
 
 /*

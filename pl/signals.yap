@@ -122,15 +122,15 @@ on_signal(Signal,OldAction,Action) :-
 on_signal(Signal,OldAction,Action) :-
 	'$reset_signal'(Signal, OldAction),
 	'$current_module'(M),
-	recordz('$sig_handler', action(Signal,M:Action), _).
+	recordz('$signal_handler', action(Signal,M:Action), _).
 
 '$reset_signal'(Signal, OldAction) :-
-	recorded('$sig_handler', action(Signal,OldAction), Ref), !,
+	recorded('$signal_handler', action(Signal,OldAction), Ref), !,
 	erase(Ref).
 '$reset_signal'(_, default).
 
 '$check_signal'(Signal, OldAction) :-
-	recorded('$sig_handler', action(Signal,OldAction), _), !.
+	recorded('$signal_handler', action(Signal,OldAction), _), !.
 '$reset_signal'(_, default).
 
 
@@ -143,7 +143,7 @@ raise_exception(Ball) :- throw(Ball).
 on_exception(Pat, G, H) :- catch(G, Pat, H).
 
 read_sig :-
-	recorded('$sig_handler',X,_),
+	recorded('$signal_handler',X,_),
 	writeq(X),nl,
 	fail.
 read_sig.
