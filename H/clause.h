@@ -185,7 +185,7 @@ void    STD_PROTO(Yap_InitComma,(void));
 
 /* cdmgr.c */
 void	STD_PROTO(Yap_IPred,(PredEntry *, UInt));
-void	STD_PROTO(Yap_addclause,(Term,yamop *,int,Term));
+int	STD_PROTO(Yap_addclause,(Term,yamop *,int,Term,Term));
 void	STD_PROTO(Yap_add_logupd_clause,(PredEntry *,LogUpdClause *,int));
 void	STD_PROTO(Yap_kill_iblock,(ClauseUnion *,ClauseUnion *,PredEntry *));
 void	STD_PROTO(Yap_cleanup_dangling_indices,(yamop *,yamop *,yamop *,yamop *));
@@ -196,6 +196,7 @@ ClauseUnion *STD_PROTO(Yap_find_owner_index,(yamop *, PredEntry *));
 void	STD_PROTO(Yap_ErCl,(DynamicClause *));
 void	STD_PROTO(Yap_ErLogUpdCl,(LogUpdClause *));
 void	STD_PROTO(Yap_ErLogUpdIndex,(LogUpdIndex *));
+Int	STD_PROTO(Yap_Recordz,(Atom, Term));
 
 /* exec.c */
 Term    STD_PROTO(Yap_cp_as_integer,(choiceptr));

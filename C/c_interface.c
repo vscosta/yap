@@ -10,8 +10,16 @@
 * File:		c_interface.c						 *
 * comments:	c_interface primitives definition 			 *
 *									 *
-* Last rev:	$Date: 2004-08-11 16:14:51 $,$Author: vsc $						 *
+* Last rev:	$Date: 2004-10-06 16:55:46 $,$Author: vsc $						 *
 * $Log: not supported by cvs2svn $
+* Revision 1.53  2004/08/11 16:14:51  vsc
+* whole lot of fixes:
+*   - memory leak in indexing
+*   - memory management in WIN32 now supports holes
+*   - extend Yap interface, more support for SWI-Interface
+*   - new predicate mktime in system
+*   - buffer console I/O in WIN32
+*
 * Revision 1.52  2004/07/23 03:37:16  vsc
 * fix heap overflow in YAP_LookupAtom
 *
@@ -968,7 +976,7 @@ YAP_CompileClause(Term t)
   codeaddr = Yap_cclause (t,0, mod, t);
   if (codeaddr != NULL) {
     t = Deref(ARG1); /* just in case there was an heap overflow */
-    Yap_addclause (t, codeaddr, TRUE, mod);
+    Yap_addclause (t, codeaddr, TRUE, mod, TermNil);
   }
   YAPLeaveCriticalSection();
 

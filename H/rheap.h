@@ -11,8 +11,17 @@
 * File:		rheap.h							 *
 * comments:	walk through heap code					 *
 *									 *
-* Last rev:     $Date: 2004-09-27 20:45:04 $,$Author: vsc $						 *
+* Last rev:     $Date: 2004-10-06 16:55:47 $,$Author: vsc $						 *
 * $Log: not supported by cvs2svn $
+* Revision 1.43  2004/09/27 20:45:04  vsc
+* Mega clauses
+* Fixes to sizeof(expand_clauses) which was being overestimated
+* Fixes to profiling+indexing
+* Fixes to reallocation of memory after restoring
+* Make sure all clauses, even for C, end in _Ystop
+* Don't reuse space for Streams
+* Fix Stream_F on StreaNo+1
+*
 * Revision 1.42  2004/06/05 03:37:00  vsc
 * coroutining is now a part of attvars.
 * some more fixes.
@@ -281,6 +290,7 @@ restore_codes(void)
   heap_regs->atom_local = AtomAdjust(heap_regs->atom_local);
   heap_regs->atom_meta_call = AtomAdjust(heap_regs->atom_meta_call);
   heap_regs->atom_minus = AtomAdjust(heap_regs->atom_minus);
+  heap_regs->atom_multi_file = AtomAdjust(heap_regs->atom_multi_file);
   heap_regs->atom_nan = AtomAdjust(heap_regs->atom_nan);
   heap_regs->atom_otherwise = AtomAdjust(heap_regs->atom_otherwise);
   heap_regs->atom_pi = AtomAdjust(heap_regs->atom_pi);
@@ -334,6 +344,7 @@ restore_codes(void)
   heap_regs->functor_list = FuncAdjust(heap_regs->functor_list);
   heap_regs->functor_mega_clause = FuncAdjust(heap_regs->functor_mega_clause);
   heap_regs->functor_module = FuncAdjust(heap_regs->functor_module);
+  heap_regs->functor_multi_file_clause = FuncAdjust(heap_regs->functor_multi_file_clause);
 #ifdef MULTI_ASSIGNMENT_VARIABLES
   heap_regs->functor_mutable = FuncAdjust(heap_regs->functor_mutable);
 #endif

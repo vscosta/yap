@@ -964,6 +964,7 @@ InitCodes(void)
   heap_regs->atom_local = Yap_LookupAtom("local_sp");
   heap_regs->atom_meta_call = Yap_FullLookupAtom("$call");
   heap_regs->atom_minus = Yap_LookupAtom("-");
+  heap_regs->atom_multi_file = Yap_FullLookupAtom("$mf");
   heap_regs->atom_nan = Yap_LookupAtom("nan");
   AtomNot = Yap_LookupAtom("\\+");
   heap_regs->atom_otherwise = Yap_LookupAtom("otherwise");
@@ -1024,6 +1025,7 @@ InitCodes(void)
   heap_regs->functor_list = Yap_MkFunctor(Yap_LookupAtom("."), 2);
   heap_regs->functor_mega_clause = Yap_MkFunctor (Yap_FullLookupAtom("$mega_clause"), 2);
   heap_regs->functor_module = Yap_MkFunctor(Yap_LookupAtom(":"), 2);
+  heap_regs->functor_multi_file_clause = Yap_MkFunctor(Yap_FullLookupAtom("$mf_clause"), 5);
 #ifdef MULTI_ASSIGNMENT_VARIABLES
   heap_regs->functor_mutable = Yap_MkFunctor(Yap_FullLookupAtom("$mutable_variable"),
 					 sizeof(timed_var)/sizeof(CELL));

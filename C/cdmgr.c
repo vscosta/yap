@@ -11,8 +11,11 @@
 * File:		cdmgr.c							 *
 * comments:	Code manager						 *
 *									 *
-* Last rev:     $Date: 2004-09-30 21:37:40 $,$Author: vsc $						 *
+* Last rev:     $Date: 2004-10-06 16:55:46 $,$Author: vsc $						 *
 * $Log: not supported by cvs2svn $
+* Revision 1.135  2004/09/30 21:37:40  vsc
+* fixes for thread support
+*
 * Revision 1.134  2004/09/30 19:51:53  vsc
 * fix overflow from within clause/2
 *
@@ -1466,8 +1469,8 @@ is_fact(Term t)
   return FALSE;
 }
 
-static Term
-addclause(Term t, yamop *cp, int mode, int mod)
+static int
+addclause(Term t, yamop *cp, int mode, Term mod, Term t4ref)
 /*
  *
  mode
@@ -1589,15 +1592,32 @@ addclause(Term t, yamop *cp, int mode, int mod)
 #endif
   WRITE_UNLOCK(p->PRWLock);
   if (pflags & LogUpdatePredFlag) {
-    return MkDBRefTerm((DBRef)ClauseCodeToLogUpdClause(cp));
+    tf = MkDBRefTerm((DBRef)ClauseCodeToLogUpdClause(cp));
   } else {
-    return Yap_MkStaticRefTerm((StaticClause *)cp);
+    tf = Yap_MkStaticRefTerm((StaticClause *)cp);
   }
+  if (t4ref != TermNil) {
+    if (!Yap_unify(t4ref,tf)) {
+      return FALSE;
+    }
+  }
+  if (pflags & MultiFileFlag) {
+    /* add Info on new clause for multifile predicates to the DB */
+    Term t[5], tn;
+    t[0] = MkAtomTerm(YapConsultingFile());
+    t[1] = MkAtomTerm(at);
+    t[2] = MkIntegerTerm(Arity);
+    t[3] = mod;
+    t[4] = tf;
+    tn = Yap_MkApplTerm(FunctorMultiFileClause,5,t);
+    Yap_Recordz(AtomMultiFile,tn);
+  }
+  return TRUE;
 }
 
-void
-Yap_addclause(Term t, yamop *cp, int mode, Term mod) {
-  addclause(t, cp, mode, mod);
+int
+Yap_addclause(Term t, yamop *cp, int mode, Term mod, Term t4ref) {
+  return addclause(t, cp, mode, mod, t4ref);
 }
 
 void
@@ -1855,7 +1875,7 @@ p_compile(void)
 			      to cclause in case there is overflow */
   t = Deref(ARG1);        /* just in case there was an heap overflow */
   if (!Yap_ErrorMessage)
-    addclause(t, codeadr, (int) (IntOfTerm(t1) & 3), mod);
+    addclause(t, codeadr, (int) (IntOfTerm(t1) & 3), mod, TermNil);
   YAPLeaveCriticalSection();
   if (Yap_ErrorMessage) {
     if (IntOfTerm(t1) & 4) {
@@ -1890,17 +1910,18 @@ p_compile_dynamic(void)
   if (!Yap_ErrorMessage) {
     
     optimizer_on = old_optimize;
-    t = addclause(t, code_adr, (int) (IntOfTerm(t1) & 3), mod);
-  } else {
+    addclause(t, code_adr, (int) (IntOfTerm(t1) & 3), mod, ARG5);
+  } 
+  if (Yap_ErrorMessage) {
     if (IntOfTerm(t1) & 4) {
       Yap_Error(Yap_Error_TYPE, Yap_Error_Term, "line %d, %s", Yap_FirstLineInParse(), Yap_ErrorMessage);
     } else
       Yap_Error(Yap_Error_TYPE, Yap_Error_Term, Yap_ErrorMessage);
     YAPLeaveCriticalSection();
-    return (FALSE);
+    return FALSE;
   }
   YAPLeaveCriticalSection();
-  return Yap_unify(ARG5, t);
+  return TRUE;
 }
 
 static int      consult_level = 0;

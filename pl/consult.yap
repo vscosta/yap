@@ -129,7 +129,6 @@ reconsult(Fs) :-
 	'$loop'(Stream,reconsult),
 	'$end_consult',
 	'$clear_reconsulting',
-	'$add_multifile_clauses'(File),
 	set_value('$consulting',Old),
 	set_value('$consulting_file',OldF),
 	'$cd'(OldD),
@@ -280,7 +279,7 @@ remove_from_path(New) :- '$check_path'(New,Path),
 '$check_path'([Ch],[Ch,A]) :- !, integer(Ch), '$dir_separator'(A).
 '$check_path'([N|S],[N|SN]) :- integer(N), '$check_path'(S,SN).
 
-% add_multifile_predicate when we start consul
+% add_multifile_predicate when we start consult
 '$add_multifile'(Name,Arity,Module) :-
 	get_value('$consulting_file',File),
 	'$add_multifile'(File,Name,Arity,Module).

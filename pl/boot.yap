@@ -872,7 +872,6 @@ break :- get_value('$break',BL), NBL is BL+1,
 	),
 	'$loop'(Stream,consult),
 	'$end_consult',
-	'$add_multifile_clauses'(File),
 	set_value('$consulting',Old),
 	set_value('$consulting_file',OldF),
 	'$current_module'(NewMod,OldModule),
@@ -1125,17 +1124,6 @@ throw(Ball) :-
 	( '$execute'(H) -> true ; true).
 '$run_toplevel_hooks'.
 
-
-% add multifile clauses belonging to current file.
-'$add_multifile_clauses'(FileName) :-
-	recorded('$multifile_defs','$defined'(File,Name,Arity,Module),_),
-	functor(P,Name,Arity),
-	'$clause'(P,Module,_,Ref),
-	% check if someone else defines it.
-	\+ recorded('$mf','$mf_clause'(_,_,_,_,Ref),_),
-	recordz('$mf','$mf_clause'(FileName,Name,Arity,Module,Ref),R),
-	fail.
-'$add_multifile_clauses'(_).
 
 
 

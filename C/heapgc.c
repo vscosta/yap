@@ -35,11 +35,7 @@ static char     SccsId[] = "%W% %G%";
 #ifndef DEBUG
 static
 #endif
-unsigned int      gc_calls = 0;	/* number of times GC has been called */
-
-static Int      tot_gc_time = 0; /* total time spent in GC */
-
-static Int      tot_gc_recovered = 0; /* number of heap objects in all garbage collections */
+static Int      Tot_Gc_Recovered = 0; /* number of heap objects in all garbage collections */
 
 /* in a single gc */
 static unsigned long int   total_marked;	/* number of heap objects marked */
@@ -2915,7 +2911,7 @@ compact_heap(void)
 #ifdef DEBUG
   if (total_marked != found_marked)
     fprintf(Yap_stderr,"%% Upward (%d): %ld total against %ld found\n",
-	       gc_calls,
+	       GcCalls,
 	       (unsigned long int)total_marked,
 	       (unsigned long int)found_marked);
   found_marked = 0;
@@ -2975,7 +2971,7 @@ compact_heap(void)
 #ifdef DEBUG
   if (total_marked != found_marked)
     fprintf(Yap_stderr,"%% Downward (%d): %ld total against %ld found\n",
-	       gc_calls,
+	       GcCalls,
 	       (unsigned long int)total_marked,
 	       (unsigned long int)found_marked);
 #endif
@@ -3118,7 +3114,7 @@ icompact_heap(void)
 #ifdef DEBUG
   if (total_marked != found_marked)
     fprintf(Yap_stderr,"%% Upward (%d): %ld total against %ld found\n",
-	       gc_calls,
+	       GcCalls,
 	       (unsigned long int)total_marked,
 	       (unsigned long int)found_marked);
   found_marked = 0;
@@ -3173,7 +3169,7 @@ icompact_heap(void)
 #ifdef DEBUG
   if (total_marked != found_marked)
     fprintf(Yap_stderr,"%% Downward (%d): %ld total against %ld found\n",
-	       gc_calls,
+	       GcCalls,
 	       (unsigned long int)total_marked,
 	       (unsigned long int)found_marked);
 #endif
@@ -3365,7 +3361,7 @@ do_gc(Int predarity, CELL *current_env, yamop *nextop)
   if (gc_trace) {
     fprintf(Yap_stderr, "[gc]\n");
   } else if (gc_verbose) {
-    fprintf(Yap_stderr, "%% Start of garbage collection %d:\n", gc_calls);
+    fprintf(Yap_stderr, "%% Start of garbage collection %d:\n", GcCalls);
 #ifndef EARLY_RESET
     fprintf(Yap_stderr, "%% no early reset in trail\n");
 #endif
@@ -3452,10 +3448,10 @@ do_gc(Int predarity, CELL *current_env, yamop *nextop)
     fprintf(Yap_stderr, "%%   Compress: took %g sec\n", (double)(c_time-time_start)/1000);
   }
   gc_time += (c_time-time_start);
-  tot_gc_time += gc_time;
-  tot_gc_recovered += heap_cells-total_marked;
+  TotGcTime += gc_time;
+  Tot_Gc_Recovered += heap_cells-total_marked;
   if (gc_verbose) {
-    fprintf(Yap_stderr, "%% GC %d took %g sec, total of %g sec doing GC so far.\n", gc_calls, (double)gc_time/1000, (double)tot_gc_time/1000);
+    fprintf(Yap_stderr, "%% GC %d took %g sec, total of %g sec doing GC so far.\n", GcCalls, (double)gc_time/1000, (double)TotGcTime/1000);
     fprintf(Yap_stderr, "%%  Left %ld cells free in stacks.\n",
 	       (unsigned long int)(ASP-H));
   }
@@ -3490,15 +3486,15 @@ is_gc_very_verbose(void)
 Int
 Yap_total_gc_time(void)
 {
-  return(tot_gc_time);
+  return(TotGcTime);
 }
 
 static Int
 p_inform_gc(void)
 {
-  Term tn = MkIntegerTerm(tot_gc_time);
-  Term tt = MkIntegerTerm(gc_calls);
-  Term ts = MkIntegerTerm((tot_gc_recovered*sizeof(CELL)));
+  Term tn = MkIntegerTerm(TotGcTime);
+  Term tt = MkIntegerTerm(GcCalls);
+  Term ts = MkIntegerTerm((Tot_Gc_Recovered*sizeof(CELL)));
  
   return(Yap_unify(tn, ARG2) && Yap_unify(tt, ARG1) && Yap_unify(ts, ARG3));
 
@@ -3526,17 +3522,17 @@ call_gc(UInt gc_lim, Int predarity, CELL *current_env, yamop *nextop)
     gc_margin = (UInt)IntegerOfTerm(Tgc_margin);
   } else {
     /* only go exponential for the first 8 calls */
-    if (gc_calls < 8) 
-      gc_margin <<= gc_calls;
+    if (GcCalls < 8) 
+      gc_margin <<= GcCalls;
     else {
       /* next grow linearly */
       gc_margin <<= 8;
-      gc_margin *= gc_calls;
+      gc_margin *= GcCalls;
     }
   }
   if (gc_margin < gc_lim)
     gc_margin = gc_lim;
-  gc_calls++;
+  GcCalls++;
   if (gc_on) {
     effectiveness = do_gc(predarity, current_env, nextop);
     if (effectiveness > 90) {

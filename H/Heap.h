@@ -10,7 +10,7 @@
 * File:		Heap.h         						 *
 * mods:									 *
 * comments:	Heap Init Structure					 *
-* version:      $Id: Heap.h,v 1.66 2004-09-27 20:45:03 vsc Exp $	 *
+* version:      $Id: Heap.h,v 1.67 2004-10-06 16:55:47 vsc Exp $	 *
 *************************************************************************/
 
 /* information that can be stored in Code Space */
@@ -60,6 +60,10 @@ typedef struct worker_local_struct {
   Term   mutable_list;
   Term   atts_mutable_list;
 #endif
+  /* gc_stuff */
+  unsigned int      gc_calls;	/* number of times GC has been called */ 
+  Int      tot_gc_time; /* total time spent in GC */
+  Int      tot_gc_recovered; /* number of heap objects in all garbage collections */
 } worker_local;
 
 #ifdef THREADS
@@ -264,6 +268,7 @@ typedef struct various_codes {
     atom_local,
     atom_meta_call,
     atom_minus,
+    atom_multi_file,
     atom_nan,
     atom_otherwise,
     atom_pi,
@@ -323,6 +328,7 @@ typedef struct various_codes {
     functor_list,
     functor_mega_clause,
     functor_module,
+    functor_multi_file_clause,
 #ifdef MULTI_ASSIGNMENT_VARIABLES
     functor_mutable,
 #endif
@@ -523,6 +529,7 @@ struct various_codes *heap_regs;
 #define  AtomLT                   heap_regs->atom_l_t
 #define  AtomMetaCall             heap_regs->atom_meta_call
 #define  AtomMinus                heap_regs->atom_minus
+#define  AtomMultiFile            heap_regs->atom_multi_file
 #define  AtomNan                  heap_regs->atom_nan
 #define  AtomOtherwise            heap_regs->atom_otherwise
 #define  AtomPi                   heap_regs->atom_pi
@@ -580,6 +587,7 @@ struct various_codes *heap_regs;
 #define  FunctorList              heap_regs->functor_list
 #define  FunctorMegaClause        heap_regs->functor_mega_clause
 #define  FunctorModule            heap_regs->functor_module
+#define  FunctorMultiFileClause   heap_regs->functor_multi_file_clause
 #ifdef MULTI_ASSIGNMENT_VARIABLES
 #define  FunctorMutable           heap_regs->functor_mutable
 #endif
@@ -661,6 +669,9 @@ struct various_codes *heap_regs;
 #define  MutableList              heap_regs->wl[worker_id].mutable_list
 #define  AttsMutableList          heap_regs->wl[worker_id].atts_mutable_list
 #endif
+#define  GcCalls                  heap_regs->wl[worker_id].gc_calls
+#define  TotGcTime                heap_regs->wl[worker_id].tot_gc_time
+#define  TotGcRecovered           heap_regs->wl[worker_id].tot_gc_recovered
 #else
 #define  ActiveSignals            heap_regs->wl.active_signals
 #define  DelayedTrace	          heap_regs->wl.delayed_trace
@@ -672,6 +683,9 @@ struct various_codes *heap_regs;
 #define  WokenGoals               heap_regs->wl.woken_goals
 #define  MutableList              heap_regs->wl.mutable_list
 #define  AttsMutableList          heap_regs->wl.atts_mutable_list
+#define  GcCalls                  heap_regs->wl.gc_calls
+#define  TotGcTime                heap_regs->wl.tot_gc_time
+#define  TotGcRecovered           heap_regs->wl.tot_gc_recovered
 #endif
 #endif
 #define  profiling                heap_regs->compiler_profiling

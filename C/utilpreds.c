@@ -1529,6 +1529,7 @@ p_variant(void) /* variant terms t1 and t2	 */
 			    RepPair(t1)+1,
 			    RepPair(t2)-1);
       if (out < 0) goto error;
+      return out;
     }
     else return (FALSE);
   }
@@ -1850,7 +1851,7 @@ void Yap_InitUtilCPreds(void)
   Yap_InitCPred("term_variables", 2, p_term_variables, SafePredFlag);
   Yap_InitCPred("variable_in_term", 2, p_var_in_term, SafePredFlag);
   Yap_InitCPred("term_hash", 4, GvNTermHash, SafePredFlag);
-  Yap_InitCPred("variant", 2, p_variant, SafePredFlag);
+  Yap_InitCPred("variant", 2, p_variant, 0);
   Yap_InitCPred("subsumes", 2, p_subsumes, SafePredFlag);
   CurrentModule = cm;
 #ifdef DEBUG
