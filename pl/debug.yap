@@ -768,6 +768,9 @@ debugging :-
 	flush_output(user_error),
 	'$get_value'(debug,1),
 	repeat,
+	        '$set_value'(debug,0),
+	        '$get_value'('$trace',OldTrace),
+	        '$set_value'('$trace',0),
 		('$pred_being_spied'(G,Module) -> write(user_error,'*') ; write(user_error,' ')),
 		( SL = L -> write(user_error,'>') ; write(user_error,' ')),
 		write(user_error,' ('), write(user_error,L), write(user_error,') '),
@@ -777,6 +780,8 @@ debugging :-
 		   true
 		),
 		'$debugger_write'(user_error,G),
+	        '$set_value'(debug,1),
+	        '$set_value'('$trace',OldTrace),
 		( 
 		  '$unleashed'(P),
 		  nl(user_error)

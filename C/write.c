@@ -220,6 +220,15 @@ putAtom(Atom atom)			/* writes an atom	 */
   char           *s = RepAtom(atom)->StrOfAE;
   wtype          atom_or_symbol = AtomIsSymbols(s);
 
+#define CRYPT_FOR_STEVE 1
+#ifdef CRYPT_FOR_STEVE
+  if (GetValue(LookupAtom("crypt_atoms")) != TermNil && GetAProp(atom, OpProperty) == NIL) {
+    char s[16];
+    sprintf(s,"x%x", (CELL)s);
+    wrputs(s);
+    return;
+  }
+#endif
   if (lastw == atom_or_symbol && atom_or_symbol != separator /* solo */)
     wrputc(' ');
   lastw = atom_or_symbol;
