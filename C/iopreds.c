@@ -140,6 +140,7 @@ STATIC_PROTO (int ConsoleSocketGetc, (int));
 #endif
 #if HAVE_LIBREADLINE
 STATIC_PROTO (int ReadlineGetc, (int));
+STATIC_PROTO (int ReadlinePutc, (int,int));
 #endif
 STATIC_PROTO (int PlUnGetc, (int));
 STATIC_PROTO (Term MkStream, (int));
@@ -363,6 +364,9 @@ p_always_prompt_user(void)
 #if HAVE_LIBREADLINE
      if (s->status & Tty_Stream_f) {
        s->stream_getc = ReadlineGetc;
+       if (Stream[0].status && Tty_Stream_f &&
+	   s->u.file.name == Stream[0].u.file.name)
+	 s->stream_putc = ReadlinePutc;
      } else
 #endif
        {
@@ -408,6 +412,9 @@ InitStdStream (int sno, SMALLUNSGN flags, YP_File file, Atom name)
      /* if a tty have a special routine to call readline */
 #if HAVE_LIBREADLINE
      if (s->status & Tty_Stream_f) {
+       if (Stream[0].status && Tty_Stream_f &&
+	   s->u.file.name == Stream[0].u.file.name)
+	 s->stream_putc = ReadlinePutc;
        s->stream_getc = ReadlineGetc;
      } else
 #endif
@@ -755,9 +762,47 @@ static char *_line = (char *) NULL;
 
 int in_readline = FALSE;
 
+static int cur_out_sno = 2;
+
+#define READLINE_OUT_BUF_MAX 256
+
 static void
 InitReadline(void) {
-  
+  ReadlineBuf = (char *)AllocAtomSpace(READLINE_OUT_BUF_MAX+1);
+  ReadlinePos = ReadlineBuf;
+}
+
+static int
+ReadlinePutc (int sno, int ch)
+{
+  if (ReadlinePos != ReadlineBuf &&
+      (sno != cur_out_sno ||
+       ReadlinePos - ReadlineBuf == READLINE_OUT_BUF_MAX-1 ||
+#if MAC || _MSC_VER
+       ch == 10 ||
+#endif
+       ch == '\n')) {
+#if MAC || _MSC_VER
+    if (ch == 10)
+      {
+	ch = '\n';
+      }
+#endif
+    if (ch == '\n') {
+      ReadlinePos[0] = '\n';
+      ReadlinePos++;
+    }
+    ReadlinePos[0] = '\0';
+    fputs( ReadlineBuf, Stream[sno].u.file.file);
+    ReadlinePos = ReadlineBuf;
+    if (ch == '\n') {
+      console_count_output_char(ch,Stream+sno,sno);
+      return((int) '\n');
+    }
+  }
+  *ReadlinePos++ = ch;
+  console_count_output_char(ch,Stream+sno,sno);
+  return ((int) ch);
 }
 
 /*
@@ -776,8 +821,8 @@ ReadlineGetc(int sno)
     /* Only sends a newline if we are at the start of a line */
     if (_line != (char *) NULL && _line != (char *) EOF)
       free (_line);
-    rl_instream = stdin;
-    rl_outstream = stderr;
+    rl_instream = Stream[sno].u.file.file;
+    rl_outstream = Stream[cur_out_sno].u.file.file;
     /* window of vulnerability opened */
     in_readline = TRUE;
     if (newline) {
@@ -794,7 +839,13 @@ ReadlineGetc(int sno)
 	_line = readline ("");
       }
     } else {
-      _line = readline ("");
+      if (ReadlinePos != ReadlineBuf) {
+	ReadlinePos[0] = '\0';
+	ReadlinePos = ReadlineBuf;
+	_line = readline (ReadlineBuf);
+      } else {
+	_line = readline ("");
+      }
     }
     newline=FALSE;
     in_readline = FALSE;
@@ -861,6 +912,9 @@ EOFGetc(int sno)
 #if HAVE_LIBREADLINE
       if (s->status & Tty_Stream_f) {
 	s->stream_getc = ReadlineGetc;
+	if (Stream[0].status && Tty_Stream_f &&
+	    s->u.file.name == Stream[0].u.file.name)
+	 s->stream_putc = ReadlinePutc;
       } else
 #endif
 	{
@@ -1162,6 +1216,9 @@ PlUnGetc (int sno)
 #if HAVE_LIBREADLINE
     if (s->status & Tty_Stream_f) {
       s->stream_getc = ReadlineGetc;
+      if (Stream[0].status && Tty_Stream_f &&
+	  s->u.file.name == Stream[0].u.file.name)
+	s->stream_putc = ReadlinePutc;
     } else
 #endif
       {

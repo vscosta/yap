@@ -10,7 +10,7 @@
 * File:		Heap.h         						 *
 * mods:									 *
 * comments:	Heap Init Structure					 *
-* version:      $Id: Heap.h,v 1.5 2001-06-08 19:10:43 vsc Exp $	 *
+* version:      $Id: Heap.h,v 1.6 2001-06-11 17:40:16 vsc Exp $	 *
 *************************************************************************/
 
 /* information that can be stored in Code Space */
@@ -78,6 +78,9 @@ typedef struct various_codes {
   consult_obj *consultbase;
   consult_obj *consultlow;
   Int   consultcapacity;
+#if HAVE_LIBREADLINE
+  char *readline_buf, *readline_pos;
+#endif
 #if USE_THREADED_CODE
   opentry *op_rtable;
 #endif
@@ -478,5 +481,9 @@ typedef struct various_codes {
 #define  ConsultLow               (heap_regs->consultlow	          )
 /* current maximum number of cells in consult stack */
 #define  ConsultCapacity          (heap_regs->consultcapacity             )
+#if HAVE_LIBREADLINE
+#define  ReadlineBuf              heap_regs->readline_buf
+#define  ReadlinePos              heap_regs->readline_pos
+#endif
 
 

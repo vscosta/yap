@@ -1,5 +1,4 @@
 BEFORE 4.4:
-- weird going ons with prompt and readline
 - mixed constraints and delays.
 - write infinite terms
 - constraints in DB.
@@ -74,3 +73,4 @@ DONE:
 - fix bugs from Nicos.
 - remove pl/nfr.yap and misc/yap.spec from CVS.
 - deterministic trail entries for multi-assignment variables.
+- weird going ons with prompt and readline
