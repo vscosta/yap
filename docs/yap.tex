@@ -7217,9 +7217,9 @@ Holds when @code{append(_,Suffix,List)} holds.
 
 @item sum_list(?@var{Numbers}, ?@var{Total})
 @findex sum_list/2
-@snindex sum_list/2
+@syindex sum_list/2
 @cnindex sum_list/2
-True when @var{Numbers} is a list of integers, and @var{Total} is their sum.
+True when @var{Numbers} is a list of numbers, and @var{Total} is their sum.
 
 @item sumlist(?@var{Numbers}, ?@var{Total})
 @findex sumlist/2
@@ -7228,6 +7228,18 @@ True when @var{Numbers} is a list of integers, and @var{Total} is their sum.
 True when @var{Numbers} is a list of integers, and @var{Total} is their
 sum. The same as @code{sum_list/2}, please do use @code{sum_list/2}
 instead.
+
+@item max_list(?@var{Numbers}, ?@var{Max})
+@findex max_list/2
+@syindex max_list/2
+@cnindex max_list/2
+True when @var{Numbers} is a list of numbers, and @var{Max} is the maximum.
+
+@item min_list(?@var{Numbers}, ?@var{Min})
+@findex min_list/2
+@syindex min_list/2
+@cnindex min_list/2
+True when @var{Numbers} is a list of numbers, and @var{Min} is the minimum.
 
 @end table
 

@@ -26,8 +26,10 @@
 	suffix/2,
 	sumlist/2,
         list_concat/2,
-        flatten/2
-	]).
+        flatten/2,
+	max_list/2,	 
+	min_list/2
+		]).
 
 
 %   append(Prefix, Suffix, Combined)
@@ -331,3 +333,29 @@ flatten_list([]) --> !.
 flatten_list([H|T]) --> !, flatten_list(H),flatten_list(T).
 flatten_list(H) --> [H].
  
+max_list([H|L],Max) :-
+	max_list(L,H,Max).
+
+max_list([],Max,Max).
+max_list([H|L],Max0,Max) :-
+	(
+	  H > Max0 
+	->
+	  max_list(L,H,Max)
+	;
+	  max_list(L,Max0,Max)
+	).
+
+min_list([H|L],Max) :-
+	max_list(L,H,Max).
+
+min_list([],Max,Max).
+min_list([H|L],Max0,Max) :-
+	(
+	  H < Max0 
+	->
+	  max_list(L, H, Max)
+	;
+	  max_list(L, Max0, Max)
+	).
+

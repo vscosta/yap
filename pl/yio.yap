@@ -873,6 +873,16 @@ at_end_of_stream(S) :-
 	'$peek'(S,N), N = -1.
 
 
+at_end_of_line :-
+	current_input(S),
+	at_end_of_line(S).
+
+at_end_of_line(S) :-
+	'$past_eof'(S), !.
+at_end_of_line(S) :-
+	'$peek'(S,N), ( N = 10 -> true ; N = -1).
+
+
 consult_depth(LV) :- '$show_consult_level'(LV).
 
 absolute_file_name(V,Out) :- var(V), !,
