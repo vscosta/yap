@@ -983,9 +983,10 @@ break :- '$get_value'('$break',BL), NBL is BL+1,
 	'$change_alias_to_stream'('$loop_stream',Stream),
 	repeat,
 		( '$current_stream'(_,_,Stream) -> true
-		 ; '$current_module'(_,OldModule), '$abort_loop'(Stream)
+		 ; '$abort_loop'(Stream)
 		),
 		prompt('|     '), prompt(_,'| '),
+		'$current_module'(OldModule),
 		'$system_catch'('$enter_command'(Stream,Status), OldModule, Error,
 			 user:'$LoopError'(Error)),
 	!.

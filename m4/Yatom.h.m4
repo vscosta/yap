@@ -386,7 +386,7 @@ typedef enum {
   DBWithRefs = 0x40
 } db_term_flags;
 
-#define MaxModules	255
+#define MaxModules	256
 
 typedef	struct {
   Prop	NextOfPE;	     /* used to chain properties		*/

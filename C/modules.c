@@ -55,6 +55,9 @@ LookupModule(Term a)
     if (ModuleName[i] == a)
       return (i);
   ModuleName[i = NoOfModules++] = a;
+  if (NoOfModules == MaxModules) {
+    Error(SYSTEM_ERROR,a,"number of modules overflowed");
+  }
   return (i);
 }
 
