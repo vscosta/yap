@@ -45,12 +45,23 @@ findall(Template, Generator, Answers, SoFar) :-
 % starts by calling the generator,
 % and recording the answers
 '$findall'(Template, Generator, Ref, _, _) :-
+	'$catch'(Error,'$clean_findall'(Ref,Error),_),
 	'$execute'(Generator),
 	'$db_enqueue'(Ref, Template),
 	fail.
 % now wraps it all
 '$findall'(_, _, Ref, SoFar, Answers) :-
 	'$collect_for_findall'(Ref, SoFar, Answers).
+
+'$clean_findall'(Ref,_) :-
+	'$db_dequeue'(Ref,_),
+	fail.
+'$clean_findall'(_,Ball) :-
+	% get this off the unwound computation.
+	copy_term(Ball,NewBall),
+	% get current jump point	
+	'$jump_env_and_store_ball'(NewBall).
+
 
 % by getting all answers
 '$collect_for_findall'(Ref, SoFar, Out) :-

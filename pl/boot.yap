@@ -97,7 +97,6 @@ read_sig.
 		    true
 		)
 	    ),
-	    '$db_clean_queues'(0),
 	    '$startup_reconsult',
 	    '$startup_goals'
 	;
@@ -1107,8 +1106,6 @@ expand_term(Term,Expanded) :-
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %   catch/throw implementation
-
-/* new design, not working for now: */
 
 % at each catch point I need to know:
 % what is ball;

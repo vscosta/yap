@@ -372,7 +372,7 @@ system_predicate(P) :-
 	'$pred_exists'(T,M).
 
 '$current_predicate3'(M,A/Arity) :- !,
-	'$current_predicate'(M,A,Arity),
+	'$current_predicate_for_atom'(A,M,Arity),
 	functor(T,A,Arity),
 	'$pred_exists'(T,M).
 '$current_predicate3'(M,BadSpec) :-			% only for the predicate
