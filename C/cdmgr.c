@@ -383,7 +383,7 @@ decrease_log_indices(LogUpdIndex *c, yamop *suspend_code)
       beg->u.Ill.l1 != beg->u.Ill.l2) {
     end = beg->u.Ill.l2;
   } else {
-     end = (yamop *)((CODEADDR)c+c->ClSize);
+    end = (yamop *)((CODEADDR)c+c->ClSize);
   }
   ipc = beg;
   cleanup_dangling_indices(ipc, beg, end, suspend_code);

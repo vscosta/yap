@@ -630,7 +630,7 @@ init_dbtable(tr_fr_ptr trail_ptr) {
 	}
       } else {
 	DynamicClause *dcl = ClauseFlagsToDynamicClause(pt0);
-	store_in_dbtable((CODEADDR)dcl, (CODEADDR)dcl->ClSize, dcl_entry);
+	store_in_dbtable((CODEADDR)dcl, (CODEADDR)dcl+dcl->ClSize, dcl_entry);
       }
     }
   }

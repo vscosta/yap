@@ -4867,6 +4867,7 @@ replace_lu_block(LogUpdIndex *blk, int flag, PredEntry *ap, yamop *code, int has
   ncl->ClRefCount = 0;
   ncl->u.ParentIndex = blk->u.ParentIndex;
   ncl->ChildIndex = NULL;
+  ncl->ClSize = sz;
   INIT_LOCK(ncl->ClLock);
   INIT_CLREF_COUNT(ncl);
   codep = start = ncl->ClCode;

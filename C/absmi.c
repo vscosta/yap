@@ -113,6 +113,15 @@ push_live_regs(yamop *pco)
 }
 #endif
 
+#if LOW_PROF 
+#include <stdio.h>
+void prof_alrm(int signo)
+{
+  fprintf(FProf,"%p\n", PREG);
+  return;
+}
+
+#endif
 Int 
 Yap_absmi(int inp)
 {
@@ -11751,12 +11760,3 @@ Yap_absmi(int inp)
 }
 
 
-#if LOW_PROF 
-#include <stdio.h>
-void prof_alrm(int signo)
-{
-  fprintf(FProf,"%p\n", PREG);
-  return;
-}
-
-#endif
