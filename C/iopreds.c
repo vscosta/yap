@@ -679,7 +679,7 @@ ConsoleSocketPutc (int sno, int ch)
       ch = '\n';
     }
 #endif
-#if _MSC_VER
+#if _MSC_VER || defined(__MINGW32__)
   send(s->u.socket.fd,  &c, sizeof(c), 0);
 #else
   write(s->u.socket.fd,  &c, sizeof(c));
@@ -699,7 +699,7 @@ SocketPutc (int sno, int ch)
       ch = '\n';
     }
 #endif
-#if _MSC_VER
+#if _MSC_VER || defined(__MINGW32__)
   send(s->u.socket.fd,  &c, sizeof(c), 0);
 #else
   write(s->u.socket.fd,  &c, sizeof(c));
@@ -1086,7 +1086,7 @@ SocketGetc(int sno)
   char c;
   int count;
 	/* should be able to use a buffer */
-#if _MSC_VER
+#if _MSC_VER || defined(__MINGW32__)
   count = recv(s->u.socket.fd, &c, sizeof(char), 0);
 #else
   count = read(s->u.socket.fd, &c, sizeof(char));
@@ -1126,7 +1126,7 @@ ConsoleSocketGetc(int sno)
   }
   /* should be able to use a buffer */
   PrologMode |= ConsoleGetcMode;
-#if _MSC_VER
+#if _MSC_VER || defined(__MINGW32__)
   count = recv(s->u.socket.fd, &c, sizeof(char), 0);
 #else
   count = read(s->u.socket.fd, &c, sizeof(char));
