@@ -2849,7 +2849,7 @@ p_read (void)
   }
   old_TR = TR;
   while (TRUE) {
-    CELL *old_H = H;
+    CELL *old_H;
 
     /* Scans the term using stack space */
     eot_before_eof = FALSE;
@@ -2860,6 +2860,9 @@ p_read (void)
     else {
       tokstart = tokptr = toktide = fast_tokenizer ();
     }
+    /* preserve value of H after scanning: otherwise we may lose strings
+       and floats */
+    old_H = H;
     if ((Stream[c_input_stream].status & Eof_Stream_f)
 	&& !eot_before_eof) {
       if (tokstart != NIL && tokstart->Tok != Ord (eot_tok)) {
@@ -2885,6 +2888,7 @@ p_read (void)
 	/* ignore term we just built */
 	H = old_H;
 	if (growstack_in_parser(&old_TR, &tokstart, &VarTable)) {
+	  old_H = H;
 	  tokptr = toktide = tokstart;
 	  ErrorMessage = NULL;
 	  goto repeat_cycle;
