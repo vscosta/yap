@@ -1472,7 +1472,18 @@ OpenRestore(char *inpf, char *YapLibDir, CELL *Astate, CELL *ATrail, CELL *AStac
   }
   /* could not open file */
   if (Yap_ErrorMessage == NULL) {
-    strncpy(Yap_FileNameBuf, inpf, YAP_FILENAME_MAX);
+#if __simplescalar__
+    /* does not implement getcwd */
+    strncpy(Yap_FileNameBuf,yap_pwd,YAP_FILENAME_MAX);
+#elif HAVE_GETCWD
+    if (getcwd (Yap_FileNameBuf, YAP_FILENAME_MAX) == NULL)
+      Yap_FileNameBuf[0] = '\0';
+#else
+    if (getwd (Yap_FileNameBuf) == NULL)
+      Yap_FileNameBuf[0] = '\0';
+#endif
+    strncat(Yap_FileNameBuf, "/", YAP_FILENAME_MAX);
+    strncat(Yap_FileNameBuf, inpf, YAP_FILENAME_MAX);
     do_system_error(PERMISSION_ERROR_OPEN_SOURCE_SINK,"could not open saved state");
   }
   return FAIL_RESTORE;
