@@ -31,7 +31,7 @@ typedef struct {
 
 
 STATIC_PROTO(int   copy_complex_term, (CELL *, CELL *, CELL *, CELL *));
-STATIC_PROTO(CELL  vars_in_complex_term, (CELL *, CELL *));
+STATIC_PROTO(CELL  vars_in_complex_term, (CELL *, CELL *, Term));
 STATIC_PROTO(Int   p_non_singletons_in_term, (void));
 STATIC_PROTO(CELL  non_singletons_in_complex_term, (CELL *, CELL *));
 STATIC_PROTO(Int   p_variables_in_term, (void));
@@ -678,7 +678,7 @@ p_copy_term_no_delays(void)		/* copy term t to a new instance  */
 }
 
 
-static Term vars_in_complex_term(register CELL *pt0, register CELL *pt0_end)
+static Term vars_in_complex_term(register CELL *pt0, register CELL *pt0_end, Term inp)
 {
 
   register CELL **to_visit0, **to_visit = (CELL **)Yap_PreAllocCodeSpace();
@@ -774,7 +774,7 @@ static Term vars_in_complex_term(register CELL *pt0, register CELL *pt0_end)
   Yap_ReleasePreAllocCodeSpace((ADDR)to_visit0);
   if (H != InitialH) {
     /* close the list */
-    Term t2 = Deref(ARG2);
+    Term t2 = Deref(inp);
     if (IsVarTerm(t2)) {
       RESET_VARIABLE(H-1);
       Yap_unify((CELL)(H-1),ARG2);
@@ -783,7 +783,7 @@ static Term vars_in_complex_term(register CELL *pt0, register CELL *pt0_end)
     }
     return(output);
   } else {
-    return(ARG2);
+    return(inp);
   }
 }
  
@@ -804,15 +804,38 @@ p_variables_in_term(void)	/* variables in term t		 */
     out = ARG2;
   else if (IsPairTerm(t)) {
     out = vars_in_complex_term(RepPair(t)-1,
-			       RepPair(t)+1);
+			       RepPair(t)+1, ARG2);
   }
   else {
     Functor f = FunctorOfTerm(t);
     out = vars_in_complex_term(RepAppl(t),
 			       RepAppl(t)+
-			       ArityOfFunctor(f));
+			       ArityOfFunctor(f), ARG2);
   }
   return(Yap_unify(ARG3,out));
+}
+
+static Int 
+p_term_variables(void)	/* variables in term t		 */
+{
+  Term t = Deref(ARG1);
+  Term out;
+
+  if (IsVarTerm(t)) {
+    return Yap_unify(MkPairTerm(t,TermNil), ARG2);
+  }  else if (IsPrimitiveTerm(t)) {
+    return Yap_unify(TermNil, ARG2);
+  } else if (IsPairTerm(t)) {
+    out = vars_in_complex_term(RepPair(t)-1,
+			       RepPair(t)+1, TermNil);
+  }
+  else {
+    Functor f = FunctorOfTerm(t);
+    out = vars_in_complex_term(RepAppl(t),
+			       RepAppl(t)+
+			       ArityOfFunctor(f), TermNil);
+  }
+  return Yap_unify(ARG2,out);
 }
 
 static Term non_singletons_in_complex_term(register CELL *pt0, register CELL *pt0_end)
@@ -1708,11 +1731,14 @@ void Yap_InitUtilCPreds(void)
   Yap_InitCPred("$copy_term_but_not_constraints", 2, p_copy_term_no_delays, 0);
   Yap_InitCPred("ground", 1, p_ground, SafePredFlag);
   Yap_InitCPred("$variables_in_term", 3, p_variables_in_term, SafePredFlag);
-  Yap_InitCPred("variable_in_term", 2, p_var_in_term, SafePredFlag);
   Yap_InitCPred("$non_singletons_in_term", 3, p_non_singletons_in_term, SafePredFlag);
+  CurrentModule = TERMS_MODULE;
+  Yap_InitCPred("term_variables", 2, p_term_variables, SafePredFlag);
+  Yap_InitCPred("variable_in_term", 2, p_var_in_term, SafePredFlag);
   Yap_InitCPred("term_hash", 4, GvNTermHash, SafePredFlag);
   Yap_InitCPred("variant", 2, p_variant, SafePredFlag);
   Yap_InitCPred("subsumes", 2, p_subsumes, SafePredFlag);
+  CurrentModule = PROLOG_MODULE;
 #ifdef DEBUG
   Yap_InitCPred("$force_trail_expansion", 1, p_force_trail_expansion, SafePredFlag);
   Yap_InitCPred("dum", 1, camacho_dum, SafePredFlag);

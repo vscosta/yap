@@ -10,7 +10,7 @@
 * File:		Heap.h         						 *
 * mods:									 *
 * comments:	Heap Init Structure					 *
-* version:      $Id: Heap.h,v 1.52 2004-02-05 16:57:00 vsc Exp $	 *
+* version:      $Id: Heap.h,v 1.53 2004-02-09 14:19:04 vsc Exp $	 *
 *************************************************************************/
 
 /* information that can be stored in Code Space */
@@ -200,8 +200,6 @@ typedef struct various_codes {
   struct pred_entry *module_pred[MaxModules];
   SMALLUNSGN   no_of_modules;
   struct dead_clause *dead_clauses;
-  int   primitives_module;
-  int   user_module;
   Atom
     atom_abol,
     atom_alarm,
@@ -453,8 +451,6 @@ struct various_codes *heap_regs;
 #define  CharConversionTable2     heap_regs->char_conversion_table2
 #define  ModuleName               heap_regs->module_name
 #define  ModulePred               heap_regs->module_pred
-#define  PrimitivesModule         heap_regs->primitives_module
-#define  UserModule               heap_regs->user_module
 #define  NoOfModules              heap_regs->no_of_modules
 #define  AtomAbol                 heap_regs->atom_abol
 #define  AtomAlarm                heap_regs->atom_alarm

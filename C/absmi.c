@@ -1086,6 +1086,19 @@ Yap_absmi(int inp)
       GONext();
       ENDOp();
  
+      /* only meaningful with THREADS on! */
+      /* lock logical updates predicate.  */
+      Op(unlock_lu, e);
+      PREG = NEXTOP(PREG, e);
+#if defined(YAPOR) || defined(THREADS)
+      if (PP) {
+	READ_UNLOCK(PP->PRWLock);
+	PP = NULL;
+      }
+#endif
+      GONext();
+      ENDOp();
+ 
 
       /* enter logical pred               */
       BOp(stale_lu_index, Ill);
@@ -2552,12 +2565,6 @@ Yap_absmi(int inp)
       E_YREG = ENV;
 #ifdef DEPTH_LIMIT
       DEPTH = E_YREG[E_DEPTH];
-#endif
-#if defined(YAPOR) || defined(THREADS)
-      if (PP) {
-	READ_UNLOCK(PP->PRWLock);
-	PP = NULL;
-      }
 #endif
       WRITEBACK_Y_AS_ENV();
       JMPNext();

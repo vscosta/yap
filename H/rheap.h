@@ -650,6 +650,7 @@ restore_opcodes(yamop *pc)
     case _count_a_call:
     case _index_dbref:
     case _index_blob:
+    case _unlock_lu:
 #ifdef YAPOR
     case _getwork_first_time:
 #endif

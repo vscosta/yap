@@ -3309,32 +3309,38 @@ p_recorded(void)
   PredEntry *pe;
 
   if (!IsVarTerm(t3)) {
+    DBRef ref = DBRefOfTerm(t3);
     if (!IsDBRefTerm(t3)) {
-      return FALSE;
-    } else {
-      DBRef ref = DBRefOfTerm(t3);
-      if (ref == NULL) return FALSE;
-      if (DEAD_REF(ref)) {
+      if (IsIntegerTerm(t3)) {
+	ref = (DBRef)IntegerOfTerm(t3);
+      } else {
 	return FALSE;
       }
-      if (ref->Flags & LogUpdMask) {
-	LogUpdClause *cl = (LogUpdClause *)ref;
-	PredEntry *ap;
-	if (Yap_op_from_opcode(cl->ClCode->opc) == _unify_idb_term) {
-	  if (!Yap_unify(ARG2, cl->ClSource->Entry)) {
-	    return FALSE;
-	  }
-	} else if (!Yap_unify(ARG2,GetDBTerm(cl->ClSource))) {
+    } else {
+      ref = DBRefOfTerm(t3);
+    }
+    ref = DBRefOfTerm(t3);
+    if (ref == NULL) return FALSE;
+    if (DEAD_REF(ref)) {
+      return FALSE;
+    }
+    if (ref->Flags & LogUpdMask) {
+      LogUpdClause *cl = (LogUpdClause *)ref;
+      PredEntry *ap;
+      if (Yap_op_from_opcode(cl->ClCode->opc) == _unify_idb_term) {
+	if (!Yap_unify(ARG2, cl->ClSource->Entry)) {
 	  return FALSE;
 	}
-	ap = cl->ClPred;
-	return Yap_unify(GetDBLUKey(ap), ARG1);
-      } else if (!Yap_unify(ARG2,GetDBTermFromDBEntry(ref))
-	  || !UnifyDBKey(ref,0,ARG1)) {
+      } else if (!Yap_unify(ARG2,GetDBTerm(cl->ClSource))) {
 	return FALSE;
-      } else {
-	return TRUE;
       }
+      ap = cl->ClPred;
+      return Yap_unify(GetDBLUKey(ap), ARG1);
+    } else if (!Yap_unify(ARG2,GetDBTermFromDBEntry(ref))
+	       || !UnifyDBKey(ref,0,ARG1)) {
+      return FALSE;
+    } else {
+      return TRUE;
     }
   }
   if ((pe = find_lu_entry(twork)) != NULL) {
@@ -4130,8 +4136,13 @@ p_erase(void)
     return (FALSE);
   }
   if (!IsDBRefTerm(t1)) {
-    Yap_Error(TYPE_ERROR_DBREF, t1, "erase");
-    return (FALSE);
+    if (IsIntegerTerm(t1)) {
+      EraseEntry((DBRef)IntegerOfTerm(t1));
+      return TRUE;
+    } else {
+      Yap_Error(TYPE_ERROR_DBREF, t1, "erase");
+      return (FALSE);
+    }
   }
   EraseEntry(DBRefOfTerm(t1));
   return (TRUE);
@@ -4148,17 +4159,22 @@ p_erase_clause(void)
     return (FALSE);
   }
   if (!IsDBRefTerm(t1)) {
-    Yap_Error(TYPE_ERROR_DBREF, t1, "erase");
-    return (FALSE);
+    if (IsIntegerTerm(t1)) {
+      entryref = (DBRef)IntegerOfTerm(t1);
+    } else {
+      Yap_Error(TYPE_ERROR_DBREF, t1, "erase");
+      return (FALSE);
+    }
+  } else {
+    entryref = DBRefOfTerm(t1);
   }
-  entryref = DBRefOfTerm(t1);
   if (entryref->Flags & StaticMask) {
     if (entryref->Flags & ErasedMask)
       return FALSE;
     Yap_EraseStaticClause((StaticClause *)entryref, Yap_LookupModule(Deref(ARG2)));
     return TRUE;
   }
-  EraseEntry(DBRefOfTerm(t1));
+  EraseEntry(entryref);
   return TRUE;
 }
  
@@ -4243,8 +4259,12 @@ p_erased(void)
     return (FALSE);
   }
   if (!IsDBRefTerm(t)) {
-    Yap_Error(TYPE_ERROR_DBREF, t, "erased");
-    return (FALSE);
+    if (IsIntegerTerm(t)) {
+      return (((DBRef)IntegerOfTerm(t))->Flags & ErasedMask);
+    } else {
+      Yap_Error(TYPE_ERROR_DBREF, t, "erased");
+      return (FALSE);
+    }
   }
   return (DBRefOfTerm(t)->Flags & ErasedMask);
 }

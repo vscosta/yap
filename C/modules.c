@@ -148,12 +148,18 @@ Yap_InitModulesC(void)
 void 
 Yap_InitModules(void)
 {
-  ModuleName[PrimitivesModule = 0] =
+  ModuleName[PROLOG_MODULE] =
     MkAtomTerm(Yap_LookupAtom("prolog"));
-  ModuleName[1] =
+  ModuleName[USER_MODULE] =
     MkAtomTerm(Yap_LookupAtom("user"));
-  ModuleName[2] =
+  ModuleName[IDB_MODULE] =
     MkAtomTerm(Yap_LookupAtom("idb"));
-  NoOfModules = 3;
+  ModuleName[ATTRIBUTES_MODULE] =
+    MkAtomTerm(Yap_LookupAtom("attributes"));
+  ModuleName[CHARSIO_MODULE] =
+    MkAtomTerm(Yap_LookupAtom("charsio"));
+  ModuleName[TERMS_MODULE] =
+    MkAtomTerm(Yap_LookupAtom("terms"));
+  NoOfModules = 6;
   CurrentModule = 0;
 }

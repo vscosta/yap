@@ -839,8 +839,6 @@ InitCodes(void)
     don't initialise this here, this is initialised by Yap_InitModules!!!!
      heap_regs->no_of_modules = 1;
   */
-  heap_regs->primitives_module = 0;
-  heap_regs->user_module = 1;
   heap_regs->atom_abol = Yap_FullLookupAtom("$abol");
   AtomAltNot = Yap_LookupAtom("not");
   heap_regs->atom_append = Yap_LookupAtom ("append");

@@ -256,6 +256,7 @@
     OPCODE(count_trust_me          ,ld),
     OPCODE(count_retry_and_mark    ,ld),
     OPCODE(lock_lu	           ,p),
+    OPCODE(unlock_lu	           ,e),
     OPCODE(enter_lu_pred           ,Ill),
     OPCODE(stale_lu_index          ,Ill),
     OPCODE(trust_logical_pred      ,l),

@@ -276,6 +276,10 @@ cleanup_dangling_indices(yamop *ipc, yamop *beg, yamop *end, yamop *suspend_code
       /* just skip for now, but should worry about locking */
       ipc = NEXTOP(ipc,p);
       break;
+    case _unlock_lu:
+      /* just skip for now, but should worry about locking */
+      ipc = NEXTOP(ipc,e);
+      break;
     case _retry_profiled:
     case _count_retry:
       ipc = NEXTOP(ipc,p);

@@ -567,7 +567,10 @@ PredPropByAtom(Atom at, SMALLUNSGN cur_mod)
 typedef enum {
   PROLOG_MODULE = 0,
   USER_MODULE = 1,
-  IDB_MODULE = 2
+  IDB_MODULE = 2,
+  ATTRIBUTES_MODULE = 3,
+  CHARSIO_MODULE = 4,
+  TERMS_MODULE = 5
 } default_modules;
 
 

@@ -89,30 +89,6 @@ system_mode(verbose,off) :- set_value('$verbose',off).
 
 :- default_sequential(off).
 
-:- '$set_pred_module'(get_att(_,_,_), attributes),
-	'$set_pred_module'(get_all_atts(_,_), attributes),
-	'$set_pred_module'(free_att(_,_), attributes),
-	'$set_pred_module'(put_att(_,_,_), attributes),
-	'$set_pred_module'(rm_att(_,_), attributes),
-	'$set_pred_module'(inc_n_of_atts(_), attributes),
-	'$set_pred_module'(n_of_atts(_), attributes),
-	'$set_pred_module'(bind_attvar(_), attributes),
-	'$set_pred_module'(all_attvars(_), attributes).
-
-
-:- '$set_pred_module'(open_mem_read_stream(_,_), charsio),
-	'$set_pred_module'(open_mem_write_stream(_), charsio),
-	'$set_pred_module'(peek_mem_write_stream(_,_,_), charsio).
-
-:- '$set_pred_module'(term_hash(_,_,_,_), terms),
-   '$set_pred_module'(term_hash(_,_), terms),
-   '$set_pred_module'(term_variables(_,_), terms),
-   '$set_pred_module'(variant(_,_), terms),
-   '$set_pred_module'(subsumes(_,_), terms),
-   '$set_pred_module'(cyclic_term(_), terms),
-   '$set_pred_module'(acyclic_term(_,_), terms),
-   '$set_pred_module'(variable_in_term(_,_), terms).
-
 %
 % cleanup ensure loaded and recover some data-base space.
 %

@@ -2426,10 +2426,16 @@ do_pass(int pass_no, yamop **entry_codep, int assembling, int *clause_has_blobsp
       break;
     case cutexit_op:
       code_p = a_cut(&clinfo, code_p, pass_no, cip);
-      if (cip->CurrentPred->PredFlags & LogUpdatePredFlag &&
+     if (cip->CurrentPred->PredFlags & LogUpdatePredFlag &&
 	  *clause_has_blobsp &&
 	  !clinfo.alloc_found)
 	code_p = a_cle(_alloc_for_logical_pred, code_p, pass_no, cip);
+#if THREADS
+     else
+       if (cip->CurrentPred->PredFlags & LogUpdatePredFlag &&
+	   !(cip->CurrentPred->PredFlags & ThreadLocalPredFlag))
+	code_p = a_e(_unlock_lu, code_p, pass_no);
+#endif
       code_p = a_e(_procceed, code_p, pass_no);
 #ifdef YAPOR
       if (pass_no)
@@ -2530,12 +2536,23 @@ do_pass(int pass_no, yamop **entry_codep, int assembling, int *clause_has_blobsp
 	  *clause_has_blobsp &&
 	  !clinfo.alloc_found)
 	code_p = a_cle(_alloc_for_logical_pred, code_p, pass_no, cip);
+#if THREADS
+     else
+       if (cip->CurrentPred->PredFlags & LogUpdatePredFlag &&
+	   !(cip->CurrentPred->PredFlags & ThreadLocalPredFlag))
+	code_p = a_e(_unlock_lu, code_p, pass_no);
+#endif
       code_p = a_e(_procceed, code_p, pass_no);
       break;
     case call_op:
       code_p = a_p(_call, &clinfo, code_p, pass_no, cip);
       break;
     case execute_op:
+#if THREADS
+      if (cip->CurrentPred->PredFlags & LogUpdatePredFlag &&
+	  !(cip->CurrentPred->PredFlags & ThreadLocalPredFlag))
+	code_p = a_e(_unlock_lu, code_p, pass_no);
+#endif
       code_p = a_p(_execute, &clinfo, code_p, pass_no, cip);
       break;
     case safe_call_op:

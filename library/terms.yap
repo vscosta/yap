@@ -18,7 +18,7 @@
 :- module(terms, [
 	term_hash/2,
 	term_hash/4,
-	term_variables/2,
+	term_variablesb/2,
 	variant/2,
 	subsumes/2,
 	subsumes_chk/2,
@@ -29,6 +29,9 @@
 
 term_hash(T,H) :-
 	term_hash(T, -1, 33554432, H).
+
+%term_hash(X,Y) :-
+%	term_hash(X,-1,16'1000000,Y).
 
 subsumes_chk(X,Y) :-
 	\+ \+ subsumes(X,Y).

@@ -774,9 +774,6 @@ version(T) :-
 '$assert_version'(T) :- recordz('$version',T,_), fail.
 '$assert_version'(_).
 
-term_variables(Term, L) :-
-	'$variables_in_term'(Term, [], L).
-
 term_hash(X,Y) :-
 	term_hash(X,-1,16'1000000,Y).
 

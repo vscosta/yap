@@ -1582,6 +1582,7 @@ add_info(ClauseDef *clause, UInt regno)
     case _jump_if_var:
     case _try_in:
     case _lock_lu:
+    case _unlock_lu:
       clause->Tag = (CELL)NULL;
       return;
     case _jump_if_nonvar:
@@ -3822,6 +3823,9 @@ expand_index(struct intermediates *cint) {
     case _lock_lu:
       ipc = NEXTOP(ipc,p);
       break;
+    case _unlock_lu:
+      ipc = NEXTOP(ipc,e);
+      break;
     case _jump_if_var:
       if (IsVarTerm(Deref(ARG1))) {
 	labp = &(ipc->u.l.l);
@@ -5531,6 +5535,9 @@ add_to_index(struct intermediates *cint, int first, path_stack_entry *sp, Clause
     case _lock_lu:
       ipc = NEXTOP(ipc,p);
       break;
+    case _unlock_lu:
+      ipc = NEXTOP(ipc,e);
+      break;
     default:
       sp = kill_unsafe_block(sp, op, ap);
       ipc = pop_path(&sp, cls, ap);
@@ -6033,6 +6040,9 @@ remove_from_index(PredEntry *ap, path_stack_entry *sp, ClauseDef *cls, yamop *bg
       break;
     case _lock_lu:
       ipc = NEXTOP(ipc,p);
+      break;
+    case _unlock_lu:
+      ipc = NEXTOP(ipc,e);
       break;
     default:
       if (IN_BETWEEN(bg,ipc,lt)) {
@@ -6542,6 +6552,9 @@ Yap_FollowIndexingCode(PredEntry *ap, yamop *ipc, Term t1, Term tb, Term tr, yam
       return NULL;
     case _lock_lu:
       ipc = NEXTOP(ipc,p);
+      break;
+    case _unlock_lu:
+      ipc = NEXTOP(ipc,e);
       break;
 #if THREADS
     case _thread_local:

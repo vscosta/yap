@@ -648,6 +648,7 @@ void Yap_InitAttVarPreds(void)
   attas[attvars_ext].to_term_op = AttVarToTerm;
   attas[attvars_ext].term_to_op = TermToAttVar;
   attas[attvars_ext].mark_op = mark_attvar;
+  CurrentModule = ATTRIBUTES_MODULE;
   Yap_InitCPred("get_att", 3, p_get_att, SafePredFlag);
   Yap_InitCPred("get_all_atts", 2, p_get_all_atts, SafePredFlag);
   Yap_InitCPred("free_att", 2, p_free_att, SafePredFlag);
@@ -657,6 +658,7 @@ void Yap_InitAttVarPreds(void)
   Yap_InitCPred("n_of_atts", 1, p_n_atts, SafePredFlag);
   Yap_InitCPred("bind_attvar", 1, p_bind_attvar, SafePredFlag);
   Yap_InitCPred("all_attvars", 1, p_all_attvars, SafePredFlag);
+  CurrentModule = PROLOG_MODULE;
   Yap_InitCPred("$is_att_variable", 1, p_is_attvar, SafePredFlag|TestPredFlag);
   Yap_InitCPred("$att_bound", 1, p_attvar_bound, SafePredFlag|TestPredFlag);
 }

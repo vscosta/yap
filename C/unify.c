@@ -616,8 +616,10 @@ void
 Yap_InitUnify(void)
 {
   Yap_InitCPred("unify_with_occurs_check", 2, p_ocunify, SafePredFlag);
+  CurrentModule = TERMS_MODULE;
   Yap_InitCPred("cyclic_term", 1, p_cyclic, SafePredFlag|TestPredFlag);
   Yap_InitCPred("acyclic_term", 1, p_acyclic, SafePredFlag|TestPredFlag);
+  CurrentModule = PROLOG_MODULE;
 }
 
 

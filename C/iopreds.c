@@ -3789,7 +3789,7 @@ format(Term tail, Term args, int sno)
     {
       if (format_buf_size == -1) {
 	Yap_FreeAtomSpace(format_base);
-	return(FALSE);
+	return FALSE;
       }
       ch = IntOfTerm (head);
       if (ch == '~')
@@ -3801,22 +3801,22 @@ format(Term tail, Term args, int sno)
 	  if (IsVarTerm (tail = Deref (tail)) ) {
 	    Yap_FreeAtomSpace(format_base);
 	    Yap_Error(INSTANTIATION_ERROR,tail,"format/2");
-	    return(FALSE);
+	    return FALSE;
 	  } else if (!IsPairTerm (tail)) {
 	    Yap_FreeAtomSpace(format_base);
 	    Yap_Error(TYPE_ERROR_LIST,tail,"format/2");
-	    return(FALSE);
+	    return FALSE;
 	  }
 	  head = HeadOfTerm (tail);
 	  tail = TailOfTerm (tail);
 	  if (IsVarTerm (head)) {
 	    Yap_FreeAtomSpace(format_base);
 	    Yap_Error(INSTANTIATION_ERROR,tail,"format/2");
-	    return(FALSE);
+	    return FALSE;
 	  } else  if ( !IsIntTerm (head)) {
 	    Yap_FreeAtomSpace(format_base);
 	    Yap_Error(TYPE_ERROR_INTEGER,tail,"format/2");
-	    return(FALSE);
+	    return FALSE;
 	  } else
 	    ch = IntOfTerm (head);
 	  if (ch == '*')
@@ -3825,27 +3825,27 @@ format(Term tail, Term args, int sno)
 	      arg_size = GetArgSizeFromThirdArg (&ptr, &args);
 	      if (format_error) {
 		Yap_FreeAtomSpace(format_base);
-		return(FALSE);
+		return FALSE;
 	      }
 	      if (IsVarTerm (tail = Deref (tail)) ) {
 		Yap_FreeAtomSpace(format_base);
 		Yap_Error(INSTANTIATION_ERROR,tail,"format/2");
-		return(FALSE);
+		return FALSE;
 	      } else if (!IsPairTerm (tail)) {
 		Yap_FreeAtomSpace(format_base);
 		Yap_Error(TYPE_ERROR_LIST,tail,"format/2");
-		return(FALSE);
+		return FALSE;
 	      }
 	      head = HeadOfTerm (tail);
 	      tail = TailOfTerm (tail);
 	      if (IsVarTerm (head)) {
 		Yap_FreeAtomSpace(format_base);
 		Yap_Error(INSTANTIATION_ERROR,tail,"format/2");
-		return(FALSE);
+		return FALSE;
 	      } else  if ( !IsIntTerm (head)) {
 		Yap_FreeAtomSpace(format_base);
 		Yap_Error(TYPE_ERROR_INTEGER,tail,"format/2");
-		return(FALSE);
+		return FALSE;
 	      } else
 		ch = IntOfTerm (head);
 	    }
@@ -3856,7 +3856,7 @@ format(Term tail, Term args, int sno)
 	      ch = GetArgSizeFromChars (&ptr, &arg_size, &tail);
 	      if (format_error) {
 		Yap_FreeAtomSpace(format_base);
-		return (FALSE);
+		return FALSE;
 	      }
 	    }
 	  else if (ch == '`')
@@ -3865,7 +3865,7 @@ format(Term tail, Term args, int sno)
 	      arg_size = GetArgSizeFromChar(&tail);
 	      if (format_error) {
 		Yap_FreeAtomSpace(format_base);
-		return(FALSE);
+		return FALSE;
 	      }
 	      ch = 't';
 	    }
@@ -3874,27 +3874,27 @@ format(Term tail, Term args, int sno)
 	    case 'a':
 	      if (size_args) {
 		Yap_FreeAtomSpace(format_base);
-		return (FALSE);
+		return FALSE;
 	      }
 	      if (IsVarTerm (args)) {
 		Yap_FreeAtomSpace(format_base);
 		Yap_Error(INSTANTIATION_ERROR,args,"~a format/2");
-		return(FALSE);		
+		return FALSE;		
 	      } else if (!IsPairTerm (args)) {
 		Yap_FreeAtomSpace(format_base);
 		Yap_Error(TYPE_ERROR_LIST,args,"~a format/2");
-		return(FALSE);
+		return FALSE;
 	      }
 	      arghd = HeadOfTerm (args);
 	      args = TailOfTerm (args);
 	      if (IsVarTerm (arghd)) {
 		Yap_FreeAtomSpace(format_base);
 		Yap_Error(INSTANTIATION_ERROR,arghd,"~a in format/2");
-		return(FALSE);		
+		return FALSE;
 	      } else if (!IsAtomTerm (arghd)) {
 		Yap_FreeAtomSpace(format_base);
 		Yap_Error(TYPE_ERROR_ATOM,arghd,"~a in format/2");
-		return(FALSE);
+		return FALSE;
 	      }
 	      Yap_plwrite (arghd, format_putc, Handle_vars_f|To_heap_f);
 	      break;
@@ -3902,22 +3902,22 @@ format(Term tail, Term args, int sno)
 	      if (IsVarTerm (args)) {
 		Yap_FreeAtomSpace(format_base);
 		Yap_Error(INSTANTIATION_ERROR,args,"~c in format/2");
-		return(FALSE);		
+		return FALSE;
 	      } else if (!IsPairTerm (args)) {
 		Yap_FreeAtomSpace(format_base);
 		Yap_Error(TYPE_ERROR_LIST,args,"~c in format/2");
-		return(FALSE);
+		return FALSE;
 	      }
 	      arghd = HeadOfTerm (args);
 	      args = TailOfTerm (args);
 	      if (IsVarTerm (arghd)) {
 		Yap_FreeAtomSpace(format_base);
 		Yap_Error(INSTANTIATION_ERROR,arghd,"~c in format/2");
-		return(FALSE);		
+		return FALSE;
 	      } else if (!IsIntTerm (arghd)) {
 		Yap_FreeAtomSpace(format_base);
 		Yap_Error(TYPE_ERROR_ATOM,arghd,"~a in format/2");
-		return(FALSE);
+		return FALSE;
 	      } else int2= IntOfTerm(arghd);
 	      if (!size_args)
 		arg_size = 1;
@@ -3932,11 +3932,11 @@ format(Term tail, Term args, int sno)
 	      if (IsVarTerm (args)) {
 		Yap_FreeAtomSpace(format_base);
 		Yap_Error(INSTANTIATION_ERROR,args,"~%d in format/2", ch);
-		return(FALSE);		
+		return FALSE;
 	      } else if (!IsPairTerm (args)) {
 		Yap_FreeAtomSpace(format_base);
 		Yap_Error(TYPE_ERROR_LIST,args,"~%d in format/2", ch);
-		return(FALSE);
+		return FALSE;
 	      }
 	      if (arg_size == 0 || arg_size > 6)
 		arg_size = 6;
@@ -3949,11 +3949,11 @@ format(Term tail, Term args, int sno)
 	      if (IsVarTerm(arghd)) {
 		Yap_FreeAtomSpace(format_base);
 		Yap_Error(INSTANTIATION_ERROR,arghd,"~%c in format/2", ch);
-		return(FALSE);		
+		return FALSE;		
 	      } else if (!IsNumTerm (arghd)) {
 		Yap_FreeAtomSpace(format_base);
 		Yap_Error(TYPE_ERROR_FLOAT,arghd,"~%c in format/2", ch);
-		return(FALSE);
+		return FALSE;
 	      }
 	      if (IsIntegerTerm(arghd)) {
 		  float_tmp = IntegerOfTerm(arghd);
@@ -3973,7 +3973,7 @@ format(Term tail, Term args, int sno)
 	      if (IsVarTerm (args)) {
 		Yap_FreeAtomSpace(format_base);
 		Yap_Error(INSTANTIATION_ERROR,args,"~d format/2");
-		return(FALSE);		
+		return FALSE;		
 	      } else if (!IsPairTerm (args)) {
 		Yap_FreeAtomSpace(format_base);
 		Yap_Error(TYPE_ERROR_LIST,args,"~d format/2");
@@ -5031,7 +5031,6 @@ Yap_InitIOPreds(void)
   Yap_InitCPred ("$check_stream", 1, p_check_if_stream, SafePredFlag|SyncPredFlag);
   Yap_InitCPred ("$stream_flags", 2, p_stream_flags, SafePredFlag|SyncPredFlag);
   Yap_InitCPred ("$close", 1, p_close, SafePredFlag|SyncPredFlag);
-  Yap_InitCPred ("peek_mem_write_stream", 3, p_peek_mem_write_stream, SyncPredFlag);
   Yap_InitCPred ("flush_output", 1, p_flush, SafePredFlag|SyncPredFlag);
   Yap_InitCPred ("$flush_all_streams", 0, p_flush_all_streams, SafePredFlag|SyncPredFlag);
   Yap_InitCPred ("$get", 2, p_get, SafePredFlag|SyncPredFlag);
@@ -5042,8 +5041,11 @@ Yap_InitIOPreds(void)
   Yap_InitCPred ("$file_expansion", 2, p_file_expansion, SafePredFlag|SyncPredFlag);
   Yap_InitCPred ("$open_null_stream", 1, p_open_null_stream, SafePredFlag|SyncPredFlag);
   Yap_InitCPred ("$open_pipe_stream", 2, p_open_pipe_stream, SafePredFlag|SyncPredFlag);
+  CurrentModule = CHARSIO_MODULE;
   Yap_InitCPred ("open_mem_read_stream", 2, p_open_mem_read_stream, SyncPredFlag);
   Yap_InitCPred ("open_mem_write_stream", 1, p_open_mem_write_stream, SyncPredFlag);
+  Yap_InitCPred ("peek_mem_write_stream", 3, p_peek_mem_write_stream, SyncPredFlag);
+  CurrentModule = PROLOG_MODULE;
   Yap_InitCPred ("$put", 2, p_put, SafePredFlag|SyncPredFlag);
   Yap_InitCPred ("$put_byte", 2, p_put_byte, SafePredFlag|SyncPredFlag);
   Yap_InitCPred ("$set_read_error_handler", 1, p_set_read_error_handler, SafePredFlag|SyncPredFlag);
