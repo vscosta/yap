@@ -931,18 +931,19 @@ break :-
 
 % Path predicates
 
-'$exists'(F,Mode) :- get_value(fileerrors,V), set_value(fileerrors,0),
-	( '$open'(F,Mode,S,0), !, '$close'(S), set_value(fileerrors,V);
-	  set_value(fileerrors,V), fail).
+'$exists'(F,Mode) :-
+	get_value(fileerrors,V),
+	set_value(fileerrors,0),
+	( '$open'(F,Mode,S,0) -> '$close'(S), set_value(fileerrors,V) ; set_value(fileerrors,V), fail).
 
 
 '$find_in_path'(user,user_input, _) :- !.
 '$find_in_path'(user_input,user_input, _) :- !.
 '$find_in_path'(S,NewFile, _) :-
 	S =.. [Name,File], !,
-	( user:file_search_path(Name, Dir) -> '$do_not_creep' ; '$do_not_creep'),
 	'$dir_separator'(D),
 	atom_codes(A,[D]),
+	( user:file_search_path(Name, Dir), '$do_not_creep' ; '$do_not_creep'),
 	atom_concat([Dir,A,File],NFile),
 	'$search_in_path'(NFile, NewFile).
 '$find_in_path'(File,NewFile,_) :- atom(File), !,

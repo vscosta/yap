@@ -85,6 +85,7 @@ DumpActiveGoals (void)
   CELL cp;
   PredEntry *pe;
   int first = 1;
+
   if (legal_env (YENV) && YENV < ENV)
     ep = YENV;
   else if (legal_env (ENV))
@@ -181,6 +182,7 @@ detect_bug_location(yamop *yap_pc, find_pred_type where_from, char *tp, int psiz
   Term pred_module;
   Int cl;
 
+  tp[0] = '\0';
   if ((cl = Yap_PredForCode(yap_pc, where_from, &pred_name, &pred_arity, &pred_module))
       == 0) {
     /* system predicate */
@@ -258,39 +260,63 @@ detect_bug_location(yamop *yap_pc, find_pred_type where_from, char *tp, int psiz
 }
 
 static void
-cl_position(yamop *ptr, find_pred_type where_from)
-{
-  char tp[256];
-  detect_bug_location(ptr, where_from, tp, 256);
-  fprintf(stderr,"  %s\n", tp);
-}
-
-static void
 dump_stack(void)
 {
   choiceptr b_ptr = B;
   CELL *env_ptr = ENV;
+  char tp[256];
+  yamop *ipc = CP;
   
   if (H > ASP || H > LCL0) {
-    fprintf(stderr,"%% YAP ERROR: Global Collided against Local\n");
+    fprintf(stderr,"%% YAP ERROR: Global Collided against Local (%p--%p)\n",H,ASP);
   } else   if (HeapTop > (ADDR)Yap_GlobalBase) {
-    fprintf(stderr,"%% YAP ERROR: Code Space Collided against Global\n");
+    fprintf(stderr,"%% YAP ERROR: Code Space Collided against Global (%p--%p)\n", HeapTop, Yap_GlobalBase);
   } else {
-    if (b_ptr != NULL) {
-      fprintf(stderr," %% Goals with open alternatives:\n");
-      while (b_ptr != NULL) {
-	cl_position(b_ptr->cp_ap, FIND_PRED_FROM_CP);
+#if !USE_SYSTEM_MALLOC
+    fprintf (stderr,"%dKB of Code Space (%p--%p)\n",((CELL)HeapTop-(CELL)Yap_HeapBase)/1024,Yap_HeapBase,HeapTop); 
+#if USE_DL_MALLOC 
+    if (Yap_hole_start) {
+      fprintf (stderr,"  Last hole: %p--%p\n", Yap_hole_start, Yap_hole_end);
+    }
+#endif
+#endif
+    fprintf (stderr,"%dKB of Global Stack (%p--%p)\n",(sizeof(CELL)*(H-H0))/1024,H0,H); 
+    fprintf (stderr,"%dKB of Local Stack (%p--%p)\n",(sizeof(CELL)*(LCL0-ASP))/1024,ASP,LCL0); 
+    fprintf (stderr,"%dKB of Trail (%p--%p)\n",((ADDR)TR-Yap_TrailBase)/1024,Yap_TrailBase,TR); 
+    fprintf (stderr,"Performed %d garbage collections\n", GcCalls);
+#if LOW_LEVEL_TRACER
+    {
+      extern long long vsc_count;
+
+      if (vsc_count) {
+	fprintf(stderr,"Trace Counter at %lld\n",vsc_count);
+      }
+    }
+#endif
+    fprintf (stderr,"Goal Stack Dump (* is backtrack point)\n"); 
+    while (b_ptr != NULL) {
+      while (env_ptr && env_ptr <= (CELL *)b_ptr) {
+	detect_bug_location(ipc, FIND_PRED_FROM_ENV, tp, 256);
+	if (env_ptr == (CELL *)b_ptr &&
+	    (choiceptr)env_ptr[E_CB] > b_ptr) {
+	  b_ptr = b_ptr->cp_b;
+	  fprintf(stderr,"  %s (*)\n", tp);
+	} else {
+	  fprintf(stderr,"  %s\n", tp);
+	}
+	ipc = (yamop *)(env_ptr[E_CP]);
+	env_ptr = (CELL *)(env_ptr[E_E]);
+      }
+      if (b_ptr) {
+	if (b_ptr->cp_ap->opc != Yap_opcode(_or_else) &&
+	    b_ptr->cp_ap->opc != Yap_opcode(_or_last) &&
+	    b_ptr->cp_ap->opc != Yap_opcode(_Nstop)) {
+	  /* we can safely ignore ; because there is always an upper env */
+	  detect_bug_location(b_ptr->cp_ap, FIND_PRED_FROM_CP, tp, 256);
+	  fprintf(stderr,"     %s (*)\n", tp);
+	}
 	b_ptr = b_ptr->cp_b;
       }
-      fprintf(stderr,"\n");
-    }
-    if (env_ptr != NULL) {
-      fprintf(stderr," %% Goals left to continue:\n");
-      while (env_ptr != NULL) {
-	cl_position((yamop *)(env_ptr[E_CP]), FIND_PRED_FROM_ENV);
-	env_ptr = (CELL *)(env_ptr[E_E]);      
-      }
-      fprintf(stderr,"\n");
     }
   }
 }
@@ -299,12 +325,12 @@ dump_stack(void)
 static void
 error_exit_yap (int value)
 {
-  if (!Yap_PrologMode & BootMode) {
-#if DEBUG
-    fprintf(stderr,"%d garbage collections\n", GcCalls);
-#endif
+  if (!(Yap_PrologMode & BootMode)) {
     dump_stack();
+#if DEBUG
+#endif
   }
+  fprintf(stderr, "\n   Exiting ....\n");
   Yap_exit(value);
 }
 
@@ -380,7 +406,11 @@ Yap_Error(yap_error_number type, Term where, char *format,...)
     }  else {
       tmpbuf[0] = '\0';
     }
-    fprintf(stderr,"%% Fatal YAP Error: %s exiting....\n",tmpbuf);
+    if (Yap_PrologMode == UserCCallMode) {
+      fprintf(stderr,"%% OOOPS in USER C-CODE: %s.\n",tmpbuf);
+    } else {
+      fprintf(stderr,"%% OOOPS: %s.\n",tmpbuf);
+    }
     error_exit_yap (1);
   }
   if (P == (yamop *)(FAILCODE))

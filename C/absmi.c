@@ -10,8 +10,14 @@
 *									 *
 * File:		absmi.c							 *
 * comments:	Portable abstract machine interpreter                    *
-* Last rev:     $Date: 2005-01-13 05:47:25 $,$Author: vsc $						 *
+* Last rev:     $Date: 2005-02-08 18:04:17 $,$Author: vsc $						 *
 * $Log: not supported by cvs2svn $
+* Revision 1.156  2005/01/13 05:47:25  vsc
+* lgamma broke arithmetic optimisation
+* integer_y has type y
+* pass original source to checker (and maybe even use option in parser)
+* use warning mechanism for checker messages.
+*
 * Revision 1.155  2004/12/28 22:20:34  vsc
 * some extra bug fixes for trail overflows: some cannot be recovered that easily,
 * some can.
@@ -6907,12 +6913,13 @@ Yap_absmi(int inp)
       }
       /* for slots to work */
       Yap_StartSlots();
+      Yap_PrologMode = UserCCallMode;
 #endif /* FROZEN_STACKS */
       {
 	PredEntry *p = PREG->u.sla.sla_u.p;
 #ifdef LOW_LEVEL_TRACER
-      if (Yap_do_low_level_trace)
-	low_level_trace(enter_pred,p,XREGS+1);
+	if (Yap_do_low_level_trace)
+	  low_level_trace(enter_pred,p,XREGS+1);
 #endif	/* LOW_LEVEL_TRACE */
 	PREG = NEXTOP(PREG, sla);
 	saveregs();
@@ -6924,6 +6931,7 @@ Yap_absmi(int inp)
 
       restore_machine_regs();
       setregs();
+      Yap_PrologMode = UserMode;
       if (!SREG) {
 	FAIL();
       }
@@ -7042,6 +7050,7 @@ Yap_absmi(int inp)
       ENDCACHE_Y();
 
     TRYUSERCC:
+      Yap_PrologMode = UserCCallMode;
       ASP = YENV;
       saveregs();
       save_machine_regs();
@@ -7049,6 +7058,7 @@ Yap_absmi(int inp)
       EX = 0L;
       restore_machine_regs();
       setregs();
+      Yap_PrologMode = UserMode;
       if (!SREG) {
 	FAIL();
       }

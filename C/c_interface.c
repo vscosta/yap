@@ -10,8 +10,11 @@
 * File:		c_interface.c						 *
 * comments:	c_interface primitives definition 			 *
 *									 *
-* Last rev:	$Date: 2004-12-08 00:56:35 $,$Author: vsc $						 *
+* Last rev:	$Date: 2005-02-08 18:04:47 $,$Author: vsc $						 *
 * $Log: not supported by cvs2svn $
+* Revision 1.59  2004/12/08 00:56:35  vsc
+* missing ;
+*
 * Revision 1.58  2004/11/19 22:08:41  vsc
 * replace SYSTEM_ERROR by out OUT_OF_WHATEVER_ERROR whenever appropriate.
 *
@@ -838,7 +841,9 @@ YAP_RunGoal(Term t)
   yamop *old_CP = CP;
   BACKUP_MACHINE_REGS();
 
+  Yap_PrologMode = UserMode;
   out = Yap_RunTopGoal(t);
+  Yap_PrologMode = UserCCallMode;
   if (out) {
     P = (yamop *)ENV[E_CP];
     ENV = (CELL *)ENV[E_E];
@@ -860,7 +865,9 @@ YAP_RestartGoal(void)
 
   P = (yamop *)FAILCODE;
   do_putcf = myputc;
+  Yap_PrologMode = UserMode;
   out = Yap_exec_absmi(TRUE);
+  Yap_PrologMode = UserCCallMode;
   if (out == FALSE) {
     /* cleanup */
     Yap_trust_last();
@@ -876,7 +883,9 @@ YAP_ContinueGoal(void)
   int out;
   BACKUP_MACHINE_REGS();
 
+  Yap_PrologMode = UserMode;
   out = Yap_exec_absmi(TRUE);
+  Yap_PrologMode = UserCCallMode;
 
   RECOVER_MACHINE_REGS();
   return(out);

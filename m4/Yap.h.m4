@@ -10,7 +10,7 @@
 * File:		Yap.h.m4						 *
 * mods:									 *
 * comments:	main header file for YAP				 *
-* version:      $Id: Yap.h.m4,v 1.77 2005-01-28 23:14:40 vsc Exp $	 *
+* version:      $Id: Yap.h.m4,v 1.78 2005-02-08 18:05:07 vsc Exp $	 *
 *************************************************************************/
 
 #include "config.h"
@@ -914,7 +914,8 @@ typedef enum {
   GCMode            = 1024,     /* doing Garbage Collecting */
   ErrorHandlingMode = 2048,     /* doing error handling */
   CCallMode         = 4096,     /* In c Call */
-  UnifyMode         = 8192      /* In Unify Code */
+  UnifyMode         = 8192,      /* In Unify Code */
+  UserCCallMode     = 16284      /* In User C-call Code */
 } prolog_exec_mode;
 
 extern prolog_exec_mode      Yap_PrologMode;

@@ -11,8 +11,12 @@
 * File:		cdmgr.c							 *
 * comments:	Code manager						 *
 *									 *
-* Last rev:     $Date: 2005-02-08 04:05:23 $,$Author: vsc $						 *
+* Last rev:     $Date: 2005-02-08 18:04:57 $,$Author: vsc $						 *
 * $Log: not supported by cvs2svn $
+* Revision 1.151  2005/02/08 04:05:23  vsc
+* fix mess with add clause
+* improves on sigsegv handling
+*
 * Revision 1.150  2005/01/28 23:14:34  vsc
 * move to Yap-4.5.7
 * Fix clause size
@@ -3217,9 +3221,66 @@ code_in_pred_s_index(StaticIndex *icl, yamop *codeptr) {
 }
 
 static Int
-code_in_pred(PredEntry *pp, Atom *pat, UInt *parity, yamop *codeptr) {
+find_code_in_clause(PredEntry *pp, Atom *pat, UInt *parity, yamop *codeptr) {
+  Int i = 1;
   yamop *clcode;
-  int i = 1;
+
+  clcode = pp->cs.p_code.FirstClause;
+  if (clcode != NULL) {
+    if (pp->PredFlags & LogUpdatePredFlag) {
+      LogUpdClause *cl = ClauseCodeToLogUpdClause(clcode);
+      do {
+	if (IN_BLOCK(codeptr,(CODEADDR)cl,cl->ClSize)) {
+	  clause_was_found(pp, pat, parity);
+	  return i;
+	}
+	i++;
+	cl = cl->ClNext;
+      } while (cl != NULL);
+    } else if (pp->PredFlags & DynamicPredFlag) {
+      do {
+	DynamicClause *cl;
+	
+	cl = ClauseCodeToDynamicClause(clcode);
+	if (IN_BLOCK(codeptr,cl,cl->ClSize)) {
+	  clause_was_found(pp, pat, parity);
+	  return i;
+	}
+	if (clcode == pp->cs.p_code.LastClause)
+	  break;
+	i++;
+	clcode = NextDynamicClause(clcode);
+      } while (TRUE);
+    } else if (pp->PredFlags & MegaClausePredFlag) {
+      MegaClause *cl;
+	
+      cl = ClauseCodeToMegaClause(clcode);
+      if (IN_BLOCK(codeptr,cl,cl->ClSize)) {
+	clause_was_found(pp, pat, parity);
+	return 1+((char *)codeptr-(char *)cl->ClCode)/cl->ClItemSize;
+      }
+    } else {
+      StaticClause *cl;
+	
+      cl = ClauseCodeToStaticClause(clcode);
+      do {
+	if (IN_BLOCK(codeptr,cl,cl->ClSize)) {
+	  clause_was_found(pp, pat, parity);
+	  return i;
+	}
+	if (cl->ClCode == pp->cs.p_code.LastClause)
+	  break;
+	i++;
+	cl = cl->ClNext;
+      } while (TRUE);
+    }
+  }
+  return(0);
+}
+
+static Int
+code_in_pred(PredEntry *pp, Atom *pat, UInt *parity, yamop *codeptr) {
+  Int out;
 
   READ_LOCK(pp->PRWLock);
   /* check if the codeptr comes from the indexing code */
@@ -3238,62 +3299,9 @@ code_in_pred(PredEntry *pp, Atom *pat, UInt *parity, yamop *codeptr) {
       }
     }
   }
-  clcode = pp->cs.p_code.FirstClause;
-  if (clcode != NULL) {
-    if (pp->PredFlags & LogUpdatePredFlag) {
-      LogUpdClause *cl = ClauseCodeToLogUpdClause(clcode);
-      do {
-	if (IN_BLOCK(codeptr,(CODEADDR)cl,cl->ClSize)) {
-	  clause_was_found(pp, pat, parity);
-	  READ_UNLOCK(pp->PRWLock);
-	  return i;
-	}
-	i++;
-	cl = cl->ClNext;
-      } while (cl != NULL);
-    } else if (pp->PredFlags & DynamicPredFlag) {
-      do {
-	DynamicClause *cl;
-	
-	cl = ClauseCodeToDynamicClause(clcode);
-	if (IN_BLOCK(codeptr,cl,cl->ClSize)) {
-	  clause_was_found(pp, pat, parity);
-	  READ_UNLOCK(pp->PRWLock);
-	  return i;
-	}
-	if (clcode == pp->cs.p_code.LastClause)
-	  break;
-	i++;
-	clcode = NextDynamicClause(clcode);
-      } while (TRUE);
-    } else if (pp->PredFlags & MegaClausePredFlag) {
-      MegaClause *cl;
-	
-      cl = ClauseCodeToMegaClause(clcode);
-      if (IN_BLOCK(codeptr,cl,cl->ClSize)) {
-	clause_was_found(pp, pat, parity);
-	READ_UNLOCK(pp->PRWLock);
-	return 1+((char *)codeptr-(char *)cl->ClCode)/cl->ClItemSize;
-      }
-    } else {
-      StaticClause *cl;
-	
-      cl = ClauseCodeToStaticClause(clcode);
-      do {
-	if (IN_BLOCK(codeptr,cl,cl->ClSize)) {
-	  clause_was_found(pp, pat, parity);
-	  READ_UNLOCK(pp->PRWLock);
-	  return i;
-	}
-	if (cl->ClCode == pp->cs.p_code.LastClause)
-	  break;
-	i++;
-	cl = cl->ClNext;
-      } while (TRUE);
-    }
-  }
+  out = find_code_in_clause(pp, pat, parity, codeptr);
   READ_UNLOCK(pp->PRWLock); 
-  return(0);
+  return out;
 }
 
 static Int
@@ -3328,6 +3336,13 @@ Yap_PredForCode(yamop *codeptr, find_pred_type where_from, Atom *pat, UInt *pari
     p = PredForChoicePt(codeptr);
   } else if (where_from == FIND_PRED_FROM_ENV) {
     p = EnvPreg(codeptr);
+    if (p) {
+      if (p->ModuleOfPred == PROLOG_MODULE)
+	*pmodule = ModuleName[0];
+      else
+	*pmodule = p->ModuleOfPred;
+      return find_code_in_clause(p, pat, parity, codeptr); 
+    }
   } else {
     return PredForCode(codeptr, pat, parity, pmodule);
   }

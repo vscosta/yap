@@ -1021,7 +1021,6 @@ SearchForTrailFault(siginfo_t *siginfo)
 {
   void *ptr = siginfo->si_addr;
 
-  fprintf(stderr,"error at %p\n",ptr);
   /* If the TRAIL is very close to the top of mmaped allocked space,
      then we can try increasing the TR space and restarting the
      instruction. In the worst case, the system will
@@ -1039,7 +1038,7 @@ SearchForTrailFault(siginfo_t *siginfo)
 #endif /* OS_HANDLES_TR_OVERFLOW */
     {
       Yap_Error(FATAL_ERROR, TermNil,
-		"likely bug in YAP, segmentation violation at %p", ptr);
+		"tried to access illegal address %p!!!!", ptr);
   }
 }
 
