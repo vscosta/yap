@@ -651,7 +651,8 @@ MemPutc(int sno, int ch)
     char *newbuf;
 
     if ((newbuf = Yap_AllocAtomSpace(new_max_size*sizeof(char))) == NULL) {
-      Yap_Error(SYSTEM_ERROR, TermNil, "YAP could not grow heap for writing to string");
+      Yap_Error(OUT_OF_HEAP_ERROR, TermNil, "YAP could not grow heap for writing to string");
+      return -1;
     }
 #if HAVE_MEMMOVE
     memmove((void *)newbuf, (void *)s->u.mem_string.buf, (size_t)((s->u.mem_string.pos)*sizeof(char)));
@@ -3721,6 +3722,22 @@ fetch_index_from_args(Term t)
   return i;
 }
 
+static int
+format_has_tabs(const char *seq)
+{
+  int ch;
+
+  while ((ch = *seq++)) {
+    if (ch == '~') {
+      ch = *seq++;
+      if (ch == 't') {
+	return TRUE;
+      }
+    }
+  }
+  return FALSE;
+}
+
 static Int
 format(Term tail, Term args, int sno)
 {
@@ -3731,7 +3748,9 @@ format(Term tail, Term args, int sno)
   Int tnum, targ = 0;
   char *fstr = NULL, *fptr;
   Term oargs = args;
-  
+  int (* f_putc)(int, int);
+  int has_tabs;
+
   if (IsVarTerm(tail)) {
     Yap_Error(INSTANTIATION_ERROR,tail,"format/2");
     return(FALSE);
@@ -3788,6 +3807,11 @@ format(Term tail, Term args, int sno)
   format_buf_size = FORMAT_MAX_SIZE;
   format_error = FALSE;
 
+  if ((has_tabs = format_has_tabs(fptr))) {
+    f_putc = format_putc;
+  } else {
+    f_putc = Stream[sno].stream_putc;
+  }
   while ((ch = *fptr++)) {
     Term t = TermNil;
     int has_repeats = FALSE;
@@ -3828,7 +3852,7 @@ format(Term tail, Term args, int sno)
 	  goto do_instantiation_error;
 	if (!IsAtomTerm(t))
 	  goto do_type_atom_error;
-	Yap_plwrite (t, format_putc, Handle_vars_f|To_heap_f);
+	Yap_plwrite (t, f_putc, Handle_vars_f|To_heap_f);
 	break;
       case 'c':
 	{
@@ -3847,7 +3871,7 @@ format(Term tail, Term args, int sno)
 	  if (!has_repeats)
 	    repeats = 1;
 	  for (i = 0; i < repeats; i++)
-	    format_putc(sno, nch);
+	    f_putc(sno, nch);
 	  break;
 	}
       case 'e':
@@ -3887,7 +3911,7 @@ format(Term tail, Term args, int sno)
 	  sprintf (tmp2, tmp1, fl);
 	  ptr = tmp2;
 	  while ((ch = *ptr++) != 0)
-	    format_putc(sno, ch);
+	    f_putc(sno, ch);
 	  break;
 	case 'd':
 	case 'D':
@@ -3900,7 +3924,7 @@ format(Term tail, Term args, int sno)
 	  if (!IsIntegerTerm(t))
 	    goto do_type_int_error;
 	  if (!has_repeats) {
-	    Yap_plwrite (t, format_putc, Handle_vars_f|To_heap_f);
+	    Yap_plwrite (t, f_putc, Handle_vars_f|To_heap_f);
 	  } else {
 	    Int siz, dec = IntegerOfTerm(t), i, div = 1;
 
@@ -3910,7 +3934,7 @@ format(Term tail, Term args, int sno)
 	     */
 	    if (dec < 0) {
 	      dec = -dec;
-	      format_putc(sno, (int) '-');
+	      f_putc(sno, (int) '-');
 	    }
 	    i = dec;
 	    siz = 0;
@@ -3920,9 +3944,9 @@ format(Term tail, Term args, int sno)
 	      div *= 10;
 	    }
 	    if (repeats > siz) {
-	      format_putc(sno, (int) '.');
+	      f_putc(sno, (int) '.');
 	      while (repeats > siz) {
-		format_putc(sno, (int) '0');
+		f_putc(sno, (int) '0');
 		repeats--;
 	      }
 	    } else {
@@ -3932,15 +3956,15 @@ format(Term tail, Term args, int sno)
 		if (ch == 'D'&&
 		    (siz - repeats) % 3 == 0 &&
 		    output_done)
-		  format_putc(sno, (int)',');
-		format_putc(sno, (int)((dec/div)+'0'));
+		  f_putc(sno, (int)',');
+		f_putc(sno, (int)((dec/div)+'0'));
 		output_done = TRUE;
 		siz--;
 		dec = dec%div;
 	      }
-	      format_putc(sno, (int) '.');
+	      f_putc(sno, (int) '.');
 	    }
-	    Yap_plwrite (MkIntegerTerm(dec), format_putc, Handle_vars_f|To_heap_f);
+	    Yap_plwrite (MkIntegerTerm(dec), f_putc, Handle_vars_f|To_heap_f);
 	  break;
 	  case 'r':
 	  case 'R':
@@ -3964,7 +3988,7 @@ format(Term tail, Term args, int sno)
 	      numb = IntegerOfTerm(t);
 	      if (numb < 0) {
 		numb = -numb;
-		format_putc(sno, (int) '-');
+		f_putc(sno, (int) '-');
 	      }
 	      i = numb;
 	      while (i > 0) {
@@ -3975,11 +3999,11 @@ format(Term tail, Term args, int sno)
 	      while (numb) {
 		Int dig = numb/div;
 		if (dig < 10) 
-		  format_putc(sno, (int)(dig+'0'));
+		  f_putc(sno, (int)(dig+'0'));
 		else if (ch == 'r')
-		  format_putc(sno, (int)((dig-10)+'a'));
+		  f_putc(sno, (int)((dig-10)+'a'));
 		else
-		  format_putc(sno, (int)((dig-10)+'A'));
+		  f_putc(sno, (int)((dig-10)+'A'));
 		numb %= div;
 		div /= radix;
 	      }
@@ -4003,7 +4027,7 @@ format(Term tail, Term args, int sno)
 	      goto do_consistency_error;
 	    t = targs[targ++];
 	    *--ASP = MkIntTerm(0);
-	    Yap_plwrite (t, format_putc, Quote_illegal_f|Ignore_ops_f|To_heap_f );
+	    Yap_plwrite (t, f_putc, Quote_illegal_f|Ignore_ops_f|To_heap_f );
 	    ASP++;
 	    break;
 	  case 'p':
@@ -4013,7 +4037,7 @@ format(Term tail, Term args, int sno)
 	    *--ASP = MkIntTerm(0);
 	    { 
 	      long sl = Yap_InitSlot(args);
-	      Yap_plwrite(t, format_putc, Handle_vars_f|Use_portray_f|To_heap_f);
+	      Yap_plwrite(t, f_putc, Handle_vars_f|Use_portray_f|To_heap_f);
 	      args = Yap_GetFromSlot(sl);
 	      Yap_RecoverSlots(1);
 	    }
@@ -4035,7 +4059,7 @@ format(Term tail, Term args, int sno)
 	      goto do_consistency_error;
 	    t = targs[targ++];
 	    *--ASP = MkIntTerm(0);
-	    Yap_plwrite (t, format_putc, Handle_vars_f|Quote_illegal_f|To_heap_f);
+	    Yap_plwrite (t, f_putc, Handle_vars_f|Quote_illegal_f|To_heap_f);
 	    ASP++;
 	    break;
 	  case 'w':
@@ -4043,19 +4067,19 @@ format(Term tail, Term args, int sno)
 	      goto do_consistency_error;
 	    t = targs[targ++];
 	    *--ASP = MkIntTerm(0);
-	    Yap_plwrite (t, format_putc, Handle_vars_f|To_heap_f);
+	    Yap_plwrite (t, f_putc, Handle_vars_f|To_heap_f);
 	    ASP++;
 	    break;
 	  case '~':
 	    if (has_repeats)
 	      goto do_consistency_error;
-	    format_putc(sno, (int) '~');
+	    f_putc(sno, (int) '~');
 	    break;
 	  case 'n':
 	    if (!has_repeats)
 	      repeats = 1;
 	    while (repeats--) {
-	      format_putc(sno, (int) '\n');
+	      f_putc(sno, (int) '\n');
 	    }
 	    column_boundary = 0;
 	    pad_max = pad_entries;
@@ -4064,14 +4088,14 @@ format(Term tail, Term args, int sno)
 	    if (!has_repeats)
 	      has_repeats = 1;
 	    if (Stream[sno].linepos != 0) {
-	      format_putc(sno, (int) '\n');
+	      f_putc(sno, (int) '\n');
 	      column_boundary = 0;
 	      pad_max = pad_entries;
 	    }
 	    if (repeats > 1) {
 	      Int i;
 	      for (i = 1; i < repeats; i++)
-		format_putc(sno, (int) '\n');
+		f_putc(sno, (int) '\n');
 	      column_boundary = 0;
 	      pad_max = pad_entries;
 	    }
@@ -4101,6 +4125,7 @@ format(Term tail, Term args, int sno)
 	      pad_max->pad = fptr[-2];
 	    pad_max->pos = format_ptr-format_base;
 	    pad_max++;
+	    f_putc = format_putc;
 	    break;
 	  do_instantiation_error:
 	    Yap_Error(INSTANTIATION_ERROR, t, "format/2");
@@ -4136,11 +4161,13 @@ format(Term tail, Term args, int sno)
       /* ok, now we should have a command */
       }
     } else {
-      format_putc(sno, ch);
+      f_putc(sno, ch);
     }
   }
-  for (fptr = format_base; fptr < format_ptr; fptr++) {
-    Stream[sno].stream_putc(sno, *fptr);
+  if (has_tabs) {
+    for (fptr = format_base; fptr < format_ptr; fptr++) {
+      Stream[sno].stream_putc(sno, *fptr);
+    }
   }
   if (IsAtomTerm(tail)) {
     fstr = NULL;
