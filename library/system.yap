@@ -243,29 +243,35 @@ process_inp_stream_for_exec(Error, _, G, L, L) :- var(Error), !,
 	throw(error(instantiation_error,G)).
 process_inp_stream_for_exec(null, null, _, L, L) :- !.
 process_inp_stream_for_exec(std, 0, _, L, L) :- !.
-process_inp_stream_for_exec(pipe(ForWriting), ForReading, _, L, [ForReading|L]) :- !,
+process_inp_stream_for_exec(pipe(ForWriting), ForReading, _, L, [ForReading|L]) :- var(ForWriting), !,
 	open_pipe_streams(ForReading, ForWriting).
+process_inp_stream_for_exec(pipe(Stream), _, _, L, L) :- !,
+	stream_property(Stream, output).
 process_inp_stream_for_exec(Stream, Stream, _, L, L) :-
-	stream_property(Stream, input).
+	stream_property(Stream, output).
 
 
 process_out_stream_for_exec(Error, _, G, L, L) :- var(Error), !,
 	throw(error(instantiation_error,G)).
 process_out_stream_for_exec(null, null, _, L, L) :- !.
 process_out_stream_for_exec(std, 1, _, L, L) :- !.
-process_out_stream_for_exec(pipe(ForReading), ForWriting, _, L, [ForWriting|L]) :- !,
+process_out_stream_for_exec(pipe(ForReading), ForWriting, _, L, [ForWriting|L]) :- var(ForReading), !,
 	open_pipe_streams(ForReading, ForWriting).
+process_out_stream_for_exec(pipe(Stream), _, _, L, L) :- !,
+	stream_property(Stream, input).
 process_out_stream_for_exec(Stream, Stream, _, L, L) :-
-	stream_property(Stream, output).
+	stream_property(Stream, input).
 
 process_err_stream_for_exec(Error, _, G, L, L) :- var(Error), !,
 	throw(error(instantiation_error,G)).
 process_err_stream_for_exec(null, null, _, L, L) :- !.
 process_err_stream_for_exec(std, 2, _, L, L) :- !.
-process_err_stream_for_exec(pipe(ForReading), ForWriting, _, L, [ForWriting|L]) :- !,
+process_err_stream_for_exec(pipe(ForReading), ForWriting, _, L, [ForWriting|L]) :- var(ForReading), !,
 	open_pipe_streams(ForReading, ForWriting).
+process_err_stream_for_exec(pipe(Stream), Stream, _, L, L) :- !,
+	stream_property(Stream, input).
 process_err_stream_for_exec(Stream, Stream, _, L, L) :-
-	stream_property(Stream, output).
+	stream_property(Stream, input).
 
 close_temp_streams([]).
 close_temp_streams([S|Ss]) :- close(S),
