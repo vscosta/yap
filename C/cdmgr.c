@@ -39,7 +39,7 @@ STATIC_PROTO(void asserta_dynam_clause, (PredEntry *, CODEADDR));
 STATIC_PROTO(void assertz_stat_clause, (PredEntry *, CODEADDR, int));
 STATIC_PROTO(void assertz_dynam_clause, (PredEntry *, CODEADDR));
 STATIC_PROTO(void expand_consult, (void));
-STATIC_PROTO(int  not_was_reconsulted, (PredEntry *, int));
+STATIC_PROTO(int  not_was_reconsulted, (PredEntry *, Term, int));
 #if EMACS
 STATIC_PROTO(int  last_clause_number, (PredEntry *));
 #endif
@@ -102,7 +102,7 @@ static_in_use(PredEntry *p, int check_everything)
     return (FALSE);
   }
   if (STATIC_PREDICATES_MARKED) {
-    return (pflags & InUseMask);
+    return (p->StateOfPred & InUseMask);
   } else {
     /* This code does not work for YAPOR or THREADS!!!!!!!! */
     return(search_for_static_predicate_in_use(p, TRUE /*check_everything*/));
@@ -287,7 +287,7 @@ RemoveIndexation(PredEntry *ap)
     RemoveLogUpdIndex(ClauseCodeToClause(ap->TrueCodeOfPred));
   else {
     Clause *cl = ClauseCodeToClause(ap->TrueCodeOfPred);
-    if (static_in_use(ap, FALSE)) {
+    if (static_in_use(ap, TRUE)) {
       Int Arity = ap->ArityOfPE;
 
       ErrorMessage = ErrorSay;
@@ -342,6 +342,9 @@ retract_all(PredEntry *p)
   int             multifile_pred = p->PredFlags & MultiFileFlag;
   CODEADDR        fclause = NIL, lclause = NIL;
 
+  if (static_in_use(p, TRUE)) {
+    
+  }
   q = p->FirstClause;
   if (q != NIL) {
     do {
@@ -733,7 +736,7 @@ static void  expand_consult(void)
 
 /* p was already locked */
 static int 
-not_was_reconsulted(PredEntry *p, int mode)
+not_was_reconsulted(PredEntry *p, Term t, int mode)
 {
   register consult_obj  *fp;
   Prop                   p0 = AbsProp((PropEntry *)p);
@@ -748,8 +751,27 @@ not_was_reconsulted(PredEntry *p, int mode)
       expand_consult();
     --ConsultSp;
     ConsultSp->p = p0;
-    if (ConsultBase[1].mode) /* we are in reconsult mode */
+    if (ConsultBase[1].mode) /* we are in reconsult mode */ {
+      if (static_in_use(p, TRUE)) {
+	Int Arity = p->ArityOfPE;
+
+	ErrorMessage = ErrorSay;
+	Error_Term = t;
+	Error_TYPE = PERMISSION_ERROR_MODIFY_STATIC_PROCEDURE;
+	if (Arity == 0)
+	  sprintf(ErrorMessage, "predicate %s is in use", RepAtom((Atom)(p->FunctorOfPred))->StrOfAE);
+	else
+	  sprintf(ErrorMessage,
+#if SHORT_INTS
+		  "predicate %s/%ld is in use",
+#else
+		  "predicate %s/%d is in use",
+#endif
+		  RepAtom(NameOfFunctor(p->FunctorOfPred))->StrOfAE, Arity);
+	return(FALSE);
+      }
       retract_all(p);
+    }
     if (!(p->PredFlags & MultiFileFlag)) {
       p->OwnerFile = YapConsultingFile();
     }
@@ -769,13 +791,13 @@ addcl_permission_error(AtomEntry *ap, Int Arity)
   Error_Term = t;
   Error_TYPE = PERMISSION_ERROR_MODIFY_STATIC_PROCEDURE;
   if (Arity == 0)
-    sprintf(ErrorMessage, "in use static predicate %s", ap->StrOfAE);
+    sprintf(ErrorMessage, "static predicate %s is in use", ap->StrOfAE);
   else
     sprintf(ErrorMessage,
 #if SHORT_INTS
-	    "in use static predicate %s/%ld",
+	    "static predicate %s/%ld is in use",
 #else
-	    "in use static predicate %s/%d",
+	    "static predicate %s/%d is in use",
 #endif
 	    ap->StrOfAE, Arity);
 }
@@ -808,7 +830,7 @@ addclause(Term t, CODEADDR cp, int mode, int mod)
   PutValue(AtomAbol, TermNil);
   WRITE_LOCK(p->PRWLock);
   /* we are redefining a prolog module predicate */
-  if (mod != 0 && p->ModuleOfPred == 0) {
+  if (p->ModuleOfPred == 0 && mod != 0) {
     WRITE_UNLOCK(p->PRWLock);
     addcl_permission_error(RepAtom(at), Arity);
     return;
@@ -827,7 +849,7 @@ addclause(Term t, CODEADDR cp, int mode, int mod)
   if (p->PredFlags & SpiedPredFlag)
     spy_flag = TRUE;
   if (mode == consult)
-    not_was_reconsulted(p, TRUE);
+    not_was_reconsulted(p, t, TRUE);
   if (!is_dynamic(p)) {
     Clause     *clp = ClauseCodeToClause(cp);
     clp->ClFlags |= StaticMask;
@@ -998,7 +1020,7 @@ where_new_clause(pred_prop, mode)
 {
   PredEntry      *p = RepPredProp(pred_prop);
 
-  if (mode == consult && not_was_reconsulted(p, FALSE))
+  if (mode == consult && not_was_reconsulted(p, TermNil, FALSE))
     return (1);
   else
     return (last_clause_number(p) + 1);
@@ -1697,7 +1719,6 @@ search_for_static_predicate_in_use(PredEntry *p, int check_everything)
       */
       while (b_ptr > (choiceptr)env_ptr) {
 	PredEntry *pe = EnvPreg(env_ptr[E_CP]);
-	if (p == pe)   fprintf(stderr,"vsc: live environment\n");
 	if (p == pe) return(TRUE);
 	if (env_ptr != NULL)
 	  env_ptr = (CELL *)(env_ptr[E_E]);
@@ -1729,7 +1750,6 @@ search_for_static_predicate_in_use(PredEntry *p, int check_everything)
 	pe = (PredEntry *)(b_ptr->cp_ap->u.ld.p);
       }
       if (pe == p) {
-	fprintf(stderr,"vsc: choice-point\n");
 	if (check_everything) return(TRUE);
 	READ_LOCK(pe->PRWLock);
 	if (p->PredFlags & IndexedPredFlag) {
@@ -1754,21 +1774,16 @@ search_for_static_predicate_in_use(PredEntry *p, int check_everything)
 static void
 mark_pred(int mark, PredEntry *pe)
 {
-  WRITE_LOCK(pe->PRWLock);
-  if (mark) {
-    /* if the predicate is static mark it */
-    if (!(pe->PredFlags & (BasicPredFlag|StandardPredFlag|DynamicPredFlag|CPredFlag)) &&
-	pe->ModuleOfPred != 0) {
+  /* if the predicate is static mark it */
+  if (pe->ModuleOfPred) {
+    WRITE_LOCK(pe->PRWLock);
+    if (mark) {
       pe->StateOfPred |= InUseMask;
+    } else {
+      pe->StateOfPred &= ~InUseMask;
     }
-  } else {
-    if (!(pe->PredFlags & (BasicPredFlag|StandardPredFlag|DynamicPredFlag|CPredFlag)) &&
-	(pe->StateOfPred & InUseMask) &&
-	pe->ModuleOfPred != 0) {
-      pe->StateOfPred ^= InUseMask;
-    }
+    WRITE_UNLOCK(pe->PRWLock);
   }
-  WRITE_UNLOCK(pe->PRWLock);
 }
 
 /* go up the chain of choice_points and environments,
@@ -1783,36 +1798,46 @@ do_toggle_static_predicates_in_use(int mask)
   if (b_ptr == NULL)
     return;
   do {
+    PredEntry *pe;
     /* check first environments that are younger than our latest choicepoint */
     while (b_ptr > (choiceptr)env_ptr) {
       PredEntry *pe = EnvPreg(env_ptr[E_CP]);
-      if (pe != NIL)
+      if (pe != NULL)
 	mark_pred(mask, pe);
       env_ptr = (CELL *)(env_ptr[E_E]);
     }
     /* now mark the choicepoint */
     {
-      PredEntry *pe;
       op_numbers opnum;
+    restart_cp:
       opnum = op_from_opcode(b_ptr->cp_ap->opc);
       
-      if (opnum == _or_else || opnum == _or_last) {
+      switch(opnum) {
+      case _or_else:
+      case _or_last:
 #ifdef YAPOR
 	pe = PredFromOr(b_ptr->cp_cp->u.ldl.bl);
 #else
 	pe = PredFromOr(b_ptr->cp_cp->u.sla.l2);
 #endif /* YAPOR */
-      } else if (opnum == _Nstop) {
-	pe = NIL;
-      } else {
+	break;
+      case _Nstop:
+	pe = NULL;
+	break;
+      case _retry_profiled:
+	opnum = op_from_opcode(NEXTOP(b_ptr->cp_ap,l)->opc);
+	goto restart_cp;
+      default:
 	pe = (PredEntry *)(b_ptr->cp_ap->u.ld.p);
       }
-      if (pe != NIL)
+      if (pe != NULL)
 	mark_pred(mask, pe);
       env_ptr = b_ptr->cp_env;
       b_ptr = b_ptr->cp_b;
     }
   } while (b_ptr != NULL);
+  /* mark or unmark all predicates */
+  STATIC_PREDICATES_MARKED = mask;
 }
 
 #endif
@@ -1842,8 +1867,6 @@ p_toggle_static_predicates_in_use(void)
     mask = IntOfTerm(t);
   }
   do_toggle_static_predicates_in_use(mask);
-  /* mark or unmark all predicates */
-  STATIC_PREDICATES_MARKED = mask;
 #endif
   return(TRUE);
 }
@@ -1863,9 +1886,9 @@ code_in_pred(PredEntry *pp, Atom *pat, Int *parity, CODEADDR codeptr) {
 	codeptr <= pp->TrueCodeOfPred + SizeOfBlock(pp->TrueCodeOfPred)) {
       *parity = pp->ArityOfPE;
       if (pp->ArityOfPE) {
-	*pat = (Atom)(pp->FunctorOfPred);
-      } else {
 	*pat = NameOfFunctor(pp->FunctorOfPred);
+      } else {
+	*pat = (Atom)(pp->FunctorOfPred);
       }
       READ_UNLOCK(pp->PRWLock);
       return(-1);
@@ -1876,9 +1899,9 @@ code_in_pred(PredEntry *pp, Atom *pat, Int *parity, CODEADDR codeptr) {
 	/* we found it */
 	*parity = pp->ArityOfPE;
 	if (pp->ArityOfPE) {
-	  *pat = (Atom)(pp->FunctorOfPred);
-	} else {
 	  *pat = NameOfFunctor(pp->FunctorOfPred);
+	} else {
+	  *pat = (Atom)(pp->FunctorOfPred);
 	}
 	READ_UNLOCK(pp->PRWLock);
 	return(i);
@@ -1895,20 +1918,21 @@ code_in_pred(PredEntry *pp, Atom *pat, Int *parity, CODEADDR codeptr) {
 
 Int
 PredForCode(CODEADDR codeptr, Atom *pat, Int *parity, SMALLUNSGN *pmodule) {
-  Int found;
+  Int found = 0;
   Int i_table;
 
-  for (i_table = 0; i_table < NoOfModules; ++i_table) {
+  /* should we allow the user to see hidden predicates? */
+  for (i_table = NoOfModules-1; i_table >= 0; --i_table) {
     PredEntry *pp = ModulePred[i_table];
     while (pp != NULL) {
       if ((found = code_in_pred(pp,  pat, parity, codeptr)) != 0) {
-	break;
+	*pmodule = i_table;
+	return(found);
       }
       pp = pp->NextPredOfModule;
     }
   }
-  /* should we allow the user to see hidden predicates? */
-  return(found);
+  return(0);
 }
 
 static Int

@@ -7,7 +7,6 @@ BEFORE 4.4:
 - mask when installing.
 - debugger: leash(full). [-user]. a(X) :- call(setof(Z,call(c(Z)),X)). a(X) :- b(X). b(X) :- c(X). c(1). c(2). end_of_file. spy a/1. a(X).
 - debugger: don't stop from within system code.
-- error handling.
 - reports from Nikos.
 
 TO CHECK:
