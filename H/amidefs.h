@@ -339,6 +339,7 @@ typedef struct yami {
 	 union {
 	   struct yami *l;
 	   struct pred_entry  *p;
+	   SMALLUNSGN  m_num;
 	 } sla_u;
          struct pred_entry  *p0;
 	 CELL next;
@@ -554,7 +555,7 @@ typedef struct choicept {
 #define RealEnvSize	(EnvSizeInCells*sizeof(CELL))
 
 #define ENV_Size(cp)       (((yamop *)((CODEADDR)(cp) - (CELL)NEXTOP((yamop *)NIL,sla)))->u.sla.s)
-#define ENV_ToP(cp)        ((yamop *)((CODEADDR)(cp) - (CELL)NEXTOP((yamop *)NIL,sla)))->u.sla.p)
+#define ENV_ToP(cp)        (((yamop *)((CODEADDR)(cp) - (CELL)NEXTOP((yamop *)NIL,sla)))->u.sla.sla_u.p)
 #define ENV_ToOp(cp)       (((yamop *)((CODEADDR)(cp) - (CELL)NEXTOP((yamop *)NIL,sla)))->opc)
 #define EnvSize(cp)        ((-ENV_Size(cp))/(OPREG)sizeof(CELL))
 #define EnvBMap(p)         (((yamop *)((CODEADDR)(p) - (CELL)NEXTOP((yamop *)NIL,sla)))->u.sla.bmap)
