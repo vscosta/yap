@@ -27,12 +27,12 @@ false :- fail.
 (:- G) :- '$execute'(G), !.
 '$$!'(CP) :- '$cut_by'(CP).
 [] :- true.
-','(A,B) :-  '$current_module'(Module), '$meta_call'((A,B),Module).
-';'(A,B) :-  '$current_module'(Module), '$meta_call'((A;B),Module).
-'|'(A,B) :-  '$current_module'(Module), '$meta_call'((A;B),Module).
-'->'(A,B) :- '$current_module'(Module), '$meta_call'((A->B),Module).
-\+(G) :-     '$current_module'(Module), '$meta_call'(\+(G),Module).
-not(G) :-    '$current_module'(Module), '$meta_call'(not(G),Module).
+','(A,B) :-  '$execute'(A), '$execute'(B).
+';'(A,B) :-  ('$execute'(A) ; '$execute'(B)).
+'|'(A,B) :-  ('$execute'(A) ; '$execute'(B)).
+'->'(A,B) :- ('$execute'(A) -> '$execute'(B)).
+\+(G) :-     \+ '$execute'(G).
+not(G) :-    \+ '$execute'(G).
 
 
 :- set_value('$doindex',true).

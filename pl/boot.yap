@@ -675,10 +675,10 @@ incore(G) :- '$execute'(G).
         ;
 	    '$call'(B,CP,G0,M)
 	).
-'$call'(\+ X, _, _,_) :- !,
-	\+ '$execute'(X).
-'$call'(not(X), _, _,_) :- !,
-	\+ '$execute'(X).
+'$call'(\+ X, CP, G0, M) :- !,
+	\+ '$call'(X, CP, G0, M).
+'$call'(not(X), CP, G0, M) :- !,
+	\+ '$call'(X, CP, G0, M).
 '$call'(!, CP, _,_) :- !,
 	'$$cut_by'(CP).
 '$call'([A|B], _, _, M) :- !,

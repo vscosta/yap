@@ -77,7 +77,11 @@ inline static Int
 CallMetaCall(Term mod) {
   ARG2 = cp_as_integer(B); /* p_save_cp */
   ARG3 = ARG1;
-  ARG4 = mod;
+  if (mod) {
+    ARG4 = mod;
+  } else {
+    ARG4 = TermProlog;
+  }
   return (CallPredicate(PredMetaCall, B, PredMetaCall->CodeOfPred));
 }
 
