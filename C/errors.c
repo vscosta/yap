@@ -109,6 +109,7 @@ DumpActiveGoals (void)
 	  Functor f;
 	  Term mod = TermProlog;
 
+	  READ_UNLOCK(pe->PRWLock);
 	  f = pe->FunctorOfPred;
 	  if (pe->KindOfPE && hidden (NameOfFunctor (f)))
 	    goto next;
@@ -125,9 +126,10 @@ DumpActiveGoals (void)
 	    Yap_plwrite (MkIntTerm (ArityOfFunctor (f)), Yap_DebugPutc, 0);
 	  }
 	  Yap_DebugPutc (Yap_c_error_stream,'\n');
+	} else {
+	  READ_UNLOCK(pe->PRWLock);
 	}
     next:
-      READ_UNLOCK(pe->PRWLock);
       ep = (CELL *) ep[E_E];
     }
   first = 1;

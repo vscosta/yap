@@ -2035,11 +2035,13 @@ p_pred_exists(void)
   if (EndOfPAEntr(pe))
     return FALSE;
   READ_LOCK(pe->PRWLock);
-  if (pe->PredFlags & HiddenPredFlag)
-    return(FALSE);
+  if (pe->PredFlags & HiddenPredFlag){
+    READ_UNLOCK(pe->PRWLock);
+    return FALSE;
+  }
   out = (pe->OpcodeOfPred != UNDEF_OPCODE);
   READ_UNLOCK(pe->PRWLock);
-  return(out);
+  return out;
 }
 
 static Int 
@@ -2376,8 +2378,8 @@ search_for_static_predicate_in_use(PredEntry *p, int check_everything)
 	    }
 	  }
 	}
+	READ_UNLOCK(pe->PRWLock);
       }
-      READ_UNLOCK(pe->PRWLock);
       env_ptr = b_ptr->cp_env;
       b_ptr = b_ptr->cp_b;
     }
@@ -3143,6 +3145,12 @@ fetch_next_lu_clause(PredEntry *pe, yamop *i_code, Term th, Term tb, Term tr, ya
   }
 #endif
 #if defined(YAPOR) || defined(THREADS)
+  if (PP == pe) {
+    PP = NULL;
+    READ_UNLOCK(pe->PRWLock);
+  }
+#endif
+#if defined(YAPOR) || defined(THREADS)
   WPP = NULL;
 #endif
   if (cl->ClFlags & FactMask) {
@@ -3210,18 +3218,10 @@ p_log_update_clause(void)
     WRITE_UNLOCK(pe->PRWLock);
   }
 #if defined(YAPOR) || defined(THREADS)
-  if (PP != pe) {
-    READ_LOCK(pe->PRWLock);
-    PP = pe;
-  }
+  READ_LOCK(pe->PRWLock);
+  PP = pe;
 #endif
   ret = fetch_next_lu_clause(pe, pe->cs.p_code.TrueCodeOfPred, t1, ARG3, ARG4, P, TRUE);
-#if defined(YAPOR) || defined(THREADS)
-  if (PP == pe) {
-    PP = NULL;
-    READ_UNLOCK(pe->PRWLock);
-  }
-#endif
   return ret;
 }
 
@@ -3240,6 +3240,12 @@ fetch_next_lu_clause0(PredEntry *pe, yamop *i_code, Term th, Term tb, yamop *cp_
   LogUpdClause *cl;
 
   cl = Yap_FollowIndexingCode(pe, i_code, th, tb, TermNil, NEXTOP(PredLogUpdClause0->CodeOfPred,ld), cp_ptr);
+#if defined(YAPOR) || defined(THREADS)
+  if (PP == pe) {
+    PP = NULL;
+    READ_UNLOCK(pe->PRWLock);
+  }
+#endif
   if (cl == NULL) {
     return FALSE;
   }
@@ -3304,18 +3310,10 @@ p_log_update_clause0(void)
       IPred(pe);
   }
 #if defined(YAPOR) || defined(THREADS)
-  if (PP != pe) {
-    READ_LOCK(pe->PRWLock);
-    PP = pe;
-  }
+  READ_LOCK(pe->PRWLock);
+  PP = pe;
 #endif
   ret = fetch_next_lu_clause0(pe, pe->cs.p_code.TrueCodeOfPred, t1, ARG3, P, TRUE);
-#if defined(YAPOR) || defined(THREADS)
-  if (PP == pe) {
-    PP = NULL;
-    READ_UNLOCK(pe->PRWLock);
-  }
-#endif
   return ret;
 }
 
@@ -3479,6 +3477,7 @@ add_code_in_pred(PredEntry *pp) {
     cl = ClauseCodeToStaticClause(clcode);
     code_end = (char *)cl + Yap_SizeOfBlock((CODEADDR)cl);
     Yap_inform_profiler_of_clause(clcode, (yamop *)code_end, pp);
+    READ_UNLOCK(pp->PRWLock);
     return;
   }
   clcode = pp->cs.p_code.TrueCodeOfPred;

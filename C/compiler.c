@@ -571,6 +571,7 @@ c_arg(Int argno, Term t, unsigned int arity, unsigned int level, compiler_struct
       READ_UNLOCK(cglobs->cint.CurrentPred->PRWLock);
       FAIL("can not compile data base reference",TYPE_ERROR_CALLABLE,t);
     } else {
+      READ_UNLOCK(cglobs->cint.CurrentPred->PRWLock);
       Yap_emit((cglobs->onhead ? get_atom_op : put_atom_op), (CELL) t, argno, &cglobs->cint);      
     }
   } else {

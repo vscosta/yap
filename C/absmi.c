@@ -1443,11 +1443,11 @@ Yap_absmi(int inp)
       CUT_wait_leftmost();
 #endif /* YAPOR */
       /* need to make the DB stable until I get the new clause */
-      READ_LOCK(((PredEntry *)(PREG->u.ld.p))->PRWLock);
+      READ_LOCK(PREG->u.ld.p->PRWLock);
       CACHE_Y(B);
       PREG = PREG->u.ld.d;
       LOCK(DynamicLock(PREG));
-      READ_UNLOCK(((PredEntry *)(PREG->u.ld.p))->PRWLock);
+      READ_UNLOCK(PREG->u.ld.p->PRWLock);
       restore_yaam_regs(PREG);
       restore_args(PREG->u.ld.s);
 #ifdef FROZEN_STACKS

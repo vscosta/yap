@@ -51,8 +51,10 @@ CallPredicate(PredEntry *pen, choiceptr cut_pt) {
 #ifdef DEPTH_LIMIT
   if (DEPTH <= MkIntTerm(1)) {/* I assume Module==0 is prolog */
     if (pen->ModuleOfPred) {
-      if (DEPTH == MkIntTerm(0))
+      if (DEPTH == MkIntTerm(0)) {
+	READ_UNLOCK(pen->PRWLock);
 	return FALSE;
+      }
       else DEPTH = RESET_DEPTH();
     }
   } else if (pen->ModuleOfPred)
@@ -1349,15 +1351,14 @@ Yap_RunTopGoal(Term t)
   ppe = RepPredProp(pe);
   if (pe != NIL) {
     READ_LOCK(ppe->PRWLock);
-  }
-  if (pe == NIL) {
+  } else if (pe == NIL) {
     /* we must always start the emulator with Prolog code */
     return(FALSE);
   }
+  CodeAdr = ppe->CodeOfPred;
   if (pe != NIL) {
     READ_UNLOCK(ppe->PRWLock);
   }
-  CodeAdr = ppe->CodeOfPred;
   if (Yap_TrailTop - HeapTop < 2048) {
     Yap_PrologMode = BootMode;
     Yap_Error(SYSTEM_ERROR,TermNil,
