@@ -306,12 +306,12 @@ clause(V,Q,R) :-
 	M0 = M,
 	instance(R,T),
 	( T = (H :- B) -> P = H, Q = B ; P=T, Q = true).
-'$clause'(V,M,Q,_) :- var(V), !, 
-	'$do_error'(instantiation_error,M:clause(V,Q)).
-'$clause'(C,M,Q,_) :- number(C), !,
-	'$do_error'(type_error(callable,C),M:clause(C,Q)).
-'$clause'(R,M,Q,_) :- db_reference(R), !,
-	'$do_error'(type_error(callable,R),M:clause(R,Q)).
+'$clause'(V,M,Q,R) :- var(V), !, 
+	'$do_error'(instantiation_error,clause(M:V,Q,R)).
+'$clause'(C,M,Q,R) :- number(C), !,
+	'$do_error'(type_error(callable,C),clause(M:C,Q,R)).
+'$clause'(R,M,Q,R) :- db_reference(R), !,
+	'$do_error'(type_error(callable,R),clause(M:R,Q,R)).
 '$clause'(M:P,_,Q,R) :- !,
 	'$clause'(P,M,Q,R).
 '$clause'(P,M,Q,R) :-
@@ -323,13 +323,13 @@ clause(V,Q,R) :-
 '$clause'(P,M,Q,R) :-
 	'$some_recordedp'(M:P), !,
 	'$recordedp'(M:P,(P:-Q),R).
-'$clause'(P,M,Q,_) :-
+'$clause'(P,M,Q,R) :-
 	\+ '$undefined'(P,M),
 	( '$system_predicate'(P,M) -> true ;
 	    '$number_of_clauses'(P,M,N), N > 0 ),
 	functor(P,Name,Arity),
 	'$do_error'(permission_error(access,private_procedure,Name/Arity),
-	      clause(M:P,Q)).
+	      clause(M:P,Q,R)).
 
 % just create a choice-point
 '$do_log_upd_clause'(_,_,_,_,_).

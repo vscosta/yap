@@ -11,8 +11,12 @@
 * File:		index.c							 *
 * comments:	Indexing a Prolog predicate				 *
 *									 *
-* Last rev:     $Date: 2004-04-22 03:24:17 $,$Author: vsc $						 *
+* Last rev:     $Date: 2004-04-27 15:03:43 $,$Author: vsc $						 *
 * $Log: not supported by cvs2svn $
+* Revision 1.88  2004/04/22 03:24:17  vsc
+* trust_logical should protect the last clause, otherwise it cannot
+* jump there.
+*
 * Revision 1.87  2004/04/21 04:01:53  vsc
 * fix bad ordering when inserting second clause
 *
@@ -2874,7 +2878,7 @@ suspend_indexing(ClauseDef *min, ClauseDef *max, PredEntry *ap, struct intermedi
     cint->expand_block->u.sp.s3++;
     return (UInt)(cint->expand_block);
   }
-  if (cls < tcls/8) {
+  if (cls < tcls/8 && FALSE) {
     yamop *ncode;
     yamop **st;
     UInt sz = (UInt)(NEXTOP((yamop *)NULL,sp)+cls*sizeof(yamop *));
@@ -3299,6 +3303,7 @@ do_index(ClauseDef *min, ClauseDef* max, struct intermediates *cint, UInt argno,
       }
       if (argno == ap->ArityOfPE) {
 	do_var_clauses(min, max, FALSE, cint, first, clleft, fail_l, argno0);
+	cint->expand_block = eblk;
 	return lablx;
       }
       argno++;
@@ -4391,7 +4396,7 @@ expand_index(struct intermediates *cint) {
 #endif
     if (cls+2*nclauses > (ClauseDef *)(ASP-4096)) {
       /* tell how much space we need (worst case) */
-      Yap_Error_Size += NClauses*sizeof(ClauseDef);
+      Yap_Error_Size += 2*NClauses*sizeof(ClauseDef);
       /* grow stack */
       recover_from_failed_susp_on_cls(cint, 0);
       longjmp(cint->CompilerBotch,3);
@@ -4405,7 +4410,7 @@ expand_index(struct intermediates *cint) {
     cint->expand_block = NULL;
     if (cls+2*NClauses > (ClauseDef *)(ASP-4096)) {
       /* tell how much space we need (worst case) */
-      Yap_Error_Size += NClauses*sizeof(ClauseDef);
+      Yap_Error_Size += 2*NClauses*sizeof(ClauseDef);
       /* grow stack */
       recover_from_failed_susp_on_cls(cint, 0);
       longjmp(cint->CompilerBotch,3);
@@ -5611,10 +5616,9 @@ add_to_expand_clauses(path_stack_entry **spp, yamop *ipc, ClauseDef *cls, PredEn
   path_stack_entry *sp = *spp;
   yamop **clar = (yamop **)NEXTOP(ipc,sp);
 
-  while ((--sp)->flag != block_entry);
   if (first) {
     if (*clar == NULL) {
-      while (*clar++ == NULL);
+      while (*clar == NULL) clar++;
       if (clar[0] != cls->Code) {
 	clar[-1] = cls->Code;
 	ipc->u.sp.s2++;
@@ -5623,21 +5627,21 @@ add_to_expand_clauses(path_stack_entry **spp, yamop *ipc, ClauseDef *cls, PredEn
     }
   } else {
     clar += ipc->u.sp.s1;
-    while (*--clar == NULL);
-    if (clar[0] == NULL) {
-      if (clar[-1] != cls->Code) {
-	clar[0] = cls->Code;
+    if (clar[-1] == NULL) {
+      while (*--clar == NULL);
+      if (clar[0] != cls->Code) {
+	clar[1] = cls->Code;
 	ipc->u.sp.s2++;
       }
       return pop_path(spp, cls, ap);
     }
   }
+  while ((--sp)->flag != block_entry);
   if (sp->u.cle.entry_code) {
     *sp->u.cle.entry_code = (yamop *)&(ap->cs.p_code.ExpandCode);
   }
-  *spp = sp;
   recover_ecls_block(ipc);
-  return (yamop *)&(ap->cs.p_code.ExpandCode);
+  return pop_path(spp, cls, ap);
 }
 
 /* this code should be called when we jumped to clauses */

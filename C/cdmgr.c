@@ -11,8 +11,12 @@
 * File:		cdmgr.c							 *
 * comments:	Code manager						 *
 *									 *
-* Last rev:     $Date: 2004-04-14 19:10:23 $,$Author: vsc $						 *
+* Last rev:     $Date: 2004-04-27 15:03:43 $,$Author: vsc $						 *
 * $Log: not supported by cvs2svn $
+* Revision 1.118  2004/04/14 19:10:23  vsc
+* expand_clauses: keep a list of clauses to expand
+* fix new trail scheme for multi-assignment variables
+*
 * Revision 1.117  2004/04/07 22:04:03  vsc
 * fix memory leaks
 *
@@ -279,8 +283,22 @@ decrease_ref_counter(yamop *ptr, yamop *b, yamop *e, yamop *sc)
 }
 
 static void
+release_wcls(yamop *cop, OPCODE ecs)
+{
+  if (cop->opc == ecs) {
+    cop->u.sp.s3--;
+    if (!cop->u.sp.s3) {
+      Yap_FreeCodeSpace((char *)cop);
+    }
+  }
+}
+
+
+static void
 cleanup_dangling_indices(yamop *ipc, yamop *beg, yamop *end, yamop *suspend_code)
 {
+  OPCODE ecs = Yap_opcode(_expand_clauses);
+
   while (ipc < end) {
     op_numbers op = Yap_op_from_opcode(ipc->opc);
     /* printf("op: %d %p->%p\n", op, ipc, end); */
@@ -339,23 +357,41 @@ cleanup_dangling_indices(yamop *ipc, yamop *beg, yamop *end, yamop *suspend_code
     case _trust_logical_pred:
     case _jump:
     case _jump_if_var:
+      release_wcls(ipc->u.l.l, ecs);
       ipc = NEXTOP(ipc,l);
       break;
       /* instructions type xl */
     case _jump_if_nonvar:
+      release_wcls(ipc->u.xl.l, ecs);
       ipc = NEXTOP(ipc,xl);
       break;
       /* instructions type e */
     case _switch_on_type:
       ipc = NEXTOP(ipc,llll);
+      release_wcls(ipc->u.llll.l1, ecs);
+      release_wcls(ipc->u.llll.l2, ecs);
+      release_wcls(ipc->u.llll.l3, ecs);
+      release_wcls(ipc->u.llll.l4, ecs);
       break;
     case _switch_list_nl:
+      release_wcls(ipc->u.ollll.l1, ecs);
+      release_wcls(ipc->u.ollll.l2, ecs);
+      release_wcls(ipc->u.ollll.l3, ecs);
+      release_wcls(ipc->u.ollll.l4, ecs);
       ipc = NEXTOP(ipc,ollll);
       break;
     case _switch_on_arg_type:
+      release_wcls(ipc->u.xllll.l1, ecs);
+      release_wcls(ipc->u.xllll.l2, ecs);
+      release_wcls(ipc->u.xllll.l3, ecs);
+      release_wcls(ipc->u.xllll.l4, ecs);
       ipc = NEXTOP(ipc,xllll);
       break;
     case _switch_on_sub_arg_type:
+      release_wcls(ipc->u.sllll.l1, ecs);
+      release_wcls(ipc->u.sllll.l2, ecs);
+      release_wcls(ipc->u.sllll.l3, ecs);
+      release_wcls(ipc->u.sllll.l4, ecs);
       ipc = NEXTOP(ipc,sllll);
       break;
     case _if_not_then:
@@ -399,12 +435,7 @@ decrease_log_indices(LogUpdIndex *c, yamop *suspend_code)
       yamop *cop;
       cop = (yamop *)beg[1];
       beg += 2;
-      if (cop->opc == ecs) {
-	cop->u.sp.s3--;
-	if (!cop->u.sp.s3) {
-	  Yap_FreeCodeSpace((char *)cop);
-	}
-      }
+      release_wcls(cop, ecs);
     }
     return;
   }
