@@ -1297,6 +1297,8 @@ exec_absmi(int top)
       /* do nothing */
       PrologMode = UserMode;
     }
+  } else {
+    PrologMode = UserMode;
   }
   return(absmi(0));
 }
