@@ -1095,7 +1095,7 @@ c_functor(Term Goal)
     c_var(t3,f_flag,(unsigned int)_functor);
   } else {
     Functor f = FunctorOfTerm(Goal);
-    Prop p0 = PredProp(NameOfFunctor(f), ArityOfFunctor(f));
+    Prop p0 = PredPropByFunc(f);
     if (profiling)
       emit(enter_profiling_op, (CELL)RepPredProp(p0), Zero);
     c_args(Goal);
@@ -1260,7 +1260,7 @@ c_goal(Term Goal)
   }
   else {
     f = FunctorOfTerm(Goal);
-    p = RepPredProp(p0 = PredProp(NameOfFunctor(f), ArityOfFunctor(f)));
+    p = RepPredProp(p0 = PredPropByFunc(f));
     if (f == FunctorOr) {
       CELL l = ++labelno;
       CELL m = ++labelno;
@@ -2849,18 +2849,14 @@ cclause(Term inp_clause, int NOfArgs)
     ErrorMessage = "clause should be atom or term";
     return (0);
   } else {
-    int        Arity;
-    Atom       ap;
     
     /* find out which predicate we are compiling for */
     if (IsAtomTerm(head)) {
-      Arity = 0;
-      ap = AtomOfTerm(head);
+      Atom ap = AtomOfTerm(head);
+      CurrentPred = RepPredProp(PredProp(ap, 0));
     } else {
-      ap = NameOfFunctor(FunctorOfTerm(head)),
-      Arity = ArityOfFunctor(FunctorOfTerm(head));
+      CurrentPred = RepPredProp(PredPropByFunc(FunctorOfTerm(head)));
     }
-    CurrentPred = RepPredProp(PredProp(ap, Arity));
     /* insert extra instructions to count calls */
     READ_LOCK(CurrentPred->PRWLock);
     if ((CurrentPred->PredFlags & ProfiledPredFlag) ||

@@ -3092,8 +3092,6 @@ MyEraseClause(Clause *clau)
   DBRef           next, previous;
   DBProp          father;
   PredEntry      *pred;
-  unsigned int    arity;
-  Atom            name;
 #endif
   SMALLUNSGN      clmask;
 
@@ -3121,12 +3119,13 @@ MyEraseClause(Clause *clau)
     previous_code->u.ld.d = next->Code;
   } else {
     father = ref->Parent;
-    if ((arity = father->ArityOfDB) == 0)
-      name = (Atom) father->FunctorOfDB;
-    else
-      name = NameOfFunctor(father->FunctorOfDB);
+    if ((arity = father->ArityOfDB) == 0) {
+      Atom name = (Atom) father->FunctorOfDB;
+      pred = RepPredProp(PredProp(name, 0));
+    } else {
+      pred = RepPredProp(PredPropByFunc(father->FunctorOfDB));
+    }
     DBModule = father->ModuleOfDB;
-    pred = RepPredProp(PredProp(name, arity));
     WRITE_LOCK(pred->PRWLock);
     if (StillInChain((CODEADDR)(clau->ClCode), pred)) {
       if (previous == NIL && next != NIL) {
@@ -3294,8 +3293,6 @@ PrepareToEraseClause(Clause *clau, DBRef dbr)
      goal immediately */
   {
     DBProp father;
-    Int arity;
-    Atom name;
     PredEntry *pred;
     /* first we get the next clause */
     CODEADDR next = code_p->u.ld.d;
@@ -3316,12 +3313,13 @@ PrepareToEraseClause(Clause *clau, DBRef dbr)
        predicate entry that a clause left. */
     father = dbr->Parent;
     /* inefficient, but that will do for the moment, sir. */
-    if ((arity = father->ArityOfDB) == 0)
-      name = (Atom) father->FunctorOfDB;
-    else
-      name = NameOfFunctor(father->FunctorOfDB);
+    if (father->ArityOfDB == 0) {
+      Atom name = (Atom) father->FunctorOfDB;
+      pred = RepPredProp(PredProp(name, 0));
+    } else {
+      pred = RepPredProp(PredPropByFunc(father->FunctorOfDB));
+    }
     DBModule = father->ModuleOfDB;
-    pred = RepPredProp(PredProp(name, arity));
     WRITE_LOCK(pred->PRWLock);
     /* got my pred entry, let's have some fun! */
     clau_code = (CODEADDR)(clau->ClCode);
@@ -3329,7 +3327,12 @@ PrepareToEraseClause(Clause *clau, DBRef dbr)
 #ifdef DEBUG
       if (pred->FirstClause != clau_code) {
 	/* sanity check */
-	Error(SYSTEM_ERROR, TermNil, "Prepare to erase clause for %s/%d",RepAtom(name)->StrOfAE,arity);
+	if (father->ArityOfDB == 0) {
+	  Error(SYSTEM_ERROR, TermNil, "Prepare to erase clause for %s/%d",RepAtom((Atom)father->FunctorOfDB)->StrOfAE,0);
+	} else {
+	  Functor f = father->FunctorOfDB;
+	  Error(SYSTEM_ERROR, TermNil, "Prepare to erase clause for %s/%d",RepAtom(NameOfFunctor(f))->StrOfAE,ArityOfFunctor(f));
+	}
 	return;
       }
 #endif

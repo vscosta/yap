@@ -1316,10 +1316,8 @@ mark_choicepoints(register choiceptr gc_B, tr_fr_ptr saved_TR)
 	/* first condition  checks if this was a meta-call */
 	if ((caller_op != _call  && caller_op != _fcall) || pe == NULL) {
 	  YP_fprintf(YP_stderr,"B  %p (%s) with %d,%d\n", gc_B, op_names[opnum], gc_B->cp_h-H0, total_marked);
-	} else if (pe->ArityOfPE)
+	} else
 	  YP_fprintf(YP_stderr,"B  %p (%s for %s/%d) with %d,%d\n", gc_B, op_names[opnum], RepAtom(NameOfFunctor(pe->FunctorOfPred))->StrOfAE, pe->ArityOfPE, gc_B->cp_h-H0, total_marked);
-	else
-	  YP_fprintf(YP_stderr,"B  %p (%s for %s/0) with %d,%d\n", gc_B, op_names[opnum], RepAtom((Atom)(pe->FunctorOfPred))->StrOfAE, gc_B->cp_h-H0, total_marked);
       }
       break;
 #endif
@@ -1328,10 +1326,8 @@ mark_choicepoints(register choiceptr gc_B, tr_fr_ptr saved_TR)
 	PredEntry *pe = (PredEntry *)gc_B->cp_ap->u.ld.p;
 	if (pe == NULL) {
 	  YP_fprintf(YP_stderr,"B  %p (%s) with %d\n", gc_B, op_names[opnum], total_marked);
-	} else if (pe->ArityOfPE)
+	} else
 	  YP_fprintf(YP_stderr,"B  %p (%s for %s/%d) with %d,%d\n", gc_B, op_names[opnum], RepAtom(NameOfFunctor(pe->FunctorOfPred))->StrOfAE, pe->ArityOfPE, gc_B->cp_h-H0, total_marked);
-	else
-	  YP_fprintf(YP_stderr,"B  %p (%s for %s/0) with %d,%d\n", gc_B, op_names[opnum], RepAtom((Atom)(pe->FunctorOfPred))->StrOfAE, gc_B->cp_h-H0, total_marked);
       }
     }
 #endif /* CHECK_CHOICEPOINTS */

@@ -199,27 +199,28 @@ typedef struct {
 				   was retried */
 } profile_data;
 
-typedef	struct {
-    Prop	NextOfPE;	/* used to chain properties	    	*/
-    PropFlags	KindOfPE;	/* kind of property		    	*/
-    unsigned int ArityOfPE;	/* arity of property		    	*/
-    SMALLUNSGN	StateOfPred;	/* actual state of predicate 		*/
-    CODEADDR	CodeOfPred;	/* code address		    		*/
-    CODEADDR	TrueCodeOfPred;	/* if needing to spy or to lock 	*/
-    Functor     FunctorOfPred;	/* functor for Predicate        	*/
-    CODEADDR	FirstClause, LastClause;
-    CELL	PredFlags;
-    Atom	OwnerFile;	/* File where the predicate was defined */
+typedef	struct pred_entry {
+  Prop	NextOfPE;	/* used to chain properties	    	*/
+  PropFlags	KindOfPE;	/* kind of property		    	*/
+  unsigned int ArityOfPE;	/* arity of property		    	*/
+  SMALLUNSGN	StateOfPred;	/* actual state of predicate 		*/
+  CODEADDR	CodeOfPred;	/* code address		    		*/
+  CODEADDR	TrueCodeOfPred;	/* if needing to spy or to lock 	*/
+  Functor     FunctorOfPred;	/* functor for Predicate        	*/
+  CODEADDR	FirstClause, LastClause;
+  CELL	PredFlags;
+  Atom	OwnerFile;	/* File where the predicate was defined */
+  struct pred_entry *NextPredOfModule; /* next pred for same module   */
 #if defined(YAPOR) || defined(THREADS)
-    rwlock_t    PRWLock;        /* a simple lock to protect this entry */
+  rwlock_t    PRWLock;        /* a simple lock to protect this entry */
 #endif
 #ifdef TABLING
-    tab_ent_ptr TableOfPred;
+  tab_ent_ptr TableOfPred;
 #endif /* TABLING */
-    OPCODE OpcodeOfPred;	/* undefcode, indexcode, spycode, ....  */
-    profile_data StatisticsForPred; /* enable profiling for predicate  */
-    SMALLUNSGN	ModuleOfPred;	/* module for this definition		*/
-  } PredEntry;
+  OPCODE OpcodeOfPred;	/* undefcode, indexcode, spycode, ....  */
+  profile_data StatisticsForPred; /* enable profiling for predicate  */
+  SMALLUNSGN	ModuleOfPred;	/* module for this definition		*/
+} PredEntry;
 #define PEProp   ((PropFlags)(0x0000))
 
 #if USE_OFFSETS_IN_PROPS
@@ -569,6 +570,7 @@ Atom a; Term v;
 Prop	STD_PROTO(GetAProp,(Atom,PropFlags));
 Prop	STD_PROTO(LockedGetAProp,(AtomEntry *,PropFlags));
 Prop	STD_PROTO(PredProp,(Atom,unsigned int));
+Prop	STD_PROTO(PredPropByFunc,(Functor));
 #endif /* ADTDEFS_C */
 
 

@@ -70,26 +70,24 @@ AllocCMem (int size)
 int
 is_a_test_pred (Term arg)
 {
-  Atom At;
-  int arity;
   if (IsVarTerm (arg))
     return (FALSE);
   else if (IsAtomTerm (arg))
     {
-      At = AtomOfTerm (arg);
-      arity = 0;
+      Atom At = AtomOfTerm (arg);
+      if (RepPredProp (PredProp (At, 0)) == NULL)
+	return (FALSE);
+      return (RepPredProp (PredProp (At, 0))->PredFlags & TestPredFlag);
     }
   else if (IsApplTerm (arg))
     {
       Functor f = FunctorOfTerm (arg);
-      At = NameOfFunctor (f);
-      arity = ArityOfFunctor (f);
+      if (RepPredProp (PredPropByFunc (f)) == NULL)
+	return (FALSE);
+      return (RepPredProp (PredPropByFunc (f))->PredFlags & TestPredFlag);
     }
   else
     return (FALSE);
-  if (RepPredProp (PredProp (At, arity)) == NULL)
-    return (FALSE);
-  return (RepPredProp (PredProp (At, arity))->PredFlags & TestPredFlag);
 }
 
 void
@@ -301,8 +299,6 @@ ShowOp (f)
 	      Functor f = p->FunctorOfPred;
 	      plwrite (ModuleName[p->ModuleOfPred], DebugPutc, 0);
 	      DebugPutc (c_output_stream,':');
-	      if (p->ArityOfPE == 0)
-		f = MkFunctor ((Atom) f, 0);
 	      plwrite (MkAtomTerm (NameOfFunctor (f)), DebugPutc, 0);
 	      DebugPutc (c_output_stream,'/');
 	      plwrite (MkIntTerm (ArityOfFunctor (f)), DebugPutc, 0);
@@ -314,8 +310,6 @@ ShowOp (f)
 	      Functor f = p->FunctorOfPred;
 	      plwrite (ModuleName[p->ModuleOfPred], DebugPutc, 0);
 	      DebugPutc (c_output_stream,':');
-	      if (p->ArityOfPE == 0)
-		f = MkFunctor ((Atom) f, 0);
 	      plwrite (MkAtomTerm (NameOfFunctor (f)), DebugPutc, 0);
 	      DebugPutc (c_output_stream,'/');
 	      plwrite (MkIntTerm (ArityOfFunctor (f)), DebugPutc, 0);

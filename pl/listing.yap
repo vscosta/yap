@@ -20,25 +20,28 @@
 */
 
 listing :-
-        current_predicate(_,Pred),
+        '$current_predicate_no_modules'(_,Pred),
         '$list_clauses'(Pred).
 listing.
 
 
 listing(V) :- var(V), !.       % ignore variables
 listing(M:V) :- !,
-	'$mod_switch'(M,listing(V)).
+	'$mod_switch'(M,'$listing'(V)).
 listing([]) :- !.
 listing([X|Rest]) :-
         !,
         listing(X),
         listing(Rest).
 listing(X) :-
+	'$listing'(X).
+
+'$listing'(X) :-
         '$funcspec'(X,Name,Arity),
-        current_predicate(Name,Pred),
+        '$current_predicate_no_modules'(Name,Pred),
         functor(Pred,Name,Arity),
         '$list_clauses'(Pred).
-listing(_).
+'$listing'(_).
 
 '$funcspec'(Name/Arity,Name,Arity) :- !, atom(Name).
 '$funcspec'(Name,Name,_) :- atom(Name), !.

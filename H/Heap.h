@@ -10,7 +10,7 @@
 * File:		Heap.h         						 *
 * mods:									 *
 * comments:	Heap Init Structure					 *
-* version:      $Id: Heap.h,v 1.8 2001-08-08 21:17:27 vsc Exp $	 *
+* version:      $Id: Heap.h,v 1.9 2001-10-03 13:39:14 vsc Exp $	 *
 *************************************************************************/
 
 /* information that can be stored in Code Space */
@@ -135,6 +135,7 @@ typedef struct various_codes {
   UInt  number_of_cpreds;
   UInt  number_of_cmpfuncs;
   Term  module_name[MaxModules];
+  struct pred_entry *module_pred[MaxModules];
   SMALLUNSGN   no_of_modules;
   struct clause_struct *dead_clauses;
 #if defined(YAPOR) || defined(THREADS)
@@ -326,6 +327,7 @@ typedef struct various_codes {
 #define  NUMBER_OF_CPREDS         heap_regs->number_of_cpreds
 #define  NUMBER_OF_CMPFUNCS       heap_regs->number_of_cmpfuncs
 #define  ModuleName               heap_regs->module_name
+#define  ModulePred               heap_regs->module_pred
 #define  PrimitivesModule         heap_regs->primitives_module
 #define  UserModule               heap_regs->user_module
 #define  DBQueues                 heap_regs->db_queues

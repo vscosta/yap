@@ -59,7 +59,9 @@ InlinedUnlockedMkFunctor(AtomEntry *ae, unsigned int arity)
   p->KindOfPE = FunctorProperty;
   p->NameOfFE = AbsAtom(ae);
   p->ArityOfFE = arity;
+  p->PropsOfFE = NIL;
   p->NextOfPE = ae->PropOfAE;
+  INIT_RWLOCK(p->FRWLock);
   ae->PropOfAE = AbsProp((PropEntry *) p);
   return ((Functor) p);
 }
@@ -258,20 +260,48 @@ GetAProp(Atom a, PropFlags kind)
   return (out);
 }
 
+static Prop
+UnlockedFunctorGetPredProp(Functor f)
+     /* get predicate entry for ap/arity;               */
+{
+  Prop p0;
+  FunctorEntry *fe = (FunctorEntry *)f;
+  PredEntry *p;
+
+  p = RepPredProp(p0 = fe->PropsOfFE);
+  while (p0 && (p->KindOfPE != PEProp ||
+		(p->ModuleOfPred && p->ModuleOfPred != CurrentModule)))
+    p = RepPredProp(p0 = p->NextOfPE);
+  READ_UNLOCK(fe->FRWLock);
+  return (p0);
+}
+
 Prop
 GetPredProp(Atom ap, unsigned int arity)
      /* get predicate entry for ap/arity;               */
 {
   Prop p0;
   AtomEntry *ae = RepAtom(ap);
-  PredEntry *p;
+  Functor f;
 
-  READ_LOCK(ae->ARWLock);
-  p = RepPredProp(p0 = ae->PropOfAE);
-  while (p0 && (p->KindOfPE != PEProp || p->ArityOfPE != arity ||
-		(p->ModuleOfPred && p->ModuleOfPred != CurrentModule)))
-    p = RepPredProp(p0 = p->NextOfPE);
-  READ_UNLOCK(ae->ARWLock);
+  WRITE_LOCK(ae->ARWLock);
+  f = InlinedUnlockedMkFunctor(ae, arity);
+  WRITE_UNLOCK(ae->FRWLock);
+  READ_LOCK(f->ARWLock);
+  p0 = UnlockedFunctorGetPredProp(f);
+  READ_UNLOCK(f->FRWLock);
+  return (p0);
+}
+
+Prop
+GetPredPropByFunc(Functor f)
+     /* get predicate entry for ap/arity;               */
+{
+  Prop p0;
+
+  READ_LOCK(f->ARWLock);
+  p0 = UnlockedFunctorGetPredProp(f);
+  READ_UNLOCK(f->FRWLock);
   return (p0);
 }
 
@@ -281,12 +311,12 @@ LockedGetPredProp(Atom ap, unsigned int arity)
 {
   Prop p0;
   AtomEntry *ae = RepAtom(ap);
-  PredEntry *p;
+  Functor f;
 
-  p = RepPredProp(p0 = ae->PropOfAE);
-  while (p0 && (p->KindOfPE != PEProp || p->ArityOfPE != arity ||
-		(p->ModuleOfPred && p->ModuleOfPred != CurrentModule)))
-    p = RepPredProp(p0 = p->NextOfPE);
+  f = InlinedUnlockedMkFunctor(ae, arity);
+  READ_LOCK(f->ARWLock);
+  p0 = UnlockedFunctorGetPredProp(f);
+  READ_UNLOCK(f->FRWLock);
   return (p0);
 }
 
@@ -320,27 +350,28 @@ LockedGetExpProp(AtomEntry *ae, unsigned int arity)
 }
 
 Prop
-PredProp(Atom ap, unsigned int arity)
+PredPropByFunc(Functor f)
      /* get predicate entry for ap/arity; create it if neccessary.              */
 {
   Prop p0;
-  AtomEntry *ae = RepAtom(ap);
+  FunctorEntry *fe = (FunctorEntry *)f;
   PredEntry *p;
 
-  WRITE_LOCK(ae->ARWLock);
-  p = RepPredProp(p0 = RepAtom(ap)->PropOfAE);
-  while (p0 && (p->KindOfPE != 0 || p->ArityOfPE != arity ||
+  WRITE_LOCK(fe->FRWLock);
+  p = RepPredProp(p0 = fe->PropsOfFE);
+
+  while (p0 && (p->KindOfPE != 0 ||
 		(p->ModuleOfPred && p->ModuleOfPred != CurrentModule)))
     p = RepPredProp(p0 = p->NextOfPE);
 
   if (p0 != NIL) {
-    WRITE_UNLOCK(ae->ARWLock);
+    WRITE_UNLOCK(f->FRWLock);
     return (p0);
   }
   p = (PredEntry *) AllocAtomSpace(sizeof(*p));
   INIT_RWLOCK(p->PRWLock);
   p->KindOfPE = PEProp;
-  p->ArityOfPE = arity;
+  p->ArityOfPE = fe->ArityOfFE;
   p->FirstClause = p->LastClause = NIL;
   p->PredFlags = 0L;
   p->StateOfPred = 0;
@@ -348,6 +379,8 @@ PredProp(Atom ap, unsigned int arity)
   p->OpcodeOfPred = UNDEF_OPCODE;
   p->TrueCodeOfPred = p->CodeOfPred = (CODEADDR)(&(p->OpcodeOfPred)); 
   p->ModuleOfPred = CurrentModule;
+  p->NextPredOfModule = ModulePred[CurrentModule];
+  ModulePred[CurrentModule] = p;
   INIT_LOCK(p->StatisticsForPred.lock);
   p->StatisticsForPred.NOfEntries = 0;
   p->StatisticsForPred.NOfHeadSuccesses = 0;
@@ -356,15 +389,26 @@ PredProp(Atom ap, unsigned int arity)
   p->TableOfPred = NULL;
 #endif /* TABLING */
   /* careful that they don't cross MkFunctor */
-  p->NextOfPE = ae->PropOfAE;
-  ae->PropOfAE = p0 = AbsPredProp(p);
-  if (arity == 0)
-    p->FunctorOfPred = (Functor) ap;
-  else {
-    p->FunctorOfPred = InlinedUnlockedMkFunctor(ae, arity);
-  }
-  WRITE_UNLOCK(ae->ARWLock);
+  p->NextOfPE = fe->PropsOfFE;
+  fe->PropsOfFE = p0 = AbsPredProp(p);
+  p->FunctorOfPred = f;
+  WRITE_UNLOCK(fe->FRWLock);
   return (p0);
+}
+
+Prop
+PredProp(Atom ap, unsigned int arity)
+     /* get predicate entry for ap/arity; create it if neccessary.              */
+{
+  Prop p0;
+  AtomEntry *ae = RepAtom(ap);
+  Functor f;
+
+  WRITE_LOCK(ae->ARWLock);
+  f = InlinedUnlockedMkFunctor(ae, arity);
+  p0 = PredPropByFunc(f);
+  WRITE_UNLOCK(ae->ARWLock);
+  return(p0);
 }
 
 Term

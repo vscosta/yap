@@ -109,8 +109,6 @@ DumpActiveGoals (void)
 	  Functor f;
 
 	  f = pe->FunctorOfPred;
-	  if (pe->KindOfPE == 0 && hidden ((Atom)f))
-	    goto next;
 	  if (pe->KindOfPE && hidden (NameOfFunctor (f)))
 	    goto next;
 	  if (first++ == 1)
@@ -168,7 +166,7 @@ DumpActiveGoals (void)
 	plwrite (ModuleName[pe->ModuleOfPred], DebugPutc, 0);
 	DebugPutc (c_output_stream,':');
 	if (pe->ArityOfPE == 0) {
-	  plwrite (MkAtomTerm ((Atom)f), DebugPutc, 0);
+	  plwrite (MkAtomTerm (NameOfFunctor(f)), DebugPutc, 0);
 	} else {
 	  Int i = 0, arity = pe->ArityOfPE;
 	  Term *args = &(b_ptr->cp_a1);

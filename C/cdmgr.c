@@ -1171,9 +1171,7 @@ p_endconsult(void)
 static Int 
 p_purge_clauses(void)
 {				/* '$purge_clauses'(+Func) */
-  Atom            at;
   PredEntry      *pred;
-  unsigned int    arity;
   Term            t = Deref(ARG1);
   CODEADDR        q, q1;
 
@@ -1181,15 +1179,13 @@ p_purge_clauses(void)
   if (IsVarTerm(t))
     return (FALSE);
   if (IsAtomTerm(t)) {
-    at = AtomOfTerm(t);
-    arity = 0;
+    Atom at = AtomOfTerm(t);
+    pred = RepPredProp(PredProp(at, 0));
   } else if (IsApplTerm(t)) {
     Functor         fun = FunctorOfTerm(t);
-    at = NameOfFunctor(fun);
-    arity = ArityOfFunctor(fun);
+    pred = RepPredProp(PredPropByFunc(fun));
   } else
     return (FALSE);
-  pred = RepPredProp(PredProp(at, arity));
   WRITE_LOCK(pred->PRWLock);
   if (pred->PredFlags & StandardPredFlag) {
     WRITE_UNLOCK(pred->PRWLock);
@@ -1232,8 +1228,6 @@ p_setspy(void)
 {				/* '$set_spy'(+Fun)	 */
   Atom            at;
   PredEntry      *pred;
-  unsigned int    arity;
-  Functor         fun;
   CELL            fg;
   Term            t;
 
@@ -1244,16 +1238,14 @@ p_setspy(void)
   if (IsVarTerm(t))
     return (FALSE);
   if (IsAtomTerm(t)) {
-    at = AtomOfTerm(t);
-    arity = 0;
+    Atom at = AtomOfTerm(t);
+    pred = RepPredProp(PredProp(at, 0));
   } else if (IsApplTerm(t)) {
-    fun = FunctorOfTerm(t);
-    at = NameOfFunctor(fun);
-    arity = ArityOfFunctor(fun);
+    Functor fun = FunctorOfTerm(t);
+    pred = RepPredProp(PredPropByFunc(fun));
   } else {
     return (FALSE);
   }
-  pred = RepPredProp(PredProp(at, arity));
  restart_spy:
   WRITE_LOCK(pred->PRWLock);
   if (pred->PredFlags & (CPredFlag | SafePredFlag)) {
@@ -1286,10 +1278,8 @@ p_setspy(void)
 static Int 
 p_rmspy(void)
 {				/* '$rm_spy'(+T)	 */
-  unsigned int    arity;
   Atom            at;
   PredEntry      *pred;
-  Functor         fun;
   Term            t;
 
   t = Deref(ARG1);
@@ -1297,14 +1287,12 @@ p_rmspy(void)
     return (FALSE);
   if (IsAtomTerm(t)) {
     at = AtomOfTerm(t);
-    arity = 0;
+    pred = RepPredProp(PredProp(at, 0));
   } else if (IsApplTerm(t)) {
-    fun = FunctorOfTerm(t);
-    at = NameOfFunctor(fun);
-    arity = ArityOfFunctor(fun);
+    Functor fun = FunctorOfTerm(t);
+    pred = RepPredProp(PredPropByFunc(fun));
   } else
     return (FALSE);
-  pred = RepPredProp(PredProp(at, arity));
   WRITE_LOCK(pred->PRWLock);
   if (!(pred->PredFlags & SpiedPredFlag)) {
     WRITE_UNLOCK(pred->PRWLock);
@@ -1336,22 +1324,19 @@ static Int
 p_number_of_clauses(void)
 {				/* '$number_of_clauses'(Predicate,N) */
   Term            t = Deref(ARG1);
-  unsigned int             arity;
   int ncl = 0;
   Prop            pe;
-  Atom            a;
   CODEADDR        q;
   int             testing;
 
-  if (IsAtomTerm(t))
-    arity = 0, a = AtomOfTerm(t);
-  else if (IsApplTerm(t)) {
+  if (IsAtomTerm(t)) {
+    Atom a = AtomOfTerm(t);
+    pe = PredProp(a, 0);
+  } else if (IsApplTerm(t)) {
     register Functor f = FunctorOfTerm(t);
-    arity = ArityOfFunctor(f);
-    a = NameOfFunctor(f);
+    pe = PredPropByFunc(f);
   } else
     return (FALSE);
-  pe = PredProp(a, arity);
   q = RepPredProp(pe)->FirstClause;
   READ_LOCK(RepPredProp(pe)->PRWLock);
   if (q != NIL) {
@@ -1378,21 +1363,18 @@ static Int
 p_find_dynamic(void)
 {				/* '$find_dynamic'(+G,+N,-C) */
   Term            t = Deref(ARG1);
-  int             arity;
   Prop            pe;
-  Atom            a;
   CODEADDR        q;
   int             position;
 
-  if (IsAtomTerm(t))
-    arity = 0, a = AtomOfTerm(t);
-  else if (IsApplTerm(t)) {
+  if (IsAtomTerm(t)) {
+    Atom a = AtomOfTerm(t);
+    pe = PredProp(a, 0);
+  } else if (IsApplTerm(t)) {
     register Functor f = FunctorOfTerm(t);
-    arity = ArityOfFunctor(f);
-    a = NameOfFunctor(f);
+    pe = PredPropByFunc(f);
   } else
     return (FALSE);
-  pe = PredProp(a, arity);
   q = RepPredProp(pe)->FirstClause;
   t = Deref(ARG2);
   if (IsVarTerm(t) || !IsIntTerm(t))
@@ -1433,25 +1415,21 @@ static Int
 p_next_dynamic(void)
 {				/* '$next_dynamic'(+G,+C,-N) */
   Term            t = Deref(ARG1);
-  int             arity;
   Prop            pe;
-  Atom            a;
   CODEADDR        q, oldq;
   int             position;
 
-  if (IsAtomTerm(t)) {
-    arity = 0;
-    a = AtomOfTerm(t);
-  } else if (IsApplTerm(t)) {
-    register Functor f = FunctorOfTerm(t);
-    arity = ArityOfFunctor(f);
-    a = NameOfFunctor(f);
-  } else
-    return (FALSE);
   t = Deref(ARG2);
   if (IsVarTerm(t) || !IsIntegerTerm(t))
     return (FALSE);
-  pe = PredProp(a, arity);
+  if (IsAtomTerm(t)) {
+    Atom a = AtomOfTerm(t);
+    pe = PredProp(a, 0);
+  } else if (IsApplTerm(t)) {
+    register Functor f = FunctorOfTerm(t);
+    pe = PredPropByFunc(f);
+  } else
+    return (FALSE);
   q = RepPredProp(pe)->FirstClause;
   READ_LOCK(RepPredProp(pe)->PRWLock);
   if (!(RepPredProp(pe)->PredFlags & DynamicPredFlag))
@@ -1473,8 +1451,6 @@ p_next_dynamic(void)
 static Int 
 p_in_use(void)
 {				/* '$in_use'(+P)	 */
-  Atom            at;
-  int             arity;
   Term            t = Deref(ARG1);
   PredEntry      *pe;
   Int            out;
@@ -1482,15 +1458,13 @@ p_in_use(void)
   if (IsVarTerm(t))
     return (FALSE);
   if (IsAtomTerm(t)) {
-    at = AtomOfTerm(t);
-    arity = 0;
+    Atom at = AtomOfTerm(t);
+    pe = RepPredProp(PredProp(at, 0));
   } else if (IsApplTerm(t)) {
     Functor         fun = FunctorOfTerm(t);
-    at = NameOfFunctor(fun);
-    arity = ArityOfFunctor(fun);
+    pe = RepPredProp(PredPropByFunc(fun));
   } else
     return (FALSE);
-  pe = RepPredProp(PredProp(at, arity));
   READ_LOCK(pe->PRWLock);
   out = static_in_use(pe,TRUE);
   READ_UNLOCK(pe->PRWLock);
@@ -1591,8 +1565,6 @@ p_is_logical_updatable(void)
 static Int 
 p_is_dynamic(void)
 {				/* '$is_dynamic'(+P)	 */
-  Atom            at;
-  int             arity;
   PredEntry      *pe;
   Term            t = Deref(ARG1);
   Int             out;
@@ -1600,15 +1572,13 @@ p_is_dynamic(void)
   if (IsVarTerm(t)) {
     return (FALSE);
   } else if (IsAtomTerm(t)) {
-    at = AtomOfTerm(t);
-    arity = 0;
+    Atom at = AtomOfTerm(t);
+    pe = RepPredProp(PredProp(at, 0));
   } else if (IsApplTerm(t)) {
     Functor         fun = FunctorOfTerm(t);
-    at = NameOfFunctor(fun);
-    arity = ArityOfFunctor(fun);
+    pe = RepPredProp(PredPropByFunc(fun));
   } else
     return (FALSE);
-  pe = RepPredProp(PredProp(at, arity));
   if (pe == NIL)
     return (FALSE);
   READ_LOCK(pe->PRWLock);
@@ -1647,8 +1617,6 @@ p_set_pred_module(void)
 static Int 
 p_undefined(void)
 {				/* '$undefined'(P)	 */
-  Atom            at;
-  int             arity;
   PredEntry      *pe;
   Term            t;
  
@@ -1661,8 +1629,8 @@ p_undefined(void)
     return(FALSE);
   }
   if (IsAtomTerm(t)) {
-    at = AtomOfTerm(t);
-    arity = 0;
+    Atom at = AtomOfTerm(t);
+    pe = RepPredProp(GetPredProp(at,0));
   } else if (IsApplTerm(t)) {
     Functor         funt = FunctorOfTerm(t);
     if (funt == FunctorModule) {
@@ -1673,13 +1641,11 @@ p_undefined(void)
 	goto restart_undefined;
       }
     }
-    at = NameOfFunctor(funt);
-    arity = ArityOfFunctor(funt);
+    pe = RepPredProp(GetPredPropByFunc(funt));
   } else {
     *CurrentModulePtr = MkIntTerm(omod);
     return (FALSE);
   }
-  pe = RepPredProp(GetPredProp(at, arity));
   *CurrentModulePtr = MkIntTerm(omod);
   if (pe == RepPredProp(NIL))
     return (TRUE);
@@ -1704,21 +1670,18 @@ p_undefined(void)
 static Int 
 p_kill_dynamic(void)
 {				/* '$kill_dynamic'(P)       */
-  Atom            at;
-  int             arity;
   PredEntry      *pe;
   Term            t;
   
   t = Deref(ARG1);
-  if (IsAtomTerm(t))
-    at = AtomOfTerm(t), arity = 0;
-  else if (IsApplTerm(t)) {
+  if (IsAtomTerm(t)) {
+    Atom at = AtomOfTerm(t);
+    pe = RepPredProp(PredProp(at, 0));
+  } else if (IsApplTerm(t)) {
     Functor         funt = FunctorOfTerm(t);
-    at = NameOfFunctor(funt);
-    arity = ArityOfFunctor(funt);
+    pe = RepPredProp(PredPropByFunc(funt));
   } else
     return (FALSE);
-  pe = RepPredProp(PredProp(at, arity));
   if (pe == NIL)
     return (TRUE);
   WRITE_LOCK(pe->PRWLock);
@@ -1907,23 +1870,19 @@ p_search_for_static_predicate_in_use(void)
 #if defined(YAPOR) || defined(THREADS)
   return(FALSE);
 #else
-  Atom            at;
-  int             arity;
   PredEntry      *pe;
   Term		  t;
   Int             out;
   
   t = Deref(ARG1);
   if (IsAtomTerm(t)) {
-    at = AtomOfTerm(t);
-    arity = 0;
+    Atom at = AtomOfTerm(t);
+    pe = RepPredProp(PredProp(at, 0));
   }  else if (IsApplTerm(t)) {
     Functor         funt = FunctorOfTerm(ARG1);
-    at = NameOfFunctor(funt);
-    arity = ArityOfFunctor(funt);
+    pe = RepPredProp(PredPropByFunc(funt));
   } else
     return(FALSE);
-  pe = RepPredProp(PredProp(at, arity));
   /* do nothing if we are in consult */
   if (STATIC_PREDICATES_MARKED)
     return (pe->StateOfPred & InUseMask);

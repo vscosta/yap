@@ -2408,10 +2408,7 @@ CleanCode(PredEntry *pp)
   CODEADDR        FirstC, LastC;
 
   /* Init takes care of the first 2 cases */
-  if (pp->ArityOfPE)
-    pp->FunctorOfPred = FuncAdjust(pp->FunctorOfPred);
-  else
-    pp->FunctorOfPred = (Functor) AtomAdjust((Atom)(pp->FunctorOfPred));
+  pp->FunctorOfPred = FuncAdjust(pp->FunctorOfPred);
   if (pp->OwnerFile)
     pp->OwnerFile = AtomAdjust(pp->OwnerFile);
   pp->OpcodeOfPred = opcode(op_from_opcode(pp->OpcodeOfPred));

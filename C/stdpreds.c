@@ -62,14 +62,11 @@ STD_PROTO(static Int p_halt, (void));
 STD_PROTO(static Int p_halt0, (void));
 STD_PROTO(static Int init_current_atom, (void));
 STD_PROTO(static Int cont_current_atom, (void));
-STD_PROTO(static PredEntry *NextPred, (PropEntry *));
-STD_PROTO(static Int init_current_pre, (void));
-STD_PROTO(static Int cont_current_pre, (void));
+STD_PROTO(static Int init_current_predicate, (void));
+STD_PROTO(static Int cont_current_predicate, (void));
 STD_PROTO(static OpEntry *NextOp, (OpEntry *));
 STD_PROTO(static Int init_current_op, (void));
 STD_PROTO(static Int cont_current_op, (void));
-STD_PROTO(static Int init_pred_for, (void));
-STD_PROTO(static Int cont_pred_for, (void));
 #ifdef DEBUG
 STD_PROTO(static Int p_debug, (void));
 #endif
@@ -1362,142 +1359,27 @@ init_current_atom(void)
   return (cont_current_atom());
 }
 
-#define NotVisibleEntry(pp) (pp->ModuleOfPred && pp->ModuleOfPred!=CurrentModule)
-
-static PredEntry *
-NextPred(PropEntry *pp)
+static Int 
+cont_current_predicate(void)
 {
-  while (!EndOfPAEntr(pp) &&
-	 ((pp->KindOfPE & 0x8000) || NotVisibleEntry(((PredEntry *) pp))))
-    pp = RepProp(pp->NextOfPE);
-  return ((PredEntry *)pp);
+  PredEntry      *pp = (PredEntry *)IntegerOfTerm(EXTRA_CBACK_ARG(2,1));
+  UInt Arity;
+  Atom name;
+
+  if (pp == NULL)
+    cut_fail();
+  EXTRA_CBACK_ARG(2,1) = (CELL)MkIntegerTerm((Int)(pp->NextPredOfModule));
+  Arity = pp->ArityOfPE;
+  name = NameOfFunctor(pp->FunctorOfPred);
+  return (unify(ARG1,MkAtomTerm(name)) &&
+	  unify(ARG2, MkIntegerTerm(Arity)));
 }
 
 static Int 
-cont_pred_for(void)
+init_current_predicate(void)
 {
-  unsigned int    arity;
-  Term            out_term, p[MaxArity];
-  Atom            a = AtomOfTerm(EXTRA_CBACK_ARG(2,1));
-  PredEntry      *pp = (PredEntry *) EXTRA_CBACK_ARG(2,2);
-
-  if (EndOfPAEntr(pp))
-    cut_fail();
-  EXTRA_CBACK_ARG(2,2) = (CELL)NextPred(RepProp(pp->NextOfPE));
-  arity = pp->ArityOfPE;
-  if (arity == 0)
-    out_term = MkAtomTerm(a);
-  else {
-    unsigned int	j;
-    for (j = 0; j < arity; j++)
-      p[j] = MkVarTerm();
-    out_term = MkApplTerm(MkFunctor(a, arity), arity, p);
-  }
-  return (unify(ARG2, out_term));
-}
-
-static Int 
-init_pred_for(void)
-{	/* '$pred_defined_for(+Atom,,?Predicate)	 */
-  PredEntry      *pp;
-  Atom            a;
-  Term t1 = Deref(ARG1);
-  AtomEntry      *ae;
-
-  if (!IsVarTerm(t1) && IsAtomTerm(t1))
-    a = AtomOfTerm(t1);
-  else
-    cut_fail();
-  ae = RepAtom(a);
-  READ_LOCK(ae->ARWLock);
-  pp = NextPred(RepProp(ae->PropOfAE));
-  READ_UNLOCK(ae->ARWLock);
-  EXTRA_CBACK_ARG(2,1) = (CELL) t1;
-  EXTRA_CBACK_ARG(2,2) = (CELL) pp;
-  return (cont_pred_for());
-}
-
-static Int 
-cont_current_pre(void)
-{
-  unsigned int    arity;
-  Term            out_term, p[MaxArity];
-  Atom            a = AtomOfTerm(EXTRA_CBACK_ARG(2,3));
-  Int             i = IntOfTerm(EXTRA_CBACK_ARG(2,2));
-  Term            first = Deref(ARG1);
-  PredEntry      *pp = (PredEntry *)EXTRA_CBACK_ARG(2,1);
-	
-  if (EndOfPAEntr(pp) && IsAtomTerm(first))
-    cut_fail();
-  while (EndOfPAEntr(pp)) {
-    AtomEntry *ae = RepAtom(a);
-    READ_LOCK(ae->ARWLock);
-    a = ae->NextOfAE;
-    READ_UNLOCK(ae->ARWLock);
-    if (a == NIL) {
-      i++;
-      while (TRUE) {
-	READ_LOCK(HashChain[i].AERWLock);
-	a = HashChain[i].Entry;
-	READ_UNLOCK(HashChain[i].AERWLock);
-	if (a != NIL) {
-	  break;
-	}
-	i++;
-      }
-      if (i == MaxHash)
-	cut_fail();
-      EXTRA_CBACK_ARG(2,2) = (CELL) MkIntTerm(i);
-    }
-    READ_LOCK(RepAtom(a)->ARWLock);
-    if (!EndOfPAEntr(pp = NextPred(RepProp(RepAtom(a)->PropOfAE)))) {
-      EXTRA_CBACK_ARG(2,3) = (CELL) MkAtomTerm(a);
-    }
-    READ_UNLOCK(RepAtom(a)->ARWLock);
-  }
-  EXTRA_CBACK_ARG(2,1) = (CELL)NextPred(RepProp(pp->NextOfPE));
-  if ((arity = pp->ArityOfPE) == 0)
-    out_term = MkAtomTerm(a);
-  else {
-    unsigned int	j;
-    for (j = 0; j < arity; j++)
-      p[j] = MkVarTerm();
-    out_term = MkApplTerm(MkFunctor(a, arity), arity, p);
-  }
-  return (unify_constant(ARG1, MkAtomTerm(a)) && unify(ARG2, out_term));
-}
-
-static Int 
-init_current_pre(void)
-{				/* current_predicate(+Atom,?Predicate)	 */
-  Int             i = 0;
-  PredEntry      *pp;
-  Atom            a;
-  Term t1 = Deref(ARG1);
-
-  if (!IsVarTerm(t1)) {
-    if (IsAtomTerm(t1))
-      a = AtomOfTerm(t1);
-    else
-      cut_fail();
-  } else {
-    while (TRUE) {
-      READ_LOCK(HashChain[i].AERWLock);
-      a = HashChain[i].Entry;
-      READ_UNLOCK(HashChain[i].AERWLock);
-      if (a != NIL) {
-	break;
-      }
-      i++;
-    }
-  }
-  READ_LOCK(RepAtom(a)->ARWLock);
-  pp = NextPred(RepProp(RepAtom(a)->PropOfAE));
-  READ_UNLOCK(RepAtom(a)->ARWLock);
-  EXTRA_CBACK_ARG(2,3) = (CELL) MkAtomTerm(a);
-  EXTRA_CBACK_ARG(2,2) = (CELL) MkIntTerm(i);
-  EXTRA_CBACK_ARG(2,1) = (CELL)pp;
-  return (cont_current_pre());
+  EXTRA_CBACK_ARG(2,1) = (CELL)MkIntegerTerm((Int)ModulePred[CurrentModule]);
+  return (cont_current_predicate());
 }
 
 static OpEntry *
@@ -2192,9 +2074,7 @@ InitBackCPreds(void)
 {
   InitCPredBack("$current_atom", 1, 2, init_current_atom, cont_current_atom,
 		SafePredFlag|SyncPredFlag);
-  InitCPredBack("$pred_defined_for", 2, 2, init_pred_for, cont_pred_for,
-		SafePredFlag|SyncPredFlag);
-  InitCPredBack("$current_predicate", 2, 3, init_current_pre, cont_current_pre,
+  InitCPredBack("$current_predicate", 2, 1, init_current_predicate, cont_current_predicate,
 		SafePredFlag|SyncPredFlag);
   InitCPredBack("current_op", 3, 3, init_current_op, cont_current_op,
 		SafePredFlag|SyncPredFlag);

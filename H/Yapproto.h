@@ -10,7 +10,7 @@
 * File:		Yap.proto						 *
 * mods:									 *
 * comments:	Function declarations for YAP				 *
-* version:      $Id: Yapproto.h,v 1.2 2001-06-22 17:53:36 vsc Exp $	 *
+* version:      $Id: Yapproto.h,v 1.3 2001-10-03 13:39:14 vsc Exp $	 *
 *************************************************************************/
 
 /* prototype file for Yap */
@@ -52,6 +52,7 @@ CELL	STD_PROTO(*ArgsOfSFTerm,(Term));
 
 int	STD_PROTO(LookupModule,(Term));
 Prop	STD_PROTO(GetPredProp,(Atom,unsigned int));
+Prop	STD_PROTO(GetPredPropByFunc,(Functor));
 Prop	STD_PROTO(LockedGetPredProp,(Atom,unsigned int));
 Prop	STD_PROTO(GetExpProp,(Atom,unsigned int));
 Prop	STD_PROTO(LockedGetExpProp,(AtomEntry *,unsigned int));

@@ -341,44 +341,45 @@ current_atom(A) :-				% check
 current_atom(A) :-				% generate
 	'$current_atom'(A).
 
-current_predicate(A,T) :-
-	var(T), !,
-	'$current_predicate2'(A,T).
-current_predicate(A,M:T) :-			% module specified
-	atom(M), !,
-	( '$current_module'(M) ->
-	    current_predicate(A,T)
-	;
-	    '$mod_switch'(M,current_predicate(A,T))
-	).
 current_predicate(A,M:T) :-			% module specified
 	var(M), !,
 	current_module(M),
-	'$current_predicate2'(A,T).
-current_predicate(A,T) :-
-	'$current_predicate'(A,T).
+	M \= prolog,
+	'$mod_switch'(M,'$current_predicate_no_modules'(A,T)).
+current_predicate(A,M:T) :- % module specified
+	!,
+	'$mod_switch'(M,'$current_predicate_no_modules'(A,T)).
+current_predicate(A,T) :-			% only for the predicate
+	'$current_predicate_no_modules'(A,T).
 
-'$current_predicate2'(A,T) :-			% only for the predicate
-	atom(A), !, '$pred_defined_for'(A,T),
+current_predicate(M:F) :-			% module specified
+	var(M), !,
+	current_module(M),
+	M \= prolog,
+	'$mod_switch'(M,'$current_predicate3'(F)).
+current_predicate(M:F) :- % module specified
+	!,
+	'$mod_switch'(M,'$current_predicate3'(F)).
+current_predicate(F) :-			% only for the predicate
+	'$current_predicate3'(F).
+
+system_predicate(P) :-
+	'$mod_switch'(prolog,'$current_predicate_no_modules'(A,T)),
+	\+ '$hidden'(A).
+
+system_predicate(A,P) :-
+	'$mod_switch'(prolog,'$current_predicate_no_modules'(A,T)),
+	\+ '$hidden'(A).
+
+'$current_predicate_no_modules'(A,T) :-
+	'$current_predicate'(A,Arity),
+	functor(T,A,Arity),
 	'$pred_exists'(T).
-'$current_predicate2'(A,T) :-			% generate them all
-	'$current_predicate'(A,T),
+
+'$current_predicate3'(A/Arity) :-
+	'$current_predicate'(A,Arity),
+	functor(T,A,Arity),
 	'$pred_exists'(T).
-
-'$system_predicate'(Pred) :-
-	'$flags'(Pred,Flags,_),
-	 Flags /\ 8'40000 =\= 0.
-
-system_predicate(P) :- '$system_predicate'(P).
-
-system_predicate(A,P) :-			% check
-	nonvar(P), !,
-	'$system_predicate'(P),
-	functor(P,A,_).
-
-system_predicate(A,P) :-			% generate
-	'$current_predicate2'(A,P),
-	'$system_predicate'(P).
 
 %%% User interface for statistics
 
@@ -421,7 +422,6 @@ statistics :-
 	format(user_error,":~t  ~d in use~19+", [TrlInUse]),
 	TrlFree is TrlSpa-TrlInUse,
 	format(user_error,",~t  ~d free~19+~n", [TrlFree]),
-
 	OvfTime is TotHOTime+TotSOTime+TotTOTime,
 	format(user_error,"~n~t~3f~12+ sec. for ~w code, ~w stack, and ~w trail space overflows~n",
 	       [OvfTime,NOfHO,NOfSO,NOfTO]),
@@ -599,9 +599,12 @@ grow_stack(X) :- $grow_stack(X).
 % environment to return to.
 %
 %garbage_collect :- save(dump), '$gc',  save(dump2).
-garbage_collect :- '$gc'.
-gc :- yap_flag(gc,on).
-nogc :- yap_flag(gc,off).
+garbage_collect :-
+	'$gc'.
+gc :-
+	yap_flag(gc,on).
+nogc :-
+	yap_flag(gc,off).
 
 '$force_environment_for_gc'.
 

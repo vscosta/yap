@@ -96,6 +96,9 @@ typedef struct FunctorEntryStruct {
     unsigned int ArityOfFE;	/* arity of functor		*/
     Atom	NameOfFE;       /* back pointer to owner atom   */
     Prop	PropsOfFE;      /* pointer to list of properties for this functor */
+#if defined(YAPOR) || defined(THREADS)
+    rwlock_t        FRWLock;
+#endif
 } FunctorEntry;
 
 typedef FunctorEntry *Functor;

@@ -5903,7 +5903,7 @@ absmi(int inp)
 	READ_UNLOCK(pe->PRWLock);
 	d0 = pe->ArityOfPE;
 	if (d0 == 0) {
-	  H[1] = MkAtomTerm(((Atom) pe->FunctorOfPred));
+	  H[1] = MkAtomTerm(NameOfFunctor(pe->FunctorOfPred));
 	}
 	else {
 	  H[d0 + 2] = AbsAppl(H);
@@ -5987,7 +5987,7 @@ absmi(int inp)
 	d0 = pe->ArityOfPE;
       /* save S for ModuleName */
 	if (d0 == 0) {
-	  H[1] = MkAtomTerm((Atom) pe->FunctorOfPred);
+	  H[1] = MkAtomTerm(NameOfFunctor(pe->FunctorOfPred));
 	} else {
 	  *H = (CELL) pe->FunctorOfPred;
 	  H[d0 + 2] = AbsAppl(H);

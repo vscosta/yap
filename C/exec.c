@@ -195,15 +195,14 @@ SpecialCallFunctor(Functor f) {
 inline static Int
 CallMetaCall(void) {
   ARG2 = current_cp_as_integer(); /* p_save_cp */
-  ARG3 = TermNil;
+  ARG3 = ARG1;
   WRITE_LOCK(PredMetaCall->PRWLock);
   return (FastCallProlog(PredMetaCall));
 }
 
 inline static Int
 EnterCreepMode(PredEntry *pen) {
-  Atom a = NameOfFunctor(FunctorSpy);
-  PredEntry *PredSpy = RepPredProp(PredProp(a,1));
+  PredEntry *PredSpy = RepPredProp(PredPropByFunc(FunctorSpy));
   ARG1 = MkPairTerm(Module_Name((CODEADDR)(pen)),ARG1);
   CreepFlag = CalculateStackGap();
   P_before_spy = P;
@@ -215,7 +214,6 @@ static Int
 p_execute(void)
 {				/* '$execute'(Goal)	 */
   Term            t = Deref(ARG1);
-  unsigned int    arity;
   Prop            pe;
   Atom            a;
 
@@ -233,6 +231,7 @@ p_execute(void)
     register Functor f = FunctorOfTerm(t);
     register unsigned int    i;
     register CELL *pt;
+    unsigned int    arity;
 
     if (IsExtensionFunctor(f)) {
       if (yap_flags[LANGUAGE_MODE_FLAG] == 1) {
@@ -262,9 +261,9 @@ p_execute(void)
       a = NameOfFunctor(f);
 
       if (CurrentModule)
-	pe = PredProp(a, arity);
+	pe = PredPropByFunc(f);
       else {
-	pe = GetPredProp(a, arity);
+	pe = GetPredPropByFunc(f);
 	if (pe == NIL) {
 	  return(CallMetaCall());
 	}
@@ -310,13 +309,11 @@ p_execute(void)
       return(TRUE);
     else if (a == AtomFail || a == AtomFalse)
       return(FALSE);
-    else
-      arity = 0;
     /* call may not define new system predicates!! */
     if (CurrentModule)
-      pe = PredProp(a, arity);
+      pe = PredProp(a, 0);
     else {
-      pe = GetPredProp(a, arity);
+      pe = GetPredProp(a, 0);
       if (pe == NIL) {
 	ARG1 = t;
 	return(CallMetaCall());
@@ -325,7 +322,7 @@ p_execute(void)
     if (yap_flags[SPY_CREEP_FLAG]) {
       return(EnterCreepMode(RepPredProp(pe)));
     }
-    return (CallProlog(RepPredProp(pe), arity, (Int) (-1)));
+    return (CallProlog(RepPredProp(pe), 0, (Int) (-1)));
   } else {
     /* Is Pair Term */
     return(CallMetaCall());
@@ -391,9 +388,9 @@ p_execute_within(void)
       a = NameOfFunctor(f);
 
       if (CurrentModule)
-	pe = PredProp(a, arity);
+	pe = PredPropByFunc(f);
       else {
-	pe = GetPredProp(a, arity);
+	pe = GetPredPropByFunc(f);
 	if (pe == NIL) {
 	  return(CallMetaCallWithin());
 	}
@@ -464,13 +461,11 @@ p_execute_within(void)
       return(TRUE);
     } else if (a == AtomFail || a == AtomFalse)
       return(FALSE);
-    else
-      arity = 0;
     /* call may not define new system predicates!! */
     if (CurrentModule)
-      pe = PredProp(a, arity);
+      pe = PredProp(a, 0);
     else {
-      pe = GetPredProp(a, arity);
+      pe = GetPredProp(a, 0);
       if (pe == NIL) {
 	ARG1 = t;
 	return(CallMetaCallWithin());
@@ -479,7 +474,7 @@ p_execute_within(void)
     if (yap_flags[SPY_CREEP_FLAG]) {
       return(EnterCreepMode(RepPredProp(pe)));
     }
-    return (CallProlog(RepPredProp(pe), arity, (Int) (-1)));
+    return (CallProlog(RepPredProp(pe), 0, (Int) (-1)));
   } else {
     /* Is Pair Term */
     return(CallMetaCallWithin());
@@ -493,11 +488,17 @@ p_execute0(void)
   Term            t = Deref(ARG1);
   unsigned int    arity;
   Prop            pe;
-  Atom            a;
 
   if (IsAtomTerm(t)) {
+    Atom a = AtomOfTerm(t);
     arity = 0;
-    a = AtomOfTerm(t);
+    if (CurrentModule)
+      pe = PredProp(a, arity);
+    else {
+      pe = GetPredProp(a, arity);
+      if (pe == NIL)
+	return(FALSE);
+    }
   } else if (IsApplTerm(t)) {
     register Functor f = FunctorOfTerm(t);
     register unsigned int    i;
@@ -506,7 +507,6 @@ p_execute0(void)
     if (IsExtensionFunctor(f))
       return(FALSE);
     arity = ArityOfFunctor(f);
-    a = NameOfFunctor(f);
     /* I cannot use the standard macro here because
        otherwise I would dereference the argument and
        might skip a svar */
@@ -523,17 +523,17 @@ p_execute0(void)
 #else
       XREGS[i] = *pt++;
 #endif
+    if (CurrentModule)
+      pe = PredPropByFunc(f);
+    else {
+      pe = GetPredPropByFunc(f);
+      if (pe == NIL)
+	return(FALSE);
+    }
   } else
     return (FALSE);	/* for the moment */
   /*	N = arity; */
   /* call may not define new system predicates!! */
-  if (CurrentModule)
-    pe = PredProp(a, arity);
-  else {
-    pe = GetPredProp(a, arity);
-    if (pe == NIL)
-      return(FALSE);
-  }
   return (CallProlog(RepPredProp(pe), arity, (Int) (-1)));
 }
 
@@ -992,8 +992,6 @@ execute_goal(Term t, int nargs)
   Int             out;
   CODEADDR        CodeAdr;
   yamop *saved_p, *saved_cp;
-  int arity;
-  Atom a;
   Prop pe;
   PredEntry *ppe;
   CELL *pt;
@@ -1012,9 +1010,9 @@ execute_goal(Term t, int nargs)
   saved_cp = CP;
   
   if (IsAtomTerm(t)) {
-    arity = 0;
-    a = AtomOfTerm(t);
+    Atom a = AtomOfTerm(t);
     pt = NULL;
+    pe = GetPredProp(a, 0);
   } else if (IsApplTerm(t)) {
     Functor f = FunctorOfTerm(t);
 
@@ -1022,33 +1020,38 @@ execute_goal(Term t, int nargs)
       Error(TYPE_ERROR_CALLABLE,t,"call/1");
       return(FALSE);
     }
-    arity = ArityOfFunctor(f);
-    a = NameOfFunctor(f);
     /* I cannot use the standard macro here because
        otherwise I would dereference the argument and
        might skip a svar */
     pt = RepAppl(t)+1;
+    pe = GetPredPropByFunc(f);
   } else {
     Error(TYPE_ERROR_CALLABLE,t,"call/1");
     return(FALSE);
   }
-  pe = GetPredProp(a, arity);
   ppe = RepPredProp(pe);
   if (pe != NIL) {
     READ_LOCK(ppe->PRWLock);
   }
   if (pe == NIL ||
       ppe->OpcodeOfPred == UNDEF_OPCODE ||
-      ppe->PredFlags & (UserCPredFlag|CPredFlag|BasicPredFlag) )
-    {
-      if (pe != NIL) {
-	READ_UNLOCK(ppe->PRWLock);
-      }
-      return(CallMetaCall());
+      ppe->PredFlags & (UserCPredFlag|CPredFlag|BasicPredFlag) ) {
+    if (pe != NIL) {
+      READ_UNLOCK(ppe->PRWLock);
     }
-  CodeAdr = RepPredProp (PredProp (a, arity))->CodeOfPred;
-  READ_UNLOCK(ppe->PRWLock);
-  out = do_goal(CodeAdr, arity, pt, nargs, FALSE);
+    return(CallMetaCall());
+  }
+  if (IsAtomTerm(t)) {
+    Atom at = AtomOfTerm(t);
+    CodeAdr = RepPredProp (PredProp (at, 0))->CodeOfPred;
+    READ_UNLOCK(ppe->PRWLock);
+    out = do_goal(CodeAdr, 0, pt, nargs, FALSE);
+  } else {
+    Functor f = FunctorOfTerm(t);
+    CodeAdr = RepPredProp (PredPropByFunc (f))->CodeOfPred;
+    READ_UNLOCK(ppe->PRWLock);
+    out = do_goal(CodeAdr, ArityOfFunctor(f), pt, nargs, FALSE);
+  }
 
   if (out == 1) {
     choiceptr old_B;
@@ -1161,16 +1164,16 @@ int
 RunTopGoal(Term t)
 {
   CODEADDR        CodeAdr;
-  int arity;
-  Atom a;
   Prop pe;
   PredEntry *ppe;
   CELL *pt;
+  UInt arity;
 
   if (IsAtomTerm(t)) {
-    arity = 0;
-    a = AtomOfTerm(t);
+    Atom a = AtomOfTerm(t);
     pt = NULL;
+    pe = GetPredProp(a, 0);
+    arity = 0;
   } else if (IsApplTerm(t)) {
     Functor f = FunctorOfTerm(t);
 
@@ -1178,17 +1181,16 @@ RunTopGoal(Term t)
       Error(TYPE_ERROR_CALLABLE,t,"call/1");
       return(FALSE);
     }
-    arity = ArityOfFunctor(f);
-    a = NameOfFunctor(f);
     /* I cannot use the standard macro here because
        otherwise I would dereference the argument and
        might skip a svar */
+    pe = GetPredPropByFunc(f);
     pt = RepAppl(t)+1;
+    arity = ArityOfFunctor(f); 
   } else {
     Error(TYPE_ERROR_CALLABLE,t,"call/1");
     return(FALSE);
   }
-  pe = GetPredProp(a, arity);
   ppe = RepPredProp(pe);
   if (pe != NIL) {
     READ_LOCK(ppe->PRWLock);
