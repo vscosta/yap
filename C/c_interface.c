@@ -19,8 +19,7 @@
 #define C_INTERFACE
 
 #include "Yap.h"
-#include "Yatom.h"
-#include "Heap.h"
+#include "clause.h"
 #include "yapio.h"
 #define HAS_YAP_H 1
 #include "yap_structs.h"
@@ -823,7 +822,7 @@ X_API char *
 YAP_CompileClause(Term t)
 {
   char *Yap_ErrorMessage;
-  CODEADDR codeaddr;
+  yamop *codeaddr;
   int mod = CurrentModule;
 
   BACKUP_MACHINE_REGS();

@@ -10,18 +10,13 @@
 * File:		Yap.proto						 *
 * mods:									 *
 * comments:	Function declarations for YAP				 *
-* version:      $Id: Yapproto.h,v 1.30 2002-12-06 20:03:25 vsc Exp $	 *
+* version:      $Id: Yapproto.h,v 1.31 2002-12-27 16:53:08 vsc Exp $	 *
 *************************************************************************/
 
 /* prototype file for Yap */
 
 #define STD_PROTO(F,A)  F A
 #define STATIC_PROTO(F,A) static F A
-
-
-typedef Int (*CPredicate)(void);
-
-typedef Int (*CmpPredicate)(Term, Term);
 
 
 /* absmi.c */
@@ -104,10 +99,9 @@ void   STD_PROTO(Yap_InitBigNums,(void));
 Int    STD_PROTO(YAP_Execute,(struct pred_entry *, CPredicate));
 
 /* cdmgr.c */
-void	STD_PROTO(Yap_addclause,(Term,CODEADDR,int,int));
 Term	STD_PROTO(Yap_all_calls,(void));
 Atom	STD_PROTO(Yap_ConsultingFile,(void));
-Int	STD_PROTO(Yap_PredForCode,(CODEADDR, Atom *, UInt *, SMALLUNSGN *));
+Int	STD_PROTO(Yap_PredForCode,(yamop *, Atom *, UInt *, SMALLUNSGN *));
 void	STD_PROTO(Yap_InitCdMgr,(void));
 #if     EMACS
 int     STD_PROTO(where_new_clause, (Prop, int));
@@ -121,7 +115,7 @@ int	STD_PROTO(Yap_compare_terms,(Term,Term));
 void	STD_PROTO(Yap_InitCmpPreds,(void));
 
 /* compiler.c */
-CODEADDR	STD_PROTO(Yap_cclause,(Term, int, int));
+yamop  *STD_PROTO(Yap_cclause,(Term, int, int));
 
 /* computils.c */
 

@@ -253,11 +253,11 @@ STATIC_PROTO(Int  cont_current_key_integer, (void));
 STATIC_PROTO(Int  p_rcdstatp, (void));
 STATIC_PROTO(Int  p_somercdedp, (void));
 #ifdef KEEP_OLD_ENTRIES_HANGING_ABOUT
-STATIC_PROTO(int  StillInChain, (CODEADDR, PredEntry *));
+STATIC_PROTO(int  StillInChain, (yamop *, PredEntry *));
 #endif /* KEEP_OLD_ENTRIES_HANGING_ABOUT */
 #ifdef DISCONNECT_OLD_ENTRIES
 STATIC_PROTO(yamop * find_next_clause, (DBRef));
-STATIC_PROTO(Int  jump_to_next_dynamic_clause, (void));
+STATIC_PROTO(Int  p_jump_to_next_dynamic_clause, (void));
 #endif /* DISCONNECT_OLD_ENTRIES */
 #ifdef SFUNC
 STATIC_PROTO(void  SFVarIn, (Term));
@@ -1655,7 +1655,7 @@ record(int Flag, Term key, Term t_data, Term t_code)
 #endif
   }
   if (Flag & WithRef) {
-    x->Code = (CODEADDR) IntegerOfTerm(t_code);
+    x->Code = (yamop *) IntegerOfTerm(t_code);
   } else {
     x->Code = NULL;
   }
@@ -3457,7 +3457,7 @@ StillInChain(CODEADDR cl, PredEntry *pred)
   if (!(pred->PredFlags & DynamicPredFlag))
     return (FALSE);
   base = pred->FirstClause;
-  end = pred->LastClause;
+  end = pred->cs.p_code.LastClause;
   while (cl != base) {
     if (base == end)
       return (FALSE);
@@ -3497,7 +3497,7 @@ find_next_clause(DBRef ref0)
     /* OK, we found a clause we can jump to, do a bit of hanky pancking with
        the choice-point, so that it believes we are actually working from that
        clause */
-    newp = (yamop *)(ref->Code);
+    newp = ref->Code;
     /* and next let's tell the world this clause is being used, just
        like if we were executing a standard retry_and_mark */
 #if defined(YAPOR) || defined(THREADS)
@@ -3522,12 +3522,12 @@ find_next_clause(DBRef ref0)
 /* This procedure is called when a clause is officialy deleted. Its job
    is to find out where the code can go next, if it can go anywhere */
 static Int
-jump_to_next_dynamic_clause(void)
+p_jump_to_next_dynamic_clause(void)
 {
-  DBRef ref = (DBRef)(((yamop *)((CODEADDR)P-(CELL)NEXTOP((yamop *)NIL,sla)))->u.sla.l2);
+  DBRef ref = (DBRef)(((yamop *)((CODEADDR)P-(CELL)NEXTOP((yamop *)NULL,sla)))->u.sla.bmap);
   yamop *newp = find_next_clause(ref);
   
-  if (newp == (yamop *)NULL) {
+  if (newp == NULL) {
     cut_fail();
   }
   /* the next alternative to try must be obtained from this clause */
@@ -3607,13 +3607,13 @@ MyEraseClause(Clause *clau)
 	last->u.ld.d = second;
       } else if (previous != NIL) {
 	yamop *previousoflast = (yamop *)(previous->Code);
-	pred->LastClause = (CODEADDR)previousoflast;
+	pred->cs.p_code.LastClause = (CODEADDR)previousoflast;
 	previousoflast->u.ld.d = pred->CodeOfPred;
       } else {
 	Yap_FreeCodeSpace(((char *) ClauseCodeToClause(pred->CodeOfPred)));
-	pred->LastClause = pred->FirstClause = NIL;
+	pred->cs.p_code.LastClause = pred->FirstClause = NIL;
 	p->OpcodeOfPred = FAIL_OPCODE;
-	p->TrueCodeOfPred = p->CodeOfPred =
+	p->cs.p_code.TrueCodeOfPred = p->CodeOfPred =
 	  (CODEADDR)(&(p->OpcodeOfPred)); 
       }
     }
@@ -3633,14 +3633,14 @@ MyEraseClause(Clause *clau)
     I don't need to lock the clause at this point because 
     I am the last one using it anyway.
   */
-  ref = (DBRef) NEXTOP(clau->ClCode,ld)->u.sla.l2;
+  ref = (DBRef) NEXTOP(clau->ClCode,ld)->u.sla.bmap;
   /* don't do nothing if the reference is still in use */
   if (DBREF_IN_USE(ref))
     return;
   if ( P == clau->ClCode ) {
     yamop *np = RTRYCODE;
     /* make it the next alternative */
-    np->u.ld.d = (CODEADDR)find_next_clause((DBRef)(NEXTOP(P,ld)->u.sla.l2));
+    np->u.ld.d = find_next_clause((DBRef)(NEXTOP(P,ld)->u.sla.bmap));
     if (np->u.ld.d == NULL)
       P = (yamop *)FAILCODE;
     else {
@@ -3680,23 +3680,23 @@ PrepareToEraseLogUpdClause(Clause *clau, DBRef dbr)
 {
   yamop          *code_p = clau->ClCode;
   PredEntry *p = (PredEntry *)(code_p->u.ld.p);
-  CODEADDR cl = (CODEADDR)(code_p);
+  yamop *cl = code_p;
 
   WRITE_LOCK(p->PRWLock);
-  if (p->FirstClause != cl) {
+  if (p->cs.p_code.FirstClause != cl) {
     /* we are not the first clause... */
     yamop *prev_code_p = (yamop *)(dbr->Prev->Code);
     prev_code_p->u.ld.d = code_p->u.ld.d; 
     /* are we the last? */
-    if (p->LastClause == cl)
-      p->LastClause = (CODEADDR)prev_code_p;
+    if (p->cs.p_code.LastClause == cl)
+      p->cs.p_code.LastClause = prev_code_p;
   } else {
     /* we are the first clause, what about the last ? */
-    if (p->LastClause == p->FirstClause) {
-      p->LastClause = p->FirstClause = NIL;
+    if (p->cs.p_code.LastClause == p->cs.p_code.FirstClause) {
+      p->cs.p_code.LastClause = p->cs.p_code.FirstClause = NULL;
     } else {
-      p->FirstClause = code_p->u.ld.d;
-      ((yamop *)(p->FirstClause))->opc =
+      p->cs.p_code.FirstClause = code_p->u.ld.d;
+      p->cs.p_code.FirstClause->opc =
        Yap_opcode(TRYCODE(_try_me, _try_me0, p->ArityOfPE));
     }
   }
@@ -3707,31 +3707,31 @@ PrepareToEraseLogUpdClause(Clause *clau, DBRef dbr)
     if (!(clau->ClFlags & InUseMask))
       EraseLogUpdCl(clau);
   }
-  if (p->FirstClause == p->LastClause) {
-    if (p->FirstClause != NIL) {
-      code_p = (yamop *)(p->FirstClause);
-      code_p->u.ld.d = p->FirstClause;
-      p->TrueCodeOfPred = (CODEADDR)NEXTOP(code_p, ld);
+  if (p->cs.p_code.FirstClause == p->cs.p_code.LastClause) {
+    if (p->cs.p_code.FirstClause != NULL) {
+      code_p = p->cs.p_code.FirstClause;
+      code_p->u.ld.d = p->cs.p_code.FirstClause;
+      p->cs.p_code.TrueCodeOfPred = NEXTOP(code_p, ld);
       if (p->PredFlags & SpiedPredFlag) {
 	p->OpcodeOfPred = Yap_opcode(_spy_pred);
-	p->CodeOfPred = (CODEADDR)(&(p->OpcodeOfPred)); 
+	p->CodeOfPred = (yamop *)(&(p->OpcodeOfPred)); 
 	p->StateOfPred = StaticMask | SpiedMask;
       } else {
-	p->CodeOfPred = p->TrueCodeOfPred;
-	p->OpcodeOfPred = ((yamop *)(p->TrueCodeOfPred))->opc;
+	p->CodeOfPred = p->cs.p_code.TrueCodeOfPred;
+	p->OpcodeOfPred = p->cs.p_code.TrueCodeOfPred->opc;
 	p->StateOfPred = StaticMask;
       }
     } else {
       p->OpcodeOfPred = FAIL_OPCODE;
-      p->TrueCodeOfPred = p->CodeOfPred = (CODEADDR)(&(p->OpcodeOfPred)); 
+      p->cs.p_code.TrueCodeOfPred = p->CodeOfPred = (yamop *)(&(p->OpcodeOfPred)); 
     }
   } else {
     if (p->PredFlags & SpiedPredFlag) {
       p->OpcodeOfPred = Yap_opcode(_spy_pred);
-      p->CodeOfPred = (CODEADDR)(&(p->OpcodeOfPred)); 
+      p->CodeOfPred = (yamop *)(&(p->OpcodeOfPred)); 
     } else {
       p->OpcodeOfPred = INDEX_OPCODE;
-      p->CodeOfPred = (CODEADDR)(&(p->OpcodeOfPred)); 
+      p->CodeOfPred = (yamop *)(&(p->OpcodeOfPred)); 
     }
   }
   WRITE_UNLOCK(p->PRWLock);
@@ -3765,10 +3765,10 @@ PrepareToEraseClause(Clause *clau, DBRef dbr)
     DBProp father;
     PredEntry *pred;
     /* first we get the next clause */
-    CODEADDR next = code_p->u.ld.d;
+    yamop *next = code_p->u.ld.d;
     /* then we get the previous clause */
-    CODEADDR previous =  (CODEADDR)(clau->u.ClPrevious);
-    CODEADDR clau_code;
+    yamop *previous =  clau->u.ClPrevious;
+    yamop *clau_code;
 
     /* next we check if we still have clauses left in the chain */
     if (previous != next) {
@@ -3791,10 +3791,10 @@ PrepareToEraseClause(Clause *clau, DBRef dbr)
     }
     WRITE_LOCK(pred->PRWLock);
     /* got my pred entry, let's have some fun! */
-    clau_code = (CODEADDR)(clau->ClCode);
-    if (pred->FirstClause == pred->LastClause) {
+    clau_code = clau->ClCode;
+    if (pred->cs.p_code.FirstClause == pred->cs.p_code.LastClause) {
 #ifdef DEBUG
-      if (pred->FirstClause != clau_code) {
+      if (pred->cs.p_code.FirstClause != clau_code) {
 	/* sanity check */
 	if (father->ArityOfDB == 0) {
 	  Yap_Error(SYSTEM_ERROR, TermNil, "Prepare to erase clause for %s/%d",RepAtom((Atom)father->FunctorOfDB)->StrOfAE,0);
@@ -3807,26 +3807,26 @@ PrepareToEraseClause(Clause *clau, DBRef dbr)
 #endif
       /* nothing left here, let's clean the shop */
       Yap_FreeCodeSpace(((char *) ClauseCodeToClause(pred->CodeOfPred)));
-      pred->LastClause = pred->FirstClause = NIL;
+      pred->cs.p_code.LastClause = pred->cs.p_code.FirstClause = NIL;
       pred->OpcodeOfPred = FAIL_OPCODE;
-      pred->TrueCodeOfPred = pred->CodeOfPred =
-	(CODEADDR)(&(pred->OpcodeOfPred)); 
-    } else if (clau_code == pred->FirstClause) {
-      pred->FirstClause = next;
-    } else if (clau_code == pred->LastClause) {
-      pred->LastClause = previous;
+      pred->cs.p_code.TrueCodeOfPred = pred->CodeOfPred =
+	(yamop *)(&(pred->OpcodeOfPred)); 
+    } else if (clau_code == pred->cs.p_code.FirstClause) {
+      pred->cs.p_code.FirstClause = next;
+    } else if (clau_code == pred->cs.p_code.LastClause) {
+      pred->cs.p_code.LastClause = previous;
     }
     WRITE_UNLOCK(pred->PRWLock);
   }
   /* make sure we don't directly point to anyone else */
-  code_p->u.ld.d = (CODEADDR)code_p;
+  code_p->u.ld.d = code_p;
   /* now, put some code so that backtracks to here will survive */
   code_p = NEXTOP(code_p, ld);
   /* in this case, a failed clause should go to the data base and find
      out  what is the next clause, if there is one */
   code_p->opc = Yap_opcode(_call_cpred);
-  code_p->u.sla.l = (CODEADDR)(&jump_to_next_dynamic_clause);
-  code_p->u.sla.l2 = (CELL *)(dbr);
+  code_p->u.sla.sla_u.p = RepPredProp(Yap_GetPredPropByAtom(Yap_FullLookupAtom("$jump_to_next_dynamic_clause"),0));
+  code_p->u.sla.bmap = (CELL *)(dbr);
 #endif /* DISCONNECT_OLD_ENTRIES */
 }
 
@@ -4677,6 +4677,7 @@ Yap_InitDBPreds(void)
   Yap_InitCPred("key_statistics", 3, p_key_statistics, SyncPredFlag);
   Yap_InitCPred("nth_instance", 3, p_nth_instance, SyncPredFlag);
   Yap_InitCPred("$nth_instancep", 3, p_nth_instancep, SyncPredFlag);
+  Yap_InitCPred("$jump_to_next_dynamic_clause", 0, p_jump_to_next_dynamic_clause, SyncPredFlag);
 }
 
 void 
@@ -4685,16 +4686,16 @@ Yap_InitBackDB(void)
   Yap_InitCPredBack("recorded", 3, 3, in_rded, co_rded, SyncPredFlag);
   /* internal version, just to prevent the debugger from nosying around */
   RETRY_C_RECORDED_CODE = NEXTOP((yamop *)
-    (RepPredProp(PredPropByFunc(Yap_MkFunctor(Yap_LookupAtom("recorded"), 3),0))->FirstClause),lds);
+    (RepPredProp(PredPropByFunc(Yap_MkFunctor(Yap_LookupAtom("recorded"), 3),0))->cs.p_code.FirstClause),lds);
   Yap_InitCPredBack("$recorded_with_key", 3, 3, in_rded_with_key, co_rded, SyncPredFlag);
   RETRY_C_RECORDED_K_CODE = NEXTOP((yamop *)
-    (RepPredProp(PredPropByFunc(Yap_MkFunctor(Yap_LookupAtom("$recorded_with_key"), 3),0))->FirstClause),lds);
+    (RepPredProp(PredPropByFunc(Yap_MkFunctor(Yap_LookupAtom("$recorded_with_key"), 3),0))->cs.p_code.FirstClause),lds);
   Yap_InitCPredBack("$recorded", 3, 3, in_rded, co_rded, SyncPredFlag);
   RETRY_C_DRECORDED_CODE = NEXTOP((yamop *)
-    (RepPredProp(PredPropByFunc(Yap_MkFunctor(Yap_LookupAtom("$recorded"), 3),0))->FirstClause),lds);
+    (RepPredProp(PredPropByFunc(Yap_MkFunctor(Yap_LookupAtom("$recorded"), 3),0))->cs.p_code.FirstClause),lds);
   Yap_InitCPredBack("$recordedp", 3, 3, in_rdedp, co_rdedp, SyncPredFlag);
   RETRY_C_RECORDEDP_CODE = NEXTOP((yamop *)
-    (RepPredProp(PredPropByFunc(Yap_MkFunctor(Yap_LookupAtom("$recordedp"), 3),0))->FirstClause),lds);
+    (RepPredProp(PredPropByFunc(Yap_MkFunctor(Yap_LookupAtom("$recordedp"), 3),0))->cs.p_code.FirstClause),lds);
   Yap_InitCPredBack("current_key", 2, 4, init_current_key, cont_current_key,
 		SyncPredFlag);
 }

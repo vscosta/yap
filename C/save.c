@@ -108,7 +108,7 @@ STATIC_PROTO(void  ConvDBList, (Term, char *,CELL));
 STATIC_PROTO(Term  AdjustDBTerm, (Term));
 STATIC_PROTO(void  RestoreDB, (DBEntry *));
 STATIC_PROTO(void  RestoreClause, (Clause *,int));
-STATIC_PROTO(void  CleanClauses, (CODEADDR, CODEADDR));
+STATIC_PROTO(void  CleanClauses, (yamop *, yamop *));
 STATIC_PROTO(void  rehash, (CELL *, int, int));
 STATIC_PROTO(void  CleanCode, (PredEntry *));
 STATIC_PROTO(void  RestoreEntries, (PropEntry *));
@@ -343,10 +343,6 @@ put_info(int info, int mode)
   putout(Unsigned(info));
   /* say whether we just saved the heap or everything */
   putout(mode);
-  /* c-predicates in system */
-  putout(NumberOfCPreds);
-  /* comparison predicates in system */
-  putout(NumberOfCmpFuncs);
   /* current state of stacks, to be used by SavedInfo */
 #if defined(YAPOR) || defined(TABLING)
   /* space available in heap area */
@@ -441,22 +437,6 @@ save_code_info(void)
     for (i = _Ystop; i <= _std_top; ++i)
       my_ops[i] = Yap_opcode(i);
     mywrite(splfild, (char *)my_ops, sizeof(OPCODE)*(_std_top+1));
-  }
-  /* Then the c-functions */
-  putout(NumberOfCPreds);
-  {
-    UInt i;
-    for (i = 0; i < NumberOfCPreds; ++i)
-      putcellptr(CellPtr(Yap_c_predicates[i]));
-  }
-  /* Then the cmp-functions */
-  putout(NumberOfCmpFuncs);
-  {
-    UInt i;
-    for (i = 0; i < NumberOfCmpFuncs; ++i) {
-      putcellptr(CellPtr(Yap_cmp_funcs[i].p));
-      putcellptr(CellPtr(Yap_cmp_funcs[i].f));
-    }
   }
   /* and the current character codes */
   mywrite(splfild, Yap_chtype, NUMBER_OF_CHARS);
@@ -615,7 +595,7 @@ check_header(CELL *info, CELL *ATrail, CELL *AStack, CELL *AHeap)
 {
   char            pp[80];
   char msg[256];
-  CELL hp_size, gb_size, lc_size, tr_size, mode, c_preds, cmp_funcs;
+  CELL hp_size, gb_size, lc_size, tr_size, mode;
 
   /* make sure we always check if there are enough bytes */
   /* skip the first line */
@@ -654,21 +634,6 @@ check_header(CELL *info, CELL *ATrail, CELL *AStack, CELL *AHeap)
   mode = get_header_cell();
   if (Yap_ErrorMessage)
      return(FAIL_RESTORE);
-  /* check the number of c-predicates */
-  c_preds = get_header_cell();
-  if (Yap_ErrorMessage)
-     return(FAIL_RESTORE);
-  if (Yap_HeapBase != NULL && c_preds != NumberOfCPreds) {
-    Yap_ErrorMessage = "saved state with different number of built-ins";
-    return(FAIL_RESTORE);
-  }
-  cmp_funcs = get_header_cell();
-  if (Yap_ErrorMessage)
-     return(FAIL_RESTORE);
-  if (Yap_HeapBase != NULL && cmp_funcs != NumberOfCmpFuncs) {
-    Yap_ErrorMessage = "saved state with different built-ins";
-    return(FAIL_RESTORE);
-  }
   if (mode != DO_EVERYTHING && mode != DO_ONLY_CODE) {
     Yap_ErrorMessage = "corrupt saved state";
     return(FAIL_RESTORE);
@@ -806,44 +771,6 @@ get_insts(OPCODE old_ops[])
   myread(splfild, (char *)old_ops, sizeof(OPCODE)*(_std_top+1));
 }
 
-/* check if the old functions are the same as the new ones, or if they
-   have moved around. Note that we don't need these functions afterwards */
-static int 
-check_funcs(void)
-{
-  UInt old_NumberOfCPreds, old_NumberOfCmpFuncs;
-  int out = FALSE;
-
-  if ((old_NumberOfCPreds = get_cell()) != NumberOfCPreds) {
-    Yap_Error(SYSTEM_ERROR,TermNil,"bad saved state, different number of functions (%d vs %d), system corrupted, old_NumberOfCPreds, NumberOfCPreds");
-  }
-  {
-    unsigned int i;
-    for (i = 0; i < old_NumberOfCPreds; ++i) {
-      CELL *old_pred = get_cellptr();
-      out = (out || old_pred != CellPtr(Yap_c_predicates[i]));
-    }
-  }
-  if ((old_NumberOfCmpFuncs = get_cell()) != NumberOfCmpFuncs) {
-    Yap_Error(SYSTEM_ERROR,TermNil,"bad saved state, different number of comparison functions (%d vs %d), system corrupted", old_NumberOfCmpFuncs, NumberOfCmpFuncs);
-  }
-  {
-    unsigned int i;
-    for (i = 0; i < old_NumberOfCmpFuncs; ++i) {
-      CELL *old_p = get_cellptr();
-      CELL *old_f = get_cellptr();
-      /*      if (AddrAdjust((ADDR)old_p) != cmp_funcs[i].p) {
-	
-	Yap_Error(SYSTEM_ERROR,TermNil,"bad saved state, comparison function is in wrong place (%p vs %p), system corrupted", AddrAdjust((ADDR)old_p), cmp_funcs[i].p);
-	} */
-      Yap_cmp_funcs[i].p = (PredEntry *)AddrAdjust((ADDR)old_p);
-      out = (out ||
-	     old_f != CellPtr(Yap_cmp_funcs[i].f));
-    }
-  }
-  return(out);
-}
-
 /* Get the old atoms hash table */
 static void 
 get_hash(void)
@@ -919,7 +846,6 @@ get_coded(int flag, OPCODE old_ops[])
 
   get_regs(flag);
   get_insts(old_ops);
-  funcs_moved = check_funcs();
   get_hash();
   CopyCode();
   switch (flag) {
@@ -1103,38 +1029,6 @@ rehash(CELL *oldcode, int NOfE, int KindOfEntries)
     hentry[1] = savep[i*2+1];
   }
 }
-
-static CODEADDR
-CCodeAdjust(PredEntry *pe, CODEADDR c)
-{
-  /* add this code to a list of ccalls that must be adjusted */
-  
-  return ((CODEADDR)(Yap_c_predicates[pe->StateOfPred]));
-}
-
-static CODEADDR
-NextCCodeAdjust(PredEntry *pe, CODEADDR c)
-{
-  /* add this code to a list of ccalls that must be adjusted */
-  
-  return ((CODEADDR)(Yap_c_predicates[pe->StateOfPred+1]));
-}
-
-
-static CODEADDR
-DirectCCodeAdjust(PredEntry *pe, CODEADDR c)
-{
-  /* add this code to a list of ccalls that must be adjusted */
-  unsigned int i;
-  for (i = 0; i < NumberOfCmpFuncs; i++) {
-    if (Yap_cmp_funcs[i].p == pe) {
-      return((CODEADDR)(Yap_cmp_funcs[i].f));
-    }
-  }
-  Yap_Error(FATAL_ERROR,TermNil,"bad saved state, ccalls corrupted");
-  return(NULL);
-}
-
 
 #include "rheap.h"
 

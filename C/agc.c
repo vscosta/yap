@@ -143,30 +143,6 @@ recompute_mask(DBRef dbr)
   return;
 }
 
-static CODEADDR
-CCodeAdjust(PredEntry *pe, CODEADDR c)
-{
-  /* add this code to a list of ccalls that must be adjusted */
-  
-  return c;
-}
-
-static CODEADDR
-NextCCodeAdjust(PredEntry *pe, CODEADDR c)
-{
-  /* add this code to a list of ccalls that must be adjusted */
-  
-  return c;
-}
-
-static CODEADDR
-DirectCCodeAdjust(PredEntry *pe, CODEADDR c)
-{
-  /* add this code to a list of ccalls that must be adjusted */
-  
-  return (c);
-}
-
 static void 
 rehash(CELL *oldcode, int NOfE, int KindOfEntries)
 {

@@ -118,7 +118,13 @@ typedef struct clause_struct {
 
 /* cdmgr.c */
 void	STD_PROTO(Yap_RemoveLogUpdIndex,(Clause *));
-void	STD_PROTO(Yap_IPred,(CODEADDR sp));
+void	STD_PROTO(Yap_IPred,(PredEntry *));
+void	STD_PROTO(Yap_addclause,(Term,yamop *,int,int));
 
 /* dbase.c */
 void	STD_PROTO(Yap_ErCl,(Clause *));
+
+/* index.c */
+yamop   *STD_PROTO(Yap_PredIsIndexable,(PredEntry *));
+
+

@@ -2728,13 +2728,13 @@ c_optimize(PInstr *pc)
   } while (pc != NULL);
 }
 
-CODEADDR
+yamop *
 Yap_cclause(Term inp_clause, int NOfArgs, int mod)
 {				/* compile a prolog clause, copy of clause myst be in ARG1 */
   /* returns address of code for clause */
   Term head, body;
   CELL *SaveH;
-  CODEADDR acode;
+  yamop *acode;
 
   volatile int maxvnum = 512;
   int botch_why;
@@ -2841,11 +2841,11 @@ Yap_cclause(Term inp_clause, int NOfArgs, int mod)
     /* insert extra instructions to count calls */
     READ_LOCK(CurrentPred->PRWLock);
     if ((CurrentPred->PredFlags & ProfiledPredFlag) ||
-	(PROFILING && (CurrentPred->FirstClause == NIL))) {
+	(PROFILING && (CurrentPred->cs.p_code.FirstClause == NIL))) {
       profiling = TRUE;
       call_counting = FALSE;
     } else if ((CurrentPred->PredFlags & CountPredFlag) ||
-	       (CALL_COUNTING && (CurrentPred->FirstClause == NIL))) {
+	       (CALL_COUNTING && (CurrentPred->cs.p_code.FirstClause == NIL))) {
       call_counting = TRUE;
       profiling = FALSE;
     } else {

@@ -253,6 +253,7 @@ clause(V,Q,R) :-
 	'$some_recordedp'(M:P), !,
 	'$recordedp'(M:P,(P:-Q),R).
 '$clause'(P,M,Q,_) :-
+	\+ '$undefined'(P,M),
 	( '$system_predicate'(P,M) -> true ;
 	    '$number_of_clauses'(P,M,N), N > 0 ),
 	functor(P,Name,Arity),
@@ -285,23 +286,6 @@ nth_clause(V,I,R) :-
 	functor(P,Name,Arity),
 	'$do_error'(permission_error(access,private_procedure,Name/Arity),
 	      nth_clause(M:P,I,R)).
-
-'$clause'(V,M,Q,R) :- var(V), !, 
-	'$do_error'(instantiation_error,M:clause(V,Q,R)).
-'$clause'(C,M,Q,R) :- number(C), !,
-	'$do_error'(type_error(callable,C),clause(C,M:Q,R)).
-'$clause'(R,M,Q,R1) :- db_reference(R), !,
-	'$do_error'(type_error(callable,R),clause(R,M:Q,R1)).
-'$clause'(M:P,_,Q,R) :- !,
-	'$clause'(P,M,Q,R).
-'$clause'(P,Mod,Q,R) :-
-	 ( '$is_dynamic'(P, Mod) ->
-	 	'$recordedp'(Mod:P,(P:-Q),R)
-	 ;
-	        functor(P,N,A),
-		'$do_error'(permission_error(access,private_procedure,N/A),
-			clause(Mod:P,Q,R))
-	 ).
 
 retract(M:C) :- !,
 	'$retract'(C,M).

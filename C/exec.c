@@ -28,10 +28,6 @@ STATIC_PROTO(Int  p_execute, (void));
 STATIC_PROTO(Int  p_execute0, (void));
 STATIC_PROTO(Int  p_at_execute, (void));
 
-/************ table of C-Predicates *************/
-CPredicate    Yap_c_predicates[MAX_C_PREDS];
-cmp_entry     Yap_cmp_funcs[MAX_CMP_FUNCS];
-
 static Term
 current_cp_as_integer(void)
 {
@@ -109,7 +105,7 @@ CallClause(PredEntry *pen, Int position)
   flags = pen->PredFlags;
   if ((flags & (CompiledPredFlag | DynamicPredFlag)) ||
       pen->OpcodeOfPred == UNDEF_OPCODE) {
-    CODEADDR        q;
+    yamop *q;
 #ifdef DEPTH_LIMIT
     if (DEPTH <= MkIntTerm(1)) {/* I assume Module==0 is prolog */
       if (pen->ModuleOfPred) {
@@ -128,7 +124,7 @@ CallClause(PredEntry *pen, Int position)
     YENV = ASP;
     YENV[E_CB] = (CELL)(B->cp_b);
     CP = P;
-    q = pen->FirstClause;
+    q = pen->cs.p_code.FirstClause;
     if (pen->PredFlags & ProfiledPredFlag) {
       LOCK(pen->StatisticsForPred.lock);
       if (position == 1)
@@ -164,8 +160,8 @@ CallClause(PredEntry *pen, Int position)
 	*opp |= InUseMask;
       }
 #endif
-      CLAUSECODE->clause = (CODEADDR)NEXTOP((yamop *)(q),ld);
-      P = (yamop *)CLAUSECODE->clause;
+      CLAUSECODE->clause = NEXTOP((yamop *)(q),ld);
+      P = CLAUSECODE->clause;
       WRITE_UNLOCK(pen->PRWLock);
       return((CELL)(&(CLAUSECODE->clause)));
     } else {
@@ -1349,7 +1345,7 @@ exec_absmi(int top)
 }
 
 static int
-do_goal(CODEADDR CodeAdr, int arity, CELL *pt, int top)
+do_goal(yamop *CodeAdr, int arity, CELL *pt, int top)
 {
   choiceptr saved_b = B;
 
@@ -1412,7 +1408,7 @@ Int
 Yap_execute_goal(Term t, int nargs, SMALLUNSGN mod)
 {
   Int             out;
-  CODEADDR        CodeAdr;
+  yamop        *CodeAdr;
   yamop *saved_p, *saved_cp;
   Prop pe;
   PredEntry *ppe;
@@ -1535,7 +1531,7 @@ Yap_trust_last(void)
 int
 Yap_RunTopGoal(Term t)
 {
-  CODEADDR        CodeAdr;
+  yamop        *CodeAdr;
   Prop pe;
   PredEntry *ppe;
   CELL *pt;
@@ -1687,7 +1683,7 @@ p_clean_ifcp(void) {
 
 static Int
 JumpToEnv(Term t) {
-  yamop *pos = (yamop *)(PredDollarCatch->LastClause);
+  yamop *pos = PredDollarCatch->cs.p_code.LastClause;
   CELL *env;
   choiceptr first_func = NULL, B0 = B;
 
@@ -1695,7 +1691,7 @@ JumpToEnv(Term t) {
     /* find the first choicepoint that may be a catch */
     while (B != NULL && B->cp_ap != pos) {
       /* we are already doing a catch */
-      if (B->cp_ap == (yamop *)(PredHandleThrow->LastClause)) {
+      if (B->cp_ap == PredHandleThrow->cs.p_code.LastClause) {
 	P = (yamop *)FAILCODE;
 	if (first_func != NULL) {
 	  B = first_func;
@@ -1729,7 +1725,7 @@ JumpToEnv(Term t) {
   } while (TRUE);
   /* step one environment above */
   B->cp_cp = (yamop *)env[E_CP];
-  B->cp_ap = (yamop *)(PredHandleThrow->LastClause);
+  B->cp_ap = PredHandleThrow->cs.p_code.LastClause;
   B->cp_env = (CELL *)env[E_E];
   /* cannot recover Heap because of copy term :-( */
   B->cp_h = H;

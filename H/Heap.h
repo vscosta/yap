@@ -10,7 +10,7 @@
 * File:		Heap.h         						 *
 * mods:									 *
 * comments:	Heap Init Structure					 *
-* version:      $Id: Heap.h,v 1.35 2002-11-20 15:04:35 vsc Exp $	 *
+* version:      $Id: Heap.h,v 1.36 2002-12-27 16:53:08 vsc Exp $	 *
 *************************************************************************/
 
 /* information that can be stored in Code Space */
@@ -72,7 +72,6 @@ typedef struct various_codes {
     COUNT             seq;
 #endif /* YAPOR */
     COUNT s;
-    CODEADDR l;
     CELL *l2;
     struct pred_entry *p;
     struct pred_entry *p0;
@@ -86,7 +85,6 @@ typedef struct various_codes {
     COUNT             seq;
 #endif /* YAPOR */
     COUNT s;
-    CODEADDR l;
     CELL *l2;
     struct pred_entry *p;
     struct pred_entry *p0;
@@ -96,7 +94,7 @@ typedef struct various_codes {
   yamop rtrycode;
   struct {
     OPREG arity;
-    CODEADDR clause;
+    struct yami *clause;
     Functor func;
   } clausecode;
   union CONSULT_OBJ *consultsp;
@@ -156,8 +154,6 @@ typedef struct various_codes {
   unsigned int n_of_threads;      /* number of threads and processes in system */
 #endif
   unsigned int size_of_overflow;
-  UInt  number_of_cpreds;
-  UInt  number_of_cmpfuncs;
   Term  module_name[MaxModules];
   struct pred_entry *module_pred[MaxModules];
   SMALLUNSGN   no_of_modules;
@@ -388,8 +384,6 @@ typedef struct various_codes {
 #define  INT_BB_KEYS              heap_regs->IntBBKeys
 #define  CharConversionTable      heap_regs->char_conversion_table
 #define  CharConversionTable2     heap_regs->char_conversion_table2
-#define  NumberOfCPreds           heap_regs->number_of_cpreds
-#define  NumberOfCmpFuncs         heap_regs->number_of_cmpfuncs
 #define  ModuleName               heap_regs->module_name
 #define  ModulePred               heap_regs->module_pred
 #define  PrimitivesModule         heap_regs->primitives_module

@@ -85,10 +85,24 @@ p_integer(void)
       d0 = ARG1;
       deref_head(d0, integer_unk);
     integer_nvar:
-      if (IsIntegerTerm(d0)) {
+      if (IsIntTerm(d0)) {
 	return(TRUE);
       }
-      else {
+      if (IsApplTerm(d0)) {
+	Functor f0 = FunctorOfTerm(d0);
+	if (IsExtensionFunctor(f0)) {
+	  switch ((CELL)f0) {
+	  case (CELL)FunctorLongInt:
+#ifdef USE_GMP
+	  case (CELL)FunctorBigInt:
+#endif
+	    return(TRUE);
+	  default:
+	    return(FALSE);
+	  }
+	}
+	return(FALSE);
+      } else {
 	return(FALSE);
       }
 
@@ -106,10 +120,25 @@ p_number(void)
       d0 = ARG1;
       deref_head(d0, number_unk);
     number_nvar:
-      if (IsNumTerm(d0)) {
+      if (IsIntTerm(d0)) {
 	return(TRUE);
       }
-      else {
+      if (IsApplTerm(d0)) {
+	Functor f0 = FunctorOfTerm(d0);
+	if (IsExtensionFunctor(f0)) {
+	  switch ((CELL)f0) {
+	  case (CELL)FunctorLongInt:
+	  case (CELL)FunctorDouble:
+#ifdef USE_GMP
+	  case (CELL)FunctorBigInt:
+#endif
+	    return(TRUE);
+	  default:
+	    return(FALSE);
+	  }
+	}
+	return(FALSE);
+      } else {
 	return(FALSE);
       }
 

@@ -207,12 +207,20 @@ typedef struct {
 typedef	struct pred_entry {
   Prop	NextOfPE;	/* used to chain properties	    	*/
   PropFlags	KindOfPE;	/* kind of property		    	*/
-  unsigned int  ArityOfPE;	/* arity of property		    	*/
+  struct yami   *CodeOfPred;
+  OPCODE        OpcodeOfPred;	/* undefcode, indexcode, spycode, ....  */
   CELL	        PredFlags;
-  CODEADDR	CodeOfPred;	/* code address		    		*/
-  CODEADDR	TrueCodeOfPred;	/* if needing to spy or to lock 	*/
+  unsigned int  ArityOfPE;	/* arity of property		    	*/
+  union 	{
+    struct {
+       struct yami   *TrueCodeOfPred;	/* code address		    		*/
+       struct yami   *FirstClause;
+       struct yami   *LastClause;
+    } p_code;
+    CPredicate    f_code;
+    CmpPredicate  d_code;
+  } cs;	/* if needing to spy or to lock 	*/
   Functor       FunctorOfPred;	/* functor for Predicate        	*/
-  CODEADDR	FirstClause, LastClause;
   Atom	        OwnerFile;	/* File where the predicate was defined */
   struct pred_entry *NextPredOfModule; /* next pred for same module   */
 #if defined(YAPOR) || defined(THREADS)
@@ -222,7 +230,6 @@ typedef	struct pred_entry {
   tab_ent_ptr   TableOfPred;
 #endif /* TABLING */
   SMALLUNSGN	ModuleOfPred;	/* module for this definition		*/
-  OPCODE        OpcodeOfPred;	/* undefcode, indexcode, spycode, ....  */
   profile_data  StatisticsForPred; /* enable profiling for predicate  */
   SMALLUNSGN	StateOfPred;	/* actual state of predicate 		*/
 } PredEntry;
@@ -237,20 +244,6 @@ Constructor(Prop,AbsPred,PredEntry *,p,p)
 #endif
 
 Inline(IsPredProperty, PropFlags, int, flags, (flags == PEProp) )
-
-/********* maximum number of C-written predicates and cmp funcs ******************/
-
-#define MAX_C_PREDS    400
-#define MAX_CMP_FUNCS   20
-
-typedef struct {
-	PredEntry     *p;
-	CmpPredicate   f;
-} cmp_entry;
-
-extern CPredicate    Yap_c_predicates[MAX_C_PREDS];
-extern cmp_entry     Yap_cmp_funcs[MAX_CMP_FUNCS];
-
 
 /* Flags for code or dbase entry */
 /* There are several flags for code and data base entries */
@@ -280,7 +273,7 @@ typedef struct DB_STRUCT {
   CELL Flags;	/* Term Flags				*/
   SMALLUNSGN NOfRefsTo;	/* Number of references pointing here	*/
   struct struct_dbentry  *Parent;	/* key of DBase reference		*/
-  CODEADDR Code;	/* pointer to code if this is a clause 	*/
+  struct yami *Code;	/* pointer to code if this is a clause 	*/
   struct DB_STRUCT **DBRefs; /* pointer to other references 	*/
   struct DB_STRUCT *Prev; /* Previous element in chain            */
   struct DB_STRUCT *Next; /* Next element in chain                */
@@ -494,9 +487,6 @@ void		STD_PROTO(Yap_ErDBE,(DBRef));
 DBRef		STD_PROTO(Yap_StoreTermInDB,(int,int));
 Term		STD_PROTO(Yap_FetchTermFromDB,(DBRef,int));
 void		STD_PROTO(Yap_ReleaseTermFromDB,(DBRef));
-
-/* .c */
-CODEADDR	STD_PROTO(Yap_PredIsIndexable,(PredEntry *));
 
 /* init.c */
 Atom		STD_PROTO(Yap_GetOp,(OpEntry *,int *,int));

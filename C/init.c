@@ -458,30 +458,21 @@ Yap_InitCPred(char *Name, unsigned long int Arity, CPredicate code, int flags)
     pe = RepPredProp(PredPropByFunc(Yap_MkFunctor(atom, Arity),CurrentModule));
   else
     pe = RepPredProp(PredPropByAtom(atom,CurrentModule));
+  pe->CodeOfPred = p_code;
   pe->PredFlags = flags | StandardPredFlag | CPredFlag;
-  p_code->u.sla.l = pe->TrueCodeOfPred = (CODEADDR) code;
-  pe->CodeOfPred = pe->FirstClause = pe->LastClause = (CODEADDR) p_code;
+  pe->cs.f_code = code;
   if (flags & UserCPredFlag)
     p_code->opc = pe->OpcodeOfPred = Yap_opcode(_call_usercpred);
   else
     p_code->opc = pe->OpcodeOfPred = Yap_opcode(_call_cpred);
-  p_code->u.sla.l2 = NULL;
+  p_code->u.sla.bmap = NULL;
   p_code->u.sla.s = -Signed(RealEnvSize);
-  p_code->u.sla.p = pe;
-  p_code->u.sla.p0 = pe;
+  p_code->u.sla.sla_u.p = pe;
   p_code = NEXTOP(p_code,sla);
   p_code->opc = Yap_opcode(_procceed);
   { 
     Term mod = CurrentModule;
     pe->ModuleOfPred = mod;
-  }
-  if (!(flags & UserCPredFlag)) {
-    Yap_c_predicates[NumberOfCPreds] = code;
-    pe->StateOfPred = NumberOfCPreds;
-    NumberOfCPreds++;
-    if (NumberOfCPreds >= MAX_C_PREDS) {
-      Yap_Error(SYSTEM_ERROR, TermNil, "Too Many C-Predicates");
-    }
   }
 }
 
@@ -502,28 +493,15 @@ Yap_InitCmpPred(char *Name, unsigned long int Arity, CmpPredicate cmp_code, CPre
   else
     pe = RepPredProp(PredPropByAtom(atom,CurrentModule));
   pe->PredFlags = flags | StandardPredFlag | CPredFlag;
-  p_code->u.sla.l = pe->TrueCodeOfPred = (CODEADDR) code;
-  pe->CodeOfPred = pe->FirstClause = pe->LastClause = (CODEADDR) p_code;
+  pe->CodeOfPred = p_code;
+  pe->cs.d_code = cmp_code;
   pe->ModuleOfPred = CurrentModule;
   p_code->opc = pe->OpcodeOfPred = Yap_opcode(_call_cpred);
-  p_code->u.sla.l2 = NULL;
+  p_code->u.sla.sla_u.p = pe;
+  p_code->u.sla.bmap = NULL;
   p_code->u.sla.s = -Signed(RealEnvSize);
-  p_code->u.sla.p = p_code->u.sla.p0 = pe;
   p_code = NEXTOP(p_code,sla);
   p_code->opc = Yap_opcode(_procceed);
-  Yap_c_predicates[NumberOfCPreds] = code;
-  pe->StateOfPred = NumberOfCPreds;
-  NumberOfCPreds++;
-  if (NumberOfCPreds == MAX_C_PREDS) {
-    Yap_Error(SYSTEM_ERROR, TermNil, "not enough table for c-predicates");
-  }
-  pe->TrueCodeOfPred = (CODEADDR) cmp_code;
-  Yap_cmp_funcs[NumberOfCmpFuncs].p = pe;
-  Yap_cmp_funcs[NumberOfCmpFuncs].f = cmp_code;
-  NumberOfCmpFuncs++;
-  if (NumberOfCmpFuncs == MAX_CMP_FUNCS) {
-    Yap_Error(SYSTEM_ERROR, TermNil, "not enough table for comparison predicates");
-  }
 }
 
 void 
@@ -537,6 +515,8 @@ Yap_InitAsmPred(char *Name,  unsigned long int Arity, int code, CPredicate def, 
   else
     pe = RepPredProp(PredPropByAtom(atom,CurrentModule));
   pe->PredFlags = flags | AsmPredFlag | StandardPredFlag | (code);
+  pe->cs.f_code =  def;
+  pe->ModuleOfPred = CurrentModule;
   if (def != NULL) {
     yamop      *p_code = ((Clause *)NULL)->ClCode;
     Clause     *cl = (Clause *)Yap_AllocCodeSpace((CELL)NEXTOP(NEXTOP(((yamop *)p_code),sla),e)); 
@@ -545,23 +525,16 @@ Yap_InitAsmPred(char *Name,  unsigned long int Arity, int code, CPredicate def, 
     cl->ClFlags = 0;
     cl->Owner = Yap_LookupAtom("user");
     p_code = cl->ClCode;
-    p_code->u.sla.l = pe->TrueCodeOfPred = (CODEADDR) def;
-    pe->CodeOfPred = pe->FirstClause = pe->LastClause = (CODEADDR) p_code;
-    pe->ModuleOfPred = CurrentModule;
+    pe->CodeOfPred = p_code;
     p_code->opc = pe->OpcodeOfPred = Yap_opcode(_call_cpred);
-    p_code->u.sla.l2 = NULL;
+    p_code->u.sla.bmap = NULL;
     p_code->u.sla.s = -Signed(RealEnvSize);
-    p_code->u.sla.p = p_code->u.sla.p0 = pe;
+    p_code->u.sla.sla_u.p = pe;
     p_code = NEXTOP(p_code,sla);
     p_code->opc = Yap_opcode(_procceed);
-    Yap_c_predicates[NumberOfCPreds] = def;
-    pe->StateOfPred = NumberOfCPreds;
-    NumberOfCPreds++;
   } else {
-    pe->FirstClause = pe->LastClause = NULL;
     pe->OpcodeOfPred = Yap_opcode(_undef_p);
-    pe->TrueCodeOfPred = pe->CodeOfPred =
-      (CODEADDR)(&(pe->OpcodeOfPred)); 
+    pe->CodeOfPred =  (yamop *)(&(pe->OpcodeOfPred)); 
   }
 }
 
@@ -570,13 +543,14 @@ static void
 CleanBack(PredEntry *pe, CPredicate Start, CPredicate Cont)
 {
   yamop   *code;
-  if (pe->FirstClause != pe->LastClause || pe->TrueCodeOfPred !=
-      pe->FirstClause || pe->CodeOfPred != pe->FirstClause) {
+  if (pe->cs.p_code.FirstClause != pe->cs.p_code.LastClause ||
+      pe->cs.p_code.TrueCodeOfPred != pe->cs.p_code.FirstClause ||
+      pe->CodeOfPred != pe->cs.p_code.FirstClause) {
     Yap_Error(SYSTEM_ERROR,TermNil,
 	  "initiating a C Pred with backtracking");
     return;
   }
-  code = (yamop *)(pe->FirstClause);
+  code = (yamop *)(pe->cs.p_code.FirstClause);
   if (pe->PredFlags & UserCPredFlag)
     code->opc = Yap_opcode(_try_userc);
   else
@@ -585,8 +559,7 @@ CleanBack(PredEntry *pe, CPredicate Start, CPredicate Cont)
   INIT_YAMOP_LTT(code, 2);
   PUT_YAMOP_SEQ(code);
 #endif /* YAPOR */
-  Yap_c_predicates[pe->StateOfPred] = Start;
-  code->u.lds.d = (CODEADDR) Start;
+  code->u.lds.f = Start;
   code = NEXTOP(code,lds);
   if (pe->PredFlags & UserCPredFlag)
     code->opc = Yap_opcode(_retry_userc);
@@ -596,8 +569,7 @@ CleanBack(PredEntry *pe, CPredicate Start, CPredicate Cont)
   INIT_YAMOP_LTT(code, 1);
   PUT_YAMOP_SEQ(code);
 #endif /* YAPOR */
-  Yap_c_predicates[pe->StateOfPred+1] = Cont;
-  code->u.lds.d = (CODEADDR) Cont;
+  code->u.lds.f = Cont;
 }
 
 
@@ -611,17 +583,16 @@ Yap_InitCPredBack(char *Name, unsigned long int Arity, unsigned int Extra, CPred
     pe = RepPredProp(PredPropByFunc(Yap_MkFunctor(atom, Arity),CurrentModule));
   else
     pe = RepPredProp(PredPropByAtom(atom,CurrentModule));
-  if (pe->FirstClause != NIL)
+  if (pe->cs.p_code.FirstClause != NIL)
     CleanBack(pe, Start, Cont);
   else {
     Clause *cl;
-    yamop      *code = ((Clause *)NIL)->ClCode;
+    yamop      *code = ((Clause *)NULL)->ClCode;
     pe->PredFlags = CompiledPredFlag | StandardPredFlag;
 #ifdef YAPOR
     pe->PredFlags |= SequentialPredFlag;
 #endif /* YAPOR */
-    cl = (Clause
-	  *)Yap_AllocCodeSpace((CELL)NEXTOP(NEXTOP(NEXTOP(code,lds),lds),e));
+    cl = (Clause *)Yap_AllocCodeSpace((CELL)NEXTOP(NEXTOP(NEXTOP(code,lds),lds),e));
     if (cl == NIL) {
       Yap_Error(SYSTEM_ERROR,TermNil,"No Heap Space in InitCPredBack");
       return;
@@ -630,16 +601,13 @@ Yap_InitCPredBack(char *Name, unsigned long int Arity, unsigned int Extra, CPred
     cl->ClFlags = 0;
     cl->Owner = Yap_LookupAtom("user");
     code = cl->ClCode;
-    pe->TrueCodeOfPred = pe->CodeOfPred =
-      pe->FirstClause = pe->LastClause = (CODEADDR)code;
+    pe->cs.p_code.TrueCodeOfPred = pe->CodeOfPred =
+      pe->cs.p_code.FirstClause = pe->cs.p_code.LastClause = code;
     if (flags & UserCPredFlag)
       pe->OpcodeOfPred = code->opc = Yap_opcode(_try_userc);
     else
       pe->OpcodeOfPred = code->opc = Yap_opcode(_try_c);
-    code->u.lds.d = (CODEADDR) Start;
-    pe->StateOfPred = NumberOfCPreds;
-    Yap_c_predicates[NumberOfCPreds] = Start;
-    NumberOfCPreds++;
+    code->u.lds.f = Start;
     code->u.lds.p = pe;
     code->u.lds.s = Arity;
     code->u.lds.extra = Extra;
@@ -652,9 +620,7 @@ Yap_InitCPredBack(char *Name, unsigned long int Arity, unsigned int Extra, CPred
       code->opc = Yap_opcode(_retry_userc);
     else
       code->opc = Yap_opcode(_retry_c);
-    code->u.lds.d = (CODEADDR) Cont;
-    Yap_c_predicates[NumberOfCPreds] = Cont;
-    NumberOfCPreds++;
+    code->u.lds.f = Cont;
     code->u.lds.p = pe;
     code->u.lds.s = Arity;
     code->u.lds.extra = Extra;
@@ -753,13 +719,11 @@ InitCodes(void)
   
   heap_regs->env_for_trustfail_code.op = Yap_opcode(_call);
   heap_regs->env_for_trustfail_code.s = -Signed(RealEnvSize);
-  heap_regs->env_for_trustfail_code.l = NULL;
   heap_regs->env_for_trustfail_code.l2 = NULL;
   heap_regs->trustfailcode = Yap_opcode(_trust_fail);
 
   heap_regs->env_for_yes_code.op = Yap_opcode(_call);
   heap_regs->env_for_yes_code.s = -Signed(RealEnvSize);
-  heap_regs->env_for_yes_code.l = NULL;
   heap_regs->env_for_yes_code.l2 = NULL;
   heap_regs->yescode.opc = Yap_opcode(_Ystop);
   heap_regs->undef_op = Yap_opcode(_undef_p);
@@ -784,7 +748,7 @@ InitCodes(void)
   heap_regs->heap_top_owner = -1;
 #endif /* YAPOR */
   heap_regs->clausecode.arity = 0;
-  heap_regs->clausecode.clause = NIL;
+  heap_regs->clausecode.clause = NULL;
   heap_regs->clausecode.func = NIL;
 
   heap_regs->invisiblechain.Entry = NIL;
@@ -822,8 +786,6 @@ InitCodes(void)
   heap_regs->IntBBKeys = NULL;
   heap_regs->char_conversion_table = NULL;
   heap_regs->char_conversion_table2 = NULL;
-  heap_regs->number_of_cpreds = 0;
-  heap_regs->number_of_cmpfuncs = 0;
   /*
     don't initialise this here, this is initialised by Yap_InitModules!!!!
      heap_regs->no_of_modules = 1;

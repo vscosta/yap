@@ -80,13 +80,13 @@ restore_codes(void)
   ((yamop *)(&heap_regs->rtrycode))->opc = Yap_opcode(_retry_and_mark);
   if (((yamop *)(&heap_regs->rtrycode))->u.ld.d != NIL)
     ((yamop *)(&heap_regs->rtrycode))->u.ld.d =
-      CodeAddrAdjust(((yamop *)(&heap_regs->rtrycode))->u.ld.d);
+      PtoOpAdjust(((yamop *)(&heap_regs->rtrycode))->u.ld.d);
   {
     int             arity;
     arity = heap_regs->clausecode.arity;
     if (heap_regs->clausecode.clause != NIL)
       heap_regs->clausecode.clause =
-	CodeAddrAdjust(heap_regs->clausecode.clause);
+	PtoOpAdjust(heap_regs->clausecode.clause);
     if (arity) {
       heap_regs->clausecode.func =
 	FuncAdjust(heap_regs->clausecode.func); 
@@ -471,7 +471,7 @@ RestoreDBEntry(DBRef dbr)
 #endif
   dbr->Parent = (DBProp)AddrAdjust((ADDR)(dbr->Parent));
   if (dbr->Code != NIL)
-    dbr->Code = CodeAddrAdjust(dbr->Code);
+    dbr->Code = PtoOpAdjust(dbr->Code);
   if (dbr->Flags & DBAtomic) {
     if (IsAtomTerm(dbr->Entry))
       dbr->Entry = AtomTermAdjust(dbr->Entry);
@@ -651,7 +651,7 @@ RestoreClause(Clause *Cl, int mode)
     case _table_completion:
 #endif
       pc->u.ld.p = PtoPredAdjust(pc->u.ld.p);
-      pc->u.ld.d = CodeAddrAdjust(pc->u.ld.d);
+      pc->u.ld.d = PtoOpAdjust(pc->u.ld.d);
       pc = NEXTOP(pc,ld);
       break;
       /* instructions type l */
@@ -668,12 +668,12 @@ RestoreClause(Clause *Cl, int mode)
     case _skip:
     case _try_in:
     case _jump_if_var:
-      pc->u.l.l = CodeAddrAdjust(pc->u.l.l);
+      pc->u.l.l = PtoOpAdjust(pc->u.l.l);
       pc = NEXTOP(pc,l);
       break;
       /* instructions type EC */
     case _alloc_for_logical_pred:
-      pc->u.EC.ClBase = CodeAddrAdjust(pc->u.EC.ClBase);
+      pc->u.EC.ClBase = PtoOpAdjust(pc->u.EC.ClBase);
       pc = NEXTOP(pc,EC);
       break;
       /* instructions type e */
@@ -771,30 +771,36 @@ RestoreClause(Clause *Cl, int mode)
       /* instructions type sla */
     case _fcall:
     case _call:
-    case _either:
-    case _or_else:
     case _p_execute:
     case _p_execute_within:
     case _p_last_execute_within:
 #ifdef YAPOR
     case _or_last:
 #endif
-      pc->u.sla.l = CodeAddrAdjust(pc->u.sla.l);
-      if (pc->u.sla.l2 != NULL) {
-	pc->u.sla.l2 = CellPtoHeapAdjust(pc->u.sla.l2);
+      if (pc->u.sla.bmap != NULL) {
+	pc->u.sla.bmap = CellPtoHeapAdjust(pc->u.sla.bmap);
       }
-      pc->u.sla.p = PtoPredAdjust(pc->u.sla.p);
+      pc->u.sla.sla_u.p = PtoPredAdjust(pc->u.sla.sla_u.p);
+      pc->u.sla.p0 = PtoPredAdjust(pc->u.sla.p0);
+      pc = NEXTOP(pc,sla);
+      break;
+      /* instructions type sla, but for disjunctions */
+    case _either:
+    case _or_else:
+      if (pc->u.sla.bmap != NULL) {
+	pc->u.sla.bmap = CellPtoHeapAdjust(pc->u.sla.bmap);
+      }
+      pc->u.sla.sla_u.l = PtoOpAdjust(pc->u.sla.sla_u.l);
       pc->u.sla.p0 = PtoPredAdjust(pc->u.sla.p0);
       pc = NEXTOP(pc,sla);
       break;
       /* instructions type sla, but for functions */
     case _call_cpred:
     case _call_usercpred:
-      pc->u.sla.p = PtoPredAdjust(pc->u.sla.p);
+      pc->u.sla.sla_u.p = PtoPredAdjust(pc->u.sla.sla_u.p);
       pc->u.sla.p0 = PtoPredAdjust(pc->u.sla.p0);
-      pc->u.sla.l = CCodeAdjust(pc->u.sla.p,pc->u.sla.l);
-      if (pc->u.sla.l2 != NULL) {
-	pc->u.sla.l2 = CellPtoHeapAdjust(pc->u.sla.l2);
+      if (pc->u.sla.bmap != NULL) {
+	pc->u.sla.bmap = CellPtoHeapAdjust(pc->u.sla.bmap);
       }
       pc = NEXTOP(pc,sla);
       break;
@@ -1001,8 +1007,7 @@ RestoreClause(Clause *Cl, int mode)
       /* instructions type sdl */
     case _call_c_wfail:
       pc->u.sdl.p = PtoPredAdjust(pc->u.sdl.p);
-      pc->u.sdl.l = CodeAddrAdjust(pc->u.sdl.l);
-      pc->u.sdl.d = CCodeAdjust(pc->u.sdl.p,pc->u.sdl.d);
+      pc->u.sdl.l = PtoOpAdjust(pc->u.sdl.l);
       pc = NEXTOP(pc,sdl);
       break;
       /* instructions type lds */
@@ -1011,7 +1016,6 @@ RestoreClause(Clause *Cl, int mode)
       /* don't need to do no nothing here, initstaff will do it for us
 	  */
       pc->u.lds.p = PtoPredAdjust(pc->u.lds.p);
-      pc->u.lds.d = CCodeAdjust(pc->u.lds.p,pc->u.lds.d);
       pc = NEXTOP(pc,lds);
       break;
     case _retry_c:
@@ -1019,7 +1023,6 @@ RestoreClause(Clause *Cl, int mode)
       /* don't need to do no nothing here, initstaff will do it for us
 	 pc->u.lds.d = CCodeAdjust(pc->u.lds.d); */
       pc->u.lds.p = PtoPredAdjust(pc->u.lds.p);
-      pc->u.lds.d = NextCCodeAdjust(pc->u.lds.p,pc->u.lds.d);
       pc = NEXTOP(pc,lds);
       break;
       /* instructions type ldl */
@@ -1028,26 +1031,26 @@ RestoreClause(Clause *Cl, int mode)
     case _trust_tail_in:
     case _trust_head_in:
       pc->u.ldl.p = PtoPredAdjust(pc->u.ldl.p);
-      pc->u.ldl.d = CodeAddrAdjust(pc->u.ldl.d);
-      pc->u.ldl.bl = CodeAddrAdjust(pc->u.ldl.bl);
+      pc->u.ldl.d = PtoOpAdjust(pc->u.ldl.d);
+      pc->u.ldl.bl = PtoOpAdjust(pc->u.ldl.bl);
       pc = NEXTOP(pc,ldl);
       break;
       /* instructions type llll */
     case _switch_on_type:
     case _switch_list_nl:
     case _switch_on_head:
-      pc->u.llll.l1 = CodeAddrAdjust(pc->u.llll.l1);
-      pc->u.llll.l2 = CodeAddrAdjust(pc->u.llll.l2);
-      pc->u.llll.l3 = CodeAddrAdjust(pc->u.llll.l3);
-      pc->u.llll.l4 = CodeAddrAdjust(pc->u.llll.l4);
+      pc->u.llll.l1 = PtoOpAdjust(pc->u.llll.l1);
+      pc->u.llll.l2 = PtoOpAdjust(pc->u.llll.l2);
+      pc->u.llll.l3 = PtoOpAdjust(pc->u.llll.l3);
+      pc->u.llll.l4 = PtoOpAdjust(pc->u.llll.l4);
       pc = NEXTOP(pc,llll);
       break;
       /* instructions type lll */
     case _switch_on_nonv:
     case _switch_nv_list:
-      pc->u.lll.l1 = CodeAddrAdjust(pc->u.lll.l1);
-      pc->u.lll.l2 = CodeAddrAdjust(pc->u.lll.l2);
-      pc->u.lll.l3 = CodeAddrAdjust(pc->u.lll.l3);
+      pc->u.lll.l1 = PtoOpAdjust(pc->u.lll.l1);
+      pc->u.lll.l2 = PtoOpAdjust(pc->u.lll.l2);
+      pc->u.lll.l3 = PtoOpAdjust(pc->u.lll.l3);
       pc = NEXTOP(pc,lll);
       break;
       /* instructions type cll */
@@ -1057,17 +1060,17 @@ RestoreClause(Clause *Cl, int mode)
 	if (IsAtomTerm(t))
 	    pc->u.cll.c = AtomTermAdjust(t);
       }
-      pc->u.cll.l1 = CodeAddrAdjust(pc->u.cll.l1);
-      pc->u.cll.l2 = CodeAddrAdjust(pc->u.cll.l2);
+      pc->u.cll.l1 = PtoOpAdjust(pc->u.cll.l1);
+      pc->u.cll.l2 = PtoOpAdjust(pc->u.cll.l2);
       pc = NEXTOP(pc,cll);
       break;
       /* instructions type ollll */
     case _switch_list_nl_prefetch:
       pc->u.ollll.pop = Yap_opcode(Yap_op_from_opcode(pc->u.ollll.pop));
-      pc->u.ollll.l1 = CodeAddrAdjust(pc->u.ollll.l1);
-      pc->u.ollll.l2 = CodeAddrAdjust(pc->u.ollll.l2);
-      pc->u.ollll.l3 = CodeAddrAdjust(pc->u.ollll.l3);
-      pc->u.ollll.l4 = CodeAddrAdjust(pc->u.ollll.l4);
+      pc->u.ollll.l1 = PtoOpAdjust(pc->u.ollll.l1);
+      pc->u.ollll.l2 = PtoOpAdjust(pc->u.ollll.l2);
+      pc->u.ollll.l3 = PtoOpAdjust(pc->u.ollll.l3);
+      pc->u.ollll.l4 = PtoOpAdjust(pc->u.ollll.l4);
       pc = NEXTOP(pc,ollll);
       break;
       /* switch_on_func */
@@ -1135,8 +1138,8 @@ RestoreClause(Clause *Cl, int mode)
     case _go_on_cons:
       if (IsAtomTerm(pc->u.cll.c))
 	pc->u.cll.c = AtomTermAdjust(pc->u.cll.c);
-      pc->u.cll.l1 = CodeAddrAdjust(pc->u.cll.l1);
-      pc->u.cll.l2 = CodeAddrAdjust(pc->u.cll.l2);
+      pc->u.cll.l1 = PtoOpAdjust(pc->u.cll.l1);
+      pc->u.cll.l2 = PtoOpAdjust(pc->u.cll.l2);
       pc = NEXTOP(pc,cll);
       break;
       /* instructions type sl */
@@ -1146,7 +1149,7 @@ RestoreClause(Clause *Cl, int mode)
 	CELL            *oldcode;
 
 	i = pc->u.s.s;
-	pc->u.sl.l = CodeAddrAdjust(pc->u.sl.l);
+	pc->u.sl.l = PtoOpAdjust(pc->u.sl.l);
 	oldcode = (CELL *)NEXTOP(pc,sl);
 	for (j = 0; j < i; ++j) {
 	  Functor oldfunc = (Functor)(oldcode[0]);
@@ -1166,7 +1169,7 @@ RestoreClause(Clause *Cl, int mode)
 	CELL            *oldcode;
 
 	i = pc->u.sl.s;
-	pc->u.sl.l = CodeAddrAdjust(pc->u.sl.l);
+	pc->u.sl.l = PtoOpAdjust(pc->u.sl.l);
 	oldcode = (CELL *)NEXTOP(pc,sl);
 	for (j = 0; j < i; ++j) {
 #if !USE_OFFSETS
@@ -1188,9 +1191,9 @@ RestoreClause(Clause *Cl, int mode)
     case _switch_last:
     case _switch_l_list:
       pc->u.slll.p = PtoPredAdjust(pc->u.slll.p);
-      pc->u.slll.l1 = CodeAddrAdjust(pc->u.slll.l1);
-      pc->u.slll.l2 = CodeAddrAdjust(pc->u.slll.l2);
-      pc->u.slll.l3 = CodeAddrAdjust(pc->u.slll.l3);
+      pc->u.slll.l1 = PtoOpAdjust(pc->u.slll.l1);
+      pc->u.slll.l2 = PtoOpAdjust(pc->u.slll.l2);
+      pc->u.slll.l3 = PtoOpAdjust(pc->u.slll.l3);
       pc = NEXTOP(pc,slll);
       break;
       /* instructions type xxx */
@@ -1304,7 +1307,6 @@ RestoreClause(Clause *Cl, int mode)
       /* instructions type lxx */
     case _call_bfunc_xx:
       pc->u.lxx.p  = PtoPredAdjust(pc->u.lxx.p);
-      pc->u.lxx.l  = DirectCCodeAdjust(pc->u.lxx.p,pc->u.lxx.l);
       pc->u.lxx.x1 = XAdjust(pc->u.lxx.x1);
       pc->u.lxx.x2 = XAdjust(pc->u.lxx.x2);
       pc = NEXTOP(pc,lxx);
@@ -1313,14 +1315,12 @@ RestoreClause(Clause *Cl, int mode)
     case _call_bfunc_yx:
     case _call_bfunc_xy:
       pc->u.lxy.p = PtoPredAdjust(pc->u.lxy.p);
-      pc->u.lxy.l  = DirectCCodeAdjust(pc->u.lxy.p,pc->u.lxy.l);
       pc->u.lxy.x = XAdjust(pc->u.lxy.x);
       pc->u.lxy.y = YAdjust(pc->u.lxy.y);
       pc = NEXTOP(pc,lxy);
       break;
     case _call_bfunc_yy:
       pc->u.lyy.p  = PtoPredAdjust(pc->u.lyy.p);
-      pc->u.lyy.l  = DirectCCodeAdjust(pc->u.lyy.p,pc->u.lyy.l);
       pc->u.lyy.y1 = YAdjust(pc->u.lyy.y1);
       pc->u.lyy.y2 = YAdjust(pc->u.lyy.y2);
       pc = NEXTOP(pc,lyy);
@@ -1334,9 +1334,9 @@ RestoreClause(Clause *Cl, int mode)
  * and ending with Last, First may be equal to Last 
  */
 static void 
-CleanClauses(CODEADDR First, CODEADDR Last)
+CleanClauses(yamop *First, yamop *Last)
 {
-  CODEADDR cl = First;
+  yamop *cl = First;
   do {
     RestoreClause(ClauseCodeToClause(cl), ASSEMBLING_CLAUSE);
     if (cl == Last) return;
@@ -1448,7 +1448,6 @@ static void
 CleanCode(PredEntry *pp)
 {
   CELL            flag;
-  CODEADDR        FirstC, LastC;
 
 
   /* Init takes care of the first 2 cases */
@@ -1459,39 +1458,26 @@ CleanCode(PredEntry *pp)
   if (pp->OwnerFile)
     pp->OwnerFile = AtomAdjust(pp->OwnerFile);
   pp->OpcodeOfPred = Yap_opcode(Yap_op_from_opcode(pp->OpcodeOfPred));
-  if (pp->PredFlags & CPredFlag) {
-    if (pp->PredFlags & BinaryTestPredFlag) {
-      pp->TrueCodeOfPred = DirectCCodeAdjust(pp,pp->TrueCodeOfPred);
-    } else {
-      /* C, assembly + C */
-      pp->CodeOfPred = pp->TrueCodeOfPred = CCodeAdjust(pp,pp->TrueCodeOfPred);
-    }
-    pp->CodeOfPred = pp->FirstClause = pp->LastClause =
-      (CODEADDR)AddrAdjust((ADDR)(pp->LastClause));
-    CleanClauses(pp->FirstClause, pp->FirstClause);
-  } else if (pp->PredFlags & AsmPredFlag) {
+  if (pp->PredFlags & (AsmPredFlag|CPredFlag)) {
     /* assembly */
-    if (pp->FirstClause) {
-      pp->CodeOfPred = (CODEADDR)AddrAdjust((ADDR)(pp->CodeOfPred));
-      pp->FirstClause = (CODEADDR)AddrAdjust((ADDR)(pp->FirstClause));
-      pp->LastClause = (CODEADDR)AddrAdjust((ADDR)(pp->LastClause));
-      CleanClauses(pp->FirstClause, pp->FirstClause);
-    } else {
-      pp->TrueCodeOfPred = pp->CodeOfPred =
-	(CODEADDR)(&(pp->OpcodeOfPred)); 
+    if (pp->CodeOfPred) {
+      pp->CodeOfPred = PtoOpAdjust(pp->CodeOfPred);
+      CleanClauses(pp->CodeOfPred, pp->CodeOfPred);
     }
   } else {
-    if (pp->FirstClause)
-      pp->FirstClause = CodeAddrAdjust(pp->FirstClause);
-    if (pp->LastClause)
-      pp->LastClause = CodeAddrAdjust(pp->LastClause);
-    pp->CodeOfPred = CodeAddrAdjust(pp->CodeOfPred);
-    pp->TrueCodeOfPred = CodeAddrAdjust(pp->TrueCodeOfPred);
+    yamop        *FirstC, *LastC;
+    /* Prolog code */
+    if (pp->cs.p_code.FirstClause)
+      pp->cs.p_code.FirstClause = PtoOpAdjust(pp->cs.p_code.FirstClause);
+    if (pp->cs.p_code.LastClause)
+      pp->cs.p_code.LastClause = PtoOpAdjust(pp->cs.p_code.LastClause);
+    pp->CodeOfPred =PtoOpAdjust(pp->CodeOfPred);
+    pp->cs.p_code.TrueCodeOfPred = PtoOpAdjust(pp->cs.p_code.TrueCodeOfPred);
     if (pp->NextPredOfModule)
       pp->NextPredOfModule = PtoPredAdjust(pp->NextPredOfModule);
     flag = pp->PredFlags;
-    FirstC = pp->FirstClause;
-    LastC = pp->LastClause;
+    FirstC = pp->cs.p_code.FirstClause;
+    LastC = pp->cs.p_code.LastClause;
     /* We just have a fail here */
     if (FirstC == NIL && LastC == NIL) {
       return;
@@ -1504,7 +1490,7 @@ CleanCode(PredEntry *pp)
 #ifdef	DEBUG_RESTORE2
       YP_fprintf(errout, "Correcting dynamic/indexed code\n");
 #endif
-      RestoreClause(ClauseCodeToClause(pp->TrueCodeOfPred), ASSEMBLING_INDEX);
+      RestoreClause(ClauseCodeToClause(pp->cs.p_code.TrueCodeOfPred), ASSEMBLING_INDEX);
     }
   }
   /* we are pointing at ourselves */

@@ -417,7 +417,7 @@ NGroupsIn(PredEntry *ap)
   int             x, y, PresentGroup;
   ClauseDef      *ActualCl = ArOfCl, *LastClauses[MaxOptions];
   GroupDef       *Group = Groups;
-  yamop          *q = (yamop *)(ap->FirstClause), *LastOne = (yamop *)(ap->LastClause);
+  yamop          *q = ap->cs.p_code.FirstClause, *LastOne = ap->cs.p_code.LastClause;
 
   NGroups = 1;
   LastClauses[VarCl] = NIL;
@@ -1316,11 +1316,11 @@ SpecialCases(void)
     return (FALSE);
 }
 
-CODEADDR
+yamop *
 Yap_PredIsIndexable(PredEntry *ap)
 {
   int      NGr, Indexable = 0;
-  CODEADDR indx_out = NIL;
+  yamop *indx_out = NULL;
   log_update = 0;
 
   if (setjmp(Yap_CompilerBotch) == 3) {
@@ -1332,7 +1332,7 @@ Yap_PredIsIndexable(PredEntry *ap)
   Yap_ErrorMessage = NULL;
   labelno = 1;
   RemovedCl = FALSE;
-  FirstCl = (yamop *)(ap->FirstClause);
+  FirstCl = ap->cs.p_code.FirstClause;
   CurrentPred = ap;
   if (CurrentPred->PredFlags & ProfiledPredFlag)
     profiling = TRUE;
@@ -1352,7 +1352,7 @@ Yap_PredIsIndexable(PredEntry *ap)
   CodeStart = cpc = NIL;
   freep = (char *) (ArOfCl + NClauses);
   if (Yap_ErrorMessage != NULL) {
-    return (NIL);
+    return NULL;
   }
   if (CurrentPred->PredFlags & LogUpdatePredFlag) {
     log_update = labelno;
@@ -1360,7 +1360,7 @@ Yap_PredIsIndexable(PredEntry *ap)
   }
   if (NClauses == 0) {
     Indexable = FALSE;
-    return(NIL);
+    return NULL;
   } else {
     if (NGr == 1)
       Indexable = SimpleCase();
@@ -1371,7 +1371,7 @@ Yap_PredIsIndexable(PredEntry *ap)
   }
   if (CellPtr(freep) >= ASP) {
     Yap_Error(SYSTEM_ERROR, TermNil, "out of stack space while indexing");
-    return(NIL);
+    return NULL;
   }
   if (log_update && NClauses > 1) {
     int i;
@@ -1404,7 +1404,7 @@ Yap_PredIsIndexable(PredEntry *ap)
     }
   }
   if (!Indexable) {
-    return (NIL);
+    return NULL;
   } else {
 #ifdef DEBUG
     if (Yap_Option['i' - 'a' + 1]) {
@@ -1414,7 +1414,7 @@ Yap_PredIsIndexable(PredEntry *ap)
     if ((indx_out = Yap_assemble(ASSEMBLING_INDEX)) == NIL) {
       if (!Yap_growheap(FALSE)) {
 	Yap_Error(SYSTEM_ERROR, TermNil, Yap_ErrorMessage);
-	return(FALSE);
+	return NULL;
       }
       goto restart_index;
     }

@@ -36,9 +36,9 @@ STATIC_PROTO(yslot emit_yreg, (CELL));
 STATIC_PROTO(wamreg emit_xreg2, (void));
 STATIC_PROTO(wamreg emit_x, (CELL));
 STATIC_PROTO(yslot emit_y, (Ventry *));
-STATIC_PROTO(CODEADDR emit_a, (CELL));
+STATIC_PROTO(yamop *emit_a, (CELL));
 STATIC_PROTO(CELL *emit_bmlabel, (CELL));
-STATIC_PROTO(CODEADDR emit_ilabel, (CELL));
+STATIC_PROTO(yamop *emit_ilabel, (CELL));
 STATIC_PROTO(Functor emit_f, (CELL));
 STATIC_PROTO(CELL emit_c, (CELL));
 STATIC_PROTO(COUNT emit_count, (CELL));
@@ -114,7 +114,7 @@ static yamop *code_p;
 
 #define GONEXT(TYPE)      code_p = ((yamop *)(&(code_p->u.TYPE.next)))
 
-static CODEADDR code_addr;
+static yamop *code_addr;
 static int pass_no;
 static OPREG var_offset;
 static int is_y_var;
@@ -244,10 +244,10 @@ emit_x(CELL xarg)
 #endif /* PRECOMPUTE_REGADDRESS */
 }
 
-inline static CODEADDR
+inline static yamop *
 emit_a(CELL a)
 {
-  return ((CODEADDR) (a));
+  return ((yamop *) (a));
 }
 
 inline static struct pred_entry *
@@ -256,7 +256,7 @@ emit_pe(struct pred_entry *a)
   return (a);
 }
 
-inline static CODEADDR
+inline static yamop *
 emit_ilabel(register CELL addr)
 {
   if (addr & 1)
@@ -756,8 +756,6 @@ a_p(op_numbers opcode)
 	  code_p->opc = emit_op(_call_c_wfail);
 	code_p->u.sdl.s =
 	  emit_count(-Signed(RealEnvSize) - CELLSIZE * cpc->rnd2);
-	code_p->u.sdl.d =
-	  emit_a((CELL) RepPredProp(fe)->TrueCodeOfPred);
 	code_p->u.sdl.l =
 	  emit_a(Unsigned(code_addr) + label_offset[comit_lab]);
 	code_p->u.sdl.p =
@@ -783,15 +781,13 @@ a_p(op_numbers opcode)
 	}
 	code_p->u.sla.s = emit_count(-Signed(RealEnvSize) - CELLSIZE
 				     * (cpc->rnd2));
-	code_p->u.sla.l = emit_a((CELL)
-				 RepPredProp(fe)->TrueCodeOfPred);
-	code_p->u.sla.p =  RepPredProp(fe);
+	code_p->u.sla.sla_u.p =  RepPredProp(fe);
 	code_p->u.sla.p0 =  CurrentPred;
 	if (cpc->rnd2)
-	  code_p->u.sla.l2 = emit_bmlabel(cpc->arnds[1]);
+	  code_p->u.sla.bmap = emit_bmlabel(cpc->arnds[1]);
 	else
 	  /* there is no bitmap as there are no variables in the environment */
-	  code_p->u.sla.l2 = NULL;
+	  code_p->u.sla.bmap = NULL;
       }
       GONEXT(sla);
     }
@@ -820,22 +816,20 @@ a_p(op_numbers opcode)
     if (pass_no) {
       code_p->u.sla.s = emit_count(-Signed(RealEnvSize) - CELLSIZE *
 				   cpc->rnd2);
-      code_p->u.sla.l = emit_a((CELL) &
-			       RepPredProp(fe)->StateOfPred);
-      code_p->u.sla.p = RepPredProp(fe);
+      code_p->u.sla.sla_u.p = RepPredProp(fe);
       code_p->u.sla.p0 = CurrentPred;
       if (cpc->rnd2)
-	code_p->u.sla.l2 = emit_bmlabel(cpc->arnds[1]);
+	code_p->u.sla.bmap = emit_bmlabel(cpc->arnds[1]);
       else
 	/* there is no bitmap as there are no variables in the environment */
-	code_p->u.sla.l2 = NULL;
+	code_p->u.sla.bmap = NULL;
     }
     GONEXT(sla);
   }
   else {
     if (pass_no)
-      code_p->u.l.l = emit_a((CELL) &RepPredProp(fe)->StateOfPred);
-    GONEXT(l);
+      code_p->u.p.p = RepPredProp(fe);
+    GONEXT(p);
   }
   if (!comit_ok) {
     Yap_Error(SYSTEM_ERROR, TermNil, "internal assembler error for commit");
@@ -865,14 +859,13 @@ a_empty_call(void)
     PredEntry *pe = RepPredProp(Yap_GetPredPropByAtom(AtomTrue,0));
     code_p->u.sla.s = emit_count(-Signed(RealEnvSize) - CELLSIZE *
 				   cpc->rnd2);
-    code_p->u.sla.l = emit_a((CELL)&(pe->StateOfPred));
-    code_p->u.sla.p = pe;
+    code_p->u.sla.sla_u.p = pe;
     code_p->u.sla.p0 = CurrentPred;
     if (cpc->rnd2)
-      code_p->u.sla.l2 = emit_bmlabel(cpc->rnd1);
+      code_p->u.sla.bmap = emit_bmlabel(cpc->rnd1);
     else
       /* there is no bitmap as there are no variables in the environment */
-      code_p->u.sla.l2 = NULL;
+      code_p->u.sla.bmap = NULL;
   }
   GONEXT(sla);
 }
@@ -926,7 +919,6 @@ a_bfunc(CELL pred)
       if (pass_no) {
 	code_p->opc = emit_op(_call_bfunc_yy);
 	code_p->u.lxy.p = RepPredProp(((Prop)pred));
-	code_p->u.lyy.l = RepPredProp(((Prop)pred))->TrueCodeOfPred;
 	code_p->u.lyy.y1 = v1;
 	code_p->u.lyy.y2 = emit_yreg(var_offset);
 	code_p->u.lyy.flags = compile_cmp_flags(RepAtom(NameOfFunctor(RepPredProp(((Prop)pred))->FunctorOfPred))->StrOfAE);
@@ -935,7 +927,6 @@ a_bfunc(CELL pred)
     } else {
       if (pass_no) {
 	code_p->opc = emit_op(_call_bfunc_yx);
-	code_p->u.lxy.l = RepPredProp(((Prop)pred))->TrueCodeOfPred;
 	code_p->u.lxy.p = RepPredProp(((Prop)pred));
 	code_p->u.lxy.x = emit_xreg(var_offset);
 	code_p->u.lxy.y = v1;
@@ -951,7 +942,6 @@ a_bfunc(CELL pred)
     if (ve->KindOfVE == PermVar) {
       if (pass_no) {
 	code_p->opc = emit_op(_call_bfunc_xy);
-	code_p->u.lxy.l = RepPredProp(((Prop)pred))->TrueCodeOfPred;
 	code_p->u.lxy.p = RepPredProp(((Prop)pred));
 	code_p->u.lxy.x = x1;
 	code_p->u.lxy.y = emit_yreg(var_offset);
@@ -962,7 +952,6 @@ a_bfunc(CELL pred)
       if (pass_no) {
 	code_p->opc = emit_op(_call_bfunc_xx);
 	code_p->u.lxy.p = RepPredProp(((Prop)pred));
-	code_p->u.lxx.l = RepPredProp(((Prop)pred))->TrueCodeOfPred;
 	code_p->u.lxx.x1 = x1;
 	code_p->u.lxx.x2 = emit_xreg(var_offset);
 	code_p->u.lxx.flags = compile_cmp_flags(RepAtom(NameOfFunctor(RepPredProp(((Prop)pred))->FunctorOfPred))->StrOfAE);
@@ -1189,25 +1178,21 @@ a_either(op_numbers opcode, CELL opr, CELL lab)
 #endif /* YAPOR */
 {
   if (pass_no) {
-    Prop fe = Yap_GetPredPropByAtom(AtomTrue,0);
     code_p->opc = emit_op(opcode);
     code_p->u.sla.s = emit_count(opr);
-    code_p->u.sla.l = emit_a(lab);
-    /* use code for atom true so that we won't try to do anything smart */
-    code_p->u.sla.p = RepPredProp(fe);
+    code_p->u.sla.sla_u.l = emit_a(lab);
     code_p->u.sla.p0 =  CurrentPred;
 #ifdef YAPOR
-    /* code_p->u.sla.p = (CODEADDR)CurrentPred; */
     INIT_YAMOP_LTT(code_p, nofalts);
     if (hascut)
       PUT_YAMOP_CUT(code_p);
     if (CurrentPred->PredFlags & SequentialPredFlag)
       PUT_YAMOP_SEQ(code_p);
     if(opcode != _or_last) {
-      code_p->u.sla.l2 = emit_bmlabel(cpc->arnds[1]);
+      code_p->u.sla.bmap = emit_bmlabel(cpc->arnds[1]);
     }
 #else
-    code_p->u.sla.l2 = emit_bmlabel(cpc->arnds[1]);
+    code_p->u.sla.bmap = emit_bmlabel(cpc->arnds[1]);
 #endif /* YAPOR */
   }
   GONEXT(sla);
@@ -1966,7 +1951,7 @@ do_pass(void)
   int ystop_found = FALSE;
 
   alloc_found = dealloc_found = FALSE;
-  code_p = (yamop *) code_addr;
+  code_p = code_addr;
   cpc = CodeStart;
   comit_lab = 0L;
   /* Space while for the clause flags */
@@ -2576,7 +2561,7 @@ do_pass(void)
     a_e(_Ystop);
 }
 
-CODEADDR
+yamop *
 Yap_assemble(int mode)
 {
   /*
@@ -2586,7 +2571,7 @@ Yap_assemble(int mode)
    */
   CELL size;
 
-  code_addr = NIL;
+  code_addr = NULL;
   assembling = mode;
   clause_has_blobs = FALSE;
   label_offset = (int *)freep;
@@ -2596,7 +2581,7 @@ Yap_assemble(int mode)
   if (asm_error) {
     Yap_Error_TYPE = SYSTEM_ERROR;
     Yap_ErrorMessage = "internal assembler error";
-    return (NIL);
+    return NULL;
   }
   pass_no = 1;
   YAPEnterCriticalSection();
@@ -2610,17 +2595,17 @@ Yap_assemble(int mode)
 #else
   size = (CELL)code_p;
 #endif
-  while ((code_addr = (CODEADDR) Yap_AllocCodeSpace(size)) == NULL) {
+  while ((code_addr = (yamop *) Yap_AllocCodeSpace(size)) == NULL) {
     if (!Yap_growheap(TRUE)) {
       Yap_Error_TYPE = SYSTEM_ERROR;
-      return (NIL);
+      return NULL;
     }
   }
   do_pass();
   YAPLeaveCriticalSection();
   {
     Clause *cl = (Clause *)code_addr;  /* lcc, why? */
-    return((CODEADDR)(cl->ClCode));
+    return(cl->ClCode);
   }
 }
 

@@ -29,6 +29,12 @@
 
 #endif
 
+
+typedef Int (*CPredicate)(void);
+
+typedef Int (*CmpPredicate)(Term, Term);
+
+
 #define OpRegSize    sizeof(OPREG)
 
 /*
@@ -128,8 +134,8 @@ typedef struct yami {
        } c;
        struct {
 	 CELL                c;
-	 CODEADDR            l1;
-	 CODEADDR            l2;
+	 struct yami        *l1;
+	 struct yami        *l2;
 	 CELL next;
        } cll;
        struct {
@@ -140,7 +146,7 @@ typedef struct yami {
 	 Int  ClTrail;
 	 Int  ClENV;
 	 Int  ClRefs;
-	 CODEADDR  ClBase;
+	 struct yami *ClBase;
 	 CELL  next;
        } EC;
        struct {
@@ -155,7 +161,7 @@ typedef struct yami {
 	 CELL next;
        } fll;
        struct {
-	 CODEADDR            l;
+	 struct yami   *l;
 	 CELL next;
        } l;
        struct {
@@ -167,7 +173,7 @@ typedef struct yami {
 #endif /* TABLING */
 	 COUNT               s;
 	 struct pred_entry  *p;
-	 CODEADDR            d;
+	 struct yami              *d;
 	 CELL next;
        } ld;
        struct {
@@ -179,8 +185,8 @@ typedef struct yami {
 #endif /* TABLING */
 	 COUNT               s;
 	 struct pred_entry  *p;
-	 CODEADDR            d;
-	 CODEADDR            bl;
+	 struct yami        *d;
+	 struct yami        *bl;
 	 CELL next;
        } ldl;
        struct {
@@ -197,14 +203,14 @@ typedef struct yami {
 #endif /* TABLING */
 	 COUNT               s;
 	 struct pred_entry  *p;
-	 CODEADDR            d;
+	 CPredicate          f;
 	 COUNT               extra;
 	 CELL next;
        } lds;
        struct {
-	 CODEADDR            l1;
-	 CODEADDR            l2;
-	 CODEADDR            l3;
+	 struct yami               *l1;
+	 struct yami               *l2;
+	 struct yami               *l3;
 	 CELL next;
        } lll;
        struct {
@@ -216,21 +222,20 @@ typedef struct yami {
 #endif /* TABLING */
 	 COUNT               s;
 	 struct pred_entry  *p;
-	 CODEADDR            l1;
-	 CODEADDR            l2;
-	 CODEADDR            l3;
+	 struct yami        *l1;
+	 struct yami        *l2;
+	 struct yami        *l3;
 	 CELL next;
        } slll;
        struct {
-	 CODEADDR            l1;
-	 CODEADDR            l2;
-	 CODEADDR            l3;
-	 CODEADDR            l4;
+	 struct yami               *l1;
+	 struct yami               *l2;
+	 struct yami               *l3;
+	 struct yami               *l4;
 	 CELL next;
        } llll;
        struct {
-	 struct pred_entry  *p;
-	 CODEADDR            l;
+	 struct pred_entry    *p;
 	 wamreg                x1;
 	 wamreg                x2;
 	 wamreg                flags;
@@ -238,26 +243,24 @@ typedef struct yami {
        } lxx;
        struct {
 	 struct pred_entry  *p;
-	 CODEADDR            l;
 	 wamreg                x;
-	 yslot                y;
+	 yslot                 y;
 	 wamreg                flags;
 	 CELL next;
        } lxy;
        struct {
 	 struct pred_entry  *p;
-	 CODEADDR            l;
 	 wamreg                y1;
-	 yslot                y2;
+	 yslot                 y2;
 	 wamreg                flags;
 	 CELL next;
        } lyy;
        struct {
 	 OPCODE              pop;
-	 CODEADDR            l1;
-	 CODEADDR            l2;
-	 CODEADDR            l3;
-	 CODEADDR            l4;
+	 struct yami               *l1;
+	 struct yami               *l2;
+	 struct yami               *l3;
+	 struct yami               *l4;
 	 CELL next;
        } ollll;
        struct {
@@ -303,6 +306,10 @@ typedef struct yami {
 	 CELL next;
        } oy;
        struct {
+	 struct pred_entry   *p;
+	 CELL next;
+       } p;
+       struct {
 	 COUNT               s;
 	 CELL next;
        } s;
@@ -313,14 +320,14 @@ typedef struct yami {
        } sc;
        struct {
 	 COUNT               s;
-	 CODEADDR            d;
-	 CODEADDR            l;
+	 CPredicate          d;
+	 struct yami        *l;
 	 struct pred_entry  *p;
 	 CELL next;
        } sdl;
        struct {
 	 COUNT               s;
-	 CODEADDR            l;
+	 struct yami        *l;
 	 CELL next;
        } sl;
        struct {
@@ -328,9 +335,11 @@ typedef struct yami {
          unsigned int        or_arg;
 #endif /* YAPOR */
 	 COUNT               s;
-	 CODEADDR            l;
-	 CELL               *l2;
-	 struct pred_entry  *p;
+	 CELL               *bmap;
+	 union {
+	   struct yami *l;
+	   struct pred_entry  *p;
+	 } sla_u;
          struct pred_entry  *p0;
 	 CELL next;
        } sla; /* also check env for yes and trustfail code before making any changes */
@@ -545,10 +554,10 @@ typedef struct choicept {
 #define RealEnvSize	(EnvSizeInCells*sizeof(CELL))
 
 #define ENV_Size(cp)       (((yamop *)((CODEADDR)(cp) - (CELL)NEXTOP((yamop *)NIL,sla)))->u.sla.s)
-#define ENV_ToP(cp)        ((PredEntry *)(((yamop *)((CODEADDR)(cp) - (CELL)NEXTOP((yamop *)NIL,sla)))->u.sla.p))
+#define ENV_ToP(cp)        ((yamop *)((CODEADDR)(cp) - (CELL)NEXTOP((yamop *)NIL,sla)))->u.sla.p)
 #define ENV_ToOp(cp)       (((yamop *)((CODEADDR)(cp) - (CELL)NEXTOP((yamop *)NIL,sla)))->opc)
 #define EnvSize(cp)        ((-ENV_Size(cp))/(OPREG)sizeof(CELL))
-#define EnvBMap(p)         (((yamop *)((CODEADDR)(p) - (CELL)NEXTOP((yamop *)NIL,sla)))->u.sla.l2)
+#define EnvBMap(p)         (((yamop *)((CODEADDR)(p) - (CELL)NEXTOP((yamop *)NIL,sla)))->u.sla.bmap)
 #define EnvPreg(p)         (((yamop *)((CODEADDR)(p) - (CELL)NEXTOP((yamop *)NIL,sla)))->u.sla.p0)
 
 /* access to instructions */

@@ -770,7 +770,7 @@ Macros to check the limits of stacks
 		 pt1->cp_b = B;		                         \
                  store_yaam_reg_cpdepth(pt1);                    \
                  pt1->cp_cp = d0;                                \
-                 pt1->cp_ap = (yamop *)AP;                       \
+                 pt1->cp_ap = AP;                                \
 		 pt1->cp_env = ENV;
 
 /***************************************************************

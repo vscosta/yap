@@ -143,7 +143,7 @@ DumpActiveGoals (void)
     restart_cp:
       switch(opnum) {
       case _or_else:
-	if (b_ptr->cp_ap == (yamop *)(b_ptr->cp_ap->u.sla.l))
+	if (b_ptr->cp_ap == (yamop *)(b_ptr->cp_ap->u.sla.sla_u.l))
 	  {
 	    Yap_plwrite(MkAtomTerm(Yap_LookupAtom("repeat ")), Yap_DebugPutc, 0);
 	  }
@@ -197,7 +197,7 @@ detect_bug_location(yamop *yap_pc, char *tp, int psize)
   SMALLUNSGN pred_module;
   Int cl;
 
-  if ((cl = Yap_PredForCode((CODEADDR)yap_pc, &pred_name, &pred_arity, &pred_module))
+  if ((cl = Yap_PredForCode(yap_pc, &pred_name, &pred_arity, &pred_module))
       == 0) {
     /* system predicate */
 #if   HAVE_SNPRINTF

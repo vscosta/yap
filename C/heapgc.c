@@ -1474,7 +1474,7 @@ mark_choicepoints(register choiceptr gc_B, tr_fr_ptr saved_TR, int very_verbose)
 	  Atom at;
 	  UInt arity;
 	  SMALLUNSGN mod;
-	  if (Yap_PredForCode((CODEADDR)gc_B->cp_ap, &at, &arity, &mod)) {
+	  if (Yap_PredForCode(gc_B->cp_ap, &at, &arity, &mod)) {
 	    if (arity) 
 	      fprintf(Yap_stderr,"[GC]       %s/%d marked %d (%s)\n", RepAtom(at)->StrOfAE, arity, total_marked, op_names[opnum]);
 	    else
@@ -1544,7 +1544,7 @@ mark_choicepoints(register choiceptr gc_B, tr_fr_ptr saved_TR, int very_verbose)
 			(CELL *)(gc_B->cp_cp->u.ldl.bl)
 #else
 			-gc_B->cp_cp->u.sla.s / ((OPREG)sizeof(CELL)),
-			  gc_B->cp_cp->u.sla.l2
+			  gc_B->cp_cp->u.sla.bmap
 #endif
 			);
     } else {
@@ -2207,7 +2207,7 @@ sweep_choicepoints(choiceptr gc_B)
 			 (CELL *)(gc_B->cp_cp->u.ldl.bl)
 #else
 			 -gc_B->cp_cp->u.sla.s / ((OPREG)sizeof(CELL)),
-			 gc_B->cp_cp->u.sla.l2
+			 gc_B->cp_cp->u.sla.bmap
 #endif
 			 );
       break;
