@@ -129,13 +129,13 @@ CLPQR_EXAMPLES_SESSION= $(srcdir)/clpqr/examples/SESSION/010 \
 
 install: $(CLPR_TOP) $(CLPQ_TOP) $(CLPQR_LICENSE) $(CLPQR_PROGRAMS) $(CLPQR_LOCAL)\
 	$(CLPQR_EXAMPLES) $(CLPQR_EXAMPLES_MONASH) $(CLPQR_EXAMPLES_SESSION)
-	-mkdir $(DESTDIR)$(LIBDIR)/library
-	-mkdir $(DESTDIR)$(LIBDIR)/library/clpq
-	-mkdir $(DESTDIR)$(LIBDIR)/library/clpqr
-	-mkdir $(DESTDIR)$(LIBDIR)/library/clpr
-	-mkdir $(DESTDIR)$(LIBDIR)/library/clpqr/examples
-	-mkdir $(DESTDIR)$(LIBDIR)/library/clpqr/examples/SESSION
-	-mkdir $(DESTDIR)$(LIBDIR)/library/clpqr/examples/monash
+	-mkdir -p $(DESTDIR)$(LIBDIR)/library
+	-mkdir -p $(DESTDIR)$(LIBDIR)/library/clpq
+	-mkdir -p $(DESTDIR)$(LIBDIR)/library/clpqr
+	-mkdir -p $(DESTDIR)$(LIBDIR)/library/clpr
+	-mkdir -p $(DESTDIR)$(LIBDIR)/library/clpqr/examples
+	-mkdir -p $(DESTDIR)$(LIBDIR)/library/clpqr/examples/SESSION
+	-mkdir -p $(DESTDIR)$(LIBDIR)/library/clpqr/examples/monash
 	for h in $(CLPQ_TOP); do $(INSTALL_DATA) $$h $(DESTDIR)$(LIBDIR)/library; done
 	for h in $(CLPR_TOP); do $(INSTALL_DATA) $$h $(DESTDIR)$(LIBDIR)/library; done
 	for h in $(CLPQR_LICENSE); do $(INSTALL_DATA) $$h $(DESTDIR)$(LIBDIR)/library; done
