@@ -1414,7 +1414,7 @@ mark_choicepoints(register choiceptr gc_B, tr_fr_ptr saved_TR)
     case _retry_profiled:
       {
 	Atom at;
-	UInt arity;
+	Int arity;
 	SMALLUNSGN mod;
 	if (PredForCode((CODEADDR)gc_B->cp_ap, &at, &arity, &mod))
 	  YP_fprintf(YP_stderr,"B  %p (%s) at %s/%d  with %d,%d\nf", gc_B, op_names[opnum], RepAtom(at)->StrOfAE, arity, gc_B->cp_h-H0, total_marked);
@@ -2644,8 +2644,8 @@ compaction_phase(tr_fr_ptr old_TR, CELL *current_env, yamop *curp, CELL *max)
     YP_fprintf(YP_stderr,"[GC] Oops on iptop-H (%d) vs %d\n", iptop-(CELL_PTR *)H, total_marked);
 #endif
   if (iptop < (CELL_PTR *)ASP && 10*total_marked < H-H0) {
-    int effectiveness = (((H-H0)-total_marked)*100)/(H-H0);
 #ifdef DEBUG
+    int effectiveness = (((H-H0)-total_marked)*100)/(H-H0);
     YP_fprintf(YP_stderr,"[GC] using pointers (%d)\n", effectiveness);
 #endif
     quicksort((CELL_PTR *)H, 0, (iptop-(CELL_PTR *)H)-1);
