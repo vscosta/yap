@@ -373,7 +373,7 @@ atom_gc(void)
   tot_agc_time += agc_time;
   tot_agc_recovered += agc_collected;
   if (gc_verbose) {
-    fprintf(Yap_stderr, "[AGC] collected %d bytes.\n", agc_collected);
+    fprintf(Yap_stderr, "[AGC] collected %ld bytes.\n", agc_collected);
     fprintf(Yap_stderr, "[AGC] GC %d took %g sec, total of %g sec doing GC so far.\n", agc_calls, (double)agc_time/1000, (double)tot_agc_time/1000);
   }
 }
