@@ -1238,6 +1238,22 @@ p_eq(void)
 	if (f0 != f1) {
 	  return(FALSE);
 	}
+	if (IsExtensionFunctor(f0)) {
+	  switch ((CELL)f0) {
+	  case (CELL)FunctorDBRef:
+	    return (d0 == d1);
+	  case (CELL)FunctorLongInt:
+	    return(LongIntOfTerm(d0) == LongIntOfTerm(d1));
+#ifdef USE_GMP
+	  case (CELL)FunctorBigInt:
+	    return (mpz_cmp(BigIntOfTerm(d0), BigIntOfTerm(d1)) == 0);
+#endif
+	  case (CELL)FunctorDouble:
+	    return(FloatOfTerm(d0) == FloatOfTerm(d1));
+	  default:
+	    return(FALSE);
+	  }
+	}
 	return(iequ_complex(RepAppl(d0), RepAppl(d0)+ArityOfFunctor(f0), RepAppl(d1)));
       }
       return(FALSE);
