@@ -1924,7 +1924,6 @@ p_sign(Term t E_ARGS)
       RERROR();
     }
   }
-  RFLOAT(rint(dbl));
 }
 
 static InitUnEntry InitUnTab[] = {

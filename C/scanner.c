@@ -109,7 +109,7 @@ EF,
 /* à   á   â   ã   ä   å   æ   ç   è   é   ê   ë   ì   í   î   ï    */
    LC, LC, LC, LC, LC, LC, LC, LC, LC, LC, LC, LC, LC, LC, LC, LC,
 
-/* ð   ñ   ò   ó   ô   õ   ö   ÷   ø   ù   ú   û   ü   ý   þ   ÿ    */
+/* ð   ñ   ò   ó   ô   õ   ö   ÷   ø   ù   ú   û   ü   cannot write the last three because of lcc    */
 #ifdef  vms
    LC, LC, LC, LC, LC, LC, LC, LC, LC, LC, LC, LC, LC, LC, LC, LC
 #else

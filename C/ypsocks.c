@@ -621,7 +621,7 @@ p_socket_bind(void)
       /* get the port number */
       unsigned int namelen;
       Term t;
-      if (getsockname(fd, (struct sockaddr *)&saddr, (int *)&namelen) < 0) {
+      if (getsockname(fd, (struct sockaddr *)&saddr, (unsigned int *)&namelen) < 0) {
 #if HAVE_STRERROR
 	Error(SYSTEM_ERROR, TermNil, 
 	      "socket_bind/2 (getsockname: %s)", strerror(socket_errno));
@@ -853,7 +853,7 @@ p_socket_accept(void)
 
     len = sizeof(struct sockaddr_un)+107;
     memset((void *)&caddr,(int) 0, len);
-    if ((fd=accept(ofd, (struct sockaddr *)tmp, (int *)&len)) < 0) {
+    if ((fd=accept(ofd, (struct sockaddr *)tmp, (unsigned int *)&len)) < 0) {
 #if HAVE_STRERROR
       Error(SYSTEM_ERROR, TermNil, 
 	    "socket_accept/3 (accept: %s)", strerror(socket_errno));
@@ -874,7 +874,7 @@ p_socket_accept(void)
 
     len = sizeof(caddr);
     memset((void *)&caddr,(int) 0, sizeof(caddr));
-    if (invalid_socket_fd(fd=accept(ofd, (struct sockaddr *)&caddr, (int *)&len))) {
+    if (invalid_socket_fd(fd=accept(ofd, (struct sockaddr *)&caddr, (unsigned int *)&len))) {
 #if HAVE_STRERROR
       Error(SYSTEM_ERROR, TermNil, 
 	    "socket_accept/3 (accept: %s)", strerror(socket_errno));
@@ -909,9 +909,9 @@ p_socket_buffering(void)
   Term t2 = Deref(ARG2);
   Term t4 = Deref(ARG4);
   Atom mode;
-  int fd, len;
+  int fd;
   int writing;
-  int bufsize;
+  unsigned int bufsize, len;
   int sno;
 
   if ((sno = CheckSocketStream(t1, "socket_buffering/4")) < 0) {
@@ -950,7 +950,7 @@ p_socket_buffering(void)
     return(FALSE);
   }
   bufsize = IntegerOfTerm(t4);
-  if (bufsize < 0) {
+  if ((Int)bufsize < 0) {
     Error(DOMAIN_ERROR_NOT_LESS_THAN_ZERO,t4,"socket_buffering/4");
     return(FALSE);
   }
