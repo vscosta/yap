@@ -10,7 +10,7 @@
 
 @set VERSION 4.3.19
 @set EDITION 4.1.0
-@set UPDATED April 2001
+@set UPDATED May 2001
 
 @c Index for C-Prolog compatible predicate
 @defindex cy
@@ -128,6 +128,7 @@ Munich, Germany
 * Attributed Variables:: Using attributed Variables
 * CLPQR:: The CLP(Q,R) System
 * CHR:: The CHR System
+* Logtalk:: The Logtalk Object-Oriented System
 * Parallelism:: Running in Or-Parallel
 * Tabling:: Storing Intermediate Solutions of programs 
 * Low Level Profiling:: Profiling Abstract Machine Instructions
@@ -422,7 +423,15 @@ manual into another language, under the above conditions for modified
 versions, except that this permission notice may be stated in a
 translation approved by the OFAI.
 
-@item the Pillow WEB library developed at Universidad Politecnica de
+@item The Logtalk Object-Oriented system is developed at the University 
+of Beira Interior, Portugal, by Paulo Moura.
+The package is distributed under the Perl Artistic License.
+Instructions about loading this package are included in this document.
+The documentation on this package is distributed separately from yap.tex.
+
+Copyright @copyright{} 1998-2001 Paulo Moura
+
+@item The Pillow WEB library developed at Universidad Politecnica de
 Madrid by the CLIP group. This package is distributed under the FSF's
 LGPL. Documentation on this package is distributed separately from
 yap.tex.
@@ -3248,10 +3257,10 @@ YAP currently ignores these options.
 @findex current_stream/3
 @syindex current_stream/3
 @cnindex current_stream/3
-Defines the relation: The stream @var{S} is opened on the file  @var{F} in
-mode @var{M}. It might be used to obtain all open streams (by
-backtracking), to access the stream for a file @var{F} in mode @var{M},
-or to find properties for a stream @var{S}.
+Defines the relation: The stream @var{S} is opened on the file @var{F}
+in mode @var{M}. It might be used to obtain all open streams (by
+backtracking) or to access the stream for a file @var{F} in mode
+@var{M}, or to find properties for a stream @var{S}.
 
 @item flush_output [ISO]
 @findex flush_output/0
@@ -7606,6 +7615,7 @@ Extensions to Traditional Prolog
 * Coroutining:: Changing the Execution of Goals
 * Attributed Variables:: Using attributed Variables
 * CLPQR:: The CLP(Q,R) System
+* Logtalk:: The Logtalk Object-Oriented system
 * Parallelism:: Running in Or-Parallel
 * Tabling:: Storing Intermediate Solutions of programs 
 * Low Level Profiling:: Profiling Abstract Machine Instructions
@@ -7775,7 +7785,7 @@ The command
 @end example
 enables the use of attributed variables. The package provides the
 following functionality:
-@itemize
+@itemize @bullet
 @item Each attribute must be declared first. Attributes are described by a functor
 and are declared per module. Each Prolog module declares its own sets of
 attributes. Different modules may have different functors with the same
@@ -9498,9 +9508,9 @@ Institute for Artificial Intelligence, Vienna, TR-94-07, 1994.
 [Jaffar & Michaylov 87] Jaffar J., Michaylov S.: Methodology and
 Implementation of a CLP System, in Lassez J.L.(ed.), Logic Programming -
 Proceedings of the 4th International Conference - Volume 1, MIT Press,
-Cambridge, MA, 1987.
+Cambridge, MA, 1987.
 
-@node CHR, Parallelism, CLPQR, Top
+@node CHR, Logtalk, CLPQR, Top
 @chapter Constraint Handling Rules
 
 @menu
@@ -10965,7 +10975,21 @@ debugging environment is not available in SICStus Prolog.
 @end enumerate
 
 
-@node Parallelism, Tabling, CHR, Extensions
+@node Logtalk, Parallelism, CHR, Extensions
+@chapter Logtalk
+@cindex logtalk
+
+The Logtalk object-oriented extension is available once included 
+with the @code{use_module(library(logtalk))} command. Note that, 
+although we load Logtalk using the @code{use_module/1} built-in 
+predicate, the system is not packaged as a module not does it use 
+modules in its implementation.
+
+Logtalk documentation is included in the Logtalk directory. For the 
+latest news, please see the URL @url{http://www.ci.uc.pt/logtalk/logtalk.html}.
+
+
+@node Parallelism, Tabling, Logtalk, Extensions
 @chapter Parallelism
 
 @cindex parallelism
@@ -12429,10 +12453,6 @@ are not included by default in the system. You must enable these
 extensions when compiling the system.
 
 @item YAP does not currently implement constraints.
-
-@item YAP does not include object oriented extensions.If you
-require an object-oriented system, Paulo Moura's Logtalk system is
-compatible with YAP.
 
 @item The socket predicates, although designed to be compatible with
 SICStus Prolog, are built-ins, not library predicates, in YAP.
