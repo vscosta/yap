@@ -315,7 +315,7 @@ told :- current_output(Stream), '$close'(Stream), set_output(user).
 /* Term IO	*/
 
 read(T) :-
-	'$read'(false,T,V,Err),
+	'$read'(false,T,_,Err),
 	(nonvar(Err) ->
 	    '$print_message'(error,Err), fail
 	    ;
@@ -329,8 +329,6 @@ read(Stream,T) :-
 	    ;
 	    true
 	).
-	'$read'(false,T,_,Stream).
-
 
 read_term(T, Options) :-
 	'$check_io_opts'(Options,read_term(T, Options)),
@@ -349,7 +347,7 @@ read_term(T, Options) :-
 read_term(Stream, T, Options) :-
 	'$check_io_opts'(Options,read_term(T, Options)),
 	'$preprocess_read_terms_options'(Options),
-	'$read_vars'(Strem,T,VL),
+	'$read_vars'(Stream,T,VL),
 	'$postprocess_read_terms_options'(Options, T, VL).
 
 %
