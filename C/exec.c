@@ -1409,14 +1409,16 @@ JumpToEnv(Term t) {
       }
       if (B->cp_ap == NOCODE) {
 	/* up to the C-code to deal with this! */
+	UncaughtThrow = TRUE;
 	B->cp_h = H;
 	EX = t;
-	return(FALSE);
+	return FALSE;
       }
       B = B->cp_b;
     }
     /* uncaught throw */
     if (B == NULL) {
+      UncaughtThrow = TRUE;
       B = B0;
 #if PUSH_REGS
       restore_absmi_regs(&Yap_standard_regs);
@@ -1534,6 +1536,13 @@ Yap_InitYaamRegs(void)
   DelayedTrace = FALSE;
 }
 
+static Int
+p_uncaught_throw(void)
+{
+  Int out = UncaughtThrow;
+  UncaughtThrow = FALSE; /* just caught it */
+  return out;
+}
 
 void 
 Yap_InitExecFs(void)
@@ -1564,5 +1573,6 @@ Yap_InitExecFs(void)
   Yap_InitCPred("$clean_ifcp", 1, p_clean_ifcp, SafePredFlag|HiddenPredFlag);
   Yap_InitCPred("$jump_env_and_store_ball", 1, p_jump_env, HiddenPredFlag);
   Yap_InitCPred("$generate_pred_info", 4, p_generate_pred_info, HiddenPredFlag);
+  Yap_InitCPred("$uncaught_throw", 0, p_uncaught_throw, HiddenPredFlag);
 }
 

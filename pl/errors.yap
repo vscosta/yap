@@ -11,8 +11,11 @@
 * File:		errors.yap						 *
 * comments:	error messages for YAP					 *
 *									 *
-* Last rev:     $Date: 2004-10-27 15:56:34 $,$Author: vsc $						 *
+* Last rev:     $Date: 2004-11-19 21:32:53 $,$Author: vsc $						 *
 * $Log: not supported by cvs2svn $
+* Revision 1.57  2004/10/27 15:56:34  vsc
+* bug fixes on memory overflows and on clauses :- fail being ignored by clause.
+*
 * Revision 1.56  2004/10/04 18:56:20  vsc
 * fixes for thread support
 * fix indexing bug (serious)
@@ -67,7 +70,7 @@
 '$process_error'(abort, top) :- !,
 	print_message(informational,abort(user)).
 '$process_error'(abort, _) :- !,
-	throw(abort).
+	throw('$abort').
 '$process_error'(error(Msg, Where), _) :- !,
 	'$set_fpu_exceptions',
 	'$print_message'(error,error(Msg, Where)).
@@ -113,7 +116,7 @@ print_message(Level, Mss) :-
 
 '$do_informational_message'(halt) :- !,
 	format(user_error, '% YAP execution halted~n', []).
-'$do_informational_message'(abort(_)) :- !,
+'$do_informational_message'('$abort') :- !,
 	format(user_error, '% YAP execution aborted~n', []).
 '$do_informational_message'(loading(_,user)) :- !.
 '$do_informational_message'(loading(What,AbsoluteFileName)) :- !,

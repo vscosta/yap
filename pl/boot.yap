@@ -48,7 +48,7 @@ read_sig.
 '$init_system' :-
         % do catch as early as possible
 	(
-	 '$access_yap_flags'(15, 0) ->
+	 '$access_yap_flags'(15, 0), \+ '$uncaught_throw' ->
 	  '$version'
 	;
 	  true
@@ -1099,7 +1099,7 @@ throw(Ball) :-
 '$handle_throw'(_, _, _).
 '$handle_throw'(C, A, Ball) :-
         % reset info 
-	(C = Ball ->
+	(Ball \== '$abort', C = Ball ->
 	    '$execute'(A)
 	    ;
 	    throw(Ball)

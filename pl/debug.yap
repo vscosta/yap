@@ -333,7 +333,7 @@ debugging :-
 '$loop_spy_event'('$fail_spy'(GoalNumber), _, _, _, _) :- !,
      throw('$fail_spy'(GoalNumber)).
 '$loop_spy_event'(abort, _, _, _, _) :- !,
-     throw(abort).
+     throw('$abort').
 '$loop_spy_event'(Event, GoalNumber, G, Module, InControl) :- !,
      '$system_catch'(
 		     ('$trace'(exception(Event),G,Module,GoalNumber),fail),

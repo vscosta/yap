@@ -10,7 +10,7 @@
 * File:		Heap.h         						 *
 * mods:									 *
 * comments:	Heap Init Structure					 *
-* version:      $Id: Heap.h,v 1.71 2004-11-04 18:22:34 vsc Exp $	 *
+* version:      $Id: Heap.h,v 1.72 2004-11-19 21:32:53 vsc Exp $	 *
 *************************************************************************/
 
 /* information that can be stored in Code Space */
@@ -54,6 +54,7 @@ typedef struct worker_local_struct {
   UInt   i_pred_arity;
   yamop *prof_end;
   Int    start_line;
+  int    uncaught_throw;
   scratch_block scratchpad;
 #ifdef MULTI_ASSIGNMENT_VARIABLES
   Term   woken_goals;
@@ -65,7 +66,7 @@ typedef struct worker_local_struct {
   Int      tot_gc_time; /* total time spent in GC */
   Int      tot_gc_recovered; /* number of heap objects in all garbage collections */
   jmp_buf  gc_restore; /* where to jump if garbage collection crashes */
-  struct trail_frame *old_TR;
+  struct trail_frame *old_TR;  
   yamop trust_lu_code[3];
 } worker_local;
 
@@ -668,6 +669,7 @@ struct various_codes *heap_regs;
 #if defined(YAPOR) || defined(THREADS)
 #define  SignalLock               heap_regs->wl[worker_id].signal_lock
 #define  WPP                      heap_regs->wl[worker_id].wpp
+#define  UncaughtThrow            heap_regs->wl[worker_id].uncaught_throw
 #define  ActiveSignals            heap_regs->wl[worker_id].active_signals
 #define  DelayedTrace	          heap_regs->wl[worker_id].delayed_trace
 #define  IPredArity               heap_regs->wl[worker_id].i_pred_arity
@@ -690,6 +692,7 @@ struct various_codes *heap_regs;
 #define  DelayedTrace	          heap_regs->wl.delayed_trace
 #define  IPredArity               heap_regs->wl.i_pred_arity
 #define  ProfEnd                  heap_regs->wl.prof_end
+#define  UncaughtThrow            heap_regs->wl.uncaught_throw
 #define  StartLine                heap_regs->wl.start_line
 #define  ScratchPad               heap_regs->wl.scratchpad
 #ifdef  COROUTINING

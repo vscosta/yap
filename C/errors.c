@@ -434,8 +434,8 @@ Yap_Error(yap_error_number type, Term where, char *format,...)
       error_exit_yap (1);
     }
   case PURE_ABORT:
-    nt[0] = MkAtomTerm(Yap_LookupAtom(tmpbuf));
-    fun = Yap_MkFunctor(Yap_LookupAtom("abort"),2);
+    fprintf(stderr,"%% YAP execution aborted.\n");
+    fun = FunctorVar;
     serious = TRUE;
     break;
   case CALL_COUNTER_UNDERFLOW:
@@ -1614,7 +1614,7 @@ Yap_Error(yap_error_number type, Term where, char *format,...)
   }
   if (serious) {
     if (type == PURE_ABORT)
-      Yap_JumpToEnv(MkAtomTerm(Yap_LookupAtom("abort")));
+      Yap_JumpToEnv(MkAtomTerm(Yap_LookupAtom("$abort")));
     else
       Yap_JumpToEnv(Yap_MkApplTerm(fun, 2, nt));
     P = (yamop *)FAILCODE;
