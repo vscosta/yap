@@ -9,14 +9,14 @@
 **************************************************************************
 *									 *
 * File:		mpi.c  							 *
-* Last rev:	$Date: 2002-10-29 14:02:43 $				 *
+* Last rev:	$Date: 2002-10-31 11:13:21 $				 *
 * mods:									 *
 * comments:	Interface to an MPI library                              *
 *									 *
 *************************************************************************/
 
 #ifndef lint
-static char *rcsid = "$Header: /Users/vitor/Yap/yap-cvsbackup/library/mpi/mpi.c,v 1.11 2002-10-29 14:02:43 stasinos Exp $";
+static char *rcsid = "$Header: /Users/vitor/Yap/yap-cvsbackup/library/mpi/mpi.c,v 1.12 2002-10-31 11:13:21 stasinos Exp $";
 #endif
 
 #include "Yap.h"
@@ -76,16 +76,29 @@ expand_buffer( int space )
 
   char *tmp;
 
+#if 0
+  printf( "expanding by %d (to %d)...", space, (bufsize+space));
+#endif
+
   tmp = malloc( bufsize + space );
   if( tmp == NULL ) {
     Error(SYSTEM_ERROR, TermNil, "out of memory" );
     exit_yap( EXIT_FAILURE );
   }
   memcpy( tmp, buf, bufsize );
+#if 0
+  printf("memcpy'd...");
+#endif
   free( buf );
+#if 0
+  printf("free'd...");
+#endif
   buf = tmp;
 #else /* use realloc */
   buf = realloc( buf, bufsize + space );
+#if 0
+  printf("realloc'ed space...");
+#endif
   if( buf == NULL ) {
     Error(SYSTEM_ERROR, TermNil, "out of memory");
     exit_yap( EXIT_FAILURE );
@@ -93,6 +106,13 @@ expand_buffer( int space )
 #endif
 
   bufsize += space;
+
+#if 0
+  printf("SUCCESS\n");
+  printf( "New bufsize: %d\n", bufsize );
+  buf[bufsize-space] = 0;
+  printf("Buffer contents: %s\n", buf);
+#endif
 }
 
 static int
@@ -355,7 +375,35 @@ p_mpi_open(void)         /* mpi_open(?rank, ?num_procs, ?proc_name) */
   Term t_rank = Deref(ARG1), t_numprocs = Deref(ARG2), t_procname = Deref(ARG3);
   Int retv;
 
-  MPI_Init( &mpi_argc, &mpi_argv );
+/*
+With MPICH MPI_Init() must be called during initialisation,
+but with LAM it can be called from Prolog (mpi_open/3)
+
+The symptoms match a known RedHat bug, see
+http://email.osc.edu/pipermail/mpiexec/2002-July/000067.html
+for a suggested workaround:
+  Redhat have somehow broken their sem.h and ipc.h. If you use your own
+  kernel, copy from ../src/kernel/include/asm & ../src/kernel/include/linux
+  the file ipc.h and sem.h to /usr/include/sys, recompile your mpich and
+  everything might start working.  (it did for us)
+*/
+
+/*
+Note that if MPI_Init() fails, Yap/MPICH and Yap/LAM bahave differently:
+in Yap/MPICH we are still at the Yap initialisation phase, so we let
+Yap exit(FAILURE), whereas in Yap/LAM mpi_open/3 simply fails.
+*/
+
+#if ! HAVE_LIBMPICH
+  retv = MPI_Init( &mpi_argc, &mpi_argv );
+  if( retv ) {
+    Term t;
+
+    t = MkIntegerTerm(retv);
+    Error( SYSTEM_ERROR, t, "MPI_Init() returned non-zero" );
+    return FALSE;
+  }
+#endif
   MPI_Comm_size( MPI_COMM_WORLD, &numprocs );
   MPI_Comm_rank( MPI_COMM_WORLD, &rank );
   MPI_Get_processor_name( processor_name, &namelen );
@@ -743,6 +791,31 @@ InitMPI(void)
     printf( "%d %s\n", i, mpi_argv[i] );
   }
 #endif  
+
+  /* With MPICH MPI_Init() must be called during initialisation,
+     but with LAM it can be called from Prolog (mpi_open/3).
+     See also the comment at "if ! HAVE_LIBMPICH" above!
+  */
+#if HAVE_LIBMPICH
+  {
+    int retv;
+
+    retv = MPI_Init(&mpi_argc, &mpi_argv);
+    if( retv ) {
+      Term t;
+
+      t = MkIntegerTerm(retv)
+      Error(SYSTEM_ERROR, t, "MPI_Init() returned non-zero");
+      exit_yap( EXIT_FAILURE );
+    }
+#if 1
+    /* DEBUG */
+    else {
+      puts("MPI_Init() is happy!");
+    }
+#endif
+  }
+#endif
 
   InitCPred( "mpi_open", 3, p_mpi_open, SafePredFlag|SyncPredFlag );
   InitCPred( "mpi_close", 0, p_mpi_close, SyncPredFlag );
