@@ -83,10 +83,10 @@ static Bool (*YapIIsNonVarTerm)() = YapIsNonVarTerm;
 #endif
 
 /*  Term  MkVarTerm()  */
-extern X_API Term PROTO(MkVarTerm,(void));
+extern X_API Term PROTO(YapMkVarTerm,(void));
 #ifdef IndirectCalls
 static Term (*YapIMkVarTerm)() = YapMkVarTerm;
-#define MVarTerm() (*YapIMkVarTerm)()
+#define MkVarTerm() (*YapIMkVarTerm)()
 #else
 #define MkVarTerm() YapMkVarTerm()
 #endif
