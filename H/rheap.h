@@ -248,6 +248,7 @@ restore_codes(void)
   heap_regs->functor_call = FuncAdjust(heap_regs->functor_call);
   heap_regs->functor_cut_by = FuncAdjust(heap_regs->functor_cut_by);
   heap_regs->functor_comma = FuncAdjust(heap_regs->functor_comma);
+  heap_regs->functor_creep = FuncAdjust(heap_regs->functor_creep);
   heap_regs->functor_csult = FuncAdjust(heap_regs->functor_csult);
   heap_regs->functor_eq = FuncAdjust(heap_regs->functor_eq);
   heap_regs->functor_execute_in_mod = FuncAdjust(heap_regs->functor_execute_in_mod);
@@ -270,7 +271,6 @@ restore_codes(void)
   heap_regs->functor_or = FuncAdjust(heap_regs->functor_or);
   heap_regs->functor_portray = FuncAdjust(heap_regs->functor_portray);
   heap_regs->functor_query = FuncAdjust(heap_regs->functor_query);
-  heap_regs->functor_spy = FuncAdjust(heap_regs->functor_spy);
   heap_regs->functor_stream = FuncAdjust(heap_regs->functor_stream);
   heap_regs->functor_stream_pos = FuncAdjust(heap_regs->functor_stream_pos);
   heap_regs->functor_stream_eOS = FuncAdjust(heap_regs->functor_stream_eOS);

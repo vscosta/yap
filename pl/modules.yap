@@ -79,7 +79,9 @@ use_module(M,I) :-
 use_module(Mod,F,I) :-
 	'$use_module'(Mod,F,I).
 
-'$use_module'(Module,M:File,Imports) :- !,
+'$use_module'(Module,V,Imports) :- var(V), !,
+	'$use_module'(Module,Module,Imports).
+'$use_module'(Module,M:File,Imports) :-
 	atom(M), !,
         '$current_module'(M0),
         '$change_module'(M),

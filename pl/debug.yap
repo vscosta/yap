@@ -256,7 +256,7 @@ debugging :-
 
 % last argument to do_spy says that we are at the end of a context. It
 % is required to know whether we are controlled by the debugger.
-'$do_spy'(!, _, _, _) :- !, '$cut_by'(CP).
+'$do_spy'(!, _, CP, _) :- !, '$cut_by'(CP).
 '$do_spy'('$cut_by'(M), _, _, _) :- !, '$cut_by'(M).
 '$do_spy'(true, _, _, _) :- !.
 '$do_spy'(M:G, _, CP, InControl) :- !,
@@ -302,7 +302,7 @@ debugging :-
     '$system_catch'('$loop_spy2'(GoalNumber, G, Module, InControl),
 		    Module, Event,
 		    '$loop_spy_event'(Event, GoalNumber, G, Module, InControl)).
-		    
+
 % handle weird things happening in the debugger.		    
 '$loop_spy_event'('$retry_spy'(G0), GoalNumber, G, Module, InControl) :-
      G0 >= GoalNumber, !,
@@ -317,7 +317,7 @@ debugging :-
 '$loop_spy_event'(abort, _, _, _, _) :- !,
      throw(abort).
 '$loop_spy_event'(Event, GoalNumber, G, Module, _) :- !,
-     '$trace'(exception,G,Module,GoalNumber),
+     '$trace'(exception(Event),G,Module,GoalNumber),
      fail.
 
 
@@ -387,11 +387,12 @@ debugging :-
 	'$flags'(G,M,F,F),
 	F /\ 0x8402000 =\= 0, !, % dynamic procedure, logical semantics, or source
 	% use the interpreter
-	'$clause'(G, M, Cl),
 	CP is '$last_choice_pt',
+	'$clause'(G, M, Cl),
 	'$do_spy'(Cl, M, CP, InControl).
-'$spycall'(G, M, InControl) :-
-	'$continue_debugging'(InControl),
+'$spycall'(G, M, _) :-
+	% I lost control here.
+	'$continue_debugging'(no),
 	'$execute0'(G, M).
 
 
@@ -406,9 +407,9 @@ debugging :-
 	        set_value(debug,0),
 		( Module\=prolog,
 		  Module\=user ->
-		    '$format'(user_error,"~a~a (~d) ~a: ~a:",[CSPY,SLL,L,P,Module])
+		    '$format'(user_error,"~a~a (~d) ~q: ~a:",[CSPY,SLL,L,P,Module])
 		    ;
-		    '$format'(user_error,"~a~a (~d) ~a:",[CSPY,SLL,L,P])
+		    '$format'(user_error,"~a~a (~d) ~q:",[CSPY,SLL,L,P])
 		),
 		'$debugger_write'(user_error,G),
 	        set_value(debug,OldDebug),
@@ -426,7 +427,7 @@ debugging :-
 '$unleashed'(redo) :- get_value('$leash',L), L /\ 2'0010 =:= 0.
 '$unleashed'(fail) :- get_value('$leash',L), L /\ 2'0001 =:= 0.
 % the same as fail.
-'$unleashed'(exception) :- get_value('$leash',L), L /\ 2'0001 =:= 0.
+'$unleashed'(exception(_)) :- get_value('$leash',L), L /\ 2'0001 =:= 0.
 
 '$debugger_write'(Stream, G) :-
 	recorded('$print_options','$debugger'(OUT),_), !,

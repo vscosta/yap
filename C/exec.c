@@ -22,6 +22,7 @@ static char     SccsId[] = "@(#)cdmgr.c	1.1 05/02/98";
 #include "yapio.h"
 
 STATIC_PROTO(Int  CallPredicate, (PredEntry *, choiceptr));
+STATIC_PROTO(Int  EnterCreepMode, (Term, SMALLUNSGN));
 STATIC_PROTO(Int  CallClause, (PredEntry *, Int));
 STATIC_PROTO(Int  p_save_cp, (void));
 STATIC_PROTO(Int  p_execute, (void));
@@ -211,20 +212,11 @@ p_save_cp(void)
   return(TRUE);
 }
 
-static Int
-EnterCreepMode(SMALLUNSGN mod) {
-  PredEntry *PredSpy = RepPredProp(PredPropByFunc(FunctorSpy,1));
-  ARG1 = MkPairTerm(ModuleName[mod],ARG1);
-  CreepFlag = CalculateStackGap();
-  P_before_spy = P;
-  return (CallPredicate(PredSpy, B));
-}
-
 inline static Int
 do_execute(Term t, SMALLUNSGN mod)
 {
   if (ActiveSignals) {
-    return(EnterCreepMode(mod));
+    return(EnterCreepMode(t, mod));
   } else if (PRED_GOAL_EXPANSION_ON) {
     return(CallMetaCall(mod));
   }
@@ -292,6 +284,26 @@ do_execute(Term t, SMALLUNSGN mod)
     /* Is Pair Term */
     return(CallMetaCall(mod));
   }
+}
+
+static Int
+EnterCreepMode(Term t, SMALLUNSGN mod) {
+  PredEntry *PredCreep;
+
+  if (ActiveSignals & YAP_CDOVF_SIGNAL) {
+    ARG1 = t;
+    if (!Yap_growheap(FALSE, 0, NULL)) {
+      Yap_Error(FATAL_ERROR, TermNil, "YAP failed to grow heap at meta-call");
+    }
+    if (!ActiveSignals) {
+      return do_execute(ARG1, mod);
+    }
+  }
+  PredCreep = RepPredProp(PredPropByFunc(FunctorCreep,1));
+  ARG1 = MkPairTerm(ModuleName[mod],ARG1);
+  CreepFlag = CalculateStackGap();
+  P_before_spy = P;
+  return (CallPredicate(PredCreep, B));
 }
 
 static Int

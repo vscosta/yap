@@ -289,6 +289,7 @@ extern int
 #define	Ignore_ops_f		2
 #define	Handle_vars_f		4
 #define	Use_portray_f		8
+#define	To_heap_f	       16
 
 /* write.c */
 void	STD_PROTO(Yap_plwrite,(Term,int (*)(int, int),int));

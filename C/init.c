@@ -709,7 +709,7 @@ InitCodes(void)
     AtomNot,
     AtomQuery,
     AtomSemic,
-    AtomSpy,
+    AtomCreep,
     AtomStream,
     AtomStreamPos,
     AtomVar;
@@ -909,7 +909,7 @@ InitCodes(void)
   AtomStream = Yap_LookupAtom ("$stream");
   AtomStreamPos = Yap_LookupAtom ("$stream_position");
   heap_regs->atom_true = Yap_LookupAtom("true");
-  AtomSpy = Yap_LookupAtom("$spy");
+  AtomCreep = Yap_LookupAtom("$creep");
   heap_regs->atom_user = Yap_LookupAtom ("user");
   heap_regs->atom_usr_err = Yap_LookupAtom ("user_error");
   heap_regs->atom_usr_in = Yap_LookupAtom ("user_input");
@@ -959,7 +959,7 @@ InitCodes(void)
   heap_regs->functor_or = Yap_MkFunctor(AtomSemic, 2);
   heap_regs->functor_portray = Yap_MkFunctor(AtomPortray, 1);
   heap_regs->functor_query = Yap_MkFunctor(AtomQuery, 1);
-  heap_regs->functor_spy = Yap_MkFunctor(AtomSpy, 1);
+  heap_regs->functor_creep = Yap_MkFunctor(AtomCreep, 1);
   heap_regs->functor_stream = Yap_MkFunctor (AtomStream, 1);
   heap_regs->functor_stream_pos = Yap_MkFunctor (AtomStreamPos, 3);
   heap_regs->functor_stream_eOS = Yap_MkFunctor (Yap_LookupAtom("end_of_stream"), 1);

@@ -1550,7 +1550,7 @@ CreateDBStruct(Term Tm, DBProp p, int InFlag, int *pstat, UInt extra_size)
     if (p == NULL) {
       ADDR ptr = Yap_AllocCodeSpace((CELL)CodeAbs+extra_size+sizeof(DBTerm));
       ppt = (DBTerm *)(ptr+extra_size);
-      if (ppt == NULL) {
+      if (ptr == NULL) {
 	Yap_ReleasePreAllocCodeSpace((ADDR)pp0);
 	return generate_dberror_msg(OUT_OF_HEAP_ERROR, (UInt)DBLength(CodeAbs), "heap crashed against stacks");
       }

@@ -779,7 +779,7 @@ Yap_plwrite(Term t, int (*mywrite) (int, int), int flags)
   wglb.MaxList = max_list;
   /* notice: we must have ASP well set when using portray, otherwise
      we cannot make recursive Prolog calls */
-  wglb.keep_terms = wglb.Use_portray;
+  wglb.keep_terms = (flags & (Use_portray_f|To_heap_f)); 
   wglb.Ignore_ops = flags & Ignore_ops_f;
   writeTerm(t, 1200, 1, FALSE, &wglb);
 }

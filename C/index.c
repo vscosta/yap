@@ -4106,9 +4106,6 @@ ExpandIndex(PredEntry *ap) {
   int cb;
   struct intermediates cint;
 
-  cint.CodeStart = cint.cpc = cint.BlobsStart = cint.icpc = NIL;
-  cint.CurrentPred = ap;
-  Yap_Error_Size = 0;
   if ((cb = setjmp(cint.CompilerBotch)) == 3) {
     restore_machine_regs();
     Yap_gcl(Yap_Error_Size, ap->ArityOfPE, ENV, CP);
@@ -4126,10 +4123,12 @@ ExpandIndex(PredEntry *ap) {
       }
       return NULL;
     }
-    Yap_Error_Size = 0;
   }
  restart_index:
+  cint.CodeStart = cint.cpc = cint.BlobsStart = cint.icpc = NIL;
+  cint.CurrentPred = ap;
   Yap_ErrorMessage = NULL;
+  Yap_Error_Size = 0;
 #ifdef DEBUG
   if (Yap_Option['i' - 'a' + 1]) {
     Term tmod = ModuleName[ap->ModuleOfPred];

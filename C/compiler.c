@@ -451,9 +451,9 @@ c_arg(Int argno, Term t, unsigned int arity, unsigned int level, compiler_struct
 
       /* use a special list to store the blobs */
       cglobs->cint.cpc = cglobs->cint.icpc;
-      if (IsFloatTerm(t)) {
+      /*      if (IsFloatTerm(t)) {
 	Yap_emit(align_float_op, Zero, Zero, &cglobs->cint);
-      }
+	}*/
       Yap_emit(label_op, l1, Zero, &cglobs->cint);
       if (IsFloatTerm(t)) {
 	/* let us do floats first */

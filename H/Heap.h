@@ -10,7 +10,7 @@
 * File:		Heap.h         						 *
 * mods:									 *
 * comments:	Heap Init Structure					 *
-* version:      $Id: Heap.h,v 1.50 2004-01-23 02:22:06 vsc Exp $	 *
+* version:      $Id: Heap.h,v 1.51 2004-01-29 13:37:09 vsc Exp $	 *
 *************************************************************************/
 
 /* information that can be stored in Code Space */
@@ -280,6 +280,7 @@ typedef struct various_codes {
     functor_call,
     functor_clist,
     functor_comma,
+    functor_creep,
     functor_csult,
     functor_cut_by,
     functor_eq,
@@ -303,7 +304,6 @@ typedef struct various_codes {
     functor_or,
     functor_portray,
     functor_query,
-    functor_spy,
     functor_stream,
     functor_stream_pos,
     functor_stream_eOS,
@@ -529,6 +529,7 @@ struct various_codes *heap_regs;
 #define  FunctorCall              heap_regs->functor_call
 #define  FunctorClist             heap_regs->functor_clist
 #define  FunctorComma             heap_regs->functor_comma
+#define  FunctorCreep             heap_regs->functor_creep
 #define  FunctorCsult             heap_regs->functor_csult
 #define  FunctorCutBy             heap_regs->functor_cut_by
 #define  FunctorEq                heap_regs->functor_eq
@@ -552,7 +553,6 @@ struct various_codes *heap_regs;
 #define  FunctorOr                heap_regs->functor_or
 #define  FunctorPortray           heap_regs->functor_portray
 #define  FunctorQuery             heap_regs->functor_query
-#define  FunctorSpy               heap_regs->functor_spy
 #define  FunctorStream            heap_regs->functor_stream
 #define  FunctorStreamPos         heap_regs->functor_stream_pos
 #define  FunctorStreamEOS         heap_regs->functor_stream_eOS

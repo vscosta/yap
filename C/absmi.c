@@ -2153,7 +2153,6 @@ Yap_absmi(int inp)
       if (ActiveSignals & YAP_CDOVF_SIGNAL) {
 	goto noheapleft;
       }
-#ifdef COROUTINING
       if (ActiveSignals) {
 	if (Yap_op_from_opcode(PREG->opc) == _cut_e) {
 	  /* followed by a cut */
@@ -2164,7 +2163,6 @@ Yap_absmi(int inp)
 	}
 	goto creep;
       }
-#endif
       saveregs();
       if (!Yap_gc(0, ENV, CPREG)) {
 	Yap_Error(OUT_OF_STACK_ERROR,TermNil,Yap_ErrorMessage);
@@ -5851,8 +5849,8 @@ Yap_absmi(int inp)
       CACHE_Y_AS_ENV(YREG);
       check_stack(NoStackEither, H);
       ENDCACHE_Y_AS_ENV();
-#endif
       either_notest:
+#endif
       BEGD(d0);
       /* Try to preserve the environment */
       d0 = PREG->u.sla.s;

@@ -2699,8 +2699,12 @@ do_pass(int pass_no, yamop **entry_codep, int assembling, int *clause_has_blobsp
       code_p = a_empty_call(&clinfo, code_p, pass_no, cip);
       break;
     case push_or_op:
-    case pop_or_op:
+      /* be sure to allocate if we have an ;, even if it is 
+	 compiled inline.
+       */
+      code_p = check_alloc(&clinfo, code_p, pass_no, cip);
     case pushpop_or_op:
+    case pop_or_op:
     case nop_op:
     case name_op:
       break;

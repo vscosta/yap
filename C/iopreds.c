@@ -3654,7 +3654,12 @@ format_putc(int sno, int ch) {
       format_base = newbuf;
       format_max = newbuf+new_max_size;
       format_buf_size = new_max_size;
-  }
+      if (ActiveSignals & YAP_CDOVF_SIGNAL) {
+	if (!Yap_growheap(FALSE, 0, NULL)) {
+	  Yap_Error(FATAL_ERROR, TermNil, "YAP failed to grow heap at format");
+	}
+      }
+    }
   }
   return ((int) ch);
 }
@@ -3883,7 +3888,7 @@ format(Term tail, Term args, int sno)
 		Yap_Error(TYPE_ERROR_ATOM,arghd,"~a in format/2");
 		return(FALSE);
 	      }
-	      Yap_plwrite (arghd, format_putc, Handle_vars_f);
+	      Yap_plwrite (arghd, format_putc, Handle_vars_f|To_heap_f);
 	      break;
 	    case 'c':
 	      if (IsVarTerm (args)) {
@@ -3982,7 +3987,7 @@ format(Term tail, Term args, int sno)
 		return(FALSE);
 	      }
 	      if (!arg_size) {
-		Yap_plwrite (arghd, format_putc, Handle_vars_f);
+		Yap_plwrite (arghd, format_putc, Handle_vars_f|To_heap_f);
 	      } else {
 		Int siz;
 		/*
@@ -4260,7 +4265,7 @@ format(Term tail, Term args, int sno)
 	      }
 	      arghd = HeadOfTerm (args);
 	      args = TailOfTerm (args);
-	      Yap_plwrite (arghd, format_putc, Quote_illegal_f|Ignore_ops_f );
+	      Yap_plwrite (arghd, format_putc, Quote_illegal_f|Ignore_ops_f|To_heap_f );
 	      break;
 	    case 'p':
 	      if (size_args) {
@@ -4283,7 +4288,7 @@ format(Term tail, Term args, int sno)
 	      *--ASP = MkIntTerm(0);
 	      { 
 		long sl = Yap_InitSlot(args);
-		Yap_plwrite(arghd, format_putc, Handle_vars_f|Use_portray_f);
+		Yap_plwrite(arghd, format_putc, Handle_vars_f|Use_portray_f|To_heap_f);
 		args = Yap_GetFromSlot(sl);
 		Yap_RecoverSlots(1);
 	      }
@@ -4313,7 +4318,7 @@ format(Term tail, Term args, int sno)
 	      }
 	      arghd = HeadOfTerm (args);
 	      args = TailOfTerm (args);
-	      Yap_plwrite (arghd, format_putc, Handle_vars_f|Quote_illegal_f);
+	      Yap_plwrite (arghd, format_putc, Handle_vars_f|Quote_illegal_f|To_heap_f);
 	      break;
 	    case 'w':
 	      if (size_args) {
@@ -4333,7 +4338,7 @@ format(Term tail, Term args, int sno)
 	      }
 	      arghd = HeadOfTerm (args);
 	      args = TailOfTerm (args);
-	      Yap_plwrite (arghd, format_putc, Handle_vars_f);
+	      Yap_plwrite (arghd, format_putc, Handle_vars_f|To_heap_f);
 	      break;
 	    case '~':
 	      if (size_args) {

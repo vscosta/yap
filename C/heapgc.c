@@ -1471,11 +1471,11 @@ mark_choicepoints(register choiceptr gc_B, tr_fr_ptr saved_TR, int very_verbose)
       case _count_retry:
 	{
 	  Atom at;
-	  unsigned long int arity;
+	  UInt arity;
 	  SMALLUNSGN mod;
-	  if (Yap_PredForCode(gc_B->cp_ap, &at, (UInt *)(&arity), &mod)) {
+	  if (Yap_PredForCode(gc_B->cp_ap, &at, &arity, &mod)) {
 	    if (arity) 
-	      fprintf(Yap_stderr,"[GC]       %s/%ld marked %ld (%s)\n", RepAtom(at)->StrOfAE, arity, total_marked, op_names[opnum]);
+	      fprintf(Yap_stderr,"[GC]       %s/%ld marked %ld (%s)\n", RepAtom(at)->StrOfAE, (long int)arity, total_marked, op_names[opnum]);
 	    else
 	      fprintf(Yap_stderr,"[GC]       %s marked %ld (%s)\n", RepAtom(at)->StrOfAE, total_marked, op_names[opnum]);
 	  } else
@@ -1534,7 +1534,6 @@ mark_choicepoints(register choiceptr gc_B, tr_fr_ptr saved_TR, int very_verbose)
       gc_B->cp_tr = (tr_fr_ptr)(orig-diff);
 #endif /* FROZEN_STACKS */
     }
-  restart_cp:
     if (opnum == _or_else || opnum == _or_last) {
       /* ; choice point */
       mark_environments((CELL_PTR) (gc_B->cp_a1),
@@ -1563,6 +1562,7 @@ mark_choicepoints(register choiceptr gc_B, tr_fr_ptr saved_TR, int very_verbose)
 			  EnvSize((CELL_PTR) (gc_B->cp_cp)),
 			  EnvBMap((CELL_PTR) (gc_B->cp_cp)));
       /* extended choice point */
+    restart_cp:
       switch (opnum) {
       case _Nstop:
 	mark_slots(gc_B->cp_env);
@@ -1593,6 +1593,11 @@ mark_choicepoints(register choiceptr gc_B, tr_fr_ptr saved_TR, int very_verbose)
 	}
 	nargs = rtp->u.lds.s+rtp->u.lds.extra;
 	break;
+      case _jump:
+	rtp = rtp->u.l.l;
+	op = rtp->opc;
+	opnum = Yap_op_from_opcode(op);
+	goto restart_cp;
       case _trust_logical_pred:
       case _retry_profiled:
       case _count_retry:
@@ -1732,11 +1737,6 @@ mark_choicepoints(register choiceptr gc_B, tr_fr_ptr saved_TR, int very_verbose)
       case _trust_killed:
 	nargs = rtp->u.ld.s;
 	break;
-      case _jump:
-	rtp = rtp->u.l.l;
-	op = rtp->opc;
-	opnum = Yap_op_from_opcode(op);
-	goto restart_cp;
       default:
 	fprintf(Yap_stderr, "OOps in GC: Unexpected opcode: %d\n", opnum);
 	nargs = 0;
