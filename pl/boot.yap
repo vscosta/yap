@@ -1064,7 +1064,7 @@ add_to_path(New) :- add_to_path(New,last).
 add_to_path(New,Pos) :-
 	'$check_path'(New,Str),
 	atom_codes(Fixed,Str),
-	'$add_to_path'(Str,Pos).
+	'$add_to_path'(Fixed,Pos).
 
 '$add_to_path'(New,_) :- '$recorded'('$path',New,R), erase(R), fail.
 '$add_to_path'(New,last) :- !, '$recordz'('$path',New,_).
