@@ -979,7 +979,7 @@ InitCodes(void)
   heap_regs->pred_recorded_with_key = RepPredProp(PredPropByFunc(Yap_MkFunctor(Yap_LookupAtom("$recorded_with_key"),3),0));
   heap_regs->pred_log_upd_clause = RepPredProp(PredPropByFunc(Yap_MkFunctor(Yap_LookupAtom("$do_log_upd_clause"),5),0));
   heap_regs->pred_log_upd_clause0 = RepPredProp(PredPropByFunc(Yap_MkFunctor(Yap_LookupAtom("$do_log_upd_clause"),4),0));
-  heap_regs->pred_log_upd_retract = RepPredProp(PredPropByFunc(Yap_MkFunctor(Yap_LookupAtom("$do_log_upd_retract"),4),0));
+  heap_regs->pred_static_clause = RepPredProp(PredPropByFunc(Yap_MkFunctor(Yap_LookupAtom("$do_static_clause"),5),0));
   heap_regs->pred_throw = RepPredProp(PredPropByFunc(FunctorThrow,0));
   heap_regs->pred_handle_throw = RepPredProp(PredPropByFunc(Yap_MkFunctor(Yap_LookupAtom("$handle_throw"),3),0));
   heap_regs->pred_goal_expansion = RepPredProp(PredPropByFunc(Yap_MkFunctor(Yap_LookupAtom("goal_expansion"),3),1));

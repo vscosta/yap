@@ -380,13 +380,6 @@ repeat :- '$repeat'.
 	    ( Fl /\ 16'040000 =\= 0 -> '$check_multifile_pred'(H,Mod,Fl) ; true )
         ;
             true
-      ),	    
-      ( Fl /\ 16'400000 =:= 0 ->       % is this procedure in source mode?
-        % no, just ignore
-        true
-      ;
-	% and store our clause
-	'$store_stat_clause'(G0, H, L, Mod)
       ).
 
 '$store_stat_clause'(G0, H, L, M) :-
@@ -404,7 +397,6 @@ repeat :- '$repeat'.
 	'$is_multifile'(G, M), !,
 	functor(G, Na, Ar),
 	'$erase_mf_source'(Na, Ar, M).
-'$erase_source'(G, M) :- '$recordedp'(M:G,_,R), erase(R), fail.
 '$erase_source'(_, _).
 
 '$erase_mf_source'(Na, Ar, M) :-

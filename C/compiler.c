@@ -2703,7 +2703,7 @@ c_optimize(PInstr *pc)
 }
 
 yamop *
-Yap_cclause(Term inp_clause, int NOfArgs, int mod)
+Yap_cclause(Term inp_clause, int NOfArgs, int mod, Term src)
 {				/* compile a prolog clause, copy of clause myst be in ARG1 */
   /* returns address of code for clause */
   Term head, body;
@@ -2868,7 +2868,7 @@ Yap_cclause(Term inp_clause, int NOfArgs, int mod)
     Yap_ShowCode();
 #endif
   /* phase 3: assemble code                                                */
-  acode = Yap_assemble(ASSEMBLING_CLAUSE, inp_clause, CurrentPred, body == MkAtomTerm(AtomTrue));
+  acode = Yap_assemble(ASSEMBLING_CLAUSE, src, CurrentPred, body == MkAtomTerm(AtomTrue));
 
 
   /* check first if there was space for us */

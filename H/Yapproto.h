@@ -10,7 +10,7 @@
 * File:		Yap.proto						 *
 * mods:									 *
 * comments:	Function declarations for YAP				 *
-* version:      $Id: Yapproto.h,v 1.40 2003-11-12 12:33:31 vsc Exp $	 *
+* version:      $Id: Yapproto.h,v 1.41 2003-11-21 16:56:20 vsc Exp $	 *
 *************************************************************************/
 
 /* prototype file for Yap */
@@ -118,7 +118,7 @@ int	STD_PROTO(Yap_compare_terms,(Term,Term));
 void	STD_PROTO(Yap_InitCmpPreds,(void));
 
 /* compiler.c */
-yamop  *STD_PROTO(Yap_cclause,(Term, int, int));
+yamop  *STD_PROTO(Yap_cclause,(Term, int, int, Term));
 
 /* computils.c */
 

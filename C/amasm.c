@@ -2079,6 +2079,7 @@ do_pass(void)
     } else {
       /* static clause */
       if (pass_no) {
+	cl_u->sc.Id = FunctorDBRef;
 	cl_u->sc.ClFlags = 0;
 	cl_u->sc.Owner = Yap_ConsultingFile();
 	if (clause_has_blobs) {
@@ -2441,7 +2442,7 @@ do_pass(void)
 	  longjmp(Yap_CompilerBotch, 3);	  
 	}
 	
-	if ( (char *)(label_offset+cpc->rnd1) > freep)
+	if ( (char *)(label_offset+cpc->rnd1) >= freep)
 	  freep = (char *)(label_offset+(cpc->rnd1+1));
 	label_offset[cpc->rnd1] = (CELL) code_p;
       }
@@ -2650,13 +2651,42 @@ Yap_assemble(int mode, Term t, PredEntry *ap, int is_fact)
       !is_fact) {
     DBTerm *x;
     LogUpdClause *cl;
+    CELL *h0 = H;
+
+    H = (CELL *)freep;
     while ((x = Yap_StoreTermInDBPlusExtraSpace(t, size)) == NULL) {
+      H = h0;
       if (!Yap_growheap(TRUE, size)) {
 	Yap_Error_TYPE = SYSTEM_ERROR;
 	return NULL;
       }
+      h0 = H;
+      H = (CELL *)freep;
     }
+    H = h0;
     cl = (LogUpdClause *)((CODEADDR)x-(UInt)size);
+    cl->ClSource = x;
+    code_addr = (yamop *)cl;
+  } else if (mode == ASSEMBLING_CLAUSE && 
+      (ap->PredFlags & SourcePredFlag ||
+       (!ap->cs.p_code.NOfClauses && yap_flags[SOURCE_MODE_FLAG])) &&
+      !is_fact) {
+    DBTerm *x;
+    StaticClause *cl;
+    CELL *h0 = H;
+
+    H = (CELL *)freep;
+    while ((x = Yap_StoreTermInDBPlusExtraSpace(t, size)) == NULL) {
+      H = h0;
+      if (!Yap_growheap(TRUE, size)) {
+	Yap_Error_TYPE = SYSTEM_ERROR;
+	return NULL;
+      }
+      h0 = H;
+      H = (CELL *)freep;
+    }
+    H = h0;
+    cl = (StaticClause *)((CODEADDR)x-(UInt)size);
     cl->ClSource = x;
     code_addr = (yamop *)cl;
   } else {
@@ -2667,7 +2697,6 @@ Yap_assemble(int mode, Term t, PredEntry *ap, int is_fact)
       }
     }
   }
-  //  fprintf(stderr,"vsc: asking for %p\n",code_addr);
   entry_code = do_pass();
   YAPLeaveCriticalSection();
 #ifdef LOW_PROF

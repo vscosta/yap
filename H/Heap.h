@@ -10,7 +10,7 @@
 * File:		Heap.h         						 *
 * mods:									 *
 * comments:	Heap Init Structure					 *
-* version:      $Id: Heap.h,v 1.47 2003-11-12 12:33:31 vsc Exp $	 *
+* version:      $Id: Heap.h,v 1.48 2003-11-21 16:56:20 vsc Exp $	 *
 *************************************************************************/
 
 /* information that can be stored in Code Space */
@@ -293,7 +293,7 @@ typedef struct various_codes {
   struct pred_entry *pred_recorded_with_key;
   struct pred_entry *pred_log_upd_clause;
   struct pred_entry *pred_log_upd_clause0;
-  struct pred_entry *pred_log_upd_retract;
+  struct pred_entry *pred_static_clause;
   struct pred_entry *pred_throw;
   struct pred_entry *pred_handle_throw;
   struct array_entry *dyn_array_list;
@@ -533,7 +533,7 @@ typedef struct various_codes {
 #define  PredRecordedWithKey      heap_regs->pred_recorded_with_key
 #define  PredLogUpdClause         heap_regs->pred_log_upd_clause
 #define  PredLogUpdClause0        heap_regs->pred_log_upd_clause0
-#define  PredLogUpdRetract        heap_regs->pred_log_upd_retract
+#define  PredStaticClause         heap_regs->pred_static_clause
 #define  PredThrow                heap_regs->pred_throw
 #define  PredHandleThrow          heap_regs->pred_handle_throw
 #define  DynArrayList             heap_regs->dyn_array_list

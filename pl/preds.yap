@@ -315,6 +315,9 @@ clause(V,Q,R) :-
 '$clause'(M:P,_,Q,R) :- !,
 	'$clause'(P,M,Q,R).
 '$clause'(P,M,Q,R) :-
+	'$is_source'(P, M), !,
+	'$static_clause'(P,M,Q,R).
+'$clause'(P,M,Q,R) :-
 	'$is_log_updatable'(P, M), !,
 	'$log_update_clause'(P,M,Q,R).
 '$clause'(P,M,Q,R) :-
@@ -339,10 +342,10 @@ clause(V,Q,R) :-
 	'$continue_log_update_clause'(A,B,C,D).
 '$do_log_upd_clause'(A,B,C,D).
 
-'$do_log_upd_retract'(_,_,_,_).
-'$do_log_upd_retract'(A,B,C,D) :-
-	'$continue_log_update_retract'(A,B,C,D).
-'$do_log_upd_retract'(A,B,C,D).
+'$do_static_clause'(_,_,_,_,_).
+'$do_static_clause'(A,B,C,D,E) :-
+	'$continue_static_clause'(A,B,C,D,E).
+'$do_static_clause'(A,B,C,D,E).
 
 nth_clause(P,I,R) :- nonvar(R), !,
 	'$nth_instancep'(P,I,R).
@@ -625,8 +628,7 @@ abolish(X) :-
         functor(G,A,N),
 	'$do_error'(permission_error(modify,static_procedure,A/N),abolish(Module:G)).
 '$abolishs'(G, M) :-
-	'$purge_clauses'(G, M),
-	'$recordedp'(M:G,_,R), erase(R), fail.
+	'$purge_clauses'(G, M), fail.
 '$abolishs'(_, _).
 
 %
@@ -776,7 +778,8 @@ predicate_property(Pred,Prop) :-
 '$predicate_property'(P,M,_,built_in) :- 
 	'$system_predicate'(P,M), !.
 '$predicate_property'(P,M,_,source) :- 
-	( '$recordedp'(M:P,_,_) -> true ; false).
+	'$flags'(G,M,F,F),
+	( F /\ 16'400000 =\= 0 -> true ; false).
 '$predicate_property'(P,M,_,dynamic) :-
 	'$is_dynamic'(P,M).
 '$predicate_property'(P,M,_,static) :-

@@ -309,6 +309,10 @@ restore_codes(void)
     (PredEntry *)AddrAdjust((ADDR)heap_regs->pred_recorded_with_key);
   heap_regs->pred_log_upd_clause =
     (PredEntry *)AddrAdjust((ADDR)heap_regs->pred_log_upd_clause);
+  heap_regs->pred_log_upd_clause0 =
+    (PredEntry *)AddrAdjust((ADDR)heap_regs->pred_log_upd_clause0);
+  heap_regs->pred_static_clause =
+    (PredEntry *)AddrAdjust((ADDR)heap_regs->pred_static_clause);
   heap_regs->pred_throw =
     (PredEntry *)AddrAdjust((ADDR)heap_regs->pred_throw);
   heap_regs->pred_handle_throw =

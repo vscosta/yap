@@ -177,8 +177,6 @@ print_message(Level, Mss) :-
 	'$preprocess_stack'(Gs, I, NGs).
 '$beautify_hidden_goal'('$ensure_loaded',_,prolog,ClNo,Gs,I,NGs) :- !,
 	'$preprocess_stack'(Gs, I, NGs).
-'$beautify_hidden_goal'('$recordedp',_,prolog,ClNo,Gs,I,NGs) :- !,
-	'$preprocess_stack'(Gs, I, NGs).
 '$beautify_hidden_goal'('$continue_with_command',_,prolog,ClNo,Gs,I,NGs) :- !,
 	'$preprocess_stack'(Gs, I, NGs).
 '$beautify_hidden_goal'('$spycall_stdpred',_,prolog,ClNo,Gs,I,NGs) :- !,

@@ -843,7 +843,7 @@ YAP_CompileClause(Term t)
 
   Yap_ErrorMessage = NULL;
   ARG1 = t;
-  codeaddr = Yap_cclause (t,0, mod);
+  codeaddr = Yap_cclause (t,0, mod, t);
   if (codeaddr != NULL) {
     t = Deref(ARG1); /* just in case there was an heap overflow */
     Yap_addclause (t, codeaddr, TRUE, mod);

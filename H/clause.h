@@ -106,7 +106,9 @@ typedef struct static_index {
 
 typedef struct static_clause {
   /* A set of flags describing info on the clause */
+  Functor         Id;
   CELL            ClFlags;
+  DBTerm          *ClSource;
   Atom Owner;
   /* The instructions, at least one of the form sl */
   yamop            ClCode[MIN_ARRAY];
@@ -185,7 +187,7 @@ yamop   *STD_PROTO(Yap_ExpandIndex,(PredEntry *));
 yamop   *STD_PROTO(Yap_CleanUpIndex,(struct logic_upd_index *));
 void     STD_PROTO(Yap_AddClauseToIndex,(PredEntry *,yamop *,int));
 void     STD_PROTO(Yap_RemoveClauseFromIndex,(PredEntry *,yamop *));
-LogUpdClause  *STD_PROTO(Yap_follow_lu_indexing_code,(PredEntry *,yamop *,Term,Term,Term, yamop *,yamop *));
+LogUpdClause  *STD_PROTO(Yap_follow_indexing_code,(PredEntry *,yamop *,Term,Term,Term, yamop *,yamop *));
 
 #if LOW_PROF
 /* profiling */

@@ -393,13 +393,8 @@ debugging :-
 	'$execute0'(G, M).
 '$spycall'(G,M) :-
 	'$flags'(G,M,F,F),
-	F /\ 16'2008 =\= 0, !, % dynamic procedure, or logical semantics
+	F /\ 16'402008 =\= 0, !, % dynamic procedure, logical semantics, or source
 	% use the interpreter
-	'$clause'(G, M, Cl),
-	CP is '$last_choice_pt',
-	'$do_spy'(Cl, M, CP).
-'$spycall'(G,M) :-
-	'$some_recordedp'(M:G), !,
 	'$clause'(G, M, Cl),
 	CP is '$last_choice_pt',
 	'$do_spy'(Cl, M, CP).

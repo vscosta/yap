@@ -6010,6 +6010,21 @@ lu_clause(yamop *ipc)
   return c;
 }
 
+static LogUpdClause *
+static_clause(yamop *ipc)
+{
+  StaticClause *c;
+  CELL *p = (CELL *)ipc;
+
+  if (ipc == FAILCODE)
+    return NULL;
+  while ((c = ClauseCodeToStaticClause(p))->Id != FunctorDBRef ||
+	 (c->ClFlags & (LogUpdMask|IndexMask|DynamicMask|SwitchTableMask|SwitchRootMask))) {
+    p--;
+  }
+  return (LogUpdClause *)c;
+}
+
 static void
 store_clause_choice_point(Term t1, Term tb, Term tr, yamop *ipc, PredEntry *pe, yamop *ap_pc, yamop *cp_pc)
 {
@@ -6052,7 +6067,7 @@ update_clause_choice_point(yamop *ipc, yamop *ap_pc)
 }
 
 LogUpdClause *
-Yap_follow_lu_indexing_code(PredEntry *ap, yamop *ipc, Term t1, Term tb, Term tr, yamop *ap_pc, yamop *cp_pc)
+Yap_follow_indexing_code(PredEntry *ap, yamop *ipc, Term t1, Term tb, Term tr, yamop *ap_pc, yamop *cp_pc)
 {
   CELL *tar = RepAppl(t1);
   UInt i;
@@ -6061,6 +6076,7 @@ Yap_follow_lu_indexing_code(PredEntry *ap, yamop *ipc, Term t1, Term tb, Term tr
   yamop *start_pc = ipc;
   choiceptr b0 = NULL;
   yamop **jlbl = NULL;
+  int lu_pred = ap->PredFlags & LogUpdatePredFlag;
 
   if (ap->ModuleOfPred != 2) {
     /* makes no sense for IDB, as ArityOfPE means nothing */
@@ -6068,7 +6084,7 @@ Yap_follow_lu_indexing_code(PredEntry *ap, yamop *ipc, Term t1, Term tb, Term tr
       XREGS[i] = tar[i];
     }
   }
-    /* try to refine the interval using the indexing code */
+  /* try to refine the interval using the indexing code */
   while (ipc != NULL) {
     op_numbers op = Yap_op_from_opcode(ipc->opc);
 
@@ -6082,7 +6098,10 @@ Yap_follow_lu_indexing_code(PredEntry *ap, yamop *ipc, Term t1, Term tb, Term tr
 	store_clause_choice_point(t1, tb, tr, NEXTOP(ipc,ld), ap, ap_pc, cp_pc);
       else
 	update_clause_choice_point(NEXTOP(ipc,ld), ap_pc);
-      return lu_clause(ipc->u.ld.d);
+      if (lu_pred)
+	return lu_clause(ipc->u.ld.d);
+      else
+	return static_clause(ipc->u.ld.d);
     case _try_me:
     case _try_me1:
     case _try_me2:
@@ -6099,7 +6118,10 @@ Yap_follow_lu_indexing_code(PredEntry *ap, yamop *ipc, Term t1, Term tb, Term tr
     case _retry_profiled:
     case _count_retry:
       update_clause_choice_point(NEXTOP(ipc,ld),ap_pc);
-      return lu_clause(ipc->u.ld.d);
+      if (lu_pred)
+	return lu_clause(ipc->u.ld.d);
+      else
+	return static_clause(ipc->u.ld.d);
     case _retry_me:
     case _retry_me1:
     case _retry_me2:
@@ -6119,7 +6141,10 @@ Yap_follow_lu_indexing_code(PredEntry *ap, yamop *ipc, Term t1, Term tb, Term tr
       abolish_incomplete_subgoals(B);
 #endif /* TABLING */
       b0 = B;
-      return lu_clause(ipc->u.ld.d);
+      if (lu_pred)
+	return lu_clause(ipc->u.ld.d);
+      else
+	return static_clause(ipc->u.ld.d);
     case _profiled_trust_me:
     case _trust_me:
     case _count_trust_me:
@@ -6363,7 +6388,10 @@ Yap_follow_lu_indexing_code(PredEntry *ap, yamop *ipc, Term t1, Term tb, Term tr
 #endif /* TABLING */
 	/* I did a trust */
       }
-      return lu_clause(ipc);
+      if (lu_pred)
+	return lu_clause(ipc);
+      else
+	return static_clause(ipc);
     }
   }
   if (b0) {

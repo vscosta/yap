@@ -1133,7 +1133,7 @@ addcl_permission_error(AtomEntry *ap, Int Arity, int in_use)
 
 
 static Term
-addclause(Term t, yamop *cp, int mode, int mod, Term src)
+addclause(Term t, yamop *cp, int mode, int mod)
 /*
  *
  mode
@@ -1201,8 +1201,10 @@ addclause(Term t, yamop *cp, int mode, int mod, Term src)
       StaticClause     *clp = ClauseCodeToStaticClause(cp);
       clp->ClFlags |= StaticMask;
       if (IsAtomTerm(t) ||
-	  FunctorOfTerm(t) != FunctorAssert)
+	  FunctorOfTerm(t) != FunctorAssert) {
 	clp->ClFlags |= FactMask;
+	clp->ClSource = NULL;
+      }
     }
     if (compile_mode)
       p->PredFlags = pflags | CompiledPredFlag | FastPredFlag;
@@ -1246,7 +1248,7 @@ addclause(Term t, yamop *cp, int mode, int mod, Term src)
 
 void
 Yap_addclause(Term t, yamop *cp, int mode, int mod) {
-  addclause(t, cp, mode, mod, t);
+  addclause(t, cp, mode, mod);
 }
 
 void
@@ -1408,11 +1410,11 @@ p_compile(void)
   if (IsVarTerm(t3) || !IsAtomTerm(t3))
     return (FALSE);
   mod = Yap_LookupModule(t3);
-  codeadr = Yap_cclause(t, 2, mod); /* vsc: give the number of arguments
+  codeadr = Yap_cclause(t, 2, mod, Deref(ARG3)); /* vsc: give the number of arguments
 			      to cclause in case there is overflow */
   t = Deref(ARG1);        /* just in case there was an heap overflow */
   if (!Yap_ErrorMessage)
-    addclause(t, codeadr, (int) (IntOfTerm(t1) & 3), mod, Deref(ARG3));
+    addclause(t, codeadr, (int) (IntOfTerm(t1) & 3), mod);
   if (Yap_ErrorMessage) {
     if (IntOfTerm(t1) & 4) {
       Yap_Error(Yap_Error_TYPE, Yap_Error_Term,
@@ -1441,13 +1443,13 @@ p_compile_dynamic(void)
   old_optimize = optimizer_on;
   optimizer_on = FALSE;
   mod = Yap_LookupModule(t3);
-  code_adr = Yap_cclause(t, 3, mod); /* vsc: give the number of arguments to
+  code_adr = Yap_cclause(t, 3, mod, Deref(ARG3)); /* vsc: give the number of arguments to
 			       cclause() in case there is a overflow */
   t = Deref(ARG1);        /* just in case there was an heap overflow */
   if (!Yap_ErrorMessage) {
     
     optimizer_on = old_optimize;
-    t = addclause(t, code_adr, (int) (IntOfTerm(t1) & 3), mod, Deref(ARG3));
+    t = addclause(t, code_adr, (int) (IntOfTerm(t1) & 3), mod);
   } else {
     if (IntOfTerm(t1) & 4) {
       Yap_Error(Yap_Error_TYPE, Yap_Error_Term, "line %d, %s", Yap_FirstLineInParse(), Yap_ErrorMessage);
@@ -1898,6 +1900,33 @@ p_is_log_updatable(void)
     return (FALSE);
   READ_LOCK(pe->PRWLock);
   out = (pe->PredFlags & LogUpdatePredFlag);
+  READ_UNLOCK(pe->PRWLock);
+  return(out);
+}
+
+static Int 
+p_is_source(void)
+{				/* '$is_dynamic'(+P)	 */
+  PredEntry      *pe;
+  Term            t = Deref(ARG1);
+  Term            t2 = Deref(ARG2);
+  Int             out;
+  SMALLUNSGN      mod = Yap_LookupModule(t2);
+
+  if (IsVarTerm(t)) {
+    return (FALSE);
+  } else if (IsAtomTerm(t)) {
+    Atom at = AtomOfTerm(t);
+    pe = RepPredProp(PredPropByAtom(at, mod));
+  } else if (IsApplTerm(t)) {
+    Functor         fun = FunctorOfTerm(t);
+    pe = RepPredProp(PredPropByFunc(fun, mod));
+  } else
+    return (FALSE);
+  if (pe == NIL)
+    return (FALSE);
+  READ_LOCK(pe->PRWLock);
+  out = (pe->PredFlags & SourcePredFlag);
   READ_UNLOCK(pe->PRWLock);
   return(out);
 }
@@ -2980,7 +3009,7 @@ get_pred(Term t1, Term tmod, char *command)
 static Int
 fetch_next_lu_clause(PredEntry *pe, yamop *i_code, Term th, Term tb, Term tr, yamop *cp_ptr, int first_time)
 {
-  LogUpdClause *cl = Yap_follow_lu_indexing_code(pe, i_code, th, tb, tr, NextClause(PredLogUpdClause->cs.p_code.FirstClause), cp_ptr);
+  LogUpdClause *cl = Yap_follow_indexing_code(pe, i_code, th, tb, tr, NextClause(PredLogUpdClause->cs.p_code.FirstClause), cp_ptr);
   Term rtn;
 
   if (cl == NULL)
@@ -2998,24 +3027,26 @@ fetch_next_lu_clause(PredEntry *pe, yamop *i_code, Term th, Term tb, Term tr, ya
   }
 #endif
   if (cl->ClFlags & FactMask) {
-    Functor f = FunctorOfTerm(th);
-    UInt arity = ArityOfFunctor(f), i;
-    CELL *pt = RepAppl(th)+1;
-
     if (!Yap_unify(tb, MkAtomTerm(AtomTrue)) ||
 	!Yap_unify(tr, rtn))
       return FALSE;
-    for (i=0; i<arity; i++) {
-      XREGS[i+1] = pt[i];
+    if (pe->ArityOfPE) {
+      Functor f = FunctorOfTerm(th);
+      UInt arity = ArityOfFunctor(f), i;
+      CELL *pt = RepAppl(th)+1;
+
+      for (i=0; i<arity; i++) {
+	XREGS[i+1] = pt[i];
+      }
+      /* don't need no ENV */
+      if (first_time) {
+	CP = P;
+	ENV = YENV;
+	YENV = ASP;
+	YENV[E_CB] = (CELL) B;
+      }
+      P = cl->ClCode;
     }
-    /* don't need no ENV */
-    if (first_time) {
-      CP = P;
-      ENV = YENV;
-      YENV = ASP;
-      YENV[E_CB] = (CELL) B;
-    }
-    P = cl->ClCode;
     return TRUE;
   } else {
     Term t;
@@ -3048,6 +3079,9 @@ p_log_update_clause(void)
   pe = get_pred(t1, Deref(ARG2), "clause/3");
   if (pe == NULL || EndOfPAEntr(pe))
     return FALSE;
+  if(pe->OpcodeOfPred == INDEX_OPCODE) {
+    IPred(pe);
+  }
   return fetch_next_lu_clause(pe, pe->cs.p_code.TrueCodeOfPred, t1, ARG3, ARG4, P, TRUE);
 }
 
@@ -3063,28 +3097,30 @@ p_continue_log_update_clause(void)
 static Int
 fetch_next_lu_clause0(PredEntry *pe, yamop *i_code, Term th, Term tb, yamop *cp_ptr, int first_time)
 {
-  LogUpdClause *cl = Yap_follow_lu_indexing_code(pe, i_code, th, tb, TermNil, NextClause(PredLogUpdClause0->cs.p_code.FirstClause), cp_ptr);
+  LogUpdClause *cl = Yap_follow_indexing_code(pe, i_code, th, tb, TermNil, NextClause(PredLogUpdClause0->cs.p_code.FirstClause), cp_ptr);
 
   if (cl == NULL)
     return FALSE;
   if (cl->ClFlags & FactMask) {
-    Functor f = FunctorOfTerm(th);
-    UInt arity = ArityOfFunctor(f), i;
-    CELL *pt = RepAppl(th)+1;
-
     if (!Yap_unify(tb, MkAtomTerm(AtomTrue)))
       return FALSE;
-    for (i=0; i<arity; i++) {
-      XREGS[i+1] = pt[i];
+    if (pe->ArityOfPE) {
+      Functor f = FunctorOfTerm(th);
+      UInt arity = ArityOfFunctor(f), i;
+      CELL *pt = RepAppl(th)+1;
+
+      for (i=0; i<arity; i++) {
+	XREGS[i+1] = pt[i];
+      }
+      /* don't need no ENV */
+      if (first_time) {
+	CP = P;
+	ENV = YENV;
+	YENV = ASP;
+	YENV[E_CB] = (CELL) B;
+      }
+      P = cl->ClCode;
     }
-    /* don't need no ENV */
-    if (first_time) {
-      CP = P;
-      ENV = YENV;
-      YENV = ASP;
-      YENV[E_CB] = (CELL) B;
-    }
-    P = cl->ClCode;
     return TRUE;
   } else {
     Term t;
@@ -3116,6 +3152,9 @@ p_log_update_clause0(void)
   pe = get_pred(t1, Deref(ARG2), "clause/3");
   if (pe == NULL || EndOfPAEntr(pe))
     return FALSE;
+  if(pe->OpcodeOfPred == INDEX_OPCODE) {
+    IPred(pe);
+  }
   return fetch_next_lu_clause0(pe, pe->cs.p_code.TrueCodeOfPred, t1, ARG3, P, TRUE);
 }
 
@@ -3126,6 +3165,84 @@ p_continue_log_update_clause0(void)
   yamop *ipc = (yamop *)IntegerOfTerm(ARG2);
 
   return fetch_next_lu_clause0(pe, ipc, Deref(ARG3), ARG4, B->cp_ap, FALSE);
+}
+
+static Int
+fetch_next_static_clause(PredEntry *pe, yamop *i_code, Term th, Term tb, Term tr, yamop *cp_ptr, int first_time)
+{
+  StaticClause *cl = (StaticClause *)Yap_follow_indexing_code(pe, i_code, th, tb, tr, NextClause(PredStaticClause->cs.p_code.FirstClause), cp_ptr);
+  Term rtn;
+
+  if (cl == NULL)
+    return FALSE;
+  rtn = MkDBRefTerm((DBRef)cl);
+  if (cl->ClFlags & FactMask) {
+    if (!Yap_unify(tb, MkAtomTerm(AtomTrue)) ||
+	!Yap_unify(tr, rtn))
+      return FALSE;
+
+    if (pe->ArityOfPE) {
+      Functor f = FunctorOfTerm(th);
+      UInt arity = ArityOfFunctor(f), i;
+      CELL *pt = RepAppl(th)+1;
+
+      for (i=0; i<arity; i++) {
+	XREGS[i+1] = pt[i];
+      }
+      /* don't need no ENV */
+      if (first_time) {
+	CP = P;
+	ENV = YENV;
+	YENV = ASP;
+	YENV[E_CB] = (CELL) B;
+      }
+      P = NEXTOP(cl->ClCode,ld);
+    }
+    return TRUE;
+  } else {
+    Term t;
+
+    while ((t = Yap_FetchTermFromDB(cl->ClSource)) == 0L) {
+      if (first_time) {
+	if (!Yap_gc(4, YENV, P)) {
+	  Yap_Error(OUT_OF_STACK_ERROR, TermNil, Yap_ErrorMessage);
+	  return FALSE;
+	}
+      } else {
+	if (!Yap_gc(5, ENV, CP)) {
+	  Yap_Error(OUT_OF_STACK_ERROR, TermNil, Yap_ErrorMessage);
+	  return FALSE;
+	}
+      }
+    }
+    return(Yap_unify(th, ArgOfTerm(1,t)) &&
+	   Yap_unify(tb, ArgOfTerm(2,t)) &&
+	   Yap_unify(tr, rtn));
+  }
+}
+
+static Int			/* $hidden_predicate(P) */
+p_static_clause(void)
+{
+  PredEntry      *pe;
+  Term t1 = Deref(ARG1);
+
+  pe = get_pred(t1, Deref(ARG2), "clause/3");
+  if (pe == NULL || EndOfPAEntr(pe))
+    return FALSE;
+  if(pe->OpcodeOfPred == INDEX_OPCODE) {
+    IPred(pe);
+  }
+  return fetch_next_static_clause(pe, pe->cs.p_code.TrueCodeOfPred, t1, ARG3, ARG4, P, TRUE);
+}
+
+static Int			/* $hidden_predicate(P) */
+p_continue_static_clause(void)
+{
+  PredEntry *pe = (PredEntry *)IntegerOfTerm(Deref(ARG1));
+  yamop *ipc = (yamop *)IntegerOfTerm(ARG2);
+
+  return fetch_next_static_clause(pe, ipc, Deref(ARG3), ARG4, ARG5, B->cp_ap, FALSE);
 }
 
 #ifdef LOW_PROF
@@ -3302,6 +3419,7 @@ Yap_InitCdMgr(void)
   Yap_InitCPred("$in_use", 2, p_in_use, TestPredFlag | SafePredFlag|SyncPredFlag);
   Yap_InitCPred("$is_dynamic", 2, p_is_dynamic, TestPredFlag | SafePredFlag);
   Yap_InitCPred("$is_log_updatable", 2, p_is_log_updatable, TestPredFlag | SafePredFlag);
+  Yap_InitCPred("$is_source", 2, p_is_source, TestPredFlag | SafePredFlag);
   Yap_InitCPred("$pred_exists", 2, p_pred_exists, TestPredFlag | SafePredFlag);
   Yap_InitCPred("$number_of_clauses", 3, p_number_of_clauses, SafePredFlag|SyncPredFlag);
   Yap_InitCPred("$undefined", 2, p_undefined, SafePredFlag|TestPredFlag);
@@ -3333,7 +3451,8 @@ Yap_InitCdMgr(void)
   Yap_InitCPred("$continue_log_update_clause", 5, p_continue_log_update_clause, SafePredFlag|SyncPredFlag);
   Yap_InitCPred("$log_update_clause", 3, p_log_update_clause0, SyncPredFlag);
   Yap_InitCPred("$continue_log_update_clause", 4, p_continue_log_update_clause0, SafePredFlag|SyncPredFlag);
-  Yap_InitCPred("$continue_log_update_clause", 4, p_continue_log_update_clause0, SafePredFlag|SyncPredFlag);
+  Yap_InitCPred("$static_clause", 4, p_static_clause, SyncPredFlag);
+  Yap_InitCPred("$continue_static_clause", 5, p_continue_static_clause, SafePredFlag|SyncPredFlag);
   Yap_InitCPred("$static_pred_statistics", 5, p_static_pred_statistics, SyncPredFlag);
 }
 
