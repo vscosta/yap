@@ -153,13 +153,20 @@
           GONext();                                     \
         }
 
-
+#ifdef DEPTH_LIMIT
+#define allocate_environment(PTR)  \
+        PTR[E_CP] = (CELL) CPREG;  \
+        PTR[E_E] = (CELL) ENV;     \
+        PTR[E_DEPTH] = (CELL)DEPTH;\
+        PTR[E_B] = (CELL) B;       \
+        ENV = PTR
+#else
 #define allocate_environment(PTR)  \
         PTR[E_CP] = (CELL) CPREG;  \
         PTR[E_E] = (CELL) ENV;     \
         PTR[E_B] = (CELL) B;       \
         ENV = PTR
-
+#endif
 
 
 /* ------------------------------ **

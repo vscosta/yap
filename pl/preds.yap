@@ -359,14 +359,15 @@ abolish(N,A) :-
 	( '$recorded'('$predicate_defs','$predicate_defs'(N,A,_),R) -> erase(R) ),
 	fail.
 '$abolish'(N,A,M) :- functor(T,N,A),
-		( '$is_dynamic'(T) -> '$abolishd'(T,M) ;
+		( '$is_dynamic'(T, M) -> '$abolishd'(T,M) ;
 	      	 /* else */	      '$abolishs'(T,M) ).
 
 abolish(X) :- 
 	'$access_yap_flags'(8, 2), !,
 	'$current_module'(M),
 	'$new_abolish'(X,M).
-abolish(X,M) :- 
+abolish(X) :- 
+	'$current_module'(M),
 	'$old_abolish'(X,M).
 
 '$new_abolish'(V,M) :- var(V,N), !,

@@ -2134,7 +2134,7 @@ InitCdMgr(void)
   InitCPred("$optimizer_on", 0, p_optimizer_on, SafePredFlag|SyncPredFlag);
   InitCPred("$clean_up_dead_clauses", 0, p_clean_up_dead_clauses, SyncPredFlag);
   InitCPred("$optimizer_off", 0, p_optimizer_off, SafePredFlag|SyncPredFlag);
-  InitCPred("$kill_dynamic", 1, p_kill_dynamic, SafePredFlag|SyncPredFlag);
+  InitCPred("$kill_dynamic", 2, p_kill_dynamic, SafePredFlag|SyncPredFlag);
   InitCPred("$in_this_file_before", 3, p_in_this_f_before, SafePredFlag);
   InitCPred("$first_clause_in_file", 3, p_first_cl_in_f, SafePredFlag);
   InitCPred("$mk_cl_not_first", 2, p_mk_cl_not_first, SafePredFlag);
