@@ -111,6 +111,7 @@ HEADERS = \
 	$(srcdir)/H/corout.h $(srcdir)/H/dlmalloc.h \
 	$(srcdir)/H/eval.h $(srcdir)/H/heapgc.h   \
 	$(srcdir)/H/index.h $(srcdir)/H/iopreds.h \
+	$(srcdir)/H/rclause.h \
 	$(srcdir)/H/rheap.h \
 	$(srcdir)/H/tracer.h \
 	$(srcdir)/H/threads.h \

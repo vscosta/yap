@@ -96,10 +96,6 @@ AtomAdjust(Atom a)
   return(a);
 }
 
-#define HDiff TRUE
-
-#define OldHeapTop HeapTop
-
 #define IsOldCode(P) FALSE
 #define IsOldCodeCellPtr(P) FALSE
 #define IsOldDelay(P) FALSE

@@ -83,21 +83,6 @@ cpcellsd(register CELL *Dest, register CELL *Org, CELL NOf)
 }
 
 
-/* The old stack pointers */
-CELL    *OldASP, *OldLCL0;
-tr_fr_ptr OldTR;
-CELL    *OldGlobalBase, *OldH, *OldH0;
-ADDR     OldTrailBase, OldTrailTop;
-ADDR     OldHeapBase, OldHeapTop;
-
-Int
-  GDiff,
-  HDiff,
-  LDiff,
-  TrDiff,
-  XDiff,
-  DelayDiff;
-
 static void
 SetHeapRegs(void)
 {

@@ -11,8 +11,11 @@
 * File:		compiler.c						 *
 * comments:	Clause compiler						 *
 *									 *
-* Last rev:     $Date: 2005-01-03 17:06:03 $,$Author: vsc $						 *
+* Last rev:     $Date: 2005-01-04 02:50:21 $,$Author: vsc $						 *
 * $Log: not supported by cvs2svn $
+* Revision 1.58  2005/01/03 17:06:03  vsc
+* fix discontiguous stack overflows in parser
+*
 * Revision 1.57  2004/12/20 21:44:57  vsc
 * more fixes to CLPBN
 * fix some Yap overflows.
@@ -358,10 +361,10 @@ optimize_ce(Term t, unsigned int arity, unsigned int level, compiler_struct *cgl
   if (IsApplTerm(t) && IsExtensionFunctor(FunctorOfTerm(t)))
     return (t);
   while (p != NULL) {
-    CELL *OldH = H;
+    CELL *oldH = H;
     H = (CELL *)cglobs->cint.freep;
     cmp = Yap_compare_terms(t, (p->TermOfCE));
-    H = OldH;
+    H = oldH;
 
     if (cmp > 0) {
       parent = p;

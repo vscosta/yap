@@ -16,21 +16,6 @@
 *************************************************************************/
 
 
-/* The difference between the old stack pointers and the new ones */
-extern Int HDiff,
-  GDiff,
-  LDiff,
-  TrDiff,
-  XDiff,
-  DelayDiff;
-
-/* The old stack pointers */
-extern CELL    *OldASP, *OldLCL0;
-extern tr_fr_ptr OldTR;
-extern CELL    *OldGlobalBase, *OldH, *OldH0;
-extern ADDR     OldTrailBase, OldTrailTop;
-extern ADDR     OldHeapBase, OldHeapTop;
-
 #define CharP(ptr)	((char *) (ptr))
 
 Inline(IsHeapP, int, CELL *, ptr, (ptr >= (CELL *)Yap_HeapBase && ptr <= (CELL *)HeapTop) )

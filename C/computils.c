@@ -11,8 +11,11 @@
 * File:		computils.c						 *
 * comments:	some useful routines for YAP's compiler			 *
 *									 *
-* Last rev:     $Date: 2004-11-19 17:14:13 $							 *
+* Last rev:     $Date: 2005-01-04 02:50:21 $							 *
 * $Log: not supported by cvs2svn $
+* Revision 1.25  2004/11/19 17:14:13  vsc
+* a few fixes for 64 bit compiling.
+*
 * Revision 1.24  2004/04/16 19:27:31  vsc
 * more bug fixes
 *
@@ -672,7 +675,7 @@ static char *opformat[] =
 void
 Yap_ShowCode (struct intermediates *cint)
 {
-  CELL *OldH = H;
+  CELL *oldH = H;
   struct PSEUDO *cpc;
 
   cpc = cint->CodeStart;
@@ -686,7 +689,7 @@ Yap_ShowCode (struct intermediates *cint)
     cpc = cpc->nextInst;
   }
   Yap_DebugPutc (Yap_c_error_stream,'\n');
-  H = OldH;
+  H = oldH;
 }
 
 #endif /* DEBUG */

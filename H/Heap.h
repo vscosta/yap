@@ -10,7 +10,7 @@
 * File:		Heap.h         						 *
 * mods:									 *
 * comments:	Heap Init Structure					 *
-* version:      $Id: Heap.h,v 1.76 2004-12-28 22:20:36 vsc Exp $	 *
+* version:      $Id: Heap.h,v 1.77 2005-01-04 02:50:21 vsc Exp $	 *
 *************************************************************************/
 
 /* information that can be stored in Code Space */
@@ -44,6 +44,27 @@ typedef struct scratch_block_struct {
   UInt sz, msz;
 } scratch_block;
 
+typedef struct restore_info {
+  int cl_diff,
+    g_diff,
+    h_diff,
+    l_diff,
+    tr_diff,
+    x_diff,
+    delay_diff;
+  CELL    *old_ASP, *old_LCL0;
+  tr_fr_ptr old_TR;  
+  CELL    *old_GlobalBase, *old_H, *old_H0;
+  ADDR     old_TrailBase, old_TrailTop;
+  ADDR     old_HeapBase, old_HeapTop;
+} restoreinfo;
+
+#if THREADS
+extern struct restore_info rinfo[MAX_WORKERS];
+#else
+extern struct restore_info rinfo;
+#endif
+
 typedef struct worker_local_struct {
   char *scanner_stack;
   struct scanner_extra_alloc *scanner_extra_blocks;
@@ -68,7 +89,6 @@ typedef struct worker_local_struct {
   Int      tot_gc_time; /* total time spent in GC */
   Int      tot_gc_recovered; /* number of heap objects in all garbage collections */
   jmp_buf  gc_restore; /* where to jump if garbage collection crashes */
-  struct trail_frame *old_TR;  
   yamop trust_lu_code[3];
 } worker_local;
 
@@ -671,6 +691,24 @@ struct various_codes *Yap_heap_regs;
 #define  WakeUpCode               Yap_heap_regs->wake_up_code
 #endif
 #if defined(YAPOR) || defined(THREADS)
+/* The old stack pointers */
+#define  OldASP                   rinfo[worker_id].old_ASP
+#define  OldLCL0                  rinfo[worker_id].old_LCL0
+#define  OldTR                    rinfo[worker_id].old_TR
+#define  OldGlobalBase            rinfo[worker_id].old_GlobalBase
+#define  OldH                     rinfo[worker_id].old_H
+#define  OldH0                    rinfo[worker_id].old_H0
+#define  OldTrailBase             rinfo[worker_id].old_TrailBase
+#define  OldTrailTop              rinfo[worker_id].old_TrailTop
+#define  OldHeapBase              rinfo[worker_id].old_HeapBase
+#define  OldHeapTop               rinfo[worker_id].old_HeapTop
+#define  ClDiff                   rinfo[worker_id].cl_diff
+#define  GDiff                    rinfo[worker_id].g_diff
+#define  HDiff                    rinfo[worker_id].h_diff
+#define  LDiff                    rinfo[worker_id].l_diff
+#define  TrDiff                   rinfo[worker_id].tr_diff
+#define  XDiff                    rinfo[worker_id].x_diff
+#define  DelayDiff                rinfo[worker_id].delay_diff
 #define  ScannerStack             Yap_heap_regs->wl[worker_id].scanner_stack
 #define  ScannerExtraAlloc        Yap_heap_regs->wl[worker_id].scanner_extra_alloc
 #define  SignalLock               Yap_heap_regs->wl[worker_id].signal_lock
@@ -691,9 +729,25 @@ struct various_codes *Yap_heap_regs;
 #define  TotGcTime                Yap_heap_regs->wl[worker_id].tot_gc_time
 #define  TotGcRecovered           Yap_heap_regs->wl[worker_id].tot_gc_recovered
 #define  Yap_gc_restore           Yap_heap_regs->wl[worker_id].gc_restore
-#define  Yap_old_TR               Yap_heap_regs->wl[worker_id].old_TR
 #define  TrustLUCode              Yap_heap_regs->wl[worker_id].trust_lu_code
 #else
+#define  OldASP                   rinfo.old_ASP
+#define  OldLCL0                  rinfo.old_LCL0
+#define  OldTR                    rinfo.old_TR
+#define  OldGlobalBase            rinfo.old_GlobalBase
+#define  OldH                     rinfo.old_H
+#define  OldH0                    rinfo.old_H0
+#define  OldTrailBase             rinfo.old_TrailBase
+#define  OldTrailTop              rinfo.old_TrailTop
+#define  OldHeapBase              rinfo.old_HeapBase
+#define  OldHeapTop               rinfo.old_HeapTop
+#define  ClDiff                   rinfo.cl_diff
+#define  GDiff                    rinfo.g_diff
+#define  HDiff                    rinfo.h_diff
+#define  LDiff                    rinfo.l_diff
+#define  TrDiff                   rinfo.tr_diff
+#define  XDiff                    rinfo.x_diff
+#define  DelayDiff                rinfo.delay_diff
 #define  ScannerStack             Yap_heap_regs->wl.scanner_stack
 #define  ScannerExtraBlocks       Yap_heap_regs->wl.scanner_extra_blocks
 #define  ActiveSignals            Yap_heap_regs->wl.active_signals
@@ -712,7 +766,6 @@ struct various_codes *Yap_heap_regs;
 #define  TotGcTime                Yap_heap_regs->wl.tot_gc_time
 #define  TotGcRecovered           Yap_heap_regs->wl.tot_gc_recovered
 #define  Yap_gc_restore           Yap_heap_regs->wl.gc_restore
-#define  Yap_old_TR               Yap_heap_regs->wl.old_TR
 #define  TrustLUCode              Yap_heap_regs->wl.trust_lu_code
 #endif
 #define  profiling                Yap_heap_regs->compiler_profiling

@@ -78,9 +78,14 @@ ADDR Yap_HeapBase;
 
 #ifdef THREADS
 
+struct restore_info rinfo[MAX_WORKERS];
+
 struct thread_globs Yap_thread_gl[MAX_WORKERS];
 
 #else
+
+struct restore_info rinfo;
+
 ADDR Yap_HeapBase,
   Yap_LocalBase,
   Yap_GlobalBase,
@@ -104,6 +109,9 @@ jmp_buf Yap_CompilerBotch;
 
 /************ variables	concerned with Error Handling *************/
 sigjmp_buf         Yap_RestartEnv;	/* used to restart after an abort execution */
+
+/******** whether Yap is responsible for signal handling******************/
+int             Yap_PrologShouldHandleInterrupts;
 
 /********* IO support	*****/
 

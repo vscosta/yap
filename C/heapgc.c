@@ -100,7 +100,7 @@ static void
 gc_growtrail(int committed)
 {
 #if USE_SYSTEM_MALLOC
-  TR = Yap_old_TR;
+  TR = OldTR;
 #endif
   if (!Yap_growtrail(64 * 1024L, TRUE)) {
     /* could not find more trail */
@@ -3438,7 +3438,7 @@ do_gc(Int predarity, CELL *current_env, yamop *nextop)
 #endif
   /* get the number of active registers */
   YAPEnterCriticalSection();
-  Yap_old_TR = (struct trail_frame *)(old_TR = TR);
+  OldTR = (tr_fr_ptr)(old_TR = TR);
   push_registers(predarity, nextop);
   marking_phase(old_TR, current_env, nextop, max);
   m_time = Yap_cputime();

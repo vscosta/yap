@@ -11,8 +11,12 @@
 * File:		cdmgr.c							 *
 * comments:	Code manager						 *
 *									 *
-* Last rev:     $Date: 2004-12-28 22:20:35 $,$Author: vsc $						 *
+* Last rev:     $Date: 2005-01-04 02:50:21 $,$Author: vsc $						 *
 * $Log: not supported by cvs2svn $
+* Revision 1.147  2004/12/28 22:20:35  vsc
+* some extra bug fixes for trail overflows: some cannot be recovered that easily,
+* some can.
+*
 * Revision 1.146  2004/12/20 21:44:57  vsc
 * more fixes to CLPBN
 * fix some Yap overflows.
@@ -336,6 +340,26 @@ static_in_use(PredEntry *p, int check_everything)
 ******************************************************************/
 
 
+#define PtoPredAdjust(X) (X)
+#define PtoOpAdjust(X) (X)
+#define XAdjust(X) (X)
+#define YAdjust(X) (X)
+#define AtomTermAdjust(X) (X)
+#define CellPtoHeapAdjust(X) (X)
+#define FuncAdjust(X) (X)
+#define CodeAddrAdjust(X) (X)
+#define rehash(A,B,C)
+static Term BlobTermAdjust(Term t)
+{
+#if TAGS_FAST_OPS
+  return t-ClDiff;
+#else
+  return t+ClDiff;
+#endif
+}
+
+#include "rclause.h"
+
 void
 Yap_BuildMegaClause(PredEntry *ap)
 {
@@ -366,12 +390,16 @@ Yap_BuildMegaClause(PredEntry *ap)
     has_blobs |= (cl->ClFlags & HasBlobsMask);
     cl = cl->ClNext;
   }
+  if (ap->cs.p_code.NOfClauses > 1000000) {
+    extern long long int vsc_count;
+    vsc_count++;
+  }
   /* ok, we got the chance for a mega clause */
   if (has_blobs) {
     sz -= sizeof(StaticClause);
-    return;
-  } else
+  } else {
     sz -= (UInt)NEXTOP((yamop *)NULL,e) + sizeof(StaticClause);
+  }
   required = sz*ap->cs.p_code.NOfClauses+sizeof(MegaClause)+(UInt)NEXTOP((yamop *)NULL,e);
   while (!(mcl = (MegaClause *)Yap_AllocCodeSpace(required))) {
     if (!Yap_growheap(FALSE, sizeof(consult_obj)*ConsultCapacity, NULL)) {
@@ -389,6 +417,10 @@ Yap_BuildMegaClause(PredEntry *ap)
   ptr = mcl->ClCode;
   while (TRUE) {
     memcpy((void *)ptr, (void *)cl->ClCode, sz);
+    if (has_blobs) {
+      ClDiff = (char *)(ptr)-(char *)cl->ClCode;
+      restore_opcodes(ptr);
+    }
     ptr = (yamop *)((char *)ptr + sz);
     if (cl->ClCode == ap->cs.p_code.LastClause)
       break;
