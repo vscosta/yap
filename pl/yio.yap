@@ -871,7 +871,7 @@ at_end_of_stream(S) :-
 
 consult_depth(LV) :- '$show_consult_level'(LV).
 
-absolute_file_name(V,Out) :-
+absolute_file_name(V,Out) :- var(V), !,
 	throw(error(instantiation_error, absolute_file_name(V, Out))).
 absolute_file_name(user,user) :- !.
 absolute_file_name(RelFile,AbsFile) :-
