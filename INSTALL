@@ -9,7 +9,7 @@ To compile YAP just do:
 
 	(2) cd arch
 
-	(3) ../configure
+	(3) ../configure ...options...
 
 	(4) check the Makefile for any extensions or changes you want to make.
 
@@ -19,7 +19,10 @@ To compile YAP just do:
 
 	(7) Happy? make install
 
-If you want corouting or CLP(QR)
+If you want corouting or CLP(QR), please do replace step 3 by
+
+	(3') ../configure --enable-coroutining ...other options...
+
 
 1.1 Where to install Yap
 
