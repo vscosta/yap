@@ -52,6 +52,7 @@ rm -rf $RPM_BUILD_ROOT $RPM_BUILD_DIR/file.list.%{name}
 %doc docs/yap.tex
 /usr/bin/yap
 /usr/lib/Yap/
+/usr/share/Yap/
 /usr/share/info/yap.info*
 /usr/share/info/pillow_doc.info*
 

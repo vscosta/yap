@@ -204,14 +204,20 @@ then
           esac
         ;;
        esac
+       if test "$tcpu"; then
+          target_cpu=$tcpu
+       fi
        if test "$maxperformance" = "yes"
        then
          case "$target_cpu" in
+	  athlon)
+           CFLAGS="-march=athlon $CFLAGS"
+	  ;;
           i686*)
-           CFLAGS="-march=pentiumpro $CFLAGS"
+           CFLAGS="-march=i686 $CFLAGS"
           ;;
           i586*)
-           CFLAGS="-march=pentium $CFLAGS"
+           CFLAGS="-march=i586 $CFLAGS"
           ;;
           i486*)
            CFLAGS="-march=i486 $CFLAGS"
@@ -318,6 +324,7 @@ fi
 if test "$yap_cv_readline" != "no"
 then
   AC_CHECK_LIB(termcap,tgetent)
+  AC_CHECK_LIB(ncurses,main)
   AC_CHECK_LIB(readline,readline)
 fi
 if test "$yap_cv_gmp" != "no"
