@@ -247,7 +247,7 @@ debugging :-
 '$creep'([Mod|G]) :-
 	'$stop_debugging',
 	CP is '$last_choice_pt',	
-	'$do_spy'(G, Mod, CP).
+	'$do_spy'(G, Mod, CP, no).
 
 %'$spy'(G) :- write(user_error,'$spy'(G)), nl, fail.
 %
@@ -263,100 +263,103 @@ debugging :-
 	'$wake_up_goal'(G, LG).
 '$spy'([Mod|G]) :-
 	CP is '$last_choice_pt',	
-	'$do_spy'(G, Mod, CP).
+	'$do_spy'(G, Mod, CP, no).
 
-'$do_spy'(!, _, _) :- !, '$cut_by'(CP).
-'$do_spy'('$cut_by'(M), _, _) :- !, '$cut_by'(M).
-'$do_spy'(M:G, _, CP) :- !,
-	'$do_spy'(G, M, CP).
-'$do_spy'((A,B), M, CP) :- !,
-	'$do_spy'(A, M, CP),
-	'$do_spy'(B, M, CP).
-'$do_spy'((T->A;B), M, CP) :- !,
-	( '$do_spy'(T, M, CP) -> '$do_spy'(A, M, CP)
+% last argument to do_spy says that we are at the end of a context. It
+% is required to know whether we are controlled by the debugger.
+'$do_spy'(!, _, _, _) :- !, '$cut_by'(CP).
+'$do_spy'('$cut_by'(M), _, _, _) :- !, '$cut_by'(M).
+'$do_spy'(true, _, _, _) :- !.
+'$do_spy'(M:G, _, CP, InControl) :- !,
+	'$do_spy'(G, M, CP, InControl).
+'$do_spy'((A,B), M, CP, InControl) :- !,
+	'$do_spy'(A, M, CP, yes),
+	'$do_spy'(B, M, CP, InControl).
+'$do_spy'((T->A;B), M, CP, InControl) :- !,
+	( '$do_spy'(T, M, CP, yes) -> '$do_spy'(A, M, CP, yes)
 	;
-	  '$do_spy'(B, M, CP)
+	  '$do_spy'(B, M, CP, InControl)
 	).
-'$do_spy'((A;B), M, CP) :- !,
+'$do_spy'((A;B), M, CP, InControl) :- !,
 	(
-	  '$do_spy'(A, M, CP)
+	  '$do_spy'(A, M, CP, yes)
 	;
-	  '$do_spy'(B, M, CP)
+	  '$do_spy'(B, M, CP, InControl)
 	).
-'$do_spy'((T->A|B), M, CP) :- !,
-	( '$do_spy'(T, M, CP) -> '$do_spy'(A, M, CP)
+'$do_spy'((T->A|B), M, CP, InControl) :- !,
+	( '$do_spy'(T, M, CP, yes) -> '$do_spy'(A, M, CP, yes)
 	;
-	  '$do_spy'(B, M, CP)
+	  '$do_spy'(B, M, CP, InControl)
 	).
-'$do_spy'((A|B), M, CP) :- !,
+'$do_spy'((A|B), M, CP, InControl) :- !,
 	(
-	  '$do_spy'(A, M, CP)
+	  '$do_spy'(A, M, CP, yes)
 	;
-	  '$do_spy'(B, M, CP)
+	  '$do_spy'(B, M, CP, InControl)
 	).
-'$do_spy'((\+G), M, CP) :- !,
-	\+ '$do_spy'(G, M, CP).
-'$do_spy'((not(G)), M) :- !,
-	\+ '$do_spy'(G, M, CP).
-'$do_spy'(G, Module, _) :-
+'$do_spy'((\+G), M, CP, InControl) :- !,
+	\+ '$do_spy'(G, M, CP, InControl).
+'$do_spy'((not(G)), M, InControl) :- !,
+	\+ '$do_spy'(G, M, CP, InControl).
+'$do_spy'(G, Module, _, InControl) :-
     get_value(spy_gn,L),		/* get goal no.			*/
     L1 is L+1,				/* bump it			*/
     set_value(spy_gn,L1),		/* and save it globaly		*/
-    '$loop_spy'(L, G, Module).		/* set creep on			*/
+    '$loop_spy'(L, G, Module, InControl).		/* set creep on			*/
 
 % we are skipping, so we can just call the goal,
 % while leaving the minimal structure in place.
-'$loop_spy'(GoalNumber, G, Module) :-
-    '$system_catch'('$loop_spy2'(GoalNumber, G, Module),
+'$loop_spy'(GoalNumber, G, Module, InControl) :-
+    '$system_catch'('$loop_spy2'(GoalNumber, G, Module, InControl),
 		    Module, Event,
-		    '$loop_spy_event'(Event, GoalNumber, G, Module)).
+		    '$loop_spy_event'(Event, GoalNumber, G, Module, InControl)).
 		    
-'$loop_fail'(GoalNumber, G, Module) :-
-    '$system_catch'(('$trace'(fail, G, Module, GoalNumber),
-		     fail ),
-		    Module, Event,
-		    '$loop_spy_event'(Event, GoalNumber, G, Module)).
-
 % handle weird things happening in the debugger.		    
-'$loop_spy_event'('$retry_spy'(G0), GoalNumber, G, Module) :-
+'$loop_spy_event'('$retry_spy'(G0), GoalNumber, G, Module, InControl) :-
      G0 >= GoalNumber, !,
-     '$loop_spy'(GoalNumber, G, Module).
-'$loop_spy_event'('$retry_spy'(GoalNumber), _, _, _) :- !,
+     '$loop_spy'(GoalNumber, G, Module, InControl).
+'$loop_spy_event'('$retry_spy'(GoalNumber), _, _, _, _) :- !,
      throw('$retry_spy'(GoalNumber)).
-'$loop_spy_event'('$fail_spy'(G0), GoalNumber, G, Module) :-
+'$loop_spy_event'('$fail_spy'(G0), GoalNumber, G, Module, InControl) :-
      G0 >= GoalNumber, !,
-    '$loop_fail'(GoalNumber, G, Module).
-'$loop_spy_event'('$fail_spy'(GoalNumber), _, _, _) :- !,
+    '$loop_fail'(GoalNumber, G, Module, InControl).
+'$loop_spy_event'('$fail_spy'(GoalNumber), _, _, _, _) :- !,
      throw('$fail_spy'(GoalNumber)).
-'$loop_spy_event'(abort, _, _, _) :- !,
+'$loop_spy_event'(abort, _, _, _, _) :- !,
      '$throw'(abort).
-'$loop_spy_event'(Event, GoalNumber, G, Module) :- !,
+'$loop_spy_event'(Event, GoalNumber, G, Module, _) :- !,
      '$trace'(exception,G,Module,GoalNumber),
      fail.
 
 
+'$loop_fail'(GoalNumber, G, Module, InControl) :-
+    '$system_catch'(('$trace'(fail, G, Module, GoalNumber),
+		     fail ),
+		    Module, Event,
+		    '$loop_spy_event'(Event, GoalNumber, G, Module, InControl)).
+
 % if we are in 
-'$loop_spy2'(GoalNumber, G, Module) :- 
+'$loop_spy2'(GoalNumber, G, Module, InControl) :- 
 /* the following choice point is where the predicate is  called */
 	(
 	    '$enter_goal'(GoalNumber, G, Module),
-	    '$spycall'(G,Module),
+	    '$spycall'(G, Module, InControl),
 	/* go execute the predicate	*/
 	    (
 	       '$stop_debugging',
 	       '$show_trace'(exit,G,Module,GoalNumber),	/* output message at exit	*/
-	       '$continue_debugging'
+	       '$continue_debugging'(InControl)
 	     ;		/* exit				*/
 	        /* we get here when we want to redo a goal		*/
 	        '$stop_debugging',
 	        '$show_trace'(redo,G,Module,GoalNumber), /* inform user_error		*/
-	        '$continue_debugging',
+	        '$continue_debugging'(InControl),
 	        fail			/* to backtrack to spycalls	*/
 	     )
 	  ;
 	    '$stop_debugging',
 	    '$show_trace'(fail,G,Module,GoalNumber), /* inform at fail port		*/
-	    '$continue_debugging',
+	    '$continue_debugging'(InControl),
 	    fail
 	).
 
@@ -388,18 +391,18 @@ debugging :-
 	
 
 % 
-'$spycall'(G,M) :-
+'$spycall'(G, M, _) :-
 	'$access_yap_flags'(10,0), !,
 	'$execute0'(G, M).
-'$spycall'(G,M) :-
+'$spycall'(G, M, InControl) :-
 	'$flags'(G,M,F,F),
 	F /\ 16'402008 =\= 0, !, % dynamic procedure, logical semantics, or source
 	% use the interpreter
 	'$clause'(G, M, Cl),
 	CP is '$last_choice_pt',
-	'$do_spy'(Cl, M, CP).
-'$spycall'(G,M) :-
-	'$continue_debugging',
+	'$do_spy'(Cl, M, CP, InControl).
+'$spycall'(G, M, InControl) :-
+	'$continue_debugging'(InControl),
 	'$execute0'(G, M).
 
 
@@ -518,7 +521,9 @@ debugging :-
 	'$set_yap_flags'(10,0),
 	set_value(spy_skip,CallNumber),
 	set_value(spy_stop,on),
-	'$setflop'(1).
+	% skip first call (for current goal),
+	% stop next time.
+	'$setflop'(0).
 '$action'(0'r,P,CallId,_,_) :- !,		% r		retry
 	'$scan_number'(0'r,CallId,ScanNumber),
 	throw('$retry_spy'(ScanNumber)).
@@ -553,11 +558,13 @@ debugging :-
 	'$ilgl'(C),
 	fail.
 
+% if we are in the interpreter, don't need to care about forcing a trace, do we?
+'$continue_debugging'(yes) :- !.
 % I don't need to activate the FlipFlop if I am creeping.
-'$continue_debugging' :-
+'$continue_debugging'(_) :-
 	'$access_yap_flags'(10,1), !,
 	'$creep'.
-'$continue_debugging' :-
+'$continue_debugging'(_) :-
 	get_value(spy_stop, On),
 	(On = on -> '$setflop'(1) ; '$setflop'(0)).
 

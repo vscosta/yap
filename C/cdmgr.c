@@ -1095,9 +1095,9 @@ addclause(Term t, yamop *cp, int mode, int mod)
       }
     }
     if (compile_mode)
-      p->PredFlags = pflags | CompiledPredFlag | FastPredFlag;
+      p->PredFlags = p->PredFlags | CompiledPredFlag | FastPredFlag;
     else
-      p->PredFlags = pflags|CompiledPredFlag;
+      p->PredFlags = p->PredFlags | CompiledPredFlag;
   }
   if (p->cs.p_code.FirstClause == NULL) {
     if (!(pflags & DynamicPredFlag)) {
