@@ -48,7 +48,7 @@ set_logtalk_flag(+atom, +atom)
 		<dt>Value is not a valid value for flag Flag:</dt>
 			<dd><code>domain_error(valid_flag_value, Value)</code></dd>
 		<dt>Flag is a read-only flag:</dt>
-			<dd><code>domain_error(read_only_flag, Flag)</code></dd>
+			<dd><code>permission_error(modify, read_only_flag, Flag)</code></dd>
 	</dl>
 </blockquote>
 
@@ -65,7 +65,7 @@ set_logtalk_flag(+atom, +atom)
 <strong><a href="current_logtalk_flag2.html">Previous</a> | <a href="forall2.html">Next</a> | <a href="../index.html">Table of Contents</a> | <a href="../../bibliography.html">Bibliography</a> | <a href="../../glossary.html">Glossary</a></strong>
 </p>
 <p class="center">
-Last updated on: February 9, 2002
+Last updated on: May 14, 2002
 </p>
 <hr />
 

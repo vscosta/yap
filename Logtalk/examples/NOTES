@@ -1,6 +1,6 @@
 =================================================================
 Logtalk - Object oriented extension to Prolog
-Release 2.11.0
+Release 2.12.0
 
 Copyright (c) 1998-2002 Paulo Moura.  All Rights Reserved.
 =================================================================
@@ -35,6 +35,9 @@ bricks
 
 classvars
 	example of implementation of class variables (as found in Smalltalk)
+
+dynpred
+	example of using some of the built-in database handling methods
 
 errors
 	example showing the Logtalk compiler warning and error reporting

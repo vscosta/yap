@@ -1,6 +1,6 @@
 =================================================================
 Logtalk - Object oriented extension to Prolog
-Release 2.11.0
+Release 2.12.0
 
 Copyright (c) 1998-2002 Paulo Moura.  All Rights Reserved.
 =================================================================
@@ -10,9 +10,27 @@ RELEASE NOTES
 =============
 
 
-2.12.0 - May ??, 2002
+2.12.0 - May 25, 2002
+
+	New read-only Logtalk flag "version". Corrected exception term generated 
+	when trying to modify a read-only flag using the set_logtalk_flag/2 
+	built-in predicate.
 
 	Updated config file for OpenProlog 1.1b5.
+
+	New config file for ECLiPSe 5.4.
+
+	Renamed config files for CIAO 1.7 (beta of 1.8) to "ciao_aux18.config" 
+	and "ciao18.config".
+
+	Updated config file for Amzi! Prolog 6.2.2.
+
+	New example of using some of the built-in database handling methods 
+	(dynpred).
+
+	Syntax configuration files for jEdit 4.0, VIM 6.1, NEdit 5.2, and 
+	TextPad 4.5 text editors providing syntax highlighting for editing 
+	Logtalk source files.
 
 
 2.11.0 - April 22, 2002

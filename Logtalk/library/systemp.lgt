@@ -5,8 +5,8 @@
 	:- info([
 		version is 1.0,
 		authors is 'Paulo Moura',
-		date is 2000/7/24,
-		comment is 'Operating system protocol.']).
+		date is 2002/5/10,
+		comment is 'Operating system file system protocol.']).
 
 
 	:- public(make_directory/1).
@@ -63,22 +63,31 @@
 		argnames is ['File']]).
 
 
+	:- public(file_property/2).
+
+	:- mode(file_property(+atom, ?nonvar), zero_or_more).
+
+	:- info(file_property/2, [
+		comment is 'Access to file properties. Fails if the file does not exist or is not user readable.',
+		argnames is ['File', 'Property']]).
+
+
 	:- public(delete_file/1).
 
-	:- mode(delete_file(?atom), zero_or_one).
+	:- mode(delete_file(+atom), zero_or_one).
 
 	:- info(delete_file/1, [
 		comment is 'Deletes a file.',
 		argnames is ['File']]).
 
 
-	:- public(rename_file/1).
+	:- public(rename_file/2).
 
-	:- mode(rename_file(?atom), zero_or_one).
+	:- mode(rename_file(+atom, +atom), zero_or_one).
 
-	:- info(rename_file/1, [
-		comment is 'Renames a file.',
-		argnames is ['File']]).
+	:- info(rename_file/2, [
+		comment is 'Renames a file. Fails if the file does not exist or cannot be renamed.',
+		argnames is ['Old', 'New']]).
 
 
 :- end_protocol.

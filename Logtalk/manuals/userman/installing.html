@@ -112,7 +112,7 @@ Since most Prolog compilers are moving closer to the ISO Prolog standard <a href
 <h3><a class="back" title="Return to index" name="compiler" href="index.html#installing_compiler">Logtalk compiler and runtime</a></h3>
 
 <p>
-The <code>compiler</code> sub-directory contains the Prolog source file(s) that implement the Logtalk pre-processor/compiler and the Logtalk runtime. The compiler and the runtime may be split in two (or more) separate files or combined in a single file, depending on the Logtalk release that you are installing.
+The <code>compiler</code> sub-directory contains the Prolog source file(s) that implement the Logtalk preprocessor/compiler and the Logtalk runtime. The compiler and the runtime may be split in two (or more) separate files or combined in a single file, depending on the Logtalk release that you are installing.
 </p>
 
 <h3><a class="back" title="Return to index" name="library" href="index.html#installing_library">Library</a></h3>
@@ -130,7 +130,7 @@ Logtalk 2.x contains new implementations of some of the examples provided with p
 <h3><a class="back" title="Return to index" name="entities" href="index.html#installing_entities">Logtalk source files</a></h3>
 
 <p>
-Each Logtalk entity (object, category or protocol) is contained in a text file named after the entity. The extension <code>.lgt</code> is normally used. The Logtalk pre-processor compiles these files to plain Prolog, replacing the <code>.lgt</code> extension with  <code>.pl</code> (the default Prolog extension). If your Prolog compiler expects the Prolog source filenames to end with a specific, different extension, you can set it in the corresponding configuration file.
+Each Logtalk entity (object, category or protocol) is contained in a text file named after the entity. The extension <code>.lgt</code> is normally used. The Logtalk preprocessor compiles these files to plain Prolog, replacing the <code>.lgt</code> extension with  <code>.pl</code> (the default Prolog extension). If your Prolog compiler expects the Prolog source filenames to end with a specific, different extension, you can set it in the corresponding configuration file.
 </p>
 
 <h3><a class="back" title="Return to index" name="loaders" href="index.html#installing_loaders">Loader utility files</a></h3>
@@ -167,10 +167,10 @@ To start a Logtalk session just:
 <ol>
 	<li>Start Prolog.</li>
 	<li>Load the appropriate configuration file for your compiler. Configuration files for most common Prolog compilers can be found in the <code>configs</code> subdirectory.</li>
-	<li>Load the Logtalk compiler/pre-processor and runtime files contained in the <code>compiler</code> subdirectory.</li>
+	<li>Load the Logtalk compiler/preprocessor and runtime files contained in the <code>compiler</code> subdirectory.</li>
 </ol>
 <p>
-Note that the both configuration files and compiler/pre-processor files are Prolog source files. The predicate called to load (and compile) them depends on your Prolog compiler. In case of doubt, consult your Prolog compiler reference manual or take a look at the definition of the predicate <code>lgt_load_prolog_code/1</code> in the corresponding configuration file.
+Note that the both configuration files and compiler/preprocessor files are Prolog source files. The predicate called to load (and compile) them depends on your Prolog compiler. In case of doubt, consult your Prolog compiler reference manual or take a look at the definition of the predicate <code>lgt_load_prolog_code/1</code> in the corresponding configuration file.
 </p>
 
 <h3><a class="back" title="Return to index" name="compiling" href="index.html#installing_compiling">Compiling and loading your programs</a></h3>
@@ -183,7 +183,7 @@ Your programs will be made of source files containing your objects, protocols an
     | ?- logtalk_compile([source_file1, source_file2, ...]).
 </pre>
 <p>
-This predicate runs the pre-processor on each argument file and, if no fatal errors are found, outputs Prolog source files that can then be consulted or compiled in the usual way by your Prolog compiler. Note that the predicate argument must be a list of entity names, not file names (or paths).
+This predicate runs the preprocessor on each argument file and, if no fatal errors are found, outputs Prolog source files that can then be consulted or compiled in the usual way by your Prolog compiler. Note that the predicate argument must be a list of entity names, not file names (or paths).
 </p>
 <p>
 To compile to disk and also load into memory the source files we can use the Logtalk built-in predicate <a title="Consult reference manual" href="../refman/builtins/logtalk_load1.html"><code>logtalk_load/1</code></a>:
@@ -294,7 +294,7 @@ Smart compilation of source files is usually off by default. You can turn it on 
     | ?- set_logtalk_flag(smart_compilation, on).
 </pre>
 <p>
-Some caveats that you should be aware. First, some warnings that might be produced when compiling a source file will not show up if the corresponding object file is up-to-date because the source file is not being (re)compiled. Second, if you are using several Prolog compilers with Logtalk, be sure to perform the first compilation of your source files with smart compilation turned off: the intermediate Prolog files generated by the Logtalk pre-processor may be not compatible across Prolog compilers or even for the same Prolog compiler across operating systems (due to different end-of-line characters).
+Some caveats that you should be aware. First, some warnings that might be produced when compiling a source file will not show up if the corresponding object file is up-to-date because the source file is not being (re)compiled. Second, if you are using several Prolog compilers with Logtalk, be sure to perform the first compilation of your source files with smart compilation turned off: the intermediate Prolog files generated by the Logtalk preprocessor may be not compatible across Prolog compilers or even for the same Prolog compiler across operating systems (due to different end-of-line characters).
 </p>
 
 <hr />
@@ -315,7 +315,7 @@ To supress printing of compiling and loading messages (including compiling warni
 <strong><a href="configuration.html">Previous</a> | <a href="programming.html">Next</a> | <a href="index.html">Table of Contents</a> | <a href="../bibliography.html">Bibliography</a> | <a href="../glossary.html">Glossary</a></strong>
 </p>
 <p class="center">
-Last updated on: April 22, 2002
+Last updated on: May 6, 2002
 </p>
 <hr />
 

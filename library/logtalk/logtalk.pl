@@ -2,7 +2,7 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %
 %  Logtalk - Object oriented extension to Prolog
-%  Release 2.11.0
+%  Release 2.12.0
 %
 %  Copyright (c) 1998-2002 Paulo Moura.  All Rights Reserved.
 %
@@ -1019,7 +1019,7 @@ logtalk_version(Major, Minor, Patch) :-
 	\+ integer(Patch),
 	throw(error(type_error(integer, Patch), logtalk_version(Major, Minor, Patch))).
 
-logtalk_version(2, 11, 0).
+logtalk_version(2, 12, 0).
 
 
 
@@ -1046,12 +1046,12 @@ set_logtalk_flag(Flag, Value) :-
 	throw(error(domain_error(valid_flag, Flag), set_logtalk_flag(Flag, Value))).
 
 set_logtalk_flag(Flag, Value) :-
-	\+ lgt_valid_flag(Flag, Value),
-	throw(error(domain_error(valid_flag_value, Value), set_logtalk_flag(Flag, Value))).
+	lgt_read_only_flag(Flag),
+	throw(error(permission_error(modify, read_only_flag, Flag), set_logtalk_flag(Flag, Value))).
 
 set_logtalk_flag(Flag, Value) :-
-	lgt_read_only_flag(Flag),
-	throw(error(domain_error(read_only_flag, Flag), set_logtalk_flag(Flag, Value))).
+	\+ lgt_valid_flag(Flag, Value),
+	throw(error(domain_error(valid_flag_value, Value), set_logtalk_flag(Flag, Value))).
 
 set_logtalk_flag(Flag, Value) :-
 	retractall(lgt_flag_(Flag, _)),
@@ -1080,6 +1080,7 @@ current_logtalk_flag(Flag, Value) :-
 	\+ lgt_flag_(Flag, _),
 	lgt_default_flag(Flag, Value).
 
+current_logtalk_flag(version, version(2, 12, 0)).
 
 
 
@@ -5292,6 +5293,8 @@ lgt_valid_flag(plredef).
 lgt_valid_flag(portability).
 lgt_valid_flag(report).
 lgt_valid_flag(smart_compilation).
+lgt_valid_flag(startup_message).
+lgt_valid_flag(version).
 
 
 
@@ -5310,8 +5313,8 @@ lgt_valid_flag(Flag, Value) :-
 %
 % true if the argument is a read only Logtalk flag
 
-lgt_read_only_flag(_) :-
-	fail.
+lgt_read_only_flag(startup_message).
+lgt_read_only_flag(version).
 
 
 
