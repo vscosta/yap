@@ -437,7 +437,7 @@ repeat :- '$repeat'.
 	( get_value('$trace', 1) ->
 	    '$creep'
 	;
-	  '$setflop'(1)
+	    true
 	).
 
 '$do_yes_no'([X|L], M) :- !, '$csult'([X|L], M).
@@ -1086,7 +1086,7 @@ catch(G, C, A) :-
 '$system_catch'(G, M, C, A) :-
 	% check current trail
 	'$catch'(C,A,_),
-	'$execute0'(G, M).
+	'$execute_nonstop'(G, M).
 
 %
 % throw has to be *exactly* after system catch!

@@ -934,7 +934,7 @@ YAP_Init(YAP_init_args *yap_init)
     Yap_InitYaamRegs();
 #endif /* SBA */
     /* slaves, waiting for work */
-    CurrentModule = 1;
+    CurrentModule = USER_MODULE;
     P = GETWORK_FIRST_TIME;
     Yap_exec_absmi(FALSE);
     abort_optyap("abstract machine unexpected exit");

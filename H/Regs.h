@@ -10,7 +10,7 @@
 * File:		Regs.h							 *
 * mods:									 *
 * comments:	YAP abstract machine registers				 *
-* version:      $Id: Regs.h,v 1.27 2004-03-05 15:26:33 vsc Exp $	 *
+* version:      $Id: Regs.h,v 1.28 2004-05-13 20:54:58 vsc Exp $	 *
 *************************************************************************/
 
 
@@ -89,7 +89,6 @@ typedef struct
     CELL  *AuxSp_;		/* 9 Auxiliary stack pointer                  */
     ADDR   AuxTop_;		/* 10 Auxiliary stack top                     */
 /* visualc*/
-    CELL   FlipFlop_;		/* 18                                         */
     CELL   EX_;	    	        /* 18                                         */
 #ifdef COROUTINING
     Term  DelayedVars_;         /* maximum number of attributed variables     */
@@ -650,7 +649,6 @@ EXTERN inline void restore_B(void) {
 #define	AuxTop        Yap_REGS.AuxTop_
 #define TopB          Yap_REGS.TopB_
 #define DelayedB      Yap_REGS.DelayedB_
-#define FlipFlop      Yap_REGS.FlipFlop_
 #define EX            Yap_REGS.EX_
 #define DEPTH	      Yap_REGS.DEPTH_
 #if defined(SBA) || defined(TABLING)

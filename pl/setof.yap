@@ -122,6 +122,7 @@ bagof(Template, Generator, Bag) :-
 	Key =.. ['$'|LFreeVars],
 	'$init_db_queue'(Ref),
 	'$findall_with_common_vars'(Key-Template, Generator, Ref, Bags0),
+write(vsc:(Bags0,Bags)),nl,
 	'$keysort'(Bags0, Bags),
 	'$pick'(Bags, Key, Bag).
 % or we just have a list of answers
@@ -212,22 +213,28 @@ all(T,G,S) :-
 
 % $$set does its best to preserve space
 '$$set'(S,R) :- 
-       '$$build'(S0,S0,R),
+       '$$build'(S0,_,R),
 	S = S0.
 
 '$$build'(Ns,S0,R) :- '$db_dequeue'(R,X), !,
 	'$$build2'(Ns,S0,R,X).
 '$$build'([],_,_).
 
-'$$build2'(Ns,Hash,R,X) :-
-	'$$in'(Hash,X), !,
-	'$$build'(Ns,Hash,R).
 '$$build2'([X|Ns],Hash,R,X) :-
+	'$$new'(Hash,X), !,
+	'$$build'(Ns,Hash,R).
+'$$build2'(Ns,Hash,R,X) :-
 	'$$build'(Ns,Hash,R).
 
-'$$in'(V,_) :- var(V), !, fail.
-'$$in'([El|_],El) :- !.
-'$$in'([_|S],El) :- '$$in'(S,El).
+'$$new'(V,El) :- var(V), !, V = n(_,El,_).
+'$$new'(n(R,El0,L),El) :- 
+	compare(C,El0,El),
+	'$$new'(C,R,L,El).
+
+'$$new'(=,_,_,_) :- !, fail.
+'$$new'(<,R,_,El) :- '$$new'(R,El).
+'$$new'(>,_,L,El) :- '$$new'(L,El).
+
 
 '$$produce'([T1 same X1|Tn],S,X) :- '$$split'(Tn,T1,X1,S1,S2),
 	( S=[T1|S1], X=X1;

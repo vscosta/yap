@@ -382,7 +382,7 @@ debugging :-
 % 
 '$spycall'(G, M, _) :-
 	'$access_yap_flags'(10,0), !,
-	'$execute0'(G, M).
+	'$execute_nonstop'(G, M).
 '$spycall'(G, M, InControl) :-
 	'$flags'(G,M,F,F),
 	F /\ 0x8402000 =\= 0, !, % dynamic procedure, logical semantics, or source
@@ -393,7 +393,7 @@ debugging :-
 '$spycall'(G, M, _) :-
 	% I lost control here.
 	'$continue_debugging'(no),
-	'$execute0'(G, M).
+	'$execute_nonstop'(G, M).
 
 
 '$trace'(P,G,Module,L) :-
@@ -510,10 +510,9 @@ debugging :-
 	'$skipeol'(0'k),
 	'$set_yap_flags'(10,0),
 	set_value(spy_skip,CallNumber),
-	set_value(spy_stop,on),
+	set_value(spy_stop,on).
 	% skip first call (for current goal),
 	% stop next time.
-	'$setflop'(0).
 '$action'(0'r,P,CallId,_,_) :- !,		% r		retry
 	'$scan_number'(0'r,CallId,ScanNumber),
 	throw('$retry_spy'(ScanNumber)).
@@ -550,17 +549,14 @@ debugging :-
 
 % if we are in the interpreter, don't need to care about forcing a trace, do we?
 '$continue_debugging'(yes) :- !.
-% I don't need to activate the FlipFlop if I am creeping.
 '$continue_debugging'(_) :-
 	'$access_yap_flags'(10,1), !,
 	'$creep'.
 '$continue_debugging'(_) :-
-	get_value(spy_stop, On),
-	(On = on -> '$setflop'(1) ; '$setflop'(0)).
+	get_value(spy_stop, On).
 
 '$stop_debugging' :-
-	'$stop_creep',
-	'$setflop'(0).
+	'$stop_creep'.
 
 '$action_help' :-
 	'$format'(user_error,"newline  creep       a       abort~n", []),

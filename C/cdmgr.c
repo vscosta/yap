@@ -11,8 +11,11 @@
 * File:		cdmgr.c							 *
 * comments:	Code manager						 *
 *									 *
-* Last rev:     $Date: 2004-04-27 16:21:16 $,$Author: vsc $						 *
+* Last rev:     $Date: 2004-05-13 20:54:57 $,$Author: vsc $						 *
 * $Log: not supported by cvs2svn $
+* Revision 1.120  2004/04/27 16:21:16  vsc
+* stupid bug
+*
 * Revision 1.119  2004/04/27 15:03:43  vsc
 * more fixes for expand_clauses
 *
@@ -1095,8 +1098,9 @@ not_was_reconsulted(PredEntry *p, Term t, int mode)
   if (fp != ConsultBase)
     return (FALSE);
   if (mode) {
-    if (ConsultSp == ConsultLow+1)
+    if (ConsultSp == ConsultLow+1) {
       expand_consult();
+    }
     --ConsultSp;
     ConsultSp->p = p0;
     if (ConsultBase[1].mode && 
@@ -1143,7 +1147,6 @@ addcl_permission_error(AtomEntry *ap, Int Arity, int in_use)
 	      ap->StrOfAE, Arity);
   }
 }
-
 
 static Term
 addclause(Term t, yamop *cp, int mode, int mod)

@@ -377,7 +377,6 @@ save_regs(int mode)
     putcellptr(S);
     putcellptr((CELL *)P);
     putout(CreepFlag);
-    putout(FlipFlop);
     putout(EX);
 #ifdef COROUTINING
     putout(DelayedVars);
@@ -711,7 +710,6 @@ get_regs(int flag)
     S = get_cellptr();
     P = (yamop *)get_cellptr();
     CreepFlag = get_cell();
-    FlipFlop = get_cell();
 #ifdef COROUTINING
     DelayedVars = get_cell();
 #endif
@@ -1413,7 +1411,9 @@ Restore(char *s, char *lib_dir)
   restore_regs(restore_mode);
   in_limbo = FALSE;
   /*#endif*/
+  fprintf(stderr,"1 CurrentModule is %p\n", CurrentModule);
   RestoreHeap(old_ops);
+  fprintf(stderr,"1.5 CurrentModule is %p\n", CurrentModule);
   switch(restore_mode) {
   case DO_EVERYTHING:
     if (OldHeapBase != Yap_HeapBase ||
@@ -1437,6 +1437,7 @@ Restore(char *s, char *lib_dir)
     Yap_InitYaamRegs();
     break;
   }
+
   Yap_ReOpenLoadForeign();
   Yap_InitPlIO();
   /* reset time */

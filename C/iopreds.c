@@ -4634,6 +4634,7 @@ Yap_InitBackIO (void)
 void
 Yap_InitIOPreds(void)
 {
+  Term cm = CurrentModule;
 
   Yap_stdin = stdin;
   Yap_stdout = stdout;
@@ -4658,7 +4659,7 @@ Yap_InitIOPreds(void)
   Yap_InitCPred ("open_mem_read_stream", 2, p_open_mem_read_stream, SyncPredFlag);
   Yap_InitCPred ("open_mem_write_stream", 1, p_open_mem_write_stream, SyncPredFlag);
   Yap_InitCPred ("peek_mem_write_stream", 3, p_peek_mem_write_stream, SyncPredFlag);
-  CurrentModule = PROLOG_MODULE;
+  CurrentModule = cm;
   Yap_InitCPred ("$put", 2, p_put, SafePredFlag|SyncPredFlag);
   Yap_InitCPred ("$put_byte", 2, p_put_byte, SafePredFlag|SyncPredFlag);
   Yap_InitCPred ("$set_read_error_handler", 1, p_set_read_error_handler, SafePredFlag|SyncPredFlag);

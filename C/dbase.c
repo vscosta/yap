@@ -652,7 +652,6 @@ static CELL *MkDBTerm(register CELL *pt0, register CELL *pt0_end,
   int vars_found = 0;
 #ifdef COROUTINING
   Term ConstraintsTerm = TermNil;
-  CELL *ConstraintsBottom = NULL;
   CELL *origH = H;
 #endif
   CELL *CodeMaxBase = CodeMax;
@@ -899,19 +898,14 @@ static CELL *MkDBTerm(register CELL *pt0, register CELL *pt0_end,
 	  int sz = to_visit-to_visit_base;
 
 	  H = (CELL *)to_visit;
-	  /* store the constraint away for now */
+	  /* store the constraint away for: we need a back pointer to
+	     the variable, the constraint in some cannonical form, what type
+	     of constraint, and a list pointer */
 	  t[0] = (CELL)ptd0;
 	  t[1] = attas[ExtFromCell(ptd0)].to_term_op(ptd0);
 	  t[2] = MkIntegerTerm(ExtFromCell(ptd0));
-	  t[3] = TermNil;
-	  if (ConstraintsBottom == NULL) {
-	    ConstraintsTerm = Yap_MkApplTerm(FunctorClist, 4, t);
-	    ConstraintsBottom = RepAppl(ConstraintsTerm)+4;
-	  } else {
-	    Term new = Yap_MkApplTerm(FunctorClist, 4, t);
-	    *ConstraintsBottom = new;
-	    ConstraintsBottom = RepAppl(new)+4;
-	  }
+	  t[3] = ConstraintsTerm;
+	  ConstraintsTerm = Yap_MkApplTerm(FunctorClist, 4, t);
 	  if (H+sz >= ASP) {
 	    goto error2;
 	  }
@@ -961,14 +955,18 @@ static CELL *MkDBTerm(register CELL *pt0, register CELL *pt0_end,
 
 #ifdef COROUTINING
   /* we still may have constraints to do */
-  if (ConstraintsTerm != TermNil) {
-    *attachmentsp = (CELL)CodeMax;
+  if (ConstraintsTerm != TermNil &&
+      !(RepAppl(ConstraintsTerm) >= tbase &&
+	RepAppl(ConstraintsTerm) < StoPoint)
+      ) {
+    *attachmentsp = (CELL)(CodeMax+1);
     pt0 = RepAppl(ConstraintsTerm)+1;
     pt0_end = RepAppl(ConstraintsTerm)+4;
-    ConstraintsTerm = TermNil; 
     StoPoint = CodeMax;
+    *StoPoint++ = RepAppl(ConstraintsTerm)[0];
+    ConstraintsTerm = AbsAppl(CodeMax);
     CheckDBOverflow();
-    CodeMax += 4;
+    CodeMax += 5;
     goto loop;
   }
 #endif
@@ -1431,7 +1429,7 @@ CreateDBStruct(Term Tm, DBProp p, int InFlag, int *pstat, UInt extra_size, struc
 #ifdef COROUTINING
     /* attachment */ 
     if (IsVarTerm(Tm)) {
-      tt = sizeof(CELL);
+      tt = (CELL)(ppt0->Contents);
       ntp = MkDBTerm(VarOfTerm(Tm), VarOfTerm(Tm), ntp0, ntp0+1, ntp0-1,
 		     &attachments,
 		     &vars_found,
@@ -2432,7 +2430,11 @@ GetDBTerm(DBTerm *DBSP)
 {
   Term t = DBSP->Entry;
 
-  if (IsVarTerm(t)) {
+  if (IsVarTerm(t) 
+#if COROUTINING
+      && !DBSP->attachments
+#endif
+      ) {
     return MkVarTerm();
   } else if (IsAtomOrIntTerm(t)) {
     return t;

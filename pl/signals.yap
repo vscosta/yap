@@ -65,7 +65,7 @@
 '$start_creep'([Mod|G]) :-
 	'$hidden_predicate'(G,Mod), !,
 	'$creep',
-	'$execute0'(G,Mod).
+	'$execute_nonstop'(G,Mod).
 '$start_creep'([Mod|G]) :-
 	'$stop_debugging',
 	CP is '$last_choice_pt',	
@@ -90,7 +90,7 @@
 on_signal(Signal,OldAction,default) :-
 	'$reset_signal'(Signal, OldAction).
 on_signal(Signal,OldAction,Action) :-
-	var(Action),
+	var(Action), !,
 	'$check_signal'(OldAction),
 	Action = OldAction.
 on_signal(Signal,OldAction,Action) :-

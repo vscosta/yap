@@ -10,8 +10,11 @@
 *									 *
 * File:		absmi.c							 *
 * comments:	Portable abstract machine interpreter                    *
-* Last rev:     $Date: 2004-04-29 03:45:49 $,$Author: vsc $						 *
+* Last rev:     $Date: 2004-05-13 20:54:57 $,$Author: vsc $						 *
 * $Log: not supported by cvs2svn $
+* Revision 1.132  2004/04/29 03:45:49  vsc
+* fix garbage collection in execute_tail
+*
 * Revision 1.131  2004/04/22 20:07:02  vsc
 * more fixes for USE_SYSTEM_MEMORY
 *
@@ -146,7 +149,12 @@ push_live_regs(yamop *pco)
 #include <stdio.h>
 void prof_alrm(int signo)
 {
+#ifdef i386
   fprintf(FProf,"%p\n", PREG);
+#else
+  /* vsc: not really supported for shadow regs */
+  fprintf(FProf,"%p\n", P);
+#endif
   return;
 }
 
@@ -1305,6 +1313,7 @@ Yap_absmi(int inp)
 	LogUpdClause *cl = ClauseCodeToLogUpdClause(PREG);
 	Term t;
 
+	ASP = YREG;
 	saveregs();
 	while ((t = Yap_FetchTermFromDB(cl->ClSource)) == 0L) {
 	  if (!Yap_gc(3, ENV, CP)) {
@@ -1409,12 +1418,10 @@ Yap_absmi(int inp)
 
       /* spy_or_trymark                   */
       BOp(spy_or_trymark, ld);
-      if (FlipFlop ^= 1) {
-	READ_LOCK(((PredEntry *)(PREG->u.ld.p))->PRWLock);
-	PREG = (yamop *)(&(((PredEntry *)(PREG->u.ld.p))->OpcodeOfPred));
-	READ_UNLOCK(((PredEntry *)(PREG->u.ld.p))->PRWLock);
-	goto dospy;
-      }
+      READ_LOCK(((PredEntry *)(PREG->u.ld.p))->PRWLock);
+      PREG = (yamop *)(&(((PredEntry *)(PREG->u.ld.p))->OpcodeOfPred));
+      READ_UNLOCK(((PredEntry *)(PREG->u.ld.p))->PRWLock);
+      goto dospy;
       ENDBOp();
 
       /* try_and_mark   Label,NArgs       */
@@ -6609,17 +6616,6 @@ Yap_absmi(int inp)
       ENDBOp();
 
       BOp(spy_pred, e);
-      {
-	PredEntry *pe = PredFromDefCode(PREG);
-	if (FlipFlop == 0) {
-	  READ_LOCK(pe->PRWLock);
-	  PREG = pe->cs.p_code.TrueCodeOfPred;
-	  READ_UNLOCK(pe->PRWLock);
-	  JMPNext();
-	}
-	ENDBOp();
-      }
-
     dospy:
       {
 	PredEntry *pe = PredFromDefCode(PREG);

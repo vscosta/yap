@@ -388,11 +388,11 @@ TermToSuspendedVar(Term gs, Term var)
   vs = (sus_tag *)Yap_ReadTimedVar(DelayedVars);
   if (H0 - (CELL *)vs < 1024)
     return(FALSE);
+  Yap_UpdateTimedVar(DelayedVars, (CELL)(vs+1));
   RESET_VARIABLE(&(vs->ActiveSus));
   vs->sus_id = susp_ext;
   vs->SG = terms_to_suspended_goals(gs);
   Yap_unify(var,(CELL)&(vs->ActiveSus));
-  Yap_UpdateTimedVar(DelayedVars, (CELL)(vs+1));
   return(TRUE);
 }
 

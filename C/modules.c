@@ -96,7 +96,7 @@ p_current_module(void)
   if (IsVarTerm(t) || !IsAtomTerm(t))
     return FALSE;
   if (t == TermProlog) {
-    CurrentModule = 0;
+    CurrentModule = PROLOG_MODULE;
   } else {
     CurrentModule = t;
     LookupModule(CurrentModule);

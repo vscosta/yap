@@ -1745,6 +1745,7 @@ camacho_dum(void)
 
 void Yap_InitUtilCPreds(void)
 {
+  Term cm = CurrentModule;
   Yap_InitCPred("copy_term", 2, p_copy_term, 0);
   Yap_InitCPred("$copy_term_but_not_constraints", 2, p_copy_term_no_delays, 0);
   Yap_InitCPred("ground", 1, p_ground, SafePredFlag);
@@ -1756,7 +1757,7 @@ void Yap_InitUtilCPreds(void)
   Yap_InitCPred("term_hash", 4, GvNTermHash, SafePredFlag);
   Yap_InitCPred("variant", 2, p_variant, SafePredFlag);
   Yap_InitCPred("subsumes", 2, p_subsumes, SafePredFlag);
-  CurrentModule = PROLOG_MODULE;
+  CurrentModule = cm;
 #ifdef DEBUG
   Yap_InitCPred("$force_trail_expansion", 1, p_force_trail_expansion, SafePredFlag);
   Yap_InitCPred("dum", 1, camacho_dum, SafePredFlag);

@@ -11,8 +11,11 @@
 * File:		stdpreds.c						 *
 * comments:	General-purpose C implemented system predicates		 *
 *									 *
-* Last rev:     $Date: 2004-04-27 15:14:36 $,$Author: vsc $						 *
-* $Log: not supported by cvs2svn $									 *
+* Last rev:     $Date: 2004-05-13 20:54:58 $,$Author: vsc $						 *
+* $Log: not supported by cvs2svn $
+* Revision 1.65  2004/04/27 15:14:36  vsc
+* fix halt/0 and halt/1
+*									 *
 *									 *
 *************************************************************************/
 #ifdef SCCS
@@ -478,24 +481,6 @@ p_values(void)
   return (TRUE);
 }
 
-static Int 
-p_flipflop(void)
-{				/* '$flipflop'		 */
-  return ((int) (FlipFlop = (1 - FlipFlop)));
-}
-
-static Int 
-p_setflop(void)
-{				/* '$setflop'(N)	 */
-  Term            t = Deref(ARG1);
-
-  if (IsIntTerm(t)) {
-    FlipFlop = IntOfTerm(t) & 1;
-    return (TRUE);
-  }
-  return (FALSE);
-}
-
 inline static void
 do_signal(yap_signals sig)
 {
@@ -516,7 +501,6 @@ p_creep(void)
   CreepCode = pred;
   yap_flags[SPY_CREEP_FLAG] = TRUE;
   do_signal(YAP_CREEP_SIGNAL);
-  FlipFlop = 0;
   return TRUE;
 }
 
@@ -524,7 +508,10 @@ static Int
 p_stop_creep(void)
 {
   LOCK(SignalLock);
-  CreepFlag = CalculateStackGap();
+  ActiveSignals &= ~YAP_CREEP_SIGNAL;
+  if (!ActiveSignals) {
+    CreepFlag = CalculateStackGap();
+  }
   UNLOCK(SignalLock);
   return TRUE;
 }
@@ -2678,9 +2665,6 @@ Yap_InitCPreds(void)
   Yap_InitCPred("set_value", 2, p_setval, SafePredFlag|SyncPredFlag);
   Yap_InitCPred("get_value", 2, p_value, TestPredFlag|SafePredFlag|SyncPredFlag);
   Yap_InitCPred("$values", 3, p_values, SafePredFlag|SyncPredFlag);
-  /* The flip-flop */
-  Yap_InitCPred("$flipflop", 0, p_flipflop, SafePredFlag|SyncPredFlag);
-  Yap_InitCPred("$setflop", 1, p_setflop, SafePredFlag|SyncPredFlag);
   /* general purpose */
   Yap_InitCPred("$opdec", 3, p_opdec, SafePredFlag|SyncPredFlag);
   Yap_InitCPred("name", 2, p_name, SafePredFlag);
