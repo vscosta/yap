@@ -186,7 +186,11 @@ Yap_MkBigIntTerm(MP_INT *big)
     ret[0] = (CELL)FunctorBigInt;
     memmove((void *)new, (const void *)(big->_mp_d), nlimbs*CellSize);
     H = (CELL *)(new+nlimbs);
+#if GC_NO_TAGS
+    H[0] = (H-ret)*sizeof(CELL)+EndSpecials;
+#else
     H[0] = ((H-ret)*sizeof(CELL)+EndSpecials)|MBIT;
+#endif
     H++;
     pre_alloc_base = NULL;
     return(AbsAppl(ret));

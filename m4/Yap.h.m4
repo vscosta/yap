@@ -10,7 +10,7 @@
 * File:		Yap.h.m4						 *
 * mods:									 *
 * comments:	main header file for YAP				 *
-* version:      $Id: Yap.h.m4,v 1.63 2004-08-11 16:14:55 vsc Exp $	 *
+* version:      $Id: Yap.h.m4,v 1.64 2004-09-16 17:29:08 vsc Exp $	 *
 *************************************************************************/
 
 #include "config.h"
@@ -668,21 +668,27 @@ and  RefOfTerm(t) : Term -> DBRef = ...
 #endif /* !LONG_ADDRESSES */
 
 #ifdef TAG_LOW_BITS_32
+
+#if !GC_NO_TAGS
 #define MBIT     0x80000000
 #define RBIT     0x40000000
 
 #if IN_SECOND_QUADRANT
 #define INVERT_RBIT 1 /* RBIT is 1 by default */
 #endif
+#endif !GC_NO_TAGS
 
 #else
 
+#if !GC_NO_TAGS
 #if defined(SBA) && defined(__linux__)
 #define MBIT     /* 0x20000000 */ MKTAG(0x1,0)	/* mark bit */
 #else
 #define RBIT     /* 0x20000000 */ MKTAG(0x1,0)  /* relocation chain bit */
 #define MBIT     /* 0x40000000 */ MKTAG(0x2,0)	/* mark bit */
 #endif
+#endif !GC_NO_TAGS
+
 #endif
 
 #define	TermSize    sizeof(Term)

@@ -37,7 +37,9 @@
                         ) 
 #else
 #ifdef  TAG_LOW_BITS_32
-#if INVERT_RBIT
+#if GC_NO_TAGS
+#define GET_NEXT(val)  ((CELL *) ((val) & ~LowTagBits))
+#elif INVERT_RBIT
 #define GET_NEXT(val)  ((CELL *) (((val) & ~(LowTagBits|MBIT))|RBIT))
 #else
 #define GET_NEXT(val)  ((CELL *) ((val) & ~(LowTagBits|MBIT|RBIT)))
@@ -80,6 +82,55 @@
 			       (CellPtr(B) < CellPtr(val) && CellPtr(val) <= \
 				LCL0 && HEAP_PTR(val))))
 
+#if GC_NO_TAGS
+
+extern char *bp;
+
+#define  MARK_BIT 1
+#define RMARK_BIT 2
+
+#define mcell(X)  bp[X-(CELL *)Yap_GlobalBase]
+
+static inline int
+MARKED_PTR(CELL* ptr)
+{
+  return mcell(ptr) & MARK_BIT;
+}
+
+static inline void
+MARK(CELL* ptr)
+{
+  mcell(ptr) = mcell(ptr) | MARK_BIT;
+}
+
+static inline void
+UNMARK(CELL* ptr)
+{
+  mcell(ptr) = mcell(ptr) & ~MARK_BIT;
+}
+
+#define UNMARK_CELL(X) (X)
+
+static inline void
+RMARK(CELL* ptr)
+{
+   mcell(ptr) = mcell(ptr) | RMARK_BIT;
+}
+
+static inline void
+UNRMARK(CELL* ptr)
+{
+   mcell(ptr) = mcell(ptr) & ~RMARK_BIT;
+}
+
+static inline int
+RMARKED(CELL* ptr)
+{
+  return !GCIsPrimitiveTerm(*ptr) && (mcell(ptr) & RMARK_BIT);
+}
+
+#else
+
 /* is the object pointed to by ptr marked? */
 #ifdef TAGS_FAST_OPS
 #define MARKED_VAR(val) ((val) &  MBIT) 
@@ -103,7 +154,10 @@
 
 #define UNMARK_CELL(val)    ((val) ^ MBIT) /* unmark the object pointed to by ptr */
 
+#define MARKED_PTR(ptr) MARKED(*(ptr))
+
 #ifdef TAGS_FAST_OPS
+
 #define RMARKED(val)    (!GCIsPrimitiveTerm(val) && (IsVarTerm(val) ?\
 				((val) & RBIT) : !((val) & RBIT)))
 
@@ -114,13 +168,17 @@
 			? \
 			((val) & ~MBIT) : ((val) | MBIT))
 #else
+
 #if INVERT_RBIT
 #define RMARKED(val)   (!GCIsPrimitiveTerm(val) && !((val) & RBIT))
 #else
 #define RMARKED(val)   (!GCIsPrimitiveTerm(val) && ((val) & RBIT))
 #endif
-#endif
 
+#endif /* GC_NO_TAGS */
+
+
+#endif
 
 /* is the object pointed to by ptr marked as in a relocation chain? */
 

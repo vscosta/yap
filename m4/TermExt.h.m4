@@ -10,7 +10,7 @@
 * File:		TermExt.h						 *
 * mods:									 *
 * comments:	Extensions to standard terms for YAP			 *
-* version:      $Id: TermExt.h.m4,v 1.14 2004-06-05 03:37:00 vsc Exp $	 *
+* version:      $Id: TermExt.h.m4,v 1.15 2004-09-16 17:29:08 vsc Exp $	 *
 *************************************************************************/
 
 #ifdef USE_SYSTEM_MALLOC
@@ -110,7 +110,11 @@ typedef struct special_functors_struct
 special_functors;
 
 #if SIZEOF_DOUBLE == SIZEOF_LONG_INT
+#if GC_NO_TAGS
+Inline(MkFloatTerm, Term, Float, dbl, (H[0] = (CELL)FunctorDouble, *(Float *)(H+1) = dbl, H[2]=(2*sizeof(CELL)+EndSpecials),H+=3,AbsAppl(H-3)))
+#else
 Inline(MkFloatTerm, Term, Float, dbl, (H[0] = (CELL)FunctorDouble, *(Float *)(H+1) = dbl, H[2]=((2*sizeof(CELL)+EndSpecials)|MBIT),H+=3,AbsAppl(H-3)))
+#endif
 
 Destructor(Term, FloatOf, Float, t, *(Float *)(RepAppl(t)+1))
 
@@ -146,7 +150,11 @@ CpFloatUnaligned(CELL *ptr)
 
 #endif
 
+#if GC_NO_TAGS
+Inline(MkFloatTerm, Term, Float, dbl, (AlignGlobalForDouble(), H[0] = (CELL)FunctorDouble,  *(Float *)(H+1) = dbl, H[3]=(3*sizeof(CELL)+EndSpecials), H+=4, AbsAppl(H-4)))
+#else
 Inline(MkFloatTerm, Term, Float, dbl, (AlignGlobalForDouble(), H[0] = (CELL)FunctorDouble,  *(Float *)(H+1) = dbl, H[3]=((3*sizeof(CELL)+EndSpecials)|MBIT), H+=4, AbsAppl(H-4)))
+#endif
 
 Destructor(Term, FloatOf, Float, t, (DOUBLE_ALIGNED(RepAppl(t)) ? *(Float *)(RepAppl(t)+1) : CpFloatUnaligned(RepAppl(t))))
 /* no alignment problems for 64 bit machines */
@@ -160,7 +168,11 @@ Inline(IsFloatTerm, int, Term, t, IsApplTerm(t) && FunctorOfTerm(t) == FunctorDo
 
 
 /* extern Functor FunctorLongInt; */
+#if GC_NO_TAGS
+Inline(MkLongIntTerm, Term, Int, i, (H[0] = (CELL)FunctorLongInt,H[1] = (CELL)(i),H[2]=(2*sizeof(CELL)+EndSpecials),H+=3,AbsAppl(H-3)))
+#else
 Inline(MkLongIntTerm, Term, Int, i, (H[0] = (CELL)FunctorLongInt,H[1] = (CELL)(i),H[2]=((2*sizeof(CELL)+EndSpecials)|MBIT),H+=3,AbsAppl(H-3)))
+#endif
 Destructor(Term, LongIntOf, Int, t, RepAppl(t)[1])
 Inline(IsLongIntTerm, int, Term, t, IsApplTerm(t) && FunctorOfTerm(t) == FunctorLongInt)
 

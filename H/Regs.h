@@ -10,7 +10,7 @@
 * File:		Regs.h							 *
 * mods:									 *
 * comments:	YAP abstract machine registers				 *
-* version:      $Id: Regs.h,v 1.29 2004-06-05 03:37:00 vsc Exp $	 *
+* version:      $Id: Regs.h,v 1.30 2004-09-16 17:29:08 vsc Exp $	 *
 *************************************************************************/
 
 
@@ -722,6 +722,7 @@ static inline UInt
 CalculateStackGap(void)
 {
   UInt gmin = (LCL0-H0)>>3;
-  UInt min_gap = MinStackGap;
-  return(gmin < min_gap ? min_gap : gmin );
+
+  if (gmin < MinStackGap) gmin = MinStackGap; 
+  return gmin;
 }

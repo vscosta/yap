@@ -83,6 +83,10 @@ STATIC_PROTO(int  is_gc_very_verbose, (void));
 
 #include "heapgc.h"
 
+#if GC_NO_TAGS
+char *bp;
+#endif
+
 static int discard_trail_entries = 0;
 
 /* support for hybrid garbage collection scheme */
@@ -449,7 +453,7 @@ count_cells_marked(void)
   int found_marked = 0;
 
   for (current = H - 1; current >= H0; current--) {
-    if (MARKED(*current)) {
+    if (MARKED_PTR(current)) {
       found_marked++;
     }
   }
@@ -477,85 +481,333 @@ typedef struct db_entry {
   struct db_entry *right;
 } *dbentry;
 
-static dbentry  db_vec, db_vec0;
+static ADDR  db_vec, db_vec0;
+
+typedef struct RB_red_blk_node {
+  CODEADDR key;
+  CODEADDR lim;
+  db_entry_type db_type;
+  int red; /* if red=0 then the node is black */
+  struct RB_red_blk_node* left;
+  struct RB_red_blk_node* right;
+  struct RB_red_blk_node* parent;
+} rb_red_blk_node;
+
+static rb_red_blk_node *db_root, *db_nil;
+
+static rb_red_blk_node *
+RBMalloc(UInt size)
+{
+  ADDR new = db_vec;
+
+  db_vec += size; 
+ if ((ADDR)db_vec > Yap_TrailTop-1024) {
+    Yap_growtrail(64 * 1024L);
+#if USE_SYSTEM_MALLOC
+    jump;
+#endif    
+  }
+  return (rb_red_blk_node *)new;
+}
+
+static rb_red_blk_node *
+RBTreeCreate(void) {
+  rb_red_blk_node* temp;
+
+  /*  see the comment in the rb_red_blk_tree structure in red_black_tree.h */
+  /*  for information on nil and root */
+  temp=db_nil= RBMalloc(sizeof(rb_red_blk_node));
+  temp->parent=temp->left=temp->right=temp;
+  temp->red=0;
+  temp->key=NULL;
+  temp = RBMalloc(sizeof(rb_red_blk_node));
+  temp->parent=temp->left=temp->right=db_nil;
+  temp->key=NULL;
+  temp->red=0;
+  return temp;
+}
+
+/***********************************************************************/
+/*  FUNCTION:  LeftRotate */
+/**/
+/*  INPUTS:  This takes a tree so that it can access the appropriate */
+/*           root and nil pointers, and the node to rotate on. */
+/**/
+/*  OUTPUT:  None */
+/**/
+/*  Modifies Input: tree, x */
+/**/
+/*  EFFECTS:  Rotates as described in _Introduction_To_Algorithms by */
+/*            Cormen, Leiserson, Rivest (Chapter 14).  Basically this */
+/*            makes the parent of x be to the left of x, x the parent of */
+/*            its parent before the rotation and fixes other pointers */
+/*            accordingly. */
+/***********************************************************************/
+
+static void
+LeftRotate(rb_red_blk_node* x) {
+  rb_red_blk_node* y;
+  rb_red_blk_node* nil=db_nil;
+
+  /*  I originally wrote this function to use the sentinel for */
+  /*  nil to avoid checking for nil.  However this introduces a */
+  /*  very subtle bug because sometimes this function modifies */
+  /*  the parent pointer of nil.  This can be a problem if a */
+  /*  function which calls LeftRotate also uses the nil sentinel */
+  /*  and expects the nil sentinel's parent pointer to be unchanged */
+  /*  after calling this function.  For example, when RBDeleteFixUP */
+  /*  calls LeftRotate it expects the parent pointer of nil to be */
+  /*  unchanged. */
+
+  y=x->right;
+  x->right=y->left;
+
+  if (y->left != nil) y->left->parent=x; /* used to use sentinel here */
+  /* and do an unconditional assignment instead of testing for nil */
+  
+  y->parent=x->parent;   
+
+  /* instead of checking if x->parent is the root as in the book, we */
+  /* count on the root sentinel to implicitly take care of this case */
+  if( x == x->parent->left) {
+    x->parent->left=y;
+  } else {
+    x->parent->right=y;
+  }
+  y->left=x;
+  x->parent=y;
+
+#ifdef DEBUG_ASSERT
+  Assert(!db_nil->red,"nil not red in LeftRotate");
+#endif
+}
+
+
+/***********************************************************************/
+/*  FUNCTION:  RighttRotate */
+/**/
+/*  INPUTS:  This takes a tree so that it can access the appropriate */
+/*           root and nil pointers, and the node to rotate on. */
+/**/
+/*  OUTPUT:  None */
+/**/
+/*  Modifies Input?: tree, y */
+/**/
+/*  EFFECTS:  Rotates as described in _Introduction_To_Algorithms by */
+/*            Cormen, Leiserson, Rivest (Chapter 14).  Basically this */
+/*            makes the parent of x be to the left of x, x the parent of */
+/*            its parent before the rotation and fixes other pointers */
+/*            accordingly. */
+/***********************************************************************/
+
+static void
+RightRotate(rb_red_blk_node* y) {
+  rb_red_blk_node* x;
+  rb_red_blk_node* nil=db_nil;
+
+  /*  I originally wrote this function to use the sentinel for */
+  /*  nil to avoid checking for nil.  However this introduces a */
+  /*  very subtle bug because sometimes this function modifies */
+  /*  the parent pointer of nil.  This can be a problem if a */
+  /*  function which calls LeftRotate also uses the nil sentinel */
+  /*  and expects the nil sentinel's parent pointer to be unchanged */
+  /*  after calling this function.  For example, when RBDeleteFixUP */
+  /*  calls LeftRotate it expects the parent pointer of nil to be */
+  /*  unchanged. */
+
+  x=y->left;
+  y->left=x->right;
+
+  if (nil != x->right)  x->right->parent=y; /*used to use sentinel here */
+  /* and do an unconditional assignment instead of testing for nil */
+
+  /* instead of checking if x->parent is the root as in the book, we */
+  /* count on the root sentinel to implicitly take care of this case */
+  x->parent=y->parent;
+  if( y == y->parent->left) {
+    y->parent->left=x;
+  } else {
+    y->parent->right=x;
+  }
+  x->right=y;
+  y->parent=x;
+
+#ifdef DEBUG_ASSERT
+  Assert(!db_nil->red,"nil not red in RightRotate");
+#endif
+}
+
+/***********************************************************************/
+/*  FUNCTION:  TreeInsertHelp  */
+/**/
+/*  INPUTS:  tree is the tree to insert into and z is the node to insert */
+/**/
+/*  OUTPUT:  none */
+/**/
+/*  Modifies Input:  tree, z */
+/**/
+/*  EFFECTS:  Inserts z into the tree as if it were a regular binary tree */
+/*            using the algorithm described in _Introduction_To_Algorithms_ */
+/*            by Cormen et al.  This funciton is only intended to be called */
+/*            by the RBTreeInsert function and not by the user */
+/***********************************************************************/
+
+static void
+TreeInsertHelp(rb_red_blk_node* z) {
+  /*  This function should only be called by InsertRBTree (see above) */
+  rb_red_blk_node* x;
+  rb_red_blk_node* y;
+  rb_red_blk_node* nil=db_nil;
+  
+  z->left=z->right=nil;
+  y=db_root;
+  x=db_root->left;
+  while( x != nil) {
+    y=x;
+    if (x->key > z->key) { /* x.key > z.key */
+      x=x->left;
+    } else { /* x,key <= z.key */
+      x=x->right;
+    }
+  }
+  z->parent=y;
+  if ( (y == db_root) ||
+       (y->key > z->key)) { /* y.key > z.key */
+    y->left=z;
+  } else {
+    y->right=z;
+  }
+
+#ifdef DEBUG_ASSERT
+  Assert(!db_nil->red,"nil not red in TreeInsertHelp");
+#endif
+}
+
+/*  Before calling Insert RBTree the node x should have its key set */
+
+/***********************************************************************/
+/*  FUNCTION:  RBTreeInsert */
+/**/
+/*  INPUTS:  tree is the red-black tree to insert a node which has a key */
+/*           pointed to by key and info pointed to by info.  */
+/**/
+/*  OUTPUT:  This function returns a pointer to the newly inserted node */
+/*           which is guarunteed to be valid until this node is deleted. */
+/*           What this means is if another data structure stores this */
+/*           pointer then the tree does not need to be searched when this */
+/*           is to be deleted. */
+/**/
+/*  Modifies Input: tree */
+/**/
+/*  EFFECTS:  Creates a node node which contains the appropriate key and */
+/*            info pointers and inserts it into the tree. */
+/***********************************************************************/
+
+static rb_red_blk_node *
+RBTreeInsert(CODEADDR key, CODEADDR end, db_entry_type db_type) {
+  rb_red_blk_node * y;
+  rb_red_blk_node * x;
+  rb_red_blk_node * newNode;
+
+  x=(rb_red_blk_node*) RBMalloc(sizeof(rb_red_blk_node));
+  x->key=key;
+  x->lim=end;
+  x->db_type=db_type;
+
+  TreeInsertHelp(x);
+  newNode=x;
+  x->red=1;
+  while(x->parent->red) { /* use sentinel instead of checking for root */
+    if (x->parent == x->parent->parent->left) {
+      y=x->parent->parent->right;
+      if (y->red) {
+	x->parent->red=0;
+	y->red=0;
+	x->parent->parent->red=1;
+	x=x->parent->parent;
+      } else {
+	if (x == x->parent->right) {
+	  x=x->parent;
+	  LeftRotate(x);
+	}
+	x->parent->red=0;
+	x->parent->parent->red=1;
+	RightRotate(x->parent->parent);
+      } 
+    } else { /* case for x->parent == x->parent->parent->right */
+      y=x->parent->parent->left;
+      if (y->red) {
+	x->parent->red=0;
+	y->red=0;
+	x->parent->parent->red=1;
+	x=x->parent->parent;
+      } else {
+	if (x == x->parent->left) {
+	  x=x->parent;
+	  RightRotate(x);
+	}
+	x->parent->red=0;
+	x->parent->parent->red=1;
+	LeftRotate(x->parent->parent);
+      } 
+    }
+  }
+  db_root->left->red=0;
+  return newNode;
+
+#ifdef DEBUG_ASSERT
+  Assert(!db_nil->red,"nil not red in RBTreeInsert");
+  Assert(!db_root->red,"root not red in RBTreeInsert");
+#endif
+}
 
 
 /* init the table */
 static void
 store_in_dbtable(CODEADDR entry, CODEADDR end, db_entry_type db_type)
 {
-  dbentry parent = db_vec0;
-  dbentry new = db_vec;
-
-  if ((ADDR)new > Yap_TrailTop-1024)
-    Yap_growtrail(64 * 1024L);
-  new->val = entry;
-  new->db_type = db_type;
-  new->lim = end;
-  new->left = new->right = NULL;
-  if (db_vec == db_vec0) {
-    db_vec++;
-    return;
-  }
-  db_vec++;
-  parent = db_vec0;
- beg:
-  if (entry < parent->val) {
-    if (parent->right == NULL) {
-      parent->right = new;
-    } else {
-      parent = parent->right;
-      goto beg;
-    }
-  } else {
-    if (parent->left == NULL) {
-      parent->left = new;
-    } else {
-      parent = parent->left;
-      goto beg;
-    }
-  }
+  RBTreeInsert(entry, end, db_type);
 }
 
 /* find an element in the dbentries table */
-static dbentry
+static rb_red_blk_node *
 find_ref_in_dbtable(CODEADDR entry)
 {
-  dbentry current = db_vec0;
+  rb_red_blk_node *current = db_root->left;
 
-  while (current != NULL) {
-    if (current->val < entry && current->lim > entry) {
-      return(current);
+  while (current != db_nil) {
+    if (current->key < entry && current->lim > entry) {
+      return current;
     }
-    if (entry < current->val)
+    if (entry < current->key)
       current = current->right;
     else
       current = current->left;
   }
-  return(NULL);
+  return current;
 }
 
 static void 
 mark_db_fixed(CELL *ptr) {
-  dbentry el;
+  rb_red_blk_node *el;
 
   el = find_ref_in_dbtable((CODEADDR)ptr);
-  if (el != NULL) {
+  if (el != db_nil) {
     switch (el->db_type) {
     case db_entry:
-      ((DBRef)(el->val))->Flags |= GcFoundMask;
+      ((DBRef)(el->key))->Flags |= GcFoundMask;
       break;
     case cl_entry:
-      ((DynamicClause *)(el->val))->ClFlags |= GcFoundMask;
+      ((DynamicClause *)(el->key))->ClFlags |= GcFoundMask;
       break;
     case lcl_entry:
-      ((LogUpdClause *)(el->val))->ClFlags |= GcFoundMask;
+      ((LogUpdClause *)(el->key))->ClFlags |= GcFoundMask;
       break;
     case li_entry:
-      ((LogUpdIndex *)(el->val))->ClFlags |= GcFoundMask;
+      ((LogUpdIndex *)(el->key))->ClFlags |= GcFoundMask;
       break;
     case dcl_entry:
-      ((DeadClause *)(el->val))->ClFlags |= GcFoundMask;
+      ((DeadClause *)(el->key))->ClFlags |= GcFoundMask;
       break;
     }
   }
@@ -565,7 +817,8 @@ static void
 init_dbtable(tr_fr_ptr trail_ptr) {
   DeadClause *cl = DeadClauses;
 
-  db_vec0 = db_vec = (dbentry)TR;
+  db_vec0 = db_vec = (CODEADDR)TR;
+  db_root = RBTreeCreate();
   while (trail_ptr > (tr_fr_ptr)Yap_TrailBase) {
     register CELL trail_cell;
     
@@ -745,7 +998,7 @@ check_global(void) {
   for (current = H - 1; current >= H0; current--) {
     CELL ccurr = *current;
 
-    if (MARKED(ccurr)) {
+    if (MARKED_PTR(current)) {
       CELL ccell = UNMARK_CELL(ccurr);
       if (ccell < (CELL)AtomBase && ccell > EndSpecials && IsVarTerm(ccell)) {
 	/* oops, we found a blob */
@@ -755,7 +1008,7 @@ check_global(void) {
 	ccurr = *current;
 	/* process the functor next */
       }
-      if (MARKED(ccurr)) {
+      if (MARKED_PTR(current)) {
 	printf("Oops, found marked cell at %p\n", current);
 	break;
       }
@@ -814,7 +1067,7 @@ mark_variable(CELL_PTR current)
 
  begin:
   ccur = *current;
-  if (MARKED(ccur)) {
+  if (MARKED_PTR(current)) {
     POP_CONTINUATION();
   }
   MARK(current);
@@ -827,7 +1080,8 @@ mark_variable(CELL_PTR current)
 #ifdef EASY_SHUNTING
       CELL cnext;
       /* do variable shunting between variables in the global */
-      if (!MARKED((cnext = *next))) {
+      cnext = *next;
+      if (!MARKED_PTR(next)) {
 	if (IsVarTerm(cnext) && (CELL)next == cnext) {
 	  /* new global variable to new global variable */
 	  if (current < prev_HB && current >= HB && next >= HB && next < prev_HB) {
@@ -925,7 +1179,7 @@ mark_variable(CELL_PTR current)
       }
       POP_CONTINUATION();
     }
-    if ( MARKED(cnext) || !ONHEAP(next) )
+    if ( MARKED_PTR(next) || !ONHEAP(next) )
       POP_CONTINUATION();
     
     if (next < H0) POP_CONTINUATION();
@@ -1138,7 +1392,7 @@ mark_environments(CELL_PTR gc_ENV, OPREG size, CELL *pvbmap)
 	currv = 0;
       }
       /* we may have already been here */
-      if (bmap < 0 && !MARKED(*saved_var)) {
+      if (bmap < 0 && !MARKED_PTR(saved_var)) {
 #ifdef INSTRUMENT_GC
 	Term ccur = *saved_var;
 	
@@ -1176,7 +1430,7 @@ mark_environments(CELL_PTR gc_ENV, OPREG size, CELL *pvbmap)
        We do it at the end because we don't want to lose any variables
        that would have been trimmed at the first environment visit.
     */
-    if (MARKED(gc_ENV[E_CB]))
+    if (MARKED_PTR(gc_ENV+E_CB))
       return;
     MARK(gc_ENV+E_CB);
     
@@ -1233,7 +1487,7 @@ mark_trail(tr_fr_ptr trail_ptr, tr_fr_ptr trail_base, CELL *gc_H, choiceptr gc_B
 	 than its new binding is not accessible and we can reset it. Note
 	 we must use gc_H to avoid trouble with dangling variables
 	 in the heap */
-      if (((hp < gc_H   && hp >= H0) || (hp > (CELL *)gc_B && hp < LCL0) ) && !MARKED(*hp)) {
+      if (((hp < gc_H   && hp >= H0) || (hp > (CELL *)gc_B && hp < LCL0) ) && !MARKED_PTR(hp)) {
 #ifdef EARLY_RESET
 	/* reset to be a variable */
 	RESET_VARIABLE(hp);
@@ -1810,7 +2064,7 @@ sweep_trail(choiceptr gc_B, tr_fr_ptr old_TR)
   /* first, whatever we dumped on the trail. Easier just to do
      the registers separately?  */
   for (trail_ptr = old_TR; trail_ptr < TR; trail_ptr++) {
-    if (MARKED(TrailTerm(trail_ptr))) {
+    if (MARKED_PTR(&TrailTerm(trail_ptr))) {
       UNMARK(&TrailTerm(trail_ptr));
       if (HEAP_PTR(TrailTerm(trail_ptr))) {
 	into_relocation_chain(&TrailTerm(trail_ptr), GET_NEXT(TrailTerm(trail_ptr)));
@@ -1838,14 +2092,14 @@ sweep_trail(choiceptr gc_B, tr_fr_ptr old_TR)
       TrailTerm(dest) = trail_cell;
       if (IsVarTerm(trail_cell)) {
 	/* we need to check whether this is a honest to god trail entry */
-	if ((CELL *)trail_cell < H && MARKED(*(CELL *)trail_cell) && (CELL *)trail_cell >= H0) {
+	if ((CELL *)trail_cell < H && MARKED_PTR((CELL *)trail_cell) && (CELL *)trail_cell >= H0) {
 	  if (HEAP_PTR(trail_cell)) {
 	    into_relocation_chain(&TrailTerm(dest), GET_NEXT(trail_cell));
 	  }
 #ifdef FROZEN_STACKS
 	  /* it is complex to recover cells with frozen segments */
 	  TrailVal(dest) = TrailVal(trail_ptr);
-	  if (MARKED(TrailVal(dest))) {
+	  if (MARKED_PTR(&TrailVal(dest))) {
 	    UNMARK(&TrailVal(dest));
 	    if (HEAP_PTR(TrailVal(dest))) {
 	      into_relocation_chain(&TrailVal(dest), GET_NEXT(TrailVal(dest)));
@@ -1863,7 +2117,7 @@ sweep_trail(choiceptr gc_B, tr_fr_ptr old_TR)
 #ifdef FROZEN_STACKS
 	  /* it is complex to recover cells with frozen segments */
 	  TrailVal(dest) = TrailVal(trail_ptr);
-	  if (MARKED(TrailVal(dest))) {
+	  if (MARKED_PTR(&TrailVal(dest))) {
 	    UNMARK(&TrailVal(dest));
 	    if (HEAP_PTR(TrailVal(dest))) {
 	      into_relocation_chain(&TrailVal(dest), GET_NEXT(TrailVal(dest)));
@@ -1970,14 +2224,14 @@ sweep_trail(choiceptr gc_B, tr_fr_ptr old_TR)
 	CELL *ptr;
 	CELL old = TrailTerm(trail_ptr+1);
 
-	if (MARKED(trail_cell)) 
+	if (MARKED_PTR(&TrailTerm(trail_ptr+2))) 
 	  ptr = RepAppl(UNMARK_CELL(trail_cell));
 	else
 	  ptr = RepAppl(trail_cell);
 
 	TrailTerm(dest+1) = old;
 	TrailTerm(dest+2) = TrailTerm(dest) = trail_cell;
-	if (MARKED(old)) {
+	if (MARKED_PTR(&TrailTerm(trail_ptr+1))) {
 	  UNMARK(&TrailTerm(dest+1));
 	  if (HEAP_PTR(old)) {
 	    into_relocation_chain(&TrailTerm(dest+1), GET_NEXT(old));
@@ -1985,21 +2239,21 @@ sweep_trail(choiceptr gc_B, tr_fr_ptr old_TR)
 	}
 #ifdef FROZEN_STACKS
 	TrailVal(dest+1) = TrailVal(trail_ptr+1);
-	if (MARKED(TrailVal(dest+1))) {
+	if (MARKED_PTR(&TrailVal(dest+1))) {
 	  UNMARK(&TrailVal(dest+1));
 	  if (HEAP_PTR(TrailVal(dest+1))) {
 	    into_relocation_chain(&TrailVal(dest+1), GET_NEXT(TrailTerm(dest+1)));
 	  }
 	}
 	TrailVal(dest+2) = TrailVal(trail_ptr+2);
-	if (MARKED(TrailVal(dest+2))) {
+	if (MARKED_PTR(&TrailVal(dest+2))) {
 	  UNMARK(&TrailVal(dest+2));
 	  if (HEAP_PTR(TrailVal(dest+2))) {
 	    into_relocation_chain(&TrailVal(dest+2), GET_NEXT(TrailTerm(dest+2)));
 	  }
 	}
 #endif
-	if (MARKED(trail_cell)) {
+	if (MARKED_PTR(&TrailTerm(trail_ptr+2))) {
 	  UNMARK(&TrailTerm(dest));
 	  UNMARK(&TrailTerm(dest+2));
 	  if (HEAP_PTR(trail_cell)) {
@@ -2108,7 +2362,7 @@ sweep_environments(CELL_PTR gc_ENV, OPREG size, CELL *pvbmap)
       }
       if (bmap < 0) {
 	CELL env_cell = *saved_var;
-	if (MARKED(env_cell)) {
+	if (MARKED_PTR(saved_var)) {
 	  UNMARK(saved_var);
 	  if (HEAP_PTR(env_cell)) {
 	    into_relocation_chain(saved_var, GET_NEXT(env_cell));
@@ -2122,7 +2376,7 @@ sweep_environments(CELL_PTR gc_ENV, OPREG size, CELL *pvbmap)
     /* we use the B field in the environment to tell whether we have
        been here before or not 
     */
-    if (!MARKED(gc_ENV[E_CB]))
+    if (!MARKED_PTR(gc_ENV+E_CB))
       return;
     UNMARK(gc_ENV+E_CB);
 
@@ -2140,7 +2394,7 @@ sweep_slots(CELL *ptr)
   ptr++;
   while (ns > 0) {
     CELL cp_cell = *ptr;
-    if (MARKED(cp_cell)) {
+    if (MARKED_PTR(ptr)) {
       UNMARK(ptr);
       if (HEAP_PTR(cp_cell)) {
 	into_relocation_chain(ptr, GET_NEXT(cp_cell));
@@ -2246,7 +2500,7 @@ sweep_choicepoints(choiceptr gc_B)
 	vars = *answ_fr++;
 	while (vars--) {	
 	  CELL cp_cell = *answ_fr;
-	  if (MARKED(cp_cell)) {
+	  if (MARKED_PTR(answ_fr)) {
 	    UNMARK(answ_fr);
 	    if (HEAP_PTR(cp_cell)) {
 	      into_relocation_chain(answ_fr, GET_NEXT(cp_cell));
@@ -2271,7 +2525,7 @@ sweep_choicepoints(choiceptr gc_B)
 	  nargs = *saved_reg++;
 	  while (nargs--) {	
 	    CELL cp_cell = *saved_reg;
-	    if (MARKED(cp_cell)) {
+	    if (MARKED_PTR(saved_reg)) {
 	      UNMARK(saved_reg);
 	      if (HEAP_PTR(cp_cell)) {
 		into_relocation_chain(saved_reg, GET_NEXT(cp_cell));
@@ -2302,7 +2556,7 @@ sweep_choicepoints(choiceptr gc_B)
 	     saved_reg < (CELL *)(gcp+1) + nargs;
 	     saved_reg++) {
 	  CELL cp_cell = *saved_reg;
-	  if (MARKED(cp_cell)) {
+	  if (MARKED_PTR(saved_reg)) {
 	    UNMARK(saved_reg);
 	    if (HEAP_PTR(cp_cell)) {
 	      into_relocation_chain(saved_reg, GET_NEXT(cp_cell));
@@ -2313,7 +2567,7 @@ sweep_choicepoints(choiceptr gc_B)
 	nargs = *saved_reg++;
 	while (nargs--) {	
 	  CELL cp_cell = *saved_reg;
-	  if (MARKED(cp_cell)) {
+	  if (MARKED_PTR(saved_reg)) {
 	    UNMARK(saved_reg);
 	    if (HEAP_PTR(cp_cell)) {
 	      into_relocation_chain(saved_reg, GET_NEXT(cp_cell));
@@ -2353,7 +2607,7 @@ sweep_choicepoints(choiceptr gc_B)
 	    aux_ptr += heap_arity + subs_arity + vars_arity + 1;
 	    for (i = 0; i < heap_arity + subs_arity + vars_arity + 1; i++) {
 	      CELL cp_cell = *aux_ptr;
-	      if (MARKED(cp_cell)) {
+	      if (MARKED_PTR(aux_ptr)) {
 		UNMARK(aux_ptr);
 		if (HEAP_PTR(cp_cell)) {
 		  into_relocation_chain(aux_ptr, GET_NEXT(cp_cell));
@@ -2366,7 +2620,7 @@ sweep_choicepoints(choiceptr gc_B)
 	    aux_ptr += 2 + subs_arity + vars_arity;
 	    for (i = 0; i < vars_arity; i++) {
 	      CELL cp_cell = *aux_ptr;
-	      if (MARKED(cp_cell)) {
+	      if (MARKED_PTR(aux_ptr)) {
 		UNMARK(aux_ptr);
 		if (HEAP_PTR(cp_cell)) {
 		  into_relocation_chain(aux_ptr, GET_NEXT(cp_cell));
@@ -2376,7 +2630,7 @@ sweep_choicepoints(choiceptr gc_B)
 	    }
 	    for (i = 1; i < subs_arity; i++) {
 	      CELL cp_cell = *--aux_ptr;
-	      if (MARKED(cp_cell)) {
+	      if (MARKED_PTR(aux_ptr)) {
 		UNMARK(aux_ptr);
 		if (HEAP_PTR(cp_cell)) {
 		  into_relocation_chain(aux_ptr, GET_NEXT(cp_cell));
@@ -2397,7 +2651,7 @@ sweep_choicepoints(choiceptr gc_B)
 	     saved_reg < &(gc_B->cp_a1)+rtp->u.lds.s+rtp->u.lds.extra;
 	     saved_reg++) {
 	  CELL cp_cell = *saved_reg;
-	  if (MARKED(cp_cell)) {
+	  if (MARKED_PTR(saved_reg)) {
 	    UNMARK(saved_reg);
 	    if (HEAP_PTR(cp_cell)) {
 	      into_relocation_chain(saved_reg, GET_NEXT(cp_cell));
@@ -2419,7 +2673,7 @@ sweep_choicepoints(choiceptr gc_B)
 	     saved_reg < &gc_B->cp_a1 + rtp->u.ld.s;
 	     saved_reg++) {
 	  CELL cp_cell = *saved_reg;
-	  if (MARKED(cp_cell)) {
+	  if (MARKED_PTR(saved_reg)) {
 	    UNMARK(saved_reg);
 	    if (HEAP_PTR(cp_cell)) {
 	      into_relocation_chain(saved_reg, GET_NEXT(cp_cell));
@@ -2545,7 +2799,7 @@ compact_heap(void)
 #endif
   dest = (CELL_PTR) H0 + total_marked - 1;
   for (current = H - 1; current >= H0; current--) {
-    if (MARKED(*current)) {
+    if (MARKED_PTR(current)) {
       CELL ccell = UNMARK_CELL(*current);
       if (ccell < (CELL)AtomBase && ccell > EndSpecials && IsVarTerm(ccell)
 	  ) {
@@ -2554,7 +2808,7 @@ compact_heap(void)
 	CELL *ptr = current - nofcells ;
 	CELL func = ptr[0];
 
-	if (MARKED(func)) {
+	if (MARKED_PTR(ptr)) {
 #ifdef DEBUG
 	  found_marked+=nofcells;
 #endif /* DEBUG */
@@ -2626,7 +2880,7 @@ compact_heap(void)
   dest = (CELL_PTR) H0;
   for (current = H0; current < H; current++) {
     CELL ccur = *current;
-    if (MARKED(ccur)) {
+    if (MARKED_PTR(current)) {
       CELL uccur = UNMARK_CELL(ccur);
       if (uccur < (CELL)AtomBase && uccur > EndSpecials && IsVarTerm(uccur)) {
 	/* oops, we found a blob */
@@ -2928,7 +3182,7 @@ sweep_delays(CELL *max)
 {
   CELL *ptr = (CELL *)Yap_GlobalBase;
   while (ptr < max) {
-    if (MARKED(*ptr)) {
+    if (MARKED_PTR(ptr)) {
       UNMARK(ptr);
       if (HEAP_PTR(*ptr)) {
 	into_relocation_chain(ptr, GET_NEXT(*ptr));
@@ -3074,6 +3328,19 @@ do_gc(Int predarity, CELL *current_env, yamop *nextop)
   total_smarked = 0;
 #endif
   discard_trail_entries = 0;
+#if GC_NO_TAGS
+  {
+    UInt alloc_sz = (CELL *)Yap_TrailTop-(CELL*)Yap_GlobalBase;
+    bp = Yap_PreAllocCodeSpace();
+    if (bp+alloc_sz > (char *)AuxSp) {
+      /* not enough space */
+      bp = (char *)Yap_ExpandPreAllocCodeSpace(alloc_sz);
+    }
+    if (!bp)
+      return 0;
+    bzero((void *)bp, alloc_sz);
+  }
+#endif /* GC_NO_TAGS */
 #ifdef HYBRID_SCHEME
   iptop = (CELL_PTR *)H;
 #endif
@@ -3084,9 +3351,12 @@ do_gc(Int predarity, CELL *current_env, yamop *nextop)
   marking_phase(old_TR, current_env, nextop, max);
   m_time = Yap_cputime();
   gc_time = m_time-time_start;
-  if (heap_cells)
-    effectiveness = ((heap_cells-total_marked)*100)/heap_cells;
-  else
+  if (heap_cells) {
+    if (heap_cells > 1000000)
+      effectiveness = (heap_cells-total_marked)/(heap_cells/100);
+    else
+      effectiveness = 100*(heap_cells-total_marked)/heap_cells;
+  } else
     effectiveness = 0;
   if (gc_verbose) {
     fprintf(Yap_stderr, "%%   Mark: Recovered %ld cells of %ld (%ld%%) in %g sec\n",
