@@ -2,7 +2,7 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %
 %  Logtalk - Object oriented extension to Prolog
-%  Release 2.19.1
+%  Release 2.20.0
 %
 %  Copyright (c) 1998-2004 Paulo Moura.  All Rights Reserved.
 %
@@ -123,7 +123,8 @@
 :- dynamic('$lgt_pp_category_'/4).				% '$lgt_pp_category_'(Ctg, Prefix, Dcl, Def)
 :- dynamic('$lgt_pp_protocol_'/3).				% '$lgt_pp_protocol_'(Ptc, Prefix, Dcl)
 
-:- dynamic('$lgt_pp_uses_'/1).					% '$lgt_pp_uses_'(Entity)
+:- dynamic('$lgt_pp_uses_'/1).					% '$lgt_pp_uses_'(Obj)
+:- dynamic('$lgt_pp_uses_'/2).					% '$lgt_pp_uses_'(Obj, Predicate)
 :- dynamic('$lgt_pp_calls_'/1).					% '$lgt_pp_calls_'(Entity)
 :- dynamic('$lgt_pp_info_'/1).					% '$lgt_pp_info_'(List)
 :- dynamic('$lgt_pp_info_'/2).					% '$lgt_pp_info_'(Functor/Arity, List)
@@ -1127,7 +1128,7 @@ current_logtalk_flag(Flag, Value) :-
 	'$lgt_default_flag'(Flag, Value),
 	\+ '$lgt_current_flag_'(Flag, _).
 
-current_logtalk_flag(version, version(2, 19, 1)).
+current_logtalk_flag(version, version(2, 20, 0)).
 
 
 
@@ -3154,6 +3155,7 @@ current_logtalk_flag(version, version(2, 19, 1)).
 	retractall('$lgt_pp_specialized_class_'(_, _, _, _, _, _, _, _, _, _)),
 	retractall('$lgt_pp_extended_protocol_'(_, _, _, _)),
 	retractall('$lgt_pp_uses_'(_)),
+	retractall('$lgt_pp_uses_'(_, _)),
 	retractall('$lgt_pp_calls_'(_)),
 	retractall('$lgt_pp_info_'(_)),
 	retractall('$lgt_pp_info_'(_, _)),
@@ -3408,15 +3410,35 @@ current_logtalk_flag(version, version(2, 19, 1)).
 		throw(type_error(operator_priority, Pr)).
 
 
-'$lgt_tr_directive'(uses, Objs) :-
-	'$lgt_convert_to_list'(Objs, Objs2),
-	forall(
-		'$lgt_member'(Obj, Objs2),
-		(callable(Obj) ->
-			'$lgt_add_referenced_object'(Obj),
-			assertz('$lgt_pp_uses_'(Obj))
+'$lgt_tr_directive'(uses, [Obj, Preds]) :-
+	!,
+	(callable(Obj) ->
+		'$lgt_add_referenced_object'(Obj),
+		assertz('$lgt_pp_uses_'(Obj)),
+		('$lgt_proper_list'(Preds) ->
+			forall(
+				'$lgt_member'(Pred, Preds),
+				('$lgt_valid_pred_ind'(Pred) ->
+					Pred = Functor/Arity,
+					functor(Template, Functor, Arity),
+					(\+ '$lgt_pp_uses_'(_, Template) ->
+						assertz('$lgt_pp_uses_'(Obj, Template))
+						;
+						throw(permission_error(modify, uses_object_predicate, Functor/Arity)))
+					;
+					throw(type_error(predicate_indicator, Pred))))
 			;
-			throw(type_error(object_identifier, Obj)))).
+			throw(type_error(list, Preds)))
+		;
+		throw(type_error(object_identifier, Obj))).
+
+
+'$lgt_tr_directive'(uses, [Obj]) :-
+	callable(Obj) ->
+		'$lgt_add_referenced_object'(Obj),
+		assertz('$lgt_pp_uses_'(Obj))
+		;
+		throw(type_error(object_identifier, Obj)).
 
 
 '$lgt_tr_directive'(calls, Ptcs) :-
@@ -3725,6 +3747,14 @@ current_logtalk_flag(version, version(2, 19, 1)).
 	throw(permission_error(modify, built_in_method, Functor/Arity)).
 
 
+% conflict with a predicate specified in a uses/2 directive
+
+'$lgt_tr_head'(Head, _, _) :-
+	'$lgt_pp_uses_'(_, Head),
+	functor(Head, Functor, Arity),
+	throw(permission_error(modify, uses_object_predicate, Functor/Arity)).
+
+
 % redefinition of Logtalk built-in predicates
 
 '$lgt_tr_head'(Head, _, _) :-
@@ -4017,6 +4047,14 @@ current_logtalk_flag(version, version(2, 19, 1)).
 '$lgt_tr_body'(writeq(Term), '$lgt_iso_writeq'(Term, Ops), '$lgt_dbg_goal'(writeq(Term), '$lgt_iso_writeq'(Term, Ops), Ctx), Ctx) :-
 	bagof(op(Pr, Spec, Op), '$lgt_pp_local_op_'(Pr, Spec, Op), Ops),
 	!.
+
+
+% predicates specified in uses/2 directives
+
+'$lgt_tr_body'(Pred, TPred, DPred, Ctx) :-
+	'$lgt_pp_uses_'(Obj, Pred),
+	!,
+	'$lgt_tr_body'(Obj::Pred, TPred, DPred, Ctx).
 
 
 % Logtalk and Prolog built-in predicates
@@ -6429,7 +6467,7 @@ current_logtalk_flag(version, version(2, 19, 1)).
 '$lgt_lgt_entity_directive'(calls, N) :-
 	N >= 1.
 '$lgt_lgt_entity_directive'(uses, N) :-
-	N >= 1.
+	N =:= 1; N =:= 2.
 
 '$lgt_lgt_entity_directive'((initialization), 1).
 
@@ -6800,9 +6838,10 @@ current_logtalk_flag(version, version(2, 19, 1)).
 %
 % true if the argument is a read only Logtalk flag
 
+'$lgt_read_only_flag'(iso_initialization_dir).
 '$lgt_read_only_flag'(startup_message).
-'$lgt_read_only_flag'(version).
 '$lgt_read_only_flag'(supports_break_predicate).
+'$lgt_read_only_flag'(version).
 
 
 

@@ -176,6 +176,46 @@ An object (or category) predicate can be declared as an operator using the famil
 Operators are local to the object (or category) where they are declared. This means that, if you declare a public predicate as an operator, you cannot use operator notation when sending to an object (where the predicate is visible) the respective message (as this would imply visibility of the operator declaration in the context of the <em>sender</em> of the message).
 </p>
 
+<h3>Uses directive<a name="uses"></a></h3>
+
+<p>
+When a predicate makes heavy use of predicates defined on other objects, its definition can be excessively verbose due to all the necessary message sending constructs. Consider the following example:
+</p>
+<pre>
+    foo :-
+        ...,
+        findall(X, list::member(X, L), A),
+        list::append(A, B, C),
+        list::select(Y, C, R),
+        ...
+</pre>
+Logtalk provides a directive, <a title="Consult reference manual" href="../refman/directives/uses2.html"><code>uses/2</code></a>, which allows us to simplify the code above. The usage template for this directive is:
+</p>
+<pre>
+    :- uses(Object, [Functor1/Arity1, Functor2/Arity2, ...]).
+</pre>
+<p>
+</p>
+Rewriting the code above using this directive results in a simplified and more easily readable predicate definition:
+</p>
+<pre>
+    :- uses(list,
+        [append/3, member/2, select/3]).
+
+    foo :-
+        ...,
+        findall(X, member(X, L), A),
+        append(A, B, C),
+        select(Y, C, R),
+        ...
+</pre>
+<p>
+The <code>uses/2</code> directive allows simpler predicate definitions as long as there are no conflicts between the predicates declared in the directive and the predicates defined in the object (or category) containing the directive. A predicate cannot be listed in more than one <code>uses/2</code> directive. In addition, a <code>uses/2</code> directive cannot list a predicate which is defined in the object (or category) containing the directive. Any conflicts are reported by the Logtalk pre-processor as compilation errors.
+</p>
+<p>
+In the current Logtalk version, the omission of the <code>Object::</code> prefix is not supported when the predicate call occurs as an argument of a user-defined meta-predicate (Logtalk specified meta-predicates and Prolog non-standard meta-predicates declared in the config files pose no problem).
+</p>
+
 <h3>Documenting directive<a name="info"></a></h3>
 
 <p>
@@ -251,7 +291,7 @@ A category may only contain clauses for static predicates. Nevertheless, as the 
 Logtalk defines a set of built-in object predicates or methods to access message execution context, to find sets of solutions, to inspect objects and for database handling. Similar to Prolog built-in predicates, these built-in methods should not be redefined.
 </p>
 
-<h3>Local methods<a name="local"></a></h3>
+<h3>Execution context methods<a name="context"></a></h3>
 
 <p>
 Logtalk defines four built-in methods to access an object execution context. These methods are compiled in-line and can be freely used without worrying about performance penalties. When called from inside a category, these methods refer to the execution context of the object importing the category.
@@ -393,7 +433,7 @@ Copyright &copy; <a href="mailto:pmoura@logtalk.org">Paulo Moura</a> &mdash; <a 
 </div>
 
 <div class="footer">
-<p><span class="bleft"><a href="http://validator.w3.org/check/referer">XHTML</a> + <a href="http://jigsaw.w3.org/css-validator/check/referer">CSS</a></span><span class="bright">Last updated on: July 23, 2004</span></p>
+<p><span class="bleft"><a href="http://validator.w3.org/check/referer">XHTML</a> + <a href="http://jigsaw.w3.org/css-validator/check/referer">CSS</a></span><span class="bright">Last updated on: August 14, 2004</span></p>
 </div>
 </body>
 </html>

@@ -1,7 +1,14 @@
 #! /bin/sh
 
+## =================================================================
+## Logtalk - Object oriented extension to Prolog
+## Release 2.20.0
+##
+## Copyright (c) 1998-2004 Paulo Moura.  All Rights Reserved.
+## =================================================================
+
 echo
-echo "Making a script named swilgt for running Logtalk with SWI-Prolog..."
+echo "Creating a script named swilgt for running Logtalk with SWI-Prolog..."
 
 if ! [ $LOGTALKHOME ]
 then

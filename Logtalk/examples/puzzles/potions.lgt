@@ -9,12 +9,12 @@ http://www.csci.csusb.edu/dick/cs320/prolog/Potions.htm
 
 
 	:- info([
-		version is 1.0,
-		date is 2004/4/29,
+		version is 1.1,
+		date is 2004/8/15,
 		author is 'Paulo Moura',
 		comment is 'Harry Potter potions logical puzzle.']).
 
-	:- uses(list).
+	:- uses(list, [select/3]).
 
 	:- public(potions/7).
 	:- mode(potions(?atom, ?atom, ?atom, ?atom, ?atom, ?atom, ?atom), zero_or_one).
@@ -27,17 +27,17 @@ http://www.csci.csusb.edu/dick/cs320/prolog/Potions.htm
 
 	potions(P1, P2, P3, P4, P5, P6, P7) :-
 		contents(H1),
-		list::select(P1, H1, H2),
-		list::select(P7, H2, H3),
+		select(P1, H1, H2),
+		select(P7, H2, H3),
 		P1 \= P7, P1 \= forward, P7 \= forward,					% second clue
-		list::select(P2, H3, H4),
+		select(P2, H3, H4),
 		P2 \= poison,
-		list::select(P3, H4, H5),
+		select(P3, H4, H5),
 		P3 \= poison,											% third clue
 		P2 = P6,
-		list::select(P6, H5, H6),								% fourth clue
-		list::select(P4, H6, H7),
-		list::select(P5, H7, []),
+		select(P6, H5, H6),										% fourth clue
+		select(P4, H6, H7),
+		select(P5, H7, []),
 		two_pairs_poison_wine([P1, P2, P3, P4, P5, P6, P7]).	% first clue
 	
 

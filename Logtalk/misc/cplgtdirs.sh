@@ -1,5 +1,12 @@
 #!/bin/sh
 
+## =================================================================
+## Logtalk - Object oriented extension to Prolog
+## Release 2.20.0
+##
+## Copyright (c) 1998-2004 Paulo Moura.  All Rights Reserved.
+## =================================================================
+
 echo
 echo "This script copies the Logtalk library, xml, and examples"
 echo "directories to the user home directory (~/logtalk)."

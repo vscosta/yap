@@ -4,13 +4,14 @@
 
 
 	:- info([
-		version is 1.0,
-		date is 1998/3/23,
+		version is 1.1,
+		date is 2004/8/15,
 		author is 'Paulo Moura',
 		comment is 'Concentric polygons as a constrained binary relation.']).
 
 
-	:- uses(list).
+	:- uses(list,
+		[member/2, select/3]).
 
 
 	descriptor_([x1, x2]).
@@ -33,7 +34,7 @@
 
 	add_tuple([Polygon| Polygons]) :-
 		Polygon::position(X, Y),
-		forall(list::member(Polygon2, Polygons), {Polygon2::move(X, Y)}),
+		forall(member(Polygon2, Polygons), {Polygon2::move(X, Y)}),
 		^^add_tuple([Polygon| Polygons]).
 
 
@@ -45,24 +46,24 @@
 
 
 	propagate(after, move(X, Y), Polygon, _, Tuple) :-
-		list::select(Polygon, Tuple, Polygons),
+		select(Polygon, Tuple, Polygons),
 		!,
 		forall(
-			(list::member(Polygon2, Polygons),\+ Polygon2::position(X, Y)),
+			(member(Polygon2, Polygons),\+ Polygon2::position(X, Y)),
 			{Polygon2::move(X, Y)}).
 
 	propagate(after, transX(X), Polygon, _, Tuple) :-
-		list::select(Polygon, Tuple, Polygons),
+		select(Polygon, Tuple, Polygons),
 		!,
 		forall(
-			(list::member(Polygon2, Polygons), \+ Polygon2::position(X, _)),
+			(member(Polygon2, Polygons), \+ Polygon2::position(X, _)),
 			{Polygon2::transX(X)}).
 
 	propagate(after, transY(Y), Polygon, _, Tuple) :-
-		list::select(Polygon, Tuple, Polygons),
+		select(Polygon, Tuple, Polygons),
 		!,
 		forall(
-			(list::member(Polygon2, Polygons), \+ Polygon2::position(_, Y)),
+			(member(Polygon2, Polygons), \+ Polygon2::position(_, Y)),
 			{Polygon2::transY(Y)}).
 
 

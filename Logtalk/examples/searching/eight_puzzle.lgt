@@ -4,13 +4,13 @@
 
 
 	:- info([
-		version is 1.0,
+		version is 1.1,
 		author is 'Paulo Moura',
-		date is 1998/3/23,
+		date is 2004/8/15,
 		comment is 'Eight puzzle heuristic state space search problem.']).
 
 
-	:- uses(list).
+	:- uses(list, [member/2]).
 
 
 	initial_state(four_steps, [2/2,1/3,3/2,2/3,3/3,3/1,2/1,1/1,1/2]).
@@ -24,10 +24,10 @@
 
 
 	print_state([S0,S1,S2,S3,S4,S5,S6,S7,S8]) :-
-		list::member(Y, [3, 2, 1]),
+		member(Y, [3, 2, 1]),
 		nl,
-		list::member(X, [1, 2, 3]),
-		list::member(Tile-X/Y, [' '-S0,1-S1,2-S2,3-S3,4-S4,5-S5,6-S6,7-S7,8-S8]),
+		member(X, [1, 2, 3]),
+		member(Tile-X/Y, [' '-S0,1-S1,2-S2,3-S3,4-S4,5-S5,6-S6,7-S7,8-S8]),
 		write(Tile),
 		fail.
 

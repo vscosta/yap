@@ -1,6 +1,6 @@
 =================================================================
 Logtalk - Object oriented extension to Prolog
-Release 2.19.1
+Release 2.20.0
 
 Copyright (c) 1998-2004 Paulo Moura.  All Rights Reserved.
 =================================================================
@@ -39,7 +39,7 @@ sub-directory.
 Note that both the configuration files and the compiler/preprocessor files 
 are Prolog files. The predicate called to load these files depends on your 
 Prolog compiler (consult your Prolog compiler documentation or take a look 
-at the definition of the predicate $lgt_load_prolog_code/1 in the config 
+at the definition of the predicate '$lgt_load_prolog_code'/1 in the config 
 file. For most command-line compilers, you could type at the Prolog prompt 
 something like:
 

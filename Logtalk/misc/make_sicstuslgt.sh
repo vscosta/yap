@@ -1,7 +1,14 @@
 #! /bin/sh
 
+## =================================================================
+## Logtalk - Object oriented extension to Prolog
+## Release 2.20.0
+##
+## Copyright (c) 1998-2004 Paulo Moura.  All Rights Reserved.
+## =================================================================
+
 echo
-echo "Making a script named sicstuslgt for running Logtalk with SICStus Prolog..."
+echo "Creating a script named sicstuslgt for running Logtalk with SICStus Prolog..."
 
 if ! [ $LOGTALKHOME ]
 then

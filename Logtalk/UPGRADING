@@ -1,6 +1,6 @@
 =================================================================
 Logtalk - Object oriented extension to Prolog
-Release 2.19.1
+Release 2.20.0
 
 Copyright (c) 1998-2004 Paulo Moura.  All Rights Reserved.
 =================================================================
@@ -81,3 +81,7 @@ value is "flags" (print both banner and default flag values).
 
 Logtalk version 2.17.1 removes predicate nth/3 from library entities listp, 
 list, and difflist (replaced by the predicates nth0/3 and nth1/3).
+
+Logtalk version 2.20.0 updates the semantics of the uses/1 entity directive 
+to accept as argument a single object identifier (this change is needed in 
+order to ensure compatibility with the new uses/2 predicate directive).

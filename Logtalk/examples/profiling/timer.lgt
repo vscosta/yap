@@ -3,14 +3,14 @@
 
 
 	:- info([
-		version is 1.1,
+		version is 1.2,
 		author is 'Paulo Moura',
-		date is 2004/6/30,
+		date is 2004/8/15,
 		comment is 'Call executing time profiler.']).
 
 
-	:- uses(time).
-	:- uses(loop).
+	:- uses(time, [cpu_time/1]).
+	:- uses(loop, [forto/3]).
 
 
 	:- public(timer/2).
@@ -34,19 +34,19 @@
 
 
 	timer(Call, Time) :-
-		time::cpu_time(Start),
+		cpu_time(Start),
 		(call(Call) -> true; true),
-		time::cpu_time(End),
+		cpu_time(End),
 		Time is End - Start.
 
 
 	timer(Call, Times, Time) :-
-		time::cpu_time(Start),
-		loop::forto(1, Times, Call),
-		time::cpu_time(End),
-		time::cpu_time(Start2),
-		loop::forto(1, 0, true),
-		time::cpu_time(End2),
+		cpu_time(Start),
+		forto(1, Times, Call),
+		cpu_time(End),
+		cpu_time(Start2),
+		forto(1, 0, true),
+		cpu_time(End2),
 		Overhead is End2 - Start2,
 		Time is (End - Start - Overhead) / Times.
 

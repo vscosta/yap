@@ -13,9 +13,6 @@
 		source is 'Example adopted from the SICStus Objects documentation.']).
 
 
-	:- uses(list).
-
-
 	move(X, Y) :-
 		::check_bounds(x, X),
 		::check_bounds(y, Y),

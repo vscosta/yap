@@ -5,13 +5,14 @@
 
 
 	:- info([
-		version is 3,
-		date is 2000/7/24,
+		version is 3.1,
+		date is 2004/8/15,
 		author is 'Paulo Moura',
 		comment is 'Enables the representation of relations with constraints on the state of participating objects.']).
 
 
-	:- uses(list).
+	:- uses(list,
+		[member/2, memberchk/2, subtract/3]).
 
 
 	:- private(activ_points_/3).
@@ -106,7 +107,7 @@
 
 	del_object_monitors(Object, Role) :-
 		::plays_roles(Object, Roles) ->
-			(list::member(Role, Roles) ->
+			(member(Role, Roles) ->
 				true
 				;
 				del_object_monitors(Object, Role, Roles))
@@ -145,7 +146,7 @@
 
 	activ_point(Role, Event, Message) :-
 		::activ_points_(Role, Event, Messages),
-		list::member(Message, Messages).
+		member(Message, Messages).
 
 
 	activ_points(Role, Event, List) :-
@@ -160,7 +161,7 @@
 
 	set_activ_points(Role, Event, List) :-
 		::descriptor(Descriptor),
-		list::memberchk(Role, Descriptor),
+		memberchk(Role, Descriptor),
 		::retractall(activ_points_(Role, Event, _)),
 		::assertz(activ_points_(Role, Event, List)).
 
@@ -174,7 +175,7 @@
 
 	filter_messages([Role| Roles], Original, Event, Messages) :-
 		::activ_points_(Role, Event, Excluded),
-		list::subtract(Original, Excluded, Rest),
+		subtract(Original, Excluded, Rest),
 		filter_messages(Roles, Rest, Event, Messages).
 
 
@@ -196,13 +197,13 @@
 		::descriptor(Descriptor),
 		write('call activation points:'), nl,
 		findall(Messages,
-			(list::member(Role, Descriptor),
+			(member(Role, Descriptor),
              ::activ_points(Role, before, Messages)),
            CallList),
 		write('  '), writeq(CallList), nl,
 		write('exit activation points:'), nl,
 		findall(Messages,
-			(list::member(Role, Descriptor),
+			(member(Role, Descriptor),
 			 ::activ_points(Role, after, Messages)),
            ExitList),
 		write('  '), writeq(ExitList), nl.

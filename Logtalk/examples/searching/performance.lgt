@@ -4,18 +4,18 @@
 
 
 	:- info([
-		version is 1.0,
+		version is 1.1,
 		author is 'Paulo Moura',
-		date is 1998/3/23,
+		date is 2004/8/15,
 		comment is 'Performance monitor for state space searches.']).
 
 
 	:- uses(event_registry).
 	:- uses(before_event_registry).
 	:- uses(after_event_registry).
-	:- uses(list).
-	:- uses(numberlist).
-	:- uses(time).
+	:- uses(list, [length/2]).
+	:- uses(numberlist, [min/2, max/2, sum/2]).
+	:- uses(time, [cpu_time/1]).
 
 
 	:- private(transitions/3).
@@ -71,7 +71,7 @@
 
 	transitions(Number) :-
 		findall(N, ::transitions(_, _, N), List),
-		numberlist::sum(List, Number).
+		sum(List, Number).
 
 
 	time(Time) :-
@@ -85,12 +85,12 @@
 			Length, 
 			(::transitions(State1, _, _),
 			 findall(State2, ::transitions(State1, State2, _), States2),
-			 list::length(States2, Length)),
+			 length(States2, Length)),
 			Lengths),
-		list::min(Lengths, Minimum),
-		list::max(Lengths, Maximum),
-		numberlist::sum(Lengths, Sum),
-		list::length(Lengths, Length),
+		min(Lengths, Minimum),
+		max(Lengths, Maximum),
+		sum(Lengths, Sum),
+		length(Lengths, Length),
 		Average is Sum / Length.
 
 
@@ -114,13 +114,13 @@
 
 	before(_, solve(_, _, _), _) :-
 		!,
-		time::cpu_time(Time),
+		cpu_time(Time),
 		::retractall(start_time(_)),
 		::asserta(start_time(Time)).
 
 	before(_, solve(_, _, _, _), _) :-
 		!,
-		time::cpu_time(Time),
+		cpu_time(Time),
 		::retractall(start_time(_)),
 		::asserta(start_time(Time)).
 
@@ -145,19 +145,19 @@
 
 	after(_, solve(_, _, Solution), _) :-
 		!,
-		time::cpu_time(Time),
+		cpu_time(Time),
 		::retractall(end_time(_)),
 		::asserta(end_time(Time)),
-		list::length(Solution, Length),
+		length(Solution, Length),
 		::retractall(solution_length(_)),
 		::asserta(solution_length(Length)).
 
 	after(_, solve(_, _, Solution, _), _) :-
 		!,
-		time::cpu_time(Time),
+		cpu_time(Time),
 		::retractall(end_time(_)),
 		::asserta(end_time(Time)),
-		list::length(Solution, Length),
+		length(Solution, Length),
 		::retractall(solution_length(_)),
 		::asserta(solution_length(Length)).
 

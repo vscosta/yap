@@ -1,7 +1,14 @@
 #! /bin/sh
 
+## =================================================================
+## Logtalk - Object oriented extension to Prolog
+## Release 2.20.0
+##
+## Copyright (c) 1998-2004 Paulo Moura.  All Rights Reserved.
+## =================================================================
+
 echo
-echo "Making a script named qplgt for running Logtalk with Qu-Prolog..."
+echo "Creating a script named qplgt for running Logtalk with Qu-Prolog..."
 
 if ! [ $LOGTALKHOME ]
 then

@@ -93,7 +93,7 @@ These loader files may not work without modifications depending on the way your 
 <h3>Portable programs<a name="portability"></a></h3>
 
 <p>
-Logtalk is compatible with almost all modern Prolog compilers. However, this does not necessarily imply that your Logtalk programs will have the same level of portability. If possible, you should only use in your programs Logtalk built-in predicates and ISO Prolog defined built-in predicates. If you need to use built-in predicates that may not be available in other Prolog compilers, you should try to encapsulate the non-portable code in a minimum of objects and provide a portable <strong>interface</strong> for that code. An example will be code that access operating-system specific features. The Logtalk compiler can warn you of the use of non-ISO defined built-in predicates by using the <code>portability/1</code> compiler option.
+Logtalk is compatible with almost all modern Prolog compilers. However, this does not necessarily imply that your Logtalk programs will have the same level of portability. If possible, you should only use in your programs Logtalk built-in predicates and ISO Prolog defined built-in predicates. If you need to use built-in predicates that may not be available in other Prolog compilers, you should try to encapsulate the non-portable code in a minimum of objects and provide a portable <strong>interface</strong> for that code through the use of Logtalk protocols. An example will be code that access operating-system specific features. The Logtalk compiler can warn you of the use of non-ISO defined built-in predicates by using the <code>portability/1</code> compiler option.
 </p>
 
 <h3>Avoiding common errors<a name="errors"></a></h3>
@@ -156,7 +156,7 @@ Copyright &copy; <a href="mailto:pmoura@logtalk.org">Paulo Moura</a> &mdash; <a 
 </div>
 
 <div class="footer">
-<p><span class="bleft"><a href="http://validator.w3.org/check/referer">XHTML</a> + <a href="http://jigsaw.w3.org/css-validator/check/referer">CSS</a></span><span class="bright">Last updated on: July 22, 2004</span></p>
+<p><span class="bleft"><a href="http://validator.w3.org/check/referer">XHTML</a> + <a href="http://jigsaw.w3.org/css-validator/check/referer">CSS</a></span><span class="bright">Last updated on: August 3, 2004</span></p>
 </div>
 </body>
 </html>

@@ -1,19 +1,23 @@
 =================================================================
 Logtalk - Object oriented extension to Prolog
-Release 2.19.1
+Release 2.20.0
 
 Copyright (c) 1998-2004 Paulo Moura.  All Rights Reserved.
 =================================================================
 
 
 This directory contains miscellaneous files used in Logtalk packaging, 
-installation, and integration with Prolog compilers:
+installation, and integration with Prolog compilers. Several scripts are 
+included. Those with extension .sh are shell scripts for MacOS X, Linux, 
+and similar systems. Those with extension .js are JScript command-line 
+scripts for Windows; they require WSH 5.6 or later version to be installed.
+
 
 lgt_install.sh
-	shell script for installing Logtalk in Unix and Unix-like operating 
-	systems (must be run from this directory by a user with administration 
-	privileges); accepts as an optional argument a prefix for the installation 
-	directory (default is /usr/local)
+	shell script for installing Logtalk in a system-wide location for Unix and 
+	Unix-like operating systems (must be run from this directory by a user with 
+	administration privileges); accepts as an optional argument a prefix for the 
+	installation directory (default is /usr/local)
 
 logtalk.spec
 	specification file for building Linux RPMs
@@ -21,12 +25,13 @@ logtalk.spec
 	run the command: rpmbuild -ba --target=noarch-*-linux logtalk.spec)
 
 cplgtdirs.sh
-	shell script for copying xml, examples and library directories to 
-	the user home directory (must be run by the end-user to ensure 
-	proper permissions on the copied files)
+cplgtdirs.js
+	sample scripts for the copying xml, examples, and library directories to the 
+	user home directory (must be run by the end-user to ensure proper permissions 
+	on the copied files)
 
 cleandist.sh
-	shell script for cleaning a Logtalk distribution in preparation for 
+	script for cleaning a Logtalk distribution in preparation for 
 	packaging.
 
 debian
@@ -34,39 +39,56 @@ debian
 	(work in progress; not yet functional)
 
 
-The following shell scripts must be run by a user with administration 
-privileges:
+The following scripts must be run by a user with administration privileges:
 
 make_ciaolgt.sh
-	makes a script named ciaolgt for running Logtalk with CIAO Prolog
+	makes a shell script named ciaolgt for running Logtalk with CIAO Prolog
+	(the first run of the ciaolgt script must be made as root or using sudo)
 
 make_eclipselgt.sh
-	makes a script named eclipselgt for running Logtalk with ECLiPSe
+	makes a shell script named eclipselgt for running Logtalk with ECLiPSe
+make_eclipselgt.js
+	makes a Windows shortcut named "Logtalk - ECLiPSe" for running Logtalk 
+	with ECLiPSe 5.7 (if you are using a different version, you must edit 
+	the reference to the registry key in the script; if you prefer to use
+	TkEclipse, open the %LOGTALKHOME%\bin\logtalkeclipse.pl file with it)
 
 make_gplgt.sh
-	makes a script named gplgt for running Logtalk with GNU Prolog
+	makes a shell script named gplgt for running Logtalk with GNU Prolog
 
 make_qplgt.sh
-	makes a script named qplgt for running Logtalk with Qu-Prolog 
+	makes a shell script named qplgt for running Logtalk with Qu-Prolog 
 	(based on script code contributed by Peter Robinson)
 
 make_sicstuslgt.sh
-	makes a script named sicstuslgt for running Logtalk with SICStus Prolog
+	makes a shell script named sicstuslgt for running Logtalk with SICStus 
+	Prolog
+make_sicstuslgt.js
+	makes a Windows shortcut named "Logtalk - SICStus Prolog" for running 
+	Logtalk with SICStus Prolog 3.11 (if you are using a different version, 
+	you must edit the reference to the registry key in the script)
 
 make_swilgt.sh
-	makes a script named swilgt for running Logtalk with SWI-Prolog
+	makes a shell script named swilgt for running Logtalk with SWI-Prolog
+make_swilgt.js
+	makes a Windows shortcut named "Logtalk - SWI-Prolog" for running Logtalk 
+	with SWI-Prolog
 
 make_yaplgt.sh
-	makes a script named yaplgt for running Logtalk with YAP
+	makes a shell script named yaplgt for running Logtalk with YAP
+make_yaplgt.js
+	makes a Windows shortcut named "Logtalk - YAP" for running Logtalk with YAP
+	(assumes that the Yap folder is installed in C:\Program Files; edit the path 
+	to the yap.exe executable in the script if necessary)
 
 make_xsblgt.sh
-	makes a script named xsblgt for running Logtalk with XSB
+	makes a shell script named xsblgt for running Logtalk with XSB
 
 These scripts require the environment variable LOGTALKHOME (pointing to the 
-Logtalk installation directory) to be defined. In addition, they accept as 
-an optional argument a prefix for the location of a link to the scripts 
-(default is /usr/local, creating the links in /usr/local/bin). Please note 
-that the environment variable LOGTALKHOME must be defined in order to run 
+Logtalk installation directory) to be defined. In addition, the shell scripts 
+accept as an optional argument a prefix for the location of a link to the 
+scripts (default is /usr/local, creating the links in /usr/local/bin). Please 
+note that the environment variable LOGTALKHOME must be defined in order to run 
 the *lgt scripts that are created by the shell scripts above.
 
 Note: when Logtalk is manually installed from sources, the shell scripts might 

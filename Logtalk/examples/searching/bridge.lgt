@@ -3,9 +3,16 @@
 	instantiates(heuristic_state_space)).
 
 
-	:- uses(list).
-	:- uses(numberlist).
-	:- uses(set).
+	:- info([
+		version is 1.1,
+		author is 'Paulo Moura',
+		date is 2004/8/15,
+		comment is 'Bridge puzzle.']).
+
+
+	:- uses(list, [append/3]).
+	:- uses(numberlist, [min/2, max/2]).
+	:- uses(set, [insert/3, insert_all/3, select/3]).
 	
 
 	initial_state(start, ([], right, [1,3,6,8,12])).
@@ -15,32 +22,32 @@
 
 
 	next_state((Left1, left, Right1), (Left2, right, Right2), Slower) :-	% two persons
-		list::append(List, [Person1| Persons], Left1),
-		set::select(Person2, Persons, Others),
-		list::append(List, Others, Left2),
-		set::insert_all([Person1, Person2], Right1, Right2),
+		append(List, [Person1| Persons], Left1),
+		select(Person2, Persons, Others),
+		append(List, Others, Left2),
+		insert_all([Person1, Person2], Right1, Right2),
 		(Person1 > Person2 ->
 			Slower = Person1
 			;
 			Slower = Person2).
 
 	next_state((Left1, right, Right1), (Left2, left, Right2), Slower) :-	% two persons
-		list::append(List, [Person1| Persons], Right1),
-		set::select(Person2, Persons, Others),
-		list::append(List, Others, Right2),
-		set::insert_all([Person1, Person2], Left1, Left2),
+		append(List, [Person1| Persons], Right1),
+		select(Person2, Persons, Others),
+		append(List, Others, Right2),
+		insert_all([Person1, Person2], Left1, Left2),
 		(Person1 > Person2 ->
 			Slower = Person1
 			;
 			Slower = Person2).
 
 	next_state((Left1, left, Right1), (Left2, right, Right2), Person) :-	% one person
-		set::select(Person, Left1, Left2),
-		set::insert(Right1, Person, Right2).
+		select(Person, Left1, Left2),
+		insert(Right1, Person, Right2).
 		
 	next_state((Left1, right, Right1), (Left2, left, Right2), Person) :-	% one person
-		set::select(Person, Right1, Right2),
-		set::insert(Left1, Person, Left2).
+		select(Person, Right1, Right2),
+		insert(Left1, Person, Left2).
 
 
 	heuristic((Left, Lamp, Right), Heuristic) :-

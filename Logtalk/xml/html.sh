@@ -4,7 +4,6 @@ XT_PATH="/Applications/XML/XT"
 # XT_PATH="/usr/local/XT"
 
 XSLT="lgthtml.xsl"
-# XSLT="lgtxhtml.xsl"
 
 if [ -z "$1" ]; then
 	title="Entity documentation index"
@@ -38,6 +37,7 @@ echo "" > index.html
 echo "<!DOCTYPE html PUBLIC \"-//W3C//DTD HTML 4.01//EN\" \"http://www.w3.org/TR/html4/strict.dtd\">" >> index.html
 echo "<html>" >> index.html
 echo "<head>" >> index.html
+echo "    <meta http-equiv=\"Content-Type\" content=\"text/html; charset=UTF-8\">" >> index.html
 echo "    <title>"$title"</title>" >> index.html
 echo "    <link rel=\"stylesheet\" href=\"logtalk.css\" type=\"text/css\">" >> index.html
 echo "</head>" >> index.html

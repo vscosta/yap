@@ -10,7 +10,7 @@
 		comment is 'Missionaries and cannibals heuristic state space search problem.']).
 
 
-	:- uses(loop).
+	:- uses(loop, [forto/3]).
 
 
 	initial_state(start, ((3,3), left, (0,0))).
@@ -20,14 +20,14 @@
 
 
 	print_state(((Me,Ce), B, (Md,Cd))) :-
-		loop::forto(1, Me, write('M')),
-		loop::forto(1, Ce, write('C')),
+		forto(1, Me, write('M')),
+		forto(1, Ce, write('C')),
 		(B = left ->
 			write('.<__>..........')
 			;
 			write('..........<__>.')),
-		loop::forto(1, Md, write('M')),
-		loop::forto(1, Cd, write('C')),
+		forto(1, Md, write('M')),
+		forto(1, Cd, write('C')),
 		nl.
 
 

@@ -416,7 +416,8 @@ The Logtalk grammar is here described using Backus-Naur Form syntax. Non-termina
 		<dl>
 			<dt>object_directive ::=</dt>
 				<dd>"<code>:- initialization(</code>" <i>callable</i> "<code>).</code>" |</dd>
-				<dd>"<code>:- uses(</code>" object_identifiers "<code>).</code>" |</dd>
+				<dd>"<code>:- uses(</code>" object_identifier "<code>).</code>" |</dd>
+				<dd>"<code>:- uses(</code>" object_identifier "<code>,</code>" predicate_indicator_list "<code>).</code>" |</dd>
 				<dd>"<code>:- calls(</code>" protocol_identifiers "<code>).</code>" |</dd>
 				<dd>"<code>:- dynamic.</code>" |</dd>
 				<dd>"<code>:- info(</code>" info_list "<code>).</code>" |</dd>
@@ -434,7 +435,8 @@ The Logtalk grammar is here described using Backus-Naur Form syntax. Non-termina
 		<dl>
 			<dt>category_directive ::=</dt>
 				<dd>"<code>:- initialization(</code>" <i>callable</i> "<code>).</code>" |</dd>
-				<dd>"<code>:- uses(</code>" object_identifiers "<code>).</code>" |</dd>
+				<dd>"<code>:- uses(</code>" object_identifier "<code>).</code>" |</dd>
+				<dd>"<code>:- uses(</code>" object_identifier "<code>,</code>" predicate_indicator_list "<code>).</code>" |</dd>
 				<dd>"<code>:- calls(</code>" protocol_identifiers "<code>).</code>" |</dd>
 				<dd>"<code>:- dynamic.</code>" |</dd>
 				<dd>"<code>:- info(</code>" info_list "<code>).</code>" |</dd>
@@ -683,7 +685,7 @@ Copyright &copy; <a href="mailto:pmoura@logtalk.org">Paulo Moura</a> &mdash; <a 
 </div>
 
 <div class="footer">
-<p><span class="bleft"><a href="http://validator.w3.org/check/referer">XHTML</a> + <a href="http://jigsaw.w3.org/css-validator/check/referer">CSS</a></span><span class="bright">Last updated on: June 11, 2004</span></p>
+<p><span class="bleft"><a href="http://validator.w3.org/check/referer">XHTML</a> + <a href="http://jigsaw.w3.org/css-validator/check/referer">CSS</a></span><span class="bright">Last updated on: August 14, 2004</span></p>
 </div>
 </body>
 </html>

@@ -6,15 +6,16 @@
 
 
 	:- info([
-		version is 1.1,
-		date is 2004/5/9,
+		version is 1.2,
+		date is 2004/8/15,
 		author is 'Esteban Zimanyi, Paulo Moura',
 		comment is 'Enables the representation of relations between independent objects.']).
 
 
 	:- uses(before_event_registry).
 	:- uses(after_event_registry).
-	:- uses(list).
+	:- uses(list,
+		[length/2, member/2, memberchk/2, nth1/3, same_length/2]).
 
 
 	tuple(Tuple) :-
@@ -33,7 +34,7 @@
 
 	add_tuple(Tuple) :-
 		::descriptor(Descriptor),
-		\+ list::same_length(Tuple, Descriptor),
+		\+ same_length(Tuple, Descriptor),
 		self(Self),
 		sender(Sender),
 		throw(error(invalid_length, Self::add_tuple(Tuple), Sender)).
@@ -49,8 +50,8 @@
 
 	add_tuple(Tuple) :-
 		::descriptor(Descriptor),
-		list::nth1(Position, Tuple, Object),
-		list::nth1(Position, Descriptor, Role),
+		nth1(Position, Tuple, Object),
+		nth1(Position, Descriptor, Role),
 		::cardinality(Role, _, Maximum),
 		::plays_role_n_times(Object, Role, Number),
 		Maximum = Number,
@@ -60,8 +61,8 @@
 
 	add_tuple(Tuple) :-
 		::descriptor(Descriptor),
-		list::nth1(Position, Tuple, Object),
-		list::nth1(Position, Descriptor, Role),
+		nth1(Position, Tuple, Object),
+		nth1(Position, Descriptor, Role),
 		::domain(Role, Domain),
 		(Domain::strict_instance ->
 			\+ Domain::valid(Object)
@@ -79,7 +80,7 @@
 	make_tuple_template([], [], _, []).
 
 	make_tuple_template([Object| Objects], [Role| Roles], Key, [Var| Rest]) :-
-		(list::member(Role, Key) ->
+		(member(Role, Key) ->
 			Var = Object
 			;
 			true),
@@ -94,8 +95,8 @@
 
 	remove_tuple(Tuple) :-
 		::descriptor(Descriptor),
-		list::nth1(Position, Tuple, Object),
-		list::nth1(Position, Descriptor, Role),
+		nth1(Position, Tuple, Object),
+		nth1(Position, Descriptor, Role),
 		::cardinality(Role, Minimum, _),
 		::plays_role_n_times(Object, Role, Number),
 		Minimum = Number,
@@ -115,34 +116,34 @@
 
 	number_of_tuples(Number) :-
 		findall(1, ::tuple_(_), List),
-		list::length(List, Number).
+		length(List, Number).
 
 
 	plays_roles(Object, Roles) :-
 		::descriptor(Descriptor),
 		setof(Role,
 			Tuple^Position^ (::tuple(Tuple),
-                           list::member(Object, Tuple),
-                           list::nth1(Position, Tuple, Object),
-                           once(list::nth1(Position, Descriptor, Role))),
+                           member(Object, Tuple),
+                           nth1(Position, Tuple, Object),
+                           once(nth1(Position, Descriptor, Role))),
          Roles).
 
 
 	plays_role_in_tuple(Object, Role, Tuple) :-
 		::descriptor(Descriptor),
 		::tuple(Tuple),
-		list::nth1(Position, Tuple, Object),
-		list::nth1(Position, Descriptor, Role).
+		nth1(Position, Tuple, Object),
+		nth1(Position, Descriptor, Role).
 
 
 	plays_role_n_times(Object, Role, Number) :-
 		::descriptor(Descriptor),
-		list::nth1(Position, Descriptor, Role),
+		nth1(Position, Descriptor, Role),
 		setof(Tuple,
 			(::tuple(Tuple),
-			 list::nth1(Position, Tuple, Object)), 
+			 nth1(Position, Tuple, Object)), 
 			Tuples),
-		list::length(Tuples, Number).
+		length(Tuples, Number).
 
 
 	domains(Domains) :-
@@ -193,7 +194,7 @@
 
 	degree(Degree) :-
 		::descriptor_(Descriptor),
-		list::length(Descriptor, Degree).
+		length(Descriptor, Degree).
 
 
 	set_descriptor(Descriptor) :-
@@ -258,8 +259,8 @@
 
 	valid_keys([Key| Keys], Descriptor) :-
 		forall(
-			list::member(Role, Key),
-			list::memberchk(Role, Descriptor)),
+			member(Role, Key),
+			memberchk(Role, Descriptor)),
 		valid_keys(Keys, Descriptor).
 
 
@@ -294,7 +295,7 @@
 
 	set_delete_options(Options) :-
 		::descriptor(Descriptor),
-		\+ list::same_length(Options, Descriptor),
+		\+ same_length(Options, Descriptor),
 		self(Self),
 		sender(Sender),
 		throw(error(invalid_length, Self::set_delete_options(Options), Sender)).
@@ -413,7 +414,7 @@
 
 	del_monitors([Object| Objects]) :-
 		((instantiates_class(Object, Class),
-		  \+ (::tuple(Other), list::member(Object, Other))) ->
+		  \+ (::tuple(Other), member(Object, Other))) ->
 			self(Self),
 			before_event_registry::del_monitors(Class, delete(Object, _), _, Self)
 			;

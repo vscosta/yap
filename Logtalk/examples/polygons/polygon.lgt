@@ -11,9 +11,6 @@
 		comment is 'Polygon predicates.']).
 
 
-	:- uses(list).
-
-
 	:- public(move/2).
 	:- mode(move(+integer, +integer), one).
 

@@ -1,6 +1,6 @@
 =================================================================
 Logtalk - Object oriented extension to Prolog
-Release 2.19.1
+Release 2.20.0
 
 Copyright (c) 1998-2004 Paulo Moura.  All Rights Reserved.
 =================================================================
@@ -8,6 +8,42 @@ Copyright (c) 1998-2004 Paulo Moura.  All Rights Reserved.
 
 RELEASE NOTES
 =============
+
+
+2.20.0 - August 16, 2004
+
+	Added support for the uses/2 predicate directive (whose semantics is similar 
+	to C++ using-declarations). Updated the uses/1 entity directive to accept as 
+	argument a single object identifier.
+
+	Improved installation instructions for Windows users.
+
+	Added four new sample bash shell scripts and Windows JScript scripts for 
+	converting XML documenting files to PDF, HTML, and XHTML using several XSL 
+	processors.
+
+	Added missing namespace to XSL files in order to generated valid (X)HTML 
+	files with recent versions of XSLT processors.
+
+	Updated the User Manual documentation on converting XML documenting files 
+	to other formats.
+
+	Removed the texml.xsl XSLT file as the TeXMLatte application it depends on 
+	is no longer available.
+
+	Added Windows JScript script for copying the Logtalk examples, library, and 
+	xml directories to the user directory.
+
+	Added Windows JScript scripts for easy integration of Logtalk with ECLiPSe, 
+	SWI-Prolog, SICStus Prolog, and YAP.
+
+	Added missing extension for source metafiles to the SWI-Prolog hook file.
+	
+	Corrected a bug in the lgtxhtml.xsl XSLT file where a wrong reference to 
+	the Logtalk CSS file is being used in the xml-stylesheet tag.
+
+	The iso_initialization_dir/1 compiler option is now a read only flag, 
+	defined in the configuration files.
 
 
 2.19.1 - August 2, 2004
