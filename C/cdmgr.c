@@ -1712,7 +1712,7 @@ p_undefined(void)
   if (pe == RepPredProp(NIL))
     return (TRUE);
   READ_LOCK(pe->PRWLock);
-  if (pe->PredFlags & (CPredFlag|UserCPredFlag|TestPredFlag|AsmPredFlag|DynamicPredFlag)) {
+  if (pe->PredFlags & (CPredFlag|UserCPredFlag|TestPredFlag|AsmPredFlag|DynamicPredFlag|LogUpdatePredFlag)) {
     READ_UNLOCK(pe->PRWLock);
     return(FALSE);
   }
