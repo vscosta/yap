@@ -3003,7 +3003,7 @@ do_index(ClauseDef *min, ClauseDef* max, PredEntry *ap, UInt argno, UInt fail_l,
   UInt ngroups, found_pvar = FALSE;
   UInt i = 0;
   GroupDef *group = (GroupDef *)top;
-  UInt labl, labl0;
+  UInt labl, labl0, lablx;
   Term t;
   /* remember how we entered here */
   UInt argno0 = argno;
@@ -3023,23 +3023,29 @@ do_index(ClauseDef *min, ClauseDef* max, PredEntry *ap, UInt argno, UInt fail_l,
     found_pvar = cls_info(min, max, argno);
   }
   ngroups = groups_in(min, max, group);
-  labl0 = labl = new_label();
-  while (IsVarTerm(t)) {
-    if (max - min > 2 &&
-	ap->ModuleOfPred != 2) {
+  if (IsVarTerm(t) &&
+      max - min > 2 &&
+      ap->ModuleOfPred != 2) {
+    lablx = new_label();
+    Yap_emit(label_op, lablx, Zero);
+    while (IsVarTerm(t)) {
       Yap_emit(jump_nv_op, (CELL)(&(ap->cs.p_code.ExpandCode)), argno);
-    }   
-    if (argno == ap->ArityOfPE) {
-      return do_var_clauses(min, max, FALSE, ap, first, clleft, fail_l, argno0);
-    }
-    argno++;
-    t = Deref(XREGS[argno]);
-    if (ap->PredFlags & LogUpdatePredFlag) {
-      found_pvar = cls_head_info(min, max, argno);
-    } else {
-      found_pvar = cls_info(min, max, argno);
-    }
-    ngroups = groups_in(min, max, group);
+      if (argno == ap->ArityOfPE) {
+	do_var_clauses(min, max, FALSE, ap, first, clleft, fail_l, argno0);
+	return lablx;
+      }
+      argno++;
+      t = Deref(XREGS[argno]);
+      if (ap->PredFlags & LogUpdatePredFlag) {
+	found_pvar = cls_head_info(min, max, argno);
+      } else {
+	found_pvar = cls_info(min, max, argno);
+      }
+      ngroups = groups_in(min, max, group);
+    } 
+    labl0 = labl = new_label();
+  } else {
+    lablx = labl0 = labl = new_label();
   }
   top = (CELL *)(group+ngroups);
   if (argno > 1) {
@@ -3114,7 +3120,7 @@ do_index(ClauseDef *min, ClauseDef* max, PredEntry *ap, UInt argno, UInt fail_l,
     group++;
     labl = nextlbl;
   }
-  return labl0;
+  return lablx;
 }
 
 static ClauseDef *
@@ -3381,10 +3387,11 @@ reset_stack(istack_entry *sp0)
 }
 
 static istack_entry *
-push_stack(istack_entry *sp, Int arg, Term Tag)
+push_stack(istack_entry *sp, Int arg, Term Tag, Term extra)
 {
   sp->pos = arg;
   sp->val = Tag;
+  sp->extra = extra;
   sp++;
   sp->pos = 0;
   return sp;
@@ -3404,17 +3411,6 @@ install_clause(ClauseDef *cls, PredEntry *ap, istack_entry *stack)
       UInt argno = -sp->pos;
       add_arg_info(cls, ap, argno);
     }
-    /* go straight to the meat for dbrefs and friends */
-    if (IsApplTerm(cls->Tag)) {
-      Functor f = (Functor)RepAppl(cls->Tag);
-      if (IsExtensionFunctor(f)) {
-	if (f == FunctorDBRef) {
-	  cls->Tag = cls->u.t_ptr;
-	} else {
-	  cls->Tag = MkIntTerm(RepAppl(cls->u.t_ptr)[1]);
-	}
-      }
-    }
     /* if we are not talking about a variable */
     if (cls->Tag != sp->val) {
       if (sp->val == 0L) {
@@ -3422,6 +3418,18 @@ install_clause(ClauseDef *cls, PredEntry *ap, istack_entry *stack)
       }
       break;
     } else {
+      if (IsApplTerm(cls->Tag)) {
+	Functor f = (Functor)RepAppl(cls->Tag);
+	if (IsExtensionFunctor(f)) {
+	  if (f == FunctorDBRef) {
+	    if (cls->u.t_ptr == sp->extra) break;
+	  } else {
+	    Term t = MkIntTerm(RepAppl(sp->extra)[1]),
+	      t1 = MkIntTerm(RepAppl(cls->u.t_ptr)[1]);
+	      if (t == t1) break;
+	  }
+	}
+      }
       if ((Int)(sp->pos) > 0) {
 	move_next(cls, sp->pos);
       } else if (sp->pos) {
@@ -3491,17 +3499,6 @@ install_log_upd_clause(ClauseDef *cls, PredEntry *ap, istack_entry *stack)
       UInt argno = -sp->pos;
       add_arg_info(cls, ap, argno);
     }
-    /* go straught to the meat for dbrefs and friends */
-    if (IsApplTerm(cls->Tag)) {
-      Functor f = (Functor)RepAppl(cls->Tag);
-      if (IsExtensionFunctor(f)) {
-	if (f == FunctorDBRef) {
-	  cls->Tag = cls->u.t_ptr;
-	} else {
-	  cls->Tag = MkIntTerm(RepAppl(cls->u.t_ptr)[1]);
-	}
-      }
-    }
     /* if we are not talking about a variable */
     if (cls->Tag != sp->val) {
       if (sp->val == 0L) {
@@ -3509,6 +3506,18 @@ install_log_upd_clause(ClauseDef *cls, PredEntry *ap, istack_entry *stack)
       }
       break;
     } else {
+      if (IsApplTerm(cls->Tag)) {
+	Functor f = (Functor)RepAppl(cls->Tag);
+	if (IsExtensionFunctor(f)) {
+	  if (f == FunctorDBRef) {
+	    if (cls->u.t_ptr != sp->extra) break;
+	  } else {
+	    Term t = MkIntTerm(RepAppl(sp->extra)[1]),
+	      t1 = MkIntTerm(RepAppl(cls->u.t_ptr)[1]);
+	      if (t != t1) break;
+	  }
+	}
+      }
       if ((Int)(sp->pos) > 0) {
 	move_next(cls, sp->pos);
       } else if (sp->pos) {
@@ -3744,11 +3753,11 @@ expand_index(PredEntry *ap) {
       break;
     case _jump_if_nonvar:
       argno = arg_from_x(ipc->u.xl.x);
-      t = Deref(Yap_XREGS[argno]);
+      t = Deref(XREGS[argno]);
       i = 0;
       /* expand_index expects to find the new argument */
-      argno--;
       if (!IsVarTerm(t)) {
+	argno--;
 	labp = &(ipc->u.xl.l);
 	ipc = ipc->u.xl.l;
       } else {
@@ -3759,13 +3768,13 @@ expand_index(PredEntry *ap) {
       /* instructions type e */
     case _index_dbref:
       t = AbsAppl(s_reg-1);
-      sp[-1].val = t;
+      sp[-1].extra = t;
       s_reg = NULL;
       ipc = NEXTOP(ipc,e);
       break;
     case _index_blob:
       t = MkIntTerm(s_reg[0]);
-      sp[-1].val = t;
+      sp[-1].extra = AbsAppl(s_reg-1);
       s_reg = NULL;
       ipc = NEXTOP(ipc,e);
       break;
@@ -3778,15 +3787,15 @@ expand_index(PredEntry *ap) {
 	labp = &(ipc->u.llll.l4);
 	ipc = ipc->u.llll.l4;
       } else if (IsPairTerm(t)) {
-	sp = push_stack(sp, 1, AbsPair(NULL));
+	sp = push_stack(sp, 1, AbsPair(NULL), TermNil);
 	s_reg = RepPair(t);
 	labp = &(ipc->u.llll.l1);
 	ipc = ipc->u.llll.l1;	
       } else if (IsApplTerm(t)) {
-	sp = push_stack(sp, 1, AbsAppl((CELL *)FunctorOfTerm(t)));
+	sp = push_stack(sp, 1, AbsAppl((CELL *)FunctorOfTerm(t)), TermNil);
 	ipc = ipc->u.llll.l3;	
       } else {
-	sp = push_stack(sp, argno, t);
+	sp = push_stack(sp, argno, t, TermNil);
 	ipc = ipc->u.llll.l2;	
       }
       break;
@@ -3800,33 +3809,33 @@ expand_index(PredEntry *ap) {
       } else if (IsPairTerm(t)) {
 	s_reg = RepPair(t);
 	labp = &(ipc->u.ollll.l1);
-	sp = push_stack(sp, 1, AbsPair(NULL));
+	sp = push_stack(sp, 1, AbsPair(NULL), TermNil);
 	ipc = ipc->u.ollll.l1;	
       } else if (IsApplTerm(t)) {
-	sp = push_stack(sp, 1, AbsAppl((CELL *)FunctorOfTerm(t)));
+	sp = push_stack(sp, 1, AbsAppl((CELL *)FunctorOfTerm(t)), TermNil);
 	ipc = ipc->u.ollll.l3;	
       } else {
-	sp = push_stack(sp, argno, t);
+	sp = push_stack(sp, argno, t, TermNil);
 	ipc = ipc->u.ollll.l2;	
       }
       break;
     case _switch_on_arg_type:
       argno = arg_from_x(ipc->u.xllll.x);
       i = 0;
-      t = Deref(Yap_XREGS[argno]);
+      t = Deref(XREGS[argno]);
       if (IsVarTerm(t)) {
 	labp = &(ipc->u.xllll.l4);
 	ipc = ipc->u.xllll.l4;
       } else if (IsPairTerm(t)) {
 	s_reg = RepPair(t);
-	sp = push_stack(sp, argno, AbsPair(NULL));
+	sp = push_stack(sp, argno, AbsPair(NULL), TermNil);
 	labp = &(ipc->u.xllll.l1);
 	ipc = ipc->u.xllll.l1;	
       } else if (IsApplTerm(t)) {
-	sp = push_stack(sp, argno, AbsAppl((CELL *)FunctorOfTerm(t)));
+	sp = push_stack(sp, argno, AbsAppl((CELL *)FunctorOfTerm(t)), TermNil);
 	ipc = ipc->u.xllll.l3;	
       } else {
-	sp = push_stack(sp, argno, t);
+	sp = push_stack(sp, argno, t, TermNil);
 	ipc = ipc->u.xllll.l2;	
       }
       break;
@@ -3841,19 +3850,19 @@ expand_index(PredEntry *ap) {
 	i++;
       } else if (IsPairTerm(t)) {
 	s_reg = RepPair(t);
-	sp = push_stack(sp, -i-1, AbsPair(NULL));
+	sp = push_stack(sp, -i-1, AbsPair(NULL), TermNil);
 	labp = &(ipc->u.sllll.l1);
 	ipc = ipc->u.sllll.l1;
 	i = 0;
       } else if (IsApplTerm(t)) {
-	sp = push_stack(sp, -i-1, AbsAppl((CELL *)FunctorOfTerm(t)));
+	sp = push_stack(sp, -i-1, AbsAppl((CELL *)FunctorOfTerm(t)), TermNil);
 	ipc = ipc->u.sllll.l3;
 	i = 0;
       } else {
 	/* We don't push stack here, instead we go over to next argument
 	   sp = push_stack(sp, -i-1, t);
 	*/
-	sp = push_stack(sp, -i-1, t);
+	sp = push_stack(sp, -i-1, t, TermNil);
 	ipc = ipc->u.sllll.l2;	
 	i++;
       }
@@ -4017,13 +4026,10 @@ expand_index(PredEntry *ap) {
     } else if (IsPairTerm(sp[-1].val) && sp > stack) {
       lab = do_compound_index(cls, max, s_reg, ap, i, 2, argno, fail_l, isfirstcl, is_last_arg, clleft, top);
     } else {
-      /* we are continuing within a compound term */
       Functor f = (Functor)RepAppl(sp[-1].val);
+      /* we are continuing within a compound term */
       if (IsExtensionFunctor(f)) {
-	if (f == FunctorDBRef) 
-	  lab = do_dbref_index(cls, max, t, ap, argno, fail_l, isfirstcl, clleft, top);
-	else
-	  lab = do_blob_index(cls, max, t, ap, argno, fail_l, isfirstcl, clleft, top);
+	lab = do_index(cls, max, ap, argno+1, fail_l, isfirstcl, clleft, top);
       } else {
 	lab = do_compound_index(cls, max, s_reg, ap, i, ArityOfFunctor(f), argno, fail_l, isfirstcl, is_last_arg, clleft, top);
       }
@@ -4626,16 +4632,22 @@ cp_lu_trychain(yamop *codep, yamop *ocodep, yamop *ostart, int flag, PredEntry *
       if (i == 0) {
 	if (op != _try_clause) {
 	  LogUpdClause *tgl = ClauseCodeToLogUpdClause(ocodep->u.ld.d);
-	  if (compact_mode)
+	  if (compact_mode) {
 	    tgl->ClRefCount--;
+	    if (tgl->ClFlags & ErasedMask &&
+		!(tgl->ClRefCount) &&
+		!(tgl->ClFlags & InUseMask)) {
+	      /* last ref to the clause */
+	      Yap_ErLogUpdCl(tgl);
+	    }
+	  }
 	}
 	codep->opc = Yap_opcode(_try_clause);
 	codep = copy_ld(codep, ocodep, ap, ocodep->u.ld.d, FALSE);
+      } else if (i == ncls-1) {
+	goto do_trust;
       } else {
-	if (op == _try_clause) {
-	  LogUpdClause *tgl = ClauseCodeToLogUpdClause(ocodep->u.ld.d);
-	  tgl->ClRefCount++;
-	} else if (!compact_mode) {
+	if (op == _try_clause || !compact_mode) {
 	  LogUpdClause *tgl = ClauseCodeToLogUpdClause(ocodep->u.ld.d);
 	  tgl->ClRefCount++;
 	}
@@ -4646,10 +4658,13 @@ cp_lu_trychain(yamop *codep, yamop *ocodep, yamop *ostart, int flag, PredEntry *
       break;
     case _trust:
       if (i < ncls-1) goto do_retry;
+    do_trust:
       if (!compact_mode) {
 	LogUpdClause *tgl = ClauseCodeToLogUpdClause(ocodep->u.ld.d);
 	tgl->ClRefCount++;
-      }    
+      } else {
+	Yap_cleanup_dangling_indices(NEXTOP(ocodep,ld),ostart->u.Ill.l1,ostart->u.Ill.l2,(yamop *)&(ap->cs.p_code.ExpandCode));
+      }
       codep = gen_lui_trust(codep, ocodep, profiled, count_reds, ap, ocodep->u.ld.d, TRUE, nblk);
       ocodep = NULL;
       break;
@@ -4659,6 +4674,12 @@ cp_lu_trychain(yamop *codep, yamop *ocodep, yamop *ostart, int flag, PredEntry *
 	LogUpdClause *tgl = ClauseCodeToLogUpdClause(ocodep->u.ld.d);
 
 	tgl->ClRefCount--;
+	if (tgl->ClFlags & ErasedMask &&
+	    !(tgl->ClRefCount) &&
+	    !(tgl->ClFlags & InUseMask)) {
+	  /* last ref to the clause */
+	  Yap_ErLogUpdCl(tgl);
+	}
       }
       ocodep = NEXTOP(ocodep, ld);
       break;
@@ -6041,8 +6062,11 @@ Yap_follow_lu_indexing_code(PredEntry *ap, yamop *ipc, Term t1, Term tb, Term tr
   choiceptr b0 = NULL;
   yamop **jlbl = NULL;
 
-  for (i = 1; i <= ap->ArityOfPE; i++) {
-    Yap_XREGS[i] = tar[i];
+  if (ap->ModuleOfPred != 2) {
+    /* makes no sense for IDB, as ArityOfPE means nothing */
+    for (i = 1; i <= ap->ArityOfPE; i++) {
+      XREGS[i] = tar[i];
+    }
   }
     /* try to refine the interval using the indexing code */
   while (ipc != NULL) {
@@ -6178,7 +6202,7 @@ Yap_follow_lu_indexing_code(PredEntry *ap, yamop *ipc, Term t1, Term tb, Term tr
       break;
     case _jump_if_nonvar:
       {
-	Term t = Deref(Yap_XREGS[arg_from_x(ipc->u.xllll.x)]);
+	Term t = Deref(XREGS[arg_from_x(ipc->u.xllll.x)]);
 	if (!IsVarTerm(t)) {
 	  jlbl = &(ipc->u.xl.l);
 	  ipc = ipc->u.xl.l;
@@ -6223,7 +6247,7 @@ Yap_follow_lu_indexing_code(PredEntry *ap, yamop *ipc, Term t1, Term tb, Term tr
       }
       break;
     case _switch_on_arg_type:
-      t = Deref(Yap_XREGS[arg_from_x(ipc->u.xllll.x)]);
+      t = Deref(XREGS[arg_from_x(ipc->u.xllll.x)]);
       if (IsVarTerm(t)) {
 	jlbl = &(ipc->u.xllll.l4);
 	ipc = ipc->u.xllll.l4;
@@ -6413,7 +6437,7 @@ find_caller(PredEntry *ap, yamop *code) {
       }
       break;
     case _jump_if_nonvar:
-      if (!IsVarTerm(Yap_XREGS[arg_from_x(ipc->u.xllll.x)])) {
+      if (!IsVarTerm(XREGS[arg_from_x(ipc->u.xllll.x)])) {
 	ipc = ipc->u.xl.l;
       } else {
 	ipc = NEXTOP(ipc,xl);
@@ -6442,16 +6466,16 @@ find_caller(PredEntry *ap, yamop *code) {
 	if (ipc->u.llll.l4 == code) return &(ipc->u.llll.l4);
 	ipc = ipc->u.llll.l4;
       } else if (IsPairTerm(t)) {
-	sp = push_stack(sp, 1, AbsPair(NULL));
+	sp = push_stack(sp, 1, AbsPair(NULL), TermNil);
 	s_reg = RepPair(t);
 	labp = &(ipc->u.llll.l1);
 	if (ipc->u.llll.l1 == code) return &(ipc->u.llll.l1);
 	ipc = ipc->u.llll.l1;	
       } else if (IsApplTerm(t)) {
-	sp = push_stack(sp, 1, AbsAppl((CELL *)FunctorOfTerm(t)));
+	sp = push_stack(sp, 1, AbsAppl((CELL *)FunctorOfTerm(t)), TermNil);
 	ipc = ipc->u.llll.l3;	
       } else {
-	sp = push_stack(sp, 1, t);
+	sp = push_stack(sp, 1, t, TermNil);
 	ipc = ipc->u.llll.l2;	
       }
       break;
@@ -6464,14 +6488,15 @@ find_caller(PredEntry *ap, yamop *code) {
 	ipc = ipc->u.ollll.l4;
       } else if (IsPairTerm(t)) {
 	s_reg = RepPair(t);
-	sp = push_stack(sp, 1, AbsPair(NULL));
-	if (ipc->u.ollll.l1 == code) return &(ipc->u.ollll.l1);
+	sp = push_stack(sp, 1, AbsPair(NULL), TermNil);
+	if (ipc->u.ollll.l1 == code) 
+	  return &(ipc->u.ollll.l1);
 	ipc = ipc->u.ollll.l1;	
       } else if (IsApplTerm(t)) {
-	sp = push_stack(sp, 1, AbsAppl((CELL *)FunctorOfTerm(t)));
+	sp = push_stack(sp, 1, AbsAppl((CELL *)FunctorOfTerm(t)), TermNil);
 	ipc = ipc->u.ollll.l3;	
       } else {
-	sp = push_stack(sp, 1, t);
+	sp = push_stack(sp, 1, t, TermNil);
 	ipc = ipc->u.ollll.l2;	
       }
       break;
@@ -6483,14 +6508,14 @@ find_caller(PredEntry *ap, yamop *code) {
 	ipc = ipc->u.xllll.l4;
       } else if (IsPairTerm(t)) {
 	s_reg = RepPair(t);
-	sp = push_stack(sp, argno, AbsPair(NULL));
+	sp = push_stack(sp, argno, AbsPair(NULL), TermNil);
 	if (ipc->u.xllll.l1 == code) return &(ipc->u.xllll.l1);
 	ipc = ipc->u.xllll.l1;	
       } else if (IsApplTerm(t)) {
-	sp = push_stack(sp, argno, AbsAppl((CELL *)FunctorOfTerm(t)));
+	sp = push_stack(sp, argno, AbsAppl((CELL *)FunctorOfTerm(t)), TermNil);
 	ipc = ipc->u.xllll.l3;	
       } else {
-	sp = push_stack(sp, argno, t);
+	sp = push_stack(sp, argno, t, TermNil);
 	ipc = ipc->u.xllll.l2;	
       }
       break;
@@ -6506,14 +6531,14 @@ find_caller(PredEntry *ap, yamop *code) {
 	  ipc = ipc->u.sllll.l4;
 	} else if (IsPairTerm(t)) {
 	  s_reg = RepPair(t);
-	  sp = push_stack(sp, -argno-1, AbsPair(NULL));
+	  sp = push_stack(sp, -argno-1, AbsPair(NULL), TermNil);
 	  if (ipc->u.sllll.l1 == code) return &(ipc->u.sllll.l1);
 	  ipc = ipc->u.sllll.l1;
 	} else if (IsApplTerm(t)) {
-	  sp = push_stack(sp, -argno-1, AbsAppl((CELL *)FunctorOfTerm(t)));
+	  sp = push_stack(sp, -argno-1, AbsAppl((CELL *)FunctorOfTerm(t)), TermNil);
 	  ipc = ipc->u.sllll.l3;	
 	} else {
-	  sp = push_stack(sp, -argno-1, t);
+	  sp = push_stack(sp, -argno-1, t, TermNil);
 	  ipc = ipc->u.sllll.l2;	
 	}
       }

@@ -12,7 +12,7 @@
 * Last rev:								 *
 * mods:									 *
 * comments:	allocating space					 *
-* version:$Id: alloc.c,v 1.40 2003-11-07 16:31:08 ricroc Exp $		 *
+* version:$Id: alloc.c,v 1.41 2003-11-12 12:33:30 vsc Exp $		 *
 *************************************************************************/
 #ifdef SCCS
 static char SccsId[] = "%W% %G%";
@@ -149,6 +149,14 @@ FreeBlock(BlockHeader *b)
   BlockHeader *p;
   YAP_SEG_SIZE *sp;
 
+  /*  {
+    static long long int vsc_free_ops;
+ 
+    vsc_free_ops++;
+    BlockHeader *q = FreeBlocks;
+    while (q) q = q->b_next_size;
+    }*/
+
   /* sanity check */
   sp = &(b->b_size) + (b->b_size & ~InUseFlag);
   if (*sp != b->b_size) {
@@ -230,6 +238,13 @@ AllocHeap(unsigned int size)
 {
   BlockHeader *b, *n;
   YAP_SEG_SIZE *sp;
+
+  /*  {
+    static long long int vsc_alloc_ops;
+    vsc_alloc_ops++;
+    BlockHeader *q = FreeBlocks;
+    while (q) q = q->b_next_size;
+    }*/
 
   size += 2*sizeof(YAP_SEG_SIZE);
 #if SIZEOF_INT_P==4
@@ -595,10 +610,12 @@ ExtendWorkSpace(Int s, int fixed_allocation)
   abort_optyap("function ExtendWorkSpace called");
   return(FALSE);
 #else
-
   MALLOC_T a;
   prolog_exec_mode OldPrologMode = Yap_PrologMode;
   MALLOC_T base = WorkSpaceTop;
+#if !defined(_AIX) || !defined(__hpux) || !defined(__APPLE__)
+   int fd;  
+#endif
 
   if (fixed_allocation == MAP_FIXED)
     base = WorkSpaceTop;
@@ -615,32 +632,31 @@ ExtendWorkSpace(Int s, int fixed_allocation)
   a = mmap(base, (size_t) s, PROT_READ | PROT_WRITE | PROT_EXEC,
 		    MAP_PRIVATE | MAP_ANON | fixed_allocation, -1, 0);
 #else
-  int fd;
-  Yap_PrologMode = ExtendStackMode;
-  fd = open("/dev/zero", O_RDWR);
-  if (fd < 0) {
+   Yap_PrologMode = ExtendStackMode;
+   fd = open("/dev/zero", O_RDWR);
+   if (fd < 0) {
 #if HAVE_MKSTEMP
-    char file[256];
-    strncpy(file,"/tmp/YAP.TMPXXXXXX",256);
-    if (mkstemp(file) == -1) {
-      Yap_ErrorMessage = Yap_ErrorSay;
+     char file[256];
+     strncpy(file,"/tmp/YAP.TMPXXXXXX",256);
+     if (mkstemp(file) == -1) {
+       Yap_ErrorMessage = Yap_ErrorSay;
 #if HAVE_STRERROR
-      snprintf5(Yap_ErrorMessage, MAX_ERROR_MSG_SIZE,
-		"mkstemp could not create temporary file %s (%s)",
-		file, strerror(errno));
+       snprintf5(Yap_ErrorMessage, MAX_ERROR_MSG_SIZE,
+		 "mkstemp could not create temporary file %s (%s)",
+		 file, strerror(errno));
 #else
-      snprintf4(Yap_ErrorMessage, MAX_ERROR_MSG_SIZE,
-		"mkstemp could not create temporary file %s", file);
+       snprintf4(Yap_ErrorMessage, MAX_ERROR_MSG_SIZE,
+		 "mkstemp could not create temporary file %s", file);
 #endif /* HAVE_STRERROR */
-      Yap_PrologMode = OldPrologMode;
-      return FALSE;
-    }
+       Yap_PrologMode = OldPrologMode;
+       return FALSE;
+     }
 #else
 #if HAVE_TMPNAM
-    char *file = tmpnam(NULL);
+     char *file = tmpnam(NULL);
 #else
-    char file[YAP_FILENAME_MAX];
-    strcpy(file,"/tmp/mapfile");
+     char file[YAP_FILENAME_MAX];
+     strcpy(file,"/tmp/mapfile");
     itos(getpid(), &file[12]);
 #endif /* HAVE_TMPNAM */
 #endif /* HAVE_MKSTEMP */
@@ -773,7 +789,7 @@ InitWorkSpace(Int s)
 }
 
 static int
-ExtendWorkSpace(Int s, int fixed_allocation)
+ExtendWorkSpace(Int s)
 {
   MALLOC_T ptr;
   int shm_id;
@@ -849,7 +865,7 @@ InitWorkSpace(Int s)
 }
 
 static int
-ExtendWorkSpace(Int s, fixed_allocation)
+ExtendWorkSpace(Int s)
 {
   MALLOC_T ptr = (MALLOC_T)sbrk(s);
   prolog_exec_mode OldPrologMode = Yap_PrologMode;
@@ -979,7 +995,7 @@ InitWorkSpace(Int s)
 }
 
 static int
-ExtendWorkSpace(Int s, int fixed_allocation)
+ExtendWorkSpace(Int s)
 {
   MALLOC_T ptr;
   prolog_exec_mode OldPrologMode = Yap_PrologMode;
@@ -1133,6 +1149,7 @@ Yap_ExtendWorkSpaceThroughHole(UInt s)
 void
 Yap_AllocHole(UInt actual_request, UInt total_size)
 {
+#if USE_MMAP
   /* where we were when the hole was created,
    also where is the hole store */
   ADDR WorkSpaceTop0 = WorkSpaceTop-total_size;
@@ -1149,4 +1166,5 @@ Yap_AllocHole(UInt actual_request, UInt total_size)
     (HeapTop-WorkSpaceTop0)/sizeof(YAP_SEG_SIZE) | InUseFlag;
   newb->b_size = bsiz;
   AddToFreeList(newb);
+#endif
 }

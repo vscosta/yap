@@ -89,6 +89,7 @@ typedef struct {
 typedef struct {
   Int pos;
   Term val;
+  Term  extra;
 } istack_entry;
 
 typedef enum {

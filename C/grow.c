@@ -925,10 +925,7 @@ Yap_growstack_in_parser(tr_fr_ptr *old_trp, TokEntry **tksp, VarEntry **vep)
   return(TRUE);  
 }
 
-
-/* Used by do_goal() when we're short of stack space */
-int
-Yap_growtrail(long size)
+static int do_growtrail(long size)
 {
   Int start_growth_time = Yap_cputime(), growth_time;
   int gc_verbose = Yap_is_gc_verbose();
@@ -949,7 +946,7 @@ Yap_growtrail(long size)
   Yap_ErrorMessage = NULL;
   if (!Yap_ExtendWorkSpace(size)) {
     strncat(Yap_ErrorMessage,": trail stack overflowed", MAX_ERROR_MSG_SIZE);
-    return(FALSE);
+    return FALSE;
   }
   YAPEnterCriticalSection();
   Yap_TrailTop += size;
@@ -960,7 +957,29 @@ Yap_growtrail(long size)
     fprintf(Yap_stderr, "[TO]   took %g sec\n", (double)growth_time/1000);
     fprintf(Yap_stderr, "[TO] Total of %g sec expanding stacks \n", (double)total_stack_overflow_time/1000);
   }
-  return(TRUE);
+  return TRUE;
+}
+
+
+/* Used by do_goal() when we're short of stack space */
+int
+Yap_growtrail(long size)
+{
+  return do_growtrail(size);
+}
+
+CELL **
+Yap_shift_visit(CELL **to_visit)
+{
+  CELL **old_top = (CELL **)Yap_TrailTop;
+  if (do_growtrail(64 * 1024L)) {
+    CELL **dest = (CELL **)((char *)to_visit+64 * 1024L);
+    cpcellsd((CELL *)dest, (CELL *)to_visit, (CELL)((CELL *)old_top-(CELL *)to_visit));
+    return dest;
+  } else {
+    Yap_Error(SYSTEM_ERROR,TermNil,"cannot grow temporary stack for unification (%p)", Yap_TrailTop);    
+    return to_visit;
+  }
 }
 
 void

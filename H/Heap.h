@@ -10,7 +10,7 @@
 * File:		Heap.h         						 *
 * mods:									 *
 * comments:	Heap Init Structure					 *
-* version:      $Id: Heap.h,v 1.46 2003-11-05 18:55:03 ricroc Exp $	 *
+* version:      $Id: Heap.h,v 1.47 2003-11-12 12:33:31 vsc Exp $	 *
 *************************************************************************/
 
 /* information that can be stored in Code Space */
@@ -298,6 +298,10 @@ typedef struct various_codes {
   struct pred_entry *pred_handle_throw;
   struct array_entry *dyn_array_list;
   struct DB_STRUCT *db_erased_marker;
+#ifdef DEBUG
+  struct logic_upd_clause *db_erased_list;
+  struct logic_upd_index *db_erased_ilist;
+#endif /* DEBUG */
   struct stream_desc *yap_streams;
 #ifdef DEBUG
   int    debugger_output_msg;
@@ -534,6 +538,10 @@ typedef struct various_codes {
 #define  PredHandleThrow          heap_regs->pred_handle_throw
 #define  DynArrayList             heap_regs->dyn_array_list
 #define  DBErasedMarker           heap_regs->db_erased_marker
+#ifdef DEBUG
+#define  DBErasedList             heap_regs->db_erased_list
+#define  DBErasedIList            heap_regs->db_erased_ilist
+#endif /* DEBUG */
 #define  Stream		          heap_regs->yap_streams
 #define  output_msg	          heap_regs->debugger_output_msg
 #define  NOfFileAliases           heap_regs->n_of_file_aliases

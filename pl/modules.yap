@@ -594,6 +594,7 @@ source_module(Mod) :-
         phrase(:,?),
         phrase(:,?,+),
 	predicate_property(:,?),
+	predicate_statistics(:,-,-,-),
 	on_exception(+,:,:),
 	reconsult(:),
 	retract(:),

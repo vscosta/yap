@@ -104,6 +104,8 @@ check_trail_consistency(void) {
 
 static int vsc_xstop = FALSE;
 
+CELL old_value = 0L, old_value2 = 0L;
+
 void
 low_level_trace(yap_low_level_port port, PredEntry *pred, CELL *args)
 {
@@ -114,6 +116,15 @@ low_level_trace(yap_low_level_port port, PredEntry *pred, CELL *args)
 
   vsc_count++;
 #ifdef COMMENTED
+  if (port != enter_pred ||
+      !pred ||
+      pred->ArityOfPE != 4 ||
+      strcmp(RepAtom(NameOfFunctor(pred->FunctorOfPred))->StrOfAE,"in_between_target_phrases"))
+    return;
+  if (vsc_count < 1246949400LL)
+    return;
+  if (vsc_count == 1246949493LL)
+    vsc_xstop = TRUE;
   if (vsc_count < 5646100000LL)
     return;
   if (vsc_count == 5646100441LL)
@@ -125,7 +136,7 @@ low_level_trace(yap_low_level_port port, PredEntry *pred, CELL *args)
   if (vsc_count < 5530257LL) {
     return;
   }
-  if (vsc_count == 41597LL) {
+  if (vsc_count == ) {
     vsc_xstop = TRUE;
   }
   if (vsc_count < 3399741LL) {

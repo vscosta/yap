@@ -1170,7 +1170,7 @@ Yap_absmi(int inp)
 #else
       {
 	LogUpdClause *cl = (LogUpdClause *)PREG->u.EC.ClBase;
-	if (!(cl->ClFlags |= InUseMask)) {
+	if (!(cl->ClFlags & InUseMask)) {
 	  /* Clause *cl = (Clause *)PREG->u.EC.ClBase;
 
 	  PREG->u.EC.ClTrail = TR-(tr_fr_ptr)Yap_TrailBase;
@@ -1215,7 +1215,7 @@ Yap_absmi(int inp)
 	TRAIL_CLREF(cl);
 	UNLOCK(cl->ClLock);
 #else
-	if (!(cl->ClFlags |= InUseMask)) {
+	if (!(cl->ClFlags & InUseMask)) {
 	  /* Clause *cl = (Clause *)PREG->u.EC.ClBase;
 
 	  PREG->u.EC.ClTrail = TR-(tr_fr_ptr)Yap_TrailBase;
@@ -1260,7 +1260,7 @@ Yap_absmi(int inp)
 	TRAIL_CLREF(cl);
 	UNLOCK(cl->ClLock);
 #else
-	if (!(cl->ClFlags |= InUseMask)) {
+	if (!(cl->ClFlags & InUseMask)) {
 	  /* Clause *cl = (Clause *)PREG->u.EC.ClBase;
 
 	  PREG->u.EC.ClTrail = TR-(tr_fr_ptr)Yap_TrailBase;
@@ -1449,7 +1449,6 @@ Yap_absmi(int inp)
 	register tr_fr_ptr pt0 = TR;
 	PREG = B->cp_ap;
 	CACHE_TR(B->cp_tr);
-	RESTORE_TR();
 	PREFETCH_OP(PREG);
       failloop:
 	if (pt0 == S_TR) {
@@ -1566,6 +1565,7 @@ Yap_absmi(int inp)
 	    }
 	  }
 #endif	/* LOW_LEVEL_TRACER */
+	  RESTORE_TR();
 	  GONext();
 	}
 	BEGD(d1);

@@ -460,8 +460,6 @@ Yap_NewPredPropByFunctor(FunctorEntry *fe, SMALLUNSGN cur_mod)
   Prop p0;
   PredEntry *p = (PredEntry *) Yap_AllocAtomSpace(sizeof(*p));
 
-  extern long long int vsc_count;
-
   INIT_RWLOCK(p->PRWLock);
   p->KindOfPE = PEProp;
   p->ArityOfPE = fe->ArityOfFE;

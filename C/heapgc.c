@@ -481,8 +481,6 @@ count_cells_marked(void)
 /* straightforward binary tree scheme that, given a key, finds a
    matching dbref */  
 
-#define XOR_BIT 32
-
 typedef enum {
   db_entry,
   cl_entry,
@@ -549,7 +547,7 @@ find_ref_in_dbtable(CODEADDR entry)
     if (current->val < entry && current->lim > entry) {
       return(current);
     }
-    if (((CELL)entry ^ (CELL)(current->val)) & XOR_BIT)
+    if (entry < current->val)
       current = current->right;
     else
       current = current->left;

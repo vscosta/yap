@@ -283,25 +283,11 @@ restore_absmi_regs(REGSTORE * old_regs)
 * backtracking                                                 *
 ***************************************************************/
 
-#if TR_IN_MEM
-
 #define CACHE_TR(A) { register tr_fr_ptr S_TR = (A)
 
 #define RESTORE_TR()    TR = S_TR
 
 #define ENDCACHE_TR() }
-
-#else
-
-#define S_TR  TR
-
-#define CACHE_TR(A) { TR = (A)
-
-#define RESTORE_TR()
-
-#define ENDCACHE_TR() }
-
-#endif
 
 /***************************************************************
 * S is usually, but not always, a register (X86 machines).     *
@@ -1155,6 +1141,7 @@ trim_trail(choiceptr b, tr_fr_ptr tr, CELL *hbreg)
 #if IN_ABSMI_C || IN_UNIFY_C
 
 static int 
+
 IUnify_complex(CELL *pt0, CELL *pt0_end, CELL *pt1)
 {
 #if SHADOW_REGS
@@ -1169,7 +1156,7 @@ IUnify_complex(CELL *pt0, CELL *pt0_end, CELL *pt1)
   register CELL *HBREG = HB;
 #endif /* SHADOW_HB */
 
-  CELL  **to_visit  = (CELL **)AuxSp;
+  CELL  **to_visit  = (CELL **)Yap_TrailTop;
 
 loop:
   while (pt0 < pt0_end) {
@@ -1192,6 +1179,9 @@ loop:
       if (IsPairTerm(d0)) {
 	if (!IsPairTerm(d1)) {
 	  goto cufail;
+	}
+	if ((CELL *)to_visit-(CELL *)TR < 1024) {
+	  to_visit = Yap_shift_visit(to_visit);
 	}
 #ifdef RATIONAL_TREES
 	/* now link the two structures so that no one else will */
@@ -1234,6 +1224,9 @@ loop:
 	  if (unify_extension(f, d0, ap2, d1))
 	    continue;
 	  goto cufail;
+	}
+	if ((CELL *)to_visit-(CELL *)TR < 1024) {
+	  to_visit = Yap_shift_visit(to_visit);
 	}
 #ifdef RATIONAL_TREES
 	/* now link the two structures so that no one else will */
@@ -1286,7 +1279,7 @@ loop:
     }
   }
   /* Do we still have compound terms to visit */
-  if (to_visit < (CELL **) AuxSp) {
+  if (to_visit < (CELL **) Yap_TrailTop) {
 #ifdef RATIONAL_TREES
     pt0 = to_visit[0];
     pt0_end = to_visit[1];
@@ -1306,7 +1299,7 @@ loop:
 cufail:
 #ifdef RATIONAL_TREES
   /* failure */
-  while (to_visit < (CELL **) AuxSp) {
+  while (to_visit < (CELL **) Yap_TrailTop) {
     CELL *pt0;
     pt0 = to_visit[0];
     *pt0 = (CELL)to_visit[3];

@@ -798,6 +798,24 @@ predicate_property(Pred,Prop) :-
 	'$number_of_clauses'(P,Mod,NCl).
 
 
+predicate_statistics(V,NCls,Sz,ISz) :- var(V), !,
+	'$do_error'(instantiation_error,predicate_statistics(V,NCls,Sz,ISz)).
+predicate_statistics(M:P,NCls,Sz,ISz) :-
+	'$predicate_statistics'(P,M,NCls,Sz,ISz).
+predicate_statistics(P,NCls,Sz,ISz) :-
+	'$current_module'(M),
+	'$predicate_statistics'(P,M,NCls,Sz,ISz).
+
+'$predicate_statistics'(P,M,NCls,Sz,ISz) :-
+	'$is_dynamic'(H, M), !,
+	'$key_statistics'(M:H,NCls,Sz,ISz).
+'$predicate_statistics'(P,M,NCls,Sz,ISz) :-
+	'$system_predicate'(P,M), !, fail.
+'$predicate_statistics'(P,M,NCls,Sz,ISz) :-
+	'$undefined'(P,M), !, fail.
+'$predicate_statistics'(P,M,NCls,Sz,ISz) :-
+	'$static_pred_statistics'(P,M,NCls,Sz,ISz).
+
 :- '$make_pred_push_mod'((_,_)).
 :- '$make_pred_push_mod'((_;_)).
 :- '$make_pred_push_mod'((_|_)).

@@ -256,28 +256,19 @@ decrease_ref_counter(yamop *ptr, yamop *b, yamop *e, yamop *sc)
     LogUpdClause *cl = ClauseCodeToLogUpdClause(ptr);
     LOCK(cl->ClLock);
     cl->ClRefCount--;
+    if (cl->ClFlags & ErasedMask &&
+	!(cl->ClRefCount) &&
+	!(cl->ClFlags & InUseMask)) {
+      /* last ref to the clause */
+      Yap_ErLogUpdCl(cl);
+    }
     UNLOCK(cl->ClLock);
   }
 }
 
 static void
-decrease_log_indices(LogUpdIndex *c, yamop *suspend_code)
+cleanup_dangling_indices(yamop *ipc, yamop *beg, yamop *end, yamop *suspend_code)
 {
-  /* decrease all reference counters */
-  yamop *beg = c->ClCode, *end, *ipc;
-  op_numbers op;
-  if (c->ClFlags & SwitchTableMask) {
-    return;
-  }
-  op = Yap_op_from_opcode(beg->opc);
-  if ((op == _enter_lu_pred ||
-      op == _stale_lu_index) &&
-      beg->u.Ill.l1 != beg->u.Ill.l2) {
-    end = beg->u.Ill.l2;
-  } else {
-    end = (yamop *)((CODEADDR)c+Yap_SizeOfBlock((CODEADDR)c));
-  }
-  ipc = beg;
   while (ipc < end) {
     op_numbers op = Yap_op_from_opcode(ipc->opc);
     /* printf("op: %d %p->%p\n", op, ipc, end); */
@@ -365,6 +356,33 @@ decrease_log_indices(LogUpdIndex *c, yamop *suspend_code)
   }
 }
 
+void
+Yap_cleanup_dangling_indices(yamop *ipc, yamop *beg, yamop *end, yamop *sc)
+{
+  cleanup_dangling_indices(ipc, beg, end, sc);
+}
+
+static void
+decrease_log_indices(LogUpdIndex *c, yamop *suspend_code)
+{
+  /* decrease all reference counters */
+  yamop *beg = c->ClCode, *end, *ipc;
+  op_numbers op;
+  if (c->ClFlags & SwitchTableMask) {
+    return;
+  }
+  op = Yap_op_from_opcode(beg->opc);
+  if ((op == _enter_lu_pred ||
+      op == _stale_lu_index) &&
+      beg->u.Ill.l1 != beg->u.Ill.l2) {
+    end = beg->u.Ill.l2;
+  } else {
+    end = (yamop *)((CODEADDR)c+Yap_SizeOfBlock((CODEADDR)c));
+  }
+  ipc = beg;
+  cleanup_dangling_indices(ipc, beg, end, suspend_code);
+}
+
 static void
 kill_static_child_indxs(StaticIndex *indx)
 {
@@ -420,8 +438,24 @@ kill_first_log_iblock(LogUpdIndex *c, LogUpdIndex *cl, PredEntry *ap)
       }
     }
     decrease_log_indices(c, (yamop *)&(ap->cs.p_code.ExpandCode));
+#ifdef DEBUG
+    {
+      LogUpdIndex *cl = DBErasedIList, *c0 = NULL;
+      while (cl != NULL) {
+	if (c == cl) {
+	  if (c0) c0->SiblingIndex = c->SiblingIndex;
+	  else DBErasedIList = c->SiblingIndex;
+	}
+	cl = cl->SiblingIndex;
+      }
+    }
+#endif
     Yap_FreeCodeSpace((CODEADDR)c);
   } else {
+#ifdef DEBUG
+    c->SiblingIndex = DBErasedIList;
+    DBErasedIList = c;
+#endif
     c->ClFlags |= ErasedMask;
     /* try to move up, so that we don't hold an index */
     if (cl != NULL &&
@@ -1871,10 +1905,10 @@ p_is_dynamic(void)
     return (FALSE);
   } else if (IsAtomTerm(t)) {
     Atom at = AtomOfTerm(t);
-    pe = RepPredProp(PredPropByAtom(at, mod));
+    pe = RepPredProp(Yap_GetPredPropByAtom(at, mod));
   } else if (IsApplTerm(t)) {
     Functor         fun = FunctorOfTerm(t);
-    pe = RepPredProp(PredPropByFunc(fun, mod));
+    pe = RepPredProp(Yap_GetPredPropByFunc(fun, mod));
   } else
     return (FALSE);
   if (pe == NIL)
@@ -2397,7 +2431,7 @@ all_calls(void)
   ts[0] = MkIntegerTerm((Int)P);
   if (yap_flags[STACK_DUMP_ON_ERROR_FLAG]) {
     ts[1] = all_envs(ENV);
-    ts[1] = all_cps(B);
+    ts[2] = all_cps(B);
   } else {
     ts[1] = ts[2] = TermNil;
   }
@@ -3196,6 +3230,71 @@ Yap_dump_code_area_for_profiler(void) {
 
 #endif /* LOW_PROF */
 
+static UInt
+index_ssz(StaticIndex *x)
+{
+  UInt sz = Yap_SizeOfBlock((CODEADDR)x);
+  x = x->ChildIndex;
+  while (x != NULL) {
+    sz += index_ssz(x);
+    x = x->SiblingIndex;
+  }
+  return sz;
+}
+
+static Int
+static_statistics(PredEntry *pe)
+{
+  UInt sz = 0, cls = 0, isz = 0;
+  StaticClause *cl;
+  yamop *ipc = pe->cs.p_code.FirstClause;
+
+  if (ipc != NULL) {
+    do {
+      cl = ClauseCodeToStaticClause(ipc);
+      cls++;
+      sz += Yap_SizeOfBlock((CODEADDR)cl);
+      if (ipc == pe->cs.p_code.LastClause)
+	break;
+      ipc = NextClause(ipc);
+    } while (TRUE);
+  }
+  if (pe->cs.p_code.NOfClauses > 1 &&
+      pe->cs.p_code.TrueCodeOfPred != pe->cs.p_code.FirstClause) {
+    isz = index_ssz(ClauseCodeToStaticIndex(pe->cs.p_code.TrueCodeOfPred));
+  }
+  return Yap_unify(ARG3, MkIntegerTerm(cls)) &&
+    Yap_unify(ARG4, MkIntegerTerm(sz)) &&
+    Yap_unify(ARG5, MkIntegerTerm(isz));
+}
+
+static Int
+p_static_pred_statistics(void)
+{
+  Term t = Deref(ARG1);
+  Term tmod = Deref(ARG2);
+  SMALLUNSGN      mod = Yap_LookupModule(tmod);
+  PredEntry      *pe;
+
+  if (IsVarTerm(t)) {
+    return (FALSE);
+  } else if (IsAtomTerm(t)) {
+    Atom at = AtomOfTerm(t);
+    pe = RepPredProp(Yap_GetPredPropByAtom(at, mod));
+  } else if (IsApplTerm(t)) {
+    Functor         fun = FunctorOfTerm(t);
+    pe = RepPredProp(Yap_GetPredPropByFunc(fun, mod));
+  } else
+    return (FALSE);
+  if (pe == NIL)
+    return (FALSE);
+  if (pe->PredFlags & (DynamicPredFlag|LogUpdatePredFlag|UserCPredFlag|AsmPredFlag|CPredFlag|BinaryTestPredFlag)) {
+    /* should use '$recordedp' in this case */
+    return FALSE;
+  }
+  return static_statistics(pe);
+}
+
 
 void 
 Yap_InitCdMgr(void)
@@ -3247,5 +3346,6 @@ Yap_InitCdMgr(void)
   Yap_InitCPred("$continue_log_update_clause", 4, p_continue_log_update_clause0, SafePredFlag|SyncPredFlag);
   Yap_InitCPred("$log_update_retract", 3, p_log_update_retract, SyncPredFlag);
   Yap_InitCPred("$continue_log_update_retract", 4, p_continue_log_update_retract, SafePredFlag|SyncPredFlag);
+  Yap_InitCPred("$static_pred_statistics", 5, p_static_pred_statistics, SyncPredFlag);
 }
 
