@@ -50,7 +50,7 @@ AC_ARG_WITH(gmp,
 		yap_cv_gmp=$with_gmp
 		LDFLAGS="$LDFLAGS -L${yap_cv_gmp}/lib"
 		CPPFLAGS="$CPPFLAGS -I${yap_cv_gmp}/include"
-	fi
+	fi,
 	[yap_cv_gmp=yes])
 
 AC_ARG_WITH(readline,
