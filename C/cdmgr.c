@@ -2652,16 +2652,6 @@ code_in_pred(PredEntry *pp, Atom *pat, UInt *parity, yamop *codeptr) {
   }
   clcode = pp->cs.p_code.FirstClause;
   if (clcode != NULL) {
-    char *code_end;
-    if (pp->PredFlags & LogUpdatePredFlag) {
-      LogUpdClause *cl = ClauseCodeToLogUpdClause(pp->cs.p_code.TrueCodeOfPred);
-      code_end = (char *)cl + cl->ClSize;
-    } else if (!(pp->PredFlags & DynamicPredFlag)) {
-      code_end = NULL;
-    } else {
-      StaticClause *cl = ClauseCodeToStaticClause(pp->cs.p_code.TrueCodeOfPred);
-      code_end = (char *)cl + cl->ClSize;
-    }
     if (pp->PredFlags & LogUpdatePredFlag) {
       LogUpdClause *cl = ClauseCodeToLogUpdClause(clcode);
       do {

@@ -1830,6 +1830,7 @@ record_lu(PredEntry *pe, Term t, int position)
   cl->ClPred = pe;
   cl->ClExt = NULL;
   cl->ClPrev = cl->ClNext = NULL;
+  cl->ClSize = ((CODEADDR)&(x->Contents)-(CODEADDR)cl)+x->NOfCells*sizeof(CELL);
 #if defined(YAPOR) || defined(THREADS)
   INIT_LOCK(cl->ClLock);
   INIT_CLREF_COUNT(cl);

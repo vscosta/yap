@@ -9311,11 +9311,11 @@ Yap_absmi(int inp)
 	 CmpPredicate f = PREG->u.llxx.p->cs.d_code;
 	 saveregs();
 	 d0 = (CELL) (f) (d0,d1);
-
+	 setregs();
       }
-      setregs();
       if (!d0) {
-	PREG = PREG->u.llxx.f;
+	if (PREG != FAILCODE)
+	  PREG = PREG->u.llxx.f;
 	JMPNext();
       }
       PREG = NEXTOP(PREG, llxx);
@@ -9383,10 +9383,11 @@ Yap_absmi(int inp)
 	CmpPredicate f = PREG->u.llxy.p->cs.d_code;
 	saveregs();
 	d0 = (CELL) (f) (d0,d1);
+	setregs();
       }
-      setregs();
       if (!d0) {
-	PREG = PREG->u.llxy.f;
+	if (PREG != FAILCODE)
+	  PREG = PREG->u.llxy.f;
 	JMPNext();
       }
       PREG = NEXTOP(PREG, llxy);
@@ -9454,10 +9455,11 @@ Yap_absmi(int inp)
 	CmpPredicate f = PREG->u.llxy.p->cs.d_code;
 	saveregs();
 	d0 = (CELL) (f) (d0,d1);
+	setregs();
       }
-      setregs();
       if (!d0) {
-	PREG = PREG->u.llxy.f;
+	if (PREG != FAILCODE)
+	  PREG = PREG->u.llxy.f;
 	JMPNext();
       }
       PREG = NEXTOP(PREG, llxy);
@@ -9531,7 +9533,8 @@ Yap_absmi(int inp)
       }
       setregs();
       if (!d0) {
-	PREG = PREG->u.llyy.f;
+	if (PREG != FAILCODE)
+	  PREG = PREG->u.llyy.f;
 	JMPNext();
       }
       PREG = NEXTOP(PREG, llyy);
