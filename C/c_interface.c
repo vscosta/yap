@@ -62,6 +62,7 @@ X_API Term    STD_PROTO(YapMkPairTerm,(Term,Term));
 X_API Term    STD_PROTO(YapHeadOfTerm,(Term));
 X_API Term    STD_PROTO(YapTailOfTerm,(Term));
 X_API Term    STD_PROTO(YapMkApplTerm,(Functor,unsigned int,Term *));
+X_API Term    STD_PROTO(YapMkNewApplTerm,(Functor,unsigned int));
 X_API Functor STD_PROTO(YapFunctorOfTerm,(Term));
 X_API Term    STD_PROTO(YapArgOfTerm,(Int,Term));
 X_API Functor STD_PROTO(YapMkFunctor,(Atom,Int));
@@ -101,6 +102,15 @@ X_API void    STD_PROTO(YapSetOutputMessage, (void));
 X_API int     STD_PROTO(YapStreamToFileNo, (Term));
 X_API void    STD_PROTO(YapCloseAllOpenStreams,(void));
 X_API Term    STD_PROTO(YapOpenStream,(void *, char *, Term, int));
+X_API Term   *STD_PROTO(YapNewSlots,(int));
+X_API void    STD_PROTO(YapRecoverSlots,(int));
+X_API void    STD_PROTO(YapThrow,(Term));
+X_API int     STD_PROTO(YapLookupModule,(Term));
+X_API Term    STD_PROTO(YapModuleName,(int));
+X_API void    STD_PROTO(YapHalt,(int));
+X_API Term   *STD_PROTO(YapTopOfLocalStack,(void));
+X_API void   *STD_PROTO(YapPredicate,(Atom,Int,Int));
+X_API void    STD_PROTO(YapPredicateInfo,(void *,Atom *,Int *,Int *));
 
 X_API Term
 YapA(int i)
@@ -284,6 +294,18 @@ YapMkApplTerm(Functor f,unsigned int arity, Term args[])
   return(t);
 }
 
+X_API Term
+YapMkNewApplTerm(Functor f,unsigned int arity)
+{
+  Term t; 
+  BACKUP_H();
+
+  t = MkNewApplTerm(f, arity);
+
+  RECOVER_H();
+  return(t);
+}
+
 X_API Functor 
 YapFunctorOfTerm(Term t)
 {
@@ -355,12 +377,12 @@ Yapcut_succeed(void)
 }
 
 X_API Int
-YapUnify(Term pt1, Term pt2)
+YapUnify(Term t1, Term t2)
 {
   Int out;
   BACKUP_MACHINE_REGS();
 
-  out = unify(pt1, pt2);
+  out = unify(t1, t2);
 
   RECOVER_MACHINE_REGS();
   return(out);
@@ -825,3 +847,74 @@ YapOpenStream(void *fh, char *name, Term nm, int flags)
   return retv;
 }
 
+X_API Term *
+YapNewSlots(int n)
+{
+  Term *slot;
+  ASP -= n;
+  slot = ASP;
+  return(slot);
+}
+
+X_API void
+YapRecoverSlots(int n)
+{
+  ASP += n;
+}
+
+X_API void
+YapThrow(Term t)
+{
+  BACKUP_MACHINE_REGS();
+  JumpToEnv(t);
+  RECOVER_MACHINE_REGS();
+}
+
+X_API int
+YapLookupModule(Term t)
+{
+  return(LookupModule(t));
+}
+
+X_API Term
+YapModuleName(int i)
+{
+  return(ModuleName[i]);
+}
+
+X_API void
+YapHalt(int i)
+{
+  exit_yap(i);
+}
+
+X_API CELL *
+YapTopOfLocalStack(void)
+{
+  return(ASP);
+}
+
+X_API void *
+YapPredicate(Atom a, Int arity, Int m)
+{
+  if (arity == 0) {
+    return((void *)RepPredProp(PredPropByAtom(a,m)));
+  } else {
+    Functor f = MkFunctor(a, arity);
+    return((void *)RepPredProp(PredPropByFunc(f,m)));
+  }
+} 
+
+X_API void
+YapPredicateInfo(void *p, Atom* a, Int* arity, Int* m)
+{
+  PredEntry *pd = (PredEntry *)p;
+  if (pd->ArityOfPE) {
+    *arity = pd->ArityOfPE;
+    *a = NameOfFunctor(pd->FunctorOfPred);
+  } else {
+    *arity = 0;
+    *a = (Atom)(pd->FunctorOfPred);
+  }
+  *m = pd->ModuleOfPred;
+} 

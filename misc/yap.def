@@ -27,6 +27,7 @@ YapMkPairTerm
 YapHeadOfTerm
 YapTailOfTerm
 YapMkApplTerm
+YapMkNewApplTerm
 YapFunctorOfTerm
 YapArgOfTerm
 YapMkFunctor
@@ -63,3 +64,12 @@ YapEndConsult
 YapStreamToFileNo
 YapCloseAllOpenStreams
 YapOpenStream
+YapNewSlots
+YapRecoverSlots
+YapThrow
+YapLookupModule
+YapModuleName
+YapHalt
+YapTopOfLocalStack
+YapPredicate
+

@@ -50,3 +50,26 @@ MkApplTerm(Functor f, unsigned int n, register Term *a)
     *H++ = (CELL) * a++;
   return (AbsAppl(t));
 }
+
+Term 
+MkNewApplTerm(Functor f, unsigned int n)	
+     /* build compound term with functor f and n
+      * args a */
+{
+  CELL           *t = H;
+
+  if (n == 0)
+    return (MkAtomTerm(NameOfFunctor(f)));
+  if (f == FunctorList) {
+    RESET_VARIABLE(H);
+    RESET_VARIABLE(H+1);
+    H+=2;
+    return (AbsPair(t));
+  }
+  *H++ = (CELL) f;
+  while (n--) {
+    RESET_VARIABLE(H);
+    H++;
+  }
+  return (AbsAppl(t));
+}

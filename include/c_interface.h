@@ -263,6 +263,15 @@ static Term (*YapIMkApplTerm)() = YapMkApplTerm;
 #define MkApplTerm(F,N,As) YapMkApplTerm(F,N,As)
 #endif
 
+/*    Term     MkNewApplTerm(Functor f, int n) */
+extern X_API Term PROTO(YapMkNewApplTerm,(Functor,int));
+#ifdef IndirectCalls
+static Term (*YapIMkNewApplTerm)() = YapMkNewApplTerm;
+#define MkNewApplTerm(F,N) (*YapIMkNewApplTerm)(F,N)
+#else
+#define MkNewApplTerm(F,N) YapMkNewApplTerm(F,N)
+#endif
+
 
 /*    Functor  FunctorOfTerm(Term)  */
 extern X_API Functor PROTO(YapFunctorOfTerm,(Term));
@@ -575,11 +584,74 @@ static void (*YapICloseAllOpenStreams)() = YapCloseAllOpenStreams;
 #define YAP_BINARY_STREAM	0x40
 #define YAP_SEEKABLE_STREAM	0x80
 
-/*  Term  YapP()  */
+/*  Term  YapOpenStream()  */
 extern X_API Term PROTO(YapOpenStream,(void *, char *, Term, int));
 #ifdef IndirectCalls
 static Term (*YapIOpenStream)() = YapOpenStream;
 #define YapOpenStream(FD,S,T,FL) (*YapIOpenStream)(FD,S,T,FL)
+#endif
+
+/*  Term  *YapNewSlots()  */
+extern X_API Term *PROTO(YapNewSlots,(int));
+#ifdef IndirectCalls
+static Term *(*YapINewSlots)(N) = YapNewSlots;
+#define YapNewSlots(N) (*YapINewSlots)(N)
+#endif
+
+/*  void  YapRecoverSlots()  */
+extern X_API void PROTO(YapRecoverSlots,(int));
+#ifdef IndirectCalls
+static void (*YapIRecoverSlots)(N) = YapRecoverSlots;
+#define YapRecoverSlots(N) (*YapIRecoverSlots)(N)
+#endif
+
+/*  void  YapThrow()  */
+extern X_API void PROTO(YapThrow,(Term));
+#ifdef IndirectCalls
+static void (*YapIThrow)(T) = YapThrow;
+#define YapThrow(T) (*YapIThrow)(T)
+#endif
+
+/*  int  YapLookupModule()  */
+extern X_API int  PROTO(YapLookupModule,(Term));
+#ifdef IndirectCalls
+static int (*YapILookupModule)(T) = YapLookupModule;
+#define YapLookupModule(T) (*YapILookupModule)(T)
+#endif
+
+/*  int  YapModuleName()  */
+extern X_API Term  PROTO(YapModuleName,(int));
+#ifdef IndirectCalls
+static int (*YapIModuleName)(I) = YapModuleName;
+#define YapModuleName(I) (*YapIModuleName)(I)
+#endif
+
+/*  int  YapHalt()  */
+extern X_API int  PROTO(YapHalt,(int));
+#ifdef IndirectCalls
+static int (*YapIHalt)(E) = YapHalt;
+#define YapHalt(E) (*YapIHalt)(E)
+#endif
+
+/*  int  YapTopOfLocalStack()  */
+extern X_API Term  *PROTO(YapTopOfLocalStack,(void));
+#ifdef IndirectCalls
+static Term *(*YapITopOfLocalStack)() = YapTopOfLocalStack;
+#define YapTopOfLocalStack() (*YapITopOfLocalStack)()
+#endif
+
+/*  int  YapPredicate()  */
+extern X_API void  *PROTO(YapPredicate,(Atom,Int,Int));
+#ifdef IndirectCalls
+static Term *(*YapIPredicate)(N,A,M) = YapPredicate;
+#define YapPredicate(N,A,M) (*YapIPredicate)(N,A,M)
+#endif
+
+/*  int  YapPredicate()  */
+extern X_API void  PROTO(YapPredicateInfo,(void *,Atom*,Int*,Int*));
+#ifdef IndirectCalls
+static void (*YapIPredicateInfo)(P,N,A,M) = YapPredicateInfo;
+#define YapPredicateInfo(P,N,A,M) (*YapIPredicateInfo)(P,N,A,M)
 #endif
 
 

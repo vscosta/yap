@@ -10,7 +10,7 @@
 * File:		Yap.proto						 *
 * mods:									 *
 * comments:	Function declarations for YAP				 *
-* version:      $Id: Yapproto.h,v 1.15 2002-05-03 15:30:36 vsc Exp $	 *
+* version:      $Id: Yapproto.h,v 1.16 2002-05-06 15:33:04 vsc Exp $	 *
 *************************************************************************/
 
 /* prototype file for Yap */
@@ -36,6 +36,7 @@ Atom	STD_PROTO(LookupAtom,(char *));
 Atom	STD_PROTO(FullLookupAtom,(char *));
 void	STD_PROTO(LookupAtomWithAddress,(char *,AtomEntry *));
 Term	STD_PROTO(MkApplTerm,(Functor,unsigned int,Term *));
+Term	STD_PROTO(MkNewApplTerm,(Functor,unsigned int));
 Prop	STD_PROTO(NewPredPropByFunctor,(struct FunctorEntryStruct *, SMALLUNSGN));
 Prop	STD_PROTO(NewPredPropByAtom,(struct AtomEntryStruct *, SMALLUNSGN));
 Functor	STD_PROTO(UnlockedMkFunctor,(AtomEntry *,unsigned int));
