@@ -6,7 +6,7 @@
 	:- info([
 		version is 1.0,
 		author is 'Paulo Moura',
-		date is 2004/6/5,
+		date is 2004/12/1,
 		comment is 'Operating system interface for Qu-Prolog.']).
 
 
@@ -23,7 +23,7 @@
 
 
 	working_directory(Directory) :-
-		{fail}.
+		{getcwd(Directory)}.
 
 
 	directory_exists(Directory) :-

@@ -158,6 +158,10 @@ The configuration files specifies default values for all the Logtalk compiler op
 		<dd>Controls the messages printed by Logtalk at startup. Possible flag values are <code>flags</code> (the usual default; prints the Logtalk banner and a list of all compiler options and flags values), <code>banner</code> (prints only the Logtalk banner), and <code>none</code> (suppress all startup messages; useful for batch processing).</dd>
 </dl>
 <dl>
+	<dt><code>altdirs(Option)</code></dt>
+		<dd>Allows the use of alternative directories for storing the Prolog files and the XML documenting files resulting from entity compilation. This flag can only be set for Prolog compilers providing the necessary operating-system access predicates for implementing this feature (specifically, a built-in predicate for creating new directories). Possible option values are <code>on</code> and <code>off</code> (the usual default). The alternative directories are specified using a predicate which is also defined in the configuration files.</dd>
+</dl>
+<dl>
 	<dt><code>iso_initialization_dir</code></dt>
 		<dd>Informs Logtalk if the Prolog compiler supports the <code>initialization/1</code> directive as specified in the ISO standard. Note that some Prolog compilers support this directive but without the ISO specified semantics. Possible flag values are <code>true</code> and <code>false</code>.</dd>
 </dl>
@@ -200,7 +204,7 @@ Copyright &copy; <a href="mailto:pmoura@logtalk.org">Paulo Moura</a> &mdash; <a 
 </div>
 
 <div class="footer">
-<p><span class="bleft"><a href="http://validator.w3.org/check/referer">XHTML</a> + <a href="http://jigsaw.w3.org/css-validator/check/referer">CSS</a></span><span class="bright">Last updated on: December 1, 2004</span></p>
+<p><span class="bleft"><a href="http://validator.w3.org/check/referer">XHTML</a> + <a href="http://jigsaw.w3.org/css-validator/check/referer">CSS</a></span><span class="bright">Last updated on: December 6, 2004</span></p>
 </div>
 </body>
 </html>

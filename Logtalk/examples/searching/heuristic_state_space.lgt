@@ -15,7 +15,7 @@
 
 	:- mode(next_state(+nonvar, -nonvar, -number), zero_or_more).
 
-	:- info(next_state/2,
+	:- info(next_state/3,
 		[comment is 'Generates a state sucessor.',
 		 argnames is ['State', 'Next', 'Cost']]).
 

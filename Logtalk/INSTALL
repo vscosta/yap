@@ -1,6 +1,6 @@
 =================================================================
 Logtalk - Object oriented extension to Prolog
-Release 2.22.1
+Release 2.22.2
 
 Copyright (c) 1998-2004 Paulo Moura.  All Rights Reserved.
 =================================================================
@@ -102,7 +102,9 @@ file (you will need to reboot after editing the file):
 In Windows 2000/XP, environment variables are defined using the System 
 properties control panel (if you are a system administrator, you should use 
 the JScript install script provided in the "misc" sub-directory; this script 
-sets both the LOGTALKHOME and the LOGTALKUSER environment variables).
+sets the LOGTALKHOME environment variable for all users and also sets the 
+LOGTALKUSER environment variable for the administrator user running the 
+script).
 
 
 2.2 Setting library paths
@@ -111,9 +113,10 @@ In Logtalk, a library is simply a directory containing source files. Library
 paths can be declared using a dynamic predicate. This allows compiling and 
 loading of libraries and library files to be performed without worries about 
 library paths. In the "$LOGTALKUSER/libpaths" directory you will find a sample 
-file which you can edit to match your Logtalk installation and your Prolog 
-compiler and operating-system requirements. For more details, see the file 
-"$LOGTALKUSER/libpaths/NOTES".
+file which, when loaded, defines the library paths for the Logtalk standard 
+library and for all the supplied examples. This file may need to be edited to 
+match your Logtalk installation and your Prolog compiler and operating-system 
+requirements. For more details, see the file "$LOGTALKUSER/libpaths/NOTES".
 
 
 2.3 Customizing Prolog configuration files

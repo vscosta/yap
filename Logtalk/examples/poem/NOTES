@@ -1,4 +1,4 @@
-The example in this folder is an adpation of an example of POEM, an 
+The example in this folder is an adaptation of an example of POEM, an 
 object-oriented extension to Prolog developed by Ben Staveley-Taylor.
 
 To load all entities in this example compile and load the loader file:

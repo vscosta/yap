@@ -189,20 +189,20 @@
 	:- mode(local_time(?time(?integer, ?integer, ?integer, ?integer, ?integer, ?integer, ?integer)), zero_or_one).
 	:- info(local_time/1, [
 		comment is 'Local time (respecting time zone and daylight savings settings).',
-		argnames is [time('Year', 'Month', 'Day', 'Hours', 'Mins', 'Secs', 'Microsecs')]]).
+		argnames is ['time(Year, Month, Day, Hours, Mins, Secs, Microsecs)']]).
 
 	:- public(utc_time/1).
 	:- mode(utc_time(?time(?integer, ?integer, ?integer, ?integer, ?integer, ?integer, ?integer)), zero_or_one).
 	:- info(utc_time/1, [
 		comment is 'Universal Coordinated Time (UTC).',
-		argnames is [time('Year', 'Month', 'Day', 'Hours', 'Mins', 'Secs', 'Microsecs')]]).
+		argnames is ['time(Year, Month, Day, Hours, Mins, Secs, Microsecs)']]).
 
 	:- public(convert_time/2).
 	:- mode(convert_time(+number, ?time(?integer, ?integer, ?integer, ?integer, ?integer, ?integer, ?integer)), zero_or_one).
 	:- mode(convert_time(?number, +time(+integer, +integer, +integer, +integer, +integer, +integer, +integer)), zero_or_one).
 	:- info(convert_time/2, [
 		comment is 'Converts between system-dependent time stamps and calendar local date and time.',
-		argnames is ['Time', time('Year', 'Month', 'Day', 'Hours', 'Mins', 'Secs', 'Microsecs')],
+		argnames is ['Time', 'time(Year, Month, Day, Hours, Mins, Secs, Microsecs)'],
 		exceptions is [
 			'Neither argument is instantiated' - instantiation_error,
 			'Time stamp is neither a variable nor a valid time stamp' - type_error(time_stamp, 'Time'),

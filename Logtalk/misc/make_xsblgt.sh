@@ -2,7 +2,7 @@
 
 ## =================================================================
 ## Logtalk - Object oriented extension to Prolog
-## Release 2.22.1
+## Release 2.22.2
 ##
 ## Copyright (c) 1998-2004 Paulo Moura.  All Rights Reserved.
 ## =================================================================
@@ -22,14 +22,13 @@ else
 	fi
 	mkdir -p bin
 	cd bin
-	cp ../configs/xsb.config xsbconfig.P
 	cp ../compiler/logtalk.pl logtalk.P
 	sed 's/^..lgt_current_object_.[(]user.*[)]/:- assertz(&)/' logtalk.P > temp1
 	sed 's/^..lgt_current_object_.[(]debugger.*[)]/:- assertz(&)/' temp1 > temp2
 	sed 's/^..lgt_dbg_leashing_.[(].*[)]/:- assertz(&)/g' temp2 > logtalk.P
 	rm temp1
 	rm temp2
-	echo ":- reconsult('$LOGTALKHOME/bin/xsbconfig.P')." > logtalkxsb.P
+	echo ":- reconsult('$LOGTALKUSER/configs/xsb.P')." > logtalkxsb.P
 	echo ":- reconsult('$LOGTALKHOME/bin/logtalk.P')." >> logtalkxsb.P
 	echo ":- reconsult('$LOGTALKUSER/libpaths/libpaths.P')." >> logtalkxsb.P
 	echo "#/bin/sh" > xsblgt
@@ -39,5 +38,10 @@ else
 	echo "Done. A link to the script was been created in $prefix/bin."
 	echo "Users should define the environment variables LOGTALKHOME and"
 	echo "LOGTALKUSER in order to use the script."
+	echo
+	echo "Users must change the extension of files \$LOGTALKUSER/configs/xsb.config"
+	echo "and \$LOGTALKUSER/libpaths/libpaths.pl to '.P' before using the xsblgt"
+	echo "script. In addition, users must edit the libpaths.P file to replace all"
+	echo "occurrences of the LOGTALKUSER environment variable by its value."
 	echo
 fi

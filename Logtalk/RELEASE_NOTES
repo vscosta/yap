@@ -1,6 +1,6 @@
 =================================================================
 Logtalk - Object oriented extension to Prolog
-Release 2.22.1
+Release 2.22.2
 
 Copyright (c) 1998-2004 Paulo Moura.  All Rights Reserved.
 =================================================================
@@ -8,6 +8,29 @@ Copyright (c) 1998-2004 Paulo Moura.  All Rights Reserved.
 
 RELEASE NOTES
 =============
+
+
+2.22.2 - December 24, 2004
+
+	Improved performance of dynamic creation and compilation of objects, 
+	protocols, and categories.
+
+	Improved error-checking code of methods asserta/1 and assertz/1 to 
+	prevent asserting of non-callable terms as facts.
+
+	Improved error checking for documenting directives (info/1 and info/2).
+
+	Improved the XSB integration script (make_xsblgt.sh) in order to use the 
+	configuration file and the libpaths file available from the $LOGTALKUSER 
+	directory.
+
+	Improved installation instructions and installation scripts documentation.
+
+	Added documentation to the user manual on describing predicate exceptions 
+	using the info/2 directive.
+
+	Corrected a bug in the predicate_property/2 built-in method when called 
+	with the second argument instantiated to the alias/1 property.
 
 
 2.22.1 - December 6, 2004
