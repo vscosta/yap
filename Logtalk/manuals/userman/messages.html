@@ -41,13 +41,13 @@ It is assumed that these operators remain active (once the Logtalk preprocessor 
 <h2>Sending a message to an object<a name="sending"></a></h2>
 
 <p>
-Sending a message to an object is done by using the <a title="Consult reference manual" href="../refman/control/to_object2.html"><code>::/2</code></a> infix  operator:
+Sending a message to an object is accomplished by using the <a title="Consult reference manual" href="../refman/control/to_object2.html"><code>::/2</code></a> infix  operator:
 </p>
 <pre>
     | ?- Object::Message.
 </pre>
 <p>
-The message must match a public predicate declared for the receiving object or a Logtalk/Prolog built-in predicate, otherwise an error will be thrown (see the Reference Manual for details).
+The message must match a public predicate declared for the receiving object or a Logtalk/Prolog built-in predicate, otherwise an exception will be thrown (see the Reference Manual for details).
 </p>
 
 <h2>Broadcasting<a name="broadcasting"></a></h2>
@@ -107,7 +107,7 @@ This will be equivalent to:
 <h2>Sending a message to <em>self</em><a name="self"></a></h2>
 
 <p>
-While defining a predicate, we sometimes need to send a message to <em>self</em>, that is, to the same object that has received the original message. This is done in Logtalk through the <a title="Consult reference manual" href="../refman/control/to_self1.html"><code>::/1</code></a> prefix operator:
+While defining a predicate, we sometimes need to send a message to <em>self</em>, i.e., to the same object that has received the original message. This is done in Logtalk through the <a title="Consult reference manual" href="../refman/control/to_self1.html"><code>::/1</code></a> prefix operator:
 </p>
 <pre>
     ::Message
@@ -125,13 +125,13 @@ or:
     ::(Message1; Message2; ...)
 </pre>
 <p>
-The message must match a public or protected predicate declared for the receiving object or a Logtalk/Prolog built-in predicate otherwise an error will be thrown (see the Reference Manual for details). If the message is sent from inside a category or if we are using private inheritance, then the message may also match a private predicate.
+The message must match a public or protected predicate declared for the receiving object, a private predicate within the scope of the <em>sender</em>, or a Logtalk/Prolog built-in predicate otherwise an error will be thrown (see the Reference Manual for details). If the message is sent from inside a category or if we are using private inheritance, then the message may also match a private predicate.
 </p>
 
 <h2>Calling an overridden predicate definition<a name="super"></a></h2>
 
 <p>
-When redefining a predicate, we sometimes have the need to call the inherited definition in the new code. This possibility, introduced by the Smalltalk language through the <code>super</code> primitive, is available in Logtalk through the <a title="Consult reference manual" href="../refman/control/to_super1.html"><code>^^/1</code></a> prefix operator:
+When redefining a predicate, sometimes we need to call the inherited definition in the new code. This possibility, introduced by the Smalltalk language through the <code>super</code> primitive, is available in Logtalk through the <a title="Consult reference manual" href="../refman/control/to_super1.html"><code>^^/1</code></a> prefix operator:
 </p>
 <pre>
     ^^Predicate
@@ -187,7 +187,7 @@ When discussing Logtalk message sending performance, two distinct cases should b
 <h3>Translating message processing to predicate calls<a name="inferences"></a></h3>
 
 <p>
-In order to better understand the performance tradeoffs of using Logtalk when compared to plain Prolog or to Prolog module systems, is useful to translate message processing in terms of predicate calls. However, in doing this, we should keep in mind that the number of predicate calls is not proportional to the time taken to execute them.
+In order to better understand the performance tradeoffs of using Logtalk when compared to plain Prolog or to Prolog module systems, is useful to translate message processing in terms of predicate calls. However, in doing this, we should keep in mind that the number of predicate calls is not necessarily proportional to the time taken to execute them.
 </p>
 <p>
 A message sent from a compiled object to another object translates to six predicate calls:
@@ -207,10 +207,11 @@ A message sent from a compiled object to another object translates to six predic
 </dl>
 </blockquote>
 <p>
-Given that events can be dynamically defined at runtime, there is no room for reducing the number of predicate calls without turning off support for event-driven programming. When events are defined, the number of predicate calls grows proportional to the number of events and event handlers (monitors). Event-driven programming support can be switched off for specific object using the compiler option <a title="Consult compiler option details" href="running.html#options"><code>events</code></a>. Doing so, reduces the number of predicate calls from six to just two.
+Given that events can be dynamically defined at runtime, there is no room for reducing the number of predicate calls without turning off support for event-driven programming. When events are defined, the number of predicate calls grows proportional to the number of events and event handlers (monitors). Event-driven programming support can be switched off for specific object using the compiler flag <a title="Consult compiler flag details" href="running.html#options"><code>events</code></a>. Doing so, reduces the number of predicate calls from six to just two.
 </p>
 <p>
 Messages to <em>self</em> and <em>super</em> calls are transparent regarding events and, as such, imply only two predicate calls (the cache lookup and the method call).
+</p>
 <p>
 When a message is sent by the user from the top-level interpreter, Logtalk needs to perform a runtime translation of the message in order to prove the corresponding goal. For user-defined messages/predicates, the runtime translation overhead corresponds to seventeen predicate calls. Thus, while sending a message from a compiled object corresponds to six predicate calls, the same message sent by the user from the top-level interpreter results in twenty-three predicate calls. Considering the time taken for the user to type the goal, this overhead is of no practical consequence.
 </p>
@@ -279,7 +280,7 @@ Copyright &copy; <a href="mailto:pmoura@logtalk.org">Paulo Moura</a> &mdash; <a 
 </div>
 
 <div class="footer">
-<p><span class="bleft"><a href="http://validator.w3.org/check/referer">XHTML</a> + <a href="http://jigsaw.w3.org/css-validator/check/referer">CSS</a></span><span class="bright">Last updated on: November 2, 2004</span></p>
+<p><span class="bleft"><a href="http://validator.w3.org/check/referer">XHTML</a> + <a href="http://jigsaw.w3.org/css-validator/check/referer">CSS</a></span><span class="bright">Last updated on: February 6, 2005</span></p>
 </div>
 </body>
 </html>

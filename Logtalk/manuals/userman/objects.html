@@ -30,13 +30,13 @@ In Logtalk, the only pre-defined objects are the pseudo-objects <code>user</code
 <h2>Objects, prototypes, classes and instances<a name="kind"></a></h2>
 
 <p>
-Objects, prototypes, parents, classes, subclasses, superclasses, metaclasses, instances are all terms that always designate an object. Different names are used to emphasize the role on an object in a particular context. We use a term other than object when we want to make the relationship with other objects explicit. There are only three kinds of entities in Logtalk: objects, protocols and categories.
+Objects, prototypes, parents, classes, subclasses, superclasses, metaclasses, instances are all terms that always designate an object. Different names are used to emphasize the role on an object in a particular context. We use a term other than object when we want to make the relationship with other objects explicit. There are only three kinds of entities in Logtalk: objects, protocols, and categories.
 </p>
 
 <h2>Defining a new object<a name="defining"></a></h2>
 
 <p>
-We can define a new object in the same way we write Prolog code: by using a text editor. Each object (category or protocol) we define should be contained in its own text file. It is recommended that this text file be named after the object. By default, all Logtalk source files use the extension <code>.lgt</code> but this is optional and can be set in the configuration files. Compiled source files (by the Logtalk preprocessor) have, by default, a <code>.pl</code> extension. Again, this can be set to match the needs of a particular Prolog compiler in the corresponding configuration file. For instance, we may define an object named <code>vehicle</code> and save it in a <code>vehicle.lgt</code> source file that will be compiled to a <code>vehicle.pl</code> Prolog file.
+We can define a new object in the same way we write Prolog code: by using a text editor. Each object (category or protocol) is usually defined in its own text file. It is recommended that this text file be named after the object. By default, all Logtalk source files use the extension <code>.lgt</code> but this is optional and can be set in the configuration files. Compiled source files (by the Logtalk preprocessor) have, by default, a <code>.pl</code> extension. Again, this can be set to match the needs of a particular Prolog compiler in the corresponding configuration file. For instance, we may define an object named <code>vehicle</code> and save it in a <code>vehicle.lgt</code> source file that will be compiled to a <code>vehicle.pl</code> Prolog file. We may also define several entities in the same source file by using the <code>.mlgt</code> extension. In this case, the Logtalk compiler automatically splits each entity in its own <code>.lgt</code> file for further compilation.
 </p>
 <p>
 Object names can be atoms or compound terms (if we are defining parametric objects, see below). Objects, categories and protocols share the same name space: we can not have an object with the same name as a protocol or a category.
@@ -459,7 +459,7 @@ Copyright &copy; <a href="mailto:pmoura@logtalk.org">Paulo Moura</a> &mdash; <a 
 </div>
 
 <div class="footer">
-<p><span class="bleft"><a href="http://validator.w3.org/check/referer">XHTML</a> + <a href="http://jigsaw.w3.org/css-validator/check/referer">CSS</a></span><span class="bright">Last updated on: August 19, 2004</span></p>
+<p><span class="bleft"><a href="http://validator.w3.org/check/referer">XHTML</a> + <a href="http://jigsaw.w3.org/css-validator/check/referer">CSS</a></span><span class="bright">Last updated on: February 3, 2005</span></p>
 </div>
 </body>
 </html>

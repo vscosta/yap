@@ -27,7 +27,7 @@ Protocols enable the separation between interface and implementation: several ob
 <h2>Defining a new protocol<a name="defining"></a></h2>
 
 <p>
-We can define a new protocol in the same way we write Prolog code: by using a text editor. Each protocol (object or category) we define should be contained in its own text file. It is recommended that this text file be named after the protocol. By default, all Logtalk source files use the extension <code>.lgt</code> but this is optional and can be set in the configuration files. Compiled source files (by the Logtalk preprocessor) have, by default, a <code>.pl</code> extension. Again, this can be set to match the needs of a particular Prolog compiler in the corresponding configuration file. For example, we may define a protocol named <code>listp</code> and save it in a <code>listp.lgt</code> source file that will be compiled to a <code>listp.pl</code> Prolog file.
+We can define a new protocol in the same way we write Prolog code: by using a text editor. Each protocol (object or category) is usually defined in its own text file. It is recommended that this text file be named after the protocol. By default, all Logtalk source files use the extension <code>.lgt</code> but this is optional and can be set in the configuration files. Compiled source files (by the Logtalk preprocessor) have, by default, a <code>.pl</code> extension. Again, this can be set to match the needs of a particular Prolog compiler in the corresponding configuration file. For example, we may define a protocol named <code>listp</code> and save it in a <code>listp.lgt</code> source file that will be compiled to a <code>listp.pl</code> Prolog file. We may also define several entities in the same source file by using the <code>.mlgt</code> extension. In this case, the Logtalk compiler automatically splits each entity in its own <code>.lgt</code> file for further compilation.
 </p>
 <p>
 Protocol names must be atoms. Objects, categories and protocols share the same name space: we can not have a protocol with the same name as an object or a category.
@@ -255,7 +255,7 @@ Copyright &copy; <a href="mailto:pmoura@logtalk.org">Paulo Moura</a> &mdash; <a 
 </div>
 
 <div class="footer">
-<p><span class="bleft"><a href="http://validator.w3.org/check/referer">XHTML</a> + <a href="http://jigsaw.w3.org/css-validator/check/referer">CSS</a></span><span class="bright">Last updated on: December 23, 2003</span></p>
+<p><span class="bleft"><a href="http://validator.w3.org/check/referer">XHTML</a> + <a href="http://jigsaw.w3.org/css-validator/check/referer">CSS</a></span><span class="bright">Last updated on: February 3, 2005</span></p>
 </div>
 </body>
 </html>

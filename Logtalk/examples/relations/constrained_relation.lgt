@@ -5,8 +5,8 @@
 
 
 	:- info([
-		version is 3.1,
-		date is 2004/8/15,
+		version is 3.2,
+		date is 2005/1/29,
 		author is 'Paulo Moura',
 		comment is 'Enables the representation of relations with constraints on the state of participating objects.']).
 
@@ -69,9 +69,9 @@
 	set_monitors([], []).
 
 	set_monitors([Object| Objects], [Role| Roles]) :-
-		::activ_points(Role, before, Messages1),
+		once(::activ_points(Role, before, Messages1)),	% avoid spurious backtracking
 		set_object_before_monitors(Messages1, Object),
-		::activ_points(Role, after, Messages2),
+		once(::activ_points(Role, after, Messages2)),	% avoid spurious backtracking
 		set_object_after_monitors(Messages2, Object),
 		set_monitors(Objects, Roles).
 

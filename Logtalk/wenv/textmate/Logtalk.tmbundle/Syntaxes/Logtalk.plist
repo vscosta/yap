@@ -90,13 +90,13 @@
 			foregroundColor = "#0000ff";
 		},
 		{
-			name = "Control constructs";
-			match = "\\<(true|fail)\\>";
+			name = "Control constructs (arity 0)";
+			match = "\\<(true|fail|repeat)\\>";
 			foregroundColor = "#1A1AA6";
 		},
 		{
 			name = "Control constructs";
-			match = "\\<(ca(ll|tch)|throw)(?=[(])";
+			match = "\\<(ca(ll|tch)|throw|once)(?=[(])";
 			foregroundColor = "#1A1AA6";
 		},
 		{
@@ -130,8 +130,28 @@
 			foregroundColor = "#1A1AA6";
 		},
 		{
+			name = "Term unification";
+			match = "\\<(unify_with_occurs_check)(?=[(])";
+			foregroundColor = "#1A1AA6";
+		},
+		{
+			name = "Stream selection and control";
+			match = "\\<((set|current)_(in|out)put|open|close|flush_output|stream_property|at_end_of_stream|set_stream_position)(?=[(])";
+			foregroundColor = "#1A1AA6";
+		},
+		{
+			name = "Stream selection and control (others)";
+			match = "\\<(flush_output|at_end_of_stream)\\>";
+			foregroundColor = "#1A1AA6";
+		},
+		{
+			name = "Prolog flags";
+			match = "\\<((set|current)_prolog_flag)(?=[(])";
+			foregroundColor = "#1A1AA6";
+		},
+		{
 			name = "Compiling and loading predicates";
-			match = "\\<(logtalk_(compile|load))(?=[(])";
+			match = "\\<(logtalk_(compile|l(ibrary_path|oad)))(?=[(])";
 			foregroundColor = "#1A1AA6";
 		},
 		{
@@ -140,8 +160,13 @@
 			foregroundColor = "#1A1AA6";
 		},
 		{
-			name = "Flag predicates";
-			match = "\\<((current|set)_logtalk_flag)(?=[(])";
+			name = "Implementation defined hooks";
+			match = "\\<((current|set)_logtalk_flag|halt)(?=[(])";
+			foregroundColor = "#1A1AA6";
+		},
+		{
+			name = "Implementation defined hooks (others)";
+			match = "\\<(halt)\\>";
 			foregroundColor = "#1A1AA6";
 		},
 		{

@@ -5,10 +5,10 @@
 <!--	jEdit 4.1 Logtalk syntax file
 
 	written by		Paulo Moura
-	version			1.42
+	version			1.43
 	created on		2 May 2002
-	last revised	18 September 2004
-	
+	last revised	20 January 2005
+
 	To install, copy this file to the "modes" subdirectory in jEdit 
 	directory installation.   Next, check the "catalog" file in the 
 	same subdirectory and add (if not present) the following entry:
@@ -191,6 +191,8 @@
 
 			<FUNCTION>logtalk_compile</FUNCTION>
 			<FUNCTION>logtalk_load</FUNCTION>
+
+			<FUNCTION>logtalk_library_path</FUNCTION>
 
 			<FUNCTION>forall</FUNCTION>
 			<FUNCTION>logtalk_version</FUNCTION>

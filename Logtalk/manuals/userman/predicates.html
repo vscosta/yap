@@ -189,13 +189,13 @@ When a predicate makes heavy use of predicates defined on other objects, its def
         list::select(Y, C, R),
         ...
 </pre>
+<p>
 Logtalk provides a directive, <a title="Consult reference manual" href="../refman/directives/uses2.html"><code>uses/2</code></a>, which allows us to simplify the code above. The usage template for this directive is:
 </p>
 <pre>
     :- uses(Object, [Functor1/Arity1, Functor2/Arity2, ...]).
 </pre>
 <p>
-</p>
 Rewriting the code above using this directive results in a simplified and more easily readable predicate definition:
 </p>
 <pre>
@@ -290,6 +290,7 @@ The <code>alias/3</code> directive may also be used to make visible a predicate,
 
     :- end_object.
 </pre>
+<p>
 Thus, when sending the message <code>member/2</code> to <code>my_data_structure</code>, the predicate definition in <code>set</code> will be used instead of the one contained in <code>list</code>.
 </p>
 
@@ -425,17 +426,17 @@ Definite clause grammar rules provide a convenient notation to represent the rew
         parse(Expression, Value) :-
             phrase(expr(Value), Expression).
 
-        expr(Z) --> term(X), "+", expr(Y), {Z is X + Y}.
-        expr(Z) --> term(X), "-", expr(Y), {Z is X - Y}.
-        expr(X) --> term(X).
+        expr(Z) --&gt; term(X), "+", expr(Y), {Z is X + Y}.
+        expr(Z) --&gt; term(X), "-", expr(Y), {Z is X - Y}.
+        expr(X) --&gt; term(X).
 
-        term(Z) --> number(X), "*", term(Y), {Z is X * Y}.
-        term(Z) --> number(X), "/", term(Y), {Z is X / Y}.
-        term(Z) --> number(Z).
+        term(Z) --&gt; number(X), "*", term(Y), {Z is X * Y}.
+        term(Z) --&gt; number(X), "/", term(Y), {Z is X / Y}.
+        term(Z) --&gt; number(Z).
 
-        number(C) --> "+", number(C).
-        number(C) --> "-", number(X), {C is -X}.
-        number(X) --> [C], {0'0 =< C, C =< 0'9, X is C - 0'0}.
+        number(C) --&gt; "+", number(C).
+        number(C) --&gt; "-", number(X), {C is -X}.
+        number(X) --&gt; [C], {0'0 =&lt; C, C =&lt; 0'9, X is C - 0'0}.
 
     :- end_object. 
 </pre>
@@ -470,13 +471,13 @@ In the body of a grammar rule, we can call rules that are inherited from ancesto
             phrase(sentence, List).
         parse(_, false).
 
-        sentence --> noun_phrase, verb_phrase.
+        sentence --&gt; noun_phrase, verb_phrase.
 
-        noun_phrase --> ::determiner, ::noun.
-        noun_phrase --> ::noun.
+        noun_phrase --&gt; ::determiner, ::noun.
+        noun_phrase --&gt; ::noun.
 
-        verb_phrase --> ::verb.
-        verb_phrase --> ::verb, noun_phrase.
+        verb_phrase --&gt; ::verb.
+        verb_phrase --&gt; ::verb, noun_phrase.
 
     :- end_object.
 </pre>
@@ -488,13 +489,13 @@ The categories imported by the object would contain the necessary grammar rules 
 
         :- private(determiner//0).
 
-        determiner --> [the].
-        determiner --> [a].
+        determiner --&gt; [the].
+        determiner --&gt; [a].
 
     :- end_category.
 </pre>
 <p>
-Along with the message sending operators (<code>::/1</code> and <code>::/2</code>), we may also use other control constructs such as <code>\+/1</code>, <code>!/0</code>, <code>;/2</code>, <code>->/2</code>, and <code>{}/1</code> in the body of a grammar. In addition, grammar rules may contain metacalls (a variable taking the place of a non-terminal), which are translated to calls of the built-in method <code>phrase/3</code>. 
+Along with the message sending operators (<code>::/1</code> and <code>::/2</code>), we may also use other control constructs such as <code>\+/1</code>, <code>!/0</code>, <code>;/2</code>, <code>-&gt;/2</code>, and <code>{}/1</code> in the body of a grammar. In addition, grammar rules may contain metacalls (a variable taking the place of a non-terminal), which are translated to calls of the built-in method <code>phrase/3</code>. 
 </p>
 <p>
 You may have noticed that Logtalk defines <code>{}/1</code> as a control construct for bypassing the compiler when compiling a clause body goal. As exemplified above, this is the same control construct that is used in grammar rules for bypassing the expansion of rule body goals when a rule is converted into a clause. Both control constructs can be combined in order to call a goal from a grammar rule body, while bypassing at the same time the Logtalk compiler. Consider the following example:
@@ -508,7 +509,7 @@ You may have noticed that Logtalk defines <code>{}/1</code> as a control constru
 
         :- public(foo//0).
 
-        foo --> {{bar}}.
+        foo --&gt; {{bar}}.
 
     :- end_object.
 </pre>
@@ -609,7 +610,9 @@ After compiling and loading these two objects, we can try the following goal:
     Color parameter value is blue
     yes
 </pre>
+<p>
 The method <code>parameter/2</code> is only compiled in-ilne when used inside objects; its use inside categories implies a call to the built-in Prolog predicate <code>arg/3</code>. Nevertheless, note that calls to <code>parameter/2</code> from inside categories are inherently problematic: a category may be implemented by several objects, both parametric (with different number of parameters) and non-parametric. Care must be taken to ensure that a parametric object importing such a category match the interpretation of its parameters used in the category.
+</p>
 
 <h3>Database methods<a name="database"></a></h3>
 
@@ -695,7 +698,7 @@ In predicate definitions, predicate calls which are not prefixed with a message 
 the call to the predicate <code>write/1</code> will be compiled as a call to the corresponding Prolog built-in predicate unless the object (or category) encapsulating the above definition also contains a predicate named <code>write/1</code> or a dynamic declaration for the predicate.
 </p>
 <p>
-When calling non-standard Prolog built-in predicates, you may run into portability problems when trying your applications with other Prolog compilers which might not have the same set of built-in predicates. You may use the Logtalk compiler option <a title="Consult user manual" href="running.html#options"><code>portability/1</code></a> to help you check for problematic calls in your code.
+When calling non-standard Prolog built-in predicates, you may run into portability problems when trying your applications with other Prolog compilers which might not have the same set of built-in predicates. You may use the Logtalk compiler flag <a title="Consult user manual" href="running.html#options"><code>portability/1</code></a> to help you check for problematic calls in your code.
 </p>
 
 <h3>Calling Prolog non-standard metapredicates<a name="prolog_meta"></a></h3>
@@ -719,7 +722,7 @@ Copyright &copy; <a href="mailto:pmoura@logtalk.org">Paulo Moura</a> &mdash; <a 
 </div>
 
 <div class="footer">
-<p><span class="bleft"><a href="http://validator.w3.org/check/referer">XHTML</a> + <a href="http://jigsaw.w3.org/css-validator/check/referer">CSS</a></span><span class="bright">Last updated on: January 12, 2005</span></p>
+<p><span class="bleft"><a href="http://validator.w3.org/check/referer">XHTML</a> + <a href="http://jigsaw.w3.org/css-validator/check/referer">CSS</a></span><span class="bright">Last updated on: February 6, 2005</span></p>
 </div>
 </body>
 </html>

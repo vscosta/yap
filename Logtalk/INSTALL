@@ -1,6 +1,6 @@
 =================================================================
 Logtalk - Object oriented extension to Prolog
-Release 2.22.4
+Release 2.22.5
 
 Copyright (c) 1998-2005 Paulo Moura.  All Rights Reserved.
 =================================================================
@@ -34,10 +34,10 @@ directory may simply be copied to the user home directory.
 
 * Installing for one or more users by a user with administrative rights:
 
-In the case of multiple users, the Logtalk directory can be copied to any 
-location that its accessible by all the users (assuming that copying the 
-Logtalk directory to each user home directory is, for some reason, not 
-feasible or desired).
+In the case of installation by a user with administrative rights, the Logtalk 
+directory can be copied to any location that its accessible by all the users 
+(assuming that copying the Logtalk directory to each user home directory is, 
+for some reason, not feasible or desired).
 
 The "misc" sub-directory contains shell scripts for easy installation of 
 Logtalk on Windows, Unix, and Unix-like operating systems (for details, 
@@ -134,15 +134,15 @@ see the file "$LOGTALKUSER/libpaths/NOTES".
 
 Logtalk interfaces with a specific Prolog compiler via a configuration file 
 that can be found on the "$LOGTALKUSER/configs" directory. These configuration 
-files can be customized by changing the values of the default flags and 
-compiler options which are used by Logtalk when compiling source files. For 
-a full description of these default flags and compiler options, consult the 
-"Running and debugging Logtalk programs" section of the User Manual. Some of 
-the default flags that you may want to change are: "portability", "altdirs", 
-"underscore_vars", "startup_message", "smart_compilation", and the set of 
-documentation-related flags ("xml", "xsl", "xmlspec", and "doctype"). Be sure 
-to read the "$LOGTALKUSER/configs/NOTES" file for Prolog specific notes; some 
-Prolog compilers do not support the whole range of compilation flags.  
+files can be customized by changing the values of the default flags that are 
+used by Logtalk when compiling source files. For a full description of these 
+default flags, consult the "Running and debugging Logtalk programs" section of 
+the User Manual. Some of the default flags that you may want to change are: 
+"smart_compilation", "startup_message", "portability", "underscore_vars", 
+"altdirs", and the set of documentation-related flags ("xml", "xsl", "xmlspec", 
+and "doctype"). Be sure to read the "$LOGTALKUSER/configs/NOTES" file for 
+Prolog specific notes; some Prolog compilers do not support the whole range of 
+compilation flags.  
 
 
 2.4 Customizing documentation processing scripts and supporting files

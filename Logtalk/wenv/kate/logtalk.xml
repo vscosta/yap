@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE language SYSTEM "language.dtd">
 
-<language name="Logtalk" version="1.32" kateversion="2.1" section="Sources" extensions="*.mlgt;*.lgt;*.loader;*.config" mimetype="text/x-logtalk" author="Paulo Moura (pmoura@logtalk.org)" license="Artistic License 2.0">
+<language name="Logtalk" version="1.33" kateversion="2.1" section="Sources" extensions="*.mlgt;*.lgt;*.loader;*.config" mimetype="text/x-logtalk" author="Paulo Moura (pmoura@logtalk.org)" license="Artistic License 2.0">
 
     <highlighting>
 
@@ -30,10 +30,12 @@
                 <RegExpr String = "\bimports_category(?=[(])" attribute="Built-in" context="#stay" />
 				<!-- Events -->
                 <RegExpr String = "\b(current_event|(abolish|define)_events)(?=[(])" attribute="Built-in" context="#stay" />
-				<!-- Flags and compiler options -->
+				<!-- Flags -->
                 <RegExpr String = "\b((current|set)_logtalk_flag)(?=[(])" attribute="Built-in" context="#stay" />
 				<!-- Compiling and loading -->
                 <RegExpr String = "\blogtalk_(compile|load)(?=[(])" attribute="Built-in" context="#stay" />
+				<!-- Library paths -->
+                <RegExpr String = "\blogtalk_library_path(?=[(])" attribute="Built-in" context="#stay" />
 				<!-- Database -->
                 <RegExpr String = "\b(clause|retract|retractall)(?=[(])" attribute="Built-in" context="#stay" />
                 <RegExpr String = "\b(a(bolish|ssert(a|z))(?=[(])" attribute="Built-in" context="#stay" />

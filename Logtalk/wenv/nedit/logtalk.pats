@@ -2,7 +2,7 @@
 !
 ! Author: Paulo Moura (pmoura at logtalk.org)
 !
-! Last changed in: September 18, 2004
+! Last changed in: January 20, 2005
 !
 !
 ! To install this patterns file:
@@ -42,7 +42,7 @@ nedit.highlightPatterns: Logtalk:1:0{\n\
 	String:"'":"'"::String::\n\
 	Built-in methods:"<(parameter|self|sender|this|current_predicate|predicate_property|abolish|asserta|assertz|retractall|retract|bagof|findall|forall|setof|before|after|expand_term|phrase)(?=[(])":::Subroutine::\n\
 	Arithmetic operators:"<is>|\\+|\\*|\\-|/|=:=|=\\\\=|=\\<|\\>=|\\<|\\>":::Subroutine::\n\
-	Built-in predicates:"<(current_object|current_protocol|current_category|create_object|create_protocol|create_category|object_property|protocol_property|category_property|abolish_object|abolish_protocol|abolish_vategory|extends_object|extends_protocol|omplements_protocol|instantiates_class|specializes_class|imports_category|abolish_events|current_events|define_events|current_logtalk_flag|set_logtalk_flag|logtalk_compile|logtalk_load|forall|retractall)(?=[(])":::Subroutine::\n\
+	Built-in predicates:"<(current_object|current_protocol|current_category|create_object|create_protocol|create_category|object_property|protocol_property|category_property|abolish_object|abolish_protocol|abolish_vategory|extends_object|extends_protocol|omplements_protocol|instantiates_class|specializes_class|imports_category|abolish_events|current_events|define_events|current_logtalk_flag|set_logtalk_flag|logtalk_compile|logtalk_load|logtalk_library_path|forall|retractall)(?=[(])":::Subroutine::\n\
 	Term unification:"=|\\\\=":::Subroutine::\n\
 	Term unification:"<unify_with_occurs_check(?=[(])":::Subroutine::\n\
 	Term comparison:"@=\\<|==|\\\\==|@\\>=|@\\<|@\\>":::Subroutine::\n\

@@ -74,7 +74,7 @@ Most examples directories contain a Logtalk utility file that can be used to loa
     | ?- logtalk_load(loader). 
 </pre>
 <p>
-Usually these files contain a call to the Logtalk built-in predicates <a title="Consult reference manual" href="../refman/builtins/logtalk_load1.html"><code>logtalk_load/1</code></a> or <a title="Consult reference manual" href="../refman/builtins/logtalk_load2.html"><code>logtalk_load/2</code></a>, wrapped inside an <code>initialization/1</code> directive. For instance, if your code is split in three Logtalk source files named <code>source1.lgt</code>, <code>source2.lgt</code>, and <code>source3.lgt</code>, then the contents of your loader file would be:
+Usually these files contain a call to the Logtalk built-in predicates <a title="Consult reference manual" href="../refman/builtins/logtalk_load1.html"><code>logtalk_load/1</code></a> or <a title="Consult reference manual" href="../refman/builtins/logtalk_load2.html"><code>logtalk_load/2</code></a>, wrapped inside an <code>initialization/1</code> directive. For instance, if your code is split in three Logtalk source files named <code>source1.lgt</code>, <code>source2.lgt</code>, and <code>source3.lgt</code>, then the contents of your loader file could be:
 </p>
 <pre>
     :- initialization(
@@ -84,7 +84,7 @@ Usually these files contain a call to the Logtalk built-in predicates <a title="
             source3])). 
 </pre>
 <p>
-Another example of directive that could appear in a loader file would be <code>op/3</code> directives declaring global operators used by your application.
+Another example of directives that are often used in a loader file would be <code>op/3</code> directives declaring global operators needed by your application.
 </p>
 <p>
 To take the best advantage of loader files, assert a clause to the dynamic predicate <code>logtalk_library_path/2</code> for the directory containing your source files, as explained in the next section.
@@ -98,6 +98,7 @@ Logtalk defines a <em>library</em> simply as a directory containg source files. 
 <pre>
     | ?- assertz(logtalk_library_path(shapes, '$LOGTALKHOME/examples/shapes/')). 
 </pre>
+<p>
 This allows us to load a library source file without the need to first change the current working directory to the library directory and then back to the original directory. For example, in order to load a <code>loader.lgt</code> file, contained in a library named <code>shapes</code>, we just need to type:
 </p>
 <pre>
@@ -107,13 +108,13 @@ This allows us to load a library source file without the need to first change th
 The best way to take advantage of this feature is to load at startup a source file containing an <code>initialization/1</code> directive which asserts all the <code>logtalk_library_path/2</code> clauses needed for all available libraries. This allows us to load library source files or entire libraries without worrying about libraries paths, improving code portability.
 </p>
 <p>
-A few Prolog compilers do not support the <code>&lt;library&gt;(&lt;entity&gt;)</code> notation. In this case, you will need to set the working directory to be the one that contains the entity file in order to load it.
+Unfortunately, a few Prolog compilers do not support the <code>&lt;library&gt;(&lt;entity&gt;)</code> notation. In this case, you will need to set the working directory to be the one that contains the entity file in order to load it.
 </p>
 
 <h3>Portable programs<a name="portability"></a></h3>
 
 <p>
-Logtalk is compatible with almost all modern Prolog compilers. However, this does not necessarily imply that your Logtalk programs will have the same level of portability. If possible, you should only use in your programs Logtalk built-in predicates and ISO Prolog defined built-in predicates. If you need to use built-in predicates that may not be available in other Prolog compilers, you should try to encapsulate the non-portable code in a minimum of objects and provide a portable <strong>interface</strong> for that code through the use of Logtalk protocols. An example will be code that access operating-system specific features. The Logtalk compiler can warn you of the use of non-ISO defined built-in predicates by using the <code>portability/1</code> compiler option.
+Logtalk is compatible with almost all modern Prolog compilers. However, this does not necessarily imply that your Logtalk programs will have the same level of portability. If possible, you should only use in your programs Logtalk built-in predicates and ISO Prolog defined built-in predicates. If you need to use built-in predicates that may not be available in other Prolog compilers, you should try to encapsulate the non-portable code in a minimum of objects and provide a portable <strong>interface</strong> for that code through the use of Logtalk protocols. An example will be code that access operating-system specific features. The Logtalk compiler can warn you of the use of non-ISO defined built-in predicates by using the <code>portability/1</code> compiler flag.
 </p>
 
 <h3>Avoiding common errors<a name="errors"></a></h3>
@@ -176,7 +177,7 @@ Copyright &copy; <a href="mailto:pmoura@logtalk.org">Paulo Moura</a> &mdash; <a 
 </div>
 
 <div class="footer">
-<p><span class="bleft"><a href="http://validator.w3.org/check/referer">XHTML</a> + <a href="http://jigsaw.w3.org/css-validator/check/referer">CSS</a></span><span class="bright">Last updated on: November 27, 2004</span></p>
+<p><span class="bleft"><a href="http://validator.w3.org/check/referer">XHTML</a> + <a href="http://jigsaw.w3.org/css-validator/check/referer">CSS</a></span><span class="bright">Last updated on: February 6, 2005</span></p>
 </div>
 </body>
 </html>

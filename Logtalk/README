@@ -1,6 +1,6 @@
 =================================================================
 Logtalk - Object oriented extension to Prolog
-Release 2.22.4
+Release 2.22.5
 
 Copyright (c) 1998-2005 Paulo Moura.  All Rights Reserved.
 =================================================================
@@ -112,7 +112,8 @@ previous Logtalk version.
 8. UPGRADING
 
 If you have been using a previous Logtalk version read the file UPGRADING for 
-instructions on how to upgrade your programs to run under this new version.
+instructions on how to upgrade your programs or your custom configuration 
+files to run under this new version.
 
 
 9. CITATIONS

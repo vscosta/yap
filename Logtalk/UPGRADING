@@ -1,6 +1,6 @@
 =================================================================
 Logtalk - Object oriented extension to Prolog
-Release 2.22.4
+Release 2.22.5
 
 Copyright (c) 1998-2005 Paulo Moura.  All Rights Reserved.
 =================================================================
@@ -61,7 +61,7 @@ files.
 Logtalk version 2.15.3 changes the format of the runtime entity tables, 
 implying recompilation of all objects, protocols, and categories.
 
-Logtalk version 2.15.6 renamed the compiler option "named_anonymous_vars" to 
+Logtalk version 2.15.6 renamed the compiler flag "named_anonymous_vars" to 
 "underscore_vars" and changed the possible option values form "on/off" to 
 "dont_care/singletons".
 
@@ -76,7 +76,7 @@ errors on files containing bugs that are not detected on previous versions of
 the compiler.
 
 Logtalk version 2.16.2 changed the possible option values of the read-only 
-compiler option "startup_message" to "none", "banner", and "flags". Default 
+compiler flag "startup_message" to "none", "banner", and "flags". Default 
 value is "flags" (print both banner and default flag values).
 
 Logtalk version 2.17.1 removes predicate nth/3 from library entities listp, 
@@ -99,4 +99,7 @@ and logtalk_load/1-2 have been updated to take into account this new feature.
 Logtalk version 2.22.2 adds stricter checking for the documenting directives 
 (info/1 and info/2), which can lead to compilation errors on entities which 
 compiled successfully on previous Logtalk versions.
- 
+
+Logtalk version 2.22.5 adds new predicates to all config files (consult the 
+release notes for details). If you are using custom config files, be sure to 
+update them by coping the definition of the new predicates.

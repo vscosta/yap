@@ -4,8 +4,8 @@
 
 ;; Author: Paulo Moura
 ;; Creation date: November 15, 2003
-;; Last modification date: September 18, 2004
-;; Version: 0.62
+;; Last modification date: January 20, 2005
+;; Version: 0.63
 
 ;; Installation:
 ;;
@@ -127,7 +127,7 @@
 		("\\(extends_\\(?:object\\|protocol\\)\\|i\\(?:mp\\(?:lements_protocol\\|orts_category\\)\\|nstantiates_class\\)\\|specializes_class\\)\\([(]\\)" 1 'logtalk-built-in-predicate-face)
 		("\\(abolish_events\\|current_event\\|define_events\\)\\([(]\\)" 1 'logtalk-built-in-predicate-face)
 		("\\(\\(?:curren\\|se\\)t_logtalk_flag\\)\\([(]\\)" 1 'logtalk-built-in-predicate-face)
-		("\\(logtalk_\\(?:compile\\|load\\|version\\)\\)\\([(]\\)" 1 'logtalk-built-in-predicate-face)
+		("\\(logtalk_\\(?:compile\\|load\\|version\\|library_path\\)\\)\\([(]\\)" 1 'logtalk-built-in-predicate-face)
 		("\\(forall\\)\\([(]\\)" 1 'logtalk-built-in-predicate-face)
 		("\\(retractall\\)\\([(]\\)" 1 'logtalk-built-in-predicate-face)
 		;;

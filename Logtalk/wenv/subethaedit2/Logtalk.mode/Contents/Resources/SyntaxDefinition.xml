@@ -94,7 +94,7 @@
 				<regex>\b(imports_category)\(</regex>
 				<regex>\b(define_events)\(</regex>
 				<regex>\b((set|current)_logtalk_flag)\(</regex>
-				<regex>\b(logtalk_(compile|load))\(</regex>
+				<regex>\b(logtalk_(compile|l(ibrary_path|oad)))\(</regex>
 				<regex>\b(forall)\(</regex>
 				<!-- <regex>\b(retractall)\(</regex> -->
 			</keywords>

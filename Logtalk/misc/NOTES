@@ -1,6 +1,6 @@
 =================================================================
 Logtalk - Object oriented extension to Prolog
-Release 2.22.4
+Release 2.22.5
 
 Copyright (c) 1998-2005 Paulo Moura.  All Rights Reserved.
 =================================================================
@@ -11,7 +11,7 @@ installation, and integration with Prolog compilers. Several scripts are
 included. Those with extension .sh are shell scripts for MacOS X, Linux, 
 and similar systems. Those with extension .js are JScript command-line 
 scripts for Windows; they require WSH 5.6 or later version to be installed
-and should be run using cscript.exe from the command line.
+and should be run using cscript.exe from a DOS shell command line.
 
 
 lgt_install.sh
@@ -38,7 +38,7 @@ logtalk.spec
 
 cplgtdirs.sh
 cplgtdirs.js
-	sample scripts for copying the Logtalk user-modifiable files and 
+	end-user scripts for copying the Logtalk user-modifiable files and 
 	directories to the location pointed by the environment variable 
 	LOGTALKUSER (defaults to ~/logtalk on Unix-like operating-systems 
 	and to My Documents\logtalk on Windows when the variable is not 
@@ -53,10 +53,11 @@ debian
 	(work in progress; not yet functional)
 
 
-The following scripts must be run by a user with administration privileges:
+The following scripts allow easy integration of Logtalk with selected Prolog 
+compilers; they must be run by a user with administration privileges:
 
 make_ciaolgt.sh
-	makes a shell script named ciaolgt for running Logtalk with CIAO Prolog
+	makes a shell script named "ciaolgt" for running Logtalk with CIAO Prolog
 	(the first run of the ciaolgt script must be made as root or using sudo)
 make_ciaolgt.js
 	makes a Windows shortcut named "Logtalk - CIAO" for running Logtalk with 
@@ -64,29 +65,36 @@ make_ciaolgt.js
 	administrative rights)
 
 make_eclipselgt.sh
-	makes a shell script named eclipselgt for running Logtalk with ECLiPSe
+	makes a shell script named "eclipselgt" for running Logtalk with ECLiPSe
 make_eclipselgt.js
 	makes a Windows shortcut named "Logtalk - ECLiPSe" for running Logtalk 
-	with ECLiPSe 5.7 (if you are using a different version, you must edit 
+	with ECLiPSe 5.8 (if you are using a different version, you must edit 
 	the reference to the registry key in the script; if you prefer to use
 	TkEclipse, open the %LOGTALKHOME%\bin\logtalke_eclipse.pl file with it)
 
 make_gplgt.sh
-	makes a shell script named gplgt for running Logtalk with GNU Prolog (this 
+	makes a shell script named "gplgt" for running Logtalk with GNU Prolog (this 
 	script is adequate for development purposes but does not provide the best 
-	possible performance for running Logtalk with this Prolog compiler)	
+	possible performance for running Logtalk with this Prolog compiler; for 
+	optimal performance, see the configs/NOTES file)
 make_gplgt.js
 	makes a Windows shortcut named "Logtalk - GNU Prolog" for running Logtalk 
 	with GNU Prolog (this script is adequate for development purposes but does 
 	not provide the best possible performance for running Logtalk with this 
-	Prolog compiler)
+	Prolog compiler; for optimal performance, see the configs/NOTES file)
+
+make_plclgt.sh
+	makes a shell script named "plclgt" for running Logtalk with K-Prolog	
+make_plclgt.js
+	makes a Windows shortcut named "Logtalk - K-Prolog" for running Logtalk 
+	with K-Prolog
 
 make_qplgt.sh
-	makes a shell script named qplgt for running Logtalk with Qu-Prolog 
+	makes a shell script named "qplgt" for running Logtalk with Qu-Prolog 
 	(based on script code contributed by Peter Robinson)
 
 make_sicstuslgt.sh
-	makes a shell script named sicstuslgt for running Logtalk with SICStus 
+	makes a shell script named "sicstuslgt" for running Logtalk with SICStus 
 	Prolog
 make_sicstuslgt.js
 	makes a Windows shortcut named "Logtalk - SICStus Prolog" for running 
@@ -94,22 +102,22 @@ make_sicstuslgt.js
 	you must edit the reference to the registry key in the script)
 
 make_swilgt.sh
-	makes a shell script named swilgt for running Logtalk with SWI-Prolog
+	makes a shell script named "swilgt" for running Logtalk with SWI-Prolog
 make_swilgt.js
 	makes a Windows shortcut named "Logtalk - SWI-Prolog" for running Logtalk 
 	with SWI-Prolog
 
 make_yaplgt.sh
-	makes a shell script named yaplgt for running Logtalk with YAP
+	makes a shell script named "yaplgt" for running Logtalk with YAP
 make_yaplgt.js
 	makes a Windows shortcut named "Logtalk - YAP" for running Logtalk with 
 	YAP (assumes that the Yap folder is installed in C:\Program Files; edit 
 	the path to the yap.exe executable in the script if necessary)
 
 make_xsblgt.sh
-	makes a shell script named xsblgt for running Logtalk with XSB (the first 
-	run of the xsblgt script must be made as root or using sudo; each user 
-	will need to rename the file configs/xsb.config to end with the .P 
+	makes a shell script named "xsblgt" for running Logtalk with XSB (the 
+	first run of the xsblgt script must be made as root or using sudo; each 
+	user will need to rename the file configs/xsb.config to end with the .P 
 	extension and make and edit a copy of the libpaths/libpaths.pl in order 
 	to replace all occurrences of the LOGTALKUSER environment variable with 
 	its value)
@@ -128,5 +136,5 @@ setting the variables).
 
 Note: when Logtalk is manually installed from sources, the shell scripts 
 might not have the executable permission bit set. In that case it will 
-be necessary to first run the command "chmod a+x *.sh" on the scripts 
-directory.
+be necessary to first run the command "chmod a+x *.sh" on the "misc" and 
+"xml" directories.

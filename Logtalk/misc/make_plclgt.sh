@@ -8,7 +8,7 @@
 ## =================================================================
 
 echo
-echo "Creating a script named yaplgt for running Logtalk with YAP..."
+echo "Creating a script named plclgt for running Logtalk with K-Prolog..."
 
 if ! [ $LOGTALKHOME ]
 then
@@ -22,14 +22,13 @@ else
 	fi
 	mkdir -p bin
 	cd bin
-	echo ":- reconsult('\$LOGTALKUSER/configs/yap.config')." > logtalk_yap.rc
-	echo ":- reconsult('\$LOGTALKHOME/compiler/logtalk.pl')." >> logtalk_yap.rc
-	echo ":- reconsult('\$LOGTALKUSER/libpaths/libpaths.pl')." >> logtalk_yap.rc
-
-	echo "#/bin/sh" > yaplgt
-	echo "yap -l \$LOGTALKHOME/bin/logtalk_yap.rc" >> yaplgt
-	chmod a+x yaplgt
-	ln -sf $LOGTALKHOME/bin/yaplgt $prefix/bin/yaplgt
+	echo ":- ensure_loaded('\$LOGTALKUSER/configs/k.config')." > logtalk_plc.rc
+	echo ":- ensure_loaded('\$LOGTALKHOME/compiler/logtalk.pl')." >> logtalk_plc.rc
+	echo ":- ensure_loaded('\$LOGTALKUSER/libpaths/libpaths.pl')." >> logtalk_plc.rc
+	echo "#/bin/sh" > plclgt
+	echo "\$PLC/plc -h 2048k -l 1024k -g 2048k -e \"(consult('\\\$LOGTALKHOME/bin/logtalk_plc.rc'), '\\\$root').\"" >> plclgt
+	chmod a+x plclgt
+	ln -sf $LOGTALKHOME/bin/plclgt $prefix/bin/plclgt
 	echo "Done. A link to the script was been created in $prefix/bin."
 	echo "Users should define the environment variables LOGTALKHOME and"
 	echo "LOGTALKUSER in order to use the script."

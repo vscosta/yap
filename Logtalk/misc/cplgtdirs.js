@@ -1,6 +1,6 @@
 // =================================================================
 // Logtalk - Object oriented extension to Prolog
-// Release 2.22.4
+// Release 2.22.5
 //
 // Copyright (c) 1998-2005 Paulo Moura.  All Rights Reserved.
 // =================================================================
@@ -37,7 +37,8 @@ else {
 var fso = new ActiveXObject("Scripting.FileSystemObject");
 
 if (fso.FolderExists(logtalk_user)) {
-	WScript.Echo("Error! Logtalk directory already exists! Please rename it or delete it.");
+	WScript.Echo("Error! Logtalk directory already exists!");
+	WScript.Echo("Please rename it and run this script again.");
 	WScript.Echo("");
 	usage_help();
 }
@@ -65,7 +66,7 @@ WScript.Echo("");
 WScript.Echo("to match your Prolog compiler and operating-system requirements or to");
 WScript.Echo("add your own library paths.");
 WScript.Echo("");
-WScript.Echo("You may want to customize the default Logtalk compiler options by editing");
+WScript.Echo("You may want to customize the default Logtalk compiler flags by editing");
 WScript.Echo("the configuration file for your Prolog compiler found in the directory:");
 WScript.Echo("");
 WScript.Echo("  " + logtalk_user + "\\configs");

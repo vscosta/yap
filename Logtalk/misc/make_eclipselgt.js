@@ -1,6 +1,6 @@
 // =================================================================
 // Logtalk - Object oriented extension to Prolog
-// Release 2.22.4
+// Release 2.22.5
 //
 // Copyright (c) 1998-2005 Paulo Moura.  All Rights Reserved.
 // =================================================================
@@ -12,12 +12,12 @@ if (WScript.Arguments.Unnamed.Length > 0) {
 
 WScript.Echo('');
 WScript.Echo('Creating a shortcut named "Logtalk - ECLiPSe" for running Logtalk with');
-WScript.Echo('ECLiPSe 5.7 (edit the script if you are using other version)...');
+WScript.Echo('ECLiPSe 5.8 (edit the script if you are using other version)...');
 WScript.Echo('');
 
 var WshShell = new ActiveXObject("WScript.Shell");
 
-var prolog_path = WshShell.RegRead("HKLM\\Software\\IC-Parc\\Eclipse\\5.7\\ECLIPSEDIR") + "\\lib\\i386_nt\\eclipse.exe";
+var prolog_path = WshShell.RegRead("HKLM\\Software\\IC-Parc\\Eclipse\\5.8\\ECLIPSEDIR") + "\\lib\\i386_nt\\eclipse.exe";
 
 var FSObject = new ActiveXObject("Scripting.FileSystemObject");
 

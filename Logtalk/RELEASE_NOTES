@@ -1,6 +1,6 @@
 =================================================================
 Logtalk - Object oriented extension to Prolog
-Release 2.22.4
+Release 2.22.5
 
 Copyright (c) 1998-2005 Paulo Moura.  All Rights Reserved.
 =================================================================
@@ -8,6 +8,55 @@ Copyright (c) 1998-2005 Paulo Moura.  All Rights Reserved.
 
 RELEASE NOTES
 =============
+
+
+2.22.5 - February 9, 2005
+
+	Added scripts for easy integration of Logtalk with K-Prolog. Updated the 
+	K-Prolog config file, correcting a showstopper bug and enabling support 
+	for using the "library" notation for loading source files.
+
+	Updated JIProlog config file in order to allow smart compilation of source
+	files.
+
+	Changed format of preprocessor and runtime dynamic predicates that deal 
+	with predicate indicators for better performance.
+
+	Simplified implementation of Logtalk built-in methods asserta/1 and 
+	assertz/1.
+
+	Corrected a performance bug with calls to built-in predicates from objects
+	and categories.
+
+	Corrected spurious backtracking occurring on some calls to the built-in 
+	predicate define_events/5.
+
+	Updated shell script "misc/cplgtdirs.sh" to prevent copy of Logtalk files 
+	when the destination directory already exists (thus avoiding overriding 
+	any user-modified files when upgrading Logtalk).
+
+	Added syntax coloring for the predicate logtalk_library_path/2 to the 
+	supported text editors. Updated the syntax coloring file for the TextMate 
+	text editor, adding some missing ISO Prolog predicates.
+
+	Improved printing of lists of unknown referenced entities, misspelt calls,
+	and singleton variables when compiling source files. Simplified handling 
+	of references to unknown entities.
+
+	Added workaround for Prolog compilers with broken read_term/3 singletons/1
+	option.
+
+	Updated the Logtalk compiler/runtime and the documentation to always 
+	use the expression "compiler flag" instead of "compiler option" for 
+	consistency. Other minor documentation improvements.
+
+	Corrected a bug with the abolishing of dynamic entities where the clauses 
+	corresponding to the alias/3 directive are not being abolished.
+
+	Added new predicates '$lgt_call'/9 and '$lgt_once'/9 to all config files.
+
+	Simplified and improved performance of compilation of directives containing
+	predicate indicators.
 
 
 2.22.4 - January 12, 2005
