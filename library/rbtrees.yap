@@ -14,6 +14,7 @@
 :- module(rbtrees,
 	  [new/1,
 	   lookup/3,
+	   lookupall/3,
 	   insert/4,
 	   delete/3]).
 
@@ -25,8 +26,8 @@ new(K,V,black(Nil,K,V,Nil)) :-
 
 lookup(Key, Val, black([],_,_,[])) :- !, fail.
 lookup(Key, Val, Tree) :-
-	arg(Tree,2,KA),
-	compare(Cmp,KA,Key,Tree),
+	arg(2,Tree,KA),
+	compare(Cmp,KA,Key),
 	lookup(Cmp,Key,Val,Tree).
 
 lookup(<, K, V, Tree) :-
@@ -35,8 +36,26 @@ lookup(<, K, V, Tree) :-
 lookup(>, K, V, Tree) :-
 	arg(4,Tree,NTree),
 	lookup(K, V, NTree).
-lookup(>, K, V, Tree) :-
+lookup(=, K, V, Tree) :-
 	arg(3,Tree,V).
+
+lookupall(Key, Val, black([],_,_,[])) :- !, fail.
+lookupall(Key, Val, Tree) :-
+	arg(2,Tree,KA),
+	compare(Cmp,KA,Key),
+	lookupall(Cmp,Key,Val,Tree).
+
+lookupall(>, K, V, Tree) :-
+	arg(4,Tree,NTree),
+	lookupall(K, V, NTree).
+lookupall(=, K, V, Tree) :-
+	arg(3,Tree,V).
+lookupall(=, K, V, Tree) :-
+	arg(1,Tree,NTree),
+	lookupall(K, V, NTree).
+lookupall(<, K, V, Tree) :-
+	arg(1,Tree,NTree),
+	lookupall(K, V, NTree).
 
 %
 % Tree insertion

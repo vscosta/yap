@@ -208,17 +208,25 @@ unix_upd_stream_info (StreamDesc * s)
       return;
     }
 #endif /* USE_SOCKET */
-#if _MSC_VER || defined(__MINGW32__)
+#if _MSC_VER  || defined(__MINGW32__)
   {
-    if (_isatty(_fileno(s->u.file.file))) {
+    if (
+#ifdef __MINGW32__
+	TRUE  /* we cannot trust _isatty in MINGW */
+#else
+	_isatty(_fileno(s->u.file.file))
+#endif
+	) {
       s->status |= Tty_Stream_f|Reset_Eof_Stream_f|Promptable_Stream_f;
       /* make all console descriptors unbuffered */
       setvbuf(s->u.file.file, NULL, _IONBF, 0);
     }
+#if _MSC_VER
     /* standard error stream should never be buffered */
-    if (StdErrStream == s-Stream) {
+    else if (StdErrStream == s-Stream) {
       setvbuf(s->u.file.file, NULL, _IONBF, 0);      
     }
+#endif
     return;
   }
 #else

@@ -10,8 +10,11 @@
 * File:		c_interface.c						 *
 * comments:	c_interface primitives definition 			 *
 *									 *
-* Last rev:	$Date: 2004-05-14 17:56:45 $,$Author: vsc $						 *
+* Last rev:	$Date: 2004-05-17 21:42:08 $,$Author: vsc $						 *
 * $Log: not supported by cvs2svn $
+* Revision 1.46  2004/05/14 17:56:45  vsc
+* Yap_WriteBuffer
+*
 * Revision 1.45  2004/05/14 17:11:30  vsc
 * support BigNums in interface
 *
@@ -125,7 +128,6 @@ X_API Term   *STD_PROTO(YAP_AddressFromSlot,(long));
 X_API void    STD_PROTO(YAP_PutInSlot,(long, Term));
 X_API void    STD_PROTO(YAP_RecoverSlots,(int));
 X_API void    STD_PROTO(YAP_Throw,(Term));
-X_API Term    STD_PROTO(YAP_ModuleName,(int));
 X_API void    STD_PROTO(YAP_Halt,(int));
 X_API Term   *STD_PROTO(YAP_TopOfLocalStack,(void));
 X_API void   *STD_PROTO(YAP_Predicate,(Atom,unsigned long int,int));

@@ -7569,7 +7569,14 @@ allowed.
 @findex lookup/3
 @snindex lookup/3
 @cnindex lookup/3
-Lookup an element with key @var{Key} in the AVL tree
+Lookup an element with key @var{Key} in the red-black tree
+@var{T}, returning the value @var{Value}.
+
+@item lookupall(+@var{Key},-@var{Value},+@var{T})
+@findex lookupall/3
+@snindex lookupall/3
+@cnindex lookupall/3
+Lookup all elements with key @var{Key} in the red-black tree
 @var{T}, returning the value @var{Value}.
 
 @item new(?@var{T})

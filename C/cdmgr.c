@@ -11,8 +11,11 @@
 * File:		cdmgr.c							 *
 * comments:	Code manager						 *
 *									 *
-* Last rev:     $Date: 2004-05-13 21:36:45 $,$Author: vsc $						 *
+* Last rev:     $Date: 2004-05-17 21:42:09 $,$Author: vsc $						 *
 * $Log: not supported by cvs2svn $
+* Revision 1.122  2004/05/13 21:36:45  vsc
+* get rid of pesky debugging prints
+*
 * Revision 1.121  2004/05/13 20:54:57  vsc
 * debugger fixes
 * make sure we always go back to current module, even during initizlization.
@@ -3054,7 +3057,7 @@ p_system_pred(void)
     }
     pe = RepPredProp(Yap_GetPredPropByFunc(funt, mod));
   } else if (IsPairTerm(t1)) {
-    return (TRUE);
+    return TRUE;
   } else
     return (FALSE);
   if (EndOfPAEntr(pe))

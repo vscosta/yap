@@ -325,8 +325,7 @@ extern X_API void PROTO(YAP_Throw,(YAP_Term));
 /*  int  YAP_LookupModule()  */
 #define YAP_LookupModule(T)  (T)
 
-/*  int  YAP_ModuleName()  */
-extern X_API YAP_Term  PROTO(YAP_ModuleName,(int));
+#define YAP_ModuleName(mod) (mod)
 
 /*  int  YAP_Halt()  */
 extern X_API int  PROTO(YAP_Halt,(int));

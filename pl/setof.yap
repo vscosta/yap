@@ -122,7 +122,6 @@ bagof(Template, Generator, Bag) :-
 	Key =.. ['$'|LFreeVars],
 	'$init_db_queue'(Ref),
 	'$findall_with_common_vars'(Key-Template, Generator, Ref, Bags0),
-write(vsc:(Bags0,Bags)),nl,
 	'$keysort'(Bags0, Bags),
 	'$pick'(Bags, Key, Bag).
 % or we just have a list of answers
