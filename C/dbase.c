@@ -4034,6 +4034,28 @@ p_instance(void)
   }
 }
 
+/* instance(+Ref,?Term) */
+static Int 
+p_instance_module(void)
+{
+  Term t1 = Deref(ARG1);
+  DBRef dbr;
+
+  if (IsVarTerm(t1) || !IsDBRefTerm(t1))
+    return (FALSE);
+  dbr = DBRefOfTerm(t1);
+  if (dbr->Flags & LogUpdMask) {
+    LogUpdClause *cl = (LogUpdClause *)dbr;
+
+    if (cl->ClFlags & ErasedMask) {
+      return FALSE;
+    }
+    return Yap_unify(ARG2, ModuleName[cl->ClPred->ModuleOfPred]);
+  } else {
+    return Yap_unify(ARG2, ModuleName[dbr->Parent->ModuleOfDB]);
+  }
+}
+
 inline static int 
 NotActiveDB(DBRef my_dbref)
 {
@@ -4514,6 +4536,7 @@ Yap_InitDBPreds(void)
   Yap_InitCPred("erase", 1, p_erase, SafePredFlag|SyncPredFlag);
   Yap_InitCPred("erased", 1, p_erased, TestPredFlag | SafePredFlag|SyncPredFlag);
   Yap_InitCPred("instance", 2, p_instance, SyncPredFlag);
+  Yap_InitCPred("$instance_module", 2, p_instance_module, SyncPredFlag);
   Yap_InitCPred("eraseall", 1, p_eraseall, SafePredFlag|SyncPredFlag);
   Yap_InitCPred("$record_stat_source", 4, p_rcdstatp, SafePredFlag|SyncPredFlag);
   Yap_InitCPred("$some_recordedp", 1, p_somercdedp, SafePredFlag|SyncPredFlag);
