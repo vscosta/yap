@@ -90,6 +90,9 @@ Inline(PtoPredAdjust, PredEntry *, PredEntry *, ptr, ((PredEntry *)(CharP(ptr) +
 Inline(PtoArrayEAdjust, ArrayEntry *, ArrayEntry *, ptr, ((ArrayEntry *)(CharP(ptr) + HDiff)) )
 Inline(PtoLUCAdjust, struct logic_upd_clause *, struct logic_upd_clause *, ptr, ((struct logic_upd_clause *)(CharP(ptr) + HDiff)) )
 Inline(PtoStCAdjust, struct static_clause *, struct static_clause *, ptr, ((struct static_upd_clause *)(CharP(ptr) + HDiff)) )
+#if USE_DL_MALLOC
+Inline(ChunkPtrAdjust, struct malloc_chunk *, struct malloc_chunk *, ptr, ((struct malloc_chunk *)(CharP(ptr) + HDiff)) )
+#endif
 #if PRECOMPUTE_REGADDRESS
 Inline(XAdjust, wamreg, wamreg, reg, (wamreg)((reg)+XDiff) )
 #else

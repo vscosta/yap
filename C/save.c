@@ -23,6 +23,9 @@ static char     SccsId[] = "@(#)save.c	1.3 3/15/90";
 #endif
 #include "absmi.h"
 #include "alloc.h"
+#if USE_DL_MALLOC
+#include "dlmalloc.h"
+#endif
 #include "yapio.h"
 #include "sshift.h"
 #include "Foreign.h"
@@ -1061,10 +1064,61 @@ RestoreIOStructures(void)
   Yap_InitStdStreams();
 }
 
-/* restores the list of free space, with its curious structure */
+#if USE_DL_MALLOC
+static struct malloc_chunk *
+RestoreFreeChunk(struct malloc_chunk *ptr)
+{
+  if (ptr->fd) {
+    ptr->fd = ChunkPtrAdjust(ptr->fd);
+  }
+  if (ptr->bk) {
+    ptr->bk = ChunkPtrAdjust(ptr->bk);
+  }
+  return ptr;
+}
+#endif
+
 static void 
 RestoreFreeSpace(void)
 {
+#if USE_DL_MALLOC
+  int i;
+
+  Yap_av = (struct malloc_state *)AddrAdjust((ADDR)Yap_av);
+  for (i = 0; i < NFASTBINS; i++) {
+    if (Yap_av->fastbins[i]) {
+      struct malloc_chunk *ptr;
+
+      Yap_av->fastbins[i] = ptr = ChunkPtrAdjust(Yap_av->fastbins[i]);
+      while (ptr) {
+	ptr = RestoreFreeChunk(ptr)->fd;
+      }
+    }
+  }
+  if (Yap_av->top) {
+    Yap_av->top = ChunkPtrAdjust(Yap_av->top);
+  }
+  if (Yap_av->last_remainder) {
+    Yap_av->top = ChunkPtrAdjust(Yap_av->last_remainder);
+  }
+  for (i = 0; i < NBINS; i++) {
+
+    struct malloc_chunk *ptr;
+
+    if (Yap_av->bins[i*2]) {
+      Yap_av->bins[i*2] = ptr = ChunkPtrAdjust(Yap_av->bins[i*2]);
+    } else {
+      ptr = NULL;
+    }
+    if (Yap_av->bins[i*2+1]) {
+      Yap_av->bins[i*2+1] = ChunkPtrAdjust(Yap_av->bins[i*2+1]);
+    }
+    while (ptr && ptr != Yap_av->bins[i*2]) {
+      ptr = RestoreFreeChunk(ptr)->fd;
+    }
+  }
+#else
+  /* restores the list of free space, with its curious structure */
   register BlockHeader *bpt, *bsz;
   if (FreeBlocks != NULL)
     FreeBlocks = BlockAdjust(FreeBlocks);
@@ -1089,6 +1143,7 @@ RestoreFreeSpace(void)
     bpt = bpt->b_next_size;
   }
   *((YAP_SEG_SIZE *) HeapTop) = InUseFlag;
+#endif
 }
 
 /* restore the atom entries which are invisible for the user */

@@ -550,16 +550,16 @@ p_get_att(void) {
 
       if (id != attvars_ext) {
 	Yap_Error(TYPE_ERROR_VARIABLE,inp,"get_att/2");
-	return(FALSE);
+	return FALSE;
       }
       out = GetAtt(attv,IntegerOfTerm(Deref(ARG2)));
-      return(!IsVarTerm(out) && Yap_unify(ARG3,out));
+      return !IsVarTerm(out) && Yap_unify(ARG3,out);
     }
     /*    Yap_Error(INSTANTIATION_ERROR,inp,"get_att/2");*/
-    return(FALSE);
+    return FALSE;
   } else {
     Yap_Error(TYPE_ERROR_VARIABLE,inp,"get_att/2");
-    return(FALSE);
+    return FALSE;
   }
 }
 
