@@ -11,8 +11,11 @@
 * File:		index.c							 *
 * comments:	Indexing a Prolog predicate				 *
 *									 *
-* Last rev:     $Date: 2004-04-20 22:08:23 $,$Author: vsc $						 *
+* Last rev:     $Date: 2004-04-21 04:01:53 $,$Author: vsc $						 *
 * $Log: not supported by cvs2svn $
+* Revision 1.86  2004/04/20 22:08:23  vsc
+* fixes for corourining
+*
 * Revision 1.85  2004/04/16 19:27:31  vsc
 * more bug fixes
 *
@@ -5584,11 +5587,11 @@ kill_unsafe_block(path_stack_entry *sp, op_numbers op, PredEntry *ap, int first,
     } else {
       StaticClause *lc = static_clause(ipc);
       if (first) {
-	cld[0].Code = lc->ClCode;
-	cld[1].Code = cls[0].Code;
-      } else {
 	cld[0].Code = cls[0].Code;
 	cld[1].Code = lc->ClCode;
+      } else {
+	cld[0].Code = lc->ClCode;
+	cld[1].Code = cls[0].Code;
       }
     }
     intrs.expand_block = NULL;
