@@ -7431,6 +7431,58 @@ not currently in Win32 configurations.
 X = 'C:\\cygwin\\home\\administrator' ?
 @end example
 
+@item host_id(-@var{Id})
+@findex  host_id/1
+@syindex host_id/1
+@cnindex host_id/1
+
+Unify @var{Id} with an identifier of the current host. Yap uses the
+@code{hostid} function when available, 
+
+@item host_name(-@var{Name})
+@findex  host_name/1
+@syindex host_name/1
+@cnindex host_name/1
+
+Unify @var{Name} with a name for the current host. Yap uses the
+@code{hostname} function in Unix systems when available, and the
+@code{GetComputerName} function in WIN32 systems. 
+
+@item kill(@var{Id},+@var{SIGNAL})
+@findex  kill/2
+@syindex kill/2
+@cnindex kill/2
+
+Send signal @var{SIGNAL} to process @var{Id}. In Unix this predicate is
+a direct interface to @code{kill} so one can send signals to groups of
+processes. In WIN32 the predicate is an interface to
+@code{TerminateProcess}, so it kills @var{Id} indepent of @var{SIGNAL}.
+
+@item mktemp(@var{Spec},-@var{File})
+@findex  mktemp/2
+@syindex mktemp/2
+@cnindex mktemp/2
+
+Direct interface to @code{mktemp}: given a @var{Spec}, that is a file
+name with six @var{X} to it, create a file name @var{File}. Use
+@code{tmpnam/1} instead.
+
+@item pid(-@var{Id})
+@findex  pid/1
+@syindex pid/1
+@cnindex pid/1
+
+Unify @var{Id} with the process identifier for the current
+process. An interface to the @t{getpid} function.
+
+@item tmpnam(-@var{File})
+@findex  tmpnam/1
+@syindex tmpnam/1
+@cnindex tmpnam/1
+
+Interface with @var{tmpnam}: create an unique file and unify its name
+with @var{File}.
+
 @item
 exec(+@var{Command},[+@var{InputStream},+@var{OutputStream},,+@var{ErrorStream},
 -@var{Status})
@@ -7439,7 +7491,19 @@ exec(+@var{Command},[+@var{InputStream},+@var{OutputStream},,+@var{ErrorStream},
 @cnindex exec/3
 Execute command @var{Command} with its streams connected to
 @var{InputStream}, @var{OutputStream}, and @var{ErrorStream}. The result
-for the command is returned in @var{Status}.
+for the command is returned in @var{Status}. The command is executed by
+the default shell @code{bin/sh -c} in Unix.
+
+The following example demonstrates the use of @code{exec/3} to send a
+command and process its output:
+
+@example
+exec(ls,[std,pipe(S),null],P),repeat, get0(S,C), (C = -1, close(S) ! ; put(C)).
+@end example
+
+The streams may be one of standard stream, @code{std}, null stream,
+@code{null}, or @code{pipe(S)}, where @var{S} is a pipe stream. Note
+that it is up to the user to close the pipe.
 
 @item working_directory(-@var{CurDir},?@var{NextDir})
 @findex  working_directory/2
@@ -7447,6 +7511,29 @@ for the command is returned in @var{Status}.
 @cnindex working_directory/2
 Fetch the current directory at @var{CurDir}. If @var{NextDir} is bound
 to an atom, make its value the current working directory.
+
+@item popen(+@var{Command}, +@var{TYPE}, -@var{Stream})
+@findex  popen/3
+@syindex popen/3
+@cnindex popen/3
+Interface to the @t{popen} function. It opens a process by creating a
+pipe, forking and invoking @var{Command} on the current shell. Since a
+pipe is by definition unidirectional the @var{Type} argument may be
+@code{read} or @code{write}, not both. The stream should be closed
+using @code{close/1}, there is no need for a special @code{pclose}
+command.
+
+The following example demonstrates the use of @code{popen/3} to process
+the output of a command, as @code{exec/3} would do:
+
+@example
+   ?- popen(ls,read,X),repeat, get0(X,C), (C = -1, ! ; put(C)).
+
+X = 'C:\\cygwin\\home\\administrator' ?
+@end example
+
+
+The WIN32 implementation of @code{popen/3} relies on @code{exec/3}.
 
 @item shell
 @findex  shell/0
@@ -7488,13 +7575,27 @@ implementation uses @code{usleep} if the number of seconds is below one,
 and @code{sleep} if it is over a second. The WIN32 implementation uses
 @code{Sleep} for both cases.
 
+@item system
+@findex  system/0
+@syindex system/0
+@cnindex system/0
+Start a new default shell and leave Yap in background until the shell
+completes. Yap uses @code{/bin/sh} in Unix systems and @code{COMSPEC} in
+WIN32.
+
+@item system(+@var{Command},-@var{Res})
+@findex  system/2
+@syindex system/2
+@cnindex system/2
+Interface to @code{system}: execute command @var{Command} and unify
+@var{Res} with the result.
+
 @item wait(+@var{PID},-@var{Status})
 @findex  wait/2
 @syindex wait/2
 @cnindex wait/2
 Wait until process @var{PID} terminates, and return its exits @var{Status}.
 
-@comment exec(ls,[std,pipe(X),std], P), repeat, get0(X,C), write(C), nl, C = -1, !.
 @end table
 
 
@@ -8079,7 +8180,7 @@ variable. In the latter case, YAP discards previous values for the
 attributes.
 @item The built-in @code{get_atts/2} can be used to check the values of
 an attribute associated with a variable.
-@item The unification algoritm calls the user-defined predicate
+@item The unification algorit mcalls the user-defined predicate
 @t{verify_attributes/3} before trying to bind an attributed
 variable. Unification will resume after this call.
 @item The user-defined predicate
@@ -10716,7 +10817,7 @@ see all control flow through the various ports involved, except during
 skips.  When control passes through any port with a spy-point set on it,
 a message is output and the user is asked to interact.  Note that the
 current mode of leashing does not affect spy-points: user interaction is
-requested on @emph{every} port.
+requested at @emph{every} port.
 
 Spy-points are set and removed by the following predicates,
 which are declared as prefix operators:
