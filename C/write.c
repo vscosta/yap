@@ -123,7 +123,7 @@ wrputf(Float f)			/* writes a float	 */
       wrputc(' ');
   }
   lastw = alphanum;
-  sprintf(s, "%.6g", f);
+  sprintf(s, "%.15g", f);
   while (*pt == ' ')
     pt++;
   if (*pt == 'i' || *pt == 'n')  /* inf or nan */

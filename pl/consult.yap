@@ -276,7 +276,11 @@ prolog_load_context(term_position, Position) :-
 	stream_position(Stream, Position).
 
 
+'$loaded'(Stream) :-
+	'$file_name'(Stream,F),
+	'$recorded'('$loaded','$loaded'(F,Age),R), !,
+        '$file_age'(F,CurrentAge),
+         ((CurrentAge = Age ; Age = -1)  -> true; erase(R), fail).
 
 
-	
 

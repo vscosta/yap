@@ -1871,6 +1871,33 @@ static Int p_putenv(void)
 #endif
 }
 
+/* set a variable in YAP's environment */
+static Int p_file_age(void)
+{
+#if HAVE_LSTAT 
+  struct stat buf;
+  char *file_name = RepAtom(AtomOfTerm(Deref(ARG1)))->StrOfAE;
+
+  if (lstat(file_name, &buf) == -1) {
+    /* file does not exist, but was opened? Return -1 */
+    return(unify(ARG2, MkIntTerm(-1)));
+  }
+  return(unify(ARG2, MkIntegerTerm(buf.st_mtime)));
+#elif defined(__MINGW32__) || _MSC_VER
+  /* for some weird reason _stat did not work with mingw32 */
+  struct _stat buf;
+  char *file_name = RepAtom(AtomOfTerm(Deref(ARG1)))->StrOfAE;
+
+  if (_stat(file_name, &buf) != 0) {
+    /* return an error number */
+    return(unify(ARG2, MkIntTerm(-1)));
+  }
+  return(unify(ARG2, MkIntegerTerm(buf.st_mtime)));
+#else
+  return(unify(ARG2, MkIntTerm(0)));
+#endif
+}
+
 /* wrapper for alarm system call */
 #if defined(_WIN32)
 static VOID CALLBACK HandleTimer(LPVOID v, DWORD d1, DWORD d2) {
@@ -1998,6 +2025,7 @@ InitSysPreds(void)
   InitCPred ("$alarm", 2, p_alarm, SafePredFlag|SyncPredFlag);
   InitCPred ("$getenv", 2, p_getenv, SafePredFlag);
   InitCPred ("$putenv", 2, p_putenv, SafePredFlag|SyncPredFlag);
+  InitCPred ("$file_age", 2, p_file_age, SafePredFlag|SyncPredFlag);
 }
 
 

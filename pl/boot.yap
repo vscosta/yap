@@ -916,17 +916,14 @@ break :- '$get_value'('$break',BL), NBL is BL+1,
 	!.
 
 
-'$loaded'(Stream) :-
-	'$file_name'(Stream,F),
-	'$recorded'('$loaded',F,_), !.
-
 '$record_loaded'(user).
 '$record_loaded'(user_input).
 '$record_loaded'(Stream) :-
 	'$loaded'(Stream), !.
 '$record_loaded'(Stream) :-
 	'$file_name'(Stream,F),
-	'$recorda'('$loaded',F,_).
+	'$file_age'(F,Age),
+	'$recorda'('$loaded','$loaded'(F,Age),_).
 
 '$set_consulting_file'(user) :- !,
 	'$set_value'('$consulting_file',user_input).

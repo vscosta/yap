@@ -35,7 +35,7 @@ static
 #endif
 unsigned int      gc_calls = 0;	/* number of times GC has been called */
 
-static CELL      tot_gc_time = 0; /* total time spent in GC */
+static Int      tot_gc_time = 0; /* total time spent in GC */
 
 /* in a single gc */
 UInt     total_marked;	/* number of heap objects marked */
@@ -2600,7 +2600,7 @@ do_gc(Int predarity, CELL *current_env, yamop *nextop)
   }
 #endif
 #ifdef DEBUG
-  //  check_global();
+  check_global();
 #endif
   if (GetValue(AtomGcTrace) != TermNil)
     gc_trace = 1;
@@ -2672,14 +2672,14 @@ do_gc(Int predarity, CELL *current_env, yamop *nextop)
   }
   gc_time += (c_time-time_start);
   tot_gc_time += gc_time;
-  tot_gc_recovered += (H-H0)-total_marked;
+  tot_gc_recovered += heap_cells-total_marked;
   if (gc_verbose) {
     YP_fprintf(YP_stderr, "[GC] GC %d took %g sec, total of %g sec doing GC so far.\n", gc_calls, (double)gc_time/1000, (double)tot_gc_time/1000);
     YP_fprintf(YP_stderr, "[GC]   Left %ld cells free in stacks.\n",
 	       (unsigned long int)(ASP-H));
   }
 #ifdef DEBUG
-  //  check_global();
+  check_global();
 #endif
   return(effectiveness);
 }
@@ -2706,8 +2706,8 @@ static Int
 p_inform_gc(void)
 {
   Term tn = MkIntegerTerm(tot_gc_time);
-  Term tt = MkIntTerm(gc_calls);
-  Term ts = MkIntTerm((total_marked*sizeof(CELL)));
+  Term tt = MkIntegerTerm(gc_calls);
+  Term ts = MkIntegerTerm((tot_gc_recovered*sizeof(CELL)));
  
   return(unify(tn, ARG2) && unify(tt, ARG1) && unify(ts, ARG3));
 
@@ -2757,7 +2757,7 @@ gc(Int predarity, CELL *current_env, yamop *nextop)
     while (gc_margin >= gap && !growstack(gc_margin))
       gc_margin = gc_margin/2;
 #ifdef DEBUG
-    //    check_global();
+    check_global();
 #endif
     return(gc_margin >= gap);
   }

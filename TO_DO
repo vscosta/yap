@@ -3,12 +3,9 @@ BEFORE 4.4:
 - write infinite terms
 - constraints in DB.
 - non-void temporaries going to global
-- timestamps on files.
 - warnings in documentation file.
 - fix restore when code is moved around.
 - document new interface functions.
-- add more precision when outputting floats.
-- make statistics/0 better looking.
 - mask when installing.
 
 TO CHECK:
@@ -82,6 +79,9 @@ DONE:
 - ^C can break code.
 - system library
 - library(system) for WIN32
+- timestamps on files.
+- add more precision when outputting floats.
+- make statistics/0 better looking.
 
 TO DO (tabling)
 - make gc work after mutable var changes.
