@@ -155,9 +155,7 @@ AllocScannerMemory(unsigned int size)
     if(!Yap_growtrail (alloc_size, TRUE)) {
       struct scanner_extra_alloc *ptr;
 
-      printf("In trouble\n");
       if (!(ptr = (struct scanner_extra_alloc *)malloc(size+sizeof(ScannerExtraBlock)))) {
-      printf(" oops\n");
 	return NULL;
       }
       ptr->next = ScannerExtraBlocks;

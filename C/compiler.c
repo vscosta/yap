@@ -11,8 +11,12 @@
 * File:		compiler.c						 *
 * comments:	Clause compiler						 *
 *									 *
-* Last rev:     $Date: 2004-12-20 21:44:57 $,$Author: vsc $						 *
+* Last rev:     $Date: 2005-01-03 17:06:03 $,$Author: vsc $						 *
 * $Log: not supported by cvs2svn $
+* Revision 1.57  2004/12/20 21:44:57  vsc
+* more fixes to CLPBN
+* fix some Yap overflows.
+*
 * Revision 1.56  2004/12/16 05:57:32  vsc
 * fix overflows
 *
@@ -2809,7 +2813,6 @@ Yap_cclause(volatile Term inp_clause, int NOfArgs, int mod, volatile Term src)
     Yap_Error_Term = TermNil;
     return(0);
   }
- restart_compilation:
   my_clause = inp_clause;
   if (Yap_ErrorMessage != NULL) {
     reset_vars(cglobs.vtable);

@@ -341,7 +341,7 @@ AdjustTrail(int adjusting_heap)
 	} else if (IsPairTerm(*ptr)) {
 	  *ptr = AdjustAppl(*ptr);
 	}
-#ifdef DEBUG
+#ifdef DEBUG_STRONG
 	else 
 	  fprintf(Yap_stderr,"%% garbage heap ptr %p to %lx found in trail at %p by stack shifter\n", ptr, (unsigned long int)*ptr, ptt);
 #endif
@@ -972,8 +972,99 @@ Yap_growglobal(CELL **ptr)
 }
 
 
+int
+Yap_growstack(long size)
+{
+  int res;
+
+  Yap_PrologMode |= GrowStackMode;
+  res=growstack(size);
+  Yap_PrologMode &= ~GrowStackMode;
+  return res;
+}
+
+static void
+AdjustVarTable(VarEntry *ves)
+{
+  ves->VarAdr = TermNil;
+  if (ves->VarRight != NULL) {
+    if (IsOldVarTableTrailPtr(ves->VarRight)) {
+      ves->VarRight = (VarEntry *)TrailAddrAdjust((ADDR)(ves->VarRight));
+    }
+    AdjustVarTable(ves->VarRight);
+  }
+  if (ves->VarLeft != NULL) {
+    if (IsOldVarTableTrailPtr(ves->VarLeft)) {
+      ves->VarLeft = (VarEntry *)TrailAddrAdjust((ADDR)(ves->VarLeft));
+    }
+    AdjustVarTable(ves->VarLeft);
+  }
+}
+
+/*
+  If we have to shift while we are scanning we need to adjust all
+  pointers created by the scanner (Tokens and Variables)
+*/
+static void
+AdjustScannerStacks(TokEntry **tksp, VarEntry **vep)
+{
+  TokEntry *tks = *tksp;
+  VarEntry *ves = *vep;
+
+  if (tks != NULL) {
+    if (IsOldTokenTrailPtr(tks)) {
+      tks = *tksp = TokEntryAdjust(tks);
+    }
+  }
+  while (tks != NULL) {
+    TokEntry *tktmp;
+
+    switch (tks->Tok) {
+    case Var_tok:
+    case String_tok:
+      if (IsOldTrail(tks->TokInfo))
+	tks->TokInfo = TrailAdjust(tks->TokInfo);
+      break;
+    case Name_tok:
+      tks->TokInfo = (Term)AtomAdjust((Atom)(tks->TokInfo));
+      break;
+    default:
+      break;
+    }
+    tktmp = tks->TokNext;
+    if (tktmp != NULL) {
+      if (IsOldTokenTrailPtr(tktmp)) {
+	tktmp = TokEntryAdjust(tktmp);
+	tks->TokNext = tktmp;
+      }
+    }
+    tks = tktmp;
+  }
+  if (ves != NULL) {
+    if (IsOldVarTableTrailPtr(ves))
+      ves = *vep = (VarEntry *)TrailAddrAdjust((ADDR)ves);
+    AdjustVarTable(ves);
+  }
+  ves = Yap_AnonVarTable;
+  if (ves != NULL) {
+    if (IsOldVarTableTrailPtr(ves))
+      ves = Yap_AnonVarTable = VarEntryAdjust(ves);
+  }
+  while (ves != NULL) {
+    VarEntry *vetmp = ves->VarLeft;
+    if (vetmp != NULL) {
+      if (IsOldVarTableTrailPtr(vetmp)) {
+	vetmp = VarEntryAdjust(vetmp);
+      }
+      ves->VarLeft = vetmp;
+    }
+    ves->VarAdr = TermNil;
+    ves = vetmp;
+  }
+}
+
 static int
-execute_growstack(long size0, int from_trail)
+execute_growstack(long size0, int from_trail, int in_parser, tr_fr_ptr *old_trp, TokEntry **tksp, VarEntry **vep)
 {
   UInt minimal_request = 0L;
   long size = size0;
@@ -1009,7 +1100,11 @@ execute_growstack(long size0, int from_trail)
     TrDiff = LDiff = size+GDiff;
   }
 #else
-  TrDiff = LDiff = size;
+  if (from_trail) {
+    TrDiff = LDiff = size-size0;
+  } else {
+    TrDiff = LDiff = size;
+  }
 #endif
   ASP -= 256;
   if (GDiff) {
@@ -1018,7 +1113,7 @@ execute_growstack(long size0, int from_trail)
     SetStackRegs();
   }
   if (from_trail) {
-    Yap_TrailTop += size;
+    Yap_TrailTop += size0;
   }
   if (LDiff) {
     MoveLocalAndTrail();
@@ -1028,13 +1123,35 @@ execute_growstack(long size0, int from_trail)
     /* That is done by realloc */
     MoveGlobal();
 #endif
-    AdjustStacksAndTrail();
+    if (in_parser) {
+      tr_fr_ptr nTR;
+
+      AdjustScannerStacks(tksp, vep);
+      nTR = TR;
+      *old_trp = PtoTRAdjust(*old_trp);
+      TR = *old_trp;
+      AdjustStacksAndTrail();
+      TR = nTR;
+    } else {
+      AdjustStacksAndTrail();
+    }
     AdjustRegs(MaxTemps);
 #ifdef TABLING
     fix_tabling_info();
 #endif /* TABLING */
   } else if (LDiff) {
-    AdjustGrowStack();
+    if (in_parser) {
+      tr_fr_ptr nTR;
+
+      AdjustScannerStacks(tksp, vep);
+      nTR = TR;
+      *old_trp = PtoTRAdjust(*old_trp);
+      TR = *old_trp;
+      AdjustGrowStack();
+      TR = nTR;
+    } else {
+      AdjustGrowStack();
+    }
     AdjustRegs(MaxTemps);
 #ifdef TABLING
     fix_tabling_info();
@@ -1068,7 +1185,7 @@ growstack(long size)
 	       (unsigned long int)(TR-(tr_fr_ptr)Yap_TrailBase),Yap_TrailBase,TR);
     fprintf(Yap_stderr, "%% Growing the stacks %ld bytes\n", size);
   }
-  if (!execute_growstack(size, FALSE))
+  if (!execute_growstack(size, FALSE, FALSE, NULL, NULL, NULL))
     return FALSE;
   growth_time = Yap_cputime()-start_growth_time;
   total_stack_overflow_time += growth_time;
@@ -1079,144 +1196,44 @@ growstack(long size)
   return(TRUE);
 }
 
-int
-Yap_growstack(long size)
-{
-  int res;
-
-  Yap_PrologMode |= GrowStackMode;
-  res=growstack(size);
-  Yap_PrologMode &= ~GrowStackMode;
-  return res;
-}
-
-static void
-AdjustVarTable(VarEntry *ves)
-{
-  ves->VarAdr = TermNil;
-  if (ves->VarRight != NULL) {
-    ves->VarRight = (VarEntry *)TrailAddrAdjust((ADDR)(ves->VarRight));
-    AdjustVarTable(ves->VarRight);
-  }
-  if (ves->VarLeft != NULL) {
-    ves->VarLeft = (VarEntry *)TrailAddrAdjust((ADDR)(ves->VarLeft));
-    AdjustVarTable(ves->VarLeft);
-  }
-}
-
-/*
-  If we have to shift while we are scanning we need to adjust all
-  pointers created by the scanner (Tokens and Variables)
-*/
-static void
-AdjustScannerStacks(TokEntry **tksp, VarEntry **vep)
-{
-  TokEntry *tks = *tksp;
-  VarEntry *ves = *vep;
-
-  if (tks != NULL) {
-    tks = *tksp = TokEntryAdjust(tks);
-  }
-  while (tks != NULL) {
-    TokEntry *tktmp;
-
-    switch (tks->Tok) {
-    case Var_tok:
-    case String_tok:
-      tks->TokInfo = TrailAdjust(tks->TokInfo);
-      break;
-    case Name_tok:
-      tks->TokInfo = (Term)AtomAdjust((Atom)(tks->TokInfo));
-      break;
-    default:
-      break;
-    }
-    tktmp = tks->TokNext;
-    if (tktmp != NULL) {
-      tktmp = TokEntryAdjust(tktmp);
-      tks->TokNext = tktmp;
-    }
-    tks = tktmp;
-  }
-  if (ves != NULL) {
-    ves = *vep = (VarEntry *)TrailAddrAdjust((ADDR)ves);
-    AdjustVarTable(ves);
-  }
-  ves = Yap_AnonVarTable;
-  if (ves != NULL) {
-    ves = Yap_AnonVarTable = VarEntryAdjust(ves);
-  }
-  while (ves != NULL) {
-    VarEntry *vetmp = ves->VarLeft;
-    if (vetmp != NULL) {
-      vetmp = VarEntryAdjust(vetmp);
-      ves->VarLeft = vetmp;
-    }
-    ves->VarAdr = TermNil;
-    ves = vetmp;
-  }
-}
-
 /* Used by parser when we're short of stack space */
 int
 Yap_growstack_in_parser(tr_fr_ptr *old_trp, TokEntry **tksp, VarEntry **vep)
 {
+  UInt size;
   UInt start_growth_time, growth_time;
   int gc_verbose;
-  long size  = sizeof(CELL)*(LCL0-(CELL *)Yap_GlobalBase);
 
-#if YAPOR
-  if (NOfThreads != 1) {
-    Yap_Error(OUT_OF_STACK_ERROR,TermNil,"cannot grow Parser Stack: more than a worker/thread running");
-    return(FALSE);
-  }
-#endif
+  Yap_PrologMode |= GrowStackMode;
   /* adjust to a multiple of 256) */
-  size = AdjustPageSize(size);
+  size = AdjustPageSize((ADDR)LCL0-Yap_GlobalBase);
   Yap_ErrorMessage = NULL;
-  if (!Yap_ExtendWorkSpace(size)) {
-    Yap_ErrorMessage = "Parser stack overflowed";
-    return(FALSE);
-  }
   start_growth_time = Yap_cputime();
   gc_verbose = Yap_is_gc_verbose();
   stack_overflows++;
   if (gc_verbose) {
-    fprintf(Yap_stderr, "%% Stack overflow %d\n", stack_overflows);
-    fprintf(Yap_stderr, "%%   Global: %8ld cells (%p-%p)\n", (unsigned long int)(H-(CELL *)Yap_GlobalBase),(CELL *)Yap_GlobalBase,H);
+    fprintf(Yap_stderr, "%% Stack Overflow %d\n", stack_overflows);
+    fprintf(Yap_stderr, "%%   Global: %8ld cells (%p-%p)\n", (unsigned long int)(H-(CELL *)Yap_GlobalBase),Yap_GlobalBase,H);
     fprintf(Yap_stderr, "%%   Local:%8ld cells (%p-%p)\n", (unsigned long int)(LCL0-ASP),LCL0,ASP);
     fprintf(Yap_stderr, "%%   Trail:%8ld cells (%p-%p)\n",
 	       (unsigned long int)(TR-(tr_fr_ptr)Yap_TrailBase),Yap_TrailBase,TR);
-    fprintf(Yap_stderr, "%%  growing the stacks %ld bytes\n", size);
+    fprintf(Yap_stderr, "%% Growing the stacks %ld bytes\n", (unsigned long int)size);
   }
-  ASP -= 256;
-  YAPEnterCriticalSection();
-  TrDiff = LDiff = size;
-  XDiff = HDiff = GDiff = DelayDiff = 0;
-  SetStackRegs();
-  MoveLocalAndTrail();
-  AdjustScannerStacks(tksp, vep);
-  {
-    tr_fr_ptr nTR;
-    nTR = TR;
-    *old_trp = PtoTRAdjust(*old_trp);
-    TR = *old_trp;
-    AdjustGrowStack();
-    TR = nTR;
+  if (!execute_growstack(size, FALSE, TRUE, old_trp, tksp, vep)) {
+    Yap_PrologMode &= ~GrowStackMode;
+    return FALSE;
   }
-  AdjustRegs(MaxTemps);
-  YAPLeaveCriticalSection();
-  ASP += 256;
   growth_time = Yap_cputime()-start_growth_time;
   total_stack_overflow_time += growth_time;
   if (gc_verbose) {
     fprintf(Yap_stderr, "%%   took %g sec\n", (double)growth_time/1000);
     fprintf(Yap_stderr, "%% Total of %g sec expanding stacks \n", (double)total_stack_overflow_time/1000);
   }
-  return(TRUE);  
+  Yap_PrologMode &= ~GrowStackMode;
+  return TRUE;
 }
 
-static int do_growtrail(long size, int contiguous)
+static int do_growtrail(long size, int contiguous_only, int in_parser, tr_fr_ptr *old_trp, TokEntry **tksp, VarEntry **vep)
 {
   UInt start_growth_time = Yap_cputime(), growth_time;
   int gc_verbose = Yap_is_gc_verbose();
@@ -1239,20 +1256,21 @@ static int do_growtrail(long size, int contiguous)
   }
   Yap_ErrorMessage = NULL;
 #if USE_SYSTEM_MALLOC
-  execute_growstack(size, TRUE);
+  execute_growstack(size, TRUE, in_parser, old_trp, tksp, vep);
 #else
   if (!Yap_ExtendWorkSpace(size)) {
     Yap_ErrorMessage = NULL;
-    if (contiguous) {
+    if (contiguous_only) {
       /* I can't expand in this case */
       trail_overflows--;
       return FALSE;
     }
-    execute_growstack(size, TRUE);
+    execute_growstack(size, TRUE, in_parser, old_trp, tksp, vep);
+  } else {
+    YAPEnterCriticalSection();
+    Yap_TrailTop += size;
+    YAPLeaveCriticalSection();
   }
-  YAPEnterCriticalSection();
-  Yap_TrailTop += size;
-  YAPLeaveCriticalSection();
 #endif
   growth_time = Yap_cputime()-start_growth_time;
   total_trail_overflow_time += growth_time;
@@ -1272,9 +1290,15 @@ static int do_growtrail(long size, int contiguous)
 
 /* Used by do_goal() when we're short of stack space */
 int
-Yap_growtrail(long size, int contiguous)
+Yap_growtrail(long size, int contiguous_only)
 {
-  return do_growtrail(size, contiguous);
+  return do_growtrail(size, contiguous_only, FALSE, NULL, NULL, NULL);
+}
+
+int
+Yap_growtrail_in_parser(tr_fr_ptr *old_trp, TokEntry **tksp, VarEntry **vep)
+{
+  return do_growtrail(0, FALSE, TRUE, old_trp, tksp, vep);
 }
 
 CELL **
@@ -1298,7 +1322,7 @@ Yap_shift_visit(CELL **to_visit, CELL ***to_visit_maxp)
   return (CELL **)((char *)newb+(sz1+dsz));
 #else
   CELL **old_top = (CELL **)Yap_TrailTop;
-  if (do_growtrail(64 * 1024L, FALSE)) {
+  if (do_growtrail(64 * 1024L, FALSE, FALSE, NULL, NULL, NULL)) {
     CELL **dest = (CELL **)((char *)to_visit+64 * 1024L);
     cpcellsd((CELL *)dest, (CELL *)to_visit, (CELL)((CELL *)old_top-(CELL *)to_visit));
     return dest;

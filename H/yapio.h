@@ -304,6 +304,7 @@ void	STD_PROTO(Yap_plwrite,(Term,int (*)(int, int),int));
 
 /* grow.c */
 int  STD_PROTO(Yap_growstack_in_parser,  (tr_fr_ptr *, TokEntry **, VarEntry **));
+int  STD_PROTO(Yap_growtrail_in_parser,  (tr_fr_ptr *, TokEntry **, VarEntry **));
 
 
 

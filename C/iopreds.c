@@ -2995,22 +2995,32 @@ do_read(int inp_stream)
     }
   repeat_cycle:
     if (Yap_ErrorMessage || (t = Yap_Parse()) == 0) {
-      if (Yap_ErrorMessage && (strcmp(Yap_ErrorMessage,"Stack Overflow") == 0)) {
-	/* ignore term we just built */
-	tr_fr_ptr old_TR = TR;
+      if (Yap_ErrorMessage) {
+	int res;
 
-	H = old_H;
-	TR = (tr_fr_ptr)ScannerStack;
-	if (Yap_growstack_in_parser(&old_TR, &tokstart, &Yap_VarTable)) {
+	if (!strcmp(Yap_ErrorMessage,"Stack Overflow") ||
+	    !strcmp(Yap_ErrorMessage,"Trail Overflow")) {
+	  /* ignore term we just built */
+	  tr_fr_ptr old_TR = TR;
+
+	  H = old_H;
+	  TR = (tr_fr_ptr)ScannerStack;
+	  
+	  if (!strcmp(Yap_ErrorMessage,"Stack Overflow"))
+	    res = Yap_growstack_in_parser(&old_TR, &tokstart, &Yap_VarTable);
+	  else
+	    res = Yap_growtrail_in_parser(&old_TR, &tokstart, &Yap_VarTable);
+	  if (res) {
+	    ScannerStack = (char *)TR;
+	    TR = old_TR;
+	    old_H = H;
+	    Yap_tokptr = Yap_toktide = tokstart;
+	    Yap_ErrorMessage = NULL;
+	    goto repeat_cycle;
+	  }
 	  ScannerStack = (char *)TR;
 	  TR = old_TR;
-	  old_H = H;
-	  Yap_tokptr = Yap_toktide = tokstart;
-	  Yap_ErrorMessage = NULL;
-	  goto repeat_cycle;
 	}
-	ScannerStack = (char *)TR;
-	TR = old_TR;
       }
       if (ParserErrorStyle == QUIET_ON_PARSER_ERROR) {
 	/* just fail */
