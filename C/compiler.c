@@ -9,9 +9,10 @@
 **************************************************************************
 *									 *
 * File:		compiler.c						 *
-* Last rev:	4/03/88							 *
-* mods:									 *
 * comments:	Clause compiler						 *
+*									 *
+* Last rev:     $Date: 2004-03-08 19:31:01 $,$Author: vsc $						 *
+* $Log: not supported by cvs2svn $									 *
 *									 *
 *************************************************************************/
 #ifdef SCCS

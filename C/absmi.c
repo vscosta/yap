@@ -9,9 +9,9 @@
 **************************************************************************
 *									 *
 * File:		absmi.c							 *
-* Last rev:								 *
-* mods:									 *
 * comments:	Portable abstract machine interpreter                    *
+* Last rev:     $Date: 2004-03-08 19:31:01 $,$Author: vsc $						 *
+* $Log: not supported by cvs2svn $									 *
 *									 *
 *************************************************************************/
 

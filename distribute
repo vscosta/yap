@@ -69,7 +69,7 @@ cd examples
 splat
 cd ../../../..
 if test "$1" = "--small"; then
-  tar cvzf "$version".tar.gz "$version"/{INSTALL,README*,changes*,config*,install-sh,Makefile.in,.depend.in,distribute,C,H,VC,console,docs,include,library,m4,misc,pl,LGPL/README,LGPL/CVS,LGPL/pillow/[C-Z]*,LGPL/pillow/*.pl,LGPL/pillow/doc/*info*,build-distr,OPTYap,CLPQR,CHR}
+  tar cvzf  "$version"-small.tar.gz --exclude=CVS --exclude=CHR/chr/examples --exclude=CLPQR/clpqr/examples "$version"/{Artistic,INSTALL,README*,changes*,config*,install-sh,Makefile.in,.depend.in,distribute,C,H,VC,console,docs,include,library,m4,misc,pl,LGPL/README,LGPL/CVS,LGPL/pillow/[C-Z]*,LGPL/pillow/*.pl,LGPL/pillow/doc/*info*,build-distr,OPTYap,CLPQR,CHR}
 else
-  tar cvzf "$version".tar.gz "$version"/{INSTALL,README*,changes*,config*,install-sh,Makefile.in,.depend.in,distribute,C,H,VC,console,docs,include,library,m4,misc,pl,LGPL,build-distr,OPTYap,CLPQR,CHR}
+  tar cvzf "$version".tar.gz --exclude=CVS  "$version"/{Artistic,INSTALL,README*,changes*,config*,install-sh,Makefile.in,.depend.in,distribute,C,H,VC,console,docs,include,library,m4,misc,pl,LGPL,build-distr,OPTYap,CLPQR,CHR,Logtalk}
 fi
