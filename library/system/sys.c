@@ -258,18 +258,25 @@ file_property(void)
     /* return an error number */
     return(unify(ARG6, MkIntTerm(errno)));
   }
-  if (S_ISREG(buf.st_mode)) 
-    unify(ARG2, MkAtomTerm(LookupAtom("regular")));
-  else if (S_ISDIR(buf.st_mode)) 
-    unify(ARG2, MkAtomTerm(LookupAtom("directory")));
-  else if (S_ISFIFO(buf.st_mode)) 
-    unify(ARG2, MkAtomTerm(LookupAtom("fifo")));
-  else if (S_ISLNK(buf.st_mode))
-    unify(ARG2, MkAtomTerm(LookupAtom("symlink")));
-  else if (S_ISSOCK(buf.st_mode))
-    unify(ARG2, MkAtomTerm(LookupAtom("socket")));
-  else 
-    unify(ARG2, MkAtomTerm(LookupAtom("unknown")));
+  if (S_ISREG(buf.st_mode)) {
+    if (!unify(ARG2, MkAtomTerm(LookupAtom("regular"))))
+      return(FALSE);
+  } else if (S_ISDIR(buf.st_mode)) {
+    if (!unify(ARG2, MkAtomTerm(LookupAtom("directory"))))
+      return(FALSE);
+  } else if (S_ISFIFO(buf.st_mode)) {
+    if (!unify(ARG2, MkAtomTerm(LookupAtom("fifo"))))
+      return(FALSE);
+  } else if (S_ISLNK(buf.st_mode)) {
+    if (!unify(ARG2, MkAtomTerm(LookupAtom("symlink"))))
+      return(FALSE);
+  } else if (S_ISSOCK(buf.st_mode)) {
+    if (!unify(ARG2, MkAtomTerm(LookupAtom("socket"))))
+      return(FALSE);
+  } else {
+    if (!unify(ARG2, MkAtomTerm(LookupAtom("unknown"))))
+      return(FALSE);
+  }
 #elif defined(__MINGW32__) || _MSC_VER
   /* for some weird reason _stat did not work with mingw32 */
   struct stat buf;
@@ -279,17 +286,22 @@ file_property(void)
     /* return an error number */
     return(unify(ARG6, MkIntTerm(errno)));
   }
-  if (buf.st_mode & S_IFREG) 
-    unify(ARG2, MkAtomTerm(LookupAtom("regular")));
-  else if (buf.st_mode & S_IFDIR) 
-    unify(ARG2, MkAtomTerm(LookupAtom("directory")));
-  else 
-    unify(ARG2, MkAtomTerm(LookupAtom("unknown")));
+  if (buf.st_mode & S_IFREG) {
+    if (!unify(ARG2, MkAtomTerm(LookupAtom("regular"))))
+      return(FALSE);
+  } else if (buf.st_mode & S_IFDIR) {
+    if (!unify(ARG2, MkAtomTerm(LookupAtom("directory"))))
+      return(FALSE);
+  } else {
+    if (!unify(ARG2, MkAtomTerm(LookupAtom("unknown"))))
+      return(FALSE);
+  }
 #endif
-  unify(ARG3, MkIntTerm(buf.st_size));
-  unify(ARG4, MkIntTerm(buf.st_mtime));
-  unify(ARG5, MkIntTerm(buf.st_mode));
-  return(TRUE);
+  return (
+	  unify(ARG3, MkIntTerm(buf.st_size)) &&
+	  unify(ARG4, MkIntTerm(buf.st_mtime)) &&
+	  unify(ARG5, MkIntTerm(buf.st_mode))
+	  );
 }
 
 /* temporary files */
