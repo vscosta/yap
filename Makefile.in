@@ -70,6 +70,7 @@ M4GENABSMI=$(srcdir)/@M4GENABSMI@
 INDENT=@INDENT@
 SHELL=/bin/sh
 RANLIB=@RANLIB@
+AR=@AR@
 srcdir=@srcdir@
 SHLIB_SUFFIX=@SHLIB_SUFFIX@
 MAKEINFO=makeinfo
@@ -439,14 +440,14 @@ mycb: $(srcdir)/mycb.c
 
 startup: yap $(PL_SOURCES)
 	-rm -f startup
-	echo "['$(srcdir)/pl/init.yap']. save_program(startup)." |  ./yap -b $(srcdir)/pl/boot.yap
+	echo "['$(srcdir)/pl/init.yap']. save_program(startup)." |  @CROSS_SIMULATOR@ ./yap -b $(srcdir)/pl/boot.yap
 
 yap: $(HEADERS) yap.o @YAPLIB@
 	$(CC) $(STANDARD_CFLAGS) $(LDFLAGS) -o yap yap.o @YAPLIB@ $(LIBS)
 
 libYap.a: $(LIB_OBJECTS)
 	-rm -f libYap.a
-	ar rc libYap.a $(LIB_OBJECTS)
+	$(AR) rc libYap.a $(LIB_OBJECTS)
 	$(RANLIB) libYap.a
 
 install: @INSTALL_COMMAND@

@@ -1897,7 +1897,7 @@ AssignPerm(PInstr *pc)
 	else
 	  v->NoOfVE = v->KindOfVE = TempVar;
       }
-    } else if (pc->op == pc->op == empty_call_op) {
+    } else if (pc->op == empty_call_op) {
       pc->rnd2 = nperm;
     } else if (pc->op == call_op || pc->op == either_op || pc->op == orelse_op || pc->op == push_or_op) {
 #ifdef LOCALISE_VOIDS

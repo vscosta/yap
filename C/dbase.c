@@ -2958,10 +2958,12 @@ clean_lu_index(DBRef index) {
       if (!DBREF_IN_USE(ref)) {
 	UNLOCK(ref->lock);
 	RemoveDBEntry(ref);
-      } else
+      } else {
 	UNLOCK(ref->lock);
-    } else
+      }
+    } else {
       UNLOCK(ref->lock);
+    }
   }
   UNLOCK(index->lock);
   /* can I get rid of this index? */

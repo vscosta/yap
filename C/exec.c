@@ -1018,14 +1018,16 @@ execute_goal(Term t, int nargs)
   }
   pe = GetPredProp(a, arity);
   ppe = RepPredProp(pe);
-  if (pe != NIL)
+  if (pe != NIL) {
     READ_LOCK(ppe->PRWLock);
+  }
   if (pe == NIL ||
       ppe->OpcodeOfPred == UNDEF_OPCODE ||
       ppe->PredFlags & (UserCPredFlag|CPredFlag|BasicPredFlag) )
     {
-      if (pe != NIL)
+      if (pe != NIL) {
 	READ_UNLOCK(ppe->PRWLock);
+      }
       return(CallMetaCall());
     }
   CodeAdr = RepPredProp (PredProp (a, arity))->CodeOfPred;
@@ -1172,14 +1174,16 @@ RunTopGoal(Term t)
   }
   pe = GetPredProp(a, arity);
   ppe = RepPredProp(pe);
-  if (pe != NIL)
+  if (pe != NIL) {
     READ_LOCK(ppe->PRWLock);
+  }
   if (pe == NIL ||
       ppe->OpcodeOfPred == UNDEF_OPCODE ||
       ppe->PredFlags & (UserCPredFlag|CPredFlag|BasicPredFlag) )
     {
-      if (pe != NIL)
+      if (pe != NIL) {
 	READ_UNLOCK(ppe->PRWLock);
+      }
       /* we must always start the emulator with Prolog code */
       return(FALSE);
     }

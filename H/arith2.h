@@ -479,11 +479,7 @@ p_minus(Term t1, Term t2 E_ARGS)
 #ifdef __GNUC__
 #ifdef __i386__
 #define DO_MULTI() { Int tmp1; \
-  __asm__ ("imull  %3          
-            movl   $0,%1    
-            jno    0f       
-            movl   $1,%1    
-            0:"    \
+  __asm__ ("imull  %3\n\t movl   $0,%1\n\t jno    0f\n\t movl   $1,%1\n\t 0:"    \
 	   : "=a" (z),	    \
 	     "=d" (tmp1)    \
 	   : "a" (i1),      \

@@ -1087,8 +1087,8 @@ InitStacks(int Heap,
   /* sanity checking for data areas */
   if (Trail < MinTrailSpace)
     Trail = MinTrailSpace;
-  //  if (Stack < MinStackSpace)
-  //  Stack = MinStackSpace;
+  if (Stack < MinStackSpace)
+    Stack = MinStackSpace;
 #if defined(YAPOR) || defined(TABLING)
   {
 #ifdef USE_HEAP
