@@ -771,7 +771,7 @@ stream_property(Stream, Prop) :-  var(Prop), !,
 	'$stream_property'(Stream, Prop).
 stream_property(Stream, Props) :-  var(Stream), !,
 	'$current_stream'(_,_,Stream),
-	'$stream_property'(Stream, Props).
+	'$stream_property'(Stream, Props), !.
 stream_property(Stream, Props) :-
 	'$stream_property'(Stream, Props).
 stream_property(Stream, Props) :-
