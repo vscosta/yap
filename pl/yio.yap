@@ -259,7 +259,7 @@ open(F,T,S,Opts) :-
 
 '$check_write_max_depth'(X, G) :- var(X), !,
 	'$do_error'(instantiation_error,G).
-'$check_write_max_depth'(I,_) :- integer(I), I > 0, !.
+'$check_write_max_depth'(I,_) :- integer(I), I >= 0, !.
 '$check_write_max_depth'(X,G) :-
 	'$do_error'(domain_error(write_option,max_depth(X)),G).
 
