@@ -1120,7 +1120,7 @@ check_if_wvars(DBRef p, unsigned int NOfCells, CELL *BTptr)
 static int 
 scheckcells(int NOfCells, register CELL *m1, register CELL *m2, link_entry *lp, register CELL bp)
 {
-  CELL            base = Unsigned(m1 + 1);
+  CELL            base = Unsigned(m1);
   link_entry         *lp1;
 
   while (NOfCells-- > 0) {
@@ -1168,7 +1168,7 @@ check_if_nvars(DBRef p, unsigned int NOfCells, CELL *BTptr)
       return (p);
     memptr = CellPtr(p->Contents);
 #ifdef IDB_LINK_TABLE
-    if (scheckcells(NOfCells, memptr, BTptr, LinkAr, Unsigned(p->Contents)))
+    if (scheckcells(NOfCells, memptr, BTptr, LinkAr, Unsigned(p->Contents-1)))
 #else
       if (NOfCells == *memptr++
 	  && cmpclls(memptr, BTptr, NOfCells))
