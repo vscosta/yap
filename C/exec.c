@@ -423,9 +423,33 @@ p_execute_within(void)
       }
     }    
     a = AtomOfTerm(t);
-    if (a == AtomTrue || a == AtomOtherwise || a == AtomCut)
+    if (a == AtomTrue || a == AtomOtherwise)
       return(TRUE);
-    else if (a == AtomFail || a == AtomFalse)
+    else if (a == AtomCut) {
+#if defined(SBA) && defined(FROZEN_REGS)
+      choiceptr pt0 = (choiceptr)IntegerOfTerm(Deref(ARG2));
+#else
+      choiceptr pt0 = (choiceptr)(LCL0-IntegerOfTerm(Deref(ARG2)));
+#endif
+      if (TopB != NULL && YOUNGER_CP(TopB,pt0)) {  
+	pt0 = TopB;
+	if (DelayedB == NULL || YOUNGER_CP(pt0,DelayedB))
+	  DelayedB = pt0;
+      }
+      /* find where to cut to */
+#ifdef YAPOR
+      if (SHOULD_CUT_UP_TO(B,pt0)) {
+	/* Wow, we're gonna cut!!! */
+	CUT_prune_to(pt0);
+#else
+      if (SHOULD_CUT_UP_TO(B,pt0)) {
+	/* Wow, we're gonna cut!!! */
+	B = pt0;
+#endif /* YAPOR */
+	HBREG = PROTECT_FROZEN_H(B);
+      }
+      return(TRUE);
+    } else if (a == AtomFail || a == AtomFalse)
       return(FALSE);
     else
       arity = 0;
