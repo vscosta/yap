@@ -9,14 +9,14 @@
 **************************************************************************
 *									 *
 * File:		mpi.c  							 *
-* Last rev:	$Date: 2002-10-29 13:58:21 $				 *
+* Last rev:	$Date: 2002-10-29 14:02:43 $				 *
 * mods:									 *
 * comments:	Interface to an MPI library                              *
 *									 *
 *************************************************************************/
 
 #ifndef lint
-static char *rcsid = "$Header: /Users/vitor/Yap/yap-cvsbackup/library/mpi/mpi.c,v 1.10 2002-10-29 13:58:21 stasinos Exp $";
+static char *rcsid = "$Header: /Users/vitor/Yap/yap-cvsbackup/library/mpi/mpi.c,v 1.11 2002-10-29 14:02:43 stasinos Exp $";
 #endif
 
 #include "Yap.h"
@@ -237,7 +237,7 @@ mpi_parse(void)
 {
   Term v, t;
   TokEntry *tokstart;
-  tr_fr_ptr old_TR;
+  tr_fr_ptr old_TR, TR_before_parse;
     
   old_TR = TR;
   while( TRUE ) {
@@ -278,9 +278,11 @@ mpi_parse(void)
       }
     }
   repeat_cycle:
+    TR_before_parse = TR;
     if (ErrorMessage || (t = Parse ()) == 0) {
       if (ErrorMessage && (strcmp(ErrorMessage,"Stack Overflow") == 0)) {
 	/* ignore term we just built */
+	TR = TR_before_parse;
 	H = old_H;
 	if (growstack_in_parser(&old_TR, &tokstart, &VarTable)) {
 	  old_H = H;
@@ -295,6 +297,7 @@ mpi_parse(void)
 	return(FALSE);
       } else if (ParserErrorStyle == CONTINUE_ON_PARSER_ERROR) {
 	ErrorMessage = NULL;
+	TR = TR_before_parse;
 	/* try again */
 	goto repeat_cycle;
       } else {
