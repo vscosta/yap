@@ -289,8 +289,7 @@ then
     fi
   else
     LIBS="-lcygwin"
-    INSTALL_COMMAND=install_unix
-  fi
+   fi
 elif test "$target_os" = "mingw32" 
 then
   yap_cv_readline=no
