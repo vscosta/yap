@@ -2033,7 +2033,7 @@ set_fpu_exceptions(int flag)
 #if defined(__hpux)
     fpsetmask(FP_X_INV|FP_X_DZ|FP_X_OFL|FP_X_UFL);
 #endif
-#if HAVE_FPU_CONTROL_H && i386
+#if HAVE_FPU_CONTROL_H && i386 && defined(__GNUC__)
     /* I shall ignore denormalization and precision errors */
     int v = _FPU_IEEE & ~(_FPU_MASK_IM|_FPU_MASK_ZM|_FPU_MASK_OM|_FPU_MASK_UM);
     _FPU_SETCW(v);
@@ -2047,7 +2047,7 @@ set_fpu_exceptions(int flag)
 #if defined(__hpux)
     fpsetmask(FP_X_CLEAR);
 #endif
-#if HAVE_FPU_CONTROL_H && i386
+#if HAVE_FPU_CONTROL_H && i386 && defined(__GNUC__)
     /* this will probably not work in older releases of Linux */
     int v = _FPU_IEEE;
    _FPU_SETCW(v);

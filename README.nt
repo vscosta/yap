@@ -38,23 +38,23 @@ To the best of my knowledge, Yap compiles cleanly under VC++ release
 
 First, it is a good idea to build Yap as a DLL:
 
-1. create a project named yapdll using File.New. The project will be a
+1. create a project named yap using File.New. The project will be a
 DLL project, initially *empty*.
 
-NOTICE: Either the project is named yapdll or you must replace
-YAPDLL_EXPORTS to match your project names in c_interface.h and
+NOTICE: Either the project is named yap or you must replace
+YAP_EXPORTS to match your project names in c_interface.h and
 c_interface.c.
 
-o add all .c files in the $YAPSRC/C directory and in the
-$YAPSRC/OPTYap directory to the "Source Files" (use FileView).
+o Use the FileView tab to add all .c files in the $YAPSRC/C directory
+and in the $YAPSRC/OPTYap directory to the "Source Files".
 
-o add all .h files in the $YAPSRC/H director, $YAPSRC/include directory and in the $YAPSRC/OPTYap subdirectory to the "Header Files".
+o add all .h files in the $YAPSRC/H directory, $YAPSRC/include directory and in the $YAPSRC/OPTYap subdirectory to the "Header Files".
 
 o include the .h from .m4 files and config.h. You can find these files at $YAPSRC/VC/include.
 
 o You may want to go to Build.Set Active Configuration and set Project Type to Release
 
-o set Project.Project Settings.C/C++.Preprocessor.Additional Include Directories to include the $YAPSRC/H, $YAPSRC/VC/include, $YAPSRC/OPTYap and $YAPSRC/include.
+o set Project.Settings.C/C++.Preprocessor.Additional Include Directories to include the $YAPSRC/H, $YAPSRC/VC/include, $YAPSRC/OPTYap and $YAPSRC/include.
 
 The syntax is:
 

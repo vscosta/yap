@@ -16,6 +16,13 @@
 
 <h2>Yap-4.3.21:</h2>
 <ul>
+	<li>FIXED: atom_concat was not allocating heap correctly (Nicos Angelopoulos).</li>
+	<li>NEW: ord_intersection/4 (Nicos Angelopoulos).</li>
+	<li>NEW: file_search_path/2 (Nicos Angelopoulos).</li>
+	<li>FIXED: fix yap_flag(host_type).</li>
+	<li>FIXED: make Yap compile under VC++ again.</li>
+	<li>FIXED: don't try to handle X/0 the ISO way.</li>
+	<li>FIXED: make Yap runnable in WIN98.</li>
 	<li>FIXED: access to non-existing dynamic array should not core-dump.</li>
 	<li>FIXED: abolish(_) should give error in ISO mode.</li>
 	<li>NEW: yap_flag(argv,L) (Nicos Angelopoulos).</li>

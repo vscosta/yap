@@ -344,6 +344,8 @@ Error (yap_error_number type, Term where, char *format,...)
     unify(t, where);
     where = Deref(where);
   }
+  /* Exit Abort Mode, if we were there */
+  PrologMode &= ~AbortMode;
   PrologMode |= InErrorMode;
   where = CopyTerm(where);
   va_start (ap, format);

@@ -622,7 +622,7 @@ static Int
 p_atom_concat(void)
 {
   Term t1 = Deref(ARG1);
-  char *cptr = (char *)PreAllocCodeSpace(), *cpt0;
+  char *cptr = ((AtomEntry *)PreAllocCodeSpace())->StrOfAE, *cpt0;
   char *top = (char *)AuxSp;
   char *atom_str;
   UInt sz;
@@ -670,8 +670,8 @@ p_atom_concat(void)
   if (t1 == TermNil) {
     Term tout;
     cptr[0] = '\0';
-    ReleasePreAllocCodeSpace((ADDR)cpt0);
     tout = MkAtomTerm(LookupAtom(cpt0));
+    ReleasePreAllocCodeSpace((ADDR)cpt0);
     return(unify(ARG2, tout));
   }
   ReleasePreAllocCodeSpace((ADDR)cpt0);

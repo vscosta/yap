@@ -119,7 +119,7 @@ eval "AC_DEFINE(UsrTrailSpace,($yap_cv_trail_space))"
 
 AC_CANONICAL_SYSTEM
 
-AC_DEFINE_UNQUOTED(HOST_ALIAS,"${host_alias}")
+AC_DEFINE_UNQUOTED(HOST_ALIAS,"${host}")
 
 dnl Compilation Flags
 if test "$GCC" = "yes"
