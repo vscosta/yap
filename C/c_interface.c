@@ -112,7 +112,7 @@ YapA(int i)
 X_API Bool 
 YapIsIntTerm(Term t)
 {
-  return (IsIntTerm(t) || IsLongIntTerm(t));
+  return (IsIntegerTerm(t));
 }
 
 X_API Bool 

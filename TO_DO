@@ -1,16 +1,14 @@
 BEFORE 4.4:
-- mixed constraints and delays.
+- mixed attributes and delays.
 - write infinite terms
 - constraints in DB.
 - fix SBA plus co-routining
 - non-void temporaries going to global
-- interrupt handling in WIN32
 - timestamps on files.
 - warnings in documentation file.
 - system library
 - fix restore when code is moved around.
 - library(system) for WIN32
-- document system(library)
 - document new interface functions.
 - ^C can break code.
 - add more precision when outputting floats.
@@ -26,6 +24,11 @@ TABLING
 - make gc work after mutable var changes.
 - knap-sack
 
+PARALLELISM
+- copying: Fix stack copying after new stack.
+- SBA: fix constraint and unification.
+- IAP.
+
 AFTER 4.4(?)
 - change compilation order for arguments
 - fix code for arithmetic
@@ -35,6 +38,8 @@ AFTER 4.4(?)
 - garbage collector cleans up clauses and logical update DB.
 - atom garbage collector.
 - lpdoc.
+- incremental garbage collector.
+- threads.
 
 DONE:
 - compilation of bignums.
@@ -78,3 +83,5 @@ DONE:
 - deterministic trail entries for multi-assignment variables.
 - weird going ons with prompt and readline
 - check library(random)
+- document system(library)
+- interrupt handling in WIN32

@@ -39,6 +39,7 @@ v/*************************************************************************
 	shell/1,
 	shell/2,
 	sleep/1,
+	system/0,
 	system/1,
 	system/2,
 	time/1,
@@ -218,54 +219,83 @@ working_directory(OLD, NEW) :-
 %
 exec(Command, [StdIn, StdOut, StdErr], PID) :-
 	G = exec(Command, [StdIn, StdOut, StdErr], PID),
-	check_command(Command, G), 
-	process_inp_stream_for_exec(StdIn, In, G),
-	process_out_stream_for_exec(StdOut, Out, G),
-	process_err_stream_for_exec(StdErr, Err, G),
-	( exec_command(Command, In, Out, Err, PID, Error) -> true ; true ),
-	close_temp_streams(StdIn, In, StdOut, Out, StdErr, Err),
+	check_command_with_default_shell(Command, TrueCommand, G), 
+	process_inp_stream_for_exec(StdIn, In, G, [], L1),
+	process_out_stream_for_exec(StdOut, Out, G, L1, L2),
+	process_err_stream_for_exec(StdErr, Err, G, L2, L3),
+	( exec_command(TrueCommand, In, Out, Err, PID, Error) -> true ; true ),
+	close_temp_streams(L3),
 	handle_system_error(Error, off, G).
 
-process_inp_stream_for_exec(Error, _, G) :- var(Error), !,
+process_inp_stream_for_exec(Error, _, G, L, L) :- var(Error), !,
 	throw(error(instantiation_error,G)).
-process_inp_stream_for_exec(null, 0, _) :- !.
-process_inp_stream_for_exec(std, '$stream'(0), _) :- !.
-process_inp_stream_for_exec(pipe(SOut), SInp, _) :- !,
-	open_pipe_streams(SInp, SOut).
-process_inp_stream_for_exec(Stream, Stream, _) :-
+process_inp_stream_for_exec(null, null, _, L, L) :- !.
+process_inp_stream_for_exec(std, 0, _, L, L) :- !.
+process_inp_stream_for_exec(pipe(ForWriting), ForReading, _, L, [ForReading|L]) :- !,
+	open_pipe_streams(ForReading, ForWriting).
+process_inp_stream_for_exec(Stream, Stream, _, L, L) :-
 	stream_property(Stream, input).
 
 
-process_out_stream_for_exec(Error, _, G) :- var(Error), !,
+process_out_stream_for_exec(Error, _, G, L, L) :- var(Error), !,
 	throw(error(instantiation_error,G)).
-process_out_stream_for_exec(null, 0, _) :- !.
-process_out_stream_for_exec(std, '$stream'(1), _) :- !.
-process_out_stream_for_exec(pipe(SInp), SOut, _) :- !,
-	open_pipe_streams(SInp, SOut).
-process_out_stream_for_exec(Stream, Stream, _) :-
+process_out_stream_for_exec(null, null, _, L, L) :- !.
+process_out_stream_for_exec(std, 1, _, L, L) :- !.
+process_out_stream_for_exec(pipe(ForReading), ForWriting, _, L, [ForWriting|L]) :- !,
+	open_pipe_streams(ForReading, ForWriting).
+process_out_stream_for_exec(Stream, Stream, _, L, L) :-
 	stream_property(Stream, output).
 
-process_err_stream_for_exec(Error, _, G) :- var(Error), !,
+process_err_stream_for_exec(Error, _, G, L, L) :- var(Error), !,
 	throw(error(instantiation_error,G)).
-process_err_stream_for_exec(null, 0, _) :- !.
-process_err_stream_for_exec(std, '$stream'(2), _) :- !.
-process_err_stream_for_exec(pipe(SInp), SOut, _) :- !,
-	open_pipe_streams(SInp, SOut).
-process_err_stream_for_exec(Stream, Stream, _) :-
+process_err_stream_for_exec(null, null, _, L, L) :- !.
+process_err_stream_for_exec(std, 2, _, L, L) :- !.
+process_err_stream_for_exec(pipe(ForReading), ForWriting, _, L, [ForWriting|L]) :- !,
+	open_pipe_streams(ForReading, ForWriting).
+process_err_stream_for_exec(Stream, Stream, _, L, L) :-
 	stream_property(Stream, output).
 
-close_temp_streams(pipe(_), S, _, _, _, _) :- close(S), fail.
-close_temp_streams(_, _, pipe(_), S, _, _) :- close(S), fail.
-close_temp_streams(_, _, _, _, pipe(_), S) :- close(S), fail.
-close_temp_streams(_, _, _, _, _, _).
+close_temp_streams([]).
+close_temp_streams([S|Ss]) :- close(S),
+	close_temp_streams(Ss).
 
 
 popen(Command, Mode, Stream) :-
 	G = popen(Command, Mode, Stream),
-	check_command(Command, G),
+	check_command_with_default_shell(Command, TrueCommand, G),
 	check_mode(Mode, M, G),
-	popen(Command, M, Stream, Result),
+	do_popen(TrueCommand, M, Stream, Result),
 	handle_system_error(Result, off, G).
+
+do_popen(Command, M, Stream, Result) :- win, !,
+	win_popen(M, Command, Stream, Result).
+do_popen(Command, M, Stream, Result) :-
+	popen(Command, M, Stream, Result).
+
+win_popen(0, Command, ForReading, Result) :-
+	open_pipe_streams(ForReading, ForWriting),
+	exec_command(Command, 0, ForWriting, 2, _, Result),
+	close(ForWriting).
+win_popen(1, Command, ForWriting, Result) :-
+	open_pipe_streams(Stream, ForWriting),
+	exec_command(Command, ForReading, 1, 2, _, Result),
+	close(ForReading).
+	
+check_command_with_default_shell(Com, ComF, G) :-
+	check_command(Com, G),
+	os_command_postprocess(Com, ComF).
+
+%
+% make sure that Windows executes the command from $COMSPEC.
+%
+os_command_postprocess(Com, ComF) :- win, !,
+	atom_codes(Com, SC),
+	append(" /c ", SC, SC1),
+	getenv('COMSPEC', Shell0),
+	atom_codes(Shell0, Codes),
+	append(Codes, SC1, SCF),
+	atom_codes(ComF, SCF).
+os_command_postprocess(Com, Com).
 
 check_command(Com, G) :- var(Com), !,
 	throw(error(instantiation_error,G)).
@@ -283,7 +313,7 @@ check_mode(Mode, G) :-
 shell :-
 	G = shell,
 	get_shell0(FullCommand),
-	exec_command(FullCommand, '$stream'(0),'$stream'(1), '$stream'(2), PID, Error),
+	exec_command(FullCommand, 0, 1, 2, PID, Error),
 	handle_system_error(Error, off, G),
 	wait(PID, _Status, Error),
 	handle_system_error(Error, off, G).
@@ -295,7 +325,7 @@ shell(Command) :-
 	atom_codes(Command, SC),
 	append(Shell, SC, ShellCommand),
 	atom_codes(FullCommand, ShellCommand),
-	exec_command(FullCommand, '$stream'(0),'$stream'(1), '$stream'(2), PID, Error),
+	exec_command(FullCommand, 0, 1, 2, PID, Error),
 	handle_system_error(Error, off, G),
 	wait(PID, _Status, Error),
 	handle_system_error(Error, off, G).
@@ -307,7 +337,7 @@ shell(Command, Status) :-
 	atom_codes(Command, SC),
 	append(Shell, SC, ShellCommand),
 	atom_codes(FullCommand, ShellCommand),
-	exec_command(FullCommand, '$stream'(0),'$stream'(1), '$stream'(2), PID, Error),
+	exec_command(FullCommand, 0, 1, 2, PID, Error),
 	handle_system_error(Error, off, G),
 	wait(PID, Status,Error),
 	handle_system_error(Error, off, G).
@@ -315,23 +345,36 @@ shell(Command, Status) :-
 get_shell0(Shell) :-
 	getenv('SHELL', Shell), !.
 get_shell0(Shell) :-
-	win,
+	win, !,
 	getenv('COMSPEC', Shell0).
+get_shell0('/bin/sh').
 
 get_shell(Shell) :-
 	getenv('SHELL', Shell0), !,
 	atom_codes(Shell0, Codes),
 	append(Codes," -c ", Shell).
 get_shell(Shell) :-
-	win,
-	getenv('COMPSEC', Shell0),
+	win, !,
+	getenv('COMSPEC', Shell0),
 	atom_codes(Shell0, Codes),
 	append(Codes," /c ", Shell).
+get_shell("/bin/sh -c").
 	   
+system :-
+	default_shell(Command),
+	do_system(Command, _Status, Error),
+	handle_system_error(Error, off, system).
+
+default_shell(Shell) :- win, !,
+	getenv('COMSPEC', Shell).
+default_shell('/bin/sh').
+	
+
 system(Command, Status) :-
 	G = system(Command, Status),
 	check_command(Command, G),
-	do_system(Command, Status).
+	do_system(Command, Status, Error),
+	handle_system_error(Error, off, G).
 
 sleep(Interval) :- var(Interval), !,
 	throw(error(instantiation_error,sleep(Interval))).

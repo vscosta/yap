@@ -361,34 +361,40 @@ p_environ(void)
 }
 
 #if defined(__MINGW32__) || _MSC_VER
-static int
-get_handle(Term ti, int fd, Term tzero)
+static HANDLE
+get_handle(Term ti, DWORD fd)
 {
-  if (ti == tzero) {
-    int new_fd = _dup(fd);
-    _close(fd);
-    return(new_fd);
+  if (IsAtomTerm(ti)) {
+    HANDLE out;
+    SECURITY_ATTRIBUTES satt;
+    
+    satt.nLength = sizeof(satt);
+    satt.lpSecurityDescriptor = NULL;
+    satt.bInheritHandle = TRUE;
+    out = CreateFile("NUL",
+			    GENERIC_READ|GENERIC_WRITE,
+			    FILE_SHARE_READ|FILE_SHARE_WRITE,
+			    &satt,
+			    OPEN_EXISTING,
+			    0,
+			    NULL);
+    return(out);
   } else {
-    int sd = YapStreamToFileNo(ti), new_fd;
-    if (sd == fd)
-      return(-1);
-    new_fd = _dup(fd);
-    _close(fd);
-    _dup2(sd, fd);
-    return(new_fd);
+    if (IsIntTerm(ti)) {
+      return(GetStdHandle(fd));
+    } else
+      return((HANDLE)YapStreamToFileNo(ti));
   }
 }
 
 static void
-restore_descriptor(int fd0, int fd, Term t, Term tzero)
+close_handle(Term ti, HANDLE h)
 {
-  if (fd != -1) {
-    if (t != tzero) {
-      _close(fd0);
-    }
-    _dup2(fd, fd0);
+  if (IsAtomTerm(ti)) {
+    CloseHandle(h);
   }
 }
+
 #endif
 
 /* execute a command as a detached process */
@@ -396,18 +402,29 @@ static int
 execute_command(void)
 {
   Term ti = ARG2, to = ARG3, te = ARG4;
-  Term tzero = MkIntTerm(0);
   int res;
-  int inpf, outf, errf;
 #if defined(__MINGW32__) || _MSC_VER
+  HANDLE inpf, outf, errf;
   DWORD CreationFlags = 0;
   STARTUPINFO StartupInfo;
   PROCESS_INFORMATION ProcessInformation;
-  inpf = get_handle(ti, 0, tzero);
-  outf = get_handle(to, 1, tzero);
-  errf = get_handle(te, 2, tzero);
-  if (inpf == -1 && outf == -1 && errf == -1) {
-    /* we do not keep a curent stream */
+  inpf = get_handle(ti, STD_INPUT_HANDLE);
+  if (inpf == INVALID_HANDLE_VALUE) {
+    return(unify(ARG6, WinError()));
+  }
+  outf = get_handle(to, STD_OUTPUT_HANDLE);
+  if (outf == INVALID_HANDLE_VALUE) {
+    close_handle(ti, inpf);
+    return(unify(ARG6, WinError()));
+  }
+  errf = get_handle(te, STD_OUTPUT_HANDLE);
+  if (errf == INVALID_HANDLE_VALUE) {
+    close_handle(ti, inpf);
+    close_handle(to, outf);
+    return(unify(ARG6, WinError()));
+  }
+  if (!IsIntTerm(ti) && !IsIntTerm(to) && !IsIntTerm(te)) {
+    /* we do not keep a current stream */
     CreationFlags = DETACHED_PROCESS;
   }
   StartupInfo.cb = sizeof(STARTUPINFO);
@@ -417,9 +434,9 @@ execute_command(void)
   StartupInfo.dwFlags = STARTF_USESTDHANDLES;
   StartupInfo.cbReserved2 = 0;
   StartupInfo.lpReserved2 = NULL;
-  StartupInfo.hStdInput = GetStdHandle(STD_INPUT_HANDLE);
-  StartupInfo.hStdOutput = GetStdHandle(STD_OUTPUT_HANDLE);
-  StartupInfo.hStdError = GetStdHandle(STD_ERROR_HANDLE);
+  StartupInfo.hStdInput = inpf;
+  StartupInfo.hStdOutput = outf;
+  StartupInfo.hStdError = errf;
   /* got stdin, stdout and error as I like it */
   if (CreateProcess(NULL,
 		    AtomName(AtomOfTerm(ARG1)),
@@ -431,19 +448,27 @@ execute_command(void)
 		    NULL,
 		    &StartupInfo,
 		    &ProcessInformation) == FALSE) {
+    close_handle(ti, inpf);
+    close_handle(to, outf);
+    close_handle(te, errf);
     return(unify(ARG6, WinError()));
   }
-  restore_descriptor(0, inpf, ti, tzero);
-  restore_descriptor(1, outf, to, tzero);
-  restore_descriptor(2, errf, te, tzero);
+  close_handle(ti, inpf);
+  close_handle(to, outf);
+  close_handle(te, errf);
   res = ProcessInformation.dwProcessId;
   return(unify(ARG5,MkIntTerm(res)));  
 #else /* UNIX CODE */
+  int inpf, outf, errf;
   /* process input first */
-  if (ti == tzero) {
+  if (IsAtomTerm(ti)) {
     inpf = open("/dev/null", O_RDONLY);
   } else {
-    int sd = YapStreamToFileNo(ti);
+    int sd;
+    if (IsIntTerm(ti))
+      sd = 0;
+    else
+      sd = YapStreamToFileNo(ti);
     inpf = dup(sd);
   }
   if (inpf < 0) {
@@ -451,25 +476,36 @@ execute_command(void)
     return(unify(ARG6, MkIntTerm(errno)));
   }
   /* then output stream */
-  if (to == tzero) {
+  if (IsAtomTerm(to)) {
     outf = open("/dev/zero", O_WRONLY);
   } else {
-    int sd = YapStreamToFileNo(to);
+    int sd;
+    if (IsIntTerm(to))
+      sd = 1;
+    else
+      sd = YapStreamToFileNo(to);
     outf = dup(sd);
   }
   if (outf < 0) {
     /* return an error number */
+    close(inpf);
     return(unify(ARG6, MkIntTerm(errno)));
   }
   /* then error stream */
-  if (te == tzero) {
+  if (IsAtomTerm(te)) {
     errf = open("/dev/zero", O_WRONLY);
   } else {
-    int sd = YapStreamToFileNo(te);
+    int sd;
+    if (IsIntTerm(te))
+      sd = 2;
+    else
+      sd = YapStreamToFileNo(te);
     errf = dup(sd);
   }
   if (errf < 0) {
     /* return an error number */
+    close(inpf);
+    close(outf);
     return(unify(ARG6, MkIntTerm(errno)));
   }
   /* we are now ready to fork */
@@ -518,6 +554,9 @@ do_system(void)
   char *command = AtomName(AtomOfTerm(ARG1));
   int sys = system(command);
 #if HAVE_SYSTEM
+  if (sys < 0) {
+    return(unify(ARG3,MkIntTerm(errno)));
+  }
   return(unify(ARG2, MkIntTerm(sys)));
 #endif
 }
@@ -730,7 +769,7 @@ init_sys(void)
   UserCPredicate("dir_separator", dir_separator, 1);
   UserCPredicate("p_environ", p_environ, 2);
   UserCPredicate("exec_command", execute_command, 6);
-  UserCPredicate("do_system", do_system, 2);
+  UserCPredicate("do_system", do_system, 3);
   UserCPredicate("popen", p_popen, 4);
   UserCPredicate("wait", p_wait, 3);
   UserCPredicate("host_name", host_name, 2);

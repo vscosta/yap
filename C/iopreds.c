@@ -106,7 +106,11 @@ typedef struct
 	Int pos;
       } mem_string;
       struct {
+#if defined(__MINGW32__) || _MSC_VER
+	HANDLE hdl;
+#else
 	int fd;
+#endif
       } pipe;
 #if USE_SOCKET
       struct {
@@ -687,7 +691,17 @@ ConsolePipePutc (int sno, int ch)
       ch = '\n';
     }
 #endif
+#if _MSC_VER || defined(__MINGW32__) 
+  {
+    DWORD written;
+    if (WriteFile(s->u.pipe.hdl, &c, sizeof(c), &written, NULL) == FALSE) {
+      PlIOError (SYSTEM_ERROR,TermNil, "write to pipe returned error");
+      return(EOF);
+    }
+  }
+#else
   write(s->u.pipe.fd,  &c, sizeof(c));
+#endif
   count_output_char(ch,s,sno);
   return ((int) ch);
 }
@@ -703,7 +717,17 @@ PipePutc (int sno, int ch)
       ch = '\n';
     }
 #endif
+#if _MSC_VER || defined(__MINGW32__) 
+  {
+    DWORD written;
+    if (WriteFile(s->u.pipe.hdl, &c, sizeof(c), &written, NULL) == FALSE) {
+      PlIOError (SYSTEM_ERROR,TermNil, "write to pipe returned error");
+      return(EOF);
+    }
+  }
+#else
   write(s->u.pipe.fd,  &c, sizeof(c));
+#endif
   console_count_output_char(ch,s,sno);
   return ((int) ch);
 }
@@ -1082,9 +1106,18 @@ PipeGetc(int sno)
   register StreamDesc *s = &Stream[sno];
   register int ch;
   char c;
-  int count;
 	/* should be able to use a buffer */
+#if _MSC_VER || defined(__MINGW32__) 
+  DWORD count;
+  if (WriteFile(s->u.pipe.hdl, &c, sizeof(c), &count, NULL) == FALSE) {
+    PlIOError (SYSTEM_ERROR,TermNil, "read from pipe returned error");
+    return(EOF);
+  }
+#else
+  int count;
   count = read(s->u.pipe.fd, &c, sizeof(char));
+#endif
+  printf("reading from pipe %c\n", c);
   if (count == 0) {
     ch = EOF;
   } else if (count > 0) {
@@ -1106,7 +1139,11 @@ ConsolePipeGetc(int sno)
   register StreamDesc *s = &Stream[sno];
   register int ch;
   char c;
+#if _MSC_VER || defined(__MINGW32__) 
+  DWORD count;
+#else
   int count;
+#endif
 
   /* send the prompt away */
   if (newline) {
@@ -1118,8 +1155,15 @@ ConsolePipeGetc(int sno)
     strncpy(Prompt, RepAtom (*AtPrompt)->StrOfAE, MAX_PROMPT);
     newline = FALSE;
   }
+#if _MSC_VER || defined(__MINGW32__) 
+  if (WriteFile(s->u.pipe.hdl, &c, sizeof(c), &count, NULL) == FALSE) {
+    PlIOError (SYSTEM_ERROR,TermNil, "read from pipe returned error");
+    return(EOF);
+  }
+#else
   /* should be able to use a buffer */
   count = read(s->u.pipe.fd, &c, sizeof(char));
+#endif
   if (count == 0) {
     ch = EOF;
   } else if (count > 0) {
@@ -1323,7 +1367,11 @@ GetStreamFd(int sno)
   } else
 #endif
   if (Stream[sno].status & Pipe_Stream_f) {
+#if _MSC_VER || defined(__MINGW32__) 
+    return((int)(Stream[sno].u.pipe.hdl));
+#else
     return(Stream[sno].u.pipe.fd);
+#endif
   } else if (Stream[sno].status & InMemory_Stream_f) {
     return(-1);
   }
@@ -1762,16 +1810,25 @@ p_open_pipe_stream (void)
   Term t1, t2;
   StreamDesc *st;
   int sno;
-  int filedes[2];
-
 #if  _MSC_VER || defined(__MINGW32__) 
-  if (_pipe(filedes, 256, O_TEXT) == -1)
-#else
-  if (pipe(filedes) != 0)
-#endif
+  HANDLE ReadPipe, WritePipe;
+  SECURITY_ATTRIBUTES satt;
+
+  satt.nLength = sizeof(satt);
+  satt.lpSecurityDescriptor = NULL;
+  satt.bInheritHandle = TRUE;
+  if (!CreatePipe(&ReadPipe, &WritePipe, &satt, 0))
     {
       return (PlIOError (SYSTEM_ERROR,TermNil, "open_pipe_stream/2 could not create pipe"));
     }
+#else
+  int filedes[2];
+
+  if (pipe(filedes) != 0)
+    {
+      return (PlIOError (SYSTEM_ERROR,TermNil, "open_pipe_stream/2 could not create pipe"));
+    }
+#endif
   for (sno = 0; sno < MaxStreams; ++sno)
     if (Stream[sno].status & Free_Stream_f)
       break;
@@ -1784,8 +1841,15 @@ p_open_pipe_stream (void)
   st->linecount = 1;
   st->stream_putc = PipePutc;
   st->stream_getc = PipeGetc;
-  st->stream_getc_for_read = PipeGetc;
+  if (CharConversionTable != NULL)
+    st->stream_getc_for_read = ISOGetc;
+  else
+    st->stream_getc_for_read = PipeGetc;
+#if  _MSC_VER || defined(__MINGW32__) 
+  st->u.pipe.hdl = ReadPipe;
+#else
   st->u.pipe.fd = filedes[0];
+#endif
   t1 = MkStream (sno);
   for (; sno < MaxStreams; ++sno)
     if (Stream[sno].status & Free_Stream_f)
@@ -1803,7 +1867,11 @@ p_open_pipe_stream (void)
     st->stream_getc_for_read = ISOGetc;
   else
     st->stream_getc_for_read = st->stream_getc; 
+#if  _MSC_VER || defined(__MINGW32__) 
+  st->u.pipe.hdl = WritePipe;
+#else
   st->u.pipe.fd = filedes[1];
+#endif
   t2 = MkStream (sno);
   return (unify (ARG1, t1) && unify (ARG2, t2));
 }
@@ -2234,8 +2302,13 @@ CloseStreams (int loud)
       continue;
     if ((Stream[sno].status & Popen_Stream_f))
       pclose (Stream[sno].u.file.file);
-    if ((Stream[sno].status & (Pipe_Stream_f|Socket_Stream_f)))
+#if _MSC_VER || defined(__MINGW32__) 
+    if (Stream[sno].status & Pipe_Stream_f)
+      CloseHandle (Stream[sno].u.pipe.hdl);
+#else
+    if (Stream[sno].status & (Pipe_Stream_f|Socket_Stream_f))
       close (Stream[sno].u.pipe.fd);
+#endif
 #if USE_SOCKET
     else if (Stream[sno].status & (Socket_Stream_f)) {
       CloseSocket(Stream[sno].u.socket.fd,
@@ -2274,8 +2347,12 @@ CloseStream(int sno)
 		Stream[sno].u.socket.domain);
   }
 #endif
-  else if (Stream[sno].status & (Pipe_Stream_f)) {
+  else if (Stream[sno].status & Pipe_Stream_f) {
+#if _MSC_VER || defined(__MINGW32__) 
+    CloseHandle (Stream[sno].u.pipe.hdl);
+#else
     close(Stream[sno].u.pipe.fd);
+#endif
   }
   else if (Stream[sno].status & (InMemory_Stream_f)) {
     FreeAtomSpace(Stream[sno].u.mem_string.buf);
@@ -4612,7 +4689,11 @@ StreamToFileNo(Term t)
   int sno  =
     CheckStream(t, (Input_Stream_f|Output_Stream_f), "StreamToFileNo");
   if (Stream[sno].status & Pipe_Stream_f) {
+#if _MSC_VER || defined(__MINGW32__) 
+    return((int)(Stream[sno].u.pipe.hdl));
+#else
     return(Stream[sno].u.pipe.fd);
+#endif
   } else if (Stream[sno].status & Socket_Stream_f) {
     return(Stream[sno].u.socket.fd);
   } else if (Stream[sno].status & (Null_Stream_f|InMemory_Stream_f)) {
