@@ -2,10 +2,10 @@ BEFORE 4.4:
 - mixed attributes and delays.
 - write infinite terms
 - constraints in DB.
-- non-void temporaries going to global
 - fix restore when code is moved around.
 - document new interface functions.
 - mask when installing.
+- Yap core dumps under simple configure/make in WIN32
 
 TO CHECK:
 - bad register allocation for a(X,Y) :- X is Y+2.3 ?
@@ -13,6 +13,7 @@ TO CHECK:
 TABLING
 - pass all tabling tests from Kostis and Bart paper
 - handle floats, long ints and friends in tables.
+- backtracking over mutable and tabling does not work (ai_tests).
 
 PARALLELISM
 - copying: Fix stack copying after new stack.
@@ -20,6 +21,7 @@ PARALLELISM
 - IAP.
 
 AFTER 4.4(?)
+- improve debugger functionality
 - change compilation order for arguments
 - fix code for arithmetic
 - large memory configurations on 32 bit machines (3GB).
@@ -81,7 +83,8 @@ DONE:
 - timestamps on files.
 - add more precision when outputting floats.
 - make statistics/0 better looking.
+- fix Yap under Emacs/WIN32
+- warnings in documentation file.
+- make gc work after mutable var changes (done)
+- knap-sack (done)
 
-TO DO (tabling)
-- make gc work after mutable var changes.
-- knap-sack

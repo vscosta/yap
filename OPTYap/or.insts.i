@@ -57,7 +57,6 @@
     LOCK_OR_FRAME(LOCAL_top_or_fr);
     if (OrFr_alternative(LOCAL_top_or_fr)) {
       PREG = OrFr_alternative(LOCAL_top_or_fr);
-      UNLOCK_OR_FRAME(LOCAL_top_or_fr);
       PREFETCH_OP(PREG);
       GONext();
     } else {
@@ -75,7 +74,6 @@
     if (OrFr_alternative(LOCAL_top_or_fr) &&
         BITMAP_alone(OrFr_members(LOCAL_top_or_fr), worker_id)) {
       PREG = OrFr_alternative(LOCAL_top_or_fr);
-      UNLOCK_OR_FRAME(LOCAL_top_or_fr);
       PREFETCH_OP(PREG);
       GONext();
     } else {
