@@ -1457,7 +1457,7 @@ rehash(CELL *oldcode, int NOfE, int KindOfEntries)
       if (!growtrail((ADDR)(basep + (NOfE*2))-TrailTop)) {
 	Error(SYSTEM_ERROR, TermNil,
 	      "not enough space to restore hash tables for indexing");
-	exit_yap(1, "");
+	exit_yap(1);
       }
     }
   }

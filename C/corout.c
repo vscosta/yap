@@ -857,8 +857,8 @@ static int can_unify_complex(register CELL *pt0,
 	    case (CELL)FunctorBigInt:
 	      if (mpz_cmp(BigIntOfTerm(d0),BigIntOfTerm(d1)) == 0) continue;
 	      goto comparison_failed;
-	    default:
 #endif /* USE_GMP */
+	    default:
 	      goto comparison_failed;
 	    }
 	  }
@@ -994,8 +994,8 @@ can_unify(Term t1, Term t2, Term *Vars)
       case (CELL)FunctorBigInt:
 	if (mpz_cmp(BigIntOfTerm(t1),BigIntOfTerm(t2)) == 0) return(TRUE);
 	return(FALSE);
-      default:
 #endif /* USE_GMP */
+      default:
 	return(FALSE);
       }
     }

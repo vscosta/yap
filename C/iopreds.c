@@ -2479,7 +2479,7 @@ p_peek_mem_write_stream (void)
   while (i > 0) {
     --i;
     tf = MkPairTerm(MkIntTerm(Stream[sno].u.mem_string.buf[i]),tf);
-    while (H + 1024 >= ASP) {
+    if (H + 1024 >= ASP) {
       H = HI;
       if (!gc(3, ENV, P)) {
 	Error(SYSTEM_ERROR, TermNil, "YAP could not grow stack in peek_mem_write_stream/2");

@@ -1260,38 +1260,31 @@ replace_array_references(Term t0)
   Term t;
 
   t = Deref(t0);
-  do {
-    if (IsVarTerm(t)) {
-      /* we found a variable */
-      return (MkPairTerm(t, TermNil));
-    }
-    else if (IsAtomOrIntTerm(t)) {
-      return (MkPairTerm(t, TermNil));
-    }
-    else if (IsPairTerm(t)) {
-      Term VList = MkVarTerm();
-      CELL *h0 = H;
+  if (IsVarTerm(t)) {
+    /* we found a variable */
+    return (MkPairTerm(t, TermNil));
+  } else if (IsAtomOrIntTerm(t)) {
+    return (MkPairTerm(t, TermNil));
+  } else if (IsPairTerm(t)) {
+    Term VList = MkVarTerm();
+    CELL *h0 = H;
 
-      H += 2;
-      replace_array_references_complex(RepPair(t) - 1, RepPair(t) + 1, h0,
-				       VList);
-      return (MkPairTerm(AbsPair(h0), VList));
-    }
-    else {
-      Term VList = MkVarTerm();
-      CELL *h0 = H;
-      Functor f = FunctorOfTerm(t);
+    H += 2;
+    replace_array_references_complex(RepPair(t) - 1, RepPair(t) + 1, h0,
+				     VList);
+    return (MkPairTerm(AbsPair(h0), VList));
+  } else {
+    Term VList = MkVarTerm();
+    CELL *h0 = H;
+    Functor f = FunctorOfTerm(t);
 
-      *H++ = (CELL) (f);
-      H += ArityOfFunctor(f);
-      replace_array_references_complex(RepAppl(t),
-		      RepAppl(t) + ArityOfFunctor(FunctorOfTerm(t)), h0 + 1,
-				       VList);
-      return (MkPairTerm(AbsAppl(h0), VList));
-    }
-  } while (TRUE);
-  /* make lcc happy */
-  return(FALSE);
+    *H++ = (CELL) (f);
+    H += ArityOfFunctor(f);
+    replace_array_references_complex(RepAppl(t),
+				     RepAppl(t) + ArityOfFunctor(FunctorOfTerm(t)), h0 + 1,
+				     VList);
+    return (MkPairTerm(AbsAppl(h0), VList));
+  }
 }
 
 static Int 

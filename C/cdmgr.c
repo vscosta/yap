@@ -2098,7 +2098,7 @@ p_system_pred(void)
     if (IsExtensionFunctor(funt)) {
       return(FALSE);
     } 
-    while (funt == FunctorModule) {
+    if (funt == FunctorModule) {
       Term nmod = ArgOfTerm(1, t1);
       if (IsVarTerm(nmod)) {
 	Error(INSTANTIATION_ERROR,ARG1,"system_predicate/1");
@@ -2135,7 +2135,7 @@ p_cut_transparent(void)
     if (IsExtensionFunctor(funt)) {
       return(FALSE);
     } 
-    while (funt == FunctorModule) {
+    if (funt == FunctorModule) {
       Term nmod = ArgOfTerm(1, t1);
       if (IsVarTerm(nmod)) {
 	Error(INSTANTIATION_ERROR,ARG1,"system_predicate/1");

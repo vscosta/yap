@@ -2038,7 +2038,8 @@ GetDBTerm(DBRef DBSP)
     if (H+NOf > ASP-CalculateStackGap()) {
       if (PrologMode & InErrorMode) {
 	if (H+NOf > ASP)
-	  exit_yap( 1, "No Stack for Error Handling\n");
+	  YP_fprintf(YP_stderr, "\n\n [ FATAL ERROR: No Stack for Error Handling ]\n");
+	  exit_yap( 1);
       } else {
 	return((Term)0);
       }

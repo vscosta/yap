@@ -88,7 +88,7 @@ STATIC_PROTO(void a_gl, (op_numbers));
 STATIC_PROTO(void a_bfunc, (CELL));
 STATIC_PROTO(AREG compile_cmp_flags, (char *));
 STATIC_PROTO(void a_igl, (op_numbers));
-STATIC_PROTO(void a_ucons, (op_numbers));
+STATIC_PROTO(void a_ucons, (compiler_vm_op));
 STATIC_PROTO(void a_uvar, (void));
 STATIC_PROTO(void a_wvar, (void));
 STATIC_PROTO(void do_pass, (void));
@@ -1223,7 +1223,7 @@ a_gl(op_numbers opcode)
  * the head of the first argument, because of indexing 
  */
 static void
-a_ucons(op_numbers opcode)
+a_ucons(compiler_vm_op opcode)
 {
 #if AGGREGATE_OPS
   PInstr *np = cpc->nextInst;

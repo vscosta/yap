@@ -537,7 +537,7 @@ p_exit()
   register Term   t = Deref(ARG1);
   if (IsVarTerm(t) || !IsIntTerm(t))
     return (FALSE);
-  exit_yap((int) IntOfTerm(t), NIL);
+  exit_yap((int) IntOfTerm(t));
   return(FALSE);
 }
 

@@ -1090,7 +1090,7 @@ InteractSIGINT(int ch) {
     return(1);
   case 'e':
     /* exit */
-    exit_yap(0, "");
+    exit_yap(0);
     return(-1);
   case 't':
     /* start tracing */
@@ -1296,7 +1296,8 @@ ReceiveSignal (int s)
       /* These signals are not handled by WIN32 and not the Macintosh */
     case SIGQUIT:
     case SIGKILL:
-      exit_yap (SIGKILL, "\n\n\n[ Quit signal received ]\n\n");
+      YP_fprintf(YP_stderr, "\n\n\n[ Quit signal received ]\n\n");
+      exit_yap (SIGKILL);
 #endif
 #if defined(SIGUSR1)
     case SIGUSR1:
@@ -2179,6 +2180,8 @@ VaxFixFrame (dummy)
 
 
 #ifdef _WIN32
+
+#include <windows.h>
 
 int WINAPI STD_PROTO(win_yap, (HANDLE, DWORD, LPVOID));
 

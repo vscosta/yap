@@ -12,7 +12,7 @@
 * Last rev:								 *
 * mods:									 *
 * comments:	allocating space					 *
-* version:$Id: alloc.c,v 1.12 2002-01-26 05:37:31 vsc Exp $		 *
+* version:$Id: alloc.c,v 1.13 2002-02-22 06:12:18 vsc Exp $		 *
 *************************************************************************/
 #ifdef SCCS
 static char SccsId[] = "%W% %G%";
@@ -451,12 +451,14 @@ InitWorkSpace(Int s)
 	   MAP_PRIVATE | MAP_ANONYMOUS | MAP_FIXED, -1, 0);
   if (a != (MALLOC_T)MMAP_ADDR) {
     Error(SYSTEM_ERROR, TermNil, "mmap could not map ANON at %p, got %p", (void *)MMAP_ADDR, a);
+    return(NULL);
   }
 #elif defined(__APPLE__)
   a = mmap(((void *)MMAP_ADDR), (size_t) s, PROT_READ | PROT_WRITE | PROT_EXEC,
 	   MAP_PRIVATE | MAP_ANON | MAP_FIXED, -1, 0);
   if (a != (MALLOC_T)MMAP_ADDR) {
     Error(SYSTEM_ERROR, TermNil, "mmap could not map ANON at %p, got %p", (void *)MMAP_ADDR,a );
+    return(NULL);
   }
 #else
   fd = open("/dev/zero", O_RDWR);
@@ -470,7 +472,7 @@ InitWorkSpace(Int s)
 #else
       Error(SYSTEM_ERROR, TermNil, "mkstemp could not create temporary file %s", file);
 #endif
-      return FALSE;
+      return NULL;
     }
 #else
 #if HAVE_TMPNAM
@@ -484,7 +486,7 @@ InitWorkSpace(Int s)
     fd = open(file, O_CREAT|O_RDWR);
     if (fd < 0) {
       Error(SYSTEM_ERROR, TermNil, "mmap could not open %s", file);
-      return FALSE;
+      return NULL;
     }
     if (lseek(fd, s, SEEK_SET) < 0) {
       Error(SYSTEM_ERROR, TermNil, "mmap could not lseek in mmapped file %s", file);
@@ -492,11 +494,11 @@ InitWorkSpace(Int s)
     }
     if (write(fd, "", 1) < 0) {
       Error(SYSTEM_ERROR, TermNil, "mmap could not write in mmapped file %s", file);
-      return FALSE;
+      return NULL;
     }
     if (unlink(file) < 0) {
       Error(SYSTEM_ERROR,TermNil, "mmap could not unlink mmapped file %s", file);
-      return FALSE;
+      return NULL;
     }
   }
 #if USE_FIXED
@@ -504,17 +506,19 @@ InitWorkSpace(Int s)
 	   MAP_PRIVATE | MAP_FIXED, fd, 0);
   if (a != (MALLOC_T)MMAP_ADDR) {
     Error(SYSTEM_ERROR, TermNil, "mmap could not map at %p, got %p", (void *)MMAP_ADDR, a);
+    return NULL;
   }
 #else
   a = mmap(0, (size_t) s, PROT_READ | PROT_WRITE | PROT_EXEC,
 	   MAP_PRIVATE, fd, 0);
   if ((CELL)a & YAP_PROTECTED_MASK) {
     close(fd);
-    Error(FATAL_ERROR, TermNil, "mmapped address %p collides with YAP tags ***", a);
+    Error(FATAL_ERROR, TermNil, "mmapped address %p collides with YAP tags", a);
+    return NULL;
   }
   if (close(fd) == -1) {
-    Error(SYSTEM_ERROR, TermNil, "while closing mmaped file ***");
-    return FALSE;
+    Error(SYSTEM_ERROR, TermNil, "while closing mmaped file");
+    return NULL;
   }
 #endif
 #endif

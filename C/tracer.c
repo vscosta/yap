@@ -112,7 +112,7 @@ low_level_trace(yap_low_level_port port, PredEntry *pred, CELL *args)
   /*  extern int gc_calls; */
 
   vsc_count++;
-  if (vsc_count < 6000) return;
+  /*  if (vsc_count < 6000) return;*/
   /* if (vsc_count == 6469) {
      printf("Here I go\n");
      }
@@ -120,7 +120,7 @@ low_level_trace(yap_low_level_port port, PredEntry *pred, CELL *args)
   /* if (vsc_count > 500000) exit(0); */
   /* if (gc_calls < 1) return;*/
 #if defined(__GNUC__)
-  YP_fprintf(YP_stderr,"%llu (%p,%p: %x %x %x) ", vsc_count, H, ENV, *(CELL *)0x910e088, *(CELL *)0x910e024, *(CELL *)0x910d658);
+  YP_fprintf(YP_stderr,"%llu ", vsc_count);
 #endif
   /* check_trail_consistency(); */
   if (pred == NULL) {

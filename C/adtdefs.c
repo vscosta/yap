@@ -21,6 +21,10 @@ static char SccsId[] = "%W% %G%";
 
 #define ADTDEFS_C
 
+#ifdef __SUNPRO_CC
+#define inline
+#endif
+
 #include "Yap.h"
 Prop	STD_PROTO(PredPropByFunc,(Functor, SMALLUNSGN));
 Prop	STD_PROTO(PredPropByAtom,(Atom, SMALLUNSGN));

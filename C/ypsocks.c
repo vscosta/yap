@@ -39,16 +39,9 @@
 #if HAVE_IO_H
 #include <io.h>
 #endif
-#if HAVE_WINSOCK2_H
+#if _MSC_VER || defined(__MINGW32__)
+#include <io.h>
 #include <winsock2.h>
-#ifdef HAVE_SYS_UN_H
-#undef HAVE_SYS_UN_H
-#endif
-#elif HAVE_WINSOCK_H
-#include <winsock.h>
-#ifdef HAVE_SYS_UN_H
-#undef HAVE_SYS_UN_H
-#endif
 #else
 #if HAVE_SYS_SOCKET_H
 #include <sys/socket.h>
@@ -77,10 +70,6 @@
 #if HAVE_SYS_PARAM_H
 #include <sys/param.h>
 #endif
-#endif /* HAVE_WINSOCK_H */
-#if _MSC_VER || defined(__MINGW32__)
-#include <io.h>
-#include <winsock2.h>
 #endif
 
 /* make sure we can compile in any platform */
@@ -882,6 +871,7 @@ p_socket_accept(void)
       Error(SYSTEM_ERROR, TermNil,
 	    "socket_accept/3 (accept)");
 #endif
+      return(FALSE);
     }
     if ((s = inet_ntoa(caddr.sin_addr)) == NULL) {
 #if HAVE_STRERROR
@@ -944,15 +934,18 @@ p_socket_buffering(void)
     return(FALSE);
   if (IsVarTerm(t4)) {
     bufsize = BUFSIZ;
-  }
-  if (!IsIntegerTerm(t4)) {
-    Error(TYPE_ERROR_INTEGER,t4,"socket_buffering/4");
-    return(FALSE);
-  }
-  bufsize = IntegerOfTerm(t4);
-  if ((Int)bufsize < 0) {
-    Error(DOMAIN_ERROR_NOT_LESS_THAN_ZERO,t4,"socket_buffering/4");
-    return(FALSE);
+  } else {
+    Int siz;
+    if (!IsIntegerTerm(t4)) {
+      Error(TYPE_ERROR_INTEGER,t4,"socket_buffering/4");
+      return(FALSE);
+    }
+    siz = IntegerOfTerm(t4);
+    if (siz < 0) {
+      Error(DOMAIN_ERROR_NOT_LESS_THAN_ZERO,t4,"socket_buffering/4");
+      return(FALSE);
+    }
+    bufsize = siz; 
   }
   if (writing) {
     setsockopt(fd, SOL_SOCKET, SO_SNDBUF, &bufsize, sizeof(bufsize));

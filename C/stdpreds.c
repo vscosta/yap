@@ -653,7 +653,7 @@ p_atom_concat(void)
     if (cptr+sz >= top-1024) {
       ReleasePreAllocCodeSpace((ADDR)cpt0);
       if (!growheap(FALSE)) {
-	Error(SYSTEM_ERROR, TermNil, "YAP could not grow heap in recorda/3 ]\n");
+	Error(SYSTEM_ERROR, TermNil, "YAP could not grow heap in atom_concat/2 ]\n");
 	return(FALSE);
       }
       goto restart;
@@ -1250,9 +1250,10 @@ p_halt(void)
   }
   out = IntegerOfTerm(t);
   if (yap_flags[HALT_AFTER_CONSULT_FLAG]) {
-    exit_yap(out, "");
+    exit_yap(out);
   } else {
-    exit_yap(out, "\n\n[ Prolog execution halted ]\n");
+    YP_fprintf(YP_stderr, "\n\n[ Prolog execution halted ]\n");
+    exit_yap(out);
   }
   return (TRUE);
 }
@@ -1262,9 +1263,10 @@ static Int
 p_halt0(void)
 {				/* halt				 */
   if (yap_flags[HALT_AFTER_CONSULT_FLAG]) {
-    exit_yap(0, "");
+    exit_yap(0);
   } else {
-    exit_yap(0, "\n\n[ Prolog execution halted ]\n");
+    YP_fprintf(YP_stderr, "\n\n[ Prolog execution halted ]\n");
+    exit_yap(0);
   }
   return (TRUE);
 }

@@ -774,7 +774,7 @@ YapReset(void)
 X_API void
 YapExit(int retval)
 {
-  exit_yap(retval, NULL);
+  exit_yap(retval);
 }
 
 X_API void
