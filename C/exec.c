@@ -674,7 +674,7 @@ p_execute_7(void)
   ARG5 = ARG6;
   ARG6 = ARG7;
   ARG7 = ARG8;
-  pe = PredPropByFunc(MkFunctor(a, 6),mod);
+  pe = PredPropByFunc(MkFunctor(a, 7),mod);
   return (CallPredicate(RepPredProp(pe), B));
 }
 
