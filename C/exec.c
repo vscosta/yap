@@ -1272,17 +1272,17 @@ InitExecFs(void)
   InitCPred("$execute_within", 1, p_execute_within2, 0);
   InitCPred("$last_execute_within", 1, p_execute_within2, 0);
   InitCPred("$execute", 3, p_at_execute, 0);
-  InitCPred("$call_with_args", 1, p_execute_0, 0);
-  InitCPred("$call_with_args", 2, p_execute_1, 0);
-  InitCPred("$call_with_args", 3, p_execute_2, 0);
-  InitCPred("$call_with_args", 4, p_execute_3, 0);
-  InitCPred("$call_with_args", 5, p_execute_4, 0);
-  InitCPred("$call_with_args", 6, p_execute_5, 0);
-  InitCPred("$call_with_args", 7, p_execute_6, 0);
-  InitCPred("$call_with_args", 8, p_execute_7, 0);
-  InitCPred("$call_with_args", 9, p_execute_8, 0);
-  InitCPred("$call_with_args", 10, p_execute_9, 0);
-  InitCPred("$call_with_args", 11, p_execute_10, 0);
+  InitCPred("$call_with_args", 2, p_execute_0, 0);
+  InitCPred("$call_with_args", 3, p_execute_1, 0);
+  InitCPred("$call_with_args", 4, p_execute_2, 0);
+  InitCPred("$call_with_args", 5, p_execute_3, 0);
+  InitCPred("$call_with_args", 6, p_execute_4, 0);
+  InitCPred("$call_with_args", 7, p_execute_5, 0);
+  InitCPred("$call_with_args", 8, p_execute_6, 0);
+  InitCPred("$call_with_args", 9, p_execute_7, 0);
+  InitCPred("$call_with_args", 10, p_execute_8, 0);
+  InitCPred("$call_with_args", 11, p_execute_9, 0);
+  InitCPred("$call_with_args", 12, p_execute_10, 0);
 #ifdef DEPTH_LIMIT
   InitCPred("$execute_under_depth_limit", 2, p_execute_depth_limit, 0);
 #endif
