@@ -210,7 +210,7 @@ delete_regcopy(wamreg regs[MAX_REG_COPIES], int regs_count, wamreg copy)
     }
     i++;
   }
-  /* this copy had overflowed */
+  /* this copy had overflowed, or it just was not there */
   return regs_count;
 }
 
@@ -1083,18 +1083,20 @@ add_info(ClauseDef *clause, UInt regno)
       break;
     case _put_y_val:
     case _put_unsafe:
-      if (regcopy_in(myregs, nofregs, cl->u.yx.x)) {
-	ycopy = cl->u.yx.y;
+      if (ycopy == cl->u.yx.y) {
+	nofregs = add_regcopy(myregs, nofregs, cl->u.yx.x);
+      } else {
+	nofregs = delete_regcopy(myregs, nofregs, cl->u.yx.x);
       }
       cl = NEXTOP(cl,yx);
       break;      
     case _get_y_val:
-      if (regcopy_in(myregs, nofregs, cl->u.xy.x)) {
+      if (regcopy_in(myregs, nofregs, cl->u.yx.x)) {
 	ycopy = cl->u.yx.y;
       } else if (ycopy == cl->u.yx.y) {
-	nofregs = add_regcopy(myregs, nofregs, cl->u.xy.x);
+	nofregs = add_regcopy(myregs, nofregs, cl->u.yx.x);
       }
-      cl = NEXTOP(cl,xy);
+      cl = NEXTOP(cl,yx);
       break;
     case _get_atom:
       if (regcopy_in(myregs, nofregs, cl->u.xc.x)) {
