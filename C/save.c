@@ -1501,8 +1501,8 @@ p_restore(void)
 void 
 Yap_InitSavePreds(void)
 {
-  Yap_InitCPred("$save", 1, p_save, SafePredFlag|SyncPredFlag);
-  Yap_InitCPred("$save", 2, p_save2, SafePredFlag|SyncPredFlag);
-  Yap_InitCPred("$save_program", 1, p_save_program, SafePredFlag|SyncPredFlag);
-  Yap_InitCPred("$restore", 1, p_restore, SyncPredFlag);
+  Yap_InitCPred("$save", 1, p_save, SafePredFlag|SyncPredFlag|HiddenPredFlag);
+  Yap_InitCPred("$save", 2, p_save2, SafePredFlag|SyncPredFlag|HiddenPredFlag);
+  Yap_InitCPred("$save_program", 1, p_save_program, SafePredFlag|SyncPredFlag|HiddenPredFlag);
+  Yap_InitCPred("$restore", 1, p_restore, SyncPredFlag|HiddenPredFlag);
 }

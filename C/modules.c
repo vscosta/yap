@@ -150,11 +150,11 @@ init_current_module(void)
 void 
 Yap_InitModulesC(void)
 {
-  Yap_InitCPred("$current_module", 2, p_current_module, SafePredFlag|SyncPredFlag);
-  Yap_InitCPred("$current_module", 1, p_current_module1, SafePredFlag|SyncPredFlag);
-  Yap_InitCPred("$change_module", 1, p_change_module, SafePredFlag|SyncPredFlag);
+  Yap_InitCPred("$current_module", 2, p_current_module, SafePredFlag|SyncPredFlag|HiddenPredFlag);
+  Yap_InitCPred("$current_module", 1, p_current_module1, SafePredFlag|SyncPredFlag|HiddenPredFlag);
+  Yap_InitCPred("$change_module", 1, p_change_module, SafePredFlag|SyncPredFlag|HiddenPredFlag);
   Yap_InitCPredBack("$all_current_modules", 1, 1, init_current_module, cont_current_module,
-		SafePredFlag|SyncPredFlag);
+		SafePredFlag|SyncPredFlag|HiddenPredFlag);
 }
 
 

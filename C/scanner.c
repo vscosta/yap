@@ -568,7 +568,7 @@ Yap_scan_num(int (*Nxtch) (int))
       out = MkFloatTerm(-FloatOfTerm(out));
   }
   if (Yap_ErrorMessage != NULL || ch != -1 || cherr)
-    return(TermNil);
+    return TermNil;
   return(out);
 }
 

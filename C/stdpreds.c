@@ -11,8 +11,11 @@
 * File:		stdpreds.c						 *
 * comments:	General-purpose C implemented system predicates		 *
 *									 *
-* Last rev:     $Date: 2004-07-23 21:08:44 $,$Author: vsc $						 *
+* Last rev:     $Date: 2004-11-18 22:32:37 $,$Author: vsc $						 *
 * $Log: not supported by cvs2svn $
+* Revision 1.71  2004/07/23 21:08:44  vsc
+* windows fixes
+*
 * Revision 1.70  2004/06/29 19:04:42  vsc
 * fix multithreaded version
 * include new version of Ricardo's profiler
@@ -2622,12 +2625,6 @@ p_access_yap_flags(void)
   return(Yap_unify(ARG2, tout));
 }
 
-static Int
-p_host_type(void)
-{
-  return(Yap_unify(ARG1,MkAtomTerm(Yap_LookupAtom(HOST_ALIAS))));
-}
-
 static Int 
 p_has_yap_or(void)
 {
@@ -2795,11 +2792,11 @@ void
 Yap_InitBackCPreds(void)
 {
   Yap_InitCPredBack("$current_atom", 1, 2, init_current_atom, cont_current_atom,
-		SafePredFlag|SyncPredFlag);
+		SafePredFlag|SyncPredFlag|HiddenPredFlag);
   Yap_InitCPredBack("$current_predicate", 3, 1, init_current_predicate, cont_current_predicate,
-		SafePredFlag|SyncPredFlag);
+		SafePredFlag|SyncPredFlag|HiddenPredFlag);
   Yap_InitCPredBack("$current_predicate_for_atom", 3, 1, init_current_predicate_for_atom, cont_current_predicate_for_atom,
-		SafePredFlag|SyncPredFlag);
+		SafePredFlag|SyncPredFlag|HiddenPredFlag);
   Yap_InitCPredBack("current_op", 3, 3, init_current_op, cont_current_op,
 		SafePredFlag|SyncPredFlag);
   Yap_InitBackIO();
@@ -2817,54 +2814,53 @@ Yap_InitCPreds(void)
   /* numerical comparison */
   Yap_InitCPred("set_value", 2, p_setval, SafePredFlag|SyncPredFlag);
   Yap_InitCPred("get_value", 2, p_value, TestPredFlag|SafePredFlag|SyncPredFlag);
-  Yap_InitCPred("$values", 3, p_values, SafePredFlag|SyncPredFlag);
+  Yap_InitCPred("$values", 3, p_values, SafePredFlag|SyncPredFlag|HiddenPredFlag);
   /* general purpose */
-  Yap_InitCPred("$opdec", 3, p_opdec, SafePredFlag|SyncPredFlag);
+  Yap_InitCPred("$opdec", 3, p_opdec, SafePredFlag|SyncPredFlag|HiddenPredFlag);
   Yap_InitCPred("name", 2, p_name, SafePredFlag);
   Yap_InitCPred("char_code", 2, p_char_code, SafePredFlag);
   Yap_InitCPred("atom_chars", 2, p_atom_chars, SafePredFlag);
   Yap_InitCPred("atom_codes", 2, p_atom_codes, SafePredFlag);
   Yap_InitCPred("atom_length", 2, p_atom_length, SafePredFlag);
-  Yap_InitCPred("$atom_split", 4, p_atom_split, SafePredFlag);
+  Yap_InitCPred("$atom_split", 4, p_atom_split, SafePredFlag|HiddenPredFlag);
   Yap_InitCPred("number_chars", 2, p_number_chars, SafePredFlag);
   Yap_InitCPred("number_atom", 2, p_number_atom, SafePredFlag);
   Yap_InitCPred("number_codes", 2, p_number_codes, SafePredFlag);
   Yap_InitCPred("atom_concat", 2, p_atom_concat, SafePredFlag);
   Yap_InitCPred("atomic_concat", 2, p_atomic_concat, SafePredFlag);
   Yap_InitCPred("=..", 2, p_univ, 0);
-  Yap_InitCPred("$statistics_trail_max", 1, p_statistics_trail_max, SafePredFlag|SyncPredFlag);
-  Yap_InitCPred("$statistics_heap_max", 1, p_statistics_heap_max, SafePredFlag|SyncPredFlag);
-  Yap_InitCPred("$statistics_global_max", 1, p_statistics_global_max, SafePredFlag|SyncPredFlag);
-  Yap_InitCPred("$statistics_local_max", 1, p_statistics_local_max, SafePredFlag|SyncPredFlag);
-  Yap_InitCPred("$statistics_heap_info", 2, p_statistics_heap_info, SafePredFlag|SyncPredFlag);
-  Yap_InitCPred("$statistics_stacks_info", 3, p_statistics_stacks_info, SafePredFlag|SyncPredFlag);
-  Yap_InitCPred("$statistics_trail_info", 2, p_statistics_trail_info, SafePredFlag|SyncPredFlag);
-  Yap_InitCPred("$argv", 1, p_argv, SafePredFlag);
-  Yap_InitCPred("$runtime", 2, p_runtime, SafePredFlag|SyncPredFlag);
-  Yap_InitCPred("$cputime", 2, p_cputime, SafePredFlag|SyncPredFlag);
-  Yap_InitCPred("$walltime", 2, p_walltime, SafePredFlag|SyncPredFlag);
-  Yap_InitCPred("$access_yap_flags", 2, p_access_yap_flags, SafePredFlag);
-  Yap_InitCPred("$set_yap_flags", 2, p_set_yap_flags, SafePredFlag|SyncPredFlag);
+  Yap_InitCPred("$statistics_trail_max", 1, p_statistics_trail_max, SafePredFlag|SyncPredFlag|HiddenPredFlag);
+  Yap_InitCPred("$statistics_heap_max", 1, p_statistics_heap_max, SafePredFlag|SyncPredFlag|HiddenPredFlag);
+  Yap_InitCPred("$statistics_global_max", 1, p_statistics_global_max, SafePredFlag|SyncPredFlag|HiddenPredFlag);
+  Yap_InitCPred("$statistics_local_max", 1, p_statistics_local_max, SafePredFlag|SyncPredFlag|HiddenPredFlag);
+  Yap_InitCPred("$statistics_heap_info", 2, p_statistics_heap_info, SafePredFlag|SyncPredFlag|HiddenPredFlag);
+  Yap_InitCPred("$statistics_stacks_info", 3, p_statistics_stacks_info, SafePredFlag|SyncPredFlag|HiddenPredFlag);
+  Yap_InitCPred("$statistics_trail_info", 2, p_statistics_trail_info, SafePredFlag|SyncPredFlag|HiddenPredFlag);
+  Yap_InitCPred("$argv", 1, p_argv, SafePredFlag|HiddenPredFlag);
+  Yap_InitCPred("$runtime", 2, p_runtime, SafePredFlag|SyncPredFlag|HiddenPredFlag);
+  Yap_InitCPred("$cputime", 2, p_cputime, SafePredFlag|SyncPredFlag|HiddenPredFlag);
+  Yap_InitCPred("$walltime", 2, p_walltime, SafePredFlag|SyncPredFlag|HiddenPredFlag);
+  Yap_InitCPred("$access_yap_flags", 2, p_access_yap_flags, SafePredFlag|HiddenPredFlag);
+  Yap_InitCPred("$set_yap_flags", 2, p_set_yap_flags, SafePredFlag|SyncPredFlag|HiddenPredFlag);
   Yap_InitCPred("abort", 0, p_abort, SyncPredFlag);
-  Yap_InitCPred("$halt", 1, p_halt, SyncPredFlag);
-  Yap_InitCPred("$host_type", 1, p_host_type, SyncPredFlag);
-  Yap_InitCPred("$lock_system", 0, p_lock_system, SafePredFlag);
-  Yap_InitCPred("$unlock_system", 0, p_unlock_system, SafePredFlag);
+  Yap_InitCPred("$halt", 1, p_halt, SyncPredFlag|HiddenPredFlag);
+  Yap_InitCPred("$lock_system", 0, p_lock_system, SafePredFlag|HiddenPredFlag);
+  Yap_InitCPred("$unlock_system", 0, p_unlock_system, SafePredFlag|HiddenPredFlag);
   /* basic predicates for the prolog machine tracer */
   /* they are defined in analyst.c */
   /* Basic predicates for the debugger */
-  Yap_InitCPred("$creep", 0, p_creep, SafePredFlag|SyncPredFlag);
-  Yap_InitCPred("$stop_creep", 0, p_stop_creep, SafePredFlag|SyncPredFlag);
+  Yap_InitCPred("$creep", 0, p_creep, SafePredFlag|SyncPredFlag|HiddenPredFlag);
+  Yap_InitCPred("$stop_creep", 0, p_stop_creep, SafePredFlag|SyncPredFlag|HiddenPredFlag);
 #ifdef DEBUG
-  Yap_InitCPred("$debug", 1, p_debug, SafePredFlag|SyncPredFlag);
+  Yap_InitCPred("$debug", 1, p_debug, SafePredFlag|SyncPredFlag|HiddenPredFlag);
 #endif
   /* Accessing and changing the flags for a predicate */
-  Yap_InitCPred("$flags", 4, p_flags, SafePredFlag|SyncPredFlag);
+  Yap_InitCPred("$flags", 4, p_flags, SafePredFlag|SyncPredFlag|HiddenPredFlag);
   /* hiding and unhiding some predicates */
   Yap_InitCPred("hide", 1, p_hide, SafePredFlag|SyncPredFlag);
   Yap_InitCPred("unhide", 1, p_unhide, SafePredFlag|SyncPredFlag);
-  Yap_InitCPred("$hidden", 1, p_hidden, SafePredFlag|SyncPredFlag);
-  Yap_InitCPred("$has_yap_or", 0, p_has_yap_or, SafePredFlag|SyncPredFlag);
+  Yap_InitCPred("$hidden", 1, p_hidden, SafePredFlag|SyncPredFlag|HiddenPredFlag);
+  Yap_InitCPred("$has_yap_or", 0, p_has_yap_or, SafePredFlag|SyncPredFlag|HiddenPredFlag);
 #ifdef LOW_PROF
   Yap_InitCPred("profinit",0, profinit, SafePredFlag);
   Yap_InitCPred("profend" ,0, profend, SafePredFlag);
@@ -2876,7 +2872,7 @@ Yap_InitCPreds(void)
   Yap_InitCPred("profres", 0, profres0, SafePredFlag);
 #endif
 #ifndef YAPOR
-  Yap_InitCPred("$default_sequential", 1, p_default_sequential, SafePredFlag|SyncPredFlag);
+  Yap_InitCPred("$default_sequential", 1, p_default_sequential, SafePredFlag|SyncPredFlag|HiddenPredFlag);
 #endif
 #ifdef INES
   Yap_InitCPred("euc_dist", 3, p_euc_dist, SafePredFlag);

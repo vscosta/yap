@@ -414,6 +414,6 @@ p_inform_agc(void)
 void 
 Yap_init_agc(void)
 {
-  Yap_InitCPred("$atom_gc", 0, p_atom_gc, 0);
-  Yap_InitCPred("$inform_agc", 3, p_inform_agc, 0);
+  Yap_InitCPred("$atom_gc", 0, p_atom_gc, HiddenPredFlag);
+  Yap_InitCPred("$inform_agc", 3, p_inform_agc, HiddenPredFlag);
 }

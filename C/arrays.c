@@ -2014,9 +2014,9 @@ p_static_array_to_term(void)
 void 
 Yap_InitArrayPreds(void)
 {
-  Yap_InitCPred("$create_array", 2, p_create_array, SyncPredFlag);
-  Yap_InitCPred("$array_references", 3, p_array_references, SafePredFlag);
-  Yap_InitCPred("$array_arg", 3, p_array_arg, SafePredFlag);
+  Yap_InitCPred("$create_array", 2, p_create_array, SyncPredFlag|HiddenPredFlag);
+  Yap_InitCPred("$array_references", 3, p_array_references, SafePredFlag|HiddenPredFlag);
+  Yap_InitCPred("$array_arg", 3, p_array_arg, SafePredFlag|HiddenPredFlag);
   Yap_InitCPred("static_array", 3, p_create_static_array, SafePredFlag|SyncPredFlag);
   Yap_InitCPred("resize_static_array", 3, p_resize_static_array, SafePredFlag|SyncPredFlag);
   Yap_InitCPred("mmapped_array", 4, p_create_mmapped_array, SafePredFlag|SyncPredFlag);
@@ -2024,10 +2024,10 @@ Yap_InitArrayPreds(void)
   Yap_InitCPred("add_to_array_element", 4, p_add_to_array_element, SafePredFlag);
   Yap_InitCPred("array_element", 3, p_access_array, 0);
   Yap_InitCPred("close_static_array", 1, p_close_static_array, SafePredFlag);
-  Yap_InitCPred("$sync_mmapped_arrays", 0, p_sync_mmapped_arrays, SafePredFlag);
-  Yap_InitCPred("$compile_array_refs", 0, p_compile_array_refs, SafePredFlag);
-  Yap_InitCPred("$array_refs_compiled", 0, p_array_refs_compiled, SafePredFlag);
-  Yap_InitCPred("$static_array_properties", 3, p_static_array_properties, SafePredFlag);
+  Yap_InitCPred("$sync_mmapped_arrays", 0, p_sync_mmapped_arrays, SafePredFlag|HiddenPredFlag);
+  Yap_InitCPred("$compile_array_refs", 0, p_compile_array_refs, SafePredFlag|HiddenPredFlag);
+  Yap_InitCPred("$array_refs_compiled", 0, p_array_refs_compiled, SafePredFlag|HiddenPredFlag);
+  Yap_InitCPred("$static_array_properties", 3, p_static_array_properties, SafePredFlag|HiddenPredFlag);
   Yap_InitCPred("static_array_to_term", 2, p_static_array_to_term, 0L);
 }
 

@@ -4798,7 +4798,7 @@ Yap_TermToString(Term t, char *s, unsigned int sz, int flags)
 void
 Yap_InitBackIO (void)
 {
-  Yap_InitCPredBack ("$current_stream", 3, 1, init_cur_s, cont_cur_s, SafePredFlag|SyncPredFlag);
+  Yap_InitCPredBack ("$current_stream", 3, 1, init_cur_s, cont_cur_s, SafePredFlag|SyncPredFlag|HiddenPredFlag);
 }
 
 
@@ -4813,45 +4813,45 @@ Yap_InitIOPreds(void)
   if (!Stream)
     Stream = (StreamDesc *)Yap_AllocCodeSpace(sizeof(StreamDesc)*MaxStreams);
   /* here the Input/Output predicates */
-  Yap_InitCPred ("$check_stream", 2, p_check_stream, SafePredFlag|SyncPredFlag);
-  Yap_InitCPred ("$check_stream", 1, p_check_if_stream, SafePredFlag|SyncPredFlag);
-  Yap_InitCPred ("$stream_flags", 2, p_stream_flags, SafePredFlag|SyncPredFlag);
-  Yap_InitCPred ("$close", 1, p_close, SafePredFlag|SyncPredFlag);
+  Yap_InitCPred ("$check_stream", 2, p_check_stream, SafePredFlag|SyncPredFlag|HiddenPredFlag);
+  Yap_InitCPred ("$check_stream", 1, p_check_if_stream, SafePredFlag|SyncPredFlag|HiddenPredFlag|HiddenPredFlag);
+  Yap_InitCPred ("$stream_flags", 2, p_stream_flags, SafePredFlag|SyncPredFlag|HiddenPredFlag);
+  Yap_InitCPred ("$close", 1, p_close, SafePredFlag|SyncPredFlag|HiddenPredFlag);
   Yap_InitCPred ("flush_output", 1, p_flush, SafePredFlag|SyncPredFlag);
-  Yap_InitCPred ("$flush_all_streams", 0, p_flush_all_streams, SafePredFlag|SyncPredFlag);
-  Yap_InitCPred ("$get", 2, p_get, SafePredFlag|SyncPredFlag);
-  Yap_InitCPred ("$get0", 2, p_get0, SafePredFlag|SyncPredFlag);
-  Yap_InitCPred ("$get0_line_codes", 2, p_get0_line_codes, SafePredFlag|SyncPredFlag);
-  Yap_InitCPred ("$get_byte", 2, p_get_byte, SafePredFlag|SyncPredFlag);
-  Yap_InitCPred ("$open", 4, p_open, SafePredFlag|SyncPredFlag);
-  Yap_InitCPred ("$file_expansion", 2, p_file_expansion, SafePredFlag|SyncPredFlag);
-  Yap_InitCPred ("$open_null_stream", 1, p_open_null_stream, SafePredFlag|SyncPredFlag);
-  Yap_InitCPred ("$open_pipe_stream", 2, p_open_pipe_stream, SafePredFlag|SyncPredFlag);
+  Yap_InitCPred ("$flush_all_streams", 0, p_flush_all_streams, SafePredFlag|SyncPredFlag|HiddenPredFlag);
+  Yap_InitCPred ("$get", 2, p_get, SafePredFlag|SyncPredFlag|HiddenPredFlag);
+  Yap_InitCPred ("$get0", 2, p_get0, SafePredFlag|SyncPredFlag|HiddenPredFlag);
+  Yap_InitCPred ("$get0_line_codes", 2, p_get0_line_codes, SafePredFlag|SyncPredFlag|HiddenPredFlag);
+  Yap_InitCPred ("$get_byte", 2, p_get_byte, SafePredFlag|SyncPredFlag|HiddenPredFlag);
+  Yap_InitCPred ("$open", 4, p_open, SafePredFlag|SyncPredFlag|HiddenPredFlag);
+  Yap_InitCPred ("$file_expansion", 2, p_file_expansion, SafePredFlag|SyncPredFlag|HiddenPredFlag);
+  Yap_InitCPred ("$open_null_stream", 1, p_open_null_stream, SafePredFlag|SyncPredFlag|HiddenPredFlag);
+  Yap_InitCPred ("$open_pipe_stream", 2, p_open_pipe_stream, SafePredFlag|SyncPredFlag|HiddenPredFlag);
   CurrentModule = CHARSIO_MODULE;
   Yap_InitCPred ("open_mem_read_stream", 2, p_open_mem_read_stream, SyncPredFlag);
   Yap_InitCPred ("open_mem_write_stream", 1, p_open_mem_write_stream, SyncPredFlag);
   Yap_InitCPred ("peek_mem_write_stream", 3, p_peek_mem_write_stream, SyncPredFlag);
   CurrentModule = cm;
-  Yap_InitCPred ("$put", 2, p_put, SafePredFlag|SyncPredFlag);
-  Yap_InitCPred ("$put_byte", 2, p_put_byte, SafePredFlag|SyncPredFlag);
-  Yap_InitCPred ("$set_read_error_handler", 1, p_set_read_error_handler, SafePredFlag|SyncPredFlag);
-  Yap_InitCPred ("$get_read_error_handler", 1, p_get_read_error_handler, SafePredFlag|SyncPredFlag);
-  Yap_InitCPred ("$read", 5, p_read, SyncPredFlag);
-  Yap_InitCPred ("$read", 6, p_read2, SyncPredFlag);
-  Yap_InitCPred ("$set_input", 1, p_set_input, SafePredFlag|SyncPredFlag);
-  Yap_InitCPred ("$set_output", 1, p_set_output, SafePredFlag|SyncPredFlag);
-  Yap_InitCPred ("$skip", 2, p_skip, SafePredFlag|SyncPredFlag);
-  Yap_InitCPred ("$write", 2, p_write, SyncPredFlag);
-  Yap_InitCPred ("$write", 3, p_write2, SyncPredFlag);
+  Yap_InitCPred ("$put", 2, p_put, SafePredFlag|SyncPredFlag|HiddenPredFlag);
+  Yap_InitCPred ("$put_byte", 2, p_put_byte, SafePredFlag|SyncPredFlag|HiddenPredFlag);
+  Yap_InitCPred ("$set_read_error_handler", 1, p_set_read_error_handler, SafePredFlag|SyncPredFlag|HiddenPredFlag);
+  Yap_InitCPred ("$get_read_error_handler", 1, p_get_read_error_handler, SafePredFlag|SyncPredFlag|HiddenPredFlag);
+  Yap_InitCPred ("$read", 5, p_read, SyncPredFlag|HiddenPredFlag);
+  Yap_InitCPred ("$read", 6, p_read2, SyncPredFlag|HiddenPredFlag);
+  Yap_InitCPred ("$set_input", 1, p_set_input, SafePredFlag|SyncPredFlag|HiddenPredFlag);
+  Yap_InitCPred ("$set_output", 1, p_set_output, SafePredFlag|SyncPredFlag|HiddenPredFlag);
+  Yap_InitCPred ("$skip", 2, p_skip, SafePredFlag|SyncPredFlag|HiddenPredFlag);
+  Yap_InitCPred ("$write", 2, p_write, SyncPredFlag|HiddenPredFlag);
+  Yap_InitCPred ("$write", 3, p_write2, SyncPredFlag|HiddenPredFlag);
   Yap_InitCPred ("format", 2, p_format, SyncPredFlag);
   Yap_InitCPred ("format", 3, p_format2, SyncPredFlag);
-  Yap_InitCPred ("$current_line_number", 2, p_cur_line_no, SafePredFlag|SyncPredFlag);
-  Yap_InitCPred ("$line_position", 2, p_line_position, SafePredFlag|SyncPredFlag);
-  Yap_InitCPred ("$character_count", 2, p_character_count, SafePredFlag|SyncPredFlag);
-  Yap_InitCPred ("$start_line", 1, p_startline, SafePredFlag|SyncPredFlag);
-  Yap_InitCPred ("$show_stream_flags", 2, p_show_stream_flags, SafePredFlag|SyncPredFlag);
-  Yap_InitCPred ("$show_stream_position", 2, p_show_stream_position, SafePredFlag|SyncPredFlag);
-  Yap_InitCPred ("$set_stream_position", 2, p_set_stream_position, SafePredFlag|SyncPredFlag);
+  Yap_InitCPred ("$current_line_number", 2, p_cur_line_no, SafePredFlag|SyncPredFlag|HiddenPredFlag);
+  Yap_InitCPred ("$line_position", 2, p_line_position, SafePredFlag|SyncPredFlag|HiddenPredFlag);
+  Yap_InitCPred ("$character_count", 2, p_character_count, SafePredFlag|SyncPredFlag|HiddenPredFlag);
+  Yap_InitCPred ("$start_line", 1, p_startline, SafePredFlag|SyncPredFlag|HiddenPredFlag);
+  Yap_InitCPred ("$show_stream_flags", 2, p_show_stream_flags, SafePredFlag|SyncPredFlag|HiddenPredFlag);
+  Yap_InitCPred ("$show_stream_position", 2, p_show_stream_position, SafePredFlag|SyncPredFlag|HiddenPredFlag);
+  Yap_InitCPred ("$set_stream_position", 2, p_set_stream_position, SafePredFlag|SyncPredFlag|HiddenPredFlag);
   Yap_InitCPred ("$user_file_name", 2, p_user_file_name, SafePredFlag|SyncPredFlag),
   Yap_InitCPred ("$file_name", 2, p_file_name, SafePredFlag|SyncPredFlag),
   Yap_InitCPred ("$past_eof", 1, p_past_eof, SafePredFlag|SyncPredFlag),
@@ -4860,26 +4860,26 @@ Yap_InitIOPreds(void)
   Yap_InitCPred ("current_input", 1, p_current_input, SafePredFlag|SyncPredFlag);
   Yap_InitCPred ("current_output", 1, p_current_output, SafePredFlag|SyncPredFlag);
   Yap_InitCPred ("prompt", 1, p_setprompt, SafePredFlag|SyncPredFlag);
-  Yap_InitCPred ("$is_same_tty", 2, p_is_same_tty, SafePredFlag|SyncPredFlag);
+  Yap_InitCPred ("$is_same_tty", 2, p_is_same_tty, SafePredFlag|SyncPredFlag|HiddenPredFlag);
   Yap_InitCPred ("prompt", 2, p_prompt, SafePredFlag|SyncPredFlag);
   Yap_InitCPred ("always_prompt_user", 0, p_always_prompt_user, SafePredFlag|SyncPredFlag);
   Yap_InitCPred ("write_depth", 2, p_write_depth, SafePredFlag|SyncPredFlag);
-  Yap_InitCPred ("$change_type_of_char", 2, p_change_type_of_char, SafePredFlag|SyncPredFlag);
-  Yap_InitCPred ("$type_of_char", 2, p_type_of_char, SafePredFlag|SyncPredFlag);
+  Yap_InitCPred ("$change_type_of_char", 2, p_change_type_of_char, SafePredFlag|SyncPredFlag|HiddenPredFlag);
+  Yap_InitCPred ("$type_of_char", 2, p_type_of_char, SafePredFlag|SyncPredFlag|HiddenPredFlag);
   Yap_InitCPred ("char_conversion", 2, p_char_conversion, SyncPredFlag);
-  Yap_InitCPred ("$current_char_conversion", 2, p_current_char_conversion, SyncPredFlag);
-  Yap_InitCPred ("$all_char_conversions", 1, p_all_char_conversions, SyncPredFlag);
-  Yap_InitCPred ("$force_char_conversion", 0, p_force_char_conversion, SyncPredFlag);
-  Yap_InitCPred ("$disable_char_conversion", 0, p_disable_char_conversion, SyncPredFlag);
-  Yap_InitCPred ("$add_alias_to_stream", 2, p_add_alias_to_stream, SafePredFlag|SyncPredFlag);
-  Yap_InitCPred ("$change_alias_to_stream", 2, p_change_alias_to_stream, SafePredFlag|SyncPredFlag);
-  Yap_InitCPred ("$check_if_valid_new_alias", 1, p_check_if_valid_new_alias, TestPredFlag|SafePredFlag|SyncPredFlag);
-  Yap_InitCPred ("$fetch_stream_alias", 2, p_fetch_stream_alias, SafePredFlag|SyncPredFlag);
+  Yap_InitCPred ("$current_char_conversion", 2, p_current_char_conversion, SyncPredFlag|HiddenPredFlag);
+  Yap_InitCPred ("$all_char_conversions", 1, p_all_char_conversions, SyncPredFlag|HiddenPredFlag);
+  Yap_InitCPred ("$force_char_conversion", 0, p_force_char_conversion, SyncPredFlag|HiddenPredFlag);
+  Yap_InitCPred ("$disable_char_conversion", 0, p_disable_char_conversion, SyncPredFlag|HiddenPredFlag);
+  Yap_InitCPred ("$add_alias_to_stream", 2, p_add_alias_to_stream, SafePredFlag|SyncPredFlag|HiddenPredFlag);
+  Yap_InitCPred ("$change_alias_to_stream", 2, p_change_alias_to_stream, SafePredFlag|SyncPredFlag|HiddenPredFlag);
+  Yap_InitCPred ("$check_if_valid_new_alias", 1, p_check_if_valid_new_alias, TestPredFlag|SafePredFlag|SyncPredFlag|HiddenPredFlag);
+  Yap_InitCPred ("$fetch_stream_alias", 2, p_fetch_stream_alias, SafePredFlag|SyncPredFlag|HiddenPredFlag);
   Yap_InitCPred ("$stream", 1, p_stream, SafePredFlag|TestPredFlag),
 #if HAVE_SELECT
   Yap_InitCPred ("stream_select", 3, p_stream_select, SafePredFlag|SyncPredFlag);
 #endif
-  Yap_InitCPred ("$same_file", 2, p_same_file, SafePredFlag|SyncPredFlag);
+  Yap_InitCPred ("$same_file", 2, p_same_file, SafePredFlag|SyncPredFlag|HiddenPredFlag);
 
 #if USE_SOCKET
   Yap_InitSockets ();

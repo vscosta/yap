@@ -70,20 +70,20 @@ static int p_debug_prolog(void);
 
 void Yap_init_optyap_preds(void) {
 #ifdef YAPOR
-  Yap_InitCPred("$yapor_on", 0, yapor_on, SafePredFlag|SyncPredFlag);
-  Yap_InitCPred("$start_yapor", 0, start_yapor, SafePredFlag|SyncPredFlag);
-  Yap_InitCPred("$sequential", 1, p_sequential, SafePredFlag|SyncPredFlag);
-  Yap_InitCPred("$default_sequential", 1, p_default_sequential, SafePredFlag|SyncPredFlag);
+  Yap_InitCPred("$yapor_on", 0, yapor_on, SafePredFlag|SyncPredFlag|HiddenPredFlag);
+  Yap_InitCPred("$start_yapor", 0, start_yapor, SafePredFlag|SyncPredFlag|HiddenPredFlag);
+  Yap_InitCPred("$sequential", 1, p_sequential, SafePredFlag|SyncPredFlag|HiddenPredFlag);
+  Yap_InitCPred("$default_sequential", 1, p_default_sequential, SafePredFlag|SyncPredFlag|HiddenPredFlag);
   Yap_InitCPred("execution_mode", 1, p_execution_mode, SafePredFlag|SyncPredFlag);
   Yap_InitCPred("performance", 1, p_performance, SafePredFlag|SyncPredFlag);
-  Yap_InitCPred("$parallel_new_answer", 1, p_parallel_new_answer, SafePredFlag|SyncPredFlag);
-  Yap_InitCPred("$parallel_yes_answer", 0, p_parallel_yes_answer, SafePredFlag|SyncPredFlag);
+  Yap_InitCPred("$parallel_new_answer", 1, p_parallel_new_answer, SafePredFlag|SyncPredFlag|HiddenPredFlag);
+  Yap_InitCPred("$parallel_yes_answer", 0, p_parallel_yes_answer, SafePredFlag|SyncPredFlag|HiddenPredFlag);
 #endif /* YAPOR */
 #ifdef TABLING
-  Yap_InitCPred("$do_table", 2, p_table, SafePredFlag|SyncPredFlag);
-  Yap_InitCPred("$do_abolish_trie", 2, p_abolish_trie, SafePredFlag|SyncPredFlag);
-  Yap_InitCPred("$show_trie", 3, p_show_trie, SafePredFlag|SyncPredFlag);
-  Yap_InitCPred("$resume_trie", 2, p_resume_trie, SafePredFlag|SyncPredFlag);
+  Yap_InitCPred("$do_table", 2, p_table, SafePredFlag|SyncPredFlag|HiddenPredFlag);
+  Yap_InitCPred("$do_abolish_trie", 2, p_abolish_trie, SafePredFlag|SyncPredFlag|HiddenPredFlag);
+  Yap_InitCPred("$show_trie", 3, p_show_trie, SafePredFlag|SyncPredFlag|HiddenPredFlag);
+  Yap_InitCPred("$resume_trie", 2, p_resume_trie, SafePredFlag|SyncPredFlag|HiddenPredFlag);
 #endif /* TABLING */
 #ifdef STATISTICS
   Yap_InitCPred("show_frames", 0, p_show_frames, SafePredFlag|SyncPredFlag);

@@ -1034,7 +1034,7 @@ Yap_InitCmpPreds(void)
   Yap_InitCmpPred("=<", 2, a_le, SafePredFlag | BinaryTestPredFlag);
   Yap_InitCmpPred("<", 2, a_lt, SafePredFlag | BinaryTestPredFlag);
   Yap_InitCmpPred(">=", 2, a_ge, SafePredFlag | BinaryTestPredFlag);
-  Yap_InitCPred("$a_compare", 3, p_acomp, TestPredFlag | SafePredFlag);
+  Yap_InitCPred("$a_compare", 3, p_acomp, TestPredFlag | SafePredFlag|HiddenPredFlag);
   Yap_InitCPred("\\==", 2, p_noteq, TestPredFlag | SafePredFlag);
   Yap_InitCPred("@<", 2, p_gen_lt, TestPredFlag | SafePredFlag);
   Yap_InitCPred("@=<", 2, p_gen_le, TestPredFlag | SafePredFlag);

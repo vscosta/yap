@@ -459,7 +459,7 @@ Yap_InitCPred(char *Name, unsigned long int Arity, CPredicate code, int flags)
 {
   Atom              atom = Yap_FullLookupAtom(Name);
   PredEntry        *pe;
-  yamop            *p_code = ((StaticClause *)NULL)->ClCode;
+  yamop            *p_code;
   StaticClause     *cl = NULL;
 
   if (Arity)
@@ -469,14 +469,12 @@ Yap_InitCPred(char *Name, unsigned long int Arity, CPredicate code, int flags)
   if (pe->PredFlags & CPredFlag) {
     /* already exists */
     cl = ClauseCodeToStaticClause(pe->CodeOfPred);
-    if ((flags & SafePredFlag) &&
-	!(pe->PredFlags & SafePredFlag)) {
+    if ((flags | StandardPredFlag | CPredFlag) != pe->PredFlags) {
       Yap_FreeCodeSpace((ADDR)cl);
       cl = NULL;
-    } else {
-      p_code = cl->ClCode;
     }
   }
+  p_code = cl->ClCode;
   while (!cl) {
     UInt sz;
 

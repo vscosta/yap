@@ -1243,8 +1243,8 @@ Yap_InitSockets(void)
   Yap_InitCPred("socket_connect", 3, p_socket_connect, SafePredFlag|SyncPredFlag);
   Yap_InitCPred("socket_listen", 2, p_socket_listen, SafePredFlag|SyncPredFlag);
   Yap_InitCPred("socket_accept", 3, p_socket_accept, SafePredFlag|SyncPredFlag);
-  Yap_InitCPred("$socket_buffering", 4, p_socket_buffering, SafePredFlag|SyncPredFlag);
-  Yap_InitCPred("$socket_select", 4, p_socket_select, SafePredFlag|SyncPredFlag);
+  Yap_InitCPred("$socket_buffering", 4, p_socket_buffering, SafePredFlag|SyncPredFlag|HiddenPredFlag);
+  Yap_InitCPred("$socket_select", 4, p_socket_select, SafePredFlag|SyncPredFlag|HiddenPredFlag);
   Yap_InitCPred("current_host", 1, p_current_host, SafePredFlag);
   Yap_InitCPred("hostname_address", 2, p_hostname_address, SafePredFlag);
 #if _MSC_VER || defined(__MINGW32__)

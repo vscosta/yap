@@ -536,31 +536,31 @@ p_thread_runtime(void)
 
 void Yap_InitThreadPreds(void)
 {
-  Yap_InitCPred("$no_threads", 0, p_no_threads, 0);
-  Yap_InitCPred("$thread_new_tid", 1, p_thread_new_tid, 0);
-  Yap_InitCPred("$create_thread", 6, p_create_thread, 0);
-  Yap_InitCPred("$thread_self", 1, p_thread_self, SafePredFlag);
-  Yap_InitCPred("$thread_join", 1, p_thread_join, 0);
-  Yap_InitCPred("$thread_destroy", 1, p_thread_destroy, 0);
-  Yap_InitCPred("$detach_thread", 1, p_thread_detach, 0);
-  Yap_InitCPred("$thread_exit", 0, p_thread_exit, 0);
+  Yap_InitCPred("$no_threads", 0, p_no_threads, HiddenPredFlag);
+  Yap_InitCPred("$thread_new_tid", 1, p_thread_new_tid, HiddenPredFlag);
+  Yap_InitCPred("$create_thread", 6, p_create_thread, HiddenPredFlag);
+  Yap_InitCPred("$thread_self", 1, p_thread_self, SafePredFlag|HiddenPredFlag);
+  Yap_InitCPred("$thread_join", 1, p_thread_join, HiddenPredFlag);
+  Yap_InitCPred("$thread_destroy", 1, p_thread_destroy, HiddenPredFlag);
+  Yap_InitCPred("$detach_thread", 1, p_thread_detach, HiddenPredFlag);
+  Yap_InitCPred("$thread_exit", 0, p_thread_exit, HiddenPredFlag);
   Yap_InitCPred("thread_setconcurrency", 2, p_thread_set_concurrency, 0);
-  Yap_InitCPred("$valid_thread", 1, p_valid_thread, 0);
-  Yap_InitCPred("$new_mutex", 1, p_new_mutex, SafePredFlag);
-  Yap_InitCPred("$destroy_mutex", 1, p_destroy_mutex, SafePredFlag);
-  Yap_InitCPred("$lock_mutex", 1, p_lock_mutex, SafePredFlag);
-  Yap_InitCPred("$trylock_mutex", 1, p_trylock_mutex, SafePredFlag);
-  Yap_InitCPred("$unlock_mutex", 1, p_unlock_mutex, SafePredFlag);
-  Yap_InitCPred("$info_mutex", 2, p_info_mutex, SafePredFlag);
-  Yap_InitCPred("$cond_create", 1, p_cond_create, SafePredFlag);
-  Yap_InitCPred("$cond_destroy", 1, p_cond_destroy, SafePredFlag);
-  Yap_InitCPred("$cond_signal", 1, p_cond_signal, SafePredFlag);
-  Yap_InitCPred("$cond_broadcast", 1, p_cond_broadcast, SafePredFlag);
-  Yap_InitCPred("$cond_wait", 2, p_cond_wait, SafePredFlag);
-  Yap_InitCPred("$signal_thread", 1, p_thread_signal, SafePredFlag);
-  Yap_InitCPred("$nof_threads", 1, p_nof_threads, SafePredFlag);
-  Yap_InitCPred("$nof_threads_created", 1, p_nof_threads_created, SafePredFlag);
-  Yap_InitCPred("$thread_runtime", 1, p_thread_runtime, SafePredFlag);
+  Yap_InitCPred("$valid_thread", 1, p_valid_thread, HiddenPredFlag);
+  Yap_InitCPred("$new_mutex", 1, p_new_mutex, SafePredFlag|HiddenPredFlag);
+  Yap_InitCPred("$destroy_mutex", 1, p_destroy_mutex, SafePredFlag|HiddenPredFlag);
+  Yap_InitCPred("$lock_mutex", 1, p_lock_mutex, SafePredFlag|HiddenPredFlag);
+  Yap_InitCPred("$trylock_mutex", 1, p_trylock_mutex, SafePredFlag|HiddenPredFlag);
+  Yap_InitCPred("$unlock_mutex", 1, p_unlock_mutex, SafePredFlag|HiddenPredFlag);
+  Yap_InitCPred("$info_mutex", 2, p_info_mutex, SafePredFlag|HiddenPredFlag);
+  Yap_InitCPred("$cond_create", 1, p_cond_create, SafePredFlag|HiddenPredFlag);
+  Yap_InitCPred("$cond_destroy", 1, p_cond_destroy, SafePredFlag|HiddenPredFlag);
+  Yap_InitCPred("$cond_signal", 1, p_cond_signal, SafePredFlag|HiddenPredFlag);
+  Yap_InitCPred("$cond_broadcast", 1, p_cond_broadcast, SafePredFlag|HiddenPredFlag);
+  Yap_InitCPred("$cond_wait", 2, p_cond_wait, SafePredFlag|HiddenPredFlag);
+  Yap_InitCPred("$signal_thread", 1, p_thread_signal, SafePredFlag|HiddenPredFlag);
+  Yap_InitCPred("$nof_threads", 1, p_nof_threads, SafePredFlag|HiddenPredFlag);
+  Yap_InitCPred("$nof_threads_created", 1, p_nof_threads_created, SafePredFlag|HiddenPredFlag);
+  Yap_InitCPred("$thread_runtime", 1, p_thread_runtime, SafePredFlag|HiddenPredFlag);
 }
 
 #else
@@ -591,10 +591,10 @@ p_thread_runtime(void)
 
 void Yap_InitThreadPreds(void)
 {
-  Yap_InitCPred("$no_threads", 0, p_no_threads, SafePredFlag);
-  Yap_InitCPred("$nof_threads", 1, p_nof_threads, SafePredFlag);
-  Yap_InitCPred("$nof_threads_created", 1, p_nof_threads_created, SafePredFlag);
-  Yap_InitCPred("$thread_runtime", 1, p_thread_runtime, SafePredFlag);
+  Yap_InitCPred("$no_threads", 0, p_no_threads, SafePredFlag|HiddenPredFlag);
+  Yap_InitCPred("$nof_threads", 1, p_nof_threads, SafePredFlag|HiddenPredFlag);
+  Yap_InitCPred("$nof_threads_created", 1, p_nof_threads_created, SafePredFlag|HiddenPredFlag);
+  Yap_InitCPred("$thread_runtime", 1, p_thread_runtime, SafePredFlag|HiddenPredFlag);
 }
 
 

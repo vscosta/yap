@@ -672,7 +672,7 @@ Macros to check the limits of stacks
 /* for the moment I don't know how to handle trail overflows
    in a pure Windows environment 
 */
-#if !_MSC_VER && !defined(__MINGW32__) && !defined(THREADS) && !defined(YAPOR)
+#if !_MSC_VER && !defined(__MINGW32__) && !defined(THREADS) && !defined(YAPOR) && !USE_SYSTEM_MALLOC && !USE_DL_MALLOC
 #define OS_HANDLES_TR_OVERFLOW 1
 #endif
 #endif

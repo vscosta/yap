@@ -110,8 +110,8 @@ Yap_InitLoadForeign(void)
     Yap_FindExecutable("yap");
   else
     Yap_FindExecutable(Yap_argv[0]);
-  Yap_InitCPred("$load_foreign_files", 3, p_load_foreign, SafePredFlag|SyncPredFlag);
-  Yap_InitCPred("$obj_suffix", 1, p_obj_suffix, SafePredFlag);
+  Yap_InitCPred("$load_foreign_files", 3, p_load_foreign, SafePredFlag|SyncPredFlag|HiddenPredFlag);
+  Yap_InitCPred("$obj_suffix", 1, p_obj_suffix, SafePredFlag|HiddenPredFlag);
 }
 
 void 

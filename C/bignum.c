@@ -258,5 +258,5 @@ Yap_InitBigNums(void)
 			  ReAllocBigNumSpace,
 			  FreeBigNumSpace);
 #endif
-  Yap_InitCPred("$bignum", 1, p_is_bignum, SafePredFlag);
+  Yap_InitCPred("$bignum", 1, p_is_bignum, SafePredFlag|HiddenPredFlag);
 }

@@ -1539,30 +1539,30 @@ void
 Yap_InitExecFs(void)
 {
   Yap_InitComma();
-  Yap_InitCPred("$execute", 1, p_execute, 0);
-  Yap_InitCPred("$execute_in_mod", 2, p_execute_in_mod, 0);
-  Yap_InitCPred("$call_with_args", 2, p_execute_0, 0);
-  Yap_InitCPred("$call_with_args", 3, p_execute_1, 0);
-  Yap_InitCPred("$call_with_args", 4, p_execute_2, 0);
-  Yap_InitCPred("$call_with_args", 5, p_execute_3, 0);
-  Yap_InitCPred("$call_with_args", 6, p_execute_4, 0);
-  Yap_InitCPred("$call_with_args", 7, p_execute_5, 0);
-  Yap_InitCPred("$call_with_args", 8, p_execute_6, 0);
-  Yap_InitCPred("$call_with_args", 9, p_execute_7, 0);
-  Yap_InitCPred("$call_with_args", 10, p_execute_8, 0);
-  Yap_InitCPred("$call_with_args", 11, p_execute_9, 0);
-  Yap_InitCPred("$call_with_args", 12, p_execute_10, 0);
+  Yap_InitCPred("$execute", 1, p_execute, HiddenPredFlag);
+  Yap_InitCPred("$execute_in_mod", 2, p_execute_in_mod, HiddenPredFlag);
+  Yap_InitCPred("$call_with_args", 2, p_execute_0, HiddenPredFlag);
+  Yap_InitCPred("$call_with_args", 3, p_execute_1, HiddenPredFlag);
+  Yap_InitCPred("$call_with_args", 4, p_execute_2, HiddenPredFlag);
+  Yap_InitCPred("$call_with_args", 5, p_execute_3, HiddenPredFlag);
+  Yap_InitCPred("$call_with_args", 6, p_execute_4, HiddenPredFlag);
+  Yap_InitCPred("$call_with_args", 7, p_execute_5, HiddenPredFlag);
+  Yap_InitCPred("$call_with_args", 8, p_execute_6, HiddenPredFlag);
+  Yap_InitCPred("$call_with_args", 9, p_execute_7, HiddenPredFlag);
+  Yap_InitCPred("$call_with_args", 10, p_execute_8, HiddenPredFlag);
+  Yap_InitCPred("$call_with_args", 11, p_execute_9, HiddenPredFlag);
+  Yap_InitCPred("$call_with_args", 12, p_execute_10, HiddenPredFlag);
 #ifdef DEPTH_LIMIT
-  Yap_InitCPred("$execute_under_depth_limit", 2, p_execute_depth_limit, 0);
+  Yap_InitCPred("$execute_under_depth_limit", 2, p_execute_depth_limit, HiddenPredFlag);
 #endif
-  Yap_InitCPred("$execute0", 2, p_execute0, 0);
-  Yap_InitCPred("$execute_nonstop", 2, p_execute_nonstop, 0);
-  Yap_InitCPred("$save_current_choice_point", 1, p_save_cp, 0);
-  Yap_InitCPred("$pred_goal_expansion_on", 0, p_pred_goal_expansion_on, SafePredFlag);
-  Yap_InitCPred("$restore_regs", 1, p_restore_regs, SafePredFlag);
-  Yap_InitCPred("$restore_regs", 2, p_restore_regs2, SafePredFlag);
-  Yap_InitCPred("$clean_ifcp", 1, p_clean_ifcp, SafePredFlag);
-  Yap_InitCPred("$jump_env_and_store_ball", 1, p_jump_env, 0);
-  Yap_InitCPred("$generate_pred_info", 4, p_generate_pred_info, 0);
+  Yap_InitCPred("$execute0", 2, p_execute0, HiddenPredFlag);
+  Yap_InitCPred("$execute_nonstop", 2, p_execute_nonstop, HiddenPredFlag);
+  Yap_InitCPred("$save_current_choice_point", 1, p_save_cp, HiddenPredFlag);
+  Yap_InitCPred("$pred_goal_expansion_on", 0, p_pred_goal_expansion_on, SafePredFlag|HiddenPredFlag);
+  Yap_InitCPred("$restore_regs", 1, p_restore_regs, SafePredFlag|HiddenPredFlag);
+  Yap_InitCPred("$restore_regs", 2, p_restore_regs2, SafePredFlag|HiddenPredFlag);
+  Yap_InitCPred("$clean_ifcp", 1, p_clean_ifcp, SafePredFlag|HiddenPredFlag);
+  Yap_InitCPred("$jump_env_and_store_ball", 1, p_jump_env, HiddenPredFlag);
+  Yap_InitCPred("$generate_pred_info", 4, p_generate_pred_info, HiddenPredFlag);
 }
 

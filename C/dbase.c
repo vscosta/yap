@@ -1064,7 +1064,6 @@ static CELL *MkDBTerm(register CELL *pt0, register CELL *pt0_end,
 #endif
   return(NULL);
 
-#if !OS_HANDLES_TR_OVERFLOW
  error_tr_overflow:
   Yap_Error_TYPE = OUT_OF_TRAIL_ERROR;
   *vars_foundp = vars_found;
@@ -1082,7 +1081,6 @@ static CELL *MkDBTerm(register CELL *pt0, register CELL *pt0_end,
   H = origH;
 #endif
   return(NULL);
-#endif
 #if THREADS
 #undef Yap_REGS
 #define Yap_REGS (*Yap_regp)  
@@ -5055,32 +5053,32 @@ Yap_InitDBPreds(void)
   Yap_InitCPred("recorded", 3, p_recorded, SyncPredFlag);
   Yap_InitCPred("recorda", 3, p_rcda, SyncPredFlag);
   Yap_InitCPred("recordz", 3, p_rcdz, SyncPredFlag);
-  Yap_InitCPred("$still_variant", 2, p_still_variant, SyncPredFlag);
+  Yap_InitCPred("$still_variant", 2, p_still_variant, SyncPredFlag|HiddenPredFlag);
   Yap_InitCPred("recorda_at", 3, p_rcda_at, SyncPredFlag);
   Yap_InitCPred("recordz_at", 3, p_rcdz_at, SyncPredFlag);
-  Yap_InitCPred("$recordap", 3, p_rcdap, SyncPredFlag);
-  Yap_InitCPred("$recordzp", 3, p_rcdzp, SyncPredFlag);
-  Yap_InitCPred("$recordap", 4, p_drcdap, SyncPredFlag);
-  Yap_InitCPred("$recordzp", 4, p_drcdzp, SyncPredFlag);
+  Yap_InitCPred("$recordap", 3, p_rcdap, SyncPredFlag|HiddenPredFlag);
+  Yap_InitCPred("$recordzp", 3, p_rcdzp, SyncPredFlag|HiddenPredFlag);
+  Yap_InitCPred("$recordap", 4, p_drcdap, SyncPredFlag|HiddenPredFlag);
+  Yap_InitCPred("$recordzp", 4, p_drcdzp, SyncPredFlag|HiddenPredFlag);
   Yap_InitCPred("erase", 1, p_erase, SafePredFlag|SyncPredFlag);
-  Yap_InitCPred("$erase_clause", 2, p_erase_clause, SafePredFlag|SyncPredFlag);
+  Yap_InitCPred("$erase_clause", 2, p_erase_clause, SafePredFlag|SyncPredFlag|HiddenPredFlag);
   Yap_InitCPred("erased", 1, p_erased, TestPredFlag | SafePredFlag|SyncPredFlag);
   Yap_InitCPred("instance", 2, p_instance, SyncPredFlag);
-  Yap_InitCPred("$instance_module", 2, p_instance_module, SyncPredFlag);
+  Yap_InitCPred("$instance_module", 2, p_instance_module, SyncPredFlag|HiddenPredFlag);
   Yap_InitCPred("eraseall", 1, p_eraseall, SafePredFlag|SyncPredFlag);
-  Yap_InitCPred("$record_stat_source", 4, p_rcdstatp, SafePredFlag|SyncPredFlag);
-  Yap_InitCPred("$some_recordedp", 1, p_somercdedp, SafePredFlag|SyncPredFlag);
-  Yap_InitCPred("$first_instance", 3, p_first_instance, SafePredFlag|SyncPredFlag);
-  Yap_InitCPred("$init_db_queue", 1, p_init_queue, SafePredFlag|SyncPredFlag);
-  Yap_InitCPred("$db_key", 2, p_db_key, 0);
-  Yap_InitCPred("$db_enqueue", 2, p_enqueue, SyncPredFlag);
-  Yap_InitCPred("$db_dequeue", 2, p_dequeue, SyncPredFlag);
-  Yap_InitCPred("$db_clean_queues", 1, p_clean_queues, SyncPredFlag);
-  Yap_InitCPred("$switch_log_upd", 1, p_slu, SafePredFlag|SyncPredFlag);
-  Yap_InitCPred("$log_upd", 1, p_lu, SafePredFlag|SyncPredFlag);
-  Yap_InitCPred("$hold_index", 3, p_hold_index, SafePredFlag|SyncPredFlag);
-  Yap_InitCPred("$fetch_reference_from_index", 3, p_fetch_reference_from_index, SafePredFlag|SyncPredFlag);
-  Yap_InitCPred("$resize_int_keys", 1, p_resize_int_keys, SafePredFlag|SyncPredFlag);
+  Yap_InitCPred("$record_stat_source", 4, p_rcdstatp, SafePredFlag|SyncPredFlag|HiddenPredFlag);
+  Yap_InitCPred("$some_recordedp", 1, p_somercdedp, SafePredFlag|SyncPredFlag|HiddenPredFlag);
+  Yap_InitCPred("$first_instance", 3, p_first_instance, SafePredFlag|SyncPredFlag|HiddenPredFlag);
+  Yap_InitCPred("$init_db_queue", 1, p_init_queue, SafePredFlag|SyncPredFlag|HiddenPredFlag);
+  Yap_InitCPred("$db_key", 2, p_db_key, HiddenPredFlag);
+  Yap_InitCPred("$db_enqueue", 2, p_enqueue, SyncPredFlag|HiddenPredFlag);
+  Yap_InitCPred("$db_dequeue", 2, p_dequeue, SyncPredFlag|HiddenPredFlag);
+  Yap_InitCPred("$db_clean_queues", 1, p_clean_queues, SyncPredFlag|HiddenPredFlag);
+  Yap_InitCPred("$switch_log_upd", 1, p_slu, SafePredFlag|SyncPredFlag|HiddenPredFlag);
+  Yap_InitCPred("$log_upd", 1, p_lu, SafePredFlag|SyncPredFlag|HiddenPredFlag);
+  Yap_InitCPred("$hold_index", 3, p_hold_index, SafePredFlag|SyncPredFlag|HiddenPredFlag);
+  Yap_InitCPred("$fetch_reference_from_index", 3, p_fetch_reference_from_index, SafePredFlag|SyncPredFlag|HiddenPredFlag);
+  Yap_InitCPred("$resize_int_keys", 1, p_resize_int_keys, SafePredFlag|SyncPredFlag|HiddenPredFlag);
   Yap_InitCPred("key_statistics", 4, p_key_statistics, SyncPredFlag);
 #ifdef DEBUG
   Yap_InitCPred("total_erased", 4, p_total_erased, SyncPredFlag);
@@ -5088,19 +5086,19 @@ Yap_InitDBPreds(void)
   Yap_InitCPred("heap_space_info", 3, p_heap_space_info, SyncPredFlag);
 #endif
   Yap_InitCPred("nth_instance", 3, p_nth_instance, SyncPredFlag);
-  Yap_InitCPred("$nth_instancep", 3, p_nth_instancep, SyncPredFlag);
-  Yap_InitCPred("$jump_to_next_dynamic_clause", 0, p_jump_to_next_dynamic_clause, SyncPredFlag);
-  Yap_InitCPred("$install_thread_local", 2, p_install_thread_local, SafePredFlag);
+  Yap_InitCPred("$nth_instancep", 3, p_nth_instancep, SyncPredFlag|HiddenPredFlag);
+  Yap_InitCPred("$jump_to_next_dynamic_clause", 0, p_jump_to_next_dynamic_clause, SyncPredFlag|HiddenPredFlag);
+  Yap_InitCPred("$install_thread_local", 2, p_install_thread_local, SafePredFlag|HiddenPredFlag);
 }
 
 void 
 Yap_InitBackDB(void)
 {
-  Yap_InitCPredBack("$recorded_with_key", 3, 3, in_rded_with_key, co_rded, SyncPredFlag);
+  Yap_InitCPredBack("$recorded_with_key", 3, 3, in_rded_with_key, co_rded, SyncPredFlag|HiddenPredFlag);
   RETRY_C_RECORDED_K_CODE = NEXTOP(PredRecordedWithKey->cs.p_code.FirstClause,lds);
-  Yap_InitCPredBack("$recordedp", 3, 3, in_rdedp, co_rdedp, SyncPredFlag);
+  Yap_InitCPredBack("$recordedp", 3, 3, in_rdedp, co_rdedp, SyncPredFlag|HiddenPredFlag);
   RETRY_C_RECORDEDP_CODE = NEXTOP(RepPredProp(PredPropByFunc(Yap_MkFunctor(Yap_LookupAtom("$recordedp"), 3),0))->cs.p_code.FirstClause,lds);
   Yap_InitCPredBack("$current_immediate_key", 2, 4, init_current_key, cont_current_key,
-		SyncPredFlag);
+		SyncPredFlag|HiddenPredFlag);
 }
 

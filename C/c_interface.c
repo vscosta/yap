@@ -10,8 +10,11 @@
 * File:		c_interface.c						 *
 * comments:	c_interface primitives definition 			 *
 *									 *
-* Last rev:	$Date: 2004-10-31 02:18:03 $,$Author: vsc $						 *
+* Last rev:	$Date: 2004-11-18 22:32:31 $,$Author: vsc $						 *
 * $Log: not supported by cvs2svn $
+* Revision 1.56  2004/10/31 02:18:03  vsc
+* fix bug in handling Yap heap overflow while adding new clause.
+*
 * Revision 1.55  2004/10/28 20:12:20  vsc
 * Use Doug Lea's malloc as an alternative to YAP's standard malloc
 * don't use TR directly in scanner/parser, this avoids trouble with ^C while
@@ -985,7 +988,10 @@ YAP_CompileClause(Term t)
   codeaddr = Yap_cclause (t,0, mod, t);
   if (codeaddr != NULL) {
     t = Deref(ARG1); /* just in case there was an heap overflow */
-    Yap_addclause (t, codeaddr, TRUE, mod, &tn);
+    if (!Yap_addclause (t, codeaddr, TRUE, mod, &tn)) {
+      YAPLeaveCriticalSection();
+      return Yap_ErrorMessage;
+    }
   }
   YAPLeaveCriticalSection();
 
@@ -1033,6 +1039,8 @@ YAP_Init(YAP_init_args *yap_init)
   } else {
     Heap = yap_init->HeapSize;
   }
+  /* tell the system who should cope with interruptions */
+  Yap_PrologShouldHandleInterrupts = yap_init->PrologShouldHandleInterrupts;
   Yap_InitWorkspace(Heap, Stack, Trail,
 	      yap_init->NumberWorkers,
 	      yap_init->SchedulerLoop,
@@ -1127,6 +1135,7 @@ YAP_FastInit(char saved_state[])
   init_args.NumberWorkers = 1;
   init_args.SchedulerLoop = 10;
   init_args.DelayedReleaseLoad = 3;
+  init_args.PrologShouldHandleInterrupts = FALSE;
   init_args.Argc = 0;
   init_args.Argv = NULL;
 

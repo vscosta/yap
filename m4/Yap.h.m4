@@ -10,7 +10,7 @@
 * File:		Yap.h.m4						 *
 * mods:									 *
 * comments:	main header file for YAP				 *
-* version:      $Id: Yap.h.m4,v 1.73 2004-10-27 15:56:34 vsc Exp $	 *
+* version:      $Id: Yap.h.m4,v 1.74 2004-11-18 22:32:40 vsc Exp $	 *
 *************************************************************************/
 
 #include "config.h"
@@ -923,6 +923,10 @@ extern int      Yap_CritLocks;
 
 extern char   **Yap_argv;
 extern int      Yap_argc;
+
+/******** whether Yap is responsible for signal handling ******************/
+
+int Yap_PrologShouldHandleInterrupts;
 
 /******************* number of modules ****************************/
 

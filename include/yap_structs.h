@@ -92,6 +92,8 @@ typedef struct {
   /* if NON-0, say how long to keep nodes (default = 3) */
   int DelayedReleaseLoad;
   /* end of YAPOR fields */
+  /* whether Prolog should handle interrupts */
+  int PrologShouldHandleInterrupts;
   /* number of arguments that Prolog will see */
   int Argc;
   /* array of arguments as seen by Prolog */

@@ -1030,6 +1030,7 @@ SearchForTrailFault(void)
   if ((TR > (tr_fr_ptr)Yap_TrailTop-1024  && 
        TR < (tr_fr_ptr)Yap_TrailTop+(64*1024))|| Yap_DBTrailOverflow()) {
     long trsize = 64*2014L;
+
     while ((CELL)TR > (CELL)Yap_TrailTop+trsize) {
       trsize += 64*2014L;
     }
@@ -1315,29 +1316,37 @@ MSCHandleSignal(DWORD dwCtrlType) {
 static void
 InitSignals (void)
 {
+  if (Yap_PrologShouldHandleInterrupts) {
 #if !defined(LIGHT) && !_MSC_VER && !defined(__MINGW32__) && !defined(LIGHT) 
-  my_signal (SIGQUIT, ReceiveSignal);
-  my_signal (SIGKILL, ReceiveSignal);
-  my_signal (SIGUSR1, ReceiveSignal);
-  my_signal (SIGUSR2, ReceiveSignal);
-  my_signal (SIGHUP,  ReceiveSignal);
-  my_signal (SIGALRM, HandleALRM);
+    my_signal (SIGQUIT, ReceiveSignal);
+    my_signal (SIGKILL, ReceiveSignal);
+    my_signal (SIGUSR1, ReceiveSignal);
+    my_signal (SIGUSR2, ReceiveSignal);
+    my_signal (SIGHUP,  ReceiveSignal);
+    my_signal (SIGALRM, HandleALRM);
 #endif
 #if _MSC_VER || defined(__MINGW32__)
-  signal (SIGINT, SIG_IGN);
-  SetConsoleCtrlHandler(MSCHandleSignal,TRUE);
+    signal (SIGINT, SIG_IGN);
+    SetConsoleCtrlHandler(MSCHandleSignal,TRUE);
 #else
-  my_signal (SIGINT, HandleSIGINT);
+    my_signal (SIGINT, HandleSIGINT);
 #endif
 #ifndef MPW
-  my_signal (SIGFPE, HandleMatherr);
+    my_signal (SIGFPE, HandleMatherr);
 #endif
 #if HAVE_SIGSEGV && !defined(THREADS)
-  my_signal_info (SIGSEGV, HandleSIGSEGV);
+    my_signal_info (SIGSEGV, HandleSIGSEGV);
 #endif
 #ifdef ACOW
-  signal(SIGCHLD, SIG_IGN);  /* avoid ghosts */ 
+    signal(SIGCHLD, SIG_IGN);  /* avoid ghosts */ 
 #endif
+  } else {
+#if OS_HANDLES_TR_OVERFLOW
+#if HAVE_SIGSEGV && !defined(THREADS)
+    my_signal_info (SIGSEGV, HandleSIGSEGV);
+#endif    
+#endif
+  }
 }
 
 #endif /* HAVE_SIGNAL */
@@ -2241,20 +2250,20 @@ Yap_InitSysPreds(void)
   InitLastWtime();
   Yap_InitCPred ("srandom", 1, p_srandom, SafePredFlag);
   Yap_InitCPred ("sh", 0, p_sh, SafePredFlag|SyncPredFlag);
-  Yap_InitCPred ("$shell", 1, p_shell, SafePredFlag|SyncPredFlag);
-  Yap_InitCPred ("$system", 1, p_system, SafePredFlag|SyncPredFlag);
-  Yap_InitCPred ("$rename", 2, p_mv, SafePredFlag|SyncPredFlag);
-  Yap_InitCPred ("$cd", 1, p_cd, SafePredFlag|SyncPredFlag);
-  Yap_InitCPred ("$getcwd", 1, p_getcwd, SafePredFlag|SyncPredFlag);
-  Yap_InitCPred ("$dir_separator", 1, p_dir_sp, SafePredFlag);
-  Yap_InitCPred ("$alarm", 2, p_alarm, SafePredFlag|SyncPredFlag);
-  Yap_InitCPred ("$getenv", 2, p_getenv, SafePredFlag);
-  Yap_InitCPred ("$putenv", 2, p_putenv, SafePredFlag|SyncPredFlag);
-  Yap_InitCPred ("$file_age", 2, p_file_age, SafePredFlag|SyncPredFlag);
-  Yap_InitCPred ("$set_fpu_exceptions", 0, p_set_fpu_exceptions, SafePredFlag|SyncPredFlag);
-  Yap_InitCPred ("$host_type", 1, p_host_type, SafePredFlag|SyncPredFlag);
-  Yap_InitCPred ("$first_signal", 1, p_first_signal, SafePredFlag|SyncPredFlag);
-  Yap_InitCPred ("$continue_signals", 0, p_continue_signals, SafePredFlag|SyncPredFlag);
+  Yap_InitCPred ("$shell", 1, p_shell, SafePredFlag|SyncPredFlag|HiddenPredFlag);
+  Yap_InitCPred ("$system", 1, p_system, SafePredFlag|SyncPredFlag|HiddenPredFlag);
+  Yap_InitCPred ("$rename", 2, p_mv, SafePredFlag|SyncPredFlag|HiddenPredFlag);
+  Yap_InitCPred ("$cd", 1, p_cd, SafePredFlag|SyncPredFlag|HiddenPredFlag);
+  Yap_InitCPred ("$getcwd", 1, p_getcwd, SafePredFlag|SyncPredFlag|HiddenPredFlag);
+  Yap_InitCPred ("$dir_separator", 1, p_dir_sp, SafePredFlag|HiddenPredFlag);
+  Yap_InitCPred ("$alarm", 2, p_alarm, SafePredFlag|SyncPredFlag|HiddenPredFlag);
+  Yap_InitCPred ("$getenv", 2, p_getenv, SafePredFlag|HiddenPredFlag);
+  Yap_InitCPred ("$putenv", 2, p_putenv, SafePredFlag|SyncPredFlag|HiddenPredFlag);
+  Yap_InitCPred ("$file_age", 2, p_file_age, SafePredFlag|SyncPredFlag|HiddenPredFlag);
+  Yap_InitCPred ("$set_fpu_exceptions", 0, p_set_fpu_exceptions, SafePredFlag|SyncPredFlag|HiddenPredFlag);
+  Yap_InitCPred ("$first_signal", 1, p_first_signal, SafePredFlag|SyncPredFlag|HiddenPredFlag);
+  Yap_InitCPred ("$host_type", 1, p_host_type, SafePredFlag|SyncPredFlag|HiddenPredFlag);
+  Yap_InitCPred ("$continue_signals", 0, p_continue_signals, SafePredFlag|SyncPredFlag|HiddenPredFlag);
 }
 
 

@@ -443,6 +443,7 @@ init_standard_system(int argc, char *argv[], YAP_init_args *iap)
   iap->NumberWorkers = DEFAULT_NUMBERWORKERS;
   iap->SchedulerLoop = DEFAULT_SCHEDULERLOOP;
   iap->DelayedReleaseLoad = DEFAULT_DELAYEDRELEASELOAD;
+  iap->PrologShouldHandleInterrupts = TRUE;
   iap->Argc = argc;
   iap->Argv = argv;
 

@@ -11,8 +11,12 @@
 * File:		index.c							 *
 * comments:	Indexing a Prolog predicate				 *
 *									 *
-* Last rev:     $Date: 2004-11-04 18:22:32 $,$Author: vsc $						 *
+* Last rev:     $Date: 2004-11-18 22:32:36 $,$Author: vsc $						 *
 * $Log: not supported by cvs2svn $
+* Revision 1.105  2004/11/04 18:22:32  vsc
+* don't ever use memory that has been freed (that was done by LU).
+* generic fixes for WIN32 libraries
+*
 * Revision 1.104  2004/10/27 15:56:33  vsc
 * bug fixes on memory overflows and on clauses :- fail being ignored by clause.
 *
@@ -4083,11 +4087,9 @@ reset_stack(istack_entry *sp0)
 static istack_entry *
 push_stack(istack_entry *sp, Int arg, Term Tag, Term extra, struct intermediates *cint)
 {
-#if !OS_HANDLES_TR_OVERFLOW || USE_SYSTEM_MALLOC
   if (sp+1 > (istack_entry *)Yap_TrailTop) {
       longjmp(cint->CompilerBotch,4);    
   }
-#endif
   sp->pos = arg;
   sp->val = Tag;
   sp->extra = extra;
@@ -5101,11 +5103,9 @@ Yap_ExpandIndex(PredEntry *ap, UInt nargs) {
 static path_stack_entry *
 push_path(path_stack_entry *sp, yamop **pipc, ClauseDef *clp, struct intermediates *cint)
 {
-#if !OS_HANDLES_TR_OVERFLOW || USE_SYSTEM_MALLOC
   if (sp+1 > (path_stack_entry *)Yap_TrailTop) {
       longjmp(cint->CompilerBotch,4);    
   }
-#endif
   sp->flag = pc_entry;
   sp->u.pce.pi_pc = pipc;
   sp->u.pce.code = clp->Code;
