@@ -10,8 +10,11 @@
 *									 *
 * File:		absmi.c							 *
 * comments:	Portable abstract machine interpreter                    *
-* Last rev:     $Date: 2004-10-26 20:15:36 $,$Author: vsc $						 *
+* Last rev:     $Date: 2004-11-04 18:22:28 $,$Author: vsc $						 *
 * $Log: not supported by cvs2svn $
+* Revision 1.150  2004/10/26 20:15:36  vsc
+* More bug fixes for overflow handling
+*
 * Revision 1.149  2004/10/14 22:14:52  vsc
 * don't use a cached version of ARG1 in choice-points
 *
@@ -1344,7 +1347,7 @@ Yap_absmi(int inp)
 	    }
 	    UNLOCK(lcl->ClLock);
 	  }
-	  Yap_ErLogUpdIndex(cl);
+	  PREG = Yap_ErLogUpdIndex(cl, PREG);
 	} else {
 	  UNLOCK(cl->ClLock);
 	}
@@ -1364,7 +1367,7 @@ Yap_absmi(int inp)
 		TRAIL_CLREF(lcl);
 	      }
 	    }
-	    Yap_ErLogUpdIndex(cl);
+	    PREG = Yap_ErLogUpdIndex(cl, PREG);
 	  }
 	}
 #endif
@@ -1875,7 +1878,7 @@ Yap_absmi(int inp)
 		    /* at this point, 
 		       we are the only ones accessing the clause,
 		       hence we don't need to have a lock it */
-		    Yap_ErLogUpdIndex(cl);
+		    Yap_ErLogUpdIndex(cl, NULL);
 		    setregs();
 		  }
 		} else {
@@ -1925,7 +1928,7 @@ Yap_absmi(int inp)
 		saveregs();
 		if (flags & LogUpdMask) {
 		  if (flags & IndexMask) {
-		    Yap_ErLogUpdIndex(ClauseFlagsToLogUpdIndex(pt1));
+		    Yap_ErLogUpdIndex(ClauseFlagsToLogUpdIndex(pt1), NULL);
 		  } else {
 		    Yap_ErLogUpdCl(ClauseFlagsToLogUpdClause(pt1));
 		  }
@@ -2014,7 +2017,7 @@ Yap_absmi(int inp)
 		     we are the only ones accessing the clause,
 		     hence we don't need to have a lock it */
 		  saveregs();
-		  Yap_ErLogUpdIndex(cl);
+		  Yap_ErLogUpdIndex(cl, NULL);
 		  setregs();
 		}
 	      } else {

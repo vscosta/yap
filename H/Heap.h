@@ -10,7 +10,7 @@
 * File:		Heap.h         						 *
 * mods:									 *
 * comments:	Heap Init Structure					 *
-* version:      $Id: Heap.h,v 1.70 2004-10-28 20:12:22 vsc Exp $	 *
+* version:      $Id: Heap.h,v 1.71 2004-11-04 18:22:34 vsc Exp $	 *
 *************************************************************************/
 
 /* information that can be stored in Code Space */
@@ -66,6 +66,7 @@ typedef struct worker_local_struct {
   Int      tot_gc_recovered; /* number of heap objects in all garbage collections */
   jmp_buf  gc_restore; /* where to jump if garbage collection crashes */
   struct trail_frame *old_TR;
+  yamop trust_lu_code[3];
 } worker_local;
 
 #ifdef THREADS
@@ -683,6 +684,7 @@ struct various_codes *heap_regs;
 #define  TotGcRecovered           heap_regs->wl[worker_id].tot_gc_recovered
 #define  Yap_gc_restore           heap_regs->wl[worker_id].gc_restore
 #define  Yap_old_TR               heap_regs->wl[worker_id].old_TR
+#define  TrustLUCode              heap_regs->wl[worker_id].trust_lu_code
 #else
 #define  ActiveSignals            heap_regs->wl.active_signals
 #define  DelayedTrace	          heap_regs->wl.delayed_trace
@@ -700,6 +702,7 @@ struct various_codes *heap_regs;
 #define  TotGcRecovered           heap_regs->wl.tot_gc_recovered
 #define  Yap_gc_restore           heap_regs->wl.gc_restore
 #define  Yap_old_TR               heap_regs->wl.old_TR
+#define  TrustLUCode              heap_regs->wl.trust_lu_code
 #endif
 #define  profiling                heap_regs->compiler_profiling
 #define  call_counting            heap_regs->compiler_call_counting
@@ -759,8 +762,6 @@ struct various_codes *heap_regs;
 #define  ReadlineBuf              heap_regs->readline_buf
 #define  ReadlinePos              heap_regs->readline_pos
 #endif
-
-#define USE_DL_MALLOC 1
 
 ADDR    STD_PROTO(Yap_ExpandPreAllocCodeSpace, (UInt));
 #define Yap_ReleasePreAllocCodeSpace(x)

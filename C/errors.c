@@ -357,23 +357,19 @@ Yap_Error(yap_error_number type, Term where, char *format,...)
     exit(1);
   }
   /* must do this here */
-  if (type == FATAL_ERROR
-#if !USE_SYSTEM_MALLOC
-      || Yap_HeapBase == NULL
-#endif
-      ) {
-    va_start (ap, format);
-    /* now build the error string */
+  if (type == FATAL_ERROR || Yap_HeapBase == NULL) {
     if (format != NULL) {
+      va_start (ap, format);
+      /* now build the error string */
 #if   HAVE_VSNPRINTF
       (void) vsnprintf(tmpbuf, YAP_BUF_SIZE, format, ap);
 #else
       (void) vsprintf(tmpbuf, format, ap);
 #endif
+      va_end (ap);
     }  else {
       tmpbuf[0] = '\0';
     }
-    va_end (ap);
     fprintf(stderr,"%% Fatal YAP Error: %s exiting....\n",tmpbuf);
     error_exit_yap (1);
   }

@@ -2997,8 +2997,9 @@ do_read(int inp_stream)
     if (Yap_ErrorMessage || (t = Yap_Parse()) == 0) {
       if (Yap_ErrorMessage && (strcmp(Yap_ErrorMessage,"Stack Overflow") == 0)) {
 	/* ignore term we just built */
-	H = old_H;
 	tr_fr_ptr old_TR = TR;
+
+	H = old_H;
 	TR = (tr_fr_ptr)ScannerStack;
 	if (Yap_growstack_in_parser(&old_TR, &tokstart, &Yap_VarTable)) {
 	  ScannerStack = (char *)TR;
@@ -3758,7 +3759,7 @@ format(volatile Term otail, volatile Term oargs, int sno)
   int (* f_putc)(int, int);
   int has_tabs;
   jmp_buf format_botch;
-  volatile void *old_handler = NULL;
+  volatile void *old_handler;
   volatile int old_pos;
 
   if (Stream[sno].status & InMemory_Stream_f) {
@@ -3778,6 +3779,8 @@ format(volatile Term otail, volatile Term oargs, int sno)
       Stream[sno].u.mem_string.pos = old_pos;
       H -= 2;
     }
+  } else {
+    old_handler = NULL;
   }
   args = oargs;
   tail = otail;

@@ -12,7 +12,7 @@
 * Last rev:								 *
 * mods:									 *
 * comments:	allocating space					 *
-* version:$Id: alloc.c,v 1.63 2004-10-28 20:12:20 vsc Exp $		 *
+* version:$Id: alloc.c,v 1.64 2004-11-04 18:22:30 vsc Exp $		 *
 *************************************************************************/
 #ifdef SCCS
 static char SccsId[] = "%W% %G%";
@@ -57,13 +57,13 @@ static char SccsId[] = "%W% %G%";
 /************************************************************************/
 /* Yap workspace management                                             */
 
-#if USE_SYSTEM_MALLOC||USE_DL_MALLOC
-
 #if USE_DL_MALLOC
 #define malloc Yap_dlmalloc
 #define free Yap_dlfree
 #define realloc Yap_dlrealloc
 #endif
+
+#if USE_SYSTEM_MALLOC||USE_DL_MALLOC
 
 char *
 Yap_AllocCodeSpace(unsigned int size)

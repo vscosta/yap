@@ -195,7 +195,7 @@ ClauseUnion *STD_PROTO(Yap_find_owner_index,(yamop *, PredEntry *));
 /* dbase.c */
 void	STD_PROTO(Yap_ErCl,(DynamicClause *));
 void	STD_PROTO(Yap_ErLogUpdCl,(LogUpdClause *));
-void	STD_PROTO(Yap_ErLogUpdIndex,(LogUpdIndex *));
+yamop  *STD_PROTO(Yap_ErLogUpdIndex,(LogUpdIndex *, yamop *));
 Int	STD_PROTO(Yap_Recordz,(Atom, Term));
 
 /* exec.c */

@@ -11,8 +11,11 @@
 * File:		index.c							 *
 * comments:	Indexing a Prolog predicate				 *
 *									 *
-* Last rev:     $Date: 2004-10-27 15:56:33 $,$Author: vsc $						 *
+* Last rev:     $Date: 2004-11-04 18:22:32 $,$Author: vsc $						 *
 * $Log: not supported by cvs2svn $
+* Revision 1.104  2004/10/27 15:56:33  vsc
+* bug fixes on memory overflows and on clauses :- fail being ignored by clause.
+*
 * Revision 1.103  2004/10/22 16:53:19  vsc
 * bug fixes
 *
@@ -7574,6 +7577,7 @@ Yap_FollowIndexingCode(PredEntry *ap, yamop *ipc, Term Terms[3], yamop *ap_pc, y
       {
 	LogUpdIndex *cl = (LogUpdIndex *)ipc->u.l.l;
 	/* check if we are the ones using this code */
+      ipc = NEXTOP(ipc,l);
 #if defined(YAPOR) || defined(THREADS)
 	LOCK(cl->ClLock);
 	DEC_CLREF_COUNT(cl);
@@ -7585,7 +7589,7 @@ Yap_FollowIndexingCode(PredEntry *ap, yamop *ipc, Term Terms[3], yamop *ap_pc, y
 	  /* I am the last one using this clause, hence I don't need a lock
 	     to dispose of it 
 	  */
-	  Yap_ErLogUpdIndex(cl);
+	  ipc = Yap_ErLogUpdIndex(cl, ipc);
 	} else {
 	  UNLOCK(cl->ClLock);
 	}
@@ -7597,7 +7601,7 @@ Yap_FollowIndexingCode(PredEntry *ap, yamop *ipc, Term Terms[3], yamop *ap_pc, y
 	  TR = --(B->cp_tr);
 	  /* next, recover space for the indexing code if it was erased */
 	  if (cl->ClFlags & ErasedMask) {
-	    yamop *next = NEXTOP(ipc,l)->u.ld.d;
+	    yamop *next = ipc->u.ld.d;
 	    if (next != FAILCODE) {
 	      LogUpdClause *lcl = ClauseCodeToLogUpdClause(next);
 	      /* make sure we don't erase the clause we are jumping too */
@@ -7606,12 +7610,11 @@ Yap_FollowIndexingCode(PredEntry *ap, yamop *ipc, Term Terms[3], yamop *ap_pc, y
 		TRAIL_CLREF(lcl);
 	      }
 	    }
-	    Yap_ErLogUpdIndex(cl);
+	    ipc = Yap_ErLogUpdIndex(cl, ipc);
 	  }
 	}
 #endif
       }
-      ipc = NEXTOP(ipc,l);
       break;
     case _stale_lu_index:
 #if defined(YAPOR) || defined(THREADS)

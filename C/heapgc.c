@@ -35,8 +35,10 @@ static char     SccsId[] = "%W% %G%";
 /* in a single gc */
 static unsigned long int   total_marked;	/* number of heap objects marked */
 
+#if DEBUG
 #ifdef COROUTINING
 static unsigned long int   total_smarked;
+#endif
 #endif
 
 STATIC_PROTO(Int  p_inform_gc, (void));
@@ -458,7 +460,7 @@ pop_registers(Int num_regs, yamop *nextop)
   }
 }
 
-#ifdef DEBUG
+#if DEBUG && COUNT_CELLS_MARKED
 static int 
 count_cells_marked(void)
 {
@@ -2200,7 +2202,7 @@ sweep_trail(choiceptr gc_B, tr_fr_ptr old_TR)
 		if (erase) {
 		  /* at this point, 
 		     no one is accessing the clause */
-		  Yap_ErLogUpdIndex(indx);
+		  Yap_ErLogUpdIndex(indx, NULL);
 		}
 	      } else {
 		LogUpdClause *cl = ClauseFlagsToLogUpdClause(pt0);
@@ -3421,7 +3423,7 @@ do_gc(Int predarity, CELL *current_env, yamop *nextop)
     }
     if (!bp)
       return 0;
-    bzero((void *)bp, alloc_sz);
+    memset((void *)bp, 0, alloc_sz);
   }
 #endif /* GC_NO_TAGS */
 #ifdef HYBRID_SCHEME
@@ -3429,7 +3431,7 @@ do_gc(Int predarity, CELL *current_env, yamop *nextop)
 #endif
   /* get the number of active registers */
   YAPEnterCriticalSection();
-  Yap_old_TR = old_TR = TR;
+  Yap_old_TR = (struct trail_frame *)(old_TR = TR);
   push_registers(predarity, nextop);
   marking_phase(old_TR, current_env, nextop, max);
   m_time = Yap_cputime();

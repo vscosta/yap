@@ -176,7 +176,9 @@ static void PROTO(freeset,(struct parse *p, cset *cs));
 static int PROTO(freezeset,(struct parse *p, cset *cs));
 static int PROTO(firstch,(struct parse *p, cset *cs));
 static int PROTO(nch,(struct parse *p, cset *cs));
+#if 0
 static void PROTO(mcadd,(struct parse *p, cset *cs, char *cp));
+#endif
 #if used
 static void PROTO(mcsub,(cset *cs, char *cp));
 static int PROTO(mcin,(cset *cs, char *cp));
@@ -361,8 +363,8 @@ register struct parse *p;
 int stop;			/* character this ERE should end at */
 {
 	register char c;
-	register sopno prevback;
-	register sopno prevfwd;
+	register sopno prevback = 0;
+	register sopno prevfwd = 0;
 	register sopno conc;
 	register int first = 1;		/* is this the first alternative? */
 
@@ -933,7 +935,7 @@ register cset *cs;
 		break;
 	case CBLANK:
 		for (c = CHAR_MIN; c <= CHAR_MAX; c++)
-			if (isblank((uch)c))
+			if (((uch)c) == ' ' || ((uch)c) == '\t')
 				CHadd(cs, c);
 		break;
 	case CCNTRL:
@@ -1386,6 +1388,7 @@ register cset *cs;
 	return(n);
 }
 
+#if 0
 /*
  - mcadd - add a collating element to a cset
  == static void mcadd(register struct parse *p, register cset *cs, \
@@ -1412,6 +1415,7 @@ register char *cp;
 	(void) strcpy(cs->multis + oldend - 1, cp);
 	cs->multis[cs->smultis - 1] = '\0';
 }
+#endif
 
 #if used
 /*
@@ -1741,8 +1745,8 @@ struct parse *p;
 register struct re_guts *g;
 {
 	register sop *scan;
-	sop *start;
-	register sop *newstart;
+	sop *start = NULL;
+	register sop *newstart = NULL;
 	register sopno newlen;
 	register sop s;
 	register char *cp;

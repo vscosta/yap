@@ -239,7 +239,7 @@ prolog_load_context(term_position, Position) :-
 	recorded('$module','$module'(F1,_,P),_),
 	recorded('$loaded','$loaded'(F1,_,Age),R),
 	'$same_file'(F1,F), !,
-	'$loaded_file_age'(F, R).
+	'$loaded_file_age'(F, R, Age).
 '$loaded_file'(F,M,F1) :-
 	recorded('$loaded','$loaded'(F1,M,Age),R),
 	'$same_file'(F1,F), !,

@@ -11,8 +11,11 @@
 * File:		cdmgr.c							 *
 * comments:	Code manager						 *
 *									 *
-* Last rev:     $Date: 2004-10-31 02:18:03 $,$Author: vsc $						 *
+* Last rev:     $Date: 2004-11-04 18:22:31 $,$Author: vsc $						 *
 * $Log: not supported by cvs2svn $
+* Revision 1.140  2004/10/31 02:18:03  vsc
+* fix bug in handling Yap heap overflow while adding new clause.
+*
 * Revision 1.139  2004/10/28 20:12:21  vsc
 * Use Doug Lea's malloc as an alternative to YAP's standard malloc
 * don't use TR directly in scanner/parser, this avoids trouble with ^C while
@@ -938,10 +941,34 @@ Yap_kill_iblock(ClauseUnion *blk, ClauseUnion *parent_blk, PredEntry *ap)
   This predicate is supposed to be called with a
   lock on the current predicate
 */
-void 
-Yap_ErLogUpdIndex(LogUpdIndex *clau)
+yamop * 
+Yap_ErLogUpdIndex(LogUpdIndex *clau, yamop *ipc)
 {
   LogUpdIndex *c = clau;
+  yamop *codep;
+
+  if (ipc) {
+    op_numbers op = Yap_op_from_opcode(ipc->opc);
+    codep = TrustLUCode;
+
+    if (op == _trust) {
+      codep->opc = ipc->opc;
+      codep->u.ld.s = ipc->u.ld.s;
+      codep->u.ld.p = ipc->u.ld.p; 
+      codep->u.ld.d = ipc->u.ld.d;
+#ifdef YAPOR
+      codep->u.ld.or_arg = ipc->u.ld.or_arg;
+#endif /* YAPOR */
+#ifdef TABLING
+      codep->u.ld.te = ipc->u.ld.te;
+#endif /* TABLING */
+    } else {
+      Yap_Error(SYSTEM_ERROR,TermNil,"Expected To Find trust, found %d", op);
+      codep = ipc;
+    }
+  } else {
+    codep = NULL;
+  }
   if (clau->ClFlags & ErasedMask) {
     if (!c->ClRefCount) {
       if (c->ClFlags & SwitchRootMask) {
@@ -953,7 +980,7 @@ Yap_ErLogUpdIndex(LogUpdIndex *clau)
       }
     }
     /* otherwise, nothing I can do, I have been erased already */
-    return;
+    return codep;
   }
   if (c->ClFlags & SwitchRootMask) {
     kill_first_log_iblock(clau, NULL, c->u.pred);
@@ -973,7 +1000,8 @@ Yap_ErLogUpdIndex(LogUpdIndex *clau)
     clau->ClRefCount--;
     UNLOCK(clau->u.ParentIndex->ClLock);
 #endif
- }
+  }
+  return codep;
 }
 
 /* Routine used when wanting to remove the indexation */

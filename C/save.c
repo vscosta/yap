@@ -1388,7 +1388,7 @@ UnmarkTrEntries(void)
 	} else {
 	  if (flags & LogUpdMask) {
 	    if (flags & IndexMask) {
-	      Yap_ErLogUpdIndex(ClauseFlagsToLogUpdIndex(ent));
+	      Yap_ErLogUpdIndex(ClauseFlagsToLogUpdIndex(ent), NULL);
 	    } else {
 	      Yap_ErLogUpdCl(ClauseFlagsToLogUpdClause(ent));
 	    }

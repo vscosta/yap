@@ -1,3 +1,6 @@
+
+#if USE_DL_MALLOC
+
 /* YAP only stuff */
 
 void STD_PROTO(Yap_initdlmalloc,(void));
@@ -1167,3 +1170,4 @@ nextchunk-> +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 
 */
 
+#endif /* USE_DL_MALLOC */

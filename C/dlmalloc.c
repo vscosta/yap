@@ -6,6 +6,8 @@
 #include "alloc.h"
 #include "dlmalloc.h"
 
+#if USE_DL_MALLOC
+
 /*
   This is a version (aka dlmalloc) of malloc/free/realloc written by
   Doug Lea and released to the public domain.  Use, modify, and
@@ -777,7 +779,7 @@ static Void_t** iALLOc();
   in malloc. In which case, please report it!)
 */
 
-#if ! DEBUG
+#if ! DEBUG_DLMALLOC
 
 #define check_chunk(P)
 #define check_free_chunk(P)
@@ -2487,7 +2489,7 @@ Void_t* cALLOc(n_elements, elem_size) size_t n_elements; size_t elem_size;
       assert(nclears >= 3);
 
       if (nclears > 9)
-        bzero(d, clearsize);
+        memset(d, 0, clearsize);
 
       else {
         *(d+0) = 0;
@@ -2633,7 +2635,7 @@ static Void_t** iALLOc(n_elements, sizes, opts, chunks) size_t n_elements; size_
   remainder_size = chunksize(p);
 
   if (opts & 0x2) {       /* optionally clear the elements */
-    bzero(mem, remainder_size - SIZE_SZ - array_size);
+    memset(mem, 0, remainder_size - SIZE_SZ - array_size);
   }
 
   /* If not provided, allocate the pointer array as final part of chunk */
@@ -2662,7 +2664,7 @@ static Void_t** iALLOc(n_elements, sizes, opts, chunks) size_t n_elements; size_
     }
   }
 
-#if DEBUG
+#if DEBUG_DLMALLOC
   if (marray != chunks) {
     /* final element must have exactly exhausted chunk */
     if (element_size != 0) 
@@ -3170,7 +3172,9 @@ Yap_initdlmalloc(void)
 {
   HeapTop = (ADDR)ALIGN_SIZE(HeapTop,16);
   Yap_av = (struct malloc_state *)HeapTop;
-  bzero((void *)Yap_av, sizeof(struct malloc_state));
+  memset((void *)Yap_av, 0, sizeof(struct malloc_state));
   HeapTop += sizeof(struct malloc_state);
   HeapMax = HeapUsed = HeapTop-Yap_HeapBase;
 }
+
+#endif /* USE_DL_MALLOC */
