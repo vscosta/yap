@@ -34,6 +34,7 @@ false :- fail.
 \+(G) :- '$meta_call'(\+(G),prolog).
 not(G) :- '$meta_call'(not(G),prolog).
 
+
 :- '$set_value'('$doindex',true).
 
 :- 	['errors.yap',

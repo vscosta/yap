@@ -248,17 +248,18 @@ do_execute(Term t, SMALLUNSGN mod)
 	}
       } else if (f == FunctorComma) {
 	Term d1 = ArgOfTerm(2,t);
-	YENV = ASP;
 	if (IsVarTerm(d1)) {
 	  return CallMetaCall(mod);
 	}
 	if (IsAtomTerm(d1)) {
+	  YENV = ASP;
 	  YENV[-EnvSizeInCells-2]  = MkIntegerTerm((Int)PredPropByAtom(AtomOfTerm(d1),mod));
 	} else if (IsApplTerm(d1)) {
 	  Functor f = FunctorOfTerm(d1);
-	  if (IsExtensionFunctor(f)) {
+	  if (IsExtensionFunctor(f) || f == FunctorModule) {
 	    return CallMetaCall(mod);
 	  } else {
+	    YENV = ASP;
 	    YENV[-EnvSizeInCells-2]  = MkIntegerTerm((Int)PredPropByFunc(f,mod));
 	  }
 	} else {

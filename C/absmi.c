@@ -11770,12 +11770,15 @@ Yap_absmi(int inp)
 	    execute_comma_nvar:
 	      if (IsAtomTerm(d1)) {
 		E_YREG[-EnvSizeInCells-2]  = MkIntegerTerm((Int)PredPropByAtom(AtomOfTerm(d1),mod));
+		E_YREG[-EnvSizeInCells-3]  = MkIntTerm(mod);
 	      } else if (IsApplTerm(d1)) {
 		Functor f = FunctorOfTerm(d1);
 		if (IsExtensionFunctor(f)) {
 		  goto execute_metacall;
 		} else {
+		  if (f == FunctorModule) goto execute_metacall;
 		  E_YREG[-EnvSizeInCells-2]  = MkIntegerTerm((Int)PredPropByFunc(f,mod));
+		  E_YREG[-EnvSizeInCells-3]  = MkIntTerm(mod);
 		}
 	      } else {
 		goto execute_metacall;
@@ -11787,7 +11790,6 @@ Yap_absmi(int inp)
 	      E_YREG[E_DEPTH] = DEPTH;
 #endif	/* DEPTH_LIMIT */
 	      E_YREG[-EnvSizeInCells-1]  = d1;
-	      E_YREG[-EnvSizeInCells-3]  = MkIntTerm(mod);
 	      ENV = E_YREG;
 	      E_YREG -= EnvSizeInCells+3;
 	      PREG = COMMA_CODE;
