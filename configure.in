@@ -622,6 +622,62 @@ else
 AC_DEFINE(HAVE_MPZ_XOR,0)
 fi
 
+dnl On some systems doing a fflush(NULL) to flush all output streams
+dnl has the side-effect of makeing all charactes waiting in input
+dnl pipes disapear.
+AC_CACHE_CHECK(
+[if fflush(NULL) clobbers input pipes],
+[yap_cv_broken_fflush_null],
+[ cat >conftest.$ac_ext <<EOF
+  #include <stdio.h>
+  #include <stdlib.h>
+  int main(int argc, char **argv)
+  {
+      char *buf;
+      int i;
+      char *bp;
+      bp = buf = malloc(1024);
+      while (1) {
+          while ((i = getc(stdin)) != -1
+                 && (*bp++ = i) != '\n'
+                 && (bp - buf < 1024) )
+    	  /* DO NOTHING */ ;
+          *bp = '\0';
+          fprintf(stdout, "%s", buf);
+          fflush(NULL);
+          if( i == EOF ) return 0;
+          bp = buf;
+      }
+  }
+EOF
+  AC_TRY_EVAL(ac_link)
+  if test "$?" = 0
+  then
+    cat conftest.$ac_ext | ./conftest$ac_exeext > conftest.out
+    AC_TRY_COMMAND(cmp conftest.$ac_ext conftest.out)
+    if test "$?" = 0
+    then
+      AC_MSG_RESULT(no)
+      yap_cv_broken_fflush_null=no
+    else
+      AC_MSG_RESULT(yes)
+      yap_cv_broken_fflush_null=yes
+    fi
+  else
+    dnl This should never happen
+    AC_MSG_RESULT(failed)
+    yap_cv_broken_fflush_null=failed
+  fi
+  rm -f conftest.$ac_ext conftest.$ac_objext conftest$ac_exeext conftest.out ])
+if test "$yap_cv_broken_fflush_null" = no
+then
+  AC_DEFINE(BROKEN_FFLUSH_NULL,0)
+else
+  dnl be conservative: if the test failed, assume fflush(NULL) is
+  dnl not working properly
+  AC_DEFINE(BROKEN_FFLUSH_NULL,1)
+fi
+
 mkdir -p  library/regex
 mkdir -p  library/system
 mkdir -p  CHR

@@ -196,3 +196,4 @@
 #define USE_GMP 1
 #endif
 
+#undef BROKEN_FFLUSH_NULL
