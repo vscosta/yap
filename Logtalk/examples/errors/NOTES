@@ -1,0 +1,21 @@
+=================================================================
+Logtalk - Object oriented extension to Prolog
+Release 2.9.1
+
+Copyright (c) 1998-2001 Paulo Moura.  All Rights Reserved.
+=================================================================
+
+To load all entities in this example consult the warnings.loader and 
+the errors.loader utility files (note that these are Prolog files).
+
+This folder contains examples of objects, categories, and protocols 
+containing errors that will trigger Logtalk compiler warnings and 
+errors. The goal of this example is to help the user to get acquainted 
+to the Logtalk compiler warning and error reporting. Open the object 
+source files in a text editor to better understand how the compiler 
+deals with common programming errors.
+
+Note that the warnings and errors that yoy will get while compiling 
+your files depend on your compiler options (setted explicitly as 
+parameters in the logtalk_compile/2 or logtalk_load/2 built-in 
+predicates or by default in your configuration file).
