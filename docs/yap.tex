@@ -6889,9 +6889,9 @@ Creates a new list with the same elements as @var{Queue}.
 @cindex queue
 
 The following random number operations are included with the
-@code{use_module(library(random))} command. The random numbers packages
-uses the Operating underlying random number generator, so random numbers
-are not necessarily repeatable.
+@code{use_module(library(random))} command. Since Yap-4.3.19 Yap uses
+the O'Keefe public-domain algorithm, based on the "Applied Statistics"
+algorithm AS183.
 
 @table @code
 
@@ -6922,14 +6922,14 @@ integers then @var{NUMBER} will also be an integer, otherwise
 @syindex randseq/3
 @cnindex randseq/3
 Unify @var{Numbers} with a list of @var{LENGTH} unique random integers
-in the range @code{[1 ...@var{HIGH})}.
+in the range @code{[1 ...@var{MAX})}.
 
 @item randset(+@var{LENGTH}, +@var{MAX}, -@var{Numbers})
 @findex randset/3
 @syindex randset/3
 @cnindex randset/3
 Unify @var{Numbers} with an ordered list of @var{LENGTH} unique random
-integers in the range @code{[1 ...@var{HIGH})}.
+integers in the range @code{[1 ...@var{MAX})}.
 
 @item setrand(+@var{Key})
 @findex setrand/1

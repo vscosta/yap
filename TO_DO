@@ -13,6 +13,10 @@ BEFORE 4.4:
 - document system(library)
 - document new interface functions.
 - ^C can break code.
+- check library(random)
+- add more precision when outputting floats.
+- make statistics/0 better looking.
+- mask when installing.
 
 TO CHECK:
 - bad register allocation for a(X,Y) :- X is Y+2.3 ?

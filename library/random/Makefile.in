@@ -1,0 +1,88 @@
+#
+# default base directory for YAP installation
+#
+ROOTDIR = @prefix@
+#
+# where the binary should be
+#
+BINDIR = $(ROOTDIR)/bin
+#
+# where YAP should look for libraries
+#
+LIBDIR=$(ROOTDIR)/lib/Yap
+#
+#
+CC=@CC@
+CFLAGS= @CFLAGS@ $(YAP_EXTRAS) $(DEFS) -I$(srcdir) -I../.. -I$(srcdir)/../../include
+#
+#
+# You shouldn't need to change what follows.
+#
+INSTALL=@INSTALL@
+INSTALL_DATA=@INSTALL_DATA@
+INSTALL_PROGRAM=@INSTALL_PROGRAM@
+SHELL=/bin/sh
+RANLIB=@RANLIB@
+srcdir=@srcdir@
+SHLIB_CFLAGS=@SHLIB_CFLAGS@
+SHLIB_SUFFIX=@SHLIB_SUFFIX@
+#4.1VPATH=@srcdir@:@srcdir@/OPTYap
+CWD=$(PWD)
+#
+
+OBJS=random.o
+SOBJS=random@SHLIB_SUFFIX@
+
+#in some systems we just create a single object, in others we need to
+# create a libray
+
+all: @NEWSHOBJ@
+
+sobjs: $(SOBJS) 
+
+dll: random@SHLIB_SUFFIX@
+
+random.o: $(srcdir)/random.c
+	$(CC) -c $(CFLAGS) $(SHLIB_CFLAGS) $(srcdir)/random.c -o random.o
+
+%.so: %.o
+	@SHLIB_LD@ -o $@ $<
+
+random.so: random.o
+	@SHLIB_LD@ -o random.so random.o
+
+#
+# create a new DLL library on cygwin environments
+#
+# DLLNAME: name of the new dll
+# OBJS: list of object files I want to put in
+# LIBS: list of libraries to link with
+# DEFFILE is the name of the definitions file.
+# BASEFILE temporary 
+# EXPFILE  temporary
+# ENTRY is the entry point  int WINAPI startup (HINSTANCE, DWORD, LPVOID)
+# 
+DLLTOOL=dlltool
+DLLNAME=random.dll
+DLL_LIBS=-L /usr/lib/mingw -lmoldname -lcrtdll -lkernel32 -L../.. -lWYap
+BASE_FILE=random.base
+EXP_FILE=random.exp
+DEF_FILE=$(srcdir)/random.def
+ENTRY_FUNCTION=_win_random@12
+#
+random.dll: $(OBJS)
+	$(LD) -s --base-file $(BASE_FILE) --dll -o $(DLLNAME) $(OBJS) $(DLL_LIBS) -e $(ENTRY_FUNCTION)
+	$(DLLTOOL) --as=$(AS) --dllname $(DLLNAME) --def $(DEF_FILE) --base-file $(BASE_FILE) --output-exp $(EXP_FILE)
+	$(LD) -s --base-file $(BASE_FILE) $(EXP_FILE) -dll -o $(DLLNAME) $(OBJS) $(DLL_LIBS) -e $(ENTRY_FUNCTION)
+	$(DLLTOOL) --as=$(AS) --dllname $(DLLNAME) --def $(DEF_FILE) --base-file $(BASE_FILE) --output-exp $(EXP_FILE)
+	$(LD) $(EXP_FILE) --dll -o $(DLLNAME) $(OBJS) $(DLL_LIBS) -e $(ENTRY_FUNCTION)
+
+install: all
+	$(INSTALL_PROGRAM) $(SOBJS) $(DESTDIR)$(LIBDIR)
+
+install_mingw32: dll
+	$(INSTALL_PROGRAM) -m 755 random.dll $(LIBDIR)/random.dll
+
+clean:
+	rm -f *.o *.so *~ $(OBJS) *.BAK
+

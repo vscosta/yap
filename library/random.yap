@@ -15,6 +15,13 @@
 *									 *
 *************************************************************************/
 
+% original code from RA O'Keefe.
+
+%   This is algorithm AS 183 from Applied Statistics.  I also have a C
+%   version.  It is really very good.  It is straightforward to make a
+%   version which yields 15-bit random integers using only integer
+%   arithmetic.
+ 
 :- module(random, [
 	random/1,
 	random/3,
@@ -24,79 +31,90 @@
 	setrand/1
     ]).
 
+:- load_foreign_files([random], [], init_random).
 
-random(X) :- X is random.
 
-random(X, LOW, UPPER) :- integer(LOW), integer(UPPER), !,
-	X is integer(random*(UPPER-LOW))+LOW.
-random(X, LOW, UPPER) :- 
-	X is random*(UPPER-LOW)+LOW.
+%   random(R) binds R to a new random number in [0.0,1.0)
 
-randseq(L, M, Rs) :-
-	integer(L),
-	L > 0,
-	integer(M),
-	M > 0,
-	M > L,
-	randseq(L, M, [], Rs).
+%   random(L, U, R) binds R to a random integer in [L,U)
+%   when L and U are integers (note that U will NEVER be generated),
+%   or to a random floating number in [L,U) otherwise.
 
-randseq(0, _, Rs, Rs) :- !.
-randseq(K, N, Set, Rs) :-
-	X is integer(random*N),
-	not_in(Set, X), !,
-	K1 is K-1,
-	randseq(K1, N, [X|Set], Rs).
-randseq(K, N, Set, Rs) :-
-	randseq(K, N, Set, Rs).
+random(L, U, R) :- integer(L), integer(U), !,
+	random(X),
+	R is L+integer((U-L)*X).
+random(L, U, R) :-
+	number(L), number(U), !,
+	random(X),
+	R is L+((U-L)*X).
 
-not_in([], _).
-not_in([X|L], Y) :- X \= Y,
-	not_in(L, Y).
-
-randset(L, M, Rs) :-
-	integer(L),
-	L > 0,
-	integer(M),
-	M > 0,
-	M > L,
-	randset(L, M, [], Rs).
-
-randset(0, _, Rs, Rs) :- !.
-randset(K, N, Set, Rs) :-
-	X is integer(random*N),
-	addnew(Set, X, NSet), !,
-	K1 is K-1,
-	randset(K1, N, NSet, Rs).
-randset(K, N, Set, Rs) :-
-	randset(K, N, Set, Rs).
-
-addnew([], Y, [Y]).
-addnew([X|L], Y, [Y,X|L]) :- X > Y, !.
-addnew([X|L], Y, [X|NSet]) :-
-	X < Y,
-	addnew(L, Y, NSet).
-
-getrand(rand(X,Y,Z)) :-
-	srandom(Seed0),
-	Seed is abs(Seed0),
-	X is Seed mod 30269,
-	Seed1 is Seed // 30269,
-	Y is Seed1 mod 30307,
-	Seed2 is Seed1 // 30307,
-	Z is Seed2 mod 30323.
+/*  There are two versions of this operation.
+ 
+	randset(K, N, S)
+ 
+    generates a random set of K integers in the range 1..N.
+    The result is an ordered list, such as setof might produce.
+ 
+	randseq(K, N, L)
+ 
+    generates a random sequence of K integers, the order is as
+    random as we can make it.
+*/
+ 
+ 
+randset(K, N, S) :-
+	K >= 0,
+	K =< N,
+	randset(K, N, [], S).
+ 
+ 
+randset(0, _, S, S) :- !.
+randset(K, N, Si, So) :-
+	random(X),
+	X * N < K, !,
+	J is K-1,
+	M is N-1,
+	randset(J, M, [N|Si], So).
+randset(K, N, Si, So) :-
+	M is N-1,
+	randset(K, M, Si, So).
+ 
+ 
+randseq(K, N, S) :-
+	randseq(K, N, L, []),
+	keysort(L, R),
+	strip_keys(R, S).
+ 
+randseq(0, _, S, S) :- !.
+randseq(K, N, [Y-N|Si], So) :-
+	random(X),
+	X * N < K, !,
+	random(Y),
+	J is K-1,
+	M is N-1,
+	randseq(J, M, Si, So).
+randseq(K, N, Si, So) :-
+	M is N-1,
+	randseq(K, M, Si, So).
+ 
+ 
+strip_keys([], []) :- !.
+strip_keys([_-K|L], [K|S]) :-
+	strip_keys(L, S).
 
 setrand(rand(X,Y,Z)) :-
 	integer(X),
-	X > 1,
-	X < 30269,
 	integer(Y),
-	Y > 1,
-	Y < 30307,	
 	integer(Z),
-	Z > 1,
-	Z < 30323,	
-	Seed is X + 30269*(Y + 30307*Z),
-	srandom(Seed).
+	X > 0,
+	X < 30269,
+	Y > 0,
+	Y < 30307,	
+	Z > 0,
+	Z < 30323,
+	setrand(X,Y,Z).
+
+
 
 
 
