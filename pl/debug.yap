@@ -932,7 +932,7 @@ debugging :-
 	'$format'(user_error,"<D       depth D     <   full term~n", []),
 	'$format'(user_error,"+        spy this    -   nospy this~n", []),
 	'$format'(user_error,"^        view subg   ^^  view using~n", []),
-	'$format'(user_error,"! g execute goal~n").
+	'$format'(user_error,"! g execute goal~n", []).
 	
 '$ilgl'(C) :- '$skipeol'(C), write(user_error,'[ Illegal option. Use h for help. ]'),
 	nl(user_error), fail.

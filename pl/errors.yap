@@ -75,9 +75,9 @@ print_message(Level, Mss) :-
 	LC is LC0+1,
 	'$format'(user_error, "~*|[ ~a ~a in module ~a, ~d msec ~d bytes ]~n", [LC, What, AbsoluteFileName,Mod,Time,Space]).
 '$do_informational_message'(M) :-
-	'$format'("[ ", []),
+	'$format'(user_error,"[ ", []),
 	'$do_print_message'(M),
-	'$format'(" ]~n", []).
+	'$format'(user_error," ]~n", []).
 
 
 %message(loaded(Past,AbsoluteFileName,user,Msec,Bytes), Prefix, Suffix) :- !,
