@@ -34,24 +34,9 @@
 #undef NO_DYN
 #endif /* __AIX */
 
-#ifdef __linux__
-#ifndef __LCC__
-#undef NO_DYN
+#if HAVE_DLOPEN
 #define LOAD_DL 1
-#endif
-#endif /* __linux__ */
-
-#ifdef __osf__
-#ifdef NO_DYN
-#undef NO_DYN
-#define LOAD_DL 1
-#endif
-#endif
-
-#ifdef sgi
-#undef NO_DYN
-#define LOAD_DL 1
-#endif
+#endif /* LOAD_DL */
 
 #if defined(sparc) || defined(__sparc)
 #undef NO_DYN
@@ -66,37 +51,10 @@
 #endif
 #endif
 
-#if (defined(__svr4__) || defined(__SVR4))
-#ifndef SIMICS
-#ifdef NO_DYN
-#undef NO_DYN
-#define LOAD_DL 1
-#endif
-#endif
-#endif
-
 #ifdef _WIN32
 #ifdef NO_DYN
 #undef NO_DYN
 #define LOAD_DLL 1
-#endif
-#endif
-
-#ifdef __ELF__
-#ifdef NO_DYN
-#undef NO_DYN
-#endif
-#ifndef LOAD_DL
-#define LOAD_DL 1
-#endif
-#endif
-
-#ifdef __NetBSD__
-#ifdef NO_DYN
-#undef NO_DYN
-#endif
-#ifndef LOAD_DL
-#define A_OUT 1
 #endif
 #endif
 

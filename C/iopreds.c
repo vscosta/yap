@@ -290,11 +290,15 @@ unix_upd_stream_info (StreamDesc * s)
     int filedes; /* visualc */
     filedes = YP_fileno (s->u.file.file);
     if (isatty (filedes)) {
+#if HAVE_TTYNAME      
 	char *ttys = ttyname(filedes);
 	if (ttys == NULL)
 	  s->u.file.name = LookupAtom("tty");
 	else
 	  s->u.file.name = LookupAtom(ttys);
+#else
+	s->u.file.name = LookupAtom("tty");
+#endif
 	s->status |= Tty_Stream_f|Reset_Eof_Stream_f|Promptable_Stream_f;
 	return;
     }

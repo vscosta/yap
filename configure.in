@@ -51,12 +51,15 @@ AC_ARG_ENABLE(dynamic_loading,
 AC_ARG_ENABLE(use_malloc,
 	[ --enable-use-malloc    use malloc to allocate memory ],
 	use_malloc="$enableval", use_malloc=no)
+AC_ARG_ENABLE(condor,
+	[ --enable-condor    allow Yap to be used from condor ],
+	use_condor="$enableval", use_condor=no)
 	
 AC_ARG_WITH(gmp,
 	[ --with-gmp[=DIR]           use GNU Multiple Precision in DIR],
-	if test $withval = yes; then
+	if test "$withval" = yes; then
 		yap_cv_gmp=yes
-	elif test $withval = no; then
+	elif test "$withval" = no; then
 		yap_cv_gmp=no
 	else
 		yap_cv_gmp=$with_gmp
@@ -67,9 +70,9 @@ AC_ARG_WITH(gmp,
 
 AC_ARG_WITH(readline,
 	[ --with-readline[=DIR]      use GNU Readline Library in DIR],
-	if test $withval = yes; then
+	if test "$withval" = yes; then
 		yap_cv_readline=yes
-	elif test $withval = no; then
+	elif test "$withval" = no; then
 		yap_cv_readline=no
 	else
 		yap_cv_readline=$with_readline
@@ -80,9 +83,9 @@ AC_ARG_WITH(readline,
 
 AC_ARG_WITH(mpi,
 	[ --with-mpi[=DIR]           use MPI library in DIR],
-	if test $withval = yes; then
+	if test "$withval" = yes; then
 		yap_cv_mpi=yes
-	elif test $withval = no; then
+	elif test "$withval" = no; then
 		yap_cv_mpi=no
 	else
 		yap_cv_mpi=$with_mpi
@@ -93,9 +96,9 @@ AC_ARG_WITH(mpi,
 
 AC_ARG_WITH(mpe,
 	[ --with-mpe[=DIR]           use MPE library in DIR],
-	if test $withval = yes; then
+	if test "$withval" = yes; then
 		yap_cv_mpe=yes
-	elif test $withval = no; then
+	elif test "$withval" = no; then
 		yap_cv_mpe=no
 	else
 		yap_cv_mpe=$with_mpe
@@ -106,9 +109,9 @@ AC_ARG_WITH(mpe,
 
 AC_ARG_WITH(heap-space,
 	[ --with-heap-space[=space]  default heap size in Kbytes],
-	if test $withval = yes; then
+	if test "$withval" = yes; then
 		yap_cv_heap_space=0
-	elif test $withval = no; then
+	elif test "$withval" = no; then
 		yap_cv_heap_space=0
 	else
 		yap_cv_heap_space=$withval
@@ -117,9 +120,9 @@ AC_ARG_WITH(heap-space,
 
 AC_ARG_WITH(stack-space,
 	[ --with-stack-space[=space] default stack size in Kbytes],
-	if test $withval = yes; then
+	if test "$withval" = yes; then
 		yap_cv_stack_space=0
-	elif test $withval = no; then
+	elif test "$withval" = no; then
 		yap_cv_stack_space=0
 	else
 		yap_cv_stack_space=$withval
@@ -128,16 +131,16 @@ AC_ARG_WITH(stack-space,
 
 AC_ARG_WITH(trail-space,
 	[ --with-trail-space[=space] default trail size in Kbytes],
-	if test $withval = yes; then
+	if test "$withval" = yes; then
 		yap_cv_trail_space=0
-	elif test $withval = no; then
+	elif test "$withval" = no; then
 		yap_cv_trail_space=0
 	else
 		yap_cv_trail_space=$withval
 	fi,
 	[yap_cv_trail_space=0])
 
-if test $tabling = yes -o $orparallelism = yes
+if test "$tabling" = yes -o "$orparallelism" = yes
 then
 	AC_DEFINE(MinHeapSpace, (400*SIZEOF_INT_P))
 	AC_DEFINE(MinStackSpace,(300*SIZEOF_INT_P))
@@ -155,6 +158,13 @@ eval "AC_DEFINE(DefTrailSpace,($yap_cv_trail_space))"
 AC_CANONICAL_SYSTEM
 
 AC_DEFINE_UNQUOTED(HOST_ALIAS,"${host}")
+
+dnl condor does not like dynamic linking on Linux, DEC, and HP-UX platforms.
+if test "$use_condor" = yes 
+then
+  use_malloc="yes"
+  CC="condor_compile $CC"
+fi
 
 dnl Compilation Flags
 if test "$GCC" = "yes"
@@ -275,12 +285,8 @@ else
 	have_nsl=yes
 	,
 	have_nsl=no)
-  AC_CHECK_LIB(dl,dlopen,
-dnl Linux has both elf and a.out, in this case we found elf
-	have_dl=yes
-	,
-	have_dl=no)
 fi
+
 if test "$yap_cv_readline" != "no"
 then
   AC_CHECK_LIB(termcap,tgetent)
@@ -389,40 +395,47 @@ else
  YAPLIB="libYap.a"
 fi
 
-case $target_os in
+case "$target_os" in
       *linux*)
-        if test $have_dl = yes
-	then
-	  SHLIB_SUFFIX=".so"
-          SHLIB_LD="ld -shared"
-          DO_SECOND_LD=""
-	  LIBS="$LIBS -ldl"
-	  case $host_cpu in
-	    alpha*)
-	      LDFLAGS="-export-dynamic $LDFLAGS"
-            ;;
-            *)
-	      if test "$CC" != "lcc"
-              then
-	        LDFLAGS="-rdynamic $LDFLAGS"
-              fi
-            ;;
-          esac
+        if test "$use_condor" = "no"
+        then
+	  AC_CHECK_LIB(dl,dlopen,
+	     have_dl=yes
+	   ,
+	     have_dl=no)
+          if test "$have_dl" = "yes"
+	  then
+	    SHLIB_SUFFIX=".so"
+            SHLIB_LD="ld -shared"
+            DO_SECOND_LD=""
+	    LIBS="$LIBS -ldl"
+	    case "$host_cpu" in
+	      alpha*)
+	        LDFLAGS="-export-dynamic $LDFLAGS"
+              ;;
+              *)
+	        if test "$CC" != "lcc"
+                then
+	          LDFLAGS="-rdynamic $LDFLAGS"
+                fi
+              ;;
+            esac
+          fi
+	  if test "$CC" = gcc
+	  then
+	   SHLIB_CFLAGS="-shared -fPIC"
+	   INSTALL_DLLS=""
+          fi
         fi
-        if test $have_nsl = yes
+        if test "$have_nsl" = yes
 	 then
 	 LIBS="$LIBS -lnsl"
-        fi
-	if test $CC = gcc
-	 then
-	 SHLIB_CFLAGS="-shared -fPIC"
-	 INSTALL_DLLS=""
         fi
 	;;
       *sunos4*)
 	M4="/usr/5bin/m4"
 	LDFLAGS="$LDFLAGS -N"
-        if test $have_nsl = yes
+        if test "$have_nsl" = yes
 	 then
 	 LIBS="$LIBS -lnsl"
         fi
@@ -433,24 +446,27 @@ case $target_os in
 	#do not use the first memory quadrant
 	AC_DEFINE(FORCE_SECOND_QUADRANT)
 	M4="/usr/bin/m4"
-	SHLIB_INTERFACE="load_shl.o"
-	if test $CC = cc -o $CC = c89
-	then
-	 #this tells ld to export all non-static symbols,
-	 #otherwise no external predicates.
-	 SHLIB_LD="ld -b -E ${LDFLAGS}"
-         DO_SECOND_LD=""
-         SHLIB_SUFFIX=".sl"
-	 SHLIB_CFLAGS="+z"
-	 INSTALL_DLLS=""
-	 # If the xnet library was found, turn on X/Open networking
-	 if test $ac_cv_lib_xnet_getsockname = yes
-	 then
-	  AC_DEFINE(_XOPEN_SOURCE)
-	  AC_DEFINE(_XOPEN_SOURCE_EXTENDED,1)
-	 fi
-	else
-	 INSTALL_DLLS="#"
+	if test ${use_condor} = no
+        then
+	  SHLIB_INTERFACE="load_shl.o"
+	  if test "$CC" = cc -o "$CC" = c89
+	  then
+	    #this tells ld to export all non-static symbols,
+	    #otherwise no external predicates.
+	    SHLIB_LD="ld -b -E ${LDFLAGS}"
+            DO_SECOND_LD=""
+            SHLIB_SUFFIX=".sl"
+	    SHLIB_CFLAGS="+z"
+	    INSTALL_DLLS=""
+	    # If the xnet library was found, turn on X/Open networking
+	    if test "$ac_cv_lib_xnet_getsockname" = yes
+	    then
+	     AC_DEFINE(_XOPEN_SOURCE)
+	     AC_DEFINE(_XOPEN_SOURCE_EXTENDED,1)
+	    fi
+	  else
+	    INSTALL_DLLS="#"
+          fi
         fi
 	;;
       *aix*)
@@ -462,9 +478,17 @@ case $target_os in
 	#INSTALL_DLLS=""
 	;;
       *osf*)
-        SHLIB_SUFFIX=".so"
-        SHLIB_LD="ld -shared -expect_unresolved '*'"
-        DO_SECOND_LD=""
+        if ${use_condor} = no
+        then
+	  AC_CHECK_LIB(dl,dlopen,
+dnl Linux has both elf and a.out, in this case we found elf
+	     have_dl=yes
+	   ,
+	     have_dl=no)
+          SHLIB_SUFFIX=".so"
+          SHLIB_LD="ld -shared -expect_unresolved '*'"
+          DO_SECOND_LD=""
+        fi
 	;;
       *irix6*)
 	SHLIB_CFLAGS=""
@@ -506,17 +530,21 @@ case $target_os in
 	C_PARSER_FLAGS="$C_INTERF_FLAGS"
 	;;
       *)
-        if test $have_dl = yes
+	AC_CHECK_LIB(dl,dlopen,
+	   have_dl=yes
+	 ,
+	   have_dl=no)
+        if test "$have_dl" = yes
 	 then
          SHLIB_SUFFIX=".o"
 	 LIBS="$LIBS -ldl"
 	 INSTALL_DLLS=""
-	 if test $CC = gcc
+	 if test "$CC" = gcc
 	 then
 	   SHLIB_CFLAGS="-fPIC"
 	 fi
         fi
-        if test $have_nsl = yes
+        if test "$have_nsl" = yes
 	 then
 	 LIBS="$LIBS -lnsl"
         fi
@@ -630,7 +658,7 @@ AC_TRY_RUN(
 	,
 	yap_cv_malloct=char,yap_cv_malloct=void,yap_cv_malloct=void)])
 AC_MSG_RESULT($yap_cv_malloct *)
-if test $yap_cv_malloct = void
+if test "$yap_cv_malloct" = void
 then AC_DEFINE(MALLOC_T,void *)
 else AC_DEFINE(MALLOC_T,char *)
 fi
@@ -646,7 +674,7 @@ AC_TRY_RUN(
 	,
 	yap_cv_gcc=yes,yap_cv_gcc=no,yap_cv_gcc=yes)])
 AC_MSG_RESULT($yap_cv_gcc)
-if test $yap_cv_gcc = yes 
+if test "$yap_cv_gcc" = yes 
 then
 M4GENHDRS=m4/gcc_genhdrs.m4
 AC_DEFINE(HAVE_GCC,1)
@@ -670,7 +698,7 @@ AC_TRY_RUN(
 	,
 	yap_cv_threaded_code=yes,yap_cv_threaded_code=no,yap_cv_threaded_code=yes)])
 AC_MSG_RESULT($yap_cv_threaded_code)
-if test $yap_cv_threaded_code = yes && test $yap_cv_gcc = yes
+if test "$yap_cv_threaded_code" = yes && test "$yap_cv_gcc" = yes
 then
 	AC_DEFINE(USE_THREADED_CODE,1)
 	M4GENABSMI=gen_gcc.m4
@@ -695,7 +723,7 @@ AC_TRY_RUN(
 	,
 	yap_cv_ffieee=yes,yap_cv_ffieee=no,yap_cv_ffieee=yes)])
 AC_MSG_RESULT($yap_cv_ffieee)
-if test $yap_cv_ffieee = yes 
+if test "$yap_cv_ffieee" = yes 
 then
 AC_DEFINE(FFIEEE,1)
 else
@@ -714,7 +742,7 @@ AC_TRY_COMPILE(
 	,
 	yap_sigsetjmp=yes,yap_sigsetjmp=no)])
 AC_MSG_RESULT($yap_sigsetjmp)
-if test $yap_sigsetjmp = yes 
+if test "$yap_sigsetjmp" = yes 
 then
 AC_DEFINE(HAVE_SIGSETJMP,1)
 else
@@ -732,7 +760,7 @@ AC_TRY_COMPILE(
 	,
 	yap_sigsegv=yes,yap_sigsegv=no)])
 AC_MSG_RESULT($yap_sigsegv)
-if test $yap_sigsegv = yes 
+if test "$yap_sigsegv" = yes 
 then
 AC_DEFINE(HAVE_SIGSEGV,1)
 else
@@ -750,7 +778,7 @@ AC_TRY_COMPILE(
 	,
 	yap_siginfo=yes,yap_siginfo=no)])
 AC_MSG_RESULT($yap_siginfo)
-if test $yap_siginfo = yes 
+if test "$yap_siginfo" = yes 
 then
 AC_DEFINE(HAVE_SIGINFO,1)
 else
@@ -768,7 +796,7 @@ WIFEXITED(x);		/* Generates compiler error if WIFEXITED
 			 * uses an int. */
 ], union_wait_ok=yes, union_wait_ok=no)
 AC_MSG_RESULT($union_wait_ok)
-if test $union_wait_ok = no; then
+if test "$union_wait_ok" = no; then
     AC_DEFINE(NO_UNION_WAIT)
 fi
 
@@ -778,26 +806,31 @@ AC_TRY_LINK([], [
 extern char **environ;
 ], environ_ok=yes, environ_ok=no)
 AC_MSG_RESULT($environ_ok)
-if test $environ_ok = yes; then
+if test "$environ_ok" = yes; then
     AC_DEFINE(HAVE_ENVIRON)
 fi
 
 dnl Checks for library functions.
 AC_TYPE_SIGNAL
-AC_CHECK_FUNCS(acosh alarm asinh atanh chdir dup2)
+AC_CHECK_FUNCS(acosh asinh atanh chdir dlopen dup2)
 AC_CHECK_FUNCS(fesettrapenable fetestexcept finite getcwd getenv)
 AC_CHECK_FUNCS(gethostbyname gethostid gethostname)
 AC_CHECK_FUNCS(gethrtime getpwnam getrusage gettimeofday getwd)
 AC_CHECK_FUNCS(isatty isnan kill labs link localtime lstat)
-AC_CHECK_FUNCS(memcpy memmove mkstemp mktemp mmap opendir)
-AC_CHECK_FUNCS(popen putenv rand random readlink regexec)
+AC_CHECK_FUNCS(memcpy memmove mkstemp mktemp opendir)
+AC_CHECK_FUNCS(putenv rand random readlink regexec)
 AC_CHECK_FUNCS(rename rl_set_prompt sbrk select)
-AC_CHECK_FUNCS(setbuf setlinebuf shmat sigaction siggetmask siginterrupt)
-AC_CHECK_FUNCS(signal sigprocmask sleep snprintf socket stat)
-AC_CHECK_FUNCS(strchr strerror strncat strncpy strtod system)
-AC_CHECK_FUNCS(time times tmpnam usleep vsnprintf waitpid)
+AC_CHECK_FUNCS(setbuf setlinebuf sigaction siggetmask siginterrupt)
+AC_CHECK_FUNCS(signal sigprocmask snprintf socket stat)
+AC_CHECK_FUNCS(strchr strerror strncat strncpy strtod)
+AC_CHECK_FUNCS(time times tmpnam usleep vsnprintf)
 
 AC_CHECK_FUNC(regexec, [NO_BUILTIN_REGEXP="#"], [NO_BUILTIN_REGEXP=""])
+
+if test "$use_condor" = "no"
+then
+  AC_CHECK_FUNCS(alarm mmap popen shmat sleep system ttyname waitpid)
+fi
 
 dnl check for mpz_xor
 AC_MSG_CHECKING(for mpz_xor)
@@ -811,7 +844,7 @@ AC_TRY_LINK(
 	,
 	yap_mpz_xor=yes,yap_mpz_xor=no)])
 AC_MSG_RESULT($yap_mpz_xor)
-if test $yap_mpz_xor = yes 
+if test "$yap_mpz_xor" = yes 
 then
 AC_DEFINE(HAVE_MPZ_XOR,1)
 else
@@ -875,7 +908,7 @@ else
 fi
 
 dnl disable smart memory management
-if test $use_malloc = yes 
+if test "$use_malloc" = yes 
 then
 AC_DEFINE(USE_MALLOC,1)
 fi

@@ -32,7 +32,6 @@
 #define HAVE_MPE 0
 #endif
 
-
 /* does the compiler support inline ? */
 #undef inline
 
@@ -141,6 +140,7 @@
 #undef  HAVE_ASINH
 #undef  HAVE_ATANH
 #undef  HAVE_CHDIR
+#undef  HAVE_DLOPEN
 #undef  HAVE_DUP2
 #undef  HAVE_FESETTRAPENABLE
 #undef  HAVE_FETESTEXCEPT
@@ -200,6 +200,7 @@
 #undef  HAVE_TIME
 #undef  HAVE_TIMES
 #undef  HAVE_TMPNAM
+#undef  HAVE_TTYNAME
 #undef  HAVE_USLEEP
 #undef  HAVE_VSNPRINTF
 #undef  HAVE_WAITPID

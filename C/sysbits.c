@@ -817,6 +817,7 @@ p_srandom (void)
   srandom(current_seed);
 #elif HAVE_RAND
   srand(current_seed);
+
 #endif
   return (TRUE);
 }
@@ -2015,6 +2016,9 @@ p_alarm(void)
     return(unify(ARG2,tout));
   }
 #else
+  /* not actually trying to set the alarm */
+  if (IntegerOfTerm(t) == 0)
+    return(TRUE);
   Error(SYSTEM_ERROR, TermNil,
 	"alarm not available in this configuration");
   return(FALSE);
