@@ -64,7 +64,7 @@
 	functor(T,A,N),
 	'$do_suspy'(S, A, N, T, M).
 '$do_suspy_predicates_by_name'(A, S, M) :-
-	'$recorded'('$import','$import'(EM,M,A,N),_), !,
+	'$recorded'('$import','$import'(EM,M,A,N),_),
 	functor(T,A,N),
 	'$do_suspy'(S, A, N, T, EM).
 
