@@ -30,8 +30,8 @@
 	'$process_error'(Error),
 	fail.
 '$LoopError'(_) :-
-	flush_output(user_output),
-	flush_output(user_error),
+	current_stream(_, write, S),
+	flush_all_streams,
 	fail.
 
 '$process_error'(abort) :- !,

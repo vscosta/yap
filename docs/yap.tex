@@ -5745,7 +5745,7 @@ These counters can be used to find out how many calls a certain
 goal takes to execute. They can also be used as timers.
 
 The code for the call counters piggybacks on the profiling
-code. Therefore, activating the call counters also activates the call
+code. Therefore, activating the call counters also activates the profiling
 counters.
 
 These are  the predicates that access and manipulate the call counters:
@@ -5784,12 +5784,6 @@ reaches 0.
 
 Next, we show a simple example of how to use call counters:
 @example
-G(X,Y,Z,I,J) :-
-        array_element(X,I,E1),
-        array_element(Y,J,E2),  
-        array_element(Z,I,E3),  
-        E1 is E2+E3.
-@end example
    ?- yap_flag(call_counting,on), [-user]. l :- l. end_of_file. yap_flag(call_counting,off).
 
 yes
@@ -5800,13 +5794,13 @@ yes
 limit_exceeded.
 
 yes
-@end table
+@end example
 Notice that we first compile the looping predicate @code{l/0} with
 @code{call_counting} @code{on}. Next, we @code{catch/3} to handle an
 exception when @code{l/0} performs more than 10000 reductions.
 
 
-@node Arrays, Preds, Call Countingf , Top
+@node Arrays, Preds, Call Counting , Top
 @section Arrays
 
 The YAP system includes experimental support for arrays. The
