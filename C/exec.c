@@ -127,6 +127,13 @@ do_execute(Term t, Term mod)
   /* first do predicate expansion, even before you process signals.
      This way you don't get to spy goal_expansion(). */
   if (PRED_GOAL_EXPANSION_ON) {
+    LOCK(SignalLock);
+    /* disable creeping when we do goal expansion */
+    if (ActiveSignals & YAP_CREEP_SIGNAL) {
+      ActiveSignals &= ~YAP_CREEP_SIGNAL;
+      DelayedTrace = TRUE;
+    }
+    UNLOCK(SignalLock);
     return CallMetaCall(mod);
   } else if (ActiveSignals) {
     return EnterCreepMode(t, mod);
@@ -244,7 +251,11 @@ p_execute0(void)
   unsigned int    arity;
   Prop            pe;
 
-  if (ActiveSignals) {
+  if (ActiveSignals || DelayedTrace) {
+    if (DelayedTrace) {
+      DelayedTrace = FALSE;
+      ActiveSignals |= YAP_CREEP_SIGNAL;
+    }
     return EnterCreepMode(t, mod);
   }
  restart_exec:
@@ -1517,6 +1528,7 @@ Yap_InitYaamRegs(void)
   WPP = NULL;
   PREG_ADDR = NULL;
 #endif
+  DelayedTrace = FALSE;
 }
 
 

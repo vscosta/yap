@@ -10,7 +10,7 @@
 * File:		Yap.h.m4						 *
 * mods:									 *
 * comments:	main header file for YAP				 *
-* version:      $Id: Yap.h.m4,v 1.58 2004-06-29 19:04:45 vsc Exp $	 *
+* version:      $Id: Yap.h.m4,v 1.59 2004-07-15 15:47:08 vsc Exp $	 *
 *************************************************************************/
 
 #include "config.h"
@@ -257,7 +257,7 @@ extern char     Yap_Option[20];
 #elif __APPLE__
 #define MMAP_ADDR 0x20000000
 #else
-#define MMAP_ADDR 0x09000000
+#define MMAP_ADDR 0x08800000
 #endif
 #elif __svr4__ || defined(__SVR4)
 #define MMAP_ADDR 0x02000000

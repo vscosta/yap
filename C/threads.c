@@ -164,9 +164,39 @@ p_create_thread(void)
 }
 
 static Int
+Yap_new_thread(void)
+{
+  UInt ssize = IntegerOfTerm(Deref(ARG2));
+  UInt tsize = IntegerOfTerm(Deref(ARG3));
+  /*  UInt systemsize = IntegerOfTerm(Deref(ARG4)); */
+  Term tgoal = Deref(ARG1);
+  Term tdetach = Deref(ARG5);
+  int new_worker_id = IntegerOfTerm(Deref(ARG6));
+  
+  if (new_worker_id == -1) {
+    /* YAP ERROR */
+    return FALSE;
+  }
+  ThreadHandle[new_worker_id].id = new_worker_id;
+  store_specs(new_worker_id, ssize, tsize, tgoal, tdetach);
+  pthread_mutex_init(&ThreadHandle[new_worker_id].tlock, NULL);
+  if ((ThreadHandle[new_worker_id].ret = pthread_create(&ThreadHandle[new_worker_id].handle, NULL, thread_run, (void *)(&(ThreadHandle[new_worker_id].id)))) == 0) {
+    return TRUE;
+  }
+  /* YAP ERROR */
+  return FALSE;
+}
+
+static Int
 p_thread_self(void)
 {
   return Yap_unify(MkIntegerTerm(worker_id), ARG1);
+}
+
+int
+Yap_self(void)
+{
+  return worker_id;
 }
 
 static Int

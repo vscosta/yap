@@ -142,11 +142,11 @@ trace :-
 trace :- 
 	recorded('$spy_skip',_,R), erase(R), fail.
 trace :-
-	'$print_message'(informational,debug(trace)),
 	( recordaifnot('$trace',on,_) -> true ; true),
 	( recordaifnot('$debug',on,_) -> true ; true),
 	( recordaifnot('$spy_stop',on,_) -> true ; true),
 	'$set_yap_flags'(10,1),
+	'$print_message'(informational,debug(trace)),
 	'$creep'.
 
 notrace :- 
@@ -257,10 +257,12 @@ debugging :-
 % $spy may be called from user code, so be careful.
 '$spy'([Mod|G]) :-
 	CP is '$last_choice_pt',	
-	'$do_spy'(G, Mod, CP, no).
+	'$do_spy'(G, Mod, CP, yes).
 
 % last argument to do_spy says that we are at the end of a context. It
 % is required to know whether we are controlled by the debugger.
+'$do_spy'(_, _, _, _) :-
+	'$stop_debugging', fail.
 '$do_spy'(!, _, CP, _) :- !, '$cut_by'(CP).
 '$do_spy'('$cut_by'(M), _, _, _) :- !, '$cut_by'(M).
 '$do_spy'(true, _, _, _) :- !.
@@ -281,7 +283,7 @@ debugging :-
 	  '$do_spy'(B, M, CP, InControl)
 	).
 '$do_spy'((T->A|B), M, CP, InControl) :- !,
-	( '$do_spy'(T, M, CP, yes) -> '$do_spy'(A, M, CP, yes)
+	( '$do_spy'(T, M, CP, yes) -> 	'$do_spy'(A, M, CP, yes)
 	;
 	  '$do_spy'(B, M, CP, InControl)
 	).
@@ -309,6 +311,8 @@ debugging :-
 		    '$loop_spy_event'(Event, GoalNumber, G, Module, InControl)).
 
 % handle weird things happening in the debugger.		    
+'$loop_spy_event'(_, _, _, _, _) :-
+	'$stop_debugging', fail.
 '$loop_spy_event'('$retry_spy'(G0), GoalNumber, G, Module, InControl) :-
      G0 >= GoalNumber, !,
      '$loop_spy'(GoalNumber, G, Module, InControl).
@@ -395,10 +399,11 @@ debugging :-
 	% use the interpreter
 	CP is '$last_choice_pt',
 	'$clause'(G, M, Cl),
+	'$stop_debugging',
 	'$do_spy'(Cl, M, CP, InControl).
-'$spycall'(G, M, _) :-
+'$spycall'(G, M, InControl) :-
 	% I lost control here.
-	'$continue_debugging'(no),
+	'$continue_debugging'(InControl),
 	'$execute_nonstop'(G, M).
 
 
@@ -474,7 +479,7 @@ debugging :-
 '$action'(0'e,_,_,_,_) :- !,			% e		exit
 	'$skipeol'(0'e),
 	halt.
-'$action'(0'f,P,CallId,_,_) :- !,		% f		fail
+'$action'(0'f,_,CallId,_,_) :- !,		% f		fail
 	'$scan_number'(0'f, CallId, GoalId),
 	throw('$fail_spy'(GoalId)).
 '$action'(0'h,_,_,_,_) :- !,			% h		help
@@ -503,9 +508,9 @@ debugging :-
 	fail.
 '$action'(0'l,_,CallNumber,_,_) :- !,		% l		leap
 	'$skipeol'(0'l),
-	'$set_yap_flags'(10,1),
 	( recorded('$spy_skip',_,R), erase(R), fail ; recorda('$spy_skip',CallNumber,_) ),
-	( recordaifnot('$spy_stop',on,_) -> true ; true ).
+	( recordaifnot('$spy_stop',on,_) -> true ; true ),
+	'$set_yap_flags'(10,1).
 '$action'(0'n,_,_,_,_) :- !,			% n		nodebug
 	'$skipeol'(0'n),
 	'$set_yap_flags'(10,0),
@@ -513,9 +518,9 @@ debugging :-
 	nodebug.
 '$action'(0'k,_,CallNumber,_,_) :- !,		% k		quasi leap
 	'$skipeol'(0'k),
-	'$set_yap_flags'(10,0),
 	( recorded('$spy_skip',_,R), erase(R), fail ; recorda('$spy_skip',CallNumber,_) ),
-	( recordaifnot('$spy_stop',on,_) -> true ; true ).
+	( recordaifnot('$spy_stop',on,_) -> true ; true ),
+	'$set_yap_flags'(10,0).
 	% skip first call (for current goal),
 	% stop next time.
 '$action'(0'r,P,CallId,_,_) :- !,		% r		retry
@@ -534,8 +539,8 @@ debugging :-
 	'$skipeol'(0't),
 	( (P=call; P=redo) ->
 		( recorded('$spy_skip',_,R), erase(R), fail ; recorda('$spy_skip',CallNumber,_) ),
-	        '$set_yap_flags'(10,0),
-		( recorded('$spy_stop',_,R), erase(R), fail ; true)
+		( recorded('$spy_stop',_,R), erase(R), fail ; true),
+	        '$set_yap_flags'(10,0)
 	    ;
 	        '$ilgl'(0't)
 	).
@@ -553,6 +558,9 @@ debugging :-
 	fail.
 
 % if we are in the interpreter, don't need to care about forcing a trace, do we?
+'$continue_debugging'(_) :-
+	recorded('$trace',on, _),
+	fail.
 '$continue_debugging'(no) :- !.
 '$continue_debugging'(_) :-
 	'$access_yap_flags'(10,1), !,
@@ -579,7 +587,8 @@ debugging :-
 	
 '$ilgl'(C) :-
 	'$print_message'(warning, trace_command(C)),
-	'$print_message'(help, trace_help).
+	'$print_message'(help, trace_help),
+	fail.
 
 '$skipeol'(10) :- !.
 '$skipeol'(_) :- get0(user,C), '$skipeol'(C).

@@ -69,7 +69,7 @@
 '$start_creep'([Mod|G]) :-
 	'$stop_debugging',
 	CP is '$last_choice_pt',	
-	'$do_spy'(G, Mod, CP, no).
+	'$do_spy'(G, Mod, CP, yes).
 
 '$signal_do'(Sig, Goal) :-
 	recorded('$signal_handler', action(Sig,Goal), _), !.

@@ -158,7 +158,6 @@ STATIC_PROTO (Int p_add_alias_to_stream, (void));
 STATIC_PROTO (Int p_change_alias_to_stream, (void));
 STATIC_PROTO (Int p_check_if_valid_new_alias, (void));
 STATIC_PROTO (Int p_fetch_stream_alias, (void));
-STATIC_PROTO (int format_print_str, (Int, Int, int, Term));
 STATIC_PROTO (Int p_format, (void));
 STATIC_PROTO (Int p_startline, (void));
 STATIC_PROTO (Int p_change_type_of_char, (void));
@@ -3593,7 +3592,7 @@ static void fill_pads(int nchars)
 }
 
 static int
-format_print_str (Int sno, Int size, Int has_size, Term args)
+format_print_str (Int sno, Int size, Int has_size, Term args, int (* f_putc)(int, int))
 {
   Term arghd;
   while (!has_size || size > 0) {
@@ -3616,7 +3615,7 @@ format_print_str (Int sno, Int size, Int has_size, Term args)
       Yap_Error(TYPE_ERROR_LIST, arghd, "format/2");
       return FALSE;
     }
-    format_putc(sno, (int) IntOfTerm (arghd));
+    f_putc(sno, (int) IntOfTerm (arghd));
     size--;
   }
   return TRUE;
@@ -4013,7 +4012,7 @@ format(Term tail, Term args, int sno)
 	    if (targ > tnum-1)
 	      goto do_consistency_error;
 	    t = targs[targ++];
-	    if (!format_print_str (sno, repeats, has_repeats, t)) {
+	    if (!format_print_str (sno, repeats, has_repeats, t, f_putc)) {
 	      goto do_default_error;
 	    }
 	    break;

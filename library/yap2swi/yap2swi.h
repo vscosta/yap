@@ -86,6 +86,9 @@ typedef struct _PL_extension
 
 /* end from pl-itf.h */
 
+/* copied from old SICStus/SWI interface */
+typedef int foreign_t;
+typedef void install_t;
 
 extern X_API PL_agc_hook_t PL_agc_hook(PL_agc_hook_t);
 extern X_API char* PL_atom_chars(atom_t);

@@ -1301,7 +1301,9 @@ static void
 RestoreHeap(OPCODE old_ops[])
 {
   int heap_moved = (OldHeapBase != Yap_HeapBase), opcodes_moved;
+  Term mod = CurrentModule;
 
+  CurrentModule = PROLOG_MODULE;
   opcodes_moved = check_opcodes(old_ops);
   /* opcodes_moved has side-effects and should be tried first */
   if (heap_moved || opcodes_moved) {
@@ -1324,6 +1326,7 @@ RestoreHeap(OPCODE old_ops[])
 #ifdef DEBUG_RESTORE1
   fprintf(errout, "phase 1 done\n");
 #endif
+  CurrentModule = mod;
 }
 
 /*

@@ -10,7 +10,7 @@
 * File:		Heap.h         						 *
 * mods:									 *
 * comments:	Heap Init Structure					 *
-* version:      $Id: Heap.h,v 1.62 2004-04-22 20:07:05 vsc Exp $	 *
+* version:      $Id: Heap.h,v 1.63 2004-07-15 15:47:08 vsc Exp $	 *
 *************************************************************************/
 
 /* information that can be stored in Code Space */
@@ -50,6 +50,7 @@ typedef struct worker_local_struct {
   struct pred_entry *wpp;
 #endif
   UInt   active_signals;
+  UInt   delayed_trace;
   UInt   i_pred_arity;
   yamop *prof_end;
   Int    start_line;
@@ -636,6 +637,7 @@ struct various_codes *heap_regs;
 #define  SignalLock               heap_regs->wl[worker_id].signal_lock
 #define  WPP                      heap_regs->wl[worker_id].wpp
 #define  ActiveSignals            heap_regs->wl[worker_id].active_signals
+#define  DelayedTrace	          heap_regs->wl[worker_id].delayed_trace
 #define  IPredArity               heap_regs->wl[worker_id].i_pred_arity
 #define  ProfEnd                  heap_regs->wl[worker_id].prof_end
 #define  StartLine                heap_regs->wl[worker_id].start_line
@@ -647,6 +649,7 @@ struct various_codes *heap_regs;
 #endif
 #else
 #define  ActiveSignals            heap_regs->wl.active_signals
+#define  DelayedTrace	          heap_regs->wl.delayed_trace
 #define  IPredArity               heap_regs->wl.i_pred_arity
 #define  ProfEnd                  heap_regs->wl.prof_end
 #define  StartLine                heap_regs->wl.start_line

@@ -124,7 +124,7 @@ read_sig.
 	'$system_catch'('$do_yes_no'((G->true),user),user,Error,user:'$Error'(Error)),
 	fail.
 '$enter_top_level' :-
-	( recorded('$trace', on, _) ->
+	( recorded('$trace',on,_) ->
 	    '$format'(user_error, '% trace~n', [])
 	;
 	  recorded('$debug', on, _) ->
@@ -388,7 +388,7 @@ repeat :- '$repeat'.
 	'$yes_no'(G,(?-)).
 '$query'(G,V) :-
 	(
-		'$start_creep',
+	  ( recorded('$trace',on,_) -> '$creep' ; true),
 		'$execute'(G),
 		'$do_stop_creep',
 		'$extract_goal_vars_for_dump'(V,LIV),
@@ -431,16 +431,10 @@ repeat :- '$repeat'.
 	'$stop_creep'.
 
 
-'$start_creep' :-
-	( recorded('$trace', on, _) ->
-	    '$creep'
-	;
-	    true
-	).
-
 '$do_yes_no'([X|L], M) :- !, '$csult'([X|L], M).
-'$do_yes_no'(G, M) :- '$start_creep', '$execute'(M:G).
-
+'$do_yes_no'(G, M) :-
+	  ( recorded('$trace',on,_) -> '$creep' ; true),
+	  '$execute'(M:G).
 '$extract_goal_vars_for_dump'([],[]).
 '$extract_goal_vars_for_dump'([[_|V]|VL],[V|LIV]) :-
 	'$extract_goal_vars_for_dump'(VL,LIV).
@@ -701,7 +695,7 @@ incore(G) :- '$execute'(G).
 	  '$execute0'(A, CurMod)
 	).
 
-'$expand_call'(A,CurMod) :-	
+'$expand_call'(A,CurMod) :-
 	'$expand_goal'(A, CurMod, CurMod, NG, NMod),
 	'$execute0'(NG, NMod).
 
@@ -1071,7 +1065,7 @@ catch(G, C, A) :-
 	'$catch'(C,A,_),
 	'$execute'(G).
 
-				%
+
 % system_catch is like catch, but it avoids the overhead of a full
 % meta-call by calling '$execute0' instead of $execute.
 % This way it
@@ -1124,7 +1118,6 @@ throw(Ball) :-
 	'$system_catch'(once(M:G), M, Error, user:'$LoopError'(Error, top)),
 	fail.
 '$exec_initialisation_goals'.
-
 
 '$run_toplevel_hooks' :-
 	get_value('$break',0),
