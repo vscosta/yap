@@ -45,7 +45,7 @@
 '$suspy'(A,nospy) :- '$noclausesfor'(A), !,
 	throw(error(existence_error(procedure,A),nospy(A))).
 '$suspy'(A,M) :- current_predicate(A,T),
-	\+ '$undefined'(T), \+ '$system_predicate'(T), !,
+	\+ '$undefined'(T), \+ '$system_predicate'(T),
 	 functor(T,F,N),
 	'$suspy2'(M,F,N,T).
 
@@ -332,7 +332,7 @@ debugging :-
 		'$trace'(redo,G,L),	/* inform user_error		*/
 		fail			/* to backtrack to spycalls	*/
 	).
-'do_spy'(G) :- '$execute0'(G).	/* this clause applies when we do not want
+'$do_spy'(G) :- '$execute0'(G).	/* this clause applies when we do not want
 				   to spy the goal			*/
 
 '$cont_creep' :-  '$get_value'('$trace',1), '$set_yap_flags'(10,1), fail.
