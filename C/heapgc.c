@@ -43,6 +43,10 @@ static Int      tot_gc_recovered = 0; /* number of heap objects in all garbage c
 /* in a single gc */
 static unsigned long int   total_marked;	/* number of heap objects marked */
 
+#ifdef COROUTINING
+static unsigned long int   total_smarked;
+#endif
+
 struct gc_ma_h_entry *live_list;
 
 STATIC_PROTO(Int  p_inform_gc, (void));
@@ -876,15 +880,18 @@ mark_variable(CELL_PTR current)
 	  current = next;
 	}
       goto begin;
-    }
 #ifdef DEBUG
-    else if (next < (CELL *)AtomBase || next < (CELL *)HeapTop)
+    } else if (next < (CELL *)AtomBase || next < (CELL *)HeapTop) {
       fprintf(Yap_stderr, "ooops while marking %lx, %p at %p\n", (unsigned long int)ccur, current, next);
 #endif
+    } else {
+#ifdef COROUTING
+      total_smarked++;
+#endif      
 #ifdef INSTRUMENT_GC
-    else
       inc_var(current, next);
 #endif
+    }
     POP_CONTINUATION();
   } else if (IsPairTerm(ccur)) {
 #ifdef INSTRUMENT_GC
@@ -2954,7 +2961,11 @@ compaction_phase(tr_fr_ptr old_TR, CELL *current_env, yamop *curp, CELL *max)
   sweep_trail(B, old_TR);
 #ifdef HYBRID_SCHEME
 #ifdef DEBUG
-  if (total_marked != iptop-(CELL_PTR *)H && iptop < (CELL_PTR *)ASP -1024)
+  if (total_marked
+#ifdef COROUTINING
+      -total_smarked
+#endif
+      != iptop-(CELL_PTR *)H && iptop < (CELL_PTR *)ASP -1024)
     fprintf(Yap_stderr,"[GC] Oops on iptop-H (%ld) vs %ld\n", (unsigned long int)(iptop-(CELL_PTR *)H), total_marked);
 #endif
   if (iptop < (CELL_PTR *)ASP && 10*total_marked < H-H0) {
@@ -3059,6 +3070,9 @@ do_gc(Int predarity, CELL *current_env, yamop *nextop)
   }
   time_start = Yap_cputime();
   total_marked = 0;
+#ifdef COROUTING
+  total_smarked = 0;
+#endif
   discard_trail_entries = 0;
 #ifdef HYBRID_SCHEME
   iptop = (CELL_PTR *)H;

@@ -2159,8 +2159,17 @@ Yap_absmi(int inp)
       /* also, this is unusual in that I have already done deallocate,
 	 so I don't need to redo it.
        */ 
-    NoStackDeallocate:
+    NoStackProceed:
       if (CFREG == (CELL)(LCL0+2)) {
+	/*
+	  we're not actually doing debugging here, just execute
+	  instruction and go on.
+	*/
+	PREG = CPREG;
+	YREG = ENV;
+#ifdef DEPTH_LIMIT
+	DEPTH = YREG[E_DEPTH];
+#endif
 	JMPNext();
       }
       ASP = YREG;
@@ -2557,12 +2566,19 @@ Yap_absmi(int inp)
       JMPNext();
 
       BOp(procceed, e);
-      PREG = CPREG;
-      YREG = ENV;
-#ifdef DEPTH_LIMIT
-      DEPTH = YREG[E_DEPTH];
+      CACHE_Y_AS_ENV(YREG);
+#ifndef NO_CHECKING
+      /* check stacks */
+      check_stack(NoStackProceed, H);
 #endif
+      PREG = CPREG;
+      E_YREG = ENV;
+#ifdef DEPTH_LIMIT
+      DEPTH = E_YREG[E_DEPTH];
+#endif
+      WRITEBACK_Y_AS_ENV();
       JMPNext();
+      ENDCACHE_Y_AS_ENV();
       ENDBOp();
 
       Op(allocate, e);
@@ -2605,13 +2621,6 @@ Yap_absmi(int inp)
       else
 	E_YREG = (CELL *) ((CELL) E_YREG + ENV_Size(CPREG));
 #endif /* FROZEN_STACKS */
-#ifndef NO_CHECKING
-      if (Yap_do_low_level_trace) {
-	fprintf(stderr, "H is %p, YENV is %p\n", H, YENV);
-      }
-      /* check stacks */
-      check_stack(NoStackDeallocate, H);
-#endif
       WRITEBACK_Y_AS_ENV();
       ENDCACHE_Y_AS_ENV();
       GONext();

@@ -553,7 +553,6 @@ static char *opformat[] =
   "jump\t\t%l",
   "jump\t\t%l",
   "proceed",
-  "safe_proceed",
   "call\t\t%p,%d,%z",
   "execute\t\t%p",
   "sys\t\t%p",

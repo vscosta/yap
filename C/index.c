@@ -5427,6 +5427,10 @@ Yap_AddClauseToIndex(PredEntry *ap, yamop *beg, int first) {
   path_stack_entry *stack, *sp;
   int cb;
 
+  if (!(ap->PredFlags & LogUpdatePredFlag)) {
+    Yap_RemoveIndexation(ap);
+    return;
+  }
   if ((cb = setjmp(Yap_CompilerBotch)) == 3) {
     restore_machine_regs();
     Yap_gcl(Yap_Error_Size, ap->ArityOfPE, ENV, CP);
