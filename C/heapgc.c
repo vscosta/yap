@@ -22,8 +22,8 @@ static char     SccsId[] = "%W% %G%";
 #include "yapio.h"
 
 
-/* #define EARLY_RESET 1 */
-/* #define SIMPLE_SHUNTING 1 */
+#define EARLY_RESET 1
+#define SIMPLE_SHUNTING 1
 
 #ifdef MULTI_ASSIGNMENT_VARIABLES
 /* 
@@ -1035,8 +1035,10 @@ mark_trail(tr_fr_ptr trail_ptr, tr_fr_ptr trail_base, CELL *gc_H, choiceptr gc_B
 	RESET_VARIABLE(&TrailVal(trail_ptr));
 #endif
 #else
+	printf("should be doing early reset\n");
 	/* if I have no early reset I have to follow the trail chain */
 	mark_external_reference(&TrailTerm(trail_ptr));	
+	UNMARK(&TrailTerm(trail_ptr));
 #endif /* EARLY_RESET */
       } else {
 	if (hp < (CELL *)HeapTop) {
