@@ -43,7 +43,7 @@ all: @NEWSHOBJ@
 
 sobjs: $(SOBJS) 
 
-sys.o $(srcdir)/sys.c
+sys.o: $(srcdir)/sys.c
 	$(CC) -c $(CFLAGS) $(SHLIB_CFLAGS) $(srcdir)/sys.c -o sys.o
 
 @DO_SECOND_LD@@DO_SECOND_LD@%@SHLIB_SUFFIX@: %.o
