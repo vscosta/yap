@@ -2071,6 +2071,19 @@ p_dump_active_goals(void) {
 }
 #endif
 
+#ifdef INES
+static Int
+p_euc_dist(void) {
+  Term t1 = Deref(ARG1);
+  Term t2 = Deref(ARG2);
+  double d1 = (double)(IntegerOfTerm(ArgOfTerm(1,t1))-IntegerOfTerm(ArgOfTerm(1,t2)));
+  double d2 = (double)(IntegerOfTerm(ArgOfTerm(2,t1))-IntegerOfTerm(ArgOfTerm(2,t2)));
+  double d3 = (double)(IntegerOfTerm(ArgOfTerm(3,t1))-IntegerOfTerm(ArgOfTerm(3,t2)));
+  Int result = (Int)sqrt(d1*d1+d2*d2+d3*d3);
+  return(unify(ARG3,MkIntegerTerm(result)));
+}
+#endif
+
 void 
 InitBackCPreds(void)
 {
@@ -2145,6 +2158,9 @@ InitCPreds(void)
   InitCPred("$has_yap_or", 0, p_has_yap_or, SafePredFlag|SyncPredFlag);
 #ifndef YAPOR
   InitCPred("$default_sequential", 1, p_default_sequential, SafePredFlag|SyncPredFlag);
+#endif
+#ifdef INES
+  InitCPred("euc_dist", 3, p_euc_dist, SafePredFlag);
 #endif
 #ifdef DEBUG
   InitCPred("dump_active_goals", 0, p_dump_active_goals, SafePredFlag|SyncPredFlag);

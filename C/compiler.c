@@ -1130,16 +1130,7 @@ c_goal(Term Goal, int mod)
   if (IsVarTerm(Goal)) {
     Goal = MkApplTerm(FunctorCall, 1, &Goal);
   }
-  if (IsNumTerm(Goal)) {
-    FAIL("goal can not be a number", TYPE_ERROR_CALLABLE, Goal);
-  }
-  else if (IsRefTerm(Goal)) {
-    Error_TYPE = TYPE_ERROR_DBREF;
-    Error_Term = Goal;
-    FAIL("goal argument in static procedure can not be a data base reference", TYPE_ERROR_CALLABLE, Goal);
-  } else if (IsPairTerm(Goal)) {
-    Goal = MkApplTerm(FunctorCall, 1, &Goal);
-  } else if (IsApplTerm(Goal) && FunctorOfTerm(Goal) == FunctorModule) {
+  if (IsApplTerm(Goal) && FunctorOfTerm(Goal) == FunctorModule) {
     Term M = ArgOfTerm(1, Goal);
 
     if (IsVarTerm(M) || !IsAtomTerm(M)) {
@@ -1152,7 +1143,15 @@ c_goal(Term Goal, int mod)
     Goal = ArgOfTerm(2, Goal);
     mod = LookupModule(M);
   }
-  if (IsVarTerm(Goal)) {
+  if (IsNumTerm(Goal)) {
+    FAIL("goal can not be a number", TYPE_ERROR_CALLABLE, Goal);
+  } else if (IsRefTerm(Goal)) {
+    Error_TYPE = TYPE_ERROR_DBREF;
+    Error_Term = Goal;
+    FAIL("goal argument in static procedure can not be a data base reference", TYPE_ERROR_CALLABLE, Goal);
+  } else if (IsPairTerm(Goal)) {
+    Goal = MkApplTerm(FunctorCall, 1, &Goal);
+  } else   if (IsVarTerm(Goal)) {
     Goal = MkApplTerm(FunctorCall, 1, &Goal);
   }
   if (IsAtomTerm(Goal)) {
