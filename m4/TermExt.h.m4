@@ -10,7 +10,7 @@
 * File:		TermExt.h						 *
 * mods:									 *
 * comments:	Extensions to standard terms for YAP			 *
-* version:      $Id: TermExt.h.m4,v 1.8 2002-11-18 18:17:04 vsc Exp $	 *
+* version:      $Id: TermExt.h.m4,v 1.9 2002-12-06 20:03:26 vsc Exp $	 *
 *************************************************************************/
 
 #if USE_OFFSETS
@@ -82,7 +82,7 @@ typedef struct {
 typedef enum {
   empty_ext = 0*sizeof(ext_op),	     /* default op, this should never be called */
   susp_ext = 1*sizeof(ext_op),       /* support for delayable goals */
-  attvars_ext = 2*sizeof(ext_op),    /* support for attributed variables */
+  attvars_ext = 2*sizeof(ext_op)     /* support for attributed variables */
   /* add your own extensions here */
   /* keep this one */
 } exts;

@@ -83,8 +83,8 @@ static char SccsId[] = "%W% %G%";
 STATIC_PROTO (Int PlIOError, (yap_error_number, Term, char *));
 STATIC_PROTO (int FilePutc, (int, int));
 STATIC_PROTO (int MemPutc, (int, int));
-STATIC_PROTO (int console_post_process_read_char, (int, StreamDesc *, int));
-STATIC_PROTO (int post_process_read_char, (int, StreamDesc *, int));
+STATIC_PROTO (int console_post_process_read_char, (int, StreamDesc *));
+STATIC_PROTO (int post_process_read_char, (int, StreamDesc *));
 #if USE_SOCKET
 STATIC_PROTO (int SocketPutc, (int, int));
 STATIC_PROTO (int ConsoleSocketPutc, (int, int));
@@ -303,14 +303,14 @@ static int
 is_same_tty(YP_File f1, YP_File f2)
 {
 #if HAVE_TTYNAME
-  return(ttyname(YP_fileno(f1)) == ttyname(YP_fileno(f1)));
+  return(ttyname(YP_fileno(f1)) == ttyname(YP_fileno(f2)));
 #else
   return(TRUE);
 #endif  
 }
 
 static void
-InitStdStream (int sno, SMALLUNSGN flags, YP_File file, Atom name)
+InitStdStream (int sno, SMALLUNSGN flags, YP_File file)
 {
   StreamDesc *s = &Stream[sno];
   s->u.file.file = file;
@@ -392,9 +392,9 @@ InitStdStream (int sno, SMALLUNSGN flags, YP_File file, Atom name)
 static void
 InitStdStreams (void)
 {
-  InitStdStream (StdInStream, Input_Stream_f, stdin, AtomUsrIn);
-  InitStdStream (StdOutStream, Output_Stream_f, stdout, AtomUsrOut);
-  InitStdStream (StdErrStream, Output_Stream_f, stderr, AtomUsrErr);
+  InitStdStream (StdInStream, Input_Stream_f, stdin);
+  InitStdStream (StdOutStream, Output_Stream_f, stdout);
+  InitStdStream (StdErrStream, Output_Stream_f, stderr);
   Yap_c_input_stream = StdInStream;
   Yap_c_output_stream = StdOutStream;
   Yap_c_error_stream = StdErrStream;
@@ -452,7 +452,7 @@ PlIOError (yap_error_number type, Term culprit, char *who)
 static int newline = TRUE;
 
 static void
-count_output_char(int ch, StreamDesc *s, int sno)
+count_output_char(int ch, StreamDesc *s)
 {
   if (ch == '\n')
     {
@@ -483,7 +483,7 @@ count_output_char(int ch, StreamDesc *s, int sno)
 }
 
 static void
-console_count_output_char(int ch, StreamDesc *s, int sno)
+console_count_output_char(int ch, StreamDesc *s)
 {
   if (ch == '\n')
     {
@@ -612,7 +612,7 @@ FilePutc(int sno, int ch)
       fflush(s->u.file.file);
     }
 #endif
-  count_output_char(ch,s,sno);
+  count_output_char(ch,s);
   return ((int) ch);
 }
 
@@ -653,7 +653,7 @@ MemPutc(int sno, int ch)
     s->u.mem_string.buf = newbuf;
     s->u.mem_string.max_size = new_max_size;
   }
-  count_output_char(ch,s,sno);
+  count_output_char(ch,s);
   return ((int) ch);
 }
 
@@ -675,7 +675,7 @@ ConsoleSocketPutc (int sno, int ch)
 #else
   write(s->u.socket.fd,  &c, sizeof(c));
 #endif
-  count_output_char(ch,s,sno);
+  count_output_char(ch,s);
   return ((int) ch);
 }
 
@@ -695,7 +695,7 @@ SocketPutc (int sno, int ch)
 #else
   write(s->u.socket.fd,  &c, sizeof(c));
 #endif
-  console_count_output_char(ch,s,sno);
+  console_count_output_char(ch,s);
   return ((int) ch);
 }
 
@@ -724,7 +724,7 @@ ConsolePipePutc (int sno, int ch)
 #else
   write(s->u.pipe.fd,  &c, sizeof(c));
 #endif
-  count_output_char(ch,s,sno);
+  count_output_char(ch,s);
   return ((int) ch);
 }
 
@@ -750,7 +750,7 @@ PipePutc (int sno, int ch)
 #else
   write(s->u.pipe.fd,  &c, sizeof(c));
 #endif
-  console_count_output_char(ch,s,sno);
+  console_count_output_char(ch,s);
   return ((int) ch);
 }
 
@@ -764,7 +764,7 @@ NullPutc (int sno, int ch)
       ch = '\n';
     }
 #endif
-  count_output_char(ch,s,sno);
+  count_output_char(ch,s);
   return ((int) ch);
 }
 
@@ -780,7 +780,7 @@ ConsolePutc (int sno, int ch)
     }
 #endif
   putc (ch, s->u.file.file);
-  console_count_output_char(ch,s,sno);
+  console_count_output_char(ch,s);
   return ((int) ch);
 }
 
@@ -860,12 +860,12 @@ ReadlinePutc (int sno, int ch)
     fputs( ReadlineBuf, Stream[sno].u.file.file);
     ReadlinePos = ReadlineBuf;
     if (ch == '\n') {
-      console_count_output_char(ch,Stream+sno,sno);
+      console_count_output_char(ch,Stream+sno);
       return((int) '\n');
     }
   }
   *ReadlinePos++ = ch;
-  console_count_output_char(ch,Stream+sno,sno);
+  console_count_output_char(ch,Stream+sno);
   return ((int) ch);
 }
 
@@ -893,7 +893,7 @@ ReadlineGetc(int sno)
 	  Stream[FileAliases[0].alias_stream].u.file.name == Stream[sno].u.file.name) {
 	/* don't just output the prompt */
 	while ((ch = *cptr++) != '\0') {
-	  console_count_output_char(ch,Stream+StdErrStream,StdErrStream);
+	  console_count_output_char(ch,Stream+StdErrStream);
 	}
 	Yap_PrologMode |= ConsoleGetcMode;
 	myrl_line = readline (Prompt);
@@ -920,7 +920,7 @@ ReadlineGetc(int sno)
       if (Yap_PrologMode & AbortMode) {
 	Yap_Error(PURE_ABORT, TermNil, "");
 	Yap_ErrorMessage = "Abort";
-	return(console_post_process_read_char(EOF, s, sno));
+	return(console_post_process_read_char(EOF, s));
       }
       continue;
     } else {
@@ -930,7 +930,7 @@ ReadlineGetc(int sno)
     strncpy (Prompt, RepAtom (*AtPrompt)->StrOfAE, MAX_PROMPT);
     /* window of vulnerability closed */
     if (myrl_line == NULL || myrl_line == (char *) EOF)
-      return(console_post_process_read_char(EOF, s, sno));
+      return(console_post_process_read_char(EOF, s));
     if (myrl_line[0] != '\0' && myrl_line[1] != '\0')
       add_history (myrl_line);
     ttyptr = myrl_line;
@@ -941,7 +941,7 @@ ReadlineGetc(int sno)
   } else {
     ch = *ttyptr++;
   }
-  return(console_post_process_read_char(ch, s, sno));
+  return(console_post_process_read_char(ch, s));
 }
 
 #endif /* HAVE_LIBREADLINE */
@@ -1046,14 +1046,14 @@ EOFGetc(int sno)
 
 /* check if we read a newline or an EOF */
 static int
-post_process_read_char(int ch, StreamDesc *s, int sno)
+post_process_read_char(int ch, StreamDesc *s)
 {
   if (ch == '\n') {
     ++s->linecount;
     ++s->charcount;
     s->linepos = 0;
     /* don't convert if the stream is binary */
-    if (!(Stream[sno].status & Binary_Stream_f))
+    if (!(s->status & Binary_Stream_f))
       ch = 10;
   } else if (ch == EOF) {
     s->status |= Eof_Stream_f;
@@ -1072,7 +1072,7 @@ post_process_read_char(int ch, StreamDesc *s, int sno)
 
 /* check if we read a newline or an EOF */
 static int
-console_post_process_read_char(int ch, StreamDesc *s, int sno)
+console_post_process_read_char(int ch, StreamDesc *s)
 {
   if (ch == '\n') {
     ++s->linecount;
@@ -1129,7 +1129,7 @@ SocketGetc(int sno)
 #endif
     return(EOF);
   }
-  return(post_process_read_char(ch, s, sno));
+  return(post_process_read_char(ch, s));
 }
 
 /*
@@ -1170,7 +1170,7 @@ ConsoleSocketGetc(int sno)
     Yap_Error(SYSTEM_ERROR, TermNil, "read");
     return(EOF);
   }
-  return(console_post_process_read_char(ch, s, sno));
+  return(console_post_process_read_char(ch, s));
 }
 #endif
 
@@ -1199,7 +1199,7 @@ PipeGetc(int sno)
     Yap_Error(SYSTEM_ERROR, TermNil, "read");
     return(EOF);
   }
-  return(post_process_read_char(ch, s, sno));
+  return(post_process_read_char(ch, s));
 }
 
 /*
@@ -1249,7 +1249,7 @@ ConsolePipeGetc(int sno)
     Yap_Error(SYSTEM_ERROR, TermNil, "read");
     return(EOF);
   }
-  return(console_post_process_read_char(ch, s, sno));
+  return(console_post_process_read_char(ch, s));
 }
 
 /* standard routine, it should read from anything pointed by a FILE *.
@@ -1262,7 +1262,7 @@ PlGetc (int sno)
   register int ch;
 
   ch = YP_getc (s->u.file.file);
-  return(post_process_read_char(ch, s, sno));
+  return(post_process_read_char(ch, s));
 }
 
 /* read from memory */
@@ -1279,7 +1279,7 @@ MemGetc (int sno)
     ch = s->u.mem_string.buf[spos];
     s->u.mem_string.pos = ++spos;
   }
-  return(post_process_read_char(ch, s, sno));
+  return(post_process_read_char(ch, s));
 }
 
 /* I dispise this code!!!!! */
@@ -1333,13 +1333,13 @@ ConsoleGetc(int sno)
     if (Yap_PrologMode & AbortMode) {
       Yap_Error(PURE_ABORT, TermNil, "");
       Yap_ErrorMessage = "Abort";
-      return(console_post_process_read_char(EOF, s, sno));
+      return(console_post_process_read_char(EOF, s));
     }
     goto restart;
   } else {
     Yap_PrologMode &= ~ConsoleGetcMode;
   }
-  return(console_post_process_read_char(ch, s, sno));
+  return(console_post_process_read_char(ch, s));
 }
 
 /* reads a character from a buffer and does the rest  */
@@ -1371,7 +1371,7 @@ PlUnGetc (int sno)
   } else {
     s->stream_getc = PlGetc;
   }
-  return(post_process_read_char(ch, s, sno));
+  return(post_process_read_char(ch, s));
 }
 
 
@@ -2439,7 +2439,7 @@ Yap_CloseStreams (int loud)
 }
 
 
-void
+static void
 CloseStream(int sno)
 {
   if (!(Stream[sno].status & (Null_Stream_f|Socket_Stream_f|InMemory_Stream_f|Pipe_Stream_f)))
@@ -5002,11 +5002,17 @@ p_same_file(void) {
       /* file does not exist, but was opened? Return -1 */
       return(FALSE);
     }
-    return(buf1.st_ino == buf2.st_ino &&
-	   buf1.st_dev == buf2.st_dev);
-  }
+    return(buf1.st_ino == buf2.st_ino
+#ifdef __LCC__
+	   && memcmp((const void *)&(buf1.st_dev),(const void *)&(buf2.st_dev),sizeof(buf1.st_dev)) == 0
+#else
+	   && buf1.st_dev == buf2.st_dev
 #endif
+		  );
+  }
+#else
   return(FALSE);
+#endif
 }
 
 void
@@ -5014,6 +5020,7 @@ Yap_InitBackIO (void)
 {
   Yap_InitCPredBack ("$current_stream", 3, 1, init_cur_s, cont_cur_s, SafePredFlag|SyncPredFlag);
 }
+
 
 void
 Yap_InitIOPreds(void)

@@ -193,7 +193,7 @@ static void
 detect_bug_location(yamop *yap_pc, char *tp, int psize)
 {
   Atom pred_name;
-  Int pred_arity;
+  UInt pred_arity;
   SMALLUNSGN pred_module;
   Int cl;
 

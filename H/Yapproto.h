@@ -10,7 +10,7 @@
 * File:		Yap.proto						 *
 * mods:									 *
 * comments:	Function declarations for YAP				 *
-* version:      $Id: Yapproto.h,v 1.29 2002-11-18 18:13:25 vsc Exp $	 *
+* version:      $Id: Yapproto.h,v 1.30 2002-12-06 20:03:25 vsc Exp $	 *
 *************************************************************************/
 
 /* prototype file for Yap */
@@ -107,7 +107,7 @@ Int    STD_PROTO(YAP_Execute,(struct pred_entry *, CPredicate));
 void	STD_PROTO(Yap_addclause,(Term,CODEADDR,int,int));
 Term	STD_PROTO(Yap_all_calls,(void));
 Atom	STD_PROTO(Yap_ConsultingFile,(void));
-Int	STD_PROTO(Yap_PredForCode,(CODEADDR, Atom *, Int *, SMALLUNSGN *));
+Int	STD_PROTO(Yap_PredForCode,(CODEADDR, Atom *, UInt *, SMALLUNSGN *));
 void	STD_PROTO(Yap_InitCdMgr,(void));
 #if     EMACS
 int     STD_PROTO(where_new_clause, (Prop, int));

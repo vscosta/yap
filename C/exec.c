@@ -22,7 +22,7 @@ static char     SccsId[] = "@(#)cdmgr.c	1.1 05/02/98";
 #include "yapio.h"
 
 STATIC_PROTO(Int  CallPredicate, (PredEntry *, choiceptr));
-STATIC_PROTO(Int  CallClause, (PredEntry *, unsigned int, Int));
+STATIC_PROTO(Int  CallClause, (PredEntry *, Int));
 STATIC_PROTO(Int  p_save_cp, (void));
 STATIC_PROTO(Int  p_execute, (void));
 STATIC_PROTO(Int  p_execute0, (void));
@@ -100,7 +100,7 @@ CallError(yap_error_number err, SMALLUNSGN mod)
 }
 
 static Int 
-CallClause(PredEntry *pen, unsigned int arity, Int position)
+CallClause(PredEntry *pen, Int position)
 {
   CELL            flags;
 
@@ -159,7 +159,7 @@ CallClause(PredEntry *pen, unsigned int arity, Int position)
       }
 #else 
       if (!(ClauseCodeToClause(q)->ClFlags & InUseMask)) {
-	OPREG     *opp = &(ClauseCodeToClause(q)->ClFlags);
+	CELL     *opp = &(ClauseCodeToClause(q)->ClFlags);
 	TRAIL_CLREF(ClauseCodeToClause(q));
 	*opp |= InUseMask;
       }
@@ -1293,7 +1293,7 @@ p_at_execute(void)
     return (FALSE);
   /* N = arity; */
   /* call may not define new system predicates!! */
-  return (CallClause(RepPredProp(pe), arity, IntOfTerm(t2)));
+  return (CallClause(RepPredProp(pe), IntOfTerm(t2)));
 }
 
 static int
@@ -1349,7 +1349,7 @@ exec_absmi(int top)
 }
 
 static int
-do_goal(CODEADDR CodeAdr, int arity, CELL *pt, int args_to_save, int top)
+do_goal(CODEADDR CodeAdr, int arity, CELL *pt, int top)
 {
   choiceptr saved_b = B;
 
@@ -1453,12 +1453,12 @@ Yap_execute_goal(Term t, int nargs, SMALLUNSGN mod)
   if (IsAtomTerm(t)) {
     CodeAdr = RepPredProp (pe)->CodeOfPred;
     READ_UNLOCK(ppe->PRWLock);
-    out = do_goal(CodeAdr, 0, pt, nargs, FALSE);
+    out = do_goal(CodeAdr, 0, pt, FALSE);
   } else {
     Functor f = FunctorOfTerm(t);
     CodeAdr = RepPredProp (pe)->CodeOfPred;
     READ_UNLOCK(ppe->PRWLock);
-    out = do_goal(CodeAdr, ArityOfFunctor(f), pt, nargs, FALSE);
+    out = do_goal(CodeAdr, ArityOfFunctor(f), pt, FALSE);
   }
 
   if (out == 1) {
@@ -1591,7 +1591,7 @@ Yap_RunTopGoal(Term t)
     Yap_Error(SYSTEM_ERROR,TermNil,
 	  "unable to boot because of too little heap space");
   }
-  goal_out = do_goal(CodeAdr, arity, pt, 0, TRUE);
+  goal_out = do_goal(CodeAdr, arity, pt, TRUE);
   return(goal_out);
 }
 

@@ -1472,7 +1472,7 @@ mark_choicepoints(register choiceptr gc_B, tr_fr_ptr saved_TR, int very_verbose)
       case _count_retry:
 	{
 	  Atom at;
-	  Int arity;
+	  UInt arity;
 	  SMALLUNSGN mod;
 	  if (Yap_PredForCode((CODEADDR)gc_B->cp_ap, &at, &arity, &mod)) {
 	    if (arity) 

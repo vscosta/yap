@@ -34,6 +34,10 @@
 #define DefHeapSpace	MinHeapSpace
 #endif
 
+#define DEFAULT_NUMBERWORKERS       1
+#define DEFAULT_SCHEDULERLOOP      10
+#define DEFAULT_DELAYEDRELEASELOAD  3
+
 #ifdef _MSC_VER /* Microsoft's Visual C++ Compiler */
 #ifdef  HAVE_UNISTD_H
 #undef  HAVE_UNISTD_H
@@ -210,7 +214,7 @@ do_bootfile (char *bootfilename)
 }
 
 static void
-print_usage(const YAP_init_args *init_args)
+print_usage(void)
 {
   fprintf(stderr,"\n[ Valid switches for command line arguments: ]\n");
   fprintf(stderr,"  -?   Shows this screen\n");
@@ -224,10 +228,10 @@ print_usage(const YAP_init_args *init_args)
 	  DefTrailSpace, MinTrailSpace);
 #ifdef YAPOR
   fprintf(stderr,"  -w   YapOr option: Number of workers (default: %d)\n",
-	  init_args->NumberWorkers);
-  fprintf(stderr,"  -sl  YapOr option: Loop scheduler executions before look for hiden shared work (default: %d)\n", init_args->SchedulerLoop);
+	  DEFAULT_NUMBERWORKERS);
+  fprintf(stderr,"  -sl  YapOr option: Loop scheduler executions before look for hiden shared work (default: %d)\n", DEFAULT_SCHEDULERLOOP);
   fprintf(stderr,"  -d   YapOr option: Value of delayed release of load (default: %d)\n",
-	  init_args->DelayedReleaseLoad);
+	  DEFAULT_DELAYEDRELEASELOAD);
 #endif
   fprintf(stderr,"\n");
 }
@@ -259,7 +263,7 @@ parse_yap_arguments(int argc, char *argv[], YAP_init_args *iap)
 	    argc--;
 	    break;
           case '?':
-	    print_usage(iap);
+	    print_usage();
             exit(EXIT_SUCCESS);
 	  case 'w':
 	    ssize = &(iap->NumberWorkers);
@@ -341,7 +345,7 @@ parse_yap_arguments(int argc, char *argv[], YAP_init_args *iap)
 		else
 		  {
 		    fprintf(stderr,"[ YAP unrecoverable error: missing size in flag %s ]", argv[0]);
-		    print_usage(iap);
+		    print_usage();
 		    exit(EXIT_FAILURE);
 		  }
 	      }
@@ -402,7 +406,7 @@ parse_yap_arguments(int argc, char *argv[], YAP_init_args *iap)
 	  default:
 	    {
 	      fprintf(stderr,"[ YAP unrecoverable error: unknown switch -%c ]\n", *p);
-	      print_usage(iap);
+	      print_usage();
 	      exit(EXIT_FAILURE);
 	    }
 	  }
@@ -427,9 +431,9 @@ init_standard_system(int argc, char *argv[], YAP_init_args *iap)
   iap->YapPrologRCFile = NULL;
   iap->HaltAfterConsult = FALSE;
   iap->FastBoot = FALSE;
-  iap->NumberWorkers = 1;
-  iap->SchedulerLoop = 10;
-  iap->DelayedReleaseLoad = 3;
+  iap->NumberWorkers = DEFAULT_NUMBERWORKERS;
+  iap->SchedulerLoop = DEFAULT_SCHEDULERLOOP;
+  iap->DelayedReleaseLoad = DEFAULT_DELAYEDRELEASELOAD;
   iap->Argc = argc;
   iap->Argv = argv;
 

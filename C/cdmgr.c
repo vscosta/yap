@@ -81,7 +81,7 @@ STATIC_PROTO(Int  p_call_count_reset, (void));
 STATIC_PROTO(Int  p_toggle_static_predicates_in_use, (void));
 STATIC_PROTO(void  list_all_predicates_in_use, (void));
 STATIC_PROTO(Atom  YapConsultingFile, (void));
-STATIC_PROTO(Int  PredForCode,(CODEADDR, Atom *, Int *, SMALLUNSGN *));
+STATIC_PROTO(Int  PredForCode,(CODEADDR, Atom *, UInt *, SMALLUNSGN *));
 
 #define PredArity(p) (p->ArityOfPE)
 #define TRYCODE(G,F,N) ( (N)<5 ? (op_numbers)((int)F+(N)*3) : G)
@@ -1969,7 +1969,7 @@ list_all_predicates_in_use(void)
       case _count_retry:
 	{
 	  Atom at;
-	  Int arity;
+	  UInt arity;
 	  SMALLUNSGN mod;
 	  if (PredForCode((CODEADDR)b_ptr->cp_ap, &at, &arity, &mod)) {
 	    if (arity) 
@@ -2169,7 +2169,7 @@ p_toggle_static_predicates_in_use(void)
 
 
 static Int
-code_in_pred(PredEntry *pp, Atom *pat, Int *parity, CODEADDR codeptr) {
+code_in_pred(PredEntry *pp, Atom *pat, UInt *parity, CODEADDR codeptr) {
   CODEADDR clcode, cl;
   int i = 1;
 
@@ -2213,7 +2213,7 @@ code_in_pred(PredEntry *pp, Atom *pat, Int *parity, CODEADDR codeptr) {
 }
 
 static Int
-PredForCode(CODEADDR codeptr, Atom *pat, Int *parity, SMALLUNSGN *pmodule) {
+PredForCode(CODEADDR codeptr, Atom *pat, UInt *parity, SMALLUNSGN *pmodule) {
   Int found = 0;
   Int i_table;
 
@@ -2232,7 +2232,7 @@ PredForCode(CODEADDR codeptr, Atom *pat, Int *parity, SMALLUNSGN *pmodule) {
 }
 
 Int
-Yap_PredForCode(CODEADDR codeptr, Atom *pat, Int *parity, SMALLUNSGN *pmodule) {
+Yap_PredForCode(CODEADDR codeptr, Atom *pat, UInt *parity, SMALLUNSGN *pmodule) {
   return PredForCode(codeptr, pat, parity, pmodule);
 }
 
@@ -2251,7 +2251,6 @@ p_pred_for_code(void) {
 	 Yap_unify(ARG3,MkIntegerTerm(arity)) &&
 	 Yap_unify(ARG4,ModuleName[module]) &&
 	 Yap_unify(ARG5,MkIntegerTerm(cl)));
-  return(0);
 }
 
 static Int
@@ -2445,7 +2444,7 @@ p_parent_pred(void)
   /* This predicate is called from the debugger.
      We assume a sequence of the form a -> b */
   Atom at;
-  Int arity;
+  UInt arity;
   SMALLUNSGN module;
   if (!PredForCode((CODEADDR)P_before_spy, &at, &arity, &module)) {
     return(Yap_unify(ARG1, MkIntTerm(0)) &&
