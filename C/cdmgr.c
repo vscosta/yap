@@ -1170,7 +1170,6 @@ end_consult(void)
   }
 #endif
   ConsultSp = ConsultBase;
-  printf("ConsultBase is %p\n",ConsultBase);
   ConsultBase = ConsultSp+ConsultSp->c;
   ConsultSp += 3;
   consult_level--;
