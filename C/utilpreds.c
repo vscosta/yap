@@ -61,6 +61,9 @@ copy_complex_term(register CELL *pt0, register CELL *pt0_end, CELL *ptf, CELL *H
   CELL **to_visit = (CELL **)(HeapTop + sizeof(CELL));
   tr_fr_ptr TR0 = TR;
   CELL *HB0 = HB;
+#ifdef COROUTINING
+  CELL *dvars = NULL;
+#endif
   HB = HLow;
 
  loop:
@@ -182,36 +185,42 @@ copy_complex_term(register CELL *pt0, register CELL *pt0_end, CELL *ptf, CELL *H
 	/* if unbound, call the standard copy term routine */
 	CELL **bp[1];
 	tr_fr_ptr CurTR;
-
-	bp[0] = to_visit;
-	Bind_Global(ptd0,(CELL)ptf);
-	CurTR = TR;
-	HB = HB0;
-	if (!attas[ExtFromCell(ptd0)].copy_term_op(ptd0, bp, ptf)) {
-	  goto overflow;
-	}
-	to_visit = bp[0];
-	HB = HLow;
-	ptf++;
-	if (CurTR != TR) {
-	  /* Problem here is that the attached routine might
-	   *  have changed the list of suspended goals and stored
-	   *  new entries in the trail. This should be quite
-	   *  rare, so for simplicity we just swap cells from
-	   *  bottom and top of Trail, not nice but not worth
-	   *  complicating everything else.
-	   */
-	  CELL *pt1 = (CELL *)TR0;
-	  CELL *pt2 = (CELL *)CurTR;
-
-	  while (pt2 < (CELL *)TR) {
-	    CELL o = *pt1;
-	    pt1++;
-	    pt2++;
-	    pt1[-1] = pt2[-1];
-	    pt2[-1] = o;
+	if (ptd0 >= dvars) {
+	  *ptf++ = (CELL) ptd0;
+	} else {
+	  if (dvars == NULL) {
+	    dvars = (CELL *)ReadTimedVar(DelayedVars);
+	  } 	
+	  bp[0] = to_visit;
+	  CurTR = TR;
+	  HB = HB0;
+	  if (!attas[ExtFromCell(ptd0)].copy_term_op(ptd0, bp, ptf)) {
+	    goto overflow;
 	  }
-	  TR0 = (tr_fr_ptr)pt1;
+	  to_visit = bp[0];
+	  HB = HLow;
+	  if (CurTR != TR) {
+	    /* Problem here is that the attached routine might
+	     *  have changed the list of suspended goals and stored
+	     *  new entries in the trail. This should be quite
+	     *  rare, so for simplicity we just swap cells from
+	     *  bottom and top of Trail, not nice but not worth
+	     *  complicating everything else.
+	     */
+	    CELL *pt1 = (CELL *)TR0;
+	    CELL *pt2 = (CELL *)CurTR;
+
+	    while (pt2 < (CELL *)TR) {
+	      CELL o = *pt1;
+	      pt1++;
+	      pt2++;
+	      pt1[-1] = pt2[-1];
+	      pt2[-1] = o;
+	    }
+	    TR0 = (tr_fr_ptr)pt1;
+	  }
+	  ptf++;
+	  Bind_Global(ptd0, ptf[-1]);
 	}
       } else {
 #endif
