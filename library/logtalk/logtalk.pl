@@ -2,7 +2,7 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %
 %  Logtalk - Object oriented extension to Prolog
-%  Release 2.21.5
+%  Release 2.21.6
 %
 %  Copyright (c) 1998-2004 Paulo Moura.  All Rights Reserved.
 %
@@ -898,6 +898,7 @@ logtalk_compile(Entity, Options) :-
 	atom(Entity),
 	Entity \= [],
 	!,
+	'$lgt_make_alt_dirs',
 	catch(
 		('$lgt_check_compiler_entity'(Entity),
 		 '$lgt_check_compiler_options'(Options),
@@ -907,6 +908,7 @@ logtalk_compile(Entity, Options) :-
 		throw(error(Error, logtalk_compile(Entity, Options)))).
 
 logtalk_compile(Entities, Options) :-
+	'$lgt_make_alt_dirs',
 	catch(
 		('$lgt_check_compiler_entities'(Entities),
 		 '$lgt_check_compiler_options'(Options),
@@ -1040,6 +1042,7 @@ logtalk_load(Entity, Options) :-
 	atom(Entity),
 	Entity \= [],
 	!,
+	'$lgt_make_alt_dirs',
 	catch(
 		('$lgt_check_compiler_entity'(Entity),
 		 '$lgt_check_compiler_options'(Options),
@@ -1049,6 +1052,7 @@ logtalk_load(Entity, Options) :-
 		throw(error(Error, logtalk_load(Entity, Options)))).
 
 logtalk_load(Entities, Options) :-
+	'$lgt_make_alt_dirs',
 	catch(
 		('$lgt_check_compiler_entities'(Entities),
 		 '$lgt_check_compiler_options'(Options),
@@ -1123,7 +1127,7 @@ current_logtalk_flag(Flag, Value) :-
 	'$lgt_default_flag'(Flag, Value),
 	\+ '$lgt_current_flag_'(Flag, _).
 
-current_logtalk_flag(version, version(2, 21, 5)).
+current_logtalk_flag(version, version(2, 21, 6)).
 
 
 
@@ -3134,13 +3138,31 @@ current_logtalk_flag(version, version(2, 21, 5)).
 
 
 
+% '$lgt_make_alt_dirs'
+%
+% creates the alternative directories
+
+'$lgt_make_alt_dirs' :-
+	'$lgt_compiler_option'(altdirs, on),
+	'$lgt_alt_directory'(_, Directory),
+	'$lgt_make_directory'(Directory),
+	fail.
+	
+'$lgt_make_alt_dirs'.
+
+
+
 % '$lgt_file_name'(+atom, +atom, -atom)
 %
 % constructs a filename given the type of file and the entity name
 
 '$lgt_file_name'(Type, Entity, File) :-
 	'$lgt_file_extension'(Type, Extension),
-	atom_concat(Entity, Extension, File).
+	(('$lgt_compiler_option'(altdirs, on), '$lgt_alt_directory'(Type, Directory)) ->
+		atom_concat(Entity, Extension, Aux),
+		atom_concat(Directory, Aux, File)
+		;
+		atom_concat(Entity, Extension, File)).
 
 
 
@@ -7267,7 +7289,7 @@ current_logtalk_flag(version, version(2, 21, 5)).
 '$lgt_valid_flag'(debug).
 '$lgt_valid_flag'(supports_break_predicate).
 '$lgt_valid_flag'(events).
-
+'$lgt_valid_flag'(altdirs).
 
 
 % '$lgt_valid_flag'(@term, @term)
@@ -7289,6 +7311,7 @@ current_logtalk_flag(version, version(2, 21, 5)).
 '$lgt_read_only_flag'(startup_message).
 '$lgt_read_only_flag'(supports_break_predicate).
 '$lgt_read_only_flag'(version).
+'$lgt_read_only_flag'(altdirs).
 
 
 
@@ -8206,11 +8229,22 @@ current_logtalk_flag(version, version(2, 21, 5)).
 
 
 '$lgt_default_flags' :-
-	write('Default compilation flags:'), nl,
-	'$lgt_default_flag'(events, Events),
-	write('  Event-driven programming support (events):                '), write(Events), nl,
-	'$lgt_default_flag'(iso_initialization_dir, ISO),
-	write('  ISO initialization/1 directive (iso_initialization_dir):  '), write(ISO), nl,
+	write('Default lint compilation flags:'), nl,
+	'$lgt_default_flag'(unknown, Unknown),
+	write('  Unknown entities (unknown):                               '), write(Unknown), nl,
+	'$lgt_default_flag'(misspelt, Misspelt),
+	write('  Misspelt predicate calls (misspelt):                      '), write(Misspelt), nl,
+	'$lgt_default_flag'(lgtredef, Lgtredef),
+	write('  Logtalk built-in predicates redefinition (lgtredef):      '), write(Lgtredef), nl,
+	'$lgt_default_flag'(plredef, Plredef),
+	write('  Prolog built-in predicates redefinition (plredef):        '), write(Plredef), nl,
+	'$lgt_default_flag'(portability, Portability),
+	write('  Non portable calls (portability):                         '), write(Portability), nl,
+	'$lgt_default_flag'(singletons, Singletons),
+	write('  Singletons variables (singletons):                        '), write(Singletons), nl,
+	'$lgt_default_flag'(underscore_vars, Underscore),
+	write('  Underscore variables interpretation (underscore_vars):    '), write(Underscore), nl,
+	write('Default documenting compilation flags:'), nl,
 	'$lgt_default_flag'(xml, XML),
 	write('  XML documenting files (xml):                              '), write(XML), nl,
 	'$lgt_default_flag'(xmlspec, XMLSpec),
@@ -8219,30 +8253,24 @@ current_logtalk_flag(version, version(2, 21, 5)).
 	write('  XML specification file location (doctype):                '), write(Doctype), nl,
 	'$lgt_default_flag'(xsl, XSL),
 	write('  XSL stylesheet (xsl):                                     '), write(XSL), nl,
-	'$lgt_default_flag'(unknown, Unknown),
-	write('  Unknown entities (unknown):                               '), write(Unknown), nl,
-	'$lgt_default_flag'(misspelt, Misspelt),
-	write('  Misspelt predicate calls (misspelt):                      '), write(Misspelt), nl,
-	'$lgt_default_flag'(singletons, Singletons),
-	write('  Singletons variables (singletons):                        '), write(Singletons), nl,
-	'$lgt_default_flag'(lgtredef, Lgtredef),
-	write('  Logtalk built-ins redefinition (lgtredef):                '), write(Lgtredef), nl,
-	'$lgt_default_flag'(plredef, Plredef),
-	write('  Prolog built-ins redefinition (plredef):                  '), write(Plredef), nl,
-	'$lgt_default_flag'(portability, Portability),
-	write('  Non portable calls (portability):                         '), write(Portability), nl,
+	write('Other default compilation flags:'), nl,
 	'$lgt_default_flag'(report, Report),
 	write('  Compilation report (report):                              '), write(Report), nl,
-	'$lgt_default_flag'(underscore_vars, Underscore),
-	write('  Underscore variables (underscore_vars):                   '), write(Underscore), nl,
 	'$lgt_default_flag'(code_prefix, Code),
 	write('  Compiled code functors prefix (code_prefix):              '), writeq(Code), nl,
 	'$lgt_default_flag'(debug, Debug),
 	write('  Compile entities in debug mode (debug):                   '), writeq(Debug), nl,
+	'$lgt_default_flag'(smart_compilation, Smart),
+	write('  Smart compilation (smart_compilation):                    '), write(Smart), nl,
+	'$lgt_default_flag'(events, Events),
+	write('  Event-driven programming support (events):                '), write(Events), nl,
+	write('Read-only compilation flags:'), nl,
 	'$lgt_default_flag'(supports_break_predicate, Break),
 	write('  Support for break/0 predicate (supports_break_predicate): '), writeq(Break), nl,
-	'$lgt_default_flag'(smart_compilation, Smart),
-	write('  Smart compilation (smart_compilation):                    '), write(Smart), nl, nl.
+	'$lgt_default_flag'(iso_initialization_dir, ISO),
+	write('  ISO initialization/1 directive (iso_initialization_dir):  '), write(ISO), nl,
+	'$lgt_default_flag'(altdirs, Altdirs),
+	write('  Alternative directories (altdirs):                        '), write(Altdirs), nl, nl.
 
 
 

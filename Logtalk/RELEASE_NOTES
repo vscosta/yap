@@ -1,6 +1,6 @@
 =================================================================
 Logtalk - Object oriented extension to Prolog
-Release 2.21.5
+Release 2.21.6
 
 Copyright (c) 1998-2004 Paulo Moura.  All Rights Reserved.
 =================================================================
@@ -8,6 +8,20 @@ Copyright (c) 1998-2004 Paulo Moura.  All Rights Reserved.
 
 RELEASE NOTES
 =============
+
+
+2.21.6 - November 15, 2004
+
+	Added support for using alternative directories for storing the Prolog files 
+	and the XML documenting files resulting from entity compilation. A new read-
+	only flag, "altdirs", allows the support for alternative directories to be 
+	turned on the configuration files of Prolog compilers providing the necessary 
+	operating-system access predicates for implementing this feature.
+
+	Improved installation instructions and reporting of default compilation flags 
+	at startup.
+
+	Added a sorely missing "Hello World!" example :-)
 
 
 2.21.5 - November 2, 2004

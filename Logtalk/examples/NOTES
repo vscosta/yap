@@ -1,6 +1,6 @@
 =================================================================
 Logtalk - Object oriented extension to Prolog
-Release 2.21.5
+Release 2.21.6
 
 Copyright (c) 1998-2004 Paulo Moura.  All Rights Reserved.
 =================================================================
@@ -73,6 +73,9 @@ engines
 
 errors
 	example showing the Logtalk compiler warning and error reporting
+
+hello_world
+	the unavoidable hello world programming example
 
 inheritance
 	examples of public, protected and private inheritance with both 
