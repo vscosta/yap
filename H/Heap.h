@@ -10,7 +10,7 @@
 * File:		Heap.h         						 *
 * mods:									 *
 * comments:	Heap Init Structure					 *
-* version:      $Id: Heap.h,v 1.17 2002-01-07 06:28:03 vsc Exp $	 *
+* version:      $Id: Heap.h,v 1.18 2002-01-09 17:19:36 stasinos Exp $	 *
 *************************************************************************/
 
 /* information that can be stored in Code Space */
@@ -196,6 +196,9 @@ typedef struct various_codes {
     atom_read,
     atom_repeat,
     atom_restore_regs,
+#if USE_SIGACTION
+    atom_sig_pending,
+#endif
     atom_stack_free,
     atom_true,
     atom_unwritable,
@@ -350,10 +353,8 @@ typedef struct various_codes {
 #define  AtomCsult                heap_regs->atom_csult
 #define  AtomCut                  heap_regs->atom_cut
 #define  AtomCutBy                heap_regs->atom_cut_by
-#ifdef EUROTRA
-#ifdef SFUNC
+#if defined(EUROTRA) && defined(SFUNC)
 #define  AtomDollarUndef          heap_regs->atom_dollar_undef
-#endif
 #endif
 #define  AtomE                    heap_regs->atom_e
 #define  AtomEQ                   heap_regs->atom_e_q
@@ -387,6 +388,9 @@ typedef struct various_codes {
 #define  AtomRead                 heap_regs->atom_read
 #define  AtomRepeat               heap_regs->atom_repeat
 #define  AtomRestoreRegs          heap_regs->atom_restore_regs
+#if USE_SIGACTION
+#define  AtomSigPending           heap_regs->atom_sig_pending
+#endif
 #define  AtomStackFree            heap_regs->atom_stack_free
 #define  AtomTrue                 heap_regs->atom_true
 #define  AtomUser                 heap_regs->atom_user

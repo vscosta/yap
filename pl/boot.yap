@@ -94,6 +94,17 @@ true :- true. % otherwise, $$compile will ignore this clause.
 '$enter_top_level' :-
         '$alarm'(0, _),
 	fail.
+% set the default user signal handlers
+'$enter_top_level' :-
+	( '$recorded'('$sig_handler',_,_) ->
+	    true
+	;
+	    '$recordz'('$sig_handler',
+		   action(sig_usr1,(format('Received user signal 1~n',[]),halt)), _),
+	    '$recordz'('$sig_handler',
+		   action(sig_usr2,(format('Received user signal 2~n',[]),halt)), _)
+	),
+	fail.
 '$enter_top_level' :-
 	'$clean_up_dead_clauses',
 	fail.

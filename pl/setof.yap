@@ -91,7 +91,7 @@ setof(Template, Generator, Set) :-
 % And this is bagof
 
 % Either we have excess of variables
-% and we need to find the solutions for each instantion
+% and we need to find the solutions for each instantiation
 % of these variables
 
 bagof(Template, Generator, Bag) :-

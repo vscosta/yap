@@ -199,4 +199,10 @@
 #define USE_GMP 1
 #endif
 
+/* Is fflush(NULL) clobbering input streams? */
 #undef BROKEN_FFLUSH_NULL
+
+/* Should we do signal handling? */
+#if HAVE_SIGNAL_H && HAVE_SIGACTION
+#define USE_SIGACTION 1
+#endif

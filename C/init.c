@@ -874,6 +874,9 @@ InitCodes(void)
   AtomArrow = LookupAtom("->");
   heap_regs->atom_assert = LookupAtom(":-");
   heap_regs->atom_alarm = LookupAtom("$alarm");
+#if USE_SIGACTION
+  heap_regs->atom_sig_pending = LookupAtom("$sig_pending");
+#endif
   AtomBraces = LookupAtom("{}");
   heap_regs->atom_b = LookupAtom("$last_choice_pt");
   heap_regs->atom_break = LookupAtom("$break");

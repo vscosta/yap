@@ -823,6 +823,7 @@ STATIC_PROTO (void InitSignals, (void));
 
 STATIC_PROTO (void HandleSIGSEGV, (int, siginfo_t   *, ucontext_t *));
 STATIC_PROTO (void HandleMatherr,  (int, siginfo_t   *, ucontext_t *));
+STATIC_PROTO (void HandleSIGUSER,  (int, siginfo_t   *, ucontext_t *));
 STATIC_PROTO (void my_signal_info, (int, void (*)(int, siginfo_t  *, ucontext_t *)));
 STATIC_PROTO (void my_signal, (int, void (*)(int, siginfo_t  *, ucontext_t *)));
 
@@ -901,10 +902,11 @@ my_signal(int sig, void (*handler)(int, siginfo_t *, ucontext_t *))
   sigaction(sig,&sigact,NULL);
 }
 
-#else
+#else /* if not (defined(__svr4__) || defined(__SVR4)) */
 
 STATIC_PROTO (RETSIGTYPE HandleMatherr, (int));
 STATIC_PROTO (RETSIGTYPE HandleSIGSEGV, (int));
+STATIC_PROTO (RETSIGTYPE HandleSIGUSER, (int));
 STATIC_PROTO (void my_signal_info, (int, void (*)(int)));
 STATIC_PROTO (void my_signal, (int, void (*)(int)));
 
@@ -1051,7 +1053,7 @@ void (*handler)(int);
 }
 #endif /* __linux__ */
 
-#endif
+#endif /* (defined(__svr4__) || defined(__SVR4)) */
 
 
 static int
@@ -1251,6 +1253,37 @@ HandleALRM(int s)
 }
 #endif
 
+#if USE_SIGACTION
+/* this routine is called if YAP received one of the signals that
+   can be handled by user code, currently SIGUSR1 and SIGUSR2 */
+static RETSIGTYPE
+#if (defined(__svr4__) || defined(__SVR4))
+HandleSIGUSER (int s, siginfo_t   *x, ucontext_t *y)
+#else
+HandleSIGUSER(int s)
+#endif
+{
+  /* force the system to creep */
+  p_creep ();
+  /* raise the '$sig_pending' flag */
+  /* NOTE: shouldn't this be a queue? */
+  switch (s) {
+  case SIGUSR1:
+    PutValue(AtomSigPending, MkAtomTerm(LookupAtom("sig_usr1")));
+    break;
+  case SIGUSR2:
+    PutValue(AtomSigPending, MkAtomTerm(LookupAtom("sig_usr2")));
+    break;
+  default:
+    /* should never be here, freak out and die! */
+    /* YapErrorWhatever(); */
+    ;
+  }
+}
+#endif /* USE_SIGACTION */
+
+
+
 /*
  * This function is called after a normal interrupt had been caught It allows
  * 6 possibilities : abort, continue, trace, debug, help, exit
@@ -1314,6 +1347,10 @@ InitSignals (void)
   SetConsoleCtrlHandler(MSCHandleSignal,TRUE);
 #else
   my_signal (SIGINT, HandleSIGINT);
+#endif
+#if USE_SIGACTION
+  my_signal (SIGUSR1, HandleSIGUSER);
+  my_signal (SIGUSR2, HandleSIGUSER);
 #endif
 #ifndef MPW
   my_signal (SIGFPE, HandleMatherr);

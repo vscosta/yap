@@ -739,6 +739,17 @@ debugging :-
 	    true
 	),
 	'$execute'(M:Goal).
+'$creep'(G) :-
+	'$get_value'('$sig_pending', Signal),
+	\+ Signal = [], !,
+	'$set_value'('$sig_pending', []),
+	( '$recorded'('$sig_handler', action(Signal,A),_) ->
+	    '$execute'(A),
+	    G=[M|Goal] 
+	;
+	    true
+	),
+	'$execute'(M:Goal).
 '$creep'(_) :-
 	'$get_value'('$throw', true), !,
 	'$set_value'('$throw', false),
