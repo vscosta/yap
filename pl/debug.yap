@@ -720,8 +720,10 @@ debugging :-
 	),
 	'$execute'(M:Goal).
 '$creep'(G) :-
+	format( 'creeping...~n', [] ),
 	'$get_value'('$sig_pending', Signal),
-	\+ Signal = [], !,
+	format( 'Signal == ~q~n', [Signal] ),
+	Signal \== [], !,
 	'$set_value'('$sig_pending', []),
 	( '$recorded'('$sig_handler', action(Signal,A),_) ->
 	    '$execute'(A),

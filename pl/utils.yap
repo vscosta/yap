@@ -231,11 +231,14 @@ alarm(Interval, Goal, Left) :-
 	'$recordz'('$alarm_handler',M:Goal,_),
 	'$alarm'(Interval, Left).
 
+on_signal(Signal,OldAction,default) :-
+	recorded('$sig_handler', default(Signal,Action), Ref),
+	on_signal(Signal,OldAction,Action).
 on_signal(Signal,OldAction,Action) :-
 	recorded('$sig_handler', action(Signal,OldAction), Ref),
 	erase(Ref),
 	'$current_module'(M),
-	'$recordz'('$sig_handler', action(Signal,M:Action),Ref2).
+	'$recordz'('$sig_handler', action(Signal,M:Action), _).
 
 
 %%% Saving and restoring a computation

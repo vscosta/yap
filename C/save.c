@@ -1050,7 +1050,7 @@ restore_codes(void)
   heap_regs->atom_read = AtomAdjust(heap_regs->atom_read);
   heap_regs->atom_repeat = AtomAdjust(heap_regs->atom_repeat);
   heap_regs->atom_restore_regs = AtomAdjust(heap_regs->atom_restore_regs);
-#if USE_SIGACTION
+#if HAVE_SIGACTION
   heap_regs->atom_sig_pending = AtomAdjust(heap_regs->atom_sig_pending);
 #endif
   heap_regs->atom_stack_free = AtomAdjust(heap_regs->atom_stack_free);

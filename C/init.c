@@ -874,7 +874,7 @@ InitCodes(void)
   AtomArrow = LookupAtom("->");
   heap_regs->atom_assert = LookupAtom(":-");
   heap_regs->atom_alarm = LookupAtom("$alarm");
-#if USE_SIGACTION
+#if HAVE_SIGACTION
   heap_regs->atom_sig_pending = LookupAtom("$sig_pending");
 #endif
   AtomBraces = LookupAtom("{}");

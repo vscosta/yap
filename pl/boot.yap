@@ -32,6 +32,12 @@ true :- true. % otherwise, $$compile will ignore this clause.
 		),
 		'$system_catch'('$enter_top_level',Module,Error,user:'$Error'(Error)).
 
+read_sig :-
+	recorded('$sig_handler',X,_),
+	writeq(X),nl,
+	fail.
+read_sig.
+
 
 '$init_system' :-
 	(
@@ -40,6 +46,27 @@ true :- true. % otherwise, $$compile will ignore this clause.
 	;
 	  true
 	),
+	% If this is not here, the following get written twice in the idb. Why?
+	eraseall('$sig_handler'),
+	% The default interrupt handlers are kept, so that it's
+	% possible to revert to them with on_signal(S,_,default)
+	'$recordz'('$sig_handler',default(sig_hup,
+		         (( exists('~/.yaprc') -> [-'~/.yaprc'] ; true ),
+			  ( exists('~/.prologrc') -> [-'~/.prologrc'] ; true ),
+			  ( exists('~/prolog.ini') -> [-'~/prolog.ini'] ; true ))), _),
+	'$recordz'('$sig_handler',default(sig_usr1,
+		       (nl,writeq('[ Received user signal 1 ]'),nl,halt)), _),
+	'$recordz'('$sig_handler',default(sig_usr2,
+		       (nl,writeq('[ Received user signal 2 ]'),nl,halt)), _),
+	% The current interrupt handlers are also set the default values
+	'$recordz'('$sig_handler',action(sig_hup,
+		         (( exists('~/.yaprc') -> [-'~/.yaprc'] ; true ),
+			  ( exists('~/.prologrc') -> [-'~/.prologrc'] ; true ),
+			  ( exists('~/prolog.ini') -> [-'~/prolog.ini'] ; true ))), _),
+	'$recordz'('$sig_handler',action(sig_usr1,
+		       (nl,writeq('[ Received user signal 1 ]'),nl,halt)), _),
+	'$recordz'('$sig_handler',action(sig_usr2,
+		       (nl,writeq('[ Received user signal 2 ]'),nl,halt)), _),
 	'$set_yap_flags'(10,0),
 	'$set_value'('$gc',on),
 	'$init_catch',
@@ -67,7 +94,8 @@ true :- true. % otherwise, $$compile will ignore this clause.
 	    true
 	).
 
-				%
+
+%
 % encapsulate $cut_by because of co-routining.
 %
 '$cut_by'(X) :- '$$cut_by'(X).
@@ -93,17 +121,6 @@ true :- true. % otherwise, $$compile will ignore this clause.
 % reset alarms when entering top-level.
 '$enter_top_level' :-
         '$alarm'(0, _),
-	fail.
-% set the default user signal handlers
-'$enter_top_level' :-
-	( '$recorded'('$sig_handler',_,_) ->
-	    true
-	;
-	    '$recordz'('$sig_handler',
-		   action(sig_usr1,(format('Received user signal 1~n',[]),halt)), _),
-	    '$recordz'('$sig_handler',
-		   action(sig_usr2,(format('Received user signal 2~n',[]),halt)), _)
-	),
 	fail.
 '$enter_top_level' :-
 	'$clean_up_dead_clauses',
