@@ -866,7 +866,8 @@ addclause(Term t, CODEADDR cp, int mode, int mod)
     spy_flag = TRUE;
   if (mode == consult)
     not_was_reconsulted(p, t, TRUE);
-  if (Error_TYPE == PERMISSION_ERROR_MODIFY_STATIC_PROCEDURE)
+  /* always check if we have a valid error first */
+  if (ErrorMessage && Error_TYPE == PERMISSION_ERROR_MODIFY_STATIC_PROCEDURE)
     return;
   if (!is_dynamic(p)) {
     Clause     *clp = ClauseCodeToClause(cp);

@@ -2718,7 +2718,7 @@ cclause(Term inp_clause, int NOfArgs, int mod)
   /* may botch while doing a different module */
 
   /* first, initialise CompilerBotch to handle all cases of interruptions */
-  ErrorMessage = NIL;
+  ErrorMessage = NULL;
   if ((botch_why = setjmp(CompilerBotch)) == 3) {
     /* out of local stack, just duplicate the stack */
     restore_machine_regs();
@@ -2759,7 +2759,7 @@ cclause(Term inp_clause, int NOfArgs, int mod)
     return(0);
   }
  restart_compilation:
-  if (ErrorMessage != NIL) {
+  if (ErrorMessage != NULL) {
     reset_vars();
     return (0);
   }

@@ -1111,9 +1111,10 @@ InteractSIGINT(int ch) {
       unsigned long int heap_space_taken = 
 	(unsigned long int)(Unsigned(HeapTop)-Unsigned(HeapBase));
       double frag = (100.0*(heap_space_taken-HeapUsed))/heap_space_taken;
-      YP_fprintf(YP_stderr, "Code Space:  %ld (%ld bytes used, fragmentation %.3f%%).\n", 
-		 (unsigned long int)(Unsigned (AuxTop) - Unsigned (HeapBase)),
-		 (unsigned long int)(Unsigned(HeapTop)-Unsigned(HeapBase)),
+      YP_fprintf(YP_stderr, "Code Space:  %ld (%ld bytes needed, %ld bytes used, fragmentation %.3f%%).\n", 
+		 (unsigned long int)(Unsigned (H0) - Unsigned (HeapBase)),
+                 (unsigned long int)(Unsigned(HeapTop)-Unsigned(HeapBase)),
+		 (unsigned long int)(HeapUsed),
 		 frag);
       YP_fprintf(YP_stderr, "Stack Space: %ld (%ld for Global, %ld for local).\n", 
 		 (unsigned long int)(sizeof(CELL)*(LCL0-H0)),
