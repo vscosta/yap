@@ -3,7 +3,7 @@
 % useful statistics
 
 benchmark(Goal) :-
-	N = 10000000,
+	N = 1000000,
 	write('Number of repetitions: '), write(N), nl,
 	'$lgt_cpu_time'(Seconds1),		% defined in the config files
 	benchmark(N, Goal),
@@ -30,9 +30,9 @@ benchmark(_, _).
 % if that's the case of the Prolog compiler you are using, then comment out 
 % the definition that follows
 
-repeat(0) :-
-	!.
+repeat(_).
 
 repeat(N) :-
+	N > 1,
 	N2 is N - 1,
 	repeat(N2).

@@ -1,6 +1,6 @@
 =================================================================
 Logtalk - Object oriented extension to Prolog
-Release 2.21.3
+Release 2.21.4
 
 Copyright (c) 1998-2004 Paulo Moura.  All Rights Reserved.
 =================================================================
@@ -8,6 +8,12 @@ Copyright (c) 1998-2004 Paulo Moura.  All Rights Reserved.
 
 RELEASE NOTES
 =============
+
+
+2.21.4 - October 26, 2004
+
+	Corrected a silly bug in the definition of the predicate repeat/1 on the 
+	new "benchmarks" example.
 
 
 2.21.3 - October 25, 2004
