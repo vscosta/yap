@@ -1018,7 +1018,7 @@ SearchForTrailFault(void)
   if ((TR > (tr_fr_ptr)Yap_TrailTop-1024  && 
        TR < (tr_fr_ptr)Yap_TrailTop+(64*1024))|| Yap_DBTrailOverflow()) {
     long trsize = 64*2014L;
-    while (trsize < ((CELL)TR-(CELL)Yap_TrailTop)) {
+    while ((CELL)TR > (CELL)Yap_TrailTop+trsize) {
       trsize += 64*2014L;
     }
     if (!Yap_growtrail(trsize)) {
