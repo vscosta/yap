@@ -147,6 +147,8 @@ STATIC_PROTO(Int  p_gc, (void));
 
 #ifdef SIMPLE_SHUNTING
 static choiceptr current_B;
+
+static tr_fr_ptr sTR;
 #endif
 
 STATIC_PROTO(void push_registers, (Int, yamop *));
@@ -739,6 +741,10 @@ mark_variable(CELL_PTR current)
 	    current = next;
 	  }
 	}
+      } else if (IsVarTerm(cnext) && UNMARK_CELL(cnext) != (CELL)next) {
+	/* This step is possible because we clean up the trail */
+	*current = UNMARK_CELL(cnext);
+	total_marked--;
       } else
 #endif
 	/* what I'd do without variable shunting */
@@ -1035,7 +1041,6 @@ mark_trail(tr_fr_ptr trail_ptr, tr_fr_ptr trail_base, CELL *gc_H, choiceptr gc_B
 	RESET_VARIABLE(&TrailVal(trail_ptr));
 #endif
 #else
-	printf("should be doing early reset\n");
 	/* if I have no early reset I have to follow the trail chain */
 	mark_external_reference(&TrailTerm(trail_ptr));	
 	UNMARK(&TrailTerm(trail_ptr));
@@ -1046,6 +1051,17 @@ mark_trail(tr_fr_ptr trail_ptr, tr_fr_ptr trail_base, CELL *gc_H, choiceptr gc_B
 	   The point of doing so is to have dynamic arrays */
 	  mark_external_reference(hp);
 	}
+#ifdef SIMPLE_SHUNTING
+	if (hp < gc_H   && hp >= H0) {
+	  CELL *cptr = (CELL *)trail_cell;
+
+	  TrailTerm(sTR) = *hp;
+	  TrailTerm(sTR+1) = trail_cell;
+	  sTR += 2;
+	  RESET_VARIABLE(cptr);
+	  MARK(cptr);
+	}
+#endif
 #ifdef FROZEN_REGS
 	mark_external_reference(&TrailVal(trail_ptr));
 #endif
@@ -2138,6 +2154,16 @@ compact_heap(void)
 
 }
 
+#ifdef SIMPLE_SHUNTING
+static void
+set_conditionals(CELL *TRo) {
+  while (sTR != TRo) {
+    CELL *cptr = (CELL *)TrailTerm(sTR-1);
+    *cptr = TrailTerm(sTR-2);
+    sTR -= 2;
+  } 
+}
+#endif
 
 
 /*
@@ -2150,6 +2176,9 @@ marking_phase(tr_fr_ptr old_TR, CELL *current_env, yamop *curp, CELL *max)
 {
 
 #ifdef SIMPLE_SHUNTING
+  tr_fr_ptr TRo;
+  sTR = (tr_fr_ptr)PreAllocCodeSpace();
+  TRo = sTR;
   current_B = B;
 #endif
   init_dbtable(old_TR);
@@ -2162,6 +2191,10 @@ marking_phase(tr_fr_ptr old_TR, CELL *current_env, yamop *curp, CELL *max)
   /* active environments */
   mark_environments(current_env, EnvSize(curp), EnvBMap((CELL *)curp));
   mark_choicepoints(B, old_TR);	/* choicepoints, and environs  */
+#ifdef SIMPLE_SHUNTING
+  set_conditionals(TRo);
+  ReleasePreAllocCodeSpace((ADDR)sTR);
+#endif
 }
 
 #ifdef COROUTINING
@@ -2244,6 +2277,9 @@ do_gc(Int predarity, CELL *current_env, yamop *nextop)
     YP_fprintf(YP_stderr, "[gc]\n");
   } else if (gc_verbose) {
     YP_fprintf(YP_stderr, "[GC] Start of garbage collection %d:\n", gc_calls);
+#ifndef EARLY_RESET
+    YP_fprintf(YP_stderr, "[GC] no early reset in trail\n");
+#endif
     YP_fprintf(YP_stderr, "[GC]       Global: %8ld cells (%p-%p)\n", (long int)heap_cells,H0,H);
     YP_fprintf(YP_stderr, "[GC]       Local:%8ld cells (%p-%p)\n", (unsigned long int)(LCL0-ASP),LCL0,ASP);
     YP_fprintf(YP_stderr, "[GC]       Trail:%8ld cells (%p-%p)\n",

@@ -127,7 +127,7 @@ vertices_edges_to_ugraph(Vertices, Edges, Graph) :-
 	p_to_s_group(VertexSet, EdgeSet, Graph).
 
 
-add_vertices(Vertices, Graph, NewGraph) :-
+add_vertices(Graph, Vertices, NewGraph) :-
 	msort(Vertices, V1),
 	add_vertices_to_s_graph(V1, Graph, NewGraph).
 	

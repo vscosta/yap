@@ -38,7 +38,7 @@
  */
 
 /* utility definitions */
-#ifdef _WIN32
+#if defined(_WIN32) || defined(__MINGW32__)
 #define	DUPMAX		((unsigned int)-2)	/* xxx is this right? */
 #else
 #define	DUPMAX		_POSIX2_RE_DUP_MAX	/* xxx is this right? */

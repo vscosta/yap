@@ -88,7 +88,7 @@ regexec.so: regexec.o
 # 
 DLLTOOL=dlltool
 DLLNAME=regexp.dll
-DLL_LIBS=-lcrtdll -L../.. -lWYap
+DLL_LIBS=-L /usr/lib/mingw -lcrtdll -L../.. -lWYap
 BASE_FILE=regexp.base
 EXP_FILE=regexp.exp
 DEF_FILE=$(srcdir)/regexp.def

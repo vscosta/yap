@@ -6,6 +6,9 @@
 
 <H2 ALIGN=CENTER>Yap-4.3.19:</H2>
 <UL>
+      <LI> FIXED: change first two arguments of add_vertices/3 for
+      SICStus compatibility (report from Nicos Angelopoulos).
+      <LI> NEW: sum_list/2 (request from Nicos Angelopoulos).
       <LI> FIXED: ord_union/2 should not use use merge/3 but instead
       ord_union/3 (report from Nicos Angelopoulos).
       <LI> FIXED: statistics/0 should report to user_error (report from Nicos
@@ -13,7 +16,7 @@
       <LI> FIXED: database could copy compiled floats,longs, and bigs
       to Heap, later crashing the garbage collector (report from Nicos
       Angelopoulos).
-      <LI> NEW: if/3.
+      <LI> NEW: if/3 (request from Nicos Angelopoulos)..
       <LI> SPEEDUP: inline functor(S) -> Na,Ar.
       <LI> SPEEDUP: inline functor(Na,Ar) -> S.
       <LI> FIXED: pillow installation path.

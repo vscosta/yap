@@ -22,6 +22,7 @@
 	select/3,
 	sublist/2,
 	substitute/4,
+	sum_list/2,
 	suffix/2,
 	sumlist/2,
         list_concat/2
@@ -260,6 +261,9 @@ suffix(Suffix, [_|List]) :-
 %   is true when Numbers is a list of integers, and Total is their sum.
 
 sumlist(Numbers, Total) :-
+	sumlist(Numbers, 0, Total).
+
+sum_list(Numbers, Total) :-
 	sumlist(Numbers, 0, Total).
 
 sumlist([], Total, Total).
