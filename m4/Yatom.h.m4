@@ -64,7 +64,7 @@ Inline(IsFunctorProperty, PropFlags, int, flags, (flags == FunctorProperty) )
 typedef struct {
     Prop   	NextOfPE;	/* used	to chain properties		*/
     PropFlags  	KindOfPE;	/* kind	of property			*/
-    SMALLUNSGN  IndexOfMod;     /* indec in module table		*/
+    SMALLUNSGN  IndexOfMod;     /* index in module table		*/
 } ModEntry;
 
 #if USE_OFFSETS_IN_PROPS
@@ -237,7 +237,7 @@ typedef	struct pred_entry {
 #ifdef TABLING
   tab_ent_ptr   TableOfPred;
 #endif /* TABLING */
-  SMALLUNSGN	ModuleOfPred;	/* module for this definition		*/
+  Term 	ModuleOfPred;	/* module for this definition		*/
   /* This must be at an odd number of cells, otherwise it
      will not be aligned on RISC machines */
   profile_data  StatisticsForPred; /* enable profiling for predicate  */
@@ -342,7 +342,7 @@ typedef	struct struct_dbentry {
 #endif
   DBRef	First;		/* first DBase entry			*/
   DBRef	Last;		/* last DBase entry			*/
-  SMALLUNSGN	ModuleOfDB;	/* module for this definition		*/
+  Term 	ModuleOfDB;	/* module for this definition		*/
   DBRef         F0,L0;		/* everyone                          */
 } DBEntry;
 typedef DBEntry *DBProp;
@@ -358,7 +358,7 @@ typedef	struct {
 #endif 
   DBRef	First;		/* first DBase entry			*/
   DBRef	Last;		/* last DBase entry			*/
-  SMALLUNSGN	ModuleOfDB;	/* module for this definition		*/
+  Term	ModuleOfDB;	/* module for this definition		*/
   Int         NOfEntries;	/* age counter                          */
   DBRef       Index;		/* age counter                          */
 } LogUpdDBEntry;
@@ -400,7 +400,7 @@ typedef	struct {
 #if defined(YAPOR) || defined(THREADS)
   rwlock_t BBRWLock;            /* a read-write lock to protect the entry */
 #endif
-  SMALLUNSGN	ModuleOfBB;   /* module for this definition		*/
+  Term	ModuleOfBB;   /* module for this definition		*/
 } BlackBoardEntry;
 typedef BlackBoardEntry *BBProp;
 
@@ -509,7 +509,7 @@ EXTERN inline PredEntry *STD_PROTO(Yap_GetThreadPred, (PredEntry *));
 #endif
 
 EXTERN inline Prop
-PredPropByFunc(Functor f, SMALLUNSGN cur_mod)
+PredPropByFunc(Functor f, Term cur_mod)
 /* get predicate entry for ap/arity; create it if neccessary.              */
 {
   Prop p0;
@@ -537,7 +537,7 @@ PredPropByFunc(Functor f, SMALLUNSGN cur_mod)
 }
 
 EXTERN inline Prop
-PredPropByAtom(Atom at, SMALLUNSGN cur_mod)
+PredPropByAtom(Atom at, Term cur_mod)
 /* get predicate entry for ap/arity; create it if neccessary.              */
 {
   Prop p0;

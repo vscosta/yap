@@ -26,7 +26,7 @@ static char     SccsId[] = "%W% %G%";
 #endif
 
 static BBProp 
-PutBBProp(AtomEntry *ae, SMALLUNSGN mod)		/* get BBentry for at; */
+PutBBProp(AtomEntry *ae, Term mod)		/* get BBentry for at; */
 {
   Prop          p0;
   BBProp        p;
@@ -57,7 +57,7 @@ PutBBProp(AtomEntry *ae, SMALLUNSGN mod)		/* get BBentry for at; */
 }
 
 static BBProp 
-PutIntBBProp(Int key, SMALLUNSGN mod)	/* get BBentry for at; */
+PutIntBBProp(Int key, Term mod)	/* get BBentry for at; */
 {
   Prop          p0;
   BBProp        p;
@@ -105,7 +105,7 @@ PutIntBBProp(Int key, SMALLUNSGN mod)	/* get BBentry for at; */
 }
 
 static BBProp 
-GetBBProp(AtomEntry *ae, SMALLUNSGN mod)		/* get BBentry for at; */
+GetBBProp(AtomEntry *ae, Term mod)		/* get BBentry for at; */
 {
   Prop          p0;
   BBProp        p;
@@ -124,7 +124,7 @@ GetBBProp(AtomEntry *ae, SMALLUNSGN mod)		/* get BBentry for at; */
 }
 
 static BBProp 
-GetIntBBProp(Int key, SMALLUNSGN mod)		/* get BBentry for at; */
+GetIntBBProp(Int key, Term mod)		/* get BBentry for at; */
 {
   Prop          p0;
   BBProp        p;
@@ -187,7 +187,7 @@ resize_bb_int_keys(UInt new_size) {
 }
 
 static BBProp
-AddBBProp(Term t1, char *msg, SMALLUNSGN mod)
+AddBBProp(Term t1, char *msg, Term mod)
 {
   BBProp p;
 
@@ -203,7 +203,7 @@ AddBBProp(Term t1, char *msg, SMALLUNSGN mod)
     Term tmod = ArgOfTerm(1, t1);
     if (!IsVarTerm(tmod) ) {
       t1 = ArgOfTerm(2, t1);
-      mod = Yap_LookupModule(tmod);
+      mod = tmod;
       goto restart;
     } else {
       Yap_Error(INSTANTIATION_ERROR, t1, msg);
@@ -217,7 +217,7 @@ AddBBProp(Term t1, char *msg, SMALLUNSGN mod)
 }
 
 static BBProp
-FetchBBProp(Term t1, char *msg, SMALLUNSGN mod)
+FetchBBProp(Term t1, char *msg, Term mod)
 {
   BBProp p;
 
@@ -232,7 +232,7 @@ FetchBBProp(Term t1, char *msg, SMALLUNSGN mod)
   } else if (IsApplTerm(t1) && FunctorOfTerm(t1) == FunctorModule) {
     Term tmod = ArgOfTerm(1, t1);
     if (!IsVarTerm(tmod) ) {
-      mod = Yap_LookupModule(tmod);
+      mod = tmod;
       t1 = ArgOfTerm(2, t1);
       goto restart;
     } else {

@@ -79,7 +79,7 @@ STATIC_PROTO(Int  p_call_count_set, (void));
 STATIC_PROTO(Int  p_call_count_reset, (void));
 STATIC_PROTO(Int  p_toggle_static_predicates_in_use, (void));
 STATIC_PROTO(Atom  YapConsultingFile, (void));
-STATIC_PROTO(Int  PredForCode,(yamop *, Atom *, UInt *, SMALLUNSGN *));
+STATIC_PROTO(Int  PredForCode,(yamop *, Atom *, UInt *, Term *));
 
 #define PredArity(p) (p->ArityOfPE)
 #define TRYCODE(G,F,N) ( (N)<5 ? (op_numbers)((int)F+(N)*3) : G)
@@ -153,11 +153,13 @@ IPred(PredEntry *ap)
 
 #ifdef DEBUG
   if (Yap_Option['i' - 'a' + 1]) {
-    Term tmod = ModuleName[ap->ModuleOfPred];
+    Term tmod = ap->ModuleOfPred;
+    if (!tmod)
+      tmod = TermProlog;
     Yap_DebugPutc(Yap_c_error_stream,'\t');
     Yap_plwrite(tmod, Yap_DebugPutc, 0);
     Yap_DebugPutc(Yap_c_error_stream,':');
-    if (ap->ModuleOfPred == 2) {
+    if (ap->ModuleOfPred == IDB_MODULE) {
       Term t = Deref(ARG1);
       if (IsAtomTerm(t)) {
 	Yap_plwrite(t, Yap_DebugPutc, 0);
@@ -1058,7 +1060,8 @@ addclause(Term t, yamop *cp, int mode, int mod)
 #endif
   pflags = p->PredFlags;
   /* we are redefining a prolog module predicate */
-  if (p->ModuleOfPred == 0 && mod != 0) {
+  if (p->ModuleOfPred == PROLOG_MODULE && 
+      mod != TermProlog && mod) {
     WRITE_UNLOCK(p->PRWLock);
     addcl_permission_error(RepAtom(at), Arity, FALSE);
     return TermNil;
@@ -1143,12 +1146,12 @@ addclause(Term t, yamop *cp, int mode, int mod)
 }
 
 void
-Yap_addclause(Term t, yamop *cp, int mode, int mod) {
+Yap_addclause(Term t, yamop *cp, int mode, Term mod) {
   addclause(t, cp, mode, mod);
 }
 
 void
-Yap_EraseStaticClause(StaticClause *cl, SMALLUNSGN mod) {
+Yap_EraseStaticClause(StaticClause *cl, Term mod) {
   PredEntry *ap;
 
   /* ok, first I need to find out the parent predicate */
@@ -1264,7 +1267,7 @@ p_in_this_f_before(void)
   Term            t;
   register consult_obj  *fp;
   Prop            p0;
-  SMALLUNSGN      mod;
+  Term            mod;
 
   if (IsVarTerm(t = Deref(ARG1)) || !IsAtomTerm(t))
     return (FALSE);
@@ -1274,10 +1277,8 @@ p_in_this_f_before(void)
     return (FALSE);
   else
     arity = IntOfTerm(t);
-  if (IsVarTerm(t = Deref(ARG3)) || !IsAtomTerm(t))
-    return (FALSE);
-  else
-    mod = Yap_LookupModule(t);
+  if (IsVarTerm(mod = Deref(ARG3)) || !IsAtomTerm(mod))
+    return FALSE;
   if (arity)
     p0 = PredPropByFunc(Yap_MkFunctor(at, arity),CurrentModule);
   else
@@ -1303,7 +1304,7 @@ p_first_cl_in_f(void)
   Term            t;
   register consult_obj  *fp;
   Prop            p0;
-  SMALLUNSGN      mod;
+  Term	          mod;
   
 
   if (IsVarTerm(t = Deref(ARG1)) || !IsAtomTerm(t))
@@ -1314,10 +1315,8 @@ p_first_cl_in_f(void)
     return (FALSE);
   else
     arity = IntOfTerm(t);
-  if (IsVarTerm(t = Deref(ARG3)) || !IsAtomTerm(t))
+  if (IsVarTerm(mod = Deref(ARG3)) || !IsAtomTerm(mod))
     return (FALSE);
-  else
-    mod = Yap_LookupModule(t);
   if (arity)
     p0 = PredPropByFunc(Yap_MkFunctor(at, arity),mod);
   else
@@ -1379,16 +1378,14 @@ p_compile(void)
 {				/* '$compile'(+C,+Flags, Mod) */
   Term            t = Deref(ARG1);
   Term            t1 = Deref(ARG2);
-  Term            t3 = Deref(ARG4);
+  Term            mod = Deref(ARG4);
   yamop           *codeadr;
-  Int mod;
 
   if (IsVarTerm(t1) || !IsIntTerm(t1))
     return (FALSE);
-  if (IsVarTerm(t3) || !IsAtomTerm(t3))
+  if (IsVarTerm(mod) || !IsAtomTerm(mod))
     return (FALSE);
 
-  mod = Yap_LookupModule(t3);
   YAPEnterCriticalSection();
   codeadr = Yap_cclause(t, 2, mod, Deref(ARG3)); /* vsc: give the number of arguments
 			      to cclause in case there is overflow */
@@ -1412,18 +1409,16 @@ p_compile_dynamic(void)
 {				/* '$compile_dynamic'(+C,+Flags,Mod,-Ref) */
   Term            t = Deref(ARG1);
   Term            t1 = Deref(ARG2);
-  Term            t3 = Deref(ARG4);
+  Term            mod = Deref(ARG4);
   yamop        *code_adr;
   int             old_optimize;
-  Int mod;
 
   if (IsVarTerm(t1) || !IsIntTerm(t1))
     return (FALSE);
-  if (IsVarTerm(t3) || !IsAtomTerm(t3))
+  if (IsVarTerm(mod) || !IsAtomTerm(mod))
     return (FALSE);
   old_optimize = optimizer_on;
   optimizer_on = FALSE;
-  mod = Yap_LookupModule(t3);
   YAPEnterCriticalSection();
   code_adr = Yap_cclause(t, 3, mod, Deref(ARG3)); /* vsc: give the number of arguments to
 			       cclause() in case there is a overflow */
@@ -1595,16 +1590,14 @@ p_purge_clauses(void)
 {				/* '$purge_clauses'(+Func) */
   PredEntry      *pred;
   Term            t = Deref(ARG1);
-  Term            t2 = Deref(ARG2);
-  SMALLUNSGN      mod;
+  Term            mod = Deref(ARG2);
 
   Yap_PutValue(AtomAbol, MkAtomTerm(AtomNil));
   if (IsVarTerm(t))
-    return (FALSE);
-  if (IsVarTerm(t2) || !IsAtomTerm(t2)) {
-    return (FALSE);
+    return FALSE;
+  if (IsVarTerm(mod) || !IsAtomTerm(mod)) {
+    return FALSE;
   }
-  mod = Yap_LookupModule(t2);
   if (IsAtomTerm(t)) {
     Atom at = AtomOfTerm(t);
     pred = RepPredProp(PredPropByAtom(at, mod));
@@ -1645,20 +1638,17 @@ p_setspy(void)
   Atom            at;
   PredEntry      *pred;
   CELL            fg;
-  Term            t;
-  Term            t2;
-  SMALLUNSGN	  mod;
+  Term            t, mod;
 
   at = Yap_FullLookupAtom("$spy");
   pred = RepPredProp(PredPropByFunc(Yap_MkFunctor(at, 1),0));
   SpyCode = pred;
   t = Deref(ARG1);
-  t2 = Deref(ARG2);
+  mod = Deref(ARG2);
+  if (IsVarTerm(mod) || !IsAtomTerm(mod))
+    return (FALSE);
   if (IsVarTerm(t))
     return (FALSE);
-  if (IsVarTerm(t2) || !IsAtomTerm(t2))
-    return (FALSE);
-  mod = Yap_LookupModule(t2);
   if (IsAtomTerm(t)) {
     Atom at = AtomOfTerm(t);
     pred = RepPredProp(Yap_PredPropByAtomNonThreadLocal(at, mod));
@@ -1703,14 +1693,12 @@ p_rmspy(void)
   Atom            at;
   PredEntry      *pred;
   Term            t;
-  Term            t2;
-  SMALLUNSGN	  mod;
+  Term            mod;
 
   t = Deref(ARG1);
-  t2 = Deref(ARG2);
-  if (IsVarTerm(t2) || !IsAtomTerm(t2))
+  mod = Deref(ARG2);
+  if (IsVarTerm(mod) || !IsAtomTerm(mod))
     return (FALSE);
-  mod = Yap_LookupModule(t2);
   if (IsVarTerm(t))
     return (FALSE);
   if (IsAtomTerm(t)) {
@@ -1754,15 +1742,13 @@ static Int
 p_number_of_clauses(void)
 {				/* '$number_of_clauses'(Predicate,M,N) */
   Term            t = Deref(ARG1);
-  Term            t2 = Deref(ARG2);
+  Term            mod = Deref(ARG2);
   int ncl = 0;
   Prop            pe;
-  int             mod;
 
-  if (IsVarTerm(t2)  || !IsAtomTerm(t2)) {
+  if (IsVarTerm(mod)  || !IsAtomTerm(mod)) {
     return(FALSE);
   }
-  mod = Yap_LookupModule(t2);
   if (IsAtomTerm(t)) {
     Atom a = AtomOfTerm(t);
     pe = Yap_GetPredPropByAtom(a, mod);
@@ -1784,16 +1770,14 @@ static Int
 p_in_use(void)
 {				/* '$in_use'(+P,+Mod)	 */
   Term            t = Deref(ARG1);
-  Term            t2 = Deref(ARG2);
+  Term            mod = Deref(ARG2);
   PredEntry      *pe;
   Int            out;
-  int            mod;
 
   if (IsVarTerm(t))
     return (FALSE);
-  if (IsVarTerm(t2) || !IsAtomTerm(t2))
+  if (IsVarTerm(mod) || !IsAtomTerm(mod))
     return (FALSE);
-  mod = Yap_LookupModule(t2);
   if (IsAtomTerm(t)) {
     Atom at = AtomOfTerm(t);
     pe = RepPredProp(Yap_GetPredPropByAtom(at, mod));
@@ -1817,7 +1801,7 @@ p_new_multifile(void)
   int             arity;
   PredEntry      *pe;
   Term            t = Deref(ARG1);
-  SMALLUNSGN      mod = Yap_LookupModule(Deref(ARG3));
+  Term            mod = Deref(ARG3);
 
   if (IsVarTerm(t))
     return (FALSE);
@@ -1852,17 +1836,15 @@ p_is_multifile(void)
 {				/* '$is_multifile'(+S,+Mod)	 */
   PredEntry      *pe;
   Term            t = Deref(ARG1);
-  Term            t2 = Deref(ARG2);
+  Term            mod = Deref(ARG2);
   Int		  out;
-  int		  mod;
 
   if (IsVarTerm(t))
     return (FALSE);
-  if (IsVarTerm(t2))
+  if (IsVarTerm(mod))
     return (FALSE);
-  if (!IsAtomTerm(t2))
+  if (!IsAtomTerm(mod))
     return (FALSE);
-  mod = Yap_LookupModule(t2);
   if (IsAtomTerm(t)) {
     pe = RepPredProp(Yap_GetPredPropByAtom(AtomOfTerm(t), mod));
   } else if (IsApplTerm(t)) {
@@ -1882,9 +1864,8 @@ p_is_log_updatable(void)
 {				/* '$is_dynamic'(+P)	 */
   PredEntry      *pe;
   Term            t = Deref(ARG1);
-  Term            t2 = Deref(ARG2);
   Int             out;
-  SMALLUNSGN      mod = Yap_LookupModule(t2);
+  Term            mod = Deref(ARG2);
 
   if (IsVarTerm(t)) {
     return (FALSE);
@@ -1909,9 +1890,8 @@ p_is_source(void)
 {				/* '$is_dynamic'(+P)	 */
   PredEntry      *pe;
   Term            t = Deref(ARG1);
-  Term            t2 = Deref(ARG2);
+  Term            mod = Deref(ARG2);
   Int             out;
-  SMALLUNSGN      mod = Yap_LookupModule(t2);
 
   if (IsVarTerm(t)) {
     return (FALSE);
@@ -1936,9 +1916,8 @@ p_is_dynamic(void)
 {				/* '$is_dynamic'(+P)	 */
   PredEntry      *pe;
   Term            t = Deref(ARG1);
-  Term            t2 = Deref(ARG2);
+  Term            mod = Deref(ARG2);
   Int             out;
-  SMALLUNSGN      mod = Yap_LookupModule(t2);
 
   if (IsVarTerm(t)) {
     return (FALSE);
@@ -1963,9 +1942,8 @@ p_pred_exists(void)
 {				/* '$pred_exists'(+P,+M)	 */
   PredEntry      *pe;
   Term            t = Deref(ARG1);
-  Term            t2 = Deref(ARG2);
+  Term            mod = Deref(ARG2);
   Int             out;
-  SMALLUNSGN      mod = Yap_LookupModule(t2);
 
   if (IsVarTerm(t)) {
     return (FALSE);
@@ -1992,7 +1970,7 @@ p_set_pred_module(void)
 {				/* '$set_pred_module'(+P,+Mod)	 */
   PredEntry      *pe;
   Term            t = Deref(ARG1);
-  SMALLUNSGN      mod = CurrentModule;
+  Term            mod = CurrentModule;
 
  restart_set_pred:
   if (IsVarTerm(t)) {
@@ -2011,7 +1989,7 @@ p_set_pred_module(void)
 	Yap_Error(TYPE_ERROR_ATOM,ARG1,"set_pred_module/1");
 	return(FALSE);
       }
-      mod = Yap_LookupModule(tmod);
+      mod = tmod;
       t = ArgOfTerm(2, t);
       goto restart_set_pred;
     }
@@ -2021,10 +1999,7 @@ p_set_pred_module(void)
   if (EndOfPAEntr(pe))
     return FALSE;
   WRITE_LOCK(pe->PRWLock);
-  {
-    SMALLUNSGN mod = Yap_LookupModule(Deref(ARG2));
-    pe->ModuleOfPred = mod;
-  }
+  pe->ModuleOfPred = Deref(ARG2);
   WRITE_UNLOCK(pe->PRWLock);
   return(TRUE);
 }
@@ -2034,20 +2009,18 @@ p_undefined(void)
 {				/* '$undefined'(P,Mod)	 */
   PredEntry      *pe;
   Term            t;
-  Term            t2;
-  SMALLUNSGN      mod;
+  Term            mod;
 
   t = Deref(ARG1);
-  t2 = Deref(ARG2);
-  if (IsVarTerm(t2)) {
+  mod = Deref(ARG2);
+  if (IsVarTerm(mod)) {
     Yap_Error(INSTANTIATION_ERROR,ARG2,"undefined/1");
     return(FALSE);
   }
-  if (!IsAtomTerm(t2)) {
+  if (!IsAtomTerm(mod)) {
     Yap_Error(TYPE_ERROR_ATOM,ARG2,"undefined/1");
     return(FALSE);
   }
-  mod = Yap_LookupModule(t2);
  restart_undefined:
   if (IsVarTerm(t)) {
     Yap_Error(INSTANTIATION_ERROR,ARG1,"undefined/1");
@@ -2068,7 +2041,7 @@ p_undefined(void)
 	Yap_Error(TYPE_ERROR_ATOM,ARG1,"undefined/1");
 	return(FALSE);
       }
-      mod = Yap_LookupModule(tmod);
+      mod = tmod;
       t = ArgOfTerm(2, t);
       goto restart_undefined;
     }
@@ -2101,19 +2074,17 @@ p_kill_dynamic(void)
 {				/* '$kill_dynamic'(P,M)       */
   PredEntry      *pe;
   Term            t;
-  Term            t2;
-  SMALLUNSGN      mod;
+  Term            mod;
 
-  t2 = Deref(ARG2);
-  if (IsVarTerm(t2)) {
+  mod = Deref(ARG2);
+  if (IsVarTerm(mod)) {
     Yap_Error(INSTANTIATION_ERROR,ARG2,"undefined/1");
     return(FALSE);
   }
-  if (!IsAtomTerm(t2)) {
+  if (!IsAtomTerm(mod)) {
     Yap_Error(TYPE_ERROR_ATOM,ARG2,"undefined/1");
     return(FALSE);
   }
-  mod = Yap_LookupModule(t2);
   t = Deref(ARG1);
   if (IsAtomTerm(t)) {
     Atom at = AtomOfTerm(t);
@@ -2654,7 +2625,7 @@ code_in_pred(PredEntry *pp, Atom *pat, UInt *parity, yamop *codeptr) {
 }
 
 static Int
-PredForCode(yamop *codeptr, Atom *pat, UInt *parity, SMALLUNSGN *pmodule) {
+PredForCode(yamop *codeptr, Atom *pat, UInt *parity, Term *pmodule) {
   Int found = 0;
   Int i_table;
 
@@ -2673,7 +2644,7 @@ PredForCode(yamop *codeptr, Atom *pat, UInt *parity, SMALLUNSGN *pmodule) {
 }
 
 Int
-Yap_PredForCode(yamop *codeptr, Atom *pat, UInt *parity, SMALLUNSGN *pmodule) {
+Yap_PredForCode(yamop *codeptr, Atom *pat, UInt *parity, Term *pmodule) {
   return PredForCode(codeptr, pat, parity, pmodule);
 }
 
@@ -2683,7 +2654,7 @@ p_pred_for_code(void) {
   yamop *codeptr;
   Atom at;
   UInt arity;
-  SMALLUNSGN module;
+  Term module;
   Int cl;
   Term t = Deref(ARG1);
 
@@ -2697,12 +2668,13 @@ p_pred_for_code(void) {
     return FALSE;
   }
   cl = PredForCode(codeptr, &at, &arity, &module);
+  if (!module) module = TermProlog;
   if (cl == 0) {
     return(Yap_unify(ARG5,MkIntTerm(0)));
   } else {
     return(Yap_unify(ARG2,MkAtomTerm(at)) &&
 	   Yap_unify(ARG3,MkIntegerTerm(arity)) &&
-	   Yap_unify(ARG4,ModuleName[module]) &&
+	   Yap_unify(ARG4,module) &&
 	   Yap_unify(ARG5,MkIntegerTerm(cl)));
   }
 }
@@ -2742,16 +2714,14 @@ p_is_profiled(void)
 static Int
 p_profile_info(void)
 {
-  Term tmod = Deref(ARG1);
+  Term mod = Deref(ARG1);
   Term tfun = Deref(ARG2);
-  int mod;
   Term out;
   PredEntry *pe;
   Term p[3];
 
-  if (IsVarTerm(tmod) || !IsAtomTerm(tmod))
+  if (IsVarTerm(mod) || !IsAtomTerm(mod))
     return(FALSE);
-  mod = Yap_LookupModule(tmod);
   if (IsVarTerm(tfun)) {
     return(FALSE);
   } else if (IsApplTerm(tfun)) {
@@ -2783,14 +2753,12 @@ p_profile_info(void)
 static Int
 p_profile_reset(void)
 {
-  Term tmod = Deref(ARG1);
+  Term mod = Deref(ARG1);
   Term tfun = Deref(ARG2);
-  int mod;
   PredEntry *pe;
 
-  if (IsVarTerm(tmod) || !IsAtomTerm(tmod))
+  if (IsVarTerm(mod) || !IsAtomTerm(mod))
     return(FALSE);
-  mod = Yap_LookupModule(tmod);
   if (IsVarTerm(tfun)) {
     return(FALSE);
   } else if (IsApplTerm(tfun)) {
@@ -2903,7 +2871,7 @@ p_parent_pred(void)
      We assume a sequence of the form a -> b */
   Atom at;
   UInt arity;
-  SMALLUNSGN module;
+  Term module;
   if (!PredForCode(P_before_spy, &at, &arity, &module)) {
     return(Yap_unify(ARG1, MkIntTerm(0)) &&
 	   Yap_unify(ARG2, MkAtomTerm(AtomMetaCall)) &&
@@ -2920,7 +2888,7 @@ p_system_pred(void)
   PredEntry      *pe;
 
   Term t1 = Deref(ARG1);
-  SMALLUNSGN mod = Yap_LookupModule(Deref(ARG2));
+  Term mod = Deref(ARG2);
 
  restart_system_pred:
   if (IsVarTerm(t1))
@@ -2952,7 +2920,7 @@ p_system_pred(void)
     return (FALSE);
   if (EndOfPAEntr(pe))
     return(FALSE);
-  return(pe->ModuleOfPred == 0 || pe->PredFlags & (UserCPredFlag|CPredFlag|BinaryTestPredFlag|AsmPredFlag|TestPredFlag));
+  return(!pe->ModuleOfPred || pe->PredFlags & (UserCPredFlag|CPredFlag|BinaryTestPredFlag|AsmPredFlag|TestPredFlag));
 }
 
 static Int			/* $system_predicate(P) */
@@ -2961,7 +2929,7 @@ p_hide_predicate(void)
   PredEntry      *pe;
 
   Term t1 = Deref(ARG1);
-  SMALLUNSGN mod = Yap_LookupModule(Deref(ARG2));
+  Term mod = Deref(ARG2);
 
  restart_system_pred:
   if (IsVarTerm(t1))
@@ -3003,7 +2971,7 @@ p_hidden_predicate(void)
   PredEntry      *pe;
 
   Term t1 = Deref(ARG1);
-  SMALLUNSGN mod = Yap_LookupModule(Deref(ARG2));
+  Term mod = Deref(ARG2);
 
  restart_system_pred:
   if (IsVarTerm(t1))
@@ -3039,9 +3007,8 @@ p_hidden_predicate(void)
 }
 
 static PredEntry *
-get_pred(Term t1, Term tmod, char *command)
+get_pred(Term t1, Term mod, char *command)
 {
-  SMALLUNSGN mod = Yap_LookupModule(tmod);
 
  restart_system_pred:
   if (IsVarTerm(t1))
@@ -3366,7 +3333,7 @@ p_nth_clause(void)
     return FALSE;
   }
   /* in case we have to index or to expand code */
-  if (pe->ModuleOfPred != 2) {
+  if (pe->ModuleOfPred != IDB_MODULE) {
     UInt i;
 
     for (i = 1; i <= pe->ArityOfPE; i++) {
@@ -3545,8 +3512,7 @@ static Int
 p_static_pred_statistics(void)
 {
   Term t = Deref(ARG1);
-  Term tmod = Deref(ARG2);
-  SMALLUNSGN      mod = Yap_LookupModule(tmod);
+  Term mod = Deref(ARG2);
   PredEntry      *pe;
 
   if (IsVarTerm(t)) {

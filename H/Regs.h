@@ -10,7 +10,7 @@
 * File:		Regs.h							 *
 * mods:									 *
 * comments:	YAP abstract machine registers				 *
-* version:      $Id: Regs.h,v 1.25 2004-02-11 13:33:19 vsc Exp $	 *
+* version:      $Id: Regs.h,v 1.26 2004-02-12 12:37:11 vsc Exp $	 *
 *************************************************************************/
 
 
@@ -100,7 +100,7 @@ typedef struct
     Term   TermNil_;		/* 20                                         */
 #endif
 #endif
-    SMALLUNSGN  CurrentModule_;
+    Term  CurrentModule_;
 #if defined(SBA) || defined(TABLING)
     CELL *H_FZ_;
     choiceptr B_FZ_;

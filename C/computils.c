@@ -74,7 +74,7 @@ Yap_AllocCMem (int size, struct intermediates *cip)
 }
 
 int
-Yap_is_a_test_pred (Term arg, SMALLUNSGN mod)
+Yap_is_a_test_pred (Term arg, Term mod)
 {
   if (IsVarTerm (arg))
     return FALSE;
@@ -373,10 +373,13 @@ ShowOp (char *f, struct PSEUDO *cpc)
 	      PredEntry *p = RepPredProp ((Prop) arg);
 	      Functor f = p->FunctorOfPred;
 	      UInt arity = p->ArityOfPE;
-	      SMALLUNSGN mod = 0;
+	      Term mod;
 
-	      if (p->ModuleOfPred) mod = IntOfTerm(p->ModuleOfPred);
-	      Yap_plwrite (ModuleName[mod], Yap_DebugPutc, 0);
+	      if (p->ModuleOfPred)
+		mod = p->ModuleOfPred;
+	      else
+		mod = TermProlog;
+	      Yap_plwrite (mod, Yap_DebugPutc, 0);
 	      Yap_DebugPutc (Yap_c_error_stream,':');
 	      if (arity == 0)
 		Yap_plwrite (MkAtomTerm ((Atom)f), Yap_DebugPutc, 0);
@@ -391,10 +394,10 @@ ShowOp (char *f, struct PSEUDO *cpc)
 	      PredEntry *p = RepPredProp((Prop) rn);
 	      Functor f = p->FunctorOfPred;
 	      UInt arity = p->ArityOfPE;
-	      SMALLUNSGN mod = 0;
+	      Term mod = TermProlog;
 
-	      if (p->ModuleOfPred) mod = IntOfTerm(p->ModuleOfPred);
-	      Yap_plwrite (ModuleName[mod], Yap_DebugPutc, 0);
+	      if (p->ModuleOfPred) mod = p->ModuleOfPred;
+	      Yap_plwrite (mod, Yap_DebugPutc, 0);
 	      Yap_DebugPutc (Yap_c_error_stream,':');
 	      if (arity == 0)
 		Yap_plwrite (MkAtomTerm ((Atom)f), Yap_DebugPutc, 0);

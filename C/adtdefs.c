@@ -27,8 +27,8 @@ static char SccsId[] = "%W% %G%";
 
 #include "Yap.h"
 ADDR    STD_PROTO(Yap_PreAllocCodeSpace, (void));
-Prop	STD_PROTO(PredPropByFunc,(Functor, SMALLUNSGN));
-Prop	STD_PROTO(PredPropByAtom,(Atom, SMALLUNSGN));
+Prop	STD_PROTO(PredPropByFunc,(Functor, Term));
+Prop	STD_PROTO(PredPropByAtom,(Atom, Term));
 #include "Yatom.h"
 #include "Heap.h"
 #include "yapio.h"
@@ -300,7 +300,7 @@ Yap_GetAProp(Atom a, PropFlags kind)
 }
 
 inline static Prop
-GetPredPropByAtomHavingLock(AtomEntry* ae, SMALLUNSGN cur_mod)
+GetPredPropByAtomHavingLock(AtomEntry* ae, Term cur_mod)
 /* get predicate entry for ap/arity; create it if neccessary.              */
 {
   Prop p0;
@@ -324,7 +324,7 @@ GetPredPropByAtomHavingLock(AtomEntry* ae, SMALLUNSGN cur_mod)
 }
 
 Prop
-Yap_GetPredPropByAtom(Atom at, SMALLUNSGN cur_mod)
+Yap_GetPredPropByAtom(Atom at, Term cur_mod)
 /* get predicate entry for ap/arity; create it if neccessary.              */
 {
   Prop p0;
@@ -338,7 +338,7 @@ Yap_GetPredPropByAtom(Atom at, SMALLUNSGN cur_mod)
 
 
 inline static Prop
-GetPredPropByAtomHavingLockInThisModule(AtomEntry* ae, SMALLUNSGN cur_mod)
+GetPredPropByAtomHavingLockInThisModule(AtomEntry* ae, Term cur_mod)
 /* get predicate entry for ap/arity; create it if neccessary.              */
 {
   Prop p0;
@@ -361,7 +361,7 @@ GetPredPropByAtomHavingLockInThisModule(AtomEntry* ae, SMALLUNSGN cur_mod)
 }
 
 Prop
-Yap_GetPredPropByAtomInThisModule(Atom at, SMALLUNSGN cur_mod)
+Yap_GetPredPropByAtomInThisModule(Atom at, Term cur_mod)
 /* get predicate entry for ap/arity; create it if neccessary.              */
 {
   Prop p0;
@@ -375,7 +375,7 @@ Yap_GetPredPropByAtomInThisModule(Atom at, SMALLUNSGN cur_mod)
 
 
 static inline Prop
-GetPredPropByFuncHavingLock(Functor f, SMALLUNSGN cur_mod)
+GetPredPropByFuncHavingLock(Functor f, Term cur_mod)
 /* get predicate entry for ap/arity; create it if neccessary.              */
 {
   Prop p0;
@@ -400,7 +400,7 @@ GetPredPropByFuncHavingLock(Functor f, SMALLUNSGN cur_mod)
 }
 
 Prop
-Yap_GetPredPropByFunc(Functor f, SMALLUNSGN cur_mod)
+Yap_GetPredPropByFunc(Functor f, Term cur_mod)
      /* get predicate entry for ap/arity;               */
 {
   Prop p0;
@@ -412,7 +412,7 @@ Yap_GetPredPropByFunc(Functor f, SMALLUNSGN cur_mod)
 }
 
 static inline Prop
-GetPredPropByFuncHavingLockInThisModule(Functor f, SMALLUNSGN cur_mod)
+GetPredPropByFuncHavingLockInThisModule(Functor f, Term cur_mod)
 /* get predicate entry for ap/arity; create it if neccessary.              */
 {
   Prop p0;
@@ -436,7 +436,7 @@ GetPredPropByFuncHavingLockInThisModule(Functor f, SMALLUNSGN cur_mod)
 }
 
 Prop
-Yap_GetPredPropByFuncInThisModule(Functor f, SMALLUNSGN cur_mod)
+Yap_GetPredPropByFuncInThisModule(Functor f, Term cur_mod)
      /* get predicate entry for ap/arity;               */
 {
   Prop p0;
@@ -448,7 +448,7 @@ Yap_GetPredPropByFuncInThisModule(Functor f, SMALLUNSGN cur_mod)
 }
 
 Prop
-Yap_GetPredPropHavingLock(Atom ap, unsigned int arity, SMALLUNSGN mod)
+Yap_GetPredPropHavingLock(Atom ap, unsigned int arity, Term mod)
      /* get predicate entry for ap/arity;               */
 {
   Prop p0;
@@ -496,7 +496,7 @@ Yap_GetExpPropHavingLock(AtomEntry *ae, unsigned int arity)
 
 /* fe is supposed to be locked */
 Prop
-Yap_NewPredPropByFunctor(FunctorEntry *fe, SMALLUNSGN cur_mod)
+Yap_NewPredPropByFunctor(FunctorEntry *fe, Term cur_mod)
 {
   Prop p0;
   PredEntry *p = (PredEntry *) Yap_AllocAtomSpace(sizeof(*p));
@@ -512,9 +512,11 @@ Yap_NewPredPropByFunctor(FunctorEntry *fe, SMALLUNSGN cur_mod)
   p->OpcodeOfPred = UNDEF_OPCODE;
   p->CodeOfPred = p->cs.p_code.TrueCodeOfPred = (yamop *)(&(p->OpcodeOfPred)); 
   p->cs.p_code.ExpandCode = EXPAND_OP_CODE; 
-  p->ModuleOfPred = cur_mod;
-  p->NextPredOfModule = ModulePred[cur_mod];
-  ModulePred[cur_mod] = p;
+  if (cur_mod == TermProlog)
+    p->ModuleOfPred = 0;
+  else
+    p->ModuleOfPred = cur_mod;
+  Yap_NewModulePred(cur_mod, p);
   INIT_LOCK(p->StatisticsForPred.lock);
   p->StatisticsForPred.NOfEntries = 0;
   p->StatisticsForPred.NOfHeadSuccesses = 0;
@@ -565,12 +567,12 @@ Yap_NewThreadPred(PredEntry *ap)
 #endif
 
 Prop
-Yap_NewPredPropByAtom(AtomEntry *ae, SMALLUNSGN cur_mod)
+Yap_NewPredPropByAtom(AtomEntry *ae, Term cur_mod)
 {
   Prop p0;
   PredEntry *p = (PredEntry *) Yap_AllocAtomSpace(sizeof(*p));
 
-/* Printf("entering %s:%s/0\n", RepAtom(AtomOfTerm(ModuleName[cur_mod]))->StrOfAE, ae->StrOfAE); */
+/* Printf("entering %s:%s/0\n", RepAtom(AtomOfTerm(cur_mod))->StrOfAE, ae->StrOfAE); */
 
   INIT_RWLOCK(p->PRWLock);
   INIT_LOCK(p->PELock);
@@ -583,9 +585,11 @@ Yap_NewPredPropByAtom(AtomEntry *ae, SMALLUNSGN cur_mod)
   p->OpcodeOfPred = UNDEF_OPCODE;
   p->cs.p_code.ExpandCode = EXPAND_OP_CODE; 
   p->CodeOfPred = p->cs.p_code.TrueCodeOfPred = (yamop *)(&(p->OpcodeOfPred)); 
-  p->ModuleOfPred = cur_mod;
-  p->NextPredOfModule = ModulePred[cur_mod];
-  ModulePred[cur_mod] = p;
+  if (cur_mod == TermProlog)
+    p->ModuleOfPred = 0;
+  else
+    p->ModuleOfPred = cur_mod;
+  Yap_NewModulePred(cur_mod, p);
   INIT_LOCK(p->StatisticsForPred.lock);
   p->StatisticsForPred.NOfEntries = 0;
   p->StatisticsForPred.NOfHeadSuccesses = 0;
@@ -602,7 +606,7 @@ Yap_NewPredPropByAtom(AtomEntry *ae, SMALLUNSGN cur_mod)
 }
 
 Prop
-Yap_PredPropByFunctorNonThreadLocal(Functor f, SMALLUNSGN cur_mod)
+Yap_PredPropByFunctorNonThreadLocal(Functor f, Term cur_mod)
 /* get predicate entry for ap/arity; create it if neccessary.              */
 {
   Prop p0;
@@ -623,7 +627,7 @@ Yap_PredPropByFunctorNonThreadLocal(Functor f, SMALLUNSGN cur_mod)
 }
 
 Prop
-Yap_PredPropByAtomNonThreadLocal(Atom at, SMALLUNSGN cur_mod)
+Yap_PredPropByAtomNonThreadLocal(Atom at, Term cur_mod)
 /* get predicate entry for ap/arity; create it if neccessary.              */
 {
   Prop p0;

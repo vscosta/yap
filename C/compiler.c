@@ -1145,7 +1145,7 @@ c_goal(Term Goal, int mod, compiler_struct *cglobs)
       longjmp(cglobs->cint.CompilerBotch, 1);
     }
     Goal = ArgOfTerm(2, Goal);
-    mod = Yap_LookupModule(M);
+    mod = M;
   }
   if (IsVarTerm(Goal)) {
     Goal = Yap_MkApplTerm(FunctorCall, 1, &Goal);

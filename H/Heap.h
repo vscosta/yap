@@ -10,7 +10,7 @@
 * File:		Heap.h         						 *
 * mods:									 *
 * comments:	Heap Init Structure					 *
-* version:      $Id: Heap.h,v 1.56 2004-02-11 13:59:52 vsc Exp $	 *
+* version:      $Id: Heap.h,v 1.57 2004-02-12 12:37:11 vsc Exp $	 *
 *************************************************************************/
 
 /* information that can be stored in Code Space */
@@ -67,7 +67,7 @@ typedef struct thandle {
   UInt ssize;
   UInt tsize;
   Term tdetach;
-  SMALLUNSGN cmod;
+  Term  cmod;
   struct DB_TERM *tgoal;
   int id;
   int ret;
@@ -326,7 +326,12 @@ typedef struct various_codes {
     term_dollar_u,
 #endif
     term_prolog,
-    term_refound_var;
+    term_refound_var,
+    user_module,
+    idb_module,
+    attributes_module,
+    charsio_module,
+    terms_module;
   void *last_wtime;
   struct pred_entry *pred_goal_expansion;
   struct pred_entry *pred_meta_call;
@@ -572,6 +577,12 @@ struct various_codes *heap_regs;
 #define  TermDollarU              heap_regs->term_dollar_u
 #define  TermProlog               heap_regs->term_prolog
 #define  TermReFoundVar           heap_regs->term_refound_var
+#define  PROLOG_MODULE            0
+#define  USER_MODULE              heap_regs->user_module
+#define  IDB_MODULE               heap_regs->idb_module
+#define  ATTRIBUTES_MODULE        heap_regs->attributes_module
+#define  CHARSIO_MODULE           heap_regs->charsio_module
+#define  TERMS_MODULE             heap_regs->terms_module
 #define  PredGoalExpansion        heap_regs->pred_goal_expansion
 #define  PredMetaCall             heap_regs->pred_meta_call
 #define  PredDollarCatch          heap_regs->pred_dollar_catch
@@ -716,13 +727,13 @@ Yap_PreAllocCodeSpace(void)
 
 #if THREADS
 Prop STD_PROTO(Yap_NewThreadPred, (PredEntry *));
-Prop STD_PROTO(Yap_NewPredPropByFunctor, (Functor, SMALLUNSGN));
+Prop STD_PROTO(Yap_NewPredPropByFunctor, (Functor, Term));
 
 EXTERN inline PredEntry *
 Yap_GetThreadPred(PredEntry *ap)
 {
   Functor f = ap->FunctorOfPred;
-  SMALLUNSGN mod = ap->ModuleOfPred;
+  Term  mod = ap->ModuleOfPred;
   Prop p0 = AbsPredProp(heap_regs->thread_handle[worker_id].local_preds);
 
   while(p0) {

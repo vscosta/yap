@@ -151,15 +151,12 @@ int start_yapor(void) {
 
 static
 int p_sequential(void) {
-  Term t, tmod;
-  SMALLUNSGN mod;
+  Term t, mod;
   PredEntry *pe;
 
-  tmod = Deref(ARG2);
-  if (IsVarTerm(tmod) || !IsAtomTerm(tmod)) {
+  mod = Deref(ARG2);
+  if (IsVarTerm(mod) || !IsAtomTerm(mod)) {
     return(FALSE);
-  } else {
-    mod = Yap_LookupModule(tmod);
   }
   t = Deref(ARG1);
   if (IsAtomTerm(t)) {
@@ -447,17 +444,14 @@ void answer_to_stdout(char *answer) {
 #ifdef TABLING
 static
 int p_table(void) {
-  Term t, tmod;
-  SMALLUNSGN mod;
+  Term t, mod;
   PredEntry *pe;
   tab_ent_ptr te;
   sg_node_ptr sg_node;
 
   tmod = Deref(ARG2);
-  if (IsVarTerm(tmod) || !IsAtomTerm(tmod)) {
+  if (IsVarTerm(mod) || !IsAtomTerm(mod)) {
     return (FALSE);
-  } else {
-    mod = Yap_LookupModule(tmod);
   }
   t = Deref(ARG1);
   if (IsAtomTerm(t)) {
@@ -479,18 +473,15 @@ int p_table(void) {
 
 static
 int p_abolish_trie(void) {
-  Term t, tmod;
-  SMALLUNSGN mod;
+  Term t, mod;
   tab_ent_ptr tab_ent;
   sg_hash_ptr hash;
   sg_node_ptr sg_node;
   UInt arity;
 
-  tmod = Deref(ARG2);
-   if (IsVarTerm(tmod) || !IsAtomTerm(tmod)) {
+  mod = Deref(ARG2);
+   if (IsVarTerm(mod) || !IsAtomTerm(mod)) {
     return (FALSE);
-  } else {
-    mod = Yap_LookupModule(tmod);
   } 
   t = Deref(ARG1);
   if (IsAtomTerm(t)) {
@@ -518,17 +509,14 @@ int p_abolish_trie(void) {
 
 static
 int p_show_trie(void) {
-  Term t1, t2, tmod;
-  SMALLUNSGN mod;
+  Term t1, t2, mod;
   PredEntry *pe;
   Atom at;
   UInt arity;
 
-  tmod = Deref(ARG2);
-   if (IsVarTerm(tmod) || !IsAtomTerm(tmod)) {
+  mod = Deref(ARG2);
+   if (IsVarTerm(mod) || !IsAtomTerm(mod)) {
     return (FALSE);
-  } else {
-    mod = Yap_LookupModule(tmod);
   } 
   t1 = Deref(ARG1);
   if (IsAtomTerm(t1)) {
@@ -564,17 +552,14 @@ int p_show_trie(void) {
 
 static
 int p_resume_trie(void) {
-  Term t, tmod;
-  SMALLUNSGN mod;
+  Term t, mod;
   PredEntry *pe;
   Atom at;
   int arity;
 
-  tmod = Deref(ARG2);
-  if (IsVarTerm(tmod) || !IsAtomTerm(tmod)) {
+  mod = Deref(ARG2);
+  if (IsVarTerm(mod) || !IsAtomTerm(mod)) {
     return (FALSE);
-  } else {
-    mod = Yap_LookupModule(tmod);
   } 
   t = Deref(ARG1);
   if (IsAtomTerm(t)) {

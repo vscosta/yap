@@ -22,7 +22,7 @@ static char     SccsId[] = "@(#)cdmgr.c	1.1 05/02/98";
 #include "yapio.h"
 
 STATIC_PROTO(Int  CallPredicate, (PredEntry *, choiceptr));
-STATIC_PROTO(Int  EnterCreepMode, (Term, SMALLUNSGN));
+STATIC_PROTO(Int  EnterCreepMode, (Term, Term));
 STATIC_PROTO(Int  CallClause, (PredEntry *, Int));
 STATIC_PROTO(Int  p_save_cp, (void));
 STATIC_PROTO(Int  p_execute, (void));
@@ -74,25 +74,25 @@ CallPredicate(PredEntry *pen, choiceptr cut_pt) {
 }
 
 inline static Int
-CallMetaCall(SMALLUNSGN mod) {
+CallMetaCall(Term mod) {
   ARG2 = cp_as_integer(B); /* p_save_cp */
   ARG3 = ARG1;
-  ARG4 = ModuleName[mod];
+  ARG4 = mod;
   return (CallPredicate(PredMetaCall, B));
 }
 
 Term
-Yap_ExecuteCallMetaCall(SMALLUNSGN mod) {
+Yap_ExecuteCallMetaCall(Term mod) {
   Term ts[4];
   ts[0] = ARG1;
   ts[1] = cp_as_integer(B); /* p_save_cp */
   ts[2] = ARG1;
-  ts[3] = ModuleName[mod];
+  ts[3] = mod;
   return(Yap_MkApplTerm(PredMetaCall->FunctorOfPred,4,ts));
 }
 
 static Int
-CallError(yap_error_number err, SMALLUNSGN mod)
+CallError(yap_error_number err, Term mod)
 {
   if (yap_flags[LANGUAGE_MODE_FLAG] == 1) {
     return(CallMetaCall(mod));
@@ -213,7 +213,7 @@ p_save_cp(void)
 }
 
 inline static Int
-do_execute(Term t, SMALLUNSGN mod)
+do_execute(Term t, Term mod)
 {
   if (ActiveSignals) {
     return(EnterCreepMode(t, mod));
@@ -242,7 +242,7 @@ do_execute(Term t, SMALLUNSGN mod)
       if (f == FunctorModule) {
 	Term tmod = ArgOfTerm(1,t);
 	if (!IsVarTerm(tmod) && IsAtomTerm(tmod)) {
-	  mod = Yap_LookupModule(tmod);
+	  mod = tmod;
 	  t = ArgOfTerm(2,t);
 	  goto restart_exec;
 	}
@@ -287,7 +287,7 @@ do_execute(Term t, SMALLUNSGN mod)
 }
 
 static Int
-EnterCreepMode(Term t, SMALLUNSGN mod) {
+EnterCreepMode(Term t, Term mod) {
   PredEntry *PredCreep;
 
   if (ActiveSignals & YAP_CDOVF_SIGNAL) {
@@ -300,7 +300,11 @@ EnterCreepMode(Term t, SMALLUNSGN mod) {
     }
   }
   PredCreep = RepPredProp(PredPropByFunc(FunctorCreep,1));
-  ARG1 = MkPairTerm(ModuleName[mod],ARG1);
+  if (mod) {
+    ARG1 = MkPairTerm(mod,ARG1);
+  } else {
+    ARG1 = MkPairTerm(TermProlog,ARG1);
+  }
   LOCK(SignalLock);
   CreepFlag = CalculateStackGap();
   UNLOCK(SignalLock);
@@ -325,10 +329,9 @@ static Int
 p_execute0(void)
 {				/* '$execute0'(Goal,Mod)	 */
   Term            t = Deref(ARG1);
-  Term            tmod = Deref(ARG2);
+  Term            mod = Deref(ARG2);
   unsigned int    arity;
   Prop            pe;
-  SMALLUNSGN      mod = Yap_LookupModule(tmod);
 
  restart_exec:
   if (IsVarTerm(t)) {
@@ -347,7 +350,7 @@ p_execute0(void)
     if (f == FunctorModule) {
       Term tmod = ArgOfTerm(1,t);
       if (!IsVarTerm(tmod) && IsAtomTerm(tmod)) {
-	mod = Yap_LookupModule(tmod);
+	mod = tmod;
 	t = ArgOfTerm(2,t);
 	goto restart_exec;
       }
@@ -382,7 +385,7 @@ static Int
 p_execute_0(void)
 {				/* '$execute_0'(Goal)	 */
   Term            t = Deref(ARG1);
-  SMALLUNSGN      mod = Yap_LookupModule(Deref(ARG2));
+  Term            mod = Deref(ARG2);
   Prop            pe;
 
   if (IsAtomTerm(t)) {
@@ -419,7 +422,7 @@ static Int
 p_execute_1(void)
 {				/* '$execute_0'(Goal)	 */
   Term            t = Deref(ARG1);
-  SMALLUNSGN      mod = Yap_LookupModule(Deref(ARG3));
+  Term            mod = Deref(ARG3);
   Prop            pe;
 
   if (!IsAtomTerm(t)) {
@@ -465,7 +468,7 @@ static Int
 p_execute_2(void)
 {				/* '$execute_2'(Goal)	 */
   Term            t = Deref(ARG1);
-  SMALLUNSGN      mod = Yap_LookupModule(Deref(ARG4));
+  Term            mod = Deref(ARG4);
   Prop            pe;
 
   if (IsAtomTerm(t)) {
@@ -510,7 +513,7 @@ static Int
 p_execute_3(void)
 {				/* '$execute_3'(Goal)	 */
   Term            t = Deref(ARG1);
-  SMALLUNSGN      mod = Yap_LookupModule(Deref(ARG5));
+  Term            mod = Deref(ARG5);
   Prop            pe;
 
   if (!IsAtomTerm(t)) {
@@ -562,7 +565,7 @@ static Int
 p_execute_4(void)
 {				/* '$execute_4'(Goal)	 */
   Term            t = Deref(ARG1);
-  SMALLUNSGN      mod = Yap_LookupModule(Deref(ARG6));
+  Term            mod = Deref(ARG6);
   Prop            pe;
 
   if (IsAtomTerm(t)) {
@@ -613,7 +616,7 @@ static Int
 p_execute_5(void)
 {				/* '$execute_5'(Goal)	 */
   Term            t = Deref(ARG1);
-  SMALLUNSGN      mod = Yap_LookupModule(Deref(ARG7));
+  Term            mod = Deref(ARG7);
   Prop            pe;
 
   if (IsAtomTerm(t)) {
@@ -667,7 +670,7 @@ static Int
 p_execute_6(void)
 {				/* '$execute_6'(Goal)	 */
   Term            t = Deref(ARG1);
-  SMALLUNSGN      mod = Yap_LookupModule(Deref(ARG8));
+  Term            mod = Deref(ARG8);
   Prop            pe;
 
   if (IsAtomTerm(t)) {
@@ -724,7 +727,7 @@ static Int
 p_execute_7(void)
 {				/* '$execute_7'(Goal)	 */
   Term            t = Deref(ARG1);
-  SMALLUNSGN      mod = Yap_LookupModule(Deref(ARG9));
+  Term            mod = Deref(ARG9);
   Prop            pe;
 
   if (IsAtomTerm(t)) {
@@ -784,7 +787,7 @@ static Int
 p_execute_8(void)
 {				/* '$execute_8'(Goal)	 */
   Term            t = Deref(ARG1);
-  SMALLUNSGN      mod = Yap_LookupModule(Deref(ARG10));
+  Term            mod = Deref(ARG10);
   Prop            pe;
 
   if (IsAtomTerm(t)) {
@@ -847,7 +850,7 @@ static Int
 p_execute_9(void)
 {				/* '$execute_9'(Goal)	 */
   Term            t = Deref(ARG1);
-  SMALLUNSGN      mod = Yap_LookupModule(Deref(ARG11));
+  Term            mod = Deref(ARG11);
   Prop            pe;
 
   if (IsAtomTerm(t)) {
@@ -913,7 +916,7 @@ static Int
 p_execute_10(void)
 {				/* '$execute_10'(Goal)	 */
   Term            t = Deref(ARG1);
-  SMALLUNSGN      mod = Yap_LookupModule(Deref(ARG12));
+  Term            mod = Deref(ARG12);
   Prop            pe;
 
   if (IsAtomTerm(t)) {
@@ -1003,11 +1006,10 @@ p_pred_goal_expansion_on(void) {
 static Int 
 p_at_execute(void)
 {				/* '$execute'(Goal,ClauseNumber) */
-  Term            t = Deref(ARG1), tmod = Deref(ARG2), t2 = Deref(ARG3);
+  Term            t = Deref(ARG1), mod = Deref(ARG2), t2 = Deref(ARG3);
   unsigned	  int arity;
   Prop            pe;
   Atom            a;
-  SMALLUNSGN      mod = Yap_LookupModule(tmod);
 
  restart_exec:
   if (IsAtomTerm(t)) {
@@ -1024,7 +1026,7 @@ p_at_execute(void)
     if (f == FunctorModule) {
       Term tmod = ArgOfTerm(1,t);
       if (!IsVarTerm(tmod) && IsAtomTerm(tmod)) {
-	mod = Yap_LookupModule(tmod);
+	mod = tmod;
 	t = ArgOfTerm(2,t);
 	goto restart_exec;
       }
@@ -1176,7 +1178,7 @@ Yap_exec_absmi(int top)
 
 
 Int
-Yap_execute_goal(Term t, int nargs, SMALLUNSGN mod)
+Yap_execute_goal(Term t, int nargs, Term mod)
 {
   Int             out;
   yamop        *CodeAdr;
@@ -1307,7 +1309,7 @@ Yap_RunTopGoal(Term t)
   PredEntry *ppe;
   CELL *pt;
   UInt arity;
-  SMALLUNSGN mod = CurrentModule;
+  Term mod = CurrentModule;
   int goal_out = 0;
 
  restart_runtopgoal:
@@ -1326,7 +1328,7 @@ Yap_RunTopGoal(Term t)
     if (f == FunctorModule) {
       Term tmod = ArgOfTerm(1,t);
       if (!IsVarTerm(tmod) && IsAtomTerm(tmod)) {
-	mod = Yap_LookupModule(tmod);
+	mod = tmod;
 	t = ArgOfTerm(2,t);
 	goto restart_runtopgoal;
       }
@@ -1531,7 +1533,7 @@ p_jump_env(void) {
 static Int
 p_generate_pred_info(void) {
   ARG1 = ARG3 = ENV[-EnvSizeInCells-1];
-  ARG4 = ModuleName[IntOfTerm(ENV[-EnvSizeInCells-3])];
+  ARG4 = ENV[-EnvSizeInCells-3];
   ARG2 = cp_as_integer((choiceptr)ENV[E_CB]);
   return TRUE;
 }

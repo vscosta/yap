@@ -114,7 +114,6 @@ X_API Term   *STD_PROTO(YAP_AddressFromSlot,(long));
 X_API void    STD_PROTO(YAP_PutInSlot,(long, Term));
 X_API void    STD_PROTO(YAP_RecoverSlots,(int));
 X_API void    STD_PROTO(YAP_Throw,(Term));
-X_API int     STD_PROTO(YAP_LookupModule,(Term));
 X_API Term    STD_PROTO(YAP_ModuleName,(int));
 X_API void    STD_PROTO(YAP_Halt,(int));
 X_API Term   *STD_PROTO(YAP_TopOfLocalStack,(void));
@@ -122,7 +121,7 @@ X_API void   *STD_PROTO(YAP_Predicate,(Atom,unsigned long int,int));
 X_API void    STD_PROTO(YAP_PredicateInfo,(void *,Atom *,unsigned long int *,int *));
 X_API void    STD_PROTO(YAP_UserCPredicate,(char *,CPredicate,unsigned long int));
 X_API void    STD_PROTO(YAP_UserBackCPredicate,(char *,CPredicate,CPredicate,unsigned long int,unsigned int));
-X_API void    STD_PROTO(YAP_UserCPredicateWithArgs,(char *,CPredicate,unsigned long int,int));
+X_API void    STD_PROTO(YAP_UserCPredicateWithArgs,(char *,CPredicate,unsigned long int,Term));
 X_API Int     STD_PROTO(YAP_CurrentModule,(void));
 
 static int (*do_getf)(void);
@@ -567,7 +566,7 @@ X_API Int
 YAP_CallProlog(Term t)
 {
   Int out;
-  SMALLUNSGN mod = CurrentModule;
+  Term mod = CurrentModule;
   BACKUP_MACHINE_REGS();
 
   while (!IsVarTerm(t) &&
@@ -576,7 +575,7 @@ YAP_CallProlog(Term t)
     Term tmod = ArgOfTerm(1,t);
     if (IsVarTerm(tmod)) return(FALSE);
     if (!IsAtomTerm(tmod)) return(FALSE);
-    mod = Yap_LookupModule(tmod);
+    mod = tmod;
     t = ArgOfTerm(2,t);
   }
   out = Yap_execute_goal(t, 0, mod);
@@ -1080,18 +1079,6 @@ YAP_Throw(Term t)
   RECOVER_MACHINE_REGS();
 }
 
-X_API int
-YAP_LookupModule(Term t)
-{
-  return(Yap_LookupModule(t));
-}
-
-X_API Term
-YAP_ModuleName(int i)
-{
-  return(ModuleName[i]);
-}
-
 X_API void
 YAP_Halt(int i)
 {
@@ -1126,7 +1113,10 @@ YAP_PredicateInfo(void *p, Atom* a, unsigned long int* arity, int* m)
     *arity = 0;
     *a = (Atom)(pd->FunctorOfPred);
   }
-  *m = pd->ModuleOfPred;
+  if (pd->ModuleOfPred)
+    *m = pd->ModuleOfPred;
+  else
+    *m = TermProlog;
 } 
 
 X_API void 
@@ -1143,10 +1133,10 @@ YAP_UserBackCPredicate(char *name, CPredicate init, CPredicate cont,
 }
 
 X_API void
-YAP_UserCPredicateWithArgs(char *a, CPredicate f, unsigned long int arity, int mod)
+YAP_UserCPredicateWithArgs(char *a, CPredicate f, unsigned long int arity, Term mod)
 {
   PredEntry *pe;
-  SMALLUNSGN cm = CurrentModule;
+  Term cm = CurrentModule;
   CurrentModule = mod;
   YAP_UserCPredicate(a,f,arity);
   if (arity == 0) {

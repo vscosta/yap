@@ -1473,7 +1473,7 @@ mark_choicepoints(register choiceptr gc_B, tr_fr_ptr saved_TR, int very_verbose)
 	{
 	  Atom at;
 	  UInt arity;
-	  SMALLUNSGN mod;
+	  Term mod;
 	  if (Yap_PredForCode(gc_B->cp_ap, &at, &arity, &mod)) {
 	    if (arity) 
 	      fprintf(Yap_stderr,"[GC]       %s/%ld marked %ld (%s)\n", RepAtom(at)->StrOfAE, (long int)arity, total_marked, op_names[opnum]);

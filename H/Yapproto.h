@@ -10,7 +10,7 @@
 * File:		Yap.proto						 *
 * mods:									 *
 * comments:	Function declarations for YAP				 *
-* version:      $Id: Yapproto.h,v 1.45 2004-02-11 01:20:56 vsc Exp $	 *
+* version:      $Id: Yapproto.h,v 1.46 2004-02-12 12:37:12 vsc Exp $	 *
 *************************************************************************/
 
 /* prototype file for Yap */
@@ -29,10 +29,10 @@ Term	STD_PROTO(Yap_GetValue,(Atom));
 Atom	STD_PROTO(Yap_LookupAtom,(char *));
 Atom	STD_PROTO(Yap_FullLookupAtom,(char *));
 void	STD_PROTO(Yap_LookupAtomWithAddress,(char *,AtomEntry *));
-Prop	STD_PROTO(Yap_NewPredPropByFunctor,(struct FunctorEntryStruct *, SMALLUNSGN));
-Prop	STD_PROTO(Yap_NewPredPropByAtom,(struct AtomEntryStruct *, SMALLUNSGN));
-Prop	STD_PROTO(Yap_PredPropByFunctorNonThreadLocal,(struct FunctorEntryStruct *, SMALLUNSGN));
-Prop	STD_PROTO(Yap_PredPropByAtomNonThreadLocal,(struct AtomEntryStruct *, SMALLUNSGN));
+Prop	STD_PROTO(Yap_NewPredPropByFunctor,(struct FunctorEntryStruct *, Term));
+Prop	STD_PROTO(Yap_NewPredPropByAtom,(struct AtomEntryStruct *, Term));
+Prop	STD_PROTO(Yap_PredPropByFunctorNonThreadLocal,(struct FunctorEntryStruct *, Term));
+Prop	STD_PROTO(Yap_PredPropByAtomNonThreadLocal,(struct AtomEntryStruct *, Term));
 Functor	STD_PROTO(Yap_UnlockedMkFunctor,(AtomEntry *,unsigned int));
 Functor	STD_PROTO(Yap_MkFunctor,(Atom,unsigned int));
 void	STD_PROTO(Yap_MkFunctorWithAddress,(Atom,unsigned int,FunctorEntry *));
@@ -55,11 +55,11 @@ Term	STD_PROTO(MkSFTerm,(Functor,int,Term *,Term));
 CELL	STD_PROTO(*ArgsOfSFTerm,(Term));
 #endif
 
-Prop	STD_PROTO(Yap_GetPredPropByAtom,(Atom, SMALLUNSGN));
-Prop	STD_PROTO(Yap_GetPredPropByFunc,(Functor, SMALLUNSGN));
-Prop	STD_PROTO(Yap_GetPredPropByAtomInThisModule,(Atom, SMALLUNSGN));
-Prop	STD_PROTO(Yap_GetPredPropByFuncInThisModule,(Functor, SMALLUNSGN));
-Prop	STD_PROTO(Yap_GetPredPropHavingLock,(Atom,unsigned int,SMALLUNSGN));
+Prop	STD_PROTO(Yap_GetPredPropByAtom,(Atom, Term));
+Prop	STD_PROTO(Yap_GetPredPropByFunc,(Functor, Term));
+Prop	STD_PROTO(Yap_GetPredPropByAtomInThisModule,(Atom, Term));
+Prop	STD_PROTO(Yap_GetPredPropByFuncInThisModule,(Functor, Term));
+Prop	STD_PROTO(Yap_GetPredPropHavingLock,(Atom,unsigned int, Term));
 Prop	STD_PROTO(Yap_GetExpProp,(Atom,unsigned int));
 Prop	STD_PROTO(Yap_GetExpPropHavingLock,(AtomEntry *,unsigned int));
 
@@ -107,7 +107,7 @@ Int    STD_PROTO(YAP_Execute,(struct pred_entry *, CPredicate));
 /* cdmgr.c */
 Term	STD_PROTO(Yap_all_calls,(void));
 Atom	STD_PROTO(Yap_ConsultingFile,(void));
-Int	STD_PROTO(Yap_PredForCode,(yamop *, Atom *, UInt *, SMALLUNSGN *));
+Int	STD_PROTO(Yap_PredForCode,(yamop *, Atom *, UInt *, Term *));
 void	STD_PROTO(Yap_InitCdMgr,(void));
 #if     EMACS
 int     STD_PROTO(where_new_clause, (Prop, int));
@@ -148,11 +148,11 @@ yamop  *STD_PROTO(Yap_Error,(yap_error_number,Term,char *msg, ...));
 void	STD_PROTO(Yap_InitEval,(void));
 
 /* exec.c */
-Term	STD_PROTO(Yap_ExecuteCallMetaCall,(SMALLUNSGN mod));
+Term	STD_PROTO(Yap_ExecuteCallMetaCall,(Term));
 void	STD_PROTO(Yap_InitExecFs,(void));
 Int	STD_PROTO(Yap_JumpToEnv,(Term));
 int	STD_PROTO(Yap_RunTopGoal,(Term));
-Int	STD_PROTO(Yap_execute_goal,(Term, int, SMALLUNSGN));
+Int	STD_PROTO(Yap_execute_goal,(Term, int, Term));
 int	STD_PROTO(Yap_exec_absmi,(int));
 void	STD_PROTO(Yap_trust_last,(void));
 
@@ -214,8 +214,9 @@ Term	STD_PROTO(Yap_ReadTimedVar,(Term));
 Term    STD_PROTO(Yap_UpdateTimedVar,(Term, Term));
 
 /* modules.c */
-SMALLUNSGN	STD_PROTO(Yap_LookupModule,(Term));
-Term    STD_PROTO(Yap_Module_Name, (CODEADDR));
+Term    STD_PROTO(Yap_Module_Name, (struct pred_entry *));
+struct pred_entry *STD_PROTO(Yap_ModulePred, (Term));
+void    STD_PROTO(Yap_NewModulePred, (Term, struct pred_entry *));
 void    STD_PROTO(Yap_InitModules, (void));
 void    STD_PROTO(Yap_InitModulesC, (void));
 

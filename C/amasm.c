@@ -822,7 +822,7 @@ a_p(op_numbers opcode, clause_info *clinfo, yamop *code_p, int pass_no, struct i
 	if (RepPredProp(fe)->FunctorOfPred != FunctorExecuteInMod) {
 	  code_p->u.sla.sla_u.p =  RepPredProp(fe);
 	} else {
-	  code_p->u.sla.sla_u.m_num =  IntegerOfTerm(cip->cpc->rnd4);
+	  code_p->u.sla.sla_u.mod =  cip->cpc->rnd4;
 	}
 	code_p->u.sla.p0 =  clinfo->CurrentPred;
 	if (cip->cpc->rnd2) {

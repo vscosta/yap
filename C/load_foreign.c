@@ -118,7 +118,7 @@ void
 Yap_ReOpenLoadForeign(void)
 {
   ForeignObj *f_code = ForeignCodeLoaded;
-  SMALLUNSGN OldModule = CurrentModule;
+  Term OldModule = CurrentModule;
   YapInitProc InitProc = NULL;
 
   while (f_code != NULL) {

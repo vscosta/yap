@@ -83,7 +83,6 @@
         '$undefp'([Module1|Continuation]).
 '$execute_continuation'(Continuation, Mod) :-
          % do not do meta-expansion nor any fancy stuff.
-'$module_number'(Mod,_),
 	'$execute0'(Continuation, Mod).
 
 

@@ -386,7 +386,7 @@ typedef struct yami {
 	 union {
 	   struct yami *l;
 	   struct pred_entry  *p;
-	   SMALLUNSGN  m_num;
+	   Term  mod;
 	 } sla_u;
          struct pred_entry  *p0;
 	 CELL next;

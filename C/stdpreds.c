@@ -302,13 +302,13 @@ showprofres(int tipo) {
     if (calls) {
       if (myp->ArityOfPE) {
 	printf("%s:%s/%d -> %uld\n",
-	       RepAtom(AtomOfTerm(ModuleName[myp->ModuleOfPred]))->StrOfAE,
+	       RepAtom(AtomOfTerm(myp->ModuleOfPred))->StrOfAE,
 	       RepAtom(NameOfFunctor(myp->FunctorOfPred))->StrOfAE,
 	       myp->ArityOfPE,
 	       calls);
       } else {
 	printf("%s:%s -> %uld\n",
-	       RepAtom(AtomOfTerm(ModuleName[myp->ModuleOfPred]))->StrOfAE,
+	       RepAtom(AtomOfTerm(myp->ModuleOfPred))->StrOfAE,
 	       RepAtom((Atom)(myp->FunctorOfPred))->StrOfAE,
 	       calls);
       }
@@ -1742,7 +1742,7 @@ cont_current_predicate(void)
   EXTRA_CBACK_ARG(3,1) = (CELL)MkIntegerTerm((Int)(pp->NextPredOfModule));
   if (pp->FunctorOfPred == FunctorModule)
     return(FALSE);
-  if (pp->ModuleOfPred != 2) {
+  if (pp->ModuleOfPred != IDB_MODULE) {
     Arity = pp->ArityOfPE;
     if (Arity)
       name = MkAtomTerm(NameOfFunctor(pp->FunctorOfPred));
@@ -1771,7 +1771,7 @@ init_current_predicate(void)
   Term t1 = Deref(ARG1);
 
   if (IsVarTerm(t1) || !IsAtomTerm(t1)) cut_fail();
-  EXTRA_CBACK_ARG(3,1) = MkIntegerTerm((Int)ModulePred[Yap_LookupModule(t1)]);
+  EXTRA_CBACK_ARG(3,1) = t1;
   return (cont_current_predicate());
 }
 
@@ -1779,7 +1779,7 @@ static Int
 cont_current_predicate_for_atom(void)
 {
   Prop pf = (Prop)IntegerOfTerm(EXTRA_CBACK_ARG(3,1));
-  SMALLUNSGN mod = Yap_LookupModule(Deref(ARG2));
+  Term mod = Deref(ARG2);
 
   while (pf != NIL) {
     FunctorEntry *pp = RepFunctorProp(pf);
@@ -1993,15 +1993,11 @@ p_flags(void)
   PredEntry      *pe;
   Int             newFl;
   Term t1 = Deref(ARG1);
-  Term t2 = Deref(ARG2);
-  int mod;
+  Term mod = Deref(ARG2);
 
-  if (IsVarTerm(t1))
-    return (FALSE);
-  if (!IsAtomTerm(t2)) {
+  if (IsVarTerm(mod) || !IsAtomTerm(mod)) {
     return(FALSE);
   }
-  mod = Yap_LookupModule(t2);
   if (IsVarTerm(t1))
     return (FALSE);
   if (IsAtomTerm(t1)) {

@@ -305,6 +305,11 @@ restore_codes(void)
 #endif
   heap_regs->term_prolog = AtomTermAdjust(heap_regs->term_prolog);
   heap_regs->term_refound_var = AtomTermAdjust(heap_regs->term_refound_var);
+  heap_regs->user_module = AtomTermAdjust(heap_regs->user_module);
+  heap_regs->idb_module = AtomTermAdjust(heap_regs->idb_module);
+  heap_regs->attributes_module = AtomTermAdjust(heap_regs->attributes_module);
+  heap_regs->charsio_module = AtomTermAdjust(heap_regs->charsio_module);
+  heap_regs->terms_module = AtomTermAdjust(heap_regs->terms_module);
   if (heap_regs->dyn_array_list != NULL) {
     heap_regs->dyn_array_list =
       (struct array_entry *)AddrAdjust((ADDR)heap_regs->dyn_array_list);
@@ -1516,8 +1521,8 @@ CleanCode(PredEntry *pp)
     pp->FunctorOfPred = FuncAdjust(pp->FunctorOfPred);
   else
     pp->FunctorOfPred = (Functor)AtomAdjust((Atom)(pp->FunctorOfPred));
-  if (pp->ModuleOfPred != 2) {
-    if (pp->src.OwnerFile && pp->ModuleOfPred != 2)
+  if (pp->ModuleOfPred != IDB_MODULE) {
+    if (pp->src.OwnerFile && pp->ModuleOfPred != IDB_MODULE)
       pp->src.OwnerFile = AtomAdjust(pp->src.OwnerFile);
   }
   if (!(pp->PredFlags & NumberDBPredFlag)) {

@@ -186,7 +186,7 @@ STATIC_PROTO(void linkblk,(link_entry *,CELL *,CELL));
 STATIC_PROTO(CELL *linkcells,(CELL *,Int));
 #endif
 STATIC_PROTO(Int cmpclls,(CELL *,CELL *,Int));
-STATIC_PROTO(Prop FindDBProp,(AtomEntry *, int, unsigned int, SMALLUNSGN));
+STATIC_PROTO(Prop FindDBProp,(AtomEntry *, int, unsigned int, Term));
 STATIC_PROTO(CELL  CalcKey, (Term));
 #ifdef COROUTINING
 STATIC_PROTO(CELL  *MkDBTerm, (CELL *, CELL *, CELL *, CELL *, CELL *, CELL *,int *));
@@ -381,7 +381,7 @@ int Yap_DBTrailOverflow(void)
 
 /* get DB entry for ap/arity; */
 static Prop 
-FindDBPropHavingLock(AtomEntry *ae, int CodeDB, unsigned int arity, SMALLUNSGN dbmod)
+FindDBPropHavingLock(AtomEntry *ae, int CodeDB, unsigned int arity, Term dbmod)
 {
   Prop          p0;
   DBProp        p;
@@ -398,7 +398,7 @@ FindDBPropHavingLock(AtomEntry *ae, int CodeDB, unsigned int arity, SMALLUNSGN d
 
 /* get DB entry for ap/arity; */
 static Prop 
-FindDBProp(AtomEntry *ae, int CodeDB, unsigned int arity, SMALLUNSGN dbmod)
+FindDBProp(AtomEntry *ae, int CodeDB, unsigned int arity, Term dbmod)
 {
   Prop out;
 
@@ -2388,7 +2388,10 @@ UnifyDBKey(DBRef DBSP, PropFlags flags, Term t)
   }
   if ((p->KindOfPE & CodeDBBit) && (flags & CodeDBBit)) {
     Term t[2];
-    t[0] = ModuleName[p->ModuleOfDB];
+    if (p->ModuleOfDB)
+      t[0] = p->ModuleOfDB;
+    else
+      t[0] = TermProlog;
     t[1] = t1;
     tf = Yap_MkApplTerm(FunctorModule, 2, t);
   } else if (!(flags & CodeDBBit)) {
@@ -2609,7 +2612,7 @@ new_lu_int_key(Int key)
   }
   fe = Yap_MkFunctor(Yap_FullLookupAtom("$integer"),3);
   WRITE_LOCK(fe->FRWLock);
-  p0 = Yap_NewPredPropByFunctor(fe,2);
+  p0 = Yap_NewPredPropByFunctor(fe,IDB_MODULE);
   p = RepPredProp(p0);
   p->NextOfPE = INT_LU_KEYS[hash_key];
   p->src.IndxId = key;
@@ -2631,15 +2634,15 @@ new_lu_entry(Term t)
     Functor f = FunctorOfTerm(t);
 
     WRITE_LOCK(f->FRWLock);
-    p0 = Yap_NewPredPropByFunctor(f,2);
+    p0 = Yap_NewPredPropByFunctor(f,IDB_MODULE);
   } else if (IsAtomTerm(t)) {
     Atom at = AtomOfTerm(t);
 
     WRITE_LOCK(RepAtom(at)->ARWLock);
-    p0 = Yap_NewPredPropByAtom(at,2);
+    p0 = Yap_NewPredPropByAtom(at,IDB_MODULE);
   } else {
     WRITE_LOCK(FunctorList->FRWLock);
-    p0 = Yap_NewPredPropByFunctor(FunctorList,2);
+    p0 = Yap_NewPredPropByFunctor(FunctorList,IDB_MODULE);
   }
   pe = RepPredProp(p0);
   pe->PredFlags |= LogUpdatePredFlag;
@@ -2696,11 +2699,11 @@ find_lu_entry(Term t)
       Yap_Error(TYPE_ERROR_KEY, t, "while accessing database key");
       return NULL;
     }
-    p = Yap_GetPredPropByFuncInThisModule(FunctorOfTerm(t),2);
+    p = Yap_GetPredPropByFuncInThisModule(FunctorOfTerm(t),IDB_MODULE);
   } else if (IsAtomTerm(t)) {
-    p = Yap_GetPredPropByAtomInThisModule(AtomOfTerm(t),2);
+    p = Yap_GetPredPropByAtomInThisModule(AtomOfTerm(t),IDB_MODULE);
   } else {
-    p = Yap_GetPredPropByFuncInThisModule(FunctorList,2);
+    p = Yap_GetPredPropByFuncInThisModule(FunctorList,IDB_MODULE);
   }
   if (p == NIL) {
     if (UPDATE_MODE == UPDATE_MODE_LOGICAL && !find_entry(t)) {
@@ -2760,7 +2763,7 @@ FetchDBPropFromKey(Term twork, int flag, int new, char *error_mssg)
 {
   Atom At;
   Int arity;
-  SMALLUNSGN dbmod;
+  Term dbmod;
 
   if (flag & MkCode) {
     if (IsVarTerm(twork)) {
@@ -2772,21 +2775,19 @@ FetchDBPropFromKey(Term twork, int flag, int new, char *error_mssg)
       return RepDBProp(NULL);
     } else {
       Functor f = FunctorOfTerm(twork);
-      Term tmod;
       if (f != FunctorModule) {
 	Yap_Error(SYSTEM_ERROR, twork, "missing module");
 	return RepDBProp(NULL);
       }
-      tmod = ArgOfTerm(1, twork);
-      if (IsVarTerm(tmod)) {
+      dbmod = ArgOfTerm(1, twork);
+      if (IsVarTerm(dbmod)) {
 	Yap_Error(INSTANTIATION_ERROR, twork, "var in module");
 	return(RepDBProp(NIL));
       }
-      if (!IsAtomTerm(tmod)) {
+      if (!IsAtomTerm(dbmod)) {
 	Yap_Error(TYPE_ERROR_ATOM, twork, "not atom in module");
 	return(RepDBProp(NIL));
       }
-      dbmod = Yap_LookupModule(tmod);
       twork = ArgOfTerm(2, twork);
     }
   } else {
@@ -4193,7 +4194,7 @@ p_erase_clause(void)
   if (entryref->Flags & StaticMask) {
     if (entryref->Flags & ErasedMask)
       return FALSE;
-    Yap_EraseStaticClause((StaticClause *)entryref, Yap_LookupModule(Deref(ARG2)));
+    Yap_EraseStaticClause((StaticClause *)entryref, Deref(ARG2));
     return TRUE;
   }
   EraseEntry(entryref);
@@ -4446,9 +4447,12 @@ p_instance_module(void)
     if (cl->ClFlags & ErasedMask) {
       return FALSE;
     }
-    return Yap_unify(ARG2, ModuleName[cl->ClPred->ModuleOfPred]);
+    if (cl->ClPred->ModuleOfPred)
+      return Yap_unify(ARG2, cl->ClPred->ModuleOfPred);
+    else
+      return Yap_unify(ARG2, TermProlog);
   } else {
-    return Yap_unify(ARG2, ModuleName[dbr->Parent->ModuleOfDB]);
+    return Yap_unify(ARG2, dbr->Parent->ModuleOfDB);
   }
 }
 
@@ -4920,8 +4924,7 @@ p_install_thread_local(void)
 #if THREADS
   PredEntry      *pe;
   Term            t = Deref(ARG1);
-  Term            t2 = Deref(ARG2);
-  SMALLUNSGN      mod = Yap_LookupModule(t2);
+  Term            mod = Deref(ARG2);
 
   if (IsVarTerm(t)) {
     return (FALSE);

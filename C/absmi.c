@@ -2532,7 +2532,7 @@ Yap_absmi(int inp)
 	ENDP(pt1);
       }
       ENDD(d0);
-      H[0] = Yap_Module_Name(((CODEADDR)(SREG)));
+      H[0] = Yap_Module_Name((PredEntry *)SREG);
       ARG1 = (Term) AbsPair(H);
 
       H += 2;
@@ -6434,7 +6434,7 @@ Yap_absmi(int inp)
 	  ENDP(pt1);
 	}
 	ENDD(d0);
-	H[0] = Yap_Module_Name((CODEADDR)pe);
+	H[0] = Yap_Module_Name(pe);
 	ARG1 = (Term) AbsPair(H);
 	H += 2;
       }
@@ -6498,7 +6498,7 @@ Yap_absmi(int inp)
 	  ENDP(pt1);
 	}
 	ENDD(d0);
-	H[0] = Yap_Module_Name((CODEADDR)pe);
+	H[0] = Yap_Module_Name(pe);
       }
       ARG1 = (Term) AbsPair(H);
       H += 2;
@@ -11279,7 +11279,7 @@ Yap_absmi(int inp)
       BOp(p_execute, sla);
       { 
 	PredEntry *pen;
-	SMALLUNSGN mod = PREG->u.sla.sla_u.m_num;
+	Term mod = PREG->u.sla.sla_u.mod;
 
 	CACHE_Y_AS_ENV(YREG);
 	/* Try to preserve the environment */
@@ -11314,7 +11314,7 @@ Yap_absmi(int inp)
 	      Term tmod = ArgOfTerm(1,d0);
 	      if (!IsVarTerm(tmod) && IsAtomTerm(tmod)) {
 		d0 = ArgOfTerm(2,d0);
-		mod = Yap_LookupModule(tmod);
+		mod = tmod;
 		goto execute_nvar;
 	      }
 	    } else if (f == FunctorComma) {
@@ -11431,7 +11431,10 @@ Yap_absmi(int inp)
 	ARG1 = ARG3 = d0;
 	pen = PredMetaCall;
 	ARG2 = Yap_cp_as_integer(B);
-	ARG4 = ModuleName[mod];
+	if (mod)
+	  ARG4 = mod;
+	else
+	  ARG4 = TermProlog;
 	CACHE_A1();
 	goto execute_end;
 	ENDP(pt1);
@@ -11462,7 +11465,7 @@ Yap_absmi(int inp)
       BOp(p_execute_tail, e);
       {
 	PredEntry *pen;
-	SMALLUNSGN mod;
+	Term mod;
 	UInt arity;
 
 	CACHE_Y_AS_ENV(YREG);
@@ -11513,7 +11516,7 @@ Yap_absmi(int inp)
 		Term tmod = ArgOfTerm(1, d1);
 		if (IsVarTerm(tmod) || !IsAtomTerm(tmod))
 		  goto execute_metacall_after_comma;
-		mod = Yap_LookupModule(tmod);
+		mod = tmod;
 		d1 = RepAppl(d1)[2];
 		goto execute_comma_comma;
 	      } else {
@@ -11565,7 +11568,7 @@ Yap_absmi(int inp)
 		Term tmod = ArgOfTerm(1, d0);
 		if (IsVarTerm(tmod) || !IsAtomTerm(tmod))
 		  goto execute_metacall_after_comma;
-		mod = Yap_LookupModule(tmod);
+		mod = tmod;
 		d0 = RepAppl(d0)[2];
 		goto execute_comma_comma2;
 	      } else {
@@ -11601,7 +11604,10 @@ Yap_absmi(int inp)
 	      ARG1 = ARG3 = d0;
 	      pen = PredMetaCall;
 	      ARG2 = Yap_cp_as_integer((choiceptr)pt0[E_CB]);
-	      ARG4 = ModuleName[mod];
+	      if (mod)
+		ARG4 = mod;
+	      else
+		ARG4 = TermProlog;
 	      CACHE_A1();
 	      goto execute_after_comma;
 	    }

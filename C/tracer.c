@@ -166,7 +166,7 @@ low_level_trace(yap_low_level_port port, PredEntry *pred, CELL *args)
   }
   switch (port) {
   case enter_pred:
-    mname = RepAtom(AtomOfTerm(Yap_Module_Name((CODEADDR)pred)))->StrOfAE;
+    mname = RepAtom(AtomOfTerm(Yap_Module_Name(pred)))->StrOfAE;
     arity = pred->ArityOfPE;
     if (arity == 0)
       s = RepAtom((Atom)pred->FunctorOfPred)->StrOfAE;
@@ -189,7 +189,7 @@ low_level_trace(yap_low_level_port port, PredEntry *pred, CELL *args)
     if (pred == NULL) {
       send_tracer_message("RETRY TABLE: ", NULL, 0, NULL, args);
     } else {
-      mname = RepAtom(AtomOfTerm(Yap_Module_Name((CODEADDR)pred)))->StrOfAE;
+      mname = RepAtom(AtomOfTerm(Yap_Module_Name(pred)))->StrOfAE;
       arity = pred->ArityOfPE;
       if (arity == 0)
 	s = RepAtom((Atom)pred->FunctorOfPred)->StrOfAE;
@@ -206,7 +206,7 @@ low_level_trace(yap_low_level_port port, PredEntry *pred, CELL *args)
     if (pred == NULL) {
       send_tracer_message("RETRY TABLE: ", NULL, 0, NULL, args);
     } else {
-      mname = RepAtom(AtomOfTerm(Yap_Module_Name((CODEADDR)pred)))->StrOfAE;
+      mname = RepAtom(AtomOfTerm(Yap_Module_Name(pred)))->StrOfAE;
       arity = pred->ArityOfPE;
       if (arity == 0)
 	s = RepAtom((Atom)pred->FunctorOfPred)->StrOfAE;
@@ -220,9 +220,9 @@ low_level_trace(yap_low_level_port port, PredEntry *pred, CELL *args)
   case retry_pred:
     send_tracer_message("FAIL ", NULL, 0, NULL, args);
     if (pred != NULL) {
-      mname = RepAtom(AtomOfTerm(Yap_Module_Name((CODEADDR)pred)))->StrOfAE;
+      mname = RepAtom(AtomOfTerm(Yap_Module_Name(pred)))->StrOfAE;
       arity = pred->ArityOfPE;
-      if (pred->ModuleOfPred == 2) {
+      if (pred->ModuleOfPred == IDB_MODULE) {
 	s = "recorded";
 	arity = 3;
       } else if (arity == 0) {

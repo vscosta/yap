@@ -1943,7 +1943,7 @@ static void
 add_arg_info(ClauseDef *clause, PredEntry *ap, UInt argno)
 {
   yamop *cl;
-  if (ap->ModuleOfPred == 2) {
+  if (ap->ModuleOfPred == IDB_MODULE) {
     cl = clause->Code;
   } else {
     cl = clause->u.WorkPC;
@@ -2179,7 +2179,7 @@ skip_to_arg(ClauseDef *clause, PredEntry *ap, UInt argno, int at_point)
 {
   yamop *cl;
   int done = FALSE;
-  if (ap->ModuleOfPred == 2) {
+  if (ap->ModuleOfPred == IDB_MODULE) {
     return;
   } else {
     cl = clause->CurrentCode;
@@ -3075,7 +3075,7 @@ do_index(ClauseDef *min, ClauseDef* max, struct intermediates *cint, UInt argno,
   ngroups = groups_in(min, max, group);
   if (IsVarTerm(t) &&
       max - min > 2 &&
-      ap->ModuleOfPred != 2) {
+      ap->ModuleOfPred != IDB_MODULE) {
     lablx = new_label();
     Yap_emit(label_op, lablx, Zero, cint);
     while (IsVarTerm(t)) {
@@ -4181,12 +4181,13 @@ ExpandIndex(PredEntry *ap) {
   Yap_Error_Size = 0;
 #ifdef DEBUG
   if (Yap_Option['i' - 'a' + 1]) {
-    Term tmod = ModuleName[ap->ModuleOfPred];
+    Term tmod = ap->ModuleOfPred;
+    if (!tmod) tmod = TermProlog;
     Yap_DebugPutc(Yap_c_error_stream,'>');
     Yap_DebugPutc(Yap_c_error_stream,'\t');
     Yap_plwrite(tmod, Yap_DebugPutc, 0);
     Yap_DebugPutc(Yap_c_error_stream,':');
-    if (ap->ModuleOfPred == 2) {
+    if (ap->ModuleOfPred == IDB_MODULE) {
       Term t = Deref(ARG1);
       if (IsAtomTerm(t)) {
 	Yap_plwrite(t, Yap_DebugPutc, 0);
@@ -5596,12 +5597,13 @@ Yap_AddClauseToIndex(PredEntry *ap, yamop *beg, int first) {
   Yap_ErrorMessage = NULL;
 #ifdef DEBUG
   if (Yap_Option['i' - 'a' + 1]) {
-    Term tmod = ModuleName[ap->ModuleOfPred];
+    Term tmod = ap->ModuleOfPred;
+    if (!tmod) tmod = TermProlog;
     Yap_DebugPutc(Yap_c_error_stream,'+');
     Yap_DebugPutc(Yap_c_error_stream,'\t');
     Yap_plwrite(tmod, Yap_DebugPutc, 0);
     Yap_DebugPutc(Yap_c_error_stream,':');
-    if (ap->ModuleOfPred == 2) {
+    if (ap->ModuleOfPred == IDB_MODULE) {
       Term t = Deref(ARG1);
       if (IsAtomTerm(t)) {
 	Yap_plwrite(t, Yap_DebugPutc, 0);
@@ -6101,13 +6103,14 @@ Yap_RemoveClauseFromIndex(PredEntry *ap, yamop *beg) {
   Yap_ErrorMessage = NULL;
 #ifdef DEBUG
   if (Yap_Option['i' - 'a' + 1]) {
-    Term tmod = ModuleName[ap->ModuleOfPred];
+    Term tmod = ap->ModuleOfPred;
 
+    if (!tmod) tmod = TermProlog;
     Yap_DebugPutc(Yap_c_error_stream,'-');
     Yap_DebugPutc(Yap_c_error_stream,'\t');
     Yap_plwrite(tmod, Yap_DebugPutc, 0);
     Yap_DebugPutc(Yap_c_error_stream,':');
-    if (ap->ModuleOfPred != 2) {
+    if (ap->ModuleOfPred != IDB_MODULE) {
       if (ap->ArityOfPE == 0) {
 	Atom At = (Atom)ap->FunctorOfPred;
 	Yap_plwrite(MkAtomTerm(At), Yap_DebugPutc, 0);
@@ -6248,7 +6251,7 @@ Yap_FollowIndexingCode(PredEntry *ap, yamop *ipc, Term t1, Term tb, Term tr, yam
   yamop **jlbl = NULL;
   int lu_pred = ap->PredFlags & LogUpdatePredFlag;
 
-  if (ap->ModuleOfPred != 2) {
+  if (ap->ModuleOfPred != IDB_MODULE) {
     if (ap->ArityOfPE) {
       CELL *tar = RepAppl(t1);
       UInt i;
@@ -6623,7 +6626,7 @@ Yap_NthClause(PredEntry *ap, Int ncls)
   else if (ncls < 0)
     return NULL;
   
-  if (ap->ModuleOfPred != 2) {
+  if (ap->ModuleOfPred != IDB_MODULE) {
     if (ap->ArityOfPE) {
       UInt i;
 

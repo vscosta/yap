@@ -495,10 +495,7 @@ Yap_InitCPred(char *Name, unsigned long int Arity, CPredicate code, int flags)
   }
   p_code->opc = Yap_opcode(_procceed);
   pe->OpcodeOfPred = pe->CodeOfPred->opc;
-  { 
-    Term mod = CurrentModule;
-    pe->ModuleOfPred = mod;
-  }
+  pe->ModuleOfPred = CurrentModule;
 }
 
 void 
@@ -716,6 +713,12 @@ InitCodes(void)
   Functor
     FunctorThrow;
 
+  heap_regs->user_module = MkAtomTerm(Yap_LookupAtom("user"));
+  heap_regs->idb_module = MkAtomTerm(Yap_LookupAtom("idb"));
+  heap_regs->attributes_module = MkAtomTerm(Yap_LookupAtom("attributes"));
+  heap_regs->charsio_module = MkAtomTerm(Yap_LookupAtom("charsio"));
+  heap_regs->terms_module = MkAtomTerm(Yap_LookupAtom("terms"));
+  Yap_InitModules();
 #ifdef YAPOR
   heap_regs->seq_def = TRUE;
   heap_regs->getworkfirsttimecode.opc = Yap_opcode(_getwork_first_time);
@@ -1006,26 +1009,26 @@ InitCodes(void)
   heap_regs->env_for_yes_code.p =
     heap_regs->env_for_yes_code.p0 =
     RepPredProp(PredPropByAtom(heap_regs->atom_true,0));
-  heap_regs->pred_meta_call = RepPredProp(PredPropByFunc(Yap_MkFunctor(heap_regs->atom_meta_call,4),0));
-  heap_regs->pred_dollar_catch = RepPredProp(PredPropByFunc(Yap_MkFunctor(Yap_FullLookupAtom("$catch"),3),0));
-  heap_regs->pred_recorded_with_key = RepPredProp(PredPropByFunc(Yap_MkFunctor(Yap_FullLookupAtom("$recorded_with_key"),3),0));
-  heap_regs->pred_log_upd_clause = RepPredProp(PredPropByFunc(Yap_MkFunctor(Yap_FullLookupAtom("$do_log_upd_clause"),5),0));
-  heap_regs->pred_log_upd_clause0 = RepPredProp(PredPropByFunc(Yap_MkFunctor(Yap_FullLookupAtom("$do_log_upd_clause"),4),0));
-  heap_regs->pred_static_clause = RepPredProp(PredPropByFunc(Yap_MkFunctor(Yap_FullLookupAtom("$do_static_clause"),5),0));
-  heap_regs->pred_throw = RepPredProp(PredPropByFunc(FunctorThrow,0));
-  heap_regs->pred_handle_throw = RepPredProp(PredPropByFunc(Yap_MkFunctor(Yap_FullLookupAtom("$handle_throw"),3),0));
-  heap_regs->pred_goal_expansion = RepPredProp(PredPropByFunc(Yap_MkFunctor(Yap_LookupAtom("goal_expansion"),3),1));
+  heap_regs->pred_meta_call = RepPredProp(PredPropByFunc(Yap_MkFunctor(heap_regs->atom_meta_call,4),PROLOG_MODULE));
+  heap_regs->pred_dollar_catch = RepPredProp(PredPropByFunc(Yap_MkFunctor(Yap_FullLookupAtom("$catch"),3),PROLOG_MODULE));
+  heap_regs->pred_recorded_with_key = RepPredProp(PredPropByFunc(Yap_MkFunctor(Yap_FullLookupAtom("$recorded_with_key"),3),PROLOG_MODULE));
+  heap_regs->pred_log_upd_clause = RepPredProp(PredPropByFunc(Yap_MkFunctor(Yap_FullLookupAtom("$do_log_upd_clause"),5),PROLOG_MODULE));
+  heap_regs->pred_log_upd_clause0 = RepPredProp(PredPropByFunc(Yap_MkFunctor(Yap_FullLookupAtom("$do_log_upd_clause"),4),PROLOG_MODULE));
+  heap_regs->pred_static_clause = RepPredProp(PredPropByFunc(Yap_MkFunctor(Yap_FullLookupAtom("$do_static_clause"),5),PROLOG_MODULE));
+  heap_regs->pred_throw = RepPredProp(PredPropByFunc(FunctorThrow,PROLOG_MODULE));
+  heap_regs->pred_handle_throw = RepPredProp(PredPropByFunc(Yap_MkFunctor(Yap_FullLookupAtom("$handle_throw"),3),PROLOG_MODULE));
+  heap_regs->pred_goal_expansion = RepPredProp(PredPropByFunc(Yap_MkFunctor(Yap_LookupAtom("goal_expansion"),3),USER_MODULE));
   heap_regs->env_for_trustfail_code.p =
     heap_regs->env_for_trustfail_code.p0 =
-    RepPredProp(PredPropByAtom(heap_regs->atom_false,0));
+    RepPredProp(PredPropByAtom(heap_regs->atom_false,PROLOG_MODULE));
   {
     /* make sure we know about the module predicate */
-    PredEntry *modp = RepPredProp(PredPropByFunc(heap_regs->functor_module,0));
+    PredEntry *modp = RepPredProp(PredPropByFunc(heap_regs->functor_module,PROLOG_MODULE));
     modp->PredFlags |= MetaPredFlag;
   }
 #ifdef YAPOR
-  heap_regs->getworkcode.u.ld.p = RepPredProp(PredPropByAtom(Yap_FullLookupAtom("$getwork"), 0));
-  heap_regs->getworkcode_seq.u.ld.p = RepPredProp(PredPropByAtom(Yap_FullLookupAtom("$getwork_seq"), 0));
+  heap_regs->getworkcode.u.ld.p = RepPredProp(PredPropByAtom(Yap_FullLookupAtom("$getwork"), PROLOG_MODULE));
+  heap_regs->getworkcode_seq.u.ld.p = RepPredProp(PredPropByAtom(Yap_FullLookupAtom("$getwork_seq"), PROLOG_MODULE));
 #endif
   heap_regs->db_erased_marker =
     (DBRef)Yap_AllocCodeSpace(sizeof(DBStruct));
@@ -1181,7 +1184,6 @@ Yap_InitWorkspace(int Heap,
 #else
   Yap_InitAbsmi();
 #endif
-  Yap_InitModules();
   InitCodes();
   InitOps();
   InitDebug();

@@ -169,11 +169,11 @@ void    STD_PROTO(Yap_InitComma,(void));
 /* cdmgr.c */
 void	STD_PROTO(Yap_RemoveLogUpdIndex,(LogUpdIndex *));
 void	STD_PROTO(Yap_IPred,(PredEntry *));
-void	STD_PROTO(Yap_addclause,(Term,yamop *,int,int));
+void	STD_PROTO(Yap_addclause,(Term,yamop *,int,Term));
 void	STD_PROTO(Yap_add_logupd_clause,(PredEntry *,LogUpdClause *,int));
 void	STD_PROTO(Yap_kill_iblock,(ClauseUnion *,ClauseUnion *,PredEntry *));
 void	STD_PROTO(Yap_cleanup_dangling_indices,(yamop *,yamop *,yamop *,yamop *));
-void	STD_PROTO(Yap_EraseStaticClause,(StaticClause *, SMALLUNSGN));
+void	STD_PROTO(Yap_EraseStaticClause,(StaticClause *, Term));
 ClauseUnion *STD_PROTO(Yap_find_owner_index,(yamop *, PredEntry *));
 
 /* dbase.c */

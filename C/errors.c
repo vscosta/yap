@@ -107,15 +107,15 @@ DumpActiveGoals (void)
       if (pe->PredFlags & (CompiledPredFlag | DynamicPredFlag | FastPredFlag))
 	{
 	  Functor f;
-	  SMALLUNSGN mod = 0;
+	  Term mod = TermProlog;
 
 	  f = pe->FunctorOfPred;
 	  if (pe->KindOfPE && hidden (NameOfFunctor (f)))
 	    goto next;
 	  if (first++ == 1)
 	    fprintf(stderr,"Active ancestors:\n");
-	  if (pe->ModuleOfPred) mod = IntOfTerm(pe->ModuleOfPred);
-	  Yap_plwrite (ModuleName[mod], Yap_DebugPutc, 0);
+	  if (pe->ModuleOfPred) mod = pe->ModuleOfPred;
+	  Yap_plwrite (mod, Yap_DebugPutc, 0);
 	  Yap_DebugPutc (Yap_c_error_stream,':');
 	  if (pe->ArityOfPE == 0) {
 	    Yap_plwrite (MkAtomTerm ((Atom)f), Yap_DebugPutc, 0);
@@ -162,11 +162,13 @@ DumpActiveGoals (void)
       READ_LOCK(pe->PRWLock);
       {
 	Functor f;
-	SMALLUNSGN mod = 0;
+	Term mod = PROLOG_MODULE;
 
 	f = pe->FunctorOfPred;
-	if (pe->ModuleOfPred) mod = IntOfTerm(pe->ModuleOfPred);
-	Yap_plwrite (ModuleName[mod], Yap_DebugPutc, 0);
+	if (pe->ModuleOfPred)
+	  mod = pe->ModuleOfPred;
+	else mod = TermProlog;
+	Yap_plwrite (mod, Yap_DebugPutc, 0);
 	Yap_DebugPutc (Yap_c_error_stream,':');
 	if (pe->ArityOfPE == 0) {
 	  Yap_plwrite (MkAtomTerm (NameOfFunctor(f)), Yap_DebugPutc, 0);
@@ -194,7 +196,7 @@ detect_bug_location(yamop *yap_pc, char *tp, int psize)
 {
   Atom pred_name;
   UInt pred_arity;
-  SMALLUNSGN pred_module;
+  Term pred_module;
   Int cl;
 
   if ((cl = Yap_PredForCode(yap_pc, &pred_name, &pred_arity, &pred_module))
@@ -211,22 +213,18 @@ detect_bug_location(yamop *yap_pc, char *tp, int psize)
     /* don't give info on system predicates */
 #if   HAVE_SNPRINTF
 #if SHORT_INTS
-    snprintf(tp, psize, "%s:%s/%ld",
-	     RepAtom(AtomOfTerm(ModuleName[pred_module]))->StrOfAE,
+    snprintf(tp, psize, "prolog:%s/%ld",
 	     RepAtom(pred_name)->StrOfAE, pred_arity);
 #else
-    snprintf(tp, psize, "%s:%s/%d",
-	     RepAtom(AtomOfTerm(ModuleName[pred_module]))->StrOfAE,
+    snprintf(tp, psize, "prolog:%s/%d",
 	     RepAtom(pred_name)->StrOfAE, pred_arity);
 #endif
 #else
 #if SHORT_INTS
-    sprintf(tp, "in %s:%s/%ld",
-	    RepAtom(AtomOfTerm(ModuleName[pred_module]))->StrOfAE,
+    sprintf(tp, "in prolog:%s/%ld",
 	    RepAtom(pred_name)->StrOfAE, pred_arity);
 #else
-    sprintf(tp, "in %s:%s/%d",
-	    RepAtom(AtomOfTerm(ModuleName[pred_module]))->StrOfAE,
+    sprintf(tp, "in prolog:%s/%d",
 	    RepAtom(pred_name)->StrOfAE, pred_arity);
 #endif
 #endif
@@ -234,21 +232,21 @@ detect_bug_location(yamop *yap_pc, char *tp, int psize)
 #if   HAVE_SNPRINTF
 #if SHORT_INTS
     snprintf(tp, psize, "indexing code of %s:%s/%ld",
-	     RepAtom(AtomOfTerm(ModuleName[pred_module]))->StrOfAE,
+	     RepAtom(AtomOfTerm(pred_module))->StrOfAE,
 	     RepAtom(pred_name)->StrOfAE, pred_arity);
 #else
     snprintf(tp, psize, "indexing code of %s:%s/%d",
-	     RepAtom(AtomOfTerm(ModuleName[pred_module]))->StrOfAE,
+	     RepAtom(AtomOfTerm(pred_module))->StrOfAE,
 	     RepAtom(pred_name)->StrOfAE, pred_arity);
 #endif
 #else
 #if SHORT_INTS
     sprintf(tp, "indexing code of %s:%s/%ld",
-	    RepAtom(AtomOfTerm(ModuleName[pred_module]))->StrOfAE,
+	    RepAtom(AtomOfTerm(pred_module))->StrOfAE,
 	    RepAtom(pred_name)->StrOfAE, pred_arity);
 #else 
     sprintf(tp, "indexing code of %s:%s/%d",
-	    RepAtom(AtomOfTerm(ModuleName[pred_module]))->StrOfAE,
+	    RepAtom(AtomOfTerm(pred_module))->StrOfAE,
 	    RepAtom(pred_name)->StrOfAE, pred_arity);
 #endif
 #endif
@@ -256,21 +254,21 @@ detect_bug_location(yamop *yap_pc, char *tp, int psize)
 #if   HAVE_SNPRINTF
 #if SHORT_INTS
     snprintf(tp, psize, "clause %ld of %s:%s/%ld", cl,
-	     RepAtom(AtomOfTerm(ModuleName[pred_module]))->StrOfAE,
+	     RepAtom(AtomOfTerm(pred_module))->StrOfAE,
 	     RepAtom(pred_name)->StrOfAE, pred_arity);
 #else
     snprintf(tp, psize, "clause %d of %s:%s/%d", cl,
-	     RepAtom(AtomOfTerm(ModuleName[pred_module]))->StrOfAE,
+	     RepAtom(AtomOfTerm(pred_module))->StrOfAE,
 	     RepAtom(pred_name)->StrOfAE, pred_arity);
 #endif
 #else
 #if SHORT_INTS
     sprintf(tp, "clause %ld of %s:%s/%ld", cl,
-	    RepAtom(AtomOfTerm(ModuleName[pred_module]))->StrOfAE,
+	    RepAtom(AtomOfTerm(pred_module))->StrOfAE,
 	    RepAtom(pred_name)->StrOfAE, pred_arity);
 #else
     sprintf(tp, "clause %d of %s:%s/%d", cl,
-	    RepAtom(AtomOfTerm(ModuleName[pred_module]))->StrOfAE,
+	    RepAtom(AtomOfTerm(pred_module))->StrOfAE,
 	    RepAtom(pred_name)->StrOfAE, pred_arity);
 #endif
 #endif
