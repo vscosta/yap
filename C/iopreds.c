@@ -2704,11 +2704,19 @@ syntax_error (TokEntry * tokptr)
 	  break;
 	case Number_tok:
 	  checkcol (6);
-#if SHORT_INTS
-	  YP_fprintf (YP_stderr, " %ld", IntOfTerm (info));
-#else
-	  YP_fprintf (YP_stderr, " %d", IntOfTerm (info));
+	  if (IsIntegerTerm(info)) {
+	    YP_fprintf (YP_stderr, " %ld", IntegerOfTerm (info));
+#ifdef USE_GMP 
+	  } else if (IsBigIntTerm(info)) {
+	    char *s = (char *)TR;
+	    while (s+2+mpz_sizeinbase(BigIntOfTerm(info), 10) > (char *)TrailTop)
+	      growtrail(64*1024);
+	    mpz_get_str(s, 10, BigIntOfTerm(info));
+	    YP_fprintf(YP_stderr,"%s", s);
 #endif
+	  } else {
+	    YP_fprintf (YP_stderr, " %.15g", FloatOfTerm (info));
+	  }
 	  break;
 	case Var_tok:
 	  s = ((VarEntry *) info)->VarRep;
