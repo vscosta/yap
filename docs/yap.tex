@@ -1,4 +1,4 @@
-<\input texinfo @c -*- mode: texinfo; coding: latin-1; -*-
+\input texinfo @c -*- mode: texinfo; coding: latin-1; -*-
 
 @c %**start of header
 @setfilename yap.info
@@ -93,7 +93,7 @@ manual under the conditions for verbatim copying, provided that the
 entire resulting derived work is distributed under the terms of a
 permission notice identical to this one.
 
-Permission is granted qto copy and distribute translations of this
+Permission is granted to copy and distribute translations of this
 manual into another language, under the above conditions for modified
 versions, except that this permission notice may be stated in a
 translation approved by the OFAI.
@@ -226,6 +226,7 @@ Subnodes of Library
 * String I/O:: Writing To and Reading From Strings
 * System:: System Utilities
 * Terms:: Utilities on Terms
+* Cleanup:: Call With registered Cleanup Calls
 * Timeout:: Call With Timeout
 * Trees:: Updatable Binary Trees
 * UGraphs:: Unweighted Graphs
@@ -393,7 +394,7 @@ acknowledge the contributions from Ashwin Srinivasian.
 
 We are happy to include in YAP several excellent packages developed
 under separate licenses. Our thanks to the authors for their kind
-authorisation to include these packages.
+authorization to include these packages.
 
 The packages are, in alphabetical order:
 
@@ -434,7 +435,7 @@ manual under the conditions for verbatim copying, provided that the
 entire resulting derived work is distributed under the terms of a
 permission notice identical to this one.
 
-Permission is granted qto copy and distribute translations of this
+Permission is granted to copy and distribute translations of this
 manual into another language, under the above conditions for modified
 versions, except that this permission notice may be stated in a
 translation approved by the OFAI.
@@ -501,7 +502,7 @@ conventions on where to place software.
 actually a script that calls the Prolog engine, stored at @code{LIBDIR}.
 
 @item @code{LIBDIR} is the directory where libraries are stored. YAPLIBDIR is a
-subsdirectory that contains the Prolog engine and a Prolog library.
+subdirectory that contains the Prolog engine and a Prolog library.
 
 @item @code{INCLUDEDIR} is used if you want to use Yap as a library.
 
@@ -582,7 +583,7 @@ Sun's cc compiler, IBM's xlc, SGI's cc, and Microsoft's Visual C++
 6.0.
 
 @menu
-* Tuning for GCC:: Using the GNUCC ncompiler
+* Tuning for GCC:: Using the GNUCC compiler
 * Compiling Under Visual C++:: Using Microsoft's Visual C++ environment
 * Tuning for SGI cc:: Compiling Under SGI's @code{cc}
 @end menu
@@ -599,7 +600,7 @@ YAP is set by default to compile with the best compilation flags we
 know. Even so, a few specific options reduce portability.  The option 
 @itemize @bullet
  @item @code{--enable-max-performance=yes} will try to support the best
-available flags for a specific architecural model. Currently, the option
+available flags for a specific architectural model. Currently, the option
 assumes a recent version of @code{GCC}.
  @item @code{--enable-debug-yap} compiles Yap so that it can be debugged
 by tools such as @code{dbx} or @code{gdb}.
@@ -625,7 +626,7 @@ YAP_EXTRAS= ...   -mno-app-regs -DOPTIMISE_ALL_REGS_FOR_SPARC=1
 and YAP will get two extra registers! This trick does not work on
 SunOS 4 machines.
 
-Note that versions of GCC can be tweaked to recognise different
+Note that versions of GCC can be tweaked to recognize different
 processors within the same instruction set, eg, 486, Pentium, and
 PentiumPro for the x86; or Ultrasparc, and Supersparc for
 Sparc. Unfortunately, some of these tweaks do may make Yap run slower or
@@ -641,7 +642,7 @@ GCC"/"Submodel Options". Specifically, you should check
 @table @code
 
 @item 486:
-In order to take advantage of 486 specific optimisations in GCC 2.7.*:
+In order to take advantage of 486 specific optimizations in GCC 2.7.*:
 
 @example
 YAP_EXTRAS= ... -m486 -DBP_FREE=1
@@ -701,7 +702,7 @@ You should check the default installation path which is set to
 @code{/PROGRA~1/Yap} in the standard Makefile. This string will usually
 be expanded into @code{c:\Program Files\Yap} by Windows.
 
-The cygwin environment does not provide @t{gm}. You can fecth a dll for
+The cygwin environment does not provide @t{gm}. You can fetch a dll for
 the @t{gmp} library from @url{http://www.sf.net/projects/mingwrep}.
 
 It is also possible to configure Yap to be a part of the cygwin
@@ -735,7 +736,7 @@ First, it is a good idea to build Yap as a DLL:
 DLL project, initially empty.
 
 Notice that either the project is named yapdll or you must replace the
-preprocessor's variable @var{YAPDLL_EXPORTS} to match your project names
+preprocessors variable @var{YAPDLL_EXPORTS} to match your project names
 in the files @code{YapInterface.h} and @code{c_interface.c}.
 
 @item add all .c files in the @var{$YAPSRC/C} directory and in the
@@ -1276,7 +1277,7 @@ The next examples demonstrates the use of escape sequences in YAP:
 The first three examples return a list including only character 12 (form
 feed). The last example escapes the escape character.
 
-Escape sequences were not available in C-Prolog and in origional
+Escape sequences were not available in C-Prolog and in original
 versions of YAP up to 4.2.0. Escape sequences can be disable by using:
 @example
 @code{:- yap_flag(character_escapes,off).}
@@ -1471,7 +1472,7 @@ files specified by @var{F} into the file being currently consulted.
 @end table
 
 @node Setting the Compiler, Saving, Compiling, Loading Programs
-@section Changing the Compiler's Behaviour
+@section Changing the Compiler's Behavior
 
 This section presents a set of built-ins predicates designed to set the 
 environment for the compiler.
@@ -1512,7 +1513,7 @@ The same as @code{source_mode(_,off)}.
 @snindex compile_expressions/0
 @cnindex compile_expressions/0
 After a call to this predicate, arithmetical expressions will be compiled.
-(see example below). This is the default behaviour.
+(see example below). This is the default behavior.
 
 @item do_not_compile_expressions
 @findex do_not_compile_expressions/0
@@ -1588,7 +1589,7 @@ Adds @var{D} to the end of YAP's directory search path.
 @findex add_to_path/2
 @snindex path/1
 @cnindex path/1
-Inserts @var{D} in thgoe position, of the directory search path of
+Inserts @var{D} in the position, of the directory search path of
 YAP, specified by @var{N}.  @var{N} must be either of
 @code{first} or @code{last}.
 
@@ -1971,7 +1972,7 @@ a(G) :- call(G)
 ...
 
 @end example
-The expected behaviour for this procedure is to execute goal @var{G}
+The expected behavior for this procedure is to execute goal @var{G}
 within  the current module, that is, within @code{example}.
 On the other hand, when executing @code{call/1} the system only knows
 where @code{call/1} was defined, that is, it only knows of
@@ -2460,7 +2461,7 @@ dynamic. What YAP does when trying to execute undefined predicates can
 be specified through three different ways:
 @itemize @bullet
 @item By setting an YAP flag, through the @code{yap_flag/2} or
-@code{set_prolog_flag/2} built-ins. This solution generalises the
+@code{set_prolog_flag/2} built-ins. This solution generalizes the
 ISO standard.
 @item By using the @code{unknown/2} built-in (this solution is
 compatible with previous releases of YAP).
@@ -3408,7 +3409,7 @@ YAP currently ignores these options.
 @findex absolute_file_name/2
 @syindex absolute_file_name/2
 @cnindex absolute_file_name/2
-Give the path a full path @var{FullPath} Yap would use to consule a file
+Give the path a full path @var{FullPath} Yap would use to consult a file
 named @var{Name}.  Unify @var{FullPath} with @code{user} if the file
 name is @code{user}.
 
@@ -3506,7 +3507,7 @@ unbound, the procedure will backtrack through all open
 streams. Otherwise, the first argument must be a stream term (you may
 use @code{current_stream} to obtain a current stream given a file name).
 
-The following properties are recognised:
+The following properties are recognized:
 
 @table @code
 
@@ -3727,7 +3728,7 @@ following options:
 @table @code
 @item quoted(+@var{Bool})
 If @code{true}, quote atoms if this would be necessary for the atom to
-be recognised as an atom by YAP's parser. The default value is
+be recognized as an atom by YAP's parser. The default value is
 @code{false}.
 
 @item ignore_ops(+@var{Bool})
@@ -3989,7 +3990,7 @@ We next show how to do centering:
 
 
 The two @code{~t} escape sequence force filling both before and after
-@code{Hello}. Space is then evenly divided bewteen the right and the
+@code{Hello}. Space is then evenly divided between the right and the
 left sides.
 
 @item format(+@var{S},+@var{T},+@var{L})
@@ -4438,7 +4439,7 @@ Call @code{socket/4} with @var{TYPE} bound to @code{'SOCK_STREAM'} and
 @cnindex socket_close/1
 
 Close socket @var{SOCKET}. Note that sockets used in
-@code{socket_connet} (that is, client sockets) should not be closed with
+@code{socket_connect} (that is, client sockets) should not be closed with
 @code{socket_close}, as they will be automatically closed when the
 corresponding stream is closed with @code{close/1} or @code{close/2}.
 
@@ -4706,7 +4707,7 @@ undefined results.
 @cnindex assertz_static/1
  Adds clause @var{C} to the end of a static procedure.  Asserting a
 static clause for a predicate while choice-points for the predicate are
-availabe has undefined results.
+available has undefined results.
 
 @end table
 
@@ -5456,7 +5457,7 @@ Arranges for YAP to be interrupted in @var{Seconds}
 seconds. When interrupted, YAP will execute @var{Callable} and
 then return to the previous execution. If @var{Seconds} is @code{0}, no
 new alarm is scheduled. In any event, any previously set alarm is
-cancelled.
+canceled.
 
 The variable @var{OldAlarm} unifies with the number of seconds remaining
 until any previously scheduled alarm was due to be delivered, or with
@@ -5525,8 +5526,8 @@ Set the interrupt handler for soft interrupt @var{Signal} to be
 @var{Callable}. @var{OldAction} is unified with the previous handler.
 
 Only a subset of the software interrupts (signals) can have their
-handlers maniputated through @code{on_signal/3}.
-Their POSIX names, YAP names and default behaviour is given below.
+handlers manipulated through @code{on_signal/3}.
+Their POSIX names, YAP names and default behavior is given below.
 The "YAP name" of the signal is the atom that is associated with
 each signal, and should be used as the first argument to
 @code{on_signal/3}. It is chosen so that it matches the signal's POSIX
@@ -5538,7 +5539,7 @@ are made on the handler provided by the user.
 
 @table @code
 @item SIGHUP (Hangup)
-  sig_hup in YAP; Reconsult the initialisation files
+  sig_hup in YAP; Reconsult the initialization files
   ~/.yaprc, ~/.prologrc and ~/prolog.ini.
 @item SIGUSR1 and SIGUSR2 (User signals)
   sig_usr1 and sig_usr2 in YAP; Print a message and halt.
@@ -5669,7 +5670,7 @@ write_profile_data([D-P|SLP]) :-
 These are  the current predicates to access and clear profiling data:
 
 @table @code
-@item profile_data(?@var{Na/Ar}, ?@var{Paramater}, -@var{Data})
+@item profile_data(?@var{Na/Ar}, ?@var{Parameter}, -@var{Data})
 @findex profile_data/3
 @snindex profile_data/3
 @cnindex profile_data/3
@@ -5873,7 +5874,7 @@ previously.
 @snindex static_array/3
 @cnindex static_array/3
 Similar to @code{static_array/3}, but the array is memory mapped to file
-@var{File}. This means that the array is initialised from the file, and
+@var{File}. This means that the array is initialized from the file, and
 that any changes to the array will also be stored in the file. 
 
 This built-in is only available in operating systems that support the
@@ -6108,7 +6109,7 @@ reading terms. The default value for this flag is @code{off} except in
 @c @code{iso} mode, which corresponds to @code{on}, and @code{sicstus}
 @c mode, which corresponds to the mode traditionally used in SICStus
 @c Prolog. In this mode back-quoted escape sequences should not close with
-@c a backquote and unrecognised escape codes do not result in error.
+@c a backquote and unrecognized escape codes do not result in error.
 
 @item debug [ISO]
 @findex debug (yap_flag/2 option)
@@ -6138,7 +6139,7 @@ If @code{off} (default)  consider the character '$' a control character, if
 If @var{Value} is unbound, tell whether a double quoted list of characters
 token is converted to a list of atoms, @code{chars}, to a list of integers,
 @code{codes}, or to a single atom, @code{atom}. If @var{Value} is bound, set to
-the corresponding behaviour. The default value is @code{codes}.
+the corresponding behavior. The default value is @code{codes}.
 
 @item  fast
 @findex fast (yap_flag/2 option)
@@ -6218,7 +6219,7 @@ Read-only flag telling the maximum arity of a functor. Takes the value
 Read-only flag telling the maximum integer in the
 implementation. Depends on machine and Operating System
 architecture, and on whether YAP uses the @code{GMP} multiprecision
-library. If @code{bounded} is false, requestes for @code{max_integer}
+library. If @code{bounded} is false, requests for @code{max_integer}
 will fail.
 
 @item min_integer [ISO]
@@ -6226,7 +6227,7 @@ will fail.
 @* Read-only flag telling the minimum integer in the
 implementation. Depends on machine and Operating System architecture,
 and on whether YAP uses the @code{GMP} multiprecision library. If
-@code{bounded} is false, requestes for @code{min_integer} will fail.
+@code{bounded} is false, requests for @code{min_integer} will fail.
 
 @item n_of_integer_keys_in_bb
 @findex n_of_integer_keys_in_bb (yap_flag/2 option)
@@ -6285,7 +6286,7 @@ from a modern Prolog system. Moreover, because most Prolog
 implementations do not fully implement the standard and because the
 standard itself gives the implementor latitude in a few important
 questions, such as the unification algorithm and maximum size for
-numbers there is not guarantee that prolograms compliant with this mode
+numbers there is not guarantee that programs compliant with this mode
 will work the same way in every Prolog and in every platform. We thus
 believe this mode is mostly useful when investigating how a program
 depends on a Prolog's platform specific features.
@@ -6456,7 +6457,7 @@ Defines the operator @var{A} or the list of operators @var{A} with type
 Note that if there is a preexisting operator with the same name and
 type, this operator will be discarded. Also, @code{','} may not be defined
 as an operator, and it is not allowed to have the same for an infix and
-a posfix operator.
+a postfix operator.
 
 @item current_op(@var{P},@var{T},@var{F}) [ISO]
 @findex current_op/3
@@ -6571,6 +6572,7 @@ Library, Extensions, Builtins, Top
 * String I/O:: Writing To and Reading From Strings
 * System:: System Utilities
 * Terms:: Utilities on Terms
+* Cleanup:: Call With registered Cleanup Calls
 * Timeout:: Call With Timeout
 * Trees:: Updatable Binary Trees
 * UGraphs:: Unweighted Graphs
@@ -7101,7 +7103,7 @@ ordered sets will not necessarily result in an ordered set. Use
 @findex ord_add_element/3
 @syindex ord_add_element/3
 @cnindex ord_add_element/3
-Insering @var{Element} in @var{Set1} returns @var{Set2}.  It should give
+Inserting @var{Element} in @var{Set1} returns @var{Set2}.  It should give
 exactly the same result as @code{merge(Set1, [Element], Set2)}, but a
 bit faster, and certainly more clearly. The same as @code{ord_insert/3}.
 
@@ -7127,7 +7129,7 @@ Holds when @var{Element} is a member of @var{Set}.
 @findex ord_insert/3
 @syindex ord_insert/3
 @cnindex ord_insert/3
-Insering @var{Element} in @var{Set1} returns @var{Set2}.  It should give
+Inserting @var{Element} in @var{Set1} returns @var{Set2}.  It should give
 exactly the same result as @code{merge(Set1, [Element], Set2)}, but a
 bit faster, and certainly more clearly. The same as @code{ord_add_element/3}.
 
@@ -7226,7 +7228,7 @@ to obtain a floating point number uniformly distributed between 0 and 1.
 @findex ranstart/0
 @snindex ranstart/0
 @cnindex ranstart/0
-Initialise the random number generator using a built-in seed. The
+Initialize the random number generator using a built-in seed. The
 @code{ranstart/0} built-in is always called by the system when loading
 the package.
 
@@ -7234,7 +7236,7 @@ the package.
 @findex ranstart/1
 @snindex ranstart/1
 @cnindex ranstart/1
-Initialise the random number generator with user-defined @var{Seed}. The
+Initialize the random number generator with user-defined @var{Seed}. The
 same @var{Seed} always produces the same sequence of numbers.
 
 @item ranunif(+@var{Range},-@var{I})
@@ -7593,7 +7595,7 @@ will fail if @var{Key} is not present.
 @findex splay_init/3
 @snindex splay_init/3
 @cnindex splay_init/3
-Initialise a new splay tree.
+Initialize a new splay tree.
 
 @item splay_insert(+@var{Key},?@var{Val},+@var{Tree},-@var{NewTree})
 @findex splay_insert/4
@@ -7773,7 +7775,7 @@ difference list of character codes @var{L-L0}.
 
 @end table
 @noindent
-These builtins are initialised to belong to the module @code{charsio} in
+These builtins are initialized to belong to the module @code{charsio} in
 @code{init.yap}. Novel procedures for manipulating strings by explicitly
 importing these built-ins.
 
@@ -7869,7 +7871,7 @@ number is Operating System dependent.
 @syindex file_property/2
 @cnindex file_property/2
 The atom @var{File} corresponds to an existing file, and @var{Property}
-will be unified with a property of this file. The poperties are of the
+will be unified with a property of this file. The properties are of the
 form @code{type(@var{Type})}, which gives whether the file is a regular
 file, a directory, a fifo file, or of unknown type;
 @code{size(@var{Size})}, with gives the size for a file, and
@@ -8087,7 +8089,7 @@ Wait until process @var{PID} terminates, and return its exits @var{Status}.
 @end table
 
 
-@node Terms, Timeout, System, Library
+@node Terms, Cleanup, System, Library
 @section Utilities On Terms
 @cindex utilities on terms
 
@@ -8170,11 +8172,61 @@ variable in @var{Term1}.
 Succeed if the second argument @var{Var} is a variable and occurs in
 term @var{Term}.
 
+@end table
 
+@node Cleanup, Timeout, Terms, Library
+@section Call With registered Cleanup Calls
+@cindex cleanup
+
+@t{call_cleanup/1} and @t{call_cleanup/2} allow predicates to register
+code for execution after the call is finished. This library is loaded
+with the @code{use_module(library(cleanup))} command.
+
+@table @code
+@item call_cleanup(+@var{Goal})
+@findex call_cleanup/1
+@syindex call_cleanup/1
+@cnindex call_cleanup/1
+Execute goal @var{Goal} within a cleanup-context. Called predicates
+might register cleanup Goals which are called right after the end of
+the call to @var{Goal}. Cuts and exceptions inside Goal do not prevent the
+execution of the cleanup calls. @t{call_cleanup} might be nested.
+
+@item call_cleanup(+@var{Goal}, +@var{CleanUpGoal})
+@findex call_cleanup/2
+@syindex call_cleanup/2
+@cnindex call_cleanup/2
+This is similar to @t{call_cleanup/1} with an additional
+@var{CleanUpGoal} which gets called after @var{Goal} is finished.
+
+@item on_cleanup(+@var{CleanUpGoal})
+@findex on_cleanup/1
+@syindex on_cleanup/1
+@cnindex on_cleanup/1
+Any Predicate might registers a @var{CleanUpGoal}. The
+@var{CleanUpGoal} is put onto the current cleanup context. All such
+CleanUpGoals are executed in reverse order of their registration when
+the surrounding cleanup-context ends. This call will throw an exception
+if a predicate tries to register a @var{CleanUpGoal} outside of any
+cleanup-context.
+
+@item cleanup_all
+@findex cleanup_all/0
+@syindex cleanup_all/0
+@cnindex cleanup_all/0
+Calls all pending CleanUpGoals and resets the cleanup-system to an
+initial state. Should only be used as one of the last calls in the
+main program.
 
 @end table
 
-@node Timeout, Trees, Terms, Library
+There are some private predicates which could be used in special
+cases, such as manually setting up cleanup-contexts and registering
+CleanUpGoals for other than the current cleanup-context.
+Read the Source Luke.
+
+
+@node Timeout, Trees, Cleanup, Library
 @section Calls With Timeout
 @cindex timeout
 
@@ -8188,7 +8240,7 @@ available with the @code{use_module(library(timeout))} command.
 @findex time_out/3
 @syindex time_out/3
 @cnindex time_out/3
-Execute goal @var{Goal} with time limite @var{Timeout}, where
+Execute goal @var{Goal} with time limited @var{Timeout}, where
 @var{Timeout} is measured in milliseconds. If the goal succeeds, unify
 @var{Result} with success. If the timer expires before the goal
 terminates, unify @var{Result} with @t{timeout}.
@@ -8275,9 +8327,9 @@ are represented in one of two ways:
 pairs, where the pairs can be in any old order.  This form is
 convenient for input/output.
  
-@item The S-representation of a graph is a list of (vertex-neighbours)
+@item The S-representation of a graph is a list of (vertex-neighbors)
 pairs, where the pairs are in standard order (as produced by keysort)
-and the neighbours of each vertex are also in standard order (as
+and the neighbors of each vertex are also in standard order (as
 produced by sort).  This form is convenient for many calculations.
 @end itemize
 
@@ -8439,7 +8491,7 @@ NL = [1,2,7,5]
 @findex  complement/2
 @syindex complement/2
 @cnindex complement/2
-Unify @var{NewGraph} with the graph complementar to @var{Graph}.
+Unify @var{NewGraph} with the graph complementary to @var{Graph}.
  In the next example:
 @example
 ?- complement([1-[3,5],2-[4],3-[],
@@ -8462,7 +8514,7 @@ Compose the graphs @var{LeftGraph} and @var{RightGraph} to form @var{NewGraph}.
 L = [1-[4],2-[1,2,4],3-[]]
 @end example
 
-@item top_sort(+@var{Graph}, +@var{Sort})
+@item top_sort(+@var{Graph}, -@var{Sort})
 @findex  top_sort/2
 @syindex top_sort/2
 @cnindex top_sort/2
@@ -8699,7 +8751,7 @@ variable. In the latter case, YAP discards previous values for the
 attributes.
 @item The built-in @code{get_atts/2} can be used to check the values of
 an attribute associated with a variable.
-@item The unification algorit mcalls the user-defined predicate
+@item The unification algoritm calls the user-defined predicate
 @t{verify_attributes/3} before trying to bind an attributed
 variable. Unification will resume after this call.
 @item The user-defined predicate
@@ -9099,7 +9151,7 @@ manual under the conditions for verbatim copying, provided that the
 entire resulting derived work is distributed under the terms of a
 permission notice identical to this one.
 
-Permission is granted qto copy and distribute translations of this
+Permission is granted to copy and distribute translations of this
 manual into another language, under the above conditions for modified
 versions, except that this permission notice may be stated in a
 translation approved by the OFAI.
@@ -11992,7 +12044,7 @@ internals, or to system debuggers.
 @findex reset_op_counters/0
 @snindex reset_op_counters/0
 @cnindex reset_op_counters/0
-Reinitialise all counters.
+Reinitialize all counters.
 
 @item show_op_counters(+@var{A})
 @findex show_op_counters/1
@@ -12005,7 +12057,7 @@ label must be an atom.
 @findex show_ops_by_group/1
 @snindex show_ops_by_group/1
 @cnindex show_ops_by_group/1
-Display the current value for the counters, organised by groups, using
+Display the current value for the counters, organized by groups, using
 label @var{A}. The label must be an atom.
 
 @end table
@@ -12734,7 +12786,7 @@ then allow one to construct functors, and to obtain their name and arity.
 @end example
 @noindent
 
-Note that the functor is essencially a pair formed by an atom, and
+Note that the functor is essentially a pair formed by an atom, and
 arity.
 
 @node Unifying Terms, Manipulating Strings, Manipulating Terms, C-Interface
@@ -12771,7 +12823,7 @@ fails and generates an exception if @var{String} is not a valid string.
 @findex YAP_BufferToAtomList (C-Interface function)
 The C-interface also includes utility routines to do the reverse, that
 is, to copy a from a buffer to a list of character codes or to a list of
-character atomsr
+character atoms
 @example
       YAP_Term YAP_BufferToString(char *@var{buf})
       YAP_Term YAP_BufferToAtomList(char *@var{buf})
@@ -12833,7 +12885,7 @@ streams. It is most useful if you are doing @code{fork()}.
 @findex YAP_OpenStream (C-Interface function)
 The next routine allows a currently open file to become a stream. The
 routine receives as arguments a file descriptor, the true file name as a
-string, an atom with the yser name, and a set of flags:
+string, an atom with the user name, and a set of flags:
 @example
       void      YAP_OpenStream(void *@var{FD}, char *@var{name}, YAP_Term @var{t}, int @var{flags})
 @end example
@@ -12998,7 +13050,7 @@ case exits with @code{YAP_cut_succeed} in order to cut any further
 backtracking.  If this is not the last solution then we save the value
 for the next solution in the data structure and exit normally with 1
 denoting success. Note also that in any of the two cases we use the
-function @code{YAP_nify} to bind the argument of the call to the value
+function @code{YAP_unify} to bind the argument of the call to the value
 saved in @code{ n100_state->next_solution}.
 
 
@@ -13110,7 +13162,7 @@ To actually use this library you must follow a five step process:
 
 @enumerate
 @item
- You must initialise the YAP environment. A single function,
+ You must initialize the YAP environment. A single function,
 @code{YAP_FastInit} asks for a contiguous chunk in your memory space, fills
 it in with the data-base, and sets up YAP's stacks and
 execution registers. You can use a saved space from a standard system by
@@ -13155,7 +13207,7 @@ main(int argc, char *argv[]) @{
 @end cartouche
 @end example
 
-The program first initialises YAP, calls the query for the
+The program first initializes YAP, calls the query for the
 first time and succeeds, and then backtracks twice. The first time
 backtracking succeeds, the second it fails and exits.
 
@@ -13201,7 +13253,7 @@ such term exists the function will return the empty list.
 
 @item  YapFastInit(@code{char *} @var{SavedState})
 @findex  YapFastInit/1
-Initialise a copy of YAP from @var{SavedState}. The copy is
+Initialize a copy of YAP from @var{SavedState}. The copy is
 monolithic and currently must be loaded at the same address where it was
 saved. @code{YapFastInit} is a simpler version of @code{YapInit}.
 
@@ -13211,7 +13263,7 @@ saved. @code{YapFastInit} is a simpler version of @code{YapInit}.
 @var{SchedulerLoop}, @code{int} @var{DelayedReleaseLoad}, @code{int}
 @var{argc}, @code{char **}  @var{argv})
 @findex  YapInit/9
-Initialise YAP. In the future the arguments as a single @code{C}
+Initialize YAP. In the future the arguments as a single @code{C}
 structure.
 
 If @var{SavedState} is not NULL, try to open and restore the file
@@ -13270,12 +13322,12 @@ flags in the @code{flag} argument: @code{YAP_WRITE_QUOTED},
 @item  @code{void} YapInitConsult(@code{int} @var{mode}, @code{char *} @var{filename})
 @findex YapInitConsult/2
 Enter consult mode on file @var{filename}. This mode maintains a few
-data-structures internally, for instanc to know whether a predicate
+data-structures internally, for instance to know whether a predicate
 before or not. It is still possible to execute goals in consult mode.
 
 If @var{mode} is @code{TRUE} the file will be reconsulted, otherwise
 just consulted. In practice, this function is most useful for
-bootstraping Prolog, as otherwise one may call the Prolog predicate
+bootstrapping Prolog, as otherwise one may call the Prolog predicate
 @code{compile/1} or @code{consult/1} to do compilation.
 
 Note that it is up to the user to open the file @var{filename}. The

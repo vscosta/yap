@@ -28,6 +28,7 @@ PROGRAMS= $(srcdir)/apply_macros.yap \
 	$(srcdir)/atts.yap \
 	$(srcdir)/avl.yap \
 	$(srcdir)/charsio.yap \
+	$(srcdir)/cleanup.yap \
 	$(srcdir)/heaps.yap \
 	$(srcdir)/lists.yap \
 	$(srcdir)/logtalk.yap \
