@@ -11,8 +11,13 @@
 * File:		cdmgr.c							 *
 * comments:	Code manager						 *
 *									 *
-* Last rev:     $Date: 2004-12-05 05:01:23 $,$Author: vsc $						 *
+* Last rev:     $Date: 2004-12-08 00:10:48 $,$Author: vsc $						 *
 * $Log: not supported by cvs2svn $
+* Revision 1.143  2004/12/05 05:01:23  vsc
+* try to reduce overheads when running with goal expansion enabled.
+* CLPBN fixes
+* Handle overflows when allocating big clauses properly.
+*
 * Revision 1.142  2004/11/18 22:32:31  vsc
 * fix situation where we might assume nonextsing double initialisation of C predicates (use
 * Hidden Pred Flag).
@@ -228,17 +233,14 @@ PredForChoicePt(yamop *p_code) {
       return ENV_ToP(gc_B->cp_cp);
 #endif
     case _or_else:
-      if (p_code == 
-#ifdef YAPOR
-	  p_code->u.ldl.l
-#else
-	  p_code->u.sla.sla_u.l
-#endif
-	  ) {
+      if (p_code == p_code->u.sla.sla_u.l) {
 	/* repeat */
 	Atom at = Yap_LookupAtom("repeat ");
 	return RepPredProp(PredPropByAtom(at, PROLOG_MODULE));
+      } else {
+	return p_code->u.sla.p0;
       }
+      break;
     case _or_last:
 #ifdef YAPOR
       return p_code->u.sla.p0;
