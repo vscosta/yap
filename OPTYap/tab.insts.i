@@ -808,7 +808,7 @@
 #endif /* TABLING_ERRORS */
           B = chain_cp;
           TR = TR_FZ;
-          TRAIL_REF(B->cp_tr);
+          TRAIL_LINK(B->cp_tr);
           consume_answer_and_procceed(dep_fr, ans_node);
 	}
         UNLOCK(DepFr_lock(dep_fr));
@@ -903,7 +903,7 @@
 #endif /* YAPOR */
           B = chain_cp;
           TR = TR_FZ;
-          TRAIL_REF(B->cp_tr);
+          TRAIL_LINK(B->cp_tr);
           goto completion;
 	}
       }
@@ -912,7 +912,7 @@
       PREFETCH_OP(PREG);
       B = chain_cp;
       TR = TR_FZ;
-      TRAIL_REF(B->cp_tr);
+      TRAIL_LINK(B->cp_tr);
       GONext();
     }
     END_PREFETCH()
@@ -1058,7 +1058,7 @@
         B = DepFr_cons_cp(dep_fr);
         TR = TR_FZ;
         if (TR != B->cp_tr)
-          TRAIL_REF(B->cp_tr);
+          TRAIL_LINK(B->cp_tr);
         consume_answer_and_procceed(dep_fr, ans_node);
       }
       UNLOCK(DepFr_lock(dep_fr));
@@ -1097,7 +1097,7 @@
               B = LOCAL_top_cp;
               SET_BB(B_FZ);
               TR = TR_FZ;
-              TRAIL_REF(B->cp_tr);
+              TRAIL_LINK(B->cp_tr);
               goto completion;
             }
             LOCAL_top_susp_or_fr = OrFr_nearest_suspnode(susp_or_fr);
@@ -1132,7 +1132,7 @@
             B = LOCAL_top_cp;
             SET_BB(B_FZ);
             TR = TR_FZ;
-            TRAIL_REF(B->cp_tr);
+            TRAIL_LINK(B->cp_tr);
             goto completion;
           }
           LOCAL_top_susp_or_fr = OrFr_nearest_suspnode(susp_or_fr);
