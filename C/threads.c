@@ -361,6 +361,10 @@ p_thread_signal(void)
   Int wid = IntegerOfTerm(Deref(ARG1));
   /* make sure the lock is available */
   pthread_mutex_lock(&(ThreadHandle[wid].tlock));
+  if (!ThreadHandle[wid].in_use) {
+    pthread_mutex_unlock(&(ThreadHandle[wid].tlock));
+    return TRUE;
+  }
   LOCK(heap_regs->wl[wid].signal_lock);
   ThreadHandle[wid].current_yaam_regs->CreepFlag_ = Unsigned(LCL0);
   heap_regs->wl[wid].active_signals |= YAP_ITI_SIGNAL;
