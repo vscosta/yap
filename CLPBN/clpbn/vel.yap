@@ -22,7 +22,9 @@
 :- use_module(library(ordsets), [ord_union/3
 		    ]).
 
-:- use_module(library('clpbn/xbif'), [cplbn2xbif/3]).
+:- use_module(library('clpbn/xbif'), [clpbn2xbif/3]).
+
+:- use_module(library('clpbn/graphviz'), [clpbn2gviz/4]).
 
 :- use_module(library(lists),
 	      [
@@ -33,12 +35,17 @@
 check_if_vel_done(Var) :-
 	get_atts(Var, [size(_)]), !.
 
+%output(xbif(user_error)).
+output(gviz(user_error)).
+%output(no).
+
 vel(LVs,Vs0,AllDiffs) :-
 	check_for_hidden_vars(Vs0, Vs0, Vs1),
 	sort(Vs1,Vs),
 	find_all_clpbn_vars(Vs, LV0, LVi, Tables0),
 	find_all_table_deps(Tables0, LV0),
-	(xbif(XBifStream) -> clpbn2xbif(XBifStream,vel,Vs) ; true),
+	(output(xbif(XBifStream)) -> clpbn2xbif(XBifStream,vel,Vs) ; true),
+	(output(gviz(XBifStream)) -> clpbn2gviz(XBifStream,vel,Vs,LVs) ; true),
 	process(LVi, LVs, tab(Dist,_,_)),
 	Dist =.. [_|Ps0],
 	normalise(Ps0,Ps),

@@ -1,7 +1,17 @@
 :- module(xbif, [clpbn2xbif/3]).
 
 clpbn2xbif(Stream, Name, Network) :-
-	format(Stream, '<!-- DTD for the XMLBIF 0.3 format -->
+	format(Stream, '<?xml version="1.0" encoding="US-ASCII"?>
+
+
+<!--
+	Bayesian network in XMLBIF v0.3 (BayesNet Interchange Format)
+	Produced by CLP(BN)
+-->
+
+
+
+<!-- DTD for the XMLBIF 0.3 format -->
 <!DOCTYPE BIF [
 	<!ELEMENT BIF ( NETWORK )*>
 	      <!ATTLIST BIF VERSION CDATA #REQUIRED>
@@ -19,8 +29,7 @@ clpbn2xbif(Stream, Name, Network) :-
 
 <BIF VERSION="0.3">
 <NETWORK>
-<NAME>~w</NAME>]>
-
+<NAME>~w</NAME>
 
 <!-- Variables -->',[Name]),
 	output_vars(Stream, Network),
@@ -38,7 +47,9 @@ output_var(Stream, V) :-
 	clpbn:get_atts(V,[key(Key),dist(DInfo)]),
 	extract_domain(DInfo,Domain),
 	format(Stream, '<VARIABLE TYPE="nature">
-	<NAME>~w</NAME>~n',[Key]),
+	<NAME>',[]),
+	output_key(Stream,Key),
+	format('</NAME>~n',[]),
 	output_domain(Stream, Domain),
 	format(Stream, '</VARIABLE>~n~n',[]).
 
@@ -60,7 +71,9 @@ output_dists(Stream, [V|Network]) :-
 output_dist(Stream, V) :-
 	clpbn:get_atts(V,[key(Key),dist((Info))]),
 	format(Stream, '<DEFINITION>
-	<FOR>~w</FOR>~n',[Key]),
+	<FOR>',[]),
+	output_key(Stream, Key),
+	format('</FOR>~n',[]),
 	output_parents(Stream,Info),
 	extract_cpt(Info,CPT),
 	output_cpt(Stream,CPT),
@@ -76,7 +89,9 @@ output_parents(_,(_->_)).
 do_output_parents(_,[]).
 do_output_parents(Stream,[P1|Ps]) :-
 	clpbn:get_atts(P1,[key(Key)]),
-	format(Stream, '<GIVEN>~w</GIVEN>~n',[Key]),
+	format(Stream, '<GIVEN>',[]),
+	output_key(Stream,Key),
+	format('</GIVEN>~n',[]),
 	do_output_parents(Stream,Ps).
 
 extract_cpt(tab(_,CPT),CPT).
@@ -93,4 +108,22 @@ output_els(_, []).
 output_els(Stream, [El|Els]) :-
 	format(Stream,'~f ',[El]),
 	output_els(Stream, Els).
+
+output_key(Stream, Key) :-
+	output_key(Stream, 0, Key).
+
+output_key(Stream, _, Key) :-
+	primitive(Key), !,
+	write(Stream, Key).
+output_key(Stream, I0, Key) :-
+	Key =.. [Name|Args],
+	write(Stream, Name),
+	I is I0+1,
+	output_key_args(Stream, I, Args).
+
+output_key_args(_, _, []).
+output_key_args(Stream, I, [Arg|Args]) :-
+	format(Stream, '~*c', [I,0'_]),
+	output_key(Stream, I, Arg),
+	output_key_args(Stream, I, Args).
 

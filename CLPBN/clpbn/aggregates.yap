@@ -47,7 +47,7 @@ generate_tmp_random(sum(Min,Max), N, [V1,V2], V, Key, I) :-
 	Upper is Max*N,
 	generate_list(Lower, Upper, Nbs),
 %%	write(sum(Nbs,[V1,V2])),nl, % debugging
-	{ V = average_internal_node(I,Key) with p(Nbs,sum,[V1,V2]) }.
+	{ V = 'AVG'(I,Key) with p(Nbs,sum,[V1,V2]) }.
 
 generate_list(M, M, [M]) :- !.
 generate_list(I, M, [I|Nbs]) :-
