@@ -77,11 +77,15 @@ portray_clause(_).
 	'$beautify_vars'(Pred),
 	writeq(Stream, Pred),
 	'$format'(Stream, ".~n", []).
-'$portray_clause'(Stream, (Pred:-Body)) :-
+'$portray_clause'(Stream, (Pred:-Body)) :- !,
 	'$beautify_vars'((Pred:-Body)),
 	writeq(Stream, Pred),
 	'$format'(Stream, " :-", []),
 	'$write_body'(Body, 3, ',', Stream),
+	'$format'(Stream, ".~n", []).
+'$portray_clause'(Stream, Pred) :- !,
+	'$beautify_vars'(Pred),
+	writeq(Stream, Pred),
 	'$format'(Stream, ".~n", []).
 
 '$write_body'(X,I,T,Stream) :- var(X), !,
