@@ -303,7 +303,7 @@ sync_with_p:
 #ifdef YAPOR_ERRORS
         if ((CELL *)aux_cell < H0)
           YAPOR_ERROR_MESSAGE("aux_cell < H0 (q_share_work)");
-        if ((ADDR)aux_cell > _YAP_LocalBase)
+        if ((ADDR)aux_cell > Yap_LocalBase)
           YAPOR_ERROR_MESSAGE("aux_cell > LocalBase (q_share_work)");
 #endif /* YAPOR_ERRORS */
 #ifdef TABLING

@@ -68,28 +68,28 @@ static int p_debug_prolog(void);
 **      Global functions      **
 ** -------------------------- */
 
-void _YAP_init_optyap_preds(void) {
-  _YAP_InitCPred("$default_sequential", 1, p_default_sequential, SafePredFlag);
+void Yap_init_optyap_preds(void) {
+  Yap_InitCPred("$default_sequential", 1, p_default_sequential, SafePredFlag);
 #ifdef YAPOR
-  _YAP_InitCPred("$yapor_on", 0, yapor_on, SafePredFlag);
-  _YAP_InitCPred("$start_yapor", 0, start_yapor, SafePredFlag);
-  _YAP_InitCPred("$sequential", 1, p_sequential, SafePredFlag);
-  _YAP_InitCPred("execution_mode", 1, p_execution_mode, SafePredFlag);
-  _YAP_InitCPred("performance", 1, p_performance, SafePredFlag);
-  _YAP_InitCPred("$parallel_new_answer", 1, p_parallel_new_answer, SafePredFlag);
-  _YAP_InitCPred("$parallel_yes_answer", 0, p_parallel_yes_answer, SafePredFlag);
+  Yap_InitCPred("$yapor_on", 0, yapor_on, SafePredFlag);
+  Yap_InitCPred("$start_yapor", 0, start_yapor, SafePredFlag);
+  Yap_InitCPred("$sequential", 1, p_sequential, SafePredFlag);
+  Yap_InitCPred("execution_mode", 1, p_execution_mode, SafePredFlag);
+  Yap_InitCPred("performance", 1, p_performance, SafePredFlag);
+  Yap_InitCPred("$parallel_new_answer", 1, p_parallel_new_answer, SafePredFlag);
+  Yap_InitCPred("$parallel_yes_answer", 0, p_parallel_yes_answer, SafePredFlag);
 #endif /* YAPOR */
 #ifdef TABLING
-  _YAP_InitCPred("$do_table", 2, p_table, SafePredFlag);
-  _YAP_InitCPred("$do_abolish_trie", 2, p_abolish_trie, SafePredFlag);
-  _YAP_InitCPred("$show_trie", 3, p_show_trie, SafePredFlag);
-  _YAP_InitCPred("$resume_trie", 2, p_resume_trie, SafePredFlag);
+  Yap_InitCPred("$do_table", 2, p_table, SafePredFlag);
+  Yap_InitCPred("$do_abolish_trie", 2, p_abolish_trie, SafePredFlag);
+  Yap_InitCPred("$show_trie", 3, p_show_trie, SafePredFlag);
+  Yap_InitCPred("$resume_trie", 2, p_resume_trie, SafePredFlag);
 #endif /* TABLING */
 #ifdef STATISTICS
-  _YAP_InitCPred("show_frames", 0, p_show_frames, SafePredFlag);
+  Yap_InitCPred("show_frames", 0, p_show_frames, SafePredFlag);
 #endif /* STATISTICS */
 #if defined(YAPOR_ERRORS) || defined(TABLING_ERRORS)
-  _YAP_InitCPred("debug_prolog", 1, p_debug_prolog, SafePredFlag);
+  Yap_InitCPred("debug_prolog", 1, p_debug_prolog, SafePredFlag);
 #endif /* YAPOR_ERRORS || TABLING_ERRORS */
 }
 
@@ -116,9 +116,9 @@ int p_default_sequential(void) {
   if (IsVarTerm(t)) {
     Term ta;
     if (SEQUENTIAL_IS_DEFAULT)
-      ta = MkAtomTerm(_YAP_LookupAtom("on"));
+      ta = MkAtomTerm(Yap_LookupAtom("on"));
     else
-      ta = MkAtomTerm(_YAP_LookupAtom("off"));
+      ta = MkAtomTerm(Yap_LookupAtom("off"));
     Bind((CELL *)t, ta);
     return(TRUE);
   } 
@@ -147,7 +147,7 @@ realtime current_time(void) {
   /* to get time as Yap */
   /*
   double now, interval;
-  _YAP_cputime_interval(&now, &interval);
+  Yap_cputime_interval(&now, &interval);
   return ((realtime)now);
   */
   struct timeval tempo;
@@ -196,7 +196,7 @@ int p_sequential(void) {
   if (IsVarTerm(tmod) || !IsAtomTerm(tmod)) {
     return(FALSE);
   }
-  mod = LookupModule(tmod);
+  mod = Yap_LookupModule(tmod);
   if (IsAtomTerm(t)) {
     at = AtomOfTerm(t);
     arity = 0;
@@ -222,9 +222,9 @@ int p_execution_mode(void) {
   if (IsVarTerm(t)) {
     Term ta;
     if (PARALLEL_EXECUTION_MODE) 
-      ta = MkAtomTerm(_YAP_LookupAtom("parallel"));
+      ta = MkAtomTerm(Yap_LookupAtom("parallel"));
     else 
-      ta = MkAtomTerm(_YAP_LookupAtom("sequential"));
+      ta = MkAtomTerm(Yap_LookupAtom("sequential"));
     Bind((CELL *)t, ta);
     return(TRUE);
   }
@@ -255,9 +255,9 @@ int p_performance(void) {
   if (IsVarTerm(t)) {
     Term ta;
     if (GLOBAL_performance_mode & PERFORMANCE_ON) {
-      ta = MkAtomTerm(_YAP_LookupAtom("on"));
+      ta = MkAtomTerm(Yap_LookupAtom("on"));
     } else { 
-      ta = MkAtomTerm(_YAP_LookupAtom("off"));
+      ta = MkAtomTerm(Yap_LookupAtom("off"));
     }
     Bind((CELL *)t, ta);
     return(TRUE);
@@ -325,7 +325,7 @@ int p_parallel_new_answer(void) {
 
   length_answer = 0;
   ALLOC_QG_ANSWER_FRAME(actual_answer);
-  _YAP_plwrite(ARG1, parallel_new_answer_putchar, 4);
+  Yap_plwrite(ARG1, parallel_new_answer_putchar, 4);
   AnsFr_answer(actual_answer)[length_answer] = 0;
   AnsFr_next(actual_answer) = NULL;
   leftmost_or_fr = CUT_leftmost_or_frame();
@@ -468,7 +468,7 @@ int p_table(void) {
   if (IsVarTerm(t2) || !IsAtomTerm(t2)) {
     return (FALSE);
   } else {
-    mod = LookupModule(t2);
+    mod = Yap_LookupModule(t2);
   }
   if (IsAtomTerm(t)) {
     Atom at = AtomOfTerm(t);
@@ -502,7 +502,7 @@ int p_abolish_trie(void) {
    if (IsVarTerm(tmod) || !IsAtomTerm(tmod)) {
     return (FALSE);
   } else {
-    mod = LookupModule(tmod);
+    mod = Yap_LookupModule(tmod);
   } 
   if (IsAtomTerm(t)) {
     Atom at = AtomOfTerm(t);
@@ -541,7 +541,7 @@ int p_show_trie(void) {
    if (IsVarTerm(tmod) || !IsAtomTerm(tmod)) {
     return (FALSE);
   } else {
-    mod = LookupModule(tmod);
+    mod = Yap_LookupModule(tmod);
   } 
   if (IsAtomTerm(t1)) {
     at = AtomOfTerm(t1);
@@ -557,7 +557,7 @@ int p_show_trie(void) {
  
   t2 = Deref(ARG3);
   if (IsVarTerm(t2)) {
-    Term ta = MkAtomTerm(_YAP_LookupAtom("stdout"));
+    Term ta = MkAtomTerm(Yap_LookupAtom("stdout"));
     Bind((CELL *)t2, ta);
     traverse_trie(stderr, TrNode_child(TabEnt_subgoal_trie(pe->TableOfPred)), arity, at, TRUE);
   } else if (IsAtomTerm(t2)) {
@@ -585,7 +585,7 @@ int p_resume_trie(void) {
    if (IsVarTerm(tmod) || !IsAtomTerm(tmod)) {
     return (FALSE);
   } else {
-    mod = LookupModule(tmod);
+    mod = Yap_LookupModule(tmod);
   } 
   t1 = Deref(ARG1);
   if (IsAtomTerm(t1)) {

@@ -4,9 +4,9 @@
 
 extern int PageSize;
 
-#define H_BASE   ((CELL *) GlobalBase)
-#define B_BASE   ((choiceptr) LocalBase)
-#define TR_BASE  ((tr_fr_ptr) TrailBase)
+#define H_BASE   ((CELL *) Yap_GlobalBase)
+#define B_BASE   ((choiceptr) Yap_LocalBase)
+#define TR_BASE  ((tr_fr_ptr) Yap_TrailBase)
 
 #if SIZEOF_INT_P == 4
 #define ALIGN	                   3
@@ -36,9 +36,9 @@ extern int PageSize;
 
 
 #define ALLOC_BLOCK(BLOCK, SIZE)               \
-        BLOCK = (void *) AllocAtomSpace(SIZE)
+        BLOCK = (void *) Yap_AllocAtomSpace(SIZE)
 #define FREE_BLOCK(BLOCK)                      \
-        FreeCodeSpace((char *) (BLOCK))
+        Yap_FreeCodeSpace((char *) (BLOCK))
 
 
 
@@ -53,15 +53,15 @@ extern int PageSize;
 
 #ifdef USE_HEAP
 
-#define alloc_memory_block(SIZE)   (void *)AllocCodeSpace(SIZE)
-#define free_memory_block(BLK)   FreeCodeSpace((ADDR)BLK)
+#define alloc_memory_block(SIZE)   (void *)Yap_AllocCodeSpace(SIZE)
+#define free_memory_block(BLK)   Yap_FreeCodeSpace((ADDR)BLK)
 #define reset_alloc_block_area()   
 
-#define ALLOC_STRUCT(STR, STR_PAGES, STR_TYPE) STR = (STR_TYPE *)AllocCodeSpace(sizeof(STR_TYPE))
+#define ALLOC_STRUCT(STR, STR_PAGES, STR_TYPE) STR = (STR_TYPE *)Yap_AllocCodeSpace(sizeof(STR_TYPE))
 
-#define ALLOC_NEXT_FREE_STRUCT(STR, STR_PAGES, STR_TYPE) STR = (STR_TYPE *)AllocCodeSpace(sizeof(STR_TYPE))
+#define ALLOC_NEXT_FREE_STRUCT(STR, STR_PAGES, STR_TYPE) STR = (STR_TYPE *)Yap_AllocCodeSpace(sizeof(STR_TYPE))
 
-#define FREE_STRUCT(STR, STR_PAGES, STR_TYPE) FreeCodeSpace((ADDR)(STR))
+#define FREE_STRUCT(STR, STR_PAGES, STR_TYPE) Yap_FreeCodeSpace((ADDR)(STR))
 
 #else
 

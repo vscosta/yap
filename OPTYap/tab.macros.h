@@ -92,9 +92,9 @@ STD_PROTO(static inline tg_sol_fr_ptr CUT_prune_tg_solution_frames, (tg_sol_fr_p
         if ((STACK) <= STACK_TOP+1024)    {                                                \
           CELL *NEW_STACK;                                                                 \
           UInt diff;                                                                       \
-          char *OldTrailTop = (char *)TrailTop;                                            \
-          _YAP_growtrail(64 * 1024Lf);                                                     \
-          diff = (char *)TrailTop - OldTrailTop;                                           \
+          char *OldTrailTop = (char *)Yap_TrailTop;                                        \
+          Yap_growtrail(64 * 1024L);                                                     \
+          diff = (char *)Yap_TrailTop - OldTrailTop;                                           \
           NEW_STACK = (CELL *)((char *)(STACK)+diff);                                      \
           memmove((void *)NEW_STACK, (void *)(STACK), (char *)OldTrailTop-(char *)STACK);  \
           (STACK) = NEW_STACK;                                                             \
@@ -369,7 +369,7 @@ void unbind_variables(tr_fr_ptr unbind_tr, tr_fr_ptr end_tr) {
       RESET_VARIABLE(ref);
     } else if (IsPairTerm(ref)) {
       ref = (CELL) RepPair(ref);
-      if ((ADDR)ref >= TrailBase) {
+      if ((ADDR)ref >= Yap_TrailBase) {
         /* avoid frozen segments */
         unbind_tr = (tr_fr_ptr) ref;
 #ifdef TABLING_ERRORS
@@ -408,7 +408,7 @@ void rebind_variables(tr_fr_ptr rebind_tr, tr_fr_ptr end_tr) {
       *((CELL *)ref) = TrailVal(rebind_tr);
     } else if (IsPairTerm(ref)) {
       ref = (CELL) RepPair(ref);
-      if ((ADDR)ref >= TrailBase) {
+      if ((ADDR)ref >= Yap_TrailBase) {
         /* avoid frozen segments */
   	rebind_tr = (tr_fr_ptr) ref;
 #ifdef TABLING_ERRORS
@@ -451,7 +451,7 @@ void restore_bindings(tr_fr_ptr unbind_tr, tr_fr_ptr rebind_tr) {
         RESET_VARIABLE(ref);
       } else if (IsPairTerm(ref)) {
         ref = (CELL) RepPair(ref);
-        if ((ADDR)ref >= TrailBase) {
+        if ((ADDR)ref >= Yap_TrailBase) {
           unbind_tr = (tr_fr_ptr) ref;
 #ifdef TABLING_ERRORS
           if (unbind_tr > (tr_fr_ptr) TrailTop)
@@ -465,7 +465,7 @@ void restore_bindings(tr_fr_ptr unbind_tr, tr_fr_ptr rebind_tr) {
       ref = (CELL) TrailTerm(--end_tr);
       if (IsPairTerm(ref)) {
         ref = (CELL) RepPair(ref);
-        if ((ADDR)ref >= TrailBase) {
+        if ((ADDR)ref >= Yap_TrailBase) {
   	  end_tr = (tr_fr_ptr) ref;
 #ifdef TABLING_ERRORS
 	  if (end_tr > (tr_fr_ptr) TrailTop)
@@ -482,7 +482,7 @@ void restore_bindings(tr_fr_ptr unbind_tr, tr_fr_ptr rebind_tr) {
       *((CELL *)ref) = TrailVal(rebind_tr);
     } else if (IsPairTerm(ref)) {
       ref = (CELL) RepPair(ref);
-      if ((ADDR)ref >= TrailBase) {
+      if ((ADDR)ref >= Yap_TrailBase) {
         rebind_tr = (tr_fr_ptr) ref;
 #ifdef TABLING_ERRORS
 	if (rebind_tr > (tr_fr_ptr) TrailTop)

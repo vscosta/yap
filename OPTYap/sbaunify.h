@@ -30,7 +30,7 @@ static inline
 Int bind_variable(Term t0, Term t1)
 {
   tr_fr_ptr TR0 = TR;
-  if (_YAP_IUnify(t0,t1)) {
+  if (Yap_IUnify(t0,t1)) {
     return(TRUE);
   } else {
     while(TR != TR0) {
@@ -48,7 +48,7 @@ Int unify(Term t0, Term t1)
 Int unify(Term t0, Term t1)
 {
   tr_fr_ptr TR0 = TR;
-  if (_YAP_IUnify(t0,t1)) {
+  if (Yap_IUnify(t0,t1)) {
     return(TRUE);
   } else {
     while(TR != TR0) {

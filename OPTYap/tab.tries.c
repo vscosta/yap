@@ -660,11 +660,11 @@ sg_node_ptr subgoal_search(tab_ent_ptr tab_ent, OPREG arity, CELL **Yaddr) {
   count_vars = 0;
   stack_vars = *Yaddr;
 #ifdef YAPOR
-  stack_terms_top = (CELL *)TrailTop;
+  stack_terms_top = (CELL *)Yap_TrailTop;
   stack_terms_base = stack_terms = AuxSp;
 #else
   stack_terms_top = (CELL *)TR;
-  stack_terms_base = stack_terms = (CELL *)TrailTop;
+  stack_terms_base = stack_terms = (CELL *)Yap_TrailTop;
 #endif
   current_sg_node = TabEnt_subgoal_trie(tab_ent);
 
@@ -680,7 +680,7 @@ sg_node_ptr subgoal_search(tab_ent_ptr tab_ent, OPREG arity, CELL **Yaddr) {
             current_sg_node = subgoal_trie_node_check_insert(tab_ent, current_sg_node, t);
   	  } else {
             if (count_vars == MAX_TABLE_VARS)
-              Error(SYSTEM_ERROR,TermNil,"MAX_TABLE_VARS exceeded in function subgoal_search (%d)", count_vars);
+              Yap_Error(SYSTEM_ERROR,TermNil,"MAX_TABLE_VARS exceeded in function subgoal_search (%d)", count_vars);
             FREE_STACK_PUSH(t, stack_vars);
 	    *((CELL *)t) = GLOBAL_table_var_enumerator(count_vars);
             t = MakeTableVarTerm(count_vars);
@@ -734,7 +734,7 @@ ans_node_ptr answer_search(sg_fr_ptr sg_fr, CELL *subs_ptr) {
   stack_terms_base = stack_terms = stack_vars - MAX_TABLE_VARS;
 #else
   stack_terms_top = (CELL *)TR;
-  stack_terms_base = stack_terms = (CELL *)TrailTop;
+  stack_terms_base = stack_terms = (CELL *)Yap_TrailTop;
 #endif
   current_ans_node = SgFr_answer_trie(sg_fr);
 
@@ -754,7 +754,7 @@ ans_node_ptr answer_search(sg_fr_ptr sg_fr, CELL *subs_ptr) {
             current_ans_node = answer_trie_node_check_insert(sg_fr, current_ans_node, t, _trie_retry_val);
   	  } else {
             if (count_vars == MAX_TABLE_VARS)
-              Error(SYSTEM_ERROR,TermNil,"MAX_TABLE_VARS exceeded in function answer_search (%d)", count_vars);
+              Yap_Error(SYSTEM_ERROR,TermNil,"MAX_TABLE_VARS exceeded in function answer_search (%d)", count_vars);
             FREE_STACK_PUSH(t, stack_vars);
 	    *((CELL *)t) = GLOBAL_table_var_enumerator(count_vars);
             t = MakeTableVarTerm(count_vars);
@@ -805,7 +805,7 @@ void load_answer_trie(ans_node_ptr ans_node, CELL *subs_ptr) {
     stack_vars = stack_terms = AuxSp - MAX_TABLE_VARS;
 #else
     stack_top = (CELL *)TR;
-    stack_vars = stack_terms = ((CELL *)TrailTop)-MAX_TABLE_VARS;
+    stack_vars = stack_terms = ((CELL *)Yap_TrailTop)-MAX_TABLE_VARS;
 #endif
 
     /* load the new answer from the answer trie to the stack_terms */
@@ -1494,7 +1494,7 @@ update_next_trie_branch:
   }
 
   TrNode_or_arg(node) = ltt;
-  TrNode_instr(node) = _YAP_opcode(TrNode_instr(node));
+  TrNode_instr(node) = Yap_opcode(TrNode_instr(node));
   return ltt;
 }
 #else
@@ -1512,7 +1512,7 @@ int update_answer_trie_branch(ans_node_ptr node) {
     ltt = 1;
   }
   TrNode_or_arg(node) = ltt;
-  TrNode_instr(node) = _YAP_opcode(TrNode_instr(node));
+  TrNode_instr(node) = Yap__opcode(TrNode_instr(node));
   return ltt;
 }
 #endif /* TABLING_INNER_CUTS */
@@ -1528,7 +1528,7 @@ void update_answer_trie_branch(ans_node_ptr node) {
   } else {
     TrNode_instr(node) -= 2;  /* retry --> trust : try --> do */
   }
-  TrNode_instr(node) = _YAP_opcode(TrNode_instr(node));
+  TrNode_instr(node) = Yap_opcode(TrNode_instr(node));
   return;
 }
 #endif /* YAPOR */

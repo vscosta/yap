@@ -91,7 +91,7 @@
             x_args++;                             \
             x_args[-1] = x;                       \
           }                                       \
-          Y = pt_args;		    	          \
+          YENV = pt_args;		    	          \
           SET_BB(PROTECT_FROZEN_B(B));            \
         }
 
@@ -142,14 +142,14 @@
           H = HBREG = PROTECT_FROZEN_H(B);              \
           CPREG = B->cp_cp;                             \
           ENV = B->cp_env;                              \
-          /* set_cut(Y, B->cp_b); has no effect */      \
+          /* set_cut(YENV, B->cp_b); has no effect */      \
           PREG = (yamop *) CPREG;                       \
           PREFETCH_OP(PREG);                            \
           /* load answer from table to global stack */  \
           init_substitution_pointer(subs_ptr, DEP_FR);  \
           load_answer_trie(ANSWER, subs_ptr);           \
           /* procceed */                                \
-          Y = ENV;                                      \
+          YENV = ENV;                                      \
           GONext();                                     \
         }
 
@@ -195,14 +195,14 @@
     sg_fr_ptr sg_fr;
     CELL *Yaddr;
 
-    Yaddr = Y;
+    Yaddr = YENV;
     check_trail();
     tab_ent = PREG->u.ld.te;
 #ifdef TABLE_LOCK_AT_ENTRY_LEVEL
     LOCK(TabEnt_lock(tab_ent));
 #endif /* TABLE_LOCK_LEVEL */
     sg_node = subgoal_search(tab_ent, PREG->u.ld.s, &Yaddr);
-    Y = Yaddr;
+    YENV = Yaddr;
 #if defined(TABLE_LOCK_AT_NODE_LEVEL)
     LOCK(TrNode_lock(sg_node));
 #elif defined(TABLE_LOCK_AT_WRITE_LEVEL)
@@ -220,10 +220,10 @@
       UNLOCK_TABLE(sg_node);
 #endif /* TABLE_LOCK_LEVEL */
       LOCAL_top_sg_fr = sg_fr;
-      store_generator_node(Y, PREG->u.ld.s, COMPLETION, sg_fr);
+      store_generator_node(YENV, PREG->u.ld.s, COMPLETION, sg_fr);
       PREG = NEXTOP(PREG, ld);
       PREFETCH_OP(PREG);
-      allocate_environment(Y);
+      allocate_environment(YENV);
       GONext();
     } else {
       /* tabled subgoal not new */
@@ -248,14 +248,14 @@
           /* yes answer --> procceed */
           PREG = (yamop *) CPREG;
           PREFETCH_OP(PREG);
-          Y = ENV;
+          YENV = ENV;
           GONext();
         } else {
           /* answers -> load first answer */
           PREG = (yamop *) TrNode_child(SgFr_answer_trie(sg_fr));
           PREFETCH_OP(PREG);
-          *--Y = 0;  /* vars_arity */
-          *--Y = 0;  /* heap_arity */
+          *--YENV = 0;  /* vars_arity */
+          *--YENV = 0;  /* heap_arity */
           GONext();
         }
       } else {
@@ -265,7 +265,7 @@
         find_dependency_node(sg_fr, leader_cp, leader_dep_on_stack);
         UNLOCK(SgFr_lock(sg_fr));
         find_leader_node(leader_cp, leader_dep_on_stack);
-        store_consumer_node(Y, sg_fr, leader_cp, leader_dep_on_stack);
+        store_consumer_node(YENV, sg_fr, leader_cp, leader_dep_on_stack);
 #ifdef OPTYAP_ERRORS
         if (PARALLEL_EXECUTION_MODE) {
           choiceptr aux_cp;
@@ -294,14 +294,14 @@
     sg_fr_ptr sg_fr;
     CELL *Yaddr;
 
-    Yaddr = Y;
+    Yaddr = YENV;
     check_trail();
     tab_ent = PREG->u.ld.te;
 #ifdef TABLE_LOCK_AT_ENTRY_LEVEL
     LOCK(TabEnt_lock(tab_ent));
 #endif /* TABLE_LOCK_LEVEL */
     sg_node = subgoal_search(tab_ent, PREG->u.ld.s, &Yaddr);
-    Y = Yaddr;
+    YENV = Yaddr;
 #if defined(TABLE_LOCK_AT_NODE_LEVEL)
     LOCK(TrNode_lock(sg_node));
 #elif defined(TABLE_LOCK_AT_WRITE_LEVEL)
@@ -319,10 +319,10 @@
       UNLOCK_TABLE(sg_node);
 #endif /* TABLE_LOCK_LEVEL */
       LOCAL_top_sg_fr = sg_fr;
-      store_generator_node(Y, PREG->u.ld.s, PREG->u.ld.d, sg_fr);
+      store_generator_node(YENV, PREG->u.ld.s, PREG->u.ld.d, sg_fr);
       PREG = NEXTOP(PREG, ld);
       PREFETCH_OP(PREG);
-      allocate_environment(Y);
+      allocate_environment(YENV);
       GONext();
     } else {
       /* tabled subgoal not new */
@@ -347,14 +347,14 @@
           /* yes answer --> procceed */
           PREG = (yamop *) CPREG;
           PREFETCH_OP(PREG);
-          Y = ENV;
+          YENV = ENV;
           GONext();
         } else {
           /* answers -> load first answer */
           PREG = (yamop *) TrNode_child(SgFr_answer_trie(sg_fr));
           PREFETCH_OP(PREG);
-          *--Y = 0;  /* vars_arity */
-          *--Y = 0;  /* heap_arity */
+          *--YENV = 0;  /* vars_arity */
+          *--YENV = 0;  /* heap_arity */
           GONext();
         }
       } else {
@@ -364,7 +364,7 @@
         find_dependency_node(sg_fr, leader_cp, leader_dep_on_stack);
         UNLOCK(SgFr_lock(sg_fr));
         find_leader_node(leader_cp, leader_dep_on_stack);
-        store_consumer_node(Y, sg_fr, leader_cp, leader_dep_on_stack);
+        store_consumer_node(YENV, sg_fr, leader_cp, leader_dep_on_stack);
 #ifdef OPTYAP_ERRORS
         if (PARALLEL_EXECUTION_MODE) {
           choiceptr aux_cp;
@@ -389,10 +389,10 @@
 
   Op(table_retry_me, ld)
     restore_generator_node(B, PREG->u.ld.s, PREG->u.ld.d);
-    Y = (CELL *) PROTECT_FROZEN_B(B);
-    set_cut(Y, B->cp_b);
-    SET_BB(NORM_CP(Y));
-    allocate_environment(Y);
+    YENV = (CELL *) PROTECT_FROZEN_B(B);
+    set_cut(YENV, B->cp_b);
+    SET_BB(NORM_CP(YENV));
+    allocate_environment(YENV);
     PREG = NEXTOP(PREG,ld);
     GONext();
   ENDOp();
@@ -401,10 +401,10 @@
 
   Op(table_trust_me, ld)
     restore_generator_node(B, PREG->u.ld.s, COMPLETION);
-    Y = (CELL *) PROTECT_FROZEN_B(B);
-    set_cut(Y, B->cp_b);
-    SET_BB(NORM_CP(Y));
-    allocate_environment(Y);
+    YENV = (CELL *) PROTECT_FROZEN_B(B);
+    set_cut(YENV, B->cp_b);
+    SET_BB(NORM_CP(YENV));
+    allocate_environment(YENV);
     PREG = NEXTOP(PREG,ld);
     GONext();
   ENDOp();
@@ -419,7 +419,7 @@
 
     /* possible optimization: when the number of substitution variables **
     ** is zero, an answer is sufficient to perform an early completion  */
-    gcp = GEN_CP(Y[E_B]);
+    gcp = GEN_CP(YENV[E_B]);
     sg_fr = GEN_CP_SG_FR(gcp);
     subs_ptr = (CELL *)(gcp + 1) + PREG->u.s.s;
 #ifdef TABLING_ERRORS
@@ -501,11 +501,11 @@
                 }
 #ifdef TABLING_BATCHED_SCHEDULING
                 /* deallocate and procceed */
-                PREG = (yamop *) Y[E_CP];
+                PREG = (yamop *) YENV[E_CP];
                 PREFETCH_OP(PREG);
                 CPREG = PREG;
-                SREG = Y;
-                ENV = Y = (CELL *) Y[E_E];
+                SREG = YENV;
+                ENV = YENV = (CELL *) YENV[E_E];
                 GONext();
 #else /* TABLING_LOCAL_SCHEDULING */
                 /* fail */
@@ -611,11 +611,11 @@
       UNLOCK(SgFr_lock(sg_fr));
 #ifdef TABLING_BATCHED_SCHEDULING
       /* deallocate and procceed */
-      PREG = (yamop *) Y[E_CP];
+      PREG = (yamop *) YENV[E_CP];
       PREFETCH_OP(PREG);
       CPREG = PREG;
-      SREG = Y;
-      ENV = Y = (CELL *) Y[E_E];
+      SREG = YENV;
+      ENV = YENV = (CELL *) YENV[E_E];
       GONext();
 #else /* TABLING_LOCAL_SCHEDULING */
       /* fail */

@@ -47,7 +47,7 @@
         } else {                                \
           /* procceed */                        \
 	  PREG = (yamop *) CPREG;               \
-	  Y = ENV;                              \
+	  YENV = ENV;                              \
         }                                       \
         PREFETCH_OP(PREG);                      \
         GONext()
@@ -82,18 +82,18 @@
         ENV = B->cp_env;                              \
         YAPOR_update_alternative(PREG, (yamop *) AP)  \
         B->cp_ap = (yamop *) AP;                      \
-        Y = (CELL *) PROTECT_FROZEN_B(B);             \
-        SET_BB(NORM_CP(Y))
+        YENV = (CELL *) PROTECT_FROZEN_B(B);          \
+        SET_BB(NORM_CP(YENV)) 
 
 
-#define pop_trie_choice_point()                \
-        Y = (CELL *) PROTECT_FROZEN_B((B+1));  \
-        H = PROTECT_FROZEN_H(B);               \
-	CPREG = B->cp_cp;                      \
-        TABLING_close_alt(B);	               \
-        ENV = B->cp_env;                       \
-	B = B->cp_b;	                       \
-        HBREG = PROTECT_FROZEN_H(B);           \
+#define pop_trie_choice_point()                   \
+        YENV = (CELL *) PROTECT_FROZEN_B((B+1));  \
+        H = PROTECT_FROZEN_H(B);                  \
+	CPREG = B->cp_cp;                         \
+        TABLING_close_alt(B);	                  \
+        ENV = B->cp_env;                          \
+	B = B->cp_b;	                          \
+        HBREG = PROTECT_FROZEN_H(B);              \
         SET_BB(PROTECT_FROZEN_B(B))
 
 
@@ -129,16 +129,16 @@
           *((CELL *) var_ptr) = var_ptr;                        \
           aux_ptr += heap_arity + subs_arity + vars_arity + 1;  \
           for (i = 0; i < vars_arity; i++)                      \
-            *--Y = *aux_ptr--;                                  \
-          *--Y = var_ptr;                                       \
+            *--YENV = *aux_ptr--;                               \
+          *--YENV = var_ptr;                                       \
           for (i = 0; i < subs_arity; i++)                      \
-            *--Y = *aux_ptr--;                                  \
-          *--Y = subs_arity;                                    \
-          *--Y = vars_arity + 1;                                \
+            *--YENV = *aux_ptr--;                                  \
+          *--YENV = subs_arity;                                    \
+          *--YENV = vars_arity + 1;                                \
           aux_ptr--;                                            \
           for (i = 1; i < heap_arity; i++)                      \
-            *--Y = *--aux_ptr;                                  \
-          *--Y = heap_arity - 1;                                \
+            *--YENV = *--aux_ptr;                                  \
+          *--YENV = heap_arity - 1;                                \
           next_instruction(--heap_arity || subs_arity, node);   \
         } else {                                                \
           aux_ptr += 2 + subs_arity;                            \
@@ -146,17 +146,17 @@
           /* Bind((CELL *) var_ptr, var_ptr); */                \
           aux_ptr += vars_arity;                                \
           for (i = 0; i < subs_arity + vars_arity; i++)         \
-            *--Y = *aux_ptr--;                                  \
-          *--Y = subs_arity - 1;                                \
-          *--Y = vars_arity + 1;                                \
-          *--Y = 0;                                             \
+            *--YENV = *aux_ptr--;                                  \
+          *--YENV = subs_arity - 1;                                \
+          *--YENV = vars_arity + 1;                                \
+          *--YENV = 0;                                             \
           next_instruction(--subs_arity, node);                 \
         }
 
 
 #define no_cp_trie_val_instr()                                                        \
         if (heap_arity) {                                                             \
-          Y = ++aux_ptr;                                                              \
+          YENV = ++aux_ptr;                                                              \
           subs_ptr = aux_ptr + heap_arity + 1 + subs_arity + vars_arity - var_index;  \
           aux = *aux_ptr;                                                             \
           subs = *subs_ptr;                                                           \
@@ -219,8 +219,8 @@
           }                                                                           \
           aux_ptr += heap_arity + subs_arity + vars_arity + 1;                        \
           for (i = 0; i < heap_arity + subs_arity + vars_arity + 1; i++)              \
-            *--Y = *aux_ptr--;                                                        \
-          *--Y = heap_arity - 1;                                                      \
+            *--YENV = *aux_ptr--;                                                        \
+          *--YENV = heap_arity - 1;                                                      \
           next_instruction(--heap_arity || subs_arity, node);                         \
         } else {                                                                      \
           aux_ptr += 2 + subs_arity;                                                  \
@@ -249,19 +249,19 @@
           }                                                                           \
           aux_ptr += vars_arity;                                                      \
           for (i = 0; i < vars_arity; i++)                                            \
-            *--Y = *aux_ptr--;                                                        \
+            *--YENV = *aux_ptr--;                                                        \
           for (i = 1; i < subs_arity; i++)                                            \
-            *--Y = *--aux_ptr;                                                        \
-          *--Y = subs_arity - 1;                                                      \
-          *--Y = vars_arity;                                                          \
-          *--Y = 0;                                                                   \
+            *--YENV = *--aux_ptr;                                                        \
+          *--YENV = subs_arity - 1;                                                      \
+          *--YENV = vars_arity;                                                          \
+          *--YENV = 0;                                                                   \
           next_instruction(--subs_arity, node);                                       \
         }
 
 
 #define no_cp_trie_atom_instr()                                \
         if (heap_arity) {                                      \
-          Y = ++aux_ptr;                                       \
+          YENV = ++aux_ptr;                                       \
           /* *((CELL *) *aux_ptr) = TrNode_entry(node); */     \
           Bind_Global((CELL *) *aux_ptr, TrNode_entry(node));  \
           *aux_ptr = heap_arity - 1;                           \
@@ -286,20 +286,20 @@
           Bind_Global((CELL *) *aux_ptr, TrNode_entry(node));             \
           aux_ptr += heap_arity + subs_arity + vars_arity + 1;            \
           for (i = 0; i < heap_arity + subs_arity + vars_arity + 1; i++)  \
-            *--Y = *aux_ptr--;                                            \
-          *--Y = heap_arity - 1;                                          \
+            *--YENV = *aux_ptr--;                                            \
+          *--YENV = heap_arity - 1;                                          \
           next_instruction(--heap_arity || subs_arity, node);             \
         } else {                                                          \
           aux_ptr += 2 + subs_arity;                                      \
           Bind((CELL *) *aux_ptr, TrNode_entry(node));                    \
           aux_ptr += vars_arity;                                          \
           for (i = 0; i < vars_arity; i++)                                \
-            *--Y = *aux_ptr--;                                            \
+            *--YENV = *aux_ptr--;                                            \
           for (i = 1; i < subs_arity; i++)                                \
-            *--Y = *--aux_ptr;                                            \
-          *--Y = subs_arity - 1;                                          \
-          *--Y = vars_arity;                                              \
-          *--Y = 0;                                                       \
+            *--YENV = *--aux_ptr;                                            \
+          *--YENV = subs_arity - 1;                                          \
+          *--YENV = vars_arity;                                              \
+          *--YENV = 0;                                                       \
           next_instruction(--subs_arity, node);                           \
         }
 
@@ -313,13 +313,13 @@
           *aux_ptr-- = (CELL) (H - 1);                 \
           *aux_ptr-- = (CELL) (H - 2);                 \
           *aux_ptr = heap_arity - 1 + 2;               \
-          Y = aux_ptr;                                 \
+          YENV = aux_ptr;                                 \
         } else {                                       \
           H += 2;                                      \
           *aux_ptr-- = (CELL) (H - 1);                 \
           *aux_ptr-- = (CELL) (H - 2);                 \
           *aux_ptr = 2;                                \
-          Y = aux_ptr;                                 \
+          YENV = aux_ptr;                                 \
           aux_ptr += 2 + 2;                            \
           *aux_ptr = subs_arity - 1;                   \
           aux_ptr += subs_arity;                       \
@@ -339,25 +339,25 @@
           Bind_Global((CELL *) *aux_ptr, AbsPair(H));                     \
           aux_ptr += heap_arity + subs_arity + vars_arity + 1;            \
           for (i = 0; i < vars_arity + subs_arity + heap_arity + 1; i++)  \
-            *--Y = *aux_ptr--;                                            \
+            *--YENV = *aux_ptr--;                                            \
           H += 2;                                                         \
-          *--Y = (CELL) (H - 1);                                          \
-          *--Y = (CELL) (H - 2);                                          \
-          *--Y = heap_arity + 1;                                          \
+          *--YENV = (CELL) (H - 1);                                          \
+          *--YENV = (CELL) (H - 2);                                          \
+          *--YENV = heap_arity + 1;                                          \
         } else {                                                          \
           aux_ptr += 2 + subs_arity;                                      \
           Bind((CELL *) *aux_ptr, AbsPair(H));                            \
           aux_ptr += vars_arity;                                          \
           for (i = 0; i < vars_arity; i++)                                \
-            *--Y = *aux_ptr--;                                            \
+            *--YENV = *aux_ptr--;                                            \
           for (i = 1; i < subs_arity; i++)                                \
-            *--Y = *--aux_ptr;                                            \
-          *--Y = subs_arity - 1;                                          \
-          *--Y = vars_arity;                                              \
+            *--YENV = *--aux_ptr;                                            \
+          *--YENV = subs_arity - 1;                                          \
+          *--YENV = vars_arity;                                              \
           H += 2;                                                         \
-          *--Y = (CELL) (H - 1);                                          \
-          *--Y = (CELL) (H - 2);                                          \
-          *--Y = 2;                                                       \
+          *--YENV = (CELL) (H - 1);                                          \
+          *--YENV = (CELL) (H - 2);                                          \
+          *--YENV = 2;                                                       \
         }                                                                 \
         next_trie_instruction(node)
 
@@ -372,14 +372,14 @@
           for (i = 1; i <= func_arity; i++)                      \
             *aux_ptr-- = (CELL) (H - i);                         \
           *aux_ptr = heap_arity - 1 + func_arity;                \
-          Y = aux_ptr;                                           \
+          YENV = aux_ptr;                                           \
         } else {                                                 \
           *H++ = (CELL) func;                                    \
           H += func_arity;                                       \
           for (i = 1; i <= func_arity; i++)                      \
             *aux_ptr-- = (CELL) (H - i);                         \
           *aux_ptr = func_arity;                                 \
-          Y = aux_ptr;                                           \
+          YENV = aux_ptr;                                           \
           aux_ptr += func_arity + 2;                             \
           *aux_ptr = subs_arity - 1;                             \
           aux_ptr += subs_arity;                                 \
@@ -399,27 +399,27 @@
           Bind_Global((CELL *) *aux_ptr, AbsAppl(H));                     \
           aux_ptr += heap_arity + subs_arity + vars_arity + 1;            \
           for (i = 0; i < vars_arity + subs_arity + heap_arity + 1; i++)  \
-            *--Y = *aux_ptr--;                                            \
+            *--YENV = *aux_ptr--;                                            \
           *H++ = (CELL) func;                                             \
           H += func_arity;                                                \
           for (i = 1; i <= func_arity; i++)                               \
-            *--Y = (CELL) (H - i);                                        \
-          *--Y = heap_arity + func_arity - 1;                             \
+            *--YENV = (CELL) (H - i);                                        \
+          *--YENV = heap_arity + func_arity - 1;                             \
         } else {                                                          \
           aux_ptr += 2 + subs_arity;                                      \
           Bind((CELL *) *aux_ptr, AbsAppl(H));                            \
           aux_ptr += vars_arity;                                          \
           for (i = 0; i < vars_arity; i++)                                \
-            *--Y = *aux_ptr--;                                            \
+            *--YENV = *aux_ptr--;                                            \
           for (i = 1; i < subs_arity; i++)                                \
-            *--Y = *--aux_ptr;                                            \
-          *--Y = subs_arity - 1;                                          \
-          *--Y = vars_arity;                                              \
+            *--YENV = *--aux_ptr;                                            \
+          *--YENV = subs_arity - 1;                                          \
+          *--YENV = vars_arity;                                              \
           *H++ = (CELL) func;                                             \
           H += func_arity;                                                \
           for (i = 1; i <= func_arity; i++)                               \
-            *--Y = (CELL) (H - i);                                        \
-          *--Y = func_arity;                                              \
+            *--YENV = (CELL) (H - i);                                        \
+          *--YENV = func_arity;                                              \
         }                                                                 \
         next_trie_instruction(node)
 
@@ -431,7 +431,7 @@
 
   PBOp(trie_do_var, e)
     register ans_node_ptr node = (ans_node_ptr) PREG;
-    register CELL *aux_ptr = Y;
+    register CELL *aux_ptr = YENV;
     register CELL var_ptr;
     int heap_arity = *aux_ptr;
     int vars_arity = *(aux_ptr + heap_arity + 1);
@@ -444,14 +444,14 @@
 
   PBOp(trie_try_var, e)
     register ans_node_ptr node = (ans_node_ptr) PREG;
-    register CELL *aux_ptr = Y;
+    register CELL *aux_ptr = YENV;
     register CELL var_ptr;
     int heap_arity = *aux_ptr;
     int vars_arity = *(aux_ptr + heap_arity + 1);
     int subs_arity = *(aux_ptr + heap_arity + 2);
     int i;
 
-    store_trie_choice_point(Y, TrNode_next(node));
+    store_trie_choice_point(YENV, TrNode_next(node));
     cp_trie_var_instr();
   ENDPBOp();
 
@@ -487,7 +487,7 @@
 #endif /* YAPOR */
     {
       pop_trie_choice_point();
-      if ((choiceptr) Y == B_FZ) {
+      if ((choiceptr) YENV == B_FZ) {
         cp_trie_var_instr();
       } else {
         no_cp_trie_var_instr();
@@ -498,7 +498,7 @@
 
   PBOp(trie_do_val, e)
     register ans_node_ptr node = (ans_node_ptr) PREG;
-    register CELL *aux_ptr = Y, *subs_ptr;
+    register CELL *aux_ptr = YENV, *subs_ptr;
     register CELL aux, subs;
     int heap_arity = *aux_ptr;
     int vars_arity = *(aux_ptr + heap_arity + 1);
@@ -512,7 +512,7 @@
 
   PBOp(trie_try_val, e)
     register ans_node_ptr node = (ans_node_ptr) PREG;
-    register CELL *aux_ptr = Y, *subs_ptr;
+    register CELL *aux_ptr = YENV, *subs_ptr;
     register CELL aux, subs;
     int heap_arity = *aux_ptr;
     int vars_arity = *(aux_ptr + heap_arity + 1);
@@ -520,7 +520,7 @@
     int var_index = VarIndexOfTableTerm(TrNode_entry(node));
     int i;
 
-    store_trie_choice_point(Y, TrNode_next(node));
+    store_trie_choice_point(YENV, TrNode_next(node));
     cp_trie_val_instr();
   ENDPBOp();
 
@@ -558,7 +558,7 @@
 #endif /* YAPOR */
     {
       pop_trie_choice_point();
-      if ((choiceptr) Y == B_FZ) {
+      if ((choiceptr) YENV == B_FZ) {
         cp_trie_val_instr();
       } else {
         no_cp_trie_val_instr();
@@ -569,7 +569,7 @@
 
   PBOp(trie_do_atom, e)
     register ans_node_ptr node = (ans_node_ptr) PREG;
-    register CELL *aux_ptr = Y;
+    register CELL *aux_ptr = YENV;
     int heap_arity = *aux_ptr;
     int vars_arity = *(aux_ptr + heap_arity + 1);
     int subs_arity = *(aux_ptr + heap_arity + 2);
@@ -581,13 +581,13 @@
 
   PBOp(trie_try_atom, e)
     register ans_node_ptr node = (ans_node_ptr) PREG;
-    register CELL *aux_ptr = Y;
+    register CELL *aux_ptr = YENV;
     int heap_arity = *aux_ptr;
     int vars_arity = *(aux_ptr + heap_arity + 1);
     int subs_arity = *(aux_ptr + heap_arity + 2);
     int i;
 
-    store_trie_choice_point(Y, TrNode_next(node));
+    store_trie_choice_point(YENV, TrNode_next(node));
     cp_trie_atom_instr();
   ENDPBOp();
 
@@ -621,7 +621,7 @@
 #endif /* YAPOR */
     {
       pop_trie_choice_point();
-      if ((choiceptr) Y == B_FZ) {
+      if ((choiceptr) YENV == B_FZ) {
         cp_trie_atom_instr();
       } else {
         no_cp_trie_atom_instr();
@@ -632,7 +632,7 @@
 
   PBOp(trie_do_list, e)
     register ans_node_ptr node = (ans_node_ptr) PREG;
-    register CELL *aux_ptr = Y;
+    register CELL *aux_ptr = YENV;
     int heap_arity = *aux_ptr;
     int vars_arity = *(aux_ptr + heap_arity + 1);
     int subs_arity = *(aux_ptr + heap_arity + 2);
@@ -644,13 +644,13 @@
 
   PBOp(trie_try_list, e)
     register ans_node_ptr node = (ans_node_ptr) PREG;
-    register CELL *aux_ptr = Y;
+    register CELL *aux_ptr = YENV;
     int heap_arity = *aux_ptr;
     int vars_arity = *(aux_ptr + heap_arity + 1);
     int subs_arity = *(aux_ptr + heap_arity + 2);
     int i;
 
-    store_trie_choice_point(Y, TrNode_next(node));
+    store_trie_choice_point(YENV, TrNode_next(node));
     cp_trie_list_instr();
   ENDPBOp();
 
@@ -684,7 +684,7 @@
 #endif /* YAPOR */
     {
       pop_trie_choice_point();
-      if ((choiceptr) Y == B_FZ) {
+      if ((choiceptr) YENV == B_FZ) {
         cp_trie_list_instr();
       } else {
         no_cp_trie_list_instr();
@@ -695,7 +695,7 @@
 
   PBOp(trie_do_struct, e)
     register ans_node_ptr node = (ans_node_ptr) PREG;
-    register CELL *aux_ptr = Y;
+    register CELL *aux_ptr = YENV;
     int heap_arity = *aux_ptr;
     int vars_arity = *(aux_ptr + heap_arity + 1);
     int subs_arity = *(aux_ptr + heap_arity + 2);
@@ -709,7 +709,7 @@
 
   PBOp(trie_try_struct, e)
     register ans_node_ptr node = (ans_node_ptr) PREG;
-    register CELL *aux_ptr = Y;
+    register CELL *aux_ptr = YENV;
     int heap_arity = *aux_ptr;
     int vars_arity = *(aux_ptr + heap_arity + 1);
     int subs_arity = *(aux_ptr + heap_arity + 2);
@@ -717,7 +717,7 @@
     int func_arity = ArityOfFunctor(func);
     int i;
 
-    store_trie_choice_point(Y, TrNode_next(node));
+    store_trie_choice_point(YENV, TrNode_next(node));
     cp_trie_struct_instr();
   ENDPBOp();
 
@@ -755,7 +755,7 @@
 #endif /* YAPOR */
     {
       pop_trie_choice_point();
-      if ((choiceptr) Y == B_FZ) {
+      if ((choiceptr) YENV == B_FZ) {
         cp_trie_struct_instr();
       } else {
         no_cp_trie_struct_instr();

@@ -127,7 +127,7 @@ void map_memory(long HeapArea, long GlobalLocalArea, long TrailAuxArea, int n_wo
   TrailAuxArea = ADJUST_SIZE(TrailAuxArea * KBYTES);
 
   /* we'll need this later */
-  _YAP_GlobalBase = mmap_addr + HeapArea;
+  Yap_GlobalBase = mmap_addr + HeapArea;
 
   /* model dependent */
   /* shared memory allocation */
@@ -168,14 +168,14 @@ void map_memory(long HeapArea, long GlobalLocalArea, long TrailAuxArea, int n_wo
   /* just allocate local space for stacks */
   if ((private_fd_mapfile = open("/dev/zero", O_RDWR)) < 0)
     abort_optyap("open error in function map_memory: %s", strerror(errno));
-  if (mmap(_YAP_GlobalBase, GlobalLocalArea + TrailAuxArea, PROT_READ|PROT_WRITE, 
+  if (mmap(Yap_GlobalBase, GlobalLocalArea + TrailAuxArea, PROT_READ|PROT_WRITE, 
            MAP_PRIVATE|MAP_FIXED, private_fd_mapfile, 0) == (void *) -1)
     abort_optyap("mmap error in function map_memory: %s", strerror(errno));
   close(private_fd_mapfile);
 #else /* ENV_COPY or SBA */
   for (i = 0; i < n_workers; i++) {
     /* initialize worker vars */
-    worker_area(i) = _YAP_GlobalBase + i * WorkerArea;
+    worker_area(i) = Yap_GlobalBase + i * WorkerArea;
     worker_offset(i) = worker_area(i) - worker_area(0);
 #ifdef SHM_MEMORY_MAPPING_SCHEME
     /* mapping worker area */
@@ -199,22 +199,22 @@ void map_memory(long HeapArea, long GlobalLocalArea, long TrailAuxArea, int n_wo
   if ((CELL)binding_array & MBIT) {
     abort_optyap("OOPS: binding_array start address %p conflicts with tag %x used in IDB", binding_array, MBIT);
   }
-  sba_offset = binding_array - _YAP_GlobalBase;
+  sba_offset = binding_array - Yap_GlobalBase;
   sba_end = (int)binding_array + sba_size;
 #endif /* SBA */
-  _YAP_TrailBase = _YAP_GlobalBase + GlobalLocalArea;
-  _YAP_LocalBase = _YAP_TrailBase - CellSize;
+  Yap_TrailBase = Yap_GlobalBase + GlobalLocalArea;
+  Yap_LocalBase = Yap_TrailBase - CellSize;
 
 
   if (TrailAuxArea > 262144)                       /* 262144 = 256 * 1024 */ 
-    TrailTop = TrailBase + TrailAuxArea - 131072;  /* 131072 = 262144 / 2 */ 
+    Yap_TrailTop = Yap_TrailBase + TrailAuxArea - 131072;  /* 131072 = 262144 / 2 */ 
   else
-    TrailTop = TrailBase + TrailAuxArea / 2;
+    Yap_TrailTop = Yap_TrailBase + TrailAuxArea / 2;
 
 
-  AuxTop = _YAP_TrailBase + TrailAuxArea - CellSize;
+  AuxTop = Yap_TrailBase + TrailAuxArea - CellSize;
   AuxSp = (CELL *) AuxTop;
-  _YAP_InitHeap(mmap_addr);
+  Yap_InitHeap(mmap_addr);
   BaseWorkArea = mmap_addr;
 
 }
@@ -292,10 +292,10 @@ void remap_memory(void) {
   /* setup workers so that they have different areas */
   long WorkerArea = worker_offset(1);
 
-  _YAP_GlobalBase += worker_id * WorkerArea;
-  _YAP_TrailBase += worker_id * WorkerArea;
-  _YAP_LocalBase += worker_id * WorkerArea;
-  _YAP_TrailTop += worker_id * WorkerArea;
+  Yap_GlobalBase += worker_id * WorkerArea;
+  Yap_TrailBase += worker_id * WorkerArea;
+  Yap_LocalBase += worker_id * WorkerArea;
+  Yap_TrailTop += worker_id * WorkerArea;
   AuxTop += worker_id * WorkerArea;
   AuxSp = (CELL *) AuxTop; 
 #endif /* SBA */
@@ -360,7 +360,7 @@ void *alloc_memory_block(int size) {
 void free_memory_block(void *block) {
 #if USE_HEAP_FOR_ALLOC_MEMORY_BLOCKS
   LOCK(Pg_lock(GLOBAL_PAGES_void));
-  FreeCodeSpace((char *) block);
+  Yap_FreeCodeSpace((char *) block);
   UNLOCK(Pg_lock(GLOBAL_PAGES_void));
 #endif /* USE_HEAP_FOR_ALLOC_MEMORY_BLOCKS */
 }
