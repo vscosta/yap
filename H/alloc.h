@@ -74,6 +74,9 @@ typedef	struct FREEB {
 
 #define ALIGN_YAPTYPE(X,TYPE) (((CELL)(X)+(sizeof(TYPE)-1)) & ~(sizeof(TYPE)-1))
 
+/* SIZE should be a power of 2 */
+#define ALIGN_SIZE(X,SIZE) (((CELL)(X)+((SIZE)-1)) & ~((SIZE)-1))
+
 /* I'll assume page size is always a power of two */
 #define AdjustPageSize(X)  ((X) & (Yap_page_size-1) ? \
       ((X) + Yap_page_size) & (~(Yap_page_size-1)) :      \

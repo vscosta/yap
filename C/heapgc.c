@@ -674,17 +674,17 @@ inc_vars_of_type(CELL *curr,gc_types val) {
 static void
 put_type_info(unsigned long total)
 {
-  fprintf(Yap_stderr,"[GC]  type info for %lu cells\n", total);
-  fprintf(Yap_stderr,"[GC]      %lu vars\n", vars[gc_var]);
-  fprintf(Yap_stderr,"[GC]      %lu refs\n", vars[gc_ref]);
-  fprintf(Yap_stderr,"[GC]      %lu references from env\n", env_vars);
-  fprintf(Yap_stderr,"[GC]      %lu atoms\n", vars[gc_atom]);
-  fprintf(Yap_stderr,"[GC]      %lu small ints\n", vars[gc_int]);
-  fprintf(Yap_stderr,"[GC]      %lu other numbers\n", vars[gc_num]);
-  fprintf(Yap_stderr,"[GC]      %lu lists\n", vars[gc_list]);
-  fprintf(Yap_stderr,"[GC]      %lu compound terms\n", vars[gc_appl]);
-  fprintf(Yap_stderr,"[GC]      %lu functors\n", vars[gc_func]);
-  fprintf(Yap_stderr,"[GC]      %lu suspensions\n", vars[gc_susp]);
+  fprintf(Yap_stderr,"%%  type info for %lu cells\n", total);
+  fprintf(Yap_stderr,"%%      %lu vars\n", vars[gc_var]);
+  fprintf(Yap_stderr,"%%      %lu refs\n", vars[gc_ref]);
+  fprintf(Yap_stderr,"%%      %lu references from env\n", env_vars);
+  fprintf(Yap_stderr,"%%      %lu atoms\n", vars[gc_atom]);
+  fprintf(Yap_stderr,"%%      %lu small ints\n", vars[gc_int]);
+  fprintf(Yap_stderr,"%%      %lu other numbers\n", vars[gc_num]);
+  fprintf(Yap_stderr,"%%      %lu lists\n", vars[gc_list]);
+  fprintf(Yap_stderr,"%%      %lu compound terms\n", vars[gc_appl]);
+  fprintf(Yap_stderr,"%%      %lu functors\n", vars[gc_func]);
+  fprintf(Yap_stderr,"%%      %lu suspensions\n", vars[gc_susp]);
 }
 
 static void
@@ -1445,11 +1445,11 @@ mark_choicepoints(register choiceptr gc_B, tr_fr_ptr saved_TR, int very_verbose)
 	  Term mod;
 	  if (Yap_PredForCode(gc_B->cp_ap, &at, &arity, &mod)) {
 	    if (arity) 
-	      fprintf(Yap_stderr,"[GC]       %s/%ld marked %ld (%s)\n", RepAtom(at)->StrOfAE, (long int)arity, total_marked, op_names[opnum]);
+	      fprintf(Yap_stderr,"%%       %s/%ld marked %ld (%s)\n", RepAtom(at)->StrOfAE, (long int)arity, total_marked, op_names[opnum]);
 	    else
-	      fprintf(Yap_stderr,"[GC]       %s marked %ld (%s)\n", RepAtom(at)->StrOfAE, total_marked, op_names[opnum]);
+	      fprintf(Yap_stderr,"%%       %s marked %ld (%s)\n", RepAtom(at)->StrOfAE, total_marked, op_names[opnum]);
 	  } else
-	    fprintf(Yap_stderr,"[GC]       marked %ld (%s)\n", total_marked, op_names[opnum]);
+	    fprintf(Yap_stderr,"%%       marked %ld (%s)\n", total_marked, op_names[opnum]);
 	}
 	break;
 #ifdef TABLING
@@ -1460,9 +1460,9 @@ mark_choicepoints(register choiceptr gc_B, tr_fr_ptr saved_TR, int very_verbose)
 	  op_numbers caller_op = Yap_op_from_opcode(ENV_ToOp(gc_B->cp_cp));
 	  /* first condition  checks if this was a meta-call */
 	  if ((caller_op != _call  && caller_op != _fcall) || pe == NULL) {
-	    fprintf(Yap_stderr,"[GC]       marked %ld (%s)\n", total_marked, op_names[opnum]);
+	    fprintf(Yap_stderr,"%%       marked %ld (%s)\n", total_marked, op_names[opnum]);
 	  } else
-	    fprintf(Yap_stderr,"[GC]       %s/%d marked %ld (%s)\n", RepAtom(NameOfFunctor(pe->FunctorOfPred))->StrOfAE, pe->ArityOfPE, total_marked, op_names[opnum]);
+	    fprintf(Yap_stderr,"%%       %s/%d marked %ld (%s)\n", RepAtom(NameOfFunctor(pe->FunctorOfPred))->StrOfAE, pe->ArityOfPE, total_marked, op_names[opnum]);
 	}
 	break;
       case _trie_retry_var:
@@ -1475,19 +1475,19 @@ mark_choicepoints(register choiceptr gc_B, tr_fr_ptr saved_TR, int very_verbose)
       case _trie_trust_list:
       case _trie_retry_struct:
       case _trie_trust_struct:
-	fprintf(Yap_stderr,"[GC]       marked %ld (%s)\n", total_marked, op_names[opnum]);
+	fprintf(Yap_stderr,"%%       marked %ld (%s)\n", total_marked, op_names[opnum]);
 	break;
 #endif
       default:
 	{
 	  PredEntry *pe = (PredEntry *)gc_B->cp_ap->u.ld.p;
 	  if (pe == NULL) {
-	    fprintf(Yap_stderr,"[GC]       marked %ld (%s)\n", total_marked, op_names[opnum]);
+	    fprintf(Yap_stderr,"%%       marked %ld (%s)\n", total_marked, op_names[opnum]);
 	  } else
 	    if (pe->ArityOfPE)
-	      fprintf(Yap_stderr,"[GC]       %s/%d marked %ld (%s)\n", RepAtom(NameOfFunctor(pe->FunctorOfPred))->StrOfAE, pe->ArityOfPE, total_marked, op_names[opnum]);
+	      fprintf(Yap_stderr,"%%       %s/%d marked %ld (%s)\n", RepAtom(NameOfFunctor(pe->FunctorOfPred))->StrOfAE, pe->ArityOfPE, total_marked, op_names[opnum]);
 	    else
-	      fprintf(Yap_stderr,"[GC]       %s marked %ld (%s)\n", RepAtom((Atom)(pe->FunctorOfPred))->StrOfAE, total_marked, op_names[opnum]);
+	      fprintf(Yap_stderr,"%%       %s marked %ld (%s)\n", RepAtom((Atom)(pe->FunctorOfPred))->StrOfAE, total_marked, op_names[opnum]);
 	}
       }
     }
@@ -2019,26 +2019,26 @@ sweep_trail(choiceptr gc_B, tr_fr_ptr old_TR)
   if (is_gc_verbose()) {
     if (old_TR != (tr_fr_ptr)Yap_TrailBase)
       fprintf(Yap_stderr,
-		 "[GC]       Trail: discarded %d (%ld%%) cells out of %ld\n",
+		 "%%       Trail: discarded %d (%ld%%) cells out of %ld\n",
 		 discard_trail_entries,
 		 (unsigned long int)(discard_trail_entries*100/(old_TR-(tr_fr_ptr)Yap_TrailBase)),
 		 (unsigned long int)(old_TR-(tr_fr_ptr)Yap_TrailBase));
 #ifdef DEBUG
     if (hp_entrs > 0)
       fprintf(Yap_stderr,
-		 "[GC]       Trail: unmarked %ld dbentries (%ld%%) out of %ld\n",
+		 "%%       Trail: unmarked %ld dbentries (%ld%%) out of %ld\n",
 		 (long int)hp_not_in_use,
 		 (long int)(hp_not_in_use*100/hp_entrs),
 		 (long int)hp_entrs);
     if (hp_in_use_erased > 0 && hp_erased > 0)
       fprintf(Yap_stderr,
-		 "[GC]       Trail: deleted %ld dbentries (%ld%%) out of %ld\n",
+		 "%%       Trail: deleted %ld dbentries (%ld%%) out of %ld\n",
 		 (long int)hp_erased,
 		 (long int)(hp_erased*100/(hp_erased+hp_in_use_erased)),
 		 (long int)(hp_erased+hp_in_use_erased));
 #endif
     fprintf(Yap_stderr,
-	       "[GC]       Heap: recovered %ld bytes (%ld%%) out of %ld\n",
+	       "%%       Heap: recovered %ld bytes (%ld%%) out of %ld\n",
 	       (unsigned long int)(OldHeapUsed-HeapUsed),
 	       (unsigned long int)((OldHeapUsed-HeapUsed)/(OldHeapUsed/100)),
 	       (unsigned long int)OldHeapUsed);
@@ -2609,7 +2609,7 @@ compact_heap(void)
 
 #ifdef DEBUG
   if (total_marked != found_marked)
-    fprintf(Yap_stderr,"[GC] Upward (%d): %ld total against %ld found\n",
+    fprintf(Yap_stderr,"%% Upward (%d): %ld total against %ld found\n",
 	       gc_calls,
 	       (unsigned long int)total_marked,
 	       (unsigned long int)found_marked);
@@ -2667,7 +2667,7 @@ compact_heap(void)
   }
 #ifdef DEBUG
   if (total_marked != found_marked)
-    fprintf(Yap_stderr,"[GC] Downward (%d): %ld total against %ld found\n",
+    fprintf(Yap_stderr,"%% Downward (%d): %ld total against %ld found\n",
 	       gc_calls,
 	       (unsigned long int)total_marked,
 	       (unsigned long int)found_marked);
@@ -2801,7 +2801,7 @@ icompact_heap(void)
 
 #ifdef DEBUG
   if (total_marked != found_marked)
-    fprintf(Yap_stderr,"[GC] Upward (%d): %ld total against %ld found\n",
+    fprintf(Yap_stderr,"%% Upward (%d): %ld total against %ld found\n",
 	       gc_calls,
 	       (unsigned long int)total_marked,
 	       (unsigned long int)found_marked);
@@ -2856,7 +2856,7 @@ icompact_heap(void)
   }
 #ifdef DEBUG
   if (total_marked != found_marked)
-    fprintf(Yap_stderr,"[GC] Downward (%d): %ld total against %ld found\n",
+    fprintf(Yap_stderr,"%% Downward (%d): %ld total against %ld found\n",
 	       gc_calls,
 	       (unsigned long int)total_marked,
 	       (unsigned long int)found_marked);
@@ -2961,12 +2961,12 @@ compaction_phase(tr_fr_ptr old_TR, CELL *current_env, yamop *curp, CELL *max)
       -total_smarked
 #endif
       != iptop-(CELL_PTR *)H && iptop < (CELL_PTR *)ASP -1024)
-    fprintf(Yap_stderr,"[GC] Oops on iptop-H (%ld) vs %ld\n", (unsigned long int)(iptop-(CELL_PTR *)H), total_marked);
+    fprintf(Yap_stderr,"%% Oops on iptop-H (%ld) vs %ld\n", (unsigned long int)(iptop-(CELL_PTR *)H), total_marked);
 #endif
   if (iptop < (CELL_PTR *)ASP && 10*total_marked < H-H0) {
 #ifdef INSTRUMENT_GC
     int effectiveness = (((H-H0)-total_marked)*100)/(H-H0);
-    fprintf(Yap_stderr,"[GC] using pointers (%d)\n", effectiveness);
+    fprintf(Yap_stderr,"%% using pointers (%d)\n", effectiveness);
 #endif
     quicksort((CELL_PTR *)H, 0, (iptop-(CELL_PTR *)H)-1);
     adjust_cp_hbs();
@@ -2977,7 +2977,7 @@ compaction_phase(tr_fr_ptr old_TR, CELL *current_env, yamop *curp, CELL *max)
 #ifdef DEBUG
 #ifdef HYBID_SCHEME
       int effectiveness = (((H-H0)-total_marked)*100)/(H-H0);
-      fprintf(stderr,"[GC] not using pointers (%d) ASP: %p, ip %p (expected %p) \n", effectiveness, ASP, iptop, H+total_marked);
+      fprintf(stderr,"%% not using pointers (%d) ASP: %p, ip %p (expected %p) \n", effectiveness, ASP, iptop, H+total_marked);
 #endif
 #endif
       compact_heap();
@@ -3040,21 +3040,21 @@ do_gc(Int predarity, CELL *current_env, yamop *nextop)
   if ((CELL)Yap_TrailTop & (MBIT|RBIT)) {
     /* oops, we can't */
     if (gc_verbose) {
-      fprintf(Yap_stderr, "[GC] TrailTop at %p clashes with gc bits: %lx\n", Yap_TrailTop, (unsigned long int)(MBIT|RBIT));
-      fprintf(Yap_stderr, "[GC] garbage collection disallowed\n");
+      fprintf(Yap_stderr, "%% TrailTop at %p clashes with gc bits: %lx\n", Yap_TrailTop, (unsigned long int)(MBIT|RBIT));
+      fprintf(Yap_stderr, "%% garbage collection disallowed\n");
     }
     return(0);
   }
   if (gc_trace) {
     fprintf(Yap_stderr, "[gc]\n");
   } else if (gc_verbose) {
-    fprintf(Yap_stderr, "[GC] Start of garbage collection %d:\n", gc_calls);
+    fprintf(Yap_stderr, "%% Start of garbage collection %d:\n", gc_calls);
 #ifndef EARLY_RESET
-    fprintf(Yap_stderr, "[GC] no early reset in trail\n");
+    fprintf(Yap_stderr, "%% no early reset in trail\n");
 #endif
-    fprintf(Yap_stderr, "[GC]       Global: %8ld cells (%p-%p)\n", (long int)heap_cells,H0,H);
-    fprintf(Yap_stderr, "[GC]       Local:%8ld cells (%p-%p)\n", (unsigned long int)(LCL0-ASP),LCL0,ASP);
-    fprintf(Yap_stderr, "[GC]       Trail:%8ld cells (%p-%p)\n",
+    fprintf(Yap_stderr, "%%       Global: %8ld cells (%p-%p)\n", (long int)heap_cells,H0,H);
+    fprintf(Yap_stderr, "%%       Local:%8ld cells (%p-%p)\n", (unsigned long int)(LCL0-ASP),LCL0,ASP);
+    fprintf(Yap_stderr, "%%       Trail:%8ld cells (%p-%p)\n",
 	       (unsigned long int)(TR-(tr_fr_ptr)Yap_TrailBase),Yap_TrailBase,TR);
   }
 #if !USE_SYSTEM_MALLOC
@@ -3089,19 +3089,19 @@ do_gc(Int predarity, CELL *current_env, yamop *nextop)
   else
     effectiveness = 0;
   if (gc_verbose) {
-    fprintf(Yap_stderr, "[GC]   Mark: Recovered %ld cells of %ld (%ld%%) in %g sec\n",
+    fprintf(Yap_stderr, "%%   Mark: Recovered %ld cells of %ld (%ld%%) in %g sec\n",
 	       (long int)(heap_cells-total_marked), (long int)heap_cells, (long int)effectiveness, (double)(m_time-time_start)/1000);
 #ifdef INSTRUMENT_GC
     {
       int i;
       for (i=0; i<16; i++) {
 	if (chain[i]) {
-	  fprintf(Yap_stderr, "[GC]     chain[%d]=%lu\n", i, chain[i]);
+	  fprintf(Yap_stderr, "%%     chain[%d]=%lu\n", i, chain[i]);
 	}
       }
       put_type_info((unsigned long int)total_marked);
-      fprintf(Yap_stderr,"[GC]  %lu/%ld before and %lu/%ld after\n", old_vars, (unsigned long int)(B->cp_h-H0), new_vars, (unsigned long int)(H-B->cp_h));
-      fprintf(Yap_stderr,"[GC]  %ld choicepoints\n", num_bs);
+      fprintf(Yap_stderr,"%%  %lu/%ld before and %lu/%ld after\n", old_vars, (unsigned long int)(B->cp_h-H0), new_vars, (unsigned long int)(H-B->cp_h));
+      fprintf(Yap_stderr,"%%  %ld choicepoints\n", num_bs);
     }
 #endif
   }
@@ -3113,14 +3113,14 @@ do_gc(Int predarity, CELL *current_env, yamop *nextop)
   YAPLeaveCriticalSection();
   c_time = Yap_cputime();
   if (gc_verbose) {
-    fprintf(Yap_stderr, "[GC]   Compress: took %g sec\n", (double)(c_time-time_start)/1000);
+    fprintf(Yap_stderr, "%%   Compress: took %g sec\n", (double)(c_time-time_start)/1000);
   }
   gc_time += (c_time-time_start);
   tot_gc_time += gc_time;
   tot_gc_recovered += heap_cells-total_marked;
   if (gc_verbose) {
-    fprintf(Yap_stderr, "[GC] GC %d took %g sec, total of %g sec doing GC so far.\n", gc_calls, (double)gc_time/1000, (double)tot_gc_time/1000);
-    fprintf(Yap_stderr, "[GC]   Left %ld cells free in stacks.\n",
+    fprintf(Yap_stderr, "%% GC %d took %g sec, total of %g sec doing GC so far.\n", gc_calls, (double)gc_time/1000, (double)tot_gc_time/1000);
+    fprintf(Yap_stderr, "%%  Left %ld cells free in stacks.\n",
 	       (unsigned long int)(ASP-H));
   }
   check_global();

@@ -10,7 +10,7 @@
 * File:		Heap.h         						 *
 * mods:									 *
 * comments:	Heap Init Structure					 *
-* version:      $Id: Heap.h,v 1.64 2004-07-22 21:32:21 vsc Exp $	 *
+* version:      $Id: Heap.h,v 1.65 2004-09-03 03:11:09 vsc Exp $	 *
 *************************************************************************/
 
 /* information that can be stored in Code Space */
@@ -361,6 +361,7 @@ typedef struct various_codes {
 #ifdef DEBUG
   struct logic_upd_clause *db_erased_list;
   struct logic_upd_index *db_erased_ilist;
+  UInt expand_clauses_sz;
 #endif /* DEBUG */
   struct stream_desc *yap_streams;
 #ifdef DEBUG
@@ -610,6 +611,7 @@ struct various_codes *heap_regs;
 #ifdef DEBUG
 #define  DBErasedList             heap_regs->db_erased_list
 #define  DBErasedIList            heap_regs->db_erased_ilist
+#define  Yap_expand_clauses_sz    heap_regs->expand_clauses_sz
 #endif /* DEBUG */
 #define  Stream		          heap_regs->yap_streams
 #define  output_msg	          heap_regs->debugger_output_msg

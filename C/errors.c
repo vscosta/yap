@@ -297,7 +297,7 @@ dump_stack(void)
     fprintf(stderr,"%% YAP ERROR: Code Space Collided against Global\n");
   } else {
     if (b_ptr != NULL) {
-      fprintf(stderr," [ Goals with open alternatives:\n");
+      fprintf(stderr," %% Goals with open alternatives:\n");
       while (b_ptr != NULL) {
 	cl_position(b_ptr->cp_ap);
 	b_ptr = b_ptr->cp_b;
@@ -305,7 +305,7 @@ dump_stack(void)
       fprintf(stderr,"\n");
     }
     if (env_ptr != NULL) {
-      fprintf(stderr," [ Goals left to continue:\n");
+      fprintf(stderr," %% Goals left to continue:\n");
       while (env_ptr != NULL) {
 	cl_position((yamop *)(env_ptr[E_CP]));
 	env_ptr = (CELL *)(env_ptr[E_E]);      
@@ -346,7 +346,7 @@ bug_location(yamop *pc)
 static char tmpbuf[YAP_BUF_SIZE];
 
 yamop *
-Yap_Error (yap_error_number type, Term where, char *format,...)
+Yap_Error(yap_error_number type, Term where, char *format,...)
 {
   va_list ap;
   CELL nt[3];

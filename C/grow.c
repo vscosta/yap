@@ -944,7 +944,8 @@ execute_growstack(long size0, int from_trail)
   
   if (!Yap_ExtendWorkSpace(size)) {
     /* make sure stacks and trail are contiguous */
-    Int minimal_request = AdjustPageSize(((CELL)Yap_TrailTop-(CELL)Yap_GlobalBase)+4*MinHeapGap+size0);
+
+    minimal_request = AdjustPageSize(((CELL)Yap_TrailTop-(CELL)Yap_GlobalBase)+4*MinHeapGap+size0);
 
     size = Yap_ExtendWorkSpaceThroughHole(minimal_request);
     if (size < 0) {

@@ -12,7 +12,7 @@
 * Last rev:								 *
 * mods:									 *
 * comments:	allocating space					 *
-* version:$Id: alloc.c,v 1.56 2004-08-11 16:14:51 vsc Exp $		 *
+* version:$Id: alloc.c,v 1.57 2004-09-03 03:11:07 vsc Exp $		 *
 *************************************************************************/
 #ifdef SCCS
 static char SccsId[] = "%W% %G%";
@@ -398,6 +398,7 @@ AllocHeap(unsigned int size)
 {
   BlockHeader *b, *n;
   YAP_SEG_SIZE *sp;
+  UInt align, extra;
 
   /*  {
     static long long int vsc_alloc_ops;
@@ -406,26 +407,23 @@ AllocHeap(unsigned int size)
     while (q) q = q->b_next_size;
     }*/
 
-  size += 2*sizeof(YAP_SEG_SIZE);
+  extra = size/16;
 #if SIZEOF_INT_P==4
-  size = (((size + 7) & 0xfffffff8L) >> 2);	/* size in dwords + 2 */
+  align = 2*sizeof(CELL);	/* size in dwords + 2 */
 #endif
 #if SIZEOF_INT_P==8
-  size = (((size + 7) & 0xfffffffffffffff8LL) >> 3);	/* size in dwords + 2 */
+  align = sizeof(CELL);
 #endif
-  if (size < (sizeof(YAP_SEG_SIZE)+sizeof(BlockHeader))/sizeof(CELL))
-    size = (sizeof(YAP_SEG_SIZE)+sizeof(BlockHeader))/sizeof(CELL);
-#if SIZEOF_INT_P==4
-  /*  
-      guarantee that the space seen by the user is always aligned at multiples
-      of a double word. This improves alignment, and guarantees correctness
-      for machines which require aligned 64 bits, such as SPARCs.
-   */
-  if ((size & 1) == 0) size++;
-#endif
+  while (align < extra) align *= 2;
+  size = ALIGN_SIZE(size,align);
+  if (size < sizeof(BlockHeader))
+    size = sizeof(BlockHeader);
+  size += sizeof(YAP_SEG_SIZE);
+  /* change units to cells */
+  size = size/sizeof(CELL);
   LOCK(FreeBlocksLock);
   if ((b = GetBlock(size))) {
-    if (b->b_size >= size + 6 + 1) {
+    if (b->b_size >= size+24+1) {
       n = (BlockHeader *) (((YAP_SEG_SIZE *) b) + size + 1);
       n->b_size = b->b_size - size - 1;
       b->b_size = size;

@@ -1511,7 +1511,6 @@ CreateDBStruct(Term Tm, DBProp p, int InFlag, int *pstat, UInt extra_size, struc
        */
       flag = DBComplex;
 #ifdef IDB_LINK_TABLE
-      CodeAbs++;	/* We have one more cell */
       CodeAbs += CellPtr(dbg->lr) - CellPtr(dbg->LinkAr);
       if ((CELL *)((char *)ntp0+(CELL)CodeAbs) > AuxSp) {
 	Yap_Error_Size = (UInt)DBLength(CodeAbs);
@@ -1612,7 +1611,7 @@ CreateDBStruct(Term Tm, DBProp p, int InFlag, int *pstat, UInt extra_size, struc
 	nar = (Term *) cpcells(CellPtr(ppt->Contents), ntp0, Unsigned(NOfCells));
       } else {
 #ifdef IDB_LINK_TABLE
-	nar = ppt->Contents + Unsigned(NOfCells)+1;
+	nar = ppt->Contents + Unsigned(NOfCells);
 #endif
 #ifdef IDB_USE_MBIT
 	/* we still need to link */
@@ -3710,7 +3709,8 @@ p_heap_space_info(void)
 {
   return
     Yap_unify(ARG1,MkIntegerTerm(HeapUsed)) &&
-    Yap_unify(ARG2,MkIntegerTerm(HeapMax-HeapUsed));
+    Yap_unify(ARG2,MkIntegerTerm(HeapMax-HeapUsed)) &&
+    Yap_unify(ARG3,MkIntegerTerm(Yap_expand_clauses_sz));
 }
 
 #endif
@@ -5079,7 +5079,7 @@ Yap_InitDBPreds(void)
 #ifdef DEBUG
   Yap_InitCPred("total_erased", 4, p_total_erased, SyncPredFlag);
   Yap_InitCPred("key_erased_statistics", 5, p_key_erased_statistics, SyncPredFlag);
-  Yap_InitCPred("heap_space_info", 2, p_heap_space_info, SyncPredFlag);
+  Yap_InitCPred("heap_space_info", 3, p_heap_space_info, SyncPredFlag);
 #endif
   Yap_InitCPred("nth_instance", 3, p_nth_instance, SyncPredFlag);
   Yap_InitCPred("$nth_instancep", 3, p_nth_instancep, SyncPredFlag);

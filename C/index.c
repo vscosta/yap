@@ -11,8 +11,11 @@
 * File:		index.c							 *
 * comments:	Indexing a Prolog predicate				 *
 *									 *
-* Last rev:     $Date: 2004-08-27 20:18:52 $,$Author: vsc $						 *
+* Last rev:     $Date: 2004-09-03 03:11:09 $,$Author: vsc $						 *
 * $Log: not supported by cvs2svn $
+* Revision 1.96  2004/08/27 20:18:52  vsc
+* more small fixes
+*
 * Revision 1.95  2004/08/11 16:14:52  vsc
 * whole lot of fixes:
 *   - memory leak in indexing
@@ -137,6 +140,9 @@ cleanup_sw_on_clauses(CELL larg, UInt sz, OPCODE ecls)
     if (xp->opc == ecls) {
       if (xp->u.sp.s3 == 1) {
 	UInt nsz = sz + (UInt)(NEXTOP((yamop *)NULL,sp)+xp->u.sp.s1*sizeof(yamop *));
+#if DEBUG
+	Yap_expand_clauses_sz -= (UInt)(NEXTOP((yamop *)NULL,sp)+xp->u.sp.s1*sizeof(yamop *));
+#endif
 	Yap_FreeCodeSpace((char *)xp);
 	return nsz;
       } else {
@@ -2917,6 +2923,9 @@ suspend_indexing(ClauseDef *min, ClauseDef *max, PredEntry *ap, struct intermedi
     yamop **st;
     UInt sz = (UInt)(NEXTOP((yamop *)NULL,sp)+cls*sizeof(yamop *));
 
+#if DEBUG
+    Yap_expand_clauses_sz += sz;
+#endif
     if ((ncode = (yamop *)Yap_AllocCodeSpace(sz)) == NULL) {
       Yap_Error_Size = recover_from_failed_susp_on_cls(cint, sz);
       longjmp(cint->CompilerBotch, 2);
@@ -2941,6 +2950,9 @@ recover_ecls_block(yamop *ipc)
 {
   ipc->u.sp.s3--;
   if (!ipc->u.sp.s3) {
+#if DEBUG
+	Yap_expand_clauses_sz -= (UInt)(NEXTOP((yamop *)NULL,sp)+ipc->u.sp.s1*sizeof(yamop *));
+#endif
     Yap_FreeCodeSpace((char *)ipc);
   }
 }

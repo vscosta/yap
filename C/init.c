@@ -1043,6 +1043,9 @@ InitCodes(void)
   heap_regs->db_erased_marker->Parent = NULL;
   INIT_LOCK(heap_regs->db_erased_marker->lock);
   INIT_DBREF_COUNT(heap_regs->db_erased_marker);
+#if DEBUG
+  heap_regs->expand_clauses_sz = 0L;
+#endif
 }
 
 

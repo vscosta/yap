@@ -11,8 +11,12 @@
 * File:		compiler.c						 *
 * comments:	Clause compiler						 *
 *									 *
-* Last rev:     $Date: 2004-07-15 17:20:23 $,$Author: vsc $						 *
+* Last rev:     $Date: 2004-09-03 03:11:08 $,$Author: vsc $						 *
 * $Log: not supported by cvs2svn $
+* Revision 1.52  2004/07/15 17:20:23  vsc
+* fix error message
+* change makefile and configure for clpbn
+*
 * Revision 1.51  2004/06/29 19:04:41  vsc
 * fix multithreaded version
 * include new version of Ricardo's profiler
@@ -864,7 +868,7 @@ c_bifun(Int Op, Term t1, Term t2, Term t3, int mod, compiler_struct *cglobs)
 	    RESET_VARIABLE(H+1);
 	    H += 2;
 	    c_eq(AbsPair(H-2),t3, cglobs);
-	  } else {
+	  } else if (i2 < 16) {
 	    *H++ = (CELL)Yap_MkFunctor(AtomOfTerm(t1),i2);
 	    for (i=0; i < i2; i++) {
 	      if (H >= (CELL *)cglobs->cint.freep0) {
