@@ -250,8 +250,8 @@ clause(V,Q) :-
 	( '$system_predicate'(P) -> true ;
 	    '$number_of_clauses'(P,M,N), N > 0 ),
 	functor(P,Name,Arity),
-	throw(error(permission_error(access,private_procedure,M:Name/Arity),
-	      M:clause(P,Q))).
+	throw(error(permission_error(access,private_procedure,Name/Arity),
+	      clause(M:P,Q))).
 
 clause(V,Q,R) :-
 	'$current_module'(V,M,Q,R),
@@ -270,8 +270,8 @@ clause(V,Q,R) :-
 	 	'$recordedp'(Mod:P,(P:-Q),R)
 	 ;
 	        functor(P,N,A),
-		throw(error(permission_error(access,private_procedure,Mod:N/A),
-			clause(P,Q,R)))
+		throw(error(permission_error(access,private_procedure,N/A),
+			clause(Mod:P,Q,R)))
 	 ).
 
 retract(C) :-
@@ -383,6 +383,8 @@ abolish(X) :-
 	'$undefined'(T, M), !.
 '$new_abolish'(Na/Ar, M) :-
 	throw(error(permission_error(modify,static_procedure,Na/Ar),abolish(M:Na/Ar))).
+'$new_abolish'(T, M) :-
+	throw(error(type_error(predicate_indicator,T),abolish(M:T))).
 
 '$abolish_all'(M) :-
         '$current_predicate'(M,_,P),
@@ -435,6 +437,8 @@ abolish(X) :-
 '$old_abolish'([H|T], M) :- !,  '$old_abolish'(H, M), '$old_abolish'(T, M).
 '$old_abolish'(N/A, M) :-
 	'$abolish'(N, A, M).
+'$old_abolish'(T, M) :-
+	throw(error(type_error(predicate_indicator,T),abolish(M:T))).
 	
 '$abolish_all_old'(M) :-
         '$current_predicate'(Mod,_,P),
@@ -450,10 +454,10 @@ abolish(X) :-
 
 '$abolishs'(G, M) :- '$in_use'(G, M), !,
 	functor(G,Name,Arity),
-	throw(error(permission_error(modify,static_procedure_in_use,M:Name/Arity),abolish(G))).
+	throw(error(permission_error(modify,static_procedure_in_use,Name/Arity),abolish(M:G))).
 '$abolishs'(G, _) :- '$system_predicate'(G), !,
 	functor(G,Name,Arity),
-	throw(error(permission_error(modify,static_procedure,M:Name/Arity),abolish(G))).
+	throw(error(permission_error(modify,static_procedure,Name/Arity),abolish(M:G))).
 '$abolishs'(G, Module) :-
 	'$access_yap_flags'(8, 2), % only do this in sicstus mode
 	'$undefined'(G, Module),
@@ -465,7 +469,7 @@ abolish(X) :-
 '$abolishs'(G, Module) :-
 	'$has_yap_or', !,
         functor(G,A,N),
-	throw(error(permission_error(modify,static_procedure,Module:A/N),abolish(G))).
+	throw(error(permission_error(modify,static_procedure,A/N),abolish(Module:G))).
 '$abolishs'(G, M) :-
 	'$purge_clauses'(G, M),
 	'$recordedp'(M:G,_,R), erase(R), fail.
@@ -498,7 +502,7 @@ dynamic(X) :-
 	    '$is_dynamic'(T,Mod)  -> true;
 	    F /\ 16'400 =:= 16'400, '$undefined'(T,Mod) -> F1 is F /\ \(0x600), NF is F1 \/ 16'2000, '$flags'(T,Mod,F,NF);
 	    F/\16'8 =:= 16'8 -> true ;
-	    throw(error(permission_error(modify,static_procedure,Mod:A/N),dynamic(A/N)))
+	    throw(error(permission_error(modify,static_procedure,A/N),dynamic(Mod:A/N)))
 	).
 '$dynamic2'(X,Mod) :- 
 	throw(error(type_error(callable,X),dynamic(Mod:X))).
@@ -510,7 +514,7 @@ dynamic(X) :-
 	    '$is_dynamic'(T,Mod)  -> true;
 	    F /\ 16'400 =:= 16'400 , '$undefined'(T,Mod) -> NF is F \/ 0x8,  '$flags'(T,Mod,F,NF);
 	    F /\ 16'8=:= 16'8 -> true ;
-	    throw(error(permission_error(modify,static_procedure,A/N),dynamic(A/N)))
+	    throw(error(permission_error(modify,static_procedure,A/N),dynamic(Mod:A/N)))
 	).
 '$logical_updatable'(X,Mod) :- 
 	throw(error(type_error(callable,X),dynamic(Mod:X))).
