@@ -10,7 +10,7 @@
 * File:		TermExt.h						 *
 * mods:									 *
 * comments:	Extensions to standard terms for YAP			 *
-* version:      $Id: TermExt.h.m4,v 1.4 2001-12-11 03:34:03 vsc Exp $	 *
+* version:      $Id: TermExt.h.m4,v 1.5 2001-12-17 18:31:11 vsc Exp $	 *
 *************************************************************************/
 
 #if USE_OFFSETS
@@ -71,6 +71,9 @@ typedef struct {
   void (*bind_op)(Term *, Term);
   /* what to do if someone wants to copy our constraint */
   int (*copy_term_op)(CELL *, CELL ***, CELL *);
+  /* copy the constraint into a term and back */
+  Term (*to_term_op)(CELL *);
+  int (*term_to_op)(Term, Term);
   /* op called to do marking in GC */
   void (*mark_op)(CELL *);
 } ext_op;

@@ -10,7 +10,7 @@
 * File:		Heap.h         						 *
 * mods:									 *
 * comments:	Heap Init Structure					 *
-* version:      $Id: Heap.h,v 1.14 2001-11-26 12:33:05 vsc Exp $	 *
+* version:      $Id: Heap.h,v 1.15 2001-12-17 18:31:10 vsc Exp $	 *
 *************************************************************************/
 
 /* information that can be stored in Code Space */
@@ -223,6 +223,7 @@ typedef struct various_codes {
 #endif
     functor_braces,
     functor_call,
+    functor_clist,
     functor_comma,
     functor_csult,
     functor_cut_by,
@@ -411,6 +412,7 @@ typedef struct various_codes {
 #endif
 #define  FunctorBraces            heap_regs->functor_braces
 #define  FunctorCall              heap_regs->functor_call
+#define  FunctorClist             heap_regs->functor_clist
 #define  FunctorComma             heap_regs->functor_comma
 #define  FunctorCsult             heap_regs->functor_csult
 #define  FunctorCutBy             heap_regs->functor_cut_by

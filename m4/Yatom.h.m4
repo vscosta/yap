@@ -287,6 +287,9 @@ typedef struct DB_STRUCT {
   Int age;                /* entry's age, negative if from recorda,
 			     positive if it was recordz  */
 #endif /* KEEP_ENTRY_AGE */
+#ifdef COROUTINING
+  CELL    attachments;   /* attached terms */   
+#endif
   CELL Mask;		/* parts that should be cleared		*/
   CELL Key;		/* A mask that can be used to check before
 			   you unify */

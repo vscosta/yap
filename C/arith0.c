@@ -144,6 +144,16 @@ p_b(E_ARGS)
 }
 
 static E_FUNC
+p_env(E_ARGS)
+{
+#if SBA
+  RINT((Int)YENV);
+#else
+  RINT(YENV - (CELL *)B);
+#endif
+}
+
+static E_FUNC
 p_globalsp(E_ARGS)
 {
 #if SBA
@@ -178,6 +188,7 @@ static InitConstEntry InitConstTab[] = {
   {"local_sp", p_localsp},
   {"global_sp", p_globalsp},
   {"$last_choice_pt", p_b},
+  {"$env", p_env},
   {"stackfree", p_stackfree},
 };
 

@@ -31,6 +31,8 @@ static char SccsId[]="%W% %G%";
 #endif
 
 STATIC_PROTO(Term  InitVarTime, (void));
+STATIC_PROTO(Int   PutAtt, (attvar_record *,Int,Term));
+STATIC_PROTO(Int   BuildNewAttVar, (Term,Int,Term));
 
 static CELL *
 AddToQueue(attvar_record *attv)
@@ -134,6 +136,47 @@ CopyAttVar(CELL *orig, CELL ***to_visit_ptr, CELL *res)
   *to_visit_ptr = to_visit;
   *res = (CELL)&(newv->Done);
   UpdateTimedVar(DelayedVars, (CELL)(newv->Atts+2*j));
+  return(TRUE);
+}
+
+static Term
+AttVarToTerm(CELL *orig)
+{
+  register attvar_record *attv = (attvar_record *)orig;
+  Term list = TermNil;
+  int j;
+  for (j = 0; j < NUM_OF_ATTS; j++) {
+    Term t = attv->Atts[2*(NUM_OF_ATTS-j-1)+1];
+    if (IsVarTerm(t))
+      list = MkPairTerm(MkVarTerm(),list);
+    else
+      list = MkPairTerm(t,list);
+  }
+  return(list);
+}
+
+static int
+TermToAttVar(Term attvar, Term to)
+{
+  int i = 0;
+  int open = FALSE;
+  
+  while (IsPairTerm(attvar)) {
+    Term t = HeadOfTerm(attvar);
+    if (!IsVarTerm(t)) {
+      if (open) {
+	attvar_record *attv = (attvar_record *)VarOfTerm(Deref(to));
+	if (!PutAtt(attv, i, t))
+	  return(FALSE);
+      } else {
+	if (!BuildNewAttVar(to, i, t))
+	  return(FALSE);
+	open = TRUE;
+      }
+    }
+    i++;
+    attvar = TailOfTerm(attvar);
+  }
   return(TRUE);
 }
 
@@ -578,6 +621,8 @@ void InitAttVarPreds(void)
 {
   attas[attvars_ext].bind_op = WakeAttVar;
   attas[attvars_ext].copy_term_op = CopyAttVar;
+  attas[attvars_ext].to_term_op = AttVarToTerm;
+  attas[attvars_ext].term_to_op = TermToAttVar;
 #ifndef FIXED_STACKS
   attas[attvars_ext].mark_op = mark_attvar;
 #endif

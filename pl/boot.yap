@@ -43,6 +43,7 @@ true :- true. % otherwise, $$compile will ignore this clause.
 	'$set_yap_flags'(10,0),
 	'$set_value'('$gc',on),
 	'$init_catch',
+%	'$init_newcatch',  commented out for now
 	prompt('  ?- '),
 	(
 	    '$get_value'('$break',0)
@@ -67,17 +68,6 @@ true :- true. % otherwise, $$compile will ignore this clause.
 	;
 	    true
 	).
-
-'$init_catch' :-
-	% initialise access to the catch queue
-	( '$has_static_array'('$catch_queue') ->
-	    true
-	;
-	    static_array('$catch_queue',2, term)
-	),
-	update_array('$catch_queue', 0, '$'),
-	update_array('$catch_queue', 1, '$').
-
 
 				%
 % encapsulate $cut_by because of co-routining.
@@ -1125,9 +1115,51 @@ expand_term(Term,Expanded) :-
 '$expand_term_modules'(A,A,A,_).
 
 
+
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %   catch/throw implementation
 
+/* new design, not working for now:
+
+% at each catch point I need to know:
+% what is ball;
+% where was the previous catch	
+newcatch(G, C, A) :-
+	array_element('$catch', 0, OldEnv),
+	Env is '$env',
+	update_array('$catch', 0, Env),
+	'$execute'(G),
+	update_array('$catch', 0, Env),
+	array_element('$catch', 1, V),
+	(var(V) ->
+	    true
+	;
+	    !, '$handle_throw'(C, A)
+	).
+
+'$handle_throw'(C, A) :-
+        % reset info 
+	array_element('$catch', 1, _),
+	array_element('$catch', 2, Ball),
+	(C = Ball ->
+	    '$execute'(A)
+	    ;
+	    throw(Ball)
+	).
+
+newthrow(Ball) :-
+	% say we are throwing something.
+	array_element('$catch', 1, []),
+	update_array('$catch', 2, Ball),
+	array_element('$catch', 0, Env),
+	'$jump_env'(Env).
+
+'$init_newcatch' :-
+	'$create_array'('$catch', 3).
+
+
+*/
+	
 catch(G,C,A) :- var(G), !,
 	throw(error(instantiation_error,catch(G,C,A))).
 catch(G,C,A) :- number(G), !,
@@ -1251,6 +1283,18 @@ throw(A) :-
 throw(G) :-
         '$format'(user_error,"system_error_at(~w)",[G]),
         abort.
+
+
+'$init_catch' :-
+	% initialise access to the catch queue
+	( '$has_static_array'('$catch_queue') ->
+	    true
+	;
+	    static_array('$catch_queue',2, term)
+	),
+	update_array('$catch_queue', 0, '$'),
+	update_array('$catch_queue', 1, '$').
+
 
 '$check_list'(V, _) :- var(V), !.
 '$check_list'([], _) :- !.

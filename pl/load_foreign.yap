@@ -17,7 +17,7 @@
 
 load_foreign_files(Objs,Libs,Entry) :-
 	'$check_objs_for_load_foreign_files'(Objs,NewObjs,load_foreign_files(Objs,Libs,Entry)),
-	'$check_lib_for_load_foreign_files'(Libs,load_foreign_files(Objs,Libs,Entry)),
+	'$check_libs_for_load_foreign_files'(Libs,load_foreign_files(Objs,Libs,Entry)),
 	'$check_entry_for_load_foreign_files'(Entry,load_foreign_files(Objs,Libs,Entry)),
 	'$load_foreign_files'(NewObjs,Libs,Entry).
 

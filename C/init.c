@@ -955,6 +955,7 @@ InitCodes(void)
   heap_regs->functor_braces = MkFunctor(AtomBraces, 1);
   heap_regs->functor_call = MkFunctor(AtomCall, 1);
   heap_regs->functor_cut_by = MkFunctor(AtomCutBy, 1);
+  heap_regs->functor_clist = MkFunctor(LookupAtom("$when"), 4);
   heap_regs->functor_comma = MkFunctor(AtomComma, 2);
   heap_regs->functor_csult = MkFunctor(AtomCsult, 1);
   heap_regs->functor_eq = MkFunctor(AtomEq, 2);

@@ -1790,8 +1790,8 @@ absmi(int inp)
       /* find something to fool S */
       if (CFREG == Unsigned(LCL0) && ReadTimedVar(WokenGoals) != TermNil) {
 	SREG = (CELL *)RepPredProp(GetPredPropByFunc(MkFunctor(AtomRestoreRegs,2),0));
-	PREG = NEXTOP(PREG,x);
 	XREGS[0] = XREG(PREG->u.y.y);
+	PREG = NEXTOP(PREG,y);
 	goto creep_either;
       }
       /* don't do debugging and friends here */
@@ -1802,7 +1802,6 @@ absmi(int inp)
       /* find something to fool S */
       if (CFREG == Unsigned(LCL0) && ReadTimedVar(WokenGoals) != TermNil) {
 	SREG = (CELL *)RepPredProp(GetPredPropByFunc(MkFunctor(AtomRestoreRegs,2),0));
-	PREG = NEXTOP(PREG,x);
 #if USE_THREADED_CODE
 	if (PREG->opc == (OPCODE)OpAddress[_fcall])
 #else
@@ -1819,6 +1818,7 @@ absmi(int inp)
 	      ENDCACHE_Y_AS_ENV();
 	    }
 	XREGS[0] = XREG(PREG->u.x.x);
+	PREG = NEXTOP(PREG,x);
 	goto creep_either;
       }
       /* don't do debugging and friends here */

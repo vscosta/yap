@@ -493,10 +493,14 @@ save_stacks(int mode)
       tr_fr_ptr tr_ptr = TR; 
       while (tr_ptr != (tr_fr_ptr)TrailBase) {
 	CELL val = TrailTerm(tr_ptr-1);
-	if (!IsVarTerm(val) && IsPairTerm(val)) {
+	if (IsVarTerm(val)) {
+	  CELL *d1 = VarOfTerm(val);
+	  if (d1 < (CELL *)HeapTop)
+	    putout(val);
+	} else if (IsPairTerm(val)) {
 	  CELL *d1 = RepPair(val);
 	  if (d1 < (CELL *)HeapTop)
-	    putcellptr(d1);
+	    putout(val);
 	}
 	tr_ptr--;
       }
@@ -2898,17 +2902,22 @@ UnmarkTrEntries(void)
   B--;
   B->cp_ap = (yamop *)NOCODE;
   Entries = (CELL *)TrailBase;
-  while ((CODEADDR)(entry = *Entries++) != NULL) {
-    register CELL flags;
+  while ((entry = *Entries++) != (CELL)NULL) {
+    if (IsVarTerm(entry)) {
+      RESET_VARIABLE((CELL *)entry);
+    } else if (IsPairTerm(entry)) {
+      CODEADDR ent = (CODEADDR)RepPair(entry);
+      register CELL flags;
 
-    flags = Flags(entry);
-    ResetFlag(InUseMask, flags);
-    Flags(entry) = flags;
-    if (FlagOn(ErasedMask, flags)) {
-      if (FlagOn(DBClMask, flags)) {
-	ErDBE((DBRef) (entry - (CELL) &(((DBRef) NIL)->Flags)));
-      } else {
-	ErCl(ClauseFlagsToClause(entry));
+      flags = Flags(ent);
+      ResetFlag(InUseMask, flags);
+      Flags(ent) = flags;
+      if (FlagOn(ErasedMask, flags)) {
+	if (FlagOn(DBClMask, flags)) {
+	  ErDBE((DBRef) (ent - (CELL) &(((DBRef) NIL)->Flags)));
+	} else {
+	  ErCl(ClauseFlagsToClause(ent));
+	}
       }
     }
   }

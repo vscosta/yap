@@ -57,7 +57,6 @@ static char     SccsId[] = "%W% %G%";
 */
 
 
-
 #ifdef  KEEP_ENTRY_AGE
 #define DISCONNECT_OLD_ENTRIES 1
 #else
@@ -199,7 +198,11 @@ STATIC_PROTO(CELL *linkcells,(CELL *,Int));
 STATIC_PROTO(Int cmpclls,(CELL *,CELL *,Int));
 STATIC_PROTO(Prop FindDBProp,(AtomEntry *, int, unsigned int, SMALLUNSGN));
 STATIC_PROTO(CELL  CalcKey, (Term));
+#ifdef COROUTINING
+STATIC_PROTO(CELL  *MkDBTerm, (CELL *, CELL *, CELL *, CELL *, CELL *, CELL *,int *));
+#else
 STATIC_PROTO(CELL  *MkDBTerm, (CELL *, CELL *, CELL *, CELL *, CELL *, int *));
+#endif
 STATIC_PROTO(DBRef  CreateDBStruct, (Term, DBProp, int));
 STATIC_PROTO(DBRef  new_lu_index, (LogUpdDBProp));
 STATIC_PROTO(void   clean_lu_index, (DBRef));
@@ -450,7 +453,10 @@ CELL
 EvalMasks(register Term tm, CELL *keyp)
 {
 
-  if (IsApplTerm(tm)) {
+  if (IsVarTerm(tm)) {
+    *keyp = 0L;
+    return(0L);
+  } else if (IsApplTerm(tm)) {
     Functor         fun = FunctorOfTerm(tm);
 
     if (IsExtensionFunctor(fun)) {
@@ -583,6 +589,9 @@ typedef struct {
 static CELL *MkDBTerm(register CELL *pt0, register CELL *pt0_end,
 		     register CELL *StoPoint,
 		     CELL *CodeMax, CELL *tbase,
+#ifdef COROUTINING
+		     CELL *attachmentsp,
+#endif
 		     int *vars_foundp)
 {
 
@@ -592,6 +601,10 @@ static CELL *MkDBTerm(register CELL *pt0, register CELL *pt0_end,
   CELL **to_visit_base = to_visit;
   /* where we are going to add a new pair */
   int vars_found = 0;
+#ifdef COROUTINING
+  Term ConstraintsTerm = TermNil;
+  CELL *ConstraintsBottom = NULL;
+#endif
 
  loop:
   while (pt0 <= pt0_end) {
@@ -794,19 +807,20 @@ static CELL *MkDBTerm(register CELL *pt0, register CELL *pt0_end,
     
     /* the code to dereference a  variable */
   deref_var:
-    if (!MARKED(d0))
-      {
+    if (!MARKED(d0)) {
+      if ( 
 #if SBA
-	if (d0 != 0) {
+	  d0 != 0
 #else
-	if (d0 != (CELL)ptd0) {
+	  d0 != (CELL)ptd0
 #endif
-	  ptd0 = (Term *) d0;
-	  d0 = *ptd0;
-	  goto restart; /* continue dereferencing */
-	}
-	/* else just drop to found_var */
+	  ) {
+	ptd0 = (Term *) d0;
+	d0 = *ptd0;
+	goto restart; /* continue dereferencing */
       }
+      /* else just drop to found_var */
+    }
     /* else just drop to found_var */
     {
       CELL displacement = (CELL)(StoPoint)-(CELL)(tbase);
@@ -822,7 +836,7 @@ static CELL *MkDBTerm(register CELL *pt0, register CELL *pt0_end,
 	/* variables need to be offset at read time */
 	*ptd0 = (displacement | MBIT);
 #if SBA
-	/* the copy we keep will be an empty vaiable   */
+	/* the copy we keep will be an empty variable   */
 	*StoPoint++ = 0;
 #else
 #ifdef IDB_USE_MBIT
@@ -839,6 +853,30 @@ static CELL *MkDBTerm(register CELL *pt0, register CELL *pt0_end,
 #endif
 	/* indicate we found variables */
 	vars_found++;
+#ifdef COROUTINING
+	if (IsAttachedTerm((CELL)ptd0)) {
+	  Term t[4];
+	  int sz = to_visit-to_visit_base;
+
+	  H = (CELL *)to_visit;
+	  /* store the constraint away for now */
+	  t[0] = (CELL)ptd0;
+	  t[1] = attas[ExtFromCell(ptd0)].to_term_op(ptd0);
+	  t[2] = MkIntegerTerm(ExtFromCell(ptd0));
+	  t[3] = TermNil;
+	  if (ConstraintsBottom == NULL) {
+	    ConstraintsTerm = MkApplTerm(FunctorClist, 4, t);
+	    ConstraintsBottom = RepAppl(ConstraintsTerm)+4;
+	  } else {
+	    Term new = MkApplTerm(FunctorClist, 4, t);
+	    *ConstraintsBottom = new;
+	    ConstraintsBottom = RepAppl(new)+4;
+	  }
+	  memcpy((void *)(H), (void *)(to_visit_base), sz*sizeof(CELL *));
+	  to_visit_base = (CELL **)H;
+	  to_visit = to_visit_base+sz;
+	}
+#endif
 	continue;
       } else  {
 	/* references need to be offset at read time */
@@ -861,7 +899,7 @@ static CELL *MkDBTerm(register CELL *pt0, register CELL *pt0_end,
   }
 
   /* Do we still have compound terms to visit */
-  if (to_visit > (CELL **)to_visit_base) {
+  if (to_visit > to_visit_base) {
 #ifdef RATIONAL_TREES
     to_visit -= 4;
     pt0 = to_visit[0];
@@ -877,6 +915,18 @@ static CELL *MkDBTerm(register CELL *pt0, register CELL *pt0_end,
     goto loop;
   }
 
+#ifdef COROUTINING
+  /* we still may have constraints to do */
+  if (ConstraintsTerm != TermNil) {
+    *attachmentsp = (CELL)(CodeMax)-(CELL)(tbase);
+    pt0 = RepAppl(ConstraintsTerm)+1;
+    pt0_end = RepAppl(ConstraintsTerm)+4;
+    ConstraintsTerm = TermNil; 
+    StoPoint = CodeMax;
+    CodeMax += 4;
+    goto loop;
+  }
+#endif
   /* we're done */
   *vars_foundp = vars_found;
   UNWIND_CUNIF();
@@ -886,7 +936,7 @@ static CELL *MkDBTerm(register CELL *pt0, register CELL *pt0_end,
   DBErrorFlag = OVF_ERROR_IN_DB;
   *vars_foundp = vars_found;
 #ifdef RATIONAL_TREES
-  while (to_visit > (CELL **)to_visit_base) {
+  while (to_visit > to_visit_base) {
     to_visit -= 4;
     pt0 = to_visit[0];
     pt0_end = to_visit[1];
@@ -901,7 +951,7 @@ static CELL *MkDBTerm(register CELL *pt0, register CELL *pt0_end,
   DBErrorFlag = SOVF_ERROR_IN_DB;
   *vars_foundp = vars_found;
 #ifdef RATIONAL_TREES
-  while (to_visit > (CELL **)to_visit_base) {
+  while (to_visit > to_visit_base) {
     to_visit -= 4;
     pt0 = to_visit[0];
     pt0_end = to_visit[1];
@@ -917,7 +967,7 @@ static CELL *MkDBTerm(register CELL *pt0, register CELL *pt0_end,
   DBErrorFlag = TOVF_ERROR_IN_DB;              \
   *vars_foundp = vars_found;
 #ifdef RATIONAL_TREES
-  while (to_visit > (CELL **)to_visit_base) {
+  while (to_visit > to_visit_base) {
     to_visit -= 4;
     pt0 = to_visit[0];
     pt0_end = to_visit[1];
@@ -1123,10 +1173,17 @@ CreateDBStruct(Term Tm, DBProp p, int InFlag)
   DBRef    *TmpRefBase = (DBRef *)ConsultSp;
   CELL	   *CodeAbs;	/* how much code did we find	 */
   int vars_found;
+#ifdef COROUTINING
+  CELL attachments = 0;
+#endif
 
   DBErrorFlag = NO_ERROR_IN_DB;
 
-  if (IsVarTerm(Tm)) {
+  if (IsVarTerm(Tm)
+#ifdef COROUTINING
+      && !IsAttachedTerm(Tm)
+#endif
+      ) {
     Register DBRef  pp;
 
     tt = Tm;
@@ -1186,10 +1243,25 @@ CreateDBStruct(Term Tm, DBProp p, int InFlag)
 #ifdef IDB_LINK_TABLE
     lr = LinkAr = (link_entry *)TR;
 #endif
+#ifdef COROUTINING
+    /* attachment */ 
+    if (IsVarTerm(Tm)) {
+      tt = sizeof(CELL);
+      ntp = MkDBTerm(VarOfTerm(Tm), VarOfTerm(Tm), ntp0, ntp0+1, ntp0-1,
+		     &attachments,
+		     &vars_found);
+	if (ntp == NULL)
+	  return(NULL);
+    } else
+#endif
     if (IsPairTerm(Tm)) {
       /* avoid null pointers!! */
       tt = AbsPair((CELL *)sizeof(CELL));
-      ntp = MkDBTerm(RepPair(Tm), RepPair(Tm)+1, ntp0, ntp0+2, ntp0-1, &vars_found);
+      ntp = MkDBTerm(RepPair(Tm), RepPair(Tm)+1, ntp0, ntp0+2, ntp0-1,
+#ifdef COROUTINING
+		     &attachments,
+#endif
+		     &vars_found);
       if (ntp == NULL) {
 	return(NULL);
       }
@@ -1273,8 +1345,12 @@ CreateDBStruct(Term Tm, DBProp p, int InFlag)
       } else {
 	arity = ArityOfFunctor(fun);
 	ntp = MkDBTerm(RepAppl(Tm)+1,
-		     RepAppl(Tm)+arity,
-		     ntp0+1, ntp0+1+arity, ntp0-1, &vars_found);
+		       RepAppl(Tm)+arity,
+		       ntp0+1, ntp0+1+arity, ntp0-1,
+#ifdef COROUTINING
+		       &attachments,
+#endif
+		       &vars_found);
 	if (ntp == NULL)
 	  return(NULL);
       }
@@ -1359,6 +1435,9 @@ CreateDBStruct(Term Tm, DBProp p, int InFlag)
 #endif /* IDB_LINK_TABLE */
 
       pp->NOfCells = NOfCells;
+#ifdef COROUTINING
+      pp->attachments = attachments;
+#endif
       if (pp0 != pp) {
 	nar = pp->Contents;
 #ifdef IDB_LINK_TABLE
@@ -1918,6 +1997,18 @@ p_rcdzifnot(void)
   goto restart_record;
 }
 
+#ifdef COROUTINING
+static void
+copy_attachments(CELL *ts)
+{
+  while (TRUE) {
+    attas[IntegerOfTerm(ts[2])].term_to_op(ts[1], ts[0]);
+    if (ts[3] == TermNil) return;
+    ts = RepAppl(ts[3])+1;
+  }
+}
+#endif
+
 static Term 
 GetDBTerm(DBRef DBSP)
 {
@@ -1941,6 +2032,11 @@ GetDBTerm(DBRef DBSP)
     {
       link_entry *lp = (link_entry *)pt;
       linkblk(lp, HOld-1);
+    }
+#endif
+#ifdef COROUTINING
+    if (DBSP->attachments != 0L)  {
+      copy_attachments((CELL *)AdjustIDBPtr(DBSP->attachments,(CELL)(HOld-1)));
     }
 #endif
     return (AdjustIDBPtr((Term)(DBSP->Entry),Unsigned(HOld)-sizeof(CELL)));

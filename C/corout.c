@@ -342,6 +342,57 @@ CopySuspendedVar(CELL *orig, CELL ***to_visit_ptr, CELL *res)
   return(TRUE);
 }
 
+static Term
+mk_sus_var_list(sus_record *sr, sus_record *osr)
+{
+  if (sr == osr)
+    return(TermNil);
+  return(MkPairTerm(sr->SG, mk_sus_var_list(sr->NR, sr)));
+}
+
+static Term
+SuspendedVarToTerm(CELL *orig)
+{
+  register sus_tag *sreg = (sus_tag *)orig;
+
+  return(MkPairTerm(sreg->SG->SG, mk_sus_var_list(sreg->SG->NR, sreg->SG)));
+}
+
+static sus_record *
+terms_to_suspended_goals(Term gl)
+{
+  sus_record *gf;
+  gf = (sus_record *)H;
+  H += sizeof(sus_record)/sizeof(CELL);
+#ifdef MULTI_ASSIGNMENT_VARIABLES
+  gf->NS = UpdateSVarList(gf);
+#endif
+  gf->SG = HeadOfTerm(gl);
+  gl = TailOfTerm(gl);
+  if (gl == TermNil) {
+    gf->NR = (sus_record *)&(gf->NR);
+  } else {
+    gf->NR = terms_to_suspended_goals(gl);
+  }
+  return(gf);
+}
+
+static int
+TermToSuspendedVar(Term gs, Term var)
+{
+  register sus_tag *vs;
+  /* add a new suspension */
+  vs = (sus_tag *)ReadTimedVar(DelayedVars);
+  if (H0 - (CELL *)vs < 1024)
+    return(FALSE);
+  RESET_VARIABLE(&(vs->ActiveSus));
+  vs->sus_id = susp_ext;
+  vs->SG = terms_to_suspended_goals(gs);
+  unify(var,(CELL)&(vs->ActiveSus));
+  UpdateTimedVar(DelayedVars, (CELL)(vs+1));
+  return(TRUE);
+}
+
 
 #ifndef FIXED_STACKS
 
@@ -1155,6 +1206,8 @@ void InitCoroutPreds(void)
 
   attas[susp_ext].bind_op = Wake;
   attas[susp_ext].copy_term_op = CopySuspendedVar;
+  attas[susp_ext].to_term_op = SuspendedVarToTerm;
+  attas[susp_ext].term_to_op = TermToSuspendedVar;
 #ifndef FIXED_STACKS
   attas[susp_ext].mark_op = mark_suspended_goal;
 #endif /* FIXED_STACKS */
