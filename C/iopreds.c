@@ -4715,20 +4715,20 @@ p_write_depth (void)
     return (FALSE);
   if (IsVarTerm (t1))
     {
-      Term t = MkIntTerm (*max_depth);
+      Term t = MkIntTerm (max_depth);
       if (!Yap_unify_constant(ARG1, t))
 	return (FALSE);
     }
   else
-    *max_depth = IntOfTerm (t1);
+    max_depth = IntOfTerm (t1);
   if (IsVarTerm (ARG2))
     {
-      Term t = MkIntTerm (*max_list);
+      Term t = MkIntTerm (max_list);
       if (!Yap_unify_constant (ARG2, t))
 	return (FALSE);
     }
   else
-    *max_list = IntOfTerm (t2);
+    max_list = IntOfTerm (t2);
   return (TRUE);
 }
 

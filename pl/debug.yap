@@ -792,13 +792,13 @@ debugging :-
 	        '$set_value'(debug,0),
 	        '$get_value'('$trace',OldTrace),
 	        '$set_value'('$trace',0),
-		('$pred_being_spied'(G,Module) -> write(user_error,'*') ; write(user_error,' ')),
-		( SL = L -> write(user_error,'>') ; write(user_error,' ')),
-		write(user_error,' ('), write(user_error,L), write(user_error,') '),
-		write(user_error,P), write(user_error,': '),
+		('$pred_being_spied'(G,Module) -> CSPY = '*' ; CSPY = ' '),
+		( SL = L -> SLL = '>' ; SLL = ' '),
 		( Module\=prolog,
-		  Module\=user -> write(user_error,Module),write(user_error,':');
-		   true
+		  Module\=user ->
+		    '$format'(user_error,"~a~a (~d) ~a: ~a:",[CSPY,SLL,L,P,Module]),
+		    ;
+		    '$format'(user_error,"~a~a (~d) ~a:",[CSPY,SLL,L,P]),
 		),
 		'$debugger_write'(user_error,G),
 	        '$set_value'(debug,1),

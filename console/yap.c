@@ -147,7 +147,6 @@ do_bootfile (char *bootfilename)
   YAP_Functor functor_query = YAP_MkFunctor(YAP_LookupAtom("?-"),1);
 
 
-  fprintf(stderr,"Entering Yap\n");
   /* consult boot.pl */
   bootfile = fopen (bootfilename, "r");
   if (bootfile == NULL)
@@ -491,7 +490,6 @@ main (int argc, char **argv)
   int BootMode;
   YAP_init_args init_args;
 
-  fprintf(stderr,"Entering YAP\n");
 #ifdef SIMICS
   fprintf(stdout,"Entering YAP\n");
 #endif /* SIMICS */

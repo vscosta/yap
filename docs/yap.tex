@@ -8784,11 +8784,7 @@ variable. In the latter case, YAP discards previous values for the
 attributes.
 @item The built-in @code{get_atts/2} can be used to check the values of
 an attribute associated with a variable.
-<<<<<<< yap.tex
 @item The unification algorithm calls the user-defined predicate
-=======
-@item The unification algoritm calls the user-defined predicate
->>>>>>> 1.89
 @t{verify_attributes/3} before trying to bind an attributed
 variable. Unification will resume after this call.
 @item The user-defined predicate
@@ -11691,8 +11687,8 @@ prints the current rule instantiated by the matched constraints. Example:
 While in the debugger, a @dfn{printdepth} is in effect for limiting
 the subterm nesting level when printing rules and constraints.
 The limit is initially 10.  This command, without arguments, resets the
-limit to 10.  With an argument of @var{n}, the limit is set to @var{n},
-treating 0 as infinity.
+limit to 10.  With an argument of @var{n}, the limit is set to
+@var{n}. An argument @var{n} of 0 disables depth limit in the debugger.
 @refill
 
 @item a

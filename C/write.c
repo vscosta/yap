@@ -364,7 +364,7 @@ writeTerm(Term t, int p, int depth, int rinfixarg)
 	                  	/* context priority			 */
 	                      
 {
-  if (*max_depth != 0 && depth > *max_depth) {
+  if (max_depth != 0 && depth > max_depth) {
     putAtom(Yap_LookupAtom("..."));
     return;
   }
@@ -423,7 +423,7 @@ writeTerm(Term t, int p, int depth, int rinfixarg)
 	int             new_depth = depth + 1;
 	long            sl= 0;
 
-	if (*max_list && eldepth > *max_list) {
+	if (max_list && eldepth > max_list) {
 	  putAtom(Yap_LookupAtom("..."));
 	  wrputc(']');
 	  lastw = separator;

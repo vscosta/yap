@@ -10,7 +10,7 @@
 * File:		Heap.h         						 *
 * mods:									 *
 * comments:	Heap Init Structure					 *
-* version:      $Id: Heap.h,v 1.34 2002-11-11 17:37:58 vsc Exp $	 *
+* version:      $Id: Heap.h,v 1.35 2002-11-20 15:04:35 vsc Exp $	 *
 *************************************************************************/
 
 /* information that can be stored in Code Space */
@@ -128,7 +128,7 @@ typedef struct various_codes {
   struct pred_entry   *compiler_current_pred;
   AtomHashEntry invisiblechain;
   OPCODE dummycode;
-  Int maxdepth, maxlist;
+  UInt maxdepth, maxlist;
   int update_mode;
   Atom atprompt;
   char prompt[MAX_PROMPT];
@@ -361,8 +361,8 @@ typedef struct various_codes {
 #define  DUMMYCODE                (&(heap_regs->dummycode                ))
 #define  CLAUSECODE               (&(heap_regs->clausecode               ))
 #define  INVISIBLECHAIN           heap_regs->invisiblechain
-#define  max_depth                (&(heap_regs->maxdepth   	         ))
-#define  max_list                 (&(heap_regs->maxlist                  ))
+#define  max_depth                heap_regs->maxdepth
+#define  max_list                 heap_regs->maxlist
 #define  AtPrompt                 (&(heap_regs->atprompt    	         ))
 #define  Prompt                   heap_regs->prompt
 #if USE_THREADED_CODE
