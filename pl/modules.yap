@@ -505,8 +505,8 @@ module(N) :-
 '$process_expanded_arg'(\+V, M, \+NV) :- !,
 	'$process_expanded_arg'(V, M, NV).
 '$process_expanded_arg'(M:A, _, M:A) :- !.
-'$process_expanded_arg'(G, _, G) :-
-	'$system_predicate'(G), !.
+%'$process_expanded_arg'(G, _, G) :-
+%	'$system_predicate'(G), !.
 '$process_expanded_arg'(A, M, M:A).
 	
 '$not_in_vars'(_,[]).
