@@ -2096,24 +2096,24 @@ absmi(int inp)
       }
       else {
 #endif
+#if  _MSC_VER || defined(__MINGW32__)
+	/* I need this for Windows and other systems where SIGINT
+	   is not proceesed by same thread as absmi */
 	if (PrologMode & (AbortMode|InterruptMode)) {
 	  CFREG = CalculateStackGap();
 	  /* same instruction */
 	  if (PrologMode & InterruptMode) {
 	    PrologMode &= ~InterruptMode;
-	    ProcessSIGINT();
-	  } 
-	  if (PrologMode & AbortMode) {
-	    PrologMode &= ~AbortMode;
 	    ASP = Y+E_CB;
 	    if (ASP > (CELL *)B)
 	      ASP = (CELL *)B;
 	    saveregs();
-	    Error(PURE_ABORT, TermNil, "");
+	    ProcessSIGINT();
 	    setregs();
-	  }
+	  } 
 	  JMPNext();
 	}
+#endif
 #if SHADOW_S
 	S = SREG;
 #endif

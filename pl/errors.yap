@@ -50,7 +50,7 @@ print_message(Level, Mss) :-
 '$print_message'(error,error(Msg,Where)) :-
 	'$output_error_message'(Msg, Where), !.
 '$print_message'(error,Throw) :-
-	'$format'(user_error,"[ No handler for ball ~w ]~n", [Throw]).
+	'$format'(user_error,"[ No handler for error ~w ]~n", [Throw]).
 '$print_message'(informational,M) :-
 	( '$get_value'('$verbose',on) ->
 	    '$do_print_message'(M) ;

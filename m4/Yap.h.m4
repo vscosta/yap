@@ -10,7 +10,7 @@
 * File:		Yap.h.m4						 *
 * mods:									 *
 * comments:	main header file for YAP				 *
-* version:      $Id: Yap.h.m4,v 1.20 2002-02-04 16:12:54 vsc Exp $	 *
+* version:      $Id: Yap.h.m4,v 1.21 2002-02-12 18:24:20 vsc Exp $	 *
 *************************************************************************/
 
 #include "config.h"
@@ -767,7 +767,8 @@ typedef enum {
   CritMode  =   4,		/* If we are meddling with the heap */
   AbortMode =   8,		/* expecting to abort */
   InterruptMode = 16,		/* under an interrupt */
-  InErrorMode = 32		/* under an interrupt */
+  InErrorMode = 32,		/* under an interrupt */
+  ConsoleGetcMode = 64		/* blocked reading from console */
 } prolog_exec_mode;
 
 extern prolog_exec_mode      PrologMode;

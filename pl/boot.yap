@@ -886,13 +886,12 @@ break :- '$get_value'('$break',BL), NBL is BL+1,
         '$change_module'(M0).
 '$consult'(X) :-
 	'$find_in_path'(X,Y,consult(X)),
-	( '$open'(Y,'$csult',Stream,0), !,
-		'$record_loaded'(Stream),
-		'$consult'(X,Stream),
-		'$close'(Stream)
-	;
-		throw(error(permission_error(input,stream,Y),consult(X)))
-	).
+	'$open'(Y,'$csult',Stream,0), !,
+         '$record_loaded'(Stream),
+         '$consult'(X,Stream),
+	'$close'(Stream).
+'$consult'(X) :-
+	throw(error(permission_error(input,stream,X),consult(X))).
 
 
 '$consult'(F,Stream) :-

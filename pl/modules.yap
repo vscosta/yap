@@ -34,12 +34,15 @@ use_module(M) :-
         '$use_module'(F),
         '$change_module'(M0).
 '$use_module'(File) :- 
-	'$find_in_path'(File,X,use_module(File)),
+	'$find_in_path'(File,X,use_module(File)), !,
 	(  '$recorded'('$module','$module'(_,X,Publics),_) ->
 		'$use_module'(File,Publics)
 	;
 		'$ensure_loaded'(File)
 	).
+'$use_module'(File) :-
+	throw(error(permission_error(input,stream,File),use_module(File))).
+	
 
 use_module(M,I) :-
 	'$use_module'(M, I).
@@ -55,8 +58,8 @@ use_module(M,I) :-
         '$change_module'(M0).
 '$use_module'(File,Imports) :-
 	'$current_module'(M),
-	'$find_in_path'(File,X,use_module(File,Imports)),
-	( '$open'(X,'$csult',Stream,0), !,
+	'$find_in_path'(File,X,use_module(File,Imports)), !,
+	'$open'(X,'$csult',Stream,0), !,
 	'$consulting_file_name'(Stream,TrueFileName),
 	( '$loaded'(Stream) -> true
 	     ;
@@ -72,10 +75,9 @@ use_module(M,I) :-
 	 ;
 	 '$format'(user_error,"[ use_module/2 can not find a module in file ~w]~n",File),
 	 fail
-     )
-    ;  
-	throw(error(permission_error(input,stream,X),use_module(X,Imports)))
-    ).
+	 ).
+'$use_module'(File,Imports) :-
+	throw(error(permission_error(input,stream,File),use_module(File,Imports))).
 	
 use_module(Mod,F,I) :-
 	'$use_module'(Mod,F,I).
@@ -87,28 +89,32 @@ use_module(Mod,F,I) :-
         '$use_module'(Module,File,Imports),
         '$change_module'(M0).
 '$use_module'(Module,File,Imports) :-
-	'$current_module'(M),
 	'$find_in_path'(File,X,use_module(Module,File,Imports)),
-	( '$open'(X,'$csult',Stream,0), !,
+	'$open'(X,'$csult',Stream,0), !,
 	'$consulting_file_name'(Stream,TrueFileName),
-	( '$loaded'(Stream) -> true
-	     ;
-	     '$record_loaded'(Stream),
-	       % the following avoids import of all public predicates
-	     '$recorda'('$importing','$importing'(TrueFileName),R),
-	     '$reconsult'(File,Stream)
-	 ),
-	 '$close'(Stream),
-	 ( var(R) -> true; erased(R) -> true; erase(R)),
-	 ( '$recorded'('$module','$module'(TrueFileName,Module,Publics),_) ->
-	     '$use_preds'(Imports,Publics,Module,M)
-	 ;
-	     '$format'(user_error,"[ use_module/2 can not find module ~w in file ~w]~n",[Module,File]),
-	 fail
-     )
-    ;  
-	throw(error(permission_error(input,stream,library(X)),use_module(Module,File,Imports)))
-    ).
+	'$current_module'(M),
+	(
+	  '$loaded'(Stream)
+	  ->
+	  true
+	;
+	  '$record_loaded'(Stream),
+	  % the following avoids import of all public predicates
+	  '$recorda'('$importing','$importing'(TrueFileName),R),
+	  '$reconsult'(File,Stream)
+	  ),
+	'$close'(Stream),
+	( var(R) -> true; erased(R) -> true; erase(R)),
+	(
+	  '$recorded'('$module','$module'(TrueFileName,Module,Publics),_)
+	  ->
+	  '$use_preds'(Imports,Publics,Module,M)
+	  ;
+	  '$format'(user_error,"[ use_module/2 can not find module ~w in file ~w]~n",[Module,File]),
+	  fail
+	).
+'$use_module'(Module,File,Imports) :-
+	throw(error(permission_error(input,stream,File),use_module(Module,File,Imports))).
 	
 '$consulting_file_name'(Stream,F)  :-
 	'$file_name'(Stream, F).

@@ -1069,10 +1069,18 @@ InteractSIGINT(int ch) {
   switch (ch) {
   case 'a':
     /* abort computation */
-    /* we can't do a direct abort, so ask the system to do
-       it for us */
-    p_creep();
-    PrologMode |= AbortMode;
+    if (PrologMode & ConsoleGetcMode) {
+      PrologMode |= AbortMode;
+    } else {
+      getc(stdin);
+      Error(PURE_ABORT, TermNil, "");
+      /* in case someone mangles the P register */
+#if  _MSC_VER || defined(__MINGW32__)
+      /* don't even think about trying this */
+#else
+      siglongjmp (RestartEnv, 1);
+#endif
+    }
     return(-1);
   case 'c':
     /* continue */
@@ -1177,7 +1185,7 @@ ProcessSIGINT(void)
 
   do {
 #if  HAVE_LIBREADLINE
-    if (_line != (char *) NULL) {
+    if ((PrologMode & ConsoleGetcMode) && _line != (char *) NULL) {
       ch = _line[0];
       free(_line);
       _line = NULL;
@@ -1188,6 +1196,7 @@ ProcessSIGINT(void)
 	continue;
       } else {
 	ch = _line[0];
+
 	free(_line);
 	_line = NULL;
       }
@@ -1221,10 +1230,10 @@ HandleSIGINT (int sig)
     InteractSIGINT('e');
   }
 #endif
-  if (in_getc || (PrologMode & CritMode)) {
+  if (PrologMode & (CritMode|ConsoleGetcMode)) {
     PrologMode |= InterruptMode;
 #if HAVE_LIBREADLINE
-    if (in_getc) {
+    if (PrologMode & ConsoleGetcMode) {
       fprintf(stderr, "Action (h for help): ");
 #if HAVE_RL_SET_PROMPT
       rl_set_prompt("Action (h for help): ");

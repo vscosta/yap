@@ -31,23 +31,21 @@ ensure_loaded(V) :-
         '$change_module'(M0).
 '$ensure_loaded'(X) :-
 	'$find_in_path'(X,Y,ensure_loaded(X)),
-	( '$open'(Y, '$csult', Stream, 0), !,
-	     ( '$loaded'(Stream) ->
-		(  '$consulting_file_name'(Stream,TFN),
-		    '$recorded'('$module','$module'(TFN,M,P),_) ->
-			'$current_module'(T), '$import'(P,M,T)
+	'$open'(Y, '$csult', Stream, 0), !,
+	( '$loaded'(Stream) ->
+	    (  '$consulting_file_name'(Stream,TFN),
+		'$recorded'('$module','$module'(TFN,M,P),_) ->
+		'$current_module'(T), '$import'(P,M,T)
 		;
-		   true
-		)
-	     ;
-	       '$record_loaded'(Stream),
-	       '$reconsult'(X,Stream)
-	     ),
-	     '$close'(Stream)
+		true
+	    )
 	;
-		
-	throw(error(permission_error(input,stream,X),ensure_loaded(X)))
-	).
+	    '$record_loaded'(Stream),
+	    '$reconsult'(X,Stream)
+	    ),
+	'$close'(Stream).
+'$ensure_loaded'(X) :-		
+	throw(error(permission_error(input,stream,X),ensure_loaded(X))).
 
 
 compile(P) :-
@@ -87,12 +85,12 @@ reconsult(Fs) :-
 	'$reconsult'(Fs).
 '$reconsult'(X) :-
 	'$find_in_path'(X,Y,reconsult(X)),
-	( '$open'(Y,'$csult',Stream,0), !,
-		'$record_loaded'(Stream),
-		'$reconsult'(X,Stream), '$close'(Stream)
-	;
-		throw(error(permission_error(input,stream,X),reconsult(X)))
-	).
+	'$open'(Y,'$csult',Stream,0), !,
+	'$record_loaded'(Stream),
+	'$reconsult'(X,Stream),
+	'$close'(Stream).
+'$reconsult'(X) :-
+	throw(error(permission_error(input,stream,X),reconsult(X))).
 
 '$reconsult'(F,Stream) :-
 	'$getcwd'(OldD),

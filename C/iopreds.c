@@ -83,8 +83,6 @@ static char SccsId[] = "%W% %G%";
 /* if we botched in a LongIO operation */
 jmp_buf IOBotch;
 
-int  in_getc = FALSE;
-
 #if HAVE_LIBREADLINE
 
 #if _MSC_VER || defined(__MINGW32__)
@@ -890,7 +888,6 @@ ReadlineGetc(int sno)
   register int ch;
 
   while (ttyptr == NULL) {
-    in_getc = TRUE;
     /* Only sends a newline if we are at the start of a line */
     if (_line != NULL && _line != (char *) EOF)
       free (_line);
@@ -906,16 +903,20 @@ ReadlineGetc(int sno)
 	while ((ch = *cptr++) != '\0') {
 	  console_count_output_char(ch,Stream+StdErrStream,StdErrStream);
 	}
+	PrologMode |= ConsoleGetcMode;
 	_line = readline (Prompt);
       } else {
+	PrologMode |= ConsoleGetcMode;
 	_line = readline (NULL);
       }
     } else {
       if (ReadlinePos != ReadlineBuf) {
 	ReadlinePos[0] = '\0';
 	ReadlinePos = ReadlineBuf;
+	PrologMode |= ConsoleGetcMode;
 	_line = readline (ReadlineBuf);
       } else {
+	PrologMode |= ConsoleGetcMode;
 	_line = readline (NULL);
       }
     }
@@ -923,16 +924,17 @@ ReadlineGetc(int sno)
     if (PrologMode & InterruptMode) {
       PrologMode &= ~InterruptMode;
       ProcessSIGINT();
+      PrologMode &= ~ConsoleGetcMode;
       if (PrologMode & AbortMode) {
-	Error(PURE_ABORT, TermNil, NULL);
 	ErrorMessage = "Abort";
 	return(console_post_process_read_char(EOF, s, sno));
       }
       continue;
+    } else {
+      PrologMode &= ~ConsoleGetcMode;
     }
     newline=FALSE;
     strncpy (Prompt, RepAtom (*AtPrompt)->StrOfAE, MAX_PROMPT);
-    in_getc = FALSE;
     /* window of vulnerability closed */
     if (_line == NULL || _line == (char *) EOF)
       return(console_post_process_read_char(EOF, s, sno));
@@ -1123,11 +1125,13 @@ ConsoleSocketGetc(int sno)
     newline = FALSE;
   }
   /* should be able to use a buffer */
+  PrologMode |= ConsoleGetcMode;
 #if _MSC_VER
   count = recv(s->u.socket.fd, &c, sizeof(char), 0);
 #else
   count = read(s->u.socket.fd, &c, sizeof(char));
 #endif
+  PrologMode &= ~ConsoleGetcMode;
   if (count == 0) {
     ch = EOF;
   } else if (count > 0) {
@@ -1196,12 +1200,16 @@ ConsolePipeGetc(int sno)
   }
 #if _MSC_VER || defined(__MINGW32__) 
   if (WriteFile(s->u.pipe.hdl, &c, sizeof(c), &count, NULL) == FALSE) {
+    PrologMode |= ConsoleGetcMode;
     PlIOError (SYSTEM_ERROR,TermNil, "read from pipe returned error");
+    PrologMode &= ~ConsoleGetcMode;
     return(EOF);
   }
 #else
   /* should be able to use a buffer */
+  PrologMode |= ConsoleGetcMode;
   count = read(s->u.pipe.fd, &c, sizeof(char));
+  PrologMode &= ~ConsoleGetcMode;
 #endif
   if (count == 0) {
     ch = EOF;
@@ -1282,22 +1290,23 @@ ConsoleGetc(int sno)
 #if HAVE_SIGINTERRUPT
   siginterrupt(SIGINT, TRUE);
 #endif
-  in_getc = TRUE;
+  PrologMode |= ConsoleGetcMode;
   ch = YP_fgetc(s->u.file.file);
-  in_getc = FALSE;
 #if HAVE_SIGINTERRUPT
   siginterrupt(SIGINT, FALSE);
 #endif
   if (PrologMode & InterruptMode) {
     PrologMode &= ~InterruptMode;
     ProcessSIGINT();
+    PrologMode &= ~ConsoleGetcMode;
     newline = TRUE;
     if (PrologMode & AbortMode) {
-      Error(PURE_ABORT, TermNil, NULL);
       ErrorMessage = "Abort";
       return(console_post_process_read_char(EOF, s, sno));
     }
     goto restart;
+  } else {
+    PrologMode &= ~ConsoleGetcMode;
   }
   return(console_post_process_read_char(ch, s, sno));
 }
