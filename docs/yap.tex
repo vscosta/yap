@@ -5405,6 +5405,25 @@ In this case after @code{10} seconds our @code{loop} is interrupted,
 @code{ball} is thrown,  and the handler writes @code{Quota exhausted}.
 Execution then continues from the handler.
 
+Note that in this case @code{loop/0} always executes until the alarm is
+sent. Often, the code you are executing succeeds or fails before the
+alarm is actually delivered. In this case, you probably want to disable
+the alarm when you leave the procedure. The next procedure does exactly so:
+@example
+once_with_alarm(Time,Goal,DoOnAlarm) :-
+   catch(execute_once_with_alarm(Time, Goal), alarm, DoOnAlarm).
+
+execute_once_with_alarm(Time, Goal) :-
+        alarm(Time, alarm, _),
+        ( call(Goal) -> alarm(0, alarm, _) ; alarm(0, alarm, _)).
+@end example
+
+The procedure has three arguments: the @var{Time} before the alarm is
+sent; the @var{Goal} to execute; and the goal @var{DoOnAlarm} to execute
+if the alarm is sent. It uses @code{catch/3} to handle the case the
+@code{alarm} is sent. Then it starts the alarm, calls the goal
+@var{Goal}, and disables the alarm on success or failure.
+
 @end table
 
 @node Term Modification, Profiling, OS, Top
