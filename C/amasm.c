@@ -11,8 +11,13 @@
 * File:		amasm.c							 *
 * comments:	abstract machine assembler				 *
 *									 *
-* Last rev:     $Date: 2004-12-05 05:01:23 $							 *
+* Last rev:     $Date: 2004-12-07 16:54:57 $							 *
 * $Log: not supported by cvs2svn $
+* Revision 1.67  2004/12/05 05:01:23  vsc
+* try to reduce overheads when running with goal expansion enabled.
+* CLPBN fixes
+* Handle overflows when allocating big clauses properly.
+*
 * Revision 1.66  2004/11/19 22:08:41  vsc
 * replace SYSTEM_ERROR by out OUT_OF_WHATEVER_ERROR whenever appropriate.
 *
@@ -2971,7 +2976,6 @@ fetch_clause_space(Term* tp, UInt size, struct intermediates *cip)
     case OUT_OF_AUXSPACE_ERROR:
       ARG1 = *tp;
       if (!Yap_ExpandPreAllocCodeSpace(Yap_Error_Size, (void *)cip)) {
-	H = (CELL *)H[-1];
 	return NULL;
       }
       Yap_Error_TYPE = YAP_NO_ERROR;
@@ -2981,7 +2985,6 @@ fetch_clause_space(Term* tp, UInt size, struct intermediates *cip)
       /* don't just return NULL */
       ARG1 = *tp;
       if (!Yap_growheap(TRUE, size, cip)) {
-	H = (CELL *)H[-1];
 	return NULL;
       }
       Yap_Error_TYPE = YAP_NO_ERROR;

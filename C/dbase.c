@@ -1449,6 +1449,7 @@ CreateDBStruct(Term Tm, DBProp p, int InFlag, int *pstat, UInt extra_size, struc
       return CreateDBRefForAtom(Tm, p, InFlag, dbg);
     }
   }
+  /* next, let's process a compound term */
   {
     DBTerm *ppt, *ppt0;
     DBRef  pp, pp0;
@@ -1459,7 +1460,6 @@ CreateDBStruct(Term Tm, DBProp p, int InFlag, int *pstat, UInt extra_size, struc
 #endif
 
     dbg->tofref = TmpRefBase;
-    /* compound term */
     
     if (p == NULL) {
       ADDR ptr = Yap_PreAllocCodeSpace();
@@ -1468,6 +1468,12 @@ CreateDBStruct(Term Tm, DBProp p, int InFlag, int *pstat, UInt extra_size, struc
     } else {
       pp0 = (DBRef)Yap_PreAllocCodeSpace();
       ppt0 = &(pp0->DBT);
+    }
+    if ((ADDR)ppt0 >= (ADDR)AuxSp-1024) {
+	Yap_Error_Size = (UInt)(extra_size+sizeof(ppt0));
+	Yap_Error_TYPE = OUT_OF_AUXSPACE_ERROR;
+	Yap_ReleasePreAllocCodeSpace((ADDR)pp0);
+	return NULL;
     }
     ntp0 = ppt0->Contents;
 #ifdef IDB_LINK_TABLE
