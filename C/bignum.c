@@ -92,6 +92,9 @@ AllocBigNumSpace(size_t size)
 {
   void *ret = (void *)(alloc_ptr+1);
 
+  if (pre_alloc_base == NULL) {
+    return((void *)malloc(size));
+  }
   size = AdjustSize(size)/CellSize;
   alloc_ptr[0] = size;
   alloc_ptr += size+1;
@@ -105,6 +108,9 @@ ReAllocBigNumSpace(void *optr, size_t osize, size_t size)
 {
   void *out;
 
+  if (pre_alloc_base == NULL) {
+    return((void *)realloc(optr,size));
+  }
   size = AdjustSize(size)/CellSize;
   osize = AdjustSize(osize)/CellSize;
   if (((CELL *)optr)+osize == alloc_ptr) {
@@ -124,6 +130,10 @@ FreeBigNumSpace(void *optr, size_t size)
 {
   CELL *bp = (CELL *)optr;
 
+  if (pre_alloc_base == NULL) {
+    free(optr);
+    return;
+  }
   size = AdjustSize(size)/CellSize;
   if (bp+size == alloc_ptr) {
     alloc_ptr = bp-1;
