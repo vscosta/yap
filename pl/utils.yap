@@ -423,16 +423,16 @@ statistics :-
 	format(user_error,",~t  ~d free~19+~n", [TrlFree]),
 
 	OvfTime is TotHOTime+TotSOTime+TotTOTime,
-	format("~n~t~3f~12+ sec. for ~w code, ~w stack, and ~w trail space overflows~n",
+	format(user_error,"~n~t~3f~12+ sec. for ~w code, ~w stack, and ~w trail space overflows~n",
 	       [OvfTime,NOfHO,NOfSO,NOfTO]),
-	format("~t~3f~12+ sec. for ~w garbage collections which collected ~d bytes~n",
+	format(user_error,"~t~3f~12+ sec. for ~w garbage collections which collected ~d bytes~n",
 	       [TotGCTime,NOfGC,TotGCSize]),
 	RTime is float(Runtime)/1000,
-	format("~t~3f~12+ sec. runtime~n", [RTime]),
+	format(user_error,"~t~3f~12+ sec. runtime~n", [RTime]),
 	CPUTime is float(CPUtime)/1000,
-	format("~t~3f~12+ sec. cputime~n", [CPUTime]),
+	format(user_error,"~t~3f~12+ sec. cputime~n", [CPUTime]),
 	WallTime is float(Walltime)/1000,
-	format("~t~3f~12+ sec. elapsed time~n~n", [WallTime]),
+	format(user_error,"~t~3f~12+ sec. elapsed time~n~n", [WallTime]),
 	fail.
 '$statistics'(_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_).
 
