@@ -154,6 +154,7 @@ read_sig.
 '$enter_top_level' :-
 	prompt(_,'   ?- '),
 	prompt('   | '),
+	'$run_toplevel_hooks',
 	'$read_vars'(user_input,Command,_,Varnames),
 	set_value(spy_fs,0),
 	set_value(spy_sp,0),
@@ -161,7 +162,6 @@ read_sig.
 	set_value(spy_skip,off),
 	set_value(spy_stop,on),
 	prompt(_,'   |: '),
-	'$run_toplevel_hooks',
 	'$command'((?-Command),Varnames,top),
 	'$sync_mmapped_arrays',
 	set_value('$live','$false').

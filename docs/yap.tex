@@ -6446,10 +6446,10 @@ Just fail
 semantics for the @code{atom_chars/1} or @code{number_chars/1} built-in,
 or whether it should follow the ISO standard (@code{iso} option).
 
-@item toplevel_hook(@var{G})
++@item toplevel_hook
 @findex toplevel_hook (yap_flag/2 option)
 @*
-If bound, set @var{G} to a goal to be executed before entering the
++If bound, set the argument to a goal to be executed before entering the
 top-level. If unbound show the current goal or @code{true} if none is
 presented. Only the first solution is considered and the goal is not
 backtracked into.
