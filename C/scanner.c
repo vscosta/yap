@@ -884,7 +884,7 @@ Yap_tokenizer(int inp_stream)
     if(Yap_Option[2]) fprintf(Yap_stderr,"[Token %d %ld]",Ord(kind),(unsigned long int)t->TokInfo);
 #endif
     if (Yap_ErrorMessage) {
-      /* insert an error token to inform the system on what happened */
+      /* insert an error token to inform the system of what happened */
       TokEntry *e = (TokEntry *) AllocScannerMemory(sizeof(TokEntry));
       if (e == NULL) {
 	Yap_ErrorMessage = "not enough stack space to read in term";

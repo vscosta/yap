@@ -2983,23 +2983,27 @@ do_read(int inp_stream)
     /* preserve value of H after scanning: otherwise we may lose strings
        and floats */
     old_H = H;
-    if ((Stream[inp_stream].status & Eof_Stream_f)
-	&& !Yap_eot_before_eof) {
-      if (tokstart != NIL && tokstart->Tok != Ord (eot_tok)) {
-	/* we got the end of file from an abort */
-	if (Yap_ErrorMessage == "Abort") {
+    if (Stream[inp_stream].status & Eof_Stream_f) {
+      if (Yap_eot_before_eof) {
+	/* next read should give out an end of file */
+	Stream[inp_stream].status |= Push_Eof_Stream_f;
+      } else {
+	if (tokstart != NIL && tokstart->Tok != Ord (eot_tok)) {
+	  /* we got the end of file from an abort */
+	  if (Yap_ErrorMessage == "Abort") {
 	  TR = old_TR;
 	  return(FALSE);
 	}
-	/* we need to force the next reading to also give end of file.*/
-	Stream[inp_stream].status |= Push_Eof_Stream_f;
-	Yap_ErrorMessage = "end of file found before end of term";
-      } else {
-	/* restore TR */
-	TR = old_TR;
+	  /* we need to force the next reading to also give end of file.*/
+	  Stream[inp_stream].status |= Push_Eof_Stream_f;
+	  Yap_ErrorMessage = "end of file found before end of term";
+	} else {
+	  /* restore TR */
+	  TR = old_TR;
 	
-	return (Yap_unify(MkIntegerTerm(StartLine = Stream[inp_stream].linecount),ARG4) &&
-		Yap_unify_constant (ARG2, MkAtomTerm (AtomEof)));
+	  return (Yap_unify(MkIntegerTerm(StartLine = Stream[inp_stream].linecount),ARG4) &&
+		  Yap_unify_constant (ARG2, MkAtomTerm (AtomEof)));
+	}
       }
     }
   repeat_cycle:
