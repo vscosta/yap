@@ -112,6 +112,9 @@ yap_flag(V,Out) :-
 yap_flag(fast,on) :- '$set_value'('$fast',true).
 yap_flag(fast,off) :- !, '$set_value'('$fast',[]).
 
+% do or do not machine code
+yap_flag(argv,L) :- '$argv'(L).
+
 % hide/unhide atoms
 yap_flag(hide,Atom) :- !, hide(Atom).
 yap_flag(unhide,Atom) :- !, unhide(Atom).
@@ -475,6 +478,7 @@ yap_flag(host_type,X) :-
 
 '$show_yap_flag_opts'(V,Out) :-
 	(
+	    V = argv ;
 	    V = bounded ;
 	    V = char_conversion ;
 	    V = character_escapes ;
