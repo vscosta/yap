@@ -51,10 +51,29 @@ static Int p_set_depth_limit(void)
   return(TRUE);
 }
 
+static Int p_set_depth_limit_for_next_call(void)
+{
+  Term d = Deref(ARG1);
+
+  if (IsVarTerm(d)) {
+    Yap_Error(INSTANTIATION_ERROR, d, "set-depth_limit");
+    return(FALSE);
+  } else if (!IsIntegerTerm(d)) {
+    Yap_Error(TYPE_ERROR_INTEGER, d, "set-depth_limit");
+    return(FALSE);
+  }
+  d = MkIntTerm(IntegerOfTerm(d)*2);
+
+  DEPTH = d;
+
+  return(TRUE);
+}
+
 void Yap_InitItDeepenPreds(void)
 {
   Yap_InitCPred("get_depth_limit", 1, p_get_depth_limit, SafePredFlag);
   Yap_InitCPred("$set_depth_limit", 1, p_set_depth_limit, 0);
+  Yap_InitCPred("$set_depth_limit_for_next_call", 1, p_set_depth_limit_for_next_call, 0);
 }
 
 #endif

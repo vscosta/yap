@@ -14,10 +14,6 @@
 * comments:	Prolog's scanner					 *
 *									 *
 *************************************************************************/
-#ifdef SCCS
-static char SccsId[] = "@(#)scanner.c	1.2";
-
-#endif
 
 /*
  * Description: 

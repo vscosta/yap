@@ -30,24 +30,40 @@ compile_expressions :- '$set_value'('$c_arith',true).
 
 do_not_compile_expressions :- '$set_value'('$c_arith',[]).
 
-'$c_built_in'(IN, OUT) :-
+'$c_built_in'(IN, M, OUT) :-
 	'$get_value'('$c_arith',true), !,
-	'$do_c_built_in'(IN, OUT).
-'$c_built_in'(IN, IN).
+	'$do_c_built_in'(IN, M, OUT).
+'$c_built_in'(IN, _, IN).
 
 
-'$do_c_built_in'(Mod:G, Mod:GN) :- !,
-	'$do_c_built_in'(G, GN).
-'$do_c_built_in'(\+ G, OUT) :-
+'$do_c_built_in'(G, M, OUT) :- var(G), !,
+	'$do_c_built_in'(call(M:G),M,OUT).
+'$do_c_built_in'(Mod:G, _, GN) :- !,
+	'$do_c_built_in'(G, Mod, GN0),
+	(GN0 = (_,_) -> GN = GN0 ; GN = Mod:GN0).
+'$do_c_built_in'(\+ G, _, OUT) :-
 	nonvar(G),
 	G = (A = B),
 	!,
 	OUT = (A \= B).
-'$do_c_built_in'(call(G), OUT) :-
+'$do_c_built_in'(call(G), _, OUT) :-
 	nonvar(G),
 	G = (Mod:G1), !,
 	'$do_c_built_metacall'(G1, Mod, OUT).
-'$do_c_built_in'(recorded(K,T,R), OUT) :-
+'$do_c_built_in'(call(G), M, OUT) :-
+	var(G), !,
+	'$do_c_built_metacall'(G, M, OUT).
+'$do_c_built_in'(depth_bound_call(G,D), M, OUT) :- !,
+	'$do_c_built_in'(G, M, NG),
+	% make sure we don't have something like (A,B) -> $depth_next(D), A, B.
+	( '$composed_built_in'(NG) ->
+	    OUT = depth_bound_call(NG,D)
+	;
+	    OUT = ('$set_depth_limit_for_next_call'(D),NG)
+	).
+'$do_c_built_in'(once(G), M, ('$save_current_choice_point'(CP),NG,'$$cut_by'(CP))) :- !,
+	'$do_c_built_in'(G,M,NG).
+'$do_c_built_in'(recorded(K,T,R), _, OUT) :-
 	nonvar(K),
 	!,
 	( '$db_key'(K,I) ->
@@ -55,7 +71,7 @@ do_not_compile_expressions :- '$set_value'('$c_arith',[]).
 	;
 	    OUT = recorded(K,T,R)
 	).
-'$do_c_built_in'(X is Y, P) :-
+'$do_c_built_in'(X is Y, _, P) :-
 	nonvar(Y),		% Don't rewrite variables
 	!,
 	(
@@ -65,7 +81,7 @@ do_not_compile_expressions :- '$set_value'('$c_arith',[]).
 		'$drop_is'(X0, X, P1),
 		'$do_and'(P0, P1, P)
 	).
-'$do_c_built_in'(Comp0, R) :-		% now, do it for comparisons
+'$do_c_built_in'(Comp0, _, R) :-		% now, do it for comparisons
 	'$compop'(Comp0, Op, E, F),
 	!,
 	'$compop'(Comp,  Op, U, V),
@@ -73,7 +89,7 @@ do_not_compile_expressions :- '$set_value'('$c_arith',[]).
 	'$expand_expr'(F, Q, V),
 	'$do_and'(P, Q, R0),
 	'$do_and'(R0, Comp, R).
-'$do_c_built_in'(P, P).
+'$do_c_built_in'(P, _, P).
 
 '$do_c_built_metacall'(G1, Mod, call(Mod:G1)) :- 
 	var(G1), var(Mod), !.
@@ -106,7 +122,21 @@ do_not_compile_expressions :- '$set_value'('$c_arith',[]).
 '$compop'(X=:=Y,=:=, X, Y).
 '$compop'(X=\=Y,=\=, X, Y).
 
-
+'$composed_built_in'(V) :- var(V), !,
+	fail.
+'$composed_built_in'(('$save_current_choice_point'(_),NG,'$$cut_by'(_))) :- !,
+	'$composed_built_in'(NG).
+'$composed_built_in'((_,_)).
+'$composed_built_in'((_;_)).
+'$composed_built_in'((_|_)).
+'$composed_built_in'((_->_)).
+'$composed_built_in'(_:G) :-
+	'$composed_built_in'(G).
+'$composed_built_in'(\+G) :-
+	'$composed_built_in'(G).
+'$composed_built_in'(not(G)) :-
+	'$composed_built_in'(G).
+	
 % expanding an expression:
 % first argument is the expression not expanded,
 % second argument the expanded expression

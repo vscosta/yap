@@ -262,7 +262,7 @@ do_execute(Term t, SMALLUNSGN mod)
 	    YENV[-EnvSizeInCells-2]  = MkIntegerTerm((Int)PredPropByFunc(f,mod));
 	  }
 	} else {
-	    return CallMetaCall(mod);
+	  return CallMetaCall(mod);
 	}
 	YENV[E_CP] = (CELL)P;
 	YENV[E_CB] = (CELL)B;
@@ -277,8 +277,9 @@ do_execute(Term t, SMALLUNSGN mod)
 	P = NEXTOP(COMMA_CODE,sla);
 	t = ArgOfTerm(1,t);
 	goto restart_exec;
-      }
+    }  else if (mod != CurrentModule) {
       return(CallMetaCall(mod));
+    }
     }
     /* now let us do what we wanted to do from the beginning !! */
     /* I cannot use the standard macro here because
@@ -384,7 +385,8 @@ p_execute_within(void)
 	    goto restart_exec;
 	  }
 	}
-	return(CallMetaCallWithin(mod, B));
+	if (mod != CurrentModule)
+	  return(CallMetaCallWithin(mod, B));
       }
       /* at this point check if we should enter creep mode */ 
       if (yap_flags[SPY_CREEP_FLAG]) {
@@ -1733,7 +1735,7 @@ Yap_InitExecFs(void)
   Yap_InitCPred("$call_with_args", 11, p_execute_9, 0);
   Yap_InitCPred("$call_with_args", 12, p_execute_10, 0);
 #ifdef DEPTH_LIMIT
-  Yap_InitCPred("$execute_under_depth_limit", 2, p_execute_depth_limit, 0);
+  Yap_InitCPred("depth_bound_call", 2, p_execute_depth_limit, 0);
 #endif
   Yap_InitCPred("$execute0", 2, p_execute0, 0);
   Yap_InitCPred("$save_current_choice_point", 1, p_save_cp, 0);

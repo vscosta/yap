@@ -5396,10 +5396,10 @@ Yap_absmi(int inp)
       Op(write_x_loc, x);
       BEGD(d0);
       d0 = XREG(PREG->u.x.x);
+      PREG = NEXTOP(PREG, x);
       deref_head(d0, w_x_unk);
     w_x_bound:
       *SREG++ = d0;
-      PREG = NEXTOP(PREG, x);
       GONext();
 
       BEGP(pt0);
@@ -5409,7 +5409,6 @@ Yap_absmi(int inp)
 #else
       if (pt0 > H) {
 #endif
-	PREG = NEXTOP(PREG, x);
 	/* local variable: let us bind it to the list */
 #ifdef FROZEN_STACKS  /* TRAIL */
 	Bind_Local(pt0, Unsigned(SREG));
@@ -5422,7 +5421,6 @@ Yap_absmi(int inp)
 	GONext();
       }
       else {
-	PREG = NEXTOP(PREG, x);
 	*SREG++ = Unsigned(pt0);
 	GONext();
       }
@@ -11801,8 +11799,8 @@ Yap_absmi(int inp)
 	      goto execute_metacall;
 	      ENDP(pt1);
 	      ENDD(d1);
-	    } else {
-	      goto execute_metacall;
+	    } else if (mod != CurrentModule) {
+		goto execute_metacall;
 	    }
 	  }
 	  if (PRED_GOAL_EXPANSION_ON) {
@@ -11990,7 +11988,12 @@ Yap_absmi(int inp)
 		goto execute_comma;
 	      }
 	    } else {
-	      goto execute_metacall_after_comma;
+	      if (mod != CurrentModule)
+		goto execute_metacall_after_comma;
+	      else {
+		arity = pen->ArityOfPE;
+		goto execute_comma;
+	      }
 	    }
 
 	    BEGP(pt1);
@@ -12004,12 +12007,14 @@ Yap_absmi(int inp)
 	    ENDP(pt1);
 	    ENDD(d1);
 	  } else {
-	  execute_metacall_after_comma:
-	    ARG1 = ARG3 = d0;
-	    pen = PredMetaCall;
-	    ARG2 = Yap_cp_as_integer((choiceptr)ENV[E_CB]);
-	    ARG4 = ModuleName[mod];
-	    goto execute_after_comma;
+	    if (mod != CurrentModule) {
+	      execute_metacall_after_comma:
+	      ARG1 = ARG3 = d0;
+	      pen = PredMetaCall;
+	      ARG2 = Yap_cp_as_integer((choiceptr)ENV[E_CB]);
+	      ARG4 = ModuleName[mod];
+	      goto execute_after_comma;
+	    }
 	  }
 	}
       execute_comma:

@@ -31,8 +31,8 @@ false :- fail.
 ';'(A,B) :- '$meta_call'((A;B),prolog).
 '|'(A,B) :- '$meta_call'((A;B),prolog).
 '->'(A,B) :- '$meta_call'((A->B),prolog).
-\+(G) :- '$meta_call'('\+'(G),prolog).
-\+(G) :- '$meta_call'(not(G),prolog).
+\+(G) :- '$meta_call'(\+(G),prolog).
+not(G) :- '$meta_call'(not(G),prolog).
 
 :- '$set_value'('$doindex',true).
 
