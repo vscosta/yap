@@ -394,7 +394,7 @@ p_copy_term(void)		/* copy term t to a new instance  */
   return(unify(ARG2,CopyTerm(ARG1)));
 }
 
-static void copy_complex_term_no_delays(register CELL *pt0, register CELL *pt0_end, CELL *ptf, CELL *HLow)
+static int copy_complex_term_no_delays(register CELL *pt0, register CELL *pt0_end, CELL *ptf, CELL *HLow)
 {
 
   CELL **to_visit = (CELL **)(HeapTop + sizeof(CELL));
@@ -422,6 +422,9 @@ static void copy_complex_term_no_delays(register CELL *pt0, register CELL *pt0_e
 	*ptf = AbsPair(H);
 	ptf++;
 #ifdef RATIONAL_TREES
+	if (to_visit + 4 >= (CELL **)H0) {
+	  goto heap_overflow;
+	}
 	to_visit[0] = pt0;
 	to_visit[1] = pt0_end;
 	to_visit[2] = ptf;
@@ -431,6 +434,9 @@ static void copy_complex_term_no_delays(register CELL *pt0, register CELL *pt0_e
 	to_visit += 4;
 #else
 	if (pt0 < pt0_end) {
+	  if (to_visit + 3 >= (CELL **)H0) {
+	    goto heap_overflow;
+	  }
 	  to_visit[0] = pt0;
 	  to_visit[1] = pt0_end;
 	  to_visit[2] = ptf;
@@ -464,6 +470,9 @@ static void copy_complex_term_no_delays(register CELL *pt0, register CELL *pt0_e
 	ptf++;
 	/* store the terms to visit */
 #ifdef RATIONAL_TREES
+	if (to_visit + 4 >= (CELL **)H0) {
+	  goto heap_overflow;
+	}
 	to_visit[0] = pt0;
 	to_visit[1] = pt0_end;
 	to_visit[2] = ptf;
@@ -472,6 +481,9 @@ static void copy_complex_term_no_delays(register CELL *pt0, register CELL *pt0_e
 	*pt0 = AbsAppl(H);
 	to_visit += 4;
 #else
+	if (to_visit + 3 >= (CELL **)H0) {
+	  goto heap_overflow;
+	}
 	if (pt0 < pt0_end) {
 	  to_visit[0] = pt0;
 	  to_visit[1] = pt0_end;
@@ -529,7 +541,7 @@ static void copy_complex_term_no_delays(register CELL *pt0, register CELL *pt0_e
   /* restore our nice, friendly, term to its original state */
   HB = HB0;
   clean_tr(TR0);
-  return;
+  return(0); 
 
  overflow:
   /* oops, we're in trouble */
@@ -547,11 +559,31 @@ static void copy_complex_term_no_delays(register CELL *pt0, register CELL *pt0_e
   }
 #endif
   clean_tr(TR0);
+  return(-1);
+
+ heap_overflow:
+  /* oops, we're in trouble */
+  H = HLow;
+  /* we've done it */
+  /* restore our nice, friendly, term to its original state */
+  HB = HB0;
+#ifdef RATIONAL_TREES
+  while (to_visit > (CELL **)(HeapTop + sizeof(CELL))) {
+    to_visit -= 4;
+    pt0 = to_visit[0];
+    pt0_end = to_visit[1];
+    ptf = to_visit[2];
+    *pt0 = (CELL)to_visit[3];
+  }
+#endif
+  clean_tr(TR0);
+  return(-2);
 }
 
 static Term
 CopyTermNoDelays(Term inp) {
   Term t = Deref(inp);
+  int res;
 
   if (IsVarTerm(t)) {
     return(MkVarTerm());
@@ -566,11 +598,20 @@ CopyTermNoDelays(Term inp) {
     ap = RepPair(t);
     tf = AbsPair(H);
     H += 2;
-    copy_complex_term_no_delays(ap-1, ap+1, H-2, H-2);
-    if (H == Hi) { /* handle overflow */
-      gc(3, ENV, P);
-      t = Deref(ARG1);
-      goto restart_list;
+    res = copy_complex_term_no_delays(ap-1, ap+1, H-2, H-2);
+    if (res) {
+      if (res == -1) { /* handle overflow */
+	gc(2, ENV, P);
+	t = Deref(ARG1);
+	goto restart_list;
+      } else { /* handle overflow */
+	if (!growheap(FALSE)) {
+	  Error(SYSTEM_ERROR, TermNil, "YAP failed to reserve space in growheap");
+	  return(FALSE);
+	}
+	t = Deref(ARG1);
+	goto restart_list;
+      }
     }
     return(tf);
   } else {
@@ -586,11 +627,20 @@ CopyTermNoDelays(Term inp) {
     tf = AbsAppl(H);
     H[0] = (CELL)f;
     H += 1+ArityOfFunctor(f);
-    copy_complex_term_no_delays(ap, ap+ArityOfFunctor(f), HB0+1, HB0);
-    if (H == HB0) {
-      gc(3, ENV, P);
-      t = Deref(ARG1);
-      goto restart_appl;
+    res = copy_complex_term_no_delays(ap, ap+ArityOfFunctor(f), HB0+1, HB0);
+    if (res) {
+      if (res == -1) {
+	gc(2, ENV, P);
+	t = Deref(ARG1);
+	goto restart_appl;
+      } else { /* handle overflow */
+	if (!growheap(FALSE)) {
+	  Error(SYSTEM_ERROR, TermNil, "YAP failed to reserve space in growheap");
+	  return(FALSE);
+	}
+	t = Deref(ARG1);
+	goto restart_appl;
+      }
     }
     return(tf);
   }
