@@ -504,7 +504,7 @@ Yap_InitCmpPred(char *Name, unsigned long int Arity, CmpPredicate cmp_code, int 
   Atom            atom = Yap_LookupAtom(Name);
   PredEntry      *pe;
   yamop      *p_code = ((StaticClause *)NULL)->ClCode;
-  StaticClause     *cl = (StaticClause *)Yap_AllocCodeSpace((CELL)NEXTOP(NEXTOP(((yamop *)p_code),llxx),e)); 
+  StaticClause     *cl = (StaticClause *)Yap_AllocCodeSpace((CELL)NEXTOP(NEXTOP(NEXTOP(((yamop *)p_code),llxx),e),e)); 
 
   cl->ClFlags = 0;
   p_code = cl->ClCode;
@@ -524,6 +524,8 @@ Yap_InitCmpPred(char *Name, unsigned long int Arity, CmpPredicate cmp_code, int 
   p_code->u.llxx.flags = Yap_compile_cmp_flags(pe);
   p_code = NEXTOP(p_code,llxx);
   p_code->opc = Yap_opcode(_procceed);
+  p_code = NEXTOP(p_code,e);
+  p_code->opc = Yap_opcode(_Ystop);
 }
 
 void 
