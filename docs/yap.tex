@@ -6655,7 +6655,7 @@ As @code{member/2}, but may only be used to test whether a known
 @var{Element} occurs in a known Set.  In return for this limited use, it
 is more efficient when it is applicable.
 
-@item nth0(+@var{N}, +@var{List}, ?@var{Elem})
+@item nth0(?@var{N}, +@var{List}, ?@var{Elem})
 @findex nth0/2
 @syindex nth0/2
 @cnindex nth0/2
@@ -6665,14 +6665,14 @@ N elements and unify @var{Elem} with the next.)  It can only be used to
 select a particular element given the list and index.  For that
 task it is more efficient than @code{member/2}
 
-@item nth(+@var{N}, +@var{List}, ?@var{Elem})
+@item nth(?@var{N}, +@var{List}, ?@var{Elem})
 @findex nth/2
 @syindex nth/2
 @cnindex nth/2
 The same as @code{nth0/3}, except that it counts from
 1, that is @code{nth(1, [H|_], H)}.
 
-@item nth0(+@var{N}, ?@var{List}, ?@var{Elem}, ?@var{Rest})
+@item nth0(?@var{N}, ?@var{List}, ?@var{Elem}, ?@var{Rest})
 @findex nth0/4
 @syindex nth0/4
 @cnindex nth0/4
@@ -6681,8 +6681,20 @@ counting from 0, and @var{Rest} with the other elements.  It can be used
 to select the Nth element of @var{List} (yielding @var{Elem} and @var{Rest}), or to
 insert @var{Elem} before the Nth (counting from 1) element of @var{Rest}, when
 it yields @var{List}, e.g. @code{nth0(2, List, c, [a,b,d,e])} unifies List with
-@code{[a,b,c,d,e]}.  nth is the same except that it counts from 1.  nth
-can be used to insert Elem after the Nth element of Rest.
+@code{[a,b,c,d,e]}.  @code{nth/4} is the same except that it counts from 1.  @code{nth0/4}
+can be used to insert @var{Elem} after the Nth element of @var{Rest}.
+
+@item nth(?@var{N}, ?@var{List}, ?@var{Elem}, ?@var{Rest})
+@findex nth/4
+@syindex nth/4
+@cnindex nth/4
+Unifies @var{Elem} with the Nth element of @var{List}, counting from 1,
+and @var{Rest} with the other elements.  It can be used to select the
+Nth element of @var{List} (yielding @var{Elem} and @var{Rest}), or to
+insert @var{Elem} before the Nth (counting from 1) element of
+@var{Rest}, when it yields @var{List}, e.g. @code{nth(1, List, c,
+[a,b,d,e])} unifies List with @code{[a,b,c,d,e]}.  @code{nth/4}
+can be used to insert @var{Elem} after the Nth element of @var{Rest}.
 
 @item permutation(+@var{List},?@var{Perm})
 @findex permutation/2

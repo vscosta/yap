@@ -100,7 +100,7 @@ nextto(X,Y, [X,Y|_]).
 nextto(X,Y, [_|List]) :-
 	nextto(X,Y, List).
 
-%   nth0(+N, +List, ?Elem) is true when Elem is the Nth member of List,
+%   nth0(?N, +List, ?Elem) is true when Elem is the Nth member of List,
 %   counting the first as element 0.  (That is, throw away the first
 %   N elements and unify Elem with the next.)  It can only be used to
 %   select a particular element given the list and index.  For that
@@ -108,29 +108,45 @@ nextto(X,Y, [_|List]) :-
 %   nth(+N, +List, ?Elem) is the same as nth0, except that it counts from
 %   1, that is nth(1, [H|_], H).
 
+nth0(V, In, Element) :- var(V), !,
+	generate_nth0(V, In, Element).
 nth0(0, [Head|_], Head) :- !.
-
 nth0(N, [_|Tail], Elem) :-
-	nonvar(N), !,
 	M is N-1,
-	nth0(M, Tail, Elem).
+	find_nth0(M, Tail, Elem).
 
-nth0(N,[_|T],Item) :-		% Clause added KJ 4-5-87 to allow mode
-	nth0(M,T,Item),
-	N is M + 1.
+find_nth0(0, [Head|_], Head) :- !.
+find_nth0(N, [_|Tail], Elem) :-
+	M is N-1,
+	find_nth0(M, Tail, Elem).
 
 
+generate_nth0(0, [Head|_], Head).
+generate_nth0(I, [_|List], El) :-
+	generate_nth0(I1, List, El),
+	I is I1+1.
+
+
+nth(V, In, Element) :- var(V), !,
+	generate_nth(V, In, Element).
 nth(1, [Head|_], Head) :- !.
-
 nth(N, [_|Tail], Elem) :-
 	nonvar(N), !,
 	M is N-1,			% should be succ(M, N)
-	nth(M, Tail, Elem).
+	find_nth(M, Tail, Elem).
 
-nth(N,[_|T],Item) :-		% Clause added KJ 4-5-87 to allow mode
-				% nth(-,+,+)
-	nth(M,T,Item),
-	N is M + 1.
+find_nth(1, [Head|_], Head) :- !.
+find_nth(N, [_|Tail], Elem) :-
+	M is N-1,
+	find_nth(M, Tail, Elem).
+
+
+generate_nth(1, [Head|_], Head).
+generate_nth(I, [_|List], El) :-
+	generate_nth(I1, List, El),
+	I is I1+1.
+
+
 
 %   nth0(+N, ?List, ?Elem, ?Rest) unifies Elem with the Nth element of List,
 %   counting from 0, and Rest with the other elements.  It can be used
@@ -140,30 +156,44 @@ nth(N,[_|T],Item) :-		% Clause added KJ 4-5-87 to allow mode
 %   [a,b,c,d,e].  nth is the same except that it counts from 1.  nth
 %   can be used to insert Elem after the Nth element of Rest.
 
+nth0(V, In, Element, Tail) :- var(V), !,
+	generate_nth0(V, In, Element, Tail).
 nth0(0, [Head|Tail], Head, Tail) :- !.
-
 nth0(N, [Head|Tail], Elem, [Head|Rest]) :-
-	nonvar(N),
 	M is N-1,
 	nth0(M, Tail, Elem, Rest).
 
-nth0(N, [Head|Tail], Elem, [Head|Rest]) :-	% Clause added KJ 4-5-87
-	var(N),					% to allow mode
-	nth0(M, Tail, Elem, Rest),		% nth0(-,+,+,?).
-	N is M+1.
+find_nth0(0, [Head|Tail], Head, Tail) :- !.
+find_nth0(N, [Head|Tail], Elem, [Head|Rest]) :-
+	M is N-1,
+	find_nth0(M, Tail, Elem, Rest).
 
 
+generate_nth0(0, [Head|Rest], Head, Rest).
+generate_nth0(I, [Head|List], El, [Head|Rest]) :-
+	generate_nth0(I1, List, El, Rest),
+	I is I1+1.
+
+
+nth(V, In, Element, Tail) :- var(V), !,
+	generate_nth(V, In, Element, Tail).
 nth(1, [Head|Tail], Head, Tail) :- !.
-
 nth(N, [Head|Tail], Elem, [Head|Rest]) :-
-	nonvar(N),
 	M is N-1,
 	nth(M, Tail, Elem, Rest).
 
-nth(N, [Head|Tail], Elem, [Head|Rest]) :-	% Clause added KJ 4-5-87
-	var(N),					% to allow mode
-	nth(M, Tail, Elem, Rest),		% nth(-,+,+,?).
-	N is M+1.
+find_nth(1, [Head|Tail], Head, Tail) :- !.
+find_nth(N, [Head|Tail], Elem, [Head|Rest]) :-
+	M is N-1,
+	find_nth(M, Tail, Elem, Rest).
+
+
+generate_nth(1, [Head|Rest], Head, Rest).
+generate_nth(I, [Head|List], El, [Head|Rest]) :-
+	generate_nth(I1, List, El, Rest),
+	I is I1+1.
+
+
 
 
 %   permutation(List, Perm)
