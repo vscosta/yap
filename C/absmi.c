@@ -129,8 +129,8 @@ Yap_absmi(int inp)
   register CELL *pt0, *pt1;
 
 #endif /* LONG_LIVED_REGISTERS */
-
-#if SHADOW_P
+  
+#if SHADOW_P 
   register yamop *PREG = P;
 #endif /* SHADOW_P */
 
@@ -11750,3 +11750,13 @@ Yap_absmi(int inp)
 
 }
 
+
+#if LOW_PROF 
+#include <stdio.h>
+void prof_alrm(int signo)
+{
+  fprintf(FProf,"%p\n", PREG);
+  return;
+}
+
+#endif

@@ -3439,7 +3439,7 @@ Yap_PredIsIndexable(PredEntry *ap)
   }
 #ifdef LOW_PROF
   if (ProfilerOn) {
-    Yap_inform_profiler_of_clause(indx_out, ProfEnd, ap,-1); 
+    Yap_inform_profiler_of_clause(indx_out, ProfEnd, ap,1); 
   }
 #endif /* LOW_PROF */
   if (ap->PredFlags & LogUpdatePredFlag) {
@@ -4241,7 +4241,7 @@ ExpandIndex(PredEntry *ap) {
   }
 #ifdef LOW_PROF
   if (ProfilerOn) {
-    Yap_inform_profiler_of_clause(indx_out, ProfEnd, ap,-1); 
+    Yap_inform_profiler_of_clause(indx_out, ProfEnd, ap,1); 
   }
 #endif /* LOW_PROF */
   if (indx_out == NULL) {

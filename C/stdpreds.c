@@ -102,7 +102,7 @@ STD_PROTO(static Int p_set_yap_flags, (void));
 
 #ifdef LOW_PROF
 
-#define TIMER_DEFAULT 1000
+#define TIMER_DEFAULT 100
 #define MORE_INFO_FILE 1
 
 void
@@ -131,13 +131,14 @@ static Int order=0;
 #if defined(__linux__)
 
 static void
-prof_alrm(int signo)
+prof_alrm_OLD(int signo)
 {
-  //  printf("%p\n", Yap_regp->P_);
+  //  printf("%p %p\n", Yap_regp->P_,P);
   fprintf(FProf,"%p\n", Yap_regp->P_);
-  //  fprintf(FProf,"%p\n", P);
   return;
 }
+
+extern void prof_alrm(int signo);
 
 static Int start_profilers(int msec)
 {
