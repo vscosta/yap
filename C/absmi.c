@@ -6028,6 +6028,7 @@ absmi(int inp)
       H += 2;
       BEGP(pt0);
       pt0 = (CELL *) (Unsigned(SpyCode) - sizeof(SMALLUNSGN));
+      P_before_spy = PREG;
       PREG = (yamop *) PredCode(pt0);
       CACHE_A1();
 #ifdef LOW_LEVEL_TRACER

@@ -206,6 +206,7 @@ EnterCreepMode(PredEntry *pen) {
   PredEntry *PredSpy = RepPredProp(PredProp(a,1));
   ARG1 = MkPairTerm(Module_Name((CODEADDR)(pen)),ARG1);
   CreepFlag = CalculateStackGap();
+  P_before_spy = P;
   WRITE_LOCK(PredSpy->PRWLock);
   return (FastCallProlog(PredSpy));
 }

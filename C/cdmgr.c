@@ -2057,7 +2057,6 @@ PredForCode(CODEADDR codeptr, Atom *pat, Int *parity, SMALLUNSGN *pmodule) {
     }
     chain = RepAtom(chain->NextOfAE);
   }
-  /* we didn't find it, must be one of the hidden predicates */
   return(0);
 }
 
@@ -2164,10 +2163,12 @@ p_clean_up_dead_clauses(void)
 static Int			/* $parent_pred(Module, Name, Arity) */
 p_parent_pred(void)
 {
+  /* This predicate is called from the debugger.
+     We assume a sequence of the form a -> b */
   Atom at;
   Int arity;
   SMALLUNSGN module;
-  if (!PredForCode((CODEADDR)CP, &at, &arity, &module)) {
+  if (!PredForCode((CODEADDR)P_before_spy, &at, &arity, &module)) {
     return(unify(ARG1, MkIntTerm(0)) &&
 	   unify(ARG2, MkAtomTerm(AtomMetaCall)) &&
 	   unify(ARG3, MkIntTerm(0)));

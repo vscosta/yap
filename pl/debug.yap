@@ -242,7 +242,9 @@ debugging :-
 %'$spy'(G) :- write(user_error,'$spy'(G)), nl, fail.
 %
 % handle suspended goals
+% take care with hidden goals.
 %
+% $spy may be called from user code, so be careful.
 '$spy'(G) :-
 	'$awoken_goals'(LG), !,
 	'$creep',
@@ -251,20 +253,38 @@ debugging :-
 %    '$format'(user_error,"$spym(~w,~w)~n",[Module,G]),
          ( '$hidden'(G)
 	 ;
-        '$system_predicate'(G),
-	'$parent_pred'(0,_,_)
+	'$parent_pred'(O,A1,A2),
+        '$system_predicate'(G)
 	 ),
          !,
 	 /* called from prolog module   */
-	 '$creep',
-	 '$execute0'(G).
-'$spy'([Module|G]) :- !,
-    (	  Module=prolog -> '$spy'(G);
-	  '$mod_switch'(Module, '$spy'(G))
-     ).
-'$spy'(true) :- !, '$creep'.
-'$spy'('$cut_by'(M)) :- !, '$cut_by'(M).
+	 '$execute0'(G),
+ 	 '$creep'.
 '$spy'(G) :-
+	'$do_spy'(G).
+
+
+'$direct_spy'(G) :-
+	'$awoken_goals'(LG), !,
+	'$creep',
+	'$wake_up_goal'(G, LG).
+'$direct_spy'([Module|G]) :-
+         '$hidden'(G),
+         !,
+	 /* called from prolog module   */
+	 '$execute0'(G),
+	 '$creep'.
+'$direct_spy'(G) :-
+	'$do_spy'(G).
+
+
+'$do_spy'([Module|G]) :- !,
+    (	  Module=prolog -> '$do_spy'(G);
+	  '$mod_switch'(Module, '$do_spy'(G))
+     ).
+'$do_spy'(true) :- !, '$creep'.
+'$do_spy'('$cut_by'(M)) :- !, '$cut_by'(M).
+'$do_spy'(G) :-
 %   write(user_error,$spy(G)), nl,
     '$get_value'(debug,1),		/* ditto if debug off		*/
     '$get_value'(spy_fs,0),		/* ditto if fast skipping	*/
@@ -312,7 +332,7 @@ debugging :-
 		'$trace'(redo,G,L),	/* inform user_error		*/
 		fail			/* to backtrack to spycalls	*/
 	).
-'$spy'(G) :- '$execute0'(G).	/* this clause applies when we do not want
+'do_spy'(G) :- '$execute0'(G).	/* this clause applies when we do not want
 				   to spy the goal			*/
 
 '$cont_creep' :-  '$get_value'('$trace',1), '$set_yap_flags'(10,1), fail.
@@ -325,33 +345,27 @@ debugging :-
 %'$spycalls'(G,_) :- write(user_error,'$spycalls'(G)), nl(user_error), fail.
 '$spycalls'([_|_],_) :- !, fail.
 '$spycalls'('!'(CP),_) :-
-	'$spycalls'('$call'(!, CP, !),Res).
+	'$call'(!, CP, !).
 '$spycalls'(Mod:G,Res) :-
 	!,
 	'$mod_switch'(Mod,'$spycalls'(G,Res)).
 '$spycalls'(repeat,Res) :-
 	!,
-	'$spycalls'('$call'(repeat, _, repeat),Res).
+	repeat.
 '$spycalls'(fail,Res) :-
 	!,
-	'$spycalls'('$call'(fail, _, fail),Res).
+	fail.
 '$spycalls'(false,Res) :-
 	!,
-	'$spycalls'('$call'(false, _, false),Res).
+	false.
 '$spycalls'(true,Res) :-
-	!,
-	'$spycalls'('$call'(true, _, true),Res).
+	!.
 '$spycalls'(otherwise,Res) :-
-	!,
-	'$spycalls'('$call'(otherwise, _, otherwise),Res).
+	!.
 '$spycalls'(\+ G,Res) :-
 	!,
 	CP is '$last_choice_pt',
 	'$spycalls'('$call'((\+ G), CP, (\+ G)),Res).
-'$spycalls'(not(G),Res) :-
-	!,
-	CP is '$last_choice_pt',
-	'$spycalls'('$call'(not(G), CP, not(G)),Res).
 '$spycalls'(not(G),Res) :-
 	!,
 	CP is '$last_choice_pt',
@@ -638,19 +652,19 @@ debugging :-
 '$creep_call'(M:G,CP) :- !,
         '$mod_switch'(M, '$creep_call'(G,CP)),
 	'$current_module'(Module),
-	'$spy'([Module|fail]).
+	'$direct_spy'([Module|fail]).
 '$creep_call'(fail,_) :- !,
 	'$current_module'(Module),
-	'$spy'([Module|fail]).
+	'$direct_spy'([Module|fail]).
 '$creep_call'(false,_) :- !,
 	'$current_module'(Module),
-	'$spy'([Module|false]).
+	'$direct_spy'([Module|false]).
 '$creep_call'(true,_) :- !,
 	'$current_module'(Module),
-	'$spy'([Module|true]).
+	'$direct_spy'([Module|true]).
 '$creep_call'(otherwise,_) :- !,
 	'$current_module'(Module),
-	'$spy'([Module|otherwise]).
+	'$direct_spy'([Module|otherwise]).
 '$creep_call'((A,B),CP) :- !,
 	'$creep_call'(A,CP), '$creep_call'(B,CP).
 '$creep_call'((X->Y; Z),CP) :- !,
@@ -661,73 +675,73 @@ debugging :-
 	('$creep_call'(A,CP) ; '$creep_call'(B,CP)).
 '$creep_call'(atom(A),_) :- !,
 	'$current_module'(Module),
-	'$spy'([Module|atom(A)]).
+	'$direct_spy'([Module|atom(A)]).
 '$creep_call'(atomic(A),_) :- !,
 	'$current_module'(Module),
-	'$spy'([Module|atomic(A)]).
+	'$direct_spy'([Module|atomic(A)]).
 '$creep_call'(integer(A),_) :- !,
 	'$current_module'(Module),
-	'$spy'([Module|integer(A)]).
+	'$direct_spy'([Module|integer(A)]).
 '$creep_call'(nonvar(A),_) :- !,
 	'$current_module'(Module),
-	'$spy'([Module|nonvar(A)]).
+	'$direct_spy'([Module|nonvar(A)]).
 '$creep_call'(var(A),_) :- !,
 	'$current_module'(Module),
-	'$spy'([Module|var(A)]).
+	'$direct_spy'([Module|var(A)]).
 '$creep_call'(number(A),_) :- !,
 	'$current_module'(Module),
-	'$spy'([Module|number(A)]).
+	'$direct_spy'([Module|number(A)]).
 '$creep_call'(prismitive(A),_) :- !,
 	'$current_module'(Module),
-	'$spy'([Module|primitive(A)]).
+	'$direct_spy'([Module|primitive(A)]).
 '$creep_call'(compound(A),_) :- !,
 	'$current_module'(Module),
-	'$spy'([Module|compound(A)]).
+	'$direct_spy'([Module|compound(A)]).
 '$creep_call'(float(A),_) :- !,
 	'$current_module'(Module),
-	'$spy'([Module|float(A)]).
+	'$direct_spy'([Module|float(A)]).
 '$creep_call'(db_reference(A),_) :- !,
 	'$current_module'(Module),
-	'$spy'([Module|db_reference(A)]).
+	'$direct_spy'([Module|db_reference(A)]).
 '$creep_call'(\+ X,_) :- !,
 	'$current_module'(Module),
-	'$spy'([Module|(\+ X)]).
+	'$direct_spy'([Module|(\+ X)]).
 '$creep_call'(not X,_) :- !,
 	'$current_module'(Module),
-	'$spy'([Module|not(X)]).
+	'$direct_spy'([Module|not(X)]).
 '$creep_call'(X=Y,_) :- !,
 	'$current_module'(Module),
-	'$spy'([Module|X=Y]).
+	'$direct_spy'([Module|X=Y]).
 '$creep_call'(X\=Y,_) :- !,
 	'$current_module'(Module),
-	'$spy'([Module|X\=Y]).
+	'$direct_spy'([Module|X\=Y]).
 '$creep_call'(X==Y,_) :- !,
 	'$current_module'(Module),
-	'$spy'([Module|X==Y]).
+	'$direct_spy'([Module|X==Y]).
 '$creep_call'(X>Y,_) :- !,
 	'$current_module'(Module),
-	'$spy'([Module|X>Y]).
+	'$direct_spy'([Module|X>Y]).
 '$creep_call'(X>=Y,_) :- !,
 	'$current_module'(Module),
-	'$spy'([Module|X>=Y]).
+	'$direct_spy'([Module|X>=Y]).
 '$creep_call'(X<Y,_) :- !,
 	'$current_module'(Module),
-	'$spy'([Module|X<Y]).
+	'$direct_spy'([Module|X<Y]).
 '$creep_call'(X=<Y,_) :- !,
 	'$current_module'(Module),
-	'$spy'([Module|X=<Y]).
+	'$direct_spy'([Module|X=<Y]).
 '$creep_call'(X=:=Y,_) :- !,
 	'$current_module'(Module),
-	'$spy'([Module|X=:=Y]).
+	'$direct_spy'([Module|X=:=Y]).
 '$creep_call'(X=\=Y,_) :- !,
 	'$current_module'(Module),
-	'$spy'([Module|X=\=Y]).
+	'$direct_spy'([Module|X=\=Y]).
 '$creep_call'(arg(X,Y,Z),_) :- !,
 	'$current_module'(Module),
-	'$spy'([Module|arg(X,Y,Z)]).
+	'$direct_spy'([Module|arg(X,Y,Z)]).
 '$creep_call'(functor(X,Y,Z),_) :- !,
 	'$current_module'(Module),
-	'$spy'([Module|functor(X,Y,Z)]).
+	'$direct_spy'([Module|functor(X,Y,Z)]).
 '$creep_call'((X->Y),CP) :- !,
 	CP1 is '$last_choice_pt',
 	'$creep_call'(X,CP),
@@ -735,25 +749,30 @@ debugging :-
 	'$creep_call'(Y,CP).
 '$creep_call'(!,CP) :- !,
 	'$current_module'(M),
-	'$spy'([M|'!'(CP)]),
+	'$direct_spy'([M|'!'(CP)]),
 	% clean up any garbage left here by the debugger.
 	'$$cut_by'(CP).
 '$creep_call'('$cut_by'(X),CP) :- !,
 	'$$cut_by'(X).
 '$creep_call'(repeat,_) :- !,
 	'$current_module'(M),
-	'$spy'([Module|repeat]).
+	'$direct_spy'([Module|repeat]).
 '$creep_call'([A|B],_) :- !,
 	'$current_module'(M),
-	'$spy'([Module|[A|B]]).
+	'$direct_spy'([Module|[A|B]]).
 '$creep_call'(A,CP) :-
-	'$undefined'(A),
+	'$undefined'(A), !,
+	'$creep_call_undefined'(A,CP).
+'$creep_call'(A,CP) :-
+	'$current_module'(Module),
+	'$direct_spy'([Module|A]).
+
+'$creep_call_undefined'(A,CP) :-
 	functor(A,F,N),
 	'$current_module'(M),
 	'$recorded'($import,$import(S,M,F,N),_), !,
 	'$creep_call'(S:A,CP).
-'$creep_call'(G,_) :-
-	'$undefined'(G), !,
+'$creep_call_undefined'(G, _) :-
 	( \+ '$undefined'(user:unknown_predicate_handler(_,_,_)),
 	  user:unknown_predicate_handler(G,M,NG) ->
 	  '$creep_call'(M:NG) ;
@@ -761,11 +780,6 @@ debugging :-
 	    '$recorded'('$unknown','$unknown'(M:G,US),_),
 	    '$creep_call'(user:US,_)
         ).
-
-'$creep_call'(A,CP) :-
-	'$current_module'(Module),
-	'$spy'([Module|A]).
-
 
 %'$creep'(G) :- $current_module(M),write(user_error,[creep,M,G]),nl(user_error),fail.
 '$creep'(G) :-
@@ -788,10 +802,10 @@ debugging :-
      ).
 '$creep'([Module|'$creep_call'(G,CP)]) :- !,
     (     Module=prolog -> '$creep_call'(G,CP);
-	  '$mod_switch'(Module, '$creep_call'(G,P) )
+	  '$mod_switch'(Module, '$creep_call'(G,CP) )
      ).
 '$creep'([_|'$leave_creep']) :- !.
-'$creep'(G) :- '$spy'(G).
+'$creep'(G) :- '$direct_spy'(G).
 
 '$trace'(P,'!'(_),L) :- !,
 	'$trace'(P,!,L).

@@ -152,6 +152,12 @@ ext_op attas[attvars_ext+1];
 
 /************** Debugger support ***************************************/
 
+/*
+  PREG just before we enter $spy. We use that to find out the clause which
+  was calling the debugged goal.
+*/
+yamop *P_before_spy;
+
 #ifdef DEBUG
 int output_msg = FALSE;
 #endif

@@ -6,6 +6,7 @@ BEFORE 4.4:
 - document new interface functions.
 - mask when installing.
 - Yap core dumps under simple configure/make in WIN32
+- check leash(full). [-user]. a(X) :- call(setof(Z,call(c(Z)),X)). a(X) :- b(X). b(X) :- c(X). c(1). c(2). end_of_file. spy a/1. a(X).
 
 TO CHECK:
 - bad register allocation for a(X,Y) :- X is Y+2.3 ?

@@ -119,6 +119,9 @@ extern PredEntry *pred_p;
 
 extern PredEntry *CurrentPred;
 
+/* debugger info */
+extern yamop *P_before_spy;
+
 /* cdmgr.c */
 void	STD_PROTO(RemoveLogUpdIndex,(Clause *));
 void	STD_PROTO(IPred,(CODEADDR sp));
