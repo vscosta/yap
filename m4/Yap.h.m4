@@ -10,7 +10,7 @@
 * File:		Yap.h.m4						 *
 * mods:									 *
 * comments:	main header file for YAP				 *
-* version:      $Id: Yap.h.m4,v 1.54 2004-02-20 18:56:07 vsc Exp $	 *
+* version:      $Id: Yap.h.m4,v 1.55 2004-02-22 10:54:09 vsc Exp $	 *
 *************************************************************************/
 
 #include "config.h"
@@ -147,6 +147,9 @@
 */
 
 #ifdef THREADS
+#if USE_PTHREAD_LOCKING
+#define _XOPEN_SOURCE 600
+#endif
 #include <pthread.h>
 #endif
 
