@@ -1,12 +1,13 @@
 #include "Yap.h"
+
+#if USE_DL_MALLOC
+
 #include "Heap.h"
 #if HAVE_STRING_H
 #include <string.h>
 #endif
 #include "alloc.h"
 #include "dlmalloc.h"
-
-#if USE_DL_MALLOC
 
 /*
   This is a version (aka dlmalloc) of malloc/free/realloc written by
