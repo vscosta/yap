@@ -1397,6 +1397,9 @@ mark_choicepoints(register choiceptr gc_B, tr_fr_ptr saved_TR, int very_verbose)
 #ifdef EASY_SHUNTING
     HB = H;
 #endif
+    yamop *lu_cl0 = NEXTOP(PredLogUpdClause0->CodeOfPred,ld), *lu_cl = NEXTOP(PredLogUpdClause->CodeOfPred,ld), *su_cl = NEXTOP(PredStaticClause->CodeOfPred,ld);
+
+
   while (gc_B != NULL) {
     op_numbers opnum;
     register OPCODE op;
@@ -1701,6 +1704,12 @@ mark_choicepoints(register choiceptr gc_B, tr_fr_ptr saved_TR, int very_verbose)
       case _trust_me4:
       case _retry:
       case _trust:
+	if (gc_B->cp_ap == lu_cl0 ||
+	    gc_B->cp_ap == lu_cl ||
+	    gc_B->cp_ap == su_cl) {
+	  CELL *pt = (CELL *)IntegerOfTerm(gc_B->cp_args[1]);
+	  mark_db_fixed(pt);
+	}
 	nargs = rtp->u.ld.s;
 	break;
       default:

@@ -11,8 +11,11 @@
 * File:		rheap.h							 *
 * comments:	walk through heap code					 *
 *									 *
-* Last rev:     $Date: 2004-03-31 01:03:10 $,$Author: vsc $						 *
+* Last rev:     $Date: 2004-04-29 03:45:50 $,$Author: vsc $						 *
 * $Log: not supported by cvs2svn $
+* Revision 1.40  2004/03/31 01:03:10  vsc
+* support expand group of clauses
+*
 * Revision 1.39  2004/03/19 11:35:42  vsc
 * trim_trail for default machine
 * be more aggressive about try-retry-trust chains.
@@ -656,7 +659,6 @@ restore_opcodes(yamop *pc)
     case _p_dif:
     case _p_eq:
     case _p_functor:
-    case _p_execute_tail:
     case _enter_a_profiling:
     case _count_a_call:
     case _index_dbref:
@@ -757,6 +759,7 @@ restore_opcodes(yamop *pc)
       pc = NEXTOP(pc,yF);
       break;
       /* instructions type sla */      
+    case _p_execute_tail:
     case _p_execute:
       pc->u.sla.sla_u.p = PtoPredAdjust(pc->u.sla.sla_u.p);
       if (pc->u.sla.sla_u.mod != 0) {

@@ -352,7 +352,6 @@ BuildNewAttVar(Term t, Int i, Term tatt)
     H -= 2;
     t = H[0];
     tatt = H[1];
-    printf("attv is %p\n", attv);
     attv = (attvar_record *)Yap_ReadTimedVar(DelayedVars);
   }
   time = InitVarTime();

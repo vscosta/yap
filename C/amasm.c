@@ -11,8 +11,11 @@
 * File:		amasm.c							 *
 * comments:	abstract machine assembler				 *
 *									 *
-* Last rev:     $Date: 2004-04-22 20:07:04 $							 *
+* Last rev:     $Date: 2004-04-29 03:45:50 $							 *
 * $Log: not supported by cvs2svn $
+* Revision 1.60  2004/04/22 20:07:04  vsc
+* more fixes for USE_SYSTEM_MEMORY
+*
 * Revision 1.59  2004/03/31 01:03:09  vsc
 * support expand group of clauses
 *
@@ -2925,6 +2928,11 @@ Yap_InitComma(void)
       GONEXT(e);
     }
     code_p->opc = opcode(_p_execute_tail);
-    GONEXT(e);
+    code_p->u.sla.s = emit_count(-Signed(RealEnvSize)-3*sizeof(CELL));
+    code_p->u.sla.bmap = NULL;
+    code_p->u.sla.sla_u.p = 
+      code_p->u.sla.p0 =
+      RepPredProp(PredPropByFunc(FunctorComma,0));
+    GONEXT(sla);
   }
 }

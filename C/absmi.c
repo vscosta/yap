@@ -10,8 +10,11 @@
 *									 *
 * File:		absmi.c							 *
 * comments:	Portable abstract machine interpreter                    *
-* Last rev:     $Date: 2004-04-22 20:07:02 $,$Author: vsc $						 *
+* Last rev:     $Date: 2004-04-29 03:45:49 $,$Author: vsc $						 *
 * $Log: not supported by cvs2svn $
+* Revision 1.131  2004/04/22 20:07:02  vsc
+* more fixes for USE_SYSTEM_MEMORY
+*
 * Revision 1.130  2004/04/22 03:24:17  vsc
 * trust_logical should protect the last clause, otherwise it cannot
 * jump there.
@@ -1239,7 +1242,7 @@ Yap_absmi(int inp)
 	}
 #else
 	if (TrailTerm(B->cp_tr-1) == CLREF_TO_TRENTRY(cl) &&
-	    B->cp_tr > B->cp_b->cp_tr) {
+	    B->cp_tr != B->cp_b->cp_tr) {
 	  cl->ClFlags &= ~InUseMask;
 	  TR = --B->cp_tr;
 	  /* next, recover space for the indexing code if it was erased */
@@ -11627,7 +11630,7 @@ Yap_absmi(int inp)
       CPREG = NEXTOP(PREG, sla);
       goto creep;
 
-      BOp(p_execute_tail, e);
+      BOp(p_execute_tail, sla);
       {
 	PredEntry *pen;
 	Term mod;
@@ -11845,6 +11848,8 @@ Yap_absmi(int inp)
 	WRITEBACK_Y_AS_ENV();
 	SREG = (CELL *) pen;
 	ASP = E_YREG;
+	if (ASP > (CELL *)B)
+	  ASP = (CELL *)B;
 	LOCK(SignalLock);
 	ActiveSignals &= ~YAP_CDOVF_SIGNAL;
 	UNLOCK(SignalLock);
@@ -11863,9 +11868,6 @@ Yap_absmi(int inp)
 	if (ActiveSignals) {
 	  goto creep;
 	}
-	ASP = (CELL *) (((char *) YREG) + PREG->u.sla.s);
-	if (ASP > (CELL *)B)
-	  ASP = (CELL *)B;
 	saveregs();
 	if (!Yap_gc(((PredEntry *)SREG)->ArityOfPE, ENV, NEXTOP(PREG, sla))) {
 	  Yap_Error(OUT_OF_STACK_ERROR,TermNil,Yap_ErrorMessage);
