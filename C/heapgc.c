@@ -2962,7 +2962,7 @@ compaction_phase(tr_fr_ptr old_TR, CELL *current_env, yamop *curp, CELL *max)
 #ifdef HYBRID_SCHEME
 #ifdef DEBUG
   if (total_marked != iptop-(CELL_PTR *)H && iptop < (CELL_PTR *)ASP -1024)
-    fprintf(Yap_stderr,"[GC] Oops on iptop-H (%d) vs %d\n", iptop-(CELL_PTR *)H, total_marked);
+    fprintf(Yap_stderr,"[GC] Oops on iptop-H (%ld) vs %ld\n", iptop-(CELL_PTR *)H, total_marked);
 #endif
   if (iptop < (CELL_PTR *)ASP && 10*total_marked < H-H0) {
 #ifdef INSTRUMENT_GC
