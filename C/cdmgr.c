@@ -577,20 +577,22 @@ retract_all(PredEntry *p, int in_use)
     p->StatisticsForPred.NOfHeadSuccesses = 0;
     p->StatisticsForPred.NOfRetries = 0;
   } else {
-    yamop *cpt = (yamop *)fclause;
-    cpt->opc = Yap_opcode(TRYCODE(_try_me, _try_me0, PredArity(p)));
-    if (fclause == lclause) {
-      p->cs.p_code.TrueCodeOfPred = p->CodeOfPred = NEXTOP(cpt,ld);
-      p->OpcodeOfPred = NEXTOP(cpt,ld)->opc;
-    } else {
-      p->cs.p_code.TrueCodeOfPred = p->CodeOfPred = fclause;
-      p->OpcodeOfPred = cpt->opc;
-      if (p->PredFlags & ProfiledPredFlag) {
-	((yamop *)lclause)->opc = Yap_opcode(_profiled_trust_me);
-      } else if (p->PredFlags & CountPredFlag) {
-	((yamop *)lclause)->opc = Yap_opcode(_count_trust_me);
+    if (!(p->PredFlags & LogUpdatePredFlag)) {
+      yamop *cpt = (yamop *)fclause;
+      cpt->opc = Yap_opcode(TRYCODE(_try_me, _try_me0, PredArity(p)));
+      if (fclause == lclause) {
+	p->cs.p_code.TrueCodeOfPred = p->CodeOfPred = NEXTOP(cpt,ld);
+	p->OpcodeOfPred = NEXTOP(cpt,ld)->opc;
       } else {
-	((yamop *)lclause)->opc = Yap_opcode(TRYCODE(_trust_me, _trust_me0, PredArity(p)));
+	p->cs.p_code.TrueCodeOfPred = p->CodeOfPred = fclause;
+	p->OpcodeOfPred = cpt->opc;
+	if (p->PredFlags & ProfiledPredFlag) {
+	  ((yamop *)lclause)->opc = Yap_opcode(_profiled_trust_me);
+	} else if (p->PredFlags & CountPredFlag) {
+	  ((yamop *)lclause)->opc = Yap_opcode(_count_trust_me);
+	} else {
+	  ((yamop *)lclause)->opc = Yap_opcode(TRYCODE(_trust_me, _trust_me0, PredArity(p)));
+	}
       }
     }
     if (p->PredFlags & SpiedPredFlag) {

@@ -461,14 +461,14 @@ repeat :- '$repeat'.
 	(
 		'$start_creep',
 		'$execute'(G),
-		'$stop_creep',
+		'$do_stop_creep',
 		'$extract_goal_vars_for_dump'(V,LIV),
 		'$show_frozen'(G,LIV,LGs),
 		'$write_answer'(V, LGs, Written),
 		'$write_query_answer_true'(Written),
 		'$another',
 		!, fail ;
-		'$stop_creep',
+		'$do_stop_creep',
 		'$present_answer'(_, no),
 		fail
 	).
@@ -476,7 +476,7 @@ repeat :- '$repeat'.
 '$yes_no'(G,C) :-
 	'$current_module'(M),
 	'$do_yes_no'(G,M),
-	'$stop_creep',
+	'$do_stop_creep',
 	'$show_frozen'(G, [], LGs),
 	'$write_answer'([], LGs, Written),
         ( Written = [] ->
@@ -485,9 +485,13 @@ repeat :- '$repeat'.
 	),
 	fail.
 '$yes_no'(_,_) :-
-	'$stop_creep',
+	'$do_stop_creep',
 	'$present_answer'(_, no),
 	fail.
+
+% make sure we have Prolog code to force running any delayed goals.
+'$do_stop_creep' :-
+	'$stop_creep'.
 
 
 '$start_creep' :-

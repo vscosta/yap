@@ -2159,18 +2159,9 @@ Yap_absmi(int inp)
       /* also, this is unusual in that I have already done deallocate,
 	 so I don't need to redo it.
        */ 
-    NoStackProceed:
+    NoStackDeallocate:
       if (CFREG == (CELL)(LCL0+2)) {
-	/*
-	  we're not actually doing debugging here, just execute
-	  instruction and go on.
-	*/
-	PREG = CPREG;
-	YREG = ENV;
-#ifdef DEPTH_LIMIT
-	DEPTH = YREG[E_DEPTH];
-#endif
-	JMPNext();
+	GONext();
       }
       ASP = YREG;
       if (CFREG == (CELL)(LCL0+1)) {
@@ -2178,7 +2169,13 @@ Yap_absmi(int inp)
       }
       if (CFREG == Unsigned(LCL0)) {
 	if (Yap_ReadTimedVar(WokenGoals) != TermNil) {
-	  SREG = (CELL *)RepPredProp(Yap_GetPredPropByAtom(AtomTrue,0));
+	  if (Yap_op_from_opcode(PREG->opc) == _cut_e) {
+	    /* followed by a cut */
+	    ARG1 = MkIntegerTerm(LCL0-(CELL *)SREG[E_CB]);
+	    SREG = (CELL *)RepPredProp(Yap_GetPredPropByFunc(FunctorCutBy,1));
+	  } else {
+	    SREG = (CELL *)RepPredProp(Yap_GetPredPropByAtom(AtomTrue,0));
+	  }
 	  goto creep;
 	} else {
 	  CFREG = CalculateStackGap();
@@ -2567,10 +2564,6 @@ Yap_absmi(int inp)
 
       BOp(procceed, e);
       CACHE_Y_AS_ENV(YREG);
-#ifndef NO_CHECKING
-      /* check stacks */
-      check_stack(NoStackProceed, H);
-#endif
       PREG = CPREG;
       E_YREG = ENV;
 #ifdef DEPTH_LIMIT
@@ -2622,6 +2615,10 @@ Yap_absmi(int inp)
 	E_YREG = (CELL *) ((CELL) E_YREG + ENV_Size(CPREG));
 #endif /* FROZEN_STACKS */
       WRITEBACK_Y_AS_ENV();
+#ifndef NO_CHECKING
+      /* check stacks */
+      check_stack(NoStackDeallocate, H);
+#endif
       ENDCACHE_Y_AS_ENV();
       GONext();
       ENDOp();
