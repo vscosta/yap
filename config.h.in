@@ -211,6 +211,7 @@
 
 #undef  HAVE_SIGINFO
 #undef  HAVE_SIGSEGV
+#undef  HAVE_SIGPROF
 
 #undef  HAVE_ENVIRON
 

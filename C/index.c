@@ -2741,5 +2741,10 @@ Yap_PredIsIndexable(PredEntry *ap)
     }
     goto restart_index;
   }
+#ifdef LOW_PROF
+  if (ProfilerOn) {
+    Yap_inform_profiler_of_clause(indx_out, Yap_prof_end, ap);
+  }
+#endif
   return(indx_out);
 }

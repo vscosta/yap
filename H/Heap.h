@@ -10,7 +10,7 @@
 * File:		Heap.h         						 *
 * mods:									 *
 * comments:	Heap Init Structure					 *
-* version:      $Id: Heap.h,v 1.40 2003-04-30 17:45:53 vsc Exp $	 *
+* version:      $Id: Heap.h,v 1.41 2003-05-20 19:11:59 vsc Exp $	 *
 *************************************************************************/
 
 /* information that can be stored in Code Space */
@@ -300,6 +300,13 @@ typedef struct various_codes {
   UInt n_of_file_aliases;
   UInt sz_of_file_aliases;
   struct AliasDescS * file_aliases;
+#if LOW_PROF
+  int   profiler_on;
+  FILE  *f_prof, *f_preds;
+  int   profiler_pred_count;
+  UInt  prof_calls;
+  UInt  prof_preds;
+#endif /* LOW_PROF */
   struct reduction_counters call_counters;
   char *yap_lib_dir;
   Agc_hook  agc_hook;
@@ -517,6 +524,14 @@ typedef struct various_codes {
 #define  NOfFileAliases           heap_regs->n_of_file_aliases
 #define  SzOfFileAliases          heap_regs->sz_of_file_aliases
 #define  FileAliases              heap_regs->file_aliases
+#if LOW_PROF
+#define  ProfilerOn		  heap_regs->profiler_on
+#define  FProf     		  heap_regs->f_prof
+#define  FPreds     		  heap_regs->f_preds
+#define  ProfilerPredCount	  heap_regs->profiler_pred_count
+#define  ProfCalls		  heap_regs->prof_calls
+#define  ProfPreds		  heap_regs->prof_preds
+#endif /* LOW_PROF */
 #define  ReductionsCounter        heap_regs->call_counters.reductions
 #define  PredEntriesCounter       heap_regs->call_counters.reductions_retries
 #define  RetriesCounter           heap_regs->call_counters.retries

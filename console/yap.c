@@ -105,7 +105,8 @@ static int eof_found = FALSE;
 static int yap_lineno = 0;
 
 #ifdef DEBUG
-static void myputc (int ch)
+static void
+myputc (int ch)
 {
   putc(ch,stderr);
 }

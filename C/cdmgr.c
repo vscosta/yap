@@ -2540,6 +2540,83 @@ p_hidden_predicate(void)
   return(pe->PredFlags & HiddenPredFlag);
 }
 
+#ifdef LOW_PROF
+
+static void
+inform_profiler_of_clause(yamop *code_start, yamop *code_end, PredEntry *pe) {
+  /*
+    I can only open once, otherwise I'll have heaps of trouble
+    whenever Yap changes directory
+  */
+  ProfPreds++;
+  if (FPreds != NULL) {
+    fprintf(FPreds,"+%p %p %p %ld\n",code_start,code_end, pe, ProfCalls);
+  }
+}
+
+void
+Yap_inform_profiler_of_clause(yamop *code_start, yamop *code_end, PredEntry *pe) {
+  inform_profiler_of_clause(code_start, code_end, pe);
+}
+
+static void
+add_code_in_pred(PredEntry *pp) {
+  yamop *clcode;
+
+  READ_LOCK(pp->PRWLock);
+  /* check if the codeptr comes from the indexing code */
+  clcode = pp->cs.p_code.TrueCodeOfPred;
+  if (pp->PredFlags & IndexedPredFlag) {
+    char *code_end;
+    if (pp->PredFlags & LogUpdatePredFlag) {
+      LogUpdClause *cl = ClauseCodeToLogUpdClause(clcode);
+      code_end = (char *)cl + Yap_SizeOfBlock((CODEADDR)cl);
+    } else {
+      StaticClause *cl = ClauseCodeToStaticClause(clcode);
+      code_end = (char *)cl + Yap_SizeOfBlock((CODEADDR)cl);
+    }
+    inform_profiler_of_clause(clcode, (yamop *)code_end, pp);
+  }	      
+  clcode = pp->cs.p_code.FirstClause;
+  if (clcode != NULL) {
+    do {
+      CODEADDR cl;
+      char *code_end;
+
+      if (pp->PredFlags & LogUpdatePredFlag) {
+	cl = (CODEADDR)ClauseCodeToLogUpdClause(clcode);
+      } else if (!(pp->PredFlags & DynamicPredFlag)) {
+	cl = (CODEADDR)ClauseCodeToDynamicClause(clcode);
+      } else {
+	cl = (CODEADDR)ClauseCodeToStaticClause(clcode);
+      }
+      code_end = (char *)cl + Yap_SizeOfBlock((CODEADDR)cl);
+      inform_profiler_of_clause(clcode, (yamop *)code_end, pp);
+      if (clcode == pp->cs.p_code.LastClause)
+	break;
+      clcode = NextClause(clcode);
+    } while (TRUE);
+  }
+  READ_UNLOCK(pp->PRWLock); 
+}
+
+
+void
+Yap_dump_code_area_for_profiler(void) {
+  Int i_table;
+
+  for (i_table = NoOfModules-1; i_table >= 0; --i_table) {
+    PredEntry *pp = ModulePred[i_table];
+    while (pp != NULL) {
+      add_code_in_pred(pp);
+      pp = pp->NextPredOfModule;
+    }
+  }
+}
+
+#endif /* LOW_PROF */
+
+
 void 
 Yap_InitCdMgr(void)
 {

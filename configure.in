@@ -831,6 +831,24 @@ else
 AC_DEFINE(HAVE_SIGSEGV,0)
 fi
 
+dnl check for sigsegv
+AC_MSG_CHECKING(for sigprof)
+AC_CACHE_VAL(yap_sigprof,[
+AC_TRY_COMPILE(
+	#include <signal.h>
+	#include <stdio.h>
+	,
+	printf("Signal value is %d\n", SIGPROF);
+	,
+	yap_sigprof=yes,yap_sigprof=no)])
+AC_MSG_RESULT($yap_sigprof)
+if test "$yap_sigsegv" = yes 
+then
+AC_DEFINE(HAVE_SIGPROF,1)
+else
+AC_DEFINE(HAVE_SIGPROF,0)
+fi
+
 dnl check for siginfo
 AC_MSG_CHECKING(for siginfo)
 AC_CACHE_VAL(yap_siginfo,[

@@ -107,161 +107,208 @@ STD_PROTO(static Int profres, (void));
 STD_PROTO(static Int profres2, (void));
 
 #define TIMER_DEFAULT 1000
-static FILE *fprof;
 
-void prof_alrm(int signo)
+static void
+prof_alrm(int signo)
 {
-  fprintf(fprof,"%x\n",Yap_regp->P_);
+  ProfCalls++;
+  fprintf(FProf,"%p\n", P);
   return;
 }
 
 static Int set_prof_timer(int msec) {
-static int n=-1;
-struct itimerval t;
+  static int n=-1;
+  struct itimerval t;
 
-  if (msec==0 || n>0) { setitimer(ITIMER_REAL,NULL,NULL); fclose(fprof); n=0; return (TRUE); }
-  if (signal(SIGALRM,prof_alrm) == SIG_ERR) { return (FALSE); }
-
-  if (n==-1) fprof=fopen("PROFILING","w"); 
-  else fprof=fopen("PROFILING","a");
-  if (fprof==NULL) { return(FALSE); }
+  if (msec==0 || n>0) {
+    setitimer(ITIMER_PROF,NULL,NULL);
+    n=0;
+    return TRUE;
+  }
+  if (signal(SIGPROF,prof_alrm) == SIG_ERR) {
+    return FALSE;
+  }
 
   n=1;
   t.it_interval.tv_sec=0;
   t.it_interval.tv_usec=msec;
   t.it_value.tv_sec=0;
   t.it_value.tv_usec=msec;
-  setitimer(ITIMER_REAL,&t,NULL);
+  setitimer(ITIMER_PROF,&t,NULL);
 
-return(TRUE);
+  return(TRUE);
+}
+
+static void
+start_profilers(void)
+{
+  ProfCalls = 0L;
+  if (FPreds == NULL) { 
+    FPreds=fopen("PROFPREDS","w+"); 
+  }
+  if (FPreds == NULL)
+    return;
+  Yap_dump_code_area_for_profiler();
+  if (FProf != NULL) {
+    /* close previous profiling session */
+    fclose(FProf);
+  }
+  FProf=fopen("PROFILING","w+"); 
+  if (FProf==NULL) {
+    return;
+  }
+  ProfilerOn = TRUE;
 }
 
 static Int useprof(void) { 
   Term p;
-  p=Deref(ARG1); 
+
+  p=Deref(ARG1);
+  start_profilers();
   return (set_prof_timer(IntOfTerm(p)));
 }
 
 static Int useprof0(void) { 
+
+  start_profilers();
   return(set_prof_timer(TIMER_DEFAULT));
 }
 
+typedef struct clause_entry {
+  yamop *beg, *end;
+  PredEntry *pp;
+  UInt pcs;
+  UInt ts, tf; /* start end timestamp towards retracts, eventually */
+} clauseentry;
+
+static int
+cl_cmp(const void *c1, const void *c2)
+{
+  const clauseentry *cl1 = (const clauseentry *)c1;
+  const clauseentry *cl2 = (const clauseentry *)c2;
+  if (cl1->beg > cl2->beg) return 1;
+  if (cl1->beg < cl2->beg) return -1;
+  return 0;
+}
+
+static int
+p_cmp(const void *c1, const void *c2)
+{
+  const clauseentry *cl1 = (const clauseentry *)c1;
+  const clauseentry *cl2 = (const clauseentry *)c2;
+  if (cl1->pp > cl2->pp) return 1;
+  if (cl1->pp < cl2->pp) return -1;
+  return 0;
+}
+
+static void
+search_pc_pred(yamop *pc_ptr,clauseentry *beg, clauseentry *end) {
+  /* binary search, dynamic clauses not supported yet */
+  Int i, j, f, l;
+  f = 0; l = (end-beg)-1;
+  i = l/2;
+  while (TRUE) {
+    printf("i %d\n", i);
+    if (beg[i].beg > pc_ptr) {
+      l = i-1;
+      if (l < f) {
+	printf("Could not find %p\n", pc_ptr);
+	return;
+      }
+      j = i;
+      i = (f+l)/2;
+    } else if (beg[i].end < pc_ptr) {
+      f = i+1;
+      if (f > l) {
+	printf("Could not find %p\n", pc_ptr);
+	return;
+      }
+      i = (f+l)/2;
+    } else if (beg[i].beg <= pc_ptr && beg[i].end >= pc_ptr) {
+      beg[i].pcs++;
+      return;
+    } else {
+      printf("Could not find %p\n", pc_ptr);
+      return;
+    }
+  }
+}
+
+
+static int
+showprofres(int tipo) { 
+  clauseentry *pr = (clauseentry *)TR, *t;
+  UInt i = ProfPreds;
+
+  if (FPreds == NULL ||
+      FProf == NULL) return FALSE;
+
+  (void)fseek(FPreds, 0L, SEEK_SET);
+
+  while (i) {
+    if (fscanf(FPreds,"+%p %p %p %ld\n",&(pr->beg),&(pr->end),&(pr->pp),&(pr->ts)) == 0){
+      /* error */
+      return FALSE;
+    }
+    pr->pcs = 0L;
+    pr++;
+    if (pr > (clauseentry *)Yap_TrailTop - 1024) {
+      Yap_growtrail(64 * 1024L);
+    }
+    i--;
+  }
+
+  /* so that we can write again */
+  (void)fseek(FPreds, 0L, SEEK_END);
+
+  qsort((void *)TR, ProfPreds, sizeof(clauseentry), cl_cmp);
+
+  (void)fseek(FProf, 0L, SEEK_SET);
+  for (; i < ProfCalls; i++) {
+    yamop *pc_ptr;
+    if (fscanf(FProf,"%p\n",&pc_ptr) == 0){
+      /* error */
+      return FALSE;
+    }
+    search_pc_pred(pc_ptr,(clauseentry *)TR,pr);
+  }
+  (void)fseek(FProf, 0L, SEEK_END);
+  qsort((void *)TR, ProfPreds, sizeof(clauseentry), p_cmp);
+
+  t = (clauseentry *)TR;
+  while (t < pr) {
+    UInt calls = t->pcs;
+    PredEntry *myp = t->pp;
+    t++;
+    while (t->pp == myp) {
+      calls += t->pcs;
+      t++;
+    }
+    if (calls) {
+      if (myp->ArityOfPE) {
+	printf("%s:%s/%d -> %ld\n",
+	       RepAtom(AtomOfTerm(ModuleName[myp->ModuleOfPred]))->StrOfAE,
+	       RepAtom(NameOfFunctor(myp->FunctorOfPred))->StrOfAE,
+	       myp->ArityOfPE,
+	       calls);
+      } else {
+	printf("%s:%s -> %ld\n",
+	       RepAtom(AtomOfTerm(ModuleName[myp->ModuleOfPred]))->StrOfAE,
+	       RepAtom((Atom)(myp->FunctorOfPred))->StrOfAE,
+	       calls);
+      }
+    }
+  }
+  
+  return TRUE;
+}
 
 static Int profres(void) { 
-  showprofres(0);
+  return showprofres(0);
 }
 
 static Int profres2(void) { 
-  showprofres(1);
-}
-
-int showprofres(int tipo) { 
-FILE *f;
-long p, p1,p2, total,total2,count,fora, i;
-unsigned long es,ee,e1,e2,e;
-long *end;
-char nome[200];
-
-
- f=fopen("PROFPREDS","r");
- if (f==NULL) return (FALSE);
-
- i=fscanf(f,"%x - %x - Pred(%ld) - %s",&es,&ee,&p,nome);
- p1=p2=p;
- e1=es;
- e2=ee;
-
- while(i>0) {
-   if (p<p1) p1=p;
-   else if (p>p2) p2=p;
-   if (e1>es) e1=es;
-   if (e2<ee) e2=ee;
-   i=fscanf(f,"%x - %x - Pred(%ld) - %s",&es,&ee,&p,nome);
- }
- fclose(f);
-
- f=fopen("PROFINIT","r");
- if (f!=NULL) {
-
-   while(i>0) {
-     if (p<p1) p1=p;
-     else if (p>p2) p2=p;
-     if (e1>es) e1=es;
-     if (e2<ee) e2=ee;
-     i=fscanf(f,"%x - %x - Pred(%ld) - %s",&es,&ee,&p,nome);
-    }
- }
- fclose(f);
-
- printf("%ld Addresses  from [%x] to [%x]\n",e2-e1,e1,e2);
- printf("%ld Predicates from (%ld) to (%ld) \n",p2-p1,p1,p2);
-
-
- end=(long *) malloc((e2-e1+1)*sizeof(long));
- if (end==NULL) { printf("Not enought mem to process results...\n"); return (FALSE); }
- memset(end,0, (e2-e1+1)*sizeof(long)); 
-
- 
- f=fopen("PROFILING","r"); 
- if (f==NULL) return (FALSE);
- 
- i=fscanf(f,"%x",&e);
- total=0; fora=0; 
- while(i>0) {
-   total++;
-   if (e<e1 || e>e2) fora++; 
-   else end[e-e1]++; 
-   i=fscanf(f,"%x",&e);
- }
-
- fclose(f); 
- 
-
- printf("Total count %ld (other code %ld)\n",total,fora); 
-
- total2=0;
- p1=0; p2=0;
- count=0;
-
- f=fopen("PROFPREDS","r");
- if (f==NULL) return(FALSE);
- if (tipo==0) {
-   do {
-     i=fscanf(f,"%x - %x - Pred(%ld) - %s",&es,&ee,&p,nome);
-     if (i<=0) break;
-     if (p1!=p) { p2=1; p1=p; } else p2++;
-     count=0; 
-     while(es<=ee) { count+=end[es-e1]; es++; } 
-     total2+=count;
-     if (count) printf("Pred(%ld) - %s (%d) - %ld (%f\%)\n", p,nome,p2,count, ((float) count/total)*100.0);
-   } while(i>0);
-
- } else {
-   char buffer[300];
-   buffer[0]=0;
-   do {
-     i=fscanf(f,"%x - %x - Pred(%ld) - %s",&es,&ee,&p,nome);
-     if (i<=0) break;
-     if (p1!=p) {
-        p2=1; 
-        p1=p; 
-        if (count) printf("%s",buffer); 
-        total2+=count;
-        count=0; 
-     } else 
-        p2++;
-     while(es<=ee) { count+=end[es-e1]; es++; } 
-     sprintf(buffer,"Pred(%ld) - %s (%d) - %ld (%f\%)\n", p,nome,p2,count, ((float) count/total)*100.0);
-   } while(i>0);
-   total2+=count;
-   if (count) printf("%s",buffer);   
- }
-
- fclose(f); 
- printf("Total counted %ld (other code %ld)\n",total2,total-total2); 
- free(end);
-
- return (TRUE);
+  return showprofres(1);
 }
 
 #endif /* LOW_PROF */

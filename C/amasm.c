@@ -100,7 +100,7 @@ STATIC_PROTO(void a_fetch_vc, (void));
 STATIC_PROTO(void a_f2, (int));
 
 #ifdef LOW_PROF
-   int PROFSIZE;
+   yamop *prof_end;
 #endif
 
 #define CELLSIZE sizeof(CELL)
@@ -2546,7 +2546,7 @@ Yap_assemble(int mode)
   entry_code = do_pass();
   YAPLeaveCriticalSection();
 #ifdef LOW_PROF
-  PROFSIZE=code_p;
+  Yap_prof_end=code_p;
 #endif
   return entry_code;
 }
@@ -2590,4 +2590,7 @@ Yap_InitComma(void)
     code_p->opc = opcode(_p_execute_tail);
     GONEXT(e);
   }
+#ifdef LOW_PROF
+  Yap_inform_profiler_of_clause(COMMA_CODE, code_p, RepPredProp(Yap_GetPredPropByFunc(FunctorComma,2)));
+#endif
 }

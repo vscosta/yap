@@ -2834,36 +2834,9 @@ Yap_cclause(Term inp_clause, int NOfArgs, int mod)
   /* phase 3: assemble code                                                */
   acode = Yap_assemble(ASSEMBLING_CLAUSE);
 
-#ifdef LOW_PROF
- {
-  static int pred_count=0;
-  FILE *f,*init;
-  extern int PROFSIZE;
-
-  if (!pred_count++) { 
-      f=fopen("PROFPREDS","w"); 
-      init=fopen("PROFINIT","r");
-      if (init!=NULL) {
-        size_t nc; char buffer[4100];
-	do {
-          nc=fread(buffer,1,4096,init);
-          fwrite(buffer,1,nc,f);
-        } while(nc>0);
-      fclose(init);
-      }
-  } else {
-      f=fopen("PROFPREDS","a");
-  }
-  if (f!=NULL) {  
-      fprintf(f,"%x - %x - Pred(%ld) - %s/%d\n",acode,PROFSIZE, CodeStart->rnd1, RepAtom(AtomOfTerm(MkAtomTerm((Atom) CodeStart->rnd1)))->StrOfAE, CodeStart->rnd2);
-      fclose(f);
-  }
- }
-#endif
-
 
   /* check first if there was space for us */
-  if (acode == NIL) {
+  if (acode == NULL) {
     /* make sure we have enough space */
     reset_vars();
     if (!Yap_growheap(FALSE, Yap_Error_Size)) {
@@ -2875,7 +2848,13 @@ Yap_cclause(Term inp_clause, int NOfArgs, int mod)
       my_clause = Deref(ARG1);
       goto restart_compilation;
     }
-  } else
+  } else {
+#ifdef LOW_PROF
+    if (ProfilerOn) {
+      Yap_inform_profiler_of_clause(acode, Yap_prof_end, CurrentPred);
+    }
+#endif
     return(acode);
+  }
 }
 
