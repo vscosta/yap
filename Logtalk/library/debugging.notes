@@ -1,6 +1,6 @@
 =================================================================
 Logtalk - Object oriented extension to Prolog
-Release 2.16.2
+Release 2.17.0
 
 Copyright (c) 1998-2004 Paulo Moura.  All Rights Reserved.
 =================================================================
@@ -13,7 +13,7 @@ You will need to load FIRST the events.loader file otherwise you will get
 a runtime error.
 
 
-The object debugger enables you to:
+The object event_dbg enables you to:
 
 	- spy all or specific messages to an object
 	- trace an execution

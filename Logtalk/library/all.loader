@@ -9,8 +9,8 @@
 		before_event_registry, after_event_registry,
 		monitorp, monitor,
 		
-		debuggerp,											% debugging
-		debugger, 
+		event_dbgp,											% debugging
+		event_dbg, 
 
         subject,                                            % dependents
         observer,

@@ -1,0 +1,55 @@
+=================================================================
+Logtalk - Object oriented extension to Prolog
+Release 2.17.0
+
+Copyright (c) 1998-2004 Paulo Moura.  All Rights Reserved.
+=================================================================
+
+
+This directory contains miscellaneous files used in Logtalk packaging, 
+installation, and integration with Prolog compilers:
+
+lgt_install.sh
+	shell script for installing Logtalk in Unix and Unix-like operating 
+	systems (must be runned from this directory by a user with administration 
+	privileges); accepts as an optional argument a prefix for the installation 
+	directory (default is /usr/local)
+
+logtalk.spec
+	specification file for building Linux RPMs
+	(copy the Logtalk tarball to your RPM SOURCES directory and then 
+	run the command: rpmbuild -ba --target=noarch-*-linux logtalk.spec)
+
+cplgtdirs.sh
+	shell script for copying xml, examples and library directories to 
+	the user home directory (must be runned by the end-user to ensure 
+	proper permissions on the copied files)
+
+
+The following shell scripts must be runned by a user with administration 
+privileges:
+
+make_eclipselgt.sh
+	makes a script named eclipselgt for running Logtalk with ECLiPSe
+
+make_gplgt.sh
+	makes a script named gplgt for running Logtalk with GNU Prolog
+make_qplgt.sh
+	makes a script named qplgt for running Logtalk with Qu-Prolog 
+	(based on script code contributed by Peter Robinson)
+make_sicstuslgt.sh
+	makes a script named sicstuslgt for running Logtalk with SICStus Prolog
+make_swilgt.sh
+	makes a script named swilgt for running Logtalk with SWI-Prolog
+make_yaplgt.sh
+	makes a script named yaplgt for running Logtalk with YAP
+These scripts require the environment variable LOGTALKHOME (containing the 
+Logtalk installation directory) to be defined. In addition, they accept as 
+an optional argument a prefix for the location of a link to the scripts 
+(default is /usr/local, creating the links in /usr/local/bin). Please note 
+that the environment variable LOGTALKHOME must be defined in order to run 
+the *lgt scripts that are created by the shell scripts above.
+
+Note: when Logtalk is manually installed from sources, the shell scripts might 
+not have the executable permission bit set. In that case it will be necessary 
+to first run the command "chmod a+x *.sh".

@@ -1,6 +1,6 @@
 =================================================================
 Logtalk - Object oriented extension to Prolog
-Release 2.16.2
+Release 2.17.0
 
 Copyright (c) 1998-2004 Paulo Moura.  All Rights Reserved.
 =================================================================
@@ -92,10 +92,10 @@ yes
 6 8 12  _|____________|_ lamp 1 3 
 1 3 6 8 12  lamp _|____________|_ 
 solution length: 8
-state transitions: 346
-ratio solution length / state transitions: 0.0231214
+state transitions: 367
+ratio solution length / state transitions: 0.0217984
 minimum branching degree: 1
-average branching degree: 7.42453
+average branching degree: 7.32579
 maximum branching degree: 15
 time: 0.28
 

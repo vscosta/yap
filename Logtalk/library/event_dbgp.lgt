@@ -1,5 +1,5 @@
 
-:- protocol(debuggerp).
+:- protocol(event_dbgp).
 
 
 	:- info([

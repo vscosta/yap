@@ -1,6 +1,6 @@
 
-:- object(debugger,
-	implements(debuggerp, event_handlersp),
+:- object(event_dbg,
+	implements(event_dbgp, event_handlersp),
 	imports(monitor)).
 
 

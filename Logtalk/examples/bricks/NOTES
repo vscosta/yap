@@ -1,6 +1,6 @@
 =================================================================
 Logtalk - Object oriented extension to Prolog
-Release 2.16.2
+Release 2.17.0
 
 Copyright (c) 1998-2004 Paulo Moura.  All Rights Reserved.
 =================================================================
@@ -24,5 +24,6 @@ want the bricks on top of it to move along. If we break the stack by
 moving a middle brick, we want to automatically destroy the
 corresponding relation tuple.
 
-It's instructive to use the debugger to better understand this example.
-Set spy points in all brick instances and then activate the debugger.
+It's instructive to use the event debugger in the Logtalk library (loader 
+file debugging.loader) to better understand this example. Set spy points 
+in all brick instances and then activate the debugger.

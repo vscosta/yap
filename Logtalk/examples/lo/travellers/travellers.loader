@@ -1,4 +1,6 @@
 
+:- op(400, yfx, ~).
+
 :- initialization(
 	logtalk_load([
 		quick1,

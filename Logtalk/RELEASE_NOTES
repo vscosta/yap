@@ -1,6 +1,6 @@
 =================================================================
 Logtalk - Object oriented extension to Prolog
-Release 2.16.2
+Release 2.17.0
 
 Copyright (c) 1998-2004 Paulo Moura.  All Rights Reserved.
 =================================================================
@@ -8,6 +8,30 @@ Copyright (c) 1998-2004 Paulo Moura.  All Rights Reserved.
 
 RELEASE NOTES
 =============
+
+
+2.17.0 - April 26, 2004
+
+	Added built-in debugging support implemented through the definition of a 
+	new pseudo-object named "debugger". Added "debug" compiler option. Renamed 
+	library entities "debuggerp" and "debugger" to, respectively, "event_dbgp" 
+	and "event_dbg".
+
+	Improved installation instructions for multi-user environments. Added 
+	a shell script for installing Logtalk in Unix and Unix-like operating 
+	systems. Added a shell script for copying Logtalk xml, examples, and 
+	library directories to the user home directory.
+
+	Added a logtalk.spec file for building Linux RPMs from sources.
+
+	Added a set of shell scripts for easy integration of Logtalk with ECLiPSe, 
+	GNU Prolog, Qu-Prolog, SICStus Prolog, SWI-Prolog, and YAP.
+
+	Corrected bug in the definition of the pseudo-object "user" that resulted 
+	in mixed up metapredicate and type predicate properties.
+
+	Removed config files for outdated versions of Qu-Prolog, SWI-Prolog, ECLiPSe,
+	K-Prolog, CIAO, YAP, Amzi! Prolog, LPA Win-Prolog, SICStus Prolog, and XSB.
 
 
 2.16.2 - April 2, 2004

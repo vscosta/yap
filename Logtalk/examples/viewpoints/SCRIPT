@@ -1,6 +1,6 @@
 =================================================================
 Logtalk - Object oriented extension to Prolog
-Release 2.16.2
+Release 2.17.0
 
 Copyright (c) 1998-2004 Paulo Moura.  All Rights Reserved.
 =================================================================
@@ -72,7 +72,7 @@ yes
 % initially, score/1 is only defined for joePerson, so every descendant 
 % or viewpoint will share its value/definition:
 
-| ?-  joeEmployee::score(Score).
+| ?- joeEmployee::score(Score).
 
 Score = 0
 yes
@@ -92,7 +92,7 @@ yes
 
 | ?- joePerson::score(Score).
 
-Counter = 0
+Score = 0
 yes
 
 
@@ -101,5 +101,5 @@ yes
 
 | ?- joeSportsman::score(Score).
 
-Counter = 0
+Score = 0
 yes

@@ -1,5 +1,5 @@
 
 :- initialization(
 	logtalk_load([
-		debuggerp,
-		debugger])). 
+		event_dbgp,
+		event_dbg])). 
