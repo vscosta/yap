@@ -382,14 +382,21 @@ abolish(X) :-
 	\+ atom(M), !,
 	throw(error(type_error(atom,Na), Msg)).
 
-'$old_abolish'(V) :-
-	'$abolish_all'.
+'$old_abolish'(V) :- var(V), !,
+	'$abolish_all_old'.
 '$old_abolish'(M:N) :- !,
 	'$mod_switch'(M,'$old_abolish'(N)).
 '$old_abolish'([]) :- !.
 '$old_abolish'([H|T]) :- !,  abolish(H), abolish(T).
 '$old_abolish'(N/A) :- abolish(N,A).
 	
+'$abolish_all_old' :-
+        current_predicate(_,P),
+	functor(P, Na, Ar),
+	'$abolish_old'(Na/Ar),
+	fail.
+'$abolish_all_old'.
+
 
 '$abolishd'(T) :- '$recordedp'(T,_,R), erase(R), fail.
 '$abolishd'(T) :- '$kill_dynamic'(T), fail.
