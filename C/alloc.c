@@ -12,7 +12,7 @@
 * Last rev:								 *
 * mods:									 *
 * comments:	allocating space					 *
-* version:$Id: alloc.c,v 1.2 2001-05-03 17:13:18 vsc Exp $		 *
+* version:$Id: alloc.c,v 1.3 2001-05-03 17:23:30 vsc Exp $		 *
 *************************************************************************/
 #ifdef SCCS
 static char SccsId[] = "%W% %G%";
@@ -545,15 +545,9 @@ ExtendWorkSpace(Int s)
   a = mmap(WorkSpaceTop, (size_t) s, PROT_READ | PROT_WRITE | PROT_EXEC,
 		    MAP_PRIVATE | MAP_ANONYMOUS, -1, 0);
 
-  if (a != WorkSpaceTop) {
-    Error(SYSTEM_ERROR, TermNil, "mmap could not grow memory at %p, got %p", WorkSpaceTop, a );
-  }
 #elif defined(__APPLE__)
   a = mmap(WorkSpaceTop, (size_t) s, PROT_READ | PROT_WRITE | PROT_EXEC,
 		    MAP_PRIVATE | MAP_ANON | MAP_FIXED, -1, 0);
-  if (a != WorkSpaceTop) {
-    Error(SYSTEM_ERROR, TermNil, "mmap could not grow memory at %p, got %p", WorkSpaceTop, a );
-  }
 #else
   int fd;
   fd = open("/dev/zero", O_RDWR);
@@ -566,7 +560,7 @@ ExtendWorkSpace(Int s)
       Error(SYSTEM_ERROR, TermNil, "mkstemp could not create temporary file %s (%s)", file, strerror(errno));
 #else
       Error(SYSTEM_ERROR, TermNil, "mkstemp could not create temporary file %s", file);
-#endif
+#endif /* HAVE_STRERROR */
       return FALSE;
     }
 #else
@@ -604,6 +598,8 @@ ExtendWorkSpace(Int s)
 #endif
     return FALSE;
   }
+  a = mmap(WorkSpaceTop, (size_t) s, PROT_READ | PROT_WRITE | PROT_EXEC,
+		    MAP_PRIVATE | MAP_FIXED, fd, 0);
 #endif
   if (a == (MALLOC_T) - 1) {
 #if HAVE_STRERROR
@@ -613,15 +609,13 @@ ExtendWorkSpace(Int s)
 #endif
     return FALSE;
   }
-  a = mmap(WorkSpaceTop, (size_t) s, PROT_READ | PROT_WRITE | PROT_EXEC,
-		    MAP_PRIVATE | MAP_FIXED, fd, 0);
-
   if (a != WorkSpaceTop) {
     Error(SYSTEM_ERROR, TermNil, "mmap could not grow memory at %p, got %p", WorkSpaceTop, a );
+    return FALSE;
   }
   
-  WorkSpaceTop = (char *) a + s;
 #endif /* YAPOR */
+  WorkSpaceTop = (char *) a + s;
   return TRUE;
 }
 
