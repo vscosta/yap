@@ -182,10 +182,6 @@ mywrite(int fd, char *buff, Int len)
 
 #else				/* SHORT_INTS */
 
-#if SUN
-#include <sys/file.h>
-#endif
-
 inline static
 void myread(int fd, char *buffer, Int len) {
   int nread;

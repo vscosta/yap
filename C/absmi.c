@@ -11155,8 +11155,8 @@ absmi(int inp)
 	  if (pen->PredFlags & MetaPredFlag) {
 	    if (f == FunctorModule) {
 	      Term tmod = LookupModule(ArgOfTerm(1,d0));
-	      if (!IsVarTerm(tmod) && IsAtomTerm(tmod)) {
-		mod = LookupModule(tmod);
+	      if (!IsVarTerm(tmod) && IsAtomTerm(tmod) &&
+		 LookupModule(tmod) == mod) {
 		d0 = ArgOfTerm(2,d0);
 		goto execute_nvar;
 	      }
@@ -11278,8 +11278,8 @@ absmi(int inp)
 	    if (f == FunctorModule) {
 	      Term tmod;
 	      tmod = ArgOfTerm(1,d0);
-	      if (!IsVarTerm(tmod) && IsAtomTerm(tmod)) {
-		mod = LookupModule(tmod);
+	      if (!IsVarTerm(tmod) && IsAtomTerm(tmod) &&
+		  mod == LookupModule(tmod)) {
 		d0 = ArgOfTerm(2,d0);
 		goto execute_within_nvar;
 	      }
@@ -11422,8 +11422,8 @@ absmi(int inp)
 	  if (pen->PredFlags & MetaPredFlag) {
 	    if (f == FunctorModule) {
 	      Term tmod = ArgOfTerm(1,d0);
-	      if (!IsVarTerm(tmod) && IsAtomTerm(tmod)) {
-		mod = LookupModule(tmod);
+	      if (!IsVarTerm(tmod) && IsAtomTerm(tmod) &&
+		  mod == LookupModule(tmod)) {
 		d0 = ArgOfTerm(2,d0);
 		goto last_execute_within_nvar;
 	      }

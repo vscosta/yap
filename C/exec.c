@@ -226,8 +226,8 @@ do_execute(Term t, int mod)
     if (pen->PredFlags & MetaPredFlag) {
       if (f == FunctorModule) {
 	Term tmod = ArgOfTerm(1,t);
-	if (!IsVarTerm(tmod) && IsAtomTerm(tmod)) {
-	  mod = LookupModule(tmod);
+	if (!IsVarTerm(tmod) && IsAtomTerm(tmod) &&
+	    mod == LookupModule(tmod)) {
 	  t = ArgOfTerm(2,t);
 	  goto restart_exec;
 	}
@@ -332,8 +332,8 @@ p_execute_within(void)
       if (pen->PredFlags & MetaPredFlag) {
 	if (f == FunctorModule) {
 	  Term tmod = ArgOfTerm(1,t);
-	  if (!IsVarTerm(tmod) && IsAtomTerm(tmod)) {
-	    mod = LookupModule(tmod);
+	  if (!IsVarTerm(tmod) && IsAtomTerm(tmod) &&
+	      mod == LookupModule(tmod)) {
 	    t = ArgOfTerm(2,t);
 	    goto restart_exec;
 	  }
@@ -798,8 +798,8 @@ p_at_execute(void)
       return(FALSE);
     if (f == FunctorModule) {
       Term tmod = ArgOfTerm(1,t);
-      if (!IsVarTerm(tmod) && IsAtomTerm(tmod)) {
-	mod = LookupModule(tmod);
+      if (!IsVarTerm(tmod) && IsAtomTerm(tmod) &&
+	  mod == LookupModule(tmod)) {
 	t = ArgOfTerm(2,t);
 	goto restart_exec;
       }
