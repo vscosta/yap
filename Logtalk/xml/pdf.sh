@@ -1,6 +1,6 @@
 #!/bin/sh
 
-FOP_PATH="/Applications/Fop-0.20.2"
+FOP_PATH="/Applications/fop-0.20.4"
 
 XSLT="lgtpdfa4.xsl"
 
@@ -10,11 +10,11 @@ echo files applying the XSLT transformation defined in the $XSLT file
 echo using the Apache FOP processor
 echo
 
-foreach file (*.xml)
+for file in *.xml; do
 	echo converting $file
 	name="`expr "$file" : '\(.*\)\.[^./]*$' \| "$file"`"
-	eval sh $FOP_PATH/fop.sh -xsl $XSLT -xml $file -pdf $name.pdf
-end
+	eval sh $FOP_PATH/fop.sh -q -xsl $XSLT -xml $file -pdf $name.pdf
+done
 
 echo
 echo conversion done

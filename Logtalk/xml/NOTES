@@ -1,6 +1,6 @@
 =================================================================
 Logtalk - Object oriented extension to Prolog
-Release 2.14.2
+Release 2.14.3
 
 Copyright (c) 1998-2002 Paulo Moura.  All Rights Reserved.
 =================================================================
@@ -22,6 +22,13 @@ The choice of the default .xsl file to use is made in the config files by
 the '$lgt_default_flag'/2 predicate. You can also choose a different 
 .xsl file by using the xsl/1 compiler option in the logtalk_compile/2 or 
 logtalk_load/2 calls. The default file is lgtxml.xsl (described below).
+
+The .xml documenting files can be either generated as standalone XML files 
+or contain a reference to the Logtalk DTD file, logtalk.dtd. The reference 
+to the logtalk.dtd file can be either a local reference or a URI reference.
+By default, all .xml documenting files contain a local reference but that 
+can be changed either in the config files or by using the doctype/1 compiler 
+option.
 
 
 Brief description of each file in this folder:
@@ -47,7 +54,9 @@ lgtpdfa4.xsl lgtpdfus.xsl
 
 	XSLT files to generate PDF files from the .xml files (formatted either 
 	for A4 paper or US Letter paper) using XSL Formatting Objects. Tested 
-	with Apache FOP processor (http://xml.apache.org/fop).
+	with the XSL:FO processors Apache FOP 0.20.4 (http://xml.apache.org/fop), 
+	PassiveTeX (http://www.tei-c.org.uk/Software/passivetex/), and RenderX 
+	2.77 (http://www.renderx.com/).
 
 
 texml.xsl
@@ -57,7 +66,7 @@ texml.xsl
 	at: http://www.alphaworks.ibm.com/tech/texml/.
 
 
-ie5.xsl
+ie50.xsl
 
 	XSLT file for viewing .xml files in Microsoft Internet Explorer 5.x 
 	(using the outdated Microsoft XML Parser; works with both Macintosh 
@@ -116,7 +125,8 @@ pdf.sh
 	Sample Unix shell script to batch convert .xml files to .pdf files.
 	Edit the script to match your environment and paper format preference 
 	before running it.
-	Requires Apache FOP processor (http://xml.apache.org/fop).
+	Requires Apache FOP processor (http://xml.apache.org/fop). Tested with 
+	version 0.20.4.
 
 
 pdf.bat
@@ -124,7 +134,8 @@ pdf.bat
 	Sample DOS batch script to convert .xml files to .pdf files.
 	Edit the script to match your environment and paper format preference 
 	before running it.
-	Requires Apache FOP processor (http://xml.apache.org/fop).
+	Requires Apache FOP processor (http://xml.apache.org/fop). Tested with 
+	version 0.20.4.
 
 
 Note that you can write other XSLT files for converting the XML files to 

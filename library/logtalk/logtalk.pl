@@ -2,7 +2,7 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %
 %  Logtalk - Object oriented extension to Prolog
-%  Release 2.14.2
+%  Release 2.14.3
 %
 %  Copyright (c) 1998-2002 Paulo Moura.  All Rights Reserved.
 %
@@ -1022,7 +1022,7 @@ logtalk_version(Major, Minor, Patch) :-
 	\+ integer(Patch),
 	throw(error(type_error(integer, Patch), logtalk_version(Major, Minor, Patch))).
 
-logtalk_version(2, 14, 2).
+logtalk_version(2, 14, 3).
 
 
 
@@ -1083,7 +1083,7 @@ current_logtalk_flag(Flag, Value) :-
 	\+ '$lgt_flag_'(Flag, _),
 	'$lgt_default_flag'(Flag, Value).
 
-current_logtalk_flag(version, version(2, 14, 2)).
+current_logtalk_flag(version, version(2, 14, 3)).
 
 
 
@@ -5308,6 +5308,9 @@ user0__def(Pred, _, _, _, Pred, user).
 '$lgt_valid_compiler_option'(code_prefix(Prefix)) :-
 	atom(Prefix).
 
+'$lgt_valid_compiler_option'(doctype(Option)) :-
+	once((Option == standalone; Option == local; Option == web)).
+
 
 
 % '$lgt_valid_flag'(@nonvar)
@@ -5329,6 +5332,7 @@ user0__def(Pred, _, _, _, Pred, user).
 '$lgt_valid_flag'(version).
 '$lgt_valid_flag'(named_anonymous_vars).
 '$lgt_valid_flag'(code_prefix).
+'$lgt_valid_flag'(doctype).
 
 
 
@@ -5429,8 +5433,31 @@ user0__def(Pred, _, _, _, Pred, user).
 
 
 '$lgt_write_xml_header'(Stream) :-
+	'$lgt_compiler_option'(doctype, Doctype),
+	'$lgt_write_xml_header'(Doctype, Stream).
+
+
+
+'$lgt_write_xml_header'(local, Stream) :-
 	'$lgt_write_xml_open_tag'(Stream, '?xml version="1.0"?', []),
 	write(Stream, '<!DOCTYPE logtalk SYSTEM "logtalk.dtd">'), nl(Stream),
+	'$lgt_compiler_option'(xsl, XSL),
+	write(Stream, '<?xml-stylesheet type="text/xsl" href="'),
+	write(Stream, XSL),
+	write(Stream, '"?>'), nl(Stream),
+	'$lgt_write_xml_open_tag'(Stream, logtalk, []).
+
+'$lgt_write_xml_header'(web, Stream) :-
+	'$lgt_write_xml_open_tag'(Stream, '?xml version="1.0"?', []),
+	write(Stream, '<!DOCTYPE logtalk SYSTEM "http://www.logtalk.org/xml/1.0/logtalk.dtd">'), nl(Stream),
+	'$lgt_compiler_option'(xsl, XSL),
+	write(Stream, '<?xml-stylesheet type="text/xsl" href="'),
+	write(Stream, XSL),
+	write(Stream, '"?>'), nl(Stream),
+	'$lgt_write_xml_open_tag'(Stream, logtalk, []).
+
+'$lgt_write_xml_header'(standalone, Stream) :-
+	'$lgt_write_xml_open_tag'(Stream, '?xml version="1.0" standalone="yes"?', []),
 	'$lgt_compiler_option'(xsl, XSL),
 	write(Stream, '<?xml-stylesheet type="text/xsl" href="'),
 	write(Stream, XSL),
@@ -5957,6 +5984,8 @@ user0__def(Pred, _, _, _, Pred, user).
 	write('  ISO initialization/1 directive: '), write(ISO), nl,
 	'$lgt_default_flag'(xml, XML),
 	write('  XML documenting files:          '), write(XML), nl,
+	'$lgt_default_flag'(doctype, Doctype),
+	write('  XML doctype reference:          '), write(Doctype), nl,
 	'$lgt_default_flag'(xsl, XSL),
 	write('  XSL stylesheet:                 '), write(XSL), nl,
 	'$lgt_default_flag'(unknown, Unknown),

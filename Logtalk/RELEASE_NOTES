@@ -1,6 +1,6 @@
 =================================================================
 Logtalk - Object oriented extension to Prolog
-Release 2.14.2
+Release 2.14.3
 
 Copyright (c) 1998-2002 Paulo Moura.  All Rights Reserved.
 =================================================================
@@ -8,6 +8,29 @@ Copyright (c) 1998-2002 Paulo Moura.  All Rights Reserved.
 
 RELEASE NOTES
 =============
+
+
+2.14.3 - Sptember 16, 2002
+
+	New compiler option, doctype, to set the doctype reference (if any) 
+	in the XML documenting files. Default value is "local" for backward 
+	compatibility. Updated the user manual section on compiler options.
+
+	The Logtalk built-in predicate logtalk_version/3 should be considered 
+	deprecated (use current_logtalk_flag/3 instead). All references to this 
+	predicate have been removed from the manuals.
+
+	Updated the jEdit syntax coloring config file for the new jEdit 4.1 
+	version.
+
+	Updated the lgtpdfa4.xsl and lgtpdfus.xsl XSLT files for compatibility 
+	with the XSL:FO processors Apache FOP 0.20.4, PassiveTeX, and RenderX 
+	and with the XSL W3C Recommendation of October 15, 2001. Updated the 
+	pdf.bat and pdf.sh scripts to reference the latest version of the 
+	Apache FOP processor (0.20.4).
+
+	Changed the shell scripts html.sh and pdf.sh for compatibility with the 
+	sh, bash, and zsh shells.
 
 
 2.14.2 - August 26, 2002

@@ -9,7 +9,7 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %
 %  Logtalk - Object oriented extension to Prolog
-%  Release 2.14.2
+%  Release 2.14.3
 %
 %  Copyright (c) 1998-2002 Paulo Moura.  All Rights Reserved.
 %
@@ -39,11 +39,11 @@
 			</fo:simple-page-master>
 		</fo:layout-master-set>
 
-		<fo:page-sequence master-name="simple">
+		<fo:page-sequence master-reference="simple">
 		
 			<fo:static-content flow-name="xsl-region-before">
 				<fo:block>
-					<fo:leader leader-pattern="rule" leader-length="inherit"/>
+					<fo:leader leader-pattern="rule" leader-length="100%"/>
 				</fo:block>
 				<fo:block
 						text-align="end" 
@@ -56,7 +56,7 @@
 
 			<fo:static-content flow-name="xsl-region-after">
 				<fo:block>
-					<fo:leader leader-pattern="rule" leader-length="inherit"/>
+					<fo:leader leader-pattern="rule" leader-length="100%"/>
 				</fo:block>
 				<fo:block
 						text-align="end" 
@@ -92,7 +92,7 @@
 
 	<xsl:if test="comment">
 		<fo:block
-				margin-left="1cm"
+				margin-left="10mm"
 				font-size="10pt"
 				font-family="serif" 
 				font-style="italic" 
@@ -111,7 +111,7 @@
 		<fo:block
 				font-size="9pt"
 				font-family="monospace"
-				margin-left="1cm">
+				margin-left="10mm">
 			<xsl:value-of select="authors"/>
 		</fo:block>
 	</xsl:if>
@@ -126,7 +126,7 @@
 		<fo:block
 				font-size="9pt"
 				font-family="monospace"
-				margin-left="1cm">
+				margin-left="10mm">
 			<xsl:value-of select="version"/>
 		</fo:block>
 	</xsl:if>
@@ -141,7 +141,7 @@
 		<fo:block
 				font-size="9pt"
 				font-family="monospace"
-				margin-left="1cm">
+				margin-left="10mm">
 			<xsl:value-of select="date"/>
 		</fo:block>
 	</xsl:if>
@@ -156,34 +156,27 @@
 	<fo:block
 			font-size="9pt"
 			font-family="monospace"
-			margin-left="1cm" 
+			margin-left="10mm" 
 			space-after="8pt">
 		<xsl:value-of select="compilation"/>
 	</fo:block>
 
-	<fo:list-block>
+	<xsl:if test="info">
 		<xsl:for-each select="info">
-			<fo:list-item>
-     			<fo:list-item-label>
-       				<fo:block></fo:block>
-    			</fo:list-item-label>
-				<fo:list-item-body>
-					<fo:block
-							font-size="10pt"
-							font-family="serif" 
-							keep-with-next="always">
-     					<xsl:value-of select="key"/>:
-     				</fo:block>
-					<fo:block
-							font-size="9pt"
-							font-family="monospace"
-							margin-left="1cm">
-						<xsl:value-of select="value"/>
-					</fo:block>
-				</fo:list-item-body>
-			</fo:list-item>
+       		<fo:block
+					font-size="10pt"
+					font-family="serif" 
+					keep-with-next="always">
+     			<xsl:value-of select="key"/>:
+     		</fo:block>
+			<fo:block
+					font-size="9pt"
+					font-family="monospace"
+					margin-left="10mm">
+				<xsl:value-of select="value"/>
+			</fo:block>
 		</xsl:for-each>
-	</fo:list-block>
+	</xsl:if>
 
 </xsl:template>
 
@@ -271,7 +264,7 @@
 	<fo:block
 			font-size="9pt"
 			font-family="monospace"
-			margin-left="1cm">
+			margin-left="10mm">
 		<xsl:value-of select="name"/>
 	</fo:block>
 </xsl:template>
@@ -281,7 +274,7 @@
 	<fo:block
 			font-size="9pt"
 			font-family="monospace"
-			margin-left="1cm">
+			margin-left="10mm">
 		<xsl:value-of select="name"/>
 	</fo:block>
 </xsl:template>
@@ -291,7 +284,7 @@
 	<fo:block
 			font-size="9pt"
 			font-family="monospace"
-			margin-left="1cm">
+			margin-left="10mm">
 		<xsl:value-of select="scope"/><xsl:text> </xsl:text><xsl:value-of select="name"/>
 	</fo:block>
 </xsl:template>
@@ -411,127 +404,91 @@
 
 	<xsl:if test="comment">
 		<fo:block
-				margin-left="1cm"
+				margin-left="10mm"
 				font-size="10pt" 
 				font-family="serif" 
 				font-style="italic"
-				space-before="4pt">
+				space-before="4pt" 
+				space-after="8pt">
 			<xsl:value-of select="comment"/>
 		</fo:block>
 	</xsl:if>
 
-	<fo:list-block>
-		<fo:list-item>
-     		<fo:list-item-label>
-     			<fo:block></fo:block>
-     		</fo:list-item-label>
-			<fo:list-item-body>
-				<fo:block
-						space-before="4pt"
-						font-size="10pt"
-						font-family="serif" 
-						keep-with-next="always">
-     				compilation:
-     			</fo:block>
-				<fo:block
-						font-size="9pt"
-						font-family="monospace"
-						margin-left="1cm">
-					<xsl:value-of select="compilation"/>
-				</fo:block>
-     		</fo:list-item-body>
-		</fo:list-item>
-		<xsl:if test="template">
-			<fo:list-item>
-				<fo:list-item-label>
-      				<fo:block></fo:block>
-    			</fo:list-item-label>
-				<fo:list-item-body>
-					<fo:block
-							font-size="10pt"
-							font-family="serif" 
-							keep-with-next="always">
-     					template:
-     				</fo:block>
-					<fo:block
-							font-size="9pt"
-							font-family="monospace"
-							margin-left="1cm">
-						<xsl:value-of select="template"/>
-					</fo:block>
-     			</fo:list-item-body>
-			</fo:list-item>
-		</xsl:if>
-		<xsl:if test="meta">
-			<fo:list-item>
-				<fo:list-item-label>
-      				<fo:block></fo:block>
-     			</fo:list-item-label>
-				<fo:list-item-body>
-					<fo:block
-							font-size="10pt"
-							font-family="serif" 
-							keep-with-next="always">
-     					metapredicate template:
-     				</fo:block>
-					<fo:block
-							font-size="9pt"
-							font-family="monospace"
-							margin-left="1cm">
-						<xsl:value-of select="meta"/>
-					</fo:block>
-     			</fo:list-item-body>
-			</fo:list-item>
-		</xsl:if>
-		<xsl:if test="mode">
-			<fo:list-item>
-				<fo:list-item-label>
-       				<fo:block></fo:block>
-    			</fo:list-item-label>
-				<fo:list-item-body>
-					<fo:block
-							font-size="10pt"
-							font-family="serif" 
-							keep-with-next="always">
-     					mode - number of solutions:
-     				</fo:block>
-					<xsl:for-each select="mode">
-						<fo:block
-								font-size="9pt"
-								font-family="monospace"
-								margin-left="1cm">
-							<xsl:value-of select="template"/> - <xsl:value-of select="solutions"/>
-						</fo:block>
-					</xsl:for-each>
-     			</fo:list-item-body>
-			</fo:list-item>
-		</xsl:if>
-	</fo:list-block>
+	<fo:block
+			font-size="10pt"
+			font-family="serif"
+			keep-with-next="always">
+		compilation:
+	</fo:block>
+	<fo:block
+			font-size="9pt"
+			font-family="monospace"
+			margin-left="10mm">
+		<xsl:value-of select="compilation"/>
+	</fo:block>
+
+	<xsl:if test="template">
+      	<fo:block
+				font-size="10pt"
+				font-family="serif" 
+				keep-with-next="always">
+     		template:
+     	</fo:block>
+		<fo:block
+				font-size="9pt"
+				font-family="monospace"
+				margin-left="10mm">
+			<xsl:value-of select="template"/>
+		</fo:block>
+	</xsl:if>
+
+	<xsl:if test="meta">
+      	<fo:block
+				font-size="10pt"
+				font-family="serif" 
+				keep-with-next="always">
+     		metapredicate template:
+     	</fo:block>
+		<fo:block
+				font-size="9pt"
+				font-family="monospace"
+				margin-left="10mm">
+			<xsl:value-of select="meta"/>
+		</fo:block>
+	</xsl:if>
+
+	<xsl:if test="mode">
+       	<fo:block
+				font-size="10pt"
+				font-family="serif" 
+				keep-with-next="always">
+     		mode - number of solutions:
+     	</fo:block>
+		<xsl:for-each select="mode">
+			<fo:block
+					font-size="9pt"
+					font-family="monospace"
+					margin-left="10mm">
+				<xsl:value-of select="template"/> - <xsl:value-of select="solutions"/>
+			</fo:block>
+		</xsl:for-each>
+	</xsl:if>
 
 	<xsl:if test="info">
-		<fo:list-block>
-			<xsl:for-each select="info">
-				<fo:list-item>
-					<fo:list-item-label>
-       					<fo:block></fo:block>
-   	 				</fo:list-item-label>
-					<fo:list-item-body>
-						<fo:block
-								font-size="10pt"
-								font-family="serif" 
-								keep-with-next="always">
-    	 					<xsl:value-of select="key"/>:
-    	 				</fo:block>
-						<fo:block
-								font-size="9pt"
-								font-family="monospace"
-								margin-left="1cm">
-							<xsl:value-of select="value"/>
-						</fo:block>
-					</fo:list-item-body>
-				</fo:list-item>
-			</xsl:for-each>
-		</fo:list-block>
+		<xsl:for-each select="info">
+       		<fo:block
+					font-size="10pt"
+					font-family="serif" 
+					keep-with-next="always">
+    	 		<xsl:value-of select="key"/>:
+    	 	</fo:block>
+			<fo:block
+					font-size="9pt"
+					font-family="monospace"
+					margin-left="10mm">
+				<xsl:value-of select="value"/>
+			</fo:block>
+		</xsl:for-each>
 	</xsl:if>
 
 </xsl:template>

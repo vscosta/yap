@@ -256,6 +256,10 @@ You can use the following options:
 		<dd>Controls the automatic generation of documenting files in XML format. Possible option values are <code>on</code> (the usual default) and <code>off</code>.</dd>
 </dl>
 <dl>
+	<dt><code>doctype(Option)</code></dt>
+		<dd>Sets the DOCTYPE reference in the automatically generated XML documenting files. The default value is <code>local</code>, that is, the DOCTYPE reference points to a local DTD file (<code>logtalk.dtd</code>). Other possible values are <code>web</code> (DOCTYPE reference points to the web location <code>http://www.logtalk.org/xml/1.0/logtalk.dtd</code>) and <code>standalone</code> (no DOCTYPE reference in the XML documenting files).</dd>
+</dl>
+<dl>
 	<dt><code>xsl(File)</code></dt>
 		<dd>Sets the XSLT file to be used with the automatically generated XML documenting files. The default value is <code>lgtxml.xsl</code>.</dd>
 </dl>
@@ -329,7 +333,7 @@ To supress printing of compiling and loading messages (including compiling warni
 <strong><a href="configuration.html">Previous</a> | <a href="programming.html">Next</a> | <a href="index.html">Table of Contents</a> | <a href="../bibliography.html">Bibliography</a> | <a href="../glossary.html">Glossary</a></strong>
 </p>
 <p class="center">
-Last updated on: August 6, 2002
+Last updated on: September 5, 2002
 </p>
 <hr />
 

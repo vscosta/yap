@@ -1,8 +1,8 @@
 " Vim syntax file
 "
 " Language:	Logtalk
-" Maintainer:	Paulo Moura <pmoura@noe.ubi.pt>
-" Last Change:	2002 May 18
+" Maintainer:	Paulo Moura <pmoura@logtalk.org>
+" Last Change:	2002 September 6
 
 
 " Quit when a syntax file was already loaded:
@@ -117,7 +117,6 @@ syn keyword	logtalkBuiltIn		logtalk_compile
 syn keyword	logtalkBuiltIn		logtalk_load
 
 syn keyword	logtalkBuiltIn		forall
-syn keyword	logtalkBuiltIn		logtalk_version
 syn keyword	logtalkBuiltIn		retractall
 
 

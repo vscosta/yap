@@ -2,12 +2,12 @@
 
 <!DOCTYPE MODE SYSTEM "xmode.dtd">
 
-<!--	jEdit Logtalk syntax file
+<!--	jEdit 4.1 Logtalk syntax file
 
-	written by	Paulo Moura
-	version		1.0
-	created on	2 May 2002
-	last revised	2 May 2002
+	written by		Paulo Moura
+	version			1.1
+	created on		2 May 2002
+	last revised	28 August 2002
 -->
 
 <MODE>
@@ -16,13 +16,10 @@
 		<PROPERTY NAME="lineComment" VALUE="%" />
 		<PROPERTY NAME="commentStart" VALUE="/*" />
 		<PROPERTY NAME="commentEnd" VALUE="*/" />
+		<PROPERTY NAME="tabSize" VALUE="4" />
 	</PROPS>
 
 	<RULES IGNORE_CASE="FALSE">
-	
-		<!-- Whitespace -->
-		<WHITESPACE> </WHITESPACE>
-		<WHITESPACE>	</WHITESPACE>
 	
 		<!-- Comments -->
 		<EOL_SPAN TYPE="COMMENT1">%</EOL_SPAN>
@@ -81,15 +78,15 @@
 			<BEGIN>:- initialization(</BEGIN>
 			<END>).</END>
 		</SPAN>
-		<SPAN TYPE="FUNCTION" NO_LINE_BREAK="FALSE" DELEGATE="MAIN">
+		<SPAN TYPE="FUNCTION" NO_LINE_BREAK="FALSE" DELEGATE="INFO">
 			<BEGIN>:- info(</BEGIN>
 			<END>).</END>
 		</SPAN>
-		<SPAN TYPE="FUNCTION" NO_LINE_BREAK="FALSE" DELEGATE="MAIN">
+		<SPAN TYPE="FUNCTION" NO_LINE_BREAK="FALSE" DELEGATE="MODE">
 			<BEGIN>:- mode(</BEGIN>
 			<END>).</END>
 		</SPAN>
-		<SPAN TYPE="FUNCTION" NO_LINE_BREAK="FALSE" DELEGATE="MAIN">
+		<SPAN TYPE="FUNCTION" NO_LINE_BREAK="FALSE" DELEGATE="PIs">
 			<BEGIN>:- dynamic(</BEGIN>
 			<END>).</END>
 		</SPAN>
@@ -97,19 +94,19 @@
 			<BEGIN>:- dynamic</BEGIN>
 			<END>.</END>
 		</SPAN>
-		<SPAN TYPE="FUNCTION" NO_LINE_BREAK="FALSE" DELEGATE="MAIN">
+		<SPAN TYPE="FUNCTION" NO_LINE_BREAK="FALSE" DELEGATE="PIs">
 			<BEGIN>:- discontiguous(</BEGIN>
 			<END>).</END>
 		</SPAN>
-		<SPAN TYPE="FUNCTION" NO_LINE_BREAK="FALSE" DELEGATE="MAIN">
+		<SPAN TYPE="FUNCTION" NO_LINE_BREAK="FALSE" DELEGATE="PIs">
 			<BEGIN>:- public(</BEGIN>
 			<END>).</END>
 		</SPAN>
-		<SPAN TYPE="FUNCTION" NO_LINE_BREAK="FALSE" DELEGATE="MAIN">
+		<SPAN TYPE="FUNCTION" NO_LINE_BREAK="FALSE" DELEGATE="PIs">
 			<BEGIN>:- protected(</BEGIN>
 			<END>).</END>
 		</SPAN>
-		<SPAN TYPE="FUNCTION" NO_LINE_BREAK="FALSE" DELEGATE="MAIN">
+		<SPAN TYPE="FUNCTION" NO_LINE_BREAK="FALSE" DELEGATE="PIs">
 			<BEGIN>:- private(</BEGIN>
 			<END>).</END>
 		</SPAN>
@@ -121,27 +118,20 @@
 			<BEGIN>:- op(</BEGIN>
 			<END>).</END>
 		</SPAN>
-		<SPAN TYPE="FUNCTION" NO_LINE_BREAK="FALSE" DELEGATE="MAIN">
+		<SPAN TYPE="FUNCTION" NO_LINE_BREAK="FALSE" DELEGATE="ENTITY_NAMES">
 			<BEGIN>:- calls(</BEGIN>
 			<END>).</END>
 		</SPAN>
-		<SPAN TYPE="FUNCTION" NO_LINE_BREAK="FALSE" DELEGATE="MAIN">
+		<SPAN TYPE="FUNCTION" NO_LINE_BREAK="FALSE" DELEGATE="ENTITY_NAMES">
 			<BEGIN>:- uses(</BEGIN>
 			<END>).</END>
 		</SPAN>
 
 		<!-- Logtalk message sending operators -->
 		<SEQ TYPE="OPERATOR">::</SEQ>
-		<SEQ TYPE="OPERATOR">:</SEQ>
 		<SEQ TYPE="OPERATOR">^^</SEQ>
-		
-		<!-- Parentheses -->
-		<SEQ TYPE="NULL">(</SEQ>
-		<SEQ TYPE="NULL">)</SEQ>
-		<SEQ TYPE="NULL">{</SEQ>
-		<SEQ TYPE="NULL">}</SEQ>
-		
-		<KEYWORDS IGNORE_CASE="FALSE">
+
+		<KEYWORDS AT_WORD_START="TRUE">
 
 			<!-- Logtalk built-in predicates -->
 
@@ -207,10 +197,6 @@
 			<FUNCTION>before</FUNCTION>
 			<FUNCTION>after</FUNCTION>
 
-			<!-- Mode operators -->
-			<SEQ TYPE="OPERATOR">?</SEQ>
-			<SEQ TYPE="OPERATOR">@</SEQ>
-
 			<!-- Control constructs -->
 			<FUNCTION>true</FUNCTION>
 			<FUNCTION>fail</FUNCTION>
@@ -252,7 +238,7 @@
 			<FUNCTION>copy_term</FUNCTION>
 
 			<!-- Arithemtic evaluation -->
-			<FUNCTION>is</FUNCTION>
+			<OPERATOR>is</OPERATOR>
 
 			<!-- Arithemtic comparison -->
 			<SEQ TYPE="OPERATOR">=:=</SEQ>
@@ -316,7 +302,7 @@
 			<FUNCTION>current_char_conversion</FUNCTION>
 
 			<!-- Logic and control -->
-			<SEQ TYPE="FUNCTION">\+</SEQ>
+			<SEQ TYPE="OPERATOR">\+</SEQ>
 			<FUNCTION>once</FUNCTION>
 			<FUNCTION>repeat</FUNCTION>
 
@@ -399,14 +385,54 @@
 	</RULES>
 
 
+	<RULES SET="MODE" IGNORE_CASE="FALSE">
+	
+		<!-- Mode operators -->
+		<SEQ TYPE="OPERATOR">+</SEQ>	
+		<SEQ TYPE="OPERATOR">-</SEQ>
+		<SEQ TYPE="OPERATOR">?</SEQ>
+		<SEQ TYPE="OPERATOR">@</SEQ>
+
+		<KEYWORDS AT_WORD_START="TRUE">
+			<FUNCTION>zero</FUNCTION>
+			<FUNCTION>zero_or_one</FUNCTION>
+			<FUNCTION>zero_or_more</FUNCTION>
+			<FUNCTION>one</FUNCTION>
+			<FUNCTION>one_or_more</FUNCTION>
+			<FUNCTION>error</FUNCTION>
+		</KEYWORDS>
+
+	</RULES>
+
+
+	<RULES SET="INFO" IGNORE_CASE="FALSE">
+
+		<SPAN TYPE="LITERAL1" NO_LINE_BREAK="TRUE">
+			<BEGIN>'</BEGIN>
+			<END>'</END>
+		</SPAN>
+
+		<KEYWORDS>
+			<!-- Key is Value -->
+			<FUNCTION>is</FUNCTION>
+		</KEYWORDS>
+
+	</RULES>
+
+	
+	<RULES SET="PIs" IGNORE_CASE="FALSE">	
+	</RULES>
+
+
 	<RULES SET="ENTITY_NAMES" IGNORE_CASE="FALSE">	
 	</RULES>
 
-	
+
 	<RULES SET="DIRECTIVE_CONTENTS" IGNORE_CASE="FALSE">	
 	</RULES>
 
+
 	<RULES SET="PROLOG" IGNORE_CASE="FALSE">	
 	</RULES>
-	
+
 </MODE>

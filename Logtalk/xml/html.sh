@@ -1,8 +1,8 @@
 #!/bin/sh
 
-XT_PATH="."
-SAX_PATH="."
-XP_PATH="."
+XT_PATH="/Applications/XT"
+SAX_PATH="/Applications/XT"
+XP_PATH="/Applications/XT"
 
 XSLT="lgthtml.xsl"
 
@@ -23,17 +23,17 @@ echo value as the title of the index.html file.
 echo
 echo converting XML files to HTML...
 
-foreach file (*.xml)
-	echo "  "converting $file
+for file in *.xml; do
+	echo "  converting" $file
 	name="`expr "$file" : '\(.*\)\.[^./]*$' \| "$file"`"
 	eval java -cp ${XT_PATH}/xt.jar:${SAX_PATH}/sax.jar:${XP_PATH}/xp.jar -Dcom.jclark.xsl.sax.parser=com.jclark.xml.sax.CommentDriver com.jclark.xsl.sax.Driver $file $XSLT $name.html
-end
+done
 
 echo conversion done
 echo
 echo generating index file...
 
-> index.html
+echo "" > index.html
 
 echo "<!DOCTYPE html PUBLIC \"-//W3C//DTD HTML 4.01//EN\" \"http://www.w3.org/TR/html4/strict.dtd\">" >> index.html
 echo "<html>" >> index.html
@@ -45,11 +45,11 @@ echo "<body>" >> index.html
 echo "<h1>"$title"</h1>" >> index.html
 echo "<ul>" >> index.html
 
-foreach file (*.xml)
+for file in *.xml; do
 	name="`expr "$file" : '\(.*\)\.[^./]*$' \| "$file"`"
-	echo "  "indexing $name.html
+	echo "  indexing" $name.html
 	echo "    <li><a href=\""$name.html"\">"$name"</a></li>" >> index.html
-end
+done
 
 echo "</ul>" >> index.html
 
