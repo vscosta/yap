@@ -632,7 +632,7 @@ void InitAttVarPreds(void)
   InitCPred("inc_n_of_atts", 1, p_inc_atts, SafePredFlag);
   InitCPred("n_of_atts", 1, p_n_atts, SafePredFlag);
   InitCPred("bind_attvar", 1, p_bind_attvar, SafePredFlag);
-  InitCPred("$all_attvars", 1, p_all_attvars, SafePredFlag);
+  InitCPred("all_attvars", 1, p_all_attvars, SafePredFlag);
   InitCPred("$is_att_variable", 1, p_is_attvar, SafePredFlag);
 }
 

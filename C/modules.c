@@ -118,8 +118,10 @@ InitModules(void)
 {
   ModuleName[PrimitivesModule = 0] =
     MkAtomTerm(LookupAtom("prolog"));
+  ModuleName[1] =
+    MkAtomTerm(LookupAtom("user"));
+  NoOfModules = 2;
   CurrentModule = 0;
-  ModuleName[1] = MkAtomTerm(LookupAtom("user"));
   InitCPred("$current_module", 2, p_current_module, SafePredFlag|SyncPredFlag);
   InitCPred("$current_module", 1, p_current_module1, SafePredFlag|SyncPredFlag);
   InitCPred("$change_module", 1, p_change_module, SafePredFlag|SyncPredFlag);
