@@ -1618,7 +1618,7 @@ RestoreClause(Clause *Cl)
     case _table_answer_resolution:
     case _table_completion:
 #endif
-      pc->u.ld.p = CodeAddrAdjust(pc->u.ld.p);
+      pc->u.ld.p = PtoPredAdjust(pc->u.ld.p);
       pc->u.ld.d = CodeAddrAdjust(pc->u.ld.d);
       pc = NEXTOP(pc,ld);
       break;
@@ -1967,7 +1967,7 @@ RestoreClause(Clause *Cl)
       break;
       /* instructions type sdl */
     case _call_c_wfail:
-      pc->u.sdl.p = CodeAddrAdjust(pc->u.sdl.p);
+      pc->u.sdl.p = PtoPredAdjust(pc->u.sdl.p);
       pc->u.sdl.l = CodeAddrAdjust(pc->u.sdl.l);
       pc->u.sdl.d = CCodeAdjust((PredEntry *)(pc->u.sdl.p));
       pc = NEXTOP(pc,sdl);
@@ -1977,7 +1977,7 @@ RestoreClause(Clause *Cl)
     case _try_userc:
       /* don't need to do no nothing here, initstaff will do it for us
 	  */
-      pc->u.lds.p = CodeAddrAdjust(pc->u.lds.p);
+      pc->u.lds.p = PtoPredAdjust(pc->u.lds.p);
       pc->u.lds.d = CCodeAdjust((PredEntry *)(pc->u.lds.p));
       pc = NEXTOP(pc,lds);
       break;
@@ -1985,7 +1985,7 @@ RestoreClause(Clause *Cl)
     case _retry_userc:
       /* don't need to do no nothing here, initstaff will do it for us
 	 pc->u.lds.d = CCodeAdjust(pc->u.lds.d); */
-      pc->u.lds.p = CodeAddrAdjust(pc->u.lds.p);
+      pc->u.lds.p = PtoPredAdjust(pc->u.lds.p);
       pc->u.lds.d = NextCCodeAdjust((PredEntry *)(pc->u.lds.p));
       pc = NEXTOP(pc,lds);
       break;
@@ -1994,7 +1994,7 @@ RestoreClause(Clause *Cl)
     case _trust_first_in:
     case _trust_tail_in:
     case _trust_head_in:
-      pc->u.ldl.p = CodeAddrAdjust(pc->u.ldl.p);
+      pc->u.ldl.p = PtoPredAdjust(pc->u.ldl.p);
       pc->u.ldl.d = CodeAddrAdjust(pc->u.ldl.d);
       pc->u.ldl.bl = CodeAddrAdjust(pc->u.ldl.bl);
       pc = NEXTOP(pc,ldl);
@@ -2154,7 +2154,7 @@ RestoreClause(Clause *Cl)
       /* instructions type slll */
     case _switch_last:
     case _switch_l_list:
-      pc->u.slll.p = CodeAddrAdjust(pc->u.slll.p);
+      pc->u.slll.p = PtoPredAdjust(pc->u.slll.p);
       pc->u.slll.l1 = CodeAddrAdjust(pc->u.slll.l1);
       pc->u.slll.l2 = CodeAddrAdjust(pc->u.slll.l2);
       pc->u.slll.l3 = CodeAddrAdjust(pc->u.slll.l3);
@@ -2273,7 +2273,7 @@ RestoreClause(Clause *Cl)
       break;
       /* instructions type lxx */
     case _call_bfunc_xx:
-      pc->u.lxx.p  = CodeAddrAdjust(pc->u.lxx.p);
+      pc->u.lxx.p  = PtoPredAdjust(pc->u.lxx.p);
       pc->u.lxx.l  = DirectCCodeAdjust((PredEntry *)(pc->u.lxx.p));
       pc->u.lxx.x1 = XAdjust(pc->u.lxx.x1);
       pc->u.lxx.x2 = XAdjust(pc->u.lxx.x2);
@@ -2282,14 +2282,14 @@ RestoreClause(Clause *Cl)
       /* instructions type lxy */
     case _call_bfunc_yx:
     case _call_bfunc_xy:
-      pc->u.lxy.p = CodeAddrAdjust(pc->u.lxy.p);
+      pc->u.lxy.p = PtoPredAdjust(pc->u.lxy.p);
       pc->u.lxy.l  = DirectCCodeAdjust((PredEntry *)(pc->u.lxy.p));
       pc->u.lxy.x = XAdjust(pc->u.lxy.x);
       pc->u.lxy.y = YAdjust(pc->u.lxy.y);
       pc = NEXTOP(pc,lxy);
       break;
     case _call_bfunc_yy:
-      pc->u.lyy.p  = CodeAddrAdjust(pc->u.lyy.p);
+      pc->u.lyy.p  = PtoPredAdjust(pc->u.lyy.p);
       pc->u.lyy.l  = DirectCCodeAdjust((PredEntry *)(pc->u.lyy.p));
       pc->u.lyy.y1 = YAdjust(pc->u.lyy.y1);
       pc->u.lyy.y2 = YAdjust(pc->u.lyy.y2);

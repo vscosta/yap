@@ -500,7 +500,7 @@ repeat :- '$repeat'.
 
 '$show_frozen'(G,V,LGs) :-
 	'$all_frozen_goals'(LGs0), LGs0 = [_|_], !,
-	'$all_attvars'(LAV),
+	attributes:all_attvars(LAV),
 	'$convert_to_list_of_frozen_goals'(LGs0,V,LAV,G,LGs).
 '$show_frozen'(_,_,[]).
 

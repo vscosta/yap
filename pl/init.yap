@@ -91,7 +91,8 @@ system_mode(verbose,off) :- '$set_value'('$verbose',off).
 	'$set_pred_module'(rm_att(_,_), attributes),
 	'$set_pred_module'(inc_n_of_atts(_), attributes),
 	'$set_pred_module'(n_of_atts(_), attributes),
-	'$set_pred_module'(bind_attvar(_), attributes).
+	'$set_pred_module'(bind_attvar(_), attributes),
+	'$set_pred_module'(all_attvars(_), attributes).
 
 :- '$set_pred_module'(open_mem_read_stream(_,_), charsio),
 	'$set_pred_module'(open_mem_write_stream(_), charsio),

@@ -688,7 +688,7 @@ InitCPredBack(char *Name, int Arity, int Extra, CPredicate Start, CPredicate Con
     pe->StateOfPred = NUMBER_OF_CPREDS;
     c_predicates[NUMBER_OF_CPREDS] = Start;
     NUMBER_OF_CPREDS++;
-    code->u.lds.p = (CODEADDR) pe;
+    code->u.lds.p = pe;
     code->u.lds.s = Arity;
     code->u.lds.extra = Extra;
 #ifdef YAPOR
@@ -703,7 +703,7 @@ InitCPredBack(char *Name, int Arity, int Extra, CPredicate Start, CPredicate Con
     code->u.lds.d = (CODEADDR) Cont;
     c_predicates[NUMBER_OF_CPREDS] = Cont;
     NUMBER_OF_CPREDS++;
-    code->u.lds.p = (CODEADDR) pe;
+    code->u.lds.p = pe;
     code->u.lds.s = Arity;
     code->u.lds.extra = Extra;
 #ifdef YAPOR

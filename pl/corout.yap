@@ -619,7 +619,7 @@ call_residue(Goal,Residue) :-
         ;
 	  '$pick_vars_for_project'(LIV,NLIV),
 	  '$project_module'(LMods,NLIV,LAV),
-	  '$all_attvars'(NLAV0),
+	  attributes:all_attvars(NLAV0),
 	  '$sort'(NLAV0, NLAV),
 	  '$convert_att_vars'(NLAV, LIV, Gs, Gs0)
 	).
@@ -634,7 +634,7 @@ call_residue(Goal,Residue) :-
 '$project_module'([Mod|LMods], LIV, LAV) :-
 	\+ '$undefined'(project_attributes(LIV, LAV), Mod),
 	'$execute'(Mod:project_attributes(LIV, LAV)), !,
-	'$all_attvars'(NLAV),
+	attributes:all_attvars(NLAV),
 	'$project_module'(LMods,LIV,NLAV).
 '$project_module'([_|LMods], LIV, LAV) :-
 	'$project_module'(LMods,LIV,LAV).
