@@ -34,7 +34,7 @@ table(X) :-
                 write(user_error, ' is already declared as table ]'),
                 nl(user_error)
               ;
-                X is F /\ 8'170000, X =:= 0, !, '$table'(T)
+                X is F /\ 8'170000, X =:= 0, !, '$do_table'(T, M)
               ;
                 write(user_error, '[ Error: '),
                 write(user_error, M:A/N),

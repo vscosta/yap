@@ -79,7 +79,7 @@ void init_optyap_preds(void) {
   InitCPred("$parallel_yes_answer", 0, p_parallel_yes_answer, SafePredFlag);
 #endif /* YAPOR */
 #ifdef TABLING
-  InitCPred("$table", 2, p_table, SafePredFlag);
+  InitCPred("$do_table", 2, p_table, SafePredFlag);
   InitCPred("$do_abolish_trie", 2, p_abolish_trie, SafePredFlag);
   InitCPred("$show_trie", 3, p_show_trie, SafePredFlag);
 #endif /* TABLING */
