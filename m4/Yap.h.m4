@@ -10,7 +10,7 @@
 * File:		Yap.h.m4						 *
 * mods:									 *
 * comments:	main header file for YAP				 *
-* version:      $Id: Yap.h.m4,v 1.80 2005-03-02 18:35:49 vsc Exp $	 *
+* version:      $Id: Yap.h.m4,v 1.81 2005-03-14 17:02:40 vsc Exp $	 *
 *************************************************************************/
 
 #include "config.h"
@@ -784,8 +784,18 @@ Inline(IsUnboundVar, int, Term *, t, *(t) == (Term)(t))
 Inline(PtrOfTerm, CELL *, Term, t, *(CELL *)(t))
 
 Inline(FunctorOfTerm, Functor, Term, t, *RepAppl(t))
+#if USE_SYSTEM_MALLOC || USE_DL_MALLOC
+#if USE_LOW32_TAGS
+Inline(MkAtomTerm, Term, Atom, a, (AtomTag | (CELL)(a)))
+Destructor(Term, AtomOf, Atom, t, (~AtomTag & (CELL)(t)))
+#else
+Inline(MkAtomTerm, Term, Atom, a, TAGGEDA(AtomTag, (CELL)(a)))
+Destructor(Term, AtomOf, Atom, t, NonTagPart(t))
+#endif
+#else
 Inline(MkAtomTerm, Term, Atom, a, TAGGEDA(AtomTag, (CELL)(a)-HEAP_INIT_BASE))
 Destructor(Term, AtomOf, Atom, t, HEAP_INIT_BASE+NonTagPart(t))
+#endif
 Inline(IsAtomTerm, int, Term, t, CHKTAG((t), AtomTag))
 
 Inline(MkIntTerm, Term, Int, n, TAGGED(NumberTag, (n)))
