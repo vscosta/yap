@@ -11,8 +11,11 @@
 * File:		cdmgr.c							 *
 * comments:	Code manager						 *
 *									 *
-* Last rev:     $Date: 2004-05-17 21:42:09 $,$Author: vsc $						 *
+* Last rev:     $Date: 2004-06-05 03:36:59 $,$Author: vsc $						 *
 * $Log: not supported by cvs2svn $
+* Revision 1.123  2004/05/17 21:42:09  vsc
+* misc fixes
+*
 * Revision 1.122  2004/05/13 21:36:45  vsc
 * get rid of pesky debugging prints
 *
@@ -2388,12 +2391,12 @@ search_for_static_predicate_in_use(PredEntry *p, int check_everything)
   }
   do {
     /* check first environments that are younger than our latest choicepoint */
-    if (check_everything) {
+    if (check_everything && env_ptr) {
       /* 
 	 I do not need to check environments for asserts,
 	 only for retracts
       */
-      while (b_ptr > (choiceptr)env_ptr) {
+      while (env_ptr && b_ptr > (choiceptr)env_ptr) {
 	PredEntry *pe = EnvPreg(env_ptr[E_CP]);
 	if (p == pe) return(TRUE);
 	if (env_ptr != NULL)

@@ -513,7 +513,7 @@ Yap_NewPredPropByFunctor(FunctorEntry *fe, Term cur_mod)
   p->CodeOfPred = p->cs.p_code.TrueCodeOfPred = (yamop *)(&(p->OpcodeOfPred)); 
   p->cs.p_code.ExpandCode = EXPAND_OP_CODE; 
   if (cur_mod == TermProlog)
-    p->ModuleOfPred = 0;
+    p->ModuleOfPred = 0L;
   else
     p->ModuleOfPred = cur_mod;
   Yap_NewModulePred(cur_mod, p);

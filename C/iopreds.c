@@ -4660,9 +4660,11 @@ Yap_StringToTerm(char *s,Term *tp)
   int sno = open_buf_read_stream(s, strlen(s)+1);
   Term t;
   TokEntry *tokstart;
+  tr_fr_ptr TR_before_parse;
 
   if (sno < 0)
     return FALSE;
+  TR_before_parse = TR;
   tokstart = Yap_tokptr = Yap_toktide = Yap_tokenizer(sno);
   /* cannot actually use CloseStream, because we didn't allocate the buffer */  
   Stream[sno].status = Free_Stream_f;
@@ -4680,6 +4682,7 @@ Yap_StringToTerm(char *s,Term *tp)
     return FALSE;
   }
   t = Yap_Parse();
+  TR = TR_before_parse;
   if (Yap_ErrorMessage) {
     if (tp) {
       *tp = syntax_error(tokstart);

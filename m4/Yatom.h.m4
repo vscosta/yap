@@ -238,10 +238,10 @@ typedef	struct pred_entry {
   tab_ent_ptr   TableOfPred;
 #endif /* TABLING */
   Term 	ModuleOfPred;	/* module for this definition		*/
-  struct pred_entry *NextPredOfModule; /* next pred for same module   */
   /* This must be at an odd number of cells, otherwise it
      will not be aligned on RISC machines */
   profile_data  StatisticsForPred; /* enable profiling for predicate  */
+  struct pred_entry *NextPredOfModule; /* next pred for same module   */
 } PredEntry;
 #define PEProp   ((PropFlags)(0x0000))
 

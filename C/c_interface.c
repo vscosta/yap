@@ -10,8 +10,11 @@
 * File:		c_interface.c						 *
 * comments:	c_interface primitives definition 			 *
 *									 *
-* Last rev:	$Date: 2004-05-17 21:42:08 $,$Author: vsc $						 *
+* Last rev:	$Date: 2004-06-05 03:36:59 $,$Author: vsc $						 *
 * $Log: not supported by cvs2svn $
+* Revision 1.47  2004/05/17 21:42:08  vsc
+* misc fixes
+*
 * Revision 1.46  2004/05/14 17:56:45  vsc
 * Yap_WriteBuffer
 *
@@ -101,7 +104,7 @@ X_API Term    STD_PROTO(YAP_ReadBuffer, (char *,Term *));
 X_API Term    STD_PROTO(YAP_BufferToString, (char *));
 X_API Term    STD_PROTO(YAP_BufferToAtomList, (char *));
 X_API void    STD_PROTO(YAP_Error,(char *));
-X_API int     STD_PROTO(YAP_RunGoal,(Term));
+X_API Term    STD_PROTO(YAP_RunGoal,(Term));
 X_API int     STD_PROTO(YAP_RestartGoal,(void));
 X_API int     STD_PROTO(YAP_GoalHasException,(Term *));
 X_API int     STD_PROTO(YAP_ContinueGoal,(void));
@@ -752,10 +755,10 @@ static void myputc (int ch)
   putc(ch,stderr);
 }
 
-X_API int
+X_API Term
 YAP_RunGoal(Term t)
 {
-  int out;
+  Term out;
   yamop *old_CP = CP;
   BACKUP_MACHINE_REGS();
 

@@ -36,11 +36,8 @@
 :- assert((extensions_to_present_answer(Level) :-
 	   '$show_frozen_goals'(Level))).
 
-'$convert_to_list_of_frozen_goals'(LGs0,LIV,LAV,G,NLG) :-
-	'$sort'(LGs0, LGs),
-	'$purge_done_goals'(LGs, LG),
-	'$clean_list_of_frozen_goals'(LG, ILG),
-	'$project'(G,LIV,LAV,NLG,ILG).
+'$convert_to_list_of_frozen_goals'(LIV,LAV,G,NLG) :-
+	'$project'(LAV,LIV,NLG).
 
 
 '$get_rid_of_vls'((_-G),G).
@@ -88,26 +85,44 @@
 
 '$execute_woken_system_goals'([]).
 '$execute_woken_system_goals'([G|LG]) :-
-	'$execute_woken_system_goal'(G, G),
+	'$execute_woken_system_goal'(G),
 	'$execute_woken_system_goals'(LG).
+
+%
+% X surely was bound, otherwise we would not be awaken.
+%
+'$execute_woken_system_goal'('$att_do'(V,New)) :-
+	( '$frozen_goals'(V, Goals) ->
+	    '$call_atts'(V,New),	
+	    '$execute_frozen_goals'(Goals)
+	 ;
+	    '$call_atts'(V,New)
+	).
+
+'$call_atts'(V,_) :-
+	'$undefined'(woken_att_do(_,_), attributes), !,
+	attributes:bind_attvar(V).
+'$call_atts'(V,_) :-
+	'$att_bound'(V), !.
+'$call_atts'(V,New) :-
+	attributes:woken_att_do(V,New).
+
+'$execute_frozen_goals'([]).
+'$execute_frozen_goals'([G0|Gs]) :-
+	'$execute_frozen_goal'(G0,G0),
+	'$execute_frozen_goals'(Gs).
 
 %
 % X and Y may not be bound (multiple suspensions on the same goal).
 %
-'$execute_woken_system_goal'('$redo_dif'(Done, X, Y), G) :-
+'$execute_frozen_goal'('$redo_dif'(Done, X, Y), G) :-
 	'$redo_dif'(Done, X, Y, G).
-%
-% X surely was bound, otherwise we would not be awaken.
-%
-'$execute_woken_system_goal'('$redo_freeze'(Done, _, Goal), _) :-
+'$execute_frozen_goal'('$redo_freeze'(Done, _, Goal), _) :-
 	'$redo_freeze'(Done, Goal).
-'$execute_woken_system_goal'('$redo_eq'(Done, X, Y, Goal), G) :-
+'$execute_frozen_goal'('$redo_eq'(Done, X, Y, Goal), G) :-
 	'$redo_eq'(Done, X, Y, Goal, G).
-'$execute_woken_system_goal'('$redo_ground'(Done, X, Goal), _) :-
+'$execute_frozen_goal'('$redo_ground'(Done, X, Goal), _) :-
 	'$redo_ground'(Done, X, Goal).
-'$execute_woken_system_goal'('$att_do'(V,New), _) :-
-	% make sure we are not trying to wake up again a bound variable.
-	( '$att_bound'(V) -> true ; attributes:woken_att_do(V,New) ).
 
 freeze(V, G) :-
 	var(V), !,
@@ -468,9 +483,7 @@ when(_,Goal) :-
 
 frozen(V, G) :- nonvar(V), !, G = true.
 frozen(V, LG) :-
-	'$frozen_goals'(V, LGs),
-	'$find_att_vars'(LGs, AttVars),
-	'$convert_to_list_of_frozen_goals'(LGs,[V],AttVars,V,G),
+	'$project'([V],[V],G),
 	'$simplify_list_of_frozen_goals'(G,LG).
 %write(vsc:G0), nl,
 %	'$purge_done_goals'(G0, GI),
@@ -503,36 +516,6 @@ frozen(V, LG) :-
 	'$purge_done_goals'(G0, GF).
 
 
-'$clean_list_of_frozen_goals'([], []).
-'$clean_list_of_frozen_goals'([A|B], G) :-
-	'$convert_list_of_frozen_goals_into_list'([A|B], G).
-
-'$convert_list_of_frozen_goals_into_list'([A], [LV-G]) :- !,
-	'$convert_frozen_goal'(A, [], _, LV0, G0),
-	'$clean_bound_args'(LV0, LV1),
-	'$sort'(LV1, LV),
-	'$process_when'(G0, G).
-'$convert_list_of_frozen_goals_into_list'([A|L], OUT) :- !,
-	'$convert_frozen_goal'(A, LV, Done, NA, G0),
-	'$process_when'(G0, Gf),
-	'$fetch_same_done_goals'(L, Done, LV, NL),
-	'$clean_bound_args'(NA, NA1),
-	'$sort'(NA1, LVf),
-	( NL = [] -> OUT = [LVf-Gf];
-	  OUT = [(LVf-Gf)|Gs],
-	'$convert_list_of_frozen_goals_into_list'(NL, Gs)).
-
-
-'$clean_bound_args'([], []).
-'$clean_bound_args'([NV|L], NL) :- nonvar(NV), !,
-	'$clean_bound_args'(L,NL).
-'$clean_bound_args'([V|L], [V|NL]) :-
-	'$clean_bound_args'(L,NL).
-
-'$process_when'('$when'(_,G,_), NG) :- !,
-	'$process_when'(G, NG).
-'$process_when'(G, G).
-
 '$convert_frozen_goal'(V, _, _, V, _) :- '$is_att_variable'(V), !.
 '$convert_frozen_goal'('$redo_dif'(Done, X, Y), LV, Done, [X,Y|LV], dif(X,Y)).
 '$convert_frozen_goal'('$redo_freeze'(Done, FV, G), LV, Done, [FV|LV], G).
@@ -559,20 +542,19 @@ frozen(V, LG) :-
 
 
 call_residue(Goal,Residue) :-
-	'$read_svar_list'(OldList,OldAttsList),
+	'$read_svar_list'(OldAttsList),
 	'$copy_term_but_not_constraints'(Goal, NGoal),
-	( create_mutable([], CurrentList),
-	  create_mutable([], CurrentAttsList),
-          '$set_svar_list'(CurrentList, CurrentAttsList),
+	(  create_mutable([], CurrentAttsList),
+          '$set_svar_list'(CurrentAttsList),
 	  '$execute'(NGoal),
 	  '$call_residue_continuation'(NGoal,NResidue),
-	    ( '$set_svar_list'(OldList,OldAttsList),
+	    ( '$set_svar_list'(OldAttsList),
 	       '$copy_term_but_not_constraints'(NGoal+NResidue, Goal+Residue)
 		;
-		'$set_svar_list'(CurrentList,CurrentAttsList), fail
+		'$set_svar_list'(CurrentAttsList), fail
 	    )
            ;
-          '$set_svar_list'(OldList,OldAttsList), fail
+          '$set_svar_list'(OldAttsList), fail
         ).
 
 %
@@ -588,8 +570,7 @@ call_residue(Goal,Residue) :-
 	attributes:convert_att_var(AttV, GS),
 	'$purge_and_set_done_goals'(G0, GF, Atts).
 '$purge_and_set_done_goals'(['$redo_dif'(Done, X , Y)|G0], [LVars-dif(X,Y)|GF], Atts) :-
-	var(Done),
-	!,
+	var(Done), !,
 	Done = '$done',
 	'$can_unify'(X, Y, LVars),
 	'$purge_and_set_done_goals'(G0, GF, Atts).
@@ -609,20 +590,19 @@ call_residue(Goal,Residue) :-
 	'$purge_and_set_done_goals'(G0, GF, Atts).
 
 
-'$project'(true,_,_,Gs,Gs) :- !.
-'$project'(_,_,_,Gs,Gs) :-
-	'$undefined'(modules_with_attributes(_), attributes), !.
-'$project'(_,LIV,LAV,Gs,Gs0) :-
+'$project'([],_,[]).
+'$project'([V|LAV],_,LGs) :-
+	% we don't have constraints yet, so we must be talking about delays.
+	'$undefined'(modules_with_attributes(LAV),attributes), !,
+	attributes:all_attvars(NLAV),
+	'$fetch_delays'(NLAV,LGs, []).
+'$project'([V|LAV],LIV,LDs) :-
 	attributes:modules_with_attributes(LMods),
-	(LAV = [] ->
-	  Gs = Gs0
-        ;
-	  '$pick_vars_for_project'(LIV,NLIV),
-	  '$project_module'(LMods,NLIV,LAV),
-	  attributes:all_attvars(NLAV0),
-	  '$sort'(NLAV0, NLAV),
-	  '$convert_att_vars'(NLAV, LIV, Gs, Gs0)
-	).
+	'$pick_vars_for_project'(LIV,NLIV),
+	'$project_module'(LMods,NLIV,[V|LAV]),
+	attributes:all_attvars(NLAV),
+	'$convert_att_vars'(NLAV, LIV, LGs),
+	'$fetch_delays'(NLAV, LDs, LGs).
 
 '$pick_vars_for_project'([],[]).
 '$pick_vars_for_project'([V|L],[V|NL]) :- var(V), !,
@@ -639,25 +619,27 @@ call_residue(Goal,Residue) :-
 '$project_module'([_|LMods], LIV, LAV) :-
 	'$project_module'(LMods,LIV,LAV).
 
-'$convert_att_vars'([], _, L, L).
-'$convert_att_vars'([V|LAV], LIV, NGs, NGs0) :-
+
+'$convert_att_vars'(Vs, LIV, []) :-
+	% do nothing
+	'$undefined'(convert_att_var(Vs,LIV),attributes), !.
+'$convert_att_vars'(Vs0, LIV, LGs) :-
+	'$sort'(Vs0, Vs),
+	'$do_convert_att_vars'(Vs0, LIV, LGs).
+	
+'$do_convert_att_vars'([], _, []).
+'$do_convert_att_vars'([V|LAV], LIV, NGs) :-
 	var(V),
-	attributes:convert_att_var(V, G),
+	attributes:convert_att_var(V,G),
 	G \= true,
-%	'$variables_in_term'(G,[],GV0),
-        % I'm allowing goals without variables to go through
-%	'$sort'(GV0,GV),
-%	( GV0 = [] -> true ;
-%	'$sort'(LIV,NLIV), % notice that ordering changes as we introduce constraints
-%	'$vars_interset_for_constr'(GV,NLIV) ), !,
 	!,
 	'$split_goals_for_catv'(G,V,NGs,IGs),
-	'$convert_att_vars'(LAV, LIV, IGs, NGs0).
-'$convert_att_vars'([_|LAV], LIV, Gs, NGs0) :-
-	'$convert_att_vars'(LAV, LIV, Gs, NGs0).
+	'$do_convert_att_vars'(LAV, LIV, IGs).
+'$do_convert_att_vars'([_|LAV], LIV, Gs) :-
+	'$do_convert_att_vars'(LAV, LIV, Gs).
 
-'$split_goals_for_catv'((G,NG),V,Gs,Gs0) :- !,
-	'$split_goals_for_catv'(NG,V,Gs,[V-G|Gs0]).
+'$split_goals_for_catv'((G,NG),V,[V-G|Gs],Gs0) :- !,
+	'$split_goals_for_catv'(NG,V,Gs,Gs0).
 '$split_goals_for_catv'(NG,V,[V-NG|Gs],Gs).
 
 '$vars_interset_for_constr'([V1|_],[V2|_]) :-
@@ -668,6 +650,62 @@ call_residue(Goal,Residue) :-
 '$vars_interset_for_constr'([V1|GV],[_|LIV]) :-
 	'$vars_interset_for_constr'([V1|GV],LIV).
 
+%'$fetch_delays'(_, L, L) :-
+%	'$no_delayed_goals', !.
+'$fetch_delays'(Vs, LDs, LAs) :-
+	'$do_fetch_delays'(Vs, LGs0),
+	'$sort'(LGs0, LGs),
+	'$purge_done_goals'(LGs, LG),
+	'$clean_list_of_frozen_goals'(LG, LDs, LAs).
+	
+	
+'$do_fetch_delays'([], []).
+'$do_fetch_delays'([V|NLAV], GF) :-
+	'$frozen_goals'(V,G), !,
+	'$hole_in_frozen_goals'(G,GF,G1),
+	'$do_fetch_delays'(NLAV, G1).
+'$do_fetch_delays'([V|NLAV], GF) :-
+	'$do_fetch_delays'(NLAV, GF).
 
+
+'$hole_in_frozen_goals'([],V,V).
+'$hole_in_frozen_goals'([G|Gs],[G|GF],G1) :-
+	'$hole_in_frozen_goals'(Gs,GF,G1).
+
+'$clean_list_of_frozen_goals'([], L, L).
+'$clean_list_of_frozen_goals'([A|B], Gs, Gs0) :-
+	'$convert_list_of_frozen_goals_into_list'([A|B], Gs, Gs0).
+
+'$convert_list_of_frozen_goals_into_list'([A], [LV-G|L], L) :- !,
+	'$convert_frozen_goal'(A, [], _, LV0, G0),
+	'$clean_bound_args'(LV0, LV1),
+	'$sort'(LV1, LV),
+	'$process_when'(G0, G).
+'$convert_list_of_frozen_goals_into_list'([A|L], OUT, Gs0) :- !,
+	'$convert_frozen_goal'(A, LV, Done, NA, G0),
+	'$process_when'(G0, Gf),
+	'$fetch_same_done_goals'(L, Done, LV, NL),
+	'$clean_bound_args'(NA, NA1),
+	'$sort'(NA1, LVf),
+	( NL = [] -> OUT = [LVf-Gf|Gs0];
+	  OUT = [(LVf-Gf)|Gs],
+	'$convert_list_of_frozen_goals_into_list'(NL, Gs, Gs0)).
+
+
+'$clean_bound_args'([], []).
+'$clean_bound_args'([NV|L], NL) :- nonvar(NV), !,
+	'$clean_bound_args'(L,NL).
+'$clean_bound_args'([V|L], [V|NL]) :-
+	'$clean_bound_args'(L,NL).
+
+'$process_when'('$when'(_,G,_), NG) :- !,
+	'$process_when'(G, NG).
+'$process_when'(G, G).
+
+'$freeze'(V,G) :-
+	attributes:update_att(V, 0, G).
+
+'$frozen_goals'(V,Gs) :-
+	attributes:get_att(V, 0, Gs), nonvar(Gs).
 
 

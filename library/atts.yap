@@ -15,8 +15,6 @@
 *									 *
 *************************************************************************/
 
-:- sequential.
-
 :- module(attributes, []).
 
 :- op(1150, fx, attribute).
@@ -29,9 +27,9 @@
 :- dynamic_predicate(existing_attribute/3,logical).
 :- dynamic_predicate(modules_with_attributes/1,logical).
 
-:- user_defined_directive(attribute(G), attributes:new_attribute(G)).
-
 modules_with_attributes([]).
+
+:- user_defined_directive(attribute(G), attributes:new_attribute(G)).
 
 user:goal_expansion(get_atts(Var,AccessSpec), Mod, Gs) :- !,
 	expand_get_attributes(AccessSpec,Mod,Var,[],GL),

@@ -842,9 +842,8 @@ InitCodes(void)
 
   heap_regs->atprompt = 0;
 #ifdef COROUTINING
-  heap_regs->num_of_atts = 0; /* initially no attributes have been defined */
+  heap_regs->num_of_atts = 1; /* initially only coroutining is supported */
 #endif
-
   /* system boots in compile mode */
   heap_regs->static_predicates_marked = TRUE;
   /* use Quintus compatible atom_chars and number_chars, not ISO compatible */

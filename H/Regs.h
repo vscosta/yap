@@ -10,7 +10,7 @@
 * File:		Regs.h							 *
 * mods:									 *
 * comments:	YAP abstract machine registers				 *
-* version:      $Id: Regs.h,v 1.28 2004-05-13 20:54:58 vsc Exp $	 *
+* version:      $Id: Regs.h,v 1.29 2004-06-05 03:37:00 vsc Exp $	 *
 *************************************************************************/
 
 
@@ -92,12 +92,6 @@ typedef struct
     CELL   EX_;	    	        /* 18                                         */
 #ifdef COROUTINING
     Term  DelayedVars_;         /* maximum number of attributed variables     */
-#endif
-#ifndef USE_OFFSETS
-#ifndef EXT_BASE
-    Term   TermDot_;		/* 19                                         */
-    Term   TermNil_;		/* 20                                         */
-#endif
 #endif
     Term  CurrentModule_;
 #if defined(SBA) || defined(TABLING)

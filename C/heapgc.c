@@ -2910,9 +2910,6 @@ marking_phase(tr_fr_ptr old_TR, CELL *current_env, yamop *curp, CELL *max)
   cont_top = (cont *)db_vec;
   /* These two must be marked first so that our trail optimisation won't lose
      values */
-#ifdef COROUTINING
-  Yap_mark_all_suspended_goals();
-#endif
   mark_regs(old_TR);		/* active registers & trail */
 #ifdef COROUTINING
   mark_delays(max);

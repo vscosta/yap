@@ -10,8 +10,12 @@
 *									 *
 * File:		absmi.c							 *
 * comments:	Portable abstract machine interpreter                    *
-* Last rev:     $Date: 2004-05-13 20:54:57 $,$Author: vsc $						 *
+* Last rev:     $Date: 2004-06-05 03:36:59 $,$Author: vsc $						 *
 * $Log: not supported by cvs2svn $
+* Revision 1.133  2004/05/13 20:54:57  vsc
+* debugger fixes
+* make sure we always go back to current module, even during initizlization.
+*
 * Revision 1.132  2004/04/29 03:45:49  vsc
 * fix garbage collection in execute_tail
 *
@@ -1863,13 +1867,9 @@ Yap_absmi(int inp)
 #ifdef YAPOR
 	CUT_prune_to((choiceptr) d0);
 #else
-	B = (choiceptr) d0;
-#endif	/* YAPOR */
-#ifdef TABLING
-        abolish_incomplete_subgoals(B);
-#endif /* TABLING */
-	SET_BB(PROTECT_FROZEN_B(B));
-	HBREG = PROTECT_FROZEN_H(B);
+	while (B->cp_b != (choiceptr)d0) {
+	  B = B->cp_b;
+	}
       trim_trail:
         {
 	  tr_fr_ptr pt1, pt0;
@@ -1920,6 +1920,13 @@ Yap_absmi(int inp)
 	  }
 	  TR = pt0;
 	}
+	B = B->cp_b;
+#endif	/* YAPOR */
+#ifdef TABLING
+        abolish_incomplete_subgoals(B);
+#endif /* TABLING */
+	SET_BB(PROTECT_FROZEN_B(B));
+	HBREG = PROTECT_FROZEN_H(B);
       }
       ENDD(d0);
       GONext();
@@ -1937,13 +1944,10 @@ Yap_absmi(int inp)
 #ifdef YAPOR
 	CUT_prune_to((choiceptr) d0);
 #else
-	B = (choiceptr) d0;
+	while (B->cp_b != (choiceptr)d0) {
+	  B = B->cp_b;
+	}
 #endif	/* YAPOR */
-#ifdef TABLING
-        abolish_incomplete_subgoals(B);
-#endif /* TABLING */
-	SET_BB(PROTECT_FROZEN_B(B));
-	HBREG = PROTECT_FROZEN_H(B);
 	goto trim_trail;
       }
       ENDD(d0);
@@ -1961,13 +1965,10 @@ Yap_absmi(int inp)
 #ifdef YAPOR
 	CUT_prune_to((choiceptr) d0);
 #else
-	B = (choiceptr) d0;
+	while (B->cp_b != (choiceptr)d0) {
+	  B = B->cp_b;
+	}
 #endif	/* YAPOR */
-#ifdef TABLING
-        abolish_incomplete_subgoals(B);
-#endif /* TABLING */
-	SET_BB(PROTECT_FROZEN_B(B));
-	HBREG = PROTECT_FROZEN_H(B);
 	goto trim_trail;
       }
       ENDD(d0);
@@ -2022,13 +2023,10 @@ Yap_absmi(int inp)
 #ifdef YAPOR
 	  CUT_prune_to(pt0);
 #else
-	  B = pt0;
+	  while (B->cp_b != pt0) {
+	    B = B->cp_b;
+	  }
 #endif	/* YAPOR */
-#ifdef TABLING
-          abolish_incomplete_subgoals(B);
-#endif /* TABLING */
-	  SET_BB(PROTECT_FROZEN_B(B));
-	  HBREG = PROTECT_FROZEN_H(pt0);
 	  goto trim_trail;
 	}
       }
@@ -2058,13 +2056,10 @@ Yap_absmi(int inp)
 #ifdef YAPOR
 	  CUT_prune_to(pt0);
 #else
-	  B = pt0;
+	  while (B->cp_b != pt0) {
+	    B = B->cp_b;
+	  }
 #endif	/* YAPOR */
-#ifdef TABLING
-          abolish_incomplete_subgoals(B);
-#endif /* TABLING */
-	  SET_BB(PROTECT_FROZEN_B(B));
-	  HBREG = PROTECT_FROZEN_H(pt0);
 	  goto trim_trail;
 	}
       }
@@ -2670,7 +2665,6 @@ Yap_absmi(int inp)
       } else	
 #endif
 	SREG = (CELL *) CreepCode;
-      CFREG = CalculateStackGap();
       UNLOCK(SignalLock);
 #ifdef LOW_LEVEL_TRACER
       if (Yap_do_low_level_trace)
@@ -7725,13 +7719,10 @@ Yap_absmi(int inp)
 #ifdef YAPOR
 	CUT_prune_to(pt0);
 #else
-	B = pt0;
+	while (B->cp_b != pt0) {
+	  B = B->cp_b;
+	}
 #endif /* YAPOR */
-#ifdef TABLING
-        abolish_incomplete_subgoals(B);
-#endif /* TABLING */
-	HBREG = PROTECT_FROZEN_H(B);
-	PREG = NEXTOP(PREG, xF);
 	goto trim_trail;
       }
       PREG = NEXTOP(PREG, xF);
@@ -7773,13 +7764,10 @@ Yap_absmi(int inp)
 #ifdef YAPOR
 	CUT_prune_to(pt1);
 #else
-	B = pt1;
+	while (B->cp_b != pt1) {
+	  B = B->cp_b;
+	}
 #endif /* YAPOR */
-#ifdef TABLING
-        abolish_incomplete_subgoals(B);
-#endif /* TABLING */
-	HBREG = PROTECT_FROZEN_H(B);
-	PREG = NEXTOP(PREG, yF);
 	goto trim_trail;
       }
       PREG = NEXTOP(PREG, yF);
@@ -11847,7 +11835,6 @@ Yap_absmi(int inp)
 	if (ASP > (CELL *)B)
 	  ASP = (CELL *)B;
 	LOCK(SignalLock);
-	ActiveSignals &= ~YAP_CDOVF_SIGNAL;
 	UNLOCK(SignalLock);
 	if (ActiveSignals & YAP_CDOVF_SIGNAL) {
 	  saveregs_and_ycache();
@@ -11858,8 +11845,44 @@ Yap_absmi(int inp)
 	  }
 	  setregs_and_ycache();
 	  LOCK(SignalLock);
+	  ActiveSignals &= ~YAP_CDOVF_SIGNAL;
 	  CFREG = CalculateStackGap();
 	  UNLOCK(SignalLock);
+	  if (!ActiveSignals) {
+	    goto execute_after_comma;
+	  }
+	}
+	if (ActiveSignals & YAP_CDOVF_SIGNAL) {
+	  saveregs_and_ycache();
+	  if (!Yap_growheap(FALSE, 0, NULL)) {
+	    Yap_Error(OUT_OF_HEAP_ERROR, TermNil, "YAP failed to grow heap: %s", Yap_ErrorMessage);
+	    setregs_and_ycache();
+	    FAIL();
+	  }
+	  setregs_and_ycache();
+	  LOCK(SignalLock);
+	  ActiveSignals &= ~YAP_CDOVF_SIGNAL;
+	  CFREG = CalculateStackGap();
+	  UNLOCK(SignalLock);
+	  if (!ActiveSignals) {
+	    goto execute_after_comma;
+	  }
+	}
+	if (ActiveSignals & YAP_TROVF_SIGNAL) {
+	  saveregs_and_ycache();
+	  if(!Yap_growtrail (sizeof(CELL) * 16 * 1024L)) {
+	    Yap_Error(OUT_OF_TRAIL_ERROR,TermNil,"YAP failed to reserve %ld bytes in growtrail",sizeof(CELL) * 16 * 1024L);
+	    setregs_and_ycache();
+	    FAIL();
+	  }
+	  setregs_and_ycache();
+	  LOCK(SignalLock);
+	  ActiveSignals &= ~YAP_TROVF_SIGNAL;
+	  CFREG = CalculateStackGap();
+	  UNLOCK(SignalLock);
+	  if (!ActiveSignals) {
+	    goto execute_after_comma;
+	  }
 	}
 	if (ActiveSignals) {
 	  goto creep;

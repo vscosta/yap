@@ -38,55 +38,35 @@ static CELL *
 AddToQueue(attvar_record *attv)
 {
   Term t[2];
-  sus_record *WGs;
-  sus_record *new;
+  Term WGs, ng;
 
   t[0] = (CELL)&(attv->Done);
   t[1] = attv->Value;
   /* follow the chain */
-  WGs = (sus_record *)Yap_ReadTimedVar(WokenGoals);
-  new = (sus_record *)H;
-  H = (CELL *)(new+1);
-  new->NR = (sus_record *)(&(new->NR));
-  new->SG = Yap_MkApplTerm(FunctorAttGoal, 2, t);
-  new->NS = new;
+  WGs = Yap_ReadTimedVar(WokenGoals);
+  ng = Yap_MkApplTerm(FunctorAttGoal, 2, t);
 
+  Yap_UpdateTimedVar(WokenGoals, MkPairTerm(ng, WGs));
   if ((Term)WGs == TermNil) {
-    Yap_UpdateTimedVar(WokenGoals, (CELL)new);
     /* from now on, we have to start waking up goals */
     Yap_signal(YAP_WAKEUP_SIGNAL);
-  } else {
-    /* add to the end of the current list of suspended goals */
-    CELL *where_to = (CELL *)Deref((CELL)WGs);
-    Bind_Global(where_to, (CELL)new);
   }
-  return(RepAppl(new->SG)+2);
+  return(RepAppl(ng)+2);
 }
 
-static CELL *
+static void
 AddFailToQueue(void)
 {
-  sus_record *WGs;
-  sus_record *new;
+  Term WGs;
 
   /* follow the chain */
-  WGs = (sus_record *)Yap_ReadTimedVar(WokenGoals);
-  new = (sus_record *)H;
-  H = (CELL *)(new+1);
-  new->NR = (sus_record *)(&(new->NR));
-  new->SG = MkAtomTerm(AtomFail);
-  new->NS = new;
+  WGs = Yap_ReadTimedVar(WokenGoals);
 
+  Yap_UpdateTimedVar(WokenGoals, MkPairTerm(MkAtomTerm(AtomFail),WGs));
   if ((Term)WGs == TermNil) {
-    Yap_UpdateTimedVar(WokenGoals, (CELL)new);
     /* from now on, we have to start waking up goals */
     Yap_signal(YAP_WAKEUP_SIGNAL);
-  } else {
-    /* add to the end of the current list of suspended goals */
-    CELL *where_to = (CELL *)Deref((CELL)WGs);
-    Bind_Global(where_to, (CELL)new);
   }
-  return(RepAppl(new->SG)+2);
 }
 
 static int
@@ -213,6 +193,15 @@ WakeAttVar(CELL* pt1, CELL reg2)
   Bind_Global(&(attv->Value), reg2);
 }
 
+void
+Yap_WakeUp(CELL *pt0) {
+  CELL d0 = *pt0;
+  RESET_VARIABLE(pt0);
+  TR--;
+  WakeAttVar(pt0, d0);
+}
+
+
 static void
 mark_attvar(CELL *orig)
 {
@@ -287,6 +276,18 @@ PutAtt(attvar_record *attv, Int i, Term tatt) {
   }
 #endif
   return(TRUE);
+}
+
+static Int
+UpdateAtt(attvar_record *attv, Int i, Term tatt) {
+  Int pos = i*2;
+
+  if (!IsUnboundVar(attv->Atts[pos+1])) {
+    tatt = MkPairTerm(tatt, attv->Atts[pos+1]);
+  } else {
+    tatt = MkPairTerm(tatt, TermNil);
+  }    
+  return PutAtt(attv, i, tatt);
 }
 
 static Int
@@ -483,6 +484,29 @@ p_put_att(void) {
 }
 
 static Int
+p_update_att(void) {
+  /* receive a variable in ARG1 */
+  Term inp = Deref(ARG1);
+  /* if this is unbound, ok */
+  if (IsVarTerm(inp)) {
+    if (IsAttachedTerm(inp)) {
+      attvar_record *attv = (attvar_record *)VarOfTerm(inp);
+      exts id = (exts)attv->sus_id;
+
+      if (id != attvars_ext) {
+	Yap_Error(TYPE_ERROR_VARIABLE,inp,"put_attributes/2");
+	return(FALSE);
+      }
+      return(UpdateAtt(attv, IntegerOfTerm(Deref(ARG2)), Deref(ARG3)));
+    }
+    return(BuildNewAttVar(inp, IntegerOfTerm(Deref(ARG2)), MkPairTerm(Deref(ARG3),TermNil)));
+  } else {
+    Yap_Error(TYPE_ERROR_VARIABLE,inp,"put_attributes/2");
+    return(FALSE);
+  }
+}
+
+static Int
 p_rm_att(void) {
   /* receive a variable in ARG1 */
   Term inp = Deref(ARG1);
@@ -655,6 +679,7 @@ void Yap_InitAttVarPreds(void)
   Yap_InitCPred("get_all_atts", 2, p_get_all_atts, SafePredFlag);
   Yap_InitCPred("free_att", 2, p_free_att, SafePredFlag);
   Yap_InitCPred("put_att", 3, p_put_att, 0);
+  Yap_InitCPred("update_att", 3, p_update_att, 0);
   Yap_InitCPred("rm_att", 2, p_rm_att, SafePredFlag);
   Yap_InitCPred("inc_n_of_atts", 1, p_inc_atts, SafePredFlag);
   Yap_InitCPred("n_of_atts", 1, p_n_atts, SafePredFlag);

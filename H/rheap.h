@@ -11,8 +11,11 @@
 * File:		rheap.h							 *
 * comments:	walk through heap code					 *
 *									 *
-* Last rev:     $Date: 2004-04-29 03:45:50 $,$Author: vsc $						 *
+* Last rev:     $Date: 2004-06-05 03:37:00 $,$Author: vsc $						 *
 * $Log: not supported by cvs2svn $
+* Revision 1.41  2004/04/29 03:45:50  vsc
+* fix garbage collection in execute_tail
+*
 * Revision 1.40  2004/03/31 01:03:10  vsc
 * support expand group of clauses
 *
@@ -595,7 +598,7 @@ restore_opcodes(yamop *pc)
       pc->u.Ill.I = (LogUpdIndex *)PtoOpAdjust((yamop *)(pc->u.Ill.I));
       pc->u.Ill.l1 = PtoOpAdjust(pc->u.Ill.l1);
       pc->u.Ill.l2 = PtoOpAdjust(pc->u.Ill.l2);
-      pc = NEXTOP(pc,Ill);
+      pc = pc->u.Ill.l1;
       break;
       /* instructions type l */
     case _enter_profiling:

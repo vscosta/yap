@@ -4740,7 +4740,7 @@ p_init_queue(void)
   dbq->Flags = DBClMask;
   dbq->FirstInQueue = dbq->LastInQueue = NULL;
   INIT_RWLOCK(dbq->QRWLock);
-  t = MkDBRefTerm((DBRef)dbq);
+  t = MkIntegerTerm((Int)dbq);
   return(Yap_unify(ARG1, t));
 }
 
@@ -4755,11 +4755,11 @@ p_enqueue(void)
   if (IsVarTerm(Father)) {
     Yap_Error(INSTANTIATION_ERROR, Father, "enqueue");
     return(FALSE);
-  } else if (!IsDBRefTerm(Father)) {
-    Yap_Error(TYPE_ERROR_DBREF, Father, "enqueue");
+  } else if (!IsIntegerTerm(Father)) {
+    Yap_Error(TYPE_ERROR_INTEGER, Father, "enqueue");
     return(FALSE);
   } else
-    father_key = (db_queue *)DBRefOfTerm(Father);
+    father_key = (db_queue *)IntegerOfTerm(Father);
   while ((x = (QueueEntry *)AllocDBSpace(sizeof(QueueEntry))) == NULL) {
     if (!Yap_growheap(FALSE, sizeof(QueueEntry), NULL)) {
       Yap_Error(OUT_OF_HEAP_ERROR, TermNil, "in findall");
@@ -4823,11 +4823,11 @@ p_dequeue(void)
   if (IsVarTerm(Father)) {
     Yap_Error(INSTANTIATION_ERROR, Father, "dequeue");
     return(FALSE);
-  } else if (!IsDBRefTerm(Father)) {
-    Yap_Error(TYPE_ERROR_DBREF, Father, "dequeue");
+  } else if (!IsIntegerTerm(Father)) {
+    Yap_Error(TYPE_ERROR_INTEGER, Father, "dequeue");
     return(FALSE);
   } else
-    father_key = (db_queue *)DBRefOfTerm(Father);
+    father_key = (db_queue *)IntegerOfTerm(Father);
   WRITE_LOCK(father_key->QRWLock);
   if ((cur_instance = father_key->FirstInQueue) == NULL) {
     /* an empty queue automatically goes away */

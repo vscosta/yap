@@ -878,16 +878,17 @@ static void
 HandleSIGSEGV(int   sig,   siginfo_t   *sip, ucontext_t *uap)
 {
 
+#if !USE_SYSTEM_MALLOC
   if (sip->si_code != SI_NOINFO &&
       sip->si_code == SEGV_MAPERR &&
       (void *)(sip->si_addr) > (void *)(Yap_HeapBase) &&
-      (void *)(sip->si_addr) < (void *)(Yap_TrailTop+64 * 1024L) &&
-      ! USE_SYSTEM_MALLOC) {
+      (void *)(sip->si_addr) < (void *)(Yap_TrailTop+64 * 1024L)) {
     Yap_growtrail(64 * 1024L);
-  }
-  else {
-    Yap_Error(FATAL_ERROR, TermNil,
-	  "likely bug in YAP, segmentation violation at %p", sip->si_addr);
+  }  else
+#endif
+    {
+      Yap_Error(FATAL_ERROR, TermNil,
+		"likely bug in YAP, segmentation violation at %p", sip->si_addr);
   }
 }
 

@@ -311,12 +311,7 @@ write_var(CELL *t,  struct write_globs *wglb)
       exts ext = ExtFromCell(t);
 
       Yap_Portray_delays = FALSE;
-      if (ext == susp_ext) {
-	wrputs("$DL(",wglb->writech);
-	write_var(t, wglb);
-	wrputc(')', wglb->writech);
-	lastw = separator;
-      } else if (ext == attvars_ext) {
+      if (ext == attvars_ext) {
 	attvar_record *attv = (attvar_record *)t;
 	int i;
 	long sl = 0;

@@ -27,7 +27,7 @@
 	'$execute'(M:G).
 
 '$do_signal'(sig_wake_up, G) :-
-	'$awoken_goals'(LG),
+ 	'$awoken_goals'(LG),
 	% if more signals alive, set creep flag
 	'$continue_signals',
 	'$wake_up_goal'(G, LG).

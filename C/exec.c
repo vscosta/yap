@@ -1031,15 +1031,17 @@ exec_absmi(int top)
   return(Yap_absmi(0));
 }
 
-static int
-do_goal(yamop *CodeAdr, int arity, CELL *pt, int top)
+static Term
+do_goal(Term t, yamop *CodeAdr, int arity, CELL *pt, int top)
 {
   choiceptr saved_b = B;
+  Term out = 0L;
 
   /* create an initial pseudo environment so that when garbage
      collection is going up in the environment chain it doesn't get
      confused */
   EX = 0L;
+  //  sl = Yap_InitSlot(t);
   YENV = ASP;
   YENV[E_CP] = (CELL)P;
   YENV[E_CB] = (CELL)B;
@@ -1084,7 +1086,12 @@ do_goal(yamop *CodeAdr, int arity, CELL *pt, int top)
   CP = YESCODE;
   S = CellPtr (RepPredProp (PredPropByFunc (Yap_MkFunctor(AtomCall, 1),0)));	/* A1 mishaps */
 
- return(exec_absmi(top));
+  out = exec_absmi(top);
+  //  if (out) {
+  //    out = Yap_GetFromSlot(sl);
+  //  }
+  //  Yap_RecoverSlots(1);
+  return out;
 }
 
 int
@@ -1139,12 +1146,12 @@ Yap_execute_goal(Term t, int nargs, Term mod)
   if (IsAtomTerm(t)) {
     CodeAdr = RepPredProp (pe)->CodeOfPred;
     READ_UNLOCK(ppe->PRWLock);
-    out = do_goal(CodeAdr, 0, pt, FALSE);
+    out = do_goal(t, CodeAdr, 0, pt, FALSE);
   } else {
     Functor f = FunctorOfTerm(t);
     CodeAdr = RepPredProp (pe)->CodeOfPred;
     READ_UNLOCK(ppe->PRWLock);
-    out = do_goal(CodeAdr, ArityOfFunctor(f), pt, FALSE);
+    out = do_goal(t, CodeAdr, ArityOfFunctor(f), pt, FALSE);
   }
 
   if (out == 1) {
@@ -1218,7 +1225,7 @@ Yap_trust_last(void)
   }
 }
 
-int
+Term
 Yap_RunTopGoal(Term t)
 {
   yamop        *CodeAdr;
@@ -1227,7 +1234,7 @@ Yap_RunTopGoal(Term t)
   CELL *pt;
   UInt arity;
   Term mod = CurrentModule;
-  int goal_out = 0;
+  Term goal_out = 0;
 
  restart_runtopgoal:
   if (IsAtomTerm(t)) {
@@ -1273,7 +1280,7 @@ Yap_RunTopGoal(Term t)
     Yap_Error(SYSTEM_ERROR,TermNil,
 	  "unable to boot because of too little heap space");
   }
-  goal_out = do_goal(CodeAdr, arity, pt, TRUE);
+  goal_out = do_goal(t, CodeAdr, arity, pt, TRUE);
   return(goal_out);
 }
 

@@ -14083,10 +14083,18 @@ simple way for controlling and communicating with the Prolog run-time.
 @findex  YAP_Read/1
 Parse a Term  using the function @var{GetC} to input characters.
 
-@item  @code{int} YAP_RunGoal(@code{Term} @var{Goal})
+@item  @code{Term} YAP_RunGoal(@code{Term} @var{Goal})
 @findex YAP_RunGoal/1
 Execute query @var{Goal} and return 1 if the query succeeds, and
-0 otherwise.
+0 otherwise. The predicate returns 0 if failure, otherwise it will
+return @var{Term}. Note that @var{Term} may change due to garbage
+collection, so you should use something like:
+@example
+  t = YAP_RunGoal(t);
+  if (t == 0) return FALSE;
+@end example
+If the execution fails, garbage collection might still have changed
+the term, so you should not use the input argument again.
 
 @item  @code{int} YAP_RestartGoal(@code{void})
 @findex YAP_RestartGoal/0

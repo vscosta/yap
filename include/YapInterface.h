@@ -203,7 +203,7 @@ extern X_API void *PROTO(YAP_AllocSpaceFromYap,(unsigned int));
 extern X_API void PROTO(YAP_FreeSpaceFromYap,(void *));
 
 /*  int YAP_RunGoal(YAP_Term) */
-extern X_API YAP_Bool PROTO(YAP_RunGoal,(YAP_Term));
+extern X_API YAP_Term PROTO(YAP_RunGoal,(YAP_Term));
 
 /*  int YAP_RestartGoal(void) */
 extern X_API YAP_Bool PROTO(YAP_RestartGoal,(void));

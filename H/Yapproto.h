@@ -10,7 +10,7 @@
 * File:		Yap.proto						 *
 * mods:									 *
 * comments:	Function declarations for YAP				 *
-* version:      $Id: Yapproto.h,v 1.51 2004-03-05 15:26:33 vsc Exp $	 *
+* version:      $Id: Yapproto.h,v 1.52 2004-06-05 03:37:00 vsc Exp $	 *
 *************************************************************************/
 
 /* prototype file for Yap */
@@ -130,7 +130,6 @@ void	STD_PROTO(Yap_InitCoroutPreds,(void));
 #ifdef COROUTINING
 Term	STD_PROTO(Yap_ListOfWokenGoals,(void));
 void	STD_PROTO(Yap_WakeUp,(CELL *));
-void	STD_PROTO(Yap_mark_all_suspended_goals,(void));
 #endif
 
 /* dbase.c */
@@ -150,7 +149,7 @@ void	STD_PROTO(Yap_InitEval,(void));
 Term	STD_PROTO(Yap_ExecuteCallMetaCall,(Term));
 void	STD_PROTO(Yap_InitExecFs,(void));
 Int	STD_PROTO(Yap_JumpToEnv,(Term));
-int	STD_PROTO(Yap_RunTopGoal,(Term));
+Term	STD_PROTO(Yap_RunTopGoal,(Term));
 Int	STD_PROTO(Yap_execute_goal,(Term, int, Term));
 int	STD_PROTO(Yap_exec_absmi,(int));
 void	STD_PROTO(Yap_trust_last,(void));
