@@ -3760,7 +3760,7 @@ format(volatile Term otail, volatile Term oargs, int sno)
   int (* f_putc)(int, int);
   int has_tabs;
   jmp_buf format_botch;
-  void *old_handler;
+  volatile void *old_handler = NULL;
   volatile int old_pos;
 
   if (Stream[sno].status & InMemory_Stream_f) {
@@ -4085,7 +4085,7 @@ format(volatile Term otail, volatile Term oargs, int sno)
 		fstr = NULL;
 	      }
 	      if (Stream[sno].status & InMemory_Stream_f) {
-		old_handler = Stream[sno].u.mem_string.error_handler;
+		Stream[sno].u.mem_string.error_handler = old_handler;
 	      }
 	      format_clean_up(format_base, fstr, targs);
 	      Yap_JumpToEnv(ball);
@@ -4193,7 +4193,7 @@ format(volatile Term otail, volatile Term oargs, int sno)
 	      fstr = NULL;
 	    }
 	    if (Stream[sno].status & InMemory_Stream_f) {
-	      old_handler = Stream[sno].u.mem_string.error_handler;
+	      Stream[sno].u.mem_string.error_handler = old_handler;
 	    }
 	    format_clean_up(format_base, fstr, targs);
 	    return FALSE;
@@ -4216,7 +4216,7 @@ format(volatile Term otail, volatile Term oargs, int sno)
   if (tnum <= 8)
     targs = NULL;
   if (Stream[sno].status & InMemory_Stream_f) {
-    old_handler = Stream[sno].u.mem_string.error_handler;
+    Stream[sno].u.mem_string.error_handler = old_handler;
   }
   format_clean_up(format_base, fstr, targs);
   return (TRUE);

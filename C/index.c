@@ -11,8 +11,11 @@
 * File:		index.c							 *
 * comments:	Indexing a Prolog predicate				 *
 *									 *
-* Last rev:     $Date: 2004-07-23 19:01:14 $,$Author: vsc $						 *
+* Last rev:     $Date: 2004-07-29 18:15:18 $,$Author: vsc $						 *
 * $Log: not supported by cvs2svn $
+* Revision 1.93  2004/07/23 19:01:14  vsc
+* fix bad ref count in expand_clauses when copying indexing block
+*
 * Revision 1.92  2004/06/29 19:04:42  vsc
 * fix multithreaded version
 * include new version of Ricardo's profiler
@@ -2096,13 +2099,16 @@ move_next(ClauseDef *clause, UInt regno)
   case _glist_valy:
     return;
   case _get_atom:
-  case _get_float:
-  case _get_longint:
-  case _get_bigint:
     if (wreg == cl->u.xc.x) {
       clause->CurrentCode = NEXTOP(cl,xc);
     }	
     return;
+    /*
+      matching is not guaranteed:
+  case _get_float:
+  case _get_longint:
+  case _get_bigint:
+    */
   case _get_struct:
     if (wreg == cl->u.xf.x) {
       clause->CurrentCode = NEXTOP(cl,xf);
@@ -2381,11 +2387,14 @@ skip_to_arg(ClauseDef *clause, PredEntry *ap, UInt argno, int at_point)
     case _unify_l_list:
     case _unify_atom:
     case _unify_l_atom:
-    case _unify_longint:
-    case _unify_l_longint:
-    case _unify_bigint:
-    case _unify_l_bigint:
-    case _unify_l_float:
+      /*
+	unification is not guaranteed
+	case _unify_longint:
+	case _unify_l_longint:
+	case _unify_bigint:
+	case _unify_l_bigint:
+	case _unify_l_float:
+      */
     case _unify_struct:
     case _unify_l_struc:
       if (cl == clause->u.WorkPC) {
