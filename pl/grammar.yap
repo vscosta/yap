@@ -21,24 +21,40 @@
     Also, phrase/2-3 check their first argument.
 */
 
-'$translate_rule'((LP-->RP), H) :-
-	RP == [],
-	!,
-	'$t_head'(LP, S, S, H).
-'$translate_rule'((LP-->RP), (H:-B)):-
-	'$t_head'(LP, S, SR, H),
-	'$t_body'(RP, _, last, S, SR, B1),
+'$translate_rule'((LP-->RP), (NH:-B)) :-
+	'$t_head'(LP, NH, NGs, S, SR, (LP-->RP)),
+	 (var(NGs) ->
+	     '$t_body'(RP, _, last, S, SR, B1)
+	 ;
+	     '$t_body'((RP,{NGs}), _, last, S, SR, B1)
+	 ),
 	'$t_tidy'(B1, B).
 
 
-'$t_head'((LP,List), S, SR, H):- !,
-	'$append'(List, SR, List2),
-	'$extend'([S,List2], LP, H).
-'$t_head'(M:LP, S, SR, M:H) :- !,
-	'$extend'([S,SR], LP, H).
-'$t_head'(LP, S, SR, H) :-
-	'$extend'([S,SR], LP, H).
+'$t_head'(V, _, _, _, _, G0) :- var(V), !,
+	'$do_error'(instantiation_error,G0).
+'$t_head'((H,List), NH, NGs, S, S1, G0) :- !,
+	'$t_hgoal'(H, NH, S, SR, G0),
+	'$t_hlist'(List, S1, SR, NGs, G0).
+'$t_head'(H, NH, _, S, SR, G0) :-
+	'$t_hgoal'(H, NH, S, SR, G0).
 	
+'$t_hgoal'(V, _, _, _, G0) :- var(V), !,
+	'$do_error'(instantiation_error,G0).
+'$t_hgoal'(M:H, M:NH, S, SR, G0) :- !,
+	'$t_hgoal'(H, NH, S, SR, G0).
+'$t_hgoal'(H, NH, S, SR, _) :-
+	'$extend'([S,SR],H,NH).
+
+'$t_hlist'(V, _, _, _, G0) :- var(V), !,
+	'$do_error'(instantiation_error,G0).
+'$t_hlist'([], S0, SR, true, _).
+'$t_hlist'([H], S0, SR, ('C'(SR,H,S0)), _) :- !.
+'$t_hlist'([H|List], S0, SR, ('C'(SR,H,S1),G0), Goal) :- !,
+	'$t_hlist'(List, S0, S1, G0, Goal).
+'$t_hlist'(T, _, _, _, Goal) :-
+	'$do_error'(type_error(list,T),Goal).
+
 
 %
 % Two extra variables:
@@ -64,6 +80,8 @@
 '$t_body'((T->R), ToFill, Last, S, SR, (Tt->Rt)) :- !,
 	'$t_body'(T, ToFill, not_last, S, SR1, Tt),
 	'$t_body'(R, ToFill, Last, SR1, SR, Rt).
+'$t_body'(\+T, ToFill, Last, S, SR, (Tt->fail ; S=SR)) :- !,
+	'$t_body'(T, ToFill, not_last, S, _, Tt).
 '$t_body'((T;R), _ToFill, _, S, SR, (Tt;Rt)) :- !,
 	'$t_body'(T, _, last, S, SR, Tt),
 	'$t_body'(R, _, last, S, SR, Rt).
