@@ -12,7 +12,7 @@
 * Last rev:								 *
 * mods:									 *
 * comments:	allocating space					 *
-* version:$Id: alloc.c,v 1.4 2001-05-03 18:48:06 vsc Exp $		 *
+* version:$Id: alloc.c,v 1.5 2001-05-07 13:53:19 vsc Exp $		 *
 *************************************************************************/
 #ifdef SCCS
 static char SccsId[] = "%W% %G%";
@@ -590,6 +590,8 @@ ExtendWorkSpace(Int s)
       return FALSE;
     }
   }
+  a = mmap(WorkSpaceTop, (size_t) s, PROT_READ | PROT_WRITE | PROT_EXEC,
+		    MAP_PRIVATE | MAP_FIXED, fd, 0);
   if (close(fd) == -1) {
 #if HAVE_STRERROR
     Error(SYSTEM_ERROR, TermNil, "mmap could not close file (%s) ]\n", strerror(errno));
@@ -598,8 +600,6 @@ ExtendWorkSpace(Int s)
 #endif
     return FALSE;
   }
-  a = mmap(WorkSpaceTop, (size_t) s, PROT_READ | PROT_WRITE | PROT_EXEC,
-		    MAP_PRIVATE | MAP_FIXED, fd, 0);
 #endif
   if (a == (MALLOC_T) - 1) {
 #if HAVE_STRERROR

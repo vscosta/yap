@@ -89,8 +89,9 @@ gc_lookup_ma_var(CELL *addr, tr_fr_ptr trp) {
     live_list = &(gc_ma_hash_table[i].val);
     return(NULL);
   }
-  if (gc_ma_hash_table[i].val.addr == addr) 
+  if (gc_ma_hash_table[i].val.addr == addr) {
     return(&(gc_ma_hash_table[i].val.trptr));
+  }
   optr = &(gc_ma_hash_table[i].val);
   nptr = gc_ma_hash_table[i].val.next;
   while (nptr != NULL) {
@@ -852,7 +853,7 @@ mark_variable(CELL_PTR current)
 	  }
 	} else {
 	  /* binding to a determinate reference */
-	  if (next >= HB) {
+	  if (next >= HB && current < LCL0) {
 	    *current = cnext;
 	    total_marked--;
 	    POP_POINTER();
@@ -863,7 +864,9 @@ mark_variable(CELL_PTR current)
 	    current = next;
 	  }
 	}
-      } else if (IsVarTerm(cnext) && UNMARK_CELL(cnext) != (CELL)next) {
+      } else if (IsVarTerm(cnext) &&
+		 UNMARK_CELL(cnext) != (CELL)next &&
+		 current < LCL0) {
 	/* This step is possible because we clean up the trail */
 	*current = UNMARK_CELL(cnext);
 	total_marked--;
@@ -1297,6 +1300,7 @@ mark_trail(tr_fr_ptr trail_ptr, tr_fr_ptr trail_base, CELL *gc_H, choiceptr gc_B
 #if  MULTI_ASSIGNMENT_VARIABLES
   while (live_list != NULL) {
     CELL trail_cell = TrailTerm(live_list->trptr-1);
+    printf("multi assignment marking cell %p:%x\n", &TrailTerm(live_list->trptr-1), trail_cell);
     if (HEAP_PTR(trail_cell)) {
       mark_external_reference(&TrailTerm(live_list->trptr-1));
     }
