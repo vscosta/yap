@@ -21,6 +21,9 @@
 #include "Yap.h"
 #include "clause.h"
 #include "yapio.h"
+#if _MSC_VER || defined(__MINGW32__) 
+#include <windows.h>
+#endif
 #include "iopreds.h"
 #define HAS_YAP_H 1
 #include "yap_structs.h"
