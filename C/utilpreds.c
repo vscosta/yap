@@ -307,6 +307,7 @@ CopyTerm(Term inp) {
       Hi = H+1;
       H += 2;
       if ((res = copy_complex_term(Hi-2, Hi-1, Hi, Hi)) < 0) {
+	ARG1 = t;
 	if (res == -1) { /* handle overflow */
 	  gc(2, ENV, P);
 	  t = Deref(ARG1);
@@ -339,6 +340,7 @@ CopyTerm(Term inp) {
     {
       int res;
       if ((res = copy_complex_term(ap-1, ap+1, Hi, Hi)) < 0) {
+	ARG1 = t;
 	if (res == -1) { /* handle overflow */
 	  gc(2, ENV, P);
 	  t = Deref(ARG1);
@@ -370,6 +372,7 @@ CopyTerm(Term inp) {
     {
       int res;
       if ((res = copy_complex_term(ap, ap+ArityOfFunctor(f), HB0+1, HB0)) < 0) {
+	ARG1 = t;
 	if (res == -1) {
 	  gc(2, ENV, P);
 	  t = Deref(ARG1);
