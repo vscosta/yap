@@ -1218,9 +1218,10 @@ HandleSIGINT (int sig)
 #endif
 {
   my_signal(SIGINT, HandleSIGINT);
+  /* do this before we act */
 #if HAVE_ISATTY
   if (!isatty(0)) {
-    InteractSIGINT('e');
+    Error(INTERRUPT_ERROR,MkIntTerm(SIGINT),NULL);
   }
 #endif
   if (PrologMode & (CritMode|ConsoleGetcMode)) {
@@ -1290,8 +1291,7 @@ ReceiveSignal (int s)
       /* These signals are not handled by WIN32 and not the Macintosh */
     case SIGQUIT:
     case SIGKILL:
-      YP_fprintf(YP_stderr, "\n\n\n[ Quit signal received ]\n\n");
-      exit_yap (SIGKILL);
+      Error(INTERRUPT_ERROR,MkIntTerm(s),NULL);
 #endif
 #if defined(SIGUSR1)
     case SIGUSR1:

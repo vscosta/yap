@@ -362,7 +362,12 @@ Error (yap_error_number type, Term where, char *format,...)
   int serious;
   char *tp = tmpbuf;
   int psize = YAP_BUF_SIZE;
- 
+
+  if (type == INTERRUPT_ERROR) {
+    fprintf(stderr,"[ YAP exiting: cannot handle signal %d ]\n",
+	    (int)IntOfTerm(where));
+    exit_yap(1);
+  }
   /* disallow recursive error handling */ 
   if (PrologMode & InErrorMode) {
     /* error within error */
@@ -452,6 +457,10 @@ Error (yap_error_number type, Term where, char *format,...)
   case FATAL_ERROR:
     {
       fprintf(stderr,"[ Fatal YAP Error: %s exiting.... ]\n",tmpbuf);
+      error_exit_yap (1);
+    }
+  case INTERRUPT_ERROR:
+    {
       error_exit_yap (1);
     }
   case PURE_ABORT:

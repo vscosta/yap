@@ -10,7 +10,7 @@
 * File:		Yap.h.m4						 *
 * mods:									 *
 * comments:	main header file for YAP				 *
-* version:      $Id: Yap.h.m4,v 1.34 2002-10-21 22:14:29 vsc Exp $	 *
+* version:      $Id: Yap.h.m4,v 1.35 2002-10-23 20:55:37 vsc Exp $	 *
 *************************************************************************/
 
 #include "config.h"
@@ -437,6 +437,7 @@ typedef enum {
   EXISTENCE_ERROR_SOURCE_SINK,
   EXISTENCE_ERROR_STREAM,
   INSTANTIATION_ERROR,
+  INTERRUPT_ERROR,
   OUT_OF_HEAP_ERROR,
   OUT_OF_STACK_ERROR,
   OUT_OF_TRAIL_ERROR,

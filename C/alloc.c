@@ -12,7 +12,7 @@
 * Last rev:								 *
 * mods:									 *
 * comments:	allocating space					 *
-* version:$Id: alloc.c,v 1.25 2002-10-21 22:14:28 vsc Exp $		 *
+* version:$Id: alloc.c,v 1.26 2002-10-23 20:55:36 vsc Exp $		 *
 *************************************************************************/
 #ifdef SCCS
 static char SccsId[] = "%W% %G%";
@@ -976,7 +976,7 @@ ExtendWorkSpace(Int s)
   if ((CELL)ptr & MBIT) {
     ErrorMessage = ErrorSay;
     snprintf5(ErrorMessage, MAX_ERROR_MSG_SIZE,
-	      "memory at %p conflicts with MBIT %lx", ptr, MBIT);
+	      "memory at %p conflicts with MBIT %lx", ptr, (unsigned long)MBIT);
     PrologMode = OldPrologMode;
     return(FALSE);
   }
