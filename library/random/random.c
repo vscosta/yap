@@ -18,6 +18,9 @@
 #include "config.h"
 #include "c_interface.h"
 #include <math.h>
+#if defined(__MINGW32__) || _MSC_VER
+#include <windows.h>
+#endif
 
 void PROTO(init_random, (void));
 
@@ -65,8 +68,6 @@ init_random(void)
 }
 
 #ifdef _WIN32
-
-#include <windows.h>
 
 int WINAPI PROTO(win_random, (HANDLE, DWORD, LPVOID));
 
