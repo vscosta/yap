@@ -2114,6 +2114,49 @@ Yap_absmi(int inp)
       JMPNext();
 
 
+      /* don't forget I cannot creep at deallocate (where to?) */
+      /* also, this is unusual in that I have already done deallocate,
+	 so I don't need to redo it.
+       */ 
+    NoStackDeallocate:
+      if (CFREG == (CELL)(LCL0+2)) {
+	GONext();
+      }
+      ASP = YREG;
+      /* cut_e */
+      if (SREG <= ASP) {
+	ASP = SREG-EnvSizeInCells;
+      }
+      if (CFREG == (CELL)(LCL0+1)) {
+	goto noheapleft;
+      }
+#ifdef COROUTINING
+      if (CFREG == Unsigned(LCL0)) {
+	if (Yap_ReadTimedVar(WokenGoals) != TermNil) {
+	  if (Yap_op_from_opcode(PREG->opc) == _cut_e) {
+	    /* followed by a cut */
+	    ARG1 = MkIntegerTerm(LCL0-(CELL *)SREG[E_CB]);
+	    SREG = (CELL *)RepPredProp(Yap_GetPredPropByFunc(FunctorCutBy,1));
+	  } else {
+	    SREG = (CELL *)RepPredProp(Yap_GetPredPropByAtom(AtomTrue,0));
+	  }
+	  goto creep;
+	} else {
+	  CFREG = CalculateStackGap();
+	  JMPNext();
+	}
+      }
+#endif
+      if (CFREG != CalculateStackGap()) {
+	GONext();
+      }
+      saveregs();
+      if (!Yap_gc(0, ENV, CPREG)) {
+	Yap_Error(OUT_OF_STACK_ERROR,TermNil,Yap_ErrorMessage);
+      }
+      setregs();
+      JMPNext();
+
 #ifdef COROUTINING
 
      /* This is easier: I know there is an environment so I cannot do allocate */
@@ -2154,47 +2197,6 @@ Yap_absmi(int inp)
       }
       /* don't do debugging and friends here */
       goto do_comit_b_x;
-
-      /* don't forget I cannot creep at deallocate (where to?) */
-      /* also, this is unusual in that I have already done deallocate,
-	 so I don't need to redo it.
-       */ 
-    NoStackDeallocate:
-      if (CFREG == (CELL)(LCL0+2)) {
-	GONext();
-      }
-      ASP = YREG;
-      /* cut_e */
-      if (SREG <= ASP) {
-	ASP = SREG-EnvSizeInCells;
-      }
-      if (CFREG == (CELL)(LCL0+1)) {
-	goto noheapleft;
-      }
-      if (CFREG == Unsigned(LCL0)) {
-	if (Yap_ReadTimedVar(WokenGoals) != TermNil) {
-	  if (Yap_op_from_opcode(PREG->opc) == _cut_e) {
-	    /* followed by a cut */
-	    ARG1 = MkIntegerTerm(LCL0-(CELL *)SREG[E_CB]);
-	    SREG = (CELL *)RepPredProp(Yap_GetPredPropByFunc(FunctorCutBy,1));
-	  } else {
-	    SREG = (CELL *)RepPredProp(Yap_GetPredPropByAtom(AtomTrue,0));
-	  }
-	  goto creep;
-	} else {
-	  CFREG = CalculateStackGap();
-	  JMPNext();
-	}
-      }
-      if (CFREG != CalculateStackGap()) {
-	goto either_notest;
-      }
-      saveregs();
-      if (!Yap_gc(0, ENV, CPREG)) {
-	Yap_Error(OUT_OF_STACK_ERROR,TermNil,Yap_ErrorMessage);
-      }
-      setregs();
-      JMPNext();
 
       /* don't forget I cannot creep at ; */
     NoStackEither:
