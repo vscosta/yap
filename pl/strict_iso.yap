@@ -18,7 +18,7 @@
 '$iso_check_goal'(!,G0) :- !.
 '$iso_check_goal'((G1|G2),G0) :-
 	'$access_yap_flags'(9,1), !,
-	throw(error(domain_error(builtin_procedure,(G1|G2)), call(G))).
+	throw(error(domain_error(builtin_procedure,(G1|G2)), call(G0))).
 '$iso_check_goal'((G1|G2),G0) :- !,
 	'$iso_check_a_goal'(G1,(G1|G2),G0),
 	'$iso_check_a_goal'(G2,(G1|G2),G0).
@@ -42,9 +42,15 @@
 	throw(error(type_error(callable,E),call(G))).
 '$iso_check_a_goal'(_:G,E,G0) :- !,
 	'$iso_check_a_goal'(G,E,G0).
-'$iso_check_a_goal'((G1,G2),_,_) :- !.
-'$iso_check_a_goal'((G1;G2),_,_) :- !.
-'$iso_check_a_goal'((G1->G2),_,_) :- !.
+'$iso_check_a_goal'((G1,G2),E,G0) :- !,
+        '$iso_check_a_goal'(G1,E,G0),
+        '$iso_check_a_goal'(G2,E,G0).
+'$iso_check_a_goal'((G1;G2),E,G0) :- !,
+        '$iso_check_a_goal'(G1,E,G0),
+        '$iso_check_a_goal'(G2,E,G0).
+'$iso_check_a_goal'((G1->G2),E,G0) :- !,
+        '$iso_check_a_goal'(G1,E,G0),
+        '$iso_check_a_goal'(G2,E,G0).
 '$iso_check_a_goal'(!,_,_) :- !.
 '$iso_check_a_goal'((_|_),E,G0) :-
 	'$access_yap_flags'(9,1), !,
