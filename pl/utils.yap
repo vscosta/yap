@@ -333,7 +333,9 @@ system_predicate(A,P) :-
 	'$current_predicate_no_modules'(prolog,A,P),
 	\+ '$hidden'(A).
 
-system_predicate(P) :- '$system_predicate'(P).
+system_predicate(P) :-
+	'$current_module'(M),
+	'$system_predicate'(P,M).
 
 '$current_predicate_no_modules'(M,A,T) :-
 	'$current_predicate'(M,A,Arity),
@@ -519,8 +521,8 @@ predicate_property(Pred,Prop) :-
 	'$predicate_property'(Pred,Mod,Prop),
 	'$pred_exists'(Pred,Mod).
 
-'$predicate_property'(P,_,built_in) :- 
-	'$system_predicate'(P), !.
+'$predicate_property'(P,M,built_in) :- 
+	'$system_predicate'(P,M), !.
 '$predicate_property'(P,M,dynamic) :-
 	'$is_dynamic'(P,M).
 '$predicate_property'(P,M,static) :-

@@ -298,9 +298,16 @@ debugging :-
 	'$trace'(call,G,Module,L),	/* inform about call port	*/
 	/* the following choice point is where the predicate is  called */
 	( '$get_value'(spy_sp,0),	/* make sure we are not skipping*/
-	  '$spycalls'(G,Module,Res)	/* go execute the predicate	*/
+	  '$system_catch'('$spycalls'(G,Module,Res), Module,
+			 Error,
+			  prolog:'$DebugError'(Error))
+			 /* go execute the predicate	*/
 	   ;	/* we get here when the predicate fails */
-	  	'$trace'(fail,G,Module,L), /* inform at fail port		*/
+	        ( '$get_value'(spy_sl, -1) ->
+		    '$trace'(exception,G,Module,L)
+		    ;
+		    '$trace'(fail,G,Module,L) /* inform at fail port		*/
+		),
 		'$get_value'(spy_sl,L2),/* make sure we are not ...	*/
 		L2 \= L,		/* ... skiping to this level	*/
 		!,			/* if not prepare to exit spy	*/
@@ -372,7 +379,7 @@ debugging :-
 	'$flags'(G,M,F,_),
 	F /\ 0xc00000 =:= 0,		% but not meta-predicate or cut transparent
 	!,
-	'$catch_spycall_stdpred'(G,M),
+	'$spycall_stdpred'(G,M),
 	(true;
 		'$get_value'(spy_sp,P), P \= 0, !, fail),
 	( true;
@@ -438,32 +445,29 @@ debugging :-
 	'$access_yap_flags'(10,0),
 	!,
 	'$setflop'(0),
-	'$call_clause'(G,M,Cl).
+	'$do_execute_clause'(G,M,Cl).
 '$spycall'(G,M,Cl) :-
 	'$setflop'(0),
-	'$creepcallclause'(G,M,Cl).
+	'$do_creep_execute'(G,M,Cl).
 
 '$log_upd_spycall'(G,M,Cl,Index) :-
 	'$access_yap_flags'(10,0),
 	!,
 	'$setflop'(0),
-	'$call_log_updclause'(G,M,Cl,Index).
+	'$do_execute_log_upd_clause'(G,M,Cl,Index).
 '$log_upd_spycall'(G,M,Cl,Index) :-
 	'$setflop'(0),
-	'$creepcall_log_upd_clause'(G,M,Cl,Index).
+	'$do_execute_log_upd_clause'(G,M,Cl,Index).
 
 % this is to be used only for dynamic predicates
 '$spycall_dynamic'(G,M,Cl) :-
 	'$access_yap_flags'(10,0),
 	!,
 	'$setflop'(0),
-	'$call_dynamic_clause'(G,M,Cl).
+	'$do_execute_dynamic_clause'(G,M,Cl).
 '$spycall_dynamic'(G,M,Cl) :-
 	'$setflop'(0),
-	'$creepcall_dynamic_clause'(G,M,Cl).
-
-'$catch_spycall_stdpred'(G,M) :-
-	'$system_catch'('$spycall_stdpred'(G,M), M, Error, user:'$DebugError'(Error)).
+	'$do_creep_execute_dynamic'(G,M,Cl).
 
 '$spycall_stdpred'(G,M) :-
 	functor(G,F,N),
@@ -479,9 +483,6 @@ debugging :-
 	'$setflop'(0).
 
 
-'$call_clause'(G,M,Cl) :-
-	'$system_catch'('$do_execute_clause'(G,M,Cl),M,Error,user:'$DebugError'(Error)).
-
 '$do_execute_clause'(G,M,Cl) :-
 	'$some_recordedp'(M:G), !,
 	'$check_depth_for_interpreter'(D),
@@ -489,15 +490,12 @@ debugging :-
         CP is '$last_choice_pt',
 	(
 	    '$fetch_clause'(G,M,Cl,Clause),
-	    (Clause = true -> true ; '$debug_catch_call'(Clause,M,CP) )
+	    (Clause = true -> true ; '$call'(Clause,M,CP) )
 	;
 	     Next is Cl+1, '$set_value'(spy_cl,Next), fail
         ).
 '$do_execute_clause'(G,M,Cl) :-
 	'$execute'(G,M,Cl) ; Next is Cl+1, '$set_value'(spy_cl,Next), fail.
-
-'$call_log_updclause'(G,M,Cl,Index) :-
-	'$system_catch'('$do_execute_log_upd_clause'(G,M,Cl,Index),M,Error,user:'$DebugError'(Error)).
 
 '$do_execute_log_upd_clause'(G,M,Cl,Index) :-
 	'$check_depth_for_interpreter'(D),
@@ -513,7 +511,7 @@ debugging :-
 	      '$fetch_reference_from_index'(Index, Cl1, Ref),
               instance(Ref, (G :- Clause))
             ),
-	    (Clause = true -> true ; '$debug_catch_call'(Clause,M,CP) )
+	    (Clause = true -> true ; '$call'(Clause,M,CP) )
 	;
 	     Next is Cl+1, '$set_value'(spy_cl,Next), fail
         ).
@@ -525,12 +523,6 @@ debugging :-
 	D0 =\= 0,
 	D1 is D0-1.
 
-'$debug_catch_call'(Clause,M,CP) :-
-	'$system_catch'('$call'(Clause,CP,Clause,M),M,Error,user:'$DebugError'(Error)).
-
-'$call_dynamic_clause'(G,M,Cl) :-
-	'$system_catch'('$do_execute_dynamic_clause'(G,M,Cl),M,Error,user:'$DebugError'(Error)).
-
 '$do_execute_dynamic_clause'(G,M,Cl) :-
 	'$check_depth_for_interpreter'(D),
 	('$undefined'('$set_depth_limit'(_),prolog) -> true ; '$set_depth_limit'(D)),
@@ -538,13 +530,10 @@ debugging :-
 	(
 	    '$db_nb_to_ref'(Cl,M:G,Ref),
 	    instance(Ref, (G :- Clause)),
-	    (Clause = true -> true ; '$debug_catch_call'(Clause,M,CP) )
+	    (Clause = true -> true ; '$call'(Clause,M,CP) )
 	;
 	    Next is Cl+1, '$set_value'(spy_cl,Next), fail
         ).
-
-'$creepcallclause'(G,M,Cl) :-
-	'$system_catch'('$do_creep_execute'(G,M,Cl),M,Error,user:'$DebugError'(Error)).
 
 '$do_creep_execute'(G,M,Cl) :-
 	 % fast skip should ignore source mode
@@ -557,7 +546,7 @@ debugging :-
 	(
 	    '$fetch_clause'(G,M,Cl,Clause),
 	    (Clause = true -> true ;
-             '$catch_creep_call'(Clause,M,CP)
+             '$creep_call'(Clause,M,CP)
             )
 	;
 	    Next is Cl+1, '$set_value'(spy_cl,Next), fail
@@ -565,9 +554,6 @@ debugging :-
 '$do_creep_execute'(G,M,Cl) :-
 	'$creep_execute'(G,M,Cl) ;
 	Next is Cl+1, '$set_value'(spy_cl,Next), fail.
-
-'$creepcall_log_upd_clause'(G,M,Cl,Index) :-
-	'$system_catch'('$do_creep_log_upd_execute'(G,M,Cl,Index),M,Error,user:'$DebugError'(Error)).
 
 '$do_creep_log_upd_execute'(G,M,Cl,Index) :-
 	'$check_depth_for_interpreter'(D),
@@ -584,18 +570,12 @@ debugging :-
 	  ),
           (Clause = true -> true ;
 		% otherwise fast skip may try to interpret assembly builtins.
-             '$get_value'(spy_fs,1) -> '$debug_catch_call'(Clause,M,CP) ;
-             '$catch_creep_call'(Clause,M,CP)
+             '$get_value'(spy_fs,1) -> '$call'(Clause,M,CP) ;
+             '$creep_call'(Clause,M,CP)
             )
 	;
 	    Next is Cl+1, '$set_value'(spy_cl,Next), fail
         ).
-
-'$catch_creep_call'(Clause,M,CP) :-
-	'$system_catch'('$creep_call'(Clause,M,CP),M,Error,user:'$DebugError'(Error)).
-
-'$creepcall_dynamic_clause'(G,M,Cl) :-
-	'$system_catch'('$do_creep_execute_dynamic'(G,M,Cl),M,Error,user:'$DebugError'(Error)).
 
 '$do_creep_execute_dynamic'(G,M,Cl) :-
 	'$check_depth_for_interpreter'(D),
@@ -606,8 +586,8 @@ debugging :-
 	    instance(Ref, (G :- Clause)),
 	    (Clause = true -> true ;
 	     % otherwise fast skip may try to interpret assembly builtins.
-             '$get_value'(spy_fs,1) -> '$debug_catch_call'(Clause,M,CP) ;
-             '$catch_creep_call'(Clause,M,CP)
+             '$get_value'(spy_fs,1) -> '$call'(Clause,M,CP) ;
+             '$creep_call'(Clause,M,CP)
             )
 	;
 	     Next is Cl+1, '$set_value'(spy_cl,Next), fail
@@ -796,19 +776,13 @@ debugging :-
 '$unleashed'(exit) :- '$get_value'('$leash',L), L /\ 2'0100 =:= 0.
 '$unleashed'(redo) :- '$get_value'('$leash',L), L /\ 2'0010 =:= 0.
 '$unleashed'(fail) :- '$get_value'('$leash',L), L /\ 2'0001 =:= 0.
+% the same as fail.
+'$unleashed'(exception) :- '$get_value'('$leash',L), L /\ 2'0001 =:= 0.
 
-'$debugger_write'(Stream,G) :-
-	'$recorded'('$debug_depth',D,_), !,
-	write_depth(OS,OL),
-	write_depth(D,D),
-	'$write_deb2'(Stream,G),
-	write_depth(OS,OL).
-'$debugger_write'(Stream,G) :- '$write_deb2'(Stream,G).
-
-'$write_deb2'(Stream, G) :-
+'$debugger_write'(Stream, G) :-
 	'$recorded'('$print_options','$debugger'(OUT),_), !,
 	write_term(Stream, G, OUT).
-'$write_deb2'(Stream, G) :-
+'$debugger_write'(Stream, G) :-
 	writeq(Stream, G).
 
 /*
@@ -992,15 +966,15 @@ debugging :-
 '$delete_if_there'([Q|L], T, [Q|LN]) :-
 	'$delete_if_there'(L, T, LN).
 
-'$DebugError'(error(Msg, Where )) :- !,
-	'$output_error_message'(Msg, Where), !,
+%
+% catch errors
+%
+'$DebugError'(error(Msg,Error)) :- !,
+	'$LoopError'(error(Msg,Error)),
 	fail.
-%
-% do not try to handle other throws or aborts.
-%
-'$DebugError'(T) :- !,
-	'$trace'(exception,T),
-	throw(T).
+% allow abort and user defined exceptions to go through.
+'$DebugError'(Ball) :- !,
+	throw(Ball).
 
 '$init_spy_cl'(G,M) :-
 	% dynamic, immediate update procedure.

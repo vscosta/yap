@@ -1193,10 +1193,13 @@ throw(Ball) :-
 	copy_term(Ball,NewBall),
 	% get current jump point
 	array_element('$catch', 0, Env),
+	'$do_throw'(NewBall, Env).
+
+'$do_throw'(NewBall,Env) :-
 	% jump
 	'$jump_env_and_store_ball'(Env, '$ball'(NewBall)).
 % restore bindings.
-throw(_).
+'$do_throw'(_,_).
 
 '$init_catch' :-
 	'$create_array'('$catch', 1).

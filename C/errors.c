@@ -311,10 +311,17 @@ Error (yap_error_number type, Term where, char *format,...)
   int serious;
   char *tp = p;
   int psize = 512;
-  
+ 
   /* disallow recursive error handling */
   if (PrologMode & InErrorMode)
     return(P);
+  where = Deref(where);
+  if (IsVarTerm(where)) {
+    /* we must be careful someone gave us a copy to a local variable */
+    Term t = MkVarTerm();
+    unify(t, where);
+    where = Deref(where);
+  }
   PrologMode |= InErrorMode;
   va_start (ap, format);
   /* now build the error string */
