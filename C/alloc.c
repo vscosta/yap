@@ -12,7 +12,7 @@
 * Last rev:								 *
 * mods:									 *
 * comments:	allocating space					 *
-* version:$Id: alloc.c,v 1.3 2001-05-03 17:23:30 vsc Exp $		 *
+* version:$Id: alloc.c,v 1.4 2001-05-03 18:48:06 vsc Exp $		 *
 *************************************************************************/
 #ifdef SCCS
 static char SccsId[] = "%W% %G%";
@@ -443,7 +443,7 @@ InitWorkSpace(Int s)
   int fd;
 #endif
 
-#if defined(_AIX) || defined(__APPLE__)
+#if defined(_AIX)
   a = mmap(0, (size_t) s, PROT_READ | PROT_WRITE | PROT_EXEC,
 	   MAP_PRIVATE | MAP_ANONYMOUS | MAP_VARIABLE, -1, 0);
 #elif __hpux
