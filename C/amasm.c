@@ -1609,6 +1609,53 @@ a_f2(int var)
       return;
     }
   }
+  if (opc == _functor && cpc->nextInst->op == f_var_op) {
+    Ventry *nve;
+
+    cpc = cpc->nextInst;
+    nve = (Ventry *)(cpc->rnd1);
+    if (is_y_var) {
+      if (nve->KindOfVE == PermVar) {
+	if (pass_no) {
+	  code_p->opc = emit_op(_p_func2f_yy);
+	  code_p->u.yyx.y1 = emit_y(ve);
+	  code_p->u.yyx.y2 = emit_y(nve);
+	  code_p->u.yyx.x = x1_arg;
+	}
+	GONEXT(yyx);
+	return;
+      } else {
+	if (pass_no) {
+	  code_p->opc = emit_op(_p_func2f_yx);
+	  code_p->u.yxx.y = emit_y(ve);
+	  code_p->u.yxx.x1 = emit_x(nve->NoOfVE & MaskVarAdrs);
+	  code_p->u.yxx.x2 = x1_arg;
+	}
+	GONEXT(yxx);
+	return;
+      }
+    } else {
+      if (nve->KindOfVE == PermVar) {
+	if (pass_no) {
+	  code_p->opc = emit_op(_p_func2f_xy);
+	  code_p->u.xyx.x1 = emit_x(ve->NoOfVE & MaskVarAdrs);
+	  code_p->u.xyx.y2 = emit_y(nve);
+	  code_p->u.xyx.x = x1_arg;
+	}
+	GONEXT(xyx);
+	return;
+      } else {
+	if (pass_no) {
+	  code_p->opc = emit_op(_p_func2f_xx);
+	  code_p->u.xxx.x1 = emit_x(ve->NoOfVE & MaskVarAdrs);
+	  code_p->u.xxx.x2 = emit_x(nve->NoOfVE & MaskVarAdrs);
+	  code_p->u.xxx.x = x1_arg;
+	}
+	GONEXT(xxx);
+	return;
+      }
+    }
+  }
   if (is_y_var) {
     switch (c_type) {
     case TYPE_XX:
@@ -1640,6 +1687,9 @@ a_f2(int var)
 	  break;
 	case _arg:
 	  code_p->opc = emit_op(_p_arg_y_vv);
+	  break;
+	case _functor:
+	  code_p->opc = emit_op(_p_func2s_y_vv);
 	  break;
 	}
 	code_p->u.yxx.y = emit_y(ve);
@@ -1690,6 +1740,9 @@ a_f2(int var)
 	case _arg:
 	  code_p->opc = emit_op(_p_arg_y_cv);
 	  break;
+	case _functor:
+	  code_p->opc = emit_op(_p_func2s_y_cv);
+	  break;
 	}
 	code_p->u.ycx.y = emit_y(ve);
 	code_p->u.ycx.c = c_arg;
@@ -1731,6 +1784,9 @@ a_f2(int var)
 	  save_machine_regs();
 	  longjmp(CompilerBotch, 1);
 	  break;
+	case _functor:
+	  code_p->opc = emit_op(_p_func2s_y_vc);
+	  break;
 	}
 	code_p->u.yxc.y = emit_y(ve);
 	code_p->u.yxc.c = c_arg;
@@ -1770,6 +1826,9 @@ a_f2(int var)
 	  break;
 	case _arg:
 	  code_p->opc = emit_op(_p_arg_vv);
+	  break;
+	case _functor:
+	  code_p->opc = emit_op(_p_func2s_vv);
 	  break;
 	}
 	code_p->u.xxx.x = emit_x(ve->NoOfVE & MaskVarAdrs);
@@ -1816,6 +1875,9 @@ a_f2(int var)
 	case _arg:
 	  code_p->opc = emit_op(_p_arg_cv);
 	  break;
+	case _functor:
+	  code_p->opc = emit_op(_p_func2s_cv);
+	  break;
 	}
 	code_p->u.xxc.x = emit_x(ve->NoOfVE & MaskVarAdrs);
 	code_p->u.xxc.c = c_arg;
@@ -1856,6 +1918,9 @@ a_f2(int var)
 	  Error(SYSTEM_ERROR, x2_arg, "internal assembler error for arg/3");
 	  save_machine_regs();
 	  longjmp(CompilerBotch, 1);
+	  break;
+	case _functor:
+	  code_p->opc = emit_op(_p_func2s_vc);
 	  break;
 	}
 	code_p->u.xcx.x = emit_x(ve->NoOfVE & MaskVarAdrs);

@@ -2103,6 +2103,7 @@ RestoreClause(Clause *Cl)
     case _p_sll_vv:
     case _p_slr_vv:
     case _p_arg_vv:
+    case _p_func2s_vv:
       pc->u.xxx.x  = XAdjust(pc->u.xxx.x);
       pc->u.xxx.x1 = XAdjust(pc->u.xxx.x1);
       pc->u.xxx.x2 = XAdjust(pc->u.xxx.x2);
@@ -2117,6 +2118,7 @@ RestoreClause(Clause *Cl)
     case _p_or_vc:
     case _p_sll_vc:
     case _p_slr_vc:
+    case _p_func2s_vc:
       pc->u.xxc.x  = XAdjust(pc->u.xxc.x);
       if (IsAtomTerm(pc->u.xxc.c))
 	pc->u.xxc.c = AtomTermAdjust(pc->u.xxc.c);
@@ -2127,6 +2129,11 @@ RestoreClause(Clause *Cl)
     case _p_sll_cv:
     case _p_slr_cv:
     case _p_arg_cv:
+      pc->u.xcx.x  = XAdjust(pc->u.xcx.x);
+      pc->u.xcx.xi = XAdjust(pc->u.xcx.xi);
+      pc = NEXTOP(pc,xcx);
+      break;
+    case _p_func2s_cv:
       pc->u.xcx.x  = XAdjust(pc->u.xcx.x);
       if (IsAtomTerm(pc->u.xcx.c))
 	pc->u.xcx.c = AtomTermAdjust(pc->u.xcx.c);
@@ -2143,6 +2150,7 @@ RestoreClause(Clause *Cl)
     case _p_sll_y_vv:
     case _p_slr_y_vv:
     case _p_arg_y_vv:
+    case _p_func2s_y_vv:
       pc->u.yxx.y  = YAdjust(pc->u.yxx.y);
       pc->u.yxx.x1 = XAdjust(pc->u.yxx.x1);
       pc->u.yxx.x2 = XAdjust(pc->u.yxx.x2);
@@ -2158,9 +2166,9 @@ RestoreClause(Clause *Cl)
     case _p_or_y_vc:
     case _p_sll_y_vc:
     case _p_slr_y_vc:
+    case _p_func2s_y_vc:
       pc->u.yxc.y  = YAdjust(pc->u.yxc.y);
-      if (IsAtomTerm(pc->u.yxc.c))
-	pc->u.yxc.c  = AtomTermAdjust(pc->u.yxc.c);
+      pc->u.yxc.c  = AtomTermAdjust(pc->u.yxc.c);
       pc->u.yxc.xi = XAdjust(pc->u.yxc.xi);
       pc = NEXTOP(pc,yxc);
       break;
@@ -2168,6 +2176,12 @@ RestoreClause(Clause *Cl)
     case _p_sll_y_cv:
     case _p_slr_y_cv:
     case _p_arg_y_cv:
+      pc->u.ycx.y  = YAdjust(pc->u.ycx.y);
+      pc->u.ycx.xi = XAdjust(pc->u.ycx.xi);
+      pc = NEXTOP(pc,ycx);
+      break;
+      /* instructions type lxx */
+    case _p_func2s_y_cv:
       pc->u.ycx.y  = YAdjust(pc->u.ycx.y);
       if (IsAtomTerm(pc->u.ycx.c))
 	pc->u.ycx.c  = AtomTermAdjust(pc->u.ycx.c);

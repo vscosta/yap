@@ -72,6 +72,11 @@ SHELL=/bin/sh
 RANLIB=@RANLIB@
 srcdir=@srcdir@
 SHLIB_SUFFIX=@SHLIB_SUFFIX@
+MAKEINFO=makeinfo
+TEXI2DVI=texi2dvi
+TEXI2HTML=texi2html
+TEXI2PDF=texi2pdf
+
 #4.1VPATH=@srcdir@:@srcdir@/OPTYap
 CWD=$(PWD)
 #

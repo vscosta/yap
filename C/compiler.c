@@ -740,7 +740,6 @@ c_bifun(Int Op, Term t1, Term t2, Term t3)
 	/* now we know where the arguments are */
       }
     } else {
-      /* it has to be either an integer or a floating point */
       if (Op == _arg) {
 	Term tn = MkVarTerm();
 	Int v1 = --tmpreg;
@@ -750,6 +749,7 @@ c_bifun(Int Op, Term t1, Term t2, Term t3)
 	/* these should be the arguments */
 	c_var(t1, v1, 0);
 	c_var(tn, v2, 0);
+      /* it has to be either an integer or a floating point */
       } else if (IsIntTerm(t2)) {
 	/* first temp */
 	Int v1 = --tmpreg;
@@ -786,12 +786,84 @@ c_bifun(Int Op, Term t1, Term t2, Term t3)
 	Error_Term = t2;
 	ErrorMessage = ErrorSay;
 	bip_name(Op, s);
-	sprintf(ErrorMessage, "compiling %s/2", s);
+	sprintf(ErrorMessage, "compiling functor/3");
 	save_machine_regs();
 	longjmp(CompilerBotch,1);
       }
     } else {
-      if (Op == _arg) {
+      if (Op == _functor) {
+	/* both arguments are bound, we must perform unification */
+	Int i2;
+	
+	if (!IsIntegerTerm(t2)) {
+	  char s[32];
+
+	  Error_TYPE = TYPE_ERROR_INTEGER;
+	  Error_Term = t2;
+	  ErrorMessage = ErrorSay;
+	  bip_name(Op, s);
+	  sprintf(ErrorMessage, "compiling functor/3");
+	  save_machine_regs();
+	  longjmp(CompilerBotch,1);
+	}
+	i2 = IntegerOfTerm(t2);
+	if (i2 < 0) {
+	  char s[32];
+
+	  Error_TYPE = DOMAIN_ERROR_NOT_LESS_THAN_ZERO;
+	  Error_Term = t2;
+	  ErrorMessage = ErrorSay;
+	  bip_name(Op, s);
+	  sprintf(ErrorMessage, "compiling functor/3");
+	  save_machine_regs();
+	  longjmp(CompilerBotch,1);
+	}
+	if (IsNumTerm(t1)) {
+	  /* we will always fail */
+	  if (i2)
+	    c_goal(MkAtomTerm(AtomFalse));
+	} else if (!IsAtomTerm(t1)) {
+	  char s[32];
+
+	  Error_TYPE = TYPE_ERROR_ATOM;
+	  Error_Term = t2;
+	  ErrorMessage = ErrorSay;
+	  bip_name(Op, s);
+	  sprintf(ErrorMessage, "compiling functor/3");
+	  save_machine_regs();
+	  longjmp(CompilerBotch,1);
+	}
+	if (i2 == 0)
+	  c_eq(t1, t3);
+	else {
+	  CELL *hi = H;
+	  Int i;
+
+	  if (t1 == TermDot && i2 == 2) {
+	    if (H+2 >= (CELL *)freep0) {
+	      /* oops, too many new variables */
+	      save_machine_regs();
+	      longjmp(CompilerBotch,4);
+	    }
+	    RESET_VARIABLE(H);
+	    RESET_VARIABLE(H+1);
+	    H += 2;
+	    c_eq(AbsPair(H-2),t3);
+	  } else {
+	    *H++ = (CELL)MkFunctor(AtomOfTerm(t1),i2);
+	    for (i=0; i < i2; i++) {
+	      if (H >= (CELL *)freep0) {
+		/* oops, too many new variables */
+		save_machine_regs();
+		longjmp(CompilerBotch,4);
+	      }
+	      RESET_VARIABLE(H);
+	      H++;	    
+	    }
+	    c_eq(AbsAppl(hi),t3);
+	  }
+	}
+      } else if (Op == _arg) {
 	Int i1;
 	if (IsIntegerTerm(t1))
 	  i1 = IntegerOfTerm(t1);
@@ -850,7 +922,78 @@ c_bifun(Int Op, Term t1, Term t2, Term t3)
 	longjmp(CompilerBotch,1);
       }
     }
-    if (IsIntTerm(t1)) {
+    if (Op == _functor) {
+      if (!IsAtomicTerm(t1)) {
+	char s[32];
+
+	Error_TYPE = TYPE_ERROR_ATOM;
+	Error_Term = t1;
+	ErrorMessage = ErrorSay;
+	bip_name(Op, s);
+	sprintf(ErrorMessage, "compiling %s/2",  s);
+	save_machine_regs();
+	longjmp(CompilerBotch,1);
+      } else {
+	if (!IsVarTerm(t2)) {
+	  Int arity;
+
+	  /* We actually have the term ready, so let's just do the unification now */
+	  if (!IsIntegerTerm(t2)) {
+	    char s[32];
+
+	    Error_TYPE = TYPE_ERROR_INTEGER;
+	    Error_Term = t2;
+	    ErrorMessage = ErrorSay;
+	    bip_name(Op, s);
+	    sprintf(ErrorMessage, "compiling %s/2",  s);
+	    save_machine_regs();
+	    longjmp(CompilerBotch,1);
+	  }
+	  arity = IntOfTerm(t2);
+	  if (arity < 0) {
+	    /* fail straight away */
+	    emit(fail_op, Zero, Zero);
+	  }
+	  if (arity) {
+	    Term tnew;
+	    if (!IsAtomTerm(t1)) {
+	      char s[32];
+
+	      Error_TYPE = TYPE_ERROR_ATOM;
+	      Error_Term = t1;
+	      ErrorMessage = ErrorSay;
+	      bip_name(Op, s);
+	      sprintf(ErrorMessage, "compiling %s/2",  s);
+	      save_machine_regs();
+	      longjmp(CompilerBotch,1);
+	    }
+	    if (H+1+arity >= (CELL *)freep0) {
+	      /* oops, too many new variables */
+	      save_machine_regs();
+	      longjmp(CompilerBotch,4);
+	    }
+	    tnew = AbsAppl(H);
+	    *H++ = (CELL)MkFunctor(AtomOfTerm(t1),arity);
+	    while (arity--) {
+	      RESET_VARIABLE(H);
+	      H++;
+	    }
+	    c_eq(tnew, t3);
+	  } else {
+	    /* just unify the two arguments */
+	    c_eq(t1,t3);
+	  }
+	  return;
+	} else {
+	  /* first temp */
+	  Int v1 = --tmpreg;
+	  emit(fetch_args_cv_op, t1, Zero);
+	  /* these should be the arguments */
+	  c_var(t2, v1, 0);
+	  /* now we know where the arguments are */
+	}
+      }
+    } else if (IsIntTerm(t1)) {
       /* first temp */
       Int v1 = --tmpreg;
       emit(fetch_args_cv_op, (CELL)IntOfTerm(t1), Zero);
@@ -900,6 +1043,10 @@ c_bifun(Int Op, Term t1, Term t2, Term t3)
     }
   } else if (IsNewVar(t3) && cur_branch == 0) {
     c_var(t3,f_flag,(unsigned int)Op);
+    if (Op == _functor) {
+      emit(empty_call_op, Zero, Zero);
+      emit(restore_tmps_and_skip_op, Zero, Zero);
+    }
   } else {
     /* generate code for a temp and then unify temp with previous variable */ 
     Term tmpvar = MkVarTerm();
@@ -909,7 +1056,54 @@ c_bifun(Int Op, Term t1, Term t2, Term t3)
       longjmp(CompilerBotch,4);
     }
     c_var(tmpvar,f_flag,(unsigned int)Op);
+    /* I have to dit here, before I do the unification */
+    if (Op == _functor) {
+      emit(empty_call_op, Zero, Zero);
+      emit(restore_tmps_and_skip_op, Zero, Zero);
+    }
     c_eq(tmpvar,t3);
+  }
+}
+
+static void
+c_functor(Term Goal)
+{
+  Term t1 = ArgOfTerm(1, Goal);
+  Term t2 = ArgOfTerm(2, Goal);
+  Term t3 = ArgOfTerm(3, Goal);
+  if (IsVarTerm(t1) && IsNewVar(t1)) {
+    c_bifun(_functor, t2, t3, t1);
+  } else if (IsNonVarTerm(t1)) {
+    /* just split the structure */
+    if (IsAtomicTerm(t1)) {
+      c_eq(t1,t2);
+      c_eq(t3,MkIntTerm(0));
+    } else if (IsApplTerm(t1)) {
+      Functor f = FunctorOfTerm(t1);
+      c_eq(t2,MkAtomTerm(NameOfFunctor(f)));
+      c_eq(t3,MkIntegerTerm(ArityOfFunctor(f)));
+    } else /* list */ {
+      c_eq(t2,TermDot);
+      c_eq(t3,MkIntTerm(2));
+    }
+  } else if (IsVarTerm(t2) && IsNewVar(t2) &&
+	     IsVarTerm(t3) && IsNewVar(t3)) {
+    Int v1 = --tmpreg;
+    emit(fetch_args_vc_op, Zero, Zero);
+    c_var(t1, v1, 0);
+    c_var(t2,f_flag,(unsigned int)_functor);
+    c_var(t3,f_flag,(unsigned int)_functor);
+  } else {
+    Functor f = FunctorOfTerm(Goal);
+    Prop p0 = PredProp(NameOfFunctor(f), ArityOfFunctor(f));
+    if (profiling)
+      emit(enter_profiling_op, (CELL)RepPredProp(p0), Zero);
+    c_args(Goal);
+    if (onlast)
+      emit(deallocate_op, Zero, Zero);
+    emit(safe_call_op, (CELL)p0 , Zero);
+    emit(empty_call_op, Zero, Zero);
+    emit(restore_tmps_and_skip_op, Zero, Zero);
   }
 }
 
@@ -1283,11 +1477,15 @@ c_goal(Term Goal)
 	}
 	CurrentModule = save_CurrentModule;
 	return;
-      } else if (op >= _plus && op <= _arg) { 
-	c_bifun(op,
-		ArgOfTerm(1, Goal),
-		ArgOfTerm(2, Goal),
-		ArgOfTerm(3, Goal));
+      } else if (op >= _plus && op <= _functor) {
+	if (op == _functor) {
+	  c_functor(Goal);
+	} else {
+	  c_bifun(op,
+		  ArgOfTerm(1, Goal),
+		  ArgOfTerm(2, Goal),
+		  ArgOfTerm(3, Goal));
+	}
 	if (onlast) {
 	  emit(deallocate_op, Zero, Zero);
 #ifdef TABLING
@@ -1393,11 +1591,6 @@ c_goal(Term Goal)
     if (onlast)
       emit(deallocate_op, Zero, Zero);
     emit(safe_call_op, (CELL) p0, Zero);
-    if ((p->PredFlags & BasicPredFlag) &&
-	(p->PredFlags & 0x7f) == _functor) {
-      emit(empty_call_op, Zero, Zero);
-      emit(restore_tmps_and_skip_op, Zero, Zero);
-    }
     if (onlast) {
 #ifdef TABLING
       READ_LOCK(CurrentPred->PRWLock);

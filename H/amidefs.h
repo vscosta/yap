@@ -71,7 +71,6 @@ typedef enum {
 	_equal,
 	_dif,
 	_eq,
-	_functor,
 	_plus,
 	_minus,
 	_times,
@@ -80,7 +79,8 @@ typedef enum {
 	_or,
 	_sll,
 	_slr,
-	_arg
+	_arg,
+	_functor
 } basic_preds;
 
 #if USE_THREADED_CODE
@@ -371,6 +371,12 @@ typedef struct yami {
 	 CELL next;
        } xy;
        struct {
+	 AREG                x;
+	 YREG                y2;
+	 AREG                x1;
+	 CELL next;
+       } xyx;
+       struct {
 	 YREG                y;
 	 CELL next;
        } y;
@@ -385,6 +391,18 @@ typedef struct yami {
 	 AREG                x2;
 	 CELL next;
        } yxx;
+       struct {
+	 YREG                y1;
+	 YREG                y2;
+	 AREG                x;
+	 CELL next;
+       } yyx;
+       struct {
+	 YREG                y;
+	 YREG                y1;
+	 YREG                y2;
+	 CELL next;
+       } yyy;
        struct {
 	 YREG                y;
 	 Int                 c;

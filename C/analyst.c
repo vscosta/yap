@@ -543,8 +543,21 @@ p_show_ops_by_group(void)
     opcount[_p_slr_y_vc] +
     opcount[_p_dif] +
     opcount[_p_eq] +
-    opcount[_p_arg] +
+    opcount[_p_arg_vv] +
+    opcount[_p_arg_cv] +
+    opcount[_p_arg_y_vv] +
+    opcount[_p_arg_y_cv] +
     opcount[_p_functor];
+    opcount[_p_func2s_vv] +
+    opcount[_p_func2s_cv] +
+    opcount[_p_func2s_vc] +
+    opcount[_p_func2s_y_vv] +
+    opcount[_p_func2s_y_cv] +
+    opcount[_p_func2s_y_vc] +
+    opcount[_p_func2f_xx] +
+    opcount[_p_func2f_xy] +
+    opcount[_p_func2f_yx] +
+    opcount[_p_func2f_yy];
 
   c_control.ncuts =
     opcount[_cut] +

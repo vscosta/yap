@@ -343,5 +343,15 @@
     OPCODE(p_arg_vv                ,xxx),
     OPCODE(p_arg_cv                ,xxc),
     OPCODE(p_arg_y_vv              ,yxx),
-    OPCODE(p_arg_y_cv              ,yxc)
+    OPCODE(p_arg_y_cv              ,yxc),
+    OPCODE(p_func2s_vv             ,xxx),
+    OPCODE(p_func2s_cv             ,xcx),
+    OPCODE(p_func2s_vc             ,xxc),
+    OPCODE(p_func2s_y_vv           ,xxx),
+    OPCODE(p_func2s_y_cv           ,xcx),
+    OPCODE(p_func2s_y_vc           ,xxc),
+    OPCODE(p_func2f_xx             ,xxx),
+    OPCODE(p_func2f_xy             ,xyx),
+    OPCODE(p_func2f_yx             ,yxx),
+    OPCODE(p_func2f_yy             ,yyx)
 

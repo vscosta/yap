@@ -3171,9 +3171,7 @@ which generates a new @code{end-of-file} (default for non-tty files).
 @item alias(+@var{Name})
 Specify an alias to the file. The alias @t{Name} must be an atom. The
 alias can be used instead of the file descriptor for every operation
-concerning the file.  YAP only supports the predefined aliases
-@code{user}, @code{user_input}, @code{user_output},and
-@code{user_error}.
+concerning the file.
 
 The operation will fail and give an error if the alias name is already
 in use. YAP allows several aliases for the same file, but only

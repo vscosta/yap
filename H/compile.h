@@ -146,6 +146,7 @@ typedef enum compiler_op {
   fetch_args_vc_op,
   f_var_op,
   f_val_op,
+  func2f_op,
   enter_profiling_op,
   retry_profiled_op,
   restore_tmps_op,

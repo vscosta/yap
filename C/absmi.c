@@ -10079,6 +10079,837 @@ absmi(int inp)
       ENDD(d0);
       ENDOp();
 
+      Op(p_func2s_vv, xxx);
+      /* A1 is a variable */
+    restart_func2s:
+#ifdef LOW_LEVEL_TRACER
+      if (do_low_level_trace) {
+	RESET_VARIABLE(H);
+	H[1] = XREG(PREG->u.xxx.x1);
+	H[2] = XREG(PREG->u.xxx.x2);
+	low_level_trace(enter_pred,RepPredProp(GetPredProp(LookupAtom("functor"),3)),H);
+      }
+#endif	/* LOW_LEVEL_TRACE */
+      /* We have to build the structure */
+      BEGD(d0);
+      d0 = XREG(PREG->u.xxx.x1);
+      deref_head(d0, func2s_unk);
+    func2s_nvar:
+      /* we do, let's get the third argument */
+      BEGD(d1);
+      d1 = XREG(PREG->u.xxx.x2);
+      deref_head(d1, func2s_unk2);
+    func2s_nvar2:
+      /* Uuuff, the second and third argument are bound */
+      if (IsIntegerTerm(d1))
+	d1 = IntegerOfTerm(d1);
+      else {
+	Error(TYPE_ERROR_INTEGER,ARG3,"functor/3");
+	FAIL();
+      }
+      if (!IsAtomicTerm(d0)) {
+	Error(TYPE_ERROR_ATOM,d0,"functor/3");
+	FAIL();
+      }
+      /* We made it!!!!! we got in d0 the name, in d1 the arity and
+       * in pt0 the variable to bind it to. */
+      if (d0 == TermDot && d1 == 2) {
+	RESET_VARIABLE(H);
+	RESET_VARIABLE(H+1);
+	d0 = AbsPair(H);
+	H += 2;
+	/* else if arity is 0 just pass d0 through */
+	/* Ding, ding, we made it */
+	XREG(PREG->u.xxx.x) = d0;
+	PREG = NEXTOP(NEXTOP(NEXTOP(PREG, xxx),sla),l);
+	GONext();
+      }
+      else if ((Int)d1 > 0) {
+	/* now let's build a compound term */
+	if (!IsAtomTerm(d0)) {
+	  Error(TYPE_ERROR_ATOM,d0,"functor/3");
+	  FAIL();
+	}
+	BEGP(pt1);
+	if (!IsAtomTerm(d0)) {
+	  FAIL();
+	}
+	else
+	  d0 = (CELL) MkFunctor(AtomOfTerm(d0), (Int) d1);
+	pt1 = H;
+	*pt1++ = d0;
+	d0 = AbsAppl(H);
+	if (pt1+d1 > ENV || pt1+d1 > (CELL *)B) {
+	  /* make sure we have something to show for our trouble */
+	  saveregs();
+	  gc(3, Y, NEXTOP(NEXTOP(PREG,xxx),sla));
+	  setregs();
+	  goto restart_func2s;
+	}
+	while ((Int)d1--) {
+	  RESET_VARIABLE(pt1);
+	  pt1++;
+	}
+	H = pt1;
+	/* done building the term */
+	ENDP(pt1);
+	/* else if arity is 0 just pass d0 through */
+	/* Ding, ding, we made it */
+	XREG(PREG->u.xxx.x) = d0;
+	PREG = NEXTOP(NEXTOP(NEXTOP(PREG, xxx),sla),l);
+	GONext();
+      }	else if ((Int)d1  == 0) {
+	XREG(PREG->u.xxx.x) = d0;
+	PREG = NEXTOP(NEXTOP(NEXTOP(PREG, xxx),sla),l);
+	GONext();
+      }	else {
+	Error(DOMAIN_ERROR_NOT_LESS_THAN_ZERO,MkIntegerTerm(d1),"functor/3");
+	FAIL();
+      }
+
+      BEGP(pt1);
+      deref_body(d1, pt1, func2s_unk2, func2s_nvar2);
+      Error(INSTANTIATION_ERROR, d1, "functor/3");
+      ENDP(pt1);
+      /* Oops, third argument was unbound */
+      FAIL();
+      ENDD(d1);
+
+      BEGP(pt1);
+      deref_body(d0, pt1, func2s_unk, func2s_nvar);
+      Error(INSTANTIATION_ERROR, d0, "functor/3");
+      ENDP(pt1);
+      /* Oops, second argument was unbound too */
+      FAIL();
+      ENDD(d0);
+      ENDOp();
+
+      Op(p_func2s_cv, xcx);
+      /* A1 is a variable */
+    restart_func2s_cv:
+#ifdef LOW_LEVEL_TRACER
+      if (do_low_level_trace) {
+	RESET_VARIABLE(H);
+	H[1] = XREG(PREG->u.xcx.c);
+	H[2] = XREG(PREG->u.xcx.xi);
+	low_level_trace(enter_pred,RepPredProp(GetPredProp(LookupAtom("functor"),3)),H);
+      }
+#endif	/* LOW_LEVEL_TRACE */
+      BEGD(d0);
+      /* We have to build the structure */
+      d0 = PREG->u.xcx.c;
+      /* we do, let's get the third argument */
+      BEGD(d1);
+      d1 = XREG(PREG->u.xcx.xi);
+      deref_head(d1, func2s_unk2_cv);
+    func2s_nvar2_cv:
+      /* Uuuff, the second and third argument are bound */
+      if (IsIntegerTerm(d1))
+	d1 = IntegerOfTerm(d1);
+      else {
+	Error(TYPE_ERROR_INTEGER,ARG3,"functor/3");
+	FAIL();
+      }
+      /* We made it!!!!! we got in d0 the name, in d1 the arity and
+       * in pt0 the variable to bind it to. */
+      if (d0 == TermDot && d1 == 2) {
+	RESET_VARIABLE(H);
+	RESET_VARIABLE(H+1);
+	d0 = AbsPair(H);
+	H += 2;
+	/* else if arity is 0 just pass d0 through */
+	/* Ding, ding, we made it */
+	XREG(PREG->u.xcx.x) = d0;
+	PREG = NEXTOP(NEXTOP(NEXTOP(PREG, xcx),sla),l);
+	GONext();
+      } else if ((Int)d1 > 0) {
+	/* now let's build a compound term */
+	if (!IsAtomTerm(d0)) {
+	  Error(TYPE_ERROR_ATOM,d0,"functor/3");
+	  FAIL();
+	}
+	BEGP(pt1);
+	if (!IsAtomTerm(d0)) {
+	  FAIL();
+	}
+	else
+	  d0 = (CELL) MkFunctor(AtomOfTerm(d0), (Int) d1);
+	pt1 = H;
+	*pt1++ = d0;
+	d0 = AbsAppl(H);
+	if (pt1+d1 > ENV || pt1+d1 > (CELL *)B) {
+	  /* make sure we have something to show for our trouble */
+	  saveregs();
+	  gc(3, Y, NEXTOP(NEXTOP(PREG,xcx),sla));
+	  setregs();
+	  goto restart_func2s_cv;
+	}
+	while ((Int)d1--) {
+	  RESET_VARIABLE(pt1);
+	  pt1++;
+	}
+	/* done building the term */
+	H = pt1;
+	ENDP(pt1);
+	/* else if arity is 0 just pass d0 through */
+	/* Ding, ding, we made it */
+	XREG(PREG->u.xcx.x) = d0;
+	PREG = NEXTOP(NEXTOP(NEXTOP(PREG, xcx),sla),l);
+	GONext();
+      }	else if (d1  == 0) {
+	XREG(PREG->u.xxx.x) = d0;
+	PREG = NEXTOP(NEXTOP(NEXTOP(PREG, xxx),sla),l);
+	GONext();
+      }	else {
+	Error(DOMAIN_ERROR_NOT_LESS_THAN_ZERO,MkIntegerTerm(d1),"functor/3");
+	FAIL();
+      }
+
+      BEGP(pt1);
+      deref_body(d1, pt1, func2s_unk2_cv, func2s_nvar2_cv);
+      Error(INSTANTIATION_ERROR, d1, "functor/3");
+      ENDP(pt1);
+      /* Oops, third argument was unbound */
+      FAIL();
+      ENDD(d1);
+      ENDD(d0);
+      ENDOp();
+
+      Op(p_func2s_vc, xxc);
+      /* A1 is a variable */
+    restart_func2s_vc:
+#ifdef LOW_LEVEL_TRACER
+      if (do_low_level_trace) {
+	Term ti;
+	CELL *hi = H;
+
+	ti = MkIntegerTerm((Int)(PREG->u.xxc.c));
+	RESET_VARIABLE(H);
+	H[1] = XREG(PREG->u.xxc.xi);
+	H[2] = ti;
+	low_level_trace(enter_pred,RepPredProp(GetPredProp(LookupAtom("functor"),3)),H);
+	H = hi;
+      }
+#endif	/* LOW_LEVEL_TRACE */
+      /* We have to build the structure */
+      BEGD(d0);
+      d0 = XREG(PREG->u.xxc.xi);
+      deref_head(d0, func2s_unk_vc);
+    func2s_nvar_vc:
+      BEGD(d1);
+      d1 = PREG->u.xxc.c;
+      if (!IsAtomicTerm(d0)) {
+	Error(TYPE_ERROR_ATOM,d0,"functor/3");
+	FAIL();
+      }
+      /* We made it!!!!! we got in d0 the name, in d1 the arity and
+       * in pt0 the variable to bind it to. */
+      if (d0 == TermDot && d1 == 2) {
+	RESET_VARIABLE(H);
+	RESET_VARIABLE(H+1);
+	d0 = AbsPair(H);
+	H += 2;
+	/* else if arity is 0 just pass d0 through */
+	/* Ding, ding, we made it */
+	XREG(PREG->u.xxc.x) = d0;
+	PREG = NEXTOP(NEXTOP(NEXTOP(PREG, xxc),sla),l);
+	GONext();
+      }
+      /* now let's build a compound term */
+      if (d1 == 0) {
+	XREG(PREG->u.xxc.x) = d0;
+	PREG = NEXTOP(NEXTOP(NEXTOP(PREG, xxc),sla),l);
+	GONext();
+      }
+      if (!IsAtomTerm(d0)) {
+	Error(TYPE_ERROR_ATOM,d0,"functor/3");
+	FAIL();
+      }
+      BEGP(pt1);
+      if (!IsAtomTerm(d0)) {
+	FAIL();
+      }
+      else
+	d0 = (CELL) MkFunctor(AtomOfTerm(d0), (Int) d1);
+      pt1 = H;
+      *pt1++ = d0;
+      d0 = AbsAppl(H);
+      if (pt1+d1 > ENV || pt1+d1 > (CELL *)B) {
+	/* make sure we have something to show for our trouble */
+	saveregs();
+	gc(3, Y, NEXTOP(NEXTOP(PREG,xxc),sla));
+	setregs();
+	goto restart_func2s_vc;
+      }
+      while ((Int)d1--) {
+	RESET_VARIABLE(pt1);
+	pt1++;
+      }
+      /* done building the term */
+      H = pt1;
+      ENDP(pt1);
+      ENDD(d1);
+      /* else if arity is 0 just pass d0 through */
+      /* Ding, ding, we made it */
+      XREG(PREG->u.xxc.x) = d0;
+      PREG = NEXTOP(NEXTOP(NEXTOP(PREG, xxc),sla),l);
+      GONext();
+
+      BEGP(pt1);
+      deref_body(d0, pt1, func2s_unk_vc, func2s_nvar_vc);
+      Error(INSTANTIATION_ERROR, d0, "functor/3");
+      ENDP(pt1);
+      /* Oops, second argument was unbound too */
+      FAIL();
+      ENDD(d0);
+      ENDOp();
+
+      Op(p_func2s_y_vv, yxx);
+      /* A1 is a variable */
+    restart_func2s_y:
+#ifdef LOW_LEVEL_TRACER
+      if (do_low_level_trace) {
+	RESET_VARIABLE(H);
+	H[1] = XREG(PREG->u.yxx.x1);
+	H[2] = XREG(PREG->u.yxx.x2);
+	low_level_trace(enter_pred,RepPredProp(GetPredProp(LookupAtom("functor"),3)),H);
+      }
+#endif	/* LOW_LEVEL_TRACE */
+      /* We have to build the structure */
+      BEGD(d0);
+      d0 = XREG(PREG->u.yxx.x1);
+      deref_head(d0, func2s_y_unk);
+    func2s_y_nvar:
+      /* we do, let's get the third argument */
+      BEGD(d1);
+      d1 = XREG(PREG->u.yxx.x2);
+      deref_head(d1, func2s_y_unk2);
+    func2s_y_nvar2:
+      /* Uuuff, the second and third argument are bound */
+      if (IsIntegerTerm(d1))
+	d1 = IntegerOfTerm(d1);
+      else {
+	Error(TYPE_ERROR_INTEGER,ARG3,"functor/3");
+	FAIL();
+      }
+      if (!IsAtomicTerm(d0)) {
+	Error(TYPE_ERROR_ATOM,d0,"functor/3");
+	FAIL();
+      }
+      /* We made it!!!!! we got in d0 the name, in d1 the arity and
+       * in pt0 the variable to bind it to. */
+      if (d0 == TermDot && d1 == 2) {
+	RESET_VARIABLE(H);
+	RESET_VARIABLE(H+1);
+	d0 = AbsPair(H);
+	H += 2;
+	BEGP(pt1);
+	pt1 = Y + PREG->u.yxx.y;
+	PREG = NEXTOP(NEXTOP(NEXTOP(PREG, yxx),sla),l);
+#if defined(SBA) && defined(FROZEN_REGS)
+	Bind_Local(pt1,d0);
+#else
+	*pt1 = d0;
+#endif
+	ENDP(pt1);
+	GONext();
+      } else if ((Int)d1 > 0) {
+	/* now let's build a compound term */
+	if (!IsAtomTerm(d0)) {
+	  Error(TYPE_ERROR_ATOM,d0,"functor/3");
+	  FAIL();
+	}
+	BEGP(pt1);
+	if (!IsAtomTerm(d0)) {
+	  FAIL();
+	}
+	else
+	  d0 = (CELL) MkFunctor(AtomOfTerm(d0), (Int) d1);
+	pt1 = H;
+	*pt1++ = d0;
+	d0 = AbsAppl(H);
+	if (pt1+d1 > ENV || pt1+d1 > (CELL *)B) {
+	  /* make sure we have something to show for our trouble */
+	  saveregs();
+	  gc(3, Y, NEXTOP(NEXTOP(PREG,yxx),sla));
+	  setregs();
+	  goto restart_func2s_y;
+	}
+	while ((Int)d1--) {
+	  RESET_VARIABLE(pt1);
+	  pt1++;
+	}
+	/* done building the term */
+	H = pt1;
+	ENDP(pt1);
+	/* else if arity is 0 just pass d0 through */
+	/* Ding, ding, we made it */
+	BEGP(pt1);
+	pt1 = Y + PREG->u.yxx.y;
+	PREG = NEXTOP(NEXTOP(NEXTOP(PREG, yxx),sla),l);
+#if defined(SBA) && defined(FROZEN_REGS)
+	Bind_Local(pt1,d0);
+#else
+	*pt1 = d0;
+#endif
+	ENDP(pt1);
+	GONext();
+      }	else if (d1  == 0) {
+	BEGP(pt1);
+	pt1 = Y + PREG->u.yxx.y;
+	PREG = NEXTOP(NEXTOP(NEXTOP(PREG, yxx),sla),l);
+#if defined(SBA) && defined(FROZEN_REGS)
+	Bind_Local(pt1,d0);
+#else
+	*pt1 = d0;
+#endif
+	ENDP(pt1);
+	GONext();
+      }	else {
+	Error(DOMAIN_ERROR_NOT_LESS_THAN_ZERO,MkIntegerTerm(d1),"functor/3");
+	FAIL();
+      }
+
+      BEGP(pt1);
+      deref_body(d1, pt1, func2s_y_unk2, func2s_y_nvar2);
+      Error(INSTANTIATION_ERROR, d1, "functor/3");
+      ENDP(pt1);
+      /* Oops, third argument was unbound */
+      FAIL();
+      ENDD(d1);
+
+      BEGP(pt1);
+      deref_body(d0, pt1, func2s_y_unk, func2s_y_nvar);
+      Error(INSTANTIATION_ERROR, d0, "functor/3");
+      ENDP(pt1);
+      /* Oops, second argument was unbound too */
+      FAIL();
+      ENDD(d0);
+      ENDOp();
+
+      Op(p_func2s_y_cv, ycx);
+      /* A1 is a variable */
+    restart_func2s_y_cv:
+#ifdef LOW_LEVEL_TRACER
+      if (do_low_level_trace) {
+	RESET_VARIABLE(H);
+	H[1] = XREG(PREG->u.ycx.c);
+	H[2] = XREG(PREG->u.ycx.xi);
+	low_level_trace(enter_pred,RepPredProp(GetPredProp(LookupAtom("functor"),3)),H);
+      }
+#endif	/* LOW_LEVEL_TRACE */
+      /* We have to build the structure */
+      BEGD(d0);
+      d0 = PREG->u.ycx.c;
+      /* we do, let's get the third argument */
+      BEGD(d1);
+      d1 = XREG(PREG->u.ycx.xi);
+      deref_head(d1, func2s_y_unk_cv);
+    func2s_y_nvar_cv:
+      /* Uuuff, the second and third argument are bound */
+      if (IsIntegerTerm(d1)) {
+	d1 = IntegerOfTerm(d1);
+      } else {
+	Error(TYPE_ERROR_INTEGER,d1,"functor/3");
+	FAIL();
+      }
+      /* We made it!!!!! we got in d0 the name, in d1 the arity and
+       * in pt0 the variable to bind it to. */
+      if (d0 == TermDot && d1 == 2) {
+	RESET_VARIABLE(H);
+	RESET_VARIABLE(H+1);
+	d0 = AbsPair(H);
+	H += 2;
+	/* else if arity is 0 just pass d0 through */
+	/* Ding, ding, we made it */
+	BEGP(pt1);
+	pt1 = Y + PREG->u.ycx.y;
+	PREG = NEXTOP(NEXTOP(NEXTOP(PREG, ycx),sla),l);
+#if defined(SBA) && defined(FROZEN_REGS)
+	Bind_Local(pt1,d0);
+#else
+	*pt1 = d0;
+#endif
+	ENDP(pt1);
+	GONext();
+      }
+      else if ((Int)d1 > 0) {
+	/* now let's build a compound term */
+	if (!IsAtomTerm(d0)) {
+	  Error(TYPE_ERROR_ATOM,d0,"functor/3");
+	  FAIL();
+	}
+	if (!IsAtomTerm(d0)) {
+	  FAIL();
+	}
+	else
+	  d0 = (CELL) MkFunctor(AtomOfTerm(d0), (Int) d1);
+	BEGP(pt1);
+	pt1 = H;
+	*pt1++ = d0;
+	d0 = AbsAppl(H);
+	if (pt1+d1 > ENV || pt1+d1 > (CELL *)B) {
+	  /* make sure we have something to show for our trouble */
+	  saveregs();
+	  gc(3, Y, NEXTOP(NEXTOP(PREG,ycx),sla));
+	  setregs();
+	  goto restart_func2s_y_cv;
+	}
+	while ((Int)d1--) {
+	  RESET_VARIABLE(pt1);
+	  pt1++;
+	}
+	/* done building the term */
+	H = pt1;
+	ENDP(pt1);
+	/* else if arity is 0 just pass d0 through */
+	/* Ding, ding, we made it */
+	BEGP(pt1);
+	pt1 = Y + PREG->u.ycx.y;
+	PREG = NEXTOP(NEXTOP(NEXTOP(PREG, ycx),sla),l);
+#if defined(SBA) && defined(FROZEN_REGS)
+	Bind_Local(pt1,d0);
+#else
+	*pt1 = d0;
+#endif
+	ENDP(pt1);
+	GONext();
+      }	else if (d1  == 0) {
+	BEGP(pt1);
+	pt1 = Y + PREG->u.ycx.y;
+	PREG = NEXTOP(NEXTOP(NEXTOP(PREG, ycx),sla),l);
+#if defined(SBA) && defined(FROZEN_REGS)
+	Bind_Local(pt1,d0);
+#else
+	*pt1 = d0;
+#endif
+	ENDP(pt1);
+	GONext();
+      }	else {
+	Error(DOMAIN_ERROR_NOT_LESS_THAN_ZERO,MkIntegerTerm(d1),"functor/3");
+	FAIL();
+      }
+
+      BEGP(pt1);
+      deref_body(d1, pt1, func2s_y_unk_cv, func2s_y_nvar_cv);
+      Error(INSTANTIATION_ERROR, d1, "functor/3");
+      ENDP(pt1);
+      /* Oops, third argument was unbound */
+      FAIL();
+      ENDD(d1);
+      ENDD(d0);
+      ENDOp();
+
+      Op(p_func2s_y_vc, yxc);
+      /* A1 is a variable */
+    restart_func2s_y_vc:
+#ifdef LOW_LEVEL_TRACER
+      if (do_low_level_trace) {
+	Term ti;
+	CELL *hi = H;
+
+	ti = MkIntegerTerm((Int)(PREG->u.yxc.c));
+	RESET_VARIABLE(H);
+	H[1] = XREG(PREG->u.yxc.xi);
+	H[2] = ti;
+	low_level_trace(enter_pred,RepPredProp(GetPredProp(LookupAtom("functor"),3)),H);
+	H = hi;
+      }
+#endif	/* LOW_LEVEL_TRACE */
+      /* We have to build the structure */
+      BEGD(d0);
+      d0 = XREG(PREG->u.yxc.xi);
+      deref_head(d0, func2s_y_unk_vc);
+    func2s_y_nvar_vc:
+      BEGD(d1);
+      d1 = PREG->u.yxc.c;
+      if (!IsAtomicTerm(d0)) {
+	Error(TYPE_ERROR_ATOM,d0,"functor/3");
+	FAIL();
+      }
+      /* We made it!!!!! we got in d0 the name, in d1 the arity and
+       * in pt0 the variable to bind it to. */
+      if (d0 == TermDot && d1 == 2) {
+	RESET_VARIABLE(H);
+	RESET_VARIABLE(H+1);
+	d0 = AbsPair(H);
+	H += 2;
+	/* else if arity is 0 just pass d0 through */
+	/* Ding, ding, we made it */
+	BEGP(pt1);
+	pt1 = Y + PREG->u.yxc.y;
+	PREG = NEXTOP(NEXTOP(NEXTOP(PREG, yxc),sla),l);
+#if defined(SBA) && defined(FROZEN_REGS)
+	Bind_Local(pt1,d0);
+#else
+	*pt1 = d0;
+#endif
+	ENDP(pt1);
+	GONext();
+      }
+      if (d1 == 0) {
+	BEGP(pt1);
+	pt1 = Y + PREG->u.yxc.y;
+	PREG = NEXTOP(NEXTOP(NEXTOP(PREG, yxc),sla),l);
+#if defined(SBA) && defined(FROZEN_REGS)
+	Bind_Local(pt1,d0);
+#else
+	*pt1 = d0;
+#endif
+	ENDP(pt1);
+	GONext();
+      }
+      if (!IsAtomTerm(d0)) {
+	Error(TYPE_ERROR_ATOM,d0,"functor/3");
+	FAIL();
+      }
+      /* now let's build a compound term */
+      if (!IsAtomTerm(d0)) {
+	Error(TYPE_ERROR_ATOM,d0,"functor/3");
+	FAIL();
+      }
+      BEGP(pt1);
+      if (!IsAtomTerm(d0)) {
+	FAIL();
+      }
+      else 
+	d0 = (CELL) MkFunctor(AtomOfTerm(d0), (Int) d1);
+      pt1 = H;
+      *pt1++ = d0;
+      d0 = AbsAppl(H);
+      if (pt1+d1 > ENV || pt1+d1 > (CELL *)B) {
+	/* make sure we have something to show for our trouble */
+	saveregs();
+	gc(3, Y, NEXTOP(NEXTOP(PREG,yxc),sla));
+	setregs();
+	goto restart_func2s_y_vc;
+      }
+      while ((Int)d1--) {
+	RESET_VARIABLE(pt1);
+	pt1++;
+      }
+      /* done building the term */
+      H = pt1;
+      ENDP(pt1);
+      /* else if arity is 0 just pass d0 through */
+      /* Ding, ding, we made it */
+      BEGP(pt1);
+      pt1 = Y + PREG->u.yxc.y;
+      PREG = NEXTOP(NEXTOP(NEXTOP(PREG, yxc),sla),l);
+#if defined(SBA) && defined(FROZEN_REGS)
+      Bind_Local(pt1,d0);
+#else
+      *pt1 = d0;
+#endif
+      ENDP(pt1);
+      ENDD(d1);
+      GONext();
+
+      BEGP(pt1);
+      deref_body(d0, pt1, func2s_y_unk_vc, func2s_y_nvar_vc);
+      Error(INSTANTIATION_ERROR, d0, "functor/3");
+      ENDP(pt1);
+      /* Oops, second argument was unbound too */
+      FAIL();
+      ENDD(d0);
+      ENDOp();
+
+      Op(p_func2f_xx, xxx);
+#ifdef LOW_LEVEL_TRACER
+      if (do_low_level_trace) {
+	H[0] = XREG(PREG->u.xxx.x);
+	RESET_VARIABLE(H+1);
+	RESET_VARIABLE(H+2);
+	low_level_trace(enter_pred,RepPredProp(GetPredProp(LookupAtom("functor"),3)),H);
+      }
+#endif	/* LOW_LEVEL_TRACE */
+      BEGD(d0);
+      d0 = XREG(PREG->u.xxx.x);
+      deref_head(d0, func2f_xx_unk);
+    func2f_xx_nvar:
+      if (IsApplTerm(d0)) {
+	Functor d1 = FunctorOfTerm(d0);
+	if (IsExtensionFunctor(d1)) {
+	  XREG(PREG->u.xxx.x1) = d0;
+	  XREG(PREG->u.xxx.x2) = MkIntTerm(0);
+	  PREG = NEXTOP(PREG, xxx);
+	  GONext();
+	}
+	XREG(PREG->u.xxx.x1) = MkAtomTerm(NameOfFunctor(d1));
+	XREG(PREG->u.xxx.x2) = MkIntegerTerm(ArityOfFunctor(d1));
+	PREG = NEXTOP(PREG, xxx);
+	GONext();
+      } else if (IsPairTerm(d0)) {
+	XREG(PREG->u.xxx.x1) = TermDot;
+	XREG(PREG->u.xxx.x2) = MkIntTerm(2);
+	PREG = NEXTOP(PREG, xxx);
+	GONext();
+      } else {
+	XREG(PREG->u.xxx.x1) = d0;
+	XREG(PREG->u.xxx.x2) = MkIntTerm(0);
+	PREG = NEXTOP(PREG, xxx);
+	GONext();
+      }
+
+      BEGP(pt1);
+      deref_body(d0, pt1, func2f_xx_unk, func2f_xx_nvar);
+      Error(INSTANTIATION_ERROR, d0, "functor/3");
+      ENDP(pt1);
+      /* Oops, second argument was unbound too */
+      FAIL();
+      ENDD(d0);
+      ENDOp();
+
+      Op(p_func2f_xy, xyx);
+#ifdef LOW_LEVEL_TRACER
+      if (do_low_level_trace) {
+	H[0] = XREG(PREG->u.xyx.x);
+	RESET_VARIABLE(H+1);
+	RESET_VARIABLE(H+2);
+	low_level_trace(enter_pred,RepPredProp(GetPredProp(LookupAtom("functor"),3)),H);
+      }
+#endif	/* LOW_LEVEL_TRACE */
+      BEGD(d0);
+      d0 = XREG(PREG->u.xyx.x);
+      deref_head(d0, func2f_xy_unk);
+    func2f_xy_nvar:
+      if (IsApplTerm(d0)) {
+	Functor d1 = FunctorOfTerm(d0);
+	CELL *pt0 = Y+PREG->u.xyx.y2;
+	if (IsExtensionFunctor(d1)) {
+	  XREG(PREG->u.xyx.x1) = d0;
+	  PREG = NEXTOP(PREG, xyx);
+	  *pt0 = MkIntTerm(0);
+	  GONext();
+	}
+	XREG(PREG->u.xyx.x1) = MkAtomTerm(NameOfFunctor(d1));
+	PREG = NEXTOP(PREG, xyx);
+	*pt0 = MkIntegerTerm(ArityOfFunctor(d1));
+	GONext();
+      } else if (IsPairTerm(d0)) {
+	CELL *pt0 = Y+PREG->u.xyx.y2;
+	XREG(PREG->u.xyx.x1) = TermDot;
+	PREG = NEXTOP(PREG, xyx);
+	*pt0 = MkIntTerm(2);
+	GONext();
+      } else {
+	CELL *pt0 = Y+PREG->u.xyx.y2;
+	XREG(PREG->u.xyx.x1) = d0;
+	PREG = NEXTOP(PREG, xyx);
+	*pt0 = MkIntTerm(0);
+	GONext();
+      }
+
+      BEGP(pt1);
+      deref_body(d0, pt1, func2f_xy_unk, func2f_xy_nvar);
+      Error(INSTANTIATION_ERROR, d0, "functor/3");
+      ENDP(pt1);
+      /* Oops, second argument was unbound too */
+      FAIL();
+      ENDD(d0);
+      ENDOp();
+
+      Op(p_func2f_yx, yxx);
+#ifdef LOW_LEVEL_TRACER
+      if (do_low_level_trace) {
+	H[0] = XREG(PREG->u.yxx.x2);
+	RESET_VARIABLE(H+1);
+	RESET_VARIABLE(H+2);
+	low_level_trace(enter_pred,RepPredProp(GetPredProp(LookupAtom("functor"),3)),H);
+      }
+#endif	/* LOW_LEVEL_TRACE */
+      BEGD(d0);
+      d0 = XREG(PREG->u.yxx.x2);
+      deref_head(d0, func2f_yx_unk);
+    func2f_yx_nvar:
+      if (IsApplTerm(d0)) {
+	Functor d1 = FunctorOfTerm(d0);
+	CELL *pt0 = Y+PREG->u.yxx.y;
+	if (IsExtensionFunctor(d1)) {
+	  XREG(PREG->u.yxx.x1) = MkIntTerm(0);
+	  PREG = NEXTOP(PREG, yxx);
+	  *pt0 = d0;
+	  GONext();
+	}
+	XREG(PREG->u.yxx.x1) = MkIntegerTerm(ArityOfFunctor(d1));
+	PREG = NEXTOP(PREG, yxx);
+	*pt0 = MkAtomTerm(NameOfFunctor(d1));
+	GONext();
+      } else if (IsPairTerm(d0)) {
+	CELL *pt0 = Y+PREG->u.yxx.y;
+	XREG(PREG->u.yxx.x1) = MkIntTerm(2);
+	PREG = NEXTOP(PREG, yxx);
+	*pt0 = TermDot;
+	GONext();
+      } else {
+	CELL *pt0 = Y+PREG->u.yxx.y;
+	XREG(PREG->u.yxx.x1) = MkIntTerm(0);
+	PREG = NEXTOP(PREG, yxx);
+	*pt0 = d0;
+	GONext();
+      }
+
+      BEGP(pt1);
+      deref_body(d0, pt1, func2f_yx_unk, func2f_yx_nvar);
+      Error(INSTANTIATION_ERROR, d0, "functor/3");
+      ENDP(pt1);
+      /* Oops, second argument was unbound too */
+      FAIL();
+      ENDD(d0);
+      ENDOp();
+
+      Op(p_func2f_yy, yyx);
+#ifdef LOW_LEVEL_TRACER
+      if (do_low_level_trace) {
+	H[0] = XREG(PREG->u.yyx.x);
+	RESET_VARIABLE(H+1);
+	RESET_VARIABLE(H+2);
+	low_level_trace(enter_pred,RepPredProp(GetPredProp(LookupAtom("functor"),3)),H);
+      }
+#endif	/* LOW_LEVEL_TRACE */
+      BEGD(d0);
+      d0 = XREG(PREG->u.yyx.x);
+      deref_head(d0, func2f_yy_unk);
+    func2f_yy_nvar:
+      if (IsApplTerm(d0)) {
+	Functor d1 = FunctorOfTerm(d0);
+	CELL *pt0 = Y+PREG->u.yyx.y1;
+	CELL *pt1 = Y+PREG->u.yyx.y2;
+	if (IsExtensionFunctor(d1)) {
+	  PREG = NEXTOP(PREG, yyx);
+	  *pt0 =  d0;
+	  *pt1 = MkIntTerm(0);
+	  GONext();
+	}
+	PREG = NEXTOP(PREG, yyx);
+	*pt0 = MkAtomTerm(NameOfFunctor(d1));
+	*pt1 = MkIntegerTerm(ArityOfFunctor(d1));
+	GONext();
+      } else if (IsPairTerm(d0)) {
+	CELL *pt0 = Y+PREG->u.yyx.y1;
+	CELL *pt1 = Y+PREG->u.yyx.y2;
+	PREG = NEXTOP(PREG, yyx);
+	*pt0 = TermDot;
+	*pt1 = MkIntTerm(2);
+	GONext();
+      } else {
+	CELL *pt0 = Y+PREG->u.yyx.y1;
+	CELL *pt1 = Y+PREG->u.yyx.y2;
+	PREG = NEXTOP(PREG, yyx);
+	*pt0 = d0;
+	*pt1 = MkIntTerm(0);
+	GONext();
+      }
+
+      BEGP(pt1);
+      deref_body(d0, pt1, func2f_yy_unk, func2f_yy_nvar);
+      Error(INSTANTIATION_ERROR, d0, "functor/3");
+      ENDP(pt1);
+      /* Oops, second argument was unbound too */
+      FAIL();
+      ENDD(d0);
+      ENDOp();
+
       Op(p_functor, e);
 #ifdef LOW_LEVEL_TRACER
       if (do_low_level_trace)
@@ -10222,7 +11053,7 @@ absmi(int inp)
 	  setregs();
 	  goto restart_functor;
 	}
-	while (d1-- > 0) {
+	while ((Int)d1--) {
 	  RESET_VARIABLE(pt1);
 	  pt1++;
 	}
