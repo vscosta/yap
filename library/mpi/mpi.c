@@ -9,14 +9,14 @@
 **************************************************************************
 *									 *
 * File:		mpi.c  							 *
-* Last rev:	$Date: 2002-11-11 17:38:06 $				 *
+* Last rev:	$Date: 2002-11-12 10:25:11 $				 *
 * mods:									 *
 * comments:	Interface to an MPI library                              *
 *									 *
 *************************************************************************/
 
 #ifndef lint
-static char *rcsid = "$Header: /Users/vitor/Yap/yap-cvsbackup/library/mpi/mpi.c,v 1.14 2002-11-11 17:38:06 vsc Exp $";
+static char *rcsid = "$Header: /Users/vitor/Yap/yap-cvsbackup/library/mpi/mpi.c,v 1.15 2002-11-12 10:25:11 stasinos Exp $";
 #endif
 
 #include "Yap.h"
@@ -82,8 +82,8 @@ expand_buffer( int space )
 
   tmp = malloc( bufsize + space );
   if( tmp == NULL ) {
-    Error(SYSTEM_ERROR, TermNil, "out of memory" );
-    exit_yap( EXIT_FAILURE );
+    _YAP_Error(SYSTEM_ERROR, TermNil, "out of memory" );
+    _YAP_exit( EXIT_FAILURE );
   }
   memcpy( tmp, buf, bufsize );
 #if 0
@@ -100,8 +100,8 @@ expand_buffer( int space )
   printf("realloc'ed space...");
 #endif
   if( buf == NULL ) {
-    Error(SYSTEM_ERROR, TermNil, "out of memory");
-    exit_yap( EXIT_FAILURE );
+    _YAP_Error(SYSTEM_ERROR, TermNil, "out of memory");
+    _YAP_exit( EXIT_FAILURE );
   }
 #endif
 
@@ -158,43 +158,43 @@ mpi_parse(void)
     CELL *old_H;
 
     /* Scans the term using stack space */
-    eot_before_eof = FALSE;
+    _YAP_eot_before_eof = FALSE;
 
     /* the first arg is the getc_for_read, diff only if CharConv is on */
-    tokstart = tokptr = toktide = tokenizer(mpi_getc, mpi_getc);
+    tokstart = _YAP_tokptr = _YAP_toktide = _YAP_tokenizer(mpi_getc, mpi_getc);
 
     /* preserve value of H after scanning: otherwise we may lose strings
        and floats */
     old_H = H;
 
-    if ( mpi_eob() && !eot_before_eof) {
+    if ( mpi_eob() && !_YAP_eot_before_eof) {
       if (tokstart != NIL && tokstart->Tok != Ord (eot_tok)) {
 	/* we got the end of file from an abort */
-	if (ErrorMessage == "Abort") {
+	if (_YAP_ErrorMessage == "Abort") {
 	  TR = old_TR;
 	  return TermNil;
 	}
 	/* we need to force the next reading to also give end of file.*/
 	buf[bufptr] = EOF;
-	ErrorMessage = "[ Error: end of file found before end of term ]";
+	_YAP_ErrorMessage = "[ Error: end of file found before end of term ]";
       } else {
 	/* restore TR */
 	TR = old_TR;
 
-	return (unify_constant(t, MkAtomTerm(AtomEof)));
+	return (_YAP_unify_constant(t, MkAtomTerm(AtomEof)));
       }
     }
   repeat_cycle:
     TR_before_parse = TR;
-    if( ErrorMessage || (t = Parse())==0 ) {
-      if (ErrorMessage && (strcmp(ErrorMessage,"Stack Overflow") == 0)) {
+    if( _YAP_ErrorMessage || (t = _YAP_Parse())==0 ) {
+      if (_YAP_ErrorMessage && (strcmp(_YAP_ErrorMessage,"Stack Overflow") == 0)) {
 	/* ignore term we just built */
 	TR = TR_before_parse;
 	H = old_H;
-	if (growstack_in_parser(&old_TR, &tokstart, &VarTable)) {
+	if (_YAP_growstack_in_parser(&old_TR, &tokstart, &_YAP_VarTable)) {
 	  old_H = H;
-	  tokptr = toktide = tokstart;
-	  ErrorMessage = NULL;
+	  _YAP_tokptr = _YAP_toktide = tokstart;
+	  _YAP_ErrorMessage = NULL;
 	  goto repeat_cycle;
 	}
       }
@@ -206,8 +206,8 @@ mpi_parse(void)
 	failing the predicate: the parse cannot fail unless there
 	is a problem with MPI or the pretty printer.
       */
-      Error(SYSTEM_ERROR, TermNil, "Failed to parse MPI_Recv()'ed term" );
-      exit_yap( EXIT_FAILURE );
+      _YAP_Error(SYSTEM_ERROR, TermNil, "Failed to parse MPI_Recv()'ed term" );
+      _YAP_exit( EXIT_FAILURE );
 
     } else {
       /* parsing succeeded */
@@ -257,7 +257,7 @@ Yap exit(FAILURE), whereas in Yap/LAM mpi_open/3 simply fails.
     Term t;
 
     t = MkIntegerTerm(retv);
-    Error( SYSTEM_ERROR, t, "MPI_Init() returned non-zero" );
+    _YAP_Error( SYSTEM_ERROR, t, "MPI_Init() returned non-zero" );
     return FALSE;
   }
 #endif
@@ -265,9 +265,9 @@ Yap exit(FAILURE), whereas in Yap/LAM mpi_open/3 simply fails.
   MPI_Comm_rank( MPI_COMM_WORLD, &rank );
   MPI_Get_processor_name( processor_name, &namelen );
 
-  retv = unify(t_rank, MkIntTerm(rank));
-  retv = retv && unify(t_numprocs, MkIntTerm(numprocs));
-  retv = retv && unify(t_procname, MkAtomTerm(LookupAtom(processor_name)));
+  retv = _YAP_unify(t_rank, MkIntTerm(rank));
+  retv = retv && _YAP_unify(t_numprocs, MkIntTerm(numprocs));
+  retv = retv && _YAP_unify(t_procname, MkAtomTerm(_YAP_LookupAtom(processor_name)));
 
   return retv;
 }
@@ -289,25 +289,25 @@ p_mpi_send()             /* mpi_send(+data, +destination, +tag) */
 
   /* The first argument (data) must be bound */
   if (IsVarTerm(t_data)) {
-    Error(INSTANTIATION_ERROR, t_data, "mpi_send");
+    _YAP_Error(INSTANTIATION_ERROR, t_data, "mpi_send");
     return (FALSE);
   }
 
   /* The second and third args must be bount to integers */
   if (IsVarTerm(t_dest)) {
-    Error(INSTANTIATION_ERROR, t_dest, "mpi_send");
+    _YAP_Error(INSTANTIATION_ERROR, t_dest, "mpi_send");
     return (FALSE);
   } else if( !IsIntegerTerm(t_dest) ) {
-    Error(TYPE_ERROR_INTEGER, t_dest, "mpi_send");
+    _YAP_Error(TYPE_ERROR_INTEGER, t_dest, "mpi_send");
     return (FALSE);
   } else {
     dest = IntOfTerm( t_dest );
   }
   if (IsVarTerm(t_tag)) {
-    Error(INSTANTIATION_ERROR, t_tag, "mpi_send");
+    _YAP_Error(INSTANTIATION_ERROR, t_tag, "mpi_send");
     return (FALSE);
   } else if( !IsIntegerTerm(t_tag) ) {
-    Error(TYPE_ERROR_INTEGER, t_tag, "mpi_send");
+    _YAP_Error(TYPE_ERROR_INTEGER, t_tag, "mpi_send");
     return (FALSE);
   } else {
     tag  = IntOfTerm( t_tag );
@@ -315,7 +315,7 @@ p_mpi_send()             /* mpi_send(+data, +destination, +tag) */
 
   bufptr = 0;
   /* Turn the term into its ASCII representation */
-  plwrite( t_data, mpi_putc, 5 );
+  _YAP_plwrite( t_data, mpi_putc, 5 );
   bufstrlen = (size_t)bufptr;
 
   /* The buf is not NULL-terminated and does not have the
@@ -363,7 +363,7 @@ p_mpi_receive()          /* mpi_receive(-data, ?orig, ?tag) */
 
   /* The first argument (data) must be unbound */
   if(!IsVarTerm(t_data)) {
-    Error(INSTANTIATION_ERROR, t_data, "mpi_receive");
+    _YAP_Error(INSTANTIATION_ERROR, t_data, "mpi_receive");
     return FALSE;
   }
 
@@ -373,7 +373,7 @@ p_mpi_receive()          /* mpi_receive(-data, ?orig, ?tag) */
   if (IsVarTerm(t_orig)) {
     orig = MPI_ANY_SOURCE;
   } else if( !IsIntegerTerm(t_orig) ) {
-    Error(TYPE_ERROR_INTEGER, t_orig, "mpi_receive");
+    _YAP_Error(TYPE_ERROR_INTEGER, t_orig, "mpi_receive");
     return (FALSE);
   } else {
     orig = IntOfTerm( t_orig );
@@ -384,7 +384,7 @@ p_mpi_receive()          /* mpi_receive(-data, ?orig, ?tag) */
   if (IsVarTerm(t_tag)) {
     tag = MPI_ANY_TAG;
   } else if( !IsIntegerTerm(t_tag) ) {
-    Error(TYPE_ERROR_INTEGER, t_tag, "mpi_receive");
+    _YAP_Error(TYPE_ERROR_INTEGER, t_tag, "mpi_receive");
     return (FALSE);
   } else
     tag  = IntOfTerm( t_tag );
@@ -396,7 +396,7 @@ p_mpi_receive()          /* mpi_receive(-data, ?orig, ?tag) */
   }
   MPI_Get_count( &status, MPI_CHAR, &bufstrlen );
 
-#if 1
+#if 0
   {
     FILE *debug_out;
     debug_out = fopen("debug.out", "a");
@@ -412,15 +412,19 @@ p_mpi_receive()          /* mpi_receive(-data, ?orig, ?tag) */
   /* Already know the source from MPI_Probe() */
   if( orig == MPI_ANY_SOURCE ) {
     orig = status.MPI_SOURCE;
-    retv = unify(t_orig, MkIntTerm(orig));
-    if( retv == FALSE ) puts( "PROBLEM1" );
+    retv = _YAP_unify(t_orig, MkIntTerm(orig));
+    if( retv == FALSE ) {
+      printf("PROBLEM: file %s, line %d\n", __FILE__, __LINE__);
+    }
   }
 
   /* Already know the tag from MPI_Probe() */
   if( tag == MPI_ANY_TAG ) {
     tag = status.MPI_TAG;
-    retv = unify(t_tag, MkIntTerm(status.MPI_TAG));
-    if( retv == FALSE ) puts( "PROBLEM2" );
+    retv = _YAP_unify(t_tag, MkIntTerm(status.MPI_TAG));
+    if( retv == FALSE ) {
+      printf("PROBLEM: file %s, line %d\n", __FILE__, __LINE__);
+    } 
   }
 
   /* Receive the message as a C string */
@@ -447,13 +451,13 @@ p_mpi_receive()          /* mpi_receive(-data, ?orig, ?tag) */
 
   /* parse received string into a Prolog term */
   bufptr = 0;
-  retv = unify(ARG1, mpi_parse());
+  retv = _YAP_unify(ARG1, mpi_parse());
 
 #if 0
   /* check up on mpi_parse():
      convert the newly-parsed term back to text and print */
   bufptr = 0;
-  plwrite( t_data, mpi_putc, 5 );
+  _YAP_plwrite( t_data, mpi_putc, 5 );
   mpi_putc( 0, '.' );
   mpi_putc( 0, ' ' );
   buf[bufptr] = 0;
@@ -480,7 +484,7 @@ p_mpi_bcast3()           /* mpi_bcast( ?data, +root, +max_size ) */
   /* The second argument must be bound to an integer (the rank of
      root processor */
   if (IsVarTerm(t_root)) {
-    Error(INSTANTIATION_ERROR, t_root, "mpi_bcast");
+    _YAP_Error(INSTANTIATION_ERROR, t_root, "mpi_bcast");
     return FALSE;
   }
   root = IntOfTerm( t_root );
@@ -489,12 +493,12 @@ p_mpi_bcast3()           /* mpi_bcast( ?data, +root, +max_size ) */
       be bound to the term to be sent. */
   if( root == rank ) {
     if( IsVarTerm(t_data) ) {
-      Error(INSTANTIATION_ERROR, t_data, "mpi_bcast");
+      _YAP_Error(INSTANTIATION_ERROR, t_data, "mpi_bcast");
       return FALSE;
     }
     bufptr = 0;
     /* Turn the term into its ASCII representation */
-    plwrite( t_data, mpi_putc, 5 );
+    _YAP_plwrite( t_data, mpi_putc, 5 );
     /* NULL-terminate the string and add the ". " termination
        required by the parser. */
     buf[bufptr] = 0;
@@ -505,7 +509,7 @@ p_mpi_bcast3()           /* mpi_bcast( ?data, +root, +max_size ) */
   /* The third argument must be bound to an integer (the maximum length
      of the broadcast term's ASCII representation */
   if (IsVarTerm(t_max_size)) {
-    Error(INSTANTIATION_ERROR, t_max_size, "mpi_bcast");
+    _YAP_Error(INSTANTIATION_ERROR, t_max_size, "mpi_bcast");
     return FALSE;
   }
   /* allow for the ". " bit and the NULL at the end */
@@ -539,7 +543,7 @@ p_mpi_bcast3()           /* mpi_bcast( ?data, +root, +max_size ) */
   else {
     /* ARG1 must be unbound so that it can receive data */
     if( !IsVarTerm(t_data) ) {
-      Error(INSTANTIATION_ERROR, t_data, "mpi_bcast");
+      _YAP_Error(INSTANTIATION_ERROR, t_data, "mpi_bcast");
       return FALSE;
     }
 
@@ -547,7 +551,7 @@ p_mpi_bcast3()           /* mpi_bcast( ?data, +root, +max_size ) */
     bufptr = 0;
 
     /* parse received string into a Prolog term */
-    return unify(mpi_parse(), ARG1);
+    return _YAP_unify(mpi_parse(), ARG1);
   }    
 }
 
@@ -566,7 +570,7 @@ p_mpi_bcast2()           /* mpi_bcast( ?data, +root ) */
   /* The second argument must be bound to an integer (the rank of
      root processor */
   if (IsVarTerm(t_root)) {
-    Error(INSTANTIATION_ERROR, t_root, "mpi_bcast");
+    _YAP_Error(INSTANTIATION_ERROR, t_root, "mpi_bcast");
     return FALSE;
   }
   root = IntOfTerm( t_root );
@@ -576,12 +580,12 @@ p_mpi_bcast2()           /* mpi_bcast( ?data, +root ) */
       be bound to the term to be sent. */
   if( root == rank ) {
     if( IsVarTerm(t_data) ) {
-      Error(INSTANTIATION_ERROR, t_data, "mpi_bcast");
+      _YAP_Error(INSTANTIATION_ERROR, t_data, "mpi_bcast");
       return FALSE;
     }
     bufptr = 0;
     /* Turn the term into its ASCII representation */
-    plwrite( t_data, mpi_putc, 5 );
+    _YAP_plwrite( t_data, mpi_putc, 5 );
     /* NULL-terminate the string and add the ". " termination
        required by the parser. */
     buf[bufptr] = 0;
@@ -591,7 +595,7 @@ p_mpi_bcast2()           /* mpi_bcast( ?data, +root ) */
   /* Otherwise, it must a variable */
   else {
     if( !IsVarTerm(t_data) ) {
-      Error(INSTANTIATION_ERROR, t_data, "mpi_bcast");
+      _YAP_Error(INSTANTIATION_ERROR, t_data, "mpi_bcast");
       return FALSE;
     }
   }
@@ -606,12 +610,16 @@ p_mpi_bcast2()           /* mpi_bcast( ?data, +root ) */
 
   /* adjust the buffer size, if necessary */
   if( bufstrlen > bufsize ) {
+#if 1
     printf("expanding by %d\n", (bufstrlen-bufsize) );
+#endif
     expand_buffer( bufstrlen - bufsize );
   }
+#if 1
   else {
     printf("bufstrlen: %d, bufsize %d: not expanding\n",bufstrlen,bufsize);
   }
+#endif
   /* Broadcast the data */
   retv = MPI_Bcast( buf, bufstrlen, MPI_CHAR, root, MPI_COMM_WORLD );
   if( retv != MPI_SUCCESS ) {
@@ -623,7 +631,7 @@ p_mpi_bcast2()           /* mpi_bcast( ?data, +root ) */
   else {
     /* ARG1 must be unbound so that it can receive data */
     if( !IsVarTerm(t_data) ) {
-      Error(INSTANTIATION_ERROR, t_data, "mpi_bcast");
+      _YAP_Error(INSTANTIATION_ERROR, t_data, "mpi_bcast");
       return FALSE;
     }
 
@@ -631,7 +639,7 @@ p_mpi_bcast2()           /* mpi_bcast( ?data, +root ) */
     bufptr = 0;
 
     /* parse received string into a Prolog term */
-    return unify(mpi_parse(), ARG1);
+    return _YAP_unify(ARG1, mpi_parse());
   }    
 }
 
@@ -658,27 +666,27 @@ _YAP_InitMPI(void)
 {
   int i,j;
 
-  mpi_argv = malloc( yap_argc * sizeof(char *) );
-  mpi_argv[0] = strdup( yap_args[0] );
+  mpi_argv = malloc( _YAP_argc * sizeof(char *) );
+  mpi_argv[0] = strdup( _YAP_argv[0] );
 
   bufsize = RECV_BUF_SIZE;
   buf = malloc(bufsize * sizeof(char));
 
-  for( i=1; i<yap_argc; ++i ) {
-    if( !strcmp(yap_args[i], "--") ) { ++i; break; }
+  for( i=1; i<_YAP_argc; ++i ) {
+    if( !strcmp(_YAP_argv[i], "--") ) { ++i; break; }
   }
-  for( j=1; i<yap_argc; ++i, ++j ) {
-    mpi_argv[j] = strdup( yap_args[i] );
+  for( j=1; i<_YAP_argc; ++i, ++j ) {
+    mpi_argv[j] = strdup( _YAP_argv[i] );
   }
   mpi_argc = j;
 
-  mpi_argv[0] = strdup( yap_args[0] );
+  mpi_argv[0] = strdup( _YAP_argv[0] );
 
 #if 0
   /* DEBUG */
-  printf( "yap_argc = %d\n", yap_argc );
-  for( i=0; i<yap_argc; ++i ) {
-    printf( "%d %s\n", i, yap_args[i] );
+  printf( "_YAP_argc = %d\n", _YAP_argc );
+  for( i=0; i<_YAP_argc; ++i ) {
+    printf( "%d %s\n", i, _YAP_argv[i] );
   }
 #endif
 
@@ -703,8 +711,8 @@ _YAP_InitMPI(void)
       Term t;
 
       t = MkIntegerTerm(retv);
-      Error(SYSTEM_ERROR, t, "MPI_Init() returned non-zero");
-      exit_yap( EXIT_FAILURE );
+      _YAP_Error(SYSTEM_ERROR, t, "MPI_Init() returned non-zero");
+      _YAP_exit( EXIT_FAILURE );
     }
 #if 0
     /* DEBUG */
@@ -715,12 +723,12 @@ _YAP_InitMPI(void)
   }
 #endif
 
-  _YAP_InitCPred( "mpi_open", 3, p_mpi_open, SafePredFlag|SyncPredFlag );
-  _YAP_InitCPred( "mpi_close", 0, p_mpi_close, SyncPredFlag );
+  _YAP_InitCPred( "mpi_open", 3, p_mpi_open, SyncPredFlag );
+  _YAP_InitCPred( "mpi_close", 0, p_mpi_close, SafePredFlag|SyncPredFlag );
   _YAP_InitCPred( "mpi_send", 3, p_mpi_send, SafePredFlag|SyncPredFlag );
-  _YAP_InitCPred( "mpi_receive", 3, p_mpi_receive, SafePredFlag|SyncPredFlag );
-  _YAP_InitCPred( "mpi_bcast", 3, p_mpi_bcast3, SafePredFlag|SyncPredFlag );
-  _YAP_InitCPred( "mpi_bcast", 2, p_mpi_bcast2, SafePredFlag|SyncPredFlag );
+  _YAP_InitCPred( "mpi_receive", 3, p_mpi_receive, SyncPredFlag );
+  _YAP_InitCPred( "mpi_bcast", 3, p_mpi_bcast3, SyncPredFlag );
+  _YAP_InitCPred( "mpi_bcast", 2, p_mpi_bcast2, SyncPredFlag );
   _YAP_InitCPred( "mpi_barrier", 0, p_mpi_barrier, SyncPredFlag );
 }
 

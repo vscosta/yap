@@ -20,7 +20,6 @@ STK:
 - see if on_signal/3 works through the C interface as well.
 - current_signal/3 does not know the SigId.
 - see how MPI libraries interact with YAP's signal handling.
-- Make cmd-line arg passing easier (i.e. not require run-script).
 - atomic (as opposed or to numerical) tags (and communicators).
 - configure.in:236: check for mpicc in the user's prefix, if any
  
