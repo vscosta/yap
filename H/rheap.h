@@ -470,19 +470,16 @@ RestoreDBEntry(DBRef dbr)
     YP_fprintf(errout, " a var\n");
 #endif
   dbr->Parent = (DBProp)AddrAdjust((ADDR)(dbr->Parent));
-  if (dbr->Flags & DBCode) {
-    if (dbr->u.Code != NULL)
-      dbr->u.Code = PtoOpAdjust(dbr->u.Code);
-  } else {
-    if (dbr->Flags & DBWithRefs) {
-      DBRef          *cp;
-      DBRef            tm;
+  if (dbr->Code != NULL)
+    dbr->Code = PtoOpAdjust(dbr->Code);
+  if (dbr->Flags & DBWithRefs) {
+    DBRef          *cp;
+    DBRef            tm;
 
-      dbr->u.DBRefs = DBRefPAdjust(dbr->u.DBRefs);
-      cp = dbr->u.DBRefs;
-      while ((tm = *--cp) != 0)
-	*cp = DBRefAdjust(tm);
-    }
+    dbr->DBRefs = DBRefPAdjust(dbr->DBRefs);
+    cp = dbr->DBRefs;
+    while ((tm = *--cp) != 0)
+      *cp = DBRefAdjust(tm);
   }
   if (dbr->Flags & DBAtomic) {
     if (IsAtomTerm(dbr->Entry))

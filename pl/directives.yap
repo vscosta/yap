@@ -131,6 +131,7 @@ yap_flag(gc,V) :-
 	( '$get_value'('$gc',[]) -> V = off ; V = on).
 yap_flag(gc,on) :- !, '$set_value'('$gc',true).
 yap_flag(gc,off) :- !, '$set_value'('$gc',[]).
+
 yap_flag(gc_margin,N) :- 
 	var(N) -> 
 		 '$get_value'('$gc_margin',N)
@@ -616,7 +617,7 @@ yap_flag(host_type,X) :-
 
 '$transl_to_character_escape_modes'(0,off) :- !.
 '$transl_to_character_escape_modes'(0,cprolog).
-'$transl_to_character_escape_modes'(1,on) :- !.
+'$transl_to_character_escape_modes'(2,on) :- !.
 '$transl_to_character_escape_modes'(1,iso).
 '$transl_to_character_escape_modes'(2,sicstus).
 

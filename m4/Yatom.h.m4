@@ -268,10 +268,8 @@ typedef struct DB_STRUCT {
   CELL Flags;	/* Term Flags				*/
   CELL NOfRefsTo;	/* Number of references pointing here	*/
   struct struct_dbentry  *Parent;	/* key of DBase reference		*/
-  union {
-    struct yami *Code;	/* pointer to code if this is a clause 	*/
-    struct DB_STRUCT **DBRefs; /* pointer to other references 	*/
-  } u;
+  struct yami *Code;	/* pointer to code if this is a clause 	*/
+  struct DB_STRUCT **DBRefs; /* pointer to other references 	*/
   struct DB_STRUCT *Prev; /* Previous element in chain            */
   struct DB_STRUCT *Next; /* Next element in chain                */
 #if defined(YAPOR) || defined(THREADS)

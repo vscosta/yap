@@ -1017,7 +1017,11 @@ SearchForTrailFault(void)
 #if  OS_HANDLES_TR_OVERFLOW
   if ((TR > (tr_fr_ptr)Yap_TrailTop-1024  && 
        TR < (tr_fr_ptr)Yap_TrailTop+(64*1024))|| Yap_DBTrailOverflow()) {
-    if (!Yap_growtrail(64 * 1024L)) {
+    long trsize = 64*2014L;
+    while (trsize < ((CELL)TR-(CELL)Yap_TrailTop)) {
+      trsize += 64*2014L;
+    }
+    if (!Yap_growtrail(trsize)) {
       Yap_Error(SYSTEM_ERROR, TermNil, "YAP failed to reserve %ld bytes in growtrail", 64*1024L);
     }
     /* just in case, make sure the OS keeps the signal handler. */

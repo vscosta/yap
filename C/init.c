@@ -984,7 +984,8 @@ InitCodes(void)
     (DBRef)Yap_AllocCodeSpace(sizeof(DBStruct));
   heap_regs->db_erased_marker->id = FunctorDBRef;
   heap_regs->db_erased_marker->Flags = ErasedMask;
-  heap_regs->db_erased_marker->u.Code = NULL;
+  heap_regs->db_erased_marker->Code = NULL;
+  heap_regs->db_erased_marker->DBRefs = NULL;
   heap_regs->db_erased_marker->Parent = NULL;
   INIT_LOCK(heap_regs->db_erased_marker->lock);
   INIT_DBREF_COUNT(heap_regs->db_erased_marker);

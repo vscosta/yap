@@ -27,12 +27,12 @@ false :- fail.
 (:- G) :- '$execute'(G), !.
 '$$!'(CP) :- '$cut_by'(CP).
 [] :- true.
-','(A,B) :- '$meta_call'((A,B),prolog).
-';'(A,B) :- '$meta_call'((A;B),prolog).
-'|'(A,B) :- '$meta_call'((A;B),prolog).
-'->'(A,B) :- '$meta_call'((A->B),prolog).
-\+(G) :- '$meta_call'(\+(G),prolog).
-not(G) :- '$meta_call'(not(G),prolog).
+','(A,B) :-  '$current_module'(Module), '$meta_call'((A,B),Module).
+';'(A,B) :-  '$current_module'(Module), '$meta_call'((A;B),Module).
+'|'(A,B) :-  '$current_module'(Module), '$meta_call'((A;B),Module).
+'->'(A,B) :- '$current_module'(Module), '$meta_call'((A->B),Module).
+\+(G) :-     '$current_module'(Module), '$meta_call'(\+(G),Module).
+not(G) :-    '$current_module'(Module), '$meta_call'(not(G),Module).
 
 
 :- '$set_value'('$doindex',true).

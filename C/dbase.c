@@ -1062,11 +1062,11 @@ sf_include(sfp)
 inline static DBRef 
 check_if_cons(DBRef p, Term to_compare)
 {
-	while (p != NIL
+  while (p != NIL
 	 && (p->Flags & (DBCode | ErasedMask | DBVar | DBNoVars | DBComplex)
 	     || p->Entry != Unsigned(to_compare)))
-		p = NextDBRef(p);
-	return (p);
+    p = NextDBRef(p);
+  return (p);
 }
 
 /*
@@ -1218,7 +1218,7 @@ CreateDBStruct(Term Tm, DBProp p, int InFlag)
     pp->id = FunctorDBRef;
     pp->Flags = DBVar;
     pp->Entry = (CELL) Tm;
-    pp->u.Code = NULL;
+    pp->Code = NULL;
     pp->NOfCells = 1;
     INIT_LOCK(pp->lock);
     INIT_DBREF_COUNT(pp);
@@ -1243,7 +1243,7 @@ CreateDBStruct(Term Tm, DBProp p, int InFlag)
     pp->id = FunctorDBRef;
     pp->Flags = flag;
     pp->Entry = (CELL) Tm;
-    pp->u.Code = NULL;
+    pp->Code = NULL;
     pp->NOfCells = 1;
     INIT_LOCK(pp->lock);
     INIT_DBREF_COUNT(pp);
@@ -1328,7 +1328,7 @@ CreateDBStruct(Term Tm, DBProp p, int InFlag)
 	    dbr->NOfRefsTo++;
 	    pp->Contents[0] = (CELL)NIL;
 	    pp->Contents[1] = (CELL)dbr;
-	    pp->u.DBRefs = (DBRef *)(pp->Contents+2);
+	    pp->DBRefs = (DBRef *)(pp->Contents+2);
 	    INIT_LOCK(pp->lock);
 	    INIT_DBREF_COUNT(pp);
 	    Yap_ReleasePreAllocCodeSpace((ADDR)pp0);
@@ -1512,9 +1512,9 @@ CreateDBStruct(Term Tm, DBProp p, int InFlag)
       *rfnar++ = NULL;
       while (ptr != tofref)
 	*rfnar++ = *--ptr;
-      pp->u.DBRefs = rfnar;
+      pp->DBRefs = rfnar;
     } else {
-      pp->u.DBRefs = NULL;
+      pp->DBRefs = NULL;
     }      
     Yap_ReleasePreAllocCodeSpace((ADDR)pp0);
     return (pp);
@@ -1528,7 +1528,7 @@ new_lu_index(LogUpdDBProp AtProp) {
   DBRef ref = AtProp->First;
   DBRef *te;
 
-  if (index == NIL) {
+  if (index == NULL) {
     DBErrorFlag = OTHER_ERROR_IN_DB;
     DBErrorNumber = SYSTEM_ERROR;
     DBErrorTerm = TermNil;
@@ -1632,7 +1632,7 @@ record(int Flag, Term key, Term t_data, Term t_code)
     p->Last = x;
   }
   if (Flag & WithRef) {
-    x->u.Code = (yamop *) IntegerOfTerm(t_code);
+    x->Code = (yamop *) IntegerOfTerm(t_code);
   }
   WRITE_UNLOCK(p->DBRWLock);
   return (x);
@@ -1721,7 +1721,7 @@ record_at(int Flag, DBRef r0, Term t_data, Term t_code)
     r0->Next = x;
   }
   if (Flag & WithRef) {
-    x->u.Code = (yamop *) IntegerOfTerm(t_code);
+    x->Code = (yamop *) IntegerOfTerm(t_code);
   }
   WRITE_UNLOCK(p->DBRWLock);
   return (x);
@@ -3472,7 +3472,7 @@ ErasePendingRefs(DBRef entryref)
 
   if (!(entryref->Flags & DBWithRefs))
     return;
-  cp = CellPtr(entryref->u.DBRefs);
+  cp = CellPtr(entryref->DBRefs);
   while ((ref = (DBRef)(*--cp)) != NULL) {
     if ((ref->Flags & DBClMask) && (--(ref->NOfRefsTo) == 0)
 	&& (ref->Flags & ErasedMask))
@@ -3581,7 +3581,7 @@ find_next_clause(DBRef ref0)
     /* OK, we found a clause we can jump to, do a bit of hanky pancking with
        the choice-point, so that it believes we are actually working from that
        clause */
-    newp = ref->u.Code;
+    newp = ref->Code;
     /* and next let's tell the world this clause is being used, just
        like if we were executing a standard retry_and_mark */
 #if defined(YAPOR) || defined(THREADS)
@@ -3703,7 +3703,7 @@ PrepareToEraseLogUpdClause(Clause *clau, DBRef dbr)
   WRITE_LOCK(p->PRWLock);
   if (p->cs.p_code.FirstClause != cl) {
     /* we are not the first clause... */
-    yamop *prev_code_p = (yamop *)(dbr->Prev->u.Code);
+    yamop *prev_code_p = (yamop *)(dbr->Prev->Code);
     prev_code_p->u.ld.d = code_p->u.ld.d; 
     /* are we the last? */
     if (p->cs.p_code.LastClause == cl)
@@ -3718,7 +3718,7 @@ PrepareToEraseLogUpdClause(Clause *clau, DBRef dbr)
        Yap_opcode(TRYCODE(_try_me, _try_me0, p->ArityOfPE));
     }
   }
-  dbr->u.Code = NULL;   /* unlink the two now */
+  dbr->Code = NULL;   /* unlink the two now */
   if (p->PredFlags & IndexedPredFlag) {
     Yap_RemoveIndexation(p);
   } else {
@@ -3845,8 +3845,8 @@ static void
 ErDBE(DBRef entryref)
 {
 
-  if ((entryref->Flags & DBCode) && entryref->u.Code) {
-    Clause *clau = ClauseCodeToClause(entryref->u.Code);
+  if ((entryref->Flags & DBCode) && entryref->Code) {
+    Clause *clau = ClauseCodeToClause(entryref->Code);
     LOCK(clau->ClLock);
     if (CL_IN_USE(clau) || entryref->NOfRefsTo != 0) {
       PrepareToEraseClause(clau, entryref);
@@ -3908,8 +3908,8 @@ EraseEntry(DBRef entryref)
   entryref->Next = NIL;
   if (!DBREF_IN_USE(entryref)) {
     ErDBE(entryref);
-  } else if ((entryref->Flags & DBCode) && entryref->u.Code) {
-    PrepareToEraseClause(ClauseCodeToClause(entryref->u.Code), entryref);
+  } else if ((entryref->Flags & DBCode) && entryref->Code) {
+    PrepareToEraseClause(ClauseCodeToClause(entryref->Code), entryref);
   }
 }
 
@@ -4357,7 +4357,7 @@ keepdbrefs(DBRef entryref)
 
   if (!(entryref->Flags & DBWithRefs))
     return;
-  cp = entryref->u.DBRefs;
+  cp = entryref->DBRefs;
   while ((ref = *--cp) != NIL) {
     LOCK(ref->lock);
     if(!(ref->Flags & InUseMask)) {

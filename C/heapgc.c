@@ -1135,15 +1135,23 @@ mark_environments(CELL_PTR gc_ENV, OPREG size, CELL *pvbmap)
       int tsize = size - EnvSizeInCells;
 
       currv = sizeof(CELL)*8-tsize%(sizeof(CELL)*8);
-      pvbmap += tsize/(sizeof(CELL)*8);
-      bmap = *pvbmap;
+      if (pvbmap != NULL) {
+	pvbmap += tsize/(sizeof(CELL)*8);
+	bmap = *pvbmap;
+      } else {
+	bmap = -1L;
+      }
       bmap = (Int)(((CELL)bmap) << currv);
     }
 	  
     for (saved_var = gc_ENV - size; saved_var < gc_ENV - EnvSizeInCells; saved_var++) {
       if (currv == sizeof(CELL)*8) {
-	pvbmap--;
-	bmap = *pvbmap;
+	if (pvbmap) {
+	  pvbmap--;
+	  bmap = *pvbmap;
+	} else {
+	  bmap = -1L;
+	}
 	currv = 0;
       }
       /* we may have already been here */
@@ -2087,15 +2095,23 @@ sweep_environments(CELL_PTR gc_ENV, OPREG size, CELL *pvbmap)
 
       
       currv = sizeof(CELL)*8-tsize%(sizeof(CELL)*8);
-      pvbmap += tsize/(sizeof(CELL)*8);
-      bmap = *pvbmap;
+      if (pvbmap != NULL) {
+	pvbmap += tsize/(sizeof(CELL)*8);
+	bmap = *pvbmap;
+      } else {
+	bmap = -1L;
+      }
       bmap = (Int)(((CELL)bmap) << currv);
     }
     for (saved_var = gc_ENV - size; saved_var < gc_ENV - EnvSizeInCells; saved_var++) {
       
       if (currv == sizeof(CELL)*8) {
-	pvbmap--;
-	bmap = *pvbmap;
+	if (pvbmap != NULL) {
+	  pvbmap--;
+	  bmap = *pvbmap;
+	} else {
+	  bmap = -1L;
+	}
 	currv = 0;
       }
       if (bmap < 0) {
