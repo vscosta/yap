@@ -93,10 +93,6 @@ void   STD_PROTO(YAP_InitHeap, (void *));
 
 #if USE_MMAP
 
-#ifdef _APPLE__
-
-#endif
-
 #include <sys/types.h>
 #include <sys/mman.h>
 

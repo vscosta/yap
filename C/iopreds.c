@@ -1669,6 +1669,7 @@ SetAlias (Atom arg, int sno)
 #endif /* HAVE_SETBUF */
 	break;
       default:
+	break;
       }
       return;
     }
@@ -1705,6 +1706,7 @@ PurgeAlias (int sno)
 	  YP_stderr = 2;
 	  break;
 	default:
+	  break; /* just put something here */
 	}
 	new_aliasp++;
       } else {

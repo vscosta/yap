@@ -12,7 +12,7 @@
 * Last rev:								 *
 * mods:									 *
 * comments:	allocating space					 *
-* version:$Id: alloc.c,v 1.1.1.1 2001-04-09 19:53:30 vsc Exp $		 *
+* version:$Id: alloc.c,v 1.2 2001-05-03 17:13:18 vsc Exp $		 *
 *************************************************************************/
 #ifdef SCCS
 static char SccsId[] = "%W% %G%";
@@ -443,15 +443,21 @@ InitWorkSpace(Int s)
   int fd;
 #endif
 
-#if defined(_AIX)
+#if defined(_AIX) || defined(__APPLE__)
   a = mmap(0, (size_t) s, PROT_READ | PROT_WRITE | PROT_EXEC,
 	   MAP_PRIVATE | MAP_ANONYMOUS | MAP_VARIABLE, -1, 0);
 #elif __hpux
   a = mmap(((void *)MMAP_ADDR), (size_t) s, PROT_READ | PROT_WRITE | PROT_EXEC,
 	   MAP_PRIVATE | MAP_ANONYMOUS | MAP_FIXED, -1, 0);
+  if (a != (MALLOC_T)MMAP_ADDR) {
+    Error(SYSTEM_ERROR, TermNil, "mmap could not map ANON at %p, got %p", (void *)MMAP_ADDR, a);
+  }
 #elif defined(__APPLE__)
-  a = mmap(0, (size_t) s, PROT_READ | PROT_WRITE | PROT_EXEC,
-	   MAP_PRIVATE | MAP_ANON, -1, 0);
+  a = mmap(((void *)MMAP_ADDR), (size_t) s, PROT_READ | PROT_WRITE | PROT_EXEC,
+	   MAP_PRIVATE | MAP_ANON | MAP_FIXED, -1, 0);
+  if (a != (MALLOC_T)MMAP_ADDR) {
+    Error(SYSTEM_ERROR, TermNil, "mmap could not map ANON at %p, got %p", (void *)MMAP_ADDR,a );
+  }
 #else
   fd = open("/dev/zero", O_RDWR);
   if (fd < 0) {
@@ -496,6 +502,9 @@ InitWorkSpace(Int s)
 #if USE_FIXED
   a = mmap(((void *)MMAP_ADDR), (size_t) s, PROT_READ | PROT_WRITE | PROT_EXEC,
 	   MAP_PRIVATE | MAP_FIXED, fd, 0);
+  if (a != (MALLOC_T)MMAP_ADDR) {
+    Error(SYSTEM_ERROR, TermNil, "mmap could not map at %p, got %p", (void *)MMAP_ADDR, a);
+  }
 #else
   a = mmap(0, (size_t) s, PROT_READ | PROT_WRITE | PROT_EXEC,
 	   MAP_PRIVATE, fd, 0);
@@ -536,9 +545,15 @@ ExtendWorkSpace(Int s)
   a = mmap(WorkSpaceTop, (size_t) s, PROT_READ | PROT_WRITE | PROT_EXEC,
 		    MAP_PRIVATE | MAP_ANONYMOUS, -1, 0);
 
+  if (a != WorkSpaceTop) {
+    Error(SYSTEM_ERROR, TermNil, "mmap could not grow memory at %p, got %p", WorkSpaceTop, a );
+  }
 #elif defined(__APPLE__)
   a = mmap(WorkSpaceTop, (size_t) s, PROT_READ | PROT_WRITE | PROT_EXEC,
-		    MAP_PRIVATE | MAP_ANON, -1, 0);
+		    MAP_PRIVATE | MAP_ANON | MAP_FIXED, -1, 0);
+  if (a != WorkSpaceTop) {
+    Error(SYSTEM_ERROR, TermNil, "mmap could not grow memory at %p, got %p", WorkSpaceTop, a );
+  }
 #else
   int fd;
   fd = open("/dev/zero", O_RDWR);
@@ -581,9 +596,6 @@ ExtendWorkSpace(Int s)
       return FALSE;
     }
   }
-  a = mmap(WorkSpaceTop, (size_t) s, PROT_READ | PROT_WRITE | PROT_EXEC,
-		    MAP_PRIVATE | MAP_FIXED, fd, 0);
-
   if (close(fd) == -1) {
 #if HAVE_STRERROR
     Error(SYSTEM_ERROR, TermNil, "mmap could not close file (%s) ]\n", strerror(errno));
@@ -593,7 +605,6 @@ ExtendWorkSpace(Int s)
     return FALSE;
   }
 #endif
-  
   if (a == (MALLOC_T) - 1) {
 #if HAVE_STRERROR
     Error(SYSTEM_ERROR, TermNil, "could not allocate %d bytes (%s)", (int)s, strerror(errno));
@@ -602,6 +613,13 @@ ExtendWorkSpace(Int s)
 #endif
     return FALSE;
   }
+  a = mmap(WorkSpaceTop, (size_t) s, PROT_READ | PROT_WRITE | PROT_EXEC,
+		    MAP_PRIVATE | MAP_FIXED, fd, 0);
+
+  if (a != WorkSpaceTop) {
+    Error(SYSTEM_ERROR, TermNil, "mmap could not grow memory at %p, got %p", WorkSpaceTop, a );
+  }
+  
   WorkSpaceTop = (char *) a + s;
 #endif /* YAPOR */
   return TRUE;

@@ -655,7 +655,7 @@ init_dbtable(tr_fr_ptr trail_ptr) {
 #ifdef DEBUG
 
 /*#define INSTRUMENT_GC 1*/
-#define CHECK_CHOICEPOINTS 1
+/*#define CHECK_CHOICEPOINTS 1*/
 
 #ifdef INSTRUMENT_GC
 typedef enum {
@@ -2546,7 +2546,7 @@ compaction_phase(tr_fr_ptr old_TR, CELL *current_env, yamop *curp, CELL *max)
     YP_fprintf(YP_stderr,"[GC] Oops on iptop-H (%d) vs %d\n", iptop-(CELL_PTR *)H, total_marked);
 #endif
   if (iptop < (CELL_PTR *)ASP-1024 && 10*total_marked < H-H0) {
-#ifdef DEBUG
+#ifdef DEBUG_IN
     int effectiveness = (((H-H0)-total_marked)*100)/(H-H0);
     fprintf(stderr,"using pointers (%d)\n", effectiveness);
 #endif
@@ -2555,7 +2555,7 @@ compaction_phase(tr_fr_ptr old_TR, CELL *current_env, yamop *curp, CELL *max)
   } else
 #endif /* HYBRID_SCHEME */
     {
-#ifdef DEBUG
+#ifdef DEBUG_IN
       int effectiveness = (((H-H0)-total_marked)*100)/(H-H0);
       fprintf(stderr,"not using pointers (%d)\n", effectiveness);
 #endif
