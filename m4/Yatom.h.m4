@@ -189,7 +189,9 @@ typedef enum {
   SequentialPredFlag=0x000020L,	/* may not create par. choice points!*/
 #endif /* YAPOR */
   ProfiledPredFlag = 0x000010L, /* pred is being profiled	 */
-  LogUpdatePredFlag= 0x000008L	/* dynamic predicate with log. upd. sem.*/
+  LogUpdatePredFlag= 0x000008L,	/* dynamic predicate with log. upd. sem.*/
+  /* ceh: wtf! 0x000004L is used somewhere? */
+  UnCutAblePredFlag= 0x000002L	/* Predicate might no been cut off */
 } pred_flag;
 
 /* profile data */

@@ -396,6 +396,9 @@ static Opdef    Ops[] = {
 #ifdef TABLING
   {"table", fx, 1150},
 #endif /* TABLING */
+#ifndef UNCUTABLE
+  {"uncutable", fx, 1150},
+#endif /*UNCUTABLE ceh:*/
   {";", xfy, 1100},
   {"|", xfy, 1100},
   /*  {";", yf, 1100}, not allowed in ISO */

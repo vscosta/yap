@@ -39,6 +39,7 @@
 '$directive'(use_module(_)).
 '$directive'(use_module(_,_)).
 '$directive'(use_module(_,_,_)).
+'$directive'(uncutable(_)).
 
 '$exec_directive'(multifile(D), _, M) :-
 	'$system_catch'('$multifile'(D, M), M,
@@ -94,6 +95,9 @@
 	'$wait'(BlockSpec).
 '$exec_directive'(table(PredSpec), _, M) :-
 	'$table'(PredSpec, M).
+'$exec_directive'(uncutable(PredSpec), _, M) :-
+	'$uncutable'(PredSpec, M).
+
 
 '$exec_directives'((G1,G2), Mode, M) :- !,
 	'$exec_directives'(G1, Mode, M),
@@ -101,8 +105,10 @@
 '$exec_directives'(G, Mode, M) :-
 	'$exec_directive'(G, Mode, M).
 
-
-
+'$uncutable'(A/N, Mod) :-
+	functor(T,A,N),'$flags'(T,Mod,F,F),
+	NF is F \/ 16'2,
+	'$flags'(T, Mod, F, NF).
 
 yap_flag(V,Out) :-
 	var(V), !,

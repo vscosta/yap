@@ -165,6 +165,8 @@ print_message(Level, Mss) :-
 	'$preprocess_stack'(Gs, NGs).
 '$beautify_hidden_goal'('$recordedp',_,prolog,ClNo,Gs,NGs) :- !,
 	'$preprocess_stack'(Gs, NGs).
+'$beautify_hidden_goal'('$continue_with_command',_,prolog,ClNo,Gs,NGs) :- !,
+	'$preprocess_stack'(Gs, NGs).
 '$beautify_hidden_goal'('$system_catch',_,prolog,ClNo,Gs,NGs) :- !,
 	'$preprocess_stack'(Gs, NGs).
 '$beautify_hidden_goal'('$execute_command',_,prolog,ClNo,Gs,NGs) :- !,
