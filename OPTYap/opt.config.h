@@ -2,46 +2,48 @@
 **      Configuration Parameters      **
 ** ---------------------------------- */
 
-#define MAX_LENGTH_ANSWER 500
-#define MAX_DEPTH 1000
-#define MAX_BEST_TIMES 21
-#define MAX_TABLE_VARS 1000
+#define MAX_LENGTH_ANSWER  500
+#define MAX_DEPTH          1000
+#define MAX_BEST_TIMES     21
+#define MAX_TABLE_VARS     1000
 #define TABLE_LOCK_BUCKETS 512
-#define TG_ANSWER_SLOTS 20
+#define TG_ANSWER_SLOTS    20
 
 
-#define STATISTICS
+#define STATISTICS     1
 /*
-#define YAPOR_ERRORS
-#define TABLING_ERRORS
+#define YAPOR_ERRORS   1
+#define TABLING_ERRORS 1
 */
 
 
-/* x86_locks.h */
-#define UNIQUE_WHILE_LOCK
-
-
-/* amiops.h */
-#define BFZ_TRAIL_SCHEME 1
-/*#define BBREG_TRAIL_SCHEME*/
-
-
-#define TABLING_INNER_CUTS
-
-
-#define TIMESTAMP_CHECK
-
-
-/*#define TABLE_LOCK_AT_ENTRY_LEVEL*/
-/*#define TABLE_LOCK_AT_NODE_LEVEL*/
-#define TABLE_LOCK_AT_WRITE_LEVEL
+/* amiops.h - absmi.h */
+#define BFZ_TRAIL_SCHEME   1
+/* 
+#define BBREG_TRAIL_SCHEME 1
+*/
 
 
 /* tab.tries.c */
-/*#define ALLOC_BEFORE_CHECK*/
+/* 
+#define ALLOC_BEFORE_CHECK 1
+*/
 
-/* use heap instead of special areas for memory allocation */
-#define USE_HEAP 1
+
+#define TABLE_LOCK_AT_WRITE_LEVEL 1
+/* 
+#define TABLE_LOCK_AT_ENTRY_LEVEL 1
+#define TABLE_LOCK_AT_NODE_LEVEL  1
+*/
+
+
+#define TABLING_INNER_CUTS 1
+
+
+#define TIMESTAMP_CHECK 1
+
+
+#define USE_HEAP 1 /* use heap instead of special areas for memory allocation */
 
 
 
@@ -57,11 +59,6 @@
 #endif
 #if defined(YAPOR_ERRORS) && defined(TABLING_ERRORS)
 #define OPTYAP_ERRORS
-#endif
-
-
-#ifndef YAPOR
-#undef UNIQUE_WHILE_LOCK
 #endif
 
 
