@@ -202,7 +202,7 @@ PutAtt(attvar_record *attv, Int i, Term tatt) {
   CELL *timestamp = (CELL *)(attv->Atts[pos]);
   if (B->cp_h <= timestamp
 #if defined(SBA) || defined(TABLING)
-      && timestmp <= H
+      && timestamp <= H
 #endif
     ) {
 #if defined(SBA)
