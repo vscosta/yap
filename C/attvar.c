@@ -278,9 +278,8 @@ PutAtt(attvar_record *attv, Int i, Term tatt) {
   }
 #else
   CELL *timestmp = (CELL *)(attv->Atts[pos]);
-  if (B->cp_h <= timestmp)
-  {
-      attv->Atts[pos+1] = tatt;
+  if (B->cp_h <= timestmp) {
+    attv->Atts[pos+1] = tatt;
   } else {
     Term tnewt;
     MaBind(attv->Atts+pos+1, tatt);
@@ -315,7 +314,6 @@ RmAtt(attvar_record *attv, Int i) {
       tnewt = CurrentTime();
       MaBind(attv->Atts+pos, tnewt);    
     }
-  }
 #else
     CELL *timestmp = (CELL *)(attv->Atts[pos]);
     if (B->cp_h <= timestmp) {
@@ -332,8 +330,8 @@ RmAtt(attvar_record *attv, Int i) {
       *H++ = TermFoundVar;
       MaBind(attv->Atts+pos, tnewt);    
     }
-  }
 #endif
+  }
   return(TRUE);
 }
 
@@ -405,7 +403,27 @@ FreeAtt(attvar_record *attv, int i) {
 static Int
 BindAttVar(attvar_record *attv) {
   if (IsVarTerm(attv->Done) && IsUnboundVar(attv->Done)) {
-    Bind_Global(&(attv->Done), attv->Value);
+    /* make sure we are not trying to bind a variable against itself */
+    if (!IsVarTerm(attv->Value)) {
+      Bind_Global(&(attv->Done), attv->Value);
+    } else if (IsVarTerm(attv->Value)) {
+      Term t = Deref(attv->Value);
+      if (IsVarTerm(t)) {
+	if (IsAttachedTerm(t)) {
+	  attvar_record *attv2 = (attvar_record *)VarOfTerm(t);
+	  if (attv2 < attv) {
+	    Bind_Global(&(attv->Done), t);
+	  } else {
+	    Bind_Global(&(attv2->Done), (CELL)attv);
+	  }
+	} else {
+	  Yap_Error(SYSTEM_ERROR,(CELL)&(attv->Done),"attvar was bound when unset");
+	  return(FALSE);
+	}
+      } else {
+	Bind_Global(&(attv->Done), t);
+      }
+    }
     return(TRUE);
   } else {
     Yap_Error(SYSTEM_ERROR,(CELL)&(attv->Done),"attvar was bound when set");
