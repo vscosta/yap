@@ -130,7 +130,7 @@ low_level_trace(yap_low_level_port port, PredEntry *pred, CELL *args)
 #ifdef COMMENTED
   //  if (vsc_count == 218280)
   //    vsc_xstop = 1;
-  if (vsc_count < 218200) {
+  if (vsc_count < 1468068888) {
     UNLOCK(heap_regs->low_level_trace_lock);
     return;
   }

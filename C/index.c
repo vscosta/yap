@@ -11,8 +11,11 @@
 * File:		index.c							 *
 * comments:	Indexing a Prolog predicate				 *
 *									 *
-* Last rev:     $Date: 2004-04-16 19:27:31 $,$Author: vsc $						 *
+* Last rev:     $Date: 2004-04-20 22:08:23 $,$Author: vsc $						 *
 * $Log: not supported by cvs2svn $
+* Revision 1.85  2004/04/16 19:27:31  vsc
+* more bug fixes
+*
 * Revision 1.84  2004/04/14 19:10:38  vsc
 * expand_clauses: keep a list of clauses to expand
 * fix new trail scheme for multi-assignment variables
@@ -81,6 +84,7 @@ UInt STATIC_PROTO(do_index, (ClauseDef *,ClauseDef *,struct intermediates *,UInt
 UInt STATIC_PROTO(do_compound_index, (ClauseDef *,ClauseDef *,Term *t,struct intermediates *,UInt,UInt,UInt,UInt,int,int,int,CELL *,int));
 UInt STATIC_PROTO(do_dbref_index, (ClauseDef *,ClauseDef *,Term,struct intermediates *,UInt,UInt,int,int,CELL *));
 UInt STATIC_PROTO(do_blob_index, (ClauseDef *,ClauseDef *,Term,struct intermediates *,UInt,UInt,int,int,CELL *));
+/*path_stack_entry *STATIC_PROTO(kill_unsafe_block, (path_stack_entry *,op_numbers,PredEntry *,int,int,ClauseDef *));*/
 
 static UInt labelno;
 
@@ -6086,6 +6090,11 @@ add_to_index(struct intermediates *cint, int first, path_stack_entry *sp, Clause
       break;
     case _unlock_lu:
       ipc = NEXTOP(ipc,e);
+      break;
+    case _op_fail:
+      while ((--sp)->flag != block_entry);
+      *sp->u.cle.entry_code = cls->Code;
+      ipc = pop_path(&sp, cls, ap);
       break;
     default:
       sp = kill_unsafe_block(sp, op, ap, first, FALSE, cls);

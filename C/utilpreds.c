@@ -49,7 +49,7 @@ clean_tr(tr_fr_ptr TR0) {
   if (TR != TR0) {
     do {
       Term p = TrailTerm(--TR);
-	RESET_VARIABLE(p);
+      RESET_VARIABLE(p);
     } while (TR != TR0);
   }
 }
@@ -65,7 +65,6 @@ copy_complex_term(register CELL *pt0, register CELL *pt0_end, CELL *ptf, CELL *H
   CELL *dvars = NULL;
 #endif
   HB = HLow;
-
   to_visit0 = to_visit;
  loop:
   while (pt0 < pt0_end) {
@@ -120,7 +119,7 @@ copy_complex_term(register CELL *pt0, register CELL *pt0_end, CELL *ptf, CELL *H
 	register CELL *ap2;
 	/* store the terms to visit */
 	ap2 = RepAppl(d0);
-	if (ap2 >= HB && ap2 < H) {
+	if (ap2 >= HB && ap2 <= H) {
 	  /* If this is newer than the current term, just reuse */
 	  *ptf++ = d0;
 	  continue;
@@ -185,13 +184,16 @@ copy_complex_term(register CELL *pt0, register CELL *pt0_end, CELL *ptf, CELL *H
       if (IsAttachedTerm((CELL)ptd0)) {
 	/* if unbound, call the standard copy term routine */
 	CELL **bp[1];
-	
+
 	if (dvars == NULL) {
 	  dvars = (CELL *)Yap_ReadTimedVar(DelayedVars);
 	} 	
 	if (ptd0 >= dvars) {
 	  *ptf++ = (CELL) ptd0;
 	} else {
+	  tr_fr_ptr CurTR;
+
+	  CurTR = TR;
 	  bp[0] = to_visit;
 	  HB = HB0;
 	  if (!attas[ExtFromCell(ptd0)].copy_term_op(ptd0, bp, ptf)) {
@@ -199,6 +201,43 @@ copy_complex_term(register CELL *pt0, register CELL *pt0_end, CELL *ptf, CELL *H
 	  }
 	  to_visit = bp[0];
 	  HB = HLow;
+	  if (CurTR != TR) {
+	    /* Problem here is that the attached routine might
+	     *  have changed the list of suspended goals and stored
+	     *  new entries in the trail. This should be quite
+	     *  rare, so for simplicity we just swap cells from
+	     *  bottom and top of Trail, not nice but not worth
+	     *  complicating everything else.
+	     */
+	    CELL *pt1 = (CELL *)TR0;
+	    CELL *pt2 = (CELL *)CurTR;
+	    CELL *pt3 = (CELL *)TR;
+	    if (pt1 == pt2) {
+	      TR0 = TR;
+	    } else {
+	      /* make a backup copy */
+	      while (pt2 < pt3)
+		*((CELL *)TR)++ = *pt2++;
+	      /* reset pointers */
+	      TR = (tr_fr_ptr)pt3;
+	      pt2  = (CELL *)CurTR;
+	      /* now go to old trail */
+	      pt3 = pt1+(pt2-pt1);
+	      /* copy old trail above */
+	      if (pt3 != pt1) {
+		while (pt3 < pt2) {
+		  *pt3++ = *pt1++;
+		}
+	      }
+	      pt1 = (CELL *)TR0;
+	      pt2 = pt1 + (pt3-(CELL *)CurTR);
+	      /* copy new trail below */
+	      while (pt1 < pt2) {
+		*pt1++ = *pt3++;
+	      }
+	      TR0 = (tr_fr_ptr)pt1;
+	    }
+	  }
 	  ptf++;
 	  Bind_Global(ptd0, ptf[-1]);
 	}

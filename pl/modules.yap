@@ -318,10 +318,12 @@ module(N) :-
 % a meta-call.
 %
 '$expand_goal'(G0, GoalMod, CurMod, G, NM) :-
-	'$meta_expansion'(GoalMod, CurMod, G0, GF, []), !,
-	'$expand_goal2'(GF,GoalMod,G,NM).
-'$expand_goal'(G, GoalMod, _, NG, NM) :-
-	'$expand_goal2'(G, GoalMod, NG, NM).
+	'$expand_goal2'(G0,GoalMod,G1,NM),
+	( '$meta_expansion'(GoalMod, CurMod, G1, GF, []) ->
+		G = GF
+	;
+	        G = G1
+	).
 
 '$expand_goal2'(G, M, NG, NM) :-
 	'$undefined'(G,M),

@@ -224,7 +224,7 @@ repeat :- '$repeat'.
 '$execute_commands'(V,_,_) :- var(V), !,
 	'$do_error'(instantiation_error,meta_call(V)).
 '$execute_commands'([],_,_) :- !, fail.
-'$execute_commands'([C|_],VL,Con) :- !,
+'$execute_commands'([C|Cs],VL,Con) :- !,
 	(
 	  '$execute_command'(C,VL,Con)
 	;

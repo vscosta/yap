@@ -111,16 +111,23 @@ CopyAttVar(CELL *orig, CELL ***to_visit_ptr, CELL *res)
     newv->Atts[2*j] = time;
     
     if (IsVarTerm(t)) {
-      RESET_VARIABLE(newv->Atts+(2*j+1));
-    } else if (IsAtomicTerm(t)) {
+      CELL *vt = VarOfTerm(t);
+      if (vt == attv->Atts+(2*j+1)) {
+	RESET_VARIABLE(newv->Atts+(2*j+1));
+      } else {
+	to_visit[0] = vt-1;
+	to_visit[1] = vt;
+	to_visit[2] = newv->Atts+2*j+1;
+	to_visit[3] = vt;
+	to_visit += 4;
+      }
+    } else if (IsVarTerm(t) && IsAtomicTerm(t)) {
       newv->Atts[2*j+1] = t;
     } else {
       to_visit[0] = attv->Atts+2*j;
       to_visit[1] = attv->Atts+2*j+1;
       to_visit[2] = newv->Atts+2*j+1;
       to_visit[3] = (CELL *)(attv->Atts[2*j]);
-      /* fool the system into thinking we had a variable there */
-      attv->Atts[2*j+1] = AbsAppl(H);
       to_visit += 4;
     }
   }
@@ -345,6 +352,8 @@ BuildNewAttVar(Term t, Int i, Term tatt)
     H -= 2;
     t = H[0];
     tatt = H[1];
+    printf("attv is %p\n", attv);
+    attv = (attvar_record *)Yap_ReadTimedVar(DelayedVars);
   }
   time = InitVarTime();
   RESET_VARIABLE(&(attv->Value));
@@ -352,7 +361,7 @@ BuildNewAttVar(Term t, Int i, Term tatt)
   attv->sus_id = attvars_ext;
   for (j = 0; j < NUM_OF_ATTS; j++) {
     attv->Atts[2*j] = time;
-    RESET_VARIABLE(attv->Atts+2*j+1);
+    RESET_VARIABLE(attv->Atts+(2*j+1));
   }
   attv->NS = Yap_UpdateTimedVar(AttsMutableList, (CELL)&(attv->Done));
   Bind((CELL *)t,(CELL)attv);
