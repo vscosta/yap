@@ -74,7 +74,6 @@ X_API Int     STD_PROTO(Yapcut_fail,(void));
 X_API Int     STD_PROTO(Yapcut_succeed,(void));
 X_API Int     STD_PROTO(YapUnify,(Term,Term));
 X_API Int     STD_PROTO(YapUnify,(Term,Term));
-      Int     STD_PROTO(YapExecute,(PredEntry *));
 X_API int     STD_PROTO(YapReset,(void));
 X_API Int     STD_PROTO(YapInit,(yap_init_args *));
 X_API Int     STD_PROTO(YapFastInit,(char *));
@@ -482,37 +481,36 @@ typedef Int (*CPredicate7)(long,long,long,long,long,long,long);
 typedef Int (*CPredicate8)(long,long,long,long,long,long,long,long);
 
 Int
-YapExecute(PredEntry *pe)
+YapExecute(PredEntry *pe, CPredicate exec_code)
 {
   if (pe->PredFlags & CArgsPredFlag) {
-    CODEADDR code = pe->TrueCodeOfPred;
     switch (pe->ArityOfPE) {
     case 0:
       {
-	CPredicate code0 = (CPredicate)code;
+	CPredicate code0 = exec_code;
 	return ((code0)());
       }
     case 1:
       {
-	CPredicate1 code1 = (CPredicate1)code;
+	CPredicate1 code1 = (CPredicate1)exec_code;
 	return ((code1)(YapInitSlot(Deref(ARG1))));
       }
     case 2:
       {
-	CPredicate2 code2 = (CPredicate2)code;
+	CPredicate2 code2 = (CPredicate2)exec_code;
 	return ((code2)(YapInitSlot(Deref(ARG1)),
 			YapInitSlot(Deref(ARG2))));
       }
     case 3:
       {
-	CPredicate3 code3 = (CPredicate3)code;
+	CPredicate3 code3 = (CPredicate3)exec_code;
 	return ((code3)(YapInitSlot(Deref(ARG1)),
 			YapInitSlot(Deref(ARG2)),
 			YapInitSlot(Deref(ARG3))));
       }
     case 4:
       {
-	CPredicate4 code4 = (CPredicate4)code;
+	CPredicate4 code4 = (CPredicate4)exec_code;
 	return ((code4)(YapInitSlot(Deref(ARG1)),
 			YapInitSlot(Deref(ARG2)),
 			YapInitSlot(Deref(ARG3)),
@@ -520,7 +518,7 @@ YapExecute(PredEntry *pe)
       }
     case 5:
       {
-	CPredicate5 code5 = (CPredicate5)code;
+	CPredicate5 code5 = (CPredicate5)exec_code;
 	return ((code5)(YapInitSlot(Deref(ARG1)),
 			YapInitSlot(Deref(ARG2)),
 			YapInitSlot(Deref(ARG3)),
@@ -528,7 +526,7 @@ YapExecute(PredEntry *pe)
       }
     case 6:
       {
-	CPredicate6 code6 = (CPredicate6)code;
+	CPredicate6 code6 = (CPredicate6)exec_code;
 	return ((code6)(YapInitSlot(Deref(ARG1)),
 			YapInitSlot(Deref(ARG2)),
 			YapInitSlot(Deref(ARG3)),
@@ -538,7 +536,7 @@ YapExecute(PredEntry *pe)
       }
     case 7:
       {
-	CPredicate7 code7 = (CPredicate7)code;
+	CPredicate7 code7 = (CPredicate7)exec_code;
 	return ((code7)(YapInitSlot(Deref(ARG1)),
 			YapInitSlot(Deref(ARG2)),
 			YapInitSlot(Deref(ARG3)),
@@ -549,7 +547,7 @@ YapExecute(PredEntry *pe)
       }
     case 8:
       {
-	CPredicate8 code8 = (CPredicate8)code;
+	CPredicate8 code8 = (CPredicate8)exec_code;
 	return ((code8)(YapInitSlot(Deref(ARG1)),
 			YapInitSlot(Deref(ARG2)),
 			YapInitSlot(Deref(ARG3)),
@@ -563,8 +561,7 @@ YapExecute(PredEntry *pe)
       return(FALSE);
     }
   } else {
-    CPredicate code = (CPredicate)(pe->TrueCodeOfPred);
-    return((code)());
+    return((exec_code)());
   }
 }
 

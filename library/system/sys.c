@@ -276,9 +276,11 @@ file_property(void)
 #if HAVE_READLINK
     {
       char tmp[256];
-      if (readlink(fd,tmp,256) == -1) {
+      int n;
+      if ((n = readlink(fd,tmp,256)) == -1) {
 	return(unify(ARG7, MkIntTerm(errno)));
       }
+      tmp[n] = '\0';
       if(!unify(ARG6,MkAtomTerm(LookupAtom(tmp)))) {
 	return(FALSE);
       }
