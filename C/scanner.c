@@ -204,7 +204,9 @@ read_quoted_char(int *scan_nextp, int inp_stream, int (*QuotedNxtch)(int))
   ch = QuotedNxtch(inp_stream);
   switch (ch) {
   case 10:
-    return QuotedNxtch(inp_stream);
+    ch = QuotedNxtch(inp_stream);
+    if (ch == '\\') goto restart;
+    return ch;
   case 'a':
     return '\a';
   case 'b':
