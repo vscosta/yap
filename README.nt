@@ -28,6 +28,9 @@ compiler will use the mingw32 environment instead.
 set to "/PROGRA~1/Yap" in the Makefile. This should correspond to
 "/Program Files/Yap".
 
+The cygwin environment does not provide gmp. You can fetch a dll for
+the gmp library from "http://www.sf.net/projects/mingwrep".
+
 VISUAL C++:
 
 To the best of my knowledge, Yap compiles cleanly under VC++ release
