@@ -121,8 +121,8 @@ read_sig.
 */
 
 /* main execution loop							*/
-'$read_vars'(Stream,T,V) :-
-	'$read'(true,T,V,Err,Stream),
+'$read_vars'(Stream,T,Pos,V) :-
+	'$read'(true,T,V,Pos,Err,Stream),
 	(nonvar(Err) ->
 	    '$print_message'(error,Err), fail
 	    ;
@@ -154,7 +154,7 @@ read_sig.
 '$enter_top_level' :-
 	prompt(_,'   ?- '),
 	prompt('   | '),
-	'$read_vars'(user_input,Command,Varnames),
+	'$read_vars'(user_input,Command,_,Varnames),
 	'$set_value'(spy_sl,0),
 	'$set_value'(spy_fs,0),
 	'$set_value'(spy_sp,0),
@@ -998,7 +998,7 @@ break :- '$get_value'('$break',BL), NBL is BL+1,
 	!.
 
 '$enter_command'(Stream,Status) :-
-	'$read_vars'(Stream,Command,Vars),
+	'$read_vars'(Stream,Command,_,Vars),
 	'$command'(Command,Vars,Status).
 
 '$abort_loop'(Stream) :-

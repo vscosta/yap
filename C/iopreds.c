@@ -174,6 +174,8 @@ STATIC_PROTO (Int GetArgSizeFromChar, (Term *));
 static int first_char;
 #endif
 
+static int StartLine;
+
 int YP_stdin = 0;
 int YP_stdout = 1;
 int YP_stderr = 2;
@@ -1280,17 +1282,6 @@ PlUnGetc (int sno)
   return(post_process_read_char(ch, s, sno));
 }
 
-
-#if EMACS
-int
-GetCurInpPos ()
-{
-  if (Stream[c_input_stream].status & (Tty_Stream_f|Socket_Stream_f|InMemory_Stream_f))
-    return (Stream[c_input_stream].charcount);
-  else
-    return (YP_ftell (Stream[c_input_stream].u.file.file));
-}
-#endif /* EMACS */
 
 /* used by user-code to read characters from the current input stream */
 int
@@ -2721,21 +2712,20 @@ syntax_error (TokEntry * tokptr)
   }
   tf[2] = MkAtomTerm(LookupAtom("\n<==== HERE ====>\n"));
   tf[4] = MkIntegerTerm(out);
-  tf[5] = MkIntegerTerm(StartLine);
+  tf[5] = MkIntegerTerm(err);
   return(MkApplTerm(MkFunctor(LookupAtom("syntax_error"),6),6,tf));
 }
 
-void
+Int
 FirstLineInParse (void)
 {
-  StartLine = Stream[c_input_stream].linecount;
-  StartCh = Stream[c_input_stream].charcount;
+  return(StartLine);
 }
 
 static Int
 p_startline (void)
 {
-  return (unify_constant (ARG1, MkIntTerm (StartLine)));
+  return (unify_constant (ARG1, MkIntegerTerm (StartLine)));
 }
 
 static Int
@@ -2834,7 +2824,7 @@ p_get_read_error_handler(void)
 
 static Int
 p_read (void)
-{				/* '$read'(+Flag,?Term,?Vars,-Err)    */
+{				/* '$read'(+Flag,?Term,?Vars,-Pos,-Err)    */
   Term t, v;
   TokEntry *tokstart, *fast_tokenizer (void);
 #if EMACS
@@ -2876,7 +2866,9 @@ p_read (void)
       } else {
 	/* restore TR */
 	TR = old_TR;
-	return (unify_constant (ARG2, MkAtomTerm (AtomEof)));
+	
+	return (unify(MkIntegerTerm(StartLine = Stream[c_input_stream].linecount),ARG4) &&
+		unify_constant (ARG2, MkAtomTerm (AtomEof)));
       }
     }
   repeat_cycle:
@@ -2910,7 +2902,8 @@ p_read (void)
 	  Term t[2];
 	  t[0] = terr;
 	  t[1] = MkAtomTerm(LookupAtom(ErrorMessage));
-	  return(unify(ARG4,MkApplTerm(MkFunctor(LookupAtom("error"),2),2,t)));
+	  return(unify(MkIntTerm(StartLine = tokstart->TokPos),ARG4) &&
+		 unify(ARG5,MkApplTerm(MkFunctor(LookupAtom("error"),2),2,t)));
 	}
       }
     } else {
@@ -2938,21 +2931,22 @@ p_read (void)
 	old_H = H;
       }
     }
-    return(unify(t, ARG2) && unify (v, ARG3));
+    return(unify(t, ARG2) && unify (v, ARG3) &&
+	   unify(MkIntTerm(StartLine = tokstart->TokPos),ARG4));
   } else {
     TR = old_TR;
-    return(unify(t, ARG2));
+    return(unify(t, ARG2) && unify(MkIntTerm(StartLine = tokstart->TokPos),ARG4));
   }
 }
 
 static Int
 p_read2 (void)
-{				/* '$read2'(+Flag,?Term,?Vars,-Err,+Stream)  */
+{				/* '$read2'(+Flag,?Term,?Vars,-Pos,-Err,+Stream)  */
   int old_c_stream = c_input_stream;
   Int out;
 
   /* needs to change c_output_stream for write */
-  c_input_stream = CheckStream (ARG5, Input_Stream_f, "read/3");
+  c_input_stream = CheckStream (ARG6, Input_Stream_f, "read/3");
   if (c_input_stream == -1) {
     c_input_stream = old_c_stream;
     return(FALSE);
@@ -4866,8 +4860,8 @@ InitIOPreds(void)
   InitCPred ("$put_byte", 2, p_put_byte, SafePredFlag|SyncPredFlag);
   InitCPred ("$set_read_error_handler", 1, p_set_read_error_handler, SafePredFlag|SyncPredFlag);
   InitCPred ("$get_read_error_handler", 1, p_get_read_error_handler, SafePredFlag|SyncPredFlag);
-  InitCPred ("$read", 4, p_read, SyncPredFlag);
-  InitCPred ("$read", 5, p_read2, SyncPredFlag);
+  InitCPred ("$read", 5, p_read, SyncPredFlag);
+  InitCPred ("$read", 6, p_read2, SyncPredFlag);
   InitCPred ("$set_input", 1, p_set_input, SafePredFlag|SyncPredFlag);
   InitCPred ("$set_output", 1, p_set_output, SafePredFlag|SyncPredFlag);
   InitCPred ("$skip", 2, p_skip, SafePredFlag|SyncPredFlag);

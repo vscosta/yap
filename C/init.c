@@ -110,12 +110,6 @@ char           version_number[] = YAP_VERSION;
 
 int             optimizer_on = TRUE;
 
-/******************* the line for the current parse **********************/
-
-int             StartLine = 1;
-int             StartCh = 0;
-int             CurFileNo = 0;
-
 int             compile_mode = 0;
 
 /******************* intermediate buffers **********************/

@@ -1074,7 +1074,7 @@ p_compile(void)
   if (ErrorMessage) {
     if (IntOfTerm(t1) & 4) {
       Error(Error_TYPE, Error_Term,
-	    "in line %d, %s", StartLine, ErrorMessage);
+	    "in line %d, %s", FirstLineInParse(), ErrorMessage);
     } else
       Error(Error_TYPE, Error_Term, ErrorMessage);
     return (FALSE);
@@ -1111,7 +1111,7 @@ p_compile_dynamic(void)
   }
   if (ErrorMessage) {
     if (IntOfTerm(t1) & 4) {
-      Error(Error_TYPE, Error_Term, "line %d, %s", StartLine, ErrorMessage);
+      Error(Error_TYPE, Error_Term, "line %d, %s", FirstLineInParse(), ErrorMessage);
     } else
       Error(Error_TYPE, Error_Term, ErrorMessage);
     return (FALSE);

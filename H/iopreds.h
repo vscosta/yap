@@ -114,4 +114,9 @@ extern int YP_sockets_io;
 
 void STD_PROTO (InitStdStreams, (void));
 
+EXTERN inline int
+GetCurInpPos (void)
+{
+  return (Stream[c_input_stream].linecount);
+}
 

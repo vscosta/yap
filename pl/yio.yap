@@ -316,7 +316,7 @@ told :- current_output(Stream), '$close'(Stream), set_output(user).
 /* Term IO	*/
 
 read(T) :-
-	'$read'(false,T,_,Err),
+	'$read'(false,T,_,_,Err),
 	(nonvar(Err) ->
 	    '$print_message'(error,Err), fail
 	    ;
@@ -324,7 +324,7 @@ read(T) :-
 	).
 
 read(Stream,T) :-
-	'$read'(false,T,V,Err,Stream),
+	'$read'(false,T,V,_,Err,Stream),
 	(nonvar(Err) ->
 	    '$print_message'(error,Err), fail
 	    ;
@@ -334,52 +334,49 @@ read(Stream,T) :-
 read_term(T, Options) :-
 	'$check_io_opts'(Options,read_term(T, Options)),
 	current_input(S),
-	'$preprocess_read_terms_options'(Options,S),
-	'$read_vars'(S,T,VL),
-	'$postprocess_read_terms_options'(Options, T, VL).
+	'$preprocess_read_terms_options'(Options),
+	'$read_vars'(S,T,Pos,VL),
+	'$postprocess_read_terms_options'(Options, T, VL, Pos).
 
 read_term(Stream, T, Options) :-
 	'$check_io_opts'(Options,read_term(T, Options)),
-	'$preprocess_read_terms_options'(Options, Stream),
-	'$read_vars'(Stream,T,VL),
-	'$postprocess_read_terms_options'(Options, T, VL).
+	'$preprocess_read_terms_options'(Options),
+	'$read_vars'(Stream,T,Pos,VL),
+	'$postprocess_read_terms_options'(Options, T, VL, Pos).
 
 %
 % support flags to read
 %
-'$preprocess_read_terms_options'([], _).
-'$preprocess_read_terms_options'([syntax_errors(NewVal)|L], Stream) :- !,
+'$preprocess_read_terms_options'([]).
+'$preprocess_read_terms_options'([syntax_errors(NewVal)|L]) :- !,
 	'$get_read_error_handler'(OldVal),
 	'$set_value'('$read_term_error_handler', OldVal),
 	'$set_read_error_handler'(NewVal),
-	'$preprocess_read_terms_options'(L, Stream).
-'$preprocess_read_terms_options'([term_position(Pos)|L], Stream) :- !,
-	'$show_stream_position'(Stream, '$stream_position'(_,Pos,_)),
-	'$preprocess_read_terms_options'(L, Stream).
-'$preprocess_read_terms_options'([_|L], Stream) :-
-	'$preprocess_read_terms_options'(L, Stream).
+	'$preprocess_read_terms_options'(L).
+'$preprocess_read_terms_options'([_|L]) :-
+	'$preprocess_read_terms_options'(L).
 
-'$postprocess_read_terms_options'([], _, _).
-'$postprocess_read_terms_options'([H|Tail], T, VL) :- !,
-	'$postprocess_read_terms_option'(H, T, VL),
-	'$postprocess_read_terms_options_list'(Tail, T, VL).
+'$postprocess_read_terms_options'([], _, _, _).
+'$postprocess_read_terms_options'([H|Tail], T, VL, Pos) :- !,
+	'$postprocess_read_terms_option'(H, T, VL, Pos),
+	'$postprocess_read_terms_options_list'(Tail, T, VL, Pos).
 	
-'$postprocess_read_terms_options_list'([], _, _).
-'$postprocess_read_terms_options_list'([H|Tail], T, VL) :-
-	'$postprocess_read_terms_option'(H, T, VL),
-	'$postprocess_read_terms_options_list'(Tail, T, VL).
+'$postprocess_read_terms_options_list'([], _, _, _).
+'$postprocess_read_terms_options_list'([H|Tail], T, VL, Pos) :-
+	'$postprocess_read_terms_option'(H, T, VL, Pos),
+	'$postprocess_read_terms_options_list'(Tail, T, VL, Pos).
 
-'$postprocess_read_terms_option'(syntax_errors(_), _, _) :-
+'$postprocess_read_terms_option'(syntax_errors(_), _, _, _) :-
 	'$get_value'('$read_term_error_handler', OldVal),
 	'$set_read_error_handler'(OldVal).
-'$postprocess_read_terms_option'(variable_names(Vars), _, VL) :-
+'$postprocess_read_terms_option'(variable_names(Vars), _, VL, _) :-
 	'$read_term_non_anonymous'(VL, Vars).
-'$postprocess_read_terms_option'(singletons(Val), T, VL) :-
+'$postprocess_read_terms_option'(singletons(Val), T, VL, _) :-
 	'$singletons_in_term'(T, Val1),
 	'$fetch_singleton_names'(Val1,VL,Val).
-'$postprocess_read_terms_option'(variables(Val), T, _) :-
+'$postprocess_read_terms_option'(variables(Val), T, _, _) :-
 	'$variables_in_term'(T, [], Val).
-'$postprocess_read_terms_option'(term_position(_), _, _).
+'$postprocess_read_terms_option'(term_position(Pos), _, _, Pos).
 %'$postprocess_read_terms_option'(cycles(Val), _, _).
 
 '$read_term_non_anonymous'([], []).

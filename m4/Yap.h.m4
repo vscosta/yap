@@ -10,7 +10,7 @@
 * File:		Yap.h.m4						 *
 * mods:									 *
 * comments:	main header file for YAP				 *
-* version:      $Id: Yap.h.m4,v 1.28 2002-06-01 01:46:06 vsc Exp $	 *
+* version:      $Id: Yap.h.m4,v 1.29 2002-06-17 15:28:00 vsc Exp $	 *
 *************************************************************************/
 
 #include "config.h"
@@ -745,11 +745,6 @@ typedef struct opcode_tab_entry {
 
 /******************* controlling the compiler ****************************/
 extern int      optimizer_on;
-
-/******************* the line for the current parse **********************/
-extern int      StartLine;
-extern int      StartCh;
-extern int      CurFileNo;
 
 /********************* how to write a Prolog term ***********************/
 

@@ -42,6 +42,7 @@ static char SccsId[] = "@(#)scanner.c	1.2";
 #include "yapio.h"
 #include "alloc.h"
 #include "eval.h"
+#include "iopreds.h"
 #if HAVE_STRING_H
 #include <string.h>
 #endif
@@ -515,9 +516,7 @@ token(void)
   charp = TokImage;
   while (chtype[ch] == BS)
     my_getch();
-#ifdef EMACS
   TokenPos = GetCurInpPos();
-#endif
   switch (chtype[ch]) {
   case CC:
     while (my_getch() != 10 && chtype[ch] != EF);
@@ -826,7 +825,6 @@ tokenizer(int (*Nxtch) (int), int (*QuotedNxtch) (int))
   my_getch();
   while (chtype[ch] == BS)
     my_getch();
-  FirstLineInParse();
   do {
     t = (TokEntry *) AllocScannerMemory(sizeof(TokEntry));
 
@@ -898,7 +896,6 @@ fast_tokenizer(void)
     my_fgetch();
   if (chtype[ch] == EF)
     return(NIL);
-  FirstLineInParse();
   do {
     t = (TokEntry *) AllocScannerMemory(sizeof(TokEntry));
     if (t == NULL) {
@@ -925,16 +922,12 @@ fast_tokenizer(void)
       charp = TokImage = ((AtomEntry *) ( PreAllocCodeSpace()))->StrOfAE;
       while (chtype[ch] == BS)
 	my_fgetch();
-#ifdef EMACS
       TokenPos = GetCurInpPos();
-#endif
       switch (chtype[ch]) {
       case CC:
 	while (my_fgetch() != 10 && chtype[ch] != EF);
 	if (chtype[ch] != EF) {
 	  my_fgetch();
-	  if (t == l)
-	    FirstLineInParse();
 	  ReleasePreAllocCodeSpace((CODEADDR)TokImage);
 	  goto get_tok;
 	}
@@ -1489,8 +1482,6 @@ fast_tokenizer(void)
 	    break;
 	  }
 	  my_fgetch();
-	  if (t == l)
-	    FirstLineInParse();
 	  ReleasePreAllocCodeSpace((CODEADDR)TokImage);
 	  goto get_tok;
 	}

@@ -270,7 +270,7 @@ TokEntry STD_PROTO(*fast_tokenizer,(void));
 Term     STD_PROTO(scan_num,(int (*)(int)));
 
 /* routines in iopreds.c */
-void  STD_PROTO(FirstLineInParse,(void));
+Int   STD_PROTO(FirstLineInParse,(void));
 int   STD_PROTO(CheckIOStream,(Term, char *));
 int   STD_PROTO(GetStreamFd,(int));
 void  STD_PROTO(CloseStream,(int));
