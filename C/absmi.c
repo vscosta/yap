@@ -298,7 +298,9 @@ absmi(int inp)
       restore_absmi_regs(old_regs);
 #endif
       if (!growheap(FALSE)) {
+	saveregs();
 	Error(SYSTEM_ERROR, TermNil, "YAP failed to reserve space in growheap");
+	setregs();
 	FAIL();
       }
       goto reset_absmi;
@@ -324,7 +326,9 @@ absmi(int inp)
       restore_absmi_regs(old_regs);
 #endif
       if(!growtrail (sizeof(CELL) * 16 * 1024L)) {
+	saveregs();
 	Error(SYSTEM_ERROR,TermNil,"YAP failed to reserve %ld bytes in growtrail",sizeof(CELL) * 16 * 1024L);
+	setregs();
 	FAIL();
       }
       goto reset_absmi;
@@ -529,14 +533,21 @@ absmi(int inp)
 
       /* count_enter_me    Label,NArgs */
       Op(count_call, l);
+      LOCK(((PredEntry *)(PREG->u.l.l))->StatisticsForPred.lock);
+      ((PredEntry *)(PREG->u.l.l))->StatisticsForPred.NOfEntries++;
+      UNLOCK(((PredEntry *)(PREG->u.l.l))->StatisticsForPred.lock);
       ReductionsCounter--;
       if (ReductionsCounter == 0 && ReductionsCounterOn) {
+	saveregs();
 	Error(CALL_COUNTER_UNDERFLOW,TermNil,"");
+	setregs();
 	JMPNext();
       } 
       PredEntriesCounter--;
       if (PredEntriesCounter == 0 && PredEntriesCounterOn) {
+	saveregs();
 	Error(PRED_ENTRY_COUNTER_UNDERFLOW,TermNil,"");
+	setregs();
 	JMPNext();
       } 
       PREG = NEXTOP(PREG, l);
@@ -545,14 +556,21 @@ absmi(int inp)
 
       /* count_retry    Label,NArgs */
       Op(count_retry, l);
+      LOCK(((PredEntry *)(PREG->u.l.l))->StatisticsForPred.lock);
+      ((PredEntry *)(PREG->u.l.l))->StatisticsForPred.NOfRetries++;
+      UNLOCK(((PredEntry *)(PREG->u.l.l))->StatisticsForPred.lock);
       RetriesCounter--;
       if (RetriesCounter == 0 && RetriesCounterOn) {
+	saveregs();
 	Error(RETRY_COUNTER_UNDERFLOW,TermNil,"");
 	JMPNext();
+	setregs();
       } 
       PredEntriesCounter--;
       if (PredEntriesCounter == 0 && PredEntriesCounterOn) {
+	saveregs();
 	Error(PRED_ENTRY_COUNTER_UNDERFLOW,TermNil,"");
+	setregs();
 	JMPNext();
       } 
       PREG = NEXTOP(PREG, l);
@@ -564,14 +582,21 @@ absmi(int inp)
       CACHE_Y(B);
       /* After retry, cut should be pointing at the parent
        * choicepoint for the current B */
+      LOCK(((PredEntry *)(PREG->u.ld.p))->StatisticsForPred.lock);
+      ((PredEntry *)(PREG->u.ld.p))->StatisticsForPred.NOfRetries++;
+      UNLOCK(((PredEntry *)(PREG->u.ld.p))->StatisticsForPred.lock);
       RetriesCounter--;
       if (RetriesCounter == 0 && RetriesCounterOn) {
+	saveregs();
 	Error(RETRY_COUNTER_UNDERFLOW,TermNil,"");
+	setregs();
 	JMPNext();
       } 
       PredEntriesCounter--;
       if (PredEntriesCounter == 0 && PredEntriesCounterOn) {
+	saveregs();
 	Error(PRED_ENTRY_COUNTER_UNDERFLOW,TermNil,"");
+	setregs();
 	JMPNext();
       } 
       restore_yaam_regs(PREG->u.ld.d);
@@ -616,14 +641,21 @@ absmi(int inp)
       ENDCACHE_Y();
       RetriesCounter--;
       if (RetriesCounter == 0) {
+	saveregs();
 	Error(RETRY_COUNTER_UNDERFLOW,TermNil,"");
+	setregs();
 	JMPNext();
       } 
       PredEntriesCounter--;
       if (PredEntriesCounter == 0) {
+	saveregs();
 	Error(PRED_ENTRY_COUNTER_UNDERFLOW,TermNil,"");
+	setregs();
 	JMPNext();
       } 
+      LOCK(((PredEntry *)(PREG->u.ld.p))->StatisticsForPred.lock);
+      ((PredEntry *)(PREG->u.ld.p))->StatisticsForPred.NOfRetries++;
+      UNLOCK(((PredEntry *)(PREG->u.ld.p))->StatisticsForPred.lock);
       PREG = NEXTOP(PREG, ld);
       GONext();
       ENDOp();
@@ -1179,15 +1211,18 @@ absmi(int inp)
       BOp(count_retry_and_mark, ld);
       RetriesCounter--;
       if (RetriesCounter == 0) {
+	saveregs();
 	Error(RETRY_COUNTER_UNDERFLOW,TermNil,"");
+	setregs();
 	JMPNext();
       } 
       PredEntriesCounter--;
       if (PredEntriesCounter == 0) {
+	saveregs();
 	Error(PRED_ENTRY_COUNTER_UNDERFLOW,TermNil,"");
+	setregs();
 	JMPNext();
       } 
-      goto actual_retry_and_mark;
       /* enter a retry dynamic */
       ENDBOp();
 
@@ -1200,7 +1235,6 @@ absmi(int inp)
 
       /* retry_and_mark   Label,NArgs     */
       BOp(retry_and_mark, ld);
-    actual_retry_and_mark:
 #ifdef YAPOR
       CUT_wait_leftmost();
 #endif /* YAPOR */
