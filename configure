@@ -1817,7 +1817,7 @@ else
   yap_cv_trail_space=0
 fi;
 
-if test $tabling = yes -o $orparallelism = yes -o "$CC" = "sslittle-na-sstrix-gcc"
+if test $tabling = yes -o $orparallelism = yes
 then
 	cat >>confdefs.h <<\EOF
 #define MinHeapSpace (400*SIZEOF_INT_P)
