@@ -267,9 +267,15 @@ debugging :-
 '$direct_spy'([M|G]) :-
          '$hidden'(G),
          !,
-	 /* called from prolog module   */
-	 '$execute0'(G,M),
-	 '$creep'.
+	 (
+	   G = '$leave_creep'
+	 ->
+	   true
+	 ;
+	   /* called from prolog module   */
+	   '$execute0'(G,M),
+	   '$creep'
+	 ).
 '$direct_spy'([Mod|G]) :-
 	'$do_spy'(G, Mod).
 
@@ -449,7 +455,8 @@ debugging :-
 	'$do_execute_clause'(G,M,Cl).
 '$spycall'(G,M,Cl) :-
 	'$setflop'(0),
-	'$do_creep_execute'(G,M,Cl).
+	'$do_creep_execute'(G,M,Cl),
+	'$leave_creep'.
 
 '$log_upd_spycall'(G,M,Cl,Index) :-
 	'$access_yap_flags'(10,0),
@@ -468,7 +475,8 @@ debugging :-
 	'$do_execute_dynamic_clause'(G,M,Cl).
 '$spycall_dynamic'(G,M,Cl) :-
 	'$setflop'(0),
-	'$do_creep_execute_dynamic'(G,M,Cl).
+	'$do_creep_execute_dynamic'(G,M,Cl),
+	'$leave_creep'.
 
 '$spycall_stdpred'(G,M) :-
         CP is '$last_choice_pt',
@@ -556,8 +564,8 @@ debugging :-
 	    Next is Cl+1, '$set_value'(spy_cl,Next), fail
         ).
 '$do_creep_execute'(G,M,Cl) :-
-	'$creep_execute'(G,M,Cl) ;
-	Next is Cl+1, '$set_value'(spy_cl,Next), fail.
+	'$creep_execute'(G,M,Cl), '$leave_creep' ; 
+	'$leave_creep', Next is Cl+1, '$set_value'(spy_cl,Next), fail.
 
 '$do_creep_log_upd_execute'(G,M,Cl,Index) :-
 	'$check_depth_for_interpreter'(D),
