@@ -432,7 +432,7 @@ static Term (YapIRead)() = YapRead;
 #define YapRead(F) (*YapIRead)(F)
 #endif
 
-/*  void YapWrite(Term,int (*)(void),int) */
+/*  void YapWrite(Term,void (*)(int),int) */
 extern X_API void PROTO(YapWrite,(Term,void (*)(int),int));
 #ifdef IndirectCalls
 static void (YapIWrite)() = YapWrite;

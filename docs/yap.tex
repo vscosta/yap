@@ -3778,7 +3778,7 @@ defaults to 1).
 
 @item '~Nr'
 The next argument must be an integer, and @var{N} is interpreted as a
-radix, such that @code{2 <= N <= 3} (the default is 8).
+radix, such that @code{2 <= N <= 36} (the default is 8).
 
 @example
 ?- format("~2r, 0x~16r, ~r",
@@ -3791,7 +3791,7 @@ Note that the letters @code{a-z} denote digits larger than 9.
 
 @item '~NR'
 Similar to '~NR'. The next argument must be an integer, and @var{N} is
-interpreted as a radix, such that @code{2 <= N <= 3} (the default is 8).
+interpreted as a radix, such that @code{2 <= N <= 36} (the default is 8).
 
 @example
 ?- format("~2r, 0x~16r, ~r",
