@@ -100,6 +100,8 @@
 	).
 
 '$call_atts'(V,_) :-
+	nonvar(V), !.
+'$call_atts'(V,_) :-
 	'$undefined'(woken_att_do(_,_), attributes), !,
 	attributes:bind_attvar(V).
 '$call_atts'(V,_) :-
@@ -706,6 +708,7 @@ call_residue(Goal,Residue) :-
 	attributes:update_att(V, 0, G).
 
 '$frozen_goals'(V,Gs) :-
+	var(V),
 	attributes:get_att(V, 0, Gs), nonvar(Gs).
 
 
