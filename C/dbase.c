@@ -4232,9 +4232,9 @@ static DBTerm *
 StoreTermInDB(Term t, int nargs)
 {
   DBTerm *x;
-  Yap_Error_Size = 0;
   int needs_vars;
 
+  Yap_Error_Size = 0;
   while ((x = (DBTerm *)CreateDBStruct(t, (DBProp)NULL,
 			  InQueue, &needs_vars)) == NULL) {
     switch(DBErrorFlag) {

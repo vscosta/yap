@@ -57,7 +57,7 @@ static char     SccsId[] = "%W% %G%";
 #endif
 
 UInt STATIC_PROTO(do_index, (ClauseDef *,ClauseDef *,PredEntry *,UInt,UInt,int,int,CELL *));
-UInt STATIC_PROTO(do_compound_index, (ClauseDef *,ClauseDef *,Term *t,PredEntry *,UInt,UInt,UInt,UInt,int,int,int,int,CELL *));
+UInt STATIC_PROTO(do_compound_index, (ClauseDef *,ClauseDef *,Term *t,PredEntry *,UInt,UInt,UInt,UInt,int,int,int,CELL *));
 UInt STATIC_PROTO(do_dbref_index, (ClauseDef *,ClauseDef *,Term,PredEntry *,UInt,UInt,int,int,CELL *));
 UInt STATIC_PROTO(do_blob_index, (ClauseDef *,ClauseDef *,Term,PredEntry *,UInt,UInt,int,int,CELL *));
 
@@ -2808,7 +2808,7 @@ do_consts(GroupDef *grp, Term t, PredEntry *ap, int compound_term, CELL *sreg, U
 	   max != grp->LastClause) max++;
     if (min != max) {
       if (sreg != NULL) {
-	ics->Label = do_compound_index(min, max, sreg, ap, compound_term, arity, argno+1, nxtlbl, first, last_arg, clleft, !(ap->PredFlags & LogUpdatePredFlag), top);
+	ics->Label = do_compound_index(min, max, sreg, ap, compound_term, arity, argno+1, nxtlbl, first, last_arg, clleft, top);
       } else if (ap->PredFlags & LogUpdatePredFlag) {
 	ics->Label = suspend_indexing(min, max, ap);
       } else {
@@ -2896,7 +2896,7 @@ do_funcs(GroupDef *grp, Term t, PredEntry *ap, UInt argno, int first, int last_a
       } else {
 	sreg = NULL;
       }
-      ifs->Label = do_compound_index(min, max, sreg, ap, 0, ArityOfFunctor(f), argno+1, nxtlbl, first, last_arg, clleft, !(ap->PredFlags & LogUpdatePredFlag), top);
+      ifs->Label = do_compound_index(min, max, sreg, ap, 0, ArityOfFunctor(f), argno+1, nxtlbl, first, last_arg, clleft, top);
     }
     grp->FirstClause = min = max+1;
   }
@@ -2924,7 +2924,7 @@ do_pair(GroupDef *grp, Term t, PredEntry *ap, UInt argno, int first, int last_ar
   if (min != max && !IsPairTerm(t)) {
     return suspend_indexing(min, max, ap);
   }
-  return do_compound_index(min, max, (IsPairTerm(t) ? RepPair(t) : NULL), ap, 0, 2, argno+1, nxtlbl, first, last_arg, clleft, !(ap->PredFlags & LogUpdatePredFlag), top);
+  return do_compound_index(min, max, (IsPairTerm(t) ? RepPair(t) : NULL), ap, 0, 2, argno+1, nxtlbl, first, last_arg, clleft, top);
 }
 
 static void
@@ -3238,7 +3238,7 @@ copy_clauses(ClauseDef *max0, ClauseDef *min0, CELL *top)
 
 /* execute an index inside a structure */
 static UInt
-do_compound_index(ClauseDef *min0, ClauseDef* max0, Term* sreg, PredEntry *ap, UInt i, UInt arity, UInt argno, UInt fail_l, int first, int last_arg, int clleft, int do_retry, CELL *top)
+do_compound_index(ClauseDef *min0, ClauseDef* max0, Term* sreg, PredEntry *ap, UInt i, UInt arity, UInt argno, UInt fail_l, int first, int last_arg, int clleft, CELL *top)
 {
   int ret_lab = 0, *newlabp;
   CELL *top0 = top;
@@ -3295,7 +3295,7 @@ do_compound_index(ClauseDef *min0, ClauseDef* max0, Term* sreg, PredEntry *ap, U
     i++;
   }
   if (!found_index) {
-    if (do_retry && (!lu_pred || !done_work))
+    if (!lu_pred || !done_work)
       *newlabp = do_index(min0, max0, ap, argno+1, fail_l, first, clleft, top);
     else
       *newlabp = suspend_indexing(min0, max0, ap);
@@ -3732,9 +3732,9 @@ expand_index(PredEntry *ap) {
   /* this is will be used as a new PC */
   CELL *top = (CELL *) TR;
   UInt arity = 0;
-  sp = stack = (istack_entry *)top;
   UInt lab, fail_l, clleft, arg0 = 0;
 
+  sp = stack = (istack_entry *)top;
   labelno = 1;
   stack[0].pos = 0;
   /* try to refine the interval using the indexing code */
@@ -3902,26 +3902,28 @@ expand_index(PredEntry *ap) {
       }
       break;
     case _switch_on_sub_arg_type:
-      t = Deref(s_reg[ipc->u.sllll.s]);
-      int argno = ipc->u.sllll.s;
+      {
+	COUNT argno = ipc->u.sllll.s;
 
-      if (argno != arity-1) is_last_arg = FALSE;
-      t = Deref(s_reg[argno]);
-      if (IsVarTerm(t)) {
-	arg0 = argno+1;
-	labp = &(ipc->u.sllll.l4);
-	ipc = ipc->u.sllll.l4;
-      } else if (IsPairTerm(t)) {
-	s_reg = RepPair(t);
-	sp = push_stack(sp, -argno-1, AbsPair(NULL));
-	labp = &(ipc->u.sllll.l1);
-	ipc = ipc->u.sllll.l1;
-      } else if (IsApplTerm(t)) {
-	sp = push_stack(sp, -argno-1, AbsAppl((CELL *)FunctorOfTerm(t)));
-	ipc = ipc->u.sllll.l3;	
-      } else {
-	arg0 = argno+1;
-	ipc = ipc->u.sllll.l2;	
+	t = Deref(s_reg[ipc->u.sllll.s]);
+	if (argno != arity-1) is_last_arg = FALSE;
+	t = Deref(s_reg[argno]);
+	if (IsVarTerm(t)) {
+	  arg0 = argno+1;
+	  labp = &(ipc->u.sllll.l4);
+	  ipc = ipc->u.sllll.l4;
+	} else if (IsPairTerm(t)) {
+	  s_reg = RepPair(t);
+	  sp = push_stack(sp, -argno-1, AbsPair(NULL));
+	  labp = &(ipc->u.sllll.l1);
+	  ipc = ipc->u.sllll.l1;
+	} else if (IsApplTerm(t)) {
+	  sp = push_stack(sp, -argno-1, AbsAppl((CELL *)FunctorOfTerm(t)));
+	  ipc = ipc->u.sllll.l3;	
+	} else {
+	  arg0 = argno+1;
+	  ipc = ipc->u.sllll.l2;	
+	}
       }
       break;
     case _if_not_then:
@@ -4067,7 +4069,7 @@ expand_index(PredEntry *ap) {
   CodeStart = cpc = NULL;
   
   if (!IsVarTerm(sp[-1].val) && IsPairTerm(sp[-1].val) && sp > stack) {
-    lab = do_compound_index(cls, max, s_reg, ap, arg0, 2, argno+1, fail_l, isfirstcl, is_last_arg, clleft, TRUE, top);
+    lab = do_compound_index(cls, max, s_reg, ap, arg0, 2, argno+1, fail_l, isfirstcl, is_last_arg, clleft, top);
   } else if (!IsVarTerm(sp[-1].val) && IsApplTerm(sp[-1].val) && sp > stack) {
     /* we are continuing within a compound term */
     Functor f = (Functor)RepAppl(sp[-1].val);
@@ -4077,7 +4079,7 @@ expand_index(PredEntry *ap) {
       else
 	lab = do_blob_index(cls, max, t, ap, argno, fail_l, isfirstcl, clleft, top);
     } else {
-      lab = do_compound_index(cls, max, s_reg, ap, arg0, ArityOfFunctor(f), argno, fail_l, isfirstcl, is_last_arg, clleft, TRUE, top);
+      lab = do_compound_index(cls, max, s_reg, ap, arg0, ArityOfFunctor(f), argno, fail_l, isfirstcl, is_last_arg, clleft, top);
     }
   } else {
     if (argno == ap->ArityOfPE) {
@@ -4993,10 +4995,10 @@ static void
 add_to_index(PredEntry *ap, int first, path_stack_entry *sp, ClauseDef *cls) {
   /* last clause to experiment with */
   yamop *ipc = ap->cs.p_code.TrueCodeOfPred;
-  sp = init_block_stack(sp, ipc, ap);
   int group1 = TRUE;
   yamop *alt = NULL;
 
+  sp = init_block_stack(sp, ipc, ap);
   /* try to refine the interval using the indexing code */
   while (ipc != NULL) {
     op_numbers op = Yap_op_from_opcode(ipc->opc);
@@ -6451,25 +6453,27 @@ find_caller(PredEntry *ap, yamop *code) {
       }
       break;
     case _switch_on_sub_arg_type:
-      t = Deref(s_reg[ipc->u.sllll.s]);
-      int argno = ipc->u.sllll.s;
+      {
+	COUNT argno = ipc->u.sllll.s;
 
-      if (argno != arity-1) is_last_arg = FALSE;
-      t = Deref(s_reg[argno]);
-      if (IsVarTerm(t)) {
-	if (ipc->u.sllll.l4 == code) return &(ipc->u.sllll.l4);
-	ipc = ipc->u.sllll.l4;
-      } else if (IsPairTerm(t)) {
-	s_reg = RepPair(t);
-	sp = push_stack(sp, -argno-1, AbsPair(NULL));
-	if (ipc->u.sllll.l1 == code) return &(ipc->u.sllll.l1);
-	ipc = ipc->u.sllll.l1;
-      } else if (IsApplTerm(t)) {
-	sp = push_stack(sp, -argno-1, AbsAppl((CELL *)FunctorOfTerm(t)));
-	ipc = ipc->u.sllll.l3;	
-      } else {
-	sp = push_stack(sp, -argno-1, t);
-	ipc = ipc->u.sllll.l2;	
+	t = Deref(s_reg[ipc->u.sllll.s]);
+	if (argno != arity-1) is_last_arg = FALSE;
+	t = Deref(s_reg[argno]);
+	if (IsVarTerm(t)) {
+	  if (ipc->u.sllll.l4 == code) return &(ipc->u.sllll.l4);
+	  ipc = ipc->u.sllll.l4;
+	} else if (IsPairTerm(t)) {
+	  s_reg = RepPair(t);
+	  sp = push_stack(sp, -argno-1, AbsPair(NULL));
+	  if (ipc->u.sllll.l1 == code) return &(ipc->u.sllll.l1);
+	  ipc = ipc->u.sllll.l1;
+	} else if (IsApplTerm(t)) {
+	  sp = push_stack(sp, -argno-1, AbsAppl((CELL *)FunctorOfTerm(t)));
+	  ipc = ipc->u.sllll.l3;	
+	} else {
+	  sp = push_stack(sp, -argno-1, t);
+	  ipc = ipc->u.sllll.l2;	
+	}
       }
       break;
     case _if_not_then:
