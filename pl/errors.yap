@@ -168,6 +168,20 @@ print_message(Level, Mss) :-
 	'$preprocess_stack'(Gs, NGs).
 '$beautify_hidden_goal'('$continue_with_command',_,prolog,ClNo,Gs,NGs) :- !,
 	'$preprocess_stack'(Gs, NGs).
+'$beautify_hidden_goal'('$spycall_stdpred',_,prolog,ClNo,Gs,NGs) :- !,
+	'$preprocess_stack'(Gs, NGs).
+'$beautify_hidden_goal'('$spycalls',_,prolog,ClNo,Gs,NGs) :- !,
+	'$preprocess_stack'(Gs, NGs).
+'$beautify_hidden_goal'('$spycall',_,prolog,ClNo,Gs,NGs) :- !,
+	'$preprocess_stack'(Gs, NGs).
+'$beautify_hidden_goal'('$do_spy',_,prolog,ClNo,Gs,NGs) :- !,
+	'$preprocess_stack'(Gs, NGs).
+'$beautify_hidden_goal'('$do_creep_execute',_,prolog,ClNo,Gs,NGs) :- !,
+	'$preprocess_stack'(Gs, NGs).
+'$beautify_hidden_goal'('$creep_execute',_,prolog,ClNo,Gs,NGs) :- !,
+	'$preprocess_stack'(Gs, NGs).
+'$beautify_hidden_goal'('$direct_spy',_,prolog,ClNo,Gs,NGs) :- !,
+	'$preprocess_stack'(Gs, NGs).
 '$beautify_hidden_goal'('$system_catch',_,prolog,ClNo,Gs,NGs) :- !,
 	'$preprocess_stack'(Gs, NGs).
 '$beautify_hidden_goal'('$execute_command',_,prolog,ClNo,Gs,NGs) :- !,
@@ -185,6 +199,12 @@ print_message(Level, Mss) :-
 '$beautify_hidden_goal'('$undefp',1,prolog,ClNo,Gs,NGs) :- !,
 	'$preprocess_stack'(Gs, NGs).
 '$beautify_hidden_goal'('$consult',2,prolog,ClNo,Gs,[cl(consult,1,prolog,ClNo)|NGs]) :- !,
+	'$preprocess_stack'(Gs, NGs).
+'$beautify_hidden_goal'('$findall_with_common_vars',_,prolog,ClNo,Gs,[cl(findall,4,prolog,ClNo)|NGs]) :- !,
+	'$preprocess_stack'(Gs, NGs).
+'$beautify_hidden_goal'('$findall',_,prolog,ClNo,Gs,[cl(findall,4,prolog,ClNo)|NGs]) :- !,
+	'$preprocess_stack'(Gs, NGs).
+'$beautify_hidden_goal'('$bagof',_,prolog,ClNo,Gs,[cl(bagof,3,prolog,ClNo)|NGs]) :- !,
 	'$preprocess_stack'(Gs, NGs).
 '$beautify_hidden_goal'('$listing',_,prolog,ClNo,Gs,[cl(listing,1,prolog,ClNo)|NGs]) :- !,
 	'$preprocess_stack'(Gs, NGs).
