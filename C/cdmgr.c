@@ -31,7 +31,7 @@ static char     SccsId[] = "@(#)cdmgr.c	1.1 05/02/98";
 #endif
 
 
-STATIC_PROTO(void retract_all, (PredEntry *));
+STATIC_PROTO(void retract_all, (PredEntry *, int));
 STATIC_PROTO(void add_first_static, (PredEntry *, CODEADDR, int));
 STATIC_PROTO(void add_first_dynamic, (PredEntry *, CODEADDR, int));
 STATIC_PROTO(void asserta_stat_clause, (PredEntry *, CODEADDR, int));
@@ -291,22 +291,9 @@ RemoveIndexation(PredEntry *ap)
   else {
     Clause *cl = ClauseCodeToClause(ap->TrueCodeOfPred);
     if (static_in_use(ap, FALSE)) {
-      Int Arity = ap->ArityOfPE;
-
-      ErrorMessage = ErrorSay;
-      Error_Term = TermNil;
-      Error_TYPE = PERMISSION_ERROR_MODIFY_STATIC_PROCEDURE;
-      if (Arity == 0)
-	sprintf(ErrorMessage, "predicate %s is in use", RepAtom((Atom)(ap->FunctorOfPred))->StrOfAE);
-      else
-	sprintf(ErrorMessage,
-#if SHORT_INTS
-		"predicate %s/%ld is in use",
-#else
-		"predicate %s/%d is in use",
-#endif
-		RepAtom(NameOfFunctor(ap->FunctorOfPred))->StrOfAE, Arity);
-      return(FALSE);
+      /* This should never happen */
+      cl->u.NextCl = DeadClauses;
+      DeadClauses = cl;
     } else {
       FreeCodeSpace((char *)cl);
     }
@@ -339,7 +326,7 @@ RemoveIndexation(PredEntry *ap)
 
 /* p is already locked */
 static void 
-retract_all(PredEntry *p)
+retract_all(PredEntry *p, int in_use)
 {
   CODEADDR        q, q1;
   int             multifile_pred = p->PredFlags & MultiFileFlag;
@@ -757,29 +744,7 @@ not_was_reconsulted(PredEntry *p, Term t, int mode)
     --ConsultSp;
     ConsultSp->p = p0;
     if (ConsultBase[1].mode) /* we are in reconsult mode */ {
-      if (static_in_use(p, TRUE)) {
-	Int Arity = p->ArityOfPE;
-	
-#ifdef DEBUG
-	if(0)
-	  list_all_predicates_in_use();
-#endif
-	ErrorMessage = ErrorSay;
-	Error_Term = t;
-	Error_TYPE = PERMISSION_ERROR_MODIFY_STATIC_PROCEDURE;
-	if (Arity == 0)
-	  sprintf(ErrorMessage, "predicate %s is in use", RepAtom((Atom)(p->FunctorOfPred))->StrOfAE);
-	else
-	  sprintf(ErrorMessage,
-#if SHORT_INTS
-		  "predicate %s/%ld is in use",
-#else
-		  "predicate %s/%d is in use",
-#endif
-		  RepAtom(NameOfFunctor(p->FunctorOfPred))->StrOfAE, Arity);
-	return(FALSE);
-      }
-      retract_all(p);
+      retract_all(p, static_in_use(p,TRUE));
     }
     if (!(p->PredFlags & MultiFileFlag)) {
       p->OwnerFile = YapConsultingFile();
@@ -1220,7 +1185,8 @@ p_purge_clauses(void)
   Term            t = Deref(ARG1);
   Term            t2 = Deref(ARG2);
   CODEADDR        q, q1;
-  int             mod;
+  SMALLUNSGN      mod;
+  int		  in_use;
 
   PutValue(AtomAbol, MkAtomTerm(AtomNil));
   if (IsVarTerm(t))
@@ -1247,6 +1213,7 @@ p_purge_clauses(void)
     RemoveIndexation(pred);
   PutValue(AtomAbol, MkAtomTerm(AtomTrue));
   q = pred->FirstClause;
+  in_use = static_in_use(pred,FALSE);
   if (q != NIL)
     do {
       q1 = q;
@@ -1255,7 +1222,7 @@ p_purge_clauses(void)
 	ErCl(ClauseCodeToClause(q1));
       else {
 	Clause *cl = ClauseCodeToClause(q1);
-	if (cl->ClFlags & HasBlobsMask) {
+	if (cl->ClFlags & HasBlobsMask || in_use) {
 	  cl->u.NextCl = DeadClauses;
 	  DeadClauses = cl;
 	} else {

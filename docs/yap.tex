@@ -4660,11 +4660,10 @@ undefined, declare it as dynamic.
 undefined, declare it as dynamic.
 
  Most Prolog systems only allow asserting clauses for dynamic
-predicates. This is also as specified in the ISO
-standard. YAP allows asserting clauses for static predicates,
-as long as the predicate is not in use. The current version of
-YAP supports this feature, but this feature is deprecated and
-support may go away in future versions.
+predicates. This is also as specified in the ISO standard. YAP allows
+asserting clauses for static predicates. The current version of YAP
+supports this feature, but this feature is deprecated and support may go
+away in future versions.
 
 @item abolish(+@var{PredSpec}) [ISO]
 @findex abolish/1
@@ -4675,8 +4674,7 @@ support may go away in future versions.
 current module. The
 specification must include the name and arity, and it may include module
 information. Under @t{iso} language mode this builtin will only abolish
-dynamic procedures. Under other modes it will abolish any procedures, as
-long as they are not currently in use. 
+dynamic procedures. Under other modes it will abolish any procedures. 
 
 @item abolish(+@var{P},+@var{N})
 @findex abolish/2
@@ -4689,8 +4687,8 @@ both static and dynamic predicates.
 @findex assert_static/1
 @snindex assert_static/1
 @cnindex assert_static/1
- Adds clause @var{C} to a static procedure. Asserting a static clause
-for a predicate while choice-points for the predicate are availabe has
+Adds clause @var{C} to a static procedure. Asserting a static clause
+for a predicate while choice-points for the predicate are available has
 undefined results.
 
 @item asserta_static(:@var{C})

@@ -1129,6 +1129,7 @@ InitYaamRegs(void)
   WokenGoals = NewTimedVar(TermNil);
   MutableList = NewTimedVar(TermNil);
   AttsMutableList = NewTimedVar(TermNil);
+  printf("TermNil is %lx and AttsMutableList is %x\n",TermNil, AttsMutableList);
 #endif
 }
 
