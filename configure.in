@@ -58,6 +58,10 @@ AC_ARG_ENABLE(condor,
 AC_ARG_ENABLE(april,
 	[ --enable-april    compile Yap to support April ILP system],
 	use_april="$enableval", use_april=no)
+
+AC_ARG_ENABLE(dlcompat,
+	[ --enable-dlcompat    use dlcompat library for dynamic loading on Mac OS X],
+	use_dlcompat="$enableval", use_dlcompat=no)
 	
 AC_ARG_WITH(gmp,
 	[ --with-gmp[=DIR]           use GNU Multiple Precision in DIR],
@@ -515,6 +519,17 @@ dnl Linux has both elf and a.out, in this case we found elf
 	INSTALL_DLLS=""
 	;;
       *darwin*)
+	if test ${use_dlcompat} = yes
+	then
+	  AC_CHECK_LIB(dl,dlopen,
+	     have_dl=yes
+	   ,
+	     have_dl=no)
+	  if test ${have_dl} = yes
+	  then
+	    LIBS="$LIBS -ldl"	  
+	  fi
+	fi
 	SHLIB_CFLAGS="-fno-common"
 	SHLIB_SUFFIX=".so"
         DO_SECOND_LD=""

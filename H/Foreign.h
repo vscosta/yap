@@ -75,7 +75,9 @@
 #ifdef NO_DYN
 #undef NO_DYN
 #endif
+#if !HAVE_DLOPEN
 #define LOAD_DYLD 1
+#endif
 #endif /* LOAD_DYLD */
 
 extern char LoadMsg[];
