@@ -62,7 +62,7 @@ CLPQR_EXAMPLES= $(srcdir)/clpqr/examples/README \
 	$(srcdir)/clpqr/examples/mip.pl \
 	$(srcdir)/clpqr/examples/root.pl \
 	$(srcdir)/clpqr/examples/simplex.pl \
-	$(srcdir)/clpqr/examples/squares.pl \
+	$(srcdir)/clpqr/examples/squares.pl
 
 CLPQR_EXAMPLES_MONASH= $(srcdir)/clpqr/examples/monash/README \
 	$(srcdir)/clpqr/examples/monash/air \
