@@ -9,14 +9,14 @@
 **************************************************************************
 *									 *
 * File:		mpi.c  							 *
-* Last rev:	$Date: 2002-10-31 11:13:21 $				 *
+* Last rev:	$Date: 2002-11-05 11:14:08 $				 *
 * mods:									 *
 * comments:	Interface to an MPI library                              *
 *									 *
 *************************************************************************/
 
 #ifndef lint
-static char *rcsid = "$Header: /Users/vitor/Yap/yap-cvsbackup/library/mpi/mpi.c,v 1.12 2002-10-31 11:13:21 stasinos Exp $";
+static char *rcsid = "$Header: /Users/vitor/Yap/yap-cvsbackup/library/mpi/mpi.c,v 1.13 2002-11-05 11:14:08 stasinos Exp $";
 #endif
 
 #include "Yap.h"
@@ -146,116 +146,10 @@ mpi_eob(void)
 
 /* Term parser */
 
-static void
-clean_vars(VarEntry *p)
-{
-  if (p == NULL) return;
-  p->VarAdr = TermNil;
-  clean_vars(p->VarLeft);
-  clean_vars(p->VarRight);
-}
-
-static Term
-syntax_error (TokEntry * tokptr)
-{
-  Term info;
-  int count = 0, out = 0;
-  Int start, err = 0, end;
-  Term tf[6];
-  Term *error = tf+3;
-  CELL *Hi = H;
-
-  start = tokptr->TokPos;
-  clean_vars(VarTable);
-  clean_vars(AnonVarTable);
-  while (1) {
-    Term ts[2];
-
-    if (H > ASP-1024) {
-      H = Hi;
-      tf[3] = TermNil;
-      err = 0;
-      end = 0;
-      break;
-    }
-    if (tokptr == toktide) {
-      err = tokptr->TokPos;
-      out = count;
-    }
-    info = tokptr->TokInfo;
-    switch (tokptr->Tok) {
-    case Name_tok:
-      {
-	Term t0 = MkAtomTerm((Atom)info);
-	ts[0] = MkApplTerm(MkFunctor(LookupAtom("atom"),1),1,&t0);
-      }
-      break;
-    case Number_tok:
-      ts[0] = MkApplTerm(MkFunctor(LookupAtom("number"),1),1,&(tokptr->TokInfo));
-      break;
-    case Var_tok:
-      {
-	Term t[3];
-	VarEntry *varinfo = (VarEntry *)info;
-
-	t[0] = MkIntTerm(0);
-	t[1] = StringToList(varinfo->VarRep);
-	if (varinfo->VarAdr == TermNil) {
-	  t[2] = varinfo->VarAdr = MkVarTerm();
-	} else {
-	  t[2] = varinfo->VarAdr;
-	}
-	ts[0] = MkApplTerm(MkFunctor(LookupAtom("var"),3),3,t);
-      }
-      break;
-    case String_tok:
-      {
-	Term t0 = StringToList((char *)info);
-	ts[0] = MkApplTerm(MkFunctor(LookupAtom("string"),1),1,&t0);
-      }
-      break;
-    case Ponctuation_tok:
-      {
-	char s[2];
-	s[1] = '\0';
-	if (Ord (info) == 'l') {
-	  s[0] = '(';
-	} else  {
-	  s[0] = (char)info;
-	}
-	ts[0] = MkAtomTerm(LookupAtom(s));
-      }
-    }
-    if (tokptr->Tok == Ord (eot_tok)) {
-      *error = TermNil;
-      end = tokptr->TokPos;
-      break;
-    }
-    ts[1] = MkIntegerTerm(tokptr->TokPos);
-    *error =
-      MkPairTerm(MkApplTerm(MkFunctor(LookupAtom("-"),2),2,ts),TermNil);
-    error = RepPair(*error)+1;
-    count++;
-    tokptr = tokptr->TokNext;
-  }
-  tf[0] = MkApplTerm(MkFunctor(LookupAtom("read"),1),1,&ARG2);
-  {
-    Term t[3];
-    t[0] = MkIntegerTerm(start);
-    t[1] = MkIntegerTerm(err);
-    t[2] = MkIntegerTerm(end);
-    tf[1] = MkApplTerm(MkFunctor(LookupAtom("between"),3),3,t);
-  }
-  tf[2] = MkAtomTerm(LookupAtom("\n<==== HERE ====>\n"));
-  tf[4] = MkIntegerTerm(out);
-  tf[5] = MkIntegerTerm(err);
-  return(MkApplTerm(MkFunctor(LookupAtom("syntax_error"),6),6,tf));
-}
-
 static Term
 mpi_parse(void)
 {
-  Term v, t;
+  Term t;
   TokEntry *tokstart;
   tr_fr_ptr old_TR, TR_before_parse;
     
@@ -267,7 +161,7 @@ mpi_parse(void)
     eot_before_eof = FALSE;
 
     /* the first arg is the getc_for_read, diff only if CharConv is on */
-    tokstart = tokptr = toktide = tokenizer( mpi_getc, mpi_getc );
+    tokstart = tokptr = toktide = tokenizer(mpi_getc, mpi_getc);
 
     /* preserve value of H after scanning: otherwise we may lose strings
        and floats */
@@ -286,20 +180,13 @@ mpi_parse(void)
       } else {
 	/* restore TR */
 	TR = old_TR;
-	if( unify_constant (ARG2, MkAtomTerm (AtomEof)) ) {
-	  /* this might be a reasonable place to reach, but i don't know when */
-	  puts("1XXXXXXXXXXXXXXXXXX");
-	  return TermNil ;
-	}
-	else {
-	  puts("2XXXXXXXXXXXXXXXXXX");
-	  return TermNil;
-	}
+
+	return (unify_constant(t, MkAtomTerm(AtomEof)));
       }
     }
   repeat_cycle:
     TR_before_parse = TR;
-    if (ErrorMessage || (t = Parse ()) == 0) {
+    if( ErrorMessage || (t = Parse())==0 ) {
       if (ErrorMessage && (strcmp(ErrorMessage,"Stack Overflow") == 0)) {
 	/* ignore term we just built */
 	TR = TR_before_parse;
@@ -312,30 +199,15 @@ mpi_parse(void)
 	}
       }
       TR = old_TR;
-      if (ParserErrorStyle == QUIET_ON_PARSER_ERROR) {
-	/* just fail */
-	return(FALSE);
-      } else if (ParserErrorStyle == CONTINUE_ON_PARSER_ERROR) {
-	ErrorMessage = NULL;
-	TR = TR_before_parse;
-	/* try again */
-	goto repeat_cycle;
-      } else {
-	Term terr = syntax_error(tokstart);
-	if (ErrorMessage == NULL)
-	  ErrorMessage = "SYNTAX ERROR";
-	
-	if (ParserErrorStyle == EXCEPTION_ON_PARSER_ERROR) {
-	  Error(SYNTAX_ERROR,terr,ErrorMessage);
-	  return(FALSE);
-	} else /* FAIL ON PARSER ERROR */ {
-	  Term t[2];
-	  t[0] = terr;
-	  t[1] = MkAtomTerm(LookupAtom(ErrorMessage));
-	  return(unify(MkIntTerm(StartLine = tokstart->TokPos),ARG4) &&
-		 unify(ARG5,MkApplTerm(MkFunctor(LookupAtom("error"),2),2,t)));
-	}
-      }
+
+      /*
+	behave as if ParserErrorStyle were QUIET_ON_PARSER_ERROR,
+	(see iopreds.c), except with bombing Yap instead of simply
+	failing the predicate: the parse cannot fail unless there
+	is a problem with MPI or the pretty printer.
+      */
+      Error(SYSTEM_ERROR, TermNil, "Failed to parse MPI_Recv()'ed term" );
+      exit_yap( EXIT_FAILURE );
 
     } else {
       /* parsing succeeded */
@@ -343,22 +215,7 @@ mpi_parse(void)
     }
   }
     
-  while (TRUE) {
-    CELL *old_H = H;
-
-    if (setjmp(IOBotch) == 0) {
-      v = VarNames(VarTable, TermNil);
-      TR = old_TR;
-      break;
-    } else {
-      /* don't need to recheck tokens */
-      tokstart = NULL;
-      /* restart global */
-      H = old_H;
-      growstack_in_parser(&old_TR, &tokstart, &VarTable);
-      old_H = H;
-    }
-  }
+  TR = old_TR;
   return t;
 }
     
@@ -470,13 +327,28 @@ p_mpi_send()             /* mpi_send(+data, +destination, +tag) */
   bufstrlen = bufptr + 1;
   bufptr = 0;
 
-  /* first send the size */
-  retv = MPI_Send( &bufstrlen, 1, MPI_INT, dest, tag, MPI_COMM_WORLD );
-  if( retv != MPI_SUCCESS ) return FALSE;
+#if 0
+  {
+    FILE *debug_out;
+    debug_out = fopen("debug.out", "a");
+    fprintf(debug_out, "%d: About to send %d chars to %d\n", 
+	    rank, bufstrlen, dest);
+    fclose(debug_out);
+  }
+#endif
 
-  /* and then the data */
+  /* send the data */
   retv = MPI_Send( &buf[bufptr], bufstrlen, MPI_CHAR, dest, tag, MPI_COMM_WORLD );
   if( retv != MPI_SUCCESS ) return FALSE;
+
+#if 0
+  {
+    FILE *debug_out;
+    debug_out = fopen("debug.out", "a");
+    fprintf(debug_out, "%d: Sent %s to %d\n", rank, &buf[bufptr], dest);
+    fclose(debug_out);
+  }
+#endif
 
   return TRUE;
 }
@@ -517,29 +389,34 @@ p_mpi_receive()          /* mpi_receive(-data, ?orig, ?tag) */
   } else
     tag  = IntOfTerm( t_tag );
 
-  /* receive the size of the term */
-  retv = MPI_Recv( &bufstrlen, 1, MPI_INT, orig, tag,
-		   MPI_COMM_WORLD, &status );
+  /* probe for the size of the term */
+  retv = MPI_Probe( orig, tag, MPI_COMM_WORLD, &status );
   if( retv != MPI_SUCCESS ) {
-    printf("BOOOOOOOM! retv == %d\n", retv);
     return FALSE;
   }
+  MPI_Get_count( &status, MPI_CHAR, &bufstrlen );
 
-#if 0
-  printf("About to receive %d chars from %d\n", bufstrlen, orig);
+#if 1
+  {
+    FILE *debug_out;
+    debug_out = fopen("debug.out", "a");
+    fprintf(debug_out, "%d: About to receive %d chars from %d\n", 
+	    rank, bufstrlen, orig);
+    fclose(debug_out);
+  }
 #endif
 
   /* adjust the buffer */
   if( bufsize < bufstrlen ) expand_buffer(bufstrlen-bufsize);
 
-  /* Only the first packet can be from MPI_ANY_SOURCE */
+  /* Already know the source from MPI_Probe() */
   if( orig == MPI_ANY_SOURCE ) {
     orig = status.MPI_SOURCE;
     retv = unify(t_orig, MkIntTerm(orig));
     if( retv == FALSE ) puts( "PROBLEM1" );
   }
 
-  /* Only the first packet can be of MPI_ANY_TAG */
+  /* Already know the tag from MPI_Probe() */
   if( tag == MPI_ANY_TAG ) {
     tag = status.MPI_TAG;
     retv = unify(t_tag, MkIntTerm(status.MPI_TAG));
@@ -550,23 +427,44 @@ p_mpi_receive()          /* mpi_receive(-data, ?orig, ?tag) */
   retv = MPI_Recv( &buf[bufptr], bufstrlen, MPI_CHAR, orig, tag,
 		   MPI_COMM_WORLD, &status );
   if( retv != MPI_SUCCESS ) {
-    printf("BOOOOOOOM! retv == %d\n", retv);
+    /* Getting in here would be weird; it means the first package
+       (size) was sent properly, but there was a glitch with
+       the actual content! */
     return FALSE;
   }
 
 #if 0
   {
     int aa;
+    FILE *debug_out;
     MPI_Get_count( &status, MPI_CHAR, &aa );
-    printf("Received %d chars from %d\n", aa, orig);
+    debug_out = fopen("debug.out", "a");
+    fprintf(debug_out, "%d: Received %d chars from %d\n\
+%d: The message was: %s\n", rank, aa, orig, rank, &buf[bufptr]);
+    fclose(debug_out);
   }
 #endif
 
   /* parse received string into a Prolog term */
   bufptr = 0;
-  retv = unify(t_data, mpi_parse());
+  retv = unify(ARG1, mpi_parse());
+
 #if 0
-  printf("mpi_receive: t_data == %d, retv == %d\n", t_data, retv);
+  /* check up on mpi_parse():
+     convert the newly-parsed term back to text and print */
+  bufptr = 0;
+  plwrite( t_data, mpi_putc, 5 );
+  mpi_putc( 0, '.' );
+  mpi_putc( 0, ' ' );
+  buf[bufptr] = 0;
+  bufptr = 0;
+  {
+    FILE *debug_out;
+    debug_out = fopen("debug.out", "a");
+    fprintf(debug_out, "%d: mpi_receive: t_data == %d, retv == %d term == %s\n",
+	    rank, t_data, retv, buf);
+    fclose(debug_out);
+  }
 #endif
 
   return retv;
@@ -804,11 +702,11 @@ InitMPI(void)
     if( retv ) {
       Term t;
 
-      t = MkIntegerTerm(retv)
+      t = MkIntegerTerm(retv);
       Error(SYSTEM_ERROR, t, "MPI_Init() returned non-zero");
       exit_yap( EXIT_FAILURE );
     }
-#if 1
+#if 0
     /* DEBUG */
     else {
       puts("MPI_Init() is happy!");
