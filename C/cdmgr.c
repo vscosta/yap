@@ -2505,12 +2505,68 @@ clause_was_found(PredEntry *pp, Atom *pat, UInt *parity) {
   }
 }
 
+static void
+code_in_pred_info(PredEntry *pp, Atom *pat, UInt *parity) {
+  *parity = pp->ArityOfPE;
+  if (pp->ArityOfPE) {
+    *pat = NameOfFunctor(pp->FunctorOfPred);
+  } else {
+    *pat = (Atom)(pp->FunctorOfPred);
+  }  
+}
+
+static int
+code_in_pred_lu_index(LogUpdIndex *icl, yamop *codeptr) {
+  LogUpdIndex *cicl;
+  if (IN_BLOCK(codeptr,icl,Yap_SizeOfBlock((CODEADDR)icl))) {
+    return TRUE;
+  }
+  cicl = icl->ChildIndex;
+  while (cicl != NULL) {
+    if (code_in_pred_lu_index(cicl, codeptr))
+      return TRUE;
+    cicl = cicl->SiblingIndex;
+  }
+  return FALSE;
+}
+
+static int
+code_in_pred_s_index(StaticIndex *icl, yamop *codeptr) {
+  StaticIndex *cicl;
+  if (IN_BLOCK(codeptr,icl,Yap_SizeOfBlock((CODEADDR)icl))) {
+    return TRUE;
+  }
+  cicl = icl->ChildIndex;
+  while (cicl != NULL) {
+    if (code_in_pred_s_index(cicl, codeptr))
+      return TRUE;
+    cicl = cicl->SiblingIndex;
+  }
+  return FALSE;
+}
+
 static Int
 code_in_pred(PredEntry *pp, Atom *pat, UInt *parity, yamop *codeptr) {
   yamop *clcode;
   int i = 1;
 
   READ_LOCK(pp->PRWLock);
+  /* check if the codeptr comes from the indexing code */
+  if (pp->PredFlags & IndexedPredFlag) {
+    if (pp->PredFlags & LogUpdatePredFlag) {
+      if (code_in_pred_lu_index(ClauseCodeToLogUpdIndex(pp->cs.p_code.TrueCodeOfPred), codeptr)) {
+	code_in_pred_info(pp, pat, parity);
+	READ_UNLOCK(pp->PRWLock);
+	return -1;
+      }
+    } else {
+      if (code_in_pred_s_index(ClauseCodeToStaticIndex(pp->cs.p_code.TrueCodeOfPred), codeptr)) {
+	code_in_pred_info(pp, pat, parity);
+	READ_UNLOCK(pp->PRWLock);
+	return -1;
+      }
+    }
+  }
   clcode = pp->cs.p_code.FirstClause;
   if (clcode != NULL) {
     char *code_end;
@@ -2523,18 +2579,6 @@ code_in_pred(PredEntry *pp, Atom *pat, UInt *parity, yamop *codeptr) {
       StaticClause *cl = ClauseCodeToStaticClause(pp->cs.p_code.TrueCodeOfPred);
       code_end = (char *)cl + Yap_SizeOfBlock((CODEADDR)cl);
     }
-    /* check if the codeptr comes from the indexing code */
-    if ((pp->PredFlags & IndexedPredFlag) &&
-	IN_BLOCK(codeptr,pp->cs.p_code.TrueCodeOfPred,Yap_SizeOfBlock((CODEADDR)(ClauseCodeToStaticIndex(pp->cs.p_code.TrueCodeOfPred))))) {
-      *parity = pp->ArityOfPE;
-      if (pp->ArityOfPE) {
-	*pat = NameOfFunctor(pp->FunctorOfPred);
-      } else {
-	*pat = (Atom)(pp->FunctorOfPred);
-      }
-      READ_UNLOCK(pp->PRWLock);
-      return(-1);
-    }	      
     if (pp->PredFlags & LogUpdatePredFlag) {
       LogUpdClause *cl = ClauseCodeToLogUpdClause(clcode);
       do {
@@ -2609,18 +2653,31 @@ Yap_PredForCode(yamop *codeptr, Atom *pat, UInt *parity, SMALLUNSGN *pmodule) {
 
 static Int
 p_pred_for_code(void) {
-  yamop *codeptr = (yamop *)IntegerOfTerm(Deref(ARG1));
+  yamop *codeptr;
   Atom at;
   UInt arity;
   SMALLUNSGN module;
   Int cl;
+  Term t = Deref(ARG1);
 
+  if (IsVarTerm(t)) {
+    return FALSE;
+  } else if (IsIntegerTerm(t)) {
+    codeptr  = (yamop *)IntegerOfTerm(t);
+  } else if (IsDBRefTerm(t)) {
+    codeptr  = (yamop *)DBRefOfTerm(t);
+  } else {
+    return FALSE;
+  }
   cl = PredForCode(codeptr, &at, &arity, &module);
-  if (cl == 0) return(Yap_unify(ARG5,MkIntegerTerm(cl)));
-  return(Yap_unify(ARG2,MkAtomTerm(at)) &&
-	 Yap_unify(ARG3,MkIntegerTerm(arity)) &&
-	 Yap_unify(ARG4,ModuleName[module]) &&
-	 Yap_unify(ARG5,MkIntegerTerm(cl)));
+  if (cl == 0) {
+    return(Yap_unify(ARG5,MkIntTerm(0)));
+  } else {
+    return(Yap_unify(ARG2,MkAtomTerm(at)) &&
+	   Yap_unify(ARG3,MkIntegerTerm(arity)) &&
+	   Yap_unify(ARG4,ModuleName[module]) &&
+	   Yap_unify(ARG5,MkIntegerTerm(cl)));
+  }
 }
 
 static Int

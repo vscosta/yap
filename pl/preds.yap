@@ -353,9 +353,7 @@ clause(V,Q,R) :-
 
 :- '$do_static_clause'(_,_,_,_,_), !.
 
-nth_clause(P,I,R) :- nonvar(R), !,
-	'$nth_instancep'(P,I,R).
-nth_clause(V,I,R) :- var(V), !,
+nth_clause(V,I,R) :- var(V), var(R), !,
 	'$do_error'(instantiation_error,M:nth_clause(V,I,R)).
 nth_clause(M:V,I,R) :- !,
 	'$nth_clause'(V,M,I,R).
@@ -364,14 +362,16 @@ nth_clause(V,I,R) :-
 	'$nth_clause'(V,M,I,R).
 
 
-'$nth_clause'(V,M,I,R) :- var(V), !, 
+'$nth_clause'(V,M,I,R) :- var(V), var(R), !, 
 	'$do_error'(instantiation_error,M:nth_clause(V,I,R)).
+'$nth_clause'(P1,_,I,R) :- nonvar(P1), P1 = M:P, !,
+	'$nth_clause'(P,M,I,R).
+'$nth_clause'(P,M,I,R) :- nonvar(R), !,
+	'$nth_clause_ref'(P,M,I,R).
 '$nth_clause'(C,M,I,R) :- number(C), !,
 	'$do_error'(type_error(callable,C),M:nth_clause(C,I,R)).
 '$nth_clause'(R,M,I,R) :- db_reference(R), !,
 	'$do_error'(type_error(callable,R),M:nth_clause(R,I,R)).
-'$nth_clause'(M:P,_,I,R) :- !,
-	'$nth_clause'(P,M,I,R).
 '$nth_clause'(P,M,I,R) :-
 	( '$is_log_updatable'(P,M) ; '$is_source'(P,M) ), !,
 	'$p_nth_clause'(P,M,I,R).
@@ -385,6 +385,13 @@ nth_clause(V,I,R) :-
 	'$do_error'(permission_error(access,private_procedure,Name/Arity),
 	      nth_clause(M:P,I,R)).
 
+'$nth_clause_ref'(Cl,M,I,R) :-
+	'$pred_for_code'(R, At, Ar, M1, I), I > 0, !,
+	instance(R, Cl),
+	M1 = M.
+'$nth_clause_ref'(P,M,I,R) :-
+	'$nth_instancep'(M:P,I,R).
+	
 retract(M:C) :- !,
 	'$retract'(C,M).
 retract(C) :-
