@@ -11,8 +11,13 @@
 * File:		compiler.c						 *
 * comments:	Clause compiler						 *
 *									 *
-* Last rev:     $Date: 2005-01-04 02:50:21 $,$Author: vsc $						 *
+* Last rev:     $Date: 2005-01-14 20:55:16 $,$Author: vsc $						 *
 * $Log: not supported by cvs2svn $
+* Revision 1.59  2005/01/04 02:50:21  vsc
+* - allow MegaClauses with blobs
+* - change Diffs to be thread specific
+* - include Christian's updates
+*
 * Revision 1.58  2005/01/03 17:06:03  vsc
 * fix discontiguous stack overflows in parser
 *
@@ -332,6 +337,7 @@ c_var(Term t, Int argno, unsigned int arity, unsigned int level, compiler_struct
   if (new) {
     v->FirstOpForV = cglobs->cint.cpc;
   }
+  v->LastOpForV = cglobs->cint.cpc;
   ++(v->RCountOfVE);
   if (cglobs->onlast)
     v->FlagsOfVE |= OnLastGoal;
@@ -773,6 +779,7 @@ c_bifun(Int Op, Term t1, Term t2, Term t3, int mod, compiler_struct *cglobs)
 	Int v1 = --cglobs->tmpreg;
 	/* second temp */
 	Int v2 = --cglobs->tmpreg;
+
 	Yap_emit(fetch_args_vv_op, Zero, Zero, &cglobs->cint);
 	/* these should be the arguments */
 	c_var(t1, v1, 0, 0, cglobs);
@@ -784,6 +791,7 @@ c_bifun(Int Op, Term t1, Term t2, Term t3, int mod, compiler_struct *cglobs)
 	Term tn = MkVarTerm();
 	Int v1 = --cglobs->tmpreg;
 	Int v2 = --cglobs->tmpreg;
+
 	c_arg(t2, v2, 0, 0, cglobs);
 	Yap_emit(fetch_args_vv_op, Zero, Zero, &cglobs->cint);
 	/* these should be the arguments */
@@ -793,6 +801,7 @@ c_bifun(Int Op, Term t1, Term t2, Term t3, int mod, compiler_struct *cglobs)
       } else if (IsIntTerm(t2)) {
 	/* first temp */
 	Int v1 = --cglobs->tmpreg;
+
 	Yap_emit(fetch_args_vc_op, (CELL)IntOfTerm(t2), Zero, &cglobs->cint);
 	/* these should be the arguments */
 	c_var(t1, v1, 0, 0, cglobs);
@@ -800,6 +809,7 @@ c_bifun(Int Op, Term t1, Term t2, Term t3, int mod, compiler_struct *cglobs)
       } else if (IsLongIntTerm(t2)) {
 	/* first temp */
 	Int v1 = --cglobs->tmpreg;
+
 	Yap_emit(fetch_args_vc_op, (CELL)LongIntOfTerm(t2), Zero, &cglobs->cint);
 	/* these should be the arguments */
 	c_var(t1, v1, 0, 0, cglobs);
@@ -1786,13 +1796,13 @@ usesvar(compiler_vm_op ic)
   case f_var_op:
   case fetch_args_for_bccall:
   case bccall_op:
-    return (TRUE);
+    return TRUE;
   default:
     break;
   }
 #ifdef SFUNC
   if (ic >= unify_s_var_op && ic <= write_s_val_op)
-    return (TRUE);
+    return TRUE;
 #endif
   return ((ic >= unify_var_op && ic <= write_val_op)
 	  ||
@@ -2241,7 +2251,7 @@ checktemp(Int arg, Int rn, compiler_vm_op ic, compiler_struct *cglobs)
     target1 = cglobs->MaxCTemps;
   target2 = cglobs->MaxCTemps;
   n = v->RCountOfVE - 1;
-  while ((q = q->nextInst) != NIL) {
+  while (q != v->LastOpForV && (q = q->nextInst) != NIL) {
     if (q->rnd2 < 0);
     else if (usesvar(ic = q->op) && arg == q->rnd1) {
       --n;
@@ -2372,7 +2382,11 @@ c_layout(compiler_struct *cglobs)
   register Ventry *v = cglobs->vtable;
   Int *up = cglobs->Uses, Arity;
   CELL *cop = cglobs->Contents;
+  /* tell put_values used in bip optimisation */
+  int rn_kills = 0;
+  Int rn_to_kill[2];
 
+  rn_to_kill[0] = rn_to_kill[1] = 0;
   cglobs->cint.cpc = cglobs->BodyStart;
   while (v != NIL) {
     if (v->FlagsOfVE & BranchVar) {
@@ -2461,6 +2475,8 @@ c_layout(compiler_struct *cglobs)
       cglobs->Contents[rn] = cglobs->vadr;
       break;
     case f_var_op:
+      if (rn_to_kill[0]) --cglobs->Uses[rn_to_kill[0]];
+      rn_to_kill[1]=rn_to_kill[0]=0;
     case unify_var_op:
     case unify_val_op:
     case unify_last_var_op:
@@ -2500,7 +2516,21 @@ c_layout(compiler_struct *cglobs)
 	cglobs->cint.cpc->op = nop_op;
       cglobs->Contents[rn] = cglobs->vadr;
       ++cglobs->Uses[rn];
+      if (rn_kills) {
+	rn_kills--;
+	rn_to_kill[rn_kills]=rn;
+      }
       break;
+    case fetch_args_cv_op:
+    case fetch_args_vc_op:
+      rn_to_kill[1]=rn_to_kill[0]=0;
+      if (cglobs->cint.cpc->nextInst &&
+	  cglobs->cint.cpc->nextInst->op == put_val_op &&
+	  cglobs->cint.cpc->nextInst->nextInst &&
+	  cglobs->cint.cpc->nextInst->nextInst->op == f_var_op)
+	rn_kills = 1;
+      break;
+    case f_val_op:
 #ifdef SFUNC
     case write_s_var_op:
       {
@@ -2514,7 +2544,6 @@ c_layout(compiler_struct *cglobs)
 #endif
     case write_var_op:
     case write_val_op:
-    case f_val_op:
       checktemp(arg, rn, ic, cglobs);
       break;
 #ifdef SFUNC

@@ -599,6 +599,8 @@ abolish(X) :-
 	;
 	    '$abolish_all_old'(M)
 	).
+'$old_abolish'(N/A, M) :- !,
+	'$abolish'(N, A, M).
 '$old_abolish'(A,M) :- atom(A), !,
 	( '$access_yap_flags'(8, 1) ->
 	  '$do_error'(type_error(predicate_indicator,A),abolish(M:A))
@@ -609,8 +611,6 @@ abolish(X) :-
 	'$old_abolish'(N,M).
 '$old_abolish'([], _) :- !.
 '$old_abolish'([H|T], M) :- !,  '$old_abolish'(H, M), '$old_abolish'(T, M).
-'$old_abolish'(N/A, M) :- !,
-	'$abolish'(N, A, M).
 '$old_abolish'(T, M) :-
 	'$do_error'(type_error(predicate_indicator,T),abolish(M:T)).
 	
@@ -634,7 +634,7 @@ abolish(X) :-
 	erase(Ref),
 	fail.
 '$abolishd'(T, M) :-
-	'$clause'(T,M,_,R), erase(R), fail.
+	'$purge_clauses'(T,M), fail.
 '$abolishd'(T, M) :- '$kill_dynamic'(T,M), fail.
 '$abolishd'(_, _).
 

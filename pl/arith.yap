@@ -93,7 +93,6 @@ do_not_compile_expressions :- set_value('$c_arith',[]).
 	atom(Mod), !.
 '$do_c_built_metacall'(G1, Mod, call(Mod:G1)).
 
-
 '$do_and'(true, P, P) :- !.
 '$do_and'(P, true, P) :- !.
 '$do_and'(P, Q, (P,Q)).

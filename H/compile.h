@@ -188,6 +188,7 @@ typedef struct VENTRY {
 	 Int  KindOfVE;
 	 CELL NoOfVE;
 	 PInstr *FirstOpForV;
+	 PInstr *LastOpForV;
 	 BITS16 AgeOfVE;
 	 BITS16 BranchOfVE;
 	 BITS16 FirstOfVE;
