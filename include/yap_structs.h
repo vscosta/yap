@@ -36,7 +36,11 @@ typedef long int Int;
 
 typedef double flt;
 
-typedef CELL Term, Functor, Atom;
+typedef CELL Term;
+
+typedef struct FunctorEntry *Functor;
+
+typedef struct AtomEntry *Atom;
 
 #ifndef TRUE
 #define TRUE	1

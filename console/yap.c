@@ -145,7 +145,7 @@ do_bootfile (char *bootfilename)
   Term term_nil = MkAtomTerm(YapLookupAtom("[]"));
   Term term_end_of_file = MkAtomTerm(YapLookupAtom("end_of_file"));
   Term term_true = MkAtomTerm(YapLookupAtom("true"));
-  Term functor_query = MkFunctor(YapLookupAtom("?-"),1);
+  Functor functor_query = MkFunctor(YapLookupAtom("?-"),1);
 
 
   fprintf(stderr,"Entering Yap\n");
