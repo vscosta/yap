@@ -467,7 +467,7 @@ exec_top_level(int BootMode, YAP_init_args *iap)
       do_bootfile (iap->YapPrologBootFile ? iap->YapPrologBootFile : BootFile);
       livegoal = YAP_FullLookupAtom("$live");
       /* initialise the top-level */
-      YAP_PutValue(livegoal, YAP_MkAtomTerm (YAP_LookupAtom("true")));
+      YAP_PutValue(livegoal, YAP_MkAtomTerm (YAP_FullLookupAtom("$true")));
     }
       /* the top-level is now ready */
 
@@ -475,7 +475,7 @@ exec_top_level(int BootMode, YAP_init_args *iap)
      the atom false away ;-).
   */
   livegoal = YAP_FullLookupAtom("$live");
-  atomfalse = YAP_MkAtomTerm (YAP_LookupAtom("false"));
+  atomfalse = YAP_MkAtomTerm (YAP_FullLookupAtom("$false"));
   while (YAP_GetValue (livegoal) != atomfalse) {
     YAP_Reset();
     do_top_goal (YAP_MkAtomTerm (livegoal));

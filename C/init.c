@@ -970,7 +970,7 @@ InitCodes(void)
   heap_regs->pred_goal_expansion = RepPredProp(PredPropByFunc(Yap_MkFunctor(Yap_LookupAtom("goal_expansion"),3),1));
   heap_regs->env_for_trustfail_code.p =
     heap_regs->env_for_trustfail_code.p0 =
-    RepPredProp(PredPropByAtom(Yap_LookupAtom("false"),0));
+    RepPredProp(PredPropByAtom(heap_regs->atom_false,0));
   {
     /* make sure we know about the module predicate */
     PredEntry *modp = RepPredProp(PredPropByFunc(heap_regs->functor_module,0));

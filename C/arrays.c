@@ -1826,8 +1826,12 @@ p_static_array_to_term(void)
       *H++ = (CELL)Yap_MkFunctor(AbsAtom(ae),dim);
       switch(tp) {
       case array_of_ints:
-	for (indx=0; indx < dim; indx++) {
-	  *H++ = MkIntegerTerm(pp->ValueOfVE.ints[indx]);
+	{
+	  CELL *sptr = H;
+	  H += dim;
+	  for (indx=0; indx < dim; indx++) {
+	    *sptr++ = MkIntegerTerm(pp->ValueOfVE.ints[indx]);
+	  }
 	}
 	break;
       case array_of_dbrefs:
@@ -1856,38 +1860,58 @@ p_static_array_to_term(void)
 	}
 	break;
       case array_of_doubles:
-	for (indx=0; indx < dim; indx++) {
-	  *H++ = MkEvalFl(pp->ValueOfVE.floats[indx]);
+	{
+	  CELL *sptr = H;
+	  H += dim;
+	  for (indx=0; indx < dim; indx++) {
+	    *sptr++ = MkEvalFl(pp->ValueOfVE.floats[indx]);
+	  }
 	}
 	break;
       case array_of_ptrs:
-	for (indx=0; indx < dim; indx++) {
-	  *H++ = MkIntegerTerm((Int)(pp->ValueOfVE.ptrs[indx]));
+	{
+	  CELL *sptr = H;
+	  H += dim;
+	  for (indx=0; indx < dim; indx++) {
+	    *sptr++ = MkIntegerTerm((Int)(pp->ValueOfVE.ptrs[indx]));
+	  }
 	}
 	break;
       case array_of_chars:
-	for (indx=0; indx < dim; indx++) {
-	  *H++ = MkIntegerTerm((Int)(pp->ValueOfVE.chars[indx]));
+	{
+	  CELL *sptr = H;
+	  H += dim;
+	  for (indx=0; indx < dim; indx++) {
+	    *sptr++ = MkIntegerTerm((Int)(pp->ValueOfVE.chars[indx]));
+	  }
 	}
 	break;
       case array_of_uchars:
-	for (indx=0; indx < dim; indx++) {
-	  *H++ = MkIntegerTerm((Int)(pp->ValueOfVE.uchars[indx]));
+	{
+	  CELL *sptr = H;
+	  H += dim;
+	  for (indx=0; indx < dim; indx++) {
+	    *sptr++ = MkIntegerTerm((Int)(pp->ValueOfVE.uchars[indx]));
+	  }
 	}
 	break;
       case array_of_terms:
-	for (indx=0; indx < dim; indx++) {
-	  /* The object is now in use */
-	  DBRef ref = pp->ValueOfVE.terms[indx];
-	  Term TRef;
+	{
+	  CELL *sptr = H;
+	  H += dim;
+	  for (indx=0; indx < dim; indx++) {
+	    /* The object is now in use */
+	    DBRef ref = pp->ValueOfVE.terms[indx];
+	    Term TRef;
 
-	  if (ref != NULL) {
-	    TRef = Yap_FetchTermFromDB(ref,3);
-	  } else {
-	    P = (yamop *)FAILCODE;
-	    TRef = TermNil;
+	    if (ref != NULL) {
+	      TRef = Yap_FetchTermFromDB(ref,3);
+	    } else {
+	      P = (yamop *)FAILCODE;
+	      TRef = TermNil;
+	    }
+	    *sptr++ = TRef;
 	  }
-	  *H++ = TRef;
 	}
 	break;
       case array_of_atoms:

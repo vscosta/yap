@@ -172,7 +172,7 @@ read_sig.
 	'$run_toplevel_hooks',
 	'$command'((?-Command),Varnames,top),
 	'$sync_mmapped_arrays',
-	'$set_value'('$live',false).
+	'$set_value'('$live','$false').
 
 '$startup_goals' :-
 	'$recorded'('$startup_goal',G,_),
@@ -858,7 +858,7 @@ break :- '$get_value'('$break',BL), NBL is BL+1,
 	'$format'(user_error, "[ Break (level ~w) ]~n", [NBL]),
 	'$do_live',
 	!,
-	'$set_value'('$live',true),
+	'$set_value'('$live','$true'),
 	'$set_value'(spy_sl,SPY_SL),
 	'$get_value'(spy_fs,SPY_FS),
 	'$set_value'(spy_sp,SPY_SP),
