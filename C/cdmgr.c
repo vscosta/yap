@@ -1885,10 +1885,10 @@ p_pred_exists(void)
     return (FALSE);
   } else if (IsAtomTerm(t)) {
     Atom at = AtomOfTerm(t);
-    pe = RepPredProp(PredPropByAtom(at, mod));
+    pe = RepPredProp(Yap_GetPredPropByAtom(at, mod));
   } else if (IsApplTerm(t)) {
     Functor         fun = FunctorOfTerm(t);
-    pe = RepPredProp(PredPropByFunc(fun, mod));
+    pe = RepPredProp(Yap_GetPredPropByFunc(fun, mod));
   } else
     return (FALSE);
   if (pe == NIL)
