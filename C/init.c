@@ -822,7 +822,10 @@ InitCodes(void)
   heap_regs->char_conversion_table2 = NULL;
   heap_regs->number_of_cpreds = 0;
   heap_regs->number_of_cmpfuncs = 0;
-  heap_regs->no_of_modules = 1;
+  /*
+    don't initialise this here, this is initialised by _YAP_InitModules!!!!
+     heap_regs->no_of_modules = 1;
+  */
   heap_regs->primitives_module = 0;
   heap_regs->user_module = 1;
   heap_regs->db_queues = NULL;

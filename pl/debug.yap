@@ -381,6 +381,11 @@ debugging :-
 '$spycalls'(Mod:G,_,Res) :-
 	!,
 	'$spycalls'(G,Mod,Res).
+'$spycalls'(G,Mod,Res) :-
+	'$pred_goal_expansion_on',
+	% make sure we do not try to expand conjs, etc...
+	user:goal_expansion(G,Mod,GF), !,
+	'$spycalls'(GF,Mod,Res).
 '$spycalls'(\+ G,Mod,Res) :-
 	!,
 	CP is '$last_choice_pt',

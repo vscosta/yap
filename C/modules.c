@@ -50,9 +50,11 @@ LookupModule(Term a)
 {
   unsigned int             i;
 	
-  for (i = 0; i < NoOfModules; ++i)
-    if (ModuleName[i] == a)
+  for (i = 0; i < NoOfModules; ++i) {
+    if (ModuleName[i] == a) {       
       return (i);
+    }
+  }
   ModuleName[i = NoOfModules++] = a;
   if (NoOfModules == MaxModules) {
     _YAP_Error(SYSTEM_ERROR,a,"number of modules overflowed");
@@ -65,24 +67,18 @@ _YAP_LookupModule(Term a)
 {
   return(LookupModule(a));
 }
+
 static Int 
 p_current_module(void)
 {				/* $current_module(Old,New)		 */
   Term            t;
-  unsigned int             i;
 	
   if (!_YAP_unify_constant(ARG1, ModuleName[CurrentModule]))
     return (0);
   t = Deref(ARG2);
   if (IsVarTerm(t) || !IsAtomTerm(t))
     return (0);
-  for (i = 0; i < NoOfModules; ++i)
-    if (ModuleName[i] == t) {
-       CurrentModule = i;
-      return (TRUE);
-    }
-    CurrentModule = NoOfModules;
-  ModuleName[NoOfModules++] = t;
+  CurrentModule = LookupModule(t);
   return (TRUE);
 }
 
