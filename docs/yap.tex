@@ -2980,8 +2980,15 @@ would return:
 S = [1-b,1-a,1-b,2-c,3-a]
 @end example
 
-@end table
+@item length(?@var{L},?@var{S})
+@findex length/2
+@syindex length/2
+@cyindex length/2
+Unify the well-defined list @var{L} with its length. The procedure can
+be used to find the length of a pre-defined list, or to build a list
+of length @var{S}.
 
+@end table
 
 @node Arithmetic, I/O, Comparing Terms, Top
 @section Arithmetic
@@ -5938,8 +5945,9 @@ Built-ins that return information on the current predicates and modules:
 @findex current_module/1
 @syindex current_module/1
 @cnindex current_module/1
-Succeeds if @var{M} are current modules. A module becomes current since
-some predicate defined in it is loaded.
+Succeeds if @var{M} are defined modules. A module is defined as soon as some
+predicate defined in the module is loaded, as soon as a goal in the
+module is called, or as soon as it becomes the current typein module.
 
 @item current_module(@var{M},@var{F})
 @findex current_module/2
