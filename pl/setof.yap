@@ -85,7 +85,7 @@ findall(Template, Generator, Answers, SoFar) :-
 
 setof(Template, Generator, Set) :-
 	'$check_list'(Set, setof(Template, Generator, Set)),
-	bagof(Template, Generator, Bag),
+	'$bagof'(Template, Generator, Bag),
 	'$sort'(Bag, Set).
 
 % And this is bagof
@@ -93,7 +93,11 @@ setof(Template, Generator, Set) :-
 % Either we have excess of variables
 % and we need to find the solutions for each instantion
 % of these variables
+
 bagof(Template, Generator, Bag) :-
+	'$bagof'(Template, Generator, Bag).
+	
+'$bagof'(Template, Generator, Bag) :-
 	'$check_list'(Bag, bagof(Template, Generator, Bag)),
 	'$variables_in_term'(Template, [], TemplateV),
 	'$excess_vars'(Generator, TemplateV, [], FreeVars),
@@ -106,7 +110,7 @@ bagof(Template, Generator, Bag) :-
 	'$keysort'(Bags0, Bags),
 	'$pick'(Bags, Key, Bag).
 % or we just have a list of answers
-bagof(Template, Generator, Bag) :-
+'$bagof'(Template, Generator, Bag) :-
 	'$init_db_queue'(Ref),
 	'$findall'(Template, Generator, Ref, [], Bag0),
 	Bag0 \== [],
