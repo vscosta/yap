@@ -373,6 +373,14 @@ unix_upd_stream_info (StreamDesc * s)
   }
 #else
 #if HAVE_ISATTY
+#if __simplescalar__
+  /* isatty does not seem to work with simplescar. I'll assume the first
+     three streams will probably be ttys (pipes are not thatg different) */
+  if (s-Stream < 3) {
+    s->u.file.name = LookupAtom("tty");
+    s->status |= Tty_Stream_f|Reset_Eof_Stream_f|Promptable_Stream_f;
+  }
+#else 
   {
     int filedes; /* visualc */
     filedes = YP_fileno (s->u.file.file);
@@ -386,6 +394,7 @@ unix_upd_stream_info (StreamDesc * s)
 	return;
     }
   }
+#endif
 #endif /* HAVE_ISATTY */
 #endif /* _MSC_VER */
   s->status |= Seekable_Stream_f;

@@ -107,6 +107,10 @@ STATIC_PROTO (int chdir, (char *));
 /* #define signal	skel_signal */
 #endif /* MACYAP */
 
+#if  __simplescalar__
+char yap_pwd[YAP_FILENAME_MAX];
+#endif
+
 STD_PROTO (void exit, (int));
 
 #ifdef _WIN32
@@ -1505,7 +1509,6 @@ int TrueFileName (char *source, char *result, int in_lib)
 
 #if __simplescalar__
       /* does not implement getcwd */
-      char *yap_pwd = getenv("PWD");
       strncpy(ares1,yap_pwd,YAP_FILENAME_MAX);
 #elif HAVE_GETCWD
       if (getcwd (ares1, YAP_FILENAME_MAX) == NULL)
@@ -1595,7 +1598,6 @@ p_getcwd(void)
 
 #if __simplescalar__
   /* does not implement getcwd */
-  char *yap_pwd = getenv("PWD");
   strncpy(FileNameBuf,yap_pwd,YAP_FILENAME_MAX);
 #elif HAVE_GETCWD
   if (getcwd (FileNameBuf, YAP_FILENAME_MAX) == NULL)
@@ -1787,10 +1789,7 @@ p_cd (void)
   }
   TrueFileName (FileNameBuf, FileNameBuf2, FALSE);
 #if  __simplescalar__
-  strncpy(FileNameBuf,"PWD=",YAP_FILENAME_MAX);
-  strncat(FileNameBuf,FileNameBuf2,YAP_FILENAME_MAX);
-  fprintf(stderr,"adding %s\n", FileNameBuf);
-  putenv(FileNameBuf);
+  strncpy(yap_pwd,FileNameBuf2,YAP_FILENAME_MAX);
 #endif
   return (!chdir (FileNameBuf2));
 #else
@@ -2057,6 +2056,12 @@ set_fpu_exceptions(int flag)
 void
 InitSysbits (void)
 {
+#if  __simplescalar__
+  {
+    char *pwd = getenv("PWD");
+    strncpy(yap_pwd,pwd,YAP_FILENAME_MAX);
+  }
+#endif
   InitPageSize();
   InitTime ();
   InitWTime ();
