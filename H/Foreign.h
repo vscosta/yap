@@ -36,11 +36,10 @@
 
 #if HAVE_DLOPEN
 #define LOAD_DL 1
+#ifdef NO_DYN
+#undef NO_DYN
+#endif
 #endif /* LOAD_DL */
-
-#if HAVE_NSLINKMODULE
-#define LOAD_DYLD 1
-#endif /* LOAD_DYLD */
 
 #if defined(sparc) || defined(__sparc)
 #undef NO_DYN
@@ -72,16 +71,12 @@
 #define LOAD_SHL 1
 #endif
 
-/*
-#if defined(__MACH__) && defined(__APPLE__)
+#if HAVE_NSLINKMODULE
 #ifdef NO_DYN
 #undef NO_DYN
 #endif
-#ifndef LOAD_DL
-#define LOAD_DL 1
-#endif
-#endif
-*/
+#define LOAD_DYLD 1
+#endif /* LOAD_DYLD */
 
 extern char LoadMsg[];
 

@@ -845,7 +845,7 @@ AC_CHECK_FUNCS(time times tmpnam usleep vsnprintf)
 
 AC_CHECK_FUNC(regexec, [NO_BUILTIN_REGEXP="#"], [NO_BUILTIN_REGEXP=""])
 
-AC_CHECK_FUNC(NSLinkModule)
+AC_CHECK_FUNCS(NSLinkModule)
 
 if test "$use_condor" = "no"
 then

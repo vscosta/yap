@@ -8,9 +8,9 @@
 *									 *
 **************************************************************************
 *									 *
-* File:		load_dl.c						 *
-* comments:	dl based dynamic loaderr of external routines		 *
-*               tested on i486-linuxelf					 *
+* File:		load_dyld.c						 *
+* comments:	dyld based dynamic loaderr of external routines		 *
+*               tested on MacOS						 *
 *************************************************************************/
 
 #include "Yap.h"
@@ -19,22 +19,19 @@
 #include "yapio.h"
 #include "Foreign.h"
 
-#if LOAD_DYDL
+#if LOAD_DYLD
 
 #include <string.h>
 
-/* This code is originally from Rex A. Dieter posting in comp.sys.next.programmer */
+/* Code originally  from Rex A. Dieter's posting in comp.sys.next.programmer
+   and from dynload_next.c in the Python sources 
+*/
 #import <mach-o/dyld.h>
 
-enum dyldErrorSource
-{
-    OFImage,
-};
-
-#define NUM_OFI_ERRORS (sizeof(OFIErrorStrings) /  sizeof(OFIErrorStrings[0]))
+static int dl_errno;
 
 static char *
-mydlerror(int dl_errno)
+mydlerror(void)
 {
   char *errString;
   switch(dl_errno) {
@@ -61,6 +58,16 @@ mydlerror(int dl_errno)
 }
 
 
+/*
+ *   YAP_FindExecutable(argv[0]) should be called on yap initialization to
+ *   locate the executable of Yap
+*/
+void
+YAP_FindExecutable(char *name)
+{
+}
+
+
 static void *
 mydlopen(char *path)
 {
@@ -81,17 +88,25 @@ static void *
 mydlsym(char *symbol)
 {
     void *addr;
-    if (NSIsSymbolNameDefined(symbol))
-        addr = NSAddressOfSymbol(NSLookupAndBindSymbol(symbol));
+    char funcname[256];
+
+#if HAVE_SNPRINTF
+    snprintf(funcname, sizeof(funcname), "_init%.200s", symbol);
+#else
+    sprintf(funcname, "_%.200s", symbol);
+#endif
+    if (NSIsSymbolNameDefined(funcname))
+        addr = NSAddressOfSymbol(NSLookupAndBindSymbol(funcname));
     else
         addr = NULL;
     return addr;
 } 
 
-static void
+static int
 mydlclose(void *handle)
 {
   NSUnLinkModule(handle, NSUNLINKMODULE_OPTION_NONE);
+  return TRUE;
 } 
 
 /*
