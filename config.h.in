@@ -265,6 +265,8 @@
  #define HAVE_MPE 0
 #endif
 
+/* should we avoid realloc() in mpi.c? */
+#define MPI_AVOID_REALLOC 0
 
 /* Is fflush(NULL) clobbering input streams? */
 #undef BROKEN_FFLUSH_NULL

@@ -478,6 +478,11 @@ case "$target_os" in
 	    INSTALL_DLLS="#"
           fi
         fi
+	#do not use realloc() from HP-UX 10.20 together with MPI
+	if test ${target_os} = hpux10.20
+	then
+	  AC_DEFINE(MPI_AVOID_REALLOC,1)
+	fi
 	;;
       *aix*)
 	# To actually use dlls in AIX I'd need to build YAP as a DLL first.
