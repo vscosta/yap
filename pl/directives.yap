@@ -555,6 +555,7 @@ yap_flag(host_type,X) :-
 	'$force_char_conversion',
 	'$set_yap_flags'(14,0),
 	'$set_fpu_exceptions',
+	fileerrors,
 	unknown(_,error).
 '$adjust_language'(iso) :-
 	'$switch_log_upd'(2),
