@@ -101,7 +101,6 @@ typedef struct init_un_eval {
 #undef HAVE_ASINH
 #undef HAVE_ACOSH
 #undef HAVE_ATANH
-#undef HAVE_ARINT
 #undef HAVE_FINITE
 #endif
 
@@ -113,24 +112,6 @@ typedef struct init_un_eval {
 #endif
 #if !HAVE_ATANH
 #define atanh(F)  (log((1+(F))/(1-(F)))/2)
-#endif
-#if !HAVE_RINT
-inline static double
-rint(double x) {
-  double d = x - floor(x);
-  if (d > 0.5) {
-    return(ceil(x));
-  } else if (d > 0.5) {
-    return(floor(x));
-  } else {
-    double z = floor(x);
-    if ((z/2)*2 == z) {
-      return(z);
-    } else {
-      return(ceil(x));
-    }
-  }
-}
 #endif
 
 /*
@@ -1480,10 +1461,18 @@ p_truncate(Term t E_ARGS)
     }
   }
 
-  if (yap_flags[LANGUAGE_MODE_FLAG] == 1) { /* iso */
-    RBIG_FL(rint(dbl));
+  if (dbl >= 0 ) {
+    if (yap_flags[LANGUAGE_MODE_FLAG] == 1) { /* iso */
+      RBIG_FL(floor(dbl));
+    } else {
+      RFLOAT(floor(dbl));
+    }
   } else {
-    RFLOAT(rint(dbl));
+    if (yap_flags[LANGUAGE_MODE_FLAG] == 1) { /* iso */
+      RBIG_FL(ceil(dbl));
+    } else {
+      RFLOAT(ceil(dbl));
+    }
   }
 }
 
