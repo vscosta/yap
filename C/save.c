@@ -553,10 +553,12 @@ do_save(int mode) {
 static Int 
 p_save(void)
 {
+#if defined(YAPOR) || defined(THREADS)
   if (NOfThreads != 1) {
     Error(SYSTEM_ERROR,TermNil,"cannot perform save: more than a worker/thread running");
     return(FALSE);
   }
+#endif
   which_save = 1;
   return(do_save(DO_EVERYTHING));
 }
@@ -565,10 +567,12 @@ p_save(void)
 static Int 
 p_save2(void)
 {
+#if defined(YAPOR) || defined(THREADS)
   if (NOfThreads != 1) {
     Error(SYSTEM_ERROR,TermNil,"cannot perform save: more than a worker/thread running");
     return(FALSE);
   }
+#endif
   which_save = 2;
   return(do_save(DO_EVERYTHING) && unify(ARG2,MkIntTerm(1)));
 }
@@ -1507,10 +1511,12 @@ p_restore(void)
   int mode;
 
   Term t1 = Deref(ARG1);
+#if defined(YAPOR) || defined(THREADS)
   if (NOfThreads != 1) {
     Error(SYSTEM_ERROR,TermNil,"cannot perform save: more than a worker/thread running");
     return(FALSE);
   }
+#endif
   if (!GetName(FileNameBuf, YAP_FILENAME_MAX, t1)) {
     Error(TYPE_ERROR_LIST,t1,"restore/1");
     return(FALSE);
