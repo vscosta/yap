@@ -22,6 +22,8 @@
 :- use_module(library(ordsets), [ord_union/3
 		    ]).
 
+:- use_module(library('clpbn/xbif'), [cplbn2xbif/3]).
+
 :- use_module(library(lists),
 	      [
 	       append/3,
@@ -34,9 +36,10 @@ check_if_vel_done(Var) :-
 vel(LVs,Vs0,AllDiffs) :-
 	check_for_hidden_vars(Vs0, Vs0, Vs1),
 	sort(Vs1,Vs),
-	find_all_clpbn_vars(Vs, LV0, Tables0),
+	find_all_clpbn_vars(Vs, LV0, LVi, Tables0),
 	find_all_table_deps(Tables0, LV0),
-	process(LV0, LVs, tab(Dist,_,_)),
+	(xbif(XBifStream) -> clpbn2xbif(XBifStream,vel,Vs) ; true),
+	process(LVi, LVs, tab(Dist,_,_)),
 	Dist =.. [_|Ps0],
 	normalise(Ps0,Ps),
 	bind_vals(LVs,Ps,AllDiffs).
@@ -63,17 +66,25 @@ add_old_variables([V1|LV], AllVs0, AllVs, Vs, IVs) :-
 add_old_variables([_|LV], AllVs0, AllVs, Vs, IVs) :-
 	add_old_variables(LV, AllVs0, AllVs, Vs, IVs).
 
-find_all_clpbn_vars([], [], []) :- !.
-find_all_clpbn_vars([V|Vs], [var(V,I,Sz,Vals,Ev,_,_)|LV], [table(I,Table,Deps,Sizes)|Tables]) :-
+find_all_clpbn_vars([], [], [], []) :- !.
+find_all_clpbn_vars([V|Vs], [Var|LV], ProcessedVars, [table(I,Table,Deps,Sizes)|Tables]) :-
 	var_with_deps(V, Table, Deps, Sizes, Ev, Vals), !,
+	Var = var(V,I,Sz,Vals,Ev,_,_),
 	get_dist_els(V,Sz),
-	find_all_clpbn_vars(Vs, LV, Tables).
+	% variables with evidence should not be processed.
+	(var(Ev) ->
+	    ProcessedVars = [Var|ProcessedVars0]
+	;
+	    ProcessedVars = ProcessedVars0
+	),
+	find_all_clpbn_vars(Vs, LV, ProcessedVars0, Tables).
 
 var_with_deps(V, Table, Deps, Sizes, Ev, Vals) :-
 	clpbn:get_atts(V, [dist((D->Vals))]),
 	( clpbn:get_atts(V, [evidence(Ev)]) -> true ; true),
 	from_dist_get(D,Vals,OTable,VDeps),
-	reorder_table([V|VDeps],Sizes,OTable,Deps,Table).
+	reorder_table([V|VDeps],Sizes0,OTable,Deps0,Table0),
+	simplify_evidence(Deps0, Table0, Deps0, Sizes0, Table, Deps, Sizes).
 
 from_dist_get(average.Vs0,Vals,Lf,Vs) :- !,
 	handle_average(Vs0,Vals,Lf,Vs).
@@ -225,14 +236,12 @@ convert_factor([F0|F0s], [F|Fs], I, OUT) :-
 	NI is I mod F0,
 	NEXT is F*X,
 	convert_factor(F0s, Fs, NI, OUT1),
-	OUT is OUT1+NEXT.	
-
+	OUT is OUT1+NEXT.
 
 find_all_table_deps(Tables0, LV) :-
 	find_dep_graph(Tables0, DepGraph0),
 	sort(DepGraph0, DepGraph),
 	add_table_deps_to_variables(LV, DepGraph).
-	
 
 find_dep_graph([], []).
 find_dep_graph([table(I,Tab,Deps,Sizes)|Tables], DepGraph) :-
@@ -282,7 +291,7 @@ process(LV0, _, Out) :-
 
 find_best([], V, _, V, _, [], _).
 find_best([var(V,I,Sz,Vals,Ev,Deps,K)|LV], _, Threshold, VF, NWorktables, LVF, Inputs) :-
-	( K < Threshold ; K = Threshold, nonvar(Ev)),
+	K < Threshold,
 	not_var_member(Inputs, V), !,
 	find_best(LV, V, K, VF, WorkTables,LV0, Inputs),
 	(V == VF ->
@@ -298,6 +307,16 @@ multiply_tables([tab(Tab1,Deps1,Szs1), tab(Tab2,Deps2,Sz2)| Tables], Out) :-
 	multiply_table(Tab1, Deps1, Szs1, Tab2, Deps2, Sz2, NTab, NDeps, NSz),
 	multiply_tables([tab(NTab,NDeps,NSz)| Tables], Out).
 
+
+simplify_evidence([], Table, Deps, Sizes, Table, Deps, Sizes).
+simplify_evidence([V|VDeps], Table0, Deps0, Sizes0, Table, Deps, Sizes) :-
+	clpbn:get_atts(V, [evidence(Ev)]),
+	clpbn:get_atts(V, [dist((_->Out))]),
+	generate_szs_with_evidence(Out,Ev,Evs),
+	project(V,tab(Table0,Deps0,Sizes0),tab(NewTable,Deps1,Sizes1),Evs),
+	simplify_evidence(VDeps, NewTable, Deps1, Sizes1, Table, Deps, Sizes).
+simplify_evidence([_|VDeps], Table0, Deps0, Sizes0, Table, Deps, Sizes) :-
+	simplify_evidence(VDeps, Table0, Deps0, Sizes0, Table, Deps, Sizes).
 
 propagate_evidence(V, Evs) :-
 	clpbn:get_atts(V, [evidence(Ev),dist((_->Out))]), !,

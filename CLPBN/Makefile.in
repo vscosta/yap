@@ -26,9 +26,11 @@ srcdir=@srcdir@
 CLPBN_TOP= $(srcdir)/clpbn.yap
 
 CLPBN_PROGRAMS= \
-	$(srcdir)/clpbn/vel.yap \
+	$(srcdir)/clpbn/aggregates.yap \
 	$(srcdir)/clpbn/bnt.yap \
-	$(srcdir)/clpbn/evidence.yap
+	$(srcdir)/clpbn/evidence.yap \
+	$(srcdir)/clpbn/vel.yap \
+	$(srcdir)/clpbn/xbif.yap
 
 CLPBN_EXAMPLES=
 

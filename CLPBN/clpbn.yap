@@ -270,35 +270,6 @@ bind_evidence_from_extra_var(Ev1,Var) :-
 	put_atts(Var, [evidence(Ev1)]).
 	
 
-:- yap_flag(toplevel_hook,clpbn:init_clpbn).
-
-hash_table_size(300000).
-
-init_clpbn :-
-	reset_clpbn,
-	fail.
-%init_clpbn :-
-%	hash_table_size(HashTableSize),
-%	array(clpbn,HashTableSize),
-%	catch(static_array(keys,HashTableSize,term),_,true).
-	
-
-random_tmp_number(I) :-
-	get_value(clpbn_random_tmp_number,I),
-	I1 is I+1,
-	set_value(clpbn_random_tmp_number,I1).
-
-reset_clpbn :-
-	current_predicate(_, clpbn_aux:P),
-	retract(clpbn_aux:(P :- !)),
-	fail.
-reset_clpbn :-
-	set_value(clpbn_key, 0), fail.
-reset_clpbn :-
-	set_value(clpbn_random_tmp_number, 0), fail.
-reset_clpbn.
-
-
 user:term_expansion((A :- {}), ( :- true )) :-	 !, % evidence
 	prolog_load_context(module, M),
 	add_to_evidence(M:A).
