@@ -83,12 +83,12 @@ typedef	struct FREEB {
 
 #define BlockTrailer(b)		((YAP_SEG_SIZE *)b)[((BlockHeader *) b)->b_size]
 
-#define FreeBlocks heap_regs->free_blocks
-
 /* Operating system and architecture dependent page size */
 extern int Yap_page_size;
 
 void   STD_PROTO(Yap_InitHeap, (void *));
+UInt   STD_PROTO(Yap_ExtendWorkSpaceThroughHole, (UInt));
+void   STD_PROTO(Yap_AllocHole, (UInt, UInt));
 
 #if USE_MMAP
 

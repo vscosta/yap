@@ -163,7 +163,7 @@ mark_atoms(void)
   AtomEntry      *at;
 
   restore_codes();
-  for (i = 0; i < MaxHash; ++i) {
+  for (i = 0; i < AtomHashTableSize; ++i) {
     atm = HashPtr->Entry;
     if (atm) {
       at =  RepAtom(atm);
@@ -306,7 +306,7 @@ clean_atoms(void)
   Atom *patm;
   AtomEntry  *at;
 
-  for (i = 0; i < MaxHash; ++i) {
+  for (i = 0; i < AtomHashTableSize; ++i) {
     atm = HashPtr->Entry;
     patm = &(HashPtr->Entry);
     while (atm != NIL) {
@@ -314,6 +314,7 @@ clean_atoms(void)
       if (AtomResetMark(at) || (AGCHook != NULL && !AGCHook(atm))) {
 	patm = &(at->NextOfAE);
 	atm = at->NextOfAE;
+	NOfAtoms--;
       } else {
 #ifdef DEBUG_RESTORE2
 	fprintf(stderr, "Purged %s\n", at->StrOfAE);
@@ -332,6 +333,7 @@ clean_atoms(void)
     at =  RepAtom(CleanAtomMarkedBit(atm));
     if (AtomResetMark(at) || (AGCHook != NULL && !AGCHook(atm))) {
       patm = &(atm->NextOfAE);
+      NOfAtoms--;
       atm = at->NextOfAE;
     } else {
 #ifdef DEBUG_RESTORE2

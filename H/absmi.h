@@ -244,6 +244,10 @@ restore_absmi_regs(REGSTORE * old_regs)
 
 #define ENDCACHE_Y_AS_ENV() }
 
+#define saveregs_and_ycache() YREG = E_YREG; saveregs()
+
+#define setregs_and_ycache() E_YREG = YREG; setregs()
+
 #else
 
 #define E_YREG (YREG)
@@ -253,6 +257,10 @@ restore_absmi_regs(REGSTORE * old_regs)
 #define CACHE_Y_AS_ENV(A) { YREG = (A)
 
 #define ENDCACHE_Y_AS_ENV() }
+
+#define saveregs_and_ycache() saveregs()
+
+#define setregs_and_ycache() setregs()
 
 #endif
 

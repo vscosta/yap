@@ -287,7 +287,9 @@ Yap_absmi(int inp)
     noheapleft:
       CFREG = CalculateStackGap();
       saveregs();
-      if (!Yap_growheap(FALSE, 0)) {
+      if (NOfAtoms > 2*AtomHashTableSize) {
+	Yap_growatomtable();
+      } else if (!Yap_growheap(FALSE, 0)) {
 	Yap_Error(FATAL_ERROR, TermNil, "YAP failed to grow heap: %s", Yap_ErrorMessage);
 	setregs();
 	FAIL();
@@ -6355,38 +6357,23 @@ Yap_absmi(int inp)
       ENDBOp();
 
       BOp(expand_index, e);
-      saveregs();
       {
 	PredEntry *pe = PredFromExpandCode(PREG);
+	yamop *pt0;
+
 	/* update ASP before calling IPred */
 	ASP = YREG+E_CB;
 	if (ASP > (CELL *) B) {
 	  ASP = (CELL *) B;
 	}
-	PREG = Yap_ExpandIndex(pe);
+	saveregs();
+	pt0 = Yap_ExpandIndex(pe);
 	/* restart index */
 	setregs();
+	PREG = pt0;
 	CACHED_A1() = ARG1;
 	JMPNext();
       }
-      ENDBOp();
-
-      BOp(check_var_for_index, xxp);
-      {
-	CELL *pt0 = XREGS+PREG->u.xxp.x;
-	do {
-	  if (!IsVarTerm(*pt0)) {
-	    saveregs();
-	    Yap_RemoveIndexation(PREG->u.xxp.p);
-	    setregs();
-	    PREG = PREG->u.xxp.p->CodeOfPred;
-	    JMPNext();
-	  }
-	  pt0++;
-	} while (pt0 <= XREGS+PREG->u.xxp.x1);
-      }
-      PREG = NEXTOP(PREG,xxp);
-      JMPNext();
       ENDBOp();
 
       BOp(undef_p, e);
@@ -6794,14 +6781,32 @@ Yap_absmi(int inp)
       d0 = CACHED_A1();
       deref_head(d0, jump_if_unk);
       /* non var */
-    jump_if_nonvar:
+    jump0_if_nonvar:
       PREG = NEXTOP(PREG, l);
       JMPNext();
 
       BEGP(pt0);
-      deref_body(d0, pt0, jump_if_unk, jump_if_nonvar);
+      deref_body(d0, pt0, jump_if_unk, jump0_if_nonvar);
       /* variable */
       PREG = PREG->u.l.l;
+      ENDP(pt0);
+      JMPNext();
+      ENDD(d0);
+      ENDBOp();
+
+      BOp(jump_if_nonvar, xl);
+      BEGD(d0);
+      d0 = XREG(PREG->u.xl.x);
+      deref_head(d0, jump2_if_unk);
+      /* non var */
+    jump2_if_nonvar:
+      PREG = PREG->u.xl.l;
+      JMPNext();
+
+      BEGP(pt0);
+      deref_body(d0, pt0, jump2_if_unk, jump2_if_nonvar);
+      /* variable */
+      PREG = NEXTOP(PREG, xl);
       ENDP(pt0);
       JMPNext();
       ENDD(d0);
@@ -6840,7 +6845,7 @@ Yap_absmi(int inp)
 
 #define HASH_SHIFT 6
 
-      BOp(switch_on_func, sl);
+      BOp(switch_on_func, ssl);
       BEGD(d1);
       d1 = *SREG++;
       /* we use a very simple hash function to find elements in a
@@ -6884,7 +6889,7 @@ Yap_absmi(int inp)
       ENDD(d1);
       ENDBOp();
 
-      BOp(switch_on_cons, sl);
+      BOp(switch_on_cons, ssl);
       BEGD(d1);
       d1 = I_R;
       /* we use a very simple hash function to find elements in a
@@ -11358,11 +11363,11 @@ Yap_absmi(int inp)
 #endif
 	if (CFREG != CalculateStackGap())
 	  goto creep_pe;
-	saveregs();
+	saveregs_and_ycache();
 	if (!Yap_gc(((PredEntry *)SREG)->ArityOfPE, ENV, NEXTOP(PREG, sla))) {
 	  Yap_Error(OUT_OF_STACK_ERROR,TermNil,Yap_ErrorMessage);
 	}
-	setregs();
+	setregs_and_ycache();
 	goto execute_end;
 	ENDCACHE_Y_AS_ENV();
       }
@@ -11589,13 +11594,13 @@ Yap_absmi(int inp)
 	ASP = E_YREG;
 	if (CFREG == (CELL)(LCL0+1)) {
 	  CFREG = CalculateStackGap();
-	  saveregs();
+	  saveregs_and_ycache();
 	  if (!Yap_growheap(FALSE, 0)) {
 	    Yap_Error(SYSTEM_ERROR, TermNil, "YAP failed to grow heap: %s", Yap_ErrorMessage);
-	    setregs();
+	    setregs_and_ycache();
 	    FAIL();
 	  }
-	  setregs();
+	  setregs_and_ycache();
 	  goto execute_after_comma;
 	}
 #ifdef COROUTINING

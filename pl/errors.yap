@@ -310,6 +310,9 @@ print_message(Level, Mss) :-
 '$output_error_message'(domain_error(operator_specifier,Op), Where) :-
 	'$format'(user_error,"[ DOMAIN ERROR- ~w: invalid operator specifier ~w ]~n",
 	[Where,Op]).
+'$output_error_message'(domain_error(out_of_range,Value), Where) :-
+	'$format'(user_error,"[ DOMAIN ERROR- ~w: expression ~w is out of range ]~n",
+	[Where,Value]).
 '$output_error_message'(domain_error(close_option,Opt), Where) :-
 	'$format'(user_error,"[ DOMAIN ERROR- ~w: invalid close option ~w ]~n",
 	[Where,Opt]).

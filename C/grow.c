@@ -42,6 +42,9 @@ static Int total_delay_overflow_time = 0;
 static int trail_overflows = 0;
 static Int total_trail_overflow_time = 0;
 
+static int atom_table_overflows = 0;
+static Int total_atom_table_overflow_time = 0;
+
 STATIC_PROTO(Int p_growheap, (void));
 STATIC_PROTO(Int p_growstack, (void));
 STATIC_PROTO(Int p_inform_trail_overflows, (void));
@@ -494,13 +497,21 @@ static_growheap(long size, int fix_code)
 {
   Int start_growth_time, growth_time;
   int gc_verbose;
+  UInt hole = 0L;
 
   /* adjust to a multiple of 256) */
   size = AdjustPageSize(size);
   Yap_ErrorMessage = NULL;
   if (!Yap_ExtendWorkSpace(size)) {
-    strncat(Yap_ErrorMessage,": heap crashed against stacks", MAX_ERROR_MSG_SIZE);
-    return(FALSE);
+    Int min_size = (CELL)Yap_TrailTop-(CELL)Yap_GlobalBase;
+
+    if (size < min_size) size = min_size;
+    hole = size;
+    size = Yap_ExtendWorkSpaceThroughHole(size);
+    if (size < 0) {
+      strncat(Yap_ErrorMessage,": heap crashed against stacks", MAX_ERROR_MSG_SIZE);
+      return FALSE;
+    }
   }
   start_growth_time = Yap_cputime();
   gc_verbose = Yap_is_gc_verbose();
@@ -531,6 +542,8 @@ static_growheap(long size, int fix_code)
   AdjustRegs(MaxTemps);
   YAPLeaveCriticalSection();
   ASP += 256;
+  if (hole) 
+    Yap_AllocHole(hole, size);
   growth_time = Yap_cputime()-start_growth_time;
   total_heap_overflow_time += growth_time;
   if (gc_verbose) {
@@ -649,8 +662,8 @@ fix_tabling_info(void)
 }
 #endif /* TABLING */
 
-int
-Yap_growheap(int fix_code, UInt in_size)
+static int
+do_growheap(int fix_code, UInt in_size)
 {
   unsigned long size = sizeof(CELL) * 16 * 1024L;
   int shift_factor = (heap_overflows > 8 ? 8 : heap_overflows);
@@ -697,6 +710,12 @@ Yap_growheap(int fix_code, UInt in_size)
   }
   /* failed */
   return(FALSE);
+}
+
+int
+Yap_growheap(int fix_code, UInt in_size)
+{
+  return do_growheap(fix_code, in_size);
 }
 
 int
@@ -944,6 +963,59 @@ Yap_growtrail(long size)
   return(TRUE);
 }
 
+void
+Yap_growatomtable(void)
+{
+  AtomHashEntry *ntb;
+  UInt nsize = 4*AtomHashTableSize-1, i;
+  Int start_growth_time = Yap_cputime(), growth_time;
+  int gc_verbose = Yap_is_gc_verbose();
+
+  while ((ntb = (AtomHashEntry *)Yap_AllocCodeSpace(nsize*sizeof(AtomHashEntry))) == NULL) {
+    /* leave for next time */
+    if (!do_growheap(FALSE, nsize*sizeof(AtomHashEntry)))
+      return;
+  }
+  atom_table_overflows++;
+  if (gc_verbose) {
+    fprintf(Yap_stderr, "[AO] Atom Table overflow %d\n", atom_table_overflows);
+    fprintf(Yap_stderr, "[AO]    growing the atom table to %ld entries\n", (long int)(nsize));
+  }
+  YAPEnterCriticalSection();
+  for (i = 0; i < nsize; ++i) {
+    INIT_RWLOCK(ntb[i].AERWLock);
+    ntb[i].Entry = NIL;
+  }
+  for (i = 0; i < AtomHashTableSize; i++) {
+    Atom            catom;
+
+    READ_LOCK(HashChain[i].AERWLock);
+    catom = HashChain[i].Entry;
+    while (catom != NIL) {
+      AtomEntry *ap = RepAtom(catom);
+      Atom natom;
+      CELL hash;
+
+      hash = HashFunction(ap->StrOfAE) % nsize;
+      natom = ap->NextOfAE;
+      ap->NextOfAE = ntb[hash].Entry;
+      ntb[hash].Entry = catom;
+      catom = natom;
+    }
+    READ_UNLOCK(HashChain[i].AERWLock);
+  }
+  Yap_FreeCodeSpace((char *)HashChain);
+  HashChain = ntb;
+  AtomHashTableSize = nsize;
+  YAPLeaveCriticalSection();
+  growth_time = Yap_cputime()-start_growth_time;
+  total_atom_table_overflow_time += growth_time;
+  if (gc_verbose) {
+    fprintf(Yap_stderr, "[AO]   took %g sec\n", (double)growth_time/1000);
+    fprintf(Yap_stderr, "[AO] Total of %g sec expanding atom table \n", (double)total_atom_table_overflow_time/1000);
+  }
+}
+
 
 static Int
 p_inform_trail_overflows(void)
@@ -1026,11 +1098,11 @@ Yap_total_stack_shift_time(void)
 void
 Yap_InitGrowPreds(void)
 {
-	Yap_InitCPred("$grow_heap", 1, p_growheap, SafePredFlag);
-	Yap_InitCPred("$grow_stack", 1, p_growstack, SafePredFlag);
-	Yap_InitCPred("$inform_trail_overflows", 2, p_inform_trail_overflows, SafePredFlag);
-	Yap_InitCPred("$inform_heap_overflows", 2, p_inform_heap_overflows, SafePredFlag);
-	Yap_InitCPred("$inform_stack_overflows", 2, p_inform_stack_overflows, SafePredFlag);
-	Yap_init_gc();
-	Yap_init_agc();
+  Yap_InitCPred("$grow_heap", 1, p_growheap, SafePredFlag);
+  Yap_InitCPred("$grow_stack", 1, p_growstack, SafePredFlag);
+  Yap_InitCPred("$inform_trail_overflows", 2, p_inform_trail_overflows, SafePredFlag);
+  Yap_InitCPred("$inform_heap_overflows", 2, p_inform_heap_overflows, SafePredFlag);
+  Yap_InitCPred("$inform_stack_overflows", 2, p_inform_stack_overflows, SafePredFlag);
+  Yap_init_gc();
+  Yap_init_agc();
 }

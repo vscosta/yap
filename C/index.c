@@ -407,6 +407,9 @@ has_cut(yamop *pc)
     case _try_in:
       pc = NEXTOP(pc,l);
       break;
+    case _jump_if_nonvar:
+      pc = NEXTOP(pc,xl);
+      break;
       /* instructions type EC */
     case _alloc_for_logical_pred:
       pc = NEXTOP(pc,EC);
@@ -482,9 +485,6 @@ has_cut(yamop *pc)
     case _p_compound_x:
     case _p_float_x:
       pc = NEXTOP(pc,x);
-      break;
-    case _check_var_for_index:
-      pc = NEXTOP(pc,xxp);
       break;
       /* instructions type y */
     case _save_b_y:
@@ -1571,6 +1571,9 @@ add_info(ClauseDef *clause, UInt regno)
     case _try_in:
       clause->Tag = (CELL)NULL;
       return;
+    case _jump_if_nonvar:
+      clause->Tag = (CELL)NULL;
+      return;
       /* instructions type e */
     case _trust_fail:
     case _op_fail:
@@ -1590,7 +1593,6 @@ add_info(ClauseDef *clause, UInt regno)
     case _p_execute_tail:
     case _index_dbref:
     case _index_blob:
-    case _check_var_for_index:
 #ifdef YAPOR
     case _getwork_first_time:
 #endif
@@ -2525,11 +2527,6 @@ do_var_clauses(ClauseDef *c0, ClauseDef *cf, int var_group, PredEntry *ap, int f
 
   labl = new_label();
   Yap_emit(label_op, labl, Zero);
-  if (argno0 <= ap->ArityOfPE &&
-      cf - c0 > 3 &&
-      ap->ModuleOfPred != 2) {
-    Yap_emit(check_var_op, argno0, (CELL)ap);
-  }
   /*
     add expand_node if var_group == TRUE (jump on var) ||
 		       var_group == FALSE (leaf node)
@@ -3020,31 +3017,30 @@ do_index(ClauseDef *min, ClauseDef* max, PredEntry *ap, UInt argno, UInt fail_l,
     return do_var_clauses(min, max, FALSE, ap, first, clleft, fail_l, ap->ArityOfPE+1);
   }
   t = Deref(XREGS[argno]);
-  labl0 = labl = new_label();
-  while (IsVarTerm(t)) {
-    if (argno0 == 1) {
-      /* force indexing on first argument, even if first argument is unbound */
-      argno = 1;
-      break;
-    }
-    if (argno == ap->ArityOfPE) {
-      if (max-min==ap->cs.p_code.NOfClauses-1 &&
-	  !(ap->PredFlags & LogUpdatePredFlag)) {
-	/* we cover every clause */
-	return (UInt)(ap->cs.p_code.FirstClause);
-      } else {
-	return do_var_clauses(min, max, FALSE, ap, first, clleft, fail_l, argno0);
-      }
-    }
-    argno++;
-    t = Deref(XREGS[argno]);
-  }
   if (ap->PredFlags & LogUpdatePredFlag) {
     found_pvar = cls_head_info(min, max, argno);
   } else {
     found_pvar = cls_info(min, max, argno);
   }
   ngroups = groups_in(min, max, group);
+  labl0 = labl = new_label();
+  while (IsVarTerm(t)) {
+    if (max - min > 2 &&
+	ap->ModuleOfPred != 2) {
+      Yap_emit(jump_nv_op, (CELL)(&(ap->cs.p_code.ExpandCode)), argno);
+    }   
+    if (argno == ap->ArityOfPE) {
+      return do_var_clauses(min, max, FALSE, ap, first, clleft, fail_l, argno0);
+    }
+    argno++;
+    t = Deref(XREGS[argno]);
+    if (ap->PredFlags & LogUpdatePredFlag) {
+      found_pvar = cls_head_info(min, max, argno);
+    } else {
+      found_pvar = cls_info(min, max, argno);
+    }
+    ngroups = groups_in(min, max, group);
+  }
   top = (CELL *)(group+ngroups);
   if (argno > 1) {
     /* don't try being smart for other arguments than the first */
@@ -3596,7 +3592,7 @@ static FuncSwiEntry *
 lookup_f(Functor f, yamop *tab, COUNT entries)
 {
   FuncSwiEntry *febase = (FuncSwiEntry *)tab;
-
+                                                
   while (febase->Tag != f) {
     entries--;
     febase++;
@@ -3654,6 +3650,7 @@ expand_index(PredEntry *ap) {
   labelno = 1;
   stack[0].pos = 0;
   /* try to refine the interval using the indexing code */
+
   while (ipc != NULL) {
     op_numbers op;
 
@@ -3671,7 +3668,15 @@ expand_index(PredEntry *ap) {
       isfirstcl = FALSE;
       ipc = NEXTOP(ipc,ld);
       break;
-      /* instructions type l */
+    case _try_in:
+      if (ap->PredFlags & LogUpdatePredFlag) {
+	first = ClauseCodeToLogUpdClause(ipc->u.l.l)->ClNext->ClCode;
+      } else {
+	first = NextClause(PREVOP(ipc->u.l.l,ld));
+      }
+      isfirstcl = FALSE;
+      ipc = NEXTOP(ipc,l);
+      break;
     case _retry_me:
     case _retry_me1:
     case _retry_me2:
@@ -3737,6 +3742,19 @@ expand_index(PredEntry *ap) {
 	ipc = NEXTOP(ipc,l);
       }
       break;
+    case _jump_if_nonvar:
+      argno = arg_from_x(ipc->u.xl.x);
+      t = Deref(Yap_XREGS[argno]);
+      i = 0;
+      /* expand_index expects to find the new argument */
+      argno--;
+      if (!IsVarTerm(t)) {
+	labp = &(ipc->u.xl.l);
+	ipc = ipc->u.xl.l;
+      } else {
+	ipc = NEXTOP(ipc,xl);
+      }
+      break;
       /* instructions type EC */
       /* instructions type e */
     case _index_dbref:
@@ -3751,15 +3769,6 @@ expand_index(PredEntry *ap) {
       s_reg = NULL;
       ipc = NEXTOP(ipc,e);
       break;
-    case _check_var_for_index:
-      ipc = NEXTOP(ipc,xxp);
-      break;
-    case _try_in:
-      if (first) {
-	ipc = NEXTOP(ipc,ld);
-      } else {
-	ipc = ipc->u.ld.d;
-      }
       /* instructions type e */
     case _switch_on_type:
       t = Deref(ARG1);
@@ -3804,7 +3813,7 @@ expand_index(PredEntry *ap) {
     case _switch_on_arg_type:
       argno = arg_from_x(ipc->u.xllll.x);
       i = 0;
-      t = Deref(XREGS[argno]);
+      t = Deref(Yap_XREGS[argno]);
       if (IsVarTerm(t)) {
 	labp = &(ipc->u.xllll.l4);
 	ipc = ipc->u.xllll.l4;
@@ -4064,10 +4073,6 @@ ExpandIndex(PredEntry *ap) {
   if (Yap_Option['i' - 'a' + 1]) {
     Term tmod = ModuleName[ap->ModuleOfPred];
     Yap_DebugPutc(Yap_c_error_stream,'>');
-    {
-      extern long long int vsc_count;
-      fprintf(stderr,"%lld",vsc_count);
-    }
     Yap_DebugPutc(Yap_c_error_stream,'\t');
     Yap_plwrite(tmod, Yap_DebugPutc, 0);
     Yap_DebugPutc(Yap_c_error_stream,':');
@@ -4785,6 +4790,8 @@ insertz_in_lu_block(LogUpdIndex *blk, PredEntry *ap, yamop *code)
   }
   if (next <= end) {
     /* we got space to put something in */
+    LogUpdClause *tgl = ClauseCodeToLogUpdClause(code);
+
     if (blk->ClCode->opc != Yap_opcode(_stale_lu_index)) {
       if (blk->ClFlags & InUseMask) {
 	blk->ClCode->opc = Yap_opcode(_stale_lu_index);
@@ -4792,6 +4799,7 @@ insertz_in_lu_block(LogUpdIndex *blk, PredEntry *ap, yamop *code)
 	/* we need to rebuild the code */
 	/* first, shift the last retry down, getting rid of the trust logical pred */
 	yamop *nlast = PREVOP(last, l);
+	  
 	memmove((void *)nlast, (void *)last, (CELL)NEXTOP((yamop *)NULL,ld));
 	nlast->opc = Yap_opcode(_retry);
 	where = NEXTOP(nlast,ld);
@@ -4823,6 +4831,7 @@ insertz_in_lu_block(LogUpdIndex *blk, PredEntry *ap, yamop *code)
 #endif /* TABLING */
     blk->ClCode->u.Ill.l2 = NEXTOP(where,ld);
     blk->ClCode->u.Ill.s++;
+    tgl->ClRefCount++;
     return blk->ClCode;
   } else {
     return replace_lu_block(blk, RECORDZ, ap, code, has_cut(code));
@@ -4866,7 +4875,10 @@ inserta_in_lu_block(LogUpdIndex *blk, PredEntry *ap, yamop *code)
     /* we got space to put something in */
     op_numbers sop = Yap_op_from_opcode(next->opc);
     if (sop != _retry_killed) {
+      LogUpdClause *tgl = ClauseCodeToLogUpdClause(next->u.ld.d);
+
       next->opc = Yap_opcode(_retry);
+      tgl->ClRefCount++;
     }
     blk->ClCode->u.Ill.l1 = here;
     blk->ClCode->u.Ill.s++;
@@ -5050,6 +5062,10 @@ add_to_index(PredEntry *ap, int first, path_stack_entry *sp, ClauseDef *cls) {
     case _jump_if_var:
       sp = push_path(sp, &(ipc->u.l.l), cls);
       ipc = NEXTOP(ipc,l);
+      break;
+    case _jump_if_nonvar:
+      sp = push_path(sp, &(ipc->u.xl.l), cls);
+      ipc = NEXTOP(ipc,xl);
       break;
       /* instructions type EC */
     case _try_in:
@@ -5299,10 +5315,12 @@ add_to_index(PredEntry *ap, int first, path_stack_entry *sp, ClauseDef *cls) {
 	  ipc = pop_path(&sp, cls, ap);
 	} else if (newpc == FAILCODE) {
 	  /* oops, nothing there */
-	  if (table_fe_overflow(ipc, f)) {
-	    fe = expand_ftable(ipc, current_block(sp), ap, f);
+	  if (fe->Tag != f) {
+	    if (table_fe_overflow(ipc, f)) {
+	      fe = expand_ftable(ipc, current_block(sp), ap, f);
+	    }
+	    fe->Tag = f;
 	  }
-	  fe->Tag = f;
 	  fe->Label = (UInt)cls->CurrentCode;
 	  ipc = pop_path(&sp, cls, ap);
 	} else {
@@ -5320,9 +5338,6 @@ add_to_index(PredEntry *ap, int first, path_stack_entry *sp, ClauseDef *cls) {
     case _index_blob:
       cls->Tag = MkIntTerm(RepAppl(cls->u.t_ptr)[1]);
       ipc = NEXTOP(ipc,e);
-      break;
-    case _check_var_for_index:
-      ipc = NEXTOP(ipc,xxp);
       break;
     case _switch_on_cons:
     case _if_cons:
@@ -5344,10 +5359,12 @@ add_to_index(PredEntry *ap, int first, path_stack_entry *sp, ClauseDef *cls) {
 	  ipc = pop_path(&sp, cls, ap);
 	} else if (newpc == FAILCODE) {
 	  /* oops, nothing there */
-	  if (table_ae_overflow(ipc, at)) {
-	    ae = expand_ctable(ipc, current_block(sp), ap, at);
+	  if (ae->Tag != at) {
+	    if (table_ae_overflow(ipc, at)) {
+	      ae = expand_ctable(ipc, current_block(sp), ap, at);
+	    }
+	    ae->Tag = at;
 	  }
-	  ae->Tag = at;
 	  ae->Label = (UInt)cls->CurrentCode;
 	  ipc = pop_path(&sp, cls, ap);
 	} else {
@@ -5505,6 +5522,17 @@ remove_from_index(PredEntry *ap, path_stack_entry *sp, ClauseDef *cls, yamop *bg
       ipc = NEXTOP(ipc, p);
       break;
     case _try_in:
+      /* I cannot expand a predicate that starts on a variable,
+         have to expand the index.
+      */
+      if (IN_BETWEEN(bg,ipc->u.l.l,lt)) {
+	sp = kill_clause(ipc, bg, lt, sp, ap);
+	ipc = pop_path(&sp, cls, ap);
+      } else {
+	/* just go to next instruction */
+	ipc = NEXTOP(ipc,l);
+      }
+      break;
     case _try_clause:
     case _retry:
       /* I cannot expand a predicate that starts on a variable,
@@ -5565,6 +5593,10 @@ remove_from_index(PredEntry *ap, path_stack_entry *sp, ClauseDef *cls, yamop *bg
     case _jump_if_var:
       sp = push_path(sp, &(ipc->u.l.l), cls);
       ipc = NEXTOP(ipc,l);
+      break;
+    case _jump_if_nonvar:
+      sp = push_path(sp, &(ipc->u.xl.l), cls);
+      ipc = NEXTOP(ipc,xl);
       break;
       /* instructions type e */
     case _switch_on_type:
@@ -5798,9 +5830,6 @@ remove_from_index(PredEntry *ap, path_stack_entry *sp, ClauseDef *cls, yamop *bg
       cls->Tag = MkIntTerm(RepAppl(cls->u.t_ptr)[1]);
       ipc = NEXTOP(ipc,e);
       break;
-    case _check_var_for_index:
-      ipc = NEXTOP(ipc,xxp);
-      break;
     case _switch_on_cons:
     case _if_cons:
     case _go_on_cons:
@@ -5894,10 +5923,6 @@ Yap_RemoveClauseFromIndex(PredEntry *ap, yamop *beg) {
 	Yap_plwrite(MkIntTerm(ArityOfFunctor(f)), Yap_DebugPutc, 0);
       }
     } else {
-      {
-	extern long long int vsc_count;
-	printf("vsc_count: %llu\n", vsc_count);
-      }
       if (ap->PredFlags & NumberDBPredFlag) {
 	Int id = ap->src.IndxId;
 	Yap_plwrite(MkIntegerTerm(id), Yap_DebugPutc, 0);
@@ -6139,6 +6164,17 @@ Yap_follow_lu_indexing_code(PredEntry *ap, yamop *ipc, Term t1, Term tb, Term tr
 	}
       }
       break;
+    case _jump_if_nonvar:
+      {
+	Term t = Deref(Yap_XREGS[arg_from_x(ipc->u.xllll.x)]);
+	if (!IsVarTerm(t)) {
+	  jlbl = &(ipc->u.xl.l);
+	  ipc = ipc->u.xl.l;
+	} else {
+	  ipc = NEXTOP(ipc,xl);
+	}
+      }
+      break;
       /* instructions type e */
     case _switch_on_type:
       t = Deref(ARG1);
@@ -6248,9 +6284,6 @@ Yap_follow_lu_indexing_code(PredEntry *ap, yamop *ipc, Term t1, Term tb, Term tr
     case _index_blob:
       t = MkIntTerm(s_reg[0]);
       ipc = NEXTOP(ipc,e);
-      break;
-    case _check_var_for_index:
-      ipc = NEXTOP(ipc,xxp);
       break;
     case _switch_on_cons:
     case _if_cons:
@@ -6367,6 +6400,13 @@ find_caller(PredEntry *ap, yamop *code) {
 	ipc = NEXTOP(ipc,l);
       }
       break;
+    case _jump_if_nonvar:
+      if (!IsVarTerm(Yap_XREGS[arg_from_x(ipc->u.xllll.x)])) {
+	ipc = ipc->u.xl.l;
+      } else {
+	ipc = NEXTOP(ipc,xl);
+      }
+      break;
       /* instructions type EC */
       /* instructions type e */
     case _index_dbref:
@@ -6380,9 +6420,6 @@ find_caller(PredEntry *ap, yamop *code) {
       sp[-1].val = t;
       s_reg = NULL;
       ipc = NEXTOP(ipc,e);
-      break;
-    case _check_var_for_index:
-      ipc = NEXTOP(ipc,xxp);
       break;
       /* instructions type e */
     case _switch_on_type:

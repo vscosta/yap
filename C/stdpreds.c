@@ -447,7 +447,7 @@ FindAtom(codeToFind, arity)
   Atom            a;
   int             i;
 
-  for (i = 0; i < MaxHash; ++i) {
+  for (i = 0; i < AtomHashTableSize; ++i) {
     READ_LOCK(HashChain[i].AeRWLock);
     a = HashChain[i].Entry;
     READ_UNLOCK(HashChain[i].AeRWLock);
@@ -1601,7 +1601,7 @@ cont_current_atom(void)
   if (catom == NIL){
     i++;
     /* move away from current hash table line */
-    while (i < MaxHash) {
+    while (i < AtomHashTableSize) {
       READ_LOCK(HashChain[i].AERWLock);
       catom = HashChain[i].Entry;
       if (catom != NIL) {
@@ -1610,7 +1610,7 @@ cont_current_atom(void)
       READ_UNLOCK(HashChain[i].AERWLock);
       i++;
     }
-    if (i == MaxHash) {
+    if (i == AtomHashTableSize) {
       cut_fail();
     } else {
       READ_UNLOCK(HashChain[i].AERWLock);
@@ -1620,7 +1620,7 @@ cont_current_atom(void)
   if (Yap_unify_constant(ARG1, MkAtomTerm(catom))) {
     if (ap->NextOfAE == NIL) {
       i++;
-      while (i < MaxHash) {
+      while (i < AtomHashTableSize) {
 	READ_LOCK(HashChain[i].AERWLock);
 	catom = HashChain[i].Entry;
 	READ_UNLOCK(HashChain[i].AERWLock);
@@ -1629,7 +1629,7 @@ cont_current_atom(void)
 	}
 	i++;
       }
-      if (i == MaxHash) {
+      if (i == AtomHashTableSize) {
 	cut_succeed();
       } else {
 	EXTRA_CBACK_ARG(1,1) = MkAtomTerm(catom);
@@ -1672,7 +1672,7 @@ cont_current_predicate(void)
 {
   PredEntry      *pp = (PredEntry *)IntegerOfTerm(EXTRA_CBACK_ARG(3,1));
   UInt Arity;
-  Atom name;
+  Term name;
 
   while (pp != NULL) {
     if (pp->PredFlags & HiddenPredFlag)
@@ -1685,12 +1685,26 @@ cont_current_predicate(void)
   EXTRA_CBACK_ARG(3,1) = (CELL)MkIntegerTerm((Int)(pp->NextPredOfModule));
   if (pp->FunctorOfPred == FunctorModule)
     return(FALSE);
-  Arity = pp->ArityOfPE;
-  if (Arity)
-    name = NameOfFunctor(pp->FunctorOfPred);
-  else
-    name = (Atom)pp->FunctorOfPred;
-  return (Yap_unify(ARG2,MkAtomTerm(name)) &&
+  if (pp->ModuleOfPred != 2) {
+    Arity = pp->ArityOfPE;
+    if (Arity)
+      name = MkAtomTerm(NameOfFunctor(pp->FunctorOfPred));
+    else
+      name = MkAtomTerm((Atom)pp->FunctorOfPred);
+  } else {
+    if (pp->PredFlags & NumberDBPredFlag) {
+      name = MkIntegerTerm(pp->src.IndxId);
+      Arity = 0;
+    } else if (pp->PredFlags & AtomDBPredFlag) {
+      name = MkAtomTerm((Atom)pp->FunctorOfPred);
+      Arity = 0;
+    } else {
+      Functor f = pp->FunctorOfPred;
+      name = MkAtomTerm(NameOfFunctor(f));
+      Arity = ArityOfFunctor(f);
+    }
+  }
+  return (Yap_unify(ARG2,name) &&
 	  Yap_unify(ARG3, MkIntegerTerm((Int)Arity)));
 }
 
@@ -1813,7 +1827,7 @@ cont_current_op(void)
 	  }
 	  i++;
 	}
-	if (i == MaxHash)
+	if (i == AtomHashTableSize)
 	  cut_fail();
 	EXTRA_CBACK_ARG(3,2) = (CELL) MkIntTerm(i);
       }

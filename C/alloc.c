@@ -12,7 +12,7 @@
 * Last rev:								 *
 * mods:									 *
 * comments:	allocating space					 *
-* version:$Id: alloc.c,v 1.36 2003-10-19 00:33:10 vsc Exp $		 *
+* version:$Id: alloc.c,v 1.37 2003-10-28 01:16:02 vsc Exp $		 *
 *************************************************************************/
 #ifdef SCCS
 static char SccsId[] = "%W% %G%";
@@ -231,12 +231,15 @@ AllocHeap(unsigned int size)
   BlockHeader *b, *n;
   YAP_SEG_SIZE *sp;
 
+  size += 2*sizeof(YAP_SEG_SIZE);
 #if SIZEOF_INT_P==4
-  size = (((size + 7) & 0xfffffff8L) >> 2) + 2;	/* size in dwords + 2 */
+  size = (((size + 7) & 0xfffffff8L) >> 2);	/* size in dwords + 2 */
 #endif
 #if SIZEOF_INT_P==8
-  size = (((size + 7) & 0xfffffffffffffff8LL) >> 3) + 2;	/* size in dwords + 2 */
+  size = (((size + 7) & 0xfffffffffffffff8LL) >> 3);	/* size in dwords + 2 */
 #endif
+  if (size < (sizeof(YAP_SEG_SIZE)+sizeof(BlockHeader))/sizeof(CELL))
+    size = (sizeof(YAP_SEG_SIZE)+sizeof(BlockHeader))/sizeof(CELL);
   LOCK(FreeBlocksLock);
   if ((b = GetBlock(size))) {
     if (b->b_size >= size + 6 + 1) {
@@ -339,6 +342,9 @@ Yap_ReleasePreAllocCodeSpace(ADDR ptr)
 static void
 FreeCodeSpace(char *p)
 {
+  if (p == 0x2adc37e4) {
+    printf("Erasing my block\n");
+  }
   FreeBlock(((BlockHeader *) (p - sizeof(YAP_SEG_SIZE))));
 }
 
@@ -476,6 +482,10 @@ Yap_FreeWorkSpace(void)
 #define USE_FIXED 1
 #endif
 
+#ifndef MAP_FIXED
+#define MAP_FIXED 1
+#endif
+
 static MALLOC_T WorkSpaceTop;
 
 static MALLOC_T
@@ -582,7 +592,7 @@ InitWorkSpace(Int s)
 }
 
 static int
-ExtendWorkSpace(Int s)
+ExtendWorkSpace(Int s, int fixed_allocation)
 {
 #ifdef YAPOR
   abort_optyap("function ExtendWorkSpace called");
@@ -591,16 +601,22 @@ ExtendWorkSpace(Int s)
 
   MALLOC_T a;
   prolog_exec_mode OldPrologMode = Yap_PrologMode;
+  MALLOC_T base = WorkSpaceTop;
+
+  if (fixed_allocation == MAP_FIXED)
+    base = WorkSpaceTop;
+  else
+    base = 0L;
 
 #if defined(_AIX) || defined(__hpux)
   Yap_PrologMode = ExtendStackMode;
-  a = mmap(WorkSpaceTop, (size_t) s, PROT_READ | PROT_WRITE | PROT_EXEC,
+  a = mmap(base, (size_t) s, PROT_READ | PROT_WRITE | PROT_EXEC,
 		    MAP_PRIVATE | MAP_ANONYMOUS, -1, 0);
 
 #elif defined(__APPLE__)
   Yap_PrologMode = ExtendStackMode;
-  a = mmap(WorkSpaceTop, (size_t) s, PROT_READ | PROT_WRITE | PROT_EXEC,
-		    MAP_PRIVATE | MAP_ANON | MAP_FIXED, -1, 0);
+  a = mmap(base, (size_t) s, PROT_READ | PROT_WRITE | PROT_EXEC,
+		    MAP_PRIVATE | MAP_ANON | fixed_allocation, -1, 0);
 #else
   int fd;
   Yap_PrologMode = ExtendStackMode;
@@ -664,11 +680,11 @@ ExtendWorkSpace(Int s)
       return FALSE;
     }
   }
-  a = mmap(WorkSpaceTop, (size_t) s, PROT_READ | PROT_WRITE | PROT_EXEC,
+  a = mmap(base, (size_t) s, PROT_READ | PROT_WRITE | PROT_EXEC,
 		    MAP_PRIVATE
 #if !defined(__linux)
 	   /* use  MAP_FIXED, otherwise God knows where you will be placed */
-	   |MAP_FIXED
+	   |fixed_allocation
 #endif
 	   , fd, 0);
   if (close(fd) == -1) {
@@ -696,14 +712,21 @@ ExtendWorkSpace(Int s)
     Yap_PrologMode = OldPrologMode;
     return FALSE;
   }
-  if (a != WorkSpaceTop) {
-    Yap_ErrorMessage = Yap_ErrorSay;
-    snprintf5(Yap_ErrorMessage, MAX_ERROR_MSG_SIZE,
-	      "mmap could not grow memory at %p, got %p", WorkSpaceTop, a );
-    Yap_PrologMode = OldPrologMode;
-    return FALSE;
+  if (fixed_allocation) {
+    if (a != WorkSpaceTop) {
+      Yap_ErrorMessage = Yap_ErrorSay;
+      snprintf5(Yap_ErrorMessage, MAX_ERROR_MSG_SIZE,
+		"mmap could not grow memory at %p, got %p", WorkSpaceTop, a );
+      Yap_PrologMode = OldPrologMode;
+      return FALSE;
+    }
+  } else if (a < WorkSpaceTop) {
+      Yap_ErrorMessage = Yap_ErrorSay;
+      snprintf5(Yap_ErrorMessage, MAX_ERROR_MSG_SIZE,
+		"mmap could grew memory at lower addresses than %p, got %p", WorkSpaceTop, a );
+      Yap_PrologMode = OldPrologMode;
+      return FALSE;
   }
-  
   WorkSpaceTop = (char *) a + s;
   Yap_PrologMode = OldPrologMode;
   return TRUE;
@@ -752,7 +775,7 @@ InitWorkSpace(Int s)
 }
 
 static int
-ExtendWorkSpace(Int s)
+ExtendWorkSpace(Int s, int fixed_allocation)
 {
   MALLOC_T ptr;
   int shm_id;
@@ -828,7 +851,7 @@ InitWorkSpace(Int s)
 }
 
 static int
-ExtendWorkSpace(Int s)
+ExtendWorkSpace(Int s, fixed_allocation)
 {
   MALLOC_T ptr = (MALLOC_T)sbrk(s);
   prolog_exec_mode OldPrologMode = Yap_PrologMode;
@@ -958,35 +981,35 @@ InitWorkSpace(Int s)
 }
 
 static int
-ExtendWorkSpace(Int s)
+ExtendWorkSpace(Int s, int fixed_allocation)
 {
   MALLOC_T ptr;
   prolog_exec_mode OldPrologMode = Yap_PrologMode;
 
   Yap_PrologMode = ExtendStackMode;
   total_space += s;
-  if (total_space < MAX_SPACE) return(TRUE);
+  if (total_space < MAX_SPACE) return TRUE;
   ptr = (MALLOC_T)realloc((void *)Yap_HeapBase, total_space);
   if (ptr == NULL) {
     Yap_ErrorMessage = Yap_ErrorSay;
     snprintf4(Yap_ErrorMessage, MAX_ERROR_MSG_SIZE,
 	      "could not allocate %d bytes", s);
     Yap_PrologMode = OldPrologMode;
-    return(FALSE);
+    return FALSE;
   }
   if (ptr != (MALLOC_T)Yap_HeapBase) {
     Yap_ErrorMessage = Yap_ErrorSay;
     snprintf4(Yap_ErrorMessage, MAX_ERROR_MSG_SIZE,
 	      "could not expand contiguous stacks  %d bytes", s);
     Yap_PrologMode = OldPrologMode;
-    return(FALSE);
+    return FALSE;
   }
   if ((CELL)ptr & MBIT) {
     Yap_ErrorMessage = Yap_ErrorSay;
     snprintf5(Yap_ErrorMessage, MAX_ERROR_MSG_SIZE,
 	      "memory at %p conflicts with MBIT %lx", ptr, (unsigned long)MBIT);
     Yap_PrologMode = OldPrologMode;
-    return(FALSE);
+    return FALSE;
   }
   Yap_PrologMode = OldPrologMode;
   return TRUE;
@@ -1092,5 +1115,34 @@ Yap_InitMemory(int Trail, int Heap, int Stack)
 int
 Yap_ExtendWorkSpace(Int s)
 {
-  return ExtendWorkSpace(s);
+  return ExtendWorkSpace(s, MAP_FIXED);
+}
+
+UInt
+Yap_ExtendWorkSpaceThroughHole(UInt s)
+{
+  MALLOC_T WorkSpaceTop0 = WorkSpaceTop;
+
+  if (ExtendWorkSpace(s, 0))
+    return WorkSpaceTop-WorkSpaceTop0;
+  return -1;
+}
+
+void
+Yap_AllocHole(UInt actual_request, UInt total_size)
+{
+  /* where we were when the hole was created,
+   also where is the hole store */
+  ADDR WorkSpaceTop0 = WorkSpaceTop-total_size;
+  BlockHeader *newb = (BlockHeader *)HeapTop;
+  BlockHeader *endb = (BlockHeader *)(WorkSpaceTop0-sizeof(YAP_SEG_SIZE));
+  YAP_SEG_SIZE bsiz = (WorkSpaceTop0-HeapTop)/sizeof(CELL)-2*sizeof(YAP_SEG_SIZE)/sizeof(CELL);
+
+  /* push HeapTop to after hole */
+  HeapTop = WorkSpaceTop-actual_request;
+  *((YAP_SEG_SIZE *) HeapTop) = InUseFlag;
+  /* now simulate a block */
+  endb->b_size = (HeapTop-WorkSpaceTop0)/sizeof(CELL) | InUseFlag;
+  newb->b_size = bsiz;
+  AddToFreeList(newb);
 }

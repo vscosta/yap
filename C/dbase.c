@@ -3437,13 +3437,64 @@ p_first_instance(void)
   return(Yap_unify(ARG3, TRef));
 }
 
+static UInt
+index_sz(LogUpdIndex *x)
+{
+  UInt sz = Yap_SizeOfBlock((CODEADDR)x);
+  x = x->ChildIndex;
+  while (x != NULL) {
+    sz += index_sz(x);
+    x = x->SiblingIndex;
+  }
+  return sz;
+}
+
+static Int
+lu_statistics(PredEntry *pe)
+{
+  UInt sz = 0, cls = 0, isz = 0;
+  
+  /* count number of clauses and size */
+  LogUpdClause *x;
+
+  if (pe->cs.p_code.FirstClause == NULL) {
+    cls = 0;
+    sz = 0;
+  } else {
+    x = ClauseCodeToLogUpdClause(pe->cs.p_code.FirstClause);
+    while (x != NULL) {
+      cls++;
+      sz += Yap_SizeOfBlock((CODEADDR)x);
+      if (x->ClSource != NULL)
+	sz += Yap_SizeOfBlock((CODEADDR)x->ClSource);	
+      x = x->ClNext;
+    }
+  }
+  if (pe->PredFlags & IndexedPredFlag) {
+    isz = index_sz(ClauseCodeToLogUpdIndex(pe->cs.p_code.TrueCodeOfPred));
+  } else {
+    isz = 0;
+  }
+  return
+    Yap_unify(ARG2,MkIntegerTerm(cls)) &&
+    Yap_unify(ARG3,MkIntegerTerm(sz)) &&
+    Yap_unify(ARG4,MkIntegerTerm(isz));
+}
+
+
 static Int
 p_key_statistics(void)
 {
   Register DBProp p;
   Register DBRef  x;
   UInt sz = 0, cls = 0;
-  if (EndOfPAEntr(p = FetchDBPropFromKey(Deref(ARG1), 0, TRUE, "key_statistics/3"))) {
+  Term twork = Deref(ARG1);
+  PredEntry *pe;
+
+  if ((pe = find_lu_entry(twork)) != NULL) {
+    return lu_statistics(pe);
+  }
+  if (EndOfPAEntr(p = FetchDBPropFromKey(twork, 0, TRUE, "key_statistics/3"))) {
     /* This is not a key property */
     return(FALSE);
   }
@@ -3454,8 +3505,10 @@ p_key_statistics(void)
     sz += Yap_SizeOfBlock((CODEADDR)x);
     x = NextDBRef(x);
   }
-  return(Yap_unify(ARG2,MkIntegerTerm(cls)) &&
-	 Yap_unify(ARG3,MkIntegerTerm(sz)));
+  return
+    Yap_unify(ARG2,MkIntegerTerm(cls)) &&
+    Yap_unify(ARG3,MkIntegerTerm(sz)) &&
+    Yap_unify(ARG4,MkIntTerm(0));
 }
 
 
@@ -4149,7 +4202,7 @@ cont_current_key(void)
 
     if ((a = RepAtom(a)->NextOfAE) == NIL) {
       i++;
-      while (i < MaxHash) {
+      while (i < AtomHashTableSize) {
 	/* protect current hash table line, notice that the current
 	   LOCK/UNLOCK algorithm assumes new entries are added to
 	   the *front* of the list, otherwise I should have locked
@@ -4164,7 +4217,7 @@ cont_current_key(void)
 	READ_UNLOCK(HashChain[i].AERWLock);
 	i++;
       }
-      if (i == MaxHash) {
+      if (i == AtomHashTableSize) {
 	/* we have left the atom hash table */
 	/* we don't have a lock over the hash table any longer */
 	if (IsAtomTerm(first)) {
@@ -4559,7 +4612,7 @@ Yap_InitDBPreds(void)
   Yap_InitCPred("$hold_index", 3, p_hold_index, SafePredFlag|SyncPredFlag);
   Yap_InitCPred("$fetch_reference_from_index", 3, p_fetch_reference_from_index, SafePredFlag|SyncPredFlag);
   Yap_InitCPred("$resize_int_keys", 1, p_resize_int_keys, SafePredFlag|SyncPredFlag);
-  Yap_InitCPred("key_statistics", 3, p_key_statistics, SyncPredFlag);
+  Yap_InitCPred("key_statistics", 4, p_key_statistics, SyncPredFlag);
   Yap_InitCPred("nth_instance", 3, p_nth_instance, SyncPredFlag);
   Yap_InitCPred("$nth_instancep", 3, p_nth_instancep, SyncPredFlag);
   Yap_InitCPred("$jump_to_next_dynamic_clause", 0, p_jump_to_next_dynamic_clause, SyncPredFlag);
@@ -4572,7 +4625,7 @@ Yap_InitBackDB(void)
   RETRY_C_RECORDED_K_CODE = NEXTOP(PredRecordedWithKey->cs.p_code.FirstClause,lds);
   Yap_InitCPredBack("$recordedp", 3, 3, in_rdedp, co_rdedp, SyncPredFlag);
   RETRY_C_RECORDEDP_CODE = NEXTOP(RepPredProp(PredPropByFunc(Yap_MkFunctor(Yap_LookupAtom("$recordedp"), 3),0))->cs.p_code.FirstClause,lds);
-  Yap_InitCPredBack("current_key", 2, 4, init_current_key, cont_current_key,
+  Yap_InitCPredBack("$current_immediate_key", 2, 4, init_current_key, cont_current_key,
 		SyncPredFlag);
 }
 

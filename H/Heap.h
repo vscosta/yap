@@ -10,7 +10,7 @@
 * File:		Heap.h         						 *
 * mods:									 *
 * comments:	Heap Init Structure					 *
-* version:      $Id: Heap.h,v 1.44 2003-08-27 13:37:09 vsc Exp $	 *
+* version:      $Id: Heap.h,v 1.45 2003-10-28 01:16:02 vsc Exp $	 *
 *************************************************************************/
 
 /* information that can be stored in Code Space */
@@ -341,7 +341,9 @@ typedef struct various_codes {
   struct global_data global;
   struct local_data remote[MAX_WORKERS];
 #endif
-  AtomHashEntry hash_chain[MaxHash];
+  UInt n_of_atoms;
+  UInt atom_hash_table_size;
+  AtomHashEntry *hash_chain;
 } all_heap_codes;
 
 #define heap_regs  ((all_heap_codes *)HEAP_INIT_BASE)
@@ -388,6 +390,8 @@ typedef struct various_codes {
 #define  UNDEF_OPCODE             heap_regs->undef_op
 #define  INDEX_OPCODE             heap_regs->index_op
 #define  FAIL_OPCODE              heap_regs->fail_op
+#define  NOfAtoms                 heap_regs->n_of_atoms
+#define  AtomHashTableSize        heap_regs->atom_hash_table_size
 #define  HashChain                heap_regs->hash_chain
 #define  INT_KEYS_SIZE            heap_regs->int_keys_size
 #define  INT_KEYS_TIMESTAMP       heap_regs->int_keys_timestamp
@@ -575,6 +579,7 @@ typedef struct various_codes {
 #define  DeadClauses              heap_regs->dead_clauses
 #define  SizeOfOverflow           heap_regs->size_of_overflow
 #define  LastWtimePtr             heap_regs->last_wtime
+#define  FreeBlocks		  heap_regs->free_blocks
 #ifdef  COROUTINING
 #define  WakeUpCode               heap_regs->wake_up_code
 #define  WokenGoals               heap_regs->woken_goals

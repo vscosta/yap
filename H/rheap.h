@@ -333,6 +333,8 @@ restore_codes(void)
     heap_regs->last_wtime = (void *)PtoHeapCellAdjust((CELL *)(heap_regs->last_wtime));
   heap_regs->db_erased_marker =
     DBRefAdjust(heap_regs->db_erased_marker);
+  heap_regs->hash_chain = 
+    (AtomHashEntry *)PtoHeapCellAdjust((CELL *)(heap_regs->hash_chain));
 }
 
 
@@ -683,6 +685,12 @@ RestoreClause(yamop *pc, PredEntry *pp, int mode)
       pc = NEXTOP(pc,l);
       break;
       /* instructions type EC */
+    case _jump_if_nonvar:
+      pc->u.xl.l = PtoOpAdjust(pc->u.xl.l);
+      pc->u.xl.x = XAdjust(pc->u.xl.x);
+      pc = NEXTOP(pc,xl);
+      break;
+      /* instructions type EC */
     case _alloc_for_logical_pred:
       pc->u.EC.ClBase = PtoOpAdjust(pc->u.EC.ClBase);
       pc = NEXTOP(pc,EC);
@@ -786,10 +794,6 @@ RestoreClause(yamop *pc, PredEntry *pp, int mode)
     case _p_cut_by_y:
       pc->u.y.y = YAdjust(pc->u.y.y);
       pc = NEXTOP(pc,y);
-      break;
-    case _check_var_for_index:
-      pc->u.xxp.p = PtoPredAdjust(pc->u.xxp.p);
-      pc = NEXTOP(pc,xxp);
       break;
       /* instructions type sla */      
     case _p_execute:

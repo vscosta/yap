@@ -323,12 +323,25 @@ extern int  Yap_Portray_delays;
 #endif
 #endif
 
+EXTERN inline UInt STD_PROTO(HashFunction, (char *));
+
 EXTERN inline UInt
 HashFunction(char *CHP)
 {
-  UInt OUT=0;
-  while(*CHP != '\0') OUT += (UInt)(*CHP++);
+  /* djb2 */
+  UInt hash = 5381;
+  UInt c;
+
+  while ((c = *CHP++) != '\0') {
+    /* hash = ((hash << 5) + hash) + c; hash * 33 + c */
+    hash = hash * 33 ^ c;
+  }
+  return hash;
+  /*
+  UInt OUT=0, i = 1;
+  while(*CHP != '\0') { OUT += (UInt)(*CHP++); }
   return OUT;
+  */
 }
 
 #define FAIL_ON_PARSER_ERROR      0

@@ -575,6 +575,7 @@ static char *opformat[] =
   "trust\t\t%g\t%x",
   "try_in\t\t%g\t%x",
   "jump_if_var\t\t%g",
+  "jump_if_nonvar\t\t%g",
   "cache_arg\t%r",
   "cache_sub_arg\t%d",
   "switch_on_type\t%h\t%h\t%h\t%h",

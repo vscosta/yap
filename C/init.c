@@ -1099,6 +1099,8 @@ Yap_InitStacks(int Heap,
 	    aux_delayed_release_load);
 #else /* Yap */
   Yap_InitMemory (Trail, Heap, Stack);
+  AtomHashTableSize = MaxHash;
+  HashChain = (AtomHashEntry *)Yap_AllocAtomSpace(sizeof(AtomHashEntry) * MaxHash);
 #endif /* YAPOR || TABLING */
   for (i = 0; i < MaxHash; ++i) {
     INIT_RWLOCK(HashChain[i].AERWLock);

@@ -79,6 +79,7 @@ STATIC_PROTO(void a_gl, (op_numbers));
 STATIC_PROTO(void a_bfunc, (CELL));
 STATIC_PROTO(wamreg compile_cmp_flags, (char *));
 STATIC_PROTO(void a_igl, (op_numbers));
+STATIC_PROTO(void a_xigl, (op_numbers));
 STATIC_PROTO(void a_ucons, (compiler_vm_op));
 STATIC_PROTO(void a_uvar, (void));
 STATIC_PROTO(void a_wvar, (void));
@@ -454,19 +455,6 @@ a_vv(op_numbers opcode, op_numbers opcodew)
   if (pass_no)
     code_p->u.oxx.xr = emit_xreg(var_offset);
   GONEXT(oxx);
-}
-
-inline static void
-a_xxp(op_numbers opcode)
-{
-  if (pass_no) {
-    PredEntry *ap = (PredEntry *)(cpc->rnd2);
-    code_p->opc = emit_op(opcode);
-    code_p->u.xxp.x = cpc->rnd1;
-    code_p->u.xxp.x1 = ap->ArityOfPE;
-    code_p->u.xxp.p = ap;
-  }
-  GONEXT(xxp);
 }
 
 inline static void
@@ -1030,6 +1018,17 @@ a_igl(op_numbers opcode)
     code_p->u.l.l = emit_a(cpc->rnd1);
   }
   GONEXT(l);
+}
+
+static void
+a_xigl(op_numbers opcode)
+{
+  if (pass_no) {
+    code_p->opc = emit_op(opcode);
+    code_p->u.xl.x = emit_xreg2();
+    code_p->u.xl.l = emit_a(cpc->rnd1);
+  }
+  GONEXT(xl);
 }
 
 static void
@@ -2496,6 +2495,9 @@ do_pass(void)
     case jump_v_op:
       a_igl(_jump_if_var);
       break;
+    case jump_nv_op:
+      a_xigl(_jump_if_nonvar);
+      break;
     case switch_on_type_op:
       a_4sw(_switch_on_type);
       break;
@@ -2527,9 +2529,6 @@ do_pass(void)
       break;
     case index_blob_op:
       a_e(_index_blob);
-      break;
-    case check_var_op:
-      a_xxp(_check_var_for_index);
       break;
     case mark_initialised_pvars_op:
       a_bmap();

@@ -148,7 +148,7 @@ LookupAtom(char *atom)
 
   /* compute hash */
   p = (unsigned char *)atom;
-  hash = HashFunction(p) % MaxHash;
+  hash = HashFunction(p) % AtomHashTableSize;
   WRITE_LOCK(HashChain[hash].AERWLock);
   a = HashChain[hash].Entry;
   /* search atom in chain */
@@ -157,16 +157,20 @@ LookupAtom(char *atom)
     WRITE_UNLOCK(HashChain[hash].AERWLock);
     return(a);
   }
+  NOfAtoms++;
   /* add new atom to start of chain */
   ae = (AtomEntry *) Yap_AllocAtomSpace((sizeof *ae) + strlen(atom) + 1);
   a = AbsAtom(ae);
-  ae->NextOfAE = HashChain[hash].Entry;
-  HashChain[hash].Entry = a;
   ae->PropsOfAE = NIL;
   if (ae->StrOfAE != atom)
     strcpy(ae->StrOfAE, atom);
+  ae->NextOfAE = HashChain[hash].Entry;
+  HashChain[hash].Entry = a;
   INIT_RWLOCK(ae->ARWLock);
   WRITE_UNLOCK(HashChain[hash].AERWLock);
+  if (NOfAtoms > 2*AtomHashTableSize) {
+    CreepFlag = Unsigned(LCL0+1);
+  }
   return (a);
 }
 
@@ -196,7 +200,7 @@ Yap_LookupAtomWithAddress(char *atom, AtomEntry *ae)
 
   /* compute hash */
   p = (unsigned char *)atom;
-  hash = HashFunction(p) % MaxHash;
+  hash = HashFunction(p) % AtomHashTableSize;
   /* ask for a WRITE lock because it is highly unlikely we shall find anything */
   WRITE_LOCK(HashChain[hash].AERWLock);
   a = HashChain[hash].Entry;
@@ -226,9 +230,10 @@ Yap_ReleaseAtom(Atom atom)
 
   /* compute hash */
   p = (unsigned char *)name;
-  hash = HashFunction(p) % MaxHash;
+  hash = HashFunction(p) % AtomHashTableSize;
   WRITE_LOCK(HashChain[hash].AERWLock);
   if (HashChain[hash].Entry == atom) {
+    NOfAtoms--;
     HashChain[hash].Entry = ap->NextOfAE;
     WRITE_UNLOCK(HashChain[hash].AERWLock);
     return;

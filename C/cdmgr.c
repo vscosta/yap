@@ -289,9 +289,6 @@ decrease_log_indices(LogUpdIndex *c, yamop *suspend_code)
     case _index_blob:
       ipc = NEXTOP(ipc,e);
       break;
-    case _check_var_for_index:
-      ipc = NEXTOP(ipc,xxp);
-      break;
     case _retry:
     case _retry_killed:
     case _retry_profiled:
@@ -330,6 +327,10 @@ decrease_log_indices(LogUpdIndex *c, yamop *suspend_code)
     case _jump:
     case _jump_if_var:
       ipc = NEXTOP(ipc,l);
+      break;
+      /* instructions type xl */
+    case _jump_if_nonvar:
+      ipc = NEXTOP(ipc,xl);
       break;
       /* instructions type e */
     case _switch_on_type:

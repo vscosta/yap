@@ -124,7 +124,7 @@ Yap_LookupVar(char *var)	/* lookup variable in variables table   */
     UInt hv;
 
     p = Yap_VarTable;
-    hv = HashFunction(vp) % MaxHash;
+    hv = HashFunction(vp) % AtomHashTableSize;
     while (p != NULL) {
       CELL hpv = p->hv;
       if (hv == hpv) {

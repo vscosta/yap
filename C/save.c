@@ -1136,7 +1136,7 @@ restore_heap(void)
 {
   AtomHashEntry *HashPtr = HashChain;
   register int    i;
-  for (i = 0; i < MaxHash; ++i) {
+  for (i = 0; i < AtomHashTableSize; ++i) {
     Atom atm = HashPtr->Entry;
     if (atm) {
       AtomEntry      *at;
@@ -1176,7 +1176,7 @@ ShowAtoms()
 {
   AtomHashEntry  *HashPtr = HashChain;
   register int    i;
-  for (i = 0; i < MaxHash; ++i) {
+  for (i = 0; i < AtomHashTableSize; ++i) {
     if (HashPtr->Entry != NIL) {
       AtomEntry      *at;
       at = RepAtom(HashPtr->Entry);

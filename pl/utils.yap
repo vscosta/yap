@@ -370,6 +370,13 @@ system_predicate(P) :-
 '$current_predicate3'(M,BadSpec) :-			% only for the predicate
 	'$do_error'(type_error(predicate_indicator,BadSpec),current_predicate(M:BadSpec)).
 
+current_key(A,K) :-
+	'$current_predicate'(idb,A,Arity),
+	functor(K,A,Arity).
+current_key(A,K) :-
+	'$current_immediate_key'(A,K).
+
+
 %%% User interface for statistics
 
 statistics :-

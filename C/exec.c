@@ -1469,7 +1469,7 @@ p_clean_ifcp(void) {
 
 static Int
 JumpToEnv(Term t) {
-  yamop *pos = PredDollarCatch->cs.p_code.LastClause;
+  yamop *pos = NEXTOP(PredDollarCatch->cs.p_code.TrueCodeOfPred,ld);
   CELL *env;
   choiceptr first_func = NULL, B0 = B;
 
