@@ -845,7 +845,9 @@ growatomtable(void)
   UNLOCK(SignalLock);
   while ((ntb = (AtomHashEntry *)Yap_AllocCodeSpace(nsize*sizeof(AtomHashEntry))) == NULL) {
     /* leave for next time */
+#if !USE_SYSTEM_MALLOC
     if (!do_growheap(FALSE, nsize*sizeof(AtomHashEntry), NULL))
+#endif
       return FALSE;
   }
   atom_table_overflows++;
@@ -1184,6 +1186,9 @@ static int do_growtrail(long size)
   UInt start_growth_time = Yap_cputime(), growth_time;
   int gc_verbose = Yap_is_gc_verbose();
 
+  /* at least 64K for trail */
+  if (size < 64*1024)
+    size = 64*1024;
   /* adjust to a multiple of 256) */
   size = AdjustPageSize(size);
   trail_overflows++;

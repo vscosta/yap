@@ -11,8 +11,11 @@
 * File:		index.c							 *
 * comments:	Indexing a Prolog predicate				 *
 *									 *
-* Last rev:     $Date: 2004-09-03 03:11:09 $,$Author: vsc $						 *
+* Last rev:     $Date: 2004-09-14 03:30:06 $,$Author: vsc $						 *
 * $Log: not supported by cvs2svn $
+* Revision 1.97  2004/09/03 03:11:09  vsc
+* memory management fixes
+*
 * Revision 1.96  2004/08/27 20:18:52  vsc
 * more small fixes
 *
@@ -3730,8 +3733,13 @@ reset_stack(istack_entry *sp0)
 }
 
 static istack_entry *
-push_stack(istack_entry *sp, Int arg, Term Tag, Term extra)
+push_stack(istack_entry *sp, Int arg, Term Tag, Term extra, struct intermediates *cint)
 {
+#if !OS_HANDLES_TR_OVERFLOW || USE_SYSTEM_MALLOC
+  if (sp+1 > (istack_entry *)Yap_TrailTop) {
+      longjmp(cint->CompilerBotch,4);    
+  }
+#endif
   sp->pos = arg;
   sp->val = Tag;
   sp->extra = extra;
@@ -4216,16 +4224,16 @@ expand_index(struct intermediates *cint) {
 	labp = &(ipc->u.llll.l4);
 	ipc = ipc->u.llll.l4;
       } else if (IsPairTerm(t)) {
-	sp = push_stack(sp, 1, AbsPair(NULL), TermNil);
+	sp = push_stack(sp, 1, AbsPair(NULL), TermNil, cint);
 	s_reg = RepPair(t);
 	olabp = NULL;
 	labp = &(ipc->u.llll.l1);
 	ipc = ipc->u.llll.l1;	
       } else if (IsApplTerm(t)) {
-	sp = push_stack(sp, 1, AbsAppl((CELL *)FunctorOfTerm(t)), TermNil);
+	sp = push_stack(sp, 1, AbsAppl((CELL *)FunctorOfTerm(t)), TermNil, cint);
 	ipc = ipc->u.llll.l3;	
       } else {
-	sp = push_stack(sp, argno, t, TermNil);
+	sp = push_stack(sp, argno, t, TermNil, cint);
 	ipc = ipc->u.llll.l2;	
       }
       break;
@@ -4241,13 +4249,13 @@ expand_index(struct intermediates *cint) {
 	olabp = NULL;
 	s_reg = RepPair(t);
 	labp = &(ipc->u.ollll.l1);
-	sp = push_stack(sp, 1, AbsPair(NULL), TermNil);
+	sp = push_stack(sp, 1, AbsPair(NULL), TermNil, cint);
 	ipc = ipc->u.ollll.l1;	
       } else if (IsApplTerm(t)) {
-	sp = push_stack(sp, 1, AbsAppl((CELL *)FunctorOfTerm(t)), TermNil);
+	sp = push_stack(sp, 1, AbsAppl((CELL *)FunctorOfTerm(t)), TermNil, cint);
 	ipc = ipc->u.ollll.l3;	
       } else {
-	sp = push_stack(sp, argno, t, TermNil);
+	sp = push_stack(sp, argno, t, TermNil, cint);
 	ipc = ipc->u.ollll.l2;	
       }
       break;
@@ -4262,14 +4270,14 @@ expand_index(struct intermediates *cint) {
       } else if (IsPairTerm(t)) {
 	s_reg = RepPair(t);
 	olabp = NULL;
-	sp = push_stack(sp, argno, AbsPair(NULL), TermNil);
+	sp = push_stack(sp, argno, AbsPair(NULL), TermNil, cint);
 	labp = &(ipc->u.xllll.l1);
 	ipc = ipc->u.xllll.l1;	
       } else if (IsApplTerm(t)) {
-	sp = push_stack(sp, argno, AbsAppl((CELL *)FunctorOfTerm(t)), TermNil);
+	sp = push_stack(sp, argno, AbsAppl((CELL *)FunctorOfTerm(t)), TermNil, cint);
 	ipc = ipc->u.xllll.l3;	
       } else {
-	sp = push_stack(sp, argno, t, TermNil);
+	sp = push_stack(sp, argno, t, TermNil, cint);
 	ipc = ipc->u.xllll.l2;	
       }
       break;
@@ -4285,20 +4293,20 @@ expand_index(struct intermediates *cint) {
 	i++;
       } else if (IsPairTerm(t)) {
 	s_reg = RepPair(t);
-	sp = push_stack(sp, -i-1, AbsPair(NULL), TermNil);
+	sp = push_stack(sp, -i-1, AbsPair(NULL), TermNil, cint);
 	olabp = NULL;
 	labp = &(ipc->u.sllll.l1);
 	ipc = ipc->u.sllll.l1;
 	i = 0;
       } else if (IsApplTerm(t)) {
-	sp = push_stack(sp, -i-1, AbsAppl((CELL *)FunctorOfTerm(t)), TermNil);
+	sp = push_stack(sp, -i-1, AbsAppl((CELL *)FunctorOfTerm(t)), TermNil, cint);
 	ipc = ipc->u.sllll.l3;
 	i = 0;
       } else {
 	/* We don't push stack here, instead we go over to next argument
-	   sp = push_stack(sp, -i-1, t);
+	   sp = push_stack(sp, -i-1, t, cint);
 	*/
-	sp = push_stack(sp, -i-1, t, TermNil);
+	sp = push_stack(sp, -i-1, t, TermNil, cint);
 	ipc = ipc->u.sllll.l2;	
 	i++;
       }
@@ -4689,8 +4697,13 @@ Yap_ExpandIndex(PredEntry *ap) {
 }
 
 static path_stack_entry *
-push_path(path_stack_entry *sp, yamop **pipc, ClauseDef *clp)
+push_path(path_stack_entry *sp, yamop **pipc, ClauseDef *clp, struct intermediates *cint)
 {
+#if !OS_HANDLES_TR_OVERFLOW || USE_SYSTEM_MALLOC
+  if (sp+1 > (path_stack_entry *)Yap_TrailTop) {
+      longjmp(cint->CompilerBotch,4);    
+  }
+#endif
   sp->flag = pc_entry;
   sp->u.pce.pi_pc = pipc;
   sp->u.pce.code = clp->Code;
@@ -5843,11 +5856,11 @@ add_to_index(struct intermediates *cint, int first, path_stack_entry *sp, Clause
       ipc = ipc->u.l.l;
       break;
     case _jump_if_var:
-      sp = push_path(sp, &(ipc->u.l.l), cls);
+      sp = push_path(sp, &(ipc->u.l.l), cls, cint);
       ipc = NEXTOP(ipc,l);
       break;
     case _jump_if_nonvar:
-      sp = push_path(sp, &(ipc->u.xl.l), cls);
+      sp = push_path(sp, &(ipc->u.xl.l), cls, cint);
       ipc = NEXTOP(ipc,xl);
       break;
       /* instructions type EC */
@@ -5862,7 +5875,7 @@ add_to_index(struct intermediates *cint, int first, path_stack_entry *sp, Clause
       break;
       /* instructions type e */
     case _switch_on_type:
-      sp = push_path(sp, &(ipc->u.llll.l4), cls);
+      sp = push_path(sp, &(ipc->u.llll.l4), cls, cint);
       if (ap->PredFlags & LogUpdatePredFlag) {
 	add_head_info(cls, 1);
       } else {
@@ -5912,7 +5925,7 @@ add_to_index(struct intermediates *cint, int first, path_stack_entry *sp, Clause
       }
       break;
     case _switch_list_nl:
-      sp = push_path(sp, &(ipc->u.ollll.l4), cls);
+      sp = push_path(sp, &(ipc->u.ollll.l4), cls, cint);
       if (ap->PredFlags & LogUpdatePredFlag) {
 	add_head_info(cls, 1);
       } else {
@@ -5962,7 +5975,7 @@ add_to_index(struct intermediates *cint, int first, path_stack_entry *sp, Clause
       }
       break;
     case _switch_on_arg_type:
-      sp = push_path(sp, &(ipc->u.xllll.l4), cls);
+      sp = push_path(sp, &(ipc->u.xllll.l4), cls, cint);
       if (ap->PredFlags & LogUpdatePredFlag) {
 	add_head_info(cls, Yap_regtoregno(ipc->u.xllll.x));
       } else {
@@ -6013,7 +6026,7 @@ add_to_index(struct intermediates *cint, int first, path_stack_entry *sp, Clause
       }
       break;
     case _switch_on_sub_arg_type:
-      sp = push_path(sp, &(ipc->u.sllll.l4), cls);
+      sp = push_path(sp, &(ipc->u.sllll.l4), cls, cint);
       add_arg_info(cls, ap, ipc->u.sllll.s+1);
       if (IsPairTerm(cls->Tag)) {
 	yamop *nipc = ipc->u.sllll.l1;
@@ -6275,7 +6288,7 @@ Yap_AddClauseToIndex(PredEntry *ap, yamop *beg, int first) {
 #endif
   stack = (path_stack_entry *)TR;
   cl.Code =  cl.CurrentCode = beg;
-  sp = push_path(stack, NULL, &cl);
+  sp = push_path(stack, NULL, &cl, &cint);
   add_to_index(&cint, first, sp, &cl); 
 }
 		 
@@ -6309,7 +6322,7 @@ contract_ctable(yamop *ipc, ClauseUnion *blk, PredEntry *ap, Term at) {
 }
 
 static void
-remove_from_index(PredEntry *ap, path_stack_entry *sp, ClauseDef *cls, yamop *bg, yamop *lt) {
+remove_from_index(PredEntry *ap, path_stack_entry *sp, ClauseDef *cls, yamop *bg, yamop *lt, struct intermediates *cint) {
   /* last clause to experiment with */
   yamop *ipc = ap->cs.p_code.TrueCodeOfPred;
   UInt current_arity = 0;
@@ -6389,7 +6402,7 @@ remove_from_index(PredEntry *ap, path_stack_entry *sp, ClauseDef *cls, yamop *bg
     case _retry_me2:
     case _retry_me3:
     case _retry_me4:
-      sp = push_path(sp, &(ipc->u.ld.d), cls);
+      sp = push_path(sp, &(ipc->u.ld.d), cls, cint);
       ipc = NEXTOP(ipc,ld);
       break;
     case _profiled_trust_me:
@@ -6407,16 +6420,16 @@ remove_from_index(PredEntry *ap, path_stack_entry *sp, ClauseDef *cls, yamop *bg
       ipc = ipc->u.l.l;
       break;
     case _jump_if_var:
-      sp = push_path(sp, &(ipc->u.l.l), cls);
+      sp = push_path(sp, &(ipc->u.l.l), cls, cint);
       ipc = NEXTOP(ipc,l);
       break;
     case _jump_if_nonvar:
-      sp = push_path(sp, &(ipc->u.xl.l), cls);
+      sp = push_path(sp, &(ipc->u.xl.l), cls, cint);
       ipc = NEXTOP(ipc,xl);
       break;
       /* instructions type e */
     case _switch_on_type:
-      sp = push_path(sp, &(ipc->u.llll.l4), cls);
+      sp = push_path(sp, &(ipc->u.llll.l4), cls, cint);
       if (ap->PredFlags & LogUpdatePredFlag) {
 	add_head_info(cls, 1);
       } else {
@@ -6463,7 +6476,7 @@ remove_from_index(PredEntry *ap, path_stack_entry *sp, ClauseDef *cls, yamop *bg
       }
       break;
     case _switch_list_nl:
-      sp = push_path(sp, &(ipc->u.ollll.l4), cls);
+      sp = push_path(sp, &(ipc->u.ollll.l4), cls, cint);
       if (ap->PredFlags & LogUpdatePredFlag) {
 	add_head_info(cls, 1);
       } else {
@@ -6510,7 +6523,7 @@ remove_from_index(PredEntry *ap, path_stack_entry *sp, ClauseDef *cls, yamop *bg
       }
       break;
     case _switch_on_arg_type:
-      sp = push_path(sp, &(ipc->u.xllll.l4), cls);
+      sp = push_path(sp, &(ipc->u.xllll.l4), cls, cint);
       current_arity = 2;
       if (ap->PredFlags & LogUpdatePredFlag) {
 	add_head_info(cls, Yap_regtoregno(ipc->u.xllll.x));
@@ -6557,7 +6570,7 @@ remove_from_index(PredEntry *ap, path_stack_entry *sp, ClauseDef *cls, yamop *bg
       }
       break;
     case _switch_on_sub_arg_type:
-      sp = push_path(sp, &(ipc->u.sllll.l4), cls);
+      sp = push_path(sp, &(ipc->u.sllll.l4), cls, cint);
       current_arity = 2;
       add_arg_info(cls, ap, ipc->u.sllll.s+1);
       if (IsPairTerm(cls->Tag)) {
@@ -6797,13 +6810,13 @@ Yap_RemoveClauseFromIndex(PredEntry *ap, yamop *beg) {
     cl.Code =  cl.CurrentCode = beg;
     last = (yamop *)((CODEADDR)c+c->ClSize);
   }
-  sp = push_path(stack, NULL, &cl);
+  sp = push_path(stack, NULL, &cl, &cint);
   if (ap->cs.p_code.NOfClauses == 0) {
     /* there was no indexing code */
     ap->CodeOfPred = ap->cs.p_code.TrueCodeOfPred = FAILCODE;
     ap->OpcodeOfPred = Yap_opcode(_op_fail);
   } else {
-    remove_from_index(ap, sp, &cl, beg, last); 
+    remove_from_index(ap, sp, &cl, beg, last, &cint); 
   }
 }
 	     
@@ -7467,7 +7480,7 @@ Yap_NthClause(PredEntry *ap, Int ncls)
 }
 
 static yamop **
-find_caller(PredEntry *ap, yamop *code) {
+find_caller(PredEntry *ap, yamop *code, struct intermediates *cint) {
   /* first clause */
   yamop *alt = NULL;
   istack_entry *stack, *sp;
@@ -7552,16 +7565,16 @@ find_caller(PredEntry *ap, yamop *code) {
 	if (ipc->u.llll.l4 == code) return &(ipc->u.llll.l4);
 	ipc = ipc->u.llll.l4;
       } else if (IsPairTerm(t)) {
-	sp = push_stack(sp, 1, AbsPair(NULL), TermNil);
+	sp = push_stack(sp, 1, AbsPair(NULL), TermNil, cint);
 	s_reg = RepPair(t);
 	labp = &(ipc->u.llll.l1);
 	if (ipc->u.llll.l1 == code) return &(ipc->u.llll.l1);
 	ipc = ipc->u.llll.l1;	
       } else if (IsApplTerm(t)) {
-	sp = push_stack(sp, 1, AbsAppl((CELL *)FunctorOfTerm(t)), TermNil);
+	sp = push_stack(sp, 1, AbsAppl((CELL *)FunctorOfTerm(t)), TermNil, cint);
 	ipc = ipc->u.llll.l3;	
       } else {
-	sp = push_stack(sp, 1, t, TermNil);
+	sp = push_stack(sp, 1, t, TermNil, cint);
 	ipc = ipc->u.llll.l2;	
       }
       break;
@@ -7574,15 +7587,15 @@ find_caller(PredEntry *ap, yamop *code) {
 	ipc = ipc->u.ollll.l4;
       } else if (IsPairTerm(t)) {
 	s_reg = RepPair(t);
-	sp = push_stack(sp, 1, AbsPair(NULL), TermNil);
+	sp = push_stack(sp, 1, AbsPair(NULL), TermNil, cint);
 	if (ipc->u.ollll.l1 == code) 
 	  return &(ipc->u.ollll.l1);
 	ipc = ipc->u.ollll.l1;	
       } else if (IsApplTerm(t)) {
-	sp = push_stack(sp, 1, AbsAppl((CELL *)FunctorOfTerm(t)), TermNil);
+	sp = push_stack(sp, 1, AbsAppl((CELL *)FunctorOfTerm(t)), TermNil, cint);
 	ipc = ipc->u.ollll.l3;	
       } else {
-	sp = push_stack(sp, 1, t, TermNil);
+	sp = push_stack(sp, 1, t, TermNil, cint);
 	ipc = ipc->u.ollll.l2;	
       }
       break;
@@ -7594,14 +7607,14 @@ find_caller(PredEntry *ap, yamop *code) {
 	ipc = ipc->u.xllll.l4;
       } else if (IsPairTerm(t)) {
 	s_reg = RepPair(t);
-	sp = push_stack(sp, argno, AbsPair(NULL), TermNil);
+	sp = push_stack(sp, argno, AbsPair(NULL), TermNil, cint);
 	if (ipc->u.xllll.l1 == code) return &(ipc->u.xllll.l1);
 	ipc = ipc->u.xllll.l1;	
       } else if (IsApplTerm(t)) {
-	sp = push_stack(sp, argno, AbsAppl((CELL *)FunctorOfTerm(t)), TermNil);
+	sp = push_stack(sp, argno, AbsAppl((CELL *)FunctorOfTerm(t)), TermNil, cint);
 	ipc = ipc->u.xllll.l3;	
       } else {
-	sp = push_stack(sp, argno, t, TermNil);
+	sp = push_stack(sp, argno, t, TermNil, cint);
 	ipc = ipc->u.xllll.l2;	
       }
       break;
@@ -7617,14 +7630,14 @@ find_caller(PredEntry *ap, yamop *code) {
 	  ipc = ipc->u.sllll.l4;
 	} else if (IsPairTerm(t)) {
 	  s_reg = RepPair(t);
-	  sp = push_stack(sp, -argno-1, AbsPair(NULL), TermNil);
+	  sp = push_stack(sp, -argno-1, AbsPair(NULL), TermNil, cint);
 	  if (ipc->u.sllll.l1 == code) return &(ipc->u.sllll.l1);
 	  ipc = ipc->u.sllll.l1;
 	} else if (IsApplTerm(t)) {
-	  sp = push_stack(sp, -argno-1, AbsAppl((CELL *)FunctorOfTerm(t)), TermNil);
+	  sp = push_stack(sp, -argno-1, AbsAppl((CELL *)FunctorOfTerm(t)), TermNil, cint);
 	  ipc = ipc->u.sllll.l3;	
 	} else {
-	  sp = push_stack(sp, -argno-1, t, TermNil);
+	  sp = push_stack(sp, -argno-1, t, TermNil, cint);
 	  ipc = ipc->u.sllll.l2;	
 	}
       }
@@ -7738,7 +7751,9 @@ Yap_CleanUpIndex(LogUpdIndex *blk)
       ) {
     /* I have to kill this block */
     yamop **caller, *new;
-    caller = find_caller(ap, blk->ClCode);
+    struct intermediates cintb;
+
+    caller = find_caller(ap, blk->ClCode, &cintb);
     while (TRUE) {
       new = replace_lu_block(blk, REFRESH, ap, NULL, FALSE);
       /* will be null, if we are in the middle of the current block */
