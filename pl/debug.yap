@@ -437,36 +437,27 @@ debugging :-
 	( '$get_value'(spy_sp,0) -> true ; !, fail ),
 	'$flags'(G,M,F,F),
 	F /\ 16'2000 =\= 0, !, % dynamic procedure, immediate semantics
-	repeat,
-		'$recordedp'(M:G,Cl,_),
-		'$get_value'(spy_gn,L),
-		( '$spycall_dynamic'(G,M,Cl) ;
-			('$get_value'(spy_gn,L) -> '$leave_creep', fail ;
-			  Res = redo )
-		),
-		( true ;
-		  '$get_value'(spy_sp,P), P \= 0, !, fail )
-	.
+	'$recordedp'(M:G,Cl,_),
+	'$get_value'(spy_gn,L),
+	( '$spycall_dynamic'(G,M,Cl) ;
+	    ('$get_value'(spy_gn,L) -> '$leave_creep', fail ;
+		Res = redo )
+	),
+	( true ;
+	    '$get_value'(spy_sp,P), P \= 0, !, fail ).
 '$spycalls'(G,M,Res) :-
 	( '$get_value'(spy_sp,0) -> true ; !, fail ),
 	'$flags'(G,M,F,F),
 	F /\ 16'8 =\= 0, !, % dynamic procedure, logical update semantics
 	'$hold_index'(M:G, Index, Max), % hold an index on the procedure state when we called this goal
-	repeat,
-		'$get_value'(spy_cl,Cl),
-		'$get_value'(spy_gn,L),
-		Maxx is Max+1,
-		'$set_value'(spy_cl,Maxx),
-		( Cl > Max -> !, fail ; true),
-		( '$log_upd_spycall'(G,M,Cl,Index) ;
-			('$get_value'(spy_gn,L) ->
-				'$leave_creep', fail ; % to backtrack to repeat
-				Res = redo )
-		),
-		( true ;
-		  '$get_value'(spy_sp,P), P \= 0, !, fail
-	      )
-	.
+	'$gen_log_upd_clauses'(1, Max,Cl),
+	'$get_value'(spy_gn,L),
+	( '$log_upd_spycall'(G,M,Cl,Index) ;
+	    ('$get_value'(spy_gn,L) ->
+		'$leave_creep', fail ; % to backtrack to repeat
+		Res = redo )
+	),
+	( true ;  '$get_value'(spy_sp,P), P \= 0, !, fail ).
 '$spycalls'(G,M,Res) :-
 	( '$get_value'(spy_sp,0) -> true ; !, fail ),
 	repeat,
@@ -484,6 +475,11 @@ debugging :-
 		( true ;
 		  '$get_value'(spy_sp,P), P \= 0, !, fail )
 	.
+'$gen_log_upd_clauses'(Cl, _,Cl).
+'$gen_log_upd_clauses'(Cl0, Max,Cl) :-
+	Cl0 < Max,
+	ClI is Cl0+1,
+	'$gen_log_upd_clauses'(ClI, Max, Cl).
 
 '$spycall'(G,M,Cl) :-
 	'$access_yap_flags'(10,0),
