@@ -161,11 +161,13 @@ $sv_warning(SVs,T) :-
 '$handle_multiple'(F,A) :-
 	'$get_value'('$consulting',true), !.
 '$handle_multiple'(F,A) :-
-	'$recorded'('$predicate_defs','$predicate_defs'(F,A,Fil),_), !,
+	'$current_module'(M),
+	'$recorded'('$predicate_defs','$predicate_defs'(F,A,M,Fil),_), !,
 	'$multiple_has_been_defined'(Fil,F/A), !.
 '$handle_multiple'(F,A) :-
 	( '$recorded'('$reconsulting',Fil,_) -> true ),
-	'$recorda'('$predicate_defs','$predicate_defs'(F,A,Fil),_).
+	'$current_module'(M),
+	'$recorda'('$predicate_defs','$predicate_defs'(F,A,M,Fil),_).
 
 '$multiple_has_been_defined'(_,F/A) :- 
 	'$is_multifile'(F,A), !.
