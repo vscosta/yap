@@ -930,7 +930,7 @@ YAP_Init(YAP_init_args *yap_init)
   RECOVER_MACHINE_REGS();
 
   if (yap_init->YapPrologRCFile != NULL) {
-    PutValue(FullLookupAtom("$consult_on_boot"), MkAtomTerm(LookupAtom(yap_init->YapPrologBootFile)));
+    PutValue(FullLookupAtom("$consult_on_boot"), MkAtomTerm(LookupAtom(yap_init->YapPrologRCFile)));
     /*
       This must be done again after restore, as yap_flags
       has been overwritten ....
