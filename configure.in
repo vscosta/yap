@@ -302,7 +302,7 @@ then
 	MPI_OBJS=mpi.o
     else
 	#YAPMPILIB=
-	MPI_CC='$(CC)'
+	MPI_CC=${CC}
     fi
   fi
   CC=${OLD_CC}
