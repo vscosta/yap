@@ -110,14 +110,18 @@ HEADERS = \
 
 C_SOURCES= \
 	$(srcdir)/C/absmi.c $(srcdir)/C/adtdefs.c $(srcdir)/C/alloc.c \
-	$(srcdir)/C/amasm.c $(srcdir)/C/analyst.c $(srcdir)/C/arrays.c \
+	$(srcdir)/C/amasm.c $(srcdir)/C/analyst.c \
+	$(srcdir)/C/arith0.c $(srcdir)/C/arith1.c $(srcdir)/C/arith2.c \
+	$(srcdir)/C/arrays.c \
 	$(srcdir)/C/attvar.c $(srcdir)/C/bb.c \
+	$(srcdir)/C/bignum.c \
 	$(srcdir)/C/c_interface.c $(srcdir)/C/cdmgr.c $(srcdir)/C/cmppreds.c \
 	$(srcdir)/C/compiler.c $(srcdir)/C/computils.c \
 	$(srcdir)/C/corout.c $(srcdir)/C/dbase.c $(srcdir)/C/errors.c \
 	$(srcdir)/C/eval.c $(srcdir)/C/exec.c $(srcdir)/C/grow.c \
 	$(srcdir)/C/heapgc.c $(srcdir)/C/index.c $(srcdir)/C/init.c	   \
-	$(srcdir)/C/iopreds.c $(srcdir)/C/depth_bound.c $(srcdir)/C/load_foreign.c \
+	$(srcdir)/C/iopreds.c $(srcdir)/C/depth_bound.c \
+	$(srcdir)/C/load_foreign.c \
 	$(srcdir)/C/load_dl.c $(srcdir)/C/load_dld.c $(srcdir)/C/load_none.c \
 	$(srcdir)/C/load_aout.c $(srcdir)/C/load_aix.c $(srcdir)/C/load_dll.c \
 	$(srcdir)/C/load_shl.c \
@@ -127,8 +131,6 @@ C_SOURCES= \
 	$(srcdir)/C/tracer.c $(srcdir)/C/unify.c $(srcdir)/C/userpreds.c  \
 	$(srcdir)/C/utilpreds.c $(srcdir)/C/write.c $(srcdir)/console/yap.c \
 	$(srcdir)/C/ypsocks.c $(srcdir)/C/ypstdio.c \
-	$(srcdir)/C/arith0.c $(srcdir)/C/arith1.c $(srcdir)/C/arith2.c \
-	$(srcdir)/C/bignum.c \
 	$(srcdir)/OPTYap/opt.memory.c $(srcdir)/OPTYap/opt.misc.c \
         $(srcdir)/OPTYap/opt.init.c \
 	$(srcdir)/OPTYap/opt.preds.c $(srcdir)/OPTYap/or.engine.c \
