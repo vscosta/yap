@@ -17,7 +17,7 @@
 * File:		TermExt.h						 *
 * mods:									 *
 * comments:	Extensions to standard terms for YAP			 *
-* version:      $Id: TermExt.h,v 1.2 2001-07-16 15:26:14 vsc Exp $	 *
+* version:      $Id: TermExt.h,v 1.3 2001-07-17 18:52:34 vsc Exp $	 *
 *************************************************************************/
 
 #if USE_OFFSETS
