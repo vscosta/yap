@@ -53,7 +53,7 @@ typedef struct AtomEntry *YAP_Atom;
 #define YAP_BOOT_FROM_SAVED_CODE   1
 #define YAP_BOOT_FROM_SAVED_STACKS 2
 #define YAP_FULL_BOOT_FROM_PROLOG  4
-#define YAP_BOOT_FROM_SAVED_ERROR  -1
+#define YAP_BOOT_ERROR            -1
 
 #define YAP_WRITE_QUOTED		0
 #define YAP_WRITE_HANDLE_VARS		1
@@ -98,6 +98,10 @@ typedef struct {
   int Argc;
   /* array of arguments as seen by Prolog */
   char **Argv;
+  /* errornumber */
+  int ErrorNo;
+  /* errorstring */
+  char *ErrorCause;
 } YAP_init_args;
 
 

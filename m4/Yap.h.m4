@@ -10,7 +10,7 @@
 * File:		Yap.h.m4						 *
 * mods:									 *
 * comments:	main header file for YAP				 *
-* version:      $Id: Yap.h.m4,v 1.79 2005-02-08 18:38:02 vsc Exp $	 *
+* version:      $Id: Yap.h.m4,v 1.80 2005-03-02 18:35:49 vsc Exp $	 *
 *************************************************************************/
 
 #include "config.h"
@@ -706,10 +706,10 @@ and  RefOfTerm(t) : Term -> DBRef = ...
 
 extern ADDR Yap_HeapBase;
 
-#define MAX_ERROR_MSG_SIZE 256
-
 /* This is ok for Linux, should be ok for everyone */
 #define YAP_FILENAME_MAX 1024
+
+#define MAX_ERROR_MSG_SIZE YAP_FILENAME_MAX
 
 #ifdef THREADS
 typedef struct thread_globs {

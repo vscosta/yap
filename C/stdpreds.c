@@ -11,8 +11,12 @@
 * File:		stdpreds.c						 *
 * comments:	General-purpose C implemented system predicates		 *
 *									 *
-* Last rev:     $Date: 2005-03-01 22:25:09 $,$Author: vsc $						 *
+* Last rev:     $Date: 2005-03-02 18:35:46 $,$Author: vsc $						 *
 * $Log: not supported by cvs2svn $
+* Revision 1.83  2005/03/01 22:25:09  vsc
+* fix pruning bug
+* make DL_MALLOC less enthusiastic about walking through buckets.
+*
 * Revision 1.82  2005/02/21 16:50:04  vsc
 * amd64 fixes
 * library fixes
@@ -1063,7 +1067,14 @@ p_name(void)
   }
   if (IsAtomTerm(t) && AtomOfTerm(t) == AtomNil) {
     if ((NewT = get_num(String)) == TermNil) {
-      NewT = MkAtomTerm(Yap_LookupAtom(String));
+      Atom at;
+      while ((at = Yap_LookupAtom(String)) == NIL) {
+	if (!Yap_growheap(FALSE, 0, NULL)) {
+	  Yap_Error(OUT_OF_HEAP_ERROR, TermNil, Yap_ErrorMessage);
+	  return(FALSE);
+	}
+      }
+      NewT = MkAtomTerm(at);
     }
     return Yap_unify_constant(ARG1, NewT);
   } else {

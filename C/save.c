@@ -81,7 +81,7 @@ static char end_msg[256] ="*** End of YAP saved state *****";
 
 #endif
 
-STATIC_PROTO(void  myread, (int, char *, Int));
+STATIC_PROTO(int   myread, (int, char *, Int));
 STATIC_PROTO(void  mywrite, (int, char *, Int));
 STATIC_PROTO(int   open_file, (char *, int));
 STATIC_PROTO(void  close_file, (void));
@@ -99,13 +99,13 @@ STATIC_PROTO(Int   do_save, (int));
 STATIC_PROTO(Int   p_save, (void));
 STATIC_PROTO(Int   p_save_program, (void));
 STATIC_PROTO(int   check_header, (CELL *, CELL *, CELL *, CELL *));
-STATIC_PROTO(void  get_heap_info, (void));
-STATIC_PROTO(void  get_regs, (int));
-STATIC_PROTO(void  get_insts, (OPCODE []));
-STATIC_PROTO(void  get_hash, (void));
-STATIC_PROTO(void  CopyCode, (void));
-STATIC_PROTO(void  CopyStacks, (void));
-STATIC_PROTO(void  get_coded, (int, OPCODE []));
+STATIC_PROTO(int   get_heap_info, (void));
+STATIC_PROTO(int   get_regs, (int));
+STATIC_PROTO(int   get_insts, (OPCODE []));
+STATIC_PROTO(int   get_hash, (void));
+STATIC_PROTO(int   CopyCode, (void));
+STATIC_PROTO(int   CopyStacks, (void));
+STATIC_PROTO(int   get_coded, (int, OPCODE []));
 STATIC_PROTO(void  restore_codes, (void));
 STATIC_PROTO(Term  AdjustDBTerm, (Term, Term *));
 STATIC_PROTO(void  RestoreDB, (DBEntry *));
@@ -152,23 +152,45 @@ LightBug(s)
 
 #endif				/* LIGHT */
 
+static int
+do_system_error(yap_error_number etype, const char *msg)
+{
+#if HAVE_SNPRINTF
+#if HAVE_STRERROR
+  snprintf(Yap_ErrorSay,MAX_ERROR_MSG_SIZE,"%s (%s when reading %s)", msg, strerror(errno), Yap_FileNameBuf);
+#else
+  snprintf(Yap_ErrorSay,MAX_ERROR_MSG_SIZE,"%s, (system error %d when reading %s)",msg,errno,Yap_FileNameBuf);  
+#endif
+#else
+#if HAVE_STRERROR
+  sprintf(Yap_ErrorSay,"%s, (%s when reading %s)",msg,strerror(errno),Yap_FileNameBuf);
+#else
+  sprintf(Yap_ErrorSay,"%s, (system error %d when reading %s)",msg,errno,Yap_FileNameBuf);  
+#endif
+#endif
+  Yap_ErrorMessage = Yap_ErrorSay;
+  Yap_Error_TYPE = etype;
+  return -1;
+}
+
 #if SHORT_INTS
 
 #ifdef M_WILLIAMS
 #include <fcntl.h>
 #endif
 
-static void 
+static int 
 myread(int fd, char *buff, Int len)
 {
-  while (len > 16000) {
-    int nchars = read(fd, buff, 16000);
-    if (nchars <= 0)
-      Yap_Error(FATAL_ERROR,TermNil,"bad saved state, system corrupted");
-    len -= 16000;
-    buff += 16000;
+  while (len > 0) {
+    int nchars = read(fd, buff, len);
+    if (nchars < 0) {
+      return do_system_error(PERMISSION_ERROR_INPUT_PAST_END_OF_STREAM, "bad read on saved state", );
+    }
+    len -= nchars;
+    buff += nchars;
   }
-  read(fd, buff, (unsigned) len);
+  return len;
 }
 
 static void 
@@ -185,17 +207,18 @@ mywrite(int fd, char *buff, Int len)
 #else				/* SHORT_INTS */
 
 inline static
-void myread(int fd, char *buffer, Int len) {
+int myread(int fd, char *buffer, Int len) {
   int nread;
 
   while (len > 0) {
     nread = read(fd, buffer,  (int)len);
     if (nread < 1) {
-      Yap_Error(FATAL_ERROR,TermNil,"bad saved state, system corrupted");
+      return do_system_error(PERMISSION_ERROR_INPUT_PAST_END_OF_STREAM,"bad read on saved state");
     }
     buffer += nread;
     len -= nread;
   }
+  return len;
 }
 
 inline static
@@ -204,8 +227,9 @@ void mywrite(int fd, char *buff, Int len) {
 
   while (len > 0) {
     nwritten = (Int)write(fd, buff, (int)len);
-    if (nwritten == -1) {
-      Yap_Error(SYSTEM_ERROR,TermNil,"write error while saving");
+    if (nwritten < 0) {
+      Yap_ErrorMessage = "bad write on saved state";
+      Yap_Error(SYSTEM_ERROR,TermNil,Yap_ErrorMessage);
     }
     buff += nwritten;
     len -= nwritten;
@@ -263,12 +287,12 @@ open_file(char *my_file, int flag)
 #endif 	/* M_WILLIAMS */
       {
 	splfild = 0;	/* We do not have an open file */
-	return(-1);
+	return -1;
       }
 #ifdef undf0
       fprintf(errout, "Opened file %s\n", my_file);
 #endif
-      return(splfild);
+      return splfild;
 }
 
 static void 
@@ -311,12 +335,12 @@ get_header_cell(void)
   int count = 0, n;
   while (count < sizeof(CELL)) {
     if ((n = read(splfild, &l, sizeof(CELL)-count)) < 0) {
-      Yap_ErrorMessage = "corrupt saved state (too short)";
-      return(0L);
+      do_system_error(PERMISSION_ERROR_INPUT_PAST_END_OF_STREAM,"failed to read saved state header");
+      return 0L;
     }
     count += n;
   }
-  return(l);
+  return l;
 }
 
 /* gets a pointer to cell from a file */
@@ -524,7 +548,7 @@ do_save(int mode) {
   Term t1 = Deref(ARG1);
   if (!Yap_GetName(Yap_FileNameBuf, YAP_FILENAME_MAX, t1)) {
     Yap_Error(TYPE_ERROR_LIST,t1,"save/1");
-    return(FALSE);
+    return FALSE;
   }
   Yap_CloseStreams(TRUE);
   if ((splfild = open_file(Yap_FileNameBuf, O_WRONLY | O_CREAT)) < 0) {
@@ -576,7 +600,7 @@ static Int
 p_save_program(void)
 {
   which_save = 0;
-  return(do_save(DO_ONLY_CODE));
+  return do_save(DO_ONLY_CODE);
 }
 
 /* Now, to restore the saved code */
@@ -593,8 +617,8 @@ check_header(CELL *info, CELL *ATrail, CELL *AStack, CELL *AHeap)
   /* skip the first line */
   do {
     if (read(splfild, pp, 1) < 0) {
-      Yap_ErrorMessage = "corrupt saved state (failed to read first line)";
-      return(FAIL_RESTORE);
+      do_system_error(PERMISSION_ERROR_INPUT_PAST_END_OF_STREAM,"failed to scan first line from saved state");
+      return FAIL_RESTORE;
     }
   } while (pp[0] != 1);
   /* now check the version */
@@ -603,97 +627,126 @@ check_header(CELL *info, CELL *ATrail, CELL *AStack, CELL *AHeap)
     int count = 0, n, to_read = Unsigned(strlen(msg) + 1);
     while (count < to_read) {
       if ((n = read(splfild, pp, to_read-count)) < 0) {
-	Yap_ErrorMessage = "corrupt saved state (header too short)";
-	return(FAIL_RESTORE);
+	do_system_error(PERMISSION_ERROR_INPUT_PAST_END_OF_STREAM,"failed to scan version info from saved state");
+	return FAIL_RESTORE;
       }
       count += n;
     }
   }
   if (pp[0] != 'Y' && pp[1] != 'A' && pp[0] != 'P') {
-    Yap_ErrorMessage = "corrupt saved state (should say YAP)";
-    return(FAIL_RESTORE);
+    Yap_ErrorMessage = Yap_ErrorSay;
+    strncpy(Yap_ErrorMessage, "saved state ", MAX_ERROR_MSG_SIZE);
+    strncat(Yap_ErrorMessage, Yap_FileNameBuf, MAX_ERROR_MSG_SIZE);
+    strncat(Yap_ErrorMessage, " failed to match `YAP\'", MAX_ERROR_MSG_SIZE);
+    Yap_Error_TYPE = CONSISTENCY_ERROR;
+    return FAIL_RESTORE;
   }
   if (strcmp(pp, msg) != 0) {
-    Yap_ErrorMessage = "corrupt saved state (different version of YAP)";
-    return(FAIL_RESTORE);
+    Yap_ErrorMessage = Yap_ErrorSay;
+    strncpy(Yap_ErrorMessage, "saved state ", MAX_ERROR_MSG_SIZE);
+    strncat(Yap_ErrorMessage, Yap_FileNameBuf, MAX_ERROR_MSG_SIZE);
+    strncat(Yap_ErrorMessage, " failed to match version ID", MAX_ERROR_MSG_SIZE);
+    Yap_Error_TYPE = CONSISTENCY_ERROR;
+    return FAIL_RESTORE;
   }
   /* check info on header */
   /* ignore info on saved state */
   *info = get_header_cell();
   if (Yap_ErrorMessage)
-     return(FAIL_RESTORE);
+     return FAIL_RESTORE;
   /* check the restore mode */
   mode = get_header_cell();
   if (Yap_ErrorMessage)
-     return(FAIL_RESTORE);
+     return FAIL_RESTORE;
   if (mode != DO_EVERYTHING && mode != DO_ONLY_CODE) {
-    Yap_ErrorMessage = "corrupt saved state (bad type)";
-    return(FAIL_RESTORE);
+    return FAIL_RESTORE;
   }
   /* ignore info on stacks size */
   *AHeap = get_header_cell();
+  if (Yap_ErrorMessage) {
+     return FAIL_RESTORE;
+  }
   *AStack = get_header_cell();
+  if (Yap_ErrorMessage) {
+     return FAIL_RESTORE;
+  }
   *ATrail = get_header_cell();
-  if (Yap_ErrorMessage)
-     return(FAIL_RESTORE);
+  if (Yap_ErrorMessage) {
+     return FAIL_RESTORE;
+  }
   /* now, check whether we got enough enough space to load the
      saved space */
   hp_size = get_cell();
   if (Yap_ErrorMessage)
-     return(FAIL_RESTORE);
+     return FAIL_RESTORE;
   while (Yap_HeapBase != NULL &&
 	 hp_size > Unsigned(HeapLim) - Unsigned(Yap_HeapBase)) {
     if(!Yap_growheap(FALSE, hp_size, NULL)) {
-      return(FAIL_RESTORE);      
+      return FAIL_RESTORE;
     }
   }
   if (mode == DO_EVERYTHING) {
     lc_size = get_cell();
     if (Yap_ErrorMessage)
-      return(FAIL_RESTORE);
+      return FAIL_RESTORE;
     gb_size=get_cell();
     if (Yap_ErrorMessage)
-      return(FAIL_RESTORE);
+      return FAIL_RESTORE;
     if (Yap_HeapBase != NULL && lc_size+gb_size > Unsigned(Yap_LocalBase) - Unsigned(Yap_GlobalBase)) {
-      Yap_ErrorMessage = "not enough stack space for restore";
-      return(FAIL_RESTORE);
+      if (Yap_ErrorMessage != NULL)
+	Yap_ErrorMessage = "could not allocate enough stack space";
+      return FAIL_RESTORE;
     }
     if (Yap_HeapBase != NULL && (tr_size = get_cell()) > Unsigned(Yap_TrailTop) - Unsigned(Yap_TrailBase)) {
-      Yap_ErrorMessage = "not enough trail space for restore";
-      return(FAIL_RESTORE);
+      if (Yap_ErrorMessage != NULL)
+	Yap_ErrorMessage = "could not allocate enough trail space";
+      return FAIL_RESTORE;
     }
   } else {
     /* skip cell size */
     get_header_cell();
     if (Yap_ErrorMessage)
-      return(FAIL_RESTORE);
+      return FAIL_RESTORE;
     get_header_cell();
     if (Yap_ErrorMessage)
-      return(FAIL_RESTORE);
+      return FAIL_RESTORE;
     get_header_cell();
     if (Yap_ErrorMessage)
-      return(FAIL_RESTORE);
+      return FAIL_RESTORE;
   }
   return(mode);
 }
 
 /* Gets the state of the heap, and evaluates the related variables */
-static void 
+static int 
 get_heap_info(void)
 {
   OldHeapBase = (ADDR) get_cellptr();
+  if (Yap_ErrorMessage)
+      return -1;
   OldHeapTop = (ADDR) get_cellptr();
+  if (Yap_ErrorMessage)
+      return -1;
   OldHeapUsed = (Int) get_cell();
+  if (Yap_ErrorMessage)
+      return -1;
   FreeBlocks = (BlockHeader *) get_cellptr();
+  if (Yap_ErrorMessage)
+      return -1;
   AuxSp = get_cellptr();
+  if (Yap_ErrorMessage)
+      return -1;
   AuxTop = (ADDR)get_cellptr();
+  if (Yap_ErrorMessage)
+      return -1;
   HDiff = Unsigned(Yap_HeapBase) - Unsigned(OldHeapBase);
+  return 1;
 }
 
 /* Gets the register array */
 /* Saves the old bases for the work areas */
 /* and evaluates the difference from the old areas to the new ones */
-static void 
+static int 
 get_regs(int flag)
 {
   CELL           *NewGlobalBase = (CELL *)Yap_GlobalBase;
@@ -702,46 +755,95 @@ get_regs(int flag)
 
   /* Get regs */
   compile_arrays = (int)get_cell();
+  if (Yap_ErrorMessage)
+      return -1;
   if (flag == DO_EVERYTHING) {
     CP = (yamop *)get_cellptr();
+    if (Yap_ErrorMessage)
+      return -1;
     ENV = get_cellptr();
+    if (Yap_ErrorMessage)
+      return -1;
     ASP = get_cellptr();
+    if (Yap_ErrorMessage)
+      return -1;
     /* N = get_cell(); */
     H0 = get_cellptr();
+    if (Yap_ErrorMessage)
+      return -1;
     LCL0 = get_cellptr();
+    if (Yap_ErrorMessage)
+      return -1;
     H = get_cellptr();
+    if (Yap_ErrorMessage)
+      return -1;
     HB = get_cellptr();
+    if (Yap_ErrorMessage)
+      return -1;
     B = (choiceptr)get_cellptr();
+    if (Yap_ErrorMessage)
+      return -1;
     TR = (tr_fr_ptr)get_cellptr();
+    if (Yap_ErrorMessage)
+      return -1;
     YENV = get_cellptr();
+    if (Yap_ErrorMessage)
+      return -1;
     S = get_cellptr();
+    if (Yap_ErrorMessage)
+      return -1;
     P = (yamop *)get_cellptr();
+    if (Yap_ErrorMessage)
+      return -1;
     CreepFlag = get_cell();
+    if (Yap_ErrorMessage)
+      return -1;
 #ifdef COROUTINING
     DelayedVars = get_cell();
+    if (Yap_ErrorMessage)
+      return -1;
 #endif
   }
   CurrentModule = get_cell();
+    if (Yap_ErrorMessage)
+      return -1;
   if (flag == DO_EVERYTHING) {
 #ifdef COROUTINING
     WokenGoals = get_cell();
+    if (Yap_ErrorMessage)
+      return -1;
 #endif
 #ifdef  DEPTH_LIMIT
     DEPTH = get_cell();
+    if (Yap_ErrorMessage)
+      return -1;
 #endif
   }
   /* Get the old bases */
   OldXREGS = get_cellptr();
+  if (Yap_ErrorMessage)
+    return -1;
   which_save = get_cell();
+  if (Yap_ErrorMessage)
+    return -1;
   XDiff =  (CELL)XREGS - (CELL)OldXREGS;
-  get_heap_info();
+  if (Yap_ErrorMessage)
+    return -1;
+  if (get_heap_info() < 0)
+    return -1;
   if (flag == DO_EVERYTHING) {
     ARG1 = get_cell();
+    if (Yap_ErrorMessage)
+      return -1;
     if (which_save == 2) {
       ARG2 = get_cell();
+      if (Yap_ErrorMessage)
+	return -1;
     }
     /* get old trail base */
     OldTrailBase = (ADDR)get_cellptr();
+    if (Yap_ErrorMessage)
+      return -1;
     /* Save the old register where we can easily access them */
     OldASP = ASP;
     OldLCL0 = LCL0;
@@ -754,54 +856,71 @@ get_regs(int flag)
     Yap_GlobalBase = (ADDR)NewGlobalBase;
     LCL0 = NewLCL0;
   }
+  return 1;
 }
 
 /* Get the old opcodes and place them in a hash table */
-static void 
+static int 
 get_insts(OPCODE old_ops[])
 {
-  myread(splfild, (char *)old_ops, sizeof(OPCODE)*(_std_top+1));
+  return myread(splfild, (char *)old_ops, sizeof(OPCODE)*(_std_top+1));
 }
 
 /* Get the old atoms hash table */
-static void 
+static int 
 get_hash(void)
 {
-  myread(splfild, Yap_chtype , NUMBER_OF_CHARS);
+  return myread(splfild, Yap_chtype , NUMBER_OF_CHARS);
 }
 
 /* Copy all of the old code to the new Heap */
-static void 
+static int 
 CopyCode(void)
 {
 #if defined(YAPOR) || defined(TABLING)
   /* skip the local and global data structures */
   CELL j = get_cell();
+  if (Yap_ErrorMessage)
+      return -1;
   if (j != Unsigned(&GLOBAL) - Unsigned(Yap_HeapBase)) {
-    Yap_Error(FATAL_ERROR,TermNil,"bad saved state (code space size does not match)");
+    Yap_ErrorMessage = "code space size does not match saved state";
+    return -1;
   }
-  myread(splfild, (char *) Yap_HeapBase, j);
+  if (myread(splfild, (char *) Yap_HeapBase, j) < 0)
+    return -1;
 #ifdef USE_HEAP
   j = get_cell();
-  myread(splfild, (char *) &HashChain, j);
+  if (Yap_ErrorMessage)
+      return -1;
+  if (myread(splfild, (char *) &HashChain, j) < 0)
+      return -1;
 #else
   j = get_cell();
+  if (Yap_ErrorMessage)
+      return -1;
   if (j != Unsigned(BaseAllocArea) - Unsigned(&HashChain)) {
-    Yap_Error(FATAL_ERROR,TermNil,"bad saved state (Base to Hash does not match)");
+    Yap_ErrorMessage = "Base to Hash does not match saved state";
+    return -1;
   }
-  myread(splfild, (char *) &HashChain, j);
+  if (myread(splfild, (char *) &HashChain, j) < 0)
+    return -1;
   j = get_cell();
-  myread(splfild, (char *) TopAllocBlockArea, j);
+  if (Yap_ErrorMessage)
+      return -1;
+  if (myread(splfild, (char *) TopAllocBlockArea, j) < 0)
+    return -1;
 #endif
 #else
-  myread(splfild, (char *) Yap_HeapBase,
-	 (Unsigned(OldHeapTop) - Unsigned(OldHeapBase)));
+  if (myread(splfild, (char *) Yap_HeapBase,
+	     (Unsigned(OldHeapTop) - Unsigned(OldHeapBase))) < 0)
+    return -1;
 #endif /* YAPOR || TABLING */
+  return 1;
 }
 
 /* Copy the local and global stack and also the trail to their new home */
 /* In REGS we still have nonadjusted values !! */
-static void 
+static int 
 CopyStacks(void)
 {
   Int             j;
@@ -809,16 +928,20 @@ CopyStacks(void)
 
   j = Unsigned(OldLCL0) - Unsigned(ASP);
   NewASP = (char *) (Unsigned(ASP) + (Unsigned(LCL0) - Unsigned(OldLCL0)));
-  myread(splfild, (char *) NewASP, j);
+  if (myread(splfild, (char *) NewASP, j) < 0)
+    return -1;
   j = Unsigned(H) - Unsigned(OldGlobalBase);
-  myread(splfild, (char *) Yap_GlobalBase, j);
+  if (myread(splfild, (char *) Yap_GlobalBase, j) < 0)
+    return -1;
   j = Unsigned(TR) - Unsigned(OldTrailBase);
-  myread(splfild, Yap_TrailBase, j);
+  if (myread(splfild, Yap_TrailBase, j))
+    return -1;
+  return 1;
 }
 
 /* Copy the local and global stack and also the trail to their new home */
 /* In REGS we still have nonadjusted values !! */
-static void 
+static int
 CopyTrailEntries(void)
 {
   CELL           entry, *Entries;
@@ -826,31 +949,44 @@ CopyTrailEntries(void)
   Entries = (CELL *)Yap_TrailBase;
   do {
     *Entries++ = entry = get_cell();
+    if (Yap_ErrorMessage)
+      return -1;
   } while ((CODEADDR)entry != NULL);
+  return 1;
 }
 
 /* get things which are saved in the file */
-static void 
+static int 
 get_coded(int flag, OPCODE old_ops[])
 {
   char my_end_msg[256];
 
-  get_regs(flag);
-  get_insts(old_ops);
-  get_hash();
-  CopyCode();
+  if (get_regs(flag) < 0)
+    return -1;
+  if (get_insts(old_ops) < 0)
+    return -1;
+  if (get_hash() < 0)
+    return -1;
+  if (CopyCode() < 0)
+    return -1;
   switch (flag) {
   case DO_EVERYTHING:
-    CopyStacks();
+    if (CopyStacks() < 0)
+      return -1;
     break;
   case DO_ONLY_CODE:
-    CopyTrailEntries();
+    if (CopyTrailEntries() < 0)
+      return -1;
     break;
   }
   /* Check CRC */
-  myread(splfild, my_end_msg, 256);
-  if (strcmp(end_msg,my_end_msg) != 0)
-    Yap_Error(FATAL_ERROR,TermNil,"corrupt saved state (bad trailing CRC)");
+  if (myread(splfild, my_end_msg, 256) < 0)
+    return -1;
+  if (strcmp(end_msg,my_end_msg) != 0) {
+    Yap_ErrorMessage = "bad trailing CRC in saved state";
+    return -1;
+  }
+  return 1;
 }
 
 /* restore some heap registers */
@@ -1278,10 +1414,22 @@ OpenRestore(char *inpf, char *YapLibDir, CELL *Astate, CELL *ATrail, CELL *AStac
   Yap_ErrorMessage = NULL;
   if (inpf == NULL)
     inpf = StartUpFile;
+#if __simplescalar__
+  /* does not implement getcwd */
+  strncpy(Yap_FileNameBuf,yap_pwd,YAP_FILENAME_MAX);
+#elif HAVE_GETCWD
+  if (getcwd (Yap_FileNameBuf, YAP_FILENAME_MAX) == NULL)
+    Yap_FileNameBuf[0] = '\0';
+#else
+  if (getwd (Yap_FileNameBuf) == NULL)
+    Yap_FileNameBuf[0] = '\0';
+#endif
+  strncat(Yap_FileNameBuf, "/", YAP_FILENAME_MAX);
+  strncat(Yap_FileNameBuf, inpf, YAP_FILENAME_MAX);
   if (inpf != NULL && (splfild = open_file(inpf, O_RDONLY)) > 0) {
     if ((mode = commit_to_saved_state(inpf,Astate,ATrail,AStack,AHeap)) != FAIL_RESTORE) {
       Yap_ErrorMessage = NULL;
-      return(mode);
+      return mode;
     }
   }
   if (!Yap_dir_separator(inpf[0]) && !Yap_volume_header(inpf)) {
@@ -1294,7 +1442,7 @@ OpenRestore(char *inpf, char *YapLibDir, CELL *Astate, CELL *ATrail, CELL *AStac
       if ((splfild = open_file(Yap_FileNameBuf, O_RDONLY)) > 0) {
 	if ((mode = commit_to_saved_state(Yap_FileNameBuf,Astate,ATrail,AStack,AHeap)) != FAIL_RESTORE) {
 	  Yap_ErrorMessage = NULL;
-	  return(mode);
+	  return mode;
 	}
       }
     }
@@ -1306,7 +1454,7 @@ OpenRestore(char *inpf, char *YapLibDir, CELL *Astate, CELL *ATrail, CELL *AStac
 	if ((splfild = open_file(Yap_FileNameBuf, O_RDONLY)) > 0) {
 	  if ((mode = commit_to_saved_state(Yap_FileNameBuf,Astate,ATrail,AStack,AHeap)) != FAIL_RESTORE) {
 	    Yap_ErrorMessage = NULL;
-	    return(mode);
+	    return mode;
 	  }
 	}
       }
@@ -1324,12 +1472,10 @@ OpenRestore(char *inpf, char *YapLibDir, CELL *Astate, CELL *ATrail, CELL *AStac
   }
   /* could not open file */
   if (Yap_ErrorMessage == NULL) {
-    Yap_Error(SYSTEM_ERROR,TermNil,"could not open %s,",inpf);
-  } else {
-    Yap_Error(SYSTEM_ERROR, TermNil, Yap_ErrorMessage);
+    strncpy(Yap_FileNameBuf, inpf, YAP_FILENAME_MAX);
+    do_system_error(PERMISSION_ERROR_OPEN_SOURCE_SINK,"could not open saved state");
   }
-  Yap_ErrorMessage = NULL;
-  return(FAIL_RESTORE);
+  return FAIL_RESTORE;
 }
 
 static void 
@@ -1403,11 +1549,10 @@ Yap_SavedInfo(char *FileName, char *YapLibDir, CELL *ATrail, CELL *AStack, CELL 
   int             mode;
 
   mode = OpenRestore(FileName, YapLibDir, &MyState, &MyTrail, &MyStack, &MyHeap);
-  close_file();
   if (mode == FAIL_RESTORE) {
-    Yap_ErrorMessage = NULL;
-    return(0);
+    return -1;
   }
+  close_file();
   if (! *AHeap)
     *AHeap = MyHeap / 1024;
   if (mode != DO_ONLY_CODE && *AStack)
@@ -1481,7 +1626,8 @@ Restore(char *s, char *lib_dir)
     return(FALSE);
   Yap_ShutdownLoadForeign();
   in_limbo = TRUE;
-  get_coded(restore_mode, old_ops);
+  if (get_coded(restore_mode, old_ops) < 0)
+     return FAIL_RESTORE;  
   restore_regs(restore_mode);
   in_limbo = FALSE;
   /*#endif*/
@@ -1518,7 +1664,7 @@ Restore(char *s, char *lib_dir)
   if (which_save == 2) {
     Yap_unify(ARG2, MkIntTerm(0));
   }
-  return(restore_mode);
+  return restore_mode;
 }
 
 int 

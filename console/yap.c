@@ -287,14 +287,14 @@ parse_yap_arguments(int argc, char *argv[], YAP_init_args *iap)
 	      host = *++argv;
 	      argc--;
 	      if (host == NULL || host[0] == '-')
-		YAP_Error("sockets must receive host to connect to");
+		YAP_Error(0,0L,"sockets must receive host to connect to");
 	      p1 = *++argv;
 	      argc--;
 	      if (p1 == NULL || p1[0] == '-')
-		YAP_Error("sockets must receive port to connect to");
+		YAP_Error(0,0L,"sockets must receive port to connect to");
 	      port = strtol(p1, &ptr, 10);
 	      if (ptr == NULL || ptr[0] != '\0')
-		YAP_Error("port argument to socket must be a number");
+		YAP_Error(0,0L,"port argument to socket must be a number");
 	      YAP_InitSocks(host,port);
 	    }
 	    break;
@@ -446,6 +446,8 @@ init_standard_system(int argc, char *argv[], YAP_init_args *iap)
   iap->PrologShouldHandleInterrupts = TRUE;
   iap->Argc = argc;
   iap->Argv = argv;
+  iap->ErrorNo = 0;
+  iap->ErrorCause = NULL;
 
   BootMode = parse_yap_arguments(argc,argv,iap);
 
@@ -466,9 +468,13 @@ init_standard_system(int argc, char *argv[], YAP_init_args *iap)
   /* init memory */
   if (BootMode == YAP_BOOT_FROM_PROLOG ||
       BootMode == YAP_FULL_BOOT_FROM_PROLOG) {
-    YAP_Init(iap);
+    BootMode = YAP_Init(iap);
   } else {
     BootMode = YAP_Init(iap);
+  }
+  if (iap->ErrorNo) {
+    /* boot failed */
+    YAP_Error(iap->ErrorNo,0L,iap->ErrorCause);
   }
   return(BootMode);
 }
@@ -552,7 +558,7 @@ main (int argc, char **argv)
   YAP_init_args init_args;
 
   BootMode = init_standard_system(argc, argv, &init_args);
-  if (BootMode == YAP_BOOT_FROM_SAVED_ERROR) {
+  if (BootMode == YAP_BOOT_ERROR) {
     fprintf(stderr,"[ FATAL ERROR: could not find saved state ]\n");
     exit(1);
   }

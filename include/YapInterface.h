@@ -24,6 +24,10 @@
 
 #include "yap_structs.h"
 
+#if HAVE_STDARG_H
+#include <stdarg.h>
+#endif
+
 #ifndef _yap_c_interface_h
 
 #define _yap_c_interface_h 1
@@ -220,8 +224,8 @@ extern X_API YAP_Bool PROTO(YAP_GoalHasException,(YAP_Term *));
 /*  int YAP_Reset(void) */
 extern X_API void PROTO(YAP_Reset,(void));
 
-/*  void YAP_Error(char *) */
-extern X_API void PROTO(YAP_Error,(char *));
+/*  void YAP_Error(int, YAP_Term, char *,...) */
+extern X_API void PROTO(YAP_Error,(int, YAP_Term, char *, ...));
 
 /*  YAP_Term YAP_Read(int (*)(void)) */
 extern X_API YAP_Term PROTO(YAP_Read,(int (*)(void)));

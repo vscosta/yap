@@ -1450,11 +1450,14 @@ JumpToEnv(Term t) {
 #ifdef TABLING
   abolish_incomplete_subgoals(B);
 #endif /* TABLING */
-  return(FALSE);
+  return FALSE;
 }
 
 Int
 Yap_JumpToEnv(Term t) {
+  if (Yap_PrologMode & BootMode) {
+    return FALSE;
+  } 
   return JumpToEnv(t);
 }
 

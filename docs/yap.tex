@@ -14029,7 +14029,7 @@ program contains two facts for the procedure @t{b}:
 
 int
 main(int argc, char *argv[]) @{
-  if (YAP_FastInit("saved_state") == YAP_BOOT_FROM_SAVED_ERROR)
+  if (YAP_FastInit("saved_state") == YAP_BOOT_ERROR)
     exit(1);
   if (YAP_RunGoal(YAP_MkAtomTerm(YAP_LookupAtom("do")))) @{
     printf("Success\n");
@@ -14091,14 +14091,19 @@ Initialize a copy of YAP from @var{SavedState}. The copy is
 monolithic and currently must be loaded at the same address where it was
 saved. @code{YAP_FastInit} is a simpler version of @code{YAP_Init}.
 
-@item  YAP_Init(@code{char *} @var{SavedState},  @code{int}
-@var{HeapSize}, @code{int} @var{StackSize}, @code{int}
-@var{TrailSize}, @code{int}  @var{NumberofWorkers}, @code{int}
+@item  YAP_Init(@var{InitInfo})
+@findex  YAP_Init/1
+Initialize YAP. The arguments are in a @code{C}
+structure of type @code{YAP_init_args}.
+
+The fields of @var{InitInfo} are @code{char *} @var{SavedState},
+@code{int} @var{HeapSize}, @code{int} @var{StackSize}, @code{int}
+@var{TrailSize}, @code{int} @var{NumberofWorkers}, @code{int}
 @var{SchedulerLoop}, @code{int} @var{DelayedReleaseLoad}, @code{int}
-@var{argc}, @code{char **}  @var{argv})
-@findex  YAP_Init/9
-Initialize YAP. In the future the arguments as a single @code{C}
-structure.
+@var{argc}, @code{char **} @var{argv}, @code{int} @var{ErrorNo}, and
+@code{char *} @var{ErrorCause}. The function returns an integer, which
+indicates the current status. If the result is @code{YAP_BOOT_ERROR}
+booting failed.
 
 If @var{SavedState} is not NULL, try to open and restore the file
 @var{SavedState}. Initially YAP will search in the current directory. If
@@ -14119,6 +14124,11 @@ The @var{NumberofWorkers}, @var{NumberofWorkers}, and
 The argument count @var{argc} and string of arguments @var{argv}
 arguments are to be passed to user programs as the arguments used to
 call YAP.
+
+If booting failed you may consult @code{ErrorNo} and @code{ErrorCause}
+for the cause of the error, or call
+@code{YAP_Error(ErrorNo,0L,ErrorCause)} to do default processing. 
+
 
 @item  @code{void} YAP_PutValue(@code{Atom} @var{at}, @code{Term} @var{value})
 @findex  YAP_PutValue/2

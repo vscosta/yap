@@ -372,7 +372,10 @@ Yap_Error(yap_error_number type, Term where, char *format,...)
   int psize = YAP_BUF_SIZE;
 
 #if DEBUG
-  /*  fprintf(stderr,"***** Processing Error %d (%x,%x) %s***\n", type, ActiveSignals,Yap_PrologMode,format);*/
+  if (Yap_heap_regs && !(Yap_PrologMode & BootMode)) 
+    fprintf(stderr,"***** Processing Error %d (%x,%x) %s***\n", type, ActiveSignals,Yap_PrologMode,format);
+  else
+    fprintf(stderr,"***** Processing Error %d (%x) %s***\n", type,Yap_PrologMode,format);
 #endif
   if (type == INTERRUPT_ERROR) {
     fprintf(stderr,"%% YAP exiting: cannot handle signal %d\n",
@@ -419,9 +422,9 @@ Yap_Error(yap_error_number type, Term where, char *format,...)
       tmpbuf[0] = '\0';
     }
     if (Yap_PrologMode == UserCCallMode) {
-      fprintf(stderr,"%% OOOPS in USER C-CODE: %s.\n",tmpbuf);
+      fprintf(stderr,"%% YAP OOOPS in USER C-CODE: %s.\n",tmpbuf);
     } else {
-      fprintf(stderr,"%% OOOPS: %s.\n",tmpbuf);
+      fprintf(stderr,"%% YAP OOOPS: %s.\n",tmpbuf);
     }
     error_exit_yap (1);
   }
@@ -461,7 +464,7 @@ Yap_Error(yap_error_number type, Term where, char *format,...)
   va_end (ap);
   if (Yap_PrologMode & BootMode) {
     /* crash in flames! */
-    fprintf(stderr,"%% Fatal Error: %s exiting....\n",tmpbuf);
+    fprintf(stderr,"%% YAP Fatal Error: %s exiting....\n",tmpbuf);
     error_exit_yap (1);
   }
 #ifdef DEBUGX
@@ -472,8 +475,12 @@ Yap_Error(yap_error_number type, Term where, char *format,...)
     {
       fprintf(stderr,"%% Internal YAP Error: %s exiting....\n",tmpbuf);
       serious = TRUE;
-      detect_bug_location(P, FIND_PRED_FROM_ANYWHERE, tmpbuf, YAP_BUF_SIZE);
-      fprintf(stderr,"%% Bug found while executing %s\n",tmpbuf);
+      if (Yap_PrologMode & BootMode) {
+	fprintf(stderr,"%% YAP crashed while booting %s\n",tmpbuf);
+      } else {
+	detect_bug_location(P, FIND_PRED_FROM_ANYWHERE, tmpbuf, YAP_BUF_SIZE);
+	fprintf(stderr,"%% Bug found while executing %s\n",tmpbuf);
+      }
       error_exit_yap (1);
     }
   case FATAL_ERROR:

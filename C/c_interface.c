@@ -10,8 +10,12 @@
 * File:		c_interface.c						 *
 * comments:	c_interface primitives definition 			 *
 *									 *
-* Last rev:	$Date: 2005-03-01 22:25:08 $,$Author: vsc $						 *
+* Last rev:	$Date: 2005-03-02 18:35:44 $,$Author: vsc $						 *
 * $Log: not supported by cvs2svn $
+* Revision 1.61  2005/03/01 22:25:08  vsc
+* fix pruning bug
+* make DL_MALLOC less enthusiastic about walking through buckets.
+*
 * Revision 1.60  2005/02/08 18:04:47  vsc
 * library_directory may not be deterministic (usually it isn't).
 *
@@ -95,6 +99,9 @@
 #include "Yap.h"
 #include "clause.h"
 #include "yapio.h"
+#if HAVE_STDARG_H
+#include <stdarg.h>
+#endif
 #if _MSC_VER || defined(__MINGW32__) 
 #include <windows.h>
 #endif
@@ -165,7 +172,7 @@ X_API int     STD_PROTO(YAP_StringToBuffer, (Term, char *, unsigned int));
 X_API Term    STD_PROTO(YAP_ReadBuffer, (char *,Term *));
 X_API Term    STD_PROTO(YAP_BufferToString, (char *));
 X_API Term    STD_PROTO(YAP_BufferToAtomList, (char *));
-X_API void    STD_PROTO(YAP_Error,(char *));
+X_API void    STD_PROTO(YAP_Error,(int, Term, char *, ...));
 X_API Term    STD_PROTO(YAP_RunGoal,(Term));
 X_API int     STD_PROTO(YAP_RestartGoal,(void));
 X_API int     STD_PROTO(YAP_GoalHasException,(Term *));
@@ -835,9 +842,28 @@ YAP_BufferToAtomList(char *s)
 
 
 X_API void
-YAP_Error(char *buf)
+YAP_Error(int myerrno, Term t, char *buf,...)
 {
-  Yap_Error(SYSTEM_ERROR,TermNil,buf);
+#define YAP_BUF_SIZE 512
+  va_list ap;
+  char tmpbuf[YAP_BUF_SIZE];
+
+  if (!myerrno)
+    myerrno = SYSTEM_ERROR;
+  if (t == 0L)
+    t = TermNil;
+  if (buf != NULL) {
+    va_start (ap, buf);
+#if   HAVE_VSNPRINTF
+    (void) vsnprintf(tmpbuf, YAP_BUF_SIZE, buf, ap);
+#else
+    (void) vsprintf(tmpbuf, buf, ap);
+#endif
+    va_end (ap);
+  } else {
+    tmpbuf[0] = '\0';
+  }
+  Yap_Error(myerrno,t,tmpbuf);
 }
 
 static void myputc (int ch)
@@ -1046,7 +1072,9 @@ YAP_Init(YAP_init_args *yap_init)
   if (yap_init->SavedState != NULL ||
       yap_init->YapPrologBootFile == NULL) {
     if (Yap_SavedInfo (yap_init->SavedState, yap_init->YapLibDir, &Trail, &Stack, &Heap) != 1) {
-      return(YAP_BOOT_FROM_SAVED_ERROR);
+      yap_init->ErrorNo = Yap_Error_TYPE;
+      yap_init->ErrorCause = Yap_ErrorMessage;
+      return YAP_BOOT_FROM_SAVED_ERROR;
     }
   }
   if (yap_init->TrailSize == 0) {
@@ -1095,6 +1123,11 @@ YAP_Init(YAP_init_args *yap_init)
   if (yap_init->SavedState != NULL ||
       yap_init->YapPrologBootFile == NULL) {
     restore_result = Yap_Restore(yap_init->SavedState, yap_init->YapLibDir);
+    if (restore_result == FAIL_RESTORE) {
+      yap_init->ErrorNo = Yap_Error_TYPE;
+      yap_init->ErrorCause = Yap_ErrorMessage;
+      return YAP_BOOT_FROM_SAVED_ERROR;
+    }
   } else {
     restore_result = FAIL_RESTORE;
   }
@@ -1134,21 +1167,25 @@ YAP_Init(YAP_init_args *yap_init)
   }
   if (yap_init->SavedState != NULL ||
       yap_init->YapPrologBootFile == NULL) {
-    if (restore_result == FAIL_RESTORE)
-      return(YAP_BOOT_FROM_SAVED_ERROR);
+    if (restore_result == FAIL_RESTORE) {
+      yap_init->ErrorNo = Yap_Error_TYPE;
+      yap_init->ErrorCause = Yap_ErrorMessage;
+      return YAP_BOOT_FROM_SAVED_ERROR;
+    }
     if (restore_result == DO_ONLY_CODE) {
-      return(YAP_BOOT_FROM_SAVED_CODE);
+      return YAP_BOOT_FROM_SAVED_CODE;
     } else {
-      return(YAP_BOOT_FROM_SAVED_STACKS);
+      return YAP_BOOT_FROM_SAVED_STACKS;
     }
   }
-  return(YAP_BOOT_FROM_PROLOG);
+  return YAP_BOOT_FROM_PROLOG;
 }
 
 X_API Int
 YAP_FastInit(char saved_state[])
 {
   YAP_init_args init_args;
+  Int out;
 
   init_args.SavedState = saved_state;
   init_args.HeapSize = 0;
@@ -1166,8 +1203,13 @@ YAP_FastInit(char saved_state[])
   init_args.PrologShouldHandleInterrupts = FALSE;
   init_args.Argc = 0;
   init_args.Argv = NULL;
-
-  return(YAP_Init(&init_args));
+  init_args.ErrorNo = 0;
+  init_args.ErrorCause = NULL;
+  out = YAP_Init(&init_args);
+  if (out == YAP_BOOT_FROM_SAVED_ERROR) {
+    Yap_Error(init_args.ErrorNo,TermNil,init_args.ErrorCause);
+  }
+  return out;
 }
 
 X_API void
