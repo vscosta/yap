@@ -398,13 +398,14 @@ statistics :-
 	'$inform_agc'(NOfAGC,TotAGCTime,TotAGCSize),
 	'$statistics'(Runtime,CPUtime,Walltime,HpSpa,HpInUse,HpMax,TrlSpa, TrlInUse,TrlMax,StkSpa, GlobInU, LocInU,GlobMax,LocMax,NOfHO,TotHOTime,NOfSO,TotSOTime,NOfTO,TotTOTime,NOfGC,TotGCTime,TotGCSize,NOfAGC,TotAGCTime,TotAGCSize).
 
-'$statistics'(Runtime,CPUtime,Walltime,HpSpa,HpInUse,_HpMax,TrlSpa, TrlInUse,_TrlMax,StkSpa, GlobInU, LocInU,GlobMax,LocMax,NOfHO,TotHOTime,NOfSO,TotSOTime,NOfTO,TotTOTime,NOfGC,TotGCTime,TotGCSize,NOfAGC,TotAGCTime,TotAGCSize) :-
+'$statistics'(Runtime,CPUtime,Walltime,HpSpa,HpInUse,HpMax,TrlSpa, TrlInUse,_TrlMax,StkSpa, GlobInU, LocInU,GlobMax,LocMax,NOfHO,TotHOTime,NOfSO,TotSOTime,NOfTO,TotTOTime,NOfGC,TotGCTime,TotGCSize,NOfAGC,TotAGCTime,TotAGCSize) :-
 	TotalMemory is HpSpa+StkSpa+TrlSpa,
 	'$format'(user_error,"memory (total)~t~d bytes~35+~n", [TotalMemory]),
 	'$format'(user_error,"   program space~t~d bytes~35+", [HpSpa]),
 	'$format'(user_error,":~t  ~d in use~19+", [HpInUse]),
 	HpFree is HpSpa-HpInUse,
 	'$format'(user_error,",~t  ~d free~19+~n", [HpFree]),
+	'$format'(user_error,"~t  ~d  max~73+~n", [HpMax]),
 	'$format'(user_error,"   stack space~t~d bytes~35+", [StkSpa]),
 	StackInUse is GlobInU+LocInU,
 	'$format'(user_error,":~t  ~d in use~19+", [StackInUse]),
@@ -412,10 +413,10 @@ statistics :-
 	'$format'(user_error,",~t  ~d free~19+~n", [StackFree]),
 	'$format'(user_error,"     global stack:~t~35+", []),
 	'$format'(user_error," ~t  ~d in use~19+", [GlobInU]),
-	'$format'(user_error,",~t  ~d max~19+~n", [GlobMax]),
+	'$format'(user_error,",~t  ~d  max~19+~n", [GlobMax]),
 	'$format'(user_error,"      local stack:~t~35+", []),
 	'$format'(user_error," ~t  ~d in use~19+", [LocInU]),
-	'$format'(user_error,",~t  ~d max~19+~n", [LocMax]),
+	'$format'(user_error,",~t  ~d  max~19+~n", [LocMax]),
 	'$format'(user_error,"   trail stack~t~d bytes~35+", [TrlSpa]),
 	'$format'(user_error,":~t  ~d in use~19+", [TrlInUse]),
 	TrlFree is TrlSpa-TrlInUse,
