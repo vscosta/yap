@@ -14,6 +14,7 @@ BEFORE 4.4:
 - document system(library)
 - document new interface functions.
 - logtalk.
+- listing (Steve Moyle).
 
 TO CHECK:
 - bad register allocation for a(X,Y) :- X is Y+2.3 ?
