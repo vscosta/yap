@@ -1048,33 +1048,6 @@ break :- '$get_value'('$break',BL), NBL is BL+1,
 	atom_concat([Path,File],New),
 	'$exists'(New,'$csult').
 
-path(Path) :- findall(X,'$in_path'(X),Path).
-
-'$in_path'(X) :- '$recorded'('$path',S,_),
-		( S == ""  -> X = '.' ;
-		  name(X,S) ).
-
-add_to_path(New) :- add_to_path(New,last).
-
-add_to_path(New,Pos) :-
-	'$check_path'(New,Str),
-	atom_codes(Fixed,Str),
-	'$add_to_path'(Fixed,Pos).
-
-'$add_to_path'(New,_) :- '$recorded'('$path',New,R), erase(R), fail.
-'$add_to_path'(New,last) :- !, '$recordz'('$path',New,_).
-'$add_to_path'(New,first) :- '$recorda'('$path',New,_).
-
-remove_from_path(New) :- '$check_path'(New,Path),
-			'$recorded'('$path',Path,R), erase(R).
-
-'$check_path'(At,SAt) :- atom(At), !, atom_codes(At,S), '$check_path'(S,SAt).
-'$check_path'([],[]).
-'$check_path'([Ch],[Ch]) :- '$dir_separator'(Ch), !.
-'$check_path'([Ch],[Ch,A]) :- !, integer(Ch), '$dir_separator'(A).
-'$check_path'([N|S],[N|SN]) :- integer(N), '$check_path'(S,SN).
-
-
 % term expansion
 %
 % return two arguments: Expanded0 is the term after "USER" expansion.

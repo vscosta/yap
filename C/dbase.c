@@ -650,6 +650,7 @@ static CELL *MkDBTerm(register CELL *pt0, register CELL *pt0_end,
 	  {
 	    CELL *st = CodeMax;
 
+	    CheckDBOverflow();
 	/* first thing, store a link to the list before we move on */
 #ifdef IDB_USE_MBIT
 	    *StoPoint++ = AbsAppl((CELL *)(((CELL)st-(CELL)tbase)|MBIT));
@@ -669,7 +670,8 @@ static CELL *MkDBTerm(register CELL *pt0, register CELL *pt0_end,
 	  {
 	    CELL *st = CodeMax;
 
-	/* first thing, store a link to the list before we move on */
+	    CheckDBOverflow();
+	    /* first thing, store a link to the list before we move on */
 #ifdef IDB_USE_MBIT
 	    *StoPoint++ = AbsAppl((CELL *)(((CELL)st-(CELL)tbase)|MBIT));
 #else
@@ -692,6 +694,7 @@ static CELL *MkDBTerm(register CELL *pt0, register CELL *pt0_end,
 	  {
 	    CELL *st = CodeMax;
 
+	    CheckDBOverflow();
 	    /* first thing, store a link to the list before we move on */
 #ifdef IDB_USE_MBIT
 	    *StoPoint++ = AbsAppl((CELL *)(((CELL)st-(CELL)tbase)|MBIT));
@@ -911,6 +914,7 @@ static CELL *MkDBTerm(register CELL *pt0, register CELL *pt0_end,
     to_visit -= 3;
     pt0 = to_visit[0];
     pt0_end = to_visit[1];
+    CheckDBOverflow();
     StoPoint = to_visit[2];
 #endif
     goto loop;
@@ -924,6 +928,7 @@ static CELL *MkDBTerm(register CELL *pt0, register CELL *pt0_end,
     pt0_end = RepAppl(ConstraintsTerm)+4;
     ConstraintsTerm = TermNil; 
     StoPoint = CodeMax;
+    CheckDBOverflow();
     CodeMax += 4;
     goto loop;
   }

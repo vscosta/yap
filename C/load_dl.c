@@ -132,6 +132,11 @@ Yap_ShutdownLoadForeign(void)
     }
     f_code = f_code->next;
   }
+  /*
+    make sure that we don't try to close foreign code several times, eg,
+    from within an error handler
+  */
+  ForeignCodeLoaded = NULL;
 }
 
 Int

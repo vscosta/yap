@@ -17,6 +17,6 @@
 
 %depth_bound_call(A,D) :-
 %write(depth_bound_call(A,D)), nl, fail.
-depth_bound_call(A,D) :-
-	'$execute_under_depth_limit'(A,D).
+%depth_bound_call(A,D) :-
+%	'$execute_under_depth_limit'(A,D).
 

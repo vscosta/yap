@@ -419,9 +419,16 @@ module(N) :-
 	'$pred_goal_expansion_on',
 	user:goal_expansion(G,M,GI), !,
 	'$module_expansion'(GI,G1,G2,M,CM,TM,HVars).
-'$complete_goal_expansion'(G, M, _, _, G, GF, _) :-
+'$complete_goal_expansion'(G, M, CM, TM, G1, G2, HVars) :-
 	'$system_predicate'(G,M), !,
-	'$c_built_in'(G,M,GF).
+	'$c_built_in'(G,M,Gi),
+	(Gi \== G ->
+	   '$module_expansion'(Gi,G1,G2,M,CM,TM,HVars) ;
+	 TM = M ->
+	    G2 = G
+	;
+	    G2 = M:G % atts:
+	).
 '$complete_goal_expansion'(G, Mod, _, Mod, G, G, _) :- !.
 '$complete_goal_expansion'(G, GMod, _, _, GMod:G, GMod:G, _).
 

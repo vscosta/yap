@@ -11725,9 +11725,6 @@ Yap_absmi(int inp)
 	CACHE_Y_AS_ENV(YREG);
 	/* Try to preserve the environment */
 	E_YREG = (CELL *) (((char *) YREG) + PREG->u.sla.s);
-#ifndef NO_CHECKING
-	check_stack(NoStackCall, H);
-#endif
 #ifdef FROZEN_STACKS
 	{ 
 	  choiceptr top_b = PROTECT_FROZEN_B(B);
@@ -11844,6 +11841,9 @@ Yap_absmi(int inp)
 	  (yamop *) NEXTOP(PREG, sla);
 	ALWAYS_LOOKAHEAD(pen->OpcodeOfPred);
 	PREG = pen->CodeOfPred;
+#ifndef NO_CHECKING
+	check_stack(NoStackPExecute, H);
+#endif
 #ifdef DEPTH_LIMIT
 	if (DEPTH <= MkIntTerm(1)) {/* I assume Module==0 is primitives */
 	  if (pen->ModuleOfPred) {
@@ -11878,6 +11878,30 @@ Yap_absmi(int inp)
 	ENDP(pt1);
 
 	ENDD(d0);
+      NoStackPExecute:
+	SREG = (CELL *) pen;
+	ASP = E_YREG;
+	/* setup GB */
+	WRITEBACK_Y_AS_ENV();
+	YREG[E_CB] = (CELL) B;
+#ifdef COROUTINING
+	if (CFREG == Unsigned(LCL0)) {
+	  if (Yap_ReadTimedVar(WokenGoals) != TermNil)
+	    goto creep;
+	  else {
+	    CFREG = CalculateStackGap();
+	    JMPNext();
+	  }
+	}
+#endif
+	if (CFREG != CalculateStackGap())
+	  goto creep;
+	saveregs();
+	if (!Yap_gc(((PredEntry *)SREG)->ArityOfPE, YREG, NEXTOP(PREG, sla))) {
+	  Yap_Error(OUT_OF_STACK_ERROR,TermNil,Yap_ErrorMessage);
+	}
+	setregs();
+	JMPNext();
 	ENDCACHE_Y_AS_ENV();
       }
       ENDBOp();
@@ -11889,9 +11913,6 @@ Yap_absmi(int inp)
 	UInt arity;
 
 	CACHE_Y_AS_ENV(YREG);
-#ifndef NO_CHECKING
-	check_stack(NoStackCall, H);
-#endif
 	BEGP(pt0);
 	BEGD(d0);
 	d0 = E_YREG[-EnvSizeInCells-1];
@@ -12058,8 +12079,11 @@ Yap_absmi(int inp)
 	}
 
       execute_after_comma:
-	ALWAYS_LOOKAHEAD(pen->OpcodeOfPred);
 	PREG = pen->CodeOfPred;
+#ifndef NO_CHECKING
+	check_stack(NoStackPTExecute, H);
+#endif
+	ALWAYS_LOOKAHEAD(pen->OpcodeOfPred);
 	E_YREG[E_CB] = (CELL)B;
 #ifdef DEPTH_LIMIT
 	if (DEPTH <= MkIntTerm(1)) {/* I assume Module==0 is primitives */
@@ -12079,6 +12103,31 @@ Yap_absmi(int inp)
 
 	ENDD(d0);
 	ENDP(pt0);
+      NoStackPTExecute:
+	WRITEBACK_Y_AS_ENV();
+	SREG = (CELL *) pen;
+	ASP = E_YREG;
+#ifdef COROUTINING
+	if (CFREG == Unsigned(LCL0)) {
+	  if (Yap_ReadTimedVar(WokenGoals) != TermNil)
+	    goto creep;
+	  else {
+	    CFREG = CalculateStackGap();
+	    JMPNext();
+	  }
+	}
+#endif
+	if (CFREG != CalculateStackGap())
+	  goto creep;
+	ASP = (CELL *) (((char *) YREG) + PREG->u.sla.s);
+	if (ASP > (CELL *)B)
+	  ASP = (CELL *)B;
+	saveregs();
+	if (!Yap_gc(((PredEntry *)SREG)->ArityOfPE, YREG, NEXTOP(PREG, sla))) {
+	  Yap_Error(OUT_OF_STACK_ERROR,TermNil,Yap_ErrorMessage);
+	}
+	setregs();
+	JMPNext();
 	ENDCACHE_Y_AS_ENV();
 
       }
