@@ -10,7 +10,7 @@
 * File:		TermExt.h						 *
 * mods:									 *
 * comments:	Extensions to standard terms for YAP			 *
-* version:      $Id: TermExt.h.m4,v 1.1.1.1 2001-04-09 19:53:46 vsc Exp $	 *
+* version:      $Id: TermExt.h.m4,v 1.2 2001-06-06 10:38:10 stasinos Exp $	 *
 *************************************************************************/
 
 #if USE_OFFSETS
@@ -149,7 +149,7 @@ Inline(IsFloatTerm, int, Term, t, IsApplTerm(t) && FunctorOfTerm(t) == FunctorDo
 
 
 /* extern Functor FunctorLongInt; */
-Inline(MkLongIntTerm, Term, Int, i, (H[0] = (CELL)FunctorLongInt,H[1] = (CELL)i,H[2]=((2*sizeof(CELL)+EndSpecials)|MBIT),H+=3,AbsAppl(H-3)))
+Inline(MkLongIntTerm, Term, Int, i, (H[0] = (CELL)FunctorLongInt,H[1] = (CELL)(i),H[2]=((2*sizeof(CELL)+EndSpecials)|MBIT),H+=3,AbsAppl(H-3)))
 Destructor(Term, LongIntOf, Int, t, RepAppl(t)[1])
 Inline(IsLongIntTerm, int, Term, t, IsApplTerm(t) && FunctorOfTerm(t) == FunctorLongInt)
 
