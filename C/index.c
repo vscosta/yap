@@ -11,8 +11,11 @@
 * File:		index.c							 *
 * comments:	Indexing a Prolog predicate				 *
 *									 *
-* Last rev:     $Date: 2004-12-06 04:50:22 $,$Author: vsc $						 *
+* Last rev:     $Date: 2004-12-21 17:17:15 $,$Author: vsc $						 *
 * $Log: not supported by cvs2svn $
+* Revision 1.110  2004/12/06 04:50:22  vsc
+* fix bug in removing first clause of a try sequence (lu preds)
+*
 * Revision 1.109  2004/12/05 05:01:24  vsc
 * try to reduce overheads when running with goal expansion enabled.
 * CLPBN fixes
@@ -2828,9 +2831,9 @@ groups_in(ClauseDef *min, ClauseDef *max, GroupDef *grp)
 	  grp->LastClause = (min = clp)-1;
 	  break;
 	}
-	clp++;
 	if (clp->Tag != (_var+1)*sizeof(CELL))
 	  grp->VarClauses++;
+	clp++;
       } while (TRUE);
     } else {
       grp->VarClauses = 0;
