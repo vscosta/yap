@@ -41,13 +41,13 @@ send_tracer_message(char *start, char *name, Int arity, char *mname, CELL *args)
   if (name == NULL) {
 #ifdef  YAPOR
 #ifdef  DEPTH_LIMIT
-    YP_fprintf(YP_stderr, "(%d)%s (D:%d)", worker_id, start, (CELL)IntegerOfTerm(DEPTH)/2);
+    YP_fprintf(YP_stderr, "(%d)%s (D:%ld)", worker_id, start, (CELL)IntegerOfTerm(DEPTH)/2);
 #else
     YP_fprintf(YP_stderr, "(%d)%s", worker_id, start);
 #endif
 #else
 #ifdef  DEPTH_LIMIT
-    YP_fprintf(YP_stderr, "%s (D:%d)", start, (CELL)IntegerOfTerm(DEPTH)/2);
+    YP_fprintf(YP_stderr, "%s (D:%ld)", start, (CELL)IntegerOfTerm(DEPTH)/2);
 #else
     YP_fprintf(YP_stderr, "%s", start);
 #endif
@@ -57,13 +57,13 @@ send_tracer_message(char *start, char *name, Int arity, char *mname, CELL *args)
 
     if (arity) {
 #ifdef  DEPTH_LIMIT
-      YP_fprintf(YP_stderr, "%s (D:%d) %s:%s(", start, (CELL)IntegerOfTerm(DEPTH)/2, mname, name);
+      YP_fprintf(YP_stderr, "%s (D:%ld) %s:%s(", start, (CELL)IntegerOfTerm(DEPTH)/2, mname, name);
 #else
       YP_fprintf(YP_stderr, "%s %s:%s(", start, mname, name);
 #endif
     } else {
 #ifdef  DEPTH_LIMIT
-      YP_fprintf(YP_stderr, "%s (D:%d) %s:%s", start, (CELL)IntegerOfTerm(DEPTH)/2, mname, name);
+      YP_fprintf(YP_stderr, "%s (D:%ld) %s:%s", start, (CELL)IntegerOfTerm(DEPTH)/2, mname, name);
 #else
       YP_fprintf(YP_stderr, "%s %s:%s", start, mname, name);
 #endif
