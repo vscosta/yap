@@ -11837,13 +11837,13 @@ Yap_absmi(int inp)
 
       execute_end:
 	/* code copied from call */
+#ifndef NO_CHECKING
+	check_stack(NoStackPExecute, H);
+#endif
 	CPREG =
 	  (yamop *) NEXTOP(PREG, sla);
 	ALWAYS_LOOKAHEAD(pen->OpcodeOfPred);
 	PREG = pen->CodeOfPred;
-#ifndef NO_CHECKING
-	check_stack(NoStackPExecute, H);
-#endif
 #ifdef DEPTH_LIMIT
 	if (DEPTH <= MkIntTerm(1)) {/* I assume Module==0 is primitives */
 	  if (pen->ModuleOfPred) {
@@ -11890,7 +11890,7 @@ Yap_absmi(int inp)
 	    goto creep;
 	  else {
 	    CFREG = CalculateStackGap();
-	    JMPNext();
+	    goto execute_end;
 	  }
 	}
 #endif
@@ -11901,7 +11901,7 @@ Yap_absmi(int inp)
 	  Yap_Error(OUT_OF_STACK_ERROR,TermNil,Yap_ErrorMessage);
 	}
 	setregs();
-	JMPNext();
+	goto execute_end;
 	ENDCACHE_Y_AS_ENV();
       }
       ENDBOp();
@@ -12080,10 +12080,10 @@ Yap_absmi(int inp)
 	}
 
       execute_after_comma:
-	PREG = pen->CodeOfPred;
 #ifndef NO_CHECKING
 	check_stack(NoStackPTExecute, H);
 #endif
+	PREG = pen->CodeOfPred;
 	ALWAYS_LOOKAHEAD(pen->OpcodeOfPred);
 	E_YREG[E_CB] = (CELL)B;
 #ifdef DEPTH_LIMIT
@@ -12114,7 +12114,7 @@ Yap_absmi(int inp)
 	    goto creep;
 	  else {
 	    CFREG = CalculateStackGap();
-	    JMPNext();
+	    goto execute_after_comma;
 	  }
 	}
 #endif
@@ -12128,7 +12128,7 @@ Yap_absmi(int inp)
 	  Yap_Error(OUT_OF_STACK_ERROR,TermNil,Yap_ErrorMessage);
 	}
 	setregs();
-	JMPNext();
+	goto execute_after_comma;
 	ENDCACHE_Y_AS_ENV();
 
       }
