@@ -10,7 +10,7 @@
 * File:		Yap.h.m4						 *
 * mods:									 *
 * comments:	main header file for YAP				 *
-* version:      $Id: Yap.h.m4,v 1.9 2001-08-08 21:17:27 vsc Exp $	 *
+* version:      $Id: Yap.h.m4,v 1.10 2001-09-06 15:39:28 stasinos Exp $	 *
 *************************************************************************/
 
 #include "config.h"
@@ -164,7 +164,7 @@
 /*   */ typedef unsigned long int UInt;
 
 #else
-	error Yap require integer types of the same size as a pointer
+#	error Yap require integer types of the same size as a pointer
 #endif
 
 #if SIZEOF_SHORT_INT==2
@@ -172,7 +172,7 @@
 /*   */ typedef unsigned short int UShort;
 
 #else
-	error Yap requires integer types half the size of a pointer
+#	error Yap requires integer types half the size of a pointer
 #endif
 
 #elif SIZEOF_INT_P==8
@@ -190,7 +190,7 @@
 /*   */ typedef unsigned long long int UInt;
 
 #   else
-	error Yap requires integer types of the same size as a pointer
+#	error Yap requires integer types of the same size as a pointer
 #   endif
 
 #   if SIZEOF_SHORT_INT==4
@@ -202,12 +202,12 @@
 /*   */ typedef short int UShort;
 
 #   else
-	error Yap requires integer types half the size of a pointer
+#	error Yap requires integer types half the size of a pointer
 #   endif
 
 #else
 
-   error Yap requires pointers of size 4 or 8
+#  error Yap requires pointers of size 4 or 8
 
 #endif
 
