@@ -200,6 +200,9 @@ no_style_check([H|T]) :- no_style_check(H), no_style_check(T).
 	'$is_multifile'(S, M), !.
 '$multifile'(N/A, M) :- !,
 	'$new_multifile'(N,A,M).
+'$multifile'([H|T], M) :- !,
+	'$multifile'(H,M),
+	'$multifile'(T,M).
 '$multifile'(P, M) :-
 	'$do_error'(type_error(predicate_indicator,P),multifile(M:P)).
 
