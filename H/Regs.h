@@ -10,7 +10,7 @@
 * File:		Regs.h							 *
 * mods:									 *
 * comments:	YAP abstract machine registers				 *
-* version:      $Id: Regs.h,v 1.6 2001-11-15 00:01:43 vsc Exp $	 *
+* version:      $Id: Regs.h,v 1.7 2001-11-25 19:48:34 vsc Exp $	 *
 *************************************************************************/
 
 
@@ -254,8 +254,13 @@ register CELL *HB asm ("$10");
 register choiceptr B asm ("$11");
 register yamop *CP asm ("$12");
 register CELL *S asm ("$13");
-register CELL CreepFlag asm ("$14");
-register tr_fr_ptr TR asm ("$15");
+register tr_fr_ptr TR asm ("$14");
+/* gcc+debug chokes if $15 is in use on alphas */
+#ifdef DEBUG
+#define CreepFlag REGS.CreepFlag_
+#else
+register CELL CreepFlag asm ("$15");
+#endif
 
 /* Interface with foreign code, make sure the foreign code sees all the
    registers the way they used to be */
