@@ -18,10 +18,15 @@ STK:
 - start devel.tex.
 - should sigactions be executed when Yap is waiting at the prompt?
 - see if on_signal/3 works through the C interface as well.
+- current_signal/3 does not know the SigId.
 - see how MPI libraries interact with YAP's signal handling.
 - make the MPI interface able to pass infinite terms to MPI_Send().
-
-
+- MPE Logging.
+- Make cmd-line arg passing easier (i.e. not require run-script).
+- mpi_open/3 is not really doing what it promises: the processes have
+  already been cloned. This can be a problem if random numbers are
+  used before calling mpi_open/3.
+ 
 TO CHECK:
 - bad register allocation for a(X,Y) :- X is Y+2.3 ?
 

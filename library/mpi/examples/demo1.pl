@@ -16,6 +16,7 @@ calc( From, To, Acc, Res ) :- !,
 
 %%
 %% This spreads the work among the processors
+%% and collects the results.
 %%
 
 do(0, Num) :-
