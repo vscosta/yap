@@ -3814,9 +3814,9 @@ p_init_queue(void)
     dbq->EntryTerm = MkAtomTerm(AbsAtom((AtomEntry *)dbq));
     dbq->Flags = DBClMask;
     dbq->FirstInQueue = dbq->LastInQueue = NULL;
-    dbq->next = DBQueues;
     dbq->prev = NULL;
   }
+  dbq->next = DBQueues;
   DBQueues = dbq;
   dbq->age = IntOfTerm(GetValue(AtomCatch));
   INIT_RWLOCK(dbq->QRWLock);
