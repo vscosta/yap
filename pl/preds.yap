@@ -56,7 +56,7 @@ assert(C) :-
 	;
 	  '$undefined'(H,Mod) -> 
 	    functor(H, Na, Ar),
-	    '$dynamic'(Na/Ar),
+	    '$dynamic'(Na/Ar, Mod),
 	    '$assertat_d'(Where,H,B,C0,Mod,R)
 	;
             '$access_yap_flags'(14, 1) -> % I can assert over static facts in YAP mode
@@ -87,7 +87,7 @@ assert(C) :-
 	;
 	  '$undefined'(H, Mod) -> 
 	    functor(H, Na, Ar),
-	    '$dynamic'(Na/Ar),
+	    '$dynamic'(Na/Ar, Mod),
 	    '$assertat_d'(Where,H,B,C0,Mod,R)
 	;
 	    functor(H,Na,Ar),
@@ -131,7 +131,7 @@ assertz_static(C) :-
 	    throw(error(permission_error(modify,dynamic_procedure,Na/Ar),P))
 	;
 	  '$undefined'(H,Mod), '$get_value'('$full_iso',true) ->
-	    functor(H,Na,Ar), '$dynamic'(Na/Ar), '$assertat_d'(Where,H,B,C0,Mod,R)
+	    functor(H,Na,Ar), '$dynamic'(Na/Ar, Mod), '$assertat_d'(Where,H,B,C0,Mod,R)
 	;
 	    '$assert1'(Where,C,C0,Mod,H)
         ).
