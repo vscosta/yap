@@ -107,6 +107,15 @@
 #define LOAD_SHL 1
 #endif
 
+#if defined(__MACH__) && defined(__APPLE__)
+#ifdef NO_DYN
+#undef NO_DYN
+#endif
+#ifndef LOAD_DL
+#define LOAD_DL 1
+#endif
+#endif
+
 extern char YapExecutable[];
 
 extern char LoadMsg[];

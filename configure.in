@@ -452,6 +452,13 @@ case $target_os in
 	SHLIB_LD="ld -n32 -shared -rdata_shared"
 	INSTALL_DLLS=""
 	;;
+      *darwin*)
+	SHLIB_CFLAGS="-fno-common"
+	SHLIB_SUFFIX=".so"
+        DO_SECOND_LD=""
+	SHLIB_LD="cc -bundle -flat_namespace -undefined suppress"
+	INSTALL_DLLS=""
+	;;
       *netbsd*|*freebsd*)
 	if echo __ELF__ | ${CC:-cc} -E - | grep -q __ELF__
         then
@@ -548,7 +555,8 @@ esac
 dnl Checks for header files.
 AC_HEADER_STDC
 AC_HEADER_SYS_WAIT
-AC_CHECK_HEADERS(arpa/inet.h ctype.h direct.h dirent.h errno.h fcntl.h)
+AC_CHECK_HEADERS(arpa/inet.h ctype.h direct.h dirent.h dlfcn.h)
+AC_CHECK_HEADERS(errno.h fcntl.h)
 AC_CHECK_HEADERS(fenv.h fpu_control.h ieeefp.h io.h limits.h memory.h)
 AC_CHECK_HEADERS(netdb.h netinet/in.h regex.h)
 AC_CHECK_HEADERS(siginfo.h signal.h stdarg.h string.h stropts.h)
