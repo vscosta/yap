@@ -1,0 +1,99 @@
+=================================================================
+Logtalk - Object oriented extension to Prolog
+Release 2.8.4
+
+Copyright (c) 1998-2001 Paulo Moura.  All Rights Reserved.
+=================================================================
+
+This folder contains several examples of Logtalk programs. Most of 
+these examples need objects, protocols and categories that are
+defined in the Logtalk standard library or in other examples, so 
+you should load them first (see the NOTES file inside each example 
+folder).
+
+Some examples may redefine objects already loaded from other examples.
+You may want to restart Logtalk after trying each example.
+
+Some of the examples code have been adopted from public available 
+Prolog code and from known Prolog text books and are copyrighted by 
+the respective authors.
+
+These are programming examples, meaning that you should look at the 
+source files to fully understand them.
+
+All examples are formatted using four spaces tabs.
+
+
+Here is a short description of each included example:
+
+birds
+	bird identification expert system
+	example adopted from the Adventure in Prolog Amzi! book
+
+bricks
+	example of representation and handling of relations using events
+
+classvars
+	example of implementation of class variables (as found in Smalltalk)
+
+inheritance
+	examples of public, protected and private inheritance with both 
+	prototypes and classes/instances
+
+instmethods
+	example of instance defined methods
+
+lo
+	examples adopted from the Francis G. McCabe L&O system
+
+lpa
+	examples adopted from the LPA Prolog++ system
+
+metapredicates
+	example of using metapredicates in Logtalk objects
+
+mi
+	multi-inheritance examples
+
+miscellaneous
+	unsorted examples
+
+parametric
+	simple example of parametric objects
+
+poem
+	examples adopted from the Ben Staveley-Taylor POEM system
+
+points
+	example adopted from SICStus Objects documentation
+
+polygons
+	example of representation and handling of relations using events
+
+profiling
+	examples of using of events and monitors to implement profilers
+
+reflection
+	example of a simple class-based reflective system
+
+relations
+	objects implementing predicates for dealing with relations and 
+	constrained relations between objects
+
+roots
+	objects, protocols and categories needed by most of the other examples
+
+searching
+	state-space searching frame work
+	example adopted from Ivan Bratko's "Prolog Programming for Artificial 
+	Intelligence" book
+
+sicstus
+	examples adopted from SICStus Objects documentation
+
+symdiff
+	example of using parametric objects to implement symbolic expression 
+	differentiation and simplification.
+
+viewpoints
+	example on how to implement property and value sharing with prototypes
