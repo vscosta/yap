@@ -1323,6 +1323,10 @@ MSCHandleSignal(DWORD dwCtrlType) {
 static void
 InitSignals (void)
 {
+#ifdef LOW_PROF
+  return;
+#endif
+
 #if !defined(LIGHT) && !_MSC_VER && !defined(__MINGW32__) && !defined(LIGHT) 
   my_signal (SIGQUIT, ReceiveSignal);
   my_signal (SIGKILL, ReceiveSignal);
@@ -2001,7 +2005,11 @@ p_alarm(void)
     Int left;
     Term tout;
 
+#ifdef LOW_PROF
+    left=0;
+#else
     left = alarm(IntegerOfTerm(t));
+#endif
     tout = MkIntegerTerm(left);
     return(Yap_unify(ARG2,tout));
   }

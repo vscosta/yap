@@ -106,6 +106,10 @@ STATIC_PROTO(void a_fetch_cv, (void));
 STATIC_PROTO(void a_fetch_vc, (void));
 STATIC_PROTO(void a_f2, (int));
 
+#ifdef LOW_PROF
+   int PROFSIZE;
+#endif
+
 #define CELLSIZE sizeof(CELL)
 
 #define MaxLabels	2048
@@ -2614,6 +2618,11 @@ Yap_assemble(int mode)
   YAPLeaveCriticalSection();
   {
     Clause *cl = (Clause *)code_addr;  /* lcc, why? */
+
+#ifdef LOW_PROF
+    PROFSIZE=code_p;
+#endif
+
     return(cl->ClCode);
   }
 }

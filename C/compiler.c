@@ -2896,6 +2896,35 @@ Yap_cclause(Term inp_clause, int NOfArgs, int mod)
 #endif
   /* phase 3: assemble code                                                */
   acode = Yap_assemble(ASSEMBLING_CLAUSE);
+
+#ifdef LOW_PROF
+ {
+  static int pred_count=0;
+  FILE *f,*init;
+  extern int PROFSIZE;
+
+  if (!pred_count++) { 
+      f=fopen("PROFPREDS","w"); 
+      init=fopen("PROFINIT","r");
+      if (init!=NULL) {
+        size_t nc; char buffer[4100];
+	do {
+          nc=fread(buffer,1,4096,init);
+          fwrite(buffer,1,nc,f);
+        } while(nc>0);
+      fclose(init);
+      }
+  } else {
+      f=fopen("PROFPREDS","a");
+  }
+  if (f!=NULL) {  
+      fprintf(f,"%x - %x - Pred(%d) - %s/%d\n",acode,PROFSIZE, CodeStart->rnd1, RepAtom(AtomOfTerm(MkAtomTerm((Atom) CodeStart->rnd1)))->StrOfAE, CodeStart->rnd2);
+      fclose(f);
+  }
+ }
+#endif
+
+
   /* check first if there was space for us */
   if (acode == NIL) {
     /* make sure we have enough space */

@@ -832,6 +832,7 @@ Optional Features:
  --enable-wam-profile       support low level profiling of abstract machine
  --enable-depth-limit       support depth-bound computation
  --enable-or-parallelism    support or-parallelism as: env-copy,sba,a-cow
+ --enable-low-profile       support for low-level profiling
  --enable-low-level-tracer  support support for procedure-call tracing
  --enable-tabling           support tabling as: batched,local
  --enable-threads           support system threads
@@ -2004,6 +2005,13 @@ if test "${enable_depth_limit+set}" = set; then
   depthlimit="$enableval"
 else
   depthlimit=no
+fi;
+#check whether --enable-low-profile or --disable-low-profile was given.
+if test "${enable_low_profile+set}" = set; then
+  enableval="$enable_low_profile"
+  lowprofile="$enableval"
+else
+  lowprofile=no
 fi;
 # Check whether --enable-or-parallelism or --disable-or-parallelism was given.
 if test "${enable_or_parallelism+set}" = set; then
@@ -4914,6 +4922,12 @@ if test "$depthlimit" = "yes"
   then
   YAP_EXTRAS="$YAP_EXTRAS -DDEPTH_LIMIT=1"
 fi
+
+if test "$lowprofile" = "yes"
+  then
+  YAP_EXTRAS="$YAP_EXTRAS -DLOW_PROF=1"
+fi
+
 
 if test "$use_april" = "yes"
   then
