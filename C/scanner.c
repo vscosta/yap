@@ -1059,9 +1059,9 @@ void clean_tokens(TokEntry *tk)
 void
 Yap_clean_tokenizer(TokEntry *tokstart, VarEntry *vartable, VarEntry *anonvartable)
 {
-  scanner_extra_alloc *ptr = ScannerExtraBlocks;
+  struct scanner_extra_alloc *ptr = ScannerExtraBlocks;
   while (ptr) {
-    scanner_extra_alloc *next = ptr->next;
+    struct scanner_extra_alloc *next = ptr->next;
     free(ptr);
     ptr = next;
   }

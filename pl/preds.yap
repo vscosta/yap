@@ -58,8 +58,7 @@ assert(C) :-
 
 '$assert_fact'(H,Mod,Where,R) :-
 	'$is_log_updatable'(H, Mod), !,
-	(Where = first -> Pos = 2 ; Pos = 0),
-	'$compile_dynamic'(H, Pos, H, Mod, R).
+	'$compile_dynamic'(H, Where, H, Mod, R).
 '$assert_fact'(H,Mod,Where,R) :-
 	( '$is_dynamic'(H, Mod) ->
 	    '$assertat_d'(Where, H, true, H, Mod, R)
@@ -84,8 +83,7 @@ assert(C) :-
 '$assert_clause3'(C0,C,Mod,Where,R,P) :-
 	'$check_head_and_body'(C,H,B,P),
 	( '$is_log_updatable'(H, Mod) ->
-	    (Where = first -> Pos = 2 ; Pos = 0),
-            '$compile_dynamic'((H :- B), Pos, C0, Mod, R)
+            '$compile_dynamic'((H :- B), Where, C0, Mod, R)
 	;
           '$is_dynamic'(H, Mod) ->
 	    '$assertat_d'(Where, H, B, C0, Mod, R)
@@ -122,8 +120,7 @@ assert(C) :-
 '$assert_dynamic2'(C0,C,Mod,Where,R,P) :-
 	'$check_head_and_body'(C,H,B,P),
 	( '$is_log_updatable'(H, Mod) ->
-	    (Where = first -> Pos = 2 ; Pos = 0),
-	    '$compile_dynamic'(C, Pos, C0, Mod, R)
+	    '$compile_dynamic'(C, Where, C0, Mod, R)
 	;
 	  '$is_dynamic'(H, Mod) ->
 	    '$assertat_d'(Where,H,B,C0,Mod,R)
@@ -181,7 +178,7 @@ assertz_static(C) :-
 
 
 '$assertat_d'(first,Head,Body,C0,Mod,R) :- !,
-	'$compile_dynamic'((Head:-Body), 2, C0, Mod, CR),
+	'$compile_dynamic'((Head:-Body), first, C0, Mod, CR),
          ( get_value('$abol',true)
            ->
             '$flags'(Head,Mod,Fl,Fl),
@@ -200,7 +197,7 @@ assertz_static(C) :-
 	    true
 	).
 '$assertat_d'(last,Head,Body,C0,Mod,R) :-
-	'$compile_dynamic'((Head:-Body), 0, C0, Mod, CR),
+	'$compile_dynamic'((Head:-Body), last, C0, Mod, CR),
          ( get_value('$abol',true)
            ->
             '$flags'(Head,Mod,Fl,Fl),

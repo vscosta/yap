@@ -11,8 +11,11 @@
 * File:		cdmgr.c							 *
 * comments:	Code manager						 *
 *									 *
-* Last rev:     $Date: 2005-01-05 05:35:01 $,$Author: vsc $						 *
+* Last rev:     $Date: 2005-01-28 23:14:34 $,$Author: vsc $						 *
 * $Log: not supported by cvs2svn $
+* Revision 1.149  2005/01/05 05:35:01  vsc
+* get rid of debugging stub.
+*
 * Revision 1.148  2005/01/04 02:50:21  vsc
 * - allow MegaClauses with blobs
 * - change Diffs to be thread specific
@@ -2057,10 +2060,10 @@ p_compile_dynamic(void)
   yamop        *code_adr;
   int             old_optimize;
 
-  if (IsVarTerm(t1) || !IsIntTerm(t1))
-    return (FALSE);
+  if (IsVarTerm(t1) || !IsAtomTerm(t1))
+    return FALSE;
   if (IsVarTerm(mod) || !IsAtomTerm(mod))
-    return (FALSE);
+    return FALSE;
   old_optimize = optimizer_on;
   optimizer_on = FALSE;
   YAPEnterCriticalSection();
@@ -2069,17 +2072,14 @@ p_compile_dynamic(void)
   t = Deref(ARG1);        /* just in case there was an heap overflow */
   if (!Yap_ErrorMessage) {
     
+    
     optimizer_on = old_optimize;
-    addclause(t, code_adr, (int) (IntOfTerm(t1) & 3), mod, &ARG5);
+    addclause(t, code_adr, RepAtom(AtomOfTerm(t1))->StrOfAE[0] == 'f', mod, &ARG5);
   } 
   if (Yap_ErrorMessage) {
     if (!Yap_Error_Term)
       Yap_Error_Term = TermNil;
-    if (IntOfTerm(t1) & 4) {
-      Yap_Error(Yap_Error_TYPE, Yap_Error_Term, "line %d, %s", Yap_FirstLineInParse(), Yap_ErrorMessage);
-    } else {
-      Yap_Error(Yap_Error_TYPE, Yap_Error_Term, Yap_ErrorMessage);
-    }
+    Yap_Error(Yap_Error_TYPE, Yap_Error_Term, Yap_ErrorMessage);
     YAPLeaveCriticalSection();
     return FALSE;
   }
@@ -4052,18 +4052,32 @@ fetch_next_static_clause(PredEntry *pe, yamop *i_code, Term th, Term tb, Term tr
 	  }
 	} else {
 	  Yap_Error_TYPE = YAP_NO_ERROR;
-	  if (!Yap_gc(4, YENV, P)) {
+	  ARG5 = th;
+	  ARG6 = tb;
+	  ARG7 = tr;
+	  if (!Yap_gc(7, YENV, P)) {
 	    Yap_Error(OUT_OF_STACK_ERROR, TermNil, Yap_ErrorMessage);
 	    return FALSE;
 	  }
+	  th = ARG5;
+	  tb = ARG6;
+	  tr = ARG7;
 	}
       } else {
-	if (!Yap_gc(5, ENV, CP)) {
+	Yap_Error_TYPE = YAP_NO_ERROR;
+	ARG6 = th;
+	ARG7 = tb;
+	ARG8 = tr;
+	if (!Yap_gc(8, ENV, CP)) {
 	  Yap_Error(OUT_OF_STACK_ERROR, TermNil, Yap_ErrorMessage);
 	  return FALSE;
 	}
+	th = ARG6;
+	tb = ARG7;
+	tr = ARG8;
       }
     }
+    rtn = Yap_MkStaticRefTerm(cl);
     return(Yap_unify(th, ArgOfTerm(1,t)) &&
 	   Yap_unify(tb, ArgOfTerm(2,t)) &&
 	   Yap_unify(tr, rtn));

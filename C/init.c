@@ -110,9 +110,6 @@ jmp_buf Yap_CompilerBotch;
 /************ variables	concerned with Error Handling *************/
 sigjmp_buf         Yap_RestartEnv;	/* used to restart after an abort execution */
 
-/******** whether Yap is responsible for signal handling******************/
-int             Yap_PrologShouldHandleInterrupts;
-
 /********* IO support	*****/
 
 /********* parsing ********************************************/
@@ -127,6 +124,9 @@ char     Yap_FileNameBuf[YAP_FILENAME_MAX],
          Yap_FileNameBuf2[YAP_FILENAME_MAX];
 
 #endif /* THREADS */
+
+/******** whether Yap is responsible for signal handling******************/
+int             Yap_PrologShouldHandleInterrupts;
 
 /********* readline support	*****/
 #if HAVE_LIBREADLINE
@@ -499,7 +499,7 @@ Yap_InitCPred(char *Name, unsigned long int Arity, CPredicate code, int flags)
       }
     } else {
       cl->ClFlags = 0;
-      cl->ClSize = sz-sizeof(StaticClause);
+      cl->ClSize = sz;
       cl->usc.ClPred = pe;
       p_code = cl->ClCode;
     }
@@ -557,7 +557,7 @@ Yap_InitCmpPred(char *Name, unsigned long int Arity, CmpPredicate cmp_code, int 
 	  return;
 	}
       } else {
-	cl->ClSize = sz-sizeof(StaticClause);
+	cl->ClSize = sz;
 	cl->usc.ClPred = pe;
 	cl->ClFlags = 0;
 	p_code = cl->ClCode;

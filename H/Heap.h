@@ -10,7 +10,7 @@
 * File:		Heap.h         						 *
 * mods:									 *
 * comments:	Heap Init Structure					 *
-* version:      $Id: Heap.h,v 1.77 2005-01-04 02:50:21 vsc Exp $	 *
+* version:      $Id: Heap.h,v 1.78 2005-01-28 23:14:38 vsc Exp $	 *
 *************************************************************************/
 
 /* information that can be stored in Code Space */
@@ -710,7 +710,7 @@ struct various_codes *Yap_heap_regs;
 #define  XDiff                    rinfo[worker_id].x_diff
 #define  DelayDiff                rinfo[worker_id].delay_diff
 #define  ScannerStack             Yap_heap_regs->wl[worker_id].scanner_stack
-#define  ScannerExtraAlloc        Yap_heap_regs->wl[worker_id].scanner_extra_alloc
+#define  ScannerExtraBlocks       Yap_heap_regs->wl[worker_id].scanner_extra_blocks
 #define  SignalLock               Yap_heap_regs->wl[worker_id].signal_lock
 #define  WPP                      Yap_heap_regs->wl[worker_id].wpp
 #define  UncaughtThrow            Yap_heap_regs->wl[worker_id].uncaught_throw

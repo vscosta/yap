@@ -11,8 +11,11 @@
 * File:		index.c							 *
 * comments:	Indexing a Prolog predicate				 *
 *									 *
-* Last rev:     $Date: 2005-01-15 05:21:36 $,$Author: vsc $						 *
+* Last rev:     $Date: 2005-01-28 23:14:36 $,$Author: vsc $						 *
 * $Log: not supported by cvs2svn $
+* Revision 1.113  2005/01/15 05:21:36  vsc
+* fix bug in clause emulator
+*
 * Revision 1.112  2004/12/28 22:20:35  vsc
 * some extra bug fixes for trail overflows: some cannot be recovered that easily,
 * some can.
@@ -6234,7 +6237,7 @@ static_clause(yamop *ipc, PredEntry *ap)
     UInt fls = c->ClFlags & ~HasBlobsMask;
     if (fls == StaticMask) {
       if ((char *)c->usc.ClSource < (char *)c+c->ClSize &&
-	  valid_instructions(ipc, c->ClCode));
+	  valid_instructions(ipc, c->ClCode))
 	return c;
     } else if (fls == (StaticMask|FactMask)) {
       if (c->usc.ClPred == ap &&

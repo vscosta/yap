@@ -11,8 +11,11 @@
 * File:		compiler.c						 *
 * comments:	Clause compiler						 *
 *									 *
-* Last rev:     $Date: 2005-01-14 20:55:16 $,$Author: vsc $						 *
+* Last rev:     $Date: 2005-01-28 23:14:35 $,$Author: vsc $						 *
 * $Log: not supported by cvs2svn $
+* Revision 1.60  2005/01/14 20:55:16  vsc
+* improve register liveness calculations.
+*
 * Revision 1.59  2005/01/04 02:50:21  vsc
 * - allow MegaClauses with blobs
 * - change Diffs to be thread specific
@@ -84,6 +87,7 @@ typedef struct compiler_struct_struct {
   PInstr *BodyStart;
   Ventry *vtable;
   CExpEntry *common_exps;
+  int is_a_fact;
   int n_common_exps;
   int goalno;
   int onlast;
@@ -2388,35 +2392,37 @@ c_layout(compiler_struct *cglobs)
 
   rn_to_kill[0] = rn_to_kill[1] = 0;
   cglobs->cint.cpc = cglobs->BodyStart;
-  while (v != NIL) {
-    if (v->FlagsOfVE & BranchVar) {
-      v->AgeOfVE = v->FirstOfVE + 1;	/* force permanent */
-      ++(v->RCountOfVE);
-      Yap_emit(put_var_op, (CELL) v, Zero, &cglobs->cint);
-      v->FlagsOfVE &= ~GlobalVal;
-      v->FirstOpForV = cglobs->cint.cpc;
+  if (!cglobs->is_a_fact) {
+    while (v != NIL) {
+      if (v->FlagsOfVE & BranchVar) {
+	v->AgeOfVE = v->FirstOfVE + 1;	/* force permanent */
+	++(v->RCountOfVE);
+	Yap_emit(put_var_op, (CELL) v, Zero, &cglobs->cint);
+	v->FlagsOfVE &= ~GlobalVal;
+	v->FirstOpForV = cglobs->cint.cpc;
+      }
+      v = v->NextOfVE;
     }
-    v = v->NextOfVE;
-  }
-  cglobs->cint.cpc->nextInst = savepc;
+    cglobs->cint.cpc->nextInst = savepc;
 
-  nperm = 0;
-  AssignPerm(cglobs->cint.CodeStart, cglobs);
-   /* vsc: need to do it from the beginning to find which perm vars are active */
-  /* CheckUnsafe(cglobs->BodyStart, cglobs); */
+    nperm = 0;
+    AssignPerm(cglobs->cint.CodeStart, cglobs);
+    /* vsc: need to do it from the beginning to find which perm vars are active */
+    /* CheckUnsafe(cglobs->BodyStart, cglobs); */
 #ifdef DEBUG
-  cglobs->pbvars = 0;
+    cglobs->pbvars = 0;
 #endif
-  CheckUnsafe(cglobs->cint.CodeStart, cglobs);
+    CheckUnsafe(cglobs->cint.CodeStart, cglobs);
 #ifdef DEBUG
-  if (cglobs->pbvars != nperm) {
-    Yap_Error_TYPE = SYSTEM_ERROR;
-    Yap_Error_Term = TermNil;
-    Yap_ErrorMessage = "wrong number of variables found in bitmap";
-    save_machine_regs();
-    longjmp(cglobs->cint.CompilerBotch, 2);
-  }    
+    if (cglobs->pbvars != nperm) {
+      Yap_Error_TYPE = SYSTEM_ERROR;
+      Yap_Error_Term = TermNil;
+      Yap_ErrorMessage = "wrong number of variables found in bitmap";
+      save_machine_regs();
+      longjmp(cglobs->cint.CompilerBotch, 2);
+    } 
 #endif
+  }
   cglobs->MaxCTemps = cglobs->nvars + cglobs->max_args - cglobs->tmpreg + cglobs->n_common_exps + 2;
   if (cglobs->MaxCTemps >= MaxTemps)
     cglobs->MaxCTemps = MaxTemps;
@@ -2883,6 +2889,7 @@ Yap_cclause(volatile Term inp_clause, int NOfArgs, int mod, volatile Term src)
   cglobs.common_exps = NULL;
   cglobs.n_common_exps = 0;
   cglobs.labelno = 0L;
+  cglobs.is_a_fact = FALSE;
   if (IsVarTerm(my_clause)) {
     Yap_Error_TYPE = INSTANTIATION_ERROR;
     Yap_Error_Term = my_clause;
@@ -2926,10 +2933,10 @@ Yap_cclause(volatile Term inp_clause, int NOfArgs, int mod, volatile Term src)
     }
     READ_UNLOCK(cglobs.cint.CurrentPred->PRWLock);
   }
+  cglobs.is_a_fact = (body == MkAtomTerm(AtomTrue));
   /* phase 1 : produce skeleton code and variable information              */
   c_head(head, &cglobs);
-  if (body == MkAtomTerm(AtomTrue) &&
-      !cglobs.vtable) {
+  if (cglobs.is_a_fact && !cglobs.vtable) {
     Yap_emit(procceed_op, Zero, Zero, &cglobs.cint);
     /* ground term, do not need much more work */
     if (cglobs.cint.BlobsStart != NULL) {

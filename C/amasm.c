@@ -11,8 +11,12 @@
 * File:		amasm.c							 *
 * comments:	abstract machine assembler				 *
 *									 *
-* Last rev:     $Date: 2004-12-28 22:20:35 $							 *
+* Last rev:     $Date: 2005-01-28 23:14:34 $							 *
 * $Log: not supported by cvs2svn $
+* Revision 1.70  2004/12/28 22:20:35  vsc
+* some extra bug fixes for trail overflows: some cannot be recovered that easily,
+* some can.
+*
 * Revision 1.69  2004/12/20 21:44:56  vsc
 * more fixes to CLPBN
 * fix some Yap overflows.
@@ -3040,6 +3044,7 @@ Yap_assemble(int mode, Term t, PredEntry *ap, int is_fact, struct intermediates 
       return NULL;
     }
     cl = (LogUpdClause *)((CODEADDR)x-(UInt)size);
+    cl->ClSize += sizeof(DBTerm) + sizeof(CELL)*x->NOfCells;
     cl->ClSource = x;
     cip->code_addr = (yamop *)cl;
   } else if (mode == ASSEMBLING_CLAUSE && 
@@ -3055,6 +3060,7 @@ Yap_assemble(int mode, Term t, PredEntry *ap, int is_fact, struct intermediates 
     cip->code_addr = (yamop *)cl;
     code_p = do_pass(1, &entry_code, mode, &clause_has_blobs, cip, size);
     /* make sure we copy after second pass */
+    cl->ClSize += sizeof(DBTerm) + sizeof(CELL)*x->NOfCells;
     cl->usc.ClSource = x;
     ProfEnd=code_p;
     return entry_code;

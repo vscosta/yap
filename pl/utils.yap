@@ -477,18 +477,15 @@ garbage_collect_atoms :-
 '$good_character_code'(X) :- integer(X), X > -2, X < 256.
 
 atom_concat(X,Y,At) :-
-	atom(At), !,
+	var(X), var(Y), !,
 	atom_length(At,Len),
 	'$atom_contact_split'(At,0,Len,X,Y).
 /* Let atom_chars do our error handling */
 atom_concat(X,Y,At) :-
-	atom_codes(X,S1),
-	atom_codes(Y,S2),
-	'$append'(S1,S2,S),
-	atom_codes(At,S).
+	atom_concat([X,Y],At).
 
 atomic_concat(X,Y,At) :-
-	atom(At), !,
+	var(X), var(Y), !,
 	atom_length(At,Len),
 	'$atom_contact_split'(At,0,Len,X,Y).
 /* Let atom_chars do our error handling */

@@ -314,4 +314,3 @@ void    STD_PROTO(Yap_bug_location,(yamop *));
 
 
 
-

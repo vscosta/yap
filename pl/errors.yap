@@ -11,8 +11,14 @@
 * File:		errors.yap						 *
 * comments:	error messages for YAP					 *
 *									 *
-* Last rev:     $Date: 2005-01-13 05:47:27 $,$Author: vsc $						 *
+* Last rev:     $Date: 2005-01-28 23:14:41 $,$Author: vsc $						 *
 * $Log: not supported by cvs2svn $
+* Revision 1.59  2005/01/13 05:47:27  vsc
+* lgamma broke arithmetic optimisation
+* integer_y has type y
+* pass original source to checker (and maybe even use option in parser)
+* use warning mechanism for checker messages.
+*
 * Revision 1.58  2004/11/19 21:32:53  vsc
 * change abort so that it won't be caught by handlers.
 *
@@ -191,7 +197,7 @@ print_message(Level, Mss) :-
 	'$write_svs'(SVs),
 	format(user_error, ' in ~q at line ~d, clause ~d.',[P,LN,CLN]).
 '$do_print_message'(trace_help) :- !,
-	yap_flag(user_error,'  Please enter a valid debugger command (h for help).', []).
+	format(user_error,'  Please enter a valid debugger command (h for help).', []).
 '$do_print_message'(version(Version)) :- !,
 	format(user_error,'YAP version ~a', [Version]).
 '$do_print_message'(yes) :- !,
