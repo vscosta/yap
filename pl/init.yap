@@ -33,7 +33,7 @@ not(G) :- not(G).
 (:- G) :- '$execute'(G), !.
 '$$!'(CP) :- '$cut_by'(CP).
 
-:- '$set_value'($doindex,true).
+:- '$set_value'('$doindex',true).
 
 :- 	['errors.yap',
 	 'utils.yap',

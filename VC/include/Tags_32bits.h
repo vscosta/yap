@@ -18,7 +18,7 @@
 * Last rev:	December 90						 *
 * mods:									 *
 * comments:	Original Tag Scheme for machines with 32 bits adresses   *
-* version:      $Id: Tags_32bits.h,v 1.1.1.1 2001-04-09 19:53:41 vsc Exp $	 *
+* version:      $Id: Tags_32bits.h,v 1.2 2001-07-16 15:26:14 vsc Exp $	 *
 *************************************************************************/
 
 /*    Original version for 32 bit addresses machines,
@@ -69,122 +69,114 @@ property list
 #define CHKTAG(t,Tag) 	((Unsigned(t)&TagBits)==Tag)
 
 
-inline EXTERN int IsVarTerm (Term);
+inline EXTERN int IsVarTerm(Term);
 
-inline EXTERN int
-IsVarTerm (Term t)
+inline EXTERN int IsVarTerm(Term t)
 {
-  return (int) (Signed (t) >= 0);
+	return (int) (Signed(t) >= 0);
 }
 
 
 
-inline EXTERN int IsNonVarTerm (Term);
+inline EXTERN int IsNonVarTerm(Term);
 
-inline EXTERN int
-IsNonVarTerm (Term t)
+inline EXTERN int IsNonVarTerm(Term t)
 {
-  return (int) (Signed (t) < 0);
+	return (int) (Signed(t) < 0);
 }
 
 
 
-inline EXTERN Term *RepPair (Term);
+inline EXTERN Term * RepPair(Term);
 
-inline EXTERN Term *
-RepPair (Term t)
+inline EXTERN Term * RepPair(Term t)
 {
-  return (Term *) (NonTagPart (t));
+	return (Term *) (NonTagPart(t));
 }
 
 
 
-inline EXTERN Term AbsPair (Term *);
+inline EXTERN Term AbsPair(Term *);
 
-inline EXTERN Term
-AbsPair (Term * p)
+inline EXTERN Term AbsPair(Term * p)
 {
-  return (Term) (TAGGEDA (PairTag, (p)));
+	return (Term) (TAGGEDA(PairTag, (p)));
 }
 
 
 
-inline EXTERN Int IsPairTerm (Term);
+inline EXTERN Int IsPairTerm(Term);
 
-inline EXTERN Int
-IsPairTerm (Term t)
+inline EXTERN Int IsPairTerm(Term t)
 {
-  return (Int) (BitOn (PairBit, (t)));
+	return (Int) (BitOn(PairBit, (t)));
 }
 
 
 
-inline EXTERN Term *RepAppl (Term);
+inline EXTERN Term * RepAppl(Term);
 
-inline EXTERN Term *
-RepAppl (Term t)
+inline EXTERN Term * RepAppl(Term t)
 {
-  return (Term *) (NonTagPart (t));
+	return (Term *) (NonTagPart(t));
 }
 
 
 
-inline EXTERN Term AbsAppl (Term *);
+inline EXTERN Term AbsAppl(Term *);
 
-inline EXTERN Term
-AbsAppl (Term * p)
+inline EXTERN Term AbsAppl(Term * p)
 {
-  return (Term) (TAGGEDA (ApplTag, (p)));
+	return (Term) (TAGGEDA(ApplTag, (p)));
 }
 
 
 
-inline EXTERN Int IsApplTerm (Term);
+inline EXTERN Int IsApplTerm(Term);
 
-inline EXTERN Int
-IsApplTerm (Term t)
+inline EXTERN Int IsApplTerm(Term t)
 {
-  return (Int) (BitOn (ApplBit, (t)));
+	return (Int) (BitOn(ApplBit, (t)));
 }
 
 
 
-inline EXTERN int IsAtomOrIntTerm (Term);
+inline EXTERN int IsAtomOrIntTerm(Term);
 
-inline EXTERN int
-IsAtomOrIntTerm (Term t)
+inline EXTERN int IsAtomOrIntTerm(Term t)
 {
-  return (int) (((Unsigned (t) & LowTagBits) == 0));
+	return (int) (((Unsigned(t) & LowTagBits) == 0));
 }
 
 
 
 
-inline EXTERN Term AdjustPtr (Term t, Term off);
+inline EXTERN Term AdjustPtr(Term t, Term off);
 
-inline EXTERN Term
-AdjustPtr (Term t, Term off)
+inline EXTERN Term AdjustPtr(Term t, Term off)
 {
-  return (Term) ((t) + off);
+	return (Term) ((t)+off);
 }
 
 
 
-inline EXTERN Term AdjustIDBPtr (Term t, Term off);
+inline EXTERN Term AdjustIDBPtr(Term t, Term off);
 
-inline EXTERN Term
-AdjustIDBPtr (Term t, Term off)
+inline EXTERN Term AdjustIDBPtr(Term t, Term off)
 {
-  return (Term) ((t) + off);
+	return (Term) ((t)+off);
 }
 
 
 
 
-inline EXTERN Int IntOfTerm (Term);
+inline EXTERN Int IntOfTerm(Term);
 
-inline EXTERN Int
-IntOfTerm (Term t)
+inline EXTERN Int IntOfTerm(Term t)
 {
-  return (Int) (((Int) (t << 3)) >> (3 + 2));
+	return (Int) (((Int)(t << 3))>>(3+2));
 }
+
+
+
+

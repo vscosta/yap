@@ -24,581 +24,532 @@
 
 
 /* The difference between the old stack pointers and the new ones */
-extern Int HDiff, GDiff, LDiff, TrDiff, XDiff, DelayDiff;
+extern Int HDiff,
+  GDiff,
+  LDiff,
+  TrDiff,
+  XDiff,
+  DelayDiff;
 
 /* The old stack pointers */
-extern CELL *OldASP, *OldLCL0;
+extern CELL    *OldASP, *OldLCL0;
 extern tr_fr_ptr OldTR;
-extern CELL *OldGlobalBase, *OldH, *OldH0;
-extern ADDR OldTrailBase, OldTrailTop;
-extern ADDR OldHeapBase, OldHeapTop;
+extern CELL    *OldGlobalBase, *OldH, *OldH0;
+extern ADDR     OldTrailBase, OldTrailTop;
+extern ADDR     OldHeapBase, OldHeapTop;
 
 #define CharP(ptr)	((char *) (ptr))
 
 
-inline EXTERN int IsHeapP (CELL *);
+inline EXTERN int IsHeapP(CELL *);
 
-inline EXTERN int
-IsHeapP (CELL * ptr)
+inline EXTERN int IsHeapP(CELL * ptr)
 {
-  return (int) ((ptr >= (CELL *) HeapBase && ptr <= (CELL *) HeapTop));
+	return (int) ((ptr >= (CELL *)HeapBase && ptr <= (CELL *)HeapTop) );
 }
 
 
 
 /* Adjusting cells and pointers to cells */
 
-inline EXTERN CELL *PtoGloAdjust (CELL *);
+inline EXTERN CELL * PtoGloAdjust(CELL *);
 
-inline EXTERN CELL *
-PtoGloAdjust (CELL * ptr)
+inline EXTERN CELL * PtoGloAdjust(CELL * ptr)
 {
-  return (CELL *) (((CELL *) (CharP (ptr) + GDiff)));
+	return (CELL *) (((CELL *)(CharP(ptr) + GDiff)) );
 }
 
 
 
-inline EXTERN CELL *PtoDelayAdjust (CELL *);
+inline EXTERN CELL * PtoDelayAdjust(CELL *);
 
-inline EXTERN CELL *
-PtoDelayAdjust (CELL * ptr)
+inline EXTERN CELL * PtoDelayAdjust(CELL * ptr)
 {
-  return (CELL *) (((CELL *) (CharP (ptr) + DelayDiff)));
+	return (CELL *) (((CELL *)(CharP(ptr) + DelayDiff)) );
 }
 
 
 
-inline EXTERN tr_fr_ptr PtoTRAdjust (tr_fr_ptr);
+inline EXTERN tr_fr_ptr PtoTRAdjust(tr_fr_ptr);
 
-inline EXTERN tr_fr_ptr
-PtoTRAdjust (tr_fr_ptr ptr)
+inline EXTERN tr_fr_ptr PtoTRAdjust(tr_fr_ptr ptr)
 {
-  return (tr_fr_ptr) (((tr_fr_ptr) (CharP (ptr) + TrDiff)));
+	return (tr_fr_ptr) (((tr_fr_ptr)(CharP(ptr) + TrDiff)) );
 }
 
 
 
-inline EXTERN CELL *CellPtoTRAdjust (CELL *);
+inline EXTERN CELL * CellPtoTRAdjust(CELL *);
 
-inline EXTERN CELL *
-CellPtoTRAdjust (CELL * ptr)
+inline EXTERN CELL * CellPtoTRAdjust(CELL * ptr)
 {
-  return (CELL *) (((CELL *) (CharP (ptr) + TrDiff)));
+	return (CELL *) (((CELL *)(CharP(ptr) + TrDiff)) );
 }
 
 
 
-inline EXTERN CELL *PtoLocAdjust (CELL *);
+inline EXTERN CELL * PtoLocAdjust(CELL *);
 
-inline EXTERN CELL *
-PtoLocAdjust (CELL * ptr)
+inline EXTERN CELL * PtoLocAdjust(CELL * ptr)
 {
-  return (CELL *) (((CELL *) (CharP (ptr) + LDiff)));
+	return (CELL *) (((CELL *)(CharP(ptr) + LDiff)) );
 }
 
 
 
-inline EXTERN choiceptr ChoicePtrAdjust (choiceptr);
+inline EXTERN choiceptr ChoicePtrAdjust(choiceptr);
 
-inline EXTERN choiceptr
-ChoicePtrAdjust (choiceptr ptr)
+inline EXTERN choiceptr ChoicePtrAdjust(choiceptr ptr)
 {
-  return (choiceptr) (((choiceptr) (CharP (ptr) + LDiff)));
+	return (choiceptr) (((choiceptr)(CharP(ptr) + LDiff)) );
 }
 
 
 #ifdef TABLING
 
-inline EXTERN choiceptr ConsumerChoicePtrAdjust (choiceptr);
+inline EXTERN choiceptr ConsumerChoicePtrAdjust(choiceptr);
 
-inline EXTERN choiceptr
-ConsumerChoicePtrAdjust (choiceptr ptr)
+inline EXTERN choiceptr ConsumerChoicePtrAdjust(choiceptr ptr)
 {
-  return (choiceptr) (((choiceptr) (CharP (ptr) + LDiff)));
+	return (choiceptr) (((choiceptr)(CharP(ptr) + LDiff)) );
 }
 
 
 
-inline EXTERN choiceptr GeneratorChoicePtrAdjust (choiceptr);
+inline EXTERN choiceptr GeneratorChoicePtrAdjust(choiceptr);
 
-inline EXTERN choiceptr
-GeneratorChoicePtrAdjust (choiceptr ptr)
+inline EXTERN choiceptr GeneratorChoicePtrAdjust(choiceptr ptr)
 {
-  return (choiceptr) (((choiceptr) (CharP (ptr) + LDiff)));
+	return (choiceptr) (((choiceptr)(CharP(ptr) + LDiff)) );
 }
 
 
 #endif /* TABLING */
 
 
-inline EXTERN CELL GlobalAdjust (CELL);
+inline EXTERN CELL GlobalAdjust(CELL);
 
-inline EXTERN CELL
-GlobalAdjust (CELL val)
+inline EXTERN CELL GlobalAdjust(CELL val)
 {
-  return (CELL) ((val + GDiff));
+	return (CELL) ((val+GDiff) );
 }
 
 
 
-inline EXTERN CELL DelayAdjust (CELL);
+inline EXTERN CELL DelayAdjust(CELL);
 
-inline EXTERN CELL
-DelayAdjust (CELL val)
+inline EXTERN CELL DelayAdjust(CELL val)
 {
-  return (CELL) ((val + DelayDiff));
+	return (CELL) ((val+DelayDiff) );
 }
 
 
 
-inline EXTERN ADDR GlobalAddrAdjust (ADDR);
+inline EXTERN ADDR GlobalAddrAdjust(ADDR);
 
-inline EXTERN ADDR
-GlobalAddrAdjust (ADDR ptr)
+inline EXTERN ADDR GlobalAddrAdjust(ADDR ptr)
 {
-  return (ADDR) ((ptr + GDiff));
+	return (ADDR) ((ptr+GDiff) );
 }
 
 
 
-inline EXTERN ADDR DelayAddrAdjust (ADDR);
+inline EXTERN ADDR DelayAddrAdjust(ADDR);
 
-inline EXTERN ADDR
-DelayAddrAdjust (ADDR ptr)
+inline EXTERN ADDR DelayAddrAdjust(ADDR ptr)
 {
-  return (ADDR) ((ptr + DelayDiff));
+	return (ADDR) ((ptr+DelayDiff) );
 }
 
 
 
-inline EXTERN CELL LocalAdjust (CELL);
+inline EXTERN CELL LocalAdjust(CELL);
 
-inline EXTERN CELL
-LocalAdjust (CELL val)
+inline EXTERN CELL LocalAdjust(CELL val)
 {
-  return (CELL) ((val + LDiff));
+	return (CELL) ((val+LDiff) );
 }
 
 
 
-inline EXTERN ADDR LocalAddrAdjust (ADDR);
+inline EXTERN ADDR LocalAddrAdjust(ADDR);
 
-inline EXTERN ADDR
-LocalAddrAdjust (ADDR ptr)
+inline EXTERN ADDR LocalAddrAdjust(ADDR ptr)
 {
-  return (ADDR) ((ptr + LDiff));
+	return (ADDR) ((ptr+LDiff) );
 }
 
 
 
-inline EXTERN CELL TrailAdjust (CELL);
+inline EXTERN CELL TrailAdjust(CELL);
 
-inline EXTERN CELL
-TrailAdjust (CELL val)
+inline EXTERN CELL TrailAdjust(CELL val)
 {
-  return (CELL) ((val + TrDiff));
+	return (CELL) ((val+TrDiff) );
 }
 
 
 
-inline EXTERN ADDR TrailAddrAdjust (ADDR);
+inline EXTERN ADDR TrailAddrAdjust(ADDR);
 
-inline EXTERN ADDR
-TrailAddrAdjust (ADDR ptr)
+inline EXTERN ADDR TrailAddrAdjust(ADDR ptr)
 {
-  return (ADDR) ((ptr + TrDiff));
+	return (ADDR) ((ptr+TrDiff) );
 }
 
 
 /* heap data structures */
 
-inline EXTERN Functor FuncAdjust (Functor);
+inline EXTERN Functor FuncAdjust(Functor);
 
-inline EXTERN Functor
-FuncAdjust (Functor f)
+inline EXTERN Functor FuncAdjust(Functor f)
 {
-  return (Functor) ((Functor) (CharP (f) + HDiff));
+	return (Functor) ((Functor)(CharP(f)+HDiff) );
 }
 
 
 
-inline EXTERN CELL *CellPtoHeapAdjust (CELL *);
+inline EXTERN CELL * CellPtoHeapAdjust(CELL *);
 
-inline EXTERN CELL *
-CellPtoHeapAdjust (CELL * ptr)
+inline EXTERN CELL * CellPtoHeapAdjust(CELL * ptr)
 {
-  return (CELL *) (((CELL *) (CharP (ptr) + HDiff)));
+	return (CELL *) (((CELL *)(CharP(ptr) + HDiff)) );
 }
 
 
 #if	USE_OFFSETS
 
-inline EXTERN Atom AtomAdjust (Atom);
+inline EXTERN Atom AtomAdjust(Atom);
 
-inline EXTERN Atom
-AtomAdjust (Atom at)
+inline EXTERN Atom AtomAdjust(Atom at)
 {
-  return (Atom) ((at));
+	return (Atom) ((at) );
 }
 
 
 
-inline EXTERN Term AtomTermAdjust (Term);
+inline EXTERN Term AtomTermAdjust(Term);
 
-inline EXTERN Term
-AtomTermAdjust (Term at)
+inline EXTERN Term AtomTermAdjust(Term at)
 {
-  return (Term) ((at));
+	return (Term) ((at) );
 }
 
 
 
-inline EXTERN Prop PropAdjust (Prop);
+inline EXTERN Prop PropAdjust(Prop);
 
-inline EXTERN Prop
-PropAdjust (Prop p)
+inline EXTERN Prop PropAdjust(Prop p)
 {
-  return (Prop) ((p));
+	return (Prop) ((p) );
 }
 
 
 #else
 
-inline EXTERN Atom AtomAdjust (Atom);
+inline EXTERN Atom AtomAdjust(Atom);
 
-inline EXTERN Atom
-AtomAdjust (Atom at)
+inline EXTERN Atom AtomAdjust(Atom at)
 {
-  return (Atom) ((Atom) (CharP (at) + HDiff));
+	return (Atom) ((Atom)(CharP(at)+HDiff) );
 }
 
 
 #if MMAP_ADDR >= 0x40000000
 
-inline EXTERN Term AtomTermAdjust (Term);
+inline EXTERN Term AtomTermAdjust(Term);
 
-inline EXTERN Term
-AtomTermAdjust (Term at)
+inline EXTERN Term AtomTermAdjust(Term at)
 {
-  return (Term) ((at));
+	return (Term) ((at) );
 }
 
 
 #else
 
-inline EXTERN Term AtomTermAdjust (Term);
+inline EXTERN Term AtomTermAdjust(Term);
 
-inline EXTERN Term
-AtomTermAdjust (Term at)
+inline EXTERN Term AtomTermAdjust(Term at)
 {
-  return (Term) (MkAtomTerm ((Atom) (CharP (AtomOfTerm (at) + HDiff))));
+	return (Term) (MkAtomTerm((Atom)(CharP(AtomOfTerm(at)+HDiff))) );
 }
 
 
 #endif
 
-inline EXTERN Prop PropAdjust (Prop);
+inline EXTERN Prop PropAdjust(Prop);
 
-inline EXTERN Prop
-PropAdjust (Prop p)
+inline EXTERN Prop PropAdjust(Prop p)
 {
-  return (Prop) ((Prop) (CharP (p) + HDiff));
+	return (Prop) ((Prop)(CharP(p)+HDiff) );
 }
 
 
 #endif
 #if TAGS_FAST_OPS
 
-inline EXTERN Term BlobTermAdjust (Term);
+inline EXTERN Term BlobTermAdjust(Term);
 
-inline EXTERN Term
-BlobTermAdjust (Term t)
+inline EXTERN Term BlobTermAdjust(Term t)
 {
-  return (Term) ((t - HDiff));
+	return (Term) ((t-HDiff) );
 }
 
 
 #else
 
-inline EXTERN Term BlobTermAdjust (Term);
+inline EXTERN Term BlobTermAdjust(Term);
 
-inline EXTERN Term
-BlobTermAdjust (Term t)
+inline EXTERN Term BlobTermAdjust(Term t)
 {
-  return (Term) ((t + HDiff));
+	return (Term) ((t+HDiff) );
 }
 
 
 #endif
 
-inline EXTERN AtomEntry *AtomEntryAdjust (AtomEntry *);
+inline EXTERN AtomEntry * AtomEntryAdjust(AtomEntry *);
 
-inline EXTERN AtomEntry *
-AtomEntryAdjust (AtomEntry * at)
+inline EXTERN AtomEntry * AtomEntryAdjust(AtomEntry * at)
 {
-  return (AtomEntry *) ((AtomEntry *) (CharP (at) + HDiff));
+	return (AtomEntry *) ((AtomEntry *)(CharP(at)+HDiff) );
 }
 
 
 
-inline EXTERN consult_obj *ConsultObjAdjust (consult_obj *);
+inline EXTERN consult_obj * ConsultObjAdjust(consult_obj *);
 
-inline EXTERN consult_obj *
-ConsultObjAdjust (consult_obj * co)
+inline EXTERN consult_obj * ConsultObjAdjust(consult_obj * co)
 {
-  return (consult_obj *) ((consult_obj *) (CharP (co) + HDiff));
+	return (consult_obj *) ((consult_obj *)(CharP(co)+HDiff) );
 }
 
 
 
-inline EXTERN DBRef DBRefAdjust (DBRef);
+inline EXTERN DBRef DBRefAdjust(DBRef);
 
-inline EXTERN DBRef
-DBRefAdjust (DBRef dbr)
+inline EXTERN DBRef DBRefAdjust(DBRef dbr)
 {
-  return (DBRef) ((DBRef) (CharP (dbr) + HDiff));
+	return (DBRef) ((DBRef)(CharP(dbr)+HDiff) );
 }
 
 
 
-inline EXTERN Term CodeAdjust (Term);
+inline EXTERN Term CodeAdjust(Term);
 
-inline EXTERN Term
-CodeAdjust (Term dbr)
+inline EXTERN Term CodeAdjust(Term dbr)
 {
-  return (Term) (((Term) (dbr) + HDiff));
+	return (Term) (((Term)(dbr)+HDiff) );
 }
 
 
 
-inline EXTERN ADDR AddrAdjust (ADDR);
+inline EXTERN ADDR AddrAdjust(ADDR);
 
-inline EXTERN ADDR
-AddrAdjust (ADDR addr)
+inline EXTERN ADDR AddrAdjust(ADDR addr)
 {
-  return (ADDR) ((ADDR) (CharP (addr) + HDiff));
+	return (ADDR) ((ADDR)(CharP(addr)+HDiff) );
 }
 
 
 
-inline EXTERN CODEADDR CodeAddrAdjust (CODEADDR);
+inline EXTERN CODEADDR CodeAddrAdjust(CODEADDR);
 
-inline EXTERN CODEADDR
-CodeAddrAdjust (CODEADDR addr)
+inline EXTERN CODEADDR CodeAddrAdjust(CODEADDR addr)
 {
-  return (CODEADDR) ((CODEADDR) (CharP (addr) + HDiff));
+	return (CODEADDR) ((CODEADDR)(CharP(addr)+HDiff) );
 }
 
 
 
-inline EXTERN BlockHeader *BlockAdjust (BlockHeader *);
+inline EXTERN BlockHeader * BlockAdjust(BlockHeader *);
 
-inline EXTERN BlockHeader *
-BlockAdjust (BlockHeader * addr)
+inline EXTERN BlockHeader * BlockAdjust(BlockHeader * addr)
 {
-  return (BlockHeader *) ((BlockHeader *) (CharP (addr) + HDiff));
+	return (BlockHeader *) ((BlockHeader *)(CharP(addr)+HDiff) );
 }
 
 
 
-inline EXTERN yamop *PtoOpAdjust (yamop *);
+inline EXTERN yamop * PtoOpAdjust(yamop *);
 
-inline EXTERN yamop *
-PtoOpAdjust (yamop * ptr)
+inline EXTERN yamop * PtoOpAdjust(yamop * ptr)
 {
-  return (yamop *) (((yamop *) (CharP (ptr) + HDiff)));
+	return (yamop *) (((yamop *)(CharP(ptr) + HDiff)) );
 }
 
 
 
-inline EXTERN CELL *PtoHeapCellAdjust (CELL *);
+inline EXTERN CELL * PtoHeapCellAdjust(CELL *);
 
-inline EXTERN CELL *
-PtoHeapCellAdjust (CELL * ptr)
+inline EXTERN CELL * PtoHeapCellAdjust(CELL * ptr)
 {
-  return (CELL *) (((CELL *) (CharP (ptr) + HDiff)));
+	return (CELL *) (((CELL *)(CharP(ptr) + HDiff)) );
 }
 
 
 
-inline EXTERN PredEntry *PtoPredAdjust (PredEntry *);
+inline EXTERN PredEntry * PtoPredAdjust(PredEntry *);
 
-inline EXTERN PredEntry *
-PtoPredAdjust (PredEntry * ptr)
+inline EXTERN PredEntry * PtoPredAdjust(PredEntry * ptr)
 {
-  return (PredEntry *) (((CELL *) (CharP (ptr) + HDiff)));
+	return (PredEntry *) (((CELL *)(CharP(ptr) + HDiff)) );
 }
 
 
 #if PRECOMPUTE_REGADDRESS
 
-inline EXTERN AREG XAdjust (AREG);
+inline EXTERN AREG XAdjust(AREG);
 
-inline EXTERN AREG
-XAdjust (AREG reg)
+inline EXTERN AREG XAdjust(AREG reg)
 {
-  return (AREG) ((AREG) ((reg) + XDiff));
+	return (AREG) ((AREG)((reg)+XDiff) );
 }
 
 
 #else
 
-inline EXTERN AREG XAdjust (AREG);
+inline EXTERN AREG XAdjust(AREG);
 
-inline EXTERN AREG
-XAdjust (AREG reg)
+inline EXTERN AREG XAdjust(AREG reg)
 {
-  return (AREG) ((reg));
+	return (AREG) ((reg) );
 }
 
 
 #endif
 
-inline EXTERN YREG YAdjust (YREG);
+inline EXTERN YREG YAdjust(YREG);
 
-inline EXTERN YREG
-YAdjust (YREG reg)
+inline EXTERN YREG YAdjust(YREG reg)
 {
-  return (YREG) ((reg));
+	return (YREG) ((reg) );
 }
 
 
 
 
-inline EXTERN int IsOldLocal (CELL);
+inline EXTERN int IsOldLocal(CELL);
 
-inline EXTERN int
-IsOldLocal (CELL reg)
+inline EXTERN int IsOldLocal(CELL reg)
 {
-  return (int) (IN_BETWEEN (OldASP, reg, OldLCL0));
+	return (int) (IN_BETWEEN(OldASP, reg, OldLCL0));
 }
 
 
 
 /* require because the trail might contain dangling pointers */
 
-inline EXTERN int IsOldLocalInTR (CELL);
+inline EXTERN int IsOldLocalInTR(CELL);
 
-inline EXTERN int
-IsOldLocalInTR (CELL reg)
+inline EXTERN int IsOldLocalInTR(CELL reg)
 {
-  return (int) (IN_BETWEEN (OldH, reg, OldLCL0));
+	return (int) (IN_BETWEEN(OldH, reg, OldLCL0) );
 }
 
 
 
-inline EXTERN int IsOldLocalInTRPtr (CELL *);
+inline EXTERN int IsOldLocalInTRPtr(CELL *);
 
-inline EXTERN int
-IsOldLocalInTRPtr (CELL * ptr)
+inline EXTERN int IsOldLocalInTRPtr(CELL * ptr)
 {
-  return (int) (IN_BETWEEN (OldH, ptr, OldLCL0));
-}
-
-
-
-
-inline EXTERN int IsOldH (CELL);
-
-inline EXTERN int
-IsOldH (CELL reg)
-{
-  return (int) ((CharP (reg) == CharP (OldH)));
+	return (int) (IN_BETWEEN(OldH, ptr, OldLCL0) );
 }
 
 
 
 
+inline EXTERN int IsOldH(CELL);
 
-inline EXTERN int IsOldGlobal (CELL);
-
-inline EXTERN int
-IsOldGlobal (CELL reg)
+inline EXTERN int IsOldH(CELL reg)
 {
-  return (int) (IN_BETWEEN (OldH0, reg, OldH));
+	return (int) (( CharP(reg) == CharP(OldH) ) );
 }
 
 
 
-inline EXTERN int IsOldGlobalPtr (CELL *);
 
-inline EXTERN int
-IsOldGlobalPtr (CELL * ptr)
+
+inline EXTERN int IsOldGlobal(CELL);
+
+inline EXTERN int IsOldGlobal(CELL reg)
 {
-  return (int) (IN_BETWEEN (OldH0, ptr, OldH));
+	return (int) (IN_BETWEEN(OldH0, reg, OldH) );
 }
 
 
 
-inline EXTERN int IsOldDelay (CELL);
+inline EXTERN int IsOldGlobalPtr(CELL *);
 
-inline EXTERN int
-IsOldDelay (CELL reg)
+inline EXTERN int IsOldGlobalPtr(CELL * ptr)
 {
-  return (int) (IN_BETWEEN (OldGlobalBase, reg, OldH0));
+	return (int) (IN_BETWEEN( OldH0, ptr, OldH) );
 }
 
 
 
-inline EXTERN int IsOldDelayPtr (CELL *);
+inline EXTERN int IsOldDelay(CELL);
 
-inline EXTERN int
-IsOldDelayPtr (CELL * ptr)
+inline EXTERN int IsOldDelay(CELL reg)
 {
-  return (int) (IN_BETWEEN (OldGlobalBase, ptr, OldH0));
+	return (int) (IN_BETWEEN(OldGlobalBase, reg, OldH0) );
 }
 
 
 
-inline EXTERN int IsOldTrail (CELL);
+inline EXTERN int IsOldDelayPtr(CELL *);
 
-inline EXTERN int
-IsOldTrail (CELL reg)
+inline EXTERN int IsOldDelayPtr(CELL * ptr)
 {
-  return (int) (IN_BETWEEN (OldTrailBase, reg, OldTR));
+	return (int) (IN_BETWEEN( OldGlobalBase, ptr, OldH0) );
 }
 
 
 
-inline EXTERN int IsOldTrailPtr (CELL *);
+inline EXTERN int IsOldTrail(CELL);
 
-inline EXTERN int
-IsOldTrailPtr (CELL * ptr)
+inline EXTERN int IsOldTrail(CELL reg)
 {
-  return (int) (IN_BETWEEN (OldTrailBase, ptr, OldTR));
+	return (int) (IN_BETWEEN(OldTrailBase, reg, OldTR) );
 }
 
 
 
-inline EXTERN int IsOldCode (CELL);
+inline EXTERN int IsOldTrailPtr(CELL *);
 
-inline EXTERN int
-IsOldCode (CELL reg)
+inline EXTERN int IsOldTrailPtr(CELL * ptr)
 {
-  return (int) (IN_BETWEEN (OldHeapBase, reg, OldHeapTop));
+	return (int) (IN_BETWEEN(OldTrailBase, ptr, OldTR) );
 }
 
 
 
-inline EXTERN int IsOldCodeCellPtr (CELL *);
+inline EXTERN int IsOldCode(CELL);
 
-inline EXTERN int
-IsOldCodeCellPtr (CELL * ptr)
+inline EXTERN int IsOldCode(CELL reg)
 {
-  return (int) (IN_BETWEEN (OldHeapBase, ptr, OldHeapTop));
+	return (int) (IN_BETWEEN(OldHeapBase, reg, OldHeapTop) );
 }
 
 
 
-inline EXTERN int IsGlobal (CELL);
+inline EXTERN int IsOldCodeCellPtr(CELL *);
 
-inline EXTERN int
-IsGlobal (CELL reg)
+inline EXTERN int IsOldCodeCellPtr(CELL * ptr)
 {
-  return (int) (IN_BETWEEN (GlobalBase, reg, H));
+	return (int) (IN_BETWEEN(OldHeapBase, ptr, OldHeapTop) );
 }
 
 
 
-void STD_PROTO (AdjustStacksAndTrail, (void));
-void STD_PROTO (AdjustRegs, (int));
+inline EXTERN int IsGlobal(CELL);
+
+inline EXTERN int IsGlobal(CELL reg)
+{
+	return (int) (IN_BETWEEN(GlobalBase, reg, H) );
+}
+
+
+
+void STD_PROTO(AdjustStacksAndTrail, (void));
+void STD_PROTO(AdjustRegs, (int));

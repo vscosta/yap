@@ -18,7 +18,7 @@
 * Last rev:	December 90						 *
 * mods:									 *
 * comments:	Original Tag Scheme for machines with 32 bits adresses   *
-* version:      $Id: Tags_32Ops.h,v 1.1.1.1 2001-04-09 19:53:40 vsc Exp $	 *
+* version:      $Id: Tags_32Ops.h,v 1.2 2001-07-16 15:26:14 vsc Exp $	 *
 *************************************************************************/
 
 /*
@@ -97,223 +97,194 @@ are now 1 in compound terms and structures.
 #define BitOn(Bit,V)    (Bit & Unsigned(V))
 #define CHKTAG(t,Tag) 	((Unsigned(t)&TagBits)==Tag)
 
-/* never forget to surround arguments to a macro by brackets */
+/* never forget to surround arguments to a macro by brackets */ 
 
-inline EXTERN int IsVarTerm (Term);
+inline EXTERN int IsVarTerm(Term);
 
-inline EXTERN int
-IsVarTerm (Term t)
+inline EXTERN int IsVarTerm(Term t)
 {
-  return (int) (Signed (t) >= 0);
+	return (int) (Signed(t) >= 0);
 }
 
 
 
-inline EXTERN int IsNonVarTerm (Term);
+inline EXTERN int IsNonVarTerm(Term);
 
-inline EXTERN int
-IsNonVarTerm (Term t)
+inline EXTERN int IsNonVarTerm(Term t)
 {
-  return (int) (Signed (t) < 0);
+	return (int) (Signed(t) < 0);
 }
 
 
 #if UNIQUE_TAG_FOR_PAIRS
 
-inline EXTERN Term *RepPair (Term);
+inline EXTERN Term * RepPair(Term);
 
-inline EXTERN Term *
-RepPair (Term t)
+inline EXTERN Term * RepPair(Term t)
 {
-  return (Term *) ((~(t)));
+	return (Term *) ((~(t)));
 }
 
 
 
-inline EXTERN Term AbsPair (Term *);
+inline EXTERN Term AbsPair(Term *);
 
-inline EXTERN Term
-AbsPair (Term * p)
+inline EXTERN Term AbsPair(Term * p)
 {
-  return (Term) ((~Unsigned (p)));
+	return (Term) ((~Unsigned(p)));
 }
 
 
 
-inline EXTERN Int IsPairTerm (Term);
+inline EXTERN Int IsPairTerm(Term);
 
-inline EXTERN Int
-IsPairTerm (Term t)
+inline EXTERN Int IsPairTerm(Term t)
 {
-  return (Int) (((t) & PairBit));
+	return (Int) (((t) & PairBit));
 }
 
 
 
-inline EXTERN Term *RepAppl (Term);
+inline EXTERN Term * RepAppl(Term);
 
-inline EXTERN Term *
-RepAppl (Term t)
+inline EXTERN Term * RepAppl(Term t)
 {
-  return (Term *) ((-Signed (t)));
+	return (Term *) ((-Signed(t)));
 }
 
 
 
-inline EXTERN Term AbsAppl (Term *);
+inline EXTERN Term AbsAppl(Term *);
 
-inline EXTERN Term
-AbsAppl (Term * p)
+inline EXTERN Term AbsAppl(Term * p)
 {
-  return (Term) ((-Signed (p)));
+	return (Term) ((-Signed(p)));
 }
 
 
 
-inline EXTERN Int IsApplTerm (Term);
+inline EXTERN Int IsApplTerm(Term);
 
-inline EXTERN Int
-IsApplTerm (Term t)
+inline EXTERN Int IsApplTerm(Term t)
 {
-  return (Int) ((!((t) & LowTagBits)));
+	return (Int) ((!((t) & LowTagBits)));
 }
 
 
 #else
 
-inline EXTERN Term *RepPair (Term);
+inline EXTERN Term * RepPair(Term);
 
-inline EXTERN Term *
-RepPair (Term t)
+inline EXTERN Term * RepPair(Term t)
 {
-  return (Term *) ((-Signed (t)));
+	return (Term *) ((-Signed(t)));
 }
 
 
 
-inline EXTERN Term AbsPair (Term *);
+inline EXTERN Term AbsPair(Term *);
 
-inline EXTERN Term
-AbsPair (Term * p)
+inline EXTERN Term AbsPair(Term * p)
 {
-  return (Term) (((CELL) (-Signed (p))));
+	return (Term) (((CELL)(-Signed(p))));
 }
 
 
 
-inline EXTERN Int IsPairTerm (Term);
+inline EXTERN Int IsPairTerm(Term);
 
-inline EXTERN Int
-IsPairTerm (Term t)
+inline EXTERN Int IsPairTerm(Term t)
 {
-  return (Int) ((!((t) & LowTagBits)));
+	return (Int) ((!((t) & LowTagBits)));
 }
 
 
 
-inline EXTERN Term *RepAppl (Term);
+inline EXTERN Term * RepAppl(Term);
 
-inline EXTERN Term *
-RepAppl (Term t)
+inline EXTERN Term * RepAppl(Term t)
 {
-  return (Term *) ((~(t)));
+	return (Term *) ((~(t)));
 }
 
 
 
-inline EXTERN Term AbsAppl (Term *);
+inline EXTERN Term AbsAppl(Term *);
 
-inline EXTERN Term
-AbsAppl (Term * p)
+inline EXTERN Term AbsAppl(Term * p)
 {
-  return (Term) ((~Unsigned (p)));
+	return (Term) ((~Unsigned(p)));
 }
 
 
 
-inline EXTERN Int IsApplTerm (Term);
+inline EXTERN Int IsApplTerm(Term);
 
-inline EXTERN Int
-IsApplTerm (Term t)
+inline EXTERN Int IsApplTerm(Term t)
 {
-  return (Int) (((t) & ApplBit));
+	return (Int) (((t) & ApplBit));
 }
 
 
 #endif
 
-inline EXTERN Int IsAtomOrIntTerm (Term);
+inline EXTERN Int IsAtomOrIntTerm(Term);
 
-inline EXTERN Int
-IsAtomOrIntTerm (Term t)
+inline EXTERN Int IsAtomOrIntTerm(Term t)
 {
-  return (Int) (((Unsigned (t) & LowTagBits) == 0x2));
+	return (Int) (((Unsigned(t) & LowTagBits) == 0x2));
 }
 
 
 
 
-inline EXTERN Int IntOfTerm (Term);
+inline EXTERN Int IntOfTerm(Term);
 
-inline EXTERN Int
-IntOfTerm (Term t)
+inline EXTERN Int IntOfTerm(Term t)
 {
-  return (Int) ((Int) (Unsigned (t) << 3) >> 5);
+	return (Int) ((Int)(Unsigned(t) << 3) >> 5);
 }
 
 
 
 #if UNIQUE_TAG_FOR_PAIRS
 
-inline EXTERN Term AdjustPtr (Term t, Term off);
+inline EXTERN Term AdjustPtr(Term t, Term off);
 
-inline EXTERN Term
-AdjustPtr (Term t, Term off)
+inline EXTERN Term AdjustPtr(Term t, Term off)
 {
-  return (Term) (((IsVarTerm (t)
-		   || IsAtomOrIntTerm (t)) ? (t) +
-		  (off) : (IsPairTerm (t) ? (CELL)
-			   AbsPair ((CELL *) ((CELL) RepPair (t) +
-					      (off))) : (t) - (off))));
+	return (Term) (((IsVarTerm(t) || IsAtomOrIntTerm(t))  ? (t)+(off) : (IsPairTerm(t) ? (CELL)AbsPair((CELL *)((CELL)RepPair(t)+(off))) : (t)-(off))));
 }
 
 
 
-inline EXTERN Term AdjustIDBPtr (Term t, Term off);
+inline EXTERN Term AdjustIDBPtr(Term t, Term off);
 
-inline EXTERN Term
-AdjustIDBPtr (Term t, Term off)
+inline EXTERN Term AdjustIDBPtr(Term t, Term off)
 {
-  return (Term) (IsVarTerm (t) ? (t) + (off) : (t) - (off));
+	return (Term) (IsVarTerm(t)  ? (t)+(off) : (t)-(off));
 }
 
 
 #else
 
-inline EXTERN Term AdjustPtr (Term t, Term off);
+inline EXTERN Term AdjustPtr(Term t, Term off);
 
-inline EXTERN Term
-AdjustPtr (Term t, Term off)
+inline EXTERN Term AdjustPtr(Term t, Term off)
 {
-  return (Term) (((IsVarTerm (t)
-		   || IsAtomOrIntTerm (t)) ? (t) +
-		  (off) : (IsApplTerm (t) ? (CELL)
-			   AbsAppl ((CELL *) ((CELL) RepAppl (t) +
-					      (off))) : (t) - (off))));
+	return (Term) (((IsVarTerm(t) || IsAtomOrIntTerm(t))  ? (t)+(off) : (IsApplTerm(t) ? (CELL)AbsAppl((CELL *)((CELL)RepAppl(t)+(off))) : (t)-(off))));
 }
 
 
 
-inline EXTERN Term AdjustIDBPtr (Term t, Term off);
+inline EXTERN Term AdjustIDBPtr(Term t, Term off);
 
-inline EXTERN Term
-AdjustIDBPtr (Term t, Term off)
+inline EXTERN Term AdjustIDBPtr(Term t, Term off)
 {
-  return (Term) (IsVarTerm (t) ? (t) +
-		 (off) : (IsApplTerm (t) ? (CELL)
-			  AbsAppl ((CELL *) ((CELL) RepAppl (t) +
-					     (off))) : (t) - (off)));
+	return (Term) (IsVarTerm(t)  ? (t)+(off) : (IsApplTerm(t) ? (CELL)AbsAppl((CELL *)((CELL)RepAppl(t)+(off))) : (t)-(off)));
 }
 
 
 #endif
+
+

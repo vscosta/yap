@@ -15,7 +15,7 @@ splat
 cd include
 splat
 /bin/cp config.h config.h.mine
-/bin/cp ../../linux/*.h .
+/bin/cp ../../../bins/cyg/*.h .
 /bin/mv config.h.mine config.h
 cd ../../console
 splat
@@ -45,7 +45,7 @@ cd ../CHR
 splat
 cd ../..
 if test "$1" = "--small"; then
-  tar cvzf "$version".tar.gz "$version"/{INSTALL,README*,changes*,config*,install-sh,Makefile.in,.depend.in,distribute,C,H,VC,console,docs,include,library,m4,misc,pl,LGPL/*.pl,LGPL/pillow/[C-Z]*,LGPL/pillow/*.pl,LGPL/pillow/doc/*info*,build-distr,OPTYap,CLPQR,CHR}
+  tar cvzf "$version".tar.gz "$version"/{INSTALL,README*,changes*,config*,install-sh,Makefile.in,.depend.in,distribute,C,H,VC,console,docs,include,library,m4,misc,pl,LGPL/README,LGPL/CVS,LGPL/pillow/[C-Z]*,LGPL/pillow/*.pl,LGPL/pillow/doc/*info*,build-distr,OPTYap,CLPQR,CHR}
 else
   tar cvzf "$version".tar.gz "$version"/{INSTALL,README*,changes*,config*,install-sh,Makefile.in,.depend.in,distribute,C,H,VC,console,docs,include,library,m4,misc,pl,LGPL,build-distr,OPTYap,CLPQR,CHR}
 fi

@@ -313,7 +313,15 @@ YP_putc(int ch, int sno)
 int
 YP_fflush(int sno)
 {
-  if (Stream[sno].status & (Null_Stream_f|InMemory_Stream_f|Socket_Stream_f|Pipe_Stream_f))
+  if ( (Stream[sno].status & Output_Stream_f) &&
+       ! (Stream[sno].status & 
+         (Null_Stream_f|
+	  InMemory_Stream_f|
+	  Socket_Stream_f|
+	  Pipe_Stream_f|
+	  Free_Stream_f)) )
+    return(fflush(Stream[sno].u.file.file));
+  else
     return(0);
   return(fflush(Stream[sno].u.file.file));
 }
@@ -2541,7 +2549,7 @@ p_write (void)
 
 static Int
 p_write2 (void)
-{				/* '$write'(+Flags,?Term) */
+{				/* '$write'(+Stream,+Flags,?Term) */
   int old_output_stream = c_output_stream;
   c_output_stream = CheckStream (ARG1, Output_Stream_f, "write/2");
   if (c_output_stream == -1) {
@@ -4338,7 +4346,14 @@ p_flush (void)
 static Int
 p_flush_all_streams (void)
 {				/* $flush_all_streams          */
+#if BROKEN_FFLUSH_NULL
+  int i;
+  for (i = 0; i < MaxStreams; ++i)
+    YP_fflush (i);
+#else
   fflush (NULL);
+#endif
+  
   return (TRUE);
 }
 

@@ -1473,7 +1473,8 @@ int TrueFileName (char *source, char *result, int in_lib)
 
 #if __simplescalar__
       /* does not implement getcwd */
-      strncpy(ares1,".",YAP_FILENAME_MAX);
+      char *yap_pwd = getenv("PWD");
+      strncpy(ares1,yap_pwd,YAP_FILENAME_MAX);
 #elif HAVE_GETCWD
       if (getcwd (ares1, YAP_FILENAME_MAX) == NULL)
 	return (FALSE);
@@ -1562,7 +1563,8 @@ p_getcwd(void)
 
 #if __simplescalar__
   /* does not implement getcwd */
-  strncpy(FileNameBuf,".",YAP_FILENAME_MAX);
+  char *yap_pwd = getenv("PWD");
+  strncpy(FileNameBuf,yap_pwd,YAP_FILENAME_MAX);
 #elif HAVE_GETCWD
   if (getcwd (FileNameBuf, YAP_FILENAME_MAX) == NULL)
     return (FALSE);
@@ -1752,6 +1754,11 @@ p_cd (void)
     return(FALSE);
   }
   TrueFileName (FileNameBuf, FileNameBuf2, FALSE);
+#if  __simplescalar__
+  strncpy(FileNameBuf,"PWD=",YAP_FILENAME_MAX);
+  strncat(FileNameBuf,FileNameBuf2,YAP_FILENAME_MAX);
+  putenv(FileNameBuf);
+#endif
   return (!chdir (FileNameBuf2));
 #else
 #ifdef MACYAP

@@ -18,26 +18,26 @@
 * Last rev:	December 90						 *
 * mods:									 *
 * comments:	Original Tag Scheme for machines with 32 bits adresses   *
-* version:      $Id: Tags_32LowTag.h,v 1.1.1.1 2001-04-09 19:53:40 vsc Exp $	 *
+* version:      $Id: Tags_32LowTag.h,v 1.2 2001-07-16 15:26:14 vsc Exp $	 *
 *************************************************************************/
 
 #define TAG_LOW_BITS_32 1
 
      /*    Version for 32 bit addresses machines,
-        Each    term is represented internally as an unsigned 32 bit integer as
-        follows:
-        tag      value
-        ints                    m.....110 numeric value
-        atoms           m.....010 offset of atom entry
-        pairs           mr.....11 ptr to pair
-        aplied functor  mr.....01 ptr to functor followed by args
-        ref                     mr.....00 address of cell
-        undefined               mr.....00 address of cell pointing to itself
+   Each	term is	represented internally as an unsigned 32 bit integer as
+   follows:
+			tag	 value
+   ints			m.....110 numeric value
+   atoms		m.....010 offset of atom entry
+   pairs		mr.....11 ptr to pair
+   aplied functor	mr.....01 ptr to functor followed by args
+   ref			mr.....00 address of cell
+   undefined		mr.....00 address of cell pointing to itself
 
-        functors are represented as ptrs to the functor entry in the atom
-        property list
+ functors are represented as ptrs to the functor entry in the atom
+property list
 
-      */
+*/
 
 #define SHIFT_LOW_TAG 2
 #define SHIFT_HIGH_TAG 2
@@ -82,122 +82,113 @@
 #define YAP_PROTECTED_MASK 0xc0000000L
 
 
-inline EXTERN int IsVarTerm (Term);
+inline EXTERN int IsVarTerm(Term);
 
-inline EXTERN int
-IsVarTerm (Term t)
+inline EXTERN int IsVarTerm(Term t)
 {
-  return (int) (!((t) & LowTagBits));
+	return (int) (!((t) & LowTagBits));
 }
 
 
 
-inline EXTERN int IsNonVarTerm (Term);
+inline EXTERN int IsNonVarTerm(Term);
 
-inline EXTERN int
-IsNonVarTerm (Term t)
+inline EXTERN int IsNonVarTerm(Term t)
 {
-  return (int) (((t) & LowTagBits));
+	return (int) (((t) & LowTagBits));
 }
 
 
 
-inline EXTERN Term *RepPair (Term);
+inline EXTERN Term * RepPair(Term);
 
-inline EXTERN Term *
-RepPair (Term t)
+inline EXTERN Term * RepPair(Term t)
 {
-  return (Term *) ((t) - PairBits);
+	return (Term *) ((t)-PairBits);
 }
 
 
 
-inline EXTERN Term AbsPair (Term *);
+inline EXTERN Term AbsPair(Term *);
 
-inline EXTERN Term
-AbsPair (Term * p)
+inline EXTERN Term AbsPair(Term * p)
 {
-  return (Term) (Unsigned (p) + PairBits);
+	return (Term) (Unsigned(p)+PairBits);
 }
 
 
 
-inline EXTERN Int IsPairTerm (Term);
+inline EXTERN Int IsPairTerm(Term);
 
-inline EXTERN Int
-IsPairTerm (Term t)
+inline EXTERN Int IsPairTerm(Term t)
 {
-  return (Int) ((((t) & LowTagBits) == PairBits));
+	return (Int) ((((t) & LowTagBits) == PairBits));
 }
 
 
 
-inline EXTERN Term *RepAppl (Term);
+inline EXTERN Term * RepAppl(Term);
 
-inline EXTERN Term *
-RepAppl (Term t)
+inline EXTERN Term * RepAppl(Term t)
 {
-  return (Term *) (((t) - ApplBit));
+	return (Term *) (((t)-ApplBit));
 }
 
 
 
-inline EXTERN Term AbsAppl (Term *);
+inline EXTERN Term AbsAppl(Term *);
 
-inline EXTERN Term
-AbsAppl (Term * p)
+inline EXTERN Term AbsAppl(Term * p)
 {
-  return (Term) (Unsigned (p) + ApplBit);
+	return (Term) (Unsigned(p)+ApplBit);
 }
 
 
 
-inline EXTERN Int IsApplTerm (Term);
+inline EXTERN Int IsApplTerm(Term);
 
-inline EXTERN Int
-IsApplTerm (Term t)
+inline EXTERN Int IsApplTerm(Term t)
 {
-  return (Int) ((((t) & LowTagBits) == ApplBit));
+	return (Int) ((((t) & LowTagBits) == ApplBit));
 }
 
 
 
-inline EXTERN Int IsAtomOrIntTerm (Term);
+inline EXTERN Int IsAtomOrIntTerm(Term);
 
-inline EXTERN Int
-IsAtomOrIntTerm (Term t)
+inline EXTERN Int IsAtomOrIntTerm(Term t)
 {
-  return (Int) ((((t) & LowTagBits) == 2));
+	return (Int) ((((t) & LowTagBits) == 2));
 }
 
 
 
 
-inline EXTERN Term AdjustPtr (Term t, Term off);
+inline EXTERN Term AdjustPtr(Term t, Term off);
 
-inline EXTERN Term
-AdjustPtr (Term t, Term off)
+inline EXTERN Term AdjustPtr(Term t, Term off)
 {
-  return (Term) ((t) + off);
+	return (Term) ((t)+off);
 }
 
 
 
-inline EXTERN Term AdjustIDBPtr (Term t, Term off);
+inline EXTERN Term AdjustIDBPtr(Term t, Term off);
 
-inline EXTERN Term
-AdjustIDBPtr (Term t, Term off)
+inline EXTERN Term AdjustIDBPtr(Term t, Term off)
 {
-  return (Term) ((t) + off);
+	return (Term) ((t)+off);
 }
 
 
 
 
-inline EXTERN Int IntOfTerm (Term);
+inline EXTERN Int IntOfTerm(Term);
 
-inline EXTERN Int
-IntOfTerm (Term t)
+inline EXTERN Int IntOfTerm(Term t)
 {
-  return (Int) (((Int) (t << 1)) >> (SHIFT_LOW_TAG + SHIFT_HIGH_TAG + 1));
+	return (Int) (((Int)(t << 1))>>(SHIFT_LOW_TAG+SHIFT_HIGH_TAG+1));
 }
+
+
+

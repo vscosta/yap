@@ -1596,6 +1596,14 @@ RestoreClause(Clause *Cl)
     case _getwork_seq:
     case _sync:
 #endif
+#ifdef TABLING
+    case _table_try_me_single:
+    case _table_try_me:
+    case _table_retry_me:
+    case _table_trust_me:
+    case _table_answer_resolution:
+    case _table_completion:
+#endif
       pc->u.ld.p = CodeAddrAdjust(pc->u.ld.p);
       pc->u.ld.d = CodeAddrAdjust(pc->u.ld.d);
       pc = NEXTOP(pc,ld);
@@ -1646,6 +1654,28 @@ RestoreClause(Clause *Cl)
     case _p_functor:
 #ifdef YAPOR
     case _getwork_first_time:
+#endif
+#ifdef TABLING
+    case _trie_do_var:
+    case _trie_trust_var:
+    case _trie_try_var:
+    case _trie_retry_var:
+    case _trie_do_val:
+    case _trie_trust_val:
+    case _trie_try_val:
+    case _trie_retry_val:
+    case _trie_do_atom:
+    case _trie_trust_atom:
+    case _trie_try_atom:
+    case _trie_retry_atom:
+    case _trie_do_list:
+    case _trie_trust_list:
+    case _trie_try_list:
+    case _trie_retry_list:
+    case _trie_do_struct:
+    case _trie_trust_struct:
+    case _trie_try_struct:
+    case _trie_retry_struct:
 #endif
       pc = NEXTOP(pc,e);
       break;
@@ -1891,6 +1921,9 @@ RestoreClause(Clause *Cl)
       /* instructions type s */
     case _write_n_voids:
     case _pop_n:
+#ifdef TABLING
+    case _table_new_answer:
+#endif
       pc = NEXTOP(pc,s);
       break;
       /* instructions type c */

@@ -188,9 +188,9 @@ print_message(help,M) :-
 '$output_error_message'(existence_error(source_sink,F), W) :-
 	format(user_error,"[ EXISTENCE ERROR- ~w could not find file ~w ]~n",
 	[W,F]).
-'$output_error_message'(existence_error(stream,_), Where) :-
-	format(user_error,"[ EXISTENCE ERROR- ~w: not an open stream ]~n",
-	[Where]).
+'$output_error_message'(existence_error(stream,Stream), Where) :-
+	format(user_error,"[ EXISTENCE ERROR- ~w: ~w not an open stream ]~n",
+	[Where,Stream]).
 '$output_error_message'(evaluation_error(int_overflow), Where) :-
 	format(user_error,"[ INTEGER OVERFLOW ERROR- ~w ]~n",
 	[Where]).
