@@ -11,8 +11,11 @@
 * File:		index.c							 *
 * comments:	Indexing a Prolog predicate				 *
 *									 *
-* Last rev:     $Date: 2004-09-30 19:51:54 $,$Author: vsc $						 *
+* Last rev:     $Date: 2004-09-30 21:37:41 $,$Author: vsc $						 *
 * $Log: not supported by cvs2svn $
+* Revision 1.100  2004/09/30 19:51:54  vsc
+* fix overflow from within clause/2
+*
 * Revision 1.99  2004/09/27 20:45:03  vsc
 * Mega clauses
 * Fixes to sizeof(expand_clauses) which was being overestimated
@@ -5802,6 +5805,9 @@ replace_lu_block(LogUpdIndex *blk, int flag, PredEntry *ap, yamop *code, int has
   codep->opc = Yap_opcode(_enter_lu_pred);
   codep->u.Ill.s = begin->u.Ill.s;
   codep->u.Ill.I = ncl;
+#if defined(YAPOR) || defined(THREADS)
+  codep->u.Ill.p = ap;
+#endif
   codep = NEXTOP(codep,Ill);
   ocodep = begin->u.Ill.l1;
   if (flag == RECORDA) {

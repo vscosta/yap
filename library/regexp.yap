@@ -20,7 +20,7 @@
 	regexp/4
           ]).
 
-:- load_foreign_files([regexp,regcomp,regfree,regerror,regexec], [], init_regexp).
+:- load_foreign_files([regexp], [], init_regexp).
 
 regexp(RegExp, String, Opts) :-
 	length(RegExp, LRE),

@@ -11,8 +11,17 @@
 * File:		amasm.c							 *
 * comments:	abstract machine assembler				 *
 *									 *
-* Last rev:     $Date: 2004-09-27 20:45:02 $							 *
+* Last rev:     $Date: 2004-09-30 21:37:40 $							 *
 * $Log: not supported by cvs2svn $
+* Revision 1.63  2004/09/27 20:45:02  vsc
+* Mega clauses
+* Fixes to sizeof(expand_clauses) which was being overestimated
+* Fixes to profiling+indexing
+* Fixes to reallocation of memory after restoring
+* Make sure all clauses, even for C, end in _Ystop
+* Don't reuse space for Streams
+* Fix Stream_F on StreaNo+1
+*
 * Revision 1.62  2004/08/20 16:16:23  vsc
 * growheap was not checking some compiler instructions
 * source was getting confused in reconsult
@@ -339,6 +348,9 @@ a_lucl(op_numbers opcode, yamop *code_p, int pass_no, struct intermediates *cip)
     code_p->u.Ill.l1 = emit_ilabel(cip->cpc->rnd1, cip);
     code_p->u.Ill.l2 = emit_ilabel(cip->cpc->rnd2, cip);
     code_p->u.Ill.s  = cip->cpc->rnd3;
+#if defined(YAPOR) || defined(THREADS)
+    code_p->u.Ill.p = cip->CurrentPred;
+#endif
   }
   GONEXT(Ill);
   return code_p;

@@ -1,4 +1,3 @@
-
 /*************************************************************************
 *									 *
 *	 YAP Prolog 							 *
@@ -12,8 +11,11 @@
 * File:		cdmgr.c							 *
 * comments:	Code manager						 *
 *									 *
-* Last rev:     $Date: 2004-09-30 19:51:53 $,$Author: vsc $						 *
+* Last rev:     $Date: 2004-09-30 21:37:40 $,$Author: vsc $						 *
 * $Log: not supported by cvs2svn $
+* Revision 1.134  2004/09/30 19:51:53  vsc
+* fix overflow from within clause/2
+*
 * Revision 1.133  2004/09/27 20:45:02  vsc
 * Mega clauses
 * Fixes to sizeof(expand_clauses) which was being overestimated

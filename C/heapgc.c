@@ -504,7 +504,7 @@ RBMalloc(UInt size)
  if ((ADDR)db_vec > Yap_TrailTop-1024) {
     Yap_growtrail(64 * 1024L);
 #if USE_SYSTEM_MALLOC
-    jump;
+    /* TODO */
 #endif    
   }
   return (rb_red_blk_node *)new;

@@ -11,8 +11,17 @@
 * File:		amidefs.h						 *
 * comments:	Abstract machine peculiarities				 *
 *									 *
-* Last rev:     $Date: 2004-09-27 20:45:04 $							 *
+* Last rev:     $Date: 2004-09-30 21:37:41 $							 *
 * $Log: not supported by cvs2svn $
+* Revision 1.25  2004/09/27 20:45:04  vsc
+* Mega clauses
+* Fixes to sizeof(expand_clauses) which was being overestimated
+* Fixes to profiling+indexing
+* Fixes to reallocation of memory after restoring
+* Make sure all clauses, even for C, end in _Ystop
+* Don't reuse space for Streams
+* Fix Stream_F on StreaNo+1
+*
 * Revision 1.24  2004/04/14 19:10:40  vsc
 * expand_clauses: keep a list of clauses to expand
 * fix new trail scheme for multi-assignment variables
@@ -227,6 +236,9 @@ typedef struct yami {
 	 struct yami             *l1;
 	 struct yami             *l2;
 	 COUNT                    s;
+#if defined(YAPOR) || defined(THREADS)
+	struct pred_entry        *p;
+#endif
 	 CELL next;
        } Ill;
        struct {
