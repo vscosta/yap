@@ -953,7 +953,7 @@ execute_growstack(long size0, int from_trail)
       return FALSE;
     }
     YAPEnterCriticalSection();
-    GDiff = DelayDiff = size-size0;
+    GDiff = DelayDiff = size;
   } else {
     YAPEnterCriticalSection();
     if (Yap_GlobalBase != old_Yap_GlobalBase) {

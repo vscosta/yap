@@ -11,8 +11,11 @@
 * File:		cdmgr.c							 *
 * comments:	Code manager						 *
 *									 *
-* Last rev:     $Date: 2004-09-03 03:11:07 $,$Author: vsc $						 *
+* Last rev:     $Date: 2004-09-07 16:25:22 $,$Author: vsc $						 *
 * $Log: not supported by cvs2svn $
+* Revision 1.128  2004/09/03 03:11:07  vsc
+* memory management fixes
+*
 * Revision 1.127  2004/08/16 21:02:04  vsc
 * more fixes for !
 *
@@ -2799,17 +2802,12 @@ code_in_pred(PredEntry *pp, Atom *pat, UInt *parity, yamop *codeptr) {
 static Int
 PredForCode(yamop *codeptr, Atom *pat, UInt *parity, Term *pmodule) {
   Int found = 0;
-  Int i_table, idb_i = 0;
+  Int i_table;
 
   /* should we allow the user to see hidden predicates? */
   for (i_table = 0; i_table < NoOfModules; i_table++) {
 
     PredEntry *pp;
-    if (ModuleName[i_table] == IDB_MODULE) {
-      idb_i = i_table;
-      /* do IDB at the very end */
-      continue;
-    }
   restart:
     pp = ModulePred[i_table];
     while (pp != NULL) {
@@ -2821,12 +2819,6 @@ PredForCode(yamop *codeptr, Atom *pat, UInt *parity, Term *pmodule) {
 	return(found);
       }
       pp = pp->NextPredOfModule;
-    }
-    if (!i_table) {
-      i_table = idb_i;
-      goto restart;
-    } else if (i_table == idb_i) {
-      return 0;
     }
   }
   return(0);
