@@ -9,14 +9,14 @@
 **************************************************************************
 *									 *
 * File:		mpi.c  							 *
-* Last rev:	$Date: 2002-02-22 14:31:45 $				 *
+* Last rev:	$Date: 2002-02-26 15:34:08 $				 *
 * mods:									 *
 * comments:	Interface to an MPI library                              *
 *									 *
 *************************************************************************/
 
 #ifndef lint
-static char *rcsid = "$Header: /Users/vitor/Yap/yap-cvsbackup/library/mpi/mpi.c,v 1.3 2002-02-22 14:31:45 stasinos Exp $";
+static char *rcsid = "$Header: /Users/vitor/Yap/yap-cvsbackup/library/mpi/mpi.c,v 1.4 2002-02-26 15:34:08 stasinos Exp $";
 #endif
 
 #include "Yap.h"
@@ -38,6 +38,7 @@ STATIC_PROTO (Int p_mpi_close, (void));
 STATIC_PROTO (Int p_mpi_send, (void));
 STATIC_PROTO (Int p_mpi_receive, (void));
 STATIC_PROTO (Int p_mpi_bcast, (void));
+STATIC_PROTO (Int p_mpi_barrier, (void));
 
 
 /*
@@ -342,6 +343,18 @@ p_mpi_bcast()            /* mpi_bcast( ?data, +root ) */
 }
 
 
+static Int
+p_mpi_barrier()            /* mpi_barrier/0 */
+{
+  int retv;
+
+  retv = MPI_Barrier( MPI_COMM_WORLD );
+
+  printf( "MPI_Barrier() returns %d\n", retv );
+  return (retv == 0);
+}
+
+
 
 /*
  * Init
@@ -395,6 +408,7 @@ InitMPI(void)
   InitCPred( "mpi_send", 3, p_mpi_send, SafePredFlag );
   InitCPred( "mpi_receive", 3, p_mpi_receive, SyncPredFlag );
   InitCPred( "mpi_bcast", 2, p_mpi_bcast, SyncPredFlag );
+  InitCPred( "mpi_barrier", 0, p_mpi_barrier, 0 );
 }
 
 #endif /* HAVE_MPI */
