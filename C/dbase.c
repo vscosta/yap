@@ -92,9 +92,9 @@ static char     SccsId[] = "%W% %G%";
 #define OTHER_ERROR_IN_DB 4
 
 #if SIZEOF_INT_P==4
-#define ToSmall(V)	((BITS16)(Unsigned(V)>>2))
+#define ToSmall(V)	((link_entry)(Unsigned(V)>>2))
 #else
-#define ToSmall(V)	((BITS16)(Unsigned(V)>>3))
+#define ToSmall(V)	((link_entry)(Unsigned(V)>>3))
 #endif
 
 #ifdef KEEP_OLD_ENTRIES_HANGING_ABOUT
