@@ -2062,6 +2062,7 @@ add_arg_info(ClauseDef *clause, PredEntry *ap, UInt argno)
     case _unify_l_atom_write:
       cl = NEXTOP(cl,oc);
       break;      
+    case _unify_float:
     case _unify_l_float:
       if (argno == 1) {
 	clause->Tag = AbsAppl((CELL *)FunctorDouble);
@@ -2689,7 +2690,10 @@ do_consts(GroupDef *grp, Term t, PredEntry *ap, int compound_term, CELL *sreg, U
 	   max != grp->LastClause) max++;
     if (min != max) {
       if (sreg != NULL) {
-	ics->Label = do_compound_index(min, max, sreg, ap, compound_term, arity, argno+1, nxtlbl, first, last_arg, clleft, top);
+	if (ap->PredFlags & LogUpdatePredFlag && max > min)
+	  ics->Label = suspend_indexing(min, max, ap);
+	else
+	  ics->Label = do_compound_index(min, max, sreg, ap, compound_term, arity, argno+1, nxtlbl, first, last_arg, clleft, top);
       } else if (ap->PredFlags & LogUpdatePredFlag) {
 	ics->Label = suspend_indexing(min, max, ap);
       } else {
