@@ -1343,8 +1343,10 @@ OpenRestore(char *inpf, char *YapLibDir, CELL *Astate, CELL *ATrail, CELL *AStac
   if (inpf == NULL)
     inpf = StartUpFile;
   if (inpf != NULL && (splfild = open_file(inpf, O_RDONLY)) > 0) {
-    if ((mode = commit_to_saved_state(inpf,Astate,ATrail,AStack,AHeap)) != FAIL_RESTORE)
+    if ((mode = commit_to_saved_state(inpf,Astate,ATrail,AStack,AHeap)) != FAIL_RESTORE) {
+      Yap_ErrorMessage = NULL;
       return(mode);
+    }
   }
   if (!Yap_dir_separator(inpf[0]) && !Yap_volume_header(inpf)) {
     /*
@@ -1354,8 +1356,10 @@ OpenRestore(char *inpf, char *YapLibDir, CELL *Astate, CELL *ATrail, CELL *AStac
     if (YapLibDir != NULL) {
       cat_file_name(Yap_FileNameBuf, Yap_LibDir, inpf, YAP_FILENAME_MAX);
       if ((splfild = open_file(Yap_FileNameBuf, O_RDONLY)) > 0) {
-	if ((mode = commit_to_saved_state(Yap_FileNameBuf,Astate,ATrail,AStack,AHeap)) != FAIL_RESTORE)
+	if ((mode = commit_to_saved_state(Yap_FileNameBuf,Astate,ATrail,AStack,AHeap)) != FAIL_RESTORE) {
+	  Yap_ErrorMessage = NULL;
 	  return(mode);
+	}
       }
     }
 #if HAVE_GETENV
@@ -1364,8 +1368,10 @@ OpenRestore(char *inpf, char *YapLibDir, CELL *Astate, CELL *ATrail, CELL *AStac
       if (yap_env != NULL) {
 	cat_file_name(Yap_FileNameBuf, yap_env, inpf, YAP_FILENAME_MAX);
 	if ((splfild = open_file(Yap_FileNameBuf, O_RDONLY)) > 0) {
-	  if ((mode = commit_to_saved_state(Yap_FileNameBuf,Astate,ATrail,AStack,AHeap)) != FAIL_RESTORE)
+	  if ((mode = commit_to_saved_state(Yap_FileNameBuf,Astate,ATrail,AStack,AHeap)) != FAIL_RESTORE) {
+	    Yap_ErrorMessage = NULL;
 	    return(mode);
+	  }
 	}
       }
     }
@@ -1373,8 +1379,10 @@ OpenRestore(char *inpf, char *YapLibDir, CELL *Astate, CELL *ATrail, CELL *AStac
     if (LIB_DIR != NULL) {
       cat_file_name(Yap_FileNameBuf, LIB_DIR, inpf, YAP_FILENAME_MAX);
       if ((splfild = open_file(Yap_FileNameBuf, O_RDONLY)) > 0) {
-	if ((mode = commit_to_saved_state(Yap_FileNameBuf,Astate,ATrail,AStack,AHeap)) != FAIL_RESTORE)
+	if ((mode = commit_to_saved_state(Yap_FileNameBuf,Astate,ATrail,AStack,AHeap)) != FAIL_RESTORE) {
+	  Yap_ErrorMessage = NULL;
 	  return(mode);
+	}
       }
     }
   }

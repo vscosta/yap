@@ -225,7 +225,7 @@ Yap_init_socks(char *host, long interface_port)
 
    ling.l_onoff = 1;
    ling.l_linger = 0;
-   setsockopt(s, SOL_SOCKET, SO_LINGER, (char *) &ling,
+   setsockopt(s, SOL_SOCKET, SO_LINGER, (void *) &ling,
             sizeof(ling));
 
    r = connect ( s, (struct sockaddr *) &soadr, sizeof(soadr));
@@ -772,7 +772,7 @@ p_socket_connect(void)
     saddr.sin_family = AF_INET;
     ling.l_onoff = 1;
     ling.l_linger = 0;
-    if (setsockopt(fd, SOL_SOCKET, SO_LINGER, (char *) &ling,
+    if (setsockopt(fd, SOL_SOCKET, SO_LINGER, (void *) &ling,
 		   sizeof(ling)) < 0) {
 #if HAVE_STRERROR
       Yap_Error(SYSTEM_ERROR, TermNil, 
@@ -957,9 +957,9 @@ p_socket_buffering(void)
   }
   fd = Yap_GetStreamFd(sno);
   if (writing) {
-    getsockopt(fd, SOL_SOCKET, SO_SNDBUF, &bufsize, &len);
+    getsockopt(fd, SOL_SOCKET, SO_SNDBUF, (void *)&bufsize, &len);
   } else {
-    getsockopt(fd, SOL_SOCKET, SO_RCVBUF, &bufsize, &len);
+    getsockopt(fd, SOL_SOCKET, SO_RCVBUF, (void *)&bufsize, &len);
   }
   if (!Yap_unify(ARG3,MkIntegerTerm(bufsize)))
     return(FALSE);
@@ -979,9 +979,9 @@ p_socket_buffering(void)
     bufsize = siz; 
   }
   if (writing) {
-    setsockopt(fd, SOL_SOCKET, SO_SNDBUF, &bufsize, sizeof(bufsize));
+    setsockopt(fd, SOL_SOCKET, SO_SNDBUF, (void *)&bufsize, sizeof(bufsize));
   } else {
-    setsockopt(fd, SOL_SOCKET, SO_RCVBUF, &bufsize, sizeof(bufsize));
+    setsockopt(fd, SOL_SOCKET, SO_RCVBUF, (void *)&bufsize, sizeof(bufsize));
   }
   return(TRUE);
 }

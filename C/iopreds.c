@@ -222,21 +222,14 @@ unix_upd_stream_info (StreamDesc * s)
 #endif /* USE_SOCKET */
 #if _MSC_VER || defined(__MINGW32__)
   {
-    struct _stat buf;
-    char *emacs_env = getenv("EMACS");
-
-    if (_fstat(YP_fileno(s->u.file.file), &buf) == -1) {
-      return;
+    if (_isatty(_fileno(s->u.file.file))) {
+      s->status |= Tty_Stream_f|Reset_Eof_Stream_f|Promptable_Stream_f;
+      /* make all console descriptors unbuffered */
+      setvbuf(s->u.file.file, NULL, _IONBF, 0);
     }
-    if (buf.st_mode & S_IFCHR) {
-      s->status |= Tty_Stream_f|Reset_Eof_Stream_f|Promptable_Stream_f;
-      /* make all console descriptors unbuffered */
-      setvbuf(s->u.file.file, NULL, _IONBF, 0);
-    } else if (emacs_env != NULL && strcmp(emacs_env,"t") == 0) {
-      /* emacs communicates with sub-processes via a pipe */
-      s->status |= Tty_Stream_f|Reset_Eof_Stream_f|Promptable_Stream_f;
-      /* make all console descriptors unbuffered */
-      setvbuf(s->u.file.file, NULL, _IONBF, 0);
+    /* standard error stream should never be buffered */
+    if (StdErrStream == s-Stream) {
+      setvbuf(s->u.file.file, NULL, _IONBF, 0);      
     }
     return;
   }
@@ -773,13 +766,14 @@ static int
 ConsolePutc (int sno, int ch)
 {
   StreamDesc *s = &Stream[sno];
-#if MAC || _MSC_VER
+#if MAC || _MSC_VER || defined(__MINGW32__)
   if (ch == 10)
     {
-      ch = '\n';
+      putc ('\n', s->u.file.file);
     }
+  else
 #endif
-  putc (ch, s->u.file.file);
+    putc (ch, s->u.file.file);
   console_count_output_char(ch,s);
   return ((int) ch);
 }
