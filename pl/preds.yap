@@ -247,7 +247,7 @@ clause(V,Q) :-
 	'$some_recordedp'(M:P), !,
 	 '$recordedp'(M:P,(P:-Q),_).
 '$clause'(P,M,Q) :-
-	( '$system_predicate'(P) -> true ;
+	( '$system_predicate'(P,M) -> true ;
 	    '$number_of_clauses'(P,M,N), N > 0 ),
 	functor(P,Name,Arity),
 	throw(error(permission_error(access,private_procedure,Name/Arity),
@@ -466,7 +466,7 @@ abolish(X) :-
 '$abolishs'(G, M) :- '$in_use'(G, M), !,
 	functor(G,Name,Arity),
 	throw(error(permission_error(modify,static_procedure_in_use,Name/Arity),abolish(M:G))).
-'$abolishs'(G, M) :- '$system_predicate'(G), !,
+'$abolishs'(G, M) :- '$system_predicate'(G,M), !,
 	functor(G,Name,Arity),
 	throw(error(permission_error(modify,static_procedure,Name/Arity),abolish(M:G))).
 '$abolishs'(G, Module) :-

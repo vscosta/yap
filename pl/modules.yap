@@ -296,8 +296,8 @@ module(N) :-
 '$prepare_body_with_correct_modules'(fail,_,fail) :- !.
 '$prepare_body_with_correct_modules'(false,_,false) :- !.
 '$prepare_body_with_correct_modules'(M:G,_,M:G) :- !.
-'$prepare_body_with_correct_modules'(G,_,G) :-
-	'$system_predicate'(G), !.
+'$prepare_body_with_correct_modules'(G,M,G) :-
+	'$system_predicate'(G,M), !.
 '$prepare_body_with_correct_modules'(G,M,M:G).
 
 
@@ -410,8 +410,8 @@ module(N) :-
 	'$pred_goal_expansion_on',
 	user:goal_expansion(G,M,GI), !,
 	'$module_expansion'(GI,G1,G2,M,CM,TM,HVars).
-'$complete_goal_expansion'(G, _, _, _, G, GF, _) :-
-	'$system_predicate'(G), !,
+'$complete_goal_expansion'(G, _, _, M, G, GF, _) :-
+	'$system_predicate'(G,M), !,
 	'$c_built_in'(G,GF).
 '$complete_goal_expansion'(G, Mod, _, Mod, G, G, _) :- !.
 '$complete_goal_expansion'(G, GMod, _, _, GMod:G, GMod:G, _).
@@ -504,8 +504,8 @@ module(N) :-
 '$process_expanded_arg'(\+V, M, \+NV) :- !,
 	'$process_expanded_arg'(V, M, NV).
 '$process_expanded_arg'(M:A, _, M:A) :- !.
-%'$process_expanded_arg'(G, _, G) :-
-%	'$system_predicate'(G), !.
+%'$process_expanded_arg'(G, M, G) :-
+%	'$system_predicate'(G,M), !.
 '$process_expanded_arg'(A, M, M:A).
 	
 '$not_in_vars'(_,[]).
@@ -607,8 +607,8 @@ source_module(Mod) :-
 '$preprocess_body_before_mod_change'(false,_,_,false) :- !.
 '$preprocess_body_before_mod_change'(G,M,UVars,M:NG) :-
 	'$meta_expansion'(M, M, G, NG, UVars), !.
-'$preprocess_body_before_mod_change'(G,_,_,G) :-
-	'$system_predicate'(G), !.
+'$preprocess_body_before_mod_change'(G,M,_,G) :-
+	'$system_predicate'(G,M), !.
 '$preprocess_body_before_mod_change'(G,M,_,M:G).
 
 :- '$switch_log_upd'(0).

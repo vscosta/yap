@@ -43,7 +43,7 @@
 :- module(heaps,[
 	add_to_heap/4,		%   Heap x Key x Datum -> Heap
 	get_from_heap/4,	%   Heap -> Key x Datum x Heap
-	empty_heap/1,            %   Heap
+	empty_heap/1,           %   Heap
 	heap_size/2,		%   Heap -> Size
 	heap_to_list/2,		%   Heap -> List
 	list_to_heap/2,		%   List -> Heap

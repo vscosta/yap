@@ -33,7 +33,7 @@
 '$suspy'([],_,_) :- !.
 '$suspy'([F|L],S,M) :- !, ( '$suspy'(F,S,M) ; '$suspy'(L,S,M) ).
 '$suspy'(F/N,S,M) :- !, functor(T,F,N),
-    ( '$system_predicate'(T) ->
+    ( '$system_predicate'(T,M) ->
 	 throw(error(permission_error(access,private_procedure,F/N),spy(F/N,S)));
 	'$undefined'(T,M) ->
 	 throw(error(existence_error(procedure,F/N),spy(F/N,S)));
@@ -45,12 +45,12 @@
 '$suspy'(A,nospy,M) :- '$noclausesfor'(A,M), !,
 	throw(error(existence_error(procedure,A),nospy(A))).
 '$suspy'(A,S,M) :- current_predicate(A,M:T),
-	\+ '$undefined'(T,M), \+ '$system_predicate'(T),
+	\+ '$undefined'(T,M), \+ '$system_predicate'(T,M),
 	 functor(T,F,N),
 	'$suspy2'(S,F,N,T,M).
 
 '$noclausesfor'(A,M) :- current_predicate(A,M:T),
-	\+ '$undefined'(T,M) , \+ '$system_predicate'(T) ,
+	\+ '$undefined'(T,M) , \+ '$system_predicate'(T,M) ,
 	!, fail .
 '$noclausesfor'(_,_).
 
@@ -368,7 +368,7 @@ debugging :-
 	  '$undefp'([M|G])
 	).
 '$spycalls'(G,M,_) :-
-	'$system_predicate'(G),
+	'$system_predicate'(G,M),
 	'$flags'(G,M,F,_),
 	F /\ 0xc00000 =:= 0,		% but not meta-predicate or cut transparent
 	!,

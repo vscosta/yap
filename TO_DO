@@ -1,13 +1,11 @@
 BEFORE 4.4:
 - mixed attributes and delays.
 - write infinite terms
-- constraints in DB.
 - fix restore when code is moved around.
 - document new interface functions.
 - mask when installing.
-- debugger: leash(full). [-user]. a(X) :- call(setof(Z,call(c(Z)),X)). a(X) :- b(X). b(X) :- c(X). c(1). c(2). end_of_file. spy a/1. a(X).
-- debugger: don't stop from within system code.
-- reports from Nikos.
+- reports from Nicos.
+- fix ensure_loaded/1.
 
 TO CHECK:
 - bad register allocation for a(X,Y) :- X is Y+2.3 ?

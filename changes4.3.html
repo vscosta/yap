@@ -16,7 +16,15 @@
 
 <h2>Yap-4.3.21:</h2>
 <ul>
-	<li>FIXED: open_socket would crash if no more available sockets.</li>
+	<li>FIXED: heap library.</li>
+	<li>NEW: empty_heap/3.</li>
+	<li>FIXED: some system predicates are exported outside the
+	prolog module.</li>
+	<li>FIXED: calls to open/3, current_stream/3, tab/{1,2}, and format/3
+	might interfere with trace.</li>
+	<li>NEW: new catch/3 and throw/1 mechanism.</li>
+	<li>FIXED: p_socket would crash if no streams were
+	available (Ines Dutra).</li>
 	<li>FIXED: CLPQR complaints on importing private predicates.</li>
 </ul>
 

@@ -13,7 +13,7 @@
 %   The benefit of the ordered representation is that the elementary
 %   set operations can be done in time proportional to the Sum of the
 %   argument sizes rather than their Product.  Some of the unordered
-%   set routines, such as member/2, length/2,, select/3 can be used
+%   set routines, such as member/2, length/2, select/3 can be used
 %   unchanged.  The main difficulty with the ordered representation is
 %   remembering to use it!
 
