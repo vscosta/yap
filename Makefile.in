@@ -479,9 +479,10 @@ install_unix: startup
 	mkdir -p $(DESTDIR)$(YAPLIBDIR)
 	$(INSTALL_DATA) startup $(DESTDIR)$(YAPLIBDIR)/startup
 	$(INSTALL_DATA) libYap.a  $(DESTDIR)$(LIBDIR)/libYap.a
+	@INSTALL_DLLS@ (cd library/random; make install)
 	@INSTALL_DLLS@ (cd library/regex; make install)
 	@INSTALL_DLLS@ (cd library/system; make install)
-	@INSTALL_DLLS@ (cd library/random; make install)
+	@INSTALL_DLLS@ (cd library/yap2swi; make install)
 	mkdir -p $(DESTDIR)$(INCLUDEDIR)
 	for h in $(INTERFACE_HEADERS); do $(INSTALL) $$h $(DESTDIR)$(INCLUDEDIR); done
 
@@ -496,9 +497,10 @@ install_win32: startup
 	$(INSTALL) $(HEADERS) $(DESTDIR)$(INCLUDEDIR)
 	$(INSTALL) $(srcdir)/include/c_interface.h $(DESTDIR)$(INCLUDEDIR)/c_interface.h
 	$(INSTALL) config.h $(INCLUDEDIR)/config.h
+	(cd library/random; make install_win32)
 	(cd library/regex; make install_win32)
 	(cd library/system; make install_win32)
-	(cd library/random; make install_win32)
+	(cd library/yap2swi; make install_win32)
 
 install_library: @YAPLIB@
 	$(INSTALL_DATA) libYap.a  $(DESTDIR)$(LIBDIR)/libYap.a

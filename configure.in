@@ -845,13 +845,15 @@ then
 AC_DEFINE(USE_MALLOC,1)
 fi
 
+mkdir -p  library/mpi
+mkdir -p  library/random
 mkdir -p  library/regex
 mkdir -p  library/system
-mkdir -p  library/mpi
+mkdir -p  library/yap2swi
 mkdir -p  CHR
 mkdir -p  CLPQR
 
-AC_OUTPUT(Makefile library/regex/Makefile library/system/Makefile library/random/Makefile library/mpi/Makefile .depend library/Makefile CHR/Makefile CLPQR/Makefile)
+AC_OUTPUT(Makefile library/regex/Makefile library/system/Makefile library/random/Makefile library/yap2swi/Makefile library/mpi/Makefile .depend library/Makefile CHR/Makefile CLPQR/Makefile)
 
 make depend
 

@@ -406,6 +406,8 @@ CreateNamedArray(PropEntry * pp, Int dim, AtomEntry *ae)
   ae->PropsOfAE = AbsArrayProp(p);
 
   InitNamedArray(p, dim);
+  p->NextArrayE = DynArrayList;
+  DynArrayList = p;
 
 }
 
