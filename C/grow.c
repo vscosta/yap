@@ -523,7 +523,7 @@ local_growheap(long size, int fix_code)
 
 /* Used by do_goal() when we're short of heap space */
 static int
-local_growglobal(long size)
+local_growglobal(long size, CELL **ptr)
 {
   Int start_growth_time, growth_time;
   int gc_verbose;
@@ -549,6 +549,7 @@ local_growglobal(long size)
   MoveGlobalOnly();
   AdjustStacksAndTrail();
   AdjustRegs(MaxTemps);
+  *ptr = PtoLocAdjust(*ptr);
   YAPLeaveCriticalSection();
   ASP += 256;
   growth_time = cputime()-start_growth_time;
@@ -664,14 +665,14 @@ growheap(int fix_code)
 }
 
 int
-growglobal(void)
+growglobal(CELL **ptr)
 {
   unsigned long sz = sizeof(CELL) * 16 * 1024L;
 
 #ifdef FIXED_STACKS
   abort_optyap("noheapleft in function absmi");
 #endif
-  if (!local_growglobal(sz))
+  if (!local_growglobal(sz, ptr))
     return(FALSE);
 #ifdef TABLING
   fix_tabling_info();

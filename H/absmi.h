@@ -1113,8 +1113,10 @@ trim_trail(choiceptr b, tr_fr_ptr tr, CELL *hbreg)
       }                                  
       pt0++;                                 
     } else {
-      DO_TRAIL(d1, TrailVal(pt0));
-      pt0++;                                 
+      if (!IsPairTerm(d1)) {
+	DO_TRAIL(d1, TrailVal(pt0));
+      }               
+      pt0++;                  
     }
     ENDD(d1);                              
   }  

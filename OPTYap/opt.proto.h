@@ -77,6 +77,7 @@ void update_answer_trie(sg_fr_ptr sg_fr);
 void show_trie(FILE *stream, sg_node_ptr sg_node, int pred_arity, Atom pred_atom);
 int show_subgoal_trie(FILE *stream, sg_node_ptr sg_node, char *str, int str_index, int *arity);
 int show_answer_trie(FILE *stream, ans_node_ptr ans_node, char *str, int str_index, int *arity, int var_index);
+void traverse_trie(FILE *stream, sg_node_ptr sg_node, int pred_arity, Atom pred_atom, int show);
 #endif /* TABLING */
 
 

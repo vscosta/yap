@@ -72,9 +72,9 @@ void itos(int i, char *s) {
 void information_message(const char *mesg,...) {
   va_list args;
   va_start(args, mesg);
-  fprintf(stdout, "[ ");
-  vfprintf(stdout, mesg, args);
-  fprintf(stdout, " ]\n");
+  fprintf(stderr, "[ ");
+  vfprintf(stderr, mesg, args);
+  fprintf(stderr, " ]\n");
   return;
 }
 /* ------------------------- **

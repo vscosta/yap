@@ -53,6 +53,7 @@ static void answer_to_stdout(char *answer);
 static int p_table(void);
 static int p_abolish_trie(void);
 static int p_show_trie(void);
+static int p_resume_trie(void);
 #endif /* TABLING */
 #ifdef STATISTICS
 static int p_show_frames(void);
@@ -82,6 +83,7 @@ void init_optyap_preds(void) {
   InitCPred("$do_table", 2, p_table, SafePredFlag);
   InitCPred("$do_abolish_trie", 2, p_abolish_trie, SafePredFlag);
   InitCPred("$show_trie", 3, p_show_trie, SafePredFlag);
+  InitCPred("$resume_trie", 2, p_resume_trie, SafePredFlag);
 #endif /* TABLING */
 #ifdef STATISTICS
   InitCPred("show_frames", 0, p_show_frames, SafePredFlag);
@@ -557,17 +559,48 @@ int p_show_trie(void) {
   if (IsVarTerm(t2)) {
     Term ta = MkAtomTerm(LookupAtom("stdout"));
     Bind((CELL *)t2, ta);
-    show_trie(stdout, TrNode_child(TabEnt_subgoal_trie(pe->TableOfPred)), arity, at);
+    traverse_trie(stderr, TrNode_child(TabEnt_subgoal_trie(pe->TableOfPred)), arity, at, TRUE);
   } else if (IsAtomTerm(t2)) {
     FILE *file;
     char *path = RepAtom(AtomOfTerm(t2))->StrOfAE;
     if ((file = fopen(path, "w")) == NULL)
       abort_optyap("fopen error in function p_show_trie");
-    show_trie(file, TrNode_child(TabEnt_subgoal_trie(pe->TableOfPred)), arity, at);
+    traverse_trie(file, TrNode_child(TabEnt_subgoal_trie(pe->TableOfPred)), arity, at, TRUE);
     fclose(file);
   } else
     return(FALSE);
 
+  return (TRUE);
+}
+
+static
+int p_resume_trie(void) {
+  Term t1;
+  Atom at;
+  int arity;
+  PredEntry *pe;
+  Term tmod = Deref(ARG2);
+  SMALLUNSGN mod;
+
+   if (IsVarTerm(tmod) || !IsAtomTerm(tmod)) {
+    return (FALSE);
+  } else {
+    mod = LookupModule(tmod);
+  } 
+  t1 = Deref(ARG1);
+  if (IsAtomTerm(t1)) {
+    at = AtomOfTerm(t1);
+    arity = 0;
+    pe = RepPredProp(PredPropByAtom(at, mod));
+  } else if (IsApplTerm(t1)) {
+    Functor func = FunctorOfTerm(t1);
+    at = NameOfFunctor(func);
+    arity = ArityOfFunctor(func);
+    pe = RepPredProp(PredPropByFunc(func, mod));
+  } else
+    return(FALSE);
+
+  traverse_trie(stdout, TrNode_child(TabEnt_subgoal_trie(pe->TableOfPred)), arity, at, FALSE);
   return (TRUE);
 }
 #endif /* TABLING */

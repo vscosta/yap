@@ -390,12 +390,12 @@ absmi(int inp)
        * choicepoint for the current B */
       restore_yaam_regs(PREG->u.ld.d);
       restore_at_least_one_arg(PREG->u.ld.s);
-#if defined(SBA) && defined(FROZEN_REGS)
+#if defined(SBA) && defined(FROZEN_STACKS)
       S_Y = (CELL *)PROTECT_FROZEN_B(B_Y);
       set_cut(S_Y, B->cp_b);
 #else
       set_cut(S_Y, B_Y->cp_b);
-#endif /* FROZEN_REGS */
+#endif /* FROZEN_STACKS */
       SET_BB(B_Y);
       ENDCACHE_Y();
       PREG = NEXTOP(PREG, ld);
@@ -409,9 +409,9 @@ absmi(int inp)
       if (SCH_top_shared_cp(B)) {
 	SCH_last_alternative(PREG, B_Y);
 	restore_at_least_one_arg(PREG->u.ld.s);
-#ifdef FROZEN_REGS
+#ifdef FROZEN_STACKS
 	B_Y = PROTECT_FROZEN_B(B_Y);
-#endif /* FROZEN_REGS */
+#endif /* FROZEN_STACKS */
 	set_cut(S_Y, B->cp_b);
       }
       else
@@ -421,9 +421,9 @@ absmi(int inp)
 	pop_at_least_one_arg(PREG->u.ld.s);
 	/* After trust, cut should be pointing at the new top
 	 * choicepoint */
-#ifdef FROZEN_REGS
+#ifdef FROZEN_STACKS
 	S_Y = (CELL *)PROTECT_FROZEN_B(B_Y);
-#endif /* FROZEN_REGS */
+#endif /* FROZEN_STACKS */
 	set_cut(S_Y, B);
       }
       PREG = NEXTOP(PREG, ld);
@@ -464,12 +464,12 @@ absmi(int inp)
       UNLOCK(((PredEntry *)(PREG->u.ld.p))->StatisticsForPred.lock);
       restore_yaam_regs(PREG->u.ld.d);
       restore_args(PREG->u.ld.s);
-#ifdef FROZEN_REGS
+#ifdef FROZEN_STACKS
       S_Y = (CELL *)PROTECT_FROZEN_B(B_Y);
       set_cut(S_Y, B->cp_b);
 #else
       set_cut(S_Y, B_Y->cp_b);
-#endif /* FROZEN_REGS */
+#endif /* FROZEN_STACKS */
       SET_BB(B_Y);
       ENDCACHE_Y();
       PREG = NEXTOP(PREG, ld);
@@ -483,9 +483,9 @@ absmi(int inp)
       if (SCH_top_shared_cp(B)) {
 	SCH_last_alternative(PREG, B_Y);
 	restore_args(PREG->u.ld.s);
-#ifdef FROZEN_REGS
+#ifdef FROZEN_STACKS
 	B_Y = PROTECT_FROZEN_B(B_Y);
-#endif /* FROZEN_REGS */
+#endif /* FROZEN_STACKS */
 	set_cut(S_Y, B->cp_b);
       }
       else
@@ -495,9 +495,9 @@ absmi(int inp)
 	pop_args(PREG->u.ld.s);
 	/* After trust, cut should be pointing at the new top
 	 * choicepoint */
-#ifdef FROZEN_REGS
+#ifdef FROZEN_STACKS
 	S_Y = (CELL *)PROTECT_FROZEN_B(B_Y);
-#endif /* FROZEN_REGS */
+#endif /* FROZEN_STACKS */
 	set_cut(S_Y, B);
       }
       SET_BB(B_Y);
@@ -532,12 +532,12 @@ absmi(int inp)
       Op(retry_me0, ld);
       CACHE_Y(B);
       restore_yaam_regs(PREG->u.ld.d);
-#ifdef FROZEN_REGS
+#ifdef FROZEN_STACKS
       S_Y = (CELL *)PROTECT_FROZEN_B(B_Y);
       set_cut(S_Y, B->cp_b);
 #else
       set_cut(S_Y, B_Y->cp_b);
-#endif /* FROZEN_REGS */
+#endif /* FROZEN_STACKS */
       SET_BB(B_Y);
       ENDCACHE_Y();
       PREG = NEXTOP(PREG, ld);
@@ -550,9 +550,9 @@ absmi(int inp)
 #ifdef YAPOR
       if (SCH_top_shared_cp(B)) {
 	SCH_last_alternative(PREG, B_Y);
-#ifdef FROZEN_REGS
+#ifdef FROZEN_STACKS
 	B_Y = PROTECT_FROZEN_B(B_Y);
-#endif /* FROZEN_REGS */
+#endif /* FROZEN_STACKS */
 	set_cut(S_Y, B->cp_b);
       }
       else
@@ -560,9 +560,9 @@ absmi(int inp)
       {
 	pop_yaam_regs();
 	S_Y = (CELL *)(B_Y+1);
-#ifdef FROZEN_REGS
+#ifdef FROZEN_STACKS
 	S_Y = (CELL *)PROTECT_FROZEN_B(B_Y);
-#endif /* FROZEN_REGS */
+#endif /* FROZEN_STACKS */
 	set_cut(S_Y, B);
       }
       SET_BB(B_Y);
@@ -597,12 +597,12 @@ absmi(int inp)
       CACHE_Y(B);
       restore_yaam_regs(PREG->u.ld.d);
       ARG1 = B_Y->cp_a1;
-#ifdef FROZEN_REGS
+#ifdef FROZEN_STACKS
       S_Y = (CELL *)PROTECT_FROZEN_B(B_Y);
       set_cut(S_Y, B->cp_b);
 #else
       set_cut(S_Y, B_Y->cp_b);
-#endif /* FROZEN_REGS */
+#endif /* FROZEN_STACKS */
       SET_BB(B_Y);
       ENDCACHE_Y();
       PREG = NEXTOP(PREG, ld);
@@ -616,9 +616,9 @@ absmi(int inp)
       if (SCH_top_shared_cp(B)) {
 	SCH_last_alternative(PREG, B_Y);
 	ARG1 = B_Y->cp_a1;
-#ifdef FROZEN_REGS
+#ifdef FROZEN_STACKS
 	B_Y = PROTECT_FROZEN_B(B_Y);
-#endif /* FROZEN_REGS */
+#endif /* FROZEN_STACKS */
 	set_cut(S_Y, B->cp_b);
       }
       else
@@ -627,9 +627,9 @@ absmi(int inp)
 	pop_yaam_regs();
 	ARG1 = B_Y->cp_a1;
 	S_Y = &(B_Y->cp_a2);
-#ifdef FROZEN_REGS
+#ifdef FROZEN_STACKS
 	S_Y = (CELL *)PROTECT_FROZEN_B(B_Y);
-#endif /* FROZEN_REGS */
+#endif /* FROZEN_STACKS */
 	set_cut(S_Y, B);
       }
       SET_BB(B_Y);
@@ -673,12 +673,12 @@ absmi(int inp)
       restore_yaam_regs(PREG->u.ld.d);
       ARG1 = B_Y->cp_a1;
       ARG2 = B_Y->cp_a2;
-#ifdef FROZEN_REGS
+#ifdef FROZEN_STACKS
       S_Y = (CELL *)PROTECT_FROZEN_B(B_Y);
       set_cut(S_Y, B->cp_b);
 #else
       set_cut(S_Y, B_Y->cp_b);
-#endif /* FROZEN_REGS */
+#endif /* FROZEN_STACKS */
       SET_BB(B_Y);
       ENDCACHE_Y();
       PREG = NEXTOP(PREG, ld);
@@ -693,9 +693,9 @@ absmi(int inp)
 	SCH_last_alternative(PREG, B_Y);
 	ARG1 = B_Y->cp_a1;
 	ARG2 = B_Y->cp_a2;
-#ifdef FROZEN_REGS
+#ifdef FROZEN_STACKS
 	B_Y = PROTECT_FROZEN_B(B_Y);
-#endif /* FROZEN_REGS */
+#endif /* FROZEN_STACKS */
 	set_cut(S_Y, B->cp_b);
       }
       else
@@ -705,9 +705,9 @@ absmi(int inp)
 	ARG1 = B_Y->cp_a1;
 	ARG2 = B_Y->cp_a2;
 	S_Y = &(B_Y->cp_a3);
-#ifdef FROZEN_REGS
+#ifdef FROZEN_STACKS
 	S_Y = (CELL *)PROTECT_FROZEN_B(B_Y);
-#endif /* FROZEN_REGS */
+#endif /* FROZEN_STACKS */
 	set_cut(S_Y, B);
       }
       SET_BB(B_Y);
@@ -755,12 +755,12 @@ absmi(int inp)
       ARG1 = B_Y->cp_a1;
       ARG2 = B_Y->cp_a2;
       ARG3 = B_Y->cp_a3;
-#ifdef FROZEN_REGS
+#ifdef FROZEN_STACKS
       S_Y = (CELL *)PROTECT_FROZEN_B(B_Y);
       set_cut(S_Y, B->cp_b);
 #else
       set_cut(S_Y, B_Y->cp_b);
-#endif /* FROZEN_REGS */
+#endif /* FROZEN_STACKS */
       SET_BB(B_Y);
       ENDCACHE_Y();
       PREG = NEXTOP(PREG, ld);
@@ -776,9 +776,9 @@ absmi(int inp)
 	ARG1 = B_Y->cp_a1;
 	ARG2 = B_Y->cp_a2;
 	ARG3 = B_Y->cp_a3;
-#ifdef FROZEN_REGS
+#ifdef FROZEN_STACKS
 	B_Y = PROTECT_FROZEN_B(B_Y);
-#endif /* FROZEN_REGS */
+#endif /* FROZEN_STACKS */
 	set_cut(S_Y, B->cp_b);
       }
       else
@@ -789,9 +789,9 @@ absmi(int inp)
 	ARG2 = B_Y->cp_a2;
 	ARG3 = B_Y->cp_a3;
 	S_Y = &(B_Y->cp_a4);
-#ifdef FROZEN_REGS
+#ifdef FROZEN_STACKS
 	S_Y = (CELL *)PROTECT_FROZEN_B(B_Y);
-#endif /* FROZEN_REGS */
+#endif /* FROZEN_STACKS */
 	set_cut(S_Y, B);
       }
       SET_BB(B_Y);
@@ -842,12 +842,12 @@ absmi(int inp)
       ARG2 = B_Y->cp_a2;
       ARG3 = B_Y->cp_a3;
       ARG4 = B_Y->cp_a4;
-#ifdef FROZEN_REGS
+#ifdef FROZEN_STACKS
       S_Y = (CELL *)PROTECT_FROZEN_B(B_Y);
       set_cut(S_Y, B->cp_b);
 #else
       set_cut(S_Y, B_Y->cp_b);
-#endif /* FROZEN_REGS */
+#endif /* FROZEN_STACKS */
       SET_BB(B_Y);
       ENDCACHE_Y();
       PREG = NEXTOP(PREG, ld);
@@ -864,9 +864,9 @@ absmi(int inp)
 	ARG2 = B_Y->cp_a2;
 	ARG3 = B_Y->cp_a3;
 	ARG4 = B_Y->cp_a4;
-#ifdef FROZEN_REGS
+#ifdef FROZEN_STACKS
 	B_Y = PROTECT_FROZEN_B(B_Y);
-#endif /* FROZEN_REGS */
+#endif /* FROZEN_STACKS */
 	set_cut(S_Y, B->cp_b);
       }
       else
@@ -878,9 +878,9 @@ absmi(int inp)
 	ARG3 = B_Y->cp_a3;
 	ARG4 = B_Y->cp_a4;
 	S_Y = &(B_Y->cp_a5);
-#ifdef FROZEN_REGS
+#ifdef FROZEN_STACKS
 	S_Y = (CELL *)PROTECT_FROZEN_B(B_Y);
-#endif /* FROZEN_REGS */
+#endif /* FROZEN_STACKS */
 	set_cut(S_Y, B);
       }
       SET_BB(B_Y);
@@ -993,7 +993,7 @@ absmi(int inp)
 	/* check first if environment is protected */
 	BEGP(pt0);
 	pt0 = (CELL *) YENV;
-#ifdef FROZEN_REGS
+#ifdef FROZEN_STACKS
 	{ 
 	  choiceptr top_b = PROTECT_FROZEN_B(B);
 
@@ -1011,7 +1011,7 @@ absmi(int inp)
 	if (pt0 > (CELL *)B) {
 	  GONext();
 	}
-#endif /* FROZEN_REGS */
+#endif /* FROZEN_STACKS */
 	ENDP(pt0);
 #if defined(YAPOR) || defined(THREADS)
 	{
@@ -1137,12 +1137,12 @@ absmi(int inp)
       READ_UNLOCK(((PredEntry *)(PREG->u.ld.p))->PRWLock);
       restore_yaam_regs(PREG);
       restore_args(PREG->u.ld.s);
-#ifdef FROZEN_REGS
+#ifdef FROZEN_STACKS
       S_Y = (CELL *)PROTECT_FROZEN_B(B_Y);
       set_cut(S_Y, B->cp_b);
 #else
       set_cut(S_Y, B_Y->cp_b);
-#endif /* FROZEN_REGS */
+#endif /* FROZEN_STACKS */
       SET_BB(B_Y);
       ENDCACHE_Y();
 #if defined(YAPOR) || defined(THREADS)
@@ -1201,7 +1201,7 @@ absmi(int inp)
 	PREFETCH_OP(PREG);
       failloop:
 	if (pt0 == S_TR) {
-#ifdef FROZEN_REGS  /* TRAIL */
+#ifdef FROZEN_STACKS  /* TRAIL */
 #ifdef SBA
 	  if (pt0 < TR_FZ || pt0 > (tr_fr_ptr)TrailTop)
 #else
@@ -1211,7 +1211,7 @@ absmi(int inp)
 	      TR = TR_FZ;
 	      TRAIL_LINK(pt0);
 	    }
-#endif /* FROZEN_REGS */
+#endif /* FROZEN_STACKS */
 	  SP = SP0;
 #ifdef LOW_LEVEL_TRACER
 	  if (do_low_level_trace) {
@@ -1330,14 +1330,14 @@ absmi(int inp)
 	}
 	/* pointer to code space */
 	/* or updatable variable */
-#if defined(TERM_EXTENSIONS) || defined(FROZEN_REGS) || defined(MULTI_ASSIGNMENT_VARIABLES)
+#if defined(TERM_EXTENSIONS) || defined(FROZEN_STACKS) || defined(MULTI_ASSIGNMENT_VARIABLES)
 	if (IsPairTerm(d1))
 #endif
 	  {
 	    register CELL flags;
 
 	    d1 = (CELL) RepPair(d1);
-#ifdef FROZEN_REGS  /* TRAIL */
+#ifdef FROZEN_STACKS  /* TRAIL */
             /* avoid frozen segments */
 #ifdef SBA
 	    if ((ADDR) d1 >= HeapTop)
@@ -1348,7 +1348,7 @@ absmi(int inp)
 		pt0 = (tr_fr_ptr) d1;
 		goto failloop;
 	      }
-#endif /* FROZEN_REGS */
+#endif /* FROZEN_STACKS */
 	    flags = Flags(d1);
 #if defined(YAPOR) || defined(THREADS)
 	    if (!FlagOn(DBClMask, flags)) {
@@ -1447,6 +1447,9 @@ absmi(int inp)
 #else
 	B = (choiceptr) d0;
 #endif	/* YAPOR */
+#ifdef TABLING
+        abolish_incomplete_subgoals(B);
+#endif /* TABLING */
 	SET_BB(PROTECT_FROZEN_B(B));
 	HBREG = PROTECT_FROZEN_H(B);
 	TR = trim_trail(B, TR, HBREG);
@@ -1469,6 +1472,9 @@ absmi(int inp)
 #else
 	B = (choiceptr) d0;
 #endif	/* YAPOR */
+#ifdef TABLING
+        abolish_incomplete_subgoals(B);
+#endif /* TABLING */
 	SET_BB(PROTECT_FROZEN_B(B));
 	HBREG = PROTECT_FROZEN_H(B);
 	TR = trim_trail(B, TR, HBREG);
@@ -1490,6 +1496,9 @@ absmi(int inp)
 #else
 	B = (choiceptr) d0;
 #endif	/* YAPOR */
+#ifdef TABLING
+        abolish_incomplete_subgoals(B);
+#endif /* TABLING */
 	SET_BB(PROTECT_FROZEN_B(B));
 	HBREG = PROTECT_FROZEN_H(B);
 	TR = trim_trail(B, TR, HBREG);
@@ -1502,7 +1511,7 @@ absmi(int inp)
       Op(save_b_x, x);
       BEGD(d0);
       d0 = PREG->u.x.x;
-#if defined(SBA) && defined(FROZEN_REGS)
+#if defined(SBA) && defined(FROZEN_STACKS)
       XREG(d0) = MkIntegerTerm((Int)B);
 #else
       XREG(d0) = MkIntTerm(LCL0-(CELL *) (B));
@@ -1514,7 +1523,7 @@ absmi(int inp)
 
       /* save_b_y      Yi                 */
       Op(save_b_y, y);
-#if defined(SBA) && defined(FROZEN_REGS)
+#if defined(SBA) && defined(FROZEN_STACKS)
       Bind_Local(Y+PREG->u.y.y,MkIntegerTerm((Int)B));
 #else
       Y[PREG->u.y.y] = MkIntTerm(LCL0-(CELL *) (B));
@@ -1537,7 +1546,7 @@ absmi(int inp)
       PREG = NEXTOP(NEXTOP(NEXTOP(PREG, x),sla),l);
       {
 	choiceptr pt0;
-#if defined(SBA) && defined(FROZEN_REGS)
+#if defined(SBA) && defined(FROZEN_STACKS)
 	pt0 = (choiceptr)IntegerOfTerm(d0);
 #else
 	pt0 = (choiceptr)(LCL0-IntOfTerm(d0));
@@ -1548,6 +1557,9 @@ absmi(int inp)
 #else
 	  B = pt0;
 #endif	/* YAPOR */
+#ifdef TABLING
+          abolish_incomplete_subgoals(B);
+#endif /* TABLING */
 	  SET_BB(PROTECT_FROZEN_B(B));
 	  HBREG = PROTECT_FROZEN_H(pt0);
 	  TR = trim_trail(B, TR, HBREG);
@@ -1570,7 +1582,7 @@ absmi(int inp)
       PREG = NEXTOP(NEXTOP(NEXTOP(PREG, y),sla),l);
       {
 	choiceptr pt0;
-#if defined(SBA) && defined(FROZEN_REGS)
+#if defined(SBA) && defined(FROZEN_STACKS)
 	pt0 = (choiceptr)IntegerOfTerm(d0);
 #else
 	pt0 = (choiceptr)(LCL0-IntOfTerm(d0));
@@ -1581,6 +1593,9 @@ absmi(int inp)
 #else
 	  B = pt0;
 #endif	/* YAPOR */
+#ifdef TABLING
+          abolish_incomplete_subgoals(B);
+#endif /* TABLING */
 	  SET_BB(PROTECT_FROZEN_B(B));
 	  HBREG = PROTECT_FROZEN_H(pt0);
 	  TR = trim_trail(B, TR, HBREG);
@@ -1676,7 +1691,7 @@ absmi(int inp)
       /* do deallocate */
       CPREG = (yamop *) E_Y[E_CP];
       E_Y = ENV = (CELL *) E_Y[E_E];
-#ifdef FROZEN_REGS
+#ifdef FROZEN_STACKS
       { 
 	choiceptr top_b = PROTECT_FROZEN_B(B);
 
@@ -1694,7 +1709,7 @@ absmi(int inp)
       else {
 	E_Y = (CELL *) ((CELL) E_Y + ENV_Size(CPREG));
       }
-#endif /* FROZEN_REGS */
+#endif /* FROZEN_STACKS */
       WRITEBACK_Y_AS_ENV();
       /* setup GB */
       E_Y[E_CB] = (CELL) B;
@@ -1743,7 +1758,7 @@ absmi(int inp)
       if (do_low_level_trace)
 	low_level_trace(enter_pred,pred_entry(pt0),XREGS+1);
 #endif	/* LOW_LEVEL_TRACER */
-#ifdef FROZEN_REGS
+#ifdef FROZEN_STACKS
       { 
 	choiceptr top_b = PROTECT_FROZEN_B(B);
 #ifdef SBA
@@ -1756,7 +1771,7 @@ absmi(int inp)
       if (E_Y > (CELL *) B) {
 	E_Y = (CELL *) B;
       }
-#endif /* FROZEN_REGS */
+#endif /* FROZEN_STACKS */
       WRITEBACK_Y_AS_ENV();
       /* setup GB */
       E_Y[E_CB] = (CELL) B;
@@ -1874,7 +1889,7 @@ absmi(int inp)
       ENV = Y;
       CPREG = NEXTOP(PREG, sla);
       Y = (CELL *) (((char *) Y) + PREG->u.sla.s);
-#ifdef FROZEN_REGS
+#ifdef FROZEN_STACKS
       { 
 	choiceptr top_b = PROTECT_FROZEN_B(B);
 #ifdef SBA
@@ -1887,7 +1902,7 @@ absmi(int inp)
 #else
       if (Y > (CELL *) B)
 	Y = (CELL *) B;
-#endif /* FROZEN_REGS */
+#endif /* FROZEN_STACKS */
       /* setup GB */
       ARG1 = push_live_regs(CPREG);
       /* ARG0 has an extra argument for suspended cuts */
@@ -1900,7 +1915,7 @@ absmi(int inp)
       ENV = Y;
       CPREG = NEXTOP(PREG, sla);
       Y = (CELL *) (((char *) Y) + PREG->u.sla.s);
-#ifdef FROZEN_REGS
+#ifdef FROZEN_STACKS
       { 
 	choiceptr top_b = PROTECT_FROZEN_B(B);
 #ifdef SBA
@@ -1916,7 +1931,7 @@ absmi(int inp)
       else
 	/* I am not sure about this */
 	Y = Y + ENV_Size(CPREG);
-#endif /* FROZEN_REGS */
+#endif /* FROZEN_STACKS */
       /* setup GB */
       Y[E_CB] = (CELL) B;
       goto creep;
@@ -1975,7 +1990,7 @@ absmi(int inp)
 #ifdef DEPTH_LIMIT
       Y[E_DEPTH] = DEPTH;
 #endif	/* DEPTH_LIMIT */
-#ifdef FROZEN_REGS
+#ifdef FROZEN_STACKS
       { 
 	choiceptr top_b = PROTECT_FROZEN_B(B);
 #ifdef SBA
@@ -1992,7 +2007,7 @@ absmi(int inp)
       else {
 	Y = (CELL *) ((CELL) Y + ENV_Size(CPREG));
       }
-#endif /* FROZEN_REGS */
+#endif /* FROZEN_STACKS */
       /* setup GB */
       Y[E_CB] = (CELL) B;
 
@@ -2197,7 +2212,7 @@ absmi(int inp)
 #ifdef DEPTH_LIMIT
       DEPTH = Y[E_DEPTH];
 #endif	/* DEPTH_LIMIT */
-#ifdef FROZEN_REGS
+#ifdef FROZEN_STACKS
       { 
 	choiceptr top_b = PROTECT_FROZEN_B(B);
 #ifdef SBA
@@ -2212,7 +2227,7 @@ absmi(int inp)
 	Y = (CELL *) B;
       else
 	Y = (CELL *) ((CELL) Y + ENV_Size(CPREG));
-#endif /* FROZEN_REGS */
+#endif /* FROZEN_STACKS */
       GONext();
       ENDOp();
 
@@ -2248,7 +2263,7 @@ absmi(int inp)
       pt0 = Y + PREG->u.yx.y;
       d0 = XREG(PREG->u.yx.x);
       PREG = NEXTOP(PREG, yx);
-#if defined(SBA) && defined(FROZEN_REGS)
+#if defined(SBA) && defined(FROZEN_STACKS)
       Bind_Local(pt0,d0);
 #else
       *pt0 = d0;
@@ -3013,7 +3028,7 @@ absmi(int inp)
       pt0 = RepPair(d0);
       d0 = pt0[1];
       ENDP(pt0);
-#if defined(SBA) && defined(FROZEN_REGS)
+#if defined(SBA) && defined(FROZEN_STACKS)
       Bind_Local(Y+PREG->u.xy.y,d0);
 #else
       Y[PREG->u.xy.y] = d0;
@@ -3027,7 +3042,7 @@ absmi(int inp)
       BEGP(pt1);
       pt1 = H;
       /* include XREG on it */
-#if defined(SBA) && defined(FROZEN_REGS)
+#if defined(SBA) && defined(FROZEN_STACKS)
       Bind_Local(Y+PREG->u.xy.y,Unsigned(pt1 + 1));
 #else
       Y[PREG->u.xy.y] = Unsigned(pt1 + 1);
@@ -3434,7 +3449,7 @@ absmi(int inp)
       BEGD(d0);
       d0 = *SREG++;
 #if defined(SBA)
-#ifdef FROZEN_REGS
+#ifdef FROZEN_STACKS
       if (d0 == 0) {
 	Bind_Local(Y+PREG->u.oy.y,(CELL)(SREG-1));
       } else {
@@ -3457,7 +3472,7 @@ absmi(int inp)
       OpW(unify_y_var_write, oy);
       CACHE_S();
       READ_IN_S();
-#if defined(SBA) && defined(FROZEN_REGS)
+#if defined(SBA) && defined(FROZEN_STACKS)
       Bind_Local(Y+PREG->u.oy.y,(CELL) S_SREG);
 #else
       Y[PREG->u.oy.y] = (CELL) S_SREG;
@@ -3473,7 +3488,7 @@ absmi(int inp)
       BEGD(d0);
       d0 = SREG[0];
 #ifdef SBA
-#ifdef FROZEN_REGS
+#ifdef FROZEN_STACKS
       if (d0 == 0) {
 	Bind_Local(Y+PREG->u.oy.y,(CELL)SREG);
       } else {
@@ -3497,7 +3512,7 @@ absmi(int inp)
       Op(unify_l_y_var_write, oy);
       CACHE_S();
       READ_IN_S();
-#if defined(SBA) && defined(FROZEN_REGS)
+#if defined(SBA) && defined(FROZEN_STACKS)
       Bind_Local(Y+PREG->u.oy.y,(CELL) S_SREG);
 #else
       Y[PREG->u.oy.y] = (CELL) S_SREG;
@@ -5069,7 +5084,7 @@ absmi(int inp)
       pt0 = Y + PREG->u.yx.y;
       XREG(PREG->u.yx.x) = (CELL) pt0;
       PREG = NEXTOP(PREG, yx);
-#if defined(SBA) && defined(FROZEN_REGS)
+#if defined(SBA) && defined(FROZEN_STACKS)
       /* We must initialise a shared variable to point to the SBA */
       if (Unsigned((Int)(pt0)-(Int)(H_FZ)) >
 	  Unsigned((Int)(B_FZ)-(Int)(H_FZ))) {
@@ -5205,7 +5220,7 @@ absmi(int inp)
       ENDOp();
 
       Op(write_y_var, y);
-#if defined(SBA) && defined(FROZEN_REGS)
+#if defined(SBA) && defined(FROZEN_STACKS)
       Bind_Local(Y+PREG->u.y.y,Unsigned(SREG));
 #else
       Y[PREG->u.y.y] = Unsigned(SREG);
@@ -5236,19 +5251,19 @@ absmi(int inp)
 
       BEGP(pt0);
       deref_body(d0, pt0, w_x_unk, w_x_bound);
-#if defined(SBA) && defined(FROZEN_REGS)
+#if defined(SBA) && defined(FROZEN_STACKS)
       if (pt0 > H && pt0<(CELL *)B_FZ) {
 #else
       if (pt0 > H) {
 #endif
 	PREG = NEXTOP(PREG, x);
 	/* local variable: let us bind it to the list */
-#ifdef FROZEN_REGS  /* TRAIL */
+#ifdef FROZEN_STACKS  /* TRAIL */
 	Bind_Local(pt0, Unsigned(SREG));
 #else
 	TRAIL_LOCAL(pt0, Unsigned(SREG));
 	*pt0 = Unsigned(SREG);
-#endif /* FROZEN_REGS */
+#endif /* FROZEN_STACKS */
 	RESET_VARIABLE(SREG);
 	SREG++;
 	GONext();
@@ -5288,19 +5303,19 @@ absmi(int inp)
       GONext();
 
       derefa_body(d0, pt0, w_y_unk, w_y_bound);
-#if defined(SBA) && defined(FROZEN_REGS)
+#if defined(SBA) && defined(FROZEN_STACKS)
       if (pt0 > H && pt0<(CELL *)B_FZ) {
 #else
       if (pt0 > H) {
 #endif
 	PREG = NEXTOP(PREG, y);
 	/* local variable: let us bind it to the list */
-#ifdef FROZEN_REGS
+#ifdef FROZEN_STACKS
 	Bind_Local(pt0, Unsigned(SREG));
 #else
 	*pt0 = Unsigned(SREG);
 	TRAIL_LOCAL(pt0, Unsigned(SREG));
-#endif /* FROZEN_REGS */
+#endif /* FROZEN_STACKS */
 	RESET_VARIABLE(SREG);
 	SREG++;
 	GONext();
@@ -5423,7 +5438,7 @@ absmi(int inp)
       ENDOp();
 
       OpW(save_pair_y_write, oy);
-#if defined(SBA) && defined(FROZEN_REGS)
+#if defined(SBA) && defined(FROZEN_STACKS)
       Bind_Local(Y+PREG->u.oy.y,AbsPair(SREG));
 #else
       Y[PREG->u.oy.y] = AbsPair(SREG);
@@ -5433,7 +5448,7 @@ absmi(int inp)
       ENDOpW();
 
       Op(save_pair_y, oy);
-#if defined(SBA) && defined(FROZEN_REGS)
+#if defined(SBA) && defined(FROZEN_STACKS)
       Bind_Local(Y+PREG->u.oy.y,AbsPair(SREG));
 #else
       Y[PREG->u.oy.y] = AbsPair(SREG);
@@ -5455,7 +5470,7 @@ absmi(int inp)
       ENDOp();
 
       OpW(save_appl_y_write, oy);
-#if defined(SBA) && defined(FROZEN_REGS)
+#if defined(SBA) && defined(FROZEN_STACKS)
       Bind_Local(Y+PREG->u.oy.y,AbsAppl(SREG-1));
 #else
       Y[PREG->u.oy.y] = AbsAppl(SREG - 1);
@@ -5465,7 +5480,7 @@ absmi(int inp)
       ENDOpW();
 
       Op(save_appl_y, oy);
-#if defined(SBA) && defined(FROZEN_REGS)
+#if defined(SBA) && defined(FROZEN_STACKS)
       Bind_Local(Y+PREG->u.oy.y,AbsAppl(SREG-1));
 #else
       Y[PREG->u.oy.y] = AbsAppl(SREG - 1);
@@ -5516,7 +5531,7 @@ absmi(int inp)
       d0 = PREG->u.sla.s;
       BEGCHO(pt1);
       pt1 = (choiceptr) ((char *) Y + (YREG) d0);
-#ifdef FROZEN_REGS
+#ifdef FROZEN_STACKS
       { 
 	choiceptr top_b = PROTECT_FROZEN_B(B);
 #ifdef SBA
@@ -5529,7 +5544,7 @@ absmi(int inp)
       if (pt1 > B) {
 	pt1 = B;
       }
-#endif /* FROZEN_REGS */
+#endif /* FROZEN_STACKS */
       pt1 = (choiceptr)(((CELL *) pt1)-1);
       *(CELL **) pt1 = Y;
       store_yaam_regs_for_either(PREG->u.sla.l, PREG);
@@ -5659,7 +5674,7 @@ absmi(int inp)
 \************************************************************************/
 
       BOp(call_cpred, sla);
-#ifdef FROZEN_REGS
+#ifdef FROZEN_STACKS
       { 
 	choiceptr top_b = PROTECT_FROZEN_B(B);
 #ifdef SBA
@@ -5675,7 +5690,7 @@ absmi(int inp)
       } else {
 	ASP = (CELL *) (((char *) Y) + PREG->u.sla.s);
       }
-#endif /* FROZEN_REGS */
+#endif /* FROZEN_STACKS */
 #ifdef LOW_LEVEL_TRACER
       if (do_low_level_trace)
 	low_level_trace(enter_pred,PREG->u.sla.p,XREGS+1);
@@ -5699,7 +5714,7 @@ absmi(int inp)
       /* guarantee that *all* machine registers are saved and */
       /* restored */
       BOp(call_usercpred, sla);
-#ifdef FROZEN_REGS
+#ifdef FROZEN_STACKS
       { 
 	choiceptr top_b = PROTECT_FROZEN_B(B);
 #ifdef SBA
@@ -5715,7 +5730,7 @@ absmi(int inp)
       else {
 	ASP = (CELL *) (((char *) Y) + PREG->u.sla.s);
       }
-#endif /* FROZEN_REGS */
+#endif /* FROZEN_STACKS */
 #ifdef LOW_LEVEL_TRACER
       if (do_low_level_trace)
 	low_level_trace(enter_pred,PREG->u.sla.p,XREGS+1);
@@ -5738,7 +5753,7 @@ absmi(int inp)
       ENDBOp();
 
       BOp(call_c_wfail, sdl);
-#ifdef FROZEN_REGS
+#ifdef FROZEN_STACKS
       { 
 	choiceptr top_b = PROTECT_FROZEN_B(B);
 #ifdef SBA
@@ -5762,7 +5777,7 @@ absmi(int inp)
 	ASP = ((CELL *) Y) + d0;
 	ENDD(d0);
       }
-#endif /* FROZEN_REGS */
+#endif /* FROZEN_STACKS */
       BEGD(d0);
       d0 = (CELL) (PREG->u.sdl.d);
       saveregs();
@@ -6116,12 +6131,12 @@ absmi(int inp)
       CACHE_Y(B);
       restore_yaam_regs(NEXTOP(PREG, ld));
       restore_at_least_one_arg(PREG->u.ld.s);
-#ifdef FROZEN_REGS
+#ifdef FROZEN_STACKS
       B_Y = PROTECT_FROZEN_B(B_Y);
       set_cut(S_Y, B->cp_b);
 #else
       set_cut(S_Y, B_Y->cp_b);
-#endif /* FROZEN_REGS */
+#endif /* FROZEN_STACKS */
       SET_BB(B_Y);
       ENDCACHE_Y();
       PREG = (yamop *) (PREG->u.ld.d);
@@ -6132,12 +6147,12 @@ absmi(int inp)
       CACHE_Y(B);
       restore_yaam_regs(PREG->u.ldl.bl);
       restore_at_least_one_arg(PREG->u.ldl.s);
-#ifdef FROZEN_REGS
+#ifdef FROZEN_STACKS
       B_Y = PROTECT_FROZEN_B(B_Y);
       set_cut(S_Y, B->cp_b);
 #else
       set_cut(S_Y, B_Y->cp_b);
-#endif /* FROZEN_REGS */
+#endif /* FROZEN_STACKS */
       SET_BB(B_Y);
       ENDCACHE_Y();
       PREG = (yamop *) (PREG->u.ldl.d);
@@ -6150,9 +6165,9 @@ absmi(int inp)
       if (SCH_top_shared_cp(B)) {
 	SCH_last_alternative(PREG, B_Y);
 	restore_at_least_one_arg(PREG->u.ld.s);
-#ifdef FROZEN_REGS
+#ifdef FROZEN_STACKS
 	B_Y = PROTECT_FROZEN_B(B_Y);
-#endif /* FROZEN_REGS */
+#endif /* FROZEN_STACKS */
 	set_cut(S_Y, B->cp_b);
       }
       else
@@ -6160,9 +6175,9 @@ absmi(int inp)
       {
 	pop_yaam_regs();
 	pop_at_least_one_arg(PREG->u.ld.s);
-#ifdef FROZEN_REGS
+#ifdef FROZEN_STACKS
 	B_Y = PROTECT_FROZEN_B(B_Y);
-#endif /* FROZEN_REGS */
+#endif /* FROZEN_STACKS */
 	set_cut(S_Y, B);
       }
       SET_BB(B_Y);
@@ -6180,12 +6195,12 @@ absmi(int inp)
       CACHE_Y(B);
       restore_yaam_regs(NEXTOP(PREG, ld));
       restore_at_least_one_arg(PREG->u.ld.s);
-#ifdef FROZEN_REGS
+#ifdef FROZEN_STACKS
       B_Y = PROTECT_FROZEN_B(B_Y);
       set_cut(S_Y, B->cp_b);
 #else
       set_cut(S_Y, B_Y->cp_b);
-#endif /* FROZEN_REGS */
+#endif /* FROZEN_STACKS */
       SET_BB(B_Y);
       ENDCACHE_Y();
       /* recover the value of SREG */
@@ -6234,12 +6249,12 @@ absmi(int inp)
       CACHE_Y(B);
       restore_yaam_regs(PREG->u.ldl.bl);
       restore_at_least_one_arg(PREG->u.ldl.s);
-#ifdef FROZEN_REGS
+#ifdef FROZEN_STACKS
       B_Y = PROTECT_FROZEN_B(B_Y);
       set_cut(S_Y, B->cp_b);
 #else
       set_cut(S_Y, B_Y->cp_b);
-#endif /* FROZEN_REGS */
+#endif /* FROZEN_STACKS */
       SET_BB(B_Y);
       ENDCACHE_Y();
       /* recover the value of SREG */
@@ -6288,9 +6303,9 @@ absmi(int inp)
       if (SCH_top_shared_cp(B)) {
 	SCH_last_alternative(PREG, B_Y);
 	restore_at_least_one_arg(PREG->u.ld.s);
-#ifdef FROZEN_REGS
+#ifdef FROZEN_STACKS
 	B_Y = PROTECT_FROZEN_B(B_Y);
-#endif /* FROZEN_REGS */
+#endif /* FROZEN_STACKS */
 	set_cut(S_Y, B->cp_b);
       }
       else
@@ -6298,9 +6313,9 @@ absmi(int inp)
       {
 	pop_yaam_regs();
 	pop_at_least_one_arg(PREG->u.ld.s);
-#ifdef FROZEN_REGS
+#ifdef FROZEN_STACKS
 	B_Y = PROTECT_FROZEN_B(B_Y);
-#endif /* FROZEN_REGS */
+#endif /* FROZEN_STACKS */
 	set_cut(S_Y, B);
       }
       SET_BB(B_Y);
@@ -6354,12 +6369,12 @@ absmi(int inp)
       CACHE_Y(B);
       restore_yaam_regs(NEXTOP(PREG, ld));
       restore_at_least_one_arg(PREG->u.ld.s);
-#ifdef FROZEN_REGS
+#ifdef FROZEN_STACKS
       B_Y = PROTECT_FROZEN_B(B_Y);
       set_cut(S_Y, B->cp_b);
 #else
       set_cut(S_Y, B_Y->cp_b);
-#endif /* FROZEN_REGS */
+#endif /* FROZEN_STACKS */
       SET_BB(B_Y);
       ENDCACHE_Y();
       /* recover the value of SREG */
@@ -6412,12 +6427,12 @@ absmi(int inp)
       CACHE_Y(B);
       restore_yaam_regs(PREG->u.ldl.bl);
       restore_at_least_one_arg(PREG->u.ldl.s);
-#ifdef FROZEN_REGS
+#ifdef FROZEN_STACKS
       B_Y = PROTECT_FROZEN_B(B_Y);
       set_cut(S_Y, B->cp_b);
 #else
       set_cut(S_Y, B_Y->cp_b);
-#endif /* FROZEN_REGS */
+#endif /* FROZEN_STACKS */
       SET_BB(B_Y);
       ENDCACHE_Y();
       /* recover the value of SREG */
@@ -6469,9 +6484,9 @@ absmi(int inp)
       if (SCH_top_shared_cp(B)) {
 	SCH_last_alternative(PREG, B_Y);
 	restore_at_least_one_arg(PREG->u.ld.s);
-#ifdef FROZEN_REGS
+#ifdef FROZEN_STACKS
 	B_Y = PROTECT_FROZEN_B(B_Y);
-#endif /* FROZEN_REGS */
+#endif /* FROZEN_STACKS */
 	set_cut(S_Y, B->cp_b);
       }
       else
@@ -6479,9 +6494,9 @@ absmi(int inp)
       {
 	pop_yaam_regs();
 	pop_at_least_one_arg(PREG->u.ld.s);
-#ifdef FROZEN_REGS
+#ifdef FROZEN_STACKS
 	B_Y = PROTECT_FROZEN_B(B_Y);
-#endif /* FROZEN_REGS */
+#endif /* FROZEN_STACKS */
 	set_cut(S_Y, B);
       }
       SET_BB(B_Y);
@@ -6539,12 +6554,12 @@ absmi(int inp)
       CACHE_Y(B);
       restore_yaam_regs(NEXTOP(PREG, ld));
       restore_at_least_one_arg(PREG->u.ld.s);
-#ifdef FROZEN_REGS
+#ifdef FROZEN_STACKS
       B_Y = PROTECT_FROZEN_B(B_Y);
       set_cut(S_Y, B->cp_b);
 #else
       set_cut(S_Y, B_Y->cp_b);
-#endif /* FROZEN_REGS */
+#endif /* FROZEN_STACKS */
       SET_BB(B_Y);
       ENDCACHE_Y();
       /* recover the value of SREG */
@@ -6624,12 +6639,12 @@ absmi(int inp)
       CACHE_Y(B);
       restore_yaam_regs(PREG->u.ldl.bl);
       restore_at_least_one_arg(PREG->u.ldl.s);
-#ifdef FROZEN_REGS
+#ifdef FROZEN_STACKS
       B_Y = PROTECT_FROZEN_B(B_Y);
       set_cut(S_Y, B->cp_b);
 #else
       set_cut(S_Y, B_Y->cp_b);
-#endif /* FROZEN_REGS */
+#endif /* FROZEN_STACKS */
       SET_BB(B_Y);
       ENDCACHE_Y();
       /* recover the value of SREG */
@@ -6711,9 +6726,9 @@ absmi(int inp)
       if (SCH_top_shared_cp(B)) {
 	SCH_last_alternative(PREG, B_Y);
 	restore_at_least_one_arg(PREG->u.ld.s);
-#ifdef FROZEN_REGS
+#ifdef FROZEN_STACKS
 	B_Y = PROTECT_FROZEN_B(B_Y);
-#endif /* FROZEN_REGS */
+#endif /* FROZEN_STACKS */
 	set_cut(S_Y, B->cp_b);
       }
       else
@@ -6721,9 +6736,9 @@ absmi(int inp)
       {
 	pop_yaam_regs();
 	pop_at_least_one_arg(PREG->u.ld.s);
-#ifdef FROZEN_REGS
+#ifdef FROZEN_STACKS
 	B_Y = PROTECT_FROZEN_B(B_Y);
-#endif /* FROZEN_REGS */
+#endif /* FROZEN_STACKS */
 	set_cut(S_Y, B);
       }
       SET_BB(B_Y);
@@ -7815,7 +7830,7 @@ absmi(int inp)
       d0 = XREG(PREG->u.x.x);
       deref_head(d0, cutby_x_unk);
     cutby_x_nvar:
-#if defined(SBA) && defined(FROZEN_REGS)
+#if defined(SBA) && defined(FROZEN_STACKS)
       if (!IsIntegerTerm(d0)) {
 #else
       if (!IsIntTerm(d0)) {
@@ -7823,7 +7838,7 @@ absmi(int inp)
 	FAIL();
       }
       BEGCHO(pt0);
-#if defined(SBA) && defined(FROZEN_REGS)
+#if defined(SBA) && defined(FROZEN_STACKS)
       pt0 = (choiceptr)IntegerOfTerm(d0);
 #else
       pt0 = (choiceptr)(LCL0-IntOfTerm(d0));
@@ -7841,6 +7856,9 @@ absmi(int inp)
 #else
 	B = pt0;
 #endif /* YAPOR */
+#ifdef TABLING
+        abolish_incomplete_subgoals(B);
+#endif /* TABLING */
 	HBREG = PROTECT_FROZEN_H(B);
 	TR = trim_trail(B, TR, HBREG);
       }
@@ -7864,7 +7882,7 @@ absmi(int inp)
       d0 = *pt0;
       deref_head(d0, cutby_y_unk);
     cutby_y_nvar:
-#if defined(SBA) && defined(FROZEN_REGS)
+#if defined(SBA) && defined(FROZEN_STACKS)
       if (!IsIntegerTerm(d0)) {
 #else
       if (!IsIntTerm(d0)) {
@@ -7873,7 +7891,7 @@ absmi(int inp)
       }
       /* find where to cut to */
       BEGCHO(pt1);
-#if defined(SBA) && defined(FROZEN_REGS)
+#if defined(SBA) && defined(FROZEN_STACKS)
       pt1 = (choiceptr)IntegerOfTerm(d0);
 #else
       pt1 = (choiceptr)(LCL0-IntOfTerm(d0));
@@ -7890,6 +7908,9 @@ absmi(int inp)
 #else
 	B = pt1;
 #endif /* YAPOR */
+#ifdef TABLING
+        abolish_incomplete_subgoals(B);
+#endif /* TABLING */
 	HBREG = PROTECT_FROZEN_H(B);
 	TR = trim_trail(B, TR, HBREG);
       }
@@ -8008,7 +8029,7 @@ absmi(int inp)
       BEGP(pt0);
       pt0 = Y + PREG->u.yxx.y;
       PREG = NEXTOP(PREG, yxx);
-#if defined(SBA) && defined(FROZEN_REGS)
+#if defined(SBA) && defined(FROZEN_STACKS)
       Bind_Local(pt0,d0);
 #else
       *pt0 = d0;
@@ -8057,7 +8078,7 @@ absmi(int inp)
       BEGP(pt0);
       pt0 = Y + PREG->u.yxc.y;
       PREG = NEXTOP(PREG, yxc);
-#if defined(SBA) && defined(FROZEN_REGS)
+#if defined(SBA) && defined(FROZEN_STACKS)
       Bind_Local(pt0,d0);
 #else
       *pt0 = d0;
@@ -8178,7 +8199,7 @@ absmi(int inp)
       BEGP(pt0);
       pt0 = Y + PREG->u.yxx.y;
       PREG = NEXTOP(PREG, yxx);
-#if defined(SBA) && defined(FROZEN_REGS)
+#if defined(SBA) && defined(FROZEN_STACKS)
       Bind_Local(pt0,d0);
 #else
       *pt0 = d0;
@@ -8227,7 +8248,7 @@ absmi(int inp)
       BEGP(pt0);
       pt0 = Y + PREG->u.ycx.y;
       PREG = NEXTOP(PREG, ycx);
-#if defined(SBA) && defined(FROZEN_REGS)
+#if defined(SBA) && defined(FROZEN_STACKS)
       Bind_Local(pt0,d0);
 #else
       *pt0 = d0;
@@ -8348,7 +8369,7 @@ absmi(int inp)
       BEGP(pt0);
       pt0 = Y + PREG->u.yxx.y;
       PREG = NEXTOP(PREG, yxx);
-#if defined(SBA) && defined(FROZEN_REGS)
+#if defined(SBA) && defined(FROZEN_STACKS)
       Bind_Local(pt0,d0);
 #else
       *pt0 = d0;
@@ -8397,7 +8418,7 @@ absmi(int inp)
       BEGP(pt0);
       pt0 = Y + PREG->u.yxc.y;
       PREG = NEXTOP(PREG, yxc);
-#if defined(SBA) && defined(FROZEN_REGS)
+#if defined(SBA) && defined(FROZEN_STACKS)
       Bind_Local(pt0,d0);
 #else
       *pt0 = d0;
@@ -8571,7 +8592,7 @@ absmi(int inp)
       BEGP(pt0);
       pt0 = Y + PREG->u.yxx.y;
       PREG = NEXTOP(PREG, yxx);
-#if defined(SBA) && defined(FROZEN_REGS)
+#if defined(SBA) && defined(FROZEN_STACKS)
       Bind_Local(pt0,d0);
 #else
       *pt0 = d0;
@@ -8620,7 +8641,7 @@ absmi(int inp)
       BEGP(pt0);
       pt0 = Y + PREG->u.yxc.y;
       PREG = NEXTOP(PREG, yxc);
-#if defined(SBA) && defined(FROZEN_REGS)
+#if defined(SBA) && defined(FROZEN_STACKS)
       Bind_Local(pt0,d0);
 #else
       *pt0 = d0;
@@ -8667,7 +8688,7 @@ absmi(int inp)
       BEGP(pt0);
       pt0 = Y + PREG->u.ycx.y;
       PREG = NEXTOP(PREG, ycx);
-#if defined(SBA) && defined(FROZEN_REGS)
+#if defined(SBA) && defined(FROZEN_STACKS)
       Bind_Local(pt0,d0);
 #else
       *pt0 = d0;
@@ -8789,7 +8810,7 @@ absmi(int inp)
       BEGP(pt0);
       pt0 = Y + PREG->u.yxx.y;
       PREG = NEXTOP(PREG, yxx);
-#if defined(SBA) && defined(FROZEN_REGS)
+#if defined(SBA) && defined(FROZEN_STACKS)
       Bind_Local(pt0,d0);
 #else
       *pt0 = d0;
@@ -8838,7 +8859,7 @@ absmi(int inp)
       BEGP(pt0);
       pt0 = Y + PREG->u.yxc.y;
       PREG = NEXTOP(PREG, yxc);
-#if defined(SBA) && defined(FROZEN_REGS)
+#if defined(SBA) && defined(FROZEN_STACKS)
       Bind_Local(pt0,d0);
 #else
       *pt0 = d0;
@@ -8959,7 +8980,7 @@ absmi(int inp)
       BEGP(pt0);
       pt0 = Y + PREG->u.yxx.y;
       PREG = NEXTOP(PREG, yxx);
-#if defined(SBA) && defined(FROZEN_REGS)
+#if defined(SBA) && defined(FROZEN_STACKS)
       Bind_Local(pt0,d0);
 #else
       *pt0 = d0;
@@ -9008,7 +9029,7 @@ absmi(int inp)
       BEGP(pt0);
       pt0 = Y + PREG->u.yxc.y;
       PREG = NEXTOP(PREG, yxc);
-#if defined(SBA) && defined(FROZEN_REGS)
+#if defined(SBA) && defined(FROZEN_STACKS)
       Bind_Local(pt0,d0);
 #else
       *pt0 = d0;
@@ -9162,7 +9183,7 @@ absmi(int inp)
       BEGP(pt0);
       pt0 = Y + PREG->u.yxx.y;
       PREG = NEXTOP(PREG, yxx);
-#if defined(SBA) && defined(FROZEN_REGS)
+#if defined(SBA) && defined(FROZEN_STACKS)
       Bind_Local(pt0,d0);
 #else
       *pt0 = d0;
@@ -9211,7 +9232,7 @@ absmi(int inp)
       BEGP(pt0);
       pt0 = Y + PREG->u.yxc.y;
       PREG = NEXTOP(PREG, yxc);
-#if defined(SBA) && defined(FROZEN_REGS)
+#if defined(SBA) && defined(FROZEN_STACKS)
       Bind_Local(pt0,d0);
 #else
       *pt0 = d0;
@@ -9252,7 +9273,7 @@ absmi(int inp)
       BEGP(pt0);
       pt0 = Y + PREG->u.ycx.y;
       PREG = NEXTOP(PREG, ycx);
-#if defined(SBA) && defined(FROZEN_REGS)
+#if defined(SBA) && defined(FROZEN_STACKS)
       Bind_Local(pt0,d0);
 #else
       *pt0 = d0;
@@ -9406,7 +9427,7 @@ absmi(int inp)
       BEGP(pt0);
       pt0 = Y + PREG->u.yxx.y;
       PREG = NEXTOP(PREG, yxx);
-#if defined(SBA) && defined(FROZEN_REGS)
+#if defined(SBA) && defined(FROZEN_STACKS)
       Bind_Local(pt0,d0);
 #else
       *pt0 = d0;
@@ -9455,7 +9476,7 @@ absmi(int inp)
       BEGP(pt0);
       pt0 = Y + PREG->u.yxc.y;
       PREG = NEXTOP(PREG, yxc);
-#if defined(SBA) && defined(FROZEN_REGS)
+#if defined(SBA) && defined(FROZEN_STACKS)
       Bind_Local(pt0,d0);
 #else
       *pt0 = d0;
@@ -9494,7 +9515,7 @@ absmi(int inp)
       BEGP(pt0);
       pt0 = Y + PREG->u.ycx.y;
       PREG = NEXTOP(PREG, ycx);
-#if defined(SBA) && defined(FROZEN_REGS)
+#if defined(SBA) && defined(FROZEN_STACKS)
       Bind_Local(pt0,d0);
 #else
       *pt0 = d0;
@@ -10219,7 +10240,7 @@ absmi(int inp)
 	BEGP(pt1);
 	pt1 = Y + PREG->u.yxx.y;
 	PREG = NEXTOP(PREG, yxx);
-#if defined(SBA) && defined(FROZEN_REGS)
+#if defined(SBA) && defined(FROZEN_STACKS)
 	Bind_Local(pt1,pt0[d0]);
 #else
 	*pt1 = pt0[d0];
@@ -10243,7 +10264,7 @@ absmi(int inp)
 	BEGP(pt1);
 	pt1 = Y + PREG->u.yxx.y;
 	PREG = NEXTOP(PREG, yxx);
-#if defined(SBA) && defined(FROZEN_REGS)
+#if defined(SBA) && defined(FROZEN_STACKS)
 	Bind_Local(pt1,pt0[d0-1]);
 #else
 	*pt1 = pt0[d0-1];
@@ -10321,7 +10342,7 @@ absmi(int inp)
 	BEGP(pt1);
 	pt1 = Y + PREG->u.yxc.y;
 	PREG = NEXTOP(PREG, yxc);
-#if defined(SBA) && defined(FROZEN_REGS)
+#if defined(SBA) && defined(FROZEN_STACKS)
 	Bind_Local(pt1,pt0[d0]);
 #else
 	*pt1 = pt0[d0];
@@ -10345,7 +10366,7 @@ absmi(int inp)
 	BEGP(pt1);
 	pt1 = Y + PREG->u.yxc.y;
 	PREG = NEXTOP(PREG, yxc);
-#if defined(SBA) && defined(FROZEN_REGS)
+#if defined(SBA) && defined(FROZEN_STACKS)
 	Bind_Local(pt1,pt0[d0-1]);
 #else
 	*pt1 = pt0[d0-1];
@@ -10730,7 +10751,7 @@ absmi(int inp)
 	BEGP(pt1);
 	pt1 = Y + PREG->u.yxx.y;
 	PREG = NEXTOP(NEXTOP(NEXTOP(PREG, yxx),sla),l);
-#if defined(SBA) && defined(FROZEN_REGS)
+#if defined(SBA) && defined(FROZEN_STACKS)
 	Bind_Local(pt1,d0);
 #else
 	*pt1 = d0;
@@ -10773,7 +10794,7 @@ absmi(int inp)
 	BEGP(pt1);
 	pt1 = Y + PREG->u.yxx.y;
 	PREG = NEXTOP(NEXTOP(NEXTOP(PREG, yxx),sla),l);
-#if defined(SBA) && defined(FROZEN_REGS)
+#if defined(SBA) && defined(FROZEN_STACKS)
 	Bind_Local(pt1,d0);
 #else
 	*pt1 = d0;
@@ -10784,7 +10805,7 @@ absmi(int inp)
 	BEGP(pt1);
 	pt1 = Y + PREG->u.yxx.y;
 	PREG = NEXTOP(NEXTOP(NEXTOP(PREG, yxx),sla),l);
-#if defined(SBA) && defined(FROZEN_REGS)
+#if defined(SBA) && defined(FROZEN_STACKS)
 	Bind_Local(pt1,d0);
 #else
 	*pt1 = d0;
@@ -10859,7 +10880,7 @@ absmi(int inp)
 	BEGP(pt1);
 	pt1 = Y + PREG->u.ycx.y;
 	PREG = NEXTOP(NEXTOP(NEXTOP(PREG, ycx),sla),l);
-#if defined(SBA) && defined(FROZEN_REGS)
+#if defined(SBA) && defined(FROZEN_STACKS)
 	Bind_Local(pt1,d0);
 #else
 	*pt1 = d0;
@@ -10903,7 +10924,7 @@ absmi(int inp)
 	BEGP(pt1);
 	pt1 = Y + PREG->u.ycx.y;
 	PREG = NEXTOP(NEXTOP(NEXTOP(PREG, ycx),sla),l);
-#if defined(SBA) && defined(FROZEN_REGS)
+#if defined(SBA) && defined(FROZEN_STACKS)
 	Bind_Local(pt1,d0);
 #else
 	*pt1 = d0;
@@ -10914,7 +10935,7 @@ absmi(int inp)
 	BEGP(pt1);
 	pt1 = Y + PREG->u.ycx.y;
 	PREG = NEXTOP(NEXTOP(NEXTOP(PREG, ycx),sla),l);
-#if defined(SBA) && defined(FROZEN_REGS)
+#if defined(SBA) && defined(FROZEN_STACKS)
 	Bind_Local(pt1,d0);
 #else
 	*pt1 = d0;
@@ -10981,7 +11002,7 @@ absmi(int inp)
 	BEGP(pt1);
 	pt1 = Y + PREG->u.yxc.y;
 	PREG = NEXTOP(NEXTOP(NEXTOP(PREG, yxc),sla),l);
-#if defined(SBA) && defined(FROZEN_REGS)
+#if defined(SBA) && defined(FROZEN_STACKS)
 	Bind_Local(pt1,d0);
 #else
 	*pt1 = d0;
@@ -10993,7 +11014,7 @@ absmi(int inp)
 	BEGP(pt1);
 	pt1 = Y + PREG->u.yxc.y;
 	PREG = NEXTOP(NEXTOP(NEXTOP(PREG, yxc),sla),l);
-#if defined(SBA) && defined(FROZEN_REGS)
+#if defined(SBA) && defined(FROZEN_STACKS)
 	Bind_Local(pt1,d0);
 #else
 	*pt1 = d0;
@@ -11042,7 +11063,7 @@ absmi(int inp)
       BEGP(pt1);
       pt1 = Y + PREG->u.yxc.y;
       PREG = NEXTOP(NEXTOP(NEXTOP(PREG, yxc),sla),l);
-#if defined(SBA) && defined(FROZEN_REGS)
+#if defined(SBA) && defined(FROZEN_STACKS)
       Bind_Local(pt1,d0);
 #else
       *pt1 = d0;
@@ -11544,7 +11565,7 @@ absmi(int inp)
 	if (do_low_level_trace)
 	  low_level_trace(enter_pred,pen,XREGS+1);
 #endif	/* LOW_LEVEL_TRACER */
-#ifdef FROZEN_REGS
+#ifdef FROZEN_STACKS
 	{ 
 	  choiceptr top_b = PROTECT_FROZEN_B(B);
 #ifdef SBA
@@ -11557,7 +11578,7 @@ absmi(int inp)
 	if (E_Y > (CELL *) B) {
 	  E_Y = (CELL *) B;
 	}
-#endif /* FROZEN_REGS */
+#endif /* FROZEN_STACKS */
 	WRITEBACK_Y_AS_ENV();
 	/* setup GB */
 	E_Y[E_CB] = (CELL) B;
@@ -11686,7 +11707,7 @@ absmi(int inp)
 	if (do_low_level_trace)
 	  low_level_trace(enter_pred,pen,XREGS+1);
 #endif	/* LOW_LEVEL_TRACER */
-#ifdef FROZEN_REGS
+#ifdef FROZEN_STACKS
 	{ 
 	  choiceptr top_b = PROTECT_FROZEN_B(B);
 #ifdef SBA
@@ -11699,7 +11720,7 @@ absmi(int inp)
 	if (E_Y > (CELL *) B) {
 	  E_Y = (CELL *) B;
 	}
-#endif /* FROZEN_REGS */
+#endif /* FROZEN_STACKS */
 	WRITEBACK_Y_AS_ENV();
 	/* setup GB */
 	if (pen->PredFlags & CutTransparentPredFlag)
@@ -11825,7 +11846,7 @@ absmi(int inp)
 	/* do deallocate */
 	CPREG = (yamop *) E_Y[E_CP];
 	E_Y = ENV = (CELL *) E_Y[E_E];
-#ifdef FROZEN_REGS
+#ifdef FROZEN_STACKS
 	{ 
 	  choiceptr top_b = PROTECT_FROZEN_B(B);
 
@@ -11843,7 +11864,7 @@ absmi(int inp)
 	else {
 	  E_Y = (CELL *) ((CELL) E_Y + ENV_Size(CPREG));
 	}
-#endif /* FROZEN_REGS */
+#endif /* FROZEN_STACKS */
 	WRITEBACK_Y_AS_ENV();
 	/* setup GB */
 	E_Y[E_CB] = d0;

@@ -927,7 +927,7 @@
 
 
 
-  BOp(table_completion, ld)
+    BOp(table_completion, ld);
 #ifdef YAPOR
     if (SCH_top_shared_cp(B)) {
       SCH_new_alternative(PREG, GEN_CP_NULL_ALT);
@@ -1053,7 +1053,6 @@
         if (B->cp_tr > DepFr_cons_cp(dep_fr)->cp_tr)
           TABLING_ERROR_MESSAGE("B->cp_tr > DepFr_cons_cp(dep_fr)->cp_tr (completion)");
 #endif /* TABLING_ERRORS */
-	printf("vsc1: looking from dep_fr %p to B %p\n", dep_fr, B);
         rebind_variables(DepFr_cons_cp(dep_fr)->cp_tr, B->cp_tr);
 #ifdef TABLING_ERRORS
         if (TR != B->cp_tr) {
@@ -1226,6 +1225,10 @@
       goto fail;
 #else /* TABLING_LOCAL_SCHEDULING */
       /* subgoal completed */
+      LOCK_SG_FRAME(sg_fr);
+      if (SgFr_state(sg_fr) == complete)
+        update_answer_trie(sg_fr);
+      UNLOCK_SG_FRAME(sg_fr);
       if (SgFr_first_answer(sg_fr) == NULL) {
         /* no answers --> fail */
         B = B->cp_b;

@@ -385,6 +385,9 @@ p_execute_within(void)
 	/* Wow, we're gonna cut!!! */
 	B = cut_pt;
 #endif /* YAPOR */
+#ifdef TABLING
+        abolish_incomplete_subgoals(B);
+#endif /* TABLING */
 	HB = PROTECT_FROZEN_H(B);
       }
       return(TRUE);
@@ -481,6 +484,9 @@ p_execute_within2(void)
 	/* Wow, we're gonna cut!!! */
 	B = pt0;
 #endif /* YAPOR */
+#ifdef TABLING
+        abolish_incomplete_subgoals(B);
+#endif /* TABLING */
 	HB = PROTECT_FROZEN_H(B);
       }
       return(TRUE);
@@ -1004,6 +1010,9 @@ execute_goal(Term t, int nargs, SMALLUNSGN mod)
 #else
     B = (choiceptr)(ENV[E_CB]);
 #endif /* YAPOR */
+#ifdef TABLING
+    abolish_incomplete_subgoals(B);
+#endif /* TABLING */
     /* find out where we have the old arguments */
     old_B = ((choiceptr)(ENV-(EnvSizeInCells+nargs+1)))-1;
     {
@@ -1033,12 +1042,18 @@ execute_goal(Term t, int nargs, SMALLUNSGN mod)
 	if (YOUNGER_CP(OldTopB,DelayedB)) {
 	  /* and this delayed cut is to before the c-code that actually called us */
 	  B = OldTopB;
+#ifdef TABLING
+	  abolish_incomplete_subgoals(B);
+#endif /* TABLING */
 	  /* did we have a cut which was cutting more than our current cut? */
 	  if (OldDelayedB != NULL && YOUNGER_CP(DelayedB,OldDelayedB))
 	    DelayedB = OldDelayedB;
 	} else {
 	  /* just cut back to where we should cut */
 	  B = DelayedB;
+#ifdef TABLING
+	  abolish_incomplete_subgoals(B);
+#endif /* TABLING */
 	  DelayedB = OldDelayedB;
 	}
       }
@@ -1080,12 +1095,18 @@ execute_goal(Term t, int nargs, SMALLUNSGN mod)
 	if (YOUNGER_CP(OldTopB,DelayedB)) {
 	  /* and this delayed cut is to before the c-code that actually called us */
 	  B = OldTopB;
+#ifdef TABLING
+	  abolish_incomplete_subgoals(B);
+#endif /* TABLING */
 	  /* did we have a cut which was cutting more than our current cut? */
 	  if (OldDelayedB != NULL && YOUNGER_CP(DelayedB,OldDelayedB))
 	    DelayedB = OldDelayedB;
 	} else {
 	  /* just cut back to where we should cut */
 	  B = DelayedB;
+#ifdef TABLING
+	  abolish_incomplete_subgoals(B);
+#endif /* TABLING */
 	  DelayedB = OldDelayedB;
 	}
       }
@@ -1230,6 +1251,9 @@ p_restore_regs2(void)
 #else
     B = pt0;
 #endif /* YAPOR */
+#ifdef TABLING
+    abolish_incomplete_subgoals(B);
+#endif /* TABLING */
     HB = B->cp_h;
     /*    trim_trail();*/
   }
@@ -1304,6 +1328,9 @@ JumpToEnv(Term t) {
   if (first_func != NULL) {
     B = first_func;
   }
+#ifdef TABLING
+  abolish_incomplete_subgoals(B);
+#endif /* TABLING */
   return(FALSE);
 }
 

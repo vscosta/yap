@@ -564,7 +564,7 @@ freeze_goal(Term t, Term g)
     if (H0 - (CELL *)vs < 1024) {
       ARG1 = t;
       ARG2 = g;
-      growglobal();
+      growglobal(NULL);
       t = ARG1;
       g = ARG2;
     }

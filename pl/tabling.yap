@@ -15,6 +15,10 @@
 *									 *
 *************************************************************************/
 
+:- meta_predicate table(:), abolish_trie(:), show_trie(:), resume_trie(:).
+
+table(M:X) :- !,
+	'$table'(X, M).
 table(X) :-
 	current_module(M),
 	'$table'(X, M).
@@ -28,12 +32,6 @@ table(X) :-
 '$table'(A/N, M) :- integer(N), atom(A), !,
               functor(T,A,N), '$flags'(T,M,F,F),
               (
-                X is F /\ 8'000100, X =\= 0, !,
-                write(user_error, '[ Warning: '),
-                write(user_error, M:A/N),
-                write(user_error, ' is already declared as table ]'),
-                nl(user_error)
-              ;
                 X is F /\ 8'170000, X =:= 0, !, '$do_table'(T, M)
               ;
                 write(user_error, '[ Error: '),
@@ -48,31 +46,8 @@ table(X) :-
             nl(user_error),
             fail.
 
-show_trie(X) :-
-	'$current_module'(M),
-	'$show_trie'(X, M).
-
-'$show_trie'(X, M) :- var(X), !,
-	throw(error(instantiation_error,show_trie(M:X))).
-'$show_trie'((A,B), _) :- !, '$show_trie'(A, M), '$show_trie'(B, M).
-'$show_trie'(M:A, _) :- !, '$show_trie'(A, M).
-'$show_trie'(A/N, M) :- integer(N), atom(A), !,
-                  functor(T,A,N), '$flags'(T,M,F,F),
-                  (
-                    X is F /\ 8'000100, X =\= 0, !, '$show_trie'(T,M,_)
-                  ;
-                    write(user_error, '[ Error: '),
-                    write(user_error, M:A/N),
-                    write(user_error, ' is not declared as table ]'),
-                    nl(user_error),
-                    fail
-                  ).
-'$show_trie'(X, M) :- write(user_error, '[ Error: '),
-                write(user_error, M:X),
-                write(user_error, ' is an invalid argument to trie/1 ]'),
-                nl(user_error),
-                fail.
-
+abolish_trie(M:X)   :- !,
+	'$abolish_trie'(X, M).
 abolish_trie(X)   :-
 	'$current_module'(M),
 	'$abolish_trie'(X, M).
@@ -99,3 +74,58 @@ abolish_trie(X)   :-
                      write(user_error, ' is an invalid argument to abolish_trie/1 ]'),
                      nl(user_error),
                      fail.
+
+show_trie(M:X) :- !,
+	'$show_trie'(X, M).
+show_trie(X) :-
+	'$current_module'(M),
+	'$show_trie'(X, M).
+
+'$show_trie'(X, M) :- var(X), !,
+	throw(error(instantiation_error,show_trie(M:X))).
+'$show_trie'((A,B), _) :- !, '$show_trie'(A, M), '$show_trie'(B, M).
+'$show_trie'(M:A, _) :- !, '$show_trie'(A, M).
+'$show_trie'(A/N, M) :- integer(N), atom(A), !,
+                  functor(T,A,N), '$flags'(T,M,F,F),
+                  (
+                    X is F /\ 8'000100, X =\= 0, !, '$show_trie'(T,M,_)
+                  ;
+                    write(user_error, '[ Error: '),
+                    write(user_error, M:A/N),
+                    write(user_error, ' is not declared as table ]'),
+                    nl(user_error),
+                    fail
+                  ).
+'$show_trie'(X, M) :- write(user_error, '[ Error: '),
+                write(user_error, M:X),
+                write(user_error, ' is an invalid argument to trie/1 ]'),
+                nl(user_error),
+                fail.
+
+resume_trie(M:X) :- !,
+	'$resume_trie'(X, M).
+resume_trie(X) :-
+	'$current_module'(M),
+	'$resume_trie'(X, M).
+
+
+'$resume_trie'(X,_) :- var(X), !,
+                    write(user_error, '[ Error: argument to trie/1 should be a predicate ]'),
+                    nl(user_error),
+                    fail.
+'$resume_trie'(A/N,M) :- atom(A), integer(N), !,
+                      functor(T,A,N), '$flags'(T,M,F,F),
+                      (
+                        X is F /\ 8'000100, X =\= 0, !, '$resume_trie'(T,M)
+                      ;
+                        write(user_error, '[ Error: '),
+                        write(user_error, A/N),
+                        write(user_error, ' is not declared as table ]'),
+                        nl(user_error),
+                        fail
+                      ).
+'$resume_trie'(X,M) :- write(user_error, '[ Error: '),
+                    write(user_error, M:X),
+                    write(user_error, ' is an invalid argument to trie/1 ]'),
+                    nl(user_error),
+                    fail.

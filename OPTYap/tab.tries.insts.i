@@ -102,12 +102,16 @@
           *aux_ptr = heap_arity - 1;                           \
           var_ptr = *++aux_ptr;                                \
           *((CELL *) var_ptr) = var_ptr;                       \
-          for (i = 0; i < heap_arity - 1; i++)                 \
-            *aux_ptr++ = *(aux_ptr + 1);                       \
+          for (i = 0; i < heap_arity - 1; i++) {               \
+            *aux_ptr = *(aux_ptr + 1);                         \
+            aux_ptr++;                                         \
+          }                                                    \
           *aux_ptr++ = vars_arity + 1;                         \
           *aux_ptr++ = subs_arity;                             \
-          for (i = 0; i < subs_arity; i++)                     \
-            *aux_ptr++ = *(aux_ptr + 1);                       \
+          for (i = 0; i < subs_arity; i++) {                   \
+            *aux_ptr = *(aux_ptr + 1);                         \
+            aux_ptr++;                                         \
+          }                                                    \
           *aux_ptr = var_ptr;                                  \
           next_instruction(--heap_arity || subs_arity, node);  \
         } else {                                               \
@@ -192,8 +196,10 @@
               Bind_Local((CELL *) aux, subs);                                         \
             }                                                                         \
           }                                                                           \
-          for (i = 0; i < vars_arity; i++)                                            \
-            *aux_ptr++ = *(aux_ptr + 1);                                              \
+          for (i = 0; i < vars_arity; i++) {                                           \
+            *aux_ptr = *(aux_ptr + 1);                                              \
+            aux_ptr++;                                              \
+            }                                              \
           next_instruction(--subs_arity, node);                                       \
         }
 
@@ -265,8 +271,10 @@
           *aux_ptr = subs_arity - 1;                           \
           aux_ptr += subs_arity;                               \
           Bind((CELL *) *aux_ptr, TrNode_entry(node));         \
-          for (i = 0; i < vars_arity; i++)                     \
-            *aux_ptr++ = *(aux_ptr + 1);                       \
+          for (i = 0; i < vars_arity; i++) {                   \
+            *aux_ptr = *(aux_ptr + 1);                         \
+            aux_ptr++;                                         \
+          }                                                    \
           next_instruction(--subs_arity, node);                \
         }
 
@@ -316,8 +324,10 @@
           *aux_ptr = subs_arity - 1;                   \
           aux_ptr += subs_arity;                       \
           Bind((CELL *) *aux_ptr, AbsPair(H - 2));     \
-          for (i = 0; i < vars_arity; i++)             \
-            *aux_ptr++ = *(aux_ptr + 1);               \
+          for (i = 0; i < vars_arity; i++) {           \
+            *aux_ptr = *(aux_ptr + 1);                 \
+            aux_ptr++;                                 \
+          }                                            \
         }                                              \
         next_trie_instruction(node)
 
@@ -374,8 +384,10 @@
           *aux_ptr = subs_arity - 1;                             \
           aux_ptr += subs_arity;                                 \
           Bind((CELL *) *aux_ptr, AbsAppl(H - func_arity - 1));  \
-          for (i = 0; i < vars_arity; i++)                       \
-            *aux_ptr++ = *(aux_ptr + 1);                         \
+          for (i = 0; i < vars_arity; i++) {                     \
+            *aux_ptr = *(aux_ptr + 1);                           \
+            aux_ptr++;                                           \
+          }                                                      \
         }                                                        \
         next_trie_instruction(node)
 
