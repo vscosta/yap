@@ -11,8 +11,14 @@
 * File:		cdmgr.c							 *
 * comments:	Code manager						 *
 *									 *
-* Last rev:     $Date: 2004-07-22 21:32:20 $,$Author: vsc $						 *
+* Last rev:     $Date: 2004-08-16 21:02:04 $,$Author: vsc $						 *
 * $Log: not supported by cvs2svn $
+* Revision 1.126  2004/07/22 21:32:20  vsc
+* debugger fixes
+* initial support for JPL
+* bad calls to garbage collector and gc
+* debugger fixes
+*
 * Revision 1.125  2004/06/29 19:04:41  vsc
 * fix multithreaded version
 * include new version of Ricardo's profiler
@@ -3202,14 +3208,22 @@ fetch_next_lu_clause(PredEntry *pe, yamop *i_code, Term th, Term tb, Term tr, ya
   LogUpdClause *cl;
   Term rtn;
   Term Terms[3];
+  long slh, slb, slr;
 
+  Yap_StartSlots();
+  slh = Yap_InitSlot(th);
+  slb = Yap_InitSlot(tb);
+  slr = Yap_InitSlot(tr);
   Terms[0] = th;
   Terms[1] = tb;
   Terms[2] = tr;
   cl = Yap_FollowIndexingCode(pe, i_code, Terms, NEXTOP(PredLogUpdClause->CodeOfPred,ld), cp_ptr);
-  th = Terms[0];
-  tb = Terms[1];
-  tr = Terms[2];
+  th = Yap_GetFromSlot(slh);
+  tb = Yap_GetFromSlot(slb);
+  tr = Yap_GetFromSlot(slr);
+  /* don't do this!! I might have stored a choice-point and changed ASP
+     Yap_RecoverSlots(3);
+  */
   if (cl == NULL) {
     return FALSE;
   }
@@ -3300,14 +3314,6 @@ p_log_update_clause(void)
   pe = get_pred(t1, Deref(ARG2), "clause/3");
   if (pe == NULL || EndOfPAEntr(pe))
     return FALSE;
-  if(pe->OpcodeOfPred == INDEX_OPCODE) {
-    WRITE_LOCK(pe->PRWLock);
-#if defined(YAPOR) || defined(THREADS)
-    if (pe->OpcodeOfPred == INDEX_OPCODE)
-#endif
-      IPred(pe);
-    WRITE_UNLOCK(pe->PRWLock);
-  }
 #if defined(YAPOR) || defined(THREADS)
   READ_LOCK(pe->PRWLock);
   PP = pe;
@@ -3334,13 +3340,20 @@ fetch_next_lu_clause0(PredEntry *pe, yamop *i_code, Term th, Term tb, yamop *cp_
 {
   LogUpdClause *cl;
   Term Terms[3];
+  long slh, slb;
 
+  Yap_StartSlots();
+  slh = Yap_InitSlot(th);
+  slb = Yap_InitSlot(tb);
   Terms[0] = th;
   Terms[1] = tb;
   Terms[2] = TermNil;
   cl = Yap_FollowIndexingCode(pe, i_code, Terms, NEXTOP(PredLogUpdClause0->CodeOfPred,ld), cp_ptr);
-  th = Terms[0];
-  tb = Terms[1];
+  th = Yap_GetFromSlot(slh);
+  tb = Yap_GetFromSlot(slb);
+  /* don't do this!! I might have stored a choice-point and changed ASP
+     Yap_RecoverSlots(2);
+  */
 #if defined(YAPOR) || defined(THREADS)
   if (PP == pe) {
     READ_UNLOCK(pe->PRWLock);
@@ -3402,12 +3415,6 @@ p_log_update_clause0(void)
   pe = get_pred(t1, Deref(ARG2), "clause/3");
   if (pe == NULL || EndOfPAEntr(pe))
     return FALSE;
-  if(pe->OpcodeOfPred == INDEX_OPCODE) {
-#if defined(YAPOR) || defined(THREADS)
-    if (pe->OpcodeOfPred == INDEX_OPCODE)
-#endif
-      IPred(pe);
-  }
 #if defined(YAPOR) || defined(THREADS)
   READ_LOCK(pe->PRWLock);
   PP = pe;
@@ -3435,14 +3442,22 @@ fetch_next_static_clause(PredEntry *pe, yamop *i_code, Term th, Term tb, Term tr
   StaticClause *cl;
   Term rtn;
   Term Terms[3];
+  long slh, slb, slr;
 
+  Yap_StartSlots();
+  slh = Yap_InitSlot(th);
+  slb = Yap_InitSlot(tb);
+  slr = Yap_InitSlot(tr);
   Terms[0] = th;
   Terms[1] = tb;
   Terms[2] = tr;
   cl = (StaticClause *)Yap_FollowIndexingCode(pe, i_code, Terms, NEXTOP(PredStaticClause->CodeOfPred,ld), cp_ptr);
-  th = Terms[0];
-  tb = Terms[1];
-  tr = Terms[2];
+  th = Yap_GetFromSlot(slh);
+  tb = Yap_GetFromSlot(slb);
+  tr = Yap_GetFromSlot(slr);
+  /* don't do this!! I might have stored a choice-point and changed ASP
+     Yap_RecoverSlots(3);
+  */
   if (cl == NULL)
     return FALSE;
   rtn = MkDBRefTerm((DBRef)cl);

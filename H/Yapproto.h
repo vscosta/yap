@@ -10,7 +10,7 @@
 * File:		Yap.proto						 *
 * mods:									 *
 * comments:	Function declarations for YAP				 *
-* version:      $Id: Yapproto.h,v 1.54 2004-08-11 16:14:52 vsc Exp $	 *
+* version:      $Id: Yapproto.h,v 1.55 2004-08-16 21:02:04 vsc Exp $	 *
 *************************************************************************/
 
 /* prototype file for Yap */
@@ -41,6 +41,7 @@ void	STD_PROTO(Yap_ReleaseAtom,(Atom));
 Term	STD_PROTO(Yap_StringToList,(char *));
 Term	STD_PROTO(Yap_StringToListOfAtoms,(char *));
 
+#define Yap_StartSlots() (*--ASP = MkIntTerm(0))
 long    STD_PROTO(Yap_InitSlot,(Term));
 long    STD_PROTO(Yap_NewSlots,(int));
 Term    STD_PROTO(Yap_GetFromSlot,(long));

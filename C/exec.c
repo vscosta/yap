@@ -1183,7 +1183,7 @@ Yap_execute_goal(Term t, int nargs, Term mod)
     CP   = saved_cp;
     P    = saved_p;
     ASP  = ENV;
-    *--ASP = MkIntTerm(0);
+    Yap_StartSlots();
 #ifdef DEPTH_LIMIT
     DEPTH= ENV[E_DEPTH];
 #endif
@@ -1517,7 +1517,7 @@ Yap_InitYaamRegs(void)
   UNLOCK(SignalLock);
   EX = 0L;
   /* for slots to work */
-  *--ASP = MkIntTerm(0);
+  Yap_StartSlots();
 #if COROUTINING
   RESET_VARIABLE((CELL *)Yap_GlobalBase);
   DelayedVars = Yap_NewTimedVar((CELL)Yap_GlobalBase);

@@ -2739,7 +2739,7 @@ p_write (void)
   int flags = (int) IntOfTerm (Deref (ARG1));
   /* notice: we must have ASP well set when using portray, otherwise
      we cannot make recursive Prolog calls */
-  *--ASP = MkIntTerm(0);
+  Yap_StartSlots();
   Yap_plwrite (ARG2, Stream[Yap_c_output_stream].stream_putc, flags);
   if (EX != 0L) {
     Term ball = EX;
@@ -2761,7 +2761,7 @@ p_write2 (void)
   }
   /* notice: we must have ASP well set when using portray, otherwise
      we cannot make recursive Prolog calls */
-  *--ASP = MkIntTerm(0);
+  Yap_StartSlots();
   Yap_plwrite (ARG3, Stream[Yap_c_output_stream].stream_putc, (int) IntOfTerm (Deref (ARG2)));
   Yap_c_output_stream = old_output_stream;
   if (EX != 0L) {
@@ -4061,7 +4061,7 @@ format(volatile Term otail, volatile Term oargs, int sno)
 	    if (targ > tnum-1 || has_repeats)
 	      goto do_consistency_error;
 	    t = targs[targ++];
-	    *--ASP = MkIntTerm(0);
+	    Yap_StartSlots();
 	    Yap_plwrite (t, f_putc, Quote_illegal_f|Ignore_ops_f|To_heap_f );
 	    ASP++;
 	    break;
@@ -4069,7 +4069,7 @@ format(volatile Term otail, volatile Term oargs, int sno)
 	    if (targ > tnum-1 || has_repeats)
 	      goto do_consistency_error;
 	    t = targs[targ++];
-	    *--ASP = MkIntTerm(0);
+	    Yap_StartSlots();
 	    { 
 	      long sl = Yap_InitSlot(args);
 	      Yap_plwrite(t, f_putc, Handle_vars_f|Use_portray_f|To_heap_f);
@@ -4096,7 +4096,7 @@ format(volatile Term otail, volatile Term oargs, int sno)
 	    if (targ > tnum-1 || has_repeats)
 	      goto do_consistency_error;
 	    t = targs[targ++];
-	    *--ASP = MkIntTerm(0);
+	    Yap_StartSlots();
 	    Yap_plwrite (t, f_putc, Handle_vars_f|Quote_illegal_f|To_heap_f);
 	    ASP++;
 	    break;
@@ -4104,7 +4104,7 @@ format(volatile Term otail, volatile Term oargs, int sno)
 	    if (targ > tnum-1 || has_repeats)
 	      goto do_consistency_error;
 	    t = targs[targ++];
-	    *--ASP = MkIntTerm(0);
+	    Yap_StartSlots();
 	    Yap_plwrite (t, f_putc, Handle_vars_f|To_heap_f);
 	    ASP++;
 	    break;
@@ -4777,7 +4777,7 @@ Yap_TermToString(Term t, char *s, unsigned int sz, int flags)
 
   if (sno < 0)
     return FALSE;
-  *--ASP = MkIntTerm(0);
+  Yap_StartSlots();
   Yap_c_output_stream = sno;
   Yap_plwrite (t, Stream[sno].stream_putc, flags);
   s[Stream[sno].u.mem_string.pos] = '\0';

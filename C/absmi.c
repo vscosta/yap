@@ -10,8 +10,16 @@
 *									 *
 * File:		absmi.c							 *
 * comments:	Portable abstract machine interpreter                    *
-* Last rev:     $Date: 2004-08-11 16:14:51 $,$Author: vsc $						 *
+* Last rev:     $Date: 2004-08-16 21:02:04 $,$Author: vsc $						 *
 * $Log: not supported by cvs2svn $
+* Revision 1.142  2004/08/11 16:14:51  vsc
+* whole lot of fixes:
+*   - memory leak in indexing
+*   - memory management in WIN32 now supports holes
+*   - extend Yap interface, more support for SWI-Interface
+*   - new predicate mktime in system
+*   - buffer console I/O in WIN32
+*
 * Revision 1.141  2004/07/23 21:08:44  vsc
 * windows fixes
 *
@@ -438,7 +446,7 @@ Yap_absmi(int inp)
       else {
 	ASP = YREG;
       }
-      *--ASP = MkIntTerm(0);
+      Yap_StartSlots();
       saveregs();
 #if PUSH_REGS
       restore_absmi_regs(old_regs);
@@ -456,7 +464,7 @@ Yap_absmi(int inp)
       else {
 	ASP = YREG;
       }
-      *--ASP = MkIntTerm(0);
+      Yap_StartSlots();
       saveregs();
 #if PUSH_REGS
       restore_absmi_regs(old_regs);
@@ -1933,13 +1941,15 @@ Yap_absmi(int inp)
 	}
       trim_trail:
 	HBREG = PROTECT_FROZEN_H(B->cp_b);
+#if 1
         {
 	  tr_fr_ptr pt1, pt0;
 	  pt1 = pt0 = B->cp_tr;
 	  while (pt1 != TR) {
 	    BEGD(d1);
-	    if (IsVarTerm(d1 = TrailTerm(pt1))) {
-	      if (d1 < (CELL)HBREG || d1 > Unsigned(B)) { 
+	    d1 = TrailTerm(pt1);
+	    if (IsVarTerm(d1)) {
+	      if (d1 < (CELL)HBREG || d1 > Unsigned(B->cp_b)) { 
 		TrailTerm(pt0) = d1;
 		pt0++;
 	      }                                
@@ -1982,6 +1992,7 @@ Yap_absmi(int inp)
 	  }
 	  TR = pt0;
 	}
+#endif /* X */
 	B = B->cp_b;
 #endif	/* YAPOR */
 #ifdef TABLING
@@ -2009,6 +2020,26 @@ Yap_absmi(int inp)
 	  B = B->cp_b;
 	}
 #endif	/* YAPOR */
+
+#ifdef FROZEN_STACKS
+	{ 
+	  choiceptr top_b = PROTECT_FROZEN_B(B->cp_b);
+#ifdef SBA
+	  if (ENV > (CELL *) top_b || ENV < H) YREG = (CELL *) top_b;
+#else
+	  if (ENV > (CELL *) top_b) YREG = (CELL *) top_b;
+#endif /* SBA */
+	  else YREG = (CELL *)((CELL)ENV + ENV_Size(CPREG));
+	}
+#else
+	if (ENV > (CELL *)B->cp_b) {
+	  YREG = (CELL *)B->cp_b;
+	}
+	else {
+	  YREG = (CELL *) ((CELL) ENV + ENV_Size(CPREG));
+	}
+	YREG[E_CB] = d0;
+#endif /* FROZEN_STACKS */
 	goto trim_trail;
       }
       ENDD(d0);
@@ -6299,7 +6330,7 @@ Yap_absmi(int inp)
 	ASP = (CELL *) (((char *) YREG) + PREG->u.sla.s);
       }
       /* for slots to work */
-      *--ASP = MkIntTerm(0);
+      Yap_StartSlots();
 #endif /* FROZEN_STACKS */
       {
 	PredEntry *p = PREG->u.sla.sla_u.p;
