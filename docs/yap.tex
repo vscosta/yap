@@ -161,8 +161,8 @@ Built In Predicates
 
 
 Subnodes of Running
-* Interactive Mode:: Running Yap Interactively
-* Script Mode:: Running Prolog files as scripts
+* Running Yap Interactively:: Interacting with Yap
+* Running Prolog Files:: Running Prolog files as scripts
 
 Subnodes of Syntax
 * Formal Syntax:: Syntax of Terms
@@ -801,19 +801,20 @@ Support for 64 bits should work by using (under Bourne shell syntax):
 CC="cc -64" $YAP_SRC_PATH/configure --...
 @end example
 @end table
+
 @node Run, Syntax, Install, Top
 @chapter Running YAP
 
 @menu
-* Interactive Mode:: Running Yap Interactively
-* Script Mode:: Running Prolog files as scripts
+* Running Yap Interactively:: Interacting with Yap
+* Running Prolog Files:: Running Prolog files as scripts
 @end menu
 
 @cindex booting
 We next describe how to invoke Yap in Unix systems.
 
+@node Running Yap Interactively,Running Prolog Files, ,Run
 @section Running Yap Interactively
-@node Interactive Mode, Script Mode, ,Run
 
 Most often you will want to use Yap in interactive mode. Assuming that
 YAP is in the user's search path, the top-level can be invoked under
@@ -871,17 +872,26 @@ the YAP library.
 @cindex environment variables
 
 @findex YAPBINDIR
-YAP can boot from a saved state. The saved state will use the default
+@itemize @bullet
+@item
+YAP usually boots from a saved state. The saved state will use the default
 installation directory to search for the YAP binary unless you define
 the environment variable YAPBINDIR.
 
 @findex YAPLIBDIR
+@item
 YAP always tries to find saved states from the current directory
 first. If it cannot it will use the environment variable YAPLIBDIR, if
 defined, or search the default library directory.
 
-@section Running Yap as a script
-@node Script Mode, ,Interactive Mode, Run
+@findex YAPSHAREDIR
+@item
+YAP will try to find library files from the YAPSHAREDIR/library
+directory.
+@end itemize
+
+@node Running Prolog Files, ,Interactive Mode, Run
+@section Running Prolog Files
 
 YAP can also be used to run Prolog files as scripts, at least in
 Unix-like environments. A simple example is shown next:
@@ -5894,8 +5904,7 @@ This gives the clock time in milliseconds since starting Prolog.
 
 @end table
 
-@item yap_fla
-g(?@var{Param},?@var{Value})
+@item yap_flag(?@var{Param},?@var{Value})
 @findex yap_flag/2
 @snindex yap_flag/2
 @cnindex yap_flag/2
@@ -8412,12 +8421,13 @@ variable. Unification will resume after this call.
 @t{attribute_goal/2} converts from an attribute to a goal.
 @item The user-defined predicate
 @t{project_attributes/2} is used from a set of variables into a set of
-constraints or goals. One application of @t{project_attributes/2}d is in
+constraints or goals. One application of @t{project_attributes/2} is in
 the top-level, where it is used to output the set of
 floundered constraints at the end of a query.
 @end itemize
 
 @node Attribute Declarations, Attribute Manipulation, , Attributed Variables
+@section Attribute Declarations
 
 Attributes are compound terms associated with a variable. Each attribute
 has a @emph{name} which is @emph{private} to the module in which the
@@ -8444,6 +8454,7 @@ mechanism is used for this purpose.
 
 
 @node Attribute Manipulation, Attributed Unification, Attribute Declarations, Attributed Variables
+@section Attribute Manipulation
 
 
 The  attribute manipulation predicates always work as follows:
@@ -8496,6 +8507,7 @@ simply succeed.
 @end table
 
 @node Attributed Unification, Displaying Attributes, Attribute Manipulation, Attributed Variables
+@section Attributed Unification
 
 The user-predicate predicate @code{verify_attributes/3} is called when
 attempting to unify an attributed variable which might have attributes
@@ -8525,6 +8537,7 @@ simply succeed with @var{Goals} unified with the empty list.
 @end table
 
 @node Displaying Attributes, Projecting Attributes,Attributed Unification, Attributed Variables 
+@section Displaying Attributes
 
 Attributes are usually presented as goals. The following routines are
 used by builtin predicates such as @code{call_residue/2} and by the
@@ -8549,13 +8562,13 @@ User-defined procedure, called to project the attributes in the query,
 @end table
 
 @node Projecting Attributes, Attribute Examples, Displaying Attributes, Attributed Variables
+@section Projecting Attributes
 
 Constraint solvers must be able to project a set of constraints to a set
 of variables. This is useful when displaying the solution to a goal, but
 may also be used to manipulate computations. The user-defined
 @code{project_attributes/2} is responsible for implementing this
 projection.
-
 
 
 @table @code
@@ -8581,6 +8594,7 @@ and these constraints are the ones that will have an
 @code{attribute_goal/2} handler.
 
 @node Attribute Examples, ,Projecting Attributes, Attributed Variables
+@section Attribute Examples
 
 The following two examples example is taken from the SICStus Prolog manual. It
 sketches the implementation of a simple finite domain ``solver''.  Note
@@ -8746,13 +8760,13 @@ in more sophisticated solvers.  The corresponding
 attributes from other known solvers/modules via the module prefix in
 @code{@var{Module}:get_atts/2}.
 
-
 @node CLPQR, CHR, Attributed Variables, Extensions
 @chapter CLP(Q,R) Manual
 @cindex CLPQ
 @cindex CLPR
 
 @menu
+CLP(Q,R)
 * Introduction to CLPQR:: The CLP(Q,R) System
 * Referencing CLPQR:: How to Reference CLP(Q,R)
 * CLPQR Acknowledgments:: Acknowledgments for CLP(Q,R)
@@ -9942,7 +9956,7 @@ nonlin:@{_A-_A*Int+400.0=0.0@},
 @end example
 
 @node A Mixed Integer Linear Optimization Example, Implementation Architecture,Compatibility Notes, CLPQR
-@
+@section A Mixed Integer Linear Optimization Example
 
 In this section we are going to exercise our solver a little by the
 computation of a small mixed integer optimization problem (MIP) from
@@ -10025,8 +10039,8 @@ clp(r) ?- example(flugpl, Obj, _, Ints, _), bb_inf(Ints, Obj, Inf).
 Inf = 1201500.0000000005
 @end example
 
-@section Implementation Architecture
 @node Implementation Architecture, Fragments and Bits,A Mixed Integer Linear Optimization Example, CLPQR
+@section Implementation Architecture
 
 The system consists roughly of the following components: 
 @itemize @bullet
@@ -10035,8 +10049,8 @@ The system consists roughly of the following components:
 @item A simplex algorithm to decide linear inequalities [Holzbaur 94].
 @end itemize
 
-@section Fragments and Bits
 @node Fragments and Bits, CLPQR Bugs,Implementation Architecture, CLPQR
+@section Fragments and Bits
 
 The internal data structure for rational numbers is
 @code{rat(@var{Num},@var{Den})}. @var{Den} is always positive, i.e. the
@@ -10075,7 +10089,7 @@ clp(r) ?- p(X).
 YAP currently does not implement this feature.
 
 @node CLPQR Bugs, CLPQR References, Fragments and Bits, CLPQR
-@section Bugs
+@section CLPQR bugs
 
 @itemize @bullet
 @item The fuzzy comparison of floats is the source for all sorts of
@@ -10093,7 +10107,7 @@ variables. Its output is rather unreadable.
 Please send bug reports to @code{christian@@ai.univie.ac.at}.
 
 @node CLPQR References, ,CLPQR Bugs, CLPQR
-@section References
+@section CLPQR References
 
 [Colmerauer 90] Colmerauer A.: An Introduction to Prolog III,
 Communications of the ACM, 33(7), 69-90, 1990.
