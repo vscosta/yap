@@ -10,7 +10,7 @@
 * File:		Heap.h         						 *
 * mods:									 *
 * comments:	Heap Init Structure					 *
-* version:      $Id: Heap.h,v 1.58 2004-02-13 18:39:29 vsc Exp $	 *
+* version:      $Id: Heap.h,v 1.59 2004-02-16 19:22:40 vsc Exp $	 *
 *************************************************************************/
 
 /* information that can be stored in Code Space */
@@ -198,6 +198,9 @@ typedef struct various_codes {
   lockvar  dead_clauses_lock;        /* protect DeadClauses */
   int      heap_top_owner;
   unsigned int n_of_threads;      /* number of threads and processes in system */
+#ifdef LOW_LEVEL_TRACER
+  lockvar  low_level_trace_lock;
+#endif
 #endif
   unsigned int size_of_overflow;
   Term  module_name[MaxModules];

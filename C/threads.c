@@ -384,7 +384,7 @@ void Yap_InitThreadPreds(void)
   Yap_InitCPred("$thread_join", 1, p_thread_join, 0);
   Yap_InitCPred("$detach_thread", 1, p_thread_detach, 0);
   Yap_InitCPred("$thread_exit", 0, p_thread_exit, 0);
-  Yap_InitCPred("thread_set_concurrency", 2, p_thread_set_concurrency, 0);
+  Yap_InitCPred("thread_setconcurrency", 2, p_thread_set_concurrency, 0);
   Yap_InitCPred("$valid_thread", 1, p_valid_thread, 0);
   Yap_InitCPred("$new_mutex", 1, p_new_mutex, SafePredFlag);
   Yap_InitCPred("$destroy_mutex", 1, p_destroy_mutex, SafePredFlag);

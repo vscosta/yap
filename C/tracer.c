@@ -114,10 +114,8 @@ low_level_trace(yap_low_level_port port, PredEntry *pred, CELL *args)
   Int arity;
   /*  extern int gc_calls; */
 
+  LOCK(heap_regs->low_level_trace_lock);
   vsc_count++;
-  if (vsc_count == 395950L)
-    vsc_xstop = 1;
-  return;
 #ifdef COMMENTED
   if (port != enter_pred ||
       !pred ||
@@ -237,6 +235,7 @@ low_level_trace(yap_low_level_port port, PredEntry *pred, CELL *args)
     }
     break;
   }
+  UNLOCK(heap_regs->low_level_trace_lock);
 }
 
 void
