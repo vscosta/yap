@@ -2301,6 +2301,14 @@ InitCPreds(void)
     InitForeignPreds();
   }
 #endif
+#if NUNO
+  {
+    extern void init_ol(void), init_time(void);
+  
+    init_ol();
+    init_time();
+  }
+#endif
 
 }
 
