@@ -1,13 +1,73 @@
 =================================================================
 Logtalk - Object oriented extension to Prolog
-Release 2.8.4
+Release 2.9.2
 
-Copyright (c) 1998-2001 Paulo Moura.  All Rights Reserved.
+Copyright (c) 1998-2002 Paulo Moura.  All Rights Reserved.
 =================================================================
 
 
 RELEASE NOTES
 =============
+
+
+2.9.2 - January 4, 2002
+
+	The Logtalk compiler can now print a warning when compiling source files 
+	that use non-ISO defined built-in predicates using a new portability/1 
+	compiler option. Updated the relevant sections of the user manual and the 
+	errors example.
+
+	Corrected a compiler bug where the entity relation tables only recorded 
+	the last entry per entity relation type.
+	
+	Updated config file for CIAO 1.7#162.
+
+
+2.9.1 - December 5, 2001
+
+	Logtalk compiler now prints a warning when redefining or replacing an
+	existing entity.
+
+	Corrected a compiler bug in the error checking code for the info/1 
+	and info/2 directives.
+
+	Changed the order of object loading in the "mi" example to avoid 
+	suporious warning messages.
+	
+	Added a new problem ("bridge") to the "searching" example. Improved 
+	"performance" monitor to give correct reports on alternative solutions. 
+	Corrected a bug in the "water jug" state space example.
+
+
+2.9.0 - October 22, 2001
+
+	Added config files for CIAO Prolog 1.7p115 and B-Prolog 6.0.
+
+	Compiling and loading an entity that contains references to unknown 
+	entities (by default) prints a warning. Updated user and reference 
+	manuals.
+
+	Rewrited all the compiler warning/error code and output messages.
+
+	Changed compiled code functors postfixes from "_sdcl" and "_sdef" to 
+	"_idcl"	and "_idef" (implies recompilation of all objects, protocols, 
+	and categories).
+
+	Changed all occurrences and references to the term "entity_scope" to 
+	"scope".
+
+	Removed some redundant productions from the Logtalk grammar.
+
+	Updated documentation on the xml directory. Renamed some of the .xsl 
+	files. Added sample scripts to batch convert .xml files to .html files.
+	
+	Added a new loader utility file, all.loader, to load all library files 
+	loaded by the other loader files.
+
+	Started work on documenting the Logtalk pre-processor/compiler source 
+	file.
+
+	New "errors" example. Updated the "inheritance" example.
 
 
 2.8.4 - March 9, 2001

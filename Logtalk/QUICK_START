@@ -1,8 +1,8 @@
 =================================================================
 Logtalk - Object oriented extension to Prolog
-Release 2.8.4
+Release 2.9.2
 
-Copyright (c) 1998-2001 Paulo Moura.  All Rights Reserved.
+Copyright (c) 1998-2002 Paulo Moura.  All Rights Reserved.
 =================================================================
 
 
@@ -42,11 +42,12 @@ lgt_load_prolog_code/1 in the configuration file.
 Now you can try some of the included examples:
 
 1. Open the examples sub-directory. There you find several sub-directories
-with ready to run examples. Select and open one of them.
+with ready to run examples and a NOTES file containing a brief description 
+of each example. Select and open one of the examples sub-directory.
 
-3. Read the example NOTES file. Some examples are dependent on other 
-examples or on library objects. You may need to load additional files before 
-running the chosen example.
+3. Read the example NOTES file. Some examples are dependent on other examples 
+or on library objects. You may need to load additional files before running 
+the chosen example.
 
 4. Change the working directory of your Prolog compiler to the example 
 directory. If you don't know what predicate to use, check the configs/NOTES 

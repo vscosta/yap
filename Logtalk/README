@@ -1,8 +1,8 @@
 =================================================================
 Logtalk - Object oriented extension to Prolog
-Release 2.8.4
+Release 2.9.2
 
-Copyright (c) 1998-2001 Paulo Moura.  All Rights Reserved.
+Copyright (c) 1998-2002 Paulo Moura.  All Rights Reserved.
 =================================================================
 
 
@@ -32,7 +32,7 @@ stated.
 The latest release of the Logtalk package is always available at the
 URL:
 
-http://www.ci.uc.pt/logtalk/logtalk.html
+    http://www.ci.uc.pt/logtalk/logtalk.html
 
 At this address you can also find useful documentation and information
 about Logtalk.
@@ -43,12 +43,12 @@ about Logtalk.
 To register as a Logtalk user either use the registration form found at 
 the Logtalk web site or send an email message to:
 
-pmoura@noe.ubi.pt
+    pmoura@noe.ubi.pt
 
 with the following information:
 
 email address, full name, organization, organization type
-(education, commercial, government,...) prolog compilers used (optional), 
+(education, commercial, government,...), prolog compilers used (optional), 
 platforms (mac, pc, unix,...) (optional)
 
 
@@ -63,16 +63,15 @@ available at the URL http://www.ci.uc.pt/logtalk/news.html
 
 There is also a mailing list, logtalk, used to announce new releases and
 bug fixes and for discussion between Logtalk users, that you can subscribe.
-For instructions on how to subscribe send an email message to:
+For instructions on how to subscribe open the web page:
 
-majordomo@ci.uc.pt
+    http://sagitta.ci.uc.pt/mailman/listinfo.cgi/logtalk
+ 
+or send an email message to:
 
-with the words:
+    logtalk-request@list-serv.ci.uc.pt
 
-help
-end
-
-in the body of the message (not in the subject).
+with just the word "help" as subject or in the body.
 
 
 5. INSTALLATION
