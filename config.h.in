@@ -172,6 +172,7 @@
 #undef  HAVE_MEMMOVE
 #undef  HAVE_MKSTEMP
 #undef  HAVE_MKTEMP
+#undef  HAVE_MKTIME
 #undef  HAVE_MMAP
 #undef  HAVE_NSLINKMODULE
 #undef  HAVE_OPENDIR
