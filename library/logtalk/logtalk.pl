@@ -2,7 +2,7 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %
 %  Logtalk - Object oriented extension to Prolog
-%  Release 2.17.1
+%  Release 2.17.2
 %
 %  Copyright (c) 1998-2004 Paulo Moura.  All Rights Reserved.
 %
@@ -54,15 +54,15 @@
 
 % tables of loaded entities and respective relationships
 
-:- dynamic('$lgt_current_protocol_'/3).			% '$lgt_current_protocol_'(Ptc, Prefix, Type)
-:- dynamic('$lgt_current_category_'/3).			% '$lgt_current_category_'(Ctg, Prefix, Type)
+:- dynamic('$lgt_current_protocol_'/3).		% '$lgt_current_protocol_'(Ptc, Prefix, Type)
+:- dynamic('$lgt_current_category_'/3).		% '$lgt_current_category_'(Ctg, Prefix, Type)
 :- dynamic('$lgt_current_object_'/6).			% '$lgt_current_object_'(Obj, Prefix, Dcl, Def, Super, Type)
 
-:- dynamic('$lgt_implements_protocol_'/3).		% '$lgt_implements_protocol_'(ObjOrCtg, Ptc, Scope)
-:- dynamic('$lgt_imports_category_'/3).			% '$lgt_imports_category_'(Obj, Ctg, Scope)
+:- dynamic('$lgt_implements_protocol_'/3).	% '$lgt_implements_protocol_'(ObjOrCtg, Ptc, Scope)
+:- dynamic('$lgt_imports_category_'/3).		% '$lgt_imports_category_'(Obj, Ctg, Scope)
 :- dynamic('$lgt_instantiates_class_'/3).		% '$lgt_instantiates_class_'(Instance, Class, Scope)
 :- dynamic('$lgt_specializes_class_'/3).		% '$lgt_specializes_class_'(Class, Superclass, Scope)
-:- dynamic('$lgt_extends_protocol_'/3).			% '$lgt_extends_protocol_'(Ptc1, Ptc2, Scope)
+:- dynamic('$lgt_extends_protocol_'/3).		% '$lgt_extends_protocol_'(Ptc1, Ptc2, Scope)
 :- dynamic('$lgt_extends_object_'/3).			% '$lgt_extends_object_'(Prototype, Parent, Scope)
 
 
@@ -76,69 +76,69 @@
 
 
 
-:- dynamic('$lgt_dcl_'/1).						% '$lgt_dcl_'(Clause)
+:- dynamic('$lgt_dcl_'/1).							% '$lgt_dcl_'(Clause)
 :- dynamic('$lgt_ddcl_'/1).						% '$lgt_ddcl_'(Clause)
-:- dynamic('$lgt_def_'/1).						% '$lgt_def_'(Clause)
+:- dynamic('$lgt_def_'/1).							% '$lgt_def_'(Clause)
 :- dynamic('$lgt_ddef_'/1).						% '$lgt_ddef_'(Clause)
-:- dynamic('$lgt_super_'/1).					% '$lgt_super_'(Clause)
+:- dynamic('$lgt_super_'/1).						% '$lgt_super_'(Clause)
 
-:- dynamic('$lgt_dynamic_'/1).					% '$lgt_dynamic_'(Functor/Arity)
-:- dynamic('$lgt_discontiguous_'/1).			% '$lgt_discontiguous_'(Functor/Arity)
+:- dynamic('$lgt_dynamic_'/1).						% '$lgt_dynamic_'(Functor/Arity)
+:- dynamic('$lgt_discontiguous_'/1).				% '$lgt_discontiguous_'(Functor/Arity)
 :- dynamic('$lgt_mode_'/2).						% '$lgt_mode_'(Mode, Determinism)
-:- dynamic('$lgt_public_'/1).					% '$lgt_public_'(Functor/Arity)
-:- dynamic('$lgt_protected_'/1).				% '$lgt_protected_'(Functor/Arity)
-:- dynamic('$lgt_private_'/1).					% '$lgt_private_'(Functor/Arity)
-:- dynamic('$lgt_metapredicate_'/1).			% '$lgt_metapredicate_'(Pred)
+:- dynamic('$lgt_public_'/1).						% '$lgt_public_'(Functor/Arity)
+:- dynamic('$lgt_protected_'/1).					% '$lgt_protected_'(Functor/Arity)
+:- dynamic('$lgt_private_'/1).						% '$lgt_private_'(Functor/Arity)
+:- dynamic('$lgt_metapredicate_'/1).				% '$lgt_metapredicate_'(Pred)
 
-:- dynamic('$lgt_object_'/9).					% '$lgt_object_'(Obj, Prefix, Dcl, Def, Super, IDcl, IDef, DDcl, DDef)
+:- dynamic('$lgt_object_'/9).						% '$lgt_object_'(Obj, Prefix, Dcl, Def, Super, IDcl, IDef, DDcl, DDef)
 :- dynamic('$lgt_category_'/4).					% '$lgt_category_'(Ctg, Prefix, Dcl, Def)
 :- dynamic('$lgt_protocol_'/3).					% '$lgt_protocol_'(Ptc, Prefix, Dcl)
 
 :- dynamic('$lgt_uses_'/1).						% '$lgt_uses_'(Entity)
-:- dynamic('$lgt_calls_'/1).					% '$lgt_calls_'(Entity)
+:- dynamic('$lgt_calls_'/1).						% '$lgt_calls_'(Entity)
 :- dynamic('$lgt_info_'/1).						% '$lgt_info_'(List)
 :- dynamic('$lgt_info_'/2).						% '$lgt_info_'(Functor/Arity, List)
 
 :- dynamic('$lgt_implemented_protocol_'/4).		% '$lgt_implemented_protocol_'(Ptc, Prefix, Dcl, Scope)
-:- dynamic('$lgt_imported_category_'/5).		% '$lgt_imported_category_'(Ctg, Prefix, Dcl, Def, Scope)
+:- dynamic('$lgt_imported_category_'/5).			% '$lgt_imported_category_'(Ctg, Prefix, Dcl, Def, Scope)
 :- dynamic('$lgt_extended_object_'/10).			% '$lgt_extended_object_'(Parent, Prefix, Dcl, Def, Super, IDcl, IDef, DDcl, DDef, Scope)
 :- dynamic('$lgt_instantiated_class_'/10).		% '$lgt_instantiated_class_'(Class, Prefix, Dcl, Def, Super, IDcl, IDef, DDcl, DDef, Scope)
-:- dynamic('$lgt_specialized_class_'/10).		% '$lgt_specialized_class_'(Superclass, Prefix, Dcl, Def, Super, IDcl, IDef, DDcl, DDef, Scope)
-:- dynamic('$lgt_extended_protocol_'/4).		% '$lgt_extended_protocol_'(Ptc2, Prefix, Dcl, Scope)
+:- dynamic('$lgt_specialized_class_'/10).			% '$lgt_specialized_class_'(Superclass, Prefix, Dcl, Def, Super, IDcl, IDef, DDcl, DDef, Scope)
+:- dynamic('$lgt_extended_protocol_'/4).			% '$lgt_extended_protocol_'(Ptc2, Prefix, Dcl, Scope)
 
-:- dynamic('$lgt_entity_'/4).					% '$lgt_entity_'(Type, Entity, Prefix, Dcl)
+:- dynamic('$lgt_entity_'/4).						% '$lgt_entity_'(Type, Entity, Prefix, Dcl)
 :- dynamic('$lgt_entity_functors_'/1).			% '$lgt_entity_functors_'(Clause)
 :- dynamic('$lgt_entity_init_'/1).				% '$lgt_entity_init_'(Goal)
 :- dynamic('$lgt_fentity_init_'/1).				% '$lgt_fentity_init_'(Goal)
 :- dynamic('$lgt_entity_comp_mode_'/1).			% '$lgt_entity_comp_mode_'(Type)
 
-:- dynamic('$lgt_redefined_built_in_'/3).		% '$lgt_redefined_built_in_'(Head, Context, THead)
+:- dynamic('$lgt_redefined_built_in_'/3).			% '$lgt_redefined_built_in_'(Head, Context, THead)
 
-:- dynamic('$lgt_directive_'/1).				% '$lgt_directive_'(Dir)
-:- dynamic('$lgt_rclause_'/1).					% '$lgt_rclause_'(Clause)
-:- dynamic('$lgt_eclause_'/1).					% '$lgt_eclause_'(Clause)
+:- dynamic('$lgt_directive_'/1).					% '$lgt_directive_'(Dir)
+:- dynamic('$lgt_rclause_'/1).						% '$lgt_rclause_'(Clause)
+:- dynamic('$lgt_eclause_'/1).						% '$lgt_eclause_'(Clause)
 :- dynamic('$lgt_feclause_'/1).					% '$lgt_feclause_'(Clause)
 
-:- dynamic('$lgt_defs_pred_'/1).				% '$lgt_defs_pred_'(Functor/Arity)
-:- dynamic('$lgt_calls_pred_'/1).				% '$lgt_calls_pred_'(Functor/Arity)
+:- dynamic('$lgt_defs_pred_'/1).					% '$lgt_defs_pred_'(Functor/Arity)
+:- dynamic('$lgt_calls_pred_'/1).					% '$lgt_calls_pred_'(Functor/Arity)
 
 :- dynamic('$lgt_current_compiler_option_'/2).	% '$lgt_current_compiler_option_'(Option, Value)
 :- dynamic('$lgt_flag_'/2).						% '$lgt_flag_'(Option, Value)
 
-:- dynamic('$lgt_referenced_object_'/1).		% '$lgt_referenced_object_'(Object)
+:- dynamic('$lgt_referenced_object_'/1).			% '$lgt_referenced_object_'(Object)
 :- dynamic('$lgt_referenced_protocol_'/1).		% '$lgt_referenced_protocol_'(Protocol)
 :- dynamic('$lgt_referenced_category_'/1).		% '$lgt_referenced_category_'(Category)
 
-:- dynamic('$lgt_global_op_'/3).				% '$lgt_global_op_'(Priority, Specifier, Operator)
+:- dynamic('$lgt_global_op_'/3).					% '$lgt_global_op_'(Priority, Specifier, Operator)
 :- dynamic('$lgt_local_op_'/3).					% '$lgt_local_op_'(Priority, Specifier, Operator)
 
-:- dynamic('$lgt_debugging_'/1).				% '$lgt_debugging_'(Entity)
+:- dynamic('$lgt_debugging_'/1).					% '$lgt_debugging_'(Entity)
 
-:- dynamic('$lgt_dbg_debugging_'/0).			% '$lgt_dbg_debugging_'
+:- dynamic('$lgt_dbg_debugging_'/0).				% '$lgt_dbg_debugging_'
 :- dynamic('$lgt_dbg_tracing_'/0).				% '$lgt_dbg_tracing_'
 :- dynamic('$lgt_dbg_skipping_'/0).				% '$lgt_dbg_skipping_'
-:- dynamic('$lgt_dbg_spying_'/1).				% '$lgt_dbg_spying_'(Functor/Arity)
-:- dynamic('$lgt_dbg_spying_'/4).				% '$lgt_dbg_spying_'(Sender, This, Self, Goal)
+:- dynamic('$lgt_dbg_spying_'/1).					% '$lgt_dbg_spying_'(Functor/Arity)
+:- dynamic('$lgt_dbg_spying_'/4).					% '$lgt_dbg_spying_'(Sender, This, Self, Goal)
 :- dynamic('$lgt_dbg_leashing_'/1).				% '$lgt_dbg_leashing_'(Port)
 
 
@@ -1105,7 +1105,7 @@ current_logtalk_flag(Flag, Value) :-
 	'$lgt_default_flag'(Flag, Value),
 	\+ '$lgt_flag_'(Flag, _).
 
-current_logtalk_flag(version, version(2, 17, 1)).
+current_logtalk_flag(version, version(2, 17, 2)).
 
 
 
@@ -1591,7 +1591,10 @@ current_logtalk_flag(version, version(2, 17, 1)).
 			;
 			throw(error(permission_error(modify, static_predicate, Head), Obj::retract((Head:-Body)), Sender)))
 		;
-		throw(error(existence_error(predicate_declaration, Head), Obj::retract((Head:-Body)), Sender))).
+		('$lgt_once'(DDef, Head, _, _, _, Call) ->	% local dynamic predicate with no scope declaration
+			retract((Call :- ('$lgt_nop'(Body), _)))
+			;
+			throw(error(existence_error(predicate_declaration, Head), Obj::retract((Head:-Body)), Sender)))).
 
 '$lgt_retract'(Obj, Head, Sender, Scope) :-
 	'$lgt_current_object_'(Obj, Prefix, _, _, _, _),
@@ -1621,7 +1624,13 @@ current_logtalk_flag(version, version(2, 17, 1)).
 			;
 			throw(error(permission_error(modify, static_predicate, Head), Obj::retract(Head), Sender)))
 		;
-		throw(error(existence_error(predicate_declaration, Head), Obj::retract(Head), Sender))).
+		('$lgt_once'(DDef, Head, _, _, _, Call) ->	% local dynamic predicate with no scope declaration
+			('$lgt_debugging_'(Obj) ->
+				retract((Call :- '$lgt_dbg_fact'(_, _)))
+				;
+				retract(Call))
+			;
+			throw(error(existence_error(predicate_declaration, Head), Obj::retract(Head), Sender)))).
 
 
 
@@ -1661,7 +1670,10 @@ current_logtalk_flag(version, version(2, 17, 1)).
 			;
 			throw(error(permission_error(modify, static_predicate, Head), Obj::retractall(Head), Sender)))
 		;
-		throw(error(existence_error(predicate_declaration, Head), Obj::retractall(Head), Sender))).
+		('$lgt_once'(DDef, Head, _, _, _, Call) ->	% local dynamic predicate with no scope declaration
+			retractall(Call)
+			;
+			throw(error(existence_error(predicate_declaration, Head), Obj::retractall(Head), Sender)))).
 
 
 
@@ -2120,7 +2132,7 @@ current_logtalk_flag(version, version(2, 17, 1)).
 
 
 '$lgt_dbg_pretty_print_spypoint'(Sender, This, Self, Goal) :-
-	current_ouput(Output),
+	current_output(Output),
 	(var(Sender) -> write('_, '); '$lgt_pretty_print_vars_quoted'(Output, Sender), write(', ')),
 	(var(This) -> write('_, '); '$lgt_pretty_print_vars_quoted'(Output, This), write(', ')),
 	(var(Self) -> write('_, '); '$lgt_pretty_print_vars_quoted'(Output, Self), write(', ')),
@@ -2712,11 +2724,17 @@ current_logtalk_flag(version, version(2, 17, 1)).
 		Error,
 		'$lgt_compiler_error_handler'(Stream, Error)),
 	catch(
-		('$lgt_write_directives'(Stream),
-		 '$lgt_write_clauses'(Stream),
-		 '$lgt_write_init_call'(Stream)),
+		'$lgt_write_directives'(Stream),
 		Error,
 		'$lgt_compiler_error_handler'(Stream, Error)),
+	('$lgt_entity_'(_, _, _, _) ->
+		catch(
+			('$lgt_write_clauses'(Stream),
+			 '$lgt_write_init_call'(Stream)),
+			Error,
+			'$lgt_compiler_error_handler'(Stream, Error))
+		;
+		true),
 	close(Stream).
 
 
@@ -2726,17 +2744,20 @@ current_logtalk_flag(version, version(2, 17, 1)).
 % writes to disk the entity documentation in XML format
 
 '$lgt_write_entity_doc'(Entity) :-
-	'$lgt_compiler_option'(xml, on) ->
-		'$lgt_file_name'(xml, Entity, File),
-		catch(
-			open(File, write, Stream),
-			Error,
-			'$lgt_compiler_error_handler'(Stream, Error)),
-		catch(
-			'$lgt_write_xml_file'(Stream),
-			Error,
-			'$lgt_compiler_error_handler'(Stream, Error)),
-		close(Stream)
+	'$lgt_entity_'(_, _, _, _) ->
+		('$lgt_compiler_option'(xml, on) ->
+			'$lgt_file_name'(xml, Entity, File),
+			catch(
+				open(File, write, Stream),
+				Error,
+				'$lgt_compiler_error_handler'(Stream, Error)),
+			catch(
+				'$lgt_write_xml_file'(Stream),
+				Error,
+				'$lgt_compiler_error_handler'(Stream, Error)),
+			close(Stream)
+			;
+			true)
 		;
 		true.
 
@@ -2774,9 +2795,11 @@ current_logtalk_flag(version, version(2, 17, 1)).
 	close(Stream),
 	'$lgt_fix_redef_built_ins',
 	'$lgt_find_misspelt_calls',
-	'$lgt_entity_'(Type, _, _, _),
-	'$lgt_gen_clauses'(Type),
-	'$lgt_gen_directives'(Type).
+	('$lgt_entity_'(Type, _, _, _) ->
+		'$lgt_gen_clauses'(Type),
+		'$lgt_gen_directives'(Type)
+		;
+		true).	% source file containing no entity definition
 
 
 
@@ -3100,7 +3123,7 @@ current_logtalk_flag(version, version(2, 17, 1)).
 	functor(Dir, Functor, Arity),
 	\+ '$lgt_lgt_opening_directive'(Functor/Arity),
 	!,
-	assertz('$lgt_directive_'(Dir)).
+	assertz('$lgt_directive_'(Dir)).	% directive will be copied to the generated Prolog file
 
 '$lgt_tr_directive'(Dir) :-
 	functor(Dir, Functor, Arity),
@@ -3420,7 +3443,7 @@ current_logtalk_flag(version, version(2, 17, 1)).
 '$lgt_tr_clause'(Clause) :-
 	'$lgt_entity_'(Type, Entity, Prefix, _),
 	((Type = object, compound(Entity)) ->	% if the entity is a parametric object we need
-		'$lgt_this'(Ctx, Entity)		% "this" for inline compilation of parameter/2
+		'$lgt_this'(Ctx, Entity)			% "this" for inline compilation of parameter/2
 		;
 		true),
 	'$lgt_prefix'(Ctx, Prefix),
@@ -4301,7 +4324,8 @@ current_logtalk_flag(version, version(2, 17, 1)).
 		('$lgt_save_operators'(Ops, Saved),
 		 '$lgt_add_operators'(Ops),
 		 read_term(Stream, Term, Options),
-		 '$lgt_remove_operators'(Ops)),
+		 '$lgt_remove_operators'(Ops),
+		 '$lgt_add_operators'(Saved)),
 		Error,
 		'$lgt_iso_read_error_handler'(Ops, Saved, Error)).
 
@@ -4316,7 +4340,8 @@ current_logtalk_flag(version, version(2, 17, 1)).
 		('$lgt_save_operators'(Ops, Saved),
 		 '$lgt_add_operators'(Ops),
 		 read_term(Term, Options),
-		 '$lgt_remove_operators'(Ops)),
+		 '$lgt_remove_operators'(Ops),
+		 '$lgt_add_operators'(Saved)),
 		Error,
 		'$lgt_iso_read_error_handler'(Ops, Saved, Error)).
 
@@ -4331,7 +4356,8 @@ current_logtalk_flag(version, version(2, 17, 1)).
 		('$lgt_save_operators'(Ops, Saved),
 		 '$lgt_add_operators'(Ops),
 		 read(Stream, Term),
-		 '$lgt_remove_operators'(Ops)),
+		 '$lgt_remove_operators'(Ops),
+		 '$lgt_add_operators'(Saved)),
 		Error,
 		'$lgt_iso_read_error_handler'(Ops, Saved, Error)).
 
@@ -4346,7 +4372,8 @@ current_logtalk_flag(version, version(2, 17, 1)).
 		('$lgt_save_operators'(Ops, Saved),
 		 '$lgt_add_operators'(Ops),
 		 read(Term),
-		 '$lgt_remove_operators'(Ops)),
+		 '$lgt_remove_operators'(Ops),
+		 '$lgt_add_operators'(Saved)),
 		Error,
 		'$lgt_iso_read_error_handler'(Ops, Saved, Error)).
 
@@ -4361,7 +4388,8 @@ current_logtalk_flag(version, version(2, 17, 1)).
 		('$lgt_save_operators'(Ops, Saved),
 		 '$lgt_add_operators'(Ops),
 		 write_term(Stream, Term, Options),
-		 '$lgt_remove_operators'(Ops)),
+		 '$lgt_remove_operators'(Ops),
+		 '$lgt_add_operators'(Saved)),
 		Error,
 		'$lgt_iso_read_error_handler'(Ops, Saved, Error)).
 
@@ -4376,7 +4404,8 @@ current_logtalk_flag(version, version(2, 17, 1)).
 		('$lgt_save_operators'(Ops, Saved),
 		 '$lgt_add_operators'(Ops),
 		 write_term(Term, Options),
-		 '$lgt_remove_operators'(Ops)),
+		 '$lgt_remove_operators'(Ops),
+		 '$lgt_add_operators'(Saved)),
 		Error,
 		'$lgt_iso_read_error_handler'(Ops, Saved, Error)).
 
@@ -4391,7 +4420,8 @@ current_logtalk_flag(version, version(2, 17, 1)).
 		('$lgt_save_operators'(Ops, Saved),
 		 '$lgt_add_operators'(Ops),
 		 write(Stream, Term),
-		 '$lgt_remove_operators'(Ops)),
+		 '$lgt_remove_operators'(Ops),
+		 '$lgt_add_operators'(Saved)),
 		Error,
 		'$lgt_iso_read_error_handler'(Ops, Saved, Error)).
 
@@ -4406,7 +4436,8 @@ current_logtalk_flag(version, version(2, 17, 1)).
 		('$lgt_save_operators'(Ops, Saved),
 		 '$lgt_add_operators'(Ops),
 		 write(Term),
-		 '$lgt_remove_operators'(Ops)),
+		 '$lgt_remove_operators'(Ops),
+		 '$lgt_add_operators'(Saved)),
 		Error,
 		'$lgt_iso_read_error_handler'(Ops, Saved, Error)).
 
@@ -4421,7 +4452,8 @@ current_logtalk_flag(version, version(2, 17, 1)).
 		('$lgt_save_operators'(Ops, Saved),
 		 '$lgt_add_operators'(Ops),
 		 writeq(Stream, Term),
-		 '$lgt_remove_operators'(Ops)),
+		 '$lgt_remove_operators'(Ops),
+		 '$lgt_add_operators'(Saved)),
 		Error,
 		'$lgt_iso_read_error_handler'(Ops, Saved, Error)).
 
@@ -4436,7 +4468,8 @@ current_logtalk_flag(version, version(2, 17, 1)).
 		('$lgt_save_operators'(Ops, Saved),
 		 '$lgt_add_operators'(Ops),
 		 writeq(Term),
-		 '$lgt_remove_operators'(Ops)),
+		 '$lgt_remove_operators'(Ops),
+		 '$lgt_add_operators'(Saved)),
 		Error,
 		'$lgt_iso_read_error_handler'(Ops, Saved, Error)).
 
@@ -4450,8 +4483,7 @@ current_logtalk_flag(version, version(2, 17, 1)).
 '$lgt_save_operators'(Ops, Saved) :-
 	findall(
 		op(Pr, Spec, Op),
-		('$lgt_member'(op(_, _, Op), Ops),
-		 current_op(Pr, Spec, Op)),
+		('$lgt_member'(op(_, _, Op), Ops), current_op(Pr, Spec, Op)),
 		Saved).
 
 
@@ -4908,6 +4940,8 @@ current_logtalk_flag(version, version(2, 17, 1)).
 %
 % retracts a dynamic "ddef clause" (used to translate a predicate call)
 % if there are no more clauses for the predicate otherwise does nothing
+%
+% this is needed in order to allow definitions in ancestors to be found
 
 '$lgt_update_ddef_table'(DDef, Call) :-
 	functor(Call, Functor, Arity),
@@ -5013,14 +5047,12 @@ current_logtalk_flag(version, version(2, 17, 1)).
 
 
 '$lgt_gen_static_object_dynamic_directives' :-
-	'$lgt_object_'(_, _, _, Def, _, _, _, DDcl, DDef),
+	'$lgt_object_'(_, Prefix, _, _, _, _, _, DDcl, DDef),
 	assertz('$lgt_directive_'(dynamic(DDcl/2))),
 	assertz('$lgt_directive_'(dynamic(DDef/5))),
 	'$lgt_dynamic_'(Functor/Arity),
-	functor(Pred, Functor, Arity),
-	Clause =.. [Def, Pred, _, _, _, TPred],
-	'$lgt_def_'(Clause),
-	functor(TPred, TFunctor, TArity),
+	'$lgt_construct_predicate_functor'(Prefix, Functor, Arity, TFunctor),
+	TArity is Arity + 3,
 	assertz('$lgt_directive_'(dynamic(TFunctor/TArity))),
 	fail.
 
@@ -5029,12 +5061,10 @@ current_logtalk_flag(version, version(2, 17, 1)).
 
 
 '$lgt_gen_object_discontiguous_directives' :-
-	'$lgt_object_'(_, _, _, Def, _, _, _, _, _),
+	'$lgt_object_'(_, Prefix, _, _, _, _, _, _, _),
 	'$lgt_discontiguous_'(Functor/Arity),
-	functor(Pred, Functor, Arity),
-	Clause =.. [Def, Pred, _, _, _, TPred],
-	'$lgt_def_'(Clause),
-	functor(TPred, TFunctor, TArity),
+	'$lgt_construct_predicate_functor'(Prefix, Functor, Arity, TFunctor),
+	TArity is Arity + 3,
 	assertz('$lgt_directive_'(discontiguous(TFunctor/TArity))),
 	fail.
 
@@ -5059,12 +5089,10 @@ current_logtalk_flag(version, version(2, 17, 1)).
 
 
 '$lgt_gen_category_discontiguous_directives' :-
-	'$lgt_category_'(_, _, _, Def),
+	'$lgt_category_'(_, Prefix, _, _),
 	'$lgt_discontiguous_'(Functor/Arity),
-	functor(Pred, Functor, Arity),
-	Clause =.. [Def, Pred, _, _, _, TPred],
-	'$lgt_def_'(Clause),
-	functor(TPred, TFunctor, TArity),
+	'$lgt_construct_predicate_functor'(Prefix, Functor, Arity, TFunctor),
+	TArity is Arity + 3,
 	assertz('$lgt_directive_'(discontiguous(TFunctor/TArity))),
 	fail.
 
