@@ -3773,6 +3773,7 @@ format(Term tail, Term args, int sno)
 	  goto do_consistency_error;
       } else if (ch == '`') {
 	/* next character is kept as code */
+	has_repeats = TRUE;
 	repeats = *fptr++;
 	ch = *fptr++;
       } else if (ch >= '0' && ch <= '9') {
@@ -4038,19 +4039,20 @@ format(Term tail, Term args, int sno)
 	    /* padding */
 	  case '|':
 	    if (has_repeats) {
-	      fill_pads(has_repeats-(format_ptr-format_base));
+	      fill_pads(repeats-(format_ptr-format_base));
 	    }
 	    pad_max = pad_entries;
-	    column_boundary = has_repeats;
+	    column_boundary = repeats;
 	    break;
 	  case '+':
 	    if (has_repeats) {
-	      fill_pads((has_repeats+column_boundary)-(format_ptr-format_base));
+	      fill_pads((repeats+column_boundary)-(format_ptr-format_base));
 	    } else {
+	      repeats = 8;
 	      fill_pads(8);
 	    }
 	    pad_max = pad_entries;
-	    column_boundary = has_repeats+column_boundary;
+	    column_boundary = repeats+column_boundary;
 	    break;
 	  case 't':
 	    if (!has_repeats)
