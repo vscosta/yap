@@ -52,7 +52,7 @@ Int LoadForeign( StringList ofiles, StringList libs,
     ofiles->handle = AllocCodeSpace( sizeof(shl_t) );
     *(shl_t *)ofiles->handle = shl_load( FileNameBuf, BIND_DEFERRED, 0 );
     if( *(shl_t *)ofiles->handle == NULL ) {
-      strerror_r( errno, LoadMsg, 512 );
+      strncpy( LoadMsg, strerror(errno), 512 );
       return LOAD_FAILLED;
     }
 
@@ -82,7 +82,7 @@ Int LoadForeign( StringList ofiles, StringList libs,
 
     *(shl_t *)libs->handle = shl_load( FileNameBuf, BIND_DEFERRED, 0 );
     if( *(shl_t *)libs->handle == NULL ) {
-      strerror_r( errno, LoadMsg, 512 );
+      strncpy( LoadMsg, strerror(errno), 512 );
       return LOAD_FAILLED;
     }
 

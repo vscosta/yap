@@ -580,6 +580,11 @@ real_cputime ()
 #endif /* HAVE_GETRUSAGE */
 
 #if HAVE_GETHRTIME
+
+#if HAVE_TIME_H
+#include <time.h>
+#endif
+
 /* since the point YAP was started */
 static hrtime_t StartOfWTimes;
 
@@ -2017,8 +2022,22 @@ set_fpu_exceptions(int flag)
 {
   if (flag) {
 #if defined(__hpux)
+# if HAVE_FESETTRAPENABLE
+/* From HP-UX 11.0 onwards: */
+    fesettrapenable(FE_INVALID|FE_DIVBYZERO|FE_OVERFLOW|FE_UNDERFLOW);
+# else
+/*
+  Up until HP-UX 10.20:
+  FP_X_INV   invalid operation exceptions
+  FP_X_DZ    divide-by-zero exception
+  FP_X_OFL   overflow exception
+  FP_X_UFL   underflow exception
+  FP_X_IMP   imprecise (inexact result)
+  FP_X_CLEAR simply zero to clear all flags
+*/
     fpsetmask(FP_X_INV|FP_X_DZ|FP_X_OFL|FP_X_UFL);
-#endif
+# endif
+#endif /* __hpux */
 #if HAVE_FPU_CONTROL_H && i386 && defined(__GNUC__)
     /* I shall ignore denormalization and precision errors */
     int v = _FPU_IEEE & ~(_FPU_MASK_IM|_FPU_MASK_ZM|_FPU_MASK_OM|_FPU_MASK_UM);
@@ -2031,8 +2050,12 @@ set_fpu_exceptions(int flag)
   } else {
     /* do IEEE arithmetic in the way the big boys do */
 #if defined(__hpux)
+# if HAVE_FESETTRAPENABLE
+    fesettrapenable(FE_ALL_EXCEPT);
+# else
     fpsetmask(FP_X_CLEAR);
-#endif
+# endif
+#endif /* __hpux */
 #if HAVE_FPU_CONTROL_H && i386 && defined(__GNUC__)
     /* this will probably not work in older releases of Linux */
     int v = _FPU_IEEE;

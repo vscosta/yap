@@ -87,6 +87,8 @@
 #undef  HAVE_UNISTD_H
 #undef  HAVE_WINSOCK_H
 #undef  HAVE_WINSOCK2_H
+#define  HAVE_MPI_H	0
+#define  HAVE_MPE_H	0
 
 /* Do we have restartable syscalls */
 #undef  HAVE_RESTARTABLE_SYSCALLS
@@ -155,6 +157,7 @@
 #undef  HAVE_ATANH
 #undef  HAVE_CHDIR
 #undef  HAVE_DUP2
+#undef  HAVE_FESETTRAPENABLE
 #undef  HAVE_FETESTEXCEPT
 #undef  HAVE_FINITE
 #undef  HAVE_GETCWD
@@ -251,9 +254,28 @@
 #define USE_SOCKET 1
 #endif
 
+/* HP-UX requires extra definitions for X/Open networking */
+#undef _XOPEN_SOURCE
+#define _XOPEN_SOURCE_EXTENDED 0
+
 #if HAVE_GMP_H && HAVE_LIBGMP
 #define USE_GMP 1
 #endif
+
+/* Should we use MPI ? */
+#if HAVE_MPI_H && (HAVE_LIBMPI || HAVE_LIBMPICH)
+ #define HAVE_MPI 1
+#else
+ #define HAVE_MPI 0
+#endif
+
+/* Should we use MPE ? */
+#if HAVE_MPI_H && HAVE_LIBMPE &&  HAVE_MPI
+ #define HAVE_MPE 1
+#else
+ #define HAVE_MPE 0
+#endif
+
 
 /* Is fflush(NULL) clobbering input streams? */
 #undef BROKEN_FFLUSH_NULL

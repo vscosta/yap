@@ -269,6 +269,8 @@ else
   INSTALL_COMMAND="install_unix"
   AC_CHECK_LIB(m,sin)
   AC_CHECK_LIB(socket,socket)
+  dnl X/Open Networking is sometimes a separate library
+  AC_CHECK_LIB(xnet,getsockname)
   AC_CHECK_LIB(nsl,main,
 	have_nsl=yes
 	,
@@ -320,7 +322,7 @@ else
 fi
 
 MPI_LIBS=
-if test "$yap_cv_mpe" != "no"
+if test "$yap_cv_mpi" != "no" -a "$yap_cv_mpe" != "no"
 then
   OLD_CC=${CC}
   CC=${MPI_CC}
@@ -441,6 +443,12 @@ case $target_os in
          SHLIB_SUFFIX=".sl"
 	 SHLIB_CFLAGS="+z"
 	 INSTALL_DLLS=""
+	 # If the xnet library was found, turn on X/Open networking
+	 if test $ac_cv_lib_xnet_getsockname = yes
+	 then
+	  AC_DEFINE(_XOPEN_SOURCE)
+	  AC_DEFINE(_XOPEN_SOURCE_EXTENDED,1)
+	 fi
 	else
 	 INSTALL_DLLS="#"
         fi
@@ -591,6 +599,14 @@ fi
 if test "$yap_cv_readline" != "no"
 then
   AC_CHECK_HEADERS( readline/readline.h)
+fi
+if test "$yap_cv_mpi" != "no"
+then
+  AC_CHECK_HEADERS(mpi.h)
+fi
+if test "$yap_cv_mpe" != "no"
+then
+  AC_CHECK_HEADERS(mpe.h)
 fi
 
 dnl Checks for typedefs, structures, and compiler characteristics.
@@ -772,7 +788,7 @@ fi
 dnl Checks for library functions.
 AC_TYPE_SIGNAL
 AC_CHECK_FUNCS(acosh alarm asinh atanh chdir dup2)
-AC_CHECK_FUNCS(fetestexcept finite getcwd getenv)
+AC_CHECK_FUNCS(fesettrapenable fetestexcept finite getcwd getenv)
 AC_CHECK_FUNCS(gethostbyname gethostid gethostname)
 AC_CHECK_FUNCS(gethrtime getpwnam getrusage gettimeofday getwd)
 AC_CHECK_FUNCS(isatty isnan kill labs link localtime lstat)
