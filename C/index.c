@@ -3360,6 +3360,8 @@ compile_index(struct intermediates *cint)
 }
 
 
+static int  vsc_index;
+
 yamop *
 Yap_PredIsIndexable(PredEntry *ap)
 {
@@ -3367,7 +3369,7 @@ Yap_PredIsIndexable(PredEntry *ap)
   int setjres;
   struct intermediates cint;
 
-  cint.CodeStart = cint.cpc = NIL;
+  vsc_index++;
   cint.CurrentPred = ap;
   Yap_Error_Size = 0;
   if ((setjres = setjmp(cint.CompilerBotch)) == 3) {
@@ -3380,12 +3382,14 @@ Yap_PredIsIndexable(PredEntry *ap)
       return FAILCODE;
     }
   } else if (setjres != 0) {
+    printf("at %d\n", vsc_index);
     if (!Yap_growheap(FALSE, Yap_Error_Size, NULL)) {
       Yap_Error(SYSTEM_ERROR, TermNil, Yap_ErrorMessage);
       return FAILCODE;
     }
   }
  restart_index:
+  cint.CodeStart = cint.BlobsStart = cint.cpc = cint.icpc = NIL;
   Yap_ErrorMessage = NULL;
   if (compile_index(&cint) == (UInt)FAILCODE) {
     return FAILCODE;
@@ -4037,7 +4041,7 @@ expand_index(struct intermediates *cint) {
     return labp;
   }
   cint->freep = (char *)(max+1);
-  cint->CodeStart = cint->cpc = NULL;
+  cint->CodeStart = cint->BlobsStart = cint->cpc = cint->icpc = NULL;
   
   if (!IsVarTerm(sp[-1].val)  && sp > stack) {
     if (IsAtomOrIntTerm(sp[-1].val)) {
@@ -4102,7 +4106,7 @@ ExpandIndex(PredEntry *ap) {
   int cb;
   struct intermediates cint;
 
-  cint.CodeStart = cint.cpc = NIL;
+  cint.CodeStart = cint.cpc = cint.BlobsStart = cint.icpc = NIL;
   cint.CurrentPred = ap;
   Yap_Error_Size = 0;
   if ((cb = setjmp(cint.CompilerBotch)) == 3) {

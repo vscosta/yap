@@ -298,9 +298,6 @@ Yap_absmi(int inp)
 	FAIL();
       }
       setregs();
-      ActiveSignals &= ~YAP_CDOVF_SIGNAL;
-      if (!ActiveSignals)
-	CFREG = CalculateStackGap();
       goto reset_absmi;
 
 #if !OS_HANDLES_TR_OVERFLOW
@@ -2180,6 +2177,9 @@ Yap_absmi(int inp)
      /* This is easier: I know there is an environment so I cannot do allocate */
     NoStackCommitY:
       /* find something to fool S */
+      if (ActiveSignals & YAP_CDOVF_SIGNAL) {
+	goto do_commit_b_y;
+      }
       if (ActiveSignals != YAP_CREEP_SIGNAL) {
 	SREG = (CELL *)RepPredProp(Yap_GetPredPropByFunc(Yap_MkFunctor(AtomRestoreRegs,2),0));
 	XREGS[0] = YREG[PREG->u.y.y];
@@ -2192,6 +2192,9 @@ Yap_absmi(int inp)
       /* Problem: have I got an environment or not? */
     NoStackCommitX:
       /* find something to fool S */
+      if (ActiveSignals & YAP_CDOVF_SIGNAL) {
+	goto do_commit_b_x;
+      }
       if (ActiveSignals != YAP_CREEP_SIGNAL) {
 	SREG = (CELL *)RepPredProp(Yap_GetPredPropByFunc(Yap_MkFunctor(AtomRestoreRegs,2),0));
 #if USE_THREADED_CODE

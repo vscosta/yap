@@ -254,41 +254,9 @@ do_execute(Term t, SMALLUNSGN mod)
 	  t = ArgOfTerm(2,t);
 	  goto restart_exec;
 	}
-      } else if (f == FunctorComma) {
-	Term d1 = ArgOfTerm(2,t);
-	if (IsVarTerm(d1)) {
-	  return CallMetaCall(mod);
-	}
-	if (IsAtomTerm(d1)) {
-	  YENV = ASP;
-	  YENV[-EnvSizeInCells-2]  = MkIntegerTerm((Int)PredPropByAtom(AtomOfTerm(d1),mod));
-	} else if (IsApplTerm(d1)) {
-	  Functor f = FunctorOfTerm(d1);
-	  if (IsExtensionFunctor(f) || f == FunctorModule) {
-	    return CallMetaCall(mod);
-	  } else {
-	    YENV = ASP;
-	    YENV[-EnvSizeInCells-2]  = MkIntegerTerm((Int)PredPropByFunc(f,mod));
-	  }
-	} else {
-	  return CallMetaCall(mod);
-	}
-	YENV[E_CP] = (CELL)P;
-	YENV[E_CB] = (CELL)B;
-	YENV[E_E]  = (CELL)ENV;
-#ifdef DEPTH_LIMIT
-	YENV[E_DEPTH] = DEPTH;
-#endif	/* DEPTH_LIMIT */
-	YENV[-EnvSizeInCells-1]  = d1;
-	YENV[-EnvSizeInCells-3]  = MkIntTerm(mod);
-	ENV = YENV;
-	ASP -= EnvSizeInCells+3;
-	P = NEXTOP(COMMA_CODE,sla);
-	ARG1 = t = ArgOfTerm(1,t);
-	goto restart_exec;
-    } else if (mod != CurrentModule) {
-      return(CallMetaCall(mod));
-    }
+      } else {
+	return(CallMetaCall(mod));
+      }
     }
     /* now let us do what we wanted to do from the beginning !! */
     /* I cannot use the standard macro here because

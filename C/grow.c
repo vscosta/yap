@@ -672,7 +672,7 @@ do_growheap(int fix_code, UInt in_size, struct intermediates *cip)
 #if defined(YAPOR) || defined(THREADS)
   if (NOfThreads != 1) {
     Yap_Error(SYSTEM_ERROR,TermNil,"cannot grow Heap: more than a worker/thread running");
-    return(FALSE);
+    return FALSE;
   }
 #endif
   if (SizeOfOverflow > sz)
@@ -703,7 +703,10 @@ do_growheap(int fix_code, UInt in_size, struct intermediates *cip)
   fix_tabling_info();
 #endif /* TABLING */
   if (sz >= sizeof(CELL) * 16 * 1024L) {
-    return (TRUE);
+    ActiveSignals &= ~YAP_CDOVF_SIGNAL;
+    if (!ActiveSignals)
+	CreepFlag = CalculateStackGap();
+    return TRUE;
   }
   /* failed */
   return(FALSE);
