@@ -108,7 +108,8 @@ check_trail_consistency(void) {
 
 CELL old_value = 0L, old_value2 = 0L;
 
-void jmp_deb(int i) {if (i) printf("Here we go\n"); else jmp_deb(0);}
+static void
+jmp_deb(int i) {if (i) printf("Here we go\n"); else jmp_deb(0);}
 
 void
 low_level_trace(yap_low_level_port port, PredEntry *pred, CELL *args)

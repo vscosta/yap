@@ -78,7 +78,7 @@ StreamDesc;
 
 #define YAP_ERROR NIL
 
-#define MaxStreams 32
+#define MaxStreams 64
 
 #define	Free_Stream_f		0x000001
 #define Output_Stream_f		0x000002

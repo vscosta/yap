@@ -11,8 +11,16 @@
 * File:		index.c							 *
 * comments:	Indexing a Prolog predicate				 *
 *									 *
-* Last rev:     $Date: 2004-08-11 16:14:52 $,$Author: vsc $						 *
+* Last rev:     $Date: 2004-08-27 20:18:52 $,$Author: vsc $						 *
 * $Log: not supported by cvs2svn $
+* Revision 1.95  2004/08/11 16:14:52  vsc
+* whole lot of fixes:
+*   - memory leak in indexing
+*   - memory management in WIN32 now supports holes
+*   - extend Yap interface, more support for SWI-Interface
+*   - new predicate mktime in system
+*   - buffer console I/O in WIN32
+*
 * Revision 1.94  2004/07/29 18:15:18  vsc
 * fix severe bug in indexing of floating point numbers
 *
@@ -137,7 +145,7 @@ cleanup_sw_on_clauses(CELL larg, UInt sz, OPCODE ecls)
       }
     } else {
       return sz;
-    }    
+    }
   }
 }
 
@@ -154,9 +162,7 @@ recover_from_failed_susp_on_cls(struct intermediates *cint, UInt sz)
     switch(cpc->op) {
     case jump_v_op:
     case jump_nv_op:
-      if (!(cpc->rnd1 & 1)) {
-	sz = cleanup_sw_on_clauses(cpc->rnd1, sz, ecls);
-      }
+      sz = cleanup_sw_on_clauses(cpc->rnd1, sz, ecls);
       break;
     case switch_on_type_op:
       {
@@ -198,11 +204,11 @@ recover_from_failed_susp_on_cls(struct intermediates *cint, UInt sz)
 	}
 	if (log_upd_pred) {
 	  LogUpdIndex *lcl = ClauseCodeToLogUpdIndex(cpc->rnd2);
-	  sz += sizeof(LogUpdIndex)+cases*sizeof(AtomSwiEntry);
+	  sz += sizeof(LogUpdIndex)+cases*sizeof(FuncSwiEntry);
 	  Yap_FreeCodeSpace((char *)lcl);
 	} else {
 	  StaticIndex *scl = ClauseCodeToStaticIndex(cpc->rnd2);
-	  sz += sizeof(StaticIndex)+cases*sizeof(AtomSwiEntry);
+	  sz += sizeof(StaticIndex)+cases*sizeof(FuncSwiEntry);
 	  Yap_FreeCodeSpace((char *)scl);
 	}
       }
