@@ -766,7 +766,7 @@ debugging :-
 	'$clean_module_for_creep'(G,Mod,TrueMod,TrueG),
 	'$creep'([TrueMod|TrueG]).
 '$creep'([M|'$execute_within'(G)]) :- !,
-	'$clean_module_for_creep'(G,M,TrueMod),
+	'$clean_module_for_creep'(G,M,TrueMod,TrueG),
 	'$creep'([TrueMod|TrueG]).
 '$creep'([M|'$last_execute_within'(G)]) :- !,
 	'$clean_module_for_creep'(G,M,TrueMod,TrueG),
