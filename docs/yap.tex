@@ -6941,6 +6941,21 @@ True when @var{List} is a list, in which @var{Element} may or may not
 occur, and @var{Residue} is a copy of @var{List} with all elements
 identical to @var{Element} deleted.
 
+@item flatten(+@var{List}, ?@var{FlattenedList})
+@findex flatten/2
+@syindex flatten/2
+@cnindex flatten/2
+Flatten a list of lists @var{List} into a single list
+@var{FlattenedList}.
+
+@example
+?- flatten([[1],[2,3],[4,[5,6],7,8]],L).
+
+L = [1,2,3,4,5,6,7,8] ? ;
+
+no
+@end example
+
 @item is_list(+@var{List})
 @findex is_list/1
 @syindex is_list/1

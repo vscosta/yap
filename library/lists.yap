@@ -25,7 +25,8 @@
 	sum_list/2,
 	suffix/2,
 	sumlist/2,
-        list_concat/2
+        list_concat/2,
+        flatten/2
 	]).
 
 
@@ -321,4 +322,12 @@ list_concat([H|T], [H|Lf], Li) :-
 
 
 
-
+%
+% flatten a list
+%
+flatten(X,Y) :- flatten_list(X,Y,[]).
+ 
+flatten_list([]) --> !.
+flatten_list([H|T]) --> !, flatten_list(H),flatten_list(T).
+flatten_list(H) --> [H].
+ 
