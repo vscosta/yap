@@ -572,10 +572,6 @@ init_dbtable(tr_fr_ptr trail_ptr) {
   }
 }
 
-#ifdef DEBUG
-
-/* #define INSTRUMENT_GC 1 */
-
 #ifndef ANALYST
 
 static char *op_names[_std_top + 1] =
@@ -586,6 +582,10 @@ static char *op_names[_std_top + 1] =
 };
 
 #endif
+
+#ifdef DEBUG
+
+/* #define INSTRUMENT_GC 1 */
 
 #ifdef INSTRUMENT_GC
 typedef enum {
