@@ -24,7 +24,7 @@ ensure_loaded(V) :-
 '$ensure_loaded'([F|Fs]) :- !,
 	'$ensure_loaded'(F),
 	'$ensure_loaded'(Fs).
-'$ensure_loaded'(M:X) :- !,
+'$ensure_loaded'(M:X) :- atom(M), !,
         '$current_module'(M0),
         '$change_module'(M),
         '$ensure_loaded'(X),
@@ -97,6 +97,11 @@ reconsult(Fs) :-
 '$reconsult'(V) :- var(V), !,
 	throw(error(instantiation_error,reconsult(V))).
 '$reconsult'([]) :- !.
+'$reconsult'(M:X) :- atom(M), !,
+        '$current_module'(M0),
+        '$change_module'(M),
+        '$reconsult'(X),
+        '$change_module'(M0).
 '$reconsult'([F|Fs]) :- !,
 	'$reconsult'(F),
 	'$reconsult'(Fs).
@@ -108,11 +113,6 @@ reconsult(Fs) :-
 	;
 		throw(error(permission_error(input,stream,X),reconsult(X)))
 	).
-'$reconsult'(M:X) :- !,
-        '$current_module'(M0),
-        '$change_module'(M),
-        '$reconsult'(X),
-        '$change_module'(M0).
 '$reconsult'(library(X)) :- !,
 	'$find_in_path'(library(X),Y),
 	( open(Y,'$csult',Stream), !,
@@ -283,7 +283,7 @@ prolog_load_context(term_position, Position) :-
 
 
 '$loaded'(Stream) :-
-	'$file_name'(Stream,F),
+	'$file_name'(Stream,F),			%
 	'$recorded'('$loaded','$loaded'(F,Age),R), !,
         '$file_age'(F,CurrentAge),
          ((CurrentAge = Age ; Age = -1)  -> true; erase(R), fail).

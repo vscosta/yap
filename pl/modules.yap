@@ -25,6 +25,11 @@ use_module([]) :- !.
 use_module([A|B]) :- !,
 	use_module(A),
 	use_module(B).
+use_module(M:F) :- atom(M), !,
+        '$current_module'(M0),
+        '$change_module'(M),
+        use_module(F),
+        '$change_module'(M0).
 use_module(File) :- 
 	'$find_in_path'(File,X),
 	(  '$recorded'('$module','$module'(_,X,Publics),_) ->
@@ -37,6 +42,11 @@ use_module(File,Imports) :- var(File), !,
 	throw(error(instantiation_error,use_module(File,Imports))).	
 use_module(File,Imports) :- var(Imports), !,
 	throw(error(instantiation_error,use_module(File,Imports))).	
+use_module(M:F, Imports) :- atom(M), !,
+        '$current_module'(M0),
+        '$change_module'(M),
+        use_module(F, Imports),
+        '$change_module'(M0).
 use_module(File,Imports) :-
 	atom(File), !,
 	'$current_module'(M),

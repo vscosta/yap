@@ -849,6 +849,11 @@ break :- '$get_value'('$break',BL), NBL is BL+1,
 '$consult'([F|Fs]) :- !,
 	'$consult'(F),
 	'$consult'(Fs).
+'$consult'(M:X) :- atom(M), !,
+        '$current_module'(M0),
+        '$change_module'(M),
+        '$consult'(X),
+        '$change_module'(M0).
 '$consult'(X) :- atom(X), !,
 	'$find_in_path'(X,Y),
 	( '$open'(Y,'$csult',Stream,0), !,
