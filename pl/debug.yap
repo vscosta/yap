@@ -796,9 +796,9 @@ debugging :-
 		( SL = L -> SLL = '>' ; SLL = ' '),
 		( Module\=prolog,
 		  Module\=user ->
-		    '$format'(user_error,"~a~a (~d) ~a: ~a:",[CSPY,SLL,L,P,Module]),
+		    '$format'(user_error,"~a~a (~d) ~a: ~a:",[CSPY,SLL,L,P,Module])
 		    ;
-		    '$format'(user_error,"~a~a (~d) ~a:",[CSPY,SLL,L,P]),
+		    '$format'(user_error,"~a~a (~d) ~a:",[CSPY,SLL,L,P])
 		),
 		'$debugger_write'(user_error,G),
 	        '$set_value'(debug,1),
