@@ -212,7 +212,7 @@ Abort (char *format,...)
   va_start (ap, format);
 
   PrologMode &= ~AbortMode;
-  if (format)
+  if (format || !strcmp(format,""))
     {
       char ch;
       while ((ch = *format++)!=0)
