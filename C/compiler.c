@@ -11,8 +11,15 @@
 * File:		compiler.c						 *
 * comments:	Clause compiler						 *
 *									 *
-* Last rev:     $Date: 2004-06-29 19:04:41 $,$Author: vsc $						 *
+* Last rev:     $Date: 2004-07-15 17:20:23 $,$Author: vsc $						 *
 * $Log: not supported by cvs2svn $
+* Revision 1.51  2004/06/29 19:04:41  vsc
+* fix multithreaded version
+* include new version of Ricardo's profiler
+* new predicat atomic_concat
+* allow multithreaded-debugging
+* small fixes
+*
 * Revision 1.50  2004/04/22 20:07:04  vsc
 * more fixes for USE_SYSTEM_MEMORY
 *
@@ -794,7 +801,7 @@ c_bifun(Int Op, Term t1, Term t2, Term t3, int mod, compiler_struct *cglobs)
 	Yap_Error_Term = t2;
 	Yap_ErrorMessage = Yap_ErrorSay;
 	Yap_bip_name(Op, s);
-	sprintf(Yap_ErrorMessage, "compiling functor/3");
+	sprintf(Yap_ErrorMessage, "compiling %s/3",s);
 	save_machine_regs();
 	longjmp(cglobs->cint.CompilerBotch,1);
       }
