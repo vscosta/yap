@@ -32,6 +32,7 @@
 
 % hide all atoms who start by '$'
 '$hide'('$VAR') :- !, fail.			/* not $VAR */
+'$hide'('$dbref') :- !, fail.			/* not stream position */
 '$hide'('$stream') :- !, fail.			/* not $STREAM */
 '$hide'('$stream_position') :- !, fail.		/* not stream position */
 '$hide'(Name) :- hide(Name), fail.

@@ -482,6 +482,19 @@ Yap_Error (yap_error_number type, Term where, char *format,...)
     P = (yamop *)FAILCODE;
     Yap_PrologMode &= ~InErrorMode;
     return(P);
+  case CONSISTENCY_ERROR:
+    {
+      int i;
+      Term ti[1];
+
+      ti[0] = where;
+      nt[0] = Yap_MkApplTerm(Yap_MkFunctor(Yap_LookupAtom("consistency_error"),1), 1, ti);
+      tp = tmpbuf+i;
+      psize -= i;
+      fun = Yap_MkFunctor(Yap_LookupAtom("error"),2);
+      serious = TRUE;
+    }
+    break;
   case DOMAIN_ERROR_ARRAY_OVERFLOW:
     {
       int i;

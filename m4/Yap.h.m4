@@ -10,7 +10,7 @@
 * File:		Yap.h.m4						 *
 * mods:									 *
 * comments:	main header file for YAP				 *
-* version:      $Id: Yap.h.m4,v 1.52 2004-02-12 17:09:17 vsc Exp $	 *
+* version:      $Id: Yap.h.m4,v 1.53 2004-02-13 18:39:29 vsc Exp $	 *
 *************************************************************************/
 
 #include "config.h"
@@ -418,6 +418,7 @@ typedef enum {
   PURE_ABORT,
   CALL_COUNTER_UNDERFLOW,
   /* ISO_ERRORS */
+  CONSISTENCY_ERROR,
   DOMAIN_ERROR_ARRAY_OVERFLOW,
   DOMAIN_ERROR_ARRAY_TYPE,
   DOMAIN_ERROR_IO_MODE,

@@ -210,6 +210,7 @@ restore_codes(void)
   heap_regs->atom_dollar_undef = AtomAdjust(heap_regs->atom_dollar_undef);
 #endif
 #endif
+  heap_regs->atom_dbref = AtomAdjust(heap_regs->atom_dbref);
   heap_regs->atom_e = AtomAdjust(heap_regs->atom_e);
   heap_regs->atom_e_q = AtomAdjust(heap_regs->atom_e_q);
   heap_regs->atom_eof = AtomAdjust(heap_regs->atom_eof);

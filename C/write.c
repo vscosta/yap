@@ -56,7 +56,7 @@ typedef struct write_globs {
 STATIC_PROTO(void wrputn, (Int, wrf));
 STATIC_PROTO(void wrputs, (char *, wrf));
 STATIC_PROTO(void wrputf, (Float, wrf));
-STATIC_PROTO(void wrputref, (CODEADDR, wrf));
+STATIC_PROTO(void wrputref, (CODEADDR, int, wrf));
 STATIC_PROTO(int legalAtom, (char *));
 STATIC_PROTO(int LeftOpToProtect, (Atom, int));
 STATIC_PROTO(int RightOpToProtect, (Atom, int));
@@ -133,18 +133,19 @@ wrputf(Float f, wrf writech)		/* writes a float	 */
 }
 
 static void 
-wrputref(CODEADDR ref, wrf writech)			/* writes a data base reference */
+wrputref(CODEADDR ref, int Quote_illegal, wrf writech)			/* writes a data base reference */
 	                    
 {
   char            s[256];
 
+  putAtom(AtomDBRef, Quote_illegal, writech);
 #if SHORT_INTS
-  sprintf(s, "0x%p", ref);
+  sprintf(s, "(0x%p,0)", ref);
 #else
 #ifdef linux
-  sprintf(s, "%p", ref);
+  sprintf(s, "(%p,0)", ref);
 #else
-  sprintf(s, "0x%p", ref);
+  sprintf(s, "(0x%p,0)", ref);
 #endif
 #endif
   wrputs(s, writech);
@@ -458,7 +459,7 @@ writeTerm(Term t, int p, int depth, int rinfixarg, struct write_globs *wglb)
 	wrputf(FloatOfTerm(t),wglb->writech);
 	return;
       case (CELL)FunctorDBRef:
-	wrputref(RefOfTerm(t),wglb->writech);
+	wrputref(RefOfTerm(t), wglb->Quote_illegal, wglb->writech);
 	return;
       case (CELL)FunctorLongInt:
 	wrputn(LongIntOfTerm(t),wglb->writech);

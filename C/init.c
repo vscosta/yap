@@ -884,6 +884,7 @@ InitCodes(void)
   heap_regs->atom_dollar_undef = MkAtomTerm(Yap_FullLookupAtom("$undef"));
 #endif
 #endif
+  heap_regs->atom_dbref = Yap_FullLookupAtom ("$dbref");
   heap_regs->atom_e = Yap_LookupAtom("e");
   heap_regs->atom_e_q = Yap_LookupAtom("=");
   heap_regs->atom_eof = Yap_LookupAtom ("end_of_file");

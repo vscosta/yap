@@ -158,14 +158,11 @@ STATIC_PROTO (Int p_add_alias_to_stream, (void));
 STATIC_PROTO (Int p_change_alias_to_stream, (void));
 STATIC_PROTO (Int p_check_if_valid_new_alias, (void));
 STATIC_PROTO (Int p_fetch_stream_alias, (void));
-STATIC_PROTO (Int GetArgSizeFromThirdArg, (char **, Term *));
-STATIC_PROTO (Int GetArgSizeFromChars, (char **pptr, Int *, Term *));
-STATIC_PROTO (void format_print_str, (Int, Int, Term));
+STATIC_PROTO (int format_print_str, (Int, Int, int, Term));
 STATIC_PROTO (Int p_format, (void));
 STATIC_PROTO (Int p_startline, (void));
 STATIC_PROTO (Int p_change_type_of_char, (void));
 STATIC_PROTO (Int p_type_of_char, (void));
-STATIC_PROTO (Int GetArgSizeFromChar, (Term *));
 STATIC_PROTO (void CloseStream, (int));
 
 static int
@@ -3444,166 +3441,6 @@ p_put_byte (void)
 
 static int format_error = FALSE;
 
-static Int
-GetArgSizeFromThirdArg (char **pptr, Term * termptr)
-{
-  Term args = *termptr, arghd;
-  char *ptr = *pptr;
-  Int res;
-  if (IsVarTerm(args)) {
-    format_error = TRUE;
-    Yap_Error(INSTANTIATION_ERROR, args, "format/2");
-    return(0);
-  } else if (!IsPairTerm (args)) {
-    format_error = TRUE;
-    Yap_Error(TYPE_ERROR_LIST, args, "format/2");
-    return(0);
-  }
-  arghd = HeadOfTerm (args);
-  args = TailOfTerm (args);
-  if (IsVarTerm(arghd)) {
-    format_error = TRUE;
-    Yap_Error(INSTANTIATION_ERROR, arghd, "format/2");
-    return(0);
-  } else if (!IsIntTerm (arghd)) {
-    format_error = TRUE;
-    Yap_Error(TYPE_ERROR_LIST, arghd, "format/2");
-    return(0);
-  }
-  res = IntOfTerm (arghd);
-  if (res < 0) {
-    format_error = TRUE;
-    Yap_Error(DOMAIN_ERROR_NOT_LESS_THAN_ZERO, arghd, "format/2");
-    return (0);
-  }
-#if SHORT_INTS
-  sprintf (ptr, "%ld", res);
-#else
-  sprintf (ptr, "%d", res);
-#endif
-  while (*ptr)
-    ptr++;
-  *pptr = ptr;
-  *termptr = args;
-  return (res);
-}
-
-static Int
-GetArgSizeFromChar (Term * args)
-{
-  Term arghd, argtl = *args;
-  Int val;
-  if (IsVarTerm(argtl)) {
-    format_error = TRUE;
-    Yap_Error(INSTANTIATION_ERROR, argtl, "format/2");
-    return(0);
-  } else if (!IsPairTerm (argtl)) {
-    format_error = TRUE;
-    Yap_Error(TYPE_ERROR_LIST, argtl, "format/2");
-    return(0);
-  }
-  arghd = HeadOfTerm (argtl);
-  argtl = TailOfTerm (argtl);
-  if (IsVarTerm(arghd)) {
-    format_error = TRUE;
-    Yap_Error(INSTANTIATION_ERROR, arghd, "format/2");
-    return(0);
-  } else if (!IsIntTerm (arghd)) {
-    format_error = TRUE;
-    Yap_Error(TYPE_ERROR_LIST, arghd, "format/2");
-    return(0);
-  }
-  val = IntOfTerm (arghd);
-  if (IsVarTerm(argtl)) {
-    format_error = TRUE;
-    Yap_Error(INSTANTIATION_ERROR, argtl, "format/2");
-    return(0);
-  } else if (!IsPairTerm (argtl)) {
-    format_error = TRUE;
-    Yap_Error(TYPE_ERROR_LIST, argtl, "format/2");
-    return(0);
-  }
-  arghd = HeadOfTerm (argtl);
-  argtl = TailOfTerm (argtl);
-  if (IsVarTerm(arghd)) {
-    format_error = TRUE;
-    Yap_Error(INSTANTIATION_ERROR, arghd, "format/2");
-    return(0);
-  } else if (!IsIntTerm (arghd)) {
-    format_error = TRUE;
-    Yap_Error(TYPE_ERROR_LIST, arghd, "format/2");
-    return(0);
-  }
-  if (IntOfTerm (arghd) != 't') {
-    format_error = TRUE;
-    Yap_Error(TYPE_ERROR_LIST, arghd, "format/2");
-    return (0);
-  }
-  *args = argtl;
-  return (val);
-}
-
-static Int
-GetArgSizeFromChars (char **pptr, Int * intptr, Term * termptr)
-{
-  Term args = *termptr, arghd;
-  char *ptr = *pptr;
-  Int up_to_now = *intptr;
-  int ch;
-  if (IsVarTerm(args)) {
-    format_error = TRUE;
-    Yap_Error(INSTANTIATION_ERROR, args, "format/2");
-    return(0);
-  } else if (!IsPairTerm (args)) {
-    format_error = TRUE;
-    Yap_Error(TYPE_ERROR_LIST, args, "format/2");
-    return(0);
-  }
-  arghd = HeadOfTerm (args);
-  args = TailOfTerm (args);
-  if (IsVarTerm(arghd)) {
-    format_error = TRUE;
-    Yap_Error(INSTANTIATION_ERROR, arghd, "format/2");
-    return(0);
-  } else if (!IsIntTerm (arghd)) {
-    format_error = TRUE;
-    Yap_Error(TYPE_ERROR_LIST, arghd, "format/2");
-    return(0);
-  }
-  ch = IntOfTerm (arghd);
-  while (ch >= '0' && ch <= '9')
-    {
-      *ptr++ = ch;
-      up_to_now = up_to_now * 10 + ch - '0';
-      if (IsVarTerm(args)) {
-	format_error = TRUE;
-	Yap_Error(INSTANTIATION_ERROR, args, "format/2");
-	return(0);
-      } else if (!IsPairTerm (args)) {
-	format_error = TRUE;
-	Yap_Error(TYPE_ERROR_LIST, args, "format/2");
-	return(0);
-      }
-      arghd = HeadOfTerm (args);
-      args = TailOfTerm (args);
-      if (IsVarTerm(arghd)) {
-	format_error = TRUE;
-	Yap_Error(INSTANTIATION_ERROR, arghd, "format/2");
-	return(0);
-      } else if (!IsIntTerm (arghd)) {
-	format_error = TRUE;
-	Yap_Error(TYPE_ERROR_LIST, arghd, "format/2");
-	return(0);
-      }
-      ch = (int) IntOfTerm (arghd);
-    }
-  *intptr = up_to_now;
-  *termptr = args;
-  *pptr = ptr;
-  return (ch);
-}
-
-
 #define FORMAT_MAX_SIZE 256
 
 static char *format_ptr, *format_base, *format_max;
@@ -3721,62 +3558,193 @@ static void fill_pads(int nchars)
   }
 }
 
-static void
-format_print_str (Int sno, Int size, Term args)
+static int
+format_print_str (Int sno, Int size, Int has_size, Term args)
 {
   Term arghd;
-  Int always_flag = !size;
-  while (always_flag || size > 0)
-    {
-      if (IsVarTerm(args)) {
-	format_error = TRUE;
-	Yap_Error(INSTANTIATION_ERROR, args, "format/2");
-	return;
-      } else if (args == TermNil)
-	break;
-      else if (!IsPairTerm (args)) {
-	format_error = TRUE;
-	Yap_Error(TYPE_ERROR_LIST, args, "format/2");
-	return;
-      }
-      arghd = HeadOfTerm (args);
-      args = TailOfTerm (args);
-      if (IsVarTerm(arghd)) {
-	format_error = TRUE;
-	Yap_Error(INSTANTIATION_ERROR, arghd, "format/2");
-	return;
-      } else if (!IsIntTerm (arghd)) {
-	format_error = TRUE;
-	Yap_Error(TYPE_ERROR_LIST, arghd, "format/2");
-	return;
-      }
-      format_putc(sno, (int) IntOfTerm (arghd));
-      size--;
+  while (!has_size || size > 0) {
+    if (IsVarTerm(args)) {
+      Yap_Error(INSTANTIATION_ERROR, args, "format/2");
+      return FALSE;
+    } else if (args == TermNil) {
+      return TRUE;
     }
+    else if (!IsPairTerm (args)) {
+      Yap_Error(TYPE_ERROR_LIST, args, "format/2");
+      return FALSE;
+    }
+    arghd = HeadOfTerm (args);
+    args = TailOfTerm (args);
+    if (IsVarTerm(arghd)) {
+      Yap_Error(INSTANTIATION_ERROR, arghd, "format/2");
+      return FALSE;
+    } else if (!IsIntTerm (arghd)) {
+      Yap_Error(TYPE_ERROR_LIST, arghd, "format/2");
+      return FALSE;
+    }
+    format_putc(sno, (int) IntOfTerm (arghd));
+    size--;
+  }
+  return TRUE;
+}
+
+typedef enum {
+  fst_ok,
+  fst_error,
+  fst_too_long
+} format_cp_res;
+
+static format_cp_res
+copy_format_string(Term inp, char *out, int max)
+{
+  int i = 0;
+  while (inp != TermNil) {
+    Term hd;
+    int ch;
+
+    if (IsVarTerm(inp)) {
+      Yap_Error(INSTANTIATION_ERROR,inp,"format/2");
+      return fst_error;
+    }
+    if (!IsPairTerm(inp)) {
+      Yap_Error(TYPE_ERROR_LIST,inp,"format/2");
+      return fst_error;
+    }
+    hd = HeadOfTerm(inp);
+    if (IsVarTerm(hd)) {
+      Yap_Error(INSTANTIATION_ERROR,hd,"format/2");
+      return fst_error;
+    }
+    if (!IsIntTerm(hd)) {
+      Yap_Error(TYPE_ERROR_INTEGER,hd,"format/2");
+      return fst_error;
+    }
+    ch = IntOfTerm(hd);
+    if (ch < 0) {
+      Yap_Error(DOMAIN_ERROR_NOT_LESS_THAN_ZERO,hd,"format/2");
+      return fst_error;
+    }
+    if (i+1 == max) {
+      return fst_too_long;
+    }
+    /* we've got a character */
+    out[i++] = ch;
+    /* done */
+    inp = TailOfTerm(inp);
+  }
+  out[i] = '\0';
+  return fst_ok;
+}
+
+#define FORMAT_COPY_ARGS_ERROR    -1
+#define FORMAT_COPY_ARGS_OVERFLOW -2
+
+static Int
+format_copy_args(Term args, Term *targs, Int tsz)
+{
+  Int n = 0;
+  while (args != TermNil) {
+    if (IsVarTerm(args)) {
+      Yap_Error(INSTANTIATION_ERROR,args,"format/2");
+      return FORMAT_COPY_ARGS_ERROR;
+    }
+    if (!IsPairTerm(args)) {
+      Yap_Error(TYPE_ERROR_LIST,args,"format/2");
+      return FORMAT_COPY_ARGS_ERROR;
+    }
+    if (n == tsz)
+      return FORMAT_COPY_ARGS_OVERFLOW;
+    targs[n] = HeadOfTerm(args);
+    args = TailOfTerm(args);
+    n++;
+  }
+  return n;
+  
+}
+
+static void
+format_clean_up(char *format_base, char *fstr, Term *targs)
+{
+  if (format_base)
+    Yap_FreeAtomSpace(format_base);
+  if (fstr)
+    Yap_FreeAtomSpace(fstr);
+  if (targs)
+    Yap_FreeAtomSpace((char *)targs);
+}
+
+static Int
+fetch_index_from_args(Term t)
+{
+  Int i;
+
+  if (IsVarTerm(t))
+    return -1;
+  if (!IsIntegerTerm(t))
+    return -1;
+  i = IntegerOfTerm(t);
+  if (i < 0)
+    return -1;
+  return i;
 }
 
 static Int
 format(Term tail, Term args, int sno)
 {
-  char tmp1[256], tmp2[256], *ptr;
-  Term head, arghd;
+  char tmp1[256], tmp2[256];
   int ch;
-  Int int2, i;
   int column_boundary = 0;
-  Int size_args, arg_size;
-  Float float_tmp;
+  Term mytargs[8], *targs;
+  Int tnum, targ = 0;
+  char *fstr = NULL, *fptr;
   
   if (IsVarTerm(tail)) {
     Yap_Error(INSTANTIATION_ERROR,tail,"format/2");
     return(FALSE);
-  } else if (!IsPairTerm (tail)) {
-    Yap_Error(TYPE_ERROR_LIST,tail,"format/2");
-    return(FALSE);
+  } else if (IsPairTerm (tail)) {
+    int sz = 256;
+    do {
+      format_cp_res fr;
+
+      fstr = fptr = Yap_AllocAtomSpace(sz*sizeof(char));
+      if ((fr = copy_format_string(tail, fstr, sz)) == fst_ok)
+	break;
+      if (fr == fst_error) return FALSE;
+      sz += 256;
+      Yap_FreeCodeSpace(fstr);
+    } while (TRUE);
+  } else if (IsAtomTerm(tail)) {
+    fstr = fptr = RepAtom(AtomOfTerm(tail))->StrOfAE;
+  } else {
+    Yap_Error(CONSISTENCY_ERROR, tail, "format/2");
+    return FALSE;
   }
-  head = HeadOfTerm (tail);
-  tail = TailOfTerm (tail);
-  if (IsVarTerm (args) || !IsPairTerm (args))
-    args = MkPairTerm (args, TermNil);
+  if (IsPairTerm(args)) {
+    Int tsz = 8;
+
+    targs = mytargs;
+    do {
+      tnum = format_copy_args(args, targs, tsz);
+      if (tnum == FORMAT_COPY_ARGS_ERROR)
+	return FALSE;
+      else if (tnum == FORMAT_COPY_ARGS_OVERFLOW) {
+	if (mytargs != targs) {
+	  Yap_FreeCodeSpace((char *)targs);
+	}
+	tsz += 16;
+	targs = (Term *)Yap_AllocAtomSpace(tsz*sizeof(Term));
+      } else {
+	break;
+      }
+    } while (TRUE);
+  } else if (args != TermNil) {
+    tnum = 1;
+    mytargs[0] = args;
+    targs = mytargs;
+  } else {
+    tnum = 0;
+    targs = mytargs;
+  }
   format_base = format_ptr = Yap_AllocAtomSpace(FORMAT_MAX_SIZE*sizeof(char));
   format_max = format_base+FORMAT_MAX_SIZE;
   if (format_ptr == NULL) {
@@ -3785,723 +3753,359 @@ format(Term tail, Term args, int sno)
   }  
   format_buf_size = FORMAT_MAX_SIZE;
   format_error = FALSE;
-  while (!IsVarTerm (head) && IsIntTerm (head))
-    {
-      if (format_buf_size == -1) {
-	Yap_FreeAtomSpace(format_base);
-	return FALSE;
+
+  while ((ch = *fptr++)) {
+    Term t = TermNil;
+    int has_repeats = FALSE;
+    Int repeats = 0;
+
+    if (ch == '~') {
+      /* start command */
+      ch = *fptr++;
+      if (ch == '*') {
+	ch = *fptr++;
+	has_repeats = TRUE;
+	if (targ > tnum) {
+	  goto do_consistency_error;
+	}
+	repeats = fetch_index_from_args(targs[targ++]);
+	if (repeats == -1)
+	  goto do_consistency_error;
+      } else if (ch == '`') {
+	/* next character is kept as code */
+	repeats = *fptr++;
+	ch = *fptr++;
+      } else if (ch >= '0' && ch <= '9') {
+	has_repeats = TRUE;
+	repeats = 0;
+	while (ch >= '0' && ch <= '9') {
+	  repeats = repeats*10+(ch-'0');
+	  ch = *fptr++;
+	}
       }
-      ch = IntOfTerm (head);
-      if (ch == '~')
+      switch (ch) {
+      case 'a':
+	/* print an atom */
+	if (has_repeats || targ > tnum)
+	  goto do_consistency_error;
+	t = targs[targ++];
+	if (IsVarTerm(t))
+	  goto do_instantiation_error;
+	if (!IsAtomTerm(t))
+	  goto do_type_atom_error;
+	Yap_plwrite (t, format_putc, Handle_vars_f|To_heap_f);
+	break;
+      case 'c':
 	{
-	  size_args = FALSE;
-	  arg_size = 0;
-	  ptr = tmp1;
-	  *ptr++ = '%';
-	  if (IsVarTerm (tail = Deref (tail)) ) {
-	    Yap_FreeAtomSpace(format_base);
-	    Yap_Error(INSTANTIATION_ERROR,tail,"format/2");
-	    return FALSE;
-	  } else if (!IsPairTerm (tail)) {
-	    Yap_FreeAtomSpace(format_base);
-	    Yap_Error(TYPE_ERROR_LIST,tail,"format/2");
-	    return FALSE;
-	  }
-	  head = HeadOfTerm (tail);
-	  tail = TailOfTerm (tail);
-	  if (IsVarTerm (head)) {
-	    Yap_FreeAtomSpace(format_base);
-	    Yap_Error(INSTANTIATION_ERROR,tail,"format/2");
-	    return FALSE;
-	  } else  if ( !IsIntTerm (head)) {
-	    Yap_FreeAtomSpace(format_base);
-	    Yap_Error(TYPE_ERROR_INTEGER,tail,"format/2");
-	    return FALSE;
-	  } else
-	    ch = IntOfTerm (head);
-	  if (ch == '*')
-	    {
-	      size_args = TRUE;
-	      arg_size = GetArgSizeFromThirdArg (&ptr, &args);
-	      if (format_error) {
-		Yap_FreeAtomSpace(format_base);
-		return FALSE;
-	      }
-	      if (IsVarTerm (tail = Deref (tail)) ) {
-		Yap_FreeAtomSpace(format_base);
-		Yap_Error(INSTANTIATION_ERROR,tail,"format/2");
-		return FALSE;
-	      } else if (!IsPairTerm (tail)) {
-		Yap_FreeAtomSpace(format_base);
-		Yap_Error(TYPE_ERROR_LIST,tail,"format/2");
-		return FALSE;
-	      }
-	      head = HeadOfTerm (tail);
-	      tail = TailOfTerm (tail);
-	      if (IsVarTerm (head)) {
-		Yap_FreeAtomSpace(format_base);
-		Yap_Error(INSTANTIATION_ERROR,tail,"format/2");
-		return FALSE;
-	      } else  if ( !IsIntTerm (head)) {
-		Yap_FreeAtomSpace(format_base);
-		Yap_Error(TYPE_ERROR_INTEGER,tail,"format/2");
-		return FALSE;
-	      } else
-		ch = IntOfTerm (head);
-	    }
-	  else if (ch >= '0' && ch <= '9')
-	    {
-	      arg_size = ch - '0';
-	      size_args = TRUE;
-	      ch = GetArgSizeFromChars (&ptr, &arg_size, &tail);
-	      if (format_error) {
-		Yap_FreeAtomSpace(format_base);
-		return FALSE;
-	      }
-	    }
-	  else if (ch == '`')
-	    {
-	      size_args = TRUE;
-	      arg_size = GetArgSizeFromChar(&tail);
-	      if (format_error) {
-		Yap_FreeAtomSpace(format_base);
-		return FALSE;
-	      }
-	      ch = 't';
-	    }
-	  switch (ch)
-	    {
-	    case 'a':
-	      if (size_args) {
-		Yap_FreeAtomSpace(format_base);
-		return FALSE;
-	      }
-	      if (IsVarTerm (args)) {
-		Yap_FreeAtomSpace(format_base);
-		Yap_Error(INSTANTIATION_ERROR,args,"~a format/2");
-		return FALSE;		
-	      } else if (!IsPairTerm (args)) {
-		Yap_FreeAtomSpace(format_base);
-		Yap_Error(TYPE_ERROR_LIST,args,"~a format/2");
-		return FALSE;
-	      }
-	      arghd = HeadOfTerm (args);
-	      args = TailOfTerm (args);
-	      if (IsVarTerm (arghd)) {
-		Yap_FreeAtomSpace(format_base);
-		Yap_Error(INSTANTIATION_ERROR,arghd,"~a in format/2");
-		return FALSE;
-	      } else if (!IsAtomTerm (arghd)) {
-		Yap_FreeAtomSpace(format_base);
-		Yap_Error(TYPE_ERROR_ATOM,arghd,"~a in format/2");
-		return FALSE;
-	      }
-	      Yap_plwrite (arghd, format_putc, Handle_vars_f|To_heap_f);
-	      break;
-	    case 'c':
-	      if (IsVarTerm (args)) {
-		Yap_FreeAtomSpace(format_base);
-		Yap_Error(INSTANTIATION_ERROR,args,"~c in format/2");
-		return FALSE;
-	      } else if (!IsPairTerm (args)) {
-		Yap_FreeAtomSpace(format_base);
-		Yap_Error(TYPE_ERROR_LIST,args,"~c in format/2");
-		return FALSE;
-	      }
-	      arghd = HeadOfTerm (args);
-	      args = TailOfTerm (args);
-	      if (IsVarTerm (arghd)) {
-		Yap_FreeAtomSpace(format_base);
-		Yap_Error(INSTANTIATION_ERROR,arghd,"~c in format/2");
-		return FALSE;
-	      } else if (!IsIntTerm (arghd)) {
-		Yap_FreeAtomSpace(format_base);
-		Yap_Error(TYPE_ERROR_ATOM,arghd,"~a in format/2");
-		return FALSE;
-	      } else int2= IntOfTerm(arghd);
-	      if (!size_args)
-		arg_size = 1;
-	      for (i = 0; i < arg_size; i++)
-		format_putc(sno, int2);
-	      break;
-	    case 'e':
-	    case 'E':
-	    case 'f':
-	    case 'g':
-	    case 'G':
-	      if (IsVarTerm (args)) {
-		Yap_FreeAtomSpace(format_base);
-		Yap_Error(INSTANTIATION_ERROR,args,"~%d in format/2", ch);
-		return FALSE;
-	      } else if (!IsPairTerm (args)) {
-		Yap_FreeAtomSpace(format_base);
-		Yap_Error(TYPE_ERROR_LIST,args,"~%d in format/2", ch);
-		return FALSE;
-	      }
-	      if (arg_size == 0 || arg_size > 6)
-		arg_size = 6;
-	      *ptr++ = '.';
-	      *ptr++ = '0' + arg_size;
-	      *ptr++ = ch;
-	      *ptr = 0;
-	      arghd = HeadOfTerm (args);
-	      args = TailOfTerm (args);
-	      if (IsVarTerm(arghd)) {
-		Yap_FreeAtomSpace(format_base);
-		Yap_Error(INSTANTIATION_ERROR,arghd,"~%c in format/2", ch);
-		return FALSE;		
-	      } else if (!IsNumTerm (arghd)) {
-		Yap_FreeAtomSpace(format_base);
-		Yap_Error(TYPE_ERROR_FLOAT,arghd,"~%c in format/2", ch);
-		return FALSE;
-	      }
-	      if (IsIntegerTerm(arghd)) {
-		  float_tmp = IntegerOfTerm(arghd);
+	  Int nch, i;
+
+	  if (targ > tnum)
+	    goto do_consistency_error;
+	  t = targs[targ++];
+	  if (IsVarTerm(t))
+	    goto do_instantiation_error;
+	  if (!IsIntegerTerm(t))
+	    goto do_type_int_error;
+	  nch = IntegerOfTerm(t);
+	  if (nch < 0)
+	    goto do_domain_not_less_zero_error;
+	  if (!has_repeats)
+	    repeats = 1;
+	  for (i = 0; i < repeats; i++)
+	    format_putc(sno, nch);
+	  break;
+	}
+      case 'e':
+      case 'E':
+      case 'f':
+      case 'g':
+      case 'G':
+	{
+	  Float fl;
+	  char *ptr;
+
+	  if (targ > tnum)
+	    goto do_consistency_error;
+	  t = targs[targ++];
+	  if (IsVarTerm(t))
+	    goto do_instantiation_error;
+	  if (!IsNumTerm(t))
+	    goto do_type_number_error;
+	  if (IsIntegerTerm(t)) {
+	    fl = (Float)IntegerOfTerm(t);
 #ifdef USE_GMP
-	      } else if (IsBigIntTerm(arghd)) {
-		  float_tmp = mpz_get_d(Yap_BigIntOfTerm(arghd));
+	  } else if (IsBigIntTerm(t)) {
+	    fl = mpz_get_d(Yap_BigIntOfTerm(t));
 #endif
-              } else {
-		float_tmp = FloatOfTerm (arghd);
-	      }
-	      sprintf (tmp2, tmp1, float_tmp);
-	      ptr = tmp2;
-	      while ((ch = *ptr++) != 0)
-		format_putc(sno, ch);
-	      break;
-	    case 'd':
-	      if (IsVarTerm (args)) {
-		Yap_FreeAtomSpace(format_base);
-		Yap_Error(INSTANTIATION_ERROR,args,"~d format/2");
-		return FALSE;		
-	      } else if (!IsPairTerm (args)) {
-		Yap_FreeAtomSpace(format_base);
-		Yap_Error(TYPE_ERROR_LIST,args,"~d format/2");
-		return(FALSE);
-	      }
-	      arghd = HeadOfTerm (args);
-	      args = TailOfTerm (args);
-	      if (IsVarTerm (arghd)) {
-		Yap_FreeAtomSpace(format_base);
-		Yap_Error(INSTANTIATION_ERROR,arghd,"~d in format/2");
-		return(FALSE);		
-	      } else if (IsIntTerm (arghd)) {
-		int2 = IntOfTerm (arghd);
-	      } else if (IsLongIntTerm (arghd)) {
-		int2 = LongIntOfTerm(arghd);
-	      } else {
-		Yap_FreeAtomSpace(format_base);
-		Yap_Error(TYPE_ERROR_INTEGER,arghd,"~d in format/2");
-		return(FALSE);
-	      }
-	      if (!arg_size) {
-		Yap_plwrite (arghd, format_putc, Handle_vars_f|To_heap_f);
-	      } else {
-		Int siz;
-		/*
-		 * The guys at Quintus have probably
-		 * read too much Cobol! 
-		 */
-		if (int2 < 0) {
-		  int2 = -int2;
-		  format_putc(sno, (int) '-');
-		}
-#if SHORT_INTS
-		sprintf (tmp2, "%ld", int2);
-#else
-		sprintf (tmp2, "%d", int2);
-#endif
-		siz = strlen (tmp2);
-		{
-		  char *ptr = tmp2;
-		  if (siz <= arg_size)
-		    format_putc(sno, (int) '0');
-		  else
-		    while (siz > arg_size)
-		      format_putc(sno, (int) *ptr++), --siz;
-		  format_putc(sno, (int) '.');
-		  while (siz < arg_size)
-		    format_putc(sno, (int) '0'), --arg_size;
-		  while (*ptr)
-		    format_putc(sno, (int) (*ptr++));
-		}
-	      }
-	      break;
-	    case 'D':
-	      if (IsVarTerm (args)) {
-		Yap_FreeAtomSpace(format_base);
-		Yap_Error(INSTANTIATION_ERROR,args,"~D in format/2");
-		return(FALSE);		
-	      } else if (!IsPairTerm (args)) {
-		Yap_FreeAtomSpace(format_base);
-		Yap_Error(TYPE_ERROR_LIST,args,"~D in format/2");
-		return(FALSE);
-	      }
-	      arghd = HeadOfTerm (args);
-	      args = TailOfTerm (args);
-	      if (IsVarTerm (arghd)) {
-		Yap_FreeAtomSpace(format_base);
-		Yap_Error(INSTANTIATION_ERROR,arghd,"~D in format/2");
-		return(FALSE);		
-	      } else if (IsIntTerm (arghd)) {
-		int2 = IntOfTerm (arghd);
-	      } else if (IsLongIntTerm (arghd)) {
-		int2 = LongIntOfTerm(arghd);
-	      } else {
-		Yap_FreeAtomSpace(format_base);
-		Yap_Error(TYPE_ERROR_INTEGER,arghd,"~D in format/2");
-		return(FALSE);
-	      }
-	      {
-		Int siz, lsiz;
-		char *ptr = tmp2;
+	  } else {
+	    fl = FloatOfTerm(t);
+	  }
+	  if (!has_repeats)
+	    repeats = 6;
+	  tmp1[0] = '%';
+	  tmp1[1] = '.';
+	  ptr = tmp1+2;
+	  sprintf(ptr,"%d",repeats);
+	  while (*ptr) ptr++;
+	  ptr[0] = ch;
+	  ptr[1] = '\0';
+	  sprintf (tmp2, tmp1, fl);
+	  ptr = tmp2;
+	  while ((ch = *ptr++) != 0)
+	    format_putc(sno, ch);
+	  break;
+	case 'd':
+	case 'D':
+	  /* print a decimal, using weird . stuff */
+	  if (targ > tnum)
+	    goto do_consistency_error;
+	  t = targs[targ++];
+	  if (IsVarTerm(t))
+	    goto do_instantiation_error;
+	  if (!IsIntegerTerm(t))
+	    goto do_type_int_error;
+	  if (!has_repeats) {
+	    Yap_plwrite (t, format_putc, Handle_vars_f|To_heap_f);
+	  } else {
+	    Int siz, dec = IntegerOfTerm(t), i, div = 1;
 
-		if (int2 < 0)
-		  {
-		    int2 = -int2;
-		    format_putc(sno, (int) '-');
-		  }
-		/*
-		 * The guys at Quintus have probably
-		 * read too much Cobol! 
-		 */
-#if SHORT_INTS
-		sprintf (tmp2, "%ld", int2);
-#else
-		sprintf (tmp2, "%d", int2);
-#endif
-		siz = strlen (tmp2);
-		if ((lsiz = siz - arg_size) <= 0)
-		  format_putc(sno, (int) '0');
+	    /*
+	     * The guys at Quintus have probably
+	     * read too much Cobol! 
+	     */
+	    if (dec < 0) {
+	      dec = -dec;
+	      format_putc(sno, (int) '-');
+	    }
+	    i = dec;
+	    siz = 0;
+	    while (i > 0) {
+	      siz++;
+	      i /= 10;
+	      div *= 10;
+	    }
+	    if (repeats > siz) {
+	      format_putc(sno, (int) '.');
+	      while (repeats > siz) {
+		format_putc(sno, (int) '0');
+		repeats--;
+	      }
+	    } else {
+	      int output_done = FALSE;
+	      while (siz > repeats) {
+		div /= 10;
+		if (ch == 'D'&&
+		    (siz - repeats) % 3 == 0 &&
+		    output_done)
+		  format_putc(sno, (int)',');
+		format_putc(sno, (int)((dec/div)+'0'));
+		output_done = TRUE;
+		siz--;
+		dec = dec%div;
+	      }
+	      format_putc(sno, (int) '.');
+	    }
+	    Yap_plwrite (MkIntegerTerm(dec), format_putc, Handle_vars_f|To_heap_f);
+	  break;
+	  case 'r':
+	  case 'R':
+	    {
+	      Int numb, radix, div = 1;
+
+	      /* print a decimal, using weird . stuff */
+	      if (targ > tnum)
+		goto do_consistency_error;
+	      t = targs[targ++];
+	      if (IsVarTerm(t))
+		goto do_instantiation_error;
+	      if (!IsIntegerTerm(t))
+		goto do_type_int_error;
+	      if (!has_repeats)
+		radix = 8;
+	      else
+		radix = repeats;
+	      if (radix > 36 || radix < 2)
+		goto do_domain_error_radix;
+	      numb = IntegerOfTerm(t);
+	      if (numb < 0) {
+		numb = -numb;
+		format_putc(sno, (int) '-');
+	      }
+	      i = numb;
+	      while (i > 0) {
+		i /= radix;
+		div *= radix;
+	      }
+	      div /= radix;
+	      while (numb) {
+		Int dig = numb/div;
+		if (dig < 10) 
+		  format_putc(sno, (int)(dig+'0'));
+		else if (ch == 'r')
+		  format_putc(sno, (int)((dig-10)+'a'));
 		else
-		  {
-		    Int imod = lsiz % 3;
-		    int output_done = FALSE;
-
-		    for (i = 0; i < lsiz; i++)
-		      {
-			if (imod-- == 0)
-			  {
-			    if (output_done)
-			      format_putc(sno, (int) ',');
-			    imod = 2;
-			  }
-			format_putc(sno, (int) (*ptr++));
-			output_done = TRUE;
-		      }
-		  }
-		if (arg_size > 0)
-		  format_putc(sno, (int) '.');
-		while (lsiz < 0)
-		  format_putc(sno, (int) '0'), ++lsiz;
-		while (*ptr)
-		  format_putc(sno, (int) (*ptr++));
+		  format_putc(sno, (int)((dig-10)+'A'));
+		numb %= div;
+		div /= radix;
 	      }
 	      break;
-	    case 'r':
-	      {
-		Int radix = 8;
-		ptr = tmp2;
-		if (size_args)
-		  radix = arg_size;
-		if (IsVarTerm (args)) {
-		  Yap_FreeAtomSpace(format_base);
-		  Yap_Error(INSTANTIATION_ERROR,args,"~r in format/2");
-		  return(FALSE);		
-		} else if (!IsPairTerm (args)) {
-		  Yap_FreeAtomSpace(format_base);
-		  Yap_Error(TYPE_ERROR_LIST,args,"~r in format/2");
-		  return(FALSE);
-		}
-		if (radix > 36 || radix < 2) {
-		  Yap_FreeAtomSpace(format_base);
-		  Yap_Error(DOMAIN_ERROR_RADIX,MkIntTerm(radix),"~r in format/2");
-		  return(FALSE);
-		}
-		arghd = HeadOfTerm (args);
-		args = TailOfTerm (args);
-		if (IsVarTerm (arghd)) {
-		  Yap_FreeAtomSpace(format_base);
-		  Yap_Error(INSTANTIATION_ERROR,arghd,"~r in format/2");
-		  return(FALSE);		
-		} else if (IsIntTerm (arghd)) {
-		  int2 = IntOfTerm (arghd);
-		} else if (IsLongIntTerm (arghd)) {
-		int2 = LongIntOfTerm(arghd);
-		} else {
-		  Yap_FreeAtomSpace(format_base);
-		  Yap_Error(TYPE_ERROR_INTEGER,arghd,"~r in format/2");
-		  return(FALSE);
-		}
-		if (int2 < 0)
-		  {
-		    int2 *= -1;
-		    format_putc(sno, (int) '-');
-		  }
-		else if (int2 == 0)
-		  format_putc(sno, (int) '0');
-		while (int2 != 0)
-		  {
-		    Int numb = int2 % radix;
-		    if (numb >= 10)
-		      numb += 'a' - 10;
-		    else
-		      numb += '0';
-		    *ptr++ = numb;
-		    int2 = int2 / radix;
-		  }
-		while (--ptr >= tmp2)
-		  format_putc(sno, (int) *ptr);
+	    }
+	  case 's':
+	    if (targ > tnum)
+	      goto do_consistency_error;
+	    t = targs[targ++];
+	    if (!format_print_str (sno, repeats, has_repeats, t)) {
+	      goto do_default_error;
+	    }
+	    break;
+	  case 'i':
+	    if (targ > tnum || has_repeats)
+	      goto do_consistency_error;
+	    targ++;
+	    break;
+	  case 'k':
+	    if (targ > tnum || has_repeats)
+	      goto do_consistency_error;
+	    t = targs[targ++];
+	    Yap_plwrite (t, format_putc, Quote_illegal_f|Ignore_ops_f|To_heap_f );
+	    break;
+	  case 'p':
+	    if (targ > tnum || has_repeats)
+	      goto do_consistency_error;
+	    t = targs[targ++];
+	    *--ASP = MkIntTerm(0);
+	    { 
+	      long sl = Yap_InitSlot(args);
+	      Yap_plwrite(t, format_putc, Handle_vars_f|Use_portray_f|To_heap_f);
+	      args = Yap_GetFromSlot(sl);
+	      Yap_RecoverSlots(1);
+	    }
+	    if (EX != 0L) {
+	      Term ball = EX;
+	      EX = 0L;
+	      if (tnum <= 8)
+		targs = NULL;
+	      if (IsAtomTerm(tail)) {
+		fstr = NULL;
 	      }
-	      break;
-	    case 'R':
-	      {
-		Int radix = 8;
-		ptr = tmp2;
-		if (size_args)
-		  radix = arg_size;
-		if (IsVarTerm (args)) {
-		  Yap_FreeAtomSpace(format_base);
-		  Yap_Error(INSTANTIATION_ERROR,args,"~R in format/2");
-		  return(FALSE);		
-		} else if (!IsPairTerm (args)) {
-		  Yap_FreeAtomSpace(format_base);
-		  Yap_Error(TYPE_ERROR_LIST,args,"~R in format/2");
-		  return(FALSE);
-		}
-		if (radix > 36 || radix < 2) {
-		  Yap_FreeAtomSpace(format_base);
-		  Yap_Error(DOMAIN_ERROR_RADIX,MkIntTerm(radix),"~R in format/2");
-		  return(FALSE);
-		}
-		arghd = HeadOfTerm (args);
-		args = TailOfTerm (args);
-		if (IsVarTerm (arghd)) {
-		  Yap_FreeAtomSpace(format_base);
-		  Yap_Error(INSTANTIATION_ERROR,arghd,"~R in format/2");
-		  return(FALSE);		
-		} else if (IsIntTerm (arghd)) {
-		  int2 = IntOfTerm (arghd);
-		} else if (IsLongIntTerm (arghd)) {
-		  int2 = LongIntOfTerm(arghd);
-		} else {
-		  Yap_FreeAtomSpace(format_base);
-		  Yap_Error(TYPE_ERROR_INTEGER,arghd,"~R in format/2");
-		  return(FALSE);
-		}
-		if (int2 < 0)
-		  {
-		    int2 *= -1;
-		    format_putc(sno, (int) '-');
-		  }
-		else if (int2 == 0)
-		  format_putc(sno, (int) '0');
-		while (int2 != 0)
-		  {
-		    Int numb = int2 % radix;
-		    if (numb >= 10)
-		      numb += 'A' - 10;
-		    else
-		      numb += '0';
-		    *ptr++ = numb;
-		    int2 = int2 / radix;
-		  }
-		while (--ptr >= tmp2)
-		  format_putc(sno, (int) *ptr);
-	      }
-	      break;
-	    case 's':
-	      if (IsVarTerm (args)) {
-		Yap_FreeAtomSpace(format_base);
-		Yap_Error(INSTANTIATION_ERROR,args,"~s in format/2");
-		return(FALSE);		
-	      } else if (!IsPairTerm (args)) {
-		Yap_FreeAtomSpace(format_base);
-		Yap_Error(TYPE_ERROR_LIST,args,"~s in format/2");
-		return(FALSE);
-	      }
-	      arghd = HeadOfTerm (args);
-	      args = TailOfTerm (args);
-	      if (IsVarTerm (arghd)) {
-		Yap_FreeAtomSpace(format_base);
-		Yap_Error(INSTANTIATION_ERROR,arghd,"~s in format/2");
-		return(FALSE);		
-	      } else if (!IsPairTerm (arghd) && arghd != TermNil) {
-		Yap_FreeAtomSpace(format_base);
-		Yap_Error(TYPE_ERROR_LIST,arghd,"~s in format/2");
-		return(FALSE);
-	      }
-	      format_print_str (sno, arg_size, arghd);
-	      if (format_error) {
-		Yap_FreeAtomSpace(format_base);
-		return(FALSE);
-	      }
-	      break;
-	    case 'i':
-	      if (size_args) {
-		Yap_FreeAtomSpace(format_base);
-		Yap_Error(DOMAIN_ERROR_NOT_ZERO,MkIntTerm(size_args),
-		      "~i in format/2");
-		return(FALSE);
-	      }
-	      if (IsVarTerm (args)) {
-		Yap_FreeAtomSpace(format_base);
-		Yap_Error(INSTANTIATION_ERROR,args,"~i in format/2");
-		return(FALSE);		
-	      } else if (!IsPairTerm (args)) {
-		Yap_FreeAtomSpace(format_base);
-		Yap_Error(TYPE_ERROR_LIST,args,"~i in format/2");
-		return(FALSE);
-	      }
-	      args = TailOfTerm (args);
-	      break;
-	    case 'k':
-	      if (size_args) {
-		Yap_FreeAtomSpace(format_base);
-		Yap_Error(DOMAIN_ERROR_NOT_ZERO,MkIntTerm(size_args),
-		      "~k in format/2");
-		return(FALSE);
-	      }
-	      if (IsVarTerm (args)) {
-		Yap_FreeAtomSpace(format_base);
-		Yap_Error(INSTANTIATION_ERROR,args,"~k in format/2");
-		return(FALSE);		
-	      } else if (!IsPairTerm (args)) {
-		Yap_FreeAtomSpace(format_base);
-		Yap_Error(TYPE_ERROR_LIST,args,"~k in format/2");
-		return(FALSE);
-	      }
-	      arghd = HeadOfTerm (args);
-	      args = TailOfTerm (args);
-	      Yap_plwrite (arghd, format_putc, Quote_illegal_f|Ignore_ops_f|To_heap_f );
-	      break;
-	    case 'p':
-	      if (size_args) {
-		Yap_FreeAtomSpace(format_base);
-		Yap_Error(DOMAIN_ERROR_NOT_ZERO,MkIntTerm(size_args),
-		      "~p in format/2");
-		return(FALSE);
-	      }
-	      if (IsVarTerm (args)) {
-		Yap_FreeAtomSpace(format_base);
-		Yap_Error(INSTANTIATION_ERROR,args,"~p in format/2");
-		return(FALSE);		
-	      } else if (!IsPairTerm (args)) {
-		Yap_FreeAtomSpace(format_base);
-		Yap_Error(TYPE_ERROR_LIST,args,"~p in format/2");
-		return(FALSE);
-	      }
-	      arghd = HeadOfTerm (args);
-	      args = TailOfTerm (args);
-	      *--ASP = MkIntTerm(0);
-	      { 
-		long sl = Yap_InitSlot(args);
-		Yap_plwrite(arghd, format_putc, Handle_vars_f|Use_portray_f|To_heap_f);
-		args = Yap_GetFromSlot(sl);
-		Yap_RecoverSlots(1);
-	      }
-	      if (EX != 0L) {
-		Term ball = EX;
-		EX = 0L;
-		Yap_FreeAtomSpace(format_base);
-		Yap_JumpToEnv(ball);
-		return(FALSE);
-	      }
-	      break;
-	    case 'q':
-	      if (size_args) {
-		Yap_FreeAtomSpace(format_base);
-		Yap_Error(DOMAIN_ERROR_NOT_ZERO,MkIntTerm(size_args),
-		      "~q in format/2");
-		return(FALSE);
-	      }
-	      if (IsVarTerm (args)) {
-		Yap_FreeAtomSpace(format_base);
-		Yap_Error(INSTANTIATION_ERROR,args,"~q in format/2");
-		return(FALSE);		
-	      } else if (!IsPairTerm (args)) {
-		Yap_FreeAtomSpace(format_base);
-		Yap_Error(TYPE_ERROR_LIST,args,"~q in format/2");
-		return(FALSE);
-	      }
-	      arghd = HeadOfTerm (args);
-	      args = TailOfTerm (args);
-	      Yap_plwrite (arghd, format_putc, Handle_vars_f|Quote_illegal_f|To_heap_f);
-	      break;
-	    case 'w':
-	      if (size_args) {
-		Yap_FreeAtomSpace(format_base);
-		Yap_Error(DOMAIN_ERROR_NOT_ZERO,MkIntTerm(size_args),
-		      "bad arguments for ~w in format/2");
-		return(FALSE);
-	      }
-	      if (IsVarTerm (args)) {
-		Yap_FreeAtomSpace(format_base);
-		Yap_Error(INSTANTIATION_ERROR,args,"~w in format/2");
-		return(FALSE);		
-	      } else if (!IsPairTerm (args)) {
-		Yap_FreeAtomSpace(format_base);
-		Yap_Error(TYPE_ERROR_LIST,args,"~w in format/2");
-		return(FALSE);
-	      }
-	      arghd = HeadOfTerm (args);
-	      args = TailOfTerm (args);
-	      Yap_plwrite (arghd, format_putc, Handle_vars_f|To_heap_f);
-	      break;
-	    case '~':
-	      if (size_args) {
-		Yap_FreeAtomSpace(format_base);
-		Yap_Error(DOMAIN_ERROR_NOT_ZERO,MkIntTerm(size_args),
-		      "~~ in format/2");
-		return(FALSE);
-	      }
-	      format_putc(sno, (int) '~');
-	      break;
-	    case 'n':
-	      if (!size_args)
-		arg_size = 1;
-	      for (i = 0; i < arg_size; i++)
+	      format_clean_up(format_base, fstr, targs);
+	      Yap_JumpToEnv(ball);
+	    }
+	    ASP++;
+	    break;
+	  case 'q':
+	    if (targ > tnum || has_repeats)
+	      goto do_consistency_error;
+	    t = targs[targ++];
+	    Yap_plwrite (t, format_putc, Handle_vars_f|Quote_illegal_f|To_heap_f);
+	    break;
+	  case 'w':
+	    if (targ > tnum || has_repeats)
+	      goto do_consistency_error;
+	    t = targs[targ++];
+	    Yap_plwrite (t, format_putc, Handle_vars_f|To_heap_f);
+	    break;
+	  case '~':
+	    if (has_repeats)
+	      goto do_consistency_error;
+	    format_putc(sno, (int) '~');
+	    break;
+	  case 'n':
+	    if (!has_repeats)
+	      repeats = 1;
+	    while (repeats--) {
+	      format_putc(sno, (int) '\n');
+	    }
+	    column_boundary = 0;
+	    pad_max = pad_entries;
+	    break;
+	  case 'N':
+	    if (!has_repeats)
+	      has_repeats = 1;
+	    if (Stream[sno].linepos != 0) {
+	      format_putc(sno, (int) '\n');
+	      column_boundary = 0;
+	      pad_max = pad_entries;
+	    }
+	    if (repeats > 1) {
+	      Int i;
+	      for (i = 1; i < repeats; i++)
 		format_putc(sno, (int) '\n');
 	      column_boundary = 0;
 	      pad_max = pad_entries;
-	      break;
-	    case 'N':
-	      if (!size_args) {
-		arg_size = 1;
-	      }
-	      if (Stream[sno].linepos != 0)
-		{
-		  format_putc(sno, (int) '\n');
-		  column_boundary = 0;
-		  pad_max = pad_entries;
-		}
-	      if (arg_size > 1) {
-		for (i = 1; i < arg_size; i++)
-		  format_putc(sno, (int) '\n');
-		column_boundary = 0;
-		pad_max = pad_entries;
-	      }
-	      break;
-	      /* padding */
-	    case '|':
-	      if (size_args) {
-		fill_pads(arg_size-(format_ptr-format_base));
-	      }
-	      pad_max = pad_entries;
-	      column_boundary = arg_size;
-	      break;
-	    case '+':
-	      if (size_args) {
-		fill_pads((arg_size+column_boundary)-(format_ptr-format_base));
-	      } else {
-		fill_pads(8);
-	      }
-	      pad_max = pad_entries;
-	      column_boundary = arg_size+column_boundary;
-	      break;
-	    case 't':
-	      if (!size_args)
-		arg_size = ' ';
-	      pad_max->pad = arg_size;
-	      pad_max->pos = format_ptr-format_base;
-	      pad_max++;
-	      break;
-#if DEBUG
-	    case 'T':
-	      {
-		Int radix = 16;
-		unsigned *uint_ptr;
-
-		ptr = tmp2;
-		if (size_args)
-		  radix = arg_size;
-		if (IsVarTerm (args)) {
-		  Yap_FreeAtomSpace(format_base);
-		  Yap_Error(INSTANTIATION_ERROR,args,"~T in format/2");
-		  return(FALSE);		
-		} else if (!IsPairTerm (args)) {
-		  Yap_FreeAtomSpace(format_base);
-		  Yap_Error(TYPE_ERROR_LIST,args,"~T in format/2");
-		  return(FALSE);
-		}
-		if (radix > 36 || radix < 2) {
-		  Yap_FreeAtomSpace(format_base);
-		  Yap_Error(DOMAIN_ERROR_RADIX,MkIntTerm(radix),"~T in format/2");
-		  return(FALSE);
-		}
-		arghd = HeadOfTerm (args);
-		args = TailOfTerm (args);
-
-		uint_ptr = (unsigned *)&arghd;
-		for (i = 0; i < sizeof (arghd) / sizeof (unsigned); ++i) {
-		  if (uint_ptr[i] == 0)
-		    format_putc(sno, (int) '0');
-		  while (uint_ptr[i] != 0) {
-		    Int numb = uint_ptr[i] % radix;
-		    if (numb >= 10)
-		      numb += 'a' - 10;
-		    else
-		      numb += '0';
-		    *ptr++ = numb;
-		    uint_ptr[i] = uint_ptr[i] / radix;
-		  }
-		  while (--ptr >= tmp2)
-		    format_putc(sno, (int) *ptr);
-		}
-	      }
-	      break;
-#endif /* DEBUG */
-	    default:
-	      Yap_FreeAtomSpace(format_base);
-	      return (FALSE);
 	    }
-	}
-      else if (ch == '\\')
-	{
-	  if (HeadOfTerm (tail) == MkIntTerm ('c'))
-	    {
-	      tail = TailOfTerm (tail);
-	      if (IsVarTerm (tail)) {
-		Yap_FreeAtomSpace(format_base);
-		Yap_Error(INSTANTIATION_ERROR,tail,"format/2");
-		return(FALSE);		
-	      } else if (!IsPairTerm (tail)) {
-		Yap_FreeAtomSpace(format_base);
-		Yap_Error(TYPE_ERROR_LIST,tail,"format/2");
-		return(FALSE);
-	      }
-	      head = HeadOfTerm (tail);
-	      tail = TailOfTerm (tail);
-	      if (head != MkIntTerm (10)) {
-		Yap_FreeAtomSpace(format_base);
-		Yap_Error(DOMAIN_ERROR_NOT_NL,head,
-		      "format/2");
-		return(FALSE);
-	      }
+	    break;
+	    /* padding */
+	  case '|':
+	    if (has_repeats) {
+	      fill_pads(has_repeats-(format_ptr-format_base));
 	    }
-	  else
-	    format_putc(sno, (int) '\\');
+	    pad_max = pad_entries;
+	    column_boundary = has_repeats;
+	    break;
+	  case '+':
+	    if (has_repeats) {
+	      fill_pads((has_repeats+column_boundary)-(format_ptr-format_base));
+	    } else {
+	      fill_pads(8);
+	    }
+	    pad_max = pad_entries;
+	    column_boundary = has_repeats+column_boundary;
+	    break;
+	  case 't':
+	    if (!has_repeats)
+	      pad_max->pad = ' ';
+	    else
+	      pad_max->pad = fptr[-2];
+	    pad_max->pos = format_ptr-format_base;
+	    pad_max++;
+	    break;
+	  do_instantiation_error:
+	    Yap_Error(INSTANTIATION_ERROR, t, "format/2");
+	    goto do_default_error;
+	  do_type_int_error:
+	    Yap_Error(TYPE_ERROR_INTEGER, t, "format/2");
+	    goto do_default_error;
+	  do_type_number_error:
+	    Yap_Error(TYPE_ERROR_NUMBER, t, "format/2");
+	    goto do_default_error;
+	  do_type_atom_error:
+	    Yap_Error(TYPE_ERROR_ATOM, t, "format/2");
+	    goto do_default_error;
+	  do_domain_not_less_zero_error:
+	    Yap_Error(DOMAIN_ERROR_NOT_LESS_THAN_ZERO, t, "format/2");
+	    goto do_default_error;
+	  do_domain_error_radix:
+	    Yap_Error(DOMAIN_ERROR_RADIX, t, "format/2");
+	    goto do_default_error;
+	  do_consistency_error:
+	  default:
+	    Yap_Error(CONSISTENCY_ERROR, t, "format/2");
+	  do_default_error:
+	    if (tnum <= 8)
+	      targs = NULL;
+	    if (IsAtomTerm(tail)) {
+	      fstr = NULL;
+	    }
+	    format_clean_up(format_base, fstr, targs);
+	    return FALSE;
+	  }
 	}
-      else
-	format_putc(sno, ch);
-      if (IsVarTerm (tail) || !IsPairTerm (tail)) {
-	for (ptr = format_base; ptr < format_ptr; ptr++) {
-	  Stream[sno].stream_putc(sno, *ptr);
-	}
-	Yap_FreeAtomSpace(format_base);
-	return(TRUE);
+      /* ok, now we should have a command */
       }
-      head = HeadOfTerm (tail);
-      tail = TailOfTerm (tail);
+    } else {
+      format_putc(sno, ch);
     }
-  if (format_buf_size == -1) {
-    Yap_FreeAtomSpace(format_base);
-    return(FALSE);
   }
-  for (ptr = format_base; ptr < format_ptr; ptr++) {
-    Stream[sno].stream_putc(sno, *ptr);
+  for (fptr = format_base; fptr < format_ptr; fptr++) {
+    Stream[sno].stream_putc(sno, *fptr);
   }
-  Yap_FreeAtomSpace(format_base);
+  if (IsAtomTerm(tail)) {
+    fstr = NULL;
+  }
+  if (tnum <= 8)
+    targs = NULL;
+  format_clean_up(format_base, fstr, targs);
   return (TRUE);
 }
 

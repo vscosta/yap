@@ -10,7 +10,7 @@
 * File:		Heap.h         						 *
 * mods:									 *
 * comments:	Heap Init Structure					 *
-* version:      $Id: Heap.h,v 1.57 2004-02-12 12:37:11 vsc Exp $	 *
+* version:      $Id: Heap.h,v 1.58 2004-02-13 18:39:29 vsc Exp $	 *
 *************************************************************************/
 
 /* information that can be stored in Code Space */
@@ -224,6 +224,7 @@ typedef struct various_codes {
     atom_dollar_undef,
 #endif
 #endif
+    atom_dbref,
     atom_e,
     atom_e_q,
     atom_eof,
@@ -478,6 +479,7 @@ struct various_codes *heap_regs;
 #if defined(EUROTRA) && defined(SFUNC)
 #define  AtomDollarUndef          heap_regs->atom_dollar_undef
 #endif
+#define  AtomDBRef                heap_regs->atom_dbref
 #define  AtomE                    heap_regs->atom_e
 #define  AtomEQ                   heap_regs->atom_e_q
 #define  AtomEof                  heap_regs->atom_eof

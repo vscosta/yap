@@ -2282,10 +2282,7 @@ p_still_variant(void)
   DBRef dbr;
   
   if (IsVarTerm(t1) || !IsDBRefTerm(t1)) {
-    if (IsIntegerTerm(t1)) 
-      dbr = (DBRef)IntegerOfTerm(t1);
-    else
-      return (FALSE);
+    return (FALSE);
     /* limited sanity checking */
     if (dbr->id != FunctorDBRef) {
       return FALSE;
@@ -3319,11 +3316,7 @@ p_recorded(void)
   if (!IsVarTerm(t3)) {
     DBRef ref = DBRefOfTerm(t3);
     if (!IsDBRefTerm(t3)) {
-      if (IsIntegerTerm(t3)) {
-	ref = (DBRef)IntegerOfTerm(t3);
-      } else {
-	return FALSE;
-      }
+      return FALSE;
     } else {
       ref = DBRefOfTerm(t3);
     }
@@ -4160,13 +4153,8 @@ p_erase(void)
     return (FALSE);
   }
   if (!IsDBRefTerm(t1)) {
-    if (IsIntegerTerm(t1)) {
-      EraseEntry((DBRef)IntegerOfTerm(t1));
-      return TRUE;
-    } else {
-      Yap_Error(TYPE_ERROR_DBREF, t1, "erase");
-      return (FALSE);
-    }
+    Yap_Error(TYPE_ERROR_DBREF, t1, "erase");
+    return (FALSE);
   }
   EraseEntry(DBRefOfTerm(t1));
   return (TRUE);
@@ -4183,12 +4171,8 @@ p_erase_clause(void)
     return (FALSE);
   }
   if (!IsDBRefTerm(t1)) {
-    if (IsIntegerTerm(t1)) {
-      entryref = (DBRef)IntegerOfTerm(t1);
-    } else {
-      Yap_Error(TYPE_ERROR_DBREF, t1, "erase");
-      return (FALSE);
-    }
+    Yap_Error(TYPE_ERROR_DBREF, t1, "erase");
+    return (FALSE);
   } else {
     entryref = DBRefOfTerm(t1);
   }
@@ -4283,12 +4267,8 @@ p_erased(void)
     return (FALSE);
   }
   if (!IsDBRefTerm(t)) {
-    if (IsIntegerTerm(t)) {
-      return (((DBRef)IntegerOfTerm(t))->Flags & ErasedMask);
-    } else {
-      Yap_Error(TYPE_ERROR_DBREF, t, "erased");
-      return (FALSE);
-    }
+    Yap_Error(TYPE_ERROR_DBREF, t, "erased");
+    return (FALSE);
   }
   return (DBRefOfTerm(t)->Flags & ErasedMask);
 }
@@ -4346,14 +4326,7 @@ p_instance(void)
   DBRef dbr;
 
   if (IsVarTerm(t1) || !IsDBRefTerm(t1)) {
-    if (IsIntegerTerm(t1)) 
-      dbr = (DBRef)IntegerOfTerm(t1);
-    else
-      return (FALSE);
-    /* limited sanity checking */
-    if (dbr->id != FunctorDBRef) {
-      return FALSE;
-    }
+    return (FALSE);
   } else {
     dbr = DBRefOfTerm(t1);
   }
@@ -4433,14 +4406,7 @@ p_instance_module(void)
   if (IsDBRefTerm(t1)) {
     dbr = DBRefOfTerm(t1);
   } else {
-    if (IsIntegerTerm(t1)) 
-      dbr = (DBRef)IntegerOfTerm(t1);
-    else
-      return FALSE;
-    /* limited sanity checking */
-    if (dbr > (DBRef)Yap_HeapBase && dbr < (DBRef)HeapTop && dbr->id != FunctorDBRef) {
-      return FALSE;
-    }
+    return FALSE;
   }
   if (dbr->Flags & LogUpdMask) {
     LogUpdClause *cl = (LogUpdClause *)dbr;

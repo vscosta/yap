@@ -330,7 +330,10 @@ ParseArgs(Atom a, JMPBUFF *FailBuff)
   else
     t = Yap_MkApplTerm(Yap_MkFunctor(a, nargs), nargs, p);
 #else
-  t = Yap_MkApplTerm(Yap_MkFunctor(a, nargs), nargs, p);
+  if (a == AtomDBRef && nargs == 2) 
+    t = MkDBRefTerm((DBRef)IntegerOfTerm(p[0]));
+  else
+    t = Yap_MkApplTerm(Yap_MkFunctor(a, nargs), nargs, p);
 #endif
   /* check for possible overflow against local stack */
   checkfor((Term) ')', FailBuff);
