@@ -1,6 +1,6 @@
 =================================================================
 Logtalk - Object oriented extension to Prolog
-Release 2.21.2
+Release 2.21.3
 
 Copyright (c) 1998-2004 Paulo Moura.  All Rights Reserved.
 =================================================================
@@ -8,6 +8,33 @@ Copyright (c) 1998-2004 Paulo Moura.  All Rights Reserved.
 
 RELEASE NOTES
 =============
+
+
+2.21.3 - October 25, 2004
+
+	Corrected a silly bug in message translation which resulted in a small 
+	performance loss. Simplified implementation of message sending predicate 
+	::/2, resulting in a small performance improvement.
+
+	Added a new section on message sending performance to the user manual.
+
+	Added a new example, "benchmarks", for helping measuring performance of 
+	Logtalk message sending between Prolog compilers and for comparing message 
+	sending with predicate calls in plain Prolog and with calls to modules 
+	predicates.
+
+	Updated the YAP configuration file to hide some of the book-keeping tables 
+	of the Logtalk runtime engine and to use statistics/2 instead of cputime/0 
+	for more accurate timings.
+
+	Updated the Logtalk shell installation script to create the $prefix/bin 
+	directory if it does not exist.
+
+	The lgt2pdf.sh and lgt2html.sh shell scripts now use "rm -f" when removing 
+	the DTD and XSD files in order to avoid prompting the the user about the file 
+	permissions.
+
+	Updated the cplgtdirs.sh shell script to make all copied files user writable.
 
 
 2.21.2 - October 18, 2004

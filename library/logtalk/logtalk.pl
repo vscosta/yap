@@ -2,7 +2,7 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %
 %  Logtalk - Object oriented extension to Prolog
-%  Release 2.21.2
+%  Release 2.21.3
 %
 %  Copyright (c) 1998-2004 Paulo Moura.  All Rights Reserved.
 %
@@ -173,24 +173,13 @@
 
 
 Obj::Pred :-
-	var(Obj),
-	throw(error(instantiation_error, Obj::Pred, user)).
-
-Obj::Pred :-
-	var(Pred),
-	throw(error(instantiation_error, Obj::Pred, user)).
-
-Obj::Pred :-
 	'$lgt_context'(Ctx, user, user, Obj, _, []),
 	'$lgt_tr_msg'(Pred, Obj, Call, Ctx),
 	(('$lgt_dbg_debugging_', '$lgt_debugging_'(Obj)) ->
 		catch(
 			'$lgt_dbg_goal'(Obj::Pred, Call, Ctx),
-			Error,
-			(Error = error(logtalk_debugger_aborted) ->
-				write('Debugging session aborted by user. Debugger still on.'), nl, fail
-				;
-				throw(Error)))
+			error(logtalk_debugger_aborted),
+			(write('Debugging session aborted by user. Debugger still on.'), nl, fail))
 		;
 		call(Call)).
 
@@ -1134,7 +1123,7 @@ current_logtalk_flag(Flag, Value) :-
 	'$lgt_default_flag'(Flag, Value),
 	\+ '$lgt_current_flag_'(Flag, _).
 
-current_logtalk_flag(version, version(2, 21, 2)).
+current_logtalk_flag(version, version(2, 21, 3)).
 
 
 
@@ -4475,7 +4464,7 @@ current_logtalk_flag(version, version(2, 21, 2)).
 % message is not a built-in control construct or a call to a built-in 
 % (meta-)predicate: translation performed at runtime
 
-'$lgt_tr_msg'(Pred, Obj, '$lgt_send_to_object'(Obj, Pred, This), Ctx) :-
+'$lgt_tr_msg'(Pred, Obj, TPred, Ctx) :-
 	'$lgt_this'(Ctx, This),
 	(var(Obj) ->
 		TPred = '$lgt_send_to_object'(Obj, Pred, This)

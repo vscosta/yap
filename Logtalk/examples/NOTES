@@ -1,6 +1,6 @@
 =================================================================
 Logtalk - Object oriented extension to Prolog
-Release 2.21.2
+Release 2.21.3
 
 Copyright (c) 1998-2004 Paulo Moura.  All Rights Reserved.
 =================================================================
@@ -41,6 +41,11 @@ Here is a short description of each included example:
 aliases
 	example of using the alias/3 predicate directive to provide alternative 
 	names to inherited predicates in order to improve readability
+
+benchmarks
+	simple benchmarks for for helping measuring performance of Logtalk message 
+	seding between Prolog compilers and for comparing message sending with 
+	predicate calls in plain Prolog and with calls to modules predicates
 
 birds
 	bird identification expert system

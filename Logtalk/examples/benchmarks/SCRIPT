@@ -1,0 +1,64 @@
+=================================================================
+Logtalk - Object oriented extension to Prolog
+Release 2.21.3
+
+Copyright (c) 1998-2004 Paulo Moura.  All Rights Reserved.
+=================================================================
+
+
+% start by loading the example:
+
+| ?- logtalk_load(loader).
+...
+
+
+% call the built-in control construct true/0 to measure the overhead of the 
+% benchmark/1 predicate itself:
+
+| ?- benchmark(true).
+
+Number of repetitions: 1000000
+Average time per call: 1.3e-07 seconds
+Number of calls per second: 7692307.6923077
+yes
+
+
+% call the predicate my_length/0 defined in the Prolog database:
+
+| ?- benchmark(my_length([1, 2, 3, 4, 5, 6, 7, 8, 9, 0], _)).
+
+Number of repetitions: 1000000
+Average time per call: 1.4e-07 seconds
+Number of calls per second: 7142857.14285716
+yes
+
+
+% call the predicate module:mod_length/2 from top-level:
+
+| ?- benchmark(module:mod_length([1, 2, 3, 4, 5, 6, 7, 8, 9, 0], _)).
+
+Number of repetitions: 1000000
+Average time per call: 1.4e-07 seconds
+Number of calls per second: 7142857.14285716
+yes
+
+
+% call the predicate list::length/2 from top-level:
+
+| ?- benchmark(object::length([1, 2, 3, 4, 5, 6, 7, 8, 9, 0], _)).
+
+Number of repetitions: 1000000
+Average time per call: 1.4e-07 seconds
+Number of calls per second: 7142857.14285716
+yes
+
+
+% compiled call of the predicate list::length/2 (simulates message sending 
+% from a compiled object to another object; thus no top-level overhead):
+
+| ?- benchmark('$lgt_send_to_object_nv'(object, length([1, 2, 3, 4, 5, 6, 7, 8, 9, 0], _), user)).
+
+Number of repetitions: 1000000
+Average time per call: 1.4e-07 seconds
+Number of calls per second: 7142857.14285716
+yes

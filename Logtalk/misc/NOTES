@@ -1,6 +1,6 @@
 =================================================================
 Logtalk - Object oriented extension to Prolog
-Release 2.21.2
+Release 2.21.3
 
 Copyright (c) 1998-2004 Paulo Moura.  All Rights Reserved.
 =================================================================
@@ -56,7 +56,7 @@ make_ciaolgt.sh
 	(the first run of the ciaolgt script must be made as root or using sudo)
 make_ciaolgt.js
 	makes a Windows shortcut named "Logtalk - CIAO" for running Logtalk with 
-	CIAO 1.10 (the first call to the shortcut must be made a user with 
+	CIAO 1.10 (the first call to the shortcut must be made by a user with 
 	administrative rights)
 
 make_eclipselgt.sh

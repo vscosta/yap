@@ -1,0 +1,36 @@
+=================================================================
+Logtalk - Object oriented extension to Prolog
+Release 2.21.3
+
+Copyright (c) 1998-2004 Paulo Moura.  All Rights Reserved.
+=================================================================
+
+
+To load all entities in this example compile and load the loader file:
+
+| ?- logtalk_load(loader).
+
+If your Prolog compiler does not support a module system, then edit the 
+loader.lgt file and comment out the directive that loads the module code.
+In case your Prolog compiler supports a module system, you may need to 
+edit the code on the module.pl file and make any necessary compatibility 
+changes.
+
+This folder provides simple benchmarks for comparing Logtalk message 
+sending performance with direct calls to Prolog predicates and with 
+calls to module predicates. These benchmarks may also be used for 
+comparing Logtalk message sending performance across Prolog compilers.
+
+This example is made of four source files:
+
+	benchmark.pl
+		contains the benchmark predicates
+	plain.pl
+		contains a definition for a list length predicate
+	module.pl
+		contains the same definition of a list length predicate 
+		encapsulated in a module
+	object.lgt
+		contains the same definition of a list length predicate 
+		encapsulated in an object
+

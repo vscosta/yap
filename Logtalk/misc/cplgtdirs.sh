@@ -2,7 +2,7 @@
 
 ## =================================================================
 ## Logtalk - Object oriented extension to Prolog
-## Release 2.21.2
+## Release 2.21.3
 ##
 ## Copyright (c) 1998-2004 Paulo Moura.  All Rights Reserved.
 ## =================================================================
@@ -22,6 +22,7 @@ else
 	cp -RL $LOGTALKHOME/examples $HOME/logtalk/
 	cp -RL $LOGTALKHOME/library $HOME/logtalk/
 	cp -RL $LOGTALKHOME/xml $HOME/logtalk/
+	chmod -R u+w $HOME/logtalk
 	echo "Finished copying Logtalk directories."
 	echo
 fi
