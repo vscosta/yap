@@ -23,7 +23,12 @@ void remap_memory(void);
 **  opt.misc.c  **
 ** ------------ */
 
-void abort_optyap(const char *msg, ...);
+#ifdef TABLING
+void abort_yaptab(const char *msg, ...);
+#endif /* TABLING */
+#ifdef YAPOR
+void abort_yapor(const char *msg, ...);
+#endif /* YAPOR */
 void itos(int i, char *s);
 void information_message(const char *mesg,...);
 #if defined(YAPOR_ERRORS) || defined(TABLING_ERRORS)
@@ -41,7 +46,6 @@ void make_root_frames(void);
 #ifdef YAPOR
 void init_workers(void);
 #endif /* YAPOR */
-void init_signals(void);
 
 
 /* ------------- **

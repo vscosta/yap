@@ -12,7 +12,7 @@
 * Last rev:								 *
 * mods:									 *
 * comments:	allocating space					 *
-* version:$Id: alloc.c,v 1.68 2004-12-05 05:01:22 vsc Exp $		 *
+* version:$Id: alloc.c,v 1.69 2005-03-04 20:30:10 ricroc Exp $		 *
 *************************************************************************/
 #ifdef SCCS
 static char SccsId[] = "%W% %G%";
@@ -466,7 +466,7 @@ AllocHeap(unsigned int size)
 
 #ifdef YAPOR
   if (HeapTop > Addr(Yap_GlobalBase) - MinHeapGap) {
-    abort_optyap("No heap left in function AllocHeap");
+    abort_yapor("No heap left in function AllocHeap");
   }
 #else
   if (HeapTop > HeapLim - MinHeapGap) {
@@ -815,7 +815,7 @@ static int
 ExtendWorkSpace(Int s, int fixed_allocation)
 {
 #ifdef YAPOR
-  abort_optyap("function ExtendWorkSpace called");
+  abort_yapor("function ExtendWorkSpace called");
   return(FALSE);
 #else
   MALLOC_T a;
@@ -1266,14 +1266,6 @@ InitHeap(void *heap_addr)
   FreeBlocks = NIL;
 
 #if defined(YAPOR) || defined(TABLING)
-#ifdef USE_HEAP
-  /* Try to make the system to crash */
-  BaseAllocArea = NULL;
-  TopAllocArea = BaseAllocArea; 
-#else
-  BaseAllocArea = AllocCodeSpace(OPT_CHUNK_SIZE);
-  TopAllocArea = BaseAllocArea; 
-#endif
   LOCAL = REMOTE; /* point to the first area */
 #endif /* YAPOR || TABLING */
 }
@@ -1289,21 +1281,8 @@ Yap_InitMemory(int Trail, int Heap, int Stack)
 {
   Int pm, sa, ta;
 
-#if defined(YAPOR) || defined(TABLING)
-  {
-#ifdef USE_HEAP
-    int OKHeap = MinHeapSpace+(sizeof(struct global_data) + aux_number_workers*sizeof(struct local_data))/1024;
-#else
-    int OKHeap = MinHeapSpace+(sizeof(struct global_data) + aux_number_workers*sizeof(struct local_data)+OPT_CHUNK_SIZE)/1024;
-#endif
-    if (Heap < OKHeap)
-      Heap = OKHeap;
-  }
-#else
   if (Heap < MinHeapSpace)
     Heap = MinHeapSpace;
-#endif /* YAPOR || TABLING */
-
   /* sanity checking for data areas */
   if (Trail < MinTrailSpace)
     Trail = MinTrailSpace;

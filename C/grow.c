@@ -757,6 +757,10 @@ fix_compiler_instructions(PInstr *pcpc)
     case enter_lu_op:
     case empty_call_op:
     case blob_op:
+#ifdef TABLING
+    case table_new_answer_op:
+    case table_try_single_op:
+#endif /* TABLING */
       break;
     }
     if (ncpc != NULL) {

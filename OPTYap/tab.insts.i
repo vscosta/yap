@@ -21,19 +21,20 @@
 #endif /* TABLING_SCHEDULING */
 
 
-#define store_generator_node(PTR, ARITY, AP, SG_FR)            \
+#define store_generator_node(ARITY, AP, SG_FR)                 \
         { register CELL *pt_args;                              \
           register gen_cp_ptr gcp;                             \
           /* store args */                                     \
           pt_args = XREGS + (ARITY);                           \
 	  while (pt_args > XREGS) {                            \
             register CELL aux_arg = pt_args[0];                \
-            --PTR;                                             \
+            --YENV;                                            \
             --pt_args;                                         \
-            *PTR = aux_arg;                                    \
+            *YENV = aux_arg;                                   \
 	  }                                                    \
           /* initialize gcp and adjust subgoal frame field */  \
-          gcp = --GEN_CP(PTR);                                 \
+          YENV = (CELL *) (GEN_CP(YENV) - 1);                  \
+          gcp = GEN_CP(YENV);                                  \
           SgFr_gen_cp(SG_FR) = NORM_CP(gcp);                   \
           /* store generator choice point */                   \
           HBREG = H;                                           \
@@ -51,9 +52,9 @@
         }
 
 
-#define restore_generator_node(PTR, ARITY, AP)          \
+#define restore_generator_node(ARITY, AP)               \
         { register CELL *pt_args, *x_args;              \
-          register gen_cp_ptr gcp = GEN_CP(PTR);        \
+          register gen_cp_ptr gcp = GEN_CP(B);          \
           /* restore generator choice point */          \
           H = HBREG = PROTECT_FROZEN_H(NORM_CP(gcp));   \
           CPREG = gcp->gcp_cp;                          \
@@ -72,35 +73,36 @@
         }
 
 
-#define pop_generator_node(PTR, ARITY)            \
-        { register CELL *pt_args, *x_args;        \
-          register gen_cp_ptr gcp = GEN_CP(PTR);  \
-          /* pop generator choice point */        \
-          H = PROTECT_FROZEN_H(NORM_CP(gcp));     \
-          CPREG = gcp->gcp_cp;                    \
-          ENV = gcp->gcp_env;                     \
-          TR = B->cp_tr;                          \
-          B = gcp->gcp_b;                         \
-          HBREG = PROTECT_FROZEN_H(B);		  \
-          /* pop args */                          \
-          x_args = XREGS + 1 ;                    \
-          pt_args = (CELL *)(gcp + 1);            \
-	  while (x_args < XREGS + 1 + ARITY) {    \
-            register CELL x = pt_args[0];         \
-            pt_args++;                            \
-            x_args++;                             \
-            x_args[-1] = x;                       \
-          }                                       \
-          YENV = pt_args;		    	          \
-          SET_BB(PROTECT_FROZEN_B(B));            \
+#define pop_generator_node(ARITY)               \
+        { register CELL *pt_args, *x_args;      \
+          register gen_cp_ptr gcp = GEN_CP(B);  \
+          /* pop generator choice point */      \
+          H = PROTECT_FROZEN_H(NORM_CP(gcp));   \
+          CPREG = gcp->gcp_cp;                  \
+          ENV = gcp->gcp_env;                   \
+          TR = B->cp_tr;                        \
+          B = gcp->gcp_b;                       \
+          HBREG = PROTECT_FROZEN_H(B);		\
+          /* pop args */                        \
+          x_args = XREGS + 1 ;                  \
+          pt_args = (CELL *)(gcp + 1);          \
+	  while (x_args < XREGS + 1 + ARITY) {  \
+            register CELL x = pt_args[0];       \
+            pt_args++;                          \
+            x_args++;                           \
+            x_args[-1] = x;                     \
+          }                                     \
+          YENV = pt_args;		    	\
+          SET_BB(PROTECT_FROZEN_B(B));          \
         }
 
 
-#define store_consumer_node(PTR, SG_FR, LEADER_CP, DEP_ON_STACK)           \
+#define store_consumer_node(SG_FR, LEADER_CP, DEP_ON_STACK)                \
         { register cons_cp_ptr ccp;                                        \
           register dep_fr_ptr new_dep_fr;                                  \
 	  /* initialize ccp */                                             \
-          ccp = --CONS_CP(PTR);                                            \
+          YENV = (CELL *) (CONS_CP(YENV) - 1);                             \
+          ccp = CONS_CP(YENV);                                             \
           /* adjust freeze registers */                                    \
           H_FZ = H;                                                        \
           B_FZ = NORM_CP(ccp);                 	                           \
@@ -175,6 +177,7 @@
 
 #ifdef TABLING_INNER_CUTS
   Op(clause_with_cut, e)
+/*printf("estou aqui - clause_with_cut\n");*/
     if (LOCAL_pruning_scope) {
       if (YOUNGER_CP(LOCAL_pruning_scope, B))
         LOCAL_pruning_scope = B;
@@ -195,6 +198,7 @@
     sg_fr_ptr sg_fr;
     CELL *Yaddr;
 
+/*printf("estou aqui - table_try_single\n");*/
     Yaddr = YENV;
     check_trail();
     tab_ent = PREG->u.ld.te;
@@ -220,7 +224,7 @@
       UNLOCK_TABLE(sg_node);
 #endif /* TABLE_LOCK_LEVEL */
       LOCAL_top_sg_fr = sg_fr;
-      store_generator_node(YENV, PREG->u.ld.s, COMPLETION, sg_fr);
+      store_generator_node(PREG->u.ld.s, COMPLETION, sg_fr);
       PREG = PREG->u.ld.d;
       PREFETCH_OP(PREG);
       allocate_environment(YENV);
@@ -265,7 +269,7 @@
         find_dependency_node(sg_fr, leader_cp, leader_dep_on_stack);
         UNLOCK(SgFr_lock(sg_fr));
         find_leader_node(leader_cp, leader_dep_on_stack);
-        store_consumer_node(YENV, sg_fr, leader_cp, leader_dep_on_stack);
+        store_consumer_node(sg_fr, leader_cp, leader_dep_on_stack);
 #ifdef OPTYAP_ERRORS
         if (PARALLEL_EXECUTION_MODE) {
           choiceptr aux_cp;
@@ -294,6 +298,7 @@
     sg_fr_ptr sg_fr;
     CELL *Yaddr;
 
+/*printf("estou aqui - table_try_me\n");*/
     Yaddr = YENV;
     check_trail();
     tab_ent = PREG->u.ld.te;
@@ -319,7 +324,7 @@
       UNLOCK_TABLE(sg_node);
 #endif /* TABLE_LOCK_LEVEL */
       LOCAL_top_sg_fr = sg_fr;
-      store_generator_node(YENV, PREG->u.ld.s, PREG->u.ld.d, sg_fr);
+      store_generator_node(PREG->u.ld.s, PREG->u.ld.d, sg_fr);
       PREG = NEXTOP(PREG, ld);
       PREFETCH_OP(PREG);
       allocate_environment(YENV);
@@ -364,7 +369,7 @@
         find_dependency_node(sg_fr, leader_cp, leader_dep_on_stack);
         UNLOCK(SgFr_lock(sg_fr));
         find_leader_node(leader_cp, leader_dep_on_stack);
-        store_consumer_node(YENV, sg_fr, leader_cp, leader_dep_on_stack);
+        store_consumer_node(sg_fr, leader_cp, leader_dep_on_stack);
 #ifdef OPTYAP_ERRORS
         if (PARALLEL_EXECUTION_MODE) {
           choiceptr aux_cp;
@@ -392,6 +397,7 @@
     sg_fr_ptr sg_fr;
     CELL *Yaddr;
 
+/*printf("estou aqui - table_try\n");*/
     Yaddr = YENV;
     check_trail();
     tab_ent = PREG->u.ld.te;
@@ -417,7 +423,7 @@
       UNLOCK_TABLE(sg_node);
 #endif /* TABLE_LOCK_LEVEL */
       LOCAL_top_sg_fr = sg_fr;
-      store_generator_node(YENV, PREG->u.ld.s, NEXTOP(PREG,ld), sg_fr);
+      store_generator_node(PREG->u.ld.s, NEXTOP(PREG,ld), sg_fr);
       PREG = PREG->u.ld.d;
       PREFETCH_OP(PREG);
       allocate_environment(YENV);
@@ -462,7 +468,7 @@
         find_dependency_node(sg_fr, leader_cp, leader_dep_on_stack);
         UNLOCK(SgFr_lock(sg_fr));
         find_leader_node(leader_cp, leader_dep_on_stack);
-        store_consumer_node(YENV, sg_fr, leader_cp, leader_dep_on_stack);
+        store_consumer_node(sg_fr, leader_cp, leader_dep_on_stack);
 #ifdef OPTYAP_ERRORS
         if (PARALLEL_EXECUTION_MODE) {
           choiceptr aux_cp;
@@ -486,7 +492,8 @@
 
 
   Op(table_retry, ld)
-    restore_generator_node(B, PREG->u.ld.s, NEXTOP(PREG,ld));
+/*printf("estou aqui - table_retry\n");*/
+    restore_generator_node(PREG->u.ld.s, NEXTOP(PREG,ld));
     YENV = (CELL *) PROTECT_FROZEN_B(B);
     set_cut(YENV, B->cp_b);
     SET_BB(NORM_CP(YENV));
@@ -497,7 +504,8 @@
 
 
   Op(table_retry_me, ld)
-    restore_generator_node(B, PREG->u.ld.s, PREG->u.ld.d);
+/*printf("estou aqui - table_retry_me\n");*/
+    restore_generator_node(PREG->u.ld.s, PREG->u.ld.d);
     YENV = (CELL *) PROTECT_FROZEN_B(B);
     set_cut(YENV, B->cp_b);
     SET_BB(NORM_CP(YENV));
@@ -509,7 +517,8 @@
 
 
   Op(table_trust_me, ld)
-    restore_generator_node(B, PREG->u.ld.s, COMPLETION);
+/*printf("estou aqui - table_trust_me\n");*/
+    restore_generator_node(PREG->u.ld.s, COMPLETION);
     YENV = (CELL *) PROTECT_FROZEN_B(B);
     set_cut(YENV, B->cp_b);
     SET_BB(NORM_CP(YENV));
@@ -519,7 +528,8 @@
   ENDOp();
 
   Op(table_trust, ld)
-    restore_generator_node(B, PREG->u.ld.s, COMPLETION);
+/*printf("estou aqui - table_trust\n");*/
+    restore_generator_node(PREG->u.ld.s, COMPLETION);
     YENV = (CELL *) PROTECT_FROZEN_B(B);
     set_cut(YENV, B->cp_b);
     SET_BB(NORM_CP(YENV));
@@ -535,6 +545,7 @@
     sg_fr_ptr sg_fr;
     ans_node_ptr ans_node;
 
+/*printf("estou aqui - table_new_answer\n");*/
     /* possible optimization: when the number of substitution variables **
     ** is zero, an answer is sufficient to perform an early completion  */
     gcp = GEN_CP(YENV[E_B]);
@@ -755,6 +766,7 @@
 
 
   BOp(table_answer_resolution, ld)
+/*printf("estou aqui - table_answer_resolution\n");*/
 #ifdef YAPOR
     if (SCH_top_shared_cp(B)) {
       UNLOCK_OR_FRAME(LOCAL_top_or_fr);
@@ -1046,6 +1058,7 @@
 
 
   BOp(table_completion, ld);
+/*printf("estou aqui - table_completion\n");*/
 #ifdef YAPOR
     if (SCH_top_shared_cp(B)) {
       SCH_new_alternative(PREG, GEN_CP_NULL_ALT);
@@ -1070,7 +1083,7 @@
 
 
   completion:
-
+/*printf("estou aqui - completion\n");*/
 
     INIT_PREFETCH()
     dep_fr_ptr dep_fr;
@@ -1361,7 +1374,7 @@
           TABLING_ERROR_MESSAGE("RepPair((CELL)TrailTerm(TR - 1)) != B->cp_tr (completion)");
       }
 #endif /* TABLING_ERRORS */
-      pop_generator_node(B, SgFr_arity(sg_fr));
+      pop_generator_node(SgFr_arity(sg_fr));
       if (SgFr_first_answer(sg_fr) == SgFr_answer_trie(sg_fr)) {
         /* yes answer --> procceed */
         PREG = (yamop *) CPREG;

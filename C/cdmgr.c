@@ -11,8 +11,12 @@
 * File:		cdmgr.c							 *
 * comments:	Code manager						 *
 *									 *
-* Last rev:     $Date: 2005-02-25 03:39:44 $,$Author: vsc $						 *
+* Last rev:     $Date: 2005-03-04 20:30:11 $,$Author: ricroc $						 *
 * $Log: not supported by cvs2svn $
+* Revision 1.153  2005/02/25 03:39:44  vsc
+* fix fixes to undefp
+* fix bug where clause mistook cp for ap
+*
 * Revision 1.152  2005/02/08 18:04:57  vsc
 * library_directory may not be deterministic (usually it isn't).
 *
@@ -263,7 +267,8 @@ PredForChoicePt(yamop *p_code) {
       return NULL;
     case _table_completion:
     case _table_answer_resolution:
-      return ENV_ToP(gc_B->cp_cp);
+      return NULL; /* ricroc: is this OK? */
+      /* compile error --> return ENV_ToP(gc_B->cp_cp); */
 #endif
     case _or_else:
       if (p_code == p_code->u.sla.sla_u.l) {
@@ -1209,7 +1214,7 @@ add_first_static(PredEntry *p, yamop *cp, int spy_flag)
       PUT_YAMOP_SEQ(pt);
     }
     if (YAMOP_LTT(pt) != 1)
-      abort_optyap("YAMOP_LTT error in function add_first_static");
+      abort_yapor("YAMOP_LTT error in function add_first_static");
 #endif /* YAPOR */
 #ifdef TABLING
     if (is_tabled(p)) {

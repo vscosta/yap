@@ -117,9 +117,6 @@ struct global_locks {
 
 struct global_data{
   /* global data related to memory management */
-  void *BaseWorkArea;
-  void *BaseAllocArea;
-  void *TopAllocArea;
   struct global_pages pages;
 
 #ifdef YAPOR
@@ -170,10 +167,6 @@ struct global_data{
 #endif /* TABLING */
 };
 
-#define BaseWorkArea                          (GLOBAL.BaseWorkArea)
-#define TopWorkArea                           (GLOBAL.TopWorkArea)
-#define BaseAllocArea                         (GLOBAL.BaseAllocArea)
-#define TopAllocArea                          (GLOBAL.TopAllocArea)
 #define GLOBAL_PAGES_void                     (GLOBAL.pages.void_pages)
 #define GLOBAL_PAGES_or_fr                    (GLOBAL.pages.or_frame_pages)
 #define GLOBAL_PAGES_qg_sol_fr                (GLOBAL.pages.query_goal_solution_frame_pages)

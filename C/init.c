@@ -1122,79 +1122,6 @@ InitVersion(void)
 	   MkAtomTerm(Yap_LookupAtom(YAP_VERSION)));
 }
 
-#if defined(YAPOR) || defined(TABLING)
-static void
-InitYapOr(int Heap,
-	  int Stack,
-	  int Trail,
-	  int aux_number_workers,
-	  int aux_scheduler_loop,
-	  int aux_delayed_release_load) {
-
-#ifdef YAPOR
-  worker_id = 0;
-#endif /* YAPOR */
-
-  /* starting message */
-#ifdef YAPOR
-  if (aux_number_workers > MAX_WORKERS)
-    abort_optyap("excessive number of workers");
-#ifdef ENV_COPY
-  INFORMATION_MESSAGE("YapOr: copy model - %d worker%s", aux_number_workers, aux_number_workers == 1 ? "":"s");
-#elif ACOW
-  INFORMATION_MESSAGE("YapOr: acow model - %d worker%s", aux_number_workers, aux_number_workers == 1 ? "":"s");
-#else /* SBA */
-  INFORMATION_MESSAGE("YapOr: sba model - %d worker%s", aux_number_workers, aux_number_workers == 1 ? "":"s");
-#endif /* ENV_COPY - ACOW - SBA */
-#endif /* YAPOR */
-#ifdef TABLING
-#ifdef TABLING_BATCHED_SCHEDULING
-#ifdef YAPOR
-#ifdef ALLOC_BEFORE_CHECK
-  INFORMATION_MESSAGE("YapTab: batched scheduling (TLWL-ABC)");
-#endif
-#if defined(TABLE_LOCK_AT_WRITE_LEVEL) && ! defined(ALLOC_BEFORE_CHECK)
-  INFORMATION_MESSAGE("YapTab: batched scheduling (TLWL)");
-#endif
-#ifdef TABLE_LOCK_AT_NODE_LEVEL
-  INFORMATION_MESSAGE("YapTab: batched scheduling (TLNL)");
-#endif
-#ifdef TABLE_LOCK_AT_ENTRY_LEVEL
-  INFORMATION_MESSAGE("YapTab: batched scheduling (TLEL)");
-#endif
-#else
-  INFORMATION_MESSAGE("YapTab: batched scheduling");
-#endif /* YAPOR */
-#else /* TABLING_LOCAL_SCHEDULING */
-#ifdef YAPOR
-#ifdef ALLOC_BEFORE_CHECK
-  INFORMATION_MESSAGE("YapTab: local scheduling (TLWL-ABC)");
-#endif
-#if defined(TABLE_LOCK_AT_WRITE_LEVEL) && ! defined(ALLOC_BEFORE_CHECK)
-  INFORMATION_MESSAGE("YapTab: local scheduling (TLWL)");
-#endif
-#ifdef TABLE_LOCK_AT_NODE_LEVEL
-  INFORMATION_MESSAGE("YapTab: local scheduling (TLNL)");
-#endif
-#ifdef TABLE_LOCK_AT_ENTRY_LEVEL
-  INFORMATION_MESSAGE("YapTab: local scheduling (TLEL)");
-#endif
-#else
-  INFORMATION_MESSAGE("YapTab: local scheduling");
-#endif /* YAPOR */
-#endif /* TABLING_SCHEDULING */
-#endif /* TABLING */
-#ifdef YAPOR
-  map_memory(Heap, Stack, Trail, aux_number_workers);
-#else
-  Yap_InitMemory (Trail, Heap, Stack);
-#endif /* YAPOR */
-  /* global initializations */ 
-  init_global(aux_number_workers, aux_scheduler_loop, aux_delayed_release_load);
-  init_signals();
-}
-#endif /* YAPOR || TABLING */
-
 
 void
 Yap_InitWorkspace(int Heap,
@@ -1228,18 +1155,35 @@ Yap_InitWorkspace(int Heap,
   /* also init memory page size, required by later functions */
   Yap_InitSysbits ();
 
-#if defined(YAPOR) || defined(TABLING)
-  InitYapOr(Heap,
-	    Stack,
-	    Trail,
-	    aux_number_workers,
-	    aux_scheduler_loop,
-	    aux_delayed_release_load);
-#else /* Yap */
-  Yap_InitMemory (Trail, Heap, Stack);
-#endif /* YAPOR || TABLING */
-  Yap_InitTime ();
+#ifdef TABLING
+#ifdef TABLING_BATCHED_SCHEDULING
+  INFORMATION_MESSAGE("YapTab: batched scheduling");
+#else /* TABLING_LOCAL_SCHEDULING */
+  INFORMATION_MESSAGE("YapTab: local scheduling");
+#endif /* BATCHED - LOCAL */
+#endif /* TABLING */
 
+#ifdef YAPOR
+  worker_id = 0;
+  if (aux_number_workers > MAX_WORKERS)
+    abort_yapor("excessive number of workers");
+#ifdef ENV_COPY
+  INFORMATION_MESSAGE("YapOr: copy model with %d worker%s", aux_number_workers, aux_number_workers == 1 ? "":"s");
+#elif ACOW
+  INFORMATION_MESSAGE("YapOr: acow model with %d worker%s", aux_number_workers, aux_number_workers == 1 ? "":"s");
+#else /* SBA */
+  INFORMATION_MESSAGE("YapOr: sba model with %d worker%s", aux_number_workers, aux_number_workers == 1 ? "":"s");
+#endif /* ENV_COPY - ACOW - SBA */
+  map_memory(Heap, Stack, Trail, aux_number_workers);
+#else
+  Yap_InitMemory (Trail, Heap, Stack);
+#endif /* YAPOR */
+
+#if defined(YAPOR) || defined(TABLING)
+  init_global(aux_number_workers, aux_scheduler_loop, aux_delayed_release_load);
+#endif /* YAPOR || TABLING */
+
+  Yap_InitTime ();
   AtomHashTableSize = MaxHash;
   HashChain = (AtomHashEntry *)Yap_AllocAtomSpace(sizeof(AtomHashEntry) * MaxHash);
   if (HashChain == NULL) {

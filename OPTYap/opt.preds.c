@@ -53,10 +53,10 @@ static void answer_to_stdout(char *answer);
 static int p_table(void);
 static int p_abolish_trie(void);
 static int p_show_trie(void);
-static int p_resume_trie(void);
+static int p_show_trie_stats(void);
 #endif /* TABLING */
 #ifdef STATISTICS
-static int p_show_frames(void);
+static int p_show_frames_stats(void);
 #endif /* STATISTICS */
 #if defined(YAPOR_ERRORS) || defined(TABLING_ERRORS)
 static int p_debug_prolog(void);
@@ -82,11 +82,11 @@ void Yap_init_optyap_preds(void) {
 #ifdef TABLING
   Yap_InitCPred("$do_table", 2, p_table, SafePredFlag|SyncPredFlag|HiddenPredFlag);
   Yap_InitCPred("$do_abolish_trie", 2, p_abolish_trie, SafePredFlag|SyncPredFlag|HiddenPredFlag);
-  Yap_InitCPred("$show_trie", 3, p_show_trie, SafePredFlag|SyncPredFlag|HiddenPredFlag);
-  Yap_InitCPred("$resume_trie", 2, p_resume_trie, SafePredFlag|SyncPredFlag|HiddenPredFlag);
+  Yap_InitCPred("$do_show_trie", 2, p_show_trie, SafePredFlag|SyncPredFlag|HiddenPredFlag);
+  Yap_InitCPred("$do_show_trie_stats", 2, p_show_trie_stats, SafePredFlag|SyncPredFlag|HiddenPredFlag);
 #endif /* TABLING */
 #ifdef STATISTICS
-  Yap_InitCPred("show_frames", 0, p_show_frames, SafePredFlag|SyncPredFlag);
+  Yap_InitCPred("show_frames_stats", 0, p_show_frames_stats, SafePredFlag|SyncPredFlag);
 #endif /* STATISTICS */
 #if defined(YAPOR_ERRORS) || defined(TABLING_ERRORS)
   Yap_InitCPred("debug_prolog", 1, p_debug_prolog, SafePredFlag|SyncPredFlag);
@@ -449,7 +449,7 @@ int p_table(void) {
   tab_ent_ptr te;
   sg_node_ptr sg_node;
 
-  tmod = Deref(ARG2);
+  mod = Deref(ARG2);
   if (IsVarTerm(mod) || !IsAtomTerm(mod)) {
     return (FALSE);
   }
@@ -480,7 +480,7 @@ int p_abolish_trie(void) {
   UInt arity;
 
   mod = Deref(ARG2);
-   if (IsVarTerm(mod) || !IsAtomTerm(mod)) {
+  if (IsVarTerm(mod) || !IsAtomTerm(mod)) {
     return (FALSE);
   } 
   t = Deref(ARG1);
@@ -509,13 +509,13 @@ int p_abolish_trie(void) {
 
 static
 int p_show_trie(void) {
-  Term t1, t2, mod;
+  Term t1, mod;
   PredEntry *pe;
   Atom at;
   UInt arity;
 
   mod = Deref(ARG2);
-   if (IsVarTerm(mod) || !IsAtomTerm(mod)) {
+  if (IsVarTerm(mod) || !IsAtomTerm(mod)) {
     return (FALSE);
   } 
   t1 = Deref(ARG1);
@@ -531,31 +531,17 @@ int p_show_trie(void) {
   } else {
     return (FALSE);
   }
-  t2 = Deref(ARG3);
-  if (IsVarTerm(t2)) {
-    Term ta = MkAtomTerm(Yap_LookupAtom("stdout"));
-    Bind((CELL *)t2, ta);
-    traverse_trie(stderr, TrNode_child(TabEnt_subgoal_trie(pe->TableOfPred)), arity, at, TRUE);
-  } else if (IsAtomTerm(t2)) {
-    FILE *file;
-    char *path = RepAtom(AtomOfTerm(t2))->StrOfAE;
-    if ((file = fopen(path, "w")) == NULL)
-      abort_optyap("fopen error in function p_show_trie");
-    traverse_trie(file, TrNode_child(TabEnt_subgoal_trie(pe->TableOfPred)), arity, at, TRUE);
-    fclose(file);
-  } else {
-    return(FALSE);
-  }
+  traverse_trie(stdout, TrNode_child(TabEnt_subgoal_trie(pe->TableOfPred)), arity, at, TRUE);
   return (TRUE);
 }
 
 
 static
-int p_resume_trie(void) {
+int p_show_trie_stats(void) {
   Term t, mod;
   PredEntry *pe;
   Atom at;
-  int arity;
+  UInt arity;
 
   mod = Deref(ARG2);
   if (IsVarTerm(mod) || !IsAtomTerm(mod)) {
@@ -582,7 +568,7 @@ int p_resume_trie(void) {
 
 #ifdef STATISTICS
 static
-int p_show_frames(void) {
+int p_show_frames_stats(void) {
   long cont, pages;
   pg_hd_ptr pg_hd;
   void *str_ptr;
@@ -836,7 +822,6 @@ int p_show_frames(void) {
   }
   fprintf(stdout, " %s[%ld] Pages: In Use %ld - Free %ld (%ld Accesses)\n]\n\n",
           (Pg_str_alloc(GLOBAL_PAGES_void) - Pg_str_in_use(GLOBAL_PAGES_void) == cont &&
-          TopAllocArea - BaseAllocArea == Yap_page_size * Pg_str_alloc(GLOBAL_PAGES_void) &&
           Pg_str_in_use(GLOBAL_PAGES_void) == pages) ? " ": "*", 
           Pg_str_alloc(GLOBAL_PAGES_void), 
           Pg_str_in_use(GLOBAL_PAGES_void), cont, Pg_requests(GLOBAL_PAGES_void));

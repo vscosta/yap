@@ -47,7 +47,7 @@
         } else {                                \
           /* procceed */                        \
 	  PREG = (yamop *) CPREG;               \
-	  YENV = ENV;                              \
+	  YENV = ENV;                           \
         }                                       \
         PREFETCH_OP(PREG);                      \
         GONext()
@@ -60,19 +60,20 @@
 **     macro because there are no cuts in trie instructions.      **
 ** -------------------------------------------------------------- */
 
-#define store_trie_choice_point(PTR, AP)  \
-        { register choiceptr cp;          \
-          cp = --NORM_CP(PTR);            \
-          HBREG = H;                      \
-          cp->cp_tr = TR;                 \
-          cp->cp_h  = H;                  \
-          cp->cp_b  = B;                  \
-          cp->cp_cp = CPREG;              \
-          cp->cp_ap = (yamop *) AP;       \
-          cp->cp_env= ENV;                \
-          B = cp;                         \
-          YAPOR_SET_LOAD(B);              \
-          SET_BB(B);                      \
+#define store_trie_choice_point(AP)             \
+        { register choiceptr cp;                \
+          YENV = (CELL *) (NORM_CP(YENV) - 1);  \
+          cp = NORM_CP(YENV);                   \
+          HBREG = H;                            \
+          cp->cp_tr = TR;                       \
+          cp->cp_h  = H;                        \
+          cp->cp_b  = B;                        \
+          cp->cp_cp = CPREG;                    \
+          cp->cp_ap = (yamop *) AP;             \
+          cp->cp_env= ENV;                      \
+          B = cp;                               \
+          YAPOR_SET_LOAD(B);                    \
+          SET_BB(B);                            \
 	}
 
 
@@ -451,7 +452,7 @@
     int subs_arity = *(aux_ptr + heap_arity + 2);
     int i;
 
-    store_trie_choice_point(YENV, TrNode_next(node));
+    store_trie_choice_point(TrNode_next(node));
     cp_trie_var_instr();
   ENDPBOp();
 
@@ -520,7 +521,7 @@
     int var_index = VarIndexOfTableTerm(TrNode_entry(node));
     int i;
 
-    store_trie_choice_point(YENV, TrNode_next(node));
+    store_trie_choice_point(TrNode_next(node));
     cp_trie_val_instr();
   ENDPBOp();
 
@@ -587,7 +588,7 @@
     int subs_arity = *(aux_ptr + heap_arity + 2);
     int i;
 
-    store_trie_choice_point(YENV, TrNode_next(node));
+    store_trie_choice_point(TrNode_next(node));
     cp_trie_atom_instr();
   ENDPBOp();
 
@@ -650,7 +651,7 @@
     int subs_arity = *(aux_ptr + heap_arity + 2);
     int i;
 
-    store_trie_choice_point(YENV, TrNode_next(node));
+    store_trie_choice_point(TrNode_next(node));
     cp_trie_list_instr();
   ENDPBOp();
 
@@ -717,7 +718,7 @@
     int func_arity = ArityOfFunctor(func);
     int i;
 
-    store_trie_choice_point(YENV, TrNode_next(node));
+    store_trie_choice_point(TrNode_next(node));
     cp_trie_struct_instr();
   ENDPBOp();
 

@@ -704,7 +704,7 @@ sg_node_ptr subgoal_search(tab_ent_ptr tab_ent, OPREG arity, CELL **Yaddr) {
             STACK_PUSH(*(RepAppl(t) + j), stack_terms, stack_terms_top, stack_terms_base);
           break;
         default:
-          abort_optyap("unknown type tag in function subgoal_search");
+          abort_yaptab("unknown type tag in function subgoal_search");
       }
     } while (STACK_NOT_EMPTY(stack_terms, stack_terms_base));
   }
@@ -778,7 +778,7 @@ ans_node_ptr answer_search(sg_fr_ptr sg_fr, CELL *subs_ptr) {
             STACK_PUSH(*(RepAppl(t) + j), stack_terms, stack_terms_top, stack_terms_base);
           break;
         default:
-          abort_optyap("unknown type tag in function answer_search");
+          abort_yaptab("unknown type tag in function answer_search");
       }
     } while (STACK_NOT_EMPTY(stack_terms, stack_terms_base));
   }
@@ -869,7 +869,7 @@ void load_answer_trie(ans_node_ptr ans_node, CELL *subs_ptr) {
             STACK_PUSH(H - j, stack_refs, stack_top, stack_refs_base);
         } break;
         default:
-          abort_optyap("unknown type tag in macro load_answer_trie");
+          abort_yaptab("unknown type tag in macro load_answer_trie");
       }
       while (STACK_NOT_EMPTY(stack_refs, stack_refs_base)) {
         CELL *ref = (CELL *) STACK_POP(stack_refs);
@@ -913,7 +913,7 @@ void load_answer_trie(ans_node_ptr ans_node, CELL *subs_ptr) {
               STACK_PUSH(H - j, stack_refs, stack_top, stack_refs_base);
           } break;
           default:
-            abort_optyap("unknown type tag in macro load_answer_trie");
+            abort_yaptab("unknown type tag in macro load_answer_trie");
         }
       }
     }
@@ -975,7 +975,7 @@ void free_subgoal_trie_branch(sg_node_ptr node, int missing_nodes) {
       missing_nodes += ArityOfFunctor((Functor)NonTagPart(t));
       break;
     default:
-      abort_optyap("unknown type tag in function chain_subgoal_frames");
+      abort_yaptab("unknown type tag in function chain_subgoal_frames");
   }
   if (missing_nodes) {
     free_subgoal_trie_branch(TrNode_child(node), missing_nodes);
@@ -1281,7 +1281,7 @@ int traverse_subgoal_trie(FILE *stream, sg_node_ptr sg_node, char *str, int str_
       arity[arity[0]] = ArityOfFunctor((Functor)NonTagPart(t));
       break;
     default:
-      abort_optyap("unknown type tag in function traverse_subgoal_trie");
+      abort_yaptab("unknown type tag in function traverse_subgoal_trie");
   }
 
   if (! traverse_subgoal_trie(stream, TrNode_child(sg_node), str, str_index, arity, depth + 1))
@@ -1409,7 +1409,7 @@ int traverse_answer_trie(FILE *stream, ans_node_ptr ans_node, char *str, int str
       arity[arity[0]] = ArityOfFunctor((Functor)NonTagPart(t));
       break;
     default:
-      abort_optyap("unknown type tag in function traverse_answer_trie");
+      abort_yaptab("unknown type tag in function traverse_answer_trie");
   }
 
   if (! IS_ANSWER_LEAF_NODE(ans_node)) {

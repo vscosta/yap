@@ -10,8 +10,8 @@
 #define TG_ANSWER_SLOTS    20
 
 
-#define STATISTICS     1
 /*
+#define STATISTICS     1
 #define YAPOR_ERRORS   1
 #define TABLING_ERRORS 1
 */
@@ -43,7 +43,6 @@
 #define TIMESTAMP_CHECK 1
 
 
-#define USE_HEAP 1 /* use heap instead of special areas for memory allocation */
 
 
 

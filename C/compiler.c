@@ -11,8 +11,12 @@
 * File:		compiler.c						 *
 * comments:	Clause compiler						 *
 *									 *
-* Last rev:     $Date: 2005-02-21 16:49:39 $,$Author: vsc $						 *
+* Last rev:     $Date: 2005-03-04 20:30:11 $,$Author: ricroc $						 *
 * $Log: not supported by cvs2svn $
+* Revision 1.62  2005/02/21 16:49:39  vsc
+* amd64 fixes
+* library fixes
+*
 * Revision 1.61  2005/01/28 23:14:35  vsc
 * move to Yap-4.5.7
 * Fix clause size
@@ -1231,11 +1235,15 @@ c_goal(Term Goal, int mod, compiler_struct *cglobs)
       if (cglobs->onlast) {
 	Yap_emit(deallocate_op, Zero, Zero, &cglobs->cint);
 #ifdef TABLING
+	READ_LOCK(cglobs->cint.CurrentPred->PRWLock);
 	if (is_tabled(cglobs->cint.CurrentPred))
 	  Yap_emit(table_new_answer_op, Zero, cglobs->cint.CurrentPred->ArityOfPE, &cglobs->cint);
 	else
 #endif /* TABLING */
 	  Yap_emit(procceed_op, Zero, Zero, &cglobs->cint);
+#ifdef TABLING
+	READ_UNLOCK(cglobs->cint.CurrentPred->PRWLock);
+#endif
       }
       return;
     }
@@ -2944,7 +2952,16 @@ Yap_cclause(volatile Term inp_clause, int NOfArgs, int mod, volatile Term src)
   /* phase 1 : produce skeleton code and variable information              */
   c_head(head, &cglobs);
   if (cglobs.is_a_fact && !cglobs.vtable) {
-    Yap_emit(procceed_op, Zero, Zero, &cglobs.cint);
+#ifdef TABLING
+    READ_LOCK(cglobs.cint.CurrentPred->PRWLock);
+    if (is_tabled(cglobs.cint.CurrentPred))
+      Yap_emit(table_new_answer_op, Zero, cglobs.cint.CurrentPred->ArityOfPE, &cglobs.cint);
+    else
+#endif /* TABLING */
+      Yap_emit(procceed_op, Zero, Zero, &cglobs.cint);
+#ifdef TABLING
+    READ_UNLOCK(cglobs.cint.CurrentPred->PRWLock);
+#endif
     /* ground term, do not need much more work */
     if (cglobs.cint.BlobsStart != NULL) {
       cglobs.cint.cpc->nextInst = cglobs.cint.BlobsStart;

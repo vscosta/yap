@@ -35,40 +35,29 @@ extern int Yap_page_size;
 
 
 
-#define ALLOC_BLOCK(BLOCK, SIZE)               \
-        BLOCK = (void *) Yap_AllocAtomSpace(SIZE)
-#define FREE_BLOCK(BLOCK)                      \
+#define ALLOC_BLOCK(BLOCK, SIZE)                          \
+        BLOCK = malloc(SIZE)
+#define FREE_BLOCK(BLOCK)                                 \
+        free(BLOCK)
+#define ALLOC_STRUCT(STR, STR_PAGES, STR_TYPE)            \
+        STR = (STR_TYPE *)malloc(sizeof(STR_TYPE))
+#define ALLOC_NEXT_FREE_STRUCT(STR, STR_PAGES, STR_TYPE)  \
+        STR = (STR_TYPE *)malloc(sizeof(STR_TYPE))
+#define FREE_STRUCT(STR, STR_PAGES, STR_TYPE)             \
+        free(STR)
+/*
+#define ALLOC_BLOCK(BLOCK, SIZE)                          \
+        BLOCK = (void *) Yap_AllocCodeSpace(SIZE)
+#define FREE_BLOCK(BLOCK)                                 \
         Yap_FreeCodeSpace((char *) (BLOCK))
 
-
-
-#define ALLOC_HASH_BUCKETS(BUCKET_PTR, NUM_BUCKETS)         \
-        { int i; void **ptr;                                \
-          ALLOC_BLOCK(ptr, NUM_BUCKETS * sizeof(void *));   \
-          BUCKET_PTR = (void *) ptr;                        \
-          for (i = NUM_BUCKETS; i != 0; i--)                \
-            *ptr++ = NULL;                                  \
-        }
-#define FREE_HASH_BUCKETS(BUCKET_PTR)  FREE_BLOCK(BUCKET_PTR)
-
-#ifdef USE_HEAP
-#define ALLOC_STRUCT(STR, STR_PAGES, STR_TYPE)            \
-        STR = (STR_TYPE *)Yap_AllocCodeSpace(sizeof(STR_TYPE))
-#define ALLOC_NEXT_FREE_STRUCT(STR, STR_PAGES, STR_TYPE)  \
-        STR = (STR_TYPE *)Yap_AllocCodeSpace(sizeof(STR_TYPE))
-#define FREE_STRUCT(STR, STR_PAGES, STR_TYPE)             \
-        Yap_FreeCodeSpace((ADDR)(STR))
-#else
 #define ALLOC_PAGE(PG_HD)                                           \
         LOCK(Pg_lock(GLOBAL_PAGES_void));                           \
         UPDATE_STATS(Pg_requests(GLOBAL_PAGES_void), 1);            \
         UPDATE_STATS(Pg_str_in_use(GLOBAL_PAGES_void), 1);          \
         if (Pg_free_pg(GLOBAL_PAGES_void) == NULL) {                \
-          if (TopAllocArea == TopWorkArea)                          \
-            abort_optyap("no more free alloc space (ALLOC_PAGE)");  \
+          ALLOC_BLOCK(PG_HD, Yap_page_size);                        \
           UPDATE_STATS(Pg_str_alloc(GLOBAL_PAGES_void), 1);         \
-          PG_HD = (pg_hd_ptr)TopAllocArea;                          \
-          TopAllocArea += Yap_page_size                             \
         } else {                                                    \
           PG_HD = Pg_free_pg(GLOBAL_PAGES_void);                    \
           Pg_free_pg(GLOBAL_PAGES_void) = PgHd_next(PG_HD);         \
@@ -184,8 +173,16 @@ extern int Yap_page_size;
             UNLOCK(Pg_lock(STR_PAGES));                                            \
           }                                                                        \
         }
-#endif /* USE_HEAP */
+*/
 
+#define ALLOC_HASH_BUCKETS(BUCKET_PTR, NUM_BUCKETS)         \
+        { int i; void **ptr;                                \
+          ALLOC_BLOCK(ptr, NUM_BUCKETS * sizeof(void *));   \
+          BUCKET_PTR = (void *) ptr;                        \
+          for (i = NUM_BUCKETS; i != 0; i--)                \
+            *ptr++ = NULL;                                  \
+        }
+#define FREE_HASH_BUCKETS(BUCKET_PTR)  FREE_BLOCK(BUCKET_PTR)
 
 #define ALLOC_OR_FRAME(STR)          ALLOC_STRUCT(STR, GLOBAL_PAGES_or_fr, struct or_frame)
 #define FREE_OR_FRAME(STR)            FREE_STRUCT(STR, GLOBAL_PAGES_or_fr, struct or_frame)

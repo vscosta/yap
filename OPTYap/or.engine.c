@@ -575,7 +575,7 @@ void share_private_nodes(int worker_q) {
 
     /* update depth */
     if (depth >= MAX_DEPTH)
-      abort_optyap("maximum depth exceded (%d/%d) (share_private_nodes)", depth, MAX_DEPTH);
+      abort_yapor("maximum depth exceded (%d/%d) (share_private_nodes)", depth, MAX_DEPTH);
     or_frame = B->cp_or_fr;
 #ifdef TABLING
     previous_or_frame = LOCAL_top_cp_on_stack->cp_or_fr;

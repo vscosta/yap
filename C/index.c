@@ -11,8 +11,12 @@
 * File:		index.c							 *
 * comments:	Indexing a Prolog predicate				 *
 *									 *
-* Last rev:     $Date: 2005-03-01 22:25:08 $,$Author: vsc $						 *
+* Last rev:     $Date: 2005-03-04 20:30:12 $,$Author: ricroc $						 *
 * $Log: not supported by cvs2svn $
+* Revision 1.118  2005/03/01 22:25:08  vsc
+* fix pruning bug
+* make DL_MALLOC less enthusiastic about walking through buckets.
+*
 * Revision 1.117  2005/02/25 00:09:06  vsc
 * fix fix, otherwise I'd remove two choice-points :-(.
 *
@@ -3262,7 +3266,7 @@ static UInt
 emit_single_switch_case(ClauseDef *min, struct intermediates *cint, int first, int clleft, UInt nxtlbl)
 {
 #ifdef TABLING
-  if (ap->PredFlags & TabledPredFlag) {
+  if (cint->CurrentPred->PredFlags & TabledPredFlag) {
     /* we have two differences with tabling:
        1. we cannot allow straight jumps to clauses, otherwise thetabled
          would never get to be created.

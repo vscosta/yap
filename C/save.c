@@ -468,18 +468,9 @@ save_heap(void)
   j = Unsigned(&GLOBAL) - Unsigned(Yap_HeapBase);
   putout(j);
   mywrite(splfild, (char *) Yap_HeapBase, j);
-#ifdef USE_HEAP
   j = Unsigned(HeapTop) - Unsigned(&HashChain);
   putout(j);
   mywrite(splfild, (char *) &HashChain, j);
-#else
-  j = Unsigned(BaseAllocArea) - Unsigned(&HashChain);
-  putout(j);
-  mywrite(splfild, (char *) &HashChain, j);
-  j = Unsigned(HeapTop) - Unsigned(TopAllocBlockArea);
-  putout(j);
-  mywrite(splfild, (char *) TopAllocBlockArea, j);
-#endif
 #else
   j = Unsigned(HeapTop) - Unsigned(Yap_HeapBase);
   /* store 10 more cells because of the memory manager */
@@ -888,28 +879,11 @@ CopyCode(void)
   }
   if (myread(splfild, (char *) Yap_HeapBase, j) < 0)
     return -1;
-#ifdef USE_HEAP
   j = get_cell();
   if (Yap_ErrorMessage)
       return -1;
   if (myread(splfild, (char *) &HashChain, j) < 0)
       return -1;
-#else
-  j = get_cell();
-  if (Yap_ErrorMessage)
-      return -1;
-  if (j != Unsigned(BaseAllocArea) - Unsigned(&HashChain)) {
-    Yap_ErrorMessage = "Base to Hash does not match saved state";
-    return -1;
-  }
-  if (myread(splfild, (char *) &HashChain, j) < 0)
-    return -1;
-  j = get_cell();
-  if (Yap_ErrorMessage)
-      return -1;
-  if (myread(splfild, (char *) TopAllocBlockArea, j) < 0)
-    return -1;
-#endif
 #else
   if (myread(splfild, (char *) Yap_HeapBase,
 	     (Unsigned(OldHeapTop) - Unsigned(OldHeapBase))) < 0)

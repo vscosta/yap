@@ -10,8 +10,12 @@
 * File:		c_interface.c						 *
 * comments:	c_interface primitives definition 			 *
 *									 *
-* Last rev:	$Date: 2005-03-02 18:35:44 $,$Author: vsc $						 *
+* Last rev:	$Date: 2005-03-04 20:30:10 $,$Author: ricroc $						 *
 * $Log: not supported by cvs2svn $
+* Revision 1.62  2005/03/02 18:35:44  vsc
+* try to make initialisation process more robust
+* try to make name more robust (in case Lookup new atom fails)
+*
 * Revision 1.61  2005/03/01 22:25:08  vsc
 * fix pruning bug
 * make DL_MALLOC less enthusiastic about walking through buckets.
@@ -1151,7 +1155,7 @@ YAP_Init(YAP_init_args *yap_init)
     CurrentModule = USER_MODULE;
     P = GETWORK_FIRST_TIME;
     Yap_exec_absmi(FALSE);
-    abort_optyap("abstract machine unexpected exit");
+    abort_yapor("abstract machine unexpected exit");
   }
 #endif /* YAPOR */
 #endif /* YAPOR || TABLING */

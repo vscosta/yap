@@ -11,8 +11,12 @@
 * File:		amasm.c							 *
 * comments:	abstract machine assembler				 *
 *									 *
-* Last rev:     $Date: 2005-01-28 23:14:34 $							 *
+* Last rev:     $Date: 2005-03-04 20:30:10 $							 *
 * $Log: not supported by cvs2svn $
+* Revision 1.71  2005/01/28 23:14:34  vsc
+* move to Yap-4.5.7
+* Fix clause size
+*
 * Revision 1.70  2004/12/28 22:20:35  vsc
 * some extra bug fixes for trail overflows: some cannot be recovered that easily,
 * some can.
@@ -2262,10 +2266,10 @@ a_f2(int var, cmp_op_info *cmp_info, yamop *code_p, int pass_no, struct intermed
 #define TRYOP(G,P)   (IPredArity<5 ? (op_numbers)((int)(P)+(IPredArity*3)) : (G))
 #ifdef YAPOR
 #define TRYCODE(G,P) a_try(TRYOP(G,P), Unsigned(cip->code_addr) + cip->label_offset[cip->cpc->rnd1], IPredArity, &clinfo, cip->cpc->rnd2 >> 1, cip->cpc->rnd2 & 1, code_p, pass_no)
-#define TABLE_TRYCODE(G) a_try(G, (CELL)emit_ilabel(cip->cpc->rnd1, code_addr, cip), IPredArity, cip->cpc->rnd2 >> 1, cip->cpc->rnd2 & 1, code_p, pass_no)
+#define TABLE_TRYCODE(G) a_try(G, (CELL)emit_ilabel(cip->cpc->rnd1, cip), IPredArity, cip->cpc->rnd2 >> 1, cip->cpc->rnd2 & 1, code_p, pass_no)
 #else
 #define TRYCODE(G,P) a_try(TRYOP(G,P), Unsigned(cip->code_addr) + cip->label_offset[cip->cpc->rnd1], IPredArity, &clinfo, code_p, pass_no)
-#define TABLE_TRYCODE(G) a_try(G, (CELL)emit_ilabel(cip->cpc->rnd1, code_addr, cip), IPredArity, code_p, pass_no)
+#define TABLE_TRYCODE(G) a_try(G, (CELL)emit_ilabel(cip->cpc->rnd1, cip), IPredArity, &clinfo, code_p, pass_no)
 #endif /* YAPOR */
 
 static yamop *
@@ -2407,10 +2411,10 @@ do_pass(int pass_no, yamop **entry_codep, int assembling, int *clause_has_blobsp
 #endif /* YAPOR */
 #ifdef TABLING
     case table_new_answer_op:
-      code_p = a_n(_table_new_answer, (int) cip->cpc->rnd2, code_p);
+      code_p = a_n(_table_new_answer, (int) cip->cpc->rnd2, code_p, pass_no);
       break;
     case table_try_single_op:
-      code_p = a_gl(_table_try_single, code_p, clinfo, code_p, pass_no, cpc);
+      code_p = a_gl(_table_try_single, &clinfo, code_p, pass_no, cip->cpc);
       break;
 #endif /* TABLING */
 #ifdef TABLING_INNER_CUTS
@@ -2706,7 +2710,7 @@ do_pass(int pass_no, yamop **entry_codep, int assembling, int *clause_has_blobsp
       }
 #ifdef TABLING
       if (tabled)
-	code_p = a_gl(_table_trust, &clinfo, code_p, pass_no, cpc);
+	code_p = a_gl(_table_trust, &clinfo, code_p, pass_no, cip->cpc);
       else
 #endif
 	code_p = a_gl(_trust, &clinfo, code_p, pass_no, cip->cpc);

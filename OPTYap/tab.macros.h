@@ -67,11 +67,9 @@ STD_PROTO(static inline tg_sol_fr_ptr CUT_prune_tg_solution_frames, (tg_sol_fr_p
 #define GEN_CP(CP)   ((gen_cp_ptr)(CP))
 #define CONS_CP(CP)  ((cons_cp_ptr)(CP))
 
-
-#define TAG_AS_ANSWER_LEAF_NODE(NODE)  ((unsigned int)TrNode_parent(NODE) |= 0x1)
+#define TAG_AS_ANSWER_LEAF_NODE(NODE)  TrNode_parent(NODE) = (ans_node_ptr)((unsigned int)TrNode_parent(NODE) | 0x1)
 #define UNTAG_ANSWER_LEAF_NODE(NODE)   ((ans_node_ptr)((unsigned int)NODE & 0xfffffffe))
 #define IS_ANSWER_LEAF_NODE(NODE)      ((unsigned int)TrNode_parent(NODE) & 0x1)
-
 
 #define FREE_STACK_PUSH(ITEM, STACK)        *--STACK = (CELL)(ITEM)
 #define STACK_TOP(STACK)                    *STACK
@@ -79,23 +77,24 @@ STD_PROTO(static inline tg_sol_fr_ptr CUT_prune_tg_solution_frames, (tg_sol_fr_p
 #define STACK_EMPTY(STACK, STACK_BASE)      STACK == STACK_BASE
 #define STACK_NOT_EMPTY(STACK, STACK_BASE)  STACK != STACK_BASE
 #ifdef YAPOR
-#define STACK_PUSH(ITEM, STACK, STACK_TOP, STACK_BASE)      \
-        *--STACK = (CELL)(ITEM);                            \
-        if (STACK <= STACK_TOP)                             \
-          abort_optyap("auxiliary stack full")
+#define STACK_PUSH(ITEM, STACK, STACK_TOP, STACK_BASE)  \
+        *--STACK = (CELL)(ITEM);                        \
+        if (STACK <= STACK_TOP)                         \
+          abort_yapor("auxiliary stack full")
 #else
-#define STACK_PUSH(ITEM, STACK, STACK_TOP, STACK_BASE)                                     \
-        *--(STACK) = (CELL)(ITEM);                                                         \
-        if ((STACK) <= STACK_TOP + 1024) {                                                \
-          CELL *NEW_STACK;                                                                 \
-          UInt diff;                                                                       \
-          char *OldTrailTop = (char *)Yap_TrailTop;                                        \
-          Yap_growtrail(64 * 1024L);                                                     \
-          diff = (char *)Yap_TrailTop - OldTrailTop;                                           \
-          NEW_STACK = (CELL *)((char *)(STACK)+diff);                                      \
-          memmove((void *)NEW_STACK, (void *)(STACK), (char *)OldTrailTop-(char *)STACK);  \
-          (STACK) = NEW_STACK;                                                             \
-          (STACK_BASE) = (CELL *)((char *)(STACK_BASE)+diff);                              \
+#define STACK_PUSH(ITEM, STACK, STACK_TOP, STACK_BASE)                           \
+        *--(STACK) = (CELL)(ITEM);                                               \
+        if ((STACK) <= STACK_TOP + 1024) {                                       \
+          void *old_top = Yap_TrailTop;                                          \
+          CELL *NEW_STACK;                                                       \
+          UInt diff;                                                             \
+          abort_yaptab("auxiliary stack full");                                  \
+          Yap_growtrail(64 * 1024L, TRUE);                                       \
+          diff = (void *)Yap_TrailTop - old_top;                                 \
+          NEW_STACK = (CELL *)((void *)(STACK) + diff);                          \
+          memmove((void *)NEW_STACK, (void *)(STACK), old_top - (void *)STACK);  \
+          (STACK) = NEW_STACK;                                                   \
+          (STACK_BASE) = (CELL *)((void *)(STACK_BASE) + diff);                  \
         }
 #endif /* YAPOR */
 
@@ -494,7 +493,7 @@ void restore_bindings(tr_fr_ptr unbind_tr, tr_fr_ptr rebind_tr) {
 
 static inline
 void pruning_over_tabling_data_structures(void) {
-  abort_optyap("pruning over tabling data structures");
+  abort_yaptab("pruning over tabling data structures");
   return;
 }
 

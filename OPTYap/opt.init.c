@@ -41,14 +41,6 @@ ma_h_inner_struct *ma_h_top;
 
 
 
-/* ------------------------------------- **
-**      Local functions declaration      **
-** ------------------------------------- */
-
-static void receive_signals(int s);
-
-
-
 /* ---------------------- **
 **      Local macros      **
 ** ---------------------- */
@@ -234,7 +226,7 @@ void init_workers(void) {
   if (number_workers > 1) {
     int son;
     son = fork();
-    if (son == -1) abort_optyap("fork error in function init_workers");
+    if (son == -1) abort_yapor("fork error in function init_workers");
     if (son > 0) {
       /* I am the father, I must stay here and wait for my children to all die */
       struct sigaction sigact;
@@ -252,7 +244,7 @@ void init_workers(void) {
   for (proc = 1; proc < number_workers; proc++) {
     int son;
     son = fork();
-    if (son == -1) abort_optyap("fork error in function init_workers");
+    if (son == -1) abort_yapor("fork error in function init_workers");
     if (son == 0) { 
       /* new worker */
       worker_id = proc;
@@ -263,32 +255,4 @@ void init_workers(void) {
   }
 }
 #endif /* YAPOR */
-
-
-void init_signals(void) {
-
-return;
-
-  signal(SIGQUIT, receive_signals);
-  signal(SIGTERM, receive_signals);
-  signal(SIGSEGV, receive_signals);
-  signal(SIGABRT, receive_signals);
-  signal(SIGFPE, receive_signals);
-  signal(SIGHUP, receive_signals);
-  signal(SIGINT, receive_signals);
-  signal(SIGTSTP, receive_signals);
-  return;
-}
-
-
-
-/* ------------------------- **
-**      Local functions      **
-** ------------------------- */
-
-static
-void receive_signals(int s) {
-  abort_optyap("receiving signal number %d", s);
-  return;
-}
 #endif /* YAPOR || TABLING */

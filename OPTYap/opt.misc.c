@@ -33,23 +33,29 @@ struct worker WORKER;
 **      Global functions      **
 ** -------------------------- */
 
-void abort_optyap(const char *msg, ...) {
+#ifdef TABLING
+void abort_yaptab(const char *msg, ...) {
   va_list args;
-
   va_start(args, msg);
-  fprintf(stderr, "[ ");
-#ifdef YAPOR
-  fprintf (stderr, "Worker %d ", worker_id);
-#endif /* YAPOR */
-  fprintf (stderr, "Aborting OPTYap -> ");
+  fprintf(stderr, "[ Fatal YapTab Error: ");
   vfprintf(stderr, msg, args);
   fprintf(stderr, " ]\n");
-
-#ifdef YAPOR
-  unmap_memory();
-#endif /* YAPOR */
   exit (1);
 }
+#endif /* TABLING */
+
+
+#ifdef YAPOR
+void abort_yapor(const char *msg, ...) {
+  va_list args;
+  va_start(args, msg);
+  fprintf(stderr, "[ Fatal YapOr Error: ");
+  vfprintf(stderr, msg, args);
+  fprintf(stderr, " (worker %d exiting...) ]\n", worker_id);
+  unmap_memory();
+  exit (1);
+}
+#endif /* YAPOR */
 
 
 void itos(int i, char *s) {
