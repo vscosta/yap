@@ -235,8 +235,12 @@ else
      case "$target_cpu" in
        i?86*)
         if test "$CC" = "lcc"
-         then
-         CFLAGS="-A -A"
+        then
+          CFLAGS="-A -A"
+        elif test "$CC" = "cl"
+        then
+          CFLAGS="/nologo"
+          CPP="/nologo /E"
         fi
         ;;
        hppa*)
