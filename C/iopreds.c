@@ -650,7 +650,12 @@ MemPutc(int sno, int ch)
     char *newbuf;
 
     if ((newbuf = Yap_AllocAtomSpace(new_max_size*sizeof(char))) == NULL) {
-      Yap_Error(OUT_OF_HEAP_ERROR, TermNil, "YAP could not grow heap for writing to string");
+      if (Stream[sno].u.mem_string.error_handler) {
+	Yap_Error_Size = new_max_size*sizeof(char);
+	longjmp(*(jmp_buf *)Stream[sno].u.mem_string.error_handler,1);
+      } else {
+	Yap_Error(OUT_OF_HEAP_ERROR, TermNil, "YAP could not grow heap for writing to string");
+      }
       return -1;
     }
 #if HAVE_MEMMOVE
@@ -2022,6 +2027,7 @@ open_buf_read_stream(char *nbuf, Int nchars)
   st->u.mem_string.pos = 0;
   st->u.mem_string.buf = nbuf;
   st->u.mem_string.max_size = nchars;
+  st->u.mem_string.error_handler = NULL;
   return sno;
 }
 
@@ -3741,18 +3747,44 @@ format_has_tabs(const char *seq)
 }
 
 static Int
-format(Term tail, Term args, int sno)
+format(volatile Term otail, volatile Term oargs, int sno)
 {
   char tmp1[256], tmp2[256];
   int ch;
-  int column_boundary = 0;
+  int column_boundary;
   Term mytargs[8], *targs;
-  Int tnum, targ = 0;
+  Int tnum, targ;
   char *fstr = NULL, *fptr;
-  Term oargs = args;
+  Term args;
+  Term tail;
   int (* f_putc)(int, int);
   int has_tabs;
+  jmp_buf format_botch;
+  void *old_handler;
+  volatile int old_pos;
 
+  if (Stream[sno].status & InMemory_Stream_f) {
+    old_handler = Stream[sno].u.mem_string.error_handler;
+    Stream[sno].u.mem_string.error_handler = (void *)&format_botch;
+    old_pos = Stream[sno].u.mem_string.pos;
+    /* set up an error handler */
+    if (setjmp(format_botch)) {
+      *H++ = oargs;
+      *H++ = otail;
+      if (!Yap_growheap(FALSE, Yap_Error_Size, NULL)) {
+	Yap_Error(OUT_OF_HEAP_ERROR,otail,"format/2");
+	return FALSE;
+      }
+      oargs = H[-2];
+      otail = H[-1];
+      Stream[sno].u.mem_string.pos = old_pos;
+      H -= 2;
+    }
+  }
+  args = oargs;
+  tail = otail;
+  targ = 0;
+  column_boundary = 0;
   if (IsVarTerm(tail)) {
     Yap_Error(INSTANTIATION_ERROR,tail,"format/2");
     return(FALSE);
@@ -4052,6 +4084,9 @@ format(Term tail, Term args, int sno)
 	      if (IsAtomTerm(tail)) {
 		fstr = NULL;
 	      }
+	      if (Stream[sno].status & InMemory_Stream_f) {
+		old_handler = Stream[sno].u.mem_string.error_handler;
+	      }
 	      format_clean_up(format_base, fstr, targs);
 	      Yap_JumpToEnv(ball);
 	    }
@@ -4157,6 +4192,9 @@ format(Term tail, Term args, int sno)
 	    if (IsAtomTerm(tail)) {
 	      fstr = NULL;
 	    }
+	    if (Stream[sno].status & InMemory_Stream_f) {
+	      old_handler = Stream[sno].u.mem_string.error_handler;
+	    }
 	    format_clean_up(format_base, fstr, targs);
 	    return FALSE;
 	  }
@@ -4177,6 +4215,9 @@ format(Term tail, Term args, int sno)
   }
   if (tnum <= 8)
     targs = NULL;
+  if (Stream[sno].status & InMemory_Stream_f) {
+    old_handler = Stream[sno].u.mem_string.error_handler;
+  }
   format_clean_up(format_base, fstr, targs);
   return (TRUE);
 }

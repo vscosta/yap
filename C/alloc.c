@@ -12,7 +12,7 @@
 * Last rev:								 *
 * mods:									 *
 * comments:	allocating space					 *
-* version:$Id: alloc.c,v 1.54 2004-07-23 21:08:44 vsc Exp $		 *
+* version:$Id: alloc.c,v 1.55 2004-07-28 22:09:01 vsc Exp $		 *
 *************************************************************************/
 #ifdef SCCS
 static char SccsId[] = "%W% %G%";
@@ -563,22 +563,22 @@ Yap_ExpandPreAllocCodeSpace(UInt sz)
 
 #define BASE_ADDRESS  ((LPVOID) MMAP_ADDR)
 /* #define MAX_WORKSPACE 0x40000000L */
-#define MAX_WORKSPACE 0x20000000L
+#define MAX_WORKSPACE 0x80000000L
 
 static LPVOID brk;
 
 static int
 ExtendWorkSpace(Int s)
 {
-  LPVOID b;
+  LPVOID b = brk;
   prolog_exec_mode OldPrologMode = Yap_PrologMode;
 
   Yap_PrologMode = ExtendStackMode;
-  b = VirtualAlloc(brk, s, MEM_COMMIT, PAGE_READWRITE);
+  b = VirtualAlloc(b, s, MEM_COMMIT, PAGE_READWRITE);
   if (b) {
-  	brk = (LPVOID) ((Int) brk + s);
-	Yap_PrologMode = OldPrologMode;
-	return TRUE;
+    brk = (LPVOID) ((Int) brk + s);
+    Yap_PrologMode = OldPrologMode;
+    return TRUE;
   }
   Yap_ErrorMessage = Yap_ErrorSay;
   snprintf4(Yap_ErrorMessage, MAX_ERROR_MSG_SIZE,
@@ -592,27 +592,32 @@ static MALLOC_T
 InitWorkSpace(Int s)
 {
   SYSTEM_INFO si;
-  LPVOID b;
+  UInt max_mem = MAX_WORKSPACE;
+  LPVOID b = NULL;
 
   GetSystemInfo(&si);
   Yap_page_size = si.dwPageSize;
-  b = VirtualAlloc(BASE_ADDRESS, MAX_WORKSPACE, MEM_RESERVE, PAGE_NOACCESS);
-  if (b==NULL) {
-    b = VirtualAlloc(0x0, MAX_WORKSPACE, MEM_RESERVE, PAGE_NOACCESS);
-    if (b == NULL) {
-      Yap_Error(FATAL_ERROR,TermNil,"VirtualAlloc failed");
-      return(0);
-    }
-    fprintf(stderr,"%% Warning: YAP reserving space at variable address %p\n", b);
-  }
-  brk = BASE_ADDRESS;
 
-  if (ExtendWorkSpace(s)) {
-    return BASE_ADDRESS;
-  } else {
-    Yap_Error(FATAL_ERROR,TermNil,"VirtualAlloc Failed");
-    return(0);
+  brk = NULL;
+  for (max_mem = MAX_WORKSPACE; max_mem >= s; max_mem = max_mem - (max_mem >> 2)) {
+    b = VirtualAlloc((LPVOID)MMAP_ADDR, max_mem, MEM_RESERVE, PAGE_NOACCESS);
+    if (b == NULL) {
+      b = VirtualAlloc(NULL, max_mem, MEM_RESERVE, PAGE_NOACCESS);
+      if (b != NULL) {
+	brk = b;
+	fprintf(stderr,"%% Warning: YAP reserving space at variable address %p\n", brk);
+	break;
+      } 
+    } else {
+      brk = BASE_ADDRESS;
+      break;
+    }
   }
+  if (brk && ExtendWorkSpace(s)) {
+    return (MALLOC_T)b;
+  }
+  Yap_Error(FATAL_ERROR,TermNil,"VirtualAlloc Failed");
+  return NULL;
 }
 
 int
@@ -1193,6 +1198,7 @@ InitHeap(void *heap_addr)
   HeapTop = Yap_HeapBase + AdjustSize(sizeof(all_heap_codes));
   HeapMax = HeapUsed = HeapTop-Yap_HeapBase;
 
+
   /* notice that this forces odd addresses */
   *((YAP_SEG_SIZE *) HeapTop) = InUseFlag;
   HeapTop = HeapTop + sizeof(YAP_SEG_SIZE);
@@ -1286,7 +1292,6 @@ Yap_InitMemory(int Trail, int Heap, int Stack)
 #endif /* SHORT_INTS */
   }
 #endif /* DEBUG */
-
 }
 
 void

@@ -37,12 +37,18 @@ typedef struct stream_desc
       struct {
 	Atom name;
 	Term user_name;
+#if defined(__MINGW32__) || _MSC_VER
+#define PLGETC_BUF_SIZE 4096
+	char *buf, *ptr;
+	int left;
+#endif
 	YP_File file;
       } file;
       struct {
 	char *buf;         /* where the file is being read from/written to */
 	Int max_size;	   /* maximum buffer size (may be changed dynamically) */
 	Int pos;
+	void *error_handler;
       } mem_string;
       struct {
 #if defined(__MINGW32__) || _MSC_VER

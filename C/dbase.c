@@ -2319,10 +2319,15 @@ p_still_variant(void)
   }
   /* ok, we assume there was a choicepoint before we copied the term */
 
+  /* skip binding for argument variable */
+  old_tr++;
   if (dbr->Flags & LogUpdMask) {
     LogUpdClause *cl = (LogUpdClause *)dbr;
 
-    if (old_tr != TR-2)
+    if (old_tr == TR-1) {
+      if (TrailTerm(old_tr) != CLREF_TO_TRENTRY(cl))
+	return FALSE;
+    } else if (old_tr != TR)
       return FALSE;
     if (Yap_op_from_opcode(cl->ClCode->opc) == _unify_idb_term) {
       return TRUE;
@@ -2330,7 +2335,10 @@ p_still_variant(void)
       dbt = cl->ClSource;
     }
   } else {
-    if (old_tr != TR-2)
+    if (old_tr == TR-1) {
+      if (TrailTerm(old_tr) != REF_TO_TRENTRY(dbr))
+	return FALSE;
+    } else if (old_tr != TR)
       return FALSE;
     if (dbr->Flags & (DBNoVars|DBAtomic))
       return TRUE;
@@ -2339,6 +2347,10 @@ p_still_variant(void)
     dbt = &(dbr->DBT);
   }
 #ifdef IDB_LINK_TABLE
+  /*
+    we checked the trail, so we are sure only variables in the new term
+    were bound
+  */
   {
     link_entry *lp = (link_entry *)(dbt->Contents+dbt->NOfCells);
     link_entry link;

@@ -10,7 +10,7 @@
 * File:		Yap.h.m4						 *
 * mods:									 *
 * comments:	main header file for YAP				 *
-* version:      $Id: Yap.h.m4,v 1.61 2004-07-26 16:03:35 vsc Exp $	 *
+* version:      $Id: Yap.h.m4,v 1.62 2004-07-28 22:09:02 vsc Exp $	 *
 *************************************************************************/
 
 #include "config.h"
@@ -251,6 +251,7 @@ extern char     Yap_Option[20];
 #if !IN_SECOND_QUADRANT
 #if __linux__ || __FreeBSD__ || __NetBSD__ || mips || __APPLE__
 #if defined(YAPOR) && defined(__alpha)
+
 #define MMAP_ADDR 0x40000000
 #elif mips
 #define MMAP_ADDR 0x02000000
@@ -262,7 +263,7 @@ extern char     Yap_Option[20];
 #elif __svr4__ || defined(__SVR4)
 #define MMAP_ADDR 0x02000000
 #elif defined(_WIN32)
-#define MMAP_ADDR 0x18000000L
+#define MMAP_ADDR 0x10040000L
 #elif defined(__CYGWIN__)
 #define MMAP_ADDR 0x30000000L
 #endif
@@ -272,7 +273,7 @@ extern char     Yap_Option[20];
 #define HEAP_INIT_BASE  0L
 #define AtomBase        NULL
 #else
-#if defined(MMAP_ADDR) && (USE_MMAP || USE_SHMAT || _WIN32) && !__simplescalar__
+#if defined(MMAP_ADDR) && (USE_MMAP || USE_SHMAT) && !__simplescalar__
 #define HEAP_INIT_BASE  (MMAP_ADDR)
 #define AtomBase        ((char *)MMAP_ADDR)
 #else
