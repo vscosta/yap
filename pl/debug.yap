@@ -551,7 +551,7 @@ debugging :-
 	    (Index = [] ->
                /* We have a single clause */
 	       Cl = 1,
-               '$clause'(G, M, Clause)
+               '$clause'(G, M, Clause,_)
             ;
 	      Cl1 is Cl-1,
 	      '$fetch_reference_from_index'(Index, Cl1, Ref),
@@ -615,7 +615,7 @@ debugging :-
 	  (Index = [] ->
              /* We have a single clause */
 	     Cl = 1,
-             '$clause'(G, M, Clause)
+             '$clause'(G, M, Clause,_)
             ;
 	    Cl1 is Cl-1,
 	    '$fetch_reference_from_index'(Index, Cl1, Ref),
