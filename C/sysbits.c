@@ -30,11 +30,17 @@ static char SccsId[] = "%W% %G%";
 #if  _MSC_VER || defined(__MINGW32__)
 #define _WIN32_WINNT 0x0400
 #endif
+/* windows.h does not like absmi.h, this
+   should fix it for now */
+#if  _MSC_VER || defined(__MINGW32__)
 #include "Yap.h"
 #include "Yatom.h"
 #include "Heap.h"
-#include "yapio.h"
 #include "eval.h"
+#else
+#include "absmi.h"
+#endif
+#include "yapio.h"
 #include "alloc.h"
 #include <math.h>
 #if STDC_HEADERS
