@@ -738,7 +738,13 @@ not(G) :-    \+ '$execute'(G).
 	S \= M, % can't try importing from the module itself.
 	!,
 	'$exit_undefp',
-	'$execute'(S:G).
+	(
+	  '$meta_expansion'(S,M,G,G1,[])
+	   ->
+	  '$execute'(S:G1)
+	;
+	  '$execute'(S:G)
+	).
 '$do_undefp'(G,M) :-
 	'$is_expand_goal_or_meta_predicate'(G,M),
 	'$system_catch'(goal_expansion(G, M, NG), user, _, fail), !,

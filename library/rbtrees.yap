@@ -24,22 +24,22 @@ new(black([],[],[],[])).
 new(K,V,black(Nil,K,V,Nil)) :-
 	Nil = black([],[],[],[]).
 
-lookup(Key, Val, black([],_,_,[])) :- !, fail.
+lookup(_, _, black([],_,_,[])) :- !, fail.
 lookup(Key, Val, Tree) :-
 	arg(2,Tree,KA),
 	compare(Cmp,KA,Key),
 	lookup(Cmp,Key,Val,Tree).
 
-lookup(<, K, V, Tree) :-
+lookup(>, K, V, Tree) :-
 	arg(1,Tree,NTree),
 	lookup(K, V, NTree).
-lookup(>, K, V, Tree) :-
+lookup(<, K, V, Tree) :-
 	arg(4,Tree,NTree),
 	lookup(K, V, NTree).
-lookup(=, K, V, Tree) :-
+lookup(=, _, V, Tree) :-
 	arg(3,Tree,V).
 
-lookupall(Key, Val, black([],_,_,[])) :- !, fail.
+lookupall(_, _, black([],_,_,[])) :- !, fail.
 lookupall(Key, Val, Tree) :-
 	arg(2,Tree,KA),
 	compare(Cmp,KA,Key),
@@ -48,7 +48,7 @@ lookupall(Key, Val, Tree) :-
 lookupall(>, K, V, Tree) :-
 	arg(4,Tree,NTree),
 	lookupall(K, V, NTree).
-lookupall(=, K, V, Tree) :-
+lookupall(=, _, V, Tree) :-
 	arg(3,Tree,V).
 lookupall(=, K, V, Tree) :-
 	arg(1,Tree,NTree),
@@ -440,7 +440,6 @@ bclean_tree(X1,X,T0,TF) :-
 	X2 is X1-1,
 	( rbtree(TI) -> true ; abort),
 	bclean_tree(X2,X,TI,TF).
-tree(X2,X,TI,TF).
 
 
 

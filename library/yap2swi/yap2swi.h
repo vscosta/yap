@@ -228,12 +228,8 @@ extern X_API int PL_set_engine(PL_engine_t,PL_engine_t *);
 extern X_API int PL_get_string_chars(term_t, char **, int *);
 extern X_API int PL_action(int,...);
 
-
-
 extern X_API int Sprintf(char *,...);
 extern X_API int Sdprintf(char *,...);
 
-
-
-
+int swi_install(void);
 

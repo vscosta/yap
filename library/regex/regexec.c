@@ -55,7 +55,7 @@ static char sccsid[] = "@(#)regexec.c	8.3 (Berkeley) 3/20/94";
 #endif
 #include <stdio.h>
 #include <stdlib.h>
-#if HAVE_CTYPE_H && !defined(_WIN32) && !defined(__CYGWIN__)
+#if HAVE_CTYPE_H
 #include <ctype.h>
 #endif
 #if HAVE_STRING_H
