@@ -257,25 +257,32 @@ debugging :-
 '$spy'([_|Mod:G]) :- !,
 	'$spy'([Mod|G]).
 '$spy'([Module|'$call'(G)]) :- !,
-	'fetch_goal_module'(G, Module, G1, Mod),
+	'$fetch_goal_module'(G, Module, G1, Mod),
         '$expand_goal'(G1, Mod, Module, NG, NM),
 	/* we may execute a system predicate, so we cannot
 	   jump straight to do_spy */
 	'$spy'([NM|NG]).
 '$spy'([Module|G]) :-
 %    '$format'(user_error,"$spym(~w,~w)~n",[Module,G]),
-         '$hidden_predicate'(G,Module),
+	 '$hidden_predicate'(G,Module),
          !,
 	 /* called from prolog module   */
 	 '$execute0'(G,Module),
  	 '$creep'.
+'$spy'([Module|G]) :-
+%    '$format'(user_error,"$spym(~w,~w)~n",[Module,G]),
+        '$is_push_pred_mod'(G,Module),
+         !,
+	 /* called from prolog module   */
+ 	 '$creep',
+	 '$execute0'(G,Module).
 '$spy'([Mod|G]) :-
 	'$do_spy'(G,Mod).
 
-'fetch_goal_module'(V, M, V, M) :- var(V), !.
-'fetch_goal_module'(M:G, _, NG, Mod) :- !,
-	 'fetch_goal_module'(G, M, NG, Mod).
-'fetch_goal_module'(G, M, G, M).
+'$fetch_goal_module'(V, M, V, M) :- var(V), !.
+'$fetch_goal_module'(M:G, _, NG, Mod) :- !,
+	 '$fetch_goal_module'(G, M, NG, Mod).
+'$fetch_goal_module'(G, M, G, M).
  
  
 '$direct_spy'(G) :-

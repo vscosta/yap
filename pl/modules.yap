@@ -331,6 +331,7 @@ module(N) :-
 	'$expand_goal2'(G, ExportingMod, NG, NM).
 '$expand_goal2'(G, M, GF, M) :-
 	'$pred_goal_expansion_on',
+	% make sure we do not try to expand conjs, etc...
 	user:goal_expansion(G,M,GF), !.
 '$expand_goal2'(G, M, G, M). 
 	

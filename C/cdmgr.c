@@ -2568,6 +2568,43 @@ p_cut_transparent(void)
   return(TRUE);
 }
 
+static Int			/* $is_push_pred_mod(P,M) */
+p_is_push_pred_mod(void)
+{
+  PredEntry      *pe;
+
+  Term t1 = Deref(ARG1);
+ restart_system_pred:
+  if (IsVarTerm(t1))
+    return (FALSE);
+  if (IsAtomTerm(t1)) {
+    pe = RepPredProp(GetPredPropByAtom(AtomOfTerm(t1), 0));
+  } else if (IsApplTerm(t1)) {
+    Functor         funt = FunctorOfTerm(t1);
+    if (IsExtensionFunctor(funt)) {
+      return(FALSE);
+    } 
+    if (funt == FunctorModule) {
+      Term nmod = ArgOfTerm(1, t1);
+      if (IsVarTerm(nmod)) {
+	Error(INSTANTIATION_ERROR,ARG1,"system_predicate/1");
+	return(FALSE);
+      } 
+      if (!IsAtomTerm(nmod)) {
+	Error(TYPE_ERROR_ATOM,ARG1,"system_predicate/1");
+	return(FALSE);
+      }
+      t1 = ArgOfTerm(2, t1);
+      goto restart_system_pred;
+    }
+    pe = RepPredProp(GetPredPropByFunc(funt, 0));
+  } else
+    return (FALSE);
+  if (EndOfPAEntr(pe))
+    return(FALSE);
+  return(pe->PredFlags & CutTransparentPredFlag);
+}
+
 
 void 
 InitCdMgr(void)
@@ -2613,5 +2650,6 @@ InitCdMgr(void)
   InitCPred("$hidden_predicate", 2, p_hidden_predicate, SafePredFlag);
   InitCPred("$pred_for_code", 5, p_pred_for_code, SyncPredFlag);
   InitCPred("$current_stack", 1, p_current_stack, SyncPredFlag);
+  InitCPred("$is_push_pred_mod", 2, p_is_push_pred_mod, SyncPredFlag);
 }
 

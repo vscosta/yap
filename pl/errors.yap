@@ -179,6 +179,8 @@ print_message(Level, Mss) :-
 	'$preprocess_stack'(Gs, NGs).
 '$beautify_hidden_goal'('$do_spy',_,prolog,ClNo,Gs,NGs) :- !,
 	'$preprocess_stack'(Gs, NGs).
+'$beautify_hidden_goal'('$spy',_,prolog,ClNo,Gs,NGs) :- !,
+	'$preprocess_stack'(Gs, NGs).
 '$beautify_hidden_goal'('$do_creep_execute',_,prolog,ClNo,Gs,NGs) :- !,
 	'$preprocess_stack'(Gs, NGs).
 '$beautify_hidden_goal'('$creep_execute',_,prolog,ClNo,Gs,NGs) :- !,
