@@ -82,12 +82,6 @@ static char SccsId[] = "%W% %G%";
 #endif
 #endif
 
-#ifdef __MINGW32__
-#ifdef HAVE_ENVIRON
-#undef HAVE_ENVIRON
-#endif
-#endif
-
 STATIC_PROTO (void InitPageSize, (void));
 STATIC_PROTO (void InitTime, (void));
 STATIC_PROTO (void InitWTime, (void));
@@ -98,11 +92,11 @@ STATIC_PROTO (Int p_mv, (void));
 STATIC_PROTO (Int p_cd, (void));
 STATIC_PROTO (Int p_getcwd, (void));
 STATIC_PROTO (Int p_dir_sp, (void));
-STATIC_PROTO (Int p_getenv, (void));
-STATIC_PROTO (Int p_environ, (void));
 STATIC_PROTO (void InitRandom, (void));
 STATIC_PROTO (Int p_srandom, (void));
 STATIC_PROTO (Int p_alarm, (void));
+STATIC_PROTO (Int p_getenv, (void));
+STATIC_PROTO (Int p_putenv, (void));
 #ifdef MACYAP
 STATIC_PROTO (int chdir, (char *));
 /* #define signal	skel_signal */
@@ -1233,7 +1227,7 @@ HandleSIGINT (int sig)
 #else
 #ifdef HAVE_SETBUF
   /* make sure we are not waiting for the end of line */
-  YP_setbuf (YP_stdin, NULL); 
+  YP_setbuf (stdin, NULL); 
 #endif
   my_signal(SIGINT, HandleSIGINT);
 #endif
@@ -1800,35 +1794,6 @@ SetTextFile (name)
 
 #endif
 
-/* return YAP's environment */
-static Int p_environ(void)
-{
-#if HAVE_ENVIRON
-  extern char **environ;
-  Term t1 = Deref(ARG1);
-  Int i;
-
-  if (IsVarTerm(t1)) {
-    Error(INSTANTIATION_ERROR, t1,
-	  "first arg of environ/2");
-    return(FALSE);
-  } else if (!IsIntTerm(t1)) {
-    Error(TYPE_ERROR_INTEGER, t1,
-	  "first arg of environ/2");
-    return(FALSE);
-  } else i = IntOfTerm(t1);
-  if (environ[i] == NULL)
-    return(FALSE);
-  else {
-    Term t = StringToList(environ[i]);
-    return(unify(t, ARG2));
-  }
-#else
-    Error(SYSTEM_ERROR, TermNil,
-	  "environ not available in this configuration");
-    return (FALSE);
-#endif
-}
 
 /* return YAP's environment */
 static Int p_getenv(void)
@@ -1902,7 +1867,6 @@ static Int p_putenv(void)
     return (FALSE);
 #endif
 }
-
 
 /* wrapper for alarm system call */
 #if defined(_WIN32)
@@ -2028,10 +1992,9 @@ InitSysPreds(void)
   InitCPred ("$cd", 1, p_cd, SafePredFlag|SyncPredFlag);
   InitCPred ("$getcwd", 1, p_getcwd, SafePredFlag|SyncPredFlag);
   InitCPred ("$dir_separator", 1, p_dir_sp, SafePredFlag);
-  InitCPred ("$environ", 2, p_environ, SafePredFlag);
+  InitCPred ("$alarm", 2, p_alarm, SafePredFlag|SyncPredFlag);
   InitCPred ("$getenv", 2, p_getenv, SafePredFlag);
   InitCPred ("$putenv", 2, p_putenv, SafePredFlag|SyncPredFlag);
-  InitCPred ("$alarm", 2, p_alarm, SafePredFlag|SyncPredFlag);
 }
 
 

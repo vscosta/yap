@@ -12,7 +12,7 @@
 * Last rev:								 *
 * mods:									 *
 * comments:	allocating space					 *
-* version:$Id: alloc.c,v 1.6 2001-05-07 19:56:02 vsc Exp $		 *
+* version:$Id: alloc.c,v 1.7 2001-05-21 20:00:05 vsc Exp $		 *
 *************************************************************************/
 #ifdef SCCS
 static char SccsId[] = "%W% %G%";
@@ -537,6 +537,7 @@ ExtendWorkSpace(Int s)
 {
 #ifdef YAPOR
   abort_optyap("function ExtendWorkSpace called");
+  return(FALSE);
 #else
 
   MALLOC_T a;
@@ -614,9 +615,9 @@ ExtendWorkSpace(Int s)
     return FALSE;
   }
   
-#endif /* YAPOR */
   WorkSpaceTop = (char *) a + s;
   return TRUE;
+#endif /* YAPOR */
 }
 
 int

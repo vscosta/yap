@@ -1,4 +1,5 @@
 BEFORE 4.4:
+- weird going ons with prompt
 - mixed constraints and delays.
 - write infinite terms
 - constraints in DB.
@@ -8,7 +9,11 @@ BEFORE 4.4:
 - timestamps on files.
 - warnings in documentation file.
 - system library
-- fixed restore when code is moved around.
+- fix restore when code is moved around.
+- library(system) for WIN32
+- document system(library)
+- document new interface functions.
+- logtalk.
 
 TO CHECK:
 - bad register allocation for a(X,Y) :- X is Y+2.3 ?
@@ -16,6 +21,7 @@ TO CHECK:
 TABLING
 - pass all tabling tests from Kostis and Bart paper
 - handle floats, long ints and friends in tables.
+- knap-sack
 
 AFTER 4.4(?)
 - change compilation order for arguments

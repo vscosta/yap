@@ -255,7 +255,7 @@ Abort (char *format,...)
     }
   else
     {
-      CreepFlag = MinStackGap*(stack_overflows+1);
+      CreepFlag = CalculateStackGap();
 #if PUSH_REGS
       restore_absmi_regs(&standard_regs);
 #endif
@@ -1801,7 +1801,7 @@ Error (yap_error_number type, Term where, char *format,...)
   if (serious) {
     Int depth;
 
-    CreepFlag = MinStackGap*(stack_overflows+1);
+    CreepFlag = CalculateStackGap();
     if (type == PURE_ABORT)
       depth = SetDBForThrow(MkAtomTerm(LookupAtom("abort")));
     else

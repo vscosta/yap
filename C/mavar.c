@@ -92,12 +92,11 @@ p_setarg(void)
    timestamps.
 
    Because of !, the only timestamp one can trust is the trailpointer
-   (ouch..). The trail is not reclaimed during backtracking. Also, if
-   there was a conditional binding, the trail is sure to have been
-   increased since the last choicepoint. For maximum effect, we can
-   actually store the current value of TR in the timestamp field,
-   giving a way to actually follow a link of all trailings for these
-   variables.
+   (ouch..). The trail is not reclaimed after cuts. Also, if there was
+   a conditional binding, the trail is sure to have been increased
+   since the last choicepoint. For maximum effect, we can actually
+   store the current value of TR in the timestamp field, giving a way
+   to actually follow a link of all trailings for these variables.
 
 */
 
@@ -114,6 +113,8 @@ static void
 CreateTimedVar(Term val)
 {
   timed_var *tv = (timed_var *)H;
+  tv->clock = MkIntTerm(0);
+#ifdef BEFORE_TRAIL_COMPRESSION
   tv->clock = MkIntegerTerm((Int)((CELL *)(B->cp_tr)-(CELL *)TrailBase));
   if (B->cp_tr == TR) {
     /* we run the risk of not making non-determinate bindings before
@@ -121,6 +122,7 @@ CreateTimedVar(Term val)
     /* so we just init a TR cell that will not harm anyone */
     Bind((CELL *)(TR+1),AbsAppl(H-1));
   }
+#endif
   tv->value = val;
   H += sizeof(timed_var)/sizeof(CELL);
 }
@@ -129,6 +131,8 @@ static void
 CreateEmptyTimedVar(void)
 {
   timed_var *tv = (timed_var *)H;
+  tv->clock = MkIntTerm(0);
+#ifdef BEFORE_TRAIL_COMPRESSION
   tv->clock = MkIntegerTerm((Int)((CELL *)(B->cp_tr)-(CELL *)TrailBase));
   if (B->cp_tr == TR) {
     /* we run the risk of not making non-determinate bindings before
@@ -136,6 +140,7 @@ CreateEmptyTimedVar(void)
     /* so we just init a TR cell that will not harm anyone */
     Bind((CELL *)(TR+1),AbsAppl(H-1));
   }
+#endif
   RESET_VARIABLE(&(tv->value));
   H += sizeof(timed_var)/sizeof(CELL);
 }

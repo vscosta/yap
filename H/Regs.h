@@ -10,7 +10,7 @@
 * File:		Regs.h							 *
 * mods:									 *
 * comments:	YAP abstract machine registers				 *
-* version:      $Id: Regs.h,v 1.1.1.1 2001-04-09 19:53:39 vsc Exp $	 *
+* version:      $Id: Regs.h,v 1.2 2001-05-21 20:00:05 vsc Exp $	 *
 *************************************************************************/
 
 
@@ -682,3 +682,10 @@ EXTERN inline void restore_B(void) {
 REGSTORE standard_regs;
 #endif /* PUSH_REGS */
 
+static inline UInt
+CalculateStackGap(void)
+{
+  UInt gmin = (LCL0-H0)>>1;
+  UInt min_gap = MinStackGap;
+  return(gmin < min_gap ? min_gap : gmin );
+}

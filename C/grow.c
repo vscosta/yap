@@ -695,7 +695,7 @@ growstack(long size)
   fix_tabling_info();
 #endif
   YAPLeaveCriticalSection();
-  CreepFlag = MinStackGap*(stack_overflows+1);
+  CreepFlag = CalculateStackGap();
   ASP += 256;
   growth_time = cputime()-start_growth_time;
   total_stack_overflow_time += growth_time;
@@ -815,7 +815,7 @@ growstack_in_parser(tr_fr_ptr *old_trp, TokEntry **tksp, VarEntry **vep)
   }
   AdjustRegs(MaxTemps);
   YAPLeaveCriticalSection();
-  CreepFlag = MinStackGap*(stack_overflows+1);
+  CreepFlag = CalculateStackGap();
   ASP += 256;
   growth_time = cputime()-start_growth_time;
   total_stack_overflow_time += growth_time;

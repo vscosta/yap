@@ -292,7 +292,7 @@ absmi(int inp)
 #endif /* USE_THREADED_CODE */
 
     noheapleft:
-      CFREG = MinStackGap*(stack_overflows+1);
+      CFREG = CalculateStackGap();
       saveregs();
 #if PUSH_REGS
       restore_absmi_regs(old_regs);
@@ -1604,7 +1604,7 @@ absmi(int inp)
 	    ASP = (CELL *)B;
 	  goto noheapleft;
 	}
-      if (CFREG != MinStackGap*(stack_overflows+1))
+      if (CFREG != CalculateStackGap())
 	goto creep;
       else
 	goto NoStackExec;
@@ -1752,12 +1752,12 @@ absmi(int inp)
 	if (ReadTimedVar(WokenGoals) != TermNil)
 	  goto creepc;
 	else {
-	  CFREG = MinStackGap*(stack_overflows+1);
+	  CFREG = CalculateStackGap();
 	  JMPNext();
 	}
       }
 #endif
-      if (CFREG != MinStackGap*(stack_overflows+1))
+      if (CFREG != CalculateStackGap())
 	goto creepc;
       ASP = (CELL *) (((char *) Y) + PREG->u.sla.s);
       if (ASP > (CELL *)B)
@@ -1830,11 +1830,11 @@ absmi(int inp)
 	if (ReadTimedVar(WokenGoals) != TermNil)
 	  goto creep_either;
 	else {
-	  CFREG = MinStackGap*(stack_overflows+1);
+	  CFREG = CalculateStackGap();
 	  JMPNext();
 	}
       }
-      if (CFREG != MinStackGap*(stack_overflows+1)) {
+      if (CFREG != CalculateStackGap()) {
 	goto either_notest;
       }
       ASP = (CELL *) (((char *) Y) + PREG->u.sla.s);
@@ -1916,12 +1916,12 @@ absmi(int inp)
 	if (ReadTimedVar(WokenGoals) != TermNil)
 	  goto creepde;
 	else {
-	  CFREG = MinStackGap*(stack_overflows+1);
+	  CFREG = CalculateStackGap();
 	  JMPNext();
 	}
       }
 #endif
-      if (CFREG != MinStackGap*(stack_overflows+1))
+      if (CFREG != CalculateStackGap())
 	goto creepde;
 
     NoStackExec:
@@ -2041,10 +2041,10 @@ absmi(int inp)
 
 	  /* no more goals to wake up */
 	  UpdateTimedVar(WokenGoals, TermNil);
-	  CFREG = MinStackGap*(stack_overflows+1);
+	  CFREG = CalculateStackGap();
 	}
 	else {
-	  CFREG = MinStackGap*(stack_overflows+1);
+	  CFREG = CalculateStackGap();
 	  /* We haven't changed P yet so this means redo the
 	   * same instruction */
 	  JMPNext();
@@ -2101,7 +2101,7 @@ absmi(int inp)
 	ARG1 = (Term) AbsPair(H);
 
 	H += 2;
-	CFREG = MinStackGap*(stack_overflows+1);
+	CFREG = CalculateStackGap();
 	SREG = (CELL *) (Unsigned(CreepCode) - sizeof(SMALLUNSGN));
 
 #ifdef COROUTINING
@@ -5920,7 +5920,7 @@ absmi(int inp)
 	{
 	  Prop p = GetPredProp (at, 1);
 	  if (p == NIL) {
-	    CFREG = MinStackGap*(stack_overflows+1);
+	    CFREG = CalculateStackGap();
 	    FAIL();
 	  } else {
 	    PredEntry *undefpe;
@@ -5932,7 +5932,7 @@ absmi(int inp)
 	}
       }
       PREG = (yamop *)pred_entry_from_code(UndefCode)->CodeOfPred;
-      CFREG = MinStackGap*(stack_overflows+1);
+      CFREG = CalculateStackGap();
       CACHE_A1();
       JMPNext();
       ENDBOp();
@@ -10144,7 +10144,7 @@ absmi(int inp)
 	if (pt1+d1 > ENV || pt1+d1 > (CELL *)B) {
 	  /* make sure we have something to show for our trouble */
 	  saveregs();
-	  gc(3, Y, NEXTOP(NEXTOP(PREG,xxx),sla));
+	  gc(0, Y, NEXTOP(NEXTOP(PREG,xxx),sla));
 	  setregs();
 	  goto restart_func2s;
 	}
@@ -10242,7 +10242,7 @@ absmi(int inp)
 	if (pt1+d1 > ENV || pt1+d1 > (CELL *)B) {
 	  /* make sure we have something to show for our trouble */
 	  saveregs();
-	  gc(3, Y, NEXTOP(NEXTOP(PREG,xcx),sla));
+	  gc(0, Y, NEXTOP(NEXTOP(PREG,xcx),sla));
 	  setregs();
 	  goto restart_func2s_cv;
 	}
@@ -10339,7 +10339,7 @@ absmi(int inp)
       if (pt1+d1 > ENV || pt1+d1 > (CELL *)B) {
 	/* make sure we have something to show for our trouble */
 	saveregs();
-	gc(3, Y, NEXTOP(NEXTOP(PREG,xxc),sla));
+	gc(0, Y, NEXTOP(NEXTOP(PREG,xxc),sla));
 	setregs();
 	goto restart_func2s_vc;
       }
@@ -10433,7 +10433,7 @@ absmi(int inp)
 	if (pt1+d1 > ENV || pt1+d1 > (CELL *)B) {
 	  /* make sure we have something to show for our trouble */
 	  saveregs();
-	  gc(3, Y, NEXTOP(NEXTOP(PREG,yxx),sla));
+	  gc(0, Y, NEXTOP(NEXTOP(PREG,yxx),sla));
 	  setregs();
 	  goto restart_func2s_y;
 	}
@@ -10553,7 +10553,7 @@ absmi(int inp)
 	if (pt1+d1 > ENV || pt1+d1 > (CELL *)B) {
 	  /* make sure we have something to show for our trouble */
 	  saveregs();
-	  gc(3, Y, NEXTOP(NEXTOP(PREG,ycx),sla));
+	  gc(0, Y, NEXTOP(NEXTOP(PREG,ycx),sla));
 	  setregs();
 	  goto restart_func2s_y_cv;
 	}
@@ -10682,7 +10682,7 @@ absmi(int inp)
       if (pt1+d1 > ENV || pt1+d1 > (CELL *)B) {
 	/* make sure we have something to show for our trouble */
 	saveregs();
-	gc(3, Y, NEXTOP(NEXTOP(PREG,yxc),sla));
+	gc(0, Y, NEXTOP(NEXTOP(PREG,yxc),sla));
 	setregs();
 	goto restart_func2s_y_vc;
       }

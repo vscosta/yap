@@ -42,6 +42,8 @@ Yapcut_succeed
 YapAllocSpaceFromYap
 YapFreeSpaceFromYap
 YapStringToBuffer
+YapBufferToString
+YapBufferToAtomList
 YapError
 YapRunGoal
 YapContinueGoal
@@ -58,4 +60,6 @@ YapSetOutputMessage
 YapWrite
 YapInitConsult
 YapEndConsult
-
+YapStreamToFileNo
+YapCloseAllOpenStreams
+YapOpenStream

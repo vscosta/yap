@@ -26,10 +26,12 @@
 #undef  HAVE_ARPA_INET_H
 #undef  HAVE_CTYPE_H
 #undef  HAVE_DIRECT_H
+#undef  HAVE_DIRENT_H
 #undef  HAVE_ERRNO_H
 #undef  HAVE_FCNTL_H
 #undef  HAVE_FENV_H
 #undef  HAVE_FPU_CONTROL_H
+#undef  HAVE_GMP_H
 #undef  HAVE_IEEEFP_H
 #undef  HAVE_LIMITS_H
 #undef  HAVE_MEMORY_H
@@ -37,6 +39,7 @@
 #undef  HAVE_NETINET_IN_H
 #undef  HAVE_REGEX_H
 #undef  HAVE_SIGINFO_H
+#undef  HAVE_SIGNAL_H
 #undef  HAVE_STDARG_H
 #undef  HAVE_STRING_H
 #undef  HAVE_SYS_FILE_H
@@ -56,7 +59,6 @@
 #undef  HAVE_UNISTD_H
 #undef  HAVE_WINSOCK_H
 #undef  HAVE_WINSOCK2_H
-#undef  HAVE_GMP_H
 
 /* Do we have restartable syscalls */
 #undef  HAVE_RESTARTABLE_SYSCALLS
@@ -101,6 +103,9 @@
 #undef  HAVE_DUP2
 #undef  HAVE_FETESTEXCEPT
 #undef  HAVE_FINITE
+#undef  HAVE_GETHOSTBYNAME
+#undef  HAVE_GETHOSTID
+#undef  HAVE_GETHOSTNAME
 #undef  HAVE_GETRUSAGE
 #undef  HAVE_GETCWD
 #undef  HAVE_GETENV
@@ -110,15 +115,22 @@
 #undef  HAVE_GETWD
 #undef  HAVE_ISATTY
 #undef  HAVE_ISNAN
+#undef  HAVE_KILL
 #undef  HAVE_LABS
 #undef  HAVE_LINK
+#undef  HAVE_LOCALTIME
+#undef  HAVE_LSTAT
 #undef  HAVE_MMAP
 #undef  HAVE_MEMCPY
 #undef  HAVE_MEMMOVE
 #undef  HAVE_MKSTEMP
+#undef  HAVE_MKTEMP
+#undef  HAVE_OPENDIR
+#undef  HAVE_POPEN
 #undef  HAVE_PUTENV
 #undef  HAVE_RAND
 #undef  HAVE_RANDOM
+#undef  HAVE_RENAME
 #undef  HAVE_RINT
 #undef  HAVE_SBRK
 #undef  HAVE_STAT
@@ -132,6 +144,7 @@
 #undef  HAVE_SIGPROCMASK
 #undef  HAVE_SIGSEGV
 #undef  HAVE_SIGSETJMP
+#undef  HAVE_SLEEP
 #undef  HAVE_SNPRINTF
 #undef  HAVE_SOCKET
 #undef  HAVE_STRERROR
@@ -140,9 +153,12 @@
 #undef  HAVE_STRCHR
 #undef  HAVE_STRTOD
 #undef  HAVE_SYSTEM
+#undef  HAVE_TIME
 #undef  HAVE_TIMES
 #undef  HAVE_TMPNAM
+#undef  HAVE_USLEEP
 #undef  HAVE_VSNPRINTF
+#undef  HAVE_WAITPID
 #undef  HAVE_ENVIRON
 #undef  HAVE_MPZ_XOR
 

@@ -845,7 +845,7 @@ exec_absmi(int top)
       B = (choiceptr)(LCL0-depth);
 #endif
       yap_flags[SPY_CREEP_FLAG] = 0;
-      CreepFlag = MinStackGap*(stack_overflows+1);
+      CreepFlag = CalculateStackGap();
 #if defined(__GNUC__) && defined(hppa)
      /* siglongjmp resets the TR hardware register */
       restore_TR();

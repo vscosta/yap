@@ -21,10 +21,12 @@ static char     SccsId[] = "%W% %G%";
 #include "absmi.h"
 #include "yapio.h"
 
+#define DEBUG 1
 
 #define EARLY_RESET 1
 #define EASY_SHUNTING 1
-#define HYBRID_SCHEME 1
+//#define HYBRID_SCHEME 1
+
 
 #ifdef MULTI_ASSIGNMENT_VARIABLES
 /* 
@@ -152,6 +154,8 @@ static choiceptr current_B;
 
 static tr_fr_ptr sTR;
 #endif
+
+static tr_fr_ptr new_TR;
 
 STATIC_PROTO(void push_registers, (Int, yamop *));
 STATIC_PROTO(void marking_phase, (tr_fr_ptr, CELL *, yamop *, CELL *));
@@ -655,7 +659,7 @@ init_dbtable(tr_fr_ptr trail_ptr) {
 
 #ifdef DEBUG
 
-/*#define INSTRUMENT_GC 1*/
+#define INSTRUMENT_GC 1
 /*#define CHECK_CHOICEPOINTS 1*/
 
 #ifdef INSTRUMENT_GC
@@ -780,16 +784,25 @@ check_global(void) {
 #if INSTRUMENT_GC
     if (IsVarTerm(ccurr)) {
       if (IsBlobFunctor((Functor)ccurr)) vars[gc_num]++;
-      else if (ccurr != 0 && ccurr < (CELL)HeapTop) vars[gc_func]++;
+      else if (ccurr != 0 && ccurr < (CELL)HeapTop) {
+	/*	printf("%p: %s/%d\n", current,
+	       RepAtom(NameOfFunctor((Functor)ccurr))->StrOfAE,
+	       ArityOfFunctor((Functor)ccurr));*/
+	vars[gc_func]++;
+      }
       else if (IsUnboundVar((CELL)current)) vars[gc_var]++;
       else vars[gc_ref]++;
     } else if (IsApplTerm(ccurr)) {
+      //      printf("%p: f->%p\n",current,RepAppl(ccurr));
       vars[gc_appl]++;
     } else if (IsPairTerm(ccurr)) {
+      //      printf("%p: l->%p\n",current,RepPair(ccurr));
       vars[gc_list]++;
     } else if (IsAtomTerm(ccurr)) {
+      //      printf("%p: %s\n",current,RepAtom(AtomOfTerm(ccurr))->StrOfAE);
       vars[gc_atom]++;
     } else if (IsIntTerm(ccurr)) {
+      //      printf("%p: %d\n",current,IntOfTerm(ccurr));
       vars[gc_int]++;
     }
 #endif
@@ -1202,12 +1215,18 @@ mark_trail(tr_fr_ptr trail_ptr, tr_fr_ptr trail_base, CELL *gc_H, choiceptr gc_B
 	mark_external_reference(&TrailTerm(trail_ptr));	
 	UNMARK(&TrailTerm(trail_ptr));
 #endif /* EARLY_RESET */
-      } else {
-	if (hp < (CELL *)HeapTop) {
+      } else if (hp < (CELL *)HeapTop) {
 	  /* I decided to allow pointers from the Heap back into the trail.
 	   The point of doing so is to have dynamic arrays */
-	  mark_external_reference(hp);
-	}
+	mark_external_reference(hp);
+      } else if ((hp < (CELL *)gc_B && hp >= gc_H) || hp > (CELL *)TrailBase) {
+	/* clean the trail, avoid dangling pointers! */
+	RESET_VARIABLE(&TrailTerm(trail_ptr));
+#ifdef FROZEN_REGS
+	RESET_VARIABLE(&TrailVal(trail_ptr));
+#endif
+	discard_trail_entries++;
+      } else {
 #ifdef EASY_SHUNTING
 	if (hp < gc_H   && hp >= H0) {
 	  CELL *cptr = (CELL *)trail_cell;
@@ -1300,9 +1319,16 @@ mark_trail(tr_fr_ptr trail_ptr, tr_fr_ptr trail_base, CELL *gc_H, choiceptr gc_B
 #if  MULTI_ASSIGNMENT_VARIABLES
   while (live_list != NULL) {
     CELL trail_cell = TrailTerm(live_list->trptr-1);
+    CELL trail_cell2 = TrailTerm(live_list->trptr);
     if (HEAP_PTR(trail_cell)) {
       mark_external_reference(&TrailTerm(live_list->trptr-1));
     }
+    /*
+      swap the two so that the sweep_trail() knows we have
+      a multi-assignment binding
+    */
+    TrailTerm(live_list->trptr) = TrailTerm(live_list->trptr-1);
+    TrailTerm(live_list->trptr-1) = trail_cell2;
     live_list = live_list->ma_list;
   }
 #endif
@@ -1323,10 +1349,6 @@ mark_trail(tr_fr_ptr trail_ptr, tr_fr_ptr trail_base, CELL *gc_H, choiceptr gc_B
         if (DepFr_leader_cp(DEP_FR) == GCB)            \
           SUBS_PTR += SgFr_arity(GEN_CP_SG_FR(GCB))
 #endif /* TABLING_SCHEDULING */
-#endif
-
-#ifdef DEBUG
-//#define CHECK_CHOICEPOINTS 1
 #endif
 
 #ifdef CHECK_CHOICEPOINTS
@@ -1379,7 +1401,15 @@ mark_choicepoints(register choiceptr gc_B, tr_fr_ptr saved_TR)
     case _retry_userc:
     case _trust_logical_pred:
     case _retry_profiled:
-      printf("B  %p (%s) with %d\n", gc_B, op_names[opnum], total_marked);
+      {
+	Atom at;
+	UInt arity;
+	SMALLUNSGN mod;
+	if (PredForCode((CODEADDR)gc_B->cp_ap, &at, &arity, &mod))
+	  printf("B  %p (%s) at %s/%d  with %d,%d\nf", gc_B, op_names[opnum], RepAtom(at)->StrOfAE, arity, gc_B->cp_h-H0, total_marked);
+        else
+	  printf("B  %p (%s) with %d,%d\n", gc_B, op_names[opnum], gc_B->cp_h-H0, total_marked);
+      }
       break;
 #ifdef TABLING
     case _table_completion:
@@ -1389,11 +1419,11 @@ mark_choicepoints(register choiceptr gc_B, tr_fr_ptr saved_TR)
 	op_numbers caller_op = op_from_opcode(ENV_ToOp(gc_B->cp_cp));
 	/* first condition  checks if this was a meta-call */
 	if ((caller_op != _call  && caller_op != _fcall) || pe == NULL) {
-	  printf("B  %p (%s) with %d\n", gc_B, op_names[opnum], total_marked);
+	  printf("B  %p (%s) with %d,%d\n", gc_B, op_names[opnum], gc_B->cp_h-H0, total_marked);
 	} else if (pe->ArityOfPE)
-	  printf("B  %p (%s for %s/%d) with %d\n", gc_B, op_names[opnum], RepAtom(NameOfFunctor(pe->FunctorOfPred))->StrOfAE, pe->ArityOfPE, total_marked);
+	  printf("B  %p (%s for %s/%d) with %d,%d\n", gc_B, op_names[opnum], RepAtom(NameOfFunctor(pe->FunctorOfPred))->StrOfAE, pe->ArityOfPE, gc_B->cp_h-H0, total_marked);
 	else
-	  printf("B  %p (%s for %s/0) with %d\n", gc_B, op_names[opnum], RepAtom((Atom)(pe->FunctorOfPred))->StrOfAE, total_marked);
+	  printf("B  %p (%s for %s/0) with %d,%d\n", gc_B, op_names[opnum], RepAtom((Atom)(pe->FunctorOfPred))->StrOfAE, gc_B->cp_h-H0, total_marked);
       }
       break;
 #endif
@@ -1403,14 +1433,21 @@ mark_choicepoints(register choiceptr gc_B, tr_fr_ptr saved_TR)
 	if (pe == NULL) {
 	  printf("B  %p (%s) with %d\n", gc_B, op_names[opnum], total_marked);
 	} else if (pe->ArityOfPE)
-	  printf("B  %p (%s for %s/%d) with %d\n", gc_B, op_names[opnum], RepAtom(NameOfFunctor(pe->FunctorOfPred))->StrOfAE, pe->ArityOfPE, total_marked);
+	  printf("B  %p (%s for %s/%d) with %d,%d\n", gc_B, op_names[opnum], RepAtom(NameOfFunctor(pe->FunctorOfPred))->StrOfAE, pe->ArityOfPE, gc_B->cp_h-H0, total_marked);
 	else
-	  printf("B  %p (%s for %s/0) with %d\n", gc_B, op_names[opnum], RepAtom((Atom)(pe->FunctorOfPred))->StrOfAE, total_marked);
+	  printf("B  %p (%s for %s/0) with %d,%d\n", gc_B, op_names[opnum], RepAtom((Atom)(pe->FunctorOfPred))->StrOfAE, gc_B->cp_h-H0, total_marked);
       }
     }
 #endif /* CHECK_CHOICEPOINTS */
-    mark_trail(saved_TR, gc_B->cp_tr, gc_B->cp_h, gc_B);
-    saved_TR = gc_B->cp_tr;
+    {
+      /* find out how many cells are still alive in the trail */
+      UInt d0 = discard_trail_entries, diff, orig;
+      orig = saved_TR-gc_B->cp_tr;
+      mark_trail(saved_TR, gc_B->cp_tr, gc_B->cp_h, gc_B);
+      saved_TR = gc_B->cp_tr;
+      diff = discard_trail_entries-d0;
+      gc_B->cp_tr = (tr_fr_ptr)(orig-diff);
+    }
   restart_cp:
     if (opnum == _or_else || opnum == _or_last) {
       /* ; choice point */
@@ -1640,15 +1677,26 @@ into_relocation_chain(CELL_PTR current, CELL_PTR next)
 static void 
 sweep_trail(choiceptr gc_B, tr_fr_ptr old_TR)
 {
-  tr_fr_ptr     trail_ptr;
-  CELL *cp_H = gc_B->cp_h;
+  tr_fr_ptr     trail_ptr, dest, tri = (tr_fr_ptr)db_vec;
   Int OldHeapUsed = HeapUsed;
 #ifdef DEBUG
   Int hp_entrs = 0, hp_erased = 0, hp_not_in_use = 0,
     hp_in_use_erased = 0, code_entries = 0;
 #endif
+#if  MULTI_ASSIGNMENT_VARIABLES
+  tr_fr_ptr next_timestamp = NULL;
+#endif
 
-
+  /* adjust cp_tr pointers */
+ {
+   Int size = old_TR-(tr_fr_ptr)TrailBase;
+   size -= discard_trail_entries;
+   while (gc_B != NULL) {
+     size -= (UInt)(gc_B->cp_tr);
+     gc_B->cp_tr = (tr_fr_ptr)TrailBase+size;
+     gc_B = gc_B->cp_b;
+   }
+ }
 #if DB_SEARCH_METHOD
 #if DEBUG
   {
@@ -1671,129 +1719,173 @@ sweep_trail(choiceptr gc_B, tr_fr_ptr old_TR)
   }
  
   /* next, follows the real trail entries */
-  trail_ptr = old_TR;
-  while (trail_ptr > (tr_fr_ptr)TrailBase) {
+  trail_ptr = (tr_fr_ptr)TrailBase;
+  dest = trail_ptr;
+  while (trail_ptr < old_TR) {
     register CELL trail_cell;
-
-    trail_ptr--;
 
     trail_cell = TrailTerm(trail_ptr);
 
-    if (gc_B && trail_ptr < gc_B->cp_tr) {
-      do {
-	gc_B = gc_B->cp_b;
-      } while (gc_B && trail_ptr < gc_B->cp_tr);
-      cp_H = gc_B->cp_h;
-    }
-
-    if (IsVarTerm(trail_cell)) {
-      /* we need to check whether this is a honest to god trail entry */
-      if ((CELL *)trail_cell < cp_H && MARKED(*(CELL *)trail_cell) && (CELL *)trail_cell >= H0) {
-	if (HEAP_PTR(trail_cell)) {
-	  into_relocation_chain(&TrailTerm(trail_ptr), GET_NEXT(trail_cell));
-	}
-      } else if ((CELL *)trail_cell < (CELL *)HeapTop) {
-	/* we may have pointers from the heap back into the cell */
-	UNMARK(CellPtr(trail_cell));
-	if (HEAP_PTR(trail_cell)) {
-	  into_relocation_chain(CellPtr(trail_cell), GET_NEXT(*(CELL *)trail_cell));
-	}
-      } else {
-	/* clean the trail, avoid dangling pointers! */
-	if ((CELL *)trail_cell < (CELL *)gc_B && (CELL *)trail_cell >= H0) {
-	  RESET_VARIABLE(&TrailTerm(trail_ptr));
+    if (trail_cell == (CELL)trail_ptr) {
+      trail_ptr++;
+      /* just skip cell */
+    } else {
+      TrailTerm(dest) = trail_cell;
 #ifdef FROZEN_REGS
-	  RESET_VARIABLE(&TrailVal(trail_ptr));
+      TrailVal(dest) = TrailVal(trail_ptr);
 #endif
-	  discard_trail_entries++;
+      if (IsVarTerm(trail_cell)) {
+	/* we need to check whether this is a honest to god trail entry */
+	if ((CELL *)trail_cell < H && MARKED(*(CELL *)trail_cell) && (CELL *)trail_cell >= H0) {
+	  if (HEAP_PTR(trail_cell)) {
+	    into_relocation_chain(&TrailTerm(dest), GET_NEXT(trail_cell));
+	  }
+	} else if ((CELL *)trail_cell < (CELL *)HeapTop) {
+	  /* we may have pointers from the heap back into the cell */
+	  UNMARK(CellPtr(trail_cell));
+	  if (HEAP_PTR(trail_cell)) {
+	    into_relocation_chain(CellPtr(trail_cell), GET_NEXT(*(CELL *)trail_cell));
+	  }
 	}
-      }
 #ifdef FROZEN_REGS
-      if (MARKED(TrailVal(trail_ptr))) {
-	UNMARK(&TrailVal(trail_ptr));
-	if (HEAP_PTR(TrailVal(trail_ptr))) {
-	  into_relocation_chain(&TrailVal(trail_ptr), GET_NEXT(TrailVal(trail_ptr)));
+	if (MARKED(TrailVal(dest))) {
+	  UNMARK(&TrailVal(dest));
+	  if (HEAP_PTR(TrailVal(dest))) {
+	    into_relocation_chain(&TrailVal(dest), GET_NEXT(TrailVal(dest)));
+	  }
 	}
-      }
 #endif
-    } else if (IsPairTerm(trail_cell)) {
-      CELL *pt0 = RepPair(trail_cell);
-      CELL flags;
+      } else if (IsPairTerm(trail_cell)) {
+	CELL *pt0 = RepPair(trail_cell);
+	CELL flags;
 
 
 #ifdef FROZEN_REGS  /* TRAIL */
-      /* process all segments */
-      if (
+	/* process all segments */
+	if (
 #ifdef SBA
-	  (ADDR) pt0 >= HeapTop
+	    (ADDR) pt0 >= HeapTop
 #else
-	  (ADDR) pt0 >= TrailBase
+	    (ADDR) pt0 >= TrailBase
 #endif
-	  ) {
-	continue;
-      }
+	    ) {
+	  continue;
+	}
 #endif /* FROZEN_REGS */
-      flags = Flags((CELL)pt0);
+	flags = Flags((CELL)pt0);
 #ifdef DEBUG
-      if (FlagOn(DBClMask, flags) && !FlagOn(LogUpdMask, flags)) {
-	hp_entrs++;
-	if (!FlagOn(GcFoundMask, flags)) {
-	  hp_not_in_use++;
-	  if (FlagOn(ErasedMask, flags)) {
-	    hp_erased++;
+	if (FlagOn(DBClMask, flags) && !FlagOn(LogUpdMask, flags)) {
+	  hp_entrs++;
+	  if (!FlagOn(GcFoundMask, flags)) {
+	    hp_not_in_use++;
+	    if (FlagOn(ErasedMask, flags)) {
+	      hp_erased++;
+	    }
+	  } else {
+	    if (FlagOn(ErasedMask, flags)) {
+	      hp_in_use_erased++;
+	    }		
 	  }
 	} else {
-	  if (FlagOn(ErasedMask, flags)) {
-	    hp_in_use_erased++;
-	  }		
+	  code_entries++;
 	}
-      } else {
-	code_entries++;
-      }
 #endif
       
-      if (!FlagOn(GcFoundMask, flags)) {
-	if (FlagOn(DBClMask, flags)  && !FlagOn(LogUpdMask, flags)) {
-	  Flags((CELL)pt0) = ResetFlag(InUseMask, flags);
-	  if (FlagOn(ErasedMask, flags)) {
-	    ErDBE((DBRef) ((CELL)pt0 - (CELL) &(((DBRef) NIL)->Flags)));
+	if (!FlagOn(GcFoundMask, flags)) {
+	  if (FlagOn(DBClMask, flags)  && !FlagOn(LogUpdMask, flags)) {
+	    Flags((CELL)pt0) = ResetFlag(InUseMask, flags);
+	    if (FlagOn(ErasedMask, flags)) {
+	      ErDBE((DBRef) ((CELL)pt0 - (CELL) &(((DBRef) NIL)->Flags)));
+	    }
+	    RESET_VARIABLE(&TrailTerm(dest));
+	    discard_trail_entries++;
 	  }
-	  RESET_VARIABLE(trail_ptr);
-	  discard_trail_entries++;
+	} else {
+	  Flags((CELL)pt0) = ResetFlag(GcFoundMask, flags);
 	}
-      } else {
-	Flags((CELL)pt0) = ResetFlag(GcFoundMask, flags);
-      }
 #if  MULTI_ASSIGNMENT_VARIABLES
-    } else {
-      CELL *old_value_ptr = (CELL *)trail_ptr;
+      } else {
+	CELL trail_cell = TrailTerm(trail_ptr);
+	CELL *ptr;
+	CELL old = TrailTerm(trail_ptr+1);
 
-      if (MARKED(trail_cell)) {
-	UNMARK(&TrailTerm(trail_ptr));
-	if (HEAP_PTR(TrailTerm(trail_ptr))) {
-	  into_relocation_chain(&TrailTerm(trail_ptr), GET_NEXT(trail_cell));
+	if (MARKED(trail_cell)) 
+	  ptr = RepAppl(UNMARK_CELL(trail_cell));
+	else
+	  ptr = RepAppl(trail_cell);
+
+	/* now, we must check whether we are looking at a time-stamp */
+	if (next_timestamp == trail_ptr) {
+	  /* we have a time stamp. Problem is: the trail shifted and we can not trust the
+	     current time stamps */
+	  CELL old_cell = *ptr;
+	  int was_marked = MARKED(old_cell);
+	  tr_fr_ptr old_timestamp;
+
+	  if (was_marked)
+	    old_cell = UNMARK_CELL(old_cell);
+	  old_timestamp = (tr_fr_ptr)TrailBase+IntegerOfTerm(old_cell);
+
+	  if (old_timestamp >= trail_ptr) {
+	    /* first time, we found the current timestamp */
+	    old = MkIntTerm(0);
+	  } else {
+	    /* set time stamp to current */
+	    old = old_cell;
+	  }
+	  *ptr = MkIntegerTerm(dest-(tr_fr_ptr)TrailBase);
+	  if (was_marked)
+	    MARK(ptr);
+	} else if (ptr < H0 || UNMARK_CELL(ptr[-1]) == (CELL)FunctorMutable) {
+	  /* yes, we do have a time stamp */
+	  next_timestamp = trail_ptr+2;
 	}
-      }
-      trail_cell = old_value_ptr[-1];
+
+	TrailTerm(dest) = old;
+	TrailTerm(dest+1) = trail_cell;
+	if (MARKED(old)) {
+	  UNMARK(&TrailTerm(dest));
+	  if (HEAP_PTR(old)) {
+	    into_relocation_chain(&TrailTerm(dest), GET_NEXT(old));
+	  }
+	}
+	dest++;
+	if (MARKED(trail_cell)) {
+	  UNMARK(&TrailTerm(dest));
+	  if (HEAP_PTR(trail_cell)) {
+	    if (next_timestamp == trail_ptr) {
+	      /* wait until we're over to insert in relocation chain */
+	      TrailTerm(tri) = (CELL)dest;
+	      tri++;
+	    } else {
+	      into_relocation_chain(&TrailTerm(dest), GET_NEXT(trail_cell));
+	    }
+	  }
+	}
+	trail_ptr++;
 #ifdef FROZEN_REGS
-      if (MARKED(TrailVal(trail_ptr))) {
-	UNMARK(&TrailVal(trail_ptr));
-	if (HEAP_PTR(TrailVal(trail_ptr))) {
-	  into_relocation_chain(&TrailVal(trail_ptr), GET_NEXT(TrailTerm(trail_ptr)));
+	TrailVal(dest) = TrailVal(trail_ptr);
+	if (MARKED(TrailVal(dest))) {
+	  UNMARK(&TrailVal(dest));
+	  if (HEAP_PTR(TrailVal(dest))) {
+	    into_relocation_chain(&TrailVal(dest), GET_NEXT(TrailTerm(dest)));
+	  }
 	}
-      }
 #endif
-      old_value_ptr--;
-      if (MARKED(trail_cell)) {
-	UNMARK(old_value_ptr);
-	if (HEAP_PTR(trail_cell)) {
-	  into_relocation_chain(old_value_ptr, GET_NEXT(trail_cell));
-	}
-      }
-      trail_ptr = (tr_fr_ptr)old_value_ptr;
 #endif
+      }
+      trail_ptr++;
+      dest++;
     }
   }
+  while (tri > (tr_fr_ptr)db_vec) {
+    tr_fr_ptr x = (tr_fr_ptr)TrailTerm(--tri);
+    CELL trail_cell = TrailTerm(x);
+    if (HEAP_PTR(trail_cell)) {
+      into_relocation_chain(&TrailTerm(x), GET_NEXT(trail_cell));
+    }
+  }
+  new_TR = dest;
   if (is_gc_verbose()) {
     YP_fprintf(YP_stderr,
 	       "[GC]       Trail: discarded %d (%ld%%) cells out of %ld\n",
@@ -2502,7 +2594,7 @@ icompact_heap(void)
 
 #ifdef EASY_SHUNTING
 static void
-set_conditionals(CELL *TRo) {
+set_conditionals(tr_fr_ptr TRo) {
   while (sTR != TRo) {
     CELL *cptr = (CELL *)TrailTerm(sTR-1);
     *cptr = TrailTerm(sTR-2);
@@ -2580,10 +2672,10 @@ compaction_phase(tr_fr_ptr old_TR, CELL *current_env, yamop *curp, CELL *max)
   if (total_marked != iptop-(CELL_PTR *)H && iptop < (CELL_PTR *)ASP -1024)
     YP_fprintf(YP_stderr,"[GC] Oops on iptop-H (%d) vs %d\n", iptop-(CELL_PTR *)H, total_marked);
 #endif
-  if (iptop < (CELL_PTR *)ASP-1024 && 10*total_marked < H-H0) {
+  if (iptop < (CELL_PTR *)ASP /* && 10*total_marked < H-H0 */) {
     int effectiveness = (((H-H0)-total_marked)*100)/(H-H0);
 #ifdef DEBUG
-    fprintf(stderr,"using pointers (%d)\n", effectiveness);
+    YP_fprintf(YP_stderr,"[GC] using pointers (%d)\n", effectiveness);
 #endif
     quicksort((CELL_PTR *)H, 0, (iptop-(CELL_PTR *)H)-1);
     adjust_cp_hbs();
@@ -2591,9 +2683,11 @@ compaction_phase(tr_fr_ptr old_TR, CELL *current_env, yamop *curp, CELL *max)
   } else
 #endif /* HYBRID_SCHEME */
     {
-#ifdef DEBUG_IN
+#ifdef DEBUG
+#ifdef HYBID_SCHEME
       int effectiveness = (((H-H0)-total_marked)*100)/(H-H0);
-      fprintf(stderr,"not using pointers (%d)\n", effectiveness);
+      fprintf(stderr,"[GC] not using pointers (%d) ASP: %p, ip %p (expected %p) \n", effectiveness, ASP, iptop, H+total_marked);
+#endif
 #endif
       compact_heap();
     }
@@ -2690,6 +2784,7 @@ do_gc(Int predarity, CELL *current_env, yamop *nextop)
   compaction_phase(old_TR, current_env, nextop, max);
   TR = old_TR;
   pop_registers(predarity, nextop);
+  TR = new_TR;
   c_time = cputime();
   YAPLeaveCriticalSection();
   if (gc_verbose) {
@@ -2714,7 +2809,12 @@ do_gc(Int predarity, CELL *current_env, yamop *nextop)
 int
 is_gc_verbose(void)
 {
+#ifdef INSTRUMENT_GC
+  /* always give info when we are debugging gc */
+  return(TRUE);
+#else
   return(GetValue(AtomGcVerbose) != TermNil);
+#endif
 }
 
 Int total_gc_time(void)
@@ -2765,20 +2865,21 @@ gc(Int predarity, CELL *current_env, yamop *nextop)
       gc_margin <<= 1;
   }
   /* expand the stak if effectiveness is less than 20 % */
-  if (ASP - H < gc_margin || !gc_on || effectiveness < 20) {
+  if (FALSE&& ASP - H < gc_margin || !gc_on || effectiveness < 20) {
+    UInt gap = CalculateStackGap();
     if (ASP-H > gc_margin)
-      gc_margin = (ASP-H)+MinStackGap*(stack_overflows+1);
+      gc_margin = (ASP-H)+gap;
     else
       gc_margin = 8 * (gc_margin - (ASP - H));
     gc_margin = ((gc_margin >> 16) + 1) << 16;
-    if (gc_margin < MinStackGap)
-      gc_margin = MinStackGap;
-    while (gc_margin >= MinStackGap && !growstack(gc_margin))
+    if (gc_margin < gap)
+      gc_margin = gap;
+    while (gc_margin >= gap && !growstack(gc_margin))
       gc_margin = gc_margin/2;
 #ifdef DEBUG
     check_global();
 #endif
-    return(gc_margin >= MinStackGap);
+    return(gc_margin >= gap);
   }
   /*
    * debug for(save_total=1; save_total<=N; ++save_total)

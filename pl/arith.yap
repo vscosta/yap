@@ -36,6 +36,11 @@ do_not_compile_expressions :- '$set_value'('$c_arith',[]).
 '$c_built_in'(IN, IN).
 
 
+'$do_c_built_in'(\+ G, OUT) :-
+	nonvar(G),
+	G = (A = B),
+	!,
+	OUT = (A \= B).
 '$do_c_built_in'(recorded(K,T,R), OUT) :-
 	nonvar(K),
 	!,

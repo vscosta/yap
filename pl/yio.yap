@@ -236,6 +236,8 @@ open(F,T,S,Opts) :-
 
 open_null_stream(S) :- '$open_null_stream'(S).
 
+open_pipe_streams(P1,P2) :- '$open_pipe_stream'(P1, P2).
+
 fileerrors :- '$set_value'(fileerrors,1).
 nofileerrors :- '$set_value'(fileerrors,0).
 

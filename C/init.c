@@ -1015,6 +1015,7 @@ InitYaamRegs(void)
   BBREG = B_FZ = B_BASE;
   TR = TR_FZ = TR_BASE;
 #endif /* FROZEN_REGS */
+  CreepFlag = CalculateStackGap();
 
 }
 
@@ -1124,7 +1125,6 @@ InitStacks(int Heap,
   ReleaseAtom(AtomFoundVar);
   LookupAtomWithAddress("[]",&(SF_STORE->AtNil));
   LookupAtomWithAddress(".",&(SF_STORE->AtDot));
-  CreepFlag = MinStackGap;
   PutValue(LookupAtom("$catch_counter"),
 	   MkIntTerm(0));
   /* InitAbsmi must be done before InitCodes */

@@ -450,6 +450,7 @@ install_unix:
 	(cd $(srcdir)/CLPQR ; tar cf - .) | (cd $(DESTDIR)$(YAPLIBDIR)/library ; tar xf -)
 	(cd $(srcdir)/CHR ; tar cf - .) | (cd $(DESTDIR)$(YAPLIBDIR)/library ; tar xf -)
 	@INSTALL_DLLS@ (cd library/regex; make install)
+	@INSTALL_DLLS@ (cd library/system; make install)
 	-mkdir -p $(DESTDIR)$(INCLUDEDIR)
 	for h in $(INTERFACE_HEADERS); do $(INSTALL) $$h $(DESTDIR)$(INCLUDEDIR); done
 
@@ -472,6 +473,8 @@ install_mingw32:
 	(cd $(srcdir)/CLPQR ; tar cf - .) | (cd $(DESTDIR)$(YAPLIBDIR)/library ; tar xf -)
 	(cd $(srcdir)/CHR ; tar cf - .) | (cd $(DESTDIR)$(YAPLIBDIR)/library ; tar xf -)
 	(cd library/regex; make install_mingw32)
+
+#	(cd library/system; make install_mingw32)
 
 install_library: libYap.a
 	$(INSTALL_DATA) -m 644 libYap.a  $(DESTDIR)$(LIBDIR)/libYap.a

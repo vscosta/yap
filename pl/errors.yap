@@ -101,6 +101,9 @@ print_message(help,M) :-
 '$output_error_message'(domain_error(character_code_list,Opt), Where) :-
 	format(user_error,"[ DOMAIN ERROR- ~w: invalid list of codes ~w ]~n",
 	[Where,Opt]).
+'$output_error_message'(domain_error(delete_file_option,Opt), Where) :-
+	format(user_error,"[ DOMAIN ERROR- ~w: invalid list of options ~w ]~n",
+	[Where,Opt]).
 '$output_error_message'(domain_error(operator_specifier,Op), Where) :-
 	format(user_error,"[ DOMAIN ERROR- ~w: invalid operator specifier ~w ]~n",
 	[Where,Op]).
@@ -284,6 +287,9 @@ print_message(help,M) :-
 '$output_error_message'(system_error, Where) :-
 	format(user_error,"[ SYSTEM ERROR- ~w ]~n",
 	[Where]).
+'$output_error_message'(system_error(Message), Where) :-
+	format(user_error,"[ SYSTEM ERROR- ~w at ~w]~n",
+	[Message,Where]).
 '$output_error_message'(type_error(T,_,Err,M), Where) :-
 	format(user_error,"[ TYPE ERROR- ~w: expected ~w, got ~w ]~n",
 	[T,Err,M]).

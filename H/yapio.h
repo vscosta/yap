@@ -259,8 +259,20 @@ int   STD_PROTO(GetStreamFd,(int));
 void  STD_PROTO(CloseStream,(int));
 int   STD_PROTO(PlGetchar,(void));
 int   STD_PROTO(PlFGetchar,(void));
+int   STD_PROTO(StreamToFileNo,(Term));
 
 extern int c_input_stream, c_output_stream, c_error_stream;
+
+#define YAP_INPUT_STREAM	0x01
+#define YAP_OUTPUT_STREAM	0x02
+#define YAP_APPEND_STREAM	0x04
+#define YAP_PIPE_STREAM 	0x08
+#define YAP_TTY_STREAM	 	0x10
+#define YAP_POPEN_STREAM	0x20
+#define YAP_BINARY_STREAM	0x40
+#define YAP_SEEKABLE_STREAM	0x80
+
+Term   STD_PROTO(OpenStream,(FILE *,char *,Term,int));
 
 /* routines in sysbits.c */
 char *STD_PROTO(pfgets,(char *,int,YP_File));

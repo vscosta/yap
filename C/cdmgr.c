@@ -2032,6 +2032,7 @@ Int
 PredForCode(CODEADDR codeptr, Atom *pat, Int *parity, SMALLUNSGN *pmodule) {
   Int i_table;
   Int val;
+  AtomEntry *chain;
 
   for (i_table = 0; i_table < MaxHash; i_table++) {
     Atom a;
@@ -2047,6 +2048,14 @@ PredForCode(CODEADDR codeptr, Atom *pat, Int *parity, SMALLUNSGN *pmodule) {
       a = ae->NextOfAE;
     }
     READ_UNLOCK(HashChain[i_table].AERWLock);
+  }
+  chain = RepAtom(INVISIBLECHAIN.Entry);
+  while (!EndOfPAEntr(chain) != 0) {
+    if ((val = check_code_in_atom(chain, codeptr, parity, pmodule)) != 0) {
+      *pat = AbsAtom(chain);
+      return(val);
+    }
+    chain = RepAtom(chain->NextOfAE);
   }
   /* we didn't find it, must be one of the hidden predicates */
   return(0);

@@ -51,7 +51,7 @@ show_trie(X) :- var(X), !,
 show_trie(A/N) :- integer(N), atom(A), !,
                   functor(T,A,N), $flags(T,F,F),
                   (
-                    X is F /\ 8'000100, X =\= 0, !, $show_trie(T)
+                    X is F /\ 8'000100, X =\= 0, !, $show_trie(T,_)
                   ;
                     write(user_error, '[ Error: '),
                     write(user_error, A/N),

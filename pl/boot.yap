@@ -116,7 +116,8 @@ set_output(Stream) :-
 	 8	use portray(_)
 */
 
-write(T) :- current_output(S), '$write'(S,4,T).
+write(T) :- current_output(S), '$write'(S,4,T), fail.
+write(_).
 
 write(Stream,T) :- 
 	'$write'(Stream,4,T),
@@ -127,7 +128,8 @@ put(Stream,N) :-  N1 is N, '$put'(Stream,N1).
 
 nl(Stream) :- '$put'(Stream,10).
 
-nl :- current_output(Stream), '$put'(Stream,10).
+nl :- current_output(Stream), '$put'(Stream,10), fail.
+nl.
 
 /* main execution loop							*/
 '$read_vars'(Stream,T,V) :-
@@ -1049,7 +1051,7 @@ add_to_path(New) :- add_to_path(New,last).
 add_to_path(New,Pos) :- '$check_path'(New,Str), '$add_to_path'(Str,Pos).
 
 '$add_to_path'(New,_) :- '$recorded'('$path',New,R), erase(R), fail.
-'$add_to_path'(New,last) :- '$recordz'('$path',New,_).
+'$add_to_path'(New,last) :- !, '$recordz'('$path',New,_).
 '$add_to_path'(New,first) :- '$recorda'('$path',New,_).
 
 remove_from_path(New) :- '$check_path'(New,Path),

@@ -3250,7 +3250,8 @@ YAP currently ignores these options.
 @cnindex current_stream/3
 Defines the relation: The stream @var{S} is opened on the file  @var{F} in
 mode @var{M}. It might be used to obtain all open streams (by
-backtracking) or to access the stream for a file @var{F} in mode @var{M}.
+backtracking), to access the stream for a file @var{F} in mode @var{M},
+or to find properties for a stream @var{S}.
 
 @item flush_output [ISO]
 @findex flush_output/0
@@ -11521,7 +11522,7 @@ void init_my_predicates()
 The commands to compile the above file depend on the operating
 system. Under Linux (i386 and Alpha) you should use:
 @example
-      gcc -c -shared -fPIC my_process.c -o my_process.o
+      gcc -c -shared -fPIC my_process.c
       ld -shared -o my_process.so my_process.o
 @end example
 @noindent

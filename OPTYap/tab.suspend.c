@@ -4,6 +4,8 @@
 
 #include "Yap.h"
 #if defined(TABLING) && defined(YAPOR)
+#include "Yatom.h"
+#include "Heap.h"
 #include "tab.macros.h"
 #include "or.macros.h"
 

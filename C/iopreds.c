@@ -82,6 +82,9 @@ typedef struct
 	Int max_size;	   /* maximum buffer size (may be changed dynamically) */
 	Int pos;
       } mem_string;
+      struct {
+	int fd;
+      } pipe;
 #if USE_SOCKET
       struct {
 	socket_domain domain;
@@ -111,6 +114,8 @@ STATIC_PROTO (int post_process_read_char, (int, StreamDesc *, int));
 STATIC_PROTO (int SocketPutc, (int, int));
 STATIC_PROTO (int ConsoleSocketPutc, (int, int));
 #endif
+STATIC_PROTO (int PipePutc, (int, int));
+STATIC_PROTO (int ConsolePipePutc, (int, int));
 STATIC_PROTO (int NullPutc, (int, int));
 STATIC_PROTO (int ConsolePutc, (int, int));
 STATIC_PROTO (Int p_setprompt, (void));
@@ -119,6 +124,8 @@ STATIC_PROTO (int PlGetc, (int));
 STATIC_PROTO (int MemGetc, (int));
 STATIC_PROTO (int ISOGetc, (int));
 STATIC_PROTO (int ConsoleGetc, (int));
+STATIC_PROTO (int PipeGetc, (int));
+STATIC_PROTO (int ConsolePipeGetc, (int));
 #if USE_SOCKET
 STATIC_PROTO (int SocketGetc, (int));
 STATIC_PROTO (int ConsoleSocketGetc, (int));
@@ -214,6 +221,8 @@ StreamDesc Stream[MaxStreams];
 #define Server_Socket_Stream_f	0x010000
 #endif
 #define InMemory_Stream_f	0x020000
+#define Pipe_Stream_f		0x040000
+#define Popen_Stream_f		0x080000
 
 int YP_stdin = 0;
 int YP_stdout = 1;
@@ -276,7 +285,7 @@ YP_putc(int ch, int sno)
 int
 YP_fflush(int sno)
 {
-  if (Stream[sno].status & (Null_Stream_f|InMemory_Stream_f|Socket_Stream_f))
+  if (Stream[sno].status & (Null_Stream_f|InMemory_Stream_f|Socket_Stream_f|Pipe_Stream_f))
     return(0);
   return(fflush(Stream[sno].u.file.file));
 }
@@ -376,7 +385,11 @@ InitStdStream (int sno, SMALLUNSGN flags, YP_File file, Atom name)
     s->stream_getc = ConsoleSocketGetc;
   } else
 #endif
-  if (s->status & InMemory_Stream_f) {
+  if (s->status & Pipe_Stream_f) {
+    /* Console is a socket and socket will prompt */
+    s->stream_putc = ConsolePipePutc;
+    s->stream_getc = ConsolePipeGetc;
+  } else if (s->status & InMemory_Stream_f) {
     s->stream_putc = MemPutc;
     s->stream_getc = MemGetc;    
   } else {
@@ -629,7 +642,41 @@ SocketPutc (int sno, int ch)
   console_count_output_char(ch,s,sno);
   return ((int) ch);
 }
+
 #endif
+
+/* static */
+static int
+ConsolePipePutc (int sno, int ch)
+{
+  StreamDesc *s = &Stream[sno];
+  char c = ch;
+#if MAC || _MSC_VER
+  if (ch == 10)
+    {
+      ch = '\n';
+    }
+#endif
+  write(s->u.pipe.fd,  &c, sizeof(c));
+  count_output_char(ch,s,sno);
+  return ((int) ch);
+}
+
+static int
+PipePutc (int sno, int ch)
+{
+  StreamDesc *s = &Stream[sno];
+  char c = ch;
+#if MAC || _MSC_VER
+  if (ch == 10)
+    {
+      ch = '\n';
+    }
+#endif
+  write(s->u.pipe.fd,  &c, sizeof(c));
+  console_count_output_char(ch,s,sno);
+  return ((int) ch);
+}
 
 static int
 NullPutc (int sno, int ch)
@@ -793,7 +840,12 @@ EOFGetc(int sno)
 	s->stream_putc = SocketPutc;
     } else 
 #endif
-    if (s->status & InMemory_Stream_f) {
+    if (s->status & Pipe_Stream_f) {
+      if (s->status & Promptable_Stream_f)
+	s->stream_putc = ConsolePipePutc;
+      else 
+	s->stream_putc = PipePutc;
+    } else if (s->status & InMemory_Stream_f) {
       s->stream_getc = MemGetc;
       s->stream_putc = MemPutc;
     } else if (s->status & Promptable_Stream_f) {
@@ -945,6 +997,61 @@ ConsoleSocketGetc(int sno)
   return(console_post_process_read_char(ch, s, sno));
 }
 #endif
+
+static int
+PipeGetc(int sno)
+{
+  register StreamDesc *s = &Stream[sno];
+  register int ch;
+  char c;
+  int count;
+	/* should be able to use a buffer */
+  count = read(s->u.pipe.fd, &c, sizeof(char));
+  if (count == 0) {
+    ch = EOF;
+  } else if (count > 0) {
+    ch = c;
+  } else {
+    Error(SYSTEM_ERROR, TermNil, "read");
+    return(EOF);
+  }
+  return(post_process_read_char(ch, s, sno));
+}
+
+/*
+  Basically, the same as console but also sends a prompt and takes care of
+  finding out whether we are at the start of a newline.
+*/
+static int
+ConsolePipeGetc(int sno)
+{
+  register StreamDesc *s = &Stream[sno];
+  register int ch;
+  char c;
+  int count;
+
+  /* send the prompt away */
+  if (newline) {
+    char *cptr = Prompt, ch;
+    /* use the default routine */
+    while ((ch = *cptr++) != '\0') {
+      Stream[StdErrStream].stream_putc(StdErrStream, ch);
+    }
+    strncpy(Prompt, RepAtom (*AtPrompt)->StrOfAE, MAX_PROMPT);
+    newline = FALSE;
+  }
+  /* should be able to use a buffer */
+  count = read(s->u.pipe.fd, &c, sizeof(char));
+  if (count == 0) {
+    ch = EOF;
+  } else if (count > 0) {
+    ch = c;
+  } else {
+    Error(SYSTEM_ERROR, TermNil, "read");
+    return(EOF);
+  }
+  return(console_post_process_read_char(ch, s, sno));
+}
 
 /* standard routine, it should read from anything pointed by a FILE *.
    It could be made more efficient by doing our own buffering and avoiding
@@ -1132,7 +1239,9 @@ GetStreamFd(int sno)
     return(Stream[sno].u.socket.fd);
   } else
 #endif
-  if (Stream[sno].status & InMemory_Stream_f) {
+  if (Stream[sno].status & Pipe_Stream_f) {
+    return(Stream[sno].u.pipe.fd);
+  } else if (Stream[sno].status & InMemory_Stream_f) {
     return(-1);
   }
   return(YP_fileno(Stream[sno].u.file.file));
@@ -1338,7 +1447,10 @@ p_open (void)
 	  st->stream_getc = SocketGetc;
 	} else
 #endif
-	if (st->status & InMemory_Stream_f) {
+	if (st->status & Pipe_Stream_f) {
+	  st->stream_putc = PipePutc;
+	  st->stream_getc = PipeGetc;
+	} else if (st->status & InMemory_Stream_f) {
 	  st->stream_putc = MemPutc;
 	  st->stream_getc = MemGetc;	  
 	} else {
@@ -1496,6 +1608,111 @@ p_open_null_stream (void)
   st->u.file.user_name = MkAtomTerm (st->u.file.name = LookupAtom ("/dev/null"));
   t = MkStream (sno);
   return (unify (ARG1, t));
+}
+
+Term
+OpenStream(FILE *fd, char *name, Term file_name, int flags)
+{
+  Term t;
+  StreamDesc *st;
+  int sno;
+
+  for (sno = 0; sno < MaxStreams; ++sno)
+    if (Stream[sno].status & Free_Stream_f)
+      break;
+  if (sno == MaxStreams)
+    return (PlIOError (SYSTEM_ERROR,TermNil, "new stream not available for open_null_stream/1"));
+  st = &Stream[sno];
+  st->status = 0;
+  if (flags & YAP_INPUT_STREAM)
+    st->status |= Input_Stream_f;
+  if (flags & YAP_OUTPUT_STREAM)
+    st->status |= Output_Stream_f;
+  if (flags & YAP_APPEND_STREAM)
+    st->status |= Append_Stream_f;
+  /*
+    pipes assume an integer file descriptor, not a FILE *:
+    if (flags & YAP_PIPE_STREAM)
+    st->status |= Pipe_Stream_f;
+  */
+  if (flags & YAP_TTY_STREAM)
+    st->status |= Tty_Stream_f;
+  if (flags & YAP_POPEN_STREAM)
+    st->status |= Popen_Stream_f;
+  if (flags & YAP_BINARY_STREAM)
+    st->status |= Binary_Stream_f;
+  if (flags & YAP_SEEKABLE_STREAM)
+    st->status |= Seekable_Stream_f;
+  st->charcount = 0;
+  st->linecount = 1;
+  st->u.file.name = LookupAtom(name);
+  st->u.file.user_name = file_name;
+  st->u.file.file = fd;
+  st->linepos = 0;
+  if (flags & YAP_PIPE_STREAM) {
+    st->stream_putc = PipePutc;
+    st->stream_getc = PipeGetc;
+  } else if (flags & YAP_TTY_STREAM) {
+    st->stream_putc = ConsolePutc;
+    st->stream_getc = ConsoleGetc;
+  } else {
+    st->stream_putc = FilePutc;
+    st->stream_getc = PlGetc;
+    unix_upd_stream_info (st);
+  }
+  if (CharConversionTable != NULL)
+    st->stream_getc_for_read = ISOGetc;
+  else
+    st->stream_getc_for_read = st->stream_getc; 
+  t = MkStream (sno);
+  return (t);
+}
+
+static Int
+p_open_pipe_stream (void)
+{
+  Term t1, t2;
+  StreamDesc *st;
+  int sno;
+  int filedes[2];
+
+  if (pipe(filedes) != 0) {
+    return (PlIOError (SYSTEM_ERROR,TermNil, "open_pipe_stream/2 could not create pipe"));
+  }
+  for (sno = 0; sno < MaxStreams; ++sno)
+    if (Stream[sno].status & Free_Stream_f)
+      break;
+  if (sno == MaxStreams)
+    return (PlIOError (SYSTEM_ERROR,TermNil, "new stream not available for open_pipe_stream/2"));
+  st = &Stream[sno];
+  st->status = Input_Stream_f | Pipe_Stream_f;
+  st->linepos = 0;
+  st->charcount = 0;
+  st->linecount = 1;
+  st->stream_putc = PipePutc;
+  st->stream_getc = PipeGetc;
+  st->stream_getc_for_read = PipeGetc;
+  st->u.pipe.fd = filedes[0];
+  t1 = MkStream (sno);
+  for (; sno < MaxStreams; ++sno)
+    if (Stream[sno].status & Free_Stream_f)
+      break;
+  if (sno == MaxStreams)
+    return (PlIOError (SYSTEM_ERROR,TermNil, "new stream not available for open_pipe_stream/2"));
+  st = &Stream[sno];
+  st->status = Output_Stream_f | Pipe_Stream_f;
+  st->linepos = 0;
+  st->charcount = 0;
+  st->linecount = 1;
+  st->stream_putc = PipePutc;
+  st->stream_getc = PipeGetc;
+  if (CharConversionTable != NULL)
+    st->stream_getc_for_read = ISOGetc;
+  else
+    st->stream_getc_for_read = st->stream_getc; 
+  st->u.pipe.fd = filedes[1];
+  t2 = MkStream (sno);
+  return (unify (ARG1, t1) && unify (ARG2, t2));
 }
 
 static Int
@@ -1839,11 +2056,42 @@ p_check_if_stream (void)
 	  != -1);
 }
 
+static Term
+StreamName(int i)
+{
+#if USE_SOCKET
+  if (Stream[i].status & Socket_Stream_f)
+    return(MkAtomTerm(LookupAtom("socket")));
+  else
+#endif
+    if (Stream[i].status & Pipe_Stream_f)
+      return(MkAtomTerm(LookupAtom("pipe")));
+    if (Stream[i].status & InMemory_Stream_f)
+      return(MkAtomTerm(LookupAtom("charsio")));
+    else
+      return(MkAtomTerm(Stream[i].u.file.name));
+}
+
 static Int
 init_cur_s (void)
 {				/* Init current_stream */
-  EXTRA_CBACK_ARG (3, 1) = MkIntTerm (0);
-  return (cont_cur_s ());
+  Term t3 = Deref(ARG3);
+  if (!IsVarTerm(t3)) {
+    Int i = CheckStream (t3, Input_Stream_f|Output_Stream_f, "current_stream/3");
+    Term t1 = StreamName(i), t2;
+    
+    t2 = (Stream[i].status & Input_Stream_f ?
+	  MkAtomTerm (AtomRead) :
+	  MkAtomTerm (AtomWrite));
+    if (unify(ARG1,t1) && unify(ARG2,t2)) {
+      cut_succeed();
+    } else {
+      cut_fail();
+    }
+  } else {
+    EXTRA_CBACK_ARG (3, 1) = MkIntTerm (0);
+    return (cont_cur_s ());
+  }
 }
 
 static Int
@@ -1858,15 +2106,7 @@ cont_cur_s (void)
 	  ++i;
 	  continue;
 	}
-#if USE_SOCKET
-      if (Stream[i].status & Socket_Stream_f)
-	t1 = MkAtomTerm(LookupAtom("socket"));
-      else
-#endif
-      if (Stream[i].status & InMemory_Stream_f)
-	t1 = MkAtomTerm(LookupAtom("charsio"));
-      else
-	t1 = MkAtomTerm(Stream[i].u.file.name);
+      t1 = StreamName(i);
       t2 = (Stream[i].status & Input_Stream_f ?
 	    MkAtomTerm (AtomRead) :
 	    MkAtomTerm (AtomWrite));
@@ -1893,40 +2133,43 @@ void
 CloseStreams (int loud)
 {
   int sno;
-  for (sno = 3; sno < MaxStreams; ++sno)
-    {
-      if (Stream[sno].status & Free_Stream_f)
-	continue;
-      if (!(Stream[sno].status & (Null_Stream_f|Socket_Stream_f|InMemory_Stream_f)))
-	YP_fclose (Stream[sno].u.file.file);
+  for (sno = 3; sno < MaxStreams; ++sno) {
+    if (Stream[sno].status & Free_Stream_f)
+      continue;
+    if ((Stream[sno].status & Popen_Stream_f))
+      pclose (Stream[sno].u.file.file);
+    if ((Stream[sno].status & (Pipe_Stream_f|Socket_Stream_f)))
+      close (Stream[sno].u.pipe.fd);
 #if USE_SOCKET
-      else if (Stream[sno].status & (Socket_Stream_f)) {
-		CloseSocket(Stream[sno].u.socket.fd,
-		Stream[sno].u.socket.flags,
-		Stream[sno].u.socket.domain);
-      } 
+    else if (Stream[sno].status & (Socket_Stream_f)) {
+      CloseSocket(Stream[sno].u.socket.fd,
+		  Stream[sno].u.socket.flags,
+		  Stream[sno].u.socket.domain);
+    } 
 #endif
-      else {
+    else if (!(Stream[sno].status & (Null_Stream_f|Socket_Stream_f|InMemory_Stream_f)))
+      YP_fclose (Stream[sno].u.file.file);
+    else {
       if (loud)
 	YP_fprintf (YP_stderr, "[ Error: while closing stream: %s ]\n", RepAtom (Stream[sno].u.file.name)->StrOfAE);
-      if (c_input_stream == sno)
-	{
-	  c_input_stream = StdInStream;
-	}
-      else if (c_output_stream == sno)
-	{
-	  c_output_stream = StdOutStream;
-	}
-	  }
-      Stream[sno].status = Free_Stream_f;
     }
+    if (c_input_stream == sno)
+      {
+	c_input_stream = StdInStream;
+      }
+    else if (c_output_stream == sno)
+      {
+	c_output_stream = StdOutStream;
+      }
+  }
+  Stream[sno].status = Free_Stream_f;
 }
 
 
 void
 CloseStream(int sno)
 {
-  if (!(Stream[sno].status & (Null_Stream_f|Socket_Stream_f|InMemory_Stream_f)))
+  if (!(Stream[sno].status & (Null_Stream_f|Socket_Stream_f|InMemory_Stream_f|Pipe_Stream_f)))
     YP_fclose (Stream[sno].u.file.file);
 #if USE_SOCKET
   else if (Stream[sno].status & (Socket_Stream_f)) {
@@ -1935,6 +2178,9 @@ CloseStream(int sno)
 		Stream[sno].u.socket.domain);
   }
 #endif
+  else if (Stream[sno].status & (Pipe_Stream_f)) {
+    close(Stream[sno].u.pipe.fd);
+  }
   else if (Stream[sno].status & (InMemory_Stream_f)) {
     FreeAtomSpace(Stream[sno].u.mem_string.buf);
   }
@@ -2332,7 +2578,7 @@ p_read (void)
 
     /* Scans the term using stack space */
     eot_before_eof = FALSE;
-    if ((Stream[c_input_stream].status & (Promptable_Stream_f|Socket_Stream_f|Eof_Stream_f|InMemory_Stream_f)) || CharConversionTable != NULL)
+    if ((Stream[c_input_stream].status & (Promptable_Stream_f|Pipe_Stream_f|Socket_Stream_f|Eof_Stream_f|InMemory_Stream_f)) || CharConversionTable != NULL)
       tokstart = tokptr = toktide = tokenizer (Stream[c_input_stream].stream_getc_for_read, Stream[c_input_stream].stream_getc);
     else {
       tokstart = tokptr = toktide = fast_tokenizer ();
@@ -2507,7 +2753,9 @@ p_user_file_name (void)
     tout = MkAtomTerm(LookupAtom("socket"));
   else
 #endif
-  if (Stream[sno].status & InMemory_Stream_f)
+  if (Stream[sno].status & Pipe_Stream_f)
+    tout = MkAtomTerm(LookupAtom("pipe"));
+  else if (Stream[sno].status & InMemory_Stream_f)
     tout = MkAtomTerm(LookupAtom("charsio"));
   else
     tout = Stream[sno].u.file.user_name;
@@ -2526,7 +2774,9 @@ p_file_name (void)
     tout = MkAtomTerm(LookupAtom("socket"));
   else
 #endif
-  if (Stream[sno].status & InMemory_Stream_f)
+  if (Stream[sno].status & Pipe_Stream_f)
+    tout = MkAtomTerm(LookupAtom("pipe"));
+  else if (Stream[sno].status & InMemory_Stream_f)
     tout = MkAtomTerm(LookupAtom("charsio"));
   else
     tout = MkAtomTerm(Stream[sno].u.file.name);
@@ -2552,13 +2802,16 @@ p_cur_line_no (void)
 	my_stream = LookupAtom("socket");
       else
 #endif
+      if (Stream[sno].status & Pipe_Stream_f)
+	my_stream = LookupAtom("pipe");
+      else
 	if (Stream[sno].status & InMemory_Stream_f)
 	  my_stream = LookupAtom("charsio");
 	else
 	  my_stream = Stream[sno].u.file.name;
       for (i = 0; i < MaxStreams; i++)
 	{
-	  if (!(Stream[i].status & (Free_Stream_f|Socket_Stream_f|InMemory_Stream_f)) &&
+	  if (!(Stream[i].status & (Free_Stream_f|Socket_Stream_f|Pipe_Stream_f|InMemory_Stream_f)) &&
 	      Stream[i].u.file.name == my_stream)
 	    no += Stream[i].linecount - 1;
 	}
@@ -2643,7 +2896,7 @@ p_show_stream_position (void)
   CheckStream (ARG1, Input_Stream_f | Output_Stream_f | Append_Stream_f, "stream_position/2");
   if (sno < 0)
     return (FALSE);
-  if (Stream[sno].status & (Tty_Stream_f|Socket_Stream_f|InMemory_Stream_f))
+  if (Stream[sno].status & (Tty_Stream_f|Socket_Stream_f|Pipe_Stream_f|InMemory_Stream_f))
     sargs[0] = MkIntTerm (Stream[sno].charcount);
   else if (Stream[sno].status & Null_Stream_f)
     sargs[0] = MkIntTerm (Stream[sno].charcount);
@@ -3897,7 +4150,7 @@ p_flush (void)
   int sno = CheckStream (ARG1, Output_Stream_f, "flush_output/1");
   if (sno < 0)
     return (FALSE);
-  if (!(Stream[sno].status & (Null_Stream_f|Socket_Stream_f|InMemory_Stream_f)))
+  if (!(Stream[sno].status & (Null_Stream_f|Socket_Stream_f|Pipe_Stream_f|InMemory_Stream_f)))
     YP_fflush (sno);
   return (TRUE);
 }
@@ -4250,6 +4503,21 @@ p_all_char_conversions(void)
   return(unify(ARG1,out));
 }
 
+int
+StreamToFileNo(Term t)
+{
+  int sno  =
+    CheckStream(t, (Input_Stream_f|Output_Stream_f), "StreamToFileNo");
+  if (Stream[sno].status & Pipe_Stream_f) {
+    return(Stream[sno].u.pipe.fd);
+  } else if (Stream[sno].status & Socket_Stream_f) {
+    return(Stream[sno].u.socket.fd);
+  } else if (Stream[sno].status & (Null_Stream_f|InMemory_Stream_f)) {
+    return(-1);
+  } else {
+    return(YP_fileno(Stream[sno].u.file.file));
+  }
+}
 
 void
 InitBackIO (void)
@@ -4274,6 +4542,7 @@ InitIOPreds(void)
   InitCPred ("$get_byte", 2, p_get_byte, SafePredFlag|SyncPredFlag);
   InitCPred ("$open", 4, p_open, SafePredFlag|SyncPredFlag);
   InitCPred ("$open_null_stream", 1, p_open_null_stream, SafePredFlag|SyncPredFlag);
+  InitCPred ("$open_pipe_stream", 2, p_open_pipe_stream, SafePredFlag|SyncPredFlag);
   InitCPred ("open_mem_read_stream", 2, p_open_mem_read_stream, SyncPredFlag);
   InitCPred ("open_mem_write_stream", 1, p_open_mem_write_stream, SyncPredFlag);
   InitCPred ("$put", 2, p_put, SafePredFlag|SyncPredFlag);

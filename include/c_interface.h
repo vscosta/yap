@@ -504,6 +504,24 @@ static void (YapIStringToBuffer)() = YapStringToBuffer;
 #define StringToBuffer(T,BUF,SIZE) YapStringToBuffer(T,BUF,SIZE)
 #endif
 
+/*  int BufferToString(char *) */
+extern X_API Term PROTO(YapBufferToString,(char *));
+#ifdef IndirectCalls
+static void (YapIBufferToString)() = YapBufferToString;
+#define BufferToString(BUF) (*YapIBufferToString)(BUF)
+#else
+#define BufferToString(BUF) YapBufferToString(BUF)
+#endif
+
+/*  int BufferToAtomList(char *) */
+extern X_API Term PROTO(YapBufferToAtomList,(char *));
+#ifdef IndirectCalls
+static void (YapIBufferToAtomList)() = YapBufferToAtomList;
+#define BufferToAtomList(BUF) (*YapIBufferToAtomList)(BUF)
+#else
+#define BufferToAtomList(BUF) YapBufferToAtomList(BUF)
+#endif
+
 /*  void YapInitSocks(char *,long) */
 extern X_API int PROTO(YapInitSocks,(char *,long));
 #ifdef IndirectCalls
@@ -532,6 +550,36 @@ extern X_API void PROTO(YapSetOutputMessage,(void));
 #ifdef IndirectCalls
 static void (*YapISetOutputMessage)() = YapSetOutputMessage;
 #define YapSetOutputMessage() (*YapISetOutputMessage)()
+#endif
+
+/*  Term  YapSetOutputMessage()  */
+extern X_API int PROTO(YapStreamToFileNo,(Term));
+#ifdef IndirectCalls
+static void (*YapIStreamToFileNo)() = YapStreamToFileNo;
+#define YapStreamToFileNo() (*YapIStreamToFileNo)()
+#endif
+
+/*  Term  YapSetOutputMessage()  */
+extern X_API void PROTO(YapCloseAllOpenStreams,(void));
+#ifdef IndirectCalls
+static void (*YapICloseAllOpenStreams)() = YapCloseAllOpenStreams;
+#define YapCloseAllOpenStreams() (*YapICloseAllOpenStreams)()
+#endif
+
+#define YAP_INPUT_STREAM	0x01
+#define YAP_OUTPUT_STREAM	0x02
+#define YAP_APPEND_STREAM	0x04
+#define YAP_PIPE_STREAM 	0x08
+#define YAP_TTY_STREAM	 	0x10
+#define YAP_POPEN_STREAM	0x20
+#define YAP_BINARY_STREAM	0x40
+#define YAP_SEEKABLE_STREAM	0x80
+
+/*  Term  YapP()  */
+extern X_API Term PROTO(YapOpenStream,(void *, char *, Term, int));
+#ifdef IndirectCalls
+static Term (*YapIOpenStream)() = YapOpenStream;
+#define YapOpenStream(FD,S,T,FL) (*YapIOpenStream)(FD,S,T,FL)
 #endif
 
 

@@ -249,26 +249,6 @@ rename(Old,New) :- atom(Old), atom(New), !,
 	name(Old,SOld), name(New,SNew),
 	'$rename'(SOld,SNew).
 
-environ(Na,Val) :- atom(Na), !,
-	'$getenv'(Na,Val).
-environ(Na,Val) :-
-	'$environ_enum'(0,I),
-	( '$environ'(I,S) -> '$environ_split'(S,SNa,SVal) ; !, fail ),
-	atom_codes(Na, SNa),
-	atom_codes(Val, SVal).
-
-'$environ_enum'(X,X).
-'$environ_enum'(X,X1) :-
-	Xi is X+1,
-	'$environ_enum'(Xi,X1).
-
-'$environ_split'([61|SVal], [], SVal) :- !.
-'$environ_split'([C|S],[C|SNa],SVal) :-
-	'$environ_split'(S,SNa,SVal).
-
-putenv(Na,Val) :-
-	'$putenv'(Na,Val).
-
 unix(V) :- var(V), !,
 	throw(error(instantiation_error,unix(V))).
 unix(argv(L)) :- (var(L) ; atom(L)), !, '$argv'(L).
@@ -280,7 +260,7 @@ unix(cd(V)) :- var(V), !,
 unix(cd(A)) :- atomic(A), !, cd(A).
 unix(cd(V)) :-
 	throw(error(type_error(atomic,V),unix(cd(V)))).
-unix(environ(X,Y)) :- environ(X,Y).
+unix(environ(X,Y)) :- do_environ(X,Y).
 unix(getcwd(X)) :- getcwd(X).
 unix(shell(V)) :- var(V), !,
 	throw(error(instantiation_error,unix(shell(V)))).
@@ -295,6 +275,11 @@ unix(system(V)) :-
 unix(shell) :- sh.
 unix(putenv(X,Y)) :- '$putenv'(X,Y).
 
+putenv(Na,Val) :-
+	'$putenv'(Na,Val).
+
+getenv(Na,Val) :-
+	'$getenv'(Na,Val).
 
 alarm(_, _, _) :-
 	recorded('$alarm_handler',_, Ref), erase(Ref), fail.

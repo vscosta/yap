@@ -1247,7 +1247,7 @@ static Int
 p_abort(void)
 {				/* abort			 */
   /* make sure we won't go creeping around */
-  CreepFlag = MinStackGap*(stack_overflows+1);
+  CreepFlag = CalculateStackGap();
   yap_flags[SPY_CREEP_FLAG] = 0;
   Error(PURE_ABORT,TermNil,"");
   return(FALSE);

@@ -199,6 +199,8 @@ CurrentTime(void) {
 
 static Int
 InitVarTime(void) {
+  return(0);
+#ifdef BEFORE_TRAIL_COMPRESSION
   if (B->cp_tr == TR) {
     /* we run the risk of not making non-determinate bindings before
        the end of the night */
@@ -206,6 +208,7 @@ InitVarTime(void) {
     Bind((CELL *)(TR+1),AbsAppl(H-1));
   }
   return((CELL *)(B->cp_tr)-(CELL *)TrailBase);
+#endif
 }
 
 static Int

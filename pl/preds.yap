@@ -61,6 +61,7 @@ assert(C) :- '$assert'(C,last,_,assert(C)).
             throw(error(permission_error(modify,static_procedure,Na/Ar),P))
 	).
 
+
 '$assert_dynamic'(V,Where,R,P) :- var(V), !,
 	'$current_module'(M),
 	throw(error(instantiation_error,P)).

@@ -81,6 +81,8 @@ X_API void   *STD_PROTO(YapAllocSpaceFromYap,(unsigned int));
 X_API void    STD_PROTO(YapFreeSpaceFromYap,(void *));
 X_API void    STD_PROTO(YapFreeSpaceFromYap,(void *));
 X_API int     STD_PROTO(YapStringToBuffer, (Term, char *, unsigned int));
+X_API Term    STD_PROTO(YapBufferToString, (char *));
+X_API Term    STD_PROTO(YapBufferToAtomList, (char *));
 X_API void    STD_PROTO(YapError,(char *));
 X_API int     STD_PROTO(YapRunGoal,(Term));
 X_API int     STD_PROTO(YapRestartGoal,(void));
@@ -96,6 +98,8 @@ X_API int     STD_PROTO(YapReset, (void));
 X_API void    STD_PROTO(YapExit, (int));
 X_API void    STD_PROTO(YapInitSocks, (char *, long));
 X_API void    STD_PROTO(YapSetOutputMessage, (void));
+X_API int     STD_PROTO(YapStreamToFileNo, (Term));
+X_API int     STD_PROTO(YapPopen, (Term));
 
 X_API Term
 YapA(int i)
@@ -359,12 +363,14 @@ YapUnify(Term pt1, Term pt2)
   return(out);
 }
 
-Int YapExecute(CPredicate code)
+Int
+YapExecute(CPredicate code)
 {
   return((code)());
 }
 
-X_API Int YapCallProlog(Term t)
+X_API Int
+YapCallProlog(Term t)
 {
   Int out;
   BACKUP_MACHINE_REGS();
@@ -375,7 +381,8 @@ X_API Int YapCallProlog(Term t)
   return(out);
 }
 
-X_API void *YapAllocSpaceFromYap(unsigned int size)
+X_API void *
+YapAllocSpaceFromYap(unsigned int size)
 {
   void *ptr;
   BACKUP_MACHINE_REGS();
@@ -391,13 +398,15 @@ X_API void *YapAllocSpaceFromYap(unsigned int size)
   return(ptr);
 }
 
-X_API void YapFreeSpaceFromYap(void *ptr)
+X_API void
+YapFreeSpaceFromYap(void *ptr)
 {
   FreeCodeSpace(ptr);
 }
 
 /* copy a string to a buffer */
-X_API int YapStringToBuffer(Term t, char *buf, unsigned int bufsize)
+X_API int
+YapStringToBuffer(Term t, char *buf, unsigned int bufsize)
 {
   unsigned int j = 0;
 
@@ -419,7 +428,10 @@ X_API int YapStringToBuffer(Term t, char *buf, unsigned int bufsize)
       return(FALSE);		
     }
     buf[j++] = i;
-    if (j > bufsize) return(FALSE);
+    if (j > bufsize) {
+      buf[j-1] = '\0';
+      return(FALSE);
+    }
     t = TailOfTerm(t);
     if (IsVarTerm(t)) {
       Error(INSTANTIATION_ERROR,t,"user defined procedure");
@@ -431,6 +443,33 @@ X_API int YapStringToBuffer(Term t, char *buf, unsigned int bufsize)
   }
   buf[j] = '\0';
   return(TRUE);
+}
+
+
+/* copy a string to a buffer */
+X_API Term
+YapBufferToString(char *s)
+{
+  Term t; 
+  BACKUP_H();
+
+  t = StringToList(s);
+
+  RECOVER_H();
+  return(t);
+}
+
+/* copy a string to a buffer */
+X_API Term
+YapBufferToAtomList(char *s)
+{
+  Term t; 
+  BACKUP_H();
+
+  t = StringToListOfAtoms(s);
+
+  RECOVER_H();
+  return(t);
 }
 
 
@@ -740,5 +779,31 @@ YapSetOutputMessage(void)
 #if DEBUG
   output_msg = TRUE;
 #endif
+}
+
+X_API int
+YapStreamToFileNo(Term t)
+{
+  return(StreamToFileNo(t));
+}
+
+X_API void
+YapCloseAllOpenStreams(void)
+{
+  BACKUP_H();
+
+  return(CloseStreams(FALSE));
+
+  RECOVER_H();
+}
+
+X_API Term
+YapOpenStream(void *fh, char *name, Term nm, int flags)
+{
+  BACKUP_H();
+
+  return(OpenStream((FILE *)fh, name, nm, flags));
+
+  RECOVER_H();
 }
 

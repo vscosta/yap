@@ -1939,7 +1939,7 @@ GetDBTerm(DBRef DBSP)
 
     pt = CellPtr(DBSP->Contents);
     NOf = DBSP->NOfCells;
-    if (H+NOf > ASP - MinStackGap*(stack_overflows+1)) {
+    if (H+NOf > ASP-CalculateStackGap()) {
       return((Term)0);
     }
     HeapPtr = cpcells(HOld, pt, NOf);

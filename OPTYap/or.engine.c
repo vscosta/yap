@@ -539,8 +539,8 @@ void share_private_nodes(int worker_q) {
         /* frozen stack segment */
         if (! next_node_on_branch)
           next_node_on_branch = sharing_node;
-        STACK_PUSH(or_frame, stack, stack_top);
-        STACK_PUSH(sharing_node, stack, stack_top);
+        STACK_PUSH(or_frame, stack, stack_top, stack_base);
+        STACK_PUSH(sharing_node, stack, stack_top, stack_base);
         sharing_node = consumer_cp;
         dep_frame = DepFr_next(dep_frame);
         consumer_cp = DepFr_cons_cp(dep_frame);

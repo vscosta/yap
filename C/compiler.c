@@ -329,7 +329,7 @@ optimize_ce(Term t, unsigned int arity)
   CExpEntry *p = common_exps, *parent = common_exps;
   int cmp = 0;
 
-  if (onbranch || (IsApplTerm(t) && IsExtensionFunctor(FunctorOfTerm(t))))
+  if (IsApplTerm(t) && IsExtensionFunctor(FunctorOfTerm(t)))
     return (t);
   while (p != NULL) {
     CELL *OldH = H;
@@ -1041,7 +1041,7 @@ c_bifun(Int Op, Term t1, Term t2, Term t3)
       save_machine_regs();
       longjmp(CompilerBotch,1);
     }
-  } else if (IsNewVar(t3) && cur_branch == 0) {
+  } else if (IsNewVar(t3) /* && cur_branch == 0 */) {
     c_var(t3,f_flag,(unsigned int)Op);
     if (Op == _functor) {
       emit(empty_call_op, Zero, Zero);
@@ -2108,9 +2108,9 @@ CheckUnsafe(PInstr *pc)
       add_bvarray_op(pc, vstat, pc->rnd2);
       break;
     case call_op:
-	emit(label_op, ++labelno, Zero);
-	pc->ops.opseqt[1] = (CELL)labelno;
-	add_bvarray_op(pc, vstat, pc->rnd2);
+      emit(label_op, ++labelno, Zero);
+      pc->ops.opseqt[1] = (CELL)labelno;
+      add_bvarray_op(pc, vstat, pc->rnd2);
     case deallocate_op:
       {
 	int n = pc->op == call_op ? pc->rnd2 : 0;
@@ -2144,6 +2144,7 @@ CheckVoids(void)
 
   cpc = CodeStart;
   while ((ic = cpc->op) != allocate_op) {
+    ic = cpc->op;
 #ifdef M_WILLIAMS
     switch ((int) ic) {
 #else
@@ -2160,14 +2161,12 @@ CheckVoids(void)
       ve = ((Ventry *) cpc->rnd1);
       if ((ve->FlagsOfVE & PermFlag) == 0 && ve->RCountOfVE <= 1) {
 	ve->NoOfVE = ve->KindOfVE = VoidVar;
-#ifndef SFUNC
 	if (ic == get_var_op || ic ==
-	    save_pair_op || ic == save_appl_op) {
-#else
-	if (ic == get_var_op || ic ==
-	    save_appl_op || ic == save_pair_op
-	    || ic == unify_s_var_op) {
+	    save_pair_op || ic == save_appl_op
+#ifdef SFUNC
+	    || ic == unify_s_var_op
 #endif
+	    ) {
 	  cpc->op = nop_op;
 	  break;
 	}
@@ -2202,6 +2201,8 @@ checktemp(void)
   vreg = vadr & MaskVarAdrs;
   if (v->KindOfVE == PermVar || v->KindOfVE == VoidVar)
     return (0);
+  if (v->RCountOfVE == 1)
+     return(0);
   if (vreg) {
     --Uses[vreg];
     return (1);
