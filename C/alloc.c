@@ -12,7 +12,7 @@
 * Last rev:								 *
 * mods:									 *
 * comments:	allocating space					 *
-* version:$Id: alloc.c,v 1.20 2002-07-17 20:25:30 vsc Exp $		 *
+* version:$Id: alloc.c,v 1.21 2002-07-23 15:49:06 vsc Exp $		 *
 *************************************************************************/
 #ifdef SCCS
 static char SccsId[] = "%W% %G%";
@@ -860,10 +860,7 @@ InitWorkSpace(Int s)
 #ifdef M_MMAP_MAX
   mallopt(M_MMAP_MAX, 0);
 #endif
-  if (s < MAX_SPACE)
-    ptr = (MALLOC_T)malloc(MAX_SPACE);
-  else 
-    ptr = (MALLOC_T)malloc(s);
+  ptr = (MALLOC_T)calloc(MAX_SPACE,1);
   total_space = s;
 
   if (ptr == NULL) {

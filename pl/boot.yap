@@ -1061,7 +1061,10 @@ path(Path) :- findall(X,'$in_path'(X),Path).
 
 add_to_path(New) :- add_to_path(New,last).
 
-add_to_path(New,Pos) :- '$check_path'(New,Str), '$add_to_path'(Str,Pos).
+add_to_path(New,Pos) :-
+	'$check_path'(New,Str),
+	atom_codes(Fixed,Str),
+	'$add_to_path'(Str,Pos).
 
 '$add_to_path'(New,_) :- '$recorded'('$path',New,R), erase(R), fail.
 '$add_to_path'(New,last) :- !, '$recordz'('$path',New,_).
@@ -1070,7 +1073,7 @@ add_to_path(New,Pos) :- '$check_path'(New,Str), '$add_to_path'(Str,Pos).
 remove_from_path(New) :- '$check_path'(New,Path),
 			'$recorded'('$path',Path,R), erase(R).
 
-'$check_path'(At,SAt) :- atom(At), !, name(At,S), '$check_path'(S,SAt).
+'$check_path'(At,SAt) :- atom(At), !, atom_codes(At,S), '$check_path'(S,SAt).
 '$check_path'([],[]).
 '$check_path'([Ch],[Ch]) :- '$dir_separator'(Ch), !.
 '$check_path'([Ch],[Ch,A]) :- !, integer(Ch), '$dir_separator'(A).
