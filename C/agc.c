@@ -29,6 +29,7 @@ static char     SccsId[] = "@(#)agc.c	1.3 3/15/90";
 #endif
 
 STATIC_PROTO(void  RestoreEntries, (PropEntry *));
+STATIC_PROTO(void  CleanCode, (PredEntry *));
 
 static int agc_calls;
 

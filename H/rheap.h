@@ -148,6 +148,26 @@ restore_codes(void)
       }
     }
   }
+  if (heap_regs->IntLUKeys != NULL) {
+    heap_regs->IntLUKeys = (Prop *)AddrAdjust((ADDR)(heap_regs->IntLUKeys));
+    {
+      Int i;
+      for (i = 0; i < INT_KEYS_SIZE; i++) {
+	Prop p0 = INT_LU_KEYS[i];
+	if (p0) {
+	  p0 = PropAdjust(p0);
+	  INT_LU_KEYS[i] = p0;
+	  while (p0) {
+	    PredEntry *pe = RepPredProp(p0);
+	    pe->NextOfPE =
+	      PropAdjust(pe->NextOfPE);
+	    CleanCode(pe);
+	    p0 = RepProp(pe->NextOfPE);
+	  }
+	}
+      }
+    }
+  }
   if (heap_regs->IntBBKeys != NULL) {
     heap_regs->IntBBKeys = (Prop *)AddrAdjust((ADDR)(heap_regs->IntBBKeys));
     {
@@ -1499,6 +1519,9 @@ CleanCode(PredEntry *pp)
     if (pp->src.OwnerFile && pp->ModuleOfPred != 2)
       pp->src.OwnerFile = AtomAdjust(pp->src.OwnerFile);
   }
+  if (!(pp->PredFlags & NumberDBPredFlag)) {
+    pp->src.OwnerFile = AtomAdjust(pp->src.OwnerFile);
+  }
   pp->OpcodeOfPred = Yap_opcode(Yap_op_from_opcode(pp->OpcodeOfPred));
   if (pp->PredFlags & (AsmPredFlag|CPredFlag)) {
     /* assembly */
@@ -1522,7 +1545,7 @@ CleanCode(PredEntry *pp)
     FirstC = pp->cs.p_code.FirstClause;
     LastC = pp->cs.p_code.LastClause;
     /* We just have a fail here */
-    if (FirstC == NIL && LastC == NIL) {
+    if (FirstC == NULL && LastC == NULL) {
       return;
     }
 #ifdef	DEBUG_RESTORE2
