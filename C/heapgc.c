@@ -22,7 +22,9 @@ static char     SccsId[] = "%W% %G%";
 #include "yapio.h"
 
 #define EARLY_RESET 1
+#ifndef TABLING
 #define EASY_SHUNTING 1
+#endif
 #define HYBRID_SCHEME 1
 
 
@@ -663,7 +665,7 @@ init_dbtable(tr_fr_ptr trail_ptr) {
 #ifdef DEBUG
 
 #define INSTRUMENT_GC 1
-/* #define CHECK_CHOICEPOINTS 1 */
+#define CHECK_CHOICEPOINTS 1
 
 #ifdef INSTRUMENT_GC
 typedef enum {
@@ -969,9 +971,9 @@ mark_variable(CELL_PTR current)
 	  (sizeof(MP_INT)+
 	   (((MP_INT *)(next+1))->_mp_alloc*sizeof(mp_limb_t)))/CellSize;
 	{
-	  int i = 1;
+	  int i;
 	  PUSH_POINTER(next);
-	  for (i = 0; i <= (sizeof(MP_INT)+
+	  for (i = 1; i <= (sizeof(MP_INT)+
 		 (((MP_INT *)(next+1))->_mp_alloc*sizeof(mp_limb_t)))/CellSize;
 	       i++)
 	    PUSH_POINTER(next+i);
@@ -1198,6 +1200,10 @@ mark_trail(tr_fr_ptr trail_ptr, tr_fr_ptr trail_base, CELL *gc_H, choiceptr gc_B
     
     trail_cell = TrailTerm(trail_ptr);
 
+    if (trail_cell == 0xa0000006) {
+      printf("Oops at %p->%x\n", trail_ptr, trail_cell);
+    }      
+
     if (IsVarTerm(trail_cell)) {
       CELL *hp = (CELL *)trail_cell;
       /* if a variable older than the current CP has not been marked yet,
@@ -1230,6 +1236,8 @@ mark_trail(tr_fr_ptr trail_ptr, tr_fr_ptr trail_base, CELL *gc_H, choiceptr gc_B
 #endif
 	discard_trail_entries++;
       } else {
+	if (trail_cell == (CELL)trail_ptr)
+	  discard_trail_entries++;
 #ifdef EASY_SHUNTING
 	if (hp < gc_H   && hp >= H0) {
 	  CELL *cptr = (CELL *)trail_cell;
@@ -1773,6 +1781,8 @@ sweep_trail(choiceptr gc_B, tr_fr_ptr old_TR)
 	    (ADDR) pt0 >= TrailBase
 #endif
 	    ) {
+	  trail_ptr++;
+	  dest++;
 	  continue;
 	}
 #endif /* FROZEN_REGS */
