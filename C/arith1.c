@@ -1274,6 +1274,33 @@ p_ceiling(Term t E_ARGS)
   }
 }
 
+/* WIN32 machines do not necessarily have rint. This will do for now */
+#if HAVE_RINT
+#define my_rint(X) rint(X)
+#else
+static
+double my_rint(double x)
+{ 
+  double y, z; 
+  Int n; 
+  
+  if (x >= 0) { 
+    y = x + 0.5; 
+    z = floor(y); 
+    n = (int) z; 
+    if (y == z && n % 2)
+      return(z-1); 
+  } else { 
+    y = x - 0.5; 
+    z = ceil(y); 
+    n = (int) z; 
+    if (y == z && n % 2)
+      return(z+1); 
+  }
+  return(z); 
+}
+#endif
+
 /*
   round(x) integer closest to 0
 */
@@ -1364,10 +1391,10 @@ p_round(Term t E_ARGS)
   }
   
   if (yap_flags[LANGUAGE_MODE_FLAG] == 1) { /* iso */
-    double vl = rint(dbl);
+    double vl = my_rint(dbl);
     RBIG_FL(vl);
   } else {
-    double vl = rint(dbl);
+    double vl = my_rint(dbl);
     RFLOAT(vl);
   }
 }

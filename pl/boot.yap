@@ -926,7 +926,6 @@ break :- '$get_value'('$break',BL), NBL is BL+1,
 	    '$print_message'(informational, loading(consulting, File))
 	),
 	'$loop'(Stream,consult),
-	'$exec_initialisation_goals',
 	'$current_module'(Mod,OldModule),
 	'$end_consult',
 	( LC == 0 -> prompt(_,'   |: ') ; true),
@@ -943,6 +942,7 @@ break :- '$get_value'('$break',BL), NBL is BL+1,
 	'$set_value'('$consulting',Old),
 	'$set_value'('$consulting_file',OldF),
 	'$cd'(OldD),
+	'$exec_initialisation_goals',
 	!.
 
 

@@ -1,4 +1,4 @@
-Mdnl
+dnl
 dnl Process this file with autoconf to produce a configure script.
 dnl
 
@@ -281,7 +281,10 @@ then
   then
     CC="gcc  -mno-cygwin"
     AC_CHECK_LIB(wsock32,main)
-    prefix="c:/Program\\ Files/Yap"
+    if test "$prefix" = "NONE"
+    then
+      prefix="c:/Program\\ Files/Yap"
+    fi
     DLL_LIBS="-L /usr/lib/mingw -lmsvcrt -lmingw32  -lkernel32"
   else
     DLL_LIBS=""
@@ -291,7 +294,10 @@ elif test "$target_os" = "mingw32"
 then
   INSTALL_COMMAND=install_win32
   AC_CHECK_LIB(wsock32,main)
-  prefix="c:/Program\\ Files/Yap"
+  if test "$prefix" = "NONE"
+  then
+    prefix="c:/Program\\ Files/Yap"
+  fi
   DLL_LIBS="-L /usr/mingw/lib -lmsvcrt -lmingw32  -lkernel32"
 else
   DLL_LIBS=""
@@ -878,7 +884,7 @@ AC_CHECK_FUNCS(gethrtime getpwnam getrusage gettimeofday getwd)
 AC_CHECK_FUNCS(isatty isnan kill labs link localtime lstat)
 AC_CHECK_FUNCS(memcpy memmove mkstemp mktemp opendir)
 AC_CHECK_FUNCS(putenv rand random readlink regexec)
-AC_CHECK_FUNCS(rename rl_set_prompt sbrk select)
+AC_CHECK_FUNCS(rename rint rl_set_prompt sbrk select)
 AC_CHECK_FUNCS(setbuf setlinebuf sigaction siggetmask siginterrupt)
 AC_CHECK_FUNCS(signal sigprocmask socket stat)
 AC_CHECK_FUNCS(strchr strerror strncat strncpy strtod)

@@ -106,7 +106,6 @@ reconsult(Fs) :-
 	'$recorda'('$initialisation','$',_),
 	'$print_message'(informational, loading(reconsulting, File)),
 	'$loop'(Stream,reconsult),
-	'$exec_initialisation_goals',
 	'$current_module'(Mod,OldModule),
 	'$end_consult',
 	'$clear_reconsulting',
@@ -116,6 +115,7 @@ reconsult(Fs) :-
 	'$set_value'('$consulting',Old),
 	'$set_value'('$consulting_file',OldF),
 	'$cd'(OldD),
+	'$exec_initialisation_goals',
 	!.
 
 '$start_reconsulting'(F) :-
@@ -139,7 +139,6 @@ reconsult(Fs) :-
 	'$recorda'('$initialisation','$',_),
 	'$print_message'(informational, loading(reconsulting, File)),
 	'$loop'(Stream,reconsult),
-	'$exec_initialisation_goals',
 	'$current_module'(Mod,OldModule),
 	'$end_consult',
 	'$clear_reconsulting',
@@ -149,6 +148,7 @@ reconsult(Fs) :-
 	'$set_value'('$consulting',Old),
 	'$set_value'('$consulting_file',OldF),
 	'$cd'(OldD),
+	'$exec_initialisation_goals',
 	!.
 
 
