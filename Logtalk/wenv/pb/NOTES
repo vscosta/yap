@@ -1,0 +1,28 @@
+=================================================================
+Logtalk - Object oriented extension to Prolog
+Release 2.15.0
+
+Copyright (c) 1998-2003 Paulo Moura.  All Rights Reserved.
+=================================================================
+
+
+This directory contains some files that provide syntax highlighting and 
+templates files for editing Logtalk source files with MacOS X Project 
+Builder 2.1 or later version.
+
+
+To install:
+
+1.	Copy to the directory /Developer/ProjectBuilder Extras/Specifications 
+	the following files:
+
+		Logtalk.pbfilespec
+		Logtalk.pblangspec
+
+2.	Copy to the directory /Developer/ProjectBuilder Extras/File Templates 
+	the following folder:
+
+		Logtalk
+
+
+SUPPORT FOR THIS IDE IS A WORK IN PROGRESS.

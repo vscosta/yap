@@ -1,0 +1,17 @@
+=================================================================
+Logtalk - Object oriented extension to Prolog
+Release 2.15.0
+
+Copyright (c) 1998-2003 Paulo Moura.  All Rights Reserved.
+=================================================================
+
+
+To load all objects in this example consult the ch.loader utility
+file (note that the *.loader files are Prolog files).
+
+You will need to also load the objects in the "roots" example.
+
+You will need to consult the following files in the library directory: 
+events.loader, types.loader, and hierarchies.loader. Alternatively, you 
+may load the library/all.loader file to load all library entities.
+

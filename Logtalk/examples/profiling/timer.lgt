@@ -4,7 +4,7 @@
 
 	:- info([
 		version is 1.0,
-		authors is 'Paulo Moura',
+		author is 'Paulo Moura',
 		date is 1998/3/23,
 		comment is 'Call executing time profiler.']).
 

@@ -15,7 +15,7 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %
 %  Logtalk - Object oriented extension to Prolog
-%  Release 2.14.7
+%  Release 2.15.0
 %
 %  Copyright (c) 1998-2003 Paulo Moura.  All Rights Reserved.
 %
@@ -41,7 +41,7 @@
 		<xsd:element name="type"		type="type"/>
 		<xsd:element name="compilation"	type="compilation"/>
 		<xsd:element name="comment"		type="xsd:string"	minOccurs="0"/>
-		<xsd:element name="authors"		type="xsd:string"	minOccurs="0"/>
+		<xsd:element name="author"		type="xsd:string"	minOccurs="0"/>
 		<xsd:element name="version"		type="xsd:string"	minOccurs="0"/>
 		<xsd:element name="date"		type="xsd:string"	minOccurs="0"/>
 		<xsd:element name="info"		type="info"			minOccurs="0" maxOccurs="unbounded"/>

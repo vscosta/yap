@@ -6,7 +6,7 @@
 
 	:- info([
 		version is 1.0,
-		authors is 'Paulo Moura',
+		author is 'Paulo Moura',
 		date is 2000/7/24,
 		comment is 'Set predicates implemented using ordered lists. Uses ==/2 for element comparison and standard term ordering.']).
 

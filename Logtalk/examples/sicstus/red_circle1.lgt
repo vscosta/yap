@@ -4,7 +4,7 @@
 
 
 	:- info([
-		authors is 'Paulo Moura',
+		author is 'Paulo Moura',
 		version is 1.0,
 		date is 2000/4/22,
 		comment is 'Parametric object for representing geometric red circles.',

@@ -5,7 +5,7 @@
 
 	:- info([
 		version is 1.1,
-		authors is 'Paulo Moura',
+		author is 'Paulo Moura',
 		date is 2000/11/21,
 		comment is 'Missionaries and cannibals heuristic state space search problem.']).
 

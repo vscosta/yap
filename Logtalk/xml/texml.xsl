@@ -12,7 +12,7 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %
 %  Logtalk - Object oriented extension to Prolog
-%  Release 2.14.7
+%  Release 2.15.0
 %
 %  Copyright (c) 1998-2003 Paulo Moura.  All Rights Reserved.
 %
@@ -44,12 +44,12 @@
 	<xsl:if test="comment">
 		<env name="quote"><xsl:value-of select="comment" /></env>
 	</xsl:if>
-	<xsl:if test="authors">
+	<xsl:if test="author">
 		<cmd name="medskip"/>
 		<cmd name="noindent"/>
-		authors:
+		author:
 		<cmd name="par"/>
-		<cmd name="texttt"><parm><xsl:value-of select="authors" /></parm></cmd>
+		<cmd name="texttt"><parm><xsl:value-of select="author" /></parm></cmd>
 		<cmd name="par"/>
 	</xsl:if>
 	<xsl:if test="version">

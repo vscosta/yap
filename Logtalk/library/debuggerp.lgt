@@ -5,7 +5,7 @@
 	:- info([
 		version is 1.0,
 		date is 2000/7/24,
-		authors is 'Paulo Moura',
+		author is 'Paulo Moura',
 		comment is 'Debugging protocol similar to those found in most Prolog compilers.']).
 
 

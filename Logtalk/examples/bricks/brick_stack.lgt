@@ -6,7 +6,7 @@
 	:- info([
 		version is 1.0,
 		date is 1998/3/23,
-		authors is 'Paulo Moura',
+		author is 'Paulo Moura',
 		comment is 'Stack of bricks as a constrained binary relation.']).
 
 

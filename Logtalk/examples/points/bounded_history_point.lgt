@@ -8,7 +8,7 @@
 	:- info([
 		version is 1.1,
 		date is 2000/10/31,
-		authors is 'Paulo Moura',
+		author is 'Paulo Moura',
 		comment is 'Two dimensional point moving in a constrained area and remembering past point positions.',
 		source is 'Example adopted from the SICStus Objects documentation.']).
 

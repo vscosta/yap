@@ -3,7 +3,7 @@
 
 
 	:- info([
-		authors is 'Paulo Moura',
+		author is 'Paulo Moura',
 		version is 1.0,
 		date is 2000/2/18,
 		comment is 'Bird descriptors predicates.',

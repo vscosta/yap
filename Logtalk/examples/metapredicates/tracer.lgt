@@ -9,7 +9,7 @@
 
 	:- info([
 		version is 2,
-		authors is 'Paulo Moura',
+		author is 'Paulo Moura',
 		date is 2000/7/24,
 		comment is 'Tracer for a goal call and exit ports.']).
 

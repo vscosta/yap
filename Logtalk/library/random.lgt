@@ -5,7 +5,7 @@
 
 	:- info([
 		version is 1.1,
-		authors is 'Paulo Moura',
+		author is 'Paulo Moura',
 		date is 2002/8/7,
 		comment is 'Random number generator predicates.']).
 

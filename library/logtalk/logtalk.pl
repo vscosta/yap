@@ -2,7 +2,7 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %
 %  Logtalk - Object oriented extension to Prolog
-%  Release 2.14.7
+%  Release 2.15.0
 %
 %  Copyright (c) 1998-2003 Paulo Moura.  All Rights Reserved.
 %
@@ -1088,7 +1088,7 @@ current_logtalk_flag(Flag, Value) :-
 	\+ '$lgt_flag_'(Flag, _),
 	'$lgt_default_flag'(Flag, Value).
 
-current_logtalk_flag(version, version(2, 14, 7)).
+current_logtalk_flag(version, version(2, 15, 0)).
 
 
 
@@ -5521,8 +5521,8 @@ user0__def(Pred, _, _, _, Pred, user).
 			'$lgt_write_xml_cdata_element'(Stream, comment, [], Comment)
 			;
 			true), 
-		('$lgt_member'(authors is Authors, List) ->
-			'$lgt_write_xml_cdata_element'(Stream, authors, [], Authors)
+		('$lgt_member'(author is Author, List) ->
+			'$lgt_write_xml_cdata_element'(Stream, author, [], Author)
 			;
 			true), 
 		('$lgt_member'(version is Version, List) ->
@@ -5535,7 +5535,7 @@ user0__def(Pred, _, _, _, Pred, user).
 			true),
 		forall(
 			('$lgt_member'(Key is Value, List),
-			 \+ '$lgt_member'(Key, [comment, authors, version, date, parnames])),
+			 \+ '$lgt_member'(Key, [comment, author, version, date, parnames])),
 			('$lgt_write_xml_open_tag'(Stream, info, []),
 			 '$lgt_write_xml_element'(Stream, key, [], Key),
 			 '$lgt_write_xml_cdata_element'(Stream, value, [], Value),

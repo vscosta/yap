@@ -5,7 +5,7 @@
 	:- info([
 		version is 2,
 		date is 2000/7/24,
-		authors is 'Paulo Moura',
+		author is 'Paulo Moura',
 		comment is 'Useful meta-predicates protocol.']).
 
 

@@ -14,7 +14,7 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %
 %  Logtalk - Object oriented extension to Prolog
-%  Release 2.14.7
+%  Release 2.15.0
 %
 %  Copyright (c) 1998-2003 Paulo Moura.  All Rights Reserved.
 %
@@ -48,9 +48,9 @@
 		<blockquote><p class="blockquote"><xsl:value-of select="comment" /></p></blockquote>
 	</xsl:if>
 	<dl>
-	<xsl:if test="authors">
-		<dt>authors:</dt>
-			<dd><code><xsl:value-of select="authors" /></code></dd>
+	<xsl:if test="author">
+		<dt>author:</dt>
+			<dd><code><xsl:value-of select="author" /></code></dd>
 	</xsl:if>
 	<xsl:if test="version">
 		<dt>version:</dt>

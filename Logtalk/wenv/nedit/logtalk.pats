@@ -1,0 +1,52 @@
+! Syntax highlighting patterns file for Logtalk (http://www.logtalk.org)
+!
+! Author: Paulo Moura (pmoura at logtalk.org)
+!
+! Last changed in: September 6, 2002
+!
+!
+! To install this patterns file:
+!
+! 1. Load this file by starting nedit from the command line:
+!
+! 	% nedit -import logtalk.pats
+!
+! 2. Go to the Preferences menu and verify that the patterns were loaded 
+!    correctly.
+!
+! 3. If everything is correct, choose the option Save Defaults from the 
+!    Preferences menu.
+!
+!
+nedit.fileVersion: 5.2
+
+nedit.highlightPatterns: Logtalk:1:0{\n\
+	Entity directives:":\\-\\sobject|:\\-\\sprotocol|:\\-\\scategory|:\\-\\send_object|:\\-\\send_protocol|:\\-\\send_category":::Keyword::\n\
+	Entity relations:"<(instantiates|specializes|extends|imports|implements)>":::Keyword::\n\
+	Directives:":\\-\\sinitialization|:\\-\\sinfo|:\\-\\smode|:\\-\\sdynamic|:\\-\\sdiscontiguous|:\\-\\spublic|:\\-\\sprotected|:\\-\\sprivate|:\\-\\smetapredicate|:\\-\\sop|:\\-\\scalls|:\\-\\suses":::Keyword::\n\
+	Clause operators:":\\-|\\.":::Keyword::\n\
+	Term testing:"<[^+?@-](var|atom|integer|float|atomic|compound|nonvar|number)>":::Subroutine1::\n\
+	Message sending operators:"::|\\^\\^":::Keyword::\n\
+	Control constructs:"!|,|;|\\-\\>|<(true|fail|call|catch|throw)>":::Subroutine::\n\
+	Block comment:"/\\*":"\\*/"::Comment::\n\
+	Line comment:"%":"$"::Comment::\n\
+	String:"'":"'"::String::\n\
+	Built-in methods:"<(parameter|self|sender|this|current_predicate|predicate_property|abolish|asserta|assertz|retractall|retract|bagof|findall|forall|setof|before|after)>":::Subroutine::\n\
+	Arithmetic operators:"<is>|\\+|\\*|\\-|/|=:=|=\\\\=|=\\<|\\>=|\\<|\\>":::Subroutine1::\n\
+	Built-in predicates:"<(current_object|current_protocol|current_category|create_object|create_protocol|create_category|object_property|protocol_property|category_property|abolish_object|abolish_protocol|abolish_vategory|extends_object|extends_protocol|omplements_protocol|instantiates_object|specializes_object|imports_category|abolish_events|current_events|define_events|current_logtalk_flag|set_logtalk_flag|logtalk_compile|logtalk_load|forall|retractall)>":::Subroutine1::\n\
+	Term unification:"=|<unify_with_occurs_check>|\\\\=":::Subroutine1::\n\
+	Term comparison:"@=\\<|==|\\\\==|@\\>=|@\\<|@\\>":::Subroutine1::\n\
+	Term creation and decomposition:"<(functor|arg|copy_term)>|=\\.\\.":::Subroutine1::\n\
+	Mode operators:"\\?|@":::Subroutine1::\n\
+	Stream selection and control:"<(current_input|current_output|set_input|set_output|open|close|flush_output|stream_property|at_end_of_stream|set_stream_position)>":::Subroutine1::\n\
+	Character input-output:"<(get_char|get_code|peek_char|peek_code|put_char|put_code|nl)>":::Subroutine1::\n\
+	Byte input-output:"<(get_byte|peek_byte|put_byte)>":::Subroutine1::\n\
+	Term input-output:"<(read_term|read|write_canonical|write_term|writeq|write|current_op|op|current_char_conversion|char_conversion)>":::Subroutine1::\n\
+	Logic and control:"\\\\\\+|<(once|repeat)>":::Subroutine::\n\
+	Atomic term processing:"<(atom_length|atom_concat|sub_atom|atom_chars|atom_codes|char_code|number_chars|number_codes)>":::Subroutine1::\n\
+	Implementation defined hooks:"<(set_prolog_flag|current_prolog_flag)>":::Subroutine1::\n\
+	Evaluable functors:"\\+|-|\\*|//|/|<(rem|mod|abs|sign|float_integer_part|float_fractional_part|float|floor|truncate|round|ceiling)>":::Subroutine1::\n\
+	Other arithemtic functors:"\\*\\*|<(sin|cos|atan|exp|log|sqrt)>":::Subroutine1::\n\
+	Bitwise functors:">>|<<|/\\\\|\\\\/|\\\\":::Subroutine1::\n\
+}
+nedit.languageModes:	Logtalk:.lgt::::4:4:\n\

@@ -8,7 +8,7 @@
 	:- info([
 		version is 1.0,
 		date is 2000/7/24,
-		authors is 'Esteban Zimanyi, Paulo Moura',
+		author is 'Esteban Zimanyi, Paulo Moura',
 		comment is 'Enables the representation of relations between independent objects.']).
 
 

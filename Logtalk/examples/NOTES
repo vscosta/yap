@@ -1,6 +1,6 @@
 =================================================================
 Logtalk - Object oriented extension to Prolog
-Release 2.14.7
+Release 2.15.0
 
 Copyright (c) 1998-2003 Paulo Moura.  All Rights Reserved.
 =================================================================
@@ -98,6 +98,10 @@ searching
 	state-space searching framework
 	example adopted from Ivan Bratko's "Prolog Programming for Artificial 
 	Intelligence" book
+
+shapes
+	geometric shapes implemented as both a prototype hierarchy and a class 
+	hierarchy
 
 sicstus
 	examples adopted from SICStus Objects documentation

@@ -4,7 +4,7 @@
 
 	:- info([
 		version is 1.0,
-		authors is 'Paulo Moura',
+		author is 'Paulo Moura',
 		date is 2002/8/4,
 		comment is 'Operating system protocol.']).
 

@@ -1,0 +1,31 @@
+=================================================================
+Logtalk - Object oriented extension to Prolog
+Release 2.15.0
+
+Copyright (c) 1998-2003 Paulo Moura.  All Rights Reserved.
+=================================================================
+
+
+| ?- square::nsides(N).
+
+! error(
+    existence_error(predicate_declaration, nsides(_)),
+    square::nsides(N),
+    user)
+
+
+| ?- q1::(color(Color), side(Side), position(X, Y)).
+
+Color = red
+Side = 1
+X = 0
+Y = 0
+yes
+
+
+| ?- q2::(side(Side), area(Area), perimeter(Perimeter)).
+
+Side = 3
+Area = 9
+Perimeter = 12
+yes

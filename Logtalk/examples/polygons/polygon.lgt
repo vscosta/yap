@@ -7,7 +7,7 @@
 	:- info([
 		version is 1.1,
 		date is 2000/10/31,
-		authors is 'Paulo Moura',
+		author is 'Paulo Moura',
 		comment is 'Polygon predicates.']).
 
 
@@ -31,7 +31,7 @@
 	:- info([
 		version is 2,
 		date is 1998/2/23,
-		authors is 'Paulo Moura',
+		author is 'Paulo Moura',
 		comment is 'Default protocol for all polygons.']).
 
 

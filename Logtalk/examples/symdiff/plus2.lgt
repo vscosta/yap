@@ -4,7 +4,7 @@
 
 
 	:- info([
-		authors is 'Paulo Moura',
+		author is 'Paulo Moura',
 		version is 1.0,
 		date is 1999/12/29,
 		parnames is ['Expression1', 'Expression2'],

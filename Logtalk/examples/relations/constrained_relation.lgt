@@ -7,7 +7,7 @@
 	:- info([
 		version is 3,
 		date is 2000/7/24,
-		authors is 'Paulo Moura',
+		author is 'Paulo Moura',
 		comment is 'Enables the representation of relations with constraints on the state of participating objects.']).
 
 
