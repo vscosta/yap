@@ -68,6 +68,7 @@ restore_codes(void)
   heap_regs->yescode.opc = opcode(_Ystop);
   heap_regs->undef_op = opcode(_undef_p);
   heap_regs->index_op = opcode(_index_pred);
+  heap_regs->fail_op = opcode(_op_fail);
   heap_regs->nocode.opc = opcode(_Nstop);
 #ifdef YAPOR
   INIT_YAMOP_LTT(&(heap_regs->nocode), 1);

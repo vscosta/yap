@@ -300,7 +300,8 @@ cl_position(yamop *ptr)
   fprintf(stderr,"  %s\n", tp);
 }
 
-static void dump_stack()
+static void
+dump_stack(void)
 {
   choiceptr b_ptr = B;
   CELL *env_ptr = ENV;

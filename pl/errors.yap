@@ -203,6 +203,8 @@ print_message(Level, Mss) :-
 	'$preprocess_stack'(Gs, NGs).
 '$beautify_hidden_goal'('$repeat',0,prolog,ClNo,Gs,[cl(repeat,0,prolog,ClNo)|NGs]) :- !,
 	'$preprocess_stack'(Gs, NGs).
+'$beautify_hidden_goal'('$recorded_with_key',3,prolog,ClNo,Gs,[cl(recorded,3,prolog,ClNo)|NGs]) :- !,
+	'$preprocess_stack'(Gs, NGs).
 '$beautify_hidden_goal'('$consult',2,prolog,ClNo,Gs,[cl(consult,1,prolog,ClNo)|NGs]) :- !,
 	'$preprocess_stack'(Gs, NGs).
 '$beautify_hidden_goal'('$findall_with_common_vars',_,prolog,ClNo,Gs,[cl(findall,4,prolog,ClNo)|NGs]) :- !,

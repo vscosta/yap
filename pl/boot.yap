@@ -840,7 +840,6 @@ not(A) :-
 	\+ '$undefined'(unknown_predicate_handler(_,_,_), user),
 	user:unknown_predicate_handler(G,M,NG), !,
 	'$execute'(M:NG).
-'$undefp'([M|G]) :- '$is_dynamic'(G, M), !, fail.
 '$undefp'([M|G]) :-
 	'$recorded'('$unknown','$unknown'(M:G,US),_), !,
 	'$execute'(user:US).

@@ -364,8 +364,12 @@ retract_all(PredEntry *p, int in_use)
   p->FirstClause = fclause;
   p->LastClause = lclause;
   if (fclause == NIL) {
-    p->OpcodeOfPred = UNDEF_OPCODE;
-    p->TrueCodeOfPred = p->CodeOfPred = (CODEADDR)(&(p->OpcodeOfPred)); 
+    if (p->PredFlags & (DynamicPredFlag|LogUpdatePredFlag)) {
+      p->OpcodeOfPred = FAIL_OPCODE;
+    } else {
+      p->OpcodeOfPred = UNDEF_OPCODE;
+    }
+    p->TrueCodeOfPred = p->CodeOfPred = (CODEADDR)(&(p->OpcodeOfPred));
     p->StatisticsForPred.NOfEntries = 0;
     p->StatisticsForPred.NOfHeadSuccesses = 0;
     p->StatisticsForPred.NOfRetries = 0;
@@ -879,7 +883,8 @@ addclause(Term t, CODEADDR cp, int mode, int mod)
     if (!(p->PredFlags & DynamicPredFlag)) {
       add_first_static(p, cp, spy_flag);
       /* make sure we have a place to jump to */
-      if (p->OpcodeOfPred == UNDEF_OPCODE) {
+      if (p->OpcodeOfPred == UNDEF_OPCODE ||
+	  p->OpcodeOfPred == FAIL_OPCODE) {  /* log updates */
 	p->CodeOfPred = p->TrueCodeOfPred;
 	p->OpcodeOfPred = ((yamop *)(p->CodeOfPred))->opc;
       }
@@ -1252,7 +1257,11 @@ p_purge_clauses(void)
       }
     } while (q1 != pred->LastClause);
   pred->FirstClause = pred->LastClause = NIL;
-  pred->OpcodeOfPred = UNDEF_OPCODE;
+  if (pred->PredFlags & (DynamicPredFlag|LogUpdatePredFlag)) {
+    pred->OpcodeOfPred = FAIL_OPCODE;
+  } else {
+    pred->OpcodeOfPred = UNDEF_OPCODE;
+  }
   pred->TrueCodeOfPred =
     pred->CodeOfPred =
     (CODEADDR)(&(pred->OpcodeOfPred)); 
@@ -1304,7 +1313,8 @@ p_setspy(void)
     WRITE_UNLOCK(pred->PRWLock);
     return (FALSE);
   }
-  if (pred->OpcodeOfPred == UNDEF_OPCODE) {
+  if (pred->OpcodeOfPred == UNDEF_OPCODE ||
+      pred->OpcodeOfPred == FAIL_OPCODE) {
     WRITE_UNLOCK(pred->PRWLock);
     return (FALSE);
   }
@@ -1537,6 +1547,35 @@ p_is_dynamic(void)
     return (FALSE);
   READ_LOCK(pe->PRWLock);
   out = (pe->PredFlags & (DynamicPredFlag|LogUpdatePredFlag));
+  READ_UNLOCK(pe->PRWLock);
+  return(out);
+}
+
+static Int 
+p_pred_exists(void)
+{				/* '$pred_exists'(+P,+M)	 */
+  PredEntry      *pe;
+  Term            t = Deref(ARG1);
+  Term            t2 = Deref(ARG2);
+  Int             out;
+  SMALLUNSGN      mod = LookupModule(t2);
+
+  if (IsVarTerm(t)) {
+    return (FALSE);
+  } else if (IsAtomTerm(t)) {
+    Atom at = AtomOfTerm(t);
+    pe = RepPredProp(PredPropByAtom(at, mod));
+  } else if (IsApplTerm(t)) {
+    Functor         fun = FunctorOfTerm(t);
+    pe = RepPredProp(PredPropByFunc(fun, mod));
+  } else
+    return (FALSE);
+  if (pe == NIL)
+    return (FALSE);
+  READ_LOCK(pe->PRWLock);
+  if (pe->PredFlags & HiddenPredFlag)
+    return(FALSE);
+  out = (pe->OpcodeOfPred != UNDEF_OPCODE);
   READ_UNLOCK(pe->PRWLock);
   return(out);
 }
@@ -2542,6 +2581,7 @@ InitCdMgr(void)
   InitCPred("$purge_clauses", 2, p_purge_clauses, SafePredFlag|SyncPredFlag);
   InitCPred("$in_use", 2, p_in_use, TestPredFlag | SafePredFlag|SyncPredFlag);
   InitCPred("$is_dynamic", 2, p_is_dynamic, TestPredFlag | SafePredFlag);
+  InitCPred("$pred_exists", 2, p_pred_exists, TestPredFlag | SafePredFlag);
   InitCPred("$number_of_clauses", 3, p_number_of_clauses, SafePredFlag|SyncPredFlag);
   InitCPred("$undefined", 2, p_undefined, SafePredFlag|TestPredFlag);
   InitCPred("$optimizer_on", 0, p_optimizer_on, SafePredFlag|SyncPredFlag);

@@ -18,20 +18,20 @@
 % The next predicates are applicable only
 % to dynamic code
 
-asserta(V) :- var(V), !,
-	'$do_error'(instantiation_error,asserta(V)).
+asserta(Mod:C) :- !,
+	'$assert'(C,Mod,first,_,asserta(Mod:C)).
 asserta(C) :-
 	'$current_module'(Mod),
 	'$assert'(C,Mod,first,_,asserta(C)).
 
-assertz(V) :- var(V), !,
-	'$do_error'(instantiation_error,assertz(V)).
+assertz(Mod:C) :- !,
+	'$assert'(C,Mod,last,_,assertz(Mod:C)).
 assertz(C) :-
 	'$current_module'(Mod),
 	'$assert'(C,Mod,last,_,assertz(C)).
 
-assert(V) :- var(V), !,
-	'$do_error'(instantiation_error,assert(V)).
+assert(Mod:C) :- !,
+	'$assert'(C,Mod,last,_,assert(Mod:C)).
 assert(C) :-
 	'$current_module'(Mod),
 	'$assert'(C,Mod,last,_,assert(C)).
@@ -94,20 +94,20 @@ assert(C) :-
 	    '$do_error'(permission_error(modify,static_procedure,Na/Ar),P)
 	).
 
-assert_static(V) :- var(V), !,
-	'$do_error'(instantiation_error,assert_static(V)).
+assert_static(Mod:C) :- !,
+	'$assert_static'(C,Mod,last,_,assert_static(Mod:C)).
 assert_static(C) :-
 	'$current_module'(Mod),
 	'$assert_static'(C,Mod,last,_,assert_static(C)).
 
-asserta_static(V) :- var(V), !,
-	'$do_error'(instantiation_error,asserta_static(V)).
+asserta_static(Mod:C) :- !,
+	'$assert_static'(C,Mod,first,_,asserta_static(Mod:C)).
 asserta_static(C) :-
 	'$current_module'(Mod),
 	'$assert_static'(C,Mod,first,_,asserta_static(C)).
 
-assertz_static(V) :- var(V), !,
-	'$do_error'(instantiation_error,assertz_static(V)).
+asserta_static(Mod:C) :- !,
+	'$assert_static'(C,Mod,last,_,assertz_static(Mod:C)).
 assertz_static(C) :-
 	'$current_module'(Mod),
 	'$assert_static'(C,Mod,last,_,assertz_static(C)).
@@ -211,20 +211,20 @@ assertz_static(C) :-
 	fail.
 '$erase_all_mf_dynamic'(_,_,_).
 
-asserta(V,R) :- var(V), !,
-	'$do_error'(instantiation_error,asserta(V,R)).
+asserta(M:C,R) :- !,
+	'$assert_dynamic'(C,M,first,R,asserta(M:C,R)).
 asserta(C,R) :-
 	'$current_module'(M),
 	'$assert_dynamic'(C,M,first,R,asserta(C,R)).
 
-assertz(V,R) :- var(V), !,
-	'$do_error'(instantiation_error,assertz(V,R)).
+assertz(M:C,R) :- !,
+	'$assert_dynamic'(C,M,last,R,assertz(M:C,R)).
 assertz(C,R) :-
 	'$current_module'(M),
 	'$assert_dynamic'(C,M,last,R,assertz(C,R)).
 
-assert(V,R) :- var(V), !,
-	'$do_error'(instantiation_error,assert(V,R)).
+assert(M:C,R) :- !,
+	'$assert_dynamic'(C,M,last,R,assert(M:C,R)).
 assert(C,R) :-
 	'$current_module'(M),
 	'$assert_dynamic'(C,M,last,R,assert(C,R)).
@@ -278,6 +278,8 @@ clause(V,Q,R) :-
 			clause(Mod:P,Q,R))
 	 ).
 
+retract(M:C) :- !,
+	'$retract'(C,M).
 retract(C) :-
 	'$current_module'(M),
 	'$retract'(C,M).
@@ -301,10 +303,11 @@ retract(C) :-
 	'$fetch_predicate_indicator_from_clause'(C, PI),
 	'$do_error'(permission_error(modify,static_procedure,PI),retract(M:C)).
 
-retract(C,R) :- !,
+retract(M:C,R) :- !,
+	'$retract'(C,M,R).
+retract(C,R) :-
 	'$current_module'(M),
 	'$retract'(C,M,R).
-
 
 '$retract'(V,M,R) :- var(V), !,
 	'$do_error'(instantiation_error,retract(M:V,R)).
@@ -336,6 +339,8 @@ retract(C,R) :- !,
 	functor(C, Na, Ar).
 	
 
+retractall(M:V) :-
+	'$retractall'(V,M).
 retractall(V) :- !,
 	'$current_module'(M),
 	'$retractall'(V,M).
@@ -378,12 +383,16 @@ abolish(N,A) :-
 		( '$is_dynamic'(T, M) -> '$abolishd'(T,M) ;
 	      	 /* else */	      '$abolishs'(T,M) ).
 
+abolish(M:X) :- !,
+	'$abolish'(X,M).
 abolish(X) :- 
+	'$current_module'(M),
+	'$abolish'(X,M).
+
+'$abolish'(X,M) :- 
 	'$access_yap_flags'(8, 2), !,
-	'$current_module'(M),
 	'$new_abolish'(X,M).
-abolish(X) :- 
-	'$current_module'(M),
+'$abolish'(X, M) :- 
 	'$old_abolish'(X,M).
 
 '$new_abolish'(V,M) :- var(V), !,
@@ -606,7 +615,7 @@ dynamic_predicate(P,Sem) :-
 	F\/16'400000 \== 0.
 
 hide_predicate(V) :- var(V), !,
-	'$do_error'(instantiation_error,hide_predicate(X)).
+	'$do_error'(instantiation_error,hide_predicate(V)).
 hide_predicate(M:P) :- !,
 	'$hide_predicate2'(P, M).
 hide_predicate(P) :-

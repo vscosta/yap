@@ -368,13 +368,11 @@ system_predicate(P) :-
 
 '$current_predicate_no_modules'(M,A,T) :-
 	'$current_predicate'(M,A,Arity),
-	\+ '$hidden'(A),
 	functor(T,A,Arity),
 	'$pred_exists'(T,M).
 
 '$current_predicate3'(M,A/Arity) :- !,
 	'$current_predicate'(M,A,Arity),
-	\+ '$hidden'(A),
 	functor(T,A,Arity),
 	'$pred_exists'(T,M).
 '$current_predicate3'(M,BadSpec) :-			% only for the predicate
@@ -597,10 +595,6 @@ predicate_property(Pred,Prop) :-
 % Only efective if yap compiled with -DDEBUG
 % this predicate shows the code produced by the compiler
 '$show_code' :- '$debug'(0'f).
-
-'$pred_exists'(Pred,M) :- '$is_dynamic'(Pred,M), !.
-'$pred_exists'(Pred,M) :- \+ '$undefined'(Pred,M).
-
 
 grow_heap(X) :- '$grow_heap'(X).
 grow_stack(X) :- '$grow_stack'(X).

@@ -3318,7 +3318,7 @@ MyEraseClause(Clause *clau)
       } else {
 	FreeCodeSpace(((char *) ClauseCodeToClause(pred->CodeOfPred)));
 	pred->LastClause = pred->FirstClause = NIL;
-	p->OpcodeOfPred = UNDEF_OPCODE;
+	p->OpcodeOfPred = FAIL_OPCODE;
 	p->TrueCodeOfPred = p->CodeOfPred =
 	  (CODEADDR)(&(p->OpcodeOfPred)); 
       }
@@ -3428,7 +3428,7 @@ PrepareToEraseLogUpdClause(Clause *clau, DBRef dbr)
 	p->StateOfPred = StaticMask;
       }
     } else {
-      p->OpcodeOfPred = UNDEF_OPCODE;
+      p->OpcodeOfPred = FAIL_OPCODE;
       p->TrueCodeOfPred = p->CodeOfPred = (CODEADDR)(&(p->OpcodeOfPred)); 
     }
   } else {
@@ -3514,7 +3514,7 @@ PrepareToEraseClause(Clause *clau, DBRef dbr)
       /* nothing left here, let's clean the shop */
       FreeCodeSpace(((char *) ClauseCodeToClause(pred->CodeOfPred)));
       pred->LastClause = pred->FirstClause = NIL;
-      pred->OpcodeOfPred = UNDEF_OPCODE;
+      pred->OpcodeOfPred = FAIL_OPCODE;
       pred->TrueCodeOfPred = pred->CodeOfPred =
 	(CODEADDR)(&(pred->OpcodeOfPred)); 
     } else if (clau_code == pred->FirstClause) {

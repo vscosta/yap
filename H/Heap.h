@@ -10,7 +10,7 @@
 * File:		Heap.h         						 *
 * mods:									 *
 * comments:	Heap Init Structure					 *
-* version:      $Id: Heap.h,v 1.31 2002-09-23 17:06:12 vsc Exp $	 *
+* version:      $Id: Heap.h,v 1.32 2002-10-14 16:25:33 vsc Exp $	 *
 *************************************************************************/
 
 /* information that can be stored in Code Space */
@@ -134,6 +134,7 @@ typedef struct various_codes {
   char prompt[MAX_PROMPT];
   OPCODE undef_op; 
   OPCODE index_op; 
+  OPCODE fail_op; 
   yamop *retry_recorded_code,
     *retry_recorded_k_code,
     *retry_drecorded_code,
@@ -352,6 +353,7 @@ typedef struct various_codes {
 #define  yap_flags                heap_regs->yap_flags_field
 #define  UNDEF_OPCODE             heap_regs->undef_op
 #define  INDEX_OPCODE             heap_regs->index_op
+#define  FAIL_OPCODE              heap_regs->fail_op
 #define  HashChain                heap_regs->hash_chain
 #define  INT_KEYS_SIZE            heap_regs->int_keys_size
 #define  INT_KEYS_TIMESTAMP       heap_regs->int_keys_timestamp
