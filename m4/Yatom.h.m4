@@ -252,6 +252,7 @@ extern cmp_entry     cmp_funcs[MAX_CMP_FUNCS];
 /* Flags for code or dbase entry */
 /* There are several flags for code and data base entries */
 typedef enum {
+  HasBlobsMask  = 0x20000, /* informs this has blobs whihc may be in use */
   GcFoundMask   = 0x10000, /* informs this is a dynamic predicate */
   DynamicMask   =  0x8000, /* informs this is a dynamic predicate */
   InUseMask     =  0x4000, /* informs this block is being used */
@@ -273,7 +274,7 @@ typedef struct DB_STRUCT {
   Functor id;		/* allow pointers to this struct to id  */
 			/*   as dbref                           */
   Term	EntryTerm;	/* cell bound to itself			*/
-  SMALLUNSGN Flags;	/* Term Flags				*/
+  CELL Flags;	/* Term Flags				*/
   SMALLUNSGN NOfRefsTo;	/* Number of references pointing here	*/
   struct struct_dbentry  *Parent;	/* key of DBase reference		*/
   CODEADDR Code;	/* pointer to code if this is a clause 	*/

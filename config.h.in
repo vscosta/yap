@@ -184,6 +184,7 @@
 #undef  HAVE_PUTENV
 #undef  HAVE_RAND
 #undef  HAVE_RANDOM
+#undef  HAVE_READLINK
 #undef  HAVE_REGEXEC
 #undef  HAVE_RENAME
 #undef  HAVE_RINT

@@ -363,8 +363,14 @@ retract_all(PredEntry *p)
       } else {
 	if (p->PredFlags & LogUpdatePredFlag)
 	  ErCl(cl);
-	else
-	  FreeCodeSpace((char *)cl);
+	else {
+	  if (cl->ClFlags & HasBlobsMask) {
+	    cl->u.NextCl = DeadClauses;
+	    DeadClauses = cl;
+	  } else {
+	    FreeCodeSpace((char *)cl);
+	  }
+	}
       }
     } while (q1 != p->LastClause);
   }
@@ -1247,8 +1253,15 @@ p_purge_clauses(void)
       q = NextClause(q);
       if (pred->PredFlags & LogUpdatePredFlag)
 	ErCl(ClauseCodeToClause(q1));
-      else
-	FreeCodeSpace((char *)ClauseCodeToClause(q1));
+      else {
+	Clause *cl = ClauseCodeToClause(q1);
+	if (cl->ClFlags & HasBlobsMask) {
+	  cl->u.NextCl = DeadClauses;
+	  DeadClauses = cl;
+	} else {
+	  FreeCodeSpace((char *)cl);
+	}
+      }
     } while (q1 != pred->LastClause);
   pred->FirstClause = pred->LastClause = NIL;
   pred->OpcodeOfPred = UNDEF_OPCODE;
@@ -2298,6 +2311,7 @@ p_cut_transparent(void)
   pe->PredFlags |= CutTransparentPredFlag;
   return(TRUE);
 }
+
 
 void 
 InitCdMgr(void)

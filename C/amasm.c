@@ -140,6 +140,8 @@ static Int c_arg;
 #define TYPE_XC  2
 static int c_type;
 
+static int clause_has_blobs;
+
 inline static YREG
 emit_y(Ventry *ve)
 {
@@ -614,6 +616,7 @@ a_blob(op_numbers opcode)
     code_p->u.c.c =
       AbsAppl((CELL *)(Unsigned(code_addr) + label_offset[cpc->rnd1]));
   }
+  clause_has_blobs = TRUE;
   GONEXT(c);
 }
 
@@ -627,6 +630,7 @@ a_ublob(op_numbers opcode, op_numbers opcode_w)
       AbsAppl((CELL *)(Unsigned(code_addr) + label_offset[cpc->rnd1]));
       
   }
+  clause_has_blobs = TRUE;
   GONEXT(oc);
 }
 
@@ -1985,6 +1989,9 @@ do_pass(void)
       cl_p->ClFlags = c_mask;
       if (log_update)
 	cl_p->ClFlags |= LogUpdMask;
+      if (clause_has_blobs) {
+	cl_p->ClFlags |= HasBlobsMask;
+      }
       cl_p->u2.ClExt = NULL;
       cl_p->Owner = YapConsultingFile();
     }
@@ -2583,6 +2590,7 @@ assemble(int mode)
 
   code_addr = NIL;
   assembling = mode;
+  clause_has_blobs = FALSE;
   label_offset = (int *)freep;
   pass_no = 0;
   asm_error = FALSE;

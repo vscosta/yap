@@ -7721,7 +7721,9 @@ file, a directory, a fifo file, or of unknown type;
 @code{size(@var{Size})}, with gives the size for a file, and
 @code{mod_time(@var{Time})}, which gives the last time a file was
 modified according to some Operating System dependent
-timestamp. Properties can be obtained through backtracking:
+timestamp; @code{mode(@var{mode})}, gives the permission flags for the
+file, and @code{linkto(@var{FileName})}, gives the file pointed to by a
+symbolic link. Properties can be obtained through backtracking:
 
 @example
    ?- file_property('Makefile',P).

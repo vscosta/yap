@@ -81,7 +81,7 @@ typedef struct clause_struct {
   /* the actual owner of the clause */
   Atom Owner;
   /* A set of flags describing info on the clause */
-  OPREG            ClFlags;
+  CELL            ClFlags;
 #if defined(YAPOR) || defined(THREADS)
   /* A lock for manipulating the clause */
   lockvar          ClLock;

@@ -879,13 +879,15 @@ mark_variable(CELL_PTR current)
       if ((Functor)cnext == FunctorDBRef) {
 	DBRef tref = DBRefOfTerm(ccur);
 	/* make sure the reference is marked as in use */
-	if ((tref->Flags & ErasedMask) &&
-	    tref->Parent != NULL &&
-	    tref->Parent->KindOfPE & LogUpdDBBit) {
-	  *current = MkDBRefTerm(DBErasedMarker);
-	  MARK(current);
-	} else {
-	  tref->Flags |= GcFoundMask;
+	if (tref->Flags & InUseMask) {
+	  if ((tref->Flags & ErasedMask) &&
+	      tref->Parent != NULL &&
+	      tref->Parent->KindOfPE & LogUpdDBBit) {
+	    *current = MkDBRefTerm(DBErasedMarker);
+	    MARK(current);
+	  } else {
+	    tref->Flags |= GcFoundMask;
+	  }
 	}
       } else {
 	mark_db_fixed(next);
@@ -1850,7 +1852,7 @@ sweep_trail(choiceptr gc_B, tr_fr_ptr old_TR)
 #endif /* FROZEN_STACKS */
 	flags = Flags((CELL)pt0);
 #ifdef DEBUG
-	if (FlagOn(DBClMask, flags) && !FlagOn(LogUpdMask, flags)) {
+	if (FlagOn(DBClMask, flags)) {
 	  hp_entrs++;
 	  if (!FlagOn(GcFoundMask, flags)) {
 	    hp_not_in_use++;
@@ -1867,7 +1869,7 @@ sweep_trail(choiceptr gc_B, tr_fr_ptr old_TR)
 	}
 #endif
       
-	if (!FlagOn(GcFoundMask, flags) && !FlagOn(LogUpdMask, flags)) {
+	if (!FlagOn(GcFoundMask, flags)) {
 	  if (FlagOn(DBClMask, flags)) {
 	    Flags((CELL)pt0) = ResetFlag(InUseMask, flags);
 	    if (FlagOn(ErasedMask, flags)) {

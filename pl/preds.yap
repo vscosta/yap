@@ -141,9 +141,9 @@ assertz_static(C) :-
 	'$compile_dynamic'((Head:-Body), 2, Mod, CR),
          ( '$get_value'('$abol',true)
            ->
-            '$flags'(H,Mod,Fl,Fl),
-	    ( Fl /\ 16'400000 =\= 0 -> '$erase_source'(H,Mod) ; true ),
-	    ( Fl /\ 16'040000 =\= 0 -> '$check_multifile_pred'(H,Mod,Fl) ; true )
+            '$flags'(Head,Mod,Fl,Fl),
+	    ( Fl /\ 16'400000 =\= 0 -> '$erase_source'(Head,Mod) ; true ),
+	    ( Fl /\ 16'040000 =\= 0 -> '$check_multifile_pred'(Head,Mod,Fl) ; true )
           ;
             true
         ),	    
@@ -160,9 +160,9 @@ assertz_static(C) :-
 	'$compile_dynamic'((Head:-Body), 0, Mod, CR),
          ( '$get_value'('$abol',true)
            ->
-            '$flags'(H,Mod,Fl,Fl),
-            ( Fl /\ 16'400000 =\= 0 -> '$erase_source'(H,Mod) ; true ),
-	    ( Fl /\ 16'040000 =\= 0 -> '$check_multifile_pred'(H,Mod,Fl) ; true )
+            '$flags'(Head,Mod,Fl,Fl),
+            ( Fl /\ 16'400000 =\= 0 -> '$erase_source'(Head,Mod) ; true ),
+	    ( Fl /\ 16'040000 =\= 0 -> '$check_multifile_pred'(Head,Mod,Fl) ; true )
           ;
             true
         ),	    
@@ -284,9 +284,15 @@ retract(C) :-
 '$retract'(M:C,_) :- !,
 	'$retract'(C,M).
 '$retract'(C,M) :- 
-	'$check_head_and_body'(C,H,B,retract(C)),
+	'$check_head_and_body'(C,H,B,retract(M:C)),
 	'$is_dynamic'(H, M), !,
 	'$recordedp'(M:H,(H:-B),R), erase(R).
+'$retract'(C,M) :- 
+	'$check_head_and_body'(C,H,B,retract(M:C)),
+	'$undefined'(H,M), !,
+	functor(H,Na,Ar),
+	'$dynamic'(Na/Ar,M),
+	fail.
 '$retract'(C,M) :-
 	'$fetch_predicate_indicator_from_clause'(C, PI),
 	throw(error(permission_error(modify,static_procedure,PI),retract(M:C))).
@@ -310,6 +316,12 @@ retract(C,R) :- !,
 	var(R),
 	'$recordedp'(M:H,(H:-B),R),
 	erase(R).
+'$retract'(C,M,_) :- 
+	'$check_head_and_body'(C,H,B,retract(M:C,R)),
+	'$undefined'(H,M), !,
+	functor(H,Na,Ar),
+	'$dynamic'(Na/Ar,M),
+	fail.
 '$retract'(C,M,_) :-
 	'$fetch_predicate_indicator_from_clause'(C, PI),
 	throw(error(permission_error(modify,static_procedure,PI),retract(M:C))).
