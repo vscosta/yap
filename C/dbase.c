@@ -673,11 +673,6 @@ static CELL *MkDBTerm(register CELL *pt0, register CELL *pt0_end,
 #endif
   CELL *CodeMaxBase = CodeMax;
 
-  {int i;
-  for (i = 0; i <  10; i++)
-    printf("vsc: Here I go again\n");
-  }
-
  loop:
   while (pt0 <= pt0_end) {
 
