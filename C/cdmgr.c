@@ -11,8 +11,11 @@
 * File:		cdmgr.c							 *
 * comments:	Code manager						 *
 *									 *
-* Last rev:     $Date: 2004-04-27 15:03:43 $,$Author: vsc $						 *
+* Last rev:     $Date: 2004-04-27 16:21:16 $,$Author: vsc $						 *
 * $Log: not supported by cvs2svn $
+* Revision 1.119  2004/04/27 15:03:43  vsc
+* more fixes for expand_clauses
+*
 * Revision 1.118  2004/04/14 19:10:23  vsc
 * expand_clauses: keep a list of clauses to expand
 * fix new trail scheme for multi-assignment variables
@@ -367,11 +370,11 @@ cleanup_dangling_indices(yamop *ipc, yamop *beg, yamop *end, yamop *suspend_code
       break;
       /* instructions type e */
     case _switch_on_type:
-      ipc = NEXTOP(ipc,llll);
       release_wcls(ipc->u.llll.l1, ecs);
       release_wcls(ipc->u.llll.l2, ecs);
       release_wcls(ipc->u.llll.l3, ecs);
       release_wcls(ipc->u.llll.l4, ecs);
+      ipc = NEXTOP(ipc,llll);
       break;
     case _switch_list_nl:
       release_wcls(ipc->u.ollll.l1, ecs);
