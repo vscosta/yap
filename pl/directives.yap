@@ -186,6 +186,13 @@ yap_flag(index,X) :- var(X), !,
 yap_flag(index,on)  :- !, '$set_value'('$doindex',true).
 yap_flag(index,off) :- !, '$set_value'('$doindex',[]).
 
+yap_flag(informational_messages,X) :- var(X), !,
+	 '$get_value'('$verbose',X).
+yap_flag(informational_messages,on)  :- !, '$set_value'('$verbose',on).
+yap_flag(informational_messages,off) :- !, '$set_value'('$verbose',off).
+yap_flag(informational_messages,X) :-
+	throw(error(domain_error(flag_value,informational_messages+X),yap_flag(informational_messages,X))).
+
 yap_flag(integer_rounding_function,X) :-
 	var(X), !,
 	'$access_yap_flags'(2, X1),
@@ -483,6 +490,7 @@ yap_flag(host_type,X) :-
 %	    V = hide  ;
 %	    V = host_type  ;
 	    V = index ;
+	    V = informational_messages ;
 	    V = integer_rounding_function ;
 	    V = language ;
 	    V = max_arity ;
