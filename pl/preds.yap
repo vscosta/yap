@@ -51,7 +51,7 @@ assert(C) :-
 	'$assert_clause2'(C, G, M1, Where, R, P).
 '$assert_clause'(M:C, G, M1, Where, R, P) :- !,
 	'$preprocess_clause_before_mod_change'((C:-G),M1,M,C1),
-	C1 = (MH :- NG),
+	C1 = (NH :- NG),
 	'$assert_clause2'(NH, NG, M, Where, R, P).
 '$assert_clause'(H, G, M1, Where, R, P) :- !,
 	'$assert_clause2'(H, G, M1, Where, R, P).
