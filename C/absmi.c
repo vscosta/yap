@@ -2557,7 +2557,7 @@ Yap_absmi(int inp)
 #ifdef COROUTINING
       }
 #endif
-#ifdef LOW_LEvel_TRACER
+#ifdef LOW_LEVEL_TRACER
       if (Yap_do_low_level_trace)
 	low_level_trace(enter_pred,(PredEntry *)(SREG),XREGS+1);
 #endif	/* LOW_LEVEL_TRACE */

@@ -4145,10 +4145,6 @@ ExpandIndex(PredEntry *ap) {
   if (Yap_Option['i' - 'a' + 1]) {
     Term tmod = ModuleName[ap->ModuleOfPred];
     Yap_DebugPutc(Yap_c_error_stream,'>');
-    {
-      extern long long unsigned int vsc_count;
-      fprintf(stderr,"%lld",vsc_count);
-    }
     Yap_DebugPutc(Yap_c_error_stream,'\t');
     Yap_plwrite(tmod, Yap_DebugPutc, 0);
     Yap_DebugPutc(Yap_c_error_stream,':');

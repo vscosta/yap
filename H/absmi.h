@@ -1537,5 +1537,5 @@ Yap_regtoregno(wamreg reg)
 	  } else if ((ap)->ModuleOfPred)\
 	    (DEPTH) -= MkIntConstant(2);
 #else
-#define check_depth(DEPTH)
+#define check_depth(DEPTH, ap)
 #endif
