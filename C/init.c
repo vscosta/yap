@@ -448,28 +448,42 @@ Yap_InitCPred(char *Name, unsigned long int Arity, CPredicate code, int flags)
   Atom            atom = Yap_LookupAtom(Name);
   PredEntry      *pe;
   yamop      *p_code = ((StaticClause *)NULL)->ClCode;
-  StaticClause     *cl = (StaticClause *)Yap_AllocCodeSpace((CELL)NEXTOP(NEXTOP(((yamop *)p_code),sla),e)); 
-
-  cl->ClFlags = 0;
-  cl->Owner = Yap_LookupAtom("user");
-  p_code = cl->ClCode;
+  StaticClause     *cl;
 
   if (Arity)
     pe = RepPredProp(PredPropByFunc(Yap_MkFunctor(atom, Arity),CurrentModule));
   else
     pe = RepPredProp(PredPropByAtom(atom,CurrentModule));
+  if (pe->PredFlags & SafePredFlag) {
+    cl = (StaticClause *)Yap_AllocCodeSpace((CELL)NEXTOP(NEXTOP(((yamop *)p_code),sla),e)); 
+  } else {
+    cl = (StaticClause *)Yap_AllocCodeSpace((CELL)NEXTOP(NEXTOP(NEXTOP(NEXTOP(((yamop *)p_code),e),sla),e),e)); 
+  }
+  cl->ClFlags = 0;
+  cl->Owner = Yap_LookupAtom("user");
+  p_code = cl->ClCode;
+
   pe->CodeOfPred = p_code;
   pe->PredFlags = flags | StandardPredFlag | CPredFlag;
   pe->cs.f_code = code;
+  if (!(pe->PredFlags & SafePredFlag)) {
+    p_code->opc = Yap_opcode(_allocate);
+    p_code = NEXTOP(p_code,e);
+  }
   if (flags & UserCPredFlag)
-    p_code->opc = pe->OpcodeOfPred = Yap_opcode(_call_usercpred);
+    p_code->opc = Yap_opcode(_call_usercpred);
   else
-    p_code->opc = pe->OpcodeOfPred = Yap_opcode(_call_cpred);
+    p_code->opc = Yap_opcode(_call_cpred);
   p_code->u.sla.bmap = NULL;
   p_code->u.sla.s = -Signed(RealEnvSize);
   p_code->u.sla.sla_u.p = pe;
   p_code = NEXTOP(p_code,sla);
+  if (!(pe->PredFlags & SafePredFlag)) {
+    p_code->opc = Yap_opcode(_deallocate);
+    p_code = NEXTOP(p_code,e);
+  }
   p_code->opc = Yap_opcode(_procceed);
+  pe->OpcodeOfPred = pe->CodeOfPred->opc;
   { 
     Term mod = CurrentModule;
     pe->ModuleOfPred = mod;
