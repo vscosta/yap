@@ -1,0 +1,74 @@
+<!doctype html public "-//W3C//DTD HTML 4.01//EN"
+	"http://www.w3.org/TR/html4/strict.dtd">
+
+<html>
+
+<head>
+	<title>set_logtalk_flag/2</title>
+	<link rel=stylesheet  href="../../styles.css" type="text/css">
+</head>
+
+<body>
+
+<hr />
+<h2><code><a class="back" title="Return to index" href="../index.html#set_logtalk_flag2">set_logtalk_flag/2</a></code></h2>
+<hr />
+
+<h4>Description</h4>
+
+<blockquote>
+<pre>
+set_logtalk_flag(Flag, Value)
+</pre>
+<p>
+	Sets Logtalk flag values.
+</p>
+</blockquote>
+
+<h4>Template and modes</h4>
+
+<blockquote>
+<pre>
+set_logtalk_flag(+atom, +atom)
+</pre>
+</blockquote>
+
+<h4>Errors</h4>
+
+<blockquote>
+	<dl>
+		<dt>Flag is a variable:</dt>
+			<dd><code>instantiation_error</code></dd>
+		<dt>Value is a variable:</dt>
+			<dd><code>instantiation_error</code></dd>
+		<dt>Flag is not an atom:</dt>
+			<dd><code>type_error(atom, Flag)</code></dd>
+		<dt>Flag is neither a variable nor a valid flag:</dt>
+			<dd><code>domain_error(valid_flag, Flag)</code></dd>
+		<dt>Value is not a valid value for flag Flag:</dt>
+			<dd><code>domain_error(valid_flag_value, Value)</code></dd>
+		<dt>Flag is a read-only flag:</dt>
+			<dd><code>domain_error(read_only_flag, Flag)</code></dd>
+	</dl>
+</blockquote>
+
+<h4>Examples</h4>
+
+<blockquote>
+<pre>
+| ?- set_logtalk_flag(xml, on).
+</pre>
+</blockquote>
+
+<hr />
+<p class="center">
+<strong><a href="current_logtalk_flag2.html">Previous</a> | <a href="forall2.html">Next</a> | <a href="../index.html">Table of Contents</a> | <a href="../../bibliography.html">Bibliography</a> | <a href="../../glossary.html">Glossary</a></strong>
+</p>
+<p class="center">
+Last updated on: February 9, 2002
+</p>
+<hr />
+
+</body>
+
+</html>

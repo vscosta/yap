@@ -1,0 +1,66 @@
+<!doctype html public "-//W3C//DTD HTML 4.01//EN"
+	"http://www.w3.org/TR/html4/strict.dtd">
+
+<html>
+
+<head>
+	<title>current_logtalk_flag/2</title>
+	<link rel=stylesheet  href="../../styles.css" type="text/css">
+</head>
+
+<body>
+
+<hr />
+<h2><code><a class="back" title="Return to index" href="../index.html#current_logtalk_flag2">current_logtalk_flag/2</a></code></h2>
+<hr />
+
+<h4>Description</h4>
+
+<blockquote>
+<pre>
+current_logtalk_flag(Flag, Value)
+</pre>
+<p>
+	Enumerates, by backtracking, the current Logtalk flag values.
+</p>
+</blockquote>
+
+<h4>Template and modes</h4>
+
+<blockquote>
+<pre>
+current_logtalk_flag(?atom, ?atom)
+</pre>
+</blockquote>
+
+<h4>Errors</h4>
+
+<blockquote>
+	<dl>
+		<dt>Flag is neither a variable nor an atom:</dt>
+			<dd><code>type_error(atom, Flag)</code></dd>
+		<dt>Flag is not a valid flag:</dt>
+			<dd><code>domain_error(valid_flag, Value)</code></dd>
+	</dl>
+</blockquote>
+
+<h4>Examples</h4>
+
+<blockquote>
+<pre>
+| ?- current_logtalk_flag(xml, Value).
+</pre>
+</blockquote>
+
+<hr />
+<p class="center">
+<strong><a href="logtalk_load2.html">Previous</a> | <a href="set_logtalk_flag2.html">Next</a> | <a href="../index.html">Table of Contents</a> | <a href="../../bibliography.html">Bibliography</a> | <a href="../../glossary.html">Glossary</a></strong>
+</p>
+<p class="center">
+Last updated on: February 9, 2002
+</p>
+<hr />
+
+</body>
+
+</html>
