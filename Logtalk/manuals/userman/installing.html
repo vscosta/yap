@@ -170,23 +170,23 @@ To start a Logtalk session just:
 	<li>Load the Logtalk compiler/pre-processor and runtime files contained in the <code>compiler</code> subdirectory.</li>
 </ol>
 <p>
-Note that the both configuration files and compiler/pre-processor files are Prolog source files. The predicate called to load (and compile) them depends on your Prolog compiler. In case of doubt, consult your Prolog compiler reference manual or take a look at the definition of the predicate <code>lgt_load_prolog_code/1</code> in the configuration file.
+Note that the both configuration files and compiler/pre-processor files are Prolog source files. The predicate called to load (and compile) them depends on your Prolog compiler. In case of doubt, consult your Prolog compiler reference manual or take a look at the definition of the predicate <code>lgt_load_prolog_code/1</code> in the corresponding configuration file.
 </p>
 
 <h3><a class="back" title="Return to index" name="compiling" href="index.html#installing_compiling">Compiling and loading your programs</a></h3>
 
 <p>
-Your programs will be made of source files containing your objects, protocols and categories. After changing the Prolog working directory to the one containing your files, you can compile them by calling the Logtalk built-in predicate  
+Your programs will be made of source files containing your objects, protocols and categories. After changing the Prolog working directory to the one containing your files, you can compile them to disk by calling the Logtalk built-in predicate  
 <a title="Consult reference manual" href="../refman/builtins/logtalk_compile1.html"><code>logtalk_compile/1</code></a>:
 </p>
 <pre>
     | ?- logtalk_compile([source_file1, source_file2, ...]).
 </pre>
 <p>
-This predicate runs the pre-processor on each argument file and, if no fatal errors are found, outputs the Prolog source files that can then be consulted or compiled in the usual way by your Prolog compiler. Note that the predicate argument must be a list of entity/file names, not file paths.
+This predicate runs the pre-processor on each argument file and, if no fatal errors are found, outputs Prolog source files that can then be consulted or compiled in the usual way by your Prolog compiler. Note that the predicate argument must be a list of entity names, not file names (or paths).
 </p>
 <p>
-To compile and also load to memory the source files we can use the Logtalk built-in predicate <a title="Consult reference manual" href="../refman/builtins/logtalk_load1.html"><code>logtalk_load/1</code></a>:
+To compile to disk and also load into memory the source files we can use the Logtalk built-in predicate <a title="Consult reference manual" href="../refman/builtins/logtalk_load1.html"><code>logtalk_load/1</code></a>:
 </p>
 <pre>
     | ?- logtalk_load([source_file1, source_file2, ...]).
@@ -255,19 +255,23 @@ You can use the following options:
 </dl>
 <dl>
 	<dt><code>report(Option)</code></dt>
-		<dd>Controls reporting of each loaded object, category, or protocol. Possible option values are <code>on</code> (the usual default) and <code>off</code>.</dd>
+		<dd>Controls reporting of each compiled or loaded object, category, or protocol (including compilation and loading warnings). Possible option values are <code>on</code> (the usual default) and <code>off</code> (silent compilation and loading).</dd>
 </dl>
 <dl>
 	<dt><code>iso_initialization_dir(Option)</code></dt>
 		<dd>Controls the use of the <code>initialization/1</code> directive in the Logtalk generated Prolog code. Possible option values are <code>true</code> (if the Prolog compiler supports the ISO definition of the directive) and <code>false</code> (if the Prolog compiler either does not implement the directive or if the implementation does not conform to the ISO standard).</dd>
 </dl>
+<dl>
+	<dt><code>smart_compilation(Option)</code></dt>
+		<dd>Controls the use of smart compilation of source files to avoid recompiling files that are unchanged since the last time they are compiled. Possible option values are <code>on</code>  and <code>off</code> (the usual default).</dd>
+</dl>
 
 <p>
 We may also change the default options values from the ones loaded from the config file by using the <a title="Consult reference manual" href="../refman/builtins/set_logtalk_flag2.html"><code>set_logtalk_flag/2</code></a> built-in predicate. For example:
+</p>
 <pre>
     | ?- set_logtalk_flag(xml, off).
 </pre>
-</p>
 <p>
 The current values of the default flags can be enumerated using the <a title="Consult reference manual" href="../refman/builtins/current_logtalk_flag2.html"><code>current_logtalk_flag/2</code></a> built-in predicate:
 </p>
@@ -278,12 +282,40 @@ The current values of the default flags can be enumerated using the <a title="Co
     yes
 </pre>
 
+<h3><a class="back" title="Return to index" name="smart" href="index.html#installing_smart">Smart compilation of source files</a></h3>
+
+<p>
+If the Prolog compiler that you are using supports retrieving  of file modification dates, then you can turn on smart compilation of source files to avoid recompiling files that have not been modified since last compilation.
+</p>
+<p>
+Smart compilation of source files is usually off by default. You can turn it on by changing the default flag value in the configuration file, by using the corresponding compiler option with the compiling and loading built-in predicates, or, for the remaining of a working session, by using the call:
+</p>
+<pre>
+    | ?- set_logtalk_flag(smart_compilation, on).
+</pre>
+<p>
+Some caveats that you should be aware. First, some warnings that might be produced when compiling a source file will not show up if the corresponding object file is up-to-date because the source file is not being (re)compiled. Second, if you are using several Prolog compilers with Logtalk, be sure to perform the first compilation of your source files with smart compilation turned off: the intermediate Prolog files generated by the Logtalk pre-processor may be not compatible across Prolog compilers or even for the same Prolog compiler across operating systems (due to different end-of-line characters).
+</p>
+
+<hr />
+<h2><a class="back" title="Return to index" name="batch" href="index.html#installing_batch">Using Logtalk for batch processing</a></h2>
+
+<p>
+If you use Logtalk for batch processing, you probably want to supress most, if not all, banners, messages, and warnings that are normally printed by the system.
+</p>
+<p>
+To supress printing of the Logtalk startup banner, turn off the option <code>startup_message</code> in the config file that you are using.
+</p>
+<p>
+To supress printing of compiling and loading messages (including compiling warnings but not error messages), turn off the option <code>report</code> in the used config file.
+</p>
+
 <hr />
 <p class="center">
 <strong><a href="configuration.html">Previous</a> | <a href="programming.html">Next</a> | <a href="index.html">Table of Contents</a> | <a href="../bibliography.html">Bibliography</a> | <a href="../glossary.html">Glossary</a></strong>
 </p>
 <p class="center">
-Last updated on: February 9, 2002
+Last updated on: April 22, 2002
 </p>
 <hr />
 

@@ -2,7 +2,7 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %
 %  Logtalk - Object oriented extension to Prolog
-%  Release 2.10.0
+%  Release 2.11.0
 %
 %  Copyright (c) 1998-2002 Paulo Moura.  All Rights Reserved.
 %
@@ -1019,7 +1019,7 @@ logtalk_version(Major, Minor, Patch) :-
 	\+ integer(Patch),
 	throw(error(type_error(integer, Patch), logtalk_version(Major, Minor, Patch))).
 
-logtalk_version(2, 10, 0).
+logtalk_version(2, 11, 0).
 
 
 
@@ -1856,34 +1856,41 @@ lgt_load_entities([Entity| Entities]) :-
 % compiles to disk and then loads to memory an entity
 
 lgt_load_entity(Entity) :-
-	(lgt_compiler_option(report, on) ->
-		nl, write('>>>  compiling '), writeq(Entity), nl
-		;
-		true),
 	lgt_compile_entity(Entity),
-	lgt_entity_(Type, _, _, _),
-	(lgt_current_entity(Entity) ->
-		write('WARNING!  redefining '), write(Entity), write(' '),
-		writeq(Type), nl
+	(lgt_compiler_option(report, on) ->
+		lgt_report_redefined_entity(Entity)
 		;
 		true),
 	lgt_file_name(prolog, Entity, File),
 	lgt_load_prolog_code(File),
 	(lgt_compiler_option(report, on) ->
-		write('<<<  '), writeq(Entity),
-		write(' '), write(Type), write(' loaded'), nl
+		write('<<<  '), writeq(Entity), write(' loaded'), nl
 		;
 		true).
 
 
-lgt_current_entity(Obj) :-
-	lgt_current_object_(Obj, _, _, _, _).
 
-lgt_current_entity(Ptc) :-
-	lgt_current_protocol_(Ptc, _).
+% lgt_report_redefined_entity(+atom)
+%
+% prints a warning if an entity of the same name is already loaded
+% does not work for parametric objects...
 
-lgt_current_entity(Ctg) :-
-	lgt_current_category_(Ctg, _).
+lgt_report_redefined_entity(Entity) :-
+	lgt_current_object_(Entity, _, _, _, _),
+	!,
+	write('WARNING!  redefining '), write(Entity), write(' object'), nl.
+
+lgt_report_redefined_entity(Entity) :-
+	lgt_current_protocol_(Entity, _),
+	!,
+	write('WARNING!  redefining '), write(Entity), write(' protocol'), nl.
+
+lgt_report_redefined_entity(Entity) :-
+	lgt_current_category_(Entity, _),
+	!,
+	write('WARNING!  redefining '), write(Entity), write(' category'), nl.
+
+lgt_report_redefined_entity(_).
 	
 
 
@@ -1904,10 +1911,50 @@ lgt_compile_entities([Entity| Entities]) :-
 % compiles to disk an entity
 
 lgt_compile_entity(Entity) :-
+	lgt_compiler_option(smart_compilation, on),
+	\+ lgt_needs_recompilation(Entity),
+	!,
+	(lgt_compiler_option(report, on) ->
+		nl, write('>>>  '), writeq(Entity), write(' is up-to-date'), nl
+		;
+		true).
+
+lgt_compile_entity(Entity) :-
+	(lgt_compiler_option(report, on) ->
+		nl, write('>>>  compiling '), writeq(Entity), nl	
+		;
+		true),
 	lgt_tr_entity(Entity),
 	lgt_write_tr_entity(Entity),
 	lgt_write_entity_doc(Entity),
-	lgt_report_unknown_entities.
+	lgt_report_unknown_entities,
+	(lgt_compiler_option(report, on) ->
+		write('>>>  '), writeq(Entity), write(' compiled'), nl
+		;
+		true).
+
+
+
+% lgt_needs_recompilation(+atom)
+%
+% source file needs recompilation
+
+lgt_needs_recompilation(Entity) :-
+	lgt_file_name(prolog, Entity, File),
+	\+ lgt_file_exists(File).
+
+lgt_needs_recompilation(Entity) :-
+	lgt_file_name(xml, Entity, File),
+	lgt_compiler_option(xml, on),
+	\+ lgt_file_exists(File).
+
+lgt_needs_recompilation(Entity) :-
+	lgt_file_name(logtalk, Entity, Source),
+	lgt_file_name(prolog, Entity, Object),
+	(lgt_compare_file_mtimes(Result, Source, Object) ->
+		Result = '>'
+		;
+		true).
 
 
 
@@ -2008,7 +2055,8 @@ lgt_tr_file(Stream, Term) :-
 lgt_report_singletons([], _).
 
 lgt_report_singletons([Singleton| Singletons], Term) :-
-	lgt_compiler_option(singletons, warning) ->
+	(lgt_compiler_option(singletons, warning),
+	 lgt_compiler_option(report, on)) ->
 		write('WARNING!'),
 		\+ \+ ( lgt_report_singletons_aux([Singleton| Singletons], Term, Names),
 				write('  singleton variables: '), write(Names), nl,
@@ -2604,6 +2652,7 @@ lgt_tr_head(Head, _, _) :-
 lgt_tr_head(Head, _, _) :-
 	lgt_lgt_built_in(Head),
 	lgt_compiler_option(lgtredef, warning),
+	lgt_compiler_option(report, on),
 	\+ lgt_redefined_built_in_(Head, _, _),		% not already reported?
 	functor(Head, Functor, Arity),
 	write('WARNING!  redefining a Logtalk built-in predicate: '),
@@ -2616,6 +2665,7 @@ lgt_tr_head(Head, _, _) :-
 lgt_tr_head(Head, _, _) :-
 	lgt_pl_built_in(Head),
 	lgt_compiler_option(plredef, warning),
+	lgt_compiler_option(report, on),
 	\+ lgt_redefined_built_in_(Head, _, _),		% not already reported?
 	functor(Head, Functor, Arity),
 	write('WARNING!  redefining a Prolog built-in predicate: '),
@@ -2828,6 +2878,7 @@ lgt_tr_body(Pred, _, _) :-
 	lgt_built_in(Pred),
 	\+ lgt_iso_def_pred(Pred),
 	lgt_compiler_option(portability, warning),
+	lgt_compiler_option(report, on),
 	functor(Pred, Functor, Arity),
 	write('WARNING!  non-ISO defined built-in predicate call: '),
 	writeq(Functor/Arity), nl,
@@ -3510,7 +3561,8 @@ lgt_add_referenced_category(Ctg) :-
 % (if the corresponding compiler option is not set to "silent")
 
 lgt_report_unknown_entities :-
-	lgt_compiler_option(unknown, warning) ->
+	(lgt_compiler_option(unknown, warning),
+	 lgt_compiler_option(report, on)) ->
 		lgt_report_unknown_objects,
 		lgt_report_unknown_protocols,
 		lgt_report_unknown_categories
@@ -4515,7 +4567,8 @@ lgt_find_misspelt_calls :-
 lgt_report_misspelt_calls([]).
 
 lgt_report_misspelt_calls([Pred| Preds]) :-
-	lgt_compiler_option(misspelt, warning) ->
+	(lgt_compiler_option(misspelt, warning),
+	 lgt_compiler_option(report, on)) ->
 		write('WARNING!  these static predicates are called but never defined: '),
 		writeq([Pred| Preds]), nl
 		;
@@ -5219,6 +5272,9 @@ lgt_valid_compiler_option(portability(Option)) :-
 lgt_valid_compiler_option(report(Option)) :-
 	once((Option == on; Option == off)).
 
+lgt_valid_compiler_option(smart_compilation(Option)) :-
+	once((Option == on; Option == off)).
+
 
 
 % lgt_valid_flag(@nonvar)
@@ -5235,6 +5291,7 @@ lgt_valid_flag(lgtredef).
 lgt_valid_flag(plredef).
 lgt_valid_flag(portability).
 lgt_valid_flag(report).
+lgt_valid_flag(smart_compilation).
 
 
 
@@ -5842,9 +5899,12 @@ lgt_iso_def_pred(halt(_)).
 
 
 lgt_banner :-
-	logtalk_version(Major, Minor, Patch),
-	write('Logtalk '), write(Major), write('.'), write(Minor), write('.'), write(Patch), nl,
-	write('Copyright (c) 1998-2002 Paulo Moura'), nl.
+	lgt_compiler_option(startup_message, on) ->
+		logtalk_version(Major, Minor, Patch),
+		write('Logtalk '), write(Major), write('.'), write(Minor), write('.'), write(Patch), nl,
+		write('Copyright (c) 1998-2002 Paulo Moura'), nl
+		;
+		true.
 
 
 :- initialization(lgt_banner).
