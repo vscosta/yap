@@ -505,12 +505,6 @@ print(Stream,T) :-
 print(_,_).
 
 
-format(N,A) :- atom(N), !, atom_codes(N, S), '$format'(S,A).
-format(F,A) :- '$format'(F,A).
-
-format(Stream, N, A) :- atom(N), !, atom_codes(N, S), '$format'(Stream, S ,A).
-format(Stream, S, A) :- '$format'(Stream, S, A).
-
 /* interface to user portray	*/
 '$portray'(T) :-
 	\+ '$undefined'(portray(_),user),

@@ -10,7 +10,7 @@
 * File:		Heap.h         						 *
 * mods:									 *
 * comments:	Heap Init Structure					 *
-* version:      $Id: Heap.h,v 1.63 2004-07-15 15:47:08 vsc Exp $	 *
+* version:      $Id: Heap.h,v 1.64 2004-07-22 21:32:21 vsc Exp $	 *
 *************************************************************************/
 
 /* information that can be stored in Code Space */
@@ -76,6 +76,7 @@ typedef struct thandle {
   REGSTORE *current_yaam_regs;
   struct pred_entry *local_preds;
   pthread_t handle;
+  int ref_count;
   pthread_mutex_t tlock;
 #if HAVE_GETRUSAGE
   struct timeval *start_of_timesp;

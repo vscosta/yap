@@ -96,3 +96,11 @@ typedef struct {
   char **Argv;
 } YAP_init_args;
 
+
+/* from thread.h */
+typedef struct {
+  unsigned long int		    ssize;
+  unsigned long int		    tsize;
+  int		   (*cancel)(int);
+} YAP_thread_attr;
+

@@ -34,7 +34,7 @@ true :- true.
 		( Module=user ->
 		    '$compile_mode'(_,0)
 		;
-		    '$format'(user_error,'[~w]~n', [Module])
+		    format(user_error,'[~w]~n', [Module])
 		),
 		'$system_catch'('$enter_top_level',Module,Error,user:'$Error'(Error)).
 
@@ -125,10 +125,10 @@ read_sig.
 	fail.
 '$enter_top_level' :-
 	( recorded('$trace',on,_) ->
-	    '$format'(user_error, '% trace~n', [])
+	    format(user_error, '% trace~n', [])
 	;
 	  recorded('$debug', on, _) ->
-	    '$format'(user_error, '% debug~n', [])
+	    format(user_error, '% debug~n', [])
 	),
 	fail.
 '$enter_top_level' :-
@@ -292,7 +292,7 @@ repeat :- '$repeat'.
 % but YAP and SICStus does.
 %
 '$process_directive'(G, _, M) :-
-	( '$do_yes_no'(G,M) -> true ; '$format'(user_error,':- ~w:~w failed.~n',[M,G]) ).
+	( '$do_yes_no'(G,M) -> true ; format(user_error,':- ~w:~w failed.~n',[M,G]) ).
 
 '$all_directives'(_:G1) :- !,
 	'$all_directives'(G1).
@@ -440,7 +440,7 @@ repeat :- '$repeat'.
 	'$extract_goal_vars_for_dump'(VL,LIV).
 
 '$write_query_answer_true'([]) :- !,
-	'$format'(user_error,'~ntrue',[]).
+	format(user_error,'~ntrue',[]).
 '$write_query_answer_true'(_).
 
 '$show_frozen'(_,_,[]) :-
@@ -461,16 +461,16 @@ repeat :- '$repeat'.
 	fail.
 '$present_answer'((?-), Answ) :-
 	get_value('$break',BL),
-	( BL \= 0 -> 	'$format'(user_error, '[~p] ',[BL]) ;
+	( BL \= 0 -> 	format(user_error, '[~p] ',[BL]) ;
 			true ),
         ( recorded('$print_options','$toplevel'(Opts),_) ->
 	   write_term(user_error,Answ,Opts) ;
-	   '$format'(user_error,'~w',[Answ])
+	   format(user_error,'~w',[Answ])
         ),
-	'$format'(user_error,'~n', []).
+	format(user_error,'~n', []).
 
 '$another' :-
-	'$format'(user_error,' ? ',[]),
+	format(user_error,' ? ',[]),
 	'$get0'(user_input,C),
 	(   C== 0'; ->  '$skip'(user_input,10),
 	    '$add_nl_outside_console',
@@ -478,7 +478,7 @@ repeat :- '$repeat'.
 	;
 	    C== 10 -> '$add_nl_outside_console',
 		( '$undefined'('$print_message'(_,_),prolog) -> 
-			'$format'(user_error,'yes~n', [])
+			format(user_error,'yes~n', [])
 	        ;
 		   print_message(help,yes)
 		)
@@ -491,10 +491,10 @@ repeat :- '$repeat'.
 '$add_nl_outside_console' :-
 	'$is_same_tty'(user_input, user_error), !.
 '$add_nl_outside_console' :-
-	'$format'(user_error,'~n',[]).
+	format(user_error,'~n',[]).
 
 '$ask_again_for_another' :-
-	'$format'(user_error,'Action (\";\" for more choices, <return> for exit)', []),
+	format(user_error,'Action (\";\" for more choices, <return> for exit)', []),
 	'$another'.
 
 '$write_answer'(_,_,_) :-
@@ -551,25 +551,25 @@ repeat :- '$repeat'.
 
 '$write_remaining_vars_and_goals'([]).
 '$write_remaining_vars_and_goals'([G1|LG]) :-
-	'$format'(user_error,',~n',[]),
+	format(user_error,',~n',[]),
 	'$write_goal_output'(G1),
 	'$write_remaining_vars_and_goals'(LG).
 
 '$write_goal_output'(var([V|VL])) :-
-	'$format'(user_error,'~s',[V]),
+	format(user_error,'~s',[V]),
 	'$write_output_vars'(VL).
 '$write_goal_output'(nonvar([V|VL],B)) :-
-	'$format'(user_error,'~s',[V]),
+	format(user_error,'~s',[V]),
 	'$write_output_vars'(VL),
-	'$format'(user_error,' = ', []),
+	format(user_error,' = ', []),
         ( recorded('$print_options','$toplevel'(Opts),_) ->
 	   write_term(user_error,B,Opts) ;
-	   '$format'(user_error,'~w',[B])
+	   format(user_error,'~w',[B])
         ).
 '$write_goal_output'(_-G) :-
         ( recorded('$print_options','$toplevel'(Opts),_) ->
 	   write_term(user_error,G,Opts) ;
-	   '$format'(user_error,'~w',[G])
+	   format(user_error,'~w',[G])
         ).
 
 '$name_vars_in_goals'(G, VL0, NG) :-
@@ -597,7 +597,7 @@ repeat :- '$repeat'.
 
 '$write_output_vars'([]).
 '$write_output_vars'([V|VL]) :-
-	'$format'(user_error,' = ~s',[V]),
+	format(user_error,' = ~s',[V]),
 	'$write_output_vars'(VL).
 
 call(G) :- '$execute'(G).
@@ -806,7 +806,7 @@ break :- get_value('$break',BL), NBL is BL+1,
 	get_value(spy_leap,_Leap),
 	set_value('$break',NBL),
 	current_output(OutStream), current_input(InpStream),
-	'$format'(user_error, '% Break (level ~w)~n', [NBL]),
+	format(user_error, '% Break (level ~w)~n', [NBL]),
 	'$do_live',
 	!,
 	set_value('$live','$true'),
@@ -865,7 +865,7 @@ break :- get_value('$break',BL), NBL is BL+1,
 	recorda('$initialisation','$',_),
 	( '$undefined'('$print_message'(_,_),prolog) -> 
 	    ( get_value('$verbose',on) ->
-		'$format'(user_error, '~*|% consulting ~w...~n', [LC,F])
+		format(user_error, '~*|% consulting ~w...~n', [LC,F])
 		; true )
 	;
 	    '$print_message'(informational, loading(consulting, File))
@@ -881,7 +881,7 @@ break :- get_value('$break',BL), NBL is BL+1,
 	H is heapused-H0, '$cputime'(TF,_), T is TF-T0,
 	( '$undefined'('$print_message'(_,_),prolog) -> 
 	  ( get_value('$verbose',on) ->
-	     '$format'(user_error, '~*|% ~w consulted ~w bytes in ~d msecs~n', [LC,F,H,T])
+	     format(user_error, '~*|% ~w consulted ~w bytes in ~d msecs~n', [LC,F,H,T])
 	  ;
 	     true
 	  )

@@ -695,7 +695,7 @@ Macros to check the limits of stacks
        (GLOB) > H_FZ && (GLOB) < (CELL *)B_FZ) goto Label
 #else
 #define check_stack(Label, GLOB)                             \
- if ( (Int)(Unsigned(E_YREG) - CFREG) < (Int)(GLOB) ) goto Label
+ if ( (Int)(Unsigned(E_YREG) - Unsigned(GLOB)) < CFREG ) goto Label
 #endif /* SBA && YAPOR */
 
 /***************************************************************

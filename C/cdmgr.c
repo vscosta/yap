@@ -11,8 +11,15 @@
 * File:		cdmgr.c							 *
 * comments:	Code manager						 *
 *									 *
-* Last rev:     $Date: 2004-06-29 19:04:41 $,$Author: vsc $						 *
+* Last rev:     $Date: 2004-07-22 21:32:20 $,$Author: vsc $						 *
 * $Log: not supported by cvs2svn $
+* Revision 1.125  2004/06/29 19:04:41  vsc
+* fix multithreaded version
+* include new version of Ricardo's profiler
+* new predicat atomic_concat
+* allow multithreaded-debugging
+* small fixes
+*
 * Revision 1.124  2004/06/05 03:36:59  vsc
 * coroutining is now a part of attvars.
 * some more fixes.
@@ -3254,15 +3261,27 @@ fetch_next_lu_clause(PredEntry *pe, yamop *i_code, Term th, Term tb, Term tr, ya
 
     while ((t = Yap_FetchTermFromDB(cl->ClSource)) == 0L) {
       if (first_time) {
-	if (!Yap_gc(4, YENV, P)) {
+	ARG5 = th;
+	ARG6 = tb;
+	ARG7 = tr;
+	if (!Yap_gc(7, YENV, P)) {
 	  Yap_Error(OUT_OF_STACK_ERROR, TermNil, Yap_ErrorMessage);
 	  return FALSE;
 	}
+	th = ARG5;
+	tb = ARG6;
+	tr = ARG7;
       } else {
-	if (!Yap_gc(5, ENV, CP)) {
+	ARG6 = th;
+	ARG7 = tb;
+	ARG8 = tr;
+	if (!Yap_gc(8, ENV, CP)) {
 	  Yap_Error(OUT_OF_STACK_ERROR, TermNil, Yap_ErrorMessage);
 	  return FALSE;
 	}
+	th = ARG6;
+	tb = ARG7;
+	tr = ARG8;
       }
     }
     return(Yap_unify(th, ArgOfTerm(1,t)) &&

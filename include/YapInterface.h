@@ -339,8 +339,14 @@ extern X_API void  *PROTO(YAP_Predicate,(YAP_Atom,unsigned long int,int));
 /*  int  YAP_Predicate()  */
 extern X_API void  PROTO(YAP_PredicateInfo,(void *,YAP_Atom *,unsigned long int*,int*));
 
-/*  int  YAP_Predicate()  */
+/*  int  YAP_CurrentModule()  */
 extern X_API int  PROTO(YAP_CurrentModule,(void));
+
+extern X_API int PROTO(YAP_ThreadSelf,(void));
+extern X_API int PROTO(YAP_ThreadCreateEngine,(YAP_thread_attr *));
+extern X_API int PROTO(YAP_ThreadAttachEngine,(int));
+extern X_API int PROTO(YAP_ThreadDetachEngine,(int));
+extern X_API int PROTO(YAP_ThreadDestroyEngine,(int));
 
 #define YAP_InitCPred(N,A,F)  YAP_UserCPredicate(N,F,A)
 

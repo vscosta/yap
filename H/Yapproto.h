@@ -10,7 +10,7 @@
 * File:		Yap.proto						 *
 * mods:									 *
 * comments:	Function declarations for YAP				 *
-* version:      $Id: Yapproto.h,v 1.52 2004-06-05 03:37:00 vsc Exp $	 *
+* version:      $Id: Yapproto.h,v 1.53 2004-07-22 21:32:21 vsc Exp $	 *
 *************************************************************************/
 
 /* prototype file for Yap */
@@ -162,7 +162,6 @@ int     STD_PROTO(Yap_growheap,      (int, UInt, void *));
 int     STD_PROTO(Yap_growstack,     (long));
 int     STD_PROTO(Yap_growtrail,     (long));
 int     STD_PROTO(Yap_growglobal,    (CELL **));
-void    STD_PROTO(Yap_growatomtable, (void));
 CELL  **STD_PROTO(Yap_shift_visit,   (CELL **, CELL ***));
 
 /* heapgc.c */

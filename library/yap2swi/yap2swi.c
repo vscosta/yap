@@ -1083,6 +1083,17 @@ X_API void PL_register_extensions(PL_extension *ptr)
   }
 }
 
+X_API int PL_thread_self(void)
+{
+  return YAP_ThreadSelf();
+}
+
+X_API int PL_thread_attach_engine(const PL_thread_attr_t *attr)
+{
+  /*  YAP_thread_attr yap; */
+  return YAP_ThreadSelf();
+}
+
 /* note: fprintf may be called from anywhere, so please don't try
    to be smart and allocate stack from somewhere else */
 X_API int Sprintf(char *format,...)

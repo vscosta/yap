@@ -39,6 +39,17 @@ typedef struct _PL_extension
   short		flags;			/* Or of PL_FA_... */
 } PL_extension;
 
+typedef struct
+{ unsigned long	    local_size;		/* Stack sizes */
+  unsigned long	    global_size;
+  unsigned long	    trail_size;
+  unsigned long	    argument_size;
+  char *	    alias;		/* alias name */
+  int		  (*cancel)(int id);	/* cancel function */
+  void *	    reserved[5];	/* reserved for extensions */
+} PL_thread_attr_t;
+
+
 #define PL_FA_NOTRACE		(0x01)	/* foreign cannot be traced */
 #define PL_FA_TRANSPARENT	(0x02)	/* foreign is module transparent */
 #define PL_FA_NONDETERMINISTIC	(0x04)	/* foreign is non-deterministic */
@@ -181,6 +192,8 @@ extern X_API term_t PL_exception(qid_t);
 extern X_API int PL_call_predicate(module_t, int, predicate_t, term_t);
 extern X_API int PL_call(term_t, module_t);
 extern X_API void PL_register_extensions(PL_extension *);
+extern X_API int  PL_thread_self(void);
+extern X_API int PL_thread_attach_engine(const PL_thread_attr_t *);
 
 
 extern X_API int Sprintf(char *,...);

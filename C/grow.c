@@ -730,12 +730,87 @@ do_growheap(int fix_code, UInt in_size, struct intermediates *cip)
   return FALSE;
 }
 
+static int
+growatomtable(void)
+{
+  AtomHashEntry *ntb;
+  UInt nsize = 4*AtomHashTableSize-1, i;
+  UInt start_growth_time = Yap_cputime(), growth_time;
+  int gc_verbose = Yap_is_gc_verbose();
+
+  LOCK(SignalLock);
+  if (ActiveSignals == YAP_CDOVF_SIGNAL) {
+    CreepFlag = CalculateStackGap();
+  }
+  ActiveSignals &= ~YAP_CDOVF_SIGNAL;
+  UNLOCK(SignalLock);
+  while ((ntb = (AtomHashEntry *)Yap_AllocCodeSpace(nsize*sizeof(AtomHashEntry))) == NULL) {
+    /* leave for next time */
+    if (!do_growheap(FALSE, nsize*sizeof(AtomHashEntry), NULL))
+      return FALSE;
+  }
+  atom_table_overflows++;
+  if (gc_verbose) {
+    fprintf(Yap_stderr, "%% Atom Table overflow %d\n", atom_table_overflows);
+    fprintf(Yap_stderr, "%%    growing the atom table to %ld entries\n", (long int)(nsize));
+  }
+  YAPEnterCriticalSection();
+  for (i = 0; i < nsize; ++i) {
+    INIT_RWLOCK(ntb[i].AERWLock);
+    ntb[i].Entry = NIL;
+  }
+  for (i = 0; i < AtomHashTableSize; i++) {
+    Atom            catom;
+
+    READ_LOCK(HashChain[i].AERWLock);
+    catom = HashChain[i].Entry;
+    while (catom != NIL) {
+      AtomEntry *ap = RepAtom(catom);
+      Atom natom;
+      CELL hash;
+
+      hash = HashFunction(ap->StrOfAE) % nsize;
+      natom = ap->NextOfAE;
+      ap->NextOfAE = ntb[hash].Entry;
+      ntb[hash].Entry = catom;
+      catom = natom;
+    }
+    READ_UNLOCK(HashChain[i].AERWLock);
+  }
+  Yap_FreeCodeSpace((char *)HashChain);
+  HashChain = ntb;
+  AtomHashTableSize = nsize;
+  YAPLeaveCriticalSection();
+  growth_time = Yap_cputime()-start_growth_time;
+  total_atom_table_overflow_time += growth_time;
+  if (gc_verbose) {
+    fprintf(Yap_stderr, "%%   took %g sec\n", (double)growth_time/1000);
+    fprintf(Yap_stderr, "%% Total of %g sec expanding atom table \n", (double)total_atom_table_overflow_time/1000);
+  }
+  if (HeapTop + sizeof(YAP_SEG_SIZE) < HeapLim) {
+    /* make sure there is no heap overflow */
+    int res;
+    YAPEnterCriticalSection();
+    res = do_growheap(FALSE, 0, NULL);
+    YAPLeaveCriticalSection();
+    return res;
+  } else {
+    return TRUE;
+  }
+}
+
+
 int
 Yap_growheap(int fix_code, UInt in_size, void *cip)
 {
   int res;
 
   Yap_PrologMode |= GrowHeapMode;
+  if (NOfAtoms > 2*AtomHashTableSize) {
+      res  = growatomtable();
+      Yap_PrologMode &= ~GrowHeapMode;
+      return res;
+  }
   res=do_growheap(fix_code, in_size, (struct intermediates *)cip);
   Yap_PrologMode &= ~GrowHeapMode;
   return res;
@@ -1064,66 +1139,6 @@ Yap_shift_visit(CELL **to_visit, CELL ***to_visit_maxp)
   }
 #endif
 }
-
-void
-Yap_growatomtable(void)
-{
-  AtomHashEntry *ntb;
-  UInt nsize = 4*AtomHashTableSize-1, i;
-  UInt start_growth_time = Yap_cputime(), growth_time;
-  int gc_verbose = Yap_is_gc_verbose();
-
-  LOCK(SignalLock);
-  if (ActiveSignals == YAP_CDOVF_SIGNAL) {
-    CreepFlag = CalculateStackGap();
-  }
-  ActiveSignals &= ~YAP_CDOVF_SIGNAL;
-  UNLOCK(SignalLock);
-  while ((ntb = (AtomHashEntry *)Yap_AllocCodeSpace(nsize*sizeof(AtomHashEntry))) == NULL) {
-    /* leave for next time */
-    if (!do_growheap(FALSE, nsize*sizeof(AtomHashEntry), NULL))
-      return;
-  }
-  atom_table_overflows++;
-  if (gc_verbose) {
-    fprintf(Yap_stderr, "%% Atom Table overflow %d\n", atom_table_overflows);
-    fprintf(Yap_stderr, "%%    growing the atom table to %ld entries\n", (long int)(nsize));
-  }
-  YAPEnterCriticalSection();
-  for (i = 0; i < nsize; ++i) {
-    INIT_RWLOCK(ntb[i].AERWLock);
-    ntb[i].Entry = NIL;
-  }
-  for (i = 0; i < AtomHashTableSize; i++) {
-    Atom            catom;
-
-    READ_LOCK(HashChain[i].AERWLock);
-    catom = HashChain[i].Entry;
-    while (catom != NIL) {
-      AtomEntry *ap = RepAtom(catom);
-      Atom natom;
-      CELL hash;
-
-      hash = HashFunction(ap->StrOfAE) % nsize;
-      natom = ap->NextOfAE;
-      ap->NextOfAE = ntb[hash].Entry;
-      ntb[hash].Entry = catom;
-      catom = natom;
-    }
-    READ_UNLOCK(HashChain[i].AERWLock);
-  }
-  Yap_FreeCodeSpace((char *)HashChain);
-  HashChain = ntb;
-  AtomHashTableSize = nsize;
-  YAPLeaveCriticalSection();
-  growth_time = Yap_cputime()-start_growth_time;
-  total_atom_table_overflow_time += growth_time;
-  if (gc_verbose) {
-    fprintf(Yap_stderr, "%%   took %g sec\n", (double)growth_time/1000);
-    fprintf(Yap_stderr, "%% Total of %g sec expanding atom table \n", (double)total_atom_table_overflow_time/1000);
-  }
-}
-
 
 static Int
 p_inform_trail_overflows(void)

@@ -10,8 +10,11 @@
 *									 *
 * File:		absmi.c							 *
 * comments:	Portable abstract machine interpreter                    *
-* Last rev:     $Date: 2004-07-03 03:29:24 $,$Author: vsc $						 *
+* Last rev:     $Date: 2004-07-22 21:32:20 $,$Author: vsc $						 *
 * $Log: not supported by cvs2svn $
+* Revision 1.139  2004/07/03 03:29:24  vsc
+* make it compile again on non-linux machines
+*
 * Revision 1.138  2004/06/29 19:04:40  vsc
 * fix multithreaded version
 * include new version of Ricardo's profiler
@@ -384,10 +387,8 @@ Yap_absmi(int inp)
 
     noheapleft:
       saveregs();
-      if (NOfAtoms > 2*AtomHashTableSize) {
-	Yap_growatomtable();
-      } else if (!Yap_growheap(FALSE, 0, NULL)) {
-	Yap_Error(FATAL_ERROR, TermNil, "YAP failed to grow heap: %s", Yap_ErrorMessage);
+      if (!Yap_growheap(FALSE, 0, NULL)) {
+	Yap_Error(OUT_OF_HEAP_ERROR, TermNil, "YAP failed to grow heap: %s", Yap_ErrorMessage);
 	setregs();
 	FAIL();
       }
@@ -11649,8 +11650,9 @@ Yap_absmi(int inp)
 	/* setup GB */
 	WRITEBACK_Y_AS_ENV();
 	YREG[E_CB] = (CELL) B;
-	if (ActiveSignals)
+	if (ActiveSignals) {
 	  goto creep_pe;
+	}
 	saveregs_and_ycache();
 	if (!Yap_gc(((PredEntry *)SREG)->ArityOfPE, ENV, NEXTOP(PREG, sla))) {
 	  Yap_Error(OUT_OF_STACK_ERROR,TermNil,Yap_ErrorMessage);
@@ -11920,6 +11922,9 @@ Yap_absmi(int inp)
 	  }
 	}
 	if (ActiveSignals) {
+	  if (ActiveSignals & YAP_CDOVF_SIGNAL) {
+	    goto noheapleft;
+	  }
 	  goto creep;
 	}
 	saveregs();

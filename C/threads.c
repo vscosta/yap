@@ -30,6 +30,8 @@ static char     SccsId[] = "%W% %G%";
 
 #if THREADS
 
+#include "threads.h"
+
 /*
  * This file includes the definition of threads in Yap. Threads
  * are supposed to be compatible with the SWI-Prolog thread package.
@@ -71,9 +73,29 @@ store_specs(int new_worker_id, UInt ssize, UInt tsize, Term tgoal, Term tdetach)
 
 
 static void
+kill_thread_engine (int wid)
+{
+  Prop p0 = AbsPredProp(heap_regs->thread_handle[wid].local_preds);
+  /* kill all thread local preds */
+  while(p0) {
+    PredEntry *ap = RepPredProp(p0);
+    p0 = ap->NextOfPE;
+    Yap_Abolish(ap);
+    Yap_FreeCodeSpace((char *)ap);
+  }
+  Yap_KillStacks(wid);
+  heap_regs->wl[wid].active_signals = 0L;
+  free(heap_regs->wl[wid].scratchpad.ptr);
+  free(ThreadHandle[wid].default_yaam_regs);
+  free(ThreadHandle[wid].start_of_timesp);
+  free(ThreadHandle[wid].last_timep);
+  ThreadHandle[wid].in_use = FALSE;
+  pthread_mutex_destroy(&(ThreadHandle[wid].tlock));
+}
+
+static void
 thread_die(int wid, int always_die)
 {
-  Prop p0;
 
   LOCK(ThreadHandlesLock);
   if (!always_die) {
@@ -81,26 +103,38 @@ thread_die(int wid, int always_die)
     ThreadsTotalTime += Yap_cputime();
   }
   if (ThreadHandle[wid].tdetach == MkAtomTerm(AtomTrue) ||
-      always_die) {
-    p0 = AbsPredProp(heap_regs->thread_handle[wid].local_preds);
-    /* kill all thread local preds */
-    while(p0) {
-      PredEntry *ap = RepPredProp(p0);
-      p0 = ap->NextOfPE;
-      Yap_Abolish(ap);
-      Yap_FreeCodeSpace((char *)ap);
-    }
-    Yap_KillStacks(wid);
-    heap_regs->wl[wid].active_signals = 0L;
-    heap_regs->wl[wid].active_signals = 0L;
-    free(heap_regs->wl[wid].scratchpad.ptr);
-    free(ThreadHandle[wid].default_yaam_regs);
-    free(ThreadHandle[wid].start_of_timesp);
-    free(ThreadHandle[wid].last_timep);
-    ThreadHandle[wid].in_use = FALSE;
-    pthread_mutex_destroy(&(ThreadHandle[wid].tlock));
-  }
+      always_die)
+    kill_thread_engine(wid);
   UNLOCK(ThreadHandlesLock);
+}
+
+static void
+setup_engine(int myworker_id)
+{
+  REGSTORE *standard_regs = (REGSTORE *)malloc(sizeof(REGSTORE));
+  int oldworker_id = worker_id;
+  
+  /* create the YAAM descriptor */
+  ThreadHandle[myworker_id].default_yaam_regs = standard_regs;
+  pthread_setspecific(Yap_yaamregs_key, (void *)standard_regs);
+  Yap_InitExStacks(ThreadHandle[myworker_id].ssize, ThreadHandle[myworker_id].tsize);
+  CurrentModule = ThreadHandle[myworker_id].cmod;
+  worker_id = myworker_id;
+  Yap_InitTime();
+  Yap_InitYaamRegs();
+  worker_id = oldworker_id;
+  {
+    Yap_ReleasePreAllocCodeSpace(Yap_PreAllocCodeSpace());
+  }
+  /* I exist */
+  NOfThreadsCreated++;
+}
+
+static void
+start_thread(int myworker_id)
+{
+  setup_engine(myworker_id);
+  worker_id = myworker_id;
 }
 
 static void *
@@ -109,22 +143,9 @@ thread_run(void *widp)
   Term tgoal;
   Term tgs[2];
   int out;
-  REGSTORE *standard_regs = (REGSTORE *)malloc(sizeof(REGSTORE));
   int myworker_id = *((int *)widp); 
-  
-  /* create the YAAM descriptor */
-  ThreadHandle[myworker_id].default_yaam_regs = standard_regs;
-  pthread_setspecific(Yap_yaamregs_key, (void *)standard_regs);
-  worker_id = myworker_id;
-  /* I exist */
-  NOfThreadsCreated++;
-  Yap_InitExStacks(ThreadHandle[myworker_id].ssize, ThreadHandle[myworker_id].tsize);
-  CurrentModule = ThreadHandle[myworker_id].cmod;
-  Yap_InitTime();
-  Yap_InitYaamRegs();
-  {
-    Yap_ReleasePreAllocCodeSpace(Yap_PreAllocCodeSpace());
-  }
+
+  start_thread(myworker_id);
   tgs[0] = Yap_FetchTermFromDB(ThreadHandle[worker_id].tgoal);
   tgs[1] = ThreadHandle[worker_id].tdetach;
   tgoal = Yap_MkApplTerm(FunctorThreadRun, 2, tgs);
@@ -137,6 +158,13 @@ static Int
 p_thread_new_tid(void)
 {
   return Yap_unify(MkIntegerTerm(allocate_new_tid()), ARG1);
+}
+
+static void
+init_thread_engine(int new_worker_id, UInt ssize, UInt tsize, Term tgoal, Term tdetach)
+{
+  store_specs(new_worker_id, ssize, tsize, tgoal, tdetach);
+  pthread_mutex_init(&ThreadHandle[new_worker_id].tlock, NULL);
 }
 
 static Int
@@ -153,33 +181,9 @@ p_create_thread(void)
     /* YAP ERROR */
     return FALSE;
   }
+  init_thread_engine(new_worker_id, ssize, tsize, tgoal, tdetach);
   ThreadHandle[new_worker_id].id = new_worker_id;
-  store_specs(new_worker_id, ssize, tsize, tgoal, tdetach);
-  pthread_mutex_init(&ThreadHandle[new_worker_id].tlock, NULL);
-  if ((ThreadHandle[new_worker_id].ret = pthread_create(&ThreadHandle[new_worker_id].handle, NULL, thread_run, (void *)(&(ThreadHandle[new_worker_id].id)))) == 0) {
-    return TRUE;
-  }
-  /* YAP ERROR */
-  return FALSE;
-}
-
-static Int
-Yap_new_thread(void)
-{
-  UInt ssize = IntegerOfTerm(Deref(ARG2));
-  UInt tsize = IntegerOfTerm(Deref(ARG3));
-  /*  UInt systemsize = IntegerOfTerm(Deref(ARG4)); */
-  Term tgoal = Deref(ARG1);
-  Term tdetach = Deref(ARG5);
-  int new_worker_id = IntegerOfTerm(Deref(ARG6));
-  
-  if (new_worker_id == -1) {
-    /* YAP ERROR */
-    return FALSE;
-  }
-  ThreadHandle[new_worker_id].id = new_worker_id;
-  store_specs(new_worker_id, ssize, tsize, tgoal, tdetach);
-  pthread_mutex_init(&ThreadHandle[new_worker_id].tlock, NULL);
+  ThreadHandle[new_worker_id].ref_count = 1;
   if ((ThreadHandle[new_worker_id].ret = pthread_create(&ThreadHandle[new_worker_id].handle, NULL, thread_run, (void *)(&(ThreadHandle[new_worker_id].id)))) == 0) {
     return TRUE;
   }
@@ -194,9 +198,60 @@ p_thread_self(void)
 }
 
 int
-Yap_self(void)
+Yap_thread_self(void)
 {
   return worker_id;
+}
+
+int
+Yap_thread_create_engine(thread_attr *ops)
+{
+  int new_id = allocate_new_tid();
+  if (new_id == -1) {
+    /* YAP ERROR */
+    return FALSE;
+  }
+  init_thread_engine(new_id, ops->ssize, ops->tsize, TermNil, TermNil);
+  ThreadHandle[new_id].id = new_id;
+  ThreadHandle[new_id].handle = pthread_self();
+  ThreadHandle[new_id].ref_count = 0;
+  setup_engine(new_id);
+  return TRUE;
+}
+
+int
+Yap_thread_attach_engine(int wid)
+{
+  pthread_mutex_lock(&(ThreadHandle[wid].tlock));
+  ThreadHandle[wid].handle = pthread_self();
+  ThreadHandle[wid].ref_count++;
+  worker_id = wid;
+  pthread_mutex_unlock(&(ThreadHandle[wid].tlock));
+  return TRUE;
+}
+
+int
+Yap_thread_detach_engine(int wid)
+{
+  pthread_mutex_lock(&(ThreadHandle[wid].tlock));
+  ThreadHandle[wid].handle = 0;
+  ThreadHandle[wid].ref_count--;
+  pthread_mutex_unlock(&(ThreadHandle[wid].tlock));
+  return TRUE;
+}
+
+int
+Yap_thread_destroy_engine(int wid)
+{
+  pthread_mutex_lock(&(ThreadHandle[wid].tlock));
+  if (ThreadHandle[wid].ref_count == 0) {
+    pthread_mutex_unlock(&(ThreadHandle[wid].tlock));
+    kill_thread_engine(wid);
+    return TRUE;
+  } else {
+    pthread_mutex_unlock(&(ThreadHandle[wid].tlock));
+    return FALSE;
+  }
 }
 
 static Int

@@ -10,8 +10,15 @@
 * File:		c_interface.c						 *
 * comments:	c_interface primitives definition 			 *
 *									 *
-* Last rev:	$Date: 2004-06-29 19:04:41 $,$Author: vsc $						 *
+* Last rev:	$Date: 2004-07-22 21:32:20 $,$Author: vsc $						 *
 * $Log: not supported by cvs2svn $
+* Revision 1.50  2004/06/29 19:04:41  vsc
+* fix multithreaded version
+* include new version of Ricardo's profiler
+* new predicat atomic_concat
+* allow multithreaded-debugging
+* small fixes
+*
 * Revision 1.49  2004/06/09 03:32:02  vsc
 * fix bugs
 *
@@ -50,6 +57,7 @@
 #ifdef YAPOR
 #include "or.macros.h"
 #endif	/* YAPOR */
+#include "threads.h"
 
 #define YAP_BOOT_FROM_PROLOG       0
 #define YAP_BOOT_FROM_SAVED_CODE   1
@@ -146,6 +154,11 @@ X_API void    STD_PROTO(YAP_UserCPredicate,(char *,CPredicate,unsigned long int)
 X_API void    STD_PROTO(YAP_UserBackCPredicate,(char *,CPredicate,CPredicate,unsigned long int,unsigned int));
 X_API void    STD_PROTO(YAP_UserCPredicateWithArgs,(char *,CPredicate,unsigned long int,Term));
 X_API Int     STD_PROTO(YAP_CurrentModule,(void));
+X_API int     STD_PROTO(YAP_ThreadSelf,(void));
+X_API int     STD_PROTO(YAP_ThreadCreateEngine,(thread_attr *));
+X_API int     STD_PROTO(YAP_ThreadAttachEngine,(int));
+X_API int     STD_PROTO(YAP_ThreadDetachEngine,(int));
+X_API int     STD_PROTO(YAP_ThreadDestroyEngine,(int));
 
 static int (*do_getf)(void);
 
@@ -1238,5 +1251,55 @@ X_API Int
 YAP_CurrentModule(void)
 {
   return(CurrentModule);
+} 
+
+X_API int
+YAP_ThreadSelf(void)
+{
+#if USE_THREADS
+  return Yap_thread_self();
+#else
+  return 0;
+#endif
+} 
+
+X_API int
+YAP_ThreadCreateEngine(thread_attr *attr)
+{
+#if USE_THREADS
+  return Yap_thread_create_engine(attr);
+#else
+  return FALSE;
+#endif
+} 
+
+X_API int
+YAP_ThreadAttachEngine(int wid)
+{
+#if USE_THREADS
+  return Yap_thread_attach_engine(wid);
+#else
+  return FALSE;
+#endif
+} 
+
+X_API int
+YAP_ThreadDetachEngine(int wid)
+{
+#if USE_THREADS
+  return Yap_thread_detach_engine(wid);
+#else
+  return FALSE;
+#endif
+} 
+
+X_API int
+YAP_ThreadDestroyEngine(int wid)
+{
+#if USE_THREADS
+  return Yap_thread_destroy_engine(wid);
+#else
+  return FALSE;
+#endif
 } 
 

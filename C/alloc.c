@@ -12,7 +12,7 @@
 * Last rev:								 *
 * mods:									 *
 * comments:	allocating space					 *
-* version:$Id: alloc.c,v 1.51 2004-06-23 17:24:19 vsc Exp $		 *
+* version:$Id: alloc.c,v 1.52 2004-07-22 21:32:20 vsc Exp $		 *
 *************************************************************************/
 #ifdef SCCS
 static char SccsId[] = "%W% %G%";
@@ -881,11 +881,8 @@ ExtendWorkSpace(Int s, int fixed_allocation)
       return FALSE;
     }
   } else if (a < WorkSpaceTop) {
-      Yap_ErrorMessage = Yap_ErrorSay;
-      snprintf5(Yap_ErrorMessage, MAX_ERROR_MSG_SIZE,
-		"mmap could grew memory at lower addresses than %p, got %p", WorkSpaceTop, a );
-      Yap_PrologMode = OldPrologMode;
-      return FALSE;
+    /* try again */
+    return ExtendWorkSpace(s, fixed_allocation);
   }
   WorkSpaceTop = (char *) a + s;
   Yap_PrologMode = OldPrologMode;

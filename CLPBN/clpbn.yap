@@ -1,16 +1,11 @@
 
 
-:- module(clpbn, [{}/1,
-	clpbn_findall/3,
-	clpbn_setof/3]).
+:- module(clpbn, [{}/1).
 
 :- use_module(library(atts)).
 :- use_module(library(lists)).
 :- use_module(library(terms)).
 
-:- op(1200, xfx, '<--').
-:- op(1200,  fx, '<--').
-:- op( 500, xfx, '=>').
 :- op( 500, xfy, with).
 
 %
@@ -40,15 +35,13 @@
 			 execute_pre_evidence/0
 		    ]).
 
-:- include('clpbn/aggs').
-
 use(vel).
 
 {Var = Key with Dist} :-
 %	key_entry(Key,Indx),
 %	array_element(clpbn,Indx,El),
 %	attributes:put_att(El,3,indx(Indx)),
-	clpbn:put_atts(El,[key(Key),dist(E=>Domain)]),
+	put_atts(El,[key(Key),dist(E=>Domain)]),
 	extract_dist(Dist, E, Domain),
 	add_evidence(Var,El).
 
@@ -256,25 +249,6 @@ starter_vars([Var|Vs]) :-
 	put_atts(Var, [starter]),
 	starter_vars(Vs).
 
-
-/* attribute_goal(Var, Goal) :-
-	get_atts(Var, [key(_)]),
-	get_bnode(Var, Goal).
-	
-	get_value(clpbn_key, Max),
-	Max1 is Max-1,
-	run_through_array(0, Max1, Goal).
-
-
-run_through_array(Max,Max,Goal) :- !,
-	array_element(clpbn, Max, V),
-	get_bnode(V, Goal).
-run_through_array(I,Max,(G,Goal)) :- !,
-	array_element(clpbn, I, V),
-	get_bnode(V, G),
-	I1 is I+1,
-	run_through_array(I1,Max,Goal).
-*/
 
 get_bnode(Var, Goal) :-
 	get_atts(Var, [key(Key),dist(X)]),

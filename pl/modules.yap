@@ -196,7 +196,7 @@ module(N) :-
 	recorda('$module','$module'(F,Mod,Exports),_).
 '$add_preexisting_module_on_file'(F,F0,Mod,Exports,R) :-
 	repeat,
-	'$format'(user_error, "The module ~a is being redefined.~n    Old file:  ~a~n    New file:  ~a~nDo you really want to redefine it? (y or n)",[Mod,F0,F]),
+	format(user_error, "The module ~a is being redefined.~n    Old file:  ~a~n    New file:  ~a~nDo you really want to redefine it? (y or n)",[Mod,F0,F]),
 	'$mod_scan'(C), !,
 	( C is "y" ->
 	    '$add_preexisting_module_on_file'(F, F, Mod, Exports, R)
@@ -227,8 +227,8 @@ module(N) :-
 
 '$check_import'(M,T,N,K) :-
     recorded('$import','$import'(M1,T,N,K),R), M1 \= M, /* ZP */ !,
-    '$format'(user_error,"NAME CLASH: ~w was already imported to module ~w;~n",[M1:N/K,T]),
-    '$format'(user_error,"            Do you want to import it from ~w ? [y or n] ",M),
+    format(user_error,"NAME CLASH: ~w was already imported to module ~w;~n",[M1:N/K,T]),
+    format(user_error,"            Do you want to import it from ~w ? [y or n] ",M),
     repeat,
 	get0(C), '$skipeol'(C),
 	( C is "y" -> erase(R), !;
@@ -249,7 +249,7 @@ module(N) :-
 	print_message(warning,import(N/K,Mod,M,private))
     ),
     ( '$check_import'(M,Mod,N,K) -> 
-	%	     '$format'(user_error,'[ Importing ~w to ~w]~n',[M:N/K,Mod]),
+	%	     format(user_error,'[ Importing ~w to ~w]~n',[M:N/K,Mod]),
         %            '$trace_module'(importing(M:N/K,Mod)),
 	  (Mod = user ->
              ( recordzifnot('$import','$import'(M,user,N,K),_) -> true ; true )
@@ -486,7 +486,7 @@ module(N) :-
 	'$meta_predicate'(F,Mod,N,D), !,
 	functor(G1,F,N),
 	'$meta_expansion_loop'(N,D,G,G1,HVars,MP).
-%	'$format'(user_error," gives ~w~n]",[G1]).
+%	format(user_error," gives ~w~n]",[G1]).
 
 % expand argument
 '$meta_expansion_loop'(0,_,_,_,_,_) :- !.

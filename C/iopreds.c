@@ -3729,7 +3729,10 @@ format_has_tabs(const char *seq)
   while ((ch = *seq++)) {
     if (ch == '~') {
       ch = *seq++;
-      if (ch == 't') {
+      if (ch == '*') {
+	ch = *seq++;
+      }
+      if (ch == 't' || ch == '|') {
 	return TRUE;
       }
     }
@@ -3797,19 +3800,20 @@ format(Term tail, Term args, int sno)
     tnum = 0;
     targs = mytargs;
   }
-  format_base = format_ptr = Yap_AllocAtomSpace(FORMAT_MAX_SIZE*sizeof(char));
-  format_max = format_base+FORMAT_MAX_SIZE;
-  if (format_ptr == NULL) {
-    Yap_Error(INSTANTIATION_ERROR,tail,"format/2");
-    return(FALSE);
-  }  
-  format_buf_size = FORMAT_MAX_SIZE;
   format_error = FALSE;
 
   if ((has_tabs = format_has_tabs(fptr))) {
+    format_base = format_ptr = Yap_AllocAtomSpace(FORMAT_MAX_SIZE*sizeof(char));
+    format_max = format_base+FORMAT_MAX_SIZE;
+    if (format_ptr == NULL) {
+      Yap_Error(INSTANTIATION_ERROR,tail,"format/2");
+      return(FALSE);
+    }  
+    format_buf_size = FORMAT_MAX_SIZE;
     f_putc = format_putc;
   } else {
     f_putc = Stream[sno].stream_putc;
+    format_base = NULL;
   }
   while ((ch = *fptr++)) {
     Term t = TermNil;
@@ -4179,7 +4183,7 @@ format(Term tail, Term args, int sno)
 
 static Int
 p_format(void)
-{				/* '$format'(Control,Args)               */
+{				/* 'format'(Control,Args)               */
   Int res;
   LOCK(BGL);
   res = format(Deref(ARG1),Deref(ARG2), Yap_c_output_stream);
@@ -4190,7 +4194,7 @@ p_format(void)
 
 static Int
 p_format2(void)
-{				/* '$format'(Stream,Control,Args)          */
+{				/* 'format'(Stream,Control,Args)          */
   int old_c_stream = Yap_c_output_stream;
   Int out;
 
@@ -4789,8 +4793,8 @@ Yap_InitIOPreds(void)
   Yap_InitCPred ("$skip", 2, p_skip, SafePredFlag|SyncPredFlag);
   Yap_InitCPred ("$write", 2, p_write, SyncPredFlag);
   Yap_InitCPred ("$write", 3, p_write2, SyncPredFlag);
-  Yap_InitCPred ("$format", 2, p_format, SyncPredFlag);
-  Yap_InitCPred ("$format", 3, p_format2, SyncPredFlag);
+  Yap_InitCPred ("format", 2, p_format, SyncPredFlag);
+  Yap_InitCPred ("format", 3, p_format2, SyncPredFlag);
   Yap_InitCPred ("$current_line_number", 2, p_cur_line_no, SafePredFlag|SyncPredFlag);
   Yap_InitCPred ("$line_position", 2, p_line_position, SafePredFlag|SyncPredFlag);
   Yap_InitCPred ("$character_count", 2, p_character_count, SafePredFlag|SyncPredFlag);

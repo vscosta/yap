@@ -211,7 +211,7 @@ EnterCreepMode(Term t, Term mod) {
   if (ActiveSignals & YAP_CDOVF_SIGNAL) {
     ARG1 = t;
     if (!Yap_growheap(FALSE, 0, NULL)) {
-      Yap_Error(FATAL_ERROR, TermNil, "YAP failed to grow heap at meta-call");
+      Yap_Error(OUT_OF_HEAP_ERROR, TermNil, "YAP failed to grow heap at meta-call");
     }
     if (!ActiveSignals) {
       return do_execute(ARG1, mod);

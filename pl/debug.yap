@@ -417,9 +417,9 @@ debugging :-
 	        ( recorded('$debug',on, R), erase(R), fail ; true),
 		( Module\=prolog,
 		  Module\=user ->
-		    '$format'(user_error,"~a~a (~d) ~q: ~a:",[CSPY,SLL,L,P,Module])
+		    format(user_error,"~a~a (~d) ~q: ~a:",[CSPY,SLL,L,P,Module])
 		    ;
-		    '$format'(user_error,"~a~a (~d) ~q:",[CSPY,SLL,L,P])
+		    format(user_error,"~a~a (~d) ~q:",[CSPY,SLL,L,P])
 		),
 		'$debugger_write'(user_error,G),
 	        ( nonvar(R0), recordaifnot('$debug',on,_), fail ; true),
@@ -558,32 +558,28 @@ debugging :-
 	fail.
 
 % if we are in the interpreter, don't need to care about forcing a trace, do we?
-'$continue_debugging'(_) :-
-	recorded('$trace',on, _),
-	fail.
 '$continue_debugging'(no) :- !.
 '$continue_debugging'(_) :-
 	'$access_yap_flags'(10,1), !,
 	'$creep'.
-'$continue_debugging'(_) :-
-	recorded('$spy_stop', _, _).
+'$continue_debugging'(_).
 
 '$stop_debugging' :-
 	'$stop_creep'.
 
 '$action_help' :-
-	'$format'(user_error,"newline  creep       a       abort~n", []),
-	'$format'(user_error,"c        creep       e       exit~n", []),
-	'$format'(user_error,"f Goal   fail        h       help~n", []),
-	'$format'(user_error,"l        leap        r Goal  retry~n", []),
-	'$format'(user_error,"s        skip        t       fastskip~n", []),
-	'$format'(user_error,"q        quasiskip   k       quasileap~n", []),
-	'$format'(user_error,"b        break       n       no debug~n", []),
-	'$format'(user_error,"p        print       d       display~n", []),
-	'$format'(user_error,"<D       depth D     <       full term~n", []),
-	'$format'(user_error,"+        spy this    -       nospy this~n", []),
-	'$format'(user_error,"^        view subg   ^^      view using~n", []),
-	'$format'(user_error,"! g execute goal~n", []).
+	format(user_error,"newline  creep       a       abort~n", []),
+	format(user_error,"c        creep       e       exit~n", []),
+	format(user_error,"f Goal   fail        h       help~n", []),
+	format(user_error,"l        leap        r Goal  retry~n", []),
+	format(user_error,"s        skip        t       fastskip~n", []),
+	format(user_error,"q        quasiskip   k       quasileap~n", []),
+	format(user_error,"b        break       n       no debug~n", []),
+	format(user_error,"p        print       d       display~n", []),
+	format(user_error,"<D       depth D     <       full term~n", []),
+	format(user_error,"+        spy this    -       nospy this~n", []),
+	format(user_error,"^        view subg   ^^      view using~n", []),
+	format(user_error,"! g execute goal~n", []).
 	
 '$ilgl'(C) :-
 	'$print_message'(warning, trace_command(C)),
@@ -619,7 +615,7 @@ debugging :-
 	'$get_sterm_list'(L), !,
 	'$deb_get_sterm_in_g'(L,G,A),
 	recorda('$debug_sub_skel',L,_),
-	'$format'(user_error,"~n~w~n~n",[A]).
+	format(user_error,"~n~w~n~n",[A]).
 '$print_deb_sterm'(_) :- '$skipeol'(94).
 
 '$get_sterm_list'(L) :-
