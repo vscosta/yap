@@ -739,7 +739,7 @@ debugging :-
 '$creep'([M|'$execute_within'(G)]) :- !,
 	'$creep'([M|G]).
 '$creep'([M|'$last_execute_within'(G)]) :- !,
-	'$creep'([M|G])).
+	'$creep'([M|G]).
 '$creep'(G) :- '$direct_spy'(G).
 
 '$trace'(P,'!'(_),Mod,L,NC) :- !,
