@@ -924,22 +924,14 @@ do_goal(CODEADDR CodeAdr, int arity, CELL *pt, int args_to_save, int top)
 #ifdef DEPTH_LIMIT
   B->cp_depth = DEPTH;
 #endif /* DEPTH_LIMIT */
-  if (top) {
-#if COROUTINING
-    RESET_VARIABLE((CELL *)GlobalBase);
-    DelayedVars = NewTimedVar((CELL)GlobalBase);
-    WokenGoals = NewTimedVar(TermNil);
-    MutableList = NewTimedVar(TermNil);
-    AttsMutableList = NewTimedVar(TermNil);
-#endif
-  }
   YENV = ASP = (CELL *)B;
   HB = H;
   YENV[E_CB] = Unsigned (B);
   P = (yamop *) CodeAdr;
+  CP = YESCODE;
   S = CellPtr (RepPredProp (PredPropByFunc (MkFunctor(AtomCall, 1),0)));	/* A1 mishaps */
 
-  return(exec_absmi(top));
+ return(exec_absmi(top));
 }
 
 
@@ -1073,6 +1065,7 @@ RunTopGoal(Term t)
   CELL *pt;
   UInt arity;
   SMALLUNSGN mod = CurrentModule;
+  int goal_out = 0;
 
  restart_runtopgoal:
   if (IsAtomTerm(t)) {
@@ -1109,23 +1102,21 @@ RunTopGoal(Term t)
   if (pe != NIL) {
     READ_LOCK(ppe->PRWLock);
   }
-  if (pe == NIL ||
-      ppe->OpcodeOfPred == UNDEF_OPCODE ||
-      ppe->PredFlags & (UserCPredFlag|CPredFlag|AsmPredFlag) )
-    {
-      if (pe != NIL) {
-	READ_UNLOCK(ppe->PRWLock);
-      }
-      /* we must always start the emulator with Prolog code */
-      return(FALSE);
+  if (pe == NIL) {
+    if (pe != NIL) {
+      READ_UNLOCK(ppe->PRWLock);
     }
+    /* we must always start the emulator with Prolog code */
+    return(FALSE);
+  }
   CodeAdr = ppe->CodeOfPred;
   if (TrailTop - HeapTop < 2048) {
     PrologMode = BootMode;
     Error(SYSTEM_ERROR,TermNil,
 	  "unable to boot because of too little heap space");
   }
-  return(do_goal(CodeAdr, arity, pt, 0, TRUE));
+  goal_out = do_goal(CodeAdr, arity, pt, 0, TRUE);
+  return(goal_out);
 }
 
 static void

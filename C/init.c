@@ -1123,6 +1123,13 @@ InitYaamRegs(void)
   EX = 0L;
   /* for slots to work */
   *--ASP = MkIntTerm(0);
+#if COROUTINING
+  RESET_VARIABLE((CELL *)GlobalBase);
+  DelayedVars = NewTimedVar((CELL)GlobalBase);
+  WokenGoals = NewTimedVar(TermNil);
+  MutableList = NewTimedVar(TermNil);
+  AttsMutableList = NewTimedVar(TermNil);
+#endif
 }
 
 

@@ -689,17 +689,21 @@ static void myputc (int ch)
   putc(ch,stderr);
 }
 
-static Term told;
-
 X_API int
 YapRunGoal(Term t)
 {
   int out;
+  yamop *old_CP = CP;
   BACKUP_MACHINE_REGS();
 
-  do_putcf = myputc;
   out = RunTopGoal(t);
-  told = t;
+  if (out) {
+    P = (yamop *)ENV[E_CP];
+    ENV = (CELL *)ENV[E_E];
+    CP = old_CP;
+  } else {
+    B = B->cp_b;
+  }
 
   RECOVER_MACHINE_REGS();
   return(out);
@@ -743,6 +747,7 @@ YapPruneGoal(void)
   while (B->cp_ap != NOCODE) {
     B = B->cp_b;
   }
+  B = B->cp_b;
 
   RECOVER_B();
 }
