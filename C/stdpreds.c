@@ -11,8 +11,13 @@
 * File:		stdpreds.c						 *
 * comments:	General-purpose C implemented system predicates		 *
 *									 *
-* Last rev:     $Date: 2004-12-05 05:01:25 $,$Author: vsc $						 *
+* Last rev:     $Date: 2004-12-05 05:07:26 $,$Author: vsc $						 *
 * $Log: not supported by cvs2svn $
+* Revision 1.76  2004/12/05 05:01:25  vsc
+* try to reduce overheads when running with goal expansion enabled.
+* CLPBN fixes
+* Handle overflows when allocating big clauses properly.
+*
 * Revision 1.75  2004/12/02 06:06:46  vsc
 * fix threads so that they at least start
 * allow error handling to work with threads
@@ -864,17 +869,17 @@ p_name(void)
   char            *String, *s; /* alloc temp space on trail */
   Term            t, NewT, AtomNameT = Deref(ARG1);
 
-  ARG2 = Deref(ARG2);
+  t = Deref(ARG2);
   if (!IsVarTerm(AtomNameT)) {
     if (IsAtomTerm(AtomNameT)) {
       s = RepAtom(AtomOfTerm(AtomNameT))->StrOfAE;
       NewT = Yap_StringToList(s);
-      if (!IsVarTerm(ARG2) && !IsPairTerm(ARG2)) {
+      if (!IsVarTerm(t) && !IsPairTerm(t) && t != TermNil) {
 	Yap_Error(TYPE_ERROR_LIST,ARG2,
 	      "name/2");
-	return(FALSE);
+	return FALSE;
       }
-      return (Yap_unify(NewT, ARG2));
+      return Yap_unify(NewT, ARG2);
     } else if (IsIntTerm(AtomNameT)) {
       char *String = Yap_PreAllocCodeSpace();
 #if SHORT_INTS
@@ -883,7 +888,7 @@ p_name(void)
       sprintf(String, "%d", IntOfTerm(AtomNameT));
 #endif
       NewT = Yap_StringToList(String);
-      if (!IsVarTerm(ARG2) && !IsPairTerm(ARG2)) {
+      if (!IsVarTerm(t) && !IsPairTerm(t) && t != TermNil) {
 	Yap_Error(TYPE_ERROR_LIST,ARG2,"name/2");
 	return(FALSE);
       }
@@ -893,7 +898,7 @@ p_name(void)
 
       sprintf(String, "%f", FloatOfTerm(AtomNameT));
       NewT = Yap_StringToList(String);
-      if (!IsVarTerm(ARG2) && !IsPairTerm(ARG2)) {
+      if (!IsVarTerm(t) && !IsPairTerm(t) && t != TermNil) {
 	Yap_Error(TYPE_ERROR_LIST,ARG2,"name/2");
 	return(FALSE);
       }
@@ -907,7 +912,7 @@ p_name(void)
       sprintf(String, "%d", LongIntOfTerm(AtomNameT));
 #endif
       NewT = Yap_StringToList(String);
-      if (!IsVarTerm(ARG2) && !IsPairTerm(ARG2)) {
+      if (!IsVarTerm(t) && !IsPairTerm(t) && t != TermNil) {
 	Yap_Error(TYPE_ERROR_LIST,ARG2,"name/2");
 	return(FALSE);
       }
@@ -917,7 +922,6 @@ p_name(void)
       return(FALSE);
     }
   }
-  t = ARG2;
   s = String = ((AtomEntry *)Yap_PreAllocCodeSpace())->StrOfAE;
   if (!IsVarTerm(t) && t == MkAtomTerm(AtomNil)) {
     return (Yap_unify_constant(ARG1, MkAtomTerm(Yap_LookupAtom(""))));
