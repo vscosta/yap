@@ -353,7 +353,7 @@ read_quoted_char(int *scan_nextp, int inp_stream, int (*QuotedNxtch)(int))
 		my_isupper(ch) ? ch - 'A' + 10 : 
 		my_islower(ch) ? ch - 'a' +10 : 0);
       ch = QuotedNxtch(inp_stream);
-      return so_far + (chtype[ch] == NU ? ch - '0' :
+      return so_far*16 + (chtype[ch] == NU ? ch - '0' :
 		       my_isupper(ch) ? ch - 'A' +10 :
 		       my_islower(ch) ? ch - 'a' + 10 : 0);
     }
