@@ -798,16 +798,16 @@ check_global(void) {
       else if (IsUnboundVar((CELL)current)) vars[gc_var]++;
       else vars[gc_ref]++;
     } else if (IsApplTerm(ccurr)) {
-      //      printf("%p: f->%p\n",current,RepAppl(ccurr));
+      /*      printf("%p: f->%p\n",current,RepAppl(ccurr)); */
       vars[gc_appl]++;
     } else if (IsPairTerm(ccurr)) {
-      //      printf("%p: l->%p\n",current,RepPair(ccurr));
+      /*      printf("%p: l->%p\n",current,RepPair(ccurr)); */
       vars[gc_list]++;
     } else if (IsAtomTerm(ccurr)) {
-      //      printf("%p: %s\n",current,RepAtom(AtomOfTerm(ccurr))->StrOfAE);
+      /*      printf("%p: %s\n",current,RepAtom(AtomOfTerm(ccurr))->StrOfAE); */
       vars[gc_atom]++;
     } else if (IsIntTerm(ccurr)) {
-      //      printf("%p: %d\n",current,IntOfTerm(ccurr));
+      /*      printf("%p: %d\n",current,IntOfTerm(ccurr)); */
       vars[gc_int]++;
     }
 #endif
@@ -1417,9 +1417,9 @@ mark_choicepoints(register choiceptr gc_B, tr_fr_ptr saved_TR)
 	UInt arity;
 	SMALLUNSGN mod;
 	if (PredForCode((CODEADDR)gc_B->cp_ap, &at, &arity, &mod))
-	  printf("B  %p (%s) at %s/%d  with %d,%d\nf", gc_B, op_names[opnum], RepAtom(at)->StrOfAE, arity, gc_B->cp_h-H0, total_marked);
+	  YP_fprintf(YP_stderr,"B  %p (%s) at %s/%d  with %d,%d\nf", gc_B, op_names[opnum], RepAtom(at)->StrOfAE, arity, gc_B->cp_h-H0, total_marked);
         else
-	  printf("B  %p (%s) with %d,%d\n", gc_B, op_names[opnum], gc_B->cp_h-H0, total_marked);
+	  YP_fprintf(YP_stderr,"B  %p (%s) with %d,%d\n", gc_B, op_names[opnum], gc_B->cp_h-H0, total_marked);
       }
       break;
 #ifdef TABLING
@@ -1430,11 +1430,11 @@ mark_choicepoints(register choiceptr gc_B, tr_fr_ptr saved_TR)
 	op_numbers caller_op = op_from_opcode(ENV_ToOp(gc_B->cp_cp));
 	/* first condition  checks if this was a meta-call */
 	if ((caller_op != _call  && caller_op != _fcall) || pe == NULL) {
-	  printf("B  %p (%s) with %d,%d\n", gc_B, op_names[opnum], gc_B->cp_h-H0, total_marked);
+	  YP_fprintf(YP_stderr,"B  %p (%s) with %d,%d\n", gc_B, op_names[opnum], gc_B->cp_h-H0, total_marked);
 	} else if (pe->ArityOfPE)
-	  printf("B  %p (%s for %s/%d) with %d,%d\n", gc_B, op_names[opnum], RepAtom(NameOfFunctor(pe->FunctorOfPred))->StrOfAE, pe->ArityOfPE, gc_B->cp_h-H0, total_marked);
+	  YP_fprintf(YP_stderr,"B  %p (%s for %s/%d) with %d,%d\n", gc_B, op_names[opnum], RepAtom(NameOfFunctor(pe->FunctorOfPred))->StrOfAE, pe->ArityOfPE, gc_B->cp_h-H0, total_marked);
 	else
-	  printf("B  %p (%s for %s/0) with %d,%d\n", gc_B, op_names[opnum], RepAtom((Atom)(pe->FunctorOfPred))->StrOfAE, gc_B->cp_h-H0, total_marked);
+	  YP_fprintf(YP_stderr,"B  %p (%s for %s/0) with %d,%d\n", gc_B, op_names[opnum], RepAtom((Atom)(pe->FunctorOfPred))->StrOfAE, gc_B->cp_h-H0, total_marked);
       }
       break;
 #endif
@@ -1442,11 +1442,11 @@ mark_choicepoints(register choiceptr gc_B, tr_fr_ptr saved_TR)
       {
 	PredEntry *pe = (PredEntry *)gc_B->cp_ap->u.ld.p;
 	if (pe == NULL) {
-	  printf("B  %p (%s) with %d\n", gc_B, op_names[opnum], total_marked);
+	  YP_fprintf(YP_stderr,"B  %p (%s) with %d\n", gc_B, op_names[opnum], total_marked);
 	} else if (pe->ArityOfPE)
-	  printf("B  %p (%s for %s/%d) with %d,%d\n", gc_B, op_names[opnum], RepAtom(NameOfFunctor(pe->FunctorOfPred))->StrOfAE, pe->ArityOfPE, gc_B->cp_h-H0, total_marked);
+	  YP_fprintf(YP_stderr,"B  %p (%s for %s/%d) with %d,%d\n", gc_B, op_names[opnum], RepAtom(NameOfFunctor(pe->FunctorOfPred))->StrOfAE, pe->ArityOfPE, gc_B->cp_h-H0, total_marked);
 	else
-	  printf("B  %p (%s for %s/0) with %d,%d\n", gc_B, op_names[opnum], RepAtom((Atom)(pe->FunctorOfPred))->StrOfAE, gc_B->cp_h-H0, total_marked);
+	  YP_fprintf(YP_stderr,"B  %p (%s for %s/0) with %d,%d\n", gc_B, op_names[opnum], RepAtom((Atom)(pe->FunctorOfPred))->StrOfAE, gc_B->cp_h-H0, total_marked);
       }
     }
 #endif /* CHECK_CHOICEPOINTS */
