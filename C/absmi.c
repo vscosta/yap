@@ -11193,12 +11193,12 @@ absmi(int inp)
 	PREG = (yamop *) pen->CodeOfPred;
 #ifdef DEPTH_LIMIT
 	if (DEPTH <= MkIntTerm(1)) {/* I assume Module==0 is primitives */
-	  if (Module(pt0)) {
+	  if (pen->ModuleOfPred) {
 	    if (DEPTH == MkIntTerm(0))
 	      FAIL();
 	    else DEPTH = RESET_DEPTH();
 	  }
-	} else if (Module(pt0))
+	} else if (pen->ModuleOfPred)
 	  DEPTH -= MkIntConstant(2);
 #endif	/* DEPTH_LIMIT */
 #ifdef LOW_LEVEL_TRACER
