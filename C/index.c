@@ -11,8 +11,11 @@
 * File:		index.c							 *
 * comments:	Indexing a Prolog predicate				 *
 *									 *
-* Last rev:     $Date: 2004-06-17 22:07:23 $,$Author: vsc $						 *
+* Last rev:     $Date: 2004-06-29 19:04:42 $,$Author: vsc $						 *
 * $Log: not supported by cvs2svn $
+* Revision 1.91  2004/06/17 22:07:23  vsc
+* bad bug in indexing code.
+*
 * Revision 1.90  2004/04/29 03:44:04  vsc
 * fix bad suspended clause counter
 *
@@ -5240,15 +5243,20 @@ replace_lu_block(LogUpdIndex *blk, int flag, PredEntry *ap, yamop *code, int has
   {
     LogUpdIndex *idx = ncl->ChildIndex = blk->ChildIndex;
     while (idx) {
+      LogUpdIndex *nidx;
+
+      LOCK(idx->ClLock);
       blk->ClRefCount--;
       ncl->ClRefCount++;
-      idx = idx->SiblingIndex;
+      idx->u.ParentIndex = ncl;
+      nidx = idx->SiblingIndex;
+      UNLOCK(idx->ClLock);
+      idx = nidx;
     }
   }
   blk->ChildIndex = NULL;
   ncl->ClSize = sz;
   INIT_LOCK(ncl->ClLock);
-  INIT_CLREF_COUNT(ncl);
   nbegin = ncl->ClCode;
   begin = blk->ClCode;
   while (jnvs--) {
@@ -5311,7 +5319,13 @@ clean_up_index(LogUpdIndex *blk, yamop **jlbl, PredEntry *ap)
 {
   yamop *codep = blk->ClCode;
 
-  if (blk->ClFlags & InUseMask) {
+  if (
+#if defined(THREADS) || defined(YAPOR)
+      blk->ClRefCount      
+#else
+      blk->ClFlags & InUseMask
+#endif
+      ) {
     yamop *new;
 
     if ((new = replace_lu_block(blk, REFRESH, ap, NULL, FALSE)) == NULL) {
@@ -5377,7 +5391,13 @@ insertz_in_lu_block(LogUpdIndex *blk, PredEntry *ap, yamop *code)
     LogUpdClause *tgl = ClauseCodeToLogUpdClause(code);
 
     if (begin->opc != Yap_opcode(_stale_lu_index)) {
-      if (blk->ClFlags & InUseMask) {
+      if (
+#if defined(THREADS) || defined(YAPOR)
+	  blk->ClRefCount      
+#else
+	  blk->ClFlags & InUseMask
+#endif
+	  ) {
 	begin->opc = Yap_opcode(_stale_lu_index);
       } else {
 	/* we need to rebuild the code */
@@ -6935,7 +6955,7 @@ Yap_FollowIndexingCode(PredEntry *ap, yamop *ipc, Term Terms[3], yamop *ap_pc, y
     case _stale_lu_index:
 #if defined(YAPOR) || defined(THREADS)
       LOCK(ap->PELock);
-      if (*jlbl != ipc) {
+      if (!same_lu_block(jlbl, ipc)) {
 	ipc = *jlbl;
 	UNLOCK(ap->PELock);
 	break;
@@ -7000,7 +7020,7 @@ Yap_FollowIndexingCode(PredEntry *ap, yamop *ipc, Term Terms[3], yamop *ap_pc, y
       break;
     case _jump_if_nonvar:
       {
-	Term t = Deref(XREGS[arg_from_x(ipc->u.xllll.x)]);
+	Term t = Deref(XREGS[arg_from_x(ipc->u.xl.x)]);
 	if (!IsVarTerm(t)) {
 	  jlbl = &(ipc->u.xl.l);
 	  ipc = ipc->u.xl.l;
@@ -7144,7 +7164,7 @@ Yap_FollowIndexingCode(PredEntry *ap, yamop *ipc, Term Terms[3], yamop *ap_pc, y
       H += 3;
 #if defined(YAPOR) || defined(THREADS)
       LOCK(ap->PELock);
-      if (*jlbl != ipc) {
+      if (!same_lu_block(jlbl, ipc)) {
 	ipc = *jlbl;
 	UNLOCK(ap->PELock);
 	break;
@@ -7315,7 +7335,7 @@ Yap_NthClause(PredEntry *ap, Int ncls)
     case _stale_lu_index:
 #if defined(YAPOR) || defined(THREADS)
       LOCK(ap->PELock);
-      if (*jlbl != ipc) {
+      if (!same_lu_block(jlbl, ipc)) {
 	ipc = *jlbl;
 	UNLOCK(ap->PELock);
 	break;
@@ -7636,6 +7656,9 @@ find_caller(PredEntry *ap, yamop *code) {
 	alt = NULL;
       }
       break;
+    case _lock_lu:
+      ipc = NEXTOP(ipc,p);
+      break;
     case _stale_lu_index:
       /* found myself */
       return NULL;
@@ -7663,7 +7686,13 @@ Yap_CleanUpIndex(LogUpdIndex *blk)
     tblk = tblk->u.ParentIndex;
   ap = tblk->u.pred;
 
-  if (blk->ClFlags & InUseMask) {
+  if (
+#if defined(THREADS) || defined(YAPOR)
+      blk->ClRefCount      
+#else
+      blk->ClFlags & InUseMask      
+#endif
+      ) {
     /* I have to kill this block */
     yamop **caller, *new;
     caller = find_caller(ap, blk->ClCode);

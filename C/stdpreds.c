@@ -11,8 +11,11 @@
 * File:		stdpreds.c						 *
 * comments:	General-purpose C implemented system predicates		 *
 *									 *
-* Last rev:     $Date: 2004-06-16 14:12:53 $,$Author: vsc $						 *
+* Last rev:     $Date: 2004-06-29 19:04:42 $,$Author: vsc $						 *
 * $Log: not supported by cvs2svn $
+* Revision 1.69  2004/06/16 14:12:53  vsc
+* miscellaneous fixes
+*
 * Revision 1.68  2004/05/14 17:11:30  vsc
 * support BigNums in interface
 *
@@ -111,6 +114,7 @@ STD_PROTO(static Int p_walltime, (void));
 STD_PROTO(static Int p_access_yap_flags, (void));
 STD_PROTO(static Int p_set_yap_flags, (void));
 
+
 #ifdef LOW_PROF
 
 #define TIMER_DEFAULT 100
@@ -139,82 +143,12 @@ static Int order=0;
   }
 }
 
-#if defined(__linux__)
-
-static void
-prof_alrm_OLD(int signo)
-{
-  //  printf("%p %p\n", Yap_regp->P_,P);
-  fprintf(FProf,"%p\n", Yap_regp->P_);
-  return;
-}
-
-extern void prof_alrm(int signo);
-
-static Int start_profilers(int msec)
-{
-  struct itimerval t;
-  
-  if (ProfilerOn==msec) return(TRUE);
-
-  if (ProfilerOn) {
-    setitimer(ITIMER_PROF,NULL,NULL);
-    fclose(FPreds);
-    fclose(FProf);
-    ProfilerOn = 0;
-    return TRUE;
-  }
-
-  if (signal(SIGPROF,prof_alrm) == SIG_ERR) {
-    return FALSE;
-  }
-
-  FPreds=fopen("PROFPREDS","w+"); 
-  if (FPreds == NULL) return FALSE;
-  FProf=fopen("PROFILING","w+"); 
-  if (FProf==NULL) { fclose(FPreds); return FALSE; }
-
-  Yap_dump_code_area_for_profiler();
-  
-  t.it_interval.tv_sec=0;
-  t.it_interval.tv_usec=msec;
-  t.it_value.tv_sec=0;
-  t.it_value.tv_usec=msec;
-  setitimer(ITIMER_PROF,&t,NULL);
-
-  ProfilerOn = msec;
-  return(TRUE);
-}
-
-#endif /* Linux */
-
-static Int useprof(void) { 
-#if defined(__linux__)
-  Term p;
-  p=Deref(ARG1);
-  return(start_profilers(IntOfTerm(p)));
-#else
-  return(FALSE);
-#endif
-}
-
-static Int useprof0(void) { 
-#if defined(__linux__)
-  return(start_profilers(TIMER_DEFAULT));
-#else
-  return(FALSE);
-#endif
-}
-
-#if defined(__linux__)
-
 typedef struct clause_entry {
   yamop *beg, *end;
   PredEntry *pp;
   UInt pcs;  /* counter with total for each clause */
-  UInt pca;  /* counter with total for each predicate (repeats for each clause)*/  
-  Int ts; /* start end timestamp towards retracts, eventually */
-  Int tf;
+  UInt pca;  /* counter with total for each predicate (repeated for each clause)*/  
+  Int ts;    /* start end timestamp towards retracts, eventually */
 } clauseentry;
 
 static int
@@ -267,18 +201,29 @@ search_pc_pred(yamop *pc_ptr,clauseentry *beg, clauseentry *end) {
   }
 }
 
+extern void Yap_InitAbsmi(void);
+extern int rational_tree_loop(CELL *pt0, CELL *pt0_end, CELL **to_visit0);
+
+#ifndef ANALYST
+static char *op_names[_std_top + 1] =
+{
+#define OPCODE(OP,TYPE) #OP
+#include "YapOpcodes.h"
+#undef  OPCODE
+};
+#else
+extern char *op_names[];
+#endif
+
+static Int profend(void); 
+
 static int
 showprofres(UInt type) { 
-  clauseentry *pr=(clauseentry *) TR, *t, *t2;
-  UInt count=0, ProfCalls=0;
-  yamop *pc_ptr;
+  clauseentry *pr, *t, *t2;
+  UInt count=0, ProfCalls=0, InGrowHeap=0, InGrowStack=0, InGC=0, InError=0, InUnify=0, InCCall=0;
+  yamop *pc_ptr,*y; void *oldpc;
 
-  if (ProfilerOn) {
-    setitimer(ITIMER_PROF,NULL,NULL);
-    fclose(FPreds);
-    fclose(FProf);
-    ProfilerOn = 0;
-  }  
+  profend(); /* Make sure profiler has ended */
 
   /* First part: Read information about predicates and store it on yap trail */
 
@@ -286,6 +231,7 @@ showprofres(UInt type) {
   if (FPreds == NULL) return FALSE;
 
   ProfPreds=0;
+  pr=(clauseentry *) TR;
   while (fscanf(FPreds,"+%p %p %p %d",&(pr->beg),&(pr->end),&(pr->pp),&(pr->ts)) > 0){
     int c;
     pr->pcs = 0L;
@@ -311,20 +257,46 @@ showprofres(UInt type) {
 
   t2=NULL;
   ProfCalls=0;
-  while(fscanf(FProf,"%p\n",&pc_ptr) >0){
+  while(fscanf(FProf,"%p %p\n",&oldpc, &pc_ptr) >0){
     if (type<10) ProfCalls++;
+    
+    if (oldpc!=0 && type<=2) {
+      if ((unsigned long)oldpc< 70000) {
+        if ((unsigned long) oldpc & GrowHeapMode) { InGrowHeap++; continue; }
+        if ((unsigned long)oldpc & GrowStackMode) { InGrowStack++; continue; }
+        if ((unsigned long)oldpc & GCMode) { InGC++; continue; }
+        if ((unsigned long)oldpc & (ErrorHandlingMode | InErrorMode)) { InError++; continue; }
+      }
+      if (oldpc>(void *) rational_tree_loop && oldpc<(void *) Yap_InitAbsmi) { InUnify++; continue; }
+      y=(yamop *) ((long) pc_ptr-20);
+      if ((void *) y->opc==Yap_ABSMI_OPCODES[_call_cpred] || (void *) y->opc==Yap_ABSMI_OPCODES[_call_usercpred]) {
+             InCCall++;  /* I Was in a C Call */
+	     pc_ptr=y;
+    	     /* 
+	      printf("Aqui está um call_cpred(%p) \n",y->u.sla.sla_u.p->cs.f_code);
+              for(i=0;i<_std_top && pc_ptr->opc!=Yap_ABSMI_OPCODES[i];i++);
+      	         printf("Outro syscall diferente  %s\n", op_names[i]);
+             */
+             continue;
+       } 
+       /* I should never get here, but since I'm, it is certanly Unknown Code, so 
+	  continue running to try to count it as Prolog Code  */
+    }
+   
     t=search_pc_pred(pc_ptr,(clauseentry *)TR,pr);
     if (t!=NULL) { /* pc was found */
-      if (type<10) t->pcs++;
-      else {
-	if (t->pp==(PredEntry *)type) {
-	  ProfCalls++;
-	  if (t2!=NULL) t2->pcs++;
-	}
-      } 
-      t2=t;
-    } 
+        if (type<10) t->pcs++;
+        else {
+	  if (t->pp==(PredEntry *)type) {
+	    ProfCalls++;
+	    if (t2!=NULL) t2->pcs++;
+	  }
+        } 
+        t2=t;
+    }
+
   }
+
   fclose(FProf);
   if (ProfCalls==0) return(FALSE);
 
@@ -346,7 +318,9 @@ showprofres(UInt type) {
   }
 
   /* counting done: now it is time to present the results */
+  fflush(stdout);
 
+  /*
   if (type>10) {
     PredEntry *myp = (PredEntry *)type;
     if (myp->FunctorOfPred->KindOfPE==47872) {
@@ -357,8 +331,9 @@ showprofres(UInt type) {
     }    
     type=1;
   }
+  */
 
-  if (type==0) {  /* Results by predicate */
+  if (type==0 || type==1 || type==3) {  /* Results by predicate */
     t = (clauseentry *)TR;
     while (t < pr) {
       UInt calls=t->pca;
@@ -374,10 +349,6 @@ showprofres(UInt type) {
       }
       while (t<pr && t->pp == myp) t++;
     }
-    count=ProfCalls-count;
-    if (count>0) printf("Unknown:Unknown -> %u (%3.1f%c)\n",count,(float) count*100/ProfCalls,'%');
-    printf("Total of Calls=%u \n",ProfCalls);
-
   } else { /* Results by clauses */
     t = (clauseentry *)TR;
     while (t < pr) {
@@ -403,35 +374,109 @@ showprofres(UInt type) {
       }
       t++;
     }
-    count=ProfCalls-count;
-    if (count>0) printf("Unknown:Unknown -> %u (%3.1f%c)\n",count,(float) count*100/ProfCalls,'%');
-    printf("Total of Calls=%u \n",ProfCalls);
-
-  } 
+  }
+  count=ProfCalls-(count+InGrowHeap+InGrowStack+InGC+InError+InUnify+InCCall); // Falta +InCCall
+  if (InGrowHeap>0) printf("%p sys: GrowHeap -> %u (%3.1f%c)\n",(void *) GrowHeapMode,InGrowHeap,(float) InGrowHeap*100/ProfCalls,'%');
+  if (InGrowStack>0) printf("%p sys: GrowStack -> %u (%3.1f%c)\n",(void *) GrowStackMode,InGrowStack,(float) InGrowStack*100/ProfCalls,'%');
+  if (InGC>0) printf("%p sys: GC -> %u (%3.1f%c)\n",(void *) GCMode,InGC,(float) InGC*100/ProfCalls,'%');
+  if (InError>0) printf("%p sys: ErrorHandling -> %u (%3.1f%c)\n",(void *) ErrorHandlingMode,InError,(float) InError*100/ProfCalls,'%');
+  if (InUnify>0) printf("%p sys: Unify -> %u (%3.1f%c)\n",(void *) UnifyMode,InUnify,(float) InUnify*100/ProfCalls,'%');
+  if (InCCall>0) printf("%p sys: C Code -> %u (%3.1f%c)\n",(void *) CCallMode,InCCall,(float) InCCall*100/ProfCalls,'%');
+  if (count>0) printf("Unknown:Unknown -> %u (%3.1f%c)\n",count,(float) count*100/ProfCalls,'%');
+  printf("Total of Calls=%u \n",ProfCalls);
 
   return TRUE;
 }
 
-#endif /*Linux */
 
+
+
+static Int profinit(void)
+{
+  if (ProfilerOn!=0) return (FALSE);
+
+  FPreds=fopen("PROFPREDS","w+"); 
+  if (FPreds == NULL) return FALSE;
+  FProf=fopen("PROFILING","w+"); 
+  if (FProf==NULL) { fclose(FPreds); return FALSE; }
+
+  Yap_dump_code_area_for_profiler();
+  
+  ProfilerOn = -1; /* Inited but not yet started */
+  return(TRUE);
+}
+
+extern void prof_alrm(int signo, siginfo_t *si, void *sc);
+
+static Int start_profilers(int msec)
+{
+  struct itimerval t;
+  struct sigaction sa;
+  
+  if (ProfilerOn!=-1) return (FALSE); /* have to go through profinit */
+
+  sa.sa_sigaction=prof_alrm;
+  sigemptyset(&sa.sa_mask);
+  sa.sa_flags=SA_SIGINFO;
+  if (sigaction(SIGPROF,&sa,NULL)== -1) return FALSE;
+//  if (signal(SIGPROF,prof_alrm) == SIG_ERR) return FALSE;
+
+  t.it_interval.tv_sec=0;
+  t.it_interval.tv_usec=msec;
+  t.it_value.tv_sec=0;
+  t.it_value.tv_usec=msec;
+  setitimer(ITIMER_PROF,&t,NULL);
+
+  ProfilerOn = msec;
+  return(TRUE);
+}
+
+
+static Int profon(void) { 
+  Term p;
+  p=Deref(ARG1);
+  return(start_profilers(IntOfTerm(p)));
+}
+
+static Int profon0(void) { 
+  return(start_profilers(TIMER_DEFAULT));
+}
+
+static Int profoff(void) {
+  if (ProfilerOn>0) {
+    setitimer(ITIMER_PROF,NULL,NULL);
+    ProfilerOn = -1;
+    return TRUE;
+  }
+  return FALSE;
+}
+
+static Int profalt(void) { 
+  if (ProfilerOn==0) return(FALSE);
+  if (ProfilerOn==-1) return profon();
+  return profoff();
+}
+
+static Int profend(void) 
+{
+  if (ProfilerOn==0) return(FALSE);
+  profoff();         /* Make sure profiler is off */
+  fclose(FPreds); 
+  fclose(FProf); 
+  ProfilerOn=0;
+
+  return (TRUE);
+}
 
 static Int profres(void) { 
-#if defined(__linux__)
   Term p;
   p=Deref(ARG1);
   if (IsLongIntTerm(p)) return(showprofres(LongIntOfTerm(p)));
   else return(showprofres(IntOfTerm(p)));
-#else
-  return(FALSE);
-#endif
 }
 
 static Int profres0(void) { 
-#if defined(__linux__)
   return(showprofres(0));
-#else
-  return(FALSE);
-#endif
 }
 
 #endif /* LOW_PROF */
@@ -1097,7 +1142,7 @@ p_atomic_concat(void)
     }
     if (!IsAtomicTerm(thead)) {
       Yap_ReleasePreAllocCodeSpace((ADDR)cpt0);
-      Yap_Error(TYPE_ERROR_ATOM, ARG1, "atom_concat/2");
+      Yap_Error(TYPE_ERROR_ATOMIC, ARG1, "atom_concat/2");
       return(FALSE);
     }
     if (IsAtomTerm(thead)) {
@@ -1110,12 +1155,41 @@ p_atomic_concat(void)
 	  Yap_Error(SYSTEM_ERROR, TermNil, Yap_ErrorMessage);
 	  return(FALSE);
 	}
-      } else if (IsIntegerTerm(thead)) {
+	goto restart;
+      } 
+      memcpy((void *)cptr, (void *)atom_str, sz);
+      cptr += sz;
+    } else if (IsIntegerTerm(thead)) {
+#if HAVE_SNPRINTF
+      snprintf(cptr, (top-cptr)-1024,"%ld", (long int)IntegerOfTerm(thead));
+#else
+      sprintf(cptr,"%ld", IntegerOfTerm(thead));
+#endif
+      while (*cptr && cptr < top-1024) cptr++;
+    } else if (IsFloatTerm(thead)) {
+#if HAVE_SNPRINTF
+      snprintf(cptr,(top-cptr)-1024,"%g", FloatOfTerm(thead));
+#else
+      sprintf(cptr,"%g", FloatOfTerm(thead));
+#endif
+      while (*cptr && cptr < top-1024) cptr++;
+#if USE_GMP
+    } else if (IsBigIntTerm(thead)) {
+      MP_INT *n = Yap_BigIntOfTerm(thead);
+      int sz;
+
+      if ((sz = mpz_sizeinbase (n, 10)) > (top-cptr)-1024) {
+	Yap_ReleasePreAllocCodeSpace((ADDR)cpt0);
+	if (!Yap_growheap(FALSE, sz+1024, NULL)) {
+	  Yap_Error(SYSTEM_ERROR, TermNil, Yap_ErrorMessage);
+	  return(FALSE);
+	}
+	goto restart;
       }
-      goto restart;
+      mpz_get_str(cptr, 10, n);
+      while (*cptr) cptr++;
+#endif
     }
-    memcpy((void *)cptr, (void *)atom_str, sz);
-    cptr += sz;
     t1 = TailOfTerm(t1);
     if (IsVarTerm(t1)) {
       Yap_ReleasePreAllocCodeSpace((ADDR)cpt0);
@@ -2785,8 +2859,12 @@ Yap_InitCPreds(void)
   Yap_InitCPred("$hidden", 1, p_hidden, SafePredFlag|SyncPredFlag);
   Yap_InitCPred("$has_yap_or", 0, p_has_yap_or, SafePredFlag|SyncPredFlag);
 #ifdef LOW_PROF
-  Yap_InitCPred("useprof", 1, useprof, SafePredFlag);
-  Yap_InitCPred("useprof", 0, useprof0, SafePredFlag);
+  Yap_InitCPred("profinit",0, profinit, SafePredFlag);
+  Yap_InitCPred("profend" ,0, profend, SafePredFlag);
+  Yap_InitCPred("profon" , 0, profon0, SafePredFlag);
+  Yap_InitCPred("profon" , 1, profon, SafePredFlag);
+  Yap_InitCPred("profoff", 0, profoff, SafePredFlag);
+  Yap_InitCPred("profalt", 0, profalt, SafePredFlag);
   Yap_InitCPred("profres", 1, profres, SafePredFlag);
   Yap_InitCPred("profres", 0, profres0, SafePredFlag);
 #endif

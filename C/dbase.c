@@ -1933,8 +1933,11 @@ p_rcdap(void)
     }
     goto recover_record;
   case OUT_OF_TRAIL_ERROR:
-    Yap_Error(SYSTEM_ERROR, TermNil, "YAP could not grow trail in recorda/3");
-    return FALSE;
+    if(!Yap_growtrail (sizeof(CELL) * 16 * 1024L)) {
+      Yap_Error(OUT_OF_TRAIL_ERROR, TermNil, "YAP could not grow trail in recorda/3");
+      return FALSE;
+    }
+    goto recover_record;
   case OUT_OF_HEAP_ERROR:
     if (!Yap_ExpandPreAllocCodeSpace(Yap_Error_Size)) {
       return FALSE;
@@ -1981,8 +1984,11 @@ p_rcda_at(void)
     }
     goto recover_record;
   case OUT_OF_TRAIL_ERROR:
-    Yap_Error(SYSTEM_ERROR, TermNil, "YAP could not grow trail in recorda/3");
-    return(FALSE);
+    if(!Yap_growtrail (sizeof(CELL) * 16 * 1024L)) {
+      Yap_Error(OUT_OF_TRAIL_ERROR, TermNil, "YAP could not grow trail in recorda/3");
+      return FALSE;
+    }
+    goto recover_record;
   case OUT_OF_HEAP_ERROR:
     if (!Yap_ExpandPreAllocCodeSpace(Yap_Error_Size)) {
       return FALSE;
@@ -2037,8 +2043,11 @@ p_rcdz(void)
     }
     goto recover_record;
   case OUT_OF_TRAIL_ERROR:
-    Yap_Error(SYSTEM_ERROR, TermNil, "YAP could not grow trail in recorda/3");
-    return(FALSE);
+    if(!Yap_growtrail (sizeof(CELL) * 16 * 1024L)) {
+      Yap_Error(OUT_OF_TRAIL_ERROR, TermNil, "YAP could not grow trail in recorda/3");
+      return FALSE;
+    }
+    goto recover_record;
   case OUT_OF_HEAP_ERROR:
     if (!Yap_ExpandPreAllocCodeSpace(Yap_Error_Size)) {
       return FALSE;
@@ -2076,8 +2085,11 @@ p_rcdzp(void)
     }
     goto recover_record;
   case OUT_OF_TRAIL_ERROR:
-    Yap_Error(SYSTEM_ERROR, TermNil, "YAP could not grow trail in recorda/3");
-    return(FALSE);
+    if(!Yap_growtrail (sizeof(CELL) * 16 * 1024L)) {
+      Yap_Error(OUT_OF_TRAIL_ERROR, TermNil, "YAP could not grow trail in recorda/3");
+      return FALSE;
+    }
+    goto recover_record;
   case OUT_OF_HEAP_ERROR:
     if (!Yap_ExpandPreAllocCodeSpace(Yap_Error_Size)) {
       return FALSE;
@@ -2124,8 +2136,11 @@ p_rcdz_at(void)
     }
     goto recover_record;
   case OUT_OF_TRAIL_ERROR:
-    Yap_Error(SYSTEM_ERROR, TermNil, "YAP could not grow trail in recordz_at/3");
-    return(FALSE);
+    if(!Yap_growtrail (sizeof(CELL) * 16 * 1024L)) {
+      Yap_Error(OUT_OF_TRAIL_ERROR, TermNil, "YAP could not grow trail in recorda/3");
+      return FALSE;
+    }
+    goto recover_record;
   case OUT_OF_HEAP_ERROR:
     if (!Yap_ExpandPreAllocCodeSpace(Yap_Error_Size)) {
       return FALSE;
@@ -2171,8 +2186,11 @@ p_rcdstatp(void)
     }
     goto recover_record;
   case OUT_OF_TRAIL_ERROR:
-    Yap_Error(SYSTEM_ERROR, TermNil, "YAP could not grow trail in record_stat_source/3");
-    return FALSE;
+    if(!Yap_growtrail (sizeof(CELL) * 16 * 1024L)) {
+      Yap_Error(OUT_OF_TRAIL_ERROR, TermNil, "YAP could not grow trail in recorda/3");
+      return FALSE;
+    }
+    goto recover_record;
   case OUT_OF_HEAP_ERROR:
     if (!Yap_ExpandPreAllocCodeSpace(Yap_Error_Size)) {
       return FALSE;
@@ -2213,8 +2231,11 @@ p_drcdap(void)
     }
     goto recover_record;
   case OUT_OF_TRAIL_ERROR:
-    Yap_Error(SYSTEM_ERROR, TermNil, "YAP could not grow trail in recorda/3");
-    return(FALSE);
+    if(!Yap_growtrail (sizeof(CELL) * 16 * 1024L)) {
+      Yap_Error(OUT_OF_TRAIL_ERROR, TermNil, "YAP could not grow trail in recorda/3");
+      return FALSE;
+    }
+    goto recover_record;
   case OUT_OF_HEAP_ERROR:
     if (!Yap_ExpandPreAllocCodeSpace(Yap_Error_Size)) {
       return FALSE;
@@ -2256,8 +2277,11 @@ p_drcdzp(void)
     }
     goto recover_record;
   case OUT_OF_TRAIL_ERROR:
-    Yap_Error(SYSTEM_ERROR, TermNil, "YAP could not grow trail in recorda/3");
-    return(FALSE);
+    if(!Yap_growtrail (sizeof(CELL) * 16 * 1024L)) {
+      Yap_Error(OUT_OF_TRAIL_ERROR, TermNil, "YAP could not grow trail in recorda/3");
+      return FALSE;
+    }
+    goto recover_record;
   case OUT_OF_HEAP_ERROR:
     if (!Yap_ExpandPreAllocCodeSpace(Yap_Error_Size)) {
       return FALSE;
@@ -3895,23 +3919,22 @@ static void
 EraseLogUpdCl(LogUpdClause *clau)
 {
   PredEntry *ap;
-#if defined(YAPOR) || defined(THREADS)
-  int i_locked = FALSE;
-#endif
 
   ap = clau->ClPred;
-#if defined(YAPOR) || defined(THREADS)
-  if (WPP != ap) {
-    WRITE_LOCK(ap->PRWLock);
-    if (WPP == NULL) {
-      i_locked = TRUE;
-      WPP = ap;
-    }
-  }
-#endif
   LOCK(clau->ClLock);
   /* no need to erase what has been erased */ 
   if (!(clau->ClFlags & ErasedMask)) {
+#if defined(YAPOR) || defined(THREADS)
+    int i_locked = FALSE;
+
+    if (WPP != ap) {
+      WRITE_LOCK(ap->PRWLock);
+      if (WPP == NULL) {
+	i_locked = TRUE;
+	WPP = ap;
+      }
+    }
+#endif
     /* get ourselves out of the list */
     if (clau->ClNext != NULL) {
       LOCK(clau->ClNext->ClLock);
@@ -3962,15 +3985,15 @@ EraseLogUpdCl(LogUpdClause *clau)
     /* release the extra reference */
     LOCK(clau->ClLock);
     clau->ClRefCount--;
-  }
-  UNLOCK(clau->ClLock);
-  complete_lu_erase(clau);
 #if defined(YAPOR) || defined(THREADS)
     if (WPP != ap || i_locked) {
       if (i_locked) WPP= NULL;
       WRITE_UNLOCK(ap->PRWLock);
     }
 #endif
+  }
+  UNLOCK(clau->ClLock);
+  complete_lu_erase(clau);
 }
 
 static void
@@ -4700,8 +4723,14 @@ StoreTermInDB(Term t, int nargs)
 	break;
       }
     case OUT_OF_TRAIL_ERROR:
-      Yap_Error(OUT_OF_TRAIL_ERROR, TermNil, "YAP could not grow trail in recorda/3");
-      return(FALSE);
+      XREGS[nargs+1] = t;
+      if(!Yap_growtrail (sizeof(CELL) * 16 * 1024L)) {
+	Yap_Error(OUT_OF_TRAIL_ERROR, TermNil, "YAP could not grow trail in recorda/3");
+	return FALSE;
+      } else {
+	t = Deref(XREGS[nargs+1]);
+	break;
+      }      
     case OUT_OF_HEAP_ERROR:
       XREGS[nargs+1] = t;
       if (!Yap_ExpandPreAllocCodeSpace(Yap_Error_Size)) {

@@ -25,7 +25,8 @@
 '$init_thread0' :-
 	no_threads, !.
 '$init_thread0' :-
-	'$create_mq'(0).
+	'$create_mq'(0),
+	'$add_thread_aliases'([main], 0).
 	
 
 '$top_thread_goal'(G, Detached) :-
@@ -281,7 +282,7 @@ message_queue_create(Cond) :-
 	recorda('$queue',q(Cond,Mutex,Cond,CName), _).
 message_queue_create(Name) :-
 	atom(Name),
-	recorded('$thread_alias',[Name|_],_), !,
+	recorded('$thread_alias',[_,Name],_), !,
 	'$do_error'(permission_error(create,queue,Name),message_queue_create(Name)).
 message_queue_create(Name) :-
 	atom(Name), !,
@@ -323,9 +324,9 @@ message_queue_destroy(Name) :-
 	erase(R),
 	fail.
 '$clean_mqueue'(_).
-	
+
 thread_send_message(Queue, Term) :-
-	recorded('$thread_alias',[Queue|Id],_), !,
+	recorded('$thread_alias',[Id|Queue],_), !,
 	thread_send_message(Id, Term).
 thread_send_message(Queue, Term) :-
 	recorded('$queue',q(Queue,Mutex,Cond,Key),_),
@@ -338,6 +339,9 @@ thread_get_message(Term) :-
 	'$thread_self'(Id),
 	thread_get_message(Id, Term).
 
+thread_get_message(Queue, Term) :-
+	recorded('$thread_alias',[Id|Queue],_), !,
+	thread_get_message(Id, Term).
 thread_get_message(Queue, Term) :-
 	recorded('$queue',q(Queue,Mutex,Cond,Key),_),
 	mutex_lock(Mutex),
@@ -396,7 +400,7 @@ thread_signal(Thread, Goal) :-
 	var(Thread), !,
 	'$do_error'(instantiation_error,thread_signal(Thread, Goal)).
 thread_signal(Thread, Goal) :-
-	recorded('$thread_alias',[Thread|Id],_),
+	recorded('$thread_alias',[Id|Thread],_),
 	'$thread_signal'(Id, Goal).
 thread_signal(Thread, Goal) :-
 	integer(Thread), !,

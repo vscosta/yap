@@ -231,3 +231,22 @@ Yap_op_from_opcode(OPCODE opc)
 }
 #endif /* USE_THREADED_CODE */
 
+#if defined(YAPOR) || defined(THREADS)
+static int
+same_lu_block(yamop **paddr, yamop *p)
+{
+  yamop *np = *paddr;
+  if (np != p) {
+    OPCODE jmp_op = Yap_opcode(_jump_if_nonvar);
+
+    while (np->opc == jmp_op) {
+      np = NEXTOP(np, xl);
+      if (np == p) return TRUE;
+    }
+    return FALSE;
+  } else {
+    return TRUE;
+  }
+}
+#endif
+

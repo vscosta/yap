@@ -540,9 +540,9 @@ static_growheap(long size, int fix_code, struct intermediates *cip)
     UNLOCK(SignalLock);
   }
   ASP -= 256;
+  YAPEnterCriticalSection();
   TrDiff = LDiff = GDiff = DelayDiff = size;
   XDiff = HDiff = 0;
-  YAPEnterCriticalSection();
   SetHeapRegs();
   MoveLocalAndTrail();
   if (fix_code) {
@@ -590,9 +590,9 @@ static_growglobal(long size, CELL **ptr)
     fprintf(Yap_stderr, "[DO]   growing the stacks %ld bytes\n", size);
   }
   ASP -= 256;
+  YAPEnterCriticalSection();
   TrDiff = LDiff = GDiff = size;
   XDiff = HDiff = DelayDiff = 0;
-  YAPEnterCriticalSection();
   SetHeapRegs();
   MoveLocalAndTrail();
   MoveGlobalOnly();
@@ -733,7 +733,12 @@ do_growheap(int fix_code, UInt in_size, struct intermediates *cip)
 int
 Yap_growheap(int fix_code, UInt in_size, void *cip)
 {
-  return do_growheap(fix_code, in_size, (struct intermediates *)cip);
+  int res;
+
+  Yap_PrologMode |= GrowHeapMode;
+  res=do_growheap(fix_code, in_size, (struct intermediates *)cip);
+  Yap_PrologMode &= ~GrowHeapMode;
+  return res;
 }
 
 int
@@ -765,6 +770,7 @@ execute_growstack(long size, int from_trail)
     strncat(Yap_ErrorMessage,": local crashed against global", MAX_ERROR_MSG_SIZE);
     return(FALSE);
   }
+  YAPEnterCriticalSection();  
   XDiff = HDiff = 0;
   GDiff = DelayDiff = Yap_GlobalBase-MyGlobalBase;
 #if USE_SYSTEM_MALLOC
@@ -780,7 +786,6 @@ execute_growstack(long size, int from_trail)
     Yap_GlobalBase = (char *)MyGlobalBase;
   }
   ASP -= 256;
-  YAPEnterCriticalSection();
   if (GDiff) {
     SetHeapRegs();
   } else {
@@ -841,7 +846,12 @@ growstack(long size)
 int
 Yap_growstack(long size)
 {
-  return growstack(size);
+  int res;
+
+  Yap_PrologMode |= GrowStackMode;
+  res=growstack(size);
+  Yap_PrologMode &= ~GrowStackMode;
+  return res;
 }
 
 static void
@@ -943,10 +953,10 @@ Yap_growstack_in_parser(tr_fr_ptr *old_trp, TokEntry **tksp, VarEntry **vep)
 	       (unsigned long int)(TR-(tr_fr_ptr)Yap_TrailBase),Yap_TrailBase,TR);
     fprintf(Yap_stderr, "%%  growing the stacks %ld bytes\n", size);
   }
-  TrDiff = LDiff = size;
-  XDiff = HDiff = GDiff = DelayDiff = 0;
   ASP -= 256;
   YAPEnterCriticalSection();
+  TrDiff = LDiff = size;
+  XDiff = HDiff = GDiff = DelayDiff = 0;
   SetStackRegs();
   MoveLocalAndTrail();
   AdjustScannerStacks(tksp, vep);

@@ -2688,11 +2688,20 @@ codes for the characters of the external representation of @var{A}.
 
 @item atom_concat(+@var{As},?@var{A})
 @findex atom_concat/2
-@snindex atom_concat/2
+@syindex atom_concat/2
 @cnindex atom_concat/2
 The predicate holds when the first argument is a list of atoms, and the
 second unifies with the atom obtained by concatenating all the atoms in
 the first list.
+
+@item atomic_concat(+@var{As},?@var{A})
+@findex atomic_concat/2
+@snindex atomic_concat/2
+@cnindex atomic_concat/2
+The predicate holds when the first argument is a list of atoms, and
+the second unifies with the atom obtained by concatenating all the
+atomic terms in the first list. The first argument thus may contain
+atoms or numbers.
 
 @item atom_concat(+@var{A1},+@var{A2},?@var{A})
 @findex atom_concat/3

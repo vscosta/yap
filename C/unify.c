@@ -26,7 +26,7 @@ STATIC_PROTO(int    rtable_hash_op, (OPCODE));
 STATIC_PROTO(void   InitReverseLookupOpcode, (void));
 #endif
 
-static int
+int
 rational_tree_loop(CELL *pt0, CELL *pt0_end, CELL **to_visit0)
 {
   CELL **to_visit = to_visit0;

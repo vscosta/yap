@@ -10,7 +10,7 @@
 * File:		Yap.h.m4						 *
 * mods:									 *
 * comments:	main header file for YAP				 *
-* version:      $Id: Yap.h.m4,v 1.57 2004-04-22 20:07:07 vsc Exp $	 *
+* version:      $Id: Yap.h.m4,v 1.58 2004-06-29 19:04:45 vsc Exp $	 *
 *************************************************************************/
 
 #include "config.h"
@@ -893,7 +893,13 @@ typedef enum {
   InterruptMode = 16,		/* under an interrupt */
   InErrorMode = 32,		/* under an interrupt */
   ConsoleGetcMode = 64,		/* blocked reading from console */
-  ExtendStackMode = 128		/* trying to extend stack */
+  ExtendStackMode = 128,	/* trying to extend stack */
+  GrowHeapMode      = 256,      /* extending Heap  */
+  GrowStackMode     = 512,      /* extending Stack */
+  GCMode            = 1024,     /* doing Garbage Collecting */
+  ErrorHandlingMode = 2048,     /* doing error handling */
+  CCallMode         = 4096,     /* In c Call */
+  UnifyMode         = 8192      /* In Unify Code */
 } prolog_exec_mode;
 
 extern prolog_exec_mode      Yap_PrologMode;

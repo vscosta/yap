@@ -3172,7 +3172,7 @@ p_inform_gc(void)
 static int
 call_gc(UInt gc_lim, Int predarity, CELL *current_env, yamop *nextop)
 {
-  UInt   gc_margin = 128;
+  UInt   gc_margin = MinStackGap;
   Term   Tgc_margin;
   Int    effectiveness = 0;
   int    gc_on = FALSE;
@@ -3225,7 +3225,11 @@ call_gc(UInt gc_lim, Int predarity, CELL *current_env, yamop *nextop)
 int 
 Yap_gc(Int predarity, CELL *current_env, yamop *nextop)
 {
-  return call_gc(4096, predarity, current_env, nextop);
+  int res;
+  Yap_PrologMode |= GCMode;
+  res=call_gc(4096, predarity, current_env, nextop);
+  Yap_PrologMode &= ~GCMode;
+  return res;
 }
 
 int 

@@ -11,8 +11,11 @@
 * File:		compiler.c						 *
 * comments:	Clause compiler						 *
 *									 *
-* Last rev:     $Date: 2004-04-22 20:07:04 $,$Author: vsc $						 *
+* Last rev:     $Date: 2004-06-29 19:04:41 $,$Author: vsc $						 *
 * $Log: not supported by cvs2svn $
+* Revision 1.50  2004/04/22 20:07:04  vsc
+* more fixes for USE_SYSTEM_MEMORY
+*
 * Revision 1.49  2004/03/10 16:27:39  vsc
 * skip compilation steps for ground facts.
 *
@@ -2748,6 +2751,8 @@ Yap_cclause(Term inp_clause, int NOfArgs, int mod, Term src)
       Int osize = 2*sizeof(CELL)*(ASP-H);
       ARG1 = my_clause;
       *H++ = src;
+
+      YAPLeaveCriticalSection();
       if (!Yap_gcl(Yap_Error_Size, 2, ENV, P)) {
 	Yap_Error_TYPE = OUT_OF_STACK_ERROR;
 	Yap_Error_Term = my_clause;
@@ -2758,6 +2763,7 @@ Yap_cclause(Term inp_clause, int NOfArgs, int mod, Term src)
 	  Yap_Error_Term = my_clause;
 	}
       }
+      YAPEnterCriticalSection();
       src = *--H;
       my_clause = ARG1;
     }

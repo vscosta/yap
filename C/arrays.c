@@ -1562,11 +1562,15 @@ p_assign_static(void)
 
 	if (ptr->Flags & LogUpdMask) {
 	  LogUpdClause *lup = (LogUpdClause *)ptr;
+	  LOCK(lup->ClLock);
 	  lup->ClRefCount--;
 	  if (lup->ClRefCount == 0 &&
 	      (lup->ClFlags & ErasedMask) &&
 	      !(lup->ClFlags & InUseMask)) {
+	    UNLOCK(lup->ClLock);
 	    Yap_ErLogUpdCl(lup);
+	  } else {
+	    UNLOCK(lup->ClLock);
 	  }
 	} else {
 	  ptr->NOfRefsTo--;
@@ -1580,7 +1584,9 @@ p_assign_static(void)
       
       if (p->Flags & LogUpdMask) {
 	LogUpdClause *lup = (LogUpdClause *)p;
+	LOCK(lup->ClLock);
 	lup->ClRefCount++;
+	UNLOCK(lup->ClLock);
       } else {
 	p->NOfRefsTo++;
       }

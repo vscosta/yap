@@ -11,8 +11,12 @@
 * File:		cdmgr.c							 *
 * comments:	Code manager						 *
 *									 *
-* Last rev:     $Date: 2004-06-05 03:36:59 $,$Author: vsc $						 *
+* Last rev:     $Date: 2004-06-29 19:04:41 $,$Author: vsc $						 *
 * $Log: not supported by cvs2svn $
+* Revision 1.124  2004/06/05 03:36:59  vsc
+* coroutining is now a part of attvars.
+* some more fixes.
+*
 * Revision 1.123  2004/05/17 21:42:09  vsc
 * misc fixes
 *
@@ -3299,6 +3303,10 @@ p_continue_log_update_clause(void)
   PredEntry *pe = (PredEntry *)IntegerOfTerm(Deref(ARG1));
   yamop *ipc = (yamop *)IntegerOfTerm(ARG2);
 
+#if defined(YAPOR) || defined(THREADS)
+  READ_LOCK(pe->PRWLock);
+  PP = pe;
+#endif
   return fetch_next_lu_clause(pe, ipc, Deref(ARG3), ARG4, ARG5, B->cp_ap, FALSE);
 }
 
@@ -3395,6 +3403,10 @@ p_continue_log_update_clause0(void)
   PredEntry *pe = (PredEntry *)IntegerOfTerm(Deref(ARG1));
   yamop *ipc = (yamop *)IntegerOfTerm(ARG2);
 
+#if defined(YAPOR) || defined(THREADS)
+  READ_LOCK(pe->PRWLock);
+  PP = pe;
+#endif
   return fetch_next_lu_clause0(pe, ipc, Deref(ARG3), ARG4, B->cp_ap, FALSE);
 }
 

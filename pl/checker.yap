@@ -11,8 +11,14 @@
 * File:		checker.yap						 *
 * comments:	style checker for Prolog				 *
 *									 *
-* Last rev:     $Date: 2004-03-19 11:35:42 $,$Author: vsc $						 *
-* $Log: not supported by cvs2svn $                                                                  *
+* Last rev:     $Date: 2004-06-29 19:04:46 $,$Author: vsc $						 *
+* $Log: not supported by cvs2svn $
+* Revision 1.13  2004/03/19 11:35:42  vsc
+* trim_trail for default machine
+* be more aggressive about try-retry-trust chains.
+*    - handle cases where block starts with a wait
+*    - don't use _killed instructions, just let the thing rot by itself.
+*                                                                  *
 *									 *
 *************************************************************************/
 
@@ -28,10 +34,16 @@ style_check(all) :- '$syntax_check_mode'(_,on),
 	'$syntax_check_multiple'(_,on).
 style_check(single_var) :- '$syntax_check_mode'(_,on),
 	'$syntax_check_single_var'(_,on).
+style_check(-single_var) :-
+	no_style_check(single_var).
 style_check(discontiguous) :- '$syntax_check_mode'(_,on),
 	'$syntax_check_discontiguous'(_,on).
+style_check(-discontiguous) :-
+	no_style_check(discontiguous).
 style_check(multiple) :- '$syntax_check_mode'(_,on),
 	'$syntax_check_multiple'(_,on).
+style_check(-multiple) :-
+	no_style_check(multiple).
 style_check([]).
 style_check([H|T]) :- style_check(H), style_check(T).
 

@@ -10,8 +10,11 @@
 * File:		c_interface.c						 *
 * comments:	c_interface primitives definition 			 *
 *									 *
-* Last rev:	$Date: 2004-06-09 03:32:02 $,$Author: vsc $						 *
+* Last rev:	$Date: 2004-06-29 19:04:41 $,$Author: vsc $						 *
 * $Log: not supported by cvs2svn $
+* Revision 1.49  2004/06/09 03:32:02  vsc
+* fix bugs
+*
 * Revision 1.48  2004/06/05 03:36:59  vsc
 * coroutining is now a part of attvars.
 * some more fixes.
@@ -923,11 +926,13 @@ YAP_CompileClause(Term t)
 
   Yap_ErrorMessage = NULL;
   ARG1 = t;
+  YAPEnterCriticalSection();
   codeaddr = Yap_cclause (t,0, mod, t);
   if (codeaddr != NULL) {
     t = Deref(ARG1); /* just in case there was an heap overflow */
     Yap_addclause (t, codeaddr, TRUE, mod);
   }
+  YAPLeaveCriticalSection();
 
   RECOVER_MACHINE_REGS();
   return(Yap_ErrorMessage);

@@ -379,7 +379,7 @@ debugging :-
 '$continue_avoid_goal'(_, G, Module, _) :-
     recorded('$spy_stop', on, _), !,
     \+ '$pred_being_spied'(G, Module).
-% fpr skip keep on going until we get back.
+% for skip keep on going until we get back.
 '$continue_avoid_goal'(GoalNumber, _, _, Value) :-
     number(Value),
     Value < GoalNumber.
@@ -509,7 +509,7 @@ debugging :-
 '$action'(0'n,_,_,_,_) :- !,			% n		nodebug
 	'$skipeol'(0'n),
 	'$set_yap_flags'(10,0),
-	( recorded('$spy_stop',_,R), erase(R), fail ; true).
+	( recorded('$spy_stop',_,R), erase(R), fail ; true),
 	nodebug.
 '$action'(0'k,_,CallNumber,_,_) :- !,		% k		quasi leap
 	'$skipeol'(0'k),

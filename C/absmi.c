@@ -10,8 +10,15 @@
 *									 *
 * File:		absmi.c							 *
 * comments:	Portable abstract machine interpreter                    *
-* Last rev:     $Date: 2004-06-23 17:24:19 $,$Author: vsc $						 *
+* Last rev:     $Date: 2004-06-29 19:04:40 $,$Author: vsc $						 *
 * $Log: not supported by cvs2svn $
+* Revision 1.137  2004/06/23 17:24:19  vsc
+* New comment-based message style
+* Fix thread support (at least don't deadlock with oneself)
+* small fixes for coroutining predicates
+* force Yap to recover space in arrays of dbrefs
+* use private predicates in debugger.
+*
 * Revision 1.136  2004/06/17 22:07:22  vsc
 * bad bug in indexing code.
 *
@@ -94,25 +101,6 @@ AritFunctorOfTerm(Term t) {
 
 #include "arith2.h"
 
-#ifdef THREADS
-static int
-same_lu_block(yamop **paddr, yamop *p)
-{
-  yamop *np = *paddr;
-  if (np != p) {
-    OPCODE jmp_op = Yap_opcode(_jump_if_nonvar);
-
-    while (np->opc == jmp_op) {
-      np = NEXTOP(np, xl);
-      if (np == p) return TRUE;
-    }
-    return FALSE;
-  } else {
-    return TRUE;
-  }
-}
-#endif
-
 #ifdef COROUTINING
 /*
   Imagine we are interrupting the execution, say, because we have a spy
@@ -179,19 +167,36 @@ push_live_regs(yamop *pco)
 #endif
 
 #if LOW_PROF 
+#include <signal.h>
+#include <ucontext.h>
 #include <stdio.h>
-void prof_alrm(int signo)
+
+#define TestMode (GCMode | GrowHeapMode | GrowStackMode | ErrorHandlingMode | InErrorMode | AbortMode)
+int Yap_absmiEND(void);
+void prof_alrm(int signo, siginfo_t *si, ucontext_t *sc);
+
+void prof_alrm(int signo, siginfo_t *si, ucontext_t *sc)
 {
-#ifdef i386
-  fprintf(FProf,"%p\n", PREG);
-#else
-  /* vsc: not really supported for shadow regs */
-  fprintf(FProf,"%p\n", P);
-#endif
+  void * oldpc=(void *) sc->uc_mcontext.gregs[14]; /* 14= REG_EIP */
+
+  if (Yap_PrologMode & TestMode) {
+    fprintf(FProf,"%p %p\n", (void *) (Yap_PrologMode & TestMode), P);
+    return;
+  }
+  
+  //  printf("[%p,%p] -> %p\n", Yap_ABSMI_OPCODES[_try_me], Yap_ABSMI_OPCODES[_p_execute_tail], oldpc);
+  // if (oldpc<(void *) &Yap_absmi || oldpc> (void *) Yap_ABSMI_OPCODES[_p_execute_tail]) { 
+  if (oldpc<(void *) &Yap_absmi || oldpc> (void *) &Yap_absmiEND) { 
+     fprintf(FProf,"%p %p\n", (void *) oldpc, P);
+     return;
+  }
+
+  fprintf(FProf,"0 %p\n", PREG);
   return;
 }
 
 #endif
+
 Int 
 Yap_absmi(int inp)
 {
@@ -1189,13 +1194,16 @@ Yap_absmi(int inp)
       BOp(stale_lu_index, Ill);
       {
 	yamop *ipc;
+#if defined(YAPOR) || defined(THREADS)
 	PredEntry *pe = PREG->u.Ill.l1->u.ld.p;
+#endif
 
 	/* update ASP before calling IPred */
 	ASP = YREG+E_CB;
 	if (ASP > (CELL *) B) {
 	  ASP = (CELL *) B;
 	}
+	saveregs();
 #if defined(YAPOR) || defined(THREADS)
 	LOCK(pe->PELock);
 	if (PP) {
@@ -1209,7 +1217,6 @@ Yap_absmi(int inp)
 	  JMPNext();
 	}
 #endif
-	saveregs();
 	ipc = Yap_CleanUpIndex(PREG->u.Ill.I);
 	setregs();
 	/* restart index */
@@ -11939,4 +11946,8 @@ Yap_absmi(int inp)
 
 }
 
-
+/* dummy function that is needed for profiler */
+int Yap_absmiEND()
+{
+  return 1;
+}
