@@ -194,7 +194,7 @@ rename(Old,New) :- atom(Old), atom(New), !,
 
 unix(V) :- var(V), !,
 	throw(error(instantiation_error,unix(V))).
-unix(argv(L)) :- (var(L) ; atom(L)), !, '$argv'(L).
+unix(argv(L)) :- '$is_list_of_atoms'(L,L), !, '$argv'(L).
 unix(argv(V)) :-
 	throw(error(type_error(atomic,V),unix(argv(V)))).
 unix(cd) :- cd('~').
@@ -217,6 +217,22 @@ unix(system(V)) :-
 	throw(error(type_error(atom,V),unix(system(V)))).
 unix(shell) :- sh.
 unix(putenv(X,Y)) :- '$putenv'(X,Y).
+
+
+'$is_list_of_atoms'(V,_) :- var(V),!.
+'$is_list_of_atoms'([],_) :- !.
+'$is_list_of_atoms'([H|L],L0) :- !,
+	'$check_if_head_may_be_atom'(H,L0),
+	'$is_list_of_atoms'(L,L0).
+'$is_list_of_atoms'(H,L0) :-
+	throw(error(type_error(list,H),unix(argv(L0)))).
+
+'$check_if_head_may_be_atom'(H,L0) :-
+	var(H), !.
+'$check_if_head_may_be_atom'(H,L0) :-
+	atom(H), !.
+'$check_if_head_may_be_atom'(H,L0) :-
+	throw(error(type_error(atom,H),unix(argv(L0)))).
 
 
 '$do_environ'(X, Y) :-

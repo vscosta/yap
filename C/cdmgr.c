@@ -2251,6 +2251,8 @@ p_system_pred(void)
       goto restart_system_pred;
     }
     pe = RepPredProp(GetPredPropByFunc(funt, mod));
+  } else if (IsPairTerm(t1)) {
+    return (TRUE);
   } else
     return (FALSE);
   if (EndOfPAEntr(pe))

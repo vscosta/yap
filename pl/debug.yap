@@ -347,7 +347,6 @@ debugging :-
 '$set_creep'(_).
 
 %'$spycalls'(G,_) :- write(user_error,'$spycalls'(G)), nl(user_error), fail.
-'$spycalls'([_|_],_,_) :- !, fail.
 '$spycalls'('!'(CP),Mod,_) :-
 	'$call'(!, CP, !,Mod).
 '$spycalls'(Mod:G,_,Res) :-
@@ -383,8 +382,8 @@ debugging :-
 	).
 '$spycalls'(G,M,_) :-
 	'$system_predicate'(G,M),
-	'$flags'(G,M,F,_),
-	F /\ 0xc00000 =:= 0,		% but not meta-predicate or cut transparent
+%	'$flags'(G,M,F,_),
+%	F /\ 0xc00000 =:= 0,		% but not meta-predicate or cut transparent
 	!,
 	'$spycall_stdpred'(G,M),
 	(true;
@@ -812,7 +811,6 @@ debugging :-
 	write(user_error,[chk,L,P,Leap,SP,SC,SL,FS,CL,G]), nl(user_error),
 	fail.
 */
-'$chk'(_,_,[_|_],_,_) :- !, fail.
 '$chk'(P,L,G,Mod,SL) :-
 	'$get_value'(spy_leap,Leap),
 	(Leap = 0 -> true;			      % not leaping
