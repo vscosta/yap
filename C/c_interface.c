@@ -443,7 +443,7 @@ YAP_InitSlot(Term t)
 X_API void
 YAP_RecoverSlots(int n)
 {
-  return _YAP_RecoverSlots(n);
+  _YAP_RecoverSlots(n);
 }
 
 X_API Term
