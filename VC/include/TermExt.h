@@ -17,7 +17,7 @@
 * File:		TermExt.h						 *
 * mods:									 *
 * comments:	Extensions to standard terms for YAP			 *
-* version:      $Id: TermExt.h,v 1.6 2001-12-10 05:37:39 vsc Exp $	 *
+* version:      $Id: TermExt.h,v 1.7 2002-01-05 04:04:14 vsc Exp $	 *
 *************************************************************************/
 
 #if USE_OFFSETS
@@ -85,7 +85,10 @@ typedef struct {
      in some  predefined context */
   void (*bind_op)(Term *, Term);
   /* what to do if someone wants to copy our constraint */
-  int (*copy_term_op)(Term, CELL ***);
+  int (*copy_term_op)(CELL *, CELL ***, CELL *);
+  /* copy the constraint into a term and back */
+  Term (*to_term_op)(CELL *);
+  int (*term_to_op)(Term, Term);
   /* op called to do marking in GC */
   void (*mark_op)(CELL *);
 } ext_op;
@@ -239,10 +242,10 @@ inline EXTERN int IsLongIntTerm(Term t)
 
 
 MP_INT *STD_PROTO(PreAllocBigNum,(void));
-void    STD_PROTO(ClearAllocBigNum,(void));
 MP_INT *STD_PROTO(InitBigNum,(Int));
 Term    STD_PROTO(MkBigIntTerm, (MP_INT *));
 MP_INT *STD_PROTO(BigIntOfTerm, (Term));
+void    STD_PROTO(CleanBigNum,(void));
 
 
 inline EXTERN int IsBigIntTerm(Term);
@@ -398,6 +401,7 @@ inline EXTERN Int IsAttachedTerm(Term t)
 {
 	return (Int) (FALSE);
 }
+
 
 
 

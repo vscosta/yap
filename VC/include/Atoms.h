@@ -48,7 +48,7 @@ typedef struct PropEntryStruct *Prop;
 /*		 atom structure						*/
 typedef struct AtomEntryStruct {
   Atom            NextOfAE;	/* used	to build hash chains			*/
-  Prop            PropOfAE;	/* property list for this atom			*/
+  Prop            PropsOfAE;	/* property list for this atom			*/
 #if defined(YAPOR) || defined(THREADS)
   rwlock_t        ARWLock;
 #endif
@@ -103,6 +103,9 @@ typedef struct FunctorEntryStruct {
     unsigned int ArityOfFE;	/* arity of functor		*/
     Atom	NameOfFE;       /* back pointer to owner atom   */
     Prop	PropsOfFE;      /* pointer to list of properties for this functor */
+#if defined(YAPOR) || defined(THREADS)
+    rwlock_t        FRWLock;
+#endif
 } FunctorEntry;
 
 typedef FunctorEntry *Functor;

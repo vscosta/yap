@@ -317,11 +317,11 @@ inline EXTERN AtomEntry * AtomEntryAdjust(AtomEntry * at)
 
 
 
-inline EXTERN consult_obj * ConsultObjAdjust(consult_obj *);
+inline EXTERN union CONSULT_OBJ * ConsultObjAdjust(union CONSULT_OBJ *);
 
-inline EXTERN consult_obj * ConsultObjAdjust(consult_obj * co)
+inline EXTERN union CONSULT_OBJ * ConsultObjAdjust(union CONSULT_OBJ * co)
 {
-	return (consult_obj *) ((consult_obj *)(CharP(co)+HDiff) );
+	return (union CONSULT_OBJ *) ((union CONSULT_OBJ *)(CharP(co)+HDiff) );
 }
 
 

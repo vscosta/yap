@@ -17,7 +17,7 @@
 * File:		Yap.h.m4						 *
 * mods:									 *
 * comments:	main header file for YAP				 *
-* version:      $Id: Yap.h,v 1.6 2001-12-10 05:37:39 vsc Exp $	 *
+* version:      $Id: Yap.h,v 1.7 2002-01-05 04:04:14 vsc Exp $	 *
 *************************************************************************/
 
 #include "config.h"
@@ -247,7 +247,7 @@ extern char     Option[20];
 #elif __APPLE__
 #define MMAP_ADDR 0x01000000
 #else
-#define MMAP_ADDR 0x10000000
+#define MMAP_ADDR 0x09000000
 #endif
 #elif __svr4__
 #define MMAP_ADDR 0x02000000
@@ -322,7 +322,7 @@ typedef CELL Term;
 #ifdef i386
 #include <x86_locks.h>
 #endif
-#ifdef sparc
+#if defined(sparc) || defined(__sparc)
 #include <sparc_locks.h>
 #endif
 #ifdef mips
@@ -574,7 +574,7 @@ and  RefOfTerm(t) : Term -> DBRef = ...
 	incompatible with the high tag scheme. Linux-ELF also does not like
 	if you place things in the lower addresses (power to the libc people).
 */
-#if (defined(_AIX) || defined(_WIN32) || defined(sparc) || defined(mips) || defined(__FreeBSD__) || defined(_POWER) || defined(IN_SECOND_QUADRANT)) && !defined(TABLING)
+#if (defined(_AIX) || defined(_WIN32) || defined(sparc) || defined(__sparc) || defined(mips) || defined(__FreeBSD__) || defined(_POWER) || defined(__linux__) || defined(IN_SECOND_QUADRANT)) && !defined(TABLING)
 #define USE_LOW32_TAGS 1
 #endif
 
@@ -932,15 +932,6 @@ extern int      emacs_mode;
 /************ variable concerned with version number *****************/
 extern char    version_number[];
 
-/* consult stack management */
-
-typedef union CONSULT_OBJ {
-  char *filename;
-  int mode;
-  Prop  p;
-  union CONSULT_OBJ *c;
-} consult_obj;
-
 /********* common instructions codes*************************/
 
 #define MAX_PROMPT  256
@@ -972,7 +963,8 @@ typedef enum {
   UserMode  =   2,		/* Normal mode */
   CritMode  =   4,		/* If we are meddling with the heap */
   AbortMode =   8,		/* expecting to abort */
-  InterruptMode = 16		/* under an interrupt */
+  InterruptMode = 16,		/* under an interrupt */
+  InErrorMode = 32		/* under an interrupt */
 } prolog_exec_mode;
 
 extern prolog_exec_mode      PrologMode;
@@ -1030,7 +1022,7 @@ extern int      yap_argc;
             }                                                            \
             if (PrologMode & AbortMode) {                                \
 	      PrologMode &= ~AbortMode;                                  \
-	      Abort("");                                                 \
+	      Error(PURE_ABORT, 0, "");                            \
             }                                                            \
 	    GLOBAL_LOCKS_who_locked_heap = MAX_WORKERS;                  \
             UNLOCK(GLOBAL_LOCKS_heap_access);                            \
@@ -1053,7 +1045,7 @@ extern int      yap_argc;
             }                                                            \
             if (PrologMode & AbortMode) {                                \
 	      PrologMode &= ~AbortMode;                                  \
-	      Abort("");                                                 \
+	      Error(PURE_ABORT, 0, "");                            \
             }                                                            \
           }                                                              \
         }
