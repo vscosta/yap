@@ -27,9 +27,9 @@
 
 /* Should we use MPE ? */
 #if HAVE_LIBMPE &&  HAVE_MPI
- #define HAVE_MPE 1
+#define HAVE_MPE 1
 #else
- #define HAVE_MPE 0
+#define HAVE_MPE 0
 #endif
 
 
