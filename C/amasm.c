@@ -1342,7 +1342,7 @@ a_glist(void)
 #if AGGREGATE_OPS
   PInstr *pnext = cpc->nextInst;
 
-  if (cpc->rnd2 != 1 && (pnext->op == unify_val_op || pnext->op == unify_local_op)) {
+  if (cpc->rnd2 != 1 && pnext->op == unify_val_op) {
     Ventry *ve = (Ventry *) pnext->rnd1;
     pnext->rnd2 = cpc->rnd2;
     cpc = pnext;
