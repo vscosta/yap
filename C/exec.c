@@ -144,12 +144,12 @@ CallClause(PredEntry *pen, Int position)
       CLAUSECODE->func = pen->FunctorOfPred;
       while (position > 1) {
 	while (ClauseCodeToDynamicClause(q)->ClFlags & ErasedMask)
-	  q = NextClause(q);
+	  q = NextDynamicClause(q);
 	position--;
-	q = NextClause(q);
+	q = NextDynamicClause(q);
       }
       while (ClauseCodeToDynamicClause(q)->ClFlags & ErasedMask)
-	q = NextClause(q);
+	q = NextDynamicClause(q);
 #if defined(YAPOR) || defined(THREADS)
       {
 	DynamicClause *cl = ClauseCodeToDynamicClause(q);
@@ -166,7 +166,7 @@ CallClause(PredEntry *pen, Int position)
 	*opp |= InUseMask;
       }
 #endif
-      CLAUSECODE->clause = NEXTOP((yamop *)(q),ld);
+      CLAUSECODE->clause = NEXTOP(q,ld);
       P = CLAUSECODE->clause;
       WRITE_UNLOCK(pen->PRWLock);
       return((CELL)(&(CLAUSECODE->clause)));
@@ -178,9 +178,11 @@ CallClause(PredEntry *pen, Int position)
       WRITE_UNLOCK(pen->PRWLock);
       return (Unsigned(pen));
     } else {
+      /* static clause */
+      LogUpdClause *cl = ClauseCodeToLogUpdClause(q);
       for (; position > 1; position--)
-	q = NextClause(q);
-      P = NEXTOP((yamop *)(q),ld);
+	cl = cl->ClNext;
+      P = cl->ClCode;
       WRITE_UNLOCK(pen->PRWLock);
       return (Unsigned(pen));
     }
@@ -1469,7 +1471,8 @@ p_clean_ifcp(void) {
 
 static Int
 JumpToEnv(Term t) {
-  yamop *pos = NEXTOP(PredDollarCatch->cs.p_code.TrueCodeOfPred,ld);
+  yamop *pos = NEXTOP(PredDollarCatch->cs.p_code.TrueCodeOfPred,ld),
+    *catchpos = NEXTOP(PredHandleThrow->cs.p_code.TrueCodeOfPred,ld);
   CELL *env;
   choiceptr first_func = NULL, B0 = B;
 
@@ -1477,7 +1480,7 @@ JumpToEnv(Term t) {
     /* find the first choicepoint that may be a catch */
     while (B != NULL && B->cp_ap != pos) {
       /* we are already doing a catch */
-      if (B->cp_ap == PredHandleThrow->cs.p_code.LastClause) {
+      if (B->cp_ap == catchpos) {
 	P = (yamop *)FAILCODE;
 	if (first_func != NULL) {
 	  B = first_func;
@@ -1511,7 +1514,7 @@ JumpToEnv(Term t) {
   } while (TRUE);
   /* step one environment above */
   B->cp_cp = (yamop *)env[E_CP];
-  B->cp_ap = PredHandleThrow->cs.p_code.LastClause;
+  B->cp_ap = NEXTOP(PredHandleThrow->CodeOfPred,ld);
   B->cp_env = (CELL *)env[E_E];
   /* cannot recover Heap because of copy term :-( */
   B->cp_h = H;

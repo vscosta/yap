@@ -32,7 +32,7 @@ typedef union CONSULT_OBJ {
 #define ASSEMBLING_CLAUSE	0
 #define ASSEMBLING_INDEX	1
 
-#define NextClause(X)	(((yamop *)X)->u.ld.d)
+#define NextDynamicClause(X)	(((yamop *)X)->u.ld.d)
 
 #define PredFirstClause		0
 #define PredMiddleClause	1
@@ -75,8 +75,6 @@ typedef struct logic_upd_clause {
   struct logic_upd_clause   *ClPrev, *ClNext;
   /* parent pointer */
   PredEntry   *ClPred;
-  /* file which defined the clause */
-  Atom Owner;
   /* The instructions, at least one of the form sl */
   yamop            ClCode[MIN_ARRAY];
 } LogUpdClause;
@@ -89,7 +87,6 @@ typedef struct dynamic_clause {
   lockvar          ClLock;
 #endif
   UInt             ClRefCount;
-  Atom Owner;
   yamop              *ClPrevious;     /* immediate update clause */
   /* The instructions, at least one of the form sl */
   yamop            ClCode[MIN_ARRAY];
@@ -112,7 +109,7 @@ typedef struct static_clause {
     DBTerm          *ClSource;
     PredEntry       *ClPred;
   } usc;
-  Atom Owner;
+  struct static_clause   *ClNext;
   /* The instructions, at least one of the form sl */
   yamop            ClCode[MIN_ARRAY];
 } StaticClause;
@@ -174,6 +171,7 @@ void	STD_PROTO(Yap_addclause,(Term,yamop *,int,int));
 void	STD_PROTO(Yap_add_logupd_clause,(PredEntry *,LogUpdClause *,int));
 void	STD_PROTO(Yap_kill_iblock,(ClauseUnion *,ClauseUnion *,PredEntry *));
 void	STD_PROTO(Yap_cleanup_dangling_indices,(yamop *,yamop *,yamop *,yamop *));
+void	STD_PROTO(Yap_EraseStaticClause,(StaticClause *, SMALLUNSGN));
 ClauseUnion *STD_PROTO(Yap_find_owner_index,(yamop *, PredEntry *));
 
 /* dbase.c */

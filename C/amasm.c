@@ -1016,7 +1016,7 @@ a_igl(op_numbers opcode)
 {
   if (pass_no) {
     code_p->opc = emit_op(opcode);
-    code_p->u.l.l = emit_a(cpc->rnd1);
+    code_p->u.l.l = emit_ilabel(cpc->rnd1);
   }
   GONEXT(l);
 }
@@ -2048,7 +2048,6 @@ do_pass(void)
       if (pass_no) {
 	cl_u->luc.Id = FunctorDBRef;
 	cl_u->luc.ClFlags = LogUpdMask;
-	cl_u->luc.Owner = Yap_ConsultingFile();
 	cl_u->luc.ClRefCount = 0;
 	cl_u->luc.ClPred = CurrentPred;
 	if (clause_has_blobs) {
@@ -2065,7 +2064,6 @@ do_pass(void)
     } else if (dynamic) {
       if (pass_no) {
 	cl_u->ic.ClFlags = DynamicMask;
-	cl_u->ic.Owner = Yap_ConsultingFile();
 	if (clause_has_blobs) {
 	  cl_u->ic.ClFlags |= HasBlobsMask;
 	}
@@ -2081,7 +2079,7 @@ do_pass(void)
       if (pass_no) {
 	cl_u->sc.Id = FunctorDBRef;
 	cl_u->sc.ClFlags = StaticMask;
-	cl_u->sc.Owner = Yap_ConsultingFile();
+	cl_u->sc.ClNext = NULL;
 	if (clause_has_blobs) {
 	  cl_u->sc.ClFlags |= HasBlobsMask;
 	}
@@ -2090,7 +2088,7 @@ do_pass(void)
     }
     IPredArity = cpc->rnd2;	/* number of args */
     entry_code = code_p;
-    if (!log_update) {
+    if (dynamic) {
 #ifdef YAPOR
       a_try(TRYOP(_try_me, _try_me0), 0, IPredArity, 1, 0);
 #else
@@ -2687,8 +2685,15 @@ Yap_assemble(int mode, Term t, PredEntry *ap, int is_fact)
     }
     H = h0;
     cl = (StaticClause *)((CODEADDR)x-(UInt)size);
-    cl->usc.ClSource = x;
     code_addr = (yamop *)cl;
+    entry_code = do_pass();
+    /* make sure we copy after second pass */
+    cl->usc.ClSource = x;
+    YAPLeaveCriticalSection();
+#ifdef LOW_PROF
+    Yap_prof_end=code_p;
+#endif
+    return entry_code;
   } else {
     while ((code_addr = (yamop *) Yap_AllocCodeSpace(size)) == NULL) {
       if (!Yap_growheap(TRUE, size)) {

@@ -460,7 +460,6 @@ Yap_InitCPred(char *Name, unsigned long int Arity, CPredicate code, int flags)
     cl = (StaticClause *)Yap_AllocCodeSpace((CELL)NEXTOP(NEXTOP(NEXTOP(NEXTOP(((yamop *)p_code),e),sla),e),e)); 
   }
   cl->ClFlags = 0;
-  cl->Owner = Yap_LookupAtom("user");
   p_code = cl->ClCode;
 
   pe->CodeOfPred = p_code;
@@ -499,7 +498,6 @@ Yap_InitCmpPred(char *Name, unsigned long int Arity, CmpPredicate cmp_code, int 
   StaticClause     *cl = (StaticClause *)Yap_AllocCodeSpace((CELL)NEXTOP(NEXTOP(((yamop *)p_code),lxx),e)); 
 
   cl->ClFlags = 0;
-  cl->Owner = Yap_LookupAtom("user");
   p_code = cl->ClCode;
   if (Arity)
     pe = RepPredProp(PredPropByFunc(Yap_MkFunctor(atom, Arity),CurrentModule));
@@ -536,7 +534,6 @@ Yap_InitAsmPred(char *Name,  unsigned long int Arity, int code, CPredicate def, 
     StaticClause     *cl = (StaticClause *)Yap_AllocCodeSpace((CELL)NEXTOP(NEXTOP(((yamop *)p_code),sla),e)); 
 
     cl->ClFlags = 0;
-    cl->Owner = Yap_LookupAtom("user");
     p_code = cl->ClCode;
     pe->CodeOfPred = p_code;
     p_code->opc = pe->OpcodeOfPred = Yap_opcode(_call_cpred);
@@ -611,7 +608,6 @@ Yap_InitCPredBack(char *Name, unsigned long int Arity, unsigned int Extra, CPred
       return;
     }
     cl->ClFlags = 0;
-    cl->Owner = Yap_LookupAtom("user");
     code = cl->ClCode;
     pe->cs.p_code.TrueCodeOfPred = pe->CodeOfPred =
       pe->cs.p_code.FirstClause = pe->cs.p_code.LastClause = code;

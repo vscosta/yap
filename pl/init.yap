@@ -37,6 +37,9 @@ not(G) :-    '$current_module'(Module), '$meta_call'(not(G),Module).
 
 :- set_value('$doindex',true).
 
+% force having indexing code for throw.
+:- '$handle_throw'(_,_,_), !.
+
 :- 	['errors.yap',
 	 'utils.yap',
 	 'arith.yap'].

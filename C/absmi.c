@@ -6572,7 +6572,6 @@ Yap_absmi(int inp)
 
       /* same as retry */
       BOp(retry_killed, ld);
-    retry_label:
       CACHE_Y(B);
       restore_yaam_regs(NEXTOP(PREG, ld));
       restore_at_least_one_arg(PREG->u.ld.s);

@@ -693,7 +693,9 @@ static CELL *MkDBTerm(register CELL *pt0, register CELL *pt0_end,
 #ifdef IDB_LINK_TABLE
 	    lr--;
 #endif
-	    dbentry->NOfRefsTo++;
+	    if (!(dbentry->Flags & StaticMask)) {
+	      dbentry->NOfRefsTo++;
+	    }
 	    *--tofref = dbentry;
 	    /* just continue the loop */
 	    ++ pt0;
@@ -1807,7 +1809,6 @@ record_lu(PredEntry *pe, Term t, int position)
   cl->Id = FunctorDBRef;
   cl->ClFlags = LogUpdMask;
   cl->ClSource = x;
-  cl->Owner = AtomUser;
   cl->ClRefCount = 0;
   cl->ClPred = pe;
   cl->ClExt = NULL;
@@ -4057,6 +4058,9 @@ EraseEntry(DBRef entryref)
 
   if (entryref->Flags & ErasedMask)
     return;
+  if (entryref->Flags & StaticMask) {
+    return;
+  }
   if (entryref->Flags & LogUpdMask &&
       !(entryref->Flags & DBClMask)) {
     EraseLogUpdCl((LogUpdClause *)entryref);
@@ -4114,6 +4118,31 @@ p_erase(void)
   return (TRUE);
 }
 
+static Int
+p_erase_clause(void)
+{
+  Term t1 = Deref(ARG1);
+  DBRef entryref;
+
+  if (IsVarTerm(t1)) {
+    Yap_Error(INSTANTIATION_ERROR, t1, "erase");
+    return (FALSE);
+  }
+  if (!IsDBRefTerm(t1)) {
+    Yap_Error(TYPE_ERROR_DBREF, t1, "erase");
+    return (FALSE);
+  }
+  entryref = DBRefOfTerm(t1);
+  if (entryref->Flags & StaticMask) {
+    if (entryref->Flags & ErasedMask)
+      return FALSE;
+    Yap_EraseStaticClause((StaticClause *)entryref, Yap_LookupModule(Deref(ARG2)));
+    return TRUE;
+  }
+  EraseEntry(DBRefOfTerm(t1));
+  return TRUE;
+}
+ 
 /* eraseall(+Key)	 */
 static Int 
 p_eraseall(void)
@@ -4834,9 +4863,8 @@ Yap_InitDBPreds(void)
   Yap_InitCPred("$recordzp", 3, p_rcdzp, SyncPredFlag);
   Yap_InitCPred("$recordap", 4, p_drcdap, SyncPredFlag);
   Yap_InitCPred("$recordzp", 4, p_drcdzp, SyncPredFlag);
-  //  Yap_InitCPred("$recordaifnot", 3, p_rcdaifnot, SyncPredFlag);
-  //  Yap_InitCPred("$recordzifnot", 3, p_rcdzifnot, SyncPredFlag);
   Yap_InitCPred("erase", 1, p_erase, SafePredFlag|SyncPredFlag);
+  Yap_InitCPred("$erase_clause", 2, p_erase_clause, SafePredFlag|SyncPredFlag);
   Yap_InitCPred("erased", 1, p_erased, TestPredFlag | SafePredFlag|SyncPredFlag);
   Yap_InitCPred("instance", 2, p_instance, SyncPredFlag);
   Yap_InitCPred("$instance_module", 2, p_instance_module, SyncPredFlag);

@@ -108,11 +108,13 @@ reconsult(Fs) :-
 	'$current_module'(OldModule),
 	'$start_reconsulting'(F),
 	'$start_consult'(reconsult,File,LC),
+	'$remove_multifile_clauses'(File),
 	recorda('$initialisation','$',_),
 	'$print_message'(informational, loading(reconsulting, File)),
 	'$loop'(Stream,reconsult),
 	'$end_consult',
 	'$clear_reconsulting',
+	'$add_multifile_clauses'(File),
 	set_value('$consulting',Old),
 	set_value('$consulting_file',OldF),
 	'$cd'(OldD),
@@ -126,36 +128,6 @@ reconsult(Fs) :-
 '$start_reconsulting'(F) :-
 	recorda('$reconsulted','$',_),
 	recorda('$reconsulting',F,_).
-
-'EMACS_FILE'(F,File0) :-
-	'$format'('''EMACS_RECONSULT''(~w).~n',[File0]),
-	'$getcwd'(OldD),
-	'$open'(F,'$csult',Stream,0),
-	'$find_in_path'(File0,File,emacs(F)),
-	'$open'(File,'$csult',Stream0,0),
-	get_value('$consulting_file',OldF),
-	'$set_consulting_file'(Stream0),
-	H0 is heapused, '$cputime'(T0,_),
-	get_value('$consulting',Old),
-	set_value('$consulting',false),
-	'$start_reconsulting'(File),
-	'$start_consult'(reconsult,File,LC),
-	'$current_module'(OldModule),
-	recorda('$initialisation','$',_),
-	'$print_message'(informational, loading(reconsulting, File)),
-	'$loop'(Stream,reconsult),
-	'$end_consult',
-	'$clear_reconsulting',
-	set_value('$consulting',Old),
-	set_value('$consulting_file',OldF),
-	'$cd'(OldD),
-	'$exec_initialisation_goals',
-	'$current_module'(Mod,OldModule),
-	( LC == 0 -> prompt(_,'   |: ') ; true),
-	H is heapused-H0, '$cputime'(TF,_), T is TF-T0,
-	'$print_message'(informational, loaded(reconsulted, File, Mod, T, H)),
-	!.
-
 
 '$initialization'(V) :-
 	var(V), !,
@@ -275,4 +247,31 @@ remove_from_path(New) :- '$check_path'(New,Path),
 '$check_path'([Ch],[Ch]) :- '$dir_separator'(Ch), !.
 '$check_path'([Ch],[Ch,A]) :- !, integer(Ch), '$dir_separator'(A).
 '$check_path'([N|S],[N|SN]) :- integer(N), '$check_path'(S,SN).
+
+% add_multifile_predicate when we start consul
+'$add_multifile'(Name,Arity,Module) :-
+	get_value('$consulting_file',File),
+	'$add_multifile'(File,Name,Arity,Module).
+
+'$add_multifile'(File,Name,Arity,Module) :-
+	recordzifnot('$multifile_defs','$defined'(File,Name,Arity,Module),_), !,
+	fail.
+'$add_multifile'(File,Name,Arity,Module) :-
+	recorded('$mf','$mf_clause'(File,Name,Arity,Module,Ref),R),
+	erase(R),
+	erase(Ref),
+	fail.
+'$add_multifile'(_,_,_,_).
+
+% retract old multifile clauses for current file.
+'$remove_multifile_clauses'(FileName) :-
+	recorded('$multifile_defs','$defined'(FileName,_,_,_),R1),
+	erase(R1),
+	fail.
+'$remove_multifile_clauses'(FileName) :-
+	recorded('$mf','$mf_clause'(FileName,_,_,Module,Ref),R),
+	'$erase_clause'(Ref, Module),
+	erase(R),
+	fail.
+'$remove_multifile_clauses'(_).
 

@@ -2865,44 +2865,6 @@ p_startline (void)
   return (Yap_unify_constant (ARG1, MkIntegerTerm (StartLine)));
 }
 
-static Int
-p_inform_of_clause (void)
-{				/* '$inform_of_clause'(Func,Mode)        */
-#if EMACS
-  unsigned int arity;
-  int clause_no;
-  Atom at;
-  Prop pred_prop;
-  if (emacs_mode)
-    {
-      Term t1 = Deref (ARG1);
-      Term t2 = Deref (ARG2);
-      if (IsVarTerm (t1))
-	return (FALSE);
-      else if (IsAtomTerm (t1))
-	{
-	  arity = 0;
-	  at = AtomOfTerm (t1);
-	}
-      else if (IsApplTerm (t1))
-	{
-	  Functor func = FunctorOfTerm (t1);
-	  arity = ArityOfFunctor (func);
-	  at = NameOfFunctor (func);
-	}
-      else
-	return (FALSE);
-      if (IsVarTerm (t2) || !IsIntTerm (t2))
-	return (FALSE);
-      fprintf (Yap_stdout, "\001(yap-consult-clause \"%s\" %d %d %d)\002\n",
-		  RepAtom (at)->StrOfAE, arity,
-      where_new_clause (PredProp (at, arity), (int) (IntOfTerm (t2) % 4)),
-		  first_char);
-    }
-#endif
-  return (TRUE);
-}
-
 /* control the parser error handler */
 static Int
 p_set_read_error_handler(void)
@@ -5089,8 +5051,6 @@ Yap_InitIOPreds(void)
   Yap_InitCPred ("$show_stream_flags", 2, p_show_stream_flags, SafePredFlag|SyncPredFlag);
   Yap_InitCPred ("$show_stream_position", 2, p_show_stream_position, SafePredFlag|SyncPredFlag);
   Yap_InitCPred ("$set_stream_position", 2, p_set_stream_position, SafePredFlag|SyncPredFlag);
-  Yap_InitCPred ("$inform_of_clause", 2, p_inform_of_clause, SafePredFlag|SyncPredFlag);
-  Yap_InitCPred ("$inform_of_clause", 2, p_inform_of_clause, SafePredFlag|SyncPredFlag);
   Yap_InitCPred ("$user_file_name", 2, p_user_file_name, SafePredFlag|SyncPredFlag),
   Yap_InitCPred ("$file_name", 2, p_file_name, SafePredFlag|SyncPredFlag),
   Yap_InitCPred ("$past_eof", 1, p_past_eof, SafePredFlag|SyncPredFlag),

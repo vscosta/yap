@@ -360,7 +360,6 @@ repeat :- '$repeat'.
 % process an input clause
 '$$compile'(G, G0, L, Mod) :-
 	'$head_and_body'(G,H,_), 
-	'$inform_of_clause'(H,L),
 	'$flags'(H, Mod, Fl, Fl),
 	( Fl /\ 16'000008 =\= 0 -> '$compile'(G,L,G0,Mod)
 	;
@@ -369,49 +368,7 @@ repeat :- '$repeat'.
 
 % process a clause for a static predicate 
 '$$compile_stat'(G,G0,L,H, Mod) :-
-      '$compile'(G,L,G0,Mod),
-      % first occurrence of this predicate in this file,
-      % check if we need to erase the source and if 
-      % it is a multifile procedure.
-      '$flags'(H,Mod,Fl,Fl),
-      ( get_value('$abol',true)
-         ->
-            ( Fl /\ 16'400000 =\= 0 -> '$erase_source'(H, Mod) ; true ),
-	    ( Fl /\ 16'040000 =\= 0 -> '$check_multifile_pred'(H,Mod,Fl) ; true )
-        ;
-            true
-      ).
-
-'$store_stat_clause'(G0, H, L, M) :-
-	'$head_and_body'(G0,H0,B0),
-	'$record_stat_source'(M:H,(H0:-B0),L,R),
-	( '$is_multifile'(H,M) -> 
-	    get_value('$consulting_file',F),
-	    functor(H, Na, Ar),
-	    recordz('$multifile'(_,_,_), '$mf'(Na,Ar,M,F,R), _) 
-	;
-	   true
-        ).	
-
-'$erase_source'(G, M) :- 
-	'$is_multifile'(G, M), !,
-	functor(G, Na, Ar),
-	'$erase_mf_source'(Na, Ar, M).
-'$erase_source'(_, _).
-
-'$erase_mf_source'(Na, Ar, M) :-
-	get_value('$consulting_file',F),
-	recorded('$multifile'(_,_,_), '$mf'(Na,Ar,M,F,R), R1),
-	erase(R1),
-	erase(R),
-	fail.
-'$erase_mf_source'(Na, Ar, M) :-
-	get_value('$consulting_file',F),
-	recorded('$multifile_dynamic'(_,_,_), '$mf'(Na,Ar,M,F,R), R1),
-	erase(R1),
-	erase(R),
-	fail.
-'$erase_mf_source'(_,_,_).
+      '$compile'(G,L,G0,Mod).
 
 '$check_if_reconsulted'(N,A) :-
 	recorded('$reconsulted',X,_),
@@ -932,9 +889,10 @@ break :- get_value('$break',BL), NBL is BL+1,
 	),
 	'$loop'(Stream,consult),
 	'$end_consult',
-	'$cd'(OldD),
+	'$add_multifile_clauses'(File),
 	set_value('$consulting',Old),
 	set_value('$consulting_file',OldF),
+	'$cd'(OldD),
 	( LC == 0 -> prompt(_,'   |: ') ; true),
 	'$exec_initialisation_goals',
 	'$current_module'(Mod,OldModule),
@@ -1184,5 +1142,18 @@ throw(Ball) :-
 	recorded('$toplevel_hooks',H,_), !,
 	( '$execute'(H) -> true ; true).
 '$run_toplevel_hooks'.
+
+
+% add multifile clauses belonging to current file.
+'$add_multifile_clauses'(FileName) :-
+	recorded('$multifile_defs','$defined'(File,Name,Arity,Module),_),
+	functor(P,Name,Arity),
+	'$clause'(P,Module,_,Ref),
+	% check if someone else defines it.
+	\+ recorded('$mf','$mf_clause'(_,_,_,_,Ref),_),
+	recordz('$mf','$mf_clause'(FileName,Name,Arity,Module,Ref),R),
+	fail.
+'$add_multifile_clauses'(_).
+
 
 

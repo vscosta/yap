@@ -588,18 +588,12 @@ RestoreClause(yamop *pc, PredEntry *pp, int mode)
       if (cl->ClPrevious != NULL) {
 	cl->ClPrevious = PtoOpAdjust(cl->ClPrevious);
       }
-      cl->Owner = AtomAdjust(cl->Owner);
     } else if (pp->PredFlags & LogUpdatePredFlag) {
       LogUpdClause *cl = ClauseCodeToLogUpdClause(pc);
       
       if (cl->ClFlags & LogUpdRuleMask) {
 	cl->ClExt = PtoOpAdjust(cl->ClExt);
       }
-      cl->Owner = AtomAdjust(cl->Owner);
-    } else {
-      StaticClause *cl = ClauseCodeToStaticClause(pc);
-     
-      cl->Owner = AtomAdjust(cl->Owner);
     }
   }
   do {
@@ -1362,13 +1356,21 @@ CleanClauses(yamop *First, yamop *Last, PredEntry *pp)
       RestoreClause(cl->ClCode, pp, ASSEMBLING_CLAUSE);
       cl = cl->ClNext;
     }
+  } else if (pp->PredFlags & DynamicPredFlag) {
+    yamop *cl = First;
+
+    do {
+      RestoreClause(cl, pp, ASSEMBLING_CLAUSE);
+      if (cl == Last) return;
+      cl = NextDynamicClause(cl);
+    } while (TRUE);
   } else {
     yamop *cl = First;
 
     do {
       RestoreClause(cl, pp, ASSEMBLING_CLAUSE);
       if (cl == Last) return;
-      cl = NextClause(cl);
+      cl = ClauseCodeToStaticClause(cl)->ClNext->ClCode;
     } while (TRUE);
   }
 }

@@ -192,8 +192,7 @@ no_style_check([H|T]) :- no_style_check(H), no_style_check(T).
 '$multifile'(Mod:PredSpec, _) :- !,
 	'$multifile'(PredSpec, Mod).
 '$multifile'(N/A, M) :-
-	get_value('$consulting_file',F),
-	recordzifnot('$multifile_defs','$defined'(F,N,A,M),_),
+	'$add_multifile'(N,A,M),
 	fail.
 '$multifile'(N/A, M) :-
          functor(S,N,A),
@@ -235,7 +234,6 @@ no_style_check([H|T]) :- no_style_check(H), no_style_check(T).
 	functor(Hd,Na,Ar),
 	NFl is \(16'040000 ) /\ Fl,
 	'$flags'(Hd,M,Fl,NFl),
-	'$clear_multifile_pred'(Na,Ar,M),
 	'$warn_mfile'(Na,Ar).
 
 '$warn_mfile'(F,A) :-
@@ -246,18 +244,5 @@ no_style_check([H|T]) :- no_style_check(H), no_style_check(T).
 	write(user_error,') ]'),
 	nl(user_error).	
 
-'$clear_multifile_pred'(Na,Ar,M) :-
-	recorded('$multifile_defs','$defined'(_,Na,Ar,M),R),
-	erase(R),
-	fail.
-'$clear_multifile_pred'(Na,Ar,M) :-
-	recorded('$multifile'(_,_,_),'$mf'(Na,Ar,M,_,_),R),
-	erase(R),
-	fail.
-'$clear_multifile_pred'(Na,Ar,M) :-
-	recorded('$multifile_dynamic'(_,_,_),'$mf'(Na,Ar,M,_,_),R),
-	erase(R),
-	fail.
-'$clear_multifile_pred'(_,_,_).
 
 

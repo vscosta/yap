@@ -2650,18 +2650,7 @@ do_var_entries(GroupDef *grp, Term t, PredEntry *ap, UInt argno, int first, int 
   if (!IsVarTerm(t) || t != 0L) {
     return suspend_indexing(grp->FirstClause, grp->LastClause, ap);
   }
-  if (argno == 1 && !(ap->PredFlags & LogUpdatePredFlag)) {
-    /* in this case we want really to jump to the first clause */
-    if (first && clleft == 0) {
-      /* not protected by a choice-point */
-      return (UInt)PREVOP(grp->FirstClause->Code,ld);
-    } else {
-      /* this code should never execute */
-      return nxtlbl;
-    }
-  } else {
-    return do_var_group(grp, ap, FALSE, first, clleft, nxtlbl, ap->ArityOfPE+1);
-  }
+  return do_var_group(grp, ap, FALSE, first, clleft, nxtlbl, ap->ArityOfPE+1);
 }
 
 static UInt
@@ -2952,16 +2941,8 @@ do_optims(GroupDef *group, int ngroups, UInt fail_l, ClauseDef *min, PredEntry *
     sp = Yap_emit_extra_size(if_not_op, Zero, 4*CellSize);
     sp[0] = (CELL)(group[0].FirstClause->Tag);
     sp[1] = (CELL)(group[1].FirstClause->Code);
-    if (group[0].FirstClause->Code == ap->cs.p_code.FirstClause) {
-      sp[2] = (CELL)PREVOP(group[0].FirstClause->Code,ld);
-    } else {
-      sp[2] = do_var_clauses(group[0].FirstClause, group[1].LastClause, FALSE, ap, TRUE, 0, (CELL)FAILCODE, ap->ArityOfPE+1);      
-    }
-    if (PREVOP(min->Code,ld) == ap->cs.p_code.FirstClause) {
-      sp[3] = (CELL)(ap->cs.p_code.FirstClause);
-    } else {
-      sp[3] = do_var_clauses(min, group[1].LastClause, FALSE, ap, TRUE, 0, (CELL)FAILCODE, ap->ArityOfPE+1);
-    }
+    sp[2] = do_var_clauses(group[0].FirstClause, group[1].LastClause, FALSE, ap, TRUE, 0, (CELL)FAILCODE, ap->ArityOfPE+1);      
+    sp[3] = do_var_clauses(min, group[1].LastClause, FALSE, ap, TRUE, 0, (CELL)FAILCODE, ap->ArityOfPE+1);
     return labl;
   }
   return fail_l;
@@ -3087,10 +3068,10 @@ do_index(ClauseDef *min, ClauseDef* max, PredEntry *ap, UInt argno, UInt fail_l,
     }
     if (ngroups == 1 && group->VarClauses && !found_pvar) {
       return do_index(min, max, ap, argno+1, fail_l, first, clleft, top);
-    } else if ((ngroups > 1 || found_pvar) && !(ap->PredFlags & LogUpdatePredFlag)) {
+    } else if (found_pvar) {
       Yap_emit(label_op, labl0, Zero);
-      Yap_emit(jump_v_op, (CELL)PREVOP(min->Code,ld), Zero);
       labl = new_label();
+      Yap_emit(jump_v_op, suspend_indexing(min, max, ap), Zero);
     }
   }
   for (i=0; i < ngroups; i++) {
@@ -3266,15 +3247,15 @@ do_blob_index(ClauseDef *min, ClauseDef* max, Term t,PredEntry *ap, UInt argno, 
 static void
 init_clauses(ClauseDef *cl, PredEntry *ap)
 {
-  yamop *codep = ap->cs.p_code.FirstClause;
-  UInt n = ap->cs.p_code.NOfClauses;
+  StaticClause *scl = ClauseCodeToStaticClause(ap->cs.p_code.FirstClause);
 
-  while (n > 0) {
-    cl->Code = cl->CurrentCode = NEXTOP(codep,ld);
-    n--;
+  do {
+    cl->Code = cl->CurrentCode = scl->ClCode;
     cl++;
-    codep = NextClause(codep);
-  }
+    if (scl->ClCode == ap->cs.p_code.LastClause)
+      return;
+    scl = scl->ClNext;
+  } while (TRUE);
 }
 
 static void
@@ -3450,29 +3431,30 @@ static ClauseDef *
 install_clauses(ClauseDef *cls, PredEntry *ap, istack_entry *stack, yamop *beg, yamop *end)
 {
   istack_entry *sp = stack;
+  StaticClause *cl = ClauseCodeToStaticClause(beg);
 
   if (stack[0].pos == 0) {
     while (TRUE) {
-      cls->Code =  cls->CurrentCode = NEXTOP(beg,ld);
+      cls->Code =  cls->CurrentCode = cl->ClCode;
       cls->Tag =  0;
       cls++;
-      if (beg == end || beg == NULL) {
+      if (cl->ClCode == end || cl->ClCode == NULL) {
 	return cls-1;
       }
-      beg = NextClause(beg);
+      cl = cl->ClNext;
     }
   }
   while (TRUE) {
-    cls->Code =  cls->CurrentCode = NEXTOP(beg,ld);
+    cls->Code =  cls->CurrentCode = cl->ClCode;
     sp = install_clause(cls, ap, stack);
     /* we reached a matching clause */
     if (!sp->pos && (sp[-1].val == 0L || cls->Tag == sp[-1].val)) {
       cls++;
     }
-    if (beg == end || beg == NULL) {
+    if (cl->ClCode == end || cl->ClCode == NULL) {
       return cls-1;
     }
-    beg = NextClause(beg);
+    cl = cl->ClNext;
   }
 }
 
@@ -3625,11 +3607,12 @@ count_clauses_left(yamop *cl, PredEntry *ap)
     return i;
   } else {
     yamop *last = ap->cs.p_code.LastClause;
+    StaticClause *c = ClauseCodeToStaticClause(cl);
     COUNT i = 1;
 
-    while (cl != last) {
+    while (c->ClCode != last) {
       i++;
-      cl = NextClause(cl);
+      c = c->ClNext;
     }
     return i;
   }
@@ -3672,7 +3655,7 @@ expand_index(PredEntry *ap) {
       if (ap->PredFlags & LogUpdatePredFlag) {
 	first = ClauseCodeToLogUpdClause(ipc->u.ld.d)->ClNext->ClCode;
       } else {
-	first = NextClause(PREVOP(ipc->u.ld.d,ld));
+	first = ClauseCodeToStaticClause(ipc->u.ld.d)->ClNext->ClCode;
       }
       isfirstcl = FALSE;
       ipc = NEXTOP(ipc,ld);
@@ -3681,7 +3664,7 @@ expand_index(PredEntry *ap) {
       if (ap->PredFlags & LogUpdatePredFlag) {
 	first = ClauseCodeToLogUpdClause(ipc->u.l.l)->ClNext->ClCode;
       } else {
-	first = NextClause(PREVOP(ipc->u.l.l,ld));
+	first = ClauseCodeToStaticClause(ipc->u.l.l)->ClNext->ClCode;
       }
       isfirstcl = FALSE;
       ipc = NEXTOP(ipc,l);
@@ -3746,6 +3729,7 @@ expand_index(PredEntry *ap) {
       break;
     case _jump_if_var:
       if (IsVarTerm(Deref(ARG1))) {
+	labp = &(ipc->u.l.l);
 	ipc = ipc->u.l.l;
       } else {
 	ipc = NEXTOP(ipc,l);
@@ -3940,7 +3924,7 @@ expand_index(PredEntry *ap) {
 	ipc = NULL;
       } else {
 	/* backtrack */
-	first = PREVOP(alt->u.ld.d,ld);
+	first = alt->u.ld.d;
 	ipc = alt;
 	alt = NULL;
       }
@@ -3962,10 +3946,9 @@ expand_index(PredEntry *ap) {
       }
     } else {
       op_numbers op = Yap_op_from_opcode(alt->opc);
-	fprintf(stderr,"hello, %d\n", op);
       if (op == _retry ||
 	  op == _trust) {
-	last = PREVOP(alt->u.ld.d,ld);
+	last = alt->u.ld.d;
       }
     }
     fail_l = (UInt)alt;
@@ -5486,11 +5469,7 @@ Yap_AddClauseToIndex(PredEntry *ap, yamop *beg, int first) {
   }
 #endif
   stack = (path_stack_entry *)TR;
-  if (ap->PredFlags & LogUpdatePredFlag) {
-    cl.Code =  cl.CurrentCode = beg;
-  } else {
-    cl.Code =  cl.CurrentCode = NEXTOP(beg,ld);
-  }
+  cl.Code =  cl.CurrentCode = beg;
   sp = push_path(stack, NULL, &cl);
   add_to_index(ap, first, sp, &cl); 
 }
@@ -5981,7 +5960,7 @@ Yap_RemoveClauseFromIndex(PredEntry *ap, yamop *beg) {
     last = (yamop *)((CODEADDR)c+Yap_SizeOfBlock((CODEADDR)c));
   } else {
     StaticClause *c = ClauseCodeToStaticClause(beg);
-    cl.Code =  cl.CurrentCode = NEXTOP(beg,ld);
+    cl.Code =  cl.CurrentCode = beg;
     last = (yamop *)((CODEADDR)c+Yap_SizeOfBlock((CODEADDR)c));
   }
   sp = push_path(stack, NULL, &cl);

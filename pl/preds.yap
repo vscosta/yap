@@ -337,15 +337,21 @@ clause(V,Q,R) :-
 	'$continue_log_update_clause'(A,B,C,D,E).
 '$do_log_upd_clause'(A,B,C,D,E).
 
+:- '$do_log_upd_clause'(_,_,_,_,_), !.
+
 '$do_log_upd_clause'(_,_,_,_).
 '$do_log_upd_clause'(A,B,C,D) :-
 	'$continue_log_update_clause'(A,B,C,D).
 '$do_log_upd_clause'(A,B,C,D).
 
+:- '$do_log_upd_clause'(_,_,_,_), !.
+
 '$do_static_clause'(_,_,_,_,_).
 '$do_static_clause'(A,B,C,D,E) :-
 	'$continue_static_clause'(A,B,C,D,E).
 '$do_static_clause'(A,B,C,D,E).
+
+:- '$do_static_clause'(_,_,_,_,_), !.
 
 nth_clause(P,I,R) :- nonvar(R), !,
 	'$nth_instancep'(P,I,R).
@@ -608,7 +614,15 @@ abolish(X) :-
 	fail.
 '$abolish_all_atoms_old'(_,_).
 
-'$abolishd'(T, M) :- '$recordedp'(M:T,_,R), erase(R), fail.
+'$abolishd'(T, M) :-
+	'$is_multifile'(T,M),
+	functor(T,Name,Arity),
+	recorded('$mf','$mf_clause'(_,Name,Arity,M,Ref),R),
+	erase(R),
+	erase(Ref),
+	fail.
+'$abolishd'(T, M) :-
+	'$clause'(T,M,_,R), erase(R), fail.
 '$abolishd'(T, M) :- '$kill_dynamic'(T,M), fail.
 '$abolishd'(_, _).
 
@@ -627,6 +641,13 @@ abolish(X) :-
 	'$has_yap_or', !,
         functor(G,A,N),
 	'$do_error'(permission_error(modify,static_procedure,A/N),abolish(Module:G)).
+'$abolishs'(G, M) :-
+	'$is_multifile'(G,M), !,
+	functor(G,Name,Arity),
+	recorded('$mf','$mf_clause'(_,Name,Arity,M,Ref),R),
+	erase(R),
+	erase(Ref),
+	fail.
 '$abolishs'(G, M) :-
 	'$purge_clauses'(G, M), fail.
 '$abolishs'(_, _).

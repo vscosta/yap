@@ -540,7 +540,6 @@ source_module(Mod) :-
 '$member'(X,[X|_]) :- !.
 '$member'(X,[_|L]) :- '$member'(X,L).
 
-
 :- meta_predicate
 %	[:,:],
 	abolish(:),
