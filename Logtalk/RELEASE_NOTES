@@ -1,6 +1,6 @@
 =================================================================
 Logtalk - Object oriented extension to Prolog
-Release 2.14.4
+Release 2.14.5
 
 Copyright (c) 1998-2002 Paulo Moura.  All Rights Reserved.
 =================================================================
@@ -8,6 +8,18 @@ Copyright (c) 1998-2002 Paulo Moura.  All Rights Reserved.
 
 RELEASE NOTES
 =============
+
+
+2.14.5 - December 20, 2002
+
+	Simplified dynamic table of predicate declarations by removing two 
+	redundant arguments.
+	
+	Corrected a bug where sending messages such as true/0 or !/0 to an 
+	unknown object succeeded instead of throwing the correct exception.
+
+	Simplified the code used to generate links in the lgtpdfa4.xsl and 
+	lgtpdfus.xsl XSLT files.
 
 
 2.14.4 - November 5, 2002

@@ -14,7 +14,7 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %
 %  Logtalk - Object oriented extension to Prolog
-%  Release 2.14.4
+%  Release 2.14.5
 %
 %  Copyright (c) 1998-2002 Paulo Moura.  All Rights Reserved.
 %
@@ -130,17 +130,17 @@
 
 
 <xsl:template match="logtalk/relations/uses">
-	<dd><code><a><xsl:attribute name="href"><xsl:value-of select="file" />.xml</xsl:attribute><xsl:value-of select="name" /></a></code></dd>
+	<dd><code><a href="{file}.xml"><xsl:value-of select="name" /></a></code></dd>
 </xsl:template>
 
 
 <xsl:template match="logtalk/relations/calls">
-	<dd><code><a><xsl:attribute name="href"><xsl:value-of select="file" />.xml</xsl:attribute><xsl:value-of select="name" /></a></code></dd>
+	<dd><code><a href="{file}.xml"><xsl:value-of select="name" /></a></code></dd>
 </xsl:template>
 
 
 <xsl:template match="logtalk/relations/*">
-	<dd><code><xsl:value-of select="scope" /><xsl:text> </xsl:text><a><xsl:attribute name="href"><xsl:value-of select="file" />.xml</xsl:attribute><xsl:value-of select="name" /></a></code></dd>
+	<dd><code><xsl:value-of select="scope" /><xsl:text> </xsl:text><a href="{file}.xml"><xsl:value-of select="name" /></a></code></dd>
 </xsl:template>
 
 

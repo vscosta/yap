@@ -2,7 +2,7 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %
 %  Logtalk - Object oriented extension to Prolog
-%  Release 2.14.4
+%  Release 2.14.5
 %
 %  Copyright (c) 1998-2002 Paulo Moura.  All Rights Reserved.
 %
@@ -437,7 +437,7 @@ abolish_object(Obj) :-
 			abolish(Super/6),
 			abolish(IDcl/6),
 			abolish(IDef/6),
-			abolish(DDcl/4),
+			abolish(DDcl/2),
 			abolish(DDef/5),
 			abolish(Prefix/7),
 			retractall('$lgt_current_object_'(Obj, _, _, _, _)),
@@ -1062,7 +1062,8 @@ current_logtalk_flag(Flag, Value) :-
 	\+ '$lgt_flag_'(Flag, _),
 	'$lgt_default_flag'(Flag, Value).
 
-current_logtalk_flag(version, version(2, 14, 4)).
+current_logtalk_flag(version, version(2, 14, 5)).
+
 
 
 
@@ -1071,6 +1072,16 @@ current_logtalk_flag(version, version(2, 14, 4)).
 %  built-in methods
 %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+
+% checks if an object exists at runtime
+
+'$lgt_obj_exists'(Obj, Pred, Sender) :-
+	\+ '$lgt_current_object_'(Obj, _, _, _, _) ->
+		throw(error(existence_error(object, Obj), Obj::Pred, Sender))
+		;
+		true.
 
 
 
@@ -1228,8 +1239,8 @@ current_logtalk_flag(version, version(2, 14, 4)).
 			((\+ \+ PScope = Scope; Sender = SContainer) ->
 				(Compilation = (dynamic) ->
 					'$lgt_once'(Prefix, _, _, _, _, _, DDcl, DDef),
-					('$lgt_once'(DDcl, Pred, _, _, _) ->
-						Clause =.. [DDcl, Pred, _, _, _],
+					('$lgt_once'(DDcl, Pred, _) ->
+						Clause =.. [DDcl, Pred, _],
 						retractall(Clause),
 						('$lgt_once'(DDef, Pred, _, _, _, Call) ->
 							functor(Call, CFunctor, CArity),
@@ -2994,17 +3005,21 @@ user0__def(Pred, _, _, _, Pred, user).
 	!,
 	'$lgt_tr_msg'(Obj, Pred, TPred, Context).
 
-'$lgt_tr_msg'(_, !, !, _) :-
-	!.
+'$lgt_tr_msg'(Obj, !, ('$lgt_obj_exists'(Obj, !, This), !), Context) :-
+	!,
+	'$lgt_this'(Context, This).
 
-'$lgt_tr_msg'(_, true, true, _) :-
-	!.
+'$lgt_tr_msg'(Obj, true, ('$lgt_obj_exists'(Obj, true, This), true), Context) :-
+	!,
+	'$lgt_this'(Context, This).
 
-'$lgt_tr_msg'(_, fail, fail, _) :-
-	!.
+'$lgt_tr_msg'(Obj, fail, ('$lgt_obj_exists'(Obj, fail, This), fail), Context) :-
+	!,
+	'$lgt_this'(Context, This).
 
-'$lgt_tr_msg'(_, repeat, repeat, _) :-
-	!.
+'$lgt_tr_msg'(Obj, repeat, ('$lgt_obj_exists'(Obj, repeat, This), repeat), Context) :-
+	!,
+	'$lgt_this'(Context, This).
 
 '$lgt_tr_msg'(Obj, call(Pred), TPred, Context) :-
 	!,
@@ -3019,8 +3034,9 @@ user0__def(Pred, _, _, _, Pred, user).
 	'$lgt_tr_msg'(Obj, Goal, TGoal, Context),
 	'$lgt_tr_msg'(Obj, Recovery, TRecovery, Context).
 
-'$lgt_tr_msg'(_, throw(Error), throw(Error), _) :-
-	!.
+'$lgt_tr_msg'(Obj, throw(Error), ('$lgt_obj_exists'(Obj, throw(Error), This), throw(Error)), Context) :-
+	!,
+	'$lgt_this'(Context, This).
 
 
 % built-in metapredicates
@@ -3330,8 +3346,12 @@ user0__def(Pred, _, _, _, Pred, user).
 '$lgt_simplify_clause'((Head :- true), Head) :-
 	!.
 
-'$lgt_simplify_clause'((Head :- Body), (Head :- SBody)) :-
-	'$lgt_simplify_body'(Body, SBody).
+'$lgt_simplify_clause'((Head :- Body), Clause) :-
+	'$lgt_simplify_body'(Body, SBody),
+	(SBody == true ->
+		Clause = Head
+		;
+		Clause = (Head :- SBody)).
 
 
 
@@ -3766,7 +3786,7 @@ user0__def(Pred, _, _, _, Pred, user).
 '$lgt_assert_ddcl_clause'(DDcl, Pred, Scope) :-
 	functor(Pred, Functor, Arity),
 	functor(DPred, Functor, Arity),
-	Clause =.. [DDcl, DPred, Scope, (dynamic), no],
+	Clause =.. [DDcl, DPred, Scope],
 	assertz(Clause).
 
 
@@ -3827,7 +3847,7 @@ user0__def(Pred, _, _, _, Pred, user).
 	assertz('$lgt_directive_'(dynamic(Super/6))),
 	assertz('$lgt_directive_'(dynamic(IDcl/6))),
 	assertz('$lgt_directive_'(dynamic(IDef/6))),
-	assertz('$lgt_directive_'(dynamic(DDcl/4))),
+	assertz('$lgt_directive_'(dynamic(DDcl/2))),
 	assertz('$lgt_directive_'(dynamic(DDef/5))),
 	forall(
 		('$lgt_def_'(Clause), Clause \= (_ :- _)),
@@ -3838,7 +3858,7 @@ user0__def(Pred, _, _, _, Pred, user).
 
 '$lgt_gen_static_object_dynamic_directives' :-
 	'$lgt_object_'(_, _, _, Def, _, _, _, DDcl, DDef),
-	assertz('$lgt_directive_'(dynamic(DDcl/4))),
+	assertz('$lgt_directive_'(dynamic(DDcl/2))),
 	assertz('$lgt_directive_'(dynamic(DDef/5))),
 	'$lgt_dynamic_'(Functor/Arity),
 	functor(Pred, Functor, Arity),
@@ -4109,8 +4129,9 @@ user0__def(Pred, _, _, _, Pred, user).
 	Head =.. [Dcl, Pred, Scope, Compilation, Meta, Obj, Obj],
 	Body =.. [Dcl, Pred, Scope, Compilation, Meta],
 	assertz('$lgt_dcl_'((Head:-Body))),
-	Body2 =.. [DDcl, Pred, Scope, Compilation, Meta],
-	assertz('$lgt_dcl_'((Head:-Body2))).
+	Head2 =.. [Dcl, Pred, Scope, (dynamic), no, Obj, Obj],
+	Body2 =.. [DDcl, Pred, Scope],
+	assertz('$lgt_dcl_'((Head2:-Body2))).
 
 
 
@@ -4303,8 +4324,9 @@ user0__def(Pred, _, _, _, Pred, user).
 	Head =.. [IDcl, Pred, Scope, Compilation, Meta, Obj, Obj],
 	Body =.. [Dcl, Pred, Scope, Compilation, Meta],
 	assertz('$lgt_dcl_'((Head:-Body))),
-	Body2 =.. [DDcl, Pred, Scope, Compilation, Meta],
-	assertz('$lgt_dcl_'((Head:-Body2))).
+	Head2 =.. [IDcl, Pred, Scope, (dynamic), no, Obj, Obj],
+	Body2 =.. [DDcl, Pred, Scope],
+	assertz('$lgt_dcl_'((Head2:-Body2))).
 
 
 

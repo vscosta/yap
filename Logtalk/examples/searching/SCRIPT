@@ -1,6 +1,6 @@
 =================================================================
 Logtalk - Object oriented extension to Prolog
-Release 2.14.4
+Release 2.14.5
 
 Copyright (c) 1998-2002 Paulo Moura.  All Rights Reserved.
 =================================================================
@@ -130,8 +130,8 @@ yes
 3-gallon jug: 2
 
 solution length: 6
-number of state transitions: 105
-ratio solution length / state transitions: 0.0571429
+number of state transitions: 109
+ratio solution length / state transitions: 0.0550459
 minimum branching degree: 2
 average branching degree: 3.63158
 maximum branching degree: 4
@@ -172,9 +172,6 @@ yes
 solution length: 8
 number of state transitions: 12
 ratio solution length / state transitions: 0.666667
-
-
-
 minimum branching degree: 1
 average branching degree: 2
 maximum branching degree: 3
