@@ -1387,7 +1387,6 @@ p_round(Term t E_ARGS)
     RBIG_FL(vl);
   } else {
     double vl = rint(dbl);
-    printf("vl is %d\n", vl);
     RFLOAT(vl);
   }
 }
