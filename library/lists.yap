@@ -219,7 +219,7 @@ prefix([], _).
 prefix([Elem | Rest_of_part], [Elem | Rest_of_whole]) :- 
   prefix(Rest_of_part, Rest_of_whole).
 
-%   remove_dups(List, Pruned)
+%   remove_duplicates(List, Pruned)
 %   removes duplicated elements from List.  Beware: if the List has
 %   non-ground elements, the result may surprise you.
 
