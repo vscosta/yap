@@ -227,7 +227,7 @@ STATIC_PROTO(Int  p_rcdzifnot, (void));
 STATIC_PROTO(Term  GetDBTerm, (DBRef));
 STATIC_PROTO(DBProp  FetchDBPropFromKey, (Term, int, int, char *));
 STATIC_PROTO(Int  i_log_upd_recorded, (LogUpdDBProp));
-STATIC_PROTO(Int  i_recorded, (DBProp));
+STATIC_PROTO(Int  i_recorded, (DBProp,Term));
 STATIC_PROTO(Int  c_log_upd_recorded, (DBRef *, int));
 STATIC_PROTO(Int  c_recorded, (int));
 STATIC_PROTO(Int  in_rded, (void));
@@ -2055,6 +2055,32 @@ copy_attachments(CELL *ts)
 #endif
 
 static Term 
+GetDBKey(DBRef DBSP)
+{
+  DBProp p = DBSP->Parent;
+  Term t1, tf;
+
+  READ_LOCK(p->DBRWLock);
+  /* get the key */
+  if (p->ArityOfDB == 0) {
+    t1 = MkAtomTerm((Atom)(p->FunctorOfDB));
+  } else {
+    t1 = Yap_MkNewApplTerm(p->FunctorOfDB,p->ArityOfDB);
+  }
+  if (p->KindOfPE & MkCode) {
+    Term t[2];
+    t[1] = Yap_LookupModule(p->ModuleOfDB);
+    t[2] = t1;
+    tf = Yap_MkApplTerm(FunctorModule, 2, t);
+  } else {
+    tf = t1;
+  }
+  READ_UNLOCK(p->DBRWLock);
+  return(tf);
+}
+
+
+static Term 
 GetDBTerm(DBRef DBSP)
 {
   if (DBSP->Flags & (DBNoVars | DBAtomic))
@@ -2529,37 +2555,13 @@ p_db_key(void)
 
 /* Finds a term recorded under the key ARG1			 */
 static Int 
-i_recorded(DBProp AtProp)
+i_recorded(DBProp AtProp, Term t3)
 {
   Term            TermDB, TRef;
   Register DBRef  ref;
-  Term t3 = Deref(ARG3);
   Term twork;
 
   READ_LOCK(AtProp->DBRWLock);
-  if (!IsVarTerm(t3)) {
-    if (!IsDBRefTerm(t3)) {
-      READ_UNLOCK(AtProp->DBRWLock);
-      cut_fail();
-    } else {
-      DBRef ref0 = DBRefOfTerm(t3);
-#ifdef KEEP_OLD_ENTRIES_HANGING_ABOUT
-      ref = AtProp->FirstNEr;
-#else
-      ref = AtProp->First;
-#endif
-      while (ref != NULL
-	     && (ref != ref0)) {
-	ref = NextDBRef(ref);
-      }
-      READ_UNLOCK(AtProp->DBRWLock);
-      if (ref == NULL || DEAD_REF(ref) || !Yap_unify(ARG2,GetDBTerm(ref))) {
-	cut_fail();
-      } else {
-	cut_succeed();
-      }
-    }
-  }
   if (AtProp->KindOfPE & 0x1)
     return(i_log_upd_recorded((LogUpdDBProp)AtProp));
 #ifdef KEEP_OLD_ENTRIES_HANGING_ABOUT
@@ -2933,15 +2935,33 @@ in_rded(void)
   register choiceptr b0=B;
   Register Term   twork = Deref(ARG1);	/* initially working with
 					 * ARG1 */
+  Term t3 = Deref(ARG3);
 
-
+  if (!IsVarTerm(t3)) {
+    if (!IsDBRefTerm(t3)) {
+      cut_fail();
+    } else {
+      DBRef ref = DBRefOfTerm(t3);
+      LOCK(ref->lock);
+      if (ref == NULL
+	  || DEAD_REF(ref)
+	  || !Yap_unify(ARG2,GetDBTerm(ref))
+	  || !Yap_unify(ARG1,GetDBKey(ref))) {
+	UNLOCK(ref->lock);
+	cut_fail();
+      } else {
+	UNLOCK(ref->lock);
+	cut_succeed();
+      }
+    }
+  }
   if (EndOfPAEntr(AtProp = FetchDBPropFromKey(twork, 0, FALSE, "recorded/3"))) {
     if (b0 == B)
       cut_fail();
     else
       return(FALSE);
   }
-  return (i_recorded(AtProp));
+  return (i_recorded(AtProp, t3));
 }
 
 /* recorded(+Functor,+Term,-Ref) */
@@ -2949,7 +2969,8 @@ static Int
 in_rded_with_key(void)
 {
   DBProp AtProp = (DBProp)IntegerOfTerm(Deref(ARG1));
-  return (i_recorded(AtProp));
+
+  return (i_recorded(AtProp,Deref(ARG3)));
 }
 
 static Int 
@@ -2967,13 +2988,32 @@ in_rdedp(void)
   Register Term   twork = Deref(ARG1);	/* initially working with
 					 * ARG1 */
 
+  Term t3 = Deref(ARG3);
+  if (!IsVarTerm(t3)) {
+    if (!IsDBRefTerm(t3)) {
+      cut_fail();
+    } else {
+      DBRef ref = DBRefOfTerm(t3);
+      LOCK(ref->lock);
+      if (ref == NULL
+	  || DEAD_REF(ref)
+	  || !Yap_unify(ARG2,GetDBTerm(ref))
+	  || !Yap_unify(ARG1,GetDBKey(ref))) {
+	UNLOCK(ref->lock);
+	cut_fail();
+      } else {
+	UNLOCK(ref->lock);
+	cut_succeed();
+      }
+    }
+  }
   if (EndOfPAEntr(AtProp = FetchDBPropFromKey(twork, MkCode, FALSE, "recorded/3"))) {
     if (b0 == B)
       cut_fail();
     else
       return(FALSE);
   }
-  return (i_recorded(AtProp));
+  return (i_recorded(AtProp,t3));
 }
 
 
@@ -2991,6 +3031,25 @@ p_somercdedp(void)
   DBProp            AtProp;
   Register Term   twork = Deref(ARG1);	/* initially working with
 						 * ARG1 */
+  Term t3 = Deref(ARG3);
+  if (!IsVarTerm(t3)) {
+    if (!IsDBRefTerm(t3)) {
+      cut_fail();
+    } else {
+      DBRef ref = DBRefOfTerm(t3);
+      LOCK(ref->lock);
+      if (ref == NULL
+	  || DEAD_REF(ref)
+	  || !Yap_unify(ARG2,GetDBTerm(ref))
+	  || !Yap_unify(ARG1,GetDBKey(ref))) {
+	UNLOCK(ref->lock);
+	cut_fail();
+      } else {
+	UNLOCK(ref->lock);
+	cut_succeed();
+      }
+    }
+  }
   if (EndOfPAEntr(AtProp = FetchDBPropFromKey(twork, MkCode, FALSE, "some_recorded/3"))) {
     return(FALSE);
   }
