@@ -138,101 +138,103 @@ print_message(Level, Mss) :-
 	'$print_list_of_preds'(L).
 
 '$do_stack_dump'(Envs, CPs) :-
-	'$preprocess_stack'(CPs,PCPs),
-	'$preprocess_stack'(Envs,PEnvs),
+	'$preprocess_stack'(CPs,0, PCPs),
+	'$preprocess_stack'(Envs,0, PEnvs),
 	'$say_stack_dump'(PEnvs, PCPs),
 	'$show_cps'(PCPs),
 	'$show_envs'(PEnvs),
 	'$close_stack_dump'(PEnvs, PCPs).
 
-'$preprocess_stack'([], []).
-'$preprocess_stack'([G|Gs], NGs) :-
+'$preprocess_stack'([], _, []).
+'$preprocess_stack'([G|Gs],40, [overflow]) :- !.
+'$preprocess_stack'([G|Gs],I, NGs) :-
 	'$pred_for_code'(G,Name,Arity,Mod,Clause),
-	'$beautify_stack_goal'(Name,Arity,Mod,Clause,Gs,NGs).
+	I1 is I+1,
+	'$beautify_stack_goal'(Name,Arity,Mod,Clause,Gs,I1,NGs).
 	
-'$beautify_stack_goal'(Name,Arity,Module,0,Gs,NGs) :- !,
-	'$preprocess_stack'(Gs,NGs).
-'$beautify_stack_goal'(Name,Arity,Module,Clause,Gs,NGs) :-
+'$beautify_stack_goal'(Name,Arity,Module,0,Gs,I,NGs) :- !,
+	'$preprocess_stack'(Gs,I,NGs).
+'$beautify_stack_goal'(Name,Arity,Module,Clause,Gs,I,NGs) :-
 	functor(G,Name,Arity),
 	'$hidden_predicate'(G,Module), !,
-	'$beautify_hidden_goal'(Name,Arity,Module,Clause,Gs,NGs).
-'$beautify_stack_goal'(Name,Arity,Module,Clause,Gs,[cl(Name,Arity,Module,Clause)|NGs]) :-
-	'$preprocess_stack'(Gs,NGs).
+	'$beautify_hidden_goal'(Name,Arity,Module,Clause,Gs,I,NGs).
+'$beautify_stack_goal'(Name,Arity,Module,Clause,Gs,I,[cl(Name,Arity,Module,Clause)|NGs]) :-
+	'$preprocess_stack'(Gs,I,NGs).
 
 
-'$beautify_hidden_goal'('$yes_no',_,_,_,_,[]) :- !.
-'$beautify_hidden_goal'('$do_yes_no',_,_,_,_,[]) :- !.
-'$beautify_hidden_goal'('$query',_,_,_,_,[]) :- !.
-'$beautify_hidden_goal'('$enter_top_level',_,_,_,_,[]) :- !.
+'$beautify_hidden_goal'('$yes_no',_,_,_,_,_,[]) :- !.
+'$beautify_hidden_goal'('$do_yes_no',_,_,_,_,_,[]) :- !.
+'$beautify_hidden_goal'('$query',_,_,_,_,_,[]) :- !.
+'$beautify_hidden_goal'('$enter_top_level',_,_,_,_,_,[]) :- !.
 % The user should never know these exist.
 '$beautify_hidden_goal'('$csult',_,prolog,ClNo,Gs,NGs) :- !,
-	'$preprocess_stack'(Gs, NGs).
-'$beautify_hidden_goal'('$use_module',2,prolog,ClNo,Gs,NGs) :- !,
-	'$preprocess_stack'(Gs, NGs).
-'$beautify_hidden_goal'('$ensure_loaded',_,prolog,ClNo,Gs,NGs) :- !,
-	'$preprocess_stack'(Gs, NGs).
-'$beautify_hidden_goal'('$recordedp',_,prolog,ClNo,Gs,NGs) :- !,
-	'$preprocess_stack'(Gs, NGs).
-'$beautify_hidden_goal'('$continue_with_command',_,prolog,ClNo,Gs,NGs) :- !,
-	'$preprocess_stack'(Gs, NGs).
-'$beautify_hidden_goal'('$spycall_stdpred',_,prolog,ClNo,Gs,NGs) :- !,
-	'$preprocess_stack'(Gs, NGs).
-'$beautify_hidden_goal'('$spycalls',_,prolog,ClNo,Gs,NGs) :- !,
-	'$preprocess_stack'(Gs, NGs).
-'$beautify_hidden_goal'('$spycall',_,prolog,ClNo,Gs,NGs) :- !,
-	'$preprocess_stack'(Gs, NGs).
-'$beautify_hidden_goal'('$do_spy',_,prolog,ClNo,Gs,NGs) :- !,
-	'$preprocess_stack'(Gs, NGs).
-'$beautify_hidden_goal'('$spy',_,prolog,ClNo,Gs,NGs) :- !,
-	'$preprocess_stack'(Gs, NGs).
-'$beautify_hidden_goal'('$do_creep_execute',_,prolog,ClNo,Gs,NGs) :- !,
-	'$preprocess_stack'(Gs, NGs).
-'$beautify_hidden_goal'('$creep_execute',_,prolog,ClNo,Gs,NGs) :- !,
-	'$preprocess_stack'(Gs, NGs).
-'$beautify_hidden_goal'('$direct_spy',_,prolog,ClNo,Gs,NGs) :- !,
-	'$preprocess_stack'(Gs, NGs).
-'$beautify_hidden_goal'('$system_catch',_,prolog,ClNo,Gs,NGs) :- !,
-	'$preprocess_stack'(Gs, NGs).
-'$beautify_hidden_goal'('$execute_command',_,prolog,ClNo,Gs,NGs) :- !,
-	'$preprocess_stack'(Gs, NGs).
-'$beautify_hidden_goal'('$process_directive',_,prolog,ClNo,Gs,NGs) :- !,
-	'$preprocess_stack'(Gs, NGs).
-'$beautify_hidden_goal'('$catch',_,prolog,ClNo,Gs,NGs) :- !,
-	'$preprocess_stack'(Gs, NGs).
-'$beautify_hidden_goal'('$loop',_,prolog,ClNo,Gs,NGs) :- !,
-	'$preprocess_stack'(Gs, NGs).
-'$beautify_hidden_goal'('$consult',1,prolog,ClNo,Gs,NGs) :- !,
-	'$preprocess_stack'(Gs, NGs).
-'$beautify_hidden_goal'('$reconsult',_,prolog,ClNo,Gs,NGs) :- !,
-	'$preprocess_stack'(Gs, NGs).
-'$beautify_hidden_goal'('$undefp',1,prolog,ClNo,Gs,NGs) :- !,
-	'$preprocess_stack'(Gs, NGs).
-'$beautify_hidden_goal'('$use_module',2,prolog,ClNo,Gs,NGs) :- !,
-	'$preprocess_stack'(Gs, NGs).
-'$beautify_hidden_goal'('$repeat',0,prolog,ClNo,Gs,[cl(repeat,0,prolog,ClNo)|NGs]) :- !,
-	'$preprocess_stack'(Gs, NGs).
-'$beautify_hidden_goal'('$recorded_with_key',3,prolog,ClNo,Gs,[cl(recorded,3,prolog,ClNo)|NGs]) :- !,
-	'$preprocess_stack'(Gs, NGs).
-'$beautify_hidden_goal'('$consult',2,prolog,ClNo,Gs,[cl(consult,1,prolog,ClNo)|NGs]) :- !,
-	'$preprocess_stack'(Gs, NGs).
-'$beautify_hidden_goal'('$findall_with_common_vars',_,prolog,ClNo,Gs,[cl(findall,4,prolog,ClNo)|NGs]) :- !,
-	'$preprocess_stack'(Gs, NGs).
-'$beautify_hidden_goal'('$findall',_,prolog,ClNo,Gs,[cl(findall,4,prolog,ClNo)|NGs]) :- !,
-	'$preprocess_stack'(Gs, NGs).
-'$beautify_hidden_goal'('$bagof',_,prolog,ClNo,Gs,[cl(bagof,3,prolog,ClNo)|NGs]) :- !,
-	'$preprocess_stack'(Gs, NGs).
-'$beautify_hidden_goal'('$listing',_,prolog,ClNo,Gs,[cl(listing,1,prolog,ClNo)|NGs]) :- !,
-	'$preprocess_stack'(Gs, NGs).
-'$beautify_hidden_goal'('$call',Args,prolog,ClNo,Gs,[cl(call,Args,prolog,ClNo)|NGs]) :- !,
-	'$preprocess_stack'(Gs, NGs).
-'$beautify_hidden_goal'('$current_predicate',Args,prolog,ClNo,Gs,[cl(current_predicate,Args,prolog,ClNo)|NGs]) :- !,
-	'$preprocess_stack'(Gs, NGs).
-'$beautify_hidden_goal'('$list_clauses',_,prolog,ClNo,Gs,[cl(listing,1,prolog,ClNo)|NGs]) :- !,
-	'$preprocess_stack'(Gs, NGs).
-'$beautify_hidden_goal'('$use_module',1,prolog,ClNo,Gs,[cl(use_module,1,prolog,ClNo)|NGs]) :- !,
-	'$preprocess_stack'(Gs, NGs).
-'$beautify_hidden_goal'(Name,Args,Mod,ClNo,Gs,[cl(Name,Args,Mod,ClNo)|NGs]) :-
-	'$preprocess_stack'(Gs, NGs).
+	'$preprocess_stack'(Gs, I, NGs).
+'$beautify_hidden_goal'('$use_module',2,prolog,ClNo,Gs,I,NGs) :- !,
+	'$preprocess_stack'(Gs, I, NGs).
+'$beautify_hidden_goal'('$ensure_loaded',_,prolog,ClNo,Gs,I,NGs) :- !,
+	'$preprocess_stack'(Gs, I, NGs).
+'$beautify_hidden_goal'('$recordedp',_,prolog,ClNo,Gs,I,NGs) :- !,
+	'$preprocess_stack'(Gs, I, NGs).
+'$beautify_hidden_goal'('$continue_with_command',_,prolog,ClNo,Gs,I,NGs) :- !,
+	'$preprocess_stack'(Gs, I, NGs).
+'$beautify_hidden_goal'('$spycall_stdpred',_,prolog,ClNo,Gs,I,NGs) :- !,
+	'$preprocess_stack'(Gs, I, NGs).
+'$beautify_hidden_goal'('$spycalls',_,prolog,ClNo,Gs,I,NGs) :- !,
+	'$preprocess_stack'(Gs, I, NGs).
+'$beautify_hidden_goal'('$spycall',_,prolog,ClNo,Gs,I,NGs) :- !,
+	'$preprocess_stack'(Gs, I, NGs).
+'$beautify_hidden_goal'('$do_spy',_,prolog,ClNo,Gs,I,NGs) :- !,
+	'$preprocess_stack'(Gs, I, NGs).
+'$beautify_hidden_goal'('$spy',_,prolog,ClNo,Gs,I,NGs) :- !,
+	'$preprocess_stack'(Gs, I, NGs).
+'$beautify_hidden_goal'('$do_creep_execute',_,prolog,ClNo,Gs,I,NGs) :- !,
+	'$preprocess_stack'(Gs, I, NGs).
+'$beautify_hidden_goal'('$creep_execute',_,prolog,ClNo,Gs,I,NGs) :- !,
+	'$preprocess_stack'(Gs, I, NGs).
+'$beautify_hidden_goal'('$direct_spy',_,prolog,ClNo,Gs,I,NGs) :- !,
+	'$preprocess_stack'(Gs, I, NGs).
+'$beautify_hidden_goal'('$system_catch',_,prolog,ClNo,Gs,I,NGs) :- !,
+	'$preprocess_stack'(Gs, I, NGs).
+'$beautify_hidden_goal'('$execute_command',_,prolog,ClNo,Gs,I,NGs) :- !,
+	'$preprocess_stack'(Gs, I, NGs).
+'$beautify_hidden_goal'('$process_directive',_,prolog,ClNo,Gs,I,NGs) :- !,
+	'$preprocess_stack'(Gs, I, NGs).
+'$beautify_hidden_goal'('$catch',_,prolog,ClNo,Gs,I,NGs) :- !,
+	'$preprocess_stack'(Gs, I, NGs).
+'$beautify_hidden_goal'('$loop',_,prolog,ClNo,Gs,I,NGs) :- !,
+	'$preprocess_stack'(Gs, I, NGs).
+'$beautify_hidden_goal'('$consult',1,prolog,ClNo,Gs,I,NGs) :- !,
+	'$preprocess_stack'(Gs, I, NGs).
+'$beautify_hidden_goal'('$reconsult',_,prolog,ClNo,Gs,I,NGs) :- !,
+	'$preprocess_stack'(Gs, I, NGs).
+'$beautify_hidden_goal'('$undefp',1,prolog,ClNo,Gs,I,NGs) :- !,
+	'$preprocess_stack'(Gs, I, NGs).
+'$beautify_hidden_goal'('$use_module',2,prolog,ClNo,Gs,I,NGs) :- !,
+	'$preprocess_stack'(Gs, I, NGs).
+'$beautify_hidden_goal'('$repeat',0,prolog,ClNo,Gs,I,[cl(repeat,0,prolog,ClNo)|NGs]) :- !,
+	'$preprocess_stack'(Gs, I, NGs).
+'$beautify_hidden_goal'('$recorded_with_key',3,prolog,ClNo,Gs,I,[cl(recorded,3,prolog,ClNo)|NGs]) :- !,
+	'$preprocess_stack'(Gs, I, NGs).
+'$beautify_hidden_goal'('$consult',2,prolog,ClNo,Gs,I,[cl(consult,1,prolog,ClNo)|NGs]) :- !,
+	'$preprocess_stack'(Gs, I, NGs).
+'$beautify_hidden_goal'('$findall_with_common_vars',_,prolog,ClNo,Gs,I,[cl(findall,4,prolog,ClNo)|NGs]) :- !,
+	'$preprocess_stack'(Gs, I, NGs).
+'$beautify_hidden_goal'('$findall',_,prolog,ClNo,Gs,I,[cl(findall,4,prolog,ClNo)|NGs]) :- !,
+	'$preprocess_stack'(Gs, I, NGs).
+'$beautify_hidden_goal'('$bagof',_,prolog,ClNo,Gs,I,[cl(bagof,3,prolog,ClNo)|NGs]) :- !,
+	'$preprocess_stack'(Gs, I, NGs).
+'$beautify_hidden_goal'('$listing',_,prolog,ClNo,Gs,I,[cl(listing,1,prolog,ClNo)|NGs]) :- !,
+	'$preprocess_stack'(Gs, I, NGs).
+'$beautify_hidden_goal'('$call',Args,prolog,ClNo,Gs,I,[cl(call,Args,prolog,ClNo)|NGs]) :- !,
+	'$preprocess_stack'(Gs, I, NGs).
+'$beautify_hidden_goal'('$current_predicate',Args,prolog,ClNo,Gs,I,[cl(current_predicate,Args,prolog,ClNo)|NGs]) :- !,
+	'$preprocess_stack'(Gs, I, NGs).
+'$beautify_hidden_goal'('$list_clauses',_,prolog,ClNo,Gs,I,[cl(listing,1,prolog,ClNo)|NGs]) :- !,
+	'$preprocess_stack'(Gs, I, NGs).
+'$beautify_hidden_goal'('$use_module',1,prolog,ClNo,Gs,I,[cl(use_module,1,prolog,ClNo)|NGs]) :- !,
+	'$preprocess_stack'(Gs, I, NGs).
+'$beautify_hidden_goal'(Name,Args,Mod,ClNo,Gs,I,[cl(Name,Args,Mod,ClNo)|NGs]) :-
+	'$preprocess_stack'(Gs, I, NGs).
 
 
 '$say_stack_dump'([], []) :- !.
@@ -259,6 +261,8 @@ print_message(Level, Mss) :-
 '$prepare_loc'(Info,Where,Info).
 
 '$print_stack'([]).
+'$print_stack'([overflow]) :- !,
+	'$format'(user_error,"~n	...",[]).
 '$print_stack'([cl(Name,Arity,Mod,Clause)|List]) :-
 	'$show_goal'(Clause,Name,Arity,Mod),
 	'$print_stack'(List).
@@ -267,7 +271,7 @@ print_message(Level, Mss) :-
 	'$format'("~n      ~a:~a/~d at indexing code",[Mod,Name,Arity]).
 '$show_goal'(0,Name,Arity,Mod) :- !.
 '$show_goal'(I,Name,Arity,Mod) :-
-	'$format'("~n      ~a:~a/~d at clause ~d",[Mod,Name,Arity,I]).
+	'$format'(user_error,"~n      ~a:~a/~d at clause ~d",[Mod,Name,Arity,I]).
 
 '$construct_code'(-1,Name,Arity,Mod,Where,Location) :- !,
 	number_codes(Arity,ArityCode),
