@@ -278,6 +278,7 @@ then
   AC_CHECK_LIB(gmp,main)
 fi
 
+MPI_OBJS=
 if test "$yap_cv_mpi" != "no"
 then
   OLD_CC=${CC}
@@ -299,13 +300,13 @@ then
 	MPI_OBJS=mpi.o
     else
 	#YAPMPILIB=
-	MPI_OBJS=
 	MPI_CC='$(CC)'
     fi
   fi
   CC=${OLD_CC}
 fi
 
+MPI_LIBS=
 if test "$yap_cv_mpe" != "no"
 then
   OLD_CC=${CC}
@@ -317,9 +318,6 @@ then
   then
 	MPI_LIBS="-lmpe"
 	MPI_OBJS="$MPI_OBJS mpe.o"
-  else
-	MPI_LIBS=
-	MPI_OBJS=
   fi
   CC=${OLD_CC}
 fi
