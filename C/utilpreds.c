@@ -1331,7 +1331,7 @@ static int variant_complex(register CELL *pt0, register CELL *pt0_end, register
 	to_visit[0] = pt0;
 	to_visit[1] = pt0_end;
 	to_visit[2] = pt1;
-	to_visit[3] = (CELL *)d0;
+	to_visit[3] = (CELL *)*pt0;
 	*pt0 = d1;
 #else
 	/* store the terms to visit */
@@ -1372,7 +1372,7 @@ static int variant_complex(register CELL *pt0, register CELL *pt0_end, register
 	to_visit[0] = pt0;
 	to_visit[1] = pt0_end;
 	to_visit[2] = pt1;
-	to_visit[3] = (CELL *)d0;
+	to_visit[3] = (CELL *)*pt0;
 	*pt0 = d1;
 #else
 	  /* store the terms to visit */
@@ -1525,7 +1525,7 @@ static int subsumes_complex(register CELL *pt0, register CELL *pt0_end, register
 	to_visit[0] = pt0;
 	to_visit[1] = pt0_end;
 	to_visit[2] = pt1;
-	to_visit[3] = (CELL *)d0;
+	to_visit[3] = (CELL *)*pt0;
 	*pt0 = d1;
 #else
 	/* store the terms to visit */
@@ -1566,7 +1566,7 @@ static int subsumes_complex(register CELL *pt0, register CELL *pt0_end, register
 	  to_visit[0] = pt0;
 	  to_visit[1] = pt0_end;
 	  to_visit[2] = pt1;
-	  to_visit[3] = (CELL *)d0;
+	  to_visit[3] = (CELL *)*pt0;
 	  *pt0 = d1;
 #else
 	  /* store the terms to visit */

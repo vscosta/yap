@@ -289,10 +289,12 @@ decrease_log_indices(LogUpdIndex *c, yamop *suspend_code)
     case _index_blob:
       ipc = NEXTOP(ipc,e);
       break;
-    case _retry:
-    case _retry_killed:
     case _retry_profiled:
     case _count_retry:
+      ipc = NEXTOP(ipc,p);
+      break;
+    case _retry:
+    case _retry_killed:
     case _trust:
     case _trust_killed:
       decrease_ref_counter(ipc->u.ld.d, beg, end, suspend_code);

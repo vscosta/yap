@@ -465,7 +465,7 @@ Yap_absmi(int inp)
       ENDOp();
 
       /* profiled_retry    Label,NArgs */
-      Op(retry_profiled, l);
+      Op(retry_profiled, p);
       LOCK(PREG->u.p.p->StatisticsForPred.lock);
       PREG->u.p.p->StatisticsForPred.NOfRetries++;
       UNLOCK(PREG->u.p.p->StatisticsForPred.lock);
@@ -1458,88 +1458,102 @@ Yap_absmi(int inp)
 	  SP = SP0;
 #ifdef LOW_LEVEL_TRACER
 	  if (Yap_do_low_level_trace) {
-	    op_numbers opnum = Yap_op_from_opcode(PREG->opc);
-	  restart_cp:
-	    switch (opnum) {
+	    int go_on = TRUE;
+	    yamop *ipc = PREG;
+
+	    while (go_on) {
+	      go_on = FALSE;
+	      op_numbers opnum = Yap_op_from_opcode(ipc->opc);
+	      switch (opnum) {
 #ifdef TABLING
-	    case _table_answer_resolution:
-	      {
-		PredEntry *pe = ENV_ToP(B->cp_cp);
-		op_numbers caller_op = Yap_op_from_opcode(ENV_ToOp(B->cp_cp));
-		/* first condition  checks if this was a meta-call */
-		if ((caller_op != _call && caller_op != _fcall) || pe == NULL) {
-		  low_level_trace(retry_table_consumer, NULL, NULL);
-		} else {
-		  low_level_trace(retry_table_consumer, pe, NULL);
+	      case _table_answer_resolution:
+		{
+		  PredEntry *pe = ENV_ToP(B->cp_cp);
+		  op_numbers caller_op = Yap_op_from_opcode(ENV_ToOp(B->cp_cp));
+		  /* first condition  checks if this was a meta-call */
+		  if ((caller_op != _call && caller_op != _fcall) || pe == NULL) {
+		    low_level_trace(retry_table_consumer, NULL, NULL);
+		  } else {
+		    low_level_trace(retry_table_consumer, pe, NULL);
+		  }
 		}
-	      }
-	    case _table_completion:
-	      {
-		PredEntry *pe = ENV_ToP(B->cp_cp);
-		op_numbers caller_op = Yap_op_from_opcode(ENV_ToOp(B->cp_cp));
-		/* first condition  checks if this was a meta-call */
-		if ((caller_op != _call && caller_op != _fcall) || pe == NULL) {
-		  low_level_trace(retry_table_producer, NULL, NULL);
-		} else {
-		  low_level_trace(retry_table_producer, pe, (CELL *)(((gen_cp_ptr)B)+1));
+	      case _table_completion:
+		{
+		  PredEntry *pe = ENV_ToP(B->cp_cp);
+		  op_numbers caller_op = Yap_op_from_opcode(ENV_ToOp(B->cp_cp));
+		  /* first condition  checks if this was a meta-call */
+		  if ((caller_op != _call && caller_op != _fcall) || pe == NULL) {
+		    low_level_trace(retry_table_producer, NULL, NULL);
+		  } else {
+		    low_level_trace(retry_table_producer, pe, (CELL *)(((gen_cp_ptr)B)+1));
+		  }
 		}
-	      }
-	      break;
-	    case _trie_retry_var:
-	    case _trie_retry_val:
-	    case _trie_retry_atom:
-	    case _trie_retry_list:
-	    case _trie_retry_struct:
-	    case _trie_trust_var:
-	    case _trie_trust_val:
-	    case _trie_trust_atom:
-	    case _trie_trust_list:
-	    case _trie_trust_struct:
-	      low_level_trace(retry_table_consumer, NULL, NULL);
-	      break;
-	    case _table_retry_me:
-	    case _table_trust_me:
-	      low_level_trace(retry_pred, PREG->u.lds.p, (CELL *)(((gen_cp_ptr)B)+1));
-	      break;
+		break;
+	      case _trie_retry_var:
+	      case _trie_retry_val:
+	      case _trie_retry_atom:
+	      case _trie_retry_list:
+	      case _trie_retry_struct:
+	      case _trie_trust_var:
+	      case _trie_trust_val:
+	      case _trie_trust_atom:
+	      case _trie_trust_list:
+	      case _trie_trust_struct:
+		low_level_trace(retry_table_consumer, NULL, NULL);
+		break;
+	      case _table_retry_me:
+	      case _table_trust_me:
+		low_level_trace(retry_pred, ipc->u.lds.p, (CELL *)(((gen_cp_ptr)B)+1));
+		break;
 #endif
-	    case _or_else:
-	    case _or_last:
-	      low_level_trace(retry_or, (PredEntry *)PREG, &(B->cp_a1));
-	      break;
-	    case _trust_logical_pred:
-	      low_level_trace(retry_pred, NEXTOP(PREG,l)->u.ld.p, B->cp_args);
-	      break;
-	    case _retry_c:
-	    case _retry_userc:
-	      low_level_trace(retry_pred, PREG->u.lds.p, B->cp_args);
-	      break;
-	    case _retry_profiled:
-	      opnum = Yap_op_from_opcode(NEXTOP(B->cp_ap,l)->opc);
-	      goto restart_cp;
-	    case _retry_me:
-	    case _trust_me:
-	    case _profiled_retry_me:
-	    case _profiled_trust_me:
-	    case _retry_me0:
-	    case _trust_me0:
-	    case _retry_me1:
-	    case _trust_me1:
-	    case _retry_me2:
-	    case _trust_me2:
-	    case _retry_me3:
-	    case _trust_me3:
-	    case _retry_me4:
-	    case _trust_me4:
-	    case _retry_and_mark:
-	    case _profiled_retry_and_mark:
-	    case _retry:
-	    case _retry_killed:
-	    case _trust:
-	    case _trust_killed:
-	      low_level_trace(retry_pred, PREG->u.ld.p, B->cp_args);
-	      break;
-	    default:
-	      break;
+	      case _or_else:
+	      case _or_last:
+		low_level_trace(retry_or, (PredEntry *)ipc, &(B->cp_a1));
+		break;
+	      case _trust_logical_pred:
+		ipc = NEXTOP(ipc,l);
+		go_on = TRUE;
+		break;
+	      case _retry_c:
+	      case _retry_userc:
+		low_level_trace(retry_pred, ipc->u.lds.p, B->cp_args);
+		break;
+	      case _retry_profiled:
+	      case _count_retry:
+		ipc = NEXTOP(ipc,p);
+		go_on = TRUE;
+		break;
+	      case _retry_me:
+	      case _trust_me:
+	      case _count_retry_me:
+	      case _count_trust_me:
+	      case _profiled_retry_me:
+	      case _profiled_trust_me:
+	      case _retry_me0:
+	      case _trust_me0:
+	      case _retry_me1:
+	      case _trust_me1:
+	      case _retry_me2:
+	      case _trust_me2:
+	      case _retry_me3:
+	      case _trust_me3:
+	      case _retry_me4:
+	      case _trust_me4:
+	      case _retry_and_mark:
+	      case _profiled_retry_and_mark:
+	      case _retry:
+	      case _retry_killed:
+	      case _trust:
+	      case _trust_killed:
+		low_level_trace(retry_pred, ipc->u.ld.p, B->cp_args);
+		break;
+	      case _Nstop:
+	      case _Ystop:
+		low_level_trace(retry_pred, NULL, B->cp_args);
+		break;
+	      default:
+		break;
+	      }
 	    }
 	  }
 #endif	/* LOW_LEVEL_TRACER */
@@ -6668,7 +6682,7 @@ Yap_absmi(int inp)
 	if (IsPairTerm(d0)) {
 	  /* pair */
 #endif
-	  PREG = (yamop *) (PREG->u.ollll.l1);
+	  PREG = PREG->u.ollll.l1;
 	  SREG = RepPair(d0);
 	  ALWAYS_GONext();
 	}
@@ -6677,18 +6691,18 @@ Yap_absmi(int inp)
 #endif
 	if (d0 == TermNil) {
 	  /* empty list */
-	  PREG = (yamop *) (PREG->u.ollll.l2);
+	  PREG = PREG->u.ollll.l2;
 	  JMPNext();
 	}
 	else {
 	  /* appl or constant */
 	  if (IsApplTerm(d0)) {
 	    SREG = RepAppl(d0);
-	    PREG = (yamop *) (PREG->u.ollll.l3);
+	    PREG = PREG->u.ollll.l3;
 	    JMPNext();
 	  } else {
 	    I_R = d0;
-	    PREG = (yamop *) (PREG->u.ollll.l3);
+	    PREG = PREG->u.ollll.l3;
 	    JMPNext();
 	  }
 	}
@@ -6702,7 +6716,7 @@ Yap_absmi(int inp)
 #endif
 	ENDP(pt0);
 	/* variable */
-	PREG = (yamop *) (PREG->u.ollll.l4);
+	PREG = PREG->u.ollll.l4;
 	JMPNext();
 	ENDD(d0);
       }

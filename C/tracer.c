@@ -203,17 +203,19 @@ low_level_trace(yap_low_level_port port, PredEntry *pred, CELL *args)
     break;
   case retry_pred:
     send_tracer_message("FAIL ", NULL, 0, NULL, args);
-    mname = RepAtom(AtomOfTerm(Yap_Module_Name((CODEADDR)pred)))->StrOfAE;
-    arity = pred->ArityOfPE;
-    if (pred->ModuleOfPred == 2) {
-      s = "recorded";
-      arity = 3;
-    } else if (arity == 0) {
-      s = RepAtom((Atom)pred->FunctorOfPred)->StrOfAE;
-    } else {
-      s = RepAtom(NameOfFunctor((pred->FunctorOfPred)))->StrOfAE;
+    if (pred != NULL) {
+      mname = RepAtom(AtomOfTerm(Yap_Module_Name((CODEADDR)pred)))->StrOfAE;
+      arity = pred->ArityOfPE;
+      if (pred->ModuleOfPred == 2) {
+	s = "recorded";
+	arity = 3;
+      } else if (arity == 0) {
+	s = RepAtom((Atom)pred->FunctorOfPred)->StrOfAE;
+      } else {
+	s = RepAtom(NameOfFunctor((pred->FunctorOfPred)))->StrOfAE;
+      }
+      send_tracer_message("RETRY: ", s, arity, mname, args);
     }
-    send_tracer_message("RETRY: ", s, arity, mname, args);
     break;
   }
 }
