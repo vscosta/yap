@@ -45,13 +45,15 @@
 
 #define N_TXTOFF(x) (sizeof(struct filehdr)+(x).f_opthdr+(x).f_nscns*sizeof(struct scnhdr))
 
+static char YapExecutable[YAP_FILE_MAX];
+
 
 /*
- *   YAPFindExecutable(argv[0]) should be called on yap initialization to
+ *   YAP_FindExecutable(argv[0]) should be called on yap initialization to
  *   locate the executable of Yap
 */
 void
-YAPFindExecutable(char *name)
+YAP_FindExecutable(char *name)
 {
   register char  *cp, *cp2;
   struct stat     stbuf;

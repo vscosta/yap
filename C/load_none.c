@@ -14,18 +14,20 @@
 
 #include "Yap.h"
 #include "Foreign.h"
+#include "Heap.h"
+#ifdef HAVE_STRING_H
+#include <string.h>
+#endif
 
 #ifdef NO_DYN
 
 /*
- *   YAPFindExecutable(argv[0]) should be called on yap initialization to
+ *   YAP_FindExecutable(argv[0]) should be called on yap initialization to
  *   locate the executable of Yap
 */
 void
-YAPFindExecutable(char *name)
+YAP_FindExecutable(char *name)
 {
-  /* signal name not found */
- strcpy(YapExecutable,"./yap");
 }
 
 

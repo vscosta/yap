@@ -10,7 +10,7 @@
 * File:		Yap.h.m4						 *
 * mods:									 *
 * comments:	main header file for YAP				 *
-* version:      $Id: Yap.h.m4,v 1.30 2002-09-03 14:28:08 vsc Exp $	 *
+* version:      $Id: Yap.h.m4,v 1.31 2002-09-23 17:06:13 vsc Exp $	 *
 *************************************************************************/
 
 #include "config.h"
@@ -786,6 +786,10 @@ extern int      yap_argc;
 
 /******************* controlling debugging ****************************/
 extern int      creep_on;
+
+/******************* number of modules ****************************/
+
+#define MaxModules	256
 
 #ifdef YAPOR
 #define YAPEnterCriticalSection()                           \

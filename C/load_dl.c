@@ -26,14 +26,12 @@
 #include <stdio.h>
 
 /*
- *   YAPFindExecutable(argv[0]) should be called on yap initialization to
+ *   YAP_FindExecutable(argv[0]) should be called on yap initialization to
  *   locate the executable of Yap
 */
 void
-YAPFindExecutable(char *name)
+YAP_FindExecutable(char *name)
 {
-  /* not really needed for dl version */
-  strcpy(YapExecutable,"yap");
 }
 
 

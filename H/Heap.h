@@ -10,7 +10,7 @@
 * File:		Heap.h         						 *
 * mods:									 *
 * comments:	Heap Init Structure					 *
-* version:      $Id: Heap.h,v 1.30 2002-09-03 14:28:07 vsc Exp $	 *
+* version:      $Id: Heap.h,v 1.31 2002-09-23 17:06:12 vsc Exp $	 *
 *************************************************************************/
 
 /* information that can be stored in Code Space */
@@ -116,7 +116,7 @@ typedef struct various_codes {
   Term   mutable_list;
   Term   atts_mutable_list;
 #endif
-  PredEntry  *wake_up_code;
+  struct pred_entry  *wake_up_code;
 #endif
   struct pred_entry  *creep_code;
   struct pred_entry  *undef_code;
@@ -288,11 +288,11 @@ typedef struct various_codes {
     term_prolog,
     term_refound_var;
   void *last_wtime;
-  PredEntry *pred_goal_expansion;
-  PredEntry *pred_meta_call;
-  PredEntry *pred_dollar_catch;
-  PredEntry *pred_throw;
-  PredEntry *pred_handle_throw;
+  struct pred_entry *pred_goal_expansion;
+  struct pred_entry *pred_meta_call;
+  struct pred_entry *pred_dollar_catch;
+  struct pred_entry *pred_throw;
+  struct pred_entry *pred_handle_throw;
   struct array_entry *dyn_array_list;
   struct DB_STRUCT *db_erased_marker;
   UInt n_of_file_aliases;

@@ -27,10 +27,8 @@
  *   locate the executable of Yap
 */
 void
-YAPFindExecutable(char *name)
+YAP_FindExecutable(char *name)
 {
-  /* not really needed for dl version */
-  strcpy(YapExecutable,"./yap");
 }
 
 

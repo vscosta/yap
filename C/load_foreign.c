@@ -35,7 +35,6 @@ static char     SccsId[] = "%W% %G%.2";
 #endif
 
 char LoadMsg[512];
-char YapExecutable[YAP_FILENAME_MAX];
 
 STD_PROTO(Int p_load_foreign, (void));
 
@@ -110,9 +109,9 @@ void
 InitLoadForeign(void)
 {
   if (yap_args == NULL)
-      YAPFindExecutable(NULL);
-    else
-      YAPFindExecutable(yap_args[0]);
+    YAP_FindExecutable("yap");
+  else
+    YAP_FindExecutable(yap_args[0]);
   InitCPred("$load_foreign_files", 3, p_load_foreign, SafePredFlag|SyncPredFlag);
   InitCPred("$obj_suffix", 1, p_obj_suffix, SafePredFlag);
 }

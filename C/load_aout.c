@@ -43,17 +43,19 @@
 #endif
 #include <a.out.h>
 
+static char YapExecutable[YAP_FILE_MAX];
+
 #define oktox(n) \
 	(0==stat(n,&stbuf)&&(stbuf.st_mode&S_IFMT)==S_IFREG&&0==access(n,X_OK))
 #define oktow(n) \
 	(0==stat(n,&stbuf)&&(stbuf.st_mode&S_IFMT)==S_IFDIR&&0==access(n,W_OK))
 
 /*
- *   YAPFindExecutable(argv[0]) should be called on yap initialization to
+ *   YAP_FindExecutable(argv[0]) should be called on yap initialization to
  *   locate the executable of Yap
 */
 void
-YAPFindExecutable(char *name)
+YAP_FindExecutable(char *name)
 {
   register char  *cp, *cp2;
   struct stat     stbuf;

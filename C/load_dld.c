@@ -20,12 +20,15 @@
 #include <malloc.h>
 #include <stdio.h>
 
+static char YapExecutable[YAP_FILE_MAX];
+
+
 /*
- *   YAPFindExecutable(argv[0]) should be called on yap initialization to
+ *   YAP_FindExecutable(argv[0]) should be called on yap initialization to
  *   locate the executable of Yap
 */
 void
-YAPFindExecutable(char *name)
+YAP_FindExecutable(char *name)
 {
   /* use dld_find_executable */
   char *res;
