@@ -113,28 +113,6 @@ push_live_regs(yamop *pco)
 }
 #endif
 
-static Term
-PushModule(Term t,SMALLUNSGN mod) {
-  Functor f = FunctorOfTerm(t);
-  Term tmod =  ModuleName[mod];
-  if (ArityOfFunctor(f) == 2) {
-    Term ti[2], tf[2];
-    ti[0] = tmod;
-    ti[1] = ArgOfTerm(1,t);
-    tf[0] = Yap_MkApplTerm(FunctorModule,2,ti);
-    ti[0] = tmod;
-    ti[1] = ArgOfTerm(2,t);
-    tf[1] = Yap_MkApplTerm(FunctorModule,2,ti);
-    return(Yap_MkApplTerm(f,2,tf));
-  } else {
-    Term ti[2], tf[1];
-    ti[0] = tmod;
-    ti[1] = ArgOfTerm(1,t);
-    tf[0] = Yap_MkApplTerm(FunctorModule,2,ti);
-    return(Yap_MkApplTerm(f,1,tf));
-  }
-}
-
 Int 
 Yap_absmi(int inp)
 {
@@ -469,21 +447,33 @@ Yap_absmi(int inp)
 *        Profiled try - retry - trust instructions               *
 *****************************************************************/
 
-      /* profiled_enter_me    Label,NArgs */
-      Op(enter_profiling, l);
-      LOCK(((PredEntry *)(PREG->u.l.l))->StatisticsForPred.lock);
-      ((PredEntry *)(PREG->u.l.l))->StatisticsForPred.NOfEntries++;
-      UNLOCK(((PredEntry *)(PREG->u.l.l))->StatisticsForPred.lock);
-      PREG = NEXTOP(PREG, l);
+      /* profiled_enter_me    Pred */
+      Op(enter_profiling, p);
+      LOCK(PREG->u.p.p->StatisticsForPred.lock);
+      PREG->u.p.p->StatisticsForPred.NOfEntries++;
+      UNLOCK(PREG->u.p.p->StatisticsForPred.lock);
+      PREG = NEXTOP(PREG, p);
+      GONext();
+      ENDOp();
+
+      /* profiled_enter     */
+      Op(enter_a_profiling, e);
+      {
+	PredEntry *pen = RepPredProp((Prop)IntegerOfTerm(ENV[-EnvSizeInCells-2]));
+	PREG = NEXTOP(PREG, e);
+	LOCK(pen->StatisticsForPred.lock);
+	pen->StatisticsForPred.NOfEntries++;
+	UNLOCK(pen->StatisticsForPred.lock);
+      }
       GONext();
       ENDOp();
 
       /* profiled_retry    Label,NArgs */
       Op(retry_profiled, l);
-      LOCK(((PredEntry *)(PREG->u.l.l))->StatisticsForPred.lock);
-      ((PredEntry *)(PREG->u.l.l))->StatisticsForPred.NOfRetries++;
-      UNLOCK(((PredEntry *)(PREG->u.l.l))->StatisticsForPred.lock);
-      PREG = NEXTOP(PREG, l);
+      LOCK(PREG->u.p.p->StatisticsForPred.lock);
+      PREG->u.p.p->StatisticsForPred.NOfRetries++;
+      UNLOCK(PREG->u.p.p->StatisticsForPred.lock);
+      PREG = NEXTOP(PREG, p);
       GONext();
       ENDOp();
 
@@ -492,9 +482,9 @@ Yap_absmi(int inp)
       CACHE_Y(B);
       /* After retry, cut should be pointing at the parent
        * choicepoint for the current B */
-      LOCK(((PredEntry *)(PREG->u.ld.p))->StatisticsForPred.lock);
-      ((PredEntry *)(PREG->u.ld.p))->StatisticsForPred.NOfRetries++;
-      UNLOCK(((PredEntry *)(PREG->u.ld.p))->StatisticsForPred.lock);
+      LOCK(PREG->u.ld.p->StatisticsForPred.lock);
+      PREG->u.ld.p->StatisticsForPred.NOfRetries++;
+      UNLOCK(PREG->u.ld.p->StatisticsForPred.lock);
       restore_yaam_regs(PREG->u.ld.d);
       restore_args(PREG->u.ld.s);
 #ifdef FROZEN_STACKS
@@ -535,9 +525,9 @@ Yap_absmi(int inp)
       }
       SET_BB(B_YREG);
       ENDCACHE_Y();
-      LOCK(((PredEntry *)(PREG->u.ld.p))->StatisticsForPred.lock);
-      ((PredEntry *)(PREG->u.ld.p))->StatisticsForPred.NOfRetries++;
-      UNLOCK(((PredEntry *)(PREG->u.ld.p))->StatisticsForPred.lock);
+      LOCK(PREG->u.ld.p->StatisticsForPred.lock);
+      PREG->u.ld.p->StatisticsForPred.NOfRetries++;
+      UNLOCK(PREG->u.ld.p->StatisticsForPred.lock);
       PREG = NEXTOP(PREG, ld);
       GONext();
       ENDOp();
@@ -547,10 +537,10 @@ Yap_absmi(int inp)
 *****************************************************************/
 
       /* count_enter_me    Label,NArgs */
-      Op(count_call, l);
-      LOCK(((PredEntry *)(PREG->u.l.l))->StatisticsForPred.lock);
-      ((PredEntry *)(PREG->u.l.l))->StatisticsForPred.NOfEntries++;
-      UNLOCK(((PredEntry *)(PREG->u.l.l))->StatisticsForPred.lock);
+      Op(count_call, p);
+      LOCK(PREG->u.p.p->StatisticsForPred.lock);
+      PREG->u.p.p->StatisticsForPred.NOfEntries++;
+      UNLOCK(PREG->u.p.p->StatisticsForPred.lock);
       ReductionsCounter--;
       if (ReductionsCounter == 0 && ReductionsCounterOn) {
 	saveregs();
@@ -565,15 +555,41 @@ Yap_absmi(int inp)
 	setregs();
 	JMPNext();
       } 
-      PREG = NEXTOP(PREG, l);
+      PREG = NEXTOP(PREG, p);
+      GONext();
+      ENDOp();
+
+      /* count_enter_me    Label,NArgs */
+      Op(count_a_call, e);
+      {
+	PredEntry *pen = RepPredProp((Prop)IntegerOfTerm(ENV[-EnvSizeInCells-2]));
+	PREG = NEXTOP(PREG, e);
+	LOCK(pen->StatisticsForPred.lock);
+	pen->StatisticsForPred.NOfEntries++;
+	UNLOCK(pen->StatisticsForPred.lock);
+	ReductionsCounter--;
+	if (ReductionsCounter == 0 && ReductionsCounterOn) {
+	  saveregs();
+	  Yap_Error(CALL_COUNTER_UNDERFLOW,TermNil,"");
+	  setregs();
+	  JMPNext();
+	} 
+	PredEntriesCounter--;
+	if (PredEntriesCounter == 0 && PredEntriesCounterOn) {
+	  saveregs();
+	  Yap_Error(PRED_ENTRY_COUNTER_UNDERFLOW,TermNil,"");
+	  setregs();
+	  JMPNext();
+	} 
+      }
       GONext();
       ENDOp();
 
       /* count_retry    Label,NArgs */
-      Op(count_retry, l);
-      LOCK(((PredEntry *)(PREG->u.l.l))->StatisticsForPred.lock);
-      ((PredEntry *)(PREG->u.l.l))->StatisticsForPred.NOfRetries++;
-      UNLOCK(((PredEntry *)(PREG->u.l.l))->StatisticsForPred.lock);
+      Op(count_retry, p);
+      LOCK(PREG->u.p.p->StatisticsForPred.lock);
+      PREG->u.p.p->StatisticsForPred.NOfRetries++;
+      UNLOCK(PREG->u.p.p->StatisticsForPred.lock);
       RetriesCounter--;
       if (RetriesCounter == 0 && RetriesCounterOn) {
 	saveregs();
@@ -588,7 +604,7 @@ Yap_absmi(int inp)
 	setregs();
 	JMPNext();
       } 
-      PREG = NEXTOP(PREG, l);
+      PREG = NEXTOP(PREG, p);
       GONext();
       ENDOp();
 
@@ -11706,42 +11722,93 @@ Yap_absmi(int inp)
       BOp(p_execute, sla);
       { 
 	PredEntry *pen;
-	SMALLUNSGN mod = IntOfTerm(Deref(ARG2));
+	SMALLUNSGN mod = PREG->u.sla.sla_u.m_num;
 
 	CACHE_Y_AS_ENV(YREG);
+	/* Try to preserve the environment */
+	E_YREG = (CELL *) (((char *) YREG) + PREG->u.sla.s);
 #ifndef NO_CHECKING
 	check_stack(NoStackCall, H);
 #endif
+#ifdef FROZEN_STACKS
+	{ 
+	  choiceptr top_b = PROTECT_FROZEN_B(B);
+#ifdef SBA
+	  if (E_YREG > (CELL *) top_b || E_YREG < H) E_YREG = (CELL *) top_b;
+#else
+	  if (E_YREG > (CELL *) top_b) E_YREG = (CELL *) top_b;
+#endif
+	}
+#else
+	if (E_YREG > (CELL *) B) {
+	  E_YREG = (CELL *) B;
+	}
+#endif /* FROZEN_STACKS */
 	BEGD(d0);
 	d0 = ARG1;
-	if (PredGoalExpansion->OpcodeOfPred != UNDEF_OPCODE) {
-	  d0 = Yap_ExecuteCallMetaCall(mod);
-	}
+      restart_execute:
 	deref_head(d0, execute_unk);
       execute_nvar:
 	if (IsApplTerm(d0)) {
 	  Functor f = FunctorOfTerm(d0);
 	  if (IsExtensionFunctor(f)) {
-	    d0 = Yap_ExecuteCallMetaCall(mod);
-	    goto execute_nvar;
+	    goto execute_metacall;
 	  }
 	  pen = RepPredProp(PredPropByFunc(f, mod));
 	  if (pen->PredFlags & MetaPredFlag) {
 	    if (f == FunctorModule) {
-	      Term tmod = Yap_LookupModule(ArgOfTerm(1,d0));
-	      if (!IsVarTerm(tmod) && IsAtomTerm(tmod) &&
-		 Yap_LookupModule(tmod) == mod) {
+	      Term tmod = ArgOfTerm(1,d0);
+	      if (!IsVarTerm(tmod) && IsAtomTerm(tmod)) {
 		d0 = ArgOfTerm(2,d0);
+		mod = Yap_LookupModule(tmod);
 		goto execute_nvar;
 	      }
-	    }
-	    if (pen->PredFlags & PushModPredFlag) {
-	      d0 = PushModule(d0,mod);
+	    } else if (f == FunctorComma) {
+	      SREG = RepAppl(d0);
+	      BEGD(d1);
+	      d1 = SREG[2];
+	      /* create an to execute the call */
+	      deref_head(d1, execute_comma_unk);
+	    execute_comma_nvar:
+	      if (IsAtomTerm(d1)) {
+		E_YREG[-EnvSizeInCells-2]  = MkIntegerTerm((Int)PredPropByAtom(AtomOfTerm(d1),mod));
+	      } else if (IsApplTerm(d1)) {
+		Functor f = FunctorOfTerm(d1);
+		if (IsExtensionFunctor(f)) {
+		  goto execute_metacall;
+		} else {
+		  E_YREG[-EnvSizeInCells-2]  = MkIntegerTerm((Int)PredPropByFunc(f,mod));
+		}
+	      } else {
+		goto execute_metacall;
+	      }
+	      E_YREG[E_CP] = (CELL)NEXTOP(PREG,sla);
+	      E_YREG[E_CB] = (CELL)B;
+	      E_YREG[E_E]  = (CELL)ENV;
+#ifdef DEPTH_LIMIT
+	      E_YREG[E_DEPTH] = DEPTH;
+#endif	/* DEPTH_LIMIT */
+	      E_YREG[-EnvSizeInCells-1]  = d1;
+	      E_YREG[-EnvSizeInCells-3]  = MkIntTerm(mod);
+	      ENV = E_YREG;
+	      E_YREG -= EnvSizeInCells+3;
+	      PREG = COMMA_CODE;
+	      d0 = SREG[1];
+	      goto restart_execute;
+
+	      BEGP(pt1);
+	      deref_body(d1, pt1, execute_comma_unk, execute_comma_nvar);
+	      goto execute_metacall;
+	      ENDP(pt1);
+	      ENDD(d1);
 	    } else {
-	      d0 = Yap_ExecuteCallMetaCall(mod);
-	      goto execute_nvar;
+	      goto execute_metacall;
 	    }
 	  }
+	  if (PRED_GOAL_EXPANSION_ON) {
+	    goto execute_metacall;
+	  }
+
 	  BEGP(pt1);
 	  pt1 = RepAppl(d0);
 	  BEGD(d2);
@@ -11749,10 +11816,11 @@ Yap_absmi(int inp)
 #if SBA
 	    BEGD(d1);
 	    d1 = pt1[d2];
-	    if (d1 == 0)
+	    if (d1 == 0) {
 	      XREGS[d2] = (CELL)(pt1+d2);
-	    else
+	    } else {
 	      XREGS[d2] = d1;
+	    }
 #else
 	    XREGS[d2] = pt1[d2];
 #endif
@@ -11761,16 +11829,17 @@ Yap_absmi(int inp)
 	  ENDP(pt1);
 	  CACHE_A1();
 	} else if (IsAtomTerm(d0)) {
-	  pen = RepPredProp(PredPropByAtom(AtomOfTerm(d0), mod));
+	  if (PRED_GOAL_EXPANSION_ON) {
+	    goto execute_metacall;
+	  } else {
+	    pen = RepPredProp(PredPropByAtom(AtomOfTerm(d0), mod));
+	  }
 	} else {
-	  d0 = Yap_ExecuteCallMetaCall(mod);
-	  goto execute_nvar;
+	  goto execute_metacall;
 	}
 
+      execute_end:
 	/* code copied from call */
-	ENV = E_YREG;
-	/* Try to preserve the environment */
-	E_YREG = (CELL *) (((char *) YREG) + PREG->u.sla.s);
 	CPREG =
 	  (yamop *) NEXTOP(PREG, sla);
 	ALWAYS_LOOKAHEAD(pen->OpcodeOfPred);
@@ -11789,20 +11858,6 @@ Yap_absmi(int inp)
 	if (Yap_do_low_level_trace)
 	  low_level_trace(enter_pred,pen,XREGS+1);
 #endif	/* LOW_LEVEL_TRACER */
-#ifdef FROZEN_STACKS
-	{ 
-	  choiceptr top_b = PROTECT_FROZEN_B(B);
-#ifdef SBA
-	  if (E_YREG > (CELL *) top_b || E_YREG < H) E_YREG = (CELL *) top_b;
-#else
-	  if (E_YREG > (CELL *) top_b) E_YREG = (CELL *) top_b;
-#endif
-	}
-#else
-	if (E_YREG > (CELL *) B) {
-	  E_YREG = (CELL *) B;
-	}
-#endif /* FROZEN_STACKS */
 	WRITEBACK_Y_AS_ENV();
 	/* setup GB */
 	E_YREG[E_CB] = (CELL) B;
@@ -11814,259 +11869,35 @@ Yap_absmi(int inp)
 
 	BEGP(pt1);
 	deref_body(d0, pt1, execute_unk, execute_nvar);
-	d0 = Yap_ExecuteCallMetaCall(mod);
-	goto execute_nvar;
+       execute_metacall:
+	ARG1 = ARG3 = d0;
+	pen = PredMetaCall;
+	ARG2 = Yap_cp_as_integer(B);
+	ARG4 = ModuleName[mod];
+	goto execute_end;
 	ENDP(pt1);
-	ENDD(d0);
-	ENDCACHE_Y_AS_ENV();
 
-      }
-      ENDBOp();
-
-
-      BOp(p_execute_within, sla);
-      { 
-	PredEntry *pen;
-	SMALLUNSGN mod = CurrentModule;
-
-
-	CACHE_Y_AS_ENV(YREG);
-#ifndef NO_CHECKING
-	check_stack(NoStackCall, H);
-#endif
-	BEGD(d0);
-	d0 = ARG1;
-	if (PredGoalExpansion->OpcodeOfPred != UNDEF_OPCODE) {
-	  d0 = Yap_ExecuteCallMetaCall(mod);
-	}
-	deref_head(d0, execute_within_unk);
-      execute_within_nvar:
-	if (IsApplTerm(d0)) {
-	  Functor f = FunctorOfTerm(d0);
-	  if (IsExtensionFunctor(f)) {
-	    d0 = Yap_ExecuteCallMetaCall(mod);
-	    goto execute_within_nvar;
-	  }
-	  pen = RepPredProp(PredPropByFunc(f, mod));
-	  if (pen->PredFlags & MetaPredFlag) {
-	    if (f == FunctorModule) {
-	      Term tmod;
-	      tmod = ArgOfTerm(1,d0);
-	      if (!IsVarTerm(tmod) && IsAtomTerm(tmod) &&
-		  mod == Yap_LookupModule(tmod)) {
-		d0 = ArgOfTerm(2,d0);
-		goto execute_within_nvar;
-	      }
-	    }
-	    if (pen->PredFlags & PushModPredFlag) {
-	      d0 = PushModule(d0,mod);
-	    } else {
-	      d0 = Yap_ExecuteCallMetaCall(mod);
-	      goto execute_within_nvar;
-	    }
-	  }
-	  BEGP(pt1);
-	  pt1 = RepAppl(d0);
-	  BEGD(d2);
-	  for (d2 = ArityOfFunctor(f); d2; d2--) {
-#if SBA
-	    BEGD(d1);
-	    d1 = pt1[d2];
-	    if (d1 == 0)
-	      XREGS[d2] = (CELL)(pt1+d2);
-	    else
-	      XREGS[d2] = d1;
-#else
-	    XREGS[d2] = pt1[d2];
-#endif
-	  }
-	  ENDD(d2);
-	  ENDP(pt1);
-	  CACHE_A1();
-	} else if (IsAtomTerm(d0)) {
-	  if (AtomOfTerm(d0) == AtomCut) {
-	    choiceptr pt0;
-
-	    pt0 = (choiceptr)(ENV[E_CB]);
-	    /* find where to cut to */
-	    if (SHOULD_CUT_UP_TO(B,pt0)) {
-#ifdef YAPOR
-	      /* Wow, we're gonna cut!!! */
-	      CUT_prune_to(pt0);
-#else
-	      /* Wow, we're gonna cut!!! */
-	      B = pt0;
-#endif /* YAPOR */
-	      HB = PROTECT_FROZEN_H(B);
-	    }
-	    PREG = NEXTOP(PREG, sla);
-	    JMPNext();
-	  }else
-	    pen = RepPredProp(PredPropByAtom(AtomOfTerm(d0), mod));
-	} else {
-	  d0 = Yap_ExecuteCallMetaCall(mod);
-	  goto execute_within_nvar;
-	}
-
-	/* code copied from call */
-	ENV = E_YREG;
-	/* Try to preserve the environment */
-	E_YREG = (CELL *) (((char *) YREG) + PREG->u.sla.s);
-	CPREG =
-	  (yamop *) NEXTOP(PREG, sla);
-	ALWAYS_LOOKAHEAD(pen->OpcodeOfPred);
-	PREG = pen->CodeOfPred;
-#ifdef DEPTH_LIMIT
-	if (DEPTH <= MkIntTerm(1)) {/* I assume Module==0 is primitives */
-	  if (pen->ModuleOfPred) {
-	    if (DEPTH == MkIntTerm(0))
-	      FAIL();
-	    else DEPTH = RESET_DEPTH();
-	  }
-	} else if (pen->ModuleOfPred)
-	  DEPTH -= MkIntConstant(2);
-#endif	/* DEPTH_LIMIT */
-#ifdef LOW_LEVEL_TRACER
-	if (Yap_do_low_level_trace)
-	  low_level_trace(enter_pred,pen,XREGS+1);
-#endif	/* LOW_LEVEL_TRACER */
-#ifdef FROZEN_STACKS
-	{ 
-	  choiceptr top_b = PROTECT_FROZEN_B(B);
-#ifdef SBA
-	  if (E_YREG > (CELL *) top_b || E_YREG < H) E_YREG = (CELL *) top_b;
-#else
-	  if (E_YREG > (CELL *) top_b) E_YREG = (CELL *) top_b;
-#endif
-	}
-#else
-	if (E_YREG > (CELL *) B) {
-	  E_YREG = (CELL *) B;
-	}
-#endif /* FROZEN_STACKS */
-	WRITEBACK_Y_AS_ENV();
-	/* setup GB */
-	if (pen->PredFlags & CutTransparentPredFlag)
-	  E_YREG[E_CB] = ENV[E_CB];
-	else
-	  E_YREG[E_CB] = (CELL)B;
-#ifdef YAPOR
-	SCH_check_requests();
-#endif	/* YAPOR */
-	ALWAYS_GONext();
-	ALWAYS_END_PREFETCH();
-
-	BEGP(pt1);
-	deref_body(d0, pt1, execute_within_unk, execute_within_nvar);
-	d0 = Yap_ExecuteCallMetaCall(mod);
-	goto execute_within_nvar;
-	ENDP(pt1);
 	ENDD(d0);
 	ENDCACHE_Y_AS_ENV();
       }
       ENDBOp();
 
-      BOp(p_last_execute_within, sla);
-      { 
+      BOp(p_execute_tail, e);
+      {
 	PredEntry *pen;
-	SMALLUNSGN mod = CurrentModule;
+	SMALLUNSGN mod;
+	UInt arity;
 
 	CACHE_Y_AS_ENV(YREG);
 #ifndef NO_CHECKING
 	check_stack(NoStackCall, H);
 #endif
+	BEGP(pt0);
 	BEGD(d0);
-	d0 = ARG1;
-	if (PredGoalExpansion->OpcodeOfPred != UNDEF_OPCODE) {
-	  d0 = Yap_ExecuteCallMetaCall(mod);
-	}
-	deref_head(d0, last_execute_within_unk);
-      last_execute_within_nvar:
-	if (IsApplTerm(d0)) {
-	  Functor f = FunctorOfTerm(d0);
-	  if (IsExtensionFunctor(f)) {
-	    d0 = Yap_ExecuteCallMetaCall(mod);
-	    goto last_execute_within_nvar;
-	  }
-	  pen = RepPredProp(PredPropByFunc(f, mod));
-	  if (pen->PredFlags & MetaPredFlag) {
-	    if (f == FunctorModule) {
-	      Term tmod = ArgOfTerm(1,d0);
-	      if (!IsVarTerm(tmod) && IsAtomTerm(tmod) &&
-		  mod == Yap_LookupModule(tmod)) {
-		d0 = ArgOfTerm(2,d0);
-		goto last_execute_within_nvar;
-	      }
-	    }
-	    if (pen->PredFlags & PushModPredFlag) {
-	      d0 = PushModule(d0,mod);
-	    } else {
-	      d0 = Yap_ExecuteCallMetaCall(mod);
-	      goto last_execute_within_nvar;
-	    }
-	  }
-	  BEGP(pt1);
-	  pt1 = RepAppl(d0);
-	  BEGD(d2);
-	  for (d2 = ArityOfFunctor(f); d2; d2--) {
-#if SBA
-	    BEGD(d1);
-	    d1 = pt1[d2];
-	    if (d1 == 0)
-	      XREGS[d2] = (CELL)(pt1+d2);
-	    else
-	      XREGS[d2] = d1;
-#else
-	    XREGS[d2] = pt1[d2];
-#endif
-	  }
-	  ENDD(d2);
-	  ENDP(pt1);
-	  CACHE_A1();
-	} else if (IsAtomTerm(d0)) {
-	  if (AtomOfTerm(d0) == AtomCut) {
-	    choiceptr pt0;
-
-	    pt0 = (choiceptr)(ENV[E_CB]);
-	    /* find where to cut to */
-	    if (SHOULD_CUT_UP_TO(B,pt0)) {
-#ifdef YAPOR
-	      /* Wow, we're gonna cut!!! */
-	      CUT_prune_to(pt0);
-#else
-	      /* Wow, we're gonna cut!!! */
-	      B = pt0;
-#endif /* YAPOR */
-	      HB = PROTECT_FROZEN_H(B);
-	    }
-	    PREG = NEXTOP(PREG, sla);
-	    JMPNext();
-	  }else
-	    pen = RepPredProp(PredPropByAtom(AtomOfTerm(d0), mod));
-	} else {
-	  d0 = Yap_ExecuteCallMetaCall(mod);
-	  goto last_execute_within_nvar;
-	}
-
-	ALWAYS_LOOKAHEAD(pen->OpcodeOfPred);
-	BEGD(d0);
-	if (pen->PredFlags & CutTransparentPredFlag)
-	  d0 = ENV[E_CB];
-	else
-	  d0 = (CELL)B;
-	PREG = pen->CodeOfPred;
-#ifdef DEPTH_LIMIT
-	if (DEPTH <= MkIntTerm(1)) {/* I assume Module==0 is primitives */
-	  if (pen->ModuleOfPred) {
-	    if (DEPTH == MkIntTerm(0))
-	      FAIL();
-	    else DEPTH = RESET_DEPTH();
-	  }
-	} else if (pen->ModuleOfPred)
-	  DEPTH -= MkIntConstant(2);
-#endif	/* DEPTH_LIMIT */
-	/* do deallocate */
+	d0 = E_YREG[-EnvSizeInCells-1];
+	pen = RepPredProp((Prop)IntegerOfTerm(E_YREG[-EnvSizeInCells-2]));
 	CPREG = (yamop *) E_YREG[E_CP];
+	pt0 = E_YREG;
 	E_YREG = ENV = (CELL *) E_YREG[E_E];
 #ifdef FROZEN_STACKS
 	{ 
@@ -12087,19 +11918,159 @@ Yap_absmi(int inp)
 	  E_YREG = (CELL *) ((CELL) E_YREG+ ENV_Size(CPREG));
 	}
 #endif /* FROZEN_STACKS */
+	arity = pen->ArityOfPE;
+	if (pen->PredFlags & MetaPredFlag) {
+	  mod = IntOfTerm(pt0[-EnvSizeInCells-3]);
+	  if (pen->FunctorOfPred == FunctorComma) {
+	    SREG = RepAppl(d0);
+	    BEGD(d1);
+	    d1 = SREG[2];
+	    /* create an to execute the call */
+	    deref_head(d1, execute_comma_comma_unk);
+	  execute_comma_comma_nvar:
+	    E_YREG[E_CB] = (CELL)pt0[E_CB];
+	    if (IsAtomTerm(d1)) {
+	      E_YREG[-EnvSizeInCells-2]  = MkIntegerTerm((Int)PredPropByAtom(AtomOfTerm(d1),mod));
+	    } else if (IsApplTerm(d1)) {
+	      Functor f = FunctorOfTerm(d1);
+	      if (IsExtensionFunctor(f)) {
+		goto execute_metacall_after_comma;
+	      } else {
+		E_YREG[-EnvSizeInCells-2]  = MkIntegerTerm((Int)PredPropByFunc(f,mod));
+	      }
+	    } else {
+	      goto execute_metacall_after_comma;
+	    }
+	    E_YREG[E_CP] = (CELL)CPREG;
+	    E_YREG[E_E]  = (CELL)ENV;
+#ifdef DEPTH_LIMIT
+	    E_YREG[E_DEPTH] = DEPTH;
+#endif	/* DEPTH_LIMIT */
+	    E_YREG[-EnvSizeInCells-1]  = d1;
+	    E_YREG[-EnvSizeInCells-3]  = MkIntTerm(mod);
+	    ENV = E_YREG;
+	    E_YREG -= EnvSizeInCells+3;
+	    d0 = SREG[1];
+	    CPREG = NEXTOP(COMMA_CODE,sla);
+	    /* create an to execute the call */
+	    deref_head(d0, execute_comma_comma2_unk);
+	  execute_comma_comma2_nvar:
+	    if (IsAtomTerm(d0)) {
+	      Atom at = AtomOfTerm(d0);
+	      arity = 0;
+	      if (at == AtomCut) {
+		choiceptr cut_pt = (choiceptr)ENV[E_CB];
+		/* find where to cut to */
+		if (SHOULD_CUT_UP_TO(B,cut_pt)) {
+#ifdef YAPOR
+		  /* Wow, we're gonna cut!!! */
+		  CUT_prune_to(cut_pt);
+#else
+		  /* Wow, we're gonna cut!!! */
+		  B = cut_pt;
+#endif /* YAPOR */
+#ifdef TABLING
+		  abolish_incomplete_subgoals(B);
+#endif /* TABLING */
+		  HB = PROTECT_FROZEN_H(B);
+		}
+	      }
+	      pen = RepPredProp(PredPropByAtom(at, mod));
+	      goto execute_comma;
+	    } else if (IsApplTerm(d0)) {
+	      Functor f = FunctorOfTerm(d0);
+	      if (IsExtensionFunctor(f)) {
+		goto execute_metacall_after_comma;
+	      } else {
+		pen = RepPredProp(PredPropByFunc(f,mod));
+		if (pen->PredFlags & MetaPredFlag) {
+		  goto execute_metacall_after_comma;
+		}
+		arity = pen->ArityOfPE;
+		goto execute_comma;
+	      }
+	    } else {
+	      goto execute_metacall_after_comma;
+	    }
+
+	    BEGP(pt1);
+	    deref_body(d0, pt1, execute_comma_comma2_unk, execute_comma_comma2_nvar);
+	    goto execute_metacall_after_comma;
+	    ENDP(pt1);
+
+	    BEGP(pt1);
+	    deref_body(d1, pt1, execute_comma_comma_unk, execute_comma_comma_nvar);
+	    goto execute_metacall_after_comma;
+	    ENDP(pt1);
+	    ENDD(d1);
+	  } else {
+	  execute_metacall_after_comma:
+	    ARG1 = ARG3 = d0;
+	    pen = PredMetaCall;
+	    ARG2 = Yap_cp_as_integer((choiceptr)ENV[E_CB]);
+	    ARG4 = ModuleName[mod];
+	    goto execute_after_comma;
+	  }
+	}
+      execute_comma:
+	if (arity) {
+	  BEGP(pt1);
+	  pt1 = RepAppl(d0);
+	  BEGD(d2);
+	  for (d2 = arity; d2; d2--) {
+#if SBA
+	    BEGD(d1);
+	    d1 = pt1[d2];
+	    if (d1 == 0)
+	      XREGS[d2] = (CELL)(pt1+d2);
+	    else
+	      XREGS[d2] = d1;
+#else
+	    XREGS[d2] = pt1[d2];
+#endif
+	  }
+	  ENDD(d2);
+	  ENDP(pt1);
+	  CACHE_A1();
+	} else if ((Atom)(pen->FunctorOfPred) == AtomCut) {
+	  choiceptr cut_pt = (choiceptr)ENV[E_CB];
+	  /* find where to cut to */
+	  if (SHOULD_CUT_UP_TO(B,cut_pt)) {
+#ifdef YAPOR
+	    /* Wow, we're gonna cut!!! */
+	    CUT_prune_to(cut_pt);
+#else
+	    /* Wow, we're gonna cut!!! */
+	    B = cut_pt;
+#endif /* YAPOR */
+#ifdef TABLING
+	    abolish_incomplete_subgoals(B);
+#endif /* TABLING */
+	    HB = PROTECT_FROZEN_H(B);
+	  }
+	}
+
+      execute_after_comma:
+	ALWAYS_LOOKAHEAD(pen->OpcodeOfPred);
+	PREG = pen->CodeOfPred;
+#ifdef DEPTH_LIMIT
+	if (DEPTH <= MkIntTerm(1)) {/* I assume Module==0 is primitives */
+	  if (pen->ModuleOfPred) {
+	    if (DEPTH == MkIntTerm(0))
+	      FAIL();
+	    else DEPTH = RESET_DEPTH();
+	  }
+	} else if (pen->ModuleOfPred) {
+	  DEPTH -= MkIntConstant(2);
+	}
+#endif	/* DEPTH_LIMIT */
+	/* do deallocate */
 	WRITEBACK_Y_AS_ENV();
-	/* setup GB */
-	E_YREG[E_CB] = d0;
-	ENDD(d0);
 	ALWAYS_GONext();
 	ALWAYS_END_PREFETCH();
 
-	BEGP(pt1);
-	deref_body(d0, pt1, last_execute_within_unk, last_execute_within_nvar);
-	d0 = Yap_ExecuteCallMetaCall(mod);
-	goto last_execute_within_nvar;
-	ENDP(pt1);
 	ENDD(d0);
+	ENDP(pt0);
 	ENDCACHE_Y_AS_ENV();
 
       }

@@ -105,7 +105,7 @@ p_module_number(void)
   Term t;
   if (IsVarTerm(tname)) {
     return(Yap_unify(tname, ModuleName[IntOfTerm(Deref(ARG2))]));
-  }else {
+  } else {
     t = MkIntTerm(LookupModule(Deref(ARG1)));
     Yap_unify(t,ARG2);
     ARG2 = t;

@@ -8,7 +8,7 @@
 *									 *
 **************************************************************************
 *									 *
-* File:		regexp.c						 *
+* File:		random.c						 *
 * Last rev:								 *
 * mods:									 *
 * comments:	regular expression interpreter                           *

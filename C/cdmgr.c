@@ -435,6 +435,10 @@ add_first_static(PredEntry *p, yamop *cp, int spy_flag)
 
   pt->u.ld.d = cp;
   pt->u.ld.p = p;
+  if (p == PredGoalExpansion) {
+    PRED_GOAL_EXPANSION_ON = TRUE;
+    Yap_InitComma();
+  }
 #ifdef YAPOR
   if (SEQUENTIAL_IS_DEFAULT) {
     p->PredFlags |= SequentialPredFlag;
@@ -489,6 +493,10 @@ add_first_dynamic(PredEntry *p, yamop *cp, int spy_flag)
 {
   yamop    *ncp = ((Clause *)NIL)->ClCode;
   Clause   *cl;
+  if (p == PredGoalExpansion) {
+    PRED_GOAL_EXPANSION_ON = TRUE;
+    Yap_InitComma();
+  }
   p->StatisticsForPred.NOfEntries = 0;
   p->StatisticsForPred.NOfHeadSuccesses = 0;
   p->StatisticsForPred.NOfRetries = 0;
@@ -2206,9 +2214,11 @@ p_is_profiled(void)
   s = RepAtom(AtomOfTerm(t))->StrOfAE;
   if (strcmp(s,"on") == 0) {
     PROFILING = TRUE;
+    Yap_InitComma();
     return(TRUE);
   } else if (strcmp(s,"off") == 0) {
     PROFILING = FALSE;
+    Yap_InitComma();
     return(TRUE);
   }
   return(FALSE);
@@ -2311,9 +2321,11 @@ p_is_call_counted(void)
   s = RepAtom(AtomOfTerm(t))->StrOfAE;
   if (strcmp(s,"on") == 0) {
     CALL_COUNTING = TRUE;
+    Yap_InitComma();
     return(TRUE);
   } else if (strcmp(s,"off") == 0) {
     CALL_COUNTING = FALSE;
+    Yap_InitComma();
     return(TRUE);
   }
   return(FALSE);
@@ -2511,82 +2523,6 @@ p_hidden_predicate(void)
   return(pe->PredFlags & HiddenPredFlag);
 }
 
-static Int			/* $cut_transparent(P) */
-p_cut_transparent(void)
-{
-  PredEntry      *pe;
-
-  Term t1 = Deref(ARG1);
- restart_system_pred:
-  if (IsVarTerm(t1))
-    return (FALSE);
-  if (IsAtomTerm(t1)) {
-    pe = RepPredProp(Yap_GetPredPropByAtom(AtomOfTerm(t1), 0));
-  } else if (IsApplTerm(t1)) {
-    Functor         funt = FunctorOfTerm(t1);
-    if (IsExtensionFunctor(funt)) {
-      return(FALSE);
-    } 
-    if (funt == FunctorModule) {
-      Term nmod = ArgOfTerm(1, t1);
-      if (IsVarTerm(nmod)) {
-	Yap_Error(INSTANTIATION_ERROR,ARG1,"system_predicate/1");
-	return(FALSE);
-      } 
-      if (!IsAtomTerm(nmod)) {
-	Yap_Error(TYPE_ERROR_ATOM,ARG1,"system_predicate/1");
-	return(FALSE);
-      }
-      t1 = ArgOfTerm(2, t1);
-      goto restart_system_pred;
-    }
-    pe = RepPredProp(Yap_GetPredPropByFunc(funt, 0));
-  } else
-    return (FALSE);
-  if (EndOfPAEntr(pe))
-    return(FALSE);
-  pe->PredFlags |= CutTransparentPredFlag;
-  return(TRUE);
-}
-
-static Int			/* $is_push_pred_mod(P,M) */
-p_is_push_pred_mod(void)
-{
-  PredEntry      *pe;
-
-  Term t1 = Deref(ARG1);
- restart_system_pred:
-  if (IsVarTerm(t1))
-    return (FALSE);
-  if (IsAtomTerm(t1)) {
-    pe = RepPredProp(Yap_GetPredPropByAtom(AtomOfTerm(t1), 0));
-  } else if (IsApplTerm(t1)) {
-    Functor         funt = FunctorOfTerm(t1);
-    if (IsExtensionFunctor(funt)) {
-      return(FALSE);
-    } 
-    if (funt == FunctorModule) {
-      Term nmod = ArgOfTerm(1, t1);
-      if (IsVarTerm(nmod)) {
-	Yap_Error(INSTANTIATION_ERROR,ARG1,"system_predicate/1");
-	return(FALSE);
-      } 
-      if (!IsAtomTerm(nmod)) {
-	Yap_Error(TYPE_ERROR_ATOM,ARG1,"system_predicate/1");
-	return(FALSE);
-      }
-      t1 = ArgOfTerm(2, t1);
-      goto restart_system_pred;
-    }
-    pe = RepPredProp(Yap_GetPredPropByFunc(funt, 0));
-  } else
-    return (FALSE);
-  if (EndOfPAEntr(pe))
-    return(FALSE);
-  return(pe->PredFlags & CutTransparentPredFlag);
-}
-
-
 void 
 Yap_InitCdMgr(void)
 {
@@ -2626,11 +2562,9 @@ Yap_InitCdMgr(void)
   Yap_InitCPred("$set_pred_module", 2, p_set_pred_module, SafePredFlag);
   Yap_InitCPred("$parent_pred", 3, p_parent_pred, SafePredFlag);
   Yap_InitCPred("$system_predicate", 2, p_system_pred, SafePredFlag);
-  Yap_InitCPred("$cut_transparent", 1, p_cut_transparent, SafePredFlag);
   Yap_InitCPred("$hide_predicate", 2, p_hide_predicate, SafePredFlag);
   Yap_InitCPred("$hidden_predicate", 2, p_hidden_predicate, SafePredFlag);
   Yap_InitCPred("$pred_for_code", 5, p_pred_for_code, SyncPredFlag);
   Yap_InitCPred("$current_stack", 1, p_current_stack, SyncPredFlag);
-  Yap_InitCPred("$is_push_pred_mod", 2, p_is_push_pred_mod, SyncPredFlag);
 }
 

@@ -248,11 +248,13 @@
     OPCODE(save_appl_x_write       ,ox),		
     OPCODE(save_appl_y_write       ,oy),		
     OPCODE(enter_profiling         ,l),
+    OPCODE(enter_a_profiling       ,e),
     OPCODE(retry_profiled          ,l),
     OPCODE(profiled_retry_me       ,ld),
     OPCODE(profiled_trust_me       ,ld),
     OPCODE(profiled_retry_and_mark ,ld),
     OPCODE(count_call              ,l),
+    OPCODE(count_a_call            ,e),
     OPCODE(count_retry             ,l),
     OPCODE(count_retry_me          ,ld),
     OPCODE(count_trust_me          ,ld),
@@ -359,6 +361,6 @@
     OPCODE(p_func2f_yx             ,yxx),
     OPCODE(p_func2f_yy             ,yyx),
     OPCODE(p_execute               ,sla),
-    OPCODE(p_execute_within        ,sla),
-    OPCODE(p_last_execute_within   ,sla)
+    OPCODE(p_execute_tail          ,e)
+
 

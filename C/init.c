@@ -763,6 +763,7 @@ InitCodes(void)
   heap_regs->consultcapacity = InitialConsultCapacity;
   heap_regs->system_profiling = FALSE;
   heap_regs->system_call_counting = FALSE;
+  heap_regs->system_pred_goal_expansion_on = FALSE;
   heap_regs->update_mode = 0;
   heap_regs->consultbase = heap_regs->consultsp =
     heap_regs->consultlow + heap_regs->consultcapacity;

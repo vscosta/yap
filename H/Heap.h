@@ -10,7 +10,7 @@
 * File:		Heap.h         						 *
 * mods:									 *
 * comments:	Heap Init Structure					 *
-* version:      $Id: Heap.h,v 1.36 2002-12-27 16:53:08 vsc Exp $	 *
+* version:      $Id: Heap.h,v 1.37 2003-01-29 14:47:12 vsc Exp $	 *
 *************************************************************************/
 
 /* information that can be stored in Code Space */
@@ -57,6 +57,7 @@ typedef struct various_codes {
   yamop tablecompletioncode;
   yamop tableanswerresolutioncode;
 #endif /* TABLING */
+  yamop comma_code[5];
   OPCODE failcode;
   OPCODE failcode_1;
   OPCODE failcode_2;
@@ -121,6 +122,7 @@ typedef struct various_codes {
   struct pred_entry  *spy_code;
   int   system_profiling;
   int   system_call_counting;
+  int   system_pred_goal_expansion_on;
   int   compiler_optimizer_on;
   int   compiler_compile_mode;
   struct pred_entry   *compiler_current_pred;
@@ -348,6 +350,7 @@ typedef struct various_codes {
 #define  COMPLETION               ((yamop *)&(heap_regs->tablecompletioncode   ))
 #define  ANSWER_RESOLUTION        ((yamop *)&(heap_regs->tableanswerresolutioncode ))
 #endif /* TABLING */
+#define  COMMA_CODE               heap_regs->comma_code
 #define  FAILCODE                 ((CODEADDR)&(heap_regs->failcode       ))
 #define  FAILCODE                 ((CODEADDR)&(heap_regs->failcode       ))
 #define  TRUSTFAILCODE            ((CODEADDR)&(heap_regs->trustfailcode  ))
@@ -366,6 +369,7 @@ typedef struct various_codes {
 #endif
 #define  PROFILING                heap_regs->system_profiling
 #define  CALL_COUNTING            heap_regs->system_call_counting
+#define  PRED_GOAL_EXPANSION_ON   heap_regs->system_pred_goal_expansion_on
 #define  UPDATE_MODE              heap_regs->update_mode
 #define  RETRY_C_RECORDED_CODE    heap_regs->retry_recorded_code
 #define  RETRY_C_RECORDED_K_CODE  heap_regs->retry_recorded_k_code

@@ -700,6 +700,9 @@ RestoreClause(Clause *Cl, int mode)
     case _p_dif:
     case _p_eq:
     case _p_functor:
+    case _p_execute_tail:
+    case _enter_a_profiling:
+    case _count_a_call:
 #ifdef YAPOR
     case _getwork_first_time:
 #endif
@@ -770,18 +773,18 @@ RestoreClause(Clause *Cl, int mode)
       pc = NEXTOP(pc,y);
       break;
       /* instructions type sla */
+    case _p_execute:
+      goto sla_full;
     case _fcall:
     case _call:
-    case _p_execute:
-    case _p_execute_within:
-    case _p_last_execute_within:
 #ifdef YAPOR
     case _or_last:
 #endif
+      pc->u.sla.sla_u.p = PtoPredAdjust(pc->u.sla.sla_u.p);
+    sla_full:
       if (pc->u.sla.bmap != NULL) {
 	pc->u.sla.bmap = CellPtoHeapAdjust(pc->u.sla.bmap);
       }
-      pc->u.sla.sla_u.p = PtoPredAdjust(pc->u.sla.sla_u.p);
       pc->u.sla.p0 = PtoPredAdjust(pc->u.sla.p0);
       pc = NEXTOP(pc,sla);
       break;

@@ -45,11 +45,8 @@ do_not_compile_expressions :- '$set_value'('$c_arith',[]).
 	OUT = (A \= B).
 '$do_c_built_in'(call(G), OUT) :-
 	nonvar(G),
-	G = (Mod:G1),
-	atom(Mod),
-	!,
-	'$module_number'(Mod,MNum),
-	OUT = '$execute_in_mod'(G1,MNum).
+	G = (Mod:G1), !,
+	'$do_c_built_metacall'(G1, Mod, OUT).
 '$do_c_built_in'(recorded(K,T,R), OUT) :-
 	nonvar(K),
 	!,
@@ -77,6 +74,19 @@ do_not_compile_expressions :- '$set_value'('$c_arith',[]).
 	'$do_and'(P, Q, R0),
 	'$do_and'(R0, Comp, R).
 '$do_c_built_in'(P, P).
+
+'$do_c_built_metacall'(G1, Mod, call(Mod:G1)) :- 
+	var(G1), var(Mod), !.
+'$do_c_built_metacall'(G1, Mod, '$execute_in_mod'(G1,MNum)) :- 
+	var(G1), atom(Mod), !,
+	'$module_number'(Mod,MNum).
+'$do_c_built_metacall'(Mod:G1, _, call(Mod:G1)) :-  !,
+	'$do_c_built_metacall'(G1, Mod, OUT).
+'$do_c_built_metacall'(G1, Mod, '$execute_in_mod'(G1,MNum)) :-
+	atom(Mod), !,
+	'$module_number'(Mod,MNum).
+'$do_c_built_metacall'(G1, Mod, call(Mod:G1)).
+
 
 '$do_and'(true, P, P) :- !.
 '$do_and'(P, true, P) :- !.

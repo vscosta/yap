@@ -12,7 +12,7 @@
 * Last rev:								 *
 * mods:									 *
 * comments:	allocating space					 *
-* version:$Id: alloc.c,v 1.30 2002-12-03 06:06:43 vsc Exp $		 *
+* version:$Id: alloc.c,v 1.31 2003-01-29 14:47:07 vsc Exp $		 *
 *************************************************************************/
 #ifdef SCCS
 static char SccsId[] = "%W% %G%";
@@ -142,8 +142,6 @@ AddToFreeList(BlockHeader *b)
   }
   *q = b;
 }
-
-long int call_counter;
 
 static void
 FreeBlock(BlockHeader *b)

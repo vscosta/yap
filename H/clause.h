@@ -119,6 +119,7 @@ typedef struct clause_struct {
 /* amasm.c */
 wamreg	STD_PROTO(Yap_emit_x,(CELL));
 wamreg  STD_PROTO(Yap_compile_cmp_flags,(PredEntry *));
+void    STD_PROTO(Yap_InitComma,(void));
 
 /* cdmgr.c */
 void	STD_PROTO(Yap_RemoveLogUpdIndex,(Clause *));
@@ -127,6 +128,9 @@ void	STD_PROTO(Yap_addclause,(Term,yamop *,int,int));
 
 /* dbase.c */
 void	STD_PROTO(Yap_ErCl,(Clause *));
+
+/* exec.c */
+Term    STD_PROTO(Yap_cp_as_integer,(choiceptr));
 
 /* index.c */
 yamop   *STD_PROTO(Yap_PredIsIndexable,(PredEntry *));

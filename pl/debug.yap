@@ -269,12 +269,6 @@ debugging :-
 	 /* called from prolog module   */
 	 '$execute0'(G,Module),
  	 '$creep'.
-'$spy'([Module|G]) :-
-%    '$format'(user_error,"$spym(~w,~w)~n",[Module,G]),
-        '$is_push_pred_mod'(G,Module),
-         !,
- 	 '$creep',
-	 '$execute0'(G,Module).
 '$spy'([Mod|G]) :-
 	'$do_spy'(G,Mod).
 
@@ -300,17 +294,44 @@ debugging :-
 	   '$execute0'(G,M),
 	   '$creep'
 	 ).
-'$direct_spy'([M|G]) :-
-        '$is_push_pred_mod'(G,M),
-         !,
- 	 '$creep',
-	 '$execute0'(G,M).
 '$direct_spy'([Mod|G]) :-
 	'$do_spy'(G, Mod).
 
 
 '$do_spy'(true, _) :- !, '$creep'.
 '$do_spy'('$cut_by'(M), _) :- !, '$cut_by'(M).
+'$do_spy'((A,B),M) :- !,
+	'$save_current_choice_point'(CP),
+	'$do_spy'(A,M),
+	'$call'(B,CP,(A,B),M).
+'$do_spy'((T->A;B),M) :- !,
+	'$save_current_choice_point'(CP),
+	( '$do_spy'(T,M) -> '$call'(A,CP,(T->A;B),M)
+	;
+	'$call'(B,CP,(T->A;B),M)
+	).
+'$do_spy'((A;B),M) :- !,
+	'$save_current_choice_point'(CP),
+	( '$do_spy'(A,M)
+	;
+	'$call'(B,CP,(A;B),M)
+	).
+'$do_spy'((T->A|B),M) :- !,
+	'$save_current_choice_point'(CP),
+	( '$do_spy'(T,M) -> '$call'(A,CP,(T->A|B),M)
+	;
+	'$call'(B,CP,(T->A|B),M)
+	).
+'$do_spy'((A|B),M) :- !,
+	'$save_current_choice_point'(CP),
+	( '$do_spy'(A,M)
+	;
+	'$call'(B,CP,(A|B),M)
+	).
+'$do_spy'((\+G),M) :- !,
+	\+ '$do_spy'(G,M).
+'$do_spy'((not(G)),M) :- !,
+	\+ '$do_spy'(G,M).
 '$do_spy'(G, Module) :-
 %   write(user_error,$spy(G)), nl,
     '$get_value'(debug,1),		/* ditto if debug off		*/
@@ -748,15 +769,11 @@ debugging :-
 	'$execute'(M:Goal).
 '$creep'([M|V]) :- var(V), !,
 	'$do_error'(instantiation_error,M:call(M:V)).
+'$creep'([_|M:V]) :- !,
+	'$creep'([M|V]).
 '$creep'([M|'$execute_in_mod'(G,ModNum)]) :- !,
 	'$module_number'(Mod,ModNum),
 	'$clean_module_for_creep'(G,Mod,TrueMod,TrueG),
-	'$creep'([TrueMod|TrueG]).
-'$creep'([M|'$execute_within'(G)]) :- !,
-	'$clean_module_for_creep'(G,M,TrueMod,TrueG),
-	'$creep'([TrueMod|TrueG]).
-'$creep'([M|'$last_execute_within'(G)]) :- !,
-	'$clean_module_for_creep'(G,M,TrueMod,TrueG),
 	'$creep'([TrueMod|TrueG]).
 '$creep'(G) :- '$direct_spy'(G).
 

@@ -139,6 +139,26 @@ Yap_emit_3ops (compiler_vm_op o, CELL r1, CELL r2, CELL r3)
     }
 }
 
+void
+Yap_emit_4ops (compiler_vm_op o, CELL r1, CELL r2, CELL r3, CELL r4)
+{
+  PInstr *p;
+  p = (PInstr *) AllocCMem (sizeof (*p)+2*sizeof(CELL));
+  p->op = o;
+  p->rnd1 = r1;
+  p->rnd2 = r2;
+  p->rnd3 = r3;
+  p->rnd4 = r4;
+  p->nextInst = NIL;
+  if (cpc == NIL)
+    cpc = CodeStart = p;
+  else
+    {
+      cpc->nextInst = p;
+      cpc = p;
+    }
+}
+
 CELL *
 Yap_emit_extra_size (compiler_vm_op o, CELL r1, int size)
 {

@@ -162,11 +162,9 @@ Inline(IsValProperty, PropFlags, int, flags, (flags == ValProperty) )
 	    CodeOfPred holds the address of the	correspondent C-function.
 */
 typedef enum {
-  PushModPredFlag =  0x8000000L,	/* may need module to be set */
-  CountPredFlag =    0x4000000L,	/* count calls to pred */
-  HiddenPredFlag =   0x2000000L,	/* invisible predicate */
-  CArgsPredFlag =    0x1000000L,	/* SWI-like C-interface pred. */
-  CutTransparentPredFlag =   0x800000L,	/* ! should ! across */
+  CountPredFlag =    0x2000000L,	/* count calls to pred */
+  HiddenPredFlag =   0x1000000L,	/* invisible predicate */
+  CArgsPredFlag =    0x800000L,	/* SWI-like C-interface pred. */
   SourcePredFlag =   0x400000L,	/* static predicate with source declaration */
   MetaPredFlag =     0x200000L,	/* predicate subject to a meta declaration */
   SyncPredFlag =     0x100000L,	/* has to synch before it can execute*/

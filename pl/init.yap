@@ -27,14 +27,12 @@ false :- fail.
 (:- G) :- '$execute'(G), !.
 '$$!'(CP) :- '$cut_by'(CP).
 [] :- true.
-
-:- '$cut_transparent'(','(_,_)).
-:- '$cut_transparent'(';'(_,_)).
-:- '$cut_transparent'('|'(_,_)).
-:- '$cut_transparent'('->'(_,_)).
-:- '$cut_transparent'(\+ _).
-:- '$cut_transparent'(not(_)).
-
+','(A,B) :- '$meta_call'((A,B),prolog).
+';'(A,B) :- '$meta_call'((A;B),prolog).
+'|'(A,B) :- '$meta_call'((A;B),prolog).
+'->'(A,B) :- '$meta_call'((A->B),prolog).
+\+(G) :- '$meta_call'('\+'(G),prolog).
+\+(G) :- '$meta_call'(not(G),prolog).
 
 :- '$set_value'('$doindex',true).
 
@@ -94,6 +92,7 @@ system_mode(verbose,off) :- '$set_value'('$verbose',off).
 	'$set_pred_module'(n_of_atts(_), attributes),
 	'$set_pred_module'(bind_attvar(_), attributes),
 	'$set_pred_module'(all_attvars(_), attributes).
+
 
 :- '$set_pred_module'(open_mem_read_stream(_,_), charsio),
 	'$set_pred_module'(open_mem_write_stream(_), charsio),

@@ -680,32 +680,6 @@ incore(G) :- '$execute'(G).
 	'$call'(G, CP, G0, M).
 
 
-','(A,B) :-
-	'$execute_within'(A),
-	'$last_execute_within'(B).
-
-% Be careful with -> cutting through
-(A;B) :- (A = ( T->G) ->
-	     ( '$execute_within'(T) ->  '$execute_within'(G) ; '$execute_within'(A) ; '$execute_within'(B) )
-	    ;
-	     ( '$execute_within'(A) ; '$execute_within'(B) ) ).
-
-'|'(A,B) :- (A = ( T->G) ->
-	     ( '$execute_within'(T) ->  '$execute_within'(G) ; '$execute_within'(A) ; '$execute_within'(B) )
-	    ;
-	     ( '$execute_within'(A) ; '$execute_within'(B) ) ).
-
-
-'->'(A,B) :-
-	( '$execute_within'(A) ->
-	  '$last_execute_within'(B) ).
-
-\+(A) :-
-	\+ '$execute_within'(A).
-
-not(A) :-
-	\+ '$execute_within'(A).
-
 '$call'(M:_,_,G0,_) :- var(M), !,
 	'$do_error'(instantiation_error,call(G0)).
 '$call'(M:G,CP,G0,_) :- !,
@@ -732,6 +706,14 @@ not(A) :-
 	    '$execute_within'(A,CP,G0,M)
         ;
 	    '$execute_within'(B,CP,G0,M)
+	).
+'$call'((X->Y| Z),CP,G0,M) :- !,
+	(
+	    '$execute_within'(X,CP,G0,M)
+         ->
+	    '$execute_within'(Y,CP,G0,M)
+        ;
+	    '$execute_within'(Z,CP,G0,M)
 	).
 '$call'((A|B),CP, G0,M) :- !,
 	(

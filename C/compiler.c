@@ -1590,13 +1590,17 @@ c_goal(Term Goal, int mod)
 #endif
       }
       return;
-    }
-    else {
+    } else {
       if (profiling)
 	Yap_emit(enter_profiling_op, (CELL)p, Zero);
       else if (call_counting)
 	Yap_emit(count_call_op, (CELL)p, Zero);
-      c_args(Goal, 0);
+      if (f == FunctorExecuteInMod) {
+	/* compile the first argument only */
+	c_arg(1, ArgOfTerm(1,Goal), 1, 0);
+      } else {
+	c_args(Goal, 0);
+      }
     }
   }
 
@@ -1628,7 +1632,11 @@ c_goal(Term Goal, int mod)
       if (p->PredFlags & SyncPredFlag)
 	Yap_emit(sync_op, (CELL)p, (CELL)(p->ArityOfPE));
 #endif /* YAPOR */
-      Yap_emit_3ops(call_op, (CELL) p0, Zero, Zero);
+      if (p->FunctorOfPred == FunctorExecuteInMod) {
+	Yap_emit_4ops(call_op, (CELL) p0, Zero, Zero, ArgOfTerm(2,Goal));
+      } else {
+	Yap_emit_3ops(call_op, (CELL) p0, Zero, Zero);
+      }
       /* functor is allowed to call the garbage collector */
       if (onlast) {
 	Yap_emit(deallocate_op, Zero, Zero);

@@ -256,7 +256,6 @@ read_quoted_char(int *scan_nextp, int inp_stream, int (*QuotedNxtch)(int))
 	return 127;
       } else if (ch >= 'a' && ch < 'z') {/* octal */
 	return ch - 'a';
-	ch = QuotedNxtch(inp_stream);
       } else if (ch >= 'A' && ch < 'Z') {/* octal */
 	return ch - 'A';
       } else {

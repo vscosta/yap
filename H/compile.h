@@ -194,9 +194,10 @@ typedef struct PSEUDO {
 	} ops;
     } PInstr;
 
-#define rnd2  ops.oprnd2
 #define arnds ops.opseqt
+#define rnd2  ops.oprnd2
 #define rnd3  ops.opseqt[1]
+#define rnd4  ops.opseqt[2]
 
 typedef struct VENTRY {
 	 CELL SelfOfVE;
@@ -253,6 +254,7 @@ typedef struct CEXPENTRY {
 yamop  *STD_PROTO(Yap_assemble,(int));
 void	STD_PROTO(Yap_emit,(compiler_vm_op,Int,CELL));
 void	STD_PROTO(Yap_emit_3ops,(compiler_vm_op,CELL,CELL,CELL));
+void	STD_PROTO(Yap_emit_4ops,(compiler_vm_op,CELL,CELL,CELL,CELL));
 CELL   *STD_PROTO(Yap_emit_extra_size,(compiler_vm_op,CELL,int));
 char   *STD_PROTO(Yap_AllocCMem,(int));
 int	STD_PROTO(Yap_is_a_test_pred,(Term, SMALLUNSGN));

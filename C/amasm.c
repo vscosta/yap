@@ -776,24 +776,26 @@ a_p(op_numbers opcode)
 	if (Flags & UserCPredFlag) {
 	  code_p->opc = emit_op(_call_usercpred);
 	} else {
-	  if (RepPredProp(fe)->FunctorOfPred == FunctorExecuteInMod)
+	  if (RepPredProp(fe)->FunctorOfPred == FunctorExecuteInMod) {
 	    code_p->opc = emit_op(_p_execute);
-	  else if (RepPredProp(fe)->FunctorOfPred == FunctorExecuteWithin)
-	    code_p->opc = emit_op(_p_execute_within);
-	  else if (RepPredProp(fe)->FunctorOfPred == FunctorLastExecuteWithin)
-	    code_p->opc = emit_op(_p_last_execute_within);
-	  else
+	  } else {
 	    code_p->opc = emit_op(_call_cpred);
+	  }
 	}
 	code_p->u.sla.s = emit_count(-Signed(RealEnvSize) - CELLSIZE
 				     * (cpc->rnd2));
-	code_p->u.sla.sla_u.p =  RepPredProp(fe);
+	if (RepPredProp(fe)->FunctorOfPred != FunctorExecuteInMod) {
+	  code_p->u.sla.sla_u.p =  RepPredProp(fe);
+	} else {
+	  code_p->u.sla.sla_u.m_num =  IntegerOfTerm(cpc->rnd4);
+	}
 	code_p->u.sla.p0 =  CurrentPred;
-	if (cpc->rnd2)
+	if (cpc->rnd2) {
 	  code_p->u.sla.bmap = emit_bmlabel(cpc->arnds[1]);
-	else
+	} else {
 	  /* there is no bitmap as there are no variables in the environment */
 	  code_p->u.sla.bmap = NULL;
+	}
       }
       GONEXT(sla);
     }
@@ -891,9 +893,9 @@ a_pl(op_numbers opcode, PredEntry *pred)
 {
   if (pass_no) {
     code_p->opc = emit_op(opcode);
-    code_p->u.l.l = emit_a((CELL)pred);
+    code_p->u.p.p = (PredEntry *)emit_a((CELL)pred);
   }
-  GONEXT(l);
+  GONEXT(p);
 }
 
 static wamreg
@@ -2616,3 +2618,43 @@ Yap_assemble(int mode)
   }
 }
 
+void
+Yap_InitComma(void)
+{
+  yamop *code_p = COMMA_CODE;
+  code_p->opc = opcode(_call);
+  code_p->u.sla.s = emit_count(-Signed(RealEnvSize) - sizeof(CELL) * 3);
+  code_p->u.sla.sla_u.p = 
+    code_p->u.sla.p0 =
+    RepPredProp(PredPropByFunc(FunctorComma,2));
+  code_p->u.sla.bmap = NULL;
+  GONEXT(sla);
+  if (PRED_GOAL_EXPANSION_ON) {
+    Functor fp = Yap_MkFunctor(Yap_FullLookupAtom("$generate_pred_info"),4);
+    code_p->opc = emit_op(_call_cpred);
+    code_p->u.sla.s = emit_count(-Signed(RealEnvSize));
+    code_p->u.sla.sla_u.p =  RepPredProp(Yap_GetPredPropByFunc(fp,0));
+    code_p->u.sla.bmap = NULL;
+    GONEXT(sla);
+    code_p->opc = emit_op(_call);
+    code_p->u.sla.s = emit_count(-Signed(RealEnvSize));
+    code_p->u.sla.sla_u.p =  PredMetaCall;
+    code_p->u.sla.bmap = NULL;
+    GONEXT(sla);
+    code_p->opc = emit_op(_deallocate);
+    GONEXT(e);
+    code_p->opc = emit_op(_procceed);
+    GONEXT(e);
+  } else {
+    if (PROFILING) {
+      code_p->opc = opcode(_enter_a_profiling);
+      GONEXT(e);
+    }
+    if (CALL_COUNTING) {
+      code_p->opc = opcode(_count_a_call);
+      GONEXT(e);
+    }
+    code_p->opc = opcode(_p_execute_tail);
+    GONEXT(e);
+  }
+}

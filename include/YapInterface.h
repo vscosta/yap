@@ -7,7 +7,7 @@
 *									 *
 **************************************************************************
 *									 *
-* File:		c_interface.h						 *
+* File:		YapInterface.h						 *
 * Last rev:	19/2/88							 *
 * mods:									 *
 * comments:	c_interface header file for YAP				 *
