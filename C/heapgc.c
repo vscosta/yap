@@ -22,7 +22,7 @@ static char     SccsId[] = "%W% %G%";
 #include "yapio.h"
 
 #define EARLY_RESET 1
-#if !defined(TABLING) && defined(HAVE_GCC)
+#if !defined(TABLING) && HAVE_GCC
 #define EASY_SHUNTING 1
 #endif
 #define HYBRID_SCHEME 1
