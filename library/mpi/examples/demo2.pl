@@ -30,7 +30,7 @@ do(0, Num) :-
 	format( "1 AA~n", [] ),
 	mpe_log(Ev1,0,event1),
 	format( "2 AA~n", [] ),
-	mpi_bcast( Num, 0, 100 ),
+	mpi_bcast( Num, 0 ),
 	format( 'Proc 0: broadcast ~q.~n', [Num] ),
 	mpe_log(Ev2,0,event2).
 do(Rank, _) :-
@@ -39,7 +39,7 @@ do(Rank, _) :-
 	mpe_create_event(Ev2),
 	format( "Ev1 == ~q, Ev2 == ~q~n", [Ev1,Ev2] ),
 	mpe_log(Ev1,0,event1),
-	mpi_bcast( Num, 0, 100 ),
+	mpi_bcast( Num, 0 ),
 	format( 'Proc ~q: had ~q broadcast from 0.~n', [Rank, Num] ),
 	mpe_log(Ev2,0,event2).
 
@@ -51,7 +51,13 @@ do(Rank, _) :-
 start(Msg) :-
 	mpi_open( Rank, NumProc, ProcName ),
 	format( 'Rank: ~q NumProc: ~q, ProcName: ~q~n', [Rank,NumProc,ProcName] ),
-	mpe_open,
+	(mpe_open -> true ;
+	    assert_static(mpe_create_event(dummy)),
+	    assert_static(mpe_create_state(_,_,_,_)),
+	    assert_static(mpe_log(_,_,_)),
+	    assert_static(mpe_close(_))
+	),
 	do(Rank, Msg),
 	format( 'Rank ~q finished!~n', [Rank] ),
 	mpe_close( demo2 ).
+
