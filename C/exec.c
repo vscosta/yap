@@ -284,7 +284,7 @@ do_execute(Term t, SMALLUNSGN mod)
 	ENV = YENV;
 	ASP -= EnvSizeInCells+3;
 	P = NEXTOP(COMMA_CODE,sla);
-	t = ArgOfTerm(1,t);
+	ARG1 = t = ArgOfTerm(1,t);
 	goto restart_exec;
     } else if (mod != CurrentModule) {
       return(CallMetaCall(mod));
