@@ -449,6 +449,15 @@ Copyright @copyright{} 1998-2001 Paulo Moura
 Madrid by the CLIP group. This package is distributed under the FSF's
 LGPL. Documentation on this package is distributed separately from
 yap.tex.
+
+@item The yap2swi library implements some of the functionality of
+SWI's PL interface. Please do refer to the SWI-Prolog home page:
+
+@code{http://www.swi-prolog.org}
+
+for more information on SWI-Prolog and for a detailed description of its
+foreign interface.
+
 @end itemize
 
 @node Install, Run, Intro, Top
@@ -8410,7 +8419,7 @@ Succeed if the two arguments do not unify. A call to @code{dif/2} will
 suspend if unification may still succeed or fail, and will fail if they
 always unify.
 
-@item freeze(@var{X},@var{G})
+@item freeze(?@var{X},:@var{G})
 @findex freeze/2
 @syindex freeze/2
 @cnindex freeze/2
@@ -8423,7 +8432,7 @@ Delay execution of goal @var{G} until the variable @var{X} is bound.
 Unify @var{G} with a conjunction of goals suspended on variable @var{X},
 or @code{true} if no goal has suspended.
 
-@item when(@var{C},@var{G})
+@item when(+@var{C},:@var{G})
 @findex when/2
 @syindex when/2
 @cnindex when/2
@@ -8445,7 +8454,7 @@ Delay until variable @var{V} is ground.
 
 Note that @code{when/2} will fail if the conditions fail.
 
-@item call_residue(@var{G},@var{L})
+@item call_residue(:@var{G},@var{L})
 @findex call_residue/2
 @syindex call_residue/2
 @cnindex call_residue/2

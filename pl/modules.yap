@@ -553,6 +553,7 @@ source_module(Mod) :-
 	call_with_args(:,?,?,?,?,?,?,?),
 	call_with_args(:,?,?,?,?,?,?,?,?),
 	call_with_args(:,?,?,?,?,?,?,?,?,?),
+	call_residue(:,?),
 	catch(:,+,:),
 	clause(:,?),
 	clause(:,?,?),
@@ -563,6 +564,7 @@ source_module(Mod) :-
 	ensure_loaded(:),
 	findall(?,:,?),
 	findall(?,:,?,?),
+	freeze(?,:),
 	if(:,:,:),
 	incore(:),
 	listing(:),
@@ -584,6 +586,7 @@ source_module(Mod) :-
 	use_module(:),
 	use_module(:,?),
 	use_module(?,:,?),
+	when(?,:),
 	^(+,:),
 	\+(:).
 

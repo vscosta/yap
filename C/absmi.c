@@ -2514,7 +2514,10 @@ absmi(int inp)
       BIND(pt0, d0, bind_glist);
 #ifdef COROUTINING
       DO_TRAIL(pt0, d0);
-      if (pt0 < H0) WakeUp(pt0);
+      if (pt0 < H0) {
+	WakeUp(pt0);
+	S_SREG = H;
+      }
     bind_glist:
 #endif
       /* don't put an ENDD just after a label */
