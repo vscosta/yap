@@ -68,6 +68,7 @@ YapStreamToFileNo
 YapCloseAllOpenStreams
 YapOpenStream
 YapNewSlots
+YapInitSlot
 YapGetFromSlot
 YapAddressFromSlot
 YapPutInSlot

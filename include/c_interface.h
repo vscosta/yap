@@ -628,6 +628,13 @@ static long (*YapINewSlots)(N) = YapNewSlots;
 #define YapNewSlots(N) (*YapINewSlots)(N)
 #endif
 
+/*  Term  *YapInitSlot()  */
+extern X_API long PROTO(YapInitSlot,(Term));
+#ifdef IndirectCalls
+static long (*YapIInitSlot)(T) = YapInitSlot;
+#define YapInitSlot(T) (*YapIInitSlot)(T)
+#endif
+
 /*  Term  YapGetFromSlots(t)  */
 extern X_API Term PROTO(YapGetFromSlot,(long));
 #ifdef IndirectCalls

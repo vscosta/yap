@@ -398,7 +398,7 @@ debugging :-
 	'$flags'(G,M,F,F),
 	F /\ 16'2000 =\= 0, !, % dynamic procedure, immediate semantics
 	repeat,
-	        '$db_last_age'(M:G,Max),	
+	        ( '$db_last_age'(M:G,Max) -> true ; !, fail ),
 		'$get_value'(spy_cl,Cl),
 		'$get_value'(spy_gn,L),
 		Maxx is Max+1,

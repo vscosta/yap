@@ -106,6 +106,7 @@ X_API int     STD_PROTO(YapStreamToFileNo, (Term));
 X_API void    STD_PROTO(YapCloseAllOpenStreams,(void));
 X_API Term    STD_PROTO(YapOpenStream,(void *, char *, Term, int));
 X_API long    STD_PROTO(YapNewSlots,(int));
+X_API long    STD_PROTO(YapInitSlot,(Term));
 X_API Term    STD_PROTO(YapGetFromSlot,(long));
 X_API Term   *STD_PROTO(YapAddressFromSlot,(long));
 X_API void    STD_PROTO(YapPutInSlot,(long, Term));
@@ -421,15 +422,64 @@ YapUnify(Term t1, Term t2)
   return(out);
 }
 
-typedef Int (*CPredicate1)(Term);
-typedef Int (*CPredicate2)(Term,Term);
-typedef Int (*CPredicate3)(Term,Term,Term);
-typedef Int (*CPredicate4)(Term,Term,Term,Term);
-typedef Int (*CPredicate5)(Term,Term,Term,Term,Term);
-typedef Int (*CPredicate6)(Term,Term,Term,Term,Term,Term);
-typedef Int (*CPredicate7)(Term,Term,Term,Term,Term,Term,Term);
-typedef Int (*CPredicate8)(Term,Term,Term,Term,Term,Term,Term,Term);
+X_API long
+YapNewSlots(int n)
+{
+  Int old_slots = IntOfTerm(ASP[0]), oldn = n;
+  while (n > 0) {
+    RESET_VARIABLE(ASP);
+    ASP--;
+    n--;
+  }
+  ASP[0] = MkIntTerm(old_slots+oldn);
+  return((ASP+1)-LCL0);
+}
 
+X_API long
+YapInitSlot(Term t)
+{
+  Int old_slots = IntOfTerm(ASP[0]);
+  *ASP = t;
+  ASP--;
+  ASP[0] = MkIntTerm(old_slots+1);
+  return((ASP+1)-LCL0);
+}
+
+X_API void
+YapRecoverSlots(int n)
+{
+  Int old_slots = IntOfTerm(ASP[0]);
+  ASP += n;
+  ASP[0] = MkIntTerm(old_slots-n);
+}
+
+X_API Term
+YapGetFromSlot(long slot)
+{
+  return(Deref(LCL0[slot]));
+}
+
+X_API Term *
+YapAddressFromSlot(long slot)
+{
+  return(LCL0+slot);
+}
+
+X_API void
+YapPutInSlot(long slot, Term t)
+{
+  LCL0[slot] = t;
+}
+
+
+typedef Int (*CPredicate1)(long);
+typedef Int (*CPredicate2)(long,long);
+typedef Int (*CPredicate3)(long,long,long);
+typedef Int (*CPredicate4)(long,long,long,long);
+typedef Int (*CPredicate5)(long,long,long,long,long);
+typedef Int (*CPredicate6)(long,long,long,long,long,long);
+typedef Int (*CPredicate7)(long,long,long,long,long,long,long);
+typedef Int (*CPredicate8)(long,long,long,long,long,long,long,long);
 
 Int
 YapExecute(PredEntry *pe)
@@ -445,42 +495,69 @@ YapExecute(PredEntry *pe)
     case 1:
       {
 	CPredicate1 code1 = (CPredicate1)code;
-	return ((code1)(Deref(ARG1)));
+	return ((code1)(YapInitSlot(Deref(ARG1))));
       }
     case 2:
       {
 	CPredicate2 code2 = (CPredicate2)code;
-	return ((code2)(Deref(ARG1),Deref(ARG2)));
+	return ((code2)(YapInitSlot(Deref(ARG1)),
+			YapInitSlot(Deref(ARG2))));
       }
     case 3:
       {
 	CPredicate3 code3 = (CPredicate3)code;
-	return ((code3)(Deref(ARG1),Deref(ARG2),Deref(ARG3)));
+	return ((code3)(YapInitSlot(Deref(ARG1)),
+			YapInitSlot(Deref(ARG2)),
+			YapInitSlot(Deref(ARG3))));
       }
     case 4:
       {
 	CPredicate4 code4 = (CPredicate4)code;
-	return ((code4)(Deref(ARG1),Deref(ARG2),Deref(ARG3),Deref(ARG4)));
+	return ((code4)(YapInitSlot(Deref(ARG1)),
+			YapInitSlot(Deref(ARG2)),
+			YapInitSlot(Deref(ARG3)),
+			YapInitSlot(Deref(ARG4))));
       }
     case 5:
       {
 	CPredicate5 code5 = (CPredicate5)code;
-	return ((code5)(Deref(ARG1),Deref(ARG2),Deref(ARG3),Deref(ARG4),Deref(ARG5)));
+	return ((code5)(YapInitSlot(Deref(ARG1)),
+			YapInitSlot(Deref(ARG2)),
+			YapInitSlot(Deref(ARG3)),
+			YapInitSlot(Deref(ARG4)),YapInitSlot(Deref(ARG5))));
       }
     case 6:
       {
 	CPredicate6 code6 = (CPredicate6)code;
-	return ((code6)(Deref(ARG1),Deref(ARG2),Deref(ARG3),Deref(ARG4),Deref(ARG5),Deref(ARG6)));
+	return ((code6)(YapInitSlot(Deref(ARG1)),
+			YapInitSlot(Deref(ARG2)),
+			YapInitSlot(Deref(ARG3)),
+			YapInitSlot(Deref(ARG4)),
+			YapInitSlot(Deref(ARG5)),
+			YapInitSlot(Deref(ARG6))));
       }
     case 7:
       {
 	CPredicate7 code7 = (CPredicate7)code;
-	return ((code7)(Deref(ARG1),Deref(ARG2),Deref(ARG3),Deref(ARG4),Deref(ARG5),Deref(ARG6),Deref(ARG7)));
+	return ((code7)(YapInitSlot(Deref(ARG1)),
+			YapInitSlot(Deref(ARG2)),
+			YapInitSlot(Deref(ARG3)),
+			YapInitSlot(Deref(ARG4)),
+			YapInitSlot(Deref(ARG5)),
+			YapInitSlot(Deref(ARG6)),
+			YapInitSlot(Deref(ARG7))));
       }
     case 8:
       {
 	CPredicate8 code8 = (CPredicate8)code;
-	return ((code8)(Deref(ARG1),Deref(ARG2),Deref(ARG3),Deref(ARG4),Deref(ARG5),Deref(ARG6),Deref(ARG7),Deref(ARG8)));
+	return ((code8)(YapInitSlot(Deref(ARG1)),
+			YapInitSlot(Deref(ARG2)),
+			YapInitSlot(Deref(ARG3)),
+			YapInitSlot(Deref(ARG4)),
+			YapInitSlot(Deref(ARG5)),
+			YapInitSlot(Deref(ARG6)),
+			YapInitSlot(Deref(ARG7)),
+			YapInitSlot(Deref(ARG8))));
       }
     default:
       return(FALSE);
@@ -616,7 +693,6 @@ static void myputc (int ch)
 }
 
 static Term told;
-static int counter=0;
 
 X_API int
 YapRunGoal(Term t)
@@ -977,45 +1053,6 @@ YapOpenStream(void *fh, char *name, Term nm, int flags)
 
   RECOVER_H();
   return retv;
-}
-
-X_API long
-YapNewSlots(int n)
-{
-  Int old_slots = IntOfTerm(ASP[0]), oldn = n;
-  while (n > 0) {
-    RESET_VARIABLE(ASP);
-    ASP--;
-    n--;
-  }
-  ASP[0] = MkIntTerm(old_slots+oldn);
-  return((ASP+1)-LCL0);
-}
-
-X_API void
-YapRecoverSlots(int n)
-{
-  Int old_slots = IntOfTerm(ASP[0]);
-  ASP += n;
-  ASP[0] = MkIntTerm(old_slots-n);
-}
-
-X_API Term
-YapGetFromSlot(long slot)
-{
-  return(Deref(LCL0[slot]));
-}
-
-X_API Term *
-YapAddressFromSlot(long slot)
-{
-  return(LCL0+slot);
-}
-
-X_API void
-YapPutInSlot(long slot, Term t)
-{
-  LCL0[slot] = t;
 }
 
 X_API void
