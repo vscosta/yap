@@ -111,25 +111,22 @@
 #undef MinStackSpace
 #undef  MinHeapSpace
 
-#undef UsrTrailSpace
-#undef UsrStackSpace
-#undef  UsrHeapSpace
+#undef DefTrailSpace
+#undef DefStackSpace
+#undef  DefHeapSpace
 
-#if (UsrTrailSpace > MinTrailSpace)
-  #define DefTrailSpace	UsrTrailSpace
-#else
+#if (DefTrailSpace < MinTrailSpace)
+  #undef DefTrailSpace
   #define DefTrailSpace	MinTrailSpace
 #endif
 
-#if (UsrStackSpace > MinStackSpace)
-  #define DefStackSpace	UsrStackSpace
-#else
+#if (DefStackSpace < MinStackSpace)
+  #undef DefStackSpace
   #define DefStackSpace	MinStackSpace
 #endif
 
-#if (UsrHeapSpace > MinHeapSpace)
-  #define DefHeapSpace	UsrHeapSpace
-#else
+#if (DefHeapSpace < MinHeapSpace)
+  #undef DefHeapSpace
   #define DefHeapSpace	MinHeapSpace
 #endif
 

@@ -226,9 +226,9 @@ parse_yap_arguments(int argc, char *argv[], yap_init_args *init_args)
             fprintf(stderr,"  -?   Shows this screen\n");
             fprintf(stderr,"  -b   Boot file (%s)\n", StartUpFile);
             fprintf(stderr,"  -l   Prolog file\n");
-            fprintf(stderr,"  -h   Heap area in Kbytes (default: %d)\n", DefHeapSpace);
-	    fprintf(stderr,"  -s   Stack area in Kbytes (default: %d)\n", DefStackSpace);
-	    fprintf(stderr,"  -t   Trail area in Kbytes (default: %d)\n", DefTrailSpace);
+            fprintf(stderr,"  -h   Heap area in Kbytes (default: %d, minimum: %d)\n", DefHeapSpace, MinHeapSpace);
+	    fprintf(stderr,"  -s   Stack area in Kbytes (default: %d, minimum: %d)\n", DefStackSpace, MinStackSpace);
+	    fprintf(stderr,"  -t   Trail area in Kbytes (default: %d, minimum: %d)\n", DefTrailSpace, MinTrailSpace);
             fprintf(stderr,"  -w   YapOr option: Number of workers (default: %d)\n", init_args->NumberWorkers);
             fprintf(stderr,"  -sl  YapOr option: Loop scheduler executions before look for hiden shared work (default: %d)\n", init_args->SchedulerLoop);
             fprintf(stderr,"  -d   YapOr option: Value of delayed release of load (default: %d)\n", init_args->DelayedReleaseLoad);

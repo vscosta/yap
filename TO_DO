@@ -13,14 +13,13 @@ STK:
 - inline c_interface functions (static #included?)
 - look for a system regexp library before using the one in Yap.
 - see why tag2.pl is not compiling.
-- readline is installed on thor, but is not "found" by configure and
-  is not working when manually forced in. (missing symbols, maybe because
-  there is no libtermcap.a?)
 - make docs/Makefile configurable.
 - break up yap.tex.
 - start devel.tex.
 - should sigactions be executed when Yap is waiting at the prompt?
 - see if on_signal/3 works through the C interface as well.
+- see how MPI libraries interact with YAP's signal handling.
+- make the MPI interface able to pass infinite terms to MPI_Send().
 
 
 TO CHECK:

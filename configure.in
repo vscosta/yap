@@ -126,9 +126,9 @@ else
 	AC_DEFINE(MinTrailSpace,( 32*SIZEOF_INT_P))
 fi
 
-eval "AC_DEFINE(UsrHeapSpace,($yap_cv_heap_space))"
-eval "AC_DEFINE(UsrStackSpace,($yap_cv_stack_space))"
-eval "AC_DEFINE(UsrTrailSpace,($yap_cv_trail_space))"
+eval "AC_DEFINE(DefHeapSpace,($yap_cv_heap_space))"
+eval "AC_DEFINE(DefStackSpace,($yap_cv_stack_space))"
+eval "AC_DEFINE(DefTrailSpace,($yap_cv_trail_space))"
 
 AC_CANONICAL_SYSTEM
 
