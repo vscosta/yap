@@ -4129,7 +4129,7 @@ expand_index(struct intermediates *cint) {
       lab = do_index(cls, max, cint, argno+1, fail_l, isfirstcl, clleft, top);
     }
   }
-  if (labp)
+  if (labp && !(lab & 1))
     *labp = (yamop *)lab; /* in case we have a single clause */
   return labp;
 }

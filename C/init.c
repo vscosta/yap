@@ -781,6 +781,8 @@ InitCodes(void)
   heap_regs->thread_handle[0].default_yaam_regs = 
     &Yap_standard_regs;
   heap_regs->thread_handle[0].handle = pthread_self();
+  heap_regs->thread_handle[0].handle = pthread_self();
+  pthread_mutex_init(&ThreadHandle[0].tlock, NULL);
 #endif
 #if defined(YAPOR) || defined(THREADS)
   INIT_LOCK(heap_regs->bgl);

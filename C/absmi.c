@@ -6071,6 +6071,7 @@ Yap_absmi(int inp)
 \************************************************************************/
 
       BOp(call_cpred, sla);
+     
 #ifdef FROZEN_STACKS
       { 
 	choiceptr top_b = PROTECT_FROZEN_B(B);
@@ -6376,6 +6377,10 @@ Yap_absmi(int inp)
 #endif
  	saveregs();
 	pt0 = Yap_ExpandIndex(pe);
+	if (PP == NULL) {
+	  READ_UNLOCK(pe->PRWLock);
+	  PP = pe;
+	}
 	/* restart index */
 	setregs();
 	UNLOCK(pe->PELock);
@@ -6389,7 +6394,7 @@ Yap_absmi(int inp)
       { 
 	PredEntry *pe = PredFromDefCode(PREG);
 	BEGD(d0);
-	READ_LOCK(pe->PRWLock);
+ 	READ_LOCK(pe->PRWLock);
 	/* avoid trouble with undefined dynamic procedures */
 	if (pe->PredFlags & (DynamicPredFlag|LogUpdatePredFlag)) {
 	  READ_UNLOCK(pe->PRWLock);

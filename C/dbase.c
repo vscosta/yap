@@ -3806,6 +3806,7 @@ complete_lu_erase(LogUpdClause *clau)
     return;
   }
 #ifdef DEBUG
+#ifndef THREADS
   if (clau->ClNext)
     clau->ClNext->ClPrev = clau->ClPrev;
   if (clau->ClPrev) {
@@ -3813,6 +3814,7 @@ complete_lu_erase(LogUpdClause *clau)
   } else {
     DBErasedList = clau->ClNext;
   }
+#endif
 #endif
   if (cp != NULL) {
     DBRef ref;
@@ -3888,6 +3890,7 @@ EraseLogUpdCl(LogUpdClause *clau)
     ap->cs.p_code.NOfClauses--;
     clau->ClFlags |= ErasedMask;
 #ifdef DEBUG
+#ifndef THREADS
     {
       LogUpdClause *er_head = DBErasedList;
       if (er_head == NULL) {
@@ -3899,6 +3902,7 @@ EraseLogUpdCl(LogUpdClause *clau)
       }
       DBErasedList = clau;
     }
+#endif
 #endif
     /* we are holding a reference to the clause */
     clau->ClRefCount++;

@@ -103,7 +103,10 @@ thread_create(Goal, Id, Options) :-
 '$thread_ground_stacks'(_).
 
 '$add_thread_aliases'([Alias|Aliases], Id) :-
-	recorda('$thread_alias',[Id0|Alias],_),
+	recorded('$thread_alias',[Id0|Alias],_), !,
+	'$do_error'(permission_error(alias,new,Alias),thread_create_alias(Id,Alias)).
+'$add_thread_aliases'([Alias|Aliases], Id) :-
+	recorda('$thread_alias',[Id|Alias],_),
 	'$add_thread_aliases'(Aliases, Id).
 '$add_thread_aliases'([], _).
 
@@ -178,7 +181,7 @@ current_thread(Tid, Status) :-
 	
 '$thr_status'(Tid, Status) :-
 	recorded('$thread_exit_status', [Tid|Status], _), !.
-'$thr_status'(Tid, running).
+'$thr_status'(_, running).
 
 
 mutex_create(V) :-
@@ -198,7 +201,7 @@ mutex_create(V) :-
 	
 mutex_destroy(V) :-
 	var(V), !,
-	'$do_error'(instantiation_error,mutex_destroy(A)).
+	'$do_error'(instantiation_error,mutex_destroy(V)).
 mutex_destroy(A) :-
 	recorded('$mutex',[A|Id],R), !,
 	'$destroy_mutex'(Id),
@@ -211,7 +214,7 @@ mutex_destroy(V) :-
 	
 mutex_lock(V) :-
 	var(V), !,
-	'$do_error'(instantiation_error,mutex_lock(A)).
+	'$do_error'(instantiation_error,mutex_lock(V)).
 mutex_lock(A) :-
 	recorded('$mutex',[A|Id],_), !,
 	'$lock_mutex'(Id).
@@ -224,7 +227,7 @@ mutex_lock(V) :-
 	
 mutex_trylock(V) :-
 	var(V), !,
-	'$do_error'(instantiation_error,mutex_trylock(A)).
+	'$do_error'(instantiation_error,mutex_trylock(V)).
 mutex_trylock(A) :-
 	recorded('$mutex',[A|Id],_), !,
 	'$trylock_mutex'(Id).
@@ -237,7 +240,7 @@ mutex_trylock(V) :-
 	
 mutex_unlock(V) :-
 	var(V), !,
-	'$do_error'(instantiation_error,mutex_unlock(A)).
+	'$do_error'(instantiation_error,mutex_unlock(V)).
 mutex_unlock(A) :-
 	recorded('$mutex',[A|Id],_), !,
 	( '$unlock_mutex'(Id) ->
@@ -297,12 +300,12 @@ message_queue_destroy(Name) :-
 message_queue_destroy(Queue) :-
 	recorded('$queue',q(Queue,Mutex,Cond),R), !,
 	erase(R),
-	mutex_destroy(Mutex),
 	'$cond_destroy'(Cond),
+	mutex_destroy(Mutex),
 	'$clean_mqueue'(Queue).
 message_queue_destroy(Queue) :-
 	atom(Queue), !,
-	'$do_error'(existence_error(queue,Queue),message_queue_destroy(Name)).
+	'$do_error'(existence_error(queue,Queue),message_queue_destroy(QUeue)).
 message_queue_destroy(Name) :-
 	'$do_error'(type_error(atom,Name),message_queue_destroy(Name)).
 
@@ -331,7 +334,7 @@ thread_get_message(Queue, Term) :-
 	mutex_lock(Mutex),
 	'$thread_get_message_loop'(Queue, Term, Mutex, Cond).
 
-'$thread_get_message_loop'(Queue, Term, Mutex, Cond) :-
+'$thread_get_message_loop'(Queue, Term, Mutex, _) :-
 	recorded('$msg_queue',q(Queue,Term),R), !,
 	erase(R),
 	mutex_unlock(Mutex).
@@ -344,14 +347,14 @@ thread_peek_message(Term) :-
 	thread_peek_message(Id, Term).
 
 thread_peek_message(Queue, Term) :-
-	recorded('$queue',q(Queue,Mutex,Cond),_),
+	recorded('$queue',q(Queue,Mutex,_),_),
 	mutex_lock(Mutex),
 	'$thread_peek_message2'(Queue, Term, Mutex).
 
 '$thread_peek_message2'(Queue, Term, Mutex) :-
 	recorded('$msg_queue',q(Queue,Term),_), !,
 	mutex_unlock(Mutex).
-'$thread_peek_message2'(Queue, Term, Mutex) :-
+'$thread_peek_message2'(_, _, Mutex) :-
 	mutex_unlock(Mutex),
 	fail.
 

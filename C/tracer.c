@@ -77,6 +77,10 @@ unsigned long long vsc_count;
 unsigned long vsc_count;
 #endif
 
+#if THREADS
+static int thread_trace;
+#endif
+
 /*
 static int
 check_trail_consistency(void) {
@@ -115,6 +119,11 @@ low_level_trace(yap_low_level_port port, PredEntry *pred, CELL *args)
   /*  extern int gc_calls; */
 
   LOCK(heap_regs->low_level_trace_lock);
+  if (thread_trace &&
+      worker_id +1 != thread_trace) {
+    UNLOCK(heap_regs->low_level_trace_lock);
+    return;    
+  }
   vsc_count++;
 #ifdef COMMENTED
   //  if (vsc_count == 218280)
@@ -256,6 +265,15 @@ static Int p_start_low_level_trace(void)
   return(TRUE);
 }
 
+#ifdef THREADS
+static Int p_start_low_level_trace2(void)
+{
+  thread_trace = IntegerOfTerm(Deref(ARG1))+1;
+  Yap_do_low_level_trace = TRUE;
+  return(TRUE);
+}
+#endif
+
 static Int p_stop_low_level_trace(void)
 {
   Yap_do_low_level_trace = FALSE;
@@ -267,6 +285,9 @@ void
 Yap_InitLowLevelTrace(void)
 {
   Yap_InitCPred("start_low_level_trace", 0, p_start_low_level_trace, SafePredFlag);
+#if THREADS
+  Yap_InitCPred("start_low_level_trace", 1, p_start_low_level_trace2, SafePredFlag);
+#endif
   Yap_InitCPred("stop_low_level_trace", 0, p_stop_low_level_trace, SafePredFlag);
 }
 
