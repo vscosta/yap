@@ -105,11 +105,13 @@ static FILE *bootfile;
 static int eof_found = FALSE;
 static int yap_lineno = 0;
 
+#if USE_MYPUTC
 static void
 myputc (int ch)
 {
   putc(ch,stderr);
 }
+#endif
 
 static int
 mygetc (void)
@@ -530,11 +532,6 @@ exec_top_level(int BootMode, YAP_init_args *iap)
   */
   livegoal = YAP_FullLookupAtom("$live");
   atomfalse = YAP_MkAtomTerm (YAP_FullLookupAtom("$false"));
-  {
-    YAP_Term t = YAP_ReadBuffer("a(1)",NULL);
-    if (t)
-      YAP_Write(t,myputc,0);
-  }
   while (YAP_GetValue (livegoal) != atomfalse) {
     YAP_Reset();
     do_top_goal (YAP_MkAtomTerm (livegoal));
