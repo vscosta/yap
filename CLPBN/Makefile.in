@@ -1,0 +1,42 @@
+#
+# default base directory for YAP installation
+#
+ROOTDIR = @prefix@
+#
+# where the binary should be
+#
+BINDIR = $(ROOTDIR)/bin
+#
+# where YAP should look for libraries
+#
+LIBDIR=$(ROOTDIR)/lib/Yap
+#
+# where YAP should look for architecture-independent Prolog libraries
+#
+SHAREDIR=$(ROOTDIR)/share/Yap
+#
+#
+# You shouldn't need to change what follows.
+#
+INSTALL=@INSTALL@
+INSTALL_DATA=@INSTALL_DATA@
+INSTALL_PROGRAM=@INSTALL_PROGRAM@
+srcdir=@srcdir@
+
+CLPBN_TOP= $(srcdir)/clpbn.yap
+
+CLPBN_PROGRAMS= \
+	$(srcdir)/clpbn/vel.yap \
+	$(srcdir)/clpbn/bnt.yap \
+	$(srcdir)/clpbn/evidence.yap
+
+CLPBN_EXAMPLES=
+
+
+install: $(CLBN_TOP) $(CLBN_PROGRAMS) $(CLPBN_PROGRAMS)
+	mkdir -p $(DESTDIR)$(SHAREDIR)/clpbn
+	mkdir -p $(DESTDIR)$(SHAREDIR)/clpbn/examples
+	for h in $(CLPBN_TOP); do $(INSTALL_DATA) $$h $(DESTDIR)$(SHAREDIR); done
+	for h in $(CLPBN_PROGRAMS); do $(INSTALL_DATA) $$h $(DESTDIR)$(SHAREDIR)/clpbn; done
+#	for h in $(CLPBN_EXAMPLES); do $(INSTALL_DATA) $$h $(DESTDIR)$(SHAREDIR)/clpbn/examples; done
+
