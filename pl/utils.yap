@@ -363,13 +363,15 @@ current_predicate(M:F) :- % module specified
 current_predicate(F) :-			% only for the predicate
 	'$current_predicate3'(F).
 
-system_predicate(P) :-
-	'$mod_switch'(prolog,'$current_predicate_no_modules'(A,T)),
-	\+ '$hidden'(A).
-
 system_predicate(A,P) :-
 	'$mod_switch'(prolog,'$current_predicate_no_modules'(A,T)),
 	\+ '$hidden'(A).
+
+'$system_predicate'(Pred) :-
+	'$flags'(Pred,Flags,_),
+	 Flags /\ 8'40000 =\= 0.
+
+system_predicate(P) :- '$system_predicate'(P).
 
 '$current_predicate_no_modules'(A,T) :-
 	'$current_predicate'(A,Arity),
