@@ -420,7 +420,7 @@ statistics :-
 	'$format'(user_error,":~t  ~d in use~19+", [TrlInUse]),
 	TrlFree is TrlSpa-TrlInUse,
 	'$format'(user_error,",~t  ~d free~19+~n", [TrlFree]),
-	OvfTime is TotHOTime+TotSOTime+TotTOTime,
+	OvfTime is (TotHOTime+TotSOTime+TotTOTime)/1000,
 	'$format'(user_error,"~n~t~3f~12+ sec. for ~w code, ~w stack, and ~w trail space overflows~n",
 	       [OvfTime,NOfHO,NOfSO,NOfTO]),
 	TotGCTimeF is float(TotGCTime)/1000,
