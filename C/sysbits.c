@@ -27,6 +27,9 @@ static char SccsId[] = "%W% %G%";
  *
  */
 
+#if  _MSC_VER || defined(__MINGW32__)
+#define _WIN32_WINNT 0x0400
+#endif
 #include "Yap.h"
 #include "yapio.h"
 #include "eval.h"
@@ -68,8 +71,7 @@ static char SccsId[] = "%W% %G%";
 #if HAVE_FCNTL_H
 #include <fcntl.h>
 #endif
-#ifdef _WIN32
-#define _WIN32_WINNT 0x0400
+#if  _MSC_VER || defined(__MINGW32__)
 #include <windows.h>
 /* required for DLL compatibility */
 #if HAVE_DIRECT_H
@@ -1976,8 +1978,7 @@ p_alarm(void)
       liDueTime.LowPart  = (DWORD) ( due_time & 0xFFFFFFFF );
       liDueTime.HighPart = (LONG)  ( due_time >> 32 );
       if (SetWaitableTimer(htimer, &liDueTime,0,HandleTimer,NULL,0) == 0) {
-	Error(SYSTEM_ERROR, TermNil,
-	      "alarm not available in this configuration");
+	WinError("trying to use alarm");
 	return(FALSE);
       }
     }

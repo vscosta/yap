@@ -491,7 +491,7 @@ debugging :-
         CP is '$last_choice_pt',
 	(
 	    '$fetch_clause'(G,M,Cl,Clause),
-	    (Clause = true -> true ; '$call'(Clause,M,CP) )
+	    (Clause = true -> true ; '$call'(Clause,CP,Clause,M) )
 	;
 	     Next is Cl+1, '$set_value'(spy_cl,Next), fail
         ).
@@ -512,7 +512,7 @@ debugging :-
 	      '$fetch_reference_from_index'(Index, Cl1, Ref),
               instance(Ref, (G :- Clause))
             ),
-	    (Clause = true -> true ; '$call'(Clause,M,CP) )
+	    (Clause = true -> true ; '$call'(Clause,CP,Clause,M) )
 	;
 	     Next is Cl+1, '$set_value'(spy_cl,Next), fail
         ).
@@ -531,7 +531,7 @@ debugging :-
 	(
 	    '$db_nb_to_ref'(Cl,M:G,Ref),
 	    instance(Ref, (G :- Clause)),
-	    (Clause = true -> true ; '$call'(Clause,M,CP) )
+	    (Clause = true -> true ; '$call'(Clause,CP,Clause,M) )
 	;
 	    Next is Cl+1, '$set_value'(spy_cl,Next), fail
         ).
@@ -571,7 +571,7 @@ debugging :-
 	  ),
           (Clause = true -> true ;
 		% otherwise fast skip may try to interpret assembly builtins.
-             '$get_value'(spy_fs,1) -> '$call'(Clause,M,CP) ;
+             '$get_value'(spy_fs,1) -> '$call'(Clause,CP,Clause,M) ;
              '$creep_call'(Clause,M,CP)
             )
 	;
@@ -587,7 +587,7 @@ debugging :-
 	    instance(Ref, (G :- Clause)),
 	    (Clause = true -> true ;
 	     % otherwise fast skip may try to interpret assembly builtins.
-             '$get_value'(spy_fs,1) -> '$call'(Clause,M,CP) ;
+             '$get_value'(spy_fs,1) -> '$call'(Clause,CP,Clause,M) ;
              '$creep_call'(Clause,M,CP)
             )
 	;
