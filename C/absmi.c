@@ -12060,6 +12060,7 @@ Yap_absmi(int inp)
       execute_after_comma:
 	ALWAYS_LOOKAHEAD(pen->OpcodeOfPred);
 	PREG = pen->CodeOfPred;
+	E_YREG[E_CB] = (CELL)B;
 #ifdef DEPTH_LIMIT
 	if (DEPTH <= MkIntTerm(1)) {/* I assume Module==0 is primitives */
 	  if (pen->ModuleOfPred) {
