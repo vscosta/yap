@@ -1160,7 +1160,7 @@ non_ground(Term t, Term *Var)
 #endif
 
 /* check whether the two terms unify and return what variables should
-   be bound before the terms are execatly equal */
+   be bound before the terms are exactly equal */
 static Int p_can_unify(void)
 {
 #ifdef COROUTINING

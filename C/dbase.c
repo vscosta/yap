@@ -626,6 +626,9 @@ copy_big_int(CELL *st, CELL *pt)
 }
 #endif /* BIG_INT */
 
+#define DB_MARKED(d0) ((CELL *)(d0) < CodeMax && (CELL *)(d0) >= tbase)
+
+
 /* This routine creates a complex term in the heap. */
 static CELL *MkDBTerm(register CELL *pt0, register CELL *pt0_end,
 		     register CELL *StoPoint,
@@ -827,7 +830,7 @@ static CELL *MkDBTerm(register CELL *pt0, register CELL *pt0_end,
     
     /* the code to dereference a  variable */
   deref_var:
-    if (!MARKED(d0)) {
+    if (!DB_MARKED(d0)) {
       if ( 
 #if SBA
 	  d0 != 0
@@ -847,14 +850,14 @@ static CELL *MkDBTerm(register CELL *pt0, register CELL *pt0_end,
       
       pt0++;
       /* first time we found this variable! */
-      if (!MARKED(d0)) {
+      if (!DB_MARKED(d0)) {
 	
 	/* store previous value */ 
 	visited --;
 	visited->addr = ptd0;
 	CheckDBOverflow();
 	/* variables need to be offset at read time */
-	*ptd0 = ((CELL)StoPoint|MBIT);
+	*ptd0 = (CELL)StoPoint;
 #if SBA
 	/* the copy we keep will be an empty variable   */
 	*StoPoint++ = 0;
@@ -911,9 +914,9 @@ static CELL *MkDBTerm(register CELL *pt0, register CELL *pt0_end,
 #endif
 	/* store the offset */
 #ifdef IDB_USE_MBIT
-	*StoPoint = d0;
+	*StoPoint = d0 | MBIT;
 #else
-	*StoPoint = d0 ^ MBIT;
+	*StoPoint = d0;
 #endif
 	StoPoint++;
 	continue;
