@@ -123,8 +123,8 @@ yap_flag(unhide,Atom) :- !, unhide(Atom).
 yap_flag(gc,V) :-
 	var(V), !,
 	( '$get_value'('$gc',[]) -> V = off ; V = on).
-yap_flag(gc,on) :- '$set_value'('$gc',true).
-yap_flag(gc,off) :- '$set_value'('$gc',[]).
+yap_flag(gc,on) :- !, '$set_value'('$gc',true).
+yap_flag(gc,off) :- !, '$set_value'('$gc',[]).
 yap_flag(gc_margin,N) :- 
 	var(N) -> 
 		 '$get_value'('$gc_margin',N)
@@ -137,15 +137,15 @@ yap_flag(gc_trace,V) :-
 	'$get_value'('$gc_verbose',N2),
 	'$get_value'('$gc_very_verbose',N3),
 	'$yap_flag_show_gc_tracing'(N1, N2, N3, V).
-yap_flag(gc_trace,on) :-
+yap_flag(gc_trace,on) :- !,
 	'$set_value'('$gc_trace',true),
 	'$set_value'('$gc_verbose',[]),
 	'$set_value'('$gc_very_verbose',[]).
-yap_flag(gc_trace,verbose) :-
+yap_flag(gc_trace,verbose) :- !,
 	'$set_value'('$gc_trace',[]),
 	'$set_value'('$gc_verbose',true),
 	'$set_value'('$gc_very_verbose',[]).
-yap_flag(gc_trace,very_verbose) :-
+yap_flag(gc_trace,very_verbose) :- !,
 	'$set_value'('$gc_trace',[]),
 	'$set_value'('$gc_verbose',true),
 	'$set_value'('$gc_very_verbose',true).
@@ -158,7 +158,7 @@ yap_flag(syntax_errors, V) :- var(V), !,
 yap_flag(syntax_errors, Option) :-
 	'$set_read_error_handler'(Option).
 % compatibility flag
-yap_flag(enhanced,on) :- '$set_value'('$enhanced',true).
+yap_flag(enhanced,on) :- !, '$set_value'('$enhanced',true).
 yap_flag(enhanced,off) :- '$set_value'('$enhanced',[]).
 %
 % show state of $
@@ -170,7 +170,7 @@ yap_flag(dollar_as_lower_case,V) :-
 %
 % make $a a legit atom
 %
-yap_flag(dollar_as_lower_case,on) :-
+yap_flag(dollar_as_lower_case,on) :- !,
 	'$change_type_of_char'(36,3).
 %
 % force quoting of '$a'
@@ -185,7 +185,7 @@ yap_flag(bounded,X) :-
 	var(X), !,
 	'$access_yap_flags'(0, X1),
 	'$transl_to_true_false'(X1,X).
-yap_flag(bounded,X) :-
+yap_flag(bounded,X) :- !,
 	(X = true ; X = false), !,
 	throw(error(permission_error(modify,flag,bounded),yap_flag(bounded,X))).
 yap_flag(bounded,X) :-
@@ -195,7 +195,7 @@ yap_flag(bounded,X) :-
 yap_flag(index,X) :- var(X), !,
 	 ( '$get_value'('$doindex',true) -> X=on ; X=off).
 yap_flag(index,on)  :- !, '$set_value'('$doindex',true).
-yap_flag(index,off) :- !, '$set_value'('$doindex',[]).
+yap_flag(index,off) :- '$set_value'('$doindex',[]).
 
 yap_flag(informational_messages,X) :- var(X), !,
 	 '$get_value'('$verbose',X).
@@ -500,7 +500,7 @@ yap_flag(host_type,X) :-
 	    V = gc_margin    ;
 	    V = gc_trace     ;
 %	    V = hide  ;
-%	    V = host_type  ;
+	    V = host_type  ;
 	    V = index ;
 	    V = informational_messages ;
 	    V = integer_rounding_function ;
@@ -606,8 +606,12 @@ yap_flag(host_type,X) :-
 	stream_property(OUT,[alias(Alias)]), !.
 	
 current_prolog_flag(V,Out) :-
-	(var(V) ; atom(V) ), !,
+	var(V), !,
 	'$show_yap_flag_opts'(V,NOut),
+	NOut = Out.
+current_prolog_flag(V,Out) :-
+	atom(V), !,
+	yap_flag(V,NOut),
 	NOut = Out.
 current_prolog_flag(V,Out) :-
 	throw(error(type_error(atom,V),current_prolog_flag(V,Out))).
