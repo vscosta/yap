@@ -852,7 +852,7 @@ then
   AC_CHECK_FUNCS(alarm mmap popen shmat sleep system ttyname waitpid)
 fi
 
-if "$target_os" != "mingw32" 
+if test "$target_os" != "mingw32" 
 then
   AC_CHECK_FUNCS(fetestexcept snprintf)
 fi
