@@ -144,7 +144,7 @@ reconsult(Fs) :-
 	( '$get_value'('$verbose',off) ->
 	  true
 	;
-	  '$format'(user_error, "[ ~w reconsulted ~w bytes in ~w seconds ]~n", [F,H,T])
+	  '$format'(user_error, "[ ~w reconsulted ~w bytes in ~g seconds ]~n", [F,H,T])
 	),
 	'$set_value'('$consulting',Old),
 	'$set_value'('$consulting_file',OldF),
@@ -184,7 +184,7 @@ reconsult(Fs) :-
 	( '$get_value'('$verbose',off) ->
 	  true
 	;
-	  '$format'(user_error, "[ ~w reconsulted ~w bytes in ~w seconds ]~n", [F,H,T])
+	  '$format'(user_error, "[ ~w reconsulted ~w bytes in ~g seconds ]~n", [F,H,T])
 	),
 	'$set_value'('$consulting',Old),
 	'$set_value'('$consulting_file',OldF),

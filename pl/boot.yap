@@ -129,13 +129,11 @@ set_output(Stream) :-
 	 8	use portray(_)
 */
 
-write(T) :- current_output(S), '$write'(S,4,T), fail.
-write(_).
+write(T) :-
+	'$write'(4, T).
 
 write(Stream,T) :- 
-	'$write'(Stream,4,T),
-	fail.
-write(_,_).
+	'$write'(Stream,4,T).
 
 put(Stream,N) :-  N1 is N, '$put'(Stream,N1).
 
@@ -908,7 +906,7 @@ break :- '$get_value'('$break',BL), NBL is BL+1,
 	( '$get_value'('$verbose',off) ->
 	  true
 	;
-	  '$format'(user_error, "[ ~w consulted ~w bytes in ~w seconds ]~n", [F,H,T])
+	  '$format'(user_error, "[ ~w consulted ~w bytes in ~g seconds ]~n", [F,H,T])
 	),
 	'$set_value'('$consulting',Old),
 	'$set_value'('$consulting_file',OldF),
