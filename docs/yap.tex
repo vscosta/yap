@@ -5445,13 +5445,14 @@ Operating System functionality:
 @cnindex cd/1
 Changes the current directory (on UNIX environments).
 
-@item environ(?@var{E},-@var{S})
+@item environ(+@var{E},-@var{S})
 @findex environ/2
 @syindex environ/2
 @cnindex environ/2
-This backtrackable predicate unifies the first argument with an
-environment variable @var{E}, and the second with its value @var{S}. It
-can used to detect all environment variables.
+@comment This backtrackable predicate unifies the first argument with an
+@comment environment variable @var{E}, and the second with its value @var{S}. It
+@comment can used to detect all environment variables.
+    Given an enviromment variable @var{E} this predicate unifies the second argument @var{S} with its value.
 
 @item getcwd(-@var{D})
 @findex getcwd/1
