@@ -603,7 +603,6 @@ Yap_scan_num(int (*Nxtch) (int))
   tsize = Yap_TrailTop-ScannerStack;
   if (tsize < 4096) {
     if(!Yap_growtrail (sizeof(CELL) * 16 * 1024L)) {
-  printf("vsc: Hello\n");
       Yap_ErrorMessage = "Trail Overflow";
       return TermNil;
     }

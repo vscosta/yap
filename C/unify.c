@@ -605,7 +605,6 @@ InitReverseLookupOpcode(void)
   for (i = _std_top; i > _Ystop; i--) {
     OPCODE opc = Yap_opcode(i);
     int j = rtable_hash_op(opc,hash_size_mask);
-
     while (opeptr[j].opc) {
       if (++j > hash_size_mask)
 	j = 0;	  

@@ -1314,7 +1314,7 @@ RestoreHeap(OPCODE old_ops[])
   CurrentModule = PROLOG_MODULE;
   opcodes_moved = check_opcodes(old_ops);
   /* opcodes_moved has side-effects and should be tried first */
-  if (heap_moved || opcodes_moved) {
+  if (heap_moved || opcodes_moved || TRUE) {
     restore_heap();
   }
   /* This must be done after restore_heap */

@@ -1673,11 +1673,16 @@ CreateDBStruct(Term Tm, DBProp p, int InFlag, int *pstat, UInt extra_size, struc
 #endif
       ppt->Entry = AdjustIDBPtr(tt,(CELL)ppt-(CELL)ppt0);
 #ifdef COROUTINING
-      if (ppt->attachments)
-	ppt->attachments = AdjustIDBPtr(ppt->attachments,(CELL)ppt-(CELL)ppt0);
+      if (attachments)
+	ppt->attachments = AdjustIDBPtr(attachments,(CELL)ppt-(CELL)ppt0);
+      else
+	ppt->attachments = 0L;
 #endif
-    } else {
+     } else {
       ppt->Entry = tt;
+#ifdef COROUTINING
+      ppt->attachments = attachments;
+#endif
     }
     if (flag & DBWithRefs) {
       DBRef *ptr = TmpRefBase, *rfnar = (DBRef *)nar;

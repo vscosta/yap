@@ -11,8 +11,11 @@
 * File:		rheap.h							 *
 * comments:	walk through heap code					 *
 *									 *
-* Last rev:     $Date: 2004-10-26 20:16:18 $,$Author: vsc $						 *
+* Last rev:     $Date: 2004-11-23 21:16:21 $,$Author: vsc $						 *
 * $Log: not supported by cvs2svn $
+* Revision 1.45  2004/10/26 20:16:18  vsc
+* More bug fixes for overflow handling
+*
 * Revision 1.44  2004/10/06 16:55:47  vsc
 * change configure to support big mem configs
 * get rid of extra globals
@@ -589,8 +592,11 @@ restore_opcodes(yamop *pc)
     fprintf(stderr, "%s ", op_names[op]);
 #endif
     switch (op) {
-    case _Ystop:
     case _Nstop:
+      Yap_Error(SYSTEM_ERROR, TermNil,
+	    "Invalid Opcode found while restoring %p", pc);
+      return;
+    case _Ystop:
 #ifdef DEBUG_RESTORE2
       fprintf(stderr, "OK\n");
 #endif
@@ -820,7 +826,11 @@ restore_opcodes(yamop *pc)
 	pc->u.sla.sla_u.mod = AtomTermAdjust(pc->u.sla.sla_u.mod);
       }
       pc->u.sla.p0 = PtoPredAdjust(pc->u.sla.p0);
+      if (pc->u.sla.bmap != NULL) {
+	pc->u.sla.bmap = CellPtoHeapAdjust(pc->u.sla.bmap);
+      }
       pc = NEXTOP(pc,sla);
+      break;
     case _fcall:
     case _call:
 #ifdef YAPOR
