@@ -12,7 +12,7 @@
 * Last rev:								 *
 * mods:									 *
 * comments:	allocating space					 *
-* version:$Id: alloc.c,v 1.9 2001-09-24 14:35:58 vsc Exp $		 *
+* version:$Id: alloc.c,v 1.10 2001-12-18 22:01:26 vsc Exp $		 *
 *************************************************************************/
 #ifdef SCCS
 static char SccsId[] = "%W% %G%";
@@ -254,7 +254,7 @@ AllocHeap(unsigned int size)
 	UNLOCK(HeapTopLock);
       }
       /* we destroyed the stack */
-      Abort("Stack Crashed against Heap...");
+      Error(SYSTEM_ERROR, TermNil, "Stack Crashed against Heap...");
       return(NULL);
     } else {
       if (HeapTop + size * sizeof(CELL) + sizeof(YAP_SEG_SIZE) < Addr(AuxSp)) {

@@ -689,6 +689,9 @@ token(void)
 	     eat up the escape sequence. */
 	  ErrorMessage = "invalid escape sequence";
 	}
+      } else if (chtype[ch] == EF) {
+	ReleasePreAllocCodeSpace((CODEADDR)TokImage);
+	return (eot_tok);
       } else {
 	*charp++ = ch;
 	my_get_quoted_ch();

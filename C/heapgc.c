@@ -2118,7 +2118,7 @@ update_relocation_chain(CELL_PTR current, CELL_PTR dest)
     }
 #ifdef DEBUG
     else {
-      Abort("[GC] ATOMIC in relocation chain");
+      Error(SYSTEM_ERROR, TermNil, "ATOMIC in a GC relocation chain");
     }
 #endif
   }
@@ -2664,7 +2664,7 @@ do_gc(Int predarity, CELL *current_env, yamop *nextop)
   if (HeapTop >= GlobalBase - MinHeapGap) {
     *--ASP = (CELL)current_env;
     if (!growheap(FALSE)) {
-      Abort("[ SYSTEM ERROR: YAP could not grow heap before garbage collection ]\n");
+      Error(SYSTEM_ERROR, TermNil, "YAP could not grow heap before garbage collection");
       return(FALSE);
     }
     current_env = (CELL *)*ASP;

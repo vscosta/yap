@@ -993,8 +993,7 @@ SearchForTrailFault(void)
   if ((TR > (tr_fr_ptr)TrailTop-1024  && 
        TR < (tr_fr_ptr)TrailTop+(64*1024))|| DBTrailOverflow()) {
     if (!growtrail(64 * 1024L)) {
-      YP_fprintf(YP_stderr, "[ ERROR: YAP failed to reserve %ld bytes in growtrail ]\n",64*1024L);
-      Abort("");
+      Error(SYSTEM_ERROR, TermNil, "YAP failed to reserve %ld bytes in growtrail", 64*1024L);
     }
     /* just in case, make sure the OS keeps the signal handler. */
     /*    my_signal_info(SIGSEGV, HandleSIGSEGV); */
@@ -1270,7 +1269,7 @@ ReceiveSignal (int s)
 #ifndef MPW
     case SIGFPE:
       my_signal (SIGFPE, HandleMatherr);
-      Abort ("[ Fatal error: floating point exception ]");
+      Error (SYSTEM_ERROR, TermNil, "floating point exception ]");
       break;
 #endif
 #if !defined(LIGHT) && !defined(_WIN32)

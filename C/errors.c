@@ -369,8 +369,6 @@ ShutdownYAP(int value)
   exit(value);
 }
 
-static int in_error = FALSE;
-
 yamop *
 Error (yap_error_number type, Term where, char *format,...)
 {
@@ -382,8 +380,10 @@ Error (yap_error_number type, Term where, char *format,...)
   char *tp = p;
   int psize = 512;
   
-  if (in_error)
+  /* disallow recursive error handling */
+  if (PrologMode & InErrorMode)
     return(P);
+  PrologMode |= InErrorMode;
   va_start (ap, format);
   /* now build the error string */
   if (format != NULL)
@@ -1821,7 +1821,7 @@ Error (yap_error_number type, Term where, char *format,...)
 	while (B->cp_b != NULL && B->cp_ap != (yamop *) NOCODE)
 	  B = B->cp_b;
       P = (yamop *)FAILCODE;
-      in_error = FALSE;
+      PrologMode &= ~InErrorMode;
       return(P);
     }
     /* make the abstract machine jump where we want them to jump to */
@@ -1836,7 +1836,7 @@ Error (yap_error_number type, Term where, char *format,...)
 #endif	/* YAPOR */
     P = (yamop *)FAILCODE;
   }
-  in_error = FALSE;
+  PrologMode &= ~InErrorMode;
   return(P);
 }
 

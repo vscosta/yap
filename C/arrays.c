@@ -432,7 +432,7 @@ AllocateStaticArraySpace(StaticArrayEntry *p, static_array_types atype, Int arra
   while ((p->ValueOfVE.floats = (Float *) AllocAtomSpace(asize) ) == NULL) {
     YAPLeaveCriticalSection();
     if (!growheap(FALSE)) {
-      Abort("[ SYSTEM ERROR: YAP failed to reserve space in growheap ]\n");
+      Error(SYSTEM_ERROR, TermNil, "YAP failed to reserve space in growheap");
       return;
     }
     YAPEnterCriticalSection();

@@ -298,7 +298,7 @@ absmi(int inp)
       restore_absmi_regs(old_regs);
 #endif
       if (!growheap(FALSE)) {
-	Abort("[ SYSTEM ERROR: YAP failed to reserve space in growheap ]\n");
+	Error(SYSTEM_ERROR, TermNil, "YAP failed to reserve space in growheap");
 	FAIL();
       }
       goto reset_absmi;
@@ -2077,7 +2077,7 @@ absmi(int inp)
 	  } 
 	  if (PrologMode & AbortMode) {
 	    PrologMode &= ~AbortMode;
-	    Abort("");
+	    Error(PURE_ABORT, TermNil, "");
 	  }
 	  JMPNext();
 	}

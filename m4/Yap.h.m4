@@ -10,7 +10,7 @@
 * File:		Yap.h.m4						 *
 * mods:									 *
 * comments:	main header file for YAP				 *
-* version:      $Id: Yap.h.m4,v 1.13 2001-12-17 18:31:11 vsc Exp $	 *
+* version:      $Id: Yap.h.m4,v 1.14 2001-12-18 22:01:26 vsc Exp $	 *
 *************************************************************************/
 
 #include "config.h"
@@ -773,7 +773,8 @@ typedef enum {
   UserMode  =   2,		/* Normal mode */
   CritMode  =   4,		/* If we are meddling with the heap */
   AbortMode =   8,		/* expecting to abort */
-  InterruptMode = 16		/* under an interrupt */
+  InterruptMode = 16,		/* under an interrupt */
+  InErrorMode = 32		/* under an interrupt */
 } prolog_exec_mode;
 
 extern prolog_exec_mode      PrologMode;
@@ -831,7 +832,7 @@ extern int      yap_argc;
             }                                                            \
             if (PrologMode & AbortMode) {                                \
 	      PrologMode &= ~AbortMode;                                  \
-	      Abort("");                                                 \
+	      Error(PURE_ABORT, TermNil, "");                            \
             }                                                            \
 	    GLOBAL_LOCKS_who_locked_heap = MAX_WORKERS;                  \
             UNLOCK(GLOBAL_LOCKS_heap_access);                            \
@@ -854,7 +855,7 @@ extern int      yap_argc;
             }                                                            \
             if (PrologMode & AbortMode) {                                \
 	      PrologMode &= ~AbortMode;                                  \
-	      Abort("");                                                 \
+	      Error(PURE_ABORT, TermNil, "");                            \
             }                                                            \
           }                                                              \
         }

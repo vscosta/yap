@@ -635,7 +635,7 @@ MemPutc(int sno, int ch)
     char *newbuf;
 
     if ((newbuf = AllocAtomSpace(new_max_size*sizeof(char))) == NULL) {
-      Abort("[ SYSTEM ERROR: YAP could not grow heap for writing to string ]\n");
+      Error(SYSTEM_ERROR, TermNil, "YAP could not grow heap for writing to string");
     }
 #if HAVE_MEMMOVE
     memmove((void *)newbuf, (void *)s->u.mem_string.buf, (size_t)((s->u.mem_string.pos)*sizeof(char)));
@@ -912,8 +912,9 @@ ReadlineGetc(int sno)
       PrologMode &= ~InterruptMode;
       ProcessSIGINT();
       if (PrologMode & AbortMode) {
-	PrologMode &= ~AbortMode;
-	Abort("");
+	Error(PURE_ABORT, TermNil, NULL);
+	ErrorMessage = "Abort";
+	return(console_post_process_read_char(EOF, s, sno));
       }
       continue;
     }
@@ -1281,8 +1282,9 @@ ConsoleGetc(int sno)
     ProcessSIGINT();
     newline = TRUE;
     if (PrologMode & AbortMode) {
-      PrologMode &= ~AbortMode;
-      Abort("");
+      Error(PURE_ABORT, TermNil, NULL);
+      ErrorMessage = "Abort";
+      return(console_post_process_read_char(EOF, s, sno));
     }
     goto restart;
   }
@@ -1929,7 +1931,7 @@ p_open_mem_read_stream (void)   /* $open_mem_read_stream(+List,-Stream) */
   }
   while ((nbuf = (char *)AllocAtomSpace((sl+1)*sizeof(char))) == NULL) {
     if (!growheap(FALSE)) {
-      Abort("[ SYSTEM ERROR: YAP could not grow heap in open_mem_read_stream ]\n");
+      Error(SYSTEM_ERROR, TermNil, "YAP could not grow heap in open_mem_read_stream");
       return(FALSE);
     }
   }
@@ -1983,7 +1985,7 @@ p_open_mem_write_stream (void)   /* $open_mem_write_stream(-Stream) */
 
   while ((nbuf = (char *)AllocAtomSpace(page_size*sizeof(char))) == NULL) {
     if (!growheap(FALSE)) {
-      Abort("[ SYSTEM ERROR: YAP could not grow heap in open_mem_write_stream ]\n");
+      Error(SYSTEM_ERROR, TermNil, "YAP could not grow heap in open_mem_write_stream");
       return(FALSE);
     }
   }
@@ -2432,7 +2434,7 @@ p_peek_mem_write_stream (void)
     while (H + 1024 >= ASP) {
       H = HI;
       if (!gc(3, ENV, P)) {
-	Abort("[ SYSTEM ERROR: YAP could not grow stack in peek_mem_write_stream/2 ]\n");
+	Error(SYSTEM_ERROR, TermNil, "YAP could not grow stack in peek_mem_write_stream/2");
 	return(FALSE);
       }
       i = 0;
@@ -2790,6 +2792,11 @@ p_read (void)
     if ((Stream[c_input_stream].status & Eof_Stream_f)
 	&& !eot_before_eof) {
       if (tokstart != NIL && tokstart->Tok != Ord (eot_tok)) {
+	/* we got the end of file from an abort */
+	if (ErrorMessage == "Abort") {
+	  TR = old_TR;
+	  return(FALSE);
+	}
 	/* we need to force the next reading to also give end of file.*/
 	Stream[c_input_stream].status |= Push_Eof_Stream_f;
 	ErrorMessage = "[ Error: end of file found before end of term ]";
@@ -3525,7 +3532,7 @@ format_putc(int sno, int ch) {
     char *newbuf;
 
     if ((newbuf = AllocAtomSpace(new_max_size*sizeof(char))) == NULL) {
-      Abort("[ SYSTEM ERROR: YAP could not grow heap for format/2 ]\n");
+      Error(SYSTEM_ERROR, TermNil, "YAP could not grow heap for format/2");
       return(EOF);
     }
 #if HAVE_MEMMOVE
@@ -4629,7 +4636,7 @@ p_char_conversion(void)
     CharConversionTable2 = AllocCodeSpace(NUMBER_OF_CHARS*sizeof(char));
     while (CharConversionTable2 == NULL) {
       if (!growheap(FALSE)) {
-	Abort("[ SYSTEM ERROR: YAP could not grow heap in char_conversion/2 ]\n");
+	Error(SYSTEM_ERROR, TermNil, "YAP could not grow heap in char_conversion/2");
 	return(FALSE);
       }
     }

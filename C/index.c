@@ -1410,7 +1410,7 @@ PredIsIndexable(PredEntry *ap)
 #endif
     if ((indx_out = assemble(ASSEMBLING_INDEX)) == NIL) {
       if (!growheap(FALSE)) {
-	Abort("[ SYSTEM ERROR: YAP failed to reserve space in growheap ]\n");
+	Error(SYSTEM_ERROR, TermNil, "YAP failed to reserve space in growheap");
 	return(FALSE);
       }
       goto restart_index;

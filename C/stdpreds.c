@@ -653,7 +653,7 @@ p_atom_concat(void)
     if (cptr+sz >= top-1024) {
       ReleasePreAllocCodeSpace((ADDR)cpt0);
       if (!growheap(FALSE)) {
-	Abort("[ SYSTEM ERROR: YAP could not grow heap in recorda/3 ]\n");
+	Error(SYSTEM_ERROR, TermNil, "YAP could not grow heap in recorda/3 ]\n");
 	return(FALSE);
       }
       goto restart;
