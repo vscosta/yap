@@ -166,6 +166,27 @@ STATIC_PROTO (Int p_type_of_char, (void));
 STATIC_PROTO (void CloseStream, (int));
 
 static int
+GetFreeStreamD(void)
+{
+  int sno;
+
+  for (sno = 0; sno < MaxStreams; ++sno)
+    if (Stream[sno].status & Free_Stream_f)
+      break;
+  if (sno == MaxStreams) {
+    return -1;
+  }
+  return sno;
+}
+
+int
+Yap_GetFreeStreamD(void)
+{
+  return GetFreeStreamD();
+}
+
+
+static int
 yap_fflush(int sno)
 {
 #if HAVE_LIBREADLINE
@@ -1487,10 +1508,8 @@ Yap_InitSocketStream(int fd, socket_info flags, socket_domain domain) {
   StreamDesc *st;
   int sno;
 
-  for (sno = 0; sno < MaxStreams; ++sno)
-    if (Stream[sno].status & Free_Stream_f)
-      break;
-  if (sno == MaxStreams) {
+  sno = GetFreeStreamD();
+  if (sno < 0) {
     PlIOError (SYSTEM_ERROR,TermNil, "new stream not available for socket/4");
     return(TermNil);
   }
@@ -1618,10 +1637,8 @@ p_open (void)
   }
   if (!Yap_TrueFileName (RepAtom (AtomOfTerm (file_name))->StrOfAE, Yap_FileNameBuf, FALSE))
     return (PlIOError (EXISTENCE_ERROR_SOURCE_SINK,file_name,"open/3"));
-  for (sno = 0; sno < MaxStreams; ++sno)
-    if (Stream[sno].status & Free_Stream_f)
-      break;
-  if (sno == MaxStreams)
+  sno = GetFreeStreamD();
+  if (sno < 0)
     return (PlIOError (SYSTEM_ERROR,TermNil, "new stream not available for open/3"));
   st = &Stream[sno];
   /* can never happen */
@@ -1840,11 +1857,8 @@ p_open_null_stream (void)
 {
   Term t;
   StreamDesc *st;
-  int sno;
-  for (sno = 0; sno < MaxStreams; ++sno)
-    if (Stream[sno].status & Free_Stream_f)
-      break;
-  if (sno == MaxStreams)
+  int sno = GetFreeStreamD();
+  if (sno < 0)
     return (PlIOError (SYSTEM_ERROR,TermNil, "new stream not available for open_null_stream/1"));
   st = &Stream[sno];
   st->status = Append_Stream_f | Output_Stream_f | Null_Stream_f;
@@ -1866,10 +1880,8 @@ Yap_OpenStream(FILE *fd, char *name, Term file_name, int flags)
   StreamDesc *st;
   int sno;
 
-  for (sno = 0; sno < MaxStreams; ++sno)
-    if (Stream[sno].status & Free_Stream_f)
-      break;
-  if (sno == MaxStreams)
+  sno = GetFreeStreamD();
+  if (sno  < 0)
     return (PlIOError (SYSTEM_ERROR,TermNil, "new stream not available for open_null_stream/1"));
   st = &Stream[sno];
   st->status = 0;
@@ -1942,10 +1954,8 @@ p_open_pipe_stream (void)
       return (PlIOError (SYSTEM_ERROR,TermNil, "open_pipe_stream/2 could not create pipe"));
     }
 #endif
-  for (sno = 0; sno < MaxStreams; ++sno)
-    if (Stream[sno].status & Free_Stream_f)
-      break;
-  if (sno == MaxStreams)
+  sno = GetFreeStreamD();
+  if (sno < 0)
     return (PlIOError (SYSTEM_ERROR,TermNil, "new stream not available for open_pipe_stream/2"));
   st = &Stream[sno];
   st->status = Input_Stream_f | Pipe_Stream_f;
@@ -1963,12 +1973,10 @@ p_open_pipe_stream (void)
 #else
   st->u.pipe.fd = filedes[0];
 #endif
-  t1 = MkStream (sno);
-  for (; sno < MaxStreams; ++sno)
-    if (Stream[sno].status & Free_Stream_f)
-      break;
-  if (sno == MaxStreams)
+  sno = GetFreeStreamD();
+  if (sno < 0)
     return (PlIOError (SYSTEM_ERROR,TermNil, "new stream not available for open_pipe_stream/2"));
+  t1 = MkStream (sno);
   st = &Stream[sno];
   st->status = Output_Stream_f | Pipe_Stream_f;
   st->linepos = 0;
@@ -1996,10 +2004,8 @@ open_buf_read_stream(char *nbuf, Int nchars)
   StreamDesc *st;
  
 
-  for (sno = 0; sno < MaxStreams; ++sno)
-    if (Stream[sno].status & Free_Stream_f)
-      break;
-  if (sno == MaxStreams)
+  sno = GetFreeStreamD();
+  if (sno < 0)
     return (PlIOError (SYSTEM_ERROR,TermNil, "new stream not available for open_mem_read_stream/1"));
   st = &Stream[sno];
   /* currently these streams are not seekable */
@@ -2072,10 +2078,8 @@ open_buf_write_stream(char *nbuf, UInt  sz)
   int sno;
   StreamDesc *st;
 
-  for (sno = 0; sno < MaxStreams; ++sno)
-    if (Stream[sno].status & Free_Stream_f)
-      break;
-  if (sno == MaxStreams)
+  sno = GetFreeStreamD();
+  if (sno < 0)
     return -1;
   st = &Stream[sno];
   /* currently these streams are not seekable */

@@ -10,8 +10,12 @@
 * File:		c_interface.c						 *
 * comments:	c_interface primitives definition 			 *
 *									 *
-* Last rev:	$Date: 2004-06-05 03:36:59 $,$Author: vsc $						 *
+* Last rev:	$Date: 2004-06-09 03:32:02 $,$Author: vsc $						 *
 * $Log: not supported by cvs2svn $
+* Revision 1.48  2004/06/05 03:36:59  vsc
+* coroutining is now a part of attvars.
+* some more fixes.
+*
 * Revision 1.47  2004/05/17 21:42:08  vsc
 * misc fixes
 *
@@ -867,10 +871,8 @@ YAP_Read(int (*mygetc)(void))
 
   do_getf = mygetc;
   old_TR = TR;
-  for (sno = 0; sno < MaxStreams; ++sno)
-    if (Stream[sno].status & Free_Stream_f)
-      break;
-  if (sno == MaxStreams) {
+  sno = Yap_GetFreeStreamD();
+  if (sno < 0) {
     Yap_Error(SYSTEM_ERROR,TermNil, "new stream not available for YAP_Read");
     return TermNil;
   }

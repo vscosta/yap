@@ -170,6 +170,19 @@ low_level_trace(yap_low_level_port port, PredEntry *pred, CELL *args)
     printf("Here I go\n");
   } 
   if (gc_calls < 1) return;
+ {
+  CELL *env_ptr = ENV;
+  PredEntry *p;
+      while (env_ptr) {
+	PredEntry *pe = EnvPreg(env_ptr[E_CP]);
+	printf("%p->",env_ptr,pe);
+	if (vsc_count == 52LL) printf("\n");
+	if (p == pe) return(TRUE);
+	if (env_ptr != NULL)
+	  env_ptr = (CELL *)(env_ptr[E_E]);
+      }
+	printf("\n");
+ }
 #endif
   fprintf(Yap_stderr,"%lld ", vsc_count);
 #if defined(THREADS) || defined(YAPOR)

@@ -11,8 +11,11 @@
 * File:		errors.yap						 *
 * comments:	error messages for YAP					 *
 *									 *
-* Last rev:     $Date: 2004-04-27 16:21:25 $,$Author: vsc $						 *
-* $Log: not supported by cvs2svn $									 *
+* Last rev:     $Date: 2004-06-09 03:32:03 $,$Author: vsc $						 *
+* $Log: not supported by cvs2svn $
+* Revision 1.50  2004/04/27 16:21:25  vsc
+* stupid bug
+*									 *
 *									 *
 *************************************************************************/
 
@@ -668,5 +671,4 @@ print_message(Level, Mss) :-
 	'$format'(user_error," ,", []).
 '$dump_error_token'(A) :-
 	'$format'(user_error," ~a", [A]).
-
 

@@ -10,8 +10,12 @@
 *									 *
 * File:		absmi.c							 *
 * comments:	Portable abstract machine interpreter                    *
-* Last rev:     $Date: 2004-06-05 03:36:59 $,$Author: vsc $						 *
+* Last rev:     $Date: 2004-06-09 03:32:02 $,$Author: vsc $						 *
 * $Log: not supported by cvs2svn $
+* Revision 1.134  2004/06/05 03:36:59  vsc
+* coroutining is now a part of attvars.
+* some more fixes.
+*
 * Revision 1.133  2004/05/13 20:54:57  vsc
 * debugger fixes
 * make sure we always go back to current module, even during initizlization.
@@ -2208,7 +2212,7 @@ Yap_absmi(int inp)
 #endif
 	ENV = E_YREG;
 	/* Try to preserve the environment */
-	E_YREG = (CELL *) (((char *) YREG) + PREG->u.sla.s);
+	E_YREG = (CELL *) (((char *) E_YREG) + PREG->u.sla.s);
 	CPREG = NEXTOP(PREG, sla);
 	ALWAYS_LOOKAHEAD(pt->OpcodeOfPred);
 	PREG = pt->CodeOfPred;
@@ -6292,8 +6296,8 @@ Yap_absmi(int inp)
 	CPredicate f = PREG->u.sdl.p->cs.f_code;
 	saveregs();
 	SREG = (CELL *)((f)());
+	setregs();
       }
-      setregs();
       if (!SREG)
 	PREG = PREG->u.sdl.l;
       else
@@ -6419,7 +6423,6 @@ Yap_absmi(int inp)
 \************************************************************************/
 
       BOp(index_pred, e);
-      saveregs();
       {
 	PredEntry *ap = PredFromDefCode(PREG);
  	WRITE_LOCK(ap->PRWLock);
@@ -6440,6 +6443,7 @@ Yap_absmi(int inp)
 	if (ASP > (CELL *) B) {
 	  ASP = (CELL *) B;
 	}
+	saveregs();
 	Yap_IPred(ap);
       /* IPred can generate errors, it thus must get rid of the lock itself */
 	setregs();
@@ -11840,22 +11844,6 @@ Yap_absmi(int inp)
 	  saveregs_and_ycache();
 	  if (!Yap_growheap(FALSE, 0, NULL)) {
 	    Yap_Error(SYSTEM_ERROR, TermNil, "YAP failed to grow heap: %s", Yap_ErrorMessage);
-	    setregs_and_ycache();
-	    FAIL();
-	  }
-	  setregs_and_ycache();
-	  LOCK(SignalLock);
-	  ActiveSignals &= ~YAP_CDOVF_SIGNAL;
-	  CFREG = CalculateStackGap();
-	  UNLOCK(SignalLock);
-	  if (!ActiveSignals) {
-	    goto execute_after_comma;
-	  }
-	}
-	if (ActiveSignals & YAP_CDOVF_SIGNAL) {
-	  saveregs_and_ycache();
-	  if (!Yap_growheap(FALSE, 0, NULL)) {
-	    Yap_Error(OUT_OF_HEAP_ERROR, TermNil, "YAP failed to grow heap: %s", Yap_ErrorMessage);
 	    setregs_and_ycache();
 	    FAIL();
 	  }

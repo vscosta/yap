@@ -276,6 +276,7 @@ int   STD_PROTO(Yap_StreamToFileNo,(Term));
 Term  STD_PROTO(Yap_OpenStream,(FILE *,char *,Term,int));
 Term  STD_PROTO(Yap_StringToTerm,(char *,Term *));
 Term  STD_PROTO(Yap_TermToString,(Term,char *,unsigned int,int));
+int   STD_PROTO(Yap_GetFreeStreamD,(void));
 
 extern int
   Yap_c_input_stream,

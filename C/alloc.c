@@ -12,7 +12,7 @@
 * Last rev:								 *
 * mods:									 *
 * comments:	allocating space					 *
-* version:$Id: alloc.c,v 1.49 2004-04-22 20:07:03 vsc Exp $		 *
+* version:$Id: alloc.c,v 1.50 2004-06-09 03:32:02 vsc Exp $		 *
 *************************************************************************/
 #ifdef SCCS
 static char SccsId[] = "%W% %G%";
@@ -1191,11 +1191,6 @@ InitHeap(void *heap_addr)
   /* reserve space for specially allocated functors and atoms so that
      their values can be known statically */
   HeapTop = Yap_HeapBase + AdjustSize(sizeof(all_heap_codes));
-#if SIZEOF_DOUBLE == 2*SIZEOF_LONG_INT
-  /* guarantee blocks always start at even addresses */
-  HeapTop += sizeof(YAP_SEG_SIZE);
-#endif
-
   HeapMax = HeapUsed = HeapTop-Yap_HeapBase;
 
   /* notice that this forces odd addresses */
