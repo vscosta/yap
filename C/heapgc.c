@@ -70,7 +70,7 @@ STATIC_PROTO(void mark_db_fixed, (CELL *));
 STATIC_PROTO(void mark_regs, (tr_fr_ptr));
 STATIC_PROTO(void mark_trail, (tr_fr_ptr, tr_fr_ptr, CELL *, choiceptr));
 STATIC_PROTO(void mark_environments, (CELL *, OPREG, CELL *));
-STATIC_PROTO(void mark_choicepoints, (choiceptr, tr_fr_ptr));
+STATIC_PROTO(void mark_choicepoints, (choiceptr, tr_fr_ptr, int));
 STATIC_PROTO(void into_relocation_chain, (CELL *, CELL *));
 STATIC_PROTO(void sweep_trail, (choiceptr, tr_fr_ptr));
 STATIC_PROTO(void sweep_environments, (CELL *, OPREG, CELL *));
@@ -78,6 +78,7 @@ STATIC_PROTO(void sweep_choicepoints, (choiceptr));
 STATIC_PROTO(choiceptr update_B_H, (choiceptr, CELL *, CELL *, CELL *));
 STATIC_PROTO(void compact_heap, (void));
 STATIC_PROTO(void update_relocation_chain, (CELL *, CELL *));
+STATIC_PROTO(int  is_gc_very_verbose, (void));
 
 #include "heapgc.h"
 
@@ -572,7 +573,6 @@ init_dbtable(tr_fr_ptr trail_ptr) {
 #ifdef DEBUG
 
 /* #define INSTRUMENT_GC 1 */
-/* #define CHECK_CHOICEPOINTS 1  */
 
 #ifdef INSTRUMENT_GC
 typedef enum {
@@ -1269,7 +1269,6 @@ mark_trail(tr_fr_ptr trail_ptr, tr_fr_ptr trail_base, CELL *gc_H, choiceptr gc_B
 #endif /* TABLING_SCHEDULING */
 #endif
 
-#ifdef CHECK_CHOICEPOINTS
 #ifndef ANALYST
 
 static char *op_names[_std_top + 1] =
@@ -1280,11 +1279,10 @@ static char *op_names[_std_top + 1] =
 };
 
 #endif
-#endif
 
 
 static void 
-mark_choicepoints(register choiceptr gc_B, tr_fr_ptr saved_TR)
+mark_choicepoints(register choiceptr gc_B, tr_fr_ptr saved_TR, int very_verbose)
 {
 
 #ifdef EASY_SHUNTING
@@ -1312,54 +1310,57 @@ mark_choicepoints(register choiceptr gc_B, tr_fr_ptr saved_TR)
 #endif
     op = rtp->opc;
     opnum = op_from_opcode(op);
-#ifdef CHECK_CHOICEPOINTS
-    switch (opnum) {
-    case _or_else:
-    case _or_last:
-    case _Nstop:
-    case _switch_last:
-    case _switch_l_list:
-    case _retry_c:
-    case _retry_userc:
-    case _trust_logical_pred:
-    case _retry_profiled:
-      {
-	Atom at;
-	Int arity;
-	SMALLUNSGN mod;
-	if (PredForCode((CODEADDR)gc_B->cp_ap, &at, &arity, &mod))
-	  YP_fprintf(YP_stderr,"B  %p (%s) at %s/%d  with %d,%d\nf", gc_B, op_names[opnum], RepAtom(at)->StrOfAE, arity, gc_B->cp_h-H0, total_marked);
-        else
-	  YP_fprintf(YP_stderr,"B  %p (%s) with %d,%d\n", gc_B, op_names[opnum], gc_B->cp_h-H0, total_marked);
-      }
-      break;
+    if (very_verbose) {
+      switch (opnum) {
+      case _or_else:
+      case _or_last:
+      case _Nstop:
+      case _switch_last:
+      case _switch_l_list:
+      case _retry_c:
+      case _retry_userc:
+      case _trust_logical_pred:
+      case _retry_profiled:
+	{
+	  Atom at;
+	  Int arity;
+	  SMALLUNSGN mod;
+	  if (PredForCode((CODEADDR)gc_B->cp_ap, &at, &arity, &mod)) {
+	    if (arity) 
+	      YP_fprintf(YP_stderr,"[GC]       %s/%d marked %d (%s)\n", RepAtom(at)->StrOfAE, arity, total_marked, op_names[opnum]);
+	    else
+	      YP_fprintf(YP_stderr,"[GC]       %s marked %d (%s)\n", RepAtom(at)->StrOfAE, total_marked, op_names[opnum]);
+	  } else
+	    YP_fprintf(YP_stderr,"[GC]       marked %d (%s)\n", total_marked, op_names[opnum]);
+	}
+	break;
 #ifdef TABLING
-    case _table_completion:
-    case _table_answer_resolution:
-      {
-	PredEntry *pe = ENV_ToP(gc_B->cp_cp);
-	op_numbers caller_op = op_from_opcode(ENV_ToOp(gc_B->cp_cp));
-	/* first condition  checks if this was a meta-call */
-	if ((caller_op != _call  && caller_op != _fcall) || pe == NULL) {
-	  YP_fprintf(YP_stderr,"B  %p (%s) with %d,%d\n", gc_B, op_names[opnum], gc_B->cp_h-H0, total_marked);
-	} else
-	  YP_fprintf(YP_stderr,"B  %p (%s for %s/%d) with %d,%d\n", gc_B, op_names[opnum], RepAtom(NameOfFunctor(pe->FunctorOfPred))->StrOfAE, pe->ArityOfPE, gc_B->cp_h-H0, total_marked);
-      }
-      break;
+      case _table_completion:
+      case _table_answer_resolution:
+	{
+	  PredEntry *pe = ENV_ToP(gc_B->cp_cp);
+	  op_numbers caller_op = op_from_opcode(ENV_ToOp(gc_B->cp_cp));
+	  /* first condition  checks if this was a meta-call */
+	  if ((caller_op != _call  && caller_op != _fcall) || pe == NULL) {
+	    YP_fprintf(YP_stderr,"[GC]       marked %d (%s)\n", total_marked, op_names[opnum]);
+	  } else
+	    YP_fprintf(YP_stderr,"[GC]       %s/%d marked %d (%s)\n", RepAtom(NameOfFunctor(pe->FunctorOfPred))->StrOfAE, pe->ArityOfPE, total_marked, op_names[opnum]);
+	}
+	break;
 #endif
-    default:
-      {
-	PredEntry *pe = (PredEntry *)gc_B->cp_ap->u.ld.p;
-	if (pe == NULL) {
-	  YP_fprintf(YP_stderr,"B  %p (%s) with %d\n", gc_B, op_names[opnum], total_marked);
-	} else
-	  if (pe->ArityOfPE)
-	    YP_fprintf(YP_stderr,"B  %p (%s for %s/%d) with %d,%d\n", gc_B, op_names[opnum], RepAtom(NameOfFunctor(pe->FunctorOfPred))->StrOfAE, pe->ArityOfPE, gc_B->cp_h-H0, total_marked);
-	  else
-	    YP_fprintf(YP_stderr,"B  %p (%s for %s) with %d,%d\n", gc_B, op_names[opnum], RepAtom(pe->FunctorOfPred)->StrOfAE, gc_B->cp_h-H0, total_marked);
+      default:
+	{
+	  PredEntry *pe = (PredEntry *)gc_B->cp_ap->u.ld.p;
+	  if (pe == NULL) {
+	    YP_fprintf(YP_stderr,"[GC]       marked %d (%s)\n", total_marked, op_names[opnum]);
+	  } else
+	    if (pe->ArityOfPE)
+	      YP_fprintf(YP_stderr,"[GC]       %s/%d marked %d (%s)\n", RepAtom(NameOfFunctor(pe->FunctorOfPred))->StrOfAE, pe->ArityOfPE, total_marked, op_names[opnum]);
+	    else
+	      YP_fprintf(YP_stderr,"[GC]       %s marked %d (%s)\n", RepAtom((Atom)(pe->FunctorOfPred))->StrOfAE, total_marked, op_names[opnum]);
+	}
       }
     }
-#endif /* CHECK_CHOICEPOINTS */
     {
       /* find out how many cells are still alive in the trail */
 #ifndef FROZEN_STACKS
@@ -2544,7 +2545,7 @@ marking_phase(tr_fr_ptr old_TR, CELL *current_env, yamop *curp, CELL *max)
 #endif
   /* active environments */
   mark_environments(current_env, EnvSize(curp), EnvBMap((CELL *)curp));
-  mark_choicepoints(B, old_TR);	/* choicepoints, and environs  */
+  mark_choicepoints(B, old_TR, is_gc_very_verbose());	/* choicepoints, and environs  */
 #ifdef EASY_SHUNTING
   set_conditionals(sTR);
 #endif
@@ -2746,8 +2747,15 @@ is_gc_verbose(void)
   /* always give info when we are debugging gc */
   return(TRUE);
 #else
-  return(GetValue(AtomGcVerbose) != TermNil);
+  return(GetValue(AtomGcVerbose) != TermNil ||
+	 GetValue(AtomGcVeryVerbose) != TermNil);
 #endif
+}
+
+static int
+is_gc_very_verbose(void)
+{
+  return(GetValue(AtomGcVeryVerbose) != TermNil);
 }
 
 Int total_gc_time(void)

@@ -909,6 +909,7 @@ InitCodes(void)
   heap_regs->atom_gc_margin = LookupAtom("$gc_margin");
   heap_regs->atom_gc_trace = LookupAtom("$gc_trace");
   heap_regs->atom_gc_verbose = LookupAtom("$gc_verbose");
+  heap_regs->atom_gc_very_verbose = LookupAtom("$gc_very_verbose");
   AtomGVar = LookupAtom("var");
   heap_regs->atom_global = LookupAtom("global_sp");
   heap_regs->atom_heap_used = LookupAtom("heapused");

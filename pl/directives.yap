@@ -135,16 +135,24 @@ yap_flag(gc_trace,V) :-
 	var(V), !,
 	'$get_value'('$gc_trace',N1),
 	'$get_value'('$gc_verbose',N2),
-	'$yap_flag_show_tracing'(N1, N2, V).
+	'$get_value'('$gc_very_verbose',N3),
+	'$yap_flag_show_gc_tracing'(N1, N2, N3, V).
 yap_flag(gc_trace,on) :-
 	'$set_value'('$gc_trace',true),
-	'$set_value'('$gc_verbose',[]).
+	'$set_value'('$gc_verbose',[]),
+	'$set_value'('$gc_very_verbose',[]).
 yap_flag(gc_trace,verbose) :-
 	'$set_value'('$gc_trace',[]),
-	'$set_value'('$gc_verbose',true).
+	'$set_value'('$gc_verbose',true),
+	'$set_value'('$gc_very_verbose',[]).
+yap_flag(gc_trace,very_verbose) :-
+	'$set_value'('$gc_trace',[]),
+	'$set_value'('$gc_verbose',true),
+	'$set_value'('$gc_very_verbose',true).
 yap_flag(gc_trace,off) :-
 	'$set_value'('$gc_trace',[]),
-	'$set_value'('$gc_verbose',[]).
+	'$set_value'('$gc_verbose',[]),
+	'$set_value'('$gc_very_verbose',[]).
 yap_flag(syntax_errors, V) :- var(V), !,
 	'$get_read_error_handler'(V).
 yap_flag(syntax_errors, Option) :-
@@ -586,9 +594,10 @@ yap_flag(host_type,X) :-
 '$transl_to_trl_types'(1,codes).
 '$transl_to_trl_types'(2,atom).
 
-'$yap_flag_show_tracing'(true, _, on) :- !.
-'$yap_flag_show_tracing'(_, true, verbose) :- !.
-'$yap_flag_show_tracing'(_, _, off).
+'$yap_flag_show_gc_tracing'(true, _, _, on) :- !.
+'$yap_flag_show_gc_tracing'(_, true, _, verbose) :- !.
+'$yap_flag_show_gc_tracing'(_, _, on, very_verbose) :- !.
+'$yap_flag_show_gc_tracing'(_, _, _, off).
 
 '$flag_check_alias'(OUT, Alias) :-
 	stream_property(OUT,[alias(Alias)]), !.

@@ -10,7 +10,7 @@
 * File:		Heap.h         						 *
 * mods:									 *
 * comments:	Heap Init Structure					 *
-* version:      $Id: Heap.h,v 1.21 2002-01-24 23:55:34 vsc Exp $	 *
+* version:      $Id: Heap.h,v 1.22 2002-01-28 04:30:40 vsc Exp $	 *
 *************************************************************************/
 
 /* information that can be stored in Code Space */
@@ -178,6 +178,7 @@ typedef struct various_codes {
     atom_gc_margin,
     atom_gc_trace,
     atom_gc_verbose,
+    atom_gc_very_verbose,
     atom_global,
     atom_heap_used,
     atom_index,
@@ -373,6 +374,7 @@ typedef struct various_codes {
 #define  AtomGcMargin             heap_regs->atom_gc_margin
 #define  AtomGcTrace              heap_regs->atom_gc_trace
 #define  AtomGcVerbose            heap_regs->atom_gc_verbose
+#define  AtomGcVeryVerbose        heap_regs->atom_gc_very_verbose
 #define  AtomGlobal               heap_regs->atom_global
 #define  AtomHeapUsed             heap_regs->atom_heap_used
 #define  AtomIndex                heap_regs->atom_index

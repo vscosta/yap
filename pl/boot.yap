@@ -1164,7 +1164,7 @@ expand_term(Term,Expanded) :-
 % what is ball;
 % where was the previous catch	
 catch(G, C, A) :-
-	'$mark_tr'(C,A,_),
+	'$catch'(C,A,_),
 	'$execute'(G).
 
 				%
@@ -1175,7 +1175,7 @@ catch(G, C, A) :-
 %
 '$system_catch'(G, M, C, A) :-
 	% check current trail
-	'$mark_tr'(C,A,_),
+	'$catch'(C,A,_),
 	'$execute0'(G, M).
 
 %
@@ -1190,8 +1190,8 @@ throw(Ball) :-
 
 	
 % just create a choice-point
-'$mark_tr'(_,_,_).
-'$mark_tr'(_,_,_) :- fail.
+'$catch'(_,_,_).
+'$catch'(_,_,_) :- fail.
 
 '$handle_throw'(_, _, _).
 '$handle_throw'(C, A, Ball) :-

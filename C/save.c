@@ -1032,6 +1032,7 @@ restore_codes(void)
   heap_regs->atom_gc_margin = AtomAdjust(heap_regs->atom_gc_margin);
   heap_regs->atom_gc_trace = AtomAdjust(heap_regs->atom_gc_trace);
   heap_regs->atom_gc_verbose = AtomAdjust(heap_regs->atom_gc_verbose);
+  heap_regs->atom_gc_very_verbose = AtomAdjust(heap_regs->atom_gc_very_verbose);
   heap_regs->atom_global = AtomAdjust(heap_regs->atom_global);
   heap_regs->atom_heap_used = AtomAdjust(heap_regs->atom_heap_used);
   heap_regs->atom_index = AtomAdjust(heap_regs->atom_index);

@@ -5991,11 +5991,12 @@ collection. The default depends on total stack size.
 
 @item  gc_trace
 @findex gc_trace (yap_flag/2 option)
-@*
-If @code{off} (default) do not show information on garbage collection and
-stack shifts, if @code{on} inform when a garbage collection or stack shift
-happened, if @code{verbose} give detailed information on garbage collection
-and stack shifts.
+@* If @code{off} (default) do not show information on garbage collection
+and stack shifts, if @code{on} inform when a garbage collection or stack
+shift happened, if @code{verbose} give detailed information on garbage
+collection and stack shifts. Last, if @code{very_verbose} give detailed
+information on data-structures found during the garbage collection
+process, namely, on choice-points.
 
 @item  index
 @findex index (yap_flag/2 option)
