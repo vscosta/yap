@@ -10,7 +10,7 @@
 * File:		Heap.h         						 *
 * mods:									 *
 * comments:	Heap Init Structure					 *
-* version:      $Id: Heap.h,v 1.20 2002-01-14 22:25:17 vsc Exp $	 *
+* version:      $Id: Heap.h,v 1.21 2002-01-24 23:55:34 vsc Exp $	 *
 *************************************************************************/
 
 /* information that can be stored in Code Space */
@@ -256,7 +256,6 @@ typedef struct various_codes {
     functor_stream_eOS,
     functor_change_module,
     functor_current_module,
-    functor_throw,
     functor_u_minus,
     functor_u_plus,
     functor_v_bar,
@@ -270,6 +269,9 @@ typedef struct various_codes {
   void *last_wtime;
   PredEntry *pred_goal_expansion;
   PredEntry *pred_meta_call;
+  PredEntry *pred_catch;
+  PredEntry *pred_throw;
+  PredEntry *pred_handle_throw;
   UInt n_of_file_aliases;
   UInt sz_of_file_aliases;
   struct AliasDescS * file_aliases;
@@ -297,6 +299,7 @@ typedef struct various_codes {
 #define  COMPLETION               ((yamop *)&(heap_regs->tablecompletioncode   ))
 #define  ANSWER_RESOLUTION        ((yamop *)&(heap_regs->tableanswerresolutioncode ))
 #endif /* TABLING */
+#define  FAILCODE                 ((CODEADDR)&(heap_regs->failcode       ))
 #define  FAILCODE                 ((CODEADDR)&(heap_regs->failcode       ))
 #define  TRUSTFAILCODE            ((CODEADDR)&(heap_regs->trustfailcode  ))
 #define  YESCODE                  ((CODEADDR)&(heap_regs->yescode        ))
@@ -447,7 +450,6 @@ typedef struct various_codes {
 #define  FunctorChangeModule      heap_regs->functor_change_module
 #define  FunctorCurrentModule     heap_regs->functor_current_module
 #define  FunctorModSwitch         heap_regs->functor_mod_switch
-#define  FunctorThrow             heap_regs->functor_throw
 #define  FunctorUMinus            heap_regs->functor_u_minus
 #define  FunctorUPlus             heap_regs->functor_u_plus
 #define  FunctorVBar              heap_regs->functor_v_bar
@@ -457,6 +459,9 @@ typedef struct various_codes {
 #define  TermReFoundVar           heap_regs->term_refound_var
 #define  PredGoalExpansion        heap_regs->pred_goal_expansion
 #define  PredMetaCall             heap_regs->pred_meta_call
+#define  PredCatch                heap_regs->pred_catch
+#define  PredThrow                heap_regs->pred_throw
+#define  PredHandleThrow          heap_regs->pred_handle_throw
 #define  NOfFileAliases           heap_regs->n_of_file_aliases
 #define  SzOfFileAliases          heap_regs->sz_of_file_aliases
 #define  FileAliases              heap_regs->file_aliases

@@ -44,7 +44,6 @@ read_sig.
 
 '$init_system' :-
         % do catch as early as possible
-        '$init_catch',
 	(
 	 '$access_yap_flags'(15, 0) ->
 	  '$version'
@@ -1161,21 +1160,10 @@ expand_term(Term,Expanded) :-
 % what is ball;
 % where was the previous catch	
 catch(G, C, A) :-
-	'$mark_tr'(Ball),
-	array_element('$catch', 0, OldEnv),
-	Env is '$env',
-	update_array('$catch', 0, Env),
-	'$execute'(G),
-	'$force_to_1st'(Ball),
-	( var(Ball) ->
-	    % no throw, just get rid of this.
-	    update_array('$catch', 0, OldEnv)
-	;
-	    % jmp_env will reset both fields  for me!
-	    !, '$handle_throw'(C, A, Ball)
-	).
+	'$mark_tr'(C,A,_),
+	'$execute'(G).
 
-%
+				%
 % system_catch is like catch, but it avoids the overhead of a full
 % meta-call by calling '$execute0' instead of $execute.
 % This way it
@@ -1183,52 +1171,32 @@ catch(G, C, A) :-
 %
 '$system_catch'(G, M, C, A) :-
 	% check current trail
-	'$mark_tr'(Ball),
-	% update current catch handler
-	array_element('$catch', 0, OldEnv),
-	Env is '$env',
-	update_array('$catch', 0, Env),
-	'$execute0'(G, M),
-	% this says where Ball is, for the benefit of jump_env
-	'$force_to_1st'(Ball),
-	(
-	  var(Ball) ->
-	    % no throw, just get rid of this.
-	    update_array('$catch', 0, OldEnv)
-	;
-	    % process the throw, if we can.
-	    !, '$handle_throw'(C, A, Ball)
-	).
+	'$mark_tr'(C,A,_),
+	'$execute0'(G, M).
 
+%
+% throw has to be *exactly* after system catch!
+%
+throw(Ball) :-
+	% get this off the unwound computation.
+	copy_term(Ball,NewBall),
+	% get current jump point
+	'$jump_env_and_store_ball'(NewBall).
+
+
+	
 % just create a choice-point
-'$mark_tr'(_).
-'$mark_tr'(_) :- fail.
+'$mark_tr'(_,_,_).
+'$mark_tr'(_,_,_) :- fail.
 
-'$force_to_1st'(_).
-
-'$handle_throw'(C, A, '$ball'(Ball)) :-
+'$handle_throw'(_, _, _).
+'$handle_throw'(C, A, Ball) :-
         % reset info 
 	(C = Ball ->
 	    '$execute'(A)
 	    ;
 	    throw(Ball)
 	).
-
-throw(Ball) :-
-	% get this off the unwound computation.
-	copy_term(Ball,NewBall),
-	% get current jump point
-	array_element('$catch', 0, Env),
-	'$do_throw'(NewBall, Env).
-
-'$do_throw'(NewBall,Env) :-
-	% jump
-	'$jump_env_and_store_ball'(Env, '$ball'(NewBall)).
-% restore bindings.
-'$do_throw'(_,_).
-
-'$init_catch' :-
-	'$create_array'('$catch', 1).
 
 '$exec_initialisation_goals' :-
 	'$recorded'('$blocking_code',_,R),

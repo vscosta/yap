@@ -1104,7 +1104,6 @@ restore_codes(void)
   heap_regs->functor_stream_eOS = FuncAdjust(heap_regs->functor_stream_eOS);
   heap_regs->functor_change_module = FuncAdjust(heap_regs->functor_change_module);
   heap_regs->functor_current_module = FuncAdjust(heap_regs->functor_current_module);
-  heap_regs->functor_throw = FuncAdjust(heap_regs->functor_throw);
   heap_regs->functor_u_minus = FuncAdjust(heap_regs->functor_u_minus);
   heap_regs->functor_u_plus = FuncAdjust(heap_regs->functor_u_plus);
   heap_regs->functor_v_bar = FuncAdjust(heap_regs->functor_v_bar);
@@ -1122,6 +1121,12 @@ restore_codes(void)
     (PredEntry *)AddrAdjust((ADDR)heap_regs->pred_goal_expansion);
   heap_regs->pred_meta_call =
     (PredEntry *)AddrAdjust((ADDR)heap_regs->pred_meta_call);
+  heap_regs->pred_catch =
+    (PredEntry *)AddrAdjust((ADDR)heap_regs->pred_catch);
+  heap_regs->pred_throw =
+    (PredEntry *)AddrAdjust((ADDR)heap_regs->pred_throw);
+  heap_regs->pred_handle_throw =
+    (PredEntry *)AddrAdjust((ADDR)heap_regs->pred_handle_throw);
   if (heap_regs->undef_code != NULL)
     heap_regs->undef_code = (PredEntry *)PtoHeapCellAdjust((CELL *)(heap_regs->undef_code));
   if (heap_regs->creep_code != NULL)

@@ -1750,7 +1750,7 @@ Error (yap_error_number type, Term where, char *format,...)
   nt[1] = MkAtomTerm(LookupAtom(p));
   if (serious) {
     choiceptr newb;
-    PredEntry *p = RepPredProp(PredPropByFunc(FunctorThrow,0));
+    PredEntry *p = PredThrow;
       
     CreepFlag = CalculateStackGap();
     ASP--;

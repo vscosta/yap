@@ -1253,29 +1253,31 @@ p_clean_ifcp(void) {
 /* This does very nasty stuff!!!!! */
 static Int
 p_jump_env(void) {
-  CELL *env = LCL0-IntegerOfTerm(Deref(ARG1)), *prev = NULL, *cur = ENV;
+  yamop *min = (yamop *)(PredCatch->CodeOfPred);
+  yamop *max = (yamop *)(PredThrow->CodeOfPred);
+  CELL *cur = ENV, *env;
+  yamop *cpe = (yamop *)(cur[E_CP]);
 
-  while (cur != env) {
-    prev = cur;
+  while (cpe < min || cpe > max) {
     cur = (CELL *)cur[E_E];
+    cpe = (yamop *)(cur[E_CP]);
   }
-  if (prev == NULL) {
-    return(FALSE);
-  }
-  CP = (yamop *)(prev[E_CP]);
-  YENV = ENV = env;
-  /* force trail reset */
+  CP = cpe;
+  env = (CELL *)cur[E_E];
+  YENV = ENV = (CELL *)(env[E_E]);
   while (B->cp_b < (choiceptr)env) {
     B = B->cp_b;
   }
-  B->cp_cp = CP;
-  B->cp_ap = CP;
-  B->cp_env = env;
+  B->cp_cp = (yamop *)(env[E_CP]);
+  B->cp_ap = (yamop *)(PredHandleThrow->LastClause);
+  B->cp_env = ENV;
   B->cp_h = H;
-  /* I could do this, but it is easier to leave the unwinding to the emulator */
-  env[CP->u.yx.y] = ARG2;
+  /* I could backtrack here, but it is easier to leave the unwinding
+     to the emulator */
+  B->cp_a3 = Deref(ARG1);
   return(FALSE);
 }
+
 
 void 
 InitExecFs(void)
@@ -1306,6 +1308,6 @@ InitExecFs(void)
   InitCPred("$restore_regs", 1, p_restore_regs, SafePredFlag);
   InitCPred("$restore_regs", 2, p_restore_regs2, SafePredFlag);
   InitCPred("$clean_ifcp", 1, p_clean_ifcp, SafePredFlag);
-  InitCPred("$jump_env_and_store_ball", 2, p_jump_env, SafePredFlag);
+  InitCPred("$jump_env_and_store_ball", 1, p_jump_env, SafePredFlag);
 }
 

@@ -763,6 +763,8 @@ InitCodes(void)
     AtomStream,
     AtomStreamPos,
     AtomVar;
+  Functor
+    FunctorThrow;
 
 #ifdef YAPOR
   heap_regs->seq_def = TRUE;
@@ -989,7 +991,7 @@ InitCodes(void)
   heap_regs->functor_stream_eOS = MkFunctor (LookupAtom("end_of_stream"), 1);
   heap_regs->functor_change_module = MkFunctor (LookupAtom("$change_module"), 1);
   heap_regs->functor_current_module = MkFunctor (LookupAtom("$current_module"), 1);
-  heap_regs->functor_throw = MkFunctor( LookupAtom("throw"), 1);
+  FunctorThrow = MkFunctor( LookupAtom("throw"), 1);
   heap_regs->functor_u_minus = MkFunctor (heap_regs->atom_minus, 1);
   heap_regs->functor_u_plus = MkFunctor (heap_regs->atom_plus, 1);
   heap_regs->functor_v_bar = MkFunctor(LookupAtom("|"), 2);
@@ -1009,6 +1011,9 @@ InitCodes(void)
   CurrentModule = 0;
   heap_regs->dead_clauses = NULL;
   heap_regs->pred_meta_call = RepPredProp(PredPropByFunc(MkFunctor(heap_regs->atom_meta_call,4),0));
+  heap_regs->pred_catch = RepPredProp(PredPropByFunc(MkFunctor(LookupAtom("catch"),3),0));
+  heap_regs->pred_throw = RepPredProp(PredPropByFunc(FunctorThrow,0));
+  heap_regs->pred_handle_throw = RepPredProp(PredPropByFunc(MkFunctor(LookupAtom("$handle_throw"),3),0));
   ReleaseAtom(AtomOfTerm(heap_regs->term_refound_var));
   {
     /* make sure we know about the module predicate */
