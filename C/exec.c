@@ -229,8 +229,8 @@ do_execute(Term t, SMALLUNSGN mod)
     if (pen->PredFlags & MetaPredFlag) {
       if (f == FunctorModule) {
 	Term tmod = ArgOfTerm(1,t);
-	if (!IsVarTerm(tmod) && IsAtomTerm(tmod) &&
-	    mod == LookupModule(tmod)) {
+	if (!IsVarTerm(tmod) && IsAtomTerm(tmod)) {
+	  mod = LookupModule(tmod);
 	  t = ArgOfTerm(2,t);
 	  goto restart_exec;
 	}
@@ -337,8 +337,8 @@ p_execute_within(void)
       if (pen->PredFlags & MetaPredFlag) {
 	if (f == FunctorModule) {
 	  Term tmod = ArgOfTerm(1,t);
-	  if (!IsVarTerm(tmod) && IsAtomTerm(tmod) &&
-	      mod == LookupModule(tmod)) {
+	  if (!IsVarTerm(tmod) && IsAtomTerm(tmod)) {
+	    mod = LookupModule(tmod);
 	    t = ArgOfTerm(2,t);
 	    goto restart_exec;
 	  }
@@ -371,11 +371,6 @@ p_execute_within(void)
     if (a == AtomTrue || a == AtomOtherwise)
       return(TRUE);
     else if (a == AtomCut) {
-      if (TopB != NULL && YOUNGER_CP(TopB,cut_pt)) {  
-	cut_pt = TopB;
-	if (DelayedB == NULL || YOUNGER_CP(cut_pt,DelayedB))
-	  DelayedB = cut_pt;
-      }
       /* find where to cut to */
       if (SHOULD_CUT_UP_TO(B,cut_pt)) {
 #ifdef YAPOR
@@ -470,11 +465,6 @@ p_execute_within2(void)
       choiceptr pt0;
 
       pt0 = (choiceptr)(ENV[E_CB]);
-      if (TopB != NULL && YOUNGER_CP(TopB,pt0)) {  
-	pt0 = TopB;
-	if (DelayedB == NULL || YOUNGER_CP(pt0,DelayedB))
-	  DelayedB = pt0;
-      }
       /* find where to cut to */
       if (SHOULD_CUT_UP_TO(B,pt0)) {
 #ifdef YAPOR
@@ -796,8 +786,8 @@ p_at_execute(void)
       return(FALSE);
     if (f == FunctorModule) {
       Term tmod = ArgOfTerm(1,t);
-      if (!IsVarTerm(tmod) && IsAtomTerm(tmod) &&
-	  mod == LookupModule(tmod)) {
+      if (!IsVarTerm(tmod) && IsAtomTerm(tmod)) {
+	mod = LookupModule(tmod);
 	t = ArgOfTerm(2,t);
 	goto restart_exec;
       }
@@ -880,6 +870,7 @@ do_goal(CODEADDR CodeAdr, int arity, CELL *pt, int args_to_save, int top)
   /* create an initial pseudo environment so that when garbage
      collection is going up in the environment chain it doesn't get
      confused */
+  EX = 0L;
   YENV = ASP;
   YENV[E_CP] = (CELL)P;
   YENV[E_CB] = (CELL)B;
@@ -890,15 +881,8 @@ do_goal(CODEADDR CodeAdr, int arity, CELL *pt, int args_to_save, int top)
   ENV = YENV;
   ASP -= EnvSizeInCells;
   /* and now create a pseudo choicepoint for much the same reasons */
-  CP = (yamop *) YESCODE;
-  /* this is an hack to save the arguments */
-  {
-    CELL *pt1 = XREGS+1+args_to_save;
-
-    while (pt1 > XREGS+1)
-      *--ASP = *--pt1;
-  }
-  *--ASP = MkIntTerm(args_to_save+1);
+  /* CP = YESCODE; */
+  /* keep a place where you can inform you had an exception */
   { 
     int i;
     for (i = 0; i < arity; i++) {
@@ -915,7 +899,7 @@ do_goal(CODEADDR CodeAdr, int arity, CELL *pt, int args_to_save, int top)
   B->cp_h     = H;
   B->cp_tr    = TR;
   B->cp_cp    = CP;
-  B->cp_ap    = (yamop *) NOCODE;
+  B->cp_ap    = NOCODE;
   B->cp_env   = ENV;
   B->cp_b     = saved_b;
 #ifdef DEPTH_LIMIT
@@ -935,7 +919,6 @@ do_goal(CODEADDR CodeAdr, int arity, CELL *pt, int args_to_save, int top)
   YENV[E_CB] = Unsigned (B);
   P = (yamop *) CodeAdr;
   S = CellPtr (RepPredProp (PredPropByFunc (MkFunctor(AtomCall, 1),0)));	/* A1 mishaps */
-  TopB = B;
 
   return(exec_absmi(top));
 }
@@ -953,13 +936,7 @@ execute_goal(Term t, int nargs, SMALLUNSGN mod)
   /* preserve the current restart environment */
   /* visualc*/
   /* just keep the difference because of possible garbage collections */
-  Int MyOldTopB = LCL0-(CELL *)TopB;
-  Int MyOldDelayedB = LCL0-(CELL *)DelayedB;
-  choiceptr OldTopB, OldDelayedB;
 
-
-  DelayedB = NULL;
-  /* forget we have a DelayedB to do, this is not a problem for the embedded computation to solve */
 
   saved_p = P;
   saved_cp = CP;
@@ -1015,110 +992,56 @@ execute_goal(Term t, int nargs, SMALLUNSGN mod)
 #endif /* TABLING */
     /* find out where we have the old arguments */
     old_B = ((choiceptr)(ENV-(EnvSizeInCells+nargs+1)))-1;
-    {
-      int i;
-      for (i=1; i<= nargs; i++) {
-#if MIN_ARRAY == 0
-	XREGS[i] = old_B->cp_args[i];
-#else
-	XREGS[i] = old_B->cp_last.cp_args[i];
-#endif
-      }
-    }
     CP   = saved_cp;
     P    = saved_p;
     ASP  = ENV;
-    ENV  = (CELL *)(ENV[E_E]);
+    *--ASP = MkIntTerm(0);
 #ifdef DEPTH_LIMIT
     DEPTH= ENV[E_DEPTH];
 #endif
+    ENV  = (CELL *)(ENV[E_E]);
     /* we have failed, and usually we would backtrack to this B,
        trouble is, we may also have a delayed cut to do */
-    OldTopB = (choiceptr)(LCL0-MyOldTopB);
-    OldDelayedB = (choiceptr)(LCL0-MyOldDelayedB);
-    if (DelayedB != NULL) {
-      if (YOUNGER_CP(B,DelayedB)) {
-	/* we have a delayed cut to do */
-	if (YOUNGER_CP(OldTopB,DelayedB)) {
-	  /* and this delayed cut is to before the c-code that actually called us */
-	  B = OldTopB;
-#ifdef TABLING
-	  abolish_incomplete_subgoals(B);
-#endif /* TABLING */
-	  /* did we have a cut which was cutting more than our current cut? */
-	  if (OldDelayedB != NULL && YOUNGER_CP(DelayedB,OldDelayedB))
-	    DelayedB = OldDelayedB;
-	} else {
-	  /* just cut back to where we should cut */
-	  B = DelayedB;
-#ifdef TABLING
-	  abolish_incomplete_subgoals(B);
-#endif /* TABLING */
-	  DelayedB = OldDelayedB;
-	}
-      }
-    } else {
-      DelayedB = OldDelayedB;
-    }
-    TopB = OldTopB;
-    HB   = B->cp_h;
+    if (B != NULL)
+      HB   = B->cp_h;
     YENV = ENV;
     return(TRUE);
   } else if (out == 0) {
     ASP  = B->cp_env;
-    {
-      int i;
-      for (i=1; i<= nargs; i++) {
-#if MIN_ARRAY==0
-	XREGS[i] = B->cp_args[i];
-#else
-	XREGS[i] = B->cp_last.cp_args[i];
-#endif
-      }
-    }
     P    = saved_p;
     CP   = saved_cp;
     H    = B->cp_h;
 #ifdef DEPTH_LIMIT
     DEPTH= B->cp_depth;
 #endif
-    YENV = ENV  = (CELL *)((B->cp_env)[E_E]);
+    YENV= ASP = B->cp_env;
+    ENV  = (CELL *)((B->cp_env)[E_E]);
     B    = B->cp_b;
     SET_BB(B);
-    /* we have failed, and usually we would backtrack to this B,
-       trouble is, we may also have a delayed cut to do */
-    OldTopB = (choiceptr)(LCL0-MyOldTopB);
-    OldDelayedB = (choiceptr)(LCL0-MyOldDelayedB);
-    if (DelayedB != NULL) {
-      if (YOUNGER_CP(B,DelayedB)) {
-	/* we have a delayed cut to do */
-	if (YOUNGER_CP(OldTopB,DelayedB)) {
-	  /* and this delayed cut is to before the c-code that actually called us */
-	  B = OldTopB;
-#ifdef TABLING
-	  abolish_incomplete_subgoals(B);
-#endif /* TABLING */
-	  /* did we have a cut which was cutting more than our current cut? */
-	  if (OldDelayedB != NULL && YOUNGER_CP(DelayedB,OldDelayedB))
-	    DelayedB = OldDelayedB;
-	} else {
-	  /* just cut back to where we should cut */
-	  B = DelayedB;
-#ifdef TABLING
-	  abolish_incomplete_subgoals(B);
-#endif /* TABLING */
-	  DelayedB = OldDelayedB;
-	}
-      }
-    } else {
-      DelayedB = OldDelayedB;
-    }
-    TopB = OldTopB;
     HB = PROTECT_FROZEN_H(B);
     return(FALSE);
   } else {
     Error(SYSTEM_ERROR,TermNil,"emulator crashed");
     return(FALSE);
+  }
+}
+
+void
+trust_last(void)
+{
+  ASP  = B->cp_env;
+  P    = (yamop *)(B->cp_env[E_CP]);
+  CP   = B->cp_cp;
+  H    = B->cp_h;
+#ifdef DEPTH_LIMIT
+  DEPTH= B->cp_depth;
+#endif
+  YENV= ASP = B->cp_env;
+  ENV  = (CELL *)((B->cp_env)[E_E]);
+  B    = B->cp_b;
+  if (B) {
+    SET_BB(B);
+    HB = PROTECT_FROZEN_H(B);
   }
 }
 
@@ -1130,7 +1053,9 @@ RunTopGoal(Term t)
   PredEntry *ppe;
   CELL *pt;
   UInt arity;
+  SMALLUNSGN mod = CurrentModule;
 
+ restart_runtopgoal:
   if (IsAtomTerm(t)) {
     Atom a = AtomOfTerm(t);
     pt = NULL;
@@ -1142,6 +1067,14 @@ RunTopGoal(Term t)
     if (IsBlobFunctor(f)) {
       Error(TYPE_ERROR_CALLABLE,t,"call/1");
       return(FALSE);
+    }
+    if (f == FunctorModule) {
+      Term tmod = ArgOfTerm(1,t);
+      if (!IsVarTerm(tmod) && IsAtomTerm(tmod)) {
+	mod = LookupModule(tmod);
+	t = ArgOfTerm(2,t);
+	goto restart_runtopgoal;
+      }
     }
     /* I cannot use the standard macro here because
        otherwise I would dereference the argument and
@@ -1168,7 +1101,6 @@ RunTopGoal(Term t)
       return(FALSE);
     }
   CodeAdr = ppe->CodeOfPred;
-  READ_UNLOCK(ppe->PRWLock);
   if (TrailTop - HeapTop < 2048) {
     PrologMode = BootMode;
     Error(SYSTEM_ERROR,TermNil,
@@ -1238,11 +1170,6 @@ p_restore_regs2(void)
 #else
   pt0 = (choiceptr)(LCL0-IntOfTerm(d0));
 #endif
-  if (TopB != NULL && YOUNGER_CP(TopB,pt0)) {  
-    if (DelayedB == NULL || YOUNGER_CP(DelayedB,pt0))
-      DelayedB = pt0;
-    pt0 = TopB;
-  }
   /* find where to cut to */
   if (pt0 > B) {
     /* Wow, we're gonna cut!!! */
@@ -1287,16 +1214,18 @@ JumpToEnv(Term t) {
     while (B != NULL && B->cp_ap != pos) {
       /* we are already doing a catch */
       if (B->cp_ap == (yamop *)(PredHandleThrow->LastClause)) {
-	if (DelayedB == NULL || YOUNGER_CP(B,DelayedB))
-	  DelayedB = B;
 	P = (yamop *)FAILCODE;
 	if (first_func != NULL) {
 	  B = first_func;
 	}
 	return(FALSE);
       }
-      if (B->cp_ap == (yamop *) NOCODE && first_func == NULL)
-	first_func = B;
+      if (B->cp_ap == NOCODE) {
+	/* up to the C-code to deal with this! */
+	B->cp_h = H;
+	EX = t;
+	return(FALSE);
+      }
       B = B->cp_b;
     }
     /* uncaught throw */
@@ -1322,8 +1251,6 @@ JumpToEnv(Term t) {
   /* I could backtrack here, but it is easier to leave the unwinding
      to the emulator */
   B->cp_a3 = t;
-  if (DelayedB == NULL || YOUNGER_CP(B,DelayedB))
-    DelayedB = B;
   P = (yamop *)FAILCODE;
   if (first_func != NULL) {
     B = first_func;

@@ -4672,21 +4672,23 @@ both static and dynamic predicates.
 @findex assert_static/1
 @snindex assert_static/1
 @cnindex assert_static/1
- Adds clause @var{C} to a static procedure.
+ Adds clause @var{C} to a static procedure. Asserting a static clause
+for a predicate while choice-points for the predicate are availabe has
+undefined results.
 
 @item asserta_static(+@var{C})
 @findex asserta_static/1
 @snindex asserta_static/1
 @cnindex asserta_static/1
- Adds clause @var{C} to the beginning of a static procedure. Note that
-the operation may fail if pointers to the procedure are in the stacks.
+ Adds clause @var{C} to the beginning of a static procedure. 
 
 @item assertz_static(+@var{C})
 @findex assertz_static/1
 @snindex assertz_static/1
 @cnindex assertz_static/1
- Adds clause @var{C} to the end of a static procedure. Note that
-the operation may fail if pointers to the procedure are in the stacks.
+ Adds clause @var{C} to the end of a static procedure.  Asserting a
+static clause for a predicate while choice-points for the predicate are
+availabe has undefined results.
 
 @end table
 

@@ -1679,11 +1679,6 @@ p_cut_by( void)
 #else
   pt0 = (choiceptr)(LCL0-IntOfTerm(d0));
 #endif
-  if (TopB != NULL && YOUNGER_CP(TopB,pt0)) {  
-    if (DelayedB == NULL || YOUNGER_CP(DelayedB,pt0))
-      DelayedB = pt0;
-    pt0 = TopB;
-  }
   /* find where to cut to */
   if (pt0 > B) {
     /* Wow, we're gonna cut!!! */

@@ -3287,8 +3287,8 @@ MyEraseClause(Clause *clau)
   }
   if ( P == clau->ClCode) {
     yamop   *nextto;
-    P = (yamop *)(RTRYCODE);
-    nextto = (yamop *)RTRYCODE;
+    P = RTRYCODE;
+    nextto = RTRYCODE;
     nextto->u.ld.d = clau->ClCode->u.ld.d;
     nextto->u.ld.s = clau->ClCode->u.ld.s;
     nextto->u.ld.p = clau->ClCode->u.ld.p;
@@ -3305,7 +3305,7 @@ MyEraseClause(Clause *clau)
   if (DBREF_IN_USE(ref))
     return;
   if ( P == clau->ClCode ) {
-    yamop *np = (yamop *)RTRYCODE;
+    yamop *np = RTRYCODE;
     /* make it the next alternative */
     np->u.ld.d = (CODEADDR)find_next_clause((DBRef)(NEXTOP(P,ld)->u.sla.l2));
     if (np->u.ld.d == NULL)

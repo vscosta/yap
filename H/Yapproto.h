@@ -10,7 +10,7 @@
 * File:		Yap.proto						 *
 * mods:									 *
 * comments:	Function declarations for YAP				 *
-* version:      $Id: Yapproto.h,v 1.16 2002-05-06 15:33:04 vsc Exp $	 *
+* version:      $Id: Yapproto.h,v 1.17 2002-05-14 18:24:33 vsc Exp $	 *
 *************************************************************************/
 
 /* prototype file for Yap */
@@ -43,6 +43,7 @@ Functor	STD_PROTO(UnlockedMkFunctor,(AtomEntry *,unsigned int));
 Functor	STD_PROTO(MkFunctor,(Atom,unsigned int));
 void	STD_PROTO(MkFunctorWithAddress,(Atom,unsigned int,FunctorEntry *));
 Term	STD_PROTO(MkPairTerm,(Term,Term));
+Term	STD_PROTO(MkNewPairTerm,(void));
 void	STD_PROTO(PutValue,(Atom,Term));
 void	STD_PROTO(ReleaseAtom,(Atom));
 Term	STD_PROTO(StringToList,(char *));
@@ -155,6 +156,7 @@ Int	STD_PROTO(JumpToEnv,(Term));
 int	STD_PROTO(RunTopGoal,(Term));
 Int	STD_PROTO(execute_goal,(Term, int, SMALLUNSGN));
 int	STD_PROTO(exec_absmi,(int));
+void	STD_PROTO(trust_last,(void));
 
 
 /* grow.c */

@@ -22,7 +22,7 @@
 % so that the user will get a redefining system predicate
 otherwise.
 fail :- fail.
-false :- false.
+false :- fail.
 !.
 (:- G) :- '$execute'(G), !.
 '$$!'(CP) :- '$cut_by'(CP).
@@ -120,7 +120,6 @@ system_mode(verbose,off) :- '$set_value'('$verbose',off).
 :- system_mode(verbose,on).
 
 :- module(user).
-
 
 :- multifile goal_expansion/3.
 

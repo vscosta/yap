@@ -59,6 +59,7 @@ X_API Atom    STD_PROTO(YapLookupAtom,(char *));
 X_API Atom    STD_PROTO(YapFullLookupAtom,(char *));
 X_API char   *STD_PROTO(YapAtomName,(Atom));
 X_API Term    STD_PROTO(YapMkPairTerm,(Term,Term));
+X_API Term    STD_PROTO(YapMkNewPairTerm,(void));
 X_API Term    STD_PROTO(YapHeadOfTerm,(Term));
 X_API Term    STD_PROTO(YapTailOfTerm,(Term));
 X_API Term    STD_PROTO(YapMkApplTerm,(Functor,unsigned int,Term *));
@@ -87,7 +88,9 @@ X_API Term    STD_PROTO(YapBufferToAtomList, (char *));
 X_API void    STD_PROTO(YapError,(char *));
 X_API int     STD_PROTO(YapRunGoal,(Term));
 X_API int     STD_PROTO(YapRestartGoal,(void));
+X_API int     STD_PROTO(YapGoalHasException,(Term *));
 X_API int     STD_PROTO(YapContinueGoal,(void));
+X_API void    STD_PROTO(YapPruneGoal,(void));
 X_API void    STD_PROTO(YapInitConsult,(int, char *));
 X_API void    STD_PROTO(YapEndConsult,(void));
 X_API Term    STD_PROTO(YapRead, (int (*)(void)));
@@ -102,7 +105,10 @@ X_API void    STD_PROTO(YapSetOutputMessage, (void));
 X_API int     STD_PROTO(YapStreamToFileNo, (Term));
 X_API void    STD_PROTO(YapCloseAllOpenStreams,(void));
 X_API Term    STD_PROTO(YapOpenStream,(void *, char *, Term, int));
-X_API Term   *STD_PROTO(YapNewSlots,(int));
+X_API long    STD_PROTO(YapNewSlots,(int));
+X_API Term    STD_PROTO(YapGetFromSlot,(long));
+X_API Term   *STD_PROTO(YapAddressFromSlot,(long));
+X_API void    STD_PROTO(YapPutInSlot,(long, Term));
 X_API void    STD_PROTO(YapRecoverSlots,(int));
 X_API void    STD_PROTO(YapThrow,(Term));
 X_API int     STD_PROTO(YapLookupModule,(Term));
@@ -111,6 +117,20 @@ X_API void    STD_PROTO(YapHalt,(int));
 X_API Term   *STD_PROTO(YapTopOfLocalStack,(void));
 X_API void   *STD_PROTO(YapPredicate,(Atom,Int,Int));
 X_API void    STD_PROTO(YapPredicateInfo,(void *,Atom *,Int *,Int *));
+X_API Int     STD_PROTO(YapCurrentModule,(void));
+
+static int (*do_getf)(void);
+
+static int do_yap_getc(int streamno) {
+  return(do_getf());
+}
+
+static void (*do_putcf)(int);
+
+static int do_yap_putc(int streamno,int ch) {
+  do_putcf(ch);
+  return(ch);
+}
 
 X_API Term
 YapA(int i)
@@ -270,6 +290,18 @@ YapMkPairTerm(Term t1, Term t2)
   return(t);
 }
 
+X_API Term
+YapMkNewPairTerm()
+{
+  Term t; 
+  BACKUP_H();
+
+  t = MkNewPairTerm();
+  
+  RECOVER_H();
+  return(t);
+}
+
 X_API Term 
 YapHeadOfTerm(Term t)
 {
@@ -398,10 +430,19 @@ X_API Int
 YapCallProlog(Term t)
 {
   Int out;
+  SMALLUNSGN mod = CurrentModule;
   BACKUP_MACHINE_REGS();
 
-  out = execute_goal(t, 0, CurrentModule);
-
+  while (!IsVarTerm(t) &&
+      IsApplTerm(t) &&
+      FunctorOfTerm(t) == FunctorModule) {
+    Term tmod = ArgOfTerm(1,t);
+    if (IsVarTerm(tmod)) return(FALSE);
+    if (!IsAtomTerm(tmod)) return(FALSE);
+    mod = LookupModule(tmod);
+    t = ArgOfTerm(2,t);
+  }
+  out = execute_goal(t, 0, mod);
   RECOVER_MACHINE_REGS();
   return(out);
 }
@@ -504,14 +545,23 @@ YapError(char *buf)
   Error(SYSTEM_ERROR,TermNil,buf);
 }
 
+static void myputc (int ch)
+{
+  putc(ch,stderr);
+}
+
+static Term told;
+static int counter=0;
+
 X_API int
 YapRunGoal(Term t)
 {
   int out;
   BACKUP_MACHINE_REGS();
 
-  InitYaamRegs();
+  do_putcf = myputc;
   out = RunTopGoal(t);
+  told = t;
 
   RECOVER_MACHINE_REGS();
   return(out);
@@ -524,7 +574,12 @@ YapRestartGoal(void)
   BACKUP_MACHINE_REGS();
 
   P = (yamop *)FAILCODE;
+  do_putcf = myputc;
   out = exec_absmi(TRUE);
+  if (out == FALSE) {
+    /* cleanup */
+    trust_last();
+  }
 
   RECOVER_MACHINE_REGS();
   return(out);
@@ -538,6 +593,31 @@ YapContinueGoal(void)
 
   out = exec_absmi(TRUE);
 
+  RECOVER_MACHINE_REGS();
+  return(out);
+}
+
+X_API void
+YapPruneGoal(void)
+{
+  BACKUP_B();
+
+  while (B->cp_ap != NOCODE) {
+    B = B->cp_b;
+  }
+
+  RECOVER_B();
+}
+
+X_API int
+YapGoalHasException(Term *t)
+{
+  int out = FALSE;
+  BACKUP_MACHINE_REGS();
+  if (EX) {
+    *t = EX;
+    out = TRUE;
+  }
   RECOVER_MACHINE_REGS();
   return(out);
 }
@@ -565,12 +645,6 @@ YapEndConsult(void)
   RECOVER_MACHINE_REGS();
 }
 
-static int (*do_getf)(void);
-
-static int do_yap_getc(int streamno) {
-  return(do_getf());
-}
-
 X_API Term
 YapRead(int (*mygetc)(void))
 {
@@ -593,13 +667,6 @@ YapRead(int (*mygetc)(void))
 
   RECOVER_MACHINE_REGS();
   return(t);
-}
-
-static void (*do_putcf)(int);
-
-static int do_yap_putc(int streamno,int ch) {
-  do_putcf(ch);
-  return(ch);
 }
 
 X_API void
@@ -847,19 +914,43 @@ YapOpenStream(void *fh, char *name, Term nm, int flags)
   return retv;
 }
 
-X_API Term *
+X_API long
 YapNewSlots(int n)
 {
-  Term *slot;
-  ASP -= n;
-  slot = ASP;
-  return(slot);
+  Int old_slots = IntOfTerm(ASP[0]), oldn = n;
+  while (n > 0) {
+    RESET_VARIABLE(ASP);
+    ASP--;
+    n--;
+  }
+  ASP[0] = MkIntTerm(old_slots+oldn);
+  return((ASP+1)-LCL0);
 }
 
 X_API void
 YapRecoverSlots(int n)
 {
+  Int old_slots = IntOfTerm(ASP[0]);
   ASP += n;
+  ASP[0] = MkIntTerm(old_slots-n);
+}
+
+X_API Term
+YapGetFromSlot(long slot)
+{
+  return(Deref(LCL0[slot]));
+}
+
+X_API Term *
+YapAddressFromSlot(long slot)
+{
+  return(LCL0+slot);
+}
+
+X_API void
+YapPutInSlot(long slot, Term t)
+{
+  LCL0[slot] = t;
 }
 
 X_API void
@@ -917,4 +1008,10 @@ YapPredicateInfo(void *p, Atom* a, Int* arity, Int* m)
     *a = (Atom)(pd->FunctorOfPred);
   }
   *m = pd->ModuleOfPred;
+} 
+
+X_API Int
+YapCurrentModule(void)
+{
+  return(CurrentModule);
 } 

@@ -809,16 +809,11 @@ InitCodes(void)
   heap_regs->env_for_yes_code.s = -Signed(RealEnvSize);
   heap_regs->env_for_yes_code.l = NULL;
   heap_regs->env_for_yes_code.l2 = NULL;
-  heap_regs->yescode = opcode(_Ystop);
+  heap_regs->yescode.opc = opcode(_Ystop);
   heap_regs->undef_op = opcode(_undef_p);
   heap_regs->index_op = opcode(_index_pred);
 
-#ifdef YAPOR
   heap_regs->nocode.opc = opcode(_Nstop);
-  INIT_YAMOP_LTT(&(heap_regs->nocode), 1);
-#else
-  heap_regs->nocode = opcode(_Nstop);
-#endif /* YAPOR */
 
   ((yamop *)(&heap_regs->rtrycode))->opc = opcode(_retry_and_mark);
   ((yamop *)(&heap_regs->rtrycode))->u.ld.s = 0;
@@ -1089,7 +1084,7 @@ InitYaamRegs(void)
    *must* be created since for the garbage collector to work */
   B = NULL;
   ENV = NULL;
-  P = CP = (yamop *)YESCODE;
+  P = CP = YESCODE;
 #ifdef DEPTH_LIMIT
   DEPTH = RESET_DEPTH();
 #endif
@@ -1103,7 +1098,9 @@ InitYaamRegs(void)
   TR = TR_FZ = TR_BASE;
 #endif /* FROZEN_STACKS */
   CreepFlag = CalculateStackGap();
-
+  EX = 0L;
+  /* for slots to work */
+  *--ASP = MkIntTerm(0);
 }
 
 

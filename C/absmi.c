@@ -332,6 +332,13 @@ absmi(int inp)
 #endif /* OS_HANDLES_TR_OVERFLOW */
 
       BOp(Ystop, e);
+      if (Y > (CELL *) B) {
+	ASP = (CELL *) B;
+      }
+      else {
+	ASP = Y;
+      }
+      *--ASP = MkIntTerm(0);
       saveregs();
 #if PUSH_REGS
       restore_absmi_regs(old_regs);
@@ -343,6 +350,13 @@ absmi(int inp)
       ENDBOp();
 
       BOp(Nstop, e);
+      if (Y > (CELL *) B) {
+	ASP = (CELL *) B;
+      }
+      else {
+	ASP = Y;
+      }
+      *--ASP = MkIntTerm(0);
       saveregs();
 #if PUSH_REGS
       restore_absmi_regs(old_regs);
@@ -5730,6 +5744,8 @@ absmi(int inp)
       else {
 	ASP = (CELL *) (((char *) Y) + PREG->u.sla.s);
       }
+      /* for slots to work */
+      *--ASP = MkIntTerm(0);
 #endif /* FROZEN_STACKS */
 #ifdef LOW_LEVEL_TRACER
       if (do_low_level_trace)
@@ -7843,11 +7859,6 @@ absmi(int inp)
 #else
       pt0 = (choiceptr)(LCL0-IntOfTerm(d0));
 #endif
-      if (TopB != NULL && YOUNGER_CP(TopB,pt0)) {  
-	pt0 = TopB;
-	if (DelayedB == NULL || YOUNGER_CP(pt0,DelayedB))
-	  DelayedB = pt0;
-      }
       /* find where to cut to */
       if (SHOULD_CUT_UP_TO(B,pt0)) {
 	/* Wow, we're gonna cut!!! */
@@ -7896,11 +7907,6 @@ absmi(int inp)
 #else
       pt1 = (choiceptr)(LCL0-IntOfTerm(d0));
 #endif
-      if (TopB != NULL && YOUNGER_CP(TopB,pt1)) {  
-	pt1 = TopB;
-	if (DelayedB == NULL || YOUNGER_CP(pt1,DelayedB))
-	  DelayedB = pt1;
-      }
       if (SHOULD_CUT_UP_TO(B,pt1)) {
 	/* Wow, we're gonna cut!!! */
 #ifdef YAPOR
@@ -11660,11 +11666,6 @@ absmi(int inp)
 	    choiceptr pt0;
 
 	    pt0 = (choiceptr)(ENV[E_CB]);
-	    if (TopB != NULL && YOUNGER_CP(TopB,pt0)) {  
-	      pt0 = TopB;
-	      if (DelayedB == NULL || YOUNGER_CP(pt0,DelayedB))
-		DelayedB = pt0;
-	    }
 	    /* find where to cut to */
 	    if (SHOULD_CUT_UP_TO(B,pt0)) {
 #ifdef YAPOR
@@ -11801,11 +11802,6 @@ absmi(int inp)
 	    choiceptr pt0;
 
 	    pt0 = (choiceptr)(ENV[E_CB]);
-	    if (TopB != NULL && YOUNGER_CP(TopB,pt0)) {  
-	      pt0 = TopB;
-	      if (DelayedB == NULL || YOUNGER_CP(pt0,DelayedB))
-		DelayedB = pt0;
-	    }
 	    /* find where to cut to */
 	    if (SHOULD_CUT_UP_TO(B,pt0)) {
 #ifdef YAPOR

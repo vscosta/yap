@@ -24,6 +24,7 @@ YapLookupAtom
 YapFullLookupAtom
 YapAtomName
 YapMkPairTerm
+YapMkNewPairTerm
 YapHeadOfTerm
 YapTailOfTerm
 YapMkApplTerm
@@ -48,6 +49,8 @@ YapBufferToAtomList
 YapError
 YapRunGoal
 YapContinueGoal
+YapPruneGoal
+YapGoalHasException
 YapRead
 YapCompileClause
 YapInit
@@ -65,6 +68,9 @@ YapStreamToFileNo
 YapCloseAllOpenStreams
 YapOpenStream
 YapNewSlots
+YapGetFromSlot
+YapAddressFromSlot
+YapPutInSlot
 YapRecoverSlots
 YapThrow
 YapLookupModule
@@ -72,4 +78,5 @@ YapModuleName
 YapHalt
 YapTopOfLocalStack
 YapPredicate
+YapCurrentModule
 

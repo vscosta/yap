@@ -235,6 +235,15 @@ static Term (*YapIMkPairTerm)() = YapMkPairTerm;
 #define MkPairTerm(T1,T2) YapMkPairTerm(T1,T2)
 #endif
 
+/*    Term  MkNewPairTerm(void) */
+extern X_API Term PROTO(YapMkNewPairTerm,(void));
+#ifdef IndirectCalls
+static Term (*YapIMkNewPairTerm)() = YapMkNewPairTerm;
+#define MkNewPairTerm() (*YapIMkNewPairTerm)()
+#else
+#define MkNewPairTerm() YapMkNewPairTerm()
+#endif
+
 /*    Term  HeadOfTerm(Term)  */
 extern X_API Term PROTO(YapHeadOfTerm,(Term));
 #ifdef IndirectCalls
@@ -355,9 +364,9 @@ static void (*YapIUserBackCPredicate)() = UserBackCPredicate;
 #endif
 
 /*  void CallProlog(Term t) */
-extern X_API void PROTO(YapCallProlog,(Term t));
+extern X_API Int PROTO(YapCallProlog,(Term t));
 #ifdef IndirectCalls
-static void (*YapICallProlog)() = YapCallProlog;
+static Int (*YapICallProlog)() = YapCallProlog;
 #define CallProlog(t) (*YapICallProlog)(t)
 #else
 #define CallProlog(t) YapCallProlog(t)
@@ -418,6 +427,20 @@ extern X_API int PROTO(YapContinueGoal,(void));
 #ifdef IndirectCalls
 static int (YapIContinueGoal)() = YapContinueGoal;
 #define YapContinueGoal() (*YapIContinueGoal)()
+#endif
+
+/*  void YapPruneGoal(void) */
+extern X_API void PROTO(YapPruneGoal,(void));
+#ifdef IndirectCalls
+static void (YapIPruneGoal)() = YapPruneGoal;
+#define YapPruneGoal() (*YapIPruneGoal)()
+#endif
+
+/*  int YapGoalHasException(void) */
+extern X_API int PROTO(YapGoalHasException,(Term *));
+#ifdef IndirectCalls
+static int (YapIGoalHasException)(TP) = YapGoalHasException;
+#define YapGoalHasException(TP) (*YapIGoalHasException)(TP)
 #endif
 
 /*  int YapReset(void) */
@@ -592,10 +615,31 @@ static Term (*YapIOpenStream)() = YapOpenStream;
 #endif
 
 /*  Term  *YapNewSlots()  */
-extern X_API Term *PROTO(YapNewSlots,(int));
+extern X_API long PROTO(YapNewSlots,(int));
 #ifdef IndirectCalls
-static Term *(*YapINewSlots)(N) = YapNewSlots;
+static long (*YapINewSlots)(N) = YapNewSlots;
 #define YapNewSlots(N) (*YapINewSlots)(N)
+#endif
+
+/*  Term  YapGetFromSlots(t)  */
+extern X_API Term PROTO(YapGetFromSlot,(long));
+#ifdef IndirectCalls
+static Term (*YapIGetFromSlot)(N) = YapGetFromSlot;
+#define YapGetFromSlot(N) (*YapIGetFromSlot)(N)
+#endif
+
+/*  Term  YapAddressFromSlots(t)  */
+extern X_API Term *PROTO(YapAddressFromSlot,(long));
+#ifdef IndirectCalls
+static Term *(*YapIAddressFromSlot)(N) = YapAddressFromSlot;
+#define YapAddressFromSlot(N) (*YapIAddressFromSlot)(N)
+#endif
+
+/*  Term  YapPutInSlots(t)  */
+extern X_API void PROTO(YapPutInSlot,(long, Term));
+#ifdef IndirectCalls
+static void (*YapIPutInSlot)(N,T) = YapPutInSlot;
+#define YapPutInSlot(N,T) (*YapIPutInSlot)(N,T)
 #endif
 
 /*  void  YapRecoverSlots()  */
@@ -652,6 +696,14 @@ extern X_API void  PROTO(YapPredicateInfo,(void *,Atom*,Int*,Int*));
 #ifdef IndirectCalls
 static void (*YapIPredicateInfo)(P,N,A,M) = YapPredicateInfo;
 #define YapPredicateInfo(P,N,A,M) (*YapIPredicateInfo)(P,N,A,M)
+#endif
+
+
+/*  int  YapPredicate()  */
+extern X_API int  PROTO(YapCurrentModule,(void));
+#ifdef IndirectCalls
+static int (*YapICurrentModule)() = YapCurrentModule;
+#define YapCurrentModule() (*YapICurrentModule)()
 #endif
 
 

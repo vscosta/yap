@@ -2661,6 +2661,12 @@ static Int
 p_write (void)
 {				/* '$write'(+Flags,?Term) */
   plwrite (ARG2, Stream[c_output_stream].stream_putc, (int) IntOfTerm (Deref (ARG1)));
+  if (EX != 0L) {
+    Term ball = EX;
+    EX = 0L;
+    JumpToEnv(ball);
+    return(FALSE);
+  }
   return (TRUE);
 }
 
@@ -2675,6 +2681,12 @@ p_write2 (void)
   }
   plwrite (ARG3, Stream[c_output_stream].stream_putc, (int) IntOfTerm (Deref (ARG2)));
   c_output_stream = old_output_stream;
+  if (EX != 0L) {
+    Term ball = EX;
+    EX = 0L;
+    JumpToEnv(ball);
+    return(FALSE);
+  }
   return (TRUE);
 }
 
@@ -4239,6 +4251,13 @@ format(Term tail, Term args, int sno)
 	      arghd = HeadOfTerm (args);
 	      args = TailOfTerm (args);
 	      plwrite (arghd, format_putc, (int) 12);
+	      if (EX != 0L) {
+		Term ball = EX;
+		EX = 0L;
+		FreeAtomSpace(format_base);
+		JumpToEnv(ball);
+		return(FALSE);
+	      }
 	      break;
 	    case 'q':
 	      if (size_args) {

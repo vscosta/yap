@@ -10,7 +10,7 @@
 * File:		Regs.h							 *
 * mods:									 *
 * comments:	YAP abstract machine registers				 *
-* version:      $Id: Regs.h,v 1.14 2002-03-08 06:33:16 vsc Exp $	 *
+* version:      $Id: Regs.h,v 1.15 2002-05-14 18:24:33 vsc Exp $	 *
 *************************************************************************/
 
 
@@ -84,9 +84,8 @@ typedef struct
     ADDR   HeapPlus_;		/* 11 To avoid collisions with HeapTop        */
     tr_fr_ptr MyTR_;		/* 12                                         */
 /* visualc*/
-    choiceptr   TopB_;		/* 17 Top up to where we can cut to           */
-    choiceptr   DelayedB_;	/* 17 Cut Still To be Done                    */
     CELL   FlipFlop_;		/* 18                                         */
+    CELL   EX_;	    	        /* 18                                         */
 #ifdef COROUTINING
     Term  DelayedVars_;         /* maximum number of attributed variables     */
 #endif
@@ -628,6 +627,7 @@ EXTERN inline void restore_B(void) {
 #define TopB      REGS.TopB_
 #define DelayedB  REGS.DelayedB_
 #define FlipFlop  REGS.FlipFlop_
+#define EX        REGS.EX_
 #define DEPTH	  REGS.DEPTH_
 #if (defined(YAPOR) && defined(SBA)) || defined(TABLING)
 #define H_FZ          REGS.H_FZ_

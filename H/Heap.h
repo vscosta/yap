@@ -10,7 +10,7 @@
 * File:		Heap.h         						 *
 * mods:									 *
 * comments:	Heap Init Structure					 *
-* version:      $Id: Heap.h,v 1.24 2002-02-26 15:51:54 vsc Exp $	 *
+* version:      $Id: Heap.h,v 1.25 2002-05-14 18:24:33 vsc Exp $	 *
 *************************************************************************/
 
 /* information that can be stored in Code Space */
@@ -80,15 +80,9 @@ typedef struct various_codes {
     struct pred_entry *p;
     struct pred_entry *p0;
   } env_for_yes_code; /* sla */
-  OPCODE yescode;
-#ifdef YAPOR
+  yamop yescode;
   yamop nocode;
   yamop rtrycode;
-#else
-  OPCODE nocode;
-  /* yamop rtrycode; problem: we would have to publish yamop */
-  CELL rtrycode[4];
-#endif /* YAPOR */
   struct {
     OPREG arity;
     CODEADDR clause;
@@ -317,10 +311,10 @@ typedef struct various_codes {
 #define  FAILCODE                 ((CODEADDR)&(heap_regs->failcode       ))
 #define  FAILCODE                 ((CODEADDR)&(heap_regs->failcode       ))
 #define  TRUSTFAILCODE            ((CODEADDR)&(heap_regs->trustfailcode  ))
-#define  YESCODE                  ((CODEADDR)&(heap_regs->yescode        ))
-#define  NOCODE                   ((CODEADDR)&(heap_regs->nocode         ))
-#define  RTRYCODE                 ((CODEADDR)&(heap_regs->rtrycode       ))
-#define  DUMMYCODE                ((CODEADDR)&(heap_regs->dummycode      ))
+#define  YESCODE                  (&(heap_regs->yescode                  ))
+#define  NOCODE                   (&(heap_regs->nocode                   ))
+#define  RTRYCODE                 (&(heap_regs->rtrycode                 ))
+#define  DUMMYCODE                (&(heap_regs->dummycode                ))
 #define  CLAUSECODE               (&(heap_regs->clausecode               ))
 #define  INVISIBLECHAIN           heap_regs->invisiblechain
 #define  max_depth                (&(heap_regs->maxdepth   	         ))

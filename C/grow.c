@@ -120,10 +120,6 @@ SetHeapRegs(void)
   H = PtoGloAdjust(H);
   HB = PtoGloAdjust(HB);
   B = ChoicePtrAdjust(B);
-  if (TopB != NULL)
-    TopB = ChoicePtrAdjust(TopB);
-  if (DelayedB != NULL)
-    DelayedB = ChoicePtrAdjust(DelayedB);
 #ifdef TABLING
   B_FZ = ChoicePtrAdjust(B_FZ);
   BB = ChoicePtrAdjust(BB);
@@ -168,10 +164,6 @@ SetStackRegs(void)
   ASP = PtoLocAdjust(ASP);
   LCL0 = PtoLocAdjust(LCL0);
   B = ChoicePtrAdjust(B);
-  if (TopB != NULL)
-    TopB = ChoicePtrAdjust(TopB);
-  if (DelayedB != NULL)
-    DelayedB = ChoicePtrAdjust(DelayedB);
 #ifdef TABLING
   B_FZ = ChoicePtrAdjust(B_FZ);
   BB = ChoicePtrAdjust(BB);

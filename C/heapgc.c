@@ -1307,6 +1307,18 @@ mark_trail(tr_fr_ptr trail_ptr, tr_fr_ptr trail_base, CELL *gc_H, choiceptr gc_B
 #endif
 
 
+static void
+mark_slots(CELL *ptr)
+{
+  Int ns = IntOfTerm(*ptr);
+  ptr++;
+  while (ns > 0) {
+    mark_external_reference(ptr);
+    ptr++;
+    ns--;
+  }
+}
+
 static void 
 mark_choicepoints(register choiceptr gc_B, tr_fr_ptr saved_TR, int very_verbose)
 {
@@ -1452,9 +1464,9 @@ mark_choicepoints(register choiceptr gc_B, tr_fr_ptr saved_TR, int very_verbose)
       /* extended choice point */
       switch (opnum) {
       case _Nstop:
+	mark_slots(gc_B->cp_env);
 	if (gc_B->cp_b != NULL) {
-	  
-	  nargs = IntOfTerm(gc_B->cp_a1);
+	  nargs = 0;
 	  break;
 	} else {
 	  /* this is the last choice point, the work is done  ;-) */
@@ -1977,6 +1989,25 @@ sweep_environments(CELL_PTR gc_ENV, OPREG size, CELL *pvbmap)
   }
 }
 
+static void
+sweep_slots(CELL *ptr)
+{
+  Int ns = IntOfTerm(*ptr);
+  ptr++;
+  while (ns > 0) {
+    CELL cp_cell = *ptr;
+    if (MARKED(cp_cell)) {
+      UNMARK(ptr);
+      if (HEAP_PTR(cp_cell)) {
+	into_relocation_chain(ptr, GET_NEXT(cp_cell));
+      }
+    }
+    ptr++;
+    ns--;
+  }
+}
+
+
 /*
  * insert cells of each choicepoint & its chain of environments which point
  * to heap objects into relocation chains 
@@ -2021,21 +2052,8 @@ sweep_choicepoints(choiceptr gc_B)
       sweep_environments(gc_B->cp_env,
 			 EnvSizeInCells,
 			 NULL);
+      sweep_slots(gc_B->cp_env);
       if (gc_B->cp_b != NULL) {
-	register CELL_PTR saved_reg;
-	
-	/* for each saved register */
-	for (saved_reg = &gc_B->cp_a1;
-	     saved_reg < &gc_B->cp_a1 + IntOfTerm(gc_B->cp_a1);
-	     saved_reg++) {
-	  CELL cp_cell = *saved_reg;
-	  if (MARKED(cp_cell)) {
-	    UNMARK(saved_reg);
-	    if (HEAP_PTR(cp_cell)) {
-	      into_relocation_chain(saved_reg, GET_NEXT(cp_cell));
-	    }
-	  }
-	}
 	break;
       } else
 	return;

@@ -35,6 +35,18 @@ MkPairTerm(Term head, Term tail)
 
 
 Term 
+MkNewPairTerm(void)
+{
+  register CELL  *p = H;
+
+  RESET_VARIABLE(H);
+  RESET_VARIABLE(H+1);
+  H+=2;
+  return (AbsPair(p));
+}
+
+
+Term 
 MkApplTerm(Functor f, unsigned int n, register Term *a)	
      /* build compound term with functor f and n
       * args a */

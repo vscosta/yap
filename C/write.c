@@ -359,6 +359,8 @@ writeTerm(Term t, int p, int depth, int rinfixarg)
     putAtom(LookupAtom("..."));
     return;
   }
+  if (EX != 0)
+    return;
   t = Deref(t);
   if (IsVarTerm(t)) {
     write_var((CELL *)t);
@@ -386,9 +388,15 @@ writeTerm(Term t, int p, int depth, int rinfixarg)
 
     if (Use_portray) {
       Term targs[1];
+      Term old_EX = 0L;
+
       targs[0] = t;
       PutValue(AtomPortray, MkAtomTerm(AtomNil));
+      if (EX != 0L) old_EX = EX;
+      *--ASP = MkIntTerm(0);
       execute_goal(MkApplTerm(FunctorPortray, 1, targs), 0, 1);
+      if (old_EX != 0L) EX = old_EX;
+      Use_portray = TRUE;
       Use_portray = TRUE;
       if (GetValue(AtomPortray) == MkAtomTerm(AtomTrue))
 	return;
@@ -463,11 +471,15 @@ writeTerm(Term t, int p, int depth, int rinfixarg)
 #endif
     if (Use_portray) {
       Term targs[1];
+      Term old_EX = 0L;
       targs[0] = t;
       PutValue(AtomPortray, MkAtomTerm(AtomNil));
+      if (EX != 0L) old_EX = EX;
+      *--ASP = MkIntTerm(0);
       execute_goal(MkApplTerm(FunctorPortray, 1, targs),0, 1);
+      if (old_EX != 0L) EX = old_EX;
       Use_portray = TRUE;
-      if (GetValue(AtomPortray) == MkAtomTerm(AtomTrue))
+      if (GetValue(AtomPortray) == MkAtomTerm(AtomTrue) || EX != 0L)
 	return;
     }
     if (!Ignore_ops &&
