@@ -98,8 +98,6 @@ AllocBigNumSpace(size_t size)
   size = AdjustSize(size)/CellSize;
   alloc_ptr[0] = size;
   alloc_ptr += size+1;
-  if (alloc_ptr > ASP-1024)
-    Yap_Error(SYSTEM_ERROR,TermNil,"no space for bignum");
   return(ret);
 }
 
@@ -116,8 +114,6 @@ ReAllocBigNumSpace(void *optr, size_t osize, size_t size)
   if (((CELL *)optr)+osize == alloc_ptr) {
     alloc_ptr += (size-osize);
     ((CELL *)optr)[-1] = size;
-    if (alloc_ptr > ASP-1024)
-      Yap_Error(SYSTEM_ERROR,TermNil,"no space for bignum");
     return(optr);
   }
   out = AllocBigNumSpace(size);

@@ -2155,6 +2155,37 @@ Yap_absmi(int inp)
       /* don't do debugging and friends here */
       goto do_comit_b_x;
 
+      /* don't forget I cannot creep at deallocate (where to?) */
+      /* also, this is unusual in that I have already done deallocate,
+	 so I don't need to redo it.
+       */ 
+    NoStackDeallocate:
+      if (CFREG == (CELL)(LCL0+2)) {
+	JMPNext();
+      }
+      ASP = YREG;
+      if (CFREG == (CELL)(LCL0+1)) {
+	goto noheapleft;
+      }
+      if (CFREG == Unsigned(LCL0)) {
+	if (Yap_ReadTimedVar(WokenGoals) != TermNil) {
+	  SREG = (CELL *)RepPredProp(Yap_GetPredPropByAtom(AtomTrue,0));
+	  goto creep;
+	} else {
+	  CFREG = CalculateStackGap();
+	  JMPNext();
+	}
+      }
+      if (CFREG != CalculateStackGap()) {
+	goto either_notest;
+      }
+      saveregs();
+      if (!Yap_gc(0, ENV, CPREG)) {
+	Yap_Error(OUT_OF_STACK_ERROR,TermNil,Yap_ErrorMessage);
+      }
+      setregs();
+      JMPNext();
+
       /* don't forget I cannot creep at ; */
     NoStackEither:
       /* find something to fool S */
@@ -2548,31 +2579,41 @@ Yap_absmi(int inp)
       ENDOp();
 
       Op(deallocate, e);
+      CACHE_Y_AS_ENV(YREG);
       PREG = NEXTOP(PREG, e);
       /* other instructions do depend on S being set by deallocate
 	 :-( */
       SREG = YREG;
-      CPREG = (yamop *) YREG[E_CP];
-      ENV = YREG = (CELL *) YREG[E_E];
+      CPREG = (yamop *) E_YREG[E_CP];
+      ENV = E_YREG = (CELL *) E_YREG[E_E];
 #ifdef DEPTH_LIMIT
-      DEPTH = YREG[E_DEPTH];
+      DEPTH = E_YREG[E_DEPTH];
 #endif	/* DEPTH_LIMIT */
 #ifdef FROZEN_STACKS
       { 
 	choiceptr top_b = PROTECT_FROZEN_B(B);
 #ifdef SBA
-	if (YREG > (CELL *) top_b || YREG < H) YREG = (CELL *) top_b;
+	if (E_YREG > (CELL *) top_b || E_YREG < H) E_YREG = (CELL *) top_b;
 #else
-	if (YREG > (CELL *) top_b) YREG = (CELL *) top_b;
+	if (E_YREG > (CELL *) top_b) E_YREG = (CELL *) top_b;
 #endif
-	else YREG = (CELL *)((CELL) YREG + ENV_Size(CPREG));
+	else E_YREG = (CELL *)((CELL) E_YREG + ENV_Size(CPREG));
       }
 #else
-      if (YREG > (CELL *) B)
-	YREG = (CELL *) B;
+      if (E_YREG > (CELL *) B)
+	E_YREG = (CELL *) B;
       else
-	YREG = (CELL *) ((CELL) YREG + ENV_Size(CPREG));
+	E_YREG = (CELL *) ((CELL) E_YREG + ENV_Size(CPREG));
 #endif /* FROZEN_STACKS */
+#ifndef NO_CHECKING
+      if (Yap_do_low_level_trace) {
+	fprintf(stderr, "H is %p, YENV is %p\n", H, YENV);
+      }
+      /* check stacks */
+      check_stack(NoStackDeallocate, H);
+#endif
+      WRITEBACK_Y_AS_ENV();
+      ENDCACHE_Y_AS_ENV();
       GONext();
       ENDOp();
 
