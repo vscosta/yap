@@ -12,6 +12,9 @@
 		debuggerp,											% debugging
 		debugger, 
 
+        subject,                                            % dependents
+        observer,
+
 		hierarchyp,											% hierarchies
 		proto_hierarchyp, proto_hierarchy,
 		class_hierarchyp, class_hierarchy,

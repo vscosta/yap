@@ -1,29 +1,30 @@
 <?xml version="1.0" encoding="iso-8859-1"?>
 <?xml-stylesheet type="text/css" href="../../styles.css" ?>
 
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
-	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+        "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
 
 	<head>
-		<title>mode/2</title>
+	<meta http-equiv="content-type" content="text/html; charset=iso-8859-1" />
+		<title>Logtalk predicate directive: mode/2</title>
 		<link rel="stylesheet" href="../../styles.css" type="text/css" />
 	</head>
 
 <body>
 
-<hr />
+<div class="navtop">
+<a href="../../index.html">contents</a> &gt; <a href="../index.html">reference manual</a> &gt; <a href="../index.html#directives">directives</a>
+</div>
 
-<h2><a class="back" title="Return to index" href="../index.html#mode2"><code>mode/2</code></a></h2>
-<hr />
+<h2><code>mode/2</code></h2>
+
 
 <h4>Description</h4>
 
 <blockquote>
-<pre>
-mode(Mode, Number_of_solutions)
-</pre>
+<pre>mode(Mode, Number_of_solutions)</pre>
 <p>
 	Most predicates can be used with several instantiations modes. This directive enables the specification of each instantiation mode and the corresponding number of solutions/proofs.
 </p>
@@ -32,35 +33,31 @@ mode(Mode, Number_of_solutions)
 <h4>Template and modes</h4>
 
 <blockquote>
-<pre>
-mode(+predicate_mode_term, +number_of_solutions)
-</pre>
+<pre>mode(+predicate_mode_term, +number_of_solutions)</pre>
 </blockquote>
 
 <h4>Examples</h4>
 
 <blockquote>
-<pre>
-:- mode(append(-, -, +), zero_or_more).
+<pre>:- mode(append(-, -, +), zero_or_more).
 
 :- mode(append(+list, +list, -list), zero_or_one).
 
 :- mode(var(@term), zero_or_one).
 
-:- mode(arg(-, -, +), error).
-</pre>
+:- mode(arg(-, -, +), error).</pre>
 </blockquote>
 
-<hr />
-<p class="center">
-<strong><a href="metapredicate1.html">Previous</a> | <a href="op3.html">Next</a> | <a href="../index.html">Table of Contents</a> | <a href="../../bibliography.html">Bibliography</a> | <a href="../../glossary.html">Glossary</a></strong>
-</p>
-<p class="center">
-Last updated on: August 6, 2002
-</p>
+<div class="navbottom">
+<a href="metapredicate1.html">previous</a> | <a href="../../glossary.html">glossary</a> | <a href="op3.html">next</a>
+</div>
 
-<hr />
+<div class="copyright">
+Copyright &copy; <a href="mailto:pmoura@logtalk.org">Paulo Moura</a> &mdash; <a href="http://www.logtalk.org">Logtalk.org</a>
+</div>
 
+<div class="footer">
+<p><span class="bleft"><a href="http://validator.w3.org/check/referer">XHTML</a> + <a href="http://jigsaw.w3.org/css-validator/check/referer">CSS</a></span><span class="bright">Last updated on: December 23, 2003</span></p>
+</div>
 </body>
-
 </html>

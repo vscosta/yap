@@ -1,0 +1,36 @@
+
+@misc{logtalkweb,
+	author = "Paulo Moura",
+	title = "Logtalk web site",
+	howpublished = "\url{http://www.logtalk.org/}"
+}
+
+
+@phdthesis{pmoura03,
+	author = "Paulo Moura",
+	title = "{Logtalk - Design of an Object-Oriented Logic Programming Language}",
+	school = "Departament of Informatics, University of Beira Interior, Portugal",
+	month = sep,
+	year = 2003,
+	howpublished = "\url{http://www.logtalk.org/papers/thesis.pdf}"
+}
+
+
+@techreport{pmoura00,
+	author = "Paulo Moura",
+	title = "Logtalk 2.6 {D}ocumentation",
+	institution = "University of Beira Interior, Portugal",
+	number = "DMI 2000/1",
+	year = 2000
+}
+
+
+@article{pmoura99,
+	author = "Paulo Moura",
+	title = "{Porting Prolog: Notes on porting a Prolog program to 22 Prolog compilers or the relevance of the ISO Prolog standard}",
+	journal = "Assotiation of Logic Programming Newsletter",
+	volume = 12,
+	number = 2,
+	month = may,
+	year = 1999
+}

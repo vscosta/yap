@@ -1,64 +1,66 @@
 <?xml version="1.0" encoding="iso-8859-1"?>
 <?xml-stylesheet type="text/css" href="../styles.css" ?>
 
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
-	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+        "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
 
 <head>
-	<title>Inheritance</title>
+	<meta http-equiv="content-type" content="text/html; charset=iso-8859-1" />
+	<title>Logtalk user manual: inheritance</title>
 	<link rel="stylesheet" href="../styles.css" type="text/css" />
 </head>
 
 <body>
 
-<hr />
-<h1><a class="back" title="Return to index" href="index.html#inheritance">Inheritance</a></h1>
+<div class="navtop">
+<a href="../index.html">contents</a> &gt; <a href="index.html">user manual</a>
+</div>
+
+<h1>Inheritance</h1>
 
 <p>
 The inheritance mechanisms existent in object-oriented programming languages allow us the specialization of previously defined objects, avoiding the unnecessary repetition of code. In the context of logic programming, we can interpret inheritance as a form of theory extension: an object will virtually contain, besides its own predicates, all the predicates inherited from other objects.
 </p>
 
-<hr />
-<h2><a class="back" title="Return to index" name="protocol" href="index.html#inheritance_protocol">Protocol inheritance</a></h2>
+<h2>Protocol inheritance<a name="protocol"></a></h2>
 
 <p>
 Protocol inheritance refers to the inheritance of predicate declarations (scope directives). These can be contained in objects, in protocols or in categories. Logtalk supports multi-inheritance of protocols: an object or a category may implement several protocols and a protocol may extend several protocols. 
 </p>
 
-<h3><a class="back" title="Return to index" name="protocol_prototype" href="index.html#inheritance_protocol_prototype">Search order for prototype hierarchies</a></h3>
+<h3>Search order for prototype hierarchies<a name="protocol_prototype"></a></h3>
 
 <p>
 The search order for predicate declarations is first the object, second the implemented protocols (and the protocols that these may extend), third the imported categories (and the protocols that they may implement), and last the objects that the object extends. This search is done in a depth-first way. If the object inherits two different declarations for the same predicate, only the first one will be considered.
 </p>
 
-<h3><a class="back" title="Return to index" name="protocol_class" href="index.html#inheritance_protocol_class">Search order for class hierarchies</a></h3>
+<h3>Search order for class hierarchies<a name="protocol_class"></a></h3>
 
 <p>
 The search order for predicate declarations starts in the object classes. Following the classes declaration order, the search starts in the classes implemented protocols (and the protocols that these may extend), third the classes imported categories (and the protocols that they may implement), and last the superclasses of the object classes. This search is done in a depth-first way. If the object inherits two different declarations for the same predicate, only the first one will be considered.
 </p>
 
-<hr />
-<h2><a class="back" title="Return to index" name="implementation" href="index.html#inheritance_implementation">Implementation inheritance</a></h2>
+<h2>Implementation inheritance<a name="implementation"></a></h2>
 
 <p>
 Implementation inheritance refers to the inheritance of predicate definitions. These can be contained in objects or in categories. Logtalk supports multi-inheritance of implementation: an object may import several categories or extend, specialize or instantiate several objects. 
 </p>
 
-<h3><a class="back" title="Return to index" name="implementation_prototype" href="index.html#inheritance_implementation_prototype">Search order for prototype hierarchies</a></h3>
+<h3>Search order for prototype hierarchies<a name="implementation_prototype"></a></h3>
 
 <p>
 The search order for predicate definitions is similar to the search for predicate declarations except that implemented protocols are ignored (they can only contain predicate directives).
 </p>
 
-<h3><a class="back" title="Return to index" name="implementation_class" href="index.html#inheritance_implementation_class">Search order for class hierarchies</a></h3>
+<h3>Search order for class hierarchies<a name="implementation_class"></a></h3>
 
 <p>
 The search order for predicate definitions is similar to the search for predicate declarations except that implemented protocols are ignored (they can only contain predicate directives).
 </p>
 
-<h3><a class="back" title="Return to index" name="implementation_redefinition" href="index.html#inheritance_implementation_redefinition">Inheritance versus predicate redefinition</a></h3>
+<h3>Inheritance versus predicate redefinition<a name="implementation_redefinition"></a></h3>
 
 <p>
 When we define a predicate that is already inherited from other object, the inherited definitions are hidden by the new definitions. This is called overriding inheritance: a local definition overrides any inherited ones. For example, assume that we have the following two objects:
@@ -104,7 +106,7 @@ After compiling and loading these objects, we can check the overriding behavior 
 However, we can explicitly program other behaviors. Let us see a few examples.
 </p>
 
-<h4><a name="specialization">Specialization inheritance</a></h4>
+<h4>Specialization inheritance<a name="specialization"></a></h4>
 
 <p>
 Specialization of inherited definitions: the new definition uses the inherited definitions, adding to this new code. This is done by calling the <a title="Consult reference manual" href="../refman/control/to_super1.html"><code>^^/1</code></a> operator in the new definition.
@@ -138,7 +140,7 @@ Specialization of inherited definitions: the new definition uses the inherited d
     yes
 </pre>
 
-<h4><a name="union">Union inheritance</a></h4>
+<h4>Union inheritance<a name="union"></a></h4>
 
 <p>
 Union of the new with the inherited definitions: all the definitions are taken into account, the calling order being defined by the inheritance mechanisms. This can be accomplished by writing a clause that just calls, using the <a title="Consult reference manual" href="../refman/control/to_super1.html"><code>^^/1</code></a> operator, the inherited definitions. The relative position of this clause among the other definition clauses sets the calling order for the local and inherited definitions.
@@ -173,7 +175,7 @@ Union of the new with the inherited definitions: all the definitions are taken i
     no
 </pre>
 
-<h4><a name="selective">Selective inheritance</a></h4>
+<h4>Selective inheritance<a name="selective"></a></h4>
 
 <p>
 Hiding some of the inherited definitions, or differential inheritance: this form of inheritance is normally used in the representation of exceptions to generic definitions. Here we will need to use the <a title="Consult reference manual" href="../refman/control/to_super1.html"><code>^^/1</code></a> operator to test and possibly reject some of the inherited definitions.
@@ -208,8 +210,7 @@ Hiding some of the inherited definitions, or differential inheritance: this form
     no
 </pre>
 
-<hr />
-<h2><a class="back" title="Return to index" name="types" href="index.html#inheritance_types">Public, protected and private inheritance</a></h2>
+<h2>Public, protected and private inheritance<a name="types"></a></h2>
 
 <p>
 To make all public predicates declared via implemented protocols, importeds categories, or inherited objects protected or to make all public and protected predicates private we prefix the entity's name with the corresponding keyword. For instance:
@@ -251,8 +252,7 @@ This is the same as:
 This way we ensure backward compatibility with older Logtalk versions and a simplified syntax when protected or private inheritance are not used.
 </p>
 
-<hr />
-<h2><a class="back" title="Return to index" name="composition" href="index.html#inheritance_composition">Composition versus multiple inheritance</a></h2>
+<h2>Composition versus multiple inheritance<a name="composition"></a></h2>
 
 <p>
 It is not possible to discuss inheritance mechanisms without referring to the long and probably endless debate on single versus multiple inheritance. The single inheritance mechanism can be implemented in an very efficient way, but it imposes several limitations on reusing, even if the multiple characteristics we intend to inherit are orthogonal. On the other hand, the multiple inheritance mechanisms are attractive in their apparent capability of modeling complex situations. However, they include a potential for conflict between inherited definitions whose variety does not allow a single and satisfactory solution for all the cases.
@@ -264,15 +264,16 @@ Until now, no solution that we might consider satisfactory for all the problems 
 Nevertheless, Logtalk supports multi-inheritance by enabling an object to extend, instantiate, or specialize more than one object. Beware however that the current Logtalk release does not provide any mechanism for selecting a specific inheritance path or for dealing with inheritance conflicts. The multi-inheritance support implementation does not compromise performance when we use single-inheritance.
 </p>
 
-<hr />
-<p class="center">
-<strong><a href="predicates.html">Previous</a> | <a href="events.html">Next</a> | <a href="index.html">Table of Contents</a> | <a href="../bibliography.html">Bibliography</a> | <a href="../glossary.html">Glossary</a></strong>
-</p>
-<p class="center">
-Last updated on: August 6, 2002
-</p>
-<hr />
+<div class="navbottom">
+<a href="predicates.html">previous</a> | <a href="../glossary.html">glossary</a> | <a href="events.html">next</a>
+</div>
 
+<div class="copyright">
+Copyright &copy; <a href="mailto:pmoura@logtalk.org">Paulo Moura</a> &mdash; <a href="http://www.logtalk.org">Logtalk.org</a>
+</div>
+
+<div class="footer">
+<p><span class="bleft"><a href="http://validator.w3.org/check/referer">XHTML</a> + <a href="http://jigsaw.w3.org/css-validator/check/referer">CSS</a></span><span class="bright">Last updated on: December 23, 2003</span></p>
+</div>
 </body>
-
 </html>

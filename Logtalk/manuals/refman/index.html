@@ -1,204 +1,256 @@
 <?xml version="1.0" encoding="iso-8859-1"?>
 <?xml-stylesheet type="text/css" href="../styles.css" ?>
 
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
-	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+        "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
 
 <head>
+	<meta http-equiv="content-type" content="text/html; charset=iso-8859-1" />
 	<title>Logtalk Reference Manual</title>
 	<link rel="stylesheet" href="../styles.css" type="text/css" />
 </head>
 
 <body>
 
-<hr />
-<h1><a class="back" title="Return to index" href="../index.html#refman">Reference Manual</a></h1>
-<hr />
+<div class="navtop">
+<a href="../index.html">contents</a>
+</div>
 
-<h2>Table of Contents</h2>
+<h1>Reference Manual</h1>
 
-<h4><a name="grammar" href="grammar.html">Grammar</a></h4>
+<h2><a name="grammar" href="grammar.html">Grammar</a></h2>
 
-<dl>
-	<dt><a name="compilation_units" href="grammar.html#compilation_units">Compilation units</a></dt>
-	<dt><a name="object_definition" href="grammar.html#object_definition">Object definition</a></dt>
-	<dt><a name="category_definition" href="grammar.html#category_definition">Category definition</a></dt>
-	<dt><a name="protocol_definition" href="grammar.html#protocol_definition">Protocol definition</a></dt>
-	<dt><a name="entity_relations" href="grammar.html#entity_relations">Entity relations</a></dt>
-		<dd><a name="implemented_protocols" href="grammar.html#implemented_protocols">Implemented protocols</a></dd>
-		<dd><a name="extended_protocols" href="grammar.html#extended_protocols">Extended protocols</a></dd>
-		<dd><a name="imported_categories" href="grammar.html#imported_categories">Imported categories</a></dd>
-		<dd><a name="extended_objects" href="grammar.html#extended_objects">Extended objects</a></dd>
-		<dd><a name="instantiated_objects" href="grammar.html#instantiated_objects">Instantiated objects</a></dd>
-		<dd><a name="specialized_objects" href="grammar.html#specialized_objects">Specialized objects</a></dd>
-		<dd><a name="scope" href="grammar.html#scope">Entity scope</a></dd>
-	<dt><a name="entity_identifiers" href="grammar.html#entity_identifiers">Entity identifiers</a></dt>
-		<dd><a name="object_identifiers" href="grammar.html#object_identifiers">Object identifiers</a></dd>
-		<dd><a name="category_identifiers" href="grammar.html#category_identifiers">Category identifiers</a></dd>
-		<dd><a name="protocol_identifiers" href="grammar.html#protocol_identifiers">Protocol identifiers</a></dd>
-	<dt><a name="directives" href="grammar.html#directives">Directives</a></dt>
-		<dd><a name="object_directives" href="grammar.html#object_directives">Object directives</a></dd>
-		<dd><a name="category_directives" href="grammar.html#category_directives">Category directives</a></dd>
-		<dd><a name="protocol_directives" href="grammar.html#protocol_directives">Protocol directives</a></dd>
-		<dd><a name="predicate_directives" href="grammar.html#predicate_directives">Predicate directives</a></dd>
-	<dt><a name="clauses" href="grammar.html#clauses">Clauses</a></dt>
-	<dt><a name="entity_properties" href="grammar.html#entity_properties">Entity properties</a></dt>
-	<dt><a name="predicate_properties" href="grammar.html#predicate_properties">Predicate properties</a></dt>
-</dl>
+<h3><a name="compilation_units" href="grammar.html#compilation_units">Compilation units</a></h3>
 
-<h4>Directives</h4>
+<h3><a name="object_definition" href="grammar.html#object_definition">Object definition</a></h3>
 
-<dl>
-	<dt>Entity directives</dt>
-		<dd><a name="calls1" href="directives/calls1.html"><code>calls/1</code></a></dd>
-		<dd><a name="category1_2" href="directives/category1_2.html"><code>category/1-2</code></a></dd>
-		<dd><a name="dynamic0" href="directives/dynamic0.html"><code>dynamic/0</code></a></dd>
-		<dd><a name="end_category0" href="directives/end_category0.html"><code>end_category/0</code></a></dd>
-		<dd><a name="end_object0" href="directives/end_object0.html"><code>end_object/0</code></a></dd>
-		<dd><a name="end_protocol0" href="directives/end_protocol0.html"><code>end_protocol/0</code></a></dd>
-		<dd><a name="info1" href="directives/info1.html"><code>info/1</code></a></dd>
-		<dd><a name="initialization1" href="directives/initialization1.html"><code>initialization/1</code></a></dd>
-		<dd><a name="object1_5" href="directives/object1_5.html"><code>object/1-5</code></a></dd>
-		<dd><a name="protocol1_2" href="directives/protocol1_2.html"><code>protocol/1-2</code></a></dd>
-		<dd><a name="uses1" href="directives/uses1.html"><code>uses/1</code></a></dd>
-</dl>
-<dl>
-	<dt>Predicate directives</dt>
-		<dd><a name="discontiguous1" href="directives/discontiguous1.html"><code>discontiguous/1</code></a></dd>
-		<dd><a name="dynamic1" href="directives/dynamic1.html"><code>dynamic/1</code></a></dd>
-		<dd><a name="info2" href="directives/info2.html"><code>info/2</code></a></dd>
-		<dd><a name="metapredicate1" href="directives/metapredicate1.html"><code>metapredicate/1</code></a></dd>
-		<dd><a name="mode2" href="directives/mode2.html"><code>mode/2</code></a></dd>
-		<dd><a name="op3" href="directives/op3.html"><code>op/3</code></a></dd>
-		<dd><a name="private1" href="directives/private1.html"><code>private/1</code></a></dd>
-		<dd><a name="protected1" href="directives/protected1.html"><code>protected/1</code></a></dd>
-		<dd><a name="public1" href="directives/public1.html"><code>public/1</code></a></dd>
-</dl>
+<h3><a name="category_definition" href="grammar.html#category_definition">Category definition</a></h3>
 
-<h4>Built-in predicates</h4>
+<h3><a name="protocol_definition" href="grammar.html#protocol_definition">Protocol definition</a></h3>
 
-<dl>
-	<dt>Enumerating objects, categories and protocols</dt>
-		<dd><a name="current_category1" href="builtins/current_category1.html"><code>current_category/1</code></a></dd>
-		<dd><a name="current_object1" href="builtins/current_object1.html"><code>current_object/1</code></a></dd>
-		<dd><a name="current_protocol1" href="builtins/current_protocol1.html"><code>current_protocol/1</code></a></dd>
-</dl>
-<dl>
-	<dt>Enumerating objects, categories and protocols properties</dt>
-		<dd><a name="category_property2" href="builtins/category_property2.html"><code>category_property/2</code></a></dd>
-		<dd><a name="object_property2" href="builtins/object_property2.html"><code>object_property/2</code></a></dd>
-		<dd><a name="protocol_property2" href="builtins/protocol_property2.html"><code>protocol_property/2</code></a></dd>
-</dl>
-<dl>
-	<dt>Creating new objects, categories and protocols</dt>
-		<dd><a name="create_category4" href="builtins/create_category4.html"><code>create_category/4</code></a></dd>
-		<dd><a name="create_object4" href="builtins/create_object4.html"><code>create_object/4</code></a></dd>
-		<dd><a name="create_protocol3" href="builtins/create_protocol3.html"><code>create_protocol/3</code></a></dd>
-</dl>
-<dl>
-	<dt>Abolishing objects, categories and protocols</dt>
-		<dd><a name="abolish_category1" href="builtins/abolish_category1.html"><code>abolish_category/1</code></a></dd>
-		<dd><a name="abolish_object1" href="builtins/abolish_object1.html"><code>abolish_object/1</code></a></dd>
-		<dd><a name="abolish_protocol1" href="builtins/abolish_protocol1.html"><code>abolish_protocol/1</code></a></dd>
-</dl>
-<dl>
-	<dt>Objects, categories and protocols relations</dt>
-		<dd><a name="extends_object2_3" href="builtins/extends_object2_3.html"><code>extends_object/2-3</code></a></dd>
-		<dd><a name="extends_protocol2_3" href="builtins/extends_protocol2_3.html"><code>extends_protocol/2-3</code></a></dd>
-		<dd><a name="implements_protocol2_3" href="builtins/implements_protocol2_3.html"><code>implements_protocol/2-3</code></a></dd>
-		<dd><a name="imports_category2_3" href="builtins/imports_category2_3.html"><code>imports_category/2-3</code></a></dd>
-		<dd><a name="instantiates_class2_3" href="builtins/instantiates_class2_3.html"><code>instantiates_class/2-3</code></a></dd>
-		<dd><a name="specializes_class2_3" href="builtins/specializes_class2_3.html"><code>specializes_class/2-3</code></a></dd>
-</dl>
-<dl>
-	<dt>Event handling</dt>
-		<dd><a name="abolish_events5" href="builtins/abolish_events5.html"><code>abolish_events/5</code></a></dd>
-		<dd><a name="current_event5" href="builtins/current_event5.html"><code>current_event/5</code></a></dd>
-		<dd><a name="define_events5" href="builtins/define_events5.html"><code>define_events/5</code></a></dd>
-</dl>
-<dl>
-	<dt>Compiling and loading objects, categories and protocols</dt>
-		<dd><a name="logtalk_compile1" href="builtins/logtalk_compile1.html"><code>logtalk_compile/1</code></a></dd>
-		<dd><a name="logtalk_compile2" href="builtins/logtalk_compile2.html"><code>logtalk_compile/2</code></a></dd>
-		<dd><a name="logtalk_load1" href="builtins/logtalk_load1.html"><code>logtalk_load/1</code></a></dd>
-		<dd><a name="logtalk_load2" href="builtins/logtalk_load2.html"><code>logtalk_load/2</code></a></dd>
-</dl>
-<dl>
-	<dt>Flags</dt>
-		<dd><a name="current_logtalk_flag2" href="builtins/current_logtalk_flag2.html"><code>current_logtalk_flag/2</code></a></dd>
-		<dd><a name="set_logtalk_flag2" href="builtins/set_logtalk_flag2.html"><code>set_logtalk_flag/2</code></a></dd>
-</dl>
-<dl>
-	<dt>Others</dt>
-		<dd><a name="forall2" href="builtins/forall2.html"><code>forall/2</code></a></dd>
-		<dd><a name="retractall1" href="builtins/retractall1.html"><code>retractall/1</code></a></dd>
-</dl>
+<h3><a name="entity_relations" href="grammar.html#entity_relations">Entity relations</a></h3>
 
-<h4>Built-in methods</h4>
+<ul>
+	<li><a name="implemented_protocols" href="grammar.html#implemented_protocols">Implemented protocols</a></li>
+	<li><a name="extended_protocols" href="grammar.html#extended_protocols">Extended protocols</a></li>
+	<li><a name="imported_categories" href="grammar.html#imported_categories">Imported categories</a></li>
+	<li><a name="extended_objects" href="grammar.html#extended_objects">Extended objects</a></li>
+	<li><a name="instantiated_objects" href="grammar.html#instantiated_objects">Instantiated objects</a></li>
+	<li><a name="specialized_objects" href="grammar.html#specialized_objects">Specialized objects</a></li>
+	<li><a name="scope" href="grammar.html#scope">Entity scope</a></li>
+</ul>
 
-<dl>
-	<dt>Local methods</dt>
-		<dd><a name="parameter2" href="methods/parameter2.html"><code>parameter/2</code></a></dd>
-		<dd><a name="self1" href="methods/self1.html"><code>self/1</code></a></dd>
-		<dd><a name="sender1" href="methods/sender1.html"><code>sender/1</code></a></dd>
-		<dd><a name="this1" href="methods/this1.html"><code>this/1</code></a></dd>
-</dl>
-<dl>
-	<dt>Reflection methods</dt>
-		<dd><a name="current_predicate1" href="methods/current_predicate1.html"><code>current_predicate/1</code></a></dd>
-		<dd><a name="predicate_property2" href="methods/predicate_property2.html"><code>predicate_property/2</code></a></dd>
-</dl>
-<dl>
-	<dt>Database methods</dt>
-		<dd><a name="abolish1" href="methods/abolish1.html"><code>abolish/1</code></a></dd>
-		<dd><a name="asserta1" href="methods/asserta1.html"><code>asserta/1</code></a></dd>
-		<dd><a name="assertz1" href="methods/assertz1.html"><code>assertz/1</code></a></dd>
-		<dd><a name="clause2" href="methods/clause2.html"><code>clause/2</code></a></dd>
-		<dd><a name="retract1" href="methods/retract1.html"><code>retract/1</code></a></dd>
-		<dd><a name="retractall1" href="methods/retractall1.html"><code>retractall/1</code></a></dd>
-</dl>
-<dl>
-	<dt>All solutions methods</dt>
-		<dd><a name="bagof3" href="methods/bagof3.html"><code>bagof/3</code></a></dd>
-		<dd><a name="findall3" href="methods/findall3.html"><code>findall/3</code></a></dd>
-		<dd><a name="forall2" href="methods/forall2.html"><code>forall/2</code></a></dd>
-		<dd><a name="setof3" href="methods/setof3.html"><code>setof/3</code></a></dd>
-</dl>
-<dl>
-	<dt>Event handler methods</dt>
-		<dd><a name="before3" href="methods/before3.html"><code>before/3</code></a></dd>
-		<dd><a name="after3" href="methods/after3.html"><code>after/3</code></a></dd>
-</dl>
-<dl>
-	<dt>DCG rules parsing methods</dt>
-		<dd><a name="phrase2" href="methods/phrase2.html"><code>phrase/2</code></a></dd>
-		<dd><a name="phrase3" href="methods/phrase3.html"><code>phrase/3</code></a></dd>
-</dl>
+<h3><a name="entity_identifiers" href="grammar.html#entity_identifiers">Entity identifiers</a></h3>
 
-<h4>Control constructs</h4>
+<ul>
+	<li><a name="object_identifiers" href="grammar.html#object_identifiers">Object identifiers</a></li>
+	<li><a name="category_identifiers" href="grammar.html#category_identifiers">Category identifiers</a></li>
+	<li><a name="protocol_identifiers" href="grammar.html#protocol_identifiers">Protocol identifiers</a></li>
+</ul>
 
-<dl>
-	<dt>Message sending</dt>
-		<dd><a name="to_object2" href="control/to_object2.html"><code>::/2</code></a></dd>
-		<dd><a name="to_self1" href="control/to_self1.html"><code>::/1</code></a></dd>
-		<dd><a name="to_super1" href="control/to_super1.html"><code>^^/1</code></a></dd>
-</dl>
-<dl>
-	<dt>Calling external code</dt>
-		<dd><a name="to_object2" href="control/external1.html"><code>{}/1</code></a></dd>
-</dl>
+<h3><a name="directives" href="grammar.html#directives">Directives</a></h3>
 
-<hr />
-<p class="center">
-<strong><a href="../userman/index.html">User manual</a> | <a href="../tutorial/index.html">Tutorial</a> | <a href="../bibliography.html">Bibliography</a> | <a href="../glossary.html">Glossary</a></strong>
-</p>
-<p class="center">
-Last updated on: March 30, 2003
-</p>
-<hr />
+<ul>
+	<li><a name="object_directives" href="grammar.html#object_directives">Object directives</a></li>
+	<li><a name="category_directives" href="grammar.html#category_directives">Category directives</a></li>
+	<li><a name="protocol_directives" href="grammar.html#protocol_directives">Protocol directives</a></li>
+	<li><a name="predicate_directives" href="grammar.html#predicate_directives">Predicate directives</a></li>
+</ul>
 
+<h3><a name="clauses" href="grammar.html#clauses">Clauses</a></h3>
+
+<h3><a name="entity_properties" href="grammar.html#entity_properties">Entity properties</a></h3>
+
+<h3><a name="predicate_properties" href="grammar.html#predicate_properties">Predicate properties</a></h3>
+
+<h2><a name="directives"></a>Directives</h2>
+
+<h3>Entity directives</h3>
+
+<ul>
+	<li><code><a name="calls1" href="directives/calls1.html">calls/1</a></code></li>
+	<li><code><a name="category1_2" href="directives/category1_2.html">category/1-2</a></code></li>
+	<li><code><a name="dynamic0" href="directives/dynamic0.html">dynamic/0</a></code></li>
+	<li><code><a name="end_category0" href="directives/end_category0.html">end_category/0</a></code></li>
+	<li><code><a name="end_object0" href="directives/end_object0.html">end_object/0</a></code></li>
+	<li><code><a name="end_protocol0" href="directives/end_protocol0.html">end_protocol/0</a></code></li>
+	<li><code><a name="info1" href="directives/info1.html">info/1</a></code></li>
+	<li><code><a name="initialization1" href="directives/initialization1.html">initialization/1</a></code></li>
+	<li><code><a name="object1_5" href="directives/object1_5.html">object/1-5</a></code></li>
+	<li><code><a name="protocol1_2" href="directives/protocol1_2.html">protocol/1-2</a></code></li>
+	<li><code><a name="uses1" href="directives/uses1.html">uses/1</a></code></li>
+</ul>
+
+<h3>Predicate directives</h3>
+
+<ul>
+	<li><code><a name="discontiguous1" href="directives/discontiguous1.html">discontiguous/1</a></code></li>
+	<li><code><a name="dynamic1" href="directives/dynamic1.html">dynamic/1</a></code></li>
+	<li><code><a name="info2" href="directives/info2.html">info/2</a></code></li>
+	<li><code><a name="metapredicate1" href="directives/metapredicate1.html">metapredicate/1</a></code></li>
+	<li><code><a name="mode2" href="directives/mode2.html">mode/2</a></code></li>
+	<li><code><a name="op3" href="directives/op3.html">op/3</a></code></li>
+	<li><code><a name="private1" href="directives/private1.html">private/1</a></code></li>
+	<li><code><a name="protected1" href="directives/protected1.html">protected/1</a></code></li>
+	<li><code><a name="public1" href="directives/public1.html">public/1</a></code></li>
+</ul>
+
+<h2><a name="builtins"></a>Built-in predicates</h2>
+
+<h3>Enumerating objects, categories and protocols</h3>
+
+<ul>
+	<li><code><a name="current_category1" href="builtins/current_category1.html">current_category/1</a></code></li>
+	<li><code><a name="current_object1" href="builtins/current_object1.html">current_object/1</a></code></li>
+	<li><code><a name="current_protocol1" href="builtins/current_protocol1.html">current_protocol/1</a></code></li>
+</ul>
+
+<h3>Enumerating objects, categories and protocols properties</h3>
+
+<ul>
+	<li><code><a name="category_property2" href="builtins/category_property2.html">category_property/2</a></code></li>
+	<li><code><a name="object_property2" href="builtins/object_property2.html">object_property/2</a></code></li>
+	<li><code><a name="protocol_property2" href="builtins/protocol_property2.html">protocol_property/2</a></code></li>
+</ul>
+
+<h3>Creating new objects, categories and protocols</h3>
+
+<ul>
+	<li><code><a name="create_category4" href="builtins/create_category4.html">create_category/4</a></code></li>
+	<li><code><a name="create_object4" href="builtins/create_object4.html">create_object/4</a></code></li>
+	<li><code><a name="create_protocol3" href="builtins/create_protocol3.html">create_protocol/3</a></code></li>
+</ul>
+
+<h3>Abolishing objects, categories and protocols</h3>
+
+<ul>
+	<li><code><a name="abolish_category1" href="builtins/abolish_category1.html">abolish_category/1</a></code></li>
+	<li><code><a name="abolish_object1" href="builtins/abolish_object1.html">abolish_object/1</a></code></li>
+	<li><code><a name="abolish_protocol1" href="builtins/abolish_protocol1.html">abolish_protocol/1</a></code></li>
+</ul>
+
+<h3>Objects, categories and protocols relations</h3>
+
+<ul>
+	<li><code><a name="extends_object2_3" href="builtins/extends_object2_3.html">extends_object/2-3</a></code></li>
+	<li><code><a name="extends_protocol2_3" href="builtins/extends_protocol2_3.html">extends_protocol/2-3</a></code></li>
+	<li><code><a name="implements_protocol2_3" href="builtins/implements_protocol2_3.html">implements_protocol/2-3</a></code></li>
+	<li><code><a name="imports_category2_3" href="builtins/imports_category2_3.html">imports_category/2-3</a></code></li>
+	<li><code><a name="instantiates_class2_3" href="builtins/instantiates_class2_3.html">instantiates_class/2-3</a></code></li>
+	<li><code><a name="specializes_class2_3" href="builtins/specializes_class2_3.html">specializes_class/2-3</a></code></li>
+</ul>
+
+<h3>Event handling</h3>
+
+<ul>
+	<li><code><a name="abolish_events5" href="builtins/abolish_events5.html">abolish_events/5</a></code></li>
+	<li><code><a name="current_event5" href="builtins/current_event5.html">current_event/5</a></code></li>
+	<li><code><a name="define_events5" href="builtins/define_events5.html">define_events/5</a></code></li>
+</ul>
+
+<h3>Compiling and loading objects, categories and protocols</h3>
+
+<ul>
+	<li><code><a name="logtalk_compile1" href="builtins/logtalk_compile1.html">logtalk_compile/1</a></code></li>
+	<li><code><a name="logtalk_compile2" href="builtins/logtalk_compile2.html">logtalk_compile/2</a></code></li>
+	<li><code><a name="logtalk_load1" href="builtins/logtalk_load1.html">logtalk_load/1</a></code></li>
+	<li><code><a name="logtalk_load2" href="builtins/logtalk_load2.html">logtalk_load/2</a></code></li>
+</ul>
+
+<h3>Flags</h3>
+
+<ul>
+	<li><code><a name="current_logtalk_flag2" href="builtins/current_logtalk_flag2.html">current_logtalk_flag/2</a></code></li>
+	<li><code><a name="set_logtalk_flag2" href="builtins/set_logtalk_flag2.html">set_logtalk_flag/2</a></code></li>
+</ul>
+
+<h3>Others</h3>
+
+<ul>
+	<li><code><a name="forall2" href="builtins/forall2.html">forall/2</a></code></li>
+	<li><code><a name="retractall1" href="builtins/retractall1.html">retractall/1</a></code></li>
+</ul>
+
+<h2><a name="methods"></a>Built-in methods</h2>
+
+<h3>Local methods</h3>
+
+<ul>
+	<li><code><a name="parameter2" href="methods/parameter2.html">parameter/2</a></code></li>
+	<li><code><a name="self1" href="methods/self1.html">self/1</a></code></li>
+	<li><code><a name="sender1" href="methods/sender1.html">sender/1</a></code></li>
+	<li><code><a name="this1" href="methods/this1.html">this/1</a></code></li>
+</ul>
+
+<h3>Reflection methods</h3>
+
+<ul>
+	<li><code><a name="current_predicate1" href="methods/current_predicate1.html">current_predicate/1</a></code></li>
+	<li><code><a name="predicate_property2" href="methods/predicate_property2.html">predicate_property/2</a></code></li>
+</ul>
+
+<h3>Database methods</h3>
+
+<ul>
+	<li><code><a name="abolish1" href="methods/abolish1.html">abolish/1</a></code></li>
+	<li><code><a name="asserta1" href="methods/asserta1.html">asserta/1</a></code></li>
+	<li><code><a name="assertz1" href="methods/assertz1.html">assertz/1</a></code></li>
+	<li><code><a name="clause2" href="methods/clause2.html">clause/2</a></code></li>
+	<li><code><a name="retract1" href="methods/retract1.html">retract/1</a></code></li>
+	<li><code><a name="retractall1" href="methods/retractall1.html">retractall/1</a></code></li>
+</ul>
+
+<h3>All solutions methods</h3>
+
+<ul>
+	<li><code><a name="bagof3" href="methods/bagof3.html">bagof/3</a></code></li>
+	<li><code><a name="findall3" href="methods/findall3.html">findall/3</a></code></li>
+	<li><code><a name="forall2" href="methods/forall2.html">forall/2</a></code></li>
+	<li><code><a name="setof3" href="methods/setof3.html">setof/3</a></code></li>
+</ul>
+
+<h3>Event handler methods</h3>
+
+<ul>
+	<li><code><a name="before3" href="methods/before3.html">before/3</a></code></li>
+	<li><code><a name="after3" href="methods/after3.html">after/3</a></code></li>
+</ul>
+
+<h3>DCG rules parsing methods</h3>
+
+<ul>
+	<li><code><a name="phrase2" href="methods/phrase2.html">phrase/2</a></code></li>
+	<li><code><a name="phrase3" href="methods/phrase3.html">phrase/3</a></code></li>
+</ul>
+
+<h2><a name="constructs"></a>Control constructs</h2>
+
+<h3>Message sending</h3>
+
+<ul>
+	<li><code><a name="to_object2" href="control/to_object2.html">::/2</a></code></li>
+	<li><code><a name="to_self1" href="control/to_self1.html">::/1</a></code></li>
+	<li><code><a name="to_super1" href="control/to_super1.html">^^/1</a></code></li>
+</ul>
+
+<h3>Calling external code</h3>
+
+<ul>
+	<li><code><a name="to_object2" href="control/external1.html">{}/1</a></code></li>
+</ul>
+
+<div class="navbottom">
+<a href="../glossary.html">glossary</a>
+</div>
+
+<div class="copyright">
+Copyright &copy; <a href="mailto:pmoura@logtalk.org">Paulo Moura</a> &mdash; <a href="http://www.logtalk.org">Logtalk.org</a>
+</div>
+
+<div class="footer">
+<p><span class="bleft"><a href="http://validator.w3.org/check/referer">XHTML</a> + <a href="http://jigsaw.w3.org/css-validator/check/referer">CSS</a></span><span class="bright">Last updated on: December 23, 2003</span></p>
+</div>
 </body>
-
 </html>

@@ -1,20 +1,24 @@
 <?xml version="1.0" encoding="iso-8859-1"?>
 <?xml-stylesheet type="text/css" href="../styles.css" ?>
 
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
-	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+        "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
 
 <head>
-	<title>Error handling</title>
+	<meta http-equiv="content-type" content="text/html; charset=iso-8859-1" />
+	<title>Logtalk user manual: error handling</title>
 	<link rel="stylesheet" href="../styles.css" type="text/css" />
 </head>
 
 <body>
 
-<hr />
-<h1><a class="back" title="Return to index" href="index.html#errors">Error handling</a></h1>
+<div class="navtop">
+<a href="../index.html">contents</a> &gt; <a href="index.html">user manual</a>
+</div>
+
+<h1>Error handling</h1>
 
 <p>
 All error/exception handling is done in Logtalk by using the ISO defined <code>catch/3</code> and <code>throw/1</code> predicates <a title="ISO Prolog Standard" href="../bibliography.html#ISO95">[ISO 95]</a>. Some Prolog compilers do not implement these predicates or, if they do, the implementation is not compatible with the standard. Furthermore, the nature of these predicates does not allow their definition by the user. For these reasons, we should check our Prolog compiler before trying to add error handling code to your Logtalk applications.
@@ -44,8 +48,7 @@ For example:
     error(permission_error(modify, private_predicate, bar(_)), foo::abolish(bar/1), user)
 </pre>
 
-<hr />
-<h2><a class="back" title="Return to index" name="compiler" href="index.html#errors_compiler">Compiler warnings and errors</a></h2>
+<h2>Compiler warnings and errors<a name="compiler"></a></h2>
 
 <p>
 The Logtalk preprocessor/compiler uses the <code>read_term/3</code> ISO Prolog defined built-in predicate to read and process a Logtalk source file. One consequence of this is that invalid Prolog terms or syntax errors may abort the compilation process with limited information given to the user (due to the inherent limitations of the <code>read_term/3</code> predicate). 
@@ -54,88 +57,88 @@ The Logtalk preprocessor/compiler uses the <code>read_term/3</code> ISO Prolog d
 If all the (Prolog) terms in a source file are valid, then there is a set of errors or potential errors, described below, that the preprocessor will try to detect and report, depending on the used compiler options (see the <a href="installing.html#options">Installing and running Logtalk</a> section of this manual for details).
 </p>
 
-<h3><a class="back" title="Return to index" name="wunknown" href="index.html#errors_wunknown">Unknown entities</a></h3>
+<h3>Unknown entities<a name="wunknown"></a></h3>
 
 <p>
 The Logtalk preprocessor/compiler will warn us of any referenced entity that is not currently loaded. The warning may reveal a misspell entity name or just an entity that it will be loaded next.
 </p>
 
-<h3><a class="back" title="Return to index" name="wsingletons" href="index.html#errors_wsingletons">Singleton variables</a></h3>
+<h3>Singleton variables<a name="wsingletons"></a></h3>
 
 <p>
 Singleton variables in a clause are often misspell variables and, as such, one of the most common errors when programming in Prolog. If your Prolog compiler complies with the Prolog ISO standard or at least supports the ISO predicate <code>read_term/3</code> called with the option <code>singletons(S)</code>, then the Logtalk preprocessor/compiler will warn us of any singleton it finds while compiling a Logtalk entity.
 </p>
 
-<h3><a class="back" title="Return to index" name="wprolog" href="index.html#errors_wprolog">Redefinition of Prolog built-in predicates</a></h3>
+<h3>Redefinition of Prolog built-in predicates<a name="wprolog"></a></h3>
 
 <p>
 The Logtalk preprocessor/compiler will warn us of any redefinition of a Prolog built-in predicate inside an object or category. Sometimes the redefinition is intended. In other cases, the user may not be aware that the subjacent Prolog compiler may already provide the predicate as a built-in or we may want to ensure code portability among several Prolog compilers with different sets of built-in predicates.
 </p>
 
-<h3><a class="back" title="Return to index" name="wpredicates" href="index.html#errors_wpredicates">Redefinition of Logtalk built-in predicates</a></h3>
+<h3>Redefinition of Logtalk built-in predicates<a name="wpredicates"></a></h3>
 
 <p>
 Similar to the redefinition of Prolog built-in predicates, the Logtalk compiler will warn us if we try to redefine a Logtalk built-in. The redefinition will probably be an error in almost all (if not all) cases.
 </p>
 
-<h3><a class="back" title="Return to index" name="wmethods" href="index.html#errors_wmethods">Redefinition of Logtalk built-in methods</a></h3>
+<h3>Redefinition of Logtalk built-in methods<a name="wmethods"></a></h3>
 
 <p>
 An error will be thrown if we attempt to redefine a Logtalk built-in method inside an entity. The default behaviour is to report the error and abort the compilation of the offending entity. 
 </p>
 
-<h3><a class="back" title="Return to index" name="wmisspell" href="index.html#errors_wmisspell">Misspell calls of local predicates</a></h3>
+<h3>Misspell calls of local predicates<a name="wmisspell"></a></h3>
 
 <p>
 A warning will be reported if Logtalk finds (in the body of a predicate definition) a call to a local predicate that is not defined, built-in (either in Prolog or in Logtalk) or declared dynamic. In most cases these calls are simple misspell errors.
 </p>
 
-<h3><a class="back" title="Return to index" name="wportability" href="index.html#errors_wportability">Portability warnings</a></h3>
+<h3>Portability warnings<a name="wportability"></a></h3>
 
 <p>
 A warning will be reported if a predicate clause contains a call to a non-ISO defined built-in predicate.
 </p>
 
-<h3><a class="back" title="Return to index" name="wothers" href="index.html#errors_wothers">Other warnings and errors</a></h3>
+<h3>Other warnings and errors<a name="wothers"></a></h3>
 
 <p>
 The Logtalk preprocessor/compiler will throw an error if it finds a predicate clause or a directive that cannot be parsed. The default behaviour is to report the error and abort the compilation of the offending entity.
 </p>
 
-<hr />
-<h2><a class="back" title="Return to index" name="runtime" href="index.html#errors_runtime">Runtime errors</a></h2>
+<h2>Runtime errors<a name="runtime"></a></h2>
 
 <p>
 This session briefly describes runtime errors that result from misuse of Logtalk built-in predicates, built-in methods or from message sending. For a complete and detailed description of runtime errors please consult the <a title="Consult reference manual" href="../refman/index.html">Reference Manual</a>.
 </p>
 
-<h3><a class="back" title="Return to index" name="predicates" href="index.html#errors_predicates">Logtalk built-in predicates</a></h3>
+<h3>Logtalk built-in predicates<a name="predicates"></a></h3>
 
 <p>
 All Logtalk built-in predicates checks the type and mode of the calling arguments, throwing an exception in case of misuse.
 </p>
 
-<h3><a class="back" title="Return to index" name="methods" href="index.html#errors_methods">Logtalk built-in methods</a></h3>
+<h3>Logtalk built-in methods<a name="methods"></a></h3>
 
 <p>
 Every Logtalk built-in method checks the type and mode of the calling arguments, throwing an exception in case of misuse.
 </p>
 
-<h3><a class="back" title="Return to index" name="sending" href="index.html#errors_sending">Message sending</a></h3>
+<h3>Message sending<a name="sending"></a></h3>
 
 <p>
 The message sending mechanisms always check if the receiver of a message is a defined object and if the message corresponds to a declared predicate within the scope of the sender.
 </p>
 
-<hr />
-<p class="center">
-<strong><a href="events.html">Previous</a> | <a href="documenting.html">Next</a> | <a href="index.html">Table of Contents</a> | <a href="../bibliography.html">Bibliography</a> | <a href="../glossary.html">Glossary</a></strong>
-</p>
-<p class="center">
-Last updated on: August 6, 2002
-</p>
-<hr />
+<div class="navbottom">
+<a href="events.html">previous</a> | <a href="../glossary.html">glossary</a> | <a href="documenting.html">next</a>
+</div>
 
+<div class="copyright">
+Copyright &copy; <a href="mailto:pmoura@logtalk.org">Paulo Moura</a> &mdash; <a href="http://www.logtalk.org">Logtalk.org</a>
+</div>
+
+<div class="footer">
+<p><span class="bleft"><a href="http://validator.w3.org/check/referer">XHTML</a> + <a href="http://jigsaw.w3.org/css-validator/check/referer">CSS</a></span><span class="bright">Last updated on: December 23, 2003</span></p>
+</div>
 </body>
-
 </html>

@@ -1,20 +1,24 @@
 <?xml version="1.0" encoding="iso-8859-1"?>
 <?xml-stylesheet type="text/css" href="../styles.css" ?>
 
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
-	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+        "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
 
 <head>
-	<title>Logtalk configuration</title>
+	<meta http-equiv="content-type" content="text/html; charset=iso-8859-1" />
+	<title>Logtalk user manual: logtalk configuration</title>
 	<link rel="stylesheet" href="../styles.css" type="text/css" />
 </head>
 
 <body>
 
-<hr />
-<h1><a class="back" title="Return to index" href="index.html#configuration">Logtalk configuration</a></h1>
+<div class="navtop">
+<a href="../index.html">contents</a> &gt; <a href="index.html">user manual</a>
+</div>
+
+<h1>Logtalk configuration</h1>
 
 <p>
 The Logtalk system is entirely written in Prolog, without resorting to other programming languages. In spite of that, the fact that the ISO standard <a
@@ -25,16 +29,15 @@ href="../bibliography.html#Moura99">[Moura 99]</a>. If most syntax problems can 
 The adopted solution consists on developing a universal Logtalk version, linked to a given compiler through the definition of a small set of predicates and operators, assembled in a configuration file. These predicates can be divided in two groups. The first group contains Logtalk specific predicates. The second group tries to implement predicates that, although they are defined in the approved ISO Prolog Standard, are not available in the specific compiler we want to use. This manual session explains how to build a configuration file for a Prolog compiler.
 </p>
 
-<hr />
-<h2><a class="back" title="Return to index" name="requirements" href="index.html#configuration_requirements">Hardware &amp; software requirements</a></h2>
+<h2>Hardware &amp; software requirements<a name="requirements"></a></h2>
 
-<h3><a class="back" title="Return to index" name="computer" href="index.html#configuration_computer">Computer and operating system</a></h3>
+<h3>Computer and operating system<a name="computer"></a></h3>
 
 <p>
 Logtalk is compatible with almost any machine/operating system with a modern Prolog compiler available. Currently, my main development environment is an upgraded Apple PowerMacintosh 7600 running Mac OS 9 and LinuxPPC; most used compilers are the Mac port of GNU Prolog and, under Linux, YAP and SWI Prolog. Being written in Prolog and distributed in source form, the only issue regarding operating system compatibility are the end-of-line codes in the source text files! Most example source file names do not fit in the 8+3 MS-DOS file length limitation, so this may prevent those examples from running under this operating system (or in any other system with similar limitations).
 </p>
 
-<h3><a class="back" title="Return to index" name="compiler" href="index.html#configuration_compiler">Prolog compiler</a></h3>
+<h3>Prolog compiler<a name="compiler"></a></h3>
 
 <p>
 In writing Logtalk I have tried to follow the recently approved Prolog ISO standard whenever possible. Capabilities needed by Logtalk that are not defined in the ISO standard are:
@@ -51,8 +54,7 @@ For optimal performance, Logtalk requires that the Prolog compiler supports <str
 Because most Prolog implementers are slowly moving toward more ISO compliant compilers, it is advisable that you try to use the most recent version of your favorite Prolog compiler.
 </p>
 
-<hr />
-<h2><a class="back" title="Return to index" name="files" href="index.html#configuration_files">Configuration files</a></h2>
+<h2>Configuration files<a name="files"></a></h2>
 
 <p>
 Configuration files provide the glue code between the Logtalk preprocessor/runtime and a Prolog compiler. Each configuration file contains two sets of predicates: ISO Prolog standard predicates and directives not built-in in the target Prolog compiler and Logtalk-specific predicates.
@@ -67,15 +69,16 @@ Start by making a copy of the file <code>configs/template.config</code>. Careful
 If you are unsure that your Prolog compiler provides all the ISO predicates needed by Logtalk, try to run the system by setting the unknown predicate error handler to report as an error any call to a missing predicate. Better yet, switch to a modern, ISO compliant, Prolog compiler.
 </p>
 
-<hr />
-<p class="center">
-<strong><a href="documenting.html">Previous</a> | <a href="installing.html">Next</a> | <a href="index.html">Table of Contents</a> | <a href="../bibliography.html">Bibliography</a> | <a href="../glossary.html">Glossary</a></strong>
-</p>
-<p class="center">
-Last updated on: August 6, 2002
-</p>
-<hr />
+<div class="navbottom">
+<a href="documenting.html">previous</a> | <a href="../glossary.html">glossary</a> | <a href="installing.html">next</a>
+</div>
 
+<div class="copyright">
+Copyright &copy; <a href="mailto:pmoura@logtalk.org">Paulo Moura</a> &mdash; <a href="http://www.logtalk.org">Logtalk.org</a>
+</div>
+
+<div class="footer">
+<p><span class="bleft"><a href="http://validator.w3.org/check/referer">XHTML</a> + <a href="http://jigsaw.w3.org/css-validator/check/referer">CSS</a></span><span class="bright">Last updated on: December 23, 2003</span></p>
+</div>
 </body>
-
 </html>

@@ -1,8 +1,10 @@
 #!/bin/sh
 
-FOP_PATH="/Applications/fop-0.20.4"
+FOP_PATH="/Applications/XML/fop-0.20.5"
 
 XSLT="lgtpdfa4.xsl"
+# XSLT="lgtpdfus.xsl"
+
 
 echo 
 echo This script converts all .xml files in the current directory to .pdf

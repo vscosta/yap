@@ -1,23 +1,26 @@
 <?xml version="1.0" encoding="iso-8859-1"?>
 <?xml-stylesheet type="text/css" href="../styles.css" ?>
 
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
-	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+        "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
 
 <head>
-	<title>Programming in Logtalk</title>
+	<meta http-equiv="content-type" content="text/html; charset=iso-8859-1" />
+	<title>Logtalk user manual: programming in Logtalk</title>
 	<link rel="stylesheet" href="../styles.css" type="text/css" />
 </head>
 
 <body>
 
-<hr />
-<h1><a class="back" title="Return to index" href="index.html#programming">Programming in Logtalk</a></h1>
+<div class="navtop">
+<a href="../index.html">contents</a> &gt; <a href="index.html">user manual</a>
+</div>
 
-<hr />
-<h2><a class="back" title="Return to index" name="scope" href="index.html#programming_scope">Logtalk scope</a></h2>
+<h1>Programming in Logtalk</h1>
+
+<h2>Logtalk scope<a name="scope"></a></h2>
 
 <p>
 Logtalk, as an object-oriented extension to Prolog, shares with it the same preferred areas of application but also extends them with those areas where object-oriented features provide an advantage compared to plain Prolog. Among these areas we have:
@@ -47,8 +50,7 @@ Logtalk, as an object-oriented extension to Prolog, shares with it the same pref
 		<dd>Logtalk support for most key object-oriented features helps users integrating Prolog with object-oriented languages like C++, Java, or Smalltalk by providing an high-level mapping between the two languages.</dd>
 </dl>
 
-<hr />
-<h2><a class="back" title="Return to index" name="writing" href="index.html#programming_writing">Writing programs</a></h2>
+<h2>Writing programs<a name="writing"></a></h2>
 
 <p>
 For a successful programming in Logtalk, you need a good working knowledge of Prolog and an understanding of the principles of object-oriented programming. All guidelines for writing good Prolog code apply as well to Logtalk programming. To those guidelines, you should add the basics of good object-oriented design.
@@ -57,7 +59,7 @@ For a successful programming in Logtalk, you need a good working knowledge of Pr
 One of the advantages of a system like Logtalk is that it enable us to use the currently available object-oriented methodologies, tools, and metrics <a href="../bibliography.html#Champaux92">[Champaux 92]</a> in Prolog programming. That said, writing programs in Logtalk is similar to writing programs in Prolog: we define new predicates describing what is true about our domain objects, about our problem solution. We encapsulate our predicate directives and definitions inside new objects, categories and protocols that we create by hand with a text editor or by using the Logtalk built-in predicates. Some of the information collected during the analysis and design phases can be integrated in the objects, categories and protocols that we define by using the available entity and predicate documenting directives.
 </p>
 
-<h3><a class="back" title="Return to index" name="source_files" href="index.html#programming_source_files">Source files</a></h3>
+<h3>Source files<a name="source_files"></a></h3>
 
 <p>
 A Logtalk source file must contain only one entity, either an object, a category, or a protocol. It is recommended that each source file be named after the entity identifier. For parametric objects, the identifier arity can be appended to the identifier functor. By default, all Logtalk source files use the extension <code>.lgt</code> but this is optional and can be set in the configuration files. Compiled source files (by the Logtalk preprocessor) have, by default, a <code>.pl</code> extension. Again, this can be set to match the needs of a particular Prolog compiler in the corresponding configuration file. For example, we may define an object named <code>vehicle</code> and save it in a <code>vehicle.lgt</code> source file that will be compiled to a <code>vehicle.pl</code> Prolog file. If we have a <code>sort(_)</code> parametric object we can save it on a <code>sort1.lgt</code> source file that will be compiled to a <code>sort1.pl</code> Prolog file. This name scheme helps avoid file name conflicts (remember that all Logtalk entities share the same name space).
@@ -66,13 +68,13 @@ A Logtalk source file must contain only one entity, either an object, a category
 Any Logtalk source file can contain arbitrary directives and clauses before the opening entity directive. These directives and clauses will not be compiled by the Logtalk preprocessor and will be copied unchanged to the beginning of the corresponding Prolog output file. This feature is included to help the integration of Logtalk with other Prolog extensions like, for example, constraint programming extensions.
 </p>
 
-<h3><a class="back" title="Return to index" name="portability" href="index.html#programming_portability">Portable programs</a></h3>
+<h3>Portable programs<a name="portability"></a></h3>
 
 <p>
 Logtalk is compatible with almost all modern Prolog compilers. However, this does not mean that our Logtalk programs will have the same level of portability. If possible, we should only use in our programs Logtalk built-in predicates and ISO Prolog defined built-in predicates. If we need to use built-in predicates that may not be available in other Prolog compilers, we should try to encapsulate the non-portable code in a minimum of objects and provide a portable <strong>interface</strong> for that code. An example will be code that access operating-system specific features. The Logtalk compiler can warn us of the use of non-ISO defined built-in predicates by using the <code>portability/1</code> compiler option.
 </p>
 
-<h3><a class="back" title="Return to index" name="errors" href="index.html#programming_errors">Avoiding common errors</a></h3>
+<h3>Avoiding common errors<a name="errors"></a></h3>
 
 <p>
 Try to write objects and protocol documentation <strong>before</strong> writing any other code; if you are having trouble documenting a predicate perhaps we need to go back to the design stage.
@@ -93,15 +95,16 @@ In general, Logtalk does not verify if a user predicate call/return arguments co
 Logtalk error handling strongly depends on the ISO compliance of the chosen Prolog compiler. For instance, the error terms that are generated by some Logtalk built-in predicates assume that the Prolog built-ins behave as defined in the ISO standard regarding error conditions. In particular, if your Prolog compiler does not support a <code>read_term/3</code> built-in predicate compliant with the ISO Prolog Standard definition, then the current version of the Logtalk preprocessor will not be able to detect misspell variables in your source code.
 </p>
 
-<hr />
-<p class="center">
-<strong><a href="installing.html">Previous</a> | <a href="index.html">Next</a> | <a href="index.html">Table of Contents</a> | <a href="../bibliography.html">Bibliography</a> | <a href="../glossary.html">Glossary</a></strong>
-</p>
-<p class="center">
-Last updated on: August 6, 2002
-</p>
-<hr />
+<div class="navbottom">
+<a href="installing.html">previous</a> | <a href="../glossary.html">glossary</a> | <a href="index.html">next</a>
+</div>
 
+<div class="copyright">
+Copyright &copy; <a href="mailto:pmoura@logtalk.org">Paulo Moura</a> &mdash; <a href="http://www.logtalk.org">Logtalk.org</a>
+</div>
+
+<div class="footer">
+<p><span class="bleft"><a href="http://validator.w3.org/check/referer">XHTML</a> + <a href="http://jigsaw.w3.org/css-validator/check/referer">CSS</a></span><span class="bright">Last updated on: December 23, 2003</span></p>
+</div>
 </body>
-
 </html>

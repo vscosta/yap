@@ -1,81 +1,1 @@
-
-a:link {
-	color: blue;
-	text-decoration: underline
-}
-
-a:visited {
-	color: navy;
-	text-decoration: underline
-}
-
-a:hover {
-	color: blue;
-	text-decoration: underline
-} 
-
-a:active {
-	color: red;
-	text-decoration: underline
-}
-
-code, pre {
-  color: navy;
-  background-color: white;
-  font-family: courier, monospace;
-}
-
-p {
-  line-height: normal;
-  font-weight: normal;
-  font-style: normal;
-}
-
-body {
-	color: black;
-	background-color: white;
-	font-family: sans-serif;
-	margin-left: 2em;
-	margin-right: 2em;
-}
-
-h1, h2, h3, h4, h5, h6 {
-	color: maroon;
-	font-family: helvetica, arial, sans-serif;
-}
-
-.center { text-align: center; }
-
-.indent { margin-left: 3em; margin-right: 3em; }
-
-.smallcaps { font-variant: small-caps; }
-
-
-a.back {
-	color: maroon;
-	text-decoration: none;
-}
-
-a.back:hover {
-	color: blue;
-	text-decoration: underline;
-}
-
-
-a.glossary {
-	color: teal;
-	font-style: italic;
-	text-decoration: none;
-}
-
-a.glossary:hover {
-	color: blue;
-	font-style: italic;
-	text-decoration: underline;
-}
-
-.glossary {
-	color: teal;
-	font-style: italic;
-	text-decoration: none;
-}
+body {	color: #353535;	font-size: 10pt;	font-family: verdana, arial, sans-serif;	background: #ddd;	margin: 12pt}.title {	color: maroon;	font-size: 24pt;	font-family: "Trebuchet MS", Arial, Verdana, Helvetica, sans-serif;	text-align: center;	padding: 0pt 0pt 6pt 0pt;}.topictitle {	color: maroon;	font-size: 12pt;	font-family: "Trebuchet MS", Arial, Verdana, Helvetica, sans-serif;	text-align: left;}.topic {	padding: 0pt 0pt 0pt 24pt;}.spacer {}.navbottom {	font-size: 9pt;	text-align: right;	border-width: 0pt 0pt 1pt 0pt;	border-style: solid;	padding: 12pt 0pt 3pt 0pt;}.navtop {	text-align: right;	font-size: 9pt;	border-color: #000000;	border-width: 1pt 0pt 0pt 0pt;	border-style: solid;	padding: 3pt 0pt 12pt 0pt;}.copyright {	text-align: center;	font-size: 9pt;	padding: 9pt 0pt 9pt 0pt;}.footer {	clear: left;	text-align: right;	font-size: 9pt;	border-color: #000000;	border-width: 1pt 0pt 0pt 0pt;	border-style: solid;	padding: 0pt 0pt 9pt 0pt;}a {	text-decoration: none;	color: navy;	outline: none;}a:hover {	text-decoration: underline;	color: blue;}.bleft {	float: left;	position: relative;}.bright {	float: right;	position: relative;}code, pre {	color: maroon;	font-family: courier, monospace;}

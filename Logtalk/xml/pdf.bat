@@ -1,6 +1,6 @@
 @ECHO off
 
-SET FOP_PATH=c:\Fop-0.20.4
+SET FOP_PATH=c:\Fop-0.20.5
 
 SET XSLT="lgtpdfa4.xsl"
 

@@ -1,6 +1,6 @@
 =================================================================
 Logtalk - Object oriented extension to Prolog
-Release 2.15.4
+Release 2.15.5
 
 Copyright (c) 1998-2003 Paulo Moura.  All Rights Reserved.
 =================================================================
@@ -27,8 +27,9 @@ The .xml documenting files can be either generated as standalone XML files
 or contain a reference to the Logtalk DTD file, logtalk.dtd. The reference 
 to the logtalk.dtd file can be either a local reference or a URI reference.
 By default, all .xml documenting files contain a local reference but that 
-can be changed either in the config files or by using the doctype/1 compiler 
-option. Choose the option value that works best for your XSLT tools.
+can be changed either in the config files, by setting a Logtalk compiler 
+flag, or by using the doctype/1 compiler option. Choose the option value 
+that works best for your XSLT tools.
 
 
 Brief description of each file in this folder:
@@ -50,11 +51,12 @@ lgtxml.xsl
 	HTML files point to related XML files.
 
 
-lgtpdfa4.xsl lgtpdfus.xsl
+lgtpdfa4.xsl
+lgtpdfus.xsl
 
 	XSLT files to generate PDF files from the .xml files (formatted either 
 	for A4 paper or US Letter paper) using XSL Formatting Objects. Tested 
-	with the XSL:FO processors Apache FOP 0.20.4 (http://xml.apache.org/fop), 
+	with the XSL:FO processors Apache FOP 0.20.5 (http://xml.apache.org/fop), 
 	PassiveTeX 1.21 (http://www.tei-c.org.uk/Software/passivetex/), and 
 	RenderX 2.77 (http://www.renderx.com/).
 
@@ -124,18 +126,20 @@ pdf.sh
 
 	Sample Unix shell script to batch convert .xml files to .pdf files.
 	Edit the script to match your environment and paper format preference 
-	before running it.
-	Requires Apache FOP processor (http://xml.apache.org/fop). Tested with 
-	version 0.20.4.
+	before running it. Requires Apache FOP processor (http://xml.apache.org/fop).
+	Tested with version 0.20.5 (to workaround a bug on the XALAN processor used 
+	by FOP, you should use the compiler option doctype(standalone) when compiling 
+	your Logtalk source files).
 
 
 pdf.bat
 
 	Sample DOS batch script to convert .xml files to .pdf files.
 	Edit the script to match your environment and paper format preference 
-	before running it.
-	Requires Apache FOP processor (http://xml.apache.org/fop). Tested with 
-	version 0.20.4.
+	before running it. Requires Apache FOP processor (http://xml.apache.org/fop).
+	Tested with version 0.20.5 (to workaround a bug on the XALAN processor used 
+	by FOP, you should use the compiler option doctype(standalone) when compiling 
+	your Logtalk source files).
 
 
 Note that you can write other XSLT files for converting the XML files to 

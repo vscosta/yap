@@ -1,10 +1,11 @@
 #!/bin/sh
 
-XT_PATH="/Applications/XT"
-SAX_PATH="/Applications/XT"
-XP_PATH="/Applications/XT"
+XT_PATH="/Applications/XML/XT"
+SAX_PATH="/Applications/XML/XT"
+XP_PATH="/Applications/XML/XP"
 
 XSLT="lgthtml.xsl"
+
 
 if [ -z "$1" ]; then
 	title="Entity documentation index"

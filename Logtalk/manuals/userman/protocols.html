@@ -1,27 +1,30 @@
 <?xml version="1.0" encoding="iso-8859-1"?>
 <?xml-stylesheet type="text/css" href="../styles.css" ?>
 
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
-	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+        "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
 
 <head>
-	<title>Protocols</title>
+	<meta http-equiv="content-type" content="text/html; charset=iso-8859-1" />
+	<title>Logtalk user manual: protocols</title>
 	<link rel="stylesheet" href="../styles.css" type="text/css" />
 </head>
 
 <body>
 
-<hr />
-<h1><a class="back" title="Return to index" href="index.html#protocols">Protocols</a></h1>
+<div class="navtop">
+<a href="../index.html">contents</a> &gt; <a href="index.html">user manual</a>
+</div>
+
+<h1>Protocols</h1>
 
 <p>
 Protocols enable the separation between interface and implementation: several objects can implement the same protocol and an object can implement several protocols. There are no pre-defined protocols in Logtalk.
 </p>
 
-<hr />
-<h2><a class="back" title="Return to index" name="defining" href="index.html#protocols_defining">Defining a new protocol</a></h2>
+<h2>Defining a new protocol<a name="defining"></a></h2>
 
 <p>
 We can define a new protocol in the same way we write Prolog code: by using a text editor. Each protocol (object or category) we define should be contained in its own text file. It is recommended that this text file be named after the protocol. By default, all Logtalk source files use the extension <code>.lgt</code> but this is optional and can be set in the configuration files. Compiled source files (by the Logtalk preprocessor) have, by default, a <code>.pl</code> extension. Again, this can be set to match the needs of a particular Prolog compiler in the corresponding configuration file. For example, we may define a protocol named <code>listp</code> and save it in a <code>listp.lgt</code> source file that will be compiled to a <code>listp.pl</code> Prolog file.
@@ -47,8 +50,7 @@ If a protocol extends one or more protocols, then the opening directive will be:
     :- end_protocol.
 </pre>
 
-<hr />
-<h2><a class="back" title="Return to index" name="finding" href="index.html#protocols_finding">Finding defined protocols</a></h2>
+<h2>Finding defined protocols<a name="finding"></a></h2>
 
 <p>
 We can find, by backtracking, all defined protocols by using the <a title="Consult reference manual" href="../refman/builtins/current_protocol1.html"><code>current_protocol/1</code></a> built-in predicate with an uninstantiated variable:
@@ -60,8 +62,7 @@ We can find, by backtracking, all defined protocols by using the <a title="Consu
 This predicate can also be used to test if a protocol is defined by calling it with a valid protocol identifier (an atom).
 </p>
 
-<hr />
-<h2><a class="back" title="Return to index" name="creating" href="index.html#protocols_creating">Creating a new protocol in runtime</a></h2>
+<h2>Creating a new protocol in runtime<a name="creating"></a></h2>
 
 <p>
 We can create a new (dynamic) protocol in runtime by calling the Logtalk built-in predicate <a title="Consult reference manual" href="../refman/builtins/create_protocol3.html"><code>create_protocol/3</code></a>:
@@ -95,8 +96,7 @@ is equivalent to compiling and loading the protocol:
 If we need to create a lot of (dynamic) protocols at runtime, then is best to define a metaclass or a prototype with a predicate that will call this built-in predicate in order to provide more sophisticated behaviour.
 </p>
 
-<hr />
-<h2><a class="back" title="Return to index" name="abolishing" href="index.html#protocols_abolishing">Abolishing an existing protocol</a></h2>
+<h2>Abolishing an existing protocol<a name="abolishing"></a></h2>
 
 <p>
 Dynamic protocols can be abolished using the <a title="Consult reference manual" href="../refman/builtins/abolish_protocol1.html"><code>abolish_protocol/1</code></a> built-in predicate:
@@ -108,14 +108,13 @@ Dynamic protocols can be abolished using the <a title="Consult reference manual"
 The argument must be an identifier of a defined dynamic protocol, otherwise an error will be thrown.
 </p>
 
-<hr />
-<h2><a class="back" title="Return to index" name="directives" href="index.html#protocols_directives">Protocol directives</a></h2>
+<h2>Protocol directives<a name="directives"></a></h2>
 
 <p>
 Protocol directives are used to set initialization goals and protocol properties.
 </p>
 
-<h3><a class="back" title="Return to index" name="initialization" href="index.html#protocols_initialization">Protocol initialization</a></h3>
+<h3>Protocol initialization<a name="initialization"></a></h3>
 
 <p>
 We can define a goal to be executed as soon as a protocol is (compiled and) loaded to memory with the <a title="Consult reference manual" href="../refman/directives/initialization1.html"><code>initialization/1</code></a> directive:
@@ -127,7 +126,7 @@ We can define a goal to be executed as soon as a protocol is (compiled and) load
 The argument can be any valid Prolog or Logtalk goal, including a message sending call.
 </p>
 
-<h3><a class="back" title="Return to index" name="dynamic" href="index.html#protocols_dynamic">Dynamic protocols</a></h3>
+<h3>Dynamic protocols<a name="dynamic"></a></h3>
 
 <p>
 As usually happens with Prolog code, a protocol can be either static or dynamic. A protocol created during the execution of a program is always dynamic. A protocol defined in a file can be either dynamic or static. Dynamic protocols are declared by using the <a title="Consult reference manual" href="../refman/directives/dynamic0.html"><code>dynamic/0</code></a> directive in the protocol source code:
@@ -139,7 +138,7 @@ As usually happens with Prolog code, a protocol can be either static or dynamic.
 Let us just remember that the loss of performance of the dynamic code is usually of considerable importance to the static code. We should only use dynamic protocols when these need to be abolished during program execution.
 </p>
 
-<h3><a class="back" title="Return to index" name="documentation" href="index.html#protocols_documentation">Protocol documentation</a></h3>
+<h3>Protocol documentation<a name="documentation"></a></h3>
 
 <p>
 A protocol can be documented with arbitrary user-defined information by using the <a title="Consult reference manual" href="../refman/directives/info1.html"><code>info/1</code></a> directive:
@@ -151,8 +150,7 @@ A protocol can be documented with arbitrary user-defined information by using th
 See the <a href="documenting.html">Documenting Logtalk programs</a> session for details.
 </p>
 
-<hr />
-<h2><a class="back" title="Return to index" name="relationships" href="index.html#protocols_relationships">Protocol relationships</a></h2>
+<h2>Protocol relationships<a name="relationships"></a></h2>
 
 <p>
 Logtalk provides two sets of built-in predicates that enable us to query the system about the possible relationships that a protocol have with other entities.
@@ -185,8 +183,7 @@ or, if we want to know the implementation scope:
 Note that, if we use an uninstantiated variable for the first argument, we will need to use the <a title="Consult reference manual" href="../refman/builtins/current_object1.html"><code>current_object/1</code></a> or <a title="Consult reference manual" href="../refman/builtins/current_category1.html"><code>current_category/1</code></a> built-in predicates to identify the kind of entity returned.
 </p>
 
-<hr />
-<h2><a class="back" title="Return to index" name="properties" href="index.html#protocols_properties">Protocol properties</a></h2>
+<h2>Protocol properties<a name="properties"></a></h2>
 
 <p>
 We can find the properties of defined protocols by calling the <a title="Consult reference manual" href="../refman/builtins/protocol_property2.html"><code>protocol_property/2</code></a> built-in predicate:
@@ -198,8 +195,7 @@ We can find the properties of defined protocols by calling the <a title="Consult
 A protocol may have the property <code>static</code>, <code>dynamic</code>, or <code>built_in</code>. Dynamic protocols can be abolished in runtime by calling the <a title="Consult reference manual" href="../refman/builtins/abolish_protocol1.html"><code>abolish_protocol/1</code></a> built-in predicate.
 </p>
 
-<hr />
-<h2><a class="back" title="Return to index" name="implementing" href="index.html#protocols_implementing">Implementing protocols</a></h2>
+<h2>Implementing protocols<a name="implementing"></a></h2>
 
 <p>
 Any number of objects or categories can implement a protocol. The syntax is very simple:
@@ -250,15 +246,16 @@ Omitting the scope keyword is equivalent to writing:
 The same rules applies to protocols implemented by categories.
 </p>
 
-<hr />
-<p class="center">
-<strong><a href="objects.html">Previous</a> | <a href="categories.html">Next</a> | <a href="index.html">Table of Contents</a> | <a href="../bibliography.html">Bibliography</a> | <a href="../glossary.html">Glossary</a></strong>
-</p>
-<p class="center">
-Last updated on: August 6, 2002
-</p>
-<hr />
+<div class="navbottom">
+<a href="objects.html">previous</a> | <a href="../glossary.html">glossary</a> | <a href="categories.html">next</a>
+</div>
 
+<div class="copyright">
+Copyright &copy; <a href="mailto:pmoura@logtalk.org">Paulo Moura</a> &mdash; <a href="http://www.logtalk.org">Logtalk.org</a>
+</div>
+
+<div class="footer">
+<p><span class="bleft"><a href="http://validator.w3.org/check/referer">XHTML</a> + <a href="http://jigsaw.w3.org/css-validator/check/referer">CSS</a></span><span class="bright">Last updated on: December 23, 2003</span></p>
+</div>
 </body>
-
 </html>

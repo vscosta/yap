@@ -1,23 +1,26 @@
 <?xml version="1.0" encoding="iso-8859-1"?>
 <?xml-stylesheet type="text/css" href="../styles.css" ?>
 
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
-	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+        "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
 
 <head>
-	<title>Installing and running Logtalk</title>
+	<meta http-equiv="content-type" content="text/html; charset=iso-8859-1" />
+	<title>Logtalk user manual: installing and running Logtalk</title>
 	<link rel="stylesheet" href="../styles.css" type="text/css" />
 </head>
 
 <body>
 
-<hr />
-<h1><a class="back" title="Return to index" href="index.html#installing">Installing and running Logtalk</a></h1>
+<div class="navtop">
+<a href="../index.html">contents</a> &gt; <a href="index.html">user manual</a>
+</div>
 
-<hr />
-<h2><a class="back" title="Return to index" name="installing" href="index.html#installing_installing">Installing Logtalk</a></h2>
+<h1>Installing and running Logtalk</h1>
+
+<h2>Installing Logtalk<a name="installing"></a></h2>
 
 <p>
 The Logtalk system can be installed in any directory that is accessible to the user. The installation process consists merely in decompressing an archive file that will lead to a new directory with the structure/contents described below. The decompression process naturally depends on the operative system that you are using.
@@ -57,7 +60,7 @@ The OS/2 and Windows 95/98/NT/ME/2000 version is included in the file <code>lgt2
 Almost all files in the Logtalk distribution are text files. The only difference between the source files, other than the compressing formats, is the end-of-line codes: Macintosh uses a carriage return, Unix uses a line feed, OS/2, Windows 95/NT uses both a carriage return and a line feed. This should make it easier to install Logtalk under other operating systems.
 </p>
 
-<h3><a class="back" title="Return to index" name="organization" href="index.html#installing_organization">Directories and files organization</a></h3>
+<h3>Directories and files organization<a name="organization"></a></h3>
 
 <p>
 In the Logtalk installation directory, you will find the following files and directories:
@@ -106,7 +109,7 @@ In the Logtalk installation directory, you will find the following files and dir
 		<dd><code>...</code> - other XML related files</dd>
 </dl>
 
-<h3><a class="back" title="Return to index" name="configs" href="index.html#installing_configs">Configuration files</a></h3>
+<h3>Configuration files<a name="configs"></a></h3>
 
 <p>
 Logtalk includes several configuration files for most academic and commercial Prolog compilers. If a configuration file is not available for the compiler that you intend to use, then you need to build a new one, starting from the included <code>template.config</code> file.
@@ -115,31 +118,31 @@ Logtalk includes several configuration files for most academic and commercial Pr
 Since most Prolog compilers are moving closer to the ISO Prolog standard <a href="../bibliography.html#ISO95">[ISO 95]</a>, it is advisable that you try to use a recent version of your Prolog compiler of choice.
 </p>
 
-<h3><a class="back" title="Return to index" name="compiler" href="index.html#installing_compiler">Logtalk compiler and runtime</a></h3>
+<h3>Logtalk compiler and runtime<a name="compiler"></a></h3>
 
 <p>
 The <code>compiler</code> sub-directory contains the Prolog source file(s) that implement the Logtalk preprocessor/compiler and the Logtalk runtime. The compiler and the runtime may be split in two (or more) separate files or combined in a single file, depending on the Logtalk release that you are installing.
 </p>
 
-<h3><a class="back" title="Return to index" name="library" href="index.html#installing_library">Library</a></h3>
+<h3>Library<a name="library"></a></h3>
 
 <p>
 Starting from version 2.7, Logtalk contains a standard library of useful objects, categories, and protocols. Read the corresponding <code>NOTES</code> file for details about the library contents.
 </p>
 
-<h3><a class="back" title="Return to index" name="examples" href="index.html#installing_examples">Examples</a></h3>
+<h3>Examples<a name="examples"></a></h3>
 
 <p>
 Logtalk 2.x contains new implementations of some of the examples provided with previous 1.x versions. The sources of each one of these examples can be found included in a subdirectory with the same name, inside the directory examples. The majority of these examples include a file named <code>SCRIPT</code> that contains cases of simple utilization. Some examples may depend on other examples and library objects to work properly. Read the corresponding <code>NOTES</code> file for details before running an example.
 </p>
 
-<h3><a class="back" title="Return to index" name="entities" href="index.html#installing_entities">Logtalk source files</a></h3>
+<h3>Logtalk source files<a name="entities"></a></h3>
 
 <p>
 Each Logtalk entity (object, category or protocol) is contained in a text file named after the entity. The extension <code>.lgt</code> is normally used. The Logtalk preprocessor compiles these files to plain Prolog, replacing the <code>.lgt</code> extension with  <code>.pl</code> (the default Prolog extension). If your Prolog compiler expects the Prolog source filenames to end with a specific, different extension, you can set it in the corresponding configuration file.
 </p>
 
-<h3><a class="back" title="Return to index" name="loaders" href="index.html#installing_loaders">Loader utility files</a></h3>
+<h3>Loader utility files<a name="loaders"></a></h3>
 
 <p>
 Most examples directories contain a Prolog utility file that can be used to load all included source files. These loader utility files are named <code>&lt;dir name&gt;.loader</code> and should be consulted like any ordinary Prolog file.
@@ -158,14 +161,13 @@ Usually these files contain a call to the Logtalk built-in predicates <a title="
 These loader files may not work without modifications depending on the way your Prolog compiler deals with folders/directories. Most of the time you will need to <strong>set the working directory</strong> to be the one that contains the loader file in order to get the example source files loaded. Unfortunately, there is no portable way for us to do that from inside Logtalk due to differences between operating systems and lack of adequate operating system access support in some Prolog compilers.
 </p>
 
-<hr />
-<h2><a class="back" title="Return to index" name="running" href="index.html#installing_running">Running a Logtalk session</a></h2>
+<h2>Running a Logtalk session<a name="running"></a></h2>
 
 <p>
 We run Logtalk inside a normal Prolog session, after loading the needed files. Logtalk extends but does not modify your Prolog compiler. We can freely mix Prolog queries with the sending of messages and our programs can be made of both normal Prolog clauses and object definitions.
 </p>
 
-<h3><a class="back" title="Return to index" name="starting" href="index.html#installing_starting">Starting Logtalk</a></h3>
+<h3>Starting Logtalk<a name="starting"></a></h3>
 
 <p>
 To start a Logtalk session just:
@@ -179,7 +181,7 @@ To start a Logtalk session just:
 Note that the both configuration files and compiler/preprocessor files are Prolog source files. The predicate called to load (and compile) them depends on your Prolog compiler. In case of doubt, consult your Prolog compiler reference manual or take a look at the definition of the predicate <code>lgt_load_prolog_code/1</code> in the corresponding configuration file.
 </p>
 
-<h3><a class="back" title="Return to index" name="compiling" href="index.html#installing_compiling">Compiling and loading your programs</a></h3>
+<h3>Compiling and loading your programs<a name="compiling"></a></h3>
 
 <p>
 Your programs will be made of source files containing your objects, protocols and categories. After changing the Prolog working directory to the one containing your files, you can compile them to disk by calling the Logtalk built-in predicate  
@@ -207,7 +209,7 @@ Both predicates expect an entity name or a list of entity names (atoms) as an ar
 If you have more than a few source files then you may want to use a loader utility file containing the calls to the <code>logtalk_load/1</code> predicate (see the description above). Consulting or compiling the loader file will then compile and load all your Logtalk entities into memory.
 </p>
 
-<h3><a class="back" title="Return to index" name="options" href="index.html#installing_options">Compiler option flags</a></h3>
+<h3>Compiler option flags<a name="options"></a></h3>
 
 <p>
 The <a title="Consult reference manual" href="../refman/builtins/logtalk_load1.html"><code>logtalk_load/1</code></a> and <a title="Consult reference manual" href="../refman/builtins/logtalk_compile1.html"><code>logtalk_compile/1</code></a> always use the set of default compiler option flags specified in the Logtalk configuration files. Although the default options cover the usual cases, you may want to use a different set of options while compiling or loading some of your Logtalk source files. This can be accomplished by using the <a title="Consult reference manual" href="../refman/builtins/logtalk_load2.html"><code>logtalk_load/2</code></a> or the <a title="Consult reference manual" href="../refman/builtins/logtalk_compile2.html"><code>logtalk_compile/2</code></a> built-in predicates. These two predicates accept a list of options affecting how a Logtalk source file is compiled and loaded:
@@ -257,7 +259,7 @@ You can use the following options:
 </dl>
 <dl>
 	<dt><code>doctype(Option)</code></dt>
-		<dd>Sets the DOCTYPE reference in the automatically generated XML documenting files. The default value is <code>local</code>, that is, the DOCTYPE reference points to a local DTD file (<code>logtalk.dtd</code>). Other possible values are <code>web</code> (DOCTYPE reference points to the web location <code>http://www.logtalk.org/xml/1.0/logtalk.dtd</code>) and <code>standalone</code> (no DOCTYPE reference in the XML documenting files).</dd>
+		<dd>Sets the DOCTYPE reference in the automatically generated XML documenting files. The default value is <code>local</code>, that is, the DOCTYPE reference points to a local DTD file (<code>logtalk.dtd</code>), residing in the same directory as the XML file. Other possible values are <code>web</code> (DOCTYPE reference points to the web location <code>http://www.logtalk.org/xml/1.0/logtalk.dtd</code>) and <code>standalone</code> (no DOCTYPE reference in the XML documenting files).</dd>
 </dl>
 <dl>
 	<dt><code>xsl(File)</code></dt>
@@ -300,7 +302,7 @@ The current values of the default flags can be enumerated using the <a title="Co
     yes
 </pre>
 
-<h3><a class="back" title="Return to index" name="smart" href="index.html#installing_smart">Smart compilation of source files</a></h3>
+<h3>Smart compilation of source files<a name="smart"></a></h3>
 
 <p>
 If the Prolog compiler that you are using supports retrieving  of file modification dates, then you can turn on smart compilation of source files to avoid recompiling files that have not been modified since last compilation.
@@ -315,8 +317,7 @@ Smart compilation of source files is usually off by default. You can turn it on 
 Some caveats that you should be aware. First, some warnings that might be produced when compiling a source file will not show up if the corresponding object file is up-to-date because the source file is not being (re)compiled. Second, if you are using several Prolog compilers with Logtalk, be sure to perform the first compilation of your source files with smart compilation turned off: the intermediate Prolog files generated by the Logtalk preprocessor may be not compatible across Prolog compilers or even for the same Prolog compiler across operating systems (due to different end-of-line characters).
 </p>
 
-<hr />
-<h2><a class="back" title="Return to index" name="batch" href="index.html#installing_batch">Using Logtalk for batch processing</a></h2>
+<h2>Using Logtalk for batch processing<a name="batch"></a></h2>
 
 <p>
 If you use Logtalk for batch processing, you probably want to supress most, if not all, banners, messages, and warnings that are normally printed by the system.
@@ -328,15 +329,16 @@ To supress printing of the Logtalk startup banner and default flags, turn off th
 To supress printing of compiling and loading messages (including compiling warnings but not error messages), turn off the option <code>report</code> in the used config file.
 </p>
 
-<hr />
-<p class="center">
-<strong><a href="configuration.html">Previous</a> | <a href="programming.html">Next</a> | <a href="index.html">Table of Contents</a> | <a href="../bibliography.html">Bibliography</a> | <a href="../glossary.html">Glossary</a></strong>
-</p>
-<p class="center">
-Last updated on: January 10, 2003
-</p>
-<hr />
+<div class="navbottom">
+<a href="configuration.html">previous</a> | <a href="../glossary.html">glossary</a> | <a href="programming.html">next</a>
+</div>
 
+<div class="copyright">
+Copyright &copy; <a href="mailto:pmoura@logtalk.org">Paulo Moura</a> &mdash; <a href="http://www.logtalk.org">Logtalk.org</a>
+</div>
+
+<div class="footer">
+<p><span class="bleft"><a href="http://validator.w3.org/check/referer">XHTML</a> + <a href="http://jigsaw.w3.org/css-validator/check/referer">CSS</a></span><span class="bright">Last updated on: December 23, 2003</span></p>
+</div>
 </body>
-
 </html>

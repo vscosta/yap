@@ -1,20 +1,24 @@
 <?xml version="1.0" encoding="iso-8859-1"?>
 <?xml-stylesheet type="text/css" href="../styles.css" ?>
 
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
-	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+        "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
 
 <head>
-	<title>Event-driven programming</title>
+	<meta http-equiv="content-type" content="text/html; charset=iso-8859-1" />
+	<title>Logtalk user manual: event-driven programming</title>
 	<link rel="stylesheet" href="../styles.css" type="text/css" />
 </head>
 
 <body>
 
-<hr />
-<h1><a class="back" title="Return to index" href="index.html#events">Event-driven programming</a></h1>
+<div class="navtop">
+<a href="../index.html">contents</a> &gt; <a href="index.html">user manual</a>
+</div>
+
+<h1>Event-driven programming</h1>
 
 <p>
 The addition of event-driven programming capacities to the Logtalk system is based on a simple but powerful idea <a href="../bibliography.html#Moura94">[Moura 94]</a>:
@@ -39,14 +43,13 @@ With the integration between object-oriented and event-driven programming, we in
 	<li>Provide a framework for building reflexive systems in Logtalk based on the dynamic behaviour of objects in complement to the reflective information of the object's contents and relations.</li>
 </ul>
 
-<hr />
-<h2><a class="back" title="Return to index" name="definitions" href="index.html#events_definitions">Definitions</a></h2>
+<h2>Definitions<a name="definitions"></a></h2>
 
 <p>
 The words <em>event</em> and <em>monitor</em> have multiple meanings in computer science, so, to avoid misunderstandings, it is advisable that we start by defining them in the Logtalk context.
 </p>
 
-<h3><a class="back" title="Return to index" name="event" href="index.html#events_event">Event</a></h3>
+<h3>Event<a name="event"></a></h3>
 
 <p>
 In an object-oriented system, all computations start through message sending. It thus becomes quite natural to declare that the only event that can occur in this kind of system is precisely the sending of a message. An event can thus be represented by the ordered tuple <code>(Object, Message, Sender)</code>.
@@ -82,7 +85,7 @@ The notion of event allows the user not only to have the possibility of observin
 </p>
 </blockquote>
 
-<h3><a class="back" title="Return to index" name="monitor" href="index.html#events_monitor">Monitor</a></h3>
+<h3>Monitor<a name="monitor"></a></h3>
 
 <p>
 Complementary to the notion of event is the notion of monitor. A monitor is an object that is automatically notified by the message sending mechanisms whenever certain events occur. A monitor should naturally define the actions to be carried out whenever a monitored event occurs.
@@ -123,29 +126,25 @@ In other words, if the message contains uninstantiated variables, these are not 
 </p>
 </blockquote>
 
-<hr />
-<h2><a class="back" title="Return to index" name="generation" href="index.html#events_generation">Event generation</a></h2>
+<h2>Event generation<a name="generation"></a></h2>
 
 <p>
 For each message that is sent (using the <a title="Consult reference manual" href="../refman/control/to_object2.html"><code>::/2</code></a> message sending mechanism) the runtime system automatically generates two events. The first - <code>before event</code> - is generated when the message is sent. The second - <code>after event</code> - is generated after the message has successfully been executed.
 </p>
 
-<hr />
-<h2><a class="back" title="Return to index" name="communicating" href="index.html#events_communicating">Communicating events to monitors</a></h2>
+<h2>Communicating events to monitors<a name="communicating"></a></h2>
 
 <p>
 Whenever a spied event occurs, the message sending mechanisms call the corresponding event handlers directly for all registered monitors. These calls are made bypassing the message sending primitives in order to avoid potential endless loops. The event handlers consist in user definitions for pre-declared public predicates (one for each event kind; see below for more details).
 </p>
 
-<hr />
-<h2><a class="back" title="Return to index" name="performance" href="index.html#events_performance">Performance concerns</a></h2>
+<h2>Performance concerns<a name="performance"></a></h2>
 
 <p>
 The existence of monitored messages should not affect the processing of the remaining messages. On the other hand, for each message that has been sent, the system must verify if its respective event is monitored. This verification clearly must be ideally performed in constant time and independently from the number of monitored events. The events representation takes advantage of the first argument indexing performed by most Prolog compilers, which ensure - in the general case - an access in constant time.
 </p>
 
-<hr />
-<h2><a class="back" title="Return to index" name="semantics" href="index.html#events_semantics">Monitor semantics</a></h2>
+<h2>Monitor semantics<a name="semantics"></a></h2>
 
 <p>
 The established semantics for monitors actions consists on considering its success as a necessary condition so that a message can succeed:
@@ -160,21 +159,19 @@ The established semantics for monitors actions consists on considering its succe
 Note that this is the most general choice. If we wish a transparent presence of monitors in a message processing, we just have to define the monitor actions in such a way that they never fail (which is very simple to accomplish).
 </p>
 
-<hr />
-<h2><a class="back" title="Return to index" name="order" href="index.html#events_order">Activation order of monitors</a></h2>
+<h2>Activation order of monitors<a name="order"></a></h2>
 
 <p>
 Ideally, whenever there are several monitors defined for the same event, the calling order should not interfere with the result. However, this is not always possible. In the case of an event of type <code>before</code>, the failure of a monitor prevents a message from being sent and prevents the execution of the remaining monitors. In case of an event of type <code>after</code>, a monitor failure will force backtracking over message execution. Different orders of monitor activation can therefore lead to different results if the monitor actions imply object modifications unrecoverable in case of backtracking. Therefore, the order for monitor activation must be always taken as arbitrary. In effect, to suppose or to try to impose a specific sequence implies a global knowledge of an application dynamics, which is not always possible. Furthermore, that knowledge can reveal itself as incorrect if there is any changing in the execution conditions. Note that, given the independence between monitors, it does not make sense that a failure forces backtracking over the actions previously executed.
 </p>
 
-<hr />
-<h2><a class="back" title="Return to index" name="events" href="index.html#events_handling">Event handling</a></h2>
+<h2>Event handling<a name="events"></a></h2>
 
 <p>
 Logtalk provides three built-in predicates for event handling. These predicates enable you to find what events are defined, to define new events and to abolish events when they are no longer needed. If you plan to use events extensively in your application, then you should probably define a set of objects that use the built-in predicates described below to implement more sophisticated and high-level behaviour.
 </p>
 
-<h3><a class="back" title="Return to index" name="finding" href="index.html#events_finding">Finding defined events</a></h3>
+<h3>Finding defined events<a name="finding"></a></h3>
 
 <p>
 The events that are currently defined can be retrieved using the Logtalk built-in predicate <a title="Consult reference manual" href="../refman/builtins/current_event5.html"><code>current_event/5</code></a>:
@@ -186,7 +183,7 @@ The events that are currently defined can be retrieved using the Logtalk built-i
 Note that this predicate will return a <strong>set</strong> of matching events if some of the returned arguments are free variables or contain free variables.
 </p>
 
-<h3><a class="back" title="Return to index" name="defining" href="index.html#events_defining">Defining new events</a></h3>
+<h3>Defining new events<a name="defining"></a></h3>
 
 <p>
 New events can be defined using the Logtalk built-in predicate <a title="Consult reference manual" href="../refman/builtins/define_events5.html"><code>define_events/5</code></a>:
@@ -198,7 +195,7 @@ New events can be defined using the Logtalk built-in predicate <a title="Consult
 Note that if any of the arguments is a free variable or contains free variables, this call will define the <strong>set</strong> of matching events.
 </p>
 
-<h3><a class="back" title="Return to index" name="abolishing" href="index.html#events_abolishing">Abolishing defined events</a></h3>
+<h3>Abolishing defined events<a name="abolishing"></a></h3>
 
 <p>
 Events that are no longer needed may be abolished using the <a title="Consult reference manual" href="../refman/builtins/abolish_events5.html"><code>abolish_events/5</code></a> built-in predicate:
@@ -210,7 +207,7 @@ Events that are no longer needed may be abolished using the <a title="Consult re
 If called with free variables, this goal will remove all matching events.
 </p>
 
-<h3><a class="back" title="Return to index" name="handlers" href="index.html#events_handlers">Defining event handlers</a></h3>
+<h3>Defining event handlers<a name="handlers"></a></h3>
 
 <p>
 There are two pre-declared public predicates, <a title="Consult reference manual" href="../refman/methods/before3.html"><code>before/3</code></a> and <a title="Consult reference manual" href="../refman/methods/after3.html"><code>after/3</code></a>, that are automatically called to handle <code>before</code> and <code>after</code> events. Any object that plays the role of monitor should define one or both of these event handler methods: 
@@ -281,15 +278,16 @@ To stop tracing, we can use the <code>abolish_events/5</code> built-in predicate
     yes
 </pre>
 
-<hr />
-<p class="center">
-<strong><a href="inheritance.html">Previous</a> | <a href="errors.html">Next</a> | <a href="index.html">Table of Contents</a> | <a href="../bibliography.html">Bibliography</a> | <a href="../glossary.html">Glossary</a></strong>
-</p>
-<p class="center">
-Last updated on: August 6, 2002
-</p>
-<hr />
+<div class="navbottom">
+<a href="inheritance.html">previous</a> | <a href="../glossary.html">glossary</a> | <a href="errors.html">next</a>
+</div>
 
+<div class="copyright">
+Copyright &copy; <a href="mailto:pmoura@logtalk.org">Paulo Moura</a> &mdash; <a href="http://www.logtalk.org">Logtalk.org</a>
+</div>
+
+<div class="footer">
+<p><span class="bleft"><a href="http://validator.w3.org/check/referer">XHTML</a> + <a href="http://jigsaw.w3.org/css-validator/check/referer">CSS</a></span><span class="bright">Last updated on: December 23, 2003</span></p>
+</div>
 </body>
-
 </html>

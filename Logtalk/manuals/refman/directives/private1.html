@@ -1,30 +1,32 @@
 <?xml version="1.0" encoding="iso-8859-1"?>
 <?xml-stylesheet type="text/css" href="../../styles.css" ?>
 
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
-	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+        "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
 
 <head>
-	<title>private/1</title>
+	<meta http-equiv="content-type" content="text/html; charset=iso-8859-1" />
+	<title>Logtalk predicate directive: private/1</title>
 	<link rel="stylesheet" href="../../styles.css" type="text/css" />
 </head>
 
 <body>
 
-<hr />
-<h2><code><a class="back" title="Return to index" href="../index.html#private1">private/1</a></code></h2>
-<hr />
+<div class="navtop">
+<a href="../../index.html">contents</a> &gt; <a href="../index.html">reference manual</a> &gt; <a href="../index.html#directives">directives</a>
+</div>
+
+<h2><code>private/1</code></h2>
+
 
 <h4>Description</h4>
 
 <blockquote>
-<pre>
-private(Predicate)
+<pre>private(Predicate)
 private(Predicate1, Predicate2, ...)
-private([Predicate1, Predicate2, ...])
-</pre>
+private([Predicate1, Predicate2, ...])</pre>
 <p>
 	Declares private predicates. A private predicate can only be called from the object containing the private directive.
 </p>
@@ -33,32 +35,29 @@ private([Predicate1, Predicate2, ...])
 <h4>Template and modes</h4>
 
 <blockquote>
-<pre>
-private(+predicate_indicator_term)
-</pre>
+<pre>private(+predicate_indicator_term)</pre>
 </blockquote>
 
 <h4>Examples</h4>
 
 <blockquote>
-<pre>
-:- private(counter/1).
+<pre>:- private(counter/1).
 
 :- private(init/1, free/1).
 
-:- private([data/3, key/1, keys/1]).
-</pre>
+:- private([data/3, key/1, keys/1]).</pre>
 </blockquote>
 
-<hr />
-<p class="center">
-<strong><a href="op3.html">Previous</a> | <a href="protected1.html">Next</a> | <a href="../index.html">Table of Contents</a> | <a href="../../bibliography.html">Bibliography</a> | <a href="../../glossary.html">Glossary</a></strong>
-</p>
-<p class="center">
-Last updated on: August 6, 2002
-</p>
-<hr />
+<div class="navbottom">
+<a href="op3.html">previous</a> | <a href="../../glossary.html">glossary</a> | <a href="protected1.html">next</a>
+</div>
 
+<div class="copyright">
+Copyright &copy; <a href="mailto:pmoura@logtalk.org">Paulo Moura</a> &mdash; <a href="http://www.logtalk.org">Logtalk.org</a>
+</div>
+
+<div class="footer">
+<p><span class="bleft"><a href="http://validator.w3.org/check/referer">XHTML</a> + <a href="http://jigsaw.w3.org/css-validator/check/referer">CSS</a></span><span class="bright">Last updated on: December 23, 2003</span></p>
+</div>
 </body>
-
 </html>

@@ -1,6 +1,6 @@
 =================================================================
 Logtalk - Object oriented extension to Prolog
-Release 2.15.4
+Release 2.15.5
 
 Copyright (c) 1998-2003 Paulo Moura.  All Rights Reserved.
 =================================================================
@@ -10,11 +10,12 @@ predicates for dealing with common Prolog types and structures.
 
 To load a group of objects, protocols, and categories in this library 
 change your Prolog working directory to this folder and then consult 
-the corresponding *.loader utility file. Currently, there are seven 
+the corresponding *.loader utility file. Currently, there are eight 
 groups of entities defined:
 
 	dates
 	debugging
+	dependents
 	events
 	hierarchies
 	metapredicates
@@ -27,8 +28,8 @@ seven groups listed above.
 Specific notes about each group of objects, categories, and protocols 
 can be found in the corresponding *.notes files.
 
-Some files represent work in progress and are not loaded by default by 
-any loader utility file.
+Some of the files contained in this directory represent work in progress 
+and are not loaded by default by any loader utility file.
 
 Some of the code in this library is based on public domain Prolog code, 
 in particular, code adopted from the Edinburgh Prolog library. The definition 

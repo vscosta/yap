@@ -1,6 +1,6 @@
 =================================================================
 Logtalk - Object oriented extension to Prolog
-Release 2.15.4
+Release 2.15.5
 
 Copyright (c) 1998-2003 Paulo Moura.  All Rights Reserved.
 =================================================================
@@ -32,11 +32,10 @@ or workaround is needed for your compiler.
 4. Compile and load the Logtalk pre-processor/runtime found in the compiler 
 sub-directory.
 
-Note that both the configuration files and the compiler/pre-processor 
-files are Prolog files. The predicate called to load these files depends 
-on your Prolog compiler. In case of doubt, consult your Prolog compiler 
-reference manual or take a look at the definition of the predicate 
-$lgt_load_prolog_code/1 in the configuration file. 
+Note that both the configuration files and the compiler/preprocessor files 
+are Prolog files. The predicate called to load these files depends on your 
+Prolog compiler (consult your Prolog compiler documentation or take a look 
+at the definition of the predicate $lgt_load_prolog_code/1 in the config file. 
 
 
 Now you can try some of the included examples:
@@ -56,8 +55,8 @@ file or your Prolog reference manual.
 5. Compile and load the file named <example name>.loader. This will compile 
 and load all the example files. Note that the loader file is a Prolog file.
 
-6. Open the example SCRIPT file. One by one, copy&paste or drag&drop the 
-queries in the file to your Prolog top-level.
+6. Open the example SCRIPT file. One by one, copy-and-paste or drag-and-drop 
+the queries in the file to your Prolog top-level.
 
 7. Enjoy!
 
@@ -72,4 +71,4 @@ when editing Logtalk source files.
 program.
 
 3. Copy to this sub-directory a *.loader file form one of the examples and 
-modify it to load your own object files.
+modify it to load your own source files.
