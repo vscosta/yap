@@ -274,6 +274,7 @@ int   STD_PROTO(Yap_PlFGetchar,(void));
 int   STD_PROTO(Yap_GetCharForSIGINT,(void));
 int   STD_PROTO(Yap_StreamToFileNo,(Term));
 Term  STD_PROTO(Yap_OpenStream,(FILE *,char *,Term,int));
+Term  STD_PROTO(Yap_StringToTerm,(char *,Term *));
 
 extern int
   Yap_c_input_stream,

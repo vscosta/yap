@@ -1,16 +1,17 @@
 /*************************************************************************
 *									 *
-*	 YAP Prolog 	%W% %G%						 *
+*	 YAP Prolog 							 *
 *	Yap Prolog was developed at NCCUP - Universidade do Porto	 *
 *									 *
-* Copyright L.Damas, V.S.Costa and Universidade do Porto 1985-1997	 *
+* Copyright L.Damas, V.Santos Costa and Universidade do Porto 1985--	 *
 *									 *
 **************************************************************************
 *									 *
 * File:		c_interface.c						 *
-* Last rev:	19/2/88							 *
-* mods:									 *
 * comments:	c_interface primitives definition 			 *
+*									 *
+* Last rev:	$Date: 2004-05-14 16:33:44 $,$Author: vsc $						 *
+* $Log: not supported by cvs2svn $									 *
 *									 *
 *************************************************************************/
 
@@ -77,7 +78,6 @@ X_API void   *STD_PROTO(YAP_ExtraSpace,(void));
 X_API Int     STD_PROTO(YAP_cut_fail,(void));
 X_API Int     STD_PROTO(YAP_cut_succeed,(void));
 X_API Int     STD_PROTO(YAP_Unify,(Term,Term));
-X_API Int     STD_PROTO(YAP_Unify,(Term,Term));
 X_API int     STD_PROTO(YAP_Reset,(void));
 X_API Int     STD_PROTO(YAP_Init,(YAP_init_args *));
 X_API Int     STD_PROTO(YAP_FastInit,(char *));
@@ -85,6 +85,7 @@ X_API Int     STD_PROTO(YAP_CallProlog,(Term));
 X_API void   *STD_PROTO(YAP_AllocSpaceFromYap,(unsigned int));
 X_API void    STD_PROTO(YAP_FreeSpaceFromYap,(void *));
 X_API int     STD_PROTO(YAP_StringToBuffer, (Term, char *, unsigned int));
+X_API Term    STD_PROTO(YAP_ReadBuffer, (char *,Term *));
 X_API Term    STD_PROTO(YAP_BufferToString, (char *));
 X_API Term    STD_PROTO(YAP_BufferToAtomList, (char *));
 X_API void    STD_PROTO(YAP_Error,(char *));
@@ -227,7 +228,7 @@ YAP_MkFloatTerm(double n)
   t = MkFloatTerm(n);
 
   RECOVER_H();
-  return(t);
+  return t;
 }
 
 X_API flt 
@@ -242,7 +243,7 @@ YAP_MkAtomTerm(Atom n)
   Term t;
 
   t = MkAtomTerm(n);
-  return(t);
+  return t;
 }
 
 X_API Atom 
@@ -285,7 +286,7 @@ YAP_MkVarTerm(void)
   t = MkVarTerm();
 
   RECOVER_H();
-  return(t);
+  return t;
 }
 
 X_API Term
@@ -297,7 +298,7 @@ YAP_MkPairTerm(Term t1, Term t2)
   t = MkPairTerm(t1, t2);
   
   RECOVER_H();
-  return(t);
+  return t;
 }
 
 X_API Term
@@ -309,7 +310,7 @@ YAP_MkNewPairTerm()
   t = Yap_MkNewPairTerm();
   
   RECOVER_H();
-  return(t);
+  return t;
 }
 
 X_API Term 
@@ -333,7 +334,7 @@ YAP_MkApplTerm(Functor f,unsigned long int arity, Term args[])
   t = Yap_MkApplTerm(f, arity, args);
 
   RECOVER_H();
-  return(t);
+  return t;
 }
 
 X_API Term
@@ -345,7 +346,7 @@ YAP_MkNewApplTerm(Functor f,unsigned long int arity)
   t = Yap_MkNewApplTerm(f, arity);
 
   RECOVER_H();
-  return(t);
+  return t;
 }
 
 X_API Functor 
@@ -658,7 +659,20 @@ YAP_BufferToString(char *s)
   t = Yap_StringToList(s);
 
   RECOVER_H();
-  return(t);
+  return t;
+}
+
+/* copy a string to a buffer */
+X_API Term
+YAP_ReadBuffer(char *s, Term *tp)
+{
+  Term t; 
+  BACKUP_H();
+
+  t = Yap_StringToTerm(s,tp);
+
+  RECOVER_H();
+  return t;
 }
 
 /* copy a string to a buffer */
@@ -671,7 +685,7 @@ YAP_BufferToAtomList(char *s)
   t = Yap_StringToListOfAtoms(s);
 
   RECOVER_H();
-  return(t);
+  return t;
 }
 
 
@@ -819,7 +833,7 @@ YAP_Read(int (*mygetc)(void))
   TR = old_TR;
 
   RECOVER_MACHINE_REGS();
-  return(t);
+  return t;
 }
 
 X_API void

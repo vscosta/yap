@@ -1981,11 +1981,40 @@ p_open_pipe_stream (void)
   return (Yap_unify (ARG1, t1) && Yap_unify (ARG2, t2));
 }
 
+static int
+open_buf_read_stream(char *nbuf, Int nchars)
+{
+  int sno;
+  StreamDesc *st;
+ 
+
+  for (sno = 0; sno < MaxStreams; ++sno)
+    if (Stream[sno].status & Free_Stream_f)
+      break;
+  if (sno == MaxStreams)
+    return (PlIOError (SYSTEM_ERROR,TermNil, "new stream not available for open_mem_read_stream/1"));
+  st = &Stream[sno];
+  /* currently these streams are not seekable */
+  st->status = Input_Stream_f | InMemory_Stream_f;
+  st->linepos = 0;
+  st->charcount = 0;
+  st->linecount = 1;
+  st->stream_putc = MemPutc;
+  st->stream_getc = MemGetc;
+  if (CharConversionTable != NULL)
+    st->stream_getc_for_read = ISOGetc;
+  else
+    st->stream_getc_for_read = MemGetc;
+  st->u.mem_string.pos = 0;
+  st->u.mem_string.buf = nbuf;
+  st->u.mem_string.max_size = nchars;
+  return sno;
+}
+
 static Int
 p_open_mem_read_stream (void)   /* $open_mem_read_stream(+List,-Stream) */
 {
   Term t, ti;
-  StreamDesc *st;
   int sno;
   Int sl = 0, nchars = 0;
   char *nbuf;
@@ -2024,26 +2053,7 @@ p_open_mem_read_stream (void)   /* $open_mem_read_stream(+List,-Stream) */
     ti = TailOfTerm(ti);
   }
   nbuf[nchars] = '\0';
-  for (sno = 0; sno < MaxStreams; ++sno)
-    if (Stream[sno].status & Free_Stream_f)
-      break;
-  if (sno == MaxStreams)
-    return (PlIOError (SYSTEM_ERROR,TermNil, "new stream not available for open_mem_read_stream/1"));
-  st = &Stream[sno];
-  /* currently these streams are not seekable */
-  st->status = Input_Stream_f | InMemory_Stream_f;
-  st->linepos = 0;
-  st->charcount = 0;
-  st->linecount = 1;
-  st->stream_putc = MemPutc;
-  st->stream_getc = MemGetc;
-  if (CharConversionTable != NULL)
-    st->stream_getc_for_read = ISOGetc;
-  else
-    st->stream_getc_for_read = MemGetc;
-  st->u.mem_string.pos = 0;
-  st->u.mem_string.buf = nbuf;
-  st->u.mem_string.max_size = nchars;
+  sno = open_buf_read_stream(nbuf, nchars);
   t = MkStream (sno);
   return (Yap_unify (ARG2, t));
 }
@@ -4622,6 +4632,44 @@ p_same_file(void) {
 #else
   return(FALSE);
 #endif
+}
+
+
+Term
+Yap_StringToTerm(char *s,Term *tp)
+{
+  int sno = open_buf_read_stream(s, strlen(s)+1);
+  Term t;
+  TokEntry *tokstart;
+
+  if (sno < 0)
+    return FALSE;
+  tokstart = Yap_tokptr = Yap_toktide = Yap_tokenizer(sno);
+  /* cannot actually use CloseStream, because we didn't allocate the buffer */  
+  Stream[sno].status = Free_Stream_f;
+  if (tokstart == NIL && tokstart->Tok == Ord (eot_tok)) {
+    if (tp) {
+      *tp = MkAtomTerm(Yap_LookupAtom("end of file found before end of term"));
+    }
+    Yap_clean_tokenizer(tokstart, Yap_VarTable, Yap_AnonVarTable);
+    return FALSE;
+  } else if (Yap_ErrorMessage) {
+    if (tp) {
+      *tp = MkAtomTerm(Yap_LookupAtom(Yap_ErrorMessage));
+    }
+    Yap_clean_tokenizer(tokstart, Yap_VarTable, Yap_AnonVarTable);
+    return FALSE;
+  }
+  t = Yap_Parse();
+  if (Yap_ErrorMessage) {
+    if (tp) {
+      *tp = syntax_error(tokstart);
+    }
+    Yap_clean_tokenizer(tokstart, Yap_VarTable, Yap_AnonVarTable);
+    return FALSE;
+  }
+  Yap_clean_tokenizer(tokstart, Yap_VarTable, Yap_AnonVarTable);
+  return t;
 }
 
 void

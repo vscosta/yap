@@ -250,6 +250,9 @@ extern X_API int PROTO(YAP_StringToBuffer,(YAP_Term,char *,unsigned int));
 /*  int BufferToString(char *) */
 extern X_API YAP_Term PROTO(YAP_BufferToString,(char *));
 
+/* YAP_Term BufferToTerm(char *) */
+extern X_API YAP_Term PROTO(YAP_ReadBuffer,(char *,YAP_Term *));
+
 /*  int BufferToAtomList(char *) */
 extern X_API YAP_Term PROTO(YAP_BufferToAtomList,(char *));
 

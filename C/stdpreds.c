@@ -4,15 +4,19 @@
 *									 *
 *	Yap Prolog was developed at NCCUP - Universidade do Porto	 *
 *									 *
-* Copyright L.Damas, V.S.Costa and Universidade do Porto 1985-1997	 *
+* Copyright L.Damas, V. Santos Costa and Universidade do Porto 1985--	 *
 *									 *
 **************************************************************************
 *									 *
 * File:		stdpreds.c						 *
 * comments:	General-purpose C implemented system predicates		 *
 *									 *
-* Last rev:     $Date: 2004-05-13 20:54:58 $,$Author: vsc $						 *
+* Last rev:     $Date: 2004-05-14 16:33:45 $,$Author: vsc $						 *
 * $Log: not supported by cvs2svn $
+* Revision 1.66  2004/05/13 20:54:58  vsc
+* debugger fixes
+* make sure we always go back to current module, even during initizlization.
+*
 * Revision 1.65  2004/04/27 15:14:36  vsc
 * fix halt/0 and halt/1
 *									 *

@@ -5627,11 +5627,11 @@ signal name or one that is not supported on this platform. No checks
 are made on the handler provided by the user.
 
 @table @code
-@item SIGHUP (Hangup)
-  sig_hup in YAP; Reconsult the initialization files
+@item sig_up (Hangup)
+  SIGHUP in Unix/Linux; Reconsult the initialization files
   ~/.yaprc, ~/.prologrc and ~/prolog.ini.
-@item SIGUSR1 and SIGUSR2 (User signals)
-  sig_usr1 and sig_usr2 in YAP; Print a message and halt.
+@item sig_usr1 and sig_usr2 (User signals)
+  SIGUSR1 and SIGUSR2 in Unix/Linux; Print a message and halt.
 @end table
 
 A special case is made, where if @var{Callable} is bound to
@@ -13584,6 +13584,17 @@ character atoms
 @end example
 @noindent
 The user-provided string must include a terminating null character.
+
+@findex YAP_ReadBuffer (C-Interface function)
+The C-interface function calls the parser on a sequence of characters
+stored at @var{buf} and returns the resulting term.
+@example
+      YAP_Term YAP_ReadBuffer(char *@var{buf},YAP_Term *@var{error})
+@end example
+@noindent
+The user-provided string must include a terminating null
+character. Syntax errors will cause returning @code{FALSE} and binding
+@var{error} to a Prolog term.
 
 @node Memory Allocation, Controlling Streams, Manipulating Strings, C-Interface
 @section Memory Allocation
