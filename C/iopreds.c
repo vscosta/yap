@@ -183,7 +183,6 @@ STATIC_PROTO (Int p_current_input, (void));
 STATIC_PROTO (Int p_current_output, (void));
 STATIC_PROTO (Int p_write, (void));
 STATIC_PROTO (Int p_write2, (void));
-STATIC_PROTO (void checkcol, (int));
 STATIC_PROTO (Int p_inform_of_clause, (void));
 STATIC_PROTO (Int p_set_read_error_handler, (void));
 STATIC_PROTO (Int p_get_read_error_handler, (void));
@@ -2672,80 +2671,90 @@ p_write2 (void)
   return (TRUE);
 }
 
-static int error_col;
-
-static void
-checkcol (int l)
-{
-  if (error_col + l > 70)
-    YP_putc ('\n', YP_stderr), error_col = 0;
-  error_col += l;
-}
-
-void
+static Term
 syntax_error (TokEntry * tokptr)
 {
   Term info;
-  char *s;
-  while (1)
-    {
-      if (tokptr == toktide)
-	{
-	  YP_fprintf (YP_stderr, "\n<==== HERE ====>\n");
-	  error_col = 0;
-	}
-      info = tokptr->TokInfo;
-      switch (tokptr->Tok)
-	{
-	case Name_tok:
-	  s = RepAtom (((Atom) info))->StrOfAE;
-	  checkcol (strlen (s) + 1);
-	  YP_fprintf (YP_stderr, " %s", s);
-	  break;
-	case Number_tok:
-	  checkcol (6);
-	  if (IsIntegerTerm(info)) {
-	    YP_fprintf (YP_stderr, " %ld", IntegerOfTerm (info));
-#ifdef USE_GMP 
-	  } else if (IsBigIntTerm(info)) {
-	    char *s = (char *)TR;
-	    while (s+2+mpz_sizeinbase(BigIntOfTerm(info), 10) > (char *)TrailTop)
-	      growtrail(64*1024);
-	    mpz_get_str(s, 10, BigIntOfTerm(info));
-	    YP_fprintf(YP_stderr,"%s", s);
-#endif
-	  } else {
-	    YP_fprintf (YP_stderr, " %.15g", FloatOfTerm (info));
-	  }
-	  break;
-	case Var_tok:
-	  s = ((VarEntry *) info)->VarRep;
-	  checkcol (strlen (s) + 1);
-	  YP_fprintf (YP_stderr, " %s", s);
-	  break;
-	case String_tok:
-	  s = (char *) info;
-	  checkcol (strlen (s) + 2);
-	  YP_fprintf (YP_stderr, "\"%s\"", s);
-	  break;
-	case Ponctuation_tok:
-	  if (Ord (info) == 'l')
-	    {
-	      checkcol (1);
-	      YP_putc ('(', YP_stderr);
-	    }
-	  else
-	    {
-	      checkcol (2);
-	      YP_fprintf (YP_stderr, " %c", (int) info);
-	    }
-	}
-      if (tokptr->Tok == Ord (eot_tok))
-	break;
-      tokptr = tokptr->TokNext;
+  int count = 0, out = 0;
+  Int start, err = 0, end;
+  Term tf[6];
+  Term *error = tf+3;
+
+  start = tokptr->TokPos;
+  while (1) {
+    Term ts[2];
+
+    if (tokptr == toktide) {
+      err = tokptr->TokPos;
+      out = count;
     }
-  YP_putc ('.', YP_stderr);
-  YP_putc ('\n', YP_stderr);
+    info = tokptr->TokInfo;
+    switch (tokptr->Tok) {
+    case Name_tok:
+      {
+	Term t0 = MkAtomTerm((Atom)info);
+	ts[0] = MkApplTerm(MkFunctor(LookupAtom("atom"),1),1,&t0);
+      }
+      break;
+    case Number_tok:
+      ts[0] = MkApplTerm(MkFunctor(LookupAtom("number"),1),1,&(tokptr->TokInfo));
+      break;
+    case Var_tok:
+      {
+	Term t[3];
+	VarEntry *varinfo = (VarEntry *)info;
+
+	t[0] = MkIntTerm(0);
+	t[1] = StringToList(varinfo->VarRep);
+	if (varinfo->VarAdr == TermNil) {
+	  varinfo->VarAdr = MkVarTerm();
+	}
+	t[2] = varinfo->VarAdr;
+	ts[0] = MkApplTerm(MkFunctor(LookupAtom("var"),3),3,t);
+      }
+      break;
+    case String_tok:
+      {
+	Term t0 = StringToList((char *)info);
+	ts[0] = MkApplTerm(MkFunctor(LookupAtom("string"),1),1,&t0);
+      }
+      break;
+    case Ponctuation_tok:
+      {
+	char s[2];
+	s[1] = '\0';
+	if (Ord (info) == 'l') {
+	  s[0] = '(';
+	} else  {
+	  s[0] = (char)info;
+	}
+	ts[0] = MkAtomTerm(LookupAtom(s));
+      }
+    }
+    if (tokptr->Tok == Ord (eot_tok)) {
+      *error = TermNil;
+      end = tokptr->TokPos;
+      break;
+    }
+    ts[1] = MkIntegerTerm(tokptr->TokPos);
+    *error =
+      MkPairTerm(MkApplTerm(MkFunctor(LookupAtom("-"),2),2,ts),TermNil);
+    error = RepPair(*error)+1;
+    count++;
+    tokptr = tokptr->TokNext;
+  }
+  tf[0] = MkApplTerm(MkFunctor(LookupAtom("read"),1),1,&ARG2);
+  {
+    Term t[3];
+    t[0] = MkIntegerTerm(start);
+    t[1] = MkIntegerTerm(err);
+    t[2] = MkIntegerTerm(end);
+    tf[1] = MkApplTerm(MkFunctor(LookupAtom("between"),3),3,t);
+  }
+  tf[2] = MkAtomTerm(LookupAtom("\n<==== HERE ====>\n"));
+  tf[4] = MkIntegerTerm(out);
+  tf[5] = MkIntegerTerm(StartLine);
+  return(MkApplTerm(MkFunctor(LookupAtom("syntax_error"),6),6,tf));
 }
 
 void
@@ -2917,81 +2926,12 @@ p_read (void)
       if (parser_error_style == QUIET_ON_PARSER_ERROR) {
 	return(FALSE);
       }
-      if (c_input_stream != StdInStream) {
-#if MPW
-	if (mpwshell) {
-	  YP_fprintf (YP_stderr, "File \"%s\" ;",
-		      RepAtom (Stream[c_input_stream].u.file.name)->StrOfAE);
-	  YP_fprintf (YP_stderr, " line %d # syntax error \n",
-		      StartLine);
-	} else {
-	  YP_fprintf (YP_stderr, "<==== syntax error ");
-	  YP_fprintf (YP_stderr, " line %d ====>\n", StartLine);
-	}
-#else
-#if EMACS
-	if (emacs_mode) {
-	  YP_fprintf (YP_stdout, "\001(yap-error \"%s\" %d \"yap syntax error\")\002\n",
-		      RepAtom (Stream[c_input_stream].u.file.name)->StrOfAE,
-		      toktide->TokPos);
-	  emacs_cares = TRUE;
-	} else {
-	  YP_fprintf (YP_stderr, "[ Syntax Error: ");
-	  YP_fprintf (YP_stderr, "line %d ]\n", StartLine);
-	}
-#else
-	YP_fprintf (YP_stderr, "[ Syntax Error at line %d: ", StartLine);
-#endif /* EMACS */
-#endif /* MPW */
-      } else {
-	YP_fprintf (YP_stderr, "[ Syntax error: ");
-      }
-#if EMACS
-      if (emacs_cares) {
-	char tmp[256], *s = tmp;
-	long i = 0, fd_char;
-	YP_File fd;
-
-	snoozing = TRUE;
-	YP_fclose (Stream[c_input_stream].u.file.file);
-	sleep (3600);	/* snooze until a nasty
-			 * interrupt wakes Yap for
-			 * breakfast */
-	if ((fd = YP_fopen (emacs_tmp, "r")) == NULL)
-	  YP_fprintf (YP_stderr, "Unable to communicate with Emacs: could not open %s\n",
-			emacs_tmp);
-	while ((fd_char = YP_getc (fd)) != ' '
-	       && fd_char != EOF)
-	  i = i * 10 + fd_char - '0';
-	Stream[c_input_stream].u.file.file =
-	  YP_fopen (RepAtom (Stream[c_input_stream].u.file.name)->StrOfAE, "r");
-	if (YP_fseek (Stream[c_input_stream].u.file.file, i, 0) < 0)
-	  YP_fprintf (YP_stderr, "Problems while working with Emacs\n");
-	else {
-	  /*
-	   * YP_fprintf(YP_stderr,"gone to %d with
-	   * %d\n",YP_ftell(Stream[c_input_stream].
-	   * file),i); 
-	   */
-	  Stream[c_input_stream].linepos = 0;
-	  Stream[c_input_stream].linecount = 1;
-	  Stream[c_input_stream].charcount = 0;
-	}
-	YP_fclose (fd);
-	unlink (emacs_tmp);
-      } else {
-	if (ErrorMessage)
-	  YP_fprintf (YP_stderr, "%s\n", ErrorMessage);
-	else
-	  syntax_error (tokstart);
-      }
-#else
       if (ErrorMessage)
 	YP_fprintf (YP_stderr, "%s", ErrorMessage);
-      else
-	syntax_error (tokstart);
-      YP_fprintf (YP_stderr, " ]\n");
-#endif /* EMACS */
+      else {
+	Error(SYNTAX_ERROR,syntax_error(tokstart),"SYNTAX ERROR");
+	return(FALSE);
+      }
       if (parser_error_style == FAIL_ON_PARSER_ERROR) {
 	return (FALSE);
       } else if (parser_error_style == EXCEPTION_ON_PARSER_ERROR) {
@@ -3594,7 +3534,7 @@ GetArgSizeFromChars (char **pptr, Int * intptr, Term * termptr)
 
 #define FORMAT_MAX_SIZE 256
 
-static char *format_ptr, *format_base;
+static char *format_ptr, *format_base, *format_max;
 static int   format_buf_size;
 
 typedef struct {
@@ -3621,32 +3561,33 @@ format_putc(int sno, int ch) {
     return((int)10);
   } else {
     *format_ptr++ = (char)ch;
-  }
-  if (format_ptr - format_base == format_buf_size) {
-    /* oops, we have reached an overflow */
-    Int new_max_size = format_buf_size + FORMAT_MAX_SIZE;
-    char *newbuf;
+    if (format_ptr == format_max) {
+      /* oops, we have reached an overflow */
+      Int new_max_size = format_buf_size + FORMAT_MAX_SIZE;
+      char *newbuf;
 
-    if ((newbuf = AllocAtomSpace(new_max_size*sizeof(char))) == NULL) {
-      Error(SYSTEM_ERROR, TermNil, "YAP could not grow heap for format/2");
-      return(EOF);
-    }
-#if HAVE_MEMMOVE
-    memmove((void *)newbuf, (void *)format_base, (size_t)((format_ptr-format_base)*sizeof(char)));
-#else
-    {
-      Int n = format_ptr-format_base;
-      char *to = newbuf;
-      char *from = format_base;
-      while (n-- >= 0) {
-	*to++ = *from++;
+      if ((newbuf = AllocAtomSpace(new_max_size*sizeof(char))) == NULL) {
+	Error(SYSTEM_ERROR, TermNil, "YAP could not grow heap for format/2");
+	return(EOF);
       }
-    }
+#if HAVE_MEMMOVE
+      memmove((void *)newbuf, (void *)format_base, (size_t)((format_ptr-format_base)*sizeof(char)));
+#else
+      {
+	Int n = format_ptr-format_base;
+	char *to = newbuf;
+	char *from = format_base;
+	while (n-- >= 0) {
+	  *to++ = *from++;
+	}
+      }
 #endif
-    FreeAtomSpace(format_base);
-    format_ptr = newbuf+(format_ptr-format_base);
-    format_base = newbuf;
-    format_buf_size = new_max_size;
+      FreeAtomSpace(format_base);
+      format_ptr = newbuf+(format_ptr-format_base);
+      format_base = newbuf;
+      format_max = newbuf+new_max_size;
+      format_buf_size = new_max_size;
+  }
   }
   return ((int) ch);
 }
@@ -3968,40 +3909,38 @@ format(Term tail, Term args, int sno)
 		Error(TYPE_ERROR_INTEGER,arghd,"~d in format/2");
 		return(FALSE);
 	      }
-	      if (!arg_size)
+	      if (!arg_size) {
 		plwrite (arghd, format_putc, 4);
-	      else
-		{
-		  Int siz;
-		  /*
-		   * The guys at Quintus have probably
-		   * read too much Cobol! 
-		   */
-		  if (int2 < 0)
-		    {
-		      int2 = -int2;
-		      format_putc(sno, (int) '-');
-		    }
-#if SHORT_INTS
-		  sprintf (tmp2, "%ld", int2);
-#else
-		  sprintf (tmp2, "%d", int2);
-#endif
-		  siz = strlen (tmp2);
-		  {
-		    char *ptr = tmp2;
-		    if (siz <= arg_size)
-		      format_putc(sno, (int) '0');
-		    else
-		      while (siz > arg_size)
-			format_putc(sno, (int) *ptr++), --siz;
-		    format_putc(sno, (int) '.');
-		    while (siz < arg_size)
-		      format_putc(sno, (int) '0'), --arg_size;
-		    while (*ptr)
-		      format_putc(sno, (int) (*ptr++));
-		  }
+	      } else {
+		Int siz;
+		/*
+		 * The guys at Quintus have probably
+		 * read too much Cobol! 
+		 */
+		if (int2 < 0) {
+		  int2 = -int2;
+		  format_putc(sno, (int) '-');
 		}
+#if SHORT_INTS
+		sprintf (tmp2, "%ld", int2);
+#else
+		sprintf (tmp2, "%d", int2);
+#endif
+		siz = strlen (tmp2);
+		{
+		  char *ptr = tmp2;
+		  if (siz <= arg_size)
+		    format_putc(sno, (int) '0');
+		  else
+		    while (siz > arg_size)
+		      format_putc(sno, (int) *ptr++), --siz;
+		  format_putc(sno, (int) '.');
+		  while (siz < arg_size)
+		    format_putc(sno, (int) '0'), --arg_size;
+		  while (*ptr)
+		    format_putc(sno, (int) (*ptr++));
+		}
+	      }
 	      break;
 	    case 'D':
 	      if (IsVarTerm (args)) {
@@ -4081,16 +4020,16 @@ format(Term tail, Term args, int sno)
 		if (size_args)
 		  radix = arg_size;
 		if (IsVarTerm (args)) {
-		FreeAtomSpace(format_base);
+		  FreeAtomSpace(format_base);
 		  Error(INSTANTIATION_ERROR,args,"~r in format/2");
 		  return(FALSE);		
 		} else if (!IsPairTerm (args)) {
-		FreeAtomSpace(format_base);
+		  FreeAtomSpace(format_base);
 		  Error(TYPE_ERROR_LIST,args,"~r in format/2");
 		  return(FALSE);
 		}
 		if (radix > 36 || radix < 2) {
-		FreeAtomSpace(format_base);
+		  FreeAtomSpace(format_base);
 		  Error(DOMAIN_ERROR_RADIX,MkIntTerm(radix),"~r in format/2");
 		  return(FALSE);
 		}

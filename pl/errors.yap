@@ -277,9 +277,11 @@ print_message(Level, Mss) :-
 '$output_error_message'(representation_error(max_arity), Where) :-
 	'$format'(user_error,"[ REPRESENTATION ERROR- ~w: number too big ]~n",
 	[Where]).
-'$output_error_message'(syntax_error(Error), Where) :-
-	'$format'(user_error,"[ SYNTAX ERROR- ~w: ~w ]~n",
-	[Where, Error]).
+'$output_error_message'(syntax_error(_,Position,_,Term,Pos,Start), Where) :-
+	'$format'(user_error,"[ ~w ",[Where]),
+	'$dump_syntax_error_line'(Start,Position),
+	'$dump_syntax_error_term'(10,Pos, Term),
+	'$format'(user_error,".~n]~n",[]).
 '$output_error_message'(system_error, Where) :-
 	'$format'(user_error,"[ SYSTEM ERROR- ~w ]~n",
 	[Where]).
@@ -364,5 +366,38 @@ print_message(Level, Mss) :-
 '$output_error_message'(unknown, Where) :-
 	'$format'(user_error,"[ EXISTENCE ERROR- procedure ~w undefined ]~n",
 	[Where]).
+
+
+'$dump_syntax_error_line'(Pos,_) :-
+	'$format'(user_error,"at line ~d:~n",
+	[Pos]).
+
+'$dump_syntax_error_term'(0,J,L) :- !,
+	'$format'(user_error,"~n", []),
+	'$dump_syntax_error_term'(10,J,L).
+'$dump_syntax_error_term'(_,0,L) :- !,
+	'$format'(user_error,"~n<==== HERE ====>~n", []),
+	'$dump_syntax_error_term'(10,-1,L).
+'$dump_syntax_error_term'(_,_,[]) :- !.
+'$dump_syntax_error_term'(I,J,[T-P|R]) :-
+	'$dump_error_token'(T),
+	I1 is I-1,
+	J1 is J-1,
+	'$dump_syntax_error_term'(I1,J1,R).
+
+'$dump_error_token'(atom(A)) :- !,
+	'$format'(user_error," ~a", [A]).
+'$dump_error_token'(number(N)) :- !,
+	'$format'(user_error," ~w", [N]).
+'$dump_error_token'(var(_,S,_)) :- !,
+	'$format'(user_error," ~s ", [S]).
+'$dump_error_token'(string(S)) :- !,
+	'$format'(user_error," ""~s""", [S]).
+'$dump_error_token'('(') :-
+	'$format'(user_error,"(", []).
+'$dump_error_token'(')') :-
+	'$format'(user_error," )", []).
+'$dump_error_token'(A) :-
+	'$format'(user_error," ~a", [A]).
 
 

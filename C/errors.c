@@ -338,6 +338,23 @@ Error (yap_error_number type, Term where, char *format,...)
     fprintf(stderr,"[ ERROR WITHIN ERROR: %s ]\n", tmpbuf);
     exit(1);
   }
+  /* must do this here */
+  if (type == FATAL_ERROR) {
+    va_start (ap, format);
+    /* now build the error string */
+    if (format != NULL) {
+#if   HAVE_VSNPRINTF
+      (void) vsnprintf(tmpbuf, YAP_BUF_SIZE, format, ap);
+#else
+      (void) vsprintf(tmpbuf, format, ap);
+#endif
+    }  else {
+      tmpbuf[0] = '\0';
+    }
+    va_end (ap);
+    YP_fprintf(YP_stderr,"[ Fatal YAP Error: %s exiting.... ]\n",tmpbuf);
+    exit_yap (1);
+  }
   if (P == (yamop *)(FAILCODE))
    return(P);
   /* PURE_ABORT may not have set where correctly, BootMode may not have the data terms ready */
@@ -1344,7 +1361,6 @@ Error (yap_error_number type, Term where, char *format,...)
   case SYNTAX_ERROR:
     {
       int i;
-      Term ti[1];
 
 #if   HAVE_STRNCAT
       strncat(tmpbuf, " in ", psize);
@@ -1352,8 +1368,7 @@ Error (yap_error_number type, Term where, char *format,...)
       strcat(tmpbuf, " in ");
 #endif
       i = strlen(tmpbuf);
-      ti[0] = where;
-      nt[0] = MkApplTerm(MkFunctor(LookupAtom("syntax_error"),1), 1, ti);
+      nt[0] = where;
       tp = tmpbuf+i;
       psize -= i;
       fun = MkFunctor(LookupAtom("error"),2);

@@ -1256,11 +1256,11 @@ Int
 JumpToEnv(Term t) {
   yamop *pos = (yamop *)(PredDollarCatch->LastClause);
   CELL *env;
-  choiceptr first_func = NULL;
+  choiceptr first_func = NULL, B0 = B;
 
   do {
     /* find the first choicepoint that may be a catch */
-    while (B->cp_ap != pos) {
+    while (B != NULL && B->cp_ap != pos) {
       /* we are already doing a catch */
       if (B->cp_ap == (yamop *)(PredHandleThrow->LastClause)) {
 	if (DelayedB == NULL || YOUNGER_CP(B,DelayedB))
@@ -1274,6 +1274,11 @@ JumpToEnv(Term t) {
       if (B->cp_ap == (yamop *) NOCODE && first_func == NULL)
 	first_func = B;
       B = B->cp_b;
+    }
+    /* uncaught throw */
+    if (B == NULL) {
+      B = B0;
+      siglongjmp(RestartEnv,1);
     }
     /* is it a continuation? */
     env = B->cp_env;
