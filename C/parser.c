@@ -316,31 +316,40 @@ ParseArgs(Atom a)
 static Term
 ParseList(void)
 {
-  Term t, s;
-  t = ParseTerm(999);
+  Term t, s, o;
+  CELL *to_store;
+  o = AbsPair(H);
+ loop:
+  to_store = H;
+  H+=2;
+  to_store[0] = ParseTerm(999);
   if (tokptr->Tok == Ord(Ponctuation_tok)) {
     if (((int) tokptr->TokInfo) == ',') {
       NextToken;
       if (tokptr->Tok == Ord(Name_tok)
 	  && strcmp(RepAtom((Atom)(tokptr->TokInfo))->StrOfAE, "..") == 0) {
 	NextToken;
-	s = ParseTerm(999);
-      } else
-	s = ParseList();
+	to_store[1] = ParseTerm(999);
+      } else {
+	/* check for possible overflow against local stack */
+	if (H > ASP-4096) {
+	  to_store[1] = TermNil;
+	  ErrorMessage = "Stack Overflow";
+	  FAIL;
+	} else {
+	  to_store[1] = AbsPair(H);
+	  goto loop;
+	}
+      }
     } else if (((int) tokptr->TokInfo) == '|') {
       NextToken;
-      s = ParseTerm(999);
-    } else
-      s = MkAtomTerm(AtomNil);
-    t = MkPairTerm(t, s);
-    /* check for possible overflow against local stack */
-    if (H > ASP-4096) {
-      ErrorMessage = "Stack Overflow";
-      FAIL;
+      to_store[1] = ParseTerm(999);
+    } else {
+      to_store[1] = MkAtomTerm(AtomNil);
     }
   } else
     FAIL;
-  return (t);
+  return (o);
 }
 
 #ifndef INFINITY
