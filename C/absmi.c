@@ -11376,7 +11376,10 @@ absmi(int inp)
 #endif /* FROZEN_REGS */
 	WRITEBACK_Y_AS_ENV();
 	/* setup GB */
-	E_Y[E_CB] = ENV[E_CB];
+	if (pen->PredFlags & CutTransparentPredFlag)
+	  E_Y[E_CB] = ENV[E_CB];
+	else
+	  E_Y[E_CB] = (CELL)B;
 #ifdef YAPOR
 	SCH_check_requests();
 #endif	/* YAPOR */
@@ -11481,7 +11484,10 @@ absmi(int inp)
 
 	ALWAYS_LOOKAHEAD(pen->OpcodeOfPred);
 	BEGD(d0);
-	d0 = ENV[E_CB];
+	if (pen->PredFlags & CutTransparentPredFlag)
+	  d0 = ENV[E_CB];
+	else
+	  d0 = (CELL)B;
 #ifndef NO_CHECKING
 	check_stack(NoStackPWLExec, H);
 #endif

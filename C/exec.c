@@ -452,7 +452,10 @@ p_execute_within2(void)
 	*dest++ = *pt++;
 #endif
       }
-      return (CallPredicate(pen, (choiceptr)(ENV[E_CB])));
+      if (pen->PredFlags & CutTransparentPredFlag)
+	return (CallPredicate(pen, (choiceptr)(ENV[E_CB])));
+      else
+	return (CallPredicate(pen, B));
     }
   } else if (IsAtomTerm(t)) {
     Atom a = AtomOfTerm(t);

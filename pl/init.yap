@@ -28,6 +28,14 @@ false :- false.
 '$$!'(CP) :- '$cut_by'(CP).
 [] :- true.
 
+:- '$cut_transparent'(','(_,_)).
+:- '$cut_transparent'(';'(_,_)).
+:- '$cut_transparent'('|'(_,_)).
+:- '$cut_transparent'('->'(_,_)).
+:- '$cut_transparent'(\+ _).
+:- '$cut_transparent'(not(_)).
+
+
 :- '$set_value'('$doindex',true).
 
 :- 	['errors.yap',
