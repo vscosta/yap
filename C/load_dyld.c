@@ -91,7 +91,7 @@ mydlsym(char *symbol)
     char funcname[256];
 
 #if HAVE_SNPRINTF
-    snprintf(funcname, sizeof(funcname), "_init%.200s", symbol);
+    snprintf(funcname, sizeof(funcname), "_%.200s", symbol);
 #else
     sprintf(funcname, "_%.200s", symbol);
 #endif
