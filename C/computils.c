@@ -193,9 +193,6 @@ bip_name(Int op, char *s)
   case _eq:
     strcpy(s,"eq");
     break;
-  case _arg:
-    strcpy(s,"arg");
-    break;
   case _functor:
     strcpy(s,"functor");
     break;
@@ -222,6 +219,9 @@ bip_name(Int op, char *s)
     break;
   case _slr:
     strcpy(s,"slr");
+    break;
+  case _arg:
+    strcpy(s,"arg");
     break;
   default:
     strcpy(s,"");

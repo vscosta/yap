@@ -462,21 +462,21 @@ yap_flag(write_strings,X) :-
 
 yap_flag(user_input,OUT) :-
 	var(OUT), !,
-	current_stream(user_input,_,OUT).
+	stream_property(OUT,[alias(user_input)]).
 yap_flag(user_input,Stream) :-
 	'$change_alias_to_stream'(user_input,Stream).
 
 
 yap_flag(user_output,OUT) :-
 	var(OUT), !,
-	current_stream(user_output,_,OUT).
+	stream_property(OUT,[alias(user_output)]).
 yap_flag(user_output,Stream) :-
 	'$change_alias_to_stream'(user_output,Stream).
 
 
 yap_flag(user_error,OUT) :-
 	var(OUT), !,
-	current_stream(user_error,_,OUT).
+	stream_property(OUT,[alias(user_error)]).
 yap_flag(user_error,Stream) :-
 	'$change_alias_to_stream'(user_error,Stream).
 

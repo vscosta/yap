@@ -9731,13 +9731,17 @@ absmi(int inp)
       ENDD(d0);
       ENDOp();
 
-      Op(p_arg, e);
+      Op(p_arg_vv, xxx);
 #ifdef LOW_LEVEL_TRACER
-      if (do_low_level_trace)
-	low_level_trace(enter_pred,RepPredProp(GetPredProp(LookupAtom("arg"),3)),XREGS+1);
+      if (do_low_level_trace) {
+	H[0] = XREG(PREG->u.xxx.x1);
+	H[1] = XREG(PREG->u.xxx.x2);
+	RESET_VARIABLE(H+2);
+	low_level_trace(enter_pred,RepPredProp(GetPredProp(LookupAtom("arg"),3)),H);
+      }
 #endif	/* LOW_LEVEL_TRACE */
       BEGD(d0);
-      d0 = ARG1;
+      d0 = XREG(PREG->u.xxx.x1);
       deref_head(d0, arg_arg1_unk);
     arg_arg1_nvar:
       /* ARG1 is ok! */
@@ -9752,7 +9756,7 @@ absmi(int inp)
 
       /* d0 now got the argument we want */
       BEGD(d1);
-      d1 = ARG2;
+      d1 = XREG(PREG->u.xxx.x2);
       deref_head(d1, arg_arg2_unk);
     arg_arg2_nvar:
       /* d1 now got the structure we want to fetch the argument
@@ -9764,10 +9768,8 @@ absmi(int inp)
 	if (IsExtensionFunctor((Functor) d1)) {
 	  FAIL();
 	}
-	save_hb();
 	if ((Int)d0 <= 0 ||
-	    d0 > ArityOfFunctor((Functor) d1) ||
-	    IUnify((CELL)(pt0+d0), ARG3) == FALSE) {
+	    d0 > ArityOfFunctor((Functor) d1)) {
 	  /* don't complain here for Prolog compatibility 
 	  if ((Int)d0 <= 0) {
 	    Error(DOMAIN_ERROR_NOT_LESS_THAN_ZERO,
@@ -9776,35 +9778,24 @@ absmi(int inp)
 	  */
 	  FAIL();
 	}
-	PREG = NEXTOP(PREG, e);
+	XREG(PREG->u.xxx.x) = pt0[d0];
+	PREG = NEXTOP(PREG, xxx);
 	GONext();
 	ENDP(pt0);
       }
       else if (IsPairTerm(d1)) {
 	BEGP(pt0);
 	pt0 = RepPair(d1);
-	if (d0 == 1) {
-	  save_hb();
-	  if (IUnify((CELL)pt0, ARG3) == FALSE) {
-	    FAIL();
-	  }
-	  PREG = NEXTOP(PREG, e);
-	  GONext();
-	}
-	else if (d0 == 2) {
-	  save_hb();
-	  if (IUnify((CELL)(pt0+1), ARG3) == FALSE) {
-	    FAIL();
-	  }
-	  PREG = NEXTOP(PREG, e);
-	  GONext();
-	}
-	else {
-	  if ((Int)d0 < 0)
+	if (d0 != 1 && d0 != 2) {
+	  if ((Int)d0 < 0) {
 	    Error(DOMAIN_ERROR_NOT_LESS_THAN_ZERO,
-		  MkIntegerTerm(d0),"arg 1 of arg/3");	 
+		  MkIntegerTerm(d0),"arg 1 of arg/3");
+	  }
 	  FAIL();
 	}
+	XREG(PREG->u.xxx.x) = pt0[d0-1];
+	PREG = NEXTOP(PREG, xxx);
+	GONext();
 	ENDP(pt0);
       }
       else {
@@ -9824,6 +9815,267 @@ absmi(int inp)
       Error(INSTANTIATION_ERROR, d0, "arg 1 of arg/3");;
       ENDP(pt0);
       FAIL();
+      ENDD(d0);
+      ENDOp();
+
+      Op(p_arg_cv, xxc);
+#ifdef LOW_LEVEL_TRACER
+      if (do_low_level_trace) {
+	CELL *Ho = H;
+	Term t = MkIntegerTerm(PREG->u.xxc.c); 
+	H[0] =  t;
+	H[1] = XREG(PREG->u.xxc.xi);
+	RESET_VARIABLE(H+2);
+	low_level_trace(enter_pred,RepPredProp(GetPredProp(LookupAtom("arg"),3)),H);
+	H = Ho;
+      }
+#endif	/* LOW_LEVEL_TRACE */
+      BEGD(d0);
+      d0 = PREG->u.xxc.c;
+      /* d0 now got the argument we want */
+      BEGD(d1);
+      d1 = XREG(PREG->u.xxc.xi);
+      deref_head(d1, arg_arg2_vc_unk);
+    arg_arg2_vc_nvar:
+      /* d1 now got the structure we want to fetch the argument
+       * from */
+      if (IsApplTerm(d1)) {
+	BEGP(pt0);
+	pt0 = RepAppl(d1);
+	d1 = *pt0;
+	if (IsExtensionFunctor((Functor) d1)) {
+	  FAIL();
+	}
+	if ((Int)d0 <= 0 ||
+	    d0 > ArityOfFunctor((Functor) d1)) {
+	  /* don't complain here for Prolog compatibility 
+	  if ((Int)d0 <= 0) {
+	    Error(DOMAIN_ERROR_NOT_LESS_THAN_ZERO,
+		  MkIntegerTerm(d0),"arg 1 of arg/3");	    
+	  }
+	  */
+	  FAIL();
+	}
+	XREG(PREG->u.xxc.x) = pt0[d0];
+	PREG = NEXTOP(PREG, xxc);
+	GONext();
+	ENDP(pt0);
+      }
+      else if (IsPairTerm(d1)) {
+	BEGP(pt0);
+	pt0 = RepPair(d1);
+	if (d0 != 1 && d0 != 2) {
+	  if ((Int)d0 < 0) {
+	    Error(DOMAIN_ERROR_NOT_LESS_THAN_ZERO,
+		  MkIntegerTerm(d0),"arg 1 of arg/3");
+	  }
+	  FAIL();
+	}
+	XREG(PREG->u.xxc.x) = pt0[d0-1];
+	PREG = NEXTOP(PREG, xxc);
+	GONext();
+	ENDP(pt0);
+      }
+      else {
+	Error(TYPE_ERROR_COMPOUND, d1, "arg 2 of arg/3");
+	FAIL();
+      }
+
+      BEGP(pt0);
+      deref_body(d1, pt0, arg_arg2_vc_unk, arg_arg2_vc_nvar);
+      Error(INSTANTIATION_ERROR, d1,"arg 2 of arg/3");;
+      ENDP(pt0);
+      FAIL();
+      ENDD(d1);
+
+      ENDD(d0);
+      ENDOp();
+
+      Op(p_arg_y_vv, yxx);
+#ifdef LOW_LEVEL_TRACER
+      if (do_low_level_trace) {
+	H[0] = XREG(PREG->u.yxx.x1);
+	H[1] = XREG(PREG->u.yxx.x2);
+	RESET_VARIABLE(H+2);
+	low_level_trace(enter_pred,RepPredProp(GetPredProp(LookupAtom("arg"),3)),H);
+      }
+#endif	/* LOW_LEVEL_TRACE */
+      BEGD(d0);
+      d0 = XREG(PREG->u.yxx.x1);
+      deref_head(d0, arg_y_arg1_unk);
+    arg_y_arg1_nvar:
+      /* ARG1 is ok! */
+      if (IsIntTerm(d0))
+	d0 = IntOfTerm(d0);
+      else if (IsLongIntTerm(d0)) {
+	d0 = LongIntOfTerm(d0);
+      } else {
+	Error(TYPE_ERROR_INTEGER,d0,"arg 1 of arg/3");
+	FAIL();
+      }
+
+      /* d0 now got the argument we want */
+      BEGD(d1);
+      d1 = XREG(PREG->u.yxx.x2);
+      deref_head(d1, arg_y_arg2_unk);
+    arg_y_arg2_nvar:
+      /* d1 now got the structure we want to fetch the argument
+       * from */
+      if (IsApplTerm(d1)) {
+	BEGP(pt0);
+	pt0 = RepAppl(d1);
+	d1 = *pt0;
+	if (IsExtensionFunctor((Functor) d1)) {
+	  FAIL();
+	}
+	if ((Int)d0 <= 0 ||
+	    d0 > ArityOfFunctor((Functor) d1)) {
+	  /* don't complain here for Prolog compatibility 
+	  if ((Int)d0 <= 0) {
+	    Error(DOMAIN_ERROR_NOT_LESS_THAN_ZERO,
+		  MkIntegerTerm(d0),"arg 1 of arg/3");	    
+	  }
+	  */
+	  FAIL();
+	}
+	BEGP(pt1);
+	pt1 = Y + PREG->u.yxx.y;
+	PREG = NEXTOP(PREG, yxx);
+#if defined(SBA) && defined(FROZEN_REGS)
+	Bind_Local(pt1,pt0[d0]);
+#else
+	*pt1 = pt0[d0];
+#endif
+	ENDP(pt1);
+	GONext();
+	ENDP(pt0);
+      }
+      else if (IsPairTerm(d1)) {
+	BEGP(pt0);
+	pt0 = RepPair(d1);
+	if (d0 != 1 && d0 != 2) {
+	  if ((Int)d0 < 0) {
+	    Error(DOMAIN_ERROR_NOT_LESS_THAN_ZERO,
+		  MkIntegerTerm(d0),"arg 1 of arg/3");
+	  }
+	  FAIL();
+	}
+	BEGP(pt1);
+	pt1 = Y + PREG->u.yxx.y;
+	PREG = NEXTOP(PREG, yxx);
+#if defined(SBA) && defined(FROZEN_REGS)
+	Bind_Local(pt1,pt0[d0-1]);
+#else
+	*pt1 = pt0[d0-1];
+#endif
+	GONext();
+	ENDP(pt1);
+	ENDP(pt0);
+      }
+      else {
+	Error(TYPE_ERROR_COMPOUND, d1, "arg 2 of arg/3");
+	FAIL();
+      }
+
+      BEGP(pt0);
+      deref_body(d1, pt0, arg_y_arg2_unk, arg_y_arg2_nvar);
+      Error(INSTANTIATION_ERROR, d1,"arg 2 of arg/3");;
+      ENDP(pt0);
+      FAIL();
+      ENDD(d1);
+
+      BEGP(pt0);
+      deref_body(d0, pt0, arg_y_arg1_unk, arg_y_arg1_nvar);
+      Error(INSTANTIATION_ERROR, d0, "arg 1 of arg/3");;
+      ENDP(pt0);
+      FAIL();
+      ENDD(d0);
+      ENDOp();
+
+      Op(p_arg_y_cv, xxc);
+#ifdef LOW_LEVEL_TRACER
+      if (do_low_level_trace) {
+	CELL *Ho = H;
+	Term t = MkIntegerTerm(PREG->u.yxc.c); 
+	H[0] =  t;
+	H[1] = XREG(PREG->u.yxc.xi);
+	RESET_VARIABLE(H+2);
+	low_level_trace(enter_pred,RepPredProp(GetPredProp(LookupAtom("arg"),3)),H);
+	H = Ho;
+      }
+#endif	/* LOW_LEVEL_TRACE */
+      BEGD(d0);
+      d0 = PREG->u.yxc.c;
+      /* d0 now got the argument we want */
+      BEGD(d1);
+      d1 = XREG(PREG->u.yxc.xi);
+      deref_head(d1, arg_y_arg2_vc_unk);
+    arg_y_arg2_vc_nvar:
+      /* d1 now got the structure we want to fetch the argument
+       * from */
+      if (IsApplTerm(d1)) {
+	BEGP(pt0);
+	pt0 = RepAppl(d1);
+	d1 = *pt0;
+	if (IsExtensionFunctor((Functor) d1)) {
+	  FAIL();
+	}
+	if ((Int)d0 <= 0 ||
+	    d0 > ArityOfFunctor((Functor) d1)) {
+	  /* don't complain here for Prolog compatibility 
+	  if ((Int)d0 <= 0) {
+	    Error(DOMAIN_ERROR_NOT_LESS_THAN_ZERO,
+		  MkIntegerTerm(d0),"arg 1 of arg/3");	    
+	  }
+	  */
+	  FAIL();
+	}
+	BEGP(pt1);
+	pt1 = Y + PREG->u.yxc.y;
+	PREG = NEXTOP(PREG, yxc);
+#if defined(SBA) && defined(FROZEN_REGS)
+	Bind_Local(pt1,pt0[d0]);
+#else
+	*pt1 = pt0[d0];
+#endif
+	ENDP(pt1);
+	GONext();
+	ENDP(pt0);
+      }
+      else if (IsPairTerm(d1)) {
+	BEGP(pt0);
+	pt0 = RepPair(d1);
+	if (d0 != 1 && d0 != 2) {
+	  if ((Int)d0 < 0) {
+	    Error(DOMAIN_ERROR_NOT_LESS_THAN_ZERO,
+		  MkIntegerTerm(d0),"arg 1 of arg/3");
+	  }
+	  FAIL();
+	}
+	BEGP(pt1);
+	pt1 = Y + PREG->u.yxc.y;
+	PREG = NEXTOP(PREG, yxc);
+#if defined(SBA) && defined(FROZEN_REGS)
+	Bind_Local(pt1,pt0[d0-1]);
+#else
+	*pt1 = pt0[d0-1];
+#endif
+	ENDP(pt1);
+	GONext();
+	ENDP(pt0);
+      }
+      else {
+	Error(TYPE_ERROR_COMPOUND, d1, "arg 2 of arg/3");
+	FAIL();
+      }
+
+      BEGP(pt0);
+      deref_body(d1, pt0, arg_y_arg2_vc_unk, arg_y_arg2_vc_nvar);
+      Error(INSTANTIATION_ERROR, d1,"arg 2 of arg/3");;
+      ENDP(pt0);
+      FAIL();
+      ENDD(d1);
+
       ENDD(d0);
       ENDOp();
 

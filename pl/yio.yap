@@ -241,7 +241,7 @@ nofileerrors :- '$set_value'(fileerrors,0).
 
 exists(F) :- '$exists'(F,read).
 
-see(user) :- !, see(user_input).
+see(user) :- !, set_input(user_input).
 see(F) :- var(F), !,
 	throw(error(instantiation_error,see(F))).
 see(F) :- current_input(Stream),
@@ -258,7 +258,7 @@ seeing(File) :- current_input(Stream),
 
 seen :- current_input(Stream), close(Stream), set_input(user).
 
-tell(user) :- !, tell(user_output).
+tell(user) :- !, set_output(user_output).
 tell(F) :- var(F), !,
 	throw(error(instantiation_error,tell(F))).
 tell(F) :- current_output(Stream),
@@ -719,15 +719,29 @@ set_stream_position(A,N) :-
 set_stream_position(S,N) :-
 	'$set_stream_position'(S,N).
 
+stream_property(Stream, Prop) :-  var(Prop), !,
+        (var(Stream) -> current_stream(_,_,Stream) ; true),
+        '$generate_prop'(Prop),
+	'$stream_property'(Stream, Prop).
 stream_property(Stream, Props) :-  var(Stream), !,
 	current_stream(_,_,Stream),
 	'$stream_property'(Stream, Props).
 stream_property(Stream, Props) :-
-	Stream = '$stream'(_), !,
-	'$check_stream'(Stream),
+	'$check_stream'(Stream), !,
 	'$stream_property'(Stream, Props).
 stream_property(Stream, Props) :-
 	throw(error(domain_error(stream,Stream),stream_property(Stream, Props))).
+
+'$generate_prop'(file_name(_F)).
+'$generate_prop'(mode(_M)).
+'$generate_prop'(input).
+'$generate_prop'(output).
+'$generate_prop'(position(_P)).
+%'$generate_prop'(end_of_stream(_E)).
+'$generate_prop'(eof_action(_E)).
+%'$generate_prop'(reposition(_R)).
+'$generate_prop'(type(_T)).
+'$generate_prop'(alias(_A)).
 
 '$stream_property'(Stream, Props) :-
 	var(Props), !,

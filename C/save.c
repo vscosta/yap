@@ -1622,7 +1622,6 @@ RestoreClause(Clause *Cl)
     case _p_equal:
     case _p_dif:
     case _p_eq:
-    case _p_arg:
     case _p_functor:
 #ifdef YAPOR
     case _getwork_first_time:
@@ -2103,6 +2102,7 @@ RestoreClause(Clause *Cl)
     case _p_or_vv:
     case _p_sll_vv:
     case _p_slr_vv:
+    case _p_arg_vv:
       pc->u.xxx.x  = XAdjust(pc->u.xxx.x);
       pc->u.xxx.x1 = XAdjust(pc->u.xxx.x1);
       pc->u.xxx.x2 = XAdjust(pc->u.xxx.x2);
@@ -2126,6 +2126,7 @@ RestoreClause(Clause *Cl)
     case _p_div_vc:
     case _p_sll_cv:
     case _p_slr_cv:
+    case _p_arg_cv:
       pc->u.xcx.x  = XAdjust(pc->u.xcx.x);
       if (IsAtomTerm(pc->u.xcx.c))
 	pc->u.xcx.c = AtomTermAdjust(pc->u.xcx.c);
@@ -2141,6 +2142,7 @@ RestoreClause(Clause *Cl)
     case _p_or_y_vv:
     case _p_sll_y_vv:
     case _p_slr_y_vv:
+    case _p_arg_y_vv:
       pc->u.yxx.y  = YAdjust(pc->u.yxx.y);
       pc->u.yxx.x1 = XAdjust(pc->u.yxx.x1);
       pc->u.yxx.x2 = XAdjust(pc->u.yxx.x2);
@@ -2165,6 +2167,7 @@ RestoreClause(Clause *Cl)
       /* instructions type ycx */
     case _p_sll_y_cv:
     case _p_slr_y_cv:
+    case _p_arg_y_cv:
       pc->u.ycx.y  = YAdjust(pc->u.ycx.y);
       if (IsAtomTerm(pc->u.ycx.c))
 	pc->u.ycx.c  = AtomTermAdjust(pc->u.ycx.c);

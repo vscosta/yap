@@ -1399,34 +1399,25 @@ static Int p_check_if_valid_new_alias (void)
 
 static Int
 p_fetch_stream_alias (void)
-{				/* '$check_stream'(Stream)                  */
+{				/* '$fetch_stream_alias'(Stream)                  */
   int sno;
   Term t2 = Deref(ARG2);
 
   if ((sno = CheckStream (ARG1, Input_Stream_f | Output_Stream_f,
-			  "check_stream/1"))  == -1)
+			  "fetch_stream_alias/2"))  == -1)
     return(FALSE);
-  switch (sno) {
-  case StdInStream:
-    return(unify_constant(t2, MkAtomTerm(AtomUsrIn)));
-  case StdOutStream:
-    return(unify_constant(t2, MkAtomTerm(AtomUsrOut)));
-  case StdErrStream:
-    return(unify_constant(t2, MkAtomTerm(AtomUsrErr)));
-  default:
-    if (IsVarTerm(t2)) {
-      Atom at = FetchAlias(sno);
-      if (at == AtomFoundVar)
-	return(FALSE);
-      else 
-	return(unify_constant(t2, MkAtomTerm(at)));
-    } else if (IsAtomTerm(t2)) {
-      Atom at = AtomOfTerm(t2);
-      return((Int)FindAliasForStream(sno,at));
-    } else {
-      Error(TYPE_ERROR_ATOM, t2, "predicate_property/2");
+  if (IsVarTerm(t2)) {
+    Atom at = FetchAlias(sno);
+    if (at == AtomFoundVar)
       return(FALSE);
-    }
+    else 
+      return(unify_constant(t2, MkAtomTerm(at)));
+  } else if (IsAtomTerm(t2)) {
+    Atom at = AtomOfTerm(t2);
+    return((Int)FindAliasForStream(sno,at));
+  } else {
+    Error(TYPE_ERROR_ATOM, t2, "fetch_stream_alias/2");
+    return(FALSE);
   }
 }
 

@@ -301,7 +301,6 @@
     OPCODE(p_equal                 ,e),			
     OPCODE(p_dif                   ,e),			
     OPCODE(p_eq                    ,e),			
-    OPCODE(p_arg                   ,e),			
     OPCODE(p_functor               ,e),
     OPCODE(p_plus_vv               ,xxx),
     OPCODE(p_plus_vc               ,xxc),
@@ -340,5 +339,9 @@
     OPCODE(p_slr_cv                ,xcx),
     OPCODE(p_slr_y_vv              ,yxx),
     OPCODE(p_slr_y_vc              ,yxc),
-    OPCODE(p_slr_y_cv              ,ycx)
+    OPCODE(p_slr_y_cv              ,ycx),
+    OPCODE(p_arg_vv                ,xxx),
+    OPCODE(p_arg_cv                ,xxc),
+    OPCODE(p_arg_y_vv              ,yxx),
+    OPCODE(p_arg_y_cv              ,yxc)
 

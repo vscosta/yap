@@ -3167,7 +3167,6 @@ stream where we have previously found an @code{end-of-file}. The possible
 actions are @code{error}, that raises an error, @code{reset}, that tries to
 reset the stream and is used for @code{tty} type files, and @code{eof_code},
 which generates a new @code{end-of-file} (default for non-tty files).
-@end table
 
 @item alias(+@var{Name})
 Specify an alias to the file. The alias @t{Name} must be an atom. The
@@ -3179,6 +3178,7 @@ concerning the file.  YAP only supports the predefined aliases
 The operation will fail and give an error if the alias name is already
 in use. YAP allows several aliases for the same file, but only
 one is returned by @code{stream_property/2}
+@end table
 
 @item close(+@var{S}) [ISO]
 @findex close/1

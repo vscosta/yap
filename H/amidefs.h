@@ -71,7 +71,6 @@ typedef enum {
 	_equal,
 	_dif,
 	_eq,
-	_arg,
 	_functor,
 	_plus,
 	_minus,
@@ -80,7 +79,8 @@ typedef enum {
 	_and,
 	_or,
 	_sll,
-	_slr
+	_slr,
+	_arg
 } basic_preds;
 
 #if USE_THREADED_CODE

@@ -722,9 +722,6 @@ a_p(op_numbers opcode)
     case _eq:
       op = _p_eq;
       break;
-    case _arg:
-      op = _p_arg;
-      break;
     case _functor:
       op = _p_functor;
       break;
@@ -1641,6 +1638,9 @@ a_f2(int var)
 	case _slr:
 	  code_p->opc = emit_op(_p_slr_y_vv);
 	  break;
+	case _arg:
+	  code_p->opc = emit_op(_p_arg_y_vv);
+	  break;
 	}
 	code_p->u.yxx.y = emit_y(ve);
 	code_p->u.yxx.x1 = x1_arg;
@@ -1687,6 +1687,9 @@ a_f2(int var)
 	  save_machine_regs();
 	  longjmp(CompilerBotch, 1);
 	  break;
+	case _arg:
+	  code_p->opc = emit_op(_p_arg_y_cv);
+	  break;
 	}
 	code_p->u.ycx.y = emit_y(ve);
 	code_p->u.ycx.c = c_arg;
@@ -1722,6 +1725,11 @@ a_f2(int var)
 	  break;
 	case _slr:
 	  code_p->opc = emit_op(_p_slr_y_vc);
+	  break;
+	case _arg:
+	  Error(SYSTEM_ERROR, x2_arg, "internal assembler error for arg/3");
+	  save_machine_regs();
+	  longjmp(CompilerBotch, 1);
 	  break;
 	}
 	code_p->u.yxc.y = emit_y(ve);
@@ -1759,6 +1767,9 @@ a_f2(int var)
 	  break;
 	case _slr:
 	  code_p->opc = emit_op(_p_slr_vv);
+	  break;
+	case _arg:
+	  code_p->opc = emit_op(_p_arg_vv);
 	  break;
 	}
 	code_p->u.xxx.x = emit_x(ve->NoOfVE & MaskVarAdrs);
@@ -1802,6 +1813,9 @@ a_f2(int var)
 	case _slr:
 	  code_p->opc = emit_op(_p_slr_cv);
 	  break;
+	case _arg:
+	  code_p->opc = emit_op(_p_arg_cv);
+	  break;
 	}
 	code_p->u.xxc.x = emit_x(ve->NoOfVE & MaskVarAdrs);
 	code_p->u.xxc.c = c_arg;
@@ -1837,6 +1851,11 @@ a_f2(int var)
 	  break;
 	case _slr:
 	  code_p->opc = emit_op(_p_slr_vc);
+	  break;
+	case _arg:
+	  Error(SYSTEM_ERROR, x2_arg, "internal assembler error for arg/3");
+	  save_machine_regs();
+	  longjmp(CompilerBotch, 1);
 	  break;
 	}
 	code_p->u.xcx.x = emit_x(ve->NoOfVE & MaskVarAdrs);

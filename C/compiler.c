@@ -741,7 +741,16 @@ c_bifun(Int Op, Term t1, Term t2, Term t3)
       }
     } else {
       /* it has to be either an integer or a floating point */
-      if (IsIntTerm(t2)) {
+      if (Op == _arg) {
+	Term tn = MkVarTerm();
+	Int v1 = --tmpreg;
+	Int v2 = --tmpreg;
+	c_arg(t2, v2, 0);
+	emit(fetch_args_vv_op, Zero, Zero);
+	/* these should be the arguments */
+	c_var(t1, v1, 0);
+	c_var(tn, v2, 0);
+      } else if (IsIntTerm(t2)) {
 	/* first temp */
 	Int v1 = --tmpreg;
 	emit(fetch_args_vc_op, (CELL)IntOfTerm(t2), Zero);
@@ -758,7 +767,7 @@ c_bifun(Int Op, Term t1, Term t2, Term t3)
       } else {
 	char s[32];
 
-	Error_TYPE = TYPE_ERROR_VARIABLE;
+	Error_TYPE = TYPE_ERROR_NUMBER;
 	Error_Term = t2;
 	ErrorMessage = ErrorSay;
 	bip_name(Op, s);
@@ -782,15 +791,64 @@ c_bifun(Int Op, Term t1, Term t2, Term t3)
 	longjmp(CompilerBotch,1);
       }
     } else {
-      char s[32];
+      if (Op == _arg) {
+	Int i1;
+	if (IsIntegerTerm(t1))
+	  i1 = IntegerOfTerm(t1);
+	else {
+	  char s[32];
 
-      Error_TYPE = TYPE_ERROR_INTEGER;
-      Error_Term = t2;
-      ErrorMessage = ErrorSay;
-      bip_name(Op, s);
-      sprintf(ErrorMessage, "compiling %s/2",  s);
-      save_machine_regs();
-      longjmp(CompilerBotch,1);
+	  Error_TYPE = TYPE_ERROR_INTEGER;
+	  Error_Term = t2;
+	  ErrorMessage = ErrorSay;
+	  bip_name(Op, s);
+	  sprintf(ErrorMessage, "compiling %s/2",  s);
+	  save_machine_regs();
+	  longjmp(CompilerBotch,1);
+	}
+	if (IsAtomicTerm(t2) ||
+	    (IsApplTerm(t2) && IsExtensionFunctor(FunctorOfTerm(t2)))) {
+	  char s[32];
+
+	  Error_TYPE = TYPE_ERROR_COMPOUND;
+	  Error_Term = t2;
+	  ErrorMessage = ErrorSay;
+	  bip_name(Op, s);
+	  sprintf(ErrorMessage, "compiling %s/2",  s);
+	  save_machine_regs();
+	  longjmp(CompilerBotch,1);
+	} else if (IsApplTerm(t2)) {
+	  Functor f = FunctorOfTerm(t2);
+	  if (i1 < 1 || i1 > ArityOfFunctor(f)) {
+	    c_goal(MkAtomTerm(AtomFalse));
+	  } else {
+	    c_eq(ArgOfTerm(i1, t2), t3);
+	  }
+	  return;
+	} else if (IsPairTerm(t2)) {
+	  switch (i1) {
+	  case 1:
+	    c_eq(HeadOfTerm(t2), t3);
+	    return;
+	  case 2:
+	    c_eq(TailOfTerm(t2), t3);
+	    return;
+	  default:
+	    c_goal(MkAtomTerm(AtomFalse));
+	    return;
+	  }
+	}
+      } else {
+	char s[32];
+
+	Error_TYPE = TYPE_ERROR_INTEGER;
+	Error_Term = t2;
+	ErrorMessage = ErrorSay;
+	bip_name(Op, s);
+	sprintf(ErrorMessage, "compiling %s/2",  s);
+	save_machine_regs();
+	longjmp(CompilerBotch,1);
+      }
     }
     if (IsIntTerm(t1)) {
       /* first temp */
@@ -819,8 +877,17 @@ c_bifun(Int Op, Term t1, Term t2, Term t3)
     }
   }      
   /* then we compile the opcode/result */
-  {
-    if (!IsVarTerm(t3)) {
+  if (!IsVarTerm(t3)) {
+    if (Op == _arg) {
+      Term tmpvar = MkVarTerm();
+      if (H == (CELL *)freep0) {
+	/* oops, too many new variables */
+	save_machine_regs();
+	longjmp(CompilerBotch,4);
+      }
+      c_var(tmpvar,f_flag,(unsigned int)Op);
+      c_eq(tmpvar,t3);
+    } else {
       char s[32];
 
       Error_TYPE = TYPE_ERROR_VARIABLE;
@@ -831,19 +898,18 @@ c_bifun(Int Op, Term t1, Term t2, Term t3)
       save_machine_regs();
       longjmp(CompilerBotch,1);
     }
-    if (IsNewVar(t3) && cur_branch == 0) {
-      c_var(t3,f_flag,(unsigned int)Op);
-    } else {
-      /* generate code for a temp and then unify temp with previous variable */ 
-      Term tmpvar = MkVarTerm();
-      if (H == (CELL *)freep0) {
-	/* oops, too many new variables */
-	save_machine_regs();
-	longjmp(CompilerBotch,4);
-      }
-      c_var(tmpvar,f_flag,(unsigned int)Op);
-      c_eq(tmpvar,t3);
+  } else if (IsNewVar(t3) && cur_branch == 0) {
+    c_var(t3,f_flag,(unsigned int)Op);
+  } else {
+    /* generate code for a temp and then unify temp with previous variable */ 
+    Term tmpvar = MkVarTerm();
+    if (H == (CELL *)freep0) {
+      /* oops, too many new variables */
+      save_machine_regs();
+      longjmp(CompilerBotch,4);
     }
+    c_var(tmpvar,f_flag,(unsigned int)Op);
+    c_eq(tmpvar,t3);
   }
 }
 
@@ -1217,7 +1283,7 @@ c_goal(Term Goal)
 	}
 	CurrentModule = save_CurrentModule;
 	return;
-      } else if (op >= _plus && op <= _slr) { 
+      } else if (op >= _plus && op <= _arg) { 
 	c_bifun(op,
 		ArgOfTerm(1, Goal),
 		ArgOfTerm(2, Goal),
