@@ -1092,7 +1092,7 @@ addclause(Term t, yamop *cp, int mode, int mod)
       }
     }
     if (compile_mode)
-      p->PredFlags = p->PredFlags | CompiledPredFlag | FastPredFlag;
+      p->PredFlags = p->PredFlags | CompiledPredFlag;
     else
       p->PredFlags = p->PredFlags | CompiledPredFlag;
   }
@@ -1813,7 +1813,7 @@ p_new_multifile(void)
   pe->PredFlags |= MultiFileFlag;
   if (!(pe->PredFlags & (DynamicPredFlag|LogUpdatePredFlag))) {
     /* static */
-    pe->PredFlags |= SourcePredFlag;
+    pe->PredFlags |= (SourcePredFlag|CompiledPredFlag);
   }
   WRITE_UNLOCK(pe->PRWLock);
   return (TRUE);

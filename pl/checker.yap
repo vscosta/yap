@@ -232,7 +232,7 @@ no_style_check([H|T]) :- no_style_check(H), no_style_check(T).
 '$check_multifile_pred'(Hd, M, Fl) :-
 	% so this is not a multi-file predicate any longer.
 	functor(Hd,Na,Ar),
-	NFl is \(16'040000 ) /\ Fl,
+	NFl is \(0x20000000) /\ Fl,
 	'$flags'(Hd,M,Fl,NFl),
 	'$warn_mfile'(Na,Ar).
 

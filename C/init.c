@@ -777,7 +777,7 @@ InitCodes(void)
   heap_regs->update_mode = UPDATE_MODE_LOGICAL;
   heap_regs->consultbase = heap_regs->consultsp =
     heap_regs->consultlow + heap_regs->consultcapacity;
-  heap_regs->compiler_compile_mode = 1;
+  heap_regs->compiler_compile_mode = 0; /* fast will be for native code */
   heap_regs->maxdepth = 0;
   heap_regs->maxlist  = 0;
 

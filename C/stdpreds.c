@@ -1957,7 +1957,7 @@ p_flags(void)
   if (EndOfPAEntr(pe))
     return (FALSE);
   WRITE_LOCK(pe->PRWLock);
-  if (!Yap_unify_constant(ARG3, MkIntTerm(pe->PredFlags))) {
+  if (!Yap_unify_constant(ARG3, MkIntegerTerm(pe->PredFlags))) {
     WRITE_UNLOCK(pe->PRWLock);
     return(FALSE);
   }
@@ -1965,7 +1965,7 @@ p_flags(void)
   if (IsVarTerm(ARG4)) {
     WRITE_UNLOCK(pe->PRWLock);
     return (TRUE);
-  } else if (!IsIntTerm(ARG4)) {
+  } else if (!IsIntegerTerm(ARG4)) {
     union arith_ret v;
 
     if (Yap_Eval(ARG4, &v) == long_int_e) {
@@ -1976,8 +1976,8 @@ p_flags(void)
       return(FALSE);
     }
   } else
-    newFl = IntOfTerm(ARG4);
-  pe->PredFlags = (SMALLUNSGN) newFl;
+    newFl = IntegerOfTerm(ARG4);
+  pe->PredFlags = (CELL)newFl;
   WRITE_UNLOCK(pe->PRWLock);
   return (TRUE);
 }

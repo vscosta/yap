@@ -396,7 +396,7 @@ debugging :-
 	'$execute0'(G, M).
 '$spycall'(G, M, InControl) :-
 	'$flags'(G,M,F,F),
-	F /\ 16'402008 =\= 0, !, % dynamic procedure, logical semantics, or source
+	F /\ 0x8402000 =\= 0, !, % dynamic procedure, logical semantics, or source
 	% use the interpreter
 	'$clause'(G, M, Cl),
 	CP is '$last_choice_pt',

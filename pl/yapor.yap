@@ -49,13 +49,13 @@ default_sequential(_).
                    functor(T,A,N),
 	           '$flags'(T,M,F,F),
                    (
-                     X is F /\ 8'000040, X =\= 0, !,
+                     X is F /\ 0x00000020, X =\= 0, !,
                      write(user_error, '[ Warning: '),
                      write(user_error, M:A/N),
                      write(user_error, ' is already declared as sequential ]'),
                      nl(user_error)
                    ;
-                     X is F /\ 8'170000, X =:= 0, !, '$sequential'(T,M)
+                     X is F /\ 0x1991F880, X =:= 0, !, '$sequential'(T,M)
                    ;
                      write(user_error, '[ Error: '),
                      write(user_error, M:A/N),
@@ -79,13 +79,13 @@ default_sequential(_).
 '$parallel_directive'(A/N,M) :- integer(N), atom(A), !,
                    functor(T,A,N), '$flags'(T,M,F,F),
                    (
-                     NF is F /\ \(8'000040), '$flags'(T,F,NF) ;
+                     NF is F /\ 0x00000020, '$flags'(T,F,NF) ;
                      write(user_error, '[ Warning: '),
                      write(user_error, M:A/N),
                      write(user_error, ' is already declared as sequential ]'),
                      nl(user_error)
                    ;
-                     X is F /\ 8'170000, X =:= 0, !, '$sequential'(T)
+                     X is F /\ 0x1991FC80, X =:= 0, !, '$sequential'(T)
                    ;
                      write(user_error, '[ Error: '),
                      write(user_error, M:A/N),

@@ -364,9 +364,9 @@ repeat :- '$repeat'.
 '$$compile'(G, G0, L, Mod) :-
 	'$head_and_body'(G,H,_), 
 	'$flags'(H, Mod, Fl, Fl),
-	( Fl /\ 16'000008 =\= 0 -> '$compile'(G,L,G0,Mod)
+	( Fl /\ 0x08000000 =\= 0 -> '$compile'(G,L,G0,Mod)
 	;
-	  Fl /\ 16'002000 =\= 0 -> '$assertz_dynamic'(L,G,G0,Mod) ;
+	  Fl /\ 0x00002000 =\= 0 -> '$assertz_dynamic'(L,G,G0,Mod) ;
 	    '$$compile_stat'(G,G0,L,H, Mod) ).
 
 % process a clause for a static predicate 

@@ -32,13 +32,9 @@ table(X) :-
 '$table'(A/N, M) :- integer(N), atom(A), !,
               functor(T,A,N), '$flags'(T,M,F,F),
               (
-                X is F /\ 8'170000, X =:= 0, !, '$do_table'(T, M)
+                X is F /\ 0x1991F880, X =:= 0, !, '$do_table'(T, M)
               ;
-                write(user_error, '[ Error: '),
-                write(user_error, M:A/N),
-                write(user_error, ' cannot be declared as table ]'),
-                nl(user_error),
-                fail
+		'$do_error'(permission_error(modify,static_procedure,A/N),tabled(Mod:A/N))
               ).
 '$table'(X, _) :- write(user_error, '[ Error: '),
             write(user_error, X),
@@ -61,7 +57,7 @@ abolish_trie(X)   :-
 '$abolish_trie'(A/N, M) :- integer(N), atom(A), !,
                      functor(T,A,N), '$flags'(T,M,F,F),
                      (
-                       X is F /\ 8'000100, X =\= 0, !, '$do_abolish_trie'(T,M)
+                       X is F /\ 0x000040, X =\= 0, !, '$do_abolish_trie'(T,M)
                      ;
                        write(user_error, '[ Error: '),
                        write(user_error, M:A/N),
@@ -88,7 +84,7 @@ show_trie(X) :-
 '$show_trie'(A/N, M) :- integer(N), atom(A), !,
                   functor(T,A,N), '$flags'(T,M,F,F),
                   (
-                    X is F /\ 8'000100, X =\= 0, !, '$show_trie'(T,M,_)
+                    X is F /\ 0x000040, X =\= 0, !, '$show_trie'(T,M,_)
                   ;
                     write(user_error, '[ Error: '),
                     write(user_error, M:A/N),
@@ -116,7 +112,7 @@ resume_trie(X) :-
 '$resume_trie'(A/N,M) :- atom(A), integer(N), !,
                       functor(T,A,N), '$flags'(T,M,F,F),
                       (
-                        X is F /\ 8'000100, X =\= 0, !, '$resume_trie'(T,M)
+                        X is F /\ 0x000040, X =\= 0, !, '$resume_trie'(T,M)
                       ;
                         write(user_error, '[ Error: '),
                         write(user_error, A/N),

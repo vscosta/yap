@@ -169,7 +169,7 @@ reconsult(Fs) :-
 	( '$find_in_path'(X,Y,reconsult(X)),
 	  '$open'(Y,'$csult',Stream,0) ->
 		( '$access_yap_flags'(15, 0) -> true ; '$skip_unix_comments'(Stream) ),
-		'$reconsult'(X,Stream), '$close'(Stream)
+		'$current_module'(M), '$reconsult'(X,M,Stream), '$close'(Stream)
 	;
 		'$output_error_message'(permission_error(input,stream,X),reconsult(X))
 	),
