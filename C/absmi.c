@@ -1977,7 +1977,7 @@ absmi(int inp)
        * *cannot* fail before having woken up all suspended goals.
        */
       /* make sure we are here because of an awoken goal */
-      if (CFREG == Unsigned(LCL0)) {
+      if (CFREG == Unsigned(LCL0) && !(PrologMode & AbortMode)) {
 	Term WGs = ReadTimedVar(WokenGoals);
 	Term my_goal = AbsAppl(H);
 
@@ -10103,7 +10103,7 @@ absmi(int inp)
       if (IsIntegerTerm(d1))
 	d1 = IntegerOfTerm(d1);
       else {
-	Error(TYPE_ERROR_INTEGER,ARG3,"functor/3");
+	Error(TYPE_ERROR_INTEGER,d1,"functor/3");
 	FAIL();
       }
       if (!IsAtomicTerm(d0)) {
@@ -10206,7 +10206,7 @@ absmi(int inp)
       if (IsIntegerTerm(d1))
 	d1 = IntegerOfTerm(d1);
       else {
-	Error(TYPE_ERROR_INTEGER,ARG3,"functor/3");
+	Error(TYPE_ERROR_INTEGER,d1,"functor/3");
 	FAIL();
       }
       /* We made it!!!!! we got in d0 the name, in d1 the arity and
@@ -10388,7 +10388,7 @@ absmi(int inp)
       if (IsIntegerTerm(d1))
 	d1 = IntegerOfTerm(d1);
       else {
-	Error(TYPE_ERROR_INTEGER,ARG3,"functor/3");
+	Error(TYPE_ERROR_INTEGER,d1,"functor/3");
 	FAIL();
       }
       if (!IsAtomicTerm(d0)) {
