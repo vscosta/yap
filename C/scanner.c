@@ -608,7 +608,7 @@ Yap_tokenizer(int inp_stream)
     while (chtype[ch] == BS) {
       ch = Nxtch(inp_stream);
     }
-    t->TokPos = GetCurInpPos();
+    t->TokPos = GetCurInpPos(inp_stream);
 
     switch (chtype[ch]) {
 
@@ -658,7 +658,7 @@ Yap_tokenizer(int inp_stream)
 	if (cherr) {
 	  TokEntry *e;
 	  t->Tok = Number_tok;
-	  t->TokPos = GetCurInpPos();
+	  t->TokPos = GetCurInpPos(inp_stream);
 	  e = (TokEntry *) AllocScannerMemory(sizeof(TokEntry));
 	  if (e == NULL) {
 	    Yap_ErrorMessage = "not enough stack space to read in term";
@@ -683,7 +683,7 @@ Yap_tokenizer(int inp_stream)
 
 	      t->Tok = Ord(Var_tok);
 	      t->TokInfo = Unsigned(Yap_LookupVar("E"));
-	      t->TokPos = GetCurInpPos();
+	      t->TokPos = GetCurInpPos(inp_stream);
 	      e2 = (TokEntry *) AllocScannerMemory(sizeof(TokEntry));
 	      if (e2 == NULL) {
 		Yap_ErrorMessage = "not enough stack space to read in term";
@@ -710,7 +710,7 @@ Yap_tokenizer(int inp_stream)
 	      if (ch == '(')
 		solo_flag = FALSE;
 	      t->TokInfo = Unsigned(Yap_LookupAtom("e"));
-	      t->TokPos = GetCurInpPos();
+	      t->TokPos = GetCurInpPos(inp_stream);
 	      e2 = (TokEntry *) AllocScannerMemory(sizeof(TokEntry));
 	      if (e2 == NULL) {
 		Yap_ErrorMessage = "not enough stack space to read in term";
@@ -894,7 +894,7 @@ Yap_tokenizer(int inp_stream)
       p->TokNext = e;
       e->Tok = Error_tok;
       e->TokInfo = MkAtomTerm(Yap_LookupAtom(Yap_ErrorMessage));
-      e->TokPos = GetCurInpPos();
+      e->TokPos = GetCurInpPos(inp_stream);
       e->TokNext = NIL;
       Yap_ErrorMessage = NULL;
       p = e;

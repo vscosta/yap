@@ -106,8 +106,8 @@ StreamDesc;
 void STD_PROTO (Yap_InitStdStreams, (void));
 
 EXTERN inline int
-GetCurInpPos (void)
+GetCurInpPos (int inp_stream)
 {
-  return (Stream[Yap_c_input_stream].linecount);
+  return (Stream[inp_stream].linecount);
 }
 
