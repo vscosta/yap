@@ -185,8 +185,8 @@ assertz_static(C) :-
          ( get_value('$abol',true)
            ->
             '$flags'(Head,Mod,Fl,Fl),
-	    ( Fl /\ 16'400000 =\= 0 -> '$erase_source'(Head,Mod) ; true ),
-	    ( Fl /\ 16'040000 =\= 0 -> '$check_multifile_pred'(Head,Mod,Fl) ; true )
+	    ( Fl /\ 0x00400000 =\= 0 -> '$erase_source'(Head,Mod) ; true ),
+	    ( Fl /\ 0x20000000 =\= 0 -> '$check_multifile_pred'(Head,Mod,Fl) ; true )
           ;
             true
         ),	    
@@ -204,8 +204,8 @@ assertz_static(C) :-
          ( get_value('$abol',true)
            ->
             '$flags'(Head,Mod,Fl,Fl),
-            ( Fl /\ 16'400000 =\= 0 -> '$erase_source'(Head,Mod) ; true ),
-	    ( Fl /\ 16'040000 =\= 0 -> '$check_multifile_pred'(Head,Mod,Fl) ; true )
+            ( Fl /\ 0x00400000 =\= 0 -> '$erase_source'(Head,Mod) ; true ),
+	    ( Fl /\ 0x20000000 =\= 0 -> '$check_multifile_pred'(Head,Mod,Fl) ; true )
           ;
             true
         ),	    
@@ -687,10 +687,11 @@ dynamic(X) :-
 	'$logical_updatable'(X, Mod).
 '$dynamic2'(A/N, Mod) :- integer(N), atom(A), !,
 	functor(T,A,N), '$flags'(T,Mod,F,F),
-	( F/\16'9bc88 =:= 0 -> NF is F \/ 16'2000, '$flags'(T, Mod, F, NF);
-	    '$is_dynamic'(T,Mod)  -> true;
-	    F /\ 16'400 =:= 16'400, '$undefined'(T,Mod) -> F1 is F /\ \(0x600), NF is F1 \/ 16'2000, '$flags'(T,Mod,F,NF);
-	    F/\16'8 =:= 16'8 -> true ;
+	% LogUpd,BinaryTest,Safe,C,Dynamic,Compiled,Standard,Asm,
+	( F/\ 0x19D1FA80 =:= 0 -> NF is F \/ 0x00002000, '$flags'(T, Mod, F, NF);
+	    F /\ 0x00002000 =:= 0x00002000 -> true;                     % dynamic
+	    F /\ 0x08000000 =:= 0x08000000 -> true ;      % LU
+	    F /\ 0x00000400 =:= 0x00000400, '$undefined'(T,Mod) -> F1 is F /\ \(0x400), N1F is F1 \/ 0x00002000, NF is N1F /\ \(0x00420000), '$flags'(T,Mod,F,NF);
 	    '$do_error'(permission_error(modify,static_procedure,A/N),dynamic(Mod:A/N))
 	).
 '$dynamic2'(X,Mod) :- 
@@ -699,10 +700,11 @@ dynamic(X) :-
 
 '$logical_updatable'(A/N,Mod) :- integer(N), atom(A), !,
 	functor(T,A,N), '$flags'(T,Mod,F,F),
-	( F/\16'9bc88 =:= 0 -> NF is F \/ 16'408, '$flags'(T,Mod,F,NF);
-	    '$is_dynamic'(T,Mod)  -> true;
-	    F /\ 16'400 =:= 16'400 , '$undefined'(T,Mod) -> NF is F \/ 0x8,  '$flags'(T,Mod,F,NF);
-	    F /\ 16'8=:= 16'8 -> true ;
+	(
+	    F/\ 0x19D1FA80 =:= 0 -> NF is F \/ 0x08000400, '$flags'(T,Mod,F,NF);
+	    F /\ 0x08000000 =:= 0x08000000 -> true ;      % LU
+	    F /\ 0x00002000 =:= 0x00002000 -> true;      % dynamic
+	    F /\ 0x00000400 =:= 0x00000400 , '$undefined'(T,Mod) -> N1F is F \/ 0x08000000, NF is N1F /\ \(0x00420000), '$flags'(T,Mod,F,NF);
 	    '$do_error'(permission_error(modify,static_procedure,A/N),dynamic(Mod:A/N))
 	).
 '$logical_updatable'(X,Mod) :- 
@@ -751,14 +753,14 @@ dynamic_predicate(P,Sem) :-
 	'$is_dynamic'(T, Mod), !.  % all dynamic predicates are public.
 '$do_make_public'(T, Mod) :-
 	'$flags'(T,Mod,F,F),
-	NF is F\/16'400000,
+	NF is F\/0x00400000,
 	'$flags'(T,Mod,F,NF).
 
 '$is_public'(T, Mod) :-
 	'$is_dynamic'(T, Mod), !.  % all dynamic predicates are public.
 '$is_public'(T, Mod) :-
 	'$flags'(T,Mod,F,F),
-	F\/16'400000 \== 0.
+	F\/0x00400000 \== 0.
 
 hide_predicate(V) :- var(V), !,
 	'$do_error'(instantiation_error,hide_predicate(V)).
@@ -775,11 +777,6 @@ hide_predicate(P) :-
 	'$hide_predicate'(S, M) .
 '$hide_predicate2'(PredDesc, M) :-
 	'$do_error'(type_error(predicate_indicator,T),hide_predicate(M:PredDesc)).
-
-'$make_pred_push_mod'(P) :-
-	'$flags'(P,prolog,F,F),
-	NF is F \/ 0x8200000,
-	'$flags'(P,prolog,F,NF).
 
 predicate_property(Mod:Pred,Prop) :- !,
 	'$predicate_property2'(Pred,Prop,Mod).
@@ -812,7 +809,7 @@ predicate_property(Pred,Prop) :-
 	'$system_predicate'(P,M), !.
 '$predicate_property'(P,M,_,source) :- 
 	'$flags'(G,M,F,F),
-	( F /\ 16'400000 =\= 0 -> true ; false).
+	( F /\ 0x00400000 =\= 0 -> true ; false).
 '$predicate_property'(P,M,_,dynamic) :-
 	'$is_dynamic'(P,M).
 '$predicate_property'(P,M,_,static) :-
@@ -853,10 +850,4 @@ predicate_statistics(P,NCls,Sz,ISz) :-
 	'$undefined'(P,M), !, fail.
 '$predicate_statistics'(P,M,NCls,Sz,ISz) :-
 	'$static_pred_statistics'(P,M,NCls,Sz,ISz).
-
-:- '$make_pred_push_mod'((_,_)).
-:- '$make_pred_push_mod'((_;_)).
-:- '$make_pred_push_mod'((_|_)).
-:- '$make_pred_push_mod'((_->_)).
-:- '$make_pred_push_mod'((\+_)).
 
