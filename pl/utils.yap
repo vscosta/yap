@@ -26,99 +26,99 @@ if(_X,_Y,Z) :-
 	'$execute'(Z).
 	
 
-call_with_args(V) :- var(V), !,
-	throw(error(instantiation_error,call_with_args(V))).
+call_with_args(M:V) :- var(V), !,
+	'$do_error'(instantiation_error,call_with_args(M:V)).
 call_with_args(M:A) :- !,
 	'$call_with_args'(A,M).
 call_with_args(A) :- atom(A), !,
 	'$current_module'(M),
 	'$call_with_args'(A,M).
 call_with_args(A) :- 
-	throw(error(type_error(atom,A),call_with_args(A))).
+	'$do_error'(type_error(atom,A),call_with_args(A)).
 	
 
-call_with_args(V,A1) :- var(V), !,
-	throw(error(instantiation_error,call_with_args(V,A1))).
+call_with_args(M:V,A1) :- var(V), !,
+	'$do_error'(instantiation_error,call_with_args(M:V,A1)).
 call_with_args(M:A,A1) :- !,
 	'$call_with_args'(A,A1,M).
 call_with_args(A,A1) :- atom(A), !,
 	'$current_module'(M),
 	'$call_with_args'(A,A1,M).
 call_with_args(A,A1) :- 
-	throw(error(type_error(atom,A),call_with_args(A,A1))).
+	'$do_error'(type_error(atom,A),call_with_args(A,A1)).
 	
-call_with_args(V,A1,A2) :- var(V), !,
-	throw(error(instantiation_error,call_with_args(V,A1,A2))).
+call_with_args(M:V,A1,A2) :- var(V), !,
+	'$do_error'(instantiation_error,call_with_args(M:V,A1,A2)).
 call_with_args(M:A,A1,A2) :- !,
 	'$call_with_args'(A,A1,A2,M).
 call_with_args(A,A1,A2) :- atom(A), !,
 	'$current_module'(M),
 	'$call_with_args'(A,A1,A2,M).
 call_with_args(A,A1,A2) :- 
-	throw(error(type_error(atom,A),call_with_args(A,A1,A2))).
+	'$do_error'(type_error(atom,A),call_with_args(A,A1,A2)).
 	
-call_with_args(V,A1,A2,A3) :- var(V), !,
-	throw(error(instantiation_error,call_with_args(V,A1,A2,A3))).
+call_with_args(M:V,A1,A2,A3) :- var(V), !,
+	'$do_error'(instantiation_error,call_with_args(M:V,A1,A2,A3)).
 call_with_args(M:A,A1,A2,A3) :- !,
 	'$call_with_args'(A,A1,A2,A3,M).
 call_with_args(A,A1,A2,A3) :- atom(A), !,
 	'$current_module'(M),
 	'$call_with_args'(A,A1,A2,A3,M).
 call_with_args(A,A1,A2,A3) :- 
-	throw(error(type_error(atom,A),call_with_args(A,A1,A2,A3))).
+	'$do_error'(type_error(atom,A),call_with_args(A,A1,A2,A3)).
 	
-call_with_args(V,A1,A2,A3,A4) :- var(V), !,
-	throw(error(instantiation_error,call_with_args(V,A1,A2,A3,A4))).
+call_with_args(M:V,A1,A2,A3,A4) :- var(V), !,
+	'$do_error'(instantiation_error,call_with_args(M:V,A1,A2,A3,A4)).
 call_with_args(M:A,A1,A2,A3,A4) :- !,
 	'$call_with_args'(A,A1,A2,A3,A4,M).
 call_with_args(A,A1,A2,A3,A4) :- atom(A), !,
 	'$current_module'(M),
 	'$call_with_args'(A,A1,A2,A3,A4,M).
 call_with_args(A,A1,A2,A3,A4) :- 
-	throw(error(type_error(atom,A),call_with_args(A,A1,A2,A3,A4))).
+	'$do_error'(type_error(atom,A),call_with_args(A,A1,A2,A3,A4)).
 	
-call_with_args(V,A1,A2,A3,A4,A5) :- var(V), !,
-	throw(error(instantiation_error,call_with_args(V,A1,A2,A3,A4,A5))).
+call_with_args(M:V,A1,A2,A3,A4,A5) :- var(V), !,
+	'$do_error'(instantiation_error,call_with_args(M:V,A1,A2,A3,A4,A5)).
 call_with_args(M:A,A1,A2,A3,A4,A5) :- !,
 	'$call_with_args'(A,A1,A2,A3,A4,A5,M).
 call_with_args(A,A1,A2,A3,A4,A5) :- atom(A), !,
 	'$current_module'(M),
 	'$call_with_args'(A,A1,A2,A3,A4,A5,M).
 call_with_args(A,A1,A2,A3,A4,A5) :- 
-	throw(error(type_error(atom,A),call_with_args(A,A1,A2,A3,A4,A5))).
+	'$do_error'(type_error(atom,A),call_with_args(A,A1,A2,A3,A4,A5)).
 	
-call_with_args(V,A1,A2,A3,A4,A5,A6) :- var(V), !,
-	throw(error(instantiation_error,call_with_args(V,A1,A2,A3,A4,A5,A6))).
+call_with_args(M:V,A1,A2,A3,A4,A5,A6) :- var(V), !,
+	'$do_error'(instantiation_error,call_with_args(M:V,A1,A2,A3,A4,A5,A6)).
 call_with_args(M:A,A1,A2,A3,A4,A5,A6) :- !,
 	'$call_with_args'(A,A1,A2,A3,A4,A5,A6,M).
 call_with_args(A,A1,A2,A3,A4,A5,A6) :- atom(A), !,
 	'$current_module'(M),
 	'$call_with_args'(A,A1,A2,A3,A4,A5,A6,M).
 call_with_args(A,A1,A2,A3,A4,A5,A6) :- 
-	throw(error(type_error(atom,A),call_with_args(A,A1,A2,A3,A4,A5,A6))).
+	'$do_error'(type_error(atom,A),call_with_args(A,A1,A2,A3,A4,A5,A6)).
 	
-call_with_args(V,A1,A2,A3,A4,A5,A6,A7) :- var(V), !,
-	throw(error(instantiation_error,call_with_args(V,A1,A2,A3,A4,A5,A6,A7))).
+call_with_args(M:V,A1,A2,A3,A4,A5,A6,A7) :- var(V), !,
+	'$do_error'(instantiation_error,call_with_args(M:V,A1,A2,A3,A4,A5,A6,A7)).
 call_with_args(M:A,A1,A2,A3,A4,A5,A6,A7) :- !,
 	'$call_with_args'(A,A1,A2,A3,A4,A5,A6,A7,M).
 call_with_args(A,A1,A2,A3,A4,A5,A6,A7) :- atom(A), !,
 	'$current_module'(M),
 	'$call_with_args'(A,A1,A2,A3,A4,A5,A6,A7,M).
 call_with_args(A,A1,A2,A3,A4,A5,A6,A7) :- 
-	throw(error(type_error(atom,A),call_with_args(A,A1,A2,A3,A4,A5,A6,A7))).
+	'$do_error'(type_error(atom,A),call_with_args(A,A1,A2,A3,A4,A5,A6,A7)).
 	
-call_with_args(V,A1,A2,A3,A4,A5,A6,A7,A8) :- var(V), !,
-	throw(error(instantiation_error,call_with_args(V,A1,A2,A3,A4,A5,A6,A7,A8))).
+call_with_args(M:V,A1,A2,A3,A4,A5,A6,A7,A8) :- var(V), !,
+	'$do_error'(instantiation_error,call_with_args(M:V,A1,A2,A3,A4,A5,A6,A7,A8)).
 call_with_args(M:A,A1,A2,A3,A4,A5,A6,A7,A8) :- !,
 	'$call_with_args'(A,A1,A2,A3,A4,A5,A6,A7,A8,M).
 call_with_args(A,A1,A2,A3,A4,A5,A6,A7,A8) :- atom(A), !,
 	'$current_module'(M),
 	'$call_with_args'(A,A1,A2,A3,A4,A5,A6,A7,A8,M).
 call_with_args(A,A1,A2,A3,A4,A5,A6,A7,A8) :- 
-	throw(error(type_error(atom,A),call_with_args(A,A1,A2,A3,A4,A5,A6,A7,A8))).
+	'$do_error'(type_error(atom,A),call_with_args(A,A1,A2,A3,A4,A5,A6,A7,A8)).
 	
-call_with_args(V,A1,A2,A3,A4,A5,A6,A7,A8,A9) :- var(V), !,
-	throw(error(instantiation_error,call_with_args(V,A1,A2,A3,A4,A5,A6,A7,A8,A9))).
+call_with_args(M:V,A1,A2,A3,A4,A5,A6,A7,A8,A9) :- var(V), !,
+	'$do_error'(instantiation_error,call_with_args(M:V,A1,A2,A3,A4,A5,A6,A7,A8,A9)).
 call_with_args(M:A,A1,A2,A3,A4,A5,A6,A7,A8,A9) :- !,
 	'$current_module'(M),
 	'$call_with_args'(A,A1,A2,A3,A4,A5,A6,A7,A8,A9,M).
@@ -126,56 +126,56 @@ call_with_args(A,A1,A2,A3,A4,A5,A6,A7,A8,A9) :- atom(A), !,
 	'$current_module'(M),
 	'$call_with_args'(A,A1,A2,A3,A4,A5,A6,A7,A8,A9,M).
 call_with_args(A,A1,A2,A3,A4,A5,A6,A7,A8,A9) :- 
-	throw(error(type_error(atom,A),call_with_args(A,A1,A2,A3,A4,A5,A6,A7,A8,A9))).
+	'$do_error'(type_error(atom,A),call_with_args(A,A1,A2,A3,A4,A5,A6,A7,A8,A9)).
 	
 
-call_with_args(V,A1,A2,A3,A4,A5,A6,A7,A8,A9,A10) :- var(V), !,
-	throw(error(instantiation_error,call_with_args(V,A1,A2,A3,A4,A5,A6,A7,A8,A9,A10))).
+call_with_args(M:V,A1,A2,A3,A4,A5,A6,A7,A8,A9,A10) :- var(V), !,
+	'$do_error'(instantiation_error,call_with_args(M:V,A1,A2,A3,A4,A5,A6,A7,A8,A9,A10)).
 call_with_args(M:A,A1,A2,A3,A4,A5,A6,A7,A8,A9,A10) :- !,
 	'$call_with_args'(A,A1,A2,A3,A4,A5,A6,A7,A8,A9,A10,M).
 call_with_args(A,A1,A2,A3,A4,A5,A6,A7,A8,A9,A10) :- atom(A), !,
 	'$current_module'(M),
 	'$call_with_args'(A,A1,A2,A3,A4,A5,A6,A7,A8,A9,A10,M).
 call_with_args(A,A1,A2,A3,A4,A5,A6,A7,A8,A9,A10) :- 
-	throw(error(type_error(atom,A),call_with_args(A,A1,A2,A3,A4,A5,A6,A7,A8,A9,A10))).
+	'$do_error'(type_error(atom,A),call_with_args(A,A1,A2,A3,A4,A5,A6,A7,A8,A9,A10)).
 	
 
 op(P,T,V) :- var(P), !,
-	throw(error(instantiation_error,op(P,T,V))).
+	'$do_error'(instantiation_error,op(P,T,V)).
 op(P,T,V) :- \+integer(P), !,
-	throw(error(type_error(integer,P),op(P,T,V))).
+	'$do_error'(type_error(integer,P),op(P,T,V)).
 op(P,T,V) :- (P < 0 ; P > 1200), !,
-	throw(error(domain_error(operator_priority,P),op(P,T,V))).
+	'$do_error'(domain_error(operator_priority,P),op(P,T,V)).
 op(P,T,V) :- var(T), !,
-	throw(error(instantiation_error,op(P,T,V))).
+	'$do_error'(instantiation_error,op(P,T,V)).
 op(P,T,V) :- \+atom(T), !,
-	throw(error(type_error(atom,T),op(P,T,V))).
+	'$do_error'(type_error(atom,T),op(P,T,V)).
 op(P,T,V) :- var(V), !,
-	throw(error(instantiation_error,op(P,T,V))).
+	'$do_error'(instantiation_error,op(P,T,V)).
 op(P,T,V) :-
 	\+ atom(V), \+ '$check_list_of_operators'(V, op(P,T,V)),
-	throw(error(type_error(list,V),op(P,T,V))).
+	'$do_error'(type_error(list,V),op(P,T,V)).
 op(P,T,V) :- '$op2'(P,T,V).
 
 '$check_list_of_operators'(V, T) :- var(V), !,
-	throw(error(instantiation_error,T)).
+	'$do_error'(instantiation_error,T).
 '$check_list_of_operators'([], _).
 '$check_list_of_operators'([H|L], T) :-
 	'$check_if_operator'(H,T),
 	'$check_list_of_operators'(L, T).
 
 '$check_if_operator'(H,T) :- var(H), !,
-	throw(error(instantiation_error,T)).
+	'$do_error'(instantiation_error,T).
 '$check_if_operator'(H,_) :- atom(H), !.
 '$check_if_operator'(H,T) :-
-	throw(error(type_error(atom,H),T)).
+	'$do_error'(type_error(atom,H),T).
 
 '$op2'(_,_,[]) :- !.
 '$op2'(P,T,[A|L]) :- !, '$op'(P,T,A), '$op2'(P,T,L).
 '$op2'(P,T,A) :- atom(A), '$op'(P,T,A).
 
 '$op'(P,T,',') :- !,
-	throw(error(permission_error(modify,operator,','),op(P,T,','))).
+	'$do_error'(permission_error(modify,operator,','),op(P,T,',')).
 '$op'(P,T,A) :- '$opdec'(P,T,A).
 
 %%% Operating System utilities
@@ -193,28 +193,28 @@ rename(Old,New) :- atom(Old), atom(New), !,
 	'$rename'(SOld,SNew).
 
 unix(V) :- var(V), !,
-	throw(error(instantiation_error,unix(V))).
+	'$do_error'(instantiation_error,unix(V)).
 unix(argv(L)) :- '$is_list_of_atoms'(L,L), !, '$argv'(L).
 unix(argv(V)) :-
-	throw(error(type_error(atomic,V),unix(argv(V)))).
+	'$do_error'(type_error(atomic,V),unix(argv(V))).
 unix(cd) :- cd('~').
 unix(cd(V)) :- var(V), !,
-	throw(error(instantiation_error,unix(cd(V)))).
+	'$do_error'(instantiation_error,unix(cd(V))).
 unix(cd(A)) :- atomic(A), !, cd(A).
 unix(cd(V)) :-
-	throw(error(type_error(atomic,V),unix(cd(V)))).
+	'$do_error'(type_error(atomic,V),unix(cd(V))).
 unix(environ(X,Y)) :- '$do_environ'(X,Y).
 unix(getcwd(X)) :- getcwd(X).
 unix(shell(V)) :- var(V), !,
-	throw(error(instantiation_error,unix(shell(V)))).
+	'$do_error'(instantiation_error,unix(shell(V))).
 unix(shell(A)) :- atomic(A), !, '$shell'(A).
 unix(shell(V)) :-
-	throw(error(type_error(atomic,V),unix(shell(V)))).
+	'$do_error'(type_error(atomic,V),unix(shell(V))).
 unix(system(V)) :- var(V), !,
-	throw(error(instantiation_error,unix(system(V)))).
+	'$do_error'(instantiation_error,unix(system(V))).
 unix(system(A)) :- atomic(A), !, system(A).
 unix(system(V)) :-
-	throw(error(type_error(atom,V),unix(system(V)))).
+	'$do_error'(type_error(atom,V),unix(system(V))).
 unix(shell) :- sh.
 unix(putenv(X,Y)) :- '$putenv'(X,Y).
 
@@ -225,23 +225,23 @@ unix(putenv(X,Y)) :- '$putenv'(X,Y).
 	'$check_if_head_may_be_atom'(H,L0),
 	'$is_list_of_atoms'(L,L0).
 '$is_list_of_atoms'(H,L0) :-
-	throw(error(type_error(list,H),unix(argv(L0)))).
+	'$do_error'(type_error(list,H),unix(argv(L0))).
 
 '$check_if_head_may_be_atom'(H,L0) :-
 	var(H), !.
 '$check_if_head_may_be_atom'(H,L0) :-
 	atom(H), !.
 '$check_if_head_may_be_atom'(H,L0) :-
-	throw(error(type_error(atom,H),unix(argv(L0)))).
+	'$do_error'(type_error(atom,H),unix(argv(L0))).
 
 
 '$do_environ'(X, Y) :-
 	var(X), !,
-	throw(error(instantiation_error,unix(environ(X,Y)))).
+	'$do_error'(instantiation_error,unix(environ(X,Y))).
 '$do_environ'(X, Y) :- atom(X), !,
 	'$getenv'(X,Y).
 '$do_environ'(X, Y) :-
-	throw(error(type_error(atom,X),unix(environ(X,Y)))).
+	'$do_error'(type_error(atom,X),unix(environ(X,Y))).
 	
 
 putenv(Na,Val) :-
@@ -270,26 +270,26 @@ on_signal(Signal,OldAction,Action) :-
 %%% Saving and restoring a computation
 
 save(A) :- var(A), !,
-	throw(error(instantiation_error,save(A))).
+	'$do_error'(instantiation_error,save(A)).
 save(A) :- atom(A), !, name(A,S), '$save'(S).
 save(S) :- '$save'(S).
 
 save(A,_) :- var(A), !,
-	throw(error(instantiation_error,save(A))).
+	'$do_error'(instantiation_error,save(A)).
 save(A,OUT) :- atom(A), !, name(A,S), '$save'(S,OUT).
 save(S,OUT) :- '$save'(S,OUT).
 
 save_program(A) :- var(A), !,
-	throw(error(instantiation_error,save_program(A))).
+	'$do_error'(instantiation_error,save_program(A)).
 save_program(A) :- atom(A), !, name(A,S), '$save_program'(S).
 save_program(S) :- '$save_program'(S).
 
 save_program(A, G) :- var(A), !,
-	throw(error(instantiation_error,save_program(A,G))).
+	'$do_error'(instantiation_error,save_program(A,G)).
 save_program(A, G) :- var(G), !,
-	throw(error(instantiation_error,save_program(A,G))).
+	'$do_error'(instantiation_error,save_program(A,G)).
 save_program(A, G) :- \+ callable(G), !,
-	throw(error(type_error(callable,G),save_program(A,G))).
+	'$do_error'(type_error(callable,G),save_program(A,G)).
 save_program(A, G) :-
 	( atom(A) -> name(A,S) ; A = S),
 	'$recorda'('$restore_goal',G,R),
@@ -299,7 +299,7 @@ save_program(A, G) :-
 save_program(_,_).
 
 restore(A) :- var(A), !,
-	throw(error(instantiation_error,restore(A))).
+	'$do_error'(instantiation_error,restore(A)).
 restore(A) :- atom(A), !, name(A,S), '$restore'(S).
 restore(S) :- '$restore'(S).
 
@@ -378,7 +378,7 @@ system_predicate(P) :-
 	functor(T,A,Arity),
 	'$pred_exists'(T,M).
 '$current_predicate3'(M,BadSpec) :-			% only for the predicate
-	throw(error(type_error(predicate_indicator,BadSpec),current_predicate(M:BadSpec))).
+	'$do_error'(type_error(predicate_indicator,BadSpec),current_predicate(M:BadSpec)).
 
 %%% User interface for statistics
 
@@ -500,7 +500,7 @@ unknown(V0,V) :-
 
 '$valid_unknown_handler'(V,_) :-
 	var(V), !,
-	throw(error(instantiation_error,yap_flag(unknown,V))).
+	'$do_error'(instantiation_error,yap_flag(unknown,V)).
 '$valid_unknown_handler'(fail,_) :- !.
 '$valid_unknown_handler'(error,_) :- !.
 '$valid_unknown_handler'(warning,_) :- !.
@@ -511,7 +511,7 @@ unknown(V0,V) :-
 	\+ '$undefined'(S,M),
 	!.
 '$valid_unknown_handler'(S,_) :-
-	throw(error(domain_error(flag_value,unknown+S),yap_flag(unknown,S))).
+	'$do_error'(domain_error(flag_value,unknown+S),yap_flag(unknown,S)).
 
 '$ask_unknown_flag'(Old) :-
 	'$recorded'('$unknown','$unkonwn'(_,MyOld),_), !,
@@ -532,7 +532,7 @@ unknown(V0,V) :-
 	'$recorda'('$unknown','$unknown'(A,M:X),_).
 
 '$unknown_error'(P) :-
-	throw(error(unknown,P)).
+	'$do_error'(unknown,P).
 
 '$unknown_warning'(P) :-
 	P=M:F,
@@ -654,13 +654,13 @@ atom_concat(X,Y,At) :-
 
 sub_atom(At, Bef, Size, After, SubAt) :-
 	var(At), !,
-	throw(error(instantiation_error,sub_atom(At, Bef, Size,After, SubAt))).
+	'$do_error'(instantiation_error,sub_atom(At, Bef, Size,After, SubAt)).
 sub_atom(At, Bef, Size, After, SubAt) :-
 	\+ atom(At), !,
-	throw(error(type_error(atom,At),sub_atom(At, Bef, Size,After, SubAt))).
+	'$do_error'(type_error(atom,At),sub_atom(At, Bef, Size,After, SubAt)).
 sub_atom(At, Bef, Size, After, SubAt) :-
 	nonvar(SubAt), \+ atom(SubAt), !,
-	throw(error(type_error(atom,SubAt),sub_atom(At, Bef, Size,After, SubAt))).
+	'$do_error'(type_error(atom,SubAt),sub_atom(At, Bef, Size,After, SubAt)).
 sub_atom(At, Bef, Size, After, SubAt) :-
 	'$check_type_sub_atom'(Bef, sub_atom(At, Bef, Size,After, SubAt)),
 	'$check_type_sub_atom'(Size, sub_atom(At, Bef, Size,After, SubAt)),
@@ -674,10 +674,10 @@ sub_atom(At, Bef, Size, After, SubAt) :-
 	var(I), !.
 '$check_type_sub_atom'(I, P) :-
 	integer(I), I < 0, !,
-	throw(error(domain_error(not_less_than_zero,I),P)).
+	'$do_error'(domain_error(not_less_than_zero,I),P).
 '$check_type_sub_atom'(I, P) :-
 	\+ integer(I), !,
-	throw(error(type_error(integer,I),P)).
+	'$do_error'(type_error(integer,I),P).
 '$check_type_sub_atom'(_, _).
 
 '$split_len_in_parts'(Atl, Len, Bef, Size, After, SubAt) :-
@@ -743,11 +743,11 @@ initialization :-
 	'$initialisation_goals'.
 
 prolog_initialization(G) :- var(G), !,
-	throw(error(instantiation_error,initialization(G))).
+	'$do_error'(instantiation_error,initialization(G)).
 prolog_initialization(T) :- callable(T), !,
 	'$assert_init'(T).
 prolog_initialization(T) :-
-	throw(error(type_error(callable,T),initialization(T))).
+	'$do_error'(type_error(callable,T),initialization(T)).
 
 '$assert_init'(T) :- '$recordz'('$startup_goal',T,_), fail.
 '$assert_init'(_).
@@ -755,10 +755,10 @@ prolog_initialization(T) :-
 version :- '$version'.
 
 version(V) :- var(V),  !,
-	throw(error(instantiation_error,version(V))).
+	'$do_error'(instantiation_error,version(V)).
 version(T) :- atom(T), !, '$assert_version'(T).
 version(T) :-
-	throw(error(type_error(atom,T),version(T))).
+	'$do_error'(type_error(atom,T),version(T)).
 
 '$assert_version'(T) :- '$recordz'('$version',T,_), fail.
 '$assert_version'(_).

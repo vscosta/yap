@@ -16,7 +16,7 @@
 *************************************************************************/
 
 #include "config.h"
-#include "c_interface.h"
+#include "YapInterface.h"
 #include <math.h>
 #if defined(__MINGW32__) || _MSC_VER
 #include <windows.h>
@@ -29,8 +29,8 @@ static short a1 = 27314, b1 = 9213, c1 = 17773;
 static int
 p_random(void)
 {
-  flt fli;
-  Int t1, t2, t3;
+  double fli;
+  long int t1, t2, t3;
 
   t1 = (a1 * 171) % 30269;
   t2 = (b1 * 172) % 30307;
@@ -39,32 +39,32 @@ p_random(void)
   a1 = t1;
   b1 = t2;
   c1 = t3;
-  return(unify(ARG1, MkFloatTerm(fli-(int)(fli))));
+  return(YAP_Unify(YAP_ARG1, YAP_MkFloatTerm(fli-(int)(fli))));
 }
 
 static int
 p_setrand(void)
 {
-  a1 = IntOfTerm(ARG1);
-  b1 = IntOfTerm(ARG2);
-  c1 = IntOfTerm(ARG3);
+  a1 = YAP_IntOfTerm(YAP_ARG1);
+  b1 = YAP_IntOfTerm(YAP_ARG2);
+  c1 = YAP_IntOfTerm(YAP_ARG3);
   return(TRUE);
 }
 
 static int
 p_getrand(void)
 {
-  return(unify(ARG1,MkIntTerm(a1)) &&
-	 unify(ARG2,MkIntTerm(b1)) &&
-	 unify(ARG3,MkIntTerm(c1)));
+  return(YAP_Unify(YAP_ARG1,YAP_MkIntTerm(a1)) &&
+	 YAP_Unify(YAP_ARG2,YAP_MkIntTerm(b1)) &&
+	 YAP_Unify(YAP_ARG3,YAP_MkIntTerm(c1)));
 }
 
 void
 init_random(void)
 {
-  UserCPredicate("random", p_random, 1);
-  UserCPredicate("setrand", p_setrand, 3);
-  UserCPredicate("getrand", p_getrand, 3);
+  YAP_UserCPredicate("random", p_random, 1);
+  YAP_UserCPredicate("setrand", p_setrand, 3);
+  YAP_UserCPredicate("getrand", p_getrand, 3);
 }
 
 #ifdef _WIN32

@@ -239,7 +239,7 @@ Inline(IsPredProperty, PropFlags, int, flags, (flags == PEProp) )
 
 /********* maximum number of C-written predicates and cmp funcs ******************/
 
-#define MAX_C_PREDS    360
+#define MAX_C_PREDS    400
 #define MAX_CMP_FUNCS   20
 
 typedef struct {

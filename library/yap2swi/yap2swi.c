@@ -46,7 +46,7 @@ PL_agc_hook(PL_agc_hook_t entry)
    YAP: char* AtomName(Atom) */
 X_API char* PL_atom_chars(atom_t a)	 /* SAM check type */
 {
-  return YapAtomName(a);
+  return YAP_AtomName(a);
 }
 
 
@@ -55,60 +55,60 @@ X_API char* PL_atom_chars(atom_t a)	 /* SAM check type */
 /* SAM TO DO */
 X_API term_t PL_copy_term_ref(term_t from)
 {
-  return YapInitSlot(YapGetFromSlot(from));
+  return YAP_InitSlot(YAP_GetFromSlot(from));
 }
 
 X_API term_t PL_new_term_ref(void)
 {
   
-  term_t to = YapNewSlots(1);
+  term_t to = YAP_NewSlots(1);
   return to;
 }
 
 X_API term_t PL_new_term_refs(int n)
 {
   
-  term_t to = YapNewSlots(n);
+  term_t to = YAP_NewSlots(n);
   return to;
 }
 
 X_API void PL_reset_term_refs(term_t after)
 {
-  term_t new = YapNewSlots(1);
-  YapRecoverSlots(after-new);
+  term_t new = YAP_NewSlots(1);
+  YAP_RecoverSlots(after-new);
 }
 
 /* begin PL_get_* functions =============================*/
 
 /* SWI: int PL_get_arg(int index, term_t t, term_t a)
-   YAP: Term ArgOfTerm(int argno, Term t)*/
+   YAP: YAP_Term YAP_ArgOfTerm(int argno, YAP_Term t)*/
 X_API int PL_get_arg(int index, term_t ts, term_t a)
 {
-  Term t = YapGetFromSlot(ts);
-  if ( !IsApplTerm(t) ) {
-    if (IsPairTerm(t)) {
+  YAP_Term t = YAP_GetFromSlot(ts);
+  if ( !YAP_IsApplTerm(t) ) {
+    if (YAP_IsPairTerm(t)) {
       if (index == 1){
-	YapPutInSlot(a,HeadOfTerm(t));
+	YAP_PutInSlot(a,YAP_HeadOfTerm(t));
 	return 1;
       } else if (index == 2) {
-	YapPutInSlot(a,TailOfTerm(t));
+	YAP_PutInSlot(a,YAP_TailOfTerm(t));
 	return 1;
       }
     }
     return 0;
   }
-  YapPutInSlot(a,ArgOfTerm(index, t));
+  YAP_PutInSlot(a,YAP_ArgOfTerm(index, t));
   return 1;
 }
    
-/* SWI: int PL_get_atom(term_t t, Atom *a)
-   YAP: Atom AtomOfTerm(Term) */
+/* SWI: int PL_get_atom(term_t t, YAP_Atom *a)
+   YAP: YAP_Atom YAP_AtomOfTerm(Term) */
 X_API int PL_get_atom(term_t ts, atom_t *a)
 {
-  Term t = YapGetFromSlot(ts);
-  if ( !IsAtomTerm(t))
+  YAP_Term t = YAP_GetFromSlot(ts);
+  if ( !YAP_IsAtomTerm(t))
     return 0;
-  *a = YapAtomOfTerm(t);
+  *a = YAP_AtomOfTerm(t);
   return 1;
 }
 
@@ -116,10 +116,10 @@ X_API int PL_get_atom(term_t ts, atom_t *a)
    YAP: char* AtomName(Atom) */
 X_API int PL_get_atom_chars(term_t ts, char **a)  /* SAM check type */
 {
-  Term t = YapGetFromSlot(ts);
-  if (!IsAtomTerm(t))
+  YAP_Term t = YAP_GetFromSlot(ts);
+  if (!YAP_IsAtomTerm(t))
     return 0;
-  *a = YapAtomName(YapAtomOfTerm(t));
+  *a = YAP_AtomName(YAP_AtomOfTerm(t));
   return 1;
 }
 
@@ -149,25 +149,25 @@ X_API int PL_get_atom_chars(term_t ts, char **a)  /* SAM check type */
     BUF_MALLOC Data is copied to a new buffer returned by malloc(3)
 */
 
-static int CvtToStringTerm(Term t, char *buf, char *buf_max)
+static int CvtToStringTerm(YAP_Term t, char *buf, char *buf_max)
 {
   *buf++ = '\"';
-  while (IsPairTerm(t)) {
-    Term hd = YapHeadOfTerm(t);
-    Int i;
-    if (!IsIntTerm(hd))
+  while (YAP_IsPairTerm(t)) {
+    YAP_Term hd = YAP_HeadOfTerm(t);
+    long int  i;
+    if (!YAP_IsIntTerm(hd))
       return 0;
-    i = IntOfTerm(hd);
+    i = YAP_IntOfTerm(hd);
     if (i <= 0 || i >= 255)
       return 0;
-    if (!IsIntTerm(hd))
+    if (!YAP_IsIntTerm(hd))
       return 0;
     *buf++ = i;
     if (buf == buf_max)
       return 0;
-    t = TailOfTerm(t);
+    t = YAP_TailOfTerm(t);
   }
-  if (t != MkAtomTerm(LookupAtom("[]")))
+  if (t != YAP_MkAtomTerm(YAP_LookupAtom("[]")))
     return 0;
   if (buf+1 == buf_max)
     return 0;
@@ -194,7 +194,7 @@ buf_writer(int c)
 
 X_API int PL_get_chars(term_t l, char **sp, unsigned flags)
 {
-  Term t = YapGetFromSlot(l);
+  YAP_Term t = YAP_GetFromSlot(l);
   char *tmp;
 
   if (!(flags & BUF_RING)) {
@@ -203,26 +203,26 @@ X_API int PL_get_chars(term_t l, char **sp, unsigned flags)
     tmp = buffers;
   }
   *sp = tmp;
-  if (YapIsAtomTerm(t)) {
+  if (YAP_IsAtomTerm(t)) {
     if (!(flags & (CVT_ATOM|CVT_ATOMIC|CVT_ALL)))
       return 0;
-    *sp = YapAtomName(YapAtomOfTerm(t));
+    *sp = YAP_AtomName(YAP_AtomOfTerm(t));
     return 1;
-  } else if (YapIsIntTerm(t)) {
+  } else if (YAP_IsIntTerm(t)) {
     if (!(flags & (CVT_INTEGER|CVT_NUMBER|CVT_ATOMIC|CVT_ALL)))
       return 0;
-    snprintf(tmp,BUF_SIZE,"%ld",IntOfTerm(t));
-  } else if (YapIsFloatTerm(t)) {
+    snprintf(tmp,BUF_SIZE,"%ld",YAP_IntOfTerm(t));
+  } else if (YAP_IsFloatTerm(t)) {
     if (!(flags & (CVT_FLOAT|CVT_ATOMIC|CVT_NUMBER|CVT_ALL)))
       return 0;
-    snprintf(tmp,BUF_SIZE,"%f",FloatOfTerm(t));
+    snprintf(tmp,BUF_SIZE,"%f",YAP_FloatOfTerm(t));
   } else if (flags & CVT_STRING) {
     if (CvtToStringTerm(t,tmp,tmp+BUF_SIZE) == 0)
       return 0;
   } else {
     bf = tmp;
     bf_lim = tmp+(BUF_SIZE-1);
-    YapWrite(t,buf_writer,0);
+    YAP_Write(t,buf_writer,0);
     if (bf == bf_lim)
       return 0;
     *bf = '\0';
@@ -238,56 +238,56 @@ X_API int PL_get_chars(term_t l, char **sp, unsigned flags)
 }
 
 /* SWI: int PL_get_functor(term_t t, functor_t *f)
-   YAP: Functor FunctorOfTerm(Term) */
+   YAP: YAP_Functor YAP_FunctorOfTerm(Term) */
 X_API int PL_get_functor(term_t ts, functor_t *f)
 {
-  Term t = YapGetFromSlot(ts);
-  if ( IsAtomTerm(t)) {
+  YAP_Term t = YAP_GetFromSlot(ts);
+  if ( YAP_IsAtomTerm(t)) {
     *f = t;
   } else {
-    *f = (functor_t)FunctorOfTerm(t);
+    *f = (functor_t)YAP_FunctorOfTerm(t);
   }
   return 1;
 }
 
 /* SWI: int PL_get_float(term_t t, double *f)
-   YAP: flt FloatOfTerm(Term) */
+   YAP: double YAP_FloatOfTerm(Term) */
 X_API int PL_get_float(term_t ts, double *f) /* SAM type check*/
 {	
-  Term t = YapGetFromSlot(ts);
-  if ( !IsFloatTerm(t))
+  YAP_Term t = YAP_GetFromSlot(ts);
+  if ( !YAP_IsFloatTerm(t))
     return 0;
-  *f = FloatOfTerm(t);
+  *f = YAP_FloatOfTerm(t);
   return 1;
 }
 
 X_API int PL_get_head(term_t ts, term_t h)
 {
-  Term t = YapGetFromSlot(ts);
-  if (!IsPairTerm(t) ) {
+  YAP_Term t = YAP_GetFromSlot(ts);
+  if (!YAP_IsPairTerm(t) ) {
     return 0;
   }
-  YapPutInSlot(h,HeadOfTerm(t));
+  YAP_PutInSlot(h,YAP_HeadOfTerm(t));
   return 1;
 }
 
 /* SWI: int PL_get_integer(term_t t, int *i)
-   YAP: Int IntOfTerm(Term) */
+   YAP: long int  YAP_IntOfTerm(Term) */
 X_API int PL_get_integer(term_t ts, int *i)
 {
-  Term t = YapGetFromSlot(ts);
-  if (!IsIntTerm(t) )
+  YAP_Term t = YAP_GetFromSlot(ts);
+  if (!YAP_IsIntTerm(t) )
     return 0;
-  *i = IntOfTerm(t);
+  *i = YAP_IntOfTerm(t);
   return 1;
 }
 
 X_API int PL_get_long(term_t ts, long *i)
 {
-  Term t = YapGetFromSlot(ts);
-  if (!IsIntTerm(t) ) {
-    if (IsFloatTerm(t)) {
-      double dbl = YapFloatOfTerm(t);
+  YAP_Term t = YAP_GetFromSlot(ts);
+  if (!YAP_IsIntTerm(t) ) {
+    if (YAP_IsFloatTerm(t)) {
+      double dbl = YAP_FloatOfTerm(t);
       if (dbl - (long)dbl == 0.0) {
 	*i = (long)dbl;
 	return 1;
@@ -295,18 +295,18 @@ X_API int PL_get_long(term_t ts, long *i)
     }
     return 0;
   }
-  *i = IntOfTerm(t);
+  *i = YAP_IntOfTerm(t);
   return 1;
 }
 
 X_API int PL_get_list(term_t ts, term_t h, term_t tl)
 {
-  Term t = YapGetFromSlot(ts);
-  if (!IsPairTerm(t) ) {
+  YAP_Term t = YAP_GetFromSlot(ts);
+  if (!YAP_IsPairTerm(t) ) {
     return 0;
   }
-  YapPutInSlot(h,HeadOfTerm(t));
-  YapPutInSlot(tl,TailOfTerm(t));
+  YAP_PutInSlot(h,YAP_HeadOfTerm(t));
+  YAP_PutInSlot(tl,YAP_TailOfTerm(t));
   return 1;
 }
 
@@ -320,43 +320,43 @@ X_API int PL_get_list_chars(term_t l, char **sp, unsigned flags)
 /* SWI: int PL_get_module(term_t t, module_t *m) */
 X_API int PL_get_module(term_t ts, module_t *m)
 {
-  Term t = YapGetFromSlot(ts);
-  if (!YapIsAtomTerm(t) )
+  YAP_Term t = YAP_GetFromSlot(ts);
+  if (!YAP_IsAtomTerm(t) )
     return 0;
-  *m = YapLookupModule(t);
+  *m = YAP_LookupModule(t);
   return 1;
 }
 
-/* SWI: int PL_get_atom(term_t t, Atom *a)
-   YAP: Atom AtomOfTerm(Term) */
+/* SWI: int PL_get_atom(term_t t, YAP_Atom *a)
+   YAP: YAP_Atom YAP_AtomOfTerm(Term) */
 X_API int PL_get_name_arity(term_t ts, atom_t *name, int *arity)
 {
-  Term t = YapGetFromSlot(ts);
-  if (YapIsAtomTerm(t)) {
-    *name = YapAtomOfTerm(t);
+  YAP_Term t = YAP_GetFromSlot(ts);
+  if (YAP_IsAtomTerm(t)) {
+    *name = YAP_AtomOfTerm(t);
     *arity = 0;
     return 1;
   }
-  if (YapIsApplTerm(t)) {
-    Functor f = YapFunctorOfTerm(t);
-    *name = YapNameOfFunctor(f);
-    *arity = YapArityOfFunctor(f);
+  if (YAP_IsApplTerm(t)) {
+    YAP_Functor f = YAP_FunctorOfTerm(t);
+    *name = YAP_NameOfFunctor(f);
+    *arity = YAP_ArityOfFunctor(f);
     return 1;
   }
-  if (YapIsPairTerm(t)) {
-    *name = YapLookupAtom(".");
+  if (YAP_IsPairTerm(t)) {
+    *name = YAP_LookupAtom(".");
     *arity = 2;
     return 1;
   }
   return 0;
 }
 
-/* SWI: int PL_get_atom(term_t t, Atom *a)
-   YAP: Atom AtomOfTerm(Term) */
+/* SWI: int PL_get_atom(term_t t, YAP_Atom *a)
+   YAP: YAP_Atom YAP_AtomOfTerm(Term) */
 X_API int PL_get_nil(term_t ts)
 {
-  Term t = YapGetFromSlot(ts);
-  return ( t == YapMkAtomTerm(YapLookupAtom("[]")));
+  YAP_Term t = YAP_GetFromSlot(ts);
+  return ( t == YAP_MkAtomTerm(YAP_LookupAtom("[]")));
 }
 
 /* SWI: int PL_get_pointer(term_t t, int *i)
@@ -364,10 +364,10 @@ X_API int PL_get_nil(term_t ts)
 /* SAM TO DO */
 X_API int PL_get_pointer(term_t ts, void **i)
 {
-  Term t = YapGetFromSlot(ts);
-  if (!IsIntTerm(t) )
+  YAP_Term t = YAP_GetFromSlot(ts);
+  if (!YAP_IsIntTerm(t) )
     return 0;
-  *i = (void *)YapIntOfTerm(t);
+  *i = (void *)YAP_IntOfTerm(t);
   return 1;
 }
 
@@ -375,15 +375,15 @@ X_API int PL_get_pointer(term_t ts, void **i)
    YAP: char* AtomName(Atom) */
 X_API int PL_get_string(term_t ts, char **sp, int *lenp)  /* SAM check type */
 {
-  Term t = YapGetFromSlot(ts);
+  YAP_Term t = YAP_GetFromSlot(ts);
   char *to;
   int len;
-  if (!IsPairTerm(t))
+  if (!YAP_IsPairTerm(t))
     return 0;
-  if (!YapStringToBuffer(t, buffers, TMP_BUF_SIZE))
+  if (!YAP_StringToBuffer(t, buffers, TMP_BUF_SIZE))
       return(FALSE);
   len = strlen(buffers);
-  to = (char *)YapNewSlots((len/sizeof(Term))+1);
+  to = (char *)YAP_NewSlots((len/sizeof(YAP_Term))+1);
   strncpy(to, buffers, TMP_BUF_SIZE);
   *sp = to;
   return 1;
@@ -391,11 +391,11 @@ X_API int PL_get_string(term_t ts, char **sp, int *lenp)  /* SAM check type */
 
 X_API int PL_get_tail(term_t ts, term_t tl)
 {
-  Term t = YapGetFromSlot(ts);
-  if (!IsPairTerm(t) ) {
+  YAP_Term t = YAP_GetFromSlot(ts);
+  if (!YAP_IsPairTerm(t) ) {
     return 0;
   }
-  YapPutInSlot(tl,TailOfTerm(t));
+  YAP_PutInSlot(tl,YAP_TailOfTerm(t));
   return 1;
 }
 
@@ -404,41 +404,41 @@ X_API int PL_get_tail(term_t ts, term_t tl)
 /* begin PL_new_* functions =============================*/
 
 /* SWI: atom_t PL_new_atom(const char *)
-   YAP: Atom LookupAtom(char *) */
+   YAP: YAP_Atom LookupAtom(char *) */
 /*  SAM should the following be used instead?
-      Atom  FullLookupAtom(char *)
+      YAP_Atom  FullLookupAtom(char *)
       */
 X_API atom_t PL_new_atom(const char *c)
 {
-  return YapLookupAtom((char *)c);
+  return YAP_LookupAtom((char *)c);
 }
 
 X_API functor_t PL_new_functor(atom_t name, int arity)
 {
   functor_t f;
   if (arity == 0) {
-    f = (functor_t)YapMkAtomTerm(name);
+    f = (functor_t)YAP_MkAtomTerm(name);
   } else {
-    f = (functor_t)YapMkFunctor(name,arity);
+    f = (functor_t)YAP_MkFunctor(name,arity);
   }
   return f;
 }
 
 X_API atom_t PL_functor_name(functor_t f)
 {
-  if (IsAtomTerm(f)) {
-    return AtomOfTerm(f);
+  if (YAP_IsAtomTerm(f)) {
+    return YAP_AtomOfTerm(f);
   } else {
-    return YapNameOfFunctor((Functor)f);
+    return YAP_NameOfFunctor((YAP_Functor)f);
   }
 }
 
 X_API int PL_functor_arity(functor_t f)
 {
-  if (IsAtomTerm(f)) {
+  if (YAP_IsAtomTerm(f)) {
     return 0;
   } else {
-    return YapArityOfFunctor((Functor)f);
+    return YAP_ArityOfFunctor((YAP_Functor)f);
   }
 }
 
@@ -450,90 +450,90 @@ X_API void PL_cons_functor(term_t d, functor_t f,...)
 {
   va_list ap;
   int arity, i;
-  Term *tmp = (CELL *)buffers;
+  YAP_Term *tmp = (YAP_CELL *)buffers;
 
-  if (IsAtomTerm((Term)f)) {
-    YapPutInSlot(d, (Term)f);
+  if (YAP_IsAtomTerm((YAP_Term)f)) {
+    YAP_PutInSlot(d, (YAP_Term)f);
     return;
   }
-  arity = ArityOfFunctor((Functor)f);
-  if (arity > TMP_BUF_SIZE/sizeof(CELL)) {
+  arity = YAP_ArityOfFunctor((YAP_Functor)f);
+  if (arity > TMP_BUF_SIZE/sizeof(YAP_CELL)) {
     fprintf(stderr,"PL_cons_functor: arity too large (%d)\n", arity); 
     return;
   }
   va_start (ap, f);
   for (i = 0; i < arity; i++) {
-    tmp[i] =  YapGetFromSlot(va_arg(ap, term_t));
+    tmp[i] =  YAP_GetFromSlot(va_arg(ap, term_t));
   }
   va_end (ap);
-  if (arity == 2 && (Functor)f == YapMkFunctor(YapLookupAtom("."),2))
-    YapPutInSlot(d,YapMkPairTerm(tmp[0],tmp[1]));
+  if (arity == 2 && (YAP_Functor)f == YAP_MkFunctor(YAP_LookupAtom("."),2))
+    YAP_PutInSlot(d,YAP_MkPairTerm(tmp[0],tmp[1]));
   else
-    YapPutInSlot(d,YapMkApplTerm((Functor)f,arity,tmp));
+    YAP_PutInSlot(d,YAP_MkApplTerm((YAP_Functor)f,arity,tmp));
 }
 
 X_API void PL_cons_functor_v(term_t d, functor_t f,term_t a0)
 {
   int arity;
 
-  if (IsAtomTerm(f)) {
-    YapPutInSlot(d,(Term)f);
+  if (YAP_IsAtomTerm(f)) {
+    YAP_PutInSlot(d,(YAP_Term)f);
     return;
   }
-  arity = ArityOfFunctor((Functor)f);
-  if (arity == 2 && (Functor)f == YapMkFunctor(YapLookupAtom("."),2))
-    YapPutInSlot(d,YapMkPairTerm(YapGetFromSlot(a0),YapGetFromSlot(a0+1)));    
+  arity = YAP_ArityOfFunctor((YAP_Functor)f);
+  if (arity == 2 && (YAP_Functor)f == YAP_MkFunctor(YAP_LookupAtom("."),2))
+    YAP_PutInSlot(d,YAP_MkPairTerm(YAP_GetFromSlot(a0),YAP_GetFromSlot(a0+1)));    
   else
-    YapPutInSlot(d,YapMkApplTerm((Functor)f,arity,YapAddressFromSlot(a0)));
+    YAP_PutInSlot(d,YAP_MkApplTerm((YAP_Functor)f,arity,YAP_AddressFromSlot(a0)));
 }
 
 X_API void PL_cons_list(term_t d, term_t h, term_t t)
 {
-  YapPutInSlot(d,YapMkPairTerm(YapGetFromSlot(h),YapGetFromSlot(t)));
+  YAP_PutInSlot(d,YAP_MkPairTerm(YAP_GetFromSlot(h),YAP_GetFromSlot(t)));
 }
 
 X_API void PL_put_atom(term_t t, atom_t a)
 {
-  YapPutInSlot(t,YapMkAtomTerm(a));
+  YAP_PutInSlot(t,YAP_MkAtomTerm(a));
 }
 
 X_API void PL_put_atom_chars(term_t t, const char *s)
 {
-  YapPutInSlot(t,YapMkAtomTerm(YapLookupAtom((char *)s)));
+  YAP_PutInSlot(t,YAP_MkAtomTerm(YAP_LookupAtom((char *)s)));
 }
 
 X_API void PL_put_float(term_t t, double fl)
 {
-  YapPutInSlot(t,YapMkFloatTerm(fl));
+  YAP_PutInSlot(t,YAP_MkFloatTerm(fl));
 }
 
 X_API void PL_put_functor(term_t t, functor_t f)
 {
-  Int arity;
-  if (IsAtomTerm(f)) {
-    YapPutInSlot(t,f);
+  long int  arity;
+  if (YAP_IsAtomTerm(f)) {
+    YAP_PutInSlot(t,f);
   } else {
-    arity = YapArityOfFunctor((Functor)f);
-    if (arity == 2 && (Functor)f == YapMkFunctor(YapLookupAtom("."),2))
-      YapPutInSlot(t,YapMkNewPairTerm());    
+    arity = YAP_ArityOfFunctor((YAP_Functor)f);
+    if (arity == 2 && (YAP_Functor)f == YAP_MkFunctor(YAP_LookupAtom("."),2))
+      YAP_PutInSlot(t,YAP_MkNewPairTerm());    
     else
-      YapPutInSlot(t,MkNewApplTerm((Functor)f,arity));
+      YAP_PutInSlot(t,YAP_MkNewApplTerm((YAP_Functor)f,arity));
   }
 }
 
 X_API void PL_put_integer(term_t t, long n)
 {
-  YapPutInSlot(t,YapMkIntTerm(n));
+  YAP_PutInSlot(t,YAP_MkIntTerm(n));
 }
 
 X_API void PL_put_list(term_t t)
 {
-  YapPutInSlot(t,YapMkNewPairTerm());
+  YAP_PutInSlot(t,YAP_MkNewPairTerm());
 }
 
 X_API void PL_put_nil(term_t t)
 {
-  YapPutInSlot(t,MkAtomTerm(LookupAtom("[]")));
+  YAP_PutInSlot(t,YAP_MkAtomTerm(YAP_LookupAtom("[]")));
 }
 
 /* SWI: void PL_put_pointer(term_t -t, void *ptr)
@@ -541,23 +541,23 @@ X_API void PL_put_nil(term_t t)
 /* SAM TO DO */
 X_API void PL_put_pointer(term_t t, void *ptr)
 {
-  Term tptr = MkIntTerm((Int)ptr);
-  YapPutInSlot(t,tptr);
+  YAP_Term tptr = YAP_MkIntTerm((long int)ptr);
+  YAP_PutInSlot(t,tptr);
 }
 
 X_API void PL_put_string_chars(term_t t, const char *s)
 {
-  YapPutInSlot(t,YapBufferToString((char *)s));
+  YAP_PutInSlot(t,YAP_BufferToString((char *)s));
 }
 
 X_API void PL_put_term(term_t d, term_t s)
 {
-  YapPutInSlot(d,YapGetFromSlot(s));
+  YAP_PutInSlot(d,YAP_GetFromSlot(s));
 }
 
 X_API void PL_put_variable(term_t t)
 {
-  YapPutInSlot(t,MkVarTerm());
+  YAP_PutInSlot(t,YAP_MkVarTerm());
 }
 
 /* end PL_put_* functions =============================*/
@@ -568,7 +568,7 @@ X_API void PL_put_variable(term_t t)
 
 X_API int PL_raise_exception(term_t exception)
 {
-  YapThrow(YapGetFromSlot(exception));
+  YAP_Throw(YAP_GetFromSlot(exception));
   return 0;
 }
 
@@ -576,64 +576,64 @@ X_API int PL_raise_exception(term_t exception)
 
 X_API int PL_unify(term_t t1, term_t t2)
 {
-  return unify(YapGetFromSlot(t1),YapGetFromSlot(t2));
+  return YAP_Unify(YAP_GetFromSlot(t1),YAP_GetFromSlot(t2));
 }
 
 /* SWI: int PL_unify_atom(term_t ?t, atom  *at)
-   YAP Int unify(Term* a, Term* b) */
+   YAP long int  unify(YAP_Term* a, Term* b) */
 X_API int PL_unify_atom(term_t t, atom_t at)
 {
-  Term cterm = MkAtomTerm(at);
-  return unify(YapGetFromSlot(t),cterm);
+  YAP_Term cterm = YAP_MkAtomTerm(at);
+  return YAP_Unify(YAP_GetFromSlot(t),cterm);
 }
 
 /* SWI: int PL_unify_atom_chars(term_t ?t, const char *chars)
-   YAP Int unify(Term* a, Term* b) */
+   YAP long int  unify(YAP_Term* a, Term* b) */
 X_API int PL_unify_atom_chars(term_t t, const char *s)
 {
-  Atom catom = YapLookupAtom((char *)s);
-  Term cterm = MkAtomTerm(catom);
-  return unify(YapGetFromSlot(t),cterm);
+  YAP_Atom catom = YAP_LookupAtom((char *)s);
+  YAP_Term cterm = YAP_MkAtomTerm(catom);
+  return YAP_Unify(YAP_GetFromSlot(t),cterm);
 }
 
 /* SWI: int PL_unify_float(term_t ?t, double f)
-   YAP Int unify(Term* a, Term* b) */
+   YAP long int  unify(YAP_Term* a, Term* b) */
 X_API int PL_unify_float(term_t t, double f)
 {
-  Term fterm = MkFloatTerm(f);
-  return unify(YapGetFromSlot(t),fterm);
+  YAP_Term fterm = YAP_MkFloatTerm(f);
+  return YAP_Unify(YAP_GetFromSlot(t),fterm);
 }
 
 /* SWI: int PL_unify_integer(term_t ?t, long n)
-   YAP Int unify(Term* a, Term* b) */
+   YAP long int  unify(YAP_Term* a, Term* b) */
 X_API int PL_unify_integer(term_t t, long n)
 {	
-  Term iterm = MkIntTerm(n);
-  return unify(YapGetFromSlot(t),iterm);
+  YAP_Term iterm = YAP_MkIntTerm(n);
+  return YAP_Unify(YAP_GetFromSlot(t),iterm);
 }
 
 /* SWI: int PL_unify_list(term_t ?t, term_t +h, term_t -t)
-   YAP Int unify(Term* a, Term* b) */
+   YAP long int  unify(YAP_Term* a, Term* b) */
 X_API int PL_unify_list(term_t t, term_t h, term_t tail)
 {
-  Term pairterm = MkPairTerm(YapGetFromSlot(h),YapGetFromSlot(tail));
-  return unify(YapGetFromSlot(t), pairterm);
+  YAP_Term pairterm = YAP_MkPairTerm(YAP_GetFromSlot(h),YAP_GetFromSlot(tail));
+  return YAP_Unify(YAP_GetFromSlot(t), pairterm);
 }
 
 /* SWI: int PL_unify_list(term_t ?t, term_t +h, term_t -t)
-   YAP Int unify(Term* a, Term* b) */
+   YAP long int  unify(YAP_Term* a, Term* b) */
 X_API int PL_unify_list_chars(term_t t, const char *chars)
 {
-  Term chterm = YapBufferToString((char *)chars);
-  return unify(YapGetFromSlot(t), chterm);
+  YAP_Term chterm = YAP_BufferToString((char *)chars);
+  return YAP_Unify(YAP_GetFromSlot(t), chterm);
 }
 
 /* SWI: int PL_unify_nil(term_t ?l)
-   YAP Int unify(Term* a, Term* b) */
+   YAP long int  unify(YAP_Term* a, Term* b) */
 X_API int PL_unify_nil(term_t l)
 {
-  Term nilterm = MkAtomTerm(YapLookupAtom("[]"));
-  return unify(YapGetFromSlot(l), nilterm);
+  YAP_Term nilterm = YAP_MkAtomTerm(YAP_LookupAtom("[]"));
+  return YAP_Unify(YAP_GetFromSlot(l), nilterm);
 }
 
 /* SWI: int PL_unify_pointer(term_t ?t, void *ptr)
@@ -641,16 +641,16 @@ X_API int PL_unify_nil(term_t l)
 /* SAM TO DO */
 X_API int PL_unify_pointer(term_t t, void *ptr)
 {
-  Term ptrterm = MkIntTerm((Int)ptr);
-  return unify(YapGetFromSlot(t), ptrterm);
+  YAP_Term ptrterm = YAP_MkIntTerm((long int)ptr);
+  return YAP_Unify(YAP_GetFromSlot(t), ptrterm);
 }
 
 /* SWI: int PL_unify_list(term_t ?t, term_t +h, term_t -t)
-   YAP Int unify(Term* a, Term* b) */
+   YAP long int  unify(YAP_Term* a, Term* b) */
 X_API int PL_unify_string_chars(term_t t, const char *chars)
 {
-  Term chterm = YapBufferToString((char *)chars);
-  return unify(YapGetFromSlot(t), chterm);
+  YAP_Term chterm = YAP_BufferToString((char *)chars);
+  return YAP_Unify(YAP_GetFromSlot(t), chterm);
 }
 
 typedef struct {
@@ -666,66 +666,66 @@ typedef struct {
   } arg;
 } arg_types;
 
-static Term
+static YAP_Term
 get_term(arg_types **buf)
 {
   arg_types *ptr = *buf;
   int type = ptr->type;
-  Term t;
+  YAP_Term t;
 
   switch (type) {
   /* now build the error string */
   case PL_VARIABLE:
-    t = YapMkVarTerm();
+    t = YAP_MkVarTerm();
     break;
   case PL_ATOM:
-    t = YapMkAtomTerm(ptr->arg.a);
+    t = YAP_MkAtomTerm(ptr->arg.a);
     break;
   case PL_INTEGER:
-    t = YapMkIntTerm(ptr->arg.l);
+    t = YAP_MkIntTerm(ptr->arg.l);
     break;
   case PL_FLOAT:
-    t = YapMkFloatTerm(ptr->arg.dbl);
+    t = YAP_MkFloatTerm(ptr->arg.dbl);
     break;
   case PL_POINTER:
-    t = YapMkIntTerm((Int)(ptr->arg.p));
+    t = YAP_MkIntTerm((long int)(ptr->arg.p));
     break;
   case PL_STRING:
-    t = YapBufferToString(ptr->arg.s);
+    t = YAP_BufferToString(ptr->arg.s);
     break;
   case PL_TERM:
-    t = YapGetFromSlot(ptr->arg.t);
+    t = YAP_GetFromSlot(ptr->arg.t);
     break;
   case PL_CHARS:
-    t = MkAtomTerm(YapLookupAtom(ptr->arg.s));
+    t = YAP_MkAtomTerm(YAP_LookupAtom(ptr->arg.s));
     break;
   case PL_FUNCTOR:
     {
       functor_t f = ptr->arg.f;
-      Int arity, i;
+      long int  arity, i;
       term_t loc;
 
-      if (IsAtomTerm((Term)f)) {
-	t = (Term)f;
+      if (YAP_IsAtomTerm((YAP_Term)f)) {
+	t = (YAP_Term)f;
 	break;
       }
-      arity = YapArityOfFunctor((Functor)f);
-      loc = YapNewSlots(arity);
+      arity = YAP_ArityOfFunctor((YAP_Functor)f);
+      loc = YAP_NewSlots(arity);
       ptr++;
       for (i= 0; i < arity; i++) {
-	YapPutInSlot(loc+i,get_term(&ptr));
+	YAP_PutInSlot(loc+i,get_term(&ptr));
       }
-      t = MkApplTerm((Functor)f,arity,YapAddressFromSlot(loc));
+      t = YAP_MkApplTerm((YAP_Functor)f,arity,YAP_AddressFromSlot(loc));
     }
     break;
   case PL_LIST:
     {
       term_t loc;
 
-      loc = YapNewSlots(2);
-      YapPutInSlot(loc,get_term(&ptr));
-      YapPutInSlot(loc+1,get_term(&ptr));
-      t = MkPairTerm(YapGetFromSlot(loc),YapGetFromSlot(loc+1));
+      loc = YAP_NewSlots(2);
+      YAP_PutInSlot(loc,get_term(&ptr));
+      YAP_PutInSlot(loc+1,get_term(&ptr));
+      t = YAP_MkPairTerm(YAP_GetFromSlot(loc),YAP_GetFromSlot(loc+1));
     }
     break;
   default:
@@ -737,7 +737,7 @@ get_term(arg_types **buf)
 }
 
 /* SWI: int PL_unify_term(term_t ?t1, term_t ?t2)
-   YAP Int unify(Term* a, Term* b) */
+   YAP long int  YAP_Unify(YAP_Term* a, Term* b) */
 X_API int PL_unify_term(term_t l,...)
 {
   va_list ap;
@@ -779,8 +779,8 @@ X_API int PL_unify_term(term_t l,...)
       {
 	functor_t f = va_arg(ap, functor_t);
 	ptr->arg.f = f;
-	if (!IsAtomTerm((Term)f)) {
-	  nels += YapArityOfFunctor((Functor)f);
+	if (!YAP_IsAtomTerm((YAP_Term)f)) {
+	  nels += YAP_ArityOfFunctor((YAP_Functor)f);
 	}
       }
       break;
@@ -795,7 +795,7 @@ X_API int PL_unify_term(term_t l,...)
   }
   va_end (ap);
   ptr = (arg_types *)buffers;
-  return unify(YapGetFromSlot(l),get_term(&ptr));
+  return YAP_Unify(YAP_GetFromSlot(l),get_term(&ptr));
 }
 
 /* end PL_unify_* functions =============================*/
@@ -809,15 +809,15 @@ X_API void PL_unregister_atom(atom_t atom)
 
 X_API int PL_term_type(term_t t)
 {
-  /* Yap does not support strings as different objects */
-  Term v = YapGetFromSlot(t);
-  if (IsVarTerm(v)) {
+  /* YAP_ does not support strings as different objects */
+  YAP_Term v = YAP_GetFromSlot(t);
+  if (YAP_IsVarTerm(v)) {
     return PL_VARIABLE;
-  } else if (IsAtomTerm(v)) {
+  } else if (YAP_IsAtomTerm(v)) {
     return PL_ATOM;
-  } else if (IsIntTerm(v)) {
+  } else if (YAP_IsIntTerm(v)) {
     return PL_INTEGER;
-  } else if (IsFloatTerm(v)) {
+  } else if (YAP_IsFloatTerm(v)) {
     return PL_FLOAT;
   } else {
     return PL_TERM;
@@ -826,90 +826,90 @@ X_API int PL_term_type(term_t t)
 
 X_API int PL_is_atom(term_t t)
 {
-  return IsAtomTerm(YapGetFromSlot(t));
+  return YAP_IsAtomTerm(YAP_GetFromSlot(t));
 }
 
 X_API int PL_is_atomic(term_t ts)
 {
-  Term t = YapGetFromSlot(ts);
-  return !IsVarTerm(t) || !IsApplTerm(t) || !IsPairTerm(t);
+  YAP_Term t = YAP_GetFromSlot(ts);
+  return !YAP_IsVarTerm(t) || !YAP_IsApplTerm(t) || !YAP_IsPairTerm(t);
 }
 
 X_API int PL_is_compound(term_t ts)
 {
-  Term t = YapGetFromSlot(ts);
-  return (IsApplTerm(t) || IsPairTerm(t));
+  YAP_Term t = YAP_GetFromSlot(ts);
+  return (YAP_IsApplTerm(t) || YAP_IsPairTerm(t));
 }
 
 X_API int PL_is_functor(term_t ts, functor_t f)
 {
-  Term t = YapGetFromSlot(ts);
-  if (IsApplTerm(t)) {
-    return FunctorOfTerm(t) == (Functor)f;
-  } else if (IsPairTerm(t)) {
-    return FunctorOfTerm(t) == YapMkFunctor(YapLookupAtom("."),2);
+  YAP_Term t = YAP_GetFromSlot(ts);
+  if (YAP_IsApplTerm(t)) {
+    return YAP_FunctorOfTerm(t) == (YAP_Functor)f;
+  } else if (YAP_IsPairTerm(t)) {
+    return YAP_FunctorOfTerm(t) == YAP_MkFunctor(YAP_LookupAtom("."),2);
   } else
     return 0;
 }
 
 X_API int PL_is_float(term_t ts)
 {
-  Term t = YapGetFromSlot(ts);
-  return IsFloatTerm(t);
+  YAP_Term t = YAP_GetFromSlot(ts);
+  return YAP_IsFloatTerm(t);
 }
 
 X_API int PL_is_integer(term_t ts)
 {
-  Term t = YapGetFromSlot(ts);
-  return IsIntTerm(t);
+  YAP_Term t = YAP_GetFromSlot(ts);
+  return YAP_IsIntTerm(t);
 }
 
 X_API int PL_is_list(term_t ts)
 {
-  Term t = YapGetFromSlot(ts);
-  if (IsPairTerm(t)) {
+  YAP_Term t = YAP_GetFromSlot(ts);
+  if (YAP_IsPairTerm(t)) {
     return 1;
-  } else if (IsAtomTerm(t)) {
-    return t == MkAtomTerm(YapLookupAtom("[]"));
+  } else if (YAP_IsAtomTerm(t)) {
+    return t == YAP_MkAtomTerm(YAP_LookupAtom("[]"));
   } else
     return 0;
 }
 
 X_API int PL_is_number(term_t ts)
 {
-  Term t = YapGetFromSlot(ts);
-  return IsIntTerm(t) || IsFloatTerm(t);
+  YAP_Term t = YAP_GetFromSlot(ts);
+  return YAP_IsIntTerm(t) || YAP_IsFloatTerm(t);
 }
 
 X_API int PL_is_string(term_t ts)
 {
-  Term t = YapGetFromSlot(ts);
-  while (IsPairTerm(t)) {
-    Term hd = YapHeadOfTerm(t);
-    Int i;
-    if (!IsIntTerm(hd))
+  YAP_Term t = YAP_GetFromSlot(ts);
+  while (YAP_IsPairTerm(t)) {
+    YAP_Term hd = YAP_HeadOfTerm(t);
+    long int  i;
+    if (!YAP_IsIntTerm(hd))
       return 0;
-    i = IntOfTerm(hd);
+    i = YAP_IntOfTerm(hd);
     if (i <= 0 || i >= 255)
       return 0;
-    if (!IsIntTerm(hd))
+    if (!YAP_IsIntTerm(hd))
       return 0;
-    t = TailOfTerm(t);
+    t = YAP_TailOfTerm(t);
   }
-  if (t != MkAtomTerm(LookupAtom("[]")))
+  if (t != YAP_MkAtomTerm(YAP_LookupAtom("[]")))
     return 0;
   return FALSE;
 }
 
 X_API int PL_is_variable(term_t ts)
 {
-  Term t = YapGetFromSlot(ts);
-  return IsVarTerm(t);
+  YAP_Term t = YAP_GetFromSlot(ts);
+  return YAP_IsVarTerm(t);
 }
 
 X_API void PL_halt(int e)
 {
-   YapHalt(e);
+   YAP_Halt(e);
 }
 
 X_API fid_t
@@ -933,10 +933,10 @@ PL_discard_foreign_frame(fid_t f)
 X_API term_t
 PL_exception(qid_t q)
 {
-  Term t;
-  if (YapGoalHasException(&t)) {
-    term_t to = YapNewSlots(1);
-    YapPutInSlot(to,t);
+  YAP_Term t;
+  if (YAP_GoalHasException(&t)) {
+    term_t to = YAP_NewSlots(1);
+    YAP_PutInSlot(to,t);
     return to;
   } else {
     return 0L;
@@ -946,7 +946,7 @@ PL_exception(qid_t q)
 X_API int
 PL_initialise(int myargc, char **myargv, char **myenviron)
 {
-  yap_init_args init_args;
+  YAP_init_args init_args;
 
   init_args.Argv = myargv;
   init_args.Argc = myargc;
@@ -961,16 +961,16 @@ PL_initialise(int myargc, char **myargv, char **myenviron)
   init_args.NumberWorkers = 1;
   init_args.SchedulerLoop = 10;
   init_args.DelayedReleaseLoad = 3;
-  return YapInit(&init_args);
+  return YAP_Init(&init_args);
 }
 
 X_API predicate_t PL_pred(functor_t f, module_t m)
 {
-  if (IsAtomTerm(f)) {
-    return YapPredicate(AtomOfTerm(f),0,m);
+  if (YAP_IsAtomTerm(f)) {
+    return YAP_Predicate(YAP_AtomOfTerm(f),0,m);
   } else {
-    Functor tf = (Functor)f;
-    return YapPredicate(YapNameOfFunctor(tf),YapArityOfFunctor(tf),m);
+    YAP_Functor tf = (YAP_Functor)f;
+    return YAP_Predicate(YAP_NameOfFunctor(tf),YAP_ArityOfFunctor(tf),m);
   }
 }
 
@@ -978,23 +978,23 @@ X_API predicate_t PL_predicate(const char *name, int arity, const char *m)
 {
   int mod;
   if (m == NULL)
-    mod = YapCurrentModule();
+    mod = YAP_CurrentModule();
   else
-    mod = YapLookupModule(MkAtomTerm(LookupAtom((char *)m)));
-  return YapPredicate(YapLookupAtom((char *)name),
+    mod = YAP_LookupModule(YAP_MkAtomTerm(YAP_LookupAtom((char *)m)));
+  return YAP_Predicate(YAP_LookupAtom((char *)name),
 		      arity,
 		      mod);
 }
 
 X_API void PL_predicate_info(predicate_t p,atom_t *name, int *arity, module_t *m)
 {
-  YapPredicateInfo(p, name, (Int *)arity, (Int *)m);
+  YAP_PredicateInfo(p, name, (unsigned long int  *)arity, (int *)m);
 }
 
 typedef struct open_query_struct {
   int open;
   int state;
-  Term g;
+  YAP_Term g;
 } open_query;
 
 open_query execution;
@@ -1002,25 +1002,25 @@ open_query execution;
 X_API qid_t PL_open_query(module_t ctx, int flags, predicate_t p, term_t t0)
 {
   atom_t name;
-  Int arity;
-  Int m;
-  Term t[2];
+  unsigned long int  arity;
+  int  m;
+  YAP_Term t[2];
 
   /* ignore flags  and module for now */
   if (execution.open != 0) {
-    YapError("only one query at a time allowed\n");
+    YAP_Error("only one query at a time allowed\n");
   }
   execution.open=1;
   execution.state=0;
-  YapPredicateInfo(p, &name, &arity, &m);
-  t[0] = YapModuleName(m);
+  YAP_PredicateInfo(p, &name, &arity, &m);
+  t[0] = YAP_ModuleName(m);
   if (arity == 0) {
-    t[1] = YapMkAtomTerm(name);
+    t[1] = YAP_MkAtomTerm(name);
   } else {
-    Functor f = YapMkFunctor(name, arity);
-    t[1] = YapMkApplTerm(f,arity,YapAddressFromSlot(t0));
+    YAP_Functor f = YAP_MkFunctor(name, arity);
+    t[1] = YAP_MkApplTerm(f,arity,YAP_AddressFromSlot(t0));
   }
-  execution.g = MkApplTerm(YapMkFunctor(YapLookupAtom(":"),2),2,t);
+  execution.g = YAP_MkApplTerm(YAP_MkFunctor(YAP_LookupAtom(":"),2),2,t);
   return &execution;
 }
 
@@ -1030,9 +1030,9 @@ X_API int PL_next_solution(qid_t qi)
 
   if (qi->open != 1) return 0;
   if (qi->state == 0) {
-    result = YapRunGoal(qi->g);
+    result = YAP_RunGoal(qi->g);
   } else {
-    result = YapRestartGoal();
+    result = YAP_RestartGoal();
   }
   qi->state = 1;
   if (result == 0) {
@@ -1043,7 +1043,7 @@ X_API int PL_next_solution(qid_t qi)
 
 X_API void PL_cut_query(qid_t qi)
 {
-  YapPruneGoal();
+  YAP_PruneGoal();
   qi->open = 0;
 }
 
@@ -1052,8 +1052,8 @@ X_API void PL_close_query(qid_t qi)
   /* need to implement backtracking here */
   if (qi->open != 1)
     return;
-  YapPruneGoal();
-  YapRestartGoal();
+  YAP_PruneGoal();
+  YAP_RestartGoal();
   qi->open = 0;
 }
 
@@ -1067,18 +1067,18 @@ X_API int PL_call_predicate(module_t ctx, int flags, predicate_t p, term_t t0)
 
 X_API int PL_call(term_t tp, module_t m)
 {
-  Term t[2], g;
-  t[0] = YapModuleName(m);
-  t[1] = YapGetFromSlot(tp);
-  g = MkApplTerm(YapMkFunctor(YapLookupAtom(":"),2),2,t);
-  return YapRunGoal(g);
+  YAP_Term t[2], g;
+  t[0] = YAP_ModuleName(m);
+  t[1] = YAP_GetFromSlot(tp);
+  g = YAP_MkApplTerm(YAP_MkFunctor(YAP_LookupAtom(":"),2),2,t);
+  return YAP_RunGoal(g);
 }
 
 X_API void PL_register_extensions(PL_extension *ptr)
 {
   /* ignore flags for now */
   while(ptr->predicate_name != NULL) {
-    YapUserCPredicateWithArgs(ptr->predicate_name,ptr->function,ptr->arity,YapCurrentModule());
+    YAP_UserCPredicateWithArgs(ptr->predicate_name,ptr->function,ptr->arity,YAP_CurrentModule());
     ptr++;
   }
 }

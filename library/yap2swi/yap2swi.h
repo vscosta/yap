@@ -12,7 +12,7 @@
 
 
 //=== includes ===============================================================
-#include	<c_interface.h>
+#include	<YapInterface.h>
 #include	<stdarg.h>
 
 #if defined(_MSC_VER) && defined(YAP_EXPORTS)
@@ -24,8 +24,8 @@
 typedef	unsigned int    fid_t;
 typedef	unsigned int    term_t;
 typedef	int     module_t;
-typedef Atom	atom_t;
-typedef	Term    *predicate_t;
+typedef YAP_Atom	atom_t;
+typedef	YAP_Term    *predicate_t;
 typedef struct  open_query_struct *qid_t;
 typedef long    functor_t;
 typedef int     (*PL_agc_hook_t)(atom_t);
@@ -95,7 +95,7 @@ extern X_API term_t PL_new_term_refs(int);
 extern X_API void PL_reset_term_refs(term_t);
 /* begin PL_get_* functions =============================*/
 extern X_API int PL_get_arg(int, term_t, term_t);
-extern X_API int PL_get_atom(term_t, Atom *);
+extern X_API int PL_get_atom(term_t, YAP_Atom *);
 extern X_API int PL_get_atom_chars(term_t, char **);
 extern X_API int PL_get_chars(term_t, char **, unsigned);
 extern X_API int PL_get_functor(term_t, functor_t *);

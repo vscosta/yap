@@ -18,11 +18,11 @@
 /* stream predicates							*/
 
 open(Source,M,T) :- var(Source), !,
-	throw(error(instantiation_error,open(Source,M,T))).
+	'$do_error'(instantiation_error,open(Source,M,T)).
 open(Source,M,T) :- var(M), !,
-	throw(error(instantiation_error,open(Source,M,T))).
+	'$do_error'(instantiation_error,open(Source,M,T)).
 open(Source,M,T) :- nonvar(T), !,
-	throw(error(type_error(variable,T),open(Source,M,T))).
+	'$do_error'(type_error(variable,T),open(Source,M,T)).
 open(File,Mode,Stream) :-
 	'$open'(File,Mode,Stream,0).
 
@@ -34,7 +34,7 @@ open(File,Mode,Stream) :-
 */
 
 close(V) :- var(V), !,
-	throw(error(instantiation_error,close(V))).
+	'$do_error'(instantiation_error,close(V)).
 close(File) :-
 	atom(File), !,
 	(
@@ -50,7 +50,7 @@ close(Stream) :-
 	'$close'(Stream).
 
 close(V,Opts) :- var(V), !,
-	throw(error(instantiation_error,close(V,Opts))).
+	'$do_error'(instantiation_error,close(V,Opts)).
 close(S,Opts) :-
 	'$check_io_opts'(Opts,close(S,Opts)),
 	/* YAP ignores the force/1 flag */ 
@@ -63,11 +63,11 @@ open(F,T,S,Opts) :-
 	'$process_open_aliases'(Aliases,S).
 
 '$open2'(Source,M,T,N) :- var(Source), !,
-	throw(error(instantiation_error,open(Source,M,T,N))).
+	'$do_error'(instantiation_error,open(Source,M,T,N)).
 '$open2'(Source,M,T,N) :- var(M), !,
-	throw(error(instantiation_error,open(Source,M,T,N))).
+	'$do_error'(instantiation_error,open(Source,M,T,N)).
 '$open2'(Source,M,T,N) :- nonvar(T), !,
-	throw(error(type_error(variable,T),open(Source,M,T,N))).
+	'$do_error'(type_error(variable,T),open(Source,M,T,N)).
 '$open2'(File,Mode,Stream,N) :-
 	'$open'(File,Mode,Stream,N).
 
@@ -106,20 +106,20 @@ open(F,T,S,Opts) :-
 
 /* check whether a list of options is valid */
 '$check_io_opts'(V,G) :- var(V), !,
-	throw(error(instantiation_error,G)).
+	'$do_error'(instantiation_error,G).
 '$check_io_opts'([],_) :- !.
 '$check_io_opts'([H|_],G) :- var(H), !,
-	throw(error(instantiation_error,G)).
+	'$do_error'(instantiation_error,G).
 '$check_io_opts'([Opt|T],G) :- !,
 	'$check_opt'(G,Opt,G),
 	'$check_io_opts'(T,G).
 '$check_io_opts'(T,G) :-
-	throw(error(type_error(list,T),G)).
+	'$do_error'(type_error(list,T),G).
 
 '$check_opt'(close(_,_),Opt,G) :- !,
 	(Opt = force(X) ->
 	    '$check_force_opt_arg'(X,G) ;
-	    throw(error(domain_error(close_option,Opt),G))
+	    '$do_error'(domain_error(close_option,Opt),G)
 	).
 '$check_opt'(open(_,_,_,_),Opt,G) :- !,
 	'$check_opt_open'(Opt, G).
@@ -140,7 +140,7 @@ open(F,T,S,Opts) :-
 '$check_opt_open'(eof_action(T), G) :- !,
 	'$check_open_eof_action_arg'(T, G).
 '$check_opt_open'(A, G) :-
-	throw(error(domain_error(stream_option,A),G)).
+	'$do_error'(domain_error(stream_option,A),G).
 
 '$check_opt_read'(variables(_), _) :- !.
 '$check_opt_read'(variable_names(_), _) :- !.
@@ -149,7 +149,7 @@ open(F,T,S,Opts) :-
 	'$check_read_syntax_errors_arg'(T, G).
 '$check_opt_read'(term_position(_), G) :- !.
 '$check_opt_read'(A, G) :-
-	throw(error(domain_error(read_option,A),G)).
+	'$do_error'(domain_error(read_option,A),G).
 
 '$check_opt_sp'(file_name(_), _) :- !.
 '$check_opt_sp'(mode(_), _) :- !.
@@ -162,7 +162,7 @@ open(F,T,S,Opts) :-
 '$check_opt_sp'(reposition(_), _) :- !.
 '$check_opt_sp'(type(_), _) :- !.
 '$check_opt_sp'(A, G) :-
-	throw(error(domain_error(stream_property,A),G)).
+	'$do_error'(domain_error(stream_property,A),G).
 
 '$check_opt_write'(quoted(T), G) :- !,
 	'$check_write_quoted_arg'(T, G).
@@ -175,93 +175,93 @@ open(F,T,S,Opts) :-
 '$check_opt_write'(max_depth(T), G) :- !,
 	'$check_write_max_depth'(T, G).
 '$check_opt_write'(A, G) :-
-	throw(error(domain_error(write_option,A),G)).
+	'$do_error'(domain_error(write_option,A),G).
 
 %
 % check force arg
 %
 '$check_force_opt_arg'(X,G) :- var(X), !,
-	throw(error(instantiation_error,G)).
+	'$do_error'(instantiation_error,G).
 '$check_force_opt_arg'(true,_) :- !.
 '$check_force_opt_arg'(false,_) :- !.
 '$check_force_opt_arg'(X,G) :-
-	throw(error(domain_error(close_option,force(X)),G)).
+	'$do_error'(domain_error(close_option,force(X)),G).
 
 '$check_open_type_arg'(X, G) :- var(X), !,
-	throw(error(instantiation_error,G)).
+	'$do_error'(instantiation_error,G).
 '$check_open_type_arg'(text,_) :- !.
 '$check_open_type_arg'(binary,_) :- !.
 '$check_open_opt_arg'(X,G) :-
-	throw(error(domain_error(io_mode,type(X)),G)).
+	'$do_error'(domain_error(io_mode,type(X)),G).
 
 '$check_open_reposition_arg'(X, G) :- var(X), !,
-	throw(error(instantiation_error,G)).
+	'$do_error'(instantiation_error,G).
 '$check_open_reposition_arg'(true,_) :- !.
 '$check_open_reposition_arg'(false,_) :- !.
 '$check_open_reposition_arg'(X,G) :-
-	throw(error(domain_error(io_mode,reposition(X)),G)).
+	'$do_error'(domain_error(io_mode,reposition(X)),G).
 
 '$check_open_alias_arg'(X, G) :- var(X), !,
-	throw(error(instantiation_error,G)).
+	'$do_error'(instantiation_error,G).
 '$check_open_alias_arg'(X,G) :- atom(X), !,
 	( '$check_if_valid_new_alias'(X), X \= user ->
 	    true ;
-	    throw(error(permission_error(open, source_sink, alias(X)),G))
+	    '$do_error'(permission_error(open, source_sink, alias(X)),G)
 	).
 '$check_open_alias_arg'(X,G) :-
-	throw(error(domain_error(io_mode,alias(X)),G)).
+	'$do_error'(domain_error(io_mode,alias(X)),G).
 
 
 '$check_open_eof_action_arg'(X, G) :- var(X), !,
-	throw(error(instantiation_error,G)).
+	'$do_error'(instantiation_error,G).
 '$check_open_eof_action_arg'(error,_) :- !.
 '$check_open_eof_action_arg'(eof_code,_) :- !.
 '$check_open_eof_action_arg'(reset,_) :- !.
 '$check_open_eof_action_arg'(X,G) :-
-	throw(error(domain_error(io_mode,eof_action(X)),G)).
+	'$do_error'(domain_error(io_mode,eof_action(X)),G).
 
 '$check_read_syntax_errors_arg'(X, G) :- var(X), !,
-	throw(error(instantiation_error,G)).
+	'$do_error'(instantiation_error,G).
 '$check_read_syntax_errors_arg'(dec10,_) :- !.
 '$check_read_syntax_errors_arg'(fail,_) :- !.
 '$check_read_syntax_errors_arg'(error,_) :- !.
 '$check_read_syntax_errors_arg'(quiet,_) :- !.
 '$check_read_syntax_errors_arg'(X,G) :-
-	throw(error(domain_error(read_option,syntax_errors(X)),G)).
+	'$do_error'(domain_error(read_option,syntax_errors(X)),G).
 
 '$check_write_quoted_arg'(X, G) :- var(X), !,
-	throw(error(instantiation_error,G)).
+	'$do_error'(instantiation_error,G).
 '$check_write_quoted_arg'(true,_) :- !.
 '$check_write_quoted_arg'(false,_) :- !.
 '$check_write_quoted_arg'(X,G) :-
-	throw(error(domain_error(write_option,write_quoted(X)),G)).
+	'$do_error'(domain_error(write_option,write_quoted(X)),G).
 
 '$check_write_ignore_ops_arg'(X, G) :- var(X), !,
-	throw(error(instantiation_error,G)).
+	'$do_error'(instantiation_error,G).
 '$check_write_ignore_ops_arg'(true,_) :- !.
 '$check_write_ignore_ops_arg'(false,_) :- !.
 '$check_write_ignore_ops_arg'(X,G) :-
-	throw(error(domain_error(write_option,ignore_ops(X)),G)).
+	'$do_error'(domain_error(write_option,ignore_ops(X)),G).
 
 '$check_write_numbervars_arg'(X, G) :- var(X), !,
-	throw(error(instantiation_error,G)).
+	'$do_error'(instantiation_error,G).
 '$check_write_numbervars_arg'(true,_) :- !.
 '$check_write_numbervars_arg'(false,_) :- !.
 '$check_write_numbervars_arg'(X,G) :-
-	throw(error(domain_error(write_option,numbervars(X)),G)).
+	'$do_error'(domain_error(write_option,numbervars(X)),G).
 
 '$check_write_portrayed'(X, G) :- var(X), !,
-	throw(error(instantiation_error,G)).
+	'$do_error'(instantiation_error,G).
 '$check_write_portrayed'(true,_) :- !.
 '$check_write_portrayed'(false,_) :- !.
 '$check_write_portrayed'(X,G) :-
-	throw(error(domain_error(write_option,portrayed(X)),G)).
+	'$do_error'(domain_error(write_option,portrayed(X)),G).
 
 '$check_write_max_depth'(X, G) :- var(X), !,
-	throw(error(instantiation_error,G)).
+	'$do_error'(instantiation_error,G).
 '$check_write_max_depth'(I,_) :- integer(I), I > 0, !.
 '$check_write_max_depth'(X,G) :-
-	throw(error(domain_error(write_option,max_depth(X)),G)).
+	'$do_error'(domain_error(write_option,max_depth(X)),G).
 
 set_input(Stream) :-
 	'$set_input'(Stream).
@@ -280,7 +280,7 @@ exists(F) :- '$exists'(F,read).
 
 see(user) :- !, set_input(user_input).
 see(F) :- var(F), !,
-	throw(error(instantiation_error,see(F))).
+	'$do_error'(instantiation_error,see(F)).
 see(F) :- current_input(Stream),
 	'$user_file_name'(Stream,F).
 see(F) :- current_stream(_,read,Stream), '$user_file_name'(Stream,F), !,
@@ -297,7 +297,7 @@ seen :- current_input(Stream), '$close'(Stream), set_input(user).
 
 tell(user) :- !, set_output(user_output).
 tell(F) :- var(F), !,
-	throw(error(instantiation_error,tell(F))).
+	'$do_error'(instantiation_error,tell(F)).
 tell(F) :- current_output(Stream),
 	'$user_file_name'(Stream,F), !.
 tell(F) :- current_stream(_,write,Stream), '$user_file_name'(Stream, F), !,
@@ -524,34 +524,34 @@ get(N) :- current_input(S), '$get'(S,N).
 
 get_byte(V) :-
 	\+ var(V), (\+ integer(V) ; V < -1 ; V > 256), !,
-	throw(error(type_error(in_byte,V),get_byte(V))).
+	'$do_error'(type_error(in_byte,V),get_byte(V)).
 get_byte(V) :-
 	current_input(S), 
 	'$get_byte'(S,V).
 
 get_byte(S,V) :-
 	\+ var(V), (\+ integer(V) ; V < -1 ; V > 256), !,
-	throw(error(type_error(in_byte,V),get_byte(S,V))).
+	'$do_error'(type_error(in_byte,V),get_byte(S,V)).
 get_byte(S,V) :-
 	'$get_byte'(S,V).
 
 peek_byte(V) :-
 	\+ var(V), (\+ integer(V) ; V < -1 ; V > 256), !,
-	throw(error(type_error(in_byte,V),get_byte(V))).
+	'$do_error'(type_error(in_byte,V),get_byte(V)).
 peek_byte(V) :-
 	current_input(S), 
 	'$peek_byte'(S,V).
 
 peek_byte(S,V) :-
 	\+ var(V), (\+ integer(V) ; V < -1 ; V > 256), !,
-	throw(error(type_error(in_byte,V),get_byte(S,V))).
+	'$do_error'(type_error(in_byte,V),get_byte(S,V)).
 peek_byte(S,V) :-
 	'$peek_byte'(S,V).
 
 get_char(V) :-
 	\+ var(V),
 	( atom(V)  -> atom_codes(V,[_,_|_]), V \= end_of_file ; true ), !,
-	throw(error(type_error(in_character,V),get_char(V))).
+	'$do_error'(type_error(in_character,V),get_char(V)).
 get_char(V) :-
 	current_input(S),
 	'$get0'(S,I),
@@ -560,7 +560,7 @@ get_char(V) :-
 get_char(S,V) :-
 	\+ var(V),
 	( atom(V)  -> atom_codes(V,[_,_|_]), V \= end_of_file ; true ), !,
-	throw(error(type_error(in_character,V),get_char(S,V))).
+	'$do_error'(type_error(in_character,V),get_char(S,V)).
 get_char(S,V) :-
 	'$get0'(S,I),
 	( I = -1 -> V = end_of_file ; atom_codes(V,[I])).
@@ -568,7 +568,7 @@ get_char(S,V) :-
 peek_char(V) :-
 	\+ var(V),
 	( atom(V)  -> atom_codes(V,[_,_|_]), V \= end_of_file ; true ), !,
-	throw(error(type_error(in_character,V),get_char(V))).
+	'$do_error'(type_error(in_character,V),get_char(V)).
 peek_char(V) :-
 	current_input(S),
 	'$peek'(S,I),
@@ -577,89 +577,89 @@ peek_char(V) :-
 peek_char(S,V) :-
 	\+ var(V),
 	( atom(V)  -> atom_codes(V,[_,_|_]), V \= end_of_file ; true ), !,
-	throw(error(type_error(in_character,V),get_char(S,V))).
+	'$do_error'(type_error(in_character,V),get_char(S,V)).
 peek_char(S,V) :-
 	'$peek'(S,I),
 	( I = -1 -> V = end_of_file ; atom_codes(V,[I])).
 
 get_code(S,V) :-
 	\+ var(V), (\+ integer(V) ; V < -1 ; V > 256), !,
-	throw(error(type_error(in_character_code,V),get_code(S,V))).
+	'$do_error'(type_error(in_character_code,V),get_code(S,V)).
 get_code(S,V) :-
 	'$get0'(S,V).
 
 get_code(V) :-
 	\+ var(V), (\+ integer(V) ; V < -1 ; V > 256), !,
-	throw(error(type_error(in_character_code,V),get_code(V))).
+	'$do_error'(type_error(in_character_code,V),get_code(V)).
 get_code(V) :-
 	current_input(S),
 	'$get0'(S,V).
 
 peek_code(S,V) :-
 	\+ var(V), (\+ integer(V) ; V < -1 ; V > 256), !,
-	throw(error(type_error(in_character_code,V),get_code(S,V))).
+	'$do_error'(type_error(in_character_code,V),get_code(S,V)).
 peek_code(S,V) :-
 	'$peek'(S,V).
 
 peek_code(V) :-
 	\+ var(V), (\+ integer(V) ; V < -1 ; V > 256), !,
-	throw(error(type_error(in_character_code,V),get_code(V))).
+	'$do_error'(type_error(in_character_code,V),get_code(V)).
 peek_code(V) :-
 	current_input(S),
 	'$peek'(S,V).
 
 put_byte(V) :- var(V), !,
-	throw(error(instantiation_error,put_byte(V))).
+	'$do_error'(instantiation_error,put_byte(V)).
 put_byte(V) :-
 	(\+ integer(V) ; V < 0 ; V > 256), !,
-	throw(error(type_error(byte,V),put_byte(V))).
+	'$do_error'(type_error(byte,V),put_byte(V)).
 put_byte(V) :-
 	current_output(S), 
 	'$put_byte'(S,V).
 
 
 put_byte(S,V) :- var(V), !,
-	throw(error(instantiation_error,put_byte(S,V))).
+	'$do_error'(instantiation_error,put_byte(S,V)).
 put_byte(S,V) :-
 	(\+ integer(V) ; V < 0 ; V > 256), !,
-	throw(error(type_error(byte,V),put_byte(S,V))).
+	'$do_error'(type_error(byte,V),put_byte(S,V)).
 put_byte(S,V) :-
 	'$put_byte'(S,V).
 
 put_char(V) :- var(V), !,
-	throw(error(instantiation_error,put_char(V))).
+	'$do_error'(instantiation_error,put_char(V)).
 put_char(V) :-
 	( atom(V)  -> atom_codes(V,[_,_|_]) ; true ), !,
-	throw(error(type_error(character,V),put_char(V))).
+	'$do_error'(type_error(character,V),put_char(V)).
 put_char(V) :-
 	current_output(S),
 	atom_codes(V,[I]),
 	'$put'(S,I).
 
 put_char(S,V) :- var(V), !,
-	throw(error(instantiation_error,put_char(S,V))).
+	'$do_error'(instantiation_error,put_char(S,V)).
 put_char(S,V) :-
 	( atom(V)  -> atom_codes(V,[_,_|_]) ; true ), !,
-	throw(error(type_error(character,V),put_char(S,V))).
+	'$do_error'(type_error(character,V),put_char(S,V)).
 put_char(S,V) :-
 	atom_codes(V,[I]),
 	'$put'(S,I).
 
 put_code(V) :- var(V), !,
-	throw(error(instantiation_error,put_code(V))).
+	'$do_error'(instantiation_error,put_code(V)).
 put_code(V) :-
 	(\+ integer(V) ; V < 0 ; V > 256), !,
-	throw(error(type_error(character_code,V),put_code(V))).
+	'$do_error'(type_error(character_code,V),put_code(V)).
 put_code(V) :-
 	current_output(S), 
 	'$put'(S,V).
 
 
 put_code(S,V) :- var(V), !,
-	throw(error(instantiation_error,put_code(S,V))).
+	'$do_error'(instantiation_error,put_code(S,V)).
 put_code(S,V) :-
 	(\+ integer(V) ; V < 0 ; V > 256), !,
-	throw(error(type_error(character_code,V),put_code(S,V))).
+	'$do_error'(type_error(character_code,V),put_code(S,V)).
 put_code(S,V) :-
 	'$put'(S,V).
 
@@ -768,7 +768,7 @@ stream_position(S,N,M) :-
 
 
 set_stream_position(S,N) :- var(S), !,
-	throw(error(instantiation_error, set_stream_position(S, N))).
+	'$do_error'(instantiation_error, set_stream_position(S, N)).
 set_stream_position(user,N) :- !,
 	'$set_stream_position'(user_input,N).
 set_stream_position(A,N) :- 
@@ -789,7 +789,7 @@ stream_property(Stream, Props) :-
 	'$current_stream'(_,_,Stream), !,
 	'$stream_property'(Stream, Props).
 stream_property(Stream, Props) :-
-	throw(error(domain_error(stream,Stream),stream_property(Stream, Props))).
+	'$do_error'(domain_error(stream,Stream),stream_property(Stream, Props)).
 
 '$generate_prop'(file_name(_F)).
 '$generate_prop'(mode(_M)).
@@ -804,7 +804,7 @@ stream_property(Stream, Props) :-
 
 '$stream_property'(Stream, Props) :-
 	var(Props), !,
-	throw(error(instantiation_error, stream_properties(Stream, Props))).
+	'$do_error'(instantiation_error, stream_properties(Stream, Props)).
 '$stream_property'(Stream, Props0) :-
 	'$check_stream_props'(Props0, Props),
 	'$check_io_opts'(Props, stream_property(Stream, Props)),
@@ -882,7 +882,7 @@ at_end_of_stream(S) :-
 consult_depth(LV) :- '$show_consult_level'(LV).
 
 absolute_file_name(V,Out) :- var(V), !,
-	throw(error(instantiation_error, absolute_file_name(V, Out))).
+	'$do_error'(instantiation_error, absolute_file_name(V, Out)).
 absolute_file_name(user,user) :- !.
 absolute_file_name(RelFile,AbsFile) :-
 	'$find_in_path'(RelFile,PathFile,absolute_file_name(RelFile,AbsFile)),

@@ -187,7 +187,7 @@ no_style_check([H|T]) :- no_style_check(H), no_style_check(T).
 	nl(user_error).	
 
 '$multifile'(V, _) :- var(V), !,
-	throw(error(instantiation_error,multifile(V))).
+	'$do_error'(instantiation_error,multifile(V)).
 '$multifile'((X,Y), M) :- '$multifile'(X, M), '$multifile'(Y, M).
 '$multifile'(Mod:PredSpec, _) :- !,
 	'$multifile'(PredSpec, Mod).
@@ -201,10 +201,10 @@ no_style_check([H|T]) :- no_style_check(H), no_style_check(T).
 '$multifile'(N/A, M) :- !,
 	'$new_multifile'(N,A,M).
 '$multifile'(P, M) :-
-	throw(error(type_error(predicate_indicator,P),multifile(M:P))).
+	'$do_error'(type_error(predicate_indicator,P),multifile(M:P)).
 
 '$discontiguous'(V,M) :- var(V), !,
-	throw(error(instantiation_error,M:discontiguous(V))).
+	'$do_error'(instantiation_error,M:discontiguous(V)).
 '$discontiguous'((X,Y),M) :- !,
 	'$discontiguous'(X,M),
 	'$discontiguous'(Y,M).
@@ -217,7 +217,7 @@ no_style_check([H|T]) :- no_style_check(H), no_style_check(T).
 	    true
 	).
 '$discontiguous'(P,M) :-
-	throw(error(type_error(predicate_indicator,P),M:discontiguous(P))).
+	'$do_error'(type_error(predicate_indicator,P),M:discontiguous(P)).
 
 %
 % did we declare multifile properly?

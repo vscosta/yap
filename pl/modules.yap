@@ -23,7 +23,7 @@ use_module(M) :-
 	'$use_module'(M).
 
 '$use_module'(V) :- var(V), !,
-	throw(error(instantiation_error,use_module(V))).	
+	'$do_error'(instantiation_error,use_module(V)).
 '$use_module'([]) :- !.
 '$use_module'([A|B]) :- !,
 	'$use_module'(A),
@@ -41,16 +41,16 @@ use_module(M) :-
 		'$ensure_loaded'(File)
 	).
 '$use_module'(File) :-
-	throw(error(permission_error(input,stream,File),use_module(File))).
+	'$do_error'(permission_error(input,stream,File),use_module(File)).
 	
 
 use_module(M,I) :-
 	'$use_module'(M, I).
 
 '$use_module'(File,Imports) :- var(File), !,
-	throw(error(instantiation_error,use_module(File,Imports))).	
+	'$do_error'(instantiation_error,use_module(File,Imports)).
 '$use_module'(File,Imports) :- var(Imports), !,
-	throw(error(instantiation_error,use_module(File,Imports))).	
+	'$do_error'(instantiation_error,use_module(File,Imports)).	
 '$use_module'(M:F, Imports) :- atom(M), !,
         '$current_module'(M0),
         '$change_module'(M),
@@ -76,7 +76,7 @@ use_module(M,I) :-
 	 fail
 	 ).
 '$use_module'(File,Imports) :-
-	throw(error(permission_error(input,stream,File),use_module(File,Imports))).
+	'$do_error'(permission_error(input,stream,File),use_module(File,Imports)).
 	
 use_module(Mod,F,I) :-
 	'$use_module'(Mod,F,I).
@@ -113,7 +113,7 @@ use_module(Mod,F,I) :-
 	  fail
 	).
 '$use_module'(Module,File,Imports) :-
-	throw(error(permission_error(input,stream,File),use_module(Module,File,Imports))).
+	'$do_error'(permission_error(input,stream,File),use_module(Module,File,Imports)).
 	
 '$consulting_file_name'(Stream,F)  :-
 	'$file_name'(Stream, F).
@@ -139,17 +139,17 @@ use_module(Mod,F,I) :-
 	
 '$process_module_decls_options'(Var,Mod) :-
 	var(Var), 
-	throw(error(instantiation_error,Mod)).
+	'$do_error'(instantiation_error,Mod).
 '$process_module_decls_options'([],_).
 '$process_module_decls_options'([H|L],M) :-
 	'$process_module_decls_option'(H,M),
 	'$process_module_decls_options'(L,M).
 '$process_module_decls_options'(T,M) :-
-	throw(error(type_error(list,T),M)).
+	'$do_error'(type_error(list,T),M).
 
 '$process_module_decls_option'(Var,M) :- 
 	var(Var), 
-	throw(error(instantiation_error,M)).
+	'$do_error'(instantiation_error,M).
 '$process_module_decls_option'(At,_) :- 
 	atom(At), 
 	'$use_module'(At).
@@ -158,7 +158,7 @@ use_module(Mod,F,I) :-
 '$process_module_decls_option'(hidden(Bool),M) :- 
 	'$process_hidden_module'(Bool, M).
 '$process_module_decls_option'(Opt,M) :- 
-	throw(error(domain_error(module_decl_options,Opt),M)).
+	'$do_error'(domain_error(module_decl_options,Opt),M).
 
 '$process_hidden_module'(TNew,M) :-
         '$convert_true_off_mod3'(TNew, New, M),
@@ -168,7 +168,7 @@ use_module(Mod,F,I) :-
 '$convert_true_off_mod3'(true, off, _).
 '$convert_true_off_mod3'(false, on, _).
 '$convert_true_off_mod3'(X, _, M) :-
-	throw(error(domain_error(module_decl_options,hidden(X)),M)).
+	'$do_error'(domain_error(module_decl_options,hidden(X)),M).
 
 '$prepare_restore_hidden'(Old,Old) :- !.
 '$prepare_restore_hidden'(Old,New) :-
@@ -176,7 +176,7 @@ use_module(Mod,F,I) :-
 
 module(N) :-
 	var(N), 
-	throw(error(instantiation_error,module(N))).
+	'$do_error'(instantiation_error,module(N)).
 module(N) :-
 	atom(N), !,
 	'$current_module'(_,N),
@@ -187,7 +187,7 @@ module(N) :-
 	  recorda('$module','$module'(F,N,[]),_)
 	).
 module(N) :-
-	throw(error(type_error(atom,N),module(N))).
+	'$do_error'(type_error(atom,N),module(N)).
 
 '$module_dec'(N,P) :-
 	'$current_module'(Old,N),

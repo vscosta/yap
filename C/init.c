@@ -262,19 +262,6 @@ DebugGetc()
 #endif
 
 
-void 
-UserCPredicate(char *name, CPredicate def, unsigned int arity)
-{
-  InitCPred(name, arity, def, UserCPredFlag);
-}
-
-void 
-UserBackCPredicate(char *name, CPredicate init, CPredicate cont,
-		   unsigned int arity, int extra)
-{
-  InitCPredBack(name, arity, extra, init, cont, UserCPredFlag);
-}
-
 int IsOpType(char *type)
 {
   int i;
@@ -503,7 +490,7 @@ InitDebug(void)
 }
 
 void 
-InitCPred(char *Name, int Arity, CPredicate code, int flags)
+InitCPred(char *Name, unsigned long int Arity, CPredicate code, int flags)
 {
   Atom            atom = LookupAtom(Name);
   PredEntry      *pe;
@@ -540,11 +527,14 @@ InitCPred(char *Name, int Arity, CPredicate code, int flags)
     c_predicates[NUMBER_OF_CPREDS] = code;
     pe->StateOfPred = NUMBER_OF_CPREDS;
     NUMBER_OF_CPREDS++;
+    if (NUMBER_OF_CPREDS >= MAX_C_PREDS) {
+      Error(SYSTEM_ERROR, TermNil, "Too Many C-Predicates");
+    }
   }
 }
 
 void 
-InitCmpPred(char *Name, int Arity, CmpPredicate cmp_code, CPredicate code, int flags)
+InitCmpPred(char *Name, unsigned long int Arity, CmpPredicate cmp_code, CPredicate code, int flags)
 {
   Atom            atom = LookupAtom(Name);
   PredEntry      *pe;
@@ -585,7 +575,7 @@ InitCmpPred(char *Name, int Arity, CmpPredicate cmp_code, CPredicate code, int f
 }
 
 void 
-InitAsmPred(char *Name,  int Arity, int code, CPredicate def, int flags)
+InitAsmPred(char *Name,  unsigned long int Arity, int code, CPredicate def, int flags)
 {
   Atom            atom = LookupAtom(Name);
   PredEntry      *pe;
@@ -660,7 +650,7 @@ CleanBack(PredEntry *pe, CPredicate Start, CPredicate Cont)
 
 
 void 
-InitCPredBack(char *Name, int Arity, int Extra, CPredicate Start, CPredicate Cont, int flags)
+InitCPredBack(char *Name, unsigned long int Arity, unsigned int Extra, CPredicate Start, CPredicate Cont, int flags)
 {
   PredEntry      *pe;
   Atom            atom = LookupAtom(Name);

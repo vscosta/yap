@@ -30,7 +30,7 @@
 
 % $suspy does most of the work
 '$suspy'(V,S,M) :- var(V) , !,
-	throw(error(instantiation_error,M:spy(V,S))).
+	'$do_error'(instantiation_error,M:spy(V,S)).
 '$suspy'((M:S),P,_) :- !,
     '$suspy'(S,P,M).
 '$suspy'([],_,_) :- !.
@@ -41,9 +41,9 @@
 '$suspy'(A,S,M) :- atom(A), !,
 	'$suspy_predicates_by_name'(A,S,M).
 '$suspy'(P,spy,M) :- !,
-	 throw(error(domain_error(predicate_spec,P),spy(M:P))).
+	 '$do_error'(domain_error(predicate_spec,P),spy(M:P)).
 '$suspy'(P,nospy,M) :-
-	 throw(error(domain_error(predicate_spec,P),nospy(M:P))).
+	 '$do_error'(domain_error(predicate_spec,P),nospy(M:P)).
 
 '$suspy_predicates_by_name'(A,S,M) :-
 	% just check one such predicate exists
@@ -85,9 +85,9 @@
 '$do_suspy'(S, F, N, T, M) :-
 	 '$system_predicate'(T,M),
 	 ( S = spy ->
-	     throw(error(permission_error(access,private_procedure,T),spy(M:F/N)))
+	     '$do_error'(permission_error(access,private_procedure,T),spy(M:F/N))
 	 ;
-	     throw(error(permission_error(access,private_procedure,T),nospy(M:F/N)))
+	     '$do_error'(permission_error(access,private_procedure,T),nospy(M:F/N))
 	 ).
 '$do_suspy'(S,F,N,T,M) :-
 	'$suspy2'(S,F,N,T,M).
@@ -162,13 +162,13 @@ notrace :-
 
 
 leash(X) :- var(X),
-	throw(error(instantiation_error,leash(X))).
+	'$do_error'(instantiation_error,leash(X)).
 leash(X) :-
 	'$leashcode'(X,Code),
 	'$set_value'('$leash',Code),
 	'$show_leash'(informational,Code), !.
 leash(X) :-
-	throw(error(type_error(leash_mode,X),leash(X))).
+	'$do_error'(type_error(leash_mode,X),leash(X)).
 
 '$show_leash'(Msg,0) :-
 	'$print_message'(Msg,leash([])).
@@ -194,10 +194,10 @@ leash(X) :-
 '$leashcode'(N,N) :- integer(N), N >= 0, N =< 2'1111.
 
 '$list2Code'(V,_) :- var(V), !,
-	throw(error(instantiation_error,leash(V))).
+	'$do_error'(instantiation_error,leash(V)).
 '$list2Code'([],0) :- !.
 '$list2Code'([V|L],_) :- var(V), !,
-	throw(error(instantiation_error,leash([V|L]))).
+	'$do_error'(instantiation_error,leash([V|L])).
 '$list2Code'([call|L],N) :- '$list2Code'(L,N1), N is 2'1000 + N1.
 '$list2Code'([exit|L],N) :- '$list2Code'(L,N1), N is 2'0100 + N1.
 '$list2Code'([redo|L],N) :- '$list2Code'(L,N1), N is 2'0010 + N1.
@@ -632,11 +632,11 @@ debugging :-
 
 %'$creep_call'(G,_) :- write(user_error,'$creepcall'(G)), nl(user_error), fail.
 '$creep_call'(V,M,_) :- var(V), !,
-	throw(error(instantiation_error,meta_call(M:V))).
+	'$do_error'(instantiation_error,meta_call(M:V)).
 '$creep_call'(A,M,_) :- number(A), !,
-	throw(error(type_error(callable,A),meta_call(M:A))).
+	'$do_error'(type_error(callable,A),meta_call(M:A)).
 '$creep_call'(R,M,_) :- db_reference(R), !,
-	throw(error(type_error(callable,R),meta_call(M:R))).
+	'$do_error'(type_error(callable,R),meta_call(M:R)).
 '$creep_call'(M:G,_,CP) :- !,
         '$creep_call'(G,M,CP).
 '$creep_call'(fail,Module,_) :- !,
@@ -744,7 +744,7 @@ debugging :-
 	G=[M|Goal],
 	'$execute'(M:Goal).
 '$creep'([M|V]) :- var(V), !,
-	throw(error(instantiation_error,M:call(M:V))).
+	'$do_error'(instantiation_error,M:call(M:V)).
 '$creep'([M|'$execute_in_mod'(G,ModNum)]) :- !,
 	'$module_number'(Mod,ModNum),
 	'$creep'([Mod|G]).

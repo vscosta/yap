@@ -79,9 +79,7 @@ STATIC_PROTO(Int  p_call_count_info, (void));
 STATIC_PROTO(Int  p_call_count_set, (void));
 STATIC_PROTO(Int  p_call_count_reset, (void));
 STATIC_PROTO(Int  p_toggle_static_predicates_in_use, (void));
-#ifdef DEBUG
 STATIC_PROTO(void  list_all_predicates_in_use, (void));
-#endif
 
 #define PredArity(p) (p->ArityOfPE)
 #define TRYCODE(G,F,N) ( (N)<5 ? (op_numbers)((int)F+(N)*3) : G)
@@ -1929,6 +1927,56 @@ list_all_predicates_in_use(void)
 }
 #endif
 
+Term
+all_calls(void)
+{
+  choiceptr b_ptr = B;
+  CELL *env_ptr = ENV;
+  CELL *bp = NULL;
+  Term ts[3];
+  Functor f = MkFunctor(AtomLocal,3);
+
+  ts[0] = MkIntegerTerm((Int)P);
+  ts[1] = AbsPair(H);
+  /* walk the environment chain */
+  while (env_ptr != NULL) {
+    bp = H;
+    H += 2;
+    /* notice that MkIntegerTerm may increase the Heap */
+    bp[0] = MkIntegerTerm((Int)env_ptr[E_CP]);
+    if (H >= ASP) {
+      bp[1] = TermNil;
+      return(ts[0]);
+    } else {
+      bp[1] = AbsPair(H);
+    }
+    env_ptr = (CELL *)(env_ptr[E_E]);      
+  }
+  bp[1] = TermNil;
+  ts[2] = AbsPair(H);
+  while (b_ptr != NULL) {
+    bp = H;
+    H += 2;
+    /* notice that MkIntegerTerm may increase the Heap */
+    bp[0] = MkIntegerTerm((Int)b_ptr->cp_ap);
+    if (H >= ASP) {
+      bp[1] = TermNil;
+      return(ts[0]);
+    } else {
+      bp[1] = AbsPair(H);
+    }
+    b_ptr = b_ptr->cp_b;
+  }
+  bp[1] = TermNil;
+  return(MkApplTerm(f,3,ts));
+}
+
+static Int
+p_current_stack(void)
+{
+  return(unify(ARG1,all_calls()));
+}
+
 static void
 mark_pred(int mark, PredEntry *pe)
 {
@@ -2094,6 +2142,22 @@ PredForCode(CODEADDR codeptr, Atom *pat, Int *parity, SMALLUNSGN *pmodule) {
       pp = pp->NextPredOfModule;
     }
   }
+  return(0);
+}
+
+static Int
+p_pred_for_code(void) {
+  CODEADDR codeptr = (CODEADDR)IntegerOfTerm(Deref(ARG1));
+  Atom at;
+  UInt arity;
+  SMALLUNSGN module;
+  Int cl;
+
+  cl = PredForCode(codeptr, &at, &arity, &module);
+  return(unify(ARG2,MkAtomTerm(at)) &&
+	 unify(ARG3,MkIntegerTerm(arity)) &&
+	 unify(ARG4,ModuleName[module]) &&
+	 unify(ARG5,MkIntegerTerm(cl)));
   return(0);
 }
 
@@ -2504,5 +2568,7 @@ InitCdMgr(void)
   InitCPred("$cut_transparent", 1, p_cut_transparent, SafePredFlag);
   InitCPred("$hide_predicate", 2, p_hide_predicate, SafePredFlag);
   InitCPred("$hidden_predicate", 2, p_hidden_predicate, SafePredFlag);
+  InitCPred("$pred_for_code", 5, p_pred_for_code, SyncPredFlag);
+  InitCPred("$current_stack", 1, p_current_stack, SyncPredFlag);
 }
 

@@ -17,7 +17,7 @@
 /* static char SccsId[] = "X 4.3.3"; */
 
 #include "config.h"
-#include "c_interface.h"
+#include "YapInterface.h"
 
 #if (DefTrailSpace < MinTrailSpace)
 #undef DefTrailSpace
@@ -66,7 +66,7 @@
 
 static int  PROTO(mygetc, (void));
 static void PROTO(do_bootfile, (char *));
-static void PROTO(do_top_goal,(Term));
+static void PROTO(do_top_goal,(YAP_Term));
 static void PROTO(exec_top_level,(int, char *));
 
 #ifndef LIGHT
@@ -127,25 +127,25 @@ mygetc (void)
 }
 
 static void
-do_top_goal (Term Goal)
+do_top_goal (YAP_Term Goal)
 {
 #ifdef DEBUG
   if (output_msg)
     fprintf(stderr,"Entering absmi\n");
 #endif
   /* PlPutc(0,'a'); PlPutc(0,'\n'); */
-  YapRunGoal(Goal);
+  YAP_RunGoal(Goal);
 }
 
 /* do initial boot by consulting the file boot.yap */
 static void
 do_bootfile (char *bootfilename)
 {
-  Term t;
-  Term term_nil = MkAtomTerm(YapLookupAtom("[]"));
-  Term term_end_of_file = MkAtomTerm(YapLookupAtom("end_of_file"));
-  Term term_true = MkAtomTerm(YapLookupAtom("true"));
-  Functor functor_query = MkFunctor(YapLookupAtom("?-"),1);
+  YAP_Term t;
+  YAP_Term term_nil = YAP_MkAtomTerm(YAP_LookupAtom("[]"));
+  YAP_Term term_end_of_file = YAP_MkAtomTerm(YAP_LookupAtom("end_of_file"));
+  YAP_Term term_true = YAP_MkAtomTerm(YAP_LookupAtom("true"));
+  YAP_Functor functor_query = YAP_MkFunctor(YAP_LookupAtom("?-"),1);
 
 
   fprintf(stderr,"Entering Yap\n");
@@ -158,13 +158,13 @@ do_bootfile (char *bootfilename)
     }
   /* the consult mode does not matter here, really */
   /*
-    To be honest, YapInitConsult does not really do much,
+    To be honest, YAP_InitConsult does not really do much,
     it's here for the future. It also makes what we want to do clearer.
   */
-  YapInitConsult(YAP_CONSULT_MODE,bootfilename);
+  YAP_InitConsult(YAP_CONSULT_MODE,bootfilename);
   while (!eof_found)
     {
-      t = YapRead(mygetc);
+      t = YAP_Read(mygetc);
       if (eof_found) {
 	break;
       }
@@ -173,37 +173,37 @@ do_bootfile (char *bootfilename)
 	  fprintf(stderr, "[ SYNTAX ERROR: while parsing bootfile %s at line %d ]\n", bootfilename, yap_lineno);
 	  exit(1);
         }
-      if (IsVarTerm (t) || t == term_nil)
+      if (YAP_IsVarTerm (t) || t == term_nil)
 	{
 	  continue;
 	}
       else if (t == term_true)
 	{
-	  YapExit(0);
+	  YAP_Exit(0);
 	}
       else if (t == term_end_of_file)
 	{
 	  break;
 	}
-      else if (IsPairTerm (t))
+      else if (YAP_IsPairTerm (t))
         {
 	  fprintf(stderr, "[ SYSTEM ERROR: consult not allowed in boot file ]\n");
 	  fprintf(stderr, "error found at line %d and pos %d", yap_lineno, fseek(bootfile,0L,SEEK_CUR));
 	}
-      else if (IsApplTerm (t) && FunctorOfTerm (t) == functor_query) 
+      else if (YAP_IsApplTerm (t) && YAP_FunctorOfTerm (t) == functor_query) 
 	{ 
-	  do_top_goal(ArgOfTerm (1, t));
+	  do_top_goal(YAP_ArgOfTerm (1, t));
         }
       else
 	{
-	  char *ErrorMessage = YapCompileClause(t);
+	  char *ErrorMessage = YAP_CompileClause(t);
 	  if (ErrorMessage)
 	    fprintf(stderr, ErrorMessage);
 	}
       /* do backtrack */
-      YapReset();
+      YAP_Reset();
     }
-  YapEndConsult();
+  YAP_EndConsult();
   fclose (bootfile);
 #ifdef DEBUG
   if (output_msg)
@@ -215,7 +215,7 @@ static char *filename;
 
 
 static void
-print_usage(const yap_init_args *init_args)
+print_usage(const YAP_init_args *init_args)
 {
   fprintf(stderr,"\n[ Valid switches for command line arguments: ]\n");
   fprintf(stderr,"  -?   Shows this screen\n");
@@ -246,7 +246,7 @@ print_usage(const yap_init_args *init_args)
  */
 
 static int
-parse_yap_arguments(int argc, char *argv[], yap_init_args *init_args)
+parse_yap_arguments(int argc, char *argv[], YAP_init_args *init_args)
 {
   char *p;
   int BootMode = YAP_BOOT_FROM_SAVED_CODE;
@@ -280,15 +280,15 @@ parse_yap_arguments(int argc, char *argv[], yap_init_args *init_args)
 	      host = *++argv;
 	      argc--;
 	      if (host != NULL && host[0] == '-')
-		YapError("sockets must receive host to connect to");
+		YAP_Error("sockets must receive host to connect to");
 	      p1 = *++argv;
 	      argc--;
 	      if (p1[0] == '-')
-		YapError("sockets must receive port to connect to");
+		YAP_Error("sockets must receive port to connect to");
 	      port = strtol(p1, &ptr, 10);
 	      if (ptr == NULL || ptr[0] != '\0')
-		YapError("port argument to socket must be a number");
-	      YapInitSocks(host,port);
+		YAP_Error("port argument to socket must be a number");
+	      YAP_InitSocks(host,port);
 	    }
 	    break;
 #endif
@@ -355,14 +355,14 @@ parse_yap_arguments(int argc, char *argv[], yap_init_args *init_args)
 	      if (ch)
 		{
 		  fprintf(stderr,"[ YAP unrecoverable error: illegal size specification %s ]", argv[-1]);
-		  YapExit(1);
+		  YAP_Exit(1);
 		}
 	      *ssize = i;
 	    }
 	    break;
 #ifdef DEBUG
 	  case 'p':
-	    YapSetOutputMessage();
+	    YAP_SetOutputMessage();
 	    output_msg = TRUE;
 	    break;
 #endif
@@ -420,7 +420,7 @@ static int
 init_standard_system(int argc, char *argv[])
 {
   int BootMode;
-  yap_init_args init_args;
+  YAP_init_args init_args;
 
   init_args.SavedState = NULL;
   init_args.HeapSize = 0;
@@ -442,7 +442,7 @@ init_standard_system(int argc, char *argv[])
   if (BootMode == YAP_BOOT_FROM_PROLOG)
     {
 
-      YapInit(&init_args);
+      YAP_Init(&init_args);
 
     }
   else
@@ -452,7 +452,7 @@ init_standard_system(int argc, char *argv[])
       else
 	init_args.SavedState = filename;
 
-      BootMode = YapInit(&init_args);
+      BootMode = YAP_Init(&init_args);
 
     }
 
@@ -464,34 +464,34 @@ init_standard_system(int argc, char *argv[])
 static void
 exec_top_level(int BootMode, char *filename)
 {
-  Term atomfalse;
-  Atom livegoal;
+  YAP_Term atomfalse;
+  YAP_Atom livegoal;
 
   if (BootMode == YAP_BOOT_FROM_SAVED_STACKS)
     {
       /* continue executing from the frozen stacks */
-      YapContinueGoal();
+      YAP_ContinueGoal();
     }
   else if (BootMode == YAP_BOOT_FROM_PROLOG)
     {
-      Atom livegoal;
+      YAP_Atom livegoal;
       /* read the bootfile */
       do_bootfile (filename ? filename : BootFile);
-      livegoal = FullLookupAtom("$live");
+      livegoal = YAP_FullLookupAtom("$live");
       /* initialise the top-level */
-      YapPutValue(livegoal, MkAtomTerm (LookupAtom("true")));
+      YAP_PutValue(livegoal, YAP_MkAtomTerm (YAP_LookupAtom("true")));
     }
       /* the top-level is now ready */
 
   /* read it before case someone, that is, Ashwin, hides
      the atom false away ;-).
   */
-  livegoal = FullLookupAtom("$live");
-  atomfalse = MkAtomTerm (LookupAtom("false"));
-  while (YapGetValue (livegoal) != atomfalse) {
-    do_top_goal (MkAtomTerm (livegoal));
+  livegoal = YAP_FullLookupAtom("$live");
+  atomfalse = YAP_MkAtomTerm (YAP_LookupAtom("false"));
+  while (YAP_GetValue (livegoal) != atomfalse) {
+    do_top_goal (YAP_MkAtomTerm (livegoal));
   }
-  YapExit(EXIT_SUCCESS);
+  YAP_Exit(EXIT_SUCCESS);
 }
 
 #ifdef LIGHT

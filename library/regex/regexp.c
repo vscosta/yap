@@ -19,7 +19,7 @@
 #if HAVE_SYS_TYPES_H
 #include <sys/types.h>
 #endif
-#include "c_interface.h"
+#include "YapInterface.h"
 #if HAVE_REGEX_H
 #include "regex.h"
 #define yap_regcomp(A,B,C) regcomp(A,B,C)
@@ -36,20 +36,21 @@ void PROTO(init_regexp, (void));
 
 static int check_regexp(void) 
 {
-  unsigned int buflen = (unsigned int)IntOfTerm(ARG2)+1;
-  unsigned int sbuflen = (unsigned int)IntOfTerm(ARG4)+1;
+  unsigned int buflen = (unsigned int)YAP_IntOfTerm(YAP_ARG2)+1;
+  unsigned int sbuflen = (unsigned int)YAP_IntOfTerm(YAP_ARG4)+1;
   char *buf, *sbuf;
   regex_t reg;
   int out;
-  int yap_flags = IntOfTerm(ARG5), regcomp_flags = REG_NOSUB|REG_EXTENDED;
+  int yap_flags = YAP_IntOfTerm(YAP_ARG5);
+  int regcomp_flags = REG_NOSUB|REG_EXTENDED;
   
-  if ((buf = (char *)AllocSpaceFromYap(buflen)) == NULL) {
+  if ((buf = (char *)YAP_AllocSpaceFromYap(buflen)) == NULL) {
     /* early exit */
     return(FALSE);
   }
-  if (StringToBuffer(ARG1,buf,buflen) == FALSE) {
+  if (YAP_StringToBuffer(YAP_ARG1,buf,buflen) == FALSE) {
     /* something went wrong, possibly a type checking error */
-    FreeSpaceFromYap(buf);
+    YAP_FreeSpaceFromYap(buf);
     return(FALSE);
   }
   if (yap_flags & 1)
@@ -57,23 +58,23 @@ static int check_regexp(void)
   /* cool, now I have my string in the buffer, let's have some fun */
   if (yap_regcomp(&reg,buf, regcomp_flags) != 0)
     return(FALSE);
-  if ((sbuf = (char *)AllocSpaceFromYap(sbuflen)) == NULL) {
+  if ((sbuf = (char *)YAP_AllocSpaceFromYap(sbuflen)) == NULL) {
     /* early exit */
     yap_regfree(&reg);
-    FreeSpaceFromYap(buf);
+    YAP_FreeSpaceFromYap(buf);
     return(FALSE);
   }
-  if (StringToBuffer(ARG3,sbuf,sbuflen) == FALSE) {
+  if (YAP_StringToBuffer(YAP_ARG3,sbuf,sbuflen) == FALSE) {
     /* something went wrong, possibly a type checking error */
     yap_regfree(&reg);
-    FreeSpaceFromYap(buf);
-    FreeSpaceFromYap(sbuf); 
+    YAP_FreeSpaceFromYap(buf);
+    YAP_FreeSpaceFromYap(sbuf); 
     return(FALSE);
   }
   out = yap_regexec(&reg,sbuf,0,NULL,0);
   yap_regfree(&reg);
-  FreeSpaceFromYap(buf);
-  FreeSpaceFromYap(sbuf); 
+  YAP_FreeSpaceFromYap(buf);
+  YAP_FreeSpaceFromYap(sbuf); 
   if (out != 0 && out != REG_NOMATCH) {
     return(FALSE);
   }
@@ -82,23 +83,24 @@ static int check_regexp(void)
 
 static int regexp(void) 
 {
-  unsigned int buflen = (unsigned int)IntOfTerm(ARG2)+1;
-  unsigned int sbuflen = (unsigned int)IntOfTerm(ARG4)+1;
+  unsigned int buflen = (unsigned int)YAP_IntOfTerm(YAP_ARG2)+1;
+  unsigned int sbuflen = (unsigned int)YAP_IntOfTerm(YAP_ARG4)+1;
   char *buf, *sbuf;
   regex_t reg;
   int out;
-  Int nmatch = IntOfTerm(ARG7);
+  long int nmatch = YAP_IntOfTerm(YAP_ARG7);
   regmatch_t *pmatch;
-  Term tout;
-  int yap_flags = IntOfTerm(ARG5), regcomp_flags = REG_EXTENDED;
+  long int tout;
+  int yap_flags = YAP_IntOfTerm(YAP_ARG5);
+  int regcomp_flags = REG_EXTENDED;
   
-  if ((buf = (char *)AllocSpaceFromYap(buflen)) == NULL) {
+  if ((buf = (char *)YAP_AllocSpaceFromYap(buflen)) == NULL) {
     /* early exit */
     return(FALSE);
   }
-  if (StringToBuffer(ARG1,buf,buflen) == FALSE) {
+  if (YAP_StringToBuffer(YAP_ARG1,buf,buflen) == FALSE) {
     /* something went wrong, possibly a type checking error */
-    FreeSpaceFromYap(buf);
+    YAP_FreeSpaceFromYap(buf);
     return(FALSE);
   }
   if (yap_flags & 1)
@@ -106,62 +108,62 @@ static int regexp(void)
   /* cool, now I have my string in the buffer, let's have some fun */
   if (yap_regcomp(&reg,buf, regcomp_flags) != 0)
     return(FALSE);
-  if ((sbuf = (char *)AllocSpaceFromYap(sbuflen)) == NULL) {
+  if ((sbuf = (char *)YAP_AllocSpaceFromYap(sbuflen)) == NULL) {
     /* early exit */
     yap_regfree(&reg);
-    FreeSpaceFromYap(buf);
+    YAP_FreeSpaceFromYap(buf);
     return(FALSE);
   }
-  if (StringToBuffer(ARG3,sbuf,sbuflen) == FALSE) {
+  if (YAP_StringToBuffer(YAP_ARG3,sbuf,sbuflen) == FALSE) {
     /* something went wrong, possibly a type checking error */
     yap_regfree(&reg);
-    FreeSpaceFromYap(buf);
-    FreeSpaceFromYap(sbuf); 
+    YAP_FreeSpaceFromYap(buf);
+    YAP_FreeSpaceFromYap(sbuf); 
     return(FALSE);
   }
-  pmatch = AllocSpaceFromYap(sizeof(regmatch_t)*nmatch);
+  pmatch = YAP_AllocSpaceFromYap(sizeof(regmatch_t)*nmatch);
   out = yap_regexec(&reg,sbuf,(int)nmatch,pmatch,0);
   if (out == 0) {
     /* match succeed, let's fill the match in */
-    Int i;
-    Term TNil = MkAtomTerm(LookupAtom("[]"));
-    Functor FDiff = MkFunctor(LookupAtom("-"),2);
+    long int i;
+    YAP_Term TNil = YAP_MkAtomTerm(YAP_LookupAtom("[]"));
+    YAP_Functor FDiff = YAP_MkFunctor(YAP_LookupAtom("-"),2);
 
-    tout = ARG6;
+    tout = YAP_ARG6;
     for (i = 0; i < nmatch; i++) {
       int j;
-      Term t = TNil;
+      YAP_Term t = TNil;
 
       if (pmatch[i].rm_so == -1) break;
       if (yap_flags & 2) {
-	Term to[2];
-	to[0] = MkIntTerm(pmatch[i].rm_so);
-	to[1] = MkIntTerm(pmatch[i].rm_eo);
-	t = MkApplTerm(FDiff,2,to);
+	YAP_Term to[2];
+	to[0] = YAP_MkIntTerm(pmatch[i].rm_so);
+	to[1] = YAP_MkIntTerm(pmatch[i].rm_eo);
+	t = YAP_MkApplTerm(FDiff,2,to);
       } else {
 	for (j = pmatch[i].rm_eo-1; j >= pmatch[i].rm_so; j--) {
-	  t = MkPairTerm(MkIntTerm(sbuf[j]),t);
+	  t = YAP_MkPairTerm(YAP_MkIntTerm(sbuf[j]),t);
 	}
       }
-      unify(t,HeadOfTerm(tout));
-      tout = TailOfTerm(tout);
+      YAP_Unify(t,YAP_HeadOfTerm(tout));
+      tout = YAP_TailOfTerm(tout);
     }
   }
   else if (out != REG_NOMATCH) {
     return(FALSE);
   }
   yap_regfree(&reg);
-  FreeSpaceFromYap(buf);
-  FreeSpaceFromYap(sbuf); 
-  FreeSpaceFromYap(pmatch); 
+  YAP_FreeSpaceFromYap(buf);
+  YAP_FreeSpaceFromYap(sbuf); 
+  YAP_FreeSpaceFromYap(pmatch); 
   return(out == 0);
 }
 
 void
 init_regexp(void)
 {
-  UserCPredicate("check_regexp", check_regexp, 5);
-  UserCPredicate("check_regexp", regexp, 7);
+  YAP_UserCPredicate("check_regexp", check_regexp, 5);
+  YAP_UserCPredicate("check_regexp", regexp, 7);
 }
 
 #if defined(_WIN32) || defined(__MINGW32__)

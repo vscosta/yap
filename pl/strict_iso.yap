@@ -1,9 +1,9 @@
 '$iso_check_goal'(V,G) :-
 	var(V), !,
-	throw(error(instantiation_error,call(G))).
+	'$do_error'(instantiation_error,call(G)).
 '$iso_check_goal'(V,G) :-
 	number(V), !,
-	throw(error(type_error(callable,V),G)).
+	'$do_error'(type_error(callable,V),G).
 '$iso_check_goal'(_:G,G0) :- !,
 	'$iso_check_goal'(G,G0).
 '$iso_check_goal'((G1,G2),G0) :- !,
@@ -18,7 +18,7 @@
 '$iso_check_goal'(!,_) :- !.
 '$iso_check_goal'((G1|G2),G0) :-
 	'$access_yap_flags'(9,1), !,
-	throw(error(domain_error(builtin_procedure,(G1|G2)), call(G0))).
+	'$do_error'(domain_error(builtin_procedure,(G1|G2)), call(G0)).
 '$iso_check_goal'((G1|G2),G0) :- !,
 	'$iso_check_a_goal'(G1,(G1|G2),G0),
 	'$iso_check_a_goal'(G2,(G1|G2),G0).
@@ -30,16 +30,16 @@
 	->
 	    true
 	;
-	    throw(error(domain_error(builtin_procedure,G), call(G0)))
+	    '$do_error'(domain_error(builtin_procedure,G), call(G0))
 	).
 '$iso_check_goal'(_,_).
 
 '$iso_check_a_goal'(V,_,G) :-
 	var(V), !,
-	throw(error(instantiation_error,call(G))).
+	'$do_error'(instantiation_error,call(G)).
 '$iso_check_a_goal'(V,E,G) :-
 	number(V), !,
-	throw(error(type_error(callable,E),call(G))).
+	'$do_error'(type_error(callable,E),call(G)).
 '$iso_check_a_goal'(_:G,E,G0) :- !,
 	'$iso_check_a_goal'(G,E,G0).
 '$iso_check_a_goal'((G1,G2),E,G0) :- !,
@@ -54,7 +54,7 @@
 '$iso_check_a_goal'(!,_,_) :- !.
 '$iso_check_a_goal'((_|_),E,G0) :-
 	'$access_yap_flags'(9,1), !,
-	throw(error(domain_error(builtin_procedure,E), call(G0))).
+	'$do_error'(domain_error(builtin_procedure,E), call(G0)).
 '$iso_check_a_goal'((_|_),_,_) :- !.
 '$iso_check_a_goal'(G,_,G0) :- 
 	'$access_yap_flags'(9,1),
@@ -64,7 +64,7 @@
 	->
 	    true
 	;
-	    throw(error(domain_error(builtin_procedure,G), call(G0)))
+	    '$do_error'(domain_error(builtin_procedure,G), call(G0))
 	).
 '$iso_check_a_goal'(_,_,_).
 
@@ -93,7 +93,7 @@
 '$check_iso_system_goal'(G) :-
 	'$iso_builtin'(G), !.
 '$check_iso_system_goal'(G) :-
-	throw(error(domain_error(builtin_procedure,G), G)).
+	'$do_error'(domain_error(builtin_procedure,G), G).
 
 
 '$iso_builtin'(abolish(_)).

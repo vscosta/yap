@@ -10,7 +10,7 @@
 * File:		Yap.proto						 *
 * mods:									 *
 * comments:	Function declarations for YAP				 *
-* version:      $Id: Yapproto.h,v 1.21 2002-06-11 05:43:01 vsc Exp $	 *
+* version:      $Id: Yapproto.h,v 1.22 2002-09-09 17:39:36 vsc Exp $	 *
 *************************************************************************/
 
 /* prototype file for Yap */
@@ -104,9 +104,10 @@ void   STD_PROTO(InitBBPreds,(void));
 void   STD_PROTO(InitBigNums,(void));
 
 /* c_interface.c */
-Int    STD_PROTO(YapExecute,(struct pred_entry *, CPredicate));
+Int    STD_PROTO(YAP_Execute,(struct pred_entry *, CPredicate));
 
 /* cdmgr.c */
+Term	STD_PROTO(all_calls,(void));
 void	STD_PROTO(mark_as_fast,(Term));
 void	STD_PROTO(IPred,(CODEADDR sp));
 Int	STD_PROTO(PredForCode,(CODEADDR, Atom *, Int *, SMALLUNSGN *));
@@ -187,15 +188,13 @@ int	STD_PROTO(DebugGetc,(void));
 #endif
 int	STD_PROTO(IsOpType,(char *));
 void	STD_PROTO(InitStacks,(int,int,int,int,int,int));
-void	STD_PROTO(InitCPred,(char *, int, CPredicate, int));
-void	STD_PROTO(InitAsmPred,(char *, int, int, CPredicate, int));
-void	STD_PROTO(InitCmpPred,(char *, int, CmpPredicate, CPredicate, int));
-void	STD_PROTO(InitCPredBack,(char *, int, int, CPredicate,CPredicate,int));
+void	STD_PROTO(InitCPred,(char *, unsigned long int, CPredicate, int));
+void	STD_PROTO(InitAsmPred,(char *, unsigned long int, int, CPredicate, int));
+void	STD_PROTO(InitCmpPred,(char *, unsigned long int, CmpPredicate, CPredicate, int));
+void	STD_PROTO(InitCPredBack,(char *, unsigned long int, unsigned int, CPredicate,CPredicate,int));
 void	STD_PROTO(InitYaamRegs,(void));
 void    STD_PROTO(ReInitWallTime, (void));
 int	STD_PROTO(OpDec,(int,char *,Atom));
-void	STD_PROTO(UserCPredicate,(char *,CPredicate,unsigned int));
-void	STD_PROTO(UserBackCPredicate,(char*,CPredicate,CPredicate,unsigned int,int));
 
 /* iopreds.c */
 void	STD_PROTO(CloseStreams,(int));

@@ -108,10 +108,10 @@ phrase(PhraseDef, WordList) :-
 
 phrase(P, S0, S) :-
 	var(P), !,
-	throw(error(instantiation_error,phrase(P,S0,S))).
+	'$do_error'(instantiation_error,phrase(P,S0,S)).
 phrase(P, S0, S) :-
 	( primitive(P), \+ atom(P) ),  !,
-	throw(error(type_error(callable,P),phrase(P,S0,S))).
+	'$do_error'(type_error(callable,P),phrase(P,S0,S)).
 phrase([], S0, S) :- !,
 	S0 = S.
 phrase([H|T], S0, S) :- !,

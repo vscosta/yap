@@ -30,7 +30,7 @@ call_count(Calls, Retries, Both) :-
 '$check_if_call_count_on'(Calls, 1) :- integer(Calls), !.
 '$check_if_call_count_on'(Calls, 0) :- var(Calls), !.
 '$check_if_call_count_on'(Calls, _) :-
-	throw(error(type_error(integer,Calls),call_count(A))).
+	'$do_error'(type_error(integer,Calls),call_count(A)).
 
 
 

@@ -70,7 +70,7 @@ default_sequential(_).
                  fail.
 
 '$parallel_directive'(X,M) :- var(X), !,
-	throw(error(instantiation_error,parallel(M:X))).
+	'$do_error'(instantiation_error,parallel(M:X)).
 '$parallel_directive'((A,B),M) :- !,
 	'$parallel_directive'(A,M),
 	'parallel_directive'(B,M).

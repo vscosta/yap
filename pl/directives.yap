@@ -190,9 +190,9 @@ yap_flag(bounded,X) :-
 	'$transl_to_true_false'(X1,X).
 yap_flag(bounded,X) :- !,
 	(X = true ; X = false), !,
-	throw(error(permission_error(modify,flag,bounded),yap_flag(bounded,X))).
+	'$do_error'(permission_error(modify,flag,bounded),yap_flag(bounded,X)).
 yap_flag(bounded,X) :-
-	throw(error(domain_error(flag_value,bounded+X),yap_flag(bounded,X))).
+	'$do_error'(domain_error(flag_value,bounded+X),yap_flag(bounded,X)).
 
 % do or do not indexation
 yap_flag(index,X) :- var(X), !,
@@ -205,7 +205,7 @@ yap_flag(informational_messages,X) :- var(X), !,
 yap_flag(informational_messages,on)  :- !, '$set_value'('$verbose',on).
 yap_flag(informational_messages,off) :- !, '$set_value'('$verbose',off).
 yap_flag(informational_messages,X) :-
-	throw(error(domain_error(flag_value,informational_messages+X),yap_flag(informational_messages,X))).
+	'$do_error'(domain_error(flag_value,informational_messages+X),yap_flag(informational_messages,X)).
 
 yap_flag(integer_rounding_function,X) :-
 	var(X), !,
@@ -213,9 +213,9 @@ yap_flag(integer_rounding_function,X) :-
 	'$transl_to_rounding_function'(X1,X).
 yap_flag(integer_rounding_function,X) :-
 	(X = down; X = toward_zero), !,
-	throw(error(permission_error(modify,flag,integer_rounding_function),yap_flag(integer_rounding_function,X))).
+	'$do_error'(permission_error(modify,flag,integer_rounding_function),yap_flag(integer_rounding_function,X)).
 yap_flag(integer_rounding_function,X) :-
-	throw(error(domain_error(flag_value,integer_rounding_function+X),yap_flag(integer_rounding_function,X))).
+	'$do_error'(domain_error(flag_value,integer_rounding_function+X),yap_flag(integer_rounding_function,X)).
 
 yap_flag(max_arity,X) :-
 	var(X), !,
@@ -223,15 +223,15 @@ yap_flag(max_arity,X) :-
 	'$transl_to_arity'(X1,X).
 yap_flag(max_arity,X) :-
 	integer(X), X > 0, !,
-	throw(error(permission_error(modify,flag,max_arity),yap_flag(max_arity,X))).
+	'$do_error'(permission_error(modify,flag,max_arity),yap_flag(max_arity,X)).
 yap_flag(max_arity,X) :-
-	throw(error(domain_error(flag_value,max_arity+X),yap_flag(max_arity,X))).
+	'$do_error'(domain_error(flag_value,max_arity+X),yap_flag(max_arity,X)).
 
 yap_flag(version,X) :-
 	var(X), !,
 	'$get_value'('$version_name',X).
 yap_flag(version,X) :-
-	throw(error(permission_error(modify,flag,version),yap_flag(version,X))).
+	'$do_error'(permission_error(modify,flag,version),yap_flag(version,X)).
 
 yap_flag(max_integer,X) :-
 	var(X), !,
@@ -239,9 +239,9 @@ yap_flag(max_integer,X) :-
 	'$access_yap_flags'(3, X).
 yap_flag(max_integer,X) :-
 	integer(X), X > 0, !,
-	throw(error(permission_error(modify,flag,max_integer),yap_flag(max_integer,X))).
+	'$do_error'(permission_error(modify,flag,max_integer),yap_flag(max_integer,X)).
 yap_flag(max_integer,X) :-
-	throw(error(domain_error(flag_value,max_integer+X),yap_flag(max_integer,X))).
+	'$do_error'(domain_error(flag_value,max_integer+X),yap_flag(max_integer,X)).
 
 yap_flag(min_integer,X) :-
 	var(X), !,
@@ -249,9 +249,9 @@ yap_flag(min_integer,X) :-
 	'$access_yap_flags'(4, X).
 yap_flag(min_integer,X) :-
 	integer(X), X < 0, !,
-	throw(error(permission_error(modify,flag,min_integer),yap_flag(min_integer,X))).
+	'$do_error'(permission_error(modify,flag,min_integer),yap_flag(min_integer,X)).
 yap_flag(min_integer,X) :-
-	throw(error(domain_error(flag_value,min_integer+X),yap_flag(min_integer,X))).
+	'$do_error'(domain_error(flag_value,min_integer+X),yap_flag(min_integer,X)).
 
 yap_flag(char_conversion,X) :-
 	var(X), !,
@@ -266,7 +266,7 @@ yap_flag(char_conversion,X) :-
 	    '$disable_char_conversion'
 	).
 yap_flag(char_conversion,X) :-
-	throw(error(domain_error(flag_value,char_conversion+X),yap_flag(char_conversion,X))).
+	'$do_error'(domain_error(flag_value,char_conversion+X),yap_flag(char_conversion,X)).
 
 yap_flag(double_quotes,X) :-
 	var(X), !,
@@ -276,7 +276,7 @@ yap_flag(double_quotes,X) :-
 	'$transl_to_trl_types'(X1,X), !,
 	'$set_yap_flags'(6,X1).
 yap_flag(double_quotes,X) :-
-	throw(error(domain_error(flag_value,double_quotes+X),yap_flag(double_quotes,X))).
+	'$do_error'(domain_error(flag_value,double_quotes+X),yap_flag(double_quotes,X)).
 
 yap_flag(n_of_integer_keys_in_db,X) :-
 	var(X), !,
@@ -284,7 +284,7 @@ yap_flag(n_of_integer_keys_in_db,X) :-
 yap_flag(n_of_integer_keys_in_db,X) :- integer(X), X > 0, !,
 	'$resize_int_keys'(X).
 yap_flag(n_of_integer_keys_in_db,X) :-
-	throw(error(domain_error(flag_value,n_of_integer_keys_in_db+X),yap_flag(n_of_integer_keys_in_db,X))).
+	'$do_error'(domain_error(flag_value,n_of_integer_keys_in_db+X),yap_flag(n_of_integer_keys_in_db,X)).
 
 yap_flag(n_of_integer_keys_in_bb,X) :-
 	var(X), !,
@@ -292,7 +292,7 @@ yap_flag(n_of_integer_keys_in_bb,X) :-
 yap_flag(n_of_integer_keys_in_bb,X) :- integer(X), X > 0, !,
 	'$resize_bb_int_keys'(X).
 yap_flag(n_of_integer_keys_in_bb,X) :-
-	throw(error(domain_error(flag_value,n_of_integer_keys_in_bb+X),yap_flag(n_of_integer_keys_in_bb,X))).
+	'$do_error'(domain_error(flag_value,n_of_integer_keys_in_bb+X),yap_flag(n_of_integer_keys_in_bb,X)).
 
 yap_flag(strict_iso,OUT) :-
 	var(OUT), !,
@@ -306,7 +306,7 @@ yap_flag(strict_iso,off) :- !,
 	'$transl_to_on_off'(X,off),
 	'$set_yap_flags'(9,X).
 yap_flag(strict_iso,X) :-
-	throw(error(domain_error(flag_value,strict_iso+X),yap_flag(strict_iso,X))).
+	'$do_error'(domain_error(flag_value,strict_iso+X),yap_flag(strict_iso,X)).
 
 yap_flag(language,X) :-
 	var(X), !,
@@ -317,7 +317,7 @@ yap_flag(language,X) :-
 	'$set_yap_flags'(8,N),
 	'$adjust_language'(X).
 yap_flag(language,X) :-
-	throw(error(domain_error(flag_value,language+X),yap_flag(language,X))).
+	'$do_error'(domain_error(flag_value,language+X),yap_flag(language,X)).
 
 yap_flag(debug,X) :-
 	var(X), !,
@@ -330,7 +330,7 @@ yap_flag(debug,X) :-
 	'$transl_to_on_off'(_,X), !,
 	(X = on -> debug ; nodebug).
 yap_flag(debug,X) :-
-	throw(error(domain_error(flag_value,debug+X),yap_flag(debug,X))).
+	'$do_error'(domain_error(flag_value,debug+X),yap_flag(debug,X)).
 
 yap_flag(discontiguous_warnings,X) :-
 	var(X), !,
@@ -347,7 +347,7 @@ yap_flag(discontiguous_warnings,X) :-
 	;
 	    '$syntax_check_discontiguous'(_,off)).
 yap_flag(discontiguous_warnings,X) :-
-	throw(error(domain_error(flag_value,discontiguous_warnings+X),yap_flag(discontiguous_warnings,X))).
+	'$do_error'(domain_error(flag_value,discontiguous_warnings+X),yap_flag(discontiguous_warnings,X)).
 
 yap_flag(redefine_warnings,X) :-
 	var(X), !,
@@ -364,7 +364,7 @@ yap_flag(redefine_warnings,X) :-
 	;
 	    '$syntax_check_multiple'(_,off)).
 yap_flag(redefine_warnings,X) :-
-	throw(error(domain_error(flag_value,redefine_warnings+X),yap_flag(redefine_warnings,X))).
+	'$do_error'(domain_error(flag_value,redefine_warnings+X),yap_flag(redefine_warnings,X)).
 
 yap_flag(single_var_warnings,X) :-
 	var(X), !,
@@ -381,7 +381,7 @@ yap_flag(single_var_warnings,X) :-
 	;
 	    '$syntax_check_single_var'(_,off)).
 yap_flag(single_var_warnings,X) :-
-	throw(error(domain_error(flag_value,single_var_warnings+X),yap_flag(single_var_warnings,X))).
+	'$do_error'(domain_error(flag_value,single_var_warnings+X),yap_flag(single_var_warnings,X)).
 
 yap_flag(unknown,X) :-
 	var(X), !,
@@ -397,7 +397,7 @@ yap_flag(to_chars_mode,quintus) :- !,
 yap_flag(to_chars_mode,iso) :- !,
 	'$set_yap_flags'(7,1).
 yap_flag(to_chars_mode,X) :-
-	throw(error(domain_error(flag_value,to_chars_mode+X),yap_flag(to_chars_mode,X))).
+	'$do_error'(domain_error(flag_value,to_chars_mode+X),yap_flag(to_chars_mode,X)).
 
 yap_flag(character_escapes,X) :-
 	var(X), !,
@@ -407,7 +407,7 @@ yap_flag(character_escapes,X) :- !,
 	'$transl_to_character_escape_modes'(Y,X), !,
 	'$set_yap_flags'(12,Y).
 yap_flag(character_escapes,X) :-
-	throw(error(domain_error(flag_value,character_escapes+X),yap_flag(to_chars_mode,X))).
+	'$do_error'(domain_error(flag_value,character_escapes+X),yap_flag(to_chars_mode,X)).
 
 yap_flag(update_semantics,X) :-
 	var(X), !,
@@ -419,7 +419,7 @@ yap_flag(update_semantics,logical_assert) :- !,
 yap_flag(update_semantics,immediate) :- !,
 	'$switch_log_upd'(0).
 yap_flag(update_semantics,X) :-
-	throw(error(domain_error(flag_value,update_semantics+X),yap_flag(update_semantics,X))).
+	'$do_error'(domain_error(flag_value,update_semantics+X),yap_flag(update_semantics,X)).
 
 yap_flag(toplevel_hook,X) :-
 	var(X), !,
@@ -444,7 +444,7 @@ yap_flag(write_strings,off) :- !,
 	'$transl_to_on_off'(X,off),
 	'$set_yap_flags'(13,X).
 yap_flag(write_strings,X) :-
-	throw(error(domain_error(flag_value,write_strings+X),yap_flag(write_strings,X))).
+	'$do_error'(domain_error(flag_value,write_strings+X),yap_flag(write_strings,X)).
 
 yap_flag(user_input,OUT) :-
 	var(OUT), !,
@@ -492,7 +492,7 @@ yap_flag(fileerrors,on) :- !,
 yap_flag(fileerrors,off) :- !,
 	'$set_value'(fileerrors,0).
 yap_flag(fileerrors,X) :-
-	throw(error(domain_error(flag_value,fileerrors+X),yap_flag(fileerrors,X))).
+	'$do_error'(domain_error(flag_value,fileerrors+X),yap_flag(fileerrors,X)).
 
 :- '$recorda'('$print_options','$toplevel'([quoted(true),numbervars(true),portrayed(true)]),_).
 
@@ -631,23 +631,23 @@ current_prolog_flag(V,Out) :-
 	yap_flag(V,NOut),
 	NOut = Out.
 current_prolog_flag(V,Out) :-
-	throw(error(type_error(atom,V),current_prolog_flag(V,Out))).
+	'$do_error'(type_error(atom,V),current_prolog_flag(V,Out)).
 
 set_prolog_flag(F,V) :-
 	var(F), !,
-	throw(error(instantiation_error,set_prolog_flag(F,V))).
+	'$do_error'(instantiation_error,set_prolog_flag(F,V)).
 set_prolog_flag(F,V) :-
 	var(V), !,
-	throw(error(instantiation_error,set_prolog_flag(F,V))).
+	'$do_error'(instantiation_error,set_prolog_flag(F,V)).
 set_prolog_flag(F,V) :-
 	\+ atom(F), !,
-	throw(error(type_error(atom,F),set_prolog_flag(F,V))).
+	'$do_error'(type_error(atom,F),set_prolog_flag(F,V)).
 set_prolog_flag(F,V) :-
 	yap_flag(F,V).
 
 prolog_flag(F, Old, New) :-
 	var(F), !,
-	throw(error(instantiation_error,prolog_flag(F,Old,New))).
+	'$do_error'(instantiation_error,prolog_flag(F,Old,New)).
 prolog_flag(F, Old, New) :-
 	current_prolog_flag(F, Old),
 	set_prolog_flag(F, New).

@@ -736,7 +736,7 @@ DLL project, initially empty.
 
 Notice that either the project is named yapdll or you must replace the
 preprocessor's variable @var{YAPDLL_EXPORTS} to match your project names
-in the files @code{c_interface.h} and @code{c_interface.c}.
+in the files @code{YapInterface.h} and @code{c_interface.c}.
 
 @item add all .c files in the @var{$YAPSRC/C} directory and in the
 @var{$YAPSRC\OPTYap} directory to the Project's @code{Source Files} (use
@@ -5806,7 +5806,7 @@ Notice that we first compile the looping predicate @code{l/0} with
 exception when @code{l/0} performs more than 10000 reductions.
 
 
-@node Arrays, Preds, Profiling , Top
+@node Arrays, Preds, Call Countingf , Top
 @section Arrays
 
 The YAP system includes experimental support for arrays. The
@@ -12465,18 +12465,18 @@ C-code described below.
 
 @example
 @cartouche
-#include "../c_interface.h"
+#include "Yap/YapInterface.h"
 
 static int my_process_id(void) 
 @{
-     Term pid = MkIntTerm(getpid());
-     Term out = ARG1;
-     return(unify(out,pid));
+     YAP_Term pid = YAP_MkIntTerm(getpid());
+     YAP_Term out = YAP_ARG1;
+     return(YAP_Unify(out,pid));
 @}
 
 void init_my_predicates()
 @{
-     UserCPredicate("my_process_id",my_process_id,1);
+     YAP_UserCPredicate("my_process_id",my_process_id,1);
 @}
 @end cartouche
 @end example
@@ -12541,18 +12541,18 @@ desired predicate.  Note that it returns an integer denoting the success
 of failure of the goal and also that it has no arguments even though the
 predicate being defined has one.
  In fact the arguments of a prolog predicate written in C are accessed
-through macros, defined in the include file, with names @var{ARG1},
-@var{ARG2}, ..., @var{ARG16} or with @var{ARG}(@var{N}) where @var{N} is
-the argument number (starting with 1).  In the present case the function
-uses just one local variable of type @code{ Term}, the type used for
-holding Yap terms, where the integer returned by the standard unix
-function @code{getpid()} is stored as an integer term (the conversion is
-done by @code{MkIntTerm(Int))}. Then it calls the pre-defined routine
-@code{unify(Term*, Term*)} which in turn returns an integer denoting
-success or failure of the unification.
+through macros, defined in the include file, with names @var{YAP_ARG1},
+@var{YAP_ARG2}, ..., @var{YAP_ARG16} or with @var{YAP_A}(@var{N})
+where @var{N} is the argument number (starting with 1).  In the present
+case the function uses just one local variable of type @code{YAP_Term}, the
+type used for holding Yap terms, where the integer returned by the
+standard unix function @code{getpid()} is stored as an integer term (the
+conversion is done by @code{YAP_MkIntTerm(Int))}. Then it calls the
+pre-defined routine @code{YAP_Unify(YAP_Term, YAP_Term)} which in turn returns an
+integer denoting success or failure of the unification.
 
 The role of the procedure @code{init_my_predicates} is to make known to
-YAP, by calling @code{UserCPredicate}, the predicates being
+YAP, by calling @code{YAP_UserCPredicate}, the predicates being
 defined in the file.  This is in fact why, in the example above,
 @code{init_my_predicates} was passed as the third argument to
 @code{load_foreign_files}.
@@ -12578,14 +12578,14 @@ The rest of this appendix describes exhaustively how to interface C to YAP.
 This section provides information about the primitives available to the C
 programmer for manipulating prolog terms.
 
-Several C typedefs are included in the header file @code{yap/c_interface.h} to
+Several C typedefs are included in the header file @code{yap/YapInterface.h} to
 describe, in a portable way, the C representation of prolog terms.
 The user should write is programs using this macros to ensure portability of
 code across different versions of YAP.
 
 
-The  more important typedef is @var{Term} which is used to denote the type of a
-prolog term.
+The more important typedef is @var{YAP_Term} which is used to denote the
+type of a prolog term.
 
 Terms, from a point of view of the C-programmer,  can be classified as
 follows
@@ -12600,24 +12600,17 @@ follows
 @item    compound terms
 @end table
 
-Before trying to find out the kind of a term, the C-programmer should insure
-it is not an instantiated variable using the interface primitive
+@findex YAP_IsVarTerm (C-Interface function)
+The primitive
 @example
-    Term Deref(Term)
+     YAP_Bool YAP_IsVarTerm(YAP_Term @var{t})
 @end example
 @noindent
-which follows a possibly empty chain of instantiations and returns a term which
-is not an instantiated variable.
-
-Having done so, the primitive
-@example
-     Bool IsVarTerm(Term)
-@end example
-@noindent
+@findex YAP_IsNonVarTerm (C-Interface function)
 returns true iff its argument is an uninstantiated variable. Conversely the
 primitive
 @example
-      Bool IsGroundTerm(Term)
+      YAP_Bool YAP_NonVarTerm(YAP_Term @var{t})
 @end example
 @noindent
 returns true iff its argument is not a variable.
@@ -12625,133 +12618,184 @@ returns true iff its argument is not a variable.
 
 The user can create a new uninstantiated variable using the primitive
 @example
-      Term  MkVarTerm()
+      Term  YAP_MkVarTerm()
 @end example
 
 
-The following primitives can be used to discriminate among the different kinds
+@findex YAP_IsIntTerm (C-Interface function)
+@findex YAP_IsFloatTerm (C-Interface function)
+@findex YAP_IsDBRefTerm (C-Interface function)
+@findex YAP_IsAtomTerm (C-Interface function)
+@findex YAP_IsPairTerm (C-Interface function)
+@findex YAP_IsApplTerm (C-Interface function)
+The following primitives can be used to discriminate among the different types
 of non-variable terms:
 @example
-      Bool IsIntTerm(Term)
-      Bool IsFloatTerm(Term)
-      Bool IsDbRefTerm(Term)
-      Bool IsAtomTerm(Term)
-      Bool IsPairTerm(Term)
-      Bool IsApplTerm(Term)
+      YAP_Bool YAP_IsIntTerm(YAP_Term @var{t})
+      YAP_Bool YAP_IsFloatTerm(YAP_Term @var{t})
+      YAP_Bool YAP_IsDbRefTerm(YAP_Term @var{t})
+      YAP_Bool YAP_IsAtomTerm(YAP_Term @var{t})
+      YAP_Bool YAP_IsPairTerm(YAP_Term @var{t})
+      YAP_Bool YAP_IsApplTerm(YAP_Term @var{t})
 @end example
-@noindent
-@strong{Important Note:} when used on variables the primitives above
-will return an unpredictable result.
 
+Next, we mention the primitives that allow one to destruct and construct
+terms. All the above primitives ensure that their result is
+@i{dereferenced}, i.e. that it is not a pointer to another term.
 
+@findex YAP_MkIntTerm (C-Interface function)
+@findex YAP_IntOfTerm (C-Interface function)
 The following primitives are provided for creating an integer term from an
 integer and to access the value of an integer term.
 @example
-      Term MkIntTerm(Int)
-      Int  IntOfTerm(Term)
+      YAP_Term YAP_MkIntTerm(YAP_Int  @var{i})
+      YAP_Int  YAP_IntOfTerm(YAP_YAP_Term @var{t})
 @end example
 @noindent
-where @code{Int} is a typedef for the C integer type appropriate for the
-machine or compiler in question (normally a 32 bit integer). Note that
-the size of the allowed integers is implementation dependent but is always
-greater or equal to 24 bits.
+where @code{YAP_Int} is a typedef for the C integer type appropriate for
+the machine or compiler in question (normally a long integer). The size
+of the allowed integers is implementation dependent but is always
+greater or equal to 24 bits: usually 32 bits on 32 bit machines, and 64
+on 64 bit machines.
 
-
+@findex YAP_MkFloatTerm (C-Interface function)
+@findex YAP_FloatOfTerm (C-Interface function)
 The two following primitives play a similar role for floating-point terms
 @example
-      Term MkFloatTerm(flt)
-      flt  FloatOfTerm(Term)
+      YAP_Term YAP_MkFloatTerm(YAP_flt @var{double})
+      YAP_flt  YAP_FloatOfTerm(YAP_YAP_Term @var{t})
 @end example
 @noindent
-where @code{flt} is a typedef for the appropriate C floating point type.
+where @code{flt} is a typedef for the appropriate C floating point type,
+nowadays a @code{double}
 
-
-No primitives are supplied to users for manipulating data base
+Currently, no primitives are supplied to users for manipulating data base
 references. 
 
-A special typedef @code{Atom} is provided to describe prolog @i{atoms} and the
-two following primitives can be used to manipulate atom terms
+@findex YAP_MkAtomTerm (C-Interface function)
+@findex YAP_AtomOfTerm (C-Interface function)
+A special typedef @code{YAP_Atom} is provided to describe prolog
+@i{atoms} (symbolic constants). The two following primitives can be used
+to manipulate atom terms
 @example
-      Term MkAtomTerm(Atom)
-      Atom AtomOfTerm(Term)
+      YAP_Term YAP_MkAtomTerm(YAP_Atom at)
+      YAP_Atom YAP_AtomOfTerm(YAP_YAP_Term @var{t})
 @end example
 @noindent
-The two following primitives are available for associating atoms with their
+@findex YAP_LookupAtom (C-Interface function)
+@findex YAP_FullLookupAtom (C-Interface function)
+@findex YAP_AtomName (C-Interface function)
+The following primitives are available for associating atoms with their
 names 
 @example
-      Atom  LookupAtom(char *)
-      Atom  FullLookupAtom(char *)
-      char* AtomName(Atom)
+      YAP_Atom  YAP_LookupAtom(char * @var{s})
+      YAP_Atom  YAP_FullLookupAtom(char * @var{s})
+      char     *YAP_AtomName(YAP_Atom @var{t})
 @end example
-The function @code{LookupAtom} looks up an atom in the standard hash
-table. The function  @code{FullLookupAtom} will also search if the atom
-had been "hidden".
+The function @code{YAP_LookupAtom} looks up an atom in the standard hash
+table. The function @code{YAP_FullLookupAtom} will also search if the
+atom had been "hidden": this is useful for system maintenance from C
+code. The functor @code{YAP_AtomName} returns a pointer to the string
+for the atom.
 
-
-A @i{pair} is a Prolog term which consists of a pair of prolog terms designated
-as the @i{head} and the @i{tail} of the term. The following primitives can
-be used to manipulate pairs
+@findex YAP_MkPairTerm (C-Interface function)
+@findex YAP_MkNewPairTerm (C-Interface function)
+@findex YAP_HeadOfTerm (C-Interface function)
+@findex YAP_TailOfTerm (C-Interface function)
+A @i{pair} is a Prolog term which consists of a tuple of two prolog
+terms designated as the @i{head} and the @i{tail} of the term. Pairs are
+most often used to build @emph{lists}. The following primitives can be
+used to manipulate pairs:
 @example
-      Term  MkPairTerm(Term Head, Term Tail)
-      Term  HeadOfTerm(Term)
-      Term  TailOfTerm(Term)
+      YAP_Term  YAP_MkPairTerm(YAP_Term @var{Head}, YAP_Term @var{Tail})
+      YAP_Term  YAP_MkNewPairTerm(void)
+      YAP_Term  YAP_HeadOfTerm(YAP_Term @var{t})
+      YAP_Term  YAP_TailOfTerm(YAP_Term @var{t})
 @end example
+One can construct a new pair from two terms, or one can just build a
+pair whose head and tail are new unbound variables. Finally, one can
+fetch the head or the tail.
 
+@findex YAP_MkApplTerm (C-Interface function)
+@findex YAP_MkNewApplTerm (C-Interface function)
+@findex YAP_ArgOfTerm (C-Interface function)
+@findex YAP_FunctorOfTerm (C-Interface function)
 A @i{compound} term consists of a @i{functor} and a sequence of terms with
 length equal to the @i{arity} of the functor. A functor, described in C by
 the typedef @code{Functor}, consists of an atom and of an integer.
 The following primitives were designed to manipulate compound terms and 
 functors
 @example
-      Term     MkApplTerm(Functor f, int n, Term[] args)
-      Functor  FunctorOfTerm(Term)
-      Term     ArgOfTerm(int argno,Term t)
-      Functor  MkFunctor(Atom a,int arity)
-      Atom     NameOfFunctor(Functor)
-      Int      ArityOfFunctor(Functor)
+      YAP_Term     YAP_MkApplTerm(YAP_Functor @var{f}, unsigned long int @var{n}, YAP_Term[] @var{args})
+      YAP_Term     YAP_MkNewApplTerm(YAP_Functor @var{f}, int @var{n})
+      YAP_Term     YAP_ArgOfTerm(int argno,YAP_Term @var{ts})
+      YAP_Functor  YAP_FunctorOfTerm(YAP_YAP_Term @var{ts})
 @end example
 @noindent
-where @code{args} should be an array of @code{n} terms with @code{n} equal to the
-arity of the functor, and @code{argno} should be greater or equal to 1 and less
-or equal to the arity of the functor.
+The @code{YAP_MkApplTerm} function constructs a new term, with functor
+@var{f} (of arity @var{n}), and using an array @var{args} of @var{n}
+terms with @var{n} equal to the arity of the
+functor. @code{YAP_MkNewApplTerm} builds up a compound term whose
+arguments are unbound variables. @code{YAP_ArgOfTerm} gives an argument
+to a compound term. @code{argno} should be greater or equal to 1 and
+less or equal to the arity of the functor.
 
-@strong{Note:} all the above primitives returning terms ensure that the
-result is @i{dereferenced}, i.e. that it is not an instantiated variable.
+YAP allows one to manipulate the functors of compound term. The function
+@code{YAP_FunctorOfTerm} allows one to obtain a variable of type
+@code{YAP_Functor} with the functor to a term. The following functions
+then allow one to construct functors, and to obtain their name and arity. 
+
+@findex YAP_MkFunctor (C-Interface function)
+@findex YAP_NameOfFunctor (C-Interface function)
+@findex YAP_ArityOfFunctor (C-Interface function)
+@example
+      YAP_Functor  YAP_MkFunctor(YAP_Atom @var{a},unsigned long int @var{arity})
+      YAP_Atom     YAP_NameOfFunctor(YAP_Functor @var{f})
+      YAP_Int      YAP_ArityOfFunctor(YAP_Functor @var{f})
+@end example
+@noindent
+
+Note that the functor is essencially a pair formed by an atom, and
+arity.
 
 @node Unifying Terms, Manipulating Strings, Manipulating Terms, C-Interface
 @section Unification
 
-The following routine is provided for attempting the unification of two
-prolog terms
+@findex YAP_Unify (C-Interface function)
+YAP provides a single routine to attempt the unification of two prolog
+terms. The routine may succeed or fail:
 @example
-      Int      unify(Term a, Term b)
+      Int      YAP_Unify(YAP_Term @var{a}, YAP_Term @var{b})
 @end example
 @noindent
-which attempts to unify the terms pointed to by @code{a} and @code{b} returning
-a non-zero value if the unification succeeds and zero otherwise.
+The routine attempts to unify the terms @var{a} and
+@var{b} returning @code{TRUE} if the unification succeeds and @code{FALSE}
+otherwise.
 
 @node Manipulating Strings, Memory Allocation, Unifying Terms, C-Interface
 @section Strings
 
+@findex YAP_StringToBuffer (C-Interface function)
 The YAP C-interface now includes an utility routine to copy a string
 represented as a list of a character codes to a previously allocated buffer
 @example
-      int StringToBuffer(Term String, char *buf, unsigned int bufsize)
+      int YAP_StringToBuffer(YAP_Term @var{String}, char *@var{buf}, unsigned int @var{bufsize})
 @end example
 @noindent
-The routine copies the list of character codes @code{String} to a
-previously allocated buffer @code{buf}. The string including a
-terminating null character must fit in @code{bufsize} characters,
-otherwise the routine will simply fail. The @code{StringToBuffer}
-routine fails and generates an exception if @code{String} is not a valid
-string.
+The routine copies the list of character codes @var{String} to a
+previously allocated buffer @var{buf}. The string including a
+terminating null character must fit in @var{bufsize} characters,
+otherwise the routine will simply fail. The @var{StringToBuffer} routine
+fails and generates an exception if @var{String} is not a valid string.
 
+@findex YAP_BufferToString (C-Interface function)
+@findex YAP_BufferToAtomList (C-Interface function)
 The C-interface also includes utility routines to do the reverse, that
 is, to copy a from a buffer to a list of character codes or to a list of
 character atomsr
 @example
-      Term BufferToString(char *buf)
-      Term BufferToAtomList(char *buf)
+      YAP_Term YAP_BufferToString(char *@var{buf})
+      YAP_Term YAP_BufferToAtomList(char *@var{buf})
 @end example
 @noindent
 The user-provided string must include a terminating null character.
@@ -12759,17 +12803,20 @@ The user-provided string must include a terminating null character.
 @node Memory Allocation, Controlling Streams, Manipulating Strings, C-Interface
 @section Memory Allocation
 
+@findex YAP_AllocSpaceFromYap (C-Interface function)
 The next routine can be used to ask space from the Prolog data-base:
 @example
-      void      *AllocSpaceFromYap(int size)
+      void      *YAP_AllocSpaceFromYap(int @var{size})
 @end example
 @noindent
 The routine returns a pointer to a buffer allocated from the code area,
-or @code{NULL} if no space was available.
+or @code{NULL} if sufficient space was not available.
 
-This Space can be released by using:
+@findex YAP_FreeSpaceFromYap (C-Interface function)
+The space allocated with @code{YAP_AllocSpaceFromYap} can be released
+back to Yap by using:
 @example
-      void      FreeSpaceFromYap(void *buf)
+      void      YAP_FreeSpaceFromYap(void *@var{buf})
 @end example
 @noindent
 The routine releases a buffer allocated from the code area. The system
@@ -12779,11 +12826,12 @@ area.
 @node Controlling Streams, Calling Yap From C, Memory Allocation, C-Interface
 @section Controlling Yap Streams from @code{C}
 
+@findex YAP_StreamToFileNo (C-Interface function)
 The C-Interface also provides the C-application with a measure of
 control over the Yap Input/Output system. The first routine allows one
 to find a file number given a current stream:
 @example
-      int      YapStreamToFileNo(Term stream)
+      int      YAP_StreamToFileNo(YAP_Term @var{stream})
 @end example
 @noindent
 This function gives the file descriptor for a currently available
@@ -12793,41 +12841,45 @@ negative. Moreover, Yap will not be aware of any direct operations on
 this stream, so information on, say, current stream position, may become
 stale.
 
+@findex YAP_CloseAllOpenStreams (C-Interface function)
 A second routine that is sometimes useful is:
 @example
-      void      YapCloseAllOpenStreams(void)
+      void      YAP_CloseAllOpenStreams(void)
 @end example
 @noindent
 This routine closes the Yap Input/Output system except for the first
 three streams, that are always associated with the three standard Unix
 streams. It is most useful if you are doing @code{fork()}.
 
+@findex YAP_OpenStream (C-Interface function)
 The next routine allows a currently open file to become a stream. The
 routine receives as arguments a file descriptor, the true file name as a
 string, an atom with the yser name, and a set of flags:
 @example
-      void      YapOpenStream(void *FD, char *true, Term t, int flags)
+      void      YAP_OpenStream(void *@var{FD}, char *@var{name}, YAP_Term @var{t}, int @var{flags})
 @end example
 @noindent
 The available flags are @code{YAP_INPUT_STREAM},
 @code{YAP_OUTPUT_STREAM}, @code{YAP_APPEND_STREAM},
 @code{YAP_PIPE_STREAM}, @code{YAP_TTY_STREAM}, @code{YAP_POPEN_STREAM},
 @code{YAP_BINARY_STREAM}, and @code{YAP_SEEKABLE_STREAM}. By default, the
-stream is supposed to be at position 0.
+stream is supposed to be at position 0. The argument @var{name} gives
+the name by which YAP should know the new stream.
 
 @node Calling Yap From C, Writing C, Controlling Streams, C-Interface
 @section From @code{C} back to Prolog
 
+@findex YAP_CallProlog (C-Interface function)
 Newer versions of YAP allow for calling the Prolog interpreter from
 @code{C}. One must first construct a goal @code{G}, and then it is
 sufficient to perform:
 @example
-      Int      YapCallProlog(Term G)
+      YAP_Bool      YapCallProlog(YAP_Term @var{G})
 @end example
 @noindent
-the result will be @code{0}, if the goal failed, or @code{1}, if the
-goal succeeded. In this case, the variables in @var{G} will store the
-values they have been unified with. Execution only proceeds until
+the result will be @code{FALSE}, if the goal failed, or @code{TRUE}, if
+the goal succeeded. In this case, the variables in @var{G} will store
+the values they have been unified with. Execution only proceeds until
 finding the first solution to the goal, but you can call
 @code{findall/3} or friends if you need all the solutions.
 
@@ -12837,22 +12889,28 @@ finding the first solution to the goal, but you can call
 We will distinguish two kinds of predicates:
 @table @i
 @item @i{deterministic} predicates which either fail or succeed but are not
-backtrackable, like the one in the introduction; 
+backtrackable, like the one in the introduction;
 @item @i{backtrackable}
 predicates which can succeed more than once.
 @end table
 
+@findex YAP_UserCPredicate (C-Interface function)
 The first kind of predicates should be implemented as a C function with
 no arguments which should return zero if the predicate fails and a
 non-zero value otherwise. The predicate should be declared to
 YAP, in the initialization routine, with a call to
 @example
-      void UserCPredicate(char *name, int *fn(), int arity);
+      void YAP_UserCPredicate(char *@var{name}, YAP_Bool *@var{fn}(), unsigned long int @var{arity});
 @end example
 @noindent
-where @code{name} is the name of the predicate, @code{fn} is the C function
-implementing the predicate and @code{arity} is its arity.
+where @var{name} is the name of the predicate, @var{fn} is the C function
+implementing the predicate and @var{arity} is its arity.
 
+@findex YAP_UserBackCPredicate (C-Interface function)
+@findex YAP_PRESERVE_DATA (C-Interface function)
+@findex YAP_PRESERVED_DATA (C-Interface function)
+@findex YAP_cutsucceed (C-Interface function)
+@findex YAP_cutfail (C-Interface function)
 For the second kind of predicates we need two C functions. The first one
 which is called when the predicate is first activated, and the second one
 to be called on backtracking to provide (possibly) other solutions. Note
@@ -12883,7 +12941,7 @@ and a pointer variable to a structure of that type.
 
 @example
 typedef struct @{
-    Term next_solution;  /* the next solution */
+    YAP_Term next_solution;  /* the next solution */
    @} n100_data_type;
 
 n100_data_type *n100_data;
@@ -12894,25 +12952,27 @@ We now write the @code{C} function to handle the first call:
 @example
 static int start_n100()
 @{
-      Term t = ARG1;
-      PRESERVE_DATA(n100_data,n100_data_type);
-      if(IsVarTerm(t)) @{
-          n100_data->next_solution = MkIntTerm(0);
+      YAP_Term t = ARG1;
+      YAP_PRESERVE_DATA(n100_data,n100_data_type);
+      if(YAP_IsVarTerm(t)) @{
+          n100_data->next_solution = YAP_MkIntTerm(0);
           return(continue_n100());
        @}
-      if(!IsIntTerm(t) || IntOfTerm(t)<0 || IntOfTerm(t)>100) @{
-          cut_fail();
+      if(!YAP_IsIntTerm(t) || YAP_IntOfTerm(t)<0 || YAP_IntOfTerm(t)>100) @{
+          YAP_cut_fail();
       @} else @{
-          cut_succeed();
+          YAP_cut_succeed();
       @}
 @}
 
 @end example
 
 The routine starts by getting the dereference value of the argument.
-The call to @code{PRESERVE_DATA} is used to initialize the memory which will
+The call to @code{YAP_PRESERVE_DATA} is used to initialize the memory which will
 hold the information to be preserved across backtracking. The first
-argument is the variable we shall use, and the second its type.
+argument is the variable we shall use, and the second its type. Note
+that we can only use @code{YAP_PRESERVE_DATA} once, so often we will
+want the variable to be a structure.
 
 If the argument of the predicate is a variable, the routine initializes the 
 structure to be preserved across backtracking with the information
@@ -12921,13 +12981,14 @@ continue_n100} to provide that solution.
 
 If the argument was not a variable, the routine then checks if it was
 an integer, and if so, if its value is positive and less than 100. In that case
-it exits, denoting success, with @code{cut_succeed}, or otherwise exits with
-@code{cut_fail} denoting failure.
+it exits, denoting success, with @code{YAP_cut_succeed}, or otherwise exits with
+@code{YAP_cut_fail} denoting failure.
 
-The reason for using for using the macros @code{cut_succeed} and @code{cut_fail}
-instead of just returning a non-zero value in the first case, and zero in the
-second case, is that otherwise, if backtracking occurred later, the routine
-@code{continue_n100} would be called to provide additional solutions.
+The reason for using for using the functions @code{YAP_cut_succeed} and
+@code{YAP_cut_fail} instead of just returning a non-zero value in the
+first case, and zero in the second case, is that otherwise, if
+backtracking occurred later, the routine @code{continue_n100} would be
+called to provide additional solutions.
 
 The code required for the second function is
 @example
@@ -12936,46 +12997,47 @@ static int continue_n100()
       int n;
       Term t;
       Term sol = ARG1;
-      PRESERVED_DATA(n100_data,n100_data_type);
-      n = IntOfTerm(n100_data->next_solution);
+      YAP_PRESERVED_DATA(n100_data,n100_data_type);
+      n = YAP_IntOfTerm(n100_data->next_solution);
       if( n == 100) @{
-           t = MkIntTerm(n);
-           unify(&sol,&t);
-           cut_succeed();
+           t = YAP_MkIntTerm(n);
+           YAP_Unify(&sol,&t);
+           YAP_cut_succeed();
         @}
        else @{
-           unify(&sol,&(n100_data->next_solution));
-           n100_data->next_solution = MkIntTerm(n+1);
-           return(1);
+           YAP_Unify(&sol,&(n100_data->next_solution));
+           n100_data->next_solution = YAP_MkIntTerm(n+1);
+           return(TRUE);
         @}
 @}
 @end example
 
-Note that again the macro @code{PRESERVED_DATA} is used at the beginning of
-the function to access the data preserved from the previous solution.
-Then it checks if the last solution was found and in that case exits
-with @code{cut_succeed} in order to cut any further backtracking.  If this
-is not the last solution then we save the value for the next solution in
-the data structure and exit normally with 1 denoting success. Note also
-that in any of the two cases we use the function @code{unify} to bind the
-argument of the call to the value saved in @code{
-n100_state->next_solution}.
+Note that again the macro @code{YAP_PRESERVED_DATA} is used at the
+beginning of the function to access the data preserved from the previous
+solution.  Then it checks if the last solution was found and in that
+case exits with @code{YAP_cut_succeed} in order to cut any further
+backtracking.  If this is not the last solution then we save the value
+for the next solution in the data structure and exit normally with 1
+denoting success. Note also that in any of the two cases we use the
+function @code{YAP_nify} to bind the argument of the call to the value
+saved in @code{ n100_state->next_solution}.
 
 
 Note also that the only correct way to signal failure in a backtrackable
-predicate is to use the @code{cut_fail} macro.
+predicate is to use the @code{YAP_cut_fail} macro.
 
 Backtrackable predicates should be declared to YAP, in a way
 similar to what happened with deterministic ones, but using instead a
 call to
 @example
-      void UserBackCPredicate(char *name,
-                 int *init(), int *cont(), int arity, int sizeof);
+      void YAP_UserBackCPredicate(char *@var{name},
+                 int *@var{init}(), int *@var{cont}(),
+                 unsigned long int @var{arity}, unsigned int @var{sizeof});
 @end example
 @noindent
-where @code{name} is a string with the name of the predicate, @code{init} and
-@code{cont} are the C functions used to start and continue the execution of
-the predicate, @code{arity} is the predicate arity, and @code{sizeof} is
+where @var{name} is a string with the name of the predicate, @var{init} and
+@var{cont} are the C functions used to start and continue the execution of
+the predicate, @var{arity} is the predicate arity, and @var{sizeof} is
 the size of the data to be preserved in the stack.
 
 @node Loading Objects, Sav&Rest, Writing C, C-Interface
@@ -13022,13 +13084,18 @@ Yap4 includes several changes over the previous @code{load_foreign_files}
 interface. These changes were required to support the new binary code
 formats, such as ELF used in Solaris2 and Linux.
 @itemize @bullet
+@item All Names of YAP objects now start with @var{YAP_}. This is
+designed to avoid clashes with other code. Use @code{YapInterface.h} to
+take advantage of the new interface. @code{c_interface.h} is still
+available if you cannot port the code to the new interface.
+
 @item Access to elements in the new interface always goes through
 @emph{functions}. This includes access to the argument registers,
-@code{ARG1} to @code{ARG16}. This change breaks code such as
-@code{unify(&ARG1,&t)}:
+@code{YAP_ARG1} to @code{YAP_ARG16}. This change breaks code such as
+@code{unify(&ARG1,&t)}, which is nowadays:
 @example
 @{
-   unify(ARG1, t);
+   YAP_Unify(ARG1, t);
 @}
 @end example
 
@@ -13065,7 +13132,7 @@ To actually use this library you must follow a five step process:
 @enumerate
 @item
  You must initialise the YAP environment. A single function,
-@code{YapFastInit} asks for a contiguous chunk in your memory space, fills
+@code{YAP_FastInit} asks for a contiguous chunk in your memory space, fills
 it in with the data-base, and sets up YAP's stacks and
 execution registers. You can use a saved space from a standard system by
 calling @code{save_program/1}.
@@ -13074,7 +13141,7 @@ calling @code{save_program/1}.
 YAP. A query is a Prolog term, and you just have to use the same
 functions that are available in the C-interface.
 
-@item You can then use @code{YapRunGoal(query)} to actually evaluate your
+@item You can then use @code{YAP_RunGoal(query)} to actually evaluate your
 query. The argument is the query term @code{query}, and the result is 1
 if the query succeeded, and 0 if it failed.
 
@@ -13082,7 +13149,7 @@ if the query succeeded, and 0 if it failed.
 arguments were instantiated.
 
 @item If you want extra solutions, you can use
-@code{YapRestartGoal()} to obtain the next solution.
+@code{YAP_RestartGoal()} to obtain the next solution.
 
 @end enumerate
 
@@ -13092,16 +13159,16 @@ program contains two facts for the procedure @t{b}:
 @example
 @cartouche
 #include <stdio.h>
-#include "Yap/c_interface.h"
+#include "Yap/YapInterface.h"
 
 
 int
 main(int argc, char *argv[]) @{
-  if (YapFastInit("saved_state") == YAP_BOOT_FROM_SAVED_ERROR)
+  if (YAP_FastInit("saved_state") == YAP_BOOT_FROM_SAVED_ERROR)
     exit(1);
-  if (YapRunGoal(MkAtomTerm(LookupAtom("do")))) @{
+  if (YAP_RunGoal(YAP_MkAtomTerm(LookupAtom("do")))) @{
     printf("Success\n");
-    while (YapRestartGoal())
+    while (YAP_RestartGoal())
       printf("Success\n");
   @}
   printf("NO\n");

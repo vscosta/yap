@@ -608,9 +608,9 @@ check_header(void)
   get_cell();
   /* now, check whether we got enough enough space to load the
      saved space */
-  if ((hp_size = get_cell()) > Unsigned(AuxTop) - Unsigned(HeapBase)) {
-    Error(SYSTEM_ERROR,TermNil,"out of heap space, Yap needs %d", hp_size);
-    return(FAIL_RESTORE);
+  hp_size = get_cell();
+  while (hp_size > Unsigned(AuxTop) - Unsigned(HeapBase)) {
+    growheap(FALSE);
   }
   if (mode == DO_EVERYTHING) {
     if ((lc_size = get_cell())+(gb_size=get_cell()) > Unsigned(LocalBase) - Unsigned(GlobalBase)) {

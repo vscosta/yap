@@ -1250,36 +1250,48 @@ exec_absmi(int top)
 {
   int lval;
   if (top && (lval = sigsetjmp (RestartEnv, 1)) != 0) {
-    if (lval == 1) { /* restart */
-      /* otherwise, SetDBForThrow will fail entering critical mode */
-      PrologMode = UserMode;
-      /* find out where to cut to */
+    switch(lval) {
+    case 1:
+      { /* restart */
+	/* otherwise, SetDBForThrow will fail entering critical mode */
+	PrologMode = UserMode;
+	/* find out where to cut to */
 #if defined(__GNUC__)
 #if defined(hppa) || defined(__alpha)
-     /* siglongjmp resets the TR hardware register */
-      restore_TR();
+	/* siglongjmp resets the TR hardware register */
+	restore_TR();
 #endif
 #if defined(__alpha)
-     /* siglongjmp resets the H hardware register */
-      restore_H();
+	/* siglongjmp resets the H hardware register */
+	restore_H();
 #endif
 #endif
-      yap_flags[SPY_CREEP_FLAG] = 0;
-      CreepFlag = CalculateStackGap();
-      P = (yamop *)FAILCODE;
-    }
-    if (lval == 2) { /* arithmetic exception */
-      /* must be done here, otherwise siglongjmp will clobber all the registers */
-      Error(YAP_matherror,TermNil,NULL);
-      /* reset the registers so that we don't have trash in abstract machine */
-      set_fpu_exceptions(yap_flags[LANGUAGE_MODE_FLAG] == 1);
-      P = (yamop *)FAILCODE;
-    }
-    if (lval == 3) { /* saved state */
-      return(FALSE);
+	yap_flags[SPY_CREEP_FLAG] = 0;
+	CreepFlag = CalculateStackGap();
+	P = (yamop *)FAILCODE;
+	PrologMode = UserMode;
+      }
+      break;
+    case 2:
+      {
+	/* arithmetic exception */
+	/* must be done here, otherwise siglongjmp will clobber all the registers */
+	Error(YAP_matherror,TermNil,NULL);
+	/* reset the registers so that we don't have trash in abstract machine */
+	set_fpu_exceptions(yap_flags[LANGUAGE_MODE_FLAG] == 1);
+	P = (yamop *)FAILCODE;
+	PrologMode = UserMode;
+      }
+      break;
+    case 3:
+      { /* saved state */
+	return(FALSE);
+      }
+    default:
+      /* do nothing */
+      PrologMode = UserMode;
     }
   }
-  PrologMode = UserMode;
   return(absmi(0));
 }
 

@@ -22,43 +22,43 @@ load_foreign_files(Objs,Libs,Entry) :-
 	'$load_foreign_files'(NewObjs,Libs,Entry).
 
 '$check_objs_for_load_foreign_files'(V,_,G) :- var(V), !,
-	throw(error(instantiation_error,G)).
+	'$do_error'(instantiation_error,G).
 '$check_objs_for_load_foreign_files'([],[],_) :- !.
 '$check_objs_for_load_foreign_files'([Obj|Objs],[NObj|NewObjs],G) :- !,
 	'$check_obj_for_load_foreign_files'(Obj,NObj,G),
 	'$check_objs_for_load_foreign_files'(Objs,NewObjs,G).
 '$check_objs_for_load_foreign_files'(Objs,_,G) :-
-	throw(error(type_error(list,Objs),G)).
+	'$do_error'(type_error(list,Objs),G).
 
 '$check_obj_for_load_foreign_files'(V,_,G) :- var(V), !,
-	throw(error(instantiation_error,G)).
+	'$do_error'(instantiation_error,G).
 '$check_obj_for_load_foreign_files'(Obj,NewObj,_) :- atom(Obj), !,
 	atom_codes(Obj,ObjCodes),
 	'$process_obj_suffix'(ObjCodes,NewObjCodes),
 	atom_codes(NewObj,NewObjCodes).
 '$check_obj_for_load_foreign_files'(Obj,_,G) :-
-	throw(error(type_error(atom,Obj),G)).
+	'$do_error'(type_error(atom,Obj),G).
 
 '$check_libs_for_load_foreign_files'(V,G) :- var(V), !,
-	throw(error(instantiation_error,G)).
+	'$do_error'(instantiation_error,G).
 '$check_libs_for_load_foreign_files'([],_) :- !.
 '$check_libs_for_load_foreign_files'([Lib|Libs],G) :- !,
 	'$check_lib_for_load_foreign_files'(Lib,G),
 	'$check_libs_for_load_foreign_files'(Libs,G).
 '$check_libs_for_load_foreign_files'(Libs,G) :-
-	throw(error(type_error(list,Libs),G)).
+	'$do_error'(type_error(list,Libs),G).
 
 '$check_lib_for_load_foreign_files'(V,G) :- var(V), !,
-	throw(error(instantiation_error,G)).
+	'$do_error'(instantiation_error,G).
 '$check_lib_for_load_foreign_files'(Lib,_) :- atom(Lib), !.
 '$check_lib_for_load_foreign_files'(Lib,G) :-
-	throw(error(type_error(atom,Lib),G)).
+	'$do_error'(type_error(atom,Lib),G).
 
 '$check_entry_for_load_foreign_files'(V,G) :- var(V), !,
-	throw(error(instantiation_error,G)).
+	'$do_error'(instantiation_error,G).
 '$check_entry_for_load_foreign_files'(Entry,_) :- atom(Entry), !.
 '$check_entry_for_load_foreign_files'(Entry,G) :-
-	throw(error(type_error(atom,Entry),G)).
+	'$do_error'(type_error(atom,Entry),G).
 
 
 '$process_obj_suffix'(ObjCodes,ObjCodes) :-

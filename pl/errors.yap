@@ -15,6 +15,10 @@
 *									 *
 *************************************************************************/
 
+'$do_error'(Type,Message) :-
+	'$current_stack'(local_sp(_,Envs,CPs)),
+	throw(error(Type,[Message|local_sp(Message,Envs,CPs)])).
+
 '$Error'(E) :-
 	'$LoopError'(E).
 
@@ -47,8 +51,13 @@ print_message(Level, Mss) :-
 '$print_message'(Severity, Msg) :-
 	\+ '$undefined'(portray_message(Severity, Msg), user),
 	user:portray_message(Severity, Msg), !.
-'$print_message'(error,error(Msg,Where)) :-
-	'$output_error_message'(Msg, Where), !.
+'$print_message'(error,error(syntax_error(A,B,C,D,E,F),_)) :- !,
+	'$output_error_message'(syntax_error(A,B,C,D,E,F), 'SYNTAX ERROR').
+'$print_message'(error,error(Msg,[Info|local_sp(Where,Envs,CPs)])) :-
+	'$show_cps'(CPs),
+	'$show_envs'(Envs),
+	'$prepare_loc'(Info,Where,Location),
+	'$output_error_message'(Msg, Location), !.
 '$print_message'(error,Throw) :-
 	'$format'(user_error,"[ No handler for error ~w ]~n", [Throw]).
 '$print_message'(informational,M) :-
@@ -126,6 +135,50 @@ print_message(Level, Mss) :-
 '$print_list_of_preds'([P|L]) :-
 	'$format'(user_error,"~n      ~w",[P]),
 	'$print_list_of_preds'(L).
+
+'$show_cps'(List) :-
+	'$format'(user_error,"[ Goals with alternatives open:~n",[]),
+        '$print_stack'(List),
+	'$format'(user_error,"  ]~n",[]).
+
+'$show_envs'(List) :-
+	'$format'(user_error,"[ Goals left to continue:~n",[]),
+        '$print_stack'(List),
+	'$format'(user_error,"  ]~n",[]).
+
+'$prepare_loc'(Info,Where,Location) :- integer(Where), !,
+	'$pred_for_code'(Where,Name,Arity,Mod,Clause),
+	'$construct_code'(Clause,Name,Arity,Mod,Info,Location).
+'$prepare_loc'(Info,Where,Info).
+
+'$print_stack'([]).
+'$print_stack'([G|List]) :-
+	'$pred_for_code'(G,Name,Arity,Mod,Clause),
+	(
+	  Name = '$yes_no' ; Name = '$query' ; Name = '$do_yes_no' ->
+	   true
+	;
+	  '$show_goal'(Clause,Name,Arity,Mod),
+	  '$print_stack'(List)
+	).
+
+'$show_goal'(-1,Name,Arity,Mod) :- !,
+	'$format'("      ~a:~a/~d at indexing code~n",[Mod,Name,Arity]).
+'$show_goal'(0,Name,Arity,Mod) :- !.
+'$show_goal'(I,Name,Arity,Mod) :-
+	'$format'("      ~a:~a/~d at clause ~d~n",[Mod,Name,Arity,I]).
+
+'$construct_code'(-1,Name,Arity,Mod,Where,Location) :- !,
+	number_codes(Arity,ArityCode),
+	atom_codes(ArityAtom,ArityCode),
+	atom_concat([Where,' at ',Mod,':',Name,'/',ArityAtom,' at indexing code'],Location).
+'$construct_code'(0,_,_,_,Location,Location) :- !.
+'$construct_code'(Cl,Name,Arity,Mod,Where,Location) :-
+	number_codes(Arity,ArityCode),
+	atom_codes(ArityAtom,ArityCode),
+	number_codes(Cl,ClCode),
+	atom_codes(ClAtom,ClCode),
+	atom_concat([Where,' at ',Mod,':',Name,'/',ArityAtom,' (clause ',ClAtom,')'],Location).
 
 '$output_error_message'(context_error(Goal,Who),Where) :-
 	'$format'(user_error,"[ CONTEXT ERROR- ~w: ~w appeared in ~w ]~n",

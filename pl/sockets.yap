@@ -33,12 +33,12 @@ socket_select(Socks, OutSocks, TimeOut, Streams, OutStreams) :-
 
 /* check whether a list of options is valid */
 '$check_list_for_sockets'(V,G) :- var(V), !,
-	throw(error(instantiation_error,G)).
+	'$do_error'(instantiation_error,G).
 '$check_list_for_sockets'([],_) :- !.
 '$check_list_for_sockets'([_|T],G) :- !,
  	'$check_list_for_sockets'(T,G).
 '$check_list_for_sockets'(T,G) :-
-	throw(error(type_error(list,T),G)).
+	'$do_error'(type_error(list,T),G).
 
 '$select_cp_fds'([], Fds, Fds).
 '$select_cp_fds'([_-Fd|L], Fds0, [Fd|Fds]) :-
@@ -46,7 +46,7 @@ socket_select(Socks, OutSocks, TimeOut, Streams, OutStreams) :-
 
 '$check_select_time'(V, _, _, Goal) :-
 	var(V), !,
-	throw(error(instantiation_error,Goal)).
+	'$do_error'(instantiation_error,Goal).
 '$check_select_time'(off, -1, -1, _).
 '$check_select_time'(Sec0:USec0, Sec, USec, _) :-
 	Sec is Sec0,
@@ -68,7 +68,7 @@ socket_select(Socks, OutSocks, TimeOut, Streams, OutStreams) :-
 
 socket_buffering(Sock, Flag, InSize, OutSize) :-
 	var(OutSize), OutSize \= InSize, !,
-	throw(error(instantiation_error,socket_buffering(Sock, Flag, InSize, OutSize))).
+	'$do_error'(instantiation_error,socket_buffering(Sock, Flag, InSize, OutSize)).
 socket_buffering(Sock, Flag, InSize, OutSize) :-
 	'$convert_sock_buff'(OutSize, OutNumb),
 	'$socket_buffering'(Sock, Flag, InNumb, OutNumb),

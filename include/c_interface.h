@@ -14,734 +14,294 @@
 *									 *
 *************************************************************************/
 
-/*******************  IMPORTANT ********************
-   Due to a limitation of the DecStation loader any function (including
-   library functions) which is linked to yap can not be called directly
-   from C code loaded dynamically.
-      To go around this problem we adopted the solution of calling such
-   functions indirectly
-****************************************************/
+#ifndef _c_interface_h
 
-#include "yap_structs.h"
+#define _c_interface_h 1
 
-#ifndef _Yap_c_interface_h
-#define _Yap_c_interface_h 1
+#include "YapInterface.h"
 
-/*
-   __BEGIN_DECLS should be used at the beginning of the C declarations,
-   so that C++ compilers don't mangle their names.  __END_DECLS is used
-   at the end of C declarations.
-*/
-#undef __BEGIN_DECLS
-#undef __END_DECLS
-#ifdef __cplusplus
-# define __BEGIN_DECLS extern "C" {
-# define __END_DECLS }
-#else
-# define __BEGIN_DECLS /* empty */
-# define __END_DECLS /* empty */
+#define CELL YAP_CELL
+
+#ifndef Bool
+#define Bool YAP_Bool
 #endif
 
-__BEGIN_DECLS
+#define Int long int
 
-#if defined(_MSC_VER) && defined(YAP_EXPORTS)
-#define X_API __declspec(dllexport)
-#else
-#define X_API
-#endif
+#define flt double
 
-/* Primitive Functions */
+#define Term YAP_Term
 
-/*  Term Deref(Term)  */
-extern X_API Term PROTO(YapA,(int));
-#ifdef IndirectCalls
-static Term (*YapIA)() = YapA;
-#define A(I) (*YapIA)(I)
-#else
-#define A(I) YapA(I)
-#endif
-#define ARG1	A(1)
-#define ARG2	A(2)
-#define ARG3	A(3)
-#define ARG4	A(4)
-#define ARG5	A(5)
-#define ARG6	A(6)
-#define ARG7	A(7)
-#define ARG8	A(8)
-#define ARG9	A(9)
-#define ARG10	A(10)
-#define ARG11	A(11)
-#define ARG12	A(12)
-#define ARG13	A(13)
-#define ARG14	A(14)
-#define ARG15	A(15)
-#define ARG16	A(16)
+#define Functor YAP_Functor
 
-/*  Term Deref(Term)  */
-extern X_API Term PROTO(Deref,(Term));
-#ifdef IndirectCalls
-static Term (*YapIDeref)() = Deref;
-#define Deref(T) (*YapIDeref)(T)
-#endif
+#define Atom YAP_Atom
 
-/*  Bool IsVarTerm(Term) */
-extern X_API Bool PROTO(YapIsVarTerm,(Term));
-#ifdef IndirectCalls
-static Bool (*YapIIsVarTerm)() = YapIsVarTerm;
-#define IsVarTerm(T) (*YapIIsVarTerm)(T)
-#else
-#define IsVarTerm(T) YapIsVarTerm(T)
-#endif
+#define yap_init_args YAP_init_args
 
-/*  Bool IsNonVarTerm(Term) */
-extern X_API Bool PROTO(YapIsNonVarTerm,(Term));
-#ifdef IndirectCalls
-static Bool (*YapIIsNonVarTerm)() = YapIsNonVarTerm;
-#define IsNonVarTerm(T) (*YapIIsNonVarTerm)(T)
-#else
-#define IsNonVarTerm(T) YapIsNonVarTerm(T)
-#endif
+#define A(X) YAP_A(X)
+#define ARG1 YAP_ARG1
+#define ARG2 YAP_ARG2
+#define ARG3 YAP_ARG3
+#define ARG4 YAP_ARG4
+#define ARG5 YAP_ARG5
+#define ARG6 YAP_ARG6
+#define ARG7 YAP_ARG7
+#define ARG8 YAP_ARG8
+#define ARG9 YAP_ARG9
+#define ARG10 YAP_ARG10
+#define ARG11 YAP_ARG11
+#define ARG12 YAP_ARG12
+#define ARG13 YAP_ARG13
+#define ARG14 YAP_ARG14
+#define ARG15 YAP_ARG15
+#define ARG16 YAP_ARG16
 
-/*  Term  MkVarTerm()  */
-extern X_API Term PROTO(YapMkVarTerm,(void));
-#ifdef IndirectCalls
-static Term (*YapIMkVarTerm)() = YapMkVarTerm;
-#define MkVarTerm() (*YapIMkVarTerm)()
-#else
-#define MkVarTerm() YapMkVarTerm()
-#endif
+/*  YAP_Term Deref(YAP_Term)  */
+#define Deref(t)  YAP_Deref(t)
+#define YapDeref(t)  YAP_Deref(t)
 
-/*  Bool IsIntTerm(Term)  */
-extern X_API Bool PROTO(YapIsIntTerm,(Term));
-#ifdef IndirectCalls
-static Bool (*YapIIsIntTerm)() = YapIsIntTerm;
-#define IsIntTerm(T) (*YapIIsIntTerm)(T)
-#else
-#define IsIntTerm(T) YapIsIntTerm(T)
-#endif
+/*  YAP_Bool IsVarTerm(YAP_Term) */
+#define IsVarTerm(t)  YAP_IsVarTerm(t)
+#define YapIsVarTerm(t)  YAP_IsVarTerm(t)
 
-/*  Bool IsFloatTerm(Term)  */
-extern X_API Bool PROTO(YapIsFloatTerm,(Term));
-#ifdef IndirectCalls
-static Bool (*YapIIsFloatTerm)() = YapIsFloatTerm;
-#define IsFloatTerm(T) (*YapIIsFloatTerm)(T)
-#else
-#define IsFloatTerm(T) YapIsFloatTerm(T)
-#endif
+/*  YAP_Bool IsNonVarTerm(YAP_Term) */
+#define IsNonVarTerm(t)  YAP_IsNonVarTerm(t)
+#define YapIsNonVarTerm(t)  YAP_IsNonVarTerm(t)
 
-/*  Bool IsDbRefTerm(Term)  */
-extern X_API Bool PROTO(YapIsDbRefTerm,(Term));
-#ifdef IndirectCalls
-static Bool (*YapIIsDbRefTerm)() = YapIsDbRefTerm;
-#define IsDbRefTerm(T) (*YapIIsDbRefTerm)(T)
-#else
-#define IsDbRefTerm(T) YapIsDbRefTerm(T)
-#endif
+/*  YAP_Term  MkVarTerm()  */
+#define MkVarTerm()  YAP_MkVarTerm()
+#define YapMkVarTerm()  YAP_MkVarTerm()
 
-/*  Bool IsAtomTerm(Term)  */
-extern X_API Bool PROTO(YapIsAtomTerm,(Term));
-#ifdef IndirectCalls
-static Bool (*YapIIsAtomTerm)() = YapIsAtomTerm;
-#define IsAtomTerm(T) (*YapIIsAtomTerm)(T)
-#else
-#define IsAtomTerm(T) YapIsAtomTerm(T)
-#endif
+/*  YAP_Bool IsIntTerm(YAP_Term)  */
+#define IsIntTerm(t)  YAP_IsIntTerm(t)
+#define YapIsIntTerm(t)  YAP_IsIntTerm(t)
 
-/*  Bool IsPairTerm(Term)  */
-extern X_API Bool PROTO(YapIsPairTerm,(Term));
-#ifdef IndirectCalls
-static Bool (*YapIIsPairTerm)() = YapIsPairTerm;
-#define IsPairTerm(T) (*YapIIsPairTerm)(T)
-#else
-#define IsPairTerm(T) YapIsPairTerm(T)
-#endif
+/*  YAP_Bool IsFloatTerm(YAP_Term)  */
+#define IsFloatTerm(t)  YAP_IsFloatTerm(t)
+#define YapIsFloatTerm(t)  YAP_IsFloatTerm(t)
 
-/*  Bool IsApplTerm(Term)  */
-extern X_API Bool PROTO(YapIsApplTerm,(Term));
-#ifdef IndirectCalls
-static Bool (*YapIIsApplTerm)() = YapIsApplTerm;
-#define IsApplTerm(T) (*YapIIsApplTerm)(T)
-#else
-#define IsApplTerm(T) YapIsApplTerm(T)
-#endif
+/*  YAP_Bool IsDbRefTerm(YAP_Term)  */
+#define IsDbRefTerm(t)  YAP_IsDbRefTerm(t)
+#define YapIsDbRefTerm(t)  YAP_IsDbRefTerm(t)
 
-/*    Term MkIntTerm(Int)  */
-extern X_API Term PROTO(YapMkIntTerm,(Int));
-#ifdef IndirectCalls
-static Term (*YapIMkIntTerm)() = YapMkIntTerm;
-#define MkIntTerm(T) (*YapIMkIntTerm)(T)
-#else
-#define MkIntTerm(T) YapMkIntTerm(T)
-#endif
+/*  YAP_Bool IsAtomTerm(YAP_Term)  */
+#define IsAtomTerm(t)  YAP_IsAtomTerm(t)
+#define YapIsAtomTerm(t)  YAP_IsAtomTerm(t)
 
-/*    Int  IntOfTerm(Term) */
-extern X_API Int PROTO(YapIntOfTerm,(Term));
-#ifdef IndirectCalls
-static Int (*YapIIntOfTerm)() = YapIntOfTerm;
-#define IntOfTerm(T) (*YapIIntOfTerm)(T)
-#else
-#define IntOfTerm(T) YapIntOfTerm(T)
-#endif
+/*  YAP_Bool IsPairTerm(YAP_Term)  */
+#define IsPairTerm(t)  YAP_IsPairTerm(t)
+#define YapIsPairTerm(t)  YAP_IsPairTerm(t)
 
-/*    Term MkFloatTerm(flt)  */
-extern X_API Term PROTO(YapMkFloatTerm,(flt));
-#ifdef IndirectCalls
-static Term (*YapIMkFloatTerm)() = YapMkFloatTerm;
-#define MkFloatTerm(T) (*YapIMkFloatTerm)(T)
-#else
-#define MkFloatTerm(T) YapMkFloatTerm(T)
-#endif
+/*  YAP_Bool IsApplTerm(YAP_Term)  */
+#define IsApplTerm(t)  YAP_IsApplTerm(t)
+#define YapIsApplTerm(t)  YAP_IsApplTerm(t)
 
-/*    flt  FloatOfTerm(Term) */
-extern X_API flt PROTO(YapFloatOfTerm,(Term));
-#ifdef IndirectCalls
-static flt (*YapIFloatOfTerm)() = YapFloatOfTerm;
-#define FloatOfTerm(T) (*YapIFloatOfTerm)(T)
-#else
-#define FloatOfTerm(T) YapFloatOfTerm(T)
-#endif
+/*    Term MkIntTerm(YAP_Int)  */
+#define MkIntTerm(t)  YAP_MkIntTerm(t)
+#define YapMkIntTerm(t)  YAP_MkIntTerm(t)
+
+/*    YAP_Int  IntOfTerm(Term) */
+#define IntOfTerm(t)  YAP_IntOfTerm(t)
+#define YapIntOfTerm(t)  YAP_IntOfTerm(t)
+
+/*    Term MkFloatTerm(YAP_flt)  */
+#define MkFloatTerm(f)  YAP_MkFloatTerm(f)
+#define YapMkFloatTerm(f)  YAP_MkFloatTerm(f)
+
+/*    YAP_flt  FloatOfTerm(YAP_Term) */
+#define FloatOfTerm(t)  YAP_FloatOfTerm(t)
+#define YapFloatOfTerm(t)  YAP_FloatOfTerm(t)
 
 /*    Term MkAtomTerm(Atom)  */
-extern X_API Term PROTO(YapMkAtomTerm,(Atom));
-#ifdef IndirectCalls
-static Term (*YapIMkAtomTerm)() = YapMkAtomTerm;
-#define MkAtomTerm(T) (*YapIMkAtomTerm)(T)
-#else
-#define MkAtomTerm(T) YapMkAtomTerm(T)
-#endif
+#define MkAtomTerm(a)  YAP_MkAtomTerm(a)
+#define YapMkAtomTerm(a)  YAP_MkAtomTerm(a)
 
-/*    Atom  AtomOfTerm(Term) */
-extern X_API Atom PROTO(YapAtomOfTerm,(Term));
-#ifdef IndirectCalls
-static Atom (*YapIAtomOfTerm)() = YapAtomOfTerm;
-#define AtomOfTerm(T) (*YapIAtomOfTerm)(T)
-#else
-#define AtomOfTerm(T) YapAtomOfTerm(T)
-#endif
+/*    YAP_Atom  AtomOfTerm(Term) */
+#define AtomOfTerm(t)  YAP_AtomOfTerm(t)
+#define YapAtomOfTerm(t)  YAP_AtomOfTerm(t)
 
-/*    Atom  LookupAtom(char *) */
-extern X_API Atom PROTO(YapLookupAtom,(char *));
-#ifdef IndirectCalls
-static Atom (*YapILookupAtom)() = YapLookupAtom;
-#define LookupAtom(T) (*YapILookupAtom)(T)
-#else
-#define LookupAtom(T) YapLookupAtom(T)
-#endif
+/*    YAP_Atom  LookupAtom(char *) */
+#define LookupAtom(s)  YAP_LookupAtom(s)
+#define YapLookupAtom(s)  YAP_LookupAtom(s)
 
-/*    Atom  FullLookupAtom(char *) */
-extern X_API Atom PROTO(YapFullLookupAtom,(char *));
-#ifdef IndirectCalls
-static Atom (*YapIFullLookupAtom)() = YapFullLookupAtom;
-#define FullLookupAtom(T) (*YapIFullLookupAtom)(T)
-#else
-#define FullLookupAtom(T) YapFullLookupAtom(T)
-#endif
+/*    YAP_Atom  FullLookupAtom(char *) */
+#define FullLookupAtom(s)  YAP_FullLookupAtom(s)
+#define YapFullLookupAtom(s)  YAP_FullLookupAtom(s)
 
-/*    char* AtomName(Atom) */
-extern X_API char *PROTO(YapAtomName,(Atom));
-#ifdef IndirectCalls
-static char *((*YapIAtomName)()) = YapAtomName;
-#define AtomName(T) (*YapIAtomName)(T)
-#else
-#define AtomName(T) YapAtomName(T)
-#endif
+/*    char* AtomName(YAP_Atom) */
+#define AtomName(a)  YAP_AtomName(a)
+#define YapAtomName(a)  YAP_AtomName(a)
 
-/*    Term  MkPairTerm(Term Head, Term Tail) */
-extern X_API Term PROTO(YapMkPairTerm,(Term,Term));
-#ifdef IndirectCalls
-static Term (*YapIMkPairTerm)() = YapMkPairTerm;
-#define MkPairTerm(T1,T2) (*YapIMkPairTerm)(T1,T2)
-#else
-#define MkPairTerm(T1,T2) YapMkPairTerm(T1,T2)
-#endif
+/*    YAP_Term  MkPairTerm(YAP_Term Head, YAP_Term Tail) */
+#define MkPairTerm(h,t)  YAP_MkPairTerm(h,t)
+#define YapMkPairTerm(h,t)  YAP_MkPairTerm(h,t)
 
-/*    Term  MkNewPairTerm(void) */
-extern X_API Term PROTO(YapMkNewPairTerm,(void));
-#ifdef IndirectCalls
-static Term (*YapIMkNewPairTerm)() = YapMkNewPairTerm;
-#define MkNewPairTerm() (*YapIMkNewPairTerm)()
-#else
-#define MkNewPairTerm() YapMkNewPairTerm()
-#endif
+/*    YAP_Term  MkNewPairTerm(void) */
+#define MkNewPairTerm()  YAP_MkNewPairTerm()
+#define YapMkNewPairTerm()  YAP_MkNewPairTerm()
 
 /*    Term  HeadOfTerm(Term)  */
-extern X_API Term PROTO(YapHeadOfTerm,(Term));
-#ifdef IndirectCalls
-static Term (*YapIHeadOfTerm)() = YapHeadOfTerm;
-#define HeadOfTerm(T) (*YapIHeadOfTerm)(T)
-#else
-#define HeadOfTerm(T) YapHeadOfTerm(T)
-#endif
+#define HeadOfTerm(t)  YAP_HeadOfTerm(t)
+#define YapHeadOfTerm(t)  YAP_HeadOfTerm(t)
 
 /*    Term  TailOfTerm(Term)  */
-extern X_API Term PROTO(YapTailOfTerm,(Term));
-#ifdef IndirectCalls
-static Term (*YapITailOfTerm)() = YapTailOfTerm;
-#define TailOfTerm(T) (*YapITailOfTerm)(T)
-#else
-#define TailOfTerm(T) YapTailOfTerm(T)
-#endif
+#define TailOfTerm(t)  YAP_TailOfTerm(t)
+#define YapTailOfTerm(t)  YAP_TailOfTerm(t)
 
+/*    YAP_Term     MkApplTerm(YAP_Functor f, int n, YAP_Term[] args) */
+#define MkApplTerm(f,i,ts)  YAP_MkApplTerm(f,i,ts)
+#define YapMkApplTerm(f,i,ts)  YAP_MkApplTerm(f,i,ts)
 
-/*    Term     MkApplTerm(Functor f, int n, Term[] args) */
-extern X_API Term PROTO(YapMkApplTerm,(Functor,int,Term *));
-#ifdef IndirectCalls
-static Term (*YapIMkApplTerm)() = YapMkApplTerm;
-#define MkApplTerm(F,N,As) (*YapIMkApplTerm)(F,N,As)
-#else
-#define MkApplTerm(F,N,As) YapMkApplTerm(F,N,As)
-#endif
+/*    YAP_Term     MkNewApplTerm(YAP_Functor f, int n) */
+#define MkNewApplTerm(f,i)  YAP_MkNewApplTerm(f,i)
+#define YapMkNewApplTerm(f,i)  YAP_MkNewApplTerm(f,i)
 
-/*    Term     MkNewApplTerm(Functor f, int n) */
-extern X_API Term PROTO(YapMkNewApplTerm,(Functor,int));
-#ifdef IndirectCalls
-static Term (*YapIMkNewApplTerm)() = YapMkNewApplTerm;
-#define MkNewApplTerm(F,N) (*YapIMkNewApplTerm)(F,N)
-#else
-#define MkNewApplTerm(F,N) YapMkNewApplTerm(F,N)
-#endif
+/*    YAP_Functor  YAP_FunctorOfTerm(Term)  */
+#define FunctorOfTerm(t)  YAP_FunctorOfTerm(t)
+#define YapFunctorOfTerm(t)  YAP_FunctorOfTerm(t)
 
+/*    YAP_Term     ArgOfTerm(int argno,YAP_Term t) */
+#define ArgOfTerm(i,t)  YAP_ArgOfTerm(i,t)
+#define YapArgOfTerm(i,t)  YAP_ArgOfTerm(i,t)
 
-/*    Functor  FunctorOfTerm(Term)  */
-extern X_API Functor PROTO(YapFunctorOfTerm,(Term));
-#ifdef IndirectCalls
-static Functor (*YapIFunctorOfTerm)() = YapFunctorOfTerm;
-#define FunctorOfTerm(T) (*YapIFunctorOfTerm)(T)
-#else
-#define FunctorOfTerm(T) YapFunctorOfTerm(T)
-#endif
+/*    YAP_Functor  MkFunctor(YAP_Atom a,int arity) */
+#define MkFunctor(a,i)  YAP_MkFunctor(a,i)
+#define YapMkFunctor(a,i)  YAP_MkFunctor(a,i)
 
-/*    Term     ArgOfTerm(int argno,Term t) */
-extern X_API Term PROTO(YapArgOfTerm,(int,Term));
-#ifdef IndirectCalls
-static Term (*YapIArgOfTerm)() = YapArgOfTerm;
-#define ArgOfTerm(N,T) (*YapIArgOfTerm)(N,T)
-#else
-#define ArgOfTerm(N,T) YapArgOfTerm(N,T)
-#endif
+/*    YAP_Atom     NameOfFunctor(Functor) */
+#define NameOfFunctor(f)  YAP_NameOfFunctor(f)
+#define YapNameOfFunctor(f)  YAP_NameOfFunctor(f)
 
-/*    Functor  MkFunctor(Atom a,int arity) */
-extern X_API Functor PROTO(YapMkFunctor,(Atom,int));
-#ifdef IndirectCalls
-static Functor (*YapIMkFunctor)() = YapMkFunctor;
-#define MkFunctor(A,N) (*YapIMkFunctor)(A,N)
-#else
-#define MkFunctor(A,N) YapMkFunctor(A,N)
-#endif
+/*    YAP_Int    YAP_ArityOfFunctor(Functor) */
+#define ArityOfFunctor(f)  YAP_ArityOfFunctor(f)
+#define YapArityOfFunctor(f)  YAP_ArityOfFunctor(f)
 
-/*    Atom     NameOfFunctor(Functor) */
-extern X_API Atom PROTO(YapNameOfFunctor,(Functor));
-#ifdef IndirectCalls
-static Atom (*YapINameOfFunctor)() = YapNameOfFunctor;
-#define NameOfFunctor(T) (*YapINameOfFunctor)(T)
-#else
-#define NameOfFunctor(T) YapNameOfFunctor(T)
-#endif
+#define PRESERVE_DATA(ptr, type) (ptr = (type *)YAP_ExtraSpace())
+#define PRESERVED_DATA(ptr, type) (ptr = (type *)YAP_ExtraSpace())
 
-/*    Int     ArityOfFunctor(Functor) */
-extern X_API Int PROTO(YapArityOfFunctor,(Functor));
-#ifdef IndirectCalls
-static Int (*YapIArityOfFunctor)() = YapArityOfFunctor;
-#define ArityOfFunctor(T) (*YapIArityOfFunctor)(T)
-#else
-#define ArityOfFunctor(T) YapArityOfFunctor(T)
-#endif
-
-/*  void ExtraSpace(void) */
-extern X_API void *PROTO(YapExtraSpace,(void));
-#ifdef IndirectCalls
-static void *(*YapIExtraSpace)() = YapExtraSpace;
-#define YapExtraSpace() (*YapExtraSpace)()
-#endif
-
-#define  PRESERVE_DATA(ptr, type) (ptr = (type *)YapExtraSpace())
-#define PRESERVED_DATA(ptr, type) (ptr = (type *)YapExtraSpace())
-
-/*   Int      unify(Term a, Term b) */
-extern X_API Int PROTO(YapUnify,(Term, Term));
-#ifdef IndirectCalls
-static Int (*YapIUnify)() = YapUnify;
-#define unify(T1,T2) (*YapIUnify)(T1,T2)
-#else
-#define unify(T1,T2) YapUnify(T1,T2)
-#endif
+/*   YAP_Int      unify(YAP_Term a, YAP_Term b) */
+#define unify()  YAP_Unify(t, t)
+#define YapUnify()  YAP_Unify(t, t)
 
 /*  void UserCPredicate(char *name, int *fn(), int arity) */
-extern X_API void PROTO(UserCPredicate,(char *, int (*)(void), int));
-#ifdef IndirectCalls
-static void (*YapIUserCPredicate)() = UserCPredicate;
-#define UserCPredicate(N,F,A) (*YapIUserCPredicate)(N,F,A)
-#endif
+#define UserCPredicate(s,f,i)  YAP_UserCPredicate(s,f,i);
 
 /*  void UserBackCPredicate(char *name, int *init(), int *cont(), int
     arity, int extra) */
-extern X_API void PROTO(UserBackCPredicate,(char *, int (*)(void), int (*)(void), int, int));
-#ifdef IndirectCalls
-static void (*YapIUserBackCPredicate)() = UserBackCPredicate;
-#define UserBackCPredicate(N,F,G,A,B) (*YapIUserBackCPredicate)(N,F,G,A,B)
-#endif
+#define UserBackCPredicate(s,f1,f2,i,i2)  YAP_UserBackCPredicate(s,f,i,i2)
 
 /*  void UserCPredicate(char *name, int *fn(), int arity) */
-extern X_API void PROTO(YapUserCPredicateWithArgs,(char *, int (*)(void), Int,Int));
-#ifdef IndirectCalls
-static void (*YapIUserCPredicateWithArgs)() = UserCPredicateWithArgs;
-#define YapUserCPredicateWithArgs(N,F,A,M) (*YapIUserCPredicateWithArgs)(N,F,A,M)
-#endif
-
-/*  void CallProlog(Term t) */
-extern X_API Int PROTO(YapCallProlog,(Term t));
-#ifdef IndirectCalls
-static Int (*YapICallProlog)() = YapCallProlog;
-#define CallProlog(t) (*YapICallProlog)(t)
-#else
-#define CallProlog(t) YapCallProlog(t)
-#endif
+#define UserCPredicateWithArgs(s,f,i1,i2)  YAP_UserCPredicateWithArgs(s,f,i1,i2)
+/*  void CallProlog(YAP_Term t) */
+#define CallProlog(t)  YAP_CallProlog(t)
+#define YapCallProlog(t)  YAP_CallProlog(t)
 
 /*  void cut_fail(void) */
-extern X_API Int PROTO(Yapcut_fail,(void));
-#ifdef IndirectCalls
-static Int (*YapIcut_fail)() = Yapcut_fail;
-#define cut_fail() (*YapIcut_fail)()
-#else
-#define cut_fail() Yapcut_fail()
-#endif
+#define cut_fail()  YAP_cutfail()
 
 /*  void cut_succeed(void) */
-extern X_API Int PROTO(Yapcut_succeed,(void));
-#ifdef IndirectCalls
-static Int (*YapIcut_succeed)() = Yapcut_succeed;
-#define cut_succeed() (*YapIcut_succeed)()
-#else
-#define cut_succeed() Yapcut_succeed()
-#endif
+#define cut_succeed()  YAP_cutsucceed()
 
 /*  void *AllocSpaceFromYap(int) */
-extern X_API void *PROTO(YapAllocSpaceFromYap,(unsigned int));
-#ifdef IndirectCalls
-static void (*YapIAllocSpaceFromYap)() = YapAllocSpaceFromYap;
-#define AllocSpaceFromYap(SIZE) (*YapIAllocSpaceFromYap)(SIZE)
-#else
-#define AllocSpaceFromYap(SIZE) YapAllocSpaceFromYap(SIZE)
-#endif
+#define AllocSpaceFromYap(s)  YAP_AllocSpaceFromYap(s)
 
 /*  void FreeSpaceFromYap(void *) */
-extern X_API void PROTO(YapFreeSpaceFromYap,(void *));
-#ifdef IndirectCalls
-static void (YapIFreeSpaceFromYap)() = YapFreeSpaceFromYap;
-#define FreeSpaceFromYap(PTR) (*YapIFreeSpaceFromYap)(PTR)
-#else
-#define FreeSpaceFromYap(PTR) YapFreeSpaceFromYap(PTR)
-#endif
+#define FreeSpaceFromYap(s)  YAP_FreeSpaceFromYap(s)
 
-/*  int YapRunGoal(Term) */
-extern X_API int PROTO(YapRunGoal,(Term));
-#ifdef IndirectCalls
-static int (YapIRunGoal)() = YapRunGoal;
-#define YapRunGoal(T) (*YapIRunGoal)(T)
-#endif
+/*  int YAP_RunGoal(YAP_Term) */
+#define RunGoal(t)  YAP_RunGoal(t)
+#define YapRunGoal(t)  YAP_RunGoal(t)
 
-/*  int YapRestartGoal(void) */
-extern X_API int PROTO(YapRestartGoal,(void));
-#ifdef IndirectCalls
-static int (YapIRestartGoal)() = YapRestartGoal;
-#define YapRestartGoal() (*YapIRestartGoal)()
-#endif
+/*  int YAP_RestartGoal(void) */
+#define RestartGoal()  YAP_RestartGoal()
+#define YapRestartGoal()  YAP_RestartGoal()
 
-/*  int YapContinueGoal(void) */
-extern X_API int PROTO(YapContinueGoal,(void));
-#ifdef IndirectCalls
-static int (YapIContinueGoal)() = YapContinueGoal;
-#define YapContinueGoal() (*YapIContinueGoal)()
-#endif
+/*  int YAP_ContinueGoal(void) */
+#define ContinueGoal()  YAP_ContinueGoal()
+#define YapContinueGoal()  YAP_ContinueGoal()
 
-/*  void YapPruneGoal(void) */
-extern X_API void PROTO(YapPruneGoal,(void));
-#ifdef IndirectCalls
-static void (YapIPruneGoal)() = YapPruneGoal;
-#define YapPruneGoal() (*YapIPruneGoal)()
-#endif
+/*  void YAP_PruneGoal(void) */
+#define PruneGoal()  YAP_PruneGoal()
+#define YapPruneGoal()  YAP_PruneGoal()
 
-/*  int YapGoalHasException(void) */
-extern X_API int PROTO(YapGoalHasException,(Term *));
-#ifdef IndirectCalls
-static int (YapIGoalHasException)(TP) = YapGoalHasException;
-#define YapGoalHasException(TP) (*YapIGoalHasException)(TP)
-#endif
+/*  int YAP_GoalHasException(void) */
+#define GoalHasException(tp)  YAP_GoalHasException(tp)
+#define YapGoalHasException(tp)  YAP_GoalHasException(tp)
 
-/*  int YapReset(void) */
-extern X_API void PROTO(YapReset,(void));
-#ifdef IndirectCalls
-static void (YapIReset)() = YapReset;
-#define YapReset() (*YapIReset)()
-#endif
+/*  int YAP_Reset(void) */
+#define YapReset()  YAP_Reset()
 
-/*  void YapError(char *) */
-extern X_API void PROTO(YapError,(char *));
-#ifdef IndirectCalls
-static void (YapIError)() = YapError;
-#define YapError(T) (*YapIError)(T)
-#endif
+/*  void YAP_Error(char *) */
+#define YapError(s)  YAP_Error(s)
 
-/*  Term YapRead(int (*)(void)) */
-extern X_API Term PROTO(YapRead,(int (*)(void)));
-#ifdef IndirectCalls
-static Term (YapIRead)() = YapRead;
-#define YapRead(F) (*YapIRead)(F)
-#endif
+/*  YAP_Term YAP_Read(int (*)(void)) */
+#define YapRead(f)  YAP_Read(f);
 
-/*  void YapWrite(Term,void (*)(int),int) */
-extern X_API void PROTO(YapWrite,(Term,void (*)(int),int));
-#ifdef IndirectCalls
-static void (YapIWrite)() = YapWrite;
-#define YapWrite(T,W,F) (*YapIWrite)(T,W,F)
-#endif
+/*  void YAP_Write(YAP_Term,void (*)(int),int) */
+#define YapWrite(t,f)  YAP_Write(t,f);
 
-/*  char *YapCompileClause(Term) */
-extern X_API char *PROTO(YapCompileClause,(Term));
-#ifdef IndirectCalls
-static char *(YapICompileClause)() = YapCompileClause;
-#define YapCompileClause(C) (*YapICompileClause)(C)
-#endif
+/*  char *YAP_CompileClause(YAP_Term) */
+#define CompileClause(t)  YAP_CompileClause(t)
+#define YapCompileClause(t)  YAP_CompileClause(t)
 
-/*  int YapInit(yap_init_args *) */
-extern X_API int PROTO(YapInit,(yap_init_args *));
-#ifdef IndirectCalls
-static int (YapIInit)() = YapInit;
-#define YapInit(T) (*YapIInit)(T)
-#endif
+/*  int YAP_Init(YAP_init_args *) */
+#define YapInit(as)  YAP_Init(as)
 
-/*  int YapFastInit(char *) */
-extern X_API int PROTO(YapFastInit,(char *));
-#ifdef IndirectCalls
-static int (YapIFastInit)() = YapFastInit;
-#define YapFastInit(S) (*YapIFastInit)(S)
-#endif
+/*  int YAP_FastInit(char *) */
+#define YapFastInit(s)  YAP_FastInit(s)
 
-/*  int YapInitConsult(int, char *) */
-extern X_API int PROTO(YapInitConsult,(int, char *));
-#ifdef IndirectCalls
-static int (YapIInitConsult)() = YapInitConsult;
-#define YapInitConsult(M,F) (*YapIInitConsult)(M,F)
-#endif
+/*  int YAP_InitConsult(int, char *) */
+#define YapInitConsult(i,s)  YAP_InitConsult(i,s)
 
-/*  int YapStartConsult(int, char *) */
-extern X_API int PROTO(YapEndConsult,(void));
-#ifdef IndirectCalls
-static int (YapIEndConsult)() = YapEndConsult;
-#define YapEndConsult(M,F) (*YapIEndConsult)(M,F)
-#endif
+/*  int YAP_StartConsult(int, char *) */
+#define YapEndConsult()  YAP_EndConsult()
 
-/*  void YapExit(int) */
-extern X_API void PROTO(YapExit,(int));
-#ifdef IndirectCalls
-static int (YapIExit)() = YapExit;
-#define YapExit(I) (*YapIExit)(I)
-#endif
+/*  void YAP_Exit(int) */
+#define YapExit(code)  YAP_Exit(code)
 
-/*  void YapPutValue(Atom, Term) */
-extern X_API void PROTO(YapPutValue,(Atom, Term));
-#ifdef IndirectCalls
-static Term (YapIPutValue)() = YapPutValue;
-#define YapPutValue(A,T) (*YapIPutValue)(A,T)
-#endif
+/*  void YAP_PutValue(YAP_Atom, YAP_Term) */
+#define PutValue()  YAP_PutValue(a, t)
+#define YapPutValue()  YAP_PutValue(a, t)
 
-/*  Term YapGetValue(Atom) */
-extern X_API Term PROTO(YapGetValue,(Atom));
-#ifdef IndirectCalls
-static Term (YapIGetValue)() = YapGetValue;
-#define YapGetValue(A) (*YapIGetValue)(A)
-#endif
+/*  YAP_Term YAP_GetValue(YAP_Atom) */
+#define GetValue(a)  YAP_GetValue(a)
+#define YapGetValue(a)  YAP_GetValue(a)
 
-/*  int StringToBuffer(Term,char *,unsigned int) */
-extern X_API int PROTO(YapStringToBuffer,(Term,char *,unsigned int));
-#ifdef IndirectCalls
-static void (YapIStringToBuffer)() = YapStringToBuffer;
-#define StringToBuffer(T,BUF,SIZE) (*YapIStringToBuffer)(T,BUF,SIZE)
-#else
-#define StringToBuffer(T,BUF,SIZE) YapStringToBuffer(T,BUF,SIZE)
-#endif
+/*  int StringToBuffer(YAP_Term,char *,unsigned int) */
+#define StringToBuffer(t,s,l)  YAP_StringToBuffer(t,s,l)
+#define YapStringToBuffer(t,s,l)  YAP_StringToBuffer(t,s,l)
 
 /*  int BufferToString(char *) */
-extern X_API Term PROTO(YapBufferToString,(char *));
-#ifdef IndirectCalls
-static void (YapIBufferToString)() = YapBufferToString;
-#define BufferToString(BUF) (*YapIBufferToString)(BUF)
-#else
-#define BufferToString(BUF) YapBufferToString(BUF)
-#endif
+#define BufferToString(s)  YAP_BufferToString(s)
+#define YapBufferToString(s)  YAP_BufferToString(s)
 
 /*  int BufferToAtomList(char *) */
-extern X_API Term PROTO(YapBufferToAtomList,(char *));
-#ifdef IndirectCalls
-static void (YapIBufferToAtomList)() = YapBufferToAtomList;
-#define BufferToAtomList(BUF) (*YapIBufferToAtomList)(BUF)
-#else
-#define BufferToAtomList(BUF) YapBufferToAtomList(BUF)
-#endif
+#define BufferToAtomList(s)  YAP_BufferToAtomList(s)
+#define YapBufferToAtomList(s)  YAP_BufferToAtomList(s)
 
-/*  void YapInitSocks(char *,long) */
-extern X_API int PROTO(YapInitSocks,(char *,long));
-#ifdef IndirectCalls
-static int (YapIInitSocks)(char *,long) = YapInitSocks;
-#define YapInitSocks(S,I) (*YapIInitSocks)(S,I)
-#endif
+/*  void YAP_InitSocks(char *,long) */
+#define InitSocks(s,l)  YAP_InitSocks(s,l)
+#define YapInitSocks(s,l)  YAP_InitSocks(s,l)
 
 #ifdef  SFUNC
 
 #define SFArity  0
-extern X_API Term *ArgsOfSFTerm();
-#ifdef IndirectCalls
-static Term *((*YapIArgsOfSFTerm)()) = ArgsOfSFTerm;
-#define ArgsOfSFTerm(T) (*YapIArgsOfSFTerm)(T)
-#endif
-extern X_API Term MkSFTerm();
-#ifdef IndirectCalls
-static Term (*YapIMkSFTerm)() = MkSFTerm;
-#define MkSFTerm(F,N,A,EV) (*YapIMkSFTerm)(F,N,A,EV)
-#endif
+#define ArgsOfSFTerm(s,t) YAP_ArgsOfSFTerm(s,t)
+
+extern  MkSFTerm(t) YAP_MkSFTerm(t)
 
 #endif /* SFUNC */
 
-/*  Term  YapSetOutputMessage()  */
-extern X_API void PROTO(YapSetOutputMessage,(void));
-#ifdef IndirectCalls
-static void (*YapISetOutputMessage)() = YapSetOutputMessage;
-#define YapSetOutputMessage() (*YapISetOutputMessage)()
-#endif
+/*  YAP_Term  YAP_SetOutputMessage()  */
+#define YapSetOutputMessage(s)  YAP_SetOutputMessage(s)
 
-/*  Term  YapSetOutputMessage()  */
-extern X_API int PROTO(YapStreamToFileNo,(Term));
-#ifdef IndirectCalls
-static void (*YapIStreamToFileNo)() = YapStreamToFileNo;
-#define YapStreamToFileNo() (*YapIStreamToFileNo)()
-#endif
+/*  YAP_Term  YAP_SetOutputMessage()  */
+#define YapStreamToFileNo(st)  YAP_StreamToFileNo(st)
 
-/*  Term  YapSetOutputMessage()  */
-extern X_API void PROTO(YapCloseAllOpenStreams,(void));
-#ifdef IndirectCalls
-static void (*YapICloseAllOpenStreams)() = YapCloseAllOpenStreams;
-#define YapCloseAllOpenStreams() (*YapICloseAllOpenStreams)()
-#endif
+/*  YAP_Term  YAP_SetOutputMessage()  */
+#define YapCloseAllOpenStreams()  YAP_CloseAllOpenStreams()
 
-#define YAP_INPUT_STREAM	0x01
-#define YAP_OUTPUT_STREAM	0x02
-#define YAP_APPEND_STREAM	0x04
-#define YAP_PIPE_STREAM 	0x08
-#define YAP_TTY_STREAM	 	0x10
-#define YAP_POPEN_STREAM	0x20
-#define YAP_BINARY_STREAM	0x40
-#define YAP_SEEKABLE_STREAM	0x80
-
-/*  Term  YapOpenStream()  */
-extern X_API Term PROTO(YapOpenStream,(void *, char *, Term, int));
-#ifdef IndirectCalls
-static Term (*YapIOpenStream)() = YapOpenStream;
-#define YapOpenStream(FD,S,T,FL) (*YapIOpenStream)(FD,S,T,FL)
-#endif
-
-/*  Term  *YapNewSlots()  */
-extern X_API long PROTO(YapNewSlots,(int));
-#ifdef IndirectCalls
-static long (*YapINewSlots)(N) = YapNewSlots;
-#define YapNewSlots(N) (*YapINewSlots)(N)
-#endif
-
-/*  Term  *YapInitSlot()  */
-extern X_API long PROTO(YapInitSlot,(Term));
-#ifdef IndirectCalls
-static long (*YapIInitSlot)(T) = YapInitSlot;
-#define YapInitSlot(T) (*YapIInitSlot)(T)
-#endif
-
-/*  Term  YapGetFromSlots(t)  */
-extern X_API Term PROTO(YapGetFromSlot,(long));
-#ifdef IndirectCalls
-static Term (*YapIGetFromSlot)(N) = YapGetFromSlot;
-#define YapGetFromSlot(N) (*YapIGetFromSlot)(N)
-#endif
-
-/*  Term  YapAddressFromSlots(t)  */
-extern X_API Term *PROTO(YapAddressFromSlot,(long));
-#ifdef IndirectCalls
-static Term *(*YapIAddressFromSlot)(N) = YapAddressFromSlot;
-#define YapAddressFromSlot(N) (*YapIAddressFromSlot)(N)
-#endif
-
-/*  Term  YapPutInSlots(t)  */
-extern X_API void PROTO(YapPutInSlot,(long, Term));
-#ifdef IndirectCalls
-static void (*YapIPutInSlot)(N,T) = YapPutInSlot;
-#define YapPutInSlot(N,T) (*YapIPutInSlot)(N,T)
-#endif
-
-/*  void  YapRecoverSlots()  */
-extern X_API void PROTO(YapRecoverSlots,(int));
-#ifdef IndirectCalls
-static void (*YapIRecoverSlots)(N) = YapRecoverSlots;
-#define YapRecoverSlots(N) (*YapIRecoverSlots)(N)
-#endif
-
-/*  void  YapThrow()  */
-extern X_API void PROTO(YapThrow,(Term));
-#ifdef IndirectCalls
-static void (*YapIThrow)(T) = YapThrow;
-#define YapThrow(T) (*YapIThrow)(T)
-#endif
-
-/*  int  YapLookupModule()  */
-extern X_API int  PROTO(YapLookupModule,(Term));
-#ifdef IndirectCalls
-static int (*YapILookupModule)(T) = YapLookupModule;
-#define YapLookupModule(T) (*YapILookupModule)(T)
-#endif
-
-/*  int  YapModuleName()  */
-extern X_API Term  PROTO(YapModuleName,(int));
-#ifdef IndirectCalls
-static int (*YapIModuleName)(I) = YapModuleName;
-#define YapModuleName(I) (*YapIModuleName)(I)
-#endif
-
-/*  int  YapHalt()  */
-extern X_API int  PROTO(YapHalt,(int));
-#ifdef IndirectCalls
-static int (*YapIHalt)(E) = YapHalt;
-#define YapHalt(E) (*YapIHalt)(E)
-#endif
-
-/*  int  YapTopOfLocalStack()  */
-extern X_API Term  *PROTO(YapTopOfLocalStack,(void));
-#ifdef IndirectCalls
-static Term *(*YapITopOfLocalStack)() = YapTopOfLocalStack;
-#define YapTopOfLocalStack() (*YapITopOfLocalStack)()
-#endif
-
-/*  int  YapPredicate()  */
-extern X_API void  *PROTO(YapPredicate,(Atom,Int,Int));
-#ifdef IndirectCalls
-static Term *(*YapIPredicate)(N,A,M) = YapPredicate;
-#define YapPredicate(N,A,M) (*YapIPredicate)(N,A,M)
-#endif
-
-/*  int  YapPredicate()  */
-extern X_API void  PROTO(YapPredicateInfo,(void *,Atom*,Int*,Int*));
-#ifdef IndirectCalls
-static void (*YapIPredicateInfo)(P,N,A,M) = YapPredicateInfo;
-#define YapPredicateInfo(P,N,A,M) (*YapIPredicateInfo)(P,N,A,M)
-#endif
-
-
-/*  int  YapPredicate()  */
-extern X_API int  PROTO(YapCurrentModule,(void));
-#ifdef IndirectCalls
-static int (*YapICurrentModule)() = YapCurrentModule;
-#define YapCurrentModule() (*YapICurrentModule)()
-#endif
-
-
-#define InitCPred(N,A,F)  UserCPredicate(N,F,A)
-
-__END_DECLS
+/*  YAP_Term  YAP_OpenStream()  */
+#define YapOpenStream(st, s, t, i)  YAP_OpenStream(st, s, t, i)
 
 #endif
-

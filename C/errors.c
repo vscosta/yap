@@ -318,7 +318,7 @@ yamop *
 Error (yap_error_number type, Term where, char *format,...)
 {
   va_list ap;
-  CELL nt[2];
+  CELL nt[3];
   Functor fun;
   int serious;
   char *tp = tmpbuf;
@@ -445,11 +445,6 @@ Error (yap_error_number type, Term where, char *format,...)
       int i;
       Term ti[2];
 
-#if   HAVE_STRNCAT
-      strncat(tmpbuf, " in ", psize);
-#else
-      strcat(tmpbuf, " in ");
-#endif
       i = strlen(tmpbuf);
       ti[0] = MkAtomTerm(LookupAtom("array_overflow"));
       ti[1] = where;
@@ -465,11 +460,6 @@ Error (yap_error_number type, Term where, char *format,...)
       int i;
       Term ti[2];
 
-#if   HAVE_STRNCAT
-      strncat(tmpbuf, " in ", psize);
-#else
-      strcat(tmpbuf, " in ");
-#endif
       i = strlen(tmpbuf);
       ti[0] = MkAtomTerm(LookupAtom("array_type"));
       ti[1] = where;
@@ -485,11 +475,6 @@ Error (yap_error_number type, Term where, char *format,...)
       int i;
       Term ti[2];
 
-#if   HAVE_STRNCAT
-      strncat(tmpbuf, " in ", psize);
-#else
-      strcat(tmpbuf, " in ");
-#endif
       i = strlen(tmpbuf);
       ti[0] = MkAtomTerm(LookupAtom("io_mode"));
       ti[1] = where;
@@ -505,11 +490,6 @@ Error (yap_error_number type, Term where, char *format,...)
       int i;
       Term ti[2];
 
-#if   HAVE_STRNCAT
-      strncat(tmpbuf, " in ", psize);
-#else
-      strcat(tmpbuf, " in ");
-#endif
       i = strlen(tmpbuf);
       ti[0] = MkAtomTerm(LookupAtom("mutable"));
       ti[1] = where;
@@ -525,11 +505,6 @@ Error (yap_error_number type, Term where, char *format,...)
       int i;
       Term ti[2];
 
-#if   HAVE_STRNCAT
-      strncat(tmpbuf, " in ", psize);
-#else
-      strcat(tmpbuf, " in ");
-#endif
       i = strlen(tmpbuf);
       ti[0] = MkAtomTerm(LookupAtom("non_empty_list"));
       ti[1] = where;
@@ -545,11 +520,6 @@ Error (yap_error_number type, Term where, char *format,...)
       int i;
       Term ti[2];
 
-#if   HAVE_STRNCAT
-      strncat(tmpbuf, " in ", psize);
-#else
-      strcat(tmpbuf, " in ");
-#endif
       i = strlen(tmpbuf);
       ti[0] = MkAtomTerm(LookupAtom("not_less_than_zero"));
       ti[1] = where;
@@ -565,11 +535,6 @@ Error (yap_error_number type, Term where, char *format,...)
       int i;
       Term ti[2];
 
-#if   HAVE_STRNCAT
-      strncat(tmpbuf, " in ", psize);
-#else
-      strcat(tmpbuf, " in ");
-#endif
       i = strlen(tmpbuf);
       ti[0] = MkAtomTerm(LookupAtom("not_newline"));
       ti[1] = where;
@@ -585,11 +550,6 @@ Error (yap_error_number type, Term where, char *format,...)
       int i;
       Term ti[2];
 
-#if   HAVE_STRNCAT
-      strncat(tmpbuf, " in ", psize);
-#else
-      strcat(tmpbuf, " in ");
-#endif
       i = strlen(tmpbuf);
       ti[0] = MkAtomTerm(LookupAtom("not_zero"));
       ti[1] = where;
@@ -605,11 +565,6 @@ Error (yap_error_number type, Term where, char *format,...)
       int i;
       Term ti[2];
 
-#if   HAVE_STRNCAT
-      strncat(tmpbuf, " in ", psize);
-#else
-      strcat(tmpbuf, " in ");
-#endif
       i = strlen(tmpbuf);
       ti[0] = MkAtomTerm(LookupAtom("out_of_range"));
       ti[1] = where;
@@ -625,11 +580,6 @@ Error (yap_error_number type, Term where, char *format,...)
       int i;
       Term ti[2];
 
-#if   HAVE_STRNCAT
-      strncat(tmpbuf, " in ", psize);
-#else
-      strcat(tmpbuf, " in ");
-#endif
       i = strlen(tmpbuf);
       ti[0] = MkAtomTerm(LookupAtom("operator_priority"));
       ti[1] = where;
@@ -645,11 +595,6 @@ Error (yap_error_number type, Term where, char *format,...)
       int i;
       Term ti[2];
 
-#if   HAVE_STRNCAT
-      strncat(tmpbuf, " in ", psize);
-#else
-      strcat(tmpbuf, " in ");
-#endif
       i = strlen(tmpbuf);
       ti[0] = MkAtomTerm(LookupAtom("operator_specifier"));
       ti[1] = where;
@@ -665,11 +610,6 @@ Error (yap_error_number type, Term where, char *format,...)
       int i;
       Term ti[2];
 
-#if   HAVE_STRNCAT
-      strncat(tmpbuf, " in ", psize);
-#else
-      strcat(tmpbuf, " in ");
-#endif
       i = strlen(tmpbuf);
       ti[0] = MkAtomTerm(LookupAtom("radix"));
       ti[1] = where;
@@ -685,11 +625,6 @@ Error (yap_error_number type, Term where, char *format,...)
       int i;
       Term ti[2];
 
-#if   HAVE_STRNCAT
-      strncat(tmpbuf, " in ", psize);
-#else
-      strcat(tmpbuf, " in ");
-#endif
       i = strlen(tmpbuf);
       ti[0] = MkAtomTerm(LookupAtom("shift_count_overflow"));
       ti[1] = where;
@@ -705,11 +640,6 @@ Error (yap_error_number type, Term where, char *format,...)
       int i;
       Term ti[2];
 
-#if   HAVE_STRNCAT
-      strncat(tmpbuf, " in ", psize);
-#else
-      strcat(tmpbuf, " in ");
-#endif
       i = strlen(tmpbuf);
       ti[0] = MkAtomTerm(LookupAtom("source_sink"));
       ti[1] = where;
@@ -725,11 +655,6 @@ Error (yap_error_number type, Term where, char *format,...)
       int i;
       Term ti[2];
 
-#if   HAVE_STRNCAT
-      strncat(tmpbuf, " in ", psize);
-#else
-      strcat(tmpbuf, " in ");
-#endif
       i = strlen(tmpbuf);
       ti[0] = MkAtomTerm(LookupAtom("stream"));
       ti[1] = where;
@@ -745,11 +670,6 @@ Error (yap_error_number type, Term where, char *format,...)
       int i;
       Term ti[2];
 
-#if   HAVE_STRNCAT
-      strncat(tmpbuf, " in ", psize);
-#else
-      strcat(tmpbuf, " in ");
-#endif
       i = strlen(tmpbuf);
       ti[0] = MkAtomTerm(LookupAtom("stream_or_alias"));
       ti[1] = where;
@@ -765,11 +685,6 @@ Error (yap_error_number type, Term where, char *format,...)
       int i;
       Term ti[2];
 
-#if   HAVE_STRNCAT
-      strncat(tmpbuf, " in ", psize);
-#else
-      strcat(tmpbuf, " in ");
-#endif
       i = strlen(tmpbuf);
       ti[0] = MkAtomTerm(LookupAtom("stream_position"));
       ti[1] = where;
@@ -785,11 +700,6 @@ Error (yap_error_number type, Term where, char *format,...)
       int i;
       Term ti[2];
 
-#if   HAVE_STRNCAT
-      strncat(tmpbuf, " in ", psize);
-#else
-      strcat(tmpbuf, " in ");
-#endif
       i = strlen(tmpbuf);
       ti[0] = MkAtomTerm(LookupAtom("syntax_error_handler"));
       ti[1] = where;
@@ -805,11 +715,6 @@ Error (yap_error_number type, Term where, char *format,...)
       int i;
       Term ti[2];
 
-#if   HAVE_STRNCAT
-      strncat(tmpbuf, " in ", psize);
-#else
-      strcat(tmpbuf, " in ");
-#endif
       i = strlen(tmpbuf);
       ti[0] = MkAtomTerm(LookupAtom("time_out_spec"));
       ti[1] = where;
@@ -825,11 +730,6 @@ Error (yap_error_number type, Term where, char *format,...)
       int i;
       Term ti[2];
 
-#if   HAVE_STRNCAT
-      strncat(tmpbuf, " in ", psize);
-#else
-      strcat(tmpbuf, " in ");
-#endif
       i = strlen(tmpbuf);
       ti[0] = MkAtomTerm(LookupAtom("source_sink"));
       ti[1] = where;
@@ -845,11 +745,6 @@ Error (yap_error_number type, Term where, char *format,...)
       int i;
       Term ti[2];
 
-#if   HAVE_STRNCAT
-      strncat(tmpbuf, " in ", psize);
-#else
-      strcat(tmpbuf, " in ");
-#endif
       i = strlen(tmpbuf);
       ti[0] = MkAtomTerm(LookupAtom("array"));
       ti[1] = where;
@@ -865,11 +760,6 @@ Error (yap_error_number type, Term where, char *format,...)
       int i;
       Term ti[2];
 
-#if   HAVE_STRNCAT
-      strncat(tmpbuf, " in ", psize);
-#else
-      strcat(tmpbuf, " in ");
-#endif
       i = strlen(tmpbuf);
       ti[0] = MkAtomTerm(LookupAtom("stream"));
       ti[1] = where;
@@ -885,11 +775,6 @@ Error (yap_error_number type, Term where, char *format,...)
       int i;
       Term ti[1];
 
-#if   HAVE_STRNCAT
-      strncat(tmpbuf, " in ", psize);
-#else
-      strcat(tmpbuf, " in ");
-#endif
       i = strlen(tmpbuf);
       ti[0] = MkAtomTerm(LookupAtom("float_overflow"));
       nt[0] = MkApplTerm(MkFunctor(LookupAtom("evaluation_error"),1), 1, ti);
@@ -904,11 +789,6 @@ Error (yap_error_number type, Term where, char *format,...)
       int i;
       Term ti[1];
 
-#if   HAVE_STRNCAT
-      strncat(tmpbuf, " in ", psize);
-#else
-      strcat(tmpbuf, " in ");
-#endif
       i = strlen(tmpbuf);
       ti[0] = MkAtomTerm(LookupAtom("int_overflow"));
       nt[0] = MkApplTerm(MkFunctor(LookupAtom("evaluation_error"),1), 1, ti);
@@ -923,11 +803,6 @@ Error (yap_error_number type, Term where, char *format,...)
       int i;
       Term ti[1];
 
-#if   HAVE_STRNCAT
-      strncat(tmpbuf, " in ", psize);
-#else
-      strcat(tmpbuf, " in ");
-#endif
       i = strlen(tmpbuf);
       ti[0] = MkAtomTerm(LookupAtom("undefined"));
       nt[0] = MkApplTerm(MkFunctor(LookupAtom("evaluation_error"),1), 1, ti);
@@ -942,11 +817,6 @@ Error (yap_error_number type, Term where, char *format,...)
       int i;
       Term ti[1];
 
-#if   HAVE_STRNCAT
-      strncat(tmpbuf, " in ", psize);
-#else
-      strcat(tmpbuf, " in ");
-#endif
       i = strlen(tmpbuf);
       ti[0] = MkAtomTerm(LookupAtom("float_underflow"));
       nt[0] = MkApplTerm(MkFunctor(LookupAtom("evaluation_error"),1), 1, ti);
@@ -961,11 +831,6 @@ Error (yap_error_number type, Term where, char *format,...)
       int i;
       Term ti[1];
 
-#if   HAVE_STRNCAT
-      strncat(tmpbuf, " in ", psize);
-#else
-      strcat(tmpbuf, " in ");
-#endif
       i = strlen(tmpbuf);
       ti[0] = MkAtomTerm(LookupAtom("underflow"));
       nt[0] = MkApplTerm(MkFunctor(LookupAtom("evaluation_error"),1), 1, ti);
@@ -980,11 +845,6 @@ Error (yap_error_number type, Term where, char *format,...)
       int i;
       Term ti[1];
 
-#if   HAVE_STRNCAT
-      strncat(tmpbuf, " in ", psize);
-#else
-      strcat(tmpbuf, " in ");
-#endif
       i = strlen(tmpbuf);
       ti[0] = MkAtomTerm(LookupAtom("zero_divisor"));
       nt[0] = MkApplTerm(MkFunctor(LookupAtom("evaluation_error"),1), 1, ti);
@@ -998,11 +858,6 @@ Error (yap_error_number type, Term where, char *format,...)
     {
       int i;
 
-#if   HAVE_STRNCAT
-      strncat(tmpbuf, " in ", psize);
-#else
-      strcat(tmpbuf, " in ");
-#endif
       i = strlen(tmpbuf);
       nt[0] = MkAtomTerm(LookupAtom("instantiation_error"));
       tp = tmpbuf+i;
@@ -1016,11 +871,6 @@ Error (yap_error_number type, Term where, char *format,...)
       int i;
       Term ti[3];
 
-#if   HAVE_STRNCAT
-      strncat(tmpbuf, " in ", psize);
-#else
-      strcat(tmpbuf, " in ");
-#endif
       i = strlen(tmpbuf);
       ti[0] = MkAtomTerm(LookupAtom("access"));
       ti[1] = MkAtomTerm(LookupAtom("private_procedure"));
@@ -1037,11 +887,6 @@ Error (yap_error_number type, Term where, char *format,...)
       int i;
       Term ti[3];
 
-#if   HAVE_STRNCAT
-      strncat(tmpbuf, " in ", psize);
-#else
-      strcat(tmpbuf, " in ");
-#endif
       i = strlen(tmpbuf);
       ti[0] = MkAtomTerm(LookupAtom("create"));
       ti[1] = MkAtomTerm(LookupAtom("array"));
@@ -1058,11 +903,6 @@ Error (yap_error_number type, Term where, char *format,...)
       int i;
       Term ti[3];
 
-#if   HAVE_STRNCAT
-      strncat(tmpbuf, " in ", psize);
-#else
-      strcat(tmpbuf, " in ");
-#endif
       i = strlen(tmpbuf);
       ti[0] = MkAtomTerm(LookupAtom("create"));
       ti[1] = MkAtomTerm(LookupAtom("operator"));
@@ -1079,11 +919,6 @@ Error (yap_error_number type, Term where, char *format,...)
       int i;
       Term ti[3];
 
-#if   HAVE_STRNCAT
-      strncat(tmpbuf, " in ", psize);
-#else
-      strcat(tmpbuf, " in ");
-#endif
       i = strlen(tmpbuf);
       ti[0] = MkAtomTerm(LookupAtom("input"));
       ti[1] = MkAtomTerm(LookupAtom("binary_stream"));
@@ -1100,11 +935,6 @@ Error (yap_error_number type, Term where, char *format,...)
       int i;
       Term ti[3];
 
-#if   HAVE_STRNCAT
-      strncat(tmpbuf, " in ", psize);
-#else
-      strcat(tmpbuf, " in ");
-#endif
       i = strlen(tmpbuf);
       ti[0] = MkAtomTerm(LookupAtom("input"));
       ti[1] = MkAtomTerm(LookupAtom("past_end_of_stream"));
@@ -1121,11 +951,6 @@ Error (yap_error_number type, Term where, char *format,...)
       int i;
       Term ti[3];
 
-#if   HAVE_STRNCAT
-      strncat(tmpbuf, " in ", psize);
-#else
-      strcat(tmpbuf, " in ");
-#endif
       i = strlen(tmpbuf);
       ti[0] = MkAtomTerm(LookupAtom("input"));
       ti[1] = MkAtomTerm(LookupAtom("stream"));
@@ -1142,11 +967,6 @@ Error (yap_error_number type, Term where, char *format,...)
       int i;
       Term ti[3];
 
-#if   HAVE_STRNCAT
-      strncat(tmpbuf, " in ", psize);
-#else
-      strcat(tmpbuf, " in ");
-#endif
       i = strlen(tmpbuf);
       ti[0] = MkAtomTerm(LookupAtom("input"));
       ti[1] = MkAtomTerm(LookupAtom("text_stream"));
@@ -1163,11 +983,6 @@ Error (yap_error_number type, Term where, char *format,...)
       int i;
       Term ti[3];
 
-#if   HAVE_STRNCAT
-      strncat(tmpbuf, " in ", psize);
-#else
-      strcat(tmpbuf, " in ");
-#endif
       i = strlen(tmpbuf);
       ti[0] = MkAtomTerm(LookupAtom("modify"));
       ti[1] = MkAtomTerm(LookupAtom("static_procedure"));
@@ -1184,11 +999,6 @@ Error (yap_error_number type, Term where, char *format,...)
       int i;
       Term ti[3];
 
-#if   HAVE_STRNCAT
-      strncat(tmpbuf, " in ", psize);
-#else
-      strcat(tmpbuf, " in ");
-#endif
       i = strlen(tmpbuf);
       ti[0] = MkAtomTerm(LookupAtom("new"));
       ti[1] = MkAtomTerm(LookupAtom("alias"));
@@ -1205,11 +1015,6 @@ Error (yap_error_number type, Term where, char *format,...)
       int i;
       Term ti[3];
 
-#if   HAVE_STRNCAT
-      strncat(tmpbuf, " in ", psize);
-#else
-      strcat(tmpbuf, " in ");
-#endif
       i = strlen(tmpbuf);
       ti[0] = MkAtomTerm(LookupAtom("open"));
       ti[1] = MkAtomTerm(LookupAtom("source_sink"));
@@ -1226,11 +1031,6 @@ Error (yap_error_number type, Term where, char *format,...)
       int i;
       Term ti[3];
 
-#if   HAVE_STRNCAT
-      strncat(tmpbuf, " in ", psize);
-#else
-      strcat(tmpbuf, " in ");
-#endif
       i = strlen(tmpbuf);
       ti[0] = MkAtomTerm(LookupAtom("output"));
       ti[1] = MkAtomTerm(LookupAtom("binary_stream"));
@@ -1247,11 +1047,6 @@ Error (yap_error_number type, Term where, char *format,...)
       int i;
       Term ti[3];
 
-#if   HAVE_STRNCAT
-      strncat(tmpbuf, " in ", psize);
-#else
-      strcat(tmpbuf, " in ");
-#endif
       i = strlen(tmpbuf);
       ti[0] = MkAtomTerm(LookupAtom("output"));
       ti[1] = MkAtomTerm(LookupAtom("stream"));
@@ -1268,11 +1063,6 @@ Error (yap_error_number type, Term where, char *format,...)
       int i;
       Term ti[3];
 
-#if   HAVE_STRNCAT
-      strncat(tmpbuf, " in ", psize);
-#else
-      strcat(tmpbuf, " in ");
-#endif
       i = strlen(tmpbuf);
       ti[0] = MkAtomTerm(LookupAtom("output"));
       ti[1] = MkAtomTerm(LookupAtom("text_stream"));
@@ -1289,11 +1079,6 @@ Error (yap_error_number type, Term where, char *format,...)
       int i;
       Term ti[3];
 
-#if   HAVE_STRNCAT
-      strncat(tmpbuf, " in ", psize);
-#else
-      strcat(tmpbuf, " in ");
-#endif
       i = strlen(tmpbuf);
       ti[0] = MkAtomTerm(LookupAtom("reposition"));
       ti[1] = MkAtomTerm(LookupAtom("stream"));
@@ -1310,11 +1095,6 @@ Error (yap_error_number type, Term where, char *format,...)
       int i;
       Term ti[3];
 
-#if   HAVE_STRNCAT
-      strncat(tmpbuf, " in ", psize);
-#else
-      strcat(tmpbuf, " in ");
-#endif
       i = strlen(tmpbuf);
       ti[0] = MkAtomTerm(LookupAtom("resize"));
       ti[1] = MkAtomTerm(LookupAtom("array"));
@@ -1331,11 +1111,6 @@ Error (yap_error_number type, Term where, char *format,...)
       int i;
       Term ti[1];
 
-#if   HAVE_STRNCAT
-      strncat(tmpbuf, " in ", psize);
-#else
-      strcat(tmpbuf, " in ");
-#endif
       i = strlen(tmpbuf);
       ti[0] = MkAtomTerm(LookupAtom("character"));
       nt[0] = MkApplTerm(MkFunctor(LookupAtom("representation_error"),1), 1, ti);
@@ -1350,11 +1125,6 @@ Error (yap_error_number type, Term where, char *format,...)
       int i;
       Term ti[1];
 
-#if   HAVE_STRNCAT
-      strncat(tmpbuf, " in ", psize);
-#else
-      strcat(tmpbuf, " in ");
-#endif
       i = strlen(tmpbuf);
       ti[0] = MkAtomTerm(LookupAtom("character_code"));
       nt[0] = MkApplTerm(MkFunctor(LookupAtom("representation_error"),1), 1, ti);
@@ -1369,11 +1139,6 @@ Error (yap_error_number type, Term where, char *format,...)
       int i;
       Term ti[1];
 
-#if   HAVE_STRNCAT
-      strncat(tmpbuf, " in ", psize);
-#else
-      strcat(tmpbuf, " in ");
-#endif
       i = strlen(tmpbuf);
       ti[0] = MkAtomTerm(LookupAtom("max_arity"));
       nt[0] = MkApplTerm(MkFunctor(LookupAtom("representation_error"),1), 1, ti);
@@ -1387,11 +1152,6 @@ Error (yap_error_number type, Term where, char *format,...)
     {
       int i;
 
-#if   HAVE_STRNCAT
-      strncat(tmpbuf, " in ", psize);
-#else
-      strcat(tmpbuf, " in ");
-#endif
       i = strlen(tmpbuf);
       nt[0] = where;
       tp = tmpbuf+i;
@@ -1404,11 +1164,6 @@ Error (yap_error_number type, Term where, char *format,...)
     {
       int i;
 
-#if   HAVE_STRNCAT
-      strncat(tmpbuf, " in ", psize);
-#else
-      strcat(tmpbuf, " in ");
-#endif
       i = strlen(tmpbuf);
       nt[0] = MkAtomTerm(LookupAtom("system_error"));
       tp = tmpbuf+i;
@@ -1422,11 +1177,6 @@ Error (yap_error_number type, Term where, char *format,...)
       int i;
       Term ti[2];
 
-#if   HAVE_STRNCAT
-      strncat(tmpbuf, " in ", psize);
-#else
-      strcat(tmpbuf, " in ");
-#endif
       i = strlen(tmpbuf);
       ti[0] = MkAtomTerm(LookupAtom("array"));
       ti[1] = where;
@@ -1442,11 +1192,6 @@ Error (yap_error_number type, Term where, char *format,...)
       int i;
       Term ti[2];
 
-#if   HAVE_STRNCAT
-      strncat(tmpbuf, " in ", psize);
-#else
-      strcat(tmpbuf, " in ");
-#endif
       i = strlen(tmpbuf);
       ti[0] = MkAtomTerm(LookupAtom("atom"));
       ti[1] = where;
@@ -1462,11 +1207,6 @@ Error (yap_error_number type, Term where, char *format,...)
       int i;
       Term ti[2];
 
-#if   HAVE_STRNCAT
-      strncat(tmpbuf, " in ", psize);
-#else
-      strcat(tmpbuf, " in ");
-#endif
       i = strlen(tmpbuf);
       ti[0] = MkAtomTerm(LookupAtom("atomic"));
       ti[1] = where;
@@ -1482,11 +1222,6 @@ Error (yap_error_number type, Term where, char *format,...)
       int i;
       Term ti[2];
 
-#if   HAVE_STRNCAT
-      strncat(tmpbuf, " in ", psize);
-#else
-      strcat(tmpbuf, " in ");
-#endif
       i = strlen(tmpbuf);
       ti[0] = MkAtomTerm(LookupAtom("byte"));
       ti[1] = where;
@@ -1502,11 +1237,6 @@ Error (yap_error_number type, Term where, char *format,...)
       int i;
       Term ti[2];
 
-#if   HAVE_STRNCAT
-      strncat(tmpbuf, " in ", psize);
-#else
-      strcat(tmpbuf, " in ");
-#endif
       i = strlen(tmpbuf);
       ti[0] = MkAtomTerm(LookupAtom("callable"));
       ti[1] = where;
@@ -1522,11 +1252,6 @@ Error (yap_error_number type, Term where, char *format,...)
       int i;
       Term ti[2];
 
-#if   HAVE_STRNCAT
-      strncat(tmpbuf, " in ", psize);
-#else
-      strcat(tmpbuf, " in ");
-#endif
       i = strlen(tmpbuf);
       ti[0] = MkAtomTerm(LookupAtom("character"));
       ti[1] = where;
@@ -1542,11 +1267,6 @@ Error (yap_error_number type, Term where, char *format,...)
       int i;
       Term ti[2];
 
-#if   HAVE_STRNCAT
-      strncat(tmpbuf, " in ", psize);
-#else
-      strcat(tmpbuf, " in ");
-#endif
       i = strlen(tmpbuf);
       ti[0] = MkAtomTerm(LookupAtom("compound"));
       ti[1] = where;
@@ -1562,11 +1282,6 @@ Error (yap_error_number type, Term where, char *format,...)
       int i;
       Term ti[2];
 
-#if   HAVE_STRNCAT
-      strncat(tmpbuf, " in ", psize);
-#else
-      strcat(tmpbuf, " in ");
-#endif
       i = strlen(tmpbuf);
       ti[0] = MkAtomTerm(LookupAtom("db_reference"));
       ti[1] = where;
@@ -1582,11 +1297,6 @@ Error (yap_error_number type, Term where, char *format,...)
       int i;
       Term ti[2];
 
-#if   HAVE_STRNCAT
-      strncat(tmpbuf, " in ", psize);
-#else
-      strcat(tmpbuf, " in ");
-#endif
       i = strlen(tmpbuf);
       ti[0] = MkAtomTerm(LookupAtom("db_term"));
       ti[1] = where;
@@ -1602,11 +1312,6 @@ Error (yap_error_number type, Term where, char *format,...)
       int i;
       Term ti[2];
 
-#if   HAVE_STRNCAT
-      strncat(tmpbuf, " in ", psize);
-#else
-      strcat(tmpbuf, " in ");
-#endif
       i = strlen(tmpbuf);
       ti[0] = MkAtomTerm(LookupAtom("evaluable"));
       ti[1] = where;
@@ -1622,11 +1327,6 @@ Error (yap_error_number type, Term where, char *format,...)
       int i;
       Term ti[2];
 
-#if   HAVE_STRNCAT
-      strncat(tmpbuf, " in ", psize);
-#else
-      strcat(tmpbuf, " in ");
-#endif
       i = strlen(tmpbuf);
       ti[0] = MkAtomTerm(LookupAtom("float"));
       ti[1] = where;
@@ -1642,11 +1342,6 @@ Error (yap_error_number type, Term where, char *format,...)
       int i;
       Term ti[2];
 
-#if   HAVE_STRNCAT
-      strncat(tmpbuf, " in ", psize);
-#else
-      strcat(tmpbuf, " in ");
-#endif
       i = strlen(tmpbuf);
       ti[0] = MkAtomTerm(LookupAtom("integer"));
       ti[1] = where;
@@ -1662,11 +1357,6 @@ Error (yap_error_number type, Term where, char *format,...)
       int i;
       Term ti[2];
 
-#if   HAVE_STRNCAT
-      strncat(tmpbuf, " in ", psize);
-#else
-      strcat(tmpbuf, " in ");
-#endif
       i = strlen(tmpbuf);
       ti[0] = MkAtomTerm(LookupAtom("key"));
       ti[1] = where;
@@ -1682,11 +1372,6 @@ Error (yap_error_number type, Term where, char *format,...)
       int i;
       Term ti[2];
 
-#if   HAVE_STRNCAT
-      strncat(tmpbuf, " in ", psize);
-#else
-      strcat(tmpbuf, " in ");
-#endif
       i = strlen(tmpbuf);
       ti[0] = MkAtomTerm(LookupAtom("list"));
       ti[1] = where;
@@ -1702,11 +1387,6 @@ Error (yap_error_number type, Term where, char *format,...)
       int i;
       Term ti[2];
 
-#if   HAVE_STRNCAT
-      strncat(tmpbuf, " in ", psize);
-#else
-      strcat(tmpbuf, " in ");
-#endif
       i = strlen(tmpbuf);
       ti[0] = MkAtomTerm(LookupAtom("number"));
       ti[1] = where;
@@ -1722,11 +1402,6 @@ Error (yap_error_number type, Term where, char *format,...)
       int i;
       Term ti[2];
 
-#if   HAVE_STRNCAT
-      strncat(tmpbuf, " in ", psize);
-#else
-      strcat(tmpbuf, " in ");
-#endif
       i = strlen(tmpbuf);
       ti[0] = MkAtomTerm(LookupAtom("predicate_indicator"));
       ti[1] = where;
@@ -1742,11 +1417,6 @@ Error (yap_error_number type, Term where, char *format,...)
       int i;
       Term ti[2];
 
-#if   HAVE_STRNCAT
-      strncat(tmpbuf, " in ", psize);
-#else
-      strcat(tmpbuf, " in ");
-#endif
       i = strlen(tmpbuf);
       ti[0] = MkAtomTerm(LookupAtom("pointer"));
       ti[1] = where;
@@ -1762,11 +1432,6 @@ Error (yap_error_number type, Term where, char *format,...)
       int i;
       Term ti[2];
 
-#if   HAVE_STRNCAT
-      strncat(tmpbuf, " in ", psize);
-#else
-      strcat(tmpbuf, " in ");
-#endif
       i = strlen(tmpbuf);
       ti[0] = MkAtomTerm(LookupAtom("unsigned_byte"));
       ti[1] = where;
@@ -1782,11 +1447,6 @@ Error (yap_error_number type, Term where, char *format,...)
       int i;
       Term ti[2];
 
-#if   HAVE_STRNCAT
-      strncat(tmpbuf, " in ", psize);
-#else
-      strcat(tmpbuf, " in ");
-#endif
       i = strlen(tmpbuf);
       ti[0] = MkAtomTerm(LookupAtom("variable"));
       ti[1] = where;
@@ -1801,11 +1461,6 @@ Error (yap_error_number type, Term where, char *format,...)
     {
       int i;
 
-#if   HAVE_STRNCAT
-      strncat(tmpbuf, " in ", psize);
-#else
-      strcat(tmpbuf, " in ");
-#endif
       i = strlen(tmpbuf);
       nt[0] = MkAtomTerm(LookupAtom("system_error"));
       tp = tmpbuf+i;
@@ -1817,9 +1472,8 @@ Error (yap_error_number type, Term where, char *format,...)
   if (type != PURE_ABORT) {
     /* This is used by some complex procedures to detect there was an error */
     ErrorMessage = RepAtom(AtomOfTerm(nt[0]))->StrOfAE;
-    detect_bug_location(tp, psize);
   }
-  nt[1] = MkAtomTerm(LookupAtom(tmpbuf));
+  nt[1] = MkPairTerm(MkAtomTerm(LookupAtom(tmpbuf)), all_calls());
   if (serious) {
     if (type == PURE_ABORT)
       JumpToEnv(MkAtomTerm(LookupAtom("abort")));

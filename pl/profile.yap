@@ -20,7 +20,7 @@
 profile_data(P, Parm, Data) :- P = M:D, !,
 	(
 	  var(M) ->
-	  throw(error(instantiation_error,profile_data(M:D, Parm, Data)))
+	  '$do_error'(instantiation_error,profile_data(M:D, Parm, Data))
 	;
 	  '$profile_data'(D, Parm, Data, M)
 	).

@@ -244,7 +244,7 @@ FindWhatCreep(toCreep)
 
 static Int 
 p_opdec(void)
-{				/* '$op'(p,type,atom)		 */
+{				/* '$opdec'(p,type,atom)		 */
   /* we know the arguments are integer, atom, atom */
   Term            p = Deref(ARG1), t = Deref(ARG2), at = Deref(ARG3);
   return (OpDec((int) IntOfTerm(p), RepAtom(AtomOfTerm(t))->StrOfAE,

@@ -19,7 +19,7 @@ ensure_loaded(V) :-
 	'$ensure_loaded'(V).
 
 '$ensure_loaded'(V) :- var(V), !,
-	throw(error(instantiation_error,ensure_loaded(V))).
+	'$do_error'(instantiation_error,ensure_loaded(V)).
 '$ensure_loaded'([]) :- !.
 '$ensure_loaded'([F|Fs]) :- !,
 	'$ensure_loaded'(F),
@@ -43,12 +43,12 @@ ensure_loaded(V) :-
 	    ),
 	'$close'(Stream).
 '$ensure_loaded'(X) :-		
-	throw(error(permission_error(input,stream,X),ensure_loaded(X))).
+	'$do_error'(permission_error(input,stream,X),ensure_loaded(X)).
 
 
 compile(P) :-
 	'$has_yap_or',
-	throw(error(context_error(compile(P),clause),query)).
+	'$do_error'(context_error(compile(P),clause),query).
 compile(P) :-
 	'$compile'(P).
 
@@ -60,18 +60,18 @@ compile(P) :-
 
 consult(Fs) :-
 	'$has_yap_or',
-	throw(error(context_error(consult(Fs),clause),query)).
+	'$do_error'(context_error(consult(Fs),clause),query).
 consult(Fs) :-
 	'$consult'(Fs).
 
 reconsult(Fs) :-
 	'$has_yap_or', fail,
-	throw(error(context_error(reconsult(Fs),clause),query)).
+	'$do_error'(context_error(reconsult(Fs),clause),query).
 reconsult(Fs) :-
 	'$reconsult'(Fs).
 
 '$reconsult'(V) :- var(V), !,
-	throw(error(instantiation_error,reconsult(V))).
+	'$do_error'(instantiation_error,reconsult(V)).
 '$reconsult'([]) :- !.
 '$reconsult'(M:X) :- atom(M), !,
         '$current_module'(M0),
@@ -87,7 +87,7 @@ reconsult(Fs) :-
 	'$reconsult'(X,Stream),
 	'$close'(Stream).
 '$reconsult'(X) :-
-	throw(error(permission_error(input,stream,X),reconsult(X))).
+	'$do_error'(permission_error(input,stream,X),reconsult(X)).
 
 '$reconsult'(F,Stream) :-
 	'$record_loaded'(Stream),
@@ -154,11 +154,11 @@ reconsult(Fs) :-
 
 '$initialization'(V) :-
 	var(V), !,
-	throw(error(instantiation_error,initialization(V))).
+	'$do_error'(instantiation_error,initialization(V)).
 '$initialization'(C) :- number(C), !,
-	throw(error(type_error(callable,C),initialization(C))).
+	'$do_error'(type_error(callable,C),initialization(C)).
 '$initialization'(C) :- db_reference(C), !,
-	throw(error(type_error(callable,C),initialization(C))).
+	'$do_error'(type_error(callable,C),initialization(C)).
 '$initialization'(G) :-
 	'$recorda'('$initialisation',G,_),
 	fail.
@@ -166,7 +166,7 @@ reconsult(Fs) :-
 
 
 '$include'(V, _) :- var(V), !,
-	throw(error(instantiation_error,include(V))).
+	'$do_error'(instantiation_error,include(V)).
 '$include'([], _) :- !.
 '$include'([F|Fs], Status) :- !,
 	'$include'(F, Status),
@@ -177,7 +177,7 @@ reconsult(Fs) :-
 	( '$open'(Y,'$csult',Stream,0), !,
 		'$loop'(Stream,Status), '$close'(Stream)
 	;
-		throw(error(permission_error(input,stream,Y),include(X)))
+		'$do_error'(permission_error(input,stream,Y),include(X))
 	),
 	'$set_value'('$included_file',OY).
 

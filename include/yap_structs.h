@@ -28,19 +28,15 @@
 
 /* Type definitions */
 
-typedef unsigned long CELL;  /* this is common to all current machines */
+typedef unsigned long YAP_CELL;  /* this is common to all current machines */
 
-typedef int Bool;
+typedef int YAP_Bool;
 
-typedef long int Int;
+typedef YAP_CELL YAP_Term;
 
-typedef double flt;
+typedef struct FunctorEntry *YAP_Functor;
 
-typedef CELL Term;
-
-typedef struct FunctorEntry *Functor;
-
-typedef struct AtomEntry *Atom;
+typedef struct AtomEntry *YAP_Atom;
 
 #ifndef TRUE
 #define TRUE	1
@@ -93,5 +89,5 @@ typedef struct {
   int Argc;
   /* array of arguments as seen by Prolog */
   char **Argv;
-} yap_init_args;
+} YAP_init_args;
 

@@ -19,29 +19,29 @@
 % to dynamic code
 
 asserta(V) :- var(V), !,
-	throw(error(instantiation_error,asserta(V))).
+	'$do_error'(instantiation_error,asserta(V)).
 asserta(C) :-
 	'$current_module'(Mod),
 	'$assert'(C,Mod,first,_,asserta(C)).
 
 assertz(V) :- var(V), !,
-	throw(error(instantiation_error,assertz(V))).
+	'$do_error'(instantiation_error,assertz(V)).
 assertz(C) :-
 	'$current_module'(Mod),
 	'$assert'(C,Mod,last,_,assertz(C)).
 
 assert(V) :- var(V), !,
-	throw(error(instantiation_error,assert(V))).
+	'$do_error'(instantiation_error,assert(V)).
 assert(C) :-
 	'$current_module'(Mod),
 	'$assert'(C,Mod,last,_,assert(C)).
 
 '$assert'(V,Mod,_,_,_) :- var(V), !,
-	throw(error(instantiation_error,assert(Mod:V))).
+	'$do_error'(instantiation_error,assert(Mod:V)).
 '$assert'(M:C,_,Where,R,P) :- !,
 	'$assert'(C,M,Where,R,P).
 '$assert'((H:-G),M1,Where,R,P) :-
-	(var(H) -> throw(error(instantiation_error,P)) ;  H=M:C), !,
+	(var(H) -> '$do_error'(instantiation_error,P) ;  H=M:C), !,
 	( M1 = M ->
 	    '$assert'((C:-G),M1,Where,R,P)
 	;
@@ -63,16 +63,16 @@ assert(C) :-
 	    '$assert1'(Where,C,C0,Mod,H)
         ;
 	    functor(H, Na, Ar),
-            throw(error(permission_error(modify,static_procedure,Na/Ar),P))
+            '$do_error'(permission_error(modify,static_procedure,Na/Ar),P)
 	).
 
 
 '$assert_dynamic'(V,Mod,_,_,_) :- var(V), !,
-	throw(error(instantiation_error,assert(Mod:V))).
+	'$do_error'(instantiation_error,assert(Mod:V)).
 '$assert_dynamic'(M:C,_,Where,R,P) :- !,
 	'$assert_dynamic'(C,M,Where,R,P).
 '$assert_dynamic'((H:-G),M1,Where,R,P) :-
-        (var(H) -> throw(error(instantiation_error,P)) ;  H=M:C), !,
+        (var(H) -> '$do_error'(instantiation_error,P) ;  H=M:C), !,
 	( M1 = M ->
 	    '$assert_dynamic'((C:-G),M1,Where,R,P)
 	;
@@ -91,33 +91,33 @@ assert(C) :-
 	    '$assertat_d'(Where,H,B,C0,Mod,R)
 	;
 	    functor(H,Na,Ar),
-	    throw(error(permission_error(modify,static_procedure,Na/Ar),P))
+	    '$do_error'(permission_error(modify,static_procedure,Na/Ar),P)
 	).
 
 assert_static(V) :- var(V), !,
-	throw(error(instantiation_error,assert_static(V))).
+	'$do_error'(instantiation_error,assert_static(V)).
 assert_static(C) :-
 	'$current_module'(Mod),
 	'$assert_static'(C,Mod,last,_,assert_static(C)).
 
 asserta_static(V) :- var(V), !,
-	throw(error(instantiation_error,asserta_static(V))).
+	'$do_error'(instantiation_error,asserta_static(V)).
 asserta_static(C) :-
 	'$current_module'(Mod),
 	'$assert_static'(C,Mod,first,_,asserta_static(C)).
 
 assertz_static(V) :- var(V), !,
-	throw(error(instantiation_error,assertz_static(V))).
+	'$do_error'(instantiation_error,assertz_static(V)).
 assertz_static(C) :-
 	'$current_module'(Mod),
 	'$assert_static'(C,Mod,last,_,assertz_static(C)).
 
 '$assert_static'(V,M,_,_,_) :- var(V), !,
-	throw(error(instantiation_error,assert(M:V))).
+	'$do_error'(instantiation_error,assert(M:V)).
 '$assert_static'(M:C,_,Where,R,P) :- !,
 	'$assert_static'(C,M,Where,R,P).
 '$assert_static'((H:-G),M1,Where,R,P) :-
-	(var(H) -> throw(error(instantiation_error,P)) ;  H=M:C), !,
+	(var(H) -> '$do_error'(instantiation_error,P) ;  H=M:C), !,
 	( M1 = M ->
 	    '$assert_static'((C:-G),M1,Where,R,P)
 	;
@@ -128,7 +128,7 @@ assertz_static(C) :-
 	'$expand_clause'(CI,C0,C,Mod),
 	'$check_head_and_body'(C,H,B,P),
 	( '$is_dynamic'(H, Mod) ->
-	    throw(error(permission_error(modify,dynamic_procedure,Na/Ar),P))
+	    '$do_error'(permission_error(modify,dynamic_procedure,Na/Ar),P)
 	;
 	  '$undefined'(H,Mod), '$get_value'('$full_iso',true) ->
 	    functor(H,Na,Ar), '$dynamic'(Na/Ar, Mod), '$assertat_d'(Where,H,B,C0,Mod,R)
@@ -212,19 +212,19 @@ assertz_static(C) :-
 '$erase_all_mf_dynamic'(_,_,_).
 
 asserta(V,R) :- var(V), !,
-	throw(error(instantiation_error,asserta(V,R))).
+	'$do_error'(instantiation_error,asserta(V,R)).
 asserta(C,R) :-
 	'$current_module'(M),
 	'$assert_dynamic'(C,M,first,R,asserta(C,R)).
 
 assertz(V,R) :- var(V), !,
-	throw(error(instantiation_error,assertz(V,R))).
+	'$do_error'(instantiation_error,assertz(V,R)).
 assertz(C,R) :-
 	'$current_module'(M),
 	'$assert_dynamic'(C,M,last,R,assertz(C,R)).
 
 assert(V,R) :- var(V), !,
-	throw(error(instantiation_error,assert(V,R))).
+	'$do_error'(instantiation_error,assert(V,R)).
 assert(C,R) :-
 	'$current_module'(M),
 	'$assert_dynamic'(C,M,last,R,assert(C,R)).
@@ -234,11 +234,11 @@ clause(V,Q) :-
 	'$clause'(V,M,Q).
 
 '$clause'(V,M,Q) :- var(V), !, 
-	throw(error(instantiation_error,M:clause(V,Q))).
+	'$do_error'(instantiation_error,M:clause(V,Q)).
 '$clause'(C,M,Q) :- number(C), !,
-	throw(error(type_error(callable,C),M:clause(C,Q))).
+	'$do_error'(type_error(callable,C),M:clause(C,Q)).
 '$clause'(R,M,Q) :- db_reference(R), !,
-	throw(error(type_error(callable,R),M:clause(R,Q))).
+	'$do_error'(type_error(callable,R),M:clause(R,Q)).
 '$clause'(M:P,_,Q) :- !,
 	'$clause'(P,M,Q).
 '$clause'(P,Mod,Q) :- '$is_dynamic'(P, Mod), !,
@@ -250,19 +250,19 @@ clause(V,Q) :-
 	( '$system_predicate'(P,M) -> true ;
 	    '$number_of_clauses'(P,M,N), N > 0 ),
 	functor(P,Name,Arity),
-	throw(error(permission_error(access,private_procedure,Name/Arity),
-	      clause(M:P,Q))).
+	'$do_error'(permission_error(access,private_procedure,Name/Arity),
+	      clause(M:P,Q)).
 
 clause(V,Q,R) :-
 	'$current_module'(V,M,Q,R),
 	'$clause'(V,M,Q,R).
 
 '$clause'(V,M,Q,R) :- var(V), !, 
-	throw(error(instantiation_error,M:clause(V,Q,R))).
+	'$do_error'(instantiation_error,M:clause(V,Q,R)).
 '$clause'(C,M,Q,R) :- number(C), !,
-	throw(error(type_error(callable,C),clause(C,M:Q,R))).
+	'$do_error'(type_error(callable,C),clause(C,M:Q,R)).
 '$clause'(R,M,Q,R1) :- db_reference(R), !,
-	throw(error(type_error(callable,R),clause(R,M:Q,R1))).
+	'$do_error'(type_error(callable,R),clause(R,M:Q,R1)).
 '$clause'(M:P,_,Q,R) :- !,
 	'$clause'(P,M,Q,R).
 '$clause'(P,Mod,Q,R) :-
@@ -270,8 +270,8 @@ clause(V,Q,R) :-
 	 	'$recordedp'(Mod:P,(P:-Q),R)
 	 ;
 	        functor(P,N,A),
-		throw(error(permission_error(access,private_procedure,N/A),
-			clause(Mod:P,Q,R)))
+		'$do_error'(permission_error(access,private_procedure,N/A),
+			clause(Mod:P,Q,R))
 	 ).
 
 retract(C) :-
@@ -280,7 +280,7 @@ retract(C) :-
 	
 	
 '$retract'(V,_) :- var(V), !,
-	throw(error(instantiation_error,retract(V))).
+	'$do_error'(instantiation_error,retract(V)).
 '$retract'(M:C,_) :- !,
 	'$retract'(C,M).
 '$retract'(C,M) :- 
@@ -295,7 +295,7 @@ retract(C) :-
 	fail.
 '$retract'(C,M) :-
 	'$fetch_predicate_indicator_from_clause'(C, PI),
-	throw(error(permission_error(modify,static_procedure,PI),retract(M:C))).
+	'$do_error'(permission_error(modify,static_procedure,PI),retract(M:C)).
 
 retract(C,R) :- !,
 	'$current_module'(M),
@@ -303,7 +303,7 @@ retract(C,R) :- !,
 
 
 '$retract'(V,M,R) :- var(V), !,
-	throw(error(instantiation_error,retract(M:V,R))).
+	'$do_error'(instantiation_error,retract(M:V,R)).
 '$retract'(M:C,_,R) :- !,
 	'$retract'(C,M,R).
 '$retract'(C, M, R) :-
@@ -324,7 +324,7 @@ retract(C,R) :- !,
 	fail.
 '$retract'(C,M,_) :-
 	'$fetch_predicate_indicator_from_clause'(C, PI),
-	throw(error(permission_error(modify,static_procedure,PI),retract(M:C))).
+	'$do_error'(permission_error(modify,static_procedure,PI),retract(M:C)).
 
 '$fetch_predicate_indicator_from_clause'((C :- _), Na/Ar) :- !,
 	functor(C, Na, Ar).
@@ -337,7 +337,7 @@ retractall(V) :- !,
 	'$retractall'(V,M).
 
 '$retractall'(V,M) :- var(V), !,
-	throw(error(instantiation_error,retract(M:V))).
+	'$do_error'(instantiation_error,retract(M:V)).
 '$retractall'(M:V,_) :- !,
 	'$retractall'(V,M).
 '$retractall'(T,M) :-
@@ -347,7 +347,7 @@ retractall(V) :- !,
 '$retractall'(T,M) :-
 	\+ '$is_dynamic'(T,M), !,
 	functor(T,Na,Ar),
-	throw(error(permission_error(modify,static_procedure,Na/Ar),retractall(T))).
+	'$do_error'(permission_error(modify,static_procedure,Na/Ar),retractall(T)).
 '$retractall'(T,M) :-
 	'$erase_all_clauses_for_dynamic'(T, M).
 
@@ -364,9 +364,9 @@ abolish(N,A) :-
 	'$abolish'(N,A,Mod).
 	
 '$abolish'(N,A,M) :- var(N), !,
-	throw(error(instantiation_error,abolish(M:N,A))).
+	'$do_error'(instantiation_error,abolish(M:N,A)).
 '$abolish'(N,A,M) :- var(A), !,
-	throw(error(instantiation_error,abolish(M:N,A))).
+	'$do_error'(instantiation_error,abolish(M:N,A)).
 '$abolish'(N,A,M) :-
 	( '$recorded'('$predicate_defs','$predicate_defs'(N,A,M,_),R) -> erase(R) ),
 	fail.
@@ -396,9 +396,9 @@ abolish(X) :-
 	functor(T, Na, Ar),
 	'$undefined'(T, M), !.
 '$new_abolish'(Na/Ar, M) :-
-	throw(error(permission_error(modify,static_procedure,Na/Ar),abolish(M:Na/Ar))).
+	'$do_error'(permission_error(modify,static_procedure,Na/Ar),abolish(M:Na/Ar)).
 '$new_abolish'(T, M) :-
-	throw(error(type_error(predicate_indicator,T),abolish(M:T))).
+	'$do_error'(type_error(predicate_indicator,T),abolish(M:T)).
 
 '$abolish_all'(M) :-
         '$current_predicate'(M,Na,Ar),
@@ -414,49 +414,49 @@ abolish(X) :-
 
 '$check_error_in_predicate_indicator'(V, Msg) :-
 	var(V), !,
-	throw(error(instantiation_error, Msg)).
+	'$do_error'(instantiation_error, Msg).
 '$check_error_in_predicate_indicator'(M:S, Msg) :- !,
 	'$check_error_in_module'(M, Msg),
 	'$check_error_in_predicate_indicator'(S, Msg).
 '$check_error_in_predicate_indicator'(S, Msg) :-
 	S \= _/_, !,
-	throw(error(type_error(predicate_indicator,S), Msg)).
+	'$do_error'(type_error(predicate_indicator,S), Msg).
 '$check_error_in_predicate_indicator'(Na/_, Msg) :-
 	var(Na), !,
-	throw(error(instantiation_error, Msg)).
+	'$do_error'(instantiation_error, Msg).
 '$check_error_in_predicate_indicator'(Na/_, Msg) :-
 	\+ atom(Na), !,
-	throw(error(type_error(atom,Na), Msg)).
+	'$do_error'(type_error(atom,Na), Msg).
 '$check_error_in_predicate_indicator'(_/Ar, Msg) :-
 	var(Ar), !,
-	throw(error(instantiation_error, Msg)).
+	'$do_error'(instantiation_error, Msg).
 '$check_error_in_predicate_indicator'(_/Ar, Msg) :-
 	\+ integer(Ar), !,
-	throw(error(type_error(integer,Ar), Msg)).
+	'$do_error'(type_error(integer,Ar), Msg).
 '$check_error_in_predicate_indicator'(_/Ar, Msg) :-
 	Ar < 0, !,
-	throw(error(domain_error(not_less_than_zero,Ar), Msg)).
+	'$do_error'(domain_error(not_less_than_zero,Ar), Msg).
 % not yet implemented!
 %'$check_error_in_predicate_indicator'(Na/Ar, Msg) :-
 %	Ar < maxarity, !,
-%	throw(error(type_error(representation_error(max_arity),Ar), Msg)).
+%	'$do_error'(type_error(representation_error(max_arity),Ar), Msg).
 
 '$check_error_in_module'(M, Msg) :-
 	var(M), !,
-	throw(error(instantiation_error, Msg)).
+	'$do_error'(instantiation_error, Msg).
 '$check_error_in_module'(M, Msg) :-
 	\+ atom(M), !,
-	throw(error(type_error(atom,M), Msg)).
+	'$do_error'(type_error(atom,M), Msg).
 
 '$old_abolish'(V,M) :- var(V), !,
 	( '$access_yap_flags'(8, 1) ->
-	    throw(error(instantiation_error,abolish(M:V)))
+	    '$do_error'(instantiation_error,abolish(M:V))
 	;
 	    '$abolish_all_old'(M)
 	).
 '$old_abolish'(A,M) :- atom(A), !,
 	( '$access_yap_flags'(8, 1) ->
-	  throw(error(type_error(predicate_indicator,A),abolish(M:A)))
+	  '$do_error'(type_error(predicate_indicator,A),abolish(M:A))
 	;
 	    '$abolish_all_atoms_old'(A,M)
 	).
@@ -467,7 +467,7 @@ abolish(X) :-
 '$old_abolish'(N/A, M) :- !,
 	'$abolish'(N, A, M).
 '$old_abolish'(T, M) :-
-	throw(error(type_error(predicate_indicator,T),abolish(M:T))).
+	'$do_error'(type_error(predicate_indicator,T),abolish(M:T)).
 	
 '$abolish_all_old'(M) :-
         '$current_predicate'(M, Na, Ar),
@@ -487,7 +487,7 @@ abolish(X) :-
 
 '$abolishs'(G, M) :- '$system_predicate'(G,M), !,
 	functor(G,Name,Arity),
-	throw(error(permission_error(modify,static_procedure,Name/Arity),abolish(M:G))).
+	'$do_error'(permission_error(modify,static_procedure,Name/Arity),abolish(M:G)).
 '$abolishs'(G, Module) :-
 	'$access_yap_flags'(8, 2), % only do this in sicstus mode
 	'$undefined'(G, Module),
@@ -499,7 +499,7 @@ abolish(X) :-
 '$abolishs'(G, Module) :-
 	'$has_yap_or', !,
         functor(G,A,N),
-	throw(error(permission_error(modify,static_procedure,A/N),abolish(Module:G))).
+	'$do_error'(permission_error(modify,static_procedure,A/N),abolish(Module:G)).
 '$abolishs'(G, M) :-
 	'$purge_clauses'(G, M),
 	'$recordedp'(M:G,_,R), erase(R), fail.
@@ -512,10 +512,10 @@ dynamic(X) :- '$access_yap_flags'(8, 0), !,
         '$current_module'(M),
 	'$dynamic'(X, M).
 dynamic(X) :-
-	throw(error(context_error(dynamic(X),declaration),query)).
+	'$do_error'(context_error(dynamic(X),declaration),query).
 
 '$dynamic'(X,M) :- var(X), !,
-	throw(error(instantiation_error,dynamic(M:X))).
+	'$do_error'(instantiation_error,dynamic(M:X)).
 '$dynamic'(Mod:Spec,_) :- !,
 	'$dynamic'(Spec,Mod).
 '$dynamic'([], _) :- !.
@@ -532,10 +532,10 @@ dynamic(X) :-
 	    '$is_dynamic'(T,Mod)  -> true;
 	    F /\ 16'400 =:= 16'400, '$undefined'(T,Mod) -> F1 is F /\ \(0x600), NF is F1 \/ 16'2000, '$flags'(T,Mod,F,NF);
 	    F/\16'8 =:= 16'8 -> true ;
-	    throw(error(permission_error(modify,static_procedure,A/N),dynamic(Mod:A/N)))
+	    '$do_error'(permission_error(modify,static_procedure,A/N),dynamic(Mod:A/N))
 	).
 '$dynamic2'(X,Mod) :- 
-	throw(error(type_error(callable,X),dynamic(Mod:X))).
+	'$do_error'(type_error(callable,X),dynamic(Mod:X)).
 
 
 '$logical_updatable'(A/N,Mod) :- integer(N), atom(A), !,
@@ -544,10 +544,10 @@ dynamic(X) :-
 	    '$is_dynamic'(T,Mod)  -> true;
 	    F /\ 16'400 =:= 16'400 , '$undefined'(T,Mod) -> NF is F \/ 0x8,  '$flags'(T,Mod,F,NF);
 	    F /\ 16'8=:= 16'8 -> true ;
-	    throw(error(permission_error(modify,static_procedure,A/N),dynamic(Mod:A/N)))
+	    '$do_error'(permission_error(modify,static_procedure,A/N),dynamic(Mod:A/N))
 	).
 '$logical_updatable'(X,Mod) :- 
-	throw(error(type_error(callable,X),dynamic(Mod:X))).
+	'$do_error'(type_error(callable,X),dynamic(Mod:X)).
 
 
 dynamic_predicate(P,Sem) :-
@@ -561,10 +561,10 @@ dynamic_predicate(P,Sem) :-
 
 '$bad_if_is_semantics'(Sem, Goal) :-
 	var(Sem), !,
-	throw(error(instantiation_error,Goal)).
+	'$do_error'(instantiation_error,Goal).
 '$bad_if_is_semantics'(Sem, Goal) :-
 	Sem \= immediate, Sem \= logical, !,
-	throw(error(domain_error(semantics_indicator,Sem),Goal)).
+	'$do_error'(domain_error(semantics_indicator,Sem),Goal).
 
 
 '$expand_clause'(C0,C1,C2,Mod) :-
@@ -576,7 +576,7 @@ dynamic_predicate(P,Sem) :-
         ).
 
 '$public'(X, _) :- var(X), !,
-	throw(error(instantiation_error,public(X))).
+	'$do_error'(instantiation_error,public(X)).
 '$public'(Mod:Spec, _) :- !,
 	'$public'(Spec,Mod).
 '$public'((A,B), M) :- !, '$public'(A,M), '$public'(B,M).
@@ -586,7 +586,7 @@ dynamic_predicate(P,Sem) :-
 	functor(T,A,N),
 	'$do_make_public'(T, Mod).
 '$public'(X, Mod) :- 
-	throw(error(type_error(callable,X),dynamic(Mod:X))).
+	'$do_error'(type_error(callable,X),dynamic(Mod:X)).
 
 '$do_make_public'(T, Mod) :-
 	'$is_dynamic'(T, Mod), !.  % all dynamic predicates are public.
@@ -602,7 +602,7 @@ dynamic_predicate(P,Sem) :-
 	F\/16'400000 \== 0.
 
 hide_predicate(V) :- var(V), !,
-	throw(error(instantiation_error,hide_predicate(X))).
+	'$do_error'(instantiation_error,hide_predicate(X)).
 hide_predicate(M:P) :- !,
 	'$hide_predicate2'(P, M).
 hide_predicate(P) :-
@@ -610,12 +610,12 @@ hide_predicate(P) :-
 	'$hide_predicate2'(M, P).
 
 '$hide_predicate2'(V, M) :- var(V), !,
-	throw(error(instantiation_error,hide_predicate(M:V))).
+	'$do_error'(instantiation_error,hide_predicate(M:V)).
 '$hide_predicate2'(N/A, M) :- !,
 	functor(S,N,A),
 	'$hide_predicate'(S, M) .
 '$hide_predicate2'(PredDesc, M) :-
-	throw(error(type_error(predicate_indicator,T),hide_predicate(M:PredDesc))).
+	'$do_error'(type_error(predicate_indicator,T),hide_predicate(M:PredDesc)).
 
 
 

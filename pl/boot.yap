@@ -249,7 +249,7 @@ repeat :- '$repeat'.
 % Hack in case expand_term has created a list of commands.
 %
 '$execute_commands'(V,_,_) :- var(V), !,
-	throw(error(instantiation_error,meta_call(V))).
+	'$do_error'(instantiation_error,meta_call(V)).
 '$execute_commands'([],_,_) :- !, fail.
 '$execute_commands'([C|_],VL,Con) :-
 	'$execute_command'(C,VL,Con).
@@ -263,12 +263,12 @@ repeat :- '$repeat'.
 %
 
 '$execute_command'(C,_,top) :- var(C), !,
-	throw(error(instantiation_error,meta_call(C))).
+	'$do_error'(instantiation_error,meta_call(C)).
 '$execute_command'(end_of_file,_,_).
 '$execute_command'(C,_,top) :- number(C), !,
-	throw(error(type_error(callable,C),meta_call(C))).
+	'$do_error'(type_error(callable,C),meta_call(C)).
 '$execute_command'(R,_,top) :- db_reference(R), !,
-	throw(error(type_error(callable,R),meta_call(R))).
+	'$do_error'(type_error(callable,R),meta_call(R)).
 '$execute_command'((:-G),_,Option) :- !,
 	'$current_module'(M),
 	'$process_directive'(G, Option, M),
@@ -288,7 +288,7 @@ repeat :- '$repeat'.
 	'$access_yap_flags'(8, 0), !, % YAP mode, go in and do it,
 	'$process_directive'(G, consult, M).
 '$process_directive'(G, top, _) :- !,
-	throw(error(context_error((:- G),clause),query)).
+	'$do_error'(context_error((:- G),clause),query).
 %
 % always allow directives.
 %
@@ -313,7 +313,7 @@ repeat :- '$repeat'.
 %
 '$process_directive'(D, _, M) :-
 	'$access_yap_flags'(8, 1), !, % ISO Prolog mode, go in and do it,
-	throw(error(context_error((:- M:D),query),directive)).
+	'$do_error'(context_error((:- M:D),query),directive).
 %
 % but YAP and SICStus does.
 %
@@ -706,7 +706,7 @@ not(A) :-
 	\+ '$execute_within'(A).
 
 '$call'(M:_,_,G0,_) :- var(M), !,
-	throw(error(instantiation_error,call(G0))).
+	'$do_error'(instantiation_error,call(G0)).
 '$call'(M:G,CP,G0,_) :- !,
         '$call'(G,CP,G0,M).
 '$call'((X,Y),CP,G0,M) :- !,
@@ -819,13 +819,13 @@ not(A) :-
 
 '$check_callable'(V,G) :- var(V), !,
 	'$current_module'(Mod),
-	throw(error(instantiation_error,Mod:G)).
+	'$do_error'(instantiation_error,Mod:G).
 '$check_callable'(A,G) :- number(A), !,
 	'$current_module'(Mod),
-	throw(error(type_error(callable,A),Mod:G)).
+	'$do_error'(type_error(callable,A),Mod:G).
 '$check_callable'(R,G) :- db_reference(R), !,
 	'$current_module'(Mod),
-	throw(error(type_error(callable,R),Mod:G)).
+	'$do_error'(type_error(callable,R),Mod:G).
 '$check_callable'(_,_).
 
 % Called by the abstract machine, if no clauses exist for a predicate
@@ -876,13 +876,13 @@ break :- '$get_value'('$break',BL), NBL is BL+1,
 
 
 '$csult'(V, _) :- var(V), !,
-	throw(error(instantiation_error,consult(V))).
+	'$do_error'(instantiation_error,consult(V)).
 '$csult'([], _) :- !.
 '$csult'([-F|L], M) :- !, '$reconsult'(M:F), '$csult'(L, M).
 '$csult'([F|L], M) :- '$consult'(M:F), '$csult'(L, M).
 
 '$consult'(V) :- var(V), !,
-	throw(error(instantiation_error,consult(V))).
+	'$do_error'(instantiation_error,consult(V)).
 '$consult'([]) :- !.
 '$consult'([F|Fs]) :- !,
 	'$consult'(F),
@@ -898,7 +898,7 @@ break :- '$get_value'('$break',BL), NBL is BL+1,
         '$consult'(X,Stream),
 	'$close'(Stream).
 '$consult'(X) :-
-	throw(error(permission_error(input,stream,X),consult(X))).
+	'$do_error'(permission_error(input,stream,X),consult(X)).
 
 
 '$consult'(_,Stream) :-
@@ -1002,7 +1002,7 @@ break :- '$get_value'('$break',BL), NBL is BL+1,
 	'$command'(Command,Vars,Status).
 
 '$abort_loop'(Stream) :-
-	throw(error(permission_error(input,closed_stream,Stream), loop)).
+	'$do_error'(permission_error(input,closed_stream,Stream), loop).
 
 /* General purpose predicates				*/
 
@@ -1018,11 +1018,11 @@ break :- '$get_value'('$break',BL), NBL is BL+1,
 	'$check_head'(H,P).
 
 '$check_head'(H,P) :- var(H), !,
-	throw(error(instantiation_error,P)).
+	'$do_error'(instantiation_error,P).
 '$check_head'(H,P) :- number(H), !,
-	throw(error(type_error(callable,H),P)).
+	'$do_error'(type_error(callable,H),P).
 '$check_head'(H,P) :- db_reference(H), !,
-	throw(error(type_error(callable,H),P)).
+	'$do_error'(type_error(callable,H),P).
 '$check_head'(_,_).
 
 % Path predicates
@@ -1044,7 +1044,7 @@ break :- '$get_value'('$break',BL), NBL is BL+1,
 '$find_in_path'(File,NewFile,_) :- atom(File), !,
 	'$search_in_path'(File,NewFile),!.
 '$find_in_path'(File,_,Call) :-
-	throw(error(domain_error(source_sink,File),Call)).
+	'$do_error'(domain_error(source_sink,File),Call).
 
 '$search_in_path'(New,New) :-
 	'$exists'(New,'$csult'), !.

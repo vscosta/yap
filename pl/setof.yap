@@ -220,5 +220,5 @@ all(T,G,S) :- '$recorda'('$$one','$',R), (
 '$check_list_for_bags'([_|B], T) :- !,
 	'$check_list_for_bags'(B,T).
 '$check_list_for_bags'(S, T) :-
-	throw(error(type_error(list,S),T)).
+	'$do_error'(type_error(list,S),T).
 

@@ -82,7 +82,7 @@ show_trie(X) :-
 	'$show_trie'(X, M).
 
 '$show_trie'(X, M) :- var(X), !,
-	throw(error(instantiation_error,show_trie(M:X))).
+	'$do_error'(instantiation_error,show_trie(M:X)).
 '$show_trie'((A,B), _) :- !, '$show_trie'(A, M), '$show_trie'(B, M).
 '$show_trie'(M:A, _) :- !, '$show_trie'(A, M).
 '$show_trie'(A/N, M) :- integer(N), atom(A), !,
