@@ -11897,7 +11897,7 @@ Yap_absmi(int inp)
 	if (CFREG != CalculateStackGap())
 	  goto creep;
 	saveregs();
-	if (!Yap_gc(((PredEntry *)SREG)->ArityOfPE, YREG, NEXTOP(PREG, sla))) {
+	if (!Yap_gc(((PredEntry *)SREG)->ArityOfPE, ENV, NEXTOP(PREG, sla))) {
 	  Yap_Error(OUT_OF_STACK_ERROR,TermNil,Yap_ErrorMessage);
 	}
 	setregs();
@@ -12124,7 +12124,7 @@ Yap_absmi(int inp)
 	if (ASP > (CELL *)B)
 	  ASP = (CELL *)B;
 	saveregs();
-	if (!Yap_gc(((PredEntry *)SREG)->ArityOfPE, YREG, NEXTOP(PREG, sla))) {
+	if (!Yap_gc(((PredEntry *)SREG)->ArityOfPE, ENV, NEXTOP(PREG, sla))) {
 	  Yap_Error(OUT_OF_STACK_ERROR,TermNil,Yap_ErrorMessage);
 	}
 	setregs();
