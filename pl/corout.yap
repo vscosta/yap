@@ -61,7 +61,28 @@
 %'), fail.
 '$wake_up_goal'([Module1|Continuation], LG) :-
 	'$execute_woken_system_goals'(LG),
-	'$execute'(Module1:Continuation).
+	'$do_continuation'(Continuation, Module1).
+
+
+%
+% in the first two cases restore register  immediately and proceed
+% to continuation. In the last case take care with modules, but do
+% not act as if a meta-call.
+% 
+%
+'$do_continuation'('$restore_regs'(X), _) :- !,
+	'$restore_regs'(X).
+'$do_continuation'('$restore_regs'(X,Y), _) :- !,
+	'$restore_regs'(X,Y).
+'$do_continuation'(Continuation, Module1) :-
+	'$mod_switch'(Module1,'$execute_continuation'(Continuation,Module1)).
+
+'$execute_continuation'(Continuation, Module1) :-
+	'$undefined'(Continuation), !,
+        '$undefp'([Module1|Continuation]).
+'$execute_continuation'(Continuation, _) :-
+         % do not do meta-expansion nor any fancy stuff.
+	 '$execute0'(Continuation).
 
 
 '$execute_woken_system_goals'([]). 
