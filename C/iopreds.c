@@ -2967,7 +2967,7 @@ do_read(int inp_stream)
 
     /* Scans the term using stack space */
     Yap_eot_before_eof = FALSE;
-    tokstart = Yap_tokptr = Yap_toktide = Yap_tokenizer (inp_stream);
+    tokstart = Yap_tokptr = Yap_toktide = Yap_tokenizer(inp_stream);
     /* preserve value of H after scanning: otherwise we may lose strings
        and floats */
     old_H = H;
@@ -2976,7 +2976,7 @@ do_read(int inp_stream)
 	/* next read should give out an end of file */
 	Stream[inp_stream].status |= Push_Eof_Stream_f;
       } else {
-	if (tokstart != NIL && tokstart->Tok != Ord (eot_tok)) {
+	if (tokstart != NULL && tokstart->Tok != Ord (eot_tok)) {
 	  /* we got the end of file from an abort */
 	  if (Yap_ErrorMessage == "Abort") {
 	    Yap_clean_tokenizer(tokstart, Yap_VarTable, Yap_AnonVarTable);

@@ -57,7 +57,7 @@
 
 STATIC_PROTO(int my_getch, (int (*) (int)));
 STATIC_PROTO(Term float_send, (char *));
-STATIC_PROTO(Term get_num, (int *, int *, int, int (*) (int), int (*) (int)));
+STATIC_PROTO(Term get_num, (int *, int *, int, int (*) (int), int (*) (int),UInt));
 
 /* token table with some help from Richard O'Keefe's PD scanner */
 static char chtype0[NUMBER_OF_CHARS+1] =
@@ -135,7 +135,7 @@ AllocScannerMemory(unsigned int size)
   ScannerStack = AuxSpScan+size;
   if (Yap_TrailTop <= ScannerStack) {
     if(!Yap_growtrail (sizeof(CELL) * 16 * 1024L)) {
-      return(NULL);
+      return NULL;
     }
   }
   return AuxSpScan;
@@ -377,7 +377,7 @@ read_quoted_char(int *scan_nextp, int inp_stream, int (*QuotedNxtch)(int))
 /* reads a number, either integer or float */
 
 static Term
-get_num(int *chp, int *chbuffp, int inp_stream, int (*Nxtch) (int), int (*QuotedNxtch) (int))
+get_num(int *chp, int *chbuffp, int inp_stream, int (*Nxtch) (int), int (*QuotedNxtch) (int), UInt max_size)
 {
   char *s = (char *)ScannerStack, *sp = s;
   int ch = *chp;
@@ -392,6 +392,10 @@ get_num(int *chp, int *chbuffp, int inp_stream, int (*Nxtch) (int), int (*Quoted
    */
   if (chtype[ch] == NU) {
     *sp++ = ch;
+    if (--max_size == 0) {
+      Yap_ErrorMessage = "Number Too Long";
+      return (TermNil);
+    }
     base = 10 * base + ch - '0';
     ch = Nxtch(inp_stream);
   }
@@ -401,6 +405,10 @@ get_num(int *chp, int *chbuffp, int inp_stream, int (*Nxtch) (int), int (*Quoted
       return (TermNil);
     }
     might_be_float = FALSE;
+    if (--max_size == 0) {
+      Yap_ErrorMessage = "Number Too Long";
+      return (TermNil);
+    }
     *sp++ = ch;
     ch = Nxtch(inp_stream);
     if (base == 0) {
@@ -421,6 +429,10 @@ get_num(int *chp, int *chbuffp, int inp_stream, int (*Nxtch) (int), int (*Quoted
 
       while (my_isxdigit(ch, upper_case, lower_case)) {
 	Int oval = val;
+	if (--max_size == 0) {
+	  Yap_ErrorMessage = "Number Too Long";
+	  return (TermNil);
+	}
 	*sp++ = ch;
 	val = val * base + (chtype[ch] == NU ? ch - '0' :
 			    (my_isupper(ch) ? ch - 'A' : ch - 'a') + 10);
@@ -431,10 +443,18 @@ get_num(int *chp, int *chbuffp, int inp_stream, int (*Nxtch) (int), int (*Quoted
     }
   } else if ((ch == 'x' || ch == 'X') && base == 0) {
     might_be_float = FALSE;
+    if (--max_size == 0) {
+      Yap_ErrorMessage = "Number Too Long";
+      return (TermNil);
+    }
     *sp++ = ch;
     ch = Nxtch(inp_stream);
     while (my_isxdigit(ch, 'F', 'f')) {
       Int oval = val;
+      if (--max_size == 0) {
+	Yap_ErrorMessage = "Number Too Long";
+	return (TermNil);
+      }
       *sp++ = ch;
       val = val * 16 + (chtype[ch] == NU ? ch - '0' :
 			(my_isupper(ch) ? ch - 'A' : ch - 'a') + 10);
@@ -447,6 +467,10 @@ get_num(int *chp, int *chbuffp, int inp_stream, int (*Nxtch) (int), int (*Quoted
   else if ((ch == 'o') && base == 0) {
     might_be_float = FALSE;
     base = 8;
+    if (--max_size == 0) {
+      Yap_ErrorMessage = "Number Too Long";
+      return (TermNil);
+    }
     *sp++ = ch;
     *chp = Nxtch(inp_stream);
   }
@@ -457,6 +481,10 @@ get_num(int *chp, int *chbuffp, int inp_stream, int (*Nxtch) (int), int (*Quoted
   while (chtype[ch] == NU) {
     Int oval = val;
     if (!(val == 0 && ch == '0')) {
+      if (--max_size == 0) {
+	Yap_ErrorMessage = "Number Too Long";
+	return (TermNil);
+      }
       *sp++ = ch;
     }
     if (ch - '0' >= base)
@@ -468,6 +496,10 @@ get_num(int *chp, int *chbuffp, int inp_stream, int (*Nxtch) (int), int (*Quoted
   }
   if (might_be_float && (ch == '.' || ch == 'e' || ch == 'E')) {
     if (ch == '.') {
+      if (--max_size == 0) {
+	Yap_ErrorMessage = "Number Too Long";
+	return (TermNil);
+      }
       *sp++ = '.';
       if (chtype[ch = Nxtch(inp_stream)] != NU) {
 	*chbuffp = '.';
@@ -477,17 +509,31 @@ get_num(int *chp, int *chbuffp, int inp_stream, int (*Nxtch) (int), int (*Quoted
 	  return(read_int_overflow(s,base,val));
 	return (MkIntegerTerm(val));
       }
-      do
+      do {
+	if (--max_size == 0) {
+	  Yap_ErrorMessage = "Number Too Long";
+	  return (TermNil);
+	}
 	*sp++ = ch;
+      }
       while (chtype[ch = Nxtch(inp_stream)] == NU);
     }
     if (ch == 'e' || ch == 'E') {
       char *sp0 = sp;
       char cbuff = ch;
+
+      if (--max_size == 0) {
+	Yap_ErrorMessage = "Number Too Long";
+	return (TermNil);
+      }
       *sp++ = ch;
       ch = Nxtch(inp_stream);
       if (ch == '-') {
 	cbuff = '-';
+	if (--max_size == 0) {
+	  Yap_ErrorMessage = "Number Too Long";
+	  return (TermNil);
+	}
 	*sp++ = '-';
 	ch = Nxtch(inp_stream);
       } else if (ch == '+') {
@@ -515,6 +561,10 @@ get_num(int *chp, int *chbuffp, int inp_stream, int (*Nxtch) (int), int (*Quoted
 	return(MkIntegerTerm(val));
       }
       do {
+	if (--max_size == 0) {
+	  Yap_ErrorMessage = "Number Too Long";
+	  return (TermNil);
+	}
 	*sp++ = ch;
       } while (chtype[ch = Nxtch(inp_stream)] == NU);
     }
@@ -546,9 +596,18 @@ Yap_scan_num(int (*Nxtch) (int))
   Term out;
   int sign = 1;
   int ch, cherr;
+  UInt tsize;
 
   Yap_ErrorMessage = NULL;
   ScannerStack = (char *)TR;
+  tsize = Yap_TrailTop-ScannerStack;
+  if (tsize < 4096) {
+    if(!Yap_growtrail (sizeof(CELL) * 16 * 1024L)) {
+  printf("vsc: Hello\n");
+      Yap_ErrorMessage = "Trail Overflow";
+      return TermNil;
+    }
+  }
   ch = Nxtch(-1);
   if (ch == '-') {
     sign = -1;
@@ -560,7 +619,7 @@ Yap_scan_num(int (*Nxtch) (int))
     return(TermNil);
   }
   cherr = 0;
-  out = get_num(&ch, &cherr, -1, Nxtch, Nxtch);
+  out = get_num(&ch, &cherr, -1, Nxtch, Nxtch, tsize);
   if (sign == -1) {
     if (IsIntegerTerm(out))
       out = MkIntegerTerm(-IntegerOfTerm(out));
@@ -587,8 +646,8 @@ Yap_tokenizer(int inp_stream)
   Yap_AnonVarTable = NULL;
   Yap_eot_before_eof = FALSE;
   ScannerStack = (char *)TR;
-  l = NIL;
-  p = NIL;			/* Just to make lint happy */
+  l = NULL;
+  p = NULL;			/* Just to make lint happy */
   ch = Nxtch(inp_stream);
   do {
     int och, quote, isvar;
@@ -600,11 +659,11 @@ Yap_tokenizer(int inp_stream)
     t = (TokEntry *) AllocScannerMemory(sizeof(TokEntry));
     t->TokNext = NULL;
     if (t == NULL) {
-      Yap_ErrorMessage = "not enough stack space to read in term";
-      if (p != NIL)
+      Yap_ErrorMessage = "Trail Overflow";
+      if (p)
 	p->TokInfo = eot_tok;
       /* serious error now */
-      return(l);
+      return l;
     }
     if (l == NIL)
       l = t;
@@ -659,8 +718,18 @@ Yap_tokenizer(int inp_stream)
     case NU:
       {
 	int cherr, cha = ch;
+	UInt tsize = Yap_TrailTop-ScannerStack;
 	cherr = 0;
-	t->TokInfo = get_num(&cha,&cherr,inp_stream,Nxtch,QuotedNxtch);
+	if (tsize < 4096) {
+	  if(!Yap_growtrail (sizeof(CELL) * 16 * 1024L)) {
+	    Yap_ErrorMessage = "Trail Overflow";
+	    if (p)
+	      t->TokInfo = eot_tok;
+	    /* serious error now */
+	    return l;
+	  }
+	}
+	t->TokInfo = get_num(&cha,&cherr,inp_stream,Nxtch,QuotedNxtch,tsize);
 	ch = cha;
 	if (cherr) {
 	  TokEntry *e;
@@ -668,10 +737,11 @@ Yap_tokenizer(int inp_stream)
 	  t->TokPos = GetCurInpPos(inp_stream);
 	  e = (TokEntry *) AllocScannerMemory(sizeof(TokEntry));
 	  if (e == NULL) {
-	    Yap_ErrorMessage = "not enough stack space to read in term";
-	    p->TokInfo = eot_tok;
+	    Yap_ErrorMessage = "Trail Overflow";
+	    if (p)
+	      p->TokInfo = eot_tok;
 	    /* serious error now */
-	    return(l);
+	    return l;
 	  } else {
 	    e->TokNext = NULL;
 	  }
@@ -695,10 +765,11 @@ Yap_tokenizer(int inp_stream)
 	      t->TokPos = GetCurInpPos(inp_stream);
 	      e2 = (TokEntry *) AllocScannerMemory(sizeof(TokEntry));
 	      if (e2 == NULL) {
-		Yap_ErrorMessage = "not enough stack space to read in term";
-		p->TokInfo = eot_tok;
+		Yap_ErrorMessage = "Trail Overflow";
+		if (p)
+		  p->TokInfo = eot_tok;
 		/* serious error now */
-		return(l);
+		return l;
 	      } else {
 		e2->TokNext = NULL;
 	      }
@@ -724,10 +795,10 @@ Yap_tokenizer(int inp_stream)
 	      t->TokPos = GetCurInpPos(inp_stream);
 	      e2 = (TokEntry *) AllocScannerMemory(sizeof(TokEntry));
 	      if (e2 == NULL) {
-		Yap_ErrorMessage = "not enough stack space to read in term";
+		Yap_ErrorMessage = "Trail Overflow";
 		p->TokInfo = eot_tok;
 		/* serious error now */
-		return(l);
+		return l;
 	      } else {
 		e2->TokNext = NULL;
 	      }
@@ -789,6 +860,7 @@ Yap_tokenizer(int inp_stream)
 	  /* serious error now */
 	  Yap_ReleasePreAllocCodeSpace((CODEADDR)TokImage);
 	  t->Tok = Ord(kind = eot_tok);
+	  return l;
 	}
       }
       *charp = '\0';
@@ -798,6 +870,7 @@ Yap_tokenizer(int inp_stream)
 	  Yap_ErrorMessage = "not enough stack space to read in string or quoted atom";
 	  Yap_ReleasePreAllocCodeSpace((CODEADDR)TokImage);
 	  t->Tok = Ord(kind = eot_tok);
+	  return l;
 	}
 	strcpy(mp, TokImage);
 	t->TokInfo = Unsigned(mp);
@@ -900,10 +973,10 @@ Yap_tokenizer(int inp_stream)
       /* insert an error token to inform the system of what happened */
       TokEntry *e = (TokEntry *) AllocScannerMemory(sizeof(TokEntry));
       if (e == NULL) {
-	Yap_ErrorMessage = "not enough stack space to read in term";
+	Yap_ErrorMessage = "Trail Overflow";
 	p->TokInfo = eot_tok;
 	/* serious error now */
-	return(l);
+	return l;
       }
       p->TokNext = e;
       e->Tok = Error_tok;
