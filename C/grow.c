@@ -886,6 +886,9 @@ growatomtable(void)
     fprintf(Yap_stderr, "%%   took %g sec\n", (double)growth_time/1000);
     fprintf(Yap_stderr, "%% Total of %g sec expanding atom table \n", (double)total_atom_table_overflow_time/1000);
   }
+#if USE_SYSTEM_MALLOC
+  return TRUE;
+#else
   if (HeapTop + sizeof(YAP_SEG_SIZE) < HeapLim) {
     /* make sure there is no heap overflow */
     int res;
@@ -896,6 +899,7 @@ growatomtable(void)
   } else {
     return TRUE;
   }
+#endif
 }
 
 
