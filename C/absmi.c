@@ -1122,6 +1122,7 @@ Yap_absmi(int inp)
 	/* restart index */
 	setregs();
 	PREG = ipc;
+	if (PREG == NULL) FAIL();
 	CACHED_A1() = ARG1;
 #if defined(YAPOR) || defined(THREADS)
 	PP = ap;

@@ -4843,8 +4843,11 @@ replace_lu_block(LogUpdIndex *blk, int flag, PredEntry *ap, yamop *code, int has
   if (count_reds) sz += xcls*((UInt)NEXTOP((yamop *)NULL,p));
   if (profiled) sz += xcls*((UInt)NEXTOP((yamop *)NULL,p));
   ncl = (LogUpdIndex *)Yap_AllocCodeSpace(sz);
-  if (ncl == NULL)
+  if (ncl == NULL) {
+    Yap_Error_Size = sz;
+    Yap_ErrorMessage = "while at indexing code";
     return NULL;
+  }
   ncl->ClFlags = LogUpdMask|IndexedPredFlag|IndexMask;
   ncl->ClRefCount = 0;
   ncl->u.ParentIndex = blk->u.ParentIndex;
@@ -5063,15 +5066,18 @@ inserta_in_lu_block(LogUpdIndex *blk, PredEntry *ap, yamop *code)
 }
 
 static path_stack_entry *
-expanda_block(path_stack_entry *sp, PredEntry *ap, ClauseDef *cls, int group1, yamop *alt)
+expanda_block(path_stack_entry *sp, PredEntry *ap, ClauseDef *cls, int group1, yamop *alt, struct intermediates *cint)
 {
   while ((--sp)->flag != block_entry);
   if (sp->u.cle.entry_code == NULL) {
     Yap_kill_iblock(sp->u.cle.block, NULL, ap);
   } else if (ap->PredFlags & LogUpdatePredFlag &&
 	     group1 && alt == NULL) {
-      *sp->u.cle.entry_code = 
-	inserta_in_lu_block((LogUpdIndex *)sp->u.cle.block, ap, cls->Code);
+    yamop *new_code = 
+      inserta_in_lu_block((LogUpdIndex *)sp->u.cle.block, ap, cls->Code);
+    if (new_code == NULL) 
+      longjmp(cint->CompilerBotch,2);
+    *sp->u.cle.entry_code = new_code;
   } else {
     path_stack_entry *nsp = sp;
     
@@ -5083,15 +5089,19 @@ expanda_block(path_stack_entry *sp, PredEntry *ap, ClauseDef *cls, int group1, y
 }
 
 static path_stack_entry *
-expandz_block(path_stack_entry *sp, PredEntry *ap, ClauseDef *cls, int group1, yamop *alt)
+expandz_block(path_stack_entry *sp, PredEntry *ap, ClauseDef *cls, int group1, yamop *alt, struct intermediates *cint)
 {
   while ((--sp)->flag != block_entry);
   if (sp->u.cle.entry_code == NULL) {
     Yap_kill_iblock(sp->u.cle.block, NULL, ap);
   } else if (ap->PredFlags & LogUpdatePredFlag &&
 	     group1 && alt == NULL) {
-    *sp->u.cle.entry_code = 
+    yamop *new_code = 
       insertz_in_lu_block((LogUpdIndex *)sp->u.cle.block, ap, cls->Code);
+    if (new_code == NULL) 
+      longjmp(cint->CompilerBotch,2);
+    *sp->u.cle.entry_code = 
+      new_code;
   } else {
     path_stack_entry *nsp = sp;
     
@@ -5142,7 +5152,7 @@ add_to_index(struct intermediates *cint, int first, path_stack_entry *sp, Clause
          have to expand the index.
       */
       if (first) {
-	sp = expanda_block(sp, ap, cls, group1, alt);
+	sp = expanda_block(sp, ap, cls, group1, alt, cint);
 	ipc = pop_path(&sp, cls, ap);
       } else {
 	/* just go to next instruction */
@@ -5152,9 +5162,9 @@ add_to_index(struct intermediates *cint, int first, path_stack_entry *sp, Clause
     case _stale_lu_index:
     case _enter_lu_pred:
       if (first) {
-	sp = expanda_block(sp, ap, cls, group1, alt);
+	sp = expanda_block(sp, ap, cls, group1, alt, cint);
       } else {
-	sp = expandz_block(sp, ap, cls, group1, alt);
+	sp = expandz_block(sp, ap, cls, group1, alt, cint);
       }
       ipc = pop_path(&sp, cls, ap);
       break;
@@ -5205,7 +5215,7 @@ add_to_index(struct intermediates *cint, int first, path_stack_entry *sp, Clause
       break;
     case _trust:
     case _trust_killed:
-      sp = expandz_block(sp, ap, cls, group1, alt);
+      sp = expandz_block(sp, ap, cls, group1, alt, cint);
       ipc = pop_path(&sp, cls, ap);
       break;
     case _jump:
@@ -6372,7 +6382,27 @@ Yap_FollowIndexingCode(PredEntry *ap, yamop *ipc, Term t1, Term tb, Term tr, yam
       ipc = NEXTOP(ipc,l);
       break;
     case _stale_lu_index:
-      ipc = clean_up_index(ipc->u.Ill.I, jlbl, ap);
+      while (TRUE) {
+	yamop *nipc = clean_up_index(ipc->u.Ill.I, jlbl, ap);
+	if (nipc == NULL) {
+	  /* not enough space */
+	  H[0] = t1;
+	  H[1] = tb;
+	  H[2] = tr;
+	  H += 3;
+	  if (!Yap_growheap(FALSE, Yap_Error_Size, NULL)) {
+	    Yap_Error(OUT_OF_HEAP_ERROR, TermNil, Yap_ErrorMessage);
+	    return NULL;
+	  }
+	  H -= 3;
+	  t1 = H[0];
+	  tb = H[1];
+	  tr = H[2];
+	} else {
+	  ipc = nipc;
+	  break;
+	}
+      }
       break;
     case _enter_lu_pred:
       {
@@ -6706,7 +6736,19 @@ Yap_NthClause(PredEntry *ap, Int ncls)
     case _trust_logical_pred:
       ipc = NEXTOP(ipc,l);
     case _stale_lu_index:
-      ipc = clean_up_index(ipc->u.Ill.I, jlbl, ap);
+      while (TRUE) {
+	yamop *nipc = clean_up_index(ipc->u.Ill.I, jlbl, ap);
+	if (nipc == NULL) {
+	  /* not enough space */
+	  if (!Yap_growheap(FALSE, Yap_Error_Size, NULL)) {
+	    Yap_Error(OUT_OF_HEAP_ERROR, TermNil, Yap_ErrorMessage);
+	    return NULL;
+	  }
+	} else {
+	  ipc = nipc;
+	  break;
+	}
+      }
       break;
     case _enter_lu_pred:
       ipc = ipc->u.Ill.l1;
@@ -7014,12 +7056,15 @@ find_caller(PredEntry *ap, yamop *code) {
   return NULL;
 }
 
+static int vsc_clup;
+
 yamop *
 Yap_CleanUpIndex(LogUpdIndex *blk)
 {
   PredEntry *ap;
   LogUpdIndex *pblk = blk->u.ParentIndex, *tblk;
 
+vsc_clup++;
   /* first, go up until findin'your pred */
   tblk = pblk;
   while (!(tblk->ClFlags & SwitchRootMask))
@@ -7030,9 +7075,17 @@ Yap_CleanUpIndex(LogUpdIndex *blk)
     /* I have to kill this block */
     yamop **caller, *new;
     caller = find_caller(ap, blk->ClCode);
-    if (caller == NULL) return NULL;
-    *caller = new = replace_lu_block(blk, REFRESH, ap, NULL, FALSE);
-    return new;
+    while (TRUE) {
+      *caller = new = replace_lu_block(blk, REFRESH, ap, NULL, FALSE);
+      if (new == NULL) {
+	if (!Yap_growheap(FALSE, Yap_Error_Size, NULL)) {
+	  Yap_Error(OUT_OF_HEAP_ERROR, TermNil, Yap_ErrorMessage);
+	  return FAILCODE;
+	}
+      } else {
+	return new;
+      }
+    }
   } else {
     /* just compact the code */
     yamop *start = blk->ClCode, *codep = start->u.Ill.l1;
