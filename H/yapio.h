@@ -323,7 +323,13 @@ extern int  Yap_Portray_delays;
 #endif
 #endif
 
-#define HashFunction(CHP,OUT) { (OUT)=0; while(*(CHP) != '\0') (OUT) += *(CHP)++; (OUT) %= MaxHash; }
+EXTERN inline UInt
+HashFunction(char *CHP)
+{
+  UInt OUT=0;
+  while(*CHP != '\0') OUT += (UInt)(*CHP++);
+  return OUT;
+}
 
 #define FAIL_ON_PARSER_ERROR      0
 #define QUIET_ON_PARSER_ERROR     1

@@ -4470,7 +4470,7 @@ kill_block(path_stack_entry *sp, PredEntry *ap)
 }
 
 static path_stack_entry *
-kill_clause(yamop *ipc, path_stack_entry *sp, PredEntry *ap)
+kill_clause(yamop *ipc, yamop *bg, yamop *lt, path_stack_entry *sp, PredEntry *ap)
 {
   LogUpdIndex *blk;
   yamop *start;
@@ -4498,11 +4498,11 @@ kill_clause(yamop *ipc, path_stack_entry *sp, PredEntry *ap)
 	case _retry:
 	case _try_clause:
 	  /* kill block and replace by this single clause */
-	  if (codep != ipc) {
+	  if (!IN_BETWEEN(bg, codep->u.ld.d, lt)) {
 	    path_stack_entry *nsp = sp;
     
 	    while ((--nsp)->flag != block_entry);
-	    *sp->u.cle.entry_code = ipc->u.ld.d;
+	    *sp->u.cle.entry_code = codep->u.ld.d;
 	    Yap_kill_iblock(sp->u.cle.block, nsp->u.cle.block, ap);
 	    return sp;
 	  } else {
@@ -5472,7 +5472,7 @@ remove_from_index(PredEntry *ap, path_stack_entry *sp, ClauseDef *cls, yamop *bg
          have to expand the index.
       */
       if (IN_BETWEEN(bg,ipc->u.ld.d,lt)) {
-	sp = kill_clause(ipc, sp, ap);
+	sp = kill_clause(ipc, bg, lt, sp, ap);
 	ipc = pop_path(&sp, cls, ap);
       } else {
 	/* just go to next instruction */
@@ -5486,7 +5486,7 @@ remove_from_index(PredEntry *ap, path_stack_entry *sp, ClauseDef *cls, yamop *bg
       ipc = NEXTOP(ipc, ld);
     case _trust:
       if (IN_BETWEEN(bg,ipc->u.ld.d,lt)) {
-	sp = kill_clause(ipc, sp, ap);
+	sp = kill_clause(ipc, bg, lt, sp, ap);
       }
       ipc = pop_path(&sp, cls, ap);
       break;

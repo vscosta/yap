@@ -148,7 +148,7 @@ LookupAtom(char *atom)
 
   /* compute hash */
   p = (unsigned char *)atom;
-  HashFunction(p, hash);
+  hash = HashFunction(p) % MaxHash;
   WRITE_LOCK(HashChain[hash].AERWLock);
   a = HashChain[hash].Entry;
   /* search atom in chain */
@@ -196,7 +196,7 @@ Yap_LookupAtomWithAddress(char *atom, AtomEntry *ae)
 
   /* compute hash */
   p = (unsigned char *)atom;
-  HashFunction(p, hash);
+  hash = HashFunction(p) % MaxHash;
   /* ask for a WRITE lock because it is highly unlikely we shall find anything */
   WRITE_LOCK(HashChain[hash].AERWLock);
   a = HashChain[hash].Entry;
@@ -226,7 +226,7 @@ Yap_ReleaseAtom(Atom atom)
 
   /* compute hash */
   p = (unsigned char *)name;
-  HashFunction(p, hash);
+  hash = HashFunction(p) % MaxHash;
   WRITE_LOCK(HashChain[hash].AERWLock);
   if (HashChain[hash].Entry == atom) {
     HashChain[hash].Entry = ap->NextOfAE;

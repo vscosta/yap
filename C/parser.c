@@ -121,10 +121,10 @@ Yap_LookupVar(char *var)	/* lookup variable in variables table   */
   if (var[0] != '_' || var[1] != '\0') {
     VarEntry **op = &Yap_VarTable;
     unsigned char *vp = (unsigned char *)var;
-    CELL hv;
+    UInt hv;
 
     p = Yap_VarTable;
-    HashFunction(vp, hv);
+    hv = HashFunction(vp) % MaxHash;
     while (p != NULL) {
       CELL hpv = p->hv;
       if (hv == hpv) {
