@@ -10,7 +10,7 @@
 * File:		Heap.h         						 *
 * mods:									 *
 * comments:	Heap Init Structure					 *
-* version:      $Id: Heap.h,v 1.67 2004-10-06 16:55:47 vsc Exp $	 *
+* version:      $Id: Heap.h,v 1.68 2004-10-10 00:23:54 vsc Exp $	 *
 *************************************************************************/
 
 /* information that can be stored in Code Space */
@@ -683,10 +683,10 @@ struct various_codes *heap_regs;
 #define  WokenGoals               heap_regs->wl.woken_goals
 #define  MutableList              heap_regs->wl.mutable_list
 #define  AttsMutableList          heap_regs->wl.atts_mutable_list
+#endif
 #define  GcCalls                  heap_regs->wl.gc_calls
 #define  TotGcTime                heap_regs->wl.tot_gc_time
 #define  TotGcRecovered           heap_regs->wl.tot_gc_recovered
-#endif
 #endif
 #define  profiling                heap_regs->compiler_profiling
 #define  call_counting            heap_regs->compiler_call_counting
