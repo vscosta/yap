@@ -11,8 +11,11 @@
 * File:		computils.c						 *
 * comments:	some useful routines for YAP's compiler			 *
 *									 *
-* Last rev:     $Date: 2004-03-10 14:59:55 $							 *
-* $Log: not supported by cvs2svn $									 *
+* Last rev:     $Date: 2004-04-16 19:27:31 $							 *
+* $Log: not supported by cvs2svn $
+* Revision 1.23  2004/03/10 14:59:55  vsc
+* optimise -> for type tests
+*									 *
 *									 *
 *************************************************************************/
 #ifdef SCCS
@@ -174,7 +177,7 @@ Yap_emit_extra_size (compiler_vm_op o, CELL r1, int size, struct intermediates *
       cip->cpc->nextInst = p;
       cip->cpc = p;
     }
-  return (p->arnds);
+  return p->arnds;
 }
 
 static void

@@ -10,8 +10,12 @@
 *									 *
 * File:		absmi.c							 *
 * comments:	Portable abstract machine interpreter                    *
-* Last rev:     $Date: 2004-04-14 19:10:22 $,$Author: vsc $						 *
+* Last rev:     $Date: 2004-04-16 19:27:30 $,$Author: vsc $						 *
 * $Log: not supported by cvs2svn $
+* Revision 1.128  2004/04/14 19:10:22  vsc
+* expand_clauses: keep a list of clauses to expand
+* fix new trail scheme for multi-assignment variables
+*
 * Revision 1.127  2004/03/31 01:03:09  vsc
 * support expand group of clauses
 *
@@ -7376,11 +7380,11 @@ Yap_absmi(int inp)
 	  default:
 	    PREG = PREG->u.xF.F;
 	    GONext();
-	    FAIL();
 	  } 
 	} 
       }
-      FAIL();
+      PREG = PREG->u.xF.F;
+      GONext();
 
       BEGP(pt0);
       deref_body(d0, pt0, number_x_unk, number_x_nvar);
@@ -7420,7 +7424,8 @@ Yap_absmi(int inp)
 	  } 
 	}
       }
-      FAIL();
+      PREG = PREG->u.xF.F;
+      GONext();
 
       derefa_body(d0, pt0, number_y_unk, number_y_nvar);
       PREG = PREG->u.yF.F;
@@ -7574,7 +7579,8 @@ Yap_absmi(int inp)
       }
       else if (IsApplTerm(d0)) {
 	if (IsExtensionFunctor(FunctorOfTerm(d0))) {
-	  FAIL();
+	  PREG = PREG->u.xF.F;
+	  GONext();
 	}
 	PREG = NEXTOP(PREG, xF);
 	GONext();
@@ -7677,7 +7683,8 @@ Yap_absmi(int inp)
 #else
       if (!IsIntTerm(d0)) {
 #endif
-	FAIL();
+	PREG = NEXTOP(PREG, xF);
+	GONext();
       }
       BEGCHO(pt0);
 #if defined(SBA) && defined(FROZEN_STACKS)

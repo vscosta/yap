@@ -1114,9 +1114,16 @@ IUnify_complex(CELL *pt0, CELL *pt0_end, CELL *pt1)
   register CELL *HBREG = HB;
 #endif /* SHADOW_HB */
 
+#if USE_SYSTEM_MALLOC
   CELL  **to_visit_max = (CELL **)Yap_PreAllocCodeSpace(), **to_visit  = (CELL **)AuxSp;
 #define address_to_visit_max (&to_visit_max)
 #define to_visit_base ((CELL **)AuxSp)
+#else
+  CELL  **to_visit  = (CELL **)Yap_TrailTop;
+#define to_visit_max ((CELL **)TR+16)
+#define address_to_visit_max NULL
+#define to_visit_base ((CELL **)Yap_TrailTop)
+#endif
 
 loop:
   while (pt0 < pt0_end) {

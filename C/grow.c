@@ -510,7 +510,7 @@ static_growheap(long size, int fix_code, struct intermediates *cip)
   size = AdjustPageSize(size);
   Yap_ErrorMessage = NULL;
   if (!Yap_ExtendWorkSpace(size)) {
-    Int min_size = (CELL)Yap_TrailTop-(CELL)Yap_GlobalBase;
+    Int min_size = AdjustPageSize(((CELL)Yap_TrailTop-(CELL)Yap_GlobalBase)+MinHeapGap);
 
     if (size < min_size) size = min_size;
     hole = size;

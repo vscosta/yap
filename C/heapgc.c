@@ -512,7 +512,7 @@ store_in_dbtable(CODEADDR entry, CODEADDR end, db_entry_type db_type)
     Yap_growtrail(64 * 1024L);
   new->val = entry;
   new->db_type = db_type;
-  new->lim = entry+sizeof(DBStruct)+sizeof(CELL)*((DBRef)entry)->DBT.NOfCells;
+  new->lim = end;
   new->left = new->right = NULL;
   if (db_vec == db_vec0) {
     db_vec++;

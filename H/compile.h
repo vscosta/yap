@@ -218,6 +218,11 @@ typedef struct intermediates {
   jmp_buf CompilerBotch;
   yamop *code_addr;
   yamop *expand_block;
+  /* for expanding code */
+  union { 
+    struct static_index *si;
+    struct logic_upd_index *lui;
+  } current_cl;
 } CIntermediates;
 
 #define	 SafeVar	0x01
