@@ -1,6 +1,6 @@
 =================================================================
 Logtalk - Object oriented extension to Prolog
-Release 2.14.5
+Release 2.14.6
 
 Copyright (c) 1998-2002 Paulo Moura.  All Rights Reserved.
 =================================================================
@@ -8,6 +8,13 @@ Copyright (c) 1998-2002 Paulo Moura.  All Rights Reserved.
 
 RELEASE NOTES
 =============
+
+
+2.14.6 - December 31, 2002
+
+	Corrected a bug where the opening directive of an object that, 
+	simultaneously, implements a protocol, imports a categoty, instantiates 
+	a class, and specializes a superclass, will not be recognized.
 
 
 2.14.5 - December 20, 2002
