@@ -12,7 +12,7 @@
 * Last rev:								 *
 * mods:									 *
 * comments:	allocating space					 *
-* version:$Id: alloc.c,v 1.64 2004-11-04 18:22:30 vsc Exp $		 *
+* version:$Id: alloc.c,v 1.65 2004-11-17 05:24:20 vsc Exp $		 *
 *************************************************************************/
 #ifdef SCCS
 static char SccsId[] = "%W% %G%";
@@ -1396,6 +1396,7 @@ Yap_ExtendWorkSpaceThroughHole(UInt s)
       Yap_hole_start = (ADDR)WorkSpaceTop0;
       Yap_hole_end = (ADDR)WorkSpaceTop-s;
 #endif
+      Yap_ErrorMessage = NULL;
       return WorkSpaceTop-WorkSpaceTop0;
     }
 #if defined(_WIN32)
@@ -1409,6 +1410,7 @@ Yap_ExtendWorkSpaceThroughHole(UInt s)
   WorkSpaceTop = WorkSpaceTop0;
 #endif
   if (ExtendWorkSpace(s, 0)) {
+    Yap_ErrorMessage = NULL;
     return WorkSpaceTop-WorkSpaceTop0;
   }
 #endif

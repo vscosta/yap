@@ -177,7 +177,6 @@ yapsbrk(long size)
     oldHeapTop = Yap_hole_end;
     newHeapTop = oldHeapTop+size;;
     Yap_hole_start = Yap_hole_end = NULL;
-    printf("sbrk past hole %p--%p\n", newHeapTop,H0);    
   }
   if (newHeapTop > HeapLim - MinHeapGap) {
     if (HeapTop + size < HeapLim) {

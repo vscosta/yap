@@ -548,6 +548,7 @@ static_growheap(long size, int fix_code, struct intermediates *cip)
   if (!Yap_ExtendWorkSpace(size)) {
     Int min_size = AdjustPageSize(((CELL)Yap_TrailTop-(CELL)Yap_GlobalBase)+MinHeapGap);
 
+    Yap_ErrorMessage = NULL;
     if (size < min_size) size = min_size;
     minimal_request = size;
     size = Yap_ExtendWorkSpaceThroughHole(size);
@@ -981,6 +982,7 @@ execute_growstack(long size0, int from_trail)
   if (!Yap_ExtendWorkSpace(size)) {
     /* make sure stacks and trail are contiguous */
 
+    Yap_ErrorMessage = NULL;    
     minimal_request = AdjustPageSize(((CELL)Yap_TrailTop-(CELL)Yap_GlobalBase)+4*MinHeapGap+size0);
 
     size = Yap_ExtendWorkSpaceThroughHole(minimal_request);
@@ -1240,6 +1242,7 @@ static int do_growtrail(long size)
   execute_growstack(size, TRUE);
 #else
   if (!Yap_ExtendWorkSpace(size)) {
+    Yap_ErrorMessage = NULL;
     execute_growstack(size, TRUE);
   }
   YAPEnterCriticalSection();
