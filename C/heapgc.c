@@ -1851,11 +1851,12 @@ sweep_trail(choiceptr gc_B, tr_fr_ptr old_TR)
   }
   new_TR = dest;
   if (is_gc_verbose()) {
-    YP_fprintf(YP_stderr,
-	       "[GC]       Trail: discarded %d (%ld%%) cells out of %ld\n",
-	       discard_trail_entries,
-	       (unsigned long int)(discard_trail_entries*100/(old_TR-(tr_fr_ptr)TrailBase)),
-	       (unsigned long int)(old_TR-(tr_fr_ptr)TrailBase));
+    if (old_TR != (tr_fr_ptr)TrailBase)
+      YP_fprintf(YP_stderr,
+		 "[GC]       Trail: discarded %d (%ld%%) cells out of %ld\n",
+		 discard_trail_entries,
+		 (unsigned long int)(discard_trail_entries*100/(old_TR-(tr_fr_ptr)TrailBase)),
+		 (unsigned long int)(old_TR-(tr_fr_ptr)TrailBase));
 #ifdef DEBUG
     if (hp_entrs > 0)
       YP_fprintf(YP_stderr,
