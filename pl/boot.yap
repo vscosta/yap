@@ -753,12 +753,12 @@ not(G) :-    \+ '$execute'(G).
 '$do_undefp'(G,M) :-
 	\+ '$undefined'(unknown_predicate_handler(_,_,_), user),
 	'$system_catch'(unknown_predicate_handler(G,M,NG), user, _, fail), !,
-	'$exit_undefp',
-	'$execute'(user:NG).
+	'$execute'(user:NG),
+	'$exit_undefp'.
 '$do_undefp'(G,M) :-
 	recorded('$unknown','$unknown'(M:G,US),_), !,
-	'$exit_undefp',
-	'$execute'(user:US).
+	'$execute'(user:US),
+	'$exit_undefp'.
 '$do_undefp'(_,_) :-
 	'$exit_undefp',
 	fail.
