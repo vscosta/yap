@@ -369,10 +369,11 @@ p_install_thread_local(void)
   } else
     return FALSE;
   WRITE_LOCK(pe->PRWLock);
-  if (pe->PredFlags & (UserCPredFlag|HiddenPredFlag|CArgsPredFlag|SourcePredFlag|SyncPredFlag|TestPredFlag|AsmPredFlag|StandardPredFlag|DynamicPredFlag|CPredFlag|SafePredFlag|IndexedPredFlag|BinaryTestPredFlag|SpiedPredFlag)) {
+  if (pe->PredFlags & (UserCPredFlag|HiddenPredFlag|CArgsPredFlag|SyncPredFlag|TestPredFlag|AsmPredFlag|StandardPredFlag|CPredFlag|SafePredFlag|IndexedPredFlag|BinaryTestPredFlag) ||
+      pe->cs.p_code.FirstClause != NULL) {
     return FALSE;
   }
-  pe->PredFlags |= (ThreadLocalPredFlag|LogUpdatePredFlag);
+  pe->PredFlags |= ThreadLocalPredFlag;
   pe->OpcodeOfPred = Yap_opcode(_thread_local);
   pe->CodeOfPred = (yamop *)&pe->OpcodeOfPred;
   WRITE_UNLOCK(pe->PRWLock);

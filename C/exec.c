@@ -47,7 +47,7 @@ CallPredicate(PredEntry *pen, choiceptr cut_pt) {
   if (Yap_do_low_level_trace)
     low_level_trace(enter_pred,pen,XREGS+1);
 #endif	/* LOW_LEVEL_TRACE */
-  WRITE_LOCK(pen->PRWLock);
+  READ_LOCK(pen->PRWLock);
 #ifdef DEPTH_LIMIT
   if (DEPTH <= MkIntTerm(1)) {/* I assume Module==0 is prolog */
     if (pen->ModuleOfPred) {
@@ -61,7 +61,7 @@ CallPredicate(PredEntry *pen, choiceptr cut_pt) {
   CP = P;
   P = pen->CodeOfPred;
   /* vsc: increment reduction counter at meta-call entry */
-  WRITE_UNLOCK(pen->PRWLock);
+  READ_UNLOCK(pen->PRWLock);
   if (pen->PredFlags & ProfiledPredFlag) {
     LOCK(pen->StatisticsForPred.lock);
     pen->StatisticsForPred.NOfEntries++;
@@ -108,7 +108,7 @@ CallClause(PredEntry *pen, Int position)
   CELL            flags;
 
   if (position == -1) return(CallPredicate(pen, B));
-  WRITE_LOCK(pen->PRWLock);
+  READ_LOCK(pen->PRWLock);
   flags = pen->PredFlags;
   if ((flags & (CompiledPredFlag | DynamicPredFlag)) ||
       pen->OpcodeOfPred == UNDEF_OPCODE) {
@@ -167,24 +167,24 @@ CallClause(PredEntry *pen, Int position)
 	*opp |= InUseMask;
       }
 #endif
+      READ_UNLOCK(pen->PRWLock);
       CLAUSECODE->clause = NEXTOP(q,ld);
       P = CLAUSECODE->clause;
-      WRITE_UNLOCK(pen->PRWLock);
       return((CELL)(&(CLAUSECODE->clause)));
     } else if (flags & LogUpdatePredFlag) {
       LogUpdClause *cl = ClauseCodeToLogUpdClause(q);
       for (; position > 1; position--)
 	cl = cl->ClNext;
+      READ_UNLOCK(pen->PRWLock);
       P = cl->ClCode;
-      WRITE_UNLOCK(pen->PRWLock);
       return (Unsigned(pen));
     } else {
       /* static clause */
       LogUpdClause *cl = ClauseCodeToLogUpdClause(q);
       for (; position > 1; position--)
 	cl = cl->ClNext;
+      READ_UNLOCK(pen->PRWLock);
       P = cl->ClCode;
-      WRITE_UNLOCK(pen->PRWLock);
       return (Unsigned(pen));
     }
   } else {
@@ -1589,6 +1589,11 @@ Yap_InitYaamRegs(void)
   WokenGoals = Yap_NewTimedVar(TermNil);
   MutableList = Yap_NewTimedVar(TermNil);
   AttsMutableList = Yap_NewTimedVar(TermNil);
+#endif
+#if defined(YAPOR) || defined(THREADS)
+  PP = NULL;
+  WPP = NULL;
+  PREG_ADDR = NULL;
 #endif
 }
 

@@ -6307,6 +6307,7 @@ Yap_absmi(int inp)
       {
 	PredEntry *ap = PredFromDefCode(PREG);
 	WRITE_LOCK(ap->PRWLock);
+	WPP = ap;
 #if defined(YAPOR) || defined(THREADS)
       /*
 	we do not lock access to the predicate,
@@ -6315,6 +6316,7 @@ Yap_absmi(int inp)
 	if (ap->OpcodeOfPred != INDEX_OPCODE) {
 	  /* someone was here before we were */
 	  PREG = ap->CodeOfPred;
+	  WPP = NULL;
 	  WRITE_UNLOCK(ap->PRWLock);
 	  JMPNext();
 	}
@@ -6329,6 +6331,7 @@ Yap_absmi(int inp)
 	setregs();
 	CACHED_A1() = ARG1;
 	PREG = ap->CodeOfPred;
+	WPP = NULL;
 	WRITE_UNLOCK(ap->PRWLock);
       }
       JMPNext();

@@ -1836,7 +1836,9 @@ record_lu(PredEntry *pe, Term t, int position)
   else
     ipc->opc = Yap_opcode(_unify_idb_term);
   WRITE_LOCK(pe->PRWLock);
+  WPP = pe;
   Yap_add_logupd_clause(pe, cl, (position == MkFirst ? 2 : 0));
+  WPP = NULL;
   WRITE_UNLOCK(pe->PRWLock);
   return cl;
 }
@@ -3846,7 +3848,9 @@ static void
 EraseLogUpdCl(LogUpdClause *clau)
 {
   PredEntry *ap = clau->ClPred;
-  WRITE_LOCK(ap->PRWLock);
+  if (WPP != ap) {
+    WRITE_LOCK(ap->PRWLock);
+  }
   /* no need to erase what has been erased */ 
   if (!(clau->ClFlags & ErasedMask)) {
 
@@ -3893,7 +3897,9 @@ EraseLogUpdCl(LogUpdClause *clau)
     clau->ClRefCount--;
   }
   complete_lu_erase(clau);
-  WRITE_UNLOCK(ap->PRWLock);
+  if (WPP != ap) {
+    WRITE_UNLOCK(ap->PRWLock);
+  }
 }
 
 static void
@@ -3968,7 +3974,9 @@ PrepareToEraseLogUpdClause(LogUpdClause *clau, DBRef dbr)
   if (clau->ClFlags & ErasedMask)
     return;
   clau->ClFlags |= ErasedMask;
-  WRITE_LOCK(p->PRWLock);
+  if (WPP != p) {
+    WRITE_LOCK(p->PRWLock);
+  }
   if (p->cs.p_code.FirstClause != cl) {
     /* we are not the first clause... */
     yamop *prev_code_p = (yamop *)(dbr->Prev->Code);
@@ -4018,7 +4026,9 @@ PrepareToEraseLogUpdClause(LogUpdClause *clau, DBRef dbr)
       p->CodeOfPred = (yamop *)(&(p->OpcodeOfPred)); 
     }
   }
-  WRITE_UNLOCK(p->PRWLock);
+  if (WPP != p) {
+    WRITE_UNLOCK(p->PRWLock);
+  }
 }
 
 static void 

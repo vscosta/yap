@@ -518,7 +518,7 @@ Yap_NewThreadPred(PredEntry *ap)
   p->ArityOfPE = ap->ArityOfPE;
   p->cs.p_code.FirstClause = p->cs.p_code.LastClause = NULL;
   p->cs.p_code.NOfClauses = 0;
-  p->PredFlags = (ThreadLocalPredFlag|LogUpdatePredFlag);
+  p->PredFlags = ap->PredFlags & ~(IndexedPredFlag|SpiedPredFlag);
   p->src.OwnerFile = ap->src.OwnerFile;
   p->OpcodeOfPred = UNDEF_OPCODE;
   p->CodeOfPred = p->cs.p_code.TrueCodeOfPred = (yamop *)(&(p->OpcodeOfPred)); 

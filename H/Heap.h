@@ -10,7 +10,7 @@
 * File:		Heap.h         						 *
 * mods:									 *
 * comments:	Heap Init Structure					 *
-* version:      $Id: Heap.h,v 1.54 2004-02-11 01:20:56 vsc Exp $	 *
+* version:      $Id: Heap.h,v 1.55 2004-02-11 13:33:19 vsc Exp $	 *
 *************************************************************************/
 
 /* information that can be stored in Code Space */
@@ -45,8 +45,9 @@ typedef struct scratch_block_struct {
 } scratch_block;
 
 typedef struct worker_local_struct {
-#ifdef THREADS
+#if defined(YAPOR) || defined(THREADS)
   lockvar  signal_lock;        /* protect signal handlers from IPIs */
+  struct pred_entry *wpp;
 #endif
   UInt   active_signals;
   UInt   i_pred_arity;
@@ -612,6 +613,7 @@ struct various_codes *heap_regs;
 #endif
 #if defined(YAPOR) || defined(THREADS)
 #define  SignalLock               heap_regs->wl[worker_id].signal_lock
+#define  WPP                      heap_regs->wl[worker_id].wpp
 #define  ActiveSignals            heap_regs->wl[worker_id].active_signals
 #define  IPredArity               heap_regs->wl[worker_id].i_pred_arity
 #define  ProfEnd                  heap_regs->wl[worker_id].prof_end

@@ -10,7 +10,7 @@
 * File:		Regs.h							 *
 * mods:									 *
 * comments:	YAP abstract machine registers				 *
-* version:      $Id: Regs.h,v 1.24 2004-02-06 17:22:24 vsc Exp $	 *
+* version:      $Id: Regs.h,v 1.25 2004-02-11 13:33:19 vsc Exp $	 *
 *************************************************************************/
 
 
@@ -108,6 +108,7 @@ typedef struct
 #endif /* SBA || TABLING */
 #if defined(YAPOR) || defined(THREADS)
     struct pred_entry *PP_;
+    /* recursive write-locks for PredEntry */
     yamop **PREG_ADDR_;
     unsigned int worker_id_;
 #ifdef SBA
