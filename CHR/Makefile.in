@@ -26,7 +26,7 @@ CHR_PROGRAMS= $(srcdir)/chr/chrcmp.pl \
 	$(srcdir)/chr/matching.pl \
 	$(srcdir)/chr/operator.pl \
 	$(srcdir)/chr/ordering.pl \
-	$(srcdir)/chr/sbag.yap \
+	$(srcdir)/chr/sbag.pl \
 	$(srcdir)/chr/sbag_a.pl \
 	$(srcdir)/chr/sbag_l.pl \
 	$(srcdir)/chr/trace.yap
