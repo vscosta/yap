@@ -57,6 +57,7 @@ false :- false.
 	 % modules must be after preds, otherwise we will have trouble
 	 % with meta-predicate expansion being invoked
 	 'modules.yap',
+	 'profile.yap',
 	 'load_foreign.yap',
 	 'sockets.yap',
 	 'sort.yap',
