@@ -31,13 +31,14 @@
 @c @smallbook
 @comment %** end of header
 
-@ifinfo
+@ifnottex
 @format
-START-INFO-DIR-ENTRY
+@dircategory The YAP Prolog System
+@direntry
 * Yap: (yap).           YAP Prolog User's Manual.
-END-INFO-DIR-ENTRY
+@end direntry
 @end format
-@end ifinfo
+@end ifnottex
 
 @titlepage
 @title YAP User's Manual
@@ -65,7 +66,7 @@ into another language, under the above conditions for modified versions.
 
 @end titlepage
 
-@ifinfo
+@ifnottex
 @node Top, , , (dir)
 @top YAP Prolog
 
@@ -325,7 +326,7 @@ Tables
 
 @end menu
 
-@end ifinfo
+@end ifnottex
 
 
 @node Intro, Install, , Top
@@ -9017,6 +9018,7 @@ these builtins are rewritten by the system into internal builtins, and
 that the rewriting process @emph{depends} on the module on which the
 builtins have been invoked.
 
+@table @code
 @item @var{Module}:get_atts(@var{-Var},@var{?ListOfAttributes})
 @findex get_atts/2
 @syindex get_atts/2
@@ -9025,7 +9027,6 @@ Unify the list @var{?ListOfAttributes} with the attributes for the unbound
 variable @var{Var}. Each member of the list must be a bound term of the
 form @code{+(@var{Attribute})}, @code{-(@var{Attribute})} (the @t{kbd}
 prefix may be dropped). The meaning of @t{+} and @t{-} is:
-@table @code
 @item +(@var{Attribute})
 Unifies @var{Attribute} with a corresponding attribute associated with
 @var{Var}, fails otherwise.
@@ -9033,7 +9034,6 @@ Unifies @var{Attribute} with a corresponding attribute associated with
 @item -(@var{Attribute})
 Succeeds if a corresponding attribute is not associated with
 @var{Var}. The arguments of @var{Attribute} are ignored.
-@end table
 
 @item @var{Module}:put_atts(@var{-Var},@var{?ListOfAttributes})
 @findex put_atts/2
@@ -9079,7 +9079,7 @@ unification will fail.
 Notice that the @t{verify_attributes/3} may be called even if @var{Var}
 has no attributes in module @t{Module}. In this case the routine should
 simply succeed with @var{Goals} unified with the empty list.
-@table @code
+
 @item attvar(@var{-Var})
 @findex attvar/1
 @snindex attvar/1
