@@ -86,7 +86,7 @@ copy_complex_term(register CELL *pt0, register CELL *pt0_end, CELL *ptf, CELL *H
 	*ptf = AbsPair(H);
 	ptf++;
 #ifdef RATIONAL_TREES
-	if (to_visit + 4 >= (CELL **)GlobalBase) {
+	if (to_visit + 4 >= (CELL **)_YAP_GlobalBase) {
 	  goto heap_overflow;
 	}
 	to_visit[0] = pt0;
@@ -98,7 +98,7 @@ copy_complex_term(register CELL *pt0, register CELL *pt0_end, CELL *ptf, CELL *H
 	to_visit += 4;
 #else
 	if (pt0 < pt0_end) {
-	  if (to_visit + 3 >= (CELL **)GlobalBase) {
+	  if (to_visit + 3 >= (CELL **)_YAP_GlobalBase) {
 	    goto heap_overflow;
 	  }
 	  to_visit[0] = pt0;
@@ -136,7 +136,7 @@ copy_complex_term(register CELL *pt0, register CELL *pt0_end, CELL *ptf, CELL *H
 	ptf++;
 	/* store the terms to visit */
 #ifdef RATIONAL_TREES
-	if (to_visit + 4 >= (CELL **)GlobalBase) {
+	if (to_visit + 4 >= (CELL **)_YAP_GlobalBase) {
 	  goto heap_overflow;
 	}
 	to_visit[0] = pt0;
@@ -148,7 +148,7 @@ copy_complex_term(register CELL *pt0, register CELL *pt0_end, CELL *ptf, CELL *H
 	to_visit += 4;
 #else
 	if (pt0 < pt0_end) {
-	  if (to_visit + 3 >= (CELL **)GlobalBase) {
+	  if (to_visit + 3 >= (CELL **)_YAP_GlobalBase) {
 	    goto heap_overflow;
 	  }
 	  to_visit[0] = pt0;
@@ -189,7 +189,7 @@ copy_complex_term(register CELL *pt0, register CELL *pt0_end, CELL *ptf, CELL *H
 	  *ptf++ = (CELL) ptd0;
 	} else {
 	  if (dvars == NULL) {
-	    dvars = (CELL *)ReadTimedVar(DelayedVars);
+	    dvars = (CELL *)_YAP_ReadTimedVar(DelayedVars);
 	  } 	
 	  bp[0] = to_visit;
 	  CurTR = TR;
@@ -292,7 +292,7 @@ copy_complex_term(register CELL *pt0, register CELL *pt0_end, CELL *ptf, CELL *H
   return(-2);
 }
 
-Term
+static Term
 CopyTerm(Term inp) {
   Term t = Deref(inp);
 
@@ -309,15 +309,15 @@ CopyTerm(Term inp) {
       if ((res = copy_complex_term(Hi-2, Hi-1, Hi, Hi)) < 0) {
 	ARG1 = t;
 	if (res == -1) { /* handle overflow */
-	  if (!gc(2, ENV, P)) {
-	    Error(OUT_OF_STACK_ERROR, TermNil, ErrorMessage);
+	  if (!_YAP_gc(2, ENV, P)) {
+	    _YAP_Error(OUT_OF_STACK_ERROR, TermNil, _YAP_ErrorMessage);
 	    return(FALSE);
 	  }
 	  t = Deref(ARG1);
 	  goto restart_attached;
 	} else { /* handle overflow */
-	  if (!growheap(FALSE)) {
-	    Error(SYSTEM_ERROR, TermNil, ErrorMessage);
+	  if (!_YAP_growheap(FALSE)) {
+	    _YAP_Error(SYSTEM_ERROR, TermNil, _YAP_ErrorMessage);
 	    return(FALSE);
 	  }
 	  t = Deref(ARG1);
@@ -345,15 +345,15 @@ CopyTerm(Term inp) {
       if ((res = copy_complex_term(ap-1, ap+1, Hi, Hi)) < 0) {
 	ARG1 = t;
 	if (res == -1) { /* handle overflow */
-	  if (!gc(2, ENV, P)) {
-	    Error(OUT_OF_STACK_ERROR, TermNil, ErrorMessage);
+	  if (!_YAP_gc(2, ENV, P)) {
+	    _YAP_Error(OUT_OF_STACK_ERROR, TermNil, _YAP_ErrorMessage);
 	    return(FALSE);
 	  }
 	  t = Deref(ARG1);
 	  goto restart_list;
 	} else { /* handle overflow */
-	  if (!growheap(FALSE)) {
-	    Error(SYSTEM_ERROR, TermNil, ErrorMessage);
+	  if (!_YAP_growheap(FALSE)) {
+	    _YAP_Error(SYSTEM_ERROR, TermNil, _YAP_ErrorMessage);
 	    return(FALSE);
 	  }
 	  t = Deref(ARG1);
@@ -380,15 +380,15 @@ CopyTerm(Term inp) {
       if ((res = copy_complex_term(ap, ap+ArityOfFunctor(f), HB0+1, HB0)) < 0) {
 	ARG1 = t;
 	if (res == -1) {
-	  if (!gc(2, ENV, P)) {
-	    Error(OUT_OF_STACK_ERROR, TermNil, ErrorMessage);
+	  if (!_YAP_gc(2, ENV, P)) {
+	    _YAP_Error(OUT_OF_STACK_ERROR, TermNil, _YAP_ErrorMessage);
 	    return(FALSE);
 	  }
 	  t = Deref(ARG1);
 	  goto restart_appl;
 	} else { /* handle overflow */
-	  if (!growheap(FALSE)) {
-	    Error(SYSTEM_ERROR, TermNil, ErrorMessage);
+	  if (!_YAP_growheap(FALSE)) {
+	    _YAP_Error(SYSTEM_ERROR, TermNil, _YAP_ErrorMessage);
 	    return(FALSE);
 	  }
 	  t = Deref(ARG1);
@@ -400,10 +400,15 @@ CopyTerm(Term inp) {
   }
 }
  
+Term
+_YAP_CopyTerm(Term inp) {
+  return CopyTerm(inp);
+}
+
 static Int 
 p_copy_term(void)		/* copy term t to a new instance  */
 {
-  return(unify(ARG2,CopyTerm(ARG1)));
+  return(_YAP_unify(ARG2,CopyTerm(ARG1)));
 }
 
 static int copy_complex_term_no_delays(register CELL *pt0, register CELL *pt0_end, CELL *ptf, CELL *HLow)
@@ -434,7 +439,7 @@ static int copy_complex_term_no_delays(register CELL *pt0, register CELL *pt0_en
 	*ptf = AbsPair(H);
 	ptf++;
 #ifdef RATIONAL_TREES
-	if (to_visit + 4 >= (CELL **)GlobalBase) {
+	if (to_visit + 4 >= (CELL **)_YAP_GlobalBase) {
 	  goto heap_overflow;
 	}
 	to_visit[0] = pt0;
@@ -446,7 +451,7 @@ static int copy_complex_term_no_delays(register CELL *pt0, register CELL *pt0_en
 	to_visit += 4;
 #else
 	if (pt0 < pt0_end) {
-	  if (to_visit + 3 >= (CELL **)GlobalBase) {
+	  if (to_visit + 3 >= (CELL **)_YAP_GlobalBase) {
 	    goto heap_overflow;
 	  }
 	  to_visit[0] = pt0;
@@ -482,7 +487,7 @@ static int copy_complex_term_no_delays(register CELL *pt0, register CELL *pt0_en
 	ptf++;
 	/* store the terms to visit */
 #ifdef RATIONAL_TREES
-	if (to_visit + 4 >= (CELL **)GlobalBase) {
+	if (to_visit + 4 >= (CELL **)_YAP_GlobalBase) {
 	  goto heap_overflow;
 	}
 	to_visit[0] = pt0;
@@ -493,7 +498,7 @@ static int copy_complex_term_no_delays(register CELL *pt0, register CELL *pt0_en
 	*pt0 = AbsAppl(H);
 	to_visit += 4;
 #else
-	if (to_visit + 3 >= (CELL **)GlobalBase) {
+	if (to_visit + 3 >= (CELL **)_YAP_GlobalBase) {
 	  goto heap_overflow;
 	}
 	if (pt0 < pt0_end) {
@@ -613,15 +618,15 @@ CopyTermNoDelays(Term inp) {
     res = copy_complex_term_no_delays(ap-1, ap+1, H-2, H-2);
     if (res) {
       if (res == -1) { /* handle overflow */
-	if (!gc(2, ENV, P)) {
-	  Error(OUT_OF_STACK_ERROR, TermNil, ErrorMessage);
+	if (!_YAP_gc(2, ENV, P)) {
+	  _YAP_Error(OUT_OF_STACK_ERROR, TermNil, _YAP_ErrorMessage);
 	  return(FALSE);
 	}
 	t = Deref(ARG1);
 	goto restart_list;
       } else { /* handle overflow */
-	if (!growheap(FALSE)) {
-	  Error(SYSTEM_ERROR, TermNil, ErrorMessage);
+	if (!_YAP_growheap(FALSE)) {
+	  _YAP_Error(SYSTEM_ERROR, TermNil, _YAP_ErrorMessage);
 	  return(FALSE);
 	}
 	t = Deref(ARG1);
@@ -645,15 +650,15 @@ CopyTermNoDelays(Term inp) {
     res = copy_complex_term_no_delays(ap, ap+ArityOfFunctor(f), HB0+1, HB0);
     if (res) {
       if (res == -1) {
-	if (!gc(2, ENV, P)) {
-	  Error(OUT_OF_STACK_ERROR, TermNil, ErrorMessage);
+	if (!_YAP_gc(2, ENV, P)) {
+	  _YAP_Error(OUT_OF_STACK_ERROR, TermNil, _YAP_ErrorMessage);
 	  return(FALSE);
 	}
 	t = Deref(ARG1);
 	goto restart_appl;
       } else { /* handle overflow */
-	if (!growheap(FALSE)) {
-	  Error(SYSTEM_ERROR, TermNil, ErrorMessage);
+	if (!_YAP_growheap(FALSE)) {
+	  _YAP_Error(SYSTEM_ERROR, TermNil, _YAP_ErrorMessage);
 	  return(FALSE);
 	}
 	t = Deref(ARG1);
@@ -667,7 +672,7 @@ CopyTermNoDelays(Term inp) {
 static Int 
 p_copy_term_no_delays(void)		/* copy term t to a new instance  */
 {
-  return(unify(ARG2,CopyTermNoDelays(ARG1)));
+  return(_YAP_unify(ARG2,CopyTermNoDelays(ARG1)));
 }
 
 
@@ -768,7 +773,7 @@ static Term vars_in_complex_term(register CELL *pt0, register CELL *pt0_end)
     Term t2 = Deref(ARG2);
     if (IsVarTerm(t2)) {
       RESET_VARIABLE(H-1);
-      unify((CELL)(H-1),ARG2);
+      _YAP_unify((CELL)(H-1),ARG2);
     } else {
       H[-1] = t2;		/* don't need to trail */
     }
@@ -789,8 +794,8 @@ p_variables_in_term(void)	/* variables in term t		 */
     H += 2;
     RESET_VARIABLE(H-2);
     RESET_VARIABLE(H-1);
-    unify((CELL)(H-2),ARG1);
-    unify((CELL)(H-1),ARG2);
+    _YAP_unify((CELL)(H-2),ARG1);
+    _YAP_unify((CELL)(H-1),ARG2);
   }  else if (IsPrimitiveTerm(t)) 
     out = ARG2;
   else if (IsPairTerm(t)) {
@@ -803,7 +808,7 @@ p_variables_in_term(void)	/* variables in term t		 */
 			       RepAppl(t)+
 			       ArityOfFunctor(f));
   }
-  return(unify(ARG3,out));
+  return(_YAP_unify(ARG3,out));
 }
 
 static Term non_singletons_in_complex_term(register CELL *pt0, register CELL *pt0_end)
@@ -906,7 +911,7 @@ static Term non_singletons_in_complex_term(register CELL *pt0, register CELL *pt
   if (H != InitialH) {
     /* close the list */
     RESET_VARIABLE(H-1);
-    unify((CELL)(H-1),ARG2);
+    _YAP_unify((CELL)(H-1),ARG2);
     return(output);
   } else {
     return(ARG2);
@@ -929,7 +934,7 @@ p_non_singletons_in_term(void)	/* non_singletons in term t		 */
 	else out = non_singletons_in_complex_term(RepAppl(t),
 					RepAppl(t)+
 					ArityOfFunctor(FunctorOfTerm(t)));
-	return(unify(ARG3,out));
+	return(_YAP_unify(ARG3,out));
 }
 
 static Int ground_complex_term(register CELL *pt0, register CELL *pt0_end)
@@ -1246,24 +1251,24 @@ GvNTermHash(void)
 
 
   if (IsVarTerm(t2)) {
-    Error(INSTANTIATION_ERROR,t2,"term_hash/4");
+    _YAP_Error(INSTANTIATION_ERROR,t2,"term_hash/4");
     return(FALSE);
   }
   if (!IsIntegerTerm(t2)) {
-    Error(TYPE_ERROR_INTEGER,t2,"term_hash/4");
+    _YAP_Error(TYPE_ERROR_INTEGER,t2,"term_hash/4");
     return(FALSE);
   }
   depth = IntegerOfTerm(t2);
   if (depth == 0) {
     if (IsVarTerm(t1)) return(TRUE);
-    return(unify(ARG4,MkIntTerm(0)));
+    return(_YAP_unify(ARG4,MkIntTerm(0)));
   }
   if (IsVarTerm(t3)) {
-    Error(INSTANTIATION_ERROR,t3,"term_hash/4");
+    _YAP_Error(INSTANTIATION_ERROR,t3,"term_hash/4");
     return(FALSE);
   }
   if (!IsIntegerTerm(t3)) {
-    Error(TYPE_ERROR_INTEGER,t3,"term_hash/4");
+    _YAP_Error(TYPE_ERROR_INTEGER,t3,"term_hash/4");
     return(FALSE);
   }
   size = IntegerOfTerm(t3);
@@ -1278,7 +1283,7 @@ GvNTermHash(void)
   i3 = GvNht[2];
   i2 ^= i3; i1 ^= i2; i1 = (((i3 << 7) + i2) << 7) + i1;
   result = MkIntegerTerm(i1 % size);
-  return(unify(ARG4,result));
+  return(_YAP_unify(ARG4,result));
 }
 
 static int variant_complex(register CELL *pt0, register CELL *pt0_end, register
@@ -1680,30 +1685,30 @@ camacho_dum(void)
 
   /* build output list */
 
-  t1 = MkAtomTerm(LookupAtom("[]"));
+  t1 = MkAtomTerm(_YAP_LookupAtom("[]"));
       t2 = MkPairTerm(MkIntegerTerm(max), t1);
 
-  return(unify(t2, ARG1));
+  return(_YAP_unify(t2, ARG1));
 }
 
 
 
 #endif /* DEBUG */
 
-void InitUtilCPreds(void)
+void _YAP_InitUtilCPreds(void)
 {
-  InitCPred("copy_term", 2, p_copy_term, 0);
-  InitCPred("$copy_term_but_not_constraints", 2, p_copy_term_no_delays, 0);
-  InitCPred("ground", 1, p_ground, SafePredFlag);
-  InitCPred("$variables_in_term", 3, p_variables_in_term, SafePredFlag);
-  InitCPred("variable_in_term", 2, p_var_in_term, SafePredFlag);
-  InitCPred("$non_singletons_in_term", 3, p_non_singletons_in_term, SafePredFlag);
-  InitCPred("term_hash", 4, GvNTermHash, SafePredFlag);
-  InitCPred("variant", 2, p_variant, SafePredFlag);
-  InitCPred("subsumes", 2, p_subsumes, SafePredFlag);
+  _YAP_InitCPred("copy_term", 2, p_copy_term, 0);
+  _YAP_InitCPred("$copy_term_but_not_constraints", 2, p_copy_term_no_delays, 0);
+  _YAP_InitCPred("ground", 1, p_ground, SafePredFlag);
+  _YAP_InitCPred("$variables_in_term", 3, p_variables_in_term, SafePredFlag);
+  _YAP_InitCPred("variable_in_term", 2, p_var_in_term, SafePredFlag);
+  _YAP_InitCPred("$non_singletons_in_term", 3, p_non_singletons_in_term, SafePredFlag);
+  _YAP_InitCPred("term_hash", 4, GvNTermHash, SafePredFlag);
+  _YAP_InitCPred("variant", 2, p_variant, SafePredFlag);
+  _YAP_InitCPred("subsumes", 2, p_subsumes, SafePredFlag);
 #ifdef DEBUG
-  InitCPred("$force_trail_expansion", 1, p_force_trail_expansion, SafePredFlag);
-  InitCPred("dum", 1, camacho_dum, SafePredFlag);
+  _YAP_InitCPred("$force_trail_expansion", 1, p_force_trail_expansion, SafePredFlag);
+  _YAP_InitCPred("dum", 1, camacho_dum, SafePredFlag);
 #endif
 }
 

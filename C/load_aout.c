@@ -55,7 +55,7 @@ static char YapExecutable[YAP_FILE_MAX];
  *   locate the executable of Yap
 */
 void
-YAP_FindExecutable(char *name)
+_YAP_FindExecutable(char *name)
 {
   register char  *cp, *cp2;
   struct stat     stbuf;
@@ -64,10 +64,10 @@ YAP_FindExecutable(char *name)
   cp = (char *)getenv("PATH");
   if (cp == NULL)
     cp = ".:/usr/ucb:/bin:/usr/bin:/usr/local/bin";
-  if (*yap_args[0] == '/') {
-    if (oktox(yap_args[0])) {
-      strcpy(FileNameBuf, yap_args[0]);
-      TrueFileName(FileNameBuf, YapExecutable, TRUE);
+  if (*_YAP_argv[0] == '/') {
+    if (oktox(_YAP_argv[0])) {
+      strcpy(_YAP_FileNameBuf, _YAP_argv[0]);
+      _YAP_TrueFileName(_YAP_FileNameBuf, YapExecutable, TRUE);
       return;
     }
   }
@@ -79,24 +79,24 @@ YAP_FindExecutable(char *name)
      * argv[0] 
      */
       
-    for (cp2 = FileNameBuf; (*cp) != 0 && (*cp) != ':';)
+    for (cp2 = _YAP_FileNameBuf; (*cp) != 0 && (*cp) != ':';)
       *cp2++ = *cp++;
     *cp2++ = '/';
-    strcpy(cp2, yap_args[0]);
+    strcpy(cp2, _YAP_argv[0]);
     if (*cp)
       cp++;
-    if (!oktox(FileNameBuf))
+    if (!oktox(_YAP_FileNameBuf))
       continue;
-    TrueFileName(FileNameBuf, YapExecutable, TRUE);
+    _YAP_TrueFileName(_YAP_FileNameBuf, YapExecutable, TRUE);
     return;
   }
   /* one last try for dual systems */
-  strcpy(FileNameBuf, yap_args[0]);
-  TrueFileName(FileNameBuf, YapExecutable, TRUE);
+  strcpy(_YAP_FileNameBuf, _YAP_argv[0]);
+  _YAP_TrueFileName(_YAP_FileNameBuf, YapExecutable, TRUE);
   if (oktox(YapExecutable))
     return;
   else
-    Error(SYSTEM_ERROR,MkAtomTerm(LookupAtom(YapExecutable)),
+    _YAP_Error(SYSTEM_ERROR,MkAtomTerm(_YAP_LookupAtom(YapExecutable)),
 	  "cannot find file being executed");
 }
 
@@ -105,7 +105,7 @@ YAP_FindExecutable(char *name)
  * LoadForeign(ofiles,libs,proc_name,init_proc) dynamically loads foreign
  * code files and libraries and locates an initialization routine
 */
-int
+static int
 LoadForeign(StringList ofiles,
 	    StringList libs,
 	    char *proc_name,
@@ -156,7 +156,7 @@ LoadForeign(StringList ofiles,
   /* prepare the magic */
   if (strlen(o_files) + strlen(l_files) + strlen(proc_name) +
 	    strlen(YapExecutable) > 2*MAXPATHLEN) {
-    strcpy(LoadMsg, " too many parameters in load_foreign/3 ");
+    strcpy(_YAP_ErrorSay, " too many parameters in load_foreign/3 ");
     return LOAD_FAILLED;
   }
   sprintf(command, "/usr/bin/ld -N -A %s -o %s -u _%s %s %s -lc",
@@ -165,12 +165,12 @@ LoadForeign(StringList ofiles,
   /* now, do the magic */
   if (system(command) != 0) {
     unlink(tfile);
-    strcpy(LoadMsg," ld returned error status in load_foreign_files ");
+    strcpy(_YAP_ErrorSay," ld returned error status in load_foreign_files ");
     return LOAD_FAILLED;
   }
   /* now check the music has played */
   if ((fildes = open(tfile, O_RDONLY)) < 0) {
-    strcpy(LoadMsg," unable to open temp file in load_foreign_files ");
+    strcpy(_YAP_ErrorSay," unable to open temp file in load_foreign_files ");
     return LOAD_FAILLED;
   }
   /* it did, get the mice */
@@ -184,8 +184,8 @@ LoadForeign(StringList ofiles,
   /* keep this copy */
   firstloadImSz = loadImageSize;
   /* now fetch the space we need */
-  if (!(FCodeBase = AllocCodeSpace((int) loadImageSize))) {
-    strcpy(LoadMsg," unable to allocate space for external code ");
+  if (!(FCodeBase = _YAP_AllocCodeSpace((int) loadImageSize))) {
+    strcpy(_YAP_ErrorSay," unable to allocate space for external code ");
     return LOAD_FAILLED;
   }
   /* now, a new incantation to load the new foreign code */
@@ -196,17 +196,17 @@ LoadForeign(StringList ofiles,
   /* and do it */ 
   if (system(command) != 0) {
     unlink(tfile);
-    strcpy(LoadMsg," ld returned error status in load_foreign_files ");
+    strcpy(_YAP_ErrorSay," ld returned error status in load_foreign_files ");
     return LOAD_FAILLED;
   }
   if ((fildes = open(tfile, O_RDONLY)) < 0) {
-    strcpy(LoadMsg," unable to open temp file in load_foreign_files ");
+    strcpy(_YAP_ErrorSay," unable to open temp file in load_foreign_files ");
     return LOAD_FAILLED;
   }
   read(fildes, (char *) &header, sizeof(header));
   loadImageSize = header.a_text + header.a_data + header.a_bss;
   if (firstloadImSz < loadImageSize) {
-    strcpy(LoadMsg," miscalculation in load_foreign/3 ");
+    strcpy(_YAP_ErrorSay," miscalculation in load_foreign/3 ");
     return LOAD_FAILLED;
   }
   /* now search for our init function */
@@ -217,11 +217,11 @@ LoadForeign(StringList ofiles,
     func_info[0].n_un.n_name = entry_fun;
     func_info[1].n_un.n_name = NULL;
     if (nlist(tfile, func_info) == -1) {
-      strcpy(LoadMsg," in nlist(3) ");
+      strcpy(_YAP_ErrorSay," in nlist(3) ");
       return LOAD_FAILLED;
     }
     if (func_info[0].n_type == 0) {
-      strcpy(LoadMsg," in nlist(3) ");
+      strcpy(_YAP_ErrorSay," in nlist(3) ");
       return LOAD_FAILLED;
     }
     *init_proc = (YapInitProc)(func_info[0].n_value);
@@ -241,13 +241,20 @@ LoadForeign(StringList ofiles,
   return LOAD_SUCCEEDED;
 }
 
+Int
+_YAP_LoadForeign(StringList ofiles, StringList libs,
+	       char *proc_name,	YapInitProc *init_proc)
+{
+  return LoadForeign(ofiles, libs, proc_name, init_proc);
+}
+
 void 
-ShutdownLoadForeign(void)
+_YAP_ShutdownLoadForeign(void)
 {
 }
 
 Int
-ReLoadForeign(StringList ofiles, StringList libs,
+_YAP_ReLoadForeign(StringList ofiles, StringList libs,
 	       char *proc_name,	YapInitProc *init_proc)
 {
   return(LoadForeign(ofiles,libs, proc_name, init_proc));

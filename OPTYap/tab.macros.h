@@ -93,7 +93,7 @@ STD_PROTO(static inline tg_sol_fr_ptr CUT_prune_tg_solution_frames, (tg_sol_fr_p
           CELL *NEW_STACK;                                                                 \
           UInt diff;                                                                       \
           char *OldTrailTop = (char *)TrailTop;                                            \
-          growtrail(64 * 1024L);                                                           \
+          _YAP_growtrail(64 * 1024Lf);                                                     \
           diff = (char *)TrailTop - OldTrailTop;                                           \
           NEW_STACK = (CELL *)((char *)(STACK)+diff);                                      \
           memmove((void *)NEW_STACK, (void *)(STACK), (char *)OldTrailTop-(char *)STACK);  \

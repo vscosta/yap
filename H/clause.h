@@ -116,24 +116,9 @@ typedef struct clause_struct {
 #define        CL_IN_USE(X) ((X)->ClFlags & InUseMask)
 #endif
 
-
-
-extern int c_mask;
-
-extern CELL c_store;
-
-extern int pred_type;
-
-extern PredEntry *pred_p;
-
-extern PredEntry *CurrentPred;
-
-/* debugger info */
-extern yamop *P_before_spy;
-
 /* cdmgr.c */
-void	STD_PROTO(RemoveLogUpdIndex,(Clause *));
-void	STD_PROTO(IPred,(CODEADDR sp));
+void	STD_PROTO(_YAP_RemoveLogUpdIndex,(Clause *));
+void	STD_PROTO(_YAP_IPred,(CODEADDR sp));
 
 /* dbase.c */
-void	STD_PROTO(ErCl,(Clause *));
+void	STD_PROTO(_YAP_ErCl,(Clause *));

@@ -248,8 +248,8 @@ typedef struct {
 	CmpPredicate   f;
 } cmp_entry;
 
-extern CPredicate    c_predicates[MAX_C_PREDS];
-extern cmp_entry     cmp_funcs[MAX_CMP_FUNCS];
+extern CPredicate    _YAP_c_predicates[MAX_C_PREDS];
+extern cmp_entry     _YAP_cmp_funcs[MAX_CMP_FUNCS];
 
 
 /* Flags for code or dbase entry */
@@ -487,23 +487,23 @@ Inline(IsArrayProperty, PropFlags, int, flags, (flags == ArrayProperty) )
 /* Proto types */
 
 /* cdmgr.c */
-int		STD_PROTO(RemoveIndexation,(PredEntry *));
+int		STD_PROTO(_YAP_RemoveIndexation,(PredEntry *));
 
 /* dbase.c */
-void		STD_PROTO(ErDBE,(DBRef));
-DBRef		STD_PROTO(StoreTermInDB,(int,int));
-Term		STD_PROTO(FetchTermFromDB,(DBRef,int));
-void		STD_PROTO(ReleaseTermFromDB,(DBRef));
+void		STD_PROTO(_YAP_ErDBE,(DBRef));
+DBRef		STD_PROTO(_YAP_StoreTermInDB,(int,int));
+Term		STD_PROTO(_YAP_FetchTermFromDB,(DBRef,int));
+void		STD_PROTO(_YAP_ReleaseTermFromDB,(DBRef));
 
 /* .c */
-CODEADDR	STD_PROTO(PredIsIndexable,(PredEntry *));
+CODEADDR	STD_PROTO(_YAP_PredIsIndexable,(PredEntry *));
 
 /* init.c */
-Atom		STD_PROTO(GetOp,(OpEntry *,int *,int));
+Atom		STD_PROTO(_YAP_GetOp,(OpEntry *,int *,int));
 
 /* vsc: redefined to GetAProp to avoid conflicts with Windows header files */
-Prop	STD_PROTO(GetAProp,(Atom,PropFlags));
-Prop	STD_PROTO(GetAPropHavingLock,(AtomEntry *,PropFlags));
+Prop	STD_PROTO(_YAP_GetAProp,(Atom,PropFlags));
+Prop	STD_PROTO(_YAP_GetAPropHavingLock,(AtomEntry *,PropFlags));
 
 EXTERN inline Prop
 PredPropByFunc(Functor f, SMALLUNSGN cur_mod)
@@ -523,7 +523,7 @@ PredPropByFunc(Functor f, SMALLUNSGN cur_mod)
     }
     p0 = p->NextOfPE;
   }
-  return(NewPredPropByFunctor(fe,cur_mod));
+  return(_YAP_NewPredPropByFunctor(fe,cur_mod));
 }
 
 EXTERN inline Prop
@@ -544,11 +544,12 @@ PredPropByAtom(Atom at, SMALLUNSGN cur_mod)
     }
     p0 = pe->NextOfPE;
   }
-  return(NewPredPropByAtom(ae,cur_mod));
+  return(_YAP_NewPredPropByAtom(ae,cur_mod));
 }
 
+ADDR    STD_PROTO(_YAP_PreAllocCodeSpace, (void));
 #if defined(YAPOR) || defined(THREADS)
-void    STD_PROTO(ReleasePreAllocCodeSpace, (ADDR));
+void    STD_PROTO(_YAP_ReleasePreAllocCodeSpace, (ADDR));
 #else
-#define ReleasePreAllocCodeSpace(x) 
+#define _YAP_ReleasePreAllocCodeSpace(x) 
 #endif

@@ -23,9 +23,6 @@ static char SccsId[] = "%W% %G%";
  *
  */
 
-/* if we botched in a LongIO operation */
-jmp_buf IOBotch;
-
 #if HAVE_LIBREADLINE
 
 #if _MSC_VER || defined(__MINGW32__)
@@ -34,7 +31,7 @@ FILE *rl_instream, *rl_outstream;
 
 #endif
 
-typedef struct
+typedef struct stream_desc
   {
     union {
       struct {
@@ -77,8 +74,6 @@ StreamDesc;
 
 #define MaxStreams 32
 
-StreamDesc Stream[MaxStreams];
-
 #define	Free_Stream_f		0x000001
 #define Output_Stream_f		0x000002
 #define Input_Stream_f		0x000004
@@ -108,15 +103,11 @@ StreamDesc Stream[MaxStreams];
 
 #define ALIASES_BLOCK_SIZE 8
 
-#if USE_SOCKET
-extern int YP_sockets_io;
-#endif
-
-void STD_PROTO (InitStdStreams, (void));
+void STD_PROTO (_YAP_InitStdStreams, (void));
 
 EXTERN inline int
 GetCurInpPos (void)
 {
-  return (Stream[c_input_stream].linecount);
+  return (Stream[_YAP_c_input_stream].linecount);
 }
 

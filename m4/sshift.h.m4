@@ -33,7 +33,7 @@ extern ADDR     OldHeapBase, OldHeapTop;
 
 #define CharP(ptr)	((char *) (ptr))
 
-Inline(IsHeapP, int, CELL *, ptr, (ptr >= (CELL *)HeapBase && ptr <= (CELL *)HeapTop) )
+Inline(IsHeapP, int, CELL *, ptr, (ptr >= (CELL *)_YAP_HeapBase && ptr <= (CELL *)HeapTop) )
 
 /* Adjusting cells and pointers to cells */
 Inline(PtoGloAdjust, CELL *, CELL *, ptr, ((CELL *)(CharP(ptr) + GDiff)) )
@@ -85,11 +85,11 @@ Inline(PtoHeapCellAdjust, CELL *, CELL *, ptr, ((CELL *)(CharP(ptr) + HDiff)) )
 Inline(PtoPredAdjust, PredEntry *, PredEntry *, ptr, ((PredEntry *)(CharP(ptr) + HDiff)) )
 Inline(PtoArrayEAdjust, ArrayEntry *, ArrayEntry *, ptr, ((ArrayEntry *)(CharP(ptr) + HDiff)) )
 #if PRECOMPUTE_REGADDRESS
-Inline(XAdjust, AREG, AREG, reg, (AREG)((reg)+XDiff) )
+Inline(XAdjust, wamreg, wamreg, reg, (wamreg)((reg)+XDiff) )
 #else
-Inline(XAdjust, AREG, AREG, reg, (reg) )
+Inline(XAdjust, wamreg, wamreg, reg, (reg) )
 #endif
-Inline(YAdjust, YREG, YREG, reg, (reg) )
+Inline(YAdjust, yslot, yslot, reg, (reg) )
 
 Inline(IsOldLocal, int, CELL, reg, IN_BETWEEN(OldASP, reg, OldLCL0))
 
@@ -108,7 +108,7 @@ Inline(IsOldTrail, int, CELL, reg, IN_BETWEEN(OldTrailBase, reg, OldTR) )
 Inline(IsOldTrailPtr, int, CELL *, ptr, IN_BETWEEN(OldTrailBase, ptr, OldTR) )
 Inline(IsOldCode, int, CELL, reg, IN_BETWEEN(OldHeapBase, reg, OldHeapTop) )
 Inline(IsOldCodeCellPtr, int, CELL *, ptr, IN_BETWEEN(OldHeapBase, ptr, OldHeapTop) )
-Inline(IsGlobal, int, CELL, reg, IN_BETWEEN(GlobalBase, reg, H) )
+Inline(IsGlobal, int, CELL, reg, IN_BETWEEN(_YAP_GlobalBase, reg, H) )
 
-void STD_PROTO(AdjustStacksAndTrail, (void));
-void STD_PROTO(AdjustRegs, (int));
+void STD_PROTO(_YAP_AdjustStacksAndTrail, (void));
+void STD_PROTO(_YAP_AdjustRegs, (int));

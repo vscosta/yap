@@ -37,7 +37,7 @@ static char     SccsId[] = "%W% %G%";
 #define RBIG(v)     (o)->big = v; return(big_int_e)
 #define RERROR()    return(db_ref_e)
 
-#define ArithIEval(t,v)     Eval(t,v)
+#define ArithIEval(t,v)     _YAP_Eval(t,v)
 
 inline static Functor
 AritFunctorOfTerm(Term t) {
@@ -64,7 +64,7 @@ EvalToTerm(blob_type f, union arith_ret *res)
     return(MkFloatTerm(res->dbl));
 #ifdef USE_GMP
   case big_int_e:
-    return(MkBigIntTerm(res->big));
+    return(_YAP_MkBigIntTerm(res->big));
 #endif
   default:
     return(TermNil);
@@ -104,7 +104,7 @@ p_mod(Term t1, Term t2 E_ARGS)
 	RINT(IntegerOfTerm(t1) % i2);
       }
     case (CELL)double_e:
-      Error(TYPE_ERROR_INTEGER, t2, "mod/2");
+      _YAP_Error(TYPE_ERROR_INTEGER, t2, "mod/2");
       /* make GCC happy */
       P = (yamop *)FAILCODE;
       RERROR();
@@ -117,11 +117,11 @@ p_mod(Term t1, Term t2 E_ARGS)
       /* we've got a full term, need to evaluate it first */
       v1.Int = IntegerOfTerm(t1);
       bt1 = long_int_e;
-      bt2 = Eval(t2, &v2);
+      bt2 = _YAP_Eval(t2, &v2);
     }
     break;
   case (CELL)double_e:
-    Error(TYPE_ERROR_INTEGER, t1, "mod/2");
+    _YAP_Error(TYPE_ERROR_INTEGER, t1, "mod/2");
     P = (yamop *)FAILCODE;
     RERROR();
 #ifdef USE_GMP
@@ -133,50 +133,50 @@ p_mod(Term t1, Term t2 E_ARGS)
       /* modulo between bignum and integer */
       {
 	Int i2 = IntegerOfTerm(t2);
-	MP_INT *l1 = BigIntOfTerm(t1);
+	MP_INT *l1 = _YAP_BigIntOfTerm(t1);
 
 	if (i2 > 0) {
-	  MP_INT *new = PreAllocBigNum();
+	  MP_INT *new = _YAP_PreAllocBigNum();
 	  Int r = mpz_mod_ui(new, l1, i2);
 
-	  CleanBigNum();
+	  _YAP_CleanBigNum();
 	  RINT((mpz_sgn(l1) ? r : -r));
 	} else if (i2 == 0) {
 	  goto zero_divisor;
 	} else {
-	  MP_INT *new = PreAllocBigNum();
+	  MP_INT *new = _YAP_PreAllocBigNum();
 	  Int r = mpz_mod_ui(new, l1, -i2);
 
-	  CleanBigNum();
+	  _YAP_CleanBigNum();
 	  RINT((mpz_sgn(l1) ? r : -r));
 	}
       }
     case (CELL)big_int_e:
       /* two bignums */
       {
-	MP_INT *new = PreAllocBigNum();
+	MP_INT *new = _YAP_PreAllocBigNum();
 
-	mpz_mod(new, BigIntOfTerm(t1), BigIntOfTerm(t2));
+	mpz_mod(new, _YAP_BigIntOfTerm(t1), _YAP_BigIntOfTerm(t2));
 	RBIG(new);
       }
     case double_e:
-      Error(TYPE_ERROR_INTEGER, t2, "mod/2");
+      _YAP_Error(TYPE_ERROR_INTEGER, t2, "mod/2");
       /* make GCC happy */
       P = (yamop *)FAILCODE;
       RERROR();
     default:
       /* we've got a full term, need to evaluate it first */
-      v1.big = BigIntOfTerm(t1);
+      v1.big = _YAP_BigIntOfTerm(t1);
       bt1 = big_int_e;
-      bt2 = Eval(t2, &v2);
+      bt2 = _YAP_Eval(t2, &v2);
       break;
     }
 #endif
   default:
     /* we've got a full term, need to evaluate it first */
-    bt1 = Eval(t1, &v1);
+    bt1 = _YAP_Eval(t1, &v1);
     /* don't know anything about second */
-    bt2 = Eval(t2, &v2);
+    bt2 = _YAP_Eval(t2, &v2);
   }
   /* second case, no need no evaluation */
   switch (bt1) {
@@ -187,7 +187,7 @@ p_mod(Term t1, Term t2 E_ARGS)
       if (v2.Int == 0) goto zero_divisor;
       RINT(v1.Int % v2.Int);
     case double_e:
-      Error(TYPE_ERROR_INTEGER, MkFloatTerm(v2.dbl), "mod/2");
+      _YAP_Error(TYPE_ERROR_INTEGER, MkFloatTerm(v2.dbl), "mod/2");
       /* make GCC happy */
       P = (yamop *)FAILCODE;
       RERROR();
@@ -197,11 +197,11 @@ p_mod(Term t1, Term t2 E_ARGS)
       RINT(v1.Int);
 #endif
     default:
-      /* Error */
+      /* _YAP_Error */
       RERROR();
     }
   case double_e:
-    Error(TYPE_ERROR_INTEGER, MkFloatTerm(v1.dbl), "mod/2");
+    _YAP_Error(TYPE_ERROR_INTEGER, MkFloatTerm(v1.dbl), "mod/2");
     P = (yamop *)FAILCODE;
     RERROR();
 #ifdef USE_GMP
@@ -210,30 +210,30 @@ p_mod(Term t1, Term t2 E_ARGS)
     case long_int_e:
       /* big mod integer */
       if (v2.Int > 0) {
-	MP_INT *new = PreAllocBigNum();
+	MP_INT *new = _YAP_PreAllocBigNum();
 	Int r = mpz_mod_ui(new, v1.big, v2.Int);
 
-	CleanBigNum();
+	_YAP_CleanBigNum();
 	RINT((mpz_sgn(v1.big) ? r : -r));
       } else if (v2.Int == 0) {
 	goto zero_divisor;
       } else {
-	MP_INT *new = PreAllocBigNum();
+	MP_INT *new = _YAP_PreAllocBigNum();
 	Int r = mpz_mod_ui(new, v1.big, -v2.Int);
 
-	CleanBigNum();
+	_YAP_CleanBigNum();
 	RINT((mpz_sgn(v1.big) ? r : -r));
       }
     case double_e:
       /* big // float */
-      Error(TYPE_ERROR_INTEGER, MkFloatTerm(v2.dbl), "mod/2");
+      _YAP_Error(TYPE_ERROR_INTEGER, MkFloatTerm(v2.dbl), "mod/2");
       /* make GCC happy */
       P = (yamop *)FAILCODE;
       RERROR();
     case (CELL)big_int_e:
       /* big * big */
       {
-	MP_INT *new = PreAllocBigNum();
+	MP_INT *new = _YAP_PreAllocBigNum();
 
 	mpz_mod(new, v1.big, v2.big);
 	RBIG(new);
@@ -248,7 +248,7 @@ p_mod(Term t1, Term t2 E_ARGS)
       RERROR();
     }
  zero_divisor:
-  Error(EVALUATION_ERROR_ZERO_DIVISOR, t2, "X is mod 0");
+  _YAP_Error(EVALUATION_ERROR_ZERO_DIVISOR, t2, "X is mod 0");
   /* make GCC happy */
   P = (yamop *)FAILCODE;
   RERROR();
@@ -264,14 +264,14 @@ fdiv_bigint(MP_INT *b1,MP_INT *b2)
     mpf_t f1,f2;
     Float res;
 
-    PreAllocBigNum();
+    _YAP_PreAllocBigNum();
     mpf_init(f1);
     mpf_init(f2);
     mpf_set_z(f1, b1);
     mpf_set_z(f2, b2);
     mpf_div(f1, f1, f2);
     res = mpf_get_d(f1);
-    CleanBigNum();
+    _YAP_CleanBigNum();
     return(res);
   } else {
     return(f1/f2);
@@ -312,7 +312,7 @@ p_fdiv(Term t1, Term t2 E_ARGS)
     case (CELL)big_int_e:
       {
 	Int i1 = IntegerOfTerm(t1);
-	Float f2 = mpz_get_d(BigIntOfTerm(t2));
+	Float f2 = mpz_get_d(_YAP_BigIntOfTerm(t2));
 	RFLOAT(i1/f2);
       }
 #endif
@@ -320,7 +320,7 @@ p_fdiv(Term t1, Term t2 E_ARGS)
       /* we've got a full term, need to evaluate it first */
       v1.Int = IntegerOfTerm(t1);
       bt1 = long_int_e;
-      bt2 = Eval(t2, &v2);
+      bt2 = _YAP_Eval(t2, &v2);
     }
     break;
   case double_e:
@@ -341,14 +341,14 @@ p_fdiv(Term t1, Term t2 E_ARGS)
 #ifdef USE_GMP
     case big_int_e:
       {
-	RFLOAT(FloatOfTerm(t1)/mpz_get_d(BigIntOfTerm(t2)));
+	RFLOAT(FloatOfTerm(t1)/mpz_get_d(_YAP_BigIntOfTerm(t2)));
       }
 #endif
     default:
       /* we've got a full term, need to evaluate it first */
       v1.dbl = FloatOfTerm(t1);
       bt1 = double_e;
-      bt2 = Eval(t2, &v2);
+      bt2 = _YAP_Eval(t2, &v2);
     }
     break;
 #ifdef USE_GMP
@@ -359,30 +359,30 @@ p_fdiv(Term t1, Term t2 E_ARGS)
     case long_int_e:
       {
 	Int i = IntegerOfTerm(t2);
-	RFLOAT(mpz_get_d(BigIntOfTerm(t1))/(Float)i);
+	RFLOAT(mpz_get_d(_YAP_BigIntOfTerm(t1))/(Float)i);
       }
     case big_int_e:
       /* two bignums*/
-      RFLOAT(fdiv_bigint(BigIntOfTerm(t1),BigIntOfTerm(t2)));
-      //      RFLOAT(mpz_get_d(BigIntOfTerm(t1))/mpz_get_d(BigIntOfTerm(t2)));
+      RFLOAT(fdiv_bigint(_YAP_BigIntOfTerm(t1),_YAP_BigIntOfTerm(t2)));
+      //      RFLOAT(mpz_get_d(_YAP_BigIntOfTerm(t1))/mpz_get_d(_YAP_BigIntOfTerm(t2)));
     case double_e:
       {
 	Float dbl = FloatOfTerm(t2);
-	RFLOAT(mpz_get_d(BigIntOfTerm(t1))/dbl);
+	RFLOAT(mpz_get_d(_YAP_BigIntOfTerm(t1))/dbl);
       }
     default:
       /* we've got a full term, need to evaluate it first */
-      v1.big = BigIntOfTerm(t1);
+      v1.big = _YAP_BigIntOfTerm(t1);
       bt1 = big_int_e;
-      bt2 = Eval(t2, &v2);
+      bt2 = _YAP_Eval(t2, &v2);
       break;
     }
 #endif
   default:
     /* we've got a full term, need to evaluate it first */
-    bt1 = Eval(t1, &v1);
+    bt1 = _YAP_Eval(t1, &v1);
     /* don't know anything about second */
-    bt2 = Eval(t2, &v2);
+    bt2 = _YAP_Eval(t2, &v2);
   }
   /* second case, no need no evaluation */
   switch (bt1) {
@@ -400,7 +400,7 @@ p_fdiv(Term t1, Term t2 E_ARGS)
       RFLOAT(v1.Int/mpz_get_d(v2.big));
 #endif
     default:
-      /* Error */
+      /* _YAP_Error */
       RERROR();
     }
   case double_e:
@@ -447,7 +447,7 @@ p_fdiv(Term t1, Term t2 E_ARGS)
 static void
 mpz_xor(MP_INT *new, MP_INT *r1, MP_INT *r2)
 {
-  MP_INT *n2 = PreAllocBigNum(), *n3 = PreAllocBigNum();
+  MP_INT *n2 = _YAP_PreAllocBigNum(), *n3 = _YAP_PreAllocBigNum();
   
   mpz_ior(new, r1, r2);
   mpz_com(n2,  r1);
@@ -455,7 +455,7 @@ mpz_xor(MP_INT *new, MP_INT *r1, MP_INT *r2)
   mpz_com(n3,  r2);
   mpz_and(n3, n3, new);
   mpz_ior(new, n2, n3);
-  CleanBigNum();
+  _YAP_CleanBigNum();
 }
 #endif
 #endif
@@ -479,16 +479,16 @@ p_xor(Term t1, Term t2 E_ARGS)
       /* two integers */
       RINT(IntegerOfTerm(t1) ^ IntegerOfTerm(t2));
     case double_e:
-      Error(TYPE_ERROR_INTEGER, t2, "#/2");
+      _YAP_Error(TYPE_ERROR_INTEGER, t2, "#/2");
       P = (yamop *)FAILCODE;
       RERROR();
 #ifdef USE_GMP
     case big_int_e:
       {
-	MP_INT *new = PreAllocBigNum();
+	MP_INT *new = _YAP_PreAllocBigNum();
 
 	mpz_set_si(new,IntOfTerm(t1));
-	mpz_xor(new, new, BigIntOfTerm(t2));
+	mpz_xor(new, new, _YAP_BigIntOfTerm(t2));
 	RBIG(new);
       }
 #endif
@@ -496,11 +496,11 @@ p_xor(Term t1, Term t2 E_ARGS)
       /* we've got a full term, need to evaluate it first */
       v1.Int = IntegerOfTerm(t1);
       bt1 = long_int_e;
-      bt2 = Eval(t2, &v2);
+      bt2 = _YAP_Eval(t2, &v2);
     }
     break;
   case double_e:
-    Error(TYPE_ERROR_INTEGER, t1, "#/2");
+    _YAP_Error(TYPE_ERROR_INTEGER, t1, "#/2");
     P = (yamop *)FAILCODE;
     RERROR();
 #ifdef USE_GMP
@@ -510,38 +510,38 @@ p_xor(Term t1, Term t2 E_ARGS)
     switch (BlobOfFunctor(f2)) {
     case long_int_e:
       {
-	MP_INT *new = PreAllocBigNum();
+	MP_INT *new = _YAP_PreAllocBigNum();
 
 	mpz_set_si(new,IntOfTerm(t2));
-	mpz_xor(new, BigIntOfTerm(t1), new);
+	mpz_xor(new, _YAP_BigIntOfTerm(t1), new);
 	RBIG(new);
       }
     case big_int_e:
       /* two bignums */
       {
-	MP_INT *new = PreAllocBigNum();
+	MP_INT *new = _YAP_PreAllocBigNum();
 
-	mpz_xor(new, BigIntOfTerm(t1), BigIntOfTerm(t2));
+	mpz_xor(new, _YAP_BigIntOfTerm(t1), _YAP_BigIntOfTerm(t2));
 	RBIG(new);
       }
     case double_e:
-      Error(TYPE_ERROR_INTEGER, t2, "#/2");
+      _YAP_Error(TYPE_ERROR_INTEGER, t2, "#/2");
       /* make GCC happy */
       P = (yamop *)FAILCODE;
       RERROR();
     default:
       /* we've got a full term, need to evaluate it first */
-      v1.big = BigIntOfTerm(t1);
+      v1.big = _YAP_BigIntOfTerm(t1);
       bt1 = big_int_e;
-      bt2 = Eval(t2, &v2);
+      bt2 = _YAP_Eval(t2, &v2);
       break;
     }
 #endif
   default:
     /* we've got a full term, need to evaluate it first */
-    bt1 = Eval(t1, &v1);
+    bt1 = _YAP_Eval(t1, &v1);
     /* don't know anything about second */
-    bt2 = Eval(t2, &v2);
+    bt2 = _YAP_Eval(t2, &v2);
   }
   /* second case, no need no evaluation */
   switch (bt1) {
@@ -550,14 +550,14 @@ p_xor(Term t1, Term t2 E_ARGS)
     case long_int_e:
       RINT(v1.Int ^ v2.Int);
     case double_e:
-      Error(TYPE_ERROR_INTEGER, MkFloatTerm(v2.dbl), "#/2");
+      _YAP_Error(TYPE_ERROR_INTEGER, MkFloatTerm(v2.dbl), "#/2");
       /* make GCC happy */
       P = (yamop *)FAILCODE;
       RERROR();
 #ifdef USE_GMP
     case big_int_e:
       {
-	MP_INT *new = PreAllocBigNum();
+	MP_INT *new = _YAP_PreAllocBigNum();
 
 	mpz_set_si(new,v1.Int);
 	mpz_xor(new, new, v2.big);
@@ -565,11 +565,11 @@ p_xor(Term t1, Term t2 E_ARGS)
       }
 #endif
     default:
-      /* Error */
+      /* _YAP_Error */
       RERROR();
     }
   case double_e:
-    Error(TYPE_ERROR_INTEGER, MkFloatTerm(v1.dbl), "#/2");
+    _YAP_Error(TYPE_ERROR_INTEGER, MkFloatTerm(v1.dbl), "#/2");
     P = (yamop *)FAILCODE;
     RERROR();
 #ifdef USE_GMP
@@ -578,7 +578,7 @@ p_xor(Term t1, Term t2 E_ARGS)
     case long_int_e:
       /* anding a bignum with an integer is easy */
       {
-	MP_INT *new = PreAllocBigNum();
+	MP_INT *new = _YAP_PreAllocBigNum();
 
 	mpz_set_si(new,v2.Int);
 	mpz_xor(new, v1.big, new);
@@ -586,14 +586,14 @@ p_xor(Term t1, Term t2 E_ARGS)
       }
     case double_e:
       /* big // float */
-      Error(TYPE_ERROR_INTEGER, MkFloatTerm(v2.dbl), "\\/ /2");
+      _YAP_Error(TYPE_ERROR_INTEGER, MkFloatTerm(v2.dbl), "\\/ /2");
       /* make GCC happy */
       P = (yamop *)FAILCODE;
       RERROR();
     case big_int_e:
       /* big * big */
       {
-	MP_INT *new = PreAllocBigNum();
+	MP_INT *new = _YAP_PreAllocBigNum();
 
 	mpz_xor(new, v1.big, v2.big);
 	RBIG(new);
@@ -642,7 +642,7 @@ p_atan2(Term t1, Term t2 E_ARGS)
     case big_int_e:
       {
 	Int i1 = IntegerOfTerm(t1);
-	Float f2 = mpz_get_d(BigIntOfTerm(t2));
+	Float f2 = mpz_get_d(_YAP_BigIntOfTerm(t2));
 	RFLOAT(atan2(i1,f2));
       }
 #endif
@@ -650,7 +650,7 @@ p_atan2(Term t1, Term t2 E_ARGS)
       /* we've got a full term, need to evaluate it first */
       v1.Int = IntegerOfTerm(t1);
       bt1 = long_int_e;
-      bt2 = Eval(t2, &v2);
+      bt2 = _YAP_Eval(t2, &v2);
     }
     break;
   case double_e:
@@ -671,14 +671,14 @@ p_atan2(Term t1, Term t2 E_ARGS)
 #ifdef USE_GMP
     case big_int_e:
       {
-	RFLOAT(atan2(FloatOfTerm(t1),mpz_get_d(BigIntOfTerm(t2))));
+	RFLOAT(atan2(FloatOfTerm(t1),mpz_get_d(_YAP_BigIntOfTerm(t2))));
       }
 #endif
     default:
       /* we've got a full term, need to evaluate it first */
       v1.dbl = FloatOfTerm(t1);
       bt1 = double_e;
-      bt2 = Eval(t2, &v2);
+      bt2 = _YAP_Eval(t2, &v2);
     }
     break;
 #ifdef USE_GMP
@@ -689,29 +689,29 @@ p_atan2(Term t1, Term t2 E_ARGS)
     case long_int_e:
       {
 	Int i = IntegerOfTerm(t2);
-	RFLOAT(atan2(mpz_get_d(BigIntOfTerm(t1)),i));
+	RFLOAT(atan2(mpz_get_d(_YAP_BigIntOfTerm(t1)),i));
       }
     case big_int_e:
       /* two bignums */
-      RFLOAT(atan2(mpz_get_d(BigIntOfTerm(t1)),mpz_get_d(BigIntOfTerm(t2))));
+      RFLOAT(atan2(mpz_get_d(_YAP_BigIntOfTerm(t1)),mpz_get_d(_YAP_BigIntOfTerm(t2))));
     case double_e:
       {
 	Float dbl = FloatOfTerm(t2);
-	RFLOAT(atan2(mpz_get_d(BigIntOfTerm(t1)),dbl));
+	RFLOAT(atan2(mpz_get_d(_YAP_BigIntOfTerm(t1)),dbl));
       }
     default:
       /* we've got a full term, need to evaluate it first */
-      v1.big = BigIntOfTerm(t1);
+      v1.big = _YAP_BigIntOfTerm(t1);
       bt1 = big_int_e;
-      bt2 = Eval(t2, &v2);
+      bt2 = _YAP_Eval(t2, &v2);
       break;
     }
 #endif
   default:
     /* we've got a full term, need to evaluate it first */
-    bt1 = Eval(t1, &v1);
+    bt1 = _YAP_Eval(t1, &v1);
     /* don't know anything about second */
-    bt2 = Eval(t2, &v2);
+    bt2 = _YAP_Eval(t2, &v2);
   }
   /* second case, no need no evaluation */
   switch (bt1) {
@@ -729,7 +729,7 @@ p_atan2(Term t1, Term t2 E_ARGS)
       RFLOAT(atan2(v1.Int,mpz_get_d(v2.big)));
 #endif
     default:
-      /* Error */
+      /* _YAP_Error */
       RERROR();
     }
   case double_e:
@@ -804,7 +804,7 @@ p_power(Term t1, Term t2 E_ARGS)
     case big_int_e:
       {
 	Int i1 = IntegerOfTerm(t1);
-	Float f2 = mpz_get_d(BigIntOfTerm(t2));
+	Float f2 = mpz_get_d(_YAP_BigIntOfTerm(t2));
 	RFLOAT(pow(i1,f2));
       }
 #endif
@@ -812,7 +812,7 @@ p_power(Term t1, Term t2 E_ARGS)
       /* we've got a full term, need to evaluate it first */
       v1.Int = IntegerOfTerm(t1);
       bt1 = long_int_e;
-      bt2 = Eval(t2, &v2);
+      bt2 = _YAP_Eval(t2, &v2);
     }
     break;
   case double_e:
@@ -833,14 +833,14 @@ p_power(Term t1, Term t2 E_ARGS)
 #ifdef USE_GMP
     case big_int_e:
       {
-	RFLOAT(pow(FloatOfTerm(t1),mpz_get_d(BigIntOfTerm(t2))));
+	RFLOAT(pow(FloatOfTerm(t1),mpz_get_d(_YAP_BigIntOfTerm(t2))));
       }
 #endif
     default:
       /* we've got a full term, need to evaluate it first */
       v1.dbl = FloatOfTerm(t1);
       bt1 = double_e;
-      bt2 = Eval(t2, &v2);
+      bt2 = _YAP_Eval(t2, &v2);
     }
     break;
 #ifdef USE_GMP
@@ -851,29 +851,29 @@ p_power(Term t1, Term t2 E_ARGS)
     case long_int_e:
       {
 	Int i = IntegerOfTerm(t2);
-	RFLOAT(pow(mpz_get_d(BigIntOfTerm(t1)),i));
+	RFLOAT(pow(mpz_get_d(_YAP_BigIntOfTerm(t1)),i));
       }
     case big_int_e:
       /* two bignums */
-      RFLOAT(pow(mpz_get_d(BigIntOfTerm(t1)),mpz_get_d(BigIntOfTerm(t2))));
+      RFLOAT(pow(mpz_get_d(_YAP_BigIntOfTerm(t1)),mpz_get_d(_YAP_BigIntOfTerm(t2))));
     case double_e:
       {
 	Float dbl = FloatOfTerm(t2);
-	RFLOAT(pow(mpz_get_d(BigIntOfTerm(t1)),dbl));
+	RFLOAT(pow(mpz_get_d(_YAP_BigIntOfTerm(t1)),dbl));
       }
     default:
       /* we've got a full term, need to evaluate it first */
-      v1.big = BigIntOfTerm(t1);
+      v1.big = _YAP_BigIntOfTerm(t1);
       bt1 = big_int_e;
-      bt2 = Eval(t2, &v2);
+      bt2 = _YAP_Eval(t2, &v2);
       break;
     }
 #endif
   default:
     /* we've got a full term, need to evaluate it first */
-    bt1 = Eval(t1, &v1);
+    bt1 = _YAP_Eval(t1, &v1);
     /* don't know anything about second */
-    bt2 = Eval(t2, &v2);
+    bt2 = _YAP_Eval(t2, &v2);
   }
   /* second case, no need no evaluation */
   switch (bt1) {
@@ -891,7 +891,7 @@ p_power(Term t1, Term t2 E_ARGS)
       RFLOAT(pow(v1.Int,mpz_get_d(v2.big)));
 #endif
     default:
-      /* Error */
+      /* _YAP_Error */
       RERROR();
     }
   case double_e:
@@ -947,7 +947,7 @@ gcd(Int m11,Int m21)
     }
   if (m11<0 || m21<0) {		/* overflow? */
 /*    Oflow = 1; */
-    Error(EVALUATION_ERROR_INT_OVERFLOW, MkIntegerTerm(m11),
+    _YAP_Error(EVALUATION_ERROR_INT_OVERFLOW, MkIntegerTerm(m11),
 	  "gcd/2 with %d and %d", m11, m21);
     P = (yamop *)FAILCODE;
     return(1);
@@ -969,7 +969,7 @@ Int gcdmult(Int m11,Int m21,Int *pm11)	/* *pm11 gets multiplier of m11 */
     }
   if (m11<0 || m21<0) {		/* overflow? */
 /*    Oflow = 1; */
-    Error(EVALUATION_ERROR_INT_OVERFLOW, MkIntegerTerm(m11),
+    _YAP_Error(EVALUATION_ERROR_INT_OVERFLOW, MkIntegerTerm(m11),
 	  "gcdmult/2 with %d and %d", m11, m21);
     P = (yamop *)FAILCODE;
     return(1);
@@ -1007,7 +1007,7 @@ p_gcd(Term t1, Term t2 E_ARGS)
 	RINT(gcd(i1,i2));
       }
     case double_e:
-      Error(TYPE_ERROR_INTEGER, t2, "gcd/2");
+      _YAP_Error(TYPE_ERROR_INTEGER, t2, "gcd/2");
       /* make GCC happy */
       P = (yamop *)FAILCODE;
       RERROR();
@@ -1018,14 +1018,14 @@ p_gcd(Term t1, Term t2 E_ARGS)
 	Int i = IntegerOfTerm(t1);
 
 	if (i > 0) {
-	  RINT(mpz_gcd_ui(NULL,BigIntOfTerm(t2),i));
+	  RINT(mpz_gcd_ui(NULL,_YAP_BigIntOfTerm(t2),i));
 	} else if (i == 0) {
-	  MP_INT *new = PreAllocBigNum();
+	  MP_INT *new = _YAP_PreAllocBigNum();
 	
-	  mpz_abs(new, BigIntOfTerm(t2));
+	  mpz_abs(new, _YAP_BigIntOfTerm(t2));
 	  RBIG(new);
 	} else {
-	  RINT(mpz_gcd_ui(NULL,BigIntOfTerm(t2),-i));
+	  RINT(mpz_gcd_ui(NULL,_YAP_BigIntOfTerm(t2),-i));
 	}
       }
 #endif
@@ -1033,11 +1033,11 @@ p_gcd(Term t1, Term t2 E_ARGS)
       /* we've got a full term, need to evaluate it first */
       v1.Int = IntegerOfTerm(t1);
       bt1 = long_int_e;
-      bt2 = Eval(t2, &v2);
+      bt2 = _YAP_Eval(t2, &v2);
     }
     break;
   case double_e:
-    Error(TYPE_ERROR_INTEGER, t1, "gcd/2");
+    _YAP_Error(TYPE_ERROR_INTEGER, t1, "gcd/2");
     P = (yamop *)FAILCODE;
     RERROR();
 #ifdef USE_GMP
@@ -1051,42 +1051,42 @@ p_gcd(Term t1, Term t2 E_ARGS)
 	Int i = IntegerOfTerm(t2);
 
 	if (i > 0) {
-	  RINT(mpz_gcd_ui(NULL,BigIntOfTerm(t1),i));
+	  RINT(mpz_gcd_ui(NULL,_YAP_BigIntOfTerm(t1),i));
 	} else if (i == 0) {
-	  MP_INT *new = PreAllocBigNum();
+	  MP_INT *new = _YAP_PreAllocBigNum();
 	
-	  mpz_abs(new, BigIntOfTerm(t1));
+	  mpz_abs(new, _YAP_BigIntOfTerm(t1));
 	  RBIG(new);
 	} else {
-	  RINT(mpz_gcd_ui(NULL,BigIntOfTerm(t1),-i));
+	  RINT(mpz_gcd_ui(NULL,_YAP_BigIntOfTerm(t1),-i));
 	}
       }
     case big_int_e:
       /* two bignums */
       {
-	MP_INT *new = PreAllocBigNum();
+	MP_INT *new = _YAP_PreAllocBigNum();
 
-	mpz_gcd(new, BigIntOfTerm(t1), BigIntOfTerm(t2));
+	mpz_gcd(new, _YAP_BigIntOfTerm(t1), _YAP_BigIntOfTerm(t2));
 	RBIG(new);
       }
     case double_e:
-      Error(TYPE_ERROR_INTEGER, t2, "gcd/2");
+      _YAP_Error(TYPE_ERROR_INTEGER, t2, "gcd/2");
       /* make GCC happy */
       P = (yamop *)FAILCODE;
       RERROR();
     default:
       /* we've got a full term, need to evaluate it first */
-      v1.big = BigIntOfTerm(t1);
+      v1.big = _YAP_BigIntOfTerm(t1);
       bt1 = big_int_e;
-      bt2 = Eval(t2, &v2);
+      bt2 = _YAP_Eval(t2, &v2);
       break;
     }
 #endif
   default:
     /* we've got a full term, need to evaluate it first */
-    bt1 = Eval(t1, &v1);
+    bt1 = _YAP_Eval(t1, &v1);
     /* don't know anything about second */
-    bt2 = Eval(t2, &v2);
+    bt2 = _YAP_Eval(t2, &v2);
   }
   /* second case, no need no evaluation */
   switch (bt1) {
@@ -1102,7 +1102,7 @@ p_gcd(Term t1, Term t2 E_ARGS)
 	RINT(gcd(i1,i2));
       }
     case double_e:
-      Error(TYPE_ERROR_INTEGER, MkFloatTerm(v2.dbl), "gcd/2");
+      _YAP_Error(TYPE_ERROR_INTEGER, MkFloatTerm(v2.dbl), "gcd/2");
       /* make GCC happy */
       P = (yamop *)FAILCODE;
       RERROR();
@@ -1112,7 +1112,7 @@ p_gcd(Term t1, Term t2 E_ARGS)
 	if (v1.Int > 0) {
 	  RINT(mpz_gcd_ui(NULL,v2.big,v1.Int));
 	} else if (v1.Int == 0) {
-	  MP_INT *new = PreAllocBigNum();
+	  MP_INT *new = _YAP_PreAllocBigNum();
 	
 	  mpz_abs(new, v2.big);
 	  RBIG(new);
@@ -1122,11 +1122,11 @@ p_gcd(Term t1, Term t2 E_ARGS)
       }
 #endif
     default:
-      /* Error */
+      /* _YAP_Error */
       RERROR();
     }
   case double_e:
-    Error(TYPE_ERROR_INTEGER, MkFloatTerm(v1.dbl), "gcd/2");
+    _YAP_Error(TYPE_ERROR_INTEGER, MkFloatTerm(v1.dbl), "gcd/2");
     P = (yamop *)FAILCODE;
     RERROR();
 #ifdef USE_GMP
@@ -1138,7 +1138,7 @@ p_gcd(Term t1, Term t2 E_ARGS)
 	if (v2.Int > 0) {
 	  RINT(mpz_gcd_ui(NULL,v1.big,v2.Int));
 	} else if (v2.Int == 0) {
-	  MP_INT *new = PreAllocBigNum();
+	  MP_INT *new = _YAP_PreAllocBigNum();
 	
 	  mpz_abs(new, v1.big);
 	  RBIG(new);
@@ -1148,13 +1148,13 @@ p_gcd(Term t1, Term t2 E_ARGS)
       }
     case double_e:
       /* big // float */
-      Error(TYPE_ERROR_INTEGER, MkFloatTerm(v2.dbl), "gcd/2");
+      _YAP_Error(TYPE_ERROR_INTEGER, MkFloatTerm(v2.dbl), "gcd/2");
       /* make GCC happy */
       P = (yamop *)FAILCODE;
       RERROR();
     case big_int_e:
       if (v2.Int > 0) {
-	MP_INT *new = PreAllocBigNum();
+	MP_INT *new = _YAP_PreAllocBigNum();
 	mpz_gcd(new, v1.big, v2.big);
 	RBIG(new);
       }
@@ -1204,7 +1204,7 @@ p_min(Term t1, Term t2 E_ARGS)
     case big_int_e:
       {
 	Int i = IntegerOfTerm(t1);
-	MP_INT *b = BigIntOfTerm(t2);
+	MP_INT *b = _YAP_BigIntOfTerm(t2);
 
 	if (mpz_cmp_si(b,i) < 0) {
 	  RBIG(b);
@@ -1216,7 +1216,7 @@ p_min(Term t1, Term t2 E_ARGS)
       /* we've got a full term, need to evaluate it first */
       v1.Int = IntegerOfTerm(t1);
       bt1 = long_int_e;
-      bt2 = Eval(t2, &v2);
+      bt2 = _YAP_Eval(t2, &v2);
     }
     break;
   case double_e:
@@ -1246,7 +1246,7 @@ p_min(Term t1, Term t2 E_ARGS)
     case big_int_e:
       {
 	Float fl1 = FloatOfTerm(t1);
-	Float fl2 = mpz_get_d(BigIntOfTerm(t2));
+	Float fl2 = mpz_get_d(_YAP_BigIntOfTerm(t2));
 	if (fl1 <= fl2) {
 	  RFLOAT(fl1);
 	}
@@ -1257,7 +1257,7 @@ p_min(Term t1, Term t2 E_ARGS)
       /* we've got a full term, need to evaluate it first */
       v1.dbl = FloatOfTerm(t1);
       bt1 = double_e;
-      bt2 = Eval(t2, &v2);
+      bt2 = _YAP_Eval(t2, &v2);
     }
     break;
 #ifdef USE_GMP
@@ -1268,7 +1268,7 @@ p_min(Term t1, Term t2 E_ARGS)
     case long_int_e:
       {
 	Int i = IntegerOfTerm(t2);
-	MP_INT *b = BigIntOfTerm(t1);
+	MP_INT *b = _YAP_BigIntOfTerm(t1);
 
 	if (mpz_cmp_si(b,i) < 0) {
 	  RBIG(b);
@@ -1278,8 +1278,8 @@ p_min(Term t1, Term t2 E_ARGS)
     case big_int_e:
       /* two bignums */
       {
-	MP_INT *b1 = BigIntOfTerm(t1);
-	MP_INT *b2 = BigIntOfTerm(t2);
+	MP_INT *b1 = _YAP_BigIntOfTerm(t1);
+	MP_INT *b2 = _YAP_BigIntOfTerm(t2);
 
 	if (mpz_cmp(b1,b2) < 0) {
 	  RBIG(b1);
@@ -1289,7 +1289,7 @@ p_min(Term t1, Term t2 E_ARGS)
     case double_e:
       {
 	Float fl1 = FloatOfTerm(t2);
-	Float fl2 = mpz_get_d(BigIntOfTerm(t1));
+	Float fl2 = mpz_get_d(_YAP_BigIntOfTerm(t1));
 	if (fl1 <= fl2) {
 	  RFLOAT(fl1);
 	}
@@ -1297,17 +1297,17 @@ p_min(Term t1, Term t2 E_ARGS)
       }
     default:
       /* we've got a full term, need to evaluate it first */
-      v1.big = BigIntOfTerm(t1);
+      v1.big = _YAP_BigIntOfTerm(t1);
       bt1 = big_int_e;
-      bt2 = Eval(t2, &v2);
+      bt2 = _YAP_Eval(t2, &v2);
       break;
     }
 #endif
   default:
     /* we've got a full term, need to evaluate it first */
-    bt1 = Eval(t1, &v1);
+    bt1 = _YAP_Eval(t1, &v1);
     /* don't know anything about second */
-    bt2 = Eval(t2, &v2);
+    bt2 = _YAP_Eval(t2, &v2);
   }
   /* second case, no need no evaluation */
   switch (bt1) {
@@ -1335,7 +1335,7 @@ p_min(Term t1, Term t2 E_ARGS)
       }
 #endif
     default:
-      /* Error */
+      /* _YAP_Error */
       RERROR();
     }
   case double_e:
@@ -1443,7 +1443,7 @@ p_max(Term t1, Term t2 E_ARGS)
     case big_int_e:
       {
 	Int i = IntegerOfTerm(t1);
-	MP_INT *b = BigIntOfTerm(t2);
+	MP_INT *b = _YAP_BigIntOfTerm(t2);
 
 	if (mpz_cmp_si(b,i) > 0) {
 	  RBIG(b);
@@ -1455,7 +1455,7 @@ p_max(Term t1, Term t2 E_ARGS)
       /* we've got a full term, need to evaluate it first */
       v1.Int = IntegerOfTerm(t1);
       bt1 = long_int_e;
-      bt2 = Eval(t2, &v2);
+      bt2 = _YAP_Eval(t2, &v2);
     }
     break;
   case double_e:
@@ -1485,7 +1485,7 @@ p_max(Term t1, Term t2 E_ARGS)
     case big_int_e:
       {
 	Float fl1 = FloatOfTerm(t1);
-	Float fl2 = mpz_get_d(BigIntOfTerm(t2));
+	Float fl2 = mpz_get_d(_YAP_BigIntOfTerm(t2));
 	if (fl1 >= fl2) {
 	  RFLOAT(fl1);
 	}
@@ -1496,7 +1496,7 @@ p_max(Term t1, Term t2 E_ARGS)
       /* we've got a full term, need to evaluate it first */
       v1.dbl = FloatOfTerm(t1);
       bt1 = double_e;
-      bt2 = Eval(t2, &v2);
+      bt2 = _YAP_Eval(t2, &v2);
     }
     break;
 #ifdef USE_GMP
@@ -1507,7 +1507,7 @@ p_max(Term t1, Term t2 E_ARGS)
     case long_int_e:
       {
 	Int i = IntegerOfTerm(t2);
-	MP_INT *b = BigIntOfTerm(t1);
+	MP_INT *b = _YAP_BigIntOfTerm(t1);
 
 	if (mpz_cmp_si(b,i) > 0) {
 	  RBIG(b);
@@ -1517,8 +1517,8 @@ p_max(Term t1, Term t2 E_ARGS)
     case big_int_e:
       /* two bignums */
       {
-	MP_INT *b1 = BigIntOfTerm(t1);
-	MP_INT *b2 = BigIntOfTerm(t2);
+	MP_INT *b1 = _YAP_BigIntOfTerm(t1);
+	MP_INT *b2 = _YAP_BigIntOfTerm(t2);
 
 	if (mpz_cmp(b1,b2) > 0) {
 	  RBIG(b1);
@@ -1528,7 +1528,7 @@ p_max(Term t1, Term t2 E_ARGS)
     case double_e:
       {
 	Float fl1 = FloatOfTerm(t2);
-	Float fl2 = mpz_get_d(BigIntOfTerm(t1));
+	Float fl2 = mpz_get_d(_YAP_BigIntOfTerm(t1));
 	if (fl1 >= fl2) {
 	  RFLOAT(fl1);
 	}
@@ -1536,17 +1536,17 @@ p_max(Term t1, Term t2 E_ARGS)
       }
     default:
       /* we've got a full term, need to evaluate it first */
-      v1.big = BigIntOfTerm(t1);
+      v1.big = _YAP_BigIntOfTerm(t1);
       bt1 = big_int_e;
-      bt2 = Eval(t2, &v2);
+      bt2 = _YAP_Eval(t2, &v2);
       break;
     }
 #endif
   default:
     /* we've got a full term, need to evaluate it first */
-    bt1 = Eval(t1, &v1);
+    bt1 = _YAP_Eval(t1, &v1);
     /* don't know anything about second */
-    bt2 = Eval(t2, &v2);
+    bt2 = _YAP_Eval(t2, &v2);
   }
   /* second case, no need no evaluation */
   switch (bt1) {
@@ -1574,7 +1574,7 @@ p_max(Term t1, Term t2 E_ARGS)
       }
 #endif
     default:
-      /* Error */
+      /* _YAP_Error */
       RERROR();
     }
   case double_e:
@@ -1681,50 +1681,50 @@ p_binary_is(void)
   blob_type f;
 
   if (IsVarTerm(t)) {
-    Error(INSTANTIATION_ERROR,t, "X is Y");
+    _YAP_Error(INSTANTIATION_ERROR,t, "X is Y");
     return(FALSE);
   }
   if (IsIntTerm(t)) {
     blob_type f = InitBinTab[IntOfTerm(t)].f(Deref(ARG3),Deref(ARG4),&res);
-    return (unify_constant(ARG1,EvalToTerm(f,&res)));
+    return (_YAP_unify_constant(ARG1,EvalToTerm(f,&res)));
   }
   if (IsAtomTerm(t)) {
     Atom name = AtomOfTerm(t);
     ExpEntry *p;
 
-    if (EndOfPAEntr(p = RepExpProp(GetExpProp(name, 2)))) {
+    if (EndOfPAEntr(p = RepExpProp(_YAP_GetExpProp(name, 2)))) {
       Term ti[2];
 
       /* error */
       ti[0] = t;
       ti[1] = MkIntTerm(2);
-      t = MkApplTerm(MkFunctor(LookupAtom("/"),2), 2, ti);
-      Error(TYPE_ERROR_EVALUABLE, t,
+      t = _YAP_MkApplTerm(_YAP_MkFunctor(_YAP_LookupAtom("/"),2), 2, ti);
+      _YAP_Error(TYPE_ERROR_EVALUABLE, t,
 	    "functor %s/%d for arithmetic expression",
 	    RepAtom(name)->StrOfAE,2);
       P = (yamop *)FAILCODE;
       return(FALSE);
     }
     f = p->FOfEE.binary(Deref(ARG3),Deref(ARG4),&res);
-    return (unify_constant(ARG1,EvalToTerm(f,&res)));
+    return (_YAP_unify_constant(ARG1,EvalToTerm(f,&res)));
   }
   return(FALSE);
 }
 
 void
-InitBinaryExps(void)
+_YAP_InitBinaryExps(void)
 {
   unsigned int    i;
   ExpEntry       *p;
 
   for (i = 0; i < sizeof(InitBinTab)/sizeof(InitBinEntry); ++i) {
-    AtomEntry *ae = RepAtom(LookupAtom(InitBinTab[i].OpName));
+    AtomEntry *ae = RepAtom(_YAP_LookupAtom(InitBinTab[i].OpName));
     WRITE_LOCK(ae->ARWLock);
-    if (GetExpPropHavingLock(ae, 2)) {
+    if (_YAP_GetExpPropHavingLock(ae, 2)) {
       WRITE_UNLOCK(ae->ARWLock);
       break;
     }
-    p = (ExpEntry *) AllocAtomSpace(sizeof(ExpEntry));
+    p = (ExpEntry *) _YAP_AllocAtomSpace(sizeof(ExpEntry));
     p->KindOfPE = ExpProperty;
     p->ArityOfEE = 2;
     p->ENoOfEE = 2;
@@ -1733,21 +1733,21 @@ InitBinaryExps(void)
     ae->PropsOfAE = AbsExpProp(p);
     WRITE_UNLOCK(ae->ARWLock);
   }
-  InitCPred("is", 4, p_binary_is, TestPredFlag | SafePredFlag);
+  _YAP_InitCPred("is", 4, p_binary_is, TestPredFlag | SafePredFlag);
 }
 
 /* This routine is called from Restore to make sure we have the same arithmetic operators */
 int
-ReInitBinaryExps(void)
+_YAP_ReInitBinaryExps(void)
 {
   unsigned int i;
   Prop p;
 
   for (i = 0; i < sizeof(InitBinTab)/sizeof(InitBinEntry); ++i) {
-    AtomEntry *ae = RepAtom(FullLookupAtom(InitBinTab[i].OpName));
+    AtomEntry *ae = RepAtom(_YAP_FullLookupAtom(InitBinTab[i].OpName));
 
     WRITE_LOCK(ae->ARWLock);
-    if ((p = GetExpPropHavingLock(ae, 2)) == NULL) {
+    if ((p = _YAP_GetExpPropHavingLock(ae, 2)) == NULL) {
       WRITE_UNLOCK(ae->ARWLock);
       return(FALSE);
     }

@@ -28,7 +28,7 @@
  *   locate the executable of Yap
 */
 void
-YAP_FindExecutable(char *name)
+_YAP_FindExecutable(char *name)
 {
 }
 
@@ -37,7 +37,7 @@ YAP_FindExecutable(char *name)
  * LoadForeign(ofiles,libs,proc_name,init_proc) dynamically loads foreign
  * code files and libraries and locates an initialization routine
 */
-Int
+static Int
 LoadForeign(StringList ofiles, StringList libs,
 	       char *proc_name,	YapInitProc *init_proc)
 {
@@ -45,8 +45,8 @@ LoadForeign(StringList ofiles, StringList libs,
   while (ofiles) {
     HINSTANCE handle;
 
-    if (TrueFileName(ofiles->s, FileNameBuf, TRUE) &&
-	(handle=LoadLibrary(FileNameBuf)) != 0)
+    if (_YAP_TrueFileName(ofiles->s, _YAP_FileNameBuf, TRUE) &&
+	(handle=LoadLibrary(_YAP_FileNameBuf)) != 0)
 	{
 	  if (*init_proc == NULL)
 	    *init_proc = (YapInitProc)GetProcAddress((HMODULE)handle, proc_name);
@@ -60,15 +60,15 @@ LoadForeign(StringList ofiles, StringList libs,
     HINSTANCE handle;
 
     if (libs->s[0] == '-') {
-      strcat(FileNameBuf,libs->s+2);
-      strcat(FileNameBuf,".dll");
+      strcat(_YAP_FileNameBuf,libs->s+2);
+      strcat(_YAP_FileNameBuf,".dll");
     } else {
-      strcpy(FileNameBuf,libs->s);
+      strcpy(_YAP_FileNameBuf,libs->s);
     }
 
-    if((handle=LoadLibrary(FileNameBuf)) == 0)
+    if((handle=LoadLibrary(_YAP_FileNameBuf)) == 0)
     {
-/*      strcpy(LoadMsg,dlerror());*/
+/*      strcpy(_YAP_ErrorSay,dlerror());*/
       return LOAD_FAILLED;
     }
 
@@ -79,20 +79,27 @@ LoadForeign(StringList ofiles, StringList libs,
   }
 
   if(*init_proc == NULL) {
-    strcpy(LoadMsg,"Could not locate initialization routine");
+    strcpy(_YAP_ErrorSay,"Could not locate initialization routine");
     return LOAD_FAILLED;
   }
 
   return LOAD_SUCCEEDED;
 }
 
+Int
+_YAP_LoadForeign(StringList ofiles, StringList libs,
+	       char *proc_name,	YapInitProc *init_proc)
+{
+  return LoadForeign(ofiles, libs, proc_name, init_proc);
+}
+
 void 
-ShutdownLoadForeign(void)
+_YAP_ShutdownLoadForeign(void)
 {
 }
 
 Int
-ReLoadForeign(StringList ofiles, StringList libs,
+_YAP_ReLoadForeign(StringList ofiles, StringList libs,
 	       char *proc_name,	YapInitProc *init_proc)
 {
   return(LoadForeign(ofiles,libs, proc_name, init_proc));

@@ -33,14 +33,14 @@
 
 /*
    Possible arguments to YAP emulator:
-   AREG describes an A or X register;
-   YREG describes an Y register
+   wamreg describes an A or X register;
+   yslot describes an Y slot
    COUNT is a small number (eg, number of arguments to a choicepoint,
    number of permanent variables in a environment
 */
 
-typedef OPREG  AREG;
-typedef OPREG  YREG;
+typedef OPREG  wamreg;
+typedef OPREG  yslot;
 typedef OPREG  COUNT;
 
 
@@ -231,25 +231,25 @@ typedef struct yami {
        struct {
 	 struct pred_entry  *p;
 	 CODEADDR            l;
-	 AREG                x1;
-	 AREG                x2;
-	 AREG                flags;
+	 wamreg                x1;
+	 wamreg                x2;
+	 wamreg                flags;
 	 CELL next;
        } lxx;
        struct {
 	 struct pred_entry  *p;
 	 CODEADDR            l;
-	 AREG                x;
-	 YREG                y;
-	 AREG                flags;
+	 wamreg                x;
+	 yslot                y;
+	 wamreg                flags;
 	 CELL next;
        } lxy;
        struct {
 	 struct pred_entry  *p;
 	 CODEADDR            l;
-	 AREG                y1;
-	 YREG                y2;
-	 AREG                flags;
+	 wamreg                y1;
+	 yslot                y2;
+	 wamreg                flags;
 	 CELL next;
        } lyy;
        struct {
@@ -288,18 +288,18 @@ typedef struct yami {
        } os;
        struct {
 	 OPCODE              opcw;
-	 AREG                x;
+	 wamreg                x;
 	 CELL next;
        } ox;
        struct {
 	 OPCODE              opcw;
-	 AREG                xl;
-	 AREG                xr;
+	 wamreg                xl;
+	 wamreg                xr;
 	 CELL next;
        } oxx;
        struct {
 	 OPCODE              opcw;
-	 YREG                y;
+	 yslot                y;
 	 CELL next;
        } oy;
        struct {
@@ -335,79 +335,79 @@ typedef struct yami {
 	 CELL next;
        } sla; /* also check env for yes and trustfail code before making any changes */
        struct {
-	 AREG                x;
+	 wamreg                x;
 	 CELL next;
        } x;
        struct {
-	 AREG                x;
+	 wamreg                x;
 	 CELL                c;
 	 CELL next;
        } xc;
        struct {
-	 AREG                x;
+	 wamreg                x;
 	 Functor             f;
 	 Int                 a;
 	 CELL next;
        } xf;
        struct {
-	 AREG                xl;
-	 AREG                xr;
+	 wamreg                xl;
+	 wamreg                xr;
 	 CELL next;
        } xx;
        struct {
-	 AREG                x;
-	 AREG                x1;
-	 AREG                x2;
+	 wamreg                x;
+	 wamreg                x1;
+	 wamreg                x2;
 	 CELL next;
        } xxx;
        struct {
-	 AREG                x;
+	 wamreg                x;
 	 Int                 c;
-	 AREG                xi;
+	 wamreg                xi;
 	 CELL next;
        } xcx, xxc;
        struct {
-	 AREG                x;
-	 YREG                y;
+	 wamreg                x;
+	 yslot                y;
 	 CELL next;
        } xy;
        struct {
-	 AREG                x;
-	 YREG                y2;
-	 AREG                x1;
+	 wamreg                x;
+	 yslot                y2;
+	 wamreg                x1;
 	 CELL next;
        } xyx;
        struct {
-	 YREG                y;
+	 yslot                y;
 	 CELL next;
        } y;
        struct {
-	 YREG                y;
-	 AREG                x;
+	 yslot                y;
+	 wamreg                x;
 	 CELL next;
        } yx;
        struct {
-	 YREG                y;
-	 AREG                x1;
-	 AREG                x2;
+	 yslot                y;
+	 wamreg                x1;
+	 wamreg                x2;
 	 CELL next;
        } yxx;
        struct {
-	 YREG                y1;
-	 YREG                y2;
-	 AREG                x;
+	 yslot                y1;
+	 yslot                y2;
+	 wamreg                x;
 	 CELL next;
        } yyx;
        struct {
-	 YREG                y;
-	 YREG                y1;
-	 YREG                y2;
+	 yslot                y;
+	 yslot                y1;
+	 yslot                y2;
 	 CELL next;
        } yyy;
        struct {
-	 YREG                y;
+	 yslot                y;
 	 Int                 c;
-	 AREG                xi;
+	 wamreg                xi;
 	 CELL next;
        } ycx, yxc;
      } u;
@@ -554,16 +554,16 @@ typedef struct choicept {
 /* access to instructions */
 
 #if USE_THREADED_CODE
-extern void **ABSMI_OPCODES;
+extern void **_YAP_ABSMI_OPCODES;
 
-#define absmadr(i) ((OPCODE)(ABSMI_OPCODES[(i)]))
+#define absmadr(i) ((OPCODE)(_YAP_ABSMI_OPCODES[(i)]))
 #else
 #define absmadr(i) ((OPCODE)(i))
 #endif
 
 /* used to find out how many instructions of each kind are executed */
 #ifdef ANALYST
-extern int opcount[_std_top+1];
+extern int _YAP_opcount[_std_top+1];
 #endif /* ANALYST */
 
 #if DEPTH_LIMIT

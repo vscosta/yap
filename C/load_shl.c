@@ -16,7 +16,7 @@
  *   locate the executable of Yap
 */
 
-void YAP_FindExecutable(char *name)
+void _YAP_FindExecutable(char *name)
 {
 }
 
@@ -26,7 +26,8 @@ void YAP_FindExecutable(char *name)
  * code files and libraries and locates an initialization routine
 */
 
-Int LoadForeign( StringList ofiles, StringList libs,
+static Int
+LoadForeign( StringList ofiles, StringList libs,
 		 char *proc_name, YapInitProc *init_proc )
 {
 
@@ -40,17 +41,17 @@ Int LoadForeign( StringList ofiles, StringList libs,
     int valid_fname;
 
     /* shl_load wants to follow the LD_CONFIG_PATH */
-    valid_fname = TrueFileName( ofiles->s, FileNameBuf, TRUE );
+    valid_fname = _YAP_TrueFileName( ofiles->s, FileNameBuf, TRUE );
 
     if( !valid_fname ) {
-      strcpy( LoadMsg, "[ Trying to open non-existing file in LoadForeign ]" );
+      strcpy( _YAP_ErrorSay, "[ Trying to open non-existing file in LoadForeign ]" );
       return LOAD_FAILLED;
     }
 
-    ofiles->handle = AllocCodeSpace( sizeof(shl_t) );
+    ofiles->handle = _YAP_AllocCodeSpace( sizeof(shl_t) );
     *(shl_t *)ofiles->handle = shl_load( FileNameBuf, BIND_DEFERRED, 0 );
     if( *(shl_t *)ofiles->handle == NULL ) {
-      strncpy( LoadMsg, strerror(errno), 512 );
+      strncpy( _YAP_ErrorSay, strerror(errno), MAX_ERROR_MSG_SIZE );
       return LOAD_FAILLED;
     }
 
@@ -63,7 +64,7 @@ Int LoadForeign( StringList ofiles, StringList libs,
   }
 
   if( init_missing ) {
-    strcpy( LoadMsg, "Could not locate initialization routine" );
+    strcpy( _YAP_ErrorSay, "Could not locate initialization routine" );
     return LOAD_FAILLED;
   }
 
@@ -80,7 +81,7 @@ Int LoadForeign( StringList ofiles, StringList libs,
 
     *(shl_t *)libs->handle = shl_load( FileNameBuf, BIND_DEFERRED, 0 );
     if( *(shl_t *)libs->handle == NULL ) {
-      strncpy( LoadMsg, strerror(errno), 512 );
+      strncpy( _YAP_ErrorSay, strerror(errno), MAX_ERROR_MSG_SIZE );
       return LOAD_FAILLED;
     }
 
@@ -91,7 +92,15 @@ Int LoadForeign( StringList ofiles, StringList libs,
 }
 
 
-void ShutdownLoadForeign( void )
+Int
+_YAP_LoadForeign(StringList ofiles, StringList libs,
+	       char *proc_name,	YapInitProc *init_proc)
+{
+  return LoadForeign(ofiles, libs, proc_name, init_proc);
+}
+
+void
+_YAP_ShutdownLoadForeign( void )
 {
   ForeignObj *f_code;
   int err;
@@ -108,7 +117,7 @@ void ShutdownLoadForeign( void )
 	perror( NULL );
 	return;
       }
-      FreeCodeSpace( objs->handle );
+      _YAP_FreeCodeSpace( objs->handle );
       objs = objs->next;
     }
 
@@ -120,14 +129,15 @@ void ShutdownLoadForeign( void )
 	perror( NULL );
 	return;
       }
-      FreeCodeSpace( libs->handle );
+      _YAP_FreeCodeSpace( libs->handle );
       libs = libs->next;
     }
     f_code = f_code->next;
   }
 }
 
-Int ReLoadForeign(StringList ofiles, StringList libs,
+Int
+_YAP_ReLoadForeign(StringList ofiles, StringList libs,
 		  char *proc_name, YapInitProc *init_proc)
 {
   ShutdownLoadForeign();

@@ -128,7 +128,7 @@ YP_fputs(char *s, YP_FILE *f)
 {
   int count = 0;
   while (*s) {
-    if (YP_putc(*s++,f)<0) return -1;
+    if (putc(*s++,f)<0) return -1;
     ++count;
   }
   return count;

@@ -68,28 +68,28 @@ static int p_debug_prolog(void);
 **      Global functions      **
 ** -------------------------- */
 
-void init_optyap_preds(void) {
-  InitCPred("$default_sequential", 1, p_default_sequential, SafePredFlag);
+void _YAP_init_optyap_preds(void) {
+  _YAP_InitCPred("$default_sequential", 1, p_default_sequential, SafePredFlag);
 #ifdef YAPOR
-  InitCPred("$yapor_on", 0, yapor_on, SafePredFlag);
-  InitCPred("$start_yapor", 0, start_yapor, SafePredFlag);
-  InitCPred("$sequential", 1, p_sequential, SafePredFlag);
-  InitCPred("execution_mode", 1, p_execution_mode, SafePredFlag);
-  InitCPred("performance", 1, p_performance, SafePredFlag);
-  InitCPred("$parallel_new_answer", 1, p_parallel_new_answer, SafePredFlag);
-  InitCPred("$parallel_yes_answer", 0, p_parallel_yes_answer, SafePredFlag);
+  _YAP_InitCPred("$yapor_on", 0, yapor_on, SafePredFlag);
+  _YAP_InitCPred("$start_yapor", 0, start_yapor, SafePredFlag);
+  _YAP_InitCPred("$sequential", 1, p_sequential, SafePredFlag);
+  _YAP_InitCPred("execution_mode", 1, p_execution_mode, SafePredFlag);
+  _YAP_InitCPred("performance", 1, p_performance, SafePredFlag);
+  _YAP_InitCPred("$parallel_new_answer", 1, p_parallel_new_answer, SafePredFlag);
+  _YAP_InitCPred("$parallel_yes_answer", 0, p_parallel_yes_answer, SafePredFlag);
 #endif /* YAPOR */
 #ifdef TABLING
-  InitCPred("$do_table", 2, p_table, SafePredFlag);
-  InitCPred("$do_abolish_trie", 2, p_abolish_trie, SafePredFlag);
-  InitCPred("$show_trie", 3, p_show_trie, SafePredFlag);
-  InitCPred("$resume_trie", 2, p_resume_trie, SafePredFlag);
+  _YAP_InitCPred("$do_table", 2, p_table, SafePredFlag);
+  _YAP_InitCPred("$do_abolish_trie", 2, p_abolish_trie, SafePredFlag);
+  _YAP_InitCPred("$show_trie", 3, p_show_trie, SafePredFlag);
+  _YAP_InitCPred("$resume_trie", 2, p_resume_trie, SafePredFlag);
 #endif /* TABLING */
 #ifdef STATISTICS
-  InitCPred("show_frames", 0, p_show_frames, SafePredFlag);
+  _YAP_InitCPred("show_frames", 0, p_show_frames, SafePredFlag);
 #endif /* STATISTICS */
 #if defined(YAPOR_ERRORS) || defined(TABLING_ERRORS)
-  InitCPred("debug_prolog", 1, p_debug_prolog, SafePredFlag);
+  _YAP_InitCPred("debug_prolog", 1, p_debug_prolog, SafePredFlag);
 #endif /* YAPOR_ERRORS || TABLING_ERRORS */
 }
 
@@ -116,9 +116,9 @@ int p_default_sequential(void) {
   if (IsVarTerm(t)) {
     Term ta;
     if (SEQUENTIAL_IS_DEFAULT)
-      ta = MkAtomTerm(LookupAtom("on"));
+      ta = MkAtomTerm(_YAP_LookupAtom("on"));
     else
-      ta = MkAtomTerm(LookupAtom("off"));
+      ta = MkAtomTerm(_YAP_LookupAtom("off"));
     Bind((CELL *)t, ta);
     return(TRUE);
   } 
@@ -147,7 +147,7 @@ realtime current_time(void) {
   /* to get time as Yap */
   /*
   double now, interval;
-  cputime_interval(&now, &interval);
+  _YAP_cputime_interval(&now, &interval);
   return ((realtime)now);
   */
   struct timeval tempo;
@@ -222,9 +222,9 @@ int p_execution_mode(void) {
   if (IsVarTerm(t)) {
     Term ta;
     if (PARALLEL_EXECUTION_MODE) 
-      ta = MkAtomTerm(LookupAtom("parallel"));
+      ta = MkAtomTerm(_YAP_LookupAtom("parallel"));
     else 
-      ta = MkAtomTerm(LookupAtom("sequential"));
+      ta = MkAtomTerm(_YAP_LookupAtom("sequential"));
     Bind((CELL *)t, ta);
     return(TRUE);
   }
@@ -255,9 +255,9 @@ int p_performance(void) {
   if (IsVarTerm(t)) {
     Term ta;
     if (GLOBAL_performance_mode & PERFORMANCE_ON) {
-      ta = MkAtomTerm(LookupAtom("on"));
+      ta = MkAtomTerm(_YAP_LookupAtom("on"));
     } else { 
-      ta = MkAtomTerm(LookupAtom("off"));
+      ta = MkAtomTerm(_YAP_LookupAtom("off"));
     }
     Bind((CELL *)t, ta);
     return(TRUE);
@@ -325,7 +325,7 @@ int p_parallel_new_answer(void) {
 
   length_answer = 0;
   ALLOC_QG_ANSWER_FRAME(actual_answer);
-  plwrite(ARG1, parallel_new_answer_putchar, 4);
+  _YAP_plwrite(ARG1, parallel_new_answer_putchar, 4);
   AnsFr_answer(actual_answer)[length_answer] = 0;
   AnsFr_next(actual_answer) = NULL;
   leftmost_or_fr = CUT_leftmost_or_frame();
@@ -557,7 +557,7 @@ int p_show_trie(void) {
  
   t2 = Deref(ARG3);
   if (IsVarTerm(t2)) {
-    Term ta = MkAtomTerm(LookupAtom("stdout"));
+    Term ta = MkAtomTerm(_YAP_LookupAtom("stdout"));
     Bind((CELL *)t2, ta);
     traverse_trie(stderr, TrNode_child(TabEnt_subgoal_trie(pe->TableOfPred)), arity, at, TRUE);
   } else if (IsAtomTerm(t2)) {

@@ -26,7 +26,7 @@
  *   locate the executable of Yap
 */
 void
-YAP_FindExecutable(char *name)
+_YAP_FindExecutable(char *name)
 {
 }
 
@@ -36,20 +36,20 @@ YAP_FindExecutable(char *name)
  * code file and locates an initialization routine
 */
 Int
-LoadForeign(StringList ofiles, StringList libs,
+_YAP_LoadForeign(StringList ofiles, StringList libs,
 	    char *proc_name, YapInitProc *init_proc)
 {
-  strcpy(LoadMsg,"load_foreign not supported in this version of Yap");
+  strcpy(_YAP_ErrorSay,"load_foreign not supported in this version of Yap");
   return LOAD_FAILLED;
 }
 
 void 
-ShutdownLoadForeign(void)
+_YAP_ShutdownLoadForeign(void)
 {
 }
 
 Int
-ReLoadForeign(StringList ofiles, StringList libs,
+_YAP_ReLoadForeign(StringList ofiles, StringList libs,
 	       char *proc_name,	YapInitProc *init_proc)
 {
   return(LoadForeign(ofiles,libs, proc_name, init_proc));

@@ -27,24 +27,17 @@ static char SccsId[] = "%W% %G%";
  *
  */
 
-#if  _MSC_VER || defined(__MINGW32__)
-#define _WIN32_WINNT 0x0400
-#endif
 /* windows.h does not like absmi.h, this
    should fix it for now */
-#if  _MSC_VER || defined(__MINGW32__)
-#include "Yap.h"
-#include "Yatom.h"
-#include "Heap.h"
-#include "eval.h"
-#else
 #include "absmi.h"
-#endif
 #include "yapio.h"
 #include "alloc.h"
 #include <math.h>
 #if STDC_HEADERS
 #include <stdlib.h>
+#endif
+#if HAVE_WINDOWS_H
+#include <windows.h>
 #endif
 #if HAVE_SYS_TIME_H && !defined(__MINGW32__) && !_MSC_VER
 #include <sys/time.h>
@@ -107,6 +100,7 @@ STATIC_PROTO (Int p_srandom, (void));
 STATIC_PROTO (Int p_alarm, (void));
 STATIC_PROTO (Int p_getenv, (void));
 STATIC_PROTO (Int p_putenv, (void));
+STATIC_PROTO (void  set_fpu_exceptions, (int));
 #ifdef MACYAP
 STATIC_PROTO (int chdir, (char *));
 /* #define signal	skel_signal */
@@ -116,11 +110,17 @@ STATIC_PROTO (int chdir, (char *));
 char yap_pwd[YAP_FILENAME_MAX];
 #endif
 
+#if HAVE_SIGNAL
+
+static int             snoozing = FALSE;
+
+#endif
+
 STD_PROTO (void exit, (int));
 
 #ifdef _WIN32
 static void
-WinError(char *yap_error)
+_YAP_WinError(char *yap_error)
 {
   char msg[256];
   /* Error, we could not read time */
@@ -128,7 +128,7 @@ WinError(char *yap_error)
 		  NULL, GetLastError(), 
 		  MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT), msg, 256,
 		  NULL);
-    Error(SYSTEM_ERROR, TermNil, "%s: %s", yap_error, msg);
+    _YAP_Error(SYSTEM_ERROR, TermNil, "%s: %s", yap_error, msg);
 }
 #endif /* _WIN32 */
 
@@ -137,7 +137,7 @@ WinError(char *yap_error)
 			       (C) <= 'Z') || (C) == '_' )
 
 
-int
+static int
 dir_separator (int ch)
 {
 #ifdef MAC
@@ -151,19 +151,25 @@ dir_separator (int ch)
 #endif
 }
 
+int
+_YAP_dir_separator (int ch)
+{
+  return dir_separator (ch);
+}
+
 void
-InitSysPath(void) {
-  strncpy(FileNameBuf, SHARE_DIR, YAP_FILENAME_MAX);
+_YAP_InitSysPath(void) {
+  strncpy(_YAP_FileNameBuf, SHARE_DIR, YAP_FILENAME_MAX);
 #ifdef MAC
-  strncat(FileNameBuf,":", YAP_FILENAME_MAX);
+  strncat(_YAP_FileNameBuf,":", YAP_FILENAME_MAX);
 #elif ATARI || _MSC_VER || defined(__MINGW32__)
-  strncat(FileNameBuf,"\\", YAP_FILENAME_MAX);
+  strncat(_YAP_FileNameBuf,"\\", YAP_FILENAME_MAX);
 #else
-  strncat(FileNameBuf,"/", YAP_FILENAME_MAX);
+  strncat(_YAP_FileNameBuf,"/", YAP_FILENAME_MAX);
 #endif
-  strncat(FileNameBuf, "Yap", YAP_FILENAME_MAX);
-  PutValue(LookupAtom("system_library_directory"),
-	   MkAtomTerm(LookupAtom(FileNameBuf)));
+  strncat(_YAP_FileNameBuf, "Yap", YAP_FILENAME_MAX);
+  _YAP_PutValue(_YAP_LookupAtom("system_library_directory"),
+	   MkAtomTerm(_YAP_LookupAtom(_YAP_FileNameBuf)));
 }
 
 static Int
@@ -177,11 +183,9 @@ p_dir_sp (void)
   Term t = MkIntTerm('/');
 #endif
 
-  return(unify_constant(ARG1,t));
+  return(_YAP_unify_constant(ARG1,t));
 }
 
-
-int page_size;
 
 static void
 InitPageSize(void)
@@ -189,16 +193,16 @@ InitPageSize(void)
 #ifdef _WIN32
   SYSTEM_INFO si;
   GetSystemInfo(&si);
-  page_size = si.dwPageSize;
+  _YAP_page_size = si.dwPageSize;
 #elif HAVE_UNISTD_H
 #ifdef __FreeBSD__
-  page_size = getpagesize();
+  _YAP_page_size = getpagesize();
 #elif defined(_AIX)
-  page_size = sysconf(_SC_PAGE_SIZE);
+  _YAP_page_size = sysconf(_SC_PAGE_SIZE);
 #elif !defined(_SC_PAGESIZE)
-  page_size = getpagesize();
+  _YAP_page_size = getpagesize();
 #else
-  page_size = sysconf(_SC_PAGESIZE);
+  _YAP_page_size = sysconf(_SC_PAGESIZE);
 #endif
 #else
 bla bla
@@ -248,7 +252,7 @@ InitTime (void)
 
 
 Int
-cputime (void)
+_YAP_cputime (void)
 {
  struct rusage   rusage;
 
@@ -257,7 +261,7 @@ cputime (void)
    ((rusage.ru_utime.tv_usec - StartOfTimes.tv_usec) / 1000);
 }
 
-void cputime_interval(Int *now,Int *interval)
+void _YAP_cputime_interval(Int *now,Int *interval)
 {
   struct rusage   rusage;
 
@@ -321,7 +325,7 @@ InitTime (void)
 }
 
 Int
-cputime (void)
+_YAP_cputime (void)
 {
   HANDLE hProcess = GetCurrentProcess();
   FILETIME CreationTime, ExitTime, KernelTime, UserTime;
@@ -344,7 +348,7 @@ cputime (void)
   }
 }
 
-void cputime_interval(Int *now,Int *interval)
+void _YAP_cputime_interval(Int *now,Int *interval)
 {
   HANDLE hProcess = GetCurrentProcess();
   FILETIME CreationTime, ExitTime, KernelTime, UserTime;
@@ -431,14 +435,14 @@ InitTime (void)
 }
 
 Int
-cputime (void)
+_YAP_cputime (void)
 {
   struct tms t;
   times(&t);
   return((t.tms_utime - StartOfTimes)*1000 / TicksPerSec);
 }
 
-void cputime_interval(Int *now,Int *interval)
+void _YAP_cputime_interval(Int *now,Int *interval)
 {
   struct tms t;
   times (&t);
@@ -472,7 +476,7 @@ InitTime (void)
 
 
 Int
-cputime (void)
+_YAP_cputime (void)
 {
   struct timeval   tp;
 
@@ -485,7 +489,7 @@ cputime (void)
       ((tp.tv_usec - StartOfTimes.tv_usec) / 1000);
 }
 
-void cputime_interval(Int *now,Int *interval)
+void _YAP_cputime_interval(Int *now,Int *interval)
 {
   struct timeval   tp;
 
@@ -605,12 +609,12 @@ InitWTime (void)
 static void
 InitLastWtime(void) {
   /* ask for twice the space in order to guarantee alignment */
-  LastWtimePtr = (void *)AllocCodeSpace(2*sizeof(hrtime_t));
+  LastWtimePtr = (void *)_YAP_AllocCodeSpace(2*sizeof(hrtime_t));
   LastWtime = StartOfWTimes;
 }
 
 Int
-walltime (void)
+_YAP_walltime (void)
 {
   hrtime_t tp = gethrtime();
   /* return time in milliseconds */
@@ -618,7 +622,7 @@ walltime (void)
 
 }
 
-void walltime_interval(Int *now,Int *interval)
+void _YAP_walltime_interval(Int *now,Int *interval)
 {
   hrtime_t tp = gethrtime();
   /* return time in milliseconds */
@@ -645,14 +649,14 @@ InitWTime (void)
 
 static void
 InitLastWtime(void) {
-  LastWtimePtr = (void *)AllocCodeSpace(sizeof(struct timeval));
+  LastWtimePtr = (void *)_YAP_AllocCodeSpace(sizeof(struct timeval));
   LastWtime.tv_usec = StartOfWTimes.tv_usec;
   LastWtime.tv_sec = StartOfWTimes.tv_sec;
 }
 
 
 Int
-walltime (void)
+_YAP_walltime (void)
 {
   struct timeval   tp;
 
@@ -665,7 +669,7 @@ walltime (void)
       ((tp.tv_usec - LastWtime.tv_usec) / 1000);
 }
 
-void walltime_interval(Int *now,Int *interval)
+void _YAP_walltime_interval(Int *now,Int *interval)
 {
   struct timeval   tp;
 
@@ -698,14 +702,14 @@ InitWTime (void)
 
 static void
 InitLastWtime(void) {
-  LastWtimePtr = (void *)AllocCodeSpace(sizeof(struct timeb));
+  LastWtimePtr = (void *)_YAP_AllocCodeSpace(sizeof(struct timeb));
   LastWtime.time = StartOfWTimes.time;
   LastWtime.millitm = StartOfWTimes.millitm;
 }
 
 
 Int
-walltime (void)
+_YAP_walltime (void)
 {
   struct _timeb   tp;
 
@@ -718,7 +722,7 @@ walltime (void)
       ((tp.millitm - LastWtime.millitm) / 1000);
 }
 
-void walltime_interval(Int *now,Int *interval)
+void _YAP_walltime_interval(Int *now,Int *interval)
 {
   struct _timeb   tp;
 
@@ -746,19 +750,19 @@ InitWTime (void)
 
 static void
 InitLastWtime(void) {
-  LastWtimePtr = (void *)AllocCodeSpace(sizeof(clock_t));
+  LastWtimePtr = (void *)_YAP_AllocCodeSpace(sizeof(clock_t));
   LastWtime = StartOfWTimes;
 }
 
 Int
-walltime (void)
+_YAP_walltime (void)
 {
   clock_t t;
   t = times(NULL);
   return ((t - StartOfWTimes)*1000 / TicksPerSec));
 }
 
-void walltime_interval(Int *now,Int *interval)
+void _YAP_walltime_interval(Int *now,Int *interval)
 {
   clock_t t;
   t = times(NULL);
@@ -789,7 +793,7 @@ STD_PROTO (extern int rand, (void));
 
 
 double
-yap_random (void)
+_YAP_random (void)
 {
 #if HAVE_RANDOM
 /*  extern long random (); */
@@ -797,7 +801,7 @@ yap_random (void)
 #elif HAVE_RAND
   return (((double) (rand ()) / RAND_MAX));
 #else
-  Error(SYSTEM_ERROR, TermNil,
+  _YAP_Error(SYSTEM_ERROR, TermNil,
 	"random not available in this configuration");
   return (0.0);
 #endif
@@ -808,7 +812,7 @@ p_srandom (void)
 {
   register Term t0 = Deref (ARG1);
   if (IsVarTerm (t0)) {
-    return(unify(ARG1,MkIntegerTerm((Int)current_seed)));
+    return(_YAP_unify(ARG1,MkIntegerTerm((Int)current_seed)));
   }
   if(!IsNumTerm (t0))
     return (FALSE);
@@ -866,12 +870,12 @@ HandleSIGSEGV(int   sig,   siginfo_t   *sip, ucontext_t *uap)
 {
   if (sip->si_code != SI_NOINFO &&
       sip->si_code == SEGV_MAPERR &&
-      (void *)(sip->si_addr) > (void *)(HeapBase) &&
-      (void *)(sip->si_addr) < (void *)(TrailTop+64 * 1024L) ) {
-    growtrail(64 * 1024L);
+      (void *)(sip->si_addr) > (void *)(_YAP_HeapBase) &&
+      (void *)(sip->si_addr) < (void *)(_YAP_TrailTop+64 * 1024L) ) {
+    _YAP_growtrail(64 * 1024L);
   }
   else {
-    Error(FATAL_ERROR, TermNil,
+    _YAP_Error(FATAL_ERROR, TermNil,
 	  "likely bug in YAP, segmentation violation at %p", sip->si_addr);
   }
 }
@@ -907,7 +911,7 @@ HandleMatherr(int  sig, siginfo_t *sip, ucontext_t *uap)
     error_no = EVALUATION_ERROR_UNDEFINED;
   }
   set_fpu_exceptions(0);
-  Error(error_no, TermNil, "");
+  _YAP_Error(error_no, TermNil, "");
 }
 
 
@@ -950,21 +954,21 @@ STATIC_PROTO (void my_signal, (int, void (*)(int)));
     {
     case DOMAIN:
     case SING:
-      Error(EVALUATION_ERROR_UNDEFINED, TermNil, "%s", x->name);
+      _YAP_Error(EVALUATION_ERROR_UNDEFINED, TermNil, "%s", x->name);
       return(0);
     case OVERFLOW:
-      Error(EVALUATION_ERROR_FLOAT_OVERFLOW, TermNil, "%s", x->name);
+      _YAP_Error(EVALUATION_ERROR_FLOAT_OVERFLOW, TermNil, "%s", x->name);
       return(0);
     case UNDERFLOW:
-      Error(EVALUATION_ERROR_FLOAT_UNDERFLOW, TermNil, "%s", x->name);
+      _YAP_Error(EVALUATION_ERROR_FLOAT_UNDERFLOW, TermNil, "%s", x->name);
       return(0);
     case PLOSS:
     case TLOSS:
-      Error(EVALUATION_ERROR_UNDEFINED, TermNil, "%s(%g) = %g", x->name,
+      _YAP_Error(EVALUATION_ERROR_UNDEFINED, TermNil, "%s(%g) = %g", x->name,
 	       x->arg1, x->retval);
       return(0);
     default:
-      Error(EVALUATION_ERROR_UNDEFINED, TermNil, NULL);
+      _YAP_Error(EVALUATION_ERROR_UNDEFINED, TermNil, NULL);
       return(0);
     }
   */
@@ -984,19 +988,19 @@ HandleMatherr(int sig)
   int raised = fetestexcept(FE_ALL_EXCEPT);
 
   if (raised & FE_OVERFLOW) {
-    YAP_matherror = EVALUATION_ERROR_FLOAT_OVERFLOW;
+    _YAP_matherror = EVALUATION_ERROR_FLOAT_OVERFLOW;
   } else if (raised & (FE_INVALID|FE_INEXACT)) {
-    YAP_matherror = EVALUATION_ERROR_UNDEFINED;
+    _YAP_matherror = EVALUATION_ERROR_UNDEFINED;
   } else if (raised & FE_DIVBYZERO) {
-    YAP_matherror = EVALUATION_ERROR_ZERO_DIVISOR;
+    _YAP_matherror = EVALUATION_ERROR_ZERO_DIVISOR;
   } else if (raised & FE_UNDERFLOW) {
-    YAP_matherror = EVALUATION_ERROR_FLOAT_UNDERFLOW;
+    _YAP_matherror = EVALUATION_ERROR_FLOAT_UNDERFLOW;
   } else
 #endif
-    YAP_matherror = EVALUATION_ERROR_UNDEFINED;
+    _YAP_matherror = EVALUATION_ERROR_UNDEFINED;
   /* something very bad happened on the way to the forum */
   set_fpu_exceptions(FALSE);
-  Error(YAP_matherror, TermNil, "");
+  _YAP_Error(_YAP_matherror, TermNil, "");
 }
 
 static void
@@ -1011,23 +1015,23 @@ SearchForTrailFault(void)
   /*  fprintf(stderr,"Catching a sigsegv at %p with %p\n", TR, TrailTop); */
 #endif
 #if  OS_HANDLES_TR_OVERFLOW
-  if ((TR > (tr_fr_ptr)TrailTop-1024  && 
-       TR < (tr_fr_ptr)TrailTop+(64*1024))|| DBTrailOverflow()) {
-    if (!growtrail(64 * 1024L)) {
-      Error(SYSTEM_ERROR, TermNil, "YAP failed to reserve %ld bytes in growtrail", 64*1024L);
+  if ((TR > (tr_fr_ptr)_YAP_TrailTop-1024  && 
+       TR < (tr_fr_ptr)_YAP_TrailTop+(64*1024))|| _YAP_DBTrailOverflow()) {
+    if (!_YAP_growtrail(64 * 1024L)) {
+      _YAP_Error(SYSTEM_ERROR, TermNil, "YAP failed to reserve %ld bytes in growtrail", 64*1024L);
     }
     /* just in case, make sure the OS keeps the signal handler. */
     /*    my_signal_info(SIGSEGV, HandleSIGSEGV); */
   } else
 #endif /* OS_HANDLES_TR_OVERFLOW */
-    Error(FATAL_ERROR, TermNil,
+    _YAP_Error(FATAL_ERROR, TermNil,
 	  "likely bug in YAP, segmentation violation");
 }
 
 static RETSIGTYPE
 HandleSIGSEGV(int   sig)
 {
-  if (PrologMode & ExtendStackMode) {
+  if (_YAP_PrologMode & ExtendStackMode) {
     fprintf(stderr,  "[ FATAL ERROR: OS memory allocation crashed: bailing out ]~n");
     exit(1);
   }
@@ -1090,18 +1094,18 @@ InteractSIGINT(int ch) {
   switch (ch) {
   case 'a':
     /* abort computation */
-    if (PrologMode & ConsoleGetcMode) {
-      PrologMode |= AbortMode;
+    if (_YAP_PrologMode & ConsoleGetcMode) {
+      _YAP_PrologMode |= AbortMode;
     } else {
-      Error(PURE_ABORT, TermNil, "");
+      _YAP_Error(PURE_ABORT, TermNil, "");
       /* in case someone mangles the P register */
 #if  _MSC_VER || defined(__MINGW32__)
       /* don't even think about trying this */
 #else
 #if PUSH_REGS
-      restore_absmi_regs(&standard_regs);
+      restore_absmi_regs(&_YAP_standard_regs);
 #endif
-      siglongjmp (RestartEnv, 1);
+      siglongjmp (_YAP_RestartEnv, 1);
 #endif
     }
     return(-1);
@@ -1110,19 +1114,19 @@ InteractSIGINT(int ch) {
     return(1);
   case 'd':
     /* enter debug mode */
-    PutValue (LookupAtom ("debug"), MkIntTerm (1));
+    _YAP_PutValue (_YAP_LookupAtom ("debug"), MkIntTerm (1));
     return(1);
   case 'e':
     /* exit */
-    exit_yap(0);
+    _YAP_exit(0);
     return(-1);
   case 't':
     /* start tracing */
-    PutValue (LookupAtom ("debug"), MkIntTerm (1));
-    PutValue (LookupAtom ("spy_sl"), MkIntTerm (0));
-    PutValue (FullLookupAtom ("$trace"), MkIntTerm (1));
+    _YAP_PutValue (_YAP_LookupAtom ("debug"), MkIntTerm (1));
+    _YAP_PutValue (_YAP_LookupAtom ("spy_sl"), MkIntTerm (0));
+    _YAP_PutValue (_YAP_FullLookupAtom ("$trace"), MkIntTerm (1));
     yap_flags[SPY_CREEP_FLAG] = 1;
-    p_creep ();
+    _YAP_creep ();
     return(1);
 #ifdef LOW_LEVEL_TRACER
   case 'T':
@@ -1131,26 +1135,7 @@ InteractSIGINT(int ch) {
 #endif
   case 's':
     /* show some statistics */
-    {
-      unsigned long int heap_space_taken = 
-	(unsigned long int)(Unsigned(HeapTop)-Unsigned(HeapBase));
-      double frag = (100.0*(heap_space_taken-HeapUsed))/heap_space_taken;
-      YP_fprintf(YP_stderr, "Code Space:  %ld (%ld bytes needed, %ld bytes used, fragmentation %.3f%%).\n", 
-		 (unsigned long int)(Unsigned (H0) - Unsigned (HeapBase)),
-                 (unsigned long int)(Unsigned(HeapTop)-Unsigned(HeapBase)),
-		 (unsigned long int)(HeapUsed),
-		 frag);
-      YP_fprintf(YP_stderr, "Stack Space: %ld (%ld for Global, %ld for local).\n", 
-		 (unsigned long int)(sizeof(CELL)*(LCL0-H0)),
-		 (unsigned long int)(sizeof(CELL)*(H-H0)),
-		 (unsigned long int)(sizeof(CELL)*(LCL0-ASP)));
-      YP_fprintf(YP_stderr, "Trail Space: %ld (%ld used).\n", 
-		 (unsigned long int)(sizeof(tr_fr_ptr)*(Unsigned(TrailTop)-Unsigned(TrailBase))),
-		 (unsigned long int)(sizeof(tr_fr_ptr)*(Unsigned(TR)-Unsigned(TrailBase))));
-      YP_fprintf(YP_stderr, "Runtime: %lds.\n", (unsigned long int)(runtime ()));
-      YP_fprintf(YP_stderr, "Cputime: %lds.\n", (unsigned long int)(cputime ()));
-      YP_fprintf(YP_stderr, "Walltime: %lds.\n", (unsigned long int)(walltime ()));
-    }
+    _YAP_show_statistics();
     return(1);
   case EOF:
     return(0);
@@ -1159,9 +1144,9 @@ InteractSIGINT(int ch) {
   case '?':
   default:
     /* show an helpful message */
-    YP_fprintf(YP_stderr, "Please press one of:\n");
-    YP_fprintf(YP_stderr, "  a for abort\n  c for continue\n  d for debug\n");
-    YP_fprintf(YP_stderr, "  e for exit\n  s for statistics\n  t for trace\n");
+    fprintf(_YAP_stderr, "Please press one of:\n");
+    fprintf(_YAP_stderr, "  a for abort\n  c for continue\n  d for debug\n");
+    fprintf(_YAP_stderr, "  e for exit\n  s for statistics\n  t for trace\n");
     return(0);
   }
 }
@@ -1170,40 +1155,21 @@ InteractSIGINT(int ch) {
   This function talks to the user about a signal. We assume we are in
   the context of the main Prolog thread (trivial in Unix, but hard in WIN32)
 */ 
-int
+static int
 ProcessSIGINT(void)
 {
   int ch, out;
-  extern int newline;
 
   do {
-#if  HAVE_LIBREADLINE
-    if ((PrologMode & ConsoleGetcMode) && _line != (char *) NULL) {
-      ch = _line[0];
-      free(_line);
-      _line = NULL;
-    } else {
-      _line = readline ("Action (h for help): ");
-      if (_line == (char *)NULL || _line == (char *)EOF) {
-	ch = EOF;
-	continue;
-      } else {
-	ch = _line[0];
-
-	free(_line);
-	_line = NULL;
-      }
-    }
-#else
-    /* ask for a new line */
-    fprintf(stderr, "Action (h for help): ");
-    ch = getc(stdin);
-    /* first process up to end of line */
-    while ((fgetc(stdin)) != '\n');
-#endif
+    ch = _YAP_GetCharForSIGINT();
   } while (!(out = InteractSIGINT(ch)));
-  newline = TRUE;
   return(out);
+}
+
+int
+_YAP_ProcessSIGINT(void)
+{
+  return ProcessSIGINT();
 }
 
 /* This function is called from the signal handler to process signals.
@@ -1221,13 +1187,13 @@ HandleSIGINT (int sig)
   /* do this before we act */
 #if HAVE_ISATTY
   if (!isatty(0)) {
-    Error(INTERRUPT_ERROR,MkIntTerm(SIGINT),NULL);
+    _YAP_Error(INTERRUPT_ERROR,MkIntTerm(SIGINT),NULL);
   }
 #endif
-  if (PrologMode & (CritMode|ConsoleGetcMode)) {
-    PrologMode |= InterruptMode;
+  if (_YAP_PrologMode & (CritMode|ConsoleGetcMode)) {
+    _YAP_PrologMode |= InterruptMode;
 #if HAVE_LIBREADLINE
-    if (PrologMode & ConsoleGetcMode) {
+    if (_YAP_PrologMode & ConsoleGetcMode) {
       fprintf(stderr, "Action (h for help): ");
       rl_point = rl_end = 0;
 #if HAVE_RL_SET_PROMPT
@@ -1259,9 +1225,9 @@ HandleALRM(int s)
 {
   my_signal (SIGALRM, HandleALRM);
   /* force the system to creep */
-  p_creep ();
+  _YAP_creep ();
   /* now, say what is going on */
-  PutValue(AtomAlarm, MkAtomTerm(AtomTrue));
+  _YAP_PutValue(AtomAlarm, MkAtomTerm(AtomTrue));
 }
 #endif
 
@@ -1284,51 +1250,51 @@ ReceiveSignal (int s)
 #ifndef MPW
     case SIGFPE:
       set_fpu_exceptions(FALSE);
-      Error (SYSTEM_ERROR, TermNil, "floating point exception ]");
+      _YAP_Error (SYSTEM_ERROR, TermNil, "floating point exception ]");
       break;
 #endif
 #if !defined(LIGHT) && !defined(_WIN32)
       /* These signals are not handled by WIN32 and not the Macintosh */
     case SIGQUIT:
     case SIGKILL:
-      Error(INTERRUPT_ERROR,MkIntTerm(s),NULL);
+      _YAP_Error(INTERRUPT_ERROR,MkIntTerm(s),NULL);
 #endif
 #if defined(SIGUSR1)
     case SIGUSR1:
       /* force the system to creep */
-      p_creep ();
+      _YAP_creep ();
       /* add to the set of signals pending */
       {
 	Term t;
-	t = GetValue(AtomSigPending);
-	t = MkPairTerm(MkAtomTerm(LookupAtom("sig_usr1")), t);
-	PutValue(AtomSigPending, t);
+	t = _YAP_GetValue(AtomSigPending);
+	t = MkPairTerm(MkAtomTerm(_YAP_LookupAtom("sig_usr1")), t);
+	_YAP_PutValue(AtomSigPending, t);
       }
       break;
 #endif /* defined(SIGUSR1) */
 #if defined(SIGUSR2)
     case SIGUSR2:
       /* force the system to creep */
-      p_creep ();
+      _YAP_creep ();
       /* add to the set of signals pending */
       {
 	Term t;
-	t = GetValue(AtomSigPending);
-	t = MkPairTerm(MkAtomTerm(LookupAtom("sig_usr2")), t);
-	PutValue(AtomSigPending, t);
+	t = _YAP_GetValue(AtomSigPending);
+	t = MkPairTerm(MkAtomTerm(_YAP_LookupAtom("sig_usr2")), t);
+	_YAP_PutValue(AtomSigPending, t);
       }
       break;
 #endif /* defined(SIGUSR2) */
 #if defined(SIGHUP)
     case SIGHUP:
       /* force the system to creep */
-      p_creep ();
+      _YAP_creep ();
       /* raise the '$sig_pending' flag */
-      PutValue(AtomSigPending, MkAtomTerm(LookupAtom("sig_hup")));
+      _YAP_PutValue(AtomSigPending, MkAtomTerm(_YAP_LookupAtom("sig_hup")));
       break;
 #endif /* defined(SIGHUP) */
     default:
-      YP_fprintf(YP_stderr, "\n[ Unexpected signal ]\n");
+      fprintf(_YAP_stderr, "\n[ Unexpected signal ]\n");
       exit (EXIT_FAILURE);
     }
 }
@@ -1340,8 +1306,8 @@ MSCHandleSignal(DWORD dwCtrlType) {
   switch(dwCtrlType) {
   case CTRL_C_EVENT:
   case CTRL_BREAK_EVENT:
-    p_creep();
-    PrologMode |= InterruptMode;
+    _YAP_creep();
+    _YAP_PrologMode |= InterruptMode;
     return(TRUE);
   default:
     return(FALSE);
@@ -1381,23 +1347,13 @@ InitSignals (void)
 #endif /* HAVE_SIGNAL */
 
 
-char *
-pfgets (char *s, int n, FILE *stream)
-{
-  char *res;
-  do
-    res = YP_fgets (s, n, stream);
-  while (res == NULL && errno == EINTR);
-  return (res);
-}
-
 /* TrueFileName -> Finds the true name of a file */
 
 #ifdef __MINGW32__
 #include <ctype.h>
 #endif
 
-int
+static int
 volume_header(char *file)
 {
 #if _MSC_VER || defined(__MINGW32__)
@@ -1412,7 +1368,14 @@ volume_header(char *file)
   return(FALSE);
 }
 
-int TrueFileName (char *source, char *result, int in_lib)
+int
+_YAP_volume_header(char *file)
+{
+  return volume_header(file);
+}
+
+static int
+TrueFileName (char *source, char *result, int in_lib)
 {
   register int ch;
   register char *res0 = result, *work;
@@ -1533,7 +1496,7 @@ int TrueFileName (char *source, char *result, int in_lib)
 	if ((tmpf = open(ares1, O_RDONLY)) < 0) {
 	  /* not in current directory, let us try the library */
 	  if  (Yap_LibDir != NULL) {
-	    strncpy(FileNameBuf, Yap_LibDir, YAP_FILENAME_MAX);
+	    strncpy(_YAP_FileNameBuf, Yap_LibDir, YAP_FILENAME_MAX);
 #if HAVE_GETENV
 	  } else {
 	    char *yap_env = getenv("YAPLIBDIR");
@@ -1596,6 +1559,12 @@ int TrueFileName (char *source, char *result, int in_lib)
   return (TRUE);
 }
 
+int
+_YAP_TrueFileName (char *source, char *result, int in_lib)
+{
+  return TrueFileName (source, result, in_lib);
+}
+
 static Int
 p_getcwd(void)
 {
@@ -1603,17 +1572,17 @@ p_getcwd(void)
 
 #if __simplescalar__
   /* does not implement getcwd */
-  strncpy(FileNameBuf,yap_pwd,YAP_FILENAME_MAX);
+  strncpy(_YAP_FileNameBuf,yap_pwd,YAP_FILENAME_MAX);
 #elif HAVE_GETCWD
-  if (getcwd (FileNameBuf, YAP_FILENAME_MAX) == NULL)
+  if (getcwd (_YAP_FileNameBuf, YAP_FILENAME_MAX) == NULL)
     return (FALSE);
 #else
-  if (getwd (FileNameBuf) == NULL)
+  if (getwd (_YAP_FileNameBuf) == NULL)
     return (FALSE);
 #endif
 
-  t = StringToList(FileNameBuf);
-  return(unify(ARG1,t));
+  t = _YAP_StringToList(_YAP_FileNameBuf);
+  return(_YAP_unify(ARG1,t));
 
 }
 
@@ -1627,13 +1596,13 @@ p_sh (void)
   shell = (char *) getenv ("SHELL");
   if (shell == NULL)
     shell = "/bin/sh";
-  /* CloseStreams(TRUE); */
+  /* _YAP_CloseStreams(TRUE); */
   if (system (shell) < 0) {
 #if HAVE_STRERROR
-    Error(SYSTEM_ERROR, TermNil, 
+    _YAP_Error(SYSTEM_ERROR, TermNil, 
 	"sh: %s", strerror(errno));
 #else
-    Error(SYSTEM_ERROR, TermNil,
+    _YAP_Error(SYSTEM_ERROR, TermNil,
 	  "sh");
 #endif
     return (FALSE);
@@ -1643,11 +1612,11 @@ p_sh (void)
 #ifdef MSH
   register char *shell;
   shell = "msh -i";
-  /* CloseStreams(); */
+  /* _YAP_CloseStreams(); */
   system (shell);
   return (TRUE);
 #else
-  Error(SYSTEM_ERROR,TermNil,"sh not available in this configuration");
+  _YAP_Error(SYSTEM_ERROR,TermNil,"sh not available in this configuration");
   return(FALSE);
 #endif /* MSH */
 #endif
@@ -1664,8 +1633,8 @@ p_shell (void)
   register int bourne = FALSE;
   Term t1 = Deref (ARG1);
 
-  if (!GetName (FileNameBuf, YAP_FILENAME_MAX, t1)) {
-    Error(SYSTEM_ERROR,t1,"invalid argument to shell/1");
+  if (!_YAP_GetName (_YAP_FileNameBuf, YAP_FILENAME_MAX, t1)) {
+    _YAP_Error(SYSTEM_ERROR,t1,"invalid argument to shell/1");
     return(FALSE);
   }
   shell = (char *) getenv ("SHELL");
@@ -1673,16 +1642,16 @@ p_shell (void)
     bourne = TRUE;
   if (shell == NIL)
     bourne = TRUE;
-  /* CloseStreams(TRUE); */
+  /* _YAP_CloseStreams(TRUE); */
   if (bourne)
-    return (system (FileNameBuf) == 0);
+    return (system (_YAP_FileNameBuf) == 0);
   else
     {
       int status = -1;
       int child = fork ();
       if (child == 0)
 	{			/* let the children go */
-	  execl (shell, shell, "-c", FileNameBuf, NIL);
+	  execl (shell, shell, "-c", _YAP_FileNameBuf, NIL);
 	  exit (TRUE);
 	}
       {				/* put the father on wait */
@@ -1705,11 +1674,11 @@ p_shell (void)
 #ifdef MSH
   register char *shell;
   shell = "msh -i";
-  /* CloseStreams(); */
+  /* _YAP_CloseStreams(); */
   system (shell);
   return (TRUE);
 #else
-  Error (SYSTEM_ERROR,TermNil,"shell not available in this configuration");
+  _YAP_Error (SYSTEM_ERROR,TermNil,"shell not available in this configuration");
   return(FALSE);
 #endif
 #endif /* HAVE_SYSTEM */
@@ -1721,25 +1690,25 @@ p_system (void)
 {				/* '$system'(+SystCommand)	       */
 #ifdef HAVE_SYSTEM
   Term t1 = Deref (ARG1);
-  if (!GetName (FileNameBuf, YAP_FILENAME_MAX, t1)) {
-    Error(SYSTEM_ERROR,t1,"argument to system/1 is not valid");
+  if (!_YAP_GetName (_YAP_FileNameBuf, YAP_FILENAME_MAX, t1)) {
+    _YAP_Error(SYSTEM_ERROR,t1,"argument to system/1 is not valid");
     return(FALSE);
   }
-  /* CloseStreams(TRUE); */
+  /* _YAP_CloseStreams(TRUE); */
 #if _MSC_VER
   _flushall();
 #endif
-  return (system (FileNameBuf) == 0);
+  return (system (_YAP_FileNameBuf) == 0);
 #else
 #ifdef MSH
   register char *shell;
   shell = "msh -i";
-  /* CloseStreams(); */
+  /* _YAP_CloseStreams(); */
   system (shell);
   return (TRUE);
 #undef command
 #else
-  Error(SYSTEM_ERROR,TermNil,"sh not available in this machine");
+  _YAP_Error(SYSTEM_ERROR,TermNil,"sh not available in this machine");
   return(FALSE);
 #endif
 #endif /* HAVE_SYSTEM */
@@ -1756,25 +1725,25 @@ p_mv (void)
   char oldname[YAP_FILENAME_MAX], newname[YAP_FILENAME_MAX];
   Term t1 = Deref (ARG1);
   Term t2 = Deref (ARG2);
-  if (!GetName (FileNameBuf, YAP_FILENAME_MAX, t1)) {
-    Error(SYSTEM_ERROR,t1,"first argument to rename/2 is not valid");
+  if (!_YAP_GetName (_YAP_FileNameBuf, YAP_FILENAME_MAX, t1)) {
+    _YAP_Error(SYSTEM_ERROR,t1,"first argument to rename/2 is not valid");
     return(FALSE);
   }
-  TrueFileName (FileNameBuf, oldname, FALSE);
-  if (!GetName (FileNameBuf, YAP_FILENAME_MAX, t2)) {
-    Error(SYSTEM_ERROR,t2,"second argument to rename/2 is not valid");
+  TrueFileName (_YAP_FileNameBuf, oldname, FALSE);
+  if (!_YAP_GetName (_YAP_FileNameBuf, YAP_FILENAME_MAX, t2)) {
+    _YAP_Error(SYSTEM_ERROR,t2,"second argument to rename/2 is not valid");
     return(FALSE);
   }
-  TrueFileName (FileNameBuf, newname, FALSE);
+  TrueFileName (_YAP_FileNameBuf, newname, FALSE);
   if ((r = link (oldname, newname)) == 0 && (r = unlink (oldname)) != 0)
     unlink (newname);
   if (r != 0) {
-    Error(SYSTEM_ERROR,t2,"operating system error in rename/2");
+    _YAP_Error(SYSTEM_ERROR,t2,"operating system error in rename/2");
     return(FALSE);
   }
   return (TRUE);
 #else
-  Error(SYSTEM_ERROR,TermNil,"rename/2 not available in this machine");
+  _YAP_Error(SYSTEM_ERROR,TermNil,"rename/2 not available in this machine");
   return (FALSE);
 #endif
 }
@@ -1788,20 +1757,20 @@ p_cd (void)
   Term t1 = Deref (ARG1);
   if (t1 == TermNil)
     return(TRUE);
-  if (!GetName (FileNameBuf, YAP_FILENAME_MAX, t1)) {
-    Error(SYSTEM_ERROR,t1,"argument to cd/1 is not valid");
+  if (!_YAP_GetName (_YAP_FileNameBuf, YAP_FILENAME_MAX, t1)) {
+    _YAP_Error(SYSTEM_ERROR,t1,"argument to cd/1 is not valid");
     return(FALSE);
   }
-  TrueFileName (FileNameBuf, FileNameBuf2, FALSE);
+  TrueFileName (_YAP_FileNameBuf, _YAP_FileNameBuf2, FALSE);
 #if  __simplescalar__
-  strncpy(yap_pwd,FileNameBuf2,YAP_FILENAME_MAX);
+  strncpy(yap_pwd,_YAP_FileNameBuf2,YAP_FILENAME_MAX);
 #endif
-  if (chdir (FileNameBuf2) < 0) {
+  if (chdir (_YAP_FileNameBuf2) < 0) {
 #if HAVE_STRERROR
-    Error(SYSTEM_ERROR, t1, 
-	"cd(%s): %s", FileNameBuf2, strerror(errno));
+    _YAP_Error(SYSTEM_ERROR, t1, 
+	"cd(%s): %s", _YAP_FileNameBuf2, strerror(errno));
 #else
-    Error(SYSTEM_ERROR,t1,"cd(%s)", FileNameBuf2);
+    _YAP_Error(SYSTEM_ERROR,t1,"cd(%s)", _YAP_FileNameBuf2);
 #endif
     return(FALSE);
   }
@@ -1809,14 +1778,14 @@ p_cd (void)
 #else
 #ifdef MACYAP
   Term t1 = Deref (ARG1);
-  if (!GetName (FileNameBuf, YAP_FILENAME_MAX, t1)) {
-    Error(SYSTEM_ERROR,t1,"argument to cd/1 is not valid");
+  if (!_YAP_GetName (_YAP_FileNameBuf, YAP_FILENAME_MAX, t1)) {
+    _YAP_Error(SYSTEM_ERROR,t1,"argument to cd/1 is not valid");
     return(FALSE);
   }
-  TrueFileName (FileNameBuf, FileNameBuf2, FALSE);
-  return (!chdir (FileNameBuf2));
+  TrueFileName (_YAP_FileNameBuf, _YAP_FileNameBuf2, FALSE);
+  return (!chdir (_YAP_FileNameBuf2));
 #else
-  Error(SYSTEM_ERROR,TermNil,"cd/1 not available in this machine");
+  _YAP_Error(SYSTEM_ERROR,TermNil,"cd/1 not available in this machine");
   return(FALSE);
 #endif
 #endif
@@ -1825,7 +1794,7 @@ p_cd (void)
 #ifdef MAC
 
 void
-SetTextFile (name)
+_YAP_SetTextFile (name)
      char *name;
 {
 #ifdef MACC
@@ -1859,20 +1828,20 @@ static Int p_getenv(void)
   char *s, *so;
 
   if (IsVarTerm(t1)) {
-    Error(INSTANTIATION_ERROR, t1,
+    _YAP_Error(INSTANTIATION_ERROR, t1,
 	  "first arg of getenv/2");
     return(FALSE);
   } else if (!IsAtomTerm(t1)) {
-    Error(TYPE_ERROR_ATOM, t1,
+    _YAP_Error(TYPE_ERROR_ATOM, t1,
 	  "first arg of getenv/2");
     return(FALSE);
   } else s = RepAtom(AtomOfTerm(t1))->StrOfAE;
   if ((so = getenv(s)) == NULL)
     return(FALSE);
-  to = MkAtomTerm(LookupAtom(so));
-  return(unify_constant(ARG2,to));
+  to = MkAtomTerm(_YAP_LookupAtom(so));
+  return(_YAP_unify_constant(ARG2,to));
 #else
-    Error(SYSTEM_ERROR, TermNil,
+    _YAP_Error(SYSTEM_ERROR, TermNil,
 	  "getenv not available in this configuration");
     return (FALSE);
 #endif
@@ -1886,39 +1855,39 @@ static Int p_putenv(void)
   char *s, *s2, *p0, *p;
 
   if (IsVarTerm(t1)) {
-    Error(INSTANTIATION_ERROR, t1,
+    _YAP_Error(INSTANTIATION_ERROR, t1,
 	  "first arg to putenv/2");
     return(FALSE);
   } else if (!IsAtomTerm(t1)) {
-    Error(TYPE_ERROR_ATOM, t1,
+    _YAP_Error(TYPE_ERROR_ATOM, t1,
 	  "first arg to putenv/2");
     return(FALSE);
   } else s = RepAtom(AtomOfTerm(t1))->StrOfAE;
   if (IsVarTerm(t2)) {
-    Error(INSTANTIATION_ERROR, t1,
+    _YAP_Error(INSTANTIATION_ERROR, t1,
 	  "second arg to putenv/2");
     return(FALSE);
   } else if (!IsAtomTerm(t2)) {
-    Error(TYPE_ERROR_ATOM, t2,
+    _YAP_Error(TYPE_ERROR_ATOM, t2,
 	  "second arg to putenv/2");
     return(FALSE);
   } else s2 = RepAtom(AtomOfTerm(t2))->StrOfAE;
-  p0 = p = AllocAtomSpace(strlen(s)+strlen(s2)+3);
+  p0 = p = _YAP_AllocAtomSpace(strlen(s)+strlen(s2)+3);
   while ((*p++ = *s++) != '\0');
   p[-1] = '=';
   while ((*p++ = *s2++) != '\0');
   if (putenv(p0) == 0)
     return(TRUE);
 #if HAVE_STRERROR
-  Error(SYSTEM_ERROR, TermNil,
+  _YAP_Error(SYSTEM_ERROR, TermNil,
 	"putenv: %s", strerror(errno));
 #else
-  Error(SYSTEM_ERROR, TermNil,
+  _YAP_Error(SYSTEM_ERROR, TermNil,
 	"putenv");
 #endif
   return (FALSE);
 #else
-    Error(SYSTEM_ERROR, TermNil,
+    _YAP_Error(SYSTEM_ERROR, TermNil,
 	  "putenv not available in this configuration");
     return (FALSE);
 #endif
@@ -1929,7 +1898,7 @@ static Int p_file_age(void)
 {
   char *file_name = RepAtom(AtomOfTerm(Deref(ARG1)))->StrOfAE;
   if (strcmp(file_name,"user_input") == 0) {
-    return(unify(ARG2,MkIntTerm(-1)));
+    return(_YAP_unify(ARG2,MkIntTerm(-1)));
   }
 #if HAVE_LSTAT 
  {
@@ -1937,9 +1906,9 @@ static Int p_file_age(void)
 
    if (lstat(file_name, &buf) == -1) {
      /* file does not exist, but was opened? Return -1 */
-     return(unify(ARG2, MkIntTerm(-1)));
+     return(_YAP_unify(ARG2, MkIntTerm(-1)));
    }
-   return(unify(ARG2, MkIntegerTerm(buf.st_mtime)));
+   return(_YAP_unify(ARG2, MkIntegerTerm(buf.st_mtime)));
  }
 #elif defined(__MINGW32__) || _MSC_VER
   {
@@ -1947,12 +1916,12 @@ static Int p_file_age(void)
 
     if (_stat(file_name, &buf) != 0) {
       /* return an error number */
-      return(unify(ARG2, MkIntTerm(-1)));
+      return(_YAP_unify(ARG2, MkIntTerm(-1)));
     }
-    return(unify(ARG2, MkIntegerTerm(buf.st_mtime)));
+    return(_YAP_unify(ARG2, MkIntegerTerm(buf.st_mtime)));
   }
 #else
-  return(unify(ARG2, MkIntTerm(-1)));
+  return(_YAP_unify(ARG2, MkIntTerm(-1)));
 #endif
 }
 
@@ -1975,9 +1944,9 @@ DoTimerThread(LPVOID targ)
   }
   if (WaitForSingleObject(htimer, INFINITE) != WAIT_OBJECT_0)
     fprintf(stderr,"WaitForSingleObject failed (%ld)\n", GetLastError());
-  p_creep ();
+  _YAP_creep ();
   /* now, say what is going on */
-  PutValue(AtomAlarm, MkAtomTerm(AtomTrue));
+  _YAP_PutValue(AtomAlarm, MkAtomTerm(AtomTrue));
   ExitThread(1);
 #if _MSC_VER
   return(0L);
@@ -1991,11 +1960,11 @@ p_alarm(void)
 {
   Term t = Deref(ARG1);
   if (IsVarTerm(t)) {
-    Error(INSTANTIATION_ERROR, t, "alarm/2");
+    _YAP_Error(INSTANTIATION_ERROR, t, "alarm/2");
     return(FALSE);
   }
   if (!IsIntegerTerm(t)) {
-    Error(TYPE_ERROR_INTEGER, t, "alarm/2");
+    _YAP_Error(TYPE_ERROR_INTEGER, t, "alarm/2");
     return(FALSE);
   }
 #if _MSC_VER || defined(__MINGW32__)
@@ -2017,11 +1986,11 @@ p_alarm(void)
  
       /* Check the return value for success. */
       if (hThread == NULL) {
-	WinError("trying to use alarm");
+	_YAP_WinError("trying to use alarm");
       }
     }
     tout = MkIntegerTerm(0);
-    return(unify(ARG2,tout));
+    return(_YAP_unify(ARG2,tout));
   }
 #elif HAVE_ALARM
   {
@@ -2030,13 +1999,13 @@ p_alarm(void)
 
     left = alarm(IntegerOfTerm(t));
     tout = MkIntegerTerm(left);
-    return(unify(ARG2,tout));
+    return(_YAP_unify(ARG2,tout));
   }
 #else
   /* not actually trying to set the alarm */
   if (IntegerOfTerm(t) == 0)
     return(TRUE);
-  Error(SYSTEM_ERROR, TermNil,
+  _YAP_Error(SYSTEM_ERROR, TermNil,
 	"alarm not available in this configuration");
   return(FALSE);
 #endif
@@ -2047,7 +2016,7 @@ p_alarm(void)
 #endif
 
 /* by default Linux with glibc is IEEE compliant anyway..., but we will pretend it is not. */
-void
+static void
 set_fpu_exceptions(int flag)
 {
   if (flag) {
@@ -2095,6 +2064,11 @@ set_fpu_exceptions(int flag)
   }
 }
 
+void
+_YAP_set_fpu_exceptions(int flag)
+{
+  set_fpu_exceptions(flag);
+}
 static Int
 p_set_fpu_exceptions(void) {
   if (yap_flags[LANGUAGE_MODE_FLAG] == 1) {
@@ -2107,8 +2081,8 @@ p_set_fpu_exceptions(void) {
 
 static Int
 p_host_type(void) {
-  Term out = MkAtomTerm(LookupAtom(HOST_ALIAS));
-  return(unify(out,ARG1));
+  Term out = MkAtomTerm(_YAP_LookupAtom(HOST_ALIAS));
+  return(_YAP_unify(out,ARG1));
 }
 
 /*
@@ -2116,7 +2090,7 @@ p_host_type(void) {
  * predicates
  */
 void
-InitSysbits (void)
+_YAP_InitSysbits (void)
 {
 #if  __simplescalar__
   {
@@ -2133,33 +2107,33 @@ InitSysbits (void)
 }
 
 void
-ReInitWallTime (void)
+_YAP_ReInitWallTime (void)
 {
   InitWTime();
   if (heap_regs->last_wtime != NULL) 
-    FreeCodeSpace(heap_regs->last_wtime);
+    _YAP_FreeCodeSpace(heap_regs->last_wtime);
   InitLastWtime();
 }
 
 void
-InitSysPreds(void)
+_YAP_InitSysPreds(void)
 {
   /* can only do after heap is initialised */
   InitLastWtime();
-  InitCPred ("srandom", 1, p_srandom, SafePredFlag);
-  InitCPred ("sh", 0, p_sh, SafePredFlag|SyncPredFlag);
-  InitCPred ("$shell", 1, p_shell, SafePredFlag|SyncPredFlag);
-  InitCPred ("$system", 1, p_system, SafePredFlag|SyncPredFlag);
-  InitCPred ("$rename", 2, p_mv, SafePredFlag|SyncPredFlag);
-  InitCPred ("$cd", 1, p_cd, SafePredFlag|SyncPredFlag);
-  InitCPred ("$getcwd", 1, p_getcwd, SafePredFlag|SyncPredFlag);
-  InitCPred ("$dir_separator", 1, p_dir_sp, SafePredFlag);
-  InitCPred ("$alarm", 2, p_alarm, SafePredFlag|SyncPredFlag);
-  InitCPred ("$getenv", 2, p_getenv, SafePredFlag);
-  InitCPred ("$putenv", 2, p_putenv, SafePredFlag|SyncPredFlag);
-  InitCPred ("$file_age", 2, p_file_age, SafePredFlag|SyncPredFlag);
-  InitCPred ("$set_fpu_exceptions", 0, p_set_fpu_exceptions, SafePredFlag|SyncPredFlag);
-  InitCPred ("$host_type", 1, p_host_type, SafePredFlag|SyncPredFlag);
+  _YAP_InitCPred ("srandom", 1, p_srandom, SafePredFlag);
+  _YAP_InitCPred ("sh", 0, p_sh, SafePredFlag|SyncPredFlag);
+  _YAP_InitCPred ("$shell", 1, p_shell, SafePredFlag|SyncPredFlag);
+  _YAP_InitCPred ("$system", 1, p_system, SafePredFlag|SyncPredFlag);
+  _YAP_InitCPred ("$rename", 2, p_mv, SafePredFlag|SyncPredFlag);
+  _YAP_InitCPred ("$cd", 1, p_cd, SafePredFlag|SyncPredFlag);
+  _YAP_InitCPred ("$getcwd", 1, p_getcwd, SafePredFlag|SyncPredFlag);
+  _YAP_InitCPred ("$dir_separator", 1, p_dir_sp, SafePredFlag);
+  _YAP_InitCPred ("$alarm", 2, p_alarm, SafePredFlag|SyncPredFlag);
+  _YAP_InitCPred ("$getenv", 2, p_getenv, SafePredFlag);
+  _YAP_InitCPred ("$putenv", 2, p_putenv, SafePredFlag|SyncPredFlag);
+  _YAP_InitCPred ("$file_age", 2, p_file_age, SafePredFlag|SyncPredFlag);
+  _YAP_InitCPred ("$set_fpu_exceptions", 0, p_set_fpu_exceptions, SafePredFlag|SyncPredFlag);
+  _YAP_InitCPred ("$host_type", 1, p_host_type, SafePredFlag|SyncPredFlag);
 }
 
 
@@ -2208,7 +2182,7 @@ VaxFixFrame (dummy)
 #endif
 
 
-#if defined(_WIN32) || defined(__CYGWIN__)
+#if defined(_WIN32)
 
 #include <windows.h>
 

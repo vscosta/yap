@@ -9,14 +9,14 @@
 **************************************************************************
 *									 *
 * File:		mpi.c  							 *
-* Last rev:	$Date: 2002-11-05 11:14:08 $				 *
+* Last rev:	$Date: 2002-11-11 17:38:06 $				 *
 * mods:									 *
 * comments:	Interface to an MPI library                              *
 *									 *
 *************************************************************************/
 
 #ifndef lint
-static char *rcsid = "$Header: /Users/vitor/Yap/yap-cvsbackup/library/mpi/mpi.c,v 1.13 2002-11-05 11:14:08 stasinos Exp $";
+static char *rcsid = "$Header: /Users/vitor/Yap/yap-cvsbackup/library/mpi/mpi.c,v 1.14 2002-11-11 17:38:06 vsc Exp $";
 #endif
 
 #include "Yap.h"
@@ -654,7 +654,7 @@ p_mpi_barrier()            /* mpi_barrier/0 */
 
 
 void
-InitMPI(void)
+_YAP_InitMPI(void)
 {
   int i,j;
 
@@ -690,7 +690,7 @@ InitMPI(void)
   }
 #endif  
 
-  /* With MPICH MPI_Init() must be called during initialisation,
+  /* With MPICH MPI__YAP_Init() must be called during initialisation,
      but with LAM it can be called from Prolog (mpi_open/3).
      See also the comment at "if ! HAVE_LIBMPICH" above!
   */
@@ -715,13 +715,13 @@ InitMPI(void)
   }
 #endif
 
-  InitCPred( "mpi_open", 3, p_mpi_open, SafePredFlag|SyncPredFlag );
-  InitCPred( "mpi_close", 0, p_mpi_close, SyncPredFlag );
-  InitCPred( "mpi_send", 3, p_mpi_send, SafePredFlag|SyncPredFlag );
-  InitCPred( "mpi_receive", 3, p_mpi_receive, SafePredFlag|SyncPredFlag );
-  InitCPred( "mpi_bcast", 3, p_mpi_bcast3, SafePredFlag|SyncPredFlag );
-  InitCPred( "mpi_bcast", 2, p_mpi_bcast2, SafePredFlag|SyncPredFlag );
-  InitCPred( "mpi_barrier", 0, p_mpi_barrier, SyncPredFlag );
+  _YAP_InitCPred( "mpi_open", 3, p_mpi_open, SafePredFlag|SyncPredFlag );
+  _YAP_InitCPred( "mpi_close", 0, p_mpi_close, SyncPredFlag );
+  _YAP_InitCPred( "mpi_send", 3, p_mpi_send, SafePredFlag|SyncPredFlag );
+  _YAP_InitCPred( "mpi_receive", 3, p_mpi_receive, SafePredFlag|SyncPredFlag );
+  _YAP_InitCPred( "mpi_bcast", 3, p_mpi_bcast3, SafePredFlag|SyncPredFlag );
+  _YAP_InitCPred( "mpi_bcast", 2, p_mpi_bcast2, SafePredFlag|SyncPredFlag );
+  _YAP_InitCPred( "mpi_barrier", 0, p_mpi_barrier, SyncPredFlag );
 }
 
 #endif /* HAVE_MPI */

@@ -124,9 +124,8 @@ EF,
 #endif
 };
 
-char *chtype = chtype0+1;
-
-int eot_before_eof = FALSE;
+#define chtype (chtype0+1)
+char *_YAP_chtype = chtype0+1;
 
 static int ch, chbuff, o_ch;
 
@@ -142,7 +141,7 @@ static int (*Nextch) (int);
 
 static int (*QuotedNextch) (int);
 
-char *
+static char *
 AllocScannerMemory(unsigned int size)
 {
   char *AuxSpScan;
@@ -151,13 +150,19 @@ AllocScannerMemory(unsigned int size)
   size = AdjustSize(size);
   TR = (tr_fr_ptr)(AuxSpScan+size);
 #if !OS_HANDLES_TR_OVERFLOW
-  if (Unsigned(TrailTop) == Unsigned(TR)) {
-    if(!growtrail (sizeof(CELL) * 16 * 1024L)) {
+  if (Unsigned(_YAP_TrailTop) == Unsigned(TR)) {
+    if(!_YAP_growtrail (sizeof(CELL) * 16 * 1024L)) {
       return(NULL);
     }
   }
 #endif
   return (AuxSpScan);
+}
+
+char *
+_YAP_AllocScannerMemory(unsigned int size)
+{
+  return AllocScannerMemory(size);
 }
 
 inline static void
@@ -177,11 +182,11 @@ my_getch(void)
     ch = chbuff;
   }
   else {
-    ch = (*Nextch) (c_input_stream); 
+    ch = (*Nextch) (_YAP_c_input_stream); 
   }
 #ifdef DEBUG
-  if (Option[1])
-    YP_fprintf(YP_stderr, "[getch %c]", ch);
+  if (_YAP_Option[1])
+    fprintf(_YAP_stderr, "[getch %c]", ch);
 #endif
   return(ch);
 }
@@ -195,11 +200,11 @@ my_get_quoted_ch(void)
     ch = chbuff;
   }
   else {
-    ch = (*QuotedNextch) (c_input_stream);
+    ch = (*QuotedNextch) (_YAP_c_input_stream);
   }
 #ifdef DEBUG
-  if (Option[1])
-    YP_fprintf(YP_stderr, "[getch %c]",ch);
+  if (_YAP_Option[1])
+    fprintf(_YAP_stderr, "[getch %c]",ch);
 #endif
   return (ch);
 }
@@ -213,7 +218,7 @@ float_send(char *s)
 #if HAVE_FINITE
   if (yap_flags[LANGUAGE_MODE_FLAG] == 1) { /* iso */
     if (!finite(f)) {
-      ErrorMessage = "Float overflow while scanning";
+      _YAP_ErrorMessage = "Float overflow while scanning";
       return(MkEvalFl(0.0));
     }
   }
@@ -227,10 +232,10 @@ read_int_overflow(const char *s, Int base, Int val)
 {
 #ifdef USE_GMP
   /* try to scan it as a bignum */
-  MP_INT *new = PreAllocBigNum();
+  MP_INT *new = _YAP_PreAllocBigNum();
 
   mpz_init_set_str (new, s, base);
-  return(MkBigIntTerm(new));
+  return(_YAP_MkBigIntTerm(new));
 #else
   /* try to scan it as a float */
   return(MkIntegerTerm(val));
@@ -259,7 +264,7 @@ get_num(void)
   }
   if (ch == '\'') {
     if (base > 36) {
-      ErrorMessage = "Admissible bases are 0..36";
+      _YAP_ErrorMessage = "Admissible bases are 0..36";
       return (TermNil);
     }
     might_be_float = FALSE;
@@ -328,17 +333,17 @@ get_num(void)
 		ascii = so_far*8+(ch-'0');
 		my_get_quoted_ch();
 		if (ch != '\\') {
-		  ErrorMessage = "invalid octal escape sequence";
+		  _YAP_ErrorMessage = "invalid octal escape sequence";
 		}
 	      } else if (ch == '\\') {
 		ascii = so_far;
 	      } else {
-		ErrorMessage = "invalid octal escape sequence";
+		_YAP_ErrorMessage = "invalid octal escape sequence";
 	      }
 	    } else if (ch == '\\') {
 	      ascii = so_far;
 	    } else {
-	      ErrorMessage = "invalid octal escape sequence";
+	      _YAP_ErrorMessage = "invalid octal escape sequence";
 	    }
 	  }
 	  break;
@@ -356,12 +361,12 @@ get_num(void)
 					  (my_isupper(ch) ? ch - 'A' : ch - 'a') + 10);
 		my_get_quoted_ch();
 		if (ch != '\\') {
-		  ErrorMessage = "invalid hexadecimal escape sequence";
+		  _YAP_ErrorMessage = "invalid hexadecimal escape sequence";
 		}
 	      } else if (ch == '\\') {
 		ascii = so_far;
 	      } else {
-		ErrorMessage = "invalid hexadecimal escape sequence";
+		_YAP_ErrorMessage = "invalid hexadecimal escape sequence";
 	      } 
 	    } else if (ch == '\\') {
 	      ascii = so_far;
@@ -373,7 +378,7 @@ get_num(void)
 	  /* accept sequence. Note that the ISO standard does not
 	     consider this sequence legal, whereas SICStus would
 	     eat up the escape sequence. */
-	  ErrorMessage = "invalid escape sequence";
+	  _YAP_ErrorMessage = "invalid escape sequence";
 	}
       }
       /* a quick way to represent ASCII */
@@ -480,19 +485,19 @@ get_num(void)
 /* given a function Nxtch scan until we  either find the number
    or end of file */
 Term
-scan_num(int (*Nxtch) (int))
+_YAP_scan_num(int (*Nxtch) (int))
 {
   Term out;
   int sign = 1;
 
   Nextch = Nxtch;
-  ErrorMessage = NULL;
-  ch = Nextch(c_input_stream);
+  _YAP_ErrorMessage = NULL;
+  ch = Nextch(_YAP_c_input_stream);
   if (ch == '-') {
     sign = -1;
-    ch = Nextch(c_input_stream);
+    ch = Nextch(_YAP_c_input_stream);
   } else if (ch == '+') {
-    ch = Nextch(c_input_stream);
+    ch = Nextch(_YAP_c_input_stream);
   }
   if (chtype[ch] != NU) {
     return(TermNil);
@@ -504,7 +509,7 @@ scan_num(int (*Nxtch) (int))
     else if (IsFloatTerm(out))
       out = MkFloatTerm(-FloatOfTerm(out));
   }
-  if (ErrorMessage != NULL || ch != -1)
+  if (_YAP_ErrorMessage != NULL || ch != -1)
     return(TermNil);
   return(out);
 }
@@ -518,7 +523,7 @@ token(void)
   char *charp, *mp;
   unsigned int len;
 
-  TokImage = ((AtomEntry *) ( PreAllocCodeSpace()))->StrOfAE;
+  TokImage = ((AtomEntry *) ( _YAP_PreAllocCodeSpace()))->StrOfAE;
   charp = TokImage;
   while (chtype[ch] == BS)
     my_getch();
@@ -527,10 +532,10 @@ token(void)
   case CC:
     while (my_getch() != 10 && chtype[ch] != EF);
     if (chtype[ch] != EF) {
-      ReleasePreAllocCodeSpace((CODEADDR)TokImage);
+      _YAP_ReleasePreAllocCodeSpace((CODEADDR)TokImage);
       return (token());
     } else {
-      ReleasePreAllocCodeSpace((CODEADDR)TokImage);
+      _YAP_ReleasePreAllocCodeSpace((CODEADDR)TokImage);
       return (eot_tok);
     }
   case UC:
@@ -543,19 +548,19 @@ token(void)
     *charp++ = '\0';
     if (!isvar) {
       /* don't do this in iso */
-      TokenInfo = Unsigned(LookupAtom(TokImage));
-      ReleasePreAllocCodeSpace((CODEADDR)TokImage);
+      TokenInfo = Unsigned(_YAP_LookupAtom(TokImage));
+      _YAP_ReleasePreAllocCodeSpace((CODEADDR)TokImage);
       return (Name_tok);
     }
     else {
-      TokenInfo = Unsigned(LookupVar(TokImage));
-      ReleasePreAllocCodeSpace((CODEADDR)TokImage);
+      TokenInfo = Unsigned(_YAP_LookupVar(TokImage));
+      _YAP_ReleasePreAllocCodeSpace((CODEADDR)TokImage);
       return (Var_tok);
     }
 
   case NU:
     TokenInfo = get_num();
-    ReleasePreAllocCodeSpace((CODEADDR)TokImage);
+    _YAP_ReleasePreAllocCodeSpace((CODEADDR)TokImage);
     return (Number_tok);
 
   case QT:
@@ -565,7 +570,7 @@ token(void)
     my_get_quoted_ch();
     while (1) {
       if (charp + 1024 > (char *)AuxSp) {
-	ErrorMessage = "Heap Overflow While Scanning: please increase code space (-h)";
+	_YAP_ErrorMessage = "Heap Overflow While Scanning: please increase code space (-h)";
 	break;
       }
       if (ch == quote) {
@@ -646,7 +651,7 @@ token(void)
 		*charp++ = so_far*8+(ch-'0');
 		my_get_quoted_ch();
 		if (ch != '\\') {
-		  ErrorMessage = "invalid octal escape sequence";
+		  _YAP_ErrorMessage = "invalid octal escape sequence";
 		} else {
 		  my_get_quoted_ch();
 		}
@@ -654,13 +659,13 @@ token(void)
 		*charp++ = so_far;
 		my_get_quoted_ch();
 	      } else {
-		ErrorMessage = "invalid octal escape sequence";
+		_YAP_ErrorMessage = "invalid octal escape sequence";
 	      }
 	    } else if (ch == '\\') {
 	      *charp++ = so_far;
 	      my_get_quoted_ch();
 	    } else {
-	      ErrorMessage = "invalid octal escape sequence";
+	      _YAP_ErrorMessage = "invalid octal escape sequence";
 	    }
 	  }
 	  break;
@@ -678,7 +683,7 @@ token(void)
 					  (my_isupper(ch) ? ch - 'A' : ch - 'a') + 10);
 		my_get_quoted_ch();
 		if (ch != '\\') {
-		  ErrorMessage = "invalid hexadecimal escape sequence";
+		  _YAP_ErrorMessage = "invalid hexadecimal escape sequence";
 		} else {
 		  my_get_quoted_ch();
 		}
@@ -686,13 +691,13 @@ token(void)
 		*charp++ = so_far;
 		my_get_quoted_ch();
 	      } else {
-		ErrorMessage = "invalid hexadecimal escape sequence";
+		_YAP_ErrorMessage = "invalid hexadecimal escape sequence";
 	      } 
 	    } else if (ch == '\\') {
 	      *charp++ = so_far;
 	      my_get_quoted_ch();
 	    } else {
-	      ErrorMessage = "invalid hexadecimal escape sequence";
+	      _YAP_ErrorMessage = "invalid hexadecimal escape sequence";
 	    }
 	  }
 	  break;
@@ -700,10 +705,10 @@ token(void)
 	  /* accept sequence. Note that the ISO standard does not
 	     consider this sequence legal, whereas SICStus would
 	     eat up the escape sequence. */
-	  ErrorMessage = "invalid escape sequence";
+	  _YAP_ErrorMessage = "invalid escape sequence";
 	}
       } else if (chtype[ch] == EF) {
-	ReleasePreAllocCodeSpace((CODEADDR)TokImage);
+	_YAP_ReleasePreAllocCodeSpace((CODEADDR)TokImage);
 	return (eot_tok);
       } else {
 	*charp++ = ch;
@@ -712,9 +717,9 @@ token(void)
       ++len;
       if (charp > (char *)AuxSp - 1024) {
 	/* Not enough space to read in the string. */
-	ErrorMessage = "not enough heap space to read in string or quoted atom";
+	_YAP_ErrorMessage = "not enough heap space to read in string or quoted atom";
 	/* serious error now */
-	ReleasePreAllocCodeSpace((CODEADDR)TokImage);
+	_YAP_ReleasePreAllocCodeSpace((CODEADDR)TokImage);
 	return(eot_tok);
       }
     }
@@ -722,18 +727,18 @@ token(void)
     if (quote == '"') {
       mp = AllocScannerMemory(len + 1);
       if (mp == NULL) {
-	ErrorMessage = "not enough stack space to read in string or quoted atom";
-	ReleasePreAllocCodeSpace((CODEADDR)TokImage);
+	_YAP_ErrorMessage = "not enough stack space to read in string or quoted atom";
+	_YAP_ReleasePreAllocCodeSpace((CODEADDR)TokImage);
 	return(eot_tok);
       }
       strcpy(mp, TokImage);
       TokenInfo = Unsigned(mp);
-      ReleasePreAllocCodeSpace((CODEADDR)TokImage);
+      _YAP_ReleasePreAllocCodeSpace((CODEADDR)TokImage);
       return (String_tok);
     }
     else {
-      TokenInfo = Unsigned(LookupAtom(TokImage));
-      ReleasePreAllocCodeSpace((CODEADDR)TokImage);
+      TokenInfo = Unsigned(_YAP_LookupAtom(TokImage));
+      _YAP_ReleasePreAllocCodeSpace((CODEADDR)TokImage);
       return (Name_tok);
     }
 
@@ -746,19 +751,19 @@ token(void)
 	my_getch();
       }
       if (chtype[ch] == EF) {
-	ReleasePreAllocCodeSpace((CODEADDR)TokImage);
+	_YAP_ReleasePreAllocCodeSpace((CODEADDR)TokImage);
 	return (eot_tok);
       }
       my_getch();
-      ReleasePreAllocCodeSpace((CODEADDR)TokImage);
+      _YAP_ReleasePreAllocCodeSpace((CODEADDR)TokImage);
       return (token());
     }
     if (och == '.' && (chtype[ch] == BS || chtype[ch] == EF
 		       || chtype[ch] == CC)) {
-      eot_before_eof = TRUE;
+      _YAP_eot_before_eof = TRUE;
       if (chtype[ch] == CC)
 	while (my_getch() != 10 && chtype[ch] != EF);
-      ReleasePreAllocCodeSpace((CODEADDR)TokImage);
+      _YAP_ReleasePreAllocCodeSpace((CODEADDR)TokImage);
       return (eot_tok);
     }
     else {
@@ -766,8 +771,8 @@ token(void)
       for (; chtype[ch] == SY; my_getch())
 	*charp++ = ch;
       *charp = '\0';
-      TokenInfo = Unsigned(LookupAtom(TokImage));
-      ReleasePreAllocCodeSpace((CODEADDR)TokImage);
+      TokenInfo = Unsigned(_YAP_LookupAtom(TokImage));
+      _YAP_ReleasePreAllocCodeSpace((CODEADDR)TokImage);
       return (Name_tok);
     }
 
@@ -775,8 +780,8 @@ token(void)
     *charp++ = ch;
     *charp++ = '\0';
     my_getch();
-    TokenInfo = Unsigned(LookupAtom(TokImage));
-    ReleasePreAllocCodeSpace((CODEADDR)TokImage);
+    TokenInfo = Unsigned(_YAP_LookupAtom(TokImage));
+    _YAP_ReleasePreAllocCodeSpace((CODEADDR)TokImage);
     return (Name_tok);
 
   case BK:
@@ -787,55 +792,55 @@ token(void)
     if (och == '[' && ch == ']') {
       TokenInfo = Unsigned(AtomNil);
       my_getch();
-      ReleasePreAllocCodeSpace((CODEADDR)TokImage);
+      _YAP_ReleasePreAllocCodeSpace((CODEADDR)TokImage);
       return (Name_tok);
     }
     else {
       TokenInfo = och;
-      ReleasePreAllocCodeSpace((CODEADDR)TokImage);
+      _YAP_ReleasePreAllocCodeSpace((CODEADDR)TokImage);
       return (Ponctuation_tok);
     }
 
   case EF:
-    ReleasePreAllocCodeSpace((CODEADDR)TokImage);
+    _YAP_ReleasePreAllocCodeSpace((CODEADDR)TokImage);
     return (eot_tok);
 #ifdef DEBUG
   default:
-    YP_fprintf(YP_stderr, "\n++++ token: wrong char type %c %d\n", ch, chtype[ch]);
-    ReleasePreAllocCodeSpace((CODEADDR)TokImage);
+    fprintf(_YAP_stderr, "\n++++ token: wrong char type %c %d\n", ch, chtype[ch]);
+    _YAP_ReleasePreAllocCodeSpace((CODEADDR)TokImage);
     return (eot_tok);
 #else
   default:
-    ReleasePreAllocCodeSpace((CODEADDR)TokImage);
+    _YAP_ReleasePreAllocCodeSpace((CODEADDR)TokImage);
     return (eot_tok);		/* Just to make lint happy */
 #endif
   }
 }
 
 TokEntry *
-tokenizer(int (*Nxtch) (int), int (*QuotedNxtch) (int))
+_YAP_tokenizer(int (*Nxtch) (int), int (*QuotedNxtch) (int))
 {
   TokEntry *t, *l, *p;
   enum TokenKinds kind;
   int solo_flag = TRUE;
 
-  ErrorMessage = NULL;
-  VarTable = NULL;
-  AnonVarTable = NULL;
+  _YAP_ErrorMessage = NULL;
+  _YAP_VarTable = NULL;
+  _YAP_AnonVarTable = NULL;
   Nextch = Nxtch;
   QuotedNextch = QuotedNxtch;
-  eot_before_eof = FALSE;
+  _YAP_eot_before_eof = FALSE;
   l = NIL;
   p = NIL;			/* Just to make lint happy */
   ch = ' ';
   my_getch();
-  while (chtype[ch] == BS)
+  while (chtype[ch] == BS) {
     my_getch();
+  }
   do {
     t = (TokEntry *) AllocScannerMemory(sizeof(TokEntry));
-
     if (t == NULL) {
-      ErrorMessage = "not enough stack space to read in term";
+      _YAP_ErrorMessage = "not enough stack space to read in term";
       if (p != NIL)
 	p->TokInfo = eot_tok;
       /* serious error now */
@@ -855,7 +860,7 @@ tokenizer(int (*Nxtch) (int), int (*QuotedNxtch) (int))
     }
     t->Tok = Ord(kind);
 #ifdef DEBUG
-    if(Option[2]) YP_fprintf(YP_stderr,"[Token %d %ld]",Ord(kind),(unsigned long int)TokenInfo);
+    if(_YAP_Option[2]) fprintf(_YAP_stderr,"[Token %d %ld]",Ord(kind),(unsigned long int)TokenInfo);
 #endif
     t->TokInfo = (Term) TokenInfo;
     t->TokPos = TokenPos;
@@ -864,24 +869,22 @@ tokenizer(int (*Nxtch) (int), int (*QuotedNxtch) (int))
   return (l);
 }
 
-extern int PlFGetchar(void);
-
 #if DEBUG
 static inline int
 debug_fgetch(void)
 {
-  int ch = PlFGetchar();
-  if (Option[1])
-    YP_fprintf(YP_stderr, "[getch %c,%d]", ch,ch);
+  int ch = _YAP_PlFGetchar();
+  if (_YAP_Option[1])
+    fprintf(_YAP_stderr, "[getch %c,%d]", ch,ch);
   return (ch);
 }
 #define my_fgetch() (ch = debug_fgetch())
 #else
-#define my_fgetch() (ch = PlFGetchar())
+#define my_fgetch() (ch = _YAP_PlFGetchar())
 #endif
 
 TokEntry *
-fast_tokenizer(void)
+_YAP_fast_tokenizer(void)
 {
   /* I hope, a compressed version of the last
    * three files */
@@ -891,10 +894,10 @@ fast_tokenizer(void)
   register int ch, och;
   int solo_flag = TRUE;
 
-  ErrorMessage = NULL;
-  VarTable = NULL;
-  AnonVarTable = NULL;
-  eot_before_eof = FALSE;
+  _YAP_ErrorMessage = NULL;
+  _YAP_VarTable = NULL;
+  _YAP_AnonVarTable = NULL;
+  _YAP_eot_before_eof = FALSE;
   l = NIL;
   p = NIL;			/* Just to make lint happy */
   my_fgetch();
@@ -905,7 +908,7 @@ fast_tokenizer(void)
   do {
     t = (TokEntry *) AllocScannerMemory(sizeof(TokEntry));
     if (t == NULL) {
-      ErrorMessage = "not enough stack space to read in term";
+      _YAP_ErrorMessage = "not enough stack space to read in term";
       if (p != NIL)
 	p->TokInfo = eot_tok;
       /* serious error now */
@@ -925,7 +928,7 @@ fast_tokenizer(void)
 
     get_tok:
 
-      charp = TokImage = ((AtomEntry *) ( PreAllocCodeSpace()))->StrOfAE;
+      charp = TokImage = ((AtomEntry *) ( _YAP_PreAllocCodeSpace()))->StrOfAE;
       while (chtype[ch] == BS)
 	my_fgetch();
       TokenPos = GetCurInpPos();
@@ -934,7 +937,7 @@ fast_tokenizer(void)
 	while (my_fgetch() != 10 && chtype[ch] != EF);
 	if (chtype[ch] != EF) {
 	  my_fgetch();
-	  ReleasePreAllocCodeSpace((CODEADDR)TokImage);
+	  _YAP_ReleasePreAllocCodeSpace((CODEADDR)TokImage);
 	  goto get_tok;
 	}
 	else
@@ -952,13 +955,13 @@ fast_tokenizer(void)
 	  *charp++ = ch;
 	*charp++ = '\0';
 	if (!isvar) {
-	  TokenInfo = Unsigned(LookupAtom(TokImage));
+	  TokenInfo = Unsigned(_YAP_LookupAtom(TokImage));
 	  if (ch == '(')
 	    solo_flag = FALSE;
 	  kind = Name_tok;
 	}
 	else {
-	  TokenInfo = Unsigned(LookupVar(TokImage));
+	  TokenInfo = Unsigned(_YAP_LookupVar(TokImage));
 	  kind = Var_tok;
 	}
 	break;
@@ -1053,17 +1056,17 @@ fast_tokenizer(void)
 			ascii = so_far*8+(ch-'0');
 			my_fgetch();
 			if (ch != '\\') {
-			  ErrorMessage = "invalid octal escape sequence";
+			  _YAP_ErrorMessage = "invalid octal escape sequence";
 			}
 		      } else if (ch == '\\') {
 			ascii = so_far;
 		      } else {
-			ErrorMessage = "invalid octal escape sequence";
+			_YAP_ErrorMessage = "invalid octal escape sequence";
 		      }
 		    } else if (ch == '\\') {
 		      ascii = so_far;
 		    } else {
-		      ErrorMessage = "invalid octal escape sequence";
+		      _YAP_ErrorMessage = "invalid octal escape sequence";
 		    }
 		  }
 		  break;
@@ -1081,18 +1084,18 @@ fast_tokenizer(void)
 					       (my_isupper(ch) ? ch - 'A' : ch - 'a') + 10);
 			my_fgetch();
 			if (ch != '\\') {
-			  ErrorMessage = "invalid hexadecimal escape sequence";
+			  _YAP_ErrorMessage = "invalid hexadecimal escape sequence";
 			}
 		      } else if (ch == '\\') {
 			ascii = so_far;
 		      } else {
-			ErrorMessage = "invalid hexadecimal escape sequence";
+			_YAP_ErrorMessage = "invalid hexadecimal escape sequence";
 		      } 
 		    } else if (ch == '\\') {
 		      ascii = so_far;
 		      my_fgetch();
 		    } else {
-		      ErrorMessage = "invalid hexadecimal escape sequence";
+		      _YAP_ErrorMessage = "invalid hexadecimal escape sequence";
 		    }
 		  }
 		  break;
@@ -1100,7 +1103,7 @@ fast_tokenizer(void)
 		  /* accept sequence. Note that the ISO standard does not
 		     consider this sequence legal, whereas SICStus would
 		     eat up the escape sequence. */
-		  ErrorMessage = "invalid escape sequence";
+		  _YAP_ErrorMessage = "invalid escape sequence";
 		}
 	      }
 	      my_fgetch();
@@ -1167,9 +1170,9 @@ fast_tokenizer(void)
 		t->Tok = Ord(Number_tok);
 #ifdef DEBUG
 		/*
-		 * if(Option[2
+		 * if(_YAP_Option[2
 		 * ])
-		 * YP_fprintf(YP_stderr,"[To
+		 * fprintf(_YAP_stderr,"[To
 		 * ken %d
 		 * %d]",Ord(ki
 		 * nd),TokenIn
@@ -1183,11 +1186,11 @@ fast_tokenizer(void)
 		t->TokPos = TokenPos;
 		t = (TokEntry *) AllocScannerMemory(sizeof(TokEntry));
 		if (t == NULL) {
-		  ErrorMessage = "not enough stack space to read in term";
+		  _YAP_ErrorMessage = "not enough stack space to read in term";
 		  if (p != NIL)
 		    p->TokInfo = eot_tok;
 		  /* serious error now */
-		  ReleasePreAllocCodeSpace((CODEADDR)TokImage);
+		  _YAP_ReleasePreAllocCodeSpace((CODEADDR)TokImage);
 		  return(l);
 		}
 
@@ -1238,11 +1241,11 @@ fast_tokenizer(void)
 		t =
 		  (TokEntry *) AllocScannerMemory(sizeof(TokEntry));
 		if (t == NULL) {
-		  ErrorMessage = "not enough stack space to read in term";
+		  _YAP_ErrorMessage = "not enough stack space to read in term";
 		  if (p != NIL)
 		    p->TokInfo = eot_tok;
 		  /* serious error now */
-		  ReleasePreAllocCodeSpace((CODEADDR)TokImage);
+		  _YAP_ReleasePreAllocCodeSpace((CODEADDR)TokImage);
 		  return(l);
 		}
 
@@ -1302,7 +1305,7 @@ fast_tokenizer(void)
 	my_fgetch();
 	while (1) {
 	  if (charp + 1024 > (char *)AuxSp) {
-	    ErrorMessage = "Heap Overflow While Scanning: please increase code space (-h)";
+	    _YAP_ErrorMessage = "Heap Overflow While Scanning: please increase code space (-h)";
 	    break;
 	  }
 	  if (ch == quote) {
@@ -1382,7 +1385,7 @@ fast_tokenizer(void)
 		    *charp++ = so_far*8+(ch-'0');
 		    my_fgetch();
 		    if (ch != '\\') {
-		      ErrorMessage = "invalid octal escape sequence";
+		      _YAP_ErrorMessage = "invalid octal escape sequence";
 		    } else {
 		      my_fgetch();
 		    }
@@ -1390,13 +1393,13 @@ fast_tokenizer(void)
 		    *charp++ = so_far;
 		    my_fgetch();
 		  } else {
-		    ErrorMessage = "invalid octal escape sequence";
+		    _YAP_ErrorMessage = "invalid octal escape sequence";
 		  }
 		} else if (ch == '\\') {
 		  *charp++ = so_far;
 		  my_fgetch();
 		} else {
-		  ErrorMessage = "invalid octal escape sequence";
+		  _YAP_ErrorMessage = "invalid octal escape sequence";
 		}
 	      }
 	      break;
@@ -1414,7 +1417,7 @@ fast_tokenizer(void)
 			    (my_isupper(ch) ? ch - 'A' : ch - 'a') + 10);
 		    my_fgetch();
 		    if (ch != '\\') {
-		      ErrorMessage = "invalid hexadecimal escape sequence";
+		      _YAP_ErrorMessage = "invalid hexadecimal escape sequence";
 		    } else {
 		      my_fgetch();
 		    }
@@ -1422,13 +1425,13 @@ fast_tokenizer(void)
 		    *charp++ = so_far;
 		    my_fgetch();
 		  } else {
-		    ErrorMessage = "invalid hexadecimal escape sequence";
+		    _YAP_ErrorMessage = "invalid hexadecimal escape sequence";
 		  } 
 		} else if (ch == '\\') {
 		  *charp++ = so_far;
 		  my_fgetch();
 		} else {
-		  ErrorMessage = "invalid hexadecimal escape sequence";
+		  _YAP_ErrorMessage = "invalid hexadecimal escape sequence";
 		}
 	      }
 	      break;
@@ -1436,7 +1439,7 @@ fast_tokenizer(void)
 	      /* accept sequence. Note that the ISO standard does not
 		 consider this sequence legal, whereas SICStus would
 	         eat up the escape sequence. */
-	      ErrorMessage = "invalid escape sequence";
+	      _YAP_ErrorMessage = "invalid escape sequence";
 	    }
 	  } else {
 	    *charp++ = ch;
@@ -1449,7 +1452,7 @@ fast_tokenizer(void)
 	  ++len;
 	  if (charp > (char *)AuxSp - 1024) {
 	    /* Not enough space to read in the string. */
-	    ErrorMessage = "not enough heap space to read in string or quoted atom";
+	    _YAP_ErrorMessage = "not enough heap space to read in string or quoted atom";
 	    /* serious error now */
 	    kind = eot_tok;
 	  }
@@ -1458,7 +1461,7 @@ fast_tokenizer(void)
 	if (quote == '"') {
 	  mp = AllocScannerMemory(len + 1);
 	  if (mp == NULL) {
-	    ErrorMessage = "not enough stack space to read in string or quoted atom";
+	    _YAP_ErrorMessage = "not enough stack space to read in string or quoted atom";
 	    /* serious error now */
 	    kind = eot_tok;
 	  }
@@ -1467,7 +1470,7 @@ fast_tokenizer(void)
 	  kind = String_tok;
 	}
 	else {
-	  TokenInfo = Unsigned(LookupAtom(TokImage));
+	  TokenInfo = Unsigned(_YAP_LookupAtom(TokImage));
 	  if (ch == '(')
 	    solo_flag = FALSE;
 	  kind = Name_tok;
@@ -1488,12 +1491,12 @@ fast_tokenizer(void)
 	    break;
 	  }
 	  my_fgetch();
-	  ReleasePreAllocCodeSpace((CODEADDR)TokImage);
+	  _YAP_ReleasePreAllocCodeSpace((CODEADDR)TokImage);
 	  goto get_tok;
 	}
 	if (och == '.' && (chtype[ch] == BS || chtype[ch] == EF
 			   || chtype[ch] == CC)) {
-	  eot_before_eof = TRUE;
+	  _YAP_eot_before_eof = TRUE;
 	  if (chtype[ch] == CC)
 	    while (my_fgetch() != 10 && chtype[ch] != EF);
 	  kind = eot_tok;
@@ -1503,7 +1506,7 @@ fast_tokenizer(void)
 	  for (; chtype[ch] == SY; my_fgetch())
 	    *charp++ = ch;
 	  *charp = '\0';
-	  TokenInfo = Unsigned(LookupAtom(TokImage));
+	  TokenInfo = Unsigned(_YAP_LookupAtom(TokImage));
 	  if (ch == '(')
 	    solo_flag = FALSE;
 	  kind = Name_tok;
@@ -1514,7 +1517,7 @@ fast_tokenizer(void)
 	*charp++ = ch;
 	*charp++ = '\0';
 	my_fgetch();
-	TokenInfo = Unsigned(LookupAtom(TokImage));
+	TokenInfo = Unsigned(_YAP_LookupAtom(TokImage));
 	if (ch == '(')
 	  solo_flag = FALSE;
 	kind = Name_tok;
@@ -1549,7 +1552,7 @@ fast_tokenizer(void)
 	break;
 #ifdef DEBUG
       default:
-	YP_fprintf(YP_stderr, "\n++++ token: wrong char type %c %d\n", ch, chtype[ch]);
+	fprintf(_YAP_stderr, "\n++++ token: wrong char type %c %d\n", ch, chtype[ch]);
 	kind = eot_tok;
 #else
       default:
@@ -1560,12 +1563,12 @@ fast_tokenizer(void)
 
     t->Tok = Ord(kind);
 #ifdef DEBUG
-    if(Option[2]) YP_fprintf(YP_stderr,"[Token %d %ld]\n",Ord(kind),(unsigned long int)TokenInfo);
+    if(_YAP_Option[2]) fprintf(_YAP_stderr,"[Token %d %ld]\n",Ord(kind),(unsigned long int)TokenInfo);
 #endif
     t->TokInfo = (Term) TokenInfo;
     t->TokPos = TokenPos;
     t->TokNext = NIL;
-    ReleasePreAllocCodeSpace((CODEADDR)TokImage);
+    _YAP_ReleasePreAllocCodeSpace((CODEADDR)TokImage);
   } while (kind != eot_tok);
   return (l);
 }

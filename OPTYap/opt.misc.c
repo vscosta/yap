@@ -82,7 +82,7 @@ void information_message(const char *mesg,...) {
 ** ------------------------- */
 
 int tabling_putchar(int sno, int ch) {
-  return(YP_putc(ch, stderr));
+  return(putc(ch, stderr));
 }
 #endif /* TABLING_DEBUG */
 

@@ -250,30 +250,17 @@ typedef struct CEXPENTRY {
 #define Two	 2
 
 
-void	STD_PROTO(emit,(compiler_vm_op,Int,CELL));
-void	STD_PROTO(emit_3ops,(compiler_vm_op,CELL,CELL,CELL));
-CELL   *STD_PROTO(emit_extra_size,(compiler_vm_op,CELL,int));
-char   *STD_PROTO(AllocCMem,(int));
-int	STD_PROTO(is_a_test_pred,(Term, SMALLUNSGN));
-void    STD_PROTO(bip_name,(Int, char *));
+CODEADDR	STD_PROTO(_YAP_assemble,(int));
+void	STD_PROTO(_YAP_emit,(compiler_vm_op,Int,CELL));
+void	STD_PROTO(_YAP_emit_3ops,(compiler_vm_op,CELL,CELL,CELL));
+CELL   *STD_PROTO(_YAP_emit_extra_size,(compiler_vm_op,CELL,int));
+char   *STD_PROTO(_YAP_AllocCMem,(int));
+int	STD_PROTO(_YAP_is_a_test_pred,(Term, SMALLUNSGN));
+void    STD_PROTO(_YAP_bip_name,(Int, char *));
 #ifdef DEBUG
-void	STD_PROTO(ShowCode,(void));
+void	STD_PROTO(_YAP_ShowCode,(void));
 #endif /* DEBUG */
 
 
-extern PInstr *cpc, *CodeStart;
-
-extern PInstr *icpc, *BlobsStart;
-
-extern char *freep, *freep0;
-
-extern int *label_offset;
-
-extern int IPredArity;
-
-extern jmp_buf CompilerBotch;
-
-extern int profiling;
-
-extern int call_counting;
+extern jmp_buf _YAP_CompilerBotch;
 

@@ -12,7 +12,7 @@
 * Last rev:								 *
 * mods:									 *
 * comments:	allocating space					 *
-* version:$Id: alloc.c,v 1.26 2002-10-23 20:55:36 vsc Exp $		 *
+* version:$Id: alloc.c,v 1.27 2002-11-11 17:37:52 vsc Exp $		 *
 *************************************************************************/
 #ifdef SCCS
 static char SccsId[] = "%W% %G%";
@@ -76,7 +76,7 @@ STATIC_PROTO(void AddToFreeList, (BlockHeader *));
 /* Yap workspace management                                             */
 
 int
-SizeOfBlock(CODEADDR p)
+_YAP_SizeOfBlock(CODEADDR p)
 {
   BlockHeader *b = (BlockHeader *) (p - sizeof(YAP_SEG_SIZE));
   YAP_SEG_SIZE s = (b->b_size) & ~InUseFlag;
@@ -155,10 +155,10 @@ FreeBlock(BlockHeader *b)
   sp = &(b->b_size) + (b->b_size & ~InUseFlag);
   if (*sp != b->b_size) {
 #if !SHORT_INTS
-    YP_fprintf(YP_stderr, "** sanity check failed in FreeBlock %p %x %x\n",
+    fprintf(_YAP_stderr, "** sanity check failed in FreeBlock %p %x %x\n",
 	       b, b->b_size, Unsigned(*sp));
 #else
-    YP_fprintf(YP_stderr, "** sanity check failed in FreeBlock %p %lx %lx\n",
+    fprintf(_YAP_stderr, "** sanity check failed in FreeBlock %p %lx %lx\n",
 	       b, b->b_size, *sp);
 #endif
     return;
@@ -265,7 +265,7 @@ AllocHeap(unsigned int size)
   HeapUsed += size * sizeof(CELL) + sizeof(YAP_SEG_SIZE);
 
 #ifdef YAPOR
-  if (HeapTop > Addr(GlobalBase) - MinHeapGap) {
+  if (HeapTop > Addr(_YAP_GlobalBase) - MinHeapGap) {
     abort_optyap("No heap left in function AllocHeap");
   }
 #else
@@ -278,7 +278,7 @@ AllocHeap(unsigned int size)
 	UNLOCK(HeapTopLock);
       }
       /* we destroyed the stack */
-      Error(SYSTEM_ERROR, TermNil, "Stack Crashed against Heap...");
+      _YAP_Error(SYSTEM_ERROR, TermNil, "Stack Crashed against Heap...");
       return(NULL);
     } else {
       if (HeapTop + size * sizeof(CELL) + sizeof(YAP_SEG_SIZE) < Addr(AuxSp)) {
@@ -320,7 +320,7 @@ AllocHeap(unsigned int size)
 /* If you need to dinamically allocate space from the heap, this is
  * the macro you should use */
 ADDR
-PreAllocCodeSpace(void)
+_YAP_PreAllocCodeSpace(void)
 {
   LOCK(HeapTopLock);
   HEAPTOP_OWN(worker_id);
@@ -331,7 +331,7 @@ PreAllocCodeSpace(void)
 /* Grabbing the HeapTop is an excellent idea for a sequential system,
    but does work as well in parallel systems. Anyway, this will do for now */
 void
-ReleasePreAllocCodeSpace(ADDR ptr)
+_YAP_ReleasePreAllocCodeSpace(ADDR ptr)
 {
   HEAPTOP_DISOWN(worker_id);
   UNLOCK(HeapTopLock);
@@ -340,30 +340,44 @@ ReleasePreAllocCodeSpace(ADDR ptr)
 
 /* If you need to dinamically allocate space from the heap, this is
  * the macro you should use */
-void
+static void
 FreeCodeSpace(char *p)
 {
   FreeBlock(((BlockHeader *) (p - sizeof(YAP_SEG_SIZE))));
 }
 
-char *
-AllocAtomSpace(unsigned int size)
-{
-  return (AllocHeap(size));
-}
-
+/* If you need to dinamically allocate space from the heap, this is
+ * the macro you should use */
 void
-FreeAtomSpace(char *p)
+_YAP_FreeCodeSpace(char *p)
 {
   FreeCodeSpace(p);
 }
 
 char *
+_YAP_AllocAtomSpace(unsigned int size)
+{
+  return (AllocHeap(size));
+}
+
+void
+_YAP_FreeAtomSpace(char *p)
+{
+  FreeCodeSpace(p);
+}
+
+static char *
 AllocCodeSpace(unsigned int size)
 {
   if (size < SmallSize + 2 * OpCodeSize + 3 * CellSize)
     return (AllocHeap(SmallSize + 2 * OpCodeSize + 3 * CellSize));
   return (AllocHeap(size));
+}
+
+char *
+_YAP_AllocCodeSpace(unsigned int size)
+{
+  return AllocCodeSpace(size);
 }
 
 /************************************************************************/
@@ -379,10 +393,10 @@ AllocCodeSpace(unsigned int size)
 /* functions:                                                           */
 /*   void *InitWorkSpace(int s) - initial workspace allocation          */
 /*   int ExtendWorkSpace(int s) - extend workspace                      */
-/*   int FreeWorkSpace() - release workspace                            */
+/*   int _YAP_FreeWorkSpace() - release workspace                            */
 /************************************************************************/
 
-#if defined(_WIN32) || defined(__CYGWIN__)
+#if defined(_WIN32)
 
 #include "windows.h"
 
@@ -392,58 +406,57 @@ AllocCodeSpace(unsigned int size)
 
 static LPVOID brk;
 
-int
+static int
 ExtendWorkSpace(Int s)
 {
   LPVOID b;
-  prolog_exec_mode OldPrologMode = PrologMode;
+  prolog_exec_mode OldPrologMode = _YAP_PrologMode;
 
-  PrologMode = ExtendStackMode;
-  s = ((s-1)/page_size+1)*page_size;
+  _YAP_PrologMode = ExtendStackMode;
+  s = ((s-1)/_YAP_page_size+1)*_YAP_page_size;
   b = VirtualAlloc(brk, s, MEM_COMMIT, PAGE_READWRITE);
   if (b) {
   	brk = (LPVOID) ((Int) brk + s);
-	PrologMode = OldPrologMode;
+	_YAP_PrologMode = OldPrologMode;
 	return TRUE;
   }
-  ErrorMessage = ErrorSay;
-  snprintf4(ErrorMessage, MAX_ERROR_MSG_SIZE,
+  _YAP_ErrorMessage = _YAP_ErrorSay;
+  snprintf4(_YAP_ErrorMessage, MAX_ERROR_MSG_SIZE,
 	    "VirtualAlloc could not commit %ld bytes",
 	    (long int)s);
-  PrologMode = OldPrologMode;
+  _YAP_PrologMode = OldPrologMode;
   return FALSE;
 }
 
-MALLOC_T
+static MALLOC_T
 InitWorkSpace(Int s)
 {
   SYSTEM_INFO si;
   LPVOID b;
 
   GetSystemInfo(&si);
-  page_size = si.dwPageSize;
+  _YAP_page_size = si.dwPageSize;
   b = VirtualAlloc(BASE_ADDRESS, MAX_WORKSPACE, MEM_RESERVE, PAGE_NOACCESS);
   if (b==NULL) {
-    fprintf(stderr,"[ Warning: YAP reserving space at a variable address ]\n");
     b = VirtualAlloc(0x0, MAX_WORKSPACE, MEM_RESERVE, PAGE_NOACCESS);
     if (b == NULL) {
-      Error(FATAL_ERROR,TermNil,"VirtualAlloc failed");
+      _YAP_Error(FATAL_ERROR,TermNil,"VirtualAlloc failed");
       return(0);
     }
-      
+    fprintf(stderr,"[ Warning: YAP reserving space at variable address %p ]\n", b);
   }
   brk = BASE_ADDRESS;
 
   if (ExtendWorkSpace(s)) {
     return BASE_ADDRESS;
   } else {
-    Error(FATAL_ERROR,TermNil,"VirtualAlloc Failed");
+    _YAP_Error(FATAL_ERROR,TermNil,"VirtualAlloc Failed");
     return(0);
   }
 }
 
 int
-FreeWorkSpace(void)
+_YAP_FreeWorkSpace(void)
 {
   return TRUE;
 }
@@ -469,14 +482,13 @@ FreeWorkSpace(void)
 
 static MALLOC_T WorkSpaceTop;
 
-MALLOC_T
+static MALLOC_T
 InitWorkSpace(Int s)
 {
   MALLOC_T a;
 #if !defined(_AIX) && !defined(__APPLE__) &&  !__hpux
   int fd;
 #endif
-
 #if defined(_AIX)
   a = mmap(0, (size_t) s, PROT_READ | PROT_WRITE | PROT_EXEC,
 	   MAP_PRIVATE | MAP_ANONYMOUS | MAP_VARIABLE, -1, 0);
@@ -484,14 +496,14 @@ InitWorkSpace(Int s)
   a = mmap(((void *)MMAP_ADDR), (size_t) s, PROT_READ | PROT_WRITE | PROT_EXEC,
 	   MAP_PRIVATE | MAP_ANONYMOUS | MAP_FIXED, -1, 0);
   if (a != (MALLOC_T)MMAP_ADDR) {
-    Error(FATAL_ERROR, TermNil, "mmap could not map ANON at %p, got %p", (void *)MMAP_ADDR, a);
+    _YAP_Error(FATAL_ERROR, TermNil, "mmap could not map ANON at %p, got %p", (void *)MMAP_ADDR, a);
     return(NULL);
   }
 #elif defined(__APPLE__)
   a = mmap(((void *)MMAP_ADDR), (size_t) s, PROT_READ | PROT_WRITE | PROT_EXEC,
 	   MAP_PRIVATE | MAP_ANON | MAP_FIXED, -1, 0);
   if (a != (MALLOC_T)MMAP_ADDR) {
-    Error(FATAL_ERROR, TermNil, "mmap could not map ANON at %p, got %p", (void *)MMAP_ADDR,a );
+    _YAP_Error(FATAL_ERROR, TermNil, "mmap could not map ANON at %p, got %p", (void *)MMAP_ADDR,a );
     return(NULL);
   }
 #else
@@ -502,9 +514,9 @@ InitWorkSpace(Int s)
     strncpy(file,"/tmp/YAP.TMPXXXXXX", 256);
     if (mkstemp(file) == -1) {
 #if HAVE_STRERROR
-      Error(FATAL_ERROR, TermNil, "mkstemp could not create temporary file %s (%s)", file, strerror(errno));
+      _YAP_Error(FATAL_ERROR, TermNil, "mkstemp could not create temporary file %s (%s)", file, strerror(errno));
 #else
-      Error(FATAL_ERROR, TermNil, "mkstemp could not create temporary file %s", file);
+      _YAP_Error(FATAL_ERROR, TermNil, "mkstemp could not create temporary file %s", file);
 #endif
       return NULL;
     }
@@ -519,21 +531,21 @@ InitWorkSpace(Int s)
 #endif /* HAVE_MKSTEMP */
     fd = open(file, O_CREAT|O_RDWR);
     if (fd < 0) {
-      Error(FATAL_ERROR, TermNil, "mmap could not open %s", file);
+      _YAP_Error(FATAL_ERROR, TermNil, "mmap could not open %s", file);
       return NULL;
     }
     if (lseek(fd, s, SEEK_SET) < 0) {
-      Error(FATAL_ERROR, TermNil, "mmap could not lseek in mmapped file %s", file);
+      _YAP_Error(FATAL_ERROR, TermNil, "mmap could not lseek in mmapped file %s", file);
       close(fd);
       return FALSE;
     }
     if (write(fd, "", 1) < 0) {
-      Error(FATAL_ERROR, TermNil, "mmap could not write in mmapped file %s", file);
+      _YAP_Error(FATAL_ERROR, TermNil, "mmap could not write in mmapped file %s", file);
       close(fd);
       return NULL;
     }
     if (unlink(file) < 0) {
-      Error(FATAL_ERROR,TermNil, "mmap could not unlink mmapped file %s", file);
+      _YAP_Error(FATAL_ERROR,TermNil, "mmap could not unlink mmapped file %s", file);
       close(fd);
       return NULL;
     }
@@ -542,7 +554,7 @@ InitWorkSpace(Int s)
   a = mmap(((void *)MMAP_ADDR), (size_t) s, PROT_READ | PROT_WRITE | PROT_EXEC,
 	   MAP_PRIVATE | MAP_FIXED, fd, 0);
   if (a != (MALLOC_T)MMAP_ADDR) {
-    Error(FATAL_ERROR, TermNil, "mmap could not map at %p, got %p", (void *)MMAP_ADDR, a);
+    _YAP_Error(FATAL_ERROR, TermNil, "mmap could not map at %p, got %p", (void *)MMAP_ADDR, a);
     return NULL;
   }
 #else
@@ -550,11 +562,11 @@ InitWorkSpace(Int s)
 	   MAP_PRIVATE, fd, 0);
   if ((CELL)a & YAP_PROTECTED_MASK) {
     close(fd);
-    Error(FATAL_ERROR, TermNil, "mmapped address %p collides with YAP tags", a);
+    _YAP_Error(FATAL_ERROR, TermNil, "mmapped address %p collides with YAP tags", a);
     return NULL;
   }
   if (close(fd) == -1) {
-    Error(FATAL_ERROR, TermNil, "while closing mmaped file");
+    _YAP_Error(FATAL_ERROR, TermNil, "while closing mmaped file");
     return NULL;
   }
 #endif
@@ -566,14 +578,14 @@ InitWorkSpace(Int s)
 	 (a == (MALLOC_T) - 1)
 #endif
     {
-      Error(FATAL_ERROR, TermNil, "mmap cannot allocate memory ***");
+      _YAP_Error(FATAL_ERROR, TermNil, "mmap cannot allocate memory ***");
       return(NULL);
     }
   WorkSpaceTop = (char *) a + s;
   return (void *) a;
 }
 
-int
+static int
 ExtendWorkSpace(Int s)
 {
 #ifdef YAPOR
@@ -582,36 +594,36 @@ ExtendWorkSpace(Int s)
 #else
 
   MALLOC_T a;
-  prolog_exec_mode OldPrologMode = PrologMode;
+  prolog_exec_mode OldPrologMode = _YAP_PrologMode;
 
 #if defined(_AIX) || defined(__hpux)
-  PrologMode = ExtendStackMode;
+  _YAP_PrologMode = ExtendStackMode;
   a = mmap(WorkSpaceTop, (size_t) s, PROT_READ | PROT_WRITE | PROT_EXEC,
 		    MAP_PRIVATE | MAP_ANONYMOUS, -1, 0);
 
 #elif defined(__APPLE__)
-  PrologMode = ExtendStackMode;
+  _YAP_PrologMode = ExtendStackMode;
   a = mmap(WorkSpaceTop, (size_t) s, PROT_READ | PROT_WRITE | PROT_EXEC,
 		    MAP_PRIVATE | MAP_ANON | MAP_FIXED, -1, 0);
 #else
   int fd;
-  PrologMode = ExtendStackMode;
+  _YAP_PrologMode = ExtendStackMode;
   fd = open("/dev/zero", O_RDWR);
   if (fd < 0) {
 #if HAVE_MKSTEMP
     char file[256];
     strncpy(file,"/tmp/YAP.TMPXXXXXX",256);
     if (mkstemp(file) == -1) {
-      ErrorMessage = ErrorSay;
+      _YAP_ErrorMessage = _YAP_ErrorSay;
 #if HAVE_STRERROR
-      snprintf5(ErrorMessage, MAX_ERROR_MSG_SIZE,
+      snprintf5(_YAP_ErrorMessage, MAX_ERROR_MSG_SIZE,
 		"mkstemp could not create temporary file %s (%s)",
 		file, strerror(errno));
 #else
-      snprintf4(ErrorMessage, MAX_ERROR_MSG_SIZE,
+      snprintf4(_YAP_ErrorMessage, MAX_ERROR_MSG_SIZE,
 		"mkstemp could not create temporary file %s", file);
 #endif /* HAVE_STRERROR */
-      PrologMode = OldPrologMode;
+      _YAP_PrologMode = OldPrologMode;
       return FALSE;
     }
 #else
@@ -625,85 +637,85 @@ ExtendWorkSpace(Int s)
 #endif /* HAVE_MKSTEMP */
     fd = open(file, O_CREAT|O_RDWR);
     if (fd < 0) {
-      ErrorMessage = ErrorSay;
-      snprintf4(ErrorMessage, MAX_ERROR_MSG_SIZE,
+      _YAP_ErrorMessage = _YAP_ErrorSay;
+      snprintf4(_YAP_ErrorMessage, MAX_ERROR_MSG_SIZE,
 		"mmap could not open %s", file);
-      PrologMode = OldPrologMode;
+      _YAP_PrologMode = OldPrologMode;
       return FALSE;
     }
     if (lseek(fd, s, SEEK_SET) < 0) {
-      ErrorMessage = ErrorSay;
-      snprintf4(ErrorMessage, MAX_ERROR_MSG_SIZE,
+      _YAP_ErrorMessage = _YAP_ErrorSay;
+      snprintf4(_YAP_ErrorMessage, MAX_ERROR_MSG_SIZE,
 		"mmap could not lseek in mmapped file %s", file);
-      PrologMode = OldPrologMode;
+      _YAP_PrologMode = OldPrologMode;
       close(fd);
       return FALSE;
     }
     if (write(fd, "", 1) < 0) {
-      ErrorMessage = ErrorSay;
-      snprintf4(ErrorMessage, MAX_ERROR_MSG_SIZE,
+      _YAP_ErrorMessage = _YAP_ErrorSay;
+      snprintf4(_YAP_ErrorMessage, MAX_ERROR_MSG_SIZE,
 		"mmap could not write in mmapped file %s", file);
-      PrologMode = OldPrologMode;
+      _YAP_PrologMode = OldPrologMode;
       close(fd);
       return FALSE;
     }
     if (unlink(file) < 0) {
-      ErrorMessage = ErrorSay;
-      snprintf4(ErrorMessage, MAX_ERROR_MSG_SIZE,
+      _YAP_ErrorMessage = _YAP_ErrorSay;
+      snprintf4(_YAP_ErrorMessage, MAX_ERROR_MSG_SIZE,
 		"mmap could not unlink mmapped file %s", file);
-      PrologMode = OldPrologMode;
+      _YAP_PrologMode = OldPrologMode;
       close(fd);
       return FALSE;
     }
   }
   a = mmap(WorkSpaceTop, (size_t) s, PROT_READ | PROT_WRITE | PROT_EXEC,
 		    MAP_PRIVATE
-#ifndef __linux
+#if !defined(__linux)
 	   /* use  MAP_FIXED, otherwise God knows where you will be placed */
 	   |MAP_FIXED
 #endif
 	   , fd, 0);
   if (close(fd) == -1) {
-    ErrorMessage = ErrorSay;
+    _YAP_ErrorMessage = _YAP_ErrorSay;
 #if HAVE_STRERROR
-    snprintf4(ErrorMessage, MAX_ERROR_MSG_SIZE,
+    snprintf4(_YAP_ErrorMessage, MAX_ERROR_MSG_SIZE,
 	      "mmap could not close file (%s) ]\n", strerror(errno));
 #else
-    snprintf3(ErrorMessage, MAX_ERROR_MSG_SIZE,
+    snprintf3(_YAP_ErrorMessage, MAX_ERROR_MSG_SIZE,
 	      "mmap could not close file ]\n");
 #endif
-    PrologMode = OldPrologMode;
+    _YAP_PrologMode = OldPrologMode;
     return FALSE;
   }
 #endif
   if (a == (MALLOC_T) - 1) {
-    ErrorMessage = ErrorSay;
+    _YAP_ErrorMessage = _YAP_ErrorSay;
 #if HAVE_STRERROR
-    snprintf5(ErrorMessage, MAX_ERROR_MSG_SIZE,
+    snprintf5(_YAP_ErrorMessage, MAX_ERROR_MSG_SIZE,
 	      "could not allocate %d bytes (%s)", (int)s, strerror(errno));
 #else
-    snprintf4(ErrorMessage, MAX_ERROR_MSG_SIZE,
+    snprintf4(_YAP_ErrorMessage, MAX_ERROR_MSG_SIZE,
 	      "could not allocate %d bytes", (int)s);
 #endif
-    PrologMode = OldPrologMode;
+    _YAP_PrologMode = OldPrologMode;
     return FALSE;
   }
   if (a != WorkSpaceTop) {
-    ErrorMessage = ErrorSay;
-    snprintf5(ErrorMessage, MAX_ERROR_MSG_SIZE,
+    _YAP_ErrorMessage = _YAP_ErrorSay;
+    snprintf5(_YAP_ErrorMessage, MAX_ERROR_MSG_SIZE,
 	      "mmap could not grow memory at %p, got %p", WorkSpaceTop, a );
-    PrologMode = OldPrologMode;
+    _YAP_PrologMode = OldPrologMode;
     return FALSE;
   }
   
   WorkSpaceTop = (char *) a + s;
-  PrologMode = OldPrologMode;
+  _YAP_PrologMode = OldPrologMode;
   return TRUE;
 #endif /* YAPOR */
 }
 
 int
-FreeWorkSpace(void)
+_YAP_FreeWorkSpace(void)
 {
   return 1;
 }
@@ -720,7 +732,7 @@ FreeWorkSpace(void)
 
 static MALLOC_T WorkSpaceTop;
 
-MALLOC_T
+static MALLOC_T
 InitWorkSpace(Int s)
 {
   MALLOC_T ptr;
@@ -728,22 +740,22 @@ InitWorkSpace(Int s)
 
   /* mapping heap area */
   if((shm_id = shmget(IPC_PRIVATE, (size_t)s, SHM_R|SHM_W)) == -1) {
-    Error(FATAL_ERROR, TermNil, "could not shmget %d bytes", s);
+    _YAP_Error(FATAL_ERROR, TermNil, "could not shmget %d bytes", s);
     return(NULL);
    }
   if((ptr = (MALLOC_T)shmat(shm_id, (void *) MMAP_ADDR, 0)) == (MALLOC_T) -1) {
-    Error(FATAL_ERROR, TermNil, "could not shmat at %p", MMAP_ADDR);
+    _YAP_Error(FATAL_ERROR, TermNil, "could not shmat at %p", MMAP_ADDR);
     return(NULL);
   }
   if (shmctl(shm_id, IPC_RMID, 0) != 0) {
-    Error(FATAL_ERROR, TermNil, "could not remove shm segment", shm_id);
+    _YAP_Error(FATAL_ERROR, TermNil, "could not remove shm segment", shm_id);
     return(NULL);
   }
   WorkSpaceTop = (char *) ptr + s;
   return(ptr);
 }
 
-int
+static int
 ExtendWorkSpace(Int s)
 {
   MALLOC_T ptr;
@@ -753,22 +765,22 @@ ExtendWorkSpace(Int s)
   PrologMode = ExtendStackMode;
   /* mapping heap area */
   if((shm_id = shmget(IPC_PRIVATE, (size_t)s, SHM_R|SHM_W)) == -1) {
-    ErrorMessage = ErrorSay;
-    snprintf4(ErrorMessage, MAX_ERROR_MSG_SIZE,
+    _YAP_ErrorMessage = _YAP_ErrorSay;
+    snprintf4(_YAP_ErrorMessage, MAX_ERROR_MSG_SIZE,
 	      "could not shmget %d bytes", s);
     PrologMode = OldPrologMode;
     return(FALSE);
    }
   if((ptr = (MALLOC_T)shmat(shm_id, WorkSpaceTop, 0)) == (MALLOC_T) -1) {
-    ErrorMessage = ErrorSay;
-    snprintf4(ErrorMessage, MAX_ERROR_MSG_SIZE,
+    _YAP_ErrorMessage = _YAP_ErrorSay;
+    snprintf4(_YAP_ErrorMessage, MAX_ERROR_MSG_SIZE,
 	      "could not shmat at %p", MMAP_ADDR);
     PrologMode = OldPrologMode;
     return(FALSE);
   }
   if (shmctl(shm_id, IPC_RMID, 0) != 0) {
-    ErrorMessage = ErrorSay;
-    snprintf4(ErrorMessage, MAX_ERROR_MSG_SIZE,
+    _YAP_ErrorMessage = _YAP_ErrorSay;
+    snprintf4(_YAP_ErrorMessage, MAX_ERROR_MSG_SIZE,
 	      "could not remove shm segment", shm_id);
     PrologMode = OldPrologMode;
     return(FALSE);
@@ -779,7 +791,7 @@ ExtendWorkSpace(Int s)
 }
 
 int
-FreeWorkSpace(void)
+_YAP_FreeWorkSpace(void)
 {
   return TRUE;
 }
@@ -807,19 +819,19 @@ int in_limbo;		/* non-zero when restoring a saved state */
 static char limbo_space[LIMBO_SIZE];	/* temporary malloc space */
 static char *limbo_p = limbo_space, *limbo_pp = 0;
 
-MALLOC_T
+static MALLOC_T
 InitWorkSpace(Int s)
 {
   MALLOC_T ptr = (MALLOC_T)sbrk(s);
 
   if (ptr == ((MALLOC_T) - 1)) {
-     Error(FATAL_ERROR, TermNil, "could not allocate %d bytes", s);
+     _YAP_Error(FATAL_ERROR, TermNil, "could not allocate %d bytes", s);
      return(NULL);
   }
   return(ptr);
 }
 
-int
+static int
 ExtendWorkSpace(Int s)
 {
   MALLOC_T ptr = (MALLOC_T)sbrk(s);
@@ -827,8 +839,8 @@ ExtendWorkSpace(Int s)
 
   PrologMode = ExtendStackMode;
   if (ptr == ((MALLOC_T) - 1)) {
-    ErrorMessage = ErrorSay;
-    snprintf4(ErrorMessage, MAX_ERROR_MSG_SIZE,
+    _YAP_ErrorMessage = _YAP_ErrorSay;
+    snprintf4(_YAP_ErrorMessage, MAX_ERROR_MSG_SIZE,
 	      "could not expand stacks over %d bytes", s);
     PrologMode = OldPrologMode;
     return(FALSE);
@@ -838,7 +850,7 @@ ExtendWorkSpace(Int s)
 }
 
 int
-FreeWorkSpace(void)
+_YAP_FreeWorkSpace(void)
 {
   return TRUE;
 }
@@ -873,7 +885,7 @@ free(MALLOC_T ptr)
   }
   if (!ptr)
     return;
-  if ((char *) ptr < HeapBase || (char *) ptr > HeapTop)
+  if ((char *) ptr < _YAP_HeapBase || (char *) ptr > HeapTop)
     return;
   if (!(b->b_size & InUseFlag))
     return;
@@ -931,7 +943,7 @@ mallinfo(void)
 
 static int total_space;
 
-MALLOC_T
+static MALLOC_T
 InitWorkSpace(Int s)
 {
   MALLOC_T ptr;
@@ -943,13 +955,13 @@ InitWorkSpace(Int s)
   total_space = s;
 
   if (ptr == NULL) {
-     Error(FATAL_ERROR, TermNil, "could not allocate %d bytes", s);
+     _YAP_Error(FATAL_ERROR, TermNil, "could not allocate %d bytes", s);
      return(NULL);
   }
   return(ptr);
 }
 
-int
+static int
 ExtendWorkSpace(Int s)
 {
   MALLOC_T ptr;
@@ -958,24 +970,24 @@ ExtendWorkSpace(Int s)
   PrologMode = ExtendStackMode;
   total_space += s;
   if (total_space < MAX_SPACE) return(TRUE);
-  ptr = (MALLOC_T)realloc((void *)HeapBase, total_space);
+  ptr = (MALLOC_T)realloc((void *)_YAP_HeapBase, total_space);
   if (ptr == NULL) {
-    ErrorMessage = ErrorSay;
-    snprintf4(ErrorMessage, MAX_ERROR_MSG_SIZE,
+    _YAP_ErrorMessage = _YAP_ErrorSay;
+    snprintf4(_YAP_ErrorMessage, MAX_ERROR_MSG_SIZE,
 	      "could not allocate %d bytes", s);
     PrologMode = OldPrologMode;
     return(FALSE);
   }
-  if (ptr != (MALLOC_T)HeapBase) {
-    ErrorMessage = ErrorSay;
-    snprintf4(ErrorMessage, MAX_ERROR_MSG_SIZE,
+  if (ptr != (MALLOC_T)_YAP_HeapBase) {
+    _YAP_ErrorMessage = _YAP_ErrorSay;
+    snprintf4(_YAP_ErrorMessage, MAX_ERROR_MSG_SIZE,
 	      "could not expand contiguous stacks  %d bytes", s);
     PrologMode = OldPrologMode;
     return(FALSE);
   }
   if ((CELL)ptr & MBIT) {
-    ErrorMessage = ErrorSay;
-    snprintf5(ErrorMessage, MAX_ERROR_MSG_SIZE,
+    _YAP_ErrorMessage = _YAP_ErrorSay;
+    snprintf5(_YAP_ErrorMessage, MAX_ERROR_MSG_SIZE,
 	      "memory at %p conflicts with MBIT %lx", ptr, (unsigned long)MBIT);
     PrologMode = OldPrologMode;
     return(FALSE);
@@ -985,23 +997,23 @@ ExtendWorkSpace(Int s)
 }
 
 int
-FreeWorkSpace(void)
+_YAP_FreeWorkSpace(void)
 {
   return TRUE;
 }
 #endif
 
-void
-YAP_InitHeap(void *heap_addr)
+static void
+InitHeap(void *heap_addr)
 {
   /* allocate space */
-  HeapBase = heap_addr;
+  _YAP_HeapBase = heap_addr;
 
   /* reserve space for specially allocated functors and atoms so that
      their values can be known statically */
-  HeapTop = HeapBase + AdjustSize(sizeof(all_heap_codes));
+  HeapTop = _YAP_HeapBase + AdjustSize(sizeof(all_heap_codes));
 
-  HeapMax = HeapUsed = HeapTop-HeapBase;
+  HeapMax = HeapUsed = HeapTop-_YAP_HeapBase;
 
   *((YAP_SEG_SIZE *) HeapTop) = InUseFlag;
   HeapTop = HeapTop + sizeof(YAP_SEG_SIZE);
@@ -1027,7 +1039,13 @@ YAP_InitHeap(void *heap_addr)
 }
 
 void
-InitMemory(int Trail, int Heap, int Stack)
+_YAP_InitHeap(void *heap_addr)
+{
+  InitHeap(heap_addr);
+}
+
+void
+_YAP_InitMemory(int Trail, int Heap, int Stack)
 {
   Int pm, sa, ta;
 
@@ -1040,14 +1058,14 @@ InitMemory(int Trail, int Heap, int Stack)
   sa = Stack;			/* stack area size   */
   ta = Trail;			/* trail area size   */
 
-  YAP_InitHeap(InitWorkSpace(pm));
+  InitHeap(InitWorkSpace(pm));
 
-  TrailTop = HeapBase + pm;
-  LocalBase = TrailTop - ta;
-  TrailBase = LocalBase + sizeof(CELL);
+  _YAP_TrailTop = _YAP_HeapBase + pm;
+  _YAP_LocalBase = _YAP_TrailTop - ta;
+  _YAP_TrailBase = _YAP_LocalBase + sizeof(CELL);
 
-  GlobalBase = LocalBase - sa;
-  AuxTop = GlobalBase - CellSize;	/* avoid confusions while
+  _YAP_GlobalBase = _YAP_LocalBase - sa;
+  AuxTop = _YAP_GlobalBase - CellSize;	/* avoid confusions while
 					 * * restoring */
   AuxSp = (CELL *) AuxTop;
 
@@ -1055,12 +1073,12 @@ InitMemory(int Trail, int Heap, int Stack)
 #if SIZEOF_INT_P!=SIZEOF_INT
   if (output_msg) {
     fprintf(stderr, "HeapBase = %p  GlobalBase = %p\n  LocalBase = %p  TrailTop = %p\n",
-	       HeapBase, GlobalBase, LocalBase, TrailTop);
+	       _YAP_HeapBase, _YAP_GlobalBase, _YAP_LocalBase, _YAP_TrailTop);
 #else
   if (output_msg) {
     fprintf(stderr, "HeapBase = %x  GlobalBase = %x\n  LocalBase = %x  TrailTop = %x\n",
-	       (UInt) HeapBase, (UInt) GlobalBase,
-	       (UInt) LocalBase, (UInt) TrailTop);
+	       (UInt) _YAP_HeapBase, (UInt) _YAP_GlobalBase,
+	       (UInt) _YAP_LocalBase, (UInt) _YAP_TrailTop);
 #endif
 
 #if !SHORT_INTS
@@ -1075,3 +1093,8 @@ InitMemory(int Trail, int Heap, int Stack)
 
 }
 
+int
+_YAP_ExtendWorkSpace(Int s)
+{
+  return ExtendWorkSpace(s);
+}

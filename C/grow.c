@@ -51,6 +51,7 @@ STATIC_PROTO(Int p_inform_stack_overflows, (void));
 /* #define undf7  */
 /* #define undf5 */
 
+STATIC_PROTO(int growstack, (long));
 STATIC_PROTO(void MoveGlobal, (void));
 STATIC_PROTO(void MoveLocalAndTrail, (void));
 STATIC_PROTO(void SetHeapRegs, (void));
@@ -59,10 +60,12 @@ STATIC_PROTO(void AdjustTrail, (int));
 STATIC_PROTO(void AdjustLocal, (void));
 STATIC_PROTO(void AdjustGlobal, (void));
 STATIC_PROTO(void AdjustGrowStack, (void));
-STATIC_PROTO(int  local_growheap, (long,int));
+STATIC_PROTO(int  static_growheap, (long,int));
 STATIC_PROTO(void cpcellsd, (CELL *, CELL *, CELL));
 STATIC_PROTO(CELL AdjustAppl, (CELL));
 STATIC_PROTO(CELL AdjustPair, (CELL));
+STATIC_PROTO(void AdjustStacksAndTrail, (void));
+STATIC_PROTO(void AdjustRegs, (int));
 
 static void
 cpcellsd(register CELL *Dest, register CELL *Org, CELL NOf)
@@ -96,24 +99,24 @@ static void
 SetHeapRegs(void)
 {
 #ifdef undf7
-  YP_fprintf(YP_stderr,"HeapBase = %x\tHeapTop=%x\nGlobalBase=%x\tGlobalTop=%x\nLocalBase=%x\tLocatTop=%x\n", HeapBase, HeapTop, GlobalBase, H, LCL0, ASP);
+  fprintf(_YAP_stderr,"HeapBase = %x\tHeapTop=%x\nGlobalBase=%x\tGlobalTop=%x\nLocalBase=%x\tLocatTop=%x\n", _YAP_HeapBase, HeapTop, _YAP_GlobalBase, H, LCL0, ASP);
 #endif
   /* The old stack pointers */
   OldLCL0 = LCL0;
   OldASP = ASP;
-  OldGlobalBase = (CELL *)GlobalBase;
+  OldGlobalBase = (CELL *)_YAP_GlobalBase;
   OldH = H;
   OldH0 = H0;
-  OldTrailBase = TrailBase;
-  OldTrailTop = TrailTop;
+  OldTrailBase = _YAP_TrailBase;
+  OldTrailTop = _YAP_TrailTop;
   OldTR = TR;
-  OldHeapBase = HeapBase;
+  OldHeapBase = _YAP_HeapBase;
   OldHeapTop = HeapTop;
   /* Adjust stack addresses */
-  TrailBase = TrailAddrAdjust(TrailBase);
-  TrailTop = TrailAddrAdjust(TrailTop);
-  GlobalBase = DelayAddrAdjust(GlobalBase);
-  LocalBase = LocalAddrAdjust(LocalBase);
+  _YAP_TrailBase = TrailAddrAdjust(_YAP_TrailBase);
+  _YAP_TrailTop = TrailAddrAdjust(_YAP_TrailTop);
+  _YAP_GlobalBase = DelayAddrAdjust(_YAP_GlobalBase);
+  _YAP_LocalBase = LocalAddrAdjust(_YAP_LocalBase);
   AuxSp = PtoDelayAdjust(AuxSp);
   AuxTop = DelayAddrAdjust(AuxTop);
   /* The registers pointing to one of the stacks */
@@ -152,16 +155,16 @@ SetStackRegs(void)
   OldASP = ASP;
   OldH = H;
   OldH0 = H0;
-  OldGlobalBase = (CELL *)GlobalBase;
-  OldTrailTop = TrailTop;
-  OldTrailBase = TrailBase;
+  OldGlobalBase = (CELL *)_YAP_GlobalBase;
+  OldTrailTop = _YAP_TrailTop;
+  OldTrailBase = _YAP_TrailBase;
   OldTR = TR;
-  OldHeapBase = HeapBase;
+  OldHeapBase = _YAP_HeapBase;
   OldHeapTop = HeapTop;
   /* The local and aux stack addresses */
-  TrailBase = TrailAddrAdjust(TrailBase);
-  TrailTop = TrailAddrAdjust(TrailTop);
-  LocalBase = LocalAddrAdjust(LocalBase);
+  _YAP_TrailBase = TrailAddrAdjust(_YAP_TrailBase);
+  _YAP_TrailTop = TrailAddrAdjust(_YAP_TrailTop);
+  _YAP_LocalBase = LocalAddrAdjust(_YAP_LocalBase);
   TR = PtoTRAdjust(TR);
   /* The registers pointing to the local stack */
   ENV = PtoLocAdjust(ENV);
@@ -197,7 +200,7 @@ MoveGlobal(void)
 	 * absmi.asm 
 	 */
 #if HAVE_MEMMOVE
-  cpcellsd((CELL *)GlobalBase, (CELL *)OldGlobalBase, OldH - (CELL *)OldGlobalBase);  
+  cpcellsd((CELL *)_YAP_GlobalBase, (CELL *)OldGlobalBase, OldH - (CELL *)OldGlobalBase);  
 #else
   cpcellsd(H, OldH, OldH - (CELL *)OldGlobalBase);
 #endif
@@ -233,7 +236,7 @@ AdjustAppl(register CELL t0)
 #ifdef DEBUG
   else {
     /* strange cell */
-    /*    YP_fprintf(YP_stderr,"[ garbage appl %lx found in stacks by stack shifter ]\n", t0);*/
+    /*    fprintf(_YAP_stderr,"[ garbage appl %lx found in stacks by stack shifter ]\n", t0);*/
   }
 #endif
   return(t0);
@@ -253,7 +256,7 @@ AdjustPair(register CELL t0)
   else if (IsHeapP(t))
     return (AbsPair(CellPtoHeapAdjust(t)));
 #ifdef DEBUG
-  /* YP_fprintf(YP_stderr,"[ garbage pair %lx found in stacks by stack shifter ]\n", t0);*/
+  /* fprintf(_YAP_stderr,"[ garbage pair %lx found in stacks by stack shifter ]\n", t0);*/
 #endif
   return(t0);
 }
@@ -265,7 +268,7 @@ AdjustTrail(int adjusting_heap)
 
   ptt = TR;
   /* moving the trail is simple */
-  while (ptt != (tr_fr_ptr)TrailBase) {
+  while (ptt != (tr_fr_ptr)_YAP_TrailBase) {
     register CELL reg = TrailTerm(ptt-1);
 #ifdef FROZEN_STACKS
     register CELL reg2 = TrailVal(ptt-1);
@@ -292,7 +295,7 @@ AdjustTrail(int adjusting_heap)
 	}
 #ifdef DEBUG
 	else 
-	  YP_fprintf(YP_stderr,"[ garbage heap ptr %p to %lx found in trail at %p by stack shifter ]\n", ptr, (unsigned long int)*ptr, ptt);
+	  fprintf(_YAP_stderr,"[ garbage heap ptr %p to %lx found in trail at %p by stack shifter ]\n", ptr, (unsigned long int)*ptr, ptt);
 #endif
       }
     } else if (IsPairTerm(reg)) {
@@ -364,7 +367,7 @@ AdjustGlobal(void)
    * to clean the global now that functors are just variables pointing to
    * the code 
    */
-  pt = CellPtr(GlobalBase);
+  pt = CellPtr(_YAP_GlobalBase);
   while (pt < H) {
     register CELL reg;
     
@@ -425,12 +428,18 @@ AdjustGlobal(void)
  * to the local; the local stack cells and the X terms pointing to the global
  * (just once) the trail cells pointing both to the global and to the local
  */
-void
+static void
 AdjustStacksAndTrail(void)
 {
   AdjustTrail(TRUE);
   AdjustLocal();
   AdjustGlobal();
+}
+
+void
+_YAP_AdjustStacksAndTrail(void)
+{
+  AdjustStacksAndTrail();
 }
 
 /*
@@ -444,7 +453,7 @@ AdjustGrowStack(void)
   AdjustLocal();
 }
 
-void
+static void
 AdjustRegs(int n)
 {
   int            i;
@@ -471,26 +480,32 @@ AdjustRegs(int n)
   }
 }
 
+void
+_YAP_AdjustRegs(int n)
+{
+  AdjustRegs(n);
+}
+
 /* Used by do_goal() when we're short of heap space */
 static int
-local_growheap(long size, int fix_code)
+static_growheap(long size, int fix_code)
 {
   Int start_growth_time, growth_time;
   int gc_verbose;
 
   /* adjust to a multiple of 256) */
   size = AdjustPageSize(size);
-  ErrorMessage = NULL;
-  if (!ExtendWorkSpace(size)) {
-    strncat(ErrorMessage,": heap crashed against stacks", MAX_ERROR_MSG_SIZE);
+  _YAP_ErrorMessage = NULL;
+  if (!_YAP_ExtendWorkSpace(size)) {
+    strncat(_YAP_ErrorMessage,": heap crashed against stacks", MAX_ERROR_MSG_SIZE);
     return(FALSE);
   }
-  start_growth_time = cputime();
-  gc_verbose = is_gc_verbose();
+  start_growth_time = _YAP_cputime();
+  gc_verbose = _YAP_is_gc_verbose();
   heap_overflows++;
   if (gc_verbose) {
-    YP_fprintf(YP_stderr, "[HO] Heap overflow %d\n", heap_overflows);
-    YP_fprintf(YP_stderr, "[HO]   growing the heap %ld bytes\n", size);
+    fprintf(_YAP_stderr, "[HO] Heap overflow %d\n", heap_overflows);
+    fprintf(_YAP_stderr, "[HO]   growing the heap %ld bytes\n", size);
   }
   ASP -= 256;
   TrDiff = LDiff = GDiff = DelayDiff = size;
@@ -510,35 +525,35 @@ local_growheap(long size, int fix_code)
   AdjustRegs(MaxTemps);
   YAPLeaveCriticalSection();
   ASP += 256;
-  growth_time = cputime()-start_growth_time;
+  growth_time = _YAP_cputime()-start_growth_time;
   total_heap_overflow_time += growth_time;
   if (gc_verbose) {
-    YP_fprintf(YP_stderr, "[HO]   took %g sec\n", (double)growth_time/1000);
-    YP_fprintf(YP_stderr, "[HO] Total of %g sec expanding heap \n", (double)total_heap_overflow_time/1000);
+    fprintf(_YAP_stderr, "[HO]   took %g sec\n", (double)growth_time/1000);
+    fprintf(_YAP_stderr, "[HO] Total of %g sec expanding heap \n", (double)total_heap_overflow_time/1000);
   }
   return(TRUE);
 }
 
 /* Used by do_goal() when we're short of heap space */
 static int
-local_growglobal(long size, CELL **ptr)
+static_growglobal(long size, CELL **ptr)
 {
   Int start_growth_time, growth_time;
   int gc_verbose;
 
   /* adjust to a multiple of 256) */
   size = AdjustPageSize(size);
-  ErrorMessage = NULL;
-  if (!ExtendWorkSpace(size)) {
-    strncat(ErrorMessage,": global crashed against local", MAX_ERROR_MSG_SIZE);
+  _YAP_ErrorMessage = NULL;
+  if (!_YAP_ExtendWorkSpace(size)) {
+    strncat(_YAP_ErrorMessage,": global crashed against local", MAX_ERROR_MSG_SIZE);
     return(FALSE);
   }
-  start_growth_time = cputime();
-  gc_verbose = is_gc_verbose();
+  start_growth_time = _YAP_cputime();
+  gc_verbose = _YAP_is_gc_verbose();
   delay_overflows++;
   if (gc_verbose) {
-    YP_fprintf(YP_stderr, "[DO] Delay overflow %d\n", delay_overflows);
-    YP_fprintf(YP_stderr, "[DO]   growing the stacks %ld bytes\n", size);
+    fprintf(_YAP_stderr, "[DO] Delay overflow %d\n", delay_overflows);
+    fprintf(_YAP_stderr, "[DO]   growing the stacks %ld bytes\n", size);
   }
   ASP -= 256;
   TrDiff = LDiff = GDiff = size;
@@ -553,23 +568,23 @@ local_growglobal(long size, CELL **ptr)
     *ptr = PtoLocAdjust(*ptr);
   YAPLeaveCriticalSection();
   ASP += 256;
-  growth_time = cputime()-start_growth_time;
+  growth_time = _YAP_cputime()-start_growth_time;
   total_delay_overflow_time += growth_time;
   if (gc_verbose) {
-    YP_fprintf(YP_stderr, "[DO]   took %g sec\n", (double)growth_time/1000);
-    YP_fprintf(YP_stderr, "[DO] Total of %g sec expanding stacks \n", (double)total_delay_overflow_time/1000);
+    fprintf(_YAP_stderr, "[DO]   took %g sec\n", (double)growth_time/1000);
+    fprintf(_YAP_stderr, "[DO] Total of %g sec expanding stacks \n", (double)total_delay_overflow_time/1000);
   }
   return(TRUE);
 }
 
 
 static void
-fix_compiler_instructions(PInstr *cpc)
+fix_compiler_instructions(PInstr *pcpc)
 {
-  while (cpc != NULL) {
-    PInstr *ncpc = cpc->nextInst;
+  while (pcpc != NULL) {
+    PInstr *ncpc = pcpc->nextInst;
 
-    switch(cpc->op) {
+    switch(pcpc->op) {
       /* check c_var for functions that point at variables */
     case get_var_op:
     case get_val_op:
@@ -589,17 +604,17 @@ fix_compiler_instructions(PInstr *cpc)
     case save_appl_op:
     case save_b_op:
     case comit_b_op:
-      cpc->rnd1 = GlobalAdjust(cpc->rnd1);
+      pcpc->rnd1 = GlobalAdjust(pcpc->rnd1);
       break;
     default:
       /* hopefully nothing to do */
       break;
     }
     if (ncpc != NULL) {
-      ncpc = (PInstr *)GlobalAddrAdjust((ADDR)(cpc->nextInst));
-      cpc->nextInst = ncpc;
+      ncpc = (PInstr *)GlobalAddrAdjust((ADDR)(pcpc->nextInst));
+      pcpc->nextInst = ncpc;
     }
-    cpc = ncpc;
+    pcpc = ncpc;
   }
 }
 
@@ -629,7 +644,7 @@ fix_tabling_info(void)
 #endif /* TABLING */
 
 int
-growheap(int fix_code)
+_YAP_growheap(int fix_code)
 {
   unsigned long size = sizeof(CELL) * 16 * 1024L;
   int shift_factor = (heap_overflows > 8 ? 8 : heap_overflows);
@@ -637,28 +652,28 @@ growheap(int fix_code)
 
 #if defined(YAPOR) || defined(THREADS)
   if (NOfThreads != 1) {
-    Error(SYSTEM_ERROR,TermNil,"cannot grow Heap: more than a worker/thread running");
+    _YAP_Error(SYSTEM_ERROR,TermNil,"cannot grow Heap: more than a worker/thread running");
     return(FALSE);
   }
 #endif
   if (SizeOfOverflow > sz)
     sz = AdjustPageSize(SizeOfOverflow);
-  while(sz >= sizeof(CELL) * 16 * 1024L && !local_growheap(sz, fix_code)) {
+  while(sz >= sizeof(CELL) * 16 * 1024L && !static_growheap(sz, fix_code)) {
     size = size/2;
     sz =  size << shift_factor;
   }
   /* we must fix an instruction chain */
   if (fix_code) {
-    PInstr *cpc = CodeStart;
-    if (cpc != NULL) {
-      CodeStart = cpc = (PInstr *)GlobalAddrAdjust((ADDR)cpc);
+    PInstr *pcpc = CodeStart;
+    if (pcpc != NULL) {
+      CodeStart = pcpc = (PInstr *)GlobalAddrAdjust((ADDR)pcpc);
     }
-    fix_compiler_instructions(cpc);
-    cpc = BlobsStart;
-    if (cpc != NULL) {
-      BlobsStart = cpc = (PInstr *)GlobalAddrAdjust((ADDR)cpc);
+    fix_compiler_instructions(pcpc);
+    pcpc = BlobsStart;
+    if (pcpc != NULL) {
+      BlobsStart = pcpc = (PInstr *)GlobalAddrAdjust((ADDR)pcpc);
     }
-    fix_compiler_instructions(cpc);
+    fix_compiler_instructions(pcpc);
     freep = (char *)GlobalAddrAdjust((ADDR)freep);
     label_offset = (int *)GlobalAddrAdjust((ADDR)label_offset);
   }
@@ -673,17 +688,17 @@ growheap(int fix_code)
 }
 
 int
-growglobal(CELL **ptr)
+_YAP_growglobal(CELL **ptr)
 {
   unsigned long sz = sizeof(CELL) * 16 * 1024L;
 
 #if defined(YAPOR) || defined(THREADS)
   if (NOfThreads != 1) {
-    Error(SYSTEM_ERROR,TermNil,"cannot grow Global: more than a worker/thread running");
+    _YAP_Error(SYSTEM_ERROR,TermNil,"cannot grow Global: more than a worker/thread running");
     return(FALSE);
   }
 #endif
-  if (!local_growglobal(sz, ptr))
+  if (!static_growglobal(sz, ptr))
     return(FALSE);
 #ifdef TABLING
   fix_tabling_info();
@@ -693,7 +708,7 @@ growglobal(CELL **ptr)
 
 
 /* Used by do_goal() when we're short of stack space */
-int
+static int
 growstack(long size)
 {
   Int start_growth_time, growth_time;
@@ -701,27 +716,27 @@ growstack(long size)
 
 #if defined(YAPOR) || defined(THREADS)
   if (NOfThreads != 1) {
-    Error(SYSTEM_ERROR,TermNil,"cannot grow Local: more than a worker/thread running");
+    _YAP_Error(SYSTEM_ERROR,TermNil,"cannot grow Local: more than a worker/thread running");
     return(FALSE);
   }
 #endif
   /* adjust to a multiple of 256) */
   size = AdjustPageSize(size);
-  ErrorMessage = NULL;
-  if (!ExtendWorkSpace(size)) {
-    strncat(ErrorMessage,": local crashed against global", MAX_ERROR_MSG_SIZE);
+  _YAP_ErrorMessage = NULL;
+  if (!_YAP_ExtendWorkSpace(size)) {
+    strncat(_YAP_ErrorMessage,": local crashed against global", MAX_ERROR_MSG_SIZE);
     return(FALSE);
   }
-  start_growth_time = cputime();
-  gc_verbose = is_gc_verbose();
+  start_growth_time = _YAP_cputime();
+  gc_verbose = _YAP_is_gc_verbose();
   stack_overflows++;
   if (gc_verbose) {
-    YP_fprintf(YP_stderr, "[SO] Stack Overflow %d\n", stack_overflows);
-    YP_fprintf(YP_stderr, "[SO] Heap: %8ld cells (%p-%p)\n", (unsigned long int)(H-(CELL *)GlobalBase),GlobalBase,H);
-    YP_fprintf(YP_stderr, "[SO] Local:%8ld cells (%p-%p)\n", (unsigned long int)(LCL0-ASP),LCL0,ASP);
-    YP_fprintf(YP_stderr, "[SO] Trail:%8ld cells (%p-%p)\n",
-	       (unsigned long int)(TR-(tr_fr_ptr)TrailBase),TrailBase,TR);
-    YP_fprintf(YP_stderr, "[SO]    growing the stacks %ld bytes\n", size);
+    fprintf(_YAP_stderr, "[SO] Stack Overflow %d\n", stack_overflows);
+    fprintf(_YAP_stderr, "[SO] Heap: %8ld cells (%p-%p)\n", (unsigned long int)(H-(CELL *)_YAP_GlobalBase),_YAP_GlobalBase,H);
+    fprintf(_YAP_stderr, "[SO] Local:%8ld cells (%p-%p)\n", (unsigned long int)(LCL0-ASP),LCL0,ASP);
+    fprintf(_YAP_stderr, "[SO] Trail:%8ld cells (%p-%p)\n",
+	       (unsigned long int)(TR-(tr_fr_ptr)_YAP_TrailBase),_YAP_TrailBase,TR);
+    fprintf(_YAP_stderr, "[SO]    growing the stacks %ld bytes\n", size);
   }
   TrDiff = LDiff = size;
   XDiff = HDiff = GDiff = DelayDiff = 0;
@@ -737,13 +752,19 @@ growstack(long size)
   YAPLeaveCriticalSection();
   CreepFlag = CalculateStackGap();
   ASP += 256;
-  growth_time = cputime()-start_growth_time;
+  growth_time = _YAP_cputime()-start_growth_time;
   total_stack_overflow_time += growth_time;
   if (gc_verbose) {
-    YP_fprintf(YP_stderr, "[SO]    took %g sec\n", (double)growth_time/1000);
-    YP_fprintf(YP_stderr, "[SO] Total of %g sec expanding stacks \n", (double)total_stack_overflow_time/1000);
+    fprintf(_YAP_stderr, "[SO]    took %g sec\n", (double)growth_time/1000);
+    fprintf(_YAP_stderr, "[SO] Total of %g sec expanding stacks \n", (double)total_stack_overflow_time/1000);
   }
   return(TRUE);
+}
+
+int
+_YAP_growstack(long size)
+{
+  return growstack(size);
 }
 
 static void
@@ -798,9 +819,9 @@ AdjustScannerStacks(TokEntry **tksp, VarEntry **vep)
     ves = *vep = (VarEntry *)TrailAddrAdjust((ADDR)ves);
     AdjustVarTable(ves);
   }
-  ves = AnonVarTable;
+  ves = _YAP_AnonVarTable;
   if (ves != NULL) {
-    ves = AnonVarTable = VarEntryAdjust(ves);
+    ves = _YAP_AnonVarTable = VarEntryAdjust(ves);
   }
   while (ves != NULL) {
     VarEntry *vetmp = ves->VarLeft;
@@ -815,35 +836,35 @@ AdjustScannerStacks(TokEntry **tksp, VarEntry **vep)
 
 /* Used by parser when we're short of stack space */
 int
-growstack_in_parser(tr_fr_ptr *old_trp, TokEntry **tksp, VarEntry **vep)
+_YAP_growstack_in_parser(tr_fr_ptr *old_trp, TokEntry **tksp, VarEntry **vep)
 {
   Int start_growth_time, growth_time;
   int gc_verbose;
-  long size  = sizeof(CELL)*(LCL0-(CELL *)GlobalBase);
+  long size  = sizeof(CELL)*(LCL0-(CELL *)_YAP_GlobalBase);
 
 #if defined(YAPOR) || defined(THREADS)
   if (NOfThreads != 1) {
-    Error(SYSTEM_ERROR,TermNil,"cannot grow Parser Stack: more than a worker/thread running");
+    _YAP_Error(SYSTEM_ERROR,TermNil,"cannot grow Parser Stack: more than a worker/thread running");
     return(FALSE);
   }
 #endif
   /* adjust to a multiple of 256) */
   size = AdjustPageSize(size);
-  ErrorMessage = NULL;
-  if (!ExtendWorkSpace(size)) {
-    strncat(ErrorMessage,": parser stack overflowed", MAX_ERROR_MSG_SIZE);
+  _YAP_ErrorMessage = NULL;
+  if (!_YAP_ExtendWorkSpace(size)) {
+    strncat(_YAP_ErrorMessage,": parser stack overflowed", MAX_ERROR_MSG_SIZE);
     return(FALSE);
   }
-  start_growth_time = cputime();
-  gc_verbose = is_gc_verbose();
+  start_growth_time = _YAP_cputime();
+  gc_verbose = _YAP_is_gc_verbose();
   stack_overflows++;
   if (gc_verbose) {
-    YP_fprintf(YP_stderr, "[SO] Stack overflow %d\n", stack_overflows);
-    YP_fprintf(YP_stderr, "[SO] Heap: %8ld cells (%p-%p)\n", (unsigned long int)(H-(CELL *)GlobalBase),(CELL *)GlobalBase,H);
-    YP_fprintf(YP_stderr, "[SO] Local:%8ld cells (%p-%p)\n", (unsigned long int)(LCL0-ASP),LCL0,ASP);
-    YP_fprintf(YP_stderr, "[SO] Trail:%8ld cells (%p-%p)\n",
-	       (unsigned long int)(TR-(tr_fr_ptr)TrailBase),TrailBase,TR);
-    YP_fprintf(YP_stderr, "[SO]    growing the stacks %ld bytes\n", size);
+    fprintf(_YAP_stderr, "[SO] Stack overflow %d\n", stack_overflows);
+    fprintf(_YAP_stderr, "[SO] Heap: %8ld cells (%p-%p)\n", (unsigned long int)(H-(CELL *)_YAP_GlobalBase),(CELL *)_YAP_GlobalBase,H);
+    fprintf(_YAP_stderr, "[SO] Local:%8ld cells (%p-%p)\n", (unsigned long int)(LCL0-ASP),LCL0,ASP);
+    fprintf(_YAP_stderr, "[SO] Trail:%8ld cells (%p-%p)\n",
+	       (unsigned long int)(TR-(tr_fr_ptr)_YAP_TrailBase),_YAP_TrailBase,TR);
+    fprintf(_YAP_stderr, "[SO]    growing the stacks %ld bytes\n", size);
   }
   TrDiff = LDiff = size;
   XDiff = HDiff = GDiff = DelayDiff = 0;
@@ -864,11 +885,11 @@ growstack_in_parser(tr_fr_ptr *old_trp, TokEntry **tksp, VarEntry **vep)
   YAPLeaveCriticalSection();
   CreepFlag = CalculateStackGap();
   ASP += 256;
-  growth_time = cputime()-start_growth_time;
+  growth_time = _YAP_cputime()-start_growth_time;
   total_stack_overflow_time += growth_time;
   if (gc_verbose) {
-    YP_fprintf(YP_stderr, "[SO]    took %g sec\n", (double)growth_time/1000);
-    YP_fprintf(YP_stderr, "[SO] Total of %g sec expanding stacks \n", (double)total_stack_overflow_time/1000);
+    fprintf(_YAP_stderr, "[SO]    took %g sec\n", (double)growth_time/1000);
+    fprintf(_YAP_stderr, "[SO] Total of %g sec expanding stacks \n", (double)total_stack_overflow_time/1000);
   }
   return(TRUE);  
 }
@@ -876,14 +897,14 @@ growstack_in_parser(tr_fr_ptr *old_trp, TokEntry **tksp, VarEntry **vep)
 
 /* Used by do_goal() when we're short of stack space */
 int
-growtrail(long size)
+_YAP_growtrail(long size)
 {
-  Int start_growth_time = cputime(), growth_time;
-  int gc_verbose = is_gc_verbose();
+  Int start_growth_time = _YAP_cputime(), growth_time;
+  int gc_verbose = _YAP_is_gc_verbose();
 
 #if defined(YAPOR) || defined(THREADS)
   if (NOfThreads != 1) {
-    Error(SYSTEM_ERROR,TermNil,"cannot grow trail: more than a worker/thread running");
+    _YAP_Error(SYSTEM_ERROR,TermNil,"cannot grow trail: more than a worker/thread running");
     return(FALSE);
   }
 #endif
@@ -891,22 +912,22 @@ growtrail(long size)
   size = AdjustPageSize(size);
   trail_overflows++;
   if (gc_verbose) {
-    YP_fprintf(YP_stderr, "[TO] Trail overflow %d\n", trail_overflows);
-    YP_fprintf(YP_stderr, "[TO]    growing the trail %ld bytes\n", size);
+    fprintf(_YAP_stderr, "[TO] Trail overflow %d\n", trail_overflows);
+    fprintf(_YAP_stderr, "[TO]    growing the trail %ld bytes\n", size);
   }
-  ErrorMessage = NULL;
-  if (!ExtendWorkSpace(size)) {
-    strncat(ErrorMessage,": trail stack overflowed", MAX_ERROR_MSG_SIZE);
+  _YAP_ErrorMessage = NULL;
+  if (!_YAP_ExtendWorkSpace(size)) {
+    strncat(_YAP_ErrorMessage,": trail stack overflowed", MAX_ERROR_MSG_SIZE);
     return(FALSE);
   }
   YAPEnterCriticalSection();
-  TrailTop += size;
+  _YAP_TrailTop += size;
   YAPLeaveCriticalSection();
-  growth_time = cputime()-start_growth_time;
+  growth_time = _YAP_cputime()-start_growth_time;
   total_trail_overflow_time += growth_time;
   if (gc_verbose) {
-    YP_fprintf(YP_stderr, "[TO]   took %g sec\n", (double)growth_time/1000);
-    YP_fprintf(YP_stderr, "[TO] Total of %g sec expanding stacks \n", (double)total_stack_overflow_time/1000);
+    fprintf(_YAP_stderr, "[TO]   took %g sec\n", (double)growth_time/1000);
+    fprintf(_YAP_stderr, "[TO] Total of %g sec expanding stacks \n", (double)total_stack_overflow_time/1000);
   }
   return(TRUE);
 }
@@ -918,7 +939,7 @@ p_inform_trail_overflows(void)
   Term tn = MkIntTerm(trail_overflows);
   Term tt = MkIntegerTerm(total_trail_overflow_time);
  
-  return(unify(tn, ARG1) && unify(tt, ARG2));
+  return(_YAP_unify(tn, ARG1) && _YAP_unify(tt, ARG2));
 }
 
 /* :- grow_heap(Size) */
@@ -929,17 +950,17 @@ p_growheap(void)
   Term t1 = Deref(ARG1);
 
   if (IsVarTerm(t1)) {
-    Error(INSTANTIATION_ERROR, t1, "grow_heap/1");
+    _YAP_Error(INSTANTIATION_ERROR, t1, "grow_heap/1");
     return(FALSE);
   } else if (!IsIntTerm(t1)) {
-    Error(TYPE_ERROR_INTEGER, t1, "grow_heap/1");
+    _YAP_Error(TYPE_ERROR_INTEGER, t1, "grow_heap/1");
     return(FALSE);
   }
   diff = IntOfTerm(t1);
   if (diff < 0) {
-    Error(DOMAIN_ERROR_NOT_LESS_THAN_ZERO, t1, "grow_heap/1");
+    _YAP_Error(DOMAIN_ERROR_NOT_LESS_THAN_ZERO, t1, "grow_heap/1");
   }
-  return(local_growheap(diff, FALSE));
+  return(static_growheap(diff, FALSE));
 }
 
 static Int
@@ -948,7 +969,7 @@ p_inform_heap_overflows(void)
   Term tn = MkIntTerm(heap_overflows);
   Term tt = MkIntegerTerm(total_heap_overflow_time);
  
-  return(unify(tn, ARG1) && unify(tt, ARG2));
+  return(_YAP_unify(tn, ARG1) && _YAP_unify(tt, ARG2));
 }
 
 /* :- grow_stack(Size) */
@@ -959,15 +980,15 @@ p_growstack(void)
   Term t1 = Deref(ARG1);
 
   if (IsVarTerm(t1)) {
-    Error(INSTANTIATION_ERROR, t1, "grow_stack/1");
+    _YAP_Error(INSTANTIATION_ERROR, t1, "grow_stack/1");
     return(FALSE);
   } else if (!IsIntTerm(t1)) {
-    Error(TYPE_ERROR_INTEGER, t1, "grow_stack/1");
+    _YAP_Error(TYPE_ERROR_INTEGER, t1, "grow_stack/1");
     return(FALSE);
   }
   diff = IntOfTerm(t1);
   if (diff < 0) {
-    Error(DOMAIN_ERROR_NOT_LESS_THAN_ZERO, t1, "grow_stack/1");
+    _YAP_Error(DOMAIN_ERROR_NOT_LESS_THAN_ZERO, t1, "grow_stack/1");
   }
   return(growstack(diff));
 }
@@ -978,11 +999,12 @@ p_inform_stack_overflows(void)
   Term tn = MkIntTerm(stack_overflows);
   Term tt = MkIntegerTerm(total_stack_overflow_time);
  
-  return(unify(tn, ARG1) && unify(tt, ARG2));
+  return(_YAP_unify(tn, ARG1) && _YAP_unify(tt, ARG2));
 
 }
 
-Int total_stack_shift_time(void)
+Int
+_YAP_total_stack_shift_time(void)
 {
   return(total_heap_overflow_time+
 	 total_stack_overflow_time+
@@ -990,13 +1012,13 @@ Int total_stack_shift_time(void)
 }
 
 void
-InitGrowPreds(void)
+_YAP_InitGrowPreds(void)
 {
-	InitCPred("$grow_heap", 1, p_growheap, SafePredFlag);
-	InitCPred("$grow_stack", 1, p_growstack, SafePredFlag);
-	InitCPred("$inform_trail_overflows", 2, p_inform_trail_overflows, SafePredFlag);
-	InitCPred("$inform_heap_overflows", 2, p_inform_heap_overflows, SafePredFlag);
-	InitCPred("$inform_stack_overflows", 2, p_inform_stack_overflows, SafePredFlag);
-	init_gc();
-	init_agc();
+	_YAP_InitCPred("$grow_heap", 1, p_growheap, SafePredFlag);
+	_YAP_InitCPred("$grow_stack", 1, p_growstack, SafePredFlag);
+	_YAP_InitCPred("$inform_trail_overflows", 2, p_inform_trail_overflows, SafePredFlag);
+	_YAP_InitCPred("$inform_heap_overflows", 2, p_inform_heap_overflows, SafePredFlag);
+	_YAP_InitCPred("$inform_stack_overflows", 2, p_inform_stack_overflows, SafePredFlag);
+	_YAP_init_gc();
+	_YAP_init_agc();
 }

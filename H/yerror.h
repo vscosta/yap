@@ -30,5 +30,3 @@
 #define EXIT_AFTER_ERROR	2
 
 
-extern int STD_PROTO(ErrorHandler,(char *,int));
-

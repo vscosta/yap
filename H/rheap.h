@@ -39,37 +39,37 @@ restore_codes(void)
 {
   heap_regs->heap_top = AddrAdjust(OldHeapTop);
 #ifdef YAPOR
-  heap_regs->getworkfirsttimecode.opc = opcode(_getwork_first_time);
-  heap_regs->getworkcode.opc = opcode(_getwork);
+  heap_regs->getworkfirsttimecode.opc = _YAP_opcode(_getwork_first_time);
+  heap_regs->getworkcode.opc = _YAP_opcode(_getwork);
   INIT_YAMOP_LTT(&(heap_regs->getworkcode), 0);
-  heap_regs->getworkcode_seq.opc = opcode(_getwork_seq);
+  heap_regs->getworkcode_seq.opc = _YAP_opcode(_getwork_seq);
   INIT_YAMOP_LTT(&(heap_regs->getworkcode_seq), 0);
 #endif /* YAPOR */
 #ifdef TABLING
-  heap_regs->tablecompletioncode.opc = opcode(_table_completion);
-  heap_regs->tableanswerresolutioncode.opc = opcode(_table_answer_resolution);
+  heap_regs->tablecompletioncode.opc = _YAP_opcode(_table_completion);
+  heap_regs->tableanswerresolutioncode.opc = _YAP_opcode(_table_answer_resolution);
 #ifdef YAPOR
   INIT_YAMOP_LTT(&(heap_regs->tablecompletioncode), 0);
   INIT_YAMOP_LTT(&(heap_regs->tableanswerresolutioncode), 0);
 #endif /* YAPOR */
 #endif /* TABLING */
-  heap_regs->failcode = opcode(_op_fail);
-  heap_regs->failcode_1 = opcode(_op_fail);
-  heap_regs->failcode_2 = opcode(_op_fail);
-  heap_regs->failcode_3 = opcode(_op_fail);
-  heap_regs->failcode_4 = opcode(_op_fail);
-  heap_regs->failcode_5 = opcode(_op_fail);
-  heap_regs->failcode_6 = opcode(_op_fail);
+  heap_regs->failcode = _YAP_opcode(_op_fail);
+  heap_regs->failcode_1 = _YAP_opcode(_op_fail);
+  heap_regs->failcode_2 = _YAP_opcode(_op_fail);
+  heap_regs->failcode_3 = _YAP_opcode(_op_fail);
+  heap_regs->failcode_4 = _YAP_opcode(_op_fail);
+  heap_regs->failcode_5 = _YAP_opcode(_op_fail);
+  heap_regs->failcode_6 = _YAP_opcode(_op_fail);
 
-  heap_regs->env_for_trustfail_code.op = opcode(_call);
-  heap_regs->trustfailcode = opcode(_trust_fail);
+  heap_regs->env_for_trustfail_code.op = _YAP_opcode(_call);
+  heap_regs->trustfailcode = _YAP_opcode(_trust_fail);
 
-  heap_regs->env_for_yes_code.op = opcode(_call);
-  heap_regs->yescode.opc = opcode(_Ystop);
-  heap_regs->undef_op = opcode(_undef_p);
-  heap_regs->index_op = opcode(_index_pred);
-  heap_regs->fail_op = opcode(_op_fail);
-  heap_regs->nocode.opc = opcode(_Nstop);
+  heap_regs->env_for_yes_code.op = _YAP_opcode(_call);
+  heap_regs->yescode.opc = _YAP_opcode(_Ystop);
+  heap_regs->undef_op = _YAP_opcode(_undef_p);
+  heap_regs->index_op = _YAP_opcode(_index_pred);
+  heap_regs->fail_op = _YAP_opcode(_op_fail);
+  heap_regs->nocode.opc = _YAP_opcode(_Nstop);
 #ifdef YAPOR
   INIT_YAMOP_LTT(&(heap_regs->nocode), 1);
 #endif  /* YAPOR */
@@ -77,7 +77,7 @@ restore_codes(void)
 #ifdef YAPOR
   INIT_YAMOP_LTT(&(heap_regs->rtrycode), 1);
 #endif /* YAPOR */
-  ((yamop *)(&heap_regs->rtrycode))->opc = opcode(_retry_and_mark);
+  ((yamop *)(&heap_regs->rtrycode))->opc = _YAP_opcode(_retry_and_mark);
   if (((yamop *)(&heap_regs->rtrycode))->u.ld.d != NIL)
     ((yamop *)(&heap_regs->rtrycode))->u.ld.d =
       CodeAddrAdjust(((yamop *)(&heap_regs->rtrycode))->u.ld.d);
@@ -306,6 +306,10 @@ restore_codes(void)
       (struct array_entry *)AddrAdjust((ADDR)heap_regs->dyn_array_list);
   }
   if (heap_regs->file_aliases != NULL) {
+    heap_regs->yap_streams =
+      (struct stream_desc *)AddrAdjust((ADDR)heap_regs->yap_streams);
+  }
+  if (heap_regs->file_aliases != NULL) {
     heap_regs->file_aliases =
       (struct AliasDescS *)AddrAdjust((ADDR)heap_regs->file_aliases);
   }
@@ -486,7 +490,7 @@ RestoreDBEntry(DBRef dbr)
   if (dbr->Flags & DBWithRefs) {
     DBRef          *cp;
     DBRef            tm;
-    cp = (DBRef *) ((CODEADDR) dbr + SizeOfBlock(CodePtr(dbr)));
+    cp = (DBRef *) ((CODEADDR) dbr + _YAP_SizeOfBlock(CodePtr(dbr)));
     while ((tm = *--cp) != 0)
       *cp = DBRefAdjust(tm);
   }
@@ -584,8 +588,8 @@ RestoreClause(Clause *Cl, int mode)
   /* Get the stored operator */
   pc = Cl->ClCode;
   do {
-    op_numbers op = op_from_opcode(pc->opc);
-    pc->opc = opcode(op);
+    op_numbers op = _YAP_op_from_opcode(pc->opc);
+    pc->opc = _YAP_opcode(op);
 #ifdef DEBUG_RESTORE2
     YP_fprintf(errout, "%s\n", op_names[op]);
 #endif
@@ -864,7 +868,7 @@ RestoreClause(Clause *Cl, int mode)
     case _save_pair_x:
     case _save_appl_x_write:
     case _save_appl_x:
-      pc->u.ox.opcw = opcode(op_from_opcode(pc->u.ox.opcw));
+      pc->u.ox.opcw = _YAP_opcode(_YAP_op_from_opcode(pc->u.ox.opcw));
       pc->u.ox.x = XAdjust(pc->u.ox.x);
       pc = NEXTOP(pc,ox);
       break;
@@ -873,7 +877,7 @@ RestoreClause(Clause *Cl, int mode)
     case _unify_x_var2_write:
     case _unify_l_x_var2:
     case _unify_l_x_var2_write:
-      pc->u.oxx.opcw = opcode(op_from_opcode(pc->u.oxx.opcw));
+      pc->u.oxx.opcw = _YAP_opcode(_YAP_op_from_opcode(pc->u.oxx.opcw));
       pc->u.oxx.xl = XAdjust(pc->u.oxx.xl);
       pc->u.oxx.xr = XAdjust(pc->u.oxx.xr);
       pc = NEXTOP(pc,oxx);
@@ -895,7 +899,7 @@ RestoreClause(Clause *Cl, int mode)
     case _save_pair_y:
     case _save_appl_y_write:
     case _save_appl_y:
-      pc->u.oy.opcw = opcode(op_from_opcode(pc->u.oy.opcw));
+      pc->u.oy.opcw = _YAP_opcode(_YAP_op_from_opcode(pc->u.oy.opcw));
       pc->u.oy.y = YAdjust(pc->u.oy.y);
       pc = NEXTOP(pc,oy);
       break;
@@ -908,7 +912,7 @@ RestoreClause(Clause *Cl, int mode)
     case _unify_list:
     case _unify_l_list_write:
     case _unify_l_list:
-      pc->u.o.opcw = opcode(op_from_opcode(pc->u.o.opcw));
+      pc->u.o.opcw = _YAP_opcode(_YAP_op_from_opcode(pc->u.o.opcw));
       pc = NEXTOP(pc,o);
       break;
       /* instructions type os */
@@ -916,7 +920,7 @@ RestoreClause(Clause *Cl, int mode)
     case _unify_n_voids:
     case _unify_l_n_voids_write:
     case _unify_l_n_voids:
-      pc->u.os.opcw = opcode(op_from_opcode(pc->u.os.opcw));
+      pc->u.os.opcw = _YAP_opcode(_YAP_op_from_opcode(pc->u.os.opcw));
       pc = NEXTOP(pc,os);
       break;
       /* instructions type oc */
@@ -930,7 +934,7 @@ RestoreClause(Clause *Cl, int mode)
     case _unify_l_longint:
     case _unify_bigint:
     case _unify_l_bigint:
-      pc->u.oc.opcw = opcode(op_from_opcode(pc->u.oc.opcw));
+      pc->u.oc.opcw = _YAP_opcode(_YAP_op_from_opcode(pc->u.oc.opcw));
       {
 	Term t = pc->u.oc.c;
 	if (IsAtomTerm(t))
@@ -943,7 +947,7 @@ RestoreClause(Clause *Cl, int mode)
       /* instructions type osc */
     case _unify_n_atoms_write:
     case _unify_n_atoms:
-      pc->u.osc.opcw = opcode(op_from_opcode(pc->u.osc.opcw));
+      pc->u.osc.opcw = _YAP_opcode(_YAP_op_from_opcode(pc->u.osc.opcw));
       {
 	Term t = pc->u.osc.c;
 	if (IsAtomTerm(t))
@@ -956,7 +960,7 @@ RestoreClause(Clause *Cl, int mode)
     case _unify_struct:
     case _unify_l_struc_write:
     case _unify_l_struc:
-      pc->u.of.opcw = opcode(op_from_opcode(pc->u.of.opcw));
+      pc->u.of.opcw = _YAP_opcode(_YAP_op_from_opcode(pc->u.of.opcw));
       pc->u.of.f = FuncAdjust(pc->u.of.f);
       pc = NEXTOP(pc,of);
       break;
@@ -1059,7 +1063,7 @@ RestoreClause(Clause *Cl, int mode)
       break;
       /* instructions type ollll */
     case _switch_list_nl_prefetch:
-      pc->u.ollll.pop = opcode(op_from_opcode(pc->u.ollll.pop));
+      pc->u.ollll.pop = _YAP_opcode(_YAP_op_from_opcode(pc->u.ollll.pop));
       pc->u.ollll.l1 = CodeAddrAdjust(pc->u.ollll.l1);
       pc->u.ollll.l2 = CodeAddrAdjust(pc->u.ollll.l2);
       pc->u.ollll.l3 = CodeAddrAdjust(pc->u.ollll.l3);
@@ -1454,7 +1458,7 @@ CleanCode(PredEntry *pp)
     pp->FunctorOfPred = (Functor)AtomAdjust((Atom)(pp->FunctorOfPred));
   if (pp->OwnerFile)
     pp->OwnerFile = AtomAdjust(pp->OwnerFile);
-  pp->OpcodeOfPred = opcode(op_from_opcode(pp->OpcodeOfPred));
+  pp->OpcodeOfPred = _YAP_opcode(_YAP_op_from_opcode(pp->OpcodeOfPred));
   if (pp->PredFlags & CPredFlag) {
     if (pp->PredFlags & BinaryTestPredFlag) {
       pp->TrueCodeOfPred = DirectCCodeAdjust(pp,pp->TrueCodeOfPred);
@@ -1615,7 +1619,7 @@ RestoreEntries(PropEntry *pp)
       break;
     default:
       /* OOPS */
-      Error(SYSTEM_ERROR, TermNil,
+      _YAP_Error(SYSTEM_ERROR, TermNil,
 	    "Invalid Atom Property %d at %p", pp->KindOfPE, pp);
       return;
     }

@@ -145,10 +145,6 @@ register void* P1REG asm ("bp"); /* can't use yamop before Yap.h */
  **********************************************************************/
 #include <stdio.h>
 #endif
-
-int  STD_PROTO(IUnify_complex, (CELL *, CELL *,CELL *));
-int  STD_PROTO(iequ_complex, (CELL *, CELL *,CELL *));
-
 #ifdef ANALYST
 
 static char *op_names[_std_top + 1] =
@@ -172,14 +168,14 @@ static char *op_names[_std_top + 1] =
 inline EXTERN void
 init_absmi_regs(REGSTORE * absmi_regs)
 {
-  memcpy(absmi_regs, regp, sizeof(REGSTORE));
+  memcpy(absmi_regs, _YAP_regp, sizeof(REGSTORE));
 }
 
 inline EXTERN void
 restore_absmi_regs(REGSTORE * old_regs)
 {
-  memcpy(old_regs, regp, sizeof(REGSTORE));
-  regp = old_regs;
+  memcpy(old_regs, _YAP_regp, sizeof(REGSTORE));
+  _YAP_regp = old_regs;
 }
 #endif /* PUSH_REGS */
 
@@ -216,25 +212,25 @@ restore_absmi_regs(REGSTORE * old_regs)
 #define ENDCHO(TMP) }
 
 /***************************************************************
-* Y is usually, but not always, a register. This affects       *
+* YREG is usually, but not always, a register. This affects       *
 * choicepoints                                                 *
 ***************************************************************/
 
 #if Y_IN_MEM
 
-#define CACHE_Y(A) { register CELL *S_Y = ((CELL *)(A))
+#define CACHE_Y(A) { register CELL *S_YREG = ((CELL *)(A))
 
-#define ENDCACHE_Y() Y = S_Y; }
+#define ENDCACHE_Y() YREG = S_YREG; }
 
-#define B_Y   ((choiceptr)(S_Y))
+#define B_YREG   ((choiceptr)(S_YREG))
 
 #else
 
-#define S_Y   (Y)
+#define S_YREG   (YREG)
 
-#define B_Y ((choiceptr)(Y))
+#define B_YREG ((choiceptr)(YREG))
 
-#define CACHE_Y(A) { Y = ((CELL *)(A))
+#define CACHE_Y(A) { YREG = ((CELL *)(A))
 
 #define ENDCACHE_Y() }
 
@@ -242,19 +238,19 @@ restore_absmi_regs(REGSTORE * old_regs)
 
 #if Y_IN_MEM
 
-#define CACHE_Y_AS_ENV(A) { register CELL *E_Y = (A)
+#define CACHE_Y_AS_ENV(A) { register CELL *E_YREG = (A)
 
-#define WRITEBACK_Y_AS_ENV()   Y = E_Y
+#define WRITEBACK_Y_AS_ENV()   YREG = E_YREG
 
 #define ENDCACHE_Y_AS_ENV() }
 
 #else
 
-#define E_Y (Y)
+#define E_YREG (YREG)
 
 #define WRITEBACK_Y_AS_ENV()   
 
-#define CACHE_Y_AS_ENV(A) { Y = (A)
+#define CACHE_Y_AS_ENV(A) { YREG = (A)
 
 #define ENDCACHE_Y_AS_ENV() }
 
@@ -606,12 +602,12 @@ typedef CELL label;
  * Next, Y
  */
 #if SHADOW_Y
-#define set_y()		Y = YENV
-#define save_y()	YENV = Y
+#define set_y()		YREG = YENV
+#define save_y()	YENV = YREG
 #else
 #define set_y()
 #define save_y()
-#define Y               YENV
+#define YREG            YENV
 #endif
 
 /* 
@@ -692,12 +688,12 @@ Macros to check the limits of stacks
 
 #if defined(SBA) && defined(YAPOR)
 #define check_stack(Label, GLOB)                             \
- if ( (Int)(Unsigned(E_Y) - CFREG) < (Int)(GLOB) &&          \
-       (choiceptr)E_Y < B_FZ && E_Y > H_FZ       &&          \
+ if ( (Int)(Unsigned(E_YREG) - CFREG) < (Int)(GLOB) &&       \
+       (choiceptr)E_YREG < B_FZ && E_Y > H_FZ       &&       \
        (GLOB) > H_FZ && (GLOB) < (CELL *)B_FZ) goto Label
 #else
 #define check_stack(Label, GLOB)                             \
- if ( (Int)(Unsigned(E_Y) - CFREG) < (Int)(GLOB) ) goto Label
+ if ( (Int)(Unsigned(E_YREG) - CFREG) < (Int)(GLOB) ) goto Label
 #endif /* SBA && YAPOR */
 
 /***************************************************************
@@ -718,9 +714,9 @@ Macros to check the limits of stacks
 		 pt0 = XREGS+(arity);                             \
 		 while ( pt0 > XREGS )                            \
                    { register CELL x = pt0[0];                    \
-                     S_Y = S_Y-1;			          \
+                     S_YREG = S_YREG-1;			          \
                      --pt0;                                       \
-                     (S_Y)[0] = x;	                          \
+                     (S_YREG)[0] = x;	                          \
 		   }                                              \
                  ENDP(pt0)
 
@@ -728,9 +724,9 @@ Macros to check the limits of stacks
                  BEGP(pt0);                                       \
 		 pt0 = XREGS+(arity);                             \
                  do { register CELL x = pt0[0];                   \
-                     S_Y = (S_Y)-1;			          \
+                     S_YREG = (S_YREG)-1;			          \
                      --pt0;                                       \
-                     (S_Y)[0] = x;	                          \
+                     (S_YREG)[0] = x;	                          \
 		   }                                              \
 		 while ( pt0 > XREGS );                           \
                  ENDP(pt0)
@@ -753,16 +749,16 @@ Macros to check the limits of stacks
                  { register yamop *x1 = (yamop *)(AP);           \
                    register CELL *x2 = ENV;			 \
                    /* Jump to CP_BASE */                         \
-                   S_Y = (CELL *)((choiceptr)((S_Y)-(I))-1);     \
+                   S_YREG = (CELL *)((choiceptr)((S_YREG)-(I))-1);     \
                    /* Save Information */                        \
 		   HBREG = H;                                    \
-                   B_Y->cp_tr = TR;				 \
-                   B_Y->cp_h  = H;				 \
-                   B_Y->cp_b  = B;				 \
-                   store_yaam_reg_cpdepth(B_Y);                  \
-                   B_Y->cp_cp = CPREG;				 \
-                   B_Y->cp_ap = x1;				 \
-                   B_Y->cp_env= x2;				 \
+                   B_YREG->cp_tr = TR;				 \
+                   B_YREG->cp_h  = H;				 \
+                   B_YREG->cp_b  = B;				 \
+                   store_yaam_reg_cpdepth(B_YREG);                  \
+                   B_YREG->cp_cp = CPREG;				 \
+                   B_YREG->cp_ap = x1;				 \
+                   B_YREG->cp_env= x2;				 \
                  }
 
 #define store_yaam_regs_for_either(AP,d0) \
@@ -832,16 +828,16 @@ Macros to check the limits of stacks
 #endif /* TABLING */
 
 #define restore_yaam_regs(AP)                                    \
-                 { register CELL *x1 = B_Y->cp_env;	         \
+                 { register CELL *x1 = B_YREG->cp_env;	         \
                    register yamop *x2;				 \
-                   H = HBREG = PROTECT_FROZEN_H(B_Y);            \
-		   restore_yaam_reg_cpdepth(B_Y);	         \
-                   CPREG  = B_Y->cp_cp;		                 \
+                   H = HBREG = PROTECT_FROZEN_H(B_YREG);            \
+		   restore_yaam_reg_cpdepth(B_YREG);	         \
+                   CPREG  = B_YREG->cp_cp;		                 \
 		   /* AP may depend on H */			 \
 		   x2 = (yamop *)AP;		                 \
                    ENV    = x1;                                  \
                    YAPOR_update_alternative(PREG, x2)            \
-                   B_Y->cp_ap = x2;                              \
+                   B_YREG->cp_ap = x2;                              \
                  }
 
 /***************************************************************
@@ -852,7 +848,7 @@ Macros to check the limits of stacks
                  d0 = Nargs;                                       \
                  BEGP(pt0);                                        \
                  BEGP(pt1);                                        \
-                 pt1 = (CELL *)(B_Y+1)+d0;                         \
+                 pt1 = (CELL *)(B_YREG+1)+d0;                         \
                  pt0 = XREGS+1+d0;                                 \
 	         while (pt0 > XREGS +1 )                           \
                    { register CELL x = pt1[-1];                    \
@@ -869,7 +865,7 @@ Macros to check the limits of stacks
                  d0 = Nargs;                                       \
                  BEGP(pt0);                                        \
                  BEGP(pt1);                                        \
-                 pt1 = (CELL *)(B_Y+1)+d0;                         \
+                 pt1 = (CELL *)(B_YREG+1)+d0;                         \
                  pt0 = XREGS+1+d0;                                 \
                  do { register CELL x = pt1[-1];                   \
                      --pt0;                                        \
@@ -898,12 +894,12 @@ Macros to check the limits of stacks
 
 #define pop_yaam_regs()                                           \
                  { register CELL *ptr1;                           \
-                   H = PROTECT_FROZEN_H(B_Y);                     \
-		   B = B_Y->cp_b;	                          \
-                   pop_yaam_reg_cpdepth(B_Y);	                  \
-		   CPREG = B_Y->cp_cp;		                  \
-		   ptr1 = B_Y->cp_env;				  \
-                   TABLING_close_alt(B_Y);	                  \
+                   H = PROTECT_FROZEN_H(B_YREG);                  \
+		   B = B_YREG->cp_b;	                          \
+                   pop_yaam_reg_cpdepth(B_YREG);                  \
+		   CPREG = B_YREG->cp_cp;		          \
+		   ptr1 = B_YREG->cp_env;			  \
+                   TABLING_close_alt(B_YREG);	                  \
                    HBREG = PROTECT_FROZEN_H(B);		          \
                    ENV = ptr1;                                    \
                  }
@@ -913,16 +909,16 @@ Macros to check the limits of stacks
                  d0 = (NArgs);                                    \
                  BEGP(pt0);                                       \
                  BEGP(pt1);                                       \
-                 S_Y = (CELL *)(B_Y+1);	                          \
+                 S_YREG = (CELL *)(B_YREG+1);                     \
                  pt0 = XREGS + 1 ;                                \
-                 pt1 = S_Y ;                                      \
+                 pt1 = S_YREG ;                                   \
 		 while (pt0 < XREGS+1+d0)                         \
                    { register CELL x = pt1[0];                    \
                      pt1++;                                       \
                      pt0++;                                       \
                      pt0[-1] = x;                                 \
 		   }                                              \
-                 S_Y = pt1;					  \
+                 S_YREG = pt1;					  \
                  ENDP(pt1);                                       \
                  ENDP(pt0);                                       \
                  ENDD(d0);
@@ -932,7 +928,7 @@ Macros to check the limits of stacks
                  d0 = (NArgs);                                    \
                  BEGP(pt0);                                       \
                  BEGP(pt1);                                       \
-                 pt1 = (CELL *)(B_Y+1);	                          \
+                 pt1 = (CELL *)(B_YREG+1);                        \
                  pt0 = XREGS + 1 ;                                \
                  do { register CELL x = pt1[0];                   \
                      pt1++;                                       \
@@ -940,7 +936,7 @@ Macros to check the limits of stacks
                      pt0[-1] = x;                                 \
 		   }                                              \
 		 while (pt0 < XREGS+1+d0);                        \
-                 S_Y = pt1;	                                  \
+                 S_YREG = pt1;	                                  \
                  ENDP(pt1);                                       \
                  ENDP(pt0);                                       \
                  ENDD(d0);
@@ -1151,4 +1147,353 @@ trim_trail(choiceptr b, tr_fr_ptr tr, CELL *hbreg)
 }
 #endif /* FROZEN_STACKS */
 
+#if IN_ABSMI_C || IN_UNIFY_C
 
+static int 
+IUnify_complex(CELL *pt0, CELL *pt0_end, CELL *pt1)
+{
+#if SHADOW_REGS
+#if defined(B) || defined(TR)
+  register REGSTORE *regp = &_YAP_REGS;
+
+#define _YAP_REGS (*regp)
+#endif /* defined(B) || defined(TR) || defined(HB) */
+#endif
+
+#if SHADOW_HB
+  register CELL *HBREG = HB;
+#endif /* SHADOW_HB */
+
+  CELL  **to_visit  = (CELL **)AuxSp;
+
+loop:
+  while (pt0 < pt0_end) {
+    register CELL *ptd0 = pt0+1; 
+    register CELL d0;
+
+    ++pt1;
+    pt0 = ptd0;
+    d0 = *ptd0;
+    deref_head(d0, unify_comp_unk);
+  unify_comp_nvar:
+    {
+      register CELL *ptd1 = pt1;
+      register CELL d1 = *ptd1;
+
+      deref_head(d1, unify_comp_nvar_unk);
+    unify_comp_nvar_nvar:
+      if (d0 == d1)
+	continue;
+      if (IsPairTerm(d0)) {
+	if (!IsPairTerm(d1)) {
+	  goto cufail;
+	}
+#ifdef RATIONAL_TREES
+	/* now link the two structures so that no one else will */
+	/* come here */
+	to_visit -= 4;
+	to_visit[0] = pt0;
+	to_visit[1] = pt0_end;
+	to_visit[2] = pt1;
+	to_visit[3] = (CELL *)*pt0;
+	*pt0 = d1;
+#else
+	/* store the terms to visit */
+	if (pt0 < pt0_end) {
+	  to_visit -= 3;
+	  to_visit[0] = pt0;
+	  to_visit[1] = pt0_end;
+	  to_visit[2] = pt1;
+	}
+
+#endif
+	pt0_end = (pt0 = RepPair(d0) - 1) + 2;
+	pt1 = RepPair(d1) - 1;
+	continue;
+      }
+      if (IsApplTerm(d0)) {
+	register Functor f;
+	register CELL *ap2, *ap3;
+
+	if (!IsApplTerm(d1)) {
+	  goto cufail;
+	}
+	/* store the terms to visit */
+	ap2 = RepAppl(d0);
+	ap3 = RepAppl(d1);
+	f = (Functor) (*ap2);
+	/* compare functors */
+	if (f != (Functor) *ap3)
+	  goto cufail;
+	if (IsExtensionFunctor(f)) {
+	  if (unify_extension(f, d0, ap2, d1))
+	    continue;
+	  goto cufail;
+	}
+#ifdef RATIONAL_TREES
+	/* now link the two structures so that no one else will */
+	/* come here */
+	to_visit -= 4;
+	to_visit[0] = pt0;
+	to_visit[1] = pt0_end;
+	to_visit[2] = pt1;
+	to_visit[3] = (CELL *)*pt0;
+	*pt0 = d1;
+#else
+	/* store the terms to visit */
+	if (pt0 < pt0_end) {
+	  to_visit -= 3;
+	  to_visit[0] = pt0;
+	  to_visit[1] = pt0_end;
+	  to_visit[2] = pt1;
+	}
+#endif
+	d0 = ArityOfFunctor(f);
+	pt0 = ap2;
+	pt0_end = ap2 + d0;
+	pt1 = ap3;
+	continue;
+      }
+      goto cufail;
+
+      derefa_body(d1, ptd1, unify_comp_nvar_unk, unify_comp_nvar_nvar);
+	/* d1 and pt2 have the unbound value, whereas d0 is bound */
+      BIND_GLOBALCELL(ptd1, d0);
+    }
+
+    derefa_body(d0, ptd0, unify_comp_unk, unify_comp_nvar);
+    /* first arg var */
+    {
+      register CELL d1;
+      register CELL *ptd1;
+
+      ptd1 = pt1;
+      d1 = ptd1[0];
+      /* pt2 is unbound */
+      deref_head(d1, unify_comp_var_unk);
+    unify_comp_var_nvar:
+      /* pt2 is unbound and d1 is bound */
+      BIND_GLOBALCELL(ptd0, d1);
+
+      derefa_body(d1, ptd1, unify_comp_var_unk, unify_comp_var_nvar);
+      /* ptd0 and ptd1 are unbound */
+      UnifyGlobalCells(ptd0, ptd1);
+    }
+  }
+  /* Do we still have compound terms to visit */
+  if (to_visit < (CELL **) AuxSp) {
+#ifdef RATIONAL_TREES
+    pt0 = to_visit[0];
+    pt0_end = to_visit[1];
+    pt1 = to_visit[2];
+    *pt0 = (CELL)to_visit[3];
+    to_visit += 4;
+#else
+    pt0 = to_visit[0];
+    pt0_end = to_visit[1];
+    pt1 = to_visit[2];
+    to_visit += 3;
+#endif
+    goto loop;
+  }
+  return (TRUE);
+
+cufail:
+#ifdef RATIONAL_TREES
+  /* failure */
+  while (to_visit < (CELL **) AuxSp) {
+    CELL *pt0;
+    pt0 = to_visit[0];
+    *pt0 = (CELL)to_visit[3];
+    to_visit += 4;
+  }
+#endif
+  return (FALSE);
+#if SHADOW_REGS
+#if defined(B) || defined(TR)
+#undef _YAP_REGS
+#endif /* defined(B) || defined(TR) */
+#endif
+}
+
+#endif
+
+
+#if IN_ABSMI_C || IN_INLINES_C
+
+static int 
+iequ_complex(register CELL *pt0, register CELL *pt0_end,
+	       register CELL *pt1
+)
+{
+  register CELL **to_visit = (CELL **) H;
+
+#ifdef RATIONAL_TREES
+  register CELL *visited = AuxSp;
+
+#endif
+
+loop:
+  while (pt0 < pt0_end) {
+    register CELL *ptd0 = ++pt0; 
+    register CELL d0 = *ptd0;
+
+    ++pt1;
+    deref_head(d0, eq_comp_unk);
+  eq_comp_nvar:
+    {
+      register CELL *ptd1 = pt1;
+      register CELL d1 = *ptd1;
+
+      deref_head(d1, eq_comp_nvar_unk);
+    eq_comp_nvar_nvar:
+      if (d0 == d1)
+	continue;
+      else if (IsPairTerm(d0)) {
+	if (!IsPairTerm(d1)) {
+	  UNWIND_CUNIF();
+	  return (FALSE);
+	}
+#ifdef RATIONAL_TREES
+	/* now link the two structures so that no one else will */
+	/* come here */
+	if (d0 > d1) {
+	  visited -= 2;
+	  visited[0] = (CELL) pt0;
+	  visited[1] = *pt0;
+	  *pt0 = d1;
+	}
+	else {
+	  visited -= 2;
+	  visited[0] = (CELL) pt1;
+	  visited[1] = *pt1;
+	  *pt1 = d0;
+	}
+#endif
+	/* store the terms to visit */
+	if (pt0 < pt0_end) {
+	  to_visit[0] = pt0;
+	  to_visit[1] = pt0_end;
+	  to_visit[2] = pt1;
+	  to_visit += 3;
+	}
+	pt0_end = (pt0 = RepPair(d0) - 1) + 2;
+	pt0_end = RepPair(d0) + 1;
+	pt1 = RepPair(d1) - 1;
+	continue;
+      }
+      else if (IsApplTerm(d0)) {
+	register Functor f;
+	register CELL *ap2, *ap3;
+
+	/* store the terms to visit */
+	ap2 = RepAppl(d0);
+	f = (Functor) (*ap2);
+	if (IsExtensionFunctor(f)) {
+	  switch ((CELL)f) {
+	  case (CELL)FunctorDBRef:
+	    if (d0 == d1) continue;
+	    UNWIND_CUNIF();
+	    return (FALSE);
+	  case (CELL)FunctorLongInt:
+	    if (IsLongIntTerm(d1) && (Int)(ap2[1]) == LongIntOfTerm(d1)) continue;
+	    UNWIND_CUNIF();
+	    return (FALSE);
+	  case (CELL)FunctorDouble:
+	    if (IsFloatTerm(d1) && FloatOfTerm(d0) == FloatOfTerm(d1)) continue;
+	    UNWIND_CUNIF();
+	    return (FALSE);
+#ifdef USE_GMP
+	  case (CELL)FunctorBigInt:
+	    if (IsBigIntTerm(d1) && mpz_cmp((MP_INT *)(ap2+1),_YAP_BigIntOfTerm(d1)) == 0) continue;
+	    UNWIND_CUNIF();
+	    return (FALSE);
+#endif /* USE_GMP */
+	  default:
+	    break;
+	  }
+	}
+	if (!IsApplTerm(d1)) {
+	  UNWIND_CUNIF();
+	  return (FALSE);
+	}
+	ap3 = RepAppl(d1);
+	/* compare functors */
+	if (f != (Functor) *ap3) {
+	  UNWIND_CUNIF();
+	  return (FALSE);
+	}
+#ifdef RATIONAL_TREES
+	/* now link the two structures so that no one else will */
+	/* come here */
+	if (d0 > d1) {
+	  visited -= 2;
+	  visited[0] = (CELL) pt0;
+	  visited[1] = *pt0;
+	  *pt0 = d1;
+	}
+	else {
+	  visited -= 2;
+	  visited[0] = (CELL) pt1;
+	  visited[1] = *pt1;
+	  *pt1 = d0;
+	}
+#endif
+	/* store the terms to visit */
+	if (pt0 < pt0_end) {
+	  to_visit[0] = pt0;
+	  to_visit[1] = pt0_end;
+	  to_visit[2] = pt1;
+	  to_visit += 3;
+	}
+	d0 = ArityOfFunctor(f);
+	pt0 = ap2;
+	pt0_end = ap2 + d0;
+	pt1 = ap3;
+	continue;
+      } else {
+	UNWIND_CUNIF();
+	return (FALSE);
+      }
+
+      derefa_body(d1, ptd1, eq_comp_nvar_unk, eq_comp_nvar_nvar);
+      /* d1 and pt2 have the unbound value, whereas d0 is bound */
+      UNWIND_CUNIF();
+      return (FALSE);
+    }
+
+    derefa_body(d0, ptd0, eq_comp_unk, eq_comp_nvar);
+    {
+      register CELL d1;
+      register CELL *ptd1;
+
+      d1 = *( ptd1 = pt1);
+      /* pt2 is unbound */
+      deref_head(d1, eq_comp_var_unk);
+    eq_comp_var_nvar:
+      /* pt2 is unbound and d1 is bound */
+      UNWIND_CUNIF();
+      return (FALSE);
+
+      derefa_body(d1, ptd1, eq_comp_var_unk, eq_comp_var_nvar);
+      /* pt2 and pt3 are unbound */
+      if (ptd0 == ptd1)
+	continue;
+      UNWIND_CUNIF();
+      return (FALSE);
+    }
+  }
+  /* Do we still have compound terms to visit */
+  if (to_visit > (CELL **) H) {
+    to_visit -= 3;
+    pt0 = to_visit[0];
+    pt0_end = to_visit[1];
+    pt1 = to_visit[2];
+    goto loop;
+  }
+  /* successful exit */
+  UNWIND_CUNIF();
+  return (TRUE);
+}
+
+#endif

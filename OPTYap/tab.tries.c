@@ -1494,7 +1494,7 @@ update_next_trie_branch:
   }
 
   TrNode_or_arg(node) = ltt;
-  TrNode_instr(node) = opcode(TrNode_instr(node));
+  TrNode_instr(node) = _YAP_opcode(TrNode_instr(node));
   return ltt;
 }
 #else
@@ -1512,7 +1512,7 @@ int update_answer_trie_branch(ans_node_ptr node) {
     ltt = 1;
   }
   TrNode_or_arg(node) = ltt;
-  TrNode_instr(node) = opcode(TrNode_instr(node));
+  TrNode_instr(node) = _YAP_opcode(TrNode_instr(node));
   return ltt;
 }
 #endif /* TABLING_INNER_CUTS */
@@ -1528,7 +1528,7 @@ void update_answer_trie_branch(ans_node_ptr node) {
   } else {
     TrNode_instr(node) -= 2;  /* retry --> trust : try --> do */
   }
-  TrNode_instr(node) = opcode(TrNode_instr(node));
+  TrNode_instr(node) = _YAP_opcode(TrNode_instr(node));
   return;
 }
 #endif /* YAPOR */

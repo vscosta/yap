@@ -127,7 +127,7 @@ void map_memory(long HeapArea, long GlobalLocalArea, long TrailAuxArea, int n_wo
   TrailAuxArea = ADJUST_SIZE(TrailAuxArea * KBYTES);
 
   /* we'll need this later */
-  GlobalBase = mmap_addr + HeapArea;
+  _YAP_GlobalBase = mmap_addr + HeapArea;
 
   /* model dependent */
   /* shared memory allocation */
@@ -168,14 +168,14 @@ void map_memory(long HeapArea, long GlobalLocalArea, long TrailAuxArea, int n_wo
   /* just allocate local space for stacks */
   if ((private_fd_mapfile = open("/dev/zero", O_RDWR)) < 0)
     abort_optyap("open error in function map_memory: %s", strerror(errno));
-  if (mmap(GlobalBase, GlobalLocalArea + TrailAuxArea, PROT_READ|PROT_WRITE, 
+  if (mmap(_YAP_GlobalBase, GlobalLocalArea + TrailAuxArea, PROT_READ|PROT_WRITE, 
            MAP_PRIVATE|MAP_FIXED, private_fd_mapfile, 0) == (void *) -1)
     abort_optyap("mmap error in function map_memory: %s", strerror(errno));
   close(private_fd_mapfile);
 #else /* ENV_COPY or SBA */
   for (i = 0; i < n_workers; i++) {
     /* initialize worker vars */
-    worker_area(i) = GlobalBase + i * WorkerArea;
+    worker_area(i) = _YAP_GlobalBase + i * WorkerArea;
     worker_offset(i) = worker_area(i) - worker_area(0);
 #ifdef SHM_MEMORY_MAPPING_SCHEME
     /* mapping worker area */
@@ -199,11 +199,11 @@ void map_memory(long HeapArea, long GlobalLocalArea, long TrailAuxArea, int n_wo
   if ((CELL)binding_array & MBIT) {
     abort_optyap("OOPS: binding_array start address %p conflicts with tag %x used in IDB", binding_array, MBIT);
   }
-  sba_offset = binding_array - GlobalBase;
+  sba_offset = binding_array - _YAP_GlobalBase;
   sba_end = (int)binding_array + sba_size;
 #endif /* SBA */
-  TrailBase = GlobalBase + GlobalLocalArea;
-  LocalBase = TrailBase - CellSize;
+  _YAP_TrailBase = _YAP_GlobalBase + GlobalLocalArea;
+  _YAP_LocalBase = _YAP_TrailBase - CellSize;
 
 
   if (TrailAuxArea > 262144)                       /* 262144 = 256 * 1024 */ 
@@ -212,9 +212,9 @@ void map_memory(long HeapArea, long GlobalLocalArea, long TrailAuxArea, int n_wo
     TrailTop = TrailBase + TrailAuxArea / 2;
 
 
-  AuxTop = TrailBase + TrailAuxArea - CellSize;
+  AuxTop = _YAP_TrailBase + TrailAuxArea - CellSize;
   AuxSp = (CELL *) AuxTop;
-  YAP_InitHeap(mmap_addr);
+  _YAP_InitHeap(mmap_addr);
   BaseWorkArea = mmap_addr;
 
 }
@@ -292,10 +292,10 @@ void remap_memory(void) {
   /* setup workers so that they have different areas */
   long WorkerArea = worker_offset(1);
 
-  GlobalBase += worker_id * WorkerArea;
-  TrailBase += worker_id * WorkerArea;
-  LocalBase += worker_id * WorkerArea;
-  TrailTop += worker_id * WorkerArea;
+  _YAP_GlobalBase += worker_id * WorkerArea;
+  _YAP_TrailBase += worker_id * WorkerArea;
+  _YAP_LocalBase += worker_id * WorkerArea;
+  _YAP_TrailTop += worker_id * WorkerArea;
   AuxTop += worker_id * WorkerArea;
   AuxSp = (CELL *) AuxTop; 
 #endif /* SBA */

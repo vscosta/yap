@@ -10,7 +10,7 @@
 * File:		Yap.h.m4						 *
 * mods:									 *
 * comments:	main header file for YAP				 *
-* version:      $Id: Yap.h.m4,v 1.35 2002-10-23 20:55:37 vsc Exp $	 *
+* version:      $Id: Yap.h.m4,v 1.36 2002-11-11 17:38:08 vsc Exp $	 *
 *************************************************************************/
 
 #include "config.h"
@@ -234,7 +234,7 @@ typedef unsigned long int YAP_LONG_LONG;
 #endif
 
 #if DEBUG
-extern char     Option[20];
+extern char     _YAP_Option[20];
 #endif
 
 /* #define FORCE_SECOND_QUADRANT 1 */
@@ -260,7 +260,7 @@ extern char     Option[20];
 #elif defined(_WIN32)
 #define MMAP_ADDR 0x18000000L
 #elif defined(__CYGWIN__)
-#define MMAP_ADDR 0x20040000L
+#define MMAP_ADDR 0x30000000L
 #endif
 #endif /* !IN_SECOND_QUADRANT */
 
@@ -268,8 +268,8 @@ extern char     Option[20];
 #define HEAP_INIT_BASE  (MMAP_ADDR)
 #define AtomBase        ((char *)MMAP_ADDR)
 #else
-#define HEAP_INIT_BASE  ((CELL)HeapBase)
-#define AtomBase        (HeapBase)
+#define HEAP_INIT_BASE  ((CELL)_YAP_HeapBase)
+#define AtomBase        (_YAP_HeapBase)
 #endif
 
 
@@ -393,7 +393,7 @@ typedef volatile int lockvar;
 #define siglongjmp(Env, Arg) longjmp(Env, Arg)
 #endif
 
-extern sigjmp_buf    RestartEnv;   /* used to restart after an abort */
+extern sigjmp_buf    _YAP_RestartEnv;   /* used to restart after an abort */
 
 /* Support for arrays */
 #include "arrays.h"
@@ -485,9 +485,9 @@ typedef enum {
   UNKNOWN_ERROR
 } yap_error_number;
 
-extern char    *ErrorMessage;	/* used to pass error messages		*/
-extern Term     Error_Term;	/* used to pass error terms */
-extern yap_error_number  Error_TYPE;	/* used to pass the error */
+extern char    *_YAP_ErrorMessage;	/* used to pass error messages		*/
+extern Term     _YAP_Error_Term;	/* used to pass error terms */
+extern yap_error_number  _YAP_Error_TYPE;	/* used to pass the error */
 
 typedef enum {
   YAP_INT_BOUNDED_FLAG = 0,
@@ -641,11 +641,11 @@ and  RefOfTerm(t) : Term -> DBRef = ...
 
 /************* variables related to memory allocation *******************/
 /* must be before TermExt.h */
-extern ADDR     HeapBase,
-		     LocalBase,
-		     GlobalBase,
-		     TrailBase, TrailTop,
-		     ForeignCodeBase, ForeignCodeTop, ForeignCodeMax;
+extern ADDR     _YAP_HeapBase,
+		_YAP_LocalBase,
+		_YAP_GlobalBase,
+		_YAP_TrailBase,
+                _YAP_TrailTop;
 
 
 /* applies to unbound variables */
@@ -671,6 +671,20 @@ Inline(MkIntTerm, Term, Int, n, TAGGED(NumberTag, (n)))
 */
 Inline(MkIntConstant, Term, Int, n, NONTAGGED(NumberTag, (n)))
 Inline(IsIntTerm, int, Term, t, CHKTAG((t), NumberTag))
+
+EXTERN inline Term STD_PROTO(MkPairTerm,(Term,Term));
+
+EXTERN inline Term 
+MkPairTerm(Term head, Term tail)
+{
+  register CELL  *p = H;
+
+  H[0] = head;
+  H[1] = tail;
+  H+=2;
+  return (AbsPair(p));
+}
+
 
 /* Needed to handle numbers:
    	these two macros are fundamental in the integer/float conversions */
@@ -732,9 +746,6 @@ Inline(TailOfTermCell, Term, Term, t, (CELL)(RepPair(t) + 1))
 /*************** variables concerned with atoms	table *******************/
 #define	MaxHash	    1001
 
-/************ variables	concerned with save and restore	*************/
-extern int      splfild;
-
 #define FAIL_RESTORE  0
 #define DO_EVERYTHING 1
 #define DO_ONLY_CODE  2
@@ -748,9 +759,6 @@ extern int      emacs_mode;
 
 #endif
 
-
-/************ variable concerned with version number *****************/
-extern char    version_number[];
 
 /********* common instructions codes*************************/
 
@@ -766,12 +774,9 @@ typedef struct opcode_tab_entry {
 
 #endif
 
-/******************* controlling the compiler ****************************/
-extern int      optimizer_on;
-
 /******************* storing error messages ****************************/
 #define MAX_ERROR_MSG_SIZE 256
-extern char      ErrorSay[MAX_ERROR_MSG_SIZE];
+extern char      _YAP_ErrorSay[MAX_ERROR_MSG_SIZE];
 
 /********************* how to write a Prolog term ***********************/
 
@@ -788,66 +793,63 @@ typedef enum {
   ExtendStackMode = 128		/* trying to extend stack */
 } prolog_exec_mode;
 
-extern prolog_exec_mode      PrologMode;
-extern int      CritLocks;
+extern prolog_exec_mode      _YAP_PrologMode;
+extern int      _YAP_CritLocks;
 
 /************** Access to yap initial arguments ***************************/
 
-extern char   **yap_args;
-extern int      yap_argc;
-
-/******************* controlling debugging ****************************/
-extern int      creep_on;
+extern char   **_YAP_argv;
+extern int      _YAP_argc;
 
 /******************* number of modules ****************************/
 
 #define MaxModules	256
 
 #ifdef YAPOR
-#define YAPEnterCriticalSection()                           \
-	{                                                   \
-          if (worker_id != GLOBAL_LOCKS_who_locked_heap) {  \
-	    LOCK(GLOBAL_LOCKS_heap_access);                 \
-	    GLOBAL_LOCKS_who_locked_heap = worker_id;       \
-	  }                                                 \
-          PrologMode |= CritMode;                           \
-          CritLocks++;                                      \
+#define YAPEnterCriticalSection()                                        \
+	{                                                                \
+          if (worker_id != GLOBAL_LOCKS_who_locked_heap) {               \
+	    LOCK(GLOBAL_LOCKS_heap_access);                              \
+	    GLOBAL_LOCKS_who_locked_heap = worker_id;                    \
+	  }                                                              \
+          _YAP_PrologMode |= CritMode;                                   \
+          _YAP_CritLocks++;                                              \
         }
 #define YAPLeaveCriticalSection()                                        \
 	{                                                                \
-          CritLocks--;                                                   \
-          if (!CritLocks) {                                              \
-            PrologMode &= ~CritMode;                                     \
-            if (PrologMode & InterruptMode) {                            \
-	      PrologMode &= ~InterruptMode;                              \
-	      ProcessSIGINT();                                           \
+          _YAP_CritLocks--;                                              \
+          if (!_YAP_CritLocks) {                                         \
+            _YAP_PrologMode &= ~CritMode;                                \
+            if (_YAP_PrologMode & InterruptMode) {                       \
+	      _YAP_PrologMode &= ~InterruptMode;                         \
+	      _YAP_ProcessSIGINT();                                      \
             }                                                            \
-            if (PrologMode & AbortMode) {                                \
-	      PrologMode &= ~AbortMode;                                  \
-	      Error(PURE_ABORT, 0, "");                            \
+            if (_YAP_PrologMode & AbortMode) {                           \
+	      _YAP_PrologMode &= ~AbortMode;                             \
+	      _YAP_Error(PURE_ABORT, 0, "");                             \
             }                                                            \
 	    GLOBAL_LOCKS_who_locked_heap = MAX_WORKERS;                  \
             UNLOCK(GLOBAL_LOCKS_heap_access);                            \
           }                                                              \
         }
 #else
-#define YAPEnterCriticalSection()                           \
-	{                                                   \
-          PrologMode |= CritMode;                           \
-          CritLocks++;                                      \
+#define YAPEnterCriticalSection()                                        \
+	{                                                                \
+          _YAP_PrologMode |= CritMode;                                   \
+          _YAP_CritLocks++;                                              \
         }
 #define YAPLeaveCriticalSection()                                        \
 	{                                                                \
-          CritLocks--;                                                   \
-          if (!CritLocks) {                                              \
-            PrologMode &= ~CritMode;                                     \
-            if (PrologMode & InterruptMode) {                            \
-	      PrologMode &= ~InterruptMode;                              \
-	      ProcessSIGINT();                                           \
+          _YAP_CritLocks--;                                              \
+          if (!_YAP_CritLocks) {                                         \
+            _YAP_PrologMode &= ~CritMode;                                \
+            if (_YAP_PrologMode & InterruptMode) {                       \
+	      _YAP_PrologMode &= ~InterruptMode;                         \
+	      _YAP_ProcessSIGINT();                                      \
             }                                                            \
-            if (PrologMode & AbortMode) {                                \
-	      PrologMode &= ~AbortMode;                                  \
-	      Error(PURE_ABORT, 0, "");                            \
+            if (_YAP_PrologMode & AbortMode) {                           \
+	      _YAP_PrologMode &= ~AbortMode;                             \
+	      _YAP_Error(PURE_ABORT, 0, "");                             \
             }                                                            \
           }                                                              \
         }
@@ -856,10 +858,6 @@ extern int      creep_on;
 /* when we are calling the InitStaff procedures */
 #define AT_BOOT      0
 #define AT_RESTORE   1
-
-/********* whether we should try to compile array references ******************/
-
-extern int  compile_arrays;
 
 /********* mutable variables ******************/
 
@@ -872,16 +870,8 @@ typedef struct TIMED_MAVAR{
 
 /********* while debugging you may need some info ***********************/
 
-#if DEBUG
-extern int      output_msg;
-#endif
-
 #if EMACS
 extern char     emacs_tmp[], emacs_tmp2[];
-#endif
-
-#if HAVE_SIGNAL
-extern int      snoozing;
 #endif
 
 #if defined(YAPOR) || defined(TABLING)

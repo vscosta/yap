@@ -29,7 +29,7 @@ STD_PROTO(static Int p_set_depth_limit, (void));
 
 static Int p_get_depth_limit(void)
 {
-  return(unify_constant(ARG1, MkIntTerm(IntOfTerm(DEPTH/2))));
+  return(_YAP_unify_constant(ARG1, MkIntTerm(IntOfTerm(DEPTH/2))));
 }
 
 static Int p_set_depth_limit(void)
@@ -37,10 +37,10 @@ static Int p_set_depth_limit(void)
   Term d = Deref(ARG1);
 
   if (IsVarTerm(d)) {
-    Error(INSTANTIATION_ERROR, d, "set-depth_limit");
+    _YAP_Error(INSTANTIATION_ERROR, d, "set-depth_limit");
     return(FALSE);
   } else if (!IsIntegerTerm(d)) {
-    Error(TYPE_ERROR_INTEGER, d, "set-depth_limit");
+    _YAP_Error(TYPE_ERROR_INTEGER, d, "set-depth_limit");
     return(FALSE);
   }
   d = MkIntTerm(IntegerOfTerm(d)*2);
@@ -51,10 +51,10 @@ static Int p_set_depth_limit(void)
   return(TRUE);
 }
 
-void InitItDeepenPreds(void)
+void _YAP_InitItDeepenPreds(void)
 {
-  InitCPred("get_depth_limit", 1, p_get_depth_limit, SafePredFlag);
-  InitCPred("$set_depth_limit", 1, p_set_depth_limit, 0);
+  _YAP_InitCPred("get_depth_limit", 1, p_get_depth_limit, SafePredFlag);
+  _YAP_InitCPred("$set_depth_limit", 1, p_set_depth_limit, 0);
 }
 
 #endif

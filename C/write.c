@@ -60,13 +60,7 @@ static int      Quote_illegal, Ignore_ops, Handle_vars, Use_portray;
 static int      keep_terms;
 
 
-#if DEBUG
-#if COROUTINING
-int  Portray_delays = FALSE;
-#endif
-#endif
-
-#define wrputc(X)	((*writech)(c_output_stream,X))	/* writes a character */
+#define wrputc(X)	((*writech)(_YAP_c_output_stream,X))	/* writes a character */
 
 static void 
 wrputn(Int n)			/* writes an integer	 */
@@ -160,24 +154,24 @@ legalAtom(char *s)			/* Is this a legal atom ? */
   register int ch = *s;
   if (ch == '\0')
     return(FALSE);
-  if (chtype[ch] != LC) {
+  if (_YAP_chtype[ch] != LC) {
     if (ch == '[')
       return (*++s == ']' && !(*++s));
     else if (ch == '{')
       return (*++s == '}' && !(*++s));
-    else if (chtype[ch] == SL)
+    else if (_YAP_chtype[ch] == SL)
       return (!*++s);
     else if ((ch == ',' || ch == '.') && !s[1])
       return (FALSE);
     else
       while (ch) {
-	if (chtype[ch] != SY) return (FALSE);
+	if (_YAP_chtype[ch] != SY) return (FALSE);
 	ch = *++s;
       }
     return (TRUE);
   } else
     while ((ch = *++s) != 0)
-      if (chtype[ch] > NU)
+      if (_YAP_chtype[ch] > NU)
 	return (FALSE);
   return (TRUE);
 }
@@ -185,25 +179,25 @@ legalAtom(char *s)			/* Is this a legal atom ? */
 static int LeftOpToProtect(Atom at, int p)
 {
   int op, rp;
-  Prop            opinfo = GetAProp(at, OpProperty);
-  return(opinfo && IsPrefixOp(opinfo, &op, &rp) );
+  Prop            opinfo = _YAP_GetAProp(at, OpProperty);
+  return(opinfo && _YAP_IsPrefixOp(opinfo, &op, &rp) );
 }
 
 static int RightOpToProtect(Atom at, int p)
 {
   int op, lp;
-  Prop            opinfo = GetAProp(at, OpProperty);
-  return(opinfo && IsPosfixOp(opinfo, &op, &lp) );
+  Prop            opinfo = _YAP_GetAProp(at, OpProperty);
+  return(opinfo && _YAP_IsPosfixOp(opinfo, &op, &lp) );
 }
 
 static wtype 
 AtomIsSymbols(char *s)		/* Is this atom just formed by symbols ? */
 {
   int ch;
-  if (chtype[(int)s[0]] == SL && s[1] == '\0')
+  if (_YAP_chtype[(int)s[0]] == SL && s[1] == '\0')
     return(separator);
   while ((ch = *s++) != '\0') {
-    if (chtype[ch] != SY)
+    if (_YAP_chtype[ch] != SY)
       return(alphanum);
   }
   return(symbol);
@@ -218,7 +212,7 @@ putAtom(Atom atom)			/* writes an atom	 */
 
   /* #define CRYPT_FOR_STEVE 1*/
 #ifdef CRYPT_FOR_STEVE
-  if (GetValue(LookupAtom("crypt_atoms")) != TermNil && GetAProp(atom, OpProperty) == NIL) {
+  if (_YAP_GetValue(_YAP_LookupAtom("crypt_atoms")) != TermNil && _YAP_GetAProp(atom, OpProperty) == NIL) {
     char s[16];
     sprintf(s,"x%x", (CELL)s);
     wrputs(s);
@@ -308,10 +302,10 @@ write_var(CELL *t)
   if (CellPtr(t) < H0) {
 #if COROUTINING
 #if DEBUG
-    if (Portray_delays) {
+    if (_YAP_Portray_delays) {
       exts ext = ExtFromCell(t);
 
-      Portray_delays = FALSE;
+      _YAP_Portray_delays = FALSE;
       if (ext == susp_ext) {
 	wrputs("$DL(");
 	write_var(t);
@@ -352,13 +346,13 @@ write_var(CELL *t)
 	}
 	wrputc(')');
       }
-      Portray_delays = TRUE;
+      _YAP_Portray_delays = TRUE;
       return;
     }
 #endif
 #endif
     wrputc('D');
-    wrputn(((Int) (t- CellPtr(GlobalBase))));
+    wrputn(((Int) (t- CellPtr(_YAP_GlobalBase))));
   } else {
     wrputn(((Int) (t- H0)));
   }
@@ -371,7 +365,7 @@ writeTerm(Term t, int p, int depth, int rinfixarg)
 	                      
 {
   if (*max_depth != 0 && depth > *max_depth) {
-    putAtom(LookupAtom("..."));
+    putAtom(_YAP_LookupAtom("..."));
     return;
   }
   if (EX != 0)
@@ -392,9 +386,9 @@ writeTerm(Term t, int p, int depth, int rinfixarg)
 #ifdef USE_GMP
   } else if (IsBigIntTerm(t)) {
     char *s = (char *)TR;
-    while (s+2+mpz_sizeinbase(BigIntOfTerm(t), 10) > (char *)TrailTop)
-      growtrail(64*1024);
-    mpz_get_str(s, 10, BigIntOfTerm(t));
+    while (s+2+mpz_sizeinbase(_YAP_BigIntOfTerm(t), 10) > (char *)_YAP_TrailTop)
+      _YAP_growtrail(64*1024);
+    mpz_get_str(s, 10, _YAP_BigIntOfTerm(t));
     wrputs(s);
 #endif
   } else if (IsPairTerm(t)) {
@@ -407,17 +401,17 @@ writeTerm(Term t, int p, int depth, int rinfixarg)
       long sl = 0;
 
       targs[0] = t;
-      PutValue(AtomPortray, MkAtomTerm(AtomNil));
+      _YAP_PutValue(AtomPortray, MkAtomTerm(AtomNil));
       if (EX != 0L) old_EX = EX;
       /* *--ASP = MkIntTerm(0); */
       sl = _YAP_InitSlot(t);      
-      execute_goal(MkApplTerm(FunctorPortray, 1, targs), 0, 1);
+      _YAP_execute_goal(_YAP_MkApplTerm(FunctorPortray, 1, targs), 0, 1);
       t = _YAP_GetFromSlot(sl);
       _YAP_RecoverSlots(1);
       if (old_EX != 0L) EX = old_EX;
       Use_portray = TRUE;
       Use_portray = TRUE;
-      if (GetValue(AtomPortray) == MkAtomTerm(AtomTrue))
+      if (_YAP_GetValue(AtomPortray) == MkAtomTerm(AtomTrue))
 	return;
     }
     if (yap_flags[WRITE_QUOTED_STRING_FLAG] && IsStringTerm(t)) {
@@ -430,7 +424,7 @@ writeTerm(Term t, int p, int depth, int rinfixarg)
 	long            sl= 0;
 
 	if (*max_list && eldepth > *max_list) {
-	  putAtom(LookupAtom("..."));
+	  putAtom(_YAP_LookupAtom("..."));
 	  wrputc(']');
 	  lastw = separator;
 	  return;
@@ -471,7 +465,7 @@ writeTerm(Term t, int p, int depth, int rinfixarg)
 
     Arity = ArityOfFunctor(functor);
     atom = NameOfFunctor(functor);
-    opinfo = GetAProp(atom, OpProperty);
+    opinfo = _YAP_GetAProp(atom, OpProperty);
 #ifdef SFUNC
     if (Arity == SFArity) {
       int             argno = 1;
@@ -514,19 +508,19 @@ writeTerm(Term t, int p, int depth, int rinfixarg)
       long sl = 0;
 
       targs[0] = t;
-      PutValue(AtomPortray, MkAtomTerm(AtomNil));
+      _YAP_PutValue(AtomPortray, MkAtomTerm(AtomNil));
       if (EX != 0L) old_EX = EX;
       sl = _YAP_InitSlot(t);      
-      execute_goal(MkApplTerm(FunctorPortray, 1, targs),0, 1);
+      _YAP_execute_goal(_YAP_MkApplTerm(FunctorPortray, 1, targs),0, 1);
       t = _YAP_GetFromSlot(sl);
       _YAP_RecoverSlots(1);
       if (old_EX != 0L) EX = old_EX;
       Use_portray = TRUE;
-      if (GetValue(AtomPortray) == MkAtomTerm(AtomTrue) || EX != 0L)
+      if (_YAP_GetValue(AtomPortray) == MkAtomTerm(AtomTrue) || EX != 0L)
 	return;
     }
     if (!Ignore_ops &&
-	Arity == 1 && opinfo && IsPrefixOp(opinfo, &op,
+	Arity == 1 && opinfo && _YAP_IsPrefixOp(opinfo, &op,
 					   &rp)
 #ifdef DO_NOT_WRITE_PLUS_AND_MINUS_AS_PREFIX
 	&&
@@ -563,7 +557,7 @@ writeTerm(Term t, int p, int depth, int rinfixarg)
 	lastw = separator;
       }
     } else if (!Ignore_ops &&
-	       Arity == 1 && opinfo && IsPosfixOp(opinfo, &op, &lp)) {
+	       Arity == 1 && opinfo && _YAP_IsPosfixOp(opinfo, &op, &lp)) {
       Term  tleft = ArgOfTerm(1, t);
       long sl = 0;
       int            bracket_left =
@@ -600,7 +594,7 @@ writeTerm(Term t, int p, int depth, int rinfixarg)
 	lastw = separator;
       }
     } else if (!Ignore_ops &&
-	       Arity == 2 && opinfo && IsInfixOp(opinfo, &op, &lp,
+	       Arity == 2 && opinfo && _YAP_IsInfixOp(opinfo, &op, &lp,
 						 &rp) ) {
       Term  tleft = ArgOfTerm(1, t);
       Term  tright = ArgOfTerm(2, t);
@@ -757,7 +751,7 @@ writeTerm(Term t, int p, int depth, int rinfixarg)
 }
 
 void 
-plwrite(Term t, int (*mywrite) (int, int), int flags)
+_YAP_plwrite(Term t, int (*mywrite) (int, int), int flags)
      /* term to be written			 */
      /* consumer				 */
      /* write options			 */

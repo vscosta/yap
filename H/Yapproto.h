@@ -10,7 +10,7 @@
 * File:		Yap.proto						 *
 * mods:									 *
 * comments:	Function declarations for YAP				 *
-* version:      $Id: Yapproto.h,v 1.27 2002-10-30 17:27:17 vsc Exp $	 *
+* version:      $Id: Yapproto.h,v 1.28 2002-11-11 17:37:58 vsc Exp $	 *
 *************************************************************************/
 
 /* prototype file for Yap */
@@ -25,29 +25,24 @@ typedef Int (*CmpPredicate)(Term, Term);
 
 
 /* absmi.c */
-Int	     STD_PROTO(absmi,(int));
-
+Int	     STD_PROTO(_YAP_absmi,(int));
 
 /* adtdefs.c */
-Term	STD_PROTO(ArrayToList,(Term *,int));
-int	STD_PROTO(GetName,(char *,UInt,Term));
-Term	STD_PROTO(GetValue,(Atom));
-Atom	STD_PROTO(LookupAtom,(char *));
-Atom	STD_PROTO(FullLookupAtom,(char *));
-void	STD_PROTO(LookupAtomWithAddress,(char *,AtomEntry *));
-Term	STD_PROTO(MkApplTerm,(Functor,unsigned int,Term *));
-Term	STD_PROTO(MkNewApplTerm,(Functor,unsigned int));
-Prop	STD_PROTO(NewPredPropByFunctor,(struct FunctorEntryStruct *, SMALLUNSGN));
-Prop	STD_PROTO(NewPredPropByAtom,(struct AtomEntryStruct *, SMALLUNSGN));
-Functor	STD_PROTO(UnlockedMkFunctor,(AtomEntry *,unsigned int));
-Functor	STD_PROTO(MkFunctor,(Atom,unsigned int));
-void	STD_PROTO(MkFunctorWithAddress,(Atom,unsigned int,FunctorEntry *));
-Term	STD_PROTO(MkPairTerm,(Term,Term));
-Term	STD_PROTO(MkNewPairTerm,(void));
-void	STD_PROTO(PutValue,(Atom,Term));
-void	STD_PROTO(ReleaseAtom,(Atom));
-Term	STD_PROTO(StringToList,(char *));
-Term	STD_PROTO(StringToListOfAtoms,(char *));
+Term	STD_PROTO(_YAP_ArrayToList,(Term *,int));
+int	STD_PROTO(_YAP_GetName,(char *,UInt,Term));
+Term	STD_PROTO(_YAP_GetValue,(Atom));
+Atom	STD_PROTO(_YAP_LookupAtom,(char *));
+Atom	STD_PROTO(_YAP_FullLookupAtom,(char *));
+void	STD_PROTO(_YAP_LookupAtomWithAddress,(char *,AtomEntry *));
+Prop	STD_PROTO(_YAP_NewPredPropByFunctor,(struct FunctorEntryStruct *, SMALLUNSGN));
+Prop	STD_PROTO(_YAP_NewPredPropByAtom,(struct AtomEntryStruct *, SMALLUNSGN));
+Functor	STD_PROTO(_YAP_UnlockedMkFunctor,(AtomEntry *,unsigned int));
+Functor	STD_PROTO(_YAP_MkFunctor,(Atom,unsigned int));
+void	STD_PROTO(_YAP_MkFunctorWithAddress,(Atom,unsigned int,FunctorEntry *));
+void	STD_PROTO(_YAP_PutValue,(Atom,Term));
+void	STD_PROTO(_YAP_ReleaseAtom,(Atom));
+Term	STD_PROTO(_YAP_StringToList,(char *));
+Term	STD_PROTO(_YAP_StringToListOfAtoms,(char *));
 
 long    STD_PROTO(_YAP_InitSlot,(Term));
 long    STD_PROTO(_YAP_NewSlots,(int));
@@ -63,255 +58,246 @@ Term	STD_PROTO(MkSFTerm,(Functor,int,Term *,Term));
 CELL	STD_PROTO(*ArgsOfSFTerm,(Term));
 #endif
 
-SMALLUNSGN	STD_PROTO(LookupModule,(Term));
-Prop	STD_PROTO(GetPredPropByAtom,(Atom, SMALLUNSGN));
-Prop	STD_PROTO(GetPredPropByFunc,(Functor, SMALLUNSGN));
-Prop	STD_PROTO(GetPredPropHavingLock,(Atom,unsigned int,SMALLUNSGN));
-Prop	STD_PROTO(GetExpProp,(Atom,unsigned int));
-Prop	STD_PROTO(GetExpPropHavingLock,(AtomEntry *,unsigned int));
-Term    STD_PROTO(Module_Name, (CODEADDR));
+Prop	STD_PROTO(_YAP_GetPredPropByAtom,(Atom, SMALLUNSGN));
+Prop	STD_PROTO(_YAP_GetPredPropByFunc,(Functor, SMALLUNSGN));
+Prop	STD_PROTO(_YAP_GetPredPropHavingLock,(Atom,unsigned int,SMALLUNSGN));
+Prop	STD_PROTO(_YAP_GetExpProp,(Atom,unsigned int));
+Prop	STD_PROTO(_YAP_GetExpPropHavingLock,(AtomEntry *,unsigned int));
 
 /* agc.c */
-void    STD_PROTO(atom_gc, (void));
-void    STD_PROTO(init_agc, (void));
+void    STD_PROTO(_YAP_atom_gc, (void));
+void    STD_PROTO(_YAP_init_agc, (void));
 
 /* alloc.c */
-int	STD_PROTO(SizeOfBlock,(CODEADDR));
-void	STD_PROTO(FreeCodeSpace,(char *));
-ADDR    STD_PROTO(PreAllocCodeSpace, (void));
-char   *STD_PROTO(AllocAtomSpace,(unsigned int));
-char	STD_PROTO(*AllocScannerMemory,(unsigned int));
-char	STD_PROTO(*AllocCodeSpace,(unsigned int));
-ADDR	STD_PROTO(AllocFromForeignArea,(Int));
-int     STD_PROTO(ExtendWorkSpace,(Int));
-void	STD_PROTO(FreeAtomSpace,(char *));
-int     STD_PROTO(FreeWorkSpace, (void));
-void	STD_PROTO(InitMemory,(int,int,int));
-MALLOC_T STD_PROTO(InitWorkSpace, (Int));
+int	STD_PROTO(_YAP_SizeOfBlock,(CODEADDR));
+void	STD_PROTO(_YAP_FreeCodeSpace,(char *));
+char   *STD_PROTO(_YAP_AllocAtomSpace,(unsigned int));
+char   *STD_PROTO(_YAP_AllocCodeSpace,(unsigned int));
+ADDR	STD_PROTO(_YAP_AllocFromForeignArea,(Int));
+int     STD_PROTO(_YAP_ExtendWorkSpace,(Int));
+void	STD_PROTO(_YAP_FreeAtomSpace,(char *));
+int     STD_PROTO(_YAP_FreeWorkSpace, (void));
+void	STD_PROTO(_YAP_InitMemory,(int,int,int));
 
 /* amasm.c */
-OPCODE	STD_PROTO(opcode,(op_numbers));
-CODEADDR	STD_PROTO(assemble,(int));
+OPCODE	STD_PROTO(_YAP_opcode,(op_numbers));
 
 /* analyst.c */
 #ifdef ANALYST
-void   STD_PROTO(InitAnalystPreds,(void));
+void   STD_PROTO(_YAP_InitAnalystPreds,(void));
 #endif /* ANALYST */
 
 /* arrays.c */
-void   STD_PROTO(InitArrayPreds,(void));
-CELL  *STD_PROTO(ClearNamedArray,(CELL *));
+void   STD_PROTO(_YAP_InitArrayPreds,(void));
 
 /* attvar.c */
-Term	STD_PROTO(CurrentAttVars,(void));
-void   STD_PROTO(InitAttVarPreds,(void));
+Term   STD_PROTO(_YAP_CurrentAttVars,(void));
+void   STD_PROTO(_YAP_InitAttVarPreds,(void));
 
 /* bb.c */
-void   STD_PROTO(InitBBPreds,(void));
+void   STD_PROTO(_YAP_InitBBPreds,(void));
 
 /* bignum.c */
-void   STD_PROTO(InitBigNums,(void));
+void   STD_PROTO(_YAP_InitBigNums,(void));
 
 /* c_interface.c */
 Int    STD_PROTO(YAP_Execute,(struct pred_entry *, CPredicate));
 
 /* cdmgr.c */
-Term	STD_PROTO(all_calls,(void));
-void	STD_PROTO(mark_as_fast,(Term));
-void	STD_PROTO(IPred,(CODEADDR sp));
-Int	STD_PROTO(PredForCode,(CODEADDR, Atom *, Int *, SMALLUNSGN *));
-void	STD_PROTO(InitCdMgr,(void));
+void	STD_PROTO(_YAP_addclause,(Term,CODEADDR,int,int));
+Term	STD_PROTO(_YAP_all_calls,(void));
+Atom	STD_PROTO(_YAP_ConsultingFile,(void));
+Int	STD_PROTO(_YAP_PredForCode,(CODEADDR, Atom *, Int *, SMALLUNSGN *));
+void	STD_PROTO(_YAP_InitCdMgr,(void));
 #if     EMACS
 int     STD_PROTO(where_new_clause, (Prop, int));
 #endif
-void	STD_PROTO(init_consult,(int, char *));
-void	STD_PROTO(end_consult,(void));
+void	STD_PROTO(_YAP_init_consult,(int, char *));
+void	STD_PROTO(_YAP_end_consult,(void));
 
 
 /* cmppreds.c */
-int	STD_PROTO(compare_terms,(Term,Term));
-int	STD_PROTO(iequ,(Term,Term));
-void	STD_PROTO(InitCmpPreds,(void));
+int	STD_PROTO(_YAP_compare_terms,(Term,Term));
+void	STD_PROTO(_YAP_InitCmpPreds,(void));
 
 /* compiler.c */
-CODEADDR	STD_PROTO(cclause,(Term, int, int));
+CODEADDR	STD_PROTO(_YAP_cclause,(Term, int, int));
 
 /* computils.c */
 
 /* corout.c */
-void	STD_PROTO(InitCoroutPreds,(void));
+void	STD_PROTO(_YAP_InitCoroutPreds,(void));
 #ifdef COROUTINING
-Term	STD_PROTO(ListOfWokenGoals,(void));
-void	STD_PROTO(WakeUp,(CELL *));
-void	STD_PROTO(mark_all_suspended_goals,(void));
+Term	STD_PROTO(_YAP_ListOfWokenGoals,(void));
+void	STD_PROTO(_YAP_WakeUp,(CELL *));
+void	STD_PROTO(_YAP_mark_all_suspended_goals,(void));
 #endif
 
 /* dbase.c */
-int     STD_PROTO(DBTrailOverflow,(void));
-CELL	STD_PROTO(EvalMasks,(Term,CELL *));
-void	STD_PROTO(InitBackDB,(void));
-void	STD_PROTO(InitDBPreds,(void));
+int     STD_PROTO(_YAP_DBTrailOverflow,(void));
+CELL	STD_PROTO(_YAP_EvalMasks,(Term,CELL *));
+void	STD_PROTO(_YAP_InitBackDB,(void));
+void	STD_PROTO(_YAP_InitDBPreds,(void));
 
 /* errors.c */
-void	STD_PROTO(exit_yap,(int));
-yamop  *STD_PROTO(Error,(yap_error_number,Term,char *msg, ...));
-#if DEBUG
-void  STD_PROTO(bug_location,(yamop *));
-#endif
+void	STD_PROTO(_YAP_exit,(int));
+yamop  *STD_PROTO(_YAP_Error,(yap_error_number,Term,char *msg, ...));
 
 /* eval.c */
-void	STD_PROTO(InitEval,(void));
-Int	STD_PROTO(EvFArt,(Term));
+void	STD_PROTO(_YAP_InitEval,(void));
 
 /* exec.c */
-Term	STD_PROTO(ExecuteCallMetaCall,(SMALLUNSGN mod));
-void	STD_PROTO(InitExecFs,(void));
-Int	STD_PROTO(JumpToEnv,(Term));
-int	STD_PROTO(RunTopGoal,(Term));
-Int	STD_PROTO(execute_goal,(Term, int, SMALLUNSGN));
-int	STD_PROTO(exec_absmi,(int));
-void	STD_PROTO(trust_last,(void));
+Term	STD_PROTO(_YAP_ExecuteCallMetaCall,(SMALLUNSGN mod));
+void	STD_PROTO(_YAP_InitExecFs,(void));
+Int	STD_PROTO(_YAP_JumpToEnv,(Term));
+int	STD_PROTO(_YAP_RunTopGoal,(Term));
+Int	STD_PROTO(_YAP_execute_goal,(Term, int, SMALLUNSGN));
+int	STD_PROTO(_YAP_exec_absmi,(int));
+void	STD_PROTO(_YAP_trust_last,(void));
 
 
 /* grow.c */
-Int     STD_PROTO(total_stack_shift_time,(void));
-void    STD_PROTO(InitGrowPreds, (void));
-int     STD_PROTO(growheap,      (int));
-int     STD_PROTO(growstack,     (long));
-int     STD_PROTO(growtrail,     (long));
-int     STD_PROTO(growglobal,    (CELL **));
+Int     STD_PROTO(_YAP_total_stack_shift_time,(void));
+void    STD_PROTO(_YAP_InitGrowPreds, (void));
+int     STD_PROTO(_YAP_growheap,      (int));
+int     STD_PROTO(_YAP_growstack,     (long));
+int     STD_PROTO(_YAP_growtrail,     (long));
+int     STD_PROTO(_YAP_growglobal,    (CELL **));
 
 /* heapgc.c */
-Int  STD_PROTO(total_gc_time,(void));
-void STD_PROTO(init_gc,(void));
-int  STD_PROTO(is_gc_verbose, (void));
-int  STD_PROTO(gc, (Int, CELL *, yamop *));
-
-
+Int  STD_PROTO(_YAP_total_gc_time,(void));
+void STD_PROTO(_YAP_init_gc,(void));
+int  STD_PROTO(_YAP_is_gc_verbose, (void));
+int  STD_PROTO(_YAP_gc, (Int, CELL *, yamop *));
 
 /* init.c */
 #ifdef DEBUG
-int	STD_PROTO(DebugPutc,(int,int));
-void	STD_PROTO(DebugSetIFile,(char *));
-void	STD_PROTO(DebugEndline,(void));
-int	STD_PROTO(DebugGetc,(void));
+int	STD_PROTO(_YAP_DebugPutc,(int,int));
+void	STD_PROTO(_YAP_DebugSetIFile,(char *));
+void	STD_PROTO(_YAP_DebugEndline,(void));
+int	STD_PROTO(_YAP_DebugGetc,(void));
 #endif
-int	STD_PROTO(IsOpType,(char *));
-void	STD_PROTO(InitStacks,(int,int,int,int,int,int));
-void	STD_PROTO(InitCPred,(char *, unsigned long int, CPredicate, int));
-void	STD_PROTO(InitAsmPred,(char *, unsigned long int, int, CPredicate, int));
-void	STD_PROTO(InitCmpPred,(char *, unsigned long int, CmpPredicate, CPredicate, int));
-void	STD_PROTO(InitCPredBack,(char *, unsigned long int, unsigned int, CPredicate,CPredicate,int));
-void	STD_PROTO(InitYaamRegs,(void));
-void    STD_PROTO(ReInitWallTime, (void));
-int	STD_PROTO(OpDec,(int,char *,Atom));
+int	STD_PROTO(_YAP_IsOpType,(char *));
+void	STD_PROTO(_YAP_InitStacks,(int,int,int,int,int,int));
+void	STD_PROTO(_YAP_InitCPred,(char *, unsigned long int, CPredicate, int));
+void	STD_PROTO(_YAP_InitAsmPred,(char *, unsigned long int, int, CPredicate, int));
+void	STD_PROTO(_YAP_InitCmpPred,(char *, unsigned long int, CmpPredicate, CPredicate, int));
+void	STD_PROTO(_YAP_InitCPredBack,(char *, unsigned long int, unsigned int, CPredicate,CPredicate,int));
+void	STD_PROTO(_YAP_InitYaamRegs,(void));
+void    STD_PROTO(_YAP_ReInitWallTime, (void));
+int	STD_PROTO(_YAP_OpDec,(int,char *,Atom));
+
+/* inlines.c */
+void         STD_PROTO(_YAP_InitInlines,(void));
 
 /* iopreds.c */
-void	STD_PROTO(CloseStreams,(int));
-void	STD_PROTO(InitPlIO,(void));
-void	STD_PROTO(InitBackIO,(void));
-void	STD_PROTO(InitIOPreds,(void));
-Atom	STD_PROTO(YapConsultingFile,(void));
+void	STD_PROTO(_YAP_InitPlIO,(void));
+void	STD_PROTO(_YAP_InitBackIO,(void));
+void	STD_PROTO(_YAP_InitIOPreds,(void));
 
 /* depth_lim.c */
-void	STD_PROTO(InitItDeepenPreds,(void));
+void	STD_PROTO(_YAP_InitItDeepenPreds,(void));
 
 /* load_foreign.c */
-void	STD_PROTO(InitLoadForeign,(void));
+void	STD_PROTO(_YAP_InitLoadForeign,(void));
 
 /* mavar.c */
-void	STD_PROTO(InitMaVarCPreds,(void));
-Term    STD_PROTO(NewTimedVar,(Term));
-Term    STD_PROTO(NewEmptyTimedVar,(void));
-Term	STD_PROTO(ReadTimedVar,(Term));
-Term    STD_PROTO(UpdateTimedVar,(Term, Term));
+void	STD_PROTO(_YAP_InitMaVarCPreds,(void));
+Term    STD_PROTO(_YAP_NewTimedVar,(Term));
+Term    STD_PROTO(_YAP_NewEmptyTimedVar,(void));
+Term	STD_PROTO(_YAP_ReadTimedVar,(Term));
+Term    STD_PROTO(_YAP_UpdateTimedVar,(Term, Term));
+
+/* modules.c */
+SMALLUNSGN	STD_PROTO(_YAP_LookupModule,(Term));
+Term    STD_PROTO(_YAP_Module_Name, (CODEADDR));
+void    STD_PROTO(_YAP_InitModules, (void));
 
 #if HAVE_MPI
 /* mpi.c */
-void    STD_PROTO(InitMPI,(void));
+void    STD_PROTO(_YAP_InitMPI,(void));
 #endif
 
 #if HAVE_MPE
 /* mpe.c */
-void    STD_PROTO(InitMPE,(void));
+void    STD_PROTO(_YAP_InitMPE,(void));
 #endif
 
+
+/* other.c */
+Term	STD_PROTO(_YAP_MkApplTerm,(Functor,unsigned int,Term *));
+Term	STD_PROTO(_YAP_MkNewApplTerm,(Functor,unsigned int));
+Term	STD_PROTO(_YAP_MkNewPairTerm,(void));
+
+
 /* parser.c */
-int	STD_PROTO(IsPrefixOp,(Prop,int *,int *));
-int	STD_PROTO(IsInfixOp,(Prop,int *,int *,int *));
-int	STD_PROTO(IsPosfixOp,(Prop,int *,int *));
-Term	STD_PROTO(Parse,(void));
+int	STD_PROTO(_YAP_IsPrefixOp,(Prop,int *,int *));
+int	STD_PROTO(_YAP_IsInfixOp,(Prop,int *,int *,int *));
+int	STD_PROTO(_YAP_IsPosfixOp,(Prop,int *,int *));
+Term	STD_PROTO(_YAP_Parse,(void));
 
 /* save.c */
-int	STD_PROTO(SavedInfo,(char *,char *,CELL *,CELL *,CELL *));
-int 	STD_PROTO(Restore,(char *, char *));
-void	STD_PROTO(InitSavePreds,(void));
+int	STD_PROTO(_YAP_SavedInfo,(char *,char *,CELL *,CELL *,CELL *));
+int 	STD_PROTO(_YAP_Restore,(char *, char *));
+void	STD_PROTO(_YAP_InitSavePreds,(void));
 
 /* scanner.c */
 
 /* sort.c */
-void    STD_PROTO(InitSortPreds,(void));
+void    STD_PROTO(_YAP_InitSortPreds,(void));
 
 /* stdpreds.c */
-#ifdef undefined
-CELL	STD_PROTO(FindWhatCreep,(CELL));
-#endif /* undefined */
-void	STD_PROTO(InitBackCPreds,(void));
-void	STD_PROTO(InitCPreds,(void));
-Int	STD_PROTO(p_creep,(void));
+void	STD_PROTO(_YAP_InitBackCPreds,(void));
+void	STD_PROTO(_YAP_InitCPreds,(void));
+void	STD_PROTO(_YAP_show_statistics,(void));
+Int	STD_PROTO(_YAP_creep,(void));
 
 /* sysbits.c */
-void	STD_PROTO(set_fpu_exceptions,(int));
-Int	STD_PROTO(cputime,(void));
-Int	STD_PROTO(runtime,(void));
-Int	STD_PROTO(walltime,(void));
-int	STD_PROTO(dir_separator,(int));
-int	STD_PROTO(volume_header,(char *));
-void	STD_PROTO(InitSysPath,(void));
-void	STD_PROTO(SetTextFile,(char *));
-void    STD_PROTO(cputime_interval,(Int *,Int *));
-void    STD_PROTO(walltime_interval,(Int *,Int *));
-void	STD_PROTO(InitSysbits,(void));
-void	STD_PROTO(InitSysPreds,(void));
-int     STD_PROTO(TrueFileName, (char *, char *, int));
-int	STD_PROTO(ProcessSIGINT,(void));
-double  STD_PROTO(yap_random, (void));
-void    STD_PROTO(set_fpu_exceptions, (int));
+void	STD_PROTO(_YAP_set_fpu_exceptions,(int));
+Int	STD_PROTO(_YAP_cputime,(void));
+Int	STD_PROTO(_YAP_walltime,(void));
+int	STD_PROTO(_YAP_dir_separator,(int));
+int	STD_PROTO(_YAP_volume_header,(char *));
+void	STD_PROTO(_YAP_InitSysPath,(void));
+#if MAC
+void	STD_PROTO(_YAP_SetTextFile,(char *));
+#endif
+void    STD_PROTO(_YAP_cputime_interval,(Int *,Int *));
+void    STD_PROTO(_YAP_walltime_interval,(Int *,Int *));
+void	STD_PROTO(_YAP_InitSysbits,(void));
+void	STD_PROTO(_YAP_InitSysPreds,(void));
+int     STD_PROTO(_YAP_TrueFileName, (char *, char *, int));
+int	STD_PROTO(_YAP_ProcessSIGINT,(void));
+double  STD_PROTO(_YAP_random, (void));
 
 /* tracer.c */
 #ifdef LOW_LEVEL_TRACER
-void	STD_PROTO(InitLowLevelTrace,(void));
+void	STD_PROTO(_YAP_InitLowLevelTrace,(void));
 #endif
 
 /* unify.c */
-void         STD_PROTO(InitAbsmi,(void));
-void         STD_PROTO(InitUnify,(void));
-int          STD_PROTO(IUnify,(register CELL d0,register CELL d1));
-EXTERN Term  STD_PROTO(Deref,(Term));
-EXTERN Term  STD_PROTO(Derefa,(CELL *));
-EXTERN Int   STD_PROTO(unify,(Term, Term));
-EXTERN Int   STD_PROTO(unify_constant,(Term,Term));
-op_numbers   STD_PROTO(op_from_opcode,(OPCODE));
+void         STD_PROTO(_YAP_InitAbsmi,(void));
+void         STD_PROTO(_YAP_InitUnify,(void));
+int          STD_PROTO(_YAP_IUnify,(register CELL d0,register CELL d1));
+op_numbers   STD_PROTO(_YAP_op_from_opcode,(OPCODE));
 
 /* userpreds.c */
-void	STD_PROTO(InitUserCPreds,(void));
-void	STD_PROTO(InitUserBacks,(void));
+void	STD_PROTO(_YAP_InitUserCPreds,(void));
+void	STD_PROTO(_YAP_InitUserBacks,(void));
 
 /* utilpreds.c */
-Term	STD_PROTO(CopyTerm,(Term));
-void	STD_PROTO(InitUtilCPreds,(void));
+Term	STD_PROTO(_YAP_CopyTerm,(Term));
+void	STD_PROTO(_YAP_InitUtilCPreds,(void));
 
 /* yap.c */
 
-void	STD_PROTO(addclause,(Term,CODEADDR,int,int));
-
 /* ypsocks.c */
-void	STD_PROTO(InitSockets,(void));
+void	STD_PROTO(_YAP_InitSockets,(void));
 #ifdef USE_SOCKET
-void	STD_PROTO(init_socks,(char *, long));
+void	STD_PROTO(_YAP_init_socks,(char *, long));
 #endif
 
 /* opt.preds.c */
-void    STD_PROTO(init_optyap_preds,(void));
+void    STD_PROTO(_YAP_init_optyap_preds,(void));
 
 

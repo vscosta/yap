@@ -26,6 +26,7 @@ static char     SccsId[] = "%W% %G%";
 #include "Yap.h"
 #include "yapio.h"
 #include "clause.h"
+#include "Foreign.h"
 #ifdef LOW_LEVEL_TRACER
 #include "tracer.h"
 #endif
@@ -48,6 +49,9 @@ static char     SccsId[] = "%W% %G%";
 #endif
 
 #ifdef DEBUG
+
+#define	LOGFILE	"logfile"
+
 #ifdef MACC
 STATIC_PROTO(void  InTTYLine, (char *));
 #endif
@@ -61,27 +65,30 @@ STATIC_PROTO(void  InitFlags, (void));
 STATIC_PROTO(void  InitCodes, (void));
 STATIC_PROTO(void  InitVersion, (void));
 
-STD_PROTO(void  InitModules, (void));
 STD_PROTO(void  exit, (int));
-
-#ifdef DEBUG
-char            Option[20];
-#endif
 
 /**************	YAP PROLOG GLOBAL VARIABLES *************************/
 
 /************* variables related to memory allocation ***************/
-ADDR            HeapBase, LocalBase, GlobalBase, TrailBase, TrailTop, ForeignCodeBase, ForeignCodeTop, ForeignCodeMax;
+ADDR            _YAP_HeapBase,
+		_YAP_LocalBase,
+                _YAP_GlobalBase,
+                _YAP_TrailBase,
+                _YAP_TrailTop;
 
 /* Functor		FunctorDouble, FunctorLongInt, FunctorDBRef; */
 
 /************ variables	concerned with Error Handling *************/
-char           *ErrorMessage;	/* used to pass error messages */
-Term           Error_Term;	/* used to pass error terms */
-yap_error_number  Error_TYPE;	/* used to pass the error */
+char           *_YAP_ErrorMessage;	/* used to pass error messages */
+Term              _YAP_Error_Term;	/* used to pass error terms */
+yap_error_number  _YAP_Error_TYPE;	/* used to pass the error */
 
-/********* flags for comunication with prolog system predicates	*****/
-int             Parm[10];
+/********* readline support	*****/
+#if HAVE_LIBREADLINE
+
+char *_line = (char *) NULL;
+
+#endif
 
 #ifdef MPWSHELL
 /********** informing if we are in the MPW shell ********************/
@@ -97,48 +104,38 @@ char            emacs_tmp[256], emacs_tmp2[256];
 
 #endif
 
-#if HAVE_SIGNAL
-
-int             snoozing = FALSE;
-
-#endif
-
-/************ variable concerned with version number *****************/
-char           version_number[] = YAP_VERSION;
-
-/******************** compiler information ***************************/
-
-int             optimizer_on = TRUE;
-
-int             compile_mode = 0;
-
 /******************* storing error messages ****************************/
-char      ErrorSay[MAX_ERROR_MSG_SIZE];
+char      _YAP_ErrorSay[MAX_ERROR_MSG_SIZE];
 
 /******************* intermediate buffers **********************/
 
-char FileNameBuf[YAP_FILENAME_MAX], FileNameBuf2[YAP_FILENAME_MAX];
+char     _YAP_FileNameBuf[YAP_FILENAME_MAX],
+         _YAP_FileNameBuf2[YAP_FILENAME_MAX];
 
 /********* Prolog State ********************************************/
 
-prolog_exec_mode      PrologMode = BootMode;
-int      CritLocks = 0;
+prolog_exec_mode      _YAP_PrologMode = BootMode;
 
-#if PUSH_REGS
-REGSTORE standard_regs;
+int      _YAP_CritLocks = 0;
 
-REGSTORE *regp;
+/********* streams ********************************************/
 
-#else
+int _YAP_c_input_stream, _YAP_c_output_stream, _YAP_c_error_stream;
 
-REGSTORE REGS;
+YP_FILE *_YAP_stdin;
+YP_FILE *_YAP_stdout;
+YP_FILE *_YAP_stderr;
 
-#endif
+/********* parsing ********************************************/
+
+TokEntry *_YAP_tokptr, *_YAP_toktide;
+VarEntry *_YAP_VarTable, *_YAP_AnonVarTable;
+int _YAP_eot_before_eof = FALSE;
 
 /************** Access to yap initial arguments ***************************/
 
-char          **yap_args;
-int             yap_argc;
+char          **_YAP_argv;
+int             _YAP_argc;
 
 /************** Extensions to Terms ***************************************/
 
@@ -147,30 +144,44 @@ int             yap_argc;
 ext_op attas[attvars_ext+1];
 #endif
 
-/************** Debugger support ***************************************/
-
-/*
-  PREG just before we enter $spy. We use that to find out the clause which
-  was calling the debugged goal.
-*/
-yamop *P_before_spy;
-
-int creep_on = FALSE;
-
-#ifdef DEBUG
-int output_msg = FALSE;
-#endif
-
 /************ variables	concerned with Error Handling *************/
-sigjmp_buf         RestartEnv;	/* used to restart after an abort execution */
-
-/************ table of C-Predicates *************/
-CPredicate    c_predicates[MAX_C_PREDS];
-cmp_entry     cmp_funcs[MAX_CMP_FUNCS];
+sigjmp_buf         _YAP_RestartEnv;	/* used to restart after an abort execution */
 
 /**************	declarations local to init.c ************************/
 static char    *optypes[] =
 {"", "xfx", "xfy", "yfx", "xf", "yf", "fx", "fy"};
+
+/* if we botched in a LongIO operation */
+jmp_buf _YAP_IOBotch;
+
+/* if we botched in the compiler */
+jmp_buf _YAP_CompilerBotch;
+
+/* OS page size for memory allocation */
+int _YAP_page_size;
+
+#if USE_THREADED_CODE
+/* easy access to instruction opcodes */
+void **_YAP_ABSMI_OPCODES;
+#endif
+
+#if   USE_SOCKET
+int _YAP_sockets_io=0;
+#endif
+
+#if ANALYST
+int _YAP_opcount[_std_top + 1];
+#endif
+
+#if DEBUG
+#if COROUTINING
+int  _YAP_Portray_delays = FALSE;
+#endif
+#endif
+
+#ifdef LOW_LEVEL_TRACER
+int _YAP_do_low_level_trace = FALSE;
+#endif
 
 #define	xfx	1
 #define	xfy	2
@@ -180,92 +191,8 @@ static char    *optypes[] =
 #define	fx	6
 #define	fy	7
 
-#define Nill NULL
-
-#ifdef DEBUG
-
-#define	LOGFILE	"logfile"
-
- /* static */ YP_FILE *logfile;
-
-int 
-DebugPutc(int sno, int ch)
-{
-  if (Option['l' - 96])
-    (void) putc(ch, logfile);
-  return (YP_putc(ch, YP_stderr));
-}
-
-static char     my_line[200] = {0};
-static char    *lp = my_line;
-
-static YP_File     curfile;
-
-#ifdef MACC
-
-static void 
-InTTYLine(char *line)
-{
-	char           *p = line;
-	char            ch;
-	while ((ch = InKey()) != '\n' && ch != '\r')
-		if (ch == 8) {
-			if (line < p)
-				BackupTTY(*--p);
-		} else
-			TTYChar(*p++ = ch);
-	TTYChar('\n');
-	*p = 0;
-}
-
-#endif
-
-void 
-DebugSetIFile(char *fname)
-{
-  if (curfile)
-    YP_fclose(curfile);
-  curfile = YP_fopen(fname, "r");
-  if (curfile == Nill) {
-    curfile = stdin;
-    YP_fprintf(YP_stderr,"[ Warning: can not open %s for input]\n", fname);
-  }
-}
-
-void 
-DebugEndline()
-{
-	*lp = 0;
-
-}
-
-static       int   eolflg = 1;
-
-int 
-DebugGetc()
-{
-  int             ch;
-  if (eolflg) {
-    if (curfile != Nill) {
-      if (YP_fgets(my_line, 200, curfile) == 0)
-	curfile = Nill;
-    }
-    if (curfile == Nill)
-      YP_fgets(my_line, 200, stdin);
-    eolflg = 0;
-    lp = my_line;
-  }
-  if ((ch = *lp++) == 0)
-    ch = '\n', eolflg = 1;
-  if (Option['l' - 96])
-    putc(ch, logfile);
-  return (ch);
-}
-
-#endif
-
-
-int IsOpType(char *type)
+int
+_YAP_IsOpType(char *type)
 {
   int i;
 
@@ -275,7 +202,7 @@ int IsOpType(char *type)
   return (i <= 7);
 }
 
-int 
+static int 
 OpDec(int p, char *type, Atom a)
 {
   int             i;
@@ -286,7 +213,7 @@ OpDec(int p, char *type, Atom a)
     if (strcmp(type, optypes[i]) == 0)
       break;
   if (i > 7) {
-    Error(DOMAIN_ERROR_OPERATOR_SPECIFIER,MkAtomTerm(LookupAtom(type)),"op/3");
+    _YAP_Error(DOMAIN_ERROR_OPERATOR_SPECIFIER,MkAtomTerm(_YAP_LookupAtom(type)),"op/3");
     return(FALSE);
   }
   if (p) {
@@ -296,9 +223,9 @@ OpDec(int p, char *type, Atom a)
       p |= DcrrpFlag;
   }
   WRITE_LOCK(ae->ARWLock);
-  info = RepOpProp(GetAPropHavingLock(ae, OpProperty));
+  info = RepOpProp(_YAP_GetAPropHavingLock(ae, OpProperty));
   if (EndOfPAEntr(info)) {
-    info = (OpEntry *) AllocAtomSpace(sizeof(OpEntry));
+    info = (OpEntry *) _YAP_AllocAtomSpace(sizeof(OpEntry));
     info->KindOfPE = Ord(OpProperty);
     info->NextOfPE = RepAtom(a)->PropsOfAE;
     RepAtom(a)->PropsOfAE = AbsOpProp(info);
@@ -314,7 +241,7 @@ OpDec(int p, char *type, Atom a)
     if (info->Posfix != 0) /* there is a posfix operator */ {
       /* ISO dictates */
       WRITE_UNLOCK(info->OpRWLock);
-      Error(PERMISSION_ERROR_CREATE_OPERATOR,MkAtomTerm(a),"op/3");
+      _YAP_Error(PERMISSION_ERROR_CREATE_OPERATOR,MkAtomTerm(a),"op/3");
       return(FALSE);
     }
     info->Infix = p;
@@ -322,7 +249,7 @@ OpDec(int p, char *type, Atom a)
     if (info->Infix != 0) /* there is an infix operator */ {
       /* ISO dictates */
       WRITE_UNLOCK(info->OpRWLock);
-      Error(PERMISSION_ERROR_CREATE_OPERATOR,MkAtomTerm(a),"op/3");
+      _YAP_Error(PERMISSION_ERROR_CREATE_OPERATOR,MkAtomTerm(a),"op/3");
       return(FALSE);
     }
     info->Posfix = p;
@@ -333,19 +260,25 @@ OpDec(int p, char *type, Atom a)
   return (TRUE);
 }
 
+int 
+_YAP_OpDec(int p, char *type, Atom a)
+{
+  return(OpDec(p,type,a));
+}
+
 static void 
 SetOp(int p, int type, char *at)
 {
 #ifdef DEBUG
-  if (Option[5])
-    YP_fprintf(YP_stderr,"[setop %d %s %s]\n", p, optypes[type], at);
+  if (_YAP_Option[5])
+    fprintf(stderr,"[setop %d %s %s]\n", p, optypes[type], at);
 #endif
-  OpDec(p, optypes[type], LookupAtom(at));
+  OpDec(p, optypes[type], _YAP_LookupAtom(at));
 }
 
 /* Gets the info about an operator in a prop */
 Atom 
-GetOp(OpEntry *pp, int *prio, int fix)
+_YAP_GetOp(OpEntry *pp, int *prio, int fix)
 {
   int             n;
   SMALLUNSGN      p;
@@ -373,7 +306,7 @@ GetOp(OpEntry *pp, int *prio, int fix)
     else
       n = 4, *prio = p;
   }
-  return (LookupAtom(optypes[n]));
+  return (_YAP_LookupAtom(optypes[n]));
 }
 
 typedef struct OPSTRUCT {
@@ -454,6 +387,12 @@ InitOps(void)
     SetOp(Ops[i].opPrio, Ops[i].opType, Ops[i].opName);
 }
 
+#ifdef DEBUG
+#ifdef HAVE_ISATTY
+#include <unistd.h>
+#endif
+#endif
+
 static void 
 InitDebug(void)
 {
@@ -462,28 +401,33 @@ InitDebug(void)
   int i;
 
   for (i = 1; i < 20; ++i)
-    Option[i] = 0;
+    _YAP_Option[i] = 0;
   if (output_msg) {
     char            ch;
-    opcode(_Ystop);
-    fprintf(stderr,"absmi address:%p\n", FunAdr(absmi));
+
+#if HAVE_ISATTY
+    if (!isatty (0)) {
+      return;
+    }
+#endif
+    fprintf(stderr,"absmi address:%p\n", FunAdr(_YAP_absmi));
     fprintf(stderr,"Set	Trace Options:\n");
     fprintf(stderr,"a getch\t\tb token\t\tc Lookup\td LookupVar\ti Index\n");
     fprintf(stderr,"e SetOp\t\tf compile\tg icode\t\th boot\t\tl log\n");
     fprintf(stderr,"m Machine\n");
     while ((ch = YP_putchar(YP_getchar())) != '\n')
       if (ch >= 'a' && ch <= 'z')
-	Option[ch - 'a' + 1] = 1;
-    if (Option['l' - 96]) {
-      logfile = fopen(LOGFILE, "w");
-      if (logfile == Nill) {
+	_YAP_Option[ch - 'a' + 1] = 1;
+    if (_YAP_Option['l' - 96]) {
+      _YAP_logfile = fopen(LOGFILE, "w");
+      if (_YAP_logfile == NULL) {
 	fprintf(stderr,"can not open %s\n", LOGFILE);
 	getchar();
 	exit(0);
       }
       fprintf(stderr,"logging session to file 'logfile'\n");
 #ifdef MAC
-      SetTextFile(LOGFILE);
+      _YAP_SetTextFile(LOGFILE);
       lp = my_line;
       curfile = Nill;
 #endif
@@ -491,129 +435,129 @@ InitDebug(void)
   }
 #endif
   /* Set at full leash */
-  At = LookupAtom("$leash");
-  PutValue(At, MkIntTerm(15));
+  At = _YAP_LookupAtom("$leash");
+  _YAP_PutValue(At, MkIntTerm(15));
 }
 
 void 
-InitCPred(char *Name, unsigned long int Arity, CPredicate code, int flags)
+_YAP_InitCPred(char *Name, unsigned long int Arity, CPredicate code, int flags)
 {
-  Atom            atom = LookupAtom(Name);
+  Atom            atom = _YAP_LookupAtom(Name);
   PredEntry      *pe;
   yamop      *p_code = ((Clause *)NULL)->ClCode;
-  Clause     *cl = (Clause *)AllocCodeSpace((CELL)NEXTOP(NEXTOP(((yamop *)p_code),sla),e)); 
+  Clause     *cl = (Clause *)_YAP_AllocCodeSpace((CELL)NEXTOP(NEXTOP(((yamop *)p_code),sla),e)); 
 
   cl->u.ClValue = 0;
   cl->ClFlags = 0;
-  cl->Owner = LookupAtom("user");
+  cl->Owner = _YAP_LookupAtom("user");
   p_code = cl->ClCode;
 
   if (Arity)
-    pe = RepPredProp(PredPropByFunc(MkFunctor(atom, Arity),CurrentModule));
+    pe = RepPredProp(PredPropByFunc(_YAP_MkFunctor(atom, Arity),CurrentModule));
   else
     pe = RepPredProp(PredPropByAtom(atom,CurrentModule));
   pe->PredFlags = flags | StandardPredFlag | CPredFlag;
   p_code->u.sla.l = pe->TrueCodeOfPred = (CODEADDR) code;
   pe->CodeOfPred = pe->FirstClause = pe->LastClause = (CODEADDR) p_code;
   if (flags & UserCPredFlag)
-    p_code->opc = pe->OpcodeOfPred = opcode(_call_usercpred);
+    p_code->opc = pe->OpcodeOfPred = _YAP_opcode(_call_usercpred);
   else
-    p_code->opc = pe->OpcodeOfPred = opcode(_call_cpred);
+    p_code->opc = pe->OpcodeOfPred = _YAP_opcode(_call_cpred);
   p_code->u.sla.l2 = NULL;
   p_code->u.sla.s = -Signed(RealEnvSize);
   p_code->u.sla.p = pe;
   p_code->u.sla.p0 = pe;
   p_code = NEXTOP(p_code,sla);
-  p_code->opc = opcode(_procceed);
+  p_code->opc = _YAP_opcode(_procceed);
   { 
     Term mod = CurrentModule;
     pe->ModuleOfPred = mod;
   }
   if (!(flags & UserCPredFlag)) {
-    c_predicates[NUMBER_OF_CPREDS] = code;
-    pe->StateOfPred = NUMBER_OF_CPREDS;
-    NUMBER_OF_CPREDS++;
-    if (NUMBER_OF_CPREDS >= MAX_C_PREDS) {
-      Error(SYSTEM_ERROR, TermNil, "Too Many C-Predicates");
+    _YAP_c_predicates[NumberOfCPreds] = code;
+    pe->StateOfPred = NumberOfCPreds;
+    NumberOfCPreds++;
+    if (NumberOfCPreds >= MAX_C_PREDS) {
+      _YAP_Error(SYSTEM_ERROR, TermNil, "Too Many C-Predicates");
     }
   }
 }
 
 void 
-InitCmpPred(char *Name, unsigned long int Arity, CmpPredicate cmp_code, CPredicate code, int flags)
+_YAP_InitCmpPred(char *Name, unsigned long int Arity, CmpPredicate cmp_code, CPredicate code, int flags)
 {
-  Atom            atom = LookupAtom(Name);
+  Atom            atom = _YAP_LookupAtom(Name);
   PredEntry      *pe;
   yamop      *p_code = ((Clause *)NULL)->ClCode;
-  Clause     *cl = (Clause *)AllocCodeSpace((CELL)NEXTOP(NEXTOP(((yamop *)p_code),sla),e)); 
+  Clause     *cl = (Clause *)_YAP_AllocCodeSpace((CELL)NEXTOP(NEXTOP(((yamop *)p_code),sla),e)); 
 
   cl->u.ClValue = 0;
   cl->ClFlags = 0;
-  cl->Owner = LookupAtom("user");
+  cl->Owner = _YAP_LookupAtom("user");
   p_code = cl->ClCode;
   if (Arity)
-    pe = RepPredProp(PredPropByFunc(MkFunctor(atom, Arity),CurrentModule));
+    pe = RepPredProp(PredPropByFunc(_YAP_MkFunctor(atom, Arity),CurrentModule));
   else
     pe = RepPredProp(PredPropByAtom(atom,CurrentModule));
   pe->PredFlags = flags | StandardPredFlag | CPredFlag;
   p_code->u.sla.l = pe->TrueCodeOfPred = (CODEADDR) code;
   pe->CodeOfPred = pe->FirstClause = pe->LastClause = (CODEADDR) p_code;
   pe->ModuleOfPred = CurrentModule;
-  p_code->opc = pe->OpcodeOfPred = opcode(_call_cpred);
+  p_code->opc = pe->OpcodeOfPred = _YAP_opcode(_call_cpred);
   p_code->u.sla.l2 = NULL;
   p_code->u.sla.s = -Signed(RealEnvSize);
   p_code->u.sla.p = p_code->u.sla.p0 = pe;
   p_code = NEXTOP(p_code,sla);
-  p_code->opc = opcode(_procceed);
-  c_predicates[NUMBER_OF_CPREDS] = code;
-  pe->StateOfPred = NUMBER_OF_CPREDS;
-  NUMBER_OF_CPREDS++;
-  if (NUMBER_OF_CPREDS == MAX_C_PREDS) {
-    Error(SYSTEM_ERROR, TermNil, "not enough table for c-predicates");
+  p_code->opc = _YAP_opcode(_procceed);
+  _YAP_c_predicates[NumberOfCPreds] = code;
+  pe->StateOfPred = NumberOfCPreds;
+  NumberOfCPreds++;
+  if (NumberOfCPreds == MAX_C_PREDS) {
+    _YAP_Error(SYSTEM_ERROR, TermNil, "not enough table for c-predicates");
   }
   pe->TrueCodeOfPred = (CODEADDR) cmp_code;
-  cmp_funcs[NUMBER_OF_CMPFUNCS].p = pe;
-  cmp_funcs[NUMBER_OF_CMPFUNCS].f = cmp_code;
-  NUMBER_OF_CMPFUNCS++;
-  if (NUMBER_OF_CMPFUNCS == MAX_CMP_FUNCS) {
-    Error(SYSTEM_ERROR, TermNil, "not enough table for comparison predicates");
+  _YAP_cmp_funcs[NumberOfCmpFuncs].p = pe;
+  _YAP_cmp_funcs[NumberOfCmpFuncs].f = cmp_code;
+  NumberOfCmpFuncs++;
+  if (NumberOfCmpFuncs == MAX_CMP_FUNCS) {
+    _YAP_Error(SYSTEM_ERROR, TermNil, "not enough table for comparison predicates");
   }
 }
 
 void 
-InitAsmPred(char *Name,  unsigned long int Arity, int code, CPredicate def, int flags)
+_YAP_InitAsmPred(char *Name,  unsigned long int Arity, int code, CPredicate def, int flags)
 {
-  Atom            atom = LookupAtom(Name);
+  Atom            atom = _YAP_LookupAtom(Name);
   PredEntry      *pe;
 	
   if (Arity)
-    pe = RepPredProp(PredPropByFunc(MkFunctor(atom, Arity),CurrentModule));
+    pe = RepPredProp(PredPropByFunc(_YAP_MkFunctor(atom, Arity),CurrentModule));
   else
     pe = RepPredProp(PredPropByAtom(atom,CurrentModule));
   pe->PredFlags = flags | AsmPredFlag | StandardPredFlag | (code);
   if (def != NULL) {
     yamop      *p_code = ((Clause *)NULL)->ClCode;
-    Clause     *cl = (Clause *)AllocCodeSpace((CELL)NEXTOP(NEXTOP(((yamop *)p_code),sla),e)); 
+    Clause     *cl = (Clause *)_YAP_AllocCodeSpace((CELL)NEXTOP(NEXTOP(((yamop *)p_code),sla),e)); 
 
     cl->u.ClValue = 0;
     cl->ClFlags = 0;
-    cl->Owner = LookupAtom("user");
+    cl->Owner = _YAP_LookupAtom("user");
     p_code = cl->ClCode;
     p_code->u.sla.l = pe->TrueCodeOfPred = (CODEADDR) def;
     pe->CodeOfPred = pe->FirstClause = pe->LastClause = (CODEADDR) p_code;
     pe->ModuleOfPred = CurrentModule;
-    p_code->opc = pe->OpcodeOfPred = opcode(_call_cpred);
+    p_code->opc = pe->OpcodeOfPred = _YAP_opcode(_call_cpred);
     p_code->u.sla.l2 = NULL;
     p_code->u.sla.s = -Signed(RealEnvSize);
     p_code->u.sla.p = p_code->u.sla.p0 = pe;
     p_code = NEXTOP(p_code,sla);
-    p_code->opc = opcode(_procceed);
-    c_predicates[NUMBER_OF_CPREDS] = def;
-    pe->StateOfPred = NUMBER_OF_CPREDS;
-    NUMBER_OF_CPREDS++;
+    p_code->opc = _YAP_opcode(_procceed);
+    _YAP_c_predicates[NumberOfCPreds] = def;
+    pe->StateOfPred = NumberOfCPreds;
+    NumberOfCPreds++;
   } else {
     pe->FirstClause = pe->LastClause = NULL;
-    pe->OpcodeOfPred = opcode(_undef_p);
+    pe->OpcodeOfPred = _YAP_opcode(_undef_p);
     pe->TrueCodeOfPred = pe->CodeOfPred =
       (CODEADDR)(&(pe->OpcodeOfPred)); 
   }
@@ -626,43 +570,43 @@ CleanBack(PredEntry *pe, CPredicate Start, CPredicate Cont)
   yamop   *code;
   if (pe->FirstClause != pe->LastClause || pe->TrueCodeOfPred !=
       pe->FirstClause || pe->CodeOfPred != pe->FirstClause) {
-    Error(SYSTEM_ERROR,TermNil,
+    _YAP_Error(SYSTEM_ERROR,TermNil,
 	  "initiating a C Pred with backtracking");
     return;
   }
   code = (yamop *)(pe->FirstClause);
   if (pe->PredFlags & UserCPredFlag)
-    code->opc = opcode(_try_userc);
+    code->opc = _YAP_opcode(_try_userc);
   else
-    code->opc = opcode(_try_c);
+    code->opc = _YAP_opcode(_try_c);
 #ifdef YAPOR
   INIT_YAMOP_LTT(code, 2);
   PUT_YAMOP_SEQ(code);
 #endif /* YAPOR */
-  c_predicates[pe->StateOfPred] = Start;
+  _YAP_c_predicates[pe->StateOfPred] = Start;
   code->u.lds.d = (CODEADDR) Start;
   code = NEXTOP(code,lds);
   if (pe->PredFlags & UserCPredFlag)
-    code->opc = opcode(_retry_userc);
+    code->opc = _YAP_opcode(_retry_userc);
   else
-    code->opc = opcode(_retry_c);
+    code->opc = _YAP_opcode(_retry_c);
 #ifdef YAPOR
   INIT_YAMOP_LTT(code, 1);
   PUT_YAMOP_SEQ(code);
 #endif /* YAPOR */
-  c_predicates[pe->StateOfPred+1] = Cont;
+  _YAP_c_predicates[pe->StateOfPred+1] = Cont;
   code->u.lds.d = (CODEADDR) Cont;
 }
 
 
 void 
-InitCPredBack(char *Name, unsigned long int Arity, unsigned int Extra, CPredicate Start, CPredicate Cont, int flags)
+_YAP_InitCPredBack(char *Name, unsigned long int Arity, unsigned int Extra, CPredicate Start, CPredicate Cont, int flags)
 {
   PredEntry      *pe;
-  Atom            atom = LookupAtom(Name);
+  Atom            atom = _YAP_LookupAtom(Name);
 
   if (Arity)
-    pe = RepPredProp(PredPropByFunc(MkFunctor(atom, Arity),CurrentModule));
+    pe = RepPredProp(PredPropByFunc(_YAP_MkFunctor(atom, Arity),CurrentModule));
   else
     pe = RepPredProp(PredPropByAtom(atom,CurrentModule));
   if (pe->FirstClause != NIL)
@@ -675,25 +619,25 @@ InitCPredBack(char *Name, unsigned long int Arity, unsigned int Extra, CPredicat
     pe->PredFlags |= SequentialPredFlag;
 #endif /* YAPOR */
     cl = (Clause
-	  *)AllocCodeSpace((CELL)NEXTOP(NEXTOP(NEXTOP(code,lds),lds),e));
+	  *)_YAP_AllocCodeSpace((CELL)NEXTOP(NEXTOP(NEXTOP(code,lds),lds),e));
     if (cl == NIL) {
-      Error(SYSTEM_ERROR,TermNil,"No Heap Space in InitCPredBack");
+      _YAP_Error(SYSTEM_ERROR,TermNil,"No Heap Space in InitCPredBack");
       return;
     }
     cl->u.ClValue = 0;
     cl->ClFlags = 0;
-    cl->Owner = LookupAtom("user");
+    cl->Owner = _YAP_LookupAtom("user");
     code = cl->ClCode;
     pe->TrueCodeOfPred = pe->CodeOfPred =
       pe->FirstClause = pe->LastClause = (CODEADDR)code;
     if (flags & UserCPredFlag)
-      pe->OpcodeOfPred = code->opc = opcode(_try_userc);
+      pe->OpcodeOfPred = code->opc = _YAP_opcode(_try_userc);
     else
-      pe->OpcodeOfPred = code->opc = opcode(_try_c);
+      pe->OpcodeOfPred = code->opc = _YAP_opcode(_try_c);
     code->u.lds.d = (CODEADDR) Start;
-    pe->StateOfPred = NUMBER_OF_CPREDS;
-    c_predicates[NUMBER_OF_CPREDS] = Start;
-    NUMBER_OF_CPREDS++;
+    pe->StateOfPred = NumberOfCPreds;
+    _YAP_c_predicates[NumberOfCPreds] = Start;
+    NumberOfCPreds++;
     code->u.lds.p = pe;
     code->u.lds.s = Arity;
     code->u.lds.extra = Extra;
@@ -703,12 +647,12 @@ InitCPredBack(char *Name, unsigned long int Arity, unsigned int Extra, CPredicat
 #endif /* YAPOR */
     code = NEXTOP(code,lds);
     if (flags & UserCPredFlag)
-      code->opc = opcode(_retry_userc);
+      code->opc = _YAP_opcode(_retry_userc);
     else
-      code->opc = opcode(_retry_c);
+      code->opc = _YAP_opcode(_retry_c);
     code->u.lds.d = (CODEADDR) Cont;
-    c_predicates[NUMBER_OF_CPREDS] = Cont;
-    NUMBER_OF_CPREDS++;
+    _YAP_c_predicates[NumberOfCPreds] = Cont;
+    NumberOfCPreds++;
     code->u.lds.p = pe;
     code->u.lds.s = Arity;
     code->u.lds.extra = Extra;
@@ -717,7 +661,7 @@ InitCPredBack(char *Name, unsigned long int Arity, unsigned int Extra, CPredicat
     PUT_YAMOP_SEQ(code);
 #endif /* YAPOR */
     code = NEXTOP(code,lds);
-    code->opc = opcode(_Ystop);
+    code->opc = _YAP_opcode(_Ystop);
   }
 }
 
@@ -725,8 +669,8 @@ InitCPredBack(char *Name, unsigned long int Arity, unsigned int Extra, CPredicat
 static void 
 InitStdPreds(void)
 {
-  InitCPreds();
-  InitBackCPreds();
+  _YAP_InitCPreds();
+  _YAP_InitBackCPreds();
 }
 
 static void
@@ -783,46 +727,46 @@ InitCodes(void)
 
 #ifdef YAPOR
   heap_regs->seq_def = TRUE;
-  heap_regs->getworkfirsttimecode.opc = opcode(_getwork_first_time);
-  heap_regs->getworkcode.opc = opcode(_getwork);
+  heap_regs->getworkfirsttimecode.opc = _YAP_opcode(_getwork_first_time);
+  heap_regs->getworkcode.opc = _YAP_opcode(_getwork);
   INIT_YAMOP_LTT(&(heap_regs->getworkcode), 0);
-  heap_regs->getworkcode_seq.opc = opcode(_getwork_seq);
+  heap_regs->getworkcode_seq.opc = _YAP_opcode(_getwork_seq);
   INIT_YAMOP_LTT(&(heap_regs->getworkcode_seq), 0);
 #endif /* YAPOR */
 #ifdef TABLING
-  heap_regs->tablecompletioncode.opc = opcode(_table_completion);
-  heap_regs->tableanswerresolutioncode.opc = opcode(_table_answer_resolution);
+  heap_regs->tablecompletioncode.opc = _YAP_opcode(_table_completion);
+  heap_regs->tableanswerresolutioncode.opc = _YAP_opcode(_table_answer_resolution);
 #ifdef YAPOR
   INIT_YAMOP_LTT(&(heap_regs->tablecompletioncode), 0);
   INIT_YAMOP_LTT(&(heap_regs->tableanswerresolutioncode), 0);
 #endif /* YAPOR */
 #endif /* TABLING */
-  heap_regs->failcode = opcode(_op_fail);
-  heap_regs->failcode_1 = opcode(_op_fail);
-  heap_regs->failcode_2 = opcode(_op_fail);
-  heap_regs->failcode_3 = opcode(_op_fail);
-  heap_regs->failcode_4 = opcode(_op_fail);
-  heap_regs->failcode_5 = opcode(_op_fail);
-  heap_regs->failcode_6 = opcode(_op_fail);
+  heap_regs->failcode = _YAP_opcode(_op_fail);
+  heap_regs->failcode_1 = _YAP_opcode(_op_fail);
+  heap_regs->failcode_2 = _YAP_opcode(_op_fail);
+  heap_regs->failcode_3 = _YAP_opcode(_op_fail);
+  heap_regs->failcode_4 = _YAP_opcode(_op_fail);
+  heap_regs->failcode_5 = _YAP_opcode(_op_fail);
+  heap_regs->failcode_6 = _YAP_opcode(_op_fail);
   
-  heap_regs->env_for_trustfail_code.op = opcode(_call);
+  heap_regs->env_for_trustfail_code.op = _YAP_opcode(_call);
   heap_regs->env_for_trustfail_code.s = -Signed(RealEnvSize);
   heap_regs->env_for_trustfail_code.l = NULL;
   heap_regs->env_for_trustfail_code.l2 = NULL;
-  heap_regs->trustfailcode = opcode(_trust_fail);
+  heap_regs->trustfailcode = _YAP_opcode(_trust_fail);
 
-  heap_regs->env_for_yes_code.op = opcode(_call);
+  heap_regs->env_for_yes_code.op = _YAP_opcode(_call);
   heap_regs->env_for_yes_code.s = -Signed(RealEnvSize);
   heap_regs->env_for_yes_code.l = NULL;
   heap_regs->env_for_yes_code.l2 = NULL;
-  heap_regs->yescode.opc = opcode(_Ystop);
-  heap_regs->undef_op = opcode(_undef_p);
-  heap_regs->index_op = opcode(_index_pred);
-  heap_regs->fail_op = opcode(_op_fail);
+  heap_regs->yescode.opc = _YAP_opcode(_Ystop);
+  heap_regs->undef_op = _YAP_opcode(_undef_p);
+  heap_regs->index_op = _YAP_opcode(_index_pred);
+  heap_regs->fail_op = _YAP_opcode(_op_fail);
 
-  heap_regs->nocode.opc = opcode(_Nstop);
+  heap_regs->nocode.opc = _YAP_opcode(_Nstop);
 
-  ((yamop *)(&heap_regs->rtrycode))->opc = opcode(_retry_and_mark);
+  ((yamop *)(&heap_regs->rtrycode))->opc = _YAP_opcode(_retry_and_mark);
   ((yamop *)(&heap_regs->rtrycode))->u.ld.s = 0;
   ((yamop *)(&heap_regs->rtrycode))->u.ld.d = NIL;
 #ifdef YAPOR
@@ -844,17 +788,18 @@ InitCodes(void)
   heap_regs->invisiblechain.Entry = NIL;
   INIT_RWLOCK(heap_regs->invisiblechain.AERWLock);
   
-  heap_regs->consultlow = (consult_obj *)AllocCodeSpace(sizeof(consult_obj)*InitialConsultCapacity);
+  heap_regs->consultlow = (consult_obj *)_YAP_AllocCodeSpace(sizeof(consult_obj)*InitialConsultCapacity);
   if (heap_regs->consultlow == NIL) {
-    Error(SYSTEM_ERROR,TermNil,"No Heap Space in InitCodes");
+    _YAP_Error(SYSTEM_ERROR,TermNil,"No Heap Space in InitCodes");
    return;
   }
   heap_regs->consultcapacity = InitialConsultCapacity;
-  heap_regs->profiling = FALSE;
-  heap_regs->call_counting = FALSE;
+  heap_regs->system_profiling = FALSE;
+  heap_regs->system_call_counting = FALSE;
   heap_regs->update_mode = 0;
   heap_regs->consultbase = heap_regs->consultsp =
     heap_regs->consultlow + heap_regs->consultcapacity;
+  heap_regs->compiler_compile_mode = 1;
   heap_regs->maxdepth = 0;
   heap_regs->maxlist  = 0;
 
@@ -882,143 +827,146 @@ InitCodes(void)
   heap_regs->user_module = 1;
   heap_regs->db_queues = NULL;
   heap_regs->db_queues_cache = NULL;
-  heap_regs->atom_abol = LookupAtom("$abol");
-  AtomAltNot = LookupAtom("not");
-  heap_regs->atom_append = LookupAtom ("append");
-  heap_regs->atom_array = LookupAtom("$array");
+  heap_regs->atom_abol = _YAP_LookupAtom("$abol");
+  AtomAltNot = _YAP_LookupAtom("not");
+  heap_regs->atom_append = _YAP_LookupAtom ("append");
+  heap_regs->atom_array = _YAP_LookupAtom("$array");
 #ifdef COROUTINING
-  AtomArrayAccess = LookupAtom("$array_arg");
+  AtomArrayAccess = _YAP_LookupAtom("$array_arg");
 #endif
-  AtomArrow = LookupAtom("->");
-  heap_regs->atom_assert = LookupAtom(":-");
-  heap_regs->atom_alarm = LookupAtom("$alarm");
+  AtomArrow = _YAP_LookupAtom("->");
+  heap_regs->atom_assert = _YAP_LookupAtom(":-");
+  heap_regs->atom_alarm = _YAP_LookupAtom("$alarm");
 #if HAVE_SIGACTION
-  heap_regs->atom_sig_pending = LookupAtom("$sig_pending");
+  heap_regs->atom_sig_pending = _YAP_LookupAtom("$sig_pending");
 #endif
-  AtomBraces = LookupAtom("{}");
-  heap_regs->atom_b = LookupAtom("$last_choice_pt");
-  heap_regs->atom_break = LookupAtom("$break");
-  heap_regs->atom_call = LookupAtom("call");
-  heap_regs->atom_catch = LookupAtom("$catch");
-  heap_regs->atom_comma = LookupAtom(",");
-  heap_regs->atom_cpu_time = LookupAtom("cputime");
-  heap_regs->atom_csult = LookupAtom("$csult");
-  heap_regs->atom_cut = LookupAtom("!");
-  heap_regs->atom_cut_by = LookupAtom("$cut_by");
+  AtomBraces = _YAP_LookupAtom("{}");
+  heap_regs->atom_b = _YAP_LookupAtom("$last_choice_pt");
+  heap_regs->atom_break = _YAP_LookupAtom("$break");
+  heap_regs->atom_call = _YAP_LookupAtom("call");
+  heap_regs->atom_catch = _YAP_LookupAtom("$catch");
+  heap_regs->atom_comma = _YAP_LookupAtom(",");
+  heap_regs->atom_cpu_time = _YAP_LookupAtom("cputime");
+  heap_regs->atom_csult = _YAP_LookupAtom("$csult");
+  heap_regs->atom_cut = _YAP_LookupAtom("!");
+  heap_regs->atom_cut_by = _YAP_LookupAtom("$cut_by");
 #ifdef EUROTRA
 #ifdef SFUNC
-  heap_regs->atom_dollar_undef = MkAtomTerm(LookupAtom("$undef"));
+  heap_regs->atom_dollar_undef = MkAtomTerm(_YAP_LookupAtom("$undef"));
 #endif
 #endif
-  heap_regs->atom_e = LookupAtom("e");
-  heap_regs->atom_e_q = LookupAtom("=");
-  heap_regs->atom_eof = LookupAtom ("end_of_file");
-  AtomEq = LookupAtom("=");
+  heap_regs->atom_e = _YAP_LookupAtom("e");
+  heap_regs->atom_e_q = _YAP_LookupAtom("=");
+  heap_regs->atom_eof = _YAP_LookupAtom ("end_of_file");
+  AtomEq = _YAP_LookupAtom("=");
 #ifdef EUROTRA
-  heap_regs->atom_f_b = LookupAtom("fb");
+  heap_regs->atom_f_b = _YAP_LookupAtom("fb");
 #endif
-  heap_regs->atom_fail = LookupAtom("fail");
-  heap_regs->atom_false = LookupAtom("false");
-  heap_regs->atom_fast = LookupAtom("$fast");
-  heap_regs->atom_g_t = LookupAtom(">");
-  heap_regs->atom_gc = LookupAtom("$gc");
-  heap_regs->atom_gc_margin = LookupAtom("$gc_margin");
-  heap_regs->atom_gc_trace = LookupAtom("$gc_trace");
-  heap_regs->atom_gc_verbose = LookupAtom("$gc_verbose");
-  heap_regs->atom_gc_very_verbose = LookupAtom("$gc_very_verbose");
-  AtomGVar = LookupAtom("var");
-  heap_regs->atom_global = LookupAtom("global_sp");
-  heap_regs->atom_heap_used = LookupAtom("heapused");
-  heap_regs->atom_index = LookupAtom("$doindex");
-  heap_regs->atom_inf = LookupAtom("inf");
-  heap_regs->atom_l_t = LookupAtom("<");
-  heap_regs->atom_local = LookupAtom("local_sp");
-  heap_regs->atom_meta_call = LookupAtom("$call");
-  heap_regs->atom_minus = LookupAtom("-");
-  heap_regs->atom_nan = LookupAtom("nan");
-  AtomNot = LookupAtom("\\+");
-  heap_regs->atom_otherwise = LookupAtom("otherwise");
-  heap_regs->atom_pi = LookupAtom("pi");
-  heap_regs->atom_plus = LookupAtom("+");
-  heap_regs->atom_portray = LookupAtom("$portray");
-  heap_regs->atom_profile = LookupAtom("$profile");
-  AtomQuery = LookupAtom("?-");
-  heap_regs->atom_random = LookupAtom("random");
-  heap_regs->atom_read = LookupAtom("read");
-  heap_regs->atom_repeat = LookupAtom("repeat");
-  heap_regs->atom_restore_regs = LookupAtom("$restore_regs");
-  AtomSemic = LookupAtom(";");
-  heap_regs->atom_stack_free = LookupAtom("stackfree");
-  AtomStream = LookupAtom ("$stream");
-  AtomStreamPos = LookupAtom ("$stream_position");
-  heap_regs->atom_true = LookupAtom("true");
-  AtomSpy = LookupAtom("$spy");
-  heap_regs->atom_user = LookupAtom ("user");
-  heap_regs->atom_usr_err = LookupAtom ("user_error");
-  heap_regs->atom_usr_in = LookupAtom ("user_input");
-  heap_regs->atom_usr_out = LookupAtom ("user_output");
-  AtomVar = LookupAtom("$VAR");
-  heap_regs->atom_version_number = LookupAtom("$version_name");
-  heap_regs->atom_write = LookupAtom ("write");
+  heap_regs->atom_fail = _YAP_LookupAtom("fail");
+  heap_regs->atom_false = _YAP_LookupAtom("false");
+  heap_regs->atom_fast = _YAP_LookupAtom("$fast");
+  heap_regs->atom_g_t = _YAP_LookupAtom(">");
+  heap_regs->atom_gc = _YAP_LookupAtom("$gc");
+  heap_regs->atom_gc_margin = _YAP_LookupAtom("$gc_margin");
+  heap_regs->atom_gc_trace = _YAP_LookupAtom("$gc_trace");
+  heap_regs->atom_gc_verbose = _YAP_LookupAtom("$gc_verbose");
+  heap_regs->atom_gc_very_verbose = _YAP_LookupAtom("$gc_very_verbose");
+  AtomGVar = _YAP_LookupAtom("var");
+  heap_regs->atom_global = _YAP_LookupAtom("global_sp");
+  heap_regs->atom_heap_used = _YAP_LookupAtom("heapused");
+  heap_regs->atom_index = _YAP_LookupAtom("$doindex");
+  heap_regs->atom_inf = _YAP_LookupAtom("inf");
+  heap_regs->atom_l_t = _YAP_LookupAtom("<");
+  heap_regs->atom_local = _YAP_LookupAtom("local_sp");
+  heap_regs->atom_meta_call = _YAP_LookupAtom("$call");
+  heap_regs->atom_minus = _YAP_LookupAtom("-");
+  heap_regs->atom_nan = _YAP_LookupAtom("nan");
+  AtomNot = _YAP_LookupAtom("\\+");
+  heap_regs->atom_otherwise = _YAP_LookupAtom("otherwise");
+  heap_regs->atom_pi = _YAP_LookupAtom("pi");
+  heap_regs->atom_plus = _YAP_LookupAtom("+");
+  heap_regs->atom_portray = _YAP_LookupAtom("$portray");
+  heap_regs->atom_profile = _YAP_LookupAtom("$profile");
+  AtomQuery = _YAP_LookupAtom("?-");
+  heap_regs->atom_random = _YAP_LookupAtom("random");
+  heap_regs->atom_read = _YAP_LookupAtom("read");
+  heap_regs->atom_repeat = _YAP_LookupAtom("repeat");
+  heap_regs->atom_restore_regs = _YAP_LookupAtom("$restore_regs");
+  AtomSemic = _YAP_LookupAtom(";");
+  heap_regs->atom_stack_free = _YAP_LookupAtom("stackfree");
+  AtomStream = _YAP_LookupAtom ("$stream");
+  AtomStreamPos = _YAP_LookupAtom ("$stream_position");
+  heap_regs->atom_true = _YAP_LookupAtom("true");
+  AtomSpy = _YAP_LookupAtom("$spy");
+  heap_regs->atom_user = _YAP_LookupAtom ("user");
+  heap_regs->atom_usr_err = _YAP_LookupAtom ("user_error");
+  heap_regs->atom_usr_in = _YAP_LookupAtom ("user_input");
+  heap_regs->atom_usr_out = _YAP_LookupAtom ("user_output");
+  AtomVar = _YAP_LookupAtom("$VAR");
+  heap_regs->atom_version_number = _YAP_LookupAtom("$version_name");
+  heap_regs->atom_write = _YAP_LookupAtom ("write");
 #ifdef   USE_SOCKET
-  heap_regs->functor_af_inet = MkFunctor(LookupAtom("AF_INET"),2);
-  heap_regs->functor_af_local = MkFunctor(LookupAtom("AF_LOCAL"),1);
-  heap_regs->functor_af_unix = MkFunctor(LookupAtom("AF_UNIX"),1);
+  heap_regs->functor_af_inet = _YAP_MkFunctor(_YAP_LookupAtom("AF_INET"),2);
+  heap_regs->functor_af_local = _YAP_MkFunctor(_YAP_LookupAtom("AF_LOCAL"),1);
+  heap_regs->functor_af_unix = _YAP_MkFunctor(_YAP_LookupAtom("AF_UNIX"),1);
 #endif
-  heap_regs->functor_alt_not = MkFunctor(AtomAltNot, 1);
+  heap_regs->functor_alt_not = _YAP_MkFunctor(AtomAltNot, 1);
 #ifdef COROUTINING
-  heap_regs->functor_array_entry = MkFunctor(AtomArrayAccess, 3);
+  heap_regs->functor_array_entry = _YAP_MkFunctor(AtomArrayAccess, 3);
 #endif
-  heap_regs->functor_arrow = MkFunctor(AtomArrow, 2);
-  heap_regs->functor_assert = MkFunctor(AtomAssert, 2);
+  heap_regs->functor_arrow = _YAP_MkFunctor(AtomArrow, 2);
+  heap_regs->functor_assert = _YAP_MkFunctor(AtomAssert, 2);
 #ifdef COROUTINING
-  heap_regs->functor_att_goal = MkFunctor(LookupAtom("$att_do"),2);
+  heap_regs->functor_att_goal = _YAP_MkFunctor(_YAP_LookupAtom("$att_do"),2);
 #endif
-  heap_regs->functor_braces = MkFunctor(AtomBraces, 1);
-  heap_regs->functor_call = MkFunctor(AtomCall, 1);
-  heap_regs->functor_cut_by = MkFunctor(AtomCutBy, 1);
-  heap_regs->functor_clist = MkFunctor(LookupAtom("$when"), 4);
-  heap_regs->functor_comma = MkFunctor(AtomComma, 2);
-  heap_regs->functor_csult = MkFunctor(AtomCsult, 1);
-  heap_regs->functor_eq = MkFunctor(AtomEq, 2);
-  heap_regs->functor_execute_in_mod = MkFunctor(LookupAtom("$execute_in_mod"), 2);
-  heap_regs->functor_execute_within = MkFunctor(LookupAtom("$execute_within"), 1);
-  heap_regs->functor_g_atom = MkFunctor(LookupAtom("atom"), 1);
-  heap_regs->functor_g_atomic = MkFunctor(LookupAtom("atomic"), 1);
-  heap_regs->functor_g_compound = MkFunctor(LookupAtom("compound"), 1);
-  heap_regs->functor_g_float = MkFunctor(LookupAtom("float"), 1);
-  heap_regs->functor_g_integer = MkFunctor(LookupAtom("integer"), 1);
-  heap_regs->functor_g_number = MkFunctor(LookupAtom("number"), 1);
-  heap_regs->functor_g_primitive = MkFunctor(LookupAtom("primitive"), 1);
-  heap_regs->functor_g_var = MkFunctor(AtomGVar, 1);
-  heap_regs->functor_last_execute_within = MkFunctor(LookupAtom("$last_execute_within"), 1);
-  heap_regs->functor_list = MkFunctor(LookupAtom("."), 2);
-  heap_regs->functor_module = MkFunctor(LookupAtom(":"), 2);
+  heap_regs->functor_braces = _YAP_MkFunctor(AtomBraces, 1);
+  heap_regs->functor_call = _YAP_MkFunctor(AtomCall, 1);
+  heap_regs->functor_cut_by = _YAP_MkFunctor(AtomCutBy, 1);
+  heap_regs->functor_clist = _YAP_MkFunctor(_YAP_LookupAtom("$when"), 4);
+  heap_regs->functor_comma = _YAP_MkFunctor(AtomComma, 2);
+  heap_regs->functor_csult = _YAP_MkFunctor(AtomCsult, 1);
+  heap_regs->functor_eq = _YAP_MkFunctor(AtomEq, 2);
+  heap_regs->functor_execute_in_mod = _YAP_MkFunctor(_YAP_LookupAtom("$execute_in_mod"), 2);
+  heap_regs->functor_execute_within = _YAP_MkFunctor(_YAP_LookupAtom("$execute_within"), 1);
+  heap_regs->functor_g_atom = _YAP_MkFunctor(_YAP_LookupAtom("atom"), 1);
+  heap_regs->functor_g_atomic = _YAP_MkFunctor(_YAP_LookupAtom("atomic"), 1);
+  heap_regs->functor_g_compound = _YAP_MkFunctor(_YAP_LookupAtom("compound"), 1);
+  heap_regs->functor_g_float = _YAP_MkFunctor(_YAP_LookupAtom("float"), 1);
+  heap_regs->functor_g_integer = _YAP_MkFunctor(_YAP_LookupAtom("integer"), 1);
+  heap_regs->functor_g_number = _YAP_MkFunctor(_YAP_LookupAtom("number"), 1);
+  heap_regs->functor_g_primitive = _YAP_MkFunctor(_YAP_LookupAtom("primitive"), 1);
+  heap_regs->functor_g_var = _YAP_MkFunctor(AtomGVar, 1);
+  heap_regs->functor_last_execute_within = _YAP_MkFunctor(_YAP_LookupAtom("$last_execute_within"), 1);
+  heap_regs->functor_list = _YAP_MkFunctor(_YAP_LookupAtom("."), 2);
+  heap_regs->functor_module = _YAP_MkFunctor(_YAP_LookupAtom(":"), 2);
 #ifdef MULTI_ASSIGNMENT_VARIABLES
-  heap_regs->functor_mutable = MkFunctor(LookupAtom("$mutable_variable"),
+  heap_regs->functor_mutable = _YAP_MkFunctor(_YAP_LookupAtom("$mutable_variable"),
 					 sizeof(timed_var)/sizeof(CELL));
 #endif
-  heap_regs->functor_not = MkFunctor(AtomNot, 1);
-  heap_regs->functor_or = MkFunctor(AtomSemic, 2);
-  heap_regs->functor_portray = MkFunctor(AtomPortray, 1);
-  heap_regs->functor_query = MkFunctor(AtomQuery, 1);
-  heap_regs->functor_spy = MkFunctor(AtomSpy, 1);
-  heap_regs->functor_stream = MkFunctor (AtomStream, 1);
-  heap_regs->functor_stream_pos = MkFunctor (AtomStreamPos, 3);
-  heap_regs->functor_stream_eOS = MkFunctor (LookupAtom("end_of_stream"), 1);
-  heap_regs->functor_change_module = MkFunctor (LookupAtom("$change_module"), 1);
-  heap_regs->functor_current_module = MkFunctor (LookupAtom("$current_module"), 1);
-  FunctorThrow = MkFunctor( LookupAtom("throw"), 1);
-  heap_regs->functor_u_minus = MkFunctor (heap_regs->atom_minus, 1);
-  heap_regs->functor_u_plus = MkFunctor (heap_regs->atom_plus, 1);
-  heap_regs->functor_v_bar = MkFunctor(LookupAtom("|"), 2);
-  heap_regs->functor_var = MkFunctor(AtomVar, 1);
+  heap_regs->functor_not = _YAP_MkFunctor(AtomNot, 1);
+  heap_regs->functor_or = _YAP_MkFunctor(AtomSemic, 2);
+  heap_regs->functor_portray = _YAP_MkFunctor(AtomPortray, 1);
+  heap_regs->functor_query = _YAP_MkFunctor(AtomQuery, 1);
+  heap_regs->functor_spy = _YAP_MkFunctor(AtomSpy, 1);
+  heap_regs->functor_stream = _YAP_MkFunctor (AtomStream, 1);
+  heap_regs->functor_stream_pos = _YAP_MkFunctor (AtomStreamPos, 3);
+  heap_regs->functor_stream_eOS = _YAP_MkFunctor (_YAP_LookupAtom("end_of_stream"), 1);
+  heap_regs->functor_change_module = _YAP_MkFunctor (_YAP_LookupAtom("$change_module"), 1);
+  heap_regs->functor_current_module = _YAP_MkFunctor (_YAP_LookupAtom("$current_module"), 1);
+  FunctorThrow = _YAP_MkFunctor( _YAP_LookupAtom("throw"), 1);
+  heap_regs->functor_u_minus = _YAP_MkFunctor (heap_regs->atom_minus, 1);
+  heap_regs->functor_u_plus = _YAP_MkFunctor (heap_regs->atom_plus, 1);
+  heap_regs->functor_v_bar = _YAP_MkFunctor(_YAP_LookupAtom("|"), 2);
+  heap_regs->functor_var = _YAP_MkFunctor(AtomVar, 1);
 #ifdef EUROTRA
-  heap_regs->term_dollar_u = MkAtomTerm(LookupAtom("$u"));
+  heap_regs->term_dollar_u = MkAtomTerm(_YAP_LookupAtom("$u"));
 #endif
-  heap_regs->term_prolog = MkAtomTerm(LookupAtom("prolog"));
-  heap_regs->term_refound_var = MkAtomTerm(LookupAtom("$I_FOUND_THE_VARIABLE_AGAIN"));
+  heap_regs->term_prolog = MkAtomTerm(_YAP_LookupAtom("prolog"));
+  heap_regs->term_refound_var = MkAtomTerm(_YAP_LookupAtom("$I_FOUND_THE_VARIABLE_AGAIN"));
   heap_regs->dyn_array_list = NULL;
+#if DEBUG
+  heap_regs->debugger_output_msg = FALSE;
+#endif
   heap_regs->n_of_file_aliases = 0;
   heap_regs->file_aliases = NULL;
   heap_regs->foreign_code_loaded = NULL;
@@ -1029,11 +977,11 @@ InitCodes(void)
   /* make sure no one else can use these two atoms */
   CurrentModule = 0;
   heap_regs->dead_clauses = NULL;
-  ReleaseAtom(AtomOfTerm(heap_regs->term_refound_var));
+  _YAP_ReleaseAtom(AtomOfTerm(heap_regs->term_refound_var));
   /* make sure we have undefp defined */
   {
-    Atom undefp_at = FullLookupAtom("$undefp");
-    Prop p = GetPredPropByFunc(MkFunctor(undefp_at, 1),0);
+    Atom undefp_at = _YAP_FullLookupAtom("$undefp");
+    Prop p = _YAP_GetPredPropByFunc(_YAP_MkFunctor(undefp_at, 1),0);
     if (p == NIL) {
       UndefCode = NULL;
     } else {
@@ -1049,25 +997,25 @@ InitCodes(void)
   heap_regs->env_for_yes_code.p =
     heap_regs->env_for_yes_code.p0 =
     RepPredProp(PredPropByAtom(heap_regs->atom_true,0));
-  heap_regs->pred_meta_call = RepPredProp(PredPropByFunc(MkFunctor(heap_regs->atom_meta_call,4),0));
-  heap_regs->pred_dollar_catch = RepPredProp(PredPropByFunc(MkFunctor(LookupAtom("$catch"),3),0));
+  heap_regs->pred_meta_call = RepPredProp(PredPropByFunc(_YAP_MkFunctor(heap_regs->atom_meta_call,4),0));
+  heap_regs->pred_dollar_catch = RepPredProp(PredPropByFunc(_YAP_MkFunctor(_YAP_LookupAtom("$catch"),3),0));
   heap_regs->pred_throw = RepPredProp(PredPropByFunc(FunctorThrow,0));
-  heap_regs->pred_handle_throw = RepPredProp(PredPropByFunc(MkFunctor(LookupAtom("$handle_throw"),3),0));
-  heap_regs->pred_goal_expansion = RepPredProp(PredPropByFunc(MkFunctor(LookupAtom("goal_expansion"),3),1));
+  heap_regs->pred_handle_throw = RepPredProp(PredPropByFunc(_YAP_MkFunctor(_YAP_LookupAtom("$handle_throw"),3),0));
+  heap_regs->pred_goal_expansion = RepPredProp(PredPropByFunc(_YAP_MkFunctor(_YAP_LookupAtom("goal_expansion"),3),1));
   heap_regs->env_for_trustfail_code.p =
     heap_regs->env_for_trustfail_code.p0 =
-    RepPredProp(PredPropByAtom(LookupAtom("false"),0));
+    RepPredProp(PredPropByAtom(_YAP_LookupAtom("false"),0));
   {
     /* make sure we know about the module predicate */
     PredEntry *modp = RepPredProp(PredPropByFunc(heap_regs->functor_module,0));
     modp->PredFlags |= MetaPredFlag;
   }
 #ifdef YAPOR
-  heap_regs->getworkcode.u.ld.p = (CODEADDR)RepPredProp(PredPropByAtom(LookupAtom("$getwork"), 0));
-  heap_regs->getworkcode_seq.u.ld.p = (CODEADDR)RepPredProp(PredPropByAtom(LookupAtom("$getwork_seq"), 0));
+  heap_regs->getworkcode.u.ld.p = (CODEADDR)RepPredProp(PredPropByAtom(_YAP_LookupAtom("$getwork"), 0));
+  heap_regs->getworkcode_seq.u.ld.p = (CODEADDR)RepPredProp(PredPropByAtom(_YAP_LookupAtom("$getwork_seq"), 0));
 #endif
   heap_regs->db_erased_marker =
-    (DBRef)AllocCodeSpace(sizeof(DBStruct));
+    (DBRef)_YAP_AllocCodeSpace(sizeof(DBStruct));
   heap_regs->db_erased_marker->id = FunctorDBRef;
   heap_regs->db_erased_marker->Flags = ErasedMask;
   heap_regs->db_erased_marker->Code = NULL;
@@ -1080,58 +1028,9 @@ InitCodes(void)
 static void 
 InitVersion(void)
 {
-  PutValue(LookupAtom("$version_name"),
-	   MkAtomTerm(LookupAtom(version_number)));
+  _YAP_PutValue(_YAP_LookupAtom("$version_name"),
+	   MkAtomTerm(_YAP_LookupAtom(YAP_VERSION)));
 }
-
-void
-InitYaamRegs(void)
-{
-#if PUSH_REGS
-  /* Guarantee that after a longjmp we go back to the original abstract
-     machine registers */
-  regp = &standard_regs;
-#endif /* PUSH_REGS */
-  PutValue (AtomBreak, MkIntTerm (0));
-  PutValue (AtomIndex, MkAtomTerm (AtomTrue));
-  AuxSp = (CELL *)AuxTop;
-  TR = (tr_fr_ptr)TrailBase;
-#ifdef COROUTINING
-  H = H0 = ((CELL *) GlobalBase)+ 2048;
-#else
-  H = H0 = (CELL *) GlobalBase;
-#endif
-  LCL0 = ASP = (CELL *) LocalBase;
-  /* notice that an initial choice-point and environment
-   *must* be created since for the garbage collector to work */
-  B = NULL;
-  ENV = NULL;
-  P = CP = YESCODE;
-#ifdef DEPTH_LIMIT
-  DEPTH = RESET_DEPTH();
-#endif
-  STATIC_PREDICATES_MARKED = FALSE;
-#ifdef FROZEN_STACKS
-  H = HB = H0 = H_FZ = H_BASE;
-#ifdef SBA
-  BSEG =
-#endif /* SBA */
-  BBREG = B_FZ = B_BASE;
-  TR = TR_FZ = TR_BASE;
-#endif /* FROZEN_STACKS */
-  CreepFlag = CalculateStackGap();
-  EX = 0L;
-  /* for slots to work */
-  *--ASP = MkIntTerm(0);
-#if COROUTINING
-  RESET_VARIABLE((CELL *)GlobalBase);
-  DelayedVars = NewTimedVar((CELL)GlobalBase);
-  WokenGoals = NewTimedVar(TermNil);
-  MutableList = NewTimedVar(TermNil);
-  AttsMutableList = NewTimedVar(TermNil);
-#endif
-}
-
 
 #if defined(YAPOR) || defined(TABLING)
 static void
@@ -1168,7 +1067,7 @@ InitYapOr(int Heap,
 #ifdef YAPOR
   map_memory(Heap, Stack, Trail, aux_number_workers);
 #else
-  InitMemory (Trail, Heap, Stack);
+  _YAP_InitMemory (Trail, Heap, Stack);
 #endif
   /* global initializations */ 
   init_global(aux_number_workers, aux_scheduler_loop, aux_delayed_release_load);
@@ -1177,7 +1076,7 @@ InitYapOr(int Heap,
 #endif
 
 void
-InitStacks(int Heap,
+_YAP_InitStacks(int Heap,
 	   int Stack,
 	   int Trail,
 	   int aux_number_workers,
@@ -1191,7 +1090,7 @@ InitStacks(int Heap,
 
 #if PUSH_REGS
     /* In this case we need to initialise the abstract registers */
-  regp = &standard_regs;
+  _YAP_regp = &_YAP_standard_regs;
   /* the emulator will eventually copy them to its own local
      register array, but for now they exist */
 #endif /* PUSH_REGS */
@@ -1201,7 +1100,7 @@ InitStacks(int Heap,
 #endif
   /* Init signal handling and time */
   /* also init memory page size, required by later functions */
-  InitSysbits ();
+  _YAP_InitSysbits ();
 
   /* sanity checking for data areas */
   if (Trail < MinTrailSpace)
@@ -1231,30 +1130,40 @@ InitStacks(int Heap,
 	    aux_scheduler_loop,
 	    aux_delayed_release_load);
 #else /* Yap */
-  InitMemory (Trail, Heap, Stack);
+  _YAP_InitMemory (Trail, Heap, Stack);
 #endif /* YAPOR || TABLING */
   for (i = 0; i < MaxHash; ++i) {
     INIT_RWLOCK(HashChain[i].AERWLock);
     HashChain[i].Entry = NIL;
   }
-  LookupAtomWithAddress("FoundVar",&(SF_STORE->AtFoundVar));
-  ReleaseAtom(AtomFoundVar);
-  LookupAtomWithAddress("[]",&(SF_STORE->AtNil));
-  LookupAtomWithAddress(".",&(SF_STORE->AtDot));
+  _YAP_LookupAtomWithAddress("FoundVar",&(SF_STORE->AtFoundVar));
+  _YAP_ReleaseAtom(AtomFoundVar);
+  _YAP_LookupAtomWithAddress("[]",&(SF_STORE->AtNil));
+  _YAP_LookupAtomWithAddress(".",&(SF_STORE->AtDot));
   /* InitAbsmi must be done before InitCodes */
 #ifdef MPW
-  InitAbsmi(REGS, FunctorList);
+  _YAP_InitAbsmi(REGS, FunctorList);
 #else
-  InitAbsmi();
+  _YAP_InitAbsmi();
 #endif
-  InitModules();
+  _YAP_InitModules();
   InitCodes();
   InitOps();
   InitDebug();
   InitVersion();
-  InitSysPath();
+  _YAP_InitSysPath();
   InitFlags();
-  InitModules();
   InitStdPreds();
+}
+
+void
+_YAP_exit (int value)
+{
+#if defined(YAPOR)
+  unmap_memory();
+#endif /* YAPOR || TABLING */
+  if (! (_YAP_PrologMode & BootMode) )
+    _YAP_ShutdownLoadForeign();
+  exit(value);
 }
 

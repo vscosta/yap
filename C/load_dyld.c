@@ -63,7 +63,7 @@ mydlerror(void)
  *   locate the executable of Yap
 */
 void
-YAP_FindExecutable(char *name)
+_YAP_FindExecutable(char *name)
 {
 }
 
@@ -113,7 +113,7 @@ mydlclose(void *handle)
  * LoadForeign(ofiles,libs,proc_name,init_proc) dynamically loads foreign
  * code files and libraries and locates an initialization routine
 */
-Int
+static Int
 LoadForeign(StringList ofiles, StringList libs,
 	       char *proc_name,	YapInitProc *init_proc)
 {
@@ -122,14 +122,14 @@ LoadForeign(StringList ofiles, StringList libs,
     void *handle;
 
     /* mydlopen wants to follow the LD_CONFIG_PATH */
-    if (!TrueFileName(ofiles->s, FileNameBuf, TRUE)) {
-      strcpy(LoadMsg, "[ Trying to open unexisting file in LoadForeign ]");
+    if (!_YAP_TrueFileName(ofiles->s, _YAP_FileNameBuf, TRUE)) {
+      strcpy(_YAP_ErrorSay, "[ Trying to open unexisting file in LoadForeign ]");
       return LOAD_FAILLED;
     }
-    if((handle=mydlopen(FileNameBuf)) == 0)
+    if((handle=mydlopen(_YAP_FileNameBuf)) == 0)
     {
       fprintf(stderr,"calling dlopen with error %s\n", mydlerror());
-/*      strcpy(LoadMsg,dlerror());*/
+/*      strcpy(_YAP_ErrorSay,dlerror());*/
       return LOAD_FAILLED;
     }
 
@@ -142,16 +142,16 @@ LoadForeign(StringList ofiles, StringList libs,
   while (libs) {
 
     if (libs->s[0] == '-') {
-      strcpy(FileNameBuf,"lib");
-      strcat(FileNameBuf,libs->s+2);
-      strcat(FileNameBuf,".so");
+      strcpy(_YAP_FileNameBuf,"lib");
+      strcat(_YAP_FileNameBuf,libs->s+2);
+      strcat(_YAP_FileNameBuf,".so");
     } else {
-      strcpy(FileNameBuf,libs->s);
+      strcpy(_YAP_FileNameBuf,libs->s);
     }
 
-    if((libs->handle=mydlopen(FileNameBuf)) == NULL)
+    if((libs->handle=mydlopen(_YAP_FileNameBuf)) == NULL)
     {
-      strcpy(LoadMsg,mydlerror());
+      strcpy(_YAP_ErrorSay,mydlerror());
       return LOAD_FAILLED;
     }
     libs = libs->next;
@@ -160,15 +160,22 @@ LoadForeign(StringList ofiles, StringList libs,
   *init_proc = (YapInitProc) mydlsym(proc_name);
 
   if(! *init_proc) {
-    strcpy(LoadMsg,"Could not locate initialization routine");
+    strcpy(_YAP_ErrorSay,"Could not locate initialization routine");
     return LOAD_FAILLED;
   }
 
   return LOAD_SUCCEEDED;
 }
 
+Int
+_YAP_LoadForeign(StringList ofiles, StringList libs,
+	       char *proc_name,	YapInitProc *init_proc)
+{
+  return LoadForeign(ofiles, libs, proc_name, init_proc);
+}
+
 void 
-ShutdownLoadForeign(void)
+_YAP_ShutdownLoadForeign(void)
 {
   ForeignObj *f_code;
 
@@ -193,7 +200,7 @@ ShutdownLoadForeign(void)
 }
 
 Int
-ReLoadForeign(StringList ofiles, StringList libs,
+_YAP_ReLoadForeign(StringList ofiles, StringList libs,
 	       char *proc_name,	YapInitProc *init_proc)
 {
   return(LoadForeign(ofiles,libs, proc_name, init_proc));

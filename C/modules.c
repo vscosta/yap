@@ -24,11 +24,10 @@ static char     SccsId[] = "%W% %G%";
 
 STATIC_PROTO(Int p_current_module, (void));
 STATIC_PROTO(Int p_current_module1, (void));
-STD_PROTO(void InitModules, (void));
 
 #define ByteAdr(X) ((char *) &(X))
 Term 
-Module_Name(CODEADDR cap)
+_YAP_Module_Name(CODEADDR cap)
 {
   PredEntry      *ap = (PredEntry *)cap;
 
@@ -46,7 +45,7 @@ Module_Name(CODEADDR cap)
   }
 }
 
-SMALLUNSGN 
+static SMALLUNSGN 
 LookupModule(Term a)
 {
   unsigned int             i;
@@ -56,18 +55,23 @@ LookupModule(Term a)
       return (i);
   ModuleName[i = NoOfModules++] = a;
   if (NoOfModules == MaxModules) {
-    Error(SYSTEM_ERROR,a,"number of modules overflowed");
+    _YAP_Error(SYSTEM_ERROR,a,"number of modules overflowed");
   }
   return (i);
 }
 
+SMALLUNSGN 
+_YAP_LookupModule(Term a)
+{
+  return(LookupModule(a));
+}
 static Int 
 p_current_module(void)
 {				/* $current_module(Old,New)		 */
   Term            t;
   unsigned int             i;
 	
-  if (!unify_constant(ARG1, ModuleName[CurrentModule]))
+  if (!_YAP_unify_constant(ARG1, ModuleName[CurrentModule]))
     return (0);
   t = Deref(ARG2);
   if (IsVarTerm(t) || !IsAtomTerm(t))
@@ -85,7 +89,7 @@ p_current_module(void)
 static Int
 p_current_module1(void)
 {				/* $current_module(Old)		 */
-  if (!unify_constant(ARG1, ModuleName[CurrentModule]))
+  if (!_YAP_unify_constant(ARG1, ModuleName[CurrentModule]))
     return (0);
   return (1);
 }
@@ -104,10 +108,10 @@ p_module_number(void)
   Term tname = Deref(ARG1);
   Term t;
   if (IsVarTerm(tname)) {
-    return(unify(tname, ModuleName[IntOfTerm(Deref(ARG2))]));
+    return(_YAP_unify(tname, ModuleName[IntOfTerm(Deref(ARG2))]));
   }else {
     t = MkIntTerm(LookupModule(Deref(ARG1)));
-    unify(t,ARG2);
+    _YAP_unify(t,ARG2);
     ARG2 = t;
   }
   return(TRUE);
@@ -123,7 +127,7 @@ cont_current_module(void)
     cut_fail();
   }
   EXTRA_CBACK_ARG(1,1) = MkIntTerm(mod+1);
-  return(unify(ARG1,t));
+  return(_YAP_unify(ARG1,t));
 }
 
 static Int 
@@ -134,18 +138,18 @@ init_current_module(void)
 }
 
 void 
-InitModules(void)
+_YAP_InitModules(void)
 {
   ModuleName[PrimitivesModule = 0] =
-    MkAtomTerm(LookupAtom("prolog"));
+    MkAtomTerm(_YAP_LookupAtom("prolog"));
   ModuleName[1] =
-    MkAtomTerm(LookupAtom("user"));
+    MkAtomTerm(_YAP_LookupAtom("user"));
   NoOfModules = 2;
   CurrentModule = 0;
-  InitCPred("$current_module", 2, p_current_module, SafePredFlag|SyncPredFlag);
-  InitCPred("$current_module", 1, p_current_module1, SafePredFlag|SyncPredFlag);
-  InitCPred("$change_module", 1, p_change_module, SafePredFlag|SyncPredFlag);
-  InitCPred("$module_number", 2, p_module_number, SafePredFlag);
-  InitCPredBack("$all_current_modules", 1, 1, init_current_module, cont_current_module,
+  _YAP_InitCPred("$current_module", 2, p_current_module, SafePredFlag|SyncPredFlag);
+  _YAP_InitCPred("$current_module", 1, p_current_module1, SafePredFlag|SyncPredFlag);
+  _YAP_InitCPred("$change_module", 1, p_change_module, SafePredFlag|SyncPredFlag);
+  _YAP_InitCPred("$module_number", 2, p_module_number, SafePredFlag);
+  _YAP_InitCPredBack("$all_current_modules", 1, 1, init_current_module, cont_current_module,
 		SafePredFlag|SyncPredFlag);
 }

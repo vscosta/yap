@@ -19,6 +19,7 @@
 
 */
 
+
 listing :-
 	current_output(Stream),
 	'$current_module'(Mod),
@@ -173,3 +174,4 @@ portray_clause(_).
 			'$list_transform'(L,N).
 '$list_transform'('$VAR'(-1).L,M) :- !, '$list_transform'(L,M).
 '$list_transform'(_.L,M) :- '$list_transform'(L,M).
+

@@ -25,7 +25,7 @@ static char     SccsId[] = "@(#)agc.c	1.3 3/15/90";
 
 #ifdef DEBUG
 /* #define DEBUG_RESTORE2 1 */
-#define errout YP_stderr
+#define errout _YAP_stderr
 #endif
 
 STATIC_PROTO(void  RestoreEntries, (PropEntry *));
@@ -192,7 +192,7 @@ mark_atoms(void)
       at =  RepAtom(atm);
       do {
 #ifdef DEBUG_RESTORE2			/* useful during debug */
-	YP_fprintf(errout, "Restoring %s\n", at->StrOfAE);
+	fprintf(errout, "Restoring %s\n", at->StrOfAE);
 #endif
 	RestoreEntries(RepProp(at->PropsOfAE));
 	atm = at->NextOfAE;
@@ -209,7 +209,7 @@ mark_atoms(void)
   }
   do {
 #ifdef DEBUG_RESTORE2		/* useful during debug */
-    YP_fprintf(errout, "Restoring %s\n", at->StrOfAE);
+    fprintf(errout, "Restoring %s\n", at->StrOfAE);
     if (strcmp(at->StrOfAE,"$module_expansion") == 0) {
       printf("oops\n");
     }
@@ -227,7 +227,7 @@ mark_trail(void)
 
   pt = (CELL *)TR;
   /* moving the trail is simple */
-  while (pt != (CELL *)TrailBase) {
+  while (pt != (CELL *)_YAP_TrailBase) {
     register CELL reg = pt[-1];
     pt--;
     if (!IsVarTerm(reg)) {
@@ -266,7 +266,7 @@ mark_global(void)
    * to clean the global now that functors are just variables pointing to
    * the code 
    */
-  pt = CellPtr(GlobalBase);
+  pt = CellPtr(_YAP_GlobalBase);
   while (pt < H) {
     register CELL reg;
     
@@ -343,8 +343,8 @@ clean_atoms(void)
 #endif
 	*patm = at->NextOfAE;
 	atm = at->NextOfAE;
-	agc_collected += SizeOfBlock((char *)at);
-	FreeCodeSpace((char *)at);
+	agc_collected += _YAP_SizeOfBlock((char *)at);
+	_YAP_FreeCodeSpace((char *)at);
       }
     }
     HashPtr++;
@@ -362,43 +362,49 @@ clean_atoms(void)
 #endif
       *patm = at->NextOfAE;
       atm = at->NextOfAE;
-      agc_collected += SizeOfBlock((char *)at);
-      FreeCodeSpace((char *)at);
+      agc_collected += _YAP_SizeOfBlock((char *)at);
+      _YAP_FreeCodeSpace((char *)at);
     }
   }
 }
 
-void
+static void
 atom_gc(void)
 {
-  int		gc_verbose = is_gc_verbose();
+  int		gc_verbose = _YAP_is_gc_verbose();
   int           gc_trace = 0;
   
 
   Int		time_start, agc_time;
-  if (GetValue(AtomGcTrace) != TermNil)
+  if (_YAP_GetValue(AtomGcTrace) != TermNil)
     gc_trace = 1;
   agc_calls++;
   agc_collected = 0;
   if (gc_trace) {
-    YP_fprintf(YP_stderr, "[agc]\n");
+    fprintf(_YAP_stderr, "[agc]\n");
   } else if (gc_verbose) {
-    YP_fprintf(YP_stderr, "[AGC] Start of atom garbage collection %d:\n", agc_calls);
+    fprintf(_YAP_stderr, "[AGC] Start of atom garbage collection %d:\n", agc_calls);
   }
-  time_start = cputime();
+  time_start = _YAP_cputime();
   /* get the number of active registers */
   YAPEnterCriticalSection();
   mark_stacks();
   mark_atoms();
   clean_atoms();
   YAPLeaveCriticalSection();
-  agc_time = cputime()-time_start;
+  agc_time = _YAP_cputime()-time_start;
   tot_agc_time += agc_time;
   tot_agc_recovered += agc_collected;
   if (gc_verbose) {
-    YP_fprintf(YP_stderr, "[AGC] collected %d bytes.\n", agc_collected);
-    YP_fprintf(YP_stderr, "[AGC] GC %d took %g sec, total of %g sec doing GC so far.\n", agc_calls, (double)agc_time/1000, (double)tot_agc_time/1000);
+    fprintf(_YAP_stderr, "[AGC] collected %d bytes.\n", agc_collected);
+    fprintf(_YAP_stderr, "[AGC] GC %d took %g sec, total of %g sec doing GC so far.\n", agc_calls, (double)agc_time/1000, (double)tot_agc_time/1000);
   }
+}
+
+void
+_YAP_atom_gc(void)
+{
+  atom_gc();
 }
 
 static Int
@@ -417,13 +423,13 @@ p_inform_agc(void)
   Term tt = MkIntegerTerm(agc_calls);
   Term ts = MkIntegerTerm(tot_agc_recovered);
 
-  return(unify(tn, ARG2) && unify(tt, ARG1) && unify(ts, ARG3));
+  return(_YAP_unify(tn, ARG2) && _YAP_unify(tt, ARG1) && _YAP_unify(ts, ARG3));
 
 }
 
 void 
-init_agc(void)
+_YAP_init_agc(void)
 {
-  InitCPred("$atom_gc", 0, p_atom_gc, 0);
-  InitCPred("$inform_agc", 3, p_inform_agc, 0);
+  _YAP_InitCPred("$atom_gc", 0, p_atom_gc, 0);
+  _YAP_InitCPred("$inform_agc", 3, p_inform_agc, 0);
 }

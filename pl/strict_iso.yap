@@ -95,7 +95,6 @@
 '$check_iso_system_goal'(G) :-
 	'$do_error'(domain_error(builtin_procedure,G), G).
 
-
 '$iso_builtin'(abolish(_)).
 '$iso_builtin'(arg(_,_,_)).
 '$iso_builtin'(_=:=_).

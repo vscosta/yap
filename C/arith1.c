@@ -43,7 +43,7 @@ float_to_int(Float v, union arith_ret *o)
     o->Int = i;
     return(long_int_e);
   } else {
-    MP_INT *new = PreAllocBigNum();
+    MP_INT *new = _YAP_PreAllocBigNum();
 
     mpz_set_d(new, v);
     o->big = new;
@@ -81,7 +81,7 @@ EvalToTerm(blob_type f, union arith_ret *res)
     return(MkFloatTerm(res->dbl));
 #ifdef USE_GMP
   case big_int_e:
-    return(MkBigIntTerm(res->big));
+    return(_YAP_MkBigIntTerm(res->big));
 #endif
   default:
     return(TermNil);
@@ -132,12 +132,12 @@ p_uplus(Term t E_ARGS)
 #ifdef USE_GMP
   case big_int_e:
     {
-      RBIG(BigIntOfTerm(t));
+      RBIG(_YAP_BigIntOfTerm(t));
     }
 #endif
   default:
     /* we've got a full term, need to evaluate it first */
-    bt = Eval(t, &v);
+    bt = _YAP_Eval(t, &v);
     /* second case, no need no evaluation */
     switch (bt) {
     case long_int_e:
@@ -175,15 +175,15 @@ p_uminus(Term t E_ARGS)
 #ifdef USE_GMP
   case big_int_e:
     {
-      MP_INT *new = PreAllocBigNum();
+      MP_INT *new = _YAP_PreAllocBigNum();
 
-      mpz_neg(new, BigIntOfTerm(t));
+      mpz_neg(new, _YAP_BigIntOfTerm(t));
       RBIG(new);
     }
 #endif
   default:
     /* we've got a full term, need to evaluate it first */
-    bt = Eval(t, &v);
+    bt = _YAP_Eval(t, &v);
     /* second case, no need no evaluation */
     switch (bt) {
     case long_int_e:
@@ -193,7 +193,7 @@ p_uminus(Term t E_ARGS)
 #ifdef USE_GMP
     case big_int_e:
       {
-	MP_INT *new = PreAllocBigNum();
+	MP_INT *new = _YAP_PreAllocBigNum();
 
 	mpz_neg(new, v.big);
 	RBIG(new);
@@ -220,40 +220,40 @@ p_unot(Term t E_ARGS)
   case long_int_e:
     RINT(~IntegerOfTerm(t));
   case double_e:
-    Error(TYPE_ERROR_INTEGER, t, "\\(f)", FloatOfTerm(t));
+    _YAP_Error(TYPE_ERROR_INTEGER, t, "\\(f)", FloatOfTerm(t));
     P = (yamop *)FAILCODE;
     RERROR();
 #ifdef USE_GMP
   case big_int_e:
     {
-      MP_INT *new = PreAllocBigNum();
+      MP_INT *new = _YAP_PreAllocBigNum();
 
-      mpz_com(new, BigIntOfTerm(t));
+      mpz_com(new, _YAP_BigIntOfTerm(t));
       RBIG(new);
     }
 #endif
   default:
     /* we've got a full term, need to evaluate it first */
-    bt = Eval(t, &v);
+    bt = _YAP_Eval(t, &v);
     /* second case, no need no evaluation */
     switch (bt) {
     case long_int_e:
       RINT(~v.Int);
     case double_e:
-      Error(TYPE_ERROR_INTEGER, t, "\\(%f)", v.dbl);
+      _YAP_Error(TYPE_ERROR_INTEGER, t, "\\(%f)", v.dbl);
       P = (yamop *)FAILCODE;
       RERROR();
 #ifdef USE_GMP
     case big_int_e:
       {
-	MP_INT *new = PreAllocBigNum();
+	MP_INT *new = _YAP_PreAllocBigNum();
 	
 	mpz_com(new, v.big);
 	RBIG(new);
       }
 #endif
     default:
-      /* Error */
+      /* _YAP_Error */
       RERROR();
     }
   }
@@ -276,11 +276,11 @@ p_exp(Term t E_ARGS)
     RFLOAT(exp(FloatOfTerm(t)));
 #ifdef USE_GMP
   case big_int_e:
-    RFLOAT(mpz_get_d(BigIntOfTerm(t)));
+    RFLOAT(mpz_get_d(_YAP_BigIntOfTerm(t)));
 #endif
   default:
     /* we've got a full term, need to evaluate it first */
-    bt = Eval(t, &v);
+    bt = _YAP_Eval(t, &v);
     /* second case, no need no evaluation */
     switch (bt) {
     case long_int_e:
@@ -292,7 +292,7 @@ p_exp(Term t E_ARGS)
       RFLOAT(mpz_get_d(v.big));
 #endif
     default:
-      /* Error */
+      /* _YAP_Error */
       RERROR();
     }
   }
@@ -318,12 +318,12 @@ p_log(Term t E_ARGS)
     break;
 #ifdef USE_GMP
   case big_int_e:
-    dbl = mpz_get_d(BigIntOfTerm(t));
+    dbl = mpz_get_d(_YAP_BigIntOfTerm(t));
     break;
 #endif
   default:
     /* we've got a full term, need to evaluate it first */
-    bt = Eval(t, &v);
+    bt = _YAP_Eval(t, &v);
     /* second case, no need no evaluation */
     switch (bt) {
     case long_int_e:
@@ -338,7 +338,7 @@ p_log(Term t E_ARGS)
       break;
 #endif
     default:
-      /* Error */
+      /* _YAP_Error */
       RERROR();
     }
   }
@@ -346,11 +346,11 @@ p_log(Term t E_ARGS)
   if (dbl > 0) {
     RFLOAT(log(dbl));
   } else if (dbl == 0) {
-    Error(DOMAIN_ERROR_NOT_ZERO, t, "log(%f)", dbl);
+    _YAP_Error(DOMAIN_ERROR_NOT_ZERO, t, "log(%f)", dbl);
     P = (yamop *)FAILCODE;
     RERROR();
   } else {
-    Error(DOMAIN_ERROR_NOT_LESS_THAN_ZERO, t, "log(%f)", dbl);
+    _YAP_Error(DOMAIN_ERROR_NOT_LESS_THAN_ZERO, t, "log(%f)", dbl);
     P = (yamop *)FAILCODE;
     RERROR();
   }
@@ -376,12 +376,12 @@ p_log10(Term t E_ARGS)
     break;
 #ifdef USE_GMP
   case big_int_e:
-    dbl = mpz_get_d(BigIntOfTerm(t));
+    dbl = mpz_get_d(_YAP_BigIntOfTerm(t));
     break;
 #endif
   default:
     /* we've got a full term, need to evaluate it first */
-    bt = Eval(t, &v);
+    bt = _YAP_Eval(t, &v);
     /* second case, no need no evaluation */
     switch (bt) {
     case long_int_e:
@@ -396,7 +396,7 @@ p_log10(Term t E_ARGS)
       break;
 #endif
     default:
-      /* Error */
+      /* _YAP_Error */
       RERROR();
     }
   }
@@ -404,11 +404,11 @@ p_log10(Term t E_ARGS)
   if (dbl > 0) {
     RFLOAT(log10(dbl));
   } else if (dbl == 0) {
-    Error(DOMAIN_ERROR_NOT_ZERO, t, "log10(%f)", dbl);
+    _YAP_Error(DOMAIN_ERROR_NOT_ZERO, t, "log10(%f)", dbl);
     P = (yamop *)FAILCODE;
     RERROR();
   } else {
-    Error(DOMAIN_ERROR_NOT_LESS_THAN_ZERO, t, "log10(%f)", dbl);
+    _YAP_Error(DOMAIN_ERROR_NOT_LESS_THAN_ZERO, t, "log10(%f)", dbl);
     P = (yamop *)FAILCODE;
     RERROR();
   }
@@ -434,12 +434,12 @@ p_sqrt(Term t E_ARGS)
     break;
 #ifdef USE_GMP
   case big_int_e:
-    dbl = mpz_get_d(BigIntOfTerm(t));
+    dbl = mpz_get_d(_YAP_BigIntOfTerm(t));
     break;
 #endif
   default:
     /* we've got a full term, need to evaluate it first */
-    bt = Eval(t, &v);
+    bt = _YAP_Eval(t, &v);
     /* second case, no need no evaluation */
     switch (bt) {
     case long_int_e:
@@ -454,14 +454,14 @@ p_sqrt(Term t E_ARGS)
       break;
 #endif
     default:
-      /* Error */
+      /* _YAP_Error */
       RERROR();
     }
   }
   out = sqrt(dbl);
 #if HAVE_ISNAN
   if (isnan(out)) {
-    Error(DOMAIN_ERROR_OUT_OF_RANGE, t, "acos(%f)", dbl);
+    _YAP_Error(DOMAIN_ERROR_OUT_OF_RANGE, t, "acos(%f)", dbl);
     P = (yamop *)FAILCODE;
     RERROR();
   }
@@ -489,12 +489,12 @@ p_sin(Term t E_ARGS)
     break;
 #ifdef USE_GMP
   case big_int_e:
-    dbl = mpz_get_d(BigIntOfTerm(t));
+    dbl = mpz_get_d(_YAP_BigIntOfTerm(t));
     break;
 #endif
   default:
     /* we've got a full term, need to evaluate it first */
-    bt = Eval(t, &v);
+    bt = _YAP_Eval(t, &v);
     /* second case, no need no evaluation */
     switch (bt) {
     case long_int_e:
@@ -509,7 +509,7 @@ p_sin(Term t E_ARGS)
       break;
 #endif
     default:
-      /* Error */
+      /* _YAP_Error */
       RERROR();
     }
   }
@@ -537,12 +537,12 @@ p_cos(Term t E_ARGS)
     break;
 #ifdef USE_GMP
   case big_int_e:
-    dbl = mpz_get_d(BigIntOfTerm(t));
+    dbl = mpz_get_d(_YAP_BigIntOfTerm(t));
     break;
 #endif
   default:
     /* we've got a full term, need to evaluate it first */
-    bt = Eval(t, &v);
+    bt = _YAP_Eval(t, &v);
     /* second case, no need no evaluation */
     switch (bt) {
     case long_int_e:
@@ -557,7 +557,7 @@ p_cos(Term t E_ARGS)
       break;
 #endif
     default:
-      /* Error */
+      /* _YAP_Error */
       RERROR();
     }
   }
@@ -585,12 +585,12 @@ p_tan(Term t E_ARGS)
     break;
 #ifdef USE_GMP
   case big_int_e:
-    dbl = mpz_get_d(BigIntOfTerm(t));
+    dbl = mpz_get_d(_YAP_BigIntOfTerm(t));
     break;
 #endif
   default:
     /* we've got a full term, need to evaluate it first */
-    bt = Eval(t, &v);
+    bt = _YAP_Eval(t, &v);
     /* second case, no need no evaluation */
     switch (bt) {
     case long_int_e:
@@ -605,7 +605,7 @@ p_tan(Term t E_ARGS)
       break;
 #endif
     default:
-      /* Error */
+      /* _YAP_Error */
       RERROR();
     }
   }
@@ -633,12 +633,12 @@ p_sinh(Term t E_ARGS)
     break;
 #ifdef USE_GMP
   case big_int_e:
-    dbl = mpz_get_d(BigIntOfTerm(t));
+    dbl = mpz_get_d(_YAP_BigIntOfTerm(t));
     break;
 #endif
   default:
     /* we've got a full term, need to evaluate it first */
-    bt = Eval(t, &v);
+    bt = _YAP_Eval(t, &v);
     /* second case, no need no evaluation */
     switch (bt) {
     case long_int_e:
@@ -653,7 +653,7 @@ p_sinh(Term t E_ARGS)
       break;
 #endif
     default:
-      /* Error */
+      /* _YAP_Error */
       RERROR();
     }
   }
@@ -681,12 +681,12 @@ p_cosh(Term t E_ARGS)
     break;
 #ifdef USE_GMP
   case big_int_e:
-    dbl = mpz_get_d(BigIntOfTerm(t));
+    dbl = mpz_get_d(_YAP_BigIntOfTerm(t));
     break;
 #endif
   default:
     /* we've got a full term, need to evaluate it first */
-    bt = Eval(t, &v);
+    bt = _YAP_Eval(t, &v);
     /* second case, no need no evaluation */
     switch (bt) {
     case long_int_e:
@@ -701,7 +701,7 @@ p_cosh(Term t E_ARGS)
       break;
 #endif
     default:
-      /* Error */
+      /* _YAP_Error */
       RERROR();
     }
   }
@@ -729,12 +729,12 @@ p_tanh(Term t E_ARGS)
     break;
 #ifdef USE_GMP
   case big_int_e:
-    dbl = mpz_get_d(BigIntOfTerm(t));
+    dbl = mpz_get_d(_YAP_BigIntOfTerm(t));
     break;
 #endif
   default:
     /* we've got a full term, need to evaluate it first */
-    bt = Eval(t, &v);
+    bt = _YAP_Eval(t, &v);
     /* second case, no need no evaluation */
     switch (bt) {
     case long_int_e:
@@ -749,7 +749,7 @@ p_tanh(Term t E_ARGS)
       break;
 #endif
     default:
-      /* Error */
+      /* _YAP_Error */
       RERROR();
     }
   }
@@ -777,12 +777,12 @@ p_asin(Term t E_ARGS)
     break;
 #ifdef USE_GMP
   case big_int_e:
-    dbl = mpz_get_d(BigIntOfTerm(t));
+    dbl = mpz_get_d(_YAP_BigIntOfTerm(t));
     break;
 #endif
   default:
     /* we've got a full term, need to evaluate it first */
-    bt = Eval(t, &v);
+    bt = _YAP_Eval(t, &v);
     /* second case, no need no evaluation */
     switch (bt) {
     case long_int_e:
@@ -797,7 +797,7 @@ p_asin(Term t E_ARGS)
       break;
 #endif
     default:
-      /* Error */
+      /* _YAP_Error */
       RERROR();
     }
   }
@@ -805,7 +805,7 @@ p_asin(Term t E_ARGS)
   out = asin(dbl);
 #if HAVE_ISNAN
   if (isnan(out)) {
-    Error(DOMAIN_ERROR_OUT_OF_RANGE, t, "acos(%f)", dbl);
+    _YAP_Error(DOMAIN_ERROR_OUT_OF_RANGE, t, "acos(%f)", dbl);
     P = (yamop *)FAILCODE;
     RERROR();
   }
@@ -833,12 +833,12 @@ p_acos(Term t E_ARGS)
     break;
 #ifdef USE_GMP
   case big_int_e:
-    dbl = mpz_get_d(BigIntOfTerm(t));
+    dbl = mpz_get_d(_YAP_BigIntOfTerm(t));
     break;
 #endif
   default:
     /* we've got a full term, need to evaluate it first */
-    bt = Eval(t, &v);
+    bt = _YAP_Eval(t, &v);
     /* second case, no need no evaluation */
     switch (bt) {
     case long_int_e:
@@ -853,7 +853,7 @@ p_acos(Term t E_ARGS)
       break;
 #endif
     default:
-      /* Error */
+      /* _YAP_Error */
       RERROR();
     }
   }
@@ -861,7 +861,7 @@ p_acos(Term t E_ARGS)
   out = acos(dbl);
 #if HAVE_ISNAN
   if (isnan(out)) {
-    Error(DOMAIN_ERROR_OUT_OF_RANGE, t, "acos(%f)", dbl);
+    _YAP_Error(DOMAIN_ERROR_OUT_OF_RANGE, t, "acos(%f)", dbl);
     P = (yamop *)FAILCODE;
     RERROR();
   }
@@ -889,12 +889,12 @@ p_atan(Term t E_ARGS)
     break;
 #ifdef USE_GMP
   case big_int_e:
-    dbl = mpz_get_d(BigIntOfTerm(t));
+    dbl = mpz_get_d(_YAP_BigIntOfTerm(t));
     break;
 #endif
   default:
     /* we've got a full term, need to evaluate it first */
-    bt = Eval(t, &v);
+    bt = _YAP_Eval(t, &v);
     /* second case, no need no evaluation */
     switch (bt) {
     case long_int_e:
@@ -909,7 +909,7 @@ p_atan(Term t E_ARGS)
       break;
 #endif
     default:
-      /* Error */
+      /* _YAP_Error */
       RERROR();
     }
   }
@@ -937,12 +937,12 @@ p_asinh(Term t E_ARGS)
     break;
 #ifdef USE_GMP
   case big_int_e:
-    dbl = mpz_get_d(BigIntOfTerm(t));
+    dbl = mpz_get_d(_YAP_BigIntOfTerm(t));
     break;
 #endif
   default:
     /* we've got a full term, need to evaluate it first */
-    bt = Eval(t, &v);
+    bt = _YAP_Eval(t, &v);
     /* second case, no need no evaluation */
     switch (bt) {
     case long_int_e:
@@ -957,7 +957,7 @@ p_asinh(Term t E_ARGS)
       break;
 #endif
     default:
-      /* Error */
+      /* _YAP_Error */
       RERROR();
     }
   }
@@ -985,12 +985,12 @@ p_acosh(Term t E_ARGS)
     break;
 #ifdef USE_GMP
   case big_int_e:
-    dbl = mpz_get_d(BigIntOfTerm(t));
+    dbl = mpz_get_d(_YAP_BigIntOfTerm(t));
     break;
 #endif
   default:
     /* we've got a full term, need to evaluate it first */
-    bt = Eval(t, &v);
+    bt = _YAP_Eval(t, &v);
     /* second case, no need no evaluation */
     switch (bt) {
     case long_int_e:
@@ -1005,7 +1005,7 @@ p_acosh(Term t E_ARGS)
       break;
 #endif
     default:
-      /* Error */
+      /* _YAP_Error */
       RERROR();
     }
   }
@@ -1013,7 +1013,7 @@ p_acosh(Term t E_ARGS)
   out = acosh(dbl);
 #if HAVE_ISNAN
   if (isnan(out)) {
-    Error(DOMAIN_ERROR_OUT_OF_RANGE, t, "acosh(%f)", dbl);
+    _YAP_Error(DOMAIN_ERROR_OUT_OF_RANGE, t, "acosh(%f)", dbl);
     P = (yamop *)FAILCODE;
     RERROR();
   }
@@ -1041,12 +1041,12 @@ p_atanh(Term t E_ARGS)
     break;
 #ifdef USE_GMP
   case big_int_e:
-    dbl = mpz_get_d(BigIntOfTerm(t));
+    dbl = mpz_get_d(_YAP_BigIntOfTerm(t));
     break;
 #endif
   default:
     /* we've got a full term, need to evaluate it first */
-    bt = Eval(t, &v);
+    bt = _YAP_Eval(t, &v);
     /* second case, no need no evaluation */
     switch (bt) {
     case long_int_e:
@@ -1061,7 +1061,7 @@ p_atanh(Term t E_ARGS)
       break;
 #endif
     default:
-      /* Error */
+      /* _YAP_Error */
       RERROR();
     }
   }
@@ -1069,7 +1069,7 @@ p_atanh(Term t E_ARGS)
   out = atanh(dbl);
 #if HAVE_ISNAN
   if (isnan(out)) {
-    Error(DOMAIN_ERROR_OUT_OF_RANGE, t, "acosh(%f)", dbl);
+    _YAP_Error(DOMAIN_ERROR_OUT_OF_RANGE, t, "acosh(%f)", dbl);
     P = (yamop *)FAILCODE;
     RERROR();
   }
@@ -1096,7 +1096,7 @@ p_floor(Term t E_ARGS)
   switch (BlobOfFunctor(f)) {
   case long_int_e:
     if (yap_flags[LANGUAGE_MODE_FLAG] == 1) { /* iso */
-      Error(TYPE_ERROR_FLOAT, t, "X is floor(%f)", IntegerOfTerm(t));
+      _YAP_Error(TYPE_ERROR_FLOAT, t, "X is floor(%f)", IntegerOfTerm(t));
       P = (yamop *)FAILCODE;
       RERROR();
     } else {
@@ -1108,33 +1108,33 @@ p_floor(Term t E_ARGS)
 #ifdef USE_GMP
   case big_int_e:
     if (yap_flags[LANGUAGE_MODE_FLAG] == 1) { /* iso */
-      MP_INT *big = BigIntOfTerm(t);
+      MP_INT *big = _YAP_BigIntOfTerm(t);
       Int sz = 2+mpz_sizeinbase(big,10);
-      char *s = AllocCodeSpace(sz);
+      char *s = _YAP_AllocCodeSpace(sz);
 
       if (s != NULL) {
-	mpz_get_str(s, 10, BigIntOfTerm(t));
-	Error(TYPE_ERROR_FLOAT, t, "X is floor(%s)", IntegerOfTerm(t));
+	mpz_get_str(s, 10, _YAP_BigIntOfTerm(t));
+	_YAP_Error(TYPE_ERROR_FLOAT, t, "X is floor(%s)", IntegerOfTerm(t));
 	P = (yamop *)FAILCODE;
-	FreeCodeSpace(s);
+	_YAP_FreeCodeSpace(s);
 	RERROR();
       } else {
-	Error(TYPE_ERROR_FLOAT, t, "X is floor(t)");
+	_YAP_Error(TYPE_ERROR_FLOAT, t, "X is floor(t)");
 	P = (yamop *)FAILCODE;
 	RERROR();
       }
     } else {
-      RFLOAT(mpz_get_d(BigIntOfTerm(t)));
+      RFLOAT(mpz_get_d(_YAP_BigIntOfTerm(t)));
     }
 #endif
   default:
     /* we've got a full term, need to evaluate it first */
-    bt = Eval(t, &v);
+    bt = _YAP_Eval(t, &v);
     /* second case, no need no evaluation */
     switch (bt) {
     case long_int_e:
       if (yap_flags[LANGUAGE_MODE_FLAG] == 1) { /* iso */
-	Error(TYPE_ERROR_FLOAT, t, "X is floor(%f)", v.Int);
+	_YAP_Error(TYPE_ERROR_FLOAT, t, "X is floor(%f)", v.Int);
 	P = (yamop *)FAILCODE;
 	RERROR();
       } else {
@@ -1148,16 +1148,16 @@ p_floor(Term t E_ARGS)
       if (yap_flags[LANGUAGE_MODE_FLAG] == 1) { /* iso */
 	MP_INT *big = v.big;
 	Int sz = 2+mpz_sizeinbase(big,10);
-	char *s = AllocCodeSpace(sz);
+	char *s = _YAP_AllocCodeSpace(sz);
 
 	if (s != NULL) {
-	  mpz_get_str(s, 10, BigIntOfTerm(t));
-	  Error(TYPE_ERROR_FLOAT, t, "X is floor(%s)", IntegerOfTerm(t));
-	  FreeCodeSpace(s);
+	  mpz_get_str(s, 10, _YAP_BigIntOfTerm(t));
+	  _YAP_Error(TYPE_ERROR_FLOAT, t, "X is floor(%s)", IntegerOfTerm(t));
+	  _YAP_FreeCodeSpace(s);
 	  P = (yamop *)FAILCODE;
 	  RERROR();
 	} else {
-	  Error(TYPE_ERROR_FLOAT, t, "X is floor(t)");
+	  _YAP_Error(TYPE_ERROR_FLOAT, t, "X is floor(t)");
 	  P = (yamop *)FAILCODE;
 	  RERROR();
 	}
@@ -1166,7 +1166,7 @@ p_floor(Term t E_ARGS)
       }
 #endif
     default:
-      /* Error */
+      /* _YAP_Error */
       RERROR();
     }
   }
@@ -1192,7 +1192,7 @@ p_ceiling(Term t E_ARGS)
   switch (BlobOfFunctor(f)) {
   case long_int_e:
     if (yap_flags[LANGUAGE_MODE_FLAG] == 1) { /* iso */
-      Error(TYPE_ERROR_FLOAT, t, "X is ceiling(%f)", IntegerOfTerm(t));
+      _YAP_Error(TYPE_ERROR_FLOAT, t, "X is ceiling(%f)", IntegerOfTerm(t));
       P = (yamop *)FAILCODE;
       RERROR();
     } else {
@@ -1204,33 +1204,33 @@ p_ceiling(Term t E_ARGS)
 #ifdef USE_GMP
   case big_int_e:
     if (yap_flags[LANGUAGE_MODE_FLAG] == 1) { /* iso */
-      MP_INT *big = BigIntOfTerm(t);
+      MP_INT *big = _YAP_BigIntOfTerm(t);
       Int sz = 2+mpz_sizeinbase(big,10);
-      char *s = AllocCodeSpace(sz);
+      char *s = _YAP_AllocCodeSpace(sz);
 
       if (s != NULL) {
-	mpz_get_str(s, 10, BigIntOfTerm(t));
-	Error(TYPE_ERROR_FLOAT, t, "X is ceiling(%s)", IntegerOfTerm(t));
-	FreeCodeSpace(s);
+	mpz_get_str(s, 10, _YAP_BigIntOfTerm(t));
+	_YAP_Error(TYPE_ERROR_FLOAT, t, "X is ceiling(%s)", IntegerOfTerm(t));
+	_YAP_FreeCodeSpace(s);
 	P = (yamop *)FAILCODE;
 	RERROR();
       } else {
-	Error(TYPE_ERROR_FLOAT, t, "X is ceiling(t)");
+	_YAP_Error(TYPE_ERROR_FLOAT, t, "X is ceiling(t)");
 	P = (yamop *)FAILCODE;
 	RERROR();
       }
     } else {
-      RFLOAT(mpz_get_d(BigIntOfTerm(t)));
+      RFLOAT(mpz_get_d(_YAP_BigIntOfTerm(t)));
     }
 #endif
   default:
     /* we've got a full term, need to evaluate it first */
-    bt = Eval(t, &v);
+    bt = _YAP_Eval(t, &v);
     /* second case, no need no evaluation */
     switch (bt) {
     case long_int_e:
       if (yap_flags[LANGUAGE_MODE_FLAG] == 1) { /* iso */
-	Error(TYPE_ERROR_FLOAT, t, "X is ceiling(%f)", v.Int);
+	_YAP_Error(TYPE_ERROR_FLOAT, t, "X is ceiling(%f)", v.Int);
 	P = (yamop *)FAILCODE;
 	RERROR();
       } else {
@@ -1244,16 +1244,16 @@ p_ceiling(Term t E_ARGS)
       if (yap_flags[LANGUAGE_MODE_FLAG] == 1) { /* iso */
 	MP_INT *big = v.big;
 	Int sz = 2+mpz_sizeinbase(big,10);
-	char *s = AllocCodeSpace(sz);
+	char *s = _YAP_AllocCodeSpace(sz);
 
 	if (s != NULL) {
-	  mpz_get_str(s, 10, BigIntOfTerm(t));
-	  Error(TYPE_ERROR_FLOAT, t, "X is ceiling(%s)", IntegerOfTerm(t));
-	  FreeCodeSpace(s);
+	  mpz_get_str(s, 10, _YAP_BigIntOfTerm(t));
+	  _YAP_Error(TYPE_ERROR_FLOAT, t, "X is ceiling(%s)", IntegerOfTerm(t));
+	  _YAP_FreeCodeSpace(s);
 	  P = (yamop *)FAILCODE;
 	  RERROR();
 	} else {
-	  Error(TYPE_ERROR_FLOAT, t, "X is ceiling(t)");
+	  _YAP_Error(TYPE_ERROR_FLOAT, t, "X is ceiling(t)");
 	  P = (yamop *)FAILCODE;
 	  RERROR();
 	}
@@ -1262,7 +1262,7 @@ p_ceiling(Term t E_ARGS)
       }
 #endif
     default:
-      /* Error */
+      /* _YAP_Error */
       RERROR();
     }
   }
@@ -1315,7 +1315,7 @@ p_round(Term t E_ARGS)
   switch (BlobOfFunctor(f)) {
   case long_int_e:
     if (yap_flags[LANGUAGE_MODE_FLAG] == 1) { /* iso */
-      Error(TYPE_ERROR_FLOAT, t, "X is round(%f)", IntegerOfTerm(t));
+      _YAP_Error(TYPE_ERROR_FLOAT, t, "X is round(%f)", IntegerOfTerm(t));
       P = (yamop *)FAILCODE;
       RERROR();
     } else {
@@ -1327,33 +1327,33 @@ p_round(Term t E_ARGS)
 #ifdef USE_GMP
   case big_int_e:
     if (yap_flags[LANGUAGE_MODE_FLAG] == 1) { /* iso */
-      MP_INT *big = BigIntOfTerm(t);
+      MP_INT *big = _YAP_BigIntOfTerm(t);
       Int sz = 2+mpz_sizeinbase(big,10);
-      char *s = AllocCodeSpace(sz);
+      char *s = _YAP_AllocCodeSpace(sz);
 
       if (s != NULL) {
-	mpz_get_str(s, 10, BigIntOfTerm(t));
-	Error(TYPE_ERROR_FLOAT, t, "X is round(%s)", IntegerOfTerm(t));
-	FreeCodeSpace(s);
+	mpz_get_str(s, 10, _YAP_BigIntOfTerm(t));
+	_YAP_Error(TYPE_ERROR_FLOAT, t, "X is round(%s)", IntegerOfTerm(t));
+	_YAP_FreeCodeSpace(s);
 	P = (yamop *)FAILCODE;
 	RERROR();
       } else {
-	Error(TYPE_ERROR_FLOAT, t, "X is round(t)");
+	_YAP_Error(TYPE_ERROR_FLOAT, t, "X is round(t)");
 	P = (yamop *)FAILCODE;
 	RERROR();
       }
     } else {
-      RFLOAT(mpz_get_d(BigIntOfTerm(t)));
+      RFLOAT(mpz_get_d(_YAP_BigIntOfTerm(t)));
     }
 #endif
   default:
     /* we've got a full term, need to evaluate it first */
-    bt = Eval(t, &v);
+    bt = _YAP_Eval(t, &v);
     /* second case, no need no evaluation */
     switch (bt) {
     case long_int_e:
       if (yap_flags[LANGUAGE_MODE_FLAG] == 1) { /* iso */
-	Error(TYPE_ERROR_FLOAT, t, "X is round(%f)", v.Int);
+	_YAP_Error(TYPE_ERROR_FLOAT, t, "X is round(%f)", v.Int);
 	P = (yamop *)FAILCODE;
 	RERROR();
       } else {
@@ -1367,16 +1367,16 @@ p_round(Term t E_ARGS)
       if (yap_flags[LANGUAGE_MODE_FLAG] == 1) { /* iso */
 	MP_INT *big = v.big;
 	Int sz = 2+mpz_sizeinbase(big,10);
-	char *s = AllocCodeSpace(sz);
+	char *s = _YAP_AllocCodeSpace(sz);
 
 	if (s == NULL) {
-	  mpz_get_str(s, 10, BigIntOfTerm(t));
-	  Error(TYPE_ERROR_FLOAT, t, "X is round(%s)", IntegerOfTerm(t));
-	  FreeCodeSpace(s);
+	  mpz_get_str(s, 10, _YAP_BigIntOfTerm(t));
+	  _YAP_Error(TYPE_ERROR_FLOAT, t, "X is round(%s)", IntegerOfTerm(t));
+	  _YAP_FreeCodeSpace(s);
 	  P = (yamop *)FAILCODE;
 	  RERROR();
 	} else {
-	  Error(TYPE_ERROR_FLOAT, t, "X is round(t)");
+	  _YAP_Error(TYPE_ERROR_FLOAT, t, "X is round(t)");
 	  P = (yamop *)FAILCODE;
 	  RERROR();
 	}
@@ -1385,7 +1385,7 @@ p_round(Term t E_ARGS)
       }
 #endif
     default:
-      /* Error */
+      /* _YAP_Error */
       RERROR();
     }
   }
@@ -1413,7 +1413,7 @@ p_truncate(Term t E_ARGS)
   switch (BlobOfFunctor(f)) {
   case long_int_e:
     if (yap_flags[LANGUAGE_MODE_FLAG] == 1) { /* iso */
-      Error(TYPE_ERROR_FLOAT, t, "X is truncate(%f)", IntegerOfTerm(t));
+      _YAP_Error(TYPE_ERROR_FLOAT, t, "X is truncate(%f)", IntegerOfTerm(t));
       P = (yamop *)FAILCODE;
       RERROR();
     } else {
@@ -1425,33 +1425,33 @@ p_truncate(Term t E_ARGS)
 #ifdef USE_GMP
   case big_int_e:
     if (yap_flags[LANGUAGE_MODE_FLAG] == 1) { /* iso */
-      MP_INT *big = BigIntOfTerm(t);
+      MP_INT *big = _YAP_BigIntOfTerm(t);
       Int sz = 2+mpz_sizeinbase(big,10);
-      char *s = AllocCodeSpace(sz);
+      char *s = _YAP_AllocCodeSpace(sz);
 
       if (s != NULL) {
-	mpz_get_str(s, 10, BigIntOfTerm(t));
-	Error(TYPE_ERROR_FLOAT, t, "X is truncate(%s)", IntegerOfTerm(t));
-	FreeCodeSpace(s);
+	mpz_get_str(s, 10, _YAP_BigIntOfTerm(t));
+	_YAP_Error(TYPE_ERROR_FLOAT, t, "X is truncate(%s)", IntegerOfTerm(t));
+	_YAP_FreeCodeSpace(s);
 	P = (yamop *)FAILCODE;
 	RERROR();
       } else {
-	Error(TYPE_ERROR_FLOAT, t, "X is truncate(t)");
+	_YAP_Error(TYPE_ERROR_FLOAT, t, "X is truncate(t)");
 	P = (yamop *)FAILCODE;
 	RERROR();
       }
     } else {
-      RFLOAT(mpz_get_d(BigIntOfTerm(t)));
+      RFLOAT(mpz_get_d(_YAP_BigIntOfTerm(t)));
     }
 #endif
   default:
     /* we've got a full term, need to evaluate it first */
-    bt = Eval(t, &v);
+    bt = _YAP_Eval(t, &v);
     /* second case, no need no evaluation */
     switch (bt) {
     case long_int_e:
       if (yap_flags[LANGUAGE_MODE_FLAG] == 1) { /* iso */
-	Error(TYPE_ERROR_FLOAT, t, "X is truncate(%f)", v.Int);
+	_YAP_Error(TYPE_ERROR_FLOAT, t, "X is truncate(%f)", v.Int);
 	P = (yamop *)FAILCODE;
 	RERROR();
       } else {
@@ -1465,16 +1465,16 @@ p_truncate(Term t E_ARGS)
       if (yap_flags[LANGUAGE_MODE_FLAG] == 1) { /* iso */
 	MP_INT *big = v.big;
 	Int sz = 2+mpz_sizeinbase(big,10);
-	char *s = AllocCodeSpace(sz);
+	char *s = _YAP_AllocCodeSpace(sz);
 
 	if (s == NULL) {
-	  mpz_get_str(s, 10, BigIntOfTerm(t));
-	  Error(TYPE_ERROR_FLOAT, t, "X is truncate(%s)", IntegerOfTerm(t));
-	  FreeCodeSpace(s);
+	  mpz_get_str(s, 10, _YAP_BigIntOfTerm(t));
+	  _YAP_Error(TYPE_ERROR_FLOAT, t, "X is truncate(%s)", IntegerOfTerm(t));
+	  _YAP_FreeCodeSpace(s);
 	  P = (yamop *)FAILCODE;
 	  RERROR();
 	} else {
-	  Error(TYPE_ERROR_FLOAT, t, "X is truncate(t)");
+	  _YAP_Error(TYPE_ERROR_FLOAT, t, "X is truncate(t)");
 	  P = (yamop *)FAILCODE;
 	  RERROR();
 	}
@@ -1483,7 +1483,7 @@ p_truncate(Term t E_ARGS)
       }
 #endif
     default:
-      /* Error */
+      /* _YAP_Error */
       RERROR();
     }
   }
@@ -1522,11 +1522,11 @@ p_integer(Term t E_ARGS)
     break;
 #ifdef USE_GMP
   case big_int_e:
-    RBIG(BigIntOfTerm(t));
+    RBIG(_YAP_BigIntOfTerm(t));
 #endif
   default:
     /* we've got a full term, need to evaluate it first */
-    bt = Eval(t, &v);
+    bt = _YAP_Eval(t, &v);
     /* second case, no need no evaluation */
     switch (bt) {
     case long_int_e:
@@ -1539,7 +1539,7 @@ p_integer(Term t E_ARGS)
       RBIG(v.big);
 #endif
     default:
-      /* Error */
+      /* _YAP_Error */
       RERROR();
     }
   }
@@ -1547,12 +1547,12 @@ p_integer(Term t E_ARGS)
     RINT((Int) dbl);
   } else {
 #ifdef USE_GMP
-    MP_INT *new = PreAllocBigNum();
+    MP_INT *new = _YAP_PreAllocBigNum();
 
     mpz_set_d(new, dbl);
     RBIG(new);
 #else
-    Error(EVALUATION_ERROR_INT_OVERFLOW, MkFloatTerm(dbl), "integer/1");
+    _YAP_Error(EVALUATION_ERROR_INT_OVERFLOW, MkFloatTerm(dbl), "integer/1");
     P = (yamop *)FAILCODE;
     RERROR();	    
 #endif
@@ -1576,11 +1576,11 @@ p_float(Term t E_ARGS)
     RFLOAT(FloatOfTerm(t));
 #ifdef USE_GMP
   case big_int_e:
-    RFLOAT(mpz_get_d(BigIntOfTerm(t)));
+    RFLOAT(mpz_get_d(_YAP_BigIntOfTerm(t)));
 #endif
   default:
     /* we've got a full term, need to evaluate it first */
-    bt = Eval(t, &v);
+    bt = _YAP_Eval(t, &v);
     /* second case, no need no evaluation */
     switch (bt) {
     case long_int_e:
@@ -1592,7 +1592,7 @@ p_float(Term t E_ARGS)
       RFLOAT(mpz_get_d(v.big));
 #endif
     default:
-      /* Error */
+      /* _YAP_Error */
       RERROR();
     }
   }
@@ -1606,7 +1606,7 @@ msb(Int inp)	/* calculate the most significant bit for an integer */
   int off = sizeof(CELL)*4;
 
   if (inp < 0) {
-    Error(DOMAIN_ERROR_NOT_LESS_THAN_ZERO, MkIntegerTerm(inp),
+    _YAP_Error(DOMAIN_ERROR_NOT_LESS_THAN_ZERO, MkIntegerTerm(inp),
 	  "msb/1 received %d", inp);
     P = (yamop *)FAILCODE;
     return(0);
@@ -1641,15 +1641,15 @@ p_abs(Term t E_ARGS)
 #ifdef USE_GMP
   case big_int_e:
     {
-      MP_INT *new = PreAllocBigNum();
+      MP_INT *new = _YAP_PreAllocBigNum();
 
-      mpz_abs(new, BigIntOfTerm(t));
+      mpz_abs(new, _YAP_BigIntOfTerm(t));
       RBIG(new);
     }
 #endif
   default:
     /* we've got a full term, need to evaluate it first */
-    bt = Eval(t, &v);
+    bt = _YAP_Eval(t, &v);
     /* second case, no need no evaluation */
     switch (bt) {
     case long_int_e:
@@ -1659,14 +1659,14 @@ p_abs(Term t E_ARGS)
 #ifdef USE_GMP
     case big_int_e:
       {
-	MP_INT *new = PreAllocBigNum();
+	MP_INT *new = _YAP_PreAllocBigNum();
 
 	mpz_abs(new, v.big);
 	RBIG(new);
       }
 #endif
     default:
-      /* Error */
+      /* _YAP_Error */
       RERROR();
     }
   }
@@ -1686,22 +1686,22 @@ p_msb(Term t E_ARGS)
   case long_int_e:
     RINT(msb(IntegerOfTerm(t)));
   case double_e:
-    Error(TYPE_ERROR_INTEGER, t, "msb(%f)", FloatOfTerm(t));
+    _YAP_Error(TYPE_ERROR_INTEGER, t, "msb(%f)", FloatOfTerm(t));
     P = (yamop *)FAILCODE;
     RERROR();
 #ifdef USE_GMP
   case big_int_e:
-    RINT(mpz_sizeinbase(BigIntOfTerm(t),2));
+    RINT(mpz_sizeinbase(_YAP_BigIntOfTerm(t),2));
 #endif
   default:
     /* we've got a full term, need to evaluate it first */
-    bt = Eval(t, &v);
+    bt = _YAP_Eval(t, &v);
     /* second case, no need no evaluation */
     switch (bt) {
     case long_int_e:
       RINT(v.Int);
     case double_e:
-      Error(TYPE_ERROR_INTEGER, t, "msb(%f)", v.dbl);
+      _YAP_Error(TYPE_ERROR_INTEGER, t, "msb(%f)", v.dbl);
       P = (yamop *)FAILCODE;
       RERROR();
 #ifdef USE_GMP
@@ -1709,7 +1709,7 @@ p_msb(Term t E_ARGS)
       RINT(mpz_sizeinbase(v.big,2));
 #endif
     default:
-      /* Error */
+      /* _YAP_Error */
       RERROR();
     }
   }
@@ -1729,7 +1729,7 @@ p_ffracp(Term t E_ARGS)
   switch (BlobOfFunctor(f)) {
   case long_int_e:
     if (yap_flags[LANGUAGE_MODE_FLAG] == 1) { /* iso */
-      Error(TYPE_ERROR_FLOAT, t, "X is float_fractional_part(%f)", IntegerOfTerm(t));
+      _YAP_Error(TYPE_ERROR_FLOAT, t, "X is float_fractional_part(%f)", IntegerOfTerm(t));
       P = (yamop *)FAILCODE;
       RERROR();
     } else {
@@ -1741,18 +1741,18 @@ p_ffracp(Term t E_ARGS)
 #ifdef USE_GMP
   case big_int_e:
     if (yap_flags[LANGUAGE_MODE_FLAG] == 1) { /* iso */
-      MP_INT *big = BigIntOfTerm(t);
+      MP_INT *big = _YAP_BigIntOfTerm(t);
       Int sz = 2+mpz_sizeinbase(big,10);
-      char *s = AllocCodeSpace(sz);
+      char *s = _YAP_AllocCodeSpace(sz);
 
       if (s != NULL) {
-	mpz_get_str(s, 10, BigIntOfTerm(t));
-	Error(TYPE_ERROR_FLOAT, t, "X is float_fractional_part(%s)", IntegerOfTerm(t));
-	FreeCodeSpace(s);
+	mpz_get_str(s, 10, _YAP_BigIntOfTerm(t));
+	_YAP_Error(TYPE_ERROR_FLOAT, t, "X is float_fractional_part(%s)", IntegerOfTerm(t));
+	_YAP_FreeCodeSpace(s);
 	P = (yamop *)FAILCODE;
 	RERROR();
       } else {
-	Error(TYPE_ERROR_FLOAT, t, "X is float_fractional_part(t)");
+	_YAP_Error(TYPE_ERROR_FLOAT, t, "X is float_fractional_part(t)");
 	P = (yamop *)FAILCODE;
 	RERROR();
       }
@@ -1762,12 +1762,12 @@ p_ffracp(Term t E_ARGS)
 #endif
   default:
     /* we've got a full term, need to evaluate it first */
-    bt = Eval(t, &v);
+    bt = _YAP_Eval(t, &v);
     /* second case, no need no evaluation */
     switch (bt) {
     case long_int_e:
       if (yap_flags[LANGUAGE_MODE_FLAG] == 1) { /* iso */
-	Error(TYPE_ERROR_FLOAT, t, "X is float_fractional_part(%f)", v.Int);
+	_YAP_Error(TYPE_ERROR_FLOAT, t, "X is float_fractional_part(%f)", v.Int);
 	P = (yamop *)FAILCODE;
 	RERROR();
       } else {
@@ -1781,16 +1781,16 @@ p_ffracp(Term t E_ARGS)
       if (yap_flags[LANGUAGE_MODE_FLAG] == 1) { /* iso */
 	MP_INT *big = v.big;
 	Int sz = 2+mpz_sizeinbase(big,10);
-	char *s = AllocCodeSpace(sz);
+	char *s = _YAP_AllocCodeSpace(sz);
 
 	if (s == NULL) {
-	  mpz_get_str(s, 10, BigIntOfTerm(t));
-	  Error(TYPE_ERROR_FLOAT, t, "X is float_fractional_part(%s)", IntegerOfTerm(t));
-	  FreeCodeSpace(s);
+	  mpz_get_str(s, 10, _YAP_BigIntOfTerm(t));
+	  _YAP_Error(TYPE_ERROR_FLOAT, t, "X is float_fractional_part(%s)", IntegerOfTerm(t));
+	  _YAP_FreeCodeSpace(s);
 	  P = (yamop *)FAILCODE;
 	  RERROR();
 	} else {
-	  Error(TYPE_ERROR_FLOAT, t, "X is float_fractional_part(t)");
+	  _YAP_Error(TYPE_ERROR_FLOAT, t, "X is float_fractional_part(t)");
 	  P = (yamop *)FAILCODE;
 	  RERROR();
 	}
@@ -1799,7 +1799,7 @@ p_ffracp(Term t E_ARGS)
       }
 #endif
     default:
-      /* Error */
+      /* _YAP_Error */
       RERROR();
     }
   }
@@ -1821,7 +1821,7 @@ p_fintp(Term t E_ARGS)
   switch (BlobOfFunctor(f)) {
   case long_int_e:
     if (yap_flags[LANGUAGE_MODE_FLAG] == 1) { /* iso */
-      Error(TYPE_ERROR_FLOAT, t, "X is float_integer_part(%f)", IntegerOfTerm(t));
+      _YAP_Error(TYPE_ERROR_FLOAT, t, "X is float_integer_part(%f)", IntegerOfTerm(t));
       P = (yamop *)FAILCODE;
       RERROR();
     } else {
@@ -1833,33 +1833,33 @@ p_fintp(Term t E_ARGS)
 #ifdef USE_GMP
   case big_int_e:
     if (yap_flags[LANGUAGE_MODE_FLAG] == 1) { /* iso */
-      MP_INT *big = BigIntOfTerm(t);
+      MP_INT *big = _YAP_BigIntOfTerm(t);
       Int sz = 2+mpz_sizeinbase(big,10);
-      char *s = AllocCodeSpace(sz);
+      char *s = _YAP_AllocCodeSpace(sz);
 
       if (s == NULL) {
-	mpz_get_str(s, 10, BigIntOfTerm(t));
-	Error(TYPE_ERROR_FLOAT, t, "X is float_integer_part(%s)", IntegerOfTerm(t));
-	FreeCodeSpace(s);
+	mpz_get_str(s, 10, _YAP_BigIntOfTerm(t));
+	_YAP_Error(TYPE_ERROR_FLOAT, t, "X is float_integer_part(%s)", IntegerOfTerm(t));
+	_YAP_FreeCodeSpace(s);
 	P = (yamop *)FAILCODE;
 	RERROR();
       } else {
-	Error(TYPE_ERROR_FLOAT, t, "X is float_integer_part(t)");
+	_YAP_Error(TYPE_ERROR_FLOAT, t, "X is float_integer_part(t)");
 	P = (yamop *)FAILCODE;
 	RERROR();
       }
     } else {
-      RFLOAT(mpz_get_d(BigIntOfTerm(t)));
+      RFLOAT(mpz_get_d(_YAP_BigIntOfTerm(t)));
     }
 #endif
   default:
     /* we've got a full term, need to evaluate it first */
-    bt = Eval(t, &v);
+    bt = _YAP_Eval(t, &v);
     /* second case, no need no evaluation */
     switch (bt) {
     case long_int_e:
       if (yap_flags[LANGUAGE_MODE_FLAG] == 1) { /* iso */
-	Error(TYPE_ERROR_FLOAT, t, "X is float_integer_part(%f)", v.Int);
+	_YAP_Error(TYPE_ERROR_FLOAT, t, "X is float_integer_part(%f)", v.Int);
 	P = (yamop *)FAILCODE;
 	RERROR();
       } else {
@@ -1873,16 +1873,16 @@ p_fintp(Term t E_ARGS)
       if (yap_flags[LANGUAGE_MODE_FLAG] == 1) { /* iso */
 	MP_INT *big = v.big;
 	Int sz = 2+mpz_sizeinbase(big,10);
-	char *s = AllocCodeSpace(sz);
+	char *s = _YAP_AllocCodeSpace(sz);
 
 	if (s == NULL) {
-	  mpz_get_str(s, 10, BigIntOfTerm(t));
-	  Error(TYPE_ERROR_FLOAT, t, "X is float_integer_part(%s)", IntegerOfTerm(t));
-	  FreeCodeSpace(s);
+	  mpz_get_str(s, 10, _YAP_BigIntOfTerm(t));
+	  _YAP_Error(TYPE_ERROR_FLOAT, t, "X is float_integer_part(%s)", IntegerOfTerm(t));
+	  _YAP_FreeCodeSpace(s);
 	  P = (yamop *)FAILCODE;
 	  RERROR();
 	} else {
-	  Error(TYPE_ERROR_FLOAT, t, "X is float_integer_part(t)");
+	  _YAP_Error(TYPE_ERROR_FLOAT, t, "X is float_integer_part(t)");
 	  P = (yamop *)FAILCODE;
 	  RERROR();
 	}
@@ -1891,7 +1891,7 @@ p_fintp(Term t E_ARGS)
       }
 #endif
     default:
-      /* Error */
+      /* _YAP_Error */
       RERROR();
     }
   }
@@ -1922,11 +1922,11 @@ p_sign(Term t E_ARGS)
     RINT((dbl > 0.0 ? 1 : (dbl < 0.0 ? -1 : 0)));
 #ifdef USE_GMP
   case big_int_e:
-    RINT(mpz_sgn(BigIntOfTerm(t)));
+    RINT(mpz_sgn(_YAP_BigIntOfTerm(t)));
 #endif
   default:
     /* we've got a full term, need to evaluate it first */
-    bt = Eval(t, &v);
+    bt = _YAP_Eval(t, &v);
     /* second case, no need no evaluation */
     switch (bt) {
     case long_int_e:
@@ -1938,7 +1938,7 @@ p_sign(Term t E_ARGS)
       RINT(mpz_sgn(v.big));
 #endif
     default:
-      /* Error */
+      /* _YAP_Error */
       RERROR();
     }
   }
@@ -1984,51 +1984,51 @@ p_unary_is(void)
   union arith_ret res;
 
   if (IsVarTerm(t)) {
-    Error(INSTANTIATION_ERROR, ARG2, "X is Y");
+    _YAP_Error(INSTANTIATION_ERROR, ARG2, "X is Y");
     return(FALSE);
   }
   if (IsIntTerm(t)) {
     blob_type f = InitUnTab[IntOfTerm(t)].f(Deref(ARG3),&res);
-    return (unify_constant(ARG1,EvalToTerm(f,&res)));
+    return (_YAP_unify_constant(ARG1,EvalToTerm(f,&res)));
   }
   if (IsAtomTerm(t)) {
     Atom name = AtomOfTerm(t);
     ExpEntry *p;
     blob_type f;
 
-    if (EndOfPAEntr(p = RepExpProp(GetExpProp(name, 1)))) {
+    if (EndOfPAEntr(p = RepExpProp(_YAP_GetExpProp(name, 1)))) {
       Term ti[2];
 
       /* error */
       ti[0] = t;
       ti[1] = MkIntTerm(1);
-      t = MkApplTerm(MkFunctor(LookupAtom("/"),2), 2, ti);
-      Error(TYPE_ERROR_EVALUABLE, t,
+      t = _YAP_MkApplTerm(_YAP_MkFunctor(_YAP_LookupAtom("/"),2), 2, ti);
+      _YAP_Error(TYPE_ERROR_EVALUABLE, t,
 	    "functor %s/%d for arithmetic expression",
 	    RepAtom(name)->StrOfAE,1);
       P = (yamop *)FAILCODE;
       return(FALSE);
     }
     f = p->FOfEE.unary(Deref(ARG3),&res);
-    return (unify_constant(ARG1,EvalToTerm(f,&res)));
+    return (_YAP_unify_constant(ARG1,EvalToTerm(f,&res)));
   }
   return(FALSE);
 }
 
 void
-InitUnaryExps(void)
+_YAP_InitUnaryExps(void)
 {
   unsigned int    i;
   ExpEntry       *p;
 
   for (i = 0; i < sizeof(InitUnTab)/sizeof(InitUnEntry); ++i) {
-    AtomEntry *ae = RepAtom(LookupAtom(InitUnTab[i].OpName));
+    AtomEntry *ae = RepAtom(_YAP_LookupAtom(InitUnTab[i].OpName));
     WRITE_LOCK(ae->ARWLock);
-    if (GetExpPropHavingLock(ae, 1)) {
+    if (_YAP_GetExpPropHavingLock(ae, 1)) {
       WRITE_UNLOCK(ae->ARWLock);
       break;
     }
-    p = (ExpEntry *) AllocAtomSpace(sizeof(ExpEntry));
+    p = (ExpEntry *) _YAP_AllocAtomSpace(sizeof(ExpEntry));
     p->KindOfPE = ExpProperty;
     p->ArityOfEE = 1;
     p->ENoOfEE = 1;
@@ -2037,21 +2037,21 @@ InitUnaryExps(void)
     ae->PropsOfAE = AbsExpProp(p);
     WRITE_UNLOCK(ae->ARWLock);
   }
-  InitCPred("is", 3, p_unary_is, TestPredFlag | SafePredFlag);
+  _YAP_InitCPred("is", 3, p_unary_is, TestPredFlag | SafePredFlag);
 }
 
 /* This routine is called from Restore to make sure we have the same arithmetic operators */
 int
-ReInitUnaryExps(void)
+_YAP_ReInitUnaryExps(void)
 {
   unsigned int i;
   Prop p;
 
   for (i = 0; i < sizeof(InitUnTab)/sizeof(InitUnEntry); ++i) {
-    AtomEntry *ae = RepAtom(FullLookupAtom(InitUnTab[i].OpName));
+    AtomEntry *ae = RepAtom(_YAP_FullLookupAtom(InitUnTab[i].OpName));
 
     WRITE_LOCK(ae->ARWLock);
-    if ((p = GetExpPropHavingLock(ae, 1)) == NULL) {
+    if ((p = _YAP_GetExpPropHavingLock(ae, 1)) == NULL) {
       WRITE_UNLOCK(ae->ARWLock);
       return(FALSE);
     }

@@ -10,7 +10,7 @@
 * File:		Heap.h         						 *
 * mods:									 *
 * comments:	Heap Init Structure					 *
-* version:      $Id: Heap.h,v 1.33 2002-10-21 22:52:36 vsc Exp $	 *
+* version:      $Id: Heap.h,v 1.34 2002-11-11 17:37:58 vsc Exp $	 *
 *************************************************************************/
 
 /* information that can be stored in Code Space */
@@ -121,8 +121,11 @@ typedef struct various_codes {
   struct pred_entry  *creep_code;
   struct pred_entry  *undef_code;
   struct pred_entry  *spy_code;
-  int   profiling;
-  int   call_counting;
+  int   system_profiling;
+  int   system_call_counting;
+  int   compiler_optimizer_on;
+  int   compiler_compile_mode;
+  struct pred_entry   *compiler_current_pred;
   AtomHashEntry invisiblechain;
   OPCODE dummycode;
   Int maxdepth, maxlist;
@@ -293,14 +296,40 @@ typedef struct various_codes {
   struct pred_entry *pred_handle_throw;
   struct array_entry *dyn_array_list;
   struct DB_STRUCT *db_erased_marker;
+  struct stream_desc *yap_streams;
+#ifdef DEBUG
+  int    debugger_output_msg;
+#endif
   UInt n_of_file_aliases;
   UInt sz_of_file_aliases;
   struct AliasDescS * file_aliases;
   struct reduction_counters call_counters;
-  void *foreign_code_loaded;
   char *yap_lib_dir;
   Agc_hook  agc_hook;
+  void *foreign_code_loaded;
+  ADDR  foreign_code_base;
+  ADDR  foreign_code_top;
+  ADDR  foreign_code_max;
   int parser_error_style;
+  char *compiler_freep;
+  char *compiler_freep0;
+  struct PSEUDO *compiler_cpc;
+  struct PSEUDO *compiler_CodeStart;
+  struct PSEUDO *compiler_icpc;
+  struct PSEUDO *compiler_BlobsStart;
+  int   compiler_clause_mask;
+  CELL  compiler_clause_store;
+  int  *compiler_label_offset;
+  UInt   i_pred_arity;
+  int   compiler_profiling;
+  int   compiler_call_counting;
+  /********* whether we should try to compile array references ******************/
+  int   compiler_compile_arrays;
+  /*
+    PREG just before we enter $spy. We use that to find out the clause which
+    was calling the debugged goal.
+  */
+  yamop   *debugger_p_before_spy;
 #if defined(YAPOR) || defined(TABLING)
   struct global_data global;
   struct local_data remote[MAX_WORKERS];
@@ -312,7 +341,7 @@ typedef struct various_codes {
 
 #define  HeapUsed                heap_regs->heap_used
 #define  HeapMax                 heap_regs->heap_max
-#define  HeapTop                 heap_regs->heap_top
+#define  HeapTop            heap_regs->heap_top
 #ifdef YAPOR
 #define  SEQUENTIAL_IS_DEFAULT   heap_regs->seq_def
 #define  GETWORK		 (&(heap_regs->getworkcode               ))
@@ -339,8 +368,8 @@ typedef struct various_codes {
 #if USE_THREADED_CODE
 #define  OP_RTABLE                heap_regs->op_rtable
 #endif
-#define  PROFILING                heap_regs->profiling
-#define  CALL_COUNTING            heap_regs->call_counting
+#define  PROFILING                heap_regs->system_profiling
+#define  CALL_COUNTING            heap_regs->system_call_counting
 #define  UPDATE_MODE              heap_regs->update_mode
 #define  RETRY_C_RECORDED_CODE    heap_regs->retry_recorded_code
 #define  RETRY_C_RECORDED_K_CODE  heap_regs->retry_recorded_k_code
@@ -359,8 +388,8 @@ typedef struct various_codes {
 #define  INT_BB_KEYS              heap_regs->IntBBKeys
 #define  CharConversionTable      heap_regs->char_conversion_table
 #define  CharConversionTable2     heap_regs->char_conversion_table2
-#define  NUMBER_OF_CPREDS         heap_regs->number_of_cpreds
-#define  NUMBER_OF_CMPFUNCS       heap_regs->number_of_cmpfuncs
+#define  NumberOfCPreds           heap_regs->number_of_cpreds
+#define  NumberOfCmpFuncs         heap_regs->number_of_cmpfuncs
 #define  ModuleName               heap_regs->module_name
 #define  ModulePred               heap_regs->module_pred
 #define  PrimitivesModule         heap_regs->primitives_module
@@ -491,6 +520,8 @@ typedef struct various_codes {
 #define  PredHandleThrow          heap_regs->pred_handle_throw
 #define  DynArrayList             heap_regs->dyn_array_list
 #define  DBErasedMarker           heap_regs->db_erased_marker
+#define  Stream		          heap_regs->yap_streams
+#define  output_msg	          heap_regs->debugger_output_msg
 #define  NOfFileAliases           heap_regs->n_of_file_aliases
 #define  SzOfFileAliases          heap_regs->sz_of_file_aliases
 #define  FileAliases              heap_regs->file_aliases
@@ -500,9 +531,30 @@ typedef struct various_codes {
 #define  ReductionsCounterOn      heap_regs->call_counters.reductions_on
 #define  PredEntriesCounterOn     heap_regs->call_counters.reductions_retries_on
 #define  RetriesCounterOn         heap_regs->call_counters.retries_on
-#define  ForeignCodeLoaded        heap_regs->foreign_code_loaded
 #define  Yap_LibDir               heap_regs->yap_lib_dir
 #define  AGCHook                  heap_regs->agc_hook
+#define  ParserErrorStyle         heap_regs->parser_error_style
+#define  freep                    heap_regs->compiler_freep
+#define  freep0                   heap_regs->compiler_freep0
+#define  cpc                      heap_regs->compiler_cpc
+#define  CodeStart                heap_regs->compiler_CodeStart
+#define  icpc                     heap_regs->compiler_icpc
+#define  BlobsStart               heap_regs->compiler_BlobsStart
+#define  clause_mask              heap_regs->compiler_clause_mask
+#define  clause_store             heap_regs->compiler_clause_store
+#define  label_offset             heap_regs->compiler_label_offset
+#define  IPredArity               heap_regs->i_pred_arity
+#define  profiling                heap_regs->compiler_profiling
+#define  call_counting            heap_regs->compiler_call_counting
+#define  compile_arrays           heap_regs->compiler_compile_arrays
+#define  optimizer_on             heap_regs->compiler_optimizer_on
+#define  compile_mode             heap_regs->compiler_compile_mode
+#define  P_before_spy             heap_regs->debugger_p_before_spy
+#define  CurrentPred              heap_regs->compiler_current_pred
+#define  ForeignCodeBase          heap_regs->foreign_code_base;
+#define  ForeignCodeTop           heap_regs->foreign_code_top;
+#define  ForeignCodeMax           heap_regs->foreign_code_max;
+#define  ForeignCodeLoaded        heap_regs->foreign_code_loaded
 #define  ParserErrorStyle         heap_regs->parser_error_style
 #define  DeadClauses              heap_regs->dead_clauses
 #define  SizeOfOverflow           heap_regs->size_of_overflow

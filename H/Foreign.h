@@ -80,8 +80,6 @@
 #endif
 #endif /* LOAD_DYLD */
 
-extern char LoadMsg[];
-
 #define LOAD_SUCCEEDED   0
 #define LOAD_FAILLED    -1
 
@@ -105,11 +103,11 @@ typedef void (*YapInitProc)(void);
 #define STD_PROTO(F,A)  F A
 #endif
 
-void STD_PROTO(YAP_FindExecutable,(char *));
-Int STD_PROTO(LoadForeign,(StringList, StringList, char *, YapInitProc *));
-Int STD_PROTO(ReLoadForeign,(StringList, StringList, char *, YapInitProc *));
-void	STD_PROTO(ReOpenLoadForeign,(void));
-void	STD_PROTO(ShutdownLoadForeign,(void));
+void STD_PROTO(_YAP_FindExecutable,(char *));
+Int STD_PROTO(_YAP_LoadForeign,(StringList, StringList, char *, YapInitProc *));
+Int STD_PROTO(_YAP_ReLoadForeign,(StringList, StringList, char *, YapInitProc *));
+void	STD_PROTO(_YAP_ReOpenLoadForeign,(void));
+void	STD_PROTO(_YAP_ShutdownLoadForeign,(void));
 
 
 

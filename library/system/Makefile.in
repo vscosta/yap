@@ -43,9 +43,7 @@ all: @NEWSHOBJ@
 
 sobjs: $(SOBJS) 
 
-dll: sys@SHLIB_SUFFIX@
-
-sys.o: $(srcdir)/sys.c
+sys.o $(srcdir)/sys.c
 	$(CC) -c $(CFLAGS) $(SHLIB_CFLAGS) $(srcdir)/sys.c -o sys.o
 
 @DO_SECOND_LD@@DO_SECOND_LD@%@SHLIB_SUFFIX@: %.o
@@ -55,7 +53,7 @@ sys.o: $(srcdir)/sys.c
 @DO_SECOND_LD@	@SHLIB_LD@ -o sys@SHLIB_SUFFIX@ sys.o
 
 #
-# create a new DLL library on cygwin environments
+# create a new DLL library on mingw32 environments
 #
 # DLLNAME: name of the new dll
 # OBJS: list of object files I want to put in

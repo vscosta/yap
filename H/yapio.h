@@ -62,13 +62,11 @@
 #endif
 
 #define YP_FILE		FILE
-extern int YP_stdin;
-extern int YP_stdout;
-extern int YP_stderr;
+extern YP_FILE *_YAP_stdin;
+extern YP_FILE *_YAP_stdout;
+extern YP_FILE *_YAP_stderr;
 
-int     STD_PROTO(YP_fprintf,(int, char *, ...));
 int     STD_PROTO(YP_putc,(int, int));
-int     STD_PROTO(YP_fflush,(int));
 
 #else
 
@@ -97,7 +95,6 @@ int     STD_PROTO(YP_fflush,(int));
 #define fopen	ERR_fopen
 #define fclose	ERR_fclose
 #define fflush	ERR_fflush
-
 
 
 
@@ -171,7 +168,7 @@ extern YP_FILE yp_iob[YP_MAX_FILES];
 #define YAP_FILENAME_MAX 1024 /* This is ok for Linux, should be ok for everyone */
 #endif
 
-extern char FileNameBuf[YAP_FILENAME_MAX], FileNameBuf2[YAP_FILENAME_MAX];
+extern char _YAP_FileNameBuf[YAP_FILENAME_MAX], _YAP_FileNameBuf2[YAP_FILENAME_MAX];
 
 typedef YP_FILE *YP_File;
 
@@ -230,14 +227,14 @@ typedef enum{       /* we accept two domains for the moment, IPV6 may follow */
       af_unix       /* or AF_FILE */
 } socket_domain;
 
-Term  STD_PROTO(InitSocketStream,(int, socket_info, socket_domain));
-int   STD_PROTO(CheckSocketStream,(Term, char *));
-socket_domain   STD_PROTO(GetSocketDomain,(int));
-socket_info   STD_PROTO(GetSocketStatus,(int));
-void  STD_PROTO(UpdateSocketStream,(int, socket_info, socket_domain));
+Term  STD_PROTO(_YAP_InitSocketStream,(int, socket_info, socket_domain));
+int   STD_PROTO(_YAP_CheckSocketStream,(Term, char *));
+socket_domain   STD_PROTO(_YAP_GetSocketDomain,(int));
+socket_info   STD_PROTO(_YAP_GetSocketStatus,(int));
+void  STD_PROTO(_YAP_UpdateSocketStream,(int, socket_info, socket_domain));
 
 /* routines in ypsocks.c */
-Int CloseSocket(int, socket_info, socket_domain);
+Int STD_PROTO(_YAP_CloseSocket,(int, socket_info, socket_domain));
 
 #endif /* USE_SOCKET */
 
@@ -249,36 +246,42 @@ typedef struct AliasDescS {
 
 /****************** character definition table **************************/
 #define NUMBER_OF_CHARS 256
-extern char *chtype;
+extern char *_YAP_chtype;
 
 /*************** variables concerned with parsing   *********************/
-extern TokEntry	*tokptr, *toktide;
-extern VarEntry	*VarTable, *AnonVarTable;
-extern int eot_before_eof;
-
+extern TokEntry	*_YAP_tokptr, *_YAP_toktide;
+extern VarEntry	*_YAP_VarTable, *_YAP_AnonVarTable;
+extern int _YAP_eot_before_eof;
 
 /* parser stack, used to be AuxSp, now is ASP */
 #define ParserAuxSp (TR)
 
 /* routines in parser.c */
-VarEntry STD_PROTO(*LookupVar,(char *));
-Term STD_PROTO(VarNames,(VarEntry *,Term));
+VarEntry STD_PROTO(*_YAP_LookupVar,(char *));
+Term STD_PROTO(_YAP_VarNames,(VarEntry *,Term));
 
 /* routines ins scanner.c */
-TokEntry STD_PROTO(*tokenizer,(int (*)(int), int (*)(int)));
-TokEntry STD_PROTO(*fast_tokenizer,(void));
-Term     STD_PROTO(scan_num,(int (*)(int)));
+TokEntry STD_PROTO(*_YAP_tokenizer,(int (*)(int), int (*)(int)));
+TokEntry STD_PROTO(*_YAP_fast_tokenizer,(void));
+Term     STD_PROTO(_YAP_scan_num,(int (*)(int)));
+char	 STD_PROTO(*_YAP_AllocScannerMemory,(unsigned int));
 
 /* routines in iopreds.c */
-Int   STD_PROTO(FirstLineInParse,(void));
-int   STD_PROTO(CheckIOStream,(Term, char *));
-int   STD_PROTO(GetStreamFd,(int));
-void  STD_PROTO(CloseStream,(int));
-int   STD_PROTO(PlGetchar,(void));
-int   STD_PROTO(PlFGetchar,(void));
-int   STD_PROTO(StreamToFileNo,(Term));
+Int   STD_PROTO(_YAP_FirstLineInParse,(void));
+int   STD_PROTO(_YAP_CheckIOStream,(Term, char *));
+int   STD_PROTO(_YAP_GetStreamFd,(int));
+void  STD_PROTO(_YAP_CloseStreams,(int));
+void  STD_PROTO(_YAP_CloseStream,(int));
+int   STD_PROTO(_YAP_PlGetchar,(void));
+int   STD_PROTO(_YAP_PlFGetchar,(void));
+int   STD_PROTO(_YAP_GetCharForSIGINT,(void));
+int   STD_PROTO(_YAP_StreamToFileNo,(Term));
+Term  STD_PROTO(_YAP_OpenStream,(FILE *,char *,Term,int));
 
-extern int c_input_stream, c_output_stream, c_error_stream;
+extern int
+  _YAP_c_input_stream,
+  _YAP_c_output_stream,
+  _YAP_c_error_stream;
 
 #define YAP_INPUT_STREAM	0x01
 #define YAP_OUTPUT_STREAM	0x02
@@ -289,21 +292,19 @@ extern int c_input_stream, c_output_stream, c_error_stream;
 #define YAP_BINARY_STREAM	0x40
 #define YAP_SEEKABLE_STREAM	0x80
 
-Term   STD_PROTO(OpenStream,(FILE *,char *,Term,int));
 
 #define	Quote_illegal_f		1
 #define	Ignore_ops_f		2
 #define	Handle_vars_f		4
 #define	Use_portray_f		8
 
-/* routines in sysbits.c */
-char *STD_PROTO(pfgets,(char *,int,YP_File));
-
 /* write.c */
-void	STD_PROTO(plwrite,(Term,int (*)(int, int),int));
+void	STD_PROTO(_YAP_plwrite,(Term,int (*)(int, int),int));
 
 /* grow.c */
-int  STD_PROTO(growstack_in_parser,  (tr_fr_ptr *, TokEntry **, VarEntry **));
+int  STD_PROTO(_YAP_growstack_in_parser,  (tr_fr_ptr *, TokEntry **, VarEntry **));
+
+
 
 #if HAVE_ERRNO_H
 #include <errno.h>
@@ -313,7 +314,7 @@ extern int errno;
 
 #if DEBUG
 #if COROUTINING
-extern int  Portray_delays;
+extern int  _YAP_Portray_delays;
 #endif
 #endif
 
@@ -324,11 +325,13 @@ extern int  Portray_delays;
 #define CONTINUE_ON_PARSER_ERROR  2
 #define EXCEPTION_ON_PARSER_ERROR 3
 
-extern jmp_buf IOBotch;
+extern jmp_buf _YAP_IOBotch;
 
-extern int in_getc;
+#ifdef DEBUG
+extern YP_FILE *_YAP_logfile;
+#endif
 
-#ifdef HAVE_LIBREADLINE
-extern char *_line;
+#if USE_SOCKET
+extern int _YAP_sockets_io;
 #endif
 

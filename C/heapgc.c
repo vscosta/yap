@@ -41,7 +41,7 @@ static Int      tot_gc_time = 0; /* total time spent in GC */
 static Int      tot_gc_recovered = 0; /* number of heap objects in all garbage collections */
 
 /* in a single gc */
-Int     total_marked;	/* number of heap objects marked */
+static Int     total_marked;	/* number of heap objects marked */
 
 struct gc_ma_h_entry *live_list;
 
@@ -77,6 +77,7 @@ STATIC_PROTO(void sweep_choicepoints, (choiceptr));
 STATIC_PROTO(choiceptr update_B_H, (choiceptr, CELL *, CELL *, CELL *));
 STATIC_PROTO(void compact_heap, (void));
 STATIC_PROTO(void update_relocation_chain, (CELL *, CELL *));
+STATIC_PROTO(int  is_gc_verbose, (void));
 STATIC_PROTO(int  is_gc_very_verbose, (void));
 
 #include "heapgc.h"
@@ -103,8 +104,8 @@ PUSH_CONTINUATION(CELL *v, int nof) {
   if (nof == 0) return;
   x = cont_top;
   x++;
-  if ((ADDR)x > TrailTop-1024)
-    growtrail(64 * 1024L);
+  if ((ADDR)x > _YAP_TrailTop-1024)
+    _YAP_growtrail(64 * 1024L);
   x->v = v;
   x->nof = nof;
   cont_top = x;
@@ -287,8 +288,8 @@ static inline struct gc_ma_h_entry *
 GC_ALLOC_NEW_MASPACE(void)
 {
   gc_ma_h_inner_struct *new = gc_ma_h_top;
-  if ((char *)gc_ma_h_top > TrailTop-1024)
-    growtrail(64 * 1024L);
+  if ((char *)gc_ma_h_top > _YAP_TrailTop-1024)
+    _YAP_growtrail(64 * 1024L);
   gc_ma_h_top++;
   cont_top = (cont *)gc_ma_h_top;
 #ifdef EASY_SHUNTING
@@ -385,8 +386,8 @@ push_registers(Int num_regs, yamop *nextop)
   for (i = 1; i <= num_regs; i++)
     TrailTerm(TR++) = (CELL) XREGS[i];
   /* push any live registers we might have hanging around */
-  if (nextop->opc == opcode(_move_back) ||
-      nextop->opc == opcode(_skip)) {
+  if (nextop->opc == _YAP_opcode(_move_back) ||
+      nextop->opc == _YAP_opcode(_skip)) {
     CELL *lab = (CELL *)(nextop->u.l.l);
     CELL max = lab[0];
     Int curr = lab[1];
@@ -436,8 +437,8 @@ pop_registers(Int num_regs, yamop *nextop)
   for (i = 1; i <= num_regs; i++)
     XREGS[i] = TrailTerm(ptr++);
   /* pop any live registers we might have hanging around */
-  if (nextop->opc == opcode(_move_back) ||
-      nextop->opc == opcode(_skip)) {
+  if (nextop->opc == _YAP_opcode(_move_back) ||
+      nextop->opc == _YAP_opcode(_skip)) {
     CELL *lab = (CELL *)(nextop->u.l.l);
     CELL max = lab[0];
     Int curr = lab[1];
@@ -495,10 +496,10 @@ store_ref_in_dbtable(DBRef entry)
   dbentry parent = db_vec0;
   dbentry new = db_vec;
 
-  if ((ADDR)new > TrailTop-1024)
-    growtrail(64 * 1024L);
+  if ((ADDR)new > _YAP_TrailTop-1024)
+    _YAP_growtrail(64 * 1024L);
   new->val = entry;
-  new->lim = (CELL *)((CODEADDR)entry+SizeOfBlock((CODEADDR)entry));
+  new->lim = (CELL *)((CODEADDR)entry+_YAP_SizeOfBlock((CODEADDR)entry));
   new->left = new->right = NULL;
   if (db_vec == db_vec0) {
     db_vec++;
@@ -531,10 +532,10 @@ store_cl_in_dbtable(Clause *cl)
   dbentry parent = db_vec0;
   dbentry new = db_vec;
 
-  if ((ADDR)new > TrailTop-1024)
-    growtrail(64 * 1024L);
+  if ((ADDR)new > _YAP_TrailTop-1024)
+    _YAP_growtrail(64 * 1024L);
   new->val = (DBRef)cl;
-  new->lim = (CELL *)((CODEADDR)cl + SizeOfBlock((CODEADDR)cl));
+  new->lim = (CELL *)((CODEADDR)cl + _YAP_SizeOfBlock((CODEADDR)cl));
   new->left = new->right = NULL;
   if (db_vec == db_vec0) {
     db_vec++;
@@ -592,7 +593,7 @@ init_dbtable(tr_fr_ptr trail_ptr) {
   Clause *cl = DeadClauses;
 
   db_vec0 = db_vec = (dbentry)TR;
-  while (trail_ptr > (tr_fr_ptr)TrailBase) {
+  while (trail_ptr > (tr_fr_ptr)_YAP_TrailBase) {
     register CELL trail_cell;
     
     trail_ptr--;
@@ -611,7 +612,7 @@ init_dbtable(tr_fr_ptr trail_ptr) {
 #ifdef SBA
 	  (ADDR) pt0 >= HeapTop
 #else
-	  (ADDR) pt0 >= TrailBase
+	  (ADDR) pt0 >= _YAP_TrailBase
 #endif
 	  ) {
 	continue;
@@ -690,17 +691,17 @@ inc_vars_of_type(CELL *curr,gc_types val) {
 static void
 put_type_info(unsigned long total)
 {
-  YP_fprintf(YP_stderr,"[GC]  type info for %lu cells\n", total);
-  YP_fprintf(YP_stderr,"[GC]      %lu vars\n", vars[gc_var]);
-  YP_fprintf(YP_stderr,"[GC]      %lu refs\n", vars[gc_ref]);
-  YP_fprintf(YP_stderr,"[GC]      %lu references from env\n", env_vars);
-  YP_fprintf(YP_stderr,"[GC]      %lu atoms\n", vars[gc_atom]);
-  YP_fprintf(YP_stderr,"[GC]      %lu small ints\n", vars[gc_int]);
-  YP_fprintf(YP_stderr,"[GC]      %lu other numbers\n", vars[gc_num]);
-  YP_fprintf(YP_stderr,"[GC]      %lu lists\n", vars[gc_list]);
-  YP_fprintf(YP_stderr,"[GC]      %lu compound terms\n", vars[gc_appl]);
-  YP_fprintf(YP_stderr,"[GC]      %lu functors\n", vars[gc_func]);
-  YP_fprintf(YP_stderr,"[GC]      %lu suspensions\n", vars[gc_susp]);
+  fprintf(_YAP_stderr,"[GC]  type info for %lu cells\n", total);
+  fprintf(_YAP_stderr,"[GC]      %lu vars\n", vars[gc_var]);
+  fprintf(_YAP_stderr,"[GC]      %lu refs\n", vars[gc_ref]);
+  fprintf(_YAP_stderr,"[GC]      %lu references from env\n", env_vars);
+  fprintf(_YAP_stderr,"[GC]      %lu atoms\n", vars[gc_atom]);
+  fprintf(_YAP_stderr,"[GC]      %lu small ints\n", vars[gc_int]);
+  fprintf(_YAP_stderr,"[GC]      %lu other numbers\n", vars[gc_num]);
+  fprintf(_YAP_stderr,"[GC]      %lu lists\n", vars[gc_list]);
+  fprintf(_YAP_stderr,"[GC]      %lu compound terms\n", vars[gc_appl]);
+  fprintf(_YAP_stderr,"[GC]      %lu functors\n", vars[gc_func]);
+  fprintf(_YAP_stderr,"[GC]      %lu suspensions\n", vars[gc_susp]);
 }
 
 static void
@@ -821,7 +822,7 @@ check_global(void) {
 
 /* mark a heap object and all heap objects accessible from it */
 
-void 
+static void 
 mark_variable(CELL_PTR current)
 {
   CELL_PTR        next;
@@ -893,7 +894,7 @@ mark_variable(CELL_PTR current)
     }
 #ifdef DEBUG
     else if (next < (CELL *)AtomBase || next < (CELL *)HeapTop)
-      YP_fprintf(YP_stderr, "ooops while marking %lx, %p at %p\n", (unsigned long int)ccur, current, next);
+      fprintf(_YAP_stderr, "ooops while marking %lx, %p at %p\n", (unsigned long int)ccur, current, next);
 #endif
 #ifdef INSTRUMENT_GC
     else
@@ -1004,7 +1005,13 @@ mark_variable(CELL_PTR current)
   POP_CONTINUATION();
 }
 
-void
+void 
+_YAP_mark_variable(CELL_PTR current)
+{
+  mark_variable(current);
+}
+
+static void
 mark_external_reference(CELL *ptr) {
   CELL reg = *ptr;
 
@@ -1076,6 +1083,11 @@ mark_external_reference(CELL *ptr) {
  * general purpose registers) 
  */
 
+void
+_YAP_mark_external_reference(CELL *ptr) {
+  mark_external_reference(ptr);
+}
+
 static void 
 mark_regs(tr_fr_ptr old_TR)
 {
@@ -1092,7 +1104,7 @@ mark_regs(tr_fr_ptr old_TR)
 static void 
 mark_delays(CELL *max)
 {
-  CELL *ptr = (CELL *)GlobalBase;
+  CELL *ptr = (CELL *)_YAP_GlobalBase;
   for (; ptr < max; ptr++) {
     mark_external_reference(ptr);
   }
@@ -1113,7 +1125,7 @@ mark_environments(CELL_PTR gc_ENV, OPREG size, CELL *pvbmap)
 
 #ifdef DEBUG
     if (size <  0 || size > 512)
-      YP_fprintf(YP_stderr,"Oops, env size for %p is %ld\n", gc_ENV, (unsigned long int)size);
+      fprintf(_YAP_stderr,"Oops, env size for %p is %ld\n", gc_ENV, (unsigned long int)size);
 #endif
     if ((cl = (Clause *)find_ref_in_dbtable((DBRef)gc_ENV[E_CP])) != NULL) {
       cl->ClFlags |= GcFoundMask;
@@ -1182,12 +1194,12 @@ mark_environments(CELL_PTR gc_ENV, OPREG size, CELL *pvbmap)
 #if 0
       if (size < 0) {
 	PredEntry *pe = EnvPreg(gc_ENV[E_CP]);
-	op_numbers op = op_from_opcode(ENV_ToOp(gc_ENV[E_CP]));
-	YP_fprintf(YP_stderr,"ENV %p-%p(%d) %s\n", gc_ENV, pvbmap, size-EnvSizeInCells, op_names[op]);
+	op_numbers op = _YAP_op_from_opcode(ENV_ToOp(gc_ENV[E_CP]));
+	fprintf(_YAP_stderr,"ENV %p-%p(%d) %s\n", gc_ENV, pvbmap, size-EnvSizeInCells, op_names[op]);
 	if (pe->ArityOfPE)
-	  YP_fprintf(YP_stderr,"   %s/%d\n", RepAtom(NameOfFunctor(pe->FunctorOfPred))->StrOfAE, pe->ArityOfPE);
+	  fprintf(_YAP_stderr,"   %s/%d\n", RepAtom(NameOfFunctor(pe->FunctorOfPred))->StrOfAE, pe->ArityOfPE);
 	else
-	  YP_fprintf(YP_stderr,"   %s\n", RepAtom((Atom)(pe->FunctorOfPred))->StrOfAE);
+	  fprintf(_YAP_stderr,"   %s\n", RepAtom((Atom)(pe->FunctorOfPred))->StrOfAE);
       }
 #endif
     gc_ENV = (CELL_PTR) gc_ENV[E_E];	/* link to prev
@@ -1249,7 +1261,7 @@ mark_trail(tr_fr_ptr trail_ptr, tr_fr_ptr trail_base, CELL *gc_H, choiceptr gc_B
 	  /* I decided to allow pointers from the Heap back into the trail.
 	   The point of doing so is to have dynamic arrays */
 	mark_external_reference(hp);
-      } else if ((hp < (CELL *)gc_B && hp >= gc_H) || hp > (CELL *)TrailBase) {
+      } else if ((hp < (CELL *)gc_B && hp >= gc_H) || hp > (CELL *)_YAP_TrailBase) {
 	/* clean the trail, avoid dangling pointers! */
 	RESET_VARIABLE(&TrailTerm(trail_ptr));
 #ifdef FROZEN_STACKS
@@ -1268,8 +1280,8 @@ mark_trail(tr_fr_ptr trail_ptr, tr_fr_ptr trail_base, CELL *gc_H, choiceptr gc_B
 	  tr_fr_ptr nsTR = (tr_fr_ptr)cont_top0;
           CELL *cptr = (CELL *)trail_cell;
 
-	  if ((ADDR)nsTR > TrailTop-1024)
-	    growtrail(64 * 1024L);
+	  if ((ADDR)nsTR > _YAP_TrailTop-1024)
+	    _YAP_growtrail(64 * 1024L);
 	  TrailTerm(nsTR) = (CELL)NULL;
 	  TrailTerm(nsTR+1) = *hp;
 	  TrailTerm(nsTR+2) = trail_cell;
@@ -1444,7 +1456,7 @@ mark_choicepoints(register choiceptr gc_B, tr_fr_ptr saved_TR, int very_verbose)
 #endif
       {
 	op = rtp->opc;
-	opnum = op_from_opcode(op);
+	opnum = _YAP_op_from_opcode(op);
       }
     if (very_verbose) {
       switch (opnum) {
@@ -1469,13 +1481,13 @@ mark_choicepoints(register choiceptr gc_B, tr_fr_ptr saved_TR, int very_verbose)
 	  Atom at;
 	  Int arity;
 	  SMALLUNSGN mod;
-	  if (PredForCode((CODEADDR)gc_B->cp_ap, &at, &arity, &mod)) {
+	  if (_YAP_PredForCode((CODEADDR)gc_B->cp_ap, &at, &arity, &mod)) {
 	    if (arity) 
-	      YP_fprintf(YP_stderr,"[GC]       %s/%d marked %d (%s)\n", RepAtom(at)->StrOfAE, arity, total_marked, op_names[opnum]);
+	      fprintf(_YAP_stderr,"[GC]       %s/%d marked %d (%s)\n", RepAtom(at)->StrOfAE, arity, total_marked, op_names[opnum]);
 	    else
-	      YP_fprintf(YP_stderr,"[GC]       %s marked %d (%s)\n", RepAtom(at)->StrOfAE, total_marked, op_names[opnum]);
+	      fprintf(_YAP_stderr,"[GC]       %s marked %d (%s)\n", RepAtom(at)->StrOfAE, total_marked, op_names[opnum]);
 	  } else
-	    YP_fprintf(YP_stderr,"[GC]       marked %d (%s)\n", total_marked, op_names[opnum]);
+	    fprintf(_YAP_stderr,"[GC]       marked %d (%s)\n", total_marked, op_names[opnum]);
 	}
 	break;
 #ifdef TABLING
@@ -1483,12 +1495,12 @@ mark_choicepoints(register choiceptr gc_B, tr_fr_ptr saved_TR, int very_verbose)
       case _table_answer_resolution:
 	{
 	  PredEntry *pe = ENV_ToP(gc_B->cp_cp);
-	  op_numbers caller_op = op_from_opcode(ENV_ToOp(gc_B->cp_cp));
+	  op_numbers caller_op = _YAP_op_from_opcode(ENV_ToOp(gc_B->cp_cp));
 	  /* first condition  checks if this was a meta-call */
 	  if ((caller_op != _call  && caller_op != _fcall) || pe == NULL) {
-	    YP_fprintf(YP_stderr,"[GC]       marked %d (%s)\n", total_marked, op_names[opnum]);
+	    fprintf(_YAP_stderr,"[GC]       marked %d (%s)\n", total_marked, op_names[opnum]);
 	  } else
-	    YP_fprintf(YP_stderr,"[GC]       %s/%d marked %d (%s)\n", RepAtom(NameOfFunctor(pe->FunctorOfPred))->StrOfAE, pe->ArityOfPE, total_marked, op_names[opnum]);
+	    fprintf(_YAP_stderr,"[GC]       %s/%d marked %d (%s)\n", RepAtom(NameOfFunctor(pe->FunctorOfPred))->StrOfAE, pe->ArityOfPE, total_marked, op_names[opnum]);
 	}
 	break;
       case _trie_retry_var:
@@ -1501,19 +1513,19 @@ mark_choicepoints(register choiceptr gc_B, tr_fr_ptr saved_TR, int very_verbose)
       case _trie_trust_list:
       case _trie_retry_struct:
       case _trie_trust_struct:
-	YP_fprintf(YP_stderr,"[GC]       marked %d (%s)\n", total_marked, op_names[opnum]);
+	fprintf(_YAP_stderr,"[GC]       marked %d (%s)\n", total_marked, op_names[opnum]);
 	break;
 #endif
       default:
 	{
 	  PredEntry *pe = (PredEntry *)gc_B->cp_ap->u.ld.p;
 	  if (pe == NULL) {
-	    YP_fprintf(YP_stderr,"[GC]       marked %d (%s)\n", total_marked, op_names[opnum]);
+	    fprintf(_YAP_stderr,"[GC]       marked %d (%s)\n", total_marked, op_names[opnum]);
 	  } else
 	    if (pe->ArityOfPE)
-	      YP_fprintf(YP_stderr,"[GC]       %s/%d marked %d (%s)\n", RepAtom(NameOfFunctor(pe->FunctorOfPred))->StrOfAE, pe->ArityOfPE, total_marked, op_names[opnum]);
+	      fprintf(_YAP_stderr,"[GC]       %s/%d marked %d (%s)\n", RepAtom(NameOfFunctor(pe->FunctorOfPred))->StrOfAE, pe->ArityOfPE, total_marked, op_names[opnum]);
 	    else
-	      YP_fprintf(YP_stderr,"[GC]       %s marked %d (%s)\n", RepAtom((Atom)(pe->FunctorOfPred))->StrOfAE, total_marked, op_names[opnum]);
+	      fprintf(_YAP_stderr,"[GC]       %s marked %d (%s)\n", RepAtom((Atom)(pe->FunctorOfPred))->StrOfAE, total_marked, op_names[opnum]);
 	}
       }
     }
@@ -1600,7 +1612,7 @@ mark_choicepoints(register choiceptr gc_B, tr_fr_ptr saved_TR, int very_verbose)
       case _count_retry:
 	rtp = NEXTOP(rtp,l); 
 	op = rtp->opc;
-	opnum = op_from_opcode(op);
+	opnum = _YAP_op_from_opcode(op);
 	goto restart_cp;
       case _trust_fail:
 	nargs = 0;
@@ -1740,7 +1752,7 @@ mark_choicepoints(register choiceptr gc_B, tr_fr_ptr saved_TR, int very_verbose)
 	nargs = rtp->u.ld.s;
 	break;
       default:
-	YP_fprintf(YP_stderr, "OOps in GC: Unexpected opcode: %d\n", opnum);
+	fprintf(_YAP_stderr, "OOps in GC: Unexpected opcode: %d\n", opnum);
 	nargs = 0;
 #else
       default:
@@ -1791,7 +1803,7 @@ into_relocation_chain(CELL_PTR current, CELL_PTR next)
     *next = AbsAppl((CELL *)
 		    ((MARKED(cnext) ? MBIT : 0) | RBIT | (Int) current));
   } else {
-    YP_fprintf(YP_stderr," OH MY GOD !!!!!!!!!!!!\n");
+    fprintf(_YAP_stderr," OH MY GOD !!!!!!!!!!!!\n");
   }
 #else
   CELL             current_tag;
@@ -1826,11 +1838,11 @@ sweep_trail(choiceptr gc_B, tr_fr_ptr old_TR)
      we don't compress TR if we have freeze.
    */
  {
-   Int size = old_TR-(tr_fr_ptr)TrailBase;
+   Int size = old_TR-(tr_fr_ptr)_YAP_TrailBase;
    size -= discard_trail_entries;
    while (gc_B != NULL) {
      size -= (UInt)(gc_B->cp_tr);
-     gc_B->cp_tr = (tr_fr_ptr)TrailBase+size;
+     gc_B->cp_tr = (tr_fr_ptr)_YAP_TrailBase+size;
      gc_B = gc_B->cp_b;
    }
  }
@@ -1848,7 +1860,7 @@ sweep_trail(choiceptr gc_B, tr_fr_ptr old_TR)
   }
  
   /* next, follows the real trail entries */
-  trail_ptr = (tr_fr_ptr)TrailBase;
+  trail_ptr = (tr_fr_ptr)_YAP_TrailBase;
   dest = trail_ptr;
   while (trail_ptr < old_TR) {
     register CELL trail_cell;
@@ -1910,7 +1922,7 @@ sweep_trail(choiceptr gc_B, tr_fr_ptr old_TR)
 #ifdef SBA
 	    (ADDR) pt0 >= HeapTop
 #else
-	    (ADDR) pt0 >= TrailBase
+	    (ADDR) pt0 >= _YAP_TrailBase
 #endif
 	    ) {
 	  trail_ptr++;
@@ -1941,7 +1953,7 @@ sweep_trail(choiceptr gc_B, tr_fr_ptr old_TR)
 	    dbr->Flags &= ~InUseMask;
 	    DEC_DBREF_COUNT(dbr);
 	    if (dbr->Flags & ErasedMask) {
-	      ErDBE(dbr);
+	      _YAP_ErDBE(dbr);
 	    }
 	  } else {
 	    Clause *cl = ClauseFlagsToClause((CELL)pt0);
@@ -1956,7 +1968,7 @@ sweep_trail(choiceptr gc_B, tr_fr_ptr old_TR)
 	    if (erase) {
 	      /* at this point, 
 		 no one is accessing the clause */
-	      ErCl(cl);
+	      _YAP_ErCl(cl);
 	    }
 	  }
 	  RESET_VARIABLE(&TrailTerm(dest));
@@ -2017,27 +2029,27 @@ sweep_trail(choiceptr gc_B, tr_fr_ptr old_TR)
   }
   new_TR = dest;
   if (is_gc_verbose()) {
-    if (old_TR != (tr_fr_ptr)TrailBase)
-      YP_fprintf(YP_stderr,
+    if (old_TR != (tr_fr_ptr)_YAP_TrailBase)
+      fprintf(_YAP_stderr,
 		 "[GC]       Trail: discarded %d (%ld%%) cells out of %ld\n",
 		 discard_trail_entries,
-		 (unsigned long int)(discard_trail_entries*100/(old_TR-(tr_fr_ptr)TrailBase)),
-		 (unsigned long int)(old_TR-(tr_fr_ptr)TrailBase));
+		 (unsigned long int)(discard_trail_entries*100/(old_TR-(tr_fr_ptr)_YAP_TrailBase)),
+		 (unsigned long int)(old_TR-(tr_fr_ptr)_YAP_TrailBase));
 #ifdef DEBUG
     if (hp_entrs > 0)
-      YP_fprintf(YP_stderr,
+      fprintf(_YAP_stderr,
 		 "[GC]       Trail: unmarked %ld dbentries (%ld%%) out of %ld\n",
 		 (long int)hp_not_in_use,
 		 (long int)(hp_not_in_use*100/hp_entrs),
 		 (long int)hp_entrs);
     if (hp_in_use_erased > 0 && hp_erased > 0)
-      YP_fprintf(YP_stderr,
+      fprintf(_YAP_stderr,
 		 "[GC]       Trail: deleted %ld dbentries (%ld%%) out of %ld\n",
 		 (long int)hp_erased,
 		 (long int)(hp_erased*100/(hp_erased+hp_in_use_erased)),
 		 (long int)(hp_erased+hp_in_use_erased));
 #endif
-    YP_fprintf(YP_stderr,
+    fprintf(_YAP_stderr,
 	       "[GC]       Heap: recovered %ld bytes (%ld%%) out of %ld\n",
 	       (unsigned long int)(OldHeapUsed-HeapUsed),
 	       (unsigned long int)((OldHeapUsed-HeapUsed)/(OldHeapUsed/100)),
@@ -2050,7 +2062,7 @@ sweep_trail(choiceptr gc_B, tr_fr_ptr old_TR)
       char *ocl = (char *)cl;
       cl = cl->u.NextCl;
       *cptr = cl;
-      FreeCodeSpace(ocl);
+      _YAP_FreeCodeSpace(ocl);
     } else {
       cl->ClFlags &= ~GcFoundMask;
       cptr = &(cl->u.NextCl);
@@ -2168,12 +2180,12 @@ sweep_choicepoints(choiceptr gc_B)
 #endif
       {
 	op = rtp->opc;
-	opnum = op_from_opcode(op);
+	opnum = _YAP_op_from_opcode(op);
       }
 
   restart_cp:
     /*
-     * YP_fprintf(YP_stderr,"sweeping cps: %x, %x, %x\n",
+     * fprintf(_YAP_stderr,"sweeping cps: %x, %x, %x\n",
      * *gc_B,CP_Extra(gc_B),CP_Nargs(gc_B)); 
      */
     /* any choice point */
@@ -2211,7 +2223,7 @@ sweep_choicepoints(choiceptr gc_B)
     case _count_retry:
       rtp = NEXTOP(rtp,l);
       op = rtp->opc;
-      opnum = op_from_opcode(op);
+      opnum = _YAP_op_from_opcode(op);
       goto restart_cp;
 #ifdef TABLING
     case _table_answer_resolution:
@@ -2453,7 +2465,7 @@ update_relocation_chain(CELL_PTR current, CELL_PTR dest)
     }
 #ifdef DEBUG
     else {
-      Error(SYSTEM_ERROR, TermNil, "ATOMIC in a GC relocation chain");
+      _YAP_Error(SYSTEM_ERROR, TermNil, "ATOMIC in a GC relocation chain");
     }
 #endif
   }
@@ -2589,7 +2601,7 @@ compact_heap(void)
 
 #ifdef DEBUG
   if (total_marked != found_marked)
-    YP_fprintf(YP_stderr,"[GC] Upward (%d): %ld total against %ld found\n",
+    fprintf(_YAP_stderr,"[GC] Upward (%d): %ld total against %ld found\n",
 	       gc_calls,
 	       (unsigned long int)total_marked,
 	       (unsigned long int)found_marked);
@@ -2647,7 +2659,7 @@ compact_heap(void)
   }
 #ifdef DEBUG
   if (total_marked != found_marked)
-    YP_fprintf(YP_stderr,"[GC] Downward (%d): %ld total against %ld found\n",
+    fprintf(_YAP_stderr,"[GC] Downward (%d): %ld total against %ld found\n",
 	       gc_calls,
 	       (unsigned long int)total_marked,
 	       (unsigned long int)found_marked);
@@ -2690,7 +2702,7 @@ adjust_cp_hbs(void)
 	    gc_B->cp_h = H0;
 	    break;
 	  } else {
-	    Error(SYSTEM_ERROR,TermNil,"Bug in Garbage collector");
+	    _YAP_Error(SYSTEM_ERROR,TermNil,"Bug in Garbage collector");
 	    return;
 	  }
 	}
@@ -2781,7 +2793,7 @@ icompact_heap(void)
 
 #ifdef DEBUG
   if (total_marked != found_marked)
-    YP_fprintf(YP_stderr,"[GC] Upward (%d): %ld total against %ld found\n",
+    fprintf(_YAP_stderr,"[GC] Upward (%d): %ld total against %ld found\n",
 	       gc_calls,
 	       (unsigned long int)total_marked,
 	       (unsigned long int)found_marked);
@@ -2836,7 +2848,7 @@ icompact_heap(void)
   }
 #ifdef DEBUG
   if (total_marked != found_marked)
-    YP_fprintf(YP_stderr,"[GC] Downward (%d): %ld total against %ld found\n",
+    fprintf(_YAP_stderr,"[GC] Downward (%d): %ld total against %ld found\n",
 	       gc_calls,
 	       (unsigned long int)total_marked,
 	       (unsigned long int)found_marked);
@@ -2891,7 +2903,7 @@ marking_phase(tr_fr_ptr old_TR, CELL *current_env, yamop *curp, CELL *max)
   /* These two must be marked first so that our trail optimisation won't lose
      values */
 #ifdef COROUTINING
-  mark_all_suspended_goals();
+  _YAP_mark_all_suspended_goals();
 #endif
   mark_regs(old_TR);		/* active registers & trail */
 #ifdef COROUTINING
@@ -2909,7 +2921,7 @@ marking_phase(tr_fr_ptr old_TR, CELL *current_env, yamop *curp, CELL *max)
 static void
 sweep_delays(CELL *max)
 {
-  CELL *ptr = (CELL *)GlobalBase;
+  CELL *ptr = (CELL *)_YAP_GlobalBase;
   while (ptr < max) {
     if (MARKED(*ptr)) {
       UNMARK(ptr);
@@ -2940,12 +2952,12 @@ compaction_phase(tr_fr_ptr old_TR, CELL *current_env, yamop *curp, CELL *max)
 #ifdef HYBRID_SCHEME
 #ifdef DEBUG
   if (total_marked != iptop-(CELL_PTR *)H && iptop < (CELL_PTR *)ASP -1024)
-    YP_fprintf(YP_stderr,"[GC] Oops on iptop-H (%d) vs %d\n", iptop-(CELL_PTR *)H, total_marked);
+    fprintf(_YAP_stderr,"[GC] Oops on iptop-H (%d) vs %d\n", iptop-(CELL_PTR *)H, total_marked);
 #endif
   if (iptop < (CELL_PTR *)ASP && 10*total_marked < H-H0) {
 #ifdef INSTRUMENT_GC
     int effectiveness = (((H-H0)-total_marked)*100)/(H-H0);
-    YP_fprintf(YP_stderr,"[GC] using pointers (%d)\n", effectiveness);
+    fprintf(_YAP_stderr,"[GC] using pointers (%d)\n", effectiveness);
 #endif
     quicksort((CELL_PTR *)H, 0, (iptop-(CELL_PTR *)H)-1);
     adjust_cp_hbs();
@@ -2971,7 +2983,7 @@ do_gc(Int predarity, CELL *current_env, yamop *nextop)
   tr_fr_ptr     old_TR;
   Int		m_time, c_time, time_start, gc_time;
 #if COROUTINING
-  CELL *max = (CELL *)ReadTimedVar(DelayedVars);
+  CELL *max = (CELL *)_YAP_ReadTimedVar(DelayedVars);
 #else
   CELL *max = NULL;
 #endif
@@ -2980,8 +2992,8 @@ do_gc(Int predarity, CELL *current_env, yamop *nextop)
 
 #if COROUTINING
   if (H0 - max < 1024+(2*NUM_OF_ATTS)) {
-    if (!growglobal(&current_env)) {
-      Error(SYSTEM_ERROR, TermNil, ErrorMessage);
+    if (!_YAP_growglobal(&current_env)) {
+      _YAP_Error(SYSTEM_ERROR, TermNil, _YAP_ErrorMessage);
       return FALSE;
     }
   }
@@ -3009,40 +3021,40 @@ do_gc(Int predarity, CELL *current_env, yamop *nextop)
 #ifdef DEBUG
   check_global();
 #endif
-  if (GetValue(AtomGcTrace) != TermNil)
+  if (_YAP_GetValue(AtomGcTrace) != TermNil)
     gc_trace = 1;
   /* sanity check: can we still do garbage_collection ? */
-  if ((CELL)TrailTop & (MBIT|RBIT)) {
+  if ((CELL)_YAP_TrailTop & (MBIT|RBIT)) {
     /* oops, we can't */
     if (gc_verbose) {
-      YP_fprintf(YP_stderr, "[GC] TrailTop at %p clashes with gc bits: %lx\n", TrailTop, (MBIT|RBIT));
-      YP_fprintf(YP_stderr, "[GC] garbage collection disallowed\n");
+      fprintf(_YAP_stderr, "[GC] TrailTop at %p clashes with gc bits: %lx\n", _YAP_TrailTop, (unsigned long int)(MBIT|RBIT));
+      fprintf(_YAP_stderr, "[GC] garbage collection disallowed\n");
     }
     return(0);
   }
   gc_calls++;
   if (gc_trace) {
-    YP_fprintf(YP_stderr, "[gc]\n");
+    fprintf(_YAP_stderr, "[gc]\n");
   } else if (gc_verbose) {
-    YP_fprintf(YP_stderr, "[GC] Start of garbage collection %d:\n", gc_calls);
+    fprintf(_YAP_stderr, "[GC] Start of garbage collection %d:\n", gc_calls);
 #ifndef EARLY_RESET
-    YP_fprintf(YP_stderr, "[GC] no early reset in trail\n");
+    fprintf(_YAP_stderr, "[GC] no early reset in trail\n");
 #endif
-    YP_fprintf(YP_stderr, "[GC]       Global: %8ld cells (%p-%p)\n", (long int)heap_cells,H0,H);
-    YP_fprintf(YP_stderr, "[GC]       Local:%8ld cells (%p-%p)\n", (unsigned long int)(LCL0-ASP),LCL0,ASP);
-    YP_fprintf(YP_stderr, "[GC]       Trail:%8ld cells (%p-%p)\n",
-	       (unsigned long int)(TR-(tr_fr_ptr)TrailBase),TrailBase,TR);
+    fprintf(_YAP_stderr, "[GC]       Global: %8ld cells (%p-%p)\n", (long int)heap_cells,H0,H);
+    fprintf(_YAP_stderr, "[GC]       Local:%8ld cells (%p-%p)\n", (unsigned long int)(LCL0-ASP),LCL0,ASP);
+    fprintf(_YAP_stderr, "[GC]       Trail:%8ld cells (%p-%p)\n",
+	       (unsigned long int)(TR-(tr_fr_ptr)_YAP_TrailBase),_YAP_TrailBase,TR);
   }
-  if (HeapTop >= GlobalBase - MinHeapGap) {
+  if (HeapTop >= _YAP_GlobalBase - MinHeapGap) {
     *--ASP = (CELL)current_env;
-    if (!growheap(FALSE)) {
-      Error(SYSTEM_ERROR, TermNil, ErrorMessage);
+    if (!_YAP_growheap(FALSE)) {
+      _YAP_Error(SYSTEM_ERROR, TermNil, _YAP_ErrorMessage);
       return(FALSE);
     }
     current_env = (CELL *)*ASP;
     ASP++;
   }
-  time_start = cputime();
+  time_start = _YAP_cputime();
   total_marked = 0;
   discard_trail_entries = 0;
 #ifdef HYBRID_SCHEME
@@ -3053,26 +3065,26 @@ do_gc(Int predarity, CELL *current_env, yamop *nextop)
   old_TR = TR;
   push_registers(predarity, nextop);
   marking_phase(old_TR, current_env, nextop, max);
-  m_time = cputime();
+  m_time = _YAP_cputime();
   gc_time = m_time-time_start;
   if (heap_cells)
     effectiveness = ((heap_cells-total_marked)*100)/heap_cells;
   else
     effectiveness = 0;
   if (gc_verbose) {
-    YP_fprintf(YP_stderr, "[GC]   Mark: Recovered %ld cells of %ld (%ld%%) in %g sec\n",
+    fprintf(_YAP_stderr, "[GC]   Mark: Recovered %ld cells of %ld (%ld%%) in %g sec\n",
 	       (long int)(heap_cells-total_marked), (long int)heap_cells, (long int)effectiveness, (double)(m_time-time_start)/1000);
 #ifdef INSTRUMENT_GC
     {
       int i;
       for (i=0; i<16; i++) {
 	if (chain[i]) {
-	  YP_fprintf(YP_stderr, "[GC]     chain[%d]=%lu\n", i, chain[i]);
+	  fprintf(_YAP_stderr, "[GC]     chain[%d]=%lu\n", i, chain[i]);
 	}
       }
       put_type_info((unsigned long int)total_marked);
-      YP_fprintf(YP_stderr,"[GC]  %lu/%ld before and %lu/%ld after\n", old_vars, (unsigned long int)(B->cp_h-H0), new_vars, (unsigned long int)(H-B->cp_h));
-      YP_fprintf(YP_stderr,"[GC]  %ld choicepoints\n", num_bs);
+      fprintf(_YAP_stderr,"[GC]  %lu/%ld before and %lu/%ld after\n", old_vars, (unsigned long int)(B->cp_h-H0), new_vars, (unsigned long int)(H-B->cp_h));
+      fprintf(_YAP_stderr,"[GC]  %ld choicepoints\n", num_bs);
     }
 #endif
   }
@@ -3082,41 +3094,48 @@ do_gc(Int predarity, CELL *current_env, yamop *nextop)
   pop_registers(predarity, nextop);
   TR = new_TR;
   YAPLeaveCriticalSection();
-  c_time = cputime();
+  c_time = _YAP_cputime();
   if (gc_verbose) {
-    YP_fprintf(YP_stderr, "[GC]   Compress: took %g sec\n", (double)(c_time-time_start)/1000);
+    fprintf(_YAP_stderr, "[GC]   Compress: took %g sec\n", (double)(c_time-time_start)/1000);
   }
   gc_time += (c_time-time_start);
   tot_gc_time += gc_time;
   tot_gc_recovered += heap_cells-total_marked;
   if (gc_verbose) {
-    YP_fprintf(YP_stderr, "[GC] GC %d took %g sec, total of %g sec doing GC so far.\n", gc_calls, (double)gc_time/1000, (double)tot_gc_time/1000);
-    YP_fprintf(YP_stderr, "[GC]   Left %ld cells free in stacks.\n",
+    fprintf(_YAP_stderr, "[GC] GC %d took %g sec, total of %g sec doing GC so far.\n", gc_calls, (double)gc_time/1000, (double)tot_gc_time/1000);
+    fprintf(_YAP_stderr, "[GC]   Left %ld cells free in stacks.\n",
 	       (unsigned long int)(ASP-H));
   }
   check_global();
   return(effectiveness);
 }
 
-int
+static int
 is_gc_verbose(void)
 {
 #ifdef INSTRUMENT_GC
   /* always give info when we are debugging gc */
   return(TRUE);
 #else
-  return(GetValue(AtomGcVerbose) != TermNil ||
-	 GetValue(AtomGcVeryVerbose) != TermNil);
+  return(_YAP_GetValue(AtomGcVerbose) != TermNil ||
+	 _YAP_GetValue(AtomGcVeryVerbose) != TermNil);
 #endif
+}
+
+int
+_YAP_is_gc_verbose(void)
+{
+  return is_gc_verbose();
 }
 
 static int
 is_gc_very_verbose(void)
 {
-  return(GetValue(AtomGcVeryVerbose) != TermNil);
+  return(_YAP_GetValue(AtomGcVeryVerbose) != TermNil);
 }
 
-Int total_gc_time(void)
+Int
+_YAP_total_gc_time(void)
 {
   return(tot_gc_time);
 }
@@ -3128,13 +3147,13 @@ p_inform_gc(void)
   Term tt = MkIntegerTerm(gc_calls);
   Term ts = MkIntegerTerm((tot_gc_recovered*sizeof(CELL)));
  
-  return(unify(tn, ARG2) && unify(tt, ARG1) && unify(ts, ARG3));
+  return(_YAP_unify(tn, ARG2) && _YAP_unify(tt, ARG1) && _YAP_unify(ts, ARG3));
 
 }
 
 
 int 
-gc(Int predarity, CELL *current_env, yamop *nextop)
+_YAP_gc(Int predarity, CELL *current_env, yamop *nextop)
 {
   Int           gc_margin = 128;
   Term          Tgc_margin;
@@ -3143,13 +3162,13 @@ gc(Int predarity, CELL *current_env, yamop *nextop)
 
 #if defined(YAPOR) || defined(THREADS)
   if (NOfThreads != 1) {
-    Error(SYSTEM_ERROR,TermNil,"cannot perform garbage collection: more than a worker/thread running");
+    _YAP_Error(SYSTEM_ERROR,TermNil,"cannot perform garbage collection: more than a worker/thread running");
     return(FALSE);
   }
 #endif
-  if (GetValue(AtomGc) != TermNil)
+  if (_YAP_GetValue(AtomGc) != TermNil)
     gc_on = TRUE;
-  if (IsIntTerm(Tgc_margin = GetValue(AtomGcMargin)))
+  if (IsIntTerm(Tgc_margin = _YAP_GetValue(AtomGcMargin)))
     gc_margin = IntOfTerm(Tgc_margin);
   else {
     if (gc_calls < 8) 
@@ -3176,14 +3195,14 @@ gc(Int predarity, CELL *current_env, yamop *nextop)
     gc_margin = ((gc_margin >> 16) + 1) << 16;
     if (gc_margin < gap)
       gc_margin = gap;
-    while (gc_margin >= gap && !growstack(gc_margin))
+    while (gc_margin >= gap && !_YAP_growstack(gc_margin))
       gc_margin = gc_margin/2;
     check_global();
     return(gc_margin >= gap);
   }
   /*
    * debug for(save_total=1; save_total<=N; ++save_total)
-   * plwrite(XREGS[save_total],DebugPutc,0); 
+   * plwrite(XREGS[save_total],_YAP_DebugPutc,0); 
    */
   return ( TRUE );
 }
@@ -3197,8 +3216,14 @@ p_gc(void)
 }
 
 void 
-init_gc(void)
+_YAP_init_gc(void)
 {
-  InitCPred("$gc", 0, p_gc, 0);
-  InitCPred("$inform_gc", 3, p_inform_gc, 0);
+  _YAP_InitCPred("$gc", 0, p_gc, 0);
+  _YAP_InitCPred("$inform_gc", 3, p_inform_gc, 0);
+}
+
+void
+_YAP_inc_mark_variable()
+{
+  total_marked++;
 }

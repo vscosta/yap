@@ -82,8 +82,8 @@ static char     SccsId[] = "%W% %G%";
 #define NextDBRef(V)	( (V) -> Next )
 
 #define DBLength(V)	(sizeof(DBStruct) + (Int)(V) + CellSize)
-#define AllocDBSpace(V)	((DBRef)AllocCodeSpace(V))
-#define FreeDBSpace(V)	FreeCodeSpace(V)
+#define AllocDBSpace(V)	((DBRef)_YAP_AllocCodeSpace(V))
+#define FreeDBSpace(V)	_YAP_FreeCodeSpace(V)
 
 #define NO_ERROR_IN_DB 0
 #define OVF_ERROR_IN_DB 1
@@ -270,13 +270,14 @@ STATIC_PROTO(Int  p_dequeue, (void));
 STATIC_PROTO(Int  p_first_age, (void));
 STATIC_PROTO(Int  p_db_nb_to_ref, (void));
 STATIC_PROTO(Int  p_last_age, (void));
+STATIC_PROTO(void ErDBE, (DBRef));
 
 #if OS_HANDLES_TR_OVERFLOW
 #define check_trail(x)
 #else
 #define check_trail(x) {                           \
-  if (Unsigned(TrailTop) == Unsigned(x)) {         \
-    if(!growtrail (sizeof(CELL) * 16 * 1024L)) {   \
+  if (Unsigned(_YAP_TrailTop) == Unsigned(x)) {         \
+    if(!_YAP_growtrail (sizeof(CELL) * 16 * 1024L)) {   \
       goto error_tr_overflow;                      \
     }                                              \
   }                                                \
@@ -385,13 +386,13 @@ static Int cmpclls(CELL *a,CELL *b,Int n)
   return TRUE;
 }
 
-int DBTrailOverflow(void)
+int _YAP_DBTrailOverflow(void)
 {
 #ifdef IDB_USE_MBIT
   return(FALSE);
 #endif
 #ifdef IDB_LINK_TABLE
-  return((CELL *)lr > (CELL *)TrailTop - 1024);
+  return((CELL *)lr > (CELL *)_YAP_TrailTop - 1024);
 #endif
 }
 
@@ -451,7 +452,7 @@ CalcKey(Term tw)
 }
 
 /* EvalMasks builds the mask and hash for up to three arguments of a term */
-CELL 
+static CELL 
 EvalMasks(register Term tm, CELL *keyp)
 {
 
@@ -560,6 +561,13 @@ EvalMasks(register Term tm, CELL *keyp)
     return(mask);
   }
 }
+
+CELL 
+_YAP_EvalMasks(register Term tm, CELL *keyp)
+{
+  return EvalMasks(tm, keyp);
+}
+
 
 /* Called to inform that a new pointer to a data base entry has been added */
 #define MarkThisRef(Ref)	((Ref)->NOfRefsTo ++ )
@@ -872,10 +880,10 @@ static CELL *MkDBTerm(register CELL *pt0, register CELL *pt0_end,
 	  t[2] = MkIntegerTerm(ExtFromCell(ptd0));
 	  t[3] = TermNil;
 	  if (ConstraintsBottom == NULL) {
-	    ConstraintsTerm = MkApplTerm(FunctorClist, 4, t);
+	    ConstraintsTerm = _YAP_MkApplTerm(FunctorClist, 4, t);
 	    ConstraintsBottom = RepAppl(ConstraintsTerm)+4;
 	  } else {
-	    Term new = MkApplTerm(FunctorClist, 4, t);
+	    Term new = _YAP_MkApplTerm(FunctorClist, 4, t);
 	    *ConstraintsBottom = new;
 	    ConstraintsBottom = RepAppl(new)+4;
 	  }
@@ -1260,7 +1268,7 @@ CreateDBStruct(Term Tm, DBProp p, int InFlag)
 
     tofref = TmpRefBase;
     /* compound term */
-    pp0 = (DBRef)PreAllocCodeSpace();
+    pp0 = (DBRef)_YAP_PreAllocCodeSpace();
     ntp0 = pp0->Contents;
 #ifdef IDB_LINK_TABLE
     lr = LinkAr = (link_entry *)TR;
@@ -1273,7 +1281,7 @@ CreateDBStruct(Term Tm, DBProp p, int InFlag)
 		     &attachments,
 		     &vars_found);
       if (ntp == NULL) {
-	ReleasePreAllocCodeSpace((ADDR)pp0);
+	_YAP_ReleasePreAllocCodeSpace((ADDR)pp0);
 	return(NULL);
       }
     } else
@@ -1287,7 +1295,7 @@ CreateDBStruct(Term Tm, DBProp p, int InFlag)
 #endif
 		     &vars_found);
       if (ntp == NULL) {
-	ReleasePreAllocCodeSpace((ADDR)pp0);
+	_YAP_ReleasePreAllocCodeSpace((ADDR)pp0);
 	return(NULL);
       }
     }
@@ -1341,7 +1349,7 @@ CreateDBStruct(Term Tm, DBProp p, int InFlag)
 	    pp->Code = NULL;
 	    INIT_LOCK(pp->lock);
 	    INIT_DBREF_COUNT(pp);
-	    ReleasePreAllocCodeSpace((ADDR)pp0);
+	    _YAP_ReleasePreAllocCodeSpace((ADDR)pp0);
 	    return(pp);
 	  }
 #ifdef USE_GMP
@@ -1378,14 +1386,14 @@ CreateDBStruct(Term Tm, DBProp p, int InFlag)
 #endif
 		       &vars_found);
 	if (ntp == NULL) {
-	  ReleasePreAllocCodeSpace((ADDR)pp0);
+	  _YAP_ReleasePreAllocCodeSpace((ADDR)pp0);
 	  return(NULL);
 	}
       }
     } 
     CodeAbs = (CELL *)((CELL)ntp-(CELL)ntp0);
     if (DBErrorFlag) {
-      ReleasePreAllocCodeSpace((ADDR)pp0);
+      _YAP_ReleasePreAllocCodeSpace((ADDR)pp0);
       return (NULL);	/* Error Situation */
     }
     NOfCells = ntp - ntp0;	/* End Of Code Info */
@@ -1404,14 +1412,14 @@ CreateDBStruct(Term Tm, DBProp p, int InFlag)
       CodeAbs += CellPtr(lr) - CellPtr(LinkAr);
       if ((CELL *)((char *)ntp0+(CELL)CodeAbs) > AuxSp) {
 	DBErrorFlag = OVF_ERROR_IN_DB;
-	ReleasePreAllocCodeSpace((ADDR)pp0);
+	_YAP_ReleasePreAllocCodeSpace((ADDR)pp0);
 	return(NULL);
       }
       /* restore lr to NULL in case there is a TR overflow */
       lr = NULL;
 #endif
       if ((InFlag & MkIfNot) && (found_one = check_if_wvars(p->First, NOfCells, ntp0))) {
-	ReleasePreAllocCodeSpace((ADDR)pp0);
+	_YAP_ReleasePreAllocCodeSpace((ADDR)pp0);
 	return (found_one);
       }
     } else {
@@ -1422,7 +1430,7 @@ CreateDBStruct(Term Tm, DBProp p, int InFlag)
 #endif
       flag = DBNoVars;
       if ((InFlag & MkIfNot) && (found_one = check_if_nvars(p->First, NOfCells, ntp0))) {
-	ReleasePreAllocCodeSpace((ADDR)pp0);
+	_YAP_ReleasePreAllocCodeSpace((ADDR)pp0);
 	return (found_one);
       }
     }
@@ -1430,7 +1438,7 @@ CreateDBStruct(Term Tm, DBProp p, int InFlag)
       CodeAbs += TmpRefBase - tofref + 1;
       if ((CELL *)((char *)ntp0+(CELL)CodeAbs) > AuxSp) {
 	DBErrorFlag = OVF_ERROR_IN_DB;
-	ReleasePreAllocCodeSpace((ADDR)pp0);
+	_YAP_ReleasePreAllocCodeSpace((ADDR)pp0);
 	return(NULL);
       }
       flag |= DBWithRefs;
@@ -1442,7 +1450,7 @@ CreateDBStruct(Term Tm, DBProp p, int InFlag)
       DBErrorNumber = SYSTEM_ERROR;
       DBErrorTerm = TermNil;
       DBErrorMsg = "trying to store term larger than 256KB";
-      ReleasePreAllocCodeSpace((ADDR)pp0);
+      _YAP_ReleasePreAllocCodeSpace((ADDR)pp0);
       return(NULL);
     }
 #endif
@@ -1453,7 +1461,7 @@ CreateDBStruct(Term Tm, DBProp p, int InFlag)
       DBErrorNumber = SYSTEM_ERROR;
       DBErrorTerm = TermNil;
       DBErrorMsg = "heap crashed against stacks";
-      ReleasePreAllocCodeSpace((ADDR)pp0);
+      _YAP_ReleasePreAllocCodeSpace((ADDR)pp0);
       return(NULL);
     }
     pp->id = FunctorDBRef;
@@ -1530,7 +1538,7 @@ CreateDBStruct(Term Tm, DBProp p, int InFlag)
       pp->DBRefs = NULL;
 
     }
-    ReleasePreAllocCodeSpace((ADDR)pp0);
+    _YAP_ReleasePreAllocCodeSpace((ADDR)pp0);
     return (pp);
   }
 }
@@ -1668,24 +1676,24 @@ p_rcda(void)
   TRef = MkDBRefTerm(record(MkFirst, t1, t2, Unsigned(0)));
   switch(DBErrorFlag) {
   case NO_ERROR_IN_DB:
-    return (unify(ARG3, TRef));
+    return (_YAP_unify(ARG3, TRef));
   case SOVF_ERROR_IN_DB:
-    if (!gc(3, ENV, P)) {
-      Error(OUT_OF_STACK_ERROR, TermNil, ErrorMessage);
+    if (!_YAP_gc(3, ENV, P)) {
+      _YAP_Error(OUT_OF_STACK_ERROR, TermNil, _YAP_ErrorMessage);
       return(FALSE);
     }
     goto recover_record;
   case TOVF_ERROR_IN_DB:
-    Error(SYSTEM_ERROR, TermNil, "YAP could not grow trail in recorda/3");
+    _YAP_Error(SYSTEM_ERROR, TermNil, "YAP could not grow trail in recorda/3");
     return(FALSE);
   case OVF_ERROR_IN_DB:
-    if (!growheap(FALSE)) {
-      Error(SYSTEM_ERROR, TermNil, ErrorMessage);
+    if (!_YAP_growheap(FALSE)) {
+      _YAP_Error(SYSTEM_ERROR, TermNil, _YAP_ErrorMessage);
       return(FALSE);
     } else
       goto recover_record;
   default:
-    Error(DBErrorNumber, DBErrorTerm, DBErrorMsg);
+    _YAP_Error(DBErrorNumber, DBErrorTerm, DBErrorMsg);
     return(FALSE);
   }
  recover_record:
@@ -1707,24 +1715,24 @@ p_rcdap(void)
   TRef = MkDBRefTerm(record(MkFirst | MkCode, t1, t2, Unsigned(0)));
   switch(DBErrorFlag) {
   case NO_ERROR_IN_DB:
-    return (unify(ARG3, TRef));
+    return (_YAP_unify(ARG3, TRef));
   case SOVF_ERROR_IN_DB:
-    if (!gc(3, ENV, P)) {
-      Error(OUT_OF_STACK_ERROR, TermNil, ErrorMessage);
+    if (!_YAP_gc(3, ENV, P)) {
+      _YAP_Error(OUT_OF_STACK_ERROR, TermNil, _YAP_ErrorMessage);
       return(FALSE);
     }
     goto recover_record;
   case TOVF_ERROR_IN_DB:
-    Error(SYSTEM_ERROR, TermNil, "YAP could not grow trail in recorda/3");
+    _YAP_Error(SYSTEM_ERROR, TermNil, "YAP could not grow trail in recorda/3");
     return(FALSE);
   case OVF_ERROR_IN_DB:
-    if (!growheap(FALSE)) {
-      Error(SYSTEM_ERROR, TermNil, ErrorMessage);
+    if (!_YAP_growheap(FALSE)) {
+      _YAP_Error(SYSTEM_ERROR, TermNil, _YAP_ErrorMessage);
       return(FALSE);
     } else
       goto recover_record;
   default:
-    Error(DBErrorNumber, DBErrorTerm, DBErrorMsg);
+    _YAP_Error(DBErrorNumber, DBErrorTerm, DBErrorMsg);
     return(FALSE);
   }
  recover_record:
@@ -1746,24 +1754,24 @@ p_rcdz(void)
   TRef = MkDBRefTerm(record(MkLast, t1, t2, Unsigned(0)));
   switch(DBErrorFlag) {
   case NO_ERROR_IN_DB:
-    return (unify(ARG3, TRef));
+    return (_YAP_unify(ARG3, TRef));
   case SOVF_ERROR_IN_DB:
-    if (!gc(3, ENV, P)) {
-      Error(OUT_OF_STACK_ERROR, TermNil, ErrorMessage);
+    if (!_YAP_gc(3, ENV, P)) {
+      _YAP_Error(OUT_OF_STACK_ERROR, TermNil, _YAP_ErrorMessage);
       return(FALSE);
     }
     goto recover_record;
   case TOVF_ERROR_IN_DB:
-    Error(SYSTEM_ERROR, TermNil, "YAP could not grow trail in recorda/3");
+    _YAP_Error(SYSTEM_ERROR, TermNil, "YAP could not grow trail in recorda/3");
     return(FALSE);
   case OVF_ERROR_IN_DB:
-    if (!growheap(FALSE)) {
-      Error(SYSTEM_ERROR, TermNil, ErrorMessage);
+    if (!_YAP_growheap(FALSE)) {
+      _YAP_Error(SYSTEM_ERROR, TermNil, _YAP_ErrorMessage);
       return(FALSE);
     } else
       goto recover_record;
   default:
-    Error(DBErrorNumber, DBErrorTerm, DBErrorMsg);
+    _YAP_Error(DBErrorNumber, DBErrorTerm, DBErrorMsg);
     return(FALSE);
   }
  recover_record:
@@ -1785,24 +1793,24 @@ p_rcdzp(void)
   TRef = MkDBRefTerm(record(MkLast | MkCode, t1, t2, Unsigned(0)));
   switch(DBErrorFlag) {
   case NO_ERROR_IN_DB:
-    return (unify(ARG3, TRef));
+    return (_YAP_unify(ARG3, TRef));
   case SOVF_ERROR_IN_DB:
-    if (!gc(3, ENV, P)) {
-      Error(OUT_OF_STACK_ERROR, TermNil, ErrorMessage);
+    if (!_YAP_gc(3, ENV, P)) {
+      _YAP_Error(OUT_OF_STACK_ERROR, TermNil, _YAP_ErrorMessage);
       return(FALSE);
     }
     goto recover_record;
   case TOVF_ERROR_IN_DB:
-    Error(SYSTEM_ERROR, TermNil, "YAP could not grow trail in recorda/3");
+    _YAP_Error(SYSTEM_ERROR, TermNil, "YAP could not grow trail in recorda/3");
     return(FALSE);
   case OVF_ERROR_IN_DB:
-    if (!growheap(FALSE)) {
-      Error(SYSTEM_ERROR, TermNil, ErrorMessage);
+    if (!_YAP_growheap(FALSE)) {
+      _YAP_Error(SYSTEM_ERROR, TermNil, _YAP_ErrorMessage);
       return(FALSE);
     } else
       goto recover_record;
   default:
-    Error(DBErrorNumber, DBErrorTerm, DBErrorMsg);
+    _YAP_Error(DBErrorNumber, DBErrorTerm, DBErrorMsg);
     return(FALSE);
   }
  recover_record:
@@ -1832,24 +1840,24 @@ p_rcdstatp(void)
     TRef = MkDBRefTerm(record(MkLast | MkCode, t1, t2, MkIntTerm(0)));
   switch(DBErrorFlag) {
   case NO_ERROR_IN_DB:
-    return (unify(ARG4,TRef));
+    return (_YAP_unify(ARG4,TRef));
   case SOVF_ERROR_IN_DB:
-    if (!gc(3, ENV, P)) {
-      Error(OUT_OF_STACK_ERROR, TermNil, ErrorMessage);
+    if (!_YAP_gc(3, ENV, P)) {
+      _YAP_Error(OUT_OF_STACK_ERROR, TermNil, _YAP_ErrorMessage);
       return(FALSE);
     }
     goto recover_record;
   case TOVF_ERROR_IN_DB:
-    Error(SYSTEM_ERROR, TermNil, "YAP could not grow trail in record_stat_source/3");
+    _YAP_Error(SYSTEM_ERROR, TermNil, "YAP could not grow trail in record_stat_source/3");
     return(FALSE);
   case OVF_ERROR_IN_DB:
-    if (!growheap(FALSE)) {
-      Error(SYSTEM_ERROR, TermNil, ErrorMessage);
+    if (!_YAP_growheap(FALSE)) {
+      _YAP_Error(SYSTEM_ERROR, TermNil, _YAP_ErrorMessage);
       return(FALSE);
     } else
       goto recover_record;
   default:
-    Error(DBErrorNumber, DBErrorTerm, DBErrorMsg);
+    _YAP_Error(DBErrorNumber, DBErrorTerm, DBErrorMsg);
     return(FALSE);
   }
  recover_record:
@@ -1874,24 +1882,24 @@ p_drcdap(void)
 			    t1, t2, t4));
   switch(DBErrorFlag) {
   case NO_ERROR_IN_DB:
-    return (unify(ARG3, TRef));
+    return (_YAP_unify(ARG3, TRef));
   case SOVF_ERROR_IN_DB:
-    if (!gc(4, ENV, P)) {
-      Error(OUT_OF_STACK_ERROR, TermNil, ErrorMessage);
+    if (!_YAP_gc(4, ENV, P)) {
+      _YAP_Error(OUT_OF_STACK_ERROR, TermNil, _YAP_ErrorMessage);
       return(FALSE);
     }
     goto recover_record;
   case TOVF_ERROR_IN_DB:
-    Error(SYSTEM_ERROR, TermNil, "YAP could not grow trail in recorda/3");
+    _YAP_Error(SYSTEM_ERROR, TermNil, "YAP could not grow trail in recorda/3");
     return(FALSE);
   case OVF_ERROR_IN_DB:
-    if (!growheap(FALSE)) {
-      Error(SYSTEM_ERROR, TermNil, ErrorMessage);
+    if (!_YAP_growheap(FALSE)) {
+      _YAP_Error(SYSTEM_ERROR, TermNil, _YAP_ErrorMessage);
       return(FALSE);
     } else
       goto recover_record;
   default:
-    Error(DBErrorNumber, DBErrorTerm, DBErrorMsg);
+    _YAP_Error(DBErrorNumber, DBErrorTerm, DBErrorMsg);
     return(FALSE);
   }
  recover_record:
@@ -1917,24 +1925,24 @@ p_drcdzp(void)
 			    t1, t2, t4));
   switch(DBErrorFlag) {
   case NO_ERROR_IN_DB:
-    return (unify(ARG3, TRef));
+    return (_YAP_unify(ARG3, TRef));
   case SOVF_ERROR_IN_DB:
-    if (!gc(4, ENV, P)) {
-      Error(OUT_OF_STACK_ERROR, TermNil, ErrorMessage);
+    if (!_YAP_gc(4, ENV, P)) {
+      _YAP_Error(OUT_OF_STACK_ERROR, TermNil, _YAP_ErrorMessage);
       return(FALSE);
     }
     goto recover_record;
   case TOVF_ERROR_IN_DB:
-    Error(SYSTEM_ERROR, TermNil, "YAP could not grow trail in recorda/3");
+    _YAP_Error(SYSTEM_ERROR, TermNil, "YAP could not grow trail in recorda/3");
     return(FALSE);
   case OVF_ERROR_IN_DB:
-    if (!growheap(FALSE)) {
-      Error(SYSTEM_ERROR, TermNil, ErrorMessage);
+    if (!_YAP_growheap(FALSE)) {
+      _YAP_Error(SYSTEM_ERROR, TermNil, _YAP_ErrorMessage);
       return(FALSE);
     } else
       goto recover_record;
   default:
-    Error(DBErrorNumber, DBErrorTerm, DBErrorMsg);
+    _YAP_Error(DBErrorNumber, DBErrorTerm, DBErrorMsg);
     return(FALSE);
   }
  recover_record:
@@ -1962,24 +1970,24 @@ p_rcdaifnot(void)
   switch(DBErrorFlag) {
   case NO_ERROR_IN_DB:
     TRef = MkDBRefTerm(db_ref);
-    return (unify(ARG3, TRef));
+    return (_YAP_unify(ARG3, TRef));
   case SOVF_ERROR_IN_DB:
-    if (!gc(3, ENV, P)) {
-      Error(OUT_OF_STACK_ERROR, TermNil, ErrorMessage);
+    if (!_YAP_gc(3, ENV, P)) {
+      _YAP_Error(OUT_OF_STACK_ERROR, TermNil, _YAP_ErrorMessage);
       return(FALSE);
     }
     goto recover_record;
   case TOVF_ERROR_IN_DB:
-    Error(SYSTEM_ERROR, TermNil, "YAP could not grow trail in recorda/3");
+    _YAP_Error(SYSTEM_ERROR, TermNil, "YAP could not grow trail in recorda/3");
     return(FALSE);
   case OVF_ERROR_IN_DB:
-    if (!growheap(FALSE)) {
-      Error(SYSTEM_ERROR, TermNil, ErrorMessage);
+    if (!_YAP_growheap(FALSE)) {
+      _YAP_Error(SYSTEM_ERROR, TermNil, _YAP_ErrorMessage);
       return(FALSE);
     } else
       goto recover_record;
   default:
-    Error(DBErrorNumber, DBErrorTerm, DBErrorMsg);
+    _YAP_Error(DBErrorNumber, DBErrorTerm, DBErrorMsg);
     return(FALSE);
   }
  recover_record:
@@ -2004,24 +2012,24 @@ p_rcdzifnot(void)
   switch(DBErrorFlag) {
   case NO_ERROR_IN_DB:
     TRef = MkDBRefTerm(db_ref);
-    return (unify(ARG3, TRef));
+    return (_YAP_unify(ARG3, TRef));
   case SOVF_ERROR_IN_DB:
-    if (!gc(3, ENV, P)) {
-      Error(OUT_OF_STACK_ERROR, TermNil, ErrorMessage);
+    if (!_YAP_gc(3, ENV, P)) {
+      _YAP_Error(OUT_OF_STACK_ERROR, TermNil, _YAP_ErrorMessage);
       return(FALSE);
     }
     goto recover_record;
   case TOVF_ERROR_IN_DB:
-    Error(SYSTEM_ERROR, TermNil, "YAP could not grow trail in recorda/3");
+    _YAP_Error(SYSTEM_ERROR, TermNil, "YAP could not grow trail in recorda/3");
     return(FALSE);
   case OVF_ERROR_IN_DB:
-    if (!growheap(FALSE)) {
-      Error(SYSTEM_ERROR, TermNil, ErrorMessage);
+    if (!_YAP_growheap(FALSE)) {
+      _YAP_Error(SYSTEM_ERROR, TermNil, _YAP_ErrorMessage);
       return(FALSE);
     } else
       goto recover_record;
   default:
-    Error(DBErrorNumber, DBErrorTerm, DBErrorMsg);
+    _YAP_Error(DBErrorNumber, DBErrorTerm, DBErrorMsg);
     return(FALSE);
   }
  recover_record:
@@ -2060,10 +2068,10 @@ GetDBTerm(DBRef DBSP)
     pt = CellPtr(DBSP->Contents);
     NOf = DBSP->NOfCells;
     if (H+NOf > ASP-CalculateStackGap()) {
-      if (PrologMode & InErrorMode) {
+      if (_YAP_PrologMode & InErrorMode) {
 	if (H+NOf > ASP)
-	  YP_fprintf(YP_stderr, "\n\n [ FATAL ERROR: No Stack for Error Handling ]\n");
-	  exit_yap( 1);
+	  fprintf(_YAP_stderr, "\n\n [ FATAL ERROR: No Stack for Error Handling ]\n");
+	  _YAP_exit( 1);
       } else {
 	return((Term)0);
       }
@@ -2091,7 +2099,7 @@ GetDBTerm(DBRef DBSP)
 
 static void
 init_int_keys(void) {
-  INT_KEYS = (Prop *)AllocCodeSpace(sizeof(Prop)*INT_KEYS_SIZE);
+  INT_KEYS = (Prop *)_YAP_AllocCodeSpace(sizeof(Prop)*INT_KEYS_SIZE);
   if (INT_KEYS != NULL) {
     UInt i = 0;
     Prop *p = INT_KEYS;
@@ -2113,7 +2121,7 @@ resize_int_keys(UInt new_size) {
     YAPLeaveCriticalSection();
     return(TRUE);
   }
-  new = (Prop *)AllocCodeSpace(sizeof(Prop)*new_size);
+  new = (Prop *)_YAP_AllocCodeSpace(sizeof(Prop)*new_size);
   if (new == NULL) {
     YAPLeaveCriticalSection();
     DBErrorFlag = OTHER_ERROR_IN_DB;
@@ -2138,7 +2146,7 @@ resize_int_keys(UInt new_size) {
       }
     }
   }
-  FreeCodeSpace((char *)INT_KEYS);
+  _YAP_FreeCodeSpace((char *)INT_KEYS);
   INT_KEYS = new;
   INT_KEYS_SIZE = new_size;
   INT_KEYS_TIMESTAMP++;
@@ -2177,13 +2185,13 @@ FetchIntDBPropFromKey(Int key, int flag, int new, char *error_mssg)
     /* create a new DBProp				 */
     if (UPDATE_MODE == UPDATE_MODE_LOGICAL
 	|| (UPDATE_MODE == UPDATE_MODE_LOGICAL_ASSERT && (flag & MkCode))) {
-      LogUpdDBProp lup = (LogUpdDBProp) AllocAtomSpace(sizeof(*lup));
+      LogUpdDBProp lup = (LogUpdDBProp) _YAP_AllocAtomSpace(sizeof(*lup));
       lup->KindOfPE = LogUpdDBProperty|flag;
       lup->NOfEntries = 0;
       lup->Index = NULL;
       p = (DBProp)lup;
     } else {
-      p = (DBProp) AllocAtomSpace(sizeof(*p));
+      p = (DBProp) _YAP_AllocAtomSpace(sizeof(*p));
       p->KindOfPE = DBProperty|flag;
 #ifdef KEEP_OLD_ENTRIES_HANGING_ABOUT
       p->FirstNEr = NIL;
@@ -2214,35 +2222,35 @@ FetchDBPropFromKey(Term twork, int flag, int new, char *error_mssg)
 
   if (flag & MkCode) {
     if (IsVarTerm(twork)) {
-      Error(INSTANTIATION_ERROR, twork, error_mssg);
+      _YAP_Error(INSTANTIATION_ERROR, twork, error_mssg);
       return(RepDBProp(NIL));
     }
     if (!IsApplTerm(twork)) {
-      Error(SYSTEM_ERROR, twork, "missing module");
+      _YAP_Error(SYSTEM_ERROR, twork, "missing module");
       return(RepDBProp(NIL));
     } else {
       Functor f = FunctorOfTerm(twork);
       Term tmod;
       if (f != FunctorModule) {
-	Error(SYSTEM_ERROR, twork, "missing module");
+	_YAP_Error(SYSTEM_ERROR, twork, "missing module");
 	return(RepDBProp(NIL));
       }
       tmod = ArgOfTerm(1, twork);
       if (IsVarTerm(tmod)) {
-	Error(INSTANTIATION_ERROR, twork, "var in module");
+	_YAP_Error(INSTANTIATION_ERROR, twork, "var in module");
 	return(RepDBProp(NIL));
       }
       if (!IsAtomTerm(tmod)) {
-	Error(TYPE_ERROR_ATOM, twork, "not atom in module");
+	_YAP_Error(TYPE_ERROR_ATOM, twork, "not atom in module");
 	return(RepDBProp(NIL));
       }
-      dbmod = LookupModule(tmod);
+      dbmod = _YAP_LookupModule(tmod);
       twork = ArgOfTerm(2, twork);
     }
   } else
     dbmod = 0;
   if (IsVarTerm(twork)) {
-    Error(INSTANTIATION_ERROR, twork, error_mssg);
+    _YAP_Error(INSTANTIATION_ERROR, twork, error_mssg);
     return(RepDBProp(NIL));
   } else if (IsAtomTerm(twork)) {
     arity = 0, At = AtomOfTerm(twork);
@@ -2251,7 +2259,7 @@ FetchDBPropFromKey(Term twork, int flag, int new, char *error_mssg)
   } else if (IsApplTerm(twork)) {
     Register Functor f = FunctorOfTerm(twork);
     if (IsExtensionFunctor(f)) {
-      Error(TYPE_ERROR_KEY, twork, error_mssg);
+      _YAP_Error(TYPE_ERROR_KEY, twork, error_mssg);
       return(RepDBProp(NIL));
     }
     At = NameOfFunctor(f);
@@ -2260,7 +2268,7 @@ FetchDBPropFromKey(Term twork, int flag, int new, char *error_mssg)
     At = AtomDot;
     arity = 2;
   } else {
-    Error(TYPE_ERROR_KEY, twork,error_mssg);
+    _YAP_Error(TYPE_ERROR_KEY, twork,error_mssg);
     return(RepDBProp(NIL));
   }
   if (new) {
@@ -2273,7 +2281,7 @@ FetchDBPropFromKey(Term twork, int flag, int new, char *error_mssg)
       int OLD_UPDATE_MODE = UPDATE_MODE;
       if (flag & MkCode) {
 	PredEntry *pp;
-	pp = RepPredProp(GetPredPropHavingLock(At, arity, dbmod));
+	pp = RepPredProp(_YAP_GetPredPropHavingLock(At, arity, dbmod));
 
 	if (!EndOfPAEntr(pp)) {
 	  READ_LOCK(pp->PRWLock);
@@ -2285,13 +2293,13 @@ FetchDBPropFromKey(Term twork, int flag, int new, char *error_mssg)
       }
       if (UPDATE_MODE == UPDATE_MODE_LOGICAL
 	  || (UPDATE_MODE == UPDATE_MODE_LOGICAL_ASSERT && (flag & MkCode))) {
-	LogUpdDBProp lup = (LogUpdDBProp) AllocAtomSpace(sizeof(*lup));
+	LogUpdDBProp lup = (LogUpdDBProp) _YAP_AllocAtomSpace(sizeof(*lup));
 	lup->KindOfPE = LogUpdDBProperty|flag;
 	lup->NOfEntries = 0;
 	lup->Index = NULL;
 	p = (DBProp)lup;
       } else {
-	p = (DBProp) AllocAtomSpace(sizeof(*p));
+	p = (DBProp) _YAP_AllocAtomSpace(sizeof(*p));
 	p->KindOfPE = DBProperty|flag;
 #ifdef KEEP_OLD_ENTRIES_HANGING_ABOUT
 	p->FirstNEr = NIL;
@@ -2309,7 +2317,7 @@ FetchDBPropFromKey(Term twork, int flag, int new, char *error_mssg)
       if (arity == 0)
 	p->FunctorOfDB = (Functor) At;
       else
-	p->FunctorOfDB = UnlockedMkFunctor(ae,arity);
+	p->FunctorOfDB = _YAP_UnlockedMkFunctor(ae,arity);
       p->NextOfPE = ae->PropsOfAE;
       ae->PropsOfAE = AbsDBProp(p);
     }
@@ -2343,8 +2351,8 @@ i_log_upd_recorded(LogUpdDBProp AtProp)
   } else {
     if (AtProp->Index == NULL) {
       if((AtProp->Index = new_lu_index(AtProp)) == NULL) {
-	if (!growheap(FALSE)) {
-	  Error(SYSTEM_ERROR, TermNil, ErrorMessage);
+	if (!_YAP_growheap(FALSE)) {
+	  _YAP_Error(SYSTEM_ERROR, TermNil, _YAP_ErrorMessage);
 	  cut_fail();
 	}
 	twork = Deref(ARG2);
@@ -2375,14 +2383,14 @@ i_log_upd_recorded(LogUpdDBProp AtProp)
       /* make sure the garbage collector sees what we want it to see! */
       EXTRA_CBACK_ARG(3,1) = AbsAppl((CELL *)ep);
       /* oops, we are in trouble, not enough stack space */
-      if (!gc(3, ENV, CP)) {
-	Error(OUT_OF_STACK_ERROR, TermNil, ErrorMessage);
+      if (!_YAP_gc(3, ENV, CP)) {
+	_YAP_Error(OUT_OF_STACK_ERROR, TermNil, _YAP_ErrorMessage);
 	return(FALSE);
       }
       PreviousHeap = H;
       twork = Deref(ARG2);
     }
-    if (!unify(twork, TermDB)) {
+    if (!_YAP_unify(twork, TermDB)) {
       cut_fail();
     }
   } else if (IsAtomOrIntTerm(twork)) {
@@ -2422,13 +2430,13 @@ i_log_upd_recorded(LogUpdDBProp AtProp)
 	/* make sure the garbage collector sees what we want it to see! */
 	EXTRA_CBACK_ARG(3,1) = AbsAppl((CELL *)ep);
 	/* oops, we are in trouble, not enough stack space */
-	if(!gc(3, ENV, CP)) {
-	  Error(OUT_OF_STACK_ERROR, TermNil, ErrorMessage);
+	if(!_YAP_gc(3, ENV, CP)) {
+	  _YAP_Error(OUT_OF_STACK_ERROR, TermNil, _YAP_ErrorMessage);
 	  return(FALSE);
 	}
 	PreviousHeap = H;
       }
-      if (unify(ARG2, TermDB))
+      if (_YAP_unify(ARG2, TermDB))
 	break;
       while ((ref = *ep++) != NIL
 	     && DEAD_REF(ref));
@@ -2441,7 +2449,7 @@ i_log_upd_recorded(LogUpdDBProp AtProp)
      go from upper to lower addresses */
   TRef = MkDBRefTerm(ref);
   if (*ep == NULL) {
-    if (unify(ARG3, TRef)) {
+    if (_YAP_unify(ARG3, TRef)) {
 #if defined(YAPOR) || defined(THREADS)
       LOCK(ref->lock);
       TRAIL_REF(ref);		/* So that fail will erase it */
@@ -2502,7 +2510,7 @@ i_log_upd_recorded(LogUpdDBProp AtProp)
       TRAIL_REF(ref);		/* So that fail will erase it */
     }
 #endif
-    return (unify(ARG3, TRef));
+    return (_YAP_unify(ARG3, TRef));
   }
 }
 
@@ -2516,7 +2524,7 @@ p_db_key(void)
     /* should never happen */
     return(FALSE);
   }
-  return(unify(ARG2,MkIntegerTerm((Int)AtProp)));
+  return(_YAP_unify(ARG2,MkIntegerTerm((Int)AtProp)));
 }
 
 /* Finds a term recorded under the key ARG1			 */
@@ -2545,7 +2553,7 @@ i_recorded(DBProp AtProp)
 	ref = NextDBRef(ref);
       }
       READ_UNLOCK(AtProp->DBRWLock);
-      if (ref == NULL || DEAD_REF(ref) || !unify(ARG2,GetDBTerm(ref))) {
+      if (ref == NULL || DEAD_REF(ref) || !_YAP_unify(ARG2,GetDBTerm(ref))) {
 	cut_fail();
       } else {
 	cut_succeed();
@@ -2575,14 +2583,14 @@ i_recorded(DBProp AtProp)
       /* make sure the garbage collector sees what we want it to see! */
       EXTRA_CBACK_ARG(3,1) = (CELL)ref;
       /* oops, we are in trouble, not enough stack space */
-      if (!gc(3, ENV, CP)) {
-	Error(OUT_OF_STACK_ERROR, TermNil, ErrorMessage);
+      if (!_YAP_gc(3, ENV, CP)) {
+	_YAP_Error(OUT_OF_STACK_ERROR, TermNil, _YAP_ErrorMessage);
 	return(FALSE);
       }
       twork = Deref(ARG2);
       t3 = Deref(ARG3);
     }
-    if (!unify(twork, TermDB)) {
+    if (!_YAP_unify(twork, TermDB)) {
       cut_fail();
     }
   } else if (IsAtomOrIntTerm(twork)) {
@@ -2616,7 +2624,7 @@ i_recorded(DBProp AtProp)
 	}
       }
       if ((TermDB = GetDBTerm(ref)) != (CELL)0) {
-	if (unify(TermDB, ARG2)) {
+	if (_YAP_unify(TermDB, ARG2)) {
 	  /* success */
 	  EXTRA_CBACK_ARG(3,2) = MkIntegerTerm(((Int)mask));
 	  EXTRA_CBACK_ARG(3,3) = MkIntegerTerm(((Int)key));
@@ -2637,8 +2645,8 @@ i_recorded(DBProp AtProp)
 	EXTRA_CBACK_ARG(3,2) = MkIntegerTerm(((Int)mask));
 	EXTRA_CBACK_ARG(3,3) = MkIntegerTerm(((Int)key));
 	/* oops, we are in trouble, not enough stack space */
-	if (!gc(3, ENV, CP)) {
-	  Error(OUT_OF_STACK_ERROR, TermNil, ErrorMessage);
+	if (!_YAP_gc(3, ENV, CP)) {
+	  _YAP_Error(OUT_OF_STACK_ERROR, TermNil, _YAP_ErrorMessage);
 	  return(FALSE);
 	}
 	READ_LOCK(AtProp->DBRWLock);
@@ -2661,7 +2669,7 @@ i_recorded(DBProp AtProp)
     TRAIL_REF(ref);		/* So that fail will erase it */
   }
 #endif
-  return (unify(ARG3, TRef));
+  return (_YAP_unify(ARG3, TRef));
 }
 
 static Int 
@@ -2702,13 +2710,13 @@ c_log_upd_recorded(DBRef *ep, int flags)
       /* make sure the garbage collector sees what we want it to see! */
       EXTRA_CBACK_ARG(3,1) = AbsAppl((CELL *)ep);
       /* oops, we are in trouble, not enough stack space */
-      if (!gc(3, ENV, CP)) {
-	Error(OUT_OF_STACK_ERROR, TermNil, ErrorMessage);
+      if (!_YAP_gc(3, ENV, CP)) {
+	_YAP_Error(OUT_OF_STACK_ERROR, TermNil, _YAP_ErrorMessage);
 	return(FALSE);
       }
       PreviousHeap = H;
     }
-    unify(ARG2, TermDB);
+    _YAP_unify(ARG2, TermDB);
   } else if (mask == 0) {	/* ARG2 is a constant */
     do {
       if (((key == Unsigned(ref->Entry)) || (ref->Flags & DBVar)) &&
@@ -2733,13 +2741,13 @@ c_log_upd_recorded(DBRef *ep, int flags)
 	/* make sure the garbage collector sees what we want it to see! */
 	EXTRA_CBACK_ARG(3,1) = AbsAppl((CELL *)ep);
 	/* oops, we are in trouble, not enough stack space */
-	if (!gc(3, ENV, CP)) {
-	  Error(OUT_OF_STACK_ERROR, TermNil, ErrorMessage);
+	if (!_YAP_gc(3, ENV, CP)) {
+	  _YAP_Error(OUT_OF_STACK_ERROR, TermNil, _YAP_ErrorMessage);
 	  return(FALSE);
 	}
 	PreviousHeap = H;
       }
-      if (unify(ARG2, TermDB))
+      if (_YAP_unify(ARG2, TermDB))
 	break;
       while ((ref = *ep++) != NIL
 	     && DEAD_REF(ref));
@@ -2760,7 +2768,7 @@ c_log_upd_recorded(DBRef *ep, int flags)
     TRAIL_REF(ref);	/* So that fail will erase it */
   }
 #endif
-  if (!unify(ARG3, TRef))
+  if (!_YAP_unify(ARG3, TRef))
     return(FALSE); /* should never happen */
   if (*ep == NULL) {
     cut_succeed();
@@ -2847,13 +2855,13 @@ c_recorded(int flags)
       /* make sure the garbage collector sees what we want it to see! */
       EXTRA_CBACK_ARG(3,1) = (CELL)ref;
       /* oops, we are in trouble, not enough stack space */
-      if (!gc(3, ENV, CP)) {
-	Error(OUT_OF_STACK_ERROR, TermNil, ErrorMessage);
+      if (!_YAP_gc(3, ENV, CP)) {
+	_YAP_Error(OUT_OF_STACK_ERROR, TermNil, _YAP_ErrorMessage);
 	return(FALSE);
       }
       PreviousHeap = H;
     }
-    unify(ARG2, TermDB);
+    _YAP_unify(ARG2, TermDB);
   } else if (mask == 0) {	/* ARG2 is a constant */
     do {
       if (((key == Unsigned(ref->Entry)) || (ref->Flags & DBVar)) &&
@@ -2880,13 +2888,13 @@ c_recorded(int flags)
 	/* make sure the garbage collector sees what we want it to see! */
 	EXTRA_CBACK_ARG(3,1) = (CELL)ref;
 	/* oops, we are in trouble, not enough stack space */
-	if (!gc(3, ENV, CP)) {
-	  Error(OUT_OF_STACK_ERROR, TermNil, ErrorMessage);
+	if (!_YAP_gc(3, ENV, CP)) {
+	  _YAP_Error(OUT_OF_STACK_ERROR, TermNil, _YAP_ErrorMessage);
 	  return(FALSE);
 	}
 	PreviousHeap = H;
       }
-      if (unify(ARG2, TermDB))
+      if (_YAP_unify(ARG2, TermDB))
 	break;
       while ((ref = NextDBRef(ref)) != NIL
 	     && DEAD_REF(ref));
@@ -2909,7 +2917,7 @@ c_recorded(int flags)
     TRAIL_REF(ref);	/* So that fail will erase it */
   }
 #endif
-  return (unify(ARG3, TRef));
+  return (_YAP_unify(ARG3, TRef));
 }
 
 /*
@@ -3043,17 +3051,17 @@ p_first_instance(void)
 #endif
   while ((TermDB = GetDBTerm(ref)) == (CELL)0) {
     /* oops, we are in trouble, not enough stack space */
-    if (!gc(3, ENV, P)) {
-      Error(OUT_OF_STACK_ERROR, TermNil, ErrorMessage);
+    if (!_YAP_gc(3, ENV, P)) {
+      _YAP_Error(OUT_OF_STACK_ERROR, TermNil, _YAP_ErrorMessage);
       return(FALSE);
     }
   }
   if (IsVarTerm(TermDB)) {
-    unify(TermDB, ARG2);
+    _YAP_unify(TermDB, ARG2);
   } else {
-    return(unify(ARG2, TermDB));
+    return(_YAP_unify(ARG2, TermDB));
   }
-  return(unify(ARG3, TRef));
+  return(_YAP_unify(ARG3, TRef));
 }
 
 /*
@@ -3200,7 +3208,7 @@ find_next_clause(DBRef ref0)
   /* fetch ref0 from the instruction we just started executing */
 #ifdef DEBUG
   if (!(ref0->Flags & ErasedMask)) {
-    Error(SYSTEM_ERROR, TermNil, "find_next_clause (dead clause %x)", ref0);
+    _YAP_Error(SYSTEM_ERROR, TermNil, "find_next_clause (dead clause %x)", ref0);
     return(NIL);
   }
 #endif
@@ -3264,14 +3272,14 @@ static void
 EraseLogUpdCl(Clause *clau)
 {
   if (clau->ClFlags & IndexMask) {
-    RemoveLogUpdIndex(clau);
+    _YAP_RemoveLogUpdIndex(clau);
   } else {
     if (clau->ClFlags & LogUpdRuleMask) {
       if (clau->u2.ClExt->u.EC.ClRefs > 0)
 	return;
     } else if (clau->u2.ClUse > 0)
       return;
-    FreeCodeSpace((char *)clau);
+    _YAP_FreeCodeSpace((char *)clau);
   }
 }
 
@@ -3330,7 +3338,7 @@ MyEraseClause(Clause *clau)
 	pred->LastClause = (CODEADDR)previousoflast;
 	previousoflast->u.ld.d = pred->CodeOfPred;
       } else {
-	FreeCodeSpace(((char *) ClauseCodeToClause(pred->CodeOfPred)));
+	_YAP_FreeCodeSpace(((char *) ClauseCodeToClause(pred->CodeOfPred)));
 	pred->LastClause = pred->FirstClause = NIL;
 	p->OpcodeOfPred = FAIL_OPCODE;
 	p->TrueCodeOfPred = p->CodeOfPred =
@@ -3372,10 +3380,10 @@ MyEraseClause(Clause *clau)
     }
   } else {
 #endif /* DISCONNECT_OLD_ENTRIES */
-    FreeCodeSpace((char *)clau);
+    _YAP_FreeCodeSpace((char *)clau);
 #ifdef DEBUG
     if (ref->NOfRefsTo)
-      YP_fprintf(YP_stderr, "Error: references to dynamic clause\n");
+      fprintf(_YAP_stderr, "Error: references to dynamic clause\n");
 #endif
     RemoveDBEntry(ref);
 #if DISCONNECT_OLD_ENTRIES
@@ -3388,7 +3396,7 @@ MyEraseClause(Clause *clau)
   lock on the current predicate
 */
 void 
-ErCl(Clause *clau)
+_YAP_ErCl(Clause *clau)
 {
   MyEraseClause(clau);
 }
@@ -3417,12 +3425,12 @@ PrepareToEraseLogUpdClause(Clause *clau, DBRef dbr)
     } else {
       p->FirstClause = code_p->u.ld.d;
       ((yamop *)(p->FirstClause))->opc =
-       opcode(TRYCODE(_try_me, _try_me0, p->ArityOfPE));
+       _YAP_opcode(TRYCODE(_try_me, _try_me0, p->ArityOfPE));
     }
   }
   dbr->Code = NULL;   /* unlink the two now */
   if (p->PredFlags & IndexedPredFlag) {
-    RemoveIndexation(p);
+    _YAP_RemoveIndexation(p);
   } else {
     if (!(clau->ClFlags & InUseMask))
       EraseLogUpdCl(clau);
@@ -3433,7 +3441,7 @@ PrepareToEraseLogUpdClause(Clause *clau, DBRef dbr)
       code_p->u.ld.d = p->FirstClause;
       p->TrueCodeOfPred = (CODEADDR)NEXTOP(code_p, ld);
       if (p->PredFlags & SpiedPredFlag) {
-	p->OpcodeOfPred = opcode(_spy_pred);
+	p->OpcodeOfPred = _YAP_opcode(_spy_pred);
 	p->CodeOfPred = (CODEADDR)(&(p->OpcodeOfPred)); 
 	p->StateOfPred = StaticMask | SpiedMask;
       } else {
@@ -3447,7 +3455,7 @@ PrepareToEraseLogUpdClause(Clause *clau, DBRef dbr)
     }
   } else {
     if (p->PredFlags & SpiedPredFlag) {
-      p->OpcodeOfPred = opcode(_spy_pred);
+      p->OpcodeOfPred = _YAP_opcode(_spy_pred);
       p->CodeOfPred = (CODEADDR)(&(p->OpcodeOfPred)); 
     } else {
       p->OpcodeOfPred = INDEX_OPCODE;
@@ -3475,7 +3483,7 @@ PrepareToEraseClause(Clause *clau, DBRef dbr)
 #ifdef KEEP_OLD_ENTRIES_HANGING_ABOUT
   code_p = NEXTOP(code_p, ld);
   /* in this case, a fail will send you back to the next clause */
-  code_p->opc = opcode(_op_fail);
+  code_p->opc = _YAP_opcode(_op_fail);
   code_p->u.d.d = (CODEADDR)(dbr);
 #endif
 #ifdef DISCONNECT_OLD_ENTRIES
@@ -3517,16 +3525,16 @@ PrepareToEraseClause(Clause *clau, DBRef dbr)
       if (pred->FirstClause != clau_code) {
 	/* sanity check */
 	if (father->ArityOfDB == 0) {
-	  Error(SYSTEM_ERROR, TermNil, "Prepare to erase clause for %s/%d",RepAtom((Atom)father->FunctorOfDB)->StrOfAE,0);
+	  _YAP_Error(SYSTEM_ERROR, TermNil, "Prepare to erase clause for %s/%d",RepAtom((Atom)father->FunctorOfDB)->StrOfAE,0);
 	} else {
 	  Functor f = father->FunctorOfDB;
-	  Error(SYSTEM_ERROR, TermNil, "Prepare to erase clause for %s/%d",RepAtom(NameOfFunctor(f))->StrOfAE,ArityOfFunctor(f));
+	  _YAP_Error(SYSTEM_ERROR, TermNil, "Prepare to erase clause for %s/%d",RepAtom(NameOfFunctor(f))->StrOfAE,ArityOfFunctor(f));
 	}
 	return;
       }
 #endif
       /* nothing left here, let's clean the shop */
-      FreeCodeSpace(((char *) ClauseCodeToClause(pred->CodeOfPred)));
+      _YAP_FreeCodeSpace(((char *) ClauseCodeToClause(pred->CodeOfPred)));
       pred->LastClause = pred->FirstClause = NIL;
       pred->OpcodeOfPred = FAIL_OPCODE;
       pred->TrueCodeOfPred = pred->CodeOfPred =
@@ -3544,13 +3552,13 @@ PrepareToEraseClause(Clause *clau, DBRef dbr)
   code_p = NEXTOP(code_p, ld);
   /* in this case, a failed clause should go to the data base and find
      out  what is the next clause, if there is one */
-  code_p->opc = opcode(_call_cpred);
+  code_p->opc = _YAP_opcode(_call_cpred);
   code_p->u.sla.l = (CODEADDR)(&jump_to_next_dynamic_clause);
   code_p->u.sla.l2 = (CELL *)(dbr);
 #endif /* DISCONNECT_OLD_ENTRIES */
 }
 
-void 
+static void 
 ErDBE(DBRef entryref)
 {
 
@@ -3579,6 +3587,12 @@ ErDBE(DBRef entryref)
 #endif
     }
   }
+}
+
+void 
+_YAP_ErDBE(DBRef entryref)
+{
+  ErDBE(entryref);
 }
 
 static void
@@ -3635,11 +3649,11 @@ p_erase(void)
   Term t1 = Deref(ARG1);
 
   if (IsVarTerm(t1)) {
-    Error(INSTANTIATION_ERROR, t1, "erase");
+    _YAP_Error(INSTANTIATION_ERROR, t1, "erase");
     return (FALSE);
   }
   if (!IsDBRefTerm(t1)) {
-    Error(TYPE_ERROR_DBREF, t1, "erase");
+    _YAP_Error(TYPE_ERROR_DBREF, t1, "erase");
     return (FALSE);
   }
   EraseEntry(DBRefOfTerm(t1));
@@ -3712,11 +3726,11 @@ p_erased(void)
   Term            t = Deref(ARG1);
 
   if (IsVarTerm(t)) {
-    Error(INSTANTIATION_ERROR, t, "erased");
+    _YAP_Error(INSTANTIATION_ERROR, t, "erased");
     return (FALSE);
   }
   if (!IsDBRefTerm(t)) {
-    Error(TYPE_ERROR_DBREF, t, "erased");
+    _YAP_Error(TYPE_ERROR_DBREF, t, "erased");
     return (FALSE);
   }
   return (DBRefOfTerm(t)->Flags & ErasedMask);
@@ -3742,13 +3756,13 @@ p_instance(void)
   }
   while ((TermDB = GetDBTerm(dbr)) == (CELL)0) {
     /* oops, we are in trouble, not enough stack space */
-    if (!gc(2, ENV, P)) {
-      Error(OUT_OF_STACK_ERROR, TermNil, ErrorMessage);
+    if (!_YAP_gc(2, ENV, P)) {
+      _YAP_Error(OUT_OF_STACK_ERROR, TermNil, _YAP_ErrorMessage);
       return(FALSE);
     }
     t1 = Deref(ARG1);
   }
-  return (unify(ARG2, TermDB));
+  return (_YAP_unify(ARG2, TermDB));
 }
 
 inline static int 
@@ -3859,7 +3873,7 @@ cont_current_key(void)
 	    EXTRA_CBACK_ARG(2,2) = MkIntegerTerm(j+1);
 	    EXTRA_CBACK_ARG(2,3) = MkIntTerm(INT_KEYS_TIMESTAMP);
 	    term = MkIntegerTerm((Int)(pptr->FunctorOfDB));
-	    return(unify(term,ARG1) && unify(term,ARG2));
+	    return(_YAP_unify(term,ARG1) && _YAP_unify(term,ARG2));
 	  }
 	}
 	if (j == INT_KEYS_SIZE) {
@@ -3890,11 +3904,11 @@ cont_current_key(void)
     for (j = 0; j < arity; j++) {
       p[j] = MkVarTerm();
     }
-    functor = MkFunctor(a, arity);
-    term = MkApplTerm(functor, arity, p);
+    functor = _YAP_MkFunctor(a, arity);
+    term = _YAP_MkApplTerm(functor, arity, p);
     AtT = MkAtomTerm(a);
   }
-  return (unify_constant(ARG1, AtT) && unify(ARG2, term));
+  return (_YAP_unify_constant(ARG1, AtT) && _YAP_unify(ARG2, term));
 }
 
 static Int 
@@ -3924,30 +3938,36 @@ cont_current_key_integer(void)
   pptr = RepDBProp(pp);
   EXTRA_CBACK_ARG(2,1) = MkIntegerTerm((Int)(pptr->NextOfPE));
   term = MkIntegerTerm((Int)(pptr->FunctorOfDB));
-  return(unify(term,ARG1) && unify(term,ARG2));
+  return(_YAP_unify(term,ARG1) && _YAP_unify(term,ARG2));
 }
 
-Term 
+static Term 
 FetchTermFromDB(DBRef ref, int args)
 {
   Term TDB;
   while ((TDB = GetDBTerm(ref)) == (CELL)0) {
     /* oops, we are in trouble, not enough stack space */
-    if (!gc(args, ENV, P)) {
-      Error(OUT_OF_STACK_ERROR, TermNil, ErrorMessage);
+    if (!_YAP_gc(args, ENV, P)) {
+      _YAP_Error(OUT_OF_STACK_ERROR, TermNil, _YAP_ErrorMessage);
       return(TermNil);
     }
   }
   return(TDB);
 }
 
+Term 
+_YAP_FetchTermFromDB(DBRef ref, int args)
+{
+  return FetchTermFromDB(ref,args);
+}
+
 void 
-ReleaseTermFromDB(DBRef ref)
+_YAP_ReleaseTermFromDB(DBRef ref)
 {
   FreeDBSpace((char *)ref);
 }
 
-DBRef
+static DBRef
 StoreTermInDB(int arg, int nargs)
 {
   DBRef x;
@@ -3958,35 +3978,41 @@ StoreTermInDB(int arg, int nargs)
     switch(DBErrorFlag) {
     case NO_ERROR_IN_DB:
 #ifdef DEBUG
-      Error(SYSTEM_ERROR, TermNil, "no error but null return in enqueue/2");
+      _YAP_Error(SYSTEM_ERROR, TermNil, "no error but null return in enqueue/2");
 #endif
       break;
     case SOVF_ERROR_IN_DB:
-      if (!gc(nargs, ENV, P)) {
-	Error(OUT_OF_STACK_ERROR, TermNil, ErrorMessage);
+      if (!_YAP_gc(nargs, ENV, P)) {
+	_YAP_Error(OUT_OF_STACK_ERROR, TermNil, _YAP_ErrorMessage);
 	return(FALSE);
       } else {
 	t = Deref(XREGS[arg]);
 	break;
       }
     case TOVF_ERROR_IN_DB:
-      Error(SYSTEM_ERROR, TermNil, "YAP could not grow trail in recorda/3");
+      _YAP_Error(SYSTEM_ERROR, TermNil, "YAP could not grow trail in recorda/3");
       return(FALSE);
     case OVF_ERROR_IN_DB:
-      if (!growheap(FALSE)) {
-	Error(SYSTEM_ERROR, TermNil, ErrorMessage);
+      if (!_YAP_growheap(FALSE)) {
+	_YAP_Error(SYSTEM_ERROR, TermNil, _YAP_ErrorMessage);
 	return(FALSE);
       } else {
 	t = Deref(XREGS[arg]);
 	break;
       }
     default:
-      Error(DBErrorNumber, DBErrorTerm, DBErrorMsg);
+      _YAP_Error(DBErrorNumber, DBErrorTerm, DBErrorMsg);
       return(FALSE);
     }
   }
   return(x);
 }
+
+DBRef
+_YAP_StoreTermInDB(int arg, int nargs) {
+  return StoreTermInDB(arg, nargs);
+}
+
 
 static Int 
 p_init_queue(void)
@@ -3999,8 +4025,8 @@ p_init_queue(void)
     DBQueuesCache = dbq->next;
   } else {
     while ((dbq = (db_queue *)AllocDBSpace(sizeof(db_queue))) == NULL) {
-      if (!growheap(FALSE)) {
-	Error(SYSTEM_ERROR, TermNil, ErrorMessage);
+      if (!_YAP_growheap(FALSE)) {
+	_YAP_Error(SYSTEM_ERROR, TermNil, _YAP_ErrorMessage);
 	return(FALSE);
       }
     }
@@ -4012,10 +4038,10 @@ p_init_queue(void)
   }
   dbq->next = DBQueues;
   DBQueues = dbq;
-  dbq->age = IntOfTerm(GetValue(AtomCatch));
+  dbq->age = IntOfTerm(_YAP_GetValue(AtomCatch));
   INIT_RWLOCK(dbq->QRWLock);
   t = MkDBRefTerm((DBRef)dbq);
-  return(unify(ARG1, t));
+  return(_YAP_unify(ARG1, t));
 }
 
 
@@ -4027,10 +4053,10 @@ p_enqueue(void)
   db_queue *father_key;
 
   if (IsVarTerm(Father)) {
-    Error(INSTANTIATION_ERROR, Father, "enqueue");
+    _YAP_Error(INSTANTIATION_ERROR, Father, "enqueue");
     return(FALSE);
   } else if (!IsDBRefTerm(Father)) {
-    Error(TYPE_ERROR_DBREF, Father, "enqueue");
+    _YAP_Error(TYPE_ERROR_DBREF, Father, "enqueue");
     return(FALSE);
   } else
     father_key = (db_queue *)DBRefOfTerm(Father);
@@ -4086,10 +4112,10 @@ p_dequeue(void)
   Term Father = Deref(ARG1);
 
   if (IsVarTerm(Father)) {
-    Error(INSTANTIATION_ERROR, Father, "dequeue");
+    _YAP_Error(INSTANTIATION_ERROR, Father, "dequeue");
     return(FALSE);
   } else if (!IsDBRefTerm(Father)) {
-    Error(TYPE_ERROR_DBREF, Father, "dequeue");
+    _YAP_Error(TYPE_ERROR_DBREF, Father, "dequeue");
     return(FALSE);
   } else
     father_key = (db_queue *)DBRefOfTerm(Father);
@@ -4119,7 +4145,7 @@ p_dequeue(void)
     keepdbrefs(cur_instance);
     ErasePendingRefs(cur_instance);
     FreeDBSpace((char *) cur_instance);
-    return(unify(ARG2, TDB));
+    return(_YAP_unify(ARG2, TDB));
   }
 }
 
@@ -4175,7 +4201,7 @@ p_first_age(void)
   else
     to = MkIntegerTerm(AtProp->First->age);
 #endif
-  return(unify(ARG2,to));
+  return(_YAP_unify(ARG2,to));
 }
 
 /* given an integer, and a reference to the fist element, find the
@@ -4225,7 +4251,7 @@ p_db_nb_to_ref(void)
     TRAIL_REF(myref);	/* So that fail will erase it */
   }
 #endif
-  return(unify(ARG3,tref));
+  return(_YAP_unify(ARG3,tref));
 }
 
 /* given a key, find the clock number for the last entry */
@@ -4241,7 +4267,7 @@ p_last_age(void)
     return(FALSE);
   }
   last_age = MkIntegerTerm(AtProp->age);
-  return(unify(ARG2,last_age));
+  return(_YAP_unify(ARG2,last_age));
 }
 
 
@@ -4251,11 +4277,11 @@ p_slu(void)
 {
   Term t = Deref(ARG1);
   if (IsVarTerm(t)) { 
-    Error(INSTANTIATION_ERROR, t, "switch_logical_updates/1");
+    _YAP_Error(INSTANTIATION_ERROR, t, "switch_logical_updates/1");
     return(FALSE);
   } 
   if (!IsIntTerm(t)) { 
-    Error(TYPE_ERROR_INTEGER, t, "switch_logical_updates/1");
+    _YAP_Error(TYPE_ERROR_INTEGER, t, "switch_logical_updates/1");
     return(FALSE);
   }
   UPDATE_MODE = IntOfTerm(t);
@@ -4266,7 +4292,7 @@ p_slu(void)
 static Int
 p_lu(void)
 {
-  return(unify(ARG1,MkIntTerm(UPDATE_MODE)));
+  return(_YAP_unify(ARG1,MkIntTerm(UPDATE_MODE)));
 }
 
 /* get a hold over the index table for logical update predicates */ 
@@ -4282,7 +4308,7 @@ p_hold_index(void)
   }
   if ((index = AtProp->Index) == NULL) {
     if (AtProp->NOfEntries < 2) {
-      return(unify(ARG2, TermNil) && unify(ARG3,MkIntTerm(AtProp->NOfEntries)));
+      return(_YAP_unify(ARG2, TermNil) && _YAP_unify(ARG3,MkIntTerm(AtProp->NOfEntries)));
     } else
       index = AtProp->Index = new_lu_index(AtProp);
   }
@@ -4298,8 +4324,8 @@ p_hold_index(void)
     TRAIL_REF(index);
   }
 #endif
-  return(unify(ARG2, MkDBRefTerm(index)) &&
-	 unify(ARG3,MkIntTerm(AtProp->NOfEntries)));
+  return(_YAP_unify(ARG2, MkDBRefTerm(index)) &&
+	 _YAP_unify(ARG3,MkIntTerm(AtProp->NOfEntries)));
 }
 
 static Int
@@ -4328,7 +4354,7 @@ p_fetch_reference_from_index(void)
     TRAIL_REF(el);
   }
 #endif
-  return(unify(ARG3, MkDBRefTerm(el)));
+  return(_YAP_unify(ARG3, MkDBRefTerm(el)));
 }
 
 static Int
@@ -4336,65 +4362,65 @@ p_resize_int_keys(void)
 {
   Term t1 = Deref(ARG1);
   if (IsVarTerm(t1)) {
-    return(unify(ARG1,MkIntegerTerm((Int)INT_KEYS_SIZE)));
+    return(_YAP_unify(ARG1,MkIntegerTerm((Int)INT_KEYS_SIZE)));
   }
   if (!IsIntegerTerm(t1)) {
-    Error(TYPE_ERROR_INTEGER, t1, "yap_flag(resize_db_int_keys,T)");
+    _YAP_Error(TYPE_ERROR_INTEGER, t1, "yap_flag(resize_db_int_keys,T)");
     return(FALSE);
   }
   return(resize_int_keys(IntegerOfTerm(t1)));
 }
 
 void 
-InitDBPreds(void)
+_YAP_InitDBPreds(void)
 {
-  InitCPred("$recorda", 3, p_rcda, SyncPredFlag);
-  InitCPred("$recordz", 3, p_rcdz, SyncPredFlag);
-  InitCPred("$recordap", 3, p_rcdap, SyncPredFlag);
-  InitCPred("$recordzp", 3, p_rcdzp, SyncPredFlag);
-  InitCPred("$recordap", 4, p_drcdap, SyncPredFlag);
-  InitCPred("$recordzp", 4, p_drcdzp, SyncPredFlag);
-  InitCPred("$recordaifnot", 3, p_rcdaifnot, SyncPredFlag);
-  InitCPred("$recordzifnot", 3, p_rcdzifnot, SyncPredFlag);
-  InitCPred("erase", 1, p_erase, SafePredFlag|SyncPredFlag);
-  InitCPred("erased", 1, p_erased, TestPredFlag | SafePredFlag|SyncPredFlag);
-  InitCPred("instance", 2, p_instance, SyncPredFlag);
-  InitCPred("eraseall", 1, p_eraseall, SafePredFlag|SyncPredFlag);
-  InitCPred("$record_stat_source", 4, p_rcdstatp, SafePredFlag|SyncPredFlag);
-  InitCPred("$some_recordedp", 1, p_somercdedp, SafePredFlag|SyncPredFlag);
-  InitCPred("$first_instance", 3, p_first_instance, SafePredFlag|SyncPredFlag);
-  InitCPred("$init_db_queue", 1, p_init_queue, SafePredFlag|SyncPredFlag);
-  InitCPred("$db_key", 2, p_db_key, 0);
-  InitCPred("$db_enqueue", 2, p_enqueue, SyncPredFlag);
-  InitCPred("$db_dequeue", 2, p_dequeue, SyncPredFlag);
-  InitCPred("$db_clean_queues", 1, p_clean_queues, SyncPredFlag);
-  InitCPred("$db_first_age", 2, p_first_age, TestPredFlag|SafePredFlag|SyncPredFlag);
-  InitCPred("$db_nb_to_ref", 3, p_db_nb_to_ref, TestPredFlag|SafePredFlag);
-  InitCPred("$db_last_age", 2, p_last_age, TestPredFlag|SafePredFlag|SyncPredFlag);
-  InitCPred("$switch_log_upd", 1, p_slu, SafePredFlag|SyncPredFlag);
-  InitCPred("$log_upd", 1, p_lu, SafePredFlag|SyncPredFlag);
-  InitCPred("$hold_index", 3, p_hold_index, SafePredFlag|SyncPredFlag);
-  InitCPred("$fetch_reference_from_index", 3, p_fetch_reference_from_index, SafePredFlag|SyncPredFlag);
-  InitCPred("$resize_int_keys", 1, p_resize_int_keys, SafePredFlag|SyncPredFlag);
+  _YAP_InitCPred("$recorda", 3, p_rcda, SyncPredFlag);
+  _YAP_InitCPred("$recordz", 3, p_rcdz, SyncPredFlag);
+  _YAP_InitCPred("$recordap", 3, p_rcdap, SyncPredFlag);
+  _YAP_InitCPred("$recordzp", 3, p_rcdzp, SyncPredFlag);
+  _YAP_InitCPred("$recordap", 4, p_drcdap, SyncPredFlag);
+  _YAP_InitCPred("$recordzp", 4, p_drcdzp, SyncPredFlag);
+  _YAP_InitCPred("$recordaifnot", 3, p_rcdaifnot, SyncPredFlag);
+  _YAP_InitCPred("$recordzifnot", 3, p_rcdzifnot, SyncPredFlag);
+  _YAP_InitCPred("erase", 1, p_erase, SafePredFlag|SyncPredFlag);
+  _YAP_InitCPred("erased", 1, p_erased, TestPredFlag | SafePredFlag|SyncPredFlag);
+  _YAP_InitCPred("instance", 2, p_instance, SyncPredFlag);
+  _YAP_InitCPred("eraseall", 1, p_eraseall, SafePredFlag|SyncPredFlag);
+  _YAP_InitCPred("$record_stat_source", 4, p_rcdstatp, SafePredFlag|SyncPredFlag);
+  _YAP_InitCPred("$some_recordedp", 1, p_somercdedp, SafePredFlag|SyncPredFlag);
+  _YAP_InitCPred("$first_instance", 3, p_first_instance, SafePredFlag|SyncPredFlag);
+  _YAP_InitCPred("$init_db_queue", 1, p_init_queue, SafePredFlag|SyncPredFlag);
+  _YAP_InitCPred("$db_key", 2, p_db_key, 0);
+  _YAP_InitCPred("$db_enqueue", 2, p_enqueue, SyncPredFlag);
+  _YAP_InitCPred("$db_dequeue", 2, p_dequeue, SyncPredFlag);
+  _YAP_InitCPred("$db_clean_queues", 1, p_clean_queues, SyncPredFlag);
+  _YAP_InitCPred("$db_first_age", 2, p_first_age, TestPredFlag|SafePredFlag|SyncPredFlag);
+  _YAP_InitCPred("$db_nb_to_ref", 3, p_db_nb_to_ref, TestPredFlag|SafePredFlag);
+  _YAP_InitCPred("$db_last_age", 2, p_last_age, TestPredFlag|SafePredFlag|SyncPredFlag);
+  _YAP_InitCPred("$switch_log_upd", 1, p_slu, SafePredFlag|SyncPredFlag);
+  _YAP_InitCPred("$log_upd", 1, p_lu, SafePredFlag|SyncPredFlag);
+  _YAP_InitCPred("$hold_index", 3, p_hold_index, SafePredFlag|SyncPredFlag);
+  _YAP_InitCPred("$fetch_reference_from_index", 3, p_fetch_reference_from_index, SafePredFlag|SyncPredFlag);
+  _YAP_InitCPred("$resize_int_keys", 1, p_resize_int_keys, SafePredFlag|SyncPredFlag);
 }
 
 void 
-InitBackDB(void)
+_YAP_InitBackDB(void)
 {
-  InitCPredBack("recorded", 3, 3, in_rded, co_rded, SyncPredFlag);
+  _YAP_InitCPredBack("recorded", 3, 3, in_rded, co_rded, SyncPredFlag);
   /* internal version, just to prevent the debugger from nosying around */
   RETRY_C_RECORDED_CODE = NEXTOP((yamop *)
-    (RepPredProp(PredPropByFunc(MkFunctor(LookupAtom("recorded"), 3),0))->FirstClause),lds);
-  InitCPredBack("$recorded_with_key", 3, 3, in_rded_with_key, co_rded, SyncPredFlag);
+    (RepPredProp(PredPropByFunc(_YAP_MkFunctor(_YAP_LookupAtom("recorded"), 3),0))->FirstClause),lds);
+  _YAP_InitCPredBack("$recorded_with_key", 3, 3, in_rded_with_key, co_rded, SyncPredFlag);
   RETRY_C_RECORDED_K_CODE = NEXTOP((yamop *)
-    (RepPredProp(PredPropByFunc(MkFunctor(LookupAtom("$recorded_with_key"), 3),0))->FirstClause),lds);
-  InitCPredBack("$recorded", 3, 3, in_rded, co_rded, SyncPredFlag);
+    (RepPredProp(PredPropByFunc(_YAP_MkFunctor(_YAP_LookupAtom("$recorded_with_key"), 3),0))->FirstClause),lds);
+  _YAP_InitCPredBack("$recorded", 3, 3, in_rded, co_rded, SyncPredFlag);
   RETRY_C_DRECORDED_CODE = NEXTOP((yamop *)
-    (RepPredProp(PredPropByFunc(MkFunctor(LookupAtom("$recorded"), 3),0))->FirstClause),lds);
-  InitCPredBack("$recordedp", 3, 3, in_rdedp, co_rdedp, SyncPredFlag);
+    (RepPredProp(PredPropByFunc(_YAP_MkFunctor(_YAP_LookupAtom("$recorded"), 3),0))->FirstClause),lds);
+  _YAP_InitCPredBack("$recordedp", 3, 3, in_rdedp, co_rdedp, SyncPredFlag);
   RETRY_C_RECORDEDP_CODE = NEXTOP((yamop *)
-    (RepPredProp(PredPropByFunc(MkFunctor(LookupAtom("$recordedp"), 3),0))->FirstClause),lds);
-  InitCPredBack("current_key", 2, 4, init_current_key, cont_current_key,
+    (RepPredProp(PredPropByFunc(_YAP_MkFunctor(_YAP_LookupAtom("$recordedp"), 3),0))->FirstClause),lds);
+  _YAP_InitCPredBack("current_key", 2, 4, init_current_key, cont_current_key,
 		SyncPredFlag);
 }
 

@@ -164,13 +164,13 @@ UpdateSVarList(sus_record *sl)
   /* make sl the new head of the suspension list, and update the list
      to use the old one. Note that the list is only bound once,
      MutableList is the one variable being updated all the time */
-  return((sus_record *)UpdateTimedVar(MutableList, (CELL)sl));
+  return((sus_record *)_YAP_UpdateTimedVar(MutableList, (CELL)sl));
 }
 
 inline static sus_record *
 GetSVarList(void)
 {
-  Term t = ReadTimedVar(MutableList);
+  Term t = _YAP_ReadTimedVar(MutableList);
   /* just return the start of the list */
   if (t == TermNil)
     return(NULL);
@@ -188,9 +188,9 @@ GetSVarList(void)
 
 */
 
-Term
+static Term
 ListOfWokenGoals(void) {
-  sus_record *pt = (sus_record *)ReadTimedVar(WokenGoals);
+  sus_record *pt = (sus_record *)_YAP_ReadTimedVar(WokenGoals);
   Term t;
 
   t = TermNil;
@@ -202,13 +202,19 @@ ListOfWokenGoals(void) {
   return(t);
 }
 
+Term
+_YAP_ListOfWokenGoals(void) {
+  return ListOfWokenGoals();
+}
+
+
 static void ReleaseGoals(sus_record *from)
 {
   /* follow the chain */
-  sus_record *WGs = (sus_record *)ReadTimedVar(WokenGoals);
+  sus_record *WGs = (sus_record *)_YAP_ReadTimedVar(WokenGoals);
 
   if ((Term)WGs == TermNil) {
-    UpdateTimedVar(WokenGoals, (CELL)from);
+    _YAP_UpdateTimedVar(WokenGoals, (CELL)from);
   } else {
     /* add to the end of the current list of suspended goals */
     CELL *where_to = (CELL *)Deref((CELL)WGs);
@@ -329,14 +335,14 @@ CopySuspendedVar(CELL *orig, CELL ***to_visit_ptr, CELL *res)
   register sus_tag *sreg = (sus_tag *)orig, *vs;
 
   /* add a new suspension */
-  vs = (sus_tag *)ReadTimedVar(DelayedVars);
+  vs = (sus_tag *)_YAP_ReadTimedVar(DelayedVars);
   if (H0 - (CELL *)vs < 1024)
     return(FALSE);
   RESET_VARIABLE(&(vs->ActiveSus));
   vs->sus_id = susp_ext;
   vs->SG = copy_suspended_goals(sreg->SG, to_visit_ptr);
   *res = (CELL)&(vs->ActiveSus);
-  UpdateTimedVar(DelayedVars, (CELL)(vs+1));
+  _YAP_UpdateTimedVar(DelayedVars, (CELL)(vs+1));
   return(TRUE);
 }
 
@@ -380,14 +386,14 @@ TermToSuspendedVar(Term gs, Term var)
 {
   register sus_tag *vs;
   /* add a new suspension */
-  vs = (sus_tag *)ReadTimedVar(DelayedVars);
+  vs = (sus_tag *)_YAP_ReadTimedVar(DelayedVars);
   if (H0 - (CELL *)vs < 1024)
     return(FALSE);
   RESET_VARIABLE(&(vs->ActiveSus));
   vs->sus_id = susp_ext;
   vs->SG = terms_to_suspended_goals(gs);
-  unify(var,(CELL)&(vs->ActiveSus));
-  UpdateTimedVar(DelayedVars, (CELL)(vs+1));
+  _YAP_unify(var,(CELL)&(vs->ActiveSus));
+  _YAP_UpdateTimedVar(DelayedVars, (CELL)(vs+1));
   return(TRUE);
 }
 
@@ -398,10 +404,10 @@ mark_sus_record(sus_record *sg)
   if (MARKED(((CELL)(sg->NR))))
     return;
   MARK(((CELL *)&(sg->NR)));
-  total_marked++;
-  mark_variable((CELL *)&(sg->SG));
+  _YAP_inc_mark_variable();
+  _YAP_mark_variable((CELL *)&(sg->SG));
 #ifdef MULTI_ASSIGNMENT_VARIABLES
-  total_marked++;
+  _YAP_inc_mark_variable();
   if (!IsAtomTerm((CELL)(sg->NS)))
     mark_sus_record(sg->NS);
   MARK(((CELL *)&(sg->NS)));
@@ -413,12 +419,12 @@ static void mark_suspended_goal(CELL *orig)
   register sus_tag *sreg = (sus_tag *)orig;
 
   mark_sus_record(sreg->SG);
-  mark_external_reference(((CELL *)&(sreg->SG)));
+  _YAP_mark_external_reference(((CELL *)&(sreg->SG)));
 }
 
 
 void
-mark_all_suspended_goals(void)
+_YAP_mark_all_suspended_goals(void)
 {
   sus_record *sg = GetSVarList();
   if (sg == NULL)
@@ -468,7 +474,7 @@ Wake(CELL *pt1, CELL reg2)
       /* binding two suspended variables, be careful */
       if (susp2->sus_id != susp_ext) {
 	/* joining two suspensions */
-	Error(SYSTEM_ERROR, TermNil, "joining two suspensions not implemented");
+	_YAP_Error(SYSTEM_ERROR, TermNil, "joining two suspensions not implemented");
 	return;
       }
       /* join the two suspended lists */
@@ -567,19 +573,19 @@ freeze_goal(Term t, Term g)
       id = (exts)(susp->sus_id);
       if (id != susp_ext) {
 	/* obtain the term */
-	Error(SYSTEM_ERROR,TermNil,"multiple suspensions not supported");
+	_YAP_Error(SYSTEM_ERROR,TermNil,"multiple suspensions not supported");
 	return(FALSE);
       }
 
       AddSuspendedGoal(g, susp->SG);
       return(TRUE);
     }
-    vs = (sus_tag *)ReadTimedVar(DelayedVars);
+    vs = (sus_tag *)_YAP_ReadTimedVar(DelayedVars);
     if (H0 - (CELL *)vs < 1024) {
       ARG1 = t;
       ARG2 = g;
-      if (!growglobal(NULL)) {
-	Error(SYSTEM_ERROR, t, ErrorMessage);
+      if (!_YAP_growglobal(NULL)) {
+	_YAP_Error(SYSTEM_ERROR, t, _YAP_ErrorMessage);
 	return FALSE;
       }
       t = ARG1;
@@ -597,13 +603,13 @@ freeze_goal(Term t, Term g)
     vs->sus_id = susp_ext;
     vs->SG = gf;
     RESET_VARIABLE(&(vs->ActiveSus));
-    UpdateTimedVar(DelayedVars, (CELL)(vs+1));
+    _YAP_UpdateTimedVar(DelayedVars, (CELL)(vs+1));
     Bind_Global((CELL *)t,(CELL)&(vs->ActiveSus));
     return(TRUE);
   }
   else {
     /* Oops, first argument was bound :-( */
-    Error(TYPE_ERROR_VARIABLE, t, "freeze/2");
+    _YAP_Error(TYPE_ERROR_VARIABLE, t, "freeze/2");
     return(FALSE);
   }
 }
@@ -615,7 +621,7 @@ p_read_svar_list(void)
 {
 #ifdef COROUTINING
 #ifdef MULTI_ASSIGNMENT_VARIABLES
-  return(unify(ARG1, MutableList) && unify(ARG2, AttsMutableList));
+  return(_YAP_unify(ARG1, MutableList) && _YAP_unify(ARG2, AttsMutableList));
 #else
   return(TRUE);
 #endif
@@ -719,7 +725,7 @@ static Int p_frozen_goals(void)
   }
   HB = B->cp_h;
 #endif
-  return(unify(ARG2,t));
+  return(_YAP_unify(ARG2,t));
 }
 
 /* return a queue with all goals frozen in the system */
@@ -727,11 +733,11 @@ static Int p_all_frozen_goals(void)
 {
 #ifdef COROUTINING
   /* initially, we do not know of any goals frozen */
-  Term t = CurrentAttVars();
+  Term t = _YAP_CurrentAttVars();
 #ifdef MULTI_ASSIGNMENT_VARIABLES
   sus_record *x = GetSVarList();
   if (x == NULL)
-    return(unify(ARG1,t));
+    return(_YAP_unify(ARG1,t));
   /* okay, we are on top of the list of variables. Let's burn rubber!
    */
   while ((CELL)x != TermNil) {
@@ -739,9 +745,9 @@ static Int p_all_frozen_goals(void)
     x = x->NS;
   }
 #endif
-  return(unify(ARG1,t));
+  return(_YAP_unify(ARG1,t));
 #else
-  return(unify(ARG1,TermNil));
+  return(_YAP_unify(ARG1,TermNil));
 #endif
 }
 
@@ -771,7 +777,7 @@ static int can_unify_complex(register CELL *pt0,
   CELL *saved_HB;
   choiceptr saved_B;
 
-  register CELL **to_visit = (CELL **)PreAllocCodeSpace();
+  register CELL **to_visit = (CELL **)_YAP_PreAllocCodeSpace();
   CELL **to_visit_base = to_visit;
 
   /* make sure to trail all bindings */
@@ -872,7 +878,7 @@ static int can_unify_complex(register CELL *pt0,
 	      goto comparison_failed;
 #ifdef USE_GMP
 	    case (CELL)FunctorBigInt:
-	      if (mpz_cmp(BigIntOfTerm(d0),BigIntOfTerm(d1)) == 0) continue;
+	      if (mpz_cmp(_YAP_BigIntOfTerm(d0),_YAP_BigIntOfTerm(d1)) == 0) continue;
 	      goto comparison_failed;
 #endif /* USE_GMP */
 	    default:
@@ -923,7 +929,7 @@ static int can_unify_complex(register CELL *pt0,
     goto loop;
   }
   /* success */
-  ReleasePreAllocCodeSpace((ADDR)to_visit);
+  _YAP_ReleasePreAllocCodeSpace((ADDR)to_visit);
   /* restore B, and later HB */
   B = saved_B;
   HB = saved_HB;
@@ -936,7 +942,7 @@ static int can_unify_complex(register CELL *pt0,
 
  comparison_failed:
   /* failure */
-  ReleasePreAllocCodeSpace((ADDR)to_visit);
+  _YAP_ReleasePreAllocCodeSpace((ADDR)to_visit);
 #ifdef RATIONAL_TREES
   while (to_visit > (CELL **)to_visit_base) {
     to_visit -= 4;
@@ -1009,7 +1015,7 @@ can_unify(Term t1, Term t2, Term *Vars)
 	return(FALSE);
 #ifdef USE_GMP
       case (CELL)FunctorBigInt:
-	if (mpz_cmp(BigIntOfTerm(t1),BigIntOfTerm(t2)) == 0) return(TRUE);
+	if (mpz_cmp(_YAP_BigIntOfTerm(t1),_YAP_BigIntOfTerm(t2)) == 0) return(TRUE);
 	return(FALSE);
 #endif /* USE_GMP */
       default:
@@ -1029,7 +1035,7 @@ static int non_ground_complex(register CELL *pt0,
 		Term  *Var)
 {
 
-  register CELL **to_visit = (CELL **)PreAllocCodeSpace();
+  register CELL **to_visit = (CELL **)_YAP_PreAllocCodeSpace();
   CELL **to_visit_base = to_visit;
 
  loop:
@@ -1107,12 +1113,12 @@ static int non_ground_complex(register CELL *pt0,
   }
 
   /* the term is ground */
-  ReleasePreAllocCodeSpace((ADDR)to_visit);
+  _YAP_ReleasePreAllocCodeSpace((ADDR)to_visit);
   return(FALSE);
 
  var_found:
   /* the term is non-ground */
-  ReleasePreAllocCodeSpace((ADDR)to_visit);
+  _YAP_ReleasePreAllocCodeSpace((ADDR)to_visit);
 #ifdef RATIONAL_TREES
   while (to_visit > (CELL **)to_visit_base) {
     to_visit -= 3;
@@ -1159,7 +1165,7 @@ static Int p_can_unify(void)
   Term r = TermNil;
   if (!can_unify(ARG1, ARG2, &r))
     return(FALSE);
-  return (unify(ARG3, r));
+  return (_YAP_unify(ARG3, r));
 #else
   return(FALSE);
 #endif
@@ -1172,7 +1178,7 @@ static Int p_non_ground(void)
   Term r;
   if (!non_ground(ARG1, &r))
     return(FALSE);
-  return (unify(ARG2, r));
+  return (_YAP_unify(ARG2, r));
 #else
   return(FALSE);
 #endif
@@ -1192,13 +1198,13 @@ static Int p_coroutining(void)
 static Int p_awoken_goals(void)
 {
 #ifdef COROUTINING
-  Term WGs = ReadTimedVar(WokenGoals);
+  Term WGs = _YAP_ReadTimedVar(WokenGoals);
   if (WGs == TermNil) {
     return(FALSE);
   }
   WGs = ListOfWokenGoals();
-  UpdateTimedVar(WokenGoals, TermNil);
-  return(unify(ARG1,WGs));
+  _YAP_UpdateTimedVar(WokenGoals, TermNil);
+  return(_YAP_unify(ARG1,WGs));
 #else
   return(FALSE);
 #endif
@@ -1206,7 +1212,7 @@ static Int p_awoken_goals(void)
 
 #ifdef COROUTINING
 void
-WakeUp(CELL *pt0) {
+_YAP_WakeUp(CELL *pt0) {
   CELL d0 = *pt0;
   RESET_VARIABLE(pt0);
   TR--;
@@ -1215,7 +1221,7 @@ WakeUp(CELL *pt0) {
 #endif
 
 
-void InitCoroutPreds(void)
+void _YAP_InitCoroutPreds(void)
 {
 #ifdef COROUTINING
   Atom            at;
@@ -1226,21 +1232,21 @@ void InitCoroutPreds(void)
   attas[susp_ext].to_term_op = SuspendedVarToTerm;
   attas[susp_ext].term_to_op = TermToSuspendedVar;
   attas[susp_ext].mark_op = mark_suspended_goal;
-  at = LookupAtom("$wake_up_goal");
-  pred = RepPredProp(PredPropByFunc(MkFunctor(at, 2),0));
+  at = _YAP_LookupAtom("$wake_up_goal");
+  pred = RepPredProp(PredPropByFunc(_YAP_MkFunctor(at, 2),0));
   WakeUpCode = pred;
-  InitAttVarPreds();
+  _YAP_InitAttVarPreds();
 #endif /* COROUTINING */
-  InitCPred("$read_svar_list", 2, p_read_svar_list, SafePredFlag);
-  InitCPred("$set_svar_list", 2, p_set_svar_list, SafePredFlag);
-  InitCPred("$freeze", 2, p_freeze, 0);
-  InitCPred("freeze_on_first", 2, p_freeze_on_first, TestPredFlag);
-  InitCPred("$frozen_goals", 2, p_frozen_goals, SafePredFlag);
-  InitCPred("$all_frozen_goals", 1, p_all_frozen_goals, SafePredFlag);
-  InitCPred("$can_unify", 3, p_can_unify, SafePredFlag);
-  InitCPred("$non_ground", 2, p_non_ground, SafePredFlag);
-  InitCPred("$coroutining", 0, p_coroutining, SafePredFlag);
-  InitCPred("$awoken_goals", 1, p_awoken_goals, SafePredFlag);
+  _YAP_InitCPred("$read_svar_list", 2, p_read_svar_list, SafePredFlag);
+  _YAP_InitCPred("$set_svar_list", 2, p_set_svar_list, SafePredFlag);
+  _YAP_InitCPred("$freeze", 2, p_freeze, 0);
+  _YAP_InitCPred("freeze_on_first", 2, p_freeze_on_first, TestPredFlag);
+  _YAP_InitCPred("$frozen_goals", 2, p_frozen_goals, SafePredFlag);
+  _YAP_InitCPred("$all_frozen_goals", 1, p_all_frozen_goals, SafePredFlag);
+  _YAP_InitCPred("$can_unify", 3, p_can_unify, SafePredFlag);
+  _YAP_InitCPred("$non_ground", 2, p_non_ground, SafePredFlag);
+  _YAP_InitCPred("$coroutining", 0, p_coroutining, SafePredFlag);
+  _YAP_InitCPred("$awoken_goals", 1, p_awoken_goals, SafePredFlag);
 }
 
 

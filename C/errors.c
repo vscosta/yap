@@ -36,9 +36,9 @@ STATIC_PROTO (int legal_env, (CELL *));
 void STD_PROTO (DumpActiveGoals, (void));
 STATIC_PROTO (void detect_bug_location, (yamop *,char *, int));
 
-#define ONHEAP(ptr) (CellPtr(ptr) >= CellPtr(HeapBase)  && CellPtr(ptr) < CellPtr(HeapTop))
+#define ONHEAP(ptr) (CellPtr(ptr) >= CellPtr(_YAP_HeapBase)  && CellPtr(ptr) < CellPtr(HeapTop))
 
-#define ONLOCAL(ptr) (CellPtr(ptr) > CellPtr(H)  && CellPtr(ptr) < CellPtr(LocalBase))
+#define ONLOCAL(ptr) (CellPtr(ptr) > CellPtr(H)  && CellPtr(ptr) < CellPtr(_YAP_LocalBase))
 
 static int
 hidden (Atom at)
@@ -115,16 +115,16 @@ DumpActiveGoals (void)
 	  if (first++ == 1)
 	    fprintf(stderr,"Active ancestors:\n");
 	  if (pe->ModuleOfPred) mod = IntOfTerm(pe->ModuleOfPred);
-	  plwrite (ModuleName[mod], DebugPutc, 0);
-	  DebugPutc (c_output_stream,':');
+	  _YAP_plwrite (ModuleName[mod], _YAP_DebugPutc, 0);
+	  _YAP_DebugPutc (_YAP_c_error_stream,':');
 	  if (pe->ArityOfPE == 0) {
-	    plwrite (MkAtomTerm ((Atom)f), DebugPutc, 0);
+	    _YAP_plwrite (MkAtomTerm ((Atom)f), _YAP_DebugPutc, 0);
 	  } else {
-	    plwrite (MkAtomTerm (NameOfFunctor (f)), DebugPutc, 0);
-	    DebugPutc (c_output_stream,'/');
-	    plwrite (MkIntTerm (ArityOfFunctor (f)), DebugPutc, 0);
+	    _YAP_plwrite (MkAtomTerm (NameOfFunctor (f)), _YAP_DebugPutc, 0);
+	    _YAP_DebugPutc (_YAP_c_error_stream,'/');
+	    _YAP_plwrite (MkIntTerm (ArityOfFunctor (f)), _YAP_DebugPutc, 0);
 	  }
-	  DebugPutc (c_output_stream,'\n');
+	  _YAP_DebugPutc (_YAP_c_error_stream,'\n');
 	}
     next:
       READ_UNLOCK(pe->PRWLock);
@@ -139,13 +139,13 @@ DumpActiveGoals (void)
       
       if (!ONLOCAL (b_ptr) || b_ptr->cp_b == NULL)
 	break;
-      opnum = op_from_opcode(b_ptr->cp_ap->opc);
+      opnum = _YAP_op_from_opcode(b_ptr->cp_ap->opc);
     restart_cp:
       switch(opnum) {
       case _or_else:
 	if (b_ptr->cp_ap == (yamop *)(b_ptr->cp_ap->u.sla.l))
 	  {
-	    plwrite(MkAtomTerm(LookupAtom("repeat ")), DebugPutc, 0);
+	    _YAP_plwrite(MkAtomTerm(_YAP_LookupAtom("repeat ")), _YAP_DebugPutc, 0);
 	  }
       case _or_last:
 #ifdef YAPOR
@@ -155,10 +155,10 @@ DumpActiveGoals (void)
 #endif /* YAPOR */
 	break;
       case _retry_profiled:
-	opnum = op_from_opcode(NEXTOP(b_ptr->cp_ap,l)->opc);
+	opnum = _YAP_op_from_opcode(NEXTOP(b_ptr->cp_ap,l)->opc);
 	goto restart_cp;
       case _count_retry_me:
-	opnum = op_from_opcode(NEXTOP(b_ptr->cp_ap,l)->opc);
+	opnum = _YAP_op_from_opcode(NEXTOP(b_ptr->cp_ap,l)->opc);
 	goto restart_cp;
       default:
 	pe = (PredEntry *)(b_ptr->cp_ap->u.ld.p);
@@ -170,39 +170,28 @@ DumpActiveGoals (void)
 
 	f = pe->FunctorOfPred;
 	if (pe->ModuleOfPred) mod = IntOfTerm(pe->ModuleOfPred);
-	plwrite (ModuleName[mod], DebugPutc, 0);
-	DebugPutc (c_output_stream,':');
+	_YAP_plwrite (ModuleName[mod], _YAP_DebugPutc, 0);
+	_YAP_DebugPutc (_YAP_c_error_stream,':');
 	if (pe->ArityOfPE == 0) {
-	  plwrite (MkAtomTerm (NameOfFunctor(f)), DebugPutc, 0);
+	  _YAP_plwrite (MkAtomTerm (NameOfFunctor(f)), _YAP_DebugPutc, 0);
 	} else {
 	  Int i = 0, arity = pe->ArityOfPE;
 	  Term *args = &(b_ptr->cp_a1);
-	  plwrite (MkAtomTerm (NameOfFunctor (f)), DebugPutc, 0);
-	  DebugPutc (c_output_stream,'(');
+	  _YAP_plwrite (MkAtomTerm (NameOfFunctor (f)), _YAP_DebugPutc, 0);
+	  _YAP_DebugPutc (_YAP_c_error_stream,'(');
 	  for (i= 0; i < arity; i++) {
-	    if (i > 0) DebugPutc (c_output_stream,',');
-	    plwrite(args[i], DebugPutc, Handle_vars_f);
+	    if (i > 0) _YAP_DebugPutc (_YAP_c_error_stream,',');
+	    _YAP_plwrite(args[i], _YAP_DebugPutc, Handle_vars_f);
 	  }
-	  DebugPutc (c_output_stream,')');
+	  _YAP_DebugPutc (_YAP_c_error_stream,')');
 	}
-	DebugPutc (c_output_stream,'\n');
+	_YAP_DebugPutc (_YAP_c_error_stream,'\n');
       }
       READ_UNLOCK(pe->PRWLock);
       b_ptr = b_ptr->cp_b;
     }
 }
 #endif /* DEBUG */
-
-void
-exit_yap (int value)
-{
-#if defined(YAPOR)
-  unmap_memory();
-#endif /* YAPOR || TABLING */
-  if (! (PrologMode & BootMode) )
-    ShutdownLoadForeign();
-  exit(value);
-}
 
 static void
 detect_bug_location(yamop *yap_pc, char *tp, int psize)
@@ -212,7 +201,7 @@ detect_bug_location(yamop *yap_pc, char *tp, int psize)
   SMALLUNSGN pred_module;
   Int cl;
 
-  if ((cl = PredForCode((CODEADDR)yap_pc, &pred_name, &pred_arity, &pred_module))
+  if ((cl = _YAP_PredForCode((CODEADDR)yap_pc, &pred_name, &pred_arity, &pred_module))
       == 0) {
     /* system predicate */
 #if   HAVE_SNPRINTF
@@ -308,7 +297,7 @@ dump_stack(void)
   
   if (H > ASP || H > LCL0) {
     fprintf(stderr,"[ YAP ERROR: Global Collided against Local ]\n");
-  } else   if (HeapTop > (ADDR)GlobalBase) {
+  } else   if (HeapTop > (ADDR)_YAP_GlobalBase) {
     fprintf(stderr,"[ YAP ERROR: Code Space Collided against Global ]\n");
   } else {
     if (b_ptr != NULL) {
@@ -334,9 +323,9 @@ dump_stack(void)
 static void
 error_exit_yap (int value)
 {
-  if (!PrologMode & BootMode)
+  if (!_YAP_PrologMode & BootMode)
     dump_stack();
-  exit_yap(value);
+  _YAP_exit(value);
 }
 
 
@@ -344,12 +333,14 @@ error_exit_yap (int value)
 
 #include <stdio.h>
 
-void
+/*
+static void
 bug_location(yamop *pc)
 {
   detect_bug_location(pc, (char *)H, 256);
   fprintf(stderr,"%s\n",(char *)H);
 }
+*/
 #endif
 
 /* This needs to be a static because I can't trust the stack (WIN32), and
@@ -359,7 +350,7 @@ bug_location(yamop *pc)
 static char tmpbuf[YAP_BUF_SIZE];
 
 yamop *
-Error (yap_error_number type, Term where, char *format,...)
+_YAP_Error (yap_error_number type, Term where, char *format,...)
 {
   va_list ap;
   CELL nt[3];
@@ -371,10 +362,10 @@ Error (yap_error_number type, Term where, char *format,...)
   if (type == INTERRUPT_ERROR) {
     fprintf(stderr,"[ YAP exiting: cannot handle signal %d ]\n",
 	    (int)IntOfTerm(where));
-    exit_yap(1);
+    _YAP_exit(1);
   }
   /* disallow recursive error handling */ 
-  if (PrologMode & InErrorMode) {
+  if (_YAP_PrologMode & InErrorMode) {
     /* error within error */
     va_start (ap, format);
     /* now build the error string */
@@ -392,7 +383,7 @@ Error (yap_error_number type, Term where, char *format,...)
     exit(1);
   }
   /* must do this here */
-  if (type == FATAL_ERROR || HeapBase == NULL) {
+  if (type == FATAL_ERROR || _YAP_HeapBase == NULL) {
     va_start (ap, format);
     /* now build the error string */
     if (format != NULL) {
@@ -411,23 +402,23 @@ Error (yap_error_number type, Term where, char *format,...)
   if (P == (yamop *)(FAILCODE))
    return(P);
   /* PURE_ABORT may not have set where correctly, BootMode may not have the data terms ready */
-  if (type == PURE_ABORT || PrologMode & BootMode) {
+  if (type == PURE_ABORT || _YAP_PrologMode & BootMode) {
     where = TermNil;
-    PrologMode &= ~AbortMode;
-    PrologMode |= InErrorMode;
+    _YAP_PrologMode &= ~AbortMode;
+    _YAP_PrologMode |= InErrorMode;
   } else {
     if (type != SYNTAX_ERROR)
-      where = CopyTerm(Deref(where));
+      where = _YAP_CopyTerm(Deref(where));
     if (IsVarTerm(where)) {
       /* we must be careful someone gave us a copy to a local variable */
       Term t = MkVarTerm();
-      unify(t, where);
+      _YAP_unify(t, where);
       where = Deref(where);
     }
     /* Exit Abort Mode, if we were there */
-    PrologMode &= ~AbortMode;
-    PrologMode |= InErrorMode;
-    where = CopyTerm(where);
+    _YAP_PrologMode &= ~AbortMode;
+    _YAP_PrologMode |= InErrorMode;
+    where = _YAP_CopyTerm(where);
   }
   va_start (ap, format);
   /* now build the error string */
@@ -442,7 +433,7 @@ Error (yap_error_number type, Term where, char *format,...)
   else
     tmpbuf[0] = '\0';
   va_end (ap);
-  if (PrologMode & BootMode) {
+  if (_YAP_PrologMode & BootMode) {
     /* crash in flames! */
     fprintf(stderr,"[ Fatal Error: %s exiting.... ]\n",tmpbuf);
     error_exit_yap (1);
@@ -469,29 +460,29 @@ Error (yap_error_number type, Term where, char *format,...)
       error_exit_yap (1);
     }
   case PURE_ABORT:
-    nt[0] = MkAtomTerm(LookupAtom(tmpbuf));
-    fun = MkFunctor(LookupAtom("abort"),2);
+    nt[0] = MkAtomTerm(_YAP_LookupAtom(tmpbuf));
+    fun = _YAP_MkFunctor(_YAP_LookupAtom("abort"),2);
     serious = TRUE;
     break;
   case CALL_COUNTER_UNDERFLOW:
     /* Do a long jump */
     PredEntriesCounter--;
-    JumpToEnv(MkAtomTerm(LookupAtom("call_counter")));
+    _YAP_JumpToEnv(MkAtomTerm(_YAP_LookupAtom("call_counter")));
     P = (yamop *)FAILCODE;
-    PrologMode &= ~InErrorMode;
+    _YAP_PrologMode &= ~InErrorMode;
     return(P);
   case PRED_ENTRY_COUNTER_UNDERFLOW:
     /* Do a long jump */
-    JumpToEnv(MkAtomTerm(LookupAtom("call_and_retry_counter")));
+    _YAP_JumpToEnv(MkAtomTerm(_YAP_LookupAtom("call_and_retry_counter")));
     P = (yamop *)FAILCODE;
-    PrologMode &= ~InErrorMode;
+    _YAP_PrologMode &= ~InErrorMode;
     return(P);
   case RETRY_COUNTER_UNDERFLOW:
     /* Do a long jump */
     PredEntriesCounter--;
-    JumpToEnv(MkAtomTerm(LookupAtom("retry_counter")));
+    _YAP_JumpToEnv(MkAtomTerm(_YAP_LookupAtom("retry_counter")));
     P = (yamop *)FAILCODE;
-    PrologMode &= ~InErrorMode;
+    _YAP_PrologMode &= ~InErrorMode;
     return(P);
   case DOMAIN_ERROR_ARRAY_OVERFLOW:
     {
@@ -499,12 +490,12 @@ Error (yap_error_number type, Term where, char *format,...)
       Term ti[2];
 
       i = strlen(tmpbuf);
-      ti[0] = MkAtomTerm(LookupAtom("array_overflow"));
+      ti[0] = MkAtomTerm(_YAP_LookupAtom("array_overflow"));
       ti[1] = where;
-      nt[0] = MkApplTerm(MkFunctor(LookupAtom("domain_error"),2), 2, ti);
+      nt[0] = _YAP_MkApplTerm(_YAP_MkFunctor(_YAP_LookupAtom("domain_error"),2), 2, ti);
       tp = tmpbuf+i;
       psize -= i;
-      fun = MkFunctor(LookupAtom("error"),2);
+      fun = _YAP_MkFunctor(_YAP_LookupAtom("error"),2);
       serious = TRUE;
     }
     break;
@@ -514,12 +505,12 @@ Error (yap_error_number type, Term where, char *format,...)
       Term ti[2];
 
       i = strlen(tmpbuf);
-      ti[0] = MkAtomTerm(LookupAtom("array_type"));
+      ti[0] = MkAtomTerm(_YAP_LookupAtom("array_type"));
       ti[1] = where;
-      nt[0] = MkApplTerm(MkFunctor(LookupAtom("domain_error"),2), 2, ti);
+      nt[0] = _YAP_MkApplTerm(_YAP_MkFunctor(_YAP_LookupAtom("domain_error"),2), 2, ti);
       tp = tmpbuf+i;
       psize -= i;
-      fun = MkFunctor(LookupAtom("error"),2);
+      fun = _YAP_MkFunctor(_YAP_LookupAtom("error"),2);
       serious = TRUE;
     }
     break;
@@ -529,12 +520,12 @@ Error (yap_error_number type, Term where, char *format,...)
       Term ti[2];
 
       i = strlen(tmpbuf);
-      ti[0] = MkAtomTerm(LookupAtom("io_mode"));
+      ti[0] = MkAtomTerm(_YAP_LookupAtom("io_mode"));
       ti[1] = where;
-      nt[0] = MkApplTerm(MkFunctor(LookupAtom("domain_error"),2), 2, ti);
+      nt[0] = _YAP_MkApplTerm(_YAP_MkFunctor(_YAP_LookupAtom("domain_error"),2), 2, ti);
       tp = tmpbuf+i;
       psize -= i;
-      fun = MkFunctor(LookupAtom("error"),2);
+      fun = _YAP_MkFunctor(_YAP_LookupAtom("error"),2);
       serious = TRUE;
     }
     break;
@@ -544,12 +535,12 @@ Error (yap_error_number type, Term where, char *format,...)
       Term ti[2];
 
       i = strlen(tmpbuf);
-      ti[0] = MkAtomTerm(LookupAtom("mutable"));
+      ti[0] = MkAtomTerm(_YAP_LookupAtom("mutable"));
       ti[1] = where;
-      nt[0] = MkApplTerm(MkFunctor(LookupAtom("domain_error"),2), 2, ti);
+      nt[0] = _YAP_MkApplTerm(_YAP_MkFunctor(_YAP_LookupAtom("domain_error"),2), 2, ti);
       tp = tmpbuf+i;
       psize -= i;
-      fun = MkFunctor(LookupAtom("error"),2);
+      fun = _YAP_MkFunctor(_YAP_LookupAtom("error"),2);
       serious = TRUE;
     }
     break;
@@ -559,12 +550,12 @@ Error (yap_error_number type, Term where, char *format,...)
       Term ti[2];
 
       i = strlen(tmpbuf);
-      ti[0] = MkAtomTerm(LookupAtom("non_empty_list"));
+      ti[0] = MkAtomTerm(_YAP_LookupAtom("non_empty_list"));
       ti[1] = where;
-      nt[0] = MkApplTerm(MkFunctor(LookupAtom("domain_error"),2), 2, ti);
+      nt[0] = _YAP_MkApplTerm(_YAP_MkFunctor(_YAP_LookupAtom("domain_error"),2), 2, ti);
       tp = tmpbuf+i;
       psize -= i;
-      fun = MkFunctor(LookupAtom("error"),2);
+      fun = _YAP_MkFunctor(_YAP_LookupAtom("error"),2);
       serious = TRUE;
     }
     break;
@@ -574,12 +565,12 @@ Error (yap_error_number type, Term where, char *format,...)
       Term ti[2];
 
       i = strlen(tmpbuf);
-      ti[0] = MkAtomTerm(LookupAtom("not_less_than_zero"));
+      ti[0] = MkAtomTerm(_YAP_LookupAtom("not_less_than_zero"));
       ti[1] = where;
-      nt[0] = MkApplTerm(MkFunctor(LookupAtom("domain_error"),2), 2, ti);
+      nt[0] = _YAP_MkApplTerm(_YAP_MkFunctor(_YAP_LookupAtom("domain_error"),2), 2, ti);
       tp = tmpbuf+i;
       psize -= i;
-      fun = MkFunctor(LookupAtom("error"),2);
+      fun = _YAP_MkFunctor(_YAP_LookupAtom("error"),2);
       serious = TRUE;
     }
     break;
@@ -589,12 +580,12 @@ Error (yap_error_number type, Term where, char *format,...)
       Term ti[2];
 
       i = strlen(tmpbuf);
-      ti[0] = MkAtomTerm(LookupAtom("not_newline"));
+      ti[0] = MkAtomTerm(_YAP_LookupAtom("not_newline"));
       ti[1] = where;
-      nt[0] = MkApplTerm(MkFunctor(LookupAtom("domain_error"),2), 2, ti);
+      nt[0] = _YAP_MkApplTerm(_YAP_MkFunctor(_YAP_LookupAtom("domain_error"),2), 2, ti);
       tp = tmpbuf+i;
       psize -= i;
-      fun = MkFunctor(LookupAtom("error"),2);
+      fun = _YAP_MkFunctor(_YAP_LookupAtom("error"),2);
       serious = TRUE;
     }
     break;
@@ -604,12 +595,12 @@ Error (yap_error_number type, Term where, char *format,...)
       Term ti[2];
 
       i = strlen(tmpbuf);
-      ti[0] = MkAtomTerm(LookupAtom("not_zero"));
+      ti[0] = MkAtomTerm(_YAP_LookupAtom("not_zero"));
       ti[1] = where;
-      nt[0] = MkApplTerm(MkFunctor(LookupAtom("domain_error"),2), 2, ti);
+      nt[0] = _YAP_MkApplTerm(_YAP_MkFunctor(_YAP_LookupAtom("domain_error"),2), 2, ti);
       tp = tmpbuf+i;
       psize -= i;
-      fun = MkFunctor(LookupAtom("error"),2);
+      fun = _YAP_MkFunctor(_YAP_LookupAtom("error"),2);
       serious = TRUE;
     }
     break;
@@ -619,12 +610,12 @@ Error (yap_error_number type, Term where, char *format,...)
       Term ti[2];
 
       i = strlen(tmpbuf);
-      ti[0] = MkAtomTerm(LookupAtom("out_of_range"));
+      ti[0] = MkAtomTerm(_YAP_LookupAtom("out_of_range"));
       ti[1] = where;
-      nt[0] = MkApplTerm(MkFunctor(LookupAtom("domain_error"),2), 2, ti);
+      nt[0] = _YAP_MkApplTerm(_YAP_MkFunctor(_YAP_LookupAtom("domain_error"),2), 2, ti);
       tp = tmpbuf+i;
       psize -= i;
-      fun = MkFunctor(LookupAtom("error"),2);
+      fun = _YAP_MkFunctor(_YAP_LookupAtom("error"),2);
       serious = TRUE;
     }
     break;
@@ -634,12 +625,12 @@ Error (yap_error_number type, Term where, char *format,...)
       Term ti[2];
 
       i = strlen(tmpbuf);
-      ti[0] = MkAtomTerm(LookupAtom("operator_priority"));
+      ti[0] = MkAtomTerm(_YAP_LookupAtom("operator_priority"));
       ti[1] = where;
-      nt[0] = MkApplTerm(MkFunctor(LookupAtom("domain_error"),2), 2, ti);
+      nt[0] = _YAP_MkApplTerm(_YAP_MkFunctor(_YAP_LookupAtom("domain_error"),2), 2, ti);
       tp = tmpbuf+i;
       psize -= i;
-      fun = MkFunctor(LookupAtom("error"),2);
+      fun = _YAP_MkFunctor(_YAP_LookupAtom("error"),2);
       serious = TRUE;
     }
     break;
@@ -649,12 +640,12 @@ Error (yap_error_number type, Term where, char *format,...)
       Term ti[2];
 
       i = strlen(tmpbuf);
-      ti[0] = MkAtomTerm(LookupAtom("operator_specifier"));
+      ti[0] = MkAtomTerm(_YAP_LookupAtom("operator_specifier"));
       ti[1] = where;
-      nt[0] = MkApplTerm(MkFunctor(LookupAtom("domain_error"),2), 2, ti);
+      nt[0] = _YAP_MkApplTerm(_YAP_MkFunctor(_YAP_LookupAtom("domain_error"),2), 2, ti);
       tp = tmpbuf+i;
       psize -= i;
-      fun = MkFunctor(LookupAtom("error"),2);
+      fun = _YAP_MkFunctor(_YAP_LookupAtom("error"),2);
       serious = TRUE;
     }
     break;
@@ -664,12 +655,12 @@ Error (yap_error_number type, Term where, char *format,...)
       Term ti[2];
 
       i = strlen(tmpbuf);
-      ti[0] = MkAtomTerm(LookupAtom("radix"));
+      ti[0] = MkAtomTerm(_YAP_LookupAtom("radix"));
       ti[1] = where;
-      nt[0] = MkApplTerm(MkFunctor(LookupAtom("domain_error"),2), 2, ti);
+      nt[0] = _YAP_MkApplTerm(_YAP_MkFunctor(_YAP_LookupAtom("domain_error"),2), 2, ti);
       tp = tmpbuf+i;
       psize -= i;
-      fun = MkFunctor(LookupAtom("error"),2);
+      fun = _YAP_MkFunctor(_YAP_LookupAtom("error"),2);
       serious = TRUE;
     }
     break;
@@ -679,12 +670,12 @@ Error (yap_error_number type, Term where, char *format,...)
       Term ti[2];
 
       i = strlen(tmpbuf);
-      ti[0] = MkAtomTerm(LookupAtom("shift_count_overflow"));
+      ti[0] = MkAtomTerm(_YAP_LookupAtom("shift_count_overflow"));
       ti[1] = where;
-      nt[0] = MkApplTerm(MkFunctor(LookupAtom("domain_error"),2), 2, ti);
+      nt[0] = _YAP_MkApplTerm(_YAP_MkFunctor(_YAP_LookupAtom("domain_error"),2), 2, ti);
       tp = tmpbuf+i;
       psize -= i;
-      fun = MkFunctor(LookupAtom("error"),2);
+      fun = _YAP_MkFunctor(_YAP_LookupAtom("error"),2);
       serious = TRUE;
     }
     break;
@@ -694,12 +685,12 @@ Error (yap_error_number type, Term where, char *format,...)
       Term ti[2];
 
       i = strlen(tmpbuf);
-      ti[0] = MkAtomTerm(LookupAtom("source_sink"));
+      ti[0] = MkAtomTerm(_YAP_LookupAtom("source_sink"));
       ti[1] = where;
-      nt[0] = MkApplTerm(MkFunctor(LookupAtom("domain_error"),2), 2, ti);
+      nt[0] = _YAP_MkApplTerm(_YAP_MkFunctor(_YAP_LookupAtom("domain_error"),2), 2, ti);
       tp = tmpbuf+i;
       psize -= i;
-      fun = MkFunctor(LookupAtom("error"),2);
+      fun = _YAP_MkFunctor(_YAP_LookupAtom("error"),2);
       serious = TRUE;
     }
     break;
@@ -709,12 +700,12 @@ Error (yap_error_number type, Term where, char *format,...)
       Term ti[2];
 
       i = strlen(tmpbuf);
-      ti[0] = MkAtomTerm(LookupAtom("stream"));
+      ti[0] = MkAtomTerm(_YAP_LookupAtom("stream"));
       ti[1] = where;
-      nt[0] = MkApplTerm(MkFunctor(LookupAtom("domain_error"),2), 2, ti);
+      nt[0] = _YAP_MkApplTerm(_YAP_MkFunctor(_YAP_LookupAtom("domain_error"),2), 2, ti);
       tp = tmpbuf+i;
       psize -= i;
-      fun = MkFunctor(LookupAtom("error"),2);
+      fun = _YAP_MkFunctor(_YAP_LookupAtom("error"),2);
       serious = TRUE;
     }
     break;
@@ -724,12 +715,12 @@ Error (yap_error_number type, Term where, char *format,...)
       Term ti[2];
 
       i = strlen(tmpbuf);
-      ti[0] = MkAtomTerm(LookupAtom("stream_or_alias"));
+      ti[0] = MkAtomTerm(_YAP_LookupAtom("stream_or_alias"));
       ti[1] = where;
-      nt[0] = MkApplTerm(MkFunctor(LookupAtom("domain_error"),2), 2, ti);
+      nt[0] = _YAP_MkApplTerm(_YAP_MkFunctor(_YAP_LookupAtom("domain_error"),2), 2, ti);
       tp = tmpbuf+i;
       psize -= i;
-      fun = MkFunctor(LookupAtom("error"),2);
+      fun = _YAP_MkFunctor(_YAP_LookupAtom("error"),2);
       serious = TRUE;
     }
     break;
@@ -739,12 +730,12 @@ Error (yap_error_number type, Term where, char *format,...)
       Term ti[2];
 
       i = strlen(tmpbuf);
-      ti[0] = MkAtomTerm(LookupAtom("stream_position"));
+      ti[0] = MkAtomTerm(_YAP_LookupAtom("stream_position"));
       ti[1] = where;
-      nt[0] = MkApplTerm(MkFunctor(LookupAtom("domain_error"),2), 2, ti);
+      nt[0] = _YAP_MkApplTerm(_YAP_MkFunctor(_YAP_LookupAtom("domain_error"),2), 2, ti);
       tp = tmpbuf+i;
       psize -= i;
-      fun = MkFunctor(LookupAtom("error"),2);
+      fun = _YAP_MkFunctor(_YAP_LookupAtom("error"),2);
       serious = TRUE;
     }
     break;
@@ -754,12 +745,12 @@ Error (yap_error_number type, Term where, char *format,...)
       Term ti[2];
 
       i = strlen(tmpbuf);
-      ti[0] = MkAtomTerm(LookupAtom("syntax_error_handler"));
+      ti[0] = MkAtomTerm(_YAP_LookupAtom("syntax_error_handler"));
       ti[1] = where;
-      nt[0] = MkApplTerm(MkFunctor(LookupAtom("domain_error"),2), 2, ti);
+      nt[0] = _YAP_MkApplTerm(_YAP_MkFunctor(_YAP_LookupAtom("domain_error"),2), 2, ti);
       tp = tmpbuf+i;
       psize -= i;
-      fun = MkFunctor(LookupAtom("error"),2);
+      fun = _YAP_MkFunctor(_YAP_LookupAtom("error"),2);
       serious = TRUE;
     }
     break;
@@ -769,12 +760,12 @@ Error (yap_error_number type, Term where, char *format,...)
       Term ti[2];
 
       i = strlen(tmpbuf);
-      ti[0] = MkAtomTerm(LookupAtom("time_out_spec"));
+      ti[0] = MkAtomTerm(_YAP_LookupAtom("time_out_spec"));
       ti[1] = where;
-      nt[0] = MkApplTerm(MkFunctor(LookupAtom("domain_error"),2), 2, ti);
+      nt[0] = _YAP_MkApplTerm(_YAP_MkFunctor(_YAP_LookupAtom("domain_error"),2), 2, ti);
       tp = tmpbuf+i;
       psize -= i;
-      fun = MkFunctor(LookupAtom("error"),2);
+      fun = _YAP_MkFunctor(_YAP_LookupAtom("error"),2);
       serious = TRUE;
     }
     break;
@@ -784,12 +775,12 @@ Error (yap_error_number type, Term where, char *format,...)
       Term ti[2];
 
       i = strlen(tmpbuf);
-      ti[0] = MkAtomTerm(LookupAtom("source_sink"));
+      ti[0] = MkAtomTerm(_YAP_LookupAtom("source_sink"));
       ti[1] = where;
-      nt[0] = MkApplTerm(MkFunctor(LookupAtom("existence_error"),2), 2, ti);
+      nt[0] = _YAP_MkApplTerm(_YAP_MkFunctor(_YAP_LookupAtom("existence_error"),2), 2, ti);
       tp = tmpbuf+i;
       psize -= i;
-      fun = MkFunctor(LookupAtom("error"),2);
+      fun = _YAP_MkFunctor(_YAP_LookupAtom("error"),2);
       serious = TRUE;
     }
     break;
@@ -799,12 +790,12 @@ Error (yap_error_number type, Term where, char *format,...)
       Term ti[2];
 
       i = strlen(tmpbuf);
-      ti[0] = MkAtomTerm(LookupAtom("array"));
+      ti[0] = MkAtomTerm(_YAP_LookupAtom("array"));
       ti[1] = where;
-      nt[0] = MkApplTerm(MkFunctor(LookupAtom("existence_error"),2), 2, ti);
+      nt[0] = _YAP_MkApplTerm(_YAP_MkFunctor(_YAP_LookupAtom("existence_error"),2), 2, ti);
       tp = tmpbuf+i;
       psize -= i;
-      fun = MkFunctor(LookupAtom("error"),2);
+      fun = _YAP_MkFunctor(_YAP_LookupAtom("error"),2);
       serious = TRUE;
     }
     break;
@@ -814,12 +805,12 @@ Error (yap_error_number type, Term where, char *format,...)
       Term ti[2];
 
       i = strlen(tmpbuf);
-      ti[0] = MkAtomTerm(LookupAtom("stream"));
+      ti[0] = MkAtomTerm(_YAP_LookupAtom("stream"));
       ti[1] = where;
-      nt[0] = MkApplTerm(MkFunctor(LookupAtom("existence_error"),2), 2, ti);
+      nt[0] = _YAP_MkApplTerm(_YAP_MkFunctor(_YAP_LookupAtom("existence_error"),2), 2, ti);
       tp = tmpbuf+i;
       psize -= i;
-      fun = MkFunctor(LookupAtom("error"),2);
+      fun = _YAP_MkFunctor(_YAP_LookupAtom("error"),2);
       serious = TRUE;
     }
     break;
@@ -829,11 +820,11 @@ Error (yap_error_number type, Term where, char *format,...)
       Term ti[1];
 
       i = strlen(tmpbuf);
-      ti[0] = MkAtomTerm(LookupAtom("float_overflow"));
-      nt[0] = MkApplTerm(MkFunctor(LookupAtom("evaluation_error"),1), 1, ti);
+      ti[0] = MkAtomTerm(_YAP_LookupAtom("float_overflow"));
+      nt[0] = _YAP_MkApplTerm(_YAP_MkFunctor(_YAP_LookupAtom("evaluation_error"),1), 1, ti);
       tp = tmpbuf+i;
       psize -= i;
-      fun = MkFunctor(LookupAtom("error"),2);
+      fun = _YAP_MkFunctor(_YAP_LookupAtom("error"),2);
       serious = TRUE;
     }
     break;
@@ -843,11 +834,11 @@ Error (yap_error_number type, Term where, char *format,...)
       Term ti[1];
 
       i = strlen(tmpbuf);
-      ti[0] = MkAtomTerm(LookupAtom("int_overflow"));
-      nt[0] = MkApplTerm(MkFunctor(LookupAtom("evaluation_error"),1), 1, ti);
+      ti[0] = MkAtomTerm(_YAP_LookupAtom("int_overflow"));
+      nt[0] = _YAP_MkApplTerm(_YAP_MkFunctor(_YAP_LookupAtom("evaluation_error"),1), 1, ti);
       tp = tmpbuf+i;
       psize -= i;
-      fun = MkFunctor(LookupAtom("error"),2);
+      fun = _YAP_MkFunctor(_YAP_LookupAtom("error"),2);
       serious = TRUE;
     }
     break;
@@ -857,11 +848,11 @@ Error (yap_error_number type, Term where, char *format,...)
       Term ti[1];
 
       i = strlen(tmpbuf);
-      ti[0] = MkAtomTerm(LookupAtom("undefined"));
-      nt[0] = MkApplTerm(MkFunctor(LookupAtom("evaluation_error"),1), 1, ti);
+      ti[0] = MkAtomTerm(_YAP_LookupAtom("undefined"));
+      nt[0] = _YAP_MkApplTerm(_YAP_MkFunctor(_YAP_LookupAtom("evaluation_error"),1), 1, ti);
       tp = tmpbuf+i;
       psize -= i;
-      fun = MkFunctor(LookupAtom("error"),2);
+      fun = _YAP_MkFunctor(_YAP_LookupAtom("error"),2);
       serious = TRUE;
     }
     break;
@@ -871,11 +862,11 @@ Error (yap_error_number type, Term where, char *format,...)
       Term ti[1];
 
       i = strlen(tmpbuf);
-      ti[0] = MkAtomTerm(LookupAtom("float_underflow"));
-      nt[0] = MkApplTerm(MkFunctor(LookupAtom("evaluation_error"),1), 1, ti);
+      ti[0] = MkAtomTerm(_YAP_LookupAtom("float_underflow"));
+      nt[0] = _YAP_MkApplTerm(_YAP_MkFunctor(_YAP_LookupAtom("evaluation_error"),1), 1, ti);
       tp = tmpbuf+i;
       psize -= i;
-      fun = MkFunctor(LookupAtom("error"),2);
+      fun = _YAP_MkFunctor(_YAP_LookupAtom("error"),2);
       serious = TRUE;
     }
     break;
@@ -885,11 +876,11 @@ Error (yap_error_number type, Term where, char *format,...)
       Term ti[1];
 
       i = strlen(tmpbuf);
-      ti[0] = MkAtomTerm(LookupAtom("underflow"));
-      nt[0] = MkApplTerm(MkFunctor(LookupAtom("evaluation_error"),1), 1, ti);
+      ti[0] = MkAtomTerm(_YAP_LookupAtom("underflow"));
+      nt[0] = _YAP_MkApplTerm(_YAP_MkFunctor(_YAP_LookupAtom("evaluation_error"),1), 1, ti);
       tp = tmpbuf+i;
       psize -= i;
-      fun = MkFunctor(LookupAtom("error"),2);
+      fun = _YAP_MkFunctor(_YAP_LookupAtom("error"),2);
       serious = TRUE;
     }
     break; 
@@ -899,11 +890,11 @@ Error (yap_error_number type, Term where, char *format,...)
       Term ti[1];
 
       i = strlen(tmpbuf);
-      ti[0] = MkAtomTerm(LookupAtom("zero_divisor"));
-      nt[0] = MkApplTerm(MkFunctor(LookupAtom("evaluation_error"),1), 1, ti);
+      ti[0] = MkAtomTerm(_YAP_LookupAtom("zero_divisor"));
+      nt[0] = _YAP_MkApplTerm(_YAP_MkFunctor(_YAP_LookupAtom("evaluation_error"),1), 1, ti);
       tp = tmpbuf+i;
       psize -= i;
-      fun = MkFunctor(LookupAtom("error"),2);
+      fun = _YAP_MkFunctor(_YAP_LookupAtom("error"),2);
       serious = TRUE;
     }
     break;
@@ -912,10 +903,10 @@ Error (yap_error_number type, Term where, char *format,...)
       int i;
 
       i = strlen(tmpbuf);
-      nt[0] = MkAtomTerm(LookupAtom("instantiation_error"));
+      nt[0] = MkAtomTerm(_YAP_LookupAtom("instantiation_error"));
       tp = tmpbuf+i;
       psize -= i;
-      fun = MkFunctor(LookupAtom("error"),2);
+      fun = _YAP_MkFunctor(_YAP_LookupAtom("error"),2);
       serious = TRUE;
     }
     break;
@@ -925,10 +916,10 @@ Error (yap_error_number type, Term where, char *format,...)
 
       dump_stack();
       i = strlen(tmpbuf);
-      nt[0] = MkAtomTerm(LookupAtom("out_of_stack_error"));
+      nt[0] = MkAtomTerm(_YAP_LookupAtom("out_of_stack_error"));
       tp = tmpbuf+i;
       psize -= i;
-      fun = MkFunctor(LookupAtom("error"),2);
+      fun = _YAP_MkFunctor(_YAP_LookupAtom("error"),2);
       serious = TRUE;
     }
     break;
@@ -938,10 +929,10 @@ Error (yap_error_number type, Term where, char *format,...)
 
       dump_stack();
       i = strlen(tmpbuf);
-      nt[0] = MkAtomTerm(LookupAtom("out_of_stack_error"));
+      nt[0] = MkAtomTerm(_YAP_LookupAtom("out_of_stack_error"));
       tp = tmpbuf+i;
       psize -= i;
-      fun = MkFunctor(LookupAtom("error"),2);
+      fun = _YAP_MkFunctor(_YAP_LookupAtom("error"),2);
       serious = TRUE;
     }
     break;
@@ -951,10 +942,10 @@ Error (yap_error_number type, Term where, char *format,...)
 
       dump_stack();
       i = strlen(tmpbuf);
-      nt[0] = MkAtomTerm(LookupAtom("out_of_trail_error"));
+      nt[0] = MkAtomTerm(_YAP_LookupAtom("out_of_trail_error"));
       tp = tmpbuf+i;
       psize -= i;
-      fun = MkFunctor(LookupAtom("error"),2);
+      fun = _YAP_MkFunctor(_YAP_LookupAtom("error"),2);
       serious = TRUE;
     }
     break;
@@ -964,13 +955,13 @@ Error (yap_error_number type, Term where, char *format,...)
       Term ti[3];
 
       i = strlen(tmpbuf);
-      ti[0] = MkAtomTerm(LookupAtom("access"));
-      ti[1] = MkAtomTerm(LookupAtom("private_procedure"));
+      ti[0] = MkAtomTerm(_YAP_LookupAtom("access"));
+      ti[1] = MkAtomTerm(_YAP_LookupAtom("private_procedure"));
       ti[2] = where;
-      nt[0] = MkApplTerm(MkFunctor(LookupAtom("permission_error"),3), 3, ti);
+      nt[0] = _YAP_MkApplTerm(_YAP_MkFunctor(_YAP_LookupAtom("permission_error"),3), 3, ti);
       tp = tmpbuf+i;
       psize -= i;
-      fun = MkFunctor(LookupAtom("error"),2);
+      fun = _YAP_MkFunctor(_YAP_LookupAtom("error"),2);
       serious = TRUE;
     }
     break;
@@ -980,13 +971,13 @@ Error (yap_error_number type, Term where, char *format,...)
       Term ti[3];
 
       i = strlen(tmpbuf);
-      ti[0] = MkAtomTerm(LookupAtom("create"));
-      ti[1] = MkAtomTerm(LookupAtom("array"));
+      ti[0] = MkAtomTerm(_YAP_LookupAtom("create"));
+      ti[1] = MkAtomTerm(_YAP_LookupAtom("array"));
       ti[2] = where;
-      nt[0] = MkApplTerm(MkFunctor(LookupAtom("permission_error"),3), 3, ti);
+      nt[0] = _YAP_MkApplTerm(_YAP_MkFunctor(_YAP_LookupAtom("permission_error"),3), 3, ti);
       tp = tmpbuf+i;
       psize -= i;
-      fun = MkFunctor(LookupAtom("error"),2);
+      fun = _YAP_MkFunctor(_YAP_LookupAtom("error"),2);
       serious = TRUE;
     }
     break;
@@ -996,13 +987,13 @@ Error (yap_error_number type, Term where, char *format,...)
       Term ti[3];
 
       i = strlen(tmpbuf);
-      ti[0] = MkAtomTerm(LookupAtom("create"));
-      ti[1] = MkAtomTerm(LookupAtom("operator"));
+      ti[0] = MkAtomTerm(_YAP_LookupAtom("create"));
+      ti[1] = MkAtomTerm(_YAP_LookupAtom("operator"));
       ti[2] = where;
-      nt[0] = MkApplTerm(MkFunctor(LookupAtom("permission_error"),3), 3, ti);
+      nt[0] = _YAP_MkApplTerm(_YAP_MkFunctor(_YAP_LookupAtom("permission_error"),3), 3, ti);
       tp = tmpbuf+i;
       psize -= i;
-      fun = MkFunctor(LookupAtom("error"),2);
+      fun = _YAP_MkFunctor(_YAP_LookupAtom("error"),2);
       serious = TRUE;
     }
     break;
@@ -1012,13 +1003,13 @@ Error (yap_error_number type, Term where, char *format,...)
       Term ti[3];
 
       i = strlen(tmpbuf);
-      ti[0] = MkAtomTerm(LookupAtom("input"));
-      ti[1] = MkAtomTerm(LookupAtom("binary_stream"));
+      ti[0] = MkAtomTerm(_YAP_LookupAtom("input"));
+      ti[1] = MkAtomTerm(_YAP_LookupAtom("binary_stream"));
       ti[2] = where;
-      nt[0] = MkApplTerm(MkFunctor(LookupAtom("permission_error"),3), 3, ti);
+      nt[0] = _YAP_MkApplTerm(_YAP_MkFunctor(_YAP_LookupAtom("permission_error"),3), 3, ti);
       tp = tmpbuf+i;
       psize -= i;
-      fun = MkFunctor(LookupAtom("error"),2);
+      fun = _YAP_MkFunctor(_YAP_LookupAtom("error"),2);
       serious = TRUE;
     }
     break;
@@ -1028,13 +1019,13 @@ Error (yap_error_number type, Term where, char *format,...)
       Term ti[3];
 
       i = strlen(tmpbuf);
-      ti[0] = MkAtomTerm(LookupAtom("input"));
-      ti[1] = MkAtomTerm(LookupAtom("past_end_of_stream"));
+      ti[0] = MkAtomTerm(_YAP_LookupAtom("input"));
+      ti[1] = MkAtomTerm(_YAP_LookupAtom("past_end_of_stream"));
       ti[2] = where;
-      nt[0] = MkApplTerm(MkFunctor(LookupAtom("permission_error"),3), 3, ti);
+      nt[0] = _YAP_MkApplTerm(_YAP_MkFunctor(_YAP_LookupAtom("permission_error"),3), 3, ti);
       tp = tmpbuf+i;
       psize -= i;
-      fun = MkFunctor(LookupAtom("error"),2);
+      fun = _YAP_MkFunctor(_YAP_LookupAtom("error"),2);
       serious = TRUE;
     }
     break;
@@ -1044,13 +1035,13 @@ Error (yap_error_number type, Term where, char *format,...)
       Term ti[3];
 
       i = strlen(tmpbuf);
-      ti[0] = MkAtomTerm(LookupAtom("input"));
-      ti[1] = MkAtomTerm(LookupAtom("stream"));
+      ti[0] = MkAtomTerm(_YAP_LookupAtom("input"));
+      ti[1] = MkAtomTerm(_YAP_LookupAtom("stream"));
       ti[2] = where;
-      nt[0] = MkApplTerm(MkFunctor(LookupAtom("permission_error"),3), 3, ti);
+      nt[0] = _YAP_MkApplTerm(_YAP_MkFunctor(_YAP_LookupAtom("permission_error"),3), 3, ti);
       tp = tmpbuf+i;
       psize -= i;
-      fun = MkFunctor(LookupAtom("error"),2);
+      fun = _YAP_MkFunctor(_YAP_LookupAtom("error"),2);
       serious = TRUE;
     }
     break;
@@ -1060,13 +1051,13 @@ Error (yap_error_number type, Term where, char *format,...)
       Term ti[3];
 
       i = strlen(tmpbuf);
-      ti[0] = MkAtomTerm(LookupAtom("input"));
-      ti[1] = MkAtomTerm(LookupAtom("text_stream"));
+      ti[0] = MkAtomTerm(_YAP_LookupAtom("input"));
+      ti[1] = MkAtomTerm(_YAP_LookupAtom("text_stream"));
       ti[2] = where;
-      nt[0] = MkApplTerm(MkFunctor(LookupAtom("permission_error"),3), 3, ti);
+      nt[0] = _YAP_MkApplTerm(_YAP_MkFunctor(_YAP_LookupAtom("permission_error"),3), 3, ti);
       tp = tmpbuf+i;
       psize -= i;
-      fun = MkFunctor(LookupAtom("error"),2);
+      fun = _YAP_MkFunctor(_YAP_LookupAtom("error"),2);
       serious = TRUE;
     }
     break;
@@ -1076,13 +1067,13 @@ Error (yap_error_number type, Term where, char *format,...)
       Term ti[3];
 
       i = strlen(tmpbuf);
-      ti[0] = MkAtomTerm(LookupAtom("modify"));
-      ti[1] = MkAtomTerm(LookupAtom("static_procedure"));
+      ti[0] = MkAtomTerm(_YAP_LookupAtom("modify"));
+      ti[1] = MkAtomTerm(_YAP_LookupAtom("static_procedure"));
       ti[2] = where;
-      nt[0] = MkApplTerm(MkFunctor(LookupAtom("permission_error"),3), 3, ti);
+      nt[0] = _YAP_MkApplTerm(_YAP_MkFunctor(_YAP_LookupAtom("permission_error"),3), 3, ti);
       tp = tmpbuf+i;
       psize -= i;
-      fun = MkFunctor(LookupAtom("error"),2);
+      fun = _YAP_MkFunctor(_YAP_LookupAtom("error"),2);
       serious = TRUE;
     }
     break;
@@ -1092,13 +1083,13 @@ Error (yap_error_number type, Term where, char *format,...)
       Term ti[3];
 
       i = strlen(tmpbuf);
-      ti[0] = MkAtomTerm(LookupAtom("new"));
-      ti[1] = MkAtomTerm(LookupAtom("alias"));
+      ti[0] = MkAtomTerm(_YAP_LookupAtom("new"));
+      ti[1] = MkAtomTerm(_YAP_LookupAtom("alias"));
       ti[2] = where;
-      nt[0] = MkApplTerm(MkFunctor(LookupAtom("permission_error"),3), 3, ti);
+      nt[0] = _YAP_MkApplTerm(_YAP_MkFunctor(_YAP_LookupAtom("permission_error"),3), 3, ti);
       tp = tmpbuf+i;
       psize -= i;
-      fun = MkFunctor(LookupAtom("error"),2);
+      fun = _YAP_MkFunctor(_YAP_LookupAtom("error"),2);
       serious = TRUE;
     }
     break;
@@ -1108,13 +1099,13 @@ Error (yap_error_number type, Term where, char *format,...)
       Term ti[3];
 
       i = strlen(tmpbuf);
-      ti[0] = MkAtomTerm(LookupAtom("open"));
-      ti[1] = MkAtomTerm(LookupAtom("source_sink"));
+      ti[0] = MkAtomTerm(_YAP_LookupAtom("open"));
+      ti[1] = MkAtomTerm(_YAP_LookupAtom("source_sink"));
       ti[2] = where;
-      nt[0] = MkApplTerm(MkFunctor(LookupAtom("permission_error"),3), 3, ti);
+      nt[0] = _YAP_MkApplTerm(_YAP_MkFunctor(_YAP_LookupAtom("permission_error"),3), 3, ti);
       tp = tmpbuf+i;
       psize -= i;
-      fun = MkFunctor(LookupAtom("error"),2);
+      fun = _YAP_MkFunctor(_YAP_LookupAtom("error"),2);
       serious = TRUE;
     }
     break;
@@ -1124,13 +1115,13 @@ Error (yap_error_number type, Term where, char *format,...)
       Term ti[3];
 
       i = strlen(tmpbuf);
-      ti[0] = MkAtomTerm(LookupAtom("output"));
-      ti[1] = MkAtomTerm(LookupAtom("binary_stream"));
+      ti[0] = MkAtomTerm(_YAP_LookupAtom("output"));
+      ti[1] = MkAtomTerm(_YAP_LookupAtom("binary_stream"));
       ti[2] = where;
-      nt[0] = MkApplTerm(MkFunctor(LookupAtom("permission_error"),3), 3, ti);
+      nt[0] = _YAP_MkApplTerm(_YAP_MkFunctor(_YAP_LookupAtom("permission_error"),3), 3, ti);
       tp = tmpbuf+i;
       psize -= i;
-      fun = MkFunctor(LookupAtom("error"),2);
+      fun = _YAP_MkFunctor(_YAP_LookupAtom("error"),2);
       serious = TRUE;
     }
     break;
@@ -1140,13 +1131,13 @@ Error (yap_error_number type, Term where, char *format,...)
       Term ti[3];
 
       i = strlen(tmpbuf);
-      ti[0] = MkAtomTerm(LookupAtom("output"));
-      ti[1] = MkAtomTerm(LookupAtom("stream"));
+      ti[0] = MkAtomTerm(_YAP_LookupAtom("output"));
+      ti[1] = MkAtomTerm(_YAP_LookupAtom("stream"));
       ti[2] = where;
-      nt[0] = MkApplTerm(MkFunctor(LookupAtom("permission_error"),3), 3, ti);
+      nt[0] = _YAP_MkApplTerm(_YAP_MkFunctor(_YAP_LookupAtom("permission_error"),3), 3, ti);
       tp = tmpbuf+i;
       psize -= i;
-      fun = MkFunctor(LookupAtom("error"),2);
+      fun = _YAP_MkFunctor(_YAP_LookupAtom("error"),2);
       serious = TRUE;
     }
     break;
@@ -1156,13 +1147,13 @@ Error (yap_error_number type, Term where, char *format,...)
       Term ti[3];
 
       i = strlen(tmpbuf);
-      ti[0] = MkAtomTerm(LookupAtom("output"));
-      ti[1] = MkAtomTerm(LookupAtom("text_stream"));
+      ti[0] = MkAtomTerm(_YAP_LookupAtom("output"));
+      ti[1] = MkAtomTerm(_YAP_LookupAtom("text_stream"));
       ti[2] = where;
-      nt[0] = MkApplTerm(MkFunctor(LookupAtom("permission_error"),3), 3, ti);
+      nt[0] = _YAP_MkApplTerm(_YAP_MkFunctor(_YAP_LookupAtom("permission_error"),3), 3, ti);
       tp = tmpbuf+i;
       psize -= i;
-      fun = MkFunctor(LookupAtom("error"),2);
+      fun = _YAP_MkFunctor(_YAP_LookupAtom("error"),2);
       serious = TRUE;
     }
     break;
@@ -1172,13 +1163,13 @@ Error (yap_error_number type, Term where, char *format,...)
       Term ti[3];
 
       i = strlen(tmpbuf);
-      ti[0] = MkAtomTerm(LookupAtom("reposition"));
-      ti[1] = MkAtomTerm(LookupAtom("stream"));
+      ti[0] = MkAtomTerm(_YAP_LookupAtom("reposition"));
+      ti[1] = MkAtomTerm(_YAP_LookupAtom("stream"));
       ti[2] = where;
-      nt[0] = MkApplTerm(MkFunctor(LookupAtom("permission_error"),3), 3, ti);
+      nt[0] = _YAP_MkApplTerm(_YAP_MkFunctor(_YAP_LookupAtom("permission_error"),3), 3, ti);
       tp = tmpbuf+i;
       psize -= i;
-      fun = MkFunctor(LookupAtom("error"),2);
+      fun = _YAP_MkFunctor(_YAP_LookupAtom("error"),2);
       serious = TRUE;
     }
     break;
@@ -1188,13 +1179,13 @@ Error (yap_error_number type, Term where, char *format,...)
       Term ti[3];
 
       i = strlen(tmpbuf);
-      ti[0] = MkAtomTerm(LookupAtom("resize"));
-      ti[1] = MkAtomTerm(LookupAtom("array"));
+      ti[0] = MkAtomTerm(_YAP_LookupAtom("resize"));
+      ti[1] = MkAtomTerm(_YAP_LookupAtom("array"));
       ti[2] = where;
-      nt[0] = MkApplTerm(MkFunctor(LookupAtom("permission_error"),3), 3, ti);
+      nt[0] = _YAP_MkApplTerm(_YAP_MkFunctor(_YAP_LookupAtom("permission_error"),3), 3, ti);
       tp = tmpbuf+i;
       psize -= i;
-      fun = MkFunctor(LookupAtom("error"),2);
+      fun = _YAP_MkFunctor(_YAP_LookupAtom("error"),2);
       serious = TRUE;
     }
     break;
@@ -1204,11 +1195,11 @@ Error (yap_error_number type, Term where, char *format,...)
       Term ti[1];
 
       i = strlen(tmpbuf);
-      ti[0] = MkAtomTerm(LookupAtom("character"));
-      nt[0] = MkApplTerm(MkFunctor(LookupAtom("representation_error"),1), 1, ti);
+      ti[0] = MkAtomTerm(_YAP_LookupAtom("character"));
+      nt[0] = _YAP_MkApplTerm(_YAP_MkFunctor(_YAP_LookupAtom("representation_error"),1), 1, ti);
       tp = tmpbuf+i;
       psize -= i;
-      fun = MkFunctor(LookupAtom("error"),2);
+      fun = _YAP_MkFunctor(_YAP_LookupAtom("error"),2);
       serious = TRUE;
     }
     break;
@@ -1218,11 +1209,11 @@ Error (yap_error_number type, Term where, char *format,...)
       Term ti[1];
 
       i = strlen(tmpbuf);
-      ti[0] = MkAtomTerm(LookupAtom("character_code"));
-      nt[0] = MkApplTerm(MkFunctor(LookupAtom("representation_error"),1), 1, ti);
+      ti[0] = MkAtomTerm(_YAP_LookupAtom("character_code"));
+      nt[0] = _YAP_MkApplTerm(_YAP_MkFunctor(_YAP_LookupAtom("representation_error"),1), 1, ti);
       tp = tmpbuf+i;
       psize -= i;
-      fun = MkFunctor(LookupAtom("error"),2);
+      fun = _YAP_MkFunctor(_YAP_LookupAtom("error"),2);
       serious = TRUE;
     }
     break;
@@ -1232,11 +1223,11 @@ Error (yap_error_number type, Term where, char *format,...)
       Term ti[1];
 
       i = strlen(tmpbuf);
-      ti[0] = MkAtomTerm(LookupAtom("max_arity"));
-      nt[0] = MkApplTerm(MkFunctor(LookupAtom("representation_error"),1), 1, ti);
+      ti[0] = MkAtomTerm(_YAP_LookupAtom("max_arity"));
+      nt[0] = _YAP_MkApplTerm(_YAP_MkFunctor(_YAP_LookupAtom("representation_error"),1), 1, ti);
       tp = tmpbuf+i;
       psize -= i;
-      fun = MkFunctor(LookupAtom("error"),2);
+      fun = _YAP_MkFunctor(_YAP_LookupAtom("error"),2);
       serious = TRUE;
     }
     break;
@@ -1248,7 +1239,7 @@ Error (yap_error_number type, Term where, char *format,...)
       nt[0] = where;
       tp = tmpbuf+i;
       psize -= i;
-      fun = MkFunctor(LookupAtom("error"),2);
+      fun = _YAP_MkFunctor(_YAP_LookupAtom("error"),2);
       serious = TRUE;
     }
     break;
@@ -1257,10 +1248,10 @@ Error (yap_error_number type, Term where, char *format,...)
       int i;
 
       i = strlen(tmpbuf);
-      nt[0] = MkAtomTerm(LookupAtom("system_error"));
+      nt[0] = MkAtomTerm(_YAP_LookupAtom("system_error"));
       tp = tmpbuf+i;
       psize -= i;
-      fun = MkFunctor(LookupAtom("error"),2);
+      fun = _YAP_MkFunctor(_YAP_LookupAtom("error"),2);
       serious = TRUE;
     }
     break;
@@ -1270,12 +1261,12 @@ Error (yap_error_number type, Term where, char *format,...)
       Term ti[2];
 
       i = strlen(tmpbuf);
-      ti[0] = MkAtomTerm(LookupAtom("array"));
+      ti[0] = MkAtomTerm(_YAP_LookupAtom("array"));
       ti[1] = where;
-      nt[0] = MkApplTerm(MkFunctor(LookupAtom("type_error"),2), 2, ti);
+      nt[0] = _YAP_MkApplTerm(_YAP_MkFunctor(_YAP_LookupAtom("type_error"),2), 2, ti);
       tp = tmpbuf+i;
       psize -= i;
-      fun = MkFunctor(LookupAtom("error"),2);
+      fun = _YAP_MkFunctor(_YAP_LookupAtom("error"),2);
       serious = TRUE;
     }
     break;
@@ -1285,12 +1276,12 @@ Error (yap_error_number type, Term where, char *format,...)
       Term ti[2];
 
       i = strlen(tmpbuf);
-      ti[0] = MkAtomTerm(LookupAtom("atom"));
+      ti[0] = MkAtomTerm(_YAP_LookupAtom("atom"));
       ti[1] = where;
-      nt[0] = MkApplTerm(MkFunctor(LookupAtom("type_error"),2), 2, ti);
+      nt[0] = _YAP_MkApplTerm(_YAP_MkFunctor(_YAP_LookupAtom("type_error"),2), 2, ti);
       tp = tmpbuf+i;
       psize -= i;
-      fun = MkFunctor(LookupAtom("error"),2);
+      fun = _YAP_MkFunctor(_YAP_LookupAtom("error"),2);
       serious = TRUE;
     }
     break;
@@ -1300,12 +1291,12 @@ Error (yap_error_number type, Term where, char *format,...)
       Term ti[2];
 
       i = strlen(tmpbuf);
-      ti[0] = MkAtomTerm(LookupAtom("atomic"));
+      ti[0] = MkAtomTerm(_YAP_LookupAtom("atomic"));
       ti[1] = where;
-      nt[0] = MkApplTerm(MkFunctor(LookupAtom("type_error"),2), 2, ti);
+      nt[0] = _YAP_MkApplTerm(_YAP_MkFunctor(_YAP_LookupAtom("type_error"),2), 2, ti);
       tp = tmpbuf+i;
       psize -= i;
-      fun = MkFunctor(LookupAtom("error"),2);
+      fun = _YAP_MkFunctor(_YAP_LookupAtom("error"),2);
       serious = TRUE;
     }
     break;
@@ -1315,12 +1306,12 @@ Error (yap_error_number type, Term where, char *format,...)
       Term ti[2];
 
       i = strlen(tmpbuf);
-      ti[0] = MkAtomTerm(LookupAtom("byte"));
+      ti[0] = MkAtomTerm(_YAP_LookupAtom("byte"));
       ti[1] = where;
-      nt[0] = MkApplTerm(MkFunctor(LookupAtom("type_error"),2), 2, ti);
+      nt[0] = _YAP_MkApplTerm(_YAP_MkFunctor(_YAP_LookupAtom("type_error"),2), 2, ti);
       tp = tmpbuf+i;
       psize -= i;
-      fun = MkFunctor(LookupAtom("error"),2);
+      fun = _YAP_MkFunctor(_YAP_LookupAtom("error"),2);
       serious = TRUE;
     }
     break;
@@ -1330,12 +1321,12 @@ Error (yap_error_number type, Term where, char *format,...)
       Term ti[2];
 
       i = strlen(tmpbuf);
-      ti[0] = MkAtomTerm(LookupAtom("callable"));
+      ti[0] = MkAtomTerm(_YAP_LookupAtom("callable"));
       ti[1] = where;
-      nt[0] = MkApplTerm(MkFunctor(LookupAtom("type_error"),2), 2, ti);
+      nt[0] = _YAP_MkApplTerm(_YAP_MkFunctor(_YAP_LookupAtom("type_error"),2), 2, ti);
       tp = tmpbuf+i;
       psize -= i;
-      fun = MkFunctor(LookupAtom("error"),2);
+      fun = _YAP_MkFunctor(_YAP_LookupAtom("error"),2);
       serious = TRUE;
     }
     break;
@@ -1345,12 +1336,12 @@ Error (yap_error_number type, Term where, char *format,...)
       Term ti[2];
 
       i = strlen(tmpbuf);
-      ti[0] = MkAtomTerm(LookupAtom("character"));
+      ti[0] = MkAtomTerm(_YAP_LookupAtom("character"));
       ti[1] = where;
-      nt[0] = MkApplTerm(MkFunctor(LookupAtom("type_error"),2), 2, ti);
+      nt[0] = _YAP_MkApplTerm(_YAP_MkFunctor(_YAP_LookupAtom("type_error"),2), 2, ti);
       tp = tmpbuf+i;
       psize -= i;
-      fun = MkFunctor(LookupAtom("error"),2);
+      fun = _YAP_MkFunctor(_YAP_LookupAtom("error"),2);
       serious = TRUE;
     }
     break;
@@ -1360,12 +1351,12 @@ Error (yap_error_number type, Term where, char *format,...)
       Term ti[2];
 
       i = strlen(tmpbuf);
-      ti[0] = MkAtomTerm(LookupAtom("compound"));
+      ti[0] = MkAtomTerm(_YAP_LookupAtom("compound"));
       ti[1] = where;
-      nt[0] = MkApplTerm(MkFunctor(LookupAtom("type_error"),2), 2, ti);
+      nt[0] = _YAP_MkApplTerm(_YAP_MkFunctor(_YAP_LookupAtom("type_error"),2), 2, ti);
       tp = tmpbuf+i;
       psize -= i;
-      fun = MkFunctor(LookupAtom("error"),2);
+      fun = _YAP_MkFunctor(_YAP_LookupAtom("error"),2);
       serious = TRUE;
     }
     break;
@@ -1375,12 +1366,12 @@ Error (yap_error_number type, Term where, char *format,...)
       Term ti[2];
 
       i = strlen(tmpbuf);
-      ti[0] = MkAtomTerm(LookupAtom("db_reference"));
+      ti[0] = MkAtomTerm(_YAP_LookupAtom("db_reference"));
       ti[1] = where;
-      nt[0] = MkApplTerm(MkFunctor(LookupAtom("type_error"),2), 2, ti);
+      nt[0] = _YAP_MkApplTerm(_YAP_MkFunctor(_YAP_LookupAtom("type_error"),2), 2, ti);
       tp = tmpbuf+i;
       psize -= i;
-      fun = MkFunctor(LookupAtom("error"),2);
+      fun = _YAP_MkFunctor(_YAP_LookupAtom("error"),2);
       serious = TRUE;
     }
     break;
@@ -1390,12 +1381,12 @@ Error (yap_error_number type, Term where, char *format,...)
       Term ti[2];
 
       i = strlen(tmpbuf);
-      ti[0] = MkAtomTerm(LookupAtom("db_term"));
+      ti[0] = MkAtomTerm(_YAP_LookupAtom("db_term"));
       ti[1] = where;
-      nt[0] = MkApplTerm(MkFunctor(LookupAtom("type_error"),2), 2, ti);
+      nt[0] = _YAP_MkApplTerm(_YAP_MkFunctor(_YAP_LookupAtom("type_error"),2), 2, ti);
       tp = tmpbuf+i;
       psize -= i;
-      fun = MkFunctor(LookupAtom("error"),2);
+      fun = _YAP_MkFunctor(_YAP_LookupAtom("error"),2);
       serious = TRUE;
     }
     break;
@@ -1405,12 +1396,12 @@ Error (yap_error_number type, Term where, char *format,...)
       Term ti[2];
 
       i = strlen(tmpbuf);
-      ti[0] = MkAtomTerm(LookupAtom("evaluable"));
+      ti[0] = MkAtomTerm(_YAP_LookupAtom("evaluable"));
       ti[1] = where;
-      nt[0] = MkApplTerm(MkFunctor(LookupAtom("type_error"),2), 2, ti);
+      nt[0] = _YAP_MkApplTerm(_YAP_MkFunctor(_YAP_LookupAtom("type_error"),2), 2, ti);
       tp = tmpbuf+i;
       psize -= i;
-      fun = MkFunctor(LookupAtom("error"),2);
+      fun = _YAP_MkFunctor(_YAP_LookupAtom("error"),2);
       serious = TRUE;
     }
     break;
@@ -1420,12 +1411,12 @@ Error (yap_error_number type, Term where, char *format,...)
       Term ti[2];
 
       i = strlen(tmpbuf);
-      ti[0] = MkAtomTerm(LookupAtom("float"));
+      ti[0] = MkAtomTerm(_YAP_LookupAtom("float"));
       ti[1] = where;
-      nt[0] = MkApplTerm(MkFunctor(LookupAtom("type_error"),2), 2, ti);
+      nt[0] = _YAP_MkApplTerm(_YAP_MkFunctor(_YAP_LookupAtom("type_error"),2), 2, ti);
       tp = tmpbuf+i;
       psize -= i;
-      fun = MkFunctor(LookupAtom("error"),2);
+      fun = _YAP_MkFunctor(_YAP_LookupAtom("error"),2);
       serious = TRUE;
     }
     break;
@@ -1435,12 +1426,12 @@ Error (yap_error_number type, Term where, char *format,...)
       Term ti[2];
 
       i = strlen(tmpbuf);
-      ti[0] = MkAtomTerm(LookupAtom("integer"));
+      ti[0] = MkAtomTerm(_YAP_LookupAtom("integer"));
       ti[1] = where;
-      nt[0] = MkApplTerm(MkFunctor(LookupAtom("type_error"),2), 2, ti);
+      nt[0] = _YAP_MkApplTerm(_YAP_MkFunctor(_YAP_LookupAtom("type_error"),2), 2, ti);
       tp = tmpbuf+i;
       psize -= i;
-      fun = MkFunctor(LookupAtom("error"),2);
+      fun = _YAP_MkFunctor(_YAP_LookupAtom("error"),2);
       serious = TRUE;
     }
     break;
@@ -1450,12 +1441,12 @@ Error (yap_error_number type, Term where, char *format,...)
       Term ti[2];
 
       i = strlen(tmpbuf);
-      ti[0] = MkAtomTerm(LookupAtom("key"));
+      ti[0] = MkAtomTerm(_YAP_LookupAtom("key"));
       ti[1] = where;
-      nt[0] = MkApplTerm(MkFunctor(LookupAtom("type_error"),2), 2, ti);
+      nt[0] = _YAP_MkApplTerm(_YAP_MkFunctor(_YAP_LookupAtom("type_error"),2), 2, ti);
       tp = tmpbuf+i;
       psize -= i;
-      fun = MkFunctor(LookupAtom("error"),2);
+      fun = _YAP_MkFunctor(_YAP_LookupAtom("error"),2);
       serious = TRUE;
     }
     break;
@@ -1465,12 +1456,12 @@ Error (yap_error_number type, Term where, char *format,...)
       Term ti[2];
 
       i = strlen(tmpbuf);
-      ti[0] = MkAtomTerm(LookupAtom("list"));
+      ti[0] = MkAtomTerm(_YAP_LookupAtom("list"));
       ti[1] = where;
-      nt[0] = MkApplTerm(MkFunctor(LookupAtom("type_error"),2), 2, ti);
+      nt[0] = _YAP_MkApplTerm(_YAP_MkFunctor(_YAP_LookupAtom("type_error"),2), 2, ti);
       tp = tmpbuf+i;
       psize -= i;
-      fun = MkFunctor(LookupAtom("error"),2);
+      fun = _YAP_MkFunctor(_YAP_LookupAtom("error"),2);
       serious = TRUE;
     }
     break;
@@ -1480,12 +1471,12 @@ Error (yap_error_number type, Term where, char *format,...)
       Term ti[2];
 
       i = strlen(tmpbuf);
-      ti[0] = MkAtomTerm(LookupAtom("number"));
+      ti[0] = MkAtomTerm(_YAP_LookupAtom("number"));
       ti[1] = where;
-      nt[0] = MkApplTerm(MkFunctor(LookupAtom("type_error"),2), 2, ti);
+      nt[0] = _YAP_MkApplTerm(_YAP_MkFunctor(_YAP_LookupAtom("type_error"),2), 2, ti);
       tp = tmpbuf+i;
       psize -= i;
-      fun = MkFunctor(LookupAtom("error"),2);
+      fun = _YAP_MkFunctor(_YAP_LookupAtom("error"),2);
       serious = TRUE;
     }
     break;
@@ -1495,12 +1486,12 @@ Error (yap_error_number type, Term where, char *format,...)
       Term ti[2];
 
       i = strlen(tmpbuf);
-      ti[0] = MkAtomTerm(LookupAtom("predicate_indicator"));
+      ti[0] = MkAtomTerm(_YAP_LookupAtom("predicate_indicator"));
       ti[1] = where;
-      nt[0] = MkApplTerm(MkFunctor(LookupAtom("type_error"),2), 2, ti);
+      nt[0] = _YAP_MkApplTerm(_YAP_MkFunctor(_YAP_LookupAtom("type_error"),2), 2, ti);
       tp = tmpbuf+i;
       psize -= i;
-      fun = MkFunctor(LookupAtom("error"),2);
+      fun = _YAP_MkFunctor(_YAP_LookupAtom("error"),2);
       serious = TRUE;
     }
     break;
@@ -1510,12 +1501,12 @@ Error (yap_error_number type, Term where, char *format,...)
       Term ti[2];
 
       i = strlen(tmpbuf);
-      ti[0] = MkAtomTerm(LookupAtom("pointer"));
+      ti[0] = MkAtomTerm(_YAP_LookupAtom("pointer"));
       ti[1] = where;
-      nt[0] = MkApplTerm(MkFunctor(LookupAtom("type_error"),2), 2, ti);
+      nt[0] = _YAP_MkApplTerm(_YAP_MkFunctor(_YAP_LookupAtom("type_error"),2), 2, ti);
       tp = tmpbuf+i;
       psize -= i;
-      fun = MkFunctor(LookupAtom("error"),2);
+      fun = _YAP_MkFunctor(_YAP_LookupAtom("error"),2);
       serious = TRUE;
     }
     break;
@@ -1525,12 +1516,12 @@ Error (yap_error_number type, Term where, char *format,...)
       Term ti[2];
 
       i = strlen(tmpbuf);
-      ti[0] = MkAtomTerm(LookupAtom("unsigned_byte"));
+      ti[0] = MkAtomTerm(_YAP_LookupAtom("unsigned_byte"));
       ti[1] = where;
-      nt[0] = MkApplTerm(MkFunctor(LookupAtom("type_error"),2), 2, ti);
+      nt[0] = _YAP_MkApplTerm(_YAP_MkFunctor(_YAP_LookupAtom("type_error"),2), 2, ti);
       tp = tmpbuf+i;
       psize -= i;
-      fun = MkFunctor(LookupAtom("error"),2);
+      fun = _YAP_MkFunctor(_YAP_LookupAtom("error"),2);
       serious = TRUE;
     }
     break;
@@ -1540,12 +1531,12 @@ Error (yap_error_number type, Term where, char *format,...)
       Term ti[2];
 
       i = strlen(tmpbuf);
-      ti[0] = MkAtomTerm(LookupAtom("variable"));
+      ti[0] = MkAtomTerm(_YAP_LookupAtom("variable"));
       ti[1] = where;
-      nt[0] = MkApplTerm(MkFunctor(LookupAtom("type_error"),2), 2, ti);
+      nt[0] = _YAP_MkApplTerm(_YAP_MkFunctor(_YAP_LookupAtom("type_error"),2), 2, ti);
       tp = tmpbuf+i;
       psize -= i;
-      fun = MkFunctor(LookupAtom("error"),2);
+      fun = _YAP_MkFunctor(_YAP_LookupAtom("error"),2);
       serious = TRUE;
     }
     break;
@@ -1554,34 +1545,34 @@ Error (yap_error_number type, Term where, char *format,...)
       int i;
 
       i = strlen(tmpbuf);
-      nt[0] = MkAtomTerm(LookupAtom("system_error"));
+      nt[0] = MkAtomTerm(_YAP_LookupAtom("system_error"));
       tp = tmpbuf+i;
       psize -= i;
-      fun = MkFunctor(LookupAtom("error"),2);
+      fun = _YAP_MkFunctor(_YAP_LookupAtom("error"),2);
       serious = TRUE;
     }
   }
   if (type != PURE_ABORT) {
     /* This is used by some complex procedures to detect there was an error */
-    ErrorMessage = RepAtom(AtomOfTerm(nt[0]))->StrOfAE;
+    _YAP_ErrorMessage = RepAtom(AtomOfTerm(nt[0]))->StrOfAE;
   }
   switch (type) {
   case OUT_OF_HEAP_ERROR:
   case OUT_OF_STACK_ERROR:
   case OUT_OF_TRAIL_ERROR:
-    nt[1] = MkAtomTerm(LookupAtom(tmpbuf));
+    nt[1] = MkAtomTerm(_YAP_LookupAtom(tmpbuf));
     break;
   default:
-    nt[1] = MkPairTerm(MkAtomTerm(LookupAtom(tmpbuf)), all_calls());
+    nt[1] = MkPairTerm(MkAtomTerm(_YAP_LookupAtom(tmpbuf)), _YAP_all_calls());
   }
   if (serious) {
     if (type == PURE_ABORT)
-      JumpToEnv(MkAtomTerm(LookupAtom("abort")));
+      _YAP_JumpToEnv(MkAtomTerm(_YAP_LookupAtom("abort")));
     else
-      JumpToEnv(MkApplTerm(fun, 2, nt));
+      _YAP_JumpToEnv(_YAP_MkApplTerm(fun, 2, nt));
     P = (yamop *)FAILCODE;
   }
-  PrologMode &= ~InErrorMode;
+  _YAP_PrologMode &= ~InErrorMode;
   return(P);
 }
 

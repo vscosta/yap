@@ -44,15 +44,15 @@ AddToQueue(attvar_record *attv)
   t[0] = (CELL)&(attv->Done);
   t[1] = attv->Value;
   /* follow the chain */
-  WGs = (sus_record *)ReadTimedVar(WokenGoals);
+  WGs = (sus_record *)_YAP_ReadTimedVar(WokenGoals);
   new = (sus_record *)H;
   H = (CELL *)(new+1);
   new->NR = (sus_record *)(&(new->NR));
-  new->SG = MkApplTerm(FunctorAttGoal, 2, t);
+  new->SG = _YAP_MkApplTerm(FunctorAttGoal, 2, t);
   new->NS = new;
 
   if ((Term)WGs == TermNil) {
-    UpdateTimedVar(WokenGoals, (CELL)new);
+    _YAP_UpdateTimedVar(WokenGoals, (CELL)new);
     /* from now on, we have to start waking up goals */
     if (CreepFlag != Unsigned(LCL0) - Unsigned(H0))
       CreepFlag = Unsigned(LCL0);
@@ -71,7 +71,7 @@ AddFailToQueue(void)
   sus_record *new;
 
   /* follow the chain */
-  WGs = (sus_record *)ReadTimedVar(WokenGoals);
+  WGs = (sus_record *)_YAP_ReadTimedVar(WokenGoals);
   new = (sus_record *)H;
   H = (CELL *)(new+1);
   new->NR = (sus_record *)(&(new->NR));
@@ -79,7 +79,7 @@ AddFailToQueue(void)
   new->NS = new;
 
   if ((Term)WGs == TermNil) {
-    UpdateTimedVar(WokenGoals, (CELL)new);
+    _YAP_UpdateTimedVar(WokenGoals, (CELL)new);
     /* from now on, we have to start waking up goals */
     if (CreepFlag != Unsigned(LCL0) - Unsigned(H0))
       CreepFlag = Unsigned(LCL0);
@@ -101,13 +101,13 @@ CopyAttVar(CELL *orig, CELL ***to_visit_ptr, CELL *res)
   Int j;
 
   /* add a new attributed variable */
-  newv = (attvar_record *)ReadTimedVar(DelayedVars);
+  newv = (attvar_record *)_YAP_ReadTimedVar(DelayedVars);
   if (H0 - (CELL *)newv < 1024+(2*NUM_OF_ATTS))
     return(FALSE);
   RESET_VARIABLE(&(newv->Done));
   newv->sus_id = attvars_ext;
   RESET_VARIABLE(&(newv->Value));
-  newv->NS = UpdateTimedVar(AttsMutableList, (CELL)&(newv->Done));
+  newv->NS = _YAP_UpdateTimedVar(AttsMutableList, (CELL)&(newv->Done));
   for (j = 0; j < NUM_OF_ATTS; j++) {
     Term t = Deref(attv->Atts[2*j+1]);
     newv->Atts[2*j] = time;
@@ -135,7 +135,7 @@ CopyAttVar(CELL *orig, CELL ***to_visit_ptr, CELL *res)
   }
   *to_visit_ptr = to_visit;
   *res = (CELL)&(newv->Done);
-  UpdateTimedVar(DelayedVars, (CELL)(newv->Atts+2*j));
+  _YAP_UpdateTimedVar(DelayedVars, (CELL)(newv->Atts+2*j));
   return(TRUE);
 }
 
@@ -177,14 +177,14 @@ WakeAttVar(CELL* pt1, CELL reg2)
       /* binding two suspended variables, be careful */
       if (susp2->sus_id != attvars_ext) {
 	/* joining two different kinds of suspensions */
-	Error(SYSTEM_ERROR, TermNil, "joining two different suspensions not implemented");
+	_YAP_Error(SYSTEM_ERROR, TermNil, "joining two different suspensions not implemented");
 	return;
       }
       if (susp2 >= attv) {
 	if (susp2 == attv) return;
 	if (!IsVarTerm(susp2->Value) || !IsUnboundVar(susp2->Value)) {
 	  /* oops, our goal is on the queue to be woken */
-	  if (!unify(susp2->Value, (CELL)pt1)) {
+	  if (!_YAP_unify(susp2->Value, (CELL)pt1)) {
 	    AddFailToQueue();
 	  }
 	}
@@ -199,7 +199,7 @@ WakeAttVar(CELL* pt1, CELL reg2)
   }
   if (!IsVarTerm(attv->Value) || !IsUnboundVar(attv->Value)) {
     /* oops, our goal is on the queue to be woken */
-    if (!unify(attv->Value, reg2)) {
+    if (!_YAP_unify(attv->Value, reg2)) {
       AddFailToQueue();
     }
     return;
@@ -221,17 +221,17 @@ mark_attvar(CELL *orig)
   register attvar_record *attv = (attvar_record *)orig;
   Int i;
 
-  mark_external_reference(&(attv->Value));
-  mark_external_reference(&(attv->Done));
+  _YAP_mark_external_reference(&(attv->Value));
+  _YAP_mark_external_reference(&(attv->Done));
   for (i = 0; i < NUM_OF_ATTS; i++) {
-    mark_external_reference(attv->Atts+2*i+1);
+    _YAP_mark_external_reference(attv->Atts+2*i+1);
   }
 }
 
 #if FROZEN_STACKS
 static Term
 CurrentTime(void) {
-  return(MkIntegerTerm(TR-(tr_fr_ptr)TrailBase));
+  return(MkIntegerTerm(TR-(tr_fr_ptr)_YAP_TrailBase));
 }
 #endif
 
@@ -244,7 +244,7 @@ InitVarTime(void) {
     /* so we just init a TR cell that will not harm anyone */
     Bind((CELL *)(TR+1),AbsAppl(H-1));
   }
-  return(MkIntegerTerm(B->cp_tr-(tr_fr_ptr)TrailBase));
+  return(MkIntegerTerm(B->cp_tr-(tr_fr_ptr)_YAP_TrailBase));
 #else
   Term t = (CELL)H;
   *H++ = TermFoundVar;
@@ -256,7 +256,7 @@ static Int
 PutAtt(attvar_record *attv, Int i, Term tatt) {
   Int pos = i*2;
 #if FROZEN_STACKS
-  tr_fr_ptr timestmp = (tr_fr_ptr)TrailBase+IntegerOfTerm(attv->Atts[pos]);
+  tr_fr_ptr timestmp = (tr_fr_ptr)_YAP_TrailBase+IntegerOfTerm(attv->Atts[pos]);
   if (B->cp_tr <= timestmp
       && timestmp <= TR) {
 #if defined(SBA)
@@ -297,7 +297,7 @@ RmAtt(attvar_record *attv, Int i) {
   Int pos = i *2;
   if (!IsVarTerm(attv->Atts[pos+1])) {
 #if FROZEN_STACKS
-    tr_fr_ptr timestmp = (tr_fr_ptr)TrailBase+IntegerOfTerm(attv->Atts[pos]);
+    tr_fr_ptr timestmp = (tr_fr_ptr)_YAP_TrailBase+IntegerOfTerm(attv->Atts[pos]);
     if (B->cp_tr <= timestmp
 	&& timestmp <= TR) {
       RESET_VARIABLE(attv->Atts+(pos+1));
@@ -344,13 +344,13 @@ BuildNewAttVar(Term t, Int i, Term tatt)
   Term time;
   int j;
 
-  attvar_record *attv = (attvar_record *)ReadTimedVar(DelayedVars);
+  attvar_record *attv = (attvar_record *)_YAP_ReadTimedVar(DelayedVars);
   if (H0 - (CELL *)attv < 1024+(2*NUM_OF_ATTS)) {
     H[0] = t;
     H[1] = tatt;
     H += 2;
-    if (!growglobal(NULL)) {
-      Error(SYSTEM_ERROR, t, ErrorMessage);
+    if (!_YAP_growglobal(NULL)) {
+      _YAP_Error(SYSTEM_ERROR, t, _YAP_ErrorMessage);
       return FALSE;
     }
     H -= 2;
@@ -365,9 +365,9 @@ BuildNewAttVar(Term t, Int i, Term tatt)
     attv->Atts[2*j] = time;
     RESET_VARIABLE(attv->Atts+2*j+1);
   }
-  attv->NS = UpdateTimedVar(AttsMutableList, (CELL)&(attv->Done));
+  attv->NS = _YAP_UpdateTimedVar(AttsMutableList, (CELL)&(attv->Done));
   Bind((CELL *)t,(CELL)attv);
-  UpdateTimedVar(DelayedVars,(CELL)(attv->Atts+2*j));
+  _YAP_UpdateTimedVar(DelayedVars,(CELL)(attv->Atts+2*j));
   /* if i < 0 then we have the list of arguments */
   if (i < 0) {
     Int j = 0;
@@ -408,7 +408,7 @@ BindAttVar(attvar_record *attv) {
     Bind_Global(&(attv->Done), attv->Value);
     return(TRUE);
   } else {
-    Error(SYSTEM_ERROR,(CELL)&(attv->Done),"attvar was bound when set");
+    _YAP_Error(SYSTEM_ERROR,(CELL)&(attv->Done),"attvar was bound when set");
     return(FALSE);
   }
 }
@@ -437,8 +437,8 @@ AllAttVars(Term t) {
 }
 
 Term
-CurrentAttVars(void) {
-  return(AllAttVars(ReadTimedVar(AttsMutableList)));
+_YAP_CurrentAttVars(void) {
+  return(AllAttVars(_YAP_ReadTimedVar(AttsMutableList)));
 
 }
 
@@ -453,14 +453,14 @@ p_put_att(void) {
       exts id = (exts)attv->sus_id;
 
       if (id != attvars_ext) {
-	Error(TYPE_ERROR_VARIABLE,inp,"put_attributes/2");
+	_YAP_Error(TYPE_ERROR_VARIABLE,inp,"put_attributes/2");
 	return(FALSE);
       }
       return(PutAtt(attv, IntegerOfTerm(Deref(ARG2)), Deref(ARG3)));
     }
     return(BuildNewAttVar(inp, IntegerOfTerm(Deref(ARG2)), Deref(ARG3)));
   } else {
-    Error(TYPE_ERROR_VARIABLE,inp,"put_attributes/2");
+    _YAP_Error(TYPE_ERROR_VARIABLE,inp,"put_attributes/2");
     return(FALSE);
   }
 }
@@ -476,14 +476,14 @@ p_rm_att(void) {
       exts id = (exts)attv->sus_id;
 
       if (id != attvars_ext) {
-	Error(TYPE_ERROR_VARIABLE,inp,"delete_attribute/2");
+	_YAP_Error(TYPE_ERROR_VARIABLE,inp,"delete_attribute/2");
 	return(FALSE);
       }
       return(RmAtt(attv, IntegerOfTerm(Deref(ARG2))));
     }
     return(TRUE);
   } else {
-    Error(TYPE_ERROR_VARIABLE,inp,"delete_attribute/2");
+    _YAP_Error(TYPE_ERROR_VARIABLE,inp,"delete_attribute/2");
     return(FALSE);
   }
 }
@@ -500,16 +500,16 @@ p_get_att(void) {
       exts id = (exts)attv->sus_id;
 
       if (id != attvars_ext) {
-	Error(TYPE_ERROR_VARIABLE,inp,"get_att/2");
+	_YAP_Error(TYPE_ERROR_VARIABLE,inp,"get_att/2");
 	return(FALSE);
       }
       out = GetAtt(attv,IntegerOfTerm(Deref(ARG2)));
-      return(!IsVarTerm(out) && unify(ARG3,out));
+      return(!IsVarTerm(out) && _YAP_unify(ARG3,out));
     }
-    /*    Error(INSTANTIATION_ERROR,inp,"get_att/2");*/
+    /*    _YAP_Error(INSTANTIATION_ERROR,inp,"get_att/2");*/
     return(FALSE);
   } else {
-    Error(TYPE_ERROR_VARIABLE,inp,"get_att/2");
+    _YAP_Error(TYPE_ERROR_VARIABLE,inp,"get_att/2");
     return(FALSE);
   }
 }
@@ -525,14 +525,14 @@ p_free_att(void) {
       exts id = (exts)attv->sus_id;
 
       if (id != attvars_ext) {
-	Error(TYPE_ERROR_VARIABLE,inp,"get_att/2");
+	_YAP_Error(TYPE_ERROR_VARIABLE,inp,"get_att/2");
 	return(FALSE);
       }
       return(FreeAtt(attv,IntegerOfTerm(Deref(ARG2))));
     }
     return(TRUE);
   } else {
-    Error(TYPE_ERROR_VARIABLE,inp,"free_att/2");
+    _YAP_Error(TYPE_ERROR_VARIABLE,inp,"free_att/2");
     return(FALSE);
   }
 }
@@ -548,14 +548,14 @@ p_bind_attvar(void) {
       exts id = (exts)attv->sus_id;
 
       if (id != attvars_ext) {
-	Error(TYPE_ERROR_VARIABLE,inp,"get_att/2");
+	_YAP_Error(TYPE_ERROR_VARIABLE,inp,"get_att/2");
 	return(FALSE);
       }
       return(BindAttVar(attv));
     }
     return(TRUE);
   } else {
-    Error(TYPE_ERROR_VARIABLE,inp,"bind_att/2");
+    _YAP_Error(TYPE_ERROR_VARIABLE,inp,"bind_att/2");
     return(FALSE);
   }
 }
@@ -571,14 +571,14 @@ p_get_all_atts(void) {
       exts id = (exts)(attv->sus_id);
 
       if (id != attvars_ext) {
-	Error(TYPE_ERROR_VARIABLE,inp,"get_att/2");
+	_YAP_Error(TYPE_ERROR_VARIABLE,inp,"get_att/2");
 	return(FALSE);
       }
-      return(unify(ARG2,GetAllAtts(attv)));
+      return(_YAP_unify(ARG2,GetAllAtts(attv)));
     }
     return(TRUE);
   } else {
-    Error(TYPE_ERROR_VARIABLE,inp,"get_att/2");
+    _YAP_Error(TYPE_ERROR_VARIABLE,inp,"get_att/2");
     return(FALSE);
   }
 }
@@ -588,21 +588,21 @@ p_inc_atts(void)
 {
   Term t = MkIntegerTerm(NUM_OF_ATTS);
   NUM_OF_ATTS++;
-  return(unify(ARG1,t));
+  return(_YAP_unify(ARG1,t));
 }
 
 static Int
 p_n_atts(void)
 {
   Term t = MkIntegerTerm(NUM_OF_ATTS);
-  return(unify(ARG1,t));
+  return(_YAP_unify(ARG1,t));
 }
 
 static Int
 p_all_attvars(void)
 {
-  Term t = ReadTimedVar(AttsMutableList);
-  return(unify(ARG1,AllAttVars(t)));
+  Term t = _YAP_ReadTimedVar(AttsMutableList);
+  return(_YAP_unify(ARG1,AllAttVars(t)));
 }
 
 static Int
@@ -625,24 +625,24 @@ p_attvar_bound(void)
          !IsUnboundVar(((attvar_record *)VarOfTerm(t))->Done));
 }
 
-void InitAttVarPreds(void)
+void _YAP_InitAttVarPreds(void)
 {
   attas[attvars_ext].bind_op = WakeAttVar;
   attas[attvars_ext].copy_term_op = CopyAttVar;
   attas[attvars_ext].to_term_op = AttVarToTerm;
   attas[attvars_ext].term_to_op = TermToAttVar;
   attas[attvars_ext].mark_op = mark_attvar;
-  InitCPred("get_att", 3, p_get_att, SafePredFlag);
-  InitCPred("get_all_atts", 2, p_get_all_atts, SafePredFlag);
-  InitCPred("free_att", 2, p_free_att, SafePredFlag);
-  InitCPred("put_att", 3, p_put_att, 0);
-  InitCPred("rm_att", 2, p_rm_att, SafePredFlag);
-  InitCPred("inc_n_of_atts", 1, p_inc_atts, SafePredFlag);
-  InitCPred("n_of_atts", 1, p_n_atts, SafePredFlag);
-  InitCPred("bind_attvar", 1, p_bind_attvar, SafePredFlag);
-  InitCPred("all_attvars", 1, p_all_attvars, SafePredFlag);
-  InitCPred("$is_att_variable", 1, p_is_attvar, SafePredFlag|TestPredFlag);
-  InitCPred("$att_bound", 1, p_attvar_bound, SafePredFlag|TestPredFlag);
+  _YAP_InitCPred("get_att", 3, p_get_att, SafePredFlag);
+  _YAP_InitCPred("get_all_atts", 2, p_get_all_atts, SafePredFlag);
+  _YAP_InitCPred("free_att", 2, p_free_att, SafePredFlag);
+  _YAP_InitCPred("put_att", 3, p_put_att, 0);
+  _YAP_InitCPred("rm_att", 2, p_rm_att, SafePredFlag);
+  _YAP_InitCPred("inc_n_of_atts", 1, p_inc_atts, SafePredFlag);
+  _YAP_InitCPred("n_of_atts", 1, p_n_atts, SafePredFlag);
+  _YAP_InitCPred("bind_attvar", 1, p_bind_attvar, SafePredFlag);
+  _YAP_InitCPred("all_attvars", 1, p_all_attvars, SafePredFlag);
+  _YAP_InitCPred("$is_att_variable", 1, p_is_attvar, SafePredFlag|TestPredFlag);
+  _YAP_InitCPred("$att_bound", 1, p_attvar_bound, SafePredFlag|TestPredFlag);
 }
 
 #endif /* COROUTINING */

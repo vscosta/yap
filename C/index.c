@@ -40,8 +40,6 @@ static char     SccsId[] = "%W% %G%";
 #define NULL (void *)0
 #endif
 
-int             IPredArity;
-
 STATIC_PROTO(int  clause_has_cut, (yamop *));
 STATIC_PROTO(int  followed_by_cut, (yamop *));
 STATIC_PROTO(void  emit_tr, (compiler_vm_op, yamop *, int, int));
@@ -128,33 +126,33 @@ static int followed_by_cut(yamop * code)
  register yamop *p = code;
  while (TRUE)
    {
-     if (p->opc == opcode(_get_x_var))
+     if (p->opc == _YAP_opcode(_get_x_var))
        p = NEXTOP(p,xx);
-     if (p->opc == opcode(_get_y_var))
+     if (p->opc == _YAP_opcode(_get_y_var))
        p = NEXTOP(p,yx);
-     else if (p->opc == opcode(_allocate))
+     else if (p->opc == _YAP_opcode(_allocate))
        p = NEXTOP(p,e);
-     else if (p->opc == opcode(_unify_x_var))
+     else if (p->opc == _YAP_opcode(_unify_x_var))
        p = NEXTOP(p,ox);
-     else if (p->opc == opcode(_unify_y_var))
+     else if (p->opc == _YAP_opcode(_unify_y_var))
        p = NEXTOP(p,oy);
-     else if (p->opc == opcode(_unify_l_x_var))
+     else if (p->opc == _YAP_opcode(_unify_l_x_var))
        p = NEXTOP(p,ox);
-     else if (p->opc == opcode(_unify_l_y_var))
+     else if (p->opc == _YAP_opcode(_unify_l_y_var))
        p = NEXTOP(p,oy);
-     else if (p->opc == opcode(_unify_void))
+     else if (p->opc == _YAP_opcode(_unify_void))
        p = NEXTOP(p,o);
-     else if (p->opc == opcode(_unify_n_voids))
+     else if (p->opc == _YAP_opcode(_unify_n_voids))
        p = NEXTOP(p,os);
-     else if (p->opc == opcode(_unify_l_void))
+     else if (p->opc == _YAP_opcode(_unify_l_void))
        p = NEXTOP(p,o);
-     else if (p->opc == opcode(_unify_l_n_voids))
+     else if (p->opc == _YAP_opcode(_unify_l_n_voids))
        p = NEXTOP(p,os);
-     else if (p->opc == opcode(_cut))
+     else if (p->opc == _YAP_opcode(_cut))
        return(TRUE);
-     else if (p->opc == opcode(_cut_t))
+     else if (p->opc == _YAP_opcode(_cut_t))
        return(TRUE);
-     else if (p->opc == opcode(_cut_e))
+     else if (p->opc == _YAP_opcode(_cut_e))
        return(TRUE);
      else return(FALSE);
    }
@@ -167,7 +165,7 @@ static int followed_by_cut(yamop * code)
 inline static void 
 emit_tr(compiler_vm_op op, yamop * Address, int NClauses, int HasCut)
 {
-	emit(op, Unsigned(Address), (NClauses << 1) + HasCut);
+	_YAP_emit(op, Unsigned(Address), (NClauses << 1) + HasCut);
 }
 
 /* emits an opcode followed by an adress */
@@ -182,7 +180,7 @@ emit_try(compiler_vm_op op, int op_offset, yamop * Address, int NClauses, int Ha
       return;
     }
   }
-  emit((compiler_vm_op)((int)op + op_offset), Unsigned(Address), (NClauses << 1) + HasCut);
+  _YAP_emit((compiler_vm_op)((int)op + op_offset), Unsigned(Address), (NClauses << 1) + HasCut);
 }
 
 /*
@@ -202,7 +200,7 @@ inline static yamop *
 SecB(yamop * Arg)
 {
   yamop *pc = NEXTOP(Arg,ld);
-  if (pc->opc == opcode(_get_struct))
+  if (pc->opc == _YAP_opcode(_get_struct))
     return (NEXTOP(pc,xf));
   else
     return (NEXTOP(pc,xc));
@@ -227,7 +225,7 @@ inline static yamop *
 ThiB(yamop * Arg)
 {
   yamop *pc = NEXTOP(NEXTOP(Arg,ld),x);
-  if (pc->opc == opcode(_unify_struct))
+  if (pc->opc == _YAP_opcode(_unify_struct))
     return (NEXTOP(pc,of));
   else
     return (NEXTOP(pc,oc));
@@ -251,9 +249,9 @@ emit_cp_inst(compiler_vm_op op, yamop * Address, int Flag, int NClausesAfter)
 
   indexed_code_for_cut = NIL;
   if (op != try_op && profiling)
-    emit(retry_profiled_op, Unsigned(CurrentPred), Zero);
+    _YAP_emit(retry_profiled_op, Unsigned(CurrentPred), Zero);
   else if (op != try_op && call_counting)
-    emit(count_retry_op, Unsigned(CurrentPred), Zero);
+    _YAP_emit(count_retry_op, Unsigned(CurrentPred), Zero);
   if (NGroups == 1)
     Flag = Flag | LoneGroup;
   else if (Flag & LastGroup) {
@@ -348,8 +346,8 @@ static CELL
 emit_space(compiler_vm_op op, int space, int nof)
 {
   labelno += 2;
-  emit(label_op, labelno, Zero);
-  StorePoint = emit_extra_size(op, Unsigned(nof), space);
+  _YAP_emit(label_op, labelno, Zero);
+  StorePoint = _YAP_emit_extra_size(op, Unsigned(nof), space);
   return (labelno);
 }
 
@@ -358,11 +356,11 @@ static CELL
 emit_go(int Gender, Term Name)
 {
   labelno += 2;
-  emit(label_op, labelno, Zero);
+  _YAP_emit(label_op, labelno, Zero);
   if (Gender == ApplCl)
-    StorePoint = emit_extra_size(go_f_op, Zero, 3 * CellSize);
+    StorePoint = _YAP_emit_extra_size(go_f_op, Zero, 3 * CellSize);
   else
-    StorePoint = emit_extra_size(go_c_op, Zero, 3 * CellSize);
+    StorePoint = _YAP_emit_extra_size(go_c_op, Zero, 3 * CellSize);
   *StorePoint++ = Unsigned(Name);
   StorePoint[1] = (CELL)FailAddress;
   return (labelno);
@@ -373,7 +371,7 @@ emit_go(int Gender, Term Name)
 static void 
 emit_if_not(Term T1, CELL Ad1, CELL Ad2)
 {
-  StorePoint = emit_extra_size(if_not_op, Zero, 3 * CellSize);
+  StorePoint = _YAP_emit_extra_size(if_not_op, Zero, 3 * CellSize);
   *StorePoint++ = Unsigned(T1);
   *StorePoint++ = Unsigned(Ad1);
   StorePoint[0] = Unsigned(Ad2);
@@ -472,8 +470,8 @@ NGroupsIn(PredEntry *ap)
     if (y != PresentGroup) {
       Group++->Last = (ActualCl - 1)->Code;
       NGroups++;
-      if ((ADDR)Group > TrailTop-1024)
-	growtrail(64 * 1024L);
+      if ((ADDR)Group > _YAP_TrailTop-1024)
+	_YAP_growtrail(64 * 1024L);
       Group->First = q;
       Group->Start = ActualCl;
       Group->NCl = 0;
@@ -504,7 +502,7 @@ NGroupsIn(PredEntry *ap)
     if (ASP <= CellPtr (ActualCl) + 256) {
       freep = (char *)ActualCl;
       save_machine_regs();
-      longjmp(CompilerBotch, 3);
+      longjmp(_YAP_CompilerBotch, 3);
     }
     (Group->Type[x])++;
     (Group->NCl)++;
@@ -600,7 +598,7 @@ BuildHash(CELL *WhereTo, int NOfEntries, int TableSize, int Gend)
   }
 #ifdef DEBUG
 #ifdef CLASHES
-  YP_fprintf(YP_stderr,"hash table clashes: %d %d\n", clashes, NOfEntries);
+  fprintf(_YAP_stderr,"hash table clashes: %d %d\n", clashes, NOfEntries);
 #endif /* CLASHES */
 #endif /* DEBUG */
 }
@@ -629,7 +627,7 @@ TreatEntry(EntryDef *Entrance, int Gender, int PositionFlag, GroupDef *Gr)
       /* last group, meaning we already have a choice point set */
       register yamop *   k = (Entrance->First)->Code;
       labelno += 2;
-      emit(label_op, Entrance->Code = labelno, Zero);
+      _YAP_emit(label_op, Entrance->Code = labelno, Zero);
       if (PositionFlag & HeadIndex) {
 	emit_tr(trust_op, ThiB(k), 1, clause_has_cut(k));
       } else {
@@ -643,7 +641,7 @@ TreatEntry(EntryDef *Entrance, int Gender, int PositionFlag, GroupDef *Gr)
       /* a single alternative and a catchall clause */
       register yamop *  k = (Entrance->First)->Code;
       labelno += 2;
-      emit(label_op, Entrance->Code = labelno, Zero);
+      _YAP_emit(label_op, Entrance->Code = labelno, Zero);
       /* if we are in a list */
       if (PositionFlag & HeadIndex) {
 	/* we cannot emit to SecLB because switch might have already
@@ -685,7 +683,7 @@ TreatEntry(EntryDef *Entrance, int Gender, int PositionFlag, GroupDef *Gr)
     nofalts = Gr->NofClausesAfter+nofentries;
     k = Entrance->First;
     labelno += 2;
-    emit(label_op, (Entrance->Code = labelno), Zero);
+    _YAP_emit(label_op, (Entrance->Code = labelno), Zero);
     emit_cp_inst(try_op, k->Code, PositionFlag, nofalts);
     nofalts--;
     if (indexed_code_for_cut != NIL) {
@@ -698,7 +696,7 @@ TreatEntry(EntryDef *Entrance, int Gender, int PositionFlag, GroupDef *Gr)
       emit_cp_inst(trust_op, k->Code, PositionFlag, nofalts);
       /* emit a jump with the place to jump to after finishing this group */
       if (NGroups > 1 && !(PositionFlag & LastGroup) && !ExtendedSingle)
-	emit(jump_op, (CELL)((Gr+1)->First), Zero);
+	_YAP_emit(jump_op, (CELL)((Gr+1)->First), Zero);
     }
   }
 }
@@ -727,8 +725,8 @@ DealFixed(ClauseDef *j, int Gender, compiler_vm_op op, int Flag, GroupDef *Gr)
     while (l < NDiffTerms && Entry->Class != HeadName)
       Entry++, l++;
     if (l == NDiffTerms) {
-      if ((ADDR)Entry > TrailTop-1024)
-	growtrail(64 * 1024L);
+      if ((ADDR)Entry > _YAP_TrailTop-1024)
+	_YAP_growtrail(64 * 1024L);
       Entry->Class = HeadName;
       Entry->Last = Entry->First = j;
       NDiffTerms++;
@@ -786,7 +784,7 @@ DealFixedWithBips(ClauseDef *j, int NClauses, int Flag, GroupDef *Gr)
 
   labelno += 2;
   my_labelno = labelno;
-  emit(label_op, labelno, Zero);
+  _YAP_emit(label_op, labelno, Zero);
 #ifdef AGRESSIVE_BIPS
   if (j->Name != 0x0 && j->Next->Name != 0x0) {
     /*
@@ -811,7 +809,7 @@ DealFixedWithBips(ClauseDef *j, int NClauses, int Flag, GroupDef *Gr)
     while (j->Name != 0x0) i++, j = j->Next;
     Gr->NofClausesAfter = old_NAlts + G->NCl - i;
     DealFixed(j0, AtCl, switch_c_op, FirstIndex | IsAtom, Gr);
-    emit(label_op, old_labelno, Zero);
+    _YAP_emit(label_op, old_labelno, Zero);
     FailAddress = old_FailAddress;    
     ExtendedSingle = old_ExtendedSingle;
     Gr->NofClausesAfter = old_NAlts;
@@ -838,7 +836,7 @@ DealFixedWithBips(ClauseDef *j, int NClauses, int Flag, GroupDef *Gr)
   emit_cp_inst(trust_op, j->Code, Flag, nofalts);
   /* emit a jump with the place to jump to after finishing this group */
   if (NGroups > 1 && !(Flag & LastGroup) && !ExtendedSingle)
-    emit(jump_op, (CELL)((Gr+1)->First), Zero);
+    _YAP_emit(jump_op, (CELL)((Gr+1)->First), Zero);
   return(my_labelno);
 }
 
@@ -852,14 +850,14 @@ DealCons(int i)
     if (FinalGr(i)) {
       yamop * Cl = FindFirst(i, AtCl);
       labelno += 2;
-      emit(label_op, labelno, Zero);
+      _YAP_emit(label_op, labelno, Zero);
       emit_tr(trust_op, Cl, 1, clause_has_cut(Cl));
       return (labelno);
     } else if (ExtendedSingle) {
       yamop * Cl = FindFirst(i, AtCl);
 
       labelno += 2;
-      emit(label_op, labelno, Zero);
+      _YAP_emit(label_op, labelno, Zero);
       emit_tr(try_op, Cl, 2, clause_has_cut(Cl));
       emit_tr(trust_op, FailAddress, 1, clause_has_cut(FailAddress));
       return (labelno);
@@ -897,13 +895,13 @@ DealAppl(int i)
     if (FinalGr(i)) {
       yamop * Cl = FindFirst(i, ApplCl);
       labelno += 2;
-      emit(label_op, labelno, Zero);
+      _YAP_emit(label_op, labelno, Zero);
       emit_tr(trust_op, Cl, 1, clause_has_cut(Cl));
       return (labelno);
     } else if (ExtendedSingle) {
       yamop * Cl = FindFirst(i, ApplCl);
       labelno += 2;
-      emit(label_op, labelno, Zero);
+      _YAP_emit(label_op, labelno, Zero);
       emit_tr(try_op, Cl, 2, clause_has_cut(Cl));
       emit_tr(trust_op, FailAddress, 1, clause_has_cut(FailAddress));
       return (labelno);
@@ -931,12 +929,12 @@ StartList(int i)
     j++;
   if (FinalGr(i)) {
     labelno += 2;
-    emit(label_op, labelno, Zero);
+    _YAP_emit(label_op, labelno, Zero);
     emit_tr(trust_op, SecLB(j->Code), 1, clause_has_cut(j->Code));
     return (labelno);
   } else if (ExtendedSingle) {
     labelno += 2;
-    emit(label_op, labelno, Zero);
+    _YAP_emit(label_op, labelno, Zero);
     emit_tr(try_op, SecLB(j->Code), 2, clause_has_cut(j->Code));
     emit_tr(trust_op, FailAddress, 1, clause_has_cut(FailAddress));
     return (labelno);
@@ -980,7 +978,7 @@ DealLList(ClauseDef *j, int NOfClauses, int PositionFlag, int NG)
   else if (NOfClauses == 1) {
     if (FinalGr(NG)) {
       labelno += 2;
-      emit(label_op, labelno, Zero);
+      _YAP_emit(label_op, labelno, Zero);
       if (PositionFlag & FirstIndex)
 	emit_tr(trust_op, SecLB(j->Code), 1, clause_has_cut(j->Code));
       else
@@ -988,7 +986,7 @@ DealLList(ClauseDef *j, int NOfClauses, int PositionFlag, int NG)
       return (labelno);
     } else if (ExtendedSingle) {
       labelno += 2;
-      emit(label_op, labelno, Zero);
+      _YAP_emit(label_op, labelno, Zero);
       if (PositionFlag & FirstIndex)
 	emit_tr(try_op, SecLB(j->Code), 2, clause_has_cut(j->Code));
       else
@@ -1003,7 +1001,7 @@ DealLList(ClauseDef *j, int NOfClauses, int PositionFlag, int NG)
   if (FinalGr(NG))
     PositionFlag |= LastGroup;
   labelno += 2;
-  emit(label_op, labelno, Zero);
+  _YAP_emit(label_op, labelno, Zero);
   nofalts = Groups[NG].NofClausesAfter+NOfClauses;
   emit_cp_inst(try_op, j->Code, PositionFlag, nofalts);
   nofalts--;
@@ -1019,7 +1017,7 @@ DealLList(ClauseDef *j, int NOfClauses, int PositionFlag, int NG)
     emit_cp_inst(trust_op, j->Code, PositionFlag, nofalts);
     /* emit a jump with the place to jump to after finishing this group */
     if (NGroups > 1 && !(PositionFlag & LastGroup) && !ExtendedSingle)
-      emit(jump_op, (CELL)(Groups[NG+1].First), Zero);
+      _YAP_emit(jump_op, (CELL)(Groups[NG+1].First), Zero);
     return (labelno);
   }
 }
@@ -1097,7 +1095,7 @@ DealList(int i)
   else
     VFlags = FirstIndex | LastFoundList;
   labelno += 2;
-  emit(label_op, labelno, Zero);
+  _YAP_emit(label_op, labelno, Zero);
   emit_cp_inst(try_op, j->Code, VFlags, nofalts);
   nofalts--;
   if (indexed_code_for_cut != NIL) {
@@ -1112,7 +1110,7 @@ DealList(int i)
     emit_cp_inst(trust_op, j->Code, VFlags, nofalts);
     /* emit a jump with the place to jump to after finishing this group */
     if (NGroups > 1 && !(VFlags & LastGroup) && !ExtendedSingle)
-      emit(jump_op, (CELL)(Groups[i+1].First), Zero);
+      _YAP_emit(jump_op, (CELL)(Groups[i+1].First), Zero);
     return (labelno);
   }
 }
@@ -1241,11 +1239,11 @@ IndexVarGr(int Count)
     Cla++;
     nofalts--;
   } else if (Count == NGroups - 1 && Gr->NCl == 1) {
-    emit(label_op, Unsigned(Gr->First), Zero);
+    _YAP_emit(label_op, Unsigned(Gr->First), Zero);
     emit_tr(trust_op, Body((Cla)->Code), 1, clause_has_cut(Cla->Code));
     return;
   } else {
-    emit(label_op, Unsigned(Gr->First), Zero);
+    _YAP_emit(label_op, Unsigned(Gr->First), Zero);
     emit_tr(retry_op, Body((Cla)->Code), nofalts, clause_has_cut(Cla->Code));
     Cla++;
     nofalts--;
@@ -1279,7 +1277,7 @@ ComplexCase(void)
 
   if (IsExtendedSingle(0))
     return (SimpleCase());
-  emit(jump_v_op, (CELL) FirstCl, Zero);
+  _YAP_emit(jump_v_op, (CELL) FirstCl, Zero);
   if (Groups[0].Type[VarCl] == 0)
     i = 0;
   else {
@@ -1319,19 +1317,19 @@ SpecialCases(void)
 }
 
 CODEADDR
-PredIsIndexable(PredEntry *ap)
+_YAP_PredIsIndexable(PredEntry *ap)
 {
   int      NGr, Indexable = 0;
   CODEADDR indx_out = NIL;
   log_update = 0;
 
-  if (setjmp(CompilerBotch) == 3) {
+  if (setjmp(_YAP_CompilerBotch) == 3) {
     /* just duplicate the stack */
     restore_machine_regs();
-    gc(ap->ArityOfPE, ENV, CP);
+    _YAP_gc(ap->ArityOfPE, ENV, CP);
   }
  restart_index:
-  ErrorMessage = NULL;
+  _YAP_ErrorMessage = NULL;
   labelno = 1;
   RemovedCl = FALSE;
   FirstCl = (yamop *)(ap->FirstClause);
@@ -1353,7 +1351,7 @@ PredIsIndexable(PredEntry *ap)
   Entries = (EntryDef *) (Groups + NGroups);
   CodeStart = cpc = NIL;
   freep = (char *) (ArOfCl + NClauses);
-  if (ErrorMessage != NULL) {
+  if (_YAP_ErrorMessage != NULL) {
     return (NIL);
   }
   if (CurrentPred->PredFlags & LogUpdatePredFlag) {
@@ -1372,7 +1370,7 @@ PredIsIndexable(PredEntry *ap)
       Indexable = SpecialCases();
   }
   if (CellPtr(freep) >= ASP) {
-    Error(SYSTEM_ERROR, TermNil, "out of stack space while indexing");
+    _YAP_Error(SYSTEM_ERROR, TermNil, "out of stack space while indexing");
     return(NIL);
   }
   if (log_update && NClauses > 1) {
@@ -1380,8 +1378,8 @@ PredIsIndexable(PredEntry *ap)
     Clause *cl;
 
     Indexable = TRUE;
-    emit(label_op, log_update, Zero);
-    emit(try_op, Unsigned(Body(ArOfCl[0].Code)), Zero);
+    _YAP_emit(label_op, log_update, Zero);
+    _YAP_emit(try_op, Unsigned(Body(ArOfCl[0].Code)), Zero);
     cl = ClauseCodeToClause(ArOfCl[0].Code);
     if (cl->ClFlags & LogUpdRuleMask) {
       cl->u2.ClExt->u.EC.ClRefs++;
@@ -1389,7 +1387,7 @@ PredIsIndexable(PredEntry *ap)
       cl->u2.ClUse++;
     }
     for (i = 1; i < NClauses-1; i++) {
-      emit(retry_op, Unsigned(Body(ArOfCl[i].Code)), Zero);
+      _YAP_emit(retry_op, Unsigned(Body(ArOfCl[i].Code)), Zero);
       cl = ClauseCodeToClause(ArOfCl[0].Code);
       if (cl->ClFlags & LogUpdRuleMask) {
 	cl->u2.ClExt->u.EC.ClRefs++;
@@ -1397,7 +1395,7 @@ PredIsIndexable(PredEntry *ap)
 	cl->u2.ClUse++;
       }
     }
-    emit(trust_op, Unsigned(Body(ArOfCl[i].Code)), Zero);
+    _YAP_emit(trust_op, Unsigned(Body(ArOfCl[i].Code)), Zero);
     cl = ClauseCodeToClause(ArOfCl[i].Code);
     if (cl->ClFlags & LogUpdRuleMask) {
       cl->u2.ClExt->u.EC.ClRefs++;
@@ -1409,13 +1407,13 @@ PredIsIndexable(PredEntry *ap)
     return (NIL);
   } else {
 #ifdef DEBUG
-    if (Option['i' - 'a' + 1]) {
-      ShowCode();
+    if (_YAP_Option['i' - 'a' + 1]) {
+      _YAP_ShowCode();
     }
 #endif
-    if ((indx_out = assemble(ASSEMBLING_INDEX)) == NIL) {
-      if (!growheap(FALSE)) {
-	Error(SYSTEM_ERROR, TermNil, ErrorMessage);
+    if ((indx_out = _YAP_assemble(ASSEMBLING_INDEX)) == NIL) {
+      if (!_YAP_growheap(FALSE)) {
+	_YAP_Error(SYSTEM_ERROR, TermNil, _YAP_ErrorMessage);
 	return(FALSE);
       }
       goto restart_index;

@@ -167,6 +167,7 @@ STATIC_PROTO (Int p_startline, (void));
 STATIC_PROTO (Int p_change_type_of_char, (void));
 STATIC_PROTO (Int p_type_of_char, (void));
 STATIC_PROTO (Int GetArgSizeFromChar, (Term *));
+STATIC_PROTO (void CloseStream, (int));
 
 
 
@@ -176,45 +177,8 @@ static int first_char;
 
 static int StartLine;
 
-int YP_stdin = 0;
-int YP_stdout = 1;
-int YP_stderr = 2;
-
-int c_input_stream, c_output_stream;
-
-/* note: fprintf may be called from anywhere, so please don't try
-   to be smart and allocate stack from somewhere else */
-int
-YP_fprintf(int sno, char *format,...)
-{
-  va_list ap;
-  char buf[512], *ptr = buf;
-  int r = 0;
-
-  va_start(ap,format);
-#ifdef HAVE_VSNPRINTF
-  vsnprintf(buf,512,format,ap);
-#else
-  vsprintf(buf,format,ap);
-#endif
-  va_end(ap);
-
-  while (*ptr) {
-    Stream[sno].stream_putc(sno, *ptr++);
-    r++;
-  }
-  return r;
-}
-
-int
-YP_putc(int ch, int sno)
-{
-  Stream[sno].stream_putc(sno, ch);
-  return(ch);
-}
-
-int
-YP_fflush(int sno)
+static int
+yap_fflush(int sno)
 {
 #if HAVE_LIBREADLINE
   if (Stream[sno].status & Tty_Stream_f &&
@@ -246,7 +210,7 @@ unix_upd_stream_info (StreamDesc * s)
     return;
   }
 #if USE_SOCKET
-  if (YP_sockets_io &&
+  if (_YAP_sockets_io &&
       (YP_fileno (s->u.file.file) == 0))
     {
       s->status |= Socket_Stream_f;
@@ -282,7 +246,7 @@ unix_upd_stream_info (StreamDesc * s)
   /* isatty does not seem to work with simplescar. I'll assume the first
      three streams will probably be ttys (pipes are not thatg different) */
   if (s-Stream < 3) {
-    s->u.file.name = LookupAtom("tty");
+    s->u.file.name = _YAP_LookupAtom("tty");
     s->status |= Tty_Stream_f|Reset_Eof_Stream_f|Promptable_Stream_f;
   }
 #else 
@@ -293,11 +257,11 @@ unix_upd_stream_info (StreamDesc * s)
 #if HAVE_TTYNAME      
 	char *ttys = ttyname(filedes);
 	if (ttys == NULL)
-	  s->u.file.name = LookupAtom("tty");
+	  s->u.file.name = _YAP_LookupAtom("tty");
 	else
-	  s->u.file.name = LookupAtom(ttys);
+	  s->u.file.name = _YAP_LookupAtom(ttys);
 #else
-	s->u.file.name = LookupAtom("tty");
+	s->u.file.name = _YAP_LookupAtom("tty");
 #endif
 	s->status |= Tty_Stream_f|Reset_Eof_Stream_f|Promptable_Stream_f;
 	return;
@@ -397,13 +361,13 @@ InitStdStream (int sno, SMALLUNSGN flags, YP_File file, Atom name)
     } 
     switch(sno) {
     case 0:
-      s->u.file.name=LookupAtom("user_input");
+      s->u.file.name=_YAP_LookupAtom("user_input");
       break;
     case 1:
-      s->u.file.name=LookupAtom("user_output");
+      s->u.file.name=_YAP_LookupAtom("user_output");
       break;
     default:
-      s->u.file.name=LookupAtom("user_error");
+      s->u.file.name=_YAP_LookupAtom("user_error");
       break;
     }
     s->u.file.user_name = MkAtomTerm (s->u.file.name);
@@ -425,14 +389,15 @@ InitStdStream (int sno, SMALLUNSGN flags, YP_File file, Atom name)
 }
 
 
-void
+static void
 InitStdStreams (void)
 {
   InitStdStream (StdInStream, Input_Stream_f, stdin, AtomUsrIn);
   InitStdStream (StdOutStream, Output_Stream_f, stdout, AtomUsrOut);
   InitStdStream (StdErrStream, Output_Stream_f, stderr, AtomUsrErr);
-  c_input_stream = StdInStream;
-  c_output_stream = StdOutStream;
+  _YAP_c_input_stream = StdInStream;
+  _YAP_c_output_stream = StdOutStream;
+  _YAP_c_error_stream = StdErrStream;
   /* init standard aliases */
   FileAliases[0].name = AtomUsrIn;
   FileAliases[0].alias_stream = 0;
@@ -445,6 +410,12 @@ InitStdStreams (void)
 }
 
 void
+_YAP_InitStdStreams (void)
+{
+  InitStdStreams();
+}
+
+static void
 InitPlIO (void)
 {
   Int i;
@@ -452,15 +423,21 @@ InitPlIO (void)
   for (i = 0; i < MaxStreams; ++i)
     Stream[i].status = Free_Stream_f;
   /* alloca alias array */
-  FileAliases = (AliasDesc)AllocCodeSpace(sizeof(struct AliasDescS)*ALIASES_BLOCK_SIZE);
+  FileAliases = (AliasDesc)_YAP_AllocCodeSpace(sizeof(struct AliasDescS)*ALIASES_BLOCK_SIZE);
   InitStdStreams();
+}
+
+void
+_YAP_InitPlIO (void)
+{
+  InitPlIO ();
 }
 
 static Int
 PlIOError (yap_error_number type, Term culprit, char *who)
 {
-  if (GetValue(LookupAtom("fileerrors")) == MkIntTerm(1)) {
-    Error(type, culprit, who);
+  if (_YAP_GetValue(_YAP_LookupAtom("fileerrors")) == MkIntTerm(1)) {
+    _YAP_Error(type, culprit, who);
     /* and fail */
     return(FALSE);
   } else {
@@ -472,7 +449,7 @@ PlIOError (yap_error_number type, Term culprit, char *who)
  * Used by the prompts to check if they are after a newline, and then a
  * prompt should be output, or if we are in the middle of a line.
  */
-int newline = TRUE;
+static int newline = TRUE;
 
 static void
 count_output_char(int ch, StreamDesc *s, int sno)
@@ -485,7 +462,7 @@ count_output_char(int ch, StreamDesc *s, int sno)
 	  !(s->status & Null_Stream_f))
 	{
 	  putc (MPWSEP, s->u.file.file);
-	  if (!(Stream[c_output_stream].status & Null_Stream_f))
+	  if (!(Stream[_YAP_c_output_stream].status & Null_Stream_f))
 	    fflush (stdout);
 	}
 #endif
@@ -516,7 +493,7 @@ console_count_output_char(int ch, StreamDesc *s, int sno)
 	  !(s->status & Null_Stream_f))
 	{
 	  putc (MPWSEP, s->u.file.file);
-	  if (!(Stream[c_output_stream].status & Null_Stream_f))
+	  if (!(Stream[_YAP_c_output_stream].status & Null_Stream_f))
 	    fflush (stdout);
 	}
 #endif
@@ -537,6 +514,85 @@ console_count_output_char(int ch, StreamDesc *s, int sno)
     ++s->linepos;
   }
 }
+
+#ifdef DEBUG
+
+static       int   eolflg = 1;
+
+
+
+static char     my_line[200] = {0};
+static char    *lp = my_line;
+
+static YP_File     curfile;
+
+#ifdef MACC
+
+static void 
+InTTYLine(char *line)
+{
+	char           *p = line;
+	char            ch;
+	while ((ch = InKey()) != '\n' && ch != '\r')
+		if (ch == 8) {
+			if (line < p)
+				BackupTTY(*--p);
+		} else
+			TTYChar(*p++ = ch);
+	TTYChar('\n');
+	*p = 0;
+}
+
+#endif
+
+void 
+_YAP_DebugSetIFile(char *fname)
+{
+  if (curfile)
+    YP_fclose(curfile);
+  curfile = YP_fopen(fname, "r");
+  if (curfile == NULL) {
+    curfile = stdin;
+    fprintf(stderr,"[ Warning: can not open %s for input]\n", fname);
+  }
+}
+
+void 
+_YAP_DebugEndline()
+{
+	*lp = 0;
+
+}
+
+int 
+_YAP_DebugGetc()
+{
+  int             ch;
+  if (eolflg) {
+    if (curfile != NULL) {
+      if (YP_fgets(my_line, 200, curfile) == 0)
+	curfile = NULL;
+    }
+    if (curfile == NULL)
+      YP_fgets(my_line, 200, stdin);
+    eolflg = 0;
+    lp = my_line;
+  }
+  if ((ch = *lp++) == 0)
+    ch = '\n', eolflg = 1;
+  if (_YAP_Option['l' - 96])
+    putc(ch, _YAP_logfile);
+  return (ch);
+}
+
+int 
+_YAP_DebugPutc(int sno, int ch)
+{
+  if (_YAP_Option['l' - 96])
+    (void) putc(ch, _YAP_logfile);
+  return (putc(ch, _YAP_stderr));
+}
+#endif
 
 /* static */
 static int
@@ -573,13 +629,13 @@ MemPutc(int sno, int ch)
 #endif
   s->u.mem_string.buf[s->u.mem_string.pos++] = ch;
   if (s->u.mem_string.pos == s->u.mem_string.max_size) {
-    extern int page_size;
+    extern int _YAP_page_size;
     /* oops, we have reached an overflow */
-    Int new_max_size = s->u.mem_string.max_size + page_size;
+    Int new_max_size = s->u.mem_string.max_size + _YAP_page_size;
     char *newbuf;
 
-    if ((newbuf = AllocAtomSpace(new_max_size*sizeof(char))) == NULL) {
-      Error(SYSTEM_ERROR, TermNil, "YAP could not grow heap for writing to string");
+    if ((newbuf = _YAP_AllocAtomSpace(new_max_size*sizeof(char))) == NULL) {
+      _YAP_Error(SYSTEM_ERROR, TermNil, "YAP could not grow heap for writing to string");
     }
 #if HAVE_MEMMOVE
     memmove((void *)newbuf, (void *)s->u.mem_string.buf, (size_t)((s->u.mem_string.pos)*sizeof(char)));
@@ -593,7 +649,7 @@ MemPutc(int sno, int ch)
       }
     }
 #endif
-    FreeAtomSpace(s->u.mem_string.buf);
+    _YAP_FreeAtomSpace(s->u.mem_string.buf);
     s->u.mem_string.buf = newbuf;
     s->u.mem_string.max_size = new_max_size;
   }
@@ -743,13 +799,13 @@ p_prompt (void)
 {				/* prompt(Old,New)       */
   Term t = Deref (ARG2);
   Atom a;
-  if (!unify_constant (ARG1, MkAtomTerm (*AtPrompt)))
+  if (!_YAP_unify_constant (ARG1, MkAtomTerm (*AtPrompt)))
     return (FALSE);
   if (IsVarTerm (t) || !IsAtomTerm (t))
     return (FALSE);
   a = AtomOfTerm (t);
   if (strlen (RepAtom (a)->StrOfAE) > MAX_PROMPT) {
-    Error(SYSTEM_ERROR,t,"prompt %s is too long", RepAtom (a)->StrOfAE);
+    _YAP_Error(SYSTEM_ERROR,t,"prompt %s is too long", RepAtom (a)->StrOfAE);
     return(FALSE);
   }
   strncpy(Prompt, RepAtom (a)->StrOfAE, MAX_PROMPT);
@@ -763,7 +819,7 @@ extern void add_history (const char *);
 
 static char *ttyptr = NULL;
 
-char *_line = (char *) NULL;
+static char *_line = (char *) NULL;
 
 static int cur_out_sno = 2;
 
@@ -771,7 +827,7 @@ static int cur_out_sno = 2;
 
 static void
 InitReadline(void) {
-  ReadlineBuf = (char *)AllocAtomSpace(READLINE_OUT_BUF_MAX+1);
+  ReadlineBuf = (char *)_YAP_AllocAtomSpace(READLINE_OUT_BUF_MAX+1);
   ReadlinePos = ReadlineBuf;
 #if _MSC_VER || defined(__MINGW32__)
   rl_instream = stdin;
@@ -811,6 +867,36 @@ ReadlinePutc (int sno, int ch)
   return ((int) ch);
 }
 
+int
+_YAP_GetCharForSIGINT(void)
+{
+  int ch;
+#if  HAVE_LIBREADLINE
+  if ((_YAP_PrologMode & ConsoleGetcMode) && _line != (char *) NULL) {
+    ch = _line[0];
+    free(_line);
+    _line = NULL;
+  } else {
+    _line = readline ("Action (h for help): ");
+    if (_line == (char *)NULL || _line == (char *)EOF) {
+      ch = EOF;
+    } else {
+      ch = _line[0];
+      free(_line);
+      _line = NULL;
+    }
+  }
+#else
+  /* ask for a new line */
+  fprintf(stderr, "Action (h for help): ");
+  ch = getc(stdin);
+  /* first process up to end of line */
+  while ((fgetc(stdin)) != '\n');
+#endif
+  newline = TRUE;
+  return ch;
+}
+
 /*
   reading from the console is complicated because we need to
   know whether to prompt and so on... 
@@ -837,36 +923,36 @@ ReadlineGetc(int sno)
 	while ((ch = *cptr++) != '\0') {
 	  console_count_output_char(ch,Stream+StdErrStream,StdErrStream);
 	}
-	PrologMode |= ConsoleGetcMode;
+	_YAP_PrologMode |= ConsoleGetcMode;
 	_line = readline (Prompt);
       } else {
-	PrologMode |= ConsoleGetcMode;
+	_YAP_PrologMode |= ConsoleGetcMode;
 	_line = readline (NULL);
       }
     } else {
       if (ReadlinePos != ReadlineBuf) {
 	ReadlinePos[0] = '\0';
 	ReadlinePos = ReadlineBuf;
-	PrologMode |= ConsoleGetcMode;
+	_YAP_PrologMode |= ConsoleGetcMode;
 	_line = readline (ReadlineBuf);
       } else {
-	PrologMode |= ConsoleGetcMode;
+	_YAP_PrologMode |= ConsoleGetcMode;
 	_line = readline (NULL);
       }
     }
     /* Do it the gnu way */
-    if (PrologMode & InterruptMode) {
-      PrologMode &= ~InterruptMode;
-      ProcessSIGINT();
-      PrologMode &= ~ConsoleGetcMode;
-      if (PrologMode & AbortMode) {
-	Error(PURE_ABORT, TermNil, "");
-	ErrorMessage = "Abort";
+    if (_YAP_PrologMode & InterruptMode) {
+      _YAP_PrologMode &= ~InterruptMode;
+      _YAP_ProcessSIGINT();
+      _YAP_PrologMode &= ~ConsoleGetcMode;
+      if (_YAP_PrologMode & AbortMode) {
+	_YAP_Error(PURE_ABORT, TermNil, "");
+	_YAP_ErrorMessage = "Abort";
 	return(console_post_process_read_char(EOF, s, sno));
       }
       continue;
     } else {
-      PrologMode &= ~ConsoleGetcMode;
+      _YAP_PrologMode &= ~ConsoleGetcMode;
     }
     newline=FALSE;
     strncpy (Prompt, RepAtom (*AtPrompt)->StrOfAE, MAX_PROMPT);
@@ -901,7 +987,7 @@ EOFGetc(int sno)
     return(EOF);
   }	  
   if (s->status & Eof_Error_Stream_f) {
-    Error(PERMISSION_ERROR_INPUT_PAST_END_OF_STREAM,MkAtomTerm(s->u.file.name),
+    _YAP_Error(PERMISSION_ERROR_INPUT_PAST_END_OF_STREAM,MkAtomTerm(s->u.file.name),
 	  "GetC");
   } else if (s->status & Reset_Eof_Stream_f) {
     /* reset the eof indicator on file */
@@ -1033,10 +1119,10 @@ SocketGetc(int sno)
     ch = c;
   } else {
 #if HAVE_STRERROR
-      Error(SYSTEM_ERROR, TermNil, 
+      _YAP_Error(SYSTEM_ERROR, TermNil, 
 	    "( socket_getc: %s)", strerror(errno));
 #else
-      Error(SYSTEM_ERROR, TermNil,
+      _YAP_Error(SYSTEM_ERROR, TermNil,
 	    "(socket_getc)");
 #endif
     return(EOF);
@@ -1067,19 +1153,19 @@ ConsoleSocketGetc(int sno)
     newline = FALSE;
   }
   /* should be able to use a buffer */
-  PrologMode |= ConsoleGetcMode;
+  _YAP_PrologMode |= ConsoleGetcMode;
 #if _MSC_VER || defined(__MINGW32__)
   count = recv(s->u.socket.fd, &c, sizeof(char), 0);
 #else
   count = read(s->u.socket.fd, &c, sizeof(char));
 #endif
-  PrologMode &= ~ConsoleGetcMode;
+  _YAP_PrologMode &= ~ConsoleGetcMode;
   if (count == 0) {
     ch = EOF;
   } else if (count > 0) {
     ch = c;
   } else {
-    Error(SYSTEM_ERROR, TermNil, "read");
+    _YAP_Error(SYSTEM_ERROR, TermNil, "read");
     return(EOF);
   }
   return(console_post_process_read_char(ch, s, sno));
@@ -1108,7 +1194,7 @@ PipeGetc(int sno)
   } else if (count > 0) {
     ch = c;
   } else {
-    Error(SYSTEM_ERROR, TermNil, "read");
+    _YAP_Error(SYSTEM_ERROR, TermNil, "read");
     return(EOF);
   }
   return(post_process_read_char(ch, s, sno));
@@ -1142,23 +1228,23 @@ ConsolePipeGetc(int sno)
   }
 #if _MSC_VER || defined(__MINGW32__) 
   if (WriteFile(s->u.pipe.hdl, &c, sizeof(c), &count, NULL) == FALSE) {
-    PrologMode |= ConsoleGetcMode;
+    _YAP_PrologMode |= ConsoleGetcMode;
     PlIOError (SYSTEM_ERROR,TermNil, "read from pipe returned error");
-    PrologMode &= ~ConsoleGetcMode;
+    _YAP_PrologMode &= ~ConsoleGetcMode;
     return(EOF);
   }
 #else
   /* should be able to use a buffer */
-  PrologMode |= ConsoleGetcMode;
+  _YAP_PrologMode |= ConsoleGetcMode;
   count = read(s->u.pipe.fd, &c, sizeof(char));
-  PrologMode &= ~ConsoleGetcMode;
+  _YAP_PrologMode &= ~ConsoleGetcMode;
 #endif
   if (count == 0) {
     ch = EOF;
   } else if (count > 0) {
     ch = c;
   } else {
-    Error(SYSTEM_ERROR, TermNil, "read");
+    _YAP_Error(SYSTEM_ERROR, TermNil, "read");
     return(EOF);
   }
   return(console_post_process_read_char(ch, s, sno));
@@ -1232,24 +1318,24 @@ ConsoleGetc(int sno)
 #if HAVE_SIGINTERRUPT
   siginterrupt(SIGINT, TRUE);
 #endif
-  PrologMode |= ConsoleGetcMode;
+  _YAP_PrologMode |= ConsoleGetcMode;
   ch = YP_fgetc(s->u.file.file);
 #if HAVE_SIGINTERRUPT
   siginterrupt(SIGINT, FALSE);
 #endif
-  if (PrologMode & InterruptMode) {
-    PrologMode &= ~InterruptMode;
-    ProcessSIGINT();
-    PrologMode &= ~ConsoleGetcMode;
+  if (_YAP_PrologMode & InterruptMode) {
+    _YAP_PrologMode &= ~InterruptMode;
+    _YAP_ProcessSIGINT();
+    _YAP_PrologMode &= ~ConsoleGetcMode;
     newline = TRUE;
-    if (PrologMode & AbortMode) {
-      Error(PURE_ABORT, TermNil, "");
-      ErrorMessage = "Abort";
+    if (_YAP_PrologMode & AbortMode) {
+      _YAP_Error(PURE_ABORT, TermNil, "");
+      _YAP_ErrorMessage = "Abort";
       return(console_post_process_read_char(EOF, s, sno));
     }
     goto restart;
   } else {
-    PrologMode &= ~ConsoleGetcMode;
+    _YAP_PrologMode &= ~ConsoleGetcMode;
   }
   return(console_post_process_read_char(ch, s, sno));
 }
@@ -1289,16 +1375,16 @@ PlUnGetc (int sno)
 
 /* used by user-code to read characters from the current input stream */
 int
-PlGetchar (void)
+_YAP_PlGetchar (void)
 {
-  return(Stream[c_input_stream].stream_getc(c_input_stream));
+  return(Stream[_YAP_c_input_stream].stream_getc(_YAP_c_input_stream));
 }
 
 /* avoid using a variable to call a function */
 int
-PlFGetchar (void)
+_YAP_PlFGetchar (void)
 {
-  return(PlGetc(c_input_stream));
+  return(PlGetc(_YAP_c_input_stream));
 }
 
 
@@ -1307,7 +1393,7 @@ MkStream (int n)
 {
   Term t[1];
   t[0] = MkIntTerm (n);
-  return (MkApplTerm (FunctorStream, 1, t));
+  return (_YAP_MkApplTerm (FunctorStream, 1, t));
 }
 
 static Int
@@ -1317,7 +1403,7 @@ p_stream_flags (void)
   trm = Deref (ARG1);
   if (IsVarTerm (trm) || !IsIntTerm (trm))
     return (FALSE);
-  return (unify_constant (ARG2, MkIntTerm (Stream[IntOfTerm (trm)].status)));
+  return (_YAP_unify_constant (ARG2, MkIntTerm (Stream[IntOfTerm (trm)].status)));
 }
 
 static int
@@ -1326,7 +1412,7 @@ find_csult_file (char *source, char *buf, StreamDesc * st, char *io_mode)
 
   char *cp = source, ch;
   while (*cp++);
-  while ((ch = *--cp) != '.' && !dir_separator((int)ch) && cp != source);
+  while ((ch = *--cp) != '.' && !_YAP_dir_separator((int)ch) && cp != source);
   if (ch == '.')
     return (FALSE);
   strncpy (buf, source, YAP_FILENAME_MAX);
@@ -1341,7 +1427,7 @@ find_csult_file (char *source, char *buf, StreamDesc * st, char *io_mode)
 }
 
 /* given a stream index, get the corresponding fd */
-int
+static int
 GetStreamFd(int sno)
 {
 #if USE_SOCKET
@@ -1361,9 +1447,15 @@ GetStreamFd(int sno)
   return(YP_fileno(Stream[sno].u.file.file));
 }
 
+int
+_YAP_GetStreamFd(int sno)
+{
+  return GetStreamFd(sno);
+}
+
 /* given a socket file descriptor, get the corresponding stream descripor */
 int
-CheckIOStream(Term stream, char * error)
+_YAP_CheckIOStream(Term stream, char * error)
 {
   return(CheckStream(stream, Input_Stream_f|Output_Stream_f|Socket_Stream_f, error));
 }
@@ -1371,7 +1463,7 @@ CheckIOStream(Term stream, char * error)
 #if USE_SOCKET
 
 Term
-InitSocketStream(int fd, socket_info flags, socket_domain domain) {
+_YAP_InitSocketStream(int fd, socket_info flags, socket_domain domain) {
   StreamDesc *st;
   int sno;
 
@@ -1407,28 +1499,28 @@ InitSocketStream(int fd, socket_info flags, socket_domain domain) {
 
 /* given a socket file descriptor, get the corresponding stream descripor */
 int
-CheckSocketStream(Term stream, char * error)
+_YAP_CheckSocketStream(Term stream, char * error)
 {
   return(CheckStream(stream, Socket_Stream_f, error));
 }
 
 /* given a stream index, get the corresponding domain */
 socket_domain
-GetSocketDomain(int sno)
+_YAP_GetSocketDomain(int sno)
 {
   return(Stream[sno].u.socket.domain);
 }
 
 /* given a stream index, get the corresponding status */
 socket_info
-GetSocketStatus(int sno)
+_YAP_GetSocketStatus(int sno)
 {
   return(Stream[sno].u.socket.flags);
 }
 
 /* update info on a socket, eg, new->server or new->client */
 void
-UpdateSocketStream(int sno, socket_info flags, socket_domain domain) {
+_YAP_UpdateSocketStream(int sno, socket_info flags, socket_domain domain) {
   StreamDesc *st;
 
   st = &Stream[sno];
@@ -1479,18 +1571,18 @@ p_open (void)
   file_name = Deref(ARG1);
   /* we know file_name is bound */
   if (!IsAtomTerm (file_name)) {
-    Error(DOMAIN_ERROR_SOURCE_SINK,file_name, "open/3");
+    _YAP_Error(DOMAIN_ERROR_SOURCE_SINK,file_name, "open/3");
     return(FALSE);
   }
   t2 = Deref (ARG2);
   if (!IsAtomTerm (t2)) {
-    Error(TYPE_ERROR_ATOM,t2, "open/3");
+    _YAP_Error(TYPE_ERROR_ATOM,t2, "open/3");
     return(FALSE);
   }
   open_mode = AtomOfTerm (t2);
   if (open_mode == AtomRead || open_mode == AtomCsult) {
     if (open_mode == AtomCsult && AtomOfTerm(file_name) == AtomUsrIn) {
-      return(unify(MkStream(FileAliases[0].alias_stream), ARG3));
+      return(_YAP_unify(MkStream(FileAliases[0].alias_stream), ARG3));
     }
     strncpy(io_mode,"rb", 8);
     s = Input_Stream_f;
@@ -1501,10 +1593,10 @@ p_open (void)
     strncpy(io_mode,"a",8);
 	s = Append_Stream_f | Output_Stream_f;
   } else {
-    Error(DOMAIN_ERROR_IO_MODE, t2, "open/3");
+    _YAP_Error(DOMAIN_ERROR_IO_MODE, t2, "open/3");
     return(FALSE);   
   }
-  if (!TrueFileName (RepAtom (AtomOfTerm (file_name))->StrOfAE, FileNameBuf, FALSE))
+  if (!_YAP_TrueFileName (RepAtom (AtomOfTerm (file_name))->StrOfAE, _YAP_FileNameBuf, FALSE))
     return (PlIOError (EXISTENCE_ERROR_SOURCE_SINK,file_name,"open/3"));
   for (sno = 0; sno < MaxStreams; ++sno)
     if (Stream[sno].status & Free_Stream_f)
@@ -1524,14 +1616,14 @@ p_open (void)
     strncat(io_mode, "t", 8);
   }
 #endif
-  if ((st->u.file.file = YP_fopen (FileNameBuf, io_mode)) == YAP_ERROR ||
-      (!(opts & 2 /* binary */) && binary_file(FileNameBuf)))
+  if ((st->u.file.file = YP_fopen (_YAP_FileNameBuf, io_mode)) == YAP_ERROR ||
+      (!(opts & 2 /* binary */) && binary_file(_YAP_FileNameBuf)))
     {
       if (open_mode == AtomCsult)
 	{
-	  if (!find_csult_file (FileNameBuf, FileNameBuf2, st, io_mode))
+	  if (!find_csult_file (_YAP_FileNameBuf, _YAP_FileNameBuf2, st, io_mode))
 	    return (PlIOError (EXISTENCE_ERROR_SOURCE_SINK, file_name, "open/3"));
-	  strncpy (FileNameBuf, FileNameBuf2, YAP_FILENAME_MAX);
+	  strncpy (_YAP_FileNameBuf, _YAP_FileNameBuf2, YAP_FILENAME_MAX);
 	}
       else {
 	if (errno == ENOENT)
@@ -1543,13 +1635,13 @@ p_open (void)
 #if MAC
   if (open_mode == AtomWrite)
     {
-      SetTextFile (RepAtom (AtomOfTerm (file_name))->StrOfAE);
+      _YAP_SetTextFile (RepAtom (AtomOfTerm (file_name))->StrOfAE);
     }
 #endif
   st->status = s;
   st->charcount = 0;
   st->linecount = 1;
-  st->u.file.name = LookupAtom (FileNameBuf);
+  st->u.file.name = _YAP_LookupAtom (_YAP_FileNameBuf);
   st->u.file.user_name = file_name;
   st->linepos = 0;
   st->stream_putc = FilePutc;
@@ -1579,8 +1671,8 @@ p_open (void)
 	  st->stream_getc = PlGetc;
 	}
 	ta[1] = MkAtomTerm(AtomTrue);
-	t = MkApplTerm(MkFunctor(LookupAtom("reposition"),1),1,ta);
-	Error(PERMISSION_ERROR_OPEN_SOURCE_SINK,t,"open/4");
+	t = _YAP_MkApplTerm(_YAP_MkFunctor(_YAP_LookupAtom("reposition"),1),1,ta);
+	_YAP_Error(PERMISSION_ERROR_OPEN_SOURCE_SINK,t,"open/4");
 	return(FALSE);
       }
       /* useless crap */
@@ -1608,7 +1700,7 @@ p_open (void)
   else
     st->stream_getc_for_read = st->stream_getc;
   t = MkStream (sno);
-  return (unify (ARG3, t));
+  return (_YAP_unify (ARG3, t));
 }
 
 
@@ -1622,9 +1714,9 @@ p_file_expansion (void)
     PlIOError(TYPE_ERROR_ATOM, file_name, "absolute_file_name/3");
     return(FALSE);
   }
-  if (!TrueFileName (RepAtom (AtomOfTerm (file_name))->StrOfAE, FileNameBuf, FALSE))
+  if (!_YAP_TrueFileName (RepAtom (AtomOfTerm (file_name))->StrOfAE, _YAP_FileNameBuf, FALSE))
     return (PlIOError (EXISTENCE_ERROR_SOURCE_SINK,file_name,"absolute_file_name/3"));
-  return(unify(ARG2,MkAtomTerm(LookupAtom(FileNameBuf))));
+  return(_YAP_unify(ARG2,MkAtomTerm(_YAP_LookupAtom(_YAP_FileNameBuf))));
 }
 
 
@@ -1636,18 +1728,18 @@ static Int p_add_alias_to_stream (void)
   Int sno;
 
   if (IsVarTerm(tname)) {
-    Error(INSTANTIATION_ERROR, tname, "$add_alias_to_stream");
+    _YAP_Error(INSTANTIATION_ERROR, tname, "$add_alias_to_stream");
     return (FALSE);
   } else if (!IsAtomTerm (tname)) {
-    Error(TYPE_ERROR_ATOM, tname, "$add_alias_to_stream");
+    _YAP_Error(TYPE_ERROR_ATOM, tname, "$add_alias_to_stream");
     return (FALSE);
   }
   if (IsVarTerm(tstream)) {
-    Error(INSTANTIATION_ERROR, tstream, "$add_alias_to_stream");
+    _YAP_Error(INSTANTIATION_ERROR, tstream, "$add_alias_to_stream");
     return (FALSE);
   } else if (!IsApplTerm (tstream) || FunctorOfTerm (tstream) != FunctorStream ||
 	     !IsIntTerm(ArgOfTerm(1,tstream))) {
-    Error(DOMAIN_ERROR_STREAM_OR_ALIAS, tstream, "$add_alias_to_stream");
+    _YAP_Error(DOMAIN_ERROR_STREAM_OR_ALIAS, tstream, "$add_alias_to_stream");
     return (FALSE);
   }
   at = AtomOfTerm(tname);
@@ -1656,7 +1748,7 @@ static Int p_add_alias_to_stream (void)
     return(TRUE);
   /* we could not create the alias, time to close the stream */
   CloseStream(sno);
-  Error(PERMISSION_ERROR_NEW_ALIAS_FOR_STREAM, tname, "open/3");
+  _YAP_Error(PERMISSION_ERROR_NEW_ALIAS_FOR_STREAM, tname, "open/3");
   return (FALSE);
 }
 
@@ -1668,10 +1760,10 @@ static Int p_change_alias_to_stream (void)
   Int sno;
 
   if (IsVarTerm(tname)) {
-    Error(INSTANTIATION_ERROR, tname, "$change_alias_to_stream/2");
+    _YAP_Error(INSTANTIATION_ERROR, tname, "$change_alias_to_stream/2");
     return (FALSE);
   } else if (!IsAtomTerm (tname)) {
-    Error(TYPE_ERROR_ATOM, tname, "$change_alias_to_stream/2");
+    _YAP_Error(TYPE_ERROR_ATOM, tname, "$change_alias_to_stream/2");
     return (FALSE);
   }
   at = AtomOfTerm(tname);
@@ -1688,10 +1780,10 @@ static Int p_check_if_valid_new_alias (void)
   Atom at;
 
   if (IsVarTerm(tname)) {
-    Error(INSTANTIATION_ERROR, tname, "$add_alias_to_stream");
+    _YAP_Error(INSTANTIATION_ERROR, tname, "$add_alias_to_stream");
     return (FALSE);
   } else if (!IsAtomTerm (tname)) {
-    Error(TYPE_ERROR_ATOM, tname, "$add_alias_to_stream");
+    _YAP_Error(TYPE_ERROR_ATOM, tname, "$add_alias_to_stream");
     return (FALSE);
   }
   at = AtomOfTerm(tname);
@@ -1713,12 +1805,12 @@ p_fetch_stream_alias (void)
     if (at == AtomFoundVar)
       return(FALSE);
     else 
-      return(unify_constant(t2, MkAtomTerm(at)));
+      return(_YAP_unify_constant(t2, MkAtomTerm(at)));
   } else if (IsAtomTerm(t2)) {
     Atom at = AtomOfTerm(t2);
     return((Int)FindAliasForStream(sno,at));
   } else {
-    Error(TYPE_ERROR_ATOM, t2, "fetch_stream_alias/2");
+    _YAP_Error(TYPE_ERROR_ATOM, t2, "fetch_stream_alias/2");
     return(FALSE);
   }
 }
@@ -1742,13 +1834,13 @@ p_open_null_stream (void)
   st->stream_putc = NullPutc;
   st->stream_getc = PlGetc;
   st->stream_getc_for_read = PlGetc;
-  st->u.file.user_name = MkAtomTerm (st->u.file.name = LookupAtom ("/dev/null"));
+  st->u.file.user_name = MkAtomTerm (st->u.file.name = _YAP_LookupAtom ("/dev/null"));
   t = MkStream (sno);
-  return (unify (ARG1, t));
+  return (_YAP_unify (ARG1, t));
 }
 
 Term
-OpenStream(FILE *fd, char *name, Term file_name, int flags)
+_YAP_OpenStream(FILE *fd, char *name, Term file_name, int flags)
 {
   Term t;
   StreamDesc *st;
@@ -1782,7 +1874,7 @@ OpenStream(FILE *fd, char *name, Term file_name, int flags)
     st->status |= Seekable_Stream_f;
   st->charcount = 0;
   st->linecount = 1;
-  st->u.file.name = LookupAtom(name);
+  st->u.file.name = _YAP_LookupAtom(name);
   st->u.file.user_name = file_name;
   st->u.file.file = fd;
   st->linepos = 0;
@@ -1874,7 +1966,7 @@ p_open_pipe_stream (void)
   st->u.pipe.fd = filedes[1];
 #endif
   t2 = MkStream (sno);
-  return (unify (ARG1, t1) && unify (ARG2, t2));
+  return (_YAP_unify (ARG1, t1) && _YAP_unify (ARG2, t2));
 }
 
 static Int
@@ -1889,19 +1981,19 @@ p_open_mem_read_stream (void)   /* $open_mem_read_stream(+List,-Stream) */
   ti = Deref(ARG1);
   while (ti != TermNil) {
     if (IsVarTerm(ti)) {
-      Error(INSTANTIATION_ERROR, ti, "open_mem_read_stream");
+      _YAP_Error(INSTANTIATION_ERROR, ti, "open_mem_read_stream");
       return (FALSE);
     } else if (!IsPairTerm(ti)) {
-      Error(TYPE_ERROR_LIST, ti, "open_mem_read_stream");
+      _YAP_Error(TYPE_ERROR_LIST, ti, "open_mem_read_stream");
       return (FALSE);
     } else {
       sl++;
       ti = TailOfTerm(ti);
     }
   }
-  while ((nbuf = (char *)AllocAtomSpace((sl+1)*sizeof(char))) == NULL) {
-    if (!growheap(FALSE)) {
-      Error(SYSTEM_ERROR, TermNil, ErrorMessage);
+  while ((nbuf = (char *)_YAP_AllocAtomSpace((sl+1)*sizeof(char))) == NULL) {
+    if (!_YAP_growheap(FALSE)) {
+      _YAP_Error(SYSTEM_ERROR, TermNil, _YAP_ErrorMessage);
       return(FALSE);
     }
   }
@@ -1910,10 +2002,10 @@ p_open_mem_read_stream (void)   /* $open_mem_read_stream(+List,-Stream) */
     Term ts = HeadOfTerm(ti);
 
     if (IsVarTerm(ts)) {
-      Error(INSTANTIATION_ERROR, ARG1, "open_mem_read_stream");
+      _YAP_Error(INSTANTIATION_ERROR, ARG1, "open_mem_read_stream");
       return (FALSE);
     } else if (!IsIntTerm(ts)) {
-      Error(TYPE_ERROR_INTEGER, ARG1, "open_mem_read_stream");
+      _YAP_Error(TYPE_ERROR_INTEGER, ARG1, "open_mem_read_stream");
       return (FALSE);
     }
     nbuf[nchars++] = IntOfTerm(ts);
@@ -1941,7 +2033,7 @@ p_open_mem_read_stream (void)   /* $open_mem_read_stream(+List,-Stream) */
   st->u.mem_string.buf = nbuf;
   st->u.mem_string.max_size = nchars;
   t = MkStream (sno);
-  return (unify (ARG2, t));
+  return (_YAP_unify (ARG2, t));
 }
 
 static Int
@@ -1951,11 +2043,11 @@ p_open_mem_write_stream (void)   /* $open_mem_write_stream(-Stream) */
   StreamDesc *st;
   int sno;
   char *nbuf;
-  extern int page_size;
+  extern int _YAP_page_size;
 
-  while ((nbuf = (char *)AllocAtomSpace(page_size*sizeof(char))) == NULL) {
-    if (!growheap(FALSE)) {
-      Error(SYSTEM_ERROR, TermNil, ErrorMessage);
+  while ((nbuf = (char *)_YAP_AllocAtomSpace(_YAP_page_size*sizeof(char))) == NULL) {
+    if (!_YAP_growheap(FALSE)) {
+      _YAP_Error(SYSTEM_ERROR, TermNil, _YAP_ErrorMessage);
       return(FALSE);
     }
   }
@@ -1978,9 +2070,9 @@ p_open_mem_write_stream (void)   /* $open_mem_write_stream(-Stream) */
     st->stream_getc_for_read = MemGetc;
   st->u.mem_string.pos = 0;
   st->u.mem_string.buf = nbuf;
-  st->u.mem_string.max_size = page_size;
+  st->u.mem_string.max_size = _YAP_page_size;
   t = MkStream (sno);
-  return (unify (ARG1, t));
+  return (_YAP_unify (ARG1, t));
 }
 
 static void
@@ -1989,9 +2081,9 @@ ExtendAliasArray(void)
   AliasDesc new;
   UInt new_size = SzOfFileAliases+ALIASES_BLOCK_SIZE;
 
-  new = (AliasDesc)AllocCodeSpace(sizeof(AliasDesc *)*new_size);
+  new = (AliasDesc)_YAP_AllocCodeSpace(sizeof(AliasDesc *)*new_size);
   memcpy((void *)new, (void *)FileAliases, sizeof(AliasDesc *)*SzOfFileAliases);
-  FreeCodeSpace((ADDR)FileAliases);
+  _YAP_FreeCodeSpace((ADDR)FileAliases);
   FileAliases = new;
   SzOfFileAliases = new_size;
 }
@@ -2032,23 +2124,24 @@ SetAlias (Atom arg, int sno)
     if (aliasp->name == arg) {
       Int alno = aliasp-FileAliases;
       aliasp->alias_stream = sno;
-      switch(alno) {
-      case 0:
-	YP_stdin = sno;
-	break;
-      case 1:
-	YP_stdout = sno;
-	break;
-      case 2:
-	YP_stderr = sno;
+      if (!(Stream[sno].status &
+	    (Null_Stream_f|InMemory_Stream_f|Socket_Stream_f))) {
+	switch(alno) {
+	case 0:
+	  _YAP_stdin = Stream[sno].u.file.file;
+	  break;
+	case 1:
+	  _YAP_stdout = Stream[sno].u.file.file;
+	  break;
+	case 2:
+	  _YAP_stderr = Stream[sno].u.file.file;
+	  break;
+	default:
+	  break;
+	}
 #if HAVE_SETBUF
-	if (!(Stream[sno].status &
-	      (Null_Stream_f|InMemory_Stream_f|Socket_Stream_f)))
-	  YP_setbuf (Stream[sno].u.file.file, NULL); 
+	YP_setbuf (Stream[sno].u.file.file, NULL); 
 #endif /* HAVE_SETBUF */
-	break;
-      default:
-	break;
       }
       return;
     }
@@ -2076,13 +2169,13 @@ PurgeAlias (int sno)
 	new_aliasp->alias_stream = alno;
 	switch(alno) {
 	case 0:
-	  YP_stdin = 0;
+	  _YAP_stdin = stdin;
 	  break;
 	case 1:
-	  YP_stdout = 1;
+	  _YAP_stdout = stdout;
 	  break;
 	case 2:
-	  YP_stderr = 2;
+	  _YAP_stderr = stderr;
 	  break;
 	default:
 	  break; /* just put something here */
@@ -2154,7 +2247,7 @@ CheckStream (Term arg, int kind, char *msg)
   int sno = -1;
   arg = Deref (arg);
   if (IsVarTerm (arg)) {
-    Error(INSTANTIATION_ERROR, arg, msg);
+    _YAP_Error(INSTANTIATION_ERROR, arg, msg);
     return (-1);
   }
   else if (IsAtomTerm (arg)) {
@@ -2163,7 +2256,7 @@ CheckStream (Term arg, int kind, char *msg)
     if (sname == AtomUser) {
       if (kind & Input_Stream_f) {
 	if (kind & (Output_Stream_f|Append_Stream_f)) {
-	  Error(PERMISSION_ERROR_INPUT_STREAM, arg,
+	  _YAP_Error(PERMISSION_ERROR_INPUT_STREAM, arg,
 		"ambiguous use of 'user' as a stream");
 	  return (-1);	    
 	}
@@ -2173,7 +2266,7 @@ CheckStream (Term arg, int kind, char *msg)
       }
     }
     if ((sno = CheckAlias(sname)) == -1) {
-      Error(EXISTENCE_ERROR_STREAM, arg, msg);
+      _YAP_Error(EXISTENCE_ERROR_STREAM, arg, msg);
       return(-1);
     }
   } else if (IsApplTerm (arg) && FunctorOfTerm (arg) == FunctorStream) {
@@ -2183,20 +2276,20 @@ CheckStream (Term arg, int kind, char *msg)
   }
   if (sno < 0)
     {
-      Error(DOMAIN_ERROR_STREAM_OR_ALIAS, arg, msg);
+      _YAP_Error(DOMAIN_ERROR_STREAM_OR_ALIAS, arg, msg);
       return (-1);
     }
   if (Stream[sno].status & Free_Stream_f)
     {
-      Error(EXISTENCE_ERROR_STREAM, arg, msg);
+      _YAP_Error(EXISTENCE_ERROR_STREAM, arg, msg);
       return (-1);
     }
   if ((Stream[sno].status & kind) == 0)
     {
       if (kind & Input_Stream_f)
-	Error(PERMISSION_ERROR_INPUT_STREAM, arg, msg);
+	_YAP_Error(PERMISSION_ERROR_INPUT_STREAM, arg, msg);
       else
-	Error(PERMISSION_ERROR_OUTPUT_STREAM, arg, msg);
+	_YAP_Error(PERMISSION_ERROR_OUTPUT_STREAM, arg, msg);
       return (-1);
     }
   return (sno);
@@ -2224,13 +2317,13 @@ StreamName(int i)
   if (i < 3) return(MkAtomTerm(AtomUser));
 #if USE_SOCKET
   if (Stream[i].status & Socket_Stream_f)
-    return(MkAtomTerm(LookupAtom("socket")));
+    return(MkAtomTerm(_YAP_LookupAtom("socket")));
   else
 #endif
     if (Stream[i].status & Pipe_Stream_f)
-      return(MkAtomTerm(LookupAtom("pipe")));
+      return(MkAtomTerm(_YAP_LookupAtom("pipe")));
     if (Stream[i].status & InMemory_Stream_f)
-      return(MkAtomTerm(LookupAtom("charsio")));
+      return(MkAtomTerm(_YAP_LookupAtom("charsio")));
     else {
       if (yap_flags[LANGUAGE_MODE_FLAG] == ISO_CHARACTER_ESCAPES) {
 	return(Stream[i].u.file.user_name);
@@ -2256,7 +2349,7 @@ init_cur_s (void)
     t2 = (Stream[i].status & Input_Stream_f ?
 	  MkAtomTerm (AtomRead) :
 	  MkAtomTerm (AtomWrite));
-    if (unify(ARG1,t1) && unify(ARG2,t2)) {
+    if (_YAP_unify(ARG1,t1) && _YAP_unify(ARG2,t2)) {
       cut_succeed();
     } else {
       cut_fail();
@@ -2285,7 +2378,7 @@ cont_cur_s (void)
 	    MkAtomTerm (AtomWrite));
       t3 = MkStream (i++);
       EXTRA_CBACK_ARG (3, 1) = Unsigned (MkIntTerm (i));
-      if (unify (ARG3, t3) && unify_constant (ARG1, t1) && unify_constant (ARG2, t2))
+      if (_YAP_unify (ARG3, t3) && _YAP_unify_constant (ARG1, t1) && _YAP_unify_constant (ARG2, t2))
 	{
 	  return (TRUE);
 	}
@@ -2303,7 +2396,7 @@ cont_cur_s (void)
  * and stderr 
  */
 void
-CloseStreams (int loud)
+_YAP_CloseStreams (int loud)
 {
   int sno;
   for (sno = 3; sno < MaxStreams; ++sno) {
@@ -2320,7 +2413,7 @@ CloseStreams (int loud)
 #endif
 #if USE_SOCKET
     else if (Stream[sno].status & (Socket_Stream_f)) {
-      CloseSocket(Stream[sno].u.socket.fd,
+      _YAP_CloseSocket(Stream[sno].u.socket.fd,
 		  Stream[sno].u.socket.flags,
 		  Stream[sno].u.socket.domain);
     } 
@@ -2329,15 +2422,15 @@ CloseStreams (int loud)
       YP_fclose (Stream[sno].u.file.file);
     else {
       if (loud)
-	YP_fprintf (YP_stderr, "[ Error: while closing stream: %s ]\n", RepAtom (Stream[sno].u.file.name)->StrOfAE);
+	fprintf (_YAP_stderr, "[ Error: while closing stream: %s ]\n", RepAtom (Stream[sno].u.file.name)->StrOfAE);
     }
-    if (c_input_stream == sno)
+    if (_YAP_c_input_stream == sno)
       {
-	c_input_stream = StdInStream;
+	_YAP_c_input_stream = StdInStream;
       }
-    else if (c_output_stream == sno)
+    else if (_YAP_c_output_stream == sno)
       {
-	c_output_stream = StdOutStream;
+	_YAP_c_output_stream = StdOutStream;
       }
   }
   Stream[sno].status = Free_Stream_f;
@@ -2351,7 +2444,7 @@ CloseStream(int sno)
     YP_fclose (Stream[sno].u.file.file);
 #if USE_SOCKET
   else if (Stream[sno].status & (Socket_Stream_f)) {
-    CloseSocket(Stream[sno].u.socket.fd,
+    _YAP_CloseSocket(Stream[sno].u.socket.fd,
 		Stream[sno].u.socket.flags,
 		Stream[sno].u.socket.domain);
   }
@@ -2364,22 +2457,28 @@ CloseStream(int sno)
 #endif
   }
   else if (Stream[sno].status & (InMemory_Stream_f)) {
-    FreeAtomSpace(Stream[sno].u.mem_string.buf);
+    _YAP_FreeAtomSpace(Stream[sno].u.mem_string.buf);
   }
   Stream[sno].status = Free_Stream_f;
   PurgeAlias(sno);
-  if (c_input_stream == sno)
+  if (_YAP_c_input_stream == sno)
     {
-      c_input_stream = StdInStream;
+      _YAP_c_input_stream = StdInStream;
     }
-  else if (c_output_stream == sno)
+  else if (_YAP_c_output_stream == sno)
     {
-      c_output_stream = StdOutStream;
+      _YAP_c_output_stream = StdOutStream;
     }
   /*  if (st->status == Socket_Stream_f|Input_Stream_f|Output_Stream_f) {
-    CloseSocket();
+    _YAP_CloseSocket();
   }
   */
+}
+
+void
+_YAP_CloseStream(int sno)
+{
+  CloseStream(sno);
 }
 
 static Int
@@ -2411,8 +2510,8 @@ p_peek_mem_write_stream (void)
     tf = MkPairTerm(MkIntTerm(Stream[sno].u.mem_string.buf[i]),tf);
     if (H + 1024 >= ASP) {
       H = HI;
-      if (!gc(3, ENV, P)) {
-	Error(OUT_OF_STACK_ERROR, TermNil, ErrorMessage);
+      if (!_YAP_gc(3, ENV, P)) {
+	_YAP_Error(OUT_OF_STACK_ERROR, TermNil, _YAP_ErrorMessage);
 	return(FALSE);
       }
       i = 0;
@@ -2420,7 +2519,7 @@ p_peek_mem_write_stream (void)
       goto restart;
     }
   }
-  return (unify(ARG3,tf));
+  return (_YAP_unify(ARG3,tf));
 }
 
 static Int
@@ -2448,11 +2547,11 @@ p_peek_byte (void)
     return(FALSE);
   status = Stream[sno].status;
   if (!(status & Binary_Stream_f)) {
-    Error(PERMISSION_ERROR_INPUT_TEXT_STREAM, ARG1, "peek/2");
+    _YAP_Error(PERMISSION_ERROR_INPUT_TEXT_STREAM, ARG1, "peek/2");
     return(FALSE);
   }
   if (status & Eof_Stream_f) {
-    Error(PERMISSION_ERROR_INPUT_PAST_END_OF_STREAM, ARG1, "peek/2");
+    _YAP_Error(PERMISSION_ERROR_INPUT_PAST_END_OF_STREAM, ARG1, "peek/2");
     return(FALSE);
   }
   s = Stream+sno;
@@ -2471,7 +2570,7 @@ p_peek_byte (void)
     s->stream_getc_for_read = ISOGetc;
   else
     s->stream_getc_for_read = s->stream_getc;
-  return(unify_constant(ARG2,MkIntTerm(ch)));
+  return(_YAP_unify_constant(ARG2,MkIntTerm(ch)));
 }
 
 static Int
@@ -2489,10 +2588,10 @@ p_peek (void)
   status = Stream[sno].status;
   if (status & (Binary_Stream_f|Eof_Stream_f)) {
     if (status & Binary_Stream_f) {
-      Error(PERMISSION_ERROR_INPUT_BINARY_STREAM, ARG1, "peek/2");
+      _YAP_Error(PERMISSION_ERROR_INPUT_BINARY_STREAM, ARG1, "peek/2");
       return(FALSE);
     } else if (status & (Eof_Error_Stream_f)) {
-      Error(PERMISSION_ERROR_INPUT_PAST_END_OF_STREAM, ARG1, "peek/2");
+      _YAP_Error(PERMISSION_ERROR_INPUT_PAST_END_OF_STREAM, ARG1, "peek/2");
       return(FALSE);
     }
   }
@@ -2512,7 +2611,7 @@ p_peek (void)
     s->stream_getc_for_read = ISOGetc;
   else
     s->stream_getc_for_read = s->stream_getc;
-  return(unify_constant(ARG2,MkIntTerm(ch)));
+  return(_YAP_unify_constant(ARG2,MkIntTerm(ch)));
 }
 
 static Int
@@ -2521,7 +2620,7 @@ p_set_input (void)
   Int sno = CheckStream (ARG1, Input_Stream_f, "set_input/1");
   if (sno < 0)
     return (FALSE);
-  c_input_stream = sno;
+  _YAP_c_input_stream = sno;
   return (TRUE);
 }
 
@@ -2531,7 +2630,7 @@ p_set_output (void)
   Int sno = CheckStream (ARG1, Output_Stream_f, "set_output/1");
   if (sno < 0)
     return (FALSE);
-  c_output_stream = sno;
+  _YAP_c_output_stream = sno;
   return (TRUE);
 }
 
@@ -2540,21 +2639,21 @@ p_current_input (void)
 {				/* current_input(?Stream)                */
   Term t1 = Deref(ARG1);
   if (IsVarTerm(t1)) {
-    Term t = MkStream (c_input_stream);
+    Term t = MkStream (_YAP_c_input_stream);
     BIND(VarOfTerm(t1), t, bind_in_current_input);
 #ifdef COROUTINING
     DO_TRAIL(CellPtr(t1), t);
-    if (CellPtr(t1) < H0) WakeUp(VarOfTerm(t1));
+    if (CellPtr(t1) < H0) _YAP_WakeUp(VarOfTerm(t1));
   bind_in_current_input:
 #endif
     return(TRUE);
   } else if (!IsApplTerm(t1) ||
 	     FunctorOfTerm(t1) != FunctorStream ||
 	     !IsIntTerm((t1=ArgOfTerm(1,t1)))) {
-    Error(DOMAIN_ERROR_STREAM,t1,"current_input/1");
+    _YAP_Error(DOMAIN_ERROR_STREAM,t1,"current_input/1");
     return(FALSE);
   } else {
-    return(c_input_stream == IntOfTerm(t1));
+    return(_YAP_c_input_stream == IntOfTerm(t1));
   }
 }
 
@@ -2563,21 +2662,21 @@ p_current_output (void)
 {				/* current_output(?Stream)               */
   Term t1 = Deref(ARG1);
   if (IsVarTerm(t1)) {
-    Term t = MkStream (c_output_stream);
+    Term t = MkStream (_YAP_c_output_stream);
     BIND((CELL *)t1, t, bind_in_current_output);
 #ifdef COROUTINING
     DO_TRAIL(CellPtr(t1), t);
-    if (CellPtr(t1) < H0) WakeUp(VarOfTerm(t1));
+    if (CellPtr(t1) < H0) _YAP_WakeUp(VarOfTerm(t1));
   bind_in_current_output:
 #endif
     return(TRUE);
   } else if (!IsApplTerm(t1) ||
 	     FunctorOfTerm(t1) != FunctorStream ||
 	     !IsIntTerm((t1=ArgOfTerm(1,t1)))) {
-    Error(DOMAIN_ERROR_STREAM,t1,"current_output/1");
+    _YAP_Error(DOMAIN_ERROR_STREAM,t1,"current_output/1");
     return(FALSE);
   } else {
-    return(c_output_stream == IntOfTerm(t1));
+    return(_YAP_c_output_stream == IntOfTerm(t1));
   }
 }
 
@@ -2588,11 +2687,11 @@ p_write (void)
   /* notice: we must have ASP well set when using portray, otherwise
      we cannot make recursive Prolog calls */
   *--ASP = MkIntTerm(0);
-  plwrite (ARG2, Stream[c_output_stream].stream_putc, flags);
+  _YAP_plwrite (ARG2, Stream[_YAP_c_output_stream].stream_putc, flags);
   if (EX != 0L) {
     Term ball = EX;
     EX = 0L;
-    JumpToEnv(ball);
+    _YAP_JumpToEnv(ball);
     return(FALSE);
   }
   return (TRUE);
@@ -2601,21 +2700,21 @@ p_write (void)
 static Int
 p_write2 (void)
 {				/* '$write'(+Stream,+Flags,?Term) */
-  int old_output_stream = c_output_stream;
-  c_output_stream = CheckStream (ARG1, Output_Stream_f, "write/2");
-  if (c_output_stream == -1) {
-    c_output_stream = old_output_stream;
+  int old_output_stream = _YAP_c_output_stream;
+  _YAP_c_output_stream = CheckStream (ARG1, Output_Stream_f, "write/2");
+  if (_YAP_c_output_stream == -1) {
+    _YAP_c_output_stream = old_output_stream;
     return(FALSE);
   }
   /* notice: we must have ASP well set when using portray, otherwise
      we cannot make recursive Prolog calls */
   *--ASP = MkIntTerm(0);
-  plwrite (ARG3, Stream[c_output_stream].stream_putc, (int) IntOfTerm (Deref (ARG2)));
-  c_output_stream = old_output_stream;
+  _YAP_plwrite (ARG3, Stream[_YAP_c_output_stream].stream_putc, (int) IntOfTerm (Deref (ARG2)));
+  _YAP_c_output_stream = old_output_stream;
   if (EX != 0L) {
     Term ball = EX;
     EX = 0L;
-    JumpToEnv(ball);
+    _YAP_JumpToEnv(ball);
     return(FALSE);
   }
   return (TRUE);
@@ -2641,8 +2740,8 @@ syntax_error (TokEntry * tokptr)
   CELL *Hi = H;
 
   start = tokptr->TokPos;
-  clean_vars(VarTable);
-  clean_vars(AnonVarTable);
+  clean_vars(_YAP_VarTable);
+  clean_vars(_YAP_AnonVarTable);
   while (1) {
     Term ts[2];
 
@@ -2653,7 +2752,7 @@ syntax_error (TokEntry * tokptr)
       end = 0;
       break;
     }
-    if (tokptr == toktide) {
+    if (tokptr == _YAP_toktide) {
       err = tokptr->TokPos;
       out = count;
     }
@@ -2662,11 +2761,11 @@ syntax_error (TokEntry * tokptr)
     case Name_tok:
       {
 	Term t0 = MkAtomTerm((Atom)info);
-	ts[0] = MkApplTerm(MkFunctor(LookupAtom("atom"),1),1,&t0);
+	ts[0] = _YAP_MkApplTerm(_YAP_MkFunctor(_YAP_LookupAtom("atom"),1),1,&t0);
       }
       break;
     case Number_tok:
-      ts[0] = MkApplTerm(MkFunctor(LookupAtom("number"),1),1,&(tokptr->TokInfo));
+      ts[0] = _YAP_MkApplTerm(_YAP_MkFunctor(_YAP_LookupAtom("number"),1),1,&(tokptr->TokInfo));
       break;
     case Var_tok:
       {
@@ -2674,19 +2773,19 @@ syntax_error (TokEntry * tokptr)
 	VarEntry *varinfo = (VarEntry *)info;
 
 	t[0] = MkIntTerm(0);
-	t[1] = StringToList(varinfo->VarRep);
+	t[1] = _YAP_StringToList(varinfo->VarRep);
 	if (varinfo->VarAdr == TermNil) {
 	  t[2] = varinfo->VarAdr = MkVarTerm();
 	} else {
 	  t[2] = varinfo->VarAdr;
 	}
-	ts[0] = MkApplTerm(MkFunctor(LookupAtom("var"),3),3,t);
+	ts[0] = _YAP_MkApplTerm(_YAP_MkFunctor(_YAP_LookupAtom("var"),3),3,t);
       }
       break;
     case String_tok:
       {
-	Term t0 = StringToList((char *)info);
-	ts[0] = MkApplTerm(MkFunctor(LookupAtom("string"),1),1,&t0);
+	Term t0 = _YAP_StringToList((char *)info);
+	ts[0] = _YAP_MkApplTerm(_YAP_MkFunctor(_YAP_LookupAtom("string"),1),1,&t0);
       }
       break;
     case Ponctuation_tok:
@@ -2698,7 +2797,7 @@ syntax_error (TokEntry * tokptr)
 	} else  {
 	  s[0] = (char)info;
 	}
-	ts[0] = MkAtomTerm(LookupAtom(s));
+	ts[0] = MkAtomTerm(_YAP_LookupAtom(s));
       }
     }
     if (tokptr->Tok == Ord (eot_tok)) {
@@ -2708,27 +2807,27 @@ syntax_error (TokEntry * tokptr)
     }
     ts[1] = MkIntegerTerm(tokptr->TokPos);
     *error =
-      MkPairTerm(MkApplTerm(MkFunctor(LookupAtom("-"),2),2,ts),TermNil);
+      MkPairTerm(_YAP_MkApplTerm(_YAP_MkFunctor(_YAP_LookupAtom("-"),2),2,ts),TermNil);
     error = RepPair(*error)+1;
     count++;
     tokptr = tokptr->TokNext;
   }
-  tf[0] = MkApplTerm(MkFunctor(LookupAtom("read"),1),1,&ARG2);
+  tf[0] = _YAP_MkApplTerm(_YAP_MkFunctor(_YAP_LookupAtom("read"),1),1,&ARG2);
   {
     Term t[3];
     t[0] = MkIntegerTerm(start);
     t[1] = MkIntegerTerm(err);
     t[2] = MkIntegerTerm(end);
-    tf[1] = MkApplTerm(MkFunctor(LookupAtom("between"),3),3,t);
+    tf[1] = _YAP_MkApplTerm(_YAP_MkFunctor(_YAP_LookupAtom("between"),3),3,t);
   }
-  tf[2] = MkAtomTerm(LookupAtom("\n<==== HERE ====>\n"));
+  tf[2] = MkAtomTerm(_YAP_LookupAtom("\n<==== HERE ====>\n"));
   tf[4] = MkIntegerTerm(out);
   tf[5] = MkIntegerTerm(err);
-  return(MkApplTerm(MkFunctor(LookupAtom("syntax_error"),6),6,tf));
+  return(_YAP_MkApplTerm(_YAP_MkFunctor(_YAP_LookupAtom("syntax_error"),6),6,tf));
 }
 
 Int
-FirstLineInParse (void)
+_YAP_FirstLineInParse (void)
 {
   return(StartLine);
 }
@@ -2736,7 +2835,7 @@ FirstLineInParse (void)
 static Int
 p_startline (void)
 {
-  return (unify_constant (ARG1, MkIntegerTerm (StartLine)));
+  return (_YAP_unify_constant (ARG1, MkIntegerTerm (StartLine)));
 }
 
 static Int
@@ -2768,7 +2867,7 @@ p_inform_of_clause (void)
 	return (FALSE);
       if (IsVarTerm (t2) || !IsIntTerm (t2))
 	return (FALSE);
-      YP_fprintf (YP_stdout, "\001(yap-consult-clause \"%s\" %d %d %d)\002\n",
+      fprintf (_YAP_stdout, "\001(yap-consult-clause \"%s\" %d %d %d)\002\n",
 		  RepAtom (at)->StrOfAE, arity,
       where_new_clause (PredProp (at, arity), (int) (IntOfTerm (t2) % 4)),
 		  first_char);
@@ -2784,11 +2883,11 @@ p_set_read_error_handler(void)
   Term t = Deref(ARG1);
   char *s;
   if (IsVarTerm(t)) {
-    Error(INSTANTIATION_ERROR,t,"set_read_error_handler");
+    _YAP_Error(INSTANTIATION_ERROR,t,"set_read_error_handler");
     return(FALSE);
   }
   if (!IsAtomTerm(t)) {
-    Error(TYPE_ERROR_ATOM,t,"bad syntax_error handler");
+    _YAP_Error(TYPE_ERROR_ATOM,t,"bad syntax_error handler");
     return(FALSE);
   }
   s = RepAtom(AtomOfTerm(t))->StrOfAE;
@@ -2801,7 +2900,7 @@ p_set_read_error_handler(void)
   } else if (!strcmp(s, "dec10")) {
     ParserErrorStyle = CONTINUE_ON_PARSER_ERROR;
   } else {
-    Error(DOMAIN_ERROR_SYNTAX_ERROR_HANDLER,t,"bad syntax_error handler");
+    _YAP_Error(DOMAIN_ERROR_SYNTAX_ERROR_HANDLER,t,"bad syntax_error handler");
     return(FALSE);
   }
   return(TRUE);
@@ -2815,22 +2914,22 @@ p_get_read_error_handler(void)
 
   switch (ParserErrorStyle) {
   case FAIL_ON_PARSER_ERROR:
-    t = MkAtomTerm(LookupAtom("fail"));
+    t = MkAtomTerm(_YAP_LookupAtom("fail"));
     break;
   case EXCEPTION_ON_PARSER_ERROR:
-    t = MkAtomTerm(LookupAtom("error"));
+    t = MkAtomTerm(_YAP_LookupAtom("error"));
     break;
   case QUIET_ON_PARSER_ERROR:
-    t = MkAtomTerm(LookupAtom("quiet"));
+    t = MkAtomTerm(_YAP_LookupAtom("quiet"));
     break;
   case CONTINUE_ON_PARSER_ERROR:
-    t = MkAtomTerm(LookupAtom("dec10"));
+    t = MkAtomTerm(_YAP_LookupAtom("dec10"));
     break;
   default:
-    Error(SYSTEM_ERROR,TermNil,"corrupted syntax_error handler");
+    _YAP_Error(SYSTEM_ERROR,TermNil,"corrupted syntax_error handler");
     return(FALSE);
   }
-  return (unify_constant (ARG1, t));
+  return (_YAP_unify_constant (ARG1, t));
 }
 
 static Int
@@ -2843,8 +2942,8 @@ p_read (void)
 #endif
   tr_fr_ptr old_TR, TR_before_parse;
     
-  if (Stream[c_input_stream].status & Binary_Stream_f) {
-    Error(PERMISSION_ERROR_INPUT_BINARY_STREAM, MkAtomTerm(Stream[c_input_stream].u.file.name), "read_term/2");
+  if (Stream[_YAP_c_input_stream].status & Binary_Stream_f) {
+    _YAP_Error(PERMISSION_ERROR_INPUT_BINARY_STREAM, MkAtomTerm(Stream[_YAP_c_input_stream].u.file.name), "read_term/2");
     return(FALSE);
   }
   old_TR = TR;
@@ -2852,47 +2951,47 @@ p_read (void)
     CELL *old_H;
 
     /* Scans the term using stack space */
-    eot_before_eof = FALSE;
-    if ((Stream[c_input_stream].status & (Promptable_Stream_f|Pipe_Stream_f|Socket_Stream_f|Eof_Stream_f|InMemory_Stream_f)) ||
+    _YAP_eot_before_eof = FALSE;
+    if ((Stream[_YAP_c_input_stream].status & (Promptable_Stream_f|Pipe_Stream_f|Socket_Stream_f|Eof_Stream_f|InMemory_Stream_f)) ||
 	CharConversionTable != NULL ||
-	Stream[c_input_stream].stream_getc != PlGetc)
-      tokstart = tokptr = toktide = tokenizer (Stream[c_input_stream].stream_getc_for_read, Stream[c_input_stream].stream_getc);
+	Stream[_YAP_c_input_stream].stream_getc != PlGetc)
+      tokstart = _YAP_tokptr = _YAP_toktide = _YAP_tokenizer (Stream[_YAP_c_input_stream].stream_getc_for_read, Stream[_YAP_c_input_stream].stream_getc);
     else {
-      tokstart = tokptr = toktide = fast_tokenizer ();
+      tokstart = _YAP_tokptr = _YAP_toktide = _YAP_fast_tokenizer ();
     }
     /* preserve value of H after scanning: otherwise we may lose strings
        and floats */
     old_H = H;
-    if ((Stream[c_input_stream].status & Eof_Stream_f)
-	&& !eot_before_eof) {
+    if ((Stream[_YAP_c_input_stream].status & Eof_Stream_f)
+	&& !_YAP_eot_before_eof) {
       if (tokstart != NIL && tokstart->Tok != Ord (eot_tok)) {
 	/* we got the end of file from an abort */
-	if (ErrorMessage == "Abort") {
+	if (_YAP_ErrorMessage == "Abort") {
 	  TR = old_TR;
 	  return(FALSE);
 	}
 	/* we need to force the next reading to also give end of file.*/
-	Stream[c_input_stream].status |= Push_Eof_Stream_f;
-	ErrorMessage = "end of file found before end of term";
+	Stream[_YAP_c_input_stream].status |= Push_Eof_Stream_f;
+	_YAP_ErrorMessage = "end of file found before end of term";
       } else {
 	/* restore TR */
 	TR = old_TR;
 	
-	return (unify(MkIntegerTerm(StartLine = Stream[c_input_stream].linecount),ARG4) &&
-		unify_constant (ARG2, MkAtomTerm (AtomEof)));
+	return (_YAP_unify(MkIntegerTerm(StartLine = Stream[_YAP_c_input_stream].linecount),ARG4) &&
+		_YAP_unify_constant (ARG2, MkAtomTerm (AtomEof)));
       }
     }
   repeat_cycle:
     TR_before_parse = TR;
-    if (ErrorMessage || (t = Parse ()) == 0) {
-      if (ErrorMessage && (strcmp(ErrorMessage,"Stack Overflow") == 0)) {
+    if (_YAP_ErrorMessage || (t = _YAP_Parse ()) == 0) {
+      if (_YAP_ErrorMessage && (strcmp(_YAP_ErrorMessage,"Stack Overflow") == 0)) {
 	/* ignore term we just built */
 	TR = TR_before_parse;
 	H = old_H;
-	if (growstack_in_parser(&old_TR, &tokstart, &VarTable)) {
+	if (_YAP_growstack_in_parser(&old_TR, &tokstart, &_YAP_VarTable)) {
 	  old_H = H;
-	  tokptr = toktide = tokstart;
-	  ErrorMessage = NULL;
+	  _YAP_tokptr = _YAP_toktide = tokstart;
+	  _YAP_ErrorMessage = NULL;
 	  goto repeat_cycle;
 	}
       }
@@ -2901,24 +3000,24 @@ p_read (void)
 	/* just fail */
 	return(FALSE);
       } else if (ParserErrorStyle == CONTINUE_ON_PARSER_ERROR) {
-	ErrorMessage = NULL;
+	_YAP_ErrorMessage = NULL;
 	TR = TR_before_parse;
 	/* try again */
 	goto repeat_cycle;
       } else {
 	Term terr = syntax_error(tokstart);
-	if (ErrorMessage == NULL)
-	  ErrorMessage = "SYNTAX ERROR";
+	if (_YAP_ErrorMessage == NULL)
+	  _YAP_ErrorMessage = "SYNTAX ERROR";
 	
 	if (ParserErrorStyle == EXCEPTION_ON_PARSER_ERROR) {
-	  Error(SYNTAX_ERROR,terr,ErrorMessage);
+	  _YAP_Error(SYNTAX_ERROR,terr,_YAP_ErrorMessage);
 	  return(FALSE);
 	} else /* FAIL ON PARSER ERROR */ {
 	  Term t[2];
 	  t[0] = terr;
-	  t[1] = MkAtomTerm(LookupAtom(ErrorMessage));
-	  return(unify(MkIntTerm(StartLine = tokstart->TokPos),ARG4) &&
-		 unify(ARG5,MkApplTerm(MkFunctor(LookupAtom("error"),2),2,t)));
+	  t[1] = MkAtomTerm(_YAP_LookupAtom(_YAP_ErrorMessage));
+	  return(_YAP_unify(MkIntTerm(StartLine = tokstart->TokPos),ARG4) &&
+		 _YAP_unify(ARG5,_YAP_MkApplTerm(_YAP_MkFunctor(_YAP_LookupAtom("error"),2),2,t)));
 	}
       }
     } else {
@@ -2933,8 +3032,8 @@ p_read (void)
     while (TRUE) {
       CELL *old_H = H;
 
-      if (setjmp(IOBotch) == 0) {
-	v = VarNames(VarTable, TermNil);
+      if (setjmp(_YAP_IOBotch) == 0) {
+	v = _YAP_VarNames(_YAP_VarTable, TermNil);
 	TR = old_TR;
 	break;
       } else {
@@ -2942,32 +3041,32 @@ p_read (void)
 	tokstart = NULL;
 	/* restart global */
 	H = old_H;
-	growstack_in_parser(&old_TR, &tokstart, &VarTable);
+	_YAP_growstack_in_parser(&old_TR, &tokstart, &_YAP_VarTable);
 	old_H = H;
       }
     }
-    return(unify(t, ARG2) && unify (v, ARG3) &&
-	   unify(MkIntTerm(StartLine = tokstart->TokPos),ARG4));
+    return(_YAP_unify(t, ARG2) && _YAP_unify (v, ARG3) &&
+	   _YAP_unify(MkIntTerm(StartLine = tokstart->TokPos),ARG4));
   } else {
     TR = old_TR;
-    return(unify(t, ARG2) && unify(MkIntTerm(StartLine = tokstart->TokPos),ARG4));
+    return(_YAP_unify(t, ARG2) && _YAP_unify(MkIntTerm(StartLine = tokstart->TokPos),ARG4));
   }
 }
 
 static Int
 p_read2 (void)
 {				/* '$read2'(+Flag,?Term,?Vars,-Pos,-Err,+Stream)  */
-  int old_c_stream = c_input_stream;
+  int old_c_stream = _YAP_c_input_stream;
   Int out;
 
-  /* needs to change c_output_stream for write */
-  c_input_stream = CheckStream (ARG6, Input_Stream_f, "read/3");
-  if (c_input_stream == -1) {
-    c_input_stream = old_c_stream;
+  /* needs to change _YAP_c_output_stream for write */
+  _YAP_c_input_stream = CheckStream (ARG6, Input_Stream_f, "read/3");
+  if (_YAP_c_input_stream == -1) {
+    _YAP_c_input_stream = old_c_stream;
     return(FALSE);
   }
   out = p_read();
-  c_input_stream = old_c_stream;  
+  _YAP_c_input_stream = old_c_stream;  
   return(out);
   
 }
@@ -2981,16 +3080,16 @@ p_user_file_name (void)
     return (FALSE);
 #if USE_SOCKET
   if (Stream[sno].status & Socket_Stream_f)
-    tout = MkAtomTerm(LookupAtom("socket"));
+    tout = MkAtomTerm(_YAP_LookupAtom("socket"));
   else
 #endif
   if (Stream[sno].status & Pipe_Stream_f)
-    tout = MkAtomTerm(LookupAtom("pipe"));
+    tout = MkAtomTerm(_YAP_LookupAtom("pipe"));
   else if (Stream[sno].status & InMemory_Stream_f)
-    tout = MkAtomTerm(LookupAtom("charsio"));
+    tout = MkAtomTerm(_YAP_LookupAtom("charsio"));
   else
     tout = Stream[sno].u.file.user_name;
-  return (unify_constant (ARG2, tout));
+  return (_YAP_unify_constant (ARG2, tout));
 }
 
 static Int
@@ -3002,16 +3101,16 @@ p_file_name (void)
     return (FALSE);
 #if USE_SOCKET
   if (Stream[sno].status & Socket_Stream_f)
-    tout = MkAtomTerm(LookupAtom("socket"));
+    tout = MkAtomTerm(_YAP_LookupAtom("socket"));
   else
 #endif
   if (Stream[sno].status & Pipe_Stream_f)
-    tout = MkAtomTerm(LookupAtom("pipe"));
+    tout = MkAtomTerm(_YAP_LookupAtom("pipe"));
   else if (Stream[sno].status & InMemory_Stream_f)
-    tout = MkAtomTerm(LookupAtom("charsio"));
+    tout = MkAtomTerm(_YAP_LookupAtom("charsio"));
   else
     tout = MkAtomTerm(Stream[sno].u.file.name);
-  return (unify_constant (ARG2, tout));
+  return (_YAP_unify_constant (ARG2, tout));
 }
 
 static Int
@@ -3030,14 +3129,14 @@ p_cur_line_no (void)
       Atom my_stream;
 #if USE_SOCKET
       if (Stream[sno].status & Socket_Stream_f)
-	my_stream = LookupAtom("socket");
+	my_stream = _YAP_LookupAtom("socket");
       else
 #endif
       if (Stream[sno].status & Pipe_Stream_f)
-	my_stream = LookupAtom("pipe");
+	my_stream = _YAP_LookupAtom("pipe");
       else
 	if (Stream[sno].status & InMemory_Stream_f)
-	  my_stream = LookupAtom("charsio");
+	  my_stream = _YAP_LookupAtom("charsio");
 	else
 	  my_stream = Stream[sno].u.file.name;
       for (i = 0; i < MaxStreams; i++)
@@ -3050,7 +3149,7 @@ p_cur_line_no (void)
     }
   else
     tout = MkIntTerm (Stream[sno].linecount);
-  return (unify_constant (ARG2, tout));
+  return (_YAP_unify_constant (ARG2, tout));
 }
 
 static Int
@@ -3076,7 +3175,7 @@ p_line_position (void)
     }
   else
     tout = MkIntTerm (Stream[sno].linepos);
-  return (unify_constant (ARG2, tout));
+  return (_YAP_unify_constant (ARG2, tout));
 }
 
 static Int
@@ -3104,7 +3203,7 @@ p_character_count (void)
     tout = MkIntTerm (Stream[sno].charcount);
   else
     tout = MkIntTerm (YP_ftell (Stream[sno].u.file.file));
-  return (unify_constant (ARG2, tout));
+  return (_YAP_unify_constant (ARG2, tout));
 }
 
 static Int
@@ -3116,7 +3215,7 @@ p_show_stream_flags(void)
   if (sno < 0)
     return (FALSE);
   tout = MkIntTerm(Stream[sno].status);
-  return (unify (ARG2, tout));
+  return (_YAP_unify (ARG2, tout));
 }
 
 static Int
@@ -3135,8 +3234,8 @@ p_show_stream_position (void)
     sargs[0] = MkIntTerm (YP_ftell (Stream[sno].u.file.file));
   sargs[1] = MkIntTerm (Stream[sno].linecount);
   sargs[2] = MkIntTerm (Stream[sno].linepos);
-  tout = MkApplTerm (FunctorStreamPos, 3, sargs);
-  return (unify (ARG2, tout));
+  tout = _YAP_MkApplTerm (FunctorStreamPos, 3, sargs);
+  return (_YAP_unify (ARG2, tout));
 }
 
 static Int
@@ -3150,61 +3249,61 @@ p_set_stream_position (void)
   }
   tin = Deref (ARG2);
   if (IsVarTerm (tin)) {
-    Error(INSTANTIATION_ERROR, tin, "set_stream_position/2");
+    _YAP_Error(INSTANTIATION_ERROR, tin, "set_stream_position/2");
     return (FALSE);
   } else if (!(IsApplTerm (tin))) {
-    Error(DOMAIN_ERROR_STREAM_POSITION, tin, "set_stream_position/2");
+    _YAP_Error(DOMAIN_ERROR_STREAM_POSITION, tin, "set_stream_position/2");
     return (FALSE);
   }
   if (FunctorOfTerm (tin) == FunctorStreamPos) {
     if (IsVarTerm (tp = ArgOfTerm (1, tin))) {
-      Error(INSTANTIATION_ERROR, tp, "set_stream_position/2");
+      _YAP_Error(INSTANTIATION_ERROR, tp, "set_stream_position/2");
       return (FALSE);    
     } else if (!IsIntTerm (tp)) {
-      Error(DOMAIN_ERROR_STREAM_POSITION, tin, "set_stream_position/2");
+      _YAP_Error(DOMAIN_ERROR_STREAM_POSITION, tin, "set_stream_position/2");
       return (FALSE);
     }
     if (!(Stream[sno].status & Seekable_Stream_f) ) {
-      Error(PERMISSION_ERROR_REPOSITION_STREAM, ARG1,"set_stream_position/2");
+      _YAP_Error(PERMISSION_ERROR_REPOSITION_STREAM, ARG1,"set_stream_position/2");
       return(FALSE);
     }
     char_pos = IntOfTerm (tp);
     if (IsVarTerm (tp = ArgOfTerm (2, tin))) {
-      Error(INSTANTIATION_ERROR, tp, "set_stream_position/2");
+      _YAP_Error(INSTANTIATION_ERROR, tp, "set_stream_position/2");
       return (FALSE);    
     } else if (!IsIntTerm (tp)) {
-      Error(DOMAIN_ERROR_STREAM_POSITION, tin, "set_stream_position/2");
+      _YAP_Error(DOMAIN_ERROR_STREAM_POSITION, tin, "set_stream_position/2");
       return (FALSE);
     }
     Stream[sno].charcount = char_pos;
     Stream[sno].linecount = IntOfTerm (tp);
     if (IsVarTerm (tp = ArgOfTerm (2, tin))) {
-      Error(INSTANTIATION_ERROR, tp, "set_stream_position/2");
+      _YAP_Error(INSTANTIATION_ERROR, tp, "set_stream_position/2");
       return (FALSE);    
     } else if (!IsIntTerm (tp)) {
-      Error(DOMAIN_ERROR_STREAM_POSITION, tin, "set_stream_position/2");
+      _YAP_Error(DOMAIN_ERROR_STREAM_POSITION, tin, "set_stream_position/2");
       return (FALSE);
     }
     Stream[sno].linepos = IntOfTerm (tp);
     if (YP_fseek (Stream[sno].u.file.file, (long) (char_pos), 0) == -1) {
-      Error(SYSTEM_ERROR, tp, 
+      _YAP_Error(SYSTEM_ERROR, tp, 
 	    "fseek failed for set_stream_position/2");
       return(FALSE);
     }
   } else if (FunctorOfTerm (tin) == FunctorStreamEOS) {
     if (IsVarTerm (tp = ArgOfTerm (1, tin))) {
-      Error(INSTANTIATION_ERROR, tp, "set_stream_position/2");
+      _YAP_Error(INSTANTIATION_ERROR, tp, "set_stream_position/2");
       return (FALSE);    
-    } else if (tp != MkAtomTerm(LookupAtom("at"))) {
-      Error(DOMAIN_ERROR_STREAM_POSITION, tin, "set_stream_position/2");
+    } else if (tp != MkAtomTerm(_YAP_LookupAtom("at"))) {
+      _YAP_Error(DOMAIN_ERROR_STREAM_POSITION, tin, "set_stream_position/2");
       return (FALSE);
     }
     if (!(Stream[sno].status & Seekable_Stream_f) ) {
-      Error(PERMISSION_ERROR_REPOSITION_STREAM, ARG1,"set_stream_position/2");
+      _YAP_Error(PERMISSION_ERROR_REPOSITION_STREAM, ARG1,"set_stream_position/2");
       return(FALSE);
     }
     if (YP_fseek (Stream[sno].u.file.file, 0L, SEEK_END) == -1) {
-      Error(SYSTEM_ERROR, tp, 
+      _YAP_Error(SYSTEM_ERROR, tp, 
 	    "fseek failed for set_stream_position/2");
       return(FALSE);
     }
@@ -3228,15 +3327,15 @@ p_get (void)
   status = Stream[sno].status;
   if (status & (Binary_Stream_f|Eof_Stream_f)) {
     if (status & Binary_Stream_f) {
-      Error(PERMISSION_ERROR_INPUT_BINARY_STREAM, ARG1, "get/2");
+      _YAP_Error(PERMISSION_ERROR_INPUT_BINARY_STREAM, ARG1, "get/2");
       return(FALSE);
     } else if (status & Eof_Error_Stream_f) {
-      Error(PERMISSION_ERROR_INPUT_PAST_END_OF_STREAM, ARG1, "get/2");
+      _YAP_Error(PERMISSION_ERROR_INPUT_PAST_END_OF_STREAM, ARG1, "get/2");
       return(FALSE);
     }
   }
   while ((ch = Stream[sno].stream_getc(sno)) <= 32 && ch >= 0);
-  return (unify_constant (ARG2, MkIntTerm (ch)));
+  return (_YAP_unify_constant (ARG2, MkIntTerm (ch)));
 }
 
 static Int
@@ -3251,15 +3350,15 @@ p_get0 (void)
   status = Stream[sno].status;
   if (status & (Binary_Stream_f|Eof_Stream_f)) {
     if (status & Binary_Stream_f) {
-      Error(PERMISSION_ERROR_INPUT_BINARY_STREAM, ARG1, "get0/2");
+      _YAP_Error(PERMISSION_ERROR_INPUT_BINARY_STREAM, ARG1, "get0/2");
       return(FALSE);
     } else if (status & (Eof_Error_Stream_f)) {
-      Error(PERMISSION_ERROR_INPUT_PAST_END_OF_STREAM, ARG1, "get0/2");
+      _YAP_Error(PERMISSION_ERROR_INPUT_PAST_END_OF_STREAM, ARG1, "get0/2");
       return(FALSE);
     }
   }
   out = Stream[sno].stream_getc(sno);
-  return (unify_constant (ARG2, MkIntTerm (out)) );
+  return (_YAP_unify_constant (ARG2, MkIntTerm (out)) );
 }
 
 static Term
@@ -3287,15 +3386,15 @@ p_get0_line_codes (void)
   status = Stream[sno].status;
   if (status & (Binary_Stream_f|Eof_Stream_f)) {
     if (status & Binary_Stream_f) {
-      Error(PERMISSION_ERROR_INPUT_BINARY_STREAM, ARG1, "get0/2");
+      _YAP_Error(PERMISSION_ERROR_INPUT_BINARY_STREAM, ARG1, "get0/2");
       return(FALSE);
     } else if (status & (Eof_Error_Stream_f)) {
-      Error(PERMISSION_ERROR_INPUT_PAST_END_OF_STREAM, ARG1, "get0/2");
+      _YAP_Error(PERMISSION_ERROR_INPUT_PAST_END_OF_STREAM, ARG1, "get0/2");
       return(FALSE);
     }
   }
   out = read_line(sno);
-  return(unify(out,ARG2));
+  return(_YAP_unify(out,ARG2));
 }
 
 static Int
@@ -3308,14 +3407,14 @@ p_get_byte (void)
     return(FALSE);
   status = Stream[sno].status;
   if (!(status & Binary_Stream_f)) {
-    Error(PERMISSION_ERROR_INPUT_TEXT_STREAM, ARG1, "get_byte/2");
+    _YAP_Error(PERMISSION_ERROR_INPUT_TEXT_STREAM, ARG1, "get_byte/2");
     return(FALSE);
   }
   if ((status & (Eof_Stream_f|Eof_Error_Stream_f)) == (Eof_Stream_f|Eof_Error_Stream_f)) {
-    Error(PERMISSION_ERROR_INPUT_PAST_END_OF_STREAM, ARG1, "get_byte/2");
+    _YAP_Error(PERMISSION_ERROR_INPUT_PAST_END_OF_STREAM, ARG1, "get_byte/2");
     return(FALSE);
   }
-  return (unify_constant (ARG2, MkIntTerm (Stream[sno].stream_getc(sno))));
+  return (_YAP_unify_constant (ARG2, MkIntTerm (Stream[sno].stream_getc(sno))));
 }
 
 static Int
@@ -3325,13 +3424,13 @@ p_put (void)
   if (sno < 0)
     return (FALSE);
   if (Stream[sno].status & Binary_Stream_f) {
-    Error(PERMISSION_ERROR_OUTPUT_BINARY_STREAM, ARG1, "get0/2");
+    _YAP_Error(PERMISSION_ERROR_OUTPUT_BINARY_STREAM, ARG1, "get0/2");
     return(FALSE);
   }
   Stream[sno].stream_putc (sno, (int) IntOfTerm (Deref (ARG2)));
   /*
    * if (!(Stream[sno].status & Null_Stream_f))
-   * YP_fflush(Stream[sno].u.file.file); 
+   * yap_fflush(Stream[sno].u.file.file); 
    */
   return (TRUE);
 }
@@ -3343,13 +3442,13 @@ p_put_byte (void)
   if (sno < 0)
     return (FALSE);
   if (!(Stream[sno].status & Binary_Stream_f)) {
-    Error(PERMISSION_ERROR_OUTPUT_TEXT_STREAM, ARG1, "get0/2");
+    _YAP_Error(PERMISSION_ERROR_OUTPUT_TEXT_STREAM, ARG1, "get0/2");
     return(FALSE);
   }
   Stream[sno].stream_putc(sno, (int) IntOfTerm (Deref (ARG2)));
   /*
    * if (!(Stream[sno].status & Null_Stream_f))
-   * YP_fflush(Stream[sno].u.file.file); 
+   * yap_fflush(Stream[sno].u.file.file); 
    */
   return (TRUE);
 }
@@ -3364,28 +3463,28 @@ GetArgSizeFromThirdArg (char **pptr, Term * termptr)
   Int res;
   if (IsVarTerm(args)) {
     format_error = TRUE;
-    Error(INSTANTIATION_ERROR, args, "format/2");
+    _YAP_Error(INSTANTIATION_ERROR, args, "format/2");
     return(0);
   } else if (!IsPairTerm (args)) {
     format_error = TRUE;
-    Error(TYPE_ERROR_LIST, args, "format/2");
+    _YAP_Error(TYPE_ERROR_LIST, args, "format/2");
     return(0);
   }
   arghd = HeadOfTerm (args);
   args = TailOfTerm (args);
   if (IsVarTerm(arghd)) {
     format_error = TRUE;
-    Error(INSTANTIATION_ERROR, arghd, "format/2");
+    _YAP_Error(INSTANTIATION_ERROR, arghd, "format/2");
     return(0);
   } else if (!IsIntTerm (arghd)) {
     format_error = TRUE;
-    Error(TYPE_ERROR_LIST, arghd, "format/2");
+    _YAP_Error(TYPE_ERROR_LIST, arghd, "format/2");
     return(0);
   }
   res = IntOfTerm (arghd);
   if (res < 0) {
     format_error = TRUE;
-    Error(DOMAIN_ERROR_NOT_LESS_THAN_ZERO, arghd, "format/2");
+    _YAP_Error(DOMAIN_ERROR_NOT_LESS_THAN_ZERO, arghd, "format/2");
     return (0);
   }
 #if SHORT_INTS
@@ -3407,48 +3506,48 @@ GetArgSizeFromChar (Term * args)
   Int val;
   if (IsVarTerm(argtl)) {
     format_error = TRUE;
-    Error(INSTANTIATION_ERROR, argtl, "format/2");
+    _YAP_Error(INSTANTIATION_ERROR, argtl, "format/2");
     return(0);
   } else if (!IsPairTerm (argtl)) {
     format_error = TRUE;
-    Error(TYPE_ERROR_LIST, argtl, "format/2");
+    _YAP_Error(TYPE_ERROR_LIST, argtl, "format/2");
     return(0);
   }
   arghd = HeadOfTerm (argtl);
   argtl = TailOfTerm (argtl);
   if (IsVarTerm(arghd)) {
     format_error = TRUE;
-    Error(INSTANTIATION_ERROR, arghd, "format/2");
+    _YAP_Error(INSTANTIATION_ERROR, arghd, "format/2");
     return(0);
   } else if (!IsIntTerm (arghd)) {
     format_error = TRUE;
-    Error(TYPE_ERROR_LIST, arghd, "format/2");
+    _YAP_Error(TYPE_ERROR_LIST, arghd, "format/2");
     return(0);
   }
   val = IntOfTerm (arghd);
   if (IsVarTerm(argtl)) {
     format_error = TRUE;
-    Error(INSTANTIATION_ERROR, argtl, "format/2");
+    _YAP_Error(INSTANTIATION_ERROR, argtl, "format/2");
     return(0);
   } else if (!IsPairTerm (argtl)) {
     format_error = TRUE;
-    Error(TYPE_ERROR_LIST, argtl, "format/2");
+    _YAP_Error(TYPE_ERROR_LIST, argtl, "format/2");
     return(0);
   }
   arghd = HeadOfTerm (argtl);
   argtl = TailOfTerm (argtl);
   if (IsVarTerm(arghd)) {
     format_error = TRUE;
-    Error(INSTANTIATION_ERROR, arghd, "format/2");
+    _YAP_Error(INSTANTIATION_ERROR, arghd, "format/2");
     return(0);
   } else if (!IsIntTerm (arghd)) {
     format_error = TRUE;
-    Error(TYPE_ERROR_LIST, arghd, "format/2");
+    _YAP_Error(TYPE_ERROR_LIST, arghd, "format/2");
     return(0);
   }
   if (IntOfTerm (arghd) != 't') {
     format_error = TRUE;
-    Error(TYPE_ERROR_LIST, arghd, "format/2");
+    _YAP_Error(TYPE_ERROR_LIST, arghd, "format/2");
     return (0);
   }
   *args = argtl;
@@ -3464,22 +3563,22 @@ GetArgSizeFromChars (char **pptr, Int * intptr, Term * termptr)
   int ch;
   if (IsVarTerm(args)) {
     format_error = TRUE;
-    Error(INSTANTIATION_ERROR, args, "format/2");
+    _YAP_Error(INSTANTIATION_ERROR, args, "format/2");
     return(0);
   } else if (!IsPairTerm (args)) {
     format_error = TRUE;
-    Error(TYPE_ERROR_LIST, args, "format/2");
+    _YAP_Error(TYPE_ERROR_LIST, args, "format/2");
     return(0);
   }
   arghd = HeadOfTerm (args);
   args = TailOfTerm (args);
   if (IsVarTerm(arghd)) {
     format_error = TRUE;
-    Error(INSTANTIATION_ERROR, arghd, "format/2");
+    _YAP_Error(INSTANTIATION_ERROR, arghd, "format/2");
     return(0);
   } else if (!IsIntTerm (arghd)) {
     format_error = TRUE;
-    Error(TYPE_ERROR_LIST, arghd, "format/2");
+    _YAP_Error(TYPE_ERROR_LIST, arghd, "format/2");
     return(0);
   }
   ch = IntOfTerm (arghd);
@@ -3489,22 +3588,22 @@ GetArgSizeFromChars (char **pptr, Int * intptr, Term * termptr)
       up_to_now = up_to_now * 10 + ch - '0';
       if (IsVarTerm(args)) {
 	format_error = TRUE;
-	Error(INSTANTIATION_ERROR, args, "format/2");
+	_YAP_Error(INSTANTIATION_ERROR, args, "format/2");
 	return(0);
       } else if (!IsPairTerm (args)) {
 	format_error = TRUE;
-	Error(TYPE_ERROR_LIST, args, "format/2");
+	_YAP_Error(TYPE_ERROR_LIST, args, "format/2");
 	return(0);
       }
       arghd = HeadOfTerm (args);
       args = TailOfTerm (args);
       if (IsVarTerm(arghd)) {
 	format_error = TRUE;
-	Error(INSTANTIATION_ERROR, arghd, "format/2");
+	_YAP_Error(INSTANTIATION_ERROR, arghd, "format/2");
 	return(0);
       } else if (!IsIntTerm (arghd)) {
 	format_error = TRUE;
-	Error(TYPE_ERROR_LIST, arghd, "format/2");
+	_YAP_Error(TYPE_ERROR_LIST, arghd, "format/2");
 	return(0);
       }
       ch = (int) IntOfTerm (arghd);
@@ -3552,9 +3651,9 @@ format_putc(int sno, int ch) {
       Int new_max_size = format_buf_size + FORMAT_MAX_SIZE;
       char *newbuf;
 
-      if ((newbuf = AllocAtomSpace(new_max_size*sizeof(char))) == NULL) {
+      if ((newbuf = _YAP_AllocAtomSpace(new_max_size*sizeof(char))) == NULL) {
 	format_buf_size = -1;
-	Error(SYSTEM_ERROR, TermNil, "YAP could not grow heap for format/2");
+	_YAP_Error(SYSTEM_ERROR, TermNil, "YAP could not grow heap for format/2");
 	return(EOF);
       }
 #if HAVE_MEMMOVE
@@ -3569,7 +3668,7 @@ format_putc(int sno, int ch) {
 	}
       }
 #endif
-      FreeAtomSpace(format_base);
+      _YAP_FreeAtomSpace(format_base);
       format_ptr = newbuf+(format_ptr-format_base);
       format_base = newbuf;
       format_max = newbuf+new_max_size;
@@ -3637,24 +3736,24 @@ format_print_str (Int sno, Int size, Term args)
     {
       if (IsVarTerm(args)) {
 	format_error = TRUE;
-	Error(INSTANTIATION_ERROR, args, "format/2");
+	_YAP_Error(INSTANTIATION_ERROR, args, "format/2");
 	return;
       } else if (args == TermNil)
 	break;
       else if (!IsPairTerm (args)) {
 	format_error = TRUE;
-	Error(TYPE_ERROR_LIST, args, "format/2");
+	_YAP_Error(TYPE_ERROR_LIST, args, "format/2");
 	return;
       }
       arghd = HeadOfTerm (args);
       args = TailOfTerm (args);
       if (IsVarTerm(arghd)) {
 	format_error = TRUE;
-	Error(INSTANTIATION_ERROR, arghd, "format/2");
+	_YAP_Error(INSTANTIATION_ERROR, arghd, "format/2");
 	return;
       } else if (!IsIntTerm (arghd)) {
 	format_error = TRUE;
-	Error(TYPE_ERROR_LIST, arghd, "format/2");
+	_YAP_Error(TYPE_ERROR_LIST, arghd, "format/2");
 	return;
       }
       format_putc(sno, (int) IntOfTerm (arghd));
@@ -3674,20 +3773,20 @@ format(Term tail, Term args, int sno)
   Float float_tmp;
   
   if (IsVarTerm(tail)) {
-    Error(INSTANTIATION_ERROR,tail,"format/2");
+    _YAP_Error(INSTANTIATION_ERROR,tail,"format/2");
     return(FALSE);
   } else if (!IsPairTerm (tail)) {
-    Error(TYPE_ERROR_LIST,tail,"format/2");
+    _YAP_Error(TYPE_ERROR_LIST,tail,"format/2");
     return(FALSE);
   }
   head = HeadOfTerm (tail);
   tail = TailOfTerm (tail);
   if (IsVarTerm (args) || !IsPairTerm (args))
     args = MkPairTerm (args, TermNil);
-  format_base = format_ptr = AllocAtomSpace(FORMAT_MAX_SIZE*sizeof(char));
+  format_base = format_ptr = _YAP_AllocAtomSpace(FORMAT_MAX_SIZE*sizeof(char));
   format_max = format_base+FORMAT_MAX_SIZE;
   if (format_ptr == NULL) {
-    Error(INSTANTIATION_ERROR,tail,"format/2");
+    _YAP_Error(INSTANTIATION_ERROR,tail,"format/2");
     return(FALSE);
   }  
   format_buf_size = FORMAT_MAX_SIZE;
@@ -3695,7 +3794,7 @@ format(Term tail, Term args, int sno)
   while (!IsVarTerm (head) && IsIntTerm (head))
     {
       if (format_buf_size == -1) {
-	FreeAtomSpace(format_base);
+	_YAP_FreeAtomSpace(format_base);
 	return(FALSE);
       }
       ch = IntOfTerm (head);
@@ -3706,23 +3805,23 @@ format(Term tail, Term args, int sno)
 	  ptr = tmp1;
 	  *ptr++ = '%';
 	  if (IsVarTerm (tail = Deref (tail)) ) {
-	    FreeAtomSpace(format_base);
-	    Error(INSTANTIATION_ERROR,tail,"format/2");
+	    _YAP_FreeAtomSpace(format_base);
+	    _YAP_Error(INSTANTIATION_ERROR,tail,"format/2");
 	    return(FALSE);
 	  } else if (!IsPairTerm (tail)) {
-	    FreeAtomSpace(format_base);
-	    Error(TYPE_ERROR_LIST,tail,"format/2");
+	    _YAP_FreeAtomSpace(format_base);
+	    _YAP_Error(TYPE_ERROR_LIST,tail,"format/2");
 	    return(FALSE);
 	  }
 	  head = HeadOfTerm (tail);
 	  tail = TailOfTerm (tail);
 	  if (IsVarTerm (head)) {
-	    FreeAtomSpace(format_base);
-	    Error(INSTANTIATION_ERROR,tail,"format/2");
+	    _YAP_FreeAtomSpace(format_base);
+	    _YAP_Error(INSTANTIATION_ERROR,tail,"format/2");
 	    return(FALSE);
 	  } else  if ( !IsIntTerm (head)) {
-	    FreeAtomSpace(format_base);
-	    Error(TYPE_ERROR_INTEGER,tail,"format/2");
+	    _YAP_FreeAtomSpace(format_base);
+	    _YAP_Error(TYPE_ERROR_INTEGER,tail,"format/2");
 	    return(FALSE);
 	  } else
 	    ch = IntOfTerm (head);
@@ -3731,27 +3830,27 @@ format(Term tail, Term args, int sno)
 	      size_args = TRUE;
 	      arg_size = GetArgSizeFromThirdArg (&ptr, &args);
 	      if (format_error) {
-		FreeAtomSpace(format_base);
+		_YAP_FreeAtomSpace(format_base);
 		return(FALSE);
 	      }
 	      if (IsVarTerm (tail = Deref (tail)) ) {
-		FreeAtomSpace(format_base);
-		Error(INSTANTIATION_ERROR,tail,"format/2");
+		_YAP_FreeAtomSpace(format_base);
+		_YAP_Error(INSTANTIATION_ERROR,tail,"format/2");
 		return(FALSE);
 	      } else if (!IsPairTerm (tail)) {
-		FreeAtomSpace(format_base);
-		Error(TYPE_ERROR_LIST,tail,"format/2");
+		_YAP_FreeAtomSpace(format_base);
+		_YAP_Error(TYPE_ERROR_LIST,tail,"format/2");
 		return(FALSE);
 	      }
 	      head = HeadOfTerm (tail);
 	      tail = TailOfTerm (tail);
 	      if (IsVarTerm (head)) {
-		FreeAtomSpace(format_base);
-		Error(INSTANTIATION_ERROR,tail,"format/2");
+		_YAP_FreeAtomSpace(format_base);
+		_YAP_Error(INSTANTIATION_ERROR,tail,"format/2");
 		return(FALSE);
 	      } else  if ( !IsIntTerm (head)) {
-		FreeAtomSpace(format_base);
-		Error(TYPE_ERROR_INTEGER,tail,"format/2");
+		_YAP_FreeAtomSpace(format_base);
+		_YAP_Error(TYPE_ERROR_INTEGER,tail,"format/2");
 		return(FALSE);
 	      } else
 		ch = IntOfTerm (head);
@@ -3762,7 +3861,7 @@ format(Term tail, Term args, int sno)
 	      size_args = TRUE;
 	      ch = GetArgSizeFromChars (&ptr, &arg_size, &tail);
 	      if (format_error) {
-		FreeAtomSpace(format_base);
+		_YAP_FreeAtomSpace(format_base);
 		return (FALSE);
 	      }
 	    }
@@ -3771,7 +3870,7 @@ format(Term tail, Term args, int sno)
 	      size_args = TRUE;
 	      arg_size = GetArgSizeFromChar(&tail);
 	      if (format_error) {
-		FreeAtomSpace(format_base);
+		_YAP_FreeAtomSpace(format_base);
 		return(FALSE);
 	      }
 	      ch = 't';
@@ -3780,50 +3879,50 @@ format(Term tail, Term args, int sno)
 	    {
 	    case 'a':
 	      if (size_args) {
-		FreeAtomSpace(format_base);
+		_YAP_FreeAtomSpace(format_base);
 		return (FALSE);
 	      }
 	      if (IsVarTerm (args)) {
-		FreeAtomSpace(format_base);
-		Error(INSTANTIATION_ERROR,args,"~a format/2");
+		_YAP_FreeAtomSpace(format_base);
+		_YAP_Error(INSTANTIATION_ERROR,args,"~a format/2");
 		return(FALSE);		
 	      } else if (!IsPairTerm (args)) {
-		FreeAtomSpace(format_base);
-		Error(TYPE_ERROR_LIST,args,"~a format/2");
+		_YAP_FreeAtomSpace(format_base);
+		_YAP_Error(TYPE_ERROR_LIST,args,"~a format/2");
 		return(FALSE);
 	      }
 	      arghd = HeadOfTerm (args);
 	      args = TailOfTerm (args);
 	      if (IsVarTerm (arghd)) {
-		FreeAtomSpace(format_base);
-		Error(INSTANTIATION_ERROR,arghd,"~a in format/2");
+		_YAP_FreeAtomSpace(format_base);
+		_YAP_Error(INSTANTIATION_ERROR,arghd,"~a in format/2");
 		return(FALSE);		
 	      } else if (!IsAtomTerm (arghd)) {
-		FreeAtomSpace(format_base);
-		Error(TYPE_ERROR_ATOM,arghd,"~a in format/2");
+		_YAP_FreeAtomSpace(format_base);
+		_YAP_Error(TYPE_ERROR_ATOM,arghd,"~a in format/2");
 		return(FALSE);
 	      }
-	      plwrite (arghd, format_putc, Handle_vars_f);
+	      _YAP_plwrite (arghd, format_putc, Handle_vars_f);
 	      break;
 	    case 'c':
 	      if (IsVarTerm (args)) {
-		FreeAtomSpace(format_base);
-		Error(INSTANTIATION_ERROR,args,"~c in format/2");
+		_YAP_FreeAtomSpace(format_base);
+		_YAP_Error(INSTANTIATION_ERROR,args,"~c in format/2");
 		return(FALSE);		
 	      } else if (!IsPairTerm (args)) {
-		FreeAtomSpace(format_base);
-		Error(TYPE_ERROR_LIST,args,"~c in format/2");
+		_YAP_FreeAtomSpace(format_base);
+		_YAP_Error(TYPE_ERROR_LIST,args,"~c in format/2");
 		return(FALSE);
 	      }
 	      arghd = HeadOfTerm (args);
 	      args = TailOfTerm (args);
 	      if (IsVarTerm (arghd)) {
-		FreeAtomSpace(format_base);
-		Error(INSTANTIATION_ERROR,arghd,"~c in format/2");
+		_YAP_FreeAtomSpace(format_base);
+		_YAP_Error(INSTANTIATION_ERROR,arghd,"~c in format/2");
 		return(FALSE);		
 	      } else if (!IsIntTerm (arghd)) {
-		FreeAtomSpace(format_base);
-		Error(TYPE_ERROR_ATOM,arghd,"~a in format/2");
+		_YAP_FreeAtomSpace(format_base);
+		_YAP_Error(TYPE_ERROR_ATOM,arghd,"~a in format/2");
 		return(FALSE);
 	      } else int2= IntOfTerm(arghd);
 	      if (!size_args)
@@ -3837,12 +3936,12 @@ format(Term tail, Term args, int sno)
 	    case 'g':
 	    case 'G':
 	      if (IsVarTerm (args)) {
-		FreeAtomSpace(format_base);
-		Error(INSTANTIATION_ERROR,args,"~%d in format/2", ch);
+		_YAP_FreeAtomSpace(format_base);
+		_YAP_Error(INSTANTIATION_ERROR,args,"~%d in format/2", ch);
 		return(FALSE);		
 	      } else if (!IsPairTerm (args)) {
-		FreeAtomSpace(format_base);
-		Error(TYPE_ERROR_LIST,args,"~%d in format/2", ch);
+		_YAP_FreeAtomSpace(format_base);
+		_YAP_Error(TYPE_ERROR_LIST,args,"~%d in format/2", ch);
 		return(FALSE);
 	      }
 	      if (arg_size == 0 || arg_size > 6)
@@ -3854,19 +3953,19 @@ format(Term tail, Term args, int sno)
 	      arghd = HeadOfTerm (args);
 	      args = TailOfTerm (args);
 	      if (IsVarTerm(arghd)) {
-		FreeAtomSpace(format_base);
-		Error(INSTANTIATION_ERROR,arghd,"~%c in format/2", ch);
+		_YAP_FreeAtomSpace(format_base);
+		_YAP_Error(INSTANTIATION_ERROR,arghd,"~%c in format/2", ch);
 		return(FALSE);		
 	      } else if (!IsNumTerm (arghd)) {
-		FreeAtomSpace(format_base);
-		Error(TYPE_ERROR_FLOAT,arghd,"~%c in format/2", ch);
+		_YAP_FreeAtomSpace(format_base);
+		_YAP_Error(TYPE_ERROR_FLOAT,arghd,"~%c in format/2", ch);
 		return(FALSE);
 	      }
 	      if (IsIntegerTerm(arghd)) {
 		  float_tmp = IntegerOfTerm(arghd);
 #ifdef USE_GMP
 	      } else if (IsBigIntTerm(arghd)) {
-		  float_tmp = mpz_get_d(BigIntOfTerm(arghd));
+		  float_tmp = mpz_get_d(_YAP_BigIntOfTerm(arghd));
 #endif
               } else {
 		float_tmp = FloatOfTerm (arghd);
@@ -3878,31 +3977,31 @@ format(Term tail, Term args, int sno)
 	      break;
 	    case 'd':
 	      if (IsVarTerm (args)) {
-		FreeAtomSpace(format_base);
-		Error(INSTANTIATION_ERROR,args,"~d format/2");
+		_YAP_FreeAtomSpace(format_base);
+		_YAP_Error(INSTANTIATION_ERROR,args,"~d format/2");
 		return(FALSE);		
 	      } else if (!IsPairTerm (args)) {
-		FreeAtomSpace(format_base);
-		Error(TYPE_ERROR_LIST,args,"~d format/2");
+		_YAP_FreeAtomSpace(format_base);
+		_YAP_Error(TYPE_ERROR_LIST,args,"~d format/2");
 		return(FALSE);
 	      }
 	      arghd = HeadOfTerm (args);
 	      args = TailOfTerm (args);
 	      if (IsVarTerm (arghd)) {
-		FreeAtomSpace(format_base);
-		Error(INSTANTIATION_ERROR,arghd,"~d in format/2");
+		_YAP_FreeAtomSpace(format_base);
+		_YAP_Error(INSTANTIATION_ERROR,arghd,"~d in format/2");
 		return(FALSE);		
 	      } else if (IsIntTerm (arghd)) {
 		int2 = IntOfTerm (arghd);
 	      } else if (IsLongIntTerm (arghd)) {
 		int2 = LongIntOfTerm(arghd);
 	      } else {
-		FreeAtomSpace(format_base);
-		Error(TYPE_ERROR_INTEGER,arghd,"~d in format/2");
+		_YAP_FreeAtomSpace(format_base);
+		_YAP_Error(TYPE_ERROR_INTEGER,arghd,"~d in format/2");
 		return(FALSE);
 	      }
 	      if (!arg_size) {
-		plwrite (arghd, format_putc, Handle_vars_f);
+		_YAP_plwrite (arghd, format_putc, Handle_vars_f);
 	      } else {
 		Int siz;
 		/*
@@ -3936,27 +4035,27 @@ format(Term tail, Term args, int sno)
 	      break;
 	    case 'D':
 	      if (IsVarTerm (args)) {
-		FreeAtomSpace(format_base);
-		Error(INSTANTIATION_ERROR,args,"~D in format/2");
+		_YAP_FreeAtomSpace(format_base);
+		_YAP_Error(INSTANTIATION_ERROR,args,"~D in format/2");
 		return(FALSE);		
 	      } else if (!IsPairTerm (args)) {
-		FreeAtomSpace(format_base);
-		Error(TYPE_ERROR_LIST,args,"~D in format/2");
+		_YAP_FreeAtomSpace(format_base);
+		_YAP_Error(TYPE_ERROR_LIST,args,"~D in format/2");
 		return(FALSE);
 	      }
 	      arghd = HeadOfTerm (args);
 	      args = TailOfTerm (args);
 	      if (IsVarTerm (arghd)) {
-		FreeAtomSpace(format_base);
-		Error(INSTANTIATION_ERROR,arghd,"~D in format/2");
+		_YAP_FreeAtomSpace(format_base);
+		_YAP_Error(INSTANTIATION_ERROR,arghd,"~D in format/2");
 		return(FALSE);		
 	      } else if (IsIntTerm (arghd)) {
 		int2 = IntOfTerm (arghd);
 	      } else if (IsLongIntTerm (arghd)) {
 		int2 = LongIntOfTerm(arghd);
 	      } else {
-		FreeAtomSpace(format_base);
-		Error(TYPE_ERROR_INTEGER,arghd,"~D in format/2");
+		_YAP_FreeAtomSpace(format_base);
+		_YAP_Error(TYPE_ERROR_INTEGER,arghd,"~D in format/2");
 		return(FALSE);
 	      }
 	      {
@@ -4012,32 +4111,32 @@ format(Term tail, Term args, int sno)
 		if (size_args)
 		  radix = arg_size;
 		if (IsVarTerm (args)) {
-		  FreeAtomSpace(format_base);
-		  Error(INSTANTIATION_ERROR,args,"~r in format/2");
+		  _YAP_FreeAtomSpace(format_base);
+		  _YAP_Error(INSTANTIATION_ERROR,args,"~r in format/2");
 		  return(FALSE);		
 		} else if (!IsPairTerm (args)) {
-		  FreeAtomSpace(format_base);
-		  Error(TYPE_ERROR_LIST,args,"~r in format/2");
+		  _YAP_FreeAtomSpace(format_base);
+		  _YAP_Error(TYPE_ERROR_LIST,args,"~r in format/2");
 		  return(FALSE);
 		}
 		if (radix > 36 || radix < 2) {
-		  FreeAtomSpace(format_base);
-		  Error(DOMAIN_ERROR_RADIX,MkIntTerm(radix),"~r in format/2");
+		  _YAP_FreeAtomSpace(format_base);
+		  _YAP_Error(DOMAIN_ERROR_RADIX,MkIntTerm(radix),"~r in format/2");
 		  return(FALSE);
 		}
 		arghd = HeadOfTerm (args);
 		args = TailOfTerm (args);
 		if (IsVarTerm (arghd)) {
-		  FreeAtomSpace(format_base);
-		  Error(INSTANTIATION_ERROR,arghd,"~r in format/2");
+		  _YAP_FreeAtomSpace(format_base);
+		  _YAP_Error(INSTANTIATION_ERROR,arghd,"~r in format/2");
 		  return(FALSE);		
 		} else if (IsIntTerm (arghd)) {
 		  int2 = IntOfTerm (arghd);
 		} else if (IsLongIntTerm (arghd)) {
 		int2 = LongIntOfTerm(arghd);
 		} else {
-		  FreeAtomSpace(format_base);
-		  Error(TYPE_ERROR_INTEGER,arghd,"~r in format/2");
+		  _YAP_FreeAtomSpace(format_base);
+		  _YAP_Error(TYPE_ERROR_INTEGER,arghd,"~r in format/2");
 		  return(FALSE);
 		}
 		if (int2 < 0)
@@ -4068,32 +4167,32 @@ format(Term tail, Term args, int sno)
 		if (size_args)
 		  radix = arg_size;
 		if (IsVarTerm (args)) {
-		  FreeAtomSpace(format_base);
-		  Error(INSTANTIATION_ERROR,args,"~R in format/2");
+		  _YAP_FreeAtomSpace(format_base);
+		  _YAP_Error(INSTANTIATION_ERROR,args,"~R in format/2");
 		  return(FALSE);		
 		} else if (!IsPairTerm (args)) {
-		  FreeAtomSpace(format_base);
-		  Error(TYPE_ERROR_LIST,args,"~R in format/2");
+		  _YAP_FreeAtomSpace(format_base);
+		  _YAP_Error(TYPE_ERROR_LIST,args,"~R in format/2");
 		  return(FALSE);
 		}
 		if (radix > 36 || radix < 2) {
-		  FreeAtomSpace(format_base);
-		  Error(DOMAIN_ERROR_RADIX,MkIntTerm(radix),"~R in format/2");
+		  _YAP_FreeAtomSpace(format_base);
+		  _YAP_Error(DOMAIN_ERROR_RADIX,MkIntTerm(radix),"~R in format/2");
 		  return(FALSE);
 		}
 		arghd = HeadOfTerm (args);
 		args = TailOfTerm (args);
 		if (IsVarTerm (arghd)) {
-		  FreeAtomSpace(format_base);
-		  Error(INSTANTIATION_ERROR,arghd,"~R in format/2");
+		  _YAP_FreeAtomSpace(format_base);
+		  _YAP_Error(INSTANTIATION_ERROR,arghd,"~R in format/2");
 		  return(FALSE);		
 		} else if (IsIntTerm (arghd)) {
 		  int2 = IntOfTerm (arghd);
 		} else if (IsLongIntTerm (arghd)) {
 		  int2 = LongIntOfTerm(arghd);
 		} else {
-		  FreeAtomSpace(format_base);
-		  Error(TYPE_ERROR_INTEGER,arghd,"~R in format/2");
+		  _YAP_FreeAtomSpace(format_base);
+		  _YAP_Error(TYPE_ERROR_INTEGER,arghd,"~R in format/2");
 		  return(FALSE);
 		}
 		if (int2 < 0)
@@ -4119,83 +4218,83 @@ format(Term tail, Term args, int sno)
 	      break;
 	    case 's':
 	      if (IsVarTerm (args)) {
-		FreeAtomSpace(format_base);
-		Error(INSTANTIATION_ERROR,args,"~s in format/2");
+		_YAP_FreeAtomSpace(format_base);
+		_YAP_Error(INSTANTIATION_ERROR,args,"~s in format/2");
 		return(FALSE);		
 	      } else if (!IsPairTerm (args)) {
-		FreeAtomSpace(format_base);
-		Error(TYPE_ERROR_LIST,args,"~s in format/2");
+		_YAP_FreeAtomSpace(format_base);
+		_YAP_Error(TYPE_ERROR_LIST,args,"~s in format/2");
 		return(FALSE);
 	      }
 	      arghd = HeadOfTerm (args);
 	      args = TailOfTerm (args);
 	      if (IsVarTerm (arghd)) {
-		FreeAtomSpace(format_base);
-		Error(INSTANTIATION_ERROR,arghd,"~s in format/2");
+		_YAP_FreeAtomSpace(format_base);
+		_YAP_Error(INSTANTIATION_ERROR,arghd,"~s in format/2");
 		return(FALSE);		
 	      } else if (!IsPairTerm (arghd) && arghd != TermNil) {
-		FreeAtomSpace(format_base);
-		Error(TYPE_ERROR_LIST,arghd,"~s in format/2");
+		_YAP_FreeAtomSpace(format_base);
+		_YAP_Error(TYPE_ERROR_LIST,arghd,"~s in format/2");
 		return(FALSE);
 	      }
 	      format_print_str (sno, arg_size, arghd);
 	      if (format_error) {
-		FreeAtomSpace(format_base);
+		_YAP_FreeAtomSpace(format_base);
 		return(FALSE);
 	      }
 	      break;
 	    case 'i':
 	      if (size_args) {
-		FreeAtomSpace(format_base);
-		Error(DOMAIN_ERROR_NOT_ZERO,MkIntTerm(size_args),
+		_YAP_FreeAtomSpace(format_base);
+		_YAP_Error(DOMAIN_ERROR_NOT_ZERO,MkIntTerm(size_args),
 		      "~i in format/2");
 		return(FALSE);
 	      }
 	      if (IsVarTerm (args)) {
-		FreeAtomSpace(format_base);
-		Error(INSTANTIATION_ERROR,args,"~i in format/2");
+		_YAP_FreeAtomSpace(format_base);
+		_YAP_Error(INSTANTIATION_ERROR,args,"~i in format/2");
 		return(FALSE);		
 	      } else if (!IsPairTerm (args)) {
-		FreeAtomSpace(format_base);
-		Error(TYPE_ERROR_LIST,args,"~i in format/2");
+		_YAP_FreeAtomSpace(format_base);
+		_YAP_Error(TYPE_ERROR_LIST,args,"~i in format/2");
 		return(FALSE);
 	      }
 	      args = TailOfTerm (args);
 	      break;
 	    case 'k':
 	      if (size_args) {
-		FreeAtomSpace(format_base);
-		Error(DOMAIN_ERROR_NOT_ZERO,MkIntTerm(size_args),
+		_YAP_FreeAtomSpace(format_base);
+		_YAP_Error(DOMAIN_ERROR_NOT_ZERO,MkIntTerm(size_args),
 		      "~k in format/2");
 		return(FALSE);
 	      }
 	      if (IsVarTerm (args)) {
-		FreeAtomSpace(format_base);
-		Error(INSTANTIATION_ERROR,args,"~k in format/2");
+		_YAP_FreeAtomSpace(format_base);
+		_YAP_Error(INSTANTIATION_ERROR,args,"~k in format/2");
 		return(FALSE);		
 	      } else if (!IsPairTerm (args)) {
-		FreeAtomSpace(format_base);
-		Error(TYPE_ERROR_LIST,args,"~k in format/2");
+		_YAP_FreeAtomSpace(format_base);
+		_YAP_Error(TYPE_ERROR_LIST,args,"~k in format/2");
 		return(FALSE);
 	      }
 	      arghd = HeadOfTerm (args);
 	      args = TailOfTerm (args);
-	      plwrite (arghd, format_putc, Quote_illegal_f|Ignore_ops_f );
+	      _YAP_plwrite (arghd, format_putc, Quote_illegal_f|Ignore_ops_f );
 	      break;
 	    case 'p':
 	      if (size_args) {
-		FreeAtomSpace(format_base);
-		Error(DOMAIN_ERROR_NOT_ZERO,MkIntTerm(size_args),
+		_YAP_FreeAtomSpace(format_base);
+		_YAP_Error(DOMAIN_ERROR_NOT_ZERO,MkIntTerm(size_args),
 		      "~p in format/2");
 		return(FALSE);
 	      }
 	      if (IsVarTerm (args)) {
-		FreeAtomSpace(format_base);
-		Error(INSTANTIATION_ERROR,args,"~p in format/2");
+		_YAP_FreeAtomSpace(format_base);
+		_YAP_Error(INSTANTIATION_ERROR,args,"~p in format/2");
 		return(FALSE);		
 	      } else if (!IsPairTerm (args)) {
-		FreeAtomSpace(format_base);
-		Error(TYPE_ERROR_LIST,args,"~p in format/2");
+		_YAP_FreeAtomSpace(format_base);
+		_YAP_Error(TYPE_ERROR_LIST,args,"~p in format/2");
 		return(FALSE);
 	      }
 	      arghd = HeadOfTerm (args);
@@ -4203,62 +4302,62 @@ format(Term tail, Term args, int sno)
 	      *--ASP = MkIntTerm(0);
 	      { 
 		long sl = _YAP_InitSlot(args);
-		plwrite(arghd, format_putc, Handle_vars_f|Use_portray_f);
+		_YAP_plwrite(arghd, format_putc, Handle_vars_f|Use_portray_f);
 		args = _YAP_GetFromSlot(sl);
 		_YAP_RecoverSlots(1);
 	      }
 	      if (EX != 0L) {
 		Term ball = EX;
 		EX = 0L;
-		FreeAtomSpace(format_base);
-		JumpToEnv(ball);
+		_YAP_FreeAtomSpace(format_base);
+		_YAP_JumpToEnv(ball);
 		return(FALSE);
 	      }
 	      break;
 	    case 'q':
 	      if (size_args) {
-		FreeAtomSpace(format_base);
-		Error(DOMAIN_ERROR_NOT_ZERO,MkIntTerm(size_args),
+		_YAP_FreeAtomSpace(format_base);
+		_YAP_Error(DOMAIN_ERROR_NOT_ZERO,MkIntTerm(size_args),
 		      "~q in format/2");
 		return(FALSE);
 	      }
 	      if (IsVarTerm (args)) {
-		FreeAtomSpace(format_base);
-		Error(INSTANTIATION_ERROR,args,"~q in format/2");
+		_YAP_FreeAtomSpace(format_base);
+		_YAP_Error(INSTANTIATION_ERROR,args,"~q in format/2");
 		return(FALSE);		
 	      } else if (!IsPairTerm (args)) {
-		FreeAtomSpace(format_base);
-		Error(TYPE_ERROR_LIST,args,"~q in format/2");
+		_YAP_FreeAtomSpace(format_base);
+		_YAP_Error(TYPE_ERROR_LIST,args,"~q in format/2");
 		return(FALSE);
 	      }
 	      arghd = HeadOfTerm (args);
 	      args = TailOfTerm (args);
-	      plwrite (arghd, format_putc, Handle_vars_f|Quote_illegal_f);
+	      _YAP_plwrite (arghd, format_putc, Handle_vars_f|Quote_illegal_f);
 	      break;
 	    case 'w':
 	      if (size_args) {
-		FreeAtomSpace(format_base);
-		Error(DOMAIN_ERROR_NOT_ZERO,MkIntTerm(size_args),
+		_YAP_FreeAtomSpace(format_base);
+		_YAP_Error(DOMAIN_ERROR_NOT_ZERO,MkIntTerm(size_args),
 		      "bad arguments for ~w in format/2");
 		return(FALSE);
 	      }
 	      if (IsVarTerm (args)) {
-		FreeAtomSpace(format_base);
-		Error(INSTANTIATION_ERROR,args,"~w in format/2");
+		_YAP_FreeAtomSpace(format_base);
+		_YAP_Error(INSTANTIATION_ERROR,args,"~w in format/2");
 		return(FALSE);		
 	      } else if (!IsPairTerm (args)) {
-		FreeAtomSpace(format_base);
-		Error(TYPE_ERROR_LIST,args,"~w in format/2");
+		_YAP_FreeAtomSpace(format_base);
+		_YAP_Error(TYPE_ERROR_LIST,args,"~w in format/2");
 		return(FALSE);
 	      }
 	      arghd = HeadOfTerm (args);
 	      args = TailOfTerm (args);
-	      plwrite (arghd, format_putc, Handle_vars_f);
+	      _YAP_plwrite (arghd, format_putc, Handle_vars_f);
 	      break;
 	    case '~':
 	      if (size_args) {
-		FreeAtomSpace(format_base);
-		Error(DOMAIN_ERROR_NOT_ZERO,MkIntTerm(size_args),
+		_YAP_FreeAtomSpace(format_base);
+		_YAP_Error(DOMAIN_ERROR_NOT_ZERO,MkIntTerm(size_args),
 		      "~~ in format/2");
 		return(FALSE);
 	      }
@@ -4314,7 +4413,7 @@ format(Term tail, Term args, int sno)
 	      pad_max++;
 	      break;
 	    default:
-	      FreeAtomSpace(format_base);
+	      _YAP_FreeAtomSpace(format_base);
 	      return (FALSE);
 	    }
 	}
@@ -4324,19 +4423,19 @@ format(Term tail, Term args, int sno)
 	    {
 	      tail = TailOfTerm (tail);
 	      if (IsVarTerm (tail)) {
-		FreeAtomSpace(format_base);
-		Error(INSTANTIATION_ERROR,tail,"format/2");
+		_YAP_FreeAtomSpace(format_base);
+		_YAP_Error(INSTANTIATION_ERROR,tail,"format/2");
 		return(FALSE);		
 	      } else if (!IsPairTerm (tail)) {
-		FreeAtomSpace(format_base);
-		Error(TYPE_ERROR_LIST,tail,"format/2");
+		_YAP_FreeAtomSpace(format_base);
+		_YAP_Error(TYPE_ERROR_LIST,tail,"format/2");
 		return(FALSE);
 	      }
 	      head = HeadOfTerm (tail);
 	      tail = TailOfTerm (tail);
 	      if (head != MkIntTerm (10)) {
-		FreeAtomSpace(format_base);
-		Error(DOMAIN_ERROR_NOT_NL,head,
+		_YAP_FreeAtomSpace(format_base);
+		_YAP_Error(DOMAIN_ERROR_NOT_NL,head,
 		      "format/2");
 		return(FALSE);
 	      }
@@ -4350,44 +4449,44 @@ format(Term tail, Term args, int sno)
 	for (ptr = format_base; ptr < format_ptr; ptr++) {
 	  Stream[sno].stream_putc(sno, *ptr);
 	}
-	FreeAtomSpace(format_base);
+	_YAP_FreeAtomSpace(format_base);
 	return(TRUE);
       }
       head = HeadOfTerm (tail);
       tail = TailOfTerm (tail);
     }
   if (format_buf_size == -1) {
-    FreeAtomSpace(format_base);
+    _YAP_FreeAtomSpace(format_base);
     return(FALSE);
   }
   for (ptr = format_base; ptr < format_ptr; ptr++) {
     Stream[sno].stream_putc(sno, *ptr);
   }
-  FreeAtomSpace(format_base);
+  _YAP_FreeAtomSpace(format_base);
   return (TRUE);
 }
 
 static Int
 p_format(void)
 {				/* '$format'(Control,Args)               */
-  return(format(Deref(ARG1),Deref(ARG2), c_output_stream));
+  return(format(Deref(ARG1),Deref(ARG2), _YAP_c_output_stream));
 }
 
 
 static Int
 p_format2(void)
 {				/* '$format'(Stream,Control,Args)          */
-  int old_c_stream = c_output_stream;
+  int old_c_stream = _YAP_c_output_stream;
   Int out;
 
-  /* needs to change c_output_stream for write */
-  c_output_stream = CheckStream (ARG1, Output_Stream_f, "format/3");
-  if (c_output_stream == -1) {
-    c_output_stream = old_c_stream;  
+  /* needs to change _YAP_c_output_stream for write */
+  _YAP_c_output_stream = CheckStream (ARG1, Output_Stream_f, "format/3");
+  if (_YAP_c_output_stream == -1) {
+    _YAP_c_output_stream = old_c_stream;  
     return(FALSE);
   }
-  out = format(Deref(ARG2),Deref(ARG3),c_output_stream);
-  c_output_stream = old_c_stream;  
+  out = format(Deref(ARG2),Deref(ARG3),_YAP_c_output_stream);
+  _YAP_c_output_stream = old_c_stream;  
   return(out);
 }
 
@@ -4412,7 +4511,7 @@ p_flush (void)
   int sno = CheckStream (ARG1, Output_Stream_f, "flush_output/1");
   if (sno < 0)
     return (FALSE);
-  YP_fflush (sno);
+  yap_fflush (sno);
   return (TRUE);
 }
 
@@ -4422,7 +4521,7 @@ p_flush_all_streams (void)
 #if BROKEN_FFLUSH_NULL
   int i;
   for (i = 0; i < MaxStreams; ++i)
-    YP_fflush (i);
+    yap_fflush (i);
 #else
   fflush (NULL);
 #endif
@@ -4447,11 +4546,11 @@ p_stream_select(void)
   Term tout = TermNil, ti, Head;
 
   if (IsVarTerm(t1)) {
-    Error(INSTANTIATION_ERROR,t1,"stream_select/3");
+    _YAP_Error(INSTANTIATION_ERROR,t1,"stream_select/3");
     return(FALSE);
   }
   if (!IsPairTerm(t1)) {
-    Error(TYPE_ERROR_LIST,t1,"stream_select/3");
+    _YAP_Error(TYPE_ERROR_LIST,t1,"stream_select/3");
     return(FALSE);
   }
   FD_ZERO(&readfds);
@@ -4478,50 +4577,50 @@ p_stream_select(void)
   }
   t2 = Deref(ARG2);
   if (IsVarTerm(t2)) {
-    Error(INSTANTIATION_ERROR,t2,"stream_select/3");
+    _YAP_Error(INSTANTIATION_ERROR,t2,"stream_select/3");
     return(FALSE);
   }
   if (IsAtomTerm(t2)) {
-    if (t2 == MkAtomTerm(LookupAtom("off"))) {
+    if (t2 == MkAtomTerm(_YAP_LookupAtom("off"))) {
       /* wait indefinitely */
       ptime = NULL;
     } else {
-      Error(DOMAIN_ERROR_TIMEOUT_SPEC,t1,"stream_select/3");
+      _YAP_Error(DOMAIN_ERROR_TIMEOUT_SPEC,t1,"stream_select/3");
       return(FALSE);
     }
   } else {
     Term t21, t22;
 
     if (!IsApplTerm(t2) || FunctorOfTerm(t2) != FunctorModule) {
-      Error(DOMAIN_ERROR_TIMEOUT_SPEC,t2,"stream_select/3");
+      _YAP_Error(DOMAIN_ERROR_TIMEOUT_SPEC,t2,"stream_select/3");
       return(FALSE);
     }
     t21 = ArgOfTerm(1, t2);
     if (IsVarTerm(t21)) {
-      Error(INSTANTIATION_ERROR,t2,"stream_select/3");
+      _YAP_Error(INSTANTIATION_ERROR,t2,"stream_select/3");
       return(FALSE);
     }
     if (!IsIntegerTerm(t21)) {
-      Error(DOMAIN_ERROR_TIMEOUT_SPEC,t2,"stream_select/3");
+      _YAP_Error(DOMAIN_ERROR_TIMEOUT_SPEC,t2,"stream_select/3");
       return(FALSE);
     }
     timeout.tv_sec = IntegerOfTerm(t21);
     if (timeout.tv_sec < 0) {
-      Error(DOMAIN_ERROR_TIMEOUT_SPEC,t2,"stream_select/3");
+      _YAP_Error(DOMAIN_ERROR_TIMEOUT_SPEC,t2,"stream_select/3");
       return(FALSE);
     }
     t22 = ArgOfTerm(2, t2);
     if (IsVarTerm(t22)) {
-      Error(INSTANTIATION_ERROR,t2,"stream_select/3");
+      _YAP_Error(INSTANTIATION_ERROR,t2,"stream_select/3");
       return(FALSE);
     }
     if (!IsIntegerTerm(t22)) {
-      Error(DOMAIN_ERROR_TIMEOUT_SPEC,t2,"stream_select/3");
+      _YAP_Error(DOMAIN_ERROR_TIMEOUT_SPEC,t2,"stream_select/3");
       return(FALSE);
     }
     timeout.tv_usec = IntegerOfTerm(t22);
     if (timeout.tv_usec < 0) {
-      Error(DOMAIN_ERROR_TIMEOUT_SPEC,t2,"stream_select/3");
+      _YAP_Error(DOMAIN_ERROR_TIMEOUT_SPEC,t2,"stream_select/3");
       return(FALSE);
     }
     ptime = &timeout;
@@ -4529,10 +4628,10 @@ p_stream_select(void)
   /* do the real work */
   if (select(fdmax+1, &readfds, &writefds, &exceptfds, ptime) < 0) {
 #if HAVE_STRERROR
-      Error(SYSTEM_ERROR, TermNil, 
+      _YAP_Error(SYSTEM_ERROR, TermNil, 
 	    "stream_select/3 (select: %s)", strerror(errno));
 #else
-      Error(SYSTEM_ERROR, TermNil,
+      _YAP_Error(SYSTEM_ERROR, TermNil,
 	    "stream_select/3 (select)");
 #endif
   }
@@ -4550,7 +4649,7 @@ p_stream_select(void)
     t1 = TailOfTerm(t1);
   }
   /* we're done, just pass the info back */
-  return(unify(ARG3,tout));
+  return(_YAP_unify(ARG3,tout));
 
 }
 #endif
@@ -4567,7 +4666,7 @@ p_write_depth (void)
   if (IsVarTerm (t1))
     {
       Term t = MkIntTerm (*max_depth);
-      if (!unify_constant(ARG1, t))
+      if (!_YAP_unify_constant(ARG1, t))
 	return (FALSE);
     }
   else
@@ -4575,7 +4674,7 @@ p_write_depth (void)
   if (IsVarTerm (ARG2))
     {
       Term t = MkIntTerm (*max_list);
-      if (!unify_constant (ARG2, t))
+      if (!_YAP_unify_constant (ARG2, t))
 	return (FALSE);
     }
   else
@@ -4592,7 +4691,7 @@ p_change_type_of_char (void)
     return (FALSE);
   if (!IsVarTerm(t2) && !IsIntTerm(t2))
     return (FALSE);
-  chtype[IntOfTerm(t1)] = IntOfTerm(t2);
+  _YAP_chtype[IntOfTerm(t1)] = IntOfTerm(t2);
   return (TRUE);
 }
 
@@ -4604,8 +4703,8 @@ p_type_of_char (void)
   Term t1 = Deref (ARG1);
   if (!IsVarTerm (t1) && !IsIntTerm (t1))
     return (FALSE);
-  t = MkIntTerm(chtype[IntOfTerm (t1)]);
-  return (unify(t,ARG2));
+  t = MkIntTerm(_YAP_chtype[IntOfTerm (t1)]);
+  return (_YAP_unify(t,ARG2));
 }
 
 
@@ -4645,29 +4744,29 @@ p_char_conversion(void)
   char *s0, *s1;
 
   if (IsVarTerm(t0)) {
-    Error(INSTANTIATION_ERROR, t0, "char_conversion/2");
+    _YAP_Error(INSTANTIATION_ERROR, t0, "char_conversion/2");
     return (FALSE);    
   }
   if (!IsAtomTerm(t0)) {
-    Error(REPRESENTATION_ERROR_CHARACTER, t0, "char_conversion/2");
+    _YAP_Error(REPRESENTATION_ERROR_CHARACTER, t0, "char_conversion/2");
     return (FALSE);    
   }
   s0 = RepAtom(AtomOfTerm(t0))->StrOfAE;
   if (s0[1] != '\0') {
-    Error(REPRESENTATION_ERROR_CHARACTER, t0, "char_conversion/2");
+    _YAP_Error(REPRESENTATION_ERROR_CHARACTER, t0, "char_conversion/2");
     return (FALSE);    
   }
   if (IsVarTerm(t1)) {
-    Error(INSTANTIATION_ERROR, t1, "char_conversion/2");
+    _YAP_Error(INSTANTIATION_ERROR, t1, "char_conversion/2");
     return (FALSE);    
   }
   if (!IsAtomTerm(t1)) {
-    Error(REPRESENTATION_ERROR_CHARACTER, t1, "char_conversion/2");
+    _YAP_Error(REPRESENTATION_ERROR_CHARACTER, t1, "char_conversion/2");
     return (FALSE);    
   }
   s1 = RepAtom(AtomOfTerm(t1))->StrOfAE;
   if (s1[1] != '\0') {
-    Error(REPRESENTATION_ERROR_CHARACTER, t1, "char_conversion/2");
+    _YAP_Error(REPRESENTATION_ERROR_CHARACTER, t1, "char_conversion/2");
     return (FALSE);    
   }
   /* check if we do have a table for converting characters */
@@ -4677,10 +4776,10 @@ p_char_conversion(void)
     /* don't create a table if we don't need to */
     if (s0[0] == s1[0])
       return(TRUE);
-    CharConversionTable2 = AllocCodeSpace(NUMBER_OF_CHARS*sizeof(char));
+    CharConversionTable2 = _YAP_AllocCodeSpace(NUMBER_OF_CHARS*sizeof(char));
     while (CharConversionTable2 == NULL) {
-      if (!growheap(FALSE)) {
-	Error(SYSTEM_ERROR, TermNil, ErrorMessage);
+      if (!_YAP_growheap(FALSE)) {
+	_YAP_Error(SYSTEM_ERROR, TermNil, _YAP_ErrorMessage);
 	return(FALSE);
       }
     }
@@ -4711,16 +4810,16 @@ p_current_char_conversion(void)
   }
   t0 = Deref(ARG1);
   if (IsVarTerm(t0)) {
-    Error(INSTANTIATION_ERROR, t0, "current_char_conversion/2");
+    _YAP_Error(INSTANTIATION_ERROR, t0, "current_char_conversion/2");
     return (FALSE);    
   }
   if (!IsAtomTerm(t0)) {
-    Error(REPRESENTATION_ERROR_CHARACTER, t0, "current_char_conversion/2");
+    _YAP_Error(REPRESENTATION_ERROR_CHARACTER, t0, "current_char_conversion/2");
     return (FALSE);    
   }
   s0 = RepAtom(AtomOfTerm(t0))->StrOfAE;
   if (s0[1] != '\0') {
-    Error(REPRESENTATION_ERROR_CHARACTER, t0, "current_char_conversion/2");
+    _YAP_Error(REPRESENTATION_ERROR_CHARACTER, t0, "current_char_conversion/2");
     return (FALSE);    
   }
   t1 = Deref(ARG2);
@@ -4729,15 +4828,15 @@ p_current_char_conversion(void)
     if (CharConversionTable[(int)s0[0]] == '\0') return(FALSE);
     out[0] = CharConversionTable[(int)s0[0]];
     out[1] = '\0';
-    return(unify(ARG2,MkAtomTerm(LookupAtom(out))));
+    return(_YAP_unify(ARG2,MkAtomTerm(_YAP_LookupAtom(out))));
   }
   if (!IsAtomTerm(t1)) {
-    Error(REPRESENTATION_ERROR_CHARACTER, t1, "current_char_conversion/2");
+    _YAP_Error(REPRESENTATION_ERROR_CHARACTER, t1, "current_char_conversion/2");
     return (FALSE);    
   }
   s1 = RepAtom(AtomOfTerm(t1))->StrOfAE;
   if (s1[1] != '\0') {
-    Error(REPRESENTATION_ERROR_CHARACTER, t1, "current_char_conversion/2");
+    _YAP_Error(REPRESENTATION_ERROR_CHARACTER, t1, "current_char_conversion/2");
     return (FALSE);    
   } else {
     return (CharConversionTable[(int)s0[0]] == '\0' &&
@@ -4761,18 +4860,18 @@ p_all_char_conversions(void)
       char s[2];
       s[1] = '\0';
       s[0] = CharConversionTable[i];
-      t1 = MkAtomTerm(LookupAtom(s));
+      t1 = MkAtomTerm(_YAP_LookupAtom(s));
       out = MkPairTerm(t1,out);
       s[0] = i;
-      t2 = MkAtomTerm(LookupAtom(s));
+      t2 = MkAtomTerm(_YAP_LookupAtom(s));
       out = MkPairTerm(t2,out);
     }
   }
-  return(unify(ARG1,out));
+  return(_YAP_unify(ARG1,out));
 }
 
 int
-StreamToFileNo(Term t)
+_YAP_StreamToFileNo(Term t)
 {
   int sno  =
     CheckStream(t, (Input_Stream_f|Output_Stream_f), "StreamToFileNo");
@@ -4861,84 +4960,89 @@ p_same_file(void) {
 }
 
 void
-InitBackIO (void)
+_YAP_InitBackIO (void)
 {
-  InitCPredBack ("$current_stream", 3, 1, init_cur_s, cont_cur_s, SafePredFlag|SyncPredFlag);
+  _YAP_InitCPredBack ("$current_stream", 3, 1, init_cur_s, cont_cur_s, SafePredFlag|SyncPredFlag);
 }
 
 void
-InitIOPreds(void)
+_YAP_InitIOPreds(void)
 {
+
+  _YAP_stdin = stdin;
+  _YAP_stdout = stdout;
+  _YAP_stderr = stderr;
+  Stream = (StreamDesc *)_YAP_AllocCodeSpace(sizeof(StreamDesc)*MaxStreams);
   /* here the Input/Output predicates */
-  InitCPred ("$check_stream", 2, p_check_stream, SafePredFlag|SyncPredFlag);
-  InitCPred ("$check_stream", 1, p_check_if_stream, SafePredFlag|SyncPredFlag);
-  InitCPred ("$stream_flags", 2, p_stream_flags, SafePredFlag|SyncPredFlag);
-  InitCPred ("$close", 1, p_close, SafePredFlag|SyncPredFlag);
-  InitCPred ("peek_mem_write_stream", 3, p_peek_mem_write_stream, SyncPredFlag);
-  InitCPred ("flush_output", 1, p_flush, SafePredFlag|SyncPredFlag);
-  InitCPred ("$flush_all_streams", 0, p_flush_all_streams, SafePredFlag|SyncPredFlag);
-  InitCPred ("$get", 2, p_get, SafePredFlag|SyncPredFlag);
-  InitCPred ("$get0", 2, p_get0, SafePredFlag|SyncPredFlag);
-  InitCPred ("$get0_line_codes", 2, p_get0_line_codes, SafePredFlag|SyncPredFlag);
-  InitCPred ("$get_byte", 2, p_get_byte, SafePredFlag|SyncPredFlag);
-  InitCPred ("$open", 4, p_open, SafePredFlag|SyncPredFlag);
-  InitCPred ("$file_expansion", 2, p_file_expansion, SafePredFlag|SyncPredFlag);
-  InitCPred ("$open_null_stream", 1, p_open_null_stream, SafePredFlag|SyncPredFlag);
-  InitCPred ("$open_pipe_stream", 2, p_open_pipe_stream, SafePredFlag|SyncPredFlag);
-  InitCPred ("open_mem_read_stream", 2, p_open_mem_read_stream, SyncPredFlag);
-  InitCPred ("open_mem_write_stream", 1, p_open_mem_write_stream, SyncPredFlag);
-  InitCPred ("$put", 2, p_put, SafePredFlag|SyncPredFlag);
-  InitCPred ("$put_byte", 2, p_put_byte, SafePredFlag|SyncPredFlag);
-  InitCPred ("$set_read_error_handler", 1, p_set_read_error_handler, SafePredFlag|SyncPredFlag);
-  InitCPred ("$get_read_error_handler", 1, p_get_read_error_handler, SafePredFlag|SyncPredFlag);
-  InitCPred ("$read", 5, p_read, SyncPredFlag);
-  InitCPred ("$read", 6, p_read2, SyncPredFlag);
-  InitCPred ("$set_input", 1, p_set_input, SafePredFlag|SyncPredFlag);
-  InitCPred ("$set_output", 1, p_set_output, SafePredFlag|SyncPredFlag);
-  InitCPred ("$skip", 2, p_skip, SafePredFlag|SyncPredFlag);
-  InitCPred ("$write", 2, p_write, SyncPredFlag);
-  InitCPred ("$write", 3, p_write2, SyncPredFlag);
-  InitCPred ("$format", 2, p_format, SyncPredFlag);
-  InitCPred ("$format", 3, p_format2, SyncPredFlag);
-  InitCPred ("$current_line_number", 2, p_cur_line_no, SafePredFlag|SyncPredFlag);
-  InitCPred ("$line_position", 2, p_line_position, SafePredFlag|SyncPredFlag);
-  InitCPred ("$character_count", 2, p_character_count, SafePredFlag|SyncPredFlag);
-  InitCPred ("$start_line", 1, p_startline, SafePredFlag|SyncPredFlag);
-  InitCPred ("$show_stream_flags", 2, p_show_stream_flags, SafePredFlag|SyncPredFlag);
-  InitCPred ("$show_stream_position", 2, p_show_stream_position, SafePredFlag|SyncPredFlag);
-  InitCPred ("$set_stream_position", 2, p_set_stream_position, SafePredFlag|SyncPredFlag);
-  InitCPred ("$inform_of_clause", 2, p_inform_of_clause, SafePredFlag|SyncPredFlag);
-  InitCPred ("$inform_of_clause", 2, p_inform_of_clause, SafePredFlag|SyncPredFlag);
-  InitCPred ("$user_file_name", 2, p_user_file_name, SafePredFlag|SyncPredFlag),
-  InitCPred ("$file_name", 2, p_file_name, SafePredFlag|SyncPredFlag),
-  InitCPred ("$past_eof", 1, p_past_eof, SafePredFlag|SyncPredFlag),
-  InitCPred ("$peek", 2, p_peek, SafePredFlag|SyncPredFlag),
-  InitCPred ("$peek_byte", 2, p_peek_byte, SafePredFlag|SyncPredFlag),
-  InitCPred ("current_input", 1, p_current_input, SafePredFlag|SyncPredFlag);
-  InitCPred ("current_output", 1, p_current_output, SafePredFlag|SyncPredFlag);
-  InitCPred ("prompt", 1, p_setprompt, SafePredFlag|SyncPredFlag);
-  InitCPred ("prompt", 2, p_prompt, SafePredFlag|SyncPredFlag);
-  InitCPred ("always_prompt_user", 0, p_always_prompt_user, SafePredFlag|SyncPredFlag);
-  InitCPred ("write_depth", 2, p_write_depth, SafePredFlag|SyncPredFlag);
-  InitCPred ("$change_type_of_char", 2, p_change_type_of_char, SafePredFlag|SyncPredFlag);
-  InitCPred ("$type_of_char", 2, p_type_of_char, SafePredFlag|SyncPredFlag);
-  InitCPred ("char_conversion", 2, p_char_conversion, SyncPredFlag);
-  InitCPred ("$current_char_conversion", 2, p_current_char_conversion, SyncPredFlag);
-  InitCPred ("$all_char_conversions", 1, p_all_char_conversions, SyncPredFlag);
-  InitCPred ("$force_char_conversion", 0, p_force_char_conversion, SyncPredFlag);
-  InitCPred ("$disable_char_conversion", 0, p_disable_char_conversion, SyncPredFlag);
-  InitCPred ("$add_alias_to_stream", 2, p_add_alias_to_stream, SafePredFlag|SyncPredFlag);
-  InitCPred ("$change_alias_to_stream", 2, p_change_alias_to_stream, SafePredFlag|SyncPredFlag);
-  InitCPred ("$check_if_valid_new_alias", 1, p_check_if_valid_new_alias, TestPredFlag|SafePredFlag|SyncPredFlag);
-  InitCPred ("$fetch_stream_alias", 2, p_fetch_stream_alias, SafePredFlag|SyncPredFlag);
-  InitCPred ("$stream", 1, p_stream, SafePredFlag|TestPredFlag),
+  _YAP_InitCPred ("$check_stream", 2, p_check_stream, SafePredFlag|SyncPredFlag);
+  _YAP_InitCPred ("$check_stream", 1, p_check_if_stream, SafePredFlag|SyncPredFlag);
+  _YAP_InitCPred ("$stream_flags", 2, p_stream_flags, SafePredFlag|SyncPredFlag);
+  _YAP_InitCPred ("$close", 1, p_close, SafePredFlag|SyncPredFlag);
+  _YAP_InitCPred ("peek_mem_write_stream", 3, p_peek_mem_write_stream, SyncPredFlag);
+  _YAP_InitCPred ("flush_output", 1, p_flush, SafePredFlag|SyncPredFlag);
+  _YAP_InitCPred ("$flush_all_streams", 0, p_flush_all_streams, SafePredFlag|SyncPredFlag);
+  _YAP_InitCPred ("$get", 2, p_get, SafePredFlag|SyncPredFlag);
+  _YAP_InitCPred ("$get0", 2, p_get0, SafePredFlag|SyncPredFlag);
+  _YAP_InitCPred ("$get0_line_codes", 2, p_get0_line_codes, SafePredFlag|SyncPredFlag);
+  _YAP_InitCPred ("$get_byte", 2, p_get_byte, SafePredFlag|SyncPredFlag);
+  _YAP_InitCPred ("$open", 4, p_open, SafePredFlag|SyncPredFlag);
+  _YAP_InitCPred ("$file_expansion", 2, p_file_expansion, SafePredFlag|SyncPredFlag);
+  _YAP_InitCPred ("$open_null_stream", 1, p_open_null_stream, SafePredFlag|SyncPredFlag);
+  _YAP_InitCPred ("$open_pipe_stream", 2, p_open_pipe_stream, SafePredFlag|SyncPredFlag);
+  _YAP_InitCPred ("open_mem_read_stream", 2, p_open_mem_read_stream, SyncPredFlag);
+  _YAP_InitCPred ("open_mem_write_stream", 1, p_open_mem_write_stream, SyncPredFlag);
+  _YAP_InitCPred ("$put", 2, p_put, SafePredFlag|SyncPredFlag);
+  _YAP_InitCPred ("$put_byte", 2, p_put_byte, SafePredFlag|SyncPredFlag);
+  _YAP_InitCPred ("$set_read_error_handler", 1, p_set_read_error_handler, SafePredFlag|SyncPredFlag);
+  _YAP_InitCPred ("$get_read_error_handler", 1, p_get_read_error_handler, SafePredFlag|SyncPredFlag);
+  _YAP_InitCPred ("$read", 5, p_read, SyncPredFlag);
+  _YAP_InitCPred ("$read", 6, p_read2, SyncPredFlag);
+  _YAP_InitCPred ("$set_input", 1, p_set_input, SafePredFlag|SyncPredFlag);
+  _YAP_InitCPred ("$set_output", 1, p_set_output, SafePredFlag|SyncPredFlag);
+  _YAP_InitCPred ("$skip", 2, p_skip, SafePredFlag|SyncPredFlag);
+  _YAP_InitCPred ("$write", 2, p_write, SyncPredFlag);
+  _YAP_InitCPred ("$write", 3, p_write2, SyncPredFlag);
+  _YAP_InitCPred ("$format", 2, p_format, SyncPredFlag);
+  _YAP_InitCPred ("$format", 3, p_format2, SyncPredFlag);
+  _YAP_InitCPred ("$current_line_number", 2, p_cur_line_no, SafePredFlag|SyncPredFlag);
+  _YAP_InitCPred ("$line_position", 2, p_line_position, SafePredFlag|SyncPredFlag);
+  _YAP_InitCPred ("$character_count", 2, p_character_count, SafePredFlag|SyncPredFlag);
+  _YAP_InitCPred ("$start_line", 1, p_startline, SafePredFlag|SyncPredFlag);
+  _YAP_InitCPred ("$show_stream_flags", 2, p_show_stream_flags, SafePredFlag|SyncPredFlag);
+  _YAP_InitCPred ("$show_stream_position", 2, p_show_stream_position, SafePredFlag|SyncPredFlag);
+  _YAP_InitCPred ("$set_stream_position", 2, p_set_stream_position, SafePredFlag|SyncPredFlag);
+  _YAP_InitCPred ("$inform_of_clause", 2, p_inform_of_clause, SafePredFlag|SyncPredFlag);
+  _YAP_InitCPred ("$inform_of_clause", 2, p_inform_of_clause, SafePredFlag|SyncPredFlag);
+  _YAP_InitCPred ("$user_file_name", 2, p_user_file_name, SafePredFlag|SyncPredFlag),
+  _YAP_InitCPred ("$file_name", 2, p_file_name, SafePredFlag|SyncPredFlag),
+  _YAP_InitCPred ("$past_eof", 1, p_past_eof, SafePredFlag|SyncPredFlag),
+  _YAP_InitCPred ("$peek", 2, p_peek, SafePredFlag|SyncPredFlag),
+  _YAP_InitCPred ("$peek_byte", 2, p_peek_byte, SafePredFlag|SyncPredFlag),
+  _YAP_InitCPred ("current_input", 1, p_current_input, SafePredFlag|SyncPredFlag);
+  _YAP_InitCPred ("current_output", 1, p_current_output, SafePredFlag|SyncPredFlag);
+  _YAP_InitCPred ("prompt", 1, p_setprompt, SafePredFlag|SyncPredFlag);
+  _YAP_InitCPred ("prompt", 2, p_prompt, SafePredFlag|SyncPredFlag);
+  _YAP_InitCPred ("always_prompt_user", 0, p_always_prompt_user, SafePredFlag|SyncPredFlag);
+  _YAP_InitCPred ("write_depth", 2, p_write_depth, SafePredFlag|SyncPredFlag);
+  _YAP_InitCPred ("$change_type_of_char", 2, p_change_type_of_char, SafePredFlag|SyncPredFlag);
+  _YAP_InitCPred ("$type_of_char", 2, p_type_of_char, SafePredFlag|SyncPredFlag);
+  _YAP_InitCPred ("char_conversion", 2, p_char_conversion, SyncPredFlag);
+  _YAP_InitCPred ("$current_char_conversion", 2, p_current_char_conversion, SyncPredFlag);
+  _YAP_InitCPred ("$all_char_conversions", 1, p_all_char_conversions, SyncPredFlag);
+  _YAP_InitCPred ("$force_char_conversion", 0, p_force_char_conversion, SyncPredFlag);
+  _YAP_InitCPred ("$disable_char_conversion", 0, p_disable_char_conversion, SyncPredFlag);
+  _YAP_InitCPred ("$add_alias_to_stream", 2, p_add_alias_to_stream, SafePredFlag|SyncPredFlag);
+  _YAP_InitCPred ("$change_alias_to_stream", 2, p_change_alias_to_stream, SafePredFlag|SyncPredFlag);
+  _YAP_InitCPred ("$check_if_valid_new_alias", 1, p_check_if_valid_new_alias, TestPredFlag|SafePredFlag|SyncPredFlag);
+  _YAP_InitCPred ("$fetch_stream_alias", 2, p_fetch_stream_alias, SafePredFlag|SyncPredFlag);
+  _YAP_InitCPred ("$stream", 1, p_stream, SafePredFlag|TestPredFlag),
 #if HAVE_SELECT
-  InitCPred ("stream_select", 3, p_stream_select, SafePredFlag|SyncPredFlag);
+  _YAP_InitCPred ("stream_select", 3, p_stream_select, SafePredFlag|SyncPredFlag);
 #endif
-  InitCPred ("$same_file", 2, p_same_file, SafePredFlag|SyncPredFlag);
+  _YAP_InitCPred ("$same_file", 2, p_same_file, SafePredFlag|SyncPredFlag);
 
 #if USE_SOCKET
-  InitSockets ();
+  _YAP_InitSockets ();
 #endif
   InitPlIO ();
 #if HAVE_LIBREADLINE

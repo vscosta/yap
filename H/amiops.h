@@ -74,6 +74,9 @@ Dereferencing macros
 
 #endif /* UNIQUE_TAG_FOR_PAIRS */
 
+EXTERN Term STD_PROTO(Deref,(Term));
+EXTERN Term STD_PROTO(Derefa,(CELL *));
+
 EXTERN inline Term Deref(Term a)
 {
    while(IsVarTerm(a)) {
@@ -321,7 +324,7 @@ Binding Macros for Multiple Assignment Variables.
 #define BIND_GLOBALCELL(A,D)    *(A) = (D); \
 				if ((A) >= HBREG) continue; \
                                 TRAIL_GLOBAL(A,D); if ((A) >= H0) continue; \
-                                WakeUp((A)); continue
+                                _YAP_WakeUp((A)); continue
 #else
 #define BIND_GLOBAL2(A,D,LAB,LAB1)   BIND_GLOBAL(A,D,LAB)
 
@@ -362,12 +365,14 @@ Unification Routines
 
 *************************************************************/
 
+EXTERN Int STD_PROTO(_YAP_unify,(Term,Term));
+
 EXTERN inline
-Int unify(Term t0, Term t1)
+Int _YAP_unify(Term t0, Term t1)
 {
   tr_fr_ptr TR0 = TR;
 
-  if (IUnify(t0,t1)) {
+  if (_YAP_IUnify(t0,t1)) {
     return(TRUE);
   } else {
     while(TR != TR0) {
@@ -398,8 +403,10 @@ Int unify(Term t0, Term t1)
   }
 }
 
+EXTERN Int STD_PROTO(_YAP_unify_constant,(Term,Term));
+
 EXTERN inline Int
-unify_constant(register Term a, register Term cons)
+_YAP_unify_constant(register Term a, register Term cons)
 {
   CELL *pt;
   deref_head(a,unify_cons_unk);
@@ -423,7 +430,7 @@ unify_constant(register Term a, register Term cons)
 	  return(FloatOfTerm(a) == FloatOfTerm(cons));
 #ifdef USE_GMP
 	case (CELL)FunctorBigInt:
-	  return(mpz_cmp(BigIntOfTerm(a),BigIntOfTerm(cons)) == 0);
+	  return(mpz_cmp(_YAP_BigIntOfTerm(a),_YAP_BigIntOfTerm(cons)) == 0);
 #endif /* USE_GMP */
 	default:
 	  return(FALSE);
@@ -437,7 +444,7 @@ unify_constant(register Term a, register Term cons)
   BIND(pt,cons,wake_for_cons);
 #ifdef COROUTINING
   DO_TRAIL(pt, cons);
-  if (pt < H0) WakeUp(pt);
+  if (pt < H0) _YAP_WakeUp(pt);
  wake_for_cons:
 #endif
   return(TRUE);
