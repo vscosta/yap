@@ -311,18 +311,22 @@ dump_stack(void)
   } else   if (HeapTop > (ADDR)GlobalBase) {
     fprintf(stderr,"[ YAP ERROR: Code Space Collided against Global ]\n");
   } else {
-    fprintf(stderr," [ Goals with alternatives open:\n");
-    while (b_ptr != NULL) {
-      cl_position(b_ptr->cp_ap);
-      b_ptr = b_ptr->cp_b;
+    if (b_ptr != NULL) {
+      fprintf(stderr," [ Goals with alternatives open:\n");
+      while (b_ptr != NULL) {
+	cl_position(b_ptr->cp_ap);
+	b_ptr = b_ptr->cp_b;
+      }
+      fprintf(stderr," ]\n");
     }
-    fprintf(stderr," ]\n");
-    fprintf(stderr," [ Goals left to continue:\n");
-    while (env_ptr != NULL) {
-      cl_position((yamop *)(env_ptr[E_CP]));
-      env_ptr = (CELL *)(env_ptr[E_E]);      
+    if (env_ptr != NULL) {
+      fprintf(stderr," [ Goals left to continue:\n");
+      while (env_ptr != NULL) {
+	cl_position((yamop *)(env_ptr[E_CP]));
+	env_ptr = (CELL *)(env_ptr[E_E]);      
+      }
+      fprintf(stderr," ]\n");
     }
-    fprintf(stderr," ]\n");
   }
 }
 
@@ -330,7 +334,8 @@ dump_stack(void)
 static void
 error_exit_yap (int value)
 {
-  dump_stack();
+  if (!PrologMode & BootMode)
+    dump_stack();
   exit_yap(value);
 }
 
@@ -387,7 +392,7 @@ Error (yap_error_number type, Term where, char *format,...)
     exit(1);
   }
   /* must do this here */
-  if (type == FATAL_ERROR) {
+  if (type == FATAL_ERROR || HeapBase == NULL) {
     va_start (ap, format);
     /* now build the error string */
     if (format != NULL) {

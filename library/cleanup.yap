@@ -21,7 +21,7 @@
 %       throws an exception if called outside of any cleanup-context.
 %
 % cleanup_all.
-%       calls all pending CleanUpGoals and resets the cleanup-system to an initial state.
+%       calls all pending CleanUpGoals and resets the cleanup-system to an initial state. 
 %       should only be used as one of the last calls in the main program.
 %
 % hidden predicates:

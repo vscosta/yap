@@ -54,7 +54,7 @@ static char     SccsId[] = "@(#)save.c	1.3 3/15/90";
 
 /*********  hack for accesing several kinds of terms. Should be cleaned **/
 
-extern char     StartUpFile[];
+static char StartUpFile[] = "startup";
 
 static char end_msg[256] ="*** End of YAP saved state *****";
 
@@ -97,7 +97,7 @@ STATIC_PROTO(void  save_crc, (void));
 STATIC_PROTO(Int   do_save, (int));
 STATIC_PROTO(Int   p_save, (void));
 STATIC_PROTO(Int   p_save_program, (void));
-STATIC_PROTO(int   check_header, (void));
+STATIC_PROTO(int   check_header, (CELL *, CELL *, CELL *, CELL *));
 STATIC_PROTO(void  get_heap_info, (void));
 STATIC_PROTO(void  get_regs, (int));
 STATIC_PROTO(void  get_insts, (OPCODE []));
@@ -121,7 +121,7 @@ STATIC_PROTO(void  restore_heap, (void));
 STATIC_PROTO(void  ShowAtoms, (void));
 STATIC_PROTO(void  ShowEntries, (PropEntry *));
 #endif
-STATIC_PROTO(int   OpenRestore, (char *));
+STATIC_PROTO(int   OpenRestore, (char *, char *, CELL *, CELL *, CELL *, CELL *));
 STATIC_PROTO(void  CloseRestore, (void));
 STATIC_PROTO(int  check_opcodes, (OPCODE []));
 STATIC_PROTO(void  RestoreHeap, (OPCODE [], int));
@@ -276,6 +276,8 @@ open_file(char *ss, int flag)
 static void 
 close_file(void)
 {
+  if (splfild == 0)
+    return;
   close(splfild);
   splfild = 0;
 }
@@ -284,32 +286,49 @@ close_file(void)
 static void 
 putout(CELL l)
 {
-	mywrite(splfild, (char *) &l, sizeof(CELL));
+  mywrite(splfild, (char *) &l, sizeof(CELL));
 }
 
 /* stores a pointer to a cell in a file */
 static void 
 putcellptr(CELL *l)
 {
-	mywrite(splfild, (char *) &l, sizeof(CELLPOINTER));
+  mywrite(splfild, (char *) &l, sizeof(CELLPOINTER));
 }
 
 /* gets a cell from a file */
 static CELL 
 get_cell(void)
 {
-	CELL            l;
-	myread(splfild, (char *) &l, Unsigned(sizeof(CELL)));
-	return (l);
+  CELL            l;
+  myread(splfild, (char *) &l, Unsigned(sizeof(CELL)));
+  return (l);
+}
+
+/* gets a cell from a file */
+static CELL 
+get_header_cell(void)
+{
+  CELL l;
+  int count = 0, n;
+  while (count < sizeof(CELL)) {
+    if ((n = read(splfild, &l, sizeof(CELL)-count)) < 0) {
+      ErrorMessage = "corrupt saved state";
+      return(0L);
+    }
+    count += n;
+  }
+  return(l);
 }
 
 /* gets a pointer to cell from a file */
 static CELL    *
 get_cellptr(void)
 {
-	CELL           *l;
-	myread(splfild, (char *) &l, Unsigned(sizeof(CELLPOINTER)));
-	return (l);
+  CELL           *l;
+
+  myread(splfild, (char *) &l, Unsigned(sizeof(CELLPOINTER)));
+  return (l);
 }
 
 /*
@@ -326,6 +345,10 @@ put_info(int info, int mode)
   putout(Unsigned(info));
   /* say whether we just saved the heap or everything */
   putout(mode);
+  /* c-predicates in system */
+  putout(NUMBER_OF_CPREDS);
+  /* comparison predicates in system */
+  putout(NUMBER_OF_CMPFUNCS);
   /* current state of stacks, to be used by SavedInfo */
 #if defined(YAPOR) || defined(TABLING)
   /* space available in heap area */
@@ -589,58 +612,110 @@ p_save_program(void)
 
 /* First check out if we are dealing with a valid file */
 static int 
-check_header(void)
+check_header(CELL *info, CELL *ATrail, CELL *AStack, CELL *AHeap)
 {
   char            pp[80];
   char msg[256];
-  CELL hp_size, gb_size, lc_size, tr_size, mode;
+  CELL hp_size, gb_size, lc_size, tr_size, mode, c_preds, cmp_funcs;
 
+  /* make sure we always check if there are enough bytes */
   /* skip the first line */
   do {
-    myread(splfild, pp, 1);
+    if (read(splfild, pp, 1) < 0) {
+      ErrorMessage = "corrupt saved state";
+      return(FAIL_RESTORE);
+    }
   } while (pp[0] != 1);
   /* now check the version */
   sprintf(msg, "YAPV%s", version_number);
-  myread(splfild, pp, Unsigned(strlen(msg) + 1));
+  {
+    int count = 0, n, to_read = Unsigned(strlen(msg) + 1);
+    while (count < to_read) {
+      if ((n = read(splfild, pp, to_read-count)) < 0) {
+	ErrorMessage = "corrupt saved state";
+	return(FAIL_RESTORE);
+      }
+      count += n;
+    }
+  }
+  if (pp[0] != 'Y' && pp[1] != 'A' && pp[0] != 'P') {
+    ErrorMessage = "corrupt saved state";
+    return(FAIL_RESTORE);
+  }
   if (strcmp(pp, msg) != 0) {
-    Error(SYSTEM_ERROR,TermNil,"not a saved Prolog state");
+    ErrorMessage = "saved state for different version of YAP";
     return(FAIL_RESTORE);
   }
   /* check info on header */
   /* ignore info on saved state */
-  get_cell();
+  *info = get_header_cell();
+  if (ErrorMessage)
+     return(FAIL_RESTORE);
   /* check the restore mode */
-  if ((mode = get_cell()) != DO_EVERYTHING && mode != DO_ONLY_CODE) {
-    Error(SYSTEM_ERROR,TermNil,"corrupted saved state");
+  mode = get_header_cell();
+  if (ErrorMessage)
+     return(FAIL_RESTORE);
+  /* check the number of c-predicates */
+  c_preds = get_header_cell();
+  if (ErrorMessage)
+     return(FAIL_RESTORE);
+  if (HeapBase != NULL && c_preds != NUMBER_OF_CPREDS) {
+    ErrorMessage = "saved state with different built-ins";
+    return(FAIL_RESTORE);
+  }
+  cmp_funcs = get_header_cell();
+  if (ErrorMessage)
+     return(FAIL_RESTORE);
+  if (HeapBase != NULL && cmp_funcs != NUMBER_OF_CMPFUNCS) {
+    ErrorMessage = "saved state with different built-ins";
+    return(FAIL_RESTORE);
+  }
+  if (mode != DO_EVERYTHING && mode != DO_ONLY_CODE) {
+    ErrorMessage = "corrupt saved state";
     return(FAIL_RESTORE);
   }
   /* ignore info on stacks size */
-  get_cell();
-  get_cell();
-  get_cell();
+  *AHeap = get_header_cell();
+  *AStack = get_header_cell();
+  *ATrail = get_header_cell();
+  if (ErrorMessage)
+     return(FAIL_RESTORE);
   /* now, check whether we got enough enough space to load the
      saved space */
   hp_size = get_cell();
-  while (hp_size > Unsigned(AuxTop) - Unsigned(HeapBase)) {
+  if (ErrorMessage)
+     return(FAIL_RESTORE);
+  while (HeapBase != NULL && hp_size > Unsigned(AuxTop) - Unsigned(HeapBase)) {
     if(!growheap(FALSE)) {
-      Error(SYSTEM_ERROR,TermNil,ErrorMessage);
-      return(FALSE);      
+      return(FAIL_RESTORE);      
     }
   }
   if (mode == DO_EVERYTHING) {
-    if ((lc_size = get_cell())+(gb_size=get_cell()) > Unsigned(LocalBase) - Unsigned(GlobalBase)) {
-      Error(SYSTEM_ERROR,TermNil,"out of stack space, Yap needs %d", lc_size+gb_size);
-      return(FALSE);
+    lc_size = get_cell();
+    if (ErrorMessage)
+      return(FAIL_RESTORE);
+    gb_size=get_cell();
+    if (ErrorMessage)
+      return(FAIL_RESTORE);
+    if (HeapBase != NULL && lc_size+gb_size > Unsigned(LocalBase) - Unsigned(GlobalBase)) {
+      ErrorMessage = "not enough stack space for restore";
+      return(FAIL_RESTORE);
     }
-    if ((tr_size = get_cell()) > Unsigned(TrailTop) - Unsigned(TrailBase)) {
-      Error(SYSTEM_ERROR,TermNil,"out of trail space, Yap needs %d", tr_size);
+    if (HeapBase != NULL && (tr_size = get_cell()) > Unsigned(TrailTop) - Unsigned(TrailBase)) {
+      ErrorMessage = "not enough trail space for restore";
       return(FAIL_RESTORE);
     }
   } else {
     /* skip cell size */
-    get_cell();
-    get_cell();
-    get_cell();
+    get_header_cell();
+    if (ErrorMessage)
+      return(FAIL_RESTORE);
+    get_header_cell();
+    if (ErrorMessage)
+      return(FAIL_RESTORE);
+    get_header_cell();
+    if (ErrorMessage)
+      return(FAIL_RESTORE);
   }
   return(mode);
 }
@@ -1225,57 +1300,19 @@ ShowAtoms()
 
 #include <stdio.h>
 
-static int 
-OpenRestore(char *s)
-{
+static int
+commit_to_saved_state(char *s, CELL *Astate, CELL *ATrail, CELL *AStack, CELL *AHeap) {
   int mode;
 
-  /*  if (strcmp(s, StartUpFile) == 0)
-      YP_fprintf(YP_stderr, "[ YAP version %s ]\n\n", version_number);*/
-  CloseStreams(TRUE);
-  if ((splfild = open_file(s, O_RDONLY)) < 0) {
-    if (!dir_separator(s[0]) && !volume_header(s)) {
-
-      /*
-	we have a relative path for the file, try to do somewhat better 
-	using YAPLIBDIR or friends.
-      */
-      if (Yap_LibDir != NULL) {
-	strncpy(FileNameBuf, Yap_LibDir, YAP_FILENAME_MAX);
-#if HAVE_GETENV
-      } else {
-	char *yap_env = getenv("YAPLIBDIR");
-	if (yap_env != NULL) {
-	  strncpy(FileNameBuf, yap_env, YAP_FILENAME_MAX);
-#endif
-	} else {
-	  strncpy(FileNameBuf, LIB_DIR, YAP_FILENAME_MAX);
-	}
-#if HAVE_GETENV
-      }
-#endif
-#if _MSC_VER || defined(__MINGW32__)
-      strncat(FileNameBuf,"\\", YAP_FILENAME_MAX);
-#else
-      strncat(FileNameBuf,"/", YAP_FILENAME_MAX);
-#endif
-      strncat(FileNameBuf,s, YAP_FILENAME_MAX);
-      if ((splfild = open_file(FileNameBuf, O_RDONLY)) < 0) {
-	if (PrologMode != BootMode) {
-	  Error(SYSTEM_ERROR,MkAtomTerm(LookupAtom(s)),
-		"save/1, open(%s)", strerror(errno));
-	}
-	return(FAIL_RESTORE);
-      }
-    } else {
-      return(FAIL_RESTORE);
-    }
-  }
-  PrologMode = BootMode;
-  if ((mode = check_header()) == FAIL_RESTORE)
+  if ((mode = check_header(Astate,ATrail,AStack,AHeap)) == FAIL_RESTORE)
     return(FAIL_RESTORE);
-  if (!yap_flags[HALT_AFTER_CONSULT_FLAG]) {
-    YP_fprintf(YP_stderr, "[ Restoring file %s ]\n", s);
+  PrologMode = BootMode;
+  if (HeapBase) {
+    if (!yap_flags[HALT_AFTER_CONSULT_FLAG]) {
+      TrueFileName(s,FileNameBuf2, YAP_FILENAME_MAX);
+      YP_fprintf(YP_stderr, "[ Restoring file %s ]\n", FileNameBuf2);
+    }
+    CloseStreams(TRUE);
   }
 #ifdef DEBUG_RESTORE4
   /*
@@ -1284,6 +1321,67 @@ OpenRestore(char *s)
   errout = YP_stderr;
 #endif
   return(mode);
+}
+
+static void
+cat_file_name(char *s, char *prefix, char *name, unsigned int max_length)
+{
+  strncpy(s, prefix, max_length);
+#if _MSC_VER || defined(__MINGW32__)
+  strncat(s,"\\", max_length);
+#else
+  strncat(s,"/", max_length);
+#endif
+  strncat(s, name, max_length);
+}
+
+static int 
+OpenRestore(char *s, char *YapLibDir, CELL *Astate, CELL *ATrail, CELL *AStack, CELL *AHeap)
+{
+  int mode = FAIL_RESTORE;
+
+  ErrorMessage = NULL;
+  if (s == NULL)
+    s = StartUpFile;
+  if (s != NULL && (splfild = open_file(s, O_RDONLY)) > 0) {
+    if ((mode = commit_to_saved_state(s,Astate,ATrail,AStack,AHeap)) != FAIL_RESTORE)
+      return(mode);
+  }
+  if (!dir_separator(s[0]) && !volume_header(s)) {
+    /*
+      we have a relative path for the file, try to do somewhat better 
+      using YAPLIBDIR or friends.
+    */
+    if (YapLibDir != NULL) {
+      cat_file_name(FileNameBuf, Yap_LibDir, s, YAP_FILENAME_MAX);
+      if ((splfild = open_file(FileNameBuf, O_RDONLY)) > 0) {
+	if ((mode = commit_to_saved_state(FileNameBuf,Astate,ATrail,AStack,AHeap)) != FAIL_RESTORE)
+	  return(mode);
+      }
+    }
+#if HAVE_GETENV
+    {
+      char *yap_env = getenv("YAPLIBDIR");
+      if (yap_env != NULL) {
+	cat_file_name(FileNameBuf, yap_env, s, YAP_FILENAME_MAX);
+	if ((splfild = open_file(FileNameBuf, O_RDONLY)) > 0) {
+	  if ((mode = commit_to_saved_state(FileNameBuf,Astate,ATrail,AStack,AHeap)) != FAIL_RESTORE)
+	    return(mode);
+	}
+      }
+    }
+#endif
+    if (LIB_DIR != NULL) {
+      cat_file_name(FileNameBuf, LIB_DIR, s, YAP_FILENAME_MAX);
+      if ((splfild = open_file(FileNameBuf, O_RDONLY)) > 0) {
+	if ((mode = commit_to_saved_state(FileNameBuf,Astate,ATrail,AStack,AHeap)) != FAIL_RESTORE)
+	  return(mode);
+      }
+    }
+  }
+  Error(SYSTEM_ERROR, TermNil, ErrorMessage);
+  ErrorMessage = NULL;
+  return(FAIL_RESTORE);
 }
 
 static void 
@@ -1341,77 +1439,24 @@ RestoreHeap(OPCODE old_ops[], int functions_moved)
  * state 
  */
 int 
-SavedInfo(char *FileName, int *ATrail, int *AStack, int *AHeap, char *YapLibDir)
+SavedInfo(char *FileName, char *YapLibDir, CELL *ATrail, CELL *AStack, CELL *AHeap)
 {
-  char            pp[80];
-  char		  msg[256];
-  char		  NameBuf[YAP_FILENAME_MAX];
-  int             result, mode;
+  CELL MyTrail, MyStack, MyHeap, MyState;
+  int             mode;
 
-  if ((splfild = open_file(FileName, O_RDONLY)) < 0) {
-    if (!dir_separator(FileName[0]) && !volume_header(FileName)) {
-
-      /* we have a relative path for the file, try to do somewhat better */
-      if  (YapLibDir != NULL) {
-	strncpy(FileNameBuf, YapLibDir, YAP_FILENAME_MAX);
-#if HAVE_GETENV
-      } else {
-	char* my_env=getenv("YAPLIBDIR");
-	if (my_env != NULL) {
-	  strncpy(NameBuf, my_env, YAP_FILENAME_MAX);
-#endif
-	} else {
-	  strncpy(NameBuf, LIB_DIR, YAP_FILENAME_MAX);
-	}
-#if HAVE_GETENV
-      }
-#endif
-#if _MSC_VER || defined(__MINGW32__)
-      strncat(NameBuf,"\\", YAP_FILENAME_MAX);
-#else
-      strncat(NameBuf,"/", YAP_FILENAME_MAX);
-#endif
-      strncat(NameBuf,FileName, YAP_FILENAME_MAX);
-      if ((splfild = open_file(NameBuf, O_RDONLY)) < 0) {
-	return(FALSE);
-      }
-    } else {
-      return(FALSE);
-    }
-  }
-  /* skip the first line */
-  do {
-    myread(splfild, pp, 1);
-  } while (pp[0] != 1);
-  sprintf(msg, "YAPV%s", version_number);
-  myread(splfild, pp, Unsigned(strlen(msg) + 1));
-  if (strcmp(pp, msg) != 0) {
-    if (PrologMode != BootMode)
-      Error(SYSTEM_ERROR, TermNil,
-	    "file %s is not a saved Prolog state", FileName);
-    return(0);
-  }
-  result = get_cell();
-  mode = get_cell();
-  if (mode != DO_ONLY_CODE && mode != DO_EVERYTHING) {
-    Error(SYSTEM_ERROR, TermNil,
-	  "file %s is not a saved Prolog state", FileName);
-    return(0);
-  }
-  if (*AHeap)
-    get_cell();
-  else
-    *AHeap = get_cell() / 1024;
-  if (mode == DO_ONLY_CODE || *AStack)
-    get_cell();
-  else
-    *AStack = get_cell() / 1024;
-  if (mode == DO_ONLY_CODE || *ATrail)
-    get_cell();
-  else
-    *ATrail = get_cell() / 1024;
+  mode = OpenRestore(FileName, YapLibDir, &MyState, &MyTrail, &MyStack, &MyHeap);
   close_file();
-  return (result);
+  if (mode == FAIL_RESTORE) {
+    ErrorMessage = NULL;
+    return(0);
+  }
+  if (! *AHeap)
+    *AHeap = MyHeap / 1024;
+  if (mode != DO_ONLY_CODE && *AStack)
+    *AStack = MyStack / 1024;
+  if (mode != DO_ONLY_CODE && *ATrail)
+    *ATrail = MyTrail / 1024;
+  return (MyState);
 }
 
 static void
@@ -1455,14 +1500,15 @@ int in_limbo = FALSE;
  * associated registers 
  */
 int 
-Restore(char *s)
+Restore(char *s, char *lib_dir)
 {
   int restore_mode;
   int funcs_moved;
 
   OPCODE old_ops[_std_top+1];
 
-  if ((restore_mode = OpenRestore(s)) == FAIL_RESTORE)
+  CELL MyTrail, MyStack, MyHeap, MyState;
+  if ((restore_mode = OpenRestore(s, lib_dir, &MyState, &MyTrail, &MyStack, &MyHeap)) == FAIL_RESTORE)
     return(FALSE);
   ShutdownLoadForeign();
   in_limbo = TRUE;
@@ -1521,7 +1567,7 @@ p_restore(void)
     Error(TYPE_ERROR_LIST,t1,"restore/1");
     return(FALSE);
   }
-  if ((mode = Restore(FileNameBuf)) == DO_ONLY_CODE) {
+  if ((mode = Restore(FileNameBuf, NULL)) == DO_ONLY_CODE) {
 #if PUSH_REGS
     restore_absmi_regs(&standard_regs);
 #endif

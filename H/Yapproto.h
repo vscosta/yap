@@ -10,7 +10,7 @@
 * File:		Yap.proto						 *
 * mods:									 *
 * comments:	Function declarations for YAP				 *
-* version:      $Id: Yapproto.h,v 1.26 2002-10-29 17:23:32 vsc Exp $	 *
+* version:      $Id: Yapproto.h,v 1.27 2002-10-30 17:27:17 vsc Exp $	 *
 *************************************************************************/
 
 /* prototype file for Yap */
@@ -243,8 +243,8 @@ int	STD_PROTO(IsPosfixOp,(Prop,int *,int *));
 Term	STD_PROTO(Parse,(void));
 
 /* save.c */
-int	STD_PROTO(SavedInfo,(char *,int *,int *,int *,char *));
-int 	STD_PROTO(Restore,(char *));
+int	STD_PROTO(SavedInfo,(char *,char *,CELL *,CELL *,CELL *));
+int 	STD_PROTO(Restore,(char *, char *));
 void	STD_PROTO(InitSavePreds,(void));
 
 /* scanner.c */

@@ -847,13 +847,14 @@ X_API Int
 YAP_Init(YAP_init_args *yap_init)
 {
   int restore_result;
-  int Trail = 0, Stack = 0, Heap = 0;
+  CELL Trail = 0, Stack = 0, Heap = 0;
   BACKUP_MACHINE_REGS();
 
   yap_args = yap_init->Argv;
   yap_argc = yap_init->Argc;
-  if (yap_init->SavedState != NULL) {
-    if (SavedInfo (yap_init->SavedState, &Trail, &Stack, &Heap, yap_init->YapLibDir) != 1) {
+  if (yap_init->SavedState != NULL ||
+      yap_init->YapPrologBootFile == NULL) {
+    if (SavedInfo (yap_init->SavedState, yap_init->YapLibDir, &Trail, &Stack, &Heap) != 1) {
       return(YAP_BOOT_FROM_SAVED_ERROR);
     }
   }
@@ -889,15 +890,16 @@ YAP_Init(YAP_init_args *yap_init)
   InitMPE ();
 #endif
 
-  if (yap_init->YapPrologBootFile != NULL) {
+  if (yap_init->YapPrologRCFile != NULL) {
     /*
       This must be done before restore, otherwise
       restore will print out messages ....
     */
     yap_flags[HALT_AFTER_CONSULT_FLAG] = yap_init->HaltAfterConsult;
   }
-  if (yap_init->SavedState != NULL) {
-    restore_result = Restore(yap_init->SavedState);
+  if (yap_init->SavedState != NULL ||
+      yap_init->YapPrologBootFile == NULL) {
+    restore_result = Restore(yap_init->SavedState, yap_init->YapLibDir);
   } else {
     restore_result = FAIL_RESTORE;
   }
@@ -927,7 +929,7 @@ YAP_Init(YAP_init_args *yap_init)
 #endif /* YAPOR || TABLING */
   RECOVER_MACHINE_REGS();
 
-  if (yap_init->YapPrologBootFile != NULL) {
+  if (yap_init->YapPrologRCFile != NULL) {
     PutValue(FullLookupAtom("$consult_on_boot"), MkAtomTerm(LookupAtom(yap_init->YapPrologBootFile)));
     /*
       This must be done again after restore, as yap_flags
@@ -935,8 +937,8 @@ YAP_Init(YAP_init_args *yap_init)
     */
     yap_flags[HALT_AFTER_CONSULT_FLAG] = yap_init->HaltAfterConsult;
   }
-  if (yap_init->SavedState != NULL) {
-
+  if (yap_init->SavedState != NULL ||
+      yap_init->YapPrologBootFile == NULL) {
     if (restore_result == FAIL_RESTORE)
       return(YAP_BOOT_FROM_SAVED_ERROR);
     if (restore_result == DO_ONLY_CODE) {
@@ -959,6 +961,7 @@ YAP_FastInit(char saved_state[])
   init_args.TrailSize = 0;
   init_args.YapLibDir = NULL;
   init_args.YapPrologBootFile = NULL;
+  init_args.YapPrologRCFile = NULL;
   init_args.HaltAfterConsult = FALSE;
   init_args.FastBoot = FALSE;
   init_args.NumberWorkers = 1;

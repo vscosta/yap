@@ -67,7 +67,7 @@
 static int  PROTO(mygetc, (void));
 static void PROTO(do_bootfile, (char *));
 static void PROTO(do_top_goal,(YAP_Term));
-static void PROTO(exec_top_level,(int, char *));
+static void PROTO(exec_top_level,(int, YAP_init_args *));
 
 #ifndef LIGHT
 void PROTO (exit, (int));
@@ -86,7 +86,6 @@ static int output_msg;
 #endif
 
 static char BootFile[] = "boot.yap";
-static char StartUpFile[] = "startup";
 
 #ifdef lint
 /* VARARGS1 */
@@ -211,15 +210,12 @@ do_bootfile (char *bootfilename)
 #endif
 }
 
-static char *filename;
-
-
 static void
 print_usage(const YAP_init_args *init_args)
 {
   fprintf(stderr,"\n[ Valid switches for command line arguments: ]\n");
   fprintf(stderr,"  -?   Shows this screen\n");
-  fprintf(stderr,"  -b   Boot file (%s)\n", StartUpFile);
+  fprintf(stderr,"  -b   Boot file \n");
   fprintf(stderr,"  -l   Prolog file\n");
   fprintf(stderr,"  -h   Heap area in Kbytes (default: %d, minimum: %d)\n",
 	  DefHeapSpace, MinHeapSpace);
@@ -246,7 +242,7 @@ print_usage(const YAP_init_args *init_args)
  */
 
 static int
-parse_yap_arguments(int argc, char *argv[], YAP_init_args *init_args)
+parse_yap_arguments(int argc, char *argv[], YAP_init_args *iap)
 {
   char *p;
   int BootMode = YAP_BOOT_FROM_SAVED_CODE;
@@ -260,15 +256,17 @@ parse_yap_arguments(int argc, char *argv[], YAP_init_args *init_args)
 	  {
 	  case 'b':
 	    BootMode = YAP_BOOT_FROM_PROLOG;
+	    iap->YapPrologBootFile = *++argv;
+	    argc--;
 	    break;
           case '?':
-	    print_usage(init_args);
+	    print_usage(iap);
             exit(EXIT_SUCCESS);
 	  case 'w':
-	    ssize = &(init_args->NumberWorkers);
+	    ssize = &(iap->NumberWorkers);
 	    goto GetSize;
           case 'd':
-            ssize = &(init_args->DelayedReleaseLoad);
+            ssize = &(iap->DelayedReleaseLoad);
 	    goto GetSize;
 #ifdef USE_SOCKET
           case 'c':          /* running as client */
@@ -313,7 +311,7 @@ parse_yap_arguments(int argc, char *argv[], YAP_init_args *init_args)
 	    break;
 #endif /* EMACS */
 	  case 'f':
-	    init_args->FastBoot = TRUE;
+	    iap->FastBoot = TRUE;
 	    break;
 #ifdef MPWSHELL
 	  case 'm':
@@ -323,19 +321,19 @@ parse_yap_arguments(int argc, char *argv[], YAP_init_args *init_args)
 #endif
 	  case 's':
 	  case 'S':
-	    ssize = &(init_args->StackSize);
+	    ssize = &(iap->StackSize);
 	    if (p[1] == 'l') {
 	      p++;
-	      ssize = &(init_args->SchedulerLoop);
+	      ssize = &(iap->SchedulerLoop);
 	    }
 	    goto GetSize;
 	  case 'h':
 	  case 'H':
-	    ssize = &(init_args->HeapSize);
+	    ssize = &(iap->HeapSize);
 	    goto GetSize;
 	  case 't':
 	  case 'T':
-	    ssize = &(init_args->TrailSize);
+	    ssize = &(iap->TrailSize);
 	  GetSize:
 	    if (*++p == '\0')
 	      {
@@ -344,7 +342,7 @@ parse_yap_arguments(int argc, char *argv[], YAP_init_args *init_args)
 		else
 		  {
 		    fprintf(stderr,"[ YAP unrecoverable error: missing size in flag %s ]", argv[0]);
-		    print_usage(init_args);
+		    print_usage(iap);
 		    exit(EXIT_FAILURE);
 		  }
 	      }
@@ -381,13 +379,13 @@ parse_yap_arguments(int argc, char *argv[], YAP_init_args *init_args)
 	      /* we're done here */
 	      argc = 1;
 	    }
-	    init_args->YapPrologBootFile = *argv;
+	    iap->YapPrologRCFile = *argv;
 	    argv++;
-	    init_args->HaltAfterConsult = TRUE;
+	    iap->HaltAfterConsult = TRUE;
 	    break;
 	  case 'l':
 	    if ((*argv)[0] == '\0') 
-	      init_args->YapPrologBootFile = *argv;
+	      iap->YapPrologRCFile = *argv;
 	    else {
 	      argc--;
 	      if (argc == 0) {
@@ -395,7 +393,7 @@ parse_yap_arguments(int argc, char *argv[], YAP_init_args *init_args)
 		exit(EXIT_FAILURE);
 	      }
 	      argv++;
-	      init_args->YapPrologBootFile = *argv;
+	      iap->YapPrologRCFile = *argv;
 	    }
 	    break;
 	  case '-':
@@ -405,64 +403,51 @@ parse_yap_arguments(int argc, char *argv[], YAP_init_args *init_args)
 	  default:
 	    {
 	      fprintf(stderr,"[ YAP unrecoverable error: unknown switch -%c ]\n", *p);
-	      print_usage(init_args);
+	      print_usage(iap);
 	      exit(EXIT_FAILURE);
 	    }
 	  }
       else {
-	filename = p;
+	iap->SavedState = p;
       }
     }
   return(BootMode);
 }
 
 static int
-init_standard_system(int argc, char *argv[])
+init_standard_system(int argc, char *argv[], YAP_init_args *iap)
 {
   int BootMode;
-  YAP_init_args init_args;
 
-  init_args.SavedState = NULL;
-  init_args.HeapSize = 0;
-  init_args.StackSize = 0;
-  init_args.TrailSize = 0;
-  init_args.YapLibDir = NULL;
-  init_args.YapPrologBootFile = NULL;
-  init_args.HaltAfterConsult = FALSE;
-  init_args.FastBoot = FALSE;
-  init_args.NumberWorkers = 1;
-  init_args.SchedulerLoop = 10;
-  init_args.DelayedReleaseLoad = 3;
-  init_args.Argc = argc;
-  init_args.Argv = argv;
+  iap->SavedState = NULL;
+  iap->HeapSize = 0;
+  iap->StackSize = 0;
+  iap->TrailSize = 0;
+  iap->YapLibDir = NULL;
+  iap->YapPrologBootFile = NULL;
+  iap->YapPrologRCFile = NULL;
+  iap->HaltAfterConsult = FALSE;
+  iap->FastBoot = FALSE;
+  iap->NumberWorkers = 1;
+  iap->SchedulerLoop = 10;
+  iap->DelayedReleaseLoad = 3;
+  iap->Argc = argc;
+  iap->Argv = argv;
 
-  BootMode = parse_yap_arguments(argc,argv,&init_args);
+  BootMode = parse_yap_arguments(argc,argv,iap);
 
   /* init memory */
-  if (BootMode == YAP_BOOT_FROM_PROLOG)
-    {
-
-      YAP_Init(&init_args);
-
-    }
-  else
-    {
-      if (filename == NULL)
-	init_args.SavedState = StartUpFile;
-      else
-	init_args.SavedState = filename;
-
-      BootMode = YAP_Init(&init_args);
-
-    }
-
+  if (BootMode == YAP_BOOT_FROM_PROLOG) {
+    YAP_Init(iap);
+  } else {
+    BootMode = YAP_Init(iap);
+  }
   return(BootMode);
-
 }
 
 
 static void
-exec_top_level(int BootMode, char *filename)
+exec_top_level(int BootMode, YAP_init_args *iap)
 {
   YAP_Term atomfalse;
   YAP_Atom livegoal;
@@ -476,7 +461,7 @@ exec_top_level(int BootMode, char *filename)
     {
       YAP_Atom livegoal;
       /* read the bootfile */
-      do_bootfile (filename ? filename : BootFile);
+      do_bootfile (iap->YapPrologBootFile ? iap->YapPrologBootFile : BootFile);
       livegoal = YAP_FullLookupAtom("$live");
       /* initialise the top-level */
       YAP_PutValue(livegoal, YAP_MkAtomTerm (YAP_LookupAtom("true")));
@@ -504,11 +489,12 @@ main (int argc, char **argv)
 #endif
 {
   int BootMode;
+  YAP_init_args init_args;
 
 #ifdef SIMICS
   fprintf(stdout,"Entering YAP\n");
 #endif /* SIMICS */
-  BootMode = init_standard_system(argc, argv);
+  BootMode = init_standard_system(argc, argv, &init_args);
   if (BootMode == YAP_BOOT_FROM_SAVED_ERROR) {
     fprintf(stderr,"[ FATAL ERROR: could not find saved state ]\n");
     exit(1);
@@ -516,7 +502,7 @@ main (int argc, char **argv)
 #if defined(YAPOR) || defined(TABLING)
   start_workers();
 #endif /* YAPOR || TABLING */
-  exec_top_level(BootMode, filename);
+  exec_top_level(BootMode, &init_args);
 
   return(0);
 }

@@ -70,8 +70,10 @@ typedef struct {
   int TrailSize;
   /* if NON-NULL, value for YAPLIBDIR */
   char *YapLibDir;
-  /* if NON-NULL, name for a Prolog file to consult before entering top-level  */
+  /* if NON-NULL, name for a Prolog file to use when booting  */
   char *YapPrologBootFile;
+  /* if NON-NULL, name for a Prolog file to consult before entering top-level  */
+  char *YapPrologRCFile;
   /* if previous NON-NULL and TRUE, halt after consulting that file  */
   int HaltAfterConsult;
   /* ignore .yaprc, .prolog.ini, etc. files.  */
