@@ -37,8 +37,9 @@ format_to_chars(Form, Args, OUT) :-
 format_to_chars(Form, Args, L0, OUT) :-
 	open_mem_write_stream(Stream),
 	format(Stream,Form,Args),
-	peek_mem_write_stream(Stream, L0, OUT),
-	close(Stream).
+	peek_mem_write_stream(Stream, L0, O),
+	close(Stream),
+	O = OUT.
 
 write_to_chars(Term, OUT) :-
 	write_to_chars(Term, [], OUT).
@@ -46,8 +47,9 @@ write_to_chars(Term, OUT) :-
 write_to_chars(Term, L0, OUT) :-
 	open_mem_write_stream(Stream),
 	write(Stream, Term),
-	peek_mem_write_stream(Stream, L0, OUT),
-	close(Stream).
+	peek_mem_write_stream(Stream, L0, O),
+	close(Stream),
+	O = OUT.
 
 atom_to_chars(Atom, OUT) :-
 	atom_to_chars(Atom, [], OUT).
@@ -59,8 +61,9 @@ atom_to_chars(Atom, L0, OUT) :-
 	atom(Atom), !,
 	open_mem_write_stream(Stream),
 	write(Stream, Atom),
-	peek_mem_write_stream(Stream, L0, OUT),
-	close(Stream).
+	peek_mem_write_stream(Stream, L0, O),
+	close(Stream),
+	O = OUT.
 atom_to_chars(Atom, L0, OUT) :-
 	throw(error(type_error(atom,Atom),atom_to_chars(Atom, L0, OUT))).
 
@@ -74,15 +77,17 @@ number_to_chars(Number, L0, OUT) :-
 	number(Number), !,
 	open_mem_write_stream(Stream),
 	write(Stream, Number),
-	peek_mem_write_stream(Stream, L0, OUT),
-	close(Stream).
+	peek_mem_write_stream(Stream, L0, O),
+	close(Stream),
+	O = OUT.
 number_to_chars(Number, L0, OUT) :-
 	throw(error(type_error(number,Number),number_to_chars(Number, L0, OUT))).
 
 read_from_chars(Chars, Term) :-
 	open_mem_read_stream(Chars, Stream),
-	read(Stream, Term),
-	close(Stream).
+	read(Stream, T),
+	close(Stream),
+	T = Term.
 
 open_chars_stream(Chars, Stream) :-
 	open_mem_read_stream(Chars, Stream).
