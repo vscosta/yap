@@ -10,7 +10,7 @@
 * File:		Yap.proto						 *
 * mods:									 *
 * comments:	Function declarations for YAP				 *
-* version:      $Id: Yapproto.h,v 1.22 2002-09-09 17:39:36 vsc Exp $	 *
+* version:      $Id: Yapproto.h,v 1.23 2002-10-03 17:29:46 stasinos Exp $	 *
 *************************************************************************/
 
 /* prototype file for Yap */
@@ -219,6 +219,11 @@ Term    STD_PROTO(UpdateTimedVar,(Term, Term));
 #if HAVE_MPI
 /* mpi.c */
 void    STD_PROTO(InitMPI,(void));
+#endif
+
+#if HAVE_MPE
+/* mpe.c */
+void    STD_PROTO(InitMPE,(void));
 #endif
 
 /* parser.c */
