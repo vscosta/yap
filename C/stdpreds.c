@@ -11,8 +11,12 @@
 * File:		stdpreds.c						 *
 * comments:	General-purpose C implemented system predicates		 *
 *									 *
-* Last rev:     $Date: 2005-03-02 18:35:46 $,$Author: vsc $						 *
+* Last rev:     $Date: 2005-03-02 19:48:02 $,$Author: vsc $						 *
 * $Log: not supported by cvs2svn $
+* Revision 1.84  2005/03/02 18:35:46  vsc
+* try to make initialisation process more robust
+* try to make name more robust (in case Lookup new atom fails)
+*
 * Revision 1.83  2005/03/01 22:25:09  vsc
 * fix pruning bug
 * make DL_MALLOC less enthusiastic about walking through buckets.
@@ -971,55 +975,42 @@ p_name(void)
   t = Deref(ARG2);
   if (!IsVarTerm(AtomNameT)) {
     if (IsAtomTerm(AtomNameT)) {
-      s = RepAtom(AtomOfTerm(AtomNameT))->StrOfAE;
-      NewT = Yap_StringToList(s);
-      if (!IsVarTerm(t) && !IsPairTerm(t) && t != TermNil) {
-	Yap_Error(TYPE_ERROR_LIST,ARG2,
-	      "name/2");
-	return FALSE;
-      }
-      return Yap_unify(NewT, ARG2);
+      String = RepAtom(AtomOfTerm(AtomNameT))->StrOfAE;
     } else if (IsIntTerm(AtomNameT)) {
-      char *String = Yap_PreAllocCodeSpace();
+      String = Yap_PreAllocCodeSpace();
 #if SHORT_INTS
       sprintf(String, "%ld", IntOfTerm(AtomNameT));
 #else
       sprintf(String, "%d", IntOfTerm(AtomNameT));
 #endif
-      NewT = Yap_StringToList(String);
-      if (!IsVarTerm(t) && !IsPairTerm(t) && t != TermNil) {
-	Yap_Error(TYPE_ERROR_LIST,ARG2,"name/2");
-	return(FALSE);
-      }
-      return (Yap_unify(NewT, ARG2));
     } else if (IsFloatTerm(AtomNameT)) {
-      char *String = Yap_PreAllocCodeSpace();
+      String = Yap_PreAllocCodeSpace();
 
       sprintf(String, "%f", FloatOfTerm(AtomNameT));
-      NewT = Yap_StringToList(String);
-      if (!IsVarTerm(t) && !IsPairTerm(t) && t != TermNil) {
-	Yap_Error(TYPE_ERROR_LIST,ARG2,"name/2");
-	return(FALSE);
-      }
-      return (Yap_unify(NewT, ARG2));
     } else if (IsLongIntTerm(AtomNameT)) {
-      char *String = Yap_PreAllocCodeSpace();
+      String = Yap_PreAllocCodeSpace();
 
 #if SHORT_INTS
       sprintf(String, "%ld", LongIntOfTerm(AtomNameT));
 #else
       sprintf(String, "%d", LongIntOfTerm(AtomNameT));
 #endif
-      NewT = Yap_StringToList(String);
-      if (!IsVarTerm(t) && !IsPairTerm(t) && t != TermNil) {
-	Yap_Error(TYPE_ERROR_LIST,ARG2,"name/2");
-	return FALSE;
-      }
-      return Yap_unify(NewT, ARG2);
+#if USE_GMP
+    } else if (IsBigIntTerm(AtomNameT)) {
+      String = Yap_PreAllocCodeSpace();
+      mpz_get_str(String, 10, Yap_BigIntOfTerm(AtomNameT));
+#endif
     } else {
       Yap_Error(TYPE_ERROR_ATOMIC,AtomNameT,"name/2");
-      return(FALSE);
+      return FALSE;
     }
+    NewT = Yap_StringToList(String);
+    if (!IsVarTerm(t) && !IsPairTerm(t) && t != TermNil) {
+      Yap_Error(TYPE_ERROR_LIST,ARG2,
+		"name/2");
+      return FALSE;
+    }
+    return Yap_unify(NewT, ARG2);
   }
   s = String = ((AtomEntry *)Yap_PreAllocCodeSpace())->StrOfAE;
   if (s == NULL) {
@@ -1071,7 +1062,7 @@ p_name(void)
       while ((at = Yap_LookupAtom(String)) == NIL) {
 	if (!Yap_growheap(FALSE, 0, NULL)) {
 	  Yap_Error(OUT_OF_HEAP_ERROR, TermNil, Yap_ErrorMessage);
-	  return(FALSE);
+	  return FALSE;
 	}
       }
       NewT = MkAtomTerm(at);
@@ -1087,6 +1078,7 @@ static Int
 p_atom_chars(void)
 {
   Term t1 = Deref(ARG1);
+
   if (!IsVarTerm(t1)) {
     Term            NewT;
     if (!IsAtomTerm(t1)) {
@@ -1098,12 +1090,13 @@ p_atom_chars(void)
     } else {
       NewT = Yap_StringToListOfAtoms(RepAtom(AtomOfTerm(t1))->StrOfAE);
     }
-    return (Yap_unify(NewT, ARG2));
+    return Yap_unify(NewT, ARG2);
   } else {
     /* ARG1 unbound */
     char           *String = ((AtomEntry *)Yap_PreAllocCodeSpace())->StrOfAE; /* alloc temp space on trail */
     register Term   t = Deref(ARG2);
     register char  *s = String;
+    Atom at;
 
     if (IsVarTerm(t)) {
       Yap_Error(INSTANTIATION_ERROR, t1, "atom_chars/2");
@@ -1192,7 +1185,13 @@ p_atom_chars(void)
       }
     }
     *s++ = '\0';
-    return (Yap_unify_constant(ARG1, MkAtomTerm(Yap_LookupAtom(String))));
+    while ((at = Yap_LookupAtom(String)) == NIL) {
+      if (!Yap_growheap(FALSE, 0, NULL)) {
+	Yap_Error(OUT_OF_HEAP_ERROR, TermNil, Yap_ErrorMessage);
+	return FALSE;
+      }
+    }
+    return Yap_unify_constant(ARG1, MkAtomTerm(at));
   }
 }
 
@@ -1246,11 +1245,17 @@ p_atom_concat(void)
     }
   }
   if (t1 == TermNil) {
-    Term tout;
+    Atom at;
+
     cptr[0] = '\0';
-    tout = MkAtomTerm(Yap_LookupAtom(cpt0));
+    while ((at = Yap_LookupAtom(cpt0)) == NIL) {
+      if (!Yap_growheap(FALSE, 0, NULL)) {
+	Yap_Error(OUT_OF_HEAP_ERROR, TermNil, Yap_ErrorMessage);
+	return FALSE;
+      }
+    }
     Yap_ReleasePreAllocCodeSpace((ADDR)cpt0);
-    return(Yap_unify(ARG2, tout));
+    return Yap_unify(ARG2, MkAtomTerm(at));
   }
   Yap_ReleasePreAllocCodeSpace((ADDR)cpt0);
   Yap_Error(TYPE_ERROR_LIST, ARG1, "atom_concat/2");
@@ -1339,11 +1344,17 @@ p_atomic_concat(void)
     }
   }
   if (t1 == TermNil) {
-    Term tout;
+    Atom at;
+
     cptr[0] = '\0';
-    tout = MkAtomTerm(Yap_LookupAtom(cpt0));
+    while ((at = Yap_LookupAtom(cpt0)) == NIL) {
+      if (!Yap_growheap(FALSE, 0, NULL)) {
+	Yap_Error(OUT_OF_HEAP_ERROR, TermNil, Yap_ErrorMessage);
+	return FALSE;
+      }
+    }
     Yap_ReleasePreAllocCodeSpace((ADDR)cpt0);
-    return(Yap_unify(ARG2, tout));
+    return Yap_unify(ARG2, MkAtomTerm(at));
   }
   Yap_ReleasePreAllocCodeSpace((ADDR)cpt0);
   Yap_Error(TYPE_ERROR_LIST, ARG1, "atom_concat/2");
@@ -1446,7 +1457,7 @@ p_atom_length(void)
     return((Int)strlen(RepAtom(AtomOfTerm(t1))->StrOfAE) == len);
   } else {
     Term tj = MkIntTerm(strlen(RepAtom(AtomOfTerm(t1))->StrOfAE));
-    return(Yap_unify_constant(t2,tj));
+    return Yap_unify_constant(t2,tj);
   }
 }
 
@@ -1529,43 +1540,25 @@ p_number_chars(void)
 #else
       sprintf(String, "%d", IntOfTerm(t1));
 #endif
-      if (yap_flags[YAP_TO_CHARS_FLAG] == QUINTUS_TO_CHARS) {
-	NewT = Yap_StringToList(String);
-      } else {
-	NewT = Yap_StringToListOfAtoms(String);
-      }
-      return (Yap_unify(NewT, ARG2));
     } else if (IsFloatTerm(t1)) {
       sprintf(String, "%f", FloatOfTerm(t1));
-      if (yap_flags[YAP_TO_CHARS_FLAG] == QUINTUS_TO_CHARS) {
-	NewT = Yap_StringToList(String);
-      } else {
-	NewT = Yap_StringToListOfAtoms(String);
-      }
-      return (Yap_unify(NewT, ARG2));
     } else if (IsLongIntTerm(t1)) {
 #if SHORT_INTS
       sprintf(String, "%ld", LongIntOfTerm(t1));
 #else
       sprintf(String, "%d", LongIntOfTerm(t1));
 #endif
-      if (yap_flags[YAP_TO_CHARS_FLAG] == QUINTUS_TO_CHARS) {
-	NewT = Yap_StringToList(String);
-      } else {
-	NewT = Yap_StringToListOfAtoms(String);
-      }
-      return (Yap_unify(NewT, ARG2));
 #if USE_GMP
     } else if (IsBigIntTerm(t1)) {
       mpz_get_str(String, 10, Yap_BigIntOfTerm(t1));
-      if (yap_flags[YAP_TO_CHARS_FLAG] == QUINTUS_TO_CHARS) {
-	NewT = Yap_StringToList(String);
-      } else {
-	NewT = Yap_StringToListOfAtoms(String);
-      }
-      return (Yap_unify(NewT, ARG2));
 #endif
     }
+    if (yap_flags[YAP_TO_CHARS_FLAG] == QUINTUS_TO_CHARS) {
+      NewT = Yap_StringToList(String);
+    } else {
+      NewT = Yap_StringToListOfAtoms(String);
+    }
+    return Yap_unify(NewT, ARG2);
   }
   if (IsVarTerm(t)) {
     Yap_Error(INSTANTIATION_ERROR, t1, "number_chars/2");
@@ -1669,40 +1662,40 @@ p_number_atom(void)
 
   s = String = ((AtomEntry *)Yap_PreAllocCodeSpace())->StrOfAE;
   if (IsNonVarTerm(t1)) {
+    Atom at;
+
     if (IsIntTerm(t1)) {
-      Term            NewT;
+
 #if SHORT_INTS
       sprintf(String, "%ld", IntOfTerm(t1));
 #else
       sprintf(String, "%d", IntOfTerm(t1));
 #endif
-      NewT = MkAtomTerm(Yap_LookupAtom(String));
-      return (Yap_unify(NewT, ARG2));
     } else if (IsFloatTerm(t1)) {
-      Term            NewT;
       sprintf(String, "%f", FloatOfTerm(t1));
-      NewT = MkAtomTerm(Yap_LookupAtom(String));
-      return (Yap_unify(NewT, ARG2));
     } else if (IsLongIntTerm(t1)) {
-      Term            NewT;
+
 #if SHORT_INTS
       sprintf(String, "%ld", LongIntOfTerm(t1));
 #else
       sprintf(String, "%d", LongIntOfTerm(t1));
 #endif
-      NewT = MkAtomTerm(Yap_LookupAtom(String));
-      return (Yap_unify(NewT, ARG2));
+
 #if USE_GMP
     } else if (IsBigIntTerm(t1)) {
-      Term            NewT;
       mpz_get_str(String, 10, Yap_BigIntOfTerm(t1));
-      NewT = MkAtomTerm(Yap_LookupAtom(String));
-      return (Yap_unify(NewT, ARG2));
 #endif
     } else {
       Yap_Error(TYPE_ERROR_NUMBER, t1, "number_atom/2");
-      return(FALSE);
+      return FALSE;
     }
+    while ((at = Yap_LookupAtom(String)) == NIL) {
+      if (!Yap_growheap(FALSE, 0, NULL)) {
+	Yap_Error(OUT_OF_HEAP_ERROR, TermNil, Yap_ErrorMessage);
+	return FALSE;
+      }
+    }
+    return Yap_unify(MkAtomTerm(at), ARG2);
   }
   if (IsVarTerm(t)) {
       Yap_Error(INSTANTIATION_ERROR, t, "number_chars/2");
@@ -1736,30 +1729,24 @@ p_number_codes(void)
 #else
       sprintf(String, "%d", IntOfTerm(t1));
 #endif
-      NewT = Yap_StringToList(String);
-      return (Yap_unify(NewT, ARG2));
     } else if (IsFloatTerm(t1)) {
       sprintf(String, "%f", FloatOfTerm(t1));
-      NewT = Yap_StringToList(String);
-      return (Yap_unify(NewT, ARG2));
     } else if (IsLongIntTerm(t1)) {
 #if SHORT_INTS
       sprintf(String, "%ld", LongIntOfTerm(t1));
 #else
       sprintf(String, "%d", LongIntOfTerm(t1));
 #endif
-      NewT = Yap_StringToList(String);
-      return (Yap_unify(NewT, ARG2));
 #if USE_GMP
     } else if (IsBigIntTerm(t1)) {
       mpz_get_str(String, 10, Yap_BigIntOfTerm(t1));
-      NewT = Yap_StringToList(String);
-      return (Yap_unify(NewT, ARG2));
 #endif
     } else {
       Yap_Error(TYPE_ERROR_NUMBER, t1, "number_codes/2");
-      return(FALSE);
+      return FALSE;
     }
+    NewT = Yap_StringToList(String);
+    return Yap_unify(NewT, ARG2);
   }
   if (IsVarTerm(t)) {
     Yap_Error(INSTANTIATION_ERROR, t, "number_codes/2");

@@ -1105,7 +1105,7 @@ X_API qid_t PL_open_query(module_t ctx, int flags, predicate_t p, term_t t0)
 
   /* ignore flags  and module for now */
   if (execution.open != 0) {
-    YAP_Error("only one query at a time allowed\n");
+    YAP_Error(0, 0L, "only one query at a time allowed\n");
   }
   execution.open=1;
   execution.state=0;
