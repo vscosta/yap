@@ -11,7 +11,7 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %
 %  Logtalk - Object oriented extension to Prolog
-%  Release 2.18.0
+%  Release 2.19.0
 %
 %  Copyright (c) 1998-2004 Paulo Moura.  All Rights Reserved.
 %
@@ -25,7 +25,7 @@
 <xsd:complexType name="logtalk">
 	<xsd:sequence>
 		<xsd:element name="entity"		type="entity"/>
-		<xsd:element name="relations"		type="relations"/>
+		<xsd:element name="relations"	type="relations"/>
 		<xsd:element name="predicates"	type="predicates"/>
 	</xsd:sequence>
 </xsd:complexType>
@@ -33,14 +33,14 @@
 
 <xsd:complexType name="entity">
 	<xsd:sequence>
-		<xsd:element name="name"			type="xsd:string"/>
-		<xsd:element name="type"			type="type"/>
+		<xsd:element name="name"		type="xsd:string"/>
+		<xsd:element name="type"		type="type"/>
 		<xsd:element name="compilation"	type="compilation"/>
 		<xsd:element name="comment"		type="xsd:string"	minOccurs="0"/>
 		<xsd:element name="author"		type="xsd:string"	minOccurs="0"/>
 		<xsd:element name="version"		type="xsd:string"	minOccurs="0"/>
-		<xsd:element name="date"			type="xsd:string"	minOccurs="0"/>
-		<xsd:element name="info"			type="info"			minOccurs="0" maxOccurs="unbounded"/>
+		<xsd:element name="date"		type="xsd:string"	minOccurs="0"/>
+		<xsd:element name="info"		type="info"			minOccurs="0" maxOccurs="unbounded"/>
 	</xsd:sequence>
 </xsd:complexType>
 
@@ -73,10 +73,10 @@
 <xsd:complexType name="relations">
 	<xsd:sequence>
 		<xsd:element name="implements"		type="relation"		minOccurs="0" maxOccurs="unbounded"/>
-		<xsd:element name="imports"		type="relation"		minOccurs="0" maxOccurs="unbounded"/>
-		<xsd:element name="extends"		type="relation"		minOccurs="0" maxOccurs="unbounded"/>
+		<xsd:element name="imports"			type="relation"		minOccurs="0" maxOccurs="unbounded"/>
+		<xsd:element name="extends"			type="relation"		minOccurs="0" maxOccurs="unbounded"/>
 		<xsd:element name="instantiates"	type="relation"		minOccurs="0" maxOccurs="unbounded"/>
-		<xsd:element name="specializes"	type="relation"		minOccurs="0" maxOccurs="unbounded"/>
+		<xsd:element name="specializes"		type="relation"		minOccurs="0" maxOccurs="unbounded"/>
 		<xsd:element name="uses"			type="docrelation"	minOccurs="0" maxOccurs="unbounded"/>
 		<xsd:element name="calls"			type="docrelation"	minOccurs="0" maxOccurs="unbounded"/>
 	</xsd:sequence>
@@ -113,7 +113,7 @@
 	<xsd:sequence>
 		<xsd:element name="public"		type="public"/>
 		<xsd:element name="protected"	type="protected"/>
-		<xsd:element name="private"	type="private"/>
+		<xsd:element name="private"		type="private"/>
 	</xsd:sequence>
 </xsd:complexType>
 
@@ -141,15 +141,15 @@
 
 <xsd:complexType name="predicate">
 	<xsd:sequence>
-		<xsd:element name="name"			type="xsd:string"/>
-		<xsd:element name="scope"			type="scope"/>
+		<xsd:element name="name"		type="xsd:string"/>
+		<xsd:element name="scope"		type="scope"/>
 		<xsd:element name="compilation"	type="compilation"/>
-		<xsd:element name="meta"			type="xsd:string"		minOccurs="0"/>
-		<xsd:element name="mode"			type="mode"				minOccurs="0" maxOccurs="unbounded"/>
+		<xsd:element name="meta"		type="xsd:string"		minOccurs="0"/>
+		<xsd:element name="mode"		type="mode"				minOccurs="0" maxOccurs="unbounded"/>
 		<xsd:element name="comment"		type="xsd:string"		minOccurs="0"/>
-		<xsd:element name="template"		type="xsd:string"		minOccurs="0" maxOccurs="unbounded"/>
-		<xsd:element name="exceptions"		type="exceptions"		minOccurs="0" maxOccurs="1"/>
-		<xsd:element name="info"			type="info"				minOccurs="0" maxOccurs="1"/>
+		<xsd:element name="template"	type="xsd:string"		minOccurs="0" maxOccurs="unbounded"/>
+		<xsd:element name="exceptions"	type="exceptions"		minOccurs="0" maxOccurs="1"/>
+		<xsd:element name="info"		type="info"				minOccurs="0" maxOccurs="1"/>
 	</xsd:sequence>
 </xsd:complexType>
 
@@ -184,7 +184,7 @@
 <xsd:complexType name="exception">
 	<xsd:sequence>
 		<xsd:element name="condition"	type="xsd:string"/>
-		<xsd:element name="term"	type="xsd:string"/>
+		<xsd:element name="term"		type="xsd:string"/>
 	</xsd:sequence>
 </xsd:complexType>
 

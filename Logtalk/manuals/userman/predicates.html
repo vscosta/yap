@@ -241,6 +241,9 @@ Because a category can be imported by several different objects, dynamic private
 <p>
 This way, each importing object will have its own definition for the <code>value_/2</code> private predicate. Furthermore, the <code>get/2</code> and <code>set/2</code> predicates will always access/update the correct definition, contained in the object receiving the messages.
 </p>
+<p>
+A category may only contain clauses for static predicates. Nevertheless, as the example above illustrates, there are no retrictions in declaring and calling dynamic predicates from inside a category.
+</p>
 
 <h2>Built-in object predicates (methods)<a name="methods"></a></h2>
 
@@ -322,10 +325,7 @@ The method <code>parameter/2</code> is only compiled in-ilne when used inside ob
 <h3>Database methods<a name="database"></a></h3>
 
 <p>
-Logtalk provides a set of built-in methods for object database handling similar to the usual database Prolog predicates: <a title="Consult reference manual" href="../refman/methods/abolish1.html"><code>abolish/1</code></a>, <a title="Consult reference manual" href="../refman/methods/asserta1.html"><code>asserta/1</code></a>, <a title="Consult reference manual" href="../refman/methods/assertz1.html"><code>assertz/1</code></a>, <a title="Consult reference manual" href="../refman/methods/clause2.html"><code>clause/2</code></a>, <a title="Consult reference manual" href="../refman/methods/retract1.html"><code>retract/1</code></a> and <a title="Consult reference manual" href="../refman/methods/retractall1.html"><code>retractall/1</code></a>.
-</p>
-<p>
-Note that if we define clauses for a dynamic predicate inside a category, some of these methods will fail. Because several objects can import a category, category dynamic predicates can not be abolished and its clauses can not be access by <code>clause/2</code> or retracted. The clauses can however be overridden for an importing object by using the assert methods.
+Logtalk provides a set of built-in methods for object database handling similar to the usual database Prolog predicates: <a title="Consult reference manual" href="../refman/methods/abolish1.html"><code>abolish/1</code></a>, <a title="Consult reference manual" href="../refman/methods/asserta1.html"><code>asserta/1</code></a>, <a title="Consult reference manual" href="../refman/methods/assertz1.html"><code>assertz/1</code></a>, <a title="Consult reference manual" href="../refman/methods/clause2.html"><code>clause/2</code></a>, <a title="Consult reference manual" href="../refman/methods/retract1.html"><code>retract/1</code></a> and <a title="Consult reference manual" href="../refman/methods/retractall1.html"><code>retractall/1</code></a>. These methods always operate on the database of the object receiving the corresponding message.
 </p>
 
 <h3>All solutions methods<a name="solutions"></a></h3>
@@ -393,7 +393,7 @@ Copyright &copy; <a href="mailto:pmoura@logtalk.org">Paulo Moura</a> &mdash; <a 
 </div>
 
 <div class="footer">
-<p><span class="bleft"><a href="http://validator.w3.org/check/referer">XHTML</a> + <a href="http://jigsaw.w3.org/css-validator/check/referer">CSS</a></span><span class="bright">Last updated on: June 10, 2004</span></p>
+<p><span class="bleft"><a href="http://validator.w3.org/check/referer">XHTML</a> + <a href="http://jigsaw.w3.org/css-validator/check/referer">CSS</a></span><span class="bright">Last updated on: July 23, 2004</span></p>
 </div>
 </body>
 </html>

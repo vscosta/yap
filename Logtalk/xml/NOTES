@@ -1,6 +1,6 @@
 =================================================================
 Logtalk - Object oriented extension to Prolog
-Release 2.18.0
+Release 2.19.0
 
 Copyright (c) 1998-2004 Paulo Moura.  All Rights Reserved.
 =================================================================
@@ -111,11 +111,11 @@ logtalk.css
 html.sh
 
 	Sample Unix shell script to batch convert .xml files to .html files.
-	The script also generates an index.html file that contains links to all 
-	converted files. The title of the index.html can be given as a parameter 
-	to the script. Edit the script to match your environment before running 
-	it and to chose between HTML or XHTML output. Requires James Clarck XT 
-	XSLT processor 20020426a or later version (http://www.jclark.com/xml/).
+	The script also generates an index.html file which contains links to all the 
+	converted files. The title of the index.html file can be given as a parameter 
+	to the script. Edit the script to match your environment before running it 
+	and to chose between HTML or XHTML output. Requires James Clarck XT XSLT 
+	processor 20020426a or later version (http://www.jclark.com/xml/).
 
 
 htmlnt.cmd

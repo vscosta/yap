@@ -21,6 +21,7 @@
 	   <string>config</string>
 	   <string>lgt</string>
 	   <string>loader</string>
+	   <string>mlgt</string>
 	</array>
 </dict>
 </plist>

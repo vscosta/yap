@@ -1,6 +1,6 @@
 =================================================================
 Logtalk - Object oriented extension to Prolog
-Release 2.18.0
+Release 2.19.0
 
 Copyright (c) 1998-2004 Paulo Moura.  All Rights Reserved.
 =================================================================
@@ -19,7 +19,7 @@ To install:
 2.	Open the "catalog" file in the same subdirectory and add (if not 
 	present) the following entry:
 	
-	<MODE NAME="logtalk" FILE="logtalk.xml" FILE_NAME_GLOB="*.{lgt,loader,config}" />
+	<MODE NAME="logtalk" FILE="logtalk.xml" FILE_NAME_GLOB="*.{mlgt,lgt,loader,config}" />
 
 3.	Install (or update if necessary) the jEdit plug-in Templates 3.0.1
 	or later version.

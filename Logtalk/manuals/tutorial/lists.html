@@ -39,34 +39,25 @@ We will start by defining an object, <code>list</code>, containing predicate def
 <pre>
     :- object(list).
 
-
         :- public(append/3).
         :- public(length/2).
         :- public(member/2).
 
-
         append([], List, List).
-
         append([Head| Tail], List, [Head| Tail2]) :-
             append(Tail, List, Tail2).
-
 
         length(List, Length) :-
             length(List, 0, Length).
 
-
         length([], Length, Length).
-
         length([_| Tail], Acc, Length) :-
             Acc2 is Acc + 1,
             length(Tail, Acc2, Length).
 
-
         member(Element, [Element| _]).
-
         member(Element, [_| List]) :-
             member(Element, List).
-
 
     :- end_object.
 </pre>
@@ -77,7 +68,7 @@ What is different here from a regular Prolog program? The definitions of the lis
 After we copy the object code to a text file and saved it under the name <code>list.lgt</code>, we need to change the Prolog working directory to the one used to save our file (consult your Prolog compiler reference manual). Then, after starting Logtalk (see the <a title="Consult user manual" href="../userman/installing.html#running">Installing and running Logtalk</a> session on the User Manual), we can compile and load the object using the <a title="Consult reference manual" href="../refman/builtins/logtalk_load1.html"><code>logtalk_load/1</code></a> Logtalk built-in predicate:
 </p>
 <pre>
-    | ?- logtalk_load([list]).
+    | ?- logtalk_load(list).
 
     object list loaded
     yes
@@ -103,7 +94,7 @@ or:
     yes
 </pre>
 <p>
-The infix operator <a title="Consult reference manual" href="../refman/control/to_object2.html"><code>::/2</code></a> is used in Logtalk to send a message to an object. The message must match a public object predicate. If we try to call a non-public predicate like the <code>length/3</code> auxiliar predicate an exeption will be generated:
+The infix operator <a title="Consult reference manual" href="../refman/control/to_object2.html"><code>::/2</code></a> is used in Logtalk to send a message to an object. The message must match a public object predicate. If we try to call a non-public predicate such as the <code>length/3</code> auxiliary predicate an exception will be generated:
 </p>
 <pre>
     | ?- list::length([1, 2, 3], 0, L).
@@ -115,22 +106,20 @@ The infix operator <a title="Consult reference manual" href="../refman/control/t
             user)
 </pre>
 <p>
-The error term describes the type of error, the message that caused the exeption, and the sender of the message (in this case, the pseudo-object <code>user</code>  because we are sending the message from the top-level interpreter).
+The error term describes the type of error, the message that caused the exception, and the sender of the message (in this case, the pseudo-object <code>user</code>  because we are sending the message from the top-level interpreter).
 </p>
 
 <h2>Defining a list protocol<a name="protocol"></a></h2>
 
 <p>
-As we saw in the above example, a Logtalk object may contain predicate directives and predicate definitions. The set of predicate directives defines what we call the object's <em>protocol</em> or interface. An interface may have several implementations. For instance, we may want to define a new object that implements the list predicates using difference lists. However, we do not want to repeat the predicate directives in the new object. Therefore, what we need is to split the object's protocol from the object's predicate definitions by defining a new Logtalk entity called a protocol. Logtalk protocols are compilations units, at the same level as objects and categories. That said, let us define a <code>listp</code> protocol:
+As we saw in the above example, a Logtalk object may contain predicate directives and predicate definitions (clauses). The set of predicate directives defines what we call the object's <em>protocol</em> or interface. An interface may have several implementations. For instance, we may want to define a new object that implements the list predicates using difference lists. However, we do not want to repeat the predicate directives in the new object. Therefore, what we need is to split the object's protocol from the object's implementation by defining a new Logtalk entity known as a protocol. Logtalk protocols are compilations units, at the same level as objects and categories. That said, let us define a <code>listp</code> protocol:
 </p>
 <pre>
     :- protocol(listp).
 
-
         :- public(append/3).
         :- public(length/2).
         :- public(member/2).
-
 
     :- end_protocol.
 </pre>
@@ -139,7 +128,6 @@ Similar to what we have done for objects, we use the directives <a title="Consul
 </p>
 <pre>
     :- protocol(listp).
-
 
         :- public(append/3).
         :- mode(append(?list, ?list, ?list), zero_or_more).
@@ -150,24 +138,20 @@ Similar to what we have done for objects, we use the directives <a title="Consul
         :- public(member/2).
         :- mode(member(?term, ?list), zero_or_more).
 
-
     :- end_protocol.
 </pre>
 <p>
-Now we need to change our definition of the <code>list</code> object. We remove the predicate directives and state that the object implements the <code>listp</code> protocol:
+We now need to change our definition of the <code>list</code> object by removing the predicate directives and by declaring that the object implements the <code>listp</code> protocol:
 </p>
 <pre>
     :- object(list,
     	implements(listp)).
 
-
         append([], List, List).
-
         append([Head| Tail], List, [Head| Tail2]) :-
             append(Tail, List, Tail2).
 
         ...
-
 
     :- end_object.
 </pre>
@@ -178,11 +162,8 @@ The protocol declared in <code>listp</code> may now be alternatively implemented
     :- object(difflist,
         implements(listp).
 
-
         append(L1-X, X-L2, L1-L2).
-
         ...
-
 
     :- end_object.
 </pre>
@@ -205,7 +186,7 @@ Copyright &copy; <a href="mailto:pmoura@logtalk.org">Paulo Moura</a> &mdash; <a 
 </div>
 
 <div class="footer">
-<p><span class="bleft"><a href="http://validator.w3.org/check/referer">XHTML</a> + <a href="http://jigsaw.w3.org/css-validator/check/referer">CSS</a></span><span class="bright">Last updated on: December 23, 2003</span></p>
+<p><span class="bleft"><a href="http://validator.w3.org/check/referer">XHTML</a> + <a href="http://jigsaw.w3.org/css-validator/check/referer">CSS</a></span><span class="bright">Last updated on: July 22, 2004</span></p>
 </div>
 </body>
 </html>

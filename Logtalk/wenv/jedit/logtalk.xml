@@ -6,14 +6,14 @@
 
 	written by		Paulo Moura
 	version			1.41
-	created on		2 May 2002
-	last revised	7 July 2004
+	created on		 2  May 2002
+	last revised	17 July 2004
 	
 	To install, copy this file to the "modes" subdirectory in jEdit 
 	directory installation.   Next, check the "catalog" file in the 
 	same subdirectory and add (if not present) the following entry:
 	
-	<MODE NAME="logtalk" FILE="logtalk.xml" FILE_NAME_GLOB="*.lgt" />
+	<MODE NAME="logtalk" FILE="logtalk.xml" FILE_NAME_GLOB="*.{mlgt,lgt,loader,config}" />
 -->
 
 <MODE>

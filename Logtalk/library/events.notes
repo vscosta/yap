@@ -1,6 +1,6 @@
 =================================================================
 Logtalk - Object oriented extension to Prolog
-Release 2.18.0
+Release 2.19.0
 
 Copyright (c) 1998-2004 Paulo Moura.  All Rights Reserved.
 =================================================================
@@ -16,9 +16,9 @@ implement convenient predicates for registering before and after events.
 
 The protocol event_handlersp declares the two basic event handler predicates
 (before/3 and after/3). You will need to refer this protocol in your objects
-if you need to use the super control structure (^^/1) with these predicates.
+if you want to use the super control structure (^^/1) with these predicates.
 
 The monitor object implements more sophisticated event handling predicates.
 
-Some of the objects assume that the used Prolog compiler defines the 
+Some of the objects assume that the chosen Prolog compiler defines the 
 usual sort/2 built-in predicate.

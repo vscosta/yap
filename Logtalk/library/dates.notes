@@ -1,6 +1,6 @@
 =================================================================
 Logtalk - Object oriented extension to Prolog
-Release 2.18.0
+Release 2.19.0
 
 Copyright (c) 1998-2004 Paulo Moura.  All Rights Reserved.
 =================================================================
@@ -16,5 +16,5 @@ The object date implements some useful calandar date predicates.
 The object time implements some useful time predicates.
 
 Please note that some of the functionality of these objects depends 
-on the used Prolog support for accessing operating system time and 
+on the chosen Prolog support for accessing operating system time and 
 date values.

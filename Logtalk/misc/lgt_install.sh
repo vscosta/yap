@@ -9,23 +9,23 @@ else
 	prefix="$1"
 fi
 
-rm -rf $prefix/lgt2180
+rm -rf $prefix/lgt2190
 rm -f $prefix/logtalk
 
-mkdir $prefix/lgt2180
+mkdir $prefix/lgt2190
 
 cd ..
-cp -R * $prefix/lgt2180
+cp -R * $prefix/lgt2190
 
 cd $prefix
-chmod -R go-w,a+r lgt2180
-chmod a+x lgt2180
-chmod a+x lgt2180/misc/*.sh
-chmod a+x lgt2180/xml/*.sh
-ln -sf lgt2180 logtalk
+chmod -R go-w,a+r lgt2190
+chmod a+x lgt2190
+chmod a+x lgt2190/misc/*.sh
+chmod a+x lgt2190/xml/*.sh
+ln -sf lgt2190 logtalk
 
 cd bin
-ln -sf ../lgt2180/misc/cplgtdirs.sh cplgtdirs.sh
+ln -sf ../lgt2190/misc/cplgtdirs.sh cplgtdirs.sh
 
 echo "Installation completed."
 echo "Users should define the environment variable LOGTALKHOME pointing"

@@ -4,8 +4,8 @@
 
 ;; Author: Paulo Moura
 ;; Creation date: November 15, 2003
-;; Last modification date: March 5, 2004
-;; Version: 0.52
+;; Last modification date: July 17, 2004
+;; Version: 0.6
 
 ;; Installation:
 ;;
@@ -20,6 +20,7 @@
 ;; your ~/.emacs file:
 ;;
 ;; (autoload 'logtalk-mode "logtalk" "Major mode for editing Logtalk programs." t)
+;; (setq auto-mode-alist (cons '("\\.mlgt\\'" . logtalk-mode) auto-mode-alist))
 ;; (setq auto-mode-alist (cons '("\\.lgt\\'" . logtalk-mode) auto-mode-alist))
 ;; (setq auto-mode-alist (cons '("\\.loader\\'" . logtalk-mode) auto-mode-alist))
 ;; (setq auto-mode-alist (cons '("\\.config\\'" . logtalk-mode) auto-mode-alist))
@@ -28,7 +29,7 @@
 
 ;; setup 
 
-(defvar logtalk-mode-version "0.5"
+(defvar logtalk-mode-version "0.6"
 	"Logtalk mode version number")
 
 (defvar logtalk-mode-hook nil)

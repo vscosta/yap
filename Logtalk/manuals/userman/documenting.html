@@ -125,7 +125,7 @@ The XML documenting files are (by default) automatically generated when you comp
 Each XML file contains references to two other files: <code>logtalk.dtd</code>, a DTD file describing the XML file structure, and a <a href="http://www.w3.org/Style/XSL/">XSL</a> style sheet file responsible for converting the XML files to some desired format like <a href="http://www.w3.org/MarkUp/">HTML</a>. The name of the XSL file can be changed in the configuration files via the <code>lgt_file_name/2</code> predicate. The default value is <code>lgtxml.xsl</code>, a XSL file that enables Logtalk XML files to be viewed directly in a web browser. The HTML output refers a <a href="http://www.w3.org/Style/CSS/">CSS</a> file, <code>logtalk.css</code>, that specifies how the HTML code will be rendered. The three default files are contained in the <code>xml</code> sub-directory in the Logtalk installation directory. This directory may also contain other files for specific <a href="http://www.xslt.com/">XSLT</a> processors or for converting XML to other formats besides HTML. Please read the <code>NOTES</code> file included in the directory for details.
 </p>
 <p>
-There is a set of compilers options, used with the Logtalk <a title="Consult reference manual" href="../refman/builtins/logtalk_load2.html"><code>logtalk_load/2</code></a> or the <a title="Consult reference manual" href="../refman/builtins/logtalk_compile2.html"><code>logtalk_compile/2</code></a> built-in predicates, that can be used to control the generation of the XML documentation files. Please see the <a href="installing.html#options">Installing and running Logtalk</a> section of this manual for details.
+There is a set of compilers options, used with the Logtalk <a title="Consult reference manual" href="../refman/builtins/logtalk_load2.html"><code>logtalk_load/2</code></a> or the <a title="Consult reference manual" href="../refman/builtins/logtalk_compile2.html"><code>logtalk_compile/2</code></a> built-in predicates, that can be used to control the generation of the XML documentation files. Please see the <a href="running.html#options">Running Logtalk</a> section of this manual for details.
 </p>
 <p>
 By default, all file references use relative paths, assuming that the <code>.xml</code> documentation files and the <code>.dtd</code>, <code>.xsl</code>, and <code>.css</code> files reside in the same directory. This can acomplished either by copying the DTD and style files to the your application compiling directory or by using file aliases or symbolic links, depending on the operating system that you are using. Of course, you may also copy the <code>*.xml</code> files to the <code>xml</code> sub-directory.
@@ -143,7 +143,7 @@ Copyright &copy; <a href="mailto:pmoura@logtalk.org">Paulo Moura</a> &mdash; <a 
 </div>
 
 <div class="footer">
-<p><span class="bleft"><a href="http://validator.w3.org/check/referer">XHTML</a> + <a href="http://jigsaw.w3.org/css-validator/check/referer">CSS</a></span><span class="bright">Last updated on: December 23, 2003</span></p>
+<p><span class="bleft"><a href="http://validator.w3.org/check/referer">XHTML</a> + <a href="http://jigsaw.w3.org/css-validator/check/referer">CSS</a></span><span class="bright">Last updated on: July 23, 2004</span></p>
 </div>
 </body>
 </html>

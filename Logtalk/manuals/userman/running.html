@@ -50,7 +50,7 @@ Your programs will be made of source files containing your objects, protocols an
     | ?- logtalk_compile([source_file1, source_file2, ...]).
 </pre>
 <p>
-This predicate runs the preprocessor on each argument file and, if no fatal errors are found, outputs Prolog source files that can then be consulted or compiled in the usual way by your Prolog compiler. Note that the predicate argument must be a list of entity names, not file names (or paths).
+This predicate runs the preprocessor on each argument file and, if no fatal errors are found, outputs Prolog source files that can then be consulted or compiled in the usual way by your Prolog compiler. Note that the predicate argument must be either an entity name or a list of entity names.
 </p>
 <p>
 To compile to disk and also load into memory the source files we can use the Logtalk built-in predicate <a title="Consult reference manual" href="../refman/builtins/logtalk_load1.html"><code>logtalk_load/1</code></a>:
@@ -62,10 +62,10 @@ To compile to disk and also load into memory the source files we can use the Log
 This predicate works in the same way of the predicate <code>logtalk_compile/1</code> but also loads the compiled files to memory. 
 </p>
 <p>
-Both predicates expect an entity name or a list of entity names (atoms) as an argument. The Logtalk source file name extension, as defined in the configuration file, should be omitted.
+Both predicates expect an entity name, a list of entity names (atoms), or a source metafile as an argument. The Logtalk source file name extension, as defined in the configuration file, should be omitted.
 </p>
 <p>
-If you have more than a few source files then you may want to use a loader utility file containing the calls to the <code>logtalk_load/1</code> predicate (see the description above). Consulting or compiling the loader file will then compile and load all your Logtalk entities into memory.
+If you have more than a few source files then you may want to use a loader helper file containing the calls to the <code>logtalk_load/1</code> predicate. Consulting or compiling the loader file will then compile and load all your Logtalk entities into memory.
 </p>
 
 <h3>Compiler option flags<a name="options"></a></h3>
@@ -462,7 +462,7 @@ Copyright &copy; <a href="mailto:pmoura@logtalk.org">Paulo Moura</a> &mdash; <a 
 </div>
 
 <div class="footer">
-<p><span class="bleft"><a href="http://validator.w3.org/check/referer">XHTML</a> + <a href="http://jigsaw.w3.org/css-validator/check/referer">CSS</a></span><span class="bright">Last updated on: June 11, 2004</span></p>
+<p><span class="bleft"><a href="http://validator.w3.org/check/referer">XHTML</a> + <a href="http://jigsaw.w3.org/css-validator/check/referer">CSS</a></span><span class="bright">Last updated on: July 23, 2004</span></p>
 </div>
 </body>
 </html>

@@ -2,9 +2,9 @@
 :- protocol(systemp).
 
 	:- info([
-		version is 1.7,
+		version is 1.81,
 		author is 'Portable Operating-System Interface (POSI) initiative',
-		date is 2004/6/24,
+		date is 2004/7/20,
 		comment is 'Portable operating system access protocol.']).
 
 	:- public(make_directory/1).
@@ -15,12 +15,12 @@
 		exceptions is [
 			'Directory is not instantiated' - instantiation_error,
 			'Directory is neither a variable nor a valid file name' - type_error(file_name, 'Directory'),
-			'No permission for creating a new directory' - permission_error(write, 'Directory')]]).
+			'No permission for making a new directory' - permission_error(write, 'Directory')]]).
 
 	:- public(delete_directory/1).
 	:- mode(delete_directory(+atom), one).
 	:- info(delete_directory/1, [
-		comment is 'Deletes a directory.',
+		comment is 'Deletes a directory (and all of its contents).',
 		argnames is ['Directory'],
 		exceptions is [
 			'Directory is not instantiated' - instantiation_error,
@@ -42,7 +42,7 @@
 	:- public(working_directory/1).
 	:- mode(working_directory(?atom), one).
 	:- info(working_directory/1, [
-		comment is 'Current working directory.',
+		comment is 'Current working directory (as an absolute file name).',
 		argnames is ['Directory'],
 		exceptions is [
 			'Directory is neither a variable nor a valid file name' - type_error(file_name, 'Directory')]]).
@@ -50,17 +50,16 @@
 	:- public(directory_exists/1).
 	:- mode(directory_exists(+atom), zero_or_one).
 	:- info(directory_exists/1, [
-		comment is 'True if the specified directory exists.',
+		comment is 'True if the specified directory exists (irrespective of directory permissions).',
 		argnames is ['Directory'],
 		exceptions is [
 			'Directory is not instantiated' - instantiation_error,
-			'Directory is neither a variable nor a valid file name' - type_error(file_name, 'Directory'),
-			'No access permission for the directory' - permission_error(read, 'Directory')]]).
+			'Directory is neither a variable nor a valid file name' - type_error(file_name, 'Directory')]]).
 
 	:- public(directory_files/2).
 	:- mode(directory_files(+atom, -list), one).
 	:- info(directory_files/2, [
-		comment is 'List of all directory files. Returns an empty list if the directory is empty.',
+		comment is 'List of all directory files (returns an empty list if the directory is empty).',
 		argnames is ['Directory', 'Files'],
 		exceptions is [
 			'Directory is not instantiated' - instantiation_error,
@@ -82,7 +81,7 @@
 	:- public(rename_file/2).
 	:- mode(rename_file(+atom, +atom), zero_or_one).
 	:- info(rename_file/2, [
-		comment is 'Renames a file (or directory).',
+		comment is 'Renames a file (or a directory).',
 		argnames is ['Old', 'New'],
 		exceptions is [
 			'Old is not instantiated' - instantiation_error,
@@ -106,20 +105,30 @@
 			'No read permission to the original file' - permission_error(read, 'Original'),
 			'No write permission to the file copy' - permission_error(write, 'Copy')]]).
 
-	:- public(symbolic_link/2).
-	:- mode(symbolic_link(+atom, -atom), one).
-	:- info(symbolic_link/2, [
-		comment is 'Follows a symbolic link returning the target full path.',
+	:- public(make_symlink/2).
+	:- mode(make_symlink(+atom, +atom), one).
+	:- info(make_symlink/2, [
+		comment is 'Makes a symbolic link.',
 		argnames is ['Symlink', 'Target'],
 		exceptions is [
 			'Symlink is not instantiated' - instantiation_error,
+			'Target is not instantiated' - instantiation_error,
 			'Symlink is neither a variable nor a valid file name' - type_error(file_name, 'Symlink'),
-			'Symlink is a valid file name but not a symbolic link' - type_error(symlink, 'Symlink'),
-			'No access permission to the symbolic link' - permission_error(access, 'Symlink')]]).
+			'Target is neither a variable nor a valid file name' - type_error(file_name, 'Target'),
+			'No permission for creating the symbolic link' - permission_error(write, 'Symlink')]]).
+
+	:- public(file_exists/1).
+	:- mode(file_exists(+atom), zero_or_one).
+	:- info(file_exists/1, [
+		comment is 'True if the specified file exists (irrespective of type and file permissions).',
+		argnames is ['File'],
+		exceptions is [
+			'File is not instantiated' - instantiation_error,
+			'File is neither a variable nor a valid file name' - type_error(file_name, 'File')]]).
 
 	:- public(file_property/2).
-	:- mode(file_property(+atom, +nonvar), zero_or_one).
-	:- mode(file_property(+atom, -nonvar), one_or_more).
+	:- mode(file_property(+atom, +compound), zero_or_one).
+	:- mode(file_property(+atom, -compound), one_or_more).
 	:- info(file_property/2, [
 		comment is 'File properties.',
 		argnames is ['File', 'Property'],
@@ -127,13 +136,13 @@
 			'File is not instantiated' - instantiation_error,
 			'File is neither a variable nor a valid file name' - type_error(file_name, 'File'),
 			'File does not exists' - existence_error(file, 'File'),
-			'No access permission to the file' - permission_error(access, 'File'),
-			'Property is neither a variable nor a file name part' - type_error(file_property, 'Property')]]).
+			'No read permission to the file' - permission_error(read, 'File'),
+			'Property is neither a variable nor a file property' - type_error(file_property, 'Property')]]).
 
 	:- public(current_environment_variable/1).
 	:- mode(current_environment_variable(?atom), zero_or_more).
 	:- info(current_environment_variable/1, [
-		comment is 'Argument is a corrently defined environment variable . Fails if the variable does not exists.',
+		comment is 'Argument is a currently defined environment variable . Fails if the variable does not exists.',
 		argnames is ['Variable'],
 		exceptions is [
 			'Variable is neither a variable nor an atom' - type_error(atom, 'Variable')]]).
@@ -173,7 +182,7 @@
 	:- public(time_stamp/1).
 	:- mode(time_stamp(-number), one).
 	:- info(time_stamp/1, [
-		comment is 'Returns the current system-dependent time stamp.',
+		comment is 'Returns a system-dependent time stamp (which can be used for sorting).',
 		argnames is ['Time']]).
 
 	:- public(local_time/1).
@@ -185,17 +194,19 @@
 	:- public(utc_time/1).
 	:- mode(utc_time(?time(?integer, ?integer, ?integer, ?integer, ?integer, ?integer, ?integer)), zero_or_one).
 	:- info(utc_time/1, [
-		comment is 'Universal Coordinated Time (UTC) time.',
+		comment is 'Universal Coordinated Time (UTC).',
 		argnames is [time('Year', 'Month', 'Day', 'Hours', 'Mins', 'Secs', 'Microsecs')]]).
 
 	:- public(convert_time/2).
 	:- mode(convert_time(+number, ?time(?integer, ?integer, ?integer, ?integer, ?integer, ?integer, ?integer)), zero_or_one).
+	:- mode(convert_time(?number, +time(+integer, +integer, +integer, +integer, +integer, +integer, +integer)), zero_or_one).
 	:- info(convert_time/2, [
-		comment is 'Converts a system-dependent time stamp to calendar local date and time.',
+		comment is 'Converts between system-dependent time stamps and calendar local date and time.',
 		argnames is ['Time', time('Year', 'Month', 'Day', 'Hours', 'Mins', 'Secs', 'Microsecs')],
 		exceptions is [
-			'Time is not instantiated' - instantiation_error,
-			'Time is neither a variable nor a valid time stamp' - type_error(time_stamp, 'Variable')]]).
+			'Neither argument is instantiated' - instantiation_error,
+			'Time stamp is neither a variable nor a valid time stamp' - type_error(time_stamp, 'Time'),
+			'Time structure is neither a variable nor a valid time structure' - type_error(time_structure, 'time(Year, Month, Day, Hours, Mins, Secs, Microsecs)')]]).
 
 	:- public(cpu_time/1).
 	:- mode(cpu_time(-number), one).
@@ -209,24 +220,24 @@
 		comment is 'Host name (default is localhost).',
 		argnames is ['Name']]).
 
-	:- public(canonical_os_path/2).
-	:- mode(canonical_os_path(+atom, -atom), one).
-	:- mode(canonical_os_path(-atom, +atom), one).
-	:- info(canonical_os_path/2, [
-		comment is 'Converts between canonical and operating system dependent paths.',
+	:- public(canonical_os_file_name/2).
+	:- mode(canonical_os_file_name(+atom, -atom), one).
+	:- mode(canonical_os_file_name(-atom, +atom), one).
+	:- info(canonical_os_file_name/2, [
+		comment is 'Converts between canonical and operating system dependent file names.',
 		argnames is ['Canonical', 'OS']]).
 
-	:- public(canonical_path/3).
-	:- mode(canonical_path(+atom, -atom, -atom), zero_or_one).
-	:- mode(canonical_path(-atom, +atom, -atom), zero_or_one).
-	:- mode(canonical_path(-atom, -atom, +atom), zero_or_one).
-	:- info(canonical_path/3, [
-		comment is 'Converts between relative, absolute, and URL canonical paths.',
+	:- public(canonical_file_name/3).
+	:- mode(canonical_file_name(+atom, -atom, -atom), one).
+	:- mode(canonical_file_name(-atom, +atom, -atom), one).
+	:- mode(canonical_file_name(-atom, -atom, +atom), one).
+	:- info(canonical_file_name/3, [
+		comment is 'Converts between relative, absolute, and URL canonical file names.',
 		argnames is ['Relative', 'Absolute', 'URL'],
 		exceptions is [
 			'None of the arguments is instantiated' - instantiation_error,
-			'Relative is neither a variable nor a relative path' - type_error(relative_file_name, 'Relative'),
-			'Absolute is neither a variable nor a absolute path' - type_error(absolute_path, 'Absolute'),
+			'Relative is neither a variable nor a relative file name' - type_error(relative_file_name, 'Relative'),
+			'Absolute is neither a variable nor a absolute file name' - type_error(absolute_file_name, 'Absolute'),
 			'URL is neither a variable nor a file name URL' - type_error(url_file_name, 'URL')]]).
 
 	:- public(relative_file_name/1).
@@ -269,7 +280,7 @@
 	:- public(url_file_name/2).
 	:- mode(url_file_name(+atom, ?atom), zero_or_one).
 	:- info(url_file_name/2, [
-		comment is 'Expands a file name into a URL.',
+		comment is 'Expands a file name into a URL file name.',
 		argnames is ['File', 'URL'],
 		exceptions is [
 			'File is not instantiated' - instantiation_error,
@@ -277,7 +288,7 @@
 			'URL is neither a variable nor a valid file name URL' - type_error(file_name, 'URL')]]).
 
 	:- public(file_name_part/2).
-	:- mode(file_name_part(+atom, ?nonvar), zero_or_more).
+	:- mode(file_name_part(+atom, ?compound), zero_or_more).
 	:- info(file_name_part/2, [
 		comment is 'File name parts.',
 		argnames is ['File', 'Part'],
@@ -288,14 +299,14 @@
 			'Part is neither a variable nor a file name part' - type_error(file_name_part, 'Port')]]).
 
 	:- public(file_name_parts/2).
-	:- mode(file_name_parts(+atom, -list), one).
-	:- mode(file_name_parts(-atom, +list), zero_or_one).
+	:- mode(file_name_parts(+atom, -list(compound)), one).
+	:- mode(file_name_parts(-atom, +list(compound)), zero_or_one).
 	:- info(file_name_parts/2, [
 		comment is 'Converts between a file name and its constituent parts (represented as a list of compound terms).',
 		argnames is ['File', 'Parts'],
 		exceptions is [
 			'None of the arguments are instantiated' - instantiation_error,
 			'File is neither a variable nor a valid file name' - type_error(file_name, 'File'),
-			'Parts is neither a variable nor a list' - type_error(list, 'Parts')]]).
+			'Parts is neither a variable nor a list' - type_error(list(compound), 'Parts')]]).
 
 :- end_protocol.

@@ -25,12 +25,13 @@
 
 <blockquote>
 <pre>logtalk_compile(Entity)
-logtalk_compile(Entities)</pre>
+logtalk_compile(Entities)
+logtalk_compile(Metafile)</pre>
 <p>
-Compiles to disk an entity or a list of entities (objects, protocols, or categories) using the default compiler options specified in the Logtalk configuration file. The Logtalk file name extension (by default, <code>.lgt</code>) should be omitted. Note that the argument is a list of entity/file names, not file paths. In other words, the files must exist in your current working directory.
+Compiles to disk an entity or a list of entities (objects, protocols, or categories) using the default compiler options specified in the Logtalk configuration file. The Logtalk file name extension (by default, <code>.lgt</code> for entity source files and <code>.mlgt</code> for source metafiles) should be omitted. Note that the argument is a list of entity/file names, not file paths. In other words, the files must exist in the current working directory.
 </p>
 <p>
-Note that only the errors related to problems in the predicate argument are listed below. Other exceptions may be thrown by the compiler if any of the compiled entities contain errors.
+Note that only the errors related to problems in the predicate argument are listed below. Other exceptions may be thrown by the compiler if any of the compiled entities contains syntax errors.
 </p>
 </blockquote>
 
@@ -74,7 +75,7 @@ Copyright &copy; <a href="mailto:pmoura@logtalk.org">Paulo Moura</a> &mdash; <a 
 </div>
 
 <div class="footer">
-<p><span class="bleft"><a href="http://validator.w3.org/check/referer">XHTML</a> + <a href="http://jigsaw.w3.org/css-validator/check/referer">CSS</a></span><span class="bright">Last updated on: December 23, 2003</span></p>
+<p><span class="bleft"><a href="http://validator.w3.org/check/referer">XHTML</a> + <a href="http://jigsaw.w3.org/css-validator/check/referer">CSS</a></span><span class="bright">Last updated on: July 23, 2004</span></p>
 </div>
 </body>
 </html>

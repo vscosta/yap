@@ -1,6 +1,6 @@
 =================================================================
 Logtalk - Object oriented extension to Prolog
-Release 2.18.0
+Release 2.19.0
 
 Copyright (c) 1998-2004 Paulo Moura.  All Rights Reserved.
 =================================================================
@@ -12,5 +12,5 @@ file:
 	| ?- logtalk_load(types_loader).
 
 These objects implement predicates over common Prolog terms and 
-structures like lists, diffrence lists, binary trees, dictionaries, 
-and queues.
+structures such as lists, difference lists, binary trees, queues, 
+dictionaries, and sets.

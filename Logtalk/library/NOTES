@@ -1,13 +1,12 @@
 =================================================================
 Logtalk - Object oriented extension to Prolog
-Release 2.18.0
+Release 2.19.0
 
 Copyright (c) 1998-2004 Paulo Moura.  All Rights Reserved.
 =================================================================
 
 
-This folder contains objects, categories, and protocols that implement
-predicates for dealing with common Prolog types and structures.
+This folder contains some useful objects, categories, and protocols. 
 
 To load a group of objects, protocols, and categories in this library 
 change your Prolog working directory to this folder and then compile 
@@ -55,20 +54,21 @@ predicate logtalk_load/1. For example:
 
 	| ?- logtalk_load(all_loader).
 
-Specific notes about each group of objects, categories, and protocols 
-can be found in the corresponding *.notes files.
+Specific notes about each group of objects, categories, and protocols can be 
+found in the corresponding *.notes files.
 
-Some of the files contained in this directory represent work in progress 
-and are not loaded by default by any loader utility file.
+Some of the files contained in this directory represent work in progress and 
+are not loaded by default by any loader utility file.
 
-Some of the code in this library is based on public domain Prolog code, 
-in particular, code adopted from the Edinburgh Prolog library. The definition 
+Some of the code in this library is based on public domain Prolog code, in 
+particular, code adopted from the Edinburgh Prolog library. The definition 
 of predicate reverse/2 in object list is from Richard O'Keefe and can be found 
 in its book "The Craft of Prolog".
 
 By default, compiling any group of entities described above generates a .xml 
 documenting file for each compiled entity (object, category, or protocol).
 See the xml sub-directory for instructions on how to browse the .xml files 
-for on-line reading or how to convert the files to print-ready format.
+for on-line reading or how to convert the files to a print-ready format such 
+as PDF.
 
 All source files are formatted using four-spaces tabs.

@@ -1,6 +1,6 @@
 =================================================================
 Logtalk - Object oriented extension to Prolog
-Release 2.18.0
+Release 2.19.0
 
 Copyright (c) 1998-2004 Paulo Moura.  All Rights Reserved.
 =================================================================
@@ -9,31 +9,31 @@ Copyright (c) 1998-2004 Paulo Moura.  All Rights Reserved.
 This folder contains several examples of Logtalk programs. A brief 
 description of each example is included below.
 
-Each example contains a NOTES file and a loader utility file that may 
-be used to load all the example entities. In addition, most examples 
+Each example folder contains a NOTES file and a loader helper file which 
+may be used to load all the example entities. In addition, most examples 
 contain a SCRIPT file with sample queries for your to try.
 
-Most of these examples need objects, protocols, and categories that 
-are defined in the Logtalk standard library or in other examples, so 
-you should load them first (see the NOTES files inside the library 
-folder and the NOTES file inside each example folder).
+Most of these examples need objects, protocols, and categories which are 
+defined in the Logtalk standard library or in other examples, so you 
+should load them first (see the NOTES files inside the library folder and 
+the NOTES file inside each example folder).
 
 Some examples may redefine objects already loaded from other examples.
 You may want to restart Logtalk after trying each example.
 
-Some of the examples code have been adopted from public available 
-Prolog code and from known Prolog text books and are copyrighted by 
-the respective authors.
+Some of the examples code have been adopted from public available Prolog 
+code and from known Prolog text books and are copyrighted by the respective 
+authors.
 
-These are programming examples, meaning that you should study the 
-source files to fully understand them.
+These are programming examples, meaning that you should study the source 
+files to fully understand them.
 
 All examples are formatted using four spaces tabs.
 
 By default, compiling an example generates a .xml documenting file for each 
-compiled entity (object, category, or protocol). See the xml sub-directory 
-for instructions on how to browse the .xml files for on-line reading or how 
-to convert the files to a print-ready format such as PDF.
+compiled entity (object, category, or protocol). See the xml folder for 
+instructions on how to browse the .xml files for on-line reading or how to 
+convert the files to a print-ready format such as PDF.
 
 
 Here is a short description of each included example:
