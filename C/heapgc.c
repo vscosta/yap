@@ -571,7 +571,7 @@ init_dbtable(tr_fr_ptr trail_ptr) {
 
 #ifdef DEBUG
 
-#define INSTRUMENT_GC 1
+/* #define INSTRUMENT_GC 1 */
 /* #define CHECK_CHOICEPOINTS 1  */
 
 #ifdef INSTRUMENT_GC

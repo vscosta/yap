@@ -70,10 +70,11 @@ socket_buffering(Sock, Flag, InSize, OutSize) :-
 	var(OutSize), OutSize \= InSize, !,
 	throw(error(instantiation_error,socket_buffering(Sock, Flag, InSize, OutSize))).
 socket_buffering(Sock, Flag, InSize, OutSize) :-
-	'$convert_sock_buff'(InSize, InNumb),
+	'$convert_sock_buff'(OutSize, OutNumb),
 	'$socket_buffering'(Sock, Flag, InNumb, OutNumb),
-	'$convert_sock_buff'(OutSize, OutNumb).
+	'$convert_sock_buff'(InSize, InNumb).
 
+'$convert_sock_buff'(V, V) :- var(V), !.
 '$convert_sock_buff'(unbuf, 1) :- !.
 '$convert_sock_buff'(fullbuf, _).
 
