@@ -1,0 +1,24 @@
+/**
+    Logtalk file type specifications
+
+    Copyright (c) 2004 Paulo Moura
+    All rights reserved.
+*/
+(
+    {
+        Identifier = sourcecode.logtalk;
+        BasedOn = sourcecode;
+        Name = "Logtalk source files";
+        Extensions = (lgt);
+        ComputerLanguage = logtalk;
+        AppliesToBuildRules = no;
+    },
+    {
+        Identifier = sourcecode.logtalk.loader;
+        BasedOn = sourcecode.logtalk;
+        Name = "Logtalk source file loader";
+        Extensions = (loader);
+        ComputerLanguage = prolog;
+        AppliesToBuildRules = no;
+    }
+)

@@ -4,10 +4,10 @@
 
 <!--	jEdit 4.1 Logtalk syntax file
 
-	written by	Paulo Moura
-	version		1.3
-	created on	2 May 2002
-	last revised	7 July 2003
+	written by		Paulo Moura
+	version			1.4
+	created on		2 May 2002
+	last revised	28 January 2004
 	
 	To install, copy this file to the "modes" subdirectory in jEdit 
 	directory installation.   Next, check the "catalog" file in the 
@@ -25,7 +25,10 @@
 		<PROPERTY NAME="tabSize" VALUE="4" />
 	</PROPS>
 
-	<RULES SET="MAIN" IGNORE_CASE="FALSE">
+	<RULES SET="MAIN"
+		IGNORE_CASE="FALSE"
+		HIGHLIGHT_DIGITS="FALSE"
+		DIGIT_RE="[[:digit:]]+([eE][-+][[:digit:]]+)?">
 	
 		<!-- Comments -->
 		<EOL_SPAN TYPE="COMMENT1">%</EOL_SPAN>
@@ -34,7 +37,12 @@
 			<END>*/</END>
 		</SPAN>
 
+		<!-- Character code constants -->
 		<SEQ_REGEXP TYPE="NULL" HASH_CHAR="0">0'[[:alnum:]]</SEQ_REGEXP>
+		<!-- Binary, octal, and hexadecimal numbers -->
+		<SEQ_REGEXP TYPE="NULL" HASH_CHAR="0">0b[0-1]+</SEQ_REGEXP>
+		<SEQ_REGEXP TYPE="NULL" HASH_CHAR="0">0o[0-7]+</SEQ_REGEXP>
+		<SEQ_REGEXP TYPE="NULL" HASH_CHAR="0">0x[[:xdigit:]]+</SEQ_REGEXP>
 
 		<!-- String literals -->
 		<SPAN TYPE="LITERAL1" NO_LINE_BREAK="TRUE">
@@ -162,8 +170,8 @@
 			<FUNCTION>extends_object</FUNCTION>
 			<FUNCTION>extends_protocol</FUNCTION>
 			<FUNCTION>implements_protocol</FUNCTION>
-			<FUNCTION>instantiates_object</FUNCTION>
-			<FUNCTION>specializes_object</FUNCTION>
+			<FUNCTION>instantiates_class</FUNCTION>
+			<FUNCTION>specializes_class</FUNCTION>
 			<FUNCTION>imports_category</FUNCTION>
 
 			<FUNCTION>abolish_events</FUNCTION>

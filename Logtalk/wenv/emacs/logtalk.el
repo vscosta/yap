@@ -4,31 +4,23 @@
 
 ;; Author: Paulo Moura
 ;; Creation date: November 15, 2003
-;; Last modification date: December 16, 2003
-;; Version: 0.4
+;; Last modification date: February 2, 2004
+;; Version: 0.5
 
 ;; Installation:
 ;;
 ;; Add the following lines in your Emacs init file, for example
-;; your ~/.emacs file.
-;;
-;; (add-hook 'logtalk-mode-hook 'my-logtalk-mode-hook)
-;;
-;; (defun my-logtalk-mode-hook ()
-;;      (cond (window-system
-;;              (require 'logtalk-font-lock)
-;;              (turn-on-font-lock))))
-;;
-;; (setq font-lock-maximum-decoration t)
+;; your ~/.emacs file:
 ;;
 ;; (autoload 'logtalk-mode "logtalk" "Major mode for editing Logtalk programs." t)
 ;; (setq auto-mode-alist (cons '("\\.lgt\\'" . logtalk-mode) auto-mode-alist))
+;; (setq auto-mode-alist (cons '("\\.loader\\'" . logtalk-mode) auto-mode-alist))
 
 
 
 ;; setup 
 
-(defvar logtalk-mode-version "0.2"
+(defvar logtalk-mode-version "0.5"
 	"Logtalk mode version number")
 
 (defvar logtalk-mode-hook nil)
@@ -56,43 +48,35 @@
 		(modify-syntax-entry ?* ". 23b" logtalk-mode-syntax-table)
 		(modify-syntax-entry ?% "<" logtalk-mode-syntax-table)
 		(modify-syntax-entry ?\n ">" logtalk-mode-syntax-table)
+		(modify-syntax-entry ?\' "w" logtalk-mode-syntax-table)
 		logtalk-mode-syntax-table)
 	"Syntax table for logtalk-mode")
 
 
 
-;; create logtalk font-lock-faces
+;; make logtalk font-lock-faces
 
+(make-face 'logtalk-default-face)
 (make-face 'logtalk-directive-face)
-(set-face-foreground 'logtalk-directive-face "brown")
-
 (make-face 'logtalk-built-in-predicate-face)
-(set-face-foreground 'logtalk-built-in-predicate-face "darkmagenta")
-
 (make-face 'logtalk-built-in-method-face)
-(set-face-foreground 'logtalk-built-in-method-face "darkmagenta")
-
 (make-face 'logtalk-message-operator-face)
-(set-face-foreground 'logtalk-message-operator-face "blue")
-
-(make-face 'logtalk-string-face)
-(set-face-foreground 'logtalk-string-face "firebrick")
-
+(make-face 'logtalk-variable-face)
 (make-face 'logtalk-number-face)
-(set-face-foreground 'logtalk-number-face "blue")
-
 (make-face 'logtalk-comment-face)
-(set-face-foreground 'logtalk-comment-face "forest green")
+(make-face 'logtalk-string-face)
 
+;; set logtalk font-lock-faces
 
-;; set the font-lock-comment-face to the logtalk-comment-face
-
-(setq font-lock-comment-face 'logtalk-comment-face)
-
-
-;; set the font-lock-string-face to the logtalk-string-face
-
-(setq font-lock-string-face 'logtalk-string-face)
+(copy-face 'default 'logtalk-default-face)
+(copy-face 'font-lock-keyword-face 'logtalk-directive-face)
+(copy-face 'font-lock-builtin-face 'logtalk-built-in-predicate-face)
+(copy-face 'font-lock-builtin-face 'logtalk-built-in-method-face)
+(copy-face 'font-lock-function-name-face 'logtalk-message-operator-face)
+(copy-face 'font-lock-variable-name-face 'logtalk-variable-face)
+(copy-face 'font-lock-constant-face 'logtalk-number-face)
+(copy-face 'font-lock-comment-face 'logtalk-comment-face)
+(copy-face 'font-lock-string-face 'logtalk-string-face)
 
 
 
@@ -131,7 +115,7 @@
 		("\\(create\\(?:_object\\|e_\\(?:category\\|protocol\\)\\)\\)\\([(]\\)" 1 'logtalk-built-in-predicate-face)
 		("\\(abolish_\\(?:category\\|object\\|protocol\\)\\)\\([(]\\)" 1 'logtalk-built-in-predicate-face)
 		("\\(\\(?:category\\|object\\|protocol\\)_property\\)\\([(]\\)" 1 'logtalk-built-in-predicate-face)
-		("\\(extends_\\(?:object\\|protocol\\)\\|i\\(?:mp\\(?:lements_protocol\\|orts_category\\)\\|nstantiates_object\\)\\|specializes_object\\)\\([(]\\)" 1 'logtalk-built-in-predicate-face)
+		("\\(extends_\\(?:object\\|protocol\\)\\|i\\(?:mp\\(?:lements_protocol\\|orts_category\\)\\|nstantiates_class\\)\\|specializes_class\\)\\([(]\\)" 1 'logtalk-built-in-predicate-face)
 		("\\(abolish_events\\|current_event\\|define_events\\)\\([(]\\)" 1 'logtalk-built-in-predicate-face)
 		("\\(\\(?:curren\\|se\\)t_logtalk_flag\\)\\([(]\\)" 1 'logtalk-built-in-predicate-face)
 		("\\(logtalk_\\(?:compile\\|load\\|version\\)\\)\\([(]\\)" 1 'logtalk-built-in-predicate-face)
@@ -141,7 +125,7 @@
 		;; control constructs:
 		;;
 		("\\(ca\\(?:ll\\|tch\\)\\|throw\\)\\([(]\\)" 1 'logtalk-built-in-predicate-face)
-		("\\(fail\\|true\\|!\\)" . 'logtalk-built-in-predicate-face)
+		("\\(fail\\|true\\|!\\|->\\|;\\)" . 'logtalk-built-in-predicate-face)
 		;;
 		;; logic and control:
 		;;
@@ -172,11 +156,17 @@
 		;;
 		("\\\\?=" . 'logtalk-built-in-predicate-face)
 		;;
+		;; dcgs:
+		;;
+		("-->" . 'logtalk-built-in-predicate-face)
+		;;
 		;; evaluable functors:
 		;;
 		("\\(abs\\|ceiling\\|flo\\(?:at\\(?:_\\(?:\\(?:fractional\\|integer\\)_part\\)\\)?\\|or\\)\\|mod\\|r\\(?:em\\|ound\\)\\|sign\\|truncate\\)\\([(]\\)" 1 'logtalk-built-in-predicate-face)
-		("//\\|[*+/-]" . 'logtalk-built-in-predicate-face)
-		("\\([[:blank:]]\\)\\(rem\\|mod\\)\\([[:blank:]]\\)" 2 'logtalk-built-in-predicate-face)
+		("//\\|[*/]" . 'logtalk-built-in-predicate-face)
+		("\\([^eE]\\)\\([+]\\)" 2 'logtalk-built-in-predicate-face)
+		("\\([^:eE]\\)\\([-]\\)" 2 'logtalk-built-in-predicate-face)
+		("\\<\\(rem\\|mod\\)\\>" . 'logtalk-built-in-predicate-face)
 		;;
 		;; other arithemtic functors:
 		;;
@@ -186,11 +176,12 @@
 		;; stream selection and control:
 		;;
 		("\\(at_end_of_stream\\|c\\(?:lose\\|urrent_\\(?:\\(?:in\\|out\\)put\\)\\)\\|flush_output\\|open\\|s\\(?:et_\\(?:input\\|output\\|stream_position\\)\\|tream_property\\)\\)\\([(]\\)" 1 'logtalk-built-in-predicate-face)
-		("\\(at_end_of_stream\\)" . 'logtalk-built-in-predicate-face)
+		("\\<\\(at_end_of_stream\\|flush_output\\)\\>" . 'logtalk-built-in-predicate-face)
 		;;
 		;; character input/output:
 		;;
 		("\\(get_c\\(?:har\\|ode\\)\\|nl\\|p\\(?:eek_c\\(?:har\\|ode\\)\\|ut_c\\(?:har\\|ode\\)\\)\\)\\([(]\\)" 1 'logtalk-built-in-predicate-face)
+		("\\<nl\\>" . 'logtalk-built-in-predicate-face)
 		;;
 		;; byte input/output:
 		;;
@@ -203,24 +194,50 @@
 		;; implementation defined hooks functions:
 		;;
 		("\\(\\(?:curren\\|se\\)t_prolog_flag\\|halt\\)\\([(]\\)" 1 'logtalk-built-in-predicate-face)
-		("halt" . 'logtalk-built-in-predicate-face)
+		("\\<halt\\>" . 'logtalk-built-in-predicate-face)
 		;;
 		;; atomic term processing:
 		;;
 		("\\(atom_\\(?:c\\(?:hars\\|o\\(?:des\\|ncat\\)\\)\\|length\\)\\|char_code\\|number_c\\(?:\\(?:har\\|ode\\)s\\)\\|sub_atom\\)\\([(]\\)" 1 'logtalk-built-in-predicate-face)
 		;;
 		;; bitwise functors:
+		;;
 		("/\\\\\\|<<\\|>>\\|\\\\/" . 'logtalk-built-in-predicate-face)
 		("\\\\" . 'logtalk-built-in-predicate-face)
 	))
 
 
-
 (setq logtalk-font-lock-operators
 	'(
+		;;
+		;; clause operator:
+		;;
+		(":-" . 'logtalk-default-face)
+		;;
+		;; message sending operators:
+		;;
 		("::\\|\\^\\^\\|[{}]" . 'logtalk-message-operator-face)
+		;;
+		;; mode operators:
+		;;
+		("[@?]" . 'logtalk-built-in-predicate-face)
 	))
 
+
+(setq logtalk-font-lock-numbers
+	'(
+		("\\<\\(0x[a-fA-F0-9]+\\)\\>" 1 'logtalk-number-face)
+		("\\<\\(0o[0-7]+\\)\\>" 1 'logtalk-number-face)
+		("\\<\\(0b[0-1]+\\)\\>" 1 'logtalk-number-face)
+		("\\<\\(0['][a-zA-Z0-9]\\)\\>" 1 'logtalk-number-face)
+		("\\<\\([0-9]+\\([.][0-9]+\\)?\\([eE][+-][0-9]+\\)?\\)\\>" 1 'logtalk-number-face)
+	))
+
+
+(setq logtalk-font-lock-variables
+	'(
+		("\\<\\([_A-Z][a-zA-Z0-9_]*\\)\\>" 1 'logtalk-variable-face)
+	))
 
 
 (setq logtalk-font-lock-keywords
@@ -230,8 +247,9 @@
 		logtalk-font-lock-built-in-methods
 		logtalk-font-lock-built-in-predicates
 		logtalk-font-lock-operators
+		logtalk-font-lock-variables
+		logtalk-font-lock-numbers
 	))
-
 
 
 ;; entry function

@@ -1,3 +1,4 @@
+
 :- object(square,
     extends(regular_polygon)).
 

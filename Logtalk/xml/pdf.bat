@@ -3,6 +3,7 @@
 SET FOP_PATH=c:\Fop-0.20.5
 
 SET XSLT="lgtpdfa4.xsl"
+REM SET XSLT="lgtpdfus.xsl"
 
 ECHO This script converts all .xml files in the current directory to .pdf
 ECHO files applying the XSLT transformation defined in the $XSLT file

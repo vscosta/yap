@@ -1,13 +1,41 @@
 =================================================================
 Logtalk - Object oriented extension to Prolog
-Release 2.15.5
+Release 2.15.6
 
-Copyright (c) 1998-2003 Paulo Moura.  All Rights Reserved.
+Copyright (c) 1998-2004 Paulo Moura.  All Rights Reserved.
 =================================================================
 
 
 RELEASE NOTES
 =============
+
+
+2.15.6 - February 9, 2004
+
+    Added "xmlspec" compiler option in order to specify the extension (dtd 
+    or xsd) of the file describing the XML documenting files specification.
+
+	Renamed compiler option "named_anonymous_vars" to the more appropriated 
+	name "underscore_vars". Changed possible option values to "dont_care" and 
+	"singletons" (default).
+
+    Added XSLT file for converting XML documenting files to XHTML 1.0 Strict 
+    files. Set the default encoding of all XSLT files to UTF-8.
+
+    Added syntax coloring support for the KDE Kate and Kwrite text editors.
+
+    Improved syntax coloring configuration files for VIM, jEdit, NEdit, 
+    SubEthaEdit, and Emacs text editors.
+
+	Removed outdated support for MacOS X Project Builder and added support 
+	for the new MacOS X Xcode developer tool.
+
+	Corrected bug in the built-in predicate current_logtalk_flag/2 that 
+	prevented some flag values from being returned after using the built-in 
+	predicate set_logtalk_flag/2.
+
+	Corrected bug in the shapes example (wrong placement of the declaration 
+	of the predicate side/1).
 
 
 2.15.5 - December 30, 2003

@@ -3,9 +3,12 @@
 XT_PATH="/Applications/XML/XT"
 SAX_PATH="/Applications/XML/XT"
 XP_PATH="/Applications/XML/XP"
+# XT_PATH="/usr/local/XT"
+# SAX_PATH="/usr/local/XT"
+# XP_PATH="/usr/local/XP"
 
 XSLT="lgthtml.xsl"
-
+# XSLT="lgtxhtml.xsl"
 
 if [ -z "$1" ]; then
 	title="Entity documentation index"

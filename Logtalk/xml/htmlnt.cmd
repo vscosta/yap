@@ -7,6 +7,7 @@ SET SAX_PATH=c:\xt
 SET XP_PATH=c:\xt
 
 SET XSLT=lgthtml.xsl
+REM SET XSLT=lgtxhtml.xsl
 
 IF "%1" == "" SET INDEX_TITLE=Entity documentation index
 IF NOT "%1" == "" SET INDEX_TITLE=%1%

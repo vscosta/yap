@@ -1,8 +1,8 @@
 =================================================================
 Logtalk - Object oriented extension to Prolog
-Release 2.15.5
+Release 2.15.6
 
-Copyright (c) 1998-2003 Paulo Moura.  All Rights Reserved.
+Copyright (c) 1998-2004 Paulo Moura.  All Rights Reserved.
 =================================================================
 
 
@@ -61,3 +61,7 @@ files.
 
 Logtalk version 2.15.3 changes the format of the runtime entity tables, 
 impliying recompilation of all objects, protocols, and categories.
+
+Logtalk version 2.15.6 renamed the compiler option "named_anonymous_vars" to 
+"underscore_vars" and changed the possible option values form "on/off" to 
+"dont_care/singletons".

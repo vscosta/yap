@@ -1,4 +1,4 @@
-<?xml version="1.0"?>
+<?xml version="1.0" encoding="utf-8"?>
 <xsl:stylesheet
 	version="1.0"
 	xmlns:xsl="http://www.w3.org/1999/XSL/Transform">
@@ -6,6 +6,7 @@
 
 <xsl:output
 	method="html"
+    indent="yes"
 	doctype-public="-//W3C//DTD HTML 4.01//EN"
 	doctype-system="http://www.w3.org/TR/html4/strict.dtd"/>
 
@@ -14,9 +15,9 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %
 %  Logtalk - Object oriented extension to Prolog
-%  Release 2.15.5
+%  Release 2.15.6
 %
-%  Copyright (c) 1998-2003 Paulo Moura.  All Rights Reserved.
+%  Copyright (c) 1998-2004 Paulo Moura.  All Rights Reserved.
 %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 -->
@@ -25,6 +26,7 @@
 <xsl:template match="/">
 	<html>
 	<head>
+        <meta http-equiv="content-type" content="text/html; charset=utf-8" />
 		<title><xsl:value-of select="logtalk/entity/name" /></title>
 		<link rel="stylesheet" href="logtalk.css" type="text/css" />
 	</head>

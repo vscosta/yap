@@ -2,9 +2,9 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %
 %  Logtalk - Object oriented extension to Prolog
-%  Release 2.15.5
+%  Release 2.15.6
 %
-%  Copyright (c) 1998-2003 Paulo Moura.  All Rights Reserved.
+%  Copyright (c) 1998-2004 Paulo Moura.  All Rights Reserved.
 %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
@@ -1070,10 +1070,10 @@ current_logtalk_flag(Flag, Value) :-
 	'$lgt_flag_'(Flag, Value).
 
 current_logtalk_flag(Flag, Value) :-
-	\+ '$lgt_flag_'(Flag, _),
-	'$lgt_default_flag'(Flag, Value).
+	'$lgt_default_flag'(Flag, Value),
+	\+ '$lgt_flag_'(Flag, _).
 
-current_logtalk_flag(version, version(2, 15, 5)).
+current_logtalk_flag(version, version(2, 15, 6)).
 
 
 
@@ -2113,7 +2113,7 @@ user0__def(Pred, _, _, _, Pred, user).
 		'$lgt_compiler_error_handler'(Stream, Error)),
 	catch(
 		(read_term(Stream, Term, [singletons(Singletons1)]),
-		 '$lgt_filter_named_anonymous_vars'(Singletons1, Singletons2),
+		 '$lgt_filter_dont_care_vars'(Singletons1, Singletons2),
 		 '$lgt_report_singletons'(Singletons2, Term),
 		 '$lgt_tr_file'(Stream, Term)),
 		Error,
@@ -2135,31 +2135,32 @@ user0__def(Pred, _, _, _, Pred, user).
 '$lgt_tr_file'(Stream, Term) :-
 	'$lgt_tr_term'(Term),
 	read_term(Stream, Next, [singletons(Singletons1)]),
-	'$lgt_filter_named_anonymous_vars'(Singletons1, Singletons2),
+	'$lgt_filter_dont_care_vars'(Singletons1, Singletons2),
 	'$lgt_report_singletons'(Singletons2, Next),
 	'$lgt_tr_file'(Stream, Next).
 
 
 
-% '$lgt_filter_named_anonymous_vars'(+list, -list)
+% '$lgt_filter_dont_care_vars'(+list, -list)
 %
-% filter named anonymous varaibles from a singletons list
-% if the corresponding compiler option is enabled
+% filter variables whose name start with an underscore from a
+% singletons list if the corresponding compiler option sets their
+% interpretation to don't care variables
 
-'$lgt_filter_named_anonymous_vars'(List, Result) :-
-	'$lgt_compiler_option'(named_anonymous_vars, on) ->
-		'$lgt_filter_named_anonymous_vars'(List, [], Result)
+'$lgt_filter_dont_care_vars'(List, Result) :-
+	'$lgt_compiler_option'(underscore_vars, dont_care) ->
+		'$lgt_filter_dont_care_vars'(List, [], Result)
 		;
 		List = Result.
 
 
-'$lgt_filter_named_anonymous_vars'([], Result, Result).
+'$lgt_filter_dont_care_vars'([], Result, Result).
 
-'$lgt_filter_named_anonymous_vars'([Atom = Var| List], Sofar, Result) :-
+'$lgt_filter_dont_care_vars'([Atom = Var| List], Sofar, Result) :-
 	sub_atom(Atom, 0, 1, _, '_') ->
-		'$lgt_filter_named_anonymous_vars'(List, Sofar, Result)
+		'$lgt_filter_dont_care_vars'(List, Sofar, Result)
 		;
-		'$lgt_filter_named_anonymous_vars'(List, [Atom = Var| Sofar], Result).
+		'$lgt_filter_dont_care_vars'(List, [Atom = Var| Sofar], Result).
 
 
 
@@ -5460,14 +5461,17 @@ user0__def(Pred, _, _, _, Pred, user).
 '$lgt_valid_compiler_option'(smart_compilation(Option)) :-
 	once((Option == on; Option == off)).
 
-'$lgt_valid_compiler_option'(named_anonymous_vars(Option)) :-
-	once((Option == on; Option == off)).
+'$lgt_valid_compiler_option'(underscore_vars(Option)) :-
+	once((Option == dont_care; Option == singletons)).
 
 '$lgt_valid_compiler_option'(code_prefix(Prefix)) :-
 	atom(Prefix).
 
 '$lgt_valid_compiler_option'(doctype(Option)) :-
 	once((Option == standalone; Option == (local); Option == web)).
+
+'$lgt_valid_compiler_option'(xmlspec(Option)) :-
+	once((Option == dtd; Option == xsd)).
 
 
 
@@ -5478,6 +5482,8 @@ user0__def(Pred, _, _, _, Pred, user).
 '$lgt_valid_flag'(iso_initialization_dir).
 '$lgt_valid_flag'(xml).
 '$lgt_valid_flag'(xsl).
+'$lgt_valid_flag'(xmlspec).
+'$lgt_valid_flag'(doctype).
 '$lgt_valid_flag'(unknown).
 '$lgt_valid_flag'(singletons).
 '$lgt_valid_flag'(misspelt).
@@ -5488,9 +5494,8 @@ user0__def(Pred, _, _, _, Pred, user).
 '$lgt_valid_flag'(smart_compilation).
 '$lgt_valid_flag'(startup_message).
 '$lgt_valid_flag'(version).
-'$lgt_valid_flag'(named_anonymous_vars).
+'$lgt_valid_flag'(underscore_vars).
 '$lgt_valid_flag'(code_prefix).
-'$lgt_valid_flag'(doctype).
 
 
 
@@ -5801,30 +5806,33 @@ user0__def(Pred, _, _, _, Pred, user).
 
 
 '$lgt_write_xml_header'(Stream) :-
+	'$lgt_compiler_option'(xmlspec, XMLSpec),
 	'$lgt_compiler_option'(doctype, Doctype),
-	'$lgt_write_xml_header'(Doctype, Stream).
+	'$lgt_write_xml_header'(Doctype, XMLSpec, Stream).
 
 
 
-'$lgt_write_xml_header'(local, Stream) :-
-	'$lgt_write_xml_open_tag'(Stream, '?xml version="1.0"?', []),
-	write(Stream, '<!DOCTYPE logtalk SYSTEM "logtalk.dtd">'), nl(Stream),
+'$lgt_write_xml_header'(local, XMLSpec, Stream) :-
+	'$lgt_write_xml_open_tag'(Stream, '?xml version="1.0" standalone="no"?', []),
+	write(Stream, '<!DOCTYPE logtalk SYSTEM "logtalk.'),
+	write(Stream, XMLSpec), write(Stream, '">'), nl(Stream),
 	'$lgt_compiler_option'(xsl, XSL),
 	write(Stream, '<?xml-stylesheet type="text/xsl" href="'),
 	write(Stream, XSL),
 	write(Stream, '"?>'), nl(Stream),
 	'$lgt_write_xml_open_tag'(Stream, logtalk, []).
 
-'$lgt_write_xml_header'(web, Stream) :-
-	'$lgt_write_xml_open_tag'(Stream, '?xml version="1.0"?', []),
-	write(Stream, '<!DOCTYPE logtalk SYSTEM "http://www.logtalk.org/xml/1.0/logtalk.dtd">'), nl(Stream),
+'$lgt_write_xml_header'(web, XMLSpec, Stream) :-
+	'$lgt_write_xml_open_tag'(Stream, '?xml version="1.0" standalone="no"?', []),
+	write(Stream, '<!DOCTYPE logtalk SYSTEM "http://www.logtalk.org/xml/1.0/logtalk.'),
+	write(Stream, XMLSpec), write(Stream, '">'), nl(Stream),
 	'$lgt_compiler_option'(xsl, XSL),
 	write(Stream, '<?xml-stylesheet type="text/xsl" href="'),
 	write(Stream, XSL),
 	write(Stream, '"?>'), nl(Stream),
 	'$lgt_write_xml_open_tag'(Stream, logtalk, []).
 
-'$lgt_write_xml_header'(standalone, Stream) :-
+'$lgt_write_xml_header'(standalone, _, Stream) :-
 	'$lgt_write_xml_open_tag'(Stream, '?xml version="1.0" standalone="yes"?', []),
 	'$lgt_compiler_option'(xsl, XSL),
 	write(Stream, '<?xml-stylesheet type="text/xsl" href="'),
@@ -6342,7 +6350,7 @@ user0__def(Pred, _, _, _, Pred, user).
 '$lgt_banner' :-
 	current_logtalk_flag(version, version(Major, Minor, Patch)),
 	nl, write('Logtalk '), write(Major), write('.'), write(Minor), write('.'), write(Patch), nl,
-	write('Copyright (c) 1998-2003 Paulo Moura'), nl, nl.
+	write('Copyright (c) 1998-2004 Paulo Moura'), nl, nl.
 
 
 
@@ -6352,8 +6360,10 @@ user0__def(Pred, _, _, _, Pred, user).
 	write('  ISO initialization/1 directive (iso_initialization_dir): '), write(ISO), nl,
 	'$lgt_default_flag'(xml, XML),
 	write('  XML documenting files (xml):                             '), write(XML), nl,
+	'$lgt_default_flag'(xmlspec, XMLSpec),
+	write('  XML specification file extension (xmlspec):              '), write(XMLSpec), nl,
 	'$lgt_default_flag'(doctype, Doctype),
-	write('  XML doctype reference (doctype):                         '), write(Doctype), nl,
+	write('  XML specification file location (doctype):               '), write(Doctype), nl,
 	'$lgt_default_flag'(xsl, XSL),
 	write('  XSL stylesheet (xsl):                                    '), write(XSL), nl,
 	'$lgt_default_flag'(unknown, Unknown),
@@ -6370,8 +6380,8 @@ user0__def(Pred, _, _, _, Pred, user).
 	write('  Non portable calls (portability):                        '), write(Portability), nl,
 	'$lgt_default_flag'(report, Report),
 	write('  Compilation report (report):                             '), write(Report), nl,
-	'$lgt_default_flag'(named_anonymous_vars, Named),
-	write('  Named anonymous variables (named_anonymous_vars):        '), write(Named), nl,
+	'$lgt_default_flag'(underscore_vars, Underscore),
+	write('  Underscore variables (underscore_vars):                  '), write(Underscore), nl,
 	'$lgt_default_flag'(code_prefix, Code),
 	write('  Compiled code functors prefix (code_prefix):             '), writeq(Code), nl,
 	'$lgt_default_flag'(smart_compilation, Smart),

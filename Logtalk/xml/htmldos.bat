@@ -7,6 +7,7 @@ SET SAX_PATH=c:\xt
 SET XP_PATH=c:\xt
 
 SET XSLT="lgthtml.xsl"
+REM SET XSLT="lgtxhtml.xsl"
 
 ECHO This script converts all .xml files in the current directory to .html
 ECHO files applying the XSLT transformation defined in the $XSLT file

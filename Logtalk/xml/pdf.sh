@@ -1,6 +1,7 @@
 #!/bin/sh
 
 FOP_PATH="/Applications/XML/fop-0.20.5"
+# FOP_PATH="/usr/local/fop-0.20.5"
 
 XSLT="lgtpdfa4.xsl"
 # XSLT="lgtpdfus.xsl"

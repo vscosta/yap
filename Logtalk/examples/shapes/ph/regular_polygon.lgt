@@ -1,12 +1,25 @@
+
 :- object(regular_polygon,
     extends(polygon)).
 
 
 	:- info([
 		author is 'Paulo Moura',
-		version is 1.0,
-		date is 2003/2/3,
+		version is 1.1,
+		date is 2004/1/8,
 		comment is 'Generic regular polygon.']).
+
+
+	:- public(side/1).
+
+	:- mode(side(?atom), zero_or_one).
+
+	:- info(side/1, [
+		comment is 'Regular polygon side length.',
+		argnames is ['Length']]).
+
+
+	side(1).         % default side length
 
 
 	perimeter(Perimeter) :-

@@ -117,8 +117,8 @@ abolish_category
 extends_object
 extends_protocol
 implements_protocol
-instantiates_object
-specializes_object
+instantiates_class
+specializes_class
 imports_category
 abolish_events
 current_event
