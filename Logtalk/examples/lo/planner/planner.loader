@@ -1,0 +1,21 @@
+
+:- initialization(
+	logtalk_load([
+		aberdeen_air,
+		aiai,
+		airport,
+		albert_hall,
+		castle,
+		city,
+		edin,
+		edinburgh,
+		fly,
+		glasgow,
+		imperial,
+		lhr,
+		london,
+		manchester,
+		plan1,
+		renfrew,
+		ringway,
+		victoria])).

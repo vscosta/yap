@@ -1,0 +1,69 @@
+<!doctype html public "-//W3C//DTD HTML 4.01//EN"
+	"http://www.w3.org/TR/html4/strict.dtd">
+
+<html>
+
+<head>
+	<title>current_predicate/1</title>
+	<link rel=stylesheet  href="../../styles.css" type="text/css">
+</head>
+
+<body>
+
+<hr />
+<h2><code><a class="back" title="Return to index" href="../index.html#current_predicate1">current_predicate/1</a></code></h2>
+<hr />
+
+<h4>Description</h4>
+
+<blockquote>
+<pre>
+current_predicate(Predicate)
+</pre>
+<p>
+	Enumerates, by backtracking, the visible user predicates for an object.
+</p>
+</blockquote>
+
+<h4>Template and modes</h4>
+
+<blockquote>
+<pre>
+current_predicate(?predicate_indicator)
+</pre>
+</blockquote>
+
+<h3>Errors</h3>
+
+<blockquote>
+	<dl>
+		<dt>Predicate is neither a variable nor a valid predicate indicator:</dt>
+			<dd><code>type_error(predicate_indicator, Predicate)</code></dd>
+	</dl>
+</blockquote>
+
+<h4>Examples</h4>
+
+<blockquote>
+	<dl>
+		<dt>To enumerate, by backtracking, the user predicates visible in <a class="glossary" title="Go to glossary definition" href="../../glossary.html#this">this</a>:</dt>
+			<dd><code>current_predicate(Predicate)</code></dd>
+		<dt>To enumerate, by backtracking, the public and protected user predicates visible in <a class="glossary" title="Go to glossary definition" href="../../glossary.html#self">self</a>:</dt>
+			<dd><code>::current_predicate(Predicate)</code></dd>
+		<dt>To enumerate, by backtracking, the public user predicates visible for an object:</dt>
+			<dd><code>Object::current_predicate(Predicate)</code></dd>
+	</dl>
+</blockquote>
+
+<hr />
+<p class="center">
+<strong><a href="this1.html">Previous</a> | <a href="predicate_property2.html">Next</a> | <a href="../index.html">Table of Contents</a> | <a href="../../bibliography.html">Bibliography</a> | <a href="../../glossary.html">Glossary</a></strong>
+</p>
+<p class="center">
+Last updated on: July 4, 2000
+</p>
+<hr />
+
+</body>
+
+</html>

@@ -1,0 +1,72 @@
+<!doctype html public "-//W3C//DTD HTML 4.01//EN"
+	"http://www.w3.org/TR/html4/strict.dtd">
+
+<html>
+
+<head>
+	<title>abolish_events/5</title>
+	<link rel=stylesheet  href="../../styles.css" type="text/css">
+</head>
+
+<body>
+
+<hr />
+<h2><code><a class="back" title="Return to index" href="../index.html#abolish_events5">abolish_events/5</a></code></h2>
+<hr />
+
+<h4>Description</h4>
+
+<blockquote>
+<pre>
+abolish_events(Event, Object, Message, Sender, Monitor)
+</pre>
+<p>
+	Abolishes all matching events.
+</p>
+</blockquote>
+
+<h4>Template and modes</h4>
+
+<blockquote>
+<pre>
+abolish_events(@event, @object_identifier, @callable, @object_identifier, @object_identifier)
+</pre>
+</blockquote>
+
+<h3>Errors</h3>
+
+<blockquote>
+	<dl>
+		<dt>Event is neither a variable nor a valid event identifier:</dt>
+			<dd><code>type_error(event, Event)</code></dd>
+		<dt>Object is neither a variable nor a valid object identifier:</dt>
+			<dd><code>type_error(object_identifier, Object)</code></dd>
+		<dt>Message is neither a variable nor a callable term:</dt>
+			<dd><code>type_error(callable, Message)</code></dd>
+		<dt>Sender is neither a variable nor a valid object identifier:</dt>
+			<dd><code>type_error(object_identifier, Sender)</code></dd>
+		<dt>Monitor is neither a variable nor a valid object identifier:</dt>
+			<dd><code>type_error(object_identifier, Monitor)</code></dd>
+	</dl>
+</blockquote>
+
+<h4>Examples</h4>
+
+<blockquote>
+<pre>
+| ?- abolish_events(_, list, _, _, debugger).
+</pre>
+</blockquote>
+
+<hr />
+<p class="center">
+<strong><a href="specializes_class2_3.html">Previous</a> | <a href="current_event5.html">Next</a> | <a href="../index.html">Table of Contents</a> | <a href="../../bibliography.html">Bibliography</a> | <a href="../../glossary.html">Glossary</a></strong>
+</p>
+<p class="center">
+Last updated on: July 4, 2000
+</p>
+<hr />
+
+</body>
+
+</html>

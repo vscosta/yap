@@ -1,0 +1,81 @@
+<!doctype html public "-//W3C//DTD HTML 4.01//EN"
+	"http://www.w3.org/TR/html4/strict.dtd">
+
+<html>
+
+<head>
+	<title>clause/2</title>
+	<link rel=stylesheet  href="../../styles.css" type="text/css">
+</head>
+
+<body>
+
+<hr />
+<h2><code><a class="back" title="Return to index" href="../index.html#clause2">clause/2</a></code></h2>
+<hr />
+
+<h4>Description</h4>
+
+<blockquote>
+<pre>
+clause(Head, Body)
+</pre>
+<p>
+	Enumerates, by backtracking, the clauses of an object's dynamic predicates. Note however that if the clauses for the dynamic predicate are contained in a category the predicate will fail.
+</p>
+</blockquote>
+
+<h4>Template and modes</h4>
+
+<blockquote>
+<pre>
+clause(?callable, ?body)
+</pre>
+</blockquote>
+
+<h3>Errors</h3>
+
+<blockquote>
+	<dl>
+		<dt>Head is a variable:</dt>
+			<dd><code>instantiation_error</code></dd>
+		<dt>Head is a neither a variable nor a callable term:</dt>
+			<dd><code>type_error(callable, Head)</code></dd>
+		<dt>Body is a neither a variable nor a callable term:</dt>
+			<dd><code>type_error(callable, Body)</code></dd>
+		<dt>The predicate indicator of Head is that of a private predicate:</dt>
+			<dd><code>permission_error(access, private_predicate, Head)</code></dd>
+		<dt>The predicate indicator of Head is that of a protected predicate:</dt>
+			<dd><code>permission_error(access, protected_predicate, Head)</code></dd>
+		<dt>The predicate indicator of Head is that of a static predicate:</dt>
+			<dd><code>permission_error(access, static_predicate, Head)</code></dd>
+		<dt>Head is not a declared predicate:</dt>
+			<dd><code>existence_error(predicate_declaration, Head)</code></dd>
+	</dl>
+</blockquote>
+
+<h4>Examples</h4>
+
+<blockquote>
+<dl>
+		<dt>To retrieve a matching clause of any dynamic predicate in <a class="glossary" title="Go to glossary definition" href="../../glossary.html#this">this</a>:</dt>
+			<dd><code>clause(Head, Body)</code></dd>
+		<dt>To retrieve a matching clause of a public or protected dynamic predicate in <a class="glossary" title="Go to glossary definition" href="../../glossary.html#self">self</a>:</dt>
+			<dd><code>::clause(Head, Body)</code></dd>
+		<dt>To retrieve a matching clause of a public dynamic predicate in an object:</dt>
+			<dd><code>Object::clause(Head, Body)</code></dd>
+</dl>
+</blockquote>
+
+<hr />
+<p class="center">
+<strong><a href="assertz1.html">Previous</a> | <a href="retract1.html">Next</a> | <a href="../index.html">Table of Contents</a> | <a href="../../bibliography.html">Bibliography</a> | <a href="../../glossary.html">Glossary</a></strong>
+</p>
+<p class="center">
+Last updated on: July 4, 2000
+</p>
+<hr />
+
+</body>
+
+</html>

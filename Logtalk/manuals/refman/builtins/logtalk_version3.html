@@ -1,0 +1,68 @@
+<!doctype html public "-//W3C//DTD HTML 4.01//EN"
+	"http://www.w3.org/TR/html4/strict.dtd">
+
+<html>
+
+<head>
+	<title>logtalk_version/3</title>
+	<link rel=stylesheet  href="../../styles.css" type="text/css">
+</head>
+
+<body>
+
+<hr />
+<h2><code><a class="back" title="Return to index" href="../index.html#logtalk_version3">logtalk_version/3</a></code></h2>
+<hr />
+
+<h4>Description</h4>
+
+<blockquote>
+<pre>
+logtalk_version(Major, Minor, Patch)
+</pre>
+<p>
+	Returns the Logtalk pre-processor and runtime version.
+</p>
+</blockquote>
+
+<h4>Template and modes</h4>
+
+<blockquote>
+<pre>
+logtalk_version(?integer, ?integer, ?integer)
+</pre>
+</blockquote>
+
+<h3>Errors</h3>
+
+<blockquote>
+	<dl>
+		<dt>Major is neither a variable nor an integer:</dt>
+			<dd><code>type_error(integer, Major)</code></dd>
+		<dt>Minor is neither a variable nor an integer:</dt>
+			<dd><code>type_error(integer, Minor)</code></dd>
+		<dt>Patch is neither a variable nor an integer:</dt>
+			<dd><code>type_error(integer, Patch)</code></dd>
+	</dl>
+</blockquote>
+
+<h4>Examples</h4>
+
+<blockquote>
+<pre>
+| ?- logtalk_version(Major, Minor, Patch).
+</pre>
+</blockquote>
+
+<hr />
+<p class="center">
+<strong><a href="forall2.html">Previous</a> | <a href="retractall1.html">Next</a> | <a href="../index.html">Table of Contents</a> | <a href="../../bibliography.html">Bibliography</a> | <a href="../../glossary.html">Glossary</a></strong>
+</p>
+<p class="center">
+Last updated on: July 4, 2000
+</p>
+<hr />
+
+</body>
+
+</html>

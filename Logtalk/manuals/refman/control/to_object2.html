@@ -1,0 +1,81 @@
+<!doctype html public "-//W3C//DTD HTML 4.01//EN"
+	"http://www.w3.org/TR/html4/strict.dtd">
+
+<html>
+
+	<head>
+		<title>::/2</title>
+		<link rel=stylesheet  href="../../styles.css" type="text/css">
+	</head>
+
+<body>
+
+<hr />
+
+<h2><code><a class="back" title="Return to index" href="../index.html#to_object2">::/2</a></code></h2>
+<hr />
+
+<h4>Description</h4>
+
+<blockquote>
+<pre>
+Object::Predicate
+
+(Object1, Object2, ...)::Predicate
+
+(Object1; Object2, ...)::Predicate
+
+Object::(Predicate1, Predicate2, ...)
+
+Object::(Predicate1; Predicate2; ...)
+</pre>
+<p>
+Sends a message to an object. The message argument must match a public predicate of the receiver object. We can also send the same message to a set of objects or a set of messages to the same object. The "<CODE>,</CODE>" and "<CODE>;</CODE>" in the list have the usual Prolog meaning.
+</p>
+</blockquote>
+
+<h4>Template and modes</h4>
+
+<blockquote>
+<pre>
++receivers::+messages
+</pre>
+</blockquote>
+
+<h3>Errors</h3>
+
+<blockquote>
+<dl>
+	<dt>Either Object or Predicate is a variable:</dt>
+		<dd><code>instantiation_error</code></dd>
+	<dt>Predicate is declared private:</dt>
+		<dd><code>permission_error(access, private_predicate, Predicate)</code></dd>
+	<dt>Predicate is declared protected:</dt>
+		<dd><code>permission_error(access, protected_predicate, Predicate)</code></dd>
+	<dt>Predicate is not declared:</dt>
+		<dd><code>existence_error(predicate_declaration, Predicate)</code></dd>
+	<dt>Object does not exist:</dt>
+		<dd><code>existence_error(object, Object)</code></dd>
+</dl>
+</blockquote>
+
+<h4>Examples</h4>
+
+<blockquote>
+<pre>
+| ?- list::member(X, [1, 2, 3]).
+</pre>
+</blockquote>
+
+<hr />
+<p class="center">
+<strong><a href="../methods/after3.html">Previous</a> | <a href="to_self1.html">Next</a> | <a href="../index.html">Table of Contents</a> | <a href="../../bibliography.html">Bibliography</a> | <a href="../../glossary.html">Glossary</a></strong>
+</p>
+<p class="center">
+Last updated on: October 7, 2000
+</p>
+<hr />
+
+</body>
+
+</html>

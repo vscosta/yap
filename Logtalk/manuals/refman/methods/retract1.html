@@ -1,0 +1,80 @@
+<!doctype html public "-//W3C//DTD HTML 4.01//EN"
+	"http://www.w3.org/TR/html4/strict.dtd">
+
+<html>
+
+<head>
+	<title>retract/1</title>
+	<link rel=stylesheet  href="../../styles.css" type="text/css">
+</head>
+
+<body>
+
+<hr />
+<h2><code><a class="back" title="Return to index" href="../index.html#retract1">retract/1</a></code></h2>
+<hr />
+
+<h4>Description</h4>
+
+<blockquote>
+<pre>
+retract(Clause)
+retract((Head:-Body))
+</pre>
+<p>
+	Retracts a dynamic clause from an object. Note however that if the clauses for the dynamic predicate are contained in a category the predicate will fail.
+</p>
+</blockquote>
+
+<h4>Template and modes</h4>
+
+<blockquote>
+<pre>
+retract(+clause)
+</pre>
+</blockquote>
+
+<h3>Errors</h3>
+
+<blockquote>
+	<dl>
+		<dt>Head is a variable:</dt>
+			<dd><code>instantiation_error</code></dd>
+		<dt>Head is neither a variable nor a callable term:</dt>
+			<dd><code>type_error(callable, Head)</code></dd>
+		<dt>The predicate indicator of Head is that of a private predicate:</dt>
+			<dd><code>permission_error(modify, private_predicate, Head)</code></dd>
+		<dt>The predicate indicator of Head is that of a protected predicate:</dt>
+			<dd><code>permission_error(modify, protected_predicate, Head)</code></dd>
+		<dt>The predicate indicator of Head is that of a static predicate:</dt>
+			<dd><code>permission_error(modify, static_predicate, Head)</code></dd>
+		<dt>The predicate indicator of Head is not declared:</dt>
+			<dd><code>existence_error(predicate_declaration, Head)</code></dd>
+	</dl>
+</blockquote>
+
+<h4>Examples</h4>
+
+<blockquote>
+	<dl>
+		<dt>To retract a matching clause of any dynamic predicate in <a class="glossary" title="Go to glossary definition" href="../../glossary.html#this">this</a>:</dt>
+			<dd><code>retract(Clause)</code></dd>
+		<dt>To retract a matching clause of a public or protected dynamic predicate in <a class="glossary" title="Go to glossary definition" href="../../glossary.html#self">self</a>:</dt>
+			<dd><code>::retract(Clause)</code></dd>
+		<dt>To retract a matching clause of a public dynamic predicate in an object:</dt>
+			<dd><code>Object::retract(Clause)</code></dd>
+	</dl>
+</blockquote>
+
+<hr />
+<p class="center">
+<strong><a href="clause2.html">Previous</a> | <a href="retractall1.html">Next</a> | <a href="../index.html">Table of Contents</a> | <a href="../../bibliography.html">Bibliography</a> | <a href="../../glossary.html">Glossary</a></strong>
+</p>
+<p class="center">
+Last updated on: July 4, 2000
+</p>
+<hr />
+
+</body>
+
+</html>

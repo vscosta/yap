@@ -1,0 +1,80 @@
+<!doctype html public "-//W3C//DTD HTML 4.01//EN"
+	"http://www.w3.org/TR/html4/strict.dtd">
+
+<html>
+
+<head>
+	<title>implements_protocol/2-3</title>
+	<link rel=stylesheet  href="../../styles.css" type="text/css">
+</head>
+
+<body>
+
+<hr />
+<h2><code><a class="back" title="Return to index" href="../index.html#implements_protocol2_3">implements_protocol/2-3</a></code></h2>
+<hr />
+
+<h4>Description</h4>
+
+<blockquote>
+<pre>
+implements_protocol(Object, Protocol)
+implements_protocol(Category, Protocol)
+
+implements_protocol(Object, Protocol, Scope)
+implements_protocol(Category, Protocol, Scope)
+</pre>
+<p>
+	Enumerates, by backtracking, all pairs of entities such that an object or a category implements a protocol.
+</p>
+</blockquote>
+
+<h4>Template and modes</h4>
+
+<blockquote>
+<pre>
+implements_protocol(?object_identifier, ?protocol_identifier)
+implements_protocol(?category_identifier, ?protocol_identifier)
+
+implements_protocol(?object_identifier, ?protocol_identifier, ?entity_scope)
+implements_protocol(?category_identifier, ?protocol_identifier, ?entity_scope)
+</pre>
+</blockquote>
+
+<h3>Errors</h3>
+
+<blockquote>
+	<dl>
+		<dt>Object is neither a variable nor a valid object identifier:</dt>
+			<dd><code>type_error(object_identifier, Object)</code></dd>
+		<dt>Category is neither a variable nor a valid category identifier:</dt>
+			<dd><code>type_error(category_identifier, Category)</code></dd>
+		<dt>Protocol is neither a variable nor a valid protocol identifier:</dt>
+			<dd><code>type_error(protocol_identifier, Protocol)</code></dd>
+		<dt>Scope is neither a variable nor a valid entity scope:</dt>
+			<dd><code>type_error(entity_scope, Scope)</code></dd>
+	</dl>
+</blockquote>
+
+<h4>Examples</h4>
+
+<blockquote>
+<pre>
+| ?- implements_protocol(List, listp).
+
+| ?- implements_protocol(List, listp, public).
+</pre>
+</blockquote>
+
+<hr />
+<p class="center">
+<strong><a href="extends_protocol2_3.html">Previous</a> | <a href="imports_category2_3.html">Next</a> | <a href="../index.html">Table of Contents</a> | <a href="../../bibliography.html">Bibliography</a> | <a href="../../glossary.html">Glossary</a></strong>
+</p>
+<p class="center">
+Last updated on: July 4, 2000
+</p>
+<hr />
+
+</body>
+
+</html>

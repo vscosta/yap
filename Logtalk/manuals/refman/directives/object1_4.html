@@ -1,0 +1,272 @@
+<!doctype html public "-//W3C//DTD HTML 4.01//EN"
+	"http://www.w3.org/TR/html4/strict.dtd">
+
+<html>
+
+<head>
+	<title>object/1-4</title>
+	<link rel=stylesheet  href="../../styles.css" type="text/css">
+</head>
+
+<body>
+
+<hr />
+<h2><code><a class="back" title="Return to index" href="../index.html#object1_4">object/1-4</a></code></h2>
+<hr />
+
+<h4>Description</h4>
+
+<blockquote>
+<p>
+	<em>Stand-alone objects</em>
+</p>
+<pre>
+object(Object)
+
+object(Object,
+    implements(Protocols))
+
+object(Object,
+    imports(Categories))
+
+object(Object,
+    implements(Protocols),
+    imports(Categories))
+</pre>
+<p>
+	<em>Prototypes</em>
+</p>
+<pre>
+object(Object,
+    extends(Objects))
+
+object(Object,
+    implements(Protocols),
+    extends(Objects))
+
+object(Object,
+    imports(Categories),
+    extends(Objects))
+
+object(Object,
+    implements(Protocols),
+    imports(Categories),
+    extends(Objects))
+</pre>
+<p>
+	<em>Instances</em>
+</p>
+<pre>
+object(Object,
+    instantiates(Classes))
+
+object(Object,
+    implements(Protocols),
+    instantiates(Classes))
+
+object(Object,
+    imports(Categories),
+    instantiates(Classes))
+
+object(Object,
+    implements(Protocols),
+    imports(Categories),
+    instantiates(Classes))
+</pre>
+<p>
+	<em>Classes</em>
+</p>
+<pre>
+object(Object,
+    specializes(Classes))
+
+object(Object,
+    implements(Protocols),
+    specializes(Classes))
+
+object(Object,
+    imports(Categories),
+    specializes(Classes))
+
+object(Object,
+    implements(Protocols),
+    imports(Categories),
+    specializes(Classes))
+</pre>
+<p>
+	<em>Metaclasses</em>
+</p>
+<pre>
+object(Object,
+    instantiates(Classes),
+    specializes(Classes))
+
+object(Object,
+    implements(Protocols),
+    instantiates(Classes),
+    specializes(Classes))
+
+object(Object,
+    imports(Categories),
+    instantiates(Classes),
+    specializes(Classes))
+
+object(Object,
+    implements(Protocols),
+    imports(Categories),
+    instantiates(Classes),
+    specializes(Classes))
+</pre>
+<p>
+	Starting object directive.
+</p>
+</blockquote>
+
+<h4>Template and modes</h4>
+
+<blockquote>
+
+<p>
+	<em>Stand-alone objects</em>
+</p>
+<pre>
+object(+object_identifier)
+
+object(+object_identifier,
+    implements(+implemented_protocols))
+
+object(+object_identifier,
+    imports(+imported_categories))
+
+object(+object_identifier,
+    implements(+implemented_protocols),
+    imports(+imported_categories))
+</pre>
+<p>
+	<em>Prototypes</em>
+</p>
+<pre>
+object(+object_identifier,
+    extends(+extended_objects))
+
+object(+object_identifier,
+    implements(+implemented_protocols),
+    extends(+extended_objects))
+
+object(+object_identifier,
+    imports(+imported_categories),
+    extends(+extended_objects))
+
+object(+object_identifier,
+    implements(+implemented_protocols),
+    imports(+imported_categories),
+    extends(+extended_objects))
+</pre>
+<p>
+	<em>Instances</em>
+</p>
+<pre>
+object(+object_identifier,
+    instantiates(+instantiated_objects))
+
+object(+object_identifier,
+    implements(+implemented_protocols),
+    instantiates(+instantiated_objects))
+
+object(+object_identifier,
+    imports(+imported_categories),
+    instantiates(+instantiated_objects))
+
+object(+object_identifier,
+    implements(+implemented_protocols),
+    imports(+imported_categories),
+    instantiates(+instantiated_objects))
+</pre>
+<p>
+	<em>Classes</em>
+</p>
+<pre>
+object(+object_identifier,
+    specializes(+specialized_objects))
+
+object(+object_identifier,
+    implements(+implemented_protocols),
+    specializes(+specialized_objects))
+
+object(+object_identifier,
+    imports(+imported_categories),
+    specializes(+specialized_objects))
+
+object(+object_identifier,
+    implements(+implemented_protocols),
+    imports(+imported_categories),
+    specializes(+specialized_objects))
+</pre>
+<p>
+	<em>Metaclasses</em>
+</p>
+<pre>
+object(+object_identifier,
+    instantiates(+instantiated_objects),
+    specializes(+specialized_objects))
+
+object(+object_identifier,
+    implements(+implemented_protocols),
+    instantiates(+instantiated_objects),
+    specializes(+specialized_objects))
+
+object(+object_identifier,
+    imports(+imported_categories),
+    instantiates(+instantiated_objects),
+    specializes(+specialized_objects))
+
+object(+object_identifier,
+    implements(+implemented_protocols),
+    imports(+imported_categories),
+    instantiates(+instantiated_objects),
+    specializes(+specialized_objects))
+</pre>
+</blockquote>
+
+
+<h4>Examples</h4>
+
+<blockquote>
+<pre>
+:- object(list).
+
+:- object(list,
+    implements(listp)).
+
+:- object(list,
+    extends(compound)).
+
+:- object(list,
+    implements(listp),
+    extends(compound)).
+
+:- object(object,
+    imports(initialization),
+    instantiates(class)).
+
+:- object(abstract_class,
+    instantiates(class),
+    specializes(object)).
+
+:- object(agent,
+    imports(private::attributes)).
+</pre>
+</blockquote>
+
+<hr />
+<p class="center">
+<strong><a href="initialization1.html">Previous</a> | <a href="protocol1_2.html">Next</a> | <a href="../index.html">Table of Contents</a> | <a href="../../bibliography.html">Bibliography</a> | <a href="../../glossary.html">Glossary</a></strong>
+</p>
+<p class="center">
+Last updated on: July 4, 2000
+</p>
+<hr />
+
+</body>
+
+</html>

@@ -1,0 +1,66 @@
+<!doctype html public "-//W3C//DTD HTML 4.01//EN"
+	"http://www.w3.org/TR/html4/strict.dtd">
+
+<html>
+
+<head>
+	<title>sender/1</title>
+	<link rel=stylesheet  href="../../styles.css" type="text/css">
+</head>
+
+<body>
+
+<hr />
+<h2><code><a class="back" title="Return to index" href="../index.html#sender1">sender/1</a></code></h2>
+<hr />
+
+<h4>Description</h4>
+
+<blockquote>
+<pre>
+sender(Sender)
+</pre>
+<p>
+	Returns the object that has sent the message under processing.
+</p>
+</blockquote>
+
+<h4>Template and modes</h4>
+
+<blockquote>
+<pre>
+sender(-object)
+</pre>
+</blockquote>
+
+<h3>Errors</h3>
+
+<blockquote>
+<p>
+	(none)
+</p>
+</blockquote>
+
+<h4>Examples</h4>
+
+<blockquote>
+<pre>
+test :-
+    sender(Sender),
+    write('executing a method to answer a message sent by '),
+    writeq(Sender), nl.
+</pre>
+</blockquote>
+
+<hr />
+<p class="center">
+<strong><a href="self1.html">Previous</a> | <a href="this1.html">Next</a> | <a href="../index.html">Table of Contents</a> | <a href="../../bibliography.html">Bibliography</a> | <a href="../../glossary.html">Glossary</a></strong>
+</p>
+<p class="center">
+Last updated on: February 10, 2001
+</p>
+<hr />
+
+</body>
+
+</html>

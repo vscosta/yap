@@ -1,0 +1,15 @@
+=================================================================
+Logtalk - Object oriented extension to Prolog
+Release 2.8.4
+
+Copyright (c) 1998-2001 Paulo Moura.  All Rights Reserved.
+=================================================================
+
+
+% plan a trip from london to the aiai conference in edinburgh:
+
+| ?- plan(london)::from(imperial, aiai, L).
+
+L = [[taxi(imperial,lhr)]-[fly(lhr,edin)]-[taxi(edin,aiai)]] ? 
+
+yes

@@ -1,0 +1,82 @@
+<!doctype html public "-//W3C//DTD HTML 4.01//EN"
+	"http://www.w3.org/TR/html4/strict.dtd">
+
+<html>
+
+<head>
+	<title>assertz/1</title>
+	<link rel=stylesheet  href="../../styles.css" type="text/css">
+</head>
+
+<body>
+
+<hr />
+<h2><code><a class="back" title="Return to index" href="../index.html#assertz1">assertz/1</a></code></h2>
+<hr />
+
+<h4>Description</h4>
+
+<blockquote>
+<pre>
+assertz(Clause)
+assertz((Head:-Body))
+</pre>
+<p>
+	Asserts a clause as the last one for an object's dynamic predicate. If the predicate is not already declared, then a dynamic predicate declaration is added to the object.
+</p>
+</blockquote>
+
+<h4>Template and modes</h4>
+
+<blockquote>
+<pre>
+assertz(+clause)
+</pre>
+</blockquote>
+
+<h3>Errors</h3>
+
+<blockquote>
+	<dl>
+		<dt>Clause is a variable:</dt>
+			<dd><code>instantiation_error</code></dd>
+		<dt>Head is a variable:</dt>
+			<dd><code>instantiation_error</code></dd>
+		<dt>Head is a neither a variable nor a callable term:</dt>
+			<dd><code>type_error(callable, Head)</code></dd>
+		<dt>Body cannot be converted to a goal:</dt>
+			<dd><code>type_error(callable, Body)</code></dd>
+		<dt>The predicate indicator of Head is that of a private predicate:</dt>
+			<dd><code>permission_error(modify, private_predicate, Head)</code></dd>
+		<dt>The predicate indicator of Head is that of a protected predicate:</dt>
+			<dd><code>permission_error(modify, protected_predicate, Head)</code></dd>
+		<dt>The predicate indicator of Head is that of a static predicate:</dt>
+			<dd><code>permission_error(modify, static_predicate, Head)</code></dd>
+	</dl>
+</blockquote>
+
+<h4>Examples</h4>
+
+<blockquote>
+	<dl>
+		<dt>To assert a clause as the last one for any dynamic predicate in <a class="glossary" title="Go to glossary definition" href="../../glossary.html#this">this</a>:</dt>
+			<dd><code>assertz(Clause)</code></dd>
+		<dt>To assert a clause as the last one for any public or protected dynamic predicate in <a class="glossary" title="Go to glossary definition" href="../../glossary.html#self">self</a>:</dt>
+			<dd><code>::assertz(Clause)</code></dd>
+		<dt>To assert a clause as the last one for any public dynamic predicate in an object:</dt>
+			<dd><code>Object::assertz(Clause)</code></dd>
+	</dl>
+</blockquote>
+
+<hr />
+<p class="center">
+<strong><a href="asserta1.html">Previous</a> | <a href="clause2.html">Next</a> | <a href="../index.html">Table of Contents</a> | <a href="../../bibliography.html">Bibliography</a> | <a href="../../glossary.html">Glossary</a></strong>
+</p>
+<p class="center">
+Last updated on: July 4, 2000
+</p>
+<hr />
+
+</body>
+
+</html>

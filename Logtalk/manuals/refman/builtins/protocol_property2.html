@@ -1,0 +1,66 @@
+<!doctype html public "-//W3C//DTD HTML 4.01//EN"
+	"http://www.w3.org/TR/html4/strict.dtd">
+
+<html>
+
+<head>
+	<title>protocol_property/2</title>
+	<link rel=stylesheet  href="../../styles.css" type="text/css">
+</head>
+
+<body>
+
+<hr />
+<h2><code><a class="back" title="Return to index" href="../index.html#protocol_property2">protocol_property/2</a></code></h2>
+<hr />
+
+<h4>Description</h4>
+
+<blockquote>
+<pre>
+protocol_property(Protocol, Property)
+</pre>
+<p>
+	Enumerates, by backtracking, the properties associated with the currently defined protocols.
+</p>
+</blockquote>
+
+<h4>Template and modes</h4>
+
+<blockquote>
+<pre>
+protocol_property(?protocol_identifier, ?protocol_property)
+</pre>
+</blockquote>
+
+<h3>Errors</h3>
+
+<blockquote>
+	<dl>
+		<dt>Protocol is neither a variable nor a valid protocol identifier:</dt>
+			<dd><code>type_error(protocol_identifier, Protocol)</code></dd>
+		<dt>Property is neither a variable nor a valid protocol property:</dt>
+			<dd><code>domain_error(protocol_property, Property)</code></dd>
+	</dl>
+</blockquote>
+
+<h4>Examples</h4>
+
+<blockquote>
+<pre>
+| ?- protocol_property(listp, Property).
+</pre>
+</blockquote>
+
+<hr />
+<p class="center">
+<strong><a href="object_property2.html">Previous</a> | <a href="create_category4.html">Next</a> | <a href="../index.html">Table of Contents</a> | <a href="../../bibliography.html">Bibliography</a> | <a href="../../glossary.html">Glossary</a></strong>
+</p>
+<p class="center">
+Last updated on: July 4, 2000
+</p>
+<hr />
+
+</body>
+
+</html>

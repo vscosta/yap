@@ -1,0 +1,73 @@
+<!doctype html public "-//W3C//DTD HTML 4.01//EN"
+	"http://www.w3.org/TR/html4/strict.dtd">
+
+<html>
+
+<head>
+	<title>logtalk_load/1</title>
+	<link rel=stylesheet  href="../../styles.css" type="text/css">
+</head>
+
+<body>
+
+<hr />
+<h2><code><a class="back" title="Return to index" href="../index.html#logtalk_load1">logtalk_load/1</a></code></h2>
+<hr />
+
+<h4>Description</h4>
+
+<blockquote>
+<pre>
+logtalk_load(Entities)
+</pre>
+<p>
+Compiles to disk and then loads to memory a list of Logtalk entities (objects, protocols or categories) using the default compiler options specified in the Logtalk configuration file. The Logtalk file name extension (by default, <code>.lgt</code>) should be omitted. Note that the argument is a list of entity/file names, not file paths.
+
+</p>
+</blockquote>
+
+<h4>Template and modes</h4>
+
+<blockquote>
+<pre>
+logtalk_load(+atom_list)
+</pre>
+</blockquote>
+
+<h3>Errors</h3>
+
+<blockquote>
+	<dl>
+		<dt>Entities is a variable:</dt>
+			<dd><code>instantiation_error</code></dd>
+		<dt>Entities is neither a variable nor a proper list:</dt>
+			<dd><code>type_error(list, Entities)</code></dd>
+		<dt>One of the entities is not an atom:</dt>
+			<dd><code>type_error(atom, Entity)</code></dd>
+		<dt>One of the entities does not exist in the current working directory:</dt>
+			<dd><code>existence_error(entity, Entity)</code></dd>
+	</dl>
+</blockquote>
+
+<h4>Examples</h4>
+
+<blockquote>
+<pre>
+| ?- logtalk_load([tree]).
+
+| ?- logtalk_load([listp, list]).
+</pre>
+</blockquote>
+
+<hr />
+<p class="center">
+<strong><a href="logtalk_compile1.html">Previous</a> | <a href="logtalk_load2.html">Next</a> | <a href="../index.html">Table of Contents</a> | <a href="../../bibliography.html">Bibliography</a> | <a href="../../glossary.html">Glossary</a></strong>
+</p>
+<p class="center">
+Last updated on: October 1, 2000
+</p>
+<hr />
+
+</body>
+
+</html>

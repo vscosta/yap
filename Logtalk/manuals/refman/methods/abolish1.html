@@ -1,0 +1,86 @@
+<!doctype html public "-//W3C//DTD HTML 4.01//EN"
+	"http://www.w3.org/TR/html4/strict.dtd">
+
+<html>
+
+<head>
+	<title>abolish/1</title>
+	<link rel=stylesheet  href="../../styles.css" type="text/css">
+</head>
+
+<body>
+
+<hr />
+<h2><code><a class="back" title="Return to index" href="../index.html#abolish1">abolish/1</a></code></h2>
+<hr />
+
+<h4>Description</h4>
+
+<blockquote>
+<pre>
+abolish(Predicate)
+abolish(Functor/Arity)
+</pre>
+<p>
+	Removes a dynamic predicate from an object database. Note however that if the dynamic predicate is declared in a category the predicate will fail.
+</p>
+</blockquote>
+
+<h4>Template and modes</h4>
+
+<blockquote>
+<pre>
+abolish(+predicate_indicator)
+</pre>
+</blockquote>
+
+<h3>Errors</h3>
+
+<blockquote>
+	<dl>
+		<dt>Predicate is a variable:</dt>
+			<dd><code>instantiation_error</code></dd>
+		<dt>Predicate is neither a variable nor a valid predicate indicator:</dt>
+			<dd><code>type_error(predicate_indicator, Predicate)</code></dd>
+		<dt>Functor is neither a variable nor an atom:</dt>
+			<dd><code>type_error(atom, Functor)</code></dd>
+		<dt>Arity is neither a variable nor an integer:</dt>
+			<dd><code>type_error(integer, Arity)</code></dd>
+		<dt>Predicate is statically declared:</dt>
+			<dd><code>permission_error(modify, predicate_declaration, Functor/Arity)</code></dd>
+		<dt>Predicate is a private predicate:</dt>
+			<dd><code>permission_error(modify, private_predicate, Functor/Arity)</code></dd>
+		<dt>Predicate is a protected predicate:</dt>
+			<dd><code>permission_error(modify, protected_predicate, Functor/Arity)</code></dd>
+		<dt>Predicate is a static predicate:</dt>
+			<dd><code>permission_error(modify, static_predicate, Functor/Arity)</code></dd>
+		<dt>Predicate is not declared:</dt>
+			<dd><code>existence_error(predicate_declaration, Functor/Arity)</code></dd>
+	</dl>
+</blockquote>
+
+<h4>Examples</h4>
+
+<blockquote>
+	<dl>
+		<dt>To abolish any dynamic predicate in <a class="glossary" title="Go to glossary definition" href="../../glossary.html#this">this</a>:</dt>
+			<dd><code>abolish(Predicate)</code></dd>
+		<dt>To abolish a public or protected dynamic predicate in <a class="glossary" title="Go to glossary definition" href="../../glossary.html#self">self</a>:</dt>
+			<dd><code>::abolish(Predicate)</code></dd>
+		<dt>To abolish a public dynamic predicate in an object:</dt>
+			<dd><code>Object::abolish(Predicate)</code></dd>
+	</dl>
+</blockquote>
+
+<hr />
+<p class="center">
+<strong><a href="predicate_property2.html">Previous</a> | <a href="asserta1.html">Next</a> | <a href="../index.html">Table of Contents</a> | <a href="../../bibliography.html">Bibliography</a> | <a href="../../glossary.html">Glossary</a></strong>
+</p>
+<p class="center">
+Last updated on: July 4, 2000
+</p>
+<hr />
+
+</body>
+
+</html>

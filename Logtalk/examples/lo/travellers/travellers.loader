@@ -1,0 +1,44 @@
+
+:- initialization(
+	logtalk_load([
+		aberdeen,
+		aberystwyth,
+		birmingham,
+		brighton,
+		bristol,
+		cambridge,
+		cardiff,
+		carlisle,
+		dover,
+		edinburgh,
+		exeter,
+		glasgow,
+		hull,
+		leeds,
+		liverpool,
+		london,
+		manchester,
+		newcastle,
+		nottingham,
+		oxford,
+		penzance,
+		portsmouth,
+		sheffield,
+		swansea,
+		york,
+
+		salesman,
+
+		circular,
+		driving,
+		geographic2,
+		incremental,
+		metric1,
+		permute,
+		presort,
+
+		location2,
+
+		descend,
+		quick1,
+		natural])).

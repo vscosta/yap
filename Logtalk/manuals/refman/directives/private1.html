@@ -1,0 +1,61 @@
+<!doctype html public "-//W3C//DTD HTML 4.01//EN"
+	"http://www.w3.org/TR/html4/strict.dtd">
+
+<html>
+
+<head>
+	<title>private/1</title>
+	<link rel=stylesheet  href="../../styles.css" type="text/css">
+</head>
+
+<body>
+
+<hr />
+<h2><code><a class="back" title="Return to index" href="../index.html#private1">private/1</a></code></h2>
+<hr />
+
+<h4>Description</h4>
+
+<blockquote>
+<pre>
+private(Predicate)
+private(Predicate1, Predicate2, ...)
+private([Predicate1, Predicate2, ...])
+</pre>
+<p>
+	Declares private predicates. A private predicate can only be called from the object containing the private directive.
+</p>
+</blockquote>
+
+<h4>Template and modes</h4>
+
+<blockquote>
+<pre>
+private(+predicate_indicator_term)
+</pre>
+</blockquote>
+
+<h4>Examples</h4>
+
+<blockquote>
+<pre>
+:- private(counter/1).
+
+:- private(init/1, free/1).
+
+:- private([data/3, key/1, keys/1]).
+</pre>
+</blockquote>
+
+<hr />
+<p class="center">
+<strong><a href="op3.html">Previous</a> | <a href="protected1.html">Next</a> | <a href="../index.html">Table of Contents</a> | <a href="../../bibliography.html">Bibliography</a> | <a href="../../glossary.html">Glossary</a></strong>
+</p>
+<p class="center">
+Last updated on: July 4, 2000
+</p>
+<hr />
+
+</body>
+
+</html>

@@ -1,0 +1,77 @@
+<!doctype html public "-//W3C//DTD HTML 4.01//EN"
+	"http://www.w3.org/TR/html4/strict.dtd">
+
+<html>
+
+<head>
+	<title>parameter/2</title>
+	<link rel=stylesheet  href="../../styles.css" type="text/css">
+</head>
+
+<body>
+
+<hr />
+<h2><code><a class="back" title="Return to index" href="../index.html#parameter2">parameter/2</a></code></h2>
+<hr />
+
+<h4>Description</h4>
+
+<blockquote>
+<pre>
+parameter(Number, Term)
+</pre>
+<p>
+	Used only in <a class="glossary" title="Go to glossary definition" href="../../glossary.html#parametric">parametric objects</a>, this method returns parameter values by using the parameter position in the entity identifier. See also <a  href="this1.html"><code>this/1</code></a>.
+</p>
+</blockquote>
+
+<h4>Template and modes</h4>
+
+<blockquote>
+<pre>
+parameter(+integer, ?term)
+</pre>
+</blockquote>
+
+<h3>Errors</h3>
+
+<blockquote>
+	<dl>
+		<dt>Number is a variable:</dt>
+			<dd><code>instantiation_error</code></dd>
+		<dt>Number is neither a variable nor an integer value:
+			<dd><code>type_error(integer, Number)</code></dd>
+		<dt>Object identifier is not a compound term:</dt>
+			<dd><code>type_error(compound, Object)</code></dd>
+		<dt>Number is a negative integer value:</dt>
+			<dd><code>domain_error(not_less_than_zero, Number)</code></dd>
+	</dl>
+</blockquote>
+
+<h4>Examples</h4>
+
+<blockquote>
+<pre>
+:- object(box(_Colour)).
+
+    ...
+    
+    colour(Colour) :-
+        parameter(1, Colour).
+
+    ...
+</pre>
+</blockquote>
+
+<hr />
+<p class="center">
+<strong><a href="../builtins/retractall1.html">Previous</a> | <a href="self1.html">Next</a> | <a href="../index.html">Table of Contents</a> | <a href="../../bibliography.html">Bibliography</a> | <a href="../../glossary.html">Glossary</a></strong>
+</p>
+<p class="center">
+Last updated on: July 4, 2000
+</p>
+<hr />
+
+</body>
+
+</html>

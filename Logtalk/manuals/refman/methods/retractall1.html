@@ -1,0 +1,79 @@
+<!doctype html public "-//W3C//DTD HTML 4.01//EN"
+	"http://www.w3.org/TR/html4/strict.dtd">
+
+<html>
+
+<head>
+	<title>retractall/1</title>
+	<link rel=stylesheet  href="../../styles.css" type="text/css">
+</head>
+
+<body>
+
+<hr />
+<h2><code><a class="back" title="Return to index" href="../index.html#retractall1">retractall/1</a></code></h2>
+<hr />
+
+<h4>Description</h4>
+
+<blockquote>
+<pre>
+retractall(Head)
+</pre>
+<p>
+	Retracts all matching predicates from an object. Note however that if the clauses for the dynamic predicate are contained in a category the predicate will fail.
+</p>
+</blockquote>
+
+<h4>Template and modes</h4>
+
+<blockquote>
+<pre>
+retractall(+callable)
+</pre>
+</blockquote>
+
+<h3>Errors</h3>
+
+<blockquote>
+<dl>
+	<dt>Head is a variable:</dt>
+		<dd><code>instantiation_error</code></dd>
+	<dt>Head is neither a variable nor a callable term:</dt>
+		<dd><code>type_error(callable, Head)</code></dd>
+	<dt>The predicate indicator of Head is that of a private predicate:</dt>
+		<dd><code>permission_error(modify, private_predicate, Head)</code></dd>
+	<dt>The predicate indicator of Head is that of a protected predicate:</dt>
+		<dd><code>permission_error(modify, protected_predicate, Head)</code></dd>
+	<dt>The predicate indicator of Head is that of a static predicate:</dt>
+		<dd><code>permission_error(modify, static_predicate, Head)</code></dd>
+	<dt>The predicate indicator of Head is not declared:</dt>
+		<dd><code>existence_error(predicate_declaration, Head)</code></dd>
+</dl>
+</blockquote>
+
+<h4>Examples</h4>
+
+<blockquote>
+<dl>
+	<dt>To retract all matching predicate definitions in <a class="glossary" title="Go to glossary definition" href="../../glossary.html#this">this</a>:</dt>
+		<dd><code>retractall(Head)</code></dd>
+	<dt>To retract all matching public or protected predicate definitions in <a class="glossary" title="Go to glossary definition" href="../../glossary.html#self">self</a>:</dt>
+		<dd><code>::retractall(Head)</code></dd>
+	<dt>To retract all matching public predicate definitions in an object:</dt>
+		<dd><code>Object::retractall(Head)</code></dd>
+</dl>
+</blockquote>
+
+<hr />
+<p class="center">
+<strong><a href="retract1.html">Previous</a> | <a href="bagof3.html">Next</a> | <a href="../index.html">Table of Contents</a> | <a href="../../bibliography.html">Bibliography</a> | <a href="../../glossary.html">Glossary</a></strong>
+</p>
+<p class="center">
+Last updated on: July 4, 2000
+</p>
+<hr />
+
+</body>
+
+</html>

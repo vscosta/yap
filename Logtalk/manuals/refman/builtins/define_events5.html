@@ -1,0 +1,74 @@
+<!doctype html public "-//W3C//DTD HTML 4.01//EN"
+	"http://www.w3.org/TR/html4/strict.dtd">
+
+<html>
+
+<head>
+	<title>define_events/2</title>
+	<link rel=stylesheet  href="../../styles.css" type="text/css">
+</head>
+
+<body>
+
+<hr />
+<h2><code><a class="back" title="Return to index" href="../index.html#define_events5">define_events/5</a></code></h2>
+<hr />
+
+<h4>Description</h4>
+
+<blockquote>
+<pre>
+define_events(Event, Object, Message, Sender, Monitor)
+</pre>
+<p>
+	Defines a new set of events.
+</p>
+</blockquote>
+
+<h4>Template and modes</h4>
+
+<blockquote>
+<pre>
+define_events(@event, @object_identifier, @callable, @object_identifier, +object_identifier)
+</pre>
+</blockquote>
+
+<h3>Errors</h3>
+
+<blockquote>
+	<dl>
+		<dt>Event is neither a variable nor a valid event identifier:</dt>
+			<dd><code>type_error(event, Event)</code></dd>
+		<dt>Object is neither a variable nor a valid object identifier:</dt>
+			<dd><code>type_error(object_identifier, Object)</code></dd>
+		<dt>Message is neither a variable nor a callable term:</dt>
+			<dd><code>type_error(callable, Message)</code></dd>
+		<dt>Sender is neither a variable nor a valid object identifier:</dt>
+			<dd><code>type_error(object_identifier, Sender)</code></dd>
+		<dt>Monitor is a variable:</dt>
+			<dd><code>instantiation_error</code></dd>
+		<dt>Monitor is neither a variable nor a valid object identifier:</dt>
+			<dd><code>type_error(object_identifier, Monitor)</code></dd>
+	</dl>
+</blockquote>
+
+<h4>Examples</h4>
+
+<blockquote>
+<pre>
+| ?- define_events(_, list, member(_, _), _ , debugger).
+</pre>
+</blockquote>
+
+<hr />
+<p class="center">
+<strong><a href="current_event5.html">Previous</a> | <a href="logtalk_compile1.html">Next</a> | <a href="../index.html">Table of Contents</a> | <a href="../../bibliography.html">Bibliography</a> | <a href="../../glossary.html">Glossary</a></strong>
+</p>
+<p class="center">
+Last updated on: July 4, 2000
+</p>
+<hr />
+
+</body>
+
+</html>

@@ -1,0 +1,38 @@
+=================================================================
+Logtalk - Object oriented extension to Prolog
+Release 2.8.4
+
+Copyright (c) 1998-2001 Paulo Moura.  All Rights Reserved.
+=================================================================
+
+
+% build a route by adding one town at a time:
+
+| ?- incremental::route([london, brighton, portsmouth, exeter, oxford, aberystwyth], Route).
+
+Route = oxford~london~portsmouth~brighton~exeter~aberystwyth ?
+yes
+
+
+% presort towns by geographical distance before using the incremental algorithm:
+
+| ?- presort::route([london, brighton, portsmouth, exeter, oxford, aberystwyth], Route).
+
+Route = brighton~london~oxford~portsmouth~exeter~aberystwyth ?
+yes
+
+
+% come home after the journey:
+
+| ?- circular::route([london, brighton, portsmouth, exeter, oxford, aberystwyth], Route).
+
+Route = london~brighton~portsmouth~exeter~aberystwyth~oxford~london ?
+yes
+
+
+% blind search by generating permutations of the list of towns:
+
+| ?- permute::route([london, brighton, portsmouth, exeter, oxford, aberystwyth], Route).
+
+Route = (aberystwyth~exeter~portsmouth~brighton~london~oxford,273.6237583942784) ? 
+yes

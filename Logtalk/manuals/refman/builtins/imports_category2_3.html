@@ -1,0 +1,74 @@
+<!doctype html public "-//W3C//DTD HTML 4.01//EN"
+	"http://www.w3.org/TR/html4/strict.dtd">
+
+<html>
+
+<head>
+	<title>imports_category/2-3</title>
+	<link rel=stylesheet  href="../../styles.css" type="text/css">
+</head>
+
+<body>
+
+<hr />
+<h2><code><a class="back" title="Return to index" href="../index.html#imports_category2_3">imports_category/2-3</a></code></h2>
+<hr />
+
+<h4>Description</h4>
+
+<blockquote>
+<pre>
+imports_category(Object, Category)
+
+imports_category(Object, Category, Scope)
+</pre>
+<p>
+	Enumerates, by backtracking, all pairs of objects and categories such that the first one imports the other.
+</p>
+</blockquote>
+
+<h4>Template and modes</h4>
+
+<blockquote>
+<pre>
+imports_category(?object_identifier, ?category_identifier)
+
+imports_category(?object_identifier, ?category_identifier, ?entity_scope)
+</pre>
+</blockquote>
+
+<h3>Errors</h3>
+
+<blockquote>
+	<dl>
+		<dt>Object is neither a variable nor a valid object identifier:</dt>
+			<dd><code>type_error(object_identifier, Object)</code></dd>
+		<dt>Category is neither a variable nor a valid category identifier:</dt>
+			<dd><code>type_error(category_identifier, Category)</code></dd>
+		<dt>Scope is neither a variable nor a valid entity scope:</dt>
+			<dd><code>type_error(entity_scope, Scope)</code></dd>
+	</dl>
+</blockquote>
+
+<h4>Examples</h4>
+
+<blockquote>
+<pre>
+| ?- imports_category(debugger, monitoring).
+
+| ?- imports_category(Object, monitoring, protected).
+</pre>
+</blockquote>
+
+<hr />
+<p class="center">
+<strong><a href="implements_protocol2_3.html">Previous</a> | <a href="instantiates_class2_3.html">Next</a> | <a href="../index.html">Table of Contents</a> | <a href="../../bibliography.html">Bibliography</a> | <a href="../../glossary.html">Glossary</a></strong>
+</p>
+<p class="center">
+Last updated on: July 4, 2000
+</p>
+<hr />
+
+</body>
+
+</html>
