@@ -1411,9 +1411,7 @@ Restore(char *s, char *lib_dir)
   restore_regs(restore_mode);
   in_limbo = FALSE;
   /*#endif*/
-  fprintf(stderr,"1 CurrentModule is %p\n", CurrentModule);
   RestoreHeap(old_ops);
-  fprintf(stderr,"1.5 CurrentModule is %p\n", CurrentModule);
   switch(restore_mode) {
   case DO_EVERYTHING:
     if (OldHeapBase != Yap_HeapBase ||

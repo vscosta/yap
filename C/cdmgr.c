@@ -11,8 +11,12 @@
 * File:		cdmgr.c							 *
 * comments:	Code manager						 *
 *									 *
-* Last rev:     $Date: 2004-05-13 20:54:57 $,$Author: vsc $						 *
+* Last rev:     $Date: 2004-05-13 21:36:45 $,$Author: vsc $						 *
 * $Log: not supported by cvs2svn $
+* Revision 1.121  2004/05/13 20:54:57  vsc
+* debugger fixes
+* make sure we always go back to current module, even during initizlization.
+*
 * Revision 1.120  2004/04/27 16:21:16  vsc
 * stupid bug
 *
@@ -2373,11 +2377,11 @@ search_for_static_predicate_in_use(PredEntry *p, int check_everything)
   choiceptr b_ptr = B;
   CELL *env_ptr = ENV;
 
-  if (check_everything) {
+  if (check_everything && P) {
     PredEntry *pe = EnvPreg(P);
-    if (p == pe) return(TRUE);
+    if (p == pe) return TRUE;
     pe = EnvPreg(CP);
-    if (p == pe) return(TRUE);
+    if (p == pe) return TRUE;
   }
   do {
     /* check first environments that are younger than our latest choicepoint */
