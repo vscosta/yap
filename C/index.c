@@ -5477,9 +5477,9 @@ static void
 remove_from_index(PredEntry *ap, path_stack_entry *sp, ClauseDef *cls, yamop *bg, yamop *lt) {
   /* last clause to experiment with */
   yamop *ipc = ap->cs.p_code.TrueCodeOfPred;
-  sp = init_block_stack(sp, ipc, ap);
   UInt current_arity = 0;
 
+  sp = init_block_stack(sp, ipc, ap);
   if (ap->cs.p_code.NOfClauses == 1) {
     if (ap->PredFlags & IndexedPredFlag) {
       Yap_RemoveIndexation(ap);
