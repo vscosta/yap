@@ -107,15 +107,10 @@ Eval(Term t, E_ARGS)
     ExpEntry *p;
 
     if (EndOfPAEntr(p = RepExpProp(GetExpProp(name, 0)))) {
-      Term ti[2];
-
       /* error */
-      ti[0] = t;
-      ti[1] = MkIntTerm(0);
-      t = MkApplTerm(MkFunctor(LookupAtom("/"),2), 2, ti);
       Error(TYPE_ERROR_EVALUABLE, t,
-	    "functor %s/%d for arithmetic expression",
-	    RepAtom(name)->StrOfAE,0);
+	    "atom %s for arithmetic expression",
+	    RepAtom(name)->StrOfAE);
       P = (yamop *)FAILCODE;
       RERROR();
     }

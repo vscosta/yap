@@ -225,7 +225,7 @@ reconsult(Fs) :-
 	;
 		throw(error(permission_error(input,stream,Y),include(X)))
 	),
-	'$put_value'('$included_file',OY).
+	'$set_value'('$included_file',OY).
 '$include'(V, _) :- 
 	throw(error(type_error(atom,V),include(V))).
 

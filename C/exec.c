@@ -516,7 +516,10 @@ p_execute0(void)
   Prop            pe;
   SMALLUNSGN      mod = LookupModule(tmod);
 
-  if (IsAtomTerm(t)) {
+  if (IsVarTerm(t)) {
+    Error(INSTANTIATION_ERROR,ARG3,"call/1");    
+    return(FALSE);
+  } else if (IsAtomTerm(t)) {
     Atom a = AtomOfTerm(t);
     pe = PredPropByAtom(a, mod);
   } else if (IsApplTerm(t)) {
@@ -543,8 +546,10 @@ p_execute0(void)
 #endif
     }
     pe = PredPropByFunc(f, mod);
-  } else
-    return (FALSE);	/* for the moment */
+  } else {
+    Error(TYPE_ERROR_CALLABLE,ARG3,"call/1");    
+    return(FALSE);
+  }
   /*	N = arity; */
   /* call may not define new system predicates!! */
   return (CallPredicate(RepPredProp(pe), B));
