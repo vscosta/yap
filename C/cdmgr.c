@@ -11,8 +11,12 @@
 * File:		cdmgr.c							 *
 * comments:	Code manager						 *
 *									 *
-* Last rev:     $Date: 2005-01-28 23:14:34 $,$Author: vsc $						 *
+* Last rev:     $Date: 2005-02-08 04:05:23 $,$Author: vsc $						 *
 * $Log: not supported by cvs2svn $
+* Revision 1.150  2005/01/28 23:14:34  vsc
+* move to Yap-4.5.7
+* Fix clause size
+*
 * Revision 1.149  2005/01/05 05:35:01  vsc
 * get rid of debugging stub.
 *
@@ -2058,12 +2062,16 @@ p_compile_dynamic(void)
   Term            t1 = Deref(ARG2);
   Term            mod = Deref(ARG4);
   yamop        *code_adr;
-  int             old_optimize;
+  int             old_optimize, mode;
 
-  if (IsVarTerm(t1) || !IsAtomTerm(t1))
+  if (IsVarTerm(t1) || !IsAtomicTerm(t1))
     return FALSE;
   if (IsVarTerm(mod) || !IsAtomTerm(mod))
     return FALSE;
+  if (IsAtomTerm(t1)) {
+    if (RepAtom(AtomOfTerm(t1))->StrOfAE[0] == 'f') mode = asserta;
+    else mode = assertz;						    
+  } else mode = IntegerOfTerm(t1);
   old_optimize = optimizer_on;
   optimizer_on = FALSE;
   YAPEnterCriticalSection();
@@ -2074,7 +2082,7 @@ p_compile_dynamic(void)
     
     
     optimizer_on = old_optimize;
-    addclause(t, code_adr, RepAtom(AtomOfTerm(t1))->StrOfAE[0] == 'f', mod, &ARG5);
+    addclause(t, code_adr, mode , mod, &ARG5);
   } 
   if (Yap_ErrorMessage) {
     if (!Yap_Error_Term)
@@ -2425,7 +2433,7 @@ p_new_multifile(void)
   if (IsIntTerm(t))
     arity = IntOfTerm(t);
   else
-    return (FALSE);
+    return FALSE;
   if (arity == 0) 
     pe = RepPredProp(PredPropByAtom(at, mod));
   else 

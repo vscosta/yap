@@ -388,7 +388,7 @@ nth_clause(V,I,R) :-
 	M1 = M.
 '$nth_clause_ref'(P,M,I,R) :-
 	'$nth_instancep'(M:P,I,R).
-	
+
 retract(M:C) :- !,
 	'$retract'(C,M).
 retract(C) :-

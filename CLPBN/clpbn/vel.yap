@@ -68,11 +68,11 @@ get_rid_of_ev_vars([V|LVs0],[V|LVs]) :-
 
 
 find_all_clpbn_vars([], [], [], []) :- !.
-find_all_clpbn_vars([V|Vs], [Var|LV], ProcessedVars, [table(I,Table,Deps,Sizes)|Tables]) :-
-	var_with_deps(V, Table, Deps, Sizes, Ev, Vals), !,
+find_all_clpbn_vars([V|Vs], [Var|LV], ProcessedVars, [table(I,Table,Parents,Sizes)|Tables]) :-
+	var_with_deps(V, Table, Parents, Sizes, Ev, Vals), !,
 	% variables with evidence should not be processed.
 	(var(Ev) ->
-	    Var = var(V,I,Sz,Vals,Ev,_,_),
+	    Var = var(V,I,Sz,Vals,Parents,Ev,_,_),
 	    get_dist_size(V,Sz),
 	    ProcessedVars = [Var|ProcessedVars0]
 	;
@@ -81,9 +81,9 @@ find_all_clpbn_vars([V|Vs], [Var|LV], ProcessedVars, [table(I,Table,Deps,Sizes)|
 	find_all_clpbn_vars(Vs, LV, ProcessedVars0, Tables).
 
 var_with_deps(V, Table, Deps, Sizes, Ev, Vals) :-
-	clpbn:get_atts(V, [dist(Vals,OTable,VDeps)]),
+	clpbn:get_atts(V, [dist(Vals,OTable,Parents)]),
 	( clpbn:get_atts(V, [evidence(Ev)]) -> true ; true),
-	reorder_table([V|VDeps],Sizes0,OTable,Deps0,Table0),
+	reorder_table([V|Parents],Sizes0,OTable,Deps0,Table0),
 	simplify_evidence(Deps0, Table0, Deps0, Sizes0, Table, Deps, Sizes).
 
 get_sizes([], []).
@@ -146,7 +146,7 @@ add_table_deps([V|Deps], I, Deps0, Table, Sizes, DepGraph0, [V-tab(Table,Deps0,S
 	add_table_deps(Deps, I, Deps0, Table, Sizes, DepGraph0, DepGraph).
 
 add_table_deps_to_variables([], []).
-add_table_deps_to_variables([var(V,_,_,_,_,Deps,K)|LV], DepGraph) :-
+add_table_deps_to_variables([var(V,_,_,_,_,_,Deps,K)|LV], DepGraph) :-
 	steal_deps_for_variable(DepGraph, V, NDepGraph, Deps),
 	compute_size(Deps,[],K),
 %	( clpbn:get_atts(V,[key(Key)]) -> write(Key:K), nl ; true),
@@ -186,14 +186,16 @@ process(LV0, _, Out) :-
 find_best([], V, _TF, V, _, [], _).
 %:-
 %	clpbn:get_atts(V,[key(K)]), write(chosen:K:TF), nl.
-find_best([var(V,I,Sz,Vals,Ev,Deps,K)|LV], _, Threshold, VF, NWorktables, LVF, Inputs) :-
+% root_with_single_child
+%find_best([var(V,I,_,_,[],Ev,[Dep],K)|LV], _, _, V, [Dep], LVF, Inputs) :- !.	
+find_best([var(V,I,Sz,Vals,Parents,Ev,Deps,K)|LV], _, Threshold, VF, NWorktables, LVF, Inputs) :-
 	( K < Threshold ; Threshold < 0),
 	clpbn_not_var_member(Inputs, V), !,
 	find_best(LV, V, K, VF, WorkTables,LV0, Inputs),
 	(V == VF ->
 	    LVF = LV0, Deps = NWorktables
 	;
-	    LVF = [var(V,I,Sz,Vals,Ev,Deps,K)|LV0], WorkTables = NWorktables
+	    LVF = [var(V,I,Sz,Vals,Parents,Ev,Deps,K)|LV0], WorkTables = NWorktables
 	).
 find_best([V|LV], V0, Threshold, VF, WorkTables, [V|LVF], Inputs) :-
 	find_best(LV, V0, Threshold, VF, WorkTables, LVF, Inputs).
@@ -227,7 +229,7 @@ generate_szs_with_evidence([_|Out],Ev,[not_ok|Evs]) :-
 
 
 fetch_tables([], []).
-fetch_tables([var(_,_,_,_,_,Deps,_)|LV0], Tables) :-
+fetch_tables([var(_,_,_,_,_,_,Deps,_)|LV0], Tables) :-
 	append(Deps,Tables0,Tables),
 	fetch_tables(LV0, Tables0).
 
@@ -326,10 +328,10 @@ project_inner_loop(I,Sz,[_|Evs],NBase,F,Table,Ent0,Ent) :- !,
 	
 	
 include([],_,_,[]).
-include([var(V,P,VSz,D,Ev,Tabs,Est)|LV],tab(T,Vs,Sz),V1,[var(V,P,VSz,D,Ev,Tabs,Est)|NLV]) :-
+include([var(V,P,VSz,D,Parents,Ev,Tabs,Est)|LV],tab(T,Vs,Sz),V1,[var(V,P,VSz,D,Parents,Ev,Tabs,Est)|NLV]) :-
 	clpbn_not_var_member(Vs,V), !,
 	include(LV,tab(T,Vs,Sz),V1,NLV).
-include([var(V,P,VSz,D,Ev,Tabs,_)|LV],Table,NV,[var(V,P,VSz,D,Ev,NTabs,NEst)|NLV]) :-
+include([var(V,P,VSz,D,Parents,Ev,Tabs,_)|LV],Table,NV,[var(V,P,VSz,D,Parents,Ev,NTabs,NEst)|NLV]) :-
 	update_tables(Tabs,NTabs,Table,NV),
 	compute_size(NTabs, [], NEst),
 %	( clpbn:get_atts(V,[key(Key)]) -> write(Key:NEst), nl ; true),

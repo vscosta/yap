@@ -3,6 +3,8 @@
 %
 %
 
+
+
 :- module(evidence, [
 	store_evidence/1,
         incorporate_evidence/2
@@ -22,7 +24,7 @@
 
 :- meta_predicate store_evidence(:).
 
-:- dynamic node/4, reachable_from_evidence/2, evidence/2.
+:- dynamic node/4, edge/2, evidence/2.
 
 %
 % new evidence storage algorithm. The idea is that instead of 
@@ -39,8 +41,7 @@ store_evidence(G) :-
 
 compute_evidence(G, PreviousSolver) :-
 	catch(call_residue(G, Vars), Ball, evidence_error(Ball,PreviousSolver)), !,
-	store_graph(Vars,KEv),
-	mark_from_evidence(Vars,KEv),
+	store_graph(Vars),
 	set_clpbn_flag(solver,PreviousSolver).
 compute_evidence(_, PreviousSolver) :-
 	set_clpbn_flag(solver,PreviousSolver).
@@ -50,22 +51,21 @@ evidence_error(Ball,PreviousSolver) :-
 	set_clpbn_flag(solver,PreviousSolver),
 	throw(Ball).
 
-store_graph([], _).
-store_graph([_-node(K,Dom,CPT,TVs,Ev)|Vars], Kev) :-
+store_graph([]).
+store_graph([_-node(K,Dom,CPT,TVs,Ev)|Vars]) :-
 	\+ node(K,_,_,_), !,
 	assert(node(K,Dom,CPT,TVs)),
-	( nonvar(Ev) -> assert(evidence(K,Ev)), Kev = K ; true),
-	store_graph(Vars, Kev).
-store_graph([_|Vars], Kev) :-
-	store_graph(Vars, Kev).
+	( nonvar(Ev) -> assert(evidence(K,Ev)) ; true),
+	add_links(TVs,K),
+	store_graph(Vars).
+store_graph([_|Vars]) :-
+	store_graph(Vars).
 
-mark_from_evidence([], _).
-mark_from_evidence([_-node(K,_,_,_,_)|Vars], Kev) :-
-	\+ reachable_from_evidence(K,Kev), !,
-	assert(reachable_from_evidence(K,Kev)),
-	mark_from_evidence(Vars, Kev).
-mark_from_evidence([_|Vars], Kev) :-
-	mark_from_evidence(Vars, Kev).
+add_links([],_).
+add_links([K0|TVs],K) :-
+	assert(edge(K,K0)),
+	add_links(TVs,K).
+
 
 incorporate_evidence(Vs,AllVs) :-
 	new(Cache0),
@@ -116,6 +116,5 @@ add_evidence(_, _).
 check_for_evidence(_, V, Vf, Vf, C, C) :-
 	clpbn:get_atts(V, [evidence(_)]), !.
 check_for_evidence(K, _, Vf0, Vff, C0, Ci) :-
-	findall(Rt,reachable_from_evidence(K,Rt),Rts),
+	findall(Rt,edge(Rt,K),Rts),
 	add_variables(Rts, _, Vf0, Vff, C0, Ci).
-

@@ -23,7 +23,6 @@
 
 :- op(900,fx,[spy,nospy]).
 
-:- thread_local([idb:'$debug',idb:'$trace',idb:'$spy_skip',idb:'$spy_stop']).
 
 % First part : setting and reseting spy points
 
@@ -271,10 +270,11 @@ debugging :-
 % last argument to do_spy says that we are at the end of a context. It
 % is required to know whether we are controlled by the debugger.
 '$do_spy'(_, _, _, _) :-
-	'$stop_debugging', fail.
+	'$do_not_creep', fail.
 '$do_spy'(!, _, CP, _) :- !, '$cut_by'(CP).
 '$do_spy'('$cut_by'(M), _, _, _) :- !, '$cut_by'(M).
 '$do_spy'(true, _, _, _) :- !.
+%'$do_spy'(fail, _, _, _) :- !, fail.
 '$do_spy'(M:G, _, CP, InControl) :- !,
 	'$do_spy'(G, M, CP, InControl).
 '$do_spy'((A,B), M, CP, InControl) :- !,
@@ -285,14 +285,16 @@ debugging :-
 	;
 	  '$do_spy'(B, M, CP, InControl)
 	).
-'$do_spy'((A;B), M, CP, InControl) :- !,
-	(
-	  '$do_spy'(A, M, CP, yes)
+'$do_spy'((T->A|B), M, CP, InControl) :- !,
+	( '$do_spy'(T, M, CP, yes) -> 	'$do_spy'(A, M, CP, yes)
 	;
 	  '$do_spy'(B, M, CP, InControl)
 	).
-'$do_spy'((T->A|B), M, CP, InControl) :- !,
-	( '$do_spy'(T, M, CP, yes) -> 	'$do_spy'(A, M, CP, yes)
+'$do_spy'((T->A), M, CP, InControl) :- !,
+	( '$do_spy'(T, M, CP, yes) -> '$do_spy'(A, M, CP, yes) ).
+'$do_spy'((A;B), M, CP, InControl) :- !,
+	(
+	  '$do_spy'(A, M, CP, yes)
 	;
 	  '$do_spy'(B, M, CP, InControl)
 	).
@@ -321,7 +323,7 @@ debugging :-
 
 % handle weird things happening in the debugger.		    
 '$loop_spy_event'(_, _, _, _, _) :-
-	'$stop_debugging', fail.
+	'$do_not_creep', fail.
 '$loop_spy_event'('$retry_spy'(G0), GoalNumber, G, Module, InControl) :-
      G0 >= GoalNumber, !,
      '$loop_spy'(GoalNumber, G, Module, InControl).
@@ -355,20 +357,21 @@ debugging :-
 	    '$spycall'(G, Module, InControl),
 	/* go execute the predicate	*/
 	    (
-	       '$stop_debugging',
+	       '$do_not_creep',
 	       '$show_trace'(exit,G,Module,GoalNumber),	/* output message at exit	*/
 	       '$continue_debugging'(InControl)
-	     ;		/* exit				*/
+	     ;
+		/* exit				*/
 	        /* we get here when we want to redo a goal		*/
-	        '$stop_debugging',
+	        '$do_not_creep',
 	        '$show_trace'(redo,G,Module,GoalNumber), /* inform user_error		*/
-	        '$continue_debugging'(InControl),
+	        '$continue_debugging'(InControl,G,Module),
 	        fail			/* to backtrack to spycalls	*/
 	     )
 	  ;
-	    '$stop_debugging',
+	    '$do_not_creep',
 	    '$show_trace'(fail,G,Module,GoalNumber), /* inform at fail port		*/
-	    '$continue_debugging'(InControl),
+	    '$continue_debugging'(InControl,G,Module),
 	    fail
 	).
 
@@ -410,11 +413,11 @@ debugging :-
 	% use the interpreter
 	CP is '$last_choice_pt',
 	'$clause'(G, M, Cl),
-	'$stop_debugging',
+	'$do_not_creep',
 	'$do_spy'(Cl, M, CP, InControl).
 '$spycall'(G, M, InControl) :-
 	% I lost control here.
-	'$continue_debugging'(InControl),
+	'$continue_debugging'(InControl,G,M),
 	'$execute_nonstop'(G, M).
 
 
@@ -568,14 +571,17 @@ debugging :-
 	fail.
 
 % if we are in the interpreter, don't need to care about forcing a trace, do we?
-'$continue_debugging'(no) :- !.
+'$continue_debugging'(no,_,_) :- !.
+'$continue_debugging'(Flag,G,M) :-
+	'$system_predicate'(G,M), !,
+	( '$access_yap_flags'(10,1) -> '$late_creep' ; true).
+'$continue_debugging'(Flag,_,_) :-
+	'$continue_debugging'(Flag).
+	
 '$continue_debugging'(_) :-
 	'$access_yap_flags'(10,1), !,
 	'$creep'.
 '$continue_debugging'(_).
-
-'$stop_debugging' :-
-	'$stop_creep'.
 
 '$action_help' :-
 	format(user_error,"newline  creep       a       abort~n", []),

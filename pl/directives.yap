@@ -15,6 +15,14 @@
 *									 *
 *************************************************************************/
 
+'$all_directives'(_:G1) :- !,
+	'$all_directives'(G1).
+'$all_directives'((G1,G2)) :- !,
+	'$all_directives'(G1),
+	'$all_directives'(G2).
+'$all_directives'(G) :- !,
+	'$directive'(G).
+
 '$directive'(multifile(_)).
 '$directive'(discontiguous(_)).
 '$directive'(initialization(_)).
@@ -41,6 +49,12 @@
 '$directive'(use_module(_,_,_)).
 '$directive'(uncutable(_)).
 '$directive'(thread_local(_)).
+
+'$exec_directives'((G1,G2), Mode, M) :- !,
+	'$exec_directives'(G1, Mode, M),
+	'$exec_directives'(G2, Mode, M).
+'$exec_directives'(G, Mode, M) :-
+	'$exec_directive'(G, Mode, M).
 
 '$exec_directive'(multifile(D), _, M) :-
 	'$system_catch'('$multifile'(D, M), M,
@@ -101,12 +115,6 @@
 '$exec_directive'(uncutable(PredSpec), _, M) :-
 	'$uncutable'(PredSpec, M).
 
-
-'$exec_directives'((G1,G2), Mode, M) :- !,
-	'$exec_directives'(G1, Mode, M),
-	'$exec_directives'(G2, Mode, M).
-'$exec_directives'(G, Mode, M) :-
-	'$exec_directive'(G, Mode, M).
 
 yap_flag(V,Out) :-
 	var(V), !,

@@ -299,8 +299,12 @@ dump_stack(void)
 static void
 error_exit_yap (int value)
 {
-  if (!Yap_PrologMode & BootMode)
+  if (!Yap_PrologMode & BootMode) {
+#if DEBUG
+    fprintf(stderr,"%d garbage collections\n", GcCalls);
+#endif
     dump_stack();
+  }
   Yap_exit(value);
 }
 

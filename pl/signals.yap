@@ -31,8 +31,15 @@
 	% if more signals alive, set creep flag
 	'$continue_signals',
 	'$wake_up_goal'(G, LG).
-'$do_signal'(sig_creep, G) :-
-	'$start_creep'(G).
+'$do_signal'(sig_creep, [M|G]) :-
+	( '$access_yap_flags'(10,0) ->
+	    % we're not allowed to creep for now,
+	    % maybe we're inside builtin.
+	    '$late_creep',
+	    '$execute'(M:G)
+	    ;
+	    '$start_creep'([M|G])
+	).
 '$do_signal'(sig_delay_creep, [M|G]) :-
 	'$execute'(M:G),
         '$creep'.
@@ -93,7 +100,7 @@
 	'$creep',
 	'$execute_nonstop'(G,Mod).
 '$start_creep'([Mod|G]) :-
-	'$stop_debugging',
+	'$do_not_creep',
 	CP is '$last_choice_pt',	
 	'$do_spy'(G, Mod, CP, yes).
 

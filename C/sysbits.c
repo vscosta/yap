@@ -879,7 +879,8 @@ HandleSIGSEGV(int   sig,   siginfo_t   *sip, ucontext_t *uap)
 {
 
 #if !USE_SYSTEM_MALLOC
-  if (sip->si_code != SI_NOINFO &&
+  if (
+      sip->si_code != SI_NOINFO &&
       sip->si_code == SEGV_MAPERR &&
       (void *)(sip->si_addr) > (void *)(Yap_HeapBase) &&
       (void *)(sip->si_addr) < (void *)(Yap_TrailTop+64 * 1024L)) {
@@ -947,6 +948,135 @@ my_signal(int sig, void (*handler)(int, siginfo_t *, ucontext_t *))
   sigact.sa_handler=handler;
   sigemptyset(&sigact.sa_mask);
   sigact.sa_flags = 0;
+  sigaction(sig,&sigact,NULL);
+}
+
+#elif defined(__linux__)
+
+STATIC_PROTO (RETSIGTYPE HandleMatherr, (int));
+STATIC_PROTO (RETSIGTYPE HandleSIGSEGV, (int,siginfo_t *,void *));
+STATIC_PROTO (void my_signal_info, (int, void (*)(int,siginfo_t *,void *)));
+STATIC_PROTO (void my_signal, (int, void (*)(int)));
+
+/******** Handling floating point errors *******************/
+
+
+/* old code, used to work with matherror(), deprecated now:
+  char err_msg[256];
+  switch (x->type)
+    {
+    case DOMAIN:
+    case SING:
+      Yap_Error(EVALUATION_ERROR_UNDEFINED, TermNil, "%s", x->name);
+      return(0);
+    case OVERFLOW:
+      Yap_Error(EVALUATION_ERROR_FLOAT_OVERFLOW, TermNil, "%s", x->name);
+      return(0);
+    case UNDERFLOW:
+      Yap_Error(EVALUATION_ERROR_FLOAT_UNDERFLOW, TermNil, "%s", x->name);
+      return(0);
+    case PLOSS:
+    case TLOSS:
+      Yap_Error(EVALUATION_ERROR_UNDEFINED, TermNil, "%s(%g) = %g", x->name,
+	       x->arg1, x->retval);
+      return(0);
+    default:
+      Yap_Error(EVALUATION_ERROR_UNDEFINED, TermNil, NULL);
+      return(0);
+    }
+  */
+
+
+#if HAVE_FENV_H
+#include <fenv.h>
+#endif
+
+static RETSIGTYPE
+HandleMatherr(int sig)
+{
+#if HAVE_FETESTEXCEPT
+
+  /* This should work in Linux, but it doesn't seem to. */
+  
+  int raised = fetestexcept(FE_ALL_EXCEPT);
+
+  if (raised & FE_OVERFLOW) {
+    Yap_matherror = EVALUATION_ERROR_FLOAT_OVERFLOW;
+  } else if (raised & (FE_INVALID|FE_INEXACT)) {
+    Yap_matherror = EVALUATION_ERROR_UNDEFINED;
+  } else if (raised & FE_DIVBYZERO) {
+    Yap_matherror = EVALUATION_ERROR_ZERO_DIVISOR;
+  } else if (raised & FE_UNDERFLOW) {
+    Yap_matherror = EVALUATION_ERROR_FLOAT_UNDERFLOW;
+  } else
+#endif
+    Yap_matherror = EVALUATION_ERROR_UNDEFINED;
+  /* something very bad happened on the way to the forum */
+  set_fpu_exceptions(FALSE);
+  Yap_Error(Yap_matherror, TermNil, "");
+}
+
+static void
+SearchForTrailFault(siginfo_t *siginfo)
+{
+  void *ptr = siginfo->si_addr;
+
+  fprintf(stderr,"error at %p\n",ptr);
+  /* If the TRAIL is very close to the top of mmaped allocked space,
+     then we can try increasing the TR space and restarting the
+     instruction. In the worst case, the system will
+     crash again
+     */
+#if  OS_HANDLES_TR_OVERFLOW && !USE_SYSTEM_MALLOC
+  if ((ptr > (void *)Yap_TrailTop-1024  && 
+       TR < (void *)Yap_TrailTop+(64*1024))) {
+    if (!Yap_growtrail(64*1024, TRUE)) {
+      Yap_Error(OUT_OF_TRAIL_ERROR, TermNil, "YAP failed to reserve %ld bytes in growtrail", 64*1024L);
+    }
+    /* just in case, make sure the OS keeps the signal handler. */
+    /*    my_signal_info(SIGSEGV, HandleSIGSEGV); */
+  } else
+#endif /* OS_HANDLES_TR_OVERFLOW */
+    {
+      Yap_Error(FATAL_ERROR, TermNil,
+		"likely bug in YAP, segmentation violation at %p", ptr);
+  }
+}
+
+static RETSIGTYPE
+HandleSIGSEGV(int   sig, siginfo_t *siginfo, void *context)
+{
+  if (Yap_PrologMode & ExtendStackMode) {
+    Yap_Error(FATAL_ERROR, TermNil, "OS memory allocation crashed at address %p, bailing out\n",Yap_TrailTop);
+  }
+  SearchForTrailFault(siginfo);
+}
+
+static void
+my_signal_info(int sig, void (*handler)(int,siginfo_t *,void *))
+{
+  struct sigaction sigact;
+
+  sigact.sa_sigaction = handler;
+  sigemptyset(&sigact.sa_mask);
+#if HAVE_SIGINFO
+  sigact.sa_flags = SA_SIGINFO;
+#else
+  sigact.sa_flags = 0;
+#endif
+
+  sigaction(sig,&sigact,NULL);
+}
+
+static void
+my_signal(int sig, void (*handler)(int))
+{
+  struct sigaction sigact;
+
+  sigact.sa_handler=handler;
+  sigemptyset(&sigact.sa_mask);
+  sigact.sa_flags = 0;
+
   sigaction(sig,&sigact,NULL);
 }
 

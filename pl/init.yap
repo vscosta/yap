@@ -20,12 +20,18 @@
 
 % These are pseudo declarations
 % so that the user will get a redefining system predicate
-otherwise.
 fail :- fail.
+
 false :- fail.
+
+otherwise.
+
 !.
+
 (:- G) :- '$execute'(G), !.
+
 '$$!'(CP) :- '$cut_by'(CP).
+
 [] :- true.
 
 
@@ -65,6 +71,8 @@ false :- fail.
 	 'tabling.yap',
 	 'threads.yap',
 	 'yapor.yap'].
+
+:- thread_local([idb:'$debug'/0,idb:'$trace'/0,idb:'$spy_skip'/0,idb:'$spy_stop'/0]).
 
 :-	 ['protect.yap'].
 

@@ -11,8 +11,11 @@
 * File:		stdpreds.c						 *
 * comments:	General-purpose C implemented system predicates		 *
 *									 *
-* Last rev:     $Date: 2005-01-05 05:32:37 $,$Author: vsc $						 *
+* Last rev:     $Date: 2005-02-08 04:05:35 $,$Author: vsc $						 *
 * $Log: not supported by cvs2svn $
+* Revision 1.80  2005/01/05 05:32:37  vsc
+* Ricardo's latest version of profiler.
+*
 * Revision 1.79  2004/12/28 22:20:36  vsc
 * some extra bug fixes for trail overflows: some cannot be recovered that easily,
 * some can.
@@ -652,6 +655,23 @@ p_creep(void)
   CreepCode = pred;
   yap_flags[SPY_CREEP_FLAG] = TRUE;
   do_signal(YAP_CREEP_SIGNAL);
+  return TRUE;
+}
+
+static Int 
+p_delayed_creep(void)
+{
+  Atom            at;
+  PredEntry      *pred;
+
+  at = Yap_FullLookupAtom("$creep");
+  pred = RepPredProp(PredPropByFunc(Yap_MkFunctor(at, 1),0));
+  CreepCode = pred;
+  yap_flags[SPY_CREEP_FLAG] = FALSE;
+  do_signal(YAP_CREEP_SIGNAL);
+  LOCK(SignalLock);
+  CreepFlag = CalculateStackGap();
+  UNLOCK(SignalLock);
   return TRUE;
 }
 
@@ -2959,7 +2979,8 @@ Yap_InitCPreds(void)
   /* they are defined in analyst.c */
   /* Basic predicates for the debugger */
   Yap_InitCPred("$creep", 0, p_creep, SafePredFlag|SyncPredFlag|HiddenPredFlag);
-  Yap_InitCPred("$stop_creep", 0, p_stop_creep, SafePredFlag|SyncPredFlag|HiddenPredFlag);
+  Yap_InitCPred("$late_creep", 0, p_delayed_creep, SafePredFlag|SyncPredFlag|HiddenPredFlag);
+  Yap_InitCPred("$do_not_creep", 0, p_stop_creep, SafePredFlag|SyncPredFlag|HiddenPredFlag);
 #ifdef DEBUG
   Yap_InitCPred("$debug", 1, p_debug, SafePredFlag|SyncPredFlag|HiddenPredFlag);
 #endif

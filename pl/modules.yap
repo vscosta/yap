@@ -413,6 +413,8 @@ module(N) :-
 
 :- dynamic_predicate('$meta_predicate'/4,logical).
 
+:- multifile '$meta_predicate'/4.
+
 '$meta_predicate'((P,Ps), M) :- !, 
 	'$meta_predicate'(P, M),
 	'$meta_predicate'(Ps, M).

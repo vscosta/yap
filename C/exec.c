@@ -230,6 +230,7 @@ EnterCreepMode(Term t, Term mod) {
   LOCK(SignalLock);
   CreepFlag = CalculateStackGap();
   UNLOCK(SignalLock);
+  yap_flags[SPY_CREEP_FLAG] = TRUE;
   P_before_spy = P;
   return (CallPredicate(PredCreep, B, PredCreep->CodeOfPred));
 }

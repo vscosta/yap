@@ -122,7 +122,7 @@ true :- true.
 	    format(user_error, '% trace~n', [])
 	;
 	  recorded('$debug', on, _) ->
-	    format(user_error, '% debug~n', [])
+	  format(user_error, '% debug~n', [])
 	),
 	fail.
 '$enter_top_level' :-
@@ -260,24 +260,17 @@ repeat :- '$repeat'.
 '$process_directive'(G, top, _) :- !,
 	'$do_error'(context_error((:- G),clause),query).
 %
-% always allow directives.
-%
-'$process_directive'(D, Mode, M) :-
-	'$directive'(D), !,
-	( '$exec_directive'(D, Mode, M) -> true ; true ).
-%
-% allow multiple directives
-%
-'$process_directive'((G1,G2), Mode, M) :-
-	'$all_directives'(G1),
-	'$all_directives'(G2), !,
-	'$exec_directives'(G1, Mode, M),
-	'$exec_directives'(G2, Mode, M).
-%
 % allow modules
 %
 '$process_directive'(M:G, Mode, _) :- !,
 	'$process_directive'(G, Mode, M).
+%
+% default case
+%
+'$process_directive'(Gs, Mode, M) :-
+	'$all_directives'(Gs), !,
+	'$exec_directives'(Gs, Mode, M).
+
 %
 % ISO does not allow goals (use initialization).
 %
@@ -288,15 +281,8 @@ repeat :- '$repeat'.
 % but YAP and SICStus does.
 %
 '$process_directive'(G, _, M) :-
-	( '$do_yes_no'(G,M) -> true ; format(user_error,':- ~w:~w failed.~n',[M,G]) ).
-
-'$all_directives'(_:G1) :- !,
-	'$all_directives'(G1).
-'$all_directives'((G1,G2)) :- !,
-	'$all_directives'(G1),
-	'$all_directives'(G2).
-'$all_directives'(G) :- !,
-	'$directive'(G).
+	( '$do_yes_no'(G,M) -> true ; format(user_error,':- ~w:~w failed.~n',[M,G]) ),
+	'$do_not_creep'.
 
 '$continue_with_command'(reconsult,V,G,Source) :-
 	'$go_compile_clause'(G,V,5,Source),
@@ -305,7 +291,8 @@ repeat :- '$repeat'.
 	'$go_compile_clause'(G,V,13,Source),
 	fail.
 '$continue_with_command'(top,V,G,_) :-
-	'$query'(G,V).
+	'$query'(G,V),
+	'$do_not_creep'.
 
 %
 % not 100% compatible with SICStus Prolog, as SICStus Prolog would put
@@ -384,16 +371,16 @@ repeat :- '$repeat'.
 	'$yes_no'(G,(?-)).
 '$query'(G,V) :-
 	(
-	  ( recorded('$trace',on,_) -> '$creep' ; true),
+	        ( recorded('$trace',on,_) -> '$creep' ; true),
 		'$execute'(G),
-		'$do_stop_creep',
+		'$do_not_creep',
 		'$extract_goal_vars_for_dump'(V,LIV),
 		'$show_frozen'(G,LIV,LGs),
 		'$write_answer'(V, LGs, Written),
 		'$write_query_answer_true'(Written),
 		'$another',
 		!, fail ;
-		'$do_stop_creep',
+		'$do_not_creep',
 		( '$undefined'('$print_message'(_,_),prolog) -> 
 		   '$present_answer'(user_error,"no~n", [])
 	        ;
@@ -405,7 +392,7 @@ repeat :- '$repeat'.
 '$yes_no'(G,C) :-
 	'$current_module'(M),
 	'$do_yes_no'(G,M),
-	'$do_stop_creep',
+	'$do_not_creep',
 	'$show_frozen'(G, [], LGs),
 	'$write_answer'([], LGs, Written),
         ( Written = [] ->
@@ -414,7 +401,7 @@ repeat :- '$repeat'.
 	),
 	fail.
 '$yes_no'(_,_) :-
-	'$do_stop_creep',
+	'$do_not_creep',
 	( '$undefined'('$print_message'(_,_),prolog) -> 
 	   '$present_answer'(user_error,"no~n", [])
 	;
@@ -422,15 +409,11 @@ repeat :- '$repeat'.
 	),
 	fail.
 
-% make sure we have Prolog code to force running any delayed goals.
-'$do_stop_creep' :-
-	'$stop_creep'.
-
-
 '$do_yes_no'([X|L], M) :- !, '$csult'([X|L], M).
 '$do_yes_no'(G, M) :-
 	  ( recorded('$trace',on,_) -> '$creep' ; true),
 	  '$execute'(M:G).
+
 '$extract_goal_vars_for_dump'([],[]).
 '$extract_goal_vars_for_dump'([[_|V]|VL],[V|LIV]) :-
 	'$extract_goal_vars_for_dump'(VL,LIV).
@@ -845,8 +828,10 @@ break :-
 	;
 	    '$print_message'(informational, loading(consulting, File))
 	),
+	( recorded('$trace', on, TraceR) -> erase(TraceR) ; true),
 	'$loop'(Stream,consult),
 	'$end_consult',
+	( nonvar(TraceR) -> recorda('$trace', on, _) ; true),
 	set_value('$consulting',Old),
 	set_value('$consulting_file',OldF),
 	'$current_module'(NewMod,OldModule),
@@ -955,7 +940,7 @@ break :-
 '$find_in_path'(user_input,user_input, _) :- !.
 '$find_in_path'(S,NewFile, _) :-
 	S =.. [Name,File], !,
-	user:file_search_path(Name, Dir),
+	( user:file_search_path(Name, Dir) -> '$do_not_creep' ; '$do_not_creep'),
 	'$dir_separator'(D),
 	atom_codes(A,[D]),
 	atom_concat([Dir,A,File],NFile),
@@ -990,11 +975,13 @@ break :-
 
 expand_term(Term,Expanded) :-
 	( \+ '$undefined'(term_expansion(_,_), user),
-	  user:term_expansion(Term,Expanded)
+	  user:term_expansion(Term,Expanded),
+	 '$do_not_creep'
         ;
+	  '$do_not_creep',
 	  '$expand_term_grammar'(Term,Expanded)
 	),
-	!.
+!.
 
 
 %
@@ -1090,15 +1077,14 @@ throw(Ball) :-
 	G \= '$',
 	'$current_module'(M),
 	'$system_catch'(once(M:G), M, Error, user:'$LoopError'(Error, top)),
+	'$do_not_creep',
 	fail.
 '$exec_initialisation_goals'.
 
 '$run_toplevel_hooks' :-
 	get_value('$break',0),
 	recorded('$toplevel_hooks',H,_), !,
-	( '$execute'(H) -> true ; true).
+	( '$execute'(H) -> true ; true),
+	'$do_not_creep'.
 '$run_toplevel_hooks'.
-
-
-
 
