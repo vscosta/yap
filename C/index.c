@@ -6069,6 +6069,16 @@ Yap_FollowIndexingCode(PredEntry *ap, yamop *ipc, Term t1, Term tb, Term tr, yam
   yamop **jlbl = NULL;
   int lu_pred = ap->PredFlags & LogUpdatePredFlag;
 
+  if (ap->ModuleOfPred != 2) {
+    if (ap->ArityOfPE) {
+      CELL *tar = RepAppl(t1);
+      UInt i;
+
+      for (i = 1; i <= ap->ArityOfPE; i++) {
+	XREGS[i] = tar[i];
+      }
+    }
+  }
   /* try to refine the interval using the indexing code */
   while (ipc != NULL) {
     op_numbers op = Yap_op_from_opcode(ipc->opc);
@@ -6077,9 +6087,9 @@ Yap_FollowIndexingCode(PredEntry *ap, yamop *ipc, Term t1, Term tb, Term tr, yam
     case _try_in:
       update_clause_choice_point(NEXTOP(ipc,l), ap_pc);
       if (lu_pred)
-	return lu_clause(ipc->u.ld.d);
+	return lu_clause(ipc->u.l.l);
       else
-	return static_clause(ipc->u.ld.d);
+	return static_clause(ipc->u.l.l);
       break;
     case _try_clause:
       if (b0 == NULL)
@@ -6416,6 +6426,17 @@ Yap_NthClause(PredEntry *ap, Int ncls)
   else if (ncls < 0)
     return NULL;
   
+  if (ap->ModuleOfPred != 2) {
+    if (ap->ArityOfPE) {
+      UInt i;
+
+      for (i = 1; i <= ap->ArityOfPE; i++) {
+	XREGS[i] = MkVarTerm();
+      }
+    }
+  } else {
+    ARG2 = MkVarTerm();
+  }
   while (TRUE) {
     op_numbers op = Yap_op_from_opcode(ipc->opc);
 

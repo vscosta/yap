@@ -3126,16 +3126,6 @@ p_log_update_clause(void)
   if (pe == NULL || EndOfPAEntr(pe))
     return FALSE;
   WRITE_LOCK(pe->PRWLock);
-  if (pe->ModuleOfPred != 2 &&
-      pe->ArityOfPE) {
-    UInt i;
-    CELL *tar = RepAppl(t1);
-
-    /* makes no sense for IDB, as ArityOfPE means nothing */
-    for (i = 1; i <= pe->ArityOfPE; i++) {
-      XREGS[i] = tar[i];
-    }
-  }
   if(pe->OpcodeOfPred == INDEX_OPCODE) {
     IPred(pe);
   }
@@ -3216,16 +3206,6 @@ p_log_update_clause0(void)
   if (pe == NULL || EndOfPAEntr(pe))
     return FALSE;
   WRITE_LOCK(pe->PRWLock);
-  if (pe->ModuleOfPred != 2 &&\
-      pe->ArityOfPE) {
-    UInt i;
-    CELL *tar = RepAppl(t1);
-
-    /* makes no sense for IDB, as ArityOfPE means nothing */
-    for (i = 1; i <= pe->ArityOfPE; i++) {
-      XREGS[i] = tar[i];
-    }
-  }
   if(pe->OpcodeOfPred == INDEX_OPCODE) {
     IPred(pe);
   }
@@ -3308,15 +3288,6 @@ p_static_clause(void)
   if (pe == NULL || EndOfPAEntr(pe))
     return FALSE;
   WRITE_LOCK(pe->PRWLock);
-  if (pe->ArityOfPE &&
-      pe->ArityOfPE) {
-    UInt i;
-    CELL *tar = RepAppl(t1);
-
-    for (i = 1; i <= pe->ArityOfPE; i++) {
-      XREGS[i] = tar[i];
-    }
-  }
   if(pe->OpcodeOfPred == INDEX_OPCODE) {
     IPred(pe);
   }
