@@ -838,7 +838,7 @@ HandleSIGSEGV(int   sig,   siginfo_t   *sip, ucontext_t *uap)
     growtrail(64 * 1024L);
   }
   else {
-    Error(INTERNAL_ERROR, TermNil,
+    Error(FATAL_ERROR, TermNil,
 	  "likely bug in YAP, segmentation violation at %p", sip->si_addr);
   }
 }
