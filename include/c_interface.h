@@ -24,6 +24,26 @@
 
 #include "yap_structs.h"
 
+#ifndef _Yap_c_interface_h
+#define _Yap_c_interface_h 1
+
+/*
+   __BEGIN_DECLS should be used at the beginning of the C declarations,
+   so that C++ compilers don't mangle their names.  __END_DECLS is used
+   at the end of C declarations.
+*/
+#undef __BEGIN_DECLS
+#undef __END_DECLS
+#ifdef __cplusplus
+# define __BEGIN_DECLS extern "C" {
+# define __END_DECLS }
+#else
+# define __BEGIN_DECLS /* empty */
+# define __END_DECLS /* empty */
+#endif
+
+__BEGIN_DECLS
+
 #if defined(_MSC_VER) && defined(YAP_EXPORTS)
 #define X_API __declspec(dllexport)
 #else
@@ -720,4 +740,8 @@ static int (*YapICurrentModule)() = YapCurrentModule;
 
 
 #define InitCPred(N,A,F)  UserCPredicate(N,F,A)
+
+__END_DECLS
+
+#endif
 
