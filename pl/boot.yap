@@ -652,13 +652,16 @@ incore(G) :- '$execute'(G).
 	'$execute_within'(A),
 	'$last_execute_within'(B).
 
-';'(A,B) :- ((A = ( T->G) -> '$execute_within'(T), !, '$execute_within'(G) ;
-             '$execute_within'(A) );
-	     '$execute_within'(B) ).
+% Be careful with -> cutting through
+';'(A,B) :- (A = ( T->G) ->
+	     ( '$execute_within'(T) ->  '$execute_within'(G) ; '$execute_within'(A) ; '$execute_within'(B) )
+	    ;
+	     ( '$execute_within'(A) ; '$execute_within'(B) ) ).
 
-'|'(A,B) :- ((A = ( T->G) -> '$execute_within'(T), !, '$execute_within'(G) ;
-             '$execute_within'(A) );
-	     '$execute_within'(B) ).
+'|'(A,B) :- (A = ( T->G) ->
+	     ( '$execute_within'(T) ->  '$execute_within'(G) ; '$execute_within'(A) ; '$execute_within'(B) )
+	    ;
+	     ( '$execute_within'(A) ; '$execute_within'(B) ) ).
 
 
 '->'(A,B) :-

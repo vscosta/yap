@@ -1296,6 +1296,8 @@ PlUnGetc (int sno)
   register StreamDesc *s = &Stream[sno];
   Int ch;
 
+  if (s->stream_getc != PlUnGetc)
+    return(s->stream_getc(sno));
   ch = s->och;
   if (s->status & InMemory_Stream_f) {
     s->stream_getc = MemGetc;
@@ -2778,7 +2780,9 @@ p_read (void)
 
     /* Scans the term using stack space */
     eot_before_eof = FALSE;
-    if ((Stream[c_input_stream].status & (Promptable_Stream_f|Pipe_Stream_f|Socket_Stream_f|Eof_Stream_f|InMemory_Stream_f)) || CharConversionTable != NULL)
+    if ((Stream[c_input_stream].status & (Promptable_Stream_f|Pipe_Stream_f|Socket_Stream_f|Eof_Stream_f|InMemory_Stream_f)) ||
+	CharConversionTable != NULL ||
+	Stream[c_input_stream].stream_getc != PlGetc)
       tokstart = tokptr = toktide = tokenizer (Stream[c_input_stream].stream_getc_for_read, Stream[c_input_stream].stream_getc);
     else {
       tokstart = tokptr = toktide = fast_tokenizer ();

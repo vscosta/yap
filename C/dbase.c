@@ -140,6 +140,8 @@ typedef struct idb_queue
 #define FunctorHash(t)  (Unsigned(t)>>4)
 #define NumberHash(t)   (Unsigned(IntOfTerm(t)))
 
+#define LARGE_IDB_LINK_TABLE 1
+
 /* traditionally, YAP used a link table to recover IDB terms*/
 #define IDB_LINK_TABLE 1
 #if LARGE_IDB_LINK_TABLE
@@ -1371,7 +1373,7 @@ CreateDBStruct(Term Tm, DBProp p, int InFlag)
 	nar = pp->Contents + Unsigned(NOfCells);
       }
 #ifdef IDB_LINK_TABLE
-      woar = WordPtr(nar);
+      woar = (link_entry *)nar;
       memcpy((void *)woar,(const void *)LinkAr,(size_t)(NOfLinks*sizeof(link_entry)));
       woar += NOfLinks;
 #ifdef ALIGN_LONGS

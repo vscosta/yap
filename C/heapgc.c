@@ -2603,6 +2603,7 @@ do_gc(Int predarity, CELL *current_env, yamop *nextop)
     old_vars = new_vars = 0;
     TrueHB = HB;
     num_bs = 0;
+    printf("vsc: Starting with %p: %x vs %p->%p %p->\n", (CELL *)0x90da350, *(CELL *)0x90da350, AtomBase, HeapTop, H0);
   }
 #endif
 #ifdef DEBUG
@@ -2694,6 +2695,7 @@ do_gc(Int predarity, CELL *current_env, yamop *nextop)
 	       (unsigned long int)(ASP-H));
   }
 #ifdef DEBUG
+printf("vsc: Finishing with %p: %x vs %p->%p %p->\n", (CELL *)0x90da350, *(CELL *)0x90da350, AtomBase, HeapTop, H0);
   check_global();
 #endif
   return(effectiveness);
