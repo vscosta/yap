@@ -4,12 +4,19 @@
 
 ;; Author: Paulo Moura
 ;; Creation date: November 15, 2003
-;; Last modification date: February 23, 2004
-;; Version: 0.51
+;; Last modification date: March 5, 2004
+;; Version: 0.52
 
 ;; Installation:
 ;;
-;; Add the following lines in your Emacs init file, for example
+;; First, copy this file to the appropriated directory. For FSF Emacs this will 
+;; probably be /usr/local/share/emacs/site-lisp. For XEmacs, the directory is
+;; usully /usr/local/lib/xemacs/site-lisp. You may also copy the file to a 
+;; sub-directory in your home directory depending on your Emacs configuration.
+;; Type "C-h v load-path" in Emacs to find the list of paths that are searched
+;; for when looking for lisp files.
+;;
+;; Second, add the following lines in your Emacs init file, for example
 ;; your ~/.emacs file:
 ;;
 ;; (autoload 'logtalk-mode "logtalk" "Major mode for editing Logtalk programs." t)

@@ -1,6 +1,6 @@
 =================================================================
 Logtalk - Object oriented extension to Prolog
-Release 2.16.0
+Release 2.16.1
 
 Copyright (c) 1998-2004 Paulo Moura.  All Rights Reserved.
 =================================================================
@@ -8,6 +8,28 @@ Copyright (c) 1998-2004 Paulo Moura.  All Rights Reserved.
 
 RELEASE NOTES
 =============
+
+
+2.16.1 - March 23, 2004
+
+	The local built-in method parameter/2 can now be used inside categories 
+	(but please read the warnings about such practice on the user manual).
+
+	Updated the Logtalk compiler to report an error when the user tries to 
+	redefine a message sending or external call control construct inside an 
+	object or category.
+
+	Corrected a bug in the compilation of metacalls whose meta-arguments are 
+	variables.
+
+	Removed references to file sax.jar from the scripts used to convert XML 
+	documenting files into (X)HTML. Updated scripts html.sh, htmlnt.cmd, and 
+	htmldos.bat to use XT 20020426a or later version.
+
+	Improved syntax coloring accuracy of built-in predicates and methods for 
+	the SubEthaEdit text editor.
+
+	Updated config file for Qu-Prolog 6.4.
 
 
 2.16.0 - March 3, 2004

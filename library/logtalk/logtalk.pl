@@ -2,7 +2,7 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %
 %  Logtalk - Object oriented extension to Prolog
-%  Release 2.16.0
+%  Release 2.16.1
 %
 %  Copyright (c) 1998-2004 Paulo Moura.  All Rights Reserved.
 %
@@ -155,6 +155,7 @@ Obj::Pred :-
 	'$lgt_sender'(Context, user),
 	'$lgt_this'(Context, user),
 	'$lgt_self'(Context, Obj),
+	'$lgt_metavars'(Context, []),
 	'$lgt_tr_msg'(Obj, Pred, Call, Context),
 	call(Call).
 
@@ -412,12 +413,10 @@ abolish_object(Obj) :-
 			'$lgt_once'(Prefix, Dcl, Def, Super, IDcl, IDef, DDcl, DDef),
 			forall(
 				'$lgt_call'(Def, _, _, _, _, Pred),
-				(functor(Pred, Functor, Arity),
-				 abolish(Functor/Arity))),
+				(functor(Pred, Functor, Arity), abolish(Functor/Arity))),
 			forall(
 				'$lgt_call'(DDef, _, _, _, _, Pred),
-				(functor(Pred, Functor, Arity),
-				 abolish(Functor/Arity))),
+				(functor(Pred, Functor, Arity), abolish(Functor/Arity))),
 			abolish(Dcl/4),
 			abolish(Dcl/6),
 			abolish(Def/5),
@@ -457,8 +456,7 @@ abolish_category(Ctg) :-
 			'$lgt_once'(Prefix, Dcl, Def),
 			forall(
 				'$lgt_call'(Def, _, _, _, _, Pred),
-				(functor(Pred, Functor, Arity),
-				 abolish(Functor/Arity))),
+				(functor(Pred, Functor, Arity), abolish(Functor/Arity))),
 			abolish(Dcl/4),
 			abolish(Dcl/5),
 			abolish(Def/5),
@@ -1076,7 +1074,7 @@ current_logtalk_flag(Flag, Value) :-
 	'$lgt_default_flag'(Flag, Value),
 	\+ '$lgt_flag_'(Flag, _).
 
-current_logtalk_flag(version, version(2, 16, 0)).
+current_logtalk_flag(version, version(2, 16, 1)).
 
 
 
@@ -2841,6 +2839,21 @@ user0__def(Pred, _, _, _, Pred, user).
 	throw(permission_error(define, dynamic_predicate, Functor/Arity)).
 
 
+% redefinition of Logtalk message sending and external call control constructs
+
+'$lgt_tr_head'(Term1::Term2, _, _) :-
+	throw(permission_error(modify, control_construct, Term1::Term2)).
+
+'$lgt_tr_head'(::Term, _, _) :-
+	throw(permission_error(modify, control_construct, ::Term)).
+
+'$lgt_tr_head'(^^Term, _, _) :-
+	throw(permission_error(modify, control_construct, ^^Term)).
+
+'$lgt_tr_head'({Term}, _, _) :-
+	throw(permission_error(modify, control_construct, {Term})).
+
+
 % redefinition of Logtalk built-in methods
 
 '$lgt_tr_head'(Head, _, _) :-
@@ -3077,9 +3090,13 @@ user0__def(Pred, _, _, _, Pred, user).
 	'$lgt_self'(Context, Self),
 	!.
 
-'$lgt_tr_body'(parameter(Arg, Value), true, Context) :-
+'$lgt_tr_body'(parameter(Arg, Value), TPred, Context) :-
 	'$lgt_this'(Context, This),
-	arg(Arg, This, Value),
+	(var(This) ->
+		TPred = arg(Arg, This, Value)
+		;
+		arg(Arg, This, Value),
+		TPred = true),
 	!.
 
 
@@ -5028,6 +5045,10 @@ user0__def(Pred, _, _, _, Pred, user).
 %
 % fix calls to redefined built-in predicates
 
+'$lgt_fix_redef_built_ins'(Pred, Pred) :-
+	var(Pred),
+	!.
+
 '$lgt_fix_redef_built_ins'((Head:-Body), (Head:-Fixed)) :-
 	!,
 	'$lgt_fix_redef_built_ins'(Body, Fixed).
@@ -5768,7 +5789,15 @@ user0__def(Pred, _, _, _, Pred, user).
 '$lgt_valid_metapred_term'(Pred) :-
 	nonvar(Pred),
 	Pred =.. [_| Args],
-	forall('$lgt_member'(Arg, Args), (nonvar(Arg), (Arg = (::); Arg = (*)))).
+	'$lgt_valid_metapred_term_args'(Args).
+
+
+'$lgt_valid_metapred_term_args'([]).
+
+'$lgt_valid_metapred_term_args'([Arg| Args]) :-
+	nonvar(Arg),
+	once((Arg = (::); Arg = (*))),
+	'$lgt_valid_metapred_term_args'(Args).
 
 
 
@@ -5777,10 +5806,17 @@ user0__def(Pred, _, _, _, Pred, user).
 '$lgt_valid_mode_term'(Pred) :-
 	nonvar(Pred),
 	Pred =.. [_| Args],
-	forall(
-		'$lgt_member'(Arg, Args),
-		(nonvar(Arg), functor(Arg, Functor, Arity), Arity =< 1,
-		 '$lgt_pred_arg_instantiation_mode'(Functor))).
+	'$lgt_valid_mode_term_args'(Args).
+
+
+'$lgt_valid_mode_term_args'([]).
+
+'$lgt_valid_mode_term_args'([Arg| Args]) :-
+	nonvar(Arg),
+	functor(Arg, Functor, Arity),
+	Arity =< 1,
+	'$lgt_pred_arg_instantiation_mode'(Functor),
+	'$lgt_valid_mode_term_args'(Args).
 
 
 

@@ -1,6 +1,6 @@
 =================================================================
 Logtalk - Object oriented extension to Prolog
-Release 2.16.0
+Release 2.16.1
 
 Copyright (c) 1998-2004 Paulo Moura.  All Rights Reserved.
 =================================================================
@@ -68,5 +68,5 @@ Logtalk version 2.15.6 renamed the compiler option "named_anonymous_vars" to
 
 Logtalk 2.16.0 improves support for the declaration and use of operators 
 local to objects and categories. Recompilation of any objects and categories 
-contain operator declarations is needed in order to take advantage of the 
+containing operator declarations is needed in order to take advantage of the 
 improvements made.

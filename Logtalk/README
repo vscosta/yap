@@ -1,6 +1,6 @@
 =================================================================
 Logtalk - Object oriented extension to Prolog
-Release 2.16.0
+Release 2.16.1
 
 Copyright (c) 1998-2004 Paulo Moura.  All Rights Reserved.
 =================================================================
@@ -82,18 +82,19 @@ Logtalk in any directory that you find convenient.
 
 See the user manual for a description of the source files organization and 
 for installing/using instructions (to read the user manual open the file 
-manuals/index.html with a web browser).
+manuals/index.html with a web browser). Most files are formatted using 
+four-space tabs.
 
 In Unix and Unix-like systems you may want to define an environment variable 
 named $LOGTALKHOME pointing to the Logtalk installation for use with your 
 Prolog compilers. If you use a csh shell, add the following line to your 
 .cshrc file:
 
-	setenv LOGTALKHOME "/your/installation/directory/lgt2160"
+	setenv LOGTALKHOME "/your/installation/directory/lgt2161"
 
 If you use a bash shell, add the following lines to your .profile file:
 
-	LOGTALKHOME="/your/installation/directory/lgt2160"
+	LOGTALKHOME="/your/installation/directory/lgt2161"
 	export LOGTALKHOME
 
 

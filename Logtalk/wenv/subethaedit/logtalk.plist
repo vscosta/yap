@@ -99,11 +99,11 @@
 			<false/>
 			<key>Regular Expressions</key>
 			<array>
-				<string>[^A-Za-z0-9](instantiates)\(</string>
-				<string>[^A-Za-z0-9](specializes)\(</string>
-				<string>[^A-Za-z0-9](extends)\(</string>
-				<string>[^A-Za-z0-9](imports)\(</string>
-				<string>[^A-Za-z0-9](implements)\(</string>
+				<string>[^A-Za-z0-9_](instantiates)\(</string>
+				<string>[^A-Za-z0-9_](specializes)\(</string>
+				<string>[^A-Za-z0-9_](extends)\(</string>
+				<string>[^A-Za-z0-9_](imports)\(</string>
+				<string>[^A-Za-z0-9_](implements)\(</string>
 			</array>
 		</dict>
 
@@ -156,9 +156,9 @@
 			<false/>
 			<key>Regular Expressions</key>
 			<array>
-				<string>[^A-Za-z0-9](call)\(</string>
-				<string>[^A-Za-z0-9](catch)\(</string>
-				<string>[^A-Za-z0-9](throw)\(</string>
+				<string>[^A-Za-z0-9_](call)\(</string>
+				<string>[^A-Za-z0-9_](catch)\(</string>
+				<string>[^A-Za-z0-9_](throw)\(</string>
 			</array>
 			<key>Plain Strings</key>
 			<array>
@@ -180,25 +180,25 @@
 			<false/>
 			<key>Regular Expressions</key>
 			<array>
-				<string>[^A-Za-z0-9](parameter)\(</string>
-				<string>[^A-Za-z0-9](self)\(</string>
-				<string>[^A-Za-z0-9](sender)\(</string>
-				<string>[^A-Za-z0-9](this)\(</string>
-				<string>[^A-Za-z0-9](current_predicate)\(</string>
-				<string>[^A-Za-z0-9](predicate_property)\(</string>
-				<string>[^A-Za-z0-9](abolish)\(</string>
-				<string>[^A-Za-z0-9](asserta)\(</string>
-				<string>[^A-Za-z0-9](assertz)\(</string>
-				<string>[^A-Za-z0-9](clause)\(</string>
-				<string>[^A-Za-z0-9](retract)\(</string>
-				<string>[^A-Za-z0-9](retractall)\(</string>
-				<string>[^A-Za-z0-9](bagof)\(</string>
-				<string>[^A-Za-z0-9](findall)\(</string>
-				<string>[^A-Za-z0-9](forall)\(</string>
-				<string>[^A-Za-z0-9](setof)\(</string>
-				<string>[^A-Za-z0-9](before)\(</string>
-				<string>[^A-Za-z0-9](after)\(</string>
-				<string>[^A-Za-z0-9](phrase)\(</string>
+				<string>[^A-Za-z0-9_](parameter)\(</string>
+				<string>[^A-Za-z0-9_](self)\(</string>
+				<string>[^A-Za-z0-9_](sender)\(</string>
+				<string>[^A-Za-z0-9_](this)\(</string>
+				<string>[^A-Za-z0-9_](current_predicate)\(</string>
+				<string>[^A-Za-z0-9_](predicate_property)\(</string>
+				<string>[^A-Za-z0-9_](abolish)\(</string>
+				<string>[^A-Za-z0-9_](asserta)\(</string>
+				<string>[^A-Za-z0-9_](assertz)\(</string>
+				<string>[^A-Za-z0-9_](clause)\(</string>
+				<string>[^A-Za-z0-9_](retract)\(</string>
+				<string>[^A-Za-z0-9_](retractall)\(</string>
+				<string>[^A-Za-z0-9_](bagof)\(</string>
+				<string>[^A-Za-z0-9_](findall)\(</string>
+				<string>[^A-Za-z0-9_](forall)\(</string>
+				<string>[^A-Za-z0-9_](setof)\(</string>
+				<string>[^A-Za-z0-9_](before)\(</string>
+				<string>[^A-Za-z0-9_](after)\(</string>
+				<string>[^A-Za-z0-9_](phrase)\(</string>
 			</array>
 		</dict>
 
@@ -215,33 +215,33 @@
 			<false/>
 			<key>Regular Expressions</key>
 			<array>
-				<string>[^A-Za-z0-9](current_object)\(</string>
-				<string>[^A-Za-z0-9](current_protocol)\(</string>
-				<string>[^A-Za-z0-9](current_category)\(</string>
-				<string>[^A-Za-z0-9](create_object)\(</string>
-				<string>[^A-Za-z0-9](create_protocol)\(</string>
-				<string>[^A-Za-z0-9](create_category)\(</string>
-				<string>[^A-Za-z0-9](object_property)\(</string>
-				<string>[^A-Za-z0-9](protocol_property)\(</string>
-				<string>[^A-Za-z0-9](category_property)\(</string>
-				<string>[^A-Za-z0-9](abolish_object)\(</string>
-				<string>[^A-Za-z0-9](abolish_protocol)\(</string>
-				<string>[^A-Za-z0-9](abolish_category)\(</string>
-				<string>[^A-Za-z0-9](extends_object)\(</string>
-				<string>[^A-Za-z0-9](extends_protocol)\(</string>
-				<string>[^A-Za-z0-9](implements_protocol)\(</string>
-				<string>[^A-Za-z0-9](instantiates_class)\(</string>
-				<string>[^A-Za-z0-9](specializes_class)\(</string>
-				<string>[^A-Za-z0-9](imports_category)\(</string>
-				<string>[^A-Za-z0-9](abolish_events)\(</string>
-				<string>[^A-Za-z0-9](current_event)\(</string>
-				<string>[^A-Za-z0-9](define_events)\(</string>
-				<string>[^A-Za-z0-9](current_logtalk_flag)\(</string>
-				<string>[^A-Za-z0-9](set_logtalk_flag)\(</string>
-				<string>[^A-Za-z0-9](logtalk_compile)\(</string>
-				<string>[^A-Za-z0-9](logtalk_load)\(</string>
-				<string>[^A-Za-z0-9](forall)\(</string>
-				<string>[^A-Za-z0-9](retractall)\(</string>
+				<string>[^A-Za-z0-9_](current_object)\(</string>
+				<string>[^A-Za-z0-9_](current_protocol)\(</string>
+				<string>[^A-Za-z0-9_](current_category)\(</string>
+				<string>[^A-Za-z0-9_](create_object)\(</string>
+				<string>[^A-Za-z0-9_](create_protocol)\(</string>
+				<string>[^A-Za-z0-9_](create_category)\(</string>
+				<string>[^A-Za-z0-9_](object_property)\(</string>
+				<string>[^A-Za-z0-9_](protocol_property)\(</string>
+				<string>[^A-Za-z0-9_](category_property)\(</string>
+				<string>[^A-Za-z0-9_](abolish_object)\(</string>
+				<string>[^A-Za-z0-9_](abolish_protocol)\(</string>
+				<string>[^A-Za-z0-9_](abolish_category)\(</string>
+				<string>[^A-Za-z0-9_](extends_object)\(</string>
+				<string>[^A-Za-z0-9_](extends_protocol)\(</string>
+				<string>[^A-Za-z0-9_](implements_protocol)\(</string>
+				<string>[^A-Za-z0-9_](instantiates_class)\(</string>
+				<string>[^A-Za-z0-9_](specializes_class)\(</string>
+				<string>[^A-Za-z0-9_](imports_category)\(</string>
+				<string>[^A-Za-z0-9_](abolish_events)\(</string>
+				<string>[^A-Za-z0-9_](current_event)\(</string>
+				<string>[^A-Za-z0-9_](define_events)\(</string>
+				<string>[^A-Za-z0-9_](current_logtalk_flag)\(</string>
+				<string>[^A-Za-z0-9_](set_logtalk_flag)\(</string>
+				<string>[^A-Za-z0-9_](logtalk_compile)\(</string>
+				<string>[^A-Za-z0-9_](logtalk_load)\(</string>
+				<string>[^A-Za-z0-9_](forall)\(</string>
+				<string>[^A-Za-z0-9_](retractall)\(</string>
 			</array>
 		</dict>
 
@@ -261,16 +261,16 @@
 				<!-- Term unification -->
 				<string>[[:space:]]+(=)[[:space:]]+</string>
 				<string>[[:space:]]+(\\=)[[:space:]]+</string>
-				<string>[^A-Za-z0-9](unify_with_occurs_check)\(</string>
+				<string>[^A-Za-z0-9_](unify_with_occurs_check)\(</string>
 				<!-- Term testing -->
-				<string>[^A-Za-z0-9](var)\(</string>
-				<string>[^A-Za-z0-9](atom)\(</string>
-				<string>[^A-Za-z0-9](integer)\(</string>
-				<string>[^A-Za-z0-9](float)\(</string>
-				<string>[^A-Za-z0-9](atomic)\(</string>
-				<string>[^A-Za-z0-9](compound)\(</string>
-				<string>[^A-Za-z0-9](nonvar)\(</string>
-				<string>[^A-Za-z0-9](number)\(</string>
+				<string>[^A-Za-z0-9_](var)\(</string>
+				<string>[^A-Za-z0-9_](atom)\(</string>
+				<string>[^A-Za-z0-9_](integer)\(</string>
+				<string>[^A-Za-z0-9_](float)\(</string>
+				<string>[^A-Za-z0-9_](atomic)\(</string>
+				<string>[^A-Za-z0-9_](compound)\(</string>
+				<string>[^A-Za-z0-9_](nonvar)\(</string>
+				<string>[^A-Za-z0-9_](number)\(</string>
 				<!-- Term comparison -->
 				<string>[[:space:]]+(==)[[:space:]]+</string>
 				<string>[[:space:]]+(\\==)[[:space:]]+</string>
@@ -279,10 +279,10 @@
 				<string>[[:space:]]+(@&gt;=)[[:space:]]+</string>
 				<string>[[:space:]]+(@&gt;)[[:space:]]+</string>
 				<!-- Term creation and decomposition -->
-				<string>[^A-Za-z0-9](functor)\(</string>
-				<string>[^A-Za-z0-9](arg)\(</string>
+				<string>[^A-Za-z0-9_](functor)\(</string>
+				<string>[^A-Za-z0-9_](arg)\(</string>
 				<string>[[:space:]]+(=\.\.)[[:space:]]+</string>
-				<string>[^A-Za-z0-9](copy_term)\(</string>
+				<string>[^A-Za-z0-9_](copy_term)\(</string>
 				<!-- Arithemtic evaluation -->
 				<string>[[:space:]]+(is)[[:space:]]+</string>
 				<!-- Arithemtic comparison -->
@@ -300,25 +300,25 @@
 				<string>[[:space:]]+(/)[[:space:]]+</string>
 				<string>[[:space:]]+(rem)[[:space:]]+</string>
 				<string>[[:space:]]+(mod)[[:space:]]+</string>
-				<string>[^A-Za-z0-9](rem)\(</string>
-				<string>[^A-Za-z0-9](mod)\(</string>
-				<string>[^A-Za-z0-9](abs)\(</string>
-				<string>[^A-Za-z0-9](sign)\(</string>
-				<string>[^A-Za-z0-9](float_integer_part)\(</string>
-				<string>[^A-Za-z0-9](float_fractional_part)\(</string>
-				<string>[^A-Za-z0-9](float)\(</string>
-				<string>[^A-Za-z0-9](floor)\(</string>
-				<string>[^A-Za-z0-9](truncate)\(</string>
-				<string>[^A-Za-z0-9](round)\(</string>
-				<string>[^A-Za-z0-9](ceiling)\(</string>
+				<string>[^A-Za-z0-9_](rem)\(</string>
+				<string>[^A-Za-z0-9_](mod)\(</string>
+				<string>[^A-Za-z0-9_](abs)\(</string>
+				<string>[^A-Za-z0-9_](sign)\(</string>
+				<string>[^A-Za-z0-9_](float_integer_part)\(</string>
+				<string>[^A-Za-z0-9_](float_fractional_part)\(</string>
+				<string>[^A-Za-z0-9_](float)\(</string>
+				<string>[^A-Za-z0-9_](floor)\(</string>
+				<string>[^A-Za-z0-9_](truncate)\(</string>
+				<string>[^A-Za-z0-9_](round)\(</string>
+				<string>[^A-Za-z0-9_](ceiling)\(</string>
 				<!-- Other arithemtic functors -->
 				<string>[[:space:]]+(\*\*)[[:space:]]+</string>
-				<string>[^A-Za-z0-9](sin)\(</string>
-				<string>[^A-Za-z0-9](cos)\(</string>
-				<string>[^A-Za-z0-9](atan)\(</string>
-				<string>[^A-Za-z0-9](exp)\(</string>
-				<string>[^A-Za-z0-9](log)\(</string>
-				<string>[^A-Za-z0-9](sqrt)\(</string>
+				<string>[^A-Za-z0-9_](sin)\(</string>
+				<string>[^A-Za-z0-9_](cos)\(</string>
+				<string>[^A-Za-z0-9_](atan)\(</string>
+				<string>[^A-Za-z0-9_](exp)\(</string>
+				<string>[^A-Za-z0-9_](log)\(</string>
+				<string>[^A-Za-z0-9_](sqrt)\(</string>
 				<!-- Bitwise functors -->
 				<string>[[:space:]]+(&gt;&gt;)[[:space:]]+</string>
 				<string>[[:space:]]+(&lt;&lt;)[[:space:]]+</string>
@@ -326,55 +326,55 @@
 				<string>[[:space:]]+(\\/)[[:space:]]+</string>
 				<string>[[:space:]]+(\\)[[:space:]]+</string>
 				<!-- Stream selection and control -->
-				<string>[^A-Za-z0-9](current_input)\(</string>
-				<string>[^A-Za-z0-9](current_output)\(</string>
-				<string>[^A-Za-z0-9](set_input)\(</string>
-				<string>[^A-Za-z0-9](set_output)\(</string>
-				<string>[^A-Za-z0-9](open)\(</string>
-				<string>[^A-Za-z0-9](close)\(</string>
-				<string>[^A-Za-z0-9](flush_output)\(</string>
-				<string>[^A-Za-z0-9](stream_property)\(</string>
-				<string>[^A-Za-z0-9](at_end_of_stream)\(</string>
-				<string>[^A-Za-z0-9](set_stream_position)\(</string>
+				<string>[^A-Za-z0-9_](current_input)\(</string>
+				<string>[^A-Za-z0-9_](current_output)\(</string>
+				<string>[^A-Za-z0-9_](set_input)\(</string>
+				<string>[^A-Za-z0-9_](set_output)\(</string>
+				<string>[^A-Za-z0-9_](open)\(</string>
+				<string>[^A-Za-z0-9_](close)\(</string>
+				<string>[^A-Za-z0-9_](flush_output)\(</string>
+				<string>[^A-Za-z0-9_](stream_property)\(</string>
+				<string>[^A-Za-z0-9_](at_end_of_stream)\(</string>
+				<string>[^A-Za-z0-9_](set_stream_position)\(</string>
 				<!-- Character input/output -->
-				<string>[^A-Za-z0-9](get_char)\(</string>
-				<string>[^A-Za-z0-9](get_code)\(</string>
-				<string>[^A-Za-z0-9](peek_char)\(</string>
-				<string>[^A-Za-z0-9](peek_code)\(</string>
-				<string>[^A-Za-z0-9](put_char)\(</string>
-				<string>[^A-Za-z0-9](put_code)\(</string>
-				<string>[^A-Za-z0-9](nl)\(</string>
+				<string>[^A-Za-z0-9_](get_char)\(</string>
+				<string>[^A-Za-z0-9_](get_code)\(</string>
+				<string>[^A-Za-z0-9_](peek_char)\(</string>
+				<string>[^A-Za-z0-9_](peek_code)\(</string>
+				<string>[^A-Za-z0-9_](put_char)\(</string>
+				<string>[^A-Za-z0-9_](put_code)\(</string>
+				<string>[^A-Za-z0-9_](nl)\(</string>
 				<!-- Byte input/output -->
-				<string>[^A-Za-z0-9](get_byte)\(</string>
-				<string>[^A-Za-z0-9](peek_byte)\(</string>
-				<string>[^A-Za-z0-9](put_byte)\(</string>
+				<string>[^A-Za-z0-9_](get_byte)\(</string>
+				<string>[^A-Za-z0-9_](peek_byte)\(</string>
+				<string>[^A-Za-z0-9_](put_byte)\(</string>
 				<!-- Term input/output -->
-				<string>[^A-Za-z0-9](read_term)\(</string>
-				<string>[^A-Za-z0-9](read)\(</string>
-				<string>[^A-Za-z0-9](write_term)\(</string>
-				<string>[^A-Za-z0-9](writeq)\(</string>
-				<string>[^A-Za-z0-9](write)\(</string>
-				<string>[^A-Za-z0-9](write_canonical)\(</string>
-				<string>[^A-Za-z0-9](op)\(</string>
-				<string>[^A-Za-z0-9](current_op)\(</string>
-				<string>[^A-Za-z0-9](char_conversion)\(</string>
-				<string>[^A-Za-z0-9](current_char_conversion)\(</string>
+				<string>[^A-Za-z0-9_](read_term)\(</string>
+				<string>[^A-Za-z0-9_](read)\(</string>
+				<string>[^A-Za-z0-9_](write_term)\(</string>
+				<string>[^A-Za-z0-9_](writeq)\(</string>
+				<string>[^A-Za-z0-9_](write)\(</string>
+				<string>[^A-Za-z0-9_](write_canonical)\(</string>
+				<string>[^A-Za-z0-9_](op)\(</string>
+				<string>[^A-Za-z0-9_](current_op)\(</string>
+				<string>[^A-Za-z0-9_](char_conversion)\(</string>
+				<string>[^A-Za-z0-9_](current_char_conversion)\(</string>
 				<!-- Logic and control -->
 				<string>(\\\+)[[:space:]]+</string>
-				<string>[^A-Za-z0-9](once)\(</string>
+				<string>[^A-Za-z0-9_](once)\(</string>
 				<!-- Atomic term processing -->
-				<string>[^A-Za-z0-9](atom_length)\(</string>
-				<string>[^A-Za-z0-9](atom_concat)\(</string>
-				<string>[^A-Za-z0-9](sub_atom)\(</string>
-				<string>[^A-Za-z0-9](atom_chars)\(</string>
-				<string>[^A-Za-z0-9](atom_codes)\(</string>
-				<string>[^A-Za-z0-9](char_code)\(</string>
-				<string>[^A-Za-z0-9](number_chars)\(</string>
-				<string>[^A-Za-z0-9](number_codes)\(</string>
+				<string>[^A-Za-z0-9_](atom_length)\(</string>
+				<string>[^A-Za-z0-9_](atom_concat)\(</string>
+				<string>[^A-Za-z0-9_](sub_atom)\(</string>
+				<string>[^A-Za-z0-9_](atom_chars)\(</string>
+				<string>[^A-Za-z0-9_](atom_codes)\(</string>
+				<string>[^A-Za-z0-9_](char_code)\(</string>
+				<string>[^A-Za-z0-9_](number_chars)\(</string>
+				<string>[^A-Za-z0-9_](number_codes)\(</string>
 				<!-- Implementation defined hooks functions -->
-				<string>[^A-Za-z0-9](set_prolog_flag)\(</string>
-				<string>[^A-Za-z0-9](current_prolog_flag)\(</string>
-				<string>[^A-Za-z0-9](halt)\(</string>
+				<string>[^A-Za-z0-9_](set_prolog_flag)\(</string>
+				<string>[^A-Za-z0-9_](current_prolog_flag)\(</string>
+				<string>[^A-Za-z0-9_](halt)\(</string>
 			</array>
 			<key>Plain Strings</key>
 			<array>

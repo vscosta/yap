@@ -251,7 +251,7 @@ Logtalk defines a set of built-in object predicates or methods to access message
 <h3>Local methods<a name="local"></a></h3>
 
 <p>
-Logtalk defines four built-in methods to access an object execution context. These methods are compiled in-line and can be freely used without worrying about performance penalties.
+Logtalk defines four built-in methods to access an object execution context. These methods are compiled in-line and can be freely used without worrying about performance penalties. When called from inside a category, these methods refer to the execution context of the object importing the category.
 </p>
 <p>
 To find the object that received the message under execution we may use the <a title="Consult reference manual" href="../refman/methods/self1.html"><code>self/1</code></a> method. We may also retrieve the object that has sent the message under execution using the <a title="Consult reference manual" href="../refman/methods/sender1.html"><code>sender/1</code></a> method.
@@ -317,6 +317,7 @@ After compiling and loading these two objects, we can try the following goal:
     Color parameter value is blue
     yes
 </pre>
+The method <code>parameter/2</code> is only compiled in-ilne when used inside objects; its use inside categories implies a call to the built-in Prolog predicate <code>arg/3</code>. Nevertheless, note that calls to <code>parameter/2</code> from inside categories are inherently problematic: a category may be implemented by several objects, both parametric (with different number of parameters) and non-parametric. Care must be taken to ensure that a parametric object importing such a category match the interpretation of its parameters used in the category.
 
 <h3>Database methods<a name="database"></a></h3>
 
@@ -392,7 +393,7 @@ Copyright &copy; <a href="mailto:pmoura@logtalk.org">Paulo Moura</a> &mdash; <a 
 </div>
 
 <div class="footer">
-<p><span class="bleft"><a href="http://validator.w3.org/check/referer">XHTML</a> + <a href="http://jigsaw.w3.org/css-validator/check/referer">CSS</a></span><span class="bright">Last updated on: February 11, 2004</span></p>
+<p><span class="bleft"><a href="http://validator.w3.org/check/referer">XHTML</a> + <a href="http://jigsaw.w3.org/css-validator/check/referer">CSS</a></span><span class="bright">Last updated on: March 6, 2004</span></p>
 </div>
 </body>
 </html>
