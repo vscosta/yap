@@ -123,7 +123,7 @@ CopyAttVar(CELL *orig, CELL ***to_visit_ptr, CELL *res)
       to_visit[2] = newv->Atts+2*j+1;
       to_visit[3] = (CELL *)(attv->Atts[2*j]);
       /* fool the system into thinking we had a variable there */
-      attv->Atts[2*j] = AbsAppl(H);
+      attv->Atts[2*j+1] = AbsAppl(H);
       to_visit += 4;
 #else
       to_visit[0] = attv->Atts+2*j;

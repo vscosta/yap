@@ -2651,6 +2651,11 @@ do_gc(Int predarity, CELL *current_env, yamop *nextop)
   Int           effectiveness = 0;
   int           gc_trace = FALSE;
 
+#if COROUTINING
+  if (H0 - (CELL *)ReadTimedVar(DelayedVars) < 1024+(2*NUM_OF_ATTS)) {
+    growglobal();
+  }
+#endif
 #ifdef INSTRUMENT_GC
   {
     int i;
