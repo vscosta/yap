@@ -1,6 +1,6 @@
 // =================================================================
 // Logtalk - Object oriented extension to Prolog
-// Release 2.21.6
+// Release 2.22.0
 //
 // Copyright (c) 1998-2004 Paulo Moura.  All Rights Reserved.
 // =================================================================
@@ -48,10 +48,11 @@ logtalk_home = logtalk_home.replace(/\\/g, "\\\\");
 if (!FSObject.FolderExists(logtalk_home + "\\bin")) 
 	FSObject.CreateFolder(logtalk_home + "\\bin");
 
-var f = FSObject.CreateTextFile(logtalk_home + "\\bin\\logtalkciao.pl", true);
+var f = FSObject.CreateTextFile(logtalk_home + "\\bin\\logtalk_ciao.pl", true);
 
-f.WriteLine(":- ensure_loaded('\$LOGTALKHOME/configs/ciao_aux.config').");
+f.WriteLine(":- ensure_loaded('\$LOGTALKUSER/configs/ciao_aux.config').");
 f.WriteLine(":- ensure_loaded('\$LOGTALKHOME/compiler/logtalk.pl').");
+f.WriteLine(":- ensure_loaded('\$LOGTALKUSER/libpaths/libpaths.pl').");
 f.WriteLine(":- op(600, xfy, ::).");
 f.WriteLine(":- op(600,  fy, ::).");
 f.WriteLine(":- op(600,  fy, ^^).");
@@ -67,7 +68,7 @@ if (!FSObject.FolderExists(ProgramsPath + "\\Logtalk"))
 	FSObject.CreateFolder(ProgramsPath + "\\Logtalk");
 
 var link = WshShell.CreateShortcut(ProgramsPath + "\\Logtalk\\Logtalk - CIAO.lnk");
-link.Arguments = "-l %LOGTALKHOME%\\bin\\logtalkciao.pl";
+link.Arguments = "-l %LOGTALKHOME%\\bin\\logtalk_ciao.pl";
 link.Description = "Runs Logtalk with CIAO";
 link.IconLocation = "app.exe,1";
 link.TargetPath = prolog_path;
@@ -76,8 +77,9 @@ link.WorkingDirectory = logtalk_home;
 link.Save();
 
 WScript.Echo('Done. The "Logtalk - CIAO" shortcut was been added to the');
-WScript.Echo('Start Menu Programs. Make sure that the LOGTALKHOME environment');
-WScript.Echo('variable is defined for all users wishing to use the shortcut.');
+WScript.Echo('Start Menu Programs. Make sure that the environment variables');
+WScript.Echo('LOGTALKHOME and LOGTALKUSER are defined for all users wishing');
+WScript.Echo('to use the shortcut.');
 WScript.Echo('');
 
 WScript.Quit(0);

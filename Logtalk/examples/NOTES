@@ -1,6 +1,6 @@
 =================================================================
 Logtalk - Object oriented extension to Prolog
-Release 2.21.6
+Release 2.22.0
 
 Copyright (c) 1998-2004 Paulo Moura.  All Rights Reserved.
 =================================================================
@@ -11,12 +11,13 @@ description of each example is included below.
 
 Each example folder contains a NOTES file and a loader helper file which 
 may be used to load all the example entities. In addition, most examples 
-contain a SCRIPT file with sample queries for your to try.
+contain a SCRIPT file with instructions on how to load the example and 
+sample queries for your to try.
 
 Most of these examples need objects, protocols, and categories which are 
-defined in the Logtalk standard library or in other examples, so you 
-should load them first (see the NOTES files inside the library folder and 
-the NOTES file inside each example folder).
+defined in the Logtalk standard library or in other examples. See the NOTES 
+files inside the library folder and the NOTES and SCRIPT files inside each 
+example folder).
 
 Some examples may redefine objects already loaded from other examples.
 You may want to restart Logtalk after trying each example.

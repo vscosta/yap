@@ -1,6 +1,6 @@
 =================================================================
 Logtalk - Object oriented extension to Prolog
-Release 2.21.6
+Release 2.22.0
 
 Copyright (c) 1998-2004 Paulo Moura.  All Rights Reserved.
 =================================================================
@@ -84,7 +84,7 @@ for further instructions.
 
 See the user manual for a description of the source files organization 
 and for using instructions (to read the user manual open the file 
-manuals/index.html with a web browser). Most files are formatted using 
+"manuals/index.html" with a web browser). Most files are formatted using 
 four-space tabs.
 
 
@@ -104,9 +104,9 @@ from the Logtalk web site. The PDF files include page numbers, index and a
 table of contents and are available for printing in both A4 and US Letter 
 paper formats.
 
-The file RELEASE_NOTES contains descriptions of the changes made in
-Logtalk since the first public version. Read it carefully if you have
-been using a previous Logtalk version.
+The file RELEASE_NOTES contains descriptions of the changes made in Logtalk 
+since the first public version. Read it carefully if you have been using a 
+previous Logtalk version.
 
 
 8. UPGRADING
@@ -118,7 +118,7 @@ instructions on how to upgrade your programs to run under this new version.
 9. CITATIONS
 
 If you want to cite Logtalk in your publications, please consult the file 
-BIBLIOGRAPHY for BibTeX bibliographic references.
+BIBLIOGRAPHY for bibliographic references in BibTeX format.
 
 
 10. CONTRIBUTIONS

@@ -28,7 +28,7 @@
 
 
 	working_directory(Directory) :-
-		{fail}.
+		{absolute_file_name('.', Directory)}.
 
 
 	directory_exists(Directory) :-

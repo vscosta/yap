@@ -1,9 +1,10 @@
 =================================================================
 Logtalk - Object oriented extension to Prolog
-Release 2.21.6
+Release 2.22.0
 
 Copyright (c) 1998-2004 Paulo Moura.  All Rights Reserved.
 =================================================================
+
 
 The examples in this folder are adopted from the Logic&Objects system
 by Francis G. McCabe. Detailed descriptions and the original source code

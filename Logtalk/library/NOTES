@@ -1,6 +1,6 @@
 =================================================================
 Logtalk - Object oriented extension to Prolog
-Release 2.21.6
+Release 2.22.0
 
 Copyright (c) 1998-2004 Paulo Moura.  All Rights Reserved.
 =================================================================
@@ -9,10 +9,15 @@ Copyright (c) 1998-2004 Paulo Moura.  All Rights Reserved.
 This folder contains some useful objects, categories, and protocols. 
 
 To load a group of objects, protocols, and categories in this library 
-change your Prolog working directory to this folder and then compile 
-and load the corresponding loader utility file. Currently, there are 
-eight groups of entities defined, each one with a loader and a notes 
-file:
+either change your Prolog working directory to this folder and then 
+compile and load the corresponding loader utility file or simply use 
+the notation library(<loader file>) as argument for the compiling and 
+loading predicates. For example:
+
+	| ?- logtalk_load(library(random_loader)).
+
+Currently, there are eight groups of entities defined, each one with 
+a loader and a notes file:
 
 	dates
 		dates_loader.lgt
@@ -47,12 +52,9 @@ file:
 		types.notes
 
 There is also a file named all_loader.lgt that will load all entities in the 
-groups listed above.
+groups listed above. Simply type the goal:
 
-To compile and load the loader files type you may use the Logtalk built-in 
-predicate logtalk_load/1. For example:
-
-	| ?- logtalk_load(all_loader).
+	| ?- logtalk_load(library(all_loader)).
 
 Specific notes about each group of objects, categories, and protocols can be 
 found in the corresponding *.notes files.

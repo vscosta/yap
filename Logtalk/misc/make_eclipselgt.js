@@ -1,6 +1,6 @@
 // =================================================================
 // Logtalk - Object oriented extension to Prolog
-// Release 2.21.6
+// Release 2.22.0
 //
 // Copyright (c) 1998-2004 Paulo Moura.  All Rights Reserved.
 // =================================================================
@@ -11,8 +11,8 @@ if (WScript.Arguments.Unnamed.Length > 0) {
 }
 
 WScript.Echo('');
-WScript.Echo('Creating a shortcut named "Logtalk - ECLiPSe" for running Logtalk');
-WScript.Echo('with ECLiPSe...');
+WScript.Echo('Creating a shortcut named "Logtalk - ECLiPSe" for running Logtalk with');
+WScript.Echo('ECLiPSe 5.7 (edit the script if you are using other version)...');
 WScript.Echo('');
 
 var WshShell = new ActiveXObject("WScript.Shell");
@@ -48,20 +48,23 @@ logtalk_home = logtalk_home.replace(/\\/g, "\\\\");
 if (!FSObject.FolderExists(logtalk_home + "\\bin")) 
 	FSObject.CreateFolder(logtalk_home + "\\bin");
 
-var f = FSObject.CreateTextFile(logtalk_home + "\\bin\\lgtceclipse.pl", true);
+var f = FSObject.CreateTextFile(logtalk_home + "\\bin\\lgtc_eclipse.pl", true);
 
 f.WriteLine(":- pragma(system).");
 f.WriteLine(":- pragma(nodebug).");
 f.Close();
 
-WshShell.Run("cmd /c type " + logtalk_home + "\\compiler\\logtalk.pl" + " >> " + logtalk_home + "\\bin\\lgtceclipse.pl", true);
+WshShell.Run("cmd /c type " + logtalk_home + "\\compiler\\logtalk.pl" + " >> " + logtalk_home + "\\bin\\lgtc_eclipse.pl", true);
 
-f = FSObject.CreateTextFile(logtalk_home + "\\bin\\logtalkeclipse.pl", true);
+f = FSObject.CreateTextFile(logtalk_home + "\\bin\\logtalk_eclipse.pl", true);
 
 f.WriteLine(":- ensure_loaded(library(toplevel)).");
-f.WriteLine(":- cd('$LOGTALKHOME').");
+f.WriteLine(":- cd('$LOGTALKUSER').");
 f.WriteLine(":- compile('configs/eclipseiso.config').");
-f.WriteLine(":- compile('bin/lgtceclipse.pl').");
+f.WriteLine(":- cd('$LOGTALKHOME').");
+f.WriteLine(":- compile('bin/lgtc_eclipse.pl').");
+f.WriteLine(":- cd('$LOGTALKUSER').");
+f.WriteLine(":- compile('libpaths/libpaths.pl').");
 f.Close();
 
 var ProgramsPath = WshShell.SpecialFolders("AllUsersPrograms");
@@ -70,7 +73,7 @@ if (!FSObject.FolderExists(ProgramsPath + "\\Logtalk"))
 	FSObject.CreateFolder(ProgramsPath + "\\Logtalk");
 
 var link = WshShell.CreateShortcut(ProgramsPath + "\\Logtalk\\Logtalk - ECLiPSe.lnk");
-link.Arguments = "-b %LOGTALKHOME%\\bin\\logtalkeclipse.pl";
+link.Arguments = "-b %LOGTALKHOME%\\bin\\logtalk_eclipse.pl";
 link.Description = "Runs Logtalk with ECLiPSe";
 link.IconLocation = "app.exe,1";
 link.TargetPath = prolog_path;
@@ -79,8 +82,9 @@ link.WorkingDirectory = logtalk_home;
 link.Save();
 
 WScript.Echo('Done. The "Logtalk - ECLiPSe" shortcut was been added to the');
-WScript.Echo('Start Menu Programs. Make sure that the LOGTALKHOME environment');
-WScript.Echo('variable is defined for all users wishing to use the shortcut.');
+WScript.Echo('Start Menu Programs. Make sure that the environment variables');
+WScript.Echo('LOGTALKHOME and LOGTALKUSER are defined for all users wishing');
+WScript.Echo('to use the shortcut.');
 WScript.Echo('');
 
 WScript.Quit(0);

@@ -87,7 +87,27 @@ Usually these files contain a call to the Logtalk built-in predicates <a title="
 Another example of directive that could appear in a loader file would be <code>op/3</code> directives declaring global operators used by your application.
 </p>
 <p>
-These loader files may not work without modifications depending on the way your Prolog compiler deals with folders/directories. Most of the time you will need to <strong>set the working directory</strong> to be the one that contains the loader file in order to get the example source files loaded. Unfortunately, there is no portable way for us to do that from inside Logtalk due to differences between operating systems and lack of adequate operating system access support in some Prolog compilers.
+To take the best advantage of loader files, assert a clause to the dynamic predicate <code>logtalk_library_path/2</code> for the directory containing your source files, as explained in the next section.
+</p>
+
+<h3>Libraries of source files<a name="libraries"></a></h3>
+
+<p>
+Logtalk defines a <em>library</em> simply as a directory containg source files. Library locations can be specified by asserting clauses to the dynamic predicate <code>logtalk_library_path/2</code>. For example:
+</p>
+<pre>
+    | ?- assertz(logtalk_library_path(shapes, '$LOGTALKHOME/examples/shapes/')). 
+</pre>
+This allows us to load a library source file without the need to first change the current working directory to the library directory and then back to the original directory. For example, in order to load a <code>loader.lgt</code> file, contained in a library named <code>shapes</code>, we just need to type:
+</p>
+<pre>
+    | ?- logtalk_load(shapes(loader)). 
+</pre>
+<p>
+The best way to take advantage of this feature is to load at startup a source file containing an <code>initialization/1</code> directive which asserts all the <code>logtalk_library_path/2</code> clauses needed for all available libraries. This allows us to load library source files or entire libraries without worrying about libraries paths, improving code portability.
+</p>
+<p>
+A few Prolog compilers do not support the <code>&lt;library&gt;(&lt;entity&gt;)</code> notation. In this case, you will need to set the working directory to be the one that contains the entity file in order to load it.
 </p>
 
 <h3>Portable programs<a name="portability"></a></h3>
@@ -156,7 +176,7 @@ Copyright &copy; <a href="mailto:pmoura@logtalk.org">Paulo Moura</a> &mdash; <a 
 </div>
 
 <div class="footer">
-<p><span class="bleft"><a href="http://validator.w3.org/check/referer">XHTML</a> + <a href="http://jigsaw.w3.org/css-validator/check/referer">CSS</a></span><span class="bright">Last updated on: August 30, 2004</span></p>
+<p><span class="bleft"><a href="http://validator.w3.org/check/referer">XHTML</a> + <a href="http://jigsaw.w3.org/css-validator/check/referer">CSS</a></span><span class="bright">Last updated on: November 27, 2004</span></p>
 </div>
 </body>
 </html>

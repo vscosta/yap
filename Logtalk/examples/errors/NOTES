@@ -1,17 +1,12 @@
 =================================================================
 Logtalk - Object oriented extension to Prolog
-Release 2.21.6
+Release 2.22.0
 
 Copyright (c) 1998-2004 Paulo Moura.  All Rights Reserved.
 =================================================================
 
 
-The entities on this example are divided in two sets. To load the two 
-sets of entities, compile and load the corresponding loader files:
-
-| ?- logtalk_load(warnings_loader).
-
-| ?- logtalk_load(errors_loader).
+To load this example, please see the SCRIPT file.
 
 This folder contains examples of objects, categories, and protocols 
 containing errors that will trigger Logtalk compiler warnings and 

@@ -1,6 +1,6 @@
 // =================================================================
 // Logtalk - Object oriented extension to Prolog
-// Release 2.21.6
+// Release 2.22.0
 //
 // Copyright (c) 1998-2004 Paulo Moura.  All Rights Reserved.
 // =================================================================
@@ -11,13 +11,13 @@ if (WScript.Arguments.Unnamed.Length > 0) {
 }
 
 WScript.Echo('');
-WScript.Echo('Creating a shortcut named "Logtalk - SICStus Prolog" for running Logtalk');
-WScript.Echo('with SICStus Prolog...');
+WScript.Echo('Creating a shortcut named "Logtalk - SICStus Prolog" for running Logtalk with');
+WScript.Echo('SICStus Prolog 3.12 (edit the script if you are using other version)...');
 WScript.Echo('');
 
 var WshShell = new ActiveXObject("WScript.Shell");
 
-var prolog_path = WshShell.RegRead("HKLM\\Software\\SICS\\SICStus3.11_win32\\SP_PATH") + "\\bin\\spwin.exe";
+var prolog_path = WshShell.RegRead("HKLM\\Software\\SICS\\SICStus3.12_win32\\SP_PATH") + "\\bin\\spwin.exe";
 
 var FSObject = new ActiveXObject("Scripting.FileSystemObject");
 
@@ -48,10 +48,11 @@ logtalk_home = logtalk_home.replace(/\\/g, "\\\\");
 if (!FSObject.FolderExists(logtalk_home + "\\bin")) 
 	FSObject.CreateFolder(logtalk_home + "\\bin");
 
-var f = FSObject.CreateTextFile(logtalk_home + "\\bin\\logtalksicstus.pl", true);
+var f = FSObject.CreateTextFile(logtalk_home + "\\bin\\logtalk_sicstus.pl", true);
 
-f.WriteLine(":- consult('$LOGTALKHOME\\\\configs\\\\sicstus.config').");
-f.WriteLine(":- consult('$LOGTALKHOME\\\\compiler\\\\logtalk.pl').");
+f.WriteLine(":- consult('$LOGTALKUSER/configs/sicstus.config').");
+f.WriteLine(":- consult('$LOGTALKHOME/compiler/logtalk.pl').");
+f.WriteLine(":- consult('$LOGTALKUSER/libpaths/libpaths.pl').");
 f.Close();
 
 var ProgramsPath = WshShell.SpecialFolders("AllUsersPrograms");
@@ -60,7 +61,7 @@ if (!FSObject.FolderExists(ProgramsPath + "\\Logtalk"))
 	FSObject.CreateFolder(ProgramsPath + "\\Logtalk");
 
 var link = WshShell.CreateShortcut(ProgramsPath + "\\Logtalk\\Logtalk - SICStus Prolog.lnk");
-link.Arguments = "-l %LOGTALKHOME%\\bin\\logtalksicstus.pl";
+link.Arguments = "-l %LOGTALKHOME%\\bin\\logtalk_sicstus.pl";
 link.Description = "Runs Logtalk with SICStus Prolog";
 link.IconLocation = "app.exe,1";
 link.TargetPath = prolog_path;
@@ -68,9 +69,10 @@ link.WindowStyle = 1;
 link.WorkingDirectory = logtalk_home;
 link.Save();
 
-WScript.Echo('Done. The "Logtalk - SICStus Prolog" shortcut was been added to the');
-WScript.Echo('Start Menu Programs. Make sure that the LOGTALKHOME environment');
-WScript.Echo('variable is defined for all users wishing to use the shortcut.');
+WScript.Echo('Done. The "Logtalk - SICStus Prolog" shortcut was been added to');
+WScript.Echo('the Start Menu Programs. Make sure that the environment variables');
+WScript.Echo('LOGTALKHOME and LOGTALKUSER are defined for all users wishing');
+WScript.Echo('to use the shortcut.');
 WScript.Echo('');
 
 WScript.Quit(0);

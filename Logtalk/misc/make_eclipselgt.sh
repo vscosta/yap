@@ -2,7 +2,7 @@
 
 ## =================================================================
 ## Logtalk - Object oriented extension to Prolog
-## Release 2.21.6
+## Release 2.22.0
 ##
 ## Copyright (c) 1998-2004 Paulo Moura.  All Rights Reserved.
 ## =================================================================
@@ -20,23 +20,21 @@ else
 	else
 		prefix="$1"
 	fi
-	if ! [ -d bin ]
-	then
-		mkdir bin
-	fi
+	mkdir -p bin
 	cd bin
-	echo ":- pragma(system)." > logtalkeclipse.pl
-	echo ":- pragma(nodebug)." >> logtalkeclipse.pl
-	echo ":- ensure_loaded(library(toplevel))." >> logtalkeclipse.pl
-	echo ":- include('\$LOGTALKHOME/compiler/logtalk.pl')." >> logtalkeclipse.pl
-	echo ":- compile('\$LOGTALKHOME/configs/eclipseiso.config')." > logtalkeclipse.rc
-	echo ":- compile('\$LOGTALKHOME/bin/logtalkeclipse.pl')." >> logtalkeclipse.rc
+	echo ":- pragma(system)." > logtalk_eclipse.pl
+	echo ":- pragma(nodebug)." >> logtalk_eclipse.pl
+	echo ":- ensure_loaded(library(toplevel))." >> logtalk_eclipse.pl
+	echo ":- include('\$LOGTALKHOME/compiler/logtalk.pl')." >> logtalk_eclipse.pl
+	echo ":- compile('\$LOGTALKUSER/configs/eclipseiso.config')." > logtalk_eclipse.rc
+	echo ":- compile('\$LOGTALKHOME/bin/logtalk_eclipse.pl')." >> logtalk_eclipse.rc
+	echo ":- compile('\$LOGTALKUSER/libpaths/libpaths.pl')." >> logtalk_eclipse.rc
 	echo "#/bin/sh" > eclipselgt
-	echo "eclipse -b \$LOGTALKHOME/bin/logtalkeclipse.rc" >> eclipselgt
+	echo "eclipse -b \$LOGTALKHOME/bin/logtalk_eclipse.rc" >> eclipselgt
 	chmod a+x eclipselgt
 	ln -sf $LOGTALKHOME/bin/eclipselgt $prefix/bin/eclipselgt
 	echo "Done. A link to the script was been created in $prefix/bin."
-	echo "Users should define the environment variable LOGTALKHOME in"
-	echo "order to use the script."
+	echo "Users should define the environment variables LOGTALKHOME and"
+	echo "LOGTALKUSER in order to use the script."
 	echo
 fi

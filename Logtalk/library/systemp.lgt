@@ -40,7 +40,7 @@
 			'Directory does not exists' - existence_error(directory, 'Directory')]]).
 
 	:- public(working_directory/1).
-	:- mode(working_directory(?atom), one).
+	:- mode(working_directory(?atom), zero_or_one).
 	:- info(working_directory/1, [
 		comment is 'Current working directory (as an absolute file name).',
 		argnames is ['Directory'],

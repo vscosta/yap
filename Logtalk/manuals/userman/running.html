@@ -32,12 +32,13 @@ We run Logtalk inside a normal Prolog session, after loading the necessary files
 To start a Logtalk session just:
 </p>
 <ol>
-	<li>Start Prolog.</li>
+	<li>Start your Prolog compiler.</li>
 	<li>Load the appropriate configuration file for your compiler. Configuration files for most common Prolog compilers can be found in the <code>configs</code> subdirectory.</li>
-	<li>Load the Logtalk compiler/preprocessor and runtime files contained in the <code>compiler</code> subdirectory.</li>
+	<li>Load the Logtalk compiler/runtime files contained in the <code>compiler</code> subdirectory.</li>
+	<li>Load the library paths configuration file corresponding to your Logtalk installation contained in the <code>libpaths</code> subdirectory.</li>
 </ol>
 <p>
-Note that the both configuration files and compiler/preprocessor files are Prolog source files. The predicate called to load (and compile) them depends on your Prolog compiler. In case of doubt, consult your Prolog compiler reference manual or take a look at the definition of the predicate <code>'$lgt_load_prolog_code'/1</code> in the corresponding configuration file.
+Note that the configuration files, compiler/runtime files, and library paths file are Prolog source files. The predicate called to load (and compile) them depends on your Prolog compiler. In case of doubt, consult your Prolog compiler reference manual or take a look at the definition of the predicate <code>'$lgt_load_prolog_code'/1</code> in the corresponding configuration file.
 </p>
 <p>
 Most Prolog compilers support automatic loading of an initialization file, which can include the necessary directives to load both the Prolog configuration file and the Logtalk compiler. This feature, when available, allows automatic loading of Logtalk when you start your Prolog compiler.
@@ -65,10 +66,10 @@ To compile to disk and also load into memory the source files we can use the Log
 This predicate works in the same way of the predicate <code>logtalk_compile/1</code> but also loads the compiled files to memory. 
 </p>
 <p>
-Both predicates expect an entity name, a list of entity names (atoms), or a source metafile as an argument. The Logtalk source file name extension, as defined in the configuration file, should be omitted.
+Both predicates expect an entity name, a source metafile, or a list of entity names and source metafiles as an argument. The Logtalk source file name extension, as defined in the configuration file, should be omitted.
 </p>
 <p>
-If you have more than a few source files then you may want to use a loader helper file containing the calls to the <code>logtalk_load/1</code> predicate. Consulting or compiling the loader file will then compile and load all your Logtalk entities into memory.
+If you have more than a few source files then you may want to use a loader helper file containing the calls to the <code>logtalk_load/1</code> predicate. Consulting or compiling the loader file will then compile and load all your Logtalk entities into memory (see the <a href="programming.html#loaders">next</a> section for details).
 </p>
 
 <h3>Compiler option flags<a name="options"></a></h3>
@@ -469,7 +470,7 @@ Copyright &copy; <a href="mailto:pmoura@logtalk.org">Paulo Moura</a> &mdash; <a 
 </div>
 
 <div class="footer">
-<p><span class="bleft"><a href="http://validator.w3.org/check/referer">XHTML</a> + <a href="http://jigsaw.w3.org/css-validator/check/referer">CSS</a></span><span class="bright">Last updated on: November 12, 2004</span></p>
+<p><span class="bleft"><a href="http://validator.w3.org/check/referer">XHTML</a> + <a href="http://jigsaw.w3.org/css-validator/check/referer">CSS</a></span><span class="bright">Last updated on: November 22, 2004</span></p>
 </div>
 </body>
 </html>

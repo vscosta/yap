@@ -1,14 +1,12 @@
 =================================================================
 Logtalk - Object oriented extension to Prolog
-Release 2.21.6
+Release 2.22.0
 
 Copyright (c) 1998-2004 Paulo Moura.  All Rights Reserved.
 =================================================================
 
 
-To load all entities in this example compile and load the loader file:
-
-| ?- logtalk_load(loader).
+To load this example and for sample queries, please see the SCRIPT file.
 
 This example contains simple meta-interpreters for pure Prolog encapsulated 
 in Logtalk objects:
@@ -17,8 +15,9 @@ in Logtalk objects:
 		simple meta-interpreter for pure Prolog
 
 	proof_tree
-		simple meta-interpreter for pure Prolog returning the proof tree
-		for successful queries
+		simple meta-interpreter for pure Prolog returning the proof 
+		tree for successful queries
 
 	tracer
-		simple meta-interpreter for pure Prolog that traces proof construction
+		simple meta-interpreter for pure Prolog that traces proof 
+		construction

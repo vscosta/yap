@@ -1,10 +1,13 @@
 =================================================================
 Logtalk - Object oriented extension to Prolog
-Release 2.21.6
+Release 2.22.0
 
 Copyright (c) 1998-2004 Paulo Moura.  All Rights Reserved.
 =================================================================
 
+
+To load this example and for sample queries, please see the SCRIPT 
+file.
 
 This example illustrates some variants of the "diamond problem" 
 (multi-inheritance conflicts and ambiguities) and its respective 
@@ -45,12 +48,3 @@ using prototype hierarchies:
 	diamond3
 		presents a solution which allows both inherited definitions to be 
 		used in D
-
-To load all entities in this example compile and load the loader file:
-
-| ?- logtalk_load(loader).
-
-To load only a specific variant, compile and load the respective metafile. 
-For example:
-
-| ?- logtalk_load(diamond2).

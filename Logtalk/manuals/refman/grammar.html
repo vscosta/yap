@@ -402,6 +402,40 @@ The Logtalk grammar is here described using Backus-Naur Form syntax. Non-termina
 </blockquote>
 
 
+<h3>Entity file names<a name="entity_file_names"></a></h3>
+
+<blockquote>
+	<dl>
+		<dt>entity_file_names ::=</dt>
+			<dd>entity_file_name |</dd>
+			<dd>entity_file_name_list</dd>
+	</dl>
+	<dl>
+		<dt>entity_file_name ::=</dt>
+			<dd><em>atom</em> |</dd>
+			<dd>library_entity_file_name</dd>
+	</dl>
+	<dl>
+		<dt>library_entity_file_name ::=</dt>
+			<dd>library_name "<code>(</code>" <em>atom</em> "<code>)</code>"</dd>
+	</dl>
+	<dl>
+		<dt>library_name ::=</dt>
+			<dd><em>atom</em></dd>
+	</dl>
+		<dl>
+			<dt>entity_file_name_sequence ::=</dt>
+				<dd>entity_file_name |</dd>
+				<dd>entity_file_name "<code>,</code>" entity_file_name_sequence</dd>
+		</dl>
+	<dl>
+		<dt>entity_file_name_list ::=</dt>
+			<dd>"<code>[</code>" entity_file_name_sequence "<code>]</code>"</dd>
+	</dl>
+
+</blockquote>
+
+
 <h3>Directives<a name="directives"></a></h3>
 
 <blockquote>
@@ -721,7 +755,7 @@ Copyright &copy; <a href="mailto:pmoura@logtalk.org">Paulo Moura</a> &mdash; <a 
 </div>
 
 <div class="footer">
-<p><span class="bleft"><a href="http://validator.w3.org/check/referer">XHTML</a> + <a href="http://jigsaw.w3.org/css-validator/check/referer">CSS</a></span><span class="bright">Last updated on: October 10, 2004</span></p>
+<p><span class="bleft"><a href="http://validator.w3.org/check/referer">XHTML</a> + <a href="http://jigsaw.w3.org/css-validator/check/referer">CSS</a></span><span class="bright">Last updated on: November 22, 2004</span></p>
 </div>
 </body>
 </html>

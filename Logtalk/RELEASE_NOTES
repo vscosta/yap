@@ -1,6 +1,6 @@
 =================================================================
 Logtalk - Object oriented extension to Prolog
-Release 2.21.6
+Release 2.22.0
 
 Copyright (c) 1998-2004 Paulo Moura.  All Rights Reserved.
 =================================================================
@@ -8,6 +8,34 @@ Copyright (c) 1998-2004 Paulo Moura.  All Rights Reserved.
 
 RELEASE NOTES
 =============
+
+
+2.22.0 - November 29, 2004
+
+	Implemented a notion of library as simply a directory containing source 
+	files. Added a new dynamic predicate, logtalk_library_path/2, for 
+	specifying library paths. Added a sample file (libpaths/libpaths.pl) for 
+	setting library paths for the Logtalk standard library and for all the 
+	supplied examples.
+
+	Added support for using the notation <library>(<entity>) with the built-in
+	predicates logtalk_compile/1-2 and logtalk_load/1-2 for compiling and 
+	loading source files contained on a library, without the need to first 
+	change the current working directory.
+
+	Changed the library and the examples loading instructions to use the new 
+	notation <library>(<entity>).
+
+	Improved installation instructions and installation scripts. Added a new 
+	environment variable, LOGTALKUSER, for defining the location of the copies 
+	of the user-modifiable Logtalk files in a multiple users setup environment.
+
+	Added utility predicates to most configuration files for querying and 
+	changing the current working directory (needed for the <library>(<entity>) 
+	notation to work).
+
+	Corrected a bug in the code that checks for file existence when compiling 
+	or loading source files and source metafiles.
 
 
 2.21.6 - November 15, 2004

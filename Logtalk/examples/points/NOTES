@@ -1,26 +1,17 @@
 =================================================================
 Logtalk - Object oriented extension to Prolog
-Release 2.21.6
+Release 2.22.0
 
 Copyright (c) 1998-2004 Paulo Moura.  All Rights Reserved.
 =================================================================
 
 
-To load all entities in this example compile and load the loader file:
-
-| ?- logtalk_load(loader).
-
-You will need to load the objects in the roots and relations examples.
-
-You will also need to load the following files in the library directory: 
-events_loader, types_loader, metapredicates_loader, and hierarchies_loader.
-Alternatively, you may load the library all_loader file to load all library 
-entities.
-
+To load this example and for sample queries, please see the SCRIPT file.
 
 You can find the original description of this example (and a solution using 
 SICStus Objects) at the URL:
-http://www.sics.se/ps/sicstus/sicstus_32.html#SEC254
+
+	http://www.sics.se/ps/sicstus/sicstus_32.html#SEC254
 
 Suppose you wish to represent points in a two-dimensional space. The
 protocol you will have to define consists on the operation move/2, which

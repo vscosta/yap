@@ -1,6 +1,6 @@
 // =================================================================
 // Logtalk - Object oriented extension to Prolog
-// Release 2.21.6
+// Release 2.22.0
 //
 // Copyright (c) 1998-2004 Paulo Moura.  All Rights Reserved.
 // =================================================================
@@ -48,10 +48,11 @@ logtalk_home = logtalk_home.replace(/\\/g, "\\\\");
 if (!FSObject.FolderExists(logtalk_home + "\\bin")) 
 	FSObject.CreateFolder(logtalk_home + "\\bin");
 
-var f = FSObject.CreateTextFile(logtalk_home + "\\bin\\logtalkyap.pl", true);
+var f = FSObject.CreateTextFile(logtalk_home + "\\bin\\logtalk_yap.pl", true);
 
-f.WriteLine(":- reconsult('$LOGTALKHOME\\\\configs\\\\yap.config').");
+f.WriteLine(":- reconsult('$LOGTALKUSER\\\\configs\\\\yap.config').");
 f.WriteLine(":- reconsult('$LOGTALKHOME\\\\compiler\\\\logtalk.pl').");
+f.WriteLine(":- reconsult('$LOGTALKUSER\\\\libpaths\\\\libpaths.pl').");
 f.Close();
 
 var ProgramsPath = WshShell.SpecialFolders("AllUsersPrograms");
@@ -60,7 +61,7 @@ if (!FSObject.FolderExists(ProgramsPath + "\\Logtalk"))
 	FSObject.CreateFolder(ProgramsPath + "\\Logtalk");
 
 var link = WshShell.CreateShortcut(ProgramsPath + "\\Logtalk\\Logtalk - YAP.lnk");
-link.Arguments = "-l %LOGTALKHOME%\\bin\\logtalkyap.pl";
+link.Arguments = "-l %LOGTALKHOME%\\bin\\logtalk_yap.pl";
 link.Description = "Runs Logtalk with YAP";
 link.IconLocation = "app.exe,1";
 link.TargetPath = prolog_path;
@@ -69,8 +70,8 @@ link.WorkingDirectory = logtalk_home;
 link.Save();
 
 WScript.Echo('Done. The "Logtalk - YAP" shortcut was been added to the Start Menu');
-WScript.Echo('Programs. Make sure that the LOGTALKHOME environment variable is');
-WScript.Echo('defined for all users wishing to use the shortcut.');
+WScript.Echo('Programs. Make sure that the environment variables LOGTALKHOME and');
+WScript.Echo('LOGTALKUSER are defined for all users wishing to use the shortcut.');
 WScript.Echo('');
 
 WScript.Quit(0);

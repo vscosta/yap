@@ -26,7 +26,7 @@
 
 
 	working_directory(Directory) :-
-		{curdir(Directory, Directory)}.
+		{curdir(Directory)}.
 
 
 	directory_exists(Directory) :-

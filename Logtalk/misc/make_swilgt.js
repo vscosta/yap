@@ -1,6 +1,6 @@
 // =================================================================
 // Logtalk - Object oriented extension to Prolog
-// Release 2.21.6
+// Release 2.22.0
 //
 // Copyright (c) 1998-2004 Paulo Moura.  All Rights Reserved.
 // =================================================================
@@ -48,17 +48,18 @@ logtalk_home = logtalk_home.replace(/\\/g, "\\\\");
 if (!FSObject.FolderExists(logtalk_home + "\\bin"))
 	FSObject.CreateFolder(logtalk_home + "\\bin");
 
-var f = FSObject.CreateTextFile(logtalk_home + "\\bin\\logtalkswi.pl", true);
+var f = FSObject.CreateTextFile(logtalk_home + "\\bin\\logtalk_swi.pl", true);
 f.WriteLine(":- system_module.");
 f.Close();
 
-WshShell.Run("cmd /c type " + logtalk_home + "\\compiler\\logtalk.pl" + " >> " + logtalk_home + "\\bin\\logtalkswi.pl", true);
+WshShell.Run("cmd /c type " + logtalk_home + "\\compiler\\logtalk.pl" + " >> " + logtalk_home + "\\bin\\logtalk_swi.pl", true);
 
-f = FSObject.CreateTextFile(logtalk_home + "\\bin\\logtalkswi.rc", true);
+f = FSObject.CreateTextFile(logtalk_home + "\\bin\\logtalk_swi.rc", true);
 
-f.WriteLine(":- consult('$LOGTALKHOME\\\\configs\\\\swihook.pl').");
-f.WriteLine(":- consult('$LOGTALKHOME\\\\configs\\\\swi.config').");
-f.WriteLine(":- consult('$LOGTALKHOME\\\\bin\\\\logtalkswi.pl').");
+f.WriteLine(":- consult('$LOGTALKUSER/configs/swihook.pl').");
+f.WriteLine(":- consult('$LOGTALKUSER/configs/swi.config').");
+f.WriteLine(":- consult('$LOGTALKHOME/bin/logtalk_swi.pl').");
+f.WriteLine(":- consult('$LOGTALKUSER/libpaths/libpaths.pl').");
 f.Close();
 
 var ProgramsPath = WshShell.SpecialFolders("AllUsersPrograms");
@@ -67,7 +68,7 @@ if (!FSObject.FolderExists(ProgramsPath + "\\Logtalk"))
 	FSObject.CreateFolder(ProgramsPath + "\\Logtalk");
 
 var link = WshShell.CreateShortcut(ProgramsPath + "\\Logtalk\\Logtalk - SWI-Prolog.lnk");
-link.Arguments = "-f %LOGTALKHOME%\\bin\\logtalkswi.rc";
+link.Arguments = "-f %LOGTALKHOME%\\bin\\logtalk_swi.rc";
 link.Description = "Runs Logtalk with SWI-Prolog";
 link.IconLocation = "app.exe,1";
 link.TargetPath = prolog_path;
@@ -76,9 +77,10 @@ link.WorkingDirectory = logtalk_home;
 link.Save();
 
 WScript.Echo('Done. The "Logtalk - SWI-Prolog" shortcut was been added to the');
-WScript.Echo('Start Menu Programs. Make sure that the LOGTALKHOME environment');
-WScript.Echo('variable is defined for all users wishing to use the shortcut.');
-WScript.Echo("");
+WScript.Echo('Start Menu Programs. Make sure that the environment variables');
+WScript.Echo('LOGTALKHOME and LOGTALKUSER are defined for all users wishing');
+WScript.Echo('to use the shortcut.');
+WScript.Echo('');
 
 WScript.Quit(0);
 

@@ -1,21 +1,12 @@
 =================================================================
 Logtalk - Object oriented extension to Prolog
-Release 2.21.6
+Release 2.22.0
 
 Copyright (c) 1998-2004 Paulo Moura.  All Rights Reserved.
 =================================================================
 
 
-To load all entities in this example compile and load the loader file:
-
-| ?- logtalk_load(loader).
-
-You will need to load the objects in the roots and relations examples.
-
-You will also need to consult the following files in the library directory: 
-events_loader, types_loader, metapredicates_loader, and hierarchies_loader.
-Alternatively, you may load the library all_loader file to load all library 
-entities.
+To load this example and for sample queries, please see the SCRIPT file.
 
 In this example we have several types of polygons that can be concentric.
 This is represented by a concentric binary relation ensuring that whenever 

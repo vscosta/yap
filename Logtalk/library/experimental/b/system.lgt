@@ -23,7 +23,7 @@
 
 
 	working_directory(Directory) :-
-		{fail}.
+		{system(pwd, Directory)}.
 
 
 	directory_exists(Directory) :-

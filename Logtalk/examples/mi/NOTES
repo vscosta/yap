@@ -1,14 +1,12 @@
 =================================================================
 Logtalk - Object oriented extension to Prolog
-Release 2.21.6
+Release 2.22.0
 
 Copyright (c) 1998-2004 Paulo Moura.  All Rights Reserved.
 =================================================================
 
 
-To load all entities in this example compile and load the loader file:
-
-| ?- logtalk_load(loader).
+To load this example and for sample queries, please see the SCRIPT file.
 
 There are two examples in this folder. The first one is an adoption of a 
 multi-inheritance C++ example found on the D. M. Capper book "Introducing 

@@ -2,7 +2,7 @@
 
 ## =================================================================
 ## Logtalk - Object oriented extension to Prolog
-## Release 2.21.6
+## Release 2.22.0
 ##
 ## Copyright (c) 1998-2004 Paulo Moura.  All Rights Reserved.
 ## =================================================================
@@ -20,28 +20,25 @@ else
 	else
 		prefix="$1"
 	fi
-	if ! [ -d bin ]
-	then
-		mkdir bin
-	fi
+	mkdir -p bin
 	cd bin
-
-	echo ":- ensure_loaded('\$LOGTALKHOME/configs/ciao_aux.config')." > logtalkciao.rc
-	echo ":- ensure_loaded('\$LOGTALKHOME/compiler/logtalk.pl')." >> logtalkciao.rc
-	echo ":- op(600, xfy, ::)." >> logtalkciao.rc
-	echo ":- op(600,  fy, ::)." >> logtalkciao.rc
-	echo ":- op(600,  fy, ^^)." >> logtalkciao.rc
-	echo ":- op(200,  fy, +)." >> logtalkciao.rc
-	echo ":- op(200,  fy, ?)." >> logtalkciao.rc
-	echo ":- op(200,  fy, @)." >> logtalkciao.rc
-	echo ":- op(200,  fy, -)." >> logtalkciao.rc
+	echo ":- ensure_loaded('\$LOGTALKUSER/configs/ciao_aux.config')." > logtalk_ciao.rc
+	echo ":- ensure_loaded('\$LOGTALKHOME/compiler/logtalk.pl')." >> logtalk_ciao.rc
+	echo ":- ensure_loaded('\$LOGTALKUSER/libpaths/libpaths.pl')." >> logtalk_ciao.rc
+	echo ":- op(600, xfy, ::)." >> logtalk_ciao.rc
+	echo ":- op(600,  fy, ::)." >> logtalk_ciao.rc
+	echo ":- op(600,  fy, ^^)." >> logtalk_ciao.rc
+	echo ":- op(200,  fy, +)." >> logtalk_ciao.rc
+	echo ":- op(200,  fy, ?)." >> logtalk_ciao.rc
+	echo ":- op(200,  fy, @)." >> logtalk_ciao.rc
+	echo ":- op(200,  fy, -)." >> logtalk_ciao.rc
 
 	echo "#/bin/sh" > ciaolgt
-	echo "ciaosh -l \$LOGTALKHOME/bin/logtalkciao.rc" >> ciaolgt
+	echo "ciaosh -l \$LOGTALKHOME/bin/logtalk_ciao.rc" >> ciaolgt
 	chmod a+x ciaolgt
 	ln -sf $LOGTALKHOME/bin/ciaolgt $prefix/bin/ciaolgt
 	echo "Done. A link to the script was been created in $prefix/bin."
-	echo "Users should define the environment variable LOGTALKHOME in"
-	echo "order to use the script."
+	echo "Users should define the environment variables LOGTALKHOME and"
+	echo "LOGTALKUSER in order to use the script."
 	echo
 fi

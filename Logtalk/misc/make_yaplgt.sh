@@ -2,7 +2,7 @@
 
 ## =================================================================
 ## Logtalk - Object oriented extension to Prolog
-## Release 2.21.6
+## Release 2.22.0
 ##
 ## Copyright (c) 1998-2004 Paulo Moura.  All Rights Reserved.
 ## =================================================================
@@ -20,20 +20,18 @@ else
 	else
 		prefix="$1"
 	fi
-	if ! [ -d bin ]
-	then
-		mkdir bin
-	fi
+	mkdir -p bin
 	cd bin
-	echo ":- reconsult('\$LOGTALKHOME/configs/yap.config')." > logtalkyap.rc
-	echo ":- reconsult('\$LOGTALKHOME/compiler/logtalk.pl')." >> logtalkyap.rc
+	echo ":- reconsult('\$LOGTALKUSER/configs/yap.config')." > logtalk_yap.rc
+	echo ":- reconsult('\$LOGTALKHOME/compiler/logtalk.pl')." >> logtalk_yap.rc
+	echo ":- reconsult('\$LOGTALKUSER/libpaths/libpaths.pl')." >> logtalk_yap.rc
 
 	echo "#/bin/sh" > yaplgt
-	echo "yap -l \$LOGTALKHOME/bin/logtalkyap.rc" >> yaplgt
+	echo "yap -l \$LOGTALKHOME/bin/logtalk_yap.rc" >> yaplgt
 	chmod a+x yaplgt
 	ln -sf $LOGTALKHOME/bin/yaplgt $prefix/bin/yaplgt
 	echo "Done. A link to the script was been created in $prefix/bin."
-	echo "Users should define the environment variable LOGTALKHOME in"
-	echo "order to use the script."
+	echo "Users should define the environment variables LOGTALKHOME and"
+	echo "LOGTALKUSER in order to use the script."
 	echo
 fi

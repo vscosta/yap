@@ -2,7 +2,7 @@
 
 ## =================================================================
 ## Logtalk - Object oriented extension to Prolog
-## Release 2.21.6
+## Release 2.22.0
 ##
 ## Copyright (c) 1998-2004 Paulo Moura.  All Rights Reserved.
 ## =================================================================
@@ -20,27 +20,26 @@ else
 	else
 		prefix="$1"
 	fi
-	if ! [ -d bin ]
-	then
-		mkdir bin
-	fi
+	mkdir -p bin
 	find . -name "*.lgt" -exec perl -pi -e "s/version is (\d)\.(\d)/version is '\1\.\2'/" {} \;
 	find . -name "*.mlgt" -exec perl -pi -e "s/version is (\d)\.(\d)/version is '\1\.\2'/" {} \;
 	cd configs
 	cp qu.config qu.ql
 	echo "fcompile('qu.ql', [assemble_only(true)]), load(qu). \
-chdir('../compiler/'), fcompile('logtalk.pl', [assemble_only(true), string_table(256)]), load(logtalk)." | qp -s 2048 -d 1024 -h 2000
+chdir('../compiler/'), fcompile('logtalk.pl', [assemble_only(true), string_table(256)]), load(logtalk). \
+chdir('../libpaths/'), fcompile('libpaths.pl', [assemble_only(true)]), load(libpaths)." | qp -s 2048 -d 1024 -h 2000
 	qc -c qphook.ql
 	cd ../bin
-	qc -s 2048 -d 1024 -h 2000 -o qplgt ../configs/qphook.qo ../configs/qu.qo ../compiler/logtalk.qo
+	qc -s 2048 -d 1024 -h 2000 -o qplgt ../configs/qphook.qo ../configs/qu.qo ../compiler/logtalk.qo  ../libpaths/libpaths.qo
 	chmod a+x qplgt
 	ln -sf $LOGTALKHOME/bin/qplgt $prefix/bin/qplgt
 	rm ../configs/qu.ql
 	rm ../configs/qphook.qo
 	rm ../configs/qu.qo
 	rm ../compiler/logtalk.qo
+	rm ../libpaths/libpaths.qo
 	echo "Done. A link to the script was been created in $prefix/bin."
-	echo "Users should define the environment variable LOGTALKHOME in"
-	echo "order to use the script."
+	echo "Users should define the environment variables LOGTALKHOME and"
+	echo "LOGTALKUSER in order to use the script."
 	echo
 fi

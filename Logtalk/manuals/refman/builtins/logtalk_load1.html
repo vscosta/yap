@@ -25,8 +25,7 @@
 
 <blockquote>
 <pre>logtalk_load(Entity)
-logtalk_load(Entities)
-logtalk_load(Metafile)</pre>
+logtalk_load(Entities)</pre>
 <p>
 Compiles to disk and then loads to memory an entity, a list of entities (objects, protocols or categories), or a source metafile using the default compiler options specified in the Logtalk configuration file. The Logtalk file name extension (by default, <code>.lgt</code> for entity source files and <code>.mlgt</code> for source metafiles) should be omitted. Note that the argument is a list of entity/file names, not file paths. In other words, the files must exist in the current working directory.
 </p>
@@ -38,7 +37,8 @@ Note that only the errors related to problems in the predicate argument are list
 <h4>Template and modes</h4>
 
 <blockquote>
-<pre>logtalk_load(@atom_or_atom_list)</pre>
+<pre>logtalk_load(@entity_file_name)
+logtalk_load(@entity_file_name_list)</pre>
 </blockquote>
 
 <h4>Errors</h4>
@@ -49,19 +49,23 @@ Note that only the errors related to problems in the predicate argument are list
 			<dd><code>instantiation_error</code></dd>
 		<dt>Entities is a variable or a list with an element which is a variable:</dt>
 			<dd><code>instantiation_error</code></dd>
-		<dt>Entities is neither a variable nor an atom nor a proper list:</dt>
-			<dd><code>type_error(list, Entities)</code></dd>
-		<dt>An element Entity of the Entities list is neither a variable nor an atom:</dt>
-			<dd><code>type_error(atom, Entity)</code></dd>
-		<dt>Entity or an element Entity of the Entities list does not exist in the current working directory:</dt>
+		<dt>Entity, or an element Entity of the Entities list, is neither a variable nor an entity file name nor a library entity file name:</dt>
+			<dd><code>type_error(entity_file_name, Entity)</code></dd>
+		<dt>Entity, or an element Entity of the Entities list, is a compound term but not a library entity file name:</dt>
+			<dd><code>type_error(library_entity_file_name, Entity)</code></dd>
+		<dt>Entity or an element Entity of the Entities list does not exist in the current working directory or in the specified library directory:</dt>
 			<dd><code>existence_error(entity, Entity)</code></dd>
+		<dt>Entity library does not exist:</dt>
+			<dd><code>existence_error(library, Library)</code></dd>
 	</dl>
 </blockquote>
 
 <h4>Examples</h4>
 
 <blockquote>
-<pre>| ?- logtalk_load(tree).
+<pre>| ?- logtalk_load(set).
+
+| ?- logtalk_load(types(tree)).
 
 | ?- logtalk_load([listp, list]).</pre>
 </blockquote>
@@ -75,7 +79,7 @@ Copyright &copy; <a href="mailto:pmoura@logtalk.org">Paulo Moura</a> &mdash; <a 
 </div>
 
 <div class="footer">
-<p><span class="bleft"><a href="http://validator.w3.org/check/referer">XHTML</a> + <a href="http://jigsaw.w3.org/css-validator/check/referer">CSS</a></span><span class="bright">Last updated on: July 23, 2004</span></p>
+<p><span class="bleft"><a href="http://validator.w3.org/check/referer">XHTML</a> + <a href="http://jigsaw.w3.org/css-validator/check/referer">CSS</a></span><span class="bright">Last updated on: November 22, 2004</span></p>
 </div>
 </body>
 </html>

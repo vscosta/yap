@@ -2,7 +2,7 @@
 
 ## =================================================================
 ## Logtalk - Object oriented extension to Prolog
-## Release 2.21.6
+## Release 2.22.0
 ##
 ## Copyright (c) 1998-2004 Paulo Moura.  All Rights Reserved.
 ## =================================================================
@@ -20,20 +20,18 @@ else
 	else
 		prefix="$1"
 	fi
-	if ! [ -d bin ]
-	then
-		mkdir bin
-	fi
+	mkdir -p bin
 	cd bin
-	echo ":- compile('\$LOGTALKHOME/configs/sicstus.config')." > logtalksicstus.rc
-	echo ":- compile('\$LOGTALKHOME/compiler/logtalk.pl')." >> logtalksicstus.rc
+	echo ":- compile('\$LOGTALKUSER/configs/sicstus.config')." > logtalk_sicstus.rc
+	echo ":- compile('\$LOGTALKHOME/compiler/logtalk.pl')." >> logtalk_sicstus.rc
+	echo ":- compile('\$LOGTALKUSER/libpaths/libpaths.pl')." >> logtalk_sicstus.rc
 
 	echo "#/bin/sh" > sicstuslgt
-	echo "sicstus -l \$LOGTALKHOME/bin/logtalksicstus.rc" >> sicstuslgt
+	echo "sicstus -l \$LOGTALKHOME/bin/logtalk_sicstus.rc" >> sicstuslgt
 	chmod a+x sicstuslgt
 	ln -sf $LOGTALKHOME/bin/sicstuslgt $prefix/bin/sicstuslgt
 	echo "Done. A link to the script was been created in $prefix/bin."
-	echo "Users should define the environment variable LOGTALKHOME in"
-	echo "order to use the script."
+	echo "Users should define the environment variables LOGTALKHOME and"
+	echo "LOGTALKUSER in order to use the script."
 	echo
 fi

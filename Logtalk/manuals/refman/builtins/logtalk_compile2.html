@@ -25,8 +25,7 @@
 
 <blockquote>
 <pre>logtalk_compile(Entity, Options)
-logtalk_compile(Entities, Options)
-logtalk_compile(Metafile, Options)</pre>
+logtalk_compile(Entities, Options)</pre>
 <p>
 Compiles to disk an entity, a list of entities (objects, protocols, or categories), or a source metafile using a list of options. The Logtalk file name extension (by default, <code>.lgt</code> for entity source files and <code>.mlgt</code> for source metafiles) should be omitted. Note that the first argument is a list of entity/file names, not file paths. In other words, the files must exist in the current working directory.
 </p>
@@ -41,7 +40,8 @@ Note that only the errors related to problems in the predicate arguments are lis
 <h4>Template and modes</h4>
 
 <blockquote>
-<pre>logtalk_compile(@atom_or_atom_list, @list)</pre>
+<pre>logtalk_compile(@entity_file_name, @list)
+logtalk_compile(@entity_file_name_list, @list)</pre>
 </blockquote>
 
 <h4>Errors</h4>
@@ -52,12 +52,14 @@ Note that only the errors related to problems in the predicate arguments are lis
 			<dd><code>instantiation_error</code></dd>
 		<dt>Entities is a variable or a list with an element which is a variable:</dt>
 			<dd><code>instantiation_error</code></dd>
-		<dt>Entities is neither a variable nor an atom nor a proper list:</dt>
-			<dd><code>type_error(list, Entities)</code></dd>
-		<dt>An element Entity of the Entities list is neither a variable nor an atom:</dt>
-			<dd><code>type_error(atom, Entity)</code></dd>
-		<dt>Entity or an element Entity of the Entities list does not exist in the current working directory:</dt>
+		<dt>Entity, or an element Entity of the Entities list, is neither a variable nor an entity file name nor a library entity file name:</dt>
+			<dd><code>type_error(entity_file_name, Entity)</code></dd>
+		<dt>Entity, or an element Entity of the Entities list, is a compound term but not a library entity file name:</dt>
+			<dd><code>type_error(library_entity_file_name, Entity)</code></dd>
+		<dt>Entity or an element Entity of the Entities list does not exist in the current working directory or in the specified library directory:</dt>
 			<dd><code>existence_error(entity, Entity)</code></dd>
+		<dt>Entity library does not exist:</dt>
+			<dd><code>existence_error(library, Library)</code></dd>
 		<dt>Options is a variable:</dt>
 			<dd><code>instantiation_error</code></dd>
 		<dt>Options is neither a variable nor a proper list:</dt>
@@ -72,6 +74,8 @@ Note that only the errors related to problems in the predicate arguments are lis
 <blockquote>
 <pre>| ?- logtalk_compile(list, []).
 
+| ?- logtalk_compile(types(tree), [xmlspec(xsd)]).
+
 | ?- logtalk_compile([listp, list], [xml(off), plredf(warning)]).</pre>
 </blockquote>
 
@@ -84,7 +88,7 @@ Copyright &copy; <a href="mailto:pmoura@logtalk.org">Paulo Moura</a> &mdash; <a 
 </div>
 
 <div class="footer">
-<p><span class="bleft"><a href="http://validator.w3.org/check/referer">XHTML</a> + <a href="http://jigsaw.w3.org/css-validator/check/referer">CSS</a></span><span class="bright">Last updated on: July 23, 2004</span></p>
+<p><span class="bleft"><a href="http://validator.w3.org/check/referer">XHTML</a> + <a href="http://jigsaw.w3.org/css-validator/check/referer">CSS</a></span><span class="bright">Last updated on: November 22, 2004</span></p>
 </div>
 </body>
 </html>

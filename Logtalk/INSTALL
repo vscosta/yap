@@ -1,65 +1,90 @@
 =================================================================
 Logtalk - Object oriented extension to Prolog
-Release 2.21.6
+Release 2.22.0
 
 Copyright (c) 1998-2004 Paulo Moura.  All Rights Reserved.
 =================================================================
 
 
+This file contains detailed instruction for installing and configuring 
+Logtalk.
+
+
+1. LOGTALK INSTALLATION
+
 Installing Logtalk is just a matter of decompressing the downloaded archive 
 and copying the resulting directory to a suitable location.
 
-The Logtalk directory can reside in any user accessible location. 
-This location depends on the working environment and on the number of users.
-The "misc" sub-directory contains some shell scripts for easy installation 
-of Logtalk on Windows, Unix, and Unix-like operating systems (for details, 
-see the misc/NOTES file).
+The Logtalk directory can reside in any user accessible location. This 
+location depends on the working environment and on the number of users.
 
 
-INSTALLING FOR A SINGLE USER
+* Installing for a single user:
 
 In the case of a single user, the Logtalk directory may simply be copied to 
-the user home directory.
+the user home directory. In alternative, assuming a user with administrative 
+rights, the same setup described below for multiple users may be applied. 
+This has the advantage of allowing the user to freely try and modify the 
+provided examples, library, and configuration files with the option of, at 
+any time, restoring the files to its original state by simply running one of 
+the provided scripts.
 
 
-INSTALLING FOR MULTIPLE USERS
+* Installing for multiple users:
 
 In the case of multiple users, the Logtalk directory can be copied to any 
 location that its accessible by all the users (assuming that copying the 
-Logtalk directory to each user home directory is not feasible or desired).
+Logtalk directory to each user home directory is, for some reason, not 
+feasible or desired).
 
-Regarding directory and file permissions, it is advisable to make all files 
-read-only in order to avoid user tempering. However, the library and examples 
-sub-directories (and possibly the compiler sub-directory, depending on the 
-chosen Prolog compiler) must be user writable as compiling Logtalk source 
-files generates intermediate Prolog files, which are written to the same 
-location as the source files. However, making directories world-writable is a 
-security risk. One solution is to copy the Logtalk xml, examples, and library 
-directories to each user home directory (the "misc" sub-directory contains 
-some scripts which may be called by the end-users for making these copies).
+The "misc" sub-directory contains shell scripts for easy installation of 
+Logtalk on Windows, Unix, and Unix-like operating systems (for details, 
+see the misc/NOTES file). These scripts make all files read-only in order 
+to avoid user tempering. However, Logtalk directories such as "library" 
+or "examples" must be user-writable as compiling Logtalk source files 
+generates intermediate Prolog files, which are written to the same location 
+as the source files. In addition, it is convenient that directories such as 
+"configs", "libpaths", and "xml" be user-writable in order to allow each 
+user to customize Logtalk to its needs. Given that making directories 
+world-writable is a security risk, one solution is to copy the directories 
+that need to be user-writable to each user home directory. The "misc" sub-
+directory contains shell scripts (named "cplgtdirs.*") which may be called 
+by the end-users for making such copies. This is the preferred setup for a 
+computer lab. When used with one of the Prolog compilers for which an 
+integration script is provided on the "misc" directory, this setup allows 
+end-users to independently customize default compilation options and 
+library paths.
 
 
-ENVIRONMENT VARIABLES
+2. LOGTALK CONFIGURATION
 
-It is recommended that you define an environment variable named LOGTALKHOME 
-pointing to the Logtalk installation directory for use with your Prolog 
-compilers. In addition, you may want to add the Logtalk sub-directory "xml",
-which contains useful scripts for processing XML documenting files, to your 
-execution path.
+2.1 Setting environment variables
+
+You need to set two environment variables, LOGTALKHOME and LOGTALKUSER. The 
+environment variable LOGTALKHOME should point to the Logtalk installation 
+directory. The environment variable LOGTALKUSER should point to a directory 
+in your home directory where you want to store the user-specific Logtalk files
+(for example, ~/logtalk). Both environment variables may be set for all users 
+by a user with administration privileges. The two environment variables can 
+have the same value if you are the only Logtalk user on your computer and if 
+you have full permissions to the Logtalk installation directory. In addition, 
+you may want to add the Logtalk sub-directory "xml", which contains useful 
+scripts for processing XML documenting files, to your execution path.
 
 * Unix and Unix-like systems:
 
 If you use a csh shell, add the following line to your ~/.cshrc file:
 
-	setenv LOGTALKHOME /your/installation/directory/lgt2216
+	setenv LOGTALKHOME /your/logtalk/installation/directory
+	setenv LOGTALKUSER $HOME/logtalk
 	setenv PATH $PATH:$LOGTALKHOME/xml:$LOGTALKHOME/misc
 
 If you use a bash shell, add the following lines to your ~/.profile file:
 
-	LOGTALKHOME=/your/installation/directory/lgt2216
-	export LOGTALKHOME
+	LOGTALKHOME=/your/logtalk/installation/directory
+	LOGTALKUSER=$HOME/logtalk
 	PATH=$PATH:$LOGTALKHOME/xml:$LOGTALKHOME/misc
-	export PATH
+	export PATH LOGTALKHOME LOGTALKUSER
 
 When using the provided shell script for installing Logtalk, a symbolic link 
 to the Logtalk installation directory is automatically created. The link is 
@@ -68,20 +93,33 @@ environment variable in order to avoid breaking it when upgrading Logtalk.
 
 * Windows systems:
 
-In Windows 95/98/ME, environment variables are defined in the autoexec.bat 
+In Windows 95/98/ME, environment variables are defined in the "autoexec.bat" 
 file (you will need to reboot after editing the file):
 
 	SET LOGTALKHOME=C:\your\installation\folder\
+	SET LOGTALKUSER=%HOMEPATH%\logtalk
 
 In Windows NT/2000/XP, environment variables are defined using the System 
 properties control panel (if you are a system administrator, you should use 
-the JScript install script provided in the "misc" sub-directory).
+the JScript install script provided in the "misc" sub-directory; this script 
+sets both the LOGTALKHOME and the LOGTALKUSER environment variables).
 
 
-CUSTOMIZING PROLOG CONFIGURATION FILES
+2.2 Setting library paths
+
+In Logtalk, a library is simply a directory containing source files. Library 
+paths can be declared using a dynamic predicate. This allows compiling and 
+loading of libraries and library files to be performed without worries about 
+library paths. In the "libpaths" directory you will find a sample file which 
+you can copy and edit to match your Logtalk installation and your Prolog 
+compiler and operating-system requirements. See the "libpaths/NOTES" file for 
+more details.
+
+
+2.3 Customizing prolog configuration files
 
 Logtalk interfaces with a specific Prolog compiler via a configuration file 
-that can be found on the $LOGTALKHOME/configs directory. These configuration 
+that can be found on the "$LOGTALKUSER/configs" directory. These configuration 
 files can be customized by changing the values of the default flags and 
 compiler options which are used by Logtalk when compiling source files. For 
 a full description of these default flags and compiler options, consult the 
@@ -89,7 +127,7 @@ a full description of these default flags and compiler options, consult the
 the default flags that you may want to change are: "portability", "altdirs", 
 "underscore_vars", "startup_message", "smart_compilation", and the set of 
 documentation-related flags ("xml", "xsl", "xmlspec", and "doctype"). Be sure 
-to read the $LOGTALKHOME/configs/NOTES file for Prolog specific notes; some 
+to read the "$LOGTALKUSER/configs/NOTES" file for Prolog specific notes; some 
 Prolog compilers do not support the whole range of compilation flags.  
 
 
@@ -100,5 +138,5 @@ is automatically consulted at startup. This initialization file may contain
 directives for loading other files, such as the Logtalk configuration file 
 and the Logtalk compiler. The "misc" sub-directory contains several scripts 
 for automating the creation of these initialization files for some Prolog 
-compilers. In addition, be sure to read the configs/NOTES file notes on the 
+compilers. In addition, be sure to read the "configs/NOTES" file notes on the 
 Prolog compilers that you intend to use. 

@@ -2,7 +2,7 @@
 
 ## =================================================================
 ## Logtalk - Object oriented extension to Prolog
-## Release 2.21.6
+## Release 2.22.0
 ##
 ## Copyright (c) 1998-2004 Paulo Moura.  All Rights Reserved.
 ## =================================================================
@@ -20,10 +20,7 @@ else
 	else
 		prefix="$1"
 	fi
-	if ! [ -d bin ]
-	then
-		mkdir bin
-	fi
+	mkdir -p bin
 	cd bin
 	cp ../configs/xsb.config xsbconfig.P
 	cp ../compiler/logtalk.pl logtalk.P
@@ -34,12 +31,13 @@ else
 	rm temp2
 	echo ":- reconsult('$LOGTALKHOME/bin/xsbconfig.P')." > logtalkxsb.P
 	echo ":- reconsult('$LOGTALKHOME/bin/logtalk.P')." >> logtalkxsb.P
+	echo ":- reconsult('$LOGTALKUSER/libpaths/libpaths.P')." >> logtalkxsb.P
 	echo "#/bin/sh" > xsblgt
 	echo "xsb -e \"reconsult('\$LOGTALKHOME/bin/logtalkxsb.P').\"" >> xsblgt
 	chmod a+x xsblgt
 	ln -sf $LOGTALKHOME/bin/xsblgt $prefix/bin/xsblgt
 	echo "Done. A link to the script was been created in $prefix/bin."
-	echo "Users should define the environment variable LOGTALKHOME in"
-	echo "order to use the script."
+	echo "Users should define the environment variables LOGTALKHOME and"
+	echo "LOGTALKUSER in order to use the script."
 	echo
 fi
