@@ -1658,6 +1658,22 @@ p_open (void)
 }
 
 
+static Int
+p_file_expansion (void)
+{				/* '$file_expansion'(+File,-Name)      */
+  Term file_name = Deref(ARG1);
+
+  /* we know file_name is bound */
+  if (!IsAtomTerm (file_name)) {
+    PlIOError(TYPE_ERROR_ATOM, file_name, "absolute_file_name/3");
+    return(FALSE);
+  }
+  if (!TrueFileName (RepAtom (AtomOfTerm (file_name))->StrOfAE, FileNameBuf, FALSE))
+    return (PlIOError (EXISTENCE_ERROR_SOURCE_SINK,file_name,"absolute_file_name/3"));
+  return(unify(ARG2,MkAtomTerm(LookupAtom(FileNameBuf))));
+}
+
+
 static Int p_add_alias_to_stream (void)
 {
   Term tname = Deref(ARG1);
@@ -4782,6 +4798,7 @@ InitIOPreds(void)
   InitCPred ("$get0_line_codes", 2, p_get0_line_codes, SafePredFlag|SyncPredFlag);
   InitCPred ("$get_byte", 2, p_get_byte, SafePredFlag|SyncPredFlag);
   InitCPred ("$open", 4, p_open, SafePredFlag|SyncPredFlag);
+  InitCPred ("$file_expansion", 2, p_file_expansion, SafePredFlag|SyncPredFlag);
   InitCPred ("$open_null_stream", 1, p_open_null_stream, SafePredFlag|SyncPredFlag);
   InitCPred ("$open_pipe_stream", 2, p_open_pipe_stream, SafePredFlag|SyncPredFlag);
   InitCPred ("open_mem_read_stream", 2, p_open_mem_read_stream, SyncPredFlag);

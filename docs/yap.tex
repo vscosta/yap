@@ -3329,6 +3329,14 @@ Closes the stream @var{S}, following options @var{O}.
 The only valid options are @code{force(true)} and @code{force(false)}.
 YAP currently ignores these options.
 
+@item absolute_file_name(+@var{Name},-@var{FullPath})
+@findex absolute_file_name/2
+@syindex absolute_file_name/2
+@cnindex absolute_file_name/2
+Give the path a full path @var{FullPath} Yap would use to consule a file
+named @var{Name}.  Unify @var{FullPath} with @code{user} if the file
+name is @code{user}.
+
 @item current_stream(@var{F},@var{M},@var{S})
 @findex current_stream/3
 @syindex current_stream/3

@@ -871,10 +871,14 @@ at_end_of_stream(S) :-
 
 consult_depth(LV) :- '$show_consult_level'(LV).
 
+absolute_file_name(V,Out) :-
+	throw(error(instantiation_error, absolute_file_name(V, Out))).
+absolute_file_name(user,user) :- !.
 absolute_file_name(RelFile,AbsFile) :-
 	'$find_in_path'(RelFile,PathFile),
-	'$exists'(PathFile,'$csult', AbsFile).
-
+	'$exists'(PathFile,'$csult', AbsFile), !.
+absolute_file_name(RelFile, AbsFile) :-
+	'$file_expansion'(RelFile, AbsFile).
 
 '$exists'(F,Mode,AbsFile) :-
 	'$get_value'(fileerrors,V),

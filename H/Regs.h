@@ -10,7 +10,7 @@
 * File:		Regs.h							 *
 * mods:									 *
 * comments:	YAP abstract machine registers				 *
-* version:      $Id: Regs.h,v 1.8 2001-12-07 20:27:03 vsc Exp $	 *
+* version:      $Id: Regs.h,v 1.9 2002-01-02 05:35:20 vsc Exp $	 *
 *************************************************************************/
 
 
@@ -677,9 +677,6 @@ EXTERN inline void restore_B(void) {
 #define BB            REGS.BB_
 #define BBREG         BB
 #endif
-
-/* use global stack for intermediate data-structures */
-#define AllocTmpSpaceFromGlobal()           ((char *)H)
 
 #if !THREADS
 /* use actual addresses for regs */

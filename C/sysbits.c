@@ -1611,7 +1611,7 @@ p_shell (void)
 #else
 #if HAVE_SYSTEM 
   char *shell;
-  char *command = AllocTmpSpaceFromGlobal();
+#define command ((char *)TR)
   register int bourne = FALSE;
   Term t1 = Deref (ARG1);
 
@@ -1651,6 +1651,7 @@ p_shell (void)
 	return (result);
       }
     }
+#undef command
 #else /* HAVE_SYSTEM */
 #ifdef MSH
   register char *shell;
@@ -1670,7 +1671,7 @@ static Int
 p_system (void)
 {				/* '$system'(+SystCommand)	       */
 #ifdef HAVE_SYSTEM
-  char *command = AllocTmpSpaceFromGlobal();
+#define command ((char *)TR)
   Term t1 = Deref (ARG1);
   if (!GetName (command, t1)) {
     Error(SYSTEM_ERROR,t1,"argument to system/1 is not valid");
@@ -1688,6 +1689,7 @@ p_system (void)
   /* CloseStreams(); */
   system (shell);
   return (TRUE);
+#undef command
 #else
   Error(SYSTEM_ERROR,TermNil,"sh not available in this machine");
   return(FALSE);
