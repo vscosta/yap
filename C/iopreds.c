@@ -1085,18 +1085,25 @@ SocketGetc(int sno)
   register int ch;
   char c;
   int count;
-	/* should be able to use a buffer */
+  /* should be able to use a buffer */
 #if _MSC_VER || defined(__MINGW32__)
   count = recv(s->u.socket.fd, &c, sizeof(char), 0);
 #else
   count = read(s->u.socket.fd, &c, sizeof(char));
 #endif
   if (count == 0) {
+    s->u.socket.flags = closed_socket;
     ch = EOF;
   } else if (count > 0) {
     ch = c;
   } else {
-    Error(SYSTEM_ERROR, TermNil, "read");
+#if HAVE_STRERROR
+      Error(SYSTEM_ERROR, TermNil, 
+	    "( socket_getc: %s)", strerror(errno));
+#else
+      Error(SYSTEM_ERROR, TermNil,
+	    "(socket_getc)");
+#endif
     return(EOF);
   }
   return(post_process_read_char(ch, s, sno));

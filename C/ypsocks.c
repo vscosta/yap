@@ -450,7 +450,42 @@ p_socket(void)
 Int
 CloseSocket(int fd, socket_info status, socket_domain domain)
 {
-  if (domain == client_socket || domain == server_session_socket) {
+#if _MSC_VER || defined(__MINGW32__)
+  /* prevent further writing
+     to the socket */
+  if (status == server_session_socket ||
+      status == client_socket) {
+    char bfr;
+
+    if (shutdown(fd, 1) != 0) {
+      Error(SYSTEM_ERROR, TermNil,
+	    "socket_close/1 (close)");
+      return(FALSE);
+    }
+    /* read all pending characters
+       from the socket */
+    while( recv( fd, &bfr, 1, 0 ) > 0 );
+    /* prevent further reading
+       from the socket */
+    if (shutdown(fd, 0) < 0)  {
+      Error(SYSTEM_ERROR, TermNil,
+	    "socket_close/1 (close)");
+      return(FALSE);
+    }
+
+    /* close the socket */
+    if (closesocket(fd) != 0) {
+#if HAVE_STRERROR
+      Error(SYSTEM_ERROR, TermNil, 
+	    "socket_close/1 (close: %s)", strerror(socket_errno));
+#else
+      Error(SYSTEM_ERROR, TermNil,
+	    "socket_close/1 (close)");
+#endif
+    }
+#else
+    if (status == server_session_socket ||
+      status == client_socket) {
     if (shutdown(fd,2) < 0) {
 #if HAVE_STRERROR
       Error(SYSTEM_ERROR, TermNil, 
@@ -462,17 +497,14 @@ CloseSocket(int fd, socket_info status, socket_domain domain)
       return(FALSE);
     }
   }
-#if _MSC_VER || defined(__MINGW32__)
-  if (closesocket(fd) != 0) {
-#else
-  if (close(fd) < 0) {
-#endif
+  if (close(fd) != 0) {
 #if HAVE_STRERROR
     Error(SYSTEM_ERROR, TermNil, 
-	  "socket_close/1 (close: %s)", strerror(socket_errno));
+	    "socket_close/1 (close: %s)", strerror(socket_errno));
 #else
     Error(SYSTEM_ERROR, TermNil,
-	  "socket_close/1 (close)");
+	    "socket_close/1 (close)");
+#endif
 #endif
     return(FALSE);
   }

@@ -218,10 +218,11 @@ typedef	struct VARSTRUCT {
 /****************** defines for sockets *********************************/
 
 typedef enum{        /* in YAP, sockets may be in one of 4 possible status */
-      new_socket,
-      server_socket,
-      client_socket,
-      server_session_socket
+  new_socket,
+    server_socket,
+    client_socket,
+    server_session_socket,
+    closed_socket
 } socket_info;
 
 typedef enum{       /* we accept two domains for the moment, IPV6 may follow */
