@@ -2675,7 +2675,6 @@ Yap_cclause(Term inp_clause, int NOfArgs, int mod)
 {				/* compile a prolog clause, copy of clause myst be in ARG1 */
   /* returns address of code for clause */
   Term head, body;
-  CELL *SaveH;
   yamop *acode;
 
   volatile int maxvnum = 512;
@@ -2808,7 +2807,9 @@ Yap_cclause(Term inp_clause, int NOfArgs, int mod)
   }
   reset_vars();
   H = HB;
-  HB = B->cp_h;
+  if (B != NULL) {
+    HB = B->cp_h;
+  }
   if (Yap_ErrorMessage)
     return (0);
 #ifdef DEBUG
