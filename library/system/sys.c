@@ -8,8 +8,16 @@
 *									 *
 **************************************************************************
 *									 *
-* $Id: sys.c,v 1.21 2004-08-11 16:14:54 vsc Exp $									 *
+* $Id: sys.c,v 1.22 2005-03-10 18:04:01 rslopes Exp $									 *
 * mods:		$Log: not supported by cvs2svn $
+* mods:		Revision 1.21  2004/08/11 16:14:54  vsc
+* mods:		whole lot of fixes:
+* mods:		  - memory leak in indexing
+* mods:		  - memory management in WIN32 now supports holes
+* mods:		  - extend Yap interface, more support for SWI-Interface
+* mods:		  - new predicate mktime in system
+* mods:		  - buffer console I/O in WIN32
+* mods:		
 * mods:		Revision 1.20  2004/07/23 19:02:09  vsc
 * mods:		misc fixes
 * mods:		
@@ -469,7 +477,7 @@ p_environ(void)
     return(YAP_Unify(t, YAP_ARG2));
   }
 #else
-  YAP_Error("environ not available in this configuration");
+  YAP_Error(0,0L,"environ not available in this configuration");
   return(FALSE);
 #endif
 }
@@ -673,7 +681,7 @@ do_system(void)
   }
   return(YAP_Unify(YAP_ARG2, YAP_MkIntTerm(sys)));
 #else
-  YAP_Error("system not available in this configuration");
+  YAP_Error(0,0L,"system not available in this configuration");
   return(FALSE);
 #endif
 }
@@ -689,7 +697,7 @@ do_shell(void)
   int sys;
 
   if (buf == NULL) {
-    YAP_Error("No Temporary Space for Shell");
+    YAP_Error(0,0L,"No Temporary Space for Shell");
     return(FALSE);
   }
 #if HAVE_STRNCPY
@@ -713,7 +721,7 @@ do_shell(void)
   }
   return(YAP_Unify(YAP_ARG4, YAP_MkIntTerm(sys)));
 #else
-  YAP_Error("system not available in this configuration");
+  YAP_Error(0,0L,"system not available in this configuration");
   return(FALSE);
 #endif
 #else
