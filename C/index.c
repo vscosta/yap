@@ -3314,16 +3314,28 @@ yamop *
 Yap_PredIsIndexable(PredEntry *ap)
 {
   yamop *indx_out;
+  int setjres;
 
   Yap_Error_Size = 0;
-  if (setjmp(Yap_CompilerBotch) == 3) {
+  if ((setjres = setjmp(Yap_CompilerBotch)) == 3) {
     restore_machine_regs();
     Yap_gcl(Yap_Error_Size, ap->ArityOfPE, ENV, CP);
+  } else if (setjres == 2) {
+    restore_machine_regs();
+    if (!Yap_growheap(FALSE, Yap_Error_Size)) {
+      Yap_Error(SYSTEM_ERROR, TermNil, Yap_ErrorMessage);
+      return FAILCODE;
+    }
+  } else if (setjres != 0) {
+    if (!Yap_growheap(FALSE, Yap_Error_Size)) {
+      Yap_Error(SYSTEM_ERROR, TermNil, Yap_ErrorMessage);
+      return FAILCODE;
+    }
   }
  restart_index:
   Yap_ErrorMessage = NULL;
   if (compile_index(ap) == (UInt)FAILCODE) {
-    return NULL;
+    return FAILCODE;
   }
 #ifdef DEBUG
   if (Yap_Option['i' - 'a' + 1]) {

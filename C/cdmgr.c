@@ -818,8 +818,13 @@ asserta_stat_clause(PredEntry *p, yamop *cp, int spy_flag)
     }
   }
   p->cs.p_code.FirstClause = cp;
-  if (!(p->PredFlags & IndexedPredFlag)) {
-    p->cs.p_code.TrueCodeOfPred = cp;
+  p->cs.p_code.TrueCodeOfPred = cp;
+  if (p->PredFlags & SpiedPredFlag) {
+    p->OpcodeOfPred = Yap_opcode(_spy_pred);
+    p->CodeOfPred = (yamop *)(&(p->OpcodeOfPred)); 
+  } else if (!(p->PredFlags & IndexedPredFlag)) {
+    p->OpcodeOfPred = INDEX_OPCODE;
+    p->CodeOfPred = (yamop *)(&(p->OpcodeOfPred)); 
   }
   p->cs.p_code.LastClause->u.ld.d = cp;
 }
