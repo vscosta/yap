@@ -55,6 +55,11 @@ listing(V) :-
 '$funcspec'(Name,_,_) :-
 	'$do_error'(domain_error(predicate_spec,Name),listing(Name)).
 
+'$list_clauses'(Stream, Mod, Pred) :-
+	'$is_log_updatable'(Pred, Mod), !,
+	'$log_update_clause'(Pred,Mod,Body),
+	'$portray_clause'(Stream,(Pred:-Body)),
+	fail.
 '$list_clauses'(Stream, M, Pred) :-
 	( '$recordedp'(M:Pred,_,_) -> nl(Stream) ),
 	fail.

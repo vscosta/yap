@@ -64,15 +64,15 @@ no_style_check([H|T]) :- no_style_check(H), no_style_check(T).
 
 
 '$check_term'(T,_,M) :-
-	'$get_value'('$syntaxcheckdiscontiguous',on),
+	get_value('$syntaxcheckdiscontiguous',on),
 	'$xtract_head'(T,M,NM,_,F,A),
 	'$handle_discontiguous'(F,A,NM), fail.
 '$check_term'(T,_,M) :-
-	'$get_value'('$syntaxcheckmultiple',on),
+	get_value('$syntaxcheckmultiple',on),
 	'$xtract_head'(T,M,NM,_,F,A),
 	'$handle_multiple'(F,A,NM), fail.
 '$check_term'(T,VL,_) :-
-	'$get_value'('$syntaxchecksinglevar',on),
+	get_value('$syntaxchecksinglevar',on),
 	( '$chk_binding_vars'(T),
 	  '$sv_list'(VL,Sv) ->
 	  '$sv_warning'(Sv,T) ), fail.
@@ -109,7 +109,7 @@ no_style_check([H|T]) :- no_style_check(H), no_style_check(T).
 	write(user_error,' (line '),
 	'$start_line'(LN), write(user_error,LN),
 	write(user_error,', clause '),
-	( '$get_value'('$consulting',false),
+	( get_value('$consulting',false),
 	   '$first_clause_in_file'(Name,Arity, OM) ->
 	    ClN = 1 ;
 		'$number_of_clauses'(H,M,ClN0),
@@ -150,7 +150,7 @@ no_style_check([H|T]) :- no_style_check(H), no_style_check(T).
 
 
 '$handle_discontiguous'(F,A,M) :-
-	'$recorded'('$discontiguous_defs','$df'(F,A,M),_), !.
+	recorded('$discontiguous_defs','$df'(F,A,M),_), !.
 '$handle_discontiguous'(F,A,M) :-
 	'$in_this_file_before'(F,A,M),
 	write(user_error,'[ Warning: discontiguous definition of '),
@@ -162,19 +162,19 @@ no_style_check([H|T]) :- no_style_check(H), no_style_check(T).
 '$handle_multiple'(F,A,M) :-
 	\+ '$first_clause_in_file'(F,A,M), !.
 '$handle_multiple'(_,_,_) :-
-	'$get_value'('$consulting',true), !.
+	get_value('$consulting',true), !.
 '$handle_multiple'(F,A,M) :-
-	'$recorded'('$predicate_defs','$predicate_defs'(F,A,M,Fil),_), !,
+	recorded('$predicate_defs','$predicate_defs'(F,A,M,Fil),_), !,
 	'$multiple_has_been_defined'(Fil, F/A, M), !.
 '$handle_multiple'(F,A,M) :-
-	( '$recorded'('$reconsulting',Fil,_) -> true ),
-	'$recorda'('$predicate_defs','$predicate_defs'(F,A,M,Fil),_).
+	( recorded('$reconsulting',Fil,_) -> true ),
+	recorda('$predicate_defs','$predicate_defs'(F,A,M,Fil),_).
 
 '$multiple_has_been_defined'(_, F/A, M) :-
 	functor(S, F, A),
 	'$is_multifile'(S, M), !.
 '$multiple_has_been_defined'(Fil,P,_) :-
-	'$recorded'('$reconsulting',F,_), !,
+	recorded('$reconsulting',F,_), !,
 	'$test_if_well_reconsulting'(F,Fil,P).
 
 '$test_if_well_reconsulting'(F,F,_) :- !.
@@ -192,8 +192,8 @@ no_style_check([H|T]) :- no_style_check(H), no_style_check(T).
 '$multifile'(Mod:PredSpec, _) :- !,
 	'$multifile'(PredSpec, Mod).
 '$multifile'(N/A, M) :-
-	'$get_value'('$consulting_file',F),
-	'$recordzifnot'('$multifile_defs','$defined'(F,N,A,M),_),
+	get_value('$consulting_file',F),
+	recordzifnot('$multifile_defs','$defined'(F,N,A,M),_),
 	fail.
 '$multifile'(N/A, M) :-
          functor(S,N,A),
@@ -214,7 +214,7 @@ no_style_check([H|T]) :- no_style_check(H), no_style_check(T).
 '$discontiguous'(M:A,_) :- !,
 	'$discontiguous'(A,M).
 '$discontiguous'(N/A, M) :- !,
-	( '$recordzifnot'('$discontiguous_defs','$df'(N,A,M),_) ->
+	( recordzifnot('$discontiguous_defs','$df'(N,A,M),_) ->
 	    true
 	;
 	    true
@@ -227,8 +227,8 @@ no_style_check([H|T]) :- no_style_check(H), no_style_check(T).
 %
 '$check_multifile_pred'(Hd, M, _) :-
 	functor(Hd,Na,Ar),
-	'$get_value'('$consulting_file',F),
-	'$recorded'('$multifile_defs','$defined'(F,Na,Ar,M),_), !.
+	get_value('$consulting_file',F),
+	recorded('$multifile_defs','$defined'(F,Na,Ar,M),_), !.
 % oops, we did not.
 '$check_multifile_pred'(Hd, M, Fl) :-
 	% so this is not a multi-file predicate any longer.
@@ -247,15 +247,15 @@ no_style_check([H|T]) :- no_style_check(H), no_style_check(T).
 	nl(user_error).	
 
 '$clear_multifile_pred'(Na,Ar,M) :-
-	'$recorded'('$multifile_defs','$defined'(_,Na,Ar,M),R),
+	recorded('$multifile_defs','$defined'(_,Na,Ar,M),R),
 	erase(R),
 	fail.
 '$clear_multifile_pred'(Na,Ar,M) :-
-	'$recorded'('$multifile'(_,_,_),'$mf'(Na,Ar,M,_,_),R),
+	recorded('$multifile'(_,_,_),'$mf'(Na,Ar,M,_,_),R),
 	erase(R),
 	fail.
 '$clear_multifile_pred'(Na,Ar,M) :-
-	'$recorded'('$multifile_dynamic'(_,_,_),'$mf'(Na,Ar,M,_,_),R),
+	recorded('$multifile_dynamic'(_,_,_),'$mf'(Na,Ar,M,_,_),R),
 	erase(R),
 	fail.
 '$clear_multifile_pred'(_,_,_).

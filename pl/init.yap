@@ -35,7 +35,7 @@ false :- fail.
 not(G) :-    '$current_module'(Module), '$meta_call'(not(G),Module).
 
 
-:- '$set_value'('$doindex',true).
+:- set_value('$doindex',true).
 
 :- 	['errors.yap',
 	 'utils.yap',
@@ -70,8 +70,8 @@ not(G) :-    '$current_module'(Module), '$meta_call'(not(G),Module).
 
 version(yap,[4,1]).
 
-system_mode(verbose,on)  :- '$set_value'('$verbose',on).
-system_mode(verbose,off) :- '$set_value'('$verbose',off).
+system_mode(verbose,on)  :- set_value('$verbose',on).
+system_mode(verbose,off) :- set_value('$verbose',off).
 
 :- op(1150,fx,(mode)).
 
@@ -113,7 +113,7 @@ system_mode(verbose,off) :- '$set_value'('$verbose',off).
 %
 :- ( recorded('$loaded','$loaded'(_,_),R), erase(R), fail ; true ).
 
-:- '$set_value'('$user_module',user), '$protect'.
+:- set_value('$user_module',user), '$protect'.
 
 :- style_check([]).
 

@@ -396,7 +396,7 @@ when(_,Goal) :-
 	'$generate_blocking_code'((Conds,OldConds), G, Code).	
 '$generate_blocking_code'(Conds, G, (G :- (If, !, when(When, G)))) :-
 	'$extract_head_for_block'(Conds, G),
-	'$recorda'('$blocking_code','$code'(G,Conds),_),
+	recorda('$blocking_code','$code'(G,Conds),_),
 	'$generate_body_for_block'(Conds, G, If, When).
 
 %

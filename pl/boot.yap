@@ -56,35 +56,35 @@ read_sig.
 	eraseall('$sig_handler'),
 	% The default interrupt handlers are kept, so that it's
 	% possible to revert to them with on_signal(S,_,default)
-	'$recordz'('$sig_handler',default(sig_hup,
+	recordz('$sig_handler',default(sig_hup,
 		         (( exists('~/.yaprc') -> [-'~/.yaprc'] ; true ),
 			  ( exists('~/.prologrc') -> [-'~/.prologrc'] ; true ),
 			  ( exists('~/prolog.ini') -> [-'~/prolog.ini'] ; true ))), _),
-	'$recordz'('$sig_handler',default(sig_usr1,
+	recordz('$sig_handler',default(sig_usr1,
 		       (nl,writeq('[ Received user signal 1 ]'),nl,halt)), _),
-	'$recordz'('$sig_handler',default(sig_usr2,
+	recordz('$sig_handler',default(sig_usr2,
 		       (nl,writeq('[ Received user signal 2 ]'),nl,halt)), _),
 	% The current interrupt handlers are also set the default values
-	'$recordz'('$sig_handler',action(sig_hup,
+	recordz('$sig_handler',action(sig_hup,
 		         (( exists('~/.yaprc') -> [-'~/.yaprc'] ; true ),
 			  ( exists('~/.prologrc') -> [-'~/.prologrc'] ; true ),
 			  ( exists('~/prolog.ini') -> [-'~/prolog.ini'] ; true ))), _),
-	'$recordz'('$sig_handler',action(sig_usr1,
+	recordz('$sig_handler',action(sig_usr1,
 		       (nl,writeq('[ Received user signal 1 ]'),nl,halt)), _),
-	'$recordz'('$sig_handler',action(sig_usr2,
+	recordz('$sig_handler',action(sig_usr2,
 		       (nl,writeq('[ Received user signal 2 ]'),nl,halt)), _),
 	'$set_yap_flags'(10,0),
-	'$set_value'('$gc',on),
-	'$set_value'('$verbose',on),
+	set_value('$gc',on),
+	set_value('$verbose',on),
 	prompt('  ?- '),
 	(
-	    '$get_value'('$break',0)
+	    get_value('$break',0)
 	->
 	    % '$set_read_error_handler'(error), let the user do that
 	    % after an abort, make sure all spy points are gone.
 	    '$clean_debugging_info',
 	    % simple trick to find out if this is we are booting from Prolog.
-	    '$get_value'('$user_module',V),
+	    get_value('$user_module',V),
 	    (  V = [] ->
 		'$current_module'(_,prolog)
 	    ;
@@ -138,17 +138,16 @@ read_sig.
 	'$clean_up_dead_clauses',
 	fail.
 '$enter_top_level' :-
-	'$recorded'('$restore_goal',G,R),
+	recorded('$restore_goal',G,R),
 	erase(R),
 	prompt(_,'   | '),
 	'$system_catch'('$do_yes_no'((G->true),user),user,Error,user:'$Error'(Error)),
 	fail.
 '$enter_top_level' :-
-	( '$get_value'('$trace', 1) ->
-	    '$set_value'(spy_sl,0),
+	( get_value('$trace', 1) ->
 	    '$format'(user_error, "[trace]~n", [])
 	;
-	  '$get_value'(debug, 1) ->
+	  get_value(debug, 1) ->
 	    '$format'(user_error, "[debug]~n", [])
 	),
 	fail.
@@ -156,33 +155,26 @@ read_sig.
 	prompt(_,'   ?- '),
 	prompt('   | '),
 	'$read_vars'(user_input,Command,_,Varnames),
-	'$set_value'(spy_sl,0),
-	'$set_value'(spy_fs,0),
-	'$set_value'(spy_sp,0),
-	'$set_value'(spy_gn,1),
-	( '$get_value'('$trace', 1) ->
-	    '$set_yap_flags'(10,1)
-	    ;
-	    '$set_yap_flags'(10,0)
-	),
-	'$set_value'(spy_cl,1),
-	'$set_value'(spy_leap,0),
-	'$setflop'(0),
+	set_value(spy_fs,0),
+	set_value(spy_sp,0),
+	set_value(spy_gn,1),
+	set_value(spy_skip,off),
+	set_value(spy_stop,on),
 	prompt(_,'   |: '),
 	'$run_toplevel_hooks',
 	'$command'((?-Command),Varnames,top),
 	'$sync_mmapped_arrays',
-	'$set_value'('$live','$false').
+	set_value('$live','$false').
 
 '$startup_goals' :-
-	'$recorded'('$startup_goal',G,_),
+	recorded('$startup_goal',G,_),
 	'$current_module'(Module),
 	'$system_catch'('$query'((G->true), []),Module,Error,user:'$Error'(Error)),
 	fail.
 '$startup_goals'.
 
 '$startup_reconsult' :-
-	'$get_value'('$consult_on_boot',X), X \= [], !,
+	get_value('$consult_on_boot',X), X \= [], !,
 	'$do_startup_reconsult'(X).
 '$startup_reconsult'.
 
@@ -190,7 +182,7 @@ read_sig.
 % remove any debugging info after an abort.
 %
 '$clean_debugging_info' :-
-	'$recorded'('$spy',_,R),
+	recorded('$spy',_,R),
 	erase(R),
 	fail.
 '$clean_debugging_info'.
@@ -200,14 +192,14 @@ read_sig.
 		eraseall('$$set'),
 		eraseall('$$one'), 
 		eraseall('$reconsulted'), fail.
-'$erase_sets' :- \+ '$recorded'('$path',_,_), '$recorda'('$path',"",_).
+'$erase_sets' :- \+ recorded('$path',_,_), recorda('$path',"",_).
 '$erase_sets'.
 
 '$version' :- 
-	'$get_value'('$version_name',VersionName),
+	get_value('$version_name',VersionName),
 	'$format'(user_error, "[ YAP version ~w ]~n", [VersionName]),
 	fail.
-'$version' :- '$recorded'('$version',VersionName,_),
+'$version' :- recorded('$version',VersionName,_),
 	'$format'(user_error, "~w~n", [VersionName]),
 	fail.
 '$version'.
@@ -225,16 +217,16 @@ repeat :- '$repeat'.
 '$repeat'.
 '$repeat' :- '$repeat'.
 
-'$start_corouts' :- '$recorded'('$corout','$corout'(Name,_,_),R), Name \= main, finish_corout(R),
+'$start_corouts' :- recorded('$corout','$corout'(Name,_,_),R), Name \= main, finish_corout(R),
 		fail.
 '$start_corouts' :- 
 		eraseall('$corout'),
 		eraseall('$result'),
 		eraseall('$actual'),
 		fail.
-'$start_corouts' :- '$recorda'('$actual',main,_),
-	'$recordz'('$corout','$corout'(main,main,'$corout'([],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[])),_Ref),
-	'$recorda'('$result',going,_).
+'$start_corouts' :- recorda('$actual',main,_),
+	recordz('$corout','$corout'(main,main,'$corout'([],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[])),_Ref),
+	recorda('$result',going,_).
 
 '$command'(C,VL,Con) :-
 	'$access_yap_flags'(9,1), !,
@@ -361,7 +353,7 @@ repeat :- '$repeat'.
 	'$$compile'(G1, G0, N, Mod).
 
 '$prepare_term'(G,V,G0,G1, Mod) :-
-	( '$get_value'('$syntaxcheckflag',on) ->
+	( get_value('$syntaxcheckflag',on) ->
 		'$check_term'(G,V,Mod) ; true ),
 	'$precompile_term'(G, G0, G1, Mod).
 
@@ -370,17 +362,19 @@ repeat :- '$repeat'.
 	'$head_and_body'(G,H,_), 
 	'$inform_of_clause'(H,L),
 	'$flags'(H, Mod, Fl, Fl),
-	( Fl /\ 16'002008 =\= 0 -> '$assertz_dynamic'(L,G,G0,Mod) ;
+	( Fl /\ 16'000008 =\= 0 -> '$compile'(G,L,G0,Mod)
+	;
+	  Fl /\ 16'002000 =\= 0 -> '$assertz_dynamic'(L,G,G0,Mod) ;
 	    '$$compile_stat'(G,G0,L,H, Mod) ).
 
 % process a clause for a static predicate 
 '$$compile_stat'(G,G0,L,H, Mod) :-
-      '$compile'(G,L,Mod),
+      '$compile'(G,L,G0,Mod),
       % first occurrence of this predicate in this file,
       % check if we need to erase the source and if 
       % it is a multifile procedure.
       '$flags'(H,Mod,Fl,Fl),
-      ( '$get_value'('$abol',true)
+      ( get_value('$abol',true)
          ->
             ( Fl /\ 16'400000 =\= 0 -> '$erase_source'(H, Mod) ; true ),
 	    ( Fl /\ 16'040000 =\= 0 -> '$check_multifile_pred'(H,Mod,Fl) ; true )
@@ -399,9 +393,9 @@ repeat :- '$repeat'.
 	'$head_and_body'(G0,H0,B0),
 	'$record_stat_source'(M:H,(H0:-B0),L,R),
 	( '$is_multifile'(H,M) -> 
-	    '$get_value'('$consulting_file',F),
+	    get_value('$consulting_file',F),
 	    functor(H, Na, Ar),
-	    '$recordz'('$multifile'(_,_,_), '$mf'(Na,Ar,M,F,R), _) 
+	    recordz('$multifile'(_,_,_), '$mf'(Na,Ar,M,F,R), _) 
 	;
 	   true
         ).	
@@ -414,34 +408,34 @@ repeat :- '$repeat'.
 '$erase_source'(_, _).
 
 '$erase_mf_source'(Na, Ar, M) :-
-	'$get_value'('$consulting_file',F),
-	'$recorded'('$multifile'(_,_,_), '$mf'(Na,Ar,M,F,R), R1),
+	get_value('$consulting_file',F),
+	recorded('$multifile'(_,_,_), '$mf'(Na,Ar,M,F,R), R1),
 	erase(R1),
 	erase(R),
 	fail.
 '$erase_mf_source'(Na, Ar, M) :-
-	'$get_value'('$consulting_file',F),
-	'$recorded'('$multifile_dynamic'(_,_,_), '$mf'(Na,Ar,M,F,R), R1),
+	get_value('$consulting_file',F),
+	recorded('$multifile_dynamic'(_,_,_), '$mf'(Na,Ar,M,F,R), R1),
 	erase(R1),
 	erase(R),
 	fail.
 '$erase_mf_source'(_,_,_).
 
 '$check_if_reconsulted'(N,A) :-
-	'$recorded'('$reconsulted',X,_),
+	recorded('$reconsulted',X,_),
 	( X = N/A , !;
 	  X = '$', !, fail;
 	  fail
 	).
 
 '$inform_as_reconsulted'(N,A) :-
-	'$recorda'('$reconsulted',N/A,_).
+	recorda('$reconsulted',N/A,_).
 
 '$clear_reconsulting' :-
-	'$recorded'('$reconsulted',X,Ref),
+	recorded('$reconsulted',X,Ref),
 	erase(Ref),
 	X == '$', !,
-	( '$recorded'('$reconsulting',_,R) -> erase(R) ).
+	( recorded('$reconsulting',_,R) -> erase(R) ).
 
 /* Executing a query */
 
@@ -464,13 +458,17 @@ repeat :- '$repeat'.
 '$query'(G,[]) :- !,
 	'$yes_no'(G,(?-)).
 '$query'(G,V) :-
-	(	'$execute'(G),
+	(
+		'$start_creep',
+		'$execute'(G),
+		'$stop_creep',
 		'$extract_goal_vars_for_dump'(V,LIV),
 		'$show_frozen'(G,LIV,LGs),
 		'$write_answer'(V, LGs, Written),
 		'$write_query_answer_true'(Written),
 		'$another',
 		!, fail ;
+		'$stop_creep',
 		'$present_answer'(_, no),
 		fail
 	).
@@ -478,6 +476,7 @@ repeat :- '$repeat'.
 '$yes_no'(G,C) :-
 	'$current_module'(M),
 	'$do_yes_no'(G,M),
+	'$stop_creep',
 	'$show_frozen'(G, [], LGs),
 	'$write_answer'([], LGs, Written),
         ( Written = [] ->
@@ -486,12 +485,20 @@ repeat :- '$repeat'.
 	),
 	fail.
 '$yes_no'(_,_) :-
+	'$stop_creep',
 	'$present_answer'(_, no),
 	fail.
 
 
+'$start_creep' :-
+	( get_value('$trace', 1) ->
+	    '$creep'
+	;
+	  '$setflop'(1)
+	).
+
 '$do_yes_no'([X|L], M) :- !, '$csult'([X|L], M).
-'$do_yes_no'(G, M) :- '$execute'(M:G).
+'$do_yes_no'(G, M) :- '$start_creep', '$execute'(M:G).
 
 '$extract_goal_vars_for_dump'([],[]).
 '$extract_goal_vars_for_dump'([[_|V]|VL],[V|LIV]) :-
@@ -516,10 +523,10 @@ repeat :- '$repeat'.
         '$flush_all_streams',
 	fail.
 '$present_answer'((?-), Answ) :-
-	'$get_value'('$break',BL),
+	get_value('$break',BL),
 	( BL \= 0 -> 	'$format'(user_error, "[~p] ",[BL]) ;
 			true ),
-        ( '$recorded'('$print_options','$toplevel'(Opts),_) ->
+        ( recorded('$print_options','$toplevel'(Opts),_) ->
 	   write_term(user_error,Answ,Opts) ;
 	   '$format'(user_error,"~w",[Answ])
         ),
@@ -616,12 +623,12 @@ repeat :- '$repeat'.
 	'$format'(user_error,"~s",[V]),
 	'$write_output_vars'(VL),
 	'$format'(user_error," = ", []),
-        ( '$recorded'('$print_options','$toplevel'(Opts),_) ->
+        ( recorded('$print_options','$toplevel'(Opts),_) ->
 	   write_term(user_error,B,Opts) ;
 	   '$format'(user_error,"~w",[B])
         ).
 '$write_goal_output'(_-G) :-
-        ( '$recorded'('$print_options','$toplevel'(Opts),_) ->
+        ( recorded('$print_options','$toplevel'(Opts),_) ->
 	   write_term(user_error,G,Opts) ;
 	   '$format'(user_error,"~w",[G])
         ).
@@ -813,7 +820,7 @@ incore(G) :- '$execute'(G).
 '$std_spied_call'(A, CP, G0, M) :-
 	( '$undefined'(A, M) ->
 		functor(A,F,N),
-		( '$recorded'('$import','$import'(S,M,F,N),_) ->
+		( recorded('$import','$import'(S,M,F,N),_) ->
 		  '$spied_call'(S:A,CP,G0,M) ;
 		  '$spy'(A)
 	        )
@@ -835,7 +842,7 @@ incore(G) :- '$execute'(G).
 % Called by the abstract machine, if no clauses exist for a predicate
 '$undefp'([M|G]) :-
 	functor(G,F,N),
-	'$recorded'('$import','$import'(S,M,F,N),_),
+	recorded('$import','$import'(S,M,F,N),_),
 	S \= M, % can't try importing from the module itself.
 	!,
 	'$expand_goal'(G, S, M, NG, NMod),
@@ -845,7 +852,7 @@ incore(G) :- '$execute'(G).
 	user:unknown_predicate_handler(G,M,NG), !,
 	'$execute'(M:NG).
 '$undefp'([M|G]) :-
-	'$recorded'('$unknown','$unknown'(M:G,US),_), !,
+	recorded('$unknown','$unknown'(M:G,US),_), !,
 	'$execute'(user:US).
 
 
@@ -853,29 +860,27 @@ incore(G) :- '$execute'(G).
 	it saves the importante data about current streams and
 	debugger state */
 
-break :- '$get_value'('$break',BL), NBL is BL+1,
-	'$get_value'(spy_sl,SPY_SL),
-	'$get_value'(spy_fs,SPY_FS),
-	'$get_value'(spy_sp,SPY_SP),
-	'$get_value'(spy_gn,SPY_GN),
+break :- get_value('$break',BL), NBL is BL+1,
+	get_value(spy_fs,SPY_FS),
+	get_value(spy_sp,SPY_SP),
+	get_value(spy_gn,SPY_GN),
 	'$access_yap_flags'(10,SPY_CREEP),
-	'$get_value'(spy_cl,SPY_CL),
-	'$get_value'(spy_leap,_Leap),
-	'$set_value'('$break',NBL),
+	get_value(spy_cl,SPY_CL),
+	get_value(spy_leap,_Leap),
+	set_value('$break',NBL),
 	current_output(OutStream), current_input(InpStream),
 	'$format'(user_error, "[ Break (level ~w) ]~n", [NBL]),
 	'$do_live',
 	!,
-	'$set_value'('$live','$true'),
-	'$set_value'(spy_sl,SPY_SL),
-	'$get_value'(spy_fs,SPY_FS),
-	'$set_value'(spy_sp,SPY_SP),
-	'$set_value'(spy_gn,SPY_GN),
+	set_value('$live','$true'),
+	get_value(spy_fs,SPY_FS),
+	set_value(spy_sp,SPY_SP),
+	set_value(spy_gn,SPY_GN),
 	'$set_yap_flags'(10,SPY_CREEP),
-	'$set_value'(spy_cl,SPY_CL),
-	'$set_value'(spy_leap,_Leap),
+	set_value(spy_cl,SPY_CL),
+	set_value(spy_leap,_Leap),
 	'$set_input'(InpStream), '$set_output'(OutStream),
-	'$set_value'('$break',BL).
+	set_value('$break',BL).
 
 
 '$csult'(V, _) :- var(V), !,
@@ -913,17 +918,17 @@ break :- '$get_value'('$break',BL), NBL is BL+1,
 	'$reconsult'(F,Stream).
 '$consult'(F,Stream) :-
 	'$getcwd'(OldD),
-	'$get_value'('$consulting_file',OldF),
+	get_value('$consulting_file',OldF),
 	'$set_consulting_file'(Stream),
 	H0 is heapused, '$cputime'(T0,_),
 	'$current_stream'(File,_,Stream),
 	'$current_module'(OldModule),
 	'$start_consult'(consult,File,LC),
-	'$get_value'('$consulting',Old),
-	'$set_value'('$consulting',true),
-	'$recorda'('$initialisation','$',_),
+	get_value('$consulting',Old),
+	set_value('$consulting',true),
+	recorda('$initialisation','$',_),
 	( '$undefined'('$print_message'(_,_),prolog) -> 
-	    ( '$get_value'('$verbose',on) ->
+	    ( get_value('$verbose',on) ->
 		'$format'(user_error, "~*|[ consulting ~w... ]~n", [LC,F])
 		; true )
 	;
@@ -932,14 +937,14 @@ break :- '$get_value'('$break',BL), NBL is BL+1,
 	'$loop'(Stream,consult),
 	'$end_consult',
 	'$cd'(OldD),
-	'$set_value'('$consulting',Old),
-	'$set_value'('$consulting_file',OldF),
+	set_value('$consulting',Old),
+	set_value('$consulting_file',OldF),
 	( LC == 0 -> prompt(_,'   |: ') ; true),
 	'$exec_initialisation_goals',
 	'$current_module'(Mod,OldModule),
 	H is heapused-H0, '$cputime'(TF,_), T is TF-T0,
 	( '$undefined'('$print_message'(_,_),prolog) -> 
-	  ( '$get_value'('$verbose',on) ->
+	  ( get_value('$verbose',on) ->
 	     '$format'(user_error, "~*|[ ~w consulted ~w bytes in ~d msecs ]~n", [LC,F,H,T])
 	  ;
 	     true
@@ -957,15 +962,15 @@ break :- '$get_value'('$break',BL), NBL is BL+1,
 '$record_loaded'(Stream) :-
 	'$file_name'(Stream,F),
 	'$file_age'(F,Age),
-	'$recorda'('$loaded','$loaded'(F,Age),_).
+	recorda('$loaded','$loaded'(F,Age),_).
 
 '$set_consulting_file'(user) :- !,
-	'$set_value'('$consulting_file',user_input).
+	set_value('$consulting_file',user_input).
 '$set_consulting_file'(user_input) :- !,
-	'$set_value'('$consulting_file',user_input).
+	set_value('$consulting_file',user_input).
 '$set_consulting_file'(Stream) :-
 	'$file_name'(Stream,F),
-	'$set_value'('$consulting_file',F),
+	set_value('$consulting_file',F),
 	'$set_consulting_dir'(F).
 
 %
@@ -1030,9 +1035,9 @@ break :- '$get_value'('$break',BL), NBL is BL+1,
 
 % Path predicates
 
-'$exists'(F,Mode) :- '$get_value'(fileerrors,V), '$set_value'(fileerrors,0),
-	( '$open'(F,Mode,S,0), !, '$close'(S), '$set_value'(fileerrors,V);
-	  '$set_value'(fileerrors,V), fail).
+'$exists'(F,Mode) :- get_value(fileerrors,V), set_value(fileerrors,0),
+	( '$open'(F,Mode,S,0), !, '$close'(S), set_value(fileerrors,V);
+	  set_value(fileerrors,V), fail).
 
 
 '$find_in_path'(user,user_input, _) :- !.
@@ -1052,7 +1057,7 @@ break :- '$get_value'('$break',BL), NBL is BL+1,
 '$search_in_path'(New,New) :-
 	'$exists'(New,'$csult'), !.
 '$search_in_path'(File,New) :-
-	'$recorded'('$path',Path,_),
+	recorded('$path',Path,_),
 	atom_concat([Path,File],New),
 	'$exists'(New,'$csult').
 
@@ -1092,7 +1097,7 @@ expand_term(Term,Expanded) :-
 % Arithmetic expansion
 %
 '$expand_term_arith'(G1, G2) :-
-	'$get_value'('$c_arith',true),
+	get_value('$c_arith',true),
 	'$c_arith'(G1, G2), !.
 '$expand_term_arith'(G,G).
 
@@ -1158,18 +1163,18 @@ throw(Ball) :-
 	).
 
 '$exec_initialisation_goals' :-
-	'$recorded'('$blocking_code',_,R),
+	recorded('$blocking_code',_,R),
 	erase(R),
 	fail.
 % system goals must be performed first 
 '$exec_initialisation_goals' :-
-	'$recorded'('$system_initialisation',G,R),
+	recorded('$system_initialisation',G,R),
 	erase(R),
 	G \= '$',
 	call(G),
 	fail.
 '$exec_initialisation_goals' :-
-	'$recorded'('$initialisation',G,R),
+	recorded('$initialisation',G,R),
 	erase(R),
 	G \= '$',
 	'$current_module'(M),
@@ -1179,8 +1184,8 @@ throw(Ball) :-
 
 
 '$run_toplevel_hooks' :-
-	'$get_value'('$break',0),
-	'$recorded'('$toplevel_hooks',H,_), !,
+	get_value('$break',0),
+	recorded('$toplevel_hooks',H,_), !,
 	( '$execute'(H) -> true ; true).
 '$run_toplevel_hooks'.
 

@@ -7703,8 +7703,8 @@ mailing-list.
 @findex splay_access/5
 @snindex splay_access/5
 @cnindex splay_access/5
-If item @var{Key} is in tree @var{Tree}, return its @value{Val} and unify
-@var{Return} with @code{true}. Otherwise unify @var{Return} with
+If item @var{Key} is in tree @var{Tree}, return its @value{Val} and
+unify @var{Return} with @code{true}. Otherwise unify @var{Return} with
 @code{null}. The variable @var{NewTree} unifies with the new tree.
 
 @item splay_delete(+@var{Key},?@var{Val},+@var{Tree},-@var{NewTree})
@@ -7726,18 +7726,18 @@ Initialize a new splay tree.
 @findex splay_insert/4
 @snindex splay_insert/4
 @cnindex splay_insert/4
-Insert item @var{Key} in tree @var{Tree}, assuming that it is not there
-already. The variable @var{Val} unifies with a value for key @var{Key},
-and the variable @var{NewTree} unifies with the new tree. In our
-implementation, @var{Key} is not inserted if it is already there:
-rather it is unified with the item already in the tree.
+Insert item @var{Key} in tree @var{Tree}, assuming that it is not
+there already. The variable @var{Val} unifies with a value for key
+@var{Key}, and the variable @var{NewTree} unifies with the new
+tree. In our implementation, @var{Key} is not inserted if it is
+already there: rather it is unified with the item already in the tree.
 
 @item splay_join(+@var{LeftTree},+@var{RighTree},-@var{NewTree})
 @findex splay_join/3
 @snindex splay_join/3
 @cnindex splay_join/3
 Combine trees @var{LeftTree} and @var{RighTree} into a single
-tree@var{NewTree}  containing all items from both trees. This operation
+tree@var{NewTree} containing all items from both trees. This operation
 assumes that all items in @var{LeftTree} are less than all those in
 @var{RighTree} and destroys both @var{LeftTree} and @var{RighTree}.
 
@@ -7745,10 +7745,10 @@ assumes that all items in @var{LeftTree} are less than all those in
 @findex splay_split/5
 @snindex splay_split/5
 @cnindex splay_split/5
-Construct and return two trees @var{LeftTree} and @var{RightTree}, where
-@var{LeftTree} contains all items in @var{Tree} less than @var{Key}, and
-@var{RightTree} contains all items in @var{Tree} greater than
-@var{Key}. This operations destroys @var{Tree}.
+Construct and return two trees @var{LeftTree} and @var{RightTree},
+where @var{LeftTree} contains all items in @var{Tree} less than
+@var{Key}, and @var{RightTree} contains all items in @var{Tree}
+greater than @var{Key}. This operations destroys @var{Tree}.
 
 @end table
 

@@ -115,8 +115,8 @@ yap_flag(V,Out) :-
 	'$show_yap_flag_opts'(V,Out).
 
 % do or do not machine code
-yap_flag(fast,on) :- '$set_value'('$fast',true).
-yap_flag(fast,off) :- !, '$set_value'('$fast',[]).
+yap_flag(fast,on) :- set_value('$fast',true).
+yap_flag(fast,off) :- !, set_value('$fast',[]).
 
 % do or do not machine code
 yap_flag(argv,L) :- '$argv'(L).
@@ -128,48 +128,48 @@ yap_flag(unhide,Atom) :- !, unhide(Atom).
 % control garbage collection
 yap_flag(gc,V) :-
 	var(V), !,
-	( '$get_value'('$gc',[]) -> V = off ; V = on).
-yap_flag(gc,on) :- !, '$set_value'('$gc',true).
-yap_flag(gc,off) :- !, '$set_value'('$gc',[]).
+	( get_value('$gc',[]) -> V = off ; V = on).
+yap_flag(gc,on) :- !, set_value('$gc',true).
+yap_flag(gc,off) :- !, set_value('$gc',[]).
 
 yap_flag(gc_margin,N) :- 
 	( var(N) -> 
-	    '$get_value'('$gc_margin',N)
+	    get_value('$gc_margin',N)
 	;
 	  integer(N), N >0  ->
-	    '$set_value'('$gc_margin',N)
+	    set_value('$gc_margin',N)
 	;
 	    '$do_error'(domain_error(flag_value,gc_margin+X),yap_flag(gc_margin,X))
 	).
 yap_flag(gc_trace,V) :-
 	var(V), !,
-	'$get_value'('$gc_trace',N1),
-	'$get_value'('$gc_verbose',N2),
-	'$get_value'('$gc_very_verbose',N3),
+	get_value('$gc_trace',N1),
+	get_value('$gc_verbose',N2),
+	get_value('$gc_very_verbose',N3),
 	'$yap_flag_show_gc_tracing'(N1, N2, N3, V).
 yap_flag(gc_trace,on) :- !,
-	'$set_value'('$gc_trace',true),
-	'$set_value'('$gc_verbose',[]),
-	'$set_value'('$gc_very_verbose',[]).
+	set_value('$gc_trace',true),
+	set_value('$gc_verbose',[]),
+	set_value('$gc_very_verbose',[]).
 yap_flag(gc_trace,verbose) :- !,
-	'$set_value'('$gc_trace',[]),
-	'$set_value'('$gc_verbose',true),
-	'$set_value'('$gc_very_verbose',[]).
+	set_value('$gc_trace',[]),
+	set_value('$gc_verbose',true),
+	set_value('$gc_very_verbose',[]).
 yap_flag(gc_trace,very_verbose) :- !,
-	'$set_value'('$gc_trace',[]),
-	'$set_value'('$gc_verbose',true),
-	'$set_value'('$gc_very_verbose',true).
+	set_value('$gc_trace',[]),
+	set_value('$gc_verbose',true),
+	set_value('$gc_very_verbose',true).
 yap_flag(gc_trace,off) :-
-	'$set_value'('$gc_trace',[]),
-	'$set_value'('$gc_verbose',[]),
-	'$set_value'('$gc_very_verbose',[]).
+	set_value('$gc_trace',[]),
+	set_value('$gc_verbose',[]),
+	set_value('$gc_very_verbose',[]).
 yap_flag(syntax_errors, V) :- var(V), !,
 	'$get_read_error_handler'(V).
 yap_flag(syntax_errors, Option) :-
 	'$set_read_error_handler'(Option).
 % compatibility flag
-yap_flag(enhanced,on) :- !, '$set_value'('$enhanced',true).
-yap_flag(enhanced,off) :- '$set_value'('$enhanced',[]).
+yap_flag(enhanced,on) :- !, set_value('$enhanced',true).
+yap_flag(enhanced,off) :- set_value('$enhanced',[]).
 %
 % show state of $
 %
@@ -224,9 +224,9 @@ yap_flag(index,X) :-
 
 
 yap_flag(informational_messages,X) :- var(X), !,
-	 '$get_value'('$verbose',X).
-yap_flag(informational_messages,on)  :- !, '$set_value'('$verbose',on).
-yap_flag(informational_messages,off) :- !, '$set_value'('$verbose',off).
+	 get_value('$verbose',X).
+yap_flag(informational_messages,on)  :- !, set_value('$verbose',on).
+yap_flag(informational_messages,off) :- !, set_value('$verbose',off).
 yap_flag(informational_messages,X) :-
 	'$do_error'(domain_error(flag_value,informational_messages+X),yap_flag(informational_messages,X)).
 
@@ -252,7 +252,7 @@ yap_flag(max_arity,X) :-
 
 yap_flag(version,X) :-
 	var(X), !,
-	'$get_value'('$version_name',X).
+	get_value('$version_name',X).
 yap_flag(version,X) :-
 	'$do_error'(permission_error(modify,flag,version),yap_flag(version,X)).
 
@@ -344,7 +344,7 @@ yap_flag(language,X) :-
 
 yap_flag(debug,X) :-
 	var(X), !,
-	('$get_value'(debug,1) ->
+	(get_value(debug,1) ->
 	    X = on
 	;
 	    X = off
@@ -446,7 +446,7 @@ yap_flag(update_semantics,X) :-
 
 yap_flag(toplevel_hook,X) :-
 	var(X), !,
-	( '$recorded'('$toplevel_hooks',G,_) -> G ; true ).
+	( recorded('$toplevel_hooks',G,_) -> G ; true ).
 yap_flag(toplevel_hook,G) :- !,
 	'$set_toplevel_hook'(G).
 
@@ -504,33 +504,33 @@ yap_flag(user_error,Stream) :-
 
 yap_flag(debugger_print_options,OUT) :-
 	var(OUT),
-	'$recorded'('$print_options','$debugger'(OUT),_), !.
+	recorded('$print_options','$debugger'(OUT),_), !.
 yap_flag(debugger_print_options,Opts) :- !,
 	'$check_io_opts'(Opts, yap_flag(debugger_print_options,Opts)),
-	'$recorda'('$print_options','$debugger'(Opts),_).
+	recorda('$print_options','$debugger'(Opts),_).
 
-:- '$recorda'('$print_options','$debugger'([quoted(true),numbervars(true),portrayed(true),max_depth(10)]),_).
+:- recorda('$print_options','$debugger'([quoted(true),numbervars(true),portrayed(true),max_depth(10)]),_).
 
 yap_flag(toplevel_print_options,OUT) :-
 	var(OUT),
-	'$recorded'('$print_options','$toplevel'(OUT),_), !.
+	recorded('$print_options','$toplevel'(OUT),_), !.
 yap_flag(toplevel_print_options,Opts) :- !,
 	'$check_io_opts'(Opts, yap_flag(toplevel_print_options,Opts)),
-	'$recorda'('$print_options','$toplevel'(Opts),_).
+	recorda('$print_options','$toplevel'(Opts),_).
 
 yap_flag(fileerrors,OUT) :-
 	var(OUT), !,
-	'$get_value'(fileerrors,X0),
+	get_value(fileerrors,X0),
 	(X0 = [] -> X= 0 ; X = X0),
 	'$transl_to_on_off'(X,OUT).
 yap_flag(fileerrors,on) :- !,
-	'$set_value'(fileerrors,1).
+	set_value(fileerrors,1).
 yap_flag(fileerrors,off) :- !,
-	'$set_value'(fileerrors,0).
+	set_value(fileerrors,0).
 yap_flag(fileerrors,X) :-
 	'$do_error'(domain_error(flag_value,fileerrors+X),yap_flag(fileerrors,X)).
 
-:- '$recorda'('$print_options','$toplevel'([quoted(true),numbervars(true),portrayed(true)]),_).
+:- recorda('$print_options','$toplevel'([quoted(true),numbervars(true),portrayed(true)]),_).
 
 yap_flag(host_type,X) :-
 	'$host_type'(X).

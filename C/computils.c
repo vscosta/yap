@@ -455,17 +455,18 @@ ShowOp (char *f)
 	  case 'c':
 	    {
 	      int i;
+	      CELL *ptr = (CELL *)cptr[0];
 	      for (i = 0; i < arg; ++i) {
 		CELL my_arg;
 		Yap_DebugPutc(Yap_c_error_stream,'\t');
-		if (*cptr) {
-		  Yap_plwrite ((Term) * cptr++, Yap_DebugPutc, 0);
+		if (*ptr) {
+		  Yap_plwrite ((Term) *ptr++, Yap_DebugPutc, 0);
 		} else {
 		  Yap_plwrite (MkIntTerm (0), Yap_DebugPutc, 0);
-		  cptr++;
+		  ptr++;
 		}
 		Yap_DebugPutc (Yap_c_error_stream,'\t');
-		my_arg = *cptr++;
+		my_arg = *ptr++;
 		write_address (my_arg);
 		if (i+1 < arg)
 		  Yap_DebugPutc (Yap_c_error_stream,'\n');
@@ -475,8 +476,9 @@ ShowOp (char *f)
 	  case 'e':
 	    {
 	      int i;
+	      CELL *ptr = (CELL *)cptr[0];
 	      for (i = 0; i < arg; ++i)	{
-		CELL my_arg = cptr[0], lbl = cptr[1];
+		CELL my_arg = ptr[0], lbl = ptr[1];
 		Yap_DebugPutc(Yap_c_error_stream,'\t');
 		if (my_arg) {
 		  write_functor((Functor)my_arg);
@@ -485,7 +487,7 @@ ShowOp (char *f)
 		}
 		Yap_DebugPutc(Yap_c_error_stream,'\t');
 		write_address(lbl);
-		cptr += 2;
+		ptr += 2;
 		if (i+1 < arg)
 		  Yap_DebugPutc(Yap_c_error_stream,'\n');
 	      }
@@ -577,10 +579,13 @@ static char *opformat[] =
   "cache_sub_arg\t%d",
   "switch_on_type\t%h\t%h\t%h\t%h",
   "switch_on_constant\t%i\n%c",
-  "if_constant\t%i\t%h\n%c",
+  "if_constant\t%i\n%c",
   "switch_on_functor\t%i\n%e",
-  "if_functor\t%i\t%h\n%e",
+  "if_functor\t%i\n%e",
   "if_not_then\t%i\t%h\t%h\t%h",
+  "index_on_dbref",
+  "index_on_blob",
+  "check_var\t %r",
   "save_pair\t%v",
   "save_appl\t%v",
   "fail_label\t%l",
@@ -655,8 +660,9 @@ Yap_ShowCode ()
       arg = cpc->rnd1;
       rn = cpc->rnd2;
       cptr = cpc->arnds;
-      if (ic != nop_op)
+      if (ic != nop_op) {
 	ShowOp (opformat[ic]);
+      }
       cpc = cpc->nextInst;
     }
   Yap_DebugPutc (Yap_c_error_stream,'\n');

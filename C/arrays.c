@@ -254,7 +254,7 @@ AccessNamedArray(Atom a, Int indx)
       case array_of_terms:
 	{
 	  /* The object is now in use */
-	  DBRef ref = ptr->ValueOfVE.terms[indx];
+	  DBTerm *ref = ptr->ValueOfVE.terms[indx];
 	  Term TRef;
 
 	  READ_UNLOCK(ptr->ArRWLock);
@@ -1553,12 +1553,12 @@ p_assign_static(void)
   case array_of_terms:
     {
       
-      DBRef ref = ptr->ValueOfVE.terms[indx];
+      DBTerm *ref = ptr->ValueOfVE.terms[indx];
 
       if (ref != NULL) {
 	Yap_ReleaseTermFromDB(ref);
       }
-      ptr->ValueOfVE.terms[indx] = Yap_StoreTermInDB(3,3);
+      ptr->ValueOfVE.terms[indx] = Yap_StoreTermInDB(Deref(ARG3),3);
       if (ptr->ValueOfVE.terms[indx] == NULL){
 	WRITE_UNLOCK(ptr->ArRWLock);
 	return(FALSE);
@@ -1913,7 +1913,7 @@ p_static_array_to_term(void)
 	  H += dim;
 	  for (indx=0; indx < dim; indx++) {
 	    /* The object is now in use */
-	    DBRef ref = pp->ValueOfVE.terms[indx];
+	    DBTerm *ref = pp->ValueOfVE.terms[indx];
 	    Term TRef;
 
 	    if (ref != NULL) {

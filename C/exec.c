@@ -58,7 +58,7 @@ CallPredicate(PredEntry *pen, choiceptr cut_pt) {
     low_level_trace(enter_pred,pen,XREGS+1);
 #endif	/* LOW_LEVEL_TRACE */
   CP = P;
-  P = (yamop *)(pen->CodeOfPred);
+  P = pen->CodeOfPred;
   /* vsc: increment reduction counter at meta-call entry */
   WRITE_UNLOCK(pen->PRWLock);
   if (pen->PredFlags & ProfiledPredFlag) {
@@ -170,6 +170,13 @@ CallClause(PredEntry *pen, Int position)
       P = CLAUSECODE->clause;
       WRITE_UNLOCK(pen->PRWLock);
       return((CELL)(&(CLAUSECODE->clause)));
+    } else if (flags & LogUpdatePredFlag) {
+      LogUpdClause *cl = ClauseCodeToLogUpdClause(q);
+      for (; position > 1; position--)
+	cl = cl->ClNext;
+      P = cl->ClCode;
+      WRITE_UNLOCK(pen->PRWLock);
+      return (Unsigned(pen));
     } else {
       for (; position > 1; position--)
 	q = NextClause(q);
@@ -205,8 +212,7 @@ p_save_cp(void)
 static Int
 EnterCreepMode(SMALLUNSGN mod) {
   PredEntry *PredSpy = RepPredProp(PredPropByFunc(FunctorSpy,1));
-  Term tn = Yap_MkApplTerm(Yap_MkFunctor(AtomMetaCall,1),1,&ARG1);
-  ARG1 = MkPairTerm(ModuleName[mod],tn);
+  ARG1 = MkPairTerm(ModuleName[mod],ARG1);
   CreepFlag = CalculateStackGap();
   P_before_spy = P;
   return (CallPredicate(PredSpy, B));
@@ -215,7 +221,7 @@ EnterCreepMode(SMALLUNSGN mod) {
 inline static Int
 do_execute(Term t, SMALLUNSGN mod)
 {
-  if (yap_flags[SPY_CREEP_FLAG]) {
+  if (CreepFlag == (CELL)(LCL0+2)) {
     return(EnterCreepMode(mod));
   } else if (PRED_GOAL_EXPANSION_ON) {
     return(CallMetaCall(mod));

@@ -65,9 +65,8 @@ STATIC_PROTO(void a_r, (op_numbers));
 STATIC_PROTO(void a_p, (op_numbers));
 STATIC_PROTO(void a_pl, (op_numbers,PredEntry *));
 STATIC_PROTO(void a_l, (op_numbers));
-STATIC_PROTO(void a_hx, (op_numbers));
-STATIC_PROTO(void a_if, (op_numbers));
-STATIC_PROTO(void a_go, (op_numbers));
+STATIC_PROTO(void a_hx, (op_numbers, union clause_obj *, int));
+STATIC_PROTO(void a_if, (op_numbers, union clause_obj *, int));
 STATIC_PROTO(void a_cut, (void));
 #ifdef YAPOR
 STATIC_PROTO(void a_try, (op_numbers, CELL, CELL, int, int));
@@ -136,20 +135,6 @@ static Int c_arg;
 static int c_type;
 
 static int clause_has_blobs;
-
-wamreg
-Yap_regnotoreg(UInt regnbr)
-{
-#if PRECOMPUTE_REGADDRESS
-  return (wamreg)(XREGS + regnbr);
-#else
-#if MSHIFTOFFS
-  return regnbr;
-#else
-  return CELLSIZE*regnbr;
-#endif
-#endif /* ALIGN_LONGS */
-}
 
 inline static yslot
 emit_y(Ventry *ve)
@@ -340,13 +325,20 @@ Yap_opcode(op_numbers op)
 }
 
 static void
+add_clref(CELL clause_code)
+{
+  if (pass_no) {
+    LogUpdClause *cl = ClauseCodeToLogUpdClause(clause_code);
+    cl->ClRefCount++;
+  }
+}
+
+static void
 a_cl(op_numbers opcode)
 {
   if (pass_no) {
-    LogUpdClause *cl = (LogUpdClause *)code_addr;
     code_p->opc = emit_op(opcode);
     code_p->u.l.l = code_addr;
-    cl->u.ClVarChain = (yamop *)(Unsigned(code_addr) + label_offset[1]);
   }
   GONEXT(l);
 }
@@ -362,7 +354,7 @@ a_cle(op_numbers opcode)
     code_p->u.EC.ClENV = 0;
     code_p->u.EC.ClRefs = 0;
     code_p->u.EC.ClBase = code_addr;
-    cl->u2.ClExt = code_p;
+    cl->ClExt = code_p;
     cl->ClFlags |= LogUpdRuleMask;
   }
   GONEXT(EC);
@@ -448,6 +440,19 @@ a_vv(op_numbers opcode, op_numbers opcodew)
   if (pass_no)
     code_p->u.oxx.xr = emit_xreg(var_offset);
   GONEXT(oxx);
+}
+
+inline static void
+a_xxp(op_numbers opcode)
+{
+  if (pass_no) {
+    PredEntry *ap = (PredEntry *)(cpc->rnd2);
+    code_p->opc = emit_op(opcode);
+    code_p->u.xxp.x = cpc->rnd1;
+    code_p->u.xxp.x1 = ap->ArityOfPE;
+    code_p->u.xxp.p = ap;
+  }
+  GONEXT(xxp);
 }
 
 inline static void
@@ -545,12 +550,9 @@ a_asf(opcode)
 inline static void
 a_pair(CELL *seq_ptr)
 {
-  CELL *ptr = ((CELL *) (code_p));
-
-  code_p = (yamop *) (ptr + 2);
   if (pass_no) {
-    ptr[0] = (CELL) emit_a(*seq_ptr);
-    ptr[1] = (CELL) emit_ilabel(seq_ptr[1]);
+    seq_ptr[0] = (CELL) emit_a(seq_ptr[0]);
+    seq_ptr[1] = (CELL) emit_ilabel(seq_ptr[1]);
   }
 }
 
@@ -1098,52 +1100,78 @@ a_4sw_s(op_numbers opcode)
 }
 
 static void
-a_hx(op_numbers opcode)
+init_log_upd_table(LogUpdIndex *ic, union clause_obj *cl_u)
+{
+  /* insert myself in the indexing code chain */ 
+  ic->SiblingIndex = cl_u->lui.ChildIndex;
+  ic->ChildIndex = NULL;
+  ic->ClRefCount = 0;
+  ic->ClUse = 0L;
+  ic->u.ParentIndex = (LogUpdIndex *)cl_u;
+  cl_u->lui.ChildIndex = ic;
+  cl_u->lui.ClRefCount++;
+}
+
+static void
+init_static_table(StaticIndex *ic, union clause_obj *cl_u)
+{
+  /* insert myself in the indexing code chain */ 
+  ic->SiblingIndex = cl_u->si.ChildIndex;
+  ic->ChildIndex = NULL;
+  cl_u->si.ChildIndex = ic;
+}
+
+static void
+a_hx(op_numbers opcode, union clause_obj *cl_u, int log_update)
 {
   register CELL i, imax;
-  register CELL *seq_ptr = cpc->arnds;
+  register CELL *seq_ptr = (CELL *)cpc->rnd2;
 
   imax = cpc->rnd1;
   if (pass_no) {
     code_p->opc = emit_op(opcode);
-    code_p->u.c.c = emit_c(imax);
+    code_p->u.sl.s = emit_c(imax);
+    code_p->u.sl.l = emit_a(cpc->rnd2);
+    if (log_update) {
+      init_log_upd_table(ClauseCodeToLogUpdIndex(cpc->rnd2), cl_u);
+    } else {
+      init_static_table(ClauseCodeToStaticIndex(cpc->rnd2), cl_u);
+    }
   }
-  GONEXT(c);
-  for (i = 0; i < imax; i++) {
-    a_pair(seq_ptr);
-    seq_ptr += 2;
+  GONEXT(sl);
+  if (pass_no) {
+    for (i = 0; i < imax; i++) {
+      a_pair(seq_ptr);
+      seq_ptr += 2;
+    }
   }
 }
 
 static void
-a_if(op_numbers opcode)
+a_if(op_numbers opcode, union clause_obj *cl_u, int log_update)
 {
   register CELL i, imax;
-  register CELL *seq_ptr = cpc->arnds + 1;
+  register CELL *seq_ptr = (CELL *)cpc->rnd2;
 
   imax = cpc->rnd1;
   if (pass_no) {
     code_p->opc = emit_op(opcode);
     code_p->u.sl.s = emit_count(imax);
-    code_p->u.sl.l = emit_ilabel(cpc->arnds[0]);
+    code_p->u.sl.l = emit_a(cpc->rnd2);
+    if (log_update) {
+      init_log_upd_table(ClauseCodeToLogUpdIndex(cpc->rnd2), cl_u);
+    } else {
+      init_static_table(ClauseCodeToStaticIndex(cpc->rnd2), cl_u);
+    }
   }
   GONEXT(sl);
-  for (i = 0; i < imax; i++) {
-    a_pair(seq_ptr);
-    seq_ptr += 2;
-  }
-}
-
-static void
-a_go(op_numbers opcode)
-{
   if (pass_no) {
-    code_p->opc = emit_op(opcode);
-    code_p->u.cll.c = emit_count(cpc->arnds[1]);    /* tag */
-    code_p->u.cll.l1 = emit_ilabel(cpc->arnds[2]);  /* success point */
-    code_p->u.cll.l2 = emit_ilabel(cpc->arnds[0]);  /* fail point */
+    for (i = 0; i < imax; i++) {
+      a_pair(seq_ptr);
+      seq_ptr += 2;
+    }
+    seq_ptr[1] = (CELL) emit_ilabel(seq_ptr[1]);
   }
-  GONEXT(cll);
 }
 
 static void
@@ -1983,12 +2011,16 @@ do_pass(void)
   if (assembling != ASSEMBLING_INDEX) {
     if (log_update) {
       if (pass_no) {
+	cl_u->luc.Id = FunctorDBRef;
 	cl_u->luc.ClFlags = LogUpdMask;
 	cl_u->luc.Owner = Yap_ConsultingFile();
+	cl_u->luc.ClRefCount = 0;
+	cl_u->luc.ClPred = CurrentPred;
 	if (clause_has_blobs) {
 	  cl_u->luc.ClFlags |= HasBlobsMask;
 	}
-	cl_u->luc.u2.ClExt = NULL;
+	cl_u->luc.ClExt = NULL;
+	cl_u->luc.ClPrev = cl_u->luc.ClNext = NULL;
 #if defined(YAPOR) || defined(THREADS)
 	INIT_LOCK(cl_u.luc->ClLock);
 	INIT_CLREF_COUNT(cl_u.luc);
@@ -1997,10 +2029,12 @@ do_pass(void)
       code_p = cl_u->luc.ClCode;
     } else if (dynamic) {
       if (pass_no) {
+	cl_u->ic.ClFlags = DynamicMask;
 	cl_u->ic.Owner = Yap_ConsultingFile();
 	if (clause_has_blobs) {
 	  cl_u->ic.ClFlags |= HasBlobsMask;
 	}
+	cl_u->ic.ClRefCount = 0;
 #if defined(YAPOR) || defined(THREADS)
 	INIT_LOCK(cl_u.ic->ClLock);
 	INIT_CLREF_COUNT(cl_u.ic);
@@ -2020,23 +2054,32 @@ do_pass(void)
     }
     IPredArity = cpc->rnd2;	/* number of args */
     entry_code = code_p;
+    if (!log_update) {
 #ifdef YAPOR
-    a_try(TRYOP(_try_me, _try_me0), 0, IPredArity, 1, 0);
+      a_try(TRYOP(_try_me, _try_me0), 0, IPredArity, 1, 0);
 #else
-    a_try(TRYOP(_try_me, _try_me0), 0, IPredArity);
+      a_try(TRYOP(_try_me, _try_me0), 0, IPredArity);
 #endif	/* YAPOR */
+    }
   } else {
+    /* index code */
     if (log_update) {
       if (pass_no) {
-	cl_u->luc.ClFlags = LogUpdatePredFlag|IndexedPredFlag|IndexMask;
-	cl_u->luc.u2.ClUse =  0;
+	cl_u->lui.ClFlags = LogUpdMask|IndexedPredFlag|IndexMask;
+	cl_u->lui.ChildIndex = NULL;
+	cl_u->lui.SiblingIndex = NULL;
+	cl_u->lui.u.pred = CurrentPred;
+	cl_u->lui.ClUse =  0;
+	cl_u->lui.ClRefCount =  0;
       }
-      code_p = cl_u->luc.ClCode;
+      code_p = cl_u->lui.ClCode;
     } else {
       if (pass_no) {
-	cl_u->sc.ClFlags = IndexMask; 
+	cl_u->si.ClFlags = IndexMask; 
+	cl_u->si.ChildIndex = NULL;
+	cl_u->si.SiblingIndex = NULL;
       }
-      code_p = cl_u->sc.ClCode;
+      code_p = cl_u->si.ClCode;
     }
     entry_code = code_p;
   }
@@ -2274,25 +2317,37 @@ do_pass(void)
       a_deallocate();
       break;
     case tryme_op:
+      if (log_update && assembling == ASSEMBLING_INDEX) {
+	a_cl(_try_logical_pred);
+      }
       TRYCODE(_try_me, _try_me0);
       break;
     case retryme_op:
       TRYCODE(_retry_me, _retry_me0);
       break;
     case trustme_op:
+      if (log_update && assembling == ASSEMBLING_INDEX) {
+	a_cl(_trust_logical_pred);
+      }
       TRYCODE(_trust_me, _trust_me0);
       break;
     case try_op:
-      if (log_update)
+      if (log_update) {
 	a_cl(_try_logical_pred);
+      }
       a_gl(_try_clause);
       break;
     case retry_op:
+      if (log_update) {
+	add_clref(cpc->rnd1);
+      }
       a_gl(_retry);
       break;
     case trust_op:
-      if (log_update)
+      if (log_update) {
+	add_clref(cpc->rnd1);
 	a_cl(_trust_logical_pred);
+      }
       a_gl(_trust);
       break;
     case try_in_op:
@@ -2414,27 +2469,36 @@ do_pass(void)
       a_4sw(_switch_on_type);
       break;
     case switch_c_op:
-      a_hx(_switch_on_cons);
+      a_hx(_switch_on_cons, cl_u, log_update);
       break;
     case switch_f_op:
-      a_hx(_switch_on_func);
+      a_hx(_switch_on_func, cl_u, log_update);
       break;
     case if_c_op:
       if (cpc->rnd1 == 1) {
-	a_go(_go_on_cons);
+	a_if(_go_on_cons, cl_u, log_update);
       } else {
-	a_if(_if_cons);
+	a_if(_if_cons, cl_u, log_update);
       }
       break;
     case if_f_op:
       if (cpc->rnd1 == 1) {
-	a_go(_go_on_func);
+	a_if(_go_on_func, cl_u, log_update);
       } else {
-	a_if(_if_func);
+	a_if(_if_func, cl_u, log_update);
       }
       break;
     case if_not_op:
       a_ifnot(_if_not_then);
+      break;
+    case index_dbref_op:
+      a_e(_index_dbref);
+      break;
+    case index_blob_op:
+      a_e(_index_blob);
+      break;
+    case check_var_op:
+      a_xxp(_check_var_for_index);
       break;
     case mark_initialised_pvars_op:
       a_bmap();

@@ -10,7 +10,7 @@
 * File:		Heap.h         						 *
 * mods:									 *
 * comments:	Heap Init Structure					 *
-* version:      $Id: Heap.h,v 1.43 2003-06-06 11:54:01 vsc Exp $	 *
+* version:      $Id: Heap.h,v 1.44 2003-08-27 13:37:09 vsc Exp $	 *
 *************************************************************************/
 
 /* information that can be stored in Code Space */
@@ -57,6 +57,7 @@ typedef struct various_codes {
   yamop tablecompletioncode;
   yamop tableanswerresolutioncode;
 #endif /* TABLING */
+  OPCODE expand_op_code;
   yamop comma_code[5];
   yamop failcode[1];
   OPCODE failcode_1;
@@ -135,14 +136,15 @@ typedef struct various_codes {
   OPCODE undef_op; 
   OPCODE index_op; 
   OPCODE fail_op; 
-  yamop *retry_recorded_code,
-    *retry_recorded_k_code,
-    *retry_drecorded_code,
+  yamop *retry_recorded_k_code,
     *retry_c_recordedp_code;
   Int static_predicates_marked;
   UInt int_keys_size;
   UInt int_keys_timestamp;
   Prop *IntKeys;
+  UInt int_lu_keys_size;
+  UInt int_lu_keys_timestamp;
+  Prop *IntLUKeys;
   UInt int_bb_keys_size;
   Prop *IntBBKeys;
   Int   yap_flags_field[NUMBER_OF_YAP_FLAGS];
@@ -288,6 +290,10 @@ typedef struct various_codes {
   struct pred_entry *pred_goal_expansion;
   struct pred_entry *pred_meta_call;
   struct pred_entry *pred_dollar_catch;
+  struct pred_entry *pred_recorded_with_key;
+  struct pred_entry *pred_log_upd_clause;
+  struct pred_entry *pred_log_upd_clause0;
+  struct pred_entry *pred_log_upd_retract;
   struct pred_entry *pred_throw;
   struct pred_entry *pred_handle_throw;
   struct array_entry *dyn_array_list;
@@ -353,6 +359,7 @@ typedef struct various_codes {
 #define  COMPLETION               ((yamop *)&(heap_regs->tablecompletioncode   ))
 #define  ANSWER_RESOLUTION        ((yamop *)&(heap_regs->tableanswerresolutioncode ))
 #endif /* TABLING */
+#define  EXPAND_OP_CODE           heap_regs->expand_op_code
 #define  COMMA_CODE               heap_regs->comma_code
 #define  FAILCODE                 heap_regs->failcode
 #define  TRUSTFAILCODE            heap_regs->trustfailcode
@@ -375,7 +382,6 @@ typedef struct various_codes {
 #define  UPDATE_MODE              heap_regs->update_mode
 #define  RETRY_C_RECORDED_CODE    heap_regs->retry_recorded_code
 #define  RETRY_C_RECORDED_K_CODE  heap_regs->retry_recorded_k_code
-#define  RETRY_C_DRECORDED_CODE   heap_regs->retry_drecorded_code
 #define  RETRY_C_RECORDEDP_CODE   heap_regs->retry_c_recordedp_code
 #define  STATIC_PREDICATES_MARKED heap_regs->static_predicates_marked
 #define  yap_flags                heap_regs->yap_flags_field
@@ -386,6 +392,9 @@ typedef struct various_codes {
 #define  INT_KEYS_SIZE            heap_regs->int_keys_size
 #define  INT_KEYS_TIMESTAMP       heap_regs->int_keys_timestamp
 #define  INT_KEYS                 heap_regs->IntKeys
+#define  INT_LU_KEYS_SIZE         heap_regs->int_lu_keys_size
+#define  INT_LU_KEYS_TIMESTAMP    heap_regs->int_lu_keys_timestamp
+#define  INT_LU_KEYS              heap_regs->IntLUKeys
 #define  INT_BB_KEYS_SIZE         heap_regs->int_bb_keys_size
 #define  INT_BB_KEYS              heap_regs->IntBBKeys
 #define  CharConversionTable      heap_regs->char_conversion_table
@@ -513,6 +522,10 @@ typedef struct various_codes {
 #define  PredGoalExpansion        heap_regs->pred_goal_expansion
 #define  PredMetaCall             heap_regs->pred_meta_call
 #define  PredDollarCatch          heap_regs->pred_dollar_catch
+#define  PredRecordedWithKey      heap_regs->pred_recorded_with_key
+#define  PredLogUpdClause         heap_regs->pred_log_upd_clause
+#define  PredLogUpdClause0        heap_regs->pred_log_upd_clause0
+#define  PredLogUpdRetract        heap_regs->pred_log_upd_retract
 #define  PredThrow                heap_regs->pred_throw
 #define  PredHandleThrow          heap_regs->pred_handle_throw
 #define  DynArrayList             heap_regs->dyn_array_list

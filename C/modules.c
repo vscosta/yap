@@ -49,7 +49,7 @@ static SMALLUNSGN
 LookupModule(Term a)
 {
   unsigned int             i;
-	
+
   for (i = 0; i < NoOfModules; ++i) {
     if (ModuleName[i] == a) {       
       return (i);
@@ -140,7 +140,9 @@ Yap_InitModules(void)
     MkAtomTerm(Yap_LookupAtom("prolog"));
   ModuleName[1] =
     MkAtomTerm(Yap_LookupAtom("user"));
-  NoOfModules = 2;
+  ModuleName[2] =
+    MkAtomTerm(Yap_LookupAtom("idb"));
+  NoOfModules = 3;
   CurrentModule = 0;
   Yap_InitCPred("$current_module", 2, p_current_module, SafePredFlag|SyncPredFlag);
   Yap_InitCPred("$current_module", 1, p_current_module1, SafePredFlag|SyncPredFlag);

@@ -20,8 +20,8 @@ static char     SccsId[] = "%W% %G%";
 
 #include "Yap.h"
 #include "clause.h"
-#include "heapgc.h"
 #include "yapio.h"
+#include "heapgc.h"
 #if HAVE_STRING_H
 #include <string.h>
 #endif
@@ -105,6 +105,11 @@ typedef struct {
 }               SFKeep;
 #endif
 
+typedef struct queue_entry {
+  struct queue_entry *next;
+  DBTerm *DBT;
+} QueueEntry;
+
 typedef struct idb_queue
 {
   Functor id;		/* identify this as being pointed to by a DBRef */
@@ -112,7 +117,7 @@ typedef struct idb_queue
 #if defined(YAPOR) || defined(THREADS)
   rwlock_t    QRWLock;         /* a simple lock to protect this entry */
 #endif
-  DBRef FirstInQueue, LastInQueue;
+  QueueEntry *FirstInQueue, *LastInQueue;
 }  db_queue;
 
 #define HashFieldMask		((CELL)0xffL)
@@ -181,7 +186,7 @@ typedef table {
 
 STATIC_PROTO(CELL *cpcells,(CELL *,CELL*,Int));
 #ifdef IDB_LINK_TABLE
-STATIC_PROTO(void linkblk,(link_entry *,CELL *));
+STATIC_PROTO(void linkblk,(link_entry *,CELL *,CELL));
 #endif
 #ifdef IDB_USE_MBIT
 STATIC_PROTO(CELL *linkcells,(CELL *,Int));
@@ -194,9 +199,7 @@ STATIC_PROTO(CELL  *MkDBTerm, (CELL *, CELL *, CELL *, CELL *, CELL *, CELL *,in
 #else
 STATIC_PROTO(CELL  *MkDBTerm, (CELL *, CELL *, CELL *, CELL *, CELL *, int *));
 #endif
-STATIC_PROTO(DBRef  CreateDBStruct, (Term, DBProp, int));
-STATIC_PROTO(DBRef  new_lu_index, (LogUpdDBProp));
-STATIC_PROTO(void   clean_lu_index, (DBRef));
+STATIC_PROTO(DBRef  CreateDBStruct, (Term, DBProp, int, int *));
 STATIC_PROTO(DBRef  record, (int, Term, Term, Term));
 STATIC_PROTO(DBRef  check_if_cons, (DBRef, Term));
 STATIC_PROTO(DBRef  check_if_var, (DBRef));
@@ -213,18 +216,15 @@ STATIC_PROTO(Int  p_drcdap, (void));
 STATIC_PROTO(Int  p_drcdzp, (void));
 STATIC_PROTO(Int  p_rcdaifnot, (void));
 STATIC_PROTO(Int  p_rcdzifnot, (void));
-STATIC_PROTO(Term  GetDBTerm, (DBRef));
+STATIC_PROTO(Term  GetDBTerm, (DBTerm *));
 STATIC_PROTO(DBProp  FetchDBPropFromKey, (Term, int, int, char *));
-STATIC_PROTO(Int  i_log_upd_recorded, (LogUpdDBProp));
 STATIC_PROTO(Int  i_recorded, (DBProp,Term));
-STATIC_PROTO(Int  c_log_upd_recorded, (DBRef *, int));
 STATIC_PROTO(Int  c_recorded, (int));
-STATIC_PROTO(Int  in_rded, (void));
 STATIC_PROTO(Int  co_rded, (void));
 STATIC_PROTO(Int  in_rdedp, (void));
 STATIC_PROTO(Int  co_rdedp, (void));
 STATIC_PROTO(Int  p_first_instance, (void));
-STATIC_PROTO(void  ErasePendingRefs, (DBRef));
+STATIC_PROTO(void  ErasePendingRefs, (DBTerm *));
 STATIC_PROTO(void  RemoveDBEntry, (DBRef));
 STATIC_PROTO(void  EraseLogUpdCl, (LogUpdClause *));
 STATIC_PROTO(void  MyEraseClause, (DynamicClause *));
@@ -249,14 +249,20 @@ STATIC_PROTO(void  sf_include, (SFKeep *));
 #endif
 STATIC_PROTO(Int  p_init_queue, (void));
 STATIC_PROTO(Int  p_enqueue, (void));
-STATIC_PROTO(void keepdbrefs, (DBRef));
+STATIC_PROTO(void keepdbrefs, (DBTerm *));
 STATIC_PROTO(Int  p_dequeue, (void));
 STATIC_PROTO(void ErDBE, (DBRef));
+STATIC_PROTO(void ReleaseTermFromDB, (DBTerm *));
+STATIC_PROTO(PredEntry *new_lu_entry, (Term));
+STATIC_PROTO(PredEntry *new_lu_int_key, (Int));
+STATIC_PROTO(PredEntry *find_lu_entry, (Term));
+STATIC_PROTO(DBProp find_int_key, (Int));
+STATIC_PROTO(Term  FetchTermFromDB, (DBTerm *, int));
 
 #if OS_HANDLES_TR_OVERFLOW
-#define check_trail(x)
+#define db_check_trail(x)
 #else
-#define check_trail(x) {                           \
+#define db_check_trail(x) {                           \
   if (Unsigned(Yap_TrailTop) == Unsigned(x)) {         \
     if(!Yap_growtrail (sizeof(CELL) * 16 * 1024L)) {   \
       goto error_tr_overflow;                      \
@@ -317,14 +323,14 @@ inline static CELL *cpcells(CELL *to, CELL *from, Int n)
 #endif
 }
 
-static void linkblk(link_entry *r, CELL *c)
+static void linkblk(link_entry *r, CELL *c, CELL offs)
 {
   CELL p;
 
   while ((p = (CELL)*r) != 0) {
     Term t = c[p];
     r++;
-    c[p] = AdjustIDBPtr(t, (CELL)c);
+    c[p] = AdjustIDBPtr(t, offs);
   }
 }
 #endif
@@ -559,7 +565,7 @@ Yap_EvalMasks(register Term tm, CELL *keyp)
 typedef struct {
   CELL *addr;
 } visitel;
-#define UNWIND_CUNIF()                                        \
+#define DB_UNWIND_CUNIF()                                        \
          while (visited < (visitel *)AuxSp) {                 \
             RESET_VARIABLE(visited->addr);                    \
             visited ++;                                       \
@@ -575,6 +581,51 @@ typedef struct {
     goto error2;					              \
    }
     
+static CELL *
+copy_long_int(CELL *st, CELL *pt)
+{
+  /* first thing, store a link to the list before we move on */
+  st[0] = (CELL)FunctorLongInt;
+  st[1] = pt[1];
+  st[2] = ((2*sizeof(CELL)+EndSpecials)|MBIT);
+  /* now reserve space */
+  return st+3;
+}
+
+static CELL *
+copy_double(CELL *st, CELL *pt)
+{
+  /* first thing, store a link to the list before we move on */
+  st[0] = (CELL)FunctorDouble;
+  st[1] = pt[1];
+#if  SIZEOF_DOUBLE == 2*SIZEOF_LONG_INT
+  st[2] = pt[2];
+  st[3] = ((3*sizeof(CELL)+EndSpecials)|MBIT);
+#else
+  st[2] = ((2*sizeof(CELL)+EndSpecials)|MBIT);
+#endif
+  /* now reserve space */
+  return st+(2+SIZEOF_DOUBLE/SIZEOF_LONG_INT);
+}
+
+#ifdef USE_GMP
+static CELL *
+copy_big_int(CELL *st, CELL *pt)
+{
+  Int sz = 
+    sizeof(MP_INT)+
+    (((MP_INT *)(pt+1))->_mp_alloc*sizeof(mp_limb_t));
+
+  /* first functor */
+  st[0] = (CELL)FunctorBigInt;
+  /* then the actual number */
+  memcpy((void *)(st+1), (void *)(pt+1), sz);
+  st = st+1+sz/CellSize;
+  /* then the tail for gc */ 
+  st[0] = (sz+CellSize+EndSpecials)|MBIT;
+  return st+1;
+}
+#endif /* BIG_INT */
 
 /* This routine creates a complex term in the heap. */
 static CELL *MkDBTerm(register CELL *pt0, register CELL *pt0_end,
@@ -614,9 +665,9 @@ static CELL *MkDBTerm(register CELL *pt0, register CELL *pt0_end,
       /* we will need to link afterwards */
       ap2 = RepAppl(d0);
 #ifdef RATIONAL_TREES
-      if (ap2 < (CELL *)((CELL)CodeMax-(CELL)tbase)) {
+      if (ap2 >= tbase && ap2 < StoPoint) {
 	*lr++ = ToSmall((CELL)(StoPoint)-(CELL)(tbase));
-	check_trail(lr);
+	db_check_trail(lr);
 	*StoPoint++ = d0;
 	++pt0;
 	continue;
@@ -624,7 +675,7 @@ static CELL *MkDBTerm(register CELL *pt0, register CELL *pt0_end,
 #endif
 #ifdef IDB_LINK_TABLE
       *lr++ = ToSmall((CELL)(StoPoint)-(CELL)(tbase));
-      check_trail(lr);
+      db_check_trail(lr);
 #endif
       f = (Functor)(*ap2);
       if (IsExtensionFunctor(f)) {
@@ -645,48 +696,27 @@ static CELL *MkDBTerm(register CELL *pt0, register CELL *pt0_end,
 	    continue;
 	  }
 	case (CELL)FunctorLongInt:
-	  {
-	    CELL *st = CodeMax;
-
-	    CheckDBOverflow();
-	/* first thing, store a link to the list before we move on */
 #ifdef IDB_USE_MBIT
-	    *StoPoint++ = AbsAppl((CELL *)(((CELL)st-(CELL)tbase)|MBIT));
+	  *StoPoint++ = AbsAppl(CodeMax)|MBIT;
 #else
-	    *StoPoint++ = AbsAppl((CELL *)((CELL)st-(CELL)tbase));
+	  *StoPoint++ = AbsAppl(CodeMax);
 #endif
-	    st[0] = (CELL)f;
-	    st[1] = ap2[1];
-	    st[2] = ((2*sizeof(CELL)+EndSpecials)|MBIT);
-	    /* now reserve space */
-	    CodeMax = st+3;
-	    ++pt0;
-	    continue;
-	  }
+	  CheckDBOverflow();
+	  CodeMax = copy_long_int(CodeMax, ap2);
+	  ++pt0;
+	  continue;
 #ifdef USE_GMP
 	case (CELL)FunctorBigInt:
-	  {
-	    CELL *st = CodeMax;
-
-	    CheckDBOverflow();
-	    /* first thing, store a link to the list before we move on */
+	  CheckDBOverflow();
+	  /* first thing, store a link to the list before we move on */
 #ifdef IDB_USE_MBIT
-	    *StoPoint++ = AbsAppl((CELL *)(((CELL)st-(CELL)tbase)|MBIT));
+	  *StoPoint++ = AbsAppl(CodeMax)|MBIT;
 #else
-	    *StoPoint++ = AbsAppl((CELL *)((CELL)st-(CELL)tbase));
+	  *StoPoint++ = AbsAppl(CodeMax);
 #endif
-	    st[0] = (CELL)f;
-	    {
-	      Int sz = 
-		sizeof(MP_INT)+
-		(((MP_INT *)(ap2+1))->_mp_alloc*sizeof(mp_limb_t));
-	      memcpy((void *)(st+1), (void *)(ap2+1), sz);
-	      CodeMax = st+1+sz/CellSize;
-	      *CodeMax++ = (sz+CellSize+EndSpecials)|MBIT;
-	    }
-	    ++pt0;
-	    continue;
-	  }
+	  CodeMax = copy_big_int(CodeMax, ap2);
+	  ++pt0;
+	  continue;
 #endif
 	case (CELL)FunctorDouble:
 	  {
@@ -695,20 +725,11 @@ static CELL *MkDBTerm(register CELL *pt0, register CELL *pt0_end,
 	    CheckDBOverflow();
 	    /* first thing, store a link to the list before we move on */
 #ifdef IDB_USE_MBIT
-	    *StoPoint++ = AbsAppl((CELL *)(((CELL)st-(CELL)tbase)|MBIT));
+	    *StoPoint++ = AbsAppl(st)|MBIT;
 #else
-	    *StoPoint++ = AbsAppl((CELL *)((CELL)st-(CELL)tbase));
+	    *StoPoint++ = AbsAppl(st);
 #endif
-	    st[0] = (CELL)f;
-	    st[1] = ap2[1];
-#if  SIZEOF_DOUBLE == 2*SIZEOF_LONG_INT
-	    st[2] = ap2[2];
-	    st[3] = ((3*sizeof(CELL)+EndSpecials)|MBIT);
-#else
-	    st[2] = ((2*sizeof(CELL)+EndSpecials)|MBIT);
-#endif
-	    /* now reserve space */
-	    CodeMax = st+(2+SIZEOF_DOUBLE/SIZEOF_LONG_INT);
+	    CodeMax = copy_double(CodeMax, ap2);
 	    ++pt0;
 	    continue;
 	  }
@@ -716,9 +737,9 @@ static CELL *MkDBTerm(register CELL *pt0, register CELL *pt0_end,
       }
       /* first thing, store a link to the list before we move on */
 #ifdef IDB_USE_MBIT
-      *StoPoint++ = AbsAppl((CELL *)(((CELL)CodeMax-(CELL)tbase)|MBIT));
+      *StoPoint++ = AbsAppl(CodeMax)|MBIT;
 #else
-      *StoPoint++ = AbsAppl((CELL *)((CELL)CodeMax-(CELL)tbase));
+      *StoPoint++ = AbsAppl(CodeMax);
 #endif
       /* next, postpone analysis to the rest of the current list */
 #ifdef RATIONAL_TREES
@@ -753,23 +774,24 @@ static CELL *MkDBTerm(register CELL *pt0, register CELL *pt0_end,
     else if (IsPairTerm(d0)) {
       /* we will need to link afterwards */
 #ifdef RATIONAL_TREES
-      if (RepPair(d0) < (CELL *)((CELL)CodeMax-(CELL)tbase)) {
+      CELL *ap2 = RepPair(d0);
+      if (ap2 >= tbase && ap2 < StoPoint) {
 	*StoPoint++ = d0;
 	*lr++ = ToSmall((CELL)(StoPoint)-(CELL)(tbase));
-	check_trail(lr);
+	db_check_trail(lr);
 	++pt0;
 	continue;
       }
 #endif
 #ifdef IDB_LINK_TABLE
       *lr++ = ToSmall((CELL)(StoPoint)-(CELL)(tbase));
-      check_trail(lr);
+      db_check_trail(lr);
 #endif
 #ifdef IDB_USE_MBIT
       *StoPoint++ =
-	AbsPair((CELL *)(((CELL)CodeMax-(CELL)tbase)|MBIT));
+	AbsPair(CodeMax)|MBIT;
 #else
-      *StoPoint++ = AbsPair((CELL *)(((CELL)CodeMax-(CELL)tbase)));
+      *StoPoint++ = AbsPair(CodeMax);
 #endif
       /* next, postpone analysis to the rest of the current list */
 #ifdef RATIONAL_TREES
@@ -833,7 +855,7 @@ static CELL *MkDBTerm(register CELL *pt0, register CELL *pt0_end,
 	visited->addr = ptd0;
 	CheckDBOverflow();
 	/* variables need to be offset at read time */
-	*ptd0 = (displacement | MBIT);
+	*ptd0 = ((CELL)StoPoint|MBIT);
 #if SBA
 	/* the copy we keep will be an empty variable   */
 	*StoPoint++ = 0;
@@ -842,18 +864,20 @@ static CELL *MkDBTerm(register CELL *pt0, register CELL *pt0_end,
 	/* say we've seen the variable, and make it point to its
 	   offset */
 	/* the copy we keep will be the current displacement   */
-	*StoPoint++ = (displacement | MBIT);
+	*StoPoint = ((CELL)StoPoint | MBIT);
+	StoPoint++;
 #else
 	/* the copy we keep will be the current displacement   */
-	*StoPoint++ = displacement;
+	*StoPoint = (CELL)StoPoint;
+	StoPoint++;
 	*lr++ = ToSmall(displacement);
-	check_trail(lr);
+	db_check_trail(lr);
 #endif
 #endif
 	/* indicate we found variables */
 	vars_found++;
 #ifdef COROUTINING
-	if (IsAttachedTerm((CELL)ptd0)) {
+	if (SafeIsAttachedTerm((CELL)ptd0)) {
 	  Term t[4];
 	  int sz = to_visit-to_visit_base;
 
@@ -884,7 +908,7 @@ static CELL *MkDBTerm(register CELL *pt0, register CELL *pt0_end,
 	/* references need to be offset at read time */
 #ifdef IDB_LINK_TABLE
 	*lr++ = ToSmall(displacement);
-	check_trail(lr);
+	db_check_trail(lr);
 #endif
 	/* store the offset */
 #ifdef IDB_USE_MBIT
@@ -921,7 +945,7 @@ static CELL *MkDBTerm(register CELL *pt0, register CELL *pt0_end,
 #ifdef COROUTINING
   /* we still may have constraints to do */
   if (ConstraintsTerm != TermNil) {
-    *attachmentsp = (CELL)(CodeMax)-(CELL)(tbase);
+    *attachmentsp = (CELL)CodeMax;
     pt0 = RepAppl(ConstraintsTerm)+1;
     pt0_end = RepAppl(ConstraintsTerm)+4;
     ConstraintsTerm = TermNil; 
@@ -933,7 +957,7 @@ static CELL *MkDBTerm(register CELL *pt0, register CELL *pt0_end,
 #endif
   /* we're done */
   *vars_foundp = vars_found;
-  UNWIND_CUNIF();
+  DB_UNWIND_CUNIF();
 #ifdef COROUTINING
   H = origH;
 #endif
@@ -952,7 +976,7 @@ static CELL *MkDBTerm(register CELL *pt0, register CELL *pt0_end,
     pt0[-1] = (CELL)to_visit[3];
   }
 #endif
-  UNWIND_CUNIF();
+  DB_UNWIND_CUNIF();
 #ifdef COROUTINING
   H = origH;
 #endif
@@ -970,7 +994,7 @@ static CELL *MkDBTerm(register CELL *pt0, register CELL *pt0_end,
     pt0[-1] = (CELL)to_visit[3];
   }
 #endif
-  UNWIND_CUNIF();
+  DB_UNWIND_CUNIF();
 #ifdef COROUTINING
   H = origH;
 #endif
@@ -989,7 +1013,7 @@ static CELL *MkDBTerm(register CELL *pt0, register CELL *pt0_end,
     pt0[-1] = (CELL)to_visit[3];
   }
 #endif
-  UNWIND_CUNIF();
+  DB_UNWIND_CUNIF();
 #ifdef COROUTINING
   H = origH;
 #endif
@@ -1020,7 +1044,7 @@ sf_include(sfp)
     *(sfp->SFather) = AbsAppl(displacement);
   *StoPoint++ = FunctorOfTerm(Tm);
   *lr++ = ToSmall(displacement + 1);
-  check_trail(lr);
+  db_check_trail(lr);
   *StoPoint++ = (Term) (displacement + 1);
   while (*tp) {
     arg_no = *tp++;
@@ -1029,7 +1053,7 @@ sf_include(sfp)
       if (((VarKeep *) tvalue)->NOfVars != 0) {
 	*StoPoint++ = arg_no;
 	*lr++ = ToSmall(displacement + j);
-	check_trail(lr);
+	db_check_trail(lr);
 	if (((VarKeep *) tvalue)->New == 0)
 	  *StoPoint++ = ((VarKeep *) tvalue)->New = Unsigned(displacement + j);
 	else
@@ -1063,7 +1087,7 @@ check_if_cons(DBRef p, Term to_compare)
 {
   while (p != NIL
 	 && (p->Flags & (DBCode | ErasedMask | DBVar | DBNoVars | DBComplex)
-	     || p->Entry != Unsigned(to_compare)))
+	     || p->DBT.Entry != Unsigned(to_compare)))
     p = NextDBRef(p);
   return (p);
 }
@@ -1101,8 +1125,8 @@ check_if_wvars(DBRef p, unsigned int NOfCells, CELL *BTptr)
       p = NextDBRef(p);
     if (p == NIL)
       return (p);
-    memptr = CellPtr(&(p->Contents));
-    if (NOfCells == p->NOfCells
+    memptr = CellPtr(&(p->DBT.Contents));
+    if (NOfCells == p->DBT.NOfCells
 	&& cmpclls(memptr, BTptr, NOfCells))
       return (p);
     else
@@ -1161,9 +1185,9 @@ check_if_nvars(DBRef p, unsigned int NOfCells, CELL *BTptr)
       p = NextDBRef(p);
     if (p == NIL)
       return (p);
-    memptr = CellPtr(p->Contents);
+    memptr = CellPtr(p->DBT.Contents);
 #ifdef IDB_LINK_TABLE
-    if (scheckcells(NOfCells, memptr, BTptr, LinkAr, Unsigned(p->Contents-1)))
+    if (scheckcells(NOfCells, memptr, BTptr, LinkAr, Unsigned(p->DBT.Contents-1)))
 #else
       if (NOfCells == *memptr++
 	  && cmpclls(memptr, BTptr, NOfCells))
@@ -1175,84 +1199,170 @@ check_if_nvars(DBRef p, unsigned int NOfCells, CELL *BTptr)
   return (NIL);
 }
 
+static DBRef
+generate_dberror_msg(int errnumb, UInt sz, char *msg)
+{
+  Yap_Error_Size = sz;
+  DBErrorFlag = errnumb;
+  DBErrorNumber = SYSTEM_ERROR;
+  DBErrorTerm = TermNil;
+  DBErrorMsg = msg;
+  return NULL;
+}
+
+static DBRef
+CreateDBWithDBRef(Term Tm, DBProp p)
+{
+  DBRef pp, dbr = DBRefOfTerm(Tm);
+  DBTerm *ppt;
+
+  if (p == NULL) {
+    ppt = (DBTerm *)AllocDBSpace(sizeof(DBTerm)+2*sizeof(CELL));
+    if (ppt == NULL) {
+      return generate_dberror_msg(OTHER_ERROR_IN_DB, 0, "could not allocate space");
+    }
+    pp = (DBRef)ppt;
+  } else {
+    pp = AllocDBSpace(DBLength(2*sizeof(DBRef)));
+    if (pp == NULL) {
+      return generate_dberror_msg(OTHER_ERROR_IN_DB, 0, "could not allocate space");
+    }
+    pp->id = FunctorDBRef;
+    pp->Flags = DBNoVars|DBComplex|DBWithRefs;
+    INIT_LOCK(pp->lock);
+    INIT_DBREF_COUNT(pp);
+    ppt = &(pp->DBT);
+  }
+  dbr->NOfRefsTo++;
+  ppt->Entry = Tm;
+  ppt->NOfCells = 0;
+  ppt->Contents[0] = (CELL)NULL;
+  ppt->Contents[1] = (CELL)dbr;
+  ppt->DBRefs = (DBRef *)(ppt->Contents+2);
+#ifdef COROUTINING
+  ppt->attachments = 0L;
+#endif
+  return pp;
+}
+
+static DBTerm *
+CreateDBTermForVarOrAtom(Term Tm) {
+  DBTerm *ppt = (DBTerm *)AllocDBSpace(sizeof(DBTerm));
+
+  if (ppt == NULL) {
+    return (DBTerm *)generate_dberror_msg(OTHER_ERROR_IN_DB, 0, "could not allocate space");
+  }
+  ppt->NOfCells = 0;
+  ppt->DBRefs = NULL;
+#ifdef COROUTINING
+  ppt->attachments = 0;
+#endif
+  ppt->DBRefs = NULL;
+  if (IsVarTerm(Tm)) {
+    ppt->Entry = 0L;
+  } else {
+    ppt->Entry = Tm;
+  }
+  return ppt;
+}
+
+static DBRef
+CreateDBRefForAtom(Term Tm, DBProp p, int InFlag) {
+  Register DBRef  pp;
+  SMALLUNSGN      flag;
+
+  flag = DBAtomic;
+  if (InFlag & MkIfNot && (found_one = check_if_cons(p->First, Tm)))
+    return (found_one);
+  pp = AllocDBSpace(DBLength(NIL));
+  if (pp == NIL) {
+    return generate_dberror_msg(OTHER_ERROR_IN_DB, 0, "could not allocate space");
+  }
+  pp->id = FunctorDBRef;
+  INIT_LOCK(pp->lock);
+  INIT_DBREF_COUNT(pp);
+  pp->Flags = flag;
+  pp->Code = NULL;
+  pp->DBT.Entry = (CELL) Tm;
+  pp->DBT.DBRefs = NULL;
+  pp->DBT.NOfCells = 0;
+#ifdef COROUTINING
+  pp->DBT.attachments = 0;
+#endif
+  return(pp);
+}
+
+static DBRef
+CreateDBRefForVar(Term Tm, DBProp p, int InFlag) {
+  Register DBRef  pp;
+
+  if (InFlag & MkIfNot && (found_one = check_if_var(p->First)))
+    return (found_one);
+  pp = AllocDBSpace(DBLength(NULL));
+  if (pp == NULL) {
+    return generate_dberror_msg(OTHER_ERROR_IN_DB, 0, "could not allocate space");
+  }
+  pp->id = FunctorDBRef;
+  pp->Flags = DBVar;
+  pp->DBT.Entry = (CELL) Tm;
+  pp->Code = NULL;
+  pp->DBT.NOfCells = 0;
+  pp->DBT.DBRefs = NULL;
+#ifdef COROUTINING
+  pp->DBT.attachments = 0;
+#endif
+  INIT_LOCK(pp->lock);
+  INIT_DBREF_COUNT(pp);
+  return(pp);
+}
+
 static DBRef 
-CreateDBStruct(Term Tm, DBProp p, int InFlag)
+CreateDBStruct(Term Tm, DBProp p, int InFlag, int *pstat)
 {
   Register Term   tt, *nar = NIL;
-  Register DBRef  pp0, pp;
   SMALLUNSGN      flag;
-  unsigned int    NOfCells = 0;
 #ifdef IDB_LINK_TABLE
   int NOfLinks = 0;
 #endif
-  Term           *ntp0, *ntp;
   /* place DBRefs in ConsultStack */
   DBRef    *TmpRefBase = (DBRef *)ConsultSp;
   CELL	   *CodeAbs;	/* how much code did we find	 */
   int vars_found;
-#ifdef COROUTINING
-  CELL attachments = 0;
-#endif
 
   DBErrorFlag = NO_ERROR_IN_DB;
 
+  if (p == NULL && ( IsVarTerm(Tm) || IsAtomOrIntTerm(Tm))) {
+    return (DBRef)CreateDBTermForVarOrAtom(Tm);
+  }
   if (IsVarTerm(Tm)
 #ifdef COROUTINING
-      && !IsAttachedTerm(Tm)
+      && !SafeIsAttachedTerm(Tm)
 #endif
       ) {
-    Register DBRef  pp;
-
-    tt = Tm;
-    if (InFlag & MkIfNot && (found_one = check_if_var(p->First)))
-      return (found_one);
-    pp = AllocDBSpace(DBLength(NIL));
-    if (pp == NIL) {
-      DBErrorFlag = OTHER_ERROR_IN_DB;
-      DBErrorNumber = SYSTEM_ERROR;
-      DBErrorTerm = TermNil;
-      DBErrorMsg = "could not allocate space";
-      return(NULL);
-    }
-    pp->id = FunctorDBRef;
-    pp->Flags = DBVar;
-    pp->Entry = (CELL) Tm;
-    pp->Code = NULL;
-    pp->NOfCells = 1;
-    INIT_LOCK(pp->lock);
-    INIT_DBREF_COUNT(pp);
-    return(pp);
+    *pstat = TRUE;
+    return CreateDBRefForVar(Tm, p, InFlag);
   } else if (IsAtomOrIntTerm(Tm)) {
-    Register DBRef  pp;
-    SMALLUNSGN      flag;
-
-    tt = Tm;
-    flag = DBAtomic;
-    if (IsAtomOrIntTerm(tt))
-    if (InFlag & MkIfNot && (found_one = check_if_cons(p->First, tt)))
-      return (found_one);
-    pp = AllocDBSpace(DBLength(NIL));
-    if (pp == NIL) {
-      DBErrorFlag = OTHER_ERROR_IN_DB;
-      DBErrorNumber = SYSTEM_ERROR;
-      DBErrorTerm = TermNil;
-      DBErrorMsg = "could not allocate space";
-      return(NULL);
-    }
-    pp->id = FunctorDBRef;
-    pp->Flags = flag;
-    pp->Entry = (CELL) Tm;
-    pp->Code = NULL;
-    pp->NOfCells = 1;
-    INIT_LOCK(pp->lock);
-    INIT_DBREF_COUNT(pp);
-    return(pp);
+    return CreateDBRefForAtom(Tm, p, InFlag);
   } else {
+    DBTerm *ppt, *ppt0;
+    DBRef  pp, pp0;
+    Term           *ntp0, *ntp;
+    unsigned int    NOfCells = 0;
+#ifdef COROUTINING
+    CELL attachments = 0;
+#endif
 
     tofref = TmpRefBase;
     /* compound term */
-    pp0 = (DBRef)Yap_PreAllocCodeSpace();
-    ntp0 = pp0->Contents;
+    
+    if (p == NULL) {
+      ppt0 = (DBTerm *)Yap_PreAllocCodeSpace();
+      pp0 = (DBRef)ppt0;
+    } else {
+      pp0 = (DBRef)Yap_PreAllocCodeSpace();
+      ppt0 = &(pp0->DBT);
+    }
+    ntp0 = ppt0->Contents;
 #ifdef IDB_LINK_TABLE
     lr = LinkAr = (link_entry *)TR;
 #endif
@@ -1271,7 +1381,7 @@ CreateDBStruct(Term Tm, DBProp p, int InFlag)
 #endif
     if (IsPairTerm(Tm)) {
       /* avoid null pointers!! */
-      tt = AbsPair((CELL *)sizeof(CELL));
+      tt = AbsPair(ppt0->Contents);
       ntp = MkDBTerm(RepPair(Tm), RepPair(Tm)+1, ntp0, ntp0+2, ntp0-1,
 #ifdef COROUTINING
 		     &attachments,
@@ -1282,82 +1392,32 @@ CreateDBStruct(Term Tm, DBProp p, int InFlag)
 	return(NULL);
       }
     }
-    else
-    {
+    else {
       unsigned int arity;
       Functor fun;
 
-      tt = AbsAppl((CELL *)sizeof(CELL));
+      tt = AbsAppl(ppt0->Contents);
       /* we need to store the functor manually */
-      fun = (Functor)(*ntp0 = (CELL)FunctorOfTerm(Tm));
+      fun = FunctorOfTerm(Tm);
       if (IsExtensionFunctor(fun)) {
 	switch((CELL)fun) {
 	case (CELL)FunctorDouble:
-	  {
-	    CELL *fp = RepAppl(Tm);
-
-	    ntp0[1] = fp[1];
-#if SIZEOF_DOUBLE == 2*SIZEOF_LONG_INT
-	    ntp0[2] = fp[2];
-	    ntp0[3] = ((3*sizeof(CELL)+EndSpecials)|MBIT);
-	    ntp = ntp0+4;
-#else
-	    ntp0[2] = ((2*sizeof(CELL)+EndSpecials)|MBIT);
-	    ntp = ntp0+3;
-#endif
-	  }
+	  ntp = copy_double(ntp0, RepAppl(Tm));
 	  break;
 	case (CELL)FunctorDBRef:
-	  {
-	    DBRef dbr;
-
-	    pp = AllocDBSpace(DBLength(2*sizeof(DBRef)));
-	    if (pp == NIL) {
-	      DBErrorFlag = OTHER_ERROR_IN_DB;
-	      DBErrorNumber = SYSTEM_ERROR;
-	      DBErrorTerm = TermNil;
-	      DBErrorMsg = "could not allocate space";
-	      return(NULL);
-	    }
-	    pp->id = FunctorDBRef;
-	    pp->Flags = DBNoVars|DBComplex|DBWithRefs;
-	    pp->Entry = Tm;
-	    pp->NOfCells = 2;
-	    dbr = DBRefOfTerm(Tm);
-	    dbr->NOfRefsTo++;
-	    pp->Contents[0] = (CELL)NIL;
-	    pp->Contents[1] = (CELL)dbr;
-	    pp->DBRefs = (DBRef *)(pp->Contents+2);
-	    INIT_LOCK(pp->lock);
-	    INIT_DBREF_COUNT(pp);
-	    Yap_ReleasePreAllocCodeSpace((ADDR)pp0);
-	    return(pp);
-	  }
+	  Yap_ReleasePreAllocCodeSpace((ADDR)pp0);
+	  return CreateDBWithDBRef(Tm, p);
 #ifdef USE_GMP
 	case (CELL)FunctorBigInt:
-	  {
-	    CELL *pt = RepAppl(Tm);
-	    Int sz =
-	      sizeof(MP_INT)+
-	      (((MP_INT *)(pt+1))->_mp_alloc*sizeof(mp_limb_t));
-
-	    memcpy((void *)(ntp0+1), (void *)(pt+1), sz);
-	    ntp = ntp0+sz/sizeof(CELL)+1;
-	    *ntp++ = (sz+CellSize+EndSpecials)|MBIT;
-	  }
+	  ntp = copy_big_int(ntp0, RepAppl(Tm));
 	  break;
 #endif
 	default: /* LongInt */
-	  {
-	    CELL *pt = RepAppl(Tm);
-
-	    ntp0[1] = pt[1];
-	    ntp0[2] = ((2*sizeof(CELL)+EndSpecials)|MBIT);
-	    ntp = ntp0+3;
-	  }
+	  ntp = copy_long_int(ntp0, RepAppl(Tm));
 	  break;
 	}
       } else {
+	*ntp0 = (CELL)fun;
 	arity = ArityOfFunctor(fun);
 	ntp = MkDBTerm(RepAppl(Tm)+1,
 		       RepAppl(Tm)+arity,
@@ -1429,40 +1489,41 @@ CreateDBStruct(Term Tm, DBProp p, int InFlag)
 #ifdef IDB_LINK_TABLE
 #if SIZEOF_LINK_ENTRY==2
     if (Unsigned(CodeAbs) >= 0x40000) {
-      DBErrorFlag = OTHER_ERROR_IN_DB;
-      DBErrorNumber = SYSTEM_ERROR;
-      DBErrorTerm = TermNil;
-      DBErrorMsg = "trying to store term larger than 256KB";
       Yap_ReleasePreAllocCodeSpace((ADDR)pp0);
-      return(NULL);
+      return generate_dberror_msg(OTHER_ERROR_IN_DB, 0, "trying to store term larger than 256KB");
     }
 #endif
 #endif
-    pp = AllocDBSpace(DBLength(CodeAbs));
-    if (pp == NIL) {
-      Yap_Error_Size = (UInt)DBLength(CodeAbs);
-      DBErrorFlag = OVF_ERROR_IN_DB;
-      DBErrorNumber = SYSTEM_ERROR;
-      DBErrorTerm = TermNil;
-      DBErrorMsg = "heap crashed against stacks";
-      Yap_ReleasePreAllocCodeSpace((ADDR)pp0);
-      return(NULL);
+    if (p == NULL) {
+      ppt = (DBTerm *)AllocDBSpace(sizeof(DBTerm)+(UInt)CodeAbs);
+      if (ppt == NULL) {
+	Yap_ReleasePreAllocCodeSpace((ADDR)pp0);
+	return generate_dberror_msg(OVF_ERROR_IN_DB, (UInt)DBLength(CodeAbs), "heap crashed against stacks");
+      }
+      pp = (DBRef)ppt;
+    } else {
+      pp = AllocDBSpace(DBLength(CodeAbs));
+      if (pp == NULL) {
+	Yap_ReleasePreAllocCodeSpace((ADDR)pp0);
+	return generate_dberror_msg(OVF_ERROR_IN_DB, (UInt)DBLength(CodeAbs), "heap crashed against stacks");
+      }
+      pp->id = FunctorDBRef;
+      pp->Flags = flag;
+      INIT_LOCK(pp->lock);
+      INIT_DBREF_COUNT(pp);
+      ppt = &(pp->DBT);
     }
-    pp->id = FunctorDBRef;
-    INIT_LOCK(pp->lock);
-    INIT_DBREF_COUNT(pp);
-    pp->Flags = flag;
     if (flag & DBComplex) {
 #ifdef IDB_LINK_TABLE
       link_entry         *woar;
 #endif /* IDB_LINK_TABLE */
 
-      pp->NOfCells = NOfCells;
+      ppt->NOfCells = NOfCells;
 #ifdef COROUTINING
-      pp->attachments = attachments;
+      ppt->attachments = attachments;
 #endif
       if (pp0 != pp) {
-	nar = pp->Contents;
+	nar = ppt->Contents;
 #ifdef IDB_LINK_TABLE
 	nar = (Term *) cpcells(CellPtr(nar), ntp0, Unsigned(NOfCells));
 #endif
@@ -1472,7 +1533,7 @@ CreateDBStruct(Term Tm, DBProp p, int InFlag)
 	nar += NOfCells+1;
 #endif
       } else {
-	nar = pp->Contents + Unsigned(NOfCells);
+	nar = ppt->Contents + Unsigned(NOfCells);
       }
 #ifdef IDB_LINK_TABLE
       woar = (link_entry *)nar;
@@ -1489,24 +1550,30 @@ CreateDBStruct(Term Tm, DBProp p, int InFlag)
 #endif
       nar = (Term *) (woar);
 #endif
-      pp->Entry = (CELL) tt;
+      *pstat = TRUE;
     } else if (flag & DBNoVars) {
       if (pp0 != pp) {
-	nar = (Term *) cpcells(CellPtr(pp->Contents), ntp0, Unsigned(NOfCells));
+	nar = (Term *) cpcells(CellPtr(ppt->Contents), ntp0, Unsigned(NOfCells));
       } else {
 #ifdef IDB_LINK_TABLE
-	nar = pp->Contents + Unsigned(NOfCells)+1;
+	nar = ppt->Contents + Unsigned(NOfCells)+1;
 #endif
 #ifdef IDB_USE_MBIT
 	/* we still need to link */
 	nar = (Term *) linkcells(ntp0, NOfCells);
 #endif
       }
+      ppt->NOfCells = NOfCells;
+    }
+    if (ppt != ppt0) {
 #ifdef IDB_LINK_TABLE
-      linkblk(LinkAr, CellPtr(pp->Contents-1));
+      linkblk(LinkAr, CellPtr(ppt->Contents-1), (CELL)ppt-(CELL)ppt0);
 #endif
-      pp->Entry = AdjustIDBPtr(tt,Unsigned(pp->Contents)-sizeof(CELL));
-      pp->NOfCells = NOfCells;
+      ppt->Entry = AdjustIDBPtr(tt,(CELL)ppt-(CELL)ppt0);
+      if (ppt->attachments)
+	ppt->attachments = AdjustIDBPtr(ppt->attachments,(CELL)ppt-(CELL)ppt0);
+    } else {
+      ppt->Entry = tt;
     }
     if (flag & DBWithRefs) {
       DBRef *ptr = TmpRefBase, *rfnar = (DBRef *)nar;
@@ -1514,45 +1581,13 @@ CreateDBStruct(Term Tm, DBProp p, int InFlag)
       *rfnar++ = NULL;
       while (ptr != tofref)
 	*rfnar++ = *--ptr;
-      pp->DBRefs = rfnar;
+      ppt->DBRefs = rfnar;
     } else {
-      pp->DBRefs = NULL;
+      ppt->DBRefs = NULL;
     }      
     Yap_ReleasePreAllocCodeSpace((ADDR)pp0);
-    return (pp);
+    return pp;
   }
-}
-
-static DBRef
-new_lu_index(LogUpdDBProp AtProp) {
-  Int cnt = AtProp->NOfEntries, i;
-  DBRef index = AllocDBSpace(DBLength((cnt+1)*sizeof(DBRef *)));
-  DBRef ref = AtProp->First;
-  DBRef *te;
-
-  if (index == NULL) {
-    DBErrorFlag = OTHER_ERROR_IN_DB;
-    DBErrorNumber = SYSTEM_ERROR;
-    DBErrorTerm = TermNil;
-    DBErrorMsg = "could not allocate space";
-    return(NULL);
-  }
-  te = (DBRef *)(index->Contents);
-  for (i=0; i < cnt; i++) {
-    *te++ = ref;
-    ref->NOfRefsTo++;
-    ref = ref->Next;
-  }
-  *te = NULL;
-  index->id = FunctorDBRef;
-  index->NOfRefsTo = 0;
-  index->Prev = index->Next = NIL;
-  index->Parent = (DBProp)AtProp;
-  index->Flags = DBClMask|IndexMask|LogUpdMask;
-  index->NOfCells = cnt;
-  INIT_LOCK(index->lock);
-  INIT_DBREF_COUNT(index);
-  return(index);
 }
 
 static DBRef 
@@ -1561,6 +1596,7 @@ record(int Flag, Term key, Term t_data, Term t_code)
   Register Term   twork = key;
   Register DBProp p;
   Register DBRef  x;
+  int needs_vars;
 
 
 #ifdef SFUNC
@@ -1569,7 +1605,7 @@ record(int Flag, Term key, Term t_data, Term t_code)
   if (EndOfPAEntr(p = FetchDBPropFromKey(twork, Flag & MkCode, TRUE, "record/3"))) {
     return(NULL);
   }
-  if ((x = CreateDBStruct(t_data, p, Flag)) == NULL) {
+  if ((x = CreateDBStruct(t_data, p, Flag, &needs_vars)) == NULL) {
     return (NULL);
   }
   if ((Flag & MkIfNot) && found_one)
@@ -1592,31 +1628,20 @@ record(int Flag, Term key, Term t_data, Term t_code)
 #endif
   x->NOfRefsTo = 0;
   WRITE_LOCK(p->DBRWLock);
-  if (p->KindOfPE & LogUpdDBBit) {
-    LogUpdDBProp lup = (LogUpdDBProp)p;
-    x->Flags |= LogUpdMask;
-    /* index stops being valid */
-    if (lup->Index != NULL) {
-      clean_lu_index(lup->Index);
-      lup->Index = NULL;
-    }
-    lup->NOfEntries++;
+  if (p->F0 == NULL) {
+    p->F0 = p->L0 = x;
+    x->p = x->n = NULL;
   } else {
-    if (p->F0 == NULL) {
-      p->F0 = p->L0 = x;
-      x->p = x->n = NULL;
+    if (Flag & MkFirst) {
+      x->n = p->F0;
+      p->F0->p = x;
+      p->F0 = x;
+      x->p = NULL;
     } else {
-      if (Flag & MkFirst) {
-	x->n = p->F0;
-	p->F0->p = x;
-	p->F0 = x;
-	x->p = NULL;
-      } else {
-	x->p = p->L0;
-	p->L0->n = x;
-	p->L0 = x;
-	x->n = NULL;
-      }
+      x->p = p->L0;
+      p->L0->n = x;
+      p->L0 = x;
+      x->n = NULL;
     }
   }
   if (p->First == NIL) {
@@ -1646,13 +1671,14 @@ record_at(int Flag, DBRef r0, Term t_data, Term t_code)
 {
   Register DBProp p;
   Register DBRef  x;
+  int needs_vars;
 
 
 #ifdef SFUNC
   FathersPlace = NIL;
 #endif
   p = r0->Parent;
-  if ((x = CreateDBStruct(t_data, p, Flag)) == NULL) {
+  if ((x = CreateDBStruct(t_data, p, Flag, &needs_vars)) == NULL) {
     return (NULL);
   }
   TRAIL_REF(x);
@@ -1673,35 +1699,24 @@ record_at(int Flag, DBRef r0, Term t_data, Term t_code)
 #endif
   x->NOfRefsTo = 0;
   WRITE_LOCK(p->DBRWLock);
-  if (p->KindOfPE & LogUpdDBBit) {
-    LogUpdDBProp lup = (LogUpdDBProp)p;
-    x->Flags |= LogUpdMask;
-    /* index stops being valid */
-    if (lup->Index != NULL) {
-      clean_lu_index(lup->Index);
-      lup->Index = NULL;
-    }
-    lup->NOfEntries++;
-  } else {
-    if (Flag & MkFirst) {
-      x->n = r0;
-      x->p = r0->p;
-      if (p->F0 == r0) {
-	p->F0 = x;
-      } else {
-	r0->p->n = x;
-      }
-      r0->p = x;
+  if (Flag & MkFirst) {
+    x->n = r0;
+    x->p = r0->p;
+    if (p->F0 == r0) {
+      p->F0 = x;
     } else {
-      x->p = r0;
-      x->n = r0->n;
-      if (p->L0 == r0) {
-	p->L0 = x;
-      } else {
-	r0->n->p = x;
-      }
-      r0->n = x;
+      r0->p->n = x;
     }
+    r0->p = x;
+  } else {
+    x->p = r0;
+    x->n = r0->n;
+    if (p->L0 == r0) {
+      p->L0 = x;
+    } else {
+      r0->n->p = x;
+    }
+    r0->n = x;
   }
   if (Flag & MkFirst) {
     x->Prev = r0->Prev;
@@ -1729,18 +1744,69 @@ record_at(int Flag, DBRef r0, Term t_data, Term t_code)
   return (x);
 }
 
+
+static LogUpdClause *
+record_lu(PredEntry *pe, Term t, int position)
+{
+  yamop *ipc;
+  DBTerm *x;
+  LogUpdClause *cl;
+  int needs_vars = FALSE;
+
+  if ((x = (DBTerm *)CreateDBStruct(t, NULL, 0, &needs_vars)) == NULL) {
+    return NULL; /* crash */
+  }
+  /* we've got the term */
+  ipc = NEXTOP(((LogUpdClause *)NULL)->ClCode,e);
+  if ((cl = (LogUpdClause *)Yap_AllocCodeSpace((UInt)ipc)) == NULL)
+    return NULL;
+  ipc = cl->ClCode;
+  cl->Id = FunctorDBRef;
+  cl->ClFlags = LogUpdMask;
+  cl->ClSource = x;
+  cl->Owner = Yap_ConsultingFile();
+  cl->ClRefCount = 0;
+  cl->ClPred = pe;
+  cl->ClExt = NULL;
+  cl->ClPrev = cl->ClNext = NULL;
+#if defined(YAPOR) || defined(THREADS)
+  INIT_LOCK(cl->ClLock);
+  INIT_CLREF_COUNT(cl);
+#endif
+  if (needs_vars)
+    ipc->opc = Yap_opcode(_copy_idb_term);
+  else
+    ipc->opc = Yap_opcode(_unify_idb_term);
+  Yap_add_logupd_clause(pe, cl, (position == MkFirst ? 2 : 0));
+  return cl;
+}
+
+
 /* recorda(+Functor,+Term,-Ref) */
 static Int 
 p_rcda(void)
 {
   /* Idiotic xlc's cpp does not work with ARG1 within MkDBRefTerm */
   Term            TRef, t1 = Deref(ARG1), t2 = Deref(ARG2);
+  PredEntry *pe = NULL;
 
   if (!IsVarTerm(Deref(ARG3)))
     return (FALSE);
+  pe = find_lu_entry(t1);
  restart_record:
   Yap_Error_Size = 0;
-  TRef = MkDBRefTerm(record(MkFirst, t1, t2, Unsigned(0)));
+  if (pe) {
+    LogUpdClause *cl = record_lu(pe, t2, MkFirst);
+    if (cl != NULL) {
+      TRAIL_REF((DBRef)cl);
+      cl->ClFlags |= InUseMask;
+      TRef = MkDBRefTerm((DBRef)cl);
+    } else {
+      TRef = TermNil;
+    }
+  } else { 
+    TRef = MkDBRefTerm(record(MkFirst, t1, t2, Unsigned(0)));
+  }
   switch(DBErrorFlag) {
   case NO_ERROR_IN_DB:
     return (Yap_unify(ARG3, TRef));
@@ -1865,12 +1931,25 @@ static Int
 p_rcdz(void)
 {
   Term            TRef, t1 = Deref(ARG1), t2 = Deref(ARG2);
+  PredEntry *pe;
 
   if (!IsVarTerm(Deref(ARG3)))
     return (FALSE);
+  pe = find_lu_entry(t1);
  restart_record:
   Yap_Error_Size = 0;
-  TRef = MkDBRefTerm(record(MkLast, t1, t2, Unsigned(0)));
+  if (pe) {
+    LogUpdClause *cl = record_lu(pe, t2, MkLast);
+    if (cl != NULL) {
+      TRAIL_REF((DBRef)cl);
+      cl->ClFlags |= InUseMask;
+      TRef = MkDBRefTerm((DBRef)cl);
+    } else {
+      TRef = TermNil;
+    }
+  } else { 
+    TRef = MkDBRefTerm(record(MkLast, t1, t2, Unsigned(0)));
+  }
   switch(DBErrorFlag) {
   case NO_ERROR_IN_DB:
     return (Yap_unify(ARG3, TRef));
@@ -2228,6 +2307,25 @@ copy_attachments(CELL *ts)
 }
 #endif
 
+static Term
+GetDBLUKey(PredEntry *ap)
+{
+  READ_LOCK(ap->PRWLock);
+  if (ap->PredFlags & NumberDBPredFlag) {
+    Int id = ap->src.IndxId;
+    READ_UNLOCK(ap->PRWLock);
+    return MkIntegerTerm(id);
+  } else if (ap->PredFlags & AtomDBPredFlag) {
+    Atom at = (Atom)ap->FunctorOfPred;
+    READ_UNLOCK(ap->PRWLock);
+    return MkAtomTerm(at);
+  } else {
+    Functor f = ap->FunctorOfPred;
+    READ_UNLOCK(ap->PRWLock);
+    return Yap_MkNewApplTerm(f,ArityOfFunctor(f));
+  }
+}
+
 static int 
 UnifyDBKey(DBRef DBSP, PropFlags flags, Term t)
 {
@@ -2278,18 +2376,24 @@ UnifyDBNumber(DBRef DBSP, Term t)
 
 
 static Term 
-GetDBTerm(DBRef DBSP)
+GetDBTerm(DBTerm *DBSP)
 {
-  if (DBSP->Flags & (DBNoVars | DBAtomic))
-    return ((Term) DBSP->Entry);
-  if (DBSP->Flags & DBComplex) {
+  Term t = DBSP->Entry;
+
+  if (IsVarTerm(t)) {
+    return MkVarTerm();
+  } else if (IsAtomOrIntTerm(t)) {
+    return t;
+  } else {
     CELL           *HOld = H;
     CELL           *HeapPtr;
     CELL           *pt;
     CELL            NOf;
 
+    if (!(NOf = DBSP->NOfCells)) {
+      return t;
+    }
     pt = CellPtr(DBSP->Contents);
-    NOf = DBSP->NOfCells;
     if (H+NOf > ASP-CalculateStackGap()) {
       if (Yap_PrologMode & InErrorMode) {
 	if (H+NOf > ASP)
@@ -2305,19 +2409,26 @@ GetDBTerm(DBRef DBSP)
 #ifdef IDB_LINK_TABLE
     {
       link_entry *lp = (link_entry *)pt;
-      linkblk(lp, HOld-1);
+      linkblk(lp, HOld-1, (CELL)HOld-(CELL)(DBSP->Contents));
     }
 #endif
 #ifdef COROUTINING
     if (DBSP->attachments != 0L)  {
       *--ASP = (CELL)HOld;
-      copy_attachments((CELL *)AdjustIDBPtr(DBSP->attachments,(CELL)(HOld-1)));
+      copy_attachments((CELL *)AdjustIDBPtr(DBSP->attachments,(CELL)HOld-(CELL)(DBSP->Contents)));
       HOld = CellPtr(*ASP++);
     }
 #endif
-    return (AdjustIDBPtr((Term)(DBSP->Entry),Unsigned(HOld)-sizeof(CELL)));
+    return AdjustIDBPtr(t,Unsigned(HOld)-(CELL)(DBSP->Contents));
   }
-  return (MkVarTerm());
+}
+
+static Term 
+GetDBTermFromDBEntry(DBRef DBSP)
+{
+  if (DBSP->Flags & (DBNoVars | DBAtomic))
+    return DBSP->DBT.Entry;
+  return GetDBTerm(&(DBSP->DBT));
 }
 
 static void
@@ -2328,6 +2439,19 @@ init_int_keys(void) {
     Prop *p = INT_KEYS;
     for (i = 0; i < INT_KEYS_SIZE; i++) {
       p[0] = NIL;
+      p++;
+    }
+  }
+}
+
+static void
+init_int_lu_keys(void) {
+  INT_LU_KEYS = (Prop *)Yap_AllocCodeSpace(sizeof(Prop)*INT_KEYS_SIZE);
+  if (INT_LU_KEYS != NULL) {
+    UInt i = 0;
+    Prop *p = INT_LU_KEYS;
+    for (i = 0; i < INT_KEYS_SIZE; i++) {
+      p[0] = NULL;
       p++;
     }
   }
@@ -2379,6 +2503,163 @@ resize_int_keys(UInt new_size) {
   return(TRUE);
 }
 
+static PredEntry *
+find_lu_int_key(Int key)
+{
+  UInt hash_key = (CELL)key % INT_KEYS_SIZE;
+  Prop p0;
+  
+  if (INT_LU_KEYS != NULL) {
+    p0 = INT_LU_KEYS[hash_key];
+    while (p0) {
+      PredEntry *pe = RepPredProp(p0);
+      if (pe->src.IndxId == key) {
+	return pe;
+      }
+      p0 = pe->NextOfPE;
+    }
+  }
+  if (UPDATE_MODE == UPDATE_MODE_LOGICAL &&
+      find_int_key(key) == NULL) {
+    return new_lu_int_key(key);
+  }
+  return NULL;
+}
+
+static DBProp
+find_int_key(Int key)
+{
+  UInt hash_key = (CELL)key % INT_KEYS_SIZE;
+  Prop p0;
+  
+  if (INT_KEYS == NULL) {
+    return NULL;
+  }
+  p0 = INT_KEYS[hash_key];
+  while (p0) {
+    DBProp p = RepDBProp(p0);
+    if (p->FunctorOfDB == (Functor)key) return(p);
+    p0 = p->NextOfPE;
+  }
+  return NULL;
+}
+
+static PredEntry *
+new_lu_int_key(Int key)
+{
+  UInt hash_key = (CELL)key % INT_KEYS_SIZE;
+  PredEntry *p;
+  Prop p0;
+  
+  if (INT_LU_KEYS == NULL) {
+    init_int_lu_keys();
+    if (INT_LU_KEYS == NULL) {
+      DBErrorFlag = OTHER_ERROR_IN_DB;
+      DBErrorNumber = SYSTEM_ERROR;
+      DBErrorTerm = TermNil;
+      DBErrorMsg = "could not allocate space";
+      return NULL;
+    }
+  }
+  p0 = Yap_NewPredPropByFunctor(Yap_MkFunctor(Yap_FullLookupAtom("$integer"),3),2);
+  p = RepPredProp(p0);
+  p->NextOfPE = INT_LU_KEYS[hash_key];
+  p->src.IndxId = key;
+  p->PredFlags |= LogUpdatePredFlag|NumberDBPredFlag;
+  p->ArityOfPE = 3;
+  p->OpcodeOfPred = Yap_opcode(_op_fail);
+  p->cs.p_code.TrueCodeOfPred = p->CodeOfPred = FAILCODE;
+  INT_LU_KEYS[hash_key] = p0;
+  return p;
+}
+
+static PredEntry *
+new_lu_entry(Term t)
+{
+  Prop p0;
+  PredEntry *pe;
+
+  if (IsApplTerm(t)) {
+    Functor f = FunctorOfTerm(t);
+
+    p0 = Yap_NewPredPropByFunctor(f,2);
+  } else if (IsAtomTerm(t)) {
+    p0 = Yap_NewPredPropByAtom(AtomOfTerm(t),2);
+  } else {
+    p0 = Yap_NewPredPropByFunctor(FunctorList,2);
+  }
+  pe = RepPredProp(p0);
+  pe->PredFlags |= LogUpdatePredFlag;
+  if (IsAtomTerm(t)) {
+    pe->PredFlags |= AtomDBPredFlag;
+  }
+  pe->ArityOfPE = 3;
+  pe->OpcodeOfPred = Yap_opcode(_op_fail);
+  pe->cs.p_code.TrueCodeOfPred = pe->CodeOfPred = FAILCODE;
+  return pe;
+}
+
+static DBProp
+find_entry(Term t)
+{
+  Atom at;
+  UInt arity;
+
+  if (IsVarTerm(t)) {
+    return(RepDBProp(NIL));
+  } else if (IsAtomTerm(t)) {
+    at = AtomOfTerm(t);
+    arity = 0;
+
+  } else if (IsIntegerTerm(t)) {
+    return find_int_key(IntegerOfTerm(t));
+  } else if (IsApplTerm(t)) {
+    Functor f = FunctorOfTerm(t);
+
+    at = NameOfFunctor(f);
+    arity = ArityOfFunctor(f);
+  } else {
+    at = AtomDot;
+    arity = 2;
+  }
+  return RepDBProp(FindDBProp(RepAtom(at), 0, arity, 0));
+}
+
+static PredEntry *
+find_lu_entry(Term t)
+{
+  Prop p;
+
+  if (IsVarTerm(t)) {
+    Yap_Error(INSTANTIATION_ERROR, t, "while accessing database key");
+    return NULL;
+  }
+  if (IsIntegerTerm(t)) {
+    return find_lu_int_key(IntegerOfTerm(t));
+  } else if (IsApplTerm(t)) {
+    Functor f = FunctorOfTerm(t);
+
+    if (IsExtensionFunctor(f)) {
+      Yap_Error(TYPE_ERROR_KEY, t, "while accessing database key");
+      return NULL;
+    }
+    p = Yap_GetPredPropByFuncInThisModule(FunctorOfTerm(t),2);
+  } else if (IsAtomTerm(t)) {
+    p = Yap_GetPredPropByAtomInThisModule(AtomOfTerm(t),2);
+  } else {
+    p = Yap_GetPredPropByFuncInThisModule(FunctorList,2);
+  }
+  if (p == NIL) {
+    if (UPDATE_MODE == UPDATE_MODE_LOGICAL && !find_entry(t)) {
+      return new_lu_entry(t);
+    } else {
+      return NULL;
+    }
+  }
+  return RepPredProp(p);
+}
+
+
 static DBProp
 FetchIntDBPropFromKey(Int key, int flag, int new, char *error_mssg)
 {
@@ -2406,18 +2687,9 @@ FetchIntDBPropFromKey(Int key, int flag, int new, char *error_mssg)
   if (new) {
     DBProp p;
     /* create a new DBProp				 */
-    if (UPDATE_MODE == UPDATE_MODE_LOGICAL
-	|| (UPDATE_MODE == UPDATE_MODE_LOGICAL_ASSERT && (flag & MkCode))) {
-      LogUpdDBProp lup = (LogUpdDBProp) Yap_AllocAtomSpace(sizeof(*lup));
-      lup->KindOfPE = LogUpdDBProperty|flag;
-      lup->NOfEntries = 0;
-      lup->Index = NULL;
-      p = (DBProp)lup;
-    } else {
-      p = (DBProp) Yap_AllocAtomSpace(sizeof(*p));
-      p->KindOfPE = DBProperty|flag;
-      p->F0 = p->L0 = NULL;
-    }
+    p = (DBProp) Yap_AllocAtomSpace(sizeof(*p));
+    p->KindOfPE = DBProperty|flag;
+    p->F0 = p->L0 = NULL;
     p->ArityOfDB = 0;
     p->First = p->Last = NULL;
     p->ModuleOfDB = 0;
@@ -2441,17 +2713,17 @@ FetchDBPropFromKey(Term twork, int flag, int new, char *error_mssg)
   if (flag & MkCode) {
     if (IsVarTerm(twork)) {
       Yap_Error(INSTANTIATION_ERROR, twork, error_mssg);
-      return(RepDBProp(NIL));
+      return RepDBProp(NULL);
     }
     if (!IsApplTerm(twork)) {
       Yap_Error(SYSTEM_ERROR, twork, "missing module");
-      return(RepDBProp(NIL));
+      return RepDBProp(NULL);
     } else {
       Functor f = FunctorOfTerm(twork);
       Term tmod;
       if (f != FunctorModule) {
 	Yap_Error(SYSTEM_ERROR, twork, "missing module");
-	return(RepDBProp(NIL));
+	return RepDBProp(NULL);
       }
       tmod = ArgOfTerm(1, twork);
       if (IsVarTerm(tmod)) {
@@ -2465,8 +2737,10 @@ FetchDBPropFromKey(Term twork, int flag, int new, char *error_mssg)
       dbmod = Yap_LookupModule(tmod);
       twork = ArgOfTerm(2, twork);
     }
-  } else
+  } else {
     dbmod = 0;
+    
+  }
   if (IsVarTerm(twork)) {
     Yap_Error(INSTANTIATION_ERROR, twork, error_mssg);
     return(RepDBProp(NIL));
@@ -2509,18 +2783,9 @@ FetchDBPropFromKey(Term twork, int flag, int new, char *error_mssg)
 	}
 
       }
-      if (UPDATE_MODE == UPDATE_MODE_LOGICAL
-	  || (UPDATE_MODE == UPDATE_MODE_LOGICAL_ASSERT && (flag & MkCode))) {
-	LogUpdDBProp lup = (LogUpdDBProp) Yap_AllocAtomSpace(sizeof(*lup));
-	lup->KindOfPE = LogUpdDBProperty|flag;
-	lup->NOfEntries = 0;
-	lup->Index = NULL;
-	p = (DBProp)lup;
-      } else {
-	p = (DBProp) Yap_AllocAtomSpace(sizeof(*p));
-	p->KindOfPE = DBProperty|flag;
-	p->F0 = p->L0 = NULL;
-      }
+      p = (DBProp) Yap_AllocAtomSpace(sizeof(*p));
+      p->KindOfPE = DBProperty|flag;
+      p->F0 = p->L0 = NULL;
       UPDATE_MODE = OLD_UPDATE_MODE;
       p->ArityOfDB = arity;
       p->First = p->Last = NIL;
@@ -2544,31 +2809,8 @@ FetchDBPropFromKey(Term twork, int flag, int new, char *error_mssg)
 static DBRef 
 nth_recorded_log(LogUpdDBProp AtProp, Int Count)
 {
-  DBRef ref;
-
-  if (AtProp->NOfEntries == 0) {
-    READ_UNLOCK(AtProp->DBRWLock);
-    return FALSE;
-  }
-  if (Count > AtProp->NOfEntries) {
-    READ_UNLOCK(AtProp->DBRWLock);
-    return FALSE;
-  }
-  if (AtProp->NOfEntries == 1) {
-    ref = AtProp->First;
-  } else {
-    if (AtProp->Index == NULL) {
-      while((AtProp->Index = new_lu_index(AtProp)) == NULL) {
-	if (!Yap_growheap(FALSE,DBLength((AtProp->NOfEntries+1)*sizeof(DBRef *)))) {
-	  Yap_Error(SYSTEM_ERROR, TermNil, Yap_ErrorMessage);
-	  READ_UNLOCK(AtProp->DBRWLock);
-	  return NULL;
-	}
-      }
-    }
-    ref = ((DBRef *)(AtProp->Index->Contents))[Count-1];
-  }
-  return ref;
+  Yap_Error(SYSTEM_ERROR, TermNil, Yap_ErrorMessage);
+  return NULL;
 }
 
 
@@ -2723,193 +2965,6 @@ p_nth_instancep(void)
   return nth_recorded(AtProp,Count);
 }
 
-/* Finds a term recorded under the key ARG1			 */
-static Int 
-i_log_upd_recorded(LogUpdDBProp AtProp)
-{
-  Term            TermDB, TRef;
-  Register DBRef  ref;
-  CELL           *PreviousHeap;
-  CELL            mask = 0, key = 0;
-  DBRef          *ep;
-  DBRef table, rtable[1];
-  Term twork;
-
-  
-  if (AtProp->NOfEntries == 0) {
-    READ_UNLOCK(AtProp->DBRWLock);
-    cut_fail();
-  }
-  else if (AtProp->NOfEntries == 1) {
-    ep = rtable;
-    ref = AtProp->First;
-    rtable[0] = NIL;
-  } else {
-    if (AtProp->Index == NULL) {
-      while((AtProp->Index = new_lu_index(AtProp)) == NULL) {
-	if (!Yap_growheap(FALSE,DBLength((AtProp->NOfEntries+1)*sizeof(DBRef *)))) {
-	  Yap_Error(SYSTEM_ERROR, TermNil, Yap_ErrorMessage);
-	  return FALSE;
-	}
-	twork = Deref(ARG2);
-      }
-    }
-    table = AtProp->Index;
-    ep = (DBRef *)(table->Contents);
-    ref = *ep++;
-  }
-  READ_UNLOCK(AtProp->DBRWLock);
-
-  while (ref != NIL && DEAD_REF(ref))
-    ref = *ep++;
-  if (ref == NIL) {
-    cut_fail();
-  }
-  twork = Deref(ARG2);	/* now working with ARG2 */
-  if (IsVarTerm(twork)) {
-    mask = key = 0;
-    /* EXTRA_CBACK_ARG(3,2) is being assigned the value MkIntegerTerm(((Int)mask)),
-       and EXTRA_CBACK_ARG(3,3) the value MkIntegerTerm(((Int)key)) which is here 0.
-       This is working around a bug in the O2 optimiser of the compiler that ships
-       with HP-UX 10.20: cc Rel. 10.32.30, April 1999. */
-    EXTRA_CBACK_ARG(3,2) = MkIntegerTerm(((Int)0));
-    EXTRA_CBACK_ARG(3,3) = MkIntegerTerm(((Int)0));
-    B->cp_h = H;
-    while ((TermDB = GetDBTerm(ref)) == (CELL)0) {
-      /* make sure the garbage collector sees what we want it to see! */
-      EXTRA_CBACK_ARG(3,1) = AbsAppl((CELL *)ep);
-      /* oops, we are in trouble, not enough stack space */
-      if (!Yap_gc(3, ENV, CP)) {
-	Yap_Error(OUT_OF_STACK_ERROR, TermNil, Yap_ErrorMessage);
-	return(FALSE);
-      }
-      PreviousHeap = H;
-      twork = Deref(ARG2);
-    }
-    if (!Yap_unify(twork, TermDB)) {
-      cut_fail();
-    }
-  } else if (IsAtomOrIntTerm(twork)) {
-    /* EXTRA_CBACK_ARG(3,2) is being assigned the value MkIntegerTerm(((Int)mask)),
-       which is here 0. This is working around a bug in the O2 optimiser of the
-       compiler that ships with HP-UX 10.20: cc Rel. 10.32.30, April 1999. */
-    mask = 0;
-    EXTRA_CBACK_ARG(3,2) = MkIntegerTerm(((Int)0));
-    key = Unsigned(twork);
-    EXTRA_CBACK_ARG(3,3) = MkIntegerTerm(((Int)key));
-    B->cp_h = H;
-    do {
-      if (((twork == ref->Entry) || (ref->Flags & DBVar)) &&
-	  !DEAD_REF(ref))
-	break;
-      ref =*ep++ ;
-      if (ref == NIL) {
-	cut_fail();
-      }
-    } while (TRUE);
-  } else {
-    mask = EvalMasks(twork, &key);
-    EXTRA_CBACK_ARG(3,2) = MkIntegerTerm(((Int)mask));
-    EXTRA_CBACK_ARG(3,3) = MkIntegerTerm(((Int)key));
-    PreviousHeap = H;
-    B->cp_h = H;
-    do {
-      H = PreviousHeap;
-      while ((mask & ref->Key) != (key & ref->Mask)) {
-	while ((ref = *ep++) != NIL
-	       && DEAD_REF(ref));
-	if (ref == NIL) {
-	  cut_fail();
-	}
-      }
-      while ((TermDB = GetDBTerm(ref)) == (CELL)0) {
-	/* make sure the garbage collector sees what we want it to see! */
-	EXTRA_CBACK_ARG(3,1) = AbsAppl((CELL *)ep);
-	/* oops, we are in trouble, not enough stack space */
-	if(!Yap_gc(3, ENV, CP)) {
-	  Yap_Error(OUT_OF_STACK_ERROR, TermNil, Yap_ErrorMessage);
-	  return(FALSE);
-	}
-	PreviousHeap = H;
-      }
-      if (Yap_unify(ARG2, TermDB))
-	break;
-      while ((ref = *ep++) != NIL
-	     && DEAD_REF(ref));
-      if (ref == NIL) {
-	cut_fail();
-      }
-    } while (TRUE);
-  }
-  /* This should be after any non-tagged terms, because the routines in grow.c
-     go from upper to lower addresses */
-  TRef = MkDBRefTerm(ref);
-  if (*ep == NULL) {
-    if (Yap_unify(ARG3, TRef)) {
-#if defined(OR) || defined(THREADS)
-      LOCK(ref->lock);
-      TRAIL_REF(ref);		/* So that fail will erase it */
-      INC_DBREF_COUNT(ref);
-      UNLOCK(ref->lock);
-#else
-      if (!(ref->Flags & InUseMask)) {
-	ref->Flags |= InUseMask;
-	TRAIL_REF(ref);	/* So that fail will erase it */
-      }
-#endif
-      cut_succeed();
-    } else {
-      cut_fail();
-    }
-  } else {
-    DBRef table = AtProp->Index;
-
-    EXTRA_CBACK_ARG(3,1) = AbsAppl((CELL *)ep);
-#if defined(YAPOR) || defined(THREADS)
-    LOCK(table->lock);
-    TRAIL_REF(table);		/* So that fail will erase it */
-    INC_DBREF_COUNT(table);
-    UNLOCK(table->lock);
-    LOCK(ref->lock);
-    TRAIL_REF(ref);		/* So that fail will erase it */
-    INC_DBREF_COUNT(ref);
-    UNLOCK(ref->lock);
-#else
-    if (!(table->Flags & InUseMask)) {
-      table->Flags |= InUseMask;
-      if (B->cp_tr == TR) {
-	TRAIL_REF(table);		/* So that fail will erase it */
-	
-	B->cp_tr = TR;    /* protect this entry so that it will not be
-			     undone by backtracking */
-	
-      } else {
-	Term new;
-	TRAIL_REF(table);		/* So that fail will erase it */
-	/* swap this with what was pointed by the choicepoint */
-	new = TrailTerm(TR-1);
-	TrailTerm(TR-1) = TrailTerm(B->cp_tr);
-	TrailTerm(B->cp_tr) = new;
-#if defined(TABLING) || defined(SBA)
-	{
-	  CELL val;
-	  val = TrailVal(TR-1);
-	  TrailVal(TR-1) = TrailVal(B->cp_tr);
-	  TrailVal(B->cp_tr) = val;
-	}
-#endif
-	B->cp_tr++;
-      }
-    }
-    if (!(ref->Flags & InUseMask)) {
-      ref->Flags |= InUseMask;
-      TRAIL_REF(ref);		/* So that fail will erase it */
-    }
-#endif
-    return (Yap_unify(ARG3, TRef));
-  }
-}
-
 static Int
 p_db_key(void)
 {
@@ -2932,8 +2987,6 @@ i_recorded(DBProp AtProp, Term t3)
   Term twork;
 
   READ_LOCK(AtProp->DBRWLock);
-  if (AtProp->KindOfPE & 0x1)
-    return(i_log_upd_recorded((LogUpdDBProp)AtProp));
   ref = AtProp->First;
   while (ref != NULL
 	 && DEAD_REF(ref))
@@ -2947,7 +3000,7 @@ i_recorded(DBProp AtProp, Term t3)
     EXTRA_CBACK_ARG(3,2) = MkIntegerTerm(0);
     EXTRA_CBACK_ARG(3,3) = MkIntegerTerm(0);
     B->cp_h = H;
-    while ((TermDB = GetDBTerm(ref)) == (CELL)0) {
+    while ((TermDB = GetDBTermFromDBEntry(ref)) == (CELL)0) {
       /* make sure the garbage collector sees what we want it to see! */
       EXTRA_CBACK_ARG(3,1) = (CELL)ref;
       /* oops, we are in trouble, not enough stack space */
@@ -2967,7 +3020,7 @@ i_recorded(DBProp AtProp, Term t3)
     B->cp_h = H;
     READ_LOCK(AtProp->DBRWLock);
     do {
-      if (((twork == ref->Entry) || IsVarTerm(ref->Entry)) &&
+      if (((twork == ref->DBT.Entry) || IsVarTerm(ref->DBT.Entry)) &&
 	  !DEAD_REF(ref))
 	break;
       ref = NextDBRef(ref);
@@ -2991,7 +3044,7 @@ i_recorded(DBProp AtProp, Term t3)
 	  cut_fail();
 	}
       }
-      if ((TermDB = GetDBTerm(ref)) != (CELL)0) {
+      if ((TermDB = GetDBTermFromDBEntry(ref)) != (CELL)0) {
 	if (Yap_unify(TermDB, ARG2)) {
 	  /* success */
 	  EXTRA_CBACK_ARG(3,2) = MkIntegerTerm(((Int)mask));
@@ -3041,111 +3094,6 @@ i_recorded(DBProp AtProp, Term t3)
 }
 
 static Int 
-c_log_upd_recorded(DBRef *ep, int flags)
-{
-  Term            TermDB, TRef;
-  Register DBRef  ref;
-  CELL           *PreviousHeap = H;
-  CELL            mask, key;
-
-
-  ref = *ep++;
-  if (ref == NIL) {
-    cut_fail();
-  }
-  {
-    Term ttmp = EXTRA_CBACK_ARG(3,2);
-    if (IsLongIntTerm(ttmp))
-      mask = (CELL)LongIntOfTerm(ttmp);
-    else
-      mask = (CELL)IntOfTerm(ttmp);
-  }
-  {
-    Term ttmp = EXTRA_CBACK_ARG(3,3);
-    if (IsLongIntTerm(ttmp))
-      key = (CELL)LongIntOfTerm(ttmp);
-    else
-      key = (CELL)IntOfTerm(ttmp);
-  }
-  while (ref != NIL
-	 && DEAD_REF(ref))
-    ref = *ep++;
-  if (ref == NIL) {
-    cut_fail();
-  }
-  if (mask == 0 && key == 0) {	/* ARG2 is a variable */
-    while ((TermDB = GetDBTerm(ref)) == (CELL)0) {
-      /* make sure the garbage collector sees what we want it to see! */
-      EXTRA_CBACK_ARG(3,1) = AbsAppl((CELL *)ep);
-      /* oops, we are in trouble, not enough stack space */
-      if (!Yap_gc(3, ENV, CP)) {
-	Yap_Error(OUT_OF_STACK_ERROR, TermNil, Yap_ErrorMessage);
-	return(FALSE);
-      }
-      PreviousHeap = H;
-    }
-    Yap_unify(ARG2, TermDB);
-  } else if (mask == 0) {	/* ARG2 is a constant */
-    do {
-      if (((key == Unsigned(ref->Entry)) || (ref->Flags & DBVar)) &&
-	  !DEAD_REF(ref))
-	break;
-      ref = *ep++;
-    } while (ref != NIL);
-    if (ref == NIL) {
-      cut_fail();
-    }
-  } else
-    do {		/* ARG2 is a structure */
-      H = PreviousHeap;
-      while ((mask & ref->Key) != (key & ref->Mask)) {
-	while ((ref = *ep++) != NIL
-	       && DEAD_REF(ref));
-	if (ref == NIL) {
-	  cut_fail();
-	}
-      }
-      while ((TermDB = GetDBTerm(ref)) == (CELL)0) {
-	/* make sure the garbage collector sees what we want it to see! */
-	EXTRA_CBACK_ARG(3,1) = AbsAppl((CELL *)ep);
-	/* oops, we are in trouble, not enough stack space */
-	if (!Yap_gc(3, ENV, CP)) {
-	  Yap_Error(OUT_OF_STACK_ERROR, TermNil, Yap_ErrorMessage);
-	  return(FALSE);
-	}
-	PreviousHeap = H;
-      }
-      if (Yap_unify(ARG2, TermDB))
-	break;
-      while ((ref = *ep++) != NIL
-	     && DEAD_REF(ref));
-      if (ref == NIL) {
-	cut_fail();
-      }
-    } while (1);
-  TRef = MkDBRefTerm(ref);
-  EXTRA_CBACK_ARG(3,1) = AbsAppl((CELL *)ep);
-#if defined(YAPOR) || defined(THREADS)
-  LOCK(ref->lock);
-  TRAIL_REF(ref);	/* So that fail will erase it */
-  INC_DBREF_COUNT(ref);
-  UNLOCK(ref->lock);
-#else 
- if (!(ref->Flags & InUseMask)) {
-    ref->Flags |= InUseMask;
-    TRAIL_REF(ref);	/* So that fail will erase it */
-  }
-#endif
-  if (!Yap_unify(ARG3, TRef))
-    return(FALSE); /* should never happen */
-  if (*ep == NULL) {
-    cut_succeed();
-  } else {
-    return(TRUE);
-  }
-}
-
-static Int 
 c_recorded(int flags)
 {
   Term            TermDB, TRef;
@@ -3155,9 +3103,6 @@ c_recorded(int flags)
   Term t1;
 
   t1 = EXTRA_CBACK_ARG(3,1);
-  if (!IsVarTerm(t1)) {
-    return(c_log_upd_recorded((DBRef *)RepAppl(t1), flags));
-  }
   ref0 = (DBRef)t1;
   READ_LOCK(ref0->Parent->DBRWLock);
   ref = NextDBRef(ref0);
@@ -3204,7 +3149,7 @@ c_recorded(int flags)
     cut_fail();
   }
   if (mask == 0 && key == 0) {	/* ARG2 is a variable */
-    while ((TermDB = GetDBTerm(ref)) == (CELL)0) {
+    while ((TermDB = GetDBTermFromDBEntry(ref)) == (CELL)0) {
       /* make sure the garbage collector sees what we want it to see! */
       EXTRA_CBACK_ARG(3,1) = (CELL)ref;
       /* oops, we are in trouble, not enough stack space */
@@ -3217,7 +3162,7 @@ c_recorded(int flags)
     Yap_unify(ARG2, TermDB);
   } else if (mask == 0) {	/* ARG2 is a constant */
     do {
-      if (((key == Unsigned(ref->Entry)) || (ref->Flags & DBVar)) &&
+      if (((key == Unsigned(ref->DBT.Entry)) || (ref->Flags & DBVar)) &&
 	  !DEAD_REF(ref))
 	break;
       ref = NextDBRef(ref);
@@ -3237,7 +3182,7 @@ c_recorded(int flags)
 	  cut_fail();
 	}
       }
-      while ((TermDB = GetDBTerm(ref)) == (CELL)0) {
+      while ((TermDB = GetDBTermFromDBEntry(ref)) == (CELL)0) {
 	/* make sure the garbage collector sees what we want it to see! */
 	EXTRA_CBACK_ARG(3,1) = (CELL)ref;
 	/* oops, we are in trouble, not enough stack space */
@@ -3278,41 +3223,23 @@ c_recorded(int flags)
  * skipped 
  */
 
-/* recorded(+Functor,+Term,-Ref) */
-static Int 
-in_rded(void)
-{
-  DBProp          AtProp;
-  register choiceptr b0=B;
-  Register Term   twork = Deref(ARG1);	/* initially working with
-					 * ARG1 */
-  Term t3 = Deref(ARG3);
-
-  if (!IsVarTerm(t3)) {
-    if (!IsDBRefTerm(t3)) {
-      cut_fail();
-    } else {
-      DBRef ref = DBRefOfTerm(t3);
-      LOCK(ref->lock);
-      if (ref == NULL
-	  || DEAD_REF(ref)
-	  || !Yap_unify(ARG2,GetDBTerm(ref))
-	  || !UnifyDBKey(ref,0,ARG1)) {
-	UNLOCK(ref->lock);
-	cut_fail();
-      } else {
-	UNLOCK(ref->lock);
-	cut_succeed();
-      }
+static Int
+lu_recorded(PredEntry *pe) {
+  if (Yap_op_from_opcode(P->opc) == _procceed) {
+    P = pe->CodeOfPred;
+  } else {
+    CP = P;
+    P = pe->CodeOfPred;
+    if (pe->PredFlags & ProfiledPredFlag) {
+      LOCK(pe->StatisticsForPred.lock);
+      pe->StatisticsForPred.NOfEntries++;
+      UNLOCK(pe->StatisticsForPred.lock);
     }
+    ENV = YENV;
+    YENV = ASP;
+    YENV[E_CB] = (CELL) B;
   }
-  if (EndOfPAEntr(AtProp = FetchDBPropFromKey(twork, 0, FALSE, "recorded/3"))) {
-    if (b0 == B)
-      cut_fail();
-    else
-      return(FALSE);
-  }
-  return (i_recorded(AtProp, t3));
+  return TRUE;
 }
 
 /* recorded(+Functor,+Term,-Ref) */
@@ -3322,6 +3249,63 @@ in_rded_with_key(void)
   DBProp AtProp = (DBProp)IntegerOfTerm(Deref(ARG1));
 
   return (i_recorded(AtProp,Deref(ARG3)));
+}
+
+/* recorded(+Functor,+Term,-Ref) */
+static Int 
+p_recorded(void)
+{
+  DBProp          AtProp;
+  Register Term   twork = Deref(ARG1);	/* initially working with
+					 * ARG1 */
+  Term t3 = Deref(ARG3);
+  PredEntry *pe;
+
+  if (!IsVarTerm(t3)) {
+    if (!IsDBRefTerm(t3)) {
+      return FALSE;
+    } else {
+      DBRef ref = DBRefOfTerm(t3);
+      if (ref == NULL) return FALSE;
+      LOCK(ref->lock);
+      if (DEAD_REF(ref)) {
+	UNLOCK(ref->lock);
+	return FALSE;
+      }
+      if (ref->Flags & LogUpdMask) {
+	LogUpdClause *cl = (LogUpdClause *)ref;
+	PredEntry *ap;
+	if (Yap_op_from_opcode(cl->ClCode->opc) == _unify_idb_term) {
+	  if (!Yap_unify(ARG2, cl->ClSource->Entry)) {
+	    UNLOCK(cl->ClLock);
+	    return FALSE;
+	  }
+	} else if (!Yap_unify(ARG2,GetDBTerm(cl->ClSource))) {
+	  UNLOCK(cl->ClLock);
+	  return FALSE;
+	}
+	ap = cl->ClPred;
+	UNLOCK(ref->lock);
+	return Yap_unify(GetDBLUKey(ap), ARG1);
+      } else if (!Yap_unify(ARG2,GetDBTermFromDBEntry(ref))
+	  || !UnifyDBKey(ref,0,ARG1)) {
+	UNLOCK(ref->lock);
+	return FALSE;
+      } else {
+	UNLOCK(ref->lock);
+	return TRUE;
+      }
+    }
+  }
+  if ((pe = find_lu_entry(twork)) != NULL) {
+    return lu_recorded(pe);
+  }
+  if (EndOfPAEntr(AtProp = FetchDBPropFromKey(twork, 0, FALSE, "recorded/3"))) {
+    return FALSE;
+  }
+  ARG1 = MkIntegerTerm((Int)AtProp);
+  P = PredRecordedWithKey->CodeOfPred;
+  return (i_recorded(AtProp, t3));
 }
 
 static Int 
@@ -3348,7 +3332,7 @@ in_rdedp(void)
       LOCK(ref->lock);
       if (ref == NULL
 	  || DEAD_REF(ref)
-	  || !Yap_unify(ARG2,GetDBTerm(ref))
+	  || !Yap_unify(ARG2,GetDBTermFromDBEntry(ref))
 	  || !UnifyDBKey(ref,CodeDBBit,ARG1)) {
 	UNLOCK(ref->lock);
 	cut_fail();
@@ -3436,7 +3420,7 @@ p_first_instance(void)
     TRAIL_REF(ref);	/* So that fail will erase it */
   }
 #endif
-  while ((TermDB = GetDBTerm(ref)) == (CELL)0) {
+  while ((TermDB = GetDBTermFromDBEntry(ref)) == (CELL)0) {
     /* oops, we are in trouble, not enough stack space */
     if (!Yap_gc(3, ENV, P)) {
       Yap_Error(OUT_OF_STACK_ERROR, TermNil, Yap_ErrorMessage);
@@ -3478,15 +3462,15 @@ p_key_statistics(void)
  * pending references 
  */
 static void 
-ErasePendingRefs(DBRef entryref)
+ErasePendingRefs(DBTerm *entryref)
 {
-  CELL           *cp;
+  DBRef          *cp;
   DBRef           ref;
 
-  if (!(entryref->Flags & DBWithRefs))
+  cp = entryref->DBRefs;
+  if (entryref->DBRefs == NULL)
     return;
-  cp = CellPtr(entryref->DBRefs);
-  while ((ref = (DBRef)(*--cp)) != NULL) {
+  while ((ref = *--cp) != NULL) {
     if ((ref->Flags & DBClMask) && (--(ref->NOfRefsTo) == 0)
 	&& (ref->Flags & ErasedMask))
       ErDBE(ref);
@@ -3498,46 +3482,37 @@ inline static void
 RemoveDBEntry(DBRef entryref)
 {
 
-  ErasePendingRefs(entryref);
-  if (entryref->Flags & LogUpdMask) {
-    if (entryref->Flags & IndexMask)
-      clean_lu_index(entryref);
-    else
-      FreeDBSpace((char *) entryref);
-  } else {
-    /* We may be backtracking back to a deleted entry. If we just remove
-       the space then the info on the entry may be corrupt.  */
-    if ((B->cp_ap == RETRY_C_RECORDED_CODE 
-	 || B->cp_ap == RETRY_C_RECORDED_K_CODE 
-	 || B->cp_ap == RETRY_C_DRECORDED_CODE 
-	 || B->cp_ap == RETRY_C_RECORDEDP_CODE) &&
-	EXTRA_CBACK_ARG(3,1) == (CELL)entryref) {
-      /* make it clear the entry has been released */
+  ErasePendingRefs(&(entryref->DBT));
+  /* We may be backtracking back to a deleted entry. If we just remove
+     the space then the info on the entry may be corrupt.  */
+  if ((B->cp_ap == RETRY_C_RECORDED_K_CODE 
+       || B->cp_ap == RETRY_C_RECORDEDP_CODE) &&
+      EXTRA_CBACK_ARG(3,1) == (CELL)entryref) {
+    /* make it clear the entry has been released */
 #if defined(YAPOR) || defined(THREADS)
-      DEC_DBREF_COUNT(entryref);
+    DEC_DBREF_COUNT(entryref);
 #else 
-      entryref->Flags &= ~InUseMask;
+    entryref->Flags &= ~InUseMask;
 #endif
-      DBErasedMarker->Next = NULL;
-      DBErasedMarker->Parent = entryref->Parent;
-      DBErasedMarker->n = entryref->n;
-      EXTRA_CBACK_ARG(3,1) = (CELL)DBErasedMarker;
-    }
-    if (entryref->p != NULL)
-      entryref->p->n = entryref->n;
-    else 
-      entryref->Parent->F0 = entryref->n;
-    if (entryref->n != NULL)
-      entryref->n->p = entryref->p;
-    else 
-      entryref->Parent->L0 = entryref->p;
-    FreeDBSpace((char *) entryref);
+    DBErasedMarker->Next = NULL;
+    DBErasedMarker->Parent = entryref->Parent;
+    DBErasedMarker->n = entryref->n;
+    EXTRA_CBACK_ARG(3,1) = (CELL)DBErasedMarker;
   }
+  if (entryref->p != NULL)
+    entryref->p->n = entryref->n;
+  else 
+    entryref->Parent->F0 = entryref->n;
+  if (entryref->n != NULL)
+    entryref->n->p = entryref->p;
+  else 
+    entryref->Parent->L0 = entryref->p;
+  FreeDBSpace((char *) entryref);
 }
 
 static void
 clean_lu_index(DBRef index) {
-  DBRef *te = (DBRef *)(index->Contents);
+  DBRef *te = (DBRef *)(index->DBT.Contents);
   DBRef ref;
 
   LOCK(index->lock);
@@ -3636,20 +3611,49 @@ p_jump_to_next_dynamic_clause(void)
 }
 
 static void
-EraseLogUpdCl(LogUpdClause *clau)
+complete_lu_erase(LogUpdClause *clau)
 {
   if (CL_IN_USE(clau))
     return;
-  if (clau->ClFlags & IndexMask) {
-    Yap_RemoveLogUpdIndex(clau);
-  } else {
-    if (clau->ClFlags & LogUpdRuleMask) {
-      if (clau->u2.ClExt->u.EC.ClRefs > 0)
-	return;
-    } else if (clau->u2.ClUse > 0)
-      return;
-    Yap_FreeCodeSpace((char *)clau);
+  if (clau->ClFlags & LogUpdRuleMask &&
+      clau->ClExt->u.EC.ClRefs > 0) {
+    return;
   }
+  ReleaseTermFromDB(clau->ClSource);
+  Yap_FreeCodeSpace((char *)clau);
+}
+
+static void
+EraseLogUpdCl(LogUpdClause *clau)
+{
+  /* no need to erase what has been erased */ 
+  if (!(clau->ClFlags & ErasedMask)) {
+    /* get ourselves out of the list */
+    if (clau->ClNext != NULL) {
+      clau->ClNext->ClPrev = clau->ClPrev;
+    }
+    if (clau->ClPrev != NULL) {
+      clau->ClPrev->ClNext = clau->ClNext;
+    }
+    if (clau->ClCode == clau->ClPred->cs.p_code.FirstClause) {
+      if (clau->ClNext == NULL) {
+	clau->ClPred->cs.p_code.FirstClause = NULL;
+      } else {
+	clau->ClPred->cs.p_code.FirstClause = clau->ClNext->ClCode;
+      }
+    }
+    if (clau->ClCode == clau->ClPred->cs.p_code.LastClause) {
+      if (clau->ClPrev == NULL) {
+	clau->ClPred->cs.p_code.LastClause = NULL;
+      } else {
+	clau->ClPred->cs.p_code.LastClause = clau->ClPrev->ClCode;
+      }
+    }
+    clau->ClFlags |= ErasedMask;
+    clau->ClPred->cs.p_code.NOfClauses--;
+    Yap_RemoveClauseFromIndex(clau->ClPred, clau->ClCode);
+  }
+  complete_lu_erase(clau);
 }
 
 static void
@@ -3744,6 +3748,7 @@ PrepareToEraseLogUpdClause(LogUpdClause *clau, DBRef dbr)
   }
   dbr->Code = NULL;   /* unlink the two now */
   if (p->PredFlags & IndexedPredFlag) {
+    p->cs.p_code.NOfClauses--;
     Yap_RemoveIndexation(p);
   } else {
     EraseLogUpdCl(clau);
@@ -3773,92 +3778,12 @@ PrepareToEraseLogUpdClause(LogUpdClause *clau, DBRef dbr)
       p->CodeOfPred = (yamop *)(&(p->OpcodeOfPred)); 
     }
   }
-  p->cs.p_code.NOfClauses--;
   WRITE_UNLOCK(p->PRWLock);
 }
 
 static void 
 PrepareToEraseClause(DynamicClause *clau, DBRef dbr)
 {
-  yamop          *code_p;
-
-  /* no need to erase what has been erased */ 
-  if (clau->ClFlags & ErasedMask)
-    return;
-  clau->ClFlags |= ErasedMask;
-  /* skip mask */
-  code_p = clau->ClCode;
-  /* skip retry instruction */
-  /* we can remove the entry from the list of alternatives for the
-     goal immediately */
-  {
-    DBProp father;
-    PredEntry *pred;
-    /* first we get the next clause */
-    yamop *next = code_p->u.ld.d;
-    /* then we get the previous clause */
-    yamop *previous =  clau->ClPrevious;
-    yamop *clau_code;
-
-    /* next we check if we still have clauses left in the chain */
-    if (previous != next) {
-      yamop  *previous_code = (yamop *)previous;
-      DynamicClause *next_cl = ClauseCodeToDynamicClause(next);
-      /* we do, let's say the previous now backtracks to the next */
-      previous_code->u.ld.d = next;
-      /* and tell next who it is the previous element */
-      next_cl->ClPrevious = previous_code;
-    }
-    /* that's it about setting up the code, now let's tell the
-       predicate entry that a clause left. */
-    father = dbr->Parent;
-    /* inefficient, but that will do for the moment, sir. */
-    if (father->ArityOfDB == 0) {
-      Atom name = (Atom) father->FunctorOfDB;
-      pred = RepPredProp(PredPropByAtom(name, father->ModuleOfDB));
-    } else {
-      pred = RepPredProp(PredPropByFunc(father->FunctorOfDB, father->ModuleOfDB));
-    }
-    WRITE_LOCK(pred->PRWLock);
-    /* got my pred entry, let's have some fun! */
-    clau_code = clau->ClCode;
-    if (pred->cs.p_code.FirstClause == pred->cs.p_code.LastClause &&
-	pred->cs.p_code.FirstClause != NULL) {
-#ifdef DEBUG
-      if (pred->cs.p_code.FirstClause != clau_code) {
-	/* sanity check */
-	if (father->ArityOfDB == 0) {
-	  Yap_Error(SYSTEM_ERROR, TermNil, "Prepare to erase clause for %s/%d",RepAtom((Atom)father->FunctorOfDB)->StrOfAE,0);
-	} else {
-	  Functor f = father->FunctorOfDB;
-	  Yap_Error(SYSTEM_ERROR, TermNil, "Prepare to erase clause for %s/%d",RepAtom(NameOfFunctor(f))->StrOfAE,ArityOfFunctor(f));
-	}
-	return;
-      }
-#endif
-      /* nothing left here, let's clean the shop */
-      Yap_FreeCodeSpace(((char *) ClauseCodeToDynamicClause(pred->CodeOfPred)));
-      pred->cs.p_code.LastClause = pred->cs.p_code.FirstClause = NULL;
-      pred->OpcodeOfPred = FAIL_OPCODE;
-      pred->cs.p_code.TrueCodeOfPred = pred->CodeOfPred =
-	(yamop *)(&(pred->OpcodeOfPred)); 
-    } else if (clau_code == pred->cs.p_code.FirstClause) {
-      pred->cs.p_code.FirstClause = next;
-    } else if (clau_code == pred->cs.p_code.LastClause) {
-      pred->cs.p_code.LastClause = previous;
-    }
-    pred->cs.p_code.NOfClauses--;
-    WRITE_UNLOCK(pred->PRWLock);
-  }
-  /* make sure we don't directly point to anyone else */
-  code_p->u.ld.d = code_p;
-  /* now, put some code so that backtracks to here will survive */
-  code_p = NEXTOP(code_p, ld);
-  /* in this case, a failed clause should go to the data base and find
-     out  what is the next clause, if there is one */
-  code_p->opc = Yap_opcode(_call_cpred);
-  code_p->u.sla.sla_u.p = RepPredProp(Yap_GetPredPropByAtom(Yap_FullLookupAtom("$jump_to_next_dynamic_clause"),0));
-  code_p->u.sla.bmap = (CELL *)(dbr);
 }
 
 static void 
@@ -3918,6 +3843,11 @@ EraseEntry(DBRef entryref)
 
   if (entryref->Flags & ErasedMask)
     return;
+  if (entryref->Flags & LogUpdMask &&
+      !(entryref->Flags & DBClMask)) {
+    EraseLogUpdCl((LogUpdClause *)entryref);
+    return;
+  }
   entryref->Flags |= ErasedMask;
   /* update FirstNEr */
   p = entryref->Parent;
@@ -3977,7 +3907,21 @@ p_eraseall(void)
   Register Term   twork = Deref(ARG1);
   Register DBRef  entryref;
   DBProp          p;
+  PredEntry *pe;
 
+  if ((pe = find_lu_entry(twork)) != NULL) {
+    LogUpdClause *cl;
+
+    if (!pe->cs.p_code.NOfClauses)
+      return TRUE;
+    Yap_RemoveIndexation(pe);
+    cl = ClauseCodeToLogUpdClause(pe->cs.p_code.FirstClause);
+    do {
+      LogUpdClause *ncl = cl->ClNext;
+      Yap_ErLogUpdCl(cl);
+      cl = ncl;
+    } while (cl != NULL);
+  }
   if (EndOfPAEntr(p = FetchDBPropFromKey(twork, 0, FALSE, "eraseall/3"))) {
     return(TRUE);
   }
@@ -4053,21 +3997,37 @@ p_instance(void)
   if (IsVarTerm(t1) || !IsDBRefTerm(t1))
     return (FALSE);
   dbr = DBRefOfTerm(t1);
-  if (dbr->Flags & ErasedMask) {
-    /* instance/2 of erased terms should fail under log update
-       semantics */
-    if (dbr->Parent != NULL && dbr->Parent->KindOfPE & LogUpdDBBit)
-      return(FALSE);
-  }
-  while ((TermDB = GetDBTerm(dbr)) == (CELL)0) {
-    /* oops, we are in trouble, not enough stack space */
-    if (!Yap_gc(2, ENV, P)) {
-      Yap_Error(OUT_OF_STACK_ERROR, TermNil, Yap_ErrorMessage);
-      return(FALSE);
+  if (dbr->Flags & LogUpdMask) {
+    op_numbers opc;
+    LogUpdClause *cl = (LogUpdClause *)dbr;
+
+    if (cl->ClFlags & ErasedMask) {
+      return FALSE;
     }
-    t1 = Deref(ARG1);
+    opc = Yap_op_from_opcode(cl->ClCode->opc);
+    if (opc == _unify_idb_term) {
+      return Yap_unify(ARG2, cl->ClSource->Entry);
+    } else {
+      while ((TermDB = FetchTermFromDB(cl->ClSource, 2)) == TermNil) {
+	/* oops, we are in trouble, not enough stack space */
+	if (!Yap_gc(2, ENV, P)) {
+	  Yap_Error(OUT_OF_STACK_ERROR, TermNil, Yap_ErrorMessage);
+	  return(FALSE);
+	}
+      }
+      return Yap_unify(ARG2, TermDB);
+    }
+  } else {
+    while ((TermDB = GetDBTermFromDBEntry(dbr)) == (CELL)0) {
+      /* oops, we are in trouble, not enough stack space */
+      if (!Yap_gc(2, ENV, P)) {
+	Yap_Error(OUT_OF_STACK_ERROR, TermNil, Yap_ErrorMessage);
+	return(FALSE);
+      }
+      t1 = Deref(ARG1);
+    }
+    return Yap_unify(ARG2, TermDB);
   }
-  return (Yap_unify(ARG2, TermDB));
 }
 
 inline static int 
@@ -4163,7 +4123,7 @@ cont_current_key(void)
       }
       if (i == MaxHash) {
 	/* we have left the atom hash table */
-	/* we don't have a lock over the hash table aany longer */
+	/* we don't have a lock over the hash table any longer */
 	if (IsAtomTerm(first)) {
 	  cut_fail();
 	}
@@ -4247,7 +4207,7 @@ cont_current_key_integer(void)
 }
 
 static Term 
-FetchTermFromDB(DBRef ref, int args)
+FetchTermFromDB(DBTerm *ref, int args)
 {
   Term TDB;
   while ((TDB = GetDBTerm(ref)) == (CELL)0) {
@@ -4261,26 +4221,20 @@ FetchTermFromDB(DBRef ref, int args)
 }
 
 Term 
-Yap_FetchTermFromDB(DBRef ref, int args)
+Yap_FetchTermFromDB(DBTerm *ref, int args)
 {
   return FetchTermFromDB(ref,args);
 }
 
-void 
-Yap_ReleaseTermFromDB(DBRef ref)
+static DBTerm *
+StoreTermInDB(Term t, int nargs)
 {
-  FreeDBSpace((char *)ref);
-}
-
-static DBRef
-StoreTermInDB(int arg, int nargs)
-{
-  DBRef x;
-  Term t = Deref(XREGS[arg]);
+  DBTerm *x;
   Yap_Error_Size = 0;
+  int needs_vars;
 
-  while ((x = CreateDBStruct(t, (DBProp)NIL,
-			  InQueue)) == NULL) {
+  while ((x = (DBTerm *)CreateDBStruct(t, (DBProp)NULL,
+			  InQueue, &needs_vars)) == NULL) {
     switch(DBErrorFlag) {
     case NO_ERROR_IN_DB:
 #ifdef DEBUG
@@ -4288,22 +4242,24 @@ StoreTermInDB(int arg, int nargs)
 #endif
       break;
     case SOVF_ERROR_IN_DB:
-      if (!Yap_gc(nargs, ENV, P)) {
+      XREGS[nargs+1] = t;
+      if (!Yap_gc(nargs+1, ENV, P)) {
 	Yap_Error(OUT_OF_STACK_ERROR, TermNil, Yap_ErrorMessage);
 	return(FALSE);
       } else {
-	t = Deref(XREGS[arg]);
+	t = Deref(XREGS[nargs+1]);
 	break;
       }
     case TOVF_ERROR_IN_DB:
       Yap_Error(SYSTEM_ERROR, TermNil, "YAP could not grow trail in recorda/3");
       return(FALSE);
     case OVF_ERROR_IN_DB:
+      XREGS[nargs+1] = t;
       if (!Yap_growheap(FALSE, Yap_Error_Size)) {
 	Yap_Error(SYSTEM_ERROR, TermNil, Yap_ErrorMessage);
 	return(FALSE);
       } else {
-	t = Deref(XREGS[arg]);
+	t = Deref(XREGS[nargs+1]);
 	break;
       }
     default:
@@ -4314,9 +4270,9 @@ StoreTermInDB(int arg, int nargs)
   return(x);
 }
 
-DBRef
-Yap_StoreTermInDB(int arg, int nargs) {
-  return StoreTermInDB(arg, nargs);
+DBTerm *
+Yap_StoreTermInDB(Term t, int nargs) {
+  return StoreTermInDB(t, nargs);
 }
 
 
@@ -4345,7 +4301,7 @@ static Int
 p_enqueue(void)
 {
   Term Father = Deref(ARG1);
-  DBRef x;
+  QueueEntry *x;
   db_queue *father_key;
 
   if (IsVarTerm(Father)) {
@@ -4356,13 +4312,17 @@ p_enqueue(void)
     return(FALSE);
   } else
     father_key = (db_queue *)DBRefOfTerm(Father);
-  x = StoreTermInDB(2, 2);
-  if (x == NULL)
-    return(FALSE);
-  x->Parent = NULL;
+  if ((x = (QueueEntry *)AllocDBSpace(sizeof(QueueEntry))) == NULL) {
+    Yap_Error(OUT_OF_STACK_ERROR, TermNil, "in findall");
+    return FALSE;
+  }
+  x->DBT = StoreTermInDB(Deref(ARG2), 2);
+  if (x->DBT == NULL)
+    return FALSE;
+  x->next = NULL;
   WRITE_LOCK(father_key->QRWLock);
   if (father_key->LastInQueue != NULL)
-    father_key->LastInQueue->Parent = (DBProp)x;
+    father_key->LastInQueue->next = x;
   father_key->LastInQueue = x;
   if (father_key->FirstInQueue == NULL) {
     father_key->FirstInQueue = x;
@@ -4381,14 +4341,15 @@ p_enqueue(void)
    the target entry,
  */
 static void
-keepdbrefs(DBRef entryref)
+keepdbrefs(DBTerm *entryref)
 {
   DBRef           *cp;
   DBRef           ref;
 
-  if (!(entryref->Flags & DBWithRefs))
-    return;
   cp = entryref->DBRefs;
+  if (cp == NULL) {
+    return;
+  }
   while ((ref = *--cp) != NIL) {
     LOCK(ref->lock);
     if(!(ref->Flags & InUseMask)) {
@@ -4404,7 +4365,7 @@ static Int
 p_dequeue(void)
 {
   db_queue *father_key;
-  DBRef cur_instance;
+  QueueEntry *cur_instance;
   Term Father = Deref(ARG1);
 
   if (IsVarTerm(Father)) {
@@ -4423,16 +4384,16 @@ p_dequeue(void)
     return(FALSE);
   } else {
     Term TDB;
-    DBRef tref = father_key->FirstInQueue;
     if (cur_instance == father_key->LastInQueue)
-      father_key->FirstInQueue = father_key->LastInQueue = NIL;
+      father_key->FirstInQueue = father_key->LastInQueue = NULL;
     else
-      father_key->FirstInQueue = (DBRef)(cur_instance->Parent);
+      father_key->FirstInQueue = cur_instance->next;
     WRITE_UNLOCK(father_key->QRWLock);
-    TDB = FetchTermFromDB(tref, 2);
+    TDB = FetchTermFromDB(cur_instance->DBT, 2);
     /* release space for cur_instance */
-    keepdbrefs(cur_instance);
-    ErasePendingRefs(cur_instance);
+    keepdbrefs(cur_instance->DBT);
+    ErasePendingRefs(cur_instance->DBT);
+    FreeDBSpace((char *) cur_instance->DBT);
     FreeDBSpace((char *) cur_instance);
     return(Yap_unify(ARG2, TDB));
   }
@@ -4472,33 +4433,8 @@ p_lu(void)
 static Int
 p_hold_index(void)
 {
-  LogUpdDBProp AtProp;
-  DBRef index;
-
-
-  if (EndOfPAEntr(AtProp = (LogUpdDBProp)FetchDBPropFromKey(Deref(ARG1), MkCode, FALSE, "recorded/3"))) {
-    return(FALSE);
-  }
-  if ((index = AtProp->Index) == NULL) {
-    if (AtProp->NOfEntries < 2) {
-      return(Yap_unify(ARG2, TermNil) && Yap_unify(ARG3,MkIntTerm(AtProp->NOfEntries)));
-    } else
-      index = AtProp->Index = new_lu_index(AtProp);
-  }
-  /* now, stash the index */ 
-#if defined(YAPOR) || defined(THREADS)
-  LOCK(index->lock);
-  TRAIL_REF(index);	/* So that fail will erase it */
-  INC_DBREF_COUNT(index);
-  UNLOCK(index->lock);
-#else
-  if (!(index->Flags & InUseMask)) {
-    index->Flags |= InUseMask;
-    TRAIL_REF(index);
-  }
-#endif
-  return(Yap_unify(ARG2, MkDBRefTerm(index)) &&
-	 Yap_unify(ARG3,MkIntTerm(AtProp->NOfEntries)));
+  Yap_Error(SYSTEM_ERROR, TermNil, "hold_index in debugger");
+  return FALSE;
 }
 
 static Int
@@ -4515,7 +4451,7 @@ p_fetch_reference_from_index(void)
   if (IsVarTerm(t2) || !IsIntTerm(t2))
     return(FALSE);
   pos = IntOfTerm(t2);
-  el = (DBRef)(table->Contents[pos]);
+  el = (DBRef)(table->DBT.Contents[pos]);
 #if defined(YAPOR) || defined(THREADS)
   LOCK(el->lock);
   TRAIL_REF(el);	/* So that fail will erase it */
@@ -4544,11 +4480,25 @@ p_resize_int_keys(void)
   return(resize_int_keys(IntegerOfTerm(t1)));
 }
 
+static void 
+ReleaseTermFromDB(DBTerm *ref)
+{
+  keepdbrefs(ref);
+  FreeDBSpace((char *)ref);
+}
+
+void 
+Yap_ReleaseTermFromDB(DBTerm *ref)
+{
+  ReleaseTermFromDB(ref);
+}
+
 void 
 Yap_InitDBPreds(void)
 {
-  Yap_InitCPred("$recorda", 3, p_rcda, SyncPredFlag);
-  Yap_InitCPred("$recordz", 3, p_rcdz, SyncPredFlag);
+  Yap_InitCPred("recorded", 3, p_recorded, SyncPredFlag);
+  Yap_InitCPred("recorda", 3, p_rcda, SyncPredFlag);
+  Yap_InitCPred("recordz", 3, p_rcdz, SyncPredFlag);
   Yap_InitCPred("recorda_at", 3, p_rcda_at, SyncPredFlag);
   Yap_InitCPred("recordz_at", 3, p_rcdz_at, SyncPredFlag);
   Yap_InitCPred("$recordap", 3, p_rcdap, SyncPredFlag);
@@ -4583,19 +4533,10 @@ Yap_InitDBPreds(void)
 void 
 Yap_InitBackDB(void)
 {
-  Yap_InitCPredBack("recorded", 3, 3, in_rded, co_rded, SyncPredFlag);
-  /* internal version, just to prevent the debugger from nosying around */
-  RETRY_C_RECORDED_CODE = NEXTOP((yamop *)
-    (RepPredProp(PredPropByFunc(Yap_MkFunctor(Yap_LookupAtom("recorded"), 3),0))->cs.p_code.FirstClause),lds);
   Yap_InitCPredBack("$recorded_with_key", 3, 3, in_rded_with_key, co_rded, SyncPredFlag);
-  RETRY_C_RECORDED_K_CODE = NEXTOP((yamop *)
-    (RepPredProp(PredPropByFunc(Yap_MkFunctor(Yap_LookupAtom("$recorded_with_key"), 3),0))->cs.p_code.FirstClause),lds);
-  Yap_InitCPredBack("$recorded", 3, 3, in_rded, co_rded, SyncPredFlag);
-  RETRY_C_DRECORDED_CODE = NEXTOP((yamop *)
-    (RepPredProp(PredPropByFunc(Yap_MkFunctor(Yap_LookupAtom("$recorded"), 3),0))->cs.p_code.FirstClause),lds);
+  RETRY_C_RECORDED_K_CODE = NEXTOP(PredRecordedWithKey->cs.p_code.FirstClause,lds);
   Yap_InitCPredBack("$recordedp", 3, 3, in_rdedp, co_rdedp, SyncPredFlag);
-  RETRY_C_RECORDEDP_CODE = NEXTOP((yamop *)
-    (RepPredProp(PredPropByFunc(Yap_MkFunctor(Yap_LookupAtom("$recordedp"), 3),0))->cs.p_code.FirstClause),lds);
+  RETRY_C_RECORDEDP_CODE = NEXTOP(RepPredProp(PredPropByFunc(Yap_MkFunctor(Yap_LookupAtom("$recordedp"), 3),0))->cs.p_code.FirstClause,lds);
   Yap_InitCPredBack("current_key", 2, 4, init_current_key, cont_current_key,
 		SyncPredFlag);
 }

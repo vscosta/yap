@@ -906,7 +906,7 @@ static void
 recompute_mask(DBRef dbr)
 {
   if (dbr->Flags & DBNoVars) {
-    dbr->Mask = Yap_EvalMasks((Term) dbr->Entry, &(dbr->Key));
+    dbr->Mask = Yap_EvalMasks((Term) dbr->DBT.Entry, &(dbr->Key));
   } else if (dbr->Flags & DBComplex) {
     /* This is quite nasty, we want to recalculate the mask but
        we don't want to rebuild the whole term. We'll just build whatever we
@@ -915,17 +915,17 @@ recompute_mask(DBRef dbr)
     CELL *x = (CELL *)HeapTop, *tp;
     unsigned int Arity, i;
     Term out;
-    char *tbase = CharP(dbr->Contents-1);
+    char *tbase = CharP(dbr->DBT.Contents-1);
 
-    if (IsPairTerm(dbr->Entry)) {
+    if (IsPairTerm(dbr->DBT.Entry)) {
 
       out = AbsPair(x);
       Arity = 2;
-      tp = (CELL *)(tbase + (CELL) RepPair(dbr->Entry));
+      tp = (CELL *)(tbase + (CELL) RepPair(dbr->DBT.Entry));
     } else {
       Functor f;
     
-      tp = (CELL *)(tbase + (CELL) RepAppl(dbr->Entry));
+      tp = (CELL *)(tbase + (CELL) RepAppl(dbr->DBT.Entry));
       f = (Functor)(*tp++);
       out = AbsAppl(x);
       Arity = ArityOfFunctor(f);
@@ -940,7 +940,7 @@ recompute_mask(DBRef dbr)
 	/* just fetch the functor from where it is in the data-base.
 	   This guarantees we have access to references and friends. */
 	CELL offset = (CELL)RepAppl(tw);
-	if (offset > dbr->NOfCells*sizeof(CELL))
+	if (offset > dbr->DBT.NOfCells*sizeof(CELL))
 	  *x = tw;
 	else
 	  *x = AbsAppl((CELL *)(tbase + offset));

@@ -10,7 +10,7 @@
 * File:		TermExt.h						 *
 * mods:									 *
 * comments:	Extensions to standard terms for YAP			 *
-* version:      $Id: TermExt.h.m4,v 1.9 2002-12-06 20:03:26 vsc Exp $	 *
+* version:      $Id: TermExt.h.m4,v 1.10 2003-08-27 13:37:10 vsc Exp $	 *
 *************************************************************************/
 
 #if USE_OFFSETS
@@ -196,6 +196,8 @@ Inline(IsPrimitiveTerm, Int, Term, t, (IsAtomOrIntTerm(t) || (IsApplTerm(t) && I
 Inline(IsAttachFunc, Int, Functor, f,  FALSE)
 
 Inline(IsAttachedTerm, Int, Term, t, (IsVarTerm(t) && VarOfTerm(t) < H0) )
+
+Inline(SafeIsAttachedTerm, Int, Term, t, (IsVarTerm(t) && VarOfTerm(t) < H0 && VarOfTerm(t) >= (CELL *)Yap_GlobalBase) )
 
 Inline(ExtFromCell, exts, CELL *, pt, pt[1])
 

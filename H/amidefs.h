@@ -391,6 +391,12 @@ typedef struct yami {
 	 CELL next;
        } xx;
        struct {
+	 CELL                  x;
+	 CELL                  x1;
+	 struct pred_entry    *p;
+	 CELL next;
+       } xxp;
+       struct {
 	 wamreg                x;
 	 wamreg                x1;
 	 wamreg                x2;

@@ -38,27 +38,48 @@ typedef union CONSULT_OBJ {
 #define PredMiddleClause	1
 #define PredLastClause		2
 
-typedef struct logic_upd_clause {
-  /* A set of flags describing info on the clause */
-  CELL            ClFlags;
+typedef struct logic_upd_index {
+  CELL             ClFlags;
+  UInt             ClRefCount;
 #if defined(YAPOR) || defined(THREADS)
   /* A lock for manipulating the clause */
   lockvar          ClLock;
-  UInt             ref_count;
 #endif
+  UInt             ClUse;
   union {
-    yamop          *ClVarChain;    /* indexing code for log. sem. */
+    PredEntry *pred;
+    struct logic_upd_index *ParentIndex;
   } u;
-  /* extra clause information for logical update indices and facts */
-  union {
-    /* extra clause information for logical update semantics, rules with envs */
-    yamop           *ClExt;
-    /* extra clause information for logical update indices and facts */
-    Int             ClUse;
-  } u2;
+  struct logic_upd_index *SiblingIndex;
+  struct logic_upd_index *ChildIndex;
   /* The instructions, at least one of the form sl */
   yamop            ClCode[MIN_ARRAY];
+} LogUpdIndex;
+
+typedef struct logic_upd_clause {
+  Functor Id;		/* allow pointers to this struct to id  */
+			/*   as dbref                           */
+  /* A set of flags describing info on the clause */
+  /* A set of flags describing info on the clause */
+  CELL             ClFlags;
+#if defined(YAPOR) || defined(THREADS)
+  /* A lock for manipulating the clause */
+  lockvar          ClLock;
+#endif
+  /* extra clause information for logical update indices and facts */
+  /* indices that may still backtrack to this clause */
+  UInt             ClRefCount;
+  /* data for clauses  with environments */
+  yamop           *ClExt;
+  DBTerm          *ClSource;
+  /* doubly linked list of clauses */
+  struct logic_upd_clause   *ClPrev, *ClNext;
+  /* parent pointer */
+  PredEntry   *ClPred;
+  /* file which defined the clause */
   Atom Owner;
+  /* The instructions, at least one of the form sl */
+  yamop            ClCode[MIN_ARRAY];
 } LogUpdClause;
 
 typedef struct dynamic_clause {
@@ -67,13 +88,22 @@ typedef struct dynamic_clause {
 #if defined(YAPOR) || defined(THREADS)
   /* A lock for manipulating the clause */
   lockvar          ClLock;
-  UInt             ref_count;
 #endif
+  UInt             ClRefCount;
   Atom Owner;
   yamop              *ClPrevious;     /* immediate update clause */
   /* The instructions, at least one of the form sl */
   yamop            ClCode[MIN_ARRAY];
 } DynamicClause;
+
+typedef struct static_index {
+  /* A set of flags describing info on the clause */
+  CELL            ClFlags;
+  struct static_index *SiblingIndex;
+  struct static_index *ChildIndex;
+  /* The instructions, at least one of the form sl */
+  yamop            ClCode[MIN_ARRAY];
+} StaticIndex;
 
 typedef struct static_clause {
   /* A set of flags describing info on the clause */
@@ -95,16 +125,20 @@ typedef struct dead_clause {
 
 typedef union clause_obj {
   struct logic_upd_clause luc;
+  struct logic_upd_index lui;
   struct dynamic_clause ic;
   struct static_clause sc;
+  struct static_index si;
 } ClauseUnion;
 
 #define ClauseCodeToDynamicClause(p)    ((DynamicClause *)((CODEADDR)(p)-(CELL)(((DynamicClause *)NULL)->ClCode)))
 #define ClauseCodeToStaticClause(p)    ((StaticClause *)((CODEADDR)(p)-(CELL)(((StaticClause *)NULL)->ClCode)))
 #define ClauseCodeToLogUpdClause(p)    ((LogUpdClause *)((CODEADDR)(p)-(CELL)(((LogUpdClause *)NULL)->ClCode)))
+#define ClauseCodeToLogUpdIndex(p)    ((LogUpdIndex *)((CODEADDR)(p)-(CELL)(((LogUpdIndex *)NULL)->ClCode)))
+#define ClauseCodeToStaticIndex(p)    ((StaticIndex *)((CODEADDR)(p)-(CELL)(((StaticIndex *)NULL)->ClCode)))
 
 #define ClauseFlagsToDynamicClause(p)    ((DynamicClause *)(p))
-#define ClauseFlagsToLogUpdClause(p)     ((LogUpdClause *)(p))
+#define ClauseFlagsToLogUpdClause(p)     ((LogUpdClause *)((CODEADDR)(p)-(CELL)(&(((LogUpdClause *)NULL)->ClFlags))))
 #define ClauseFlagsToStaticClause(p)     ((StaticClause *)(p))
 
 #define DynamicFlags(X)		(ClauseCodeToDynamicClause(X)->ClFlags)
@@ -112,27 +146,29 @@ typedef union clause_obj {
 #define DynamicLock(X)		(ClauseCodeToDynamicClause(X)->ClLock)
 
 #if defined(YAPOR) || defined(THREADS)
-#define INIT_CLREF_COUNT(X) (X)->ref_count = 0
-#define  INC_CLREF_COUNT(X) (X)->ref_count++
-#define  DEC_CLREF_COUNT(X) (X)->ref_count--
-#define        CL_IN_USE(X) ((X)->ref_count != 0)
+#define INIT_CLREF_COUNT(X) (X)->ClRefCount = 0
+#define  INC_CLREF_COUNT(X) (X)->ClRefCount++
+#define  DEC_CLREF_COUNT(X) (X)->ClRefCount--
+#define        CL_IN_USE(X) ((X)->ClRefCount != 0)
 #else
 #define INIT_CLREF_COUNT(X)
 #define  INC_CLREF_COUNT(X) 
 #define  DEC_CLREF_COUNT(X) 
-#define        CL_IN_USE(X) ((X)->ClFlags & InUseMask)
+#define        CL_IN_USE(X) ((X)->ClFlags & InUseMask || (X)->ClRefCount)
 #endif
 
 /* amasm.c */
 wamreg	STD_PROTO(Yap_emit_x,(CELL));
 wamreg  STD_PROTO(Yap_compile_cmp_flags,(PredEntry *));
 void    STD_PROTO(Yap_InitComma,(void));
-wamreg  STD_PROTO(Yap_regnotoreg,(UInt));
 
 /* cdmgr.c */
-void	STD_PROTO(Yap_RemoveLogUpdIndex,(LogUpdClause *));
+void	STD_PROTO(Yap_RemoveLogUpdIndex,(LogUpdIndex *));
 void	STD_PROTO(Yap_IPred,(PredEntry *));
 void	STD_PROTO(Yap_addclause,(Term,yamop *,int,int));
+void	STD_PROTO(Yap_add_logupd_clause,(PredEntry *,LogUpdClause *,int));
+void	STD_PROTO(Yap_kill_iblock,(ClauseUnion *,ClauseUnion *,PredEntry *));
+ClauseUnion *STD_PROTO(Yap_find_owner_index,(yamop *, PredEntry *));
 
 /* dbase.c */
 void	STD_PROTO(Yap_ErCl,(DynamicClause *));
@@ -143,6 +179,10 @@ Term    STD_PROTO(Yap_cp_as_integer,(choiceptr));
 
 /* index.c */
 yamop   *STD_PROTO(Yap_PredIsIndexable,(PredEntry *));
+yamop   *STD_PROTO(Yap_ExpandIndex,(PredEntry *));
+void     STD_PROTO(Yap_AddClauseToIndex,(PredEntry *,yamop *,int));
+void     STD_PROTO(Yap_RemoveClauseFromIndex,(PredEntry *,yamop *));
+LogUpdClause  *STD_PROTO(Yap_follow_lu_indexing_code,(PredEntry *,yamop *,Term,Term,Term, yamop *,yamop *));
 
 #if LOW_PROF
 /* profiling */
@@ -181,3 +221,4 @@ Yap_op_from_opcode(OPCODE opc)
   return((op_numbers)opc);
 }
 #endif /* USE_THREADED_CODE */
+

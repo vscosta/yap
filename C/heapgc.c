@@ -1560,9 +1560,7 @@ mark_choicepoints(register choiceptr gc_B, tr_fr_ptr saved_TR, int very_verbose)
 	}
       case _retry_c:
       case _retry_userc:
-	if (gc_B->cp_ap == RETRY_C_RECORDED_CODE 
-	    || gc_B->cp_ap == RETRY_C_RECORDED_K_CODE 
-	    || gc_B->cp_ap == RETRY_C_DRECORDED_CODE 
+	if (gc_B->cp_ap == RETRY_C_RECORDED_K_CODE 
 	    || gc_B->cp_ap == RETRY_C_RECORDEDP_CODE) {
 	  /* we have a reference from the choice-point stack to a term */
 	  choiceptr old_b = B;

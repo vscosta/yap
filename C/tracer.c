@@ -102,6 +102,8 @@ check_trail_consistency(void) {
 */
 
 
+ static int vsc_xstop = FALSE;
+
 void
 low_level_trace(yap_low_level_port port, PredEntry *pred, CELL *args)
 {
@@ -112,12 +114,24 @@ low_level_trace(yap_low_level_port port, PredEntry *pred, CELL *args)
 
   vsc_count++;
 #ifdef COMMENTED
-  if (vsc_count < 130000) return;
+  if (vsc_count < 5530257LL) {
+    return;
+  }
+  if (vsc_count == 41597LL) {
+    vsc_xstop = TRUE;
+  }
+  if (vsc_count < 3399741LL) {
+    return;
+  }
+  if (vsc_count == 51021) {
+    printf("Here I go\n");
+  }
+  if (vsc_count < 52000) return;
+  if (vsc_count > 52000) exit(0);
   return;
-  if (vsc_count == 133000LL) {
+  if (vsc_count == 837074) {
     printf("Here I go\n");
   } 
-  if (vsc_count > 500000) exit(0);
   if (gc_calls < 1) return;
 #endif
 #if defined(__GNUC__)
@@ -184,15 +198,17 @@ low_level_trace(yap_low_level_port port, PredEntry *pred, CELL *args)
     }
     break;
   case retry_pred:
+    send_tracer_message("FAIL ", NULL, 0, NULL, args);
     mname = RepAtom(AtomOfTerm(Yap_Module_Name((CODEADDR)pred)))->StrOfAE;
     arity = pred->ArityOfPE;
-    if (arity == 0)
+    if (pred->ModuleOfPred == 2) {
+      s = "recorded";
+      arity = 3;
+    } else if (arity == 0) {
       s = RepAtom((Atom)pred->FunctorOfPred)->StrOfAE;
-    else
+    } else {
       s = RepAtom(NameOfFunctor((pred->FunctorOfPred)))->StrOfAE;
-    /*    if ((pred->ModuleOfPred == 0) && (s[0] == '$'))
-	  return;      */
-    send_tracer_message("FAIL ", NULL, 0, NULL, args);
+    }
     send_tracer_message("RETRY: ", s, arity, mname, args);
     break;
   }

@@ -254,7 +254,7 @@ alarm(_, _, _) :-
 	recorded('$alarm_handler',_, Ref), erase(Ref), fail.
 alarm(Interval, Goal, Left) :-
 	'$current_module'(M),
-	'$recordz'('$alarm_handler',M:Goal,_),
+	recordz('$alarm_handler',M:Goal,_),
 	'$alarm'(Interval, Left).
 
 on_signal(Signal,OldAction,default) :-
@@ -264,7 +264,7 @@ on_signal(Signal,OldAction,Action) :-
 	recorded('$sig_handler', action(Signal,OldAction), Ref),
 	erase(Ref),
 	'$current_module'(M),
-	'$recordz'('$sig_handler', action(Signal,M:Action), _).
+	recordz('$sig_handler', action(Signal,M:Action), _).
 
 
 %%% Saving and restoring a computation
@@ -292,7 +292,7 @@ save_program(A, G) :- \+ callable(G), !,
 	'$do_error'(type_error(callable,G),save_program(A,G)).
 save_program(A, G) :-
 	( atom(A) -> name(A,S) ; A = S),
-	'$recorda'('$restore_goal',G,R),
+	recorda('$restore_goal',G,R),
 	'$save_program'(S),
 	erase(R),
 	fail.
@@ -303,18 +303,10 @@ restore(A) :- var(A), !,
 restore(A) :- atom(A), !, name(A,S), '$restore'(S).
 restore(S) :- '$restore'(S).
 
-%%% Data base predicates -> the interface to the external world
-
-recorda(Key,Term,Ref) :- '$recorda'(Key,Term,Ref).
-recordz(Key,Term,Ref) :- '$recordz'(Key,Term,Ref).
-
-recordaifnot(Key,Term,Ref) :- '$recordaifnot'(Key,Term,Ref).
-recordzifnot(Key,Term,Ref) :- '$recordzifnot'(Key,Term,Ref).
-
-%%% Atoms with value
-
-get_value(X,Y) :- '$get_value'(X,Y).
-set_value(X,Y) :- '$set_value'(X,Y).
+recordaifnot(K,T,R) :-
+	( recorded(K,T,R) -> fail ; recorda(K,T,R)).
+recordzifnot(K,T,R) :-
+	( recorded(K,T,R) -> fail ; recordz(K,T,R)).
 
 %%% current ....
 
@@ -489,7 +481,7 @@ unknown(V0,V) :-
 	'$valid_unknown_handler'(New,Mod), fail.
 % clean up previous unknown predicate handlers
 '$unknown'(Old,New,Mod) :-
-	'$recorded'('$unknown','$unknown'(_,MyOld),Ref), !,
+	recorded('$unknown','$unknown'(_,MyOld),Ref), !,
 	erase(Ref),
 	'$cleanup_unknown_handler'(MyOld,Old),
 	'$new_unknown'(New, Mod).
@@ -513,7 +505,7 @@ unknown(V0,V) :-
 	'$do_error'(domain_error(flag_value,unknown+S),yap_flag(unknown,S)).
 
 '$ask_unknown_flag'(Old) :-
-	'$recorded'('$unknown','$unkonwn'(_,MyOld),_), !,
+	recorded('$unknown','$unkonwn'(_,MyOld),_), !,
 	'$cleanup_unknwon_handler'(MyOld,Old).
 '$ask_unknown_flag'(fail).
 
@@ -523,12 +515,12 @@ unknown(V0,V) :-
 
 '$new_unknown'(fail,_) :- !.
 '$new_unknown'(error,_) :- !,
-	'$recorda'('$unknown','$unknown'(P,'$unknown_error'(P)),_).
+	recorda('$unknown','$unknown'(P,'$unknown_error'(P)),_).
 '$new_unknown'(warning,_) :- !,
-	'$recorda'('$unknown','$unknown'(P,'$unknown_warning'(P)),_).
+	recorda('$unknown','$unknown'(P,'$unknown_warning'(P)),_).
 '$new_unknown'(X,M) :-
 	arg(1,X,A),
-	'$recorda'('$unknown','$unknown'(A,M:X),_).
+	recorda('$unknown','$unknown'(A,M:X),_).
 
 '$unknown_error'(P) :-
 	'$do_error'(unknown,P).
@@ -693,7 +685,7 @@ prolog_initialization(T) :- callable(T), !,
 prolog_initialization(T) :-
 	'$do_error'(type_error(callable,T),initialization(T)).
 
-'$assert_init'(T) :- '$recordz'('$startup_goal',T,_), fail.
+'$assert_init'(T) :- recordz('$startup_goal',T,_), fail.
 '$assert_init'(_).
 
 version :- '$version'.
@@ -704,7 +696,7 @@ version(T) :- atom(T), !, '$assert_version'(T).
 version(T) :-
 	'$do_error'(type_error(atom,T),version(T)).
 
-'$assert_version'(T) :- '$recordz'('$version',T,_), fail.
+'$assert_version'(T) :- recordz('$version',T,_), fail.
 '$assert_version'(_).
 
 term_variables(Term, L) :-
@@ -729,11 +721,11 @@ user_defined_directive(Dir,Action) :-
 	'$current_module'(_, M).
 
 '$set_toplevel_hook'(_) :- 
-	'$recorded'('$toplevel_hooks',_,R),
+	recorded('$toplevel_hooks',_,R),
 	erase(R),
 	fail.
 '$set_toplevel_hook'(H) :- 
-	'$recorda'('$toplevel_hooks',H,_),
+	recorda('$toplevel_hooks',H,_),
 	fail.
 '$set_toplevel_hook'(_).
 

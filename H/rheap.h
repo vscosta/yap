@@ -53,6 +53,7 @@ restore_codes(void)
   INIT_YAMOP_LTT(&(heap_regs->tableanswerresolutioncode), 0);
 #endif /* YAPOR */
 #endif /* TABLING */
+  heap_regs->expand_op_code = Yap_opcode(_expand_index);
   heap_regs->failcode->opc = Yap_opcode(_op_fail);
   heap_regs->failcode_1 = Yap_opcode(_op_fail);
   heap_regs->failcode_2 = Yap_opcode(_op_fail);
@@ -131,12 +132,8 @@ restore_codes(void)
     heap_regs->dead_clauses = (DeadClause *)
       AddrAdjust((ADDR)(heap_regs->dead_clauses));
   }
-  heap_regs->retry_recorded_code = 
-    PtoOpAdjust(heap_regs->retry_recorded_code);
   heap_regs->retry_recorded_k_code =
     PtoOpAdjust(heap_regs->retry_recorded_k_code);
-  heap_regs->retry_drecorded_code =
-    PtoOpAdjust(heap_regs->retry_drecorded_code);
   heap_regs->retry_c_recordedp_code =
     PtoOpAdjust(heap_regs->retry_c_recordedp_code);
   if (heap_regs->IntKeys != NULL) {
@@ -308,6 +305,10 @@ restore_codes(void)
     (PredEntry *)AddrAdjust((ADDR)heap_regs->pred_meta_call);
   heap_regs->pred_dollar_catch =
     (PredEntry *)AddrAdjust((ADDR)heap_regs->pred_dollar_catch);
+  heap_regs->pred_recorded_with_key =
+    (PredEntry *)AddrAdjust((ADDR)heap_regs->pred_recorded_with_key);
+  heap_regs->pred_log_upd_clause =
+    (PredEntry *)AddrAdjust((ADDR)heap_regs->pred_log_upd_clause);
   heap_regs->pred_throw =
     (PredEntry *)AddrAdjust((ADDR)heap_regs->pred_throw);
   heap_regs->pred_handle_throw =
@@ -441,6 +442,26 @@ AdjustDBTerm(Term trm)
 }
 
 static void
+RestoreDBTerm(DBTerm *dbr)
+{
+#ifdef COROUTINING
+  if (dbr->attachments)
+    dbr->attachments = AdjustDBTerm(dbr->attachments);
+#endif
+  if (dbr->DBRefs !=  NULL)
+    dbr->DBRefs = DBRefPAdjust(dbr->DBRefs);
+  if (IsAtomTerm(dbr->Entry)) {
+    dbr->Entry = AtomTermAdjust(dbr->Entry);
+    return;
+  }
+  if (IsApplTerm(dbr->Entry)) {
+      ConvDBStruct(dbr->Entry, CharP(dbr->Contents-1), dbr->NOfCells*sizeof(CELL));
+  } else if (IsPairTerm(dbr->Entry)) {
+    ConvDBList(dbr->Entry, CharP(dbr->Contents-1), dbr->NOfCells*sizeof(CELL));
+  }
+}
+
+static void
 RestoreDBEntry(DBRef dbr)
 {
 #ifdef DEBUG_RESTORE
@@ -457,27 +478,31 @@ RestoreDBEntry(DBRef dbr)
     YP_fprintf(errout, " a var\n");
 #endif
   dbr->Parent = (DBProp)AddrAdjust((ADDR)(dbr->Parent));
+#ifdef COROUTINING
+  if (dbr->DBT.attachments)
+    dbr->DBT.attachments = AdjustDBTerm(dbr->DBT.attachments);
+#endif
   if (dbr->Code != NULL)
     dbr->Code = PtoOpAdjust(dbr->Code);
   if (dbr->Flags & DBWithRefs) {
     DBRef          *cp;
     DBRef            tm;
 
-    dbr->DBRefs = DBRefPAdjust(dbr->DBRefs);
-    cp = dbr->DBRefs;
+    dbr->DBT.DBRefs = DBRefPAdjust(dbr->DBT.DBRefs);
+    cp = dbr->DBT.DBRefs;
     while ((tm = *--cp) != 0)
       *cp = DBRefAdjust(tm);
   }
   if (dbr->Flags & DBAtomic) {
-    if (IsAtomTerm(dbr->Entry))
-      dbr->Entry = AtomTermAdjust(dbr->Entry);
+    if (IsAtomTerm(dbr->DBT.Entry))
+      dbr->DBT.Entry = AtomTermAdjust(dbr->DBT.Entry);
   } else if (dbr->Flags & DBNoVars)
-    dbr->Entry = (CELL) AdjustDBTerm((Term) dbr->Entry);
+    dbr->DBT.Entry = (CELL) AdjustDBTerm((Term) dbr->DBT.Entry);
   else if (dbr->Flags & DBComplex) {
-    if (IsApplTerm((Term) dbr->Entry))
-      ConvDBStruct((Term) dbr->Entry, CharP(dbr->Contents-1), dbr->NOfCells*sizeof(CELL));
+    if (IsApplTerm(dbr->DBT.Entry))
+      ConvDBStruct(dbr->DBT.Entry, CharP(dbr->DBT.Contents-1), dbr->DBT.NOfCells*sizeof(CELL));
     else
-      ConvDBList((Term) dbr->Entry, CharP(dbr->Contents-1), dbr->NOfCells*sizeof(CELL));
+      ConvDBList(dbr->DBT.Entry, CharP(dbr->DBT.Contents-1), dbr->DBT.NOfCells*sizeof(CELL));
   }
   if (dbr->Prev != NULL)
     dbr->Prev = DBRefAdjust(dbr->Prev);
@@ -534,24 +559,11 @@ static void
 RestoreBB(BlackBoardEntry *pp)
 {
   if (pp->Element) {
-    register DBRef  dbr;
+    register DBTerm  *dbr;
 
-    pp->Element = DBRefAdjust(pp->Element);
-#ifdef DEBUG_RESTORE
-    YP_fprintf(errout, "Restoring at %x", dbr);
-    if (dbr->Flags & DBAtomic)
-      YP_fprintf(errout, " an atomic term\n");
-    else if (dbr->Flags & DBNoVars)
-      YP_fprintf(errout, " with no vars\n");
-    else if (dbr->Flags & DBComplex)
-      YP_fprintf(errout, " complex term\n");
-    else if (dbr->Flags & DBIsRef)
-      YP_fprintf(errout, " a ref\n");
-    else
-      YP_fprintf(errout, " a var\n");
-#endif
+    pp->Element = (DBTerm *)AdjustDBTerm((Term)pp->Element);
     dbr = pp->Element;
-    RestoreDBEntry(dbr);
+    RestoreDBTerm(dbr);
   }
   pp->KeyOfBB = AtomAdjust(pp->KeyOfBB);
 }
@@ -575,7 +587,7 @@ RestoreClause(yamop *pc, PredEntry *pp, int mode)
       LogUpdClause *cl = ClauseCodeToLogUpdClause(pc);
       
       if (cl->ClFlags & LogUpdRuleMask) {
-	cl->u2.ClExt = PtoOpAdjust(cl->u2.ClExt);
+	cl->ClExt = PtoOpAdjust(cl->ClExt);
       }
       cl->Owner = AtomAdjust(cl->Owner);
     } else {
@@ -668,6 +680,8 @@ RestoreClause(yamop *pc, PredEntry *pp, int mode)
       pc = NEXTOP(pc,EC);
       break;
       /* instructions type e */
+    case _unify_idb_term:
+    case _copy_idb_term:
     case _trust_fail:
     case _op_fail:
     case _cut:
@@ -684,6 +698,7 @@ RestoreClause(yamop *pc, PredEntry *pp, int mode)
 #endif
     case _pop:
     case _index_pred:
+    case _expand_index:
     case _undef_p:
     case _spy_pred:
     case _p_equal:
@@ -693,6 +708,8 @@ RestoreClause(yamop *pc, PredEntry *pp, int mode)
     case _p_execute_tail:
     case _enter_a_profiling:
     case _count_a_call:
+    case _index_dbref:
+    case _index_blob:
 #ifdef YAPOR
     case _getwork_first_time:
 #endif
@@ -762,7 +779,11 @@ RestoreClause(yamop *pc, PredEntry *pp, int mode)
       pc->u.y.y = YAdjust(pc->u.y.y);
       pc = NEXTOP(pc,y);
       break;
-      /* instructions type sla */
+    case _check_var_for_index:
+      pc->u.xxp.p = PtoPredAdjust(pc->u.xxp.p);
+      pc = NEXTOP(pc,xxp);
+      break;
+      /* instructions type sla */      
     case _p_execute:
       goto sla_full;
     case _fcall:
@@ -1070,8 +1091,8 @@ RestoreClause(yamop *pc, PredEntry *pp, int mode)
 	int             i, j;
 	CELL            *oldcode, *startcode;
 
-	i = pc->u.s.s;
-	startcode = oldcode = (CELL *)NEXTOP(pc,s);
+	i = pc->u.sl.s;
+	startcode = oldcode = (CELL *)(pc->u.sl.l = PtoOpAdjust(pc->u.sl.l));
 	for (j = 0; j < i; j++) {
 	  Functor oldfunc = (Functor)(oldcode[0]);
 	  CODEADDR oldjmp = (CODEADDR)(oldcode[1]);
@@ -1094,21 +1115,17 @@ RestoreClause(yamop *pc, PredEntry *pp, int mode)
 	CELL            *startcode;
 #endif
 
-	i = pc->u.s.s;
+	i = pc->u.sl.s;
 #if !USE_OFFSETS
 	startcode =
 #endif
-	  oldcode = (CELL *)NEXTOP(pc,s);
+	  oldcode = (CELL *)(pc->u.sl.l = PtoOpAdjust(pc->u.sl.l));
 	for (j = 0; j < i; j++) {
-#if !USE_OFFSETS
-	  Term oldatom = oldcode[0];
-#endif
+	  Term oldcons = oldcode[0];
 	  CODEADDR oldjmp = (CODEADDR)(oldcode[1]);
-#if !USE_OFFSETS
-	  if (oldatom != 0x0) {
-	    oldcode[0] = AtomTermAdjust(oldatom);
+	  if (oldcons != 0x0 && IsAtomTerm(oldcons)) {
+	    oldcode[0] = AtomTermAdjust(oldcons);
 	  }
-#endif
 	  oldcode[1] = (CELL)CodeAddrAdjust(oldjmp);
 	  oldcode += 2;
 	}
@@ -1118,65 +1135,66 @@ RestoreClause(yamop *pc, PredEntry *pp, int mode)
 	pc = (yamop *)oldcode;
       }
       break;
-      /* instructions type fll */
     case _go_on_func:
-      pc->u.fll.f = FuncAdjust(pc->u.fll.f);
-      pc->u.fll.l1 = CodeAddrAdjust(pc->u.fll.l1);
-      pc->u.fll.l2 = CodeAddrAdjust(pc->u.fll.l2);
-      pc = NEXTOP(pc,fll);
+      {
+	CELL *oldcode = (CELL *)(pc->u.sl.l = PtoOpAdjust(pc->u.sl.l));
+	Functor oldfunc = (Functor)(oldcode[0]);
+
+	oldcode[0] = (CELL)FuncAdjust(oldfunc);
+	oldcode[1] = (CELL)CodeAddrAdjust((CODEADDR)oldcode[1]);
+	oldcode[3] = (CELL)CodeAddrAdjust((CODEADDR)oldcode[3]);
+      }
+      pc = NEXTOP(pc,sl);
       break;
-      /* instructions type cll */
     case _go_on_cons:
-      if (IsAtomTerm(pc->u.cll.c))
-	pc->u.cll.c = AtomTermAdjust(pc->u.cll.c);
-      pc->u.cll.l1 = PtoOpAdjust(pc->u.cll.l1);
-      pc->u.cll.l2 = PtoOpAdjust(pc->u.cll.l2);
-      pc = NEXTOP(pc,cll);
+      {
+	CELL *oldcode = (CELL *)(pc->u.sl.l = PtoOpAdjust(pc->u.sl.l));
+	Term oldcons = oldcode[0];
+
+	if (IsAtomTerm(oldcons)) {
+	  oldcode[0] = AtomTermAdjust(oldcons);
+	}
+	oldcode[1] = (CELL)CodeAddrAdjust((CODEADDR)oldcode[1]);
+	oldcode[3] = (CELL)CodeAddrAdjust((CODEADDR)oldcode[3]);
+      }
+      pc = NEXTOP(pc,sl);
       break;
-      /* instructions type sl */
     case _if_func:
       {
-	int             i, j;
-	CELL            *oldcode;
+	CELL *oldcode = (CELL *)(pc->u.sl.l = PtoOpAdjust(pc->u.sl.l));
+	Int j;
 
-	i = pc->u.s.s;
-	pc->u.sl.l = PtoOpAdjust(pc->u.sl.l);
-	oldcode = (CELL *)NEXTOP(pc,sl);
-	for (j = 0; j < i; ++j) {
+	for (j = 0; j < pc->u.sl.s; j++) {
 	  Functor oldfunc = (Functor)(oldcode[0]);
 	  CODEADDR oldjmp = (CODEADDR)(oldcode[1]);
-	  if (oldfunc != NULL) {
-	    oldcode[0] = (CELL)FuncAdjust(oldfunc);
-	  }
+	  oldcode[0] = (CELL)FuncAdjust(oldfunc);
 	  oldcode[1] = (CELL)CodeAddrAdjust(oldjmp);
 	  oldcode += 2;
-	  pc = (yamop *)oldcode;
 	}
+	/* adjust fail code */
+	oldcode[1] = (CELL)CodeAddrAdjust((CODEADDR)oldcode[1]);
       }
+      pc = NEXTOP(pc,sl);
       break;
+      /* instructions type cll */
     case _if_cons:
       {
-	int             i, j;
-	CELL            *oldcode;
+	CELL *oldcode = (CELL *)(pc->u.sl.l = PtoOpAdjust(pc->u.sl.l));
+	Int j;
 
-	i = pc->u.sl.s;
-	pc->u.sl.l = PtoOpAdjust(pc->u.sl.l);
-	oldcode = (CELL *)NEXTOP(pc,sl);
-	for (j = 0; j < i; ++j) {
-#if !USE_OFFSETS
-	  Term oldatom = oldcode[0];
-#endif
+	for (j = 0; j < pc->u.sl.s; j++) {
+	  Term oldcons = oldcode[0];
 	  CODEADDR oldjmp = (CODEADDR)(oldcode[1]);
-#if !USE_OFFSETS
-	  if (oldatom != 0x0) {
-	    oldcode[0] = AtomTermAdjust(oldatom);
+	  if (IsAtomTerm(oldcons)) {
+	    oldcode[0] = (CELL)AtomTermAdjust(oldcons);
 	  }
-#endif
 	  oldcode[1] = (CELL)CodeAddrAdjust(oldjmp);
 	  oldcode += 2;
 	}
-	pc = (yamop *)oldcode;
+	/* adjust fail code */
+	oldcode[1] = (CELL)CodeAddrAdjust((CODEADDR)oldcode[1]);
       }
+      pc = NEXTOP(pc,sl);
       break;
       /* instructions type xxx */
     case _p_plus_vv:
@@ -1318,12 +1336,22 @@ RestoreClause(yamop *pc, PredEntry *pp, int mode)
 static void 
 CleanClauses(yamop *First, yamop *Last, PredEntry *pp)
 {
-  yamop *cl = First;
-  do {
-    RestoreClause(cl, pp, ASSEMBLING_CLAUSE);
-    if (cl == Last) return;
-    cl = NextClause(cl);
-  } while (TRUE);
+  if (pp->PredFlags & LogUpdatePredFlag) {
+    LogUpdClause *cl = ClauseCodeToLogUpdClause(First);
+
+    while (cl != NULL) {
+      RestoreClause(cl->ClCode, pp, ASSEMBLING_CLAUSE);
+      cl = cl->ClNext;
+    }
+  } else {
+    yamop *cl = First;
+
+    do {
+      RestoreClause(cl, pp, ASSEMBLING_CLAUSE);
+      if (cl == Last) return;
+      cl = NextClause(cl);
+    } while (TRUE);
+  }
 }
 
 
@@ -1402,18 +1430,18 @@ restore_static_array(StaticArrayEntry *ae)
   return;
   case array_of_terms:
     {
-      DBRef *base = (DBRef *)AddrAdjust((ADDR)(ae->ValueOfVE.terms));
+      DBTerm **base = (DBTerm **)AddrAdjust((ADDR)(ae->ValueOfVE.terms));
       Int i;
 
       ae->ValueOfVE.terms = base;
       if (ae != 0L) {
 	for (i=0; i<sz; i++) {
-	  DBRef reg = *base;
+	  DBTerm *reg = *base;
 	  if (reg == NULL) {
 	    base++;
 	  } else {
-	    *base++ = reg = DBRefAdjust(reg);
-	    RestoreDBEntry(reg);
+	    *base++ = reg = (DBTerm *)AdjustDBTerm((Term)reg);
+	    RestoreDBTerm(reg);
 	  }
 	}
       }
@@ -1437,8 +1465,10 @@ CleanCode(PredEntry *pp)
     pp->FunctorOfPred = FuncAdjust(pp->FunctorOfPred);
   else
     pp->FunctorOfPred = (Functor)AtomAdjust((Atom)(pp->FunctorOfPred));
-  if (pp->OwnerFile)
-    pp->OwnerFile = AtomAdjust(pp->OwnerFile);
+  if (pp->ModuleOfPred != 2) {
+    if (pp->src.OwnerFile && pp->ModuleOfPred != 2)
+      pp->src.OwnerFile = AtomAdjust(pp->src.OwnerFile);
+  }
   pp->OpcodeOfPred = Yap_opcode(Yap_op_from_opcode(pp->OpcodeOfPred));
   if (pp->PredFlags & (AsmPredFlag|CPredFlag)) {
     /* assembly */
@@ -1455,6 +1485,7 @@ CleanCode(PredEntry *pp)
       pp->cs.p_code.LastClause = PtoOpAdjust(pp->cs.p_code.LastClause);
     pp->CodeOfPred =PtoOpAdjust(pp->CodeOfPred);
     pp->cs.p_code.TrueCodeOfPred = PtoOpAdjust(pp->cs.p_code.TrueCodeOfPred);
+    pp->cs.p_code.ExpandCode = Yap_opcode(_expand_index);
     if (pp->NextPredOfModule)
       pp->NextPredOfModule = PtoPredAdjust(pp->NextPredOfModule);
     flag = pp->PredFlags;

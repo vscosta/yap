@@ -170,6 +170,8 @@ typedef enum {
   MetaPredFlag =     0x200000L,	/* predicate subject to a meta declaration */
   SyncPredFlag =     0x100000L,	/* has to synch before it can execute*/
   UserCPredFlag =    0x080000L,	/* CPred defined by the user	*/
+  NumberDBPredFlag = 0x080000L,	/* entry for a number key */
+  AtomDBPredFlag   = 0x040000L,	/* entry for an atom key */
   MultiFileFlag =    0x040000L,	/* is multi-file		*/
   FastPredFlag =     0x020000L,	/* is "compiled"		*/
   TestPredFlag =     0x010000L,	/* is a test (optim. comit)	*/
@@ -215,13 +217,18 @@ typedef	struct pred_entry {
       struct yami   *TrueCodeOfPred;	/* code address		    		*/
       struct yami   *FirstClause;
       struct yami   *LastClause;
-      UInt 	      NOfClauses;
+      UInt 	     NOfClauses;
+      OPCODE 	     ExpandCode;
     } p_code;
     CPredicate    f_code;
     CmpPredicate  d_code;
   } cs;	/* if needing to spy or to lock 	*/
   Functor       FunctorOfPred;	/* functor for Predicate        	*/
-  Atom	        OwnerFile;	/* File where the predicate was defined */
+  union {
+    Atom	        OwnerFile;	/* File where the predicate was defined */
+    Int                 IndxId;         /* Index for a certain key */
+    struct mfile       *file_srcs;      /* for multifile predicates */
+  } src;
   struct pred_entry *NextPredOfModule; /* next pred for same module   */
 #if defined(YAPOR) || defined(THREADS)
   rwlock_t      PRWLock;        /* a simple lock to protect this entry */
@@ -247,7 +254,9 @@ Inline(IsPredProperty, PropFlags, int, flags, (flags == PEProp) )
 /* Flags for code or dbase entry */
 /* There are several flags for code and data base entries */
 typedef enum {
-  HasBlobsMask  = 0x20000, /* informs this has blobs whihc may be in use */
+  SwitchRootMask= 0x80000, /* informs this is the root for the index tree */
+  SwitchTableMask=0x40000, /* informs this is a switch table */
+  HasBlobsMask  = 0x20000, /* informs this has blobs which may be in use */
   GcFoundMask   = 0x10000, /* informs this is a dynamic predicate */
   DynamicMask   =  0x8000, /* informs this is a dynamic predicate */
   InUseMask     =  0x4000, /* informs this block is being used */
@@ -262,6 +271,16 @@ typedef enum {
 
 /* *********************** DBrefs **************************************/
 
+typedef struct DB_TERM {
+#ifdef COROUTINING
+  CELL    attachments;   /* attached terms */   
+#endif
+  struct DB_STRUCT **DBRefs; /* pointer to other references 	*/
+  CELL NOfCells;	/* Size of Term				*/
+  CELL Entry;		/* entry point 				*/
+  Term Contents[MIN_ARRAY]; /* stored term	       		*/
+} DBTerm;
+
 typedef struct DB_STRUCT {
   Functor id;		/* allow pointers to this struct to id  */
 			/*   as dbref                           */
@@ -269,7 +288,6 @@ typedef struct DB_STRUCT {
   CELL NOfRefsTo;	/* Number of references pointing here	*/
   struct struct_dbentry  *Parent;	/* key of DBase reference		*/
   struct yami *Code;	/* pointer to code if this is a clause 	*/
-  struct DB_STRUCT **DBRefs; /* pointer to other references 	*/
   struct DB_STRUCT *Prev; /* Previous element in chain            */
   struct DB_STRUCT *Next; /* Next element in chain                */
 #if defined(YAPOR) || defined(THREADS)
@@ -278,18 +296,13 @@ typedef struct DB_STRUCT {
 #endif
   struct DB_STRUCT *p, *n; /* entry's age, negative if from recorda,
 			     positive if it was recordz  */
-#ifdef COROUTINING
-  CELL    attachments;   /* attached terms */   
-#endif
   CELL Mask;		/* parts that should be cleared		*/
   CELL Key;		/* A mask that can be used to check before
 			   you unify */
-  CELL NOfCells;	/* Size of Term				*/
-  CELL Entry;		/* entry point 				*/
-  Term Contents[MIN_ARRAY]; /* stored term	       		*/
+  DBTerm DBT;
 } DBStruct;
 
-#define DBStructFlagsToDBStruct(X) ((DBRef)((char *)(X) - (CELL) &(((DBRef) NIL)->Flags)))
+#define DBStructFlagsToDBStruct(X) ((DBRef)((char *)(X) - (CELL) &(((DBRef) NULL)->Flags)))
 
 #if defined(YAPOR) || defined(THREADS)
 #define INIT_DBREF_COUNT(X) (X)->ref_count = 0
@@ -377,7 +390,7 @@ typedef	struct {
   Prop	NextOfPE;	     /* used to chain properties		*/
   PropFlags	KindOfPE;    /* kind of property			*/
   Atom	KeyOfBB;	     /* functor for this property		*/
-  DBRef	Element;	     /* blackboard element			*/
+  DBTerm *Element;	     /* blackboard element			*/
 #if defined(YAPOR) || defined(THREADS)
   rwlock_t BBRWLock;            /* a read-write lock to protect the entry */
 #endif
@@ -433,7 +446,7 @@ typedef union  {
   AtomEntry **ptrs;
   Term   *atoms;
   Term  *dbrefs;
-  DBRef   *terms;
+  DBTerm   **terms;
 } statarray_elements;
 
 /* next, the actual data structure */
@@ -473,9 +486,9 @@ int		STD_PROTO(Yap_RemoveIndexation,(PredEntry *));
 
 /* dbase.c */
 void		STD_PROTO(Yap_ErDBE,(DBRef));
-DBRef		STD_PROTO(Yap_StoreTermInDB,(int,int));
-Term		STD_PROTO(Yap_FetchTermFromDB,(DBRef,int));
-void		STD_PROTO(Yap_ReleaseTermFromDB,(DBRef));
+DBTerm	       *STD_PROTO(Yap_StoreTermInDB,(Term,int));
+Term		STD_PROTO(Yap_FetchTermFromDB,(DBTerm *,int));
+void		STD_PROTO(Yap_ReleaseTermFromDB,(DBTerm *));
 
 /* init.c */
 Atom		STD_PROTO(Yap_GetOp,(OpEntry *,int *,int));
@@ -532,3 +545,11 @@ void    STD_PROTO(Yap_ReleasePreAllocCodeSpace, (ADDR));
 #else
 #define Yap_ReleasePreAllocCodeSpace(x) 
 #endif
+
+typedef enum {
+  PROLOG_MODULE = 0,
+  USER_MODULE = 1,
+  IDB_MODULE = 2
+} default_modules;
+
+

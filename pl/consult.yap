@@ -33,7 +33,7 @@ ensure_loaded(V) :-
 	'$find_in_path'(X,Y,ensure_loaded(X)),
 	'$open'(Y, '$csult', Stream, 0), !,
 	( '$loaded'(Stream,TFN) ->
-	    (  	'$recorded'('$module','$module'(TFN,M,P),_) ->
+	    (  	recorded('$module','$module'(TFN,M,P),_) ->
 		'$current_module'(T), '$import'(P,M,T)
 		;
 		true
@@ -99,22 +99,22 @@ reconsult(Fs) :-
 	fail.
 '$reconsult'(F,Stream) :-
 	'$getcwd'(OldD),
-	'$get_value'('$consulting_file',OldF),
+	get_value('$consulting_file',OldF),
 	'$set_consulting_file'(Stream),
 	H0 is heapused, '$cputime'(T0,_),
 	current_stream(File,_,Stream),
-	'$get_value'('$consulting',Old),
-	'$set_value'('$consulting',false),
+	get_value('$consulting',Old),
+	set_value('$consulting',false),
 	'$current_module'(OldModule),
 	'$start_reconsulting'(F),
 	'$start_consult'(reconsult,File,LC),
-	'$recorda'('$initialisation','$',_),
+	recorda('$initialisation','$',_),
 	'$print_message'(informational, loading(reconsulting, File)),
 	'$loop'(Stream,reconsult),
 	'$end_consult',
 	'$clear_reconsulting',
-	'$set_value'('$consulting',Old),
-	'$set_value'('$consulting_file',OldF),
+	set_value('$consulting',Old),
+	set_value('$consulting_file',OldF),
 	'$cd'(OldD),
 	'$exec_initialisation_goals',
 	'$current_module'(Mod,OldModule),
@@ -124,8 +124,8 @@ reconsult(Fs) :-
 	!.
 
 '$start_reconsulting'(F) :-
-	'$recorda'('$reconsulted','$',_),
-	'$recorda'('$reconsulting',F,_).
+	recorda('$reconsulted','$',_),
+	recorda('$reconsulting',F,_).
 
 'EMACS_FILE'(F,File0) :-
 	'$format'('''EMACS_RECONSULT''(~w).~n',[File0]),
@@ -133,21 +133,21 @@ reconsult(Fs) :-
 	'$open'(F,'$csult',Stream,0),
 	'$find_in_path'(File0,File,emacs(F)),
 	'$open'(File,'$csult',Stream0,0),
-	'$get_value'('$consulting_file',OldF),
+	get_value('$consulting_file',OldF),
 	'$set_consulting_file'(Stream0),
 	H0 is heapused, '$cputime'(T0,_),
-	'$get_value'('$consulting',Old),
-	'$set_value'('$consulting',false),
+	get_value('$consulting',Old),
+	set_value('$consulting',false),
 	'$start_reconsulting'(File),
 	'$start_consult'(reconsult,File,LC),
 	'$current_module'(OldModule),
-	'$recorda'('$initialisation','$',_),
+	recorda('$initialisation','$',_),
 	'$print_message'(informational, loading(reconsulting, File)),
 	'$loop'(Stream,reconsult),
 	'$end_consult',
 	'$clear_reconsulting',
-	'$set_value'('$consulting',Old),
-	'$set_value'('$consulting_file',OldF),
+	set_value('$consulting',Old),
+	set_value('$consulting_file',OldF),
 	'$cd'(OldD),
 	'$exec_initialisation_goals',
 	'$current_module'(Mod,OldModule),
@@ -165,7 +165,7 @@ reconsult(Fs) :-
 '$initialization'(C) :- db_reference(C), !,
 	'$do_error'(type_error(callable,C),initialization(C)).
 '$initialization'(G) :-
-	'$recorda'('$initialisation',G,_),
+	recorda('$initialisation',G,_),
 	fail.
 '$initialization'(_).
 
@@ -184,13 +184,13 @@ reconsult(Fs) :-
 	;
 		'$do_error'(permission_error(input,stream,Y),include(X))
 	),
-	'$set_value'('$included_file',OY).
+	set_value('$included_file',OY).
 
 '$do_startup_reconsult'(X) :-
 	( '$access_yap_flags'(15, 0) ->
 	  true
 	;
-	  '$set_value'('$verbose',off)
+	  set_value('$verbose',off)
 	),
 	( '$find_in_path'(X,Y,reconsult(X)),
 	  '$open'(Y,'$csult',Stream,0) ->
@@ -209,9 +209,9 @@ reconsult(Fs) :-
 
 
 prolog_load_context(_, _) :-
-	'$get_value'('$consulting_file',[]), !, fail.
+	get_value('$consulting_file',[]), !, fail.
 prolog_load_context(directory, DirName) :- 
-	'$get_value'('$consulting_file',FileName),
+	get_value('$consulting_file',FileName),
 	(FileName = user_input ->
 	  '$getcwd'(S),
 	  atom_codes(DirName,S)
@@ -221,16 +221,16 @@ prolog_load_context(directory, DirName) :-
 	  atom_codes(DirName,Dir)
 	).
 prolog_load_context(file, FileName) :- 
-	'$get_value'('$included_file',IncFileName),
+	get_value('$included_file',IncFileName),
 	( IncFileName = [] ->
-	  '$get_value'('$consulting_file',FileName)
+	  get_value('$consulting_file',FileName)
         ;
            FileName = IncFileName
         ).
 prolog_load_context(module, X) :-
 	'$current_module'(X).
 prolog_load_context(source, FileName) :-
-	'$get_value'('$consulting_file',FileName).
+	get_value('$consulting_file',FileName).
 prolog_load_context(stream, Stream) :- 
 	'$fetch_stream_alias'('$loop_stream', Stream).
 prolog_load_context(term_position, Position) :- 
@@ -240,7 +240,7 @@ prolog_load_context(term_position, Position) :-
 
 '$loaded'(Stream,F1) :-
 	'$file_name'(Stream,F),			%
-	'$recorded'('$loaded','$loaded'(F1,Age),R),
+	recorded('$loaded','$loaded'(F1,Age),R),
 	'$same_file'(F1,F), !,
         '$file_age'(F,CurrentAge),
          ((CurrentAge = Age ; Age = -1)  -> true; erase(R), fail).
@@ -250,7 +250,7 @@ prolog_load_context(term_position, Position) :-
 
 path(Path) :- findall(X,'$in_path'(X),Path).
 
-'$in_path'(X) :- '$recorded'('$path',Path,_),
+'$in_path'(X) :- recorded('$path',Path,_),
 		atom_codes(Path,S),
 		( S = ""  -> X = '.' ;
 		  atom_codes(X,S) ).
@@ -263,12 +263,12 @@ add_to_path(New,Pos) :-
 	atom_codes(Path,Str),
 	'$add_to_path'(Path,Pos).
 
-'$add_to_path'(New,_) :- '$recorded'('$path',New,R), erase(R), fail.
+'$add_to_path'(New,_) :- recorded('$path',New,R), erase(R), fail.
 '$add_to_path'(New,last) :- !, '$recordz'('$path',New,_).
-'$add_to_path'(New,first) :- '$recorda'('$path',New,_).
+'$add_to_path'(New,first) :- recorda('$path',New,_).
 
 remove_from_path(New) :- '$check_path'(New,Path),
-			'$recorded'('$path',Path,R), erase(R).
+			recorded('$path',Path,R), erase(R).
 
 '$check_path'(At,SAt) :- atom(At), !, atom_codes(At,S), '$check_path'(S,SAt).
 '$check_path'([],[]).

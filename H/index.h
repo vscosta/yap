@@ -43,7 +43,11 @@ typedef struct StructClauseDef {
   Term Tag;		/* if nonvar or nonlist, first argument */
   yamop *Code;		/* start of code for clause */
   yamop *CurrentCode;		/* start of code for clause */
-  yamop *WorkPC;		/* start of code for clause */
+  union {
+    yamop *WorkPC;		/* start of code for clause */
+    CELL  *c_sreg;
+    Term   t_ptr;
+  } u;
 } ClauseDef;
 
 
@@ -81,4 +85,32 @@ typedef struct {
 } TypeSwitch;
 
 #define MAX_REG_COPIES 32
+
+typedef struct {
+  Int pos;
+  Term val;
+} istack_entry;
+
+typedef enum {
+  pc_entry,
+  block_entry
+} add2index_entries;
+
+
+typedef struct {
+  add2index_entries flag;
+  union {
+    struct {
+      yamop**pi_pc;
+      yamop *code, *current_code, *work_pc;
+      Term tag;
+    } pce;
+    struct {
+      ClauseUnion *block;
+      yamop **entry_code;
+    } cle;
+  } u;
+} path_stack_entry;
+
+#define MAX_ISTACK_DEPTH 32
 

@@ -709,6 +709,7 @@ InitCodes(void)
   INIT_YAMOP_LTT(&(heap_regs->tableanswerresolutioncode), 0);
 #endif /* YAPOR */
 #endif /* TABLING */
+  heap_regs->expand_op_code = Yap_opcode(_expand_index);
   heap_regs->failcode->opc = Yap_opcode(_op_fail);
   heap_regs->failcode_1 = Yap_opcode(_op_fail);
   heap_regs->failcode_2 = Yap_opcode(_op_fail);
@@ -763,7 +764,7 @@ InitCodes(void)
   heap_regs->system_profiling = FALSE;
   heap_regs->system_call_counting = FALSE;
   heap_regs->system_pred_goal_expansion_on = FALSE;
-  heap_regs->update_mode = 0;
+  heap_regs->update_mode = UPDATE_MODE_LOGICAL;
   heap_regs->consultbase = heap_regs->consultsp =
     heap_regs->consultlow + heap_regs->consultcapacity;
   heap_regs->compiler_compile_mode = 1;
@@ -961,6 +962,10 @@ InitCodes(void)
     RepPredProp(PredPropByAtom(heap_regs->atom_true,0));
   heap_regs->pred_meta_call = RepPredProp(PredPropByFunc(Yap_MkFunctor(heap_regs->atom_meta_call,4),0));
   heap_regs->pred_dollar_catch = RepPredProp(PredPropByFunc(Yap_MkFunctor(Yap_LookupAtom("$catch"),3),0));
+  heap_regs->pred_recorded_with_key = RepPredProp(PredPropByFunc(Yap_MkFunctor(Yap_LookupAtom("$recorded_with_key"),3),0));
+  heap_regs->pred_log_upd_clause = RepPredProp(PredPropByFunc(Yap_MkFunctor(Yap_LookupAtom("$do_log_upd_clause"),5),0));
+  heap_regs->pred_log_upd_clause0 = RepPredProp(PredPropByFunc(Yap_MkFunctor(Yap_LookupAtom("$do_log_upd_clause"),4),0));
+  heap_regs->pred_log_upd_retract = RepPredProp(PredPropByFunc(Yap_MkFunctor(Yap_LookupAtom("$do_log_upd_retract"),4),0));
   heap_regs->pred_throw = RepPredProp(PredPropByFunc(FunctorThrow,0));
   heap_regs->pred_handle_throw = RepPredProp(PredPropByFunc(Yap_MkFunctor(Yap_LookupAtom("$handle_throw"),3),0));
   heap_regs->pred_goal_expansion = RepPredProp(PredPropByFunc(Yap_MkFunctor(Yap_LookupAtom("goal_expansion"),3),1));
@@ -981,7 +986,7 @@ InitCodes(void)
   heap_regs->db_erased_marker->id = FunctorDBRef;
   heap_regs->db_erased_marker->Flags = ErasedMask;
   heap_regs->db_erased_marker->Code = NULL;
-  heap_regs->db_erased_marker->DBRefs = NULL;
+  heap_regs->db_erased_marker->DBT.DBRefs = NULL;
   heap_regs->db_erased_marker->Parent = NULL;
   INIT_LOCK(heap_regs->db_erased_marker->lock);
   INIT_DBREF_COUNT(heap_regs->db_erased_marker);

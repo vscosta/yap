@@ -104,7 +104,7 @@ default_sequential(_).
 % do not try to run consult in the parallel system.
 %
 '$parallelizable'(_) :-
-	'$get_value'('$consulting_file',S), S\=[], !, fail.
+	get_value('$consulting_file',S), S\=[], !, fail.
 '$parallelizable'((G1,G2)) :- !,
 	'$parallelizable'(G1),
 	'$parallelizable'(G2).

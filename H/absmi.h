@@ -533,6 +533,7 @@ typedef CELL label;
 #define pred_entry(X)		((PredEntry *)(Unsigned(X)-(CELL)(&(((PredEntry *)NULL)->StateOfPred))))
 #define pred_entry_from_code(X)		((PredEntry *)(Unsigned(X)-(CELL)(&(((PredEntry *)NULL)->CodeOfPred))))
 #define PredFromDefCode(X)	((PredEntry *)(Unsigned(X)-(CELL)(&(((PredEntry *)NULL)->OpcodeOfPred))))
+#define PredFromExpandCode(X)	((PredEntry *)(Unsigned(X)-(CELL)(&(((PredEntry *)NULL)->cs.p_code.ExpandCode))))
 #define PredCode(X)		pred_entry(X)->CodeOfPred
 #define PredOpCode(X)		pred_entry(X)->OpcodeOfPred
 #define TruePredCode(X)		pred_entry(X)->TrueCodeOfPred
@@ -676,11 +677,11 @@ Macros to check the limits of stacks
 
 #if OS_HANDLES_TR_OVERFLOW
 
-#define check_trail()
+#define check_trail(x)
 
 #else
 
-#define check_trail() if (Unsigned(Yap_TrailTop) - Unsigned(TR) < MinTrailGap) \
+#define check_trail(x) if (Unsigned(Yap_TrailTop) - Unsigned(x) < MinTrailGap) \
 			goto notrailleft
 
 #endif
@@ -1137,11 +1138,11 @@ trim_trail(choiceptr b, tr_fr_ptr tr, CELL *hbreg)
       if (d1 < d0 || d1 > Unsigned(B)) { 
 	DO_TRAIL(d1, TrailVal(pt0));     
       }                                  
-      pt0++;                                 
-      ENDD(d1);                              
-      ENDD(d0);                                
+      pt0++;                              
     }
+    ENDD(d1);                              
   }  
+  ENDD(d0);                                
   return(TR);
 }
 #endif /* FROZEN_STACKS */
@@ -1495,4 +1496,46 @@ loop:
   return (TRUE);
 }
 
+#endif
+
+static inline wamreg
+Yap_regnotoreg(UInt regnbr)
+{
+#if PRECOMPUTE_REGADDRESS
+  return (wamreg)(XREGS + regnbr);
+#else
+#if MSHIFTOFFS
+  return regnbr;
+#else
+  return CELLSIZE*regnbr;
+#endif
+#endif /* ALIGN_LONGS */
+}
+
+static inline UInt
+Yap_regtoregno(wamreg reg)
+{
+#if PRECOMPUTE_REGADDRESS
+  return ((CELL *)reg)-XREGS;
+#else
+#if MSHIFTOFFS
+  return reg;
+#else
+  return reg/CELLSIZE;
+#endif
+#endif /* ALIGN_LONGS */
+}
+
+#ifdef DEPTH_LIMIT
+#define check_depth(DEPTH, ap) \
+	  if ((DEPTH) <= MkIntTerm(1)) {/* I assume Module==0 is prolog */ \
+	    if ((ap)->ModuleOfPred) {\
+	      if ((DEPTH) == MkIntTerm(0))\
+		FAIL(); \
+	      else (DEPTH) = RESET_DEPTH();\
+	    } \
+	  } else if ((ap)->ModuleOfPred)\
+	    (DEPTH) -= MkIntConstant(2);
+#else
+#define check_depth(DEPTH)
 #endif

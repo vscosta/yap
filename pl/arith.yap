@@ -18,20 +18,20 @@
 % the default mode is on
 
 expand_exprs(Old,New) :-
-	('$get_value'('$c_arith',true) ->
+	(get_value('$c_arith',true) ->
 			Old = on ;
 			Old = off ),
 	'$set_arith_expan'(New).
 
-'$set_arith_expan'(on) :- '$set_value'('$c_arith',true).
-'$set_arith_expan'(off) :- '$set_value'('$c_arith',[]).
+'$set_arith_expan'(on) :- set_value('$c_arith',true).
+'$set_arith_expan'(off) :- set_value('$c_arith',[]).
 
-compile_expressions :- '$set_value'('$c_arith',true).
+compile_expressions :- set_value('$c_arith',true).
 
-do_not_compile_expressions :- '$set_value'('$c_arith',[]).
+do_not_compile_expressions :- set_value('$c_arith',[]).
 
 '$c_built_in'(IN, M, OUT) :-
-	'$get_value'('$c_arith',true), !,
+	get_value('$c_arith',true), !,
 	'$do_c_built_in'(IN, M, OUT).
 '$c_built_in'(IN, _, IN).
 
@@ -63,14 +63,6 @@ do_not_compile_expressions :- '$set_value'('$c_arith',[]).
 	).
 '$do_c_built_in'(once(G), M, ('$save_current_choice_point'(CP),NG,'$$cut_by'(CP))) :- !,
 	'$do_c_built_in'(G,M,NG).
-'$do_c_built_in'(recorded(K,T,R), _, OUT) :-
-	nonvar(K),
-	!,
-	( '$db_key'(K,I) ->
-            OUT = '$recorded_with_key'(I,T,R)
-	;
-	    OUT = recorded(K,T,R)
-	).
 '$do_c_built_in'(X is Y, _, P) :-
 	nonvar(Y),		% Don't rewrite variables
 	!,

@@ -17,8 +17,6 @@
 
 % module handling
 
-:- '$switch_log_upd'(1).
-
 use_module(M) :-
 	'$use_module'(M).
 
@@ -35,7 +33,7 @@ use_module(M) :-
         '$change_module'(M0).
 '$use_module'(File) :- 
 	'$find_in_path'(File,X,use_module(File)), !,
-	(  '$recorded'('$module','$module'(_,X,Publics),_) ->
+	(  recorded('$module','$module'(_,X,Publics),_) ->
 		'$use_module'(File,Publics)
 	;
 		'$ensure_loaded'(File)
@@ -64,12 +62,12 @@ use_module(M,I) :-
 	     ;
 	       % the following avoids import of all public predicates
 	     '$consulting_file_name'(Stream,TrueFileName),
-	     '$recorda'('$importing','$importing'(TrueFileName),R),
+	     recorda('$importing','$importing'(TrueFileName),R),
 	     '$reconsult'(File,Stream)
 	 ),
 	 '$close'(Stream),
 	 ( var(R) -> true; erased(R) -> true; erase(R)),
-	 ( '$recorded'('$module','$module'(TrueFileName,Mod,Publics),_) ->
+	 ( recorded('$module','$module'(TrueFileName,Mod,Publics),_) ->
 	     '$use_preds'(Imports,Publics,Mod,M)
 	 ;
 	 '$format'(user_error,"[ use_module/2 can not find a module in file ~w]~n",File),
@@ -99,13 +97,13 @@ use_module(Mod,F,I) :-
 	;
 	  '$consulting_file_name'(Stream,TrueFileName),
 	  % the following avoids import of all public predicates
-	  '$recorda'('$importing','$importing'(TrueFileName),R),
+	  recorda('$importing','$importing'(TrueFileName),R),
 	  '$reconsult'(File,Stream)
 	  ),
 	'$close'(Stream),
 	( var(R) -> true; erased(R) -> true; erase(R)),
 	(
-	  '$recorded'('$module','$module'(TrueFileName,Module,Publics),_)
+	  recorded('$module','$module'(TrueFileName,Module,Publics),_)
 	  ->
 	  '$use_preds'(Imports,Publics,Module,M)
 	  ;
@@ -123,7 +121,7 @@ use_module(Mod,F,I) :-
 	'$abolish_module_data'(N),
 	'$module_dec'(N,P).
 '$module'(consult,N,P) :-
-	( '$recorded'('$module','$module'(F,N,_),_),
+	( recorded('$module','$module'(F,N,_),_),
 	     '$format'(user_error,"[ Module ~w was already defined in file ~w]~n",[N,F]),
 		'$abolish_module_data'(N),
 		fail
@@ -172,7 +170,7 @@ use_module(Mod,F,I) :-
 
 '$prepare_restore_hidden'(Old,Old) :- !.
 '$prepare_restore_hidden'(Old,New) :-
-	'$recorda'('$system_initialisation', source_mode(New,Old), _).
+	recorda('$system_initialisation', source_mode(New,Old), _).
 
 module(N) :-
 	var(N), 
@@ -180,7 +178,7 @@ module(N) :-
 module(N) :-
 	atom(N), !,
 	'$current_module'(_,N),
-	'$get_value'('$consulting_file',F),
+	get_value('$consulting_file',F),
 	( recordzifnot('$module','$module'(N),_) -> true; true),
 	( recorded('$module','$module'(F,N,[]),_) ->
 	  true ;
@@ -191,10 +189,10 @@ module(N) :-
 
 '$module_dec'(N,P) :-
 	'$current_module'(Old,N),
-	'$get_value'('$consulting_file',F),
+	get_value('$consulting_file',F),
 	( recordzifnot('$module','$module'(N),_) -> true; true),
 	recorda('$module','$module'(F,N,P),_),
-	( '$recorded'('$importing','$importing'(F),_) ->
+	( recorded('$importing','$importing'(F),_) ->
 	         true
 	;
 	 		'$import'(P,N,Old)
@@ -219,7 +217,7 @@ module(N) :-
 	'$import'(L,M,T).
 
 '$check_import'(M,T,N,K) :-
-    '$recorded'('$import','$import'(M1,T0,N,K),R), T0 == T, M1 \= M, /* ZP */ !,
+    recorded('$import','$import'(M1,T0,N,K),R), T0 == T, M1 \= M, /* ZP */ !,
     '$format'(user_error,"NAME CLASH: ~w was already imported to module ~w;~n",[M1:N/K,T]),
     '$format'(user_error,"            Do you want to import it from ~w ? [y or n] ",M),
     repeat,
@@ -256,8 +254,8 @@ module(N) :-
 
 '$abolish_module_data'(M) :-
 	'$current_module'(T),
-	( '$recorded'('$import','$import'(M,T0,_,_),R), T0 == T, erase(R), fail; true),
-	'$recorded'('$module','$module'(_,M,_),R),
+	( recorded('$import','$import'(M,T0,_,_),R), T0 == T, erase(R), fail; true),
+	recorded('$module','$module'(_,M,_),R),
 	erase(R),
 	fail.
 '$abolish_module_data'(_).
@@ -325,7 +323,7 @@ module(N) :-
 '$expand_goal2'(G, M, NG, NM) :-
 	'$undefined'(G,M),
 	functor(G,F,N),
-	'$recorded'('$import','$import'(ExportingMod,M,F,N),_),
+	recorded('$import','$import'(ExportingMod,M,F,N),_),
 	ExportingMod \= M,
 	!,
 	'$expand_goal2'(G, ExportingMod, NG, NM).
@@ -405,7 +403,7 @@ module(N) :-
 '$imported_pred'(G, ImportingMod, ExportingMod) :-
 	'$undefined'(G, ImportingMod),
 	functor(G,F,N),
-	'$recorded'('$import','$import'(ExportingMod,ImportingMod,F,N),_),
+	recorded('$import','$import'(ExportingMod,ImportingMod,F,N),_),
 	ExportingMod \= ImportingMod.
 
 % args are:
@@ -441,7 +439,7 @@ module(N) :-
 
 :- dynamic_predicate('$meta_predicate'/4,logical).
 
-'$meta_predicate'((P,Ps), M) :- !,
+'$meta_predicate'((P,Ps), M) :- !, 
 	'$meta_predicate'(P, M),
 	'$meta_predicate'(Ps, M).
 '$meta_predicate'(M:D, _) :- !,
@@ -534,13 +532,14 @@ current_module(Mod) :-
 
 current_module(Mod,TFN) :-
 	'$all_current_modules'(Mod),
-	( '$recorded'('$module','$module'(TFN,Mod,_Publics),_) -> true ; TFN = user ).
+	( recorded('$module','$module'(TFN,Mod,_Publics),_) -> true ; TFN = user ).
 
 source_module(Mod) :-
 	'$current_module'(Mod).
 
 '$member'(X,[X|_]) :- !.
 '$member'(X,[_|L]) :- '$member'(X,L).
+
 
 :- meta_predicate
 %	[:,:],
@@ -643,5 +642,4 @@ source_module(Mod) :-
 	'$system_predicate'(G,M), !.
 '$preprocess_body_before_mod_change'(G,M,_,M:G).
 
-:- '$switch_log_upd'(0).
 

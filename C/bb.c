@@ -257,7 +257,7 @@ p_bb_put(void)
   if (p->Element != NULL) {
     Yap_ReleaseTermFromDB(p->Element);
   }
-  p->Element = Yap_StoreTermInDB(2,2);
+  p->Element = Yap_StoreTermInDB(Deref(ARG2),2);
   WRITE_UNLOCK(p->BBRWLock);
   return(p->Element != NULL);
 }
@@ -312,7 +312,7 @@ p_bb_update(void)
   }
 
   Yap_ReleaseTermFromDB(p->Element);
-  p->Element = Yap_StoreTermInDB(3,3);
+  p->Element = Yap_StoreTermInDB(Deref(ARG3),3);
   WRITE_UNLOCK(p->BBRWLock);
   return(p->Element != NULL);
 }

@@ -204,8 +204,6 @@ Yap_absmi(int inp)
   }
 #endif /* USE_THREADED_CODE */
 
- reset_absmi:
-
 #if PUSH_REGS
   old_regs = &Yap_REGS;
 
@@ -233,6 +231,8 @@ Yap_absmi(int inp)
 
   setregs();
 
+ reset_absmi:
+  
 #if !S_IN_MEM
   CACHE_A1();
 #endif
@@ -287,19 +287,16 @@ Yap_absmi(int inp)
     noheapleft:
       CFREG = CalculateStackGap();
       saveregs();
-#if PUSH_REGS
-      restore_absmi_regs(old_regs);
-#endif
       if (!Yap_growheap(FALSE, 0)) {
-	Yap_Error(SYSTEM_ERROR, TermNil, "YAP failed to grow heap: %s", Yap_ErrorMessage);
+	Yap_Error(FATAL_ERROR, TermNil, "YAP failed to grow heap: %s", Yap_ErrorMessage);
 	setregs();
 	FAIL();
       }
+      setregs();
       goto reset_absmi;
 
 #if !OS_HANDLES_TR_OVERFLOW
     notrailleft:
-      saveregs();
       /* if we are within indexing code, the system may have to
        * update a S */
 #if SHADOW_S
@@ -314,15 +311,13 @@ Yap_absmi(int inp)
       else {
 	ASP = YREG+E_CB;
       }
-#if PUSH_REGS
-      restore_absmi_regs(old_regs);
-#endif
+      saveregs();
       if(!Yap_growtrail (sizeof(CELL) * 16 * 1024L)) {
-	saveregs();
 	Yap_Error(SYSTEM_ERROR,TermNil,"YAP failed to reserve %ld bytes in growtrail",sizeof(CELL) * 16 * 1024L);
 	setregs();
 	FAIL();
       }
+      setregs();
       goto reset_absmi;
 
 #endif /* OS_HANDLES_TR_OVERFLOW */

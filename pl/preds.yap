@@ -40,24 +40,60 @@ assert(C) :-
 	'$do_error'(instantiation_error,assert(Mod:V)).
 '$assert'(M:C,_,Where,R,P) :- !,
 	'$assert'(C,M,Where,R,P).
-'$assert'((H:-G),M1,Where,R,P) :-
-	(var(H) -> '$do_error'(instantiation_error,P) ;  H=M:C), !,
-	( M1 = M ->
-	    '$assert'((C:-G),M1,Where,R,P)
-	;
-	    '$preprocess_clause_before_mod_change'((C:-G),M1,M,C1),
-	    '$assert'(C1,M,Where,R,P)
-	).
-'$assert'(CI,Mod,Where,R,P) :-
-	'$expand_clause'(CI,C0,C,Mod),
-	'$check_head_and_body'(C,H,B,P),
+'$assert'((H:-G),M1,Where,R,P) :- !,
+	'$assert_clause'(H, G, M1, Where, R, P).
+'$assert'(H,M1,Where,R,_) :-
+	'$assert_fact'(H, M1, Where, R).
+
+'$assert_clause'(H, G, M1, Where, R, P) :-
+	var(H), !, '$do_error'(instantiation_error,P).
+'$assert_clause'(M1:C, G, M1, Where, R, P) :- !,
+	'$assert_clause2'(C, G, M1, Where, R, P).
+'$assert_clause'(M:C, G, M1, Where, R, P) :- !,
+	'$preprocess_clause_before_mod_change'((C:-G),M1,M,C1),
+	C1 = (MH :- NG),
+	'$assert_clause2'(NH, NG, M, Where, R, P).
+'$assert_clause'(H, G, M1, Where, R, P) :- !,
+	'$assert_clause2'(H, G, M1, Where, R, P).
+
+'$assert_fact'(H,Mod,Where,R) :-
+	'$is_log_updatable'(H, Mod), !,
+	(Where = first -> Pos = 2 ; Pos = 0),
+	'$compile_dynamic'(H, Pos, H, Mod, R).
+'$assert_fact'(H,Mod,Where,R) :-
 	( '$is_dynamic'(H, Mod) ->
+	    '$assertat_d'(Where, H, true, H, Mod, R)
+	;
+	  '$undefined'(H,Mod) -> 
+	    functor(H, Na, Ar),
+	    '$dynamic'(Na/Ar, Mod),
+	    '$assert_fact'(H,Mod,Where,R)
+	;
+            '$access_yap_flags'(14, 1) -> % I can assert over static facts in YAP mode
+	    '$assert1'(Where,H,H,Mod,H)
+        ;
+	    functor(H, Na, Ar),
+            '$do_error'(permission_error(modify,static_procedure,Na/Ar),P)
+	).
+
+
+'$assert_clause2'(HI,BI,Mod,Where,R,P) :-
+	'$expand_clause'((HI :- BI),C0,C,Mod),
+	'$assert_clause3'(C0,C,Mod,Where,R,P).
+
+'$assert_clause3'(C0,C,Mod,Where,R,P) :-
+	'$check_head_and_body'(C,H,B,P),
+	( '$is_log_updatable'(H, Mod) ->
+	    (Where = first -> Pos = 2 ; Pos = 0),
+            '$compile_dynamic'((H :- B), Pos, C0, Mod, R)
+	;
+          '$is_dynamic'(H, Mod) ->
 	    '$assertat_d'(Where, H, B, C0, Mod, R)
 	;
 	  '$undefined'(H,Mod) -> 
 	    functor(H, Na, Ar),
 	    '$dynamic'(Na/Ar, Mod),
-	    '$assertat_d'(Where,H,B,C0,Mod,R)
+	    '$assert_clause3'(C0,C,Mod,Where,R,P)
 	;
             '$access_yap_flags'(14, 1) -> % I can assert over static facts in YAP mode
 	    '$assert1'(Where,C,C0,Mod,H)
@@ -81,14 +117,21 @@ assert(C) :-
 	).
 '$assert_dynamic'(CI,Mod,Where,R,P) :-
 	'$expand_clause'(CI,C0,C,Mod),
+	'$assert_dynamic2'(C0,C,Mod,Where,R,P).
+
+'$assert_dynamic2'(C0,C,Mod,Where,R,P) :-
 	'$check_head_and_body'(C,H,B,P),
-	( '$is_dynamic'(H, Mod) ->
+	( '$is_log_updatable'(H, Mod) ->
+	    (Where = first -> Pos = 2 ; Pos = 0),
+	    '$compile_dynamic'(C, Pos, C0, Mod, R)
+	;
+	  '$is_dynamic'(H, Mod) ->
 	    '$assertat_d'(Where,H,B,C0,Mod,R)
 	;
 	  '$undefined'(H, Mod) -> 
 	    functor(H, Na, Ar),
 	    '$dynamic'(Na/Ar, Mod),
-	    '$assertat_d'(Where,H,B,C0,Mod,R)
+	    '$assert_dynamic2'(C0,C,Mod,Where,R,P)
 	;
 	    functor(H,Na,Ar),
 	    '$do_error'(permission_error(modify,static_procedure,Na/Ar),P)
@@ -130,7 +173,7 @@ assertz_static(C) :-
 	( '$is_dynamic'(H, Mod) ->
 	    '$do_error'(permission_error(modify,dynamic_procedure,Na/Ar),P)
 	;
-	  '$undefined'(H,Mod), '$get_value'('$full_iso',true) ->
+	  '$undefined'(H,Mod), get_value('$full_iso',true) ->
 	    functor(H,Na,Ar), '$dynamic'(Na/Ar, Mod), '$assertat_d'(Where,H,B,C0,Mod,R)
 	;
 	    '$assert1'(Where,C,C0,Mod,H)
@@ -138,8 +181,8 @@ assertz_static(C) :-
 
 
 '$assertat_d'(first,Head,Body,C0,Mod,R) :- !,
-	'$compile_dynamic'((Head:-Body), 2, Mod, CR),
-         ( '$get_value'('$abol',true)
+	'$compile_dynamic'((Head:-Body), 2, C0, Mod, CR),
+         ( get_value('$abol',true)
            ->
             '$flags'(Head,Mod,Fl,Fl),
 	    ( Fl /\ 16'400000 =\= 0 -> '$erase_source'(Head,Mod) ; true ),
@@ -150,15 +193,15 @@ assertz_static(C) :-
 	'$head_and_body'(C0, H0, B0),
 	'$recordap'(Mod:Head,(H0 :- B0),R,CR),
 	( '$is_multifile'(Head, Mod) ->
-	    '$get_value'('$consulting_file',F),
+	    get_value('$consulting_file',F),
 	    functor(H0, Na, Ar),
-	    '$recorda'('$multifile_dynamic'(_,_,_), '$mf'(Na,Ar,Mod,F,R), _) 
+	    recorda('$multifile_dynamic'(_,_,_), '$mf'(Na,Ar,Mod,F,R), _) 
 	;
 	    true
 	).
 '$assertat_d'(last,Head,Body,C0,Mod,R) :-
-	'$compile_dynamic'((Head:-Body), 0, Mod, CR),
-         ( '$get_value'('$abol',true)
+	'$compile_dynamic'((Head:-Body), 0, C0, Mod, CR),
+         ( get_value('$abol',true)
            ->
             '$flags'(Head,Mod,Fl,Fl),
             ( Fl /\ 16'400000 =\= 0 -> '$erase_source'(Head,Mod) ; true ),
@@ -169,9 +212,9 @@ assertz_static(C) :-
 	'$head_and_body'(C0, H0, B0),
 	'$recordzp'(Mod:Head,(H0 :- B0),R,CR),
 	( '$is_multifile'(H0, Mod) ->
-	    '$get_value'('$consulting_file',F),
+	    get_value('$consulting_file',F),
 	    functor(H0, Na, Ar),
-	    '$recordz'('$multifile_dynamic'(_,_,_), '$mf'(Na,Ar,Mod,F,R), _) 
+	    recordz('$multifile_dynamic'(_,_,_), '$mf'(Na,Ar,Mod,F,R), _) 
 	;
 	    true
 	).
@@ -204,7 +247,7 @@ assertz_static(C) :-
 '$remove_all_d_clauses'(_,_).
 
 '$erase_all_mf_dynamic'(Na,A,M) :-
-	'$get_value'('$consulting_file',F),
+	get_value('$consulting_file',F),
 	'$recorded'('$multifile_dynamic'(_,_,_), '$mf'(Na,A,M,F,R), R1),
 	erase(R1),
 	erase(R),
@@ -235,6 +278,20 @@ clause(V,Q) :-
 	'$current_module'(M),
 	'$clause'(V,M,Q,R).
 
+'$clause'(V,M,Q) :- var(V), !, 
+	'$do_error'(instantiation_error,M:clause(V,Q)).
+'$clause'(C,M,Q) :- number(C), !,
+	'$do_error'(type_error(callable,C),M:clause(C,Q)).
+'$clause'(R,M,Q) :- db_reference(R), !,
+	'$do_error'(type_error(callable,R),M:clause(R,Q)).
+'$clause'(M:P,_,Q) :- !,
+	'$clause'(P,M,Q).
+'$clause'(P,M,Q) :-
+	'$is_log_updatable'(P, M), !,
+	'$log_update_clause'(P,M,Q).
+'$clause'(P,M,Q) :-
+	'$clause'(P,M,Q,_).
+
 clause(M:P,Q,R) :- !,
 	'$clause'(P,M,Q,R).
 clause(V,Q,R) :-
@@ -250,6 +307,9 @@ clause(V,Q,R) :-
 '$clause'(M:P,_,Q,R) :- !,
 	'$clause'(P,M,Q,R).
 '$clause'(P,M,Q,R) :-
+	'$is_log_updatable'(P, M), !,
+	'$log_update_clause'(P,M,Q,R).
+'$clause'(P,M,Q,R) :-
 	'$some_recordedp'(M:P), !,
 	'$recordedp'(M:P,(P:-Q),R).
 '$clause'(P,M,Q,_) :-
@@ -259,6 +319,22 @@ clause(V,Q,R) :-
 	functor(P,Name,Arity),
 	'$do_error'(permission_error(access,private_procedure,Name/Arity),
 	      clause(M:P,Q)).
+
+% just create a choice-point
+'$do_log_upd_clause'(_,_,_,_,_).
+'$do_log_upd_clause'(A,B,C,D,E) :-
+	'$continue_log_update_clause'(A,B,C,D,E).
+'$do_log_upd_clause'(A,B,C,D,E).
+
+'$do_log_upd_clause'(_,_,_,_).
+'$do_log_upd_clause'(A,B,C,D) :-
+	'$continue_log_update_clause'(A,B,C,D).
+'$do_log_upd_clause'(A,B,C,D).
+
+'$do_log_upd_retract'(_,_,_,_).
+'$do_log_upd_retract'(A,B,C,D) :-
+	'$continue_log_update_retract'(A,B,C,D).
+'$do_log_upd_retract'(A,B,C,D).
 
 nth_clause(P,I,R) :- nonvar(R), !,
 	'$nth_instancep'(P,I,R).
@@ -299,18 +375,23 @@ retract(C) :-
 '$retract'(M:C,_) :- !,
 	'$retract'(C,M).
 '$retract'(C,M) :- 
-	'$check_head_and_body'(C,H,B,retract(M:C)),
+	'$check_head_and_body'(C,H,B,retract(M:C)), !,
+	'$retract2'(H,M,B).
+
+'$retract2'(H,M,B) :- 	
+	'$is_log_updatable'(H, M), !,
+	'$log_update_retract'(H,M,B).
+'$retract2'(H,M,B) :- 	
 	'$is_dynamic'(H,M), !,
 	'$recordedp'(M:H,(H:-B),R), erase(R).
-'$retract'(C,M) :- 
-	'$check_head_and_body'(C,H,B,retract(M:C)),
+'$retract2'(H,M,B) :- 	
 	'$undefined'(H,M), !,
 	functor(H,Na,Ar),
 	'$dynamic'(Na/Ar,M),
 	fail.
-'$retract'(C,M) :-
-	'$fetch_predicate_indicator_from_clause'(C, PI),
-	'$do_error'(permission_error(modify,static_procedure,PI),retract(M:C)).
+'$retract2'(H,M,B) :- 	
+	functor(H,Na,Ar),
+	'$do_error'(permission_error(modify,static_procedure,Na/Ar),retract(M:(H:-B))).
 
 retract(M:C,R) :- !,
 	'$retract'(C,M,R).
@@ -359,15 +440,26 @@ retractall(V) :-
 '$retractall'(M:V,_) :- !,
 	'$retractall'(V,M).
 '$retractall'(T,M) :-
-	'$undefined'(T,M),
-	functor(T,Na,Ar),
-	'$dynamic'(Na/Ar,M), !.
-'$retractall'(T,M) :-
-	\+ '$is_dynamic'(T,M), !,
-	functor(T,Na,Ar),
-	'$do_error'(permission_error(modify,static_procedure,Na/Ar),retractall(T)).
-'$retractall'(T,M) :-
-	'$erase_all_clauses_for_dynamic'(T, M).
+	(
+	  '$is_log_updatable'(T, M) ->
+	  '$retractall_lu'(T,M)
+	;
+	  '$undefined'(T,M) ->
+	  functor(T,Na,Ar),
+	  '$dynamic'(Na/Ar,M), !
+	;
+	  '$is_dynamic'(T,M) ->
+	  '$erase_all_clauses_for_dynamic'(T, M)
+	;
+	  functor(T,Na,Ar),
+	  '$do_error'(permission_error(modify,static_procedure,Na/Ar),retractall(T))
+	).
+	
+
+'$retractall_lu'(T,M) :-
+	'$log_update_retract'(T,M,_),
+	fail.
+'$retractall_lu'(_,_).
 
 '$erase_all_clauses_for_dynamic'(T, M) :-
 	'$recordedp'(M:T,(T :- _),R), erase(R), fail.
@@ -386,7 +478,7 @@ abolish(N,A) :-
 '$abolish'(N,A,M) :- var(A), !,
 	'$do_error'(instantiation_error,abolish(M:N,A)).
 '$abolish'(N,A,M) :-
-	( '$recorded'('$predicate_defs','$predicate_defs'(N,A,M,_),R) -> erase(R) ),
+	( recorded('$predicate_defs','$predicate_defs'(N,A,M,_),R) -> erase(R) ),
 	fail.
 '$abolish'(N,A,M) :- functor(T,N,A),
 		( '$is_dynamic'(T, M) -> '$abolishd'(T,M) ;
@@ -591,7 +683,7 @@ dynamic_predicate(P,Sem) :-
 
 '$expand_clause'(C0,C1,C2,Mod) :-
 	'$expand_term_modules'(C0, C1, C2, Mod),
-	( '$get_value'('$strict_iso',on) ->
+	( get_value('$strict_iso',on) ->
 	    '$check_iso_strict_clause'(C1)
         ;
            true
@@ -660,14 +752,14 @@ predicate_property(Pred,Prop) :-
 	'$predicate_property'(Pred,Mod,Mod,Prop).
 '$predicate_property2'(Pred,Prop,Mod) :- 
 	functor(Pred, N, K),
-	'$recorded'('$import','$import'(M,Mod,N,K),_),
+	recorded('$import','$import'(M,Mod,N,K),_),
 	'$predicate_property'(Pred,M,Mod,Prop).
 
 '$generate_all_preds_from_mod'(Pred, M, M) :-
 	'$current_predicate'(M,Na,Ar),
 	functor(Pred, Na, Ar).
 '$generate_all_preds_from_mod'(Pred, SourceMod, Mod) :-
-	'$recorded'('$import','$import'(SourceMod,Mod,N,K),_),
+	recorded('$import','$import'(SourceMod,Mod,N,K),_),
 	functor(Pred, N, K).
 
 
@@ -687,12 +779,12 @@ predicate_property(Pred,Prop) :-
 	'$is_multifile'(P,M).
 '$predicate_property'(P,Mod,M,imported_from(Mod)) :-
 	functor(P,N,K),
-	'$recorded'('$import','$import'(Mod,M,N,K),_).
+	recorded('$import','$import'(Mod,M,N,K),_).
 '$predicate_property'(P,M,_,public) :-
 	'$is_public'(P,M).
 '$predicate_property'(P,M,M,exported) :-
 	functor(P,N,A),
-	'$recorded'('$module','$module'(_TFN,M,Publics),_),
+	recorded('$module','$module'(_TFN,M,Publics),_),
 	'$member'(N/A,Publics), !.	/* defined in modules.yap */
 '$predicate_property'(P,Mod,_,number_of_clauses(NCl)) :-
 	'$number_of_clauses'(P,Mod,NCl).

@@ -411,11 +411,20 @@ p_creep(void)
   Atom            at;
   PredEntry      *pred;
 
+  yap_flags[SPY_CREEP_FLAG] = TRUE;
   at = Yap_FullLookupAtom("$creep");
   pred = RepPredProp(PredPropByFunc(Yap_MkFunctor(at, 1),0));
   CreepCode = pred;
-  CreepFlag = Unsigned(LCL0)-Unsigned(H0);
-  return (TRUE);
+  CreepFlag = Unsigned(LCL0+2);
+  FlipFlop = 0;
+  return TRUE;
+}
+
+static Int 
+p_stop_creep(void)
+{
+  CreepFlag = CalculateStackGap();
+  return TRUE;
 }
 
 Int 
@@ -2507,8 +2516,8 @@ void
 Yap_InitCPreds(void)
 {
   /* numerical comparison */
-  Yap_InitCPred("$set_value", 2, p_setval, SafePredFlag|SyncPredFlag);
-  Yap_InitCPred("$get_value", 2, p_value, TestPredFlag|SafePredFlag|SyncPredFlag);
+  Yap_InitCPred("set_value", 2, p_setval, SafePredFlag|SyncPredFlag);
+  Yap_InitCPred("get_value", 2, p_value, TestPredFlag|SafePredFlag|SyncPredFlag);
   Yap_InitCPred("$values", 3, p_values, SafePredFlag|SyncPredFlag);
   /* The flip-flop */
   Yap_InitCPred("$flipflop", 0, p_flipflop, SafePredFlag|SyncPredFlag);
@@ -2547,6 +2556,7 @@ Yap_InitCPreds(void)
   /* they are defined in analyst.c */
   /* Basic predicates for the debugger */
   Yap_InitCPred("$creep", 0, p_creep, SafePredFlag|SyncPredFlag);
+  Yap_InitCPred("$stop_creep", 0, p_stop_creep, SafePredFlag|SyncPredFlag);
 #ifdef DEBUG
   Yap_InitCPred("$debug", 1, p_debug, SafePredFlag|SyncPredFlag);
 #endif

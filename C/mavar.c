@@ -71,7 +71,7 @@ p_setarg(void)
     MaBind(pt, Deref(ARG3));
   } else if(IsPairTerm(ts)) {
     CELL *pt;
-    if (i != 1 || i != 2) {
+    if (i < 1 || i > 2) {
       if (i<0)
 	Yap_Error(DOMAIN_ERROR_NOT_LESS_THAN_ZERO,ts,"setarg/3");
       return(FALSE);

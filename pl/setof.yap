@@ -199,17 +199,17 @@ bagof(Template, Generator, Bag) :-
 % if you want them use findall	
 
 all(T,G same X,S) :- !, all(T same X,G,Sx), '$$produce'(Sx,S,X).
-all(T,G,S) :- '$recorda'('$$one','$',R), (
-	'$execute'(G), '$recorda'('$$one',T,_), fail ;
+all(T,G,S) :- recorda('$$one','$',R), (
+	'$execute'(G), recorda('$$one',T,_), fail ;
 	'$$set'(S,R) ).
 
 % $$set does its best to preserve space
 '$$set'(S,R) :- '$$build'(S,[],R),
 	( S=[], !, fail;
-	  '$recorda'('$$set',S,_), fail ).
-'$$set'(S,_) :- '$recorded'('$$set',S,R), erase(R).
+	  recorda('$$set',S,_), fail ).
+'$$set'(S,_) :- recorded('$$set',S,R), erase(R).
 
-'$$build'(Ns,S,Start) :- '$recorded'('$$one',X,R), erase(R),
+'$$build'(Ns,S,Start) :- recorded('$$one',X,R), erase(R),
 	( Start==R, Ns=S;
 	  '$$join'(S,X,Xs), '$$build'(Ns,Xs,Start) ), !.
 

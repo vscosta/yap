@@ -273,8 +273,8 @@ open_null_stream(S) :- '$open_null_stream'(S).
 
 open_pipe_streams(P1,P2) :- '$open_pipe_stream'(P1, P2).
 
-fileerrors :- '$set_value'(fileerrors,1).
-nofileerrors :- '$set_value'(fileerrors,0).
+fileerrors :- set_value(fileerrors,1).
+nofileerrors :- set_value(fileerrors,0).
 
 exists(F) :- '$exists'(F,read).
 
@@ -350,7 +350,7 @@ read_term(Stream, T, Options) :-
 '$preprocess_read_terms_options'([]).
 '$preprocess_read_terms_options'([syntax_errors(NewVal)|L]) :- !,
 	'$get_read_error_handler'(OldVal),
-	'$set_value'('$read_term_error_handler', OldVal),
+	set_value('$read_term_error_handler', OldVal),
 	'$set_read_error_handler'(NewVal),
 	'$preprocess_read_terms_options'(L).
 '$preprocess_read_terms_options'([_|L]) :-
@@ -367,7 +367,7 @@ read_term(Stream, T, Options) :-
 	'$postprocess_read_terms_options_list'(Tail, T, VL, Pos).
 
 '$postprocess_read_terms_option'(syntax_errors(_), _, _, _) :-
-	'$get_value'('$read_term_error_handler', OldVal),
+	get_value('$read_term_error_handler', OldVal),
 	'$set_read_error_handler'(OldVal).
 '$postprocess_read_terms_option'(variable_names(Vars), _, VL, _) :-
 	'$read_term_non_anonymous'(VL, Vars).
@@ -515,8 +515,8 @@ format(Stream, S, A) :- '$format'(Stream, S, A).
 '$portray'(T) :-
 	\+ '$undefined'(portray(_),user),
 	user:portray(T), !,
-	'$set_value'('$portray',true), fail.
-'$portray'(_) :- '$set_value'('$portray',false), fail.
+	set_value('$portray',true), fail.
+'$portray'(_) :- set_value('$portray',false), fail.
 
 /* character I/O	*/
 
@@ -891,12 +891,12 @@ absolute_file_name(RelFile, AbsFile) :-
 	'$file_expansion'(RelFile, AbsFile).
 
 '$exists'(F,Mode,AbsFile) :-
-	'$get_value'(fileerrors,V),
-	'$set_value'(fileerrors,0),
+	get_value(fileerrors,V),
+	set_value(fileerrors,0),
 	( '$open'(F,Mode,S,0), !,
 	    '$file_name'(S, AbsFile),
-	     '$close'(S), '$set_value'(fileerrors,V);
-	     '$set_value'(fileerrors,V), fail).
+	     '$close'(S), set_value(fileerrors,V);
+	     set_value(fileerrors,V), fail).
 
 
 current_char_conversion(X,Y) :-
