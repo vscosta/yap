@@ -668,7 +668,7 @@ p_create_array(void)
       ArrayEntry *app = (ArrayEntry *) pp;
 
       WRITE_UNLOCK(ae->ARWLock);
-      if (!IsUnboundVar(app->ValueOfVE))
+      if (!IsVarTerm(app->ValueOfVE) || !IsUnboundVar(app->ValueOfVE))
 	Error(PERMISSION_ERROR_CREATE_ARRAY,t,"create_array",
 	      ae->StrOfAE);
       else {
