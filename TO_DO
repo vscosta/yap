@@ -13,8 +13,6 @@ BEFORE 4.4:
 - library(system) for WIN32
 - document system(library)
 - document new interface functions.
-- logtalk.
-- listing (Steve Moyle).
 
 TO CHECK:
 - bad register allocation for a(X,Y) :- X is Y+2.3 ?
@@ -70,3 +68,5 @@ DONE:
 - copying garbage collector: implemented hybrid
 - dif example in Manual.
 - initial port to OS_X
+- listing (Steve Moyle).
+- logtalk.

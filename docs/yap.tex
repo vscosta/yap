@@ -221,6 +221,7 @@ Subnodes of Library
 * RegExp:: Regular Expression Manipulation
 * Splay Trees:: Splay Trees
 * String I/O:: Writing To and Reading From Strings
+* System:: System Utilities
 * Terms:: Utilities on Terms
 * Timeout:: Call With Timeout
 * Trees:: Updatable Binary Trees
@@ -279,6 +280,18 @@ Subnodes of CHR
 * CHR Programming Hints::       
 * CHR Constraint Handlers::     
 * CHR Backward Compatibility::  
+
+Subnodes of C-Interface
+* Manipulating Terms:: Primitives available to the C programmer
+* Unifying Terms:: How to Unify Two Prolog Terms
+* Manipulating Strings:: From character arrays to Lists of codes and back
+* Memory Allocation:: Stealing Memory From Yap
+* Controlling Streams:: Control How Yap sees Streams
+* Calling Yap From C:: From C to Yap to C to Yap 
+* Writing C:: Writing Predicates in C
+* Loading Objects:: Loading Object Files
+* Sav&Rest:: Saving and Restoring
+* Yap4 Notes:: Changes in Foreign Predicates Interface
 
 Subnodes of C-Prolog
 * Major Differences with C-Prolog:: Major Differences between YAP and C-Prolog
@@ -797,7 +810,7 @@ CC="cc -64" $YAP_SRC_PATH/configure --...
 We next describe how to invoke Yap in Unix systems.
 
 @section Running Yap Interactively
-@node Interactive Mode, Script Mode, ,Running Yap
+@node Interactive Mode, Script Mode, ,Run
 
 Most often you will want to use Yap in interactive mode. Assuming that
 YAP is in the user's search path, the top-level can be invoked under
@@ -865,7 +878,7 @@ first. If it cannot it will use the environment variable YAPLIBDIR, if
 defined, or search the default library directory.
 
 @section Running Yap as a script
-@node Script Mode, ,Interactive Mode, Running Yap
+@node Script Mode, ,Interactive Mode, Run
 
 YAP can also be used to run Prolog files as scripts, at least in
 Unix-like environments. A simple example is shown next:
@@ -6204,6 +6217,7 @@ Library, Extensions, Builtins, Top
 * RegExp:: Regular Expression Manipulation
 * Splay Trees:: Splay Trees
 * String I/O:: Writing To and Reading From Strings
+* System:: System Utilities
 * Terms:: Utilities on Terms
 * Timeout:: Call With Timeout
 * Trees:: Updatable Binary Trees
@@ -7060,7 +7074,7 @@ Construct and return two trees @var{LeftTree} and @var{RightTree}, where
 
 @end table
 
-@node String I/O, Terms, Splay Trees, Library
+@node String I/O, System, Splay Trees, Library
 @section Reading From and Writing To Strings
 @cindex string I/O
 
@@ -7215,7 +7229,11 @@ importing these built-ins.
 YAP does not currently support opening a @code{charsio} stream in
 @code{append} mode, or seeking in such a stream.
 
-@node Terms, Timeout, String I/O, Library
+@node System, Terms, String I/O, Library
+@section Calling The Operating System from YAP
+@cindex Operating System Utilities
+
+@node Terms, Timeout, System, Library
 @section Utilities On Terms
 @cindex utilities on terms
 
@@ -11623,13 +11641,18 @@ The rest of this appendix describes exhaustively how to interface C to YAP.
 
 @menu
 * Manipulating Terms:: Primitives available to the C programmer
-* WritingC:: Writing Predicates in C
-* LoadingO:: Loading Object Files
+* Unifying Terms:: How to Unify Two Prolog Terms
+* Manipulating Strings:: From character arrays to Lists of codes and back
+* Memory Allocation:: Stealing Memory From Yap
+* Controlling Streams:: Control How Yap sees Streams
+* Calling Yap From C:: From C to Yap to C to Yap 
+* Writing C:: Writing Predicates in C
+* Loading Objects:: Loading Object Files
 * Sav&Rest:: Saving and Restoring
 * Yap4 Notes:: Changes in Foreign Predicates Interface
 @end menu
 
-@node Manipulating Terms, WritingC, , C-Interface
+@node Manipulating Terms, Unifying Terms, , C-Interface
 @section Terms
 
 This section provides information about the primitives available to the C
@@ -11775,6 +11798,9 @@ or equal to the arity of the functor.
 @strong{Note:} all the above primitives returning terms ensure that the
 result is @i{dereferenced}, i.e. that it is not an instantiated variable.
 
+@node Unifying Terms, Manipulating Strings, Manipulating Terms, C-Interface
+@section Unification
+
 The following routine is provided for attempting the unification of two
 prolog terms
 @example
@@ -11783,6 +11809,9 @@ prolog terms
 @noindent
 which attempts to unify the terms pointed to by @code{a} and @code{b} returning
 a non-zero value if the unification succeeds and zero otherwise.
+
+@node Manipulating Strings, Memory Allocation, Unifying Terms, C-Interface
+@section Strings
 
 The YAP C-interface now includes an utility routine to copy a string
 represented as a list of a character codes to a previously allocated buffer
@@ -11797,6 +11826,19 @@ otherwise the routine will simply fail. The @code{StringToBuffer}
 routine fails and generates an exception if @code{String} is not a valid
 string.
 
+The C-interface also includes utility routines to do the reverse, that
+is, to copy a from a buffer to a list of character codes or to a list of
+character atomsr
+@example
+      Term BufferToString(char *buf)
+      Term BufferToAtomList(char *buf)
+@end example
+@noindent
+The user-provided string must include a terminating null character.
+
+@node Memory Allocation, Controlling Streams, Manipulating Strings, C-Interface
+@section Memory Allocation
+
 The next routine can be used to ask space from the Prolog data-base:
 @example
       void      *AllocSpaceFromYap(int size)
@@ -11805,7 +11847,7 @@ The next routine can be used to ask space from the Prolog data-base:
 The routine returns a pointer to a buffer allocated from the code area,
 or @code{NULL} if no space was available.
 
-Space can be released by using:
+This Space can be released by using:
 @example
       void      FreeSpaceFromYap(void *buf)
 @end example
@@ -11814,9 +11856,51 @@ The routine releases a buffer allocated from the code area. The system
 may crash if @code{buf} is not a valid pointer to a buffer in the code
 area.
 
+@node Controlling Streams, Calling Yap From C, Memory Allocation, C-Interface
+@section Controlling Yap Streams from @code{C}
+
+The C-Interface also provides the C-application with a measure of
+control over the Yap Input/Output system. The first routine allows one
+to find a file number given a current stream:
+@example
+      int      YapStreamToFileNo(Term stream)
+@end example
+@noindent
+This function gives the file descriptor for a currently available
+stream. Note that null streams and in memory streams do not have
+corresponding open streams, so the routine will return a
+negative. Moreover, Yap will not be aware of any direct operations on
+this stream, so information on, say, current stream position, may become
+stale.
+
+A second routine that is sometimes useful is:
+@example
+      void      YapCloseAllOpenStreams(void)
+@end example
+@noindent
+This routine closes the Yap Input/Output system except for the first
+three streams, that are always associated with the three standard Unix
+streams. It is most useful if you are doing @code{fork()}.
+
+The next routine allows a currently open file to become a stream. The
+routine receives as arguments a file descriptor, the true file name as a
+string, an atom with the yser name, and a set of flags:
+@example
+      void      YapOpenStream(void *FD, char *true, Term t, int flags)
+@end example
+@noindent
+The available flags are @code{YAP_INPUT_STREAM},
+@code{YAP_OUTPUT_STREAM}, @code{YAP_APPEND_STREAM},
+@code{YAP_PIPE_STREAM}, @code{YAP_TTY_STREAM}, @code{YAP_POPEN_STREAM},
+@code{YAP_BINARY_STREAM}, and @code{YAP_SEEKABLE_STREAM}. By default, the
+stream is supposed to be at position 0.
+
+@node Calling Yap From C, Writing C, Controlling Streams, C-Interface
+@section From @code{C} back to Prolog
+
 Newer versions of YAP allow for calling the Prolog interpreter from
-@code{C}. One must first construct a goal @code{G}, and then it is sufficient
-to perform:
+@code{C}. One must first construct a goal @code{G}, and then it is
+sufficient to perform:
 @example
       Int      YapCallProlog(Term G)
 @end example
@@ -11827,7 +11911,7 @@ values they have been unified with. Execution only proceeds until
 finding the first solution to the goal, but you can call
 @code{findall/3} or friends if you need all the solutions.
 
-@node WritingC, LoadingO, Manipulating Terms, C-Interface
+@node Writing C, Loading Objects, Calling Yap From C, C-Interface
 @section Writing predicates in C
 
 We will distinguish two kinds of predicates:
@@ -11885,7 +11969,7 @@ typedef struct @{
 n100_data_type *n100_data;
 @end example
 
-We now write the C function to handle the first call:
+We now write the @code{C} function to handle the first call:
 
 @example
 static int start_n100()
@@ -11896,11 +11980,11 @@ static int start_n100()
           n100_data->next_solution = MkIntTerm(0);
           return(continue_n100());
        @}
-      if(!IsIntTerm(t) || IntOfTerm(t)<0 || IntOfTerm(t)>100) {
+      if(!IsIntTerm(t) || IntOfTerm(t)<0 || IntOfTerm(t)>100) @{
           cut_fail();
-      } else {
+      @} else @{
           cut_succeed();
-      }
+      @}
 @}
 
 @end example
@@ -11972,7 +12056,7 @@ where @code{name} is a string with the name of the predicate, @code{init} and
 @code{cont} are the C functions used to start and continue the execution of
 the predicate, and @code{arity} is the predicate arity.
 
-@node LoadingO, Sav&Rest, WritingC, C-Interface
+@node Loading Objects, Sav&Rest, Writing C, C-Interface
 @section Loading Object Files
 
 The primitive predicate
@@ -11997,7 +12081,7 @@ for object code (64 Kbytes in the current version). Should this size
 prove inadequate the flag @code{-c n} can be passed to YAP (in the
 command line invoking YAP) to force the allocation of @code{n} Kbytes.
 
-@node Sav&Rest, Yap4 Notes, LoadingO, C-Interface
+@node Sav&Rest, Yap4 Notes, Loading Objects, C-Interface
 @section Saving and Restoring
 
 @comment The primitive predicates @code{save} and @code{restore} will save and restore

@@ -2430,7 +2430,7 @@ RestoreEntries(PropEntry *pp)
       break;
     case ArrayProperty:
       {
-	ArrayEntry *ae = (ArrayEntry *)ae;
+	ArrayEntry *ae = (ArrayEntry *)pp;
 	if (ae->ArrayEArity < 0) {
 	  restore_static_array((StaticArrayEntry *)ae);
 	} else {

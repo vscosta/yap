@@ -99,7 +99,8 @@ X_API void    STD_PROTO(YapExit, (int));
 X_API void    STD_PROTO(YapInitSocks, (char *, long));
 X_API void    STD_PROTO(YapSetOutputMessage, (void));
 X_API int     STD_PROTO(YapStreamToFileNo, (Term));
-X_API int     STD_PROTO(YapPopen, (Term));
+X_API void    STD_PROTO(YapCloseAllOpenStreams,(void));
+X_API Term    STD_PROTO(YapOpenStream,(void *, char *, Term, int));
 
 X_API Term
 YapA(int i)
