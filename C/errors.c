@@ -34,7 +34,7 @@
 STATIC_PROTO (int hidden, (Atom));
 STATIC_PROTO (int legal_env, (CELL *));
 void STD_PROTO (DumpActiveGoals, (void));
-STATIC_PROTO (void detect_bug_location, (char *, int));
+STATIC_PROTO (void detect_bug_location, (yamop *,char *, int));
 
 #define ONHEAP(ptr) (CellPtr(ptr) >= CellPtr(HeapBase)  && CellPtr(ptr) < CellPtr(HeapTop))
 
@@ -204,16 +204,15 @@ exit_yap (int value)
   exit(value);
 }
 
-
 static void
-detect_bug_location(char *tp, int psize)
+detect_bug_location(yamop *yap_pc, char *tp, int psize)
 {
   Atom pred_name;
   Int pred_arity;
   SMALLUNSGN pred_module;
   Int cl;
 
-  if ((cl = PredForCode((CODEADDR)P, &pred_name, &pred_arity, &pred_module))
+  if ((cl = PredForCode((CODEADDR)yap_pc, &pred_name, &pred_arity, &pred_module))
       == 0) {
     /* system predicate */
 #if   HAVE_SNPRINTF
@@ -293,6 +292,42 @@ detect_bug_location(char *tp, int psize)
   }
 }
 
+static void
+cl_position(yamop *ptr)
+{
+  char tp[256];
+  detect_bug_location(ptr, tp, 256);
+  fprintf(stderr,"  %s\n", tp);
+}
+
+static void
+error_exit_yap (int value)
+{
+  choiceptr b_ptr = B;
+  CELL *env_ptr = ENV;
+  
+  if (H > ASP || H > LCL0) {
+    fprintf(stderr,"[ YAP ERROR: Global Collided against Local ]\n");
+  } else   if (HeapTop > (ADDR)GlobalBase) {
+    fprintf(stderr,"[ YAP ERROR: Code Space Collided against Global ]\n");
+  } else {
+    fprintf(stderr," [ Goals with alternatives open:\n");
+    while (b_ptr != NULL) {
+      cl_position(b_ptr->cp_ap);
+      b_ptr = b_ptr->cp_b;
+    }
+    fprintf(stderr," ]\n");
+    fprintf(stderr," [ Goals left to continue:\n");
+    while (env_ptr != NULL) {
+      cl_position((yamop *)(env_ptr[E_CP]));
+      env_ptr = (CELL *)(env_ptr[E_E]);      
+    }
+    fprintf(stderr," ]\n");
+  }
+  exit_yap(value);
+}
+
+
 #ifdef DEBUG
 
 #include <stdio.h>
@@ -300,10 +335,7 @@ detect_bug_location(char *tp, int psize)
 void
 bug_location(yamop *pc)
 {
-  yamop *oldp = pc;
-  P = pc;
-  detect_bug_location((char *)H, 256);
-  P = oldp;
+  detect_bug_location(pc, (char *)H, 256);
   fprintf(stderr,"%s\n",(char *)H);
 }
 #endif
@@ -357,7 +389,7 @@ Error (yap_error_number type, Term where, char *format,...)
     }
     va_end (ap);
     fprintf(stderr,"[ Fatal YAP Error: %s exiting.... ]\n",tmpbuf);
-    exit_yap (1);
+    error_exit_yap (1);
   }
   if (P == (yamop *)(FAILCODE))
    return(P);
@@ -396,7 +428,7 @@ Error (yap_error_number type, Term where, char *format,...)
   if (PrologMode & BootMode) {
     /* crash in flames! */
     fprintf(stderr,"[ Fatal Error: %s exiting.... ]\n",tmpbuf);
-    exit_yap (1);
+    error_exit_yap (1);
   }
 #ifdef DEBUGX
   DumpActiveGoals();
@@ -406,14 +438,14 @@ Error (yap_error_number type, Term where, char *format,...)
     {
       fprintf(stderr,"[ Internal YAP Error: %s exiting.... ]\n",tmpbuf);
       serious = TRUE;
-      detect_bug_location(tmpbuf, YAP_BUF_SIZE);
+      detect_bug_location(P, tmpbuf, YAP_BUF_SIZE);
       fprintf(stderr,"[ Bug found while executing %s ]\n",tmpbuf);
-      exit_yap (1);
+      error_exit_yap (1);
     }
   case FATAL_ERROR:
     {
       fprintf(stderr,"[ Fatal YAP Error: %s exiting.... ]\n",tmpbuf);
-      exit_yap (1);
+      error_exit_yap (1);
     }
   case PURE_ABORT:
     nt[0] = MkAtomTerm(LookupAtom(tmpbuf));
