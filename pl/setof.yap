@@ -212,18 +212,21 @@ all(T,G,S) :-
 
 % $$set does its best to preserve space
 '$$set'(S,R) :- 
-       '$$build'(S0,R),
+       '$$build'(S0,S0,R),
 	S = S0.
 
-'$$build'(Ns,R) :- '$db_dequeue'(R,X), !,
-	  '$$build'(S,R), '$$join'(S,X,Ns).
-'$$build'([],_).
+'$$build'(Ns,S0,R) :- '$db_dequeue'(R,X), !,
+	'$$build2'(Ns,S0,R,X).
+'$$build'([],_,_).
 
+'$$build2'(Ns,Hash,R,X) :-
+	'$$in'(Hash,X), !,
+	'$$build'(Ns,Hash,R).
+'$$build2'([X|Ns],Hash,R,X) :-
+	'$$build'(Ns,Hash,R).
 
-'$$join'(S,El,S) :- '$$in'(S,El).
-'$$join'(S,El,[El|S]).
-
-'$$in'([El|_],El).
+'$$in'(V,_) :- var(V), !, fail.
+'$$in'([El|_],El) :- !.
 '$$in'([_|S],El) :- '$$in'(S,El).
 
 '$$produce'([T1 same X1|Tn],S,X) :- '$$split'(Tn,T1,X1,S1,S2),
