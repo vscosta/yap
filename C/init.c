@@ -808,6 +808,20 @@ InitCodes(void)
    return;
   }
   heap_regs->consultcapacity = InitialConsultCapacity;
+  {
+    Atom            at;
+    PredEntry      *pred;
+
+    at = Yap_FullLookupAtom("$creep");
+    pred = RepPredProp(PredPropByFunc(Yap_MkFunctor(at, 1),PROLOG_MODULE));
+    heap_regs->creep_code = pred;
+    at = Yap_FullLookupAtom("$undefp");
+    pred = RepPredProp(PredPropByFunc(Yap_MkFunctor(at, 1),PROLOG_MODULE));
+    heap_regs->undef_code = pred;
+    at = Yap_FullLookupAtom("$spy");
+    pred = RepPredProp(PredPropByFunc(Yap_MkFunctor(at, 1),0));
+    heap_regs->spy_code = pred;
+  }
   heap_regs->system_profiling = FALSE;
   heap_regs->system_call_counting = FALSE;
   heap_regs->system_pred_goal_expansion_on = FALSE;
@@ -988,20 +1002,6 @@ InitCodes(void)
   heap_regs->dead_clauses = NULL;
   Yap_ReleaseAtom(AtomOfTerm(heap_regs->term_refound_var));
   /* make sure we have undefp defined */
-  {
-    Atom undefp_at = Yap_FullLookupAtom("$undefp");
-    Prop p = Yap_GetPredPropByFunc(Yap_MkFunctor(undefp_at, 1),0);
-    if (p == NIL) {
-      UndefCode = NULL;
-    } else {
-      PredEntry *undefpe;
-
-      undefpe = RepPredProp (p);
-      UndefCode = undefpe;
-      /* undefp is originally undefined */
-      undefpe->OpcodeOfPred = UNDEF_OPCODE;
-    }
-  }
   /* predicates can only be defined after this point */
   heap_regs->env_for_yes_code.p =
     heap_regs->env_for_yes_code.p0 =

@@ -398,5 +398,5 @@ thread_signal(Thread, Goal) :-
 
 '$thread_gfetch'(G) :-
 	'$thread_self'(Id),
-	recorded('$thread_signal',[Id,G],R),
+	recorded('$thread_signal',[Id|G],R),
 	erase(R).

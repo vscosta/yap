@@ -384,12 +384,6 @@ p_values(void)
 static Int 
 p_flipflop(void)
 {				/* '$flipflop'		 */
-  Atom            at;
-  PredEntry      *pred;
-
-  at = Yap_FullLookupAtom("$spy");
-  pred = RepPredProp(PredPropByFunc(Yap_MkFunctor(at, 1),0));
-  SpyCode = pred;
   return ((int) (FlipFlop = (1 - FlipFlop)));
 }
 

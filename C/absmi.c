@@ -6307,7 +6307,6 @@ Yap_absmi(int inp)
       {
 	PredEntry *ap = PredFromDefCode(PREG);
 	WRITE_LOCK(ap->PRWLock);
-	WPP = ap;
 #if defined(YAPOR) || defined(THREADS)
       /*
 	we do not lock access to the predicate,
@@ -6316,7 +6315,6 @@ Yap_absmi(int inp)
 	if (ap->OpcodeOfPred != INDEX_OPCODE) {
 	  /* someone was here before we were */
 	  PREG = ap->CodeOfPred;
-	  WPP = NULL;
 	  WRITE_UNLOCK(ap->PRWLock);
 	  JMPNext();
 	}
@@ -6442,23 +6440,6 @@ Yap_absmi(int inp)
 	H += 2;
       }
 
-      if (UndefCode == NULL) {
-	Atom at;
-
-	at = Yap_FullLookupAtom("$undefp");
-	{
-	  Prop p = Yap_GetPredPropByFunc(Yap_MkFunctor(at, 1),0);
-	  if (p == NIL) {
-	    FAIL();
-	  } else {
-	    PredEntry *undefpe;
-	    undefpe = RepPredProp (p);
-	    READ_LOCK(undefpe->PRWLock);
-	    UndefCode = undefpe;
-	    READ_UNLOCK(undefpe->PRWLock);
-	  }
-	}
-      }
       PREG = UndefCode->CodeOfPred;
       CACHE_A1();
       JMPNext();

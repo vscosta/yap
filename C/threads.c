@@ -85,6 +85,7 @@ thread_die(void)
   free(ScratchPad.ptr);
   free(ThreadHandle[worker_id].default_yaam_regs);
   ThreadHandle[worker_id].in_use = FALSE;
+  pthread_mutex_destroy(&(ThreadHandle[worker_id].tlock));
   UNLOCK(ThreadHandlesLock);
 }
 
@@ -110,6 +111,7 @@ thread_run(void *widp)
   tgs[0] = Yap_FetchTermFromDB(ThreadHandle[worker_id].tgoal);
   tgs[1] = ThreadHandle[worker_id].tdetach;
   tgoal = Yap_MkApplTerm(FunctorThreadRun, 2, tgs);
+  pthread_mutex_unlock(&(ThreadHandle[worker_id].tlock));
   out = Yap_RunTopGoal(tgoal);
   thread_die();
   return NULL;
@@ -135,6 +137,8 @@ p_create_thread(void)
     return FALSE;
   }    
   ThreadHandle[new_worker_id].id = new_worker_id;
+  pthread_mutex_init(&ThreadHandle[new_worker_id].tlock, NULL);
+  pthread_mutex_lock(&(ThreadHandle[new_worker_id].tlock));
   store_specs(new_worker_id, ssize, tsize, tgoal, tdetach);
   if ((ThreadHandle[new_worker_id].ret = pthread_create(&(ThreadHandle[new_worker_id].handle), NULL, thread_run, (void *)(&(ThreadHandle[new_worker_id].id)))) == 0) {
     return TRUE;
@@ -384,10 +388,13 @@ static Int
 p_thread_signal(void)
 {				/* '$thread_signal'(+P)	 */
   Int wid = IntegerOfTerm(Deref(ARG1));
+  /* make sure the lock is available */
+  pthread_mutex_lock(&(ThreadHandle[wid].tlock));
   LOCK(heap_regs->wl[wid].signal_lock);
   ThreadHandle[wid].current_yaam_regs->CreepFlag_ = Unsigned(LCL0);
   heap_regs->wl[wid].active_signals |= YAP_ITI_SIGNAL;
   UNLOCK(heap_regs->wl[wid].signal_lock);
+  pthread_mutex_unlock(&(ThreadHandle[wid].tlock));
   return TRUE;
 }
 
