@@ -17,9 +17,9 @@
 
 /* Should we use MPI ? */
 #if HAVE_LIBMPI || HAVE_LIBMPICH
- #define HAVE_MPI 1
+#define HAVE_MPI 1
 #else
- #define HAVE_MPI 0
+#define HAVE_MPI 0
 #endif
 
 /* Is there an MPE library? */
@@ -130,18 +130,18 @@
 #undef  DefHeapSpace
 
 #if (DefTrailSpace < MinTrailSpace)
-  #undef DefTrailSpace
-  #define DefTrailSpace	MinTrailSpace
+#undef DefTrailSpace
+#define DefTrailSpace	MinTrailSpace
 #endif
 
 #if (DefStackSpace < MinStackSpace)
-  #undef DefStackSpace
-  #define DefStackSpace	MinStackSpace
+#undef DefStackSpace
+#define DefStackSpace	MinStackSpace
 #endif
 
 #if (DefHeapSpace < MinHeapSpace)
-  #undef DefHeapSpace
-  #define DefHeapSpace	MinHeapSpace
+#undef DefHeapSpace
+#define DefHeapSpace	MinHeapSpace
 #endif
 
 
