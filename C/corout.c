@@ -496,6 +496,7 @@ static Int p_coroutining(void)
 #endif
 }
 
+#if COROUTINING
 static Term
 ListOfWokenGoals(void) {
   return Yap_ReadTimedVar(WokenGoals);
@@ -505,6 +506,7 @@ Term
 Yap_ListOfWokenGoals(void) {
   return ListOfWokenGoals();
 }
+#endif
 
 /* return a list of awoken goals */
 static Int p_awoken_goals(void)
