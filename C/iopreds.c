@@ -67,7 +67,7 @@ static char SccsId[] = "%W% %G%";
 #if !HAVE_STRNCPY
 #define strncpy(X,Y,Z) strcpy(X,Y)
 #endif
-#if _MSC_VER
+#if _MSC_VER || defined(__MINGW32__) 
 #include <windows.h>
 #endif
 #if _MSC_VER || defined(__MINGW32__) 

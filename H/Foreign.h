@@ -51,10 +51,13 @@
 #endif
 #endif
 
-#ifdef _WIN32
+#if defined(_WIN32) || defined(__CYGWIN__)
 #ifdef NO_DYN
 #undef NO_DYN
 #define LOAD_DLL 1
+#endif
+#if LOAD_DL
+#undef LOAD_DL
 #endif
 #endif
 

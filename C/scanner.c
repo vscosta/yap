@@ -42,6 +42,12 @@ static char SccsId[] = "@(#)scanner.c	1.2";
 #include "yapio.h"
 #include "alloc.h"
 #include "eval.h"
+#if _MSC_VER || defined(__MINGW32__) 
+#if HAVE_FINITE==1
+#undef HAVE_FINITE
+#endif
+#include <windows.h>
+#endif
 #include "iopreds.h"
 #if HAVE_STRING_H
 #include <string.h>
