@@ -1200,10 +1200,6 @@ mark_trail(tr_fr_ptr trail_ptr, tr_fr_ptr trail_base, CELL *gc_H, choiceptr gc_B
     
     trail_cell = TrailTerm(trail_ptr);
 
-    if (trail_cell == 0xa0000006) {
-      printf("Oops at %p->%x\n", trail_ptr, trail_cell);
-    }      
-
     if (IsVarTerm(trail_cell)) {
       CELL *hp = (CELL *)trail_cell;
       /* if a variable older than the current CP has not been marked yet,
