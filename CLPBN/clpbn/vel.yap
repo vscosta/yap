@@ -19,12 +19,15 @@
 
 :- attribute size/1, posterior/4, all_diffs/1.
 
-:- use_module(library(ordsets), [ord_union/3
-		    ]).
+:- use_module(library(ordsets), [ord_union/3]).
 
 :- use_module(library('clpbn/xbif'), [clpbn2xbif/3]).
 
 :- use_module(library('clpbn/graphviz'), [clpbn2gviz/4]).
+
+:- use_module(library('clpbn/utils'), [
+	clpbn_not_var_member/2,
+	check_for_hidden_vars/3]).
 
 :- use_module(library(lists),
 	      [
@@ -35,49 +38,23 @@
 check_if_vel_done(Var) :-
 	get_atts(Var, [size(_)]), !.
 
-%output(xbif(user_error)).
-output(gviz(user_error)).
-%output(no).
-
 vel(LVs,Vs0,AllDiffs) :-
 	check_for_hidden_vars(Vs0, Vs0, Vs1),
 	sort(Vs1,Vs),
 	find_all_clpbn_vars(Vs, LV0, LVi, Tables0),
 	find_all_table_deps(Tables0, LV0),
-	(output(xbif(XBifStream)) -> clpbn2xbif(XBifStream,vel,Vs) ; true),
-	(output(gviz(XBifStream)) -> clpbn2gviz(XBifStream,vel,Vs,LVs) ; true),
+	(clpbn:output(xbif(XBifStream)) -> clpbn2xbif(XBifStream,vel,Vs) ; true),
+	(clpbn:output(gviz(XBifStream)) -> clpbn2gviz(XBifStream,vel,Vs,LVs) ; true),
 	process(LVi, LVs, tab(Dist,_,_)),
 	Dist =.. [_|Ps0],
 	normalise(Ps0,Ps),
 	bind_vals(LVs,Ps,AllDiffs).
 
-%
-% It may happen that variables from a previous query may still be around.
-% and be used in the next evaluation, so we cannot trust the list of *new*
-% variables.
-%
-check_for_hidden_vars([], _, []).
-check_for_hidden_vars([V|Vs], AllVs0, [V|NVs]) :-
-	check_for_extra_variables(V,AllVs0, AllVs, Vs, IVs),
-	check_for_hidden_vars(IVs, AllVs, NVs).
-
-check_for_extra_variables(V,AllVs0, AllVs, Vs, IVs) :-
-	clpbn:get_atts(V, [dist((([_|_].[V1|LV])->_))]), !,
-	add_old_variables([V1|LV], AllVs0, AllVs, Vs, IVs).
-check_for_extra_variables(_,AllVs, AllVs, Vs, Vs).
-
-add_old_variables([], AllVs, AllVs, Vs, Vs).
-add_old_variables([V1|LV], AllVs0, AllVs, Vs, IVs) :-
-	not_var_member(AllVs0, V1), !,
-	add_old_variables(LV, [V1|AllVs0], AllVs, [V1|Vs], IVs).
-add_old_variables([_|LV], AllVs0, AllVs, Vs, IVs) :-
-	add_old_variables(LV, AllVs0, AllVs, Vs, IVs).
-
 find_all_clpbn_vars([], [], [], []) :- !.
 find_all_clpbn_vars([V|Vs], [Var|LV], ProcessedVars, [table(I,Table,Deps,Sizes)|Tables]) :-
 	var_with_deps(V, Table, Deps, Sizes, Ev, Vals), !,
 	Var = var(V,I,Sz,Vals,Ev,_,_),
-	get_dist_els(V,Sz),
+	get_dist_size(V,Sz),
 	% variables with evidence should not be processed.
 	(var(Ev) ->
 	    ProcessedVars = [Var|ProcessedVars0]
@@ -87,123 +64,15 @@ find_all_clpbn_vars([V|Vs], [Var|LV], ProcessedVars, [table(I,Table,Deps,Sizes)|
 	find_all_clpbn_vars(Vs, LV, ProcessedVars0, Tables).
 
 var_with_deps(V, Table, Deps, Sizes, Ev, Vals) :-
-	clpbn:get_atts(V, [dist((D->Vals))]),
+	clpbn:get_atts(V, [dist(Vals,OTable,VDeps)]),
 	( clpbn:get_atts(V, [evidence(Ev)]) -> true ; true),
-	from_dist_get(D,Vals,OTable,VDeps),
 	reorder_table([V|VDeps],Sizes0,OTable,Deps0,Table0),
 	simplify_evidence(Deps0, Table0, Deps0, Sizes0, Table, Deps, Sizes).
 
-from_dist_get(average.Vs0,Vals,Lf,Vs) :- !,
-	handle_average(Vs0,Vals,Lf,Vs).
-from_dist_get(sum.Vs0,Vals,Lf,Vs) :- !,
-	handle_sum(Vs0, Vals, Lf, Vs).
-from_dist_get(normalised_average(Max).Vs0,Vals,Lf,Vs) :- !,
-	handle_normalised_average(Max,Vs0,Vals,Lf,Vs).
-from_dist_get(([A|B].[C|D]),_,[A|B],[C|D]) :- !.
-from_dist_get([A|B],_,[A|B],[]).
-
-handle_average(Vs0,Vals,Lf,Vs) :-
-	sort(Vs0,Vs),
-	generate_indices(Vals,Inds,0,Av),
-	combine_all(Vs, Inds, Cs),
-	length(Vs, Max),
-	average_possible_cases(0,Av,Max,Cs,Lf).
-
-handle_sum(Vs0, Vals, Lf, Vs) :-
-	sort(Vs0,Vs),
-	length(Vals,Sz),
-	combine_all(Vs, Cs),
-	sum_possible_cases(0,Sz,Cs,Lf).
-
-handle_normalised_average(Max,Vs0,Vals,Lf,Vs) :-
-	sort(Vs0,Vs),
-	generate_indices(Vals,_,0,Sz),
-	combine_all(Vs, Cs),
-	average_possible_cases(0,Sz,Max,Cs,Lf).
-
-
-generate_indices([],[],Av,Av).
-generate_indices([_|Ls],[I|Inds],I,Av) :-
-	I1 is I+1,
-	generate_indices(Ls,Inds,I1,Av).
-
-
-combine_all([], [[]]).
-combine_all([V|LV], Cs) :-
-	combine_all(LV, Cs0),
-	get_dist_els(V,Sz),
-	generate_indices(0, Sz, Vals),
-	add_vals(Vals, Cs0, Cs).
-
-combine_all([], _, [[]]).
-combine_all([_|LV], Vals, Cs) :-
-	combine_all(LV, Vals, Cs0),
-	add_vals(Vals, Cs0, Cs).
-
-generate_indices(Sz,Sz,[]) :- !.
-generate_indices(I0,Sz,[I0|Vals]) :-
-	I is I0+1,
-	generate_indices(I,Sz,Vals).
-
-
-add_vals([], _, []).
-add_vals([V|Vs], Cs0, Csf) :-
-	add_vals(Vs, Cs0, Cs),
-	add_val_to_cases(Cs0, V, Cs, Csf).
-
-add_val_to_cases([], _, Cs, Cs).
-add_val_to_cases([C|Cs], V, Cs0, [[V|C]|Csf]) :-
-	add_val_to_cases(Cs, V, Cs0, Csf).
-
-sum_all([],N,N).
-sum_all([C|Cs],N0,N) :-
-	X is C+N0,
-	sum_all(Cs,X,N).
-
-average_possible_cases(Av,Av,_,_,[]) :- !.
-average_possible_cases(I,Av,Max,Cs,Lf) :-
-	average_cases2(Cs,I,Max,Lf,L0),
-	I1 is I+1,
-	average_possible_cases(I1,Av,Max,Cs,L0).
-
-average_cases2([], _, _, L, L).
-average_cases2([C|Cs], I, Av, [P|Lf], L0) :-
-	calculate_avg_prob(C, I, Av, P),
-	average_cases2(Cs, I, Av, Lf, L0).
-
-calculate_avg_prob(C, I, Av, 1.0) :-
-	sum_all(C,0,N),
-	I =:= integer(round(N/Av)), !.
-calculate_avg_prob(_, _, _, 0.0).
-
-sum_possible_cases(Av,Av,_,[]) :- !.
-sum_possible_cases(I,Av,Cs,Lf) :-
-	sum_cases2(Cs,I,Lf,L0),
-	I1 is I+1,
-	sum_possible_cases(I1,Av,Cs,L0).
-
-sum_cases2([], _, L, L).
-sum_cases2([C|Cs], I, [P|Lf], L0) :-
-	calculate_sum_prob(C, I, P),
-	sum_cases2(Cs, I, Lf, L0).
-
-calculate_sum_prob(C, I, 1.0) :-
-	sum_all(C,0,N),
-	I =:= N, !.
-calculate_sum_prob(_, _, 0.0).
-
-
 get_sizes([], []).
 get_sizes([V|Deps], [Sz|Sizes]) :-
-	get_dist_els(V,Sz),
+	get_dist_size(V,Sz),
 	get_sizes(Deps, Sizes).
-
-get_dist_els(V,Sz) :-
-	get_atts(V, [size(Sz)]), !.
-get_dist_els(V,Sz) :-
-	clpbn:get_atts(V, [dist((_->Vals))]), !,
-	length(Vals,Sz),
-	put_atts(V, [size(Sz)]).
 
 reorder_table(Vs0, Sizes, T0, Vs, TF) :-
 	get_sizes(Vs0, Szs),
@@ -280,7 +149,7 @@ compute_size([tab(_,Vs,_)|Tabs],Vs0,K) :-
 
 multiply_sizes([],K,K).
 multiply_sizes([V|Vs],K0,K) :-
-	get_dist_els(V, Sz),
+	get_dist_size(V, Sz),
 	KI is K0*Sz,
 	multiply_sizes(Vs,KI,K).
 
@@ -299,7 +168,7 @@ process(LV0, _, Out) :-
 find_best([], V, _, V, _, [], _).
 find_best([var(V,I,Sz,Vals,Ev,Deps,K)|LV], _, Threshold, VF, NWorktables, LVF, Inputs) :-
 	K < Threshold,
-	not_var_member(Inputs, V), !,
+	clpbn_not_var_member(Inputs, V), !,
 	find_best(LV, V, K, VF, WorkTables,LV0, Inputs),
 	(V == VF ->
 	    LVF = LV0, Deps = NWorktables
@@ -318,7 +187,7 @@ multiply_tables([tab(Tab1,Deps1,Szs1), tab(Tab2,Deps2,Sz2)| Tables], Out) :-
 simplify_evidence([], Table, Deps, Sizes, Table, Deps, Sizes).
 simplify_evidence([V|VDeps], Table0, Deps0, Sizes0, Table, Deps, Sizes) :-
 	clpbn:get_atts(V, [evidence(Ev)]),
-	clpbn:get_atts(V, [dist((_->Out))]),
+	clpbn:get_atts(V, [dist(Out,_,_)]),
 	generate_szs_with_evidence(Out,Ev,Evs),
 	project(V,tab(Table0,Deps0,Sizes0),tab(NewTable,Deps1,Sizes1),Evs),
 	simplify_evidence(VDeps, NewTable, Deps1, Sizes1, Table, Deps, Sizes).
@@ -326,7 +195,7 @@ simplify_evidence([_|VDeps], Table0, Deps0, Sizes0, Table, Deps, Sizes) :-
 	simplify_evidence(VDeps, Table0, Deps0, Sizes0, Table, Deps, Sizes).
 
 propagate_evidence(V, Evs) :-
-	clpbn:get_atts(V, [evidence(Ev),dist((_->Out))]), !,
+	clpbn:get_atts(V, [evidence(Ev),dist(Out,_,_)]), !,
 	generate_szs_with_evidence(Out,Ev,Evs).
 propagate_evidence(_, _).
 
@@ -341,10 +210,6 @@ fetch_tables([], []).
 fetch_tables([var(_,_,_,_,_,Deps,_)|LV0], Tables) :-
 	append(Deps,Tables0,Tables),
 	fetch_tables(LV0, Tables0).
-
-not_var_member([], _).
-not_var_member([V1|Vs], V) :- V1 \== V,
-	not_var_member(Vs, V).
 
 multiply_table(Tab1, Deps1, Szs1, Tab2, Deps2, Szs2, NTab, NDeps, NSzs) :-
 	deps_union(Deps1,Szs1,Fs10,Deps2,Szs2,Fs20,NDeps,NSzs),
@@ -442,7 +307,7 @@ project_inner_loop(I,Sz,[_|Evs],NBase,F,Table,Ent0,Ent) :- !,
 	
 include([],_,_,[]).
 include([var(V,P,VSz,D,Ev,Tabs,Est)|LV],tab(T,Vs,Sz),V1,[var(V,P,VSz,D,Ev,Tabs,Est)|NLV]) :-
-	not_var_member(Vs,V), !,
+	clpbn_not_var_member(Vs,V), !,
 	include(LV,tab(T,Vs,Sz),V1,NLV).
 include([var(V,P,VSz,D,Ev,Tabs,_)|LV],Table,NV,[var(V,P,VSz,D,Ev,NTabs,NEst)|NLV]) :-
 	update_tables(Tabs,NTabs,Table,NV,[],NEst),
@@ -453,7 +318,7 @@ update_tables([],[Table],Table,_,AVs,NS) :-
 	ord_union(Vs,AVs,TVs),
 	length(TVs,NS).
 update_tables([tab(Tab0,Vs,Sz)|Tabs],[tab(Tab0,Vs,Sz)|NTabs],Table,V,AVs0,NS) :-
-	not_var_member(Vs,V), !,
+	clpbn_not_var_member(Vs,V), !,
 	ord_union(Vs,AVs0,AVsI),
 	update_tables(Tabs,NTabs,Table,V,AVsI,NS).
 update_tables([_|Tabs],NTabs,Table,V,AVs0,NS) :-
@@ -462,7 +327,7 @@ update_tables([_|Tabs],NTabs,Table,V,AVs0,NS) :-
 bind_vals([],_,_) :- !.
 % simple case, we want a distribution on a single variable.
 %bind_vals([V],Ps) :- !,
-%	clpbn:get_atts(V, [dist((_->Vals))]),
+%	clpbn:get_atts(V, [dist(Vals,_,_)]),
 %	put_atts(V, posterior([V], Vals, Ps)).
 % complex case, we want a joint distribution, do it on a leader.
 % should split on cliques ?
@@ -477,7 +342,7 @@ get_all_combs(Vs, Vals) :-
 
 get_all_doms([], []).
 get_all_doms([V|Vs], [D|Ds]) :-
-	clpbn:get_atts(V, [dist((_->D))]),
+	clpbn:get_atts(V, [dist(D,_,_)]),
 	get_all_doms(Vs, Ds).
 
 ms([], []).
@@ -499,6 +364,10 @@ divide_by_sum([P|Ps0],Sum,[PN|Ps]) :-
 	PN is P/Sum,
 	divide_by_sum(Ps0,Sum,Ps).
 
+
+%
+% what is actually output
+%
 attribute_goal(V, G) :-
 	get_atts(V, [posterior(Vs,Vals,Ps,AllDiffs)]),
 	massage_out(Vs, Vals, Ps, G, AllDiffs).
@@ -519,4 +388,11 @@ gen_eqs([V|Vs], [D|Ds], ((V=D),Eqs)) :-
 add_alldiffs([],Eqs,Eqs).
 add_alldiffs(AllDiffs,Eqs,(Eqs/alldiff(AllDiffs))).
 
+
+get_dist_size(V,Sz) :-
+	get_atts(V, [size(Sz)]), !.
+get_dist_size(V,Sz) :-
+	clpbn:get_atts(V, [dist(Vals,_,_)]), !,
+	length(Vals,Sz),
+	put_atts(V, [size(Sz)]).
 

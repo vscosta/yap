@@ -65,8 +65,7 @@ all_vars_with_deps(I, LDeps, LNoDeps) :-
 
 var_with_deps(Indx, Deps, Deps0, NoDeps, NoDeps0) :-
 	array_element(clpbn, Indx, V),
-	clpbn:get_atts(V, [dist(D)]), !,
-	term_variables(D, VDeps),
+	clpbn:get_atts(V, [dist(_,_,VDeps)]), !,
 	(VDeps = [] ->
 	    NoDeps = [V|NoDeps0], Deps = Deps0 ;
 	    sort(VDeps,SVDeps),
@@ -160,26 +159,14 @@ mknet_all_discrete(Vs, Key, Observables, CommandStream, Answer) :-
 	send_command(CommandStream, Answer, "bnet = mk_bnet(dag, ns, 'discrete', discrete_nodes, 'observed', onodes);~n", []).
 
 send_var_sizes([V], CommandStream) :- !,
-	clpbn:get_atts(V, [dist(D)]),
-	dist_size(D, 1, Sz),
+	clpbn:get_atts(V, [dist(_,Tab,_)]),
+	length(Tab, Sz),
 	my_format(CommandStream, "~w", [Sz]).
 send_var_sizes([V|Vs], CommandStream) :-
-	clpbn:get_atts(V, [dist(D)]),
-	dist_size(D, 1, Sz),
+	clpbn:get_atts(V, [dist(_,Tab,_)]),
+	length(Tab, Sz),
 	my_format(CommandStream, "~w ", [Sz]),
 	send_var_sizes(Vs, CommandStream).
-
-
-dist_size((_->Vs), _, L) :- !,
-	length(Vs,L).
-dist_size((_._=Vs), I0, If) :- !,
-	length(Vs,L),
-	If is I0+(L-1).
-dist_size((A;B), I0, If) :- !,
-	dist_size(A, I0, I1),
-	I2 is I1+1,
-	dist_size(B, I2, If).
-dist_size(_, I, I).
 
 
 dump_observables([], _, _) :- !.
@@ -194,14 +181,14 @@ dump_observables([Observable|Observables], mid, CommandStream) :-
 	
 dump_cpds([], _, _).
 dump_cpds([V|Vs], CommandStream, Answer) :-
-	clpbn:get_atts(V, [dist(D)]),
+	clpbn:get_atts(V, [dist(Domain,_,_)]),
 	dump_cpds(Vs, CommandStream, Answer),
-	dump_dist(D, V, CommandStream, Answer).
+	dump_dist(Domain, V, CommandStream, Answer).
 
 %
 % this is a discrete distribution
 %
-dump_dist(((average.Ss)->Vs), V, CommandStream, Answer) :- !,
+dump_dist(Vs, average, Ss, V, CommandStream, Answer) :- !,
 	vals_map(Vs, 1, Map),
 	get_atts(V, [topord(I)]),
 	my_format(CommandStream, "bnet.CPD{~w} = deterministic_CPD(bnet, ~w, inline('round(mean([",['$VAR'(I),'$VAR'(I)]),
@@ -209,7 +196,7 @@ dump_dist(((average.Ss)->Vs), V, CommandStream, Answer) :- !,
 	length(Ss, Len),
 	dump_indices(0,Len,CommandStream),
 	send_command(CommandStream, Answer, "]))'));~n",[]).
-dump_dist(((sum.Ss)->Vs), V, CommandStream, Answer) :- !,
+dump_dist(Vs, sum, Ss, V, CommandStream, Answer) :- !,
 	vals_map(Vs, 1, Map),
 	get_atts(V, [topord(I)]),
 	my_format(CommandStream, "bnet.CPD{~w} = deterministic_CPD(bnet, ~w, inline('sum([",['$VAR'(I),'$VAR'(I)]),
@@ -217,7 +204,7 @@ dump_dist(((sum.Ss)->Vs), V, CommandStream, Answer) :- !,
 	length(Ss, Len),
 	dump_indices(0,Len,CommandStream),
 	send_command(CommandStream, Answer, "])'));~n",[]).
-dump_dist(((normalised_average(N).Ss)->Vs), V, CommandStream, Answer) :- !,
+dump_dist(Vs, normalised_average(N), Ss, V, CommandStream, Answer) :- !,
 	vals_map(Vs, 1, Map),
 	get_atts(V, [topord(I)]),
 	my_format(CommandStream, "bnet.CPD{~w} = deterministic_CPD(bnet, ~w, inline('round((sum([",['$VAR'(I),'$VAR'(I)]),
@@ -226,8 +213,7 @@ dump_dist(((normalised_average(N).Ss)->Vs), V, CommandStream, Answer) :- !,
 	dump_indices(0,Len,CommandStream),
 	N2 is N//2,
 	send_command(CommandStream, Answer, "])+~d)/~d)'));~n",[N2,N]).
-dump_dist((([H|T].Ss0)->Vs), V, CommandStream, Answer) :- !,
-	Ds = [H|T],
+dump_dist(Vs,Ds,Ss0, V, CommandStream, Answer) :- !,
 	vals_map(Vs, 1, Map),
 	get_atts(V, [topord(I)]),
 	my_format(CommandStream, "bnet.CPD{~w} = tabular_CPD(bnet, ~w, [ ",['$VAR'(I),'$VAR'(I)]),
@@ -237,20 +223,6 @@ dump_dist((([H|T].Ss0)->Vs), V, CommandStream, Answer) :- !,
 	calculate_new_numbers(Ds,Ns,0,KDs0),
 	keysort(KDs0,KDs),
 	dump_elements(KDs, CommandStream),
-	send_command(CommandStream, Answer, "]);~n",[]).
-dump_dist(([H|T]->Vs), V, CommandStream, Answer) :-
-	vals_map(Vs, 1, Map),
-	get_atts(V, [topord(I)]),
-	my_format(CommandStream, "bnet.CPD{~w} = tabular_CPD(bnet, ~w, [ ",['$VAR'(I),'$VAR'(I)]),
-	put_atts(V, [map(Map)]),
-	dump_problist([H|T], CommandStream),
-	send_command(CommandStream, Answer, "]);~n",[]).
-dump_dist((D1;D2), V, CommandStream, Answer) :-
-	get_atts(V, [topord(I)]),
-	my_format(CommandStream, "bnet.CPD{~w} = tabular_CPD(bnet, ~w, [ ",['$VAR'(I),'$VAR'(I)]),
-	find_map((D1;D2), 1, _, Map, []),
-	put_atts(V, [map(Map)]),
-	dump_dlist((D1;D2), start, CommandStream),
 	send_command(CommandStream, Answer, "]);~n",[]).
 
 vals_map([], _, []).
@@ -354,7 +326,7 @@ follow_map([_|Map], K, V) :- !,
 
 find_observables([], []).
 find_observables([Var|GVars], [Var|Observables]) :-
-	clpbn:get_atts(Var, [dist(_)]), !,
+	clpbn:get_atts(Var, [dist(_,_,_)]), !,
 	find_observables(GVars, Observables).
 find_observables([_|GVars], Observables) :-
 	find_observables(GVars, Observables).
@@ -383,8 +355,7 @@ in_clique([V1|L], V) :-
 	in_clique(L,V).
 
 child(V,V1) :-
-	clpbn:get_atts(V, [dist(T)]),
-	term_variables(T,LVs),
+	clpbn:get_atts(V, [dist(_,_,LVs)]),
 	varmember(LVs, V1).
 
 varmember([H|_], V1) :- H == V1, !.
@@ -521,24 +492,6 @@ bind_lobs([Obs|Lobs], (Key,Rest), FullKey, Out) :-
 	Obs = {FullKey:Out},
 	bind_lobs(Lobs, Rest, FullKey, Out).
 
-
-/* cartesian product
-
-cart([], [[]]).
-cart([L|R], Rf) :-
-	cart(R, R1),
-	add(L, R1, Rf).
-
-add([], _, []).
-add([A|R], R1, RsF) :-
-	add_head(R1, A, RsF, Rs0),
-	add(R, R1, Rs0).
-
-add_head([], _, Rs, Rs).
-add_head([H|L], A, [[A|H]|Rs], Rs0) :-
-	add_head(L, A, Rs, Rs0).
-
-*/
 
 my_format(Stream, String, Args) :-
 	format(user_error, String, Args),

@@ -29,7 +29,9 @@ CLPBN_PROGRAMS= \
 	$(srcdir)/clpbn/aggregates.yap \
 	$(srcdir)/clpbn/bnt.yap \
 	$(srcdir)/clpbn/evidence.yap \
+	$(srcdir)/clpbn/graphs.yap \
 	$(srcdir)/clpbn/graphviz.yap \
+	$(srcdir)/clpbn/utils.yap \
 	$(srcdir)/clpbn/vel.yap \
 	$(srcdir)/clpbn/xbif.yap
 

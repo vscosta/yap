@@ -1,25 +1,122 @@
+%
+%
+%
+%
 
-:- module(evidence, [add_to_evidence/1,
-		     execute_pre_evidence/0
-		    ]).
+:- module(evidence, [
+	store_evidence/1,
+        incorporate_evidence/2
+    ]).
 
-% declare some new evidence.
+:- use_module(library(clpbn), [
+	{}/1,
+	clpbn_flag/3,
+	set_clpbn_flag/2
+    ]).
 
-add_to_evidence(G2) :-
-	recordzifnot('$evidence',G2,_),
-	fail.
-add_to_evidence(_).
+:- use_module(library(rbtrees), [
+	new/1,
+	lookup/3,
+	insert/4
+    ]).
 
-% use it at query evaluation time.
+:- meta_predicate store_evidence(:).
 
-execute_pre_evidence :-
-	findall(G, recorded('$evidence', G, _), LGs),
-	execute_all(LGs).
+:- dynamic node/4, reachable_from_evidence/2, evidence/2.
 
-execute_all([]).
-execute_all([M:G|Gs]) :-
-	call(M:G),
-	execute_all(Gs).
+%
+% new evidence storagea algorithm. The idea is that instead of 
+% redoing all the evidence every time we query the network, we shall
+% keep a precompiled version around. The precompiled
+%
+% the format is as follows:
+%  evidence_store:parent(Key,ParentList,[EvidenceChildren])
+%
+%
+store_evidence(G) :-
+	clpbn_flag(solver,Solver, graphs),
+	compute_evidence(G, Solver).
+
+compute_evidence(G, PreviousSolver) :-
+	catch(call_residue(G, Vars), Ball, evidence_error(Ball,PreviousSolver)), !,
+	store_graph(Vars,KEv),
+	mark_from_evidence(Vars,KEv),
+	set_clpbn_flag(solver,PreviousSolver).
+compute_evidence(_, PreviousSolver) :-
+	set_clpbn_flag(solver,PreviousSolver).
 
 
+evidence_error(Ball,PreviousSolver) :-
+	set_clpbn_flag(solver,PreviousSolver),
+	throw(Ball).
+
+store_graph([], _).
+store_graph([_-node(K,Dom,CPT,TVs,Ev)|Vars], Kev) :-
+	\+ node(K,_,_,_), !,
+	assert(node(K,Dom,CPT,TVs)),
+	( nonvar(Ev) -> assert(evidence(K,Ev)), Kev = K ; true),
+	store_graph(Vars, Kev).
+store_graph([_|Vars], Kev) :-
+	store_graph(Vars, Kev).
+
+mark_from_evidence([], _).
+mark_from_evidence([_-node(K,_,_,_,_)|Vars], Kev) :-
+	\+ reachable_from_evidence(K,Kev), !,
+	assert(reachable_from_evidence(K,Kev)),
+	mark_from_evidence(Vars, Kev).
+mark_from_evidence([_|Vars], Kev) :-
+	mark_from_evidence(Vars, Kev).
+
+incorporate_evidence(Vs,AllVs) :-
+	new(Cache0),
+	create_open_list(Vs, OL, FL, Cache0, CacheI),
+	do_variables(OL, FL, CacheI),
+	extract_vars(OL, AllVs).
+
+create_open_list([], L, L, C, C).
+create_open_list([V|Vs], [K-V|OL], FL, C0, CF) :-
+	clpbn:get_atts(V,[key(K)]),
+	add_evidence(K, V),
+	insert(C0, K, V, CI),
+	create_open_list(Vs, OL, FL, CI, CF).
+
+do_variables([], [], _) :- !.
+do_variables([K-V|Vs], Vf, C0) :-
+	check_for_evidence(K, V, Vf, Vff, C0, Ci),
+	do_variables(Vs, Vff, Ci).
+
+create_new_variable(K, V, Vf0, Vff, C0, Cf) :-
+	node(K,Dom, CPT, TVs),
+	{ V = K with p(Dom, CPT, NTVs) },
+	add_evidence(K, V),
+	add_variables(TVs, NTVs, Vf0, Vff, C0, Cf).
+
+
+add_variables([], [], Vf, Vf, C, C).
+add_variables([K|TVs], [V|NTVs], Vf0, Vff, C0, Cf) :-
+	lookup(K, V, C0), !,
+	add_variables(TVs, NTVs, Vf0, Vff, C0, Cf).
+add_variables([K|TVs], [V|NTVs], [K-V|Vf0], Vff, C0, Cf) :-
+	insert(C0, K, V, C1),
+	create_new_variable(K, V, Vf0, Vf1, C1, C2),
+	add_variables(TVs, NTVs, Vf1, Vff, C2, Cf).
+
+
+extract_vars([], []).
+extract_vars([_-V|Cache], [V|AllVs]) :-
+	extract_vars(Cache, AllVs).
+
+
+add_evidence(K, V) :-
+	evidence(K, Ev), !,
+	listing(evidence),
+	clpbn:put_atts(V, [evidence(Ev)]).
+add_evidence(_, _).
+
+
+check_for_evidence(_, V, Vf, Vf, C, C) :-
+	clpbn:get_atts(V, [evidence(_)]), !.
+check_for_evidence(K, _, Vf0, Vff, C0, Ci) :-
+	findall(Rt,reachable_from_evidence(K,Rt),Rts),
+	add_variables(Rts, _, Vf0, Vff, C0, Ci).
 

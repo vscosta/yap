@@ -1,3 +1,7 @@
+%
+% XMLBIF support for CLP(BN)
+%
+
 :- module(xbif, [clpbn2xbif/3]).
 
 clpbn2xbif(Stream, Name, Network) :-
@@ -44,18 +48,13 @@ output_vars(Stream, [V|Vs]) :-
 	output_vars(Stream, Vs).
 
 output_var(Stream, V) :-
-	clpbn:get_atts(V,[key(Key),dist(DInfo)]),
-	extract_domain(DInfo,Domain),
+	clpbn:get_atts(V,[key(Key),dist(Domain,_,_)]),
 	format(Stream, '<VARIABLE TYPE="nature">
 	<NAME>',[]),
 	output_key(Stream,Key),
 	format('</NAME>~n',[]),
 	output_domain(Stream, Domain),
 	format(Stream, '</VARIABLE>~n~n',[]).
-
-extract_domain(tab(D,_),D).
-extract_domain(tab(D,_,_),D).
-extract_domain((_->D),D).
 
 output_domain(_, []).
 output_domain(Stream, [El|Domain]) :-
@@ -69,35 +68,22 @@ output_dists(Stream, [V|Network]) :-
 
 
 output_dist(Stream, V) :-
-	clpbn:get_atts(V,[key(Key),dist((Info))]),
+	clpbn:get_atts(V,[key(Key),dist(_,CPT,Parents)]),
 	format(Stream, '<DEFINITION>
 	<FOR>',[]),
 	output_key(Stream, Key),
 	format('</FOR>~n',[]),
-	output_parents(Stream,Info),
-	extract_cpt(Info,CPT),
+	output_parents(Stream,Parents),
 	output_cpt(Stream,CPT),
 	format(Stream, '</DEFINITION>~n~n',[]).
 
-output_parents(_,tab(_,_)).
-output_parents(Stream,tab(_,_,Ps)) :-
-	do_output_parents(Stream,Ps).
-output_parents(Stream,([_|_].Ps->_)) :- !,
-	do_output_parents(Stream,Ps).
-output_parents(_,(_->_)).
-
-do_output_parents(_,[]).
-do_output_parents(Stream,[P1|Ps]) :-
+output_parents(_,[]).
+output_parents(Stream,[P1|Ps]) :-
 	clpbn:get_atts(P1,[key(Key)]),
 	format(Stream, '<GIVEN>',[]),
 	output_key(Stream,Key),
 	format('</GIVEN>~n',[]),
-	do_output_parents(Stream,Ps).
-
-extract_cpt(tab(_,CPT),CPT).
-extract_cpt(tab(_,CPT,_),CPT).	
-extract_cpt(([C1|Cs]._->_),[C1|Cs]) :- !.
-extract_cpt((CPT->_),CPT).
+	output_parents(Stream,Ps).
 
 output_cpt(Stream,CPT) :-
 	format(Stream, '	<TABLE> ', []),
