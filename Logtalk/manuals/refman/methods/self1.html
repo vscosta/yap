@@ -24,7 +24,7 @@
 self(Self)
 </pre>
 <p>
-	Returns the object that has received the message under processing.
+	Returns the object that has received the message under processing. Note that this predicate implies an instantiation between its argument and the corresponding implicit context argument in the predicate containing the call. This instantiation occurs at the clause head, not at the clause body.
 </p>
 </blockquote>
 
@@ -32,7 +32,7 @@ self(Self)
 
 <blockquote>
 <pre>
-self(-object)
+self(?object_identifier)
 </pre>
 </blockquote>
 
@@ -60,7 +60,7 @@ test :-
 <strong><a href="parameter2.html">Previous</a> | <a href="sender1.html">Next</a> | <a href="../index.html">Table of Contents</a> | <a href="../../bibliography.html">Bibliography</a> | <a href="../../glossary.html">Glossary</a></strong>
 </p>
 <p class="center">
-Last updated on: August 6, 2002
+Last updated on: March 4, 2003
 </p>
 <hr />
 

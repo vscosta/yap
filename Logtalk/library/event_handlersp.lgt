@@ -3,15 +3,15 @@
 
 
 	:- info([
-		version is 1.0,
+		version is 1.1,
 		author is 'Paulo Moura',
-		date is 2000/7/24,
+		date is 2003/2/12,
 		comment is 'Event handlers protocol.']).
 
 
 	:- public(before/3).
 
-	:- mode(before(?object, ?nonvar, ?object), zero_or_one).
+	:- mode(before(@object, @nonvar, @object), zero_or_one).
 
 	:- info(before/3, [
 		comment is 'Before event handler.',
@@ -20,7 +20,7 @@
 
 	:- public(after/3).
 
-	:- mode(after(?object, ?nonvar, ?object), zero_or_one).
+	:- mode(after(@object, @nonvar, @object), zero_or_one).
 
 	:- info(after/3, [
 		comment is 'After event handler.',

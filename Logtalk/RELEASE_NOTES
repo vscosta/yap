@@ -1,6 +1,6 @@
 =================================================================
 Logtalk - Object oriented extension to Prolog
-Release 2.15.0
+Release 2.15.1
 
 Copyright (c) 1998-2003 Paulo Moura.  All Rights Reserved.
 =================================================================
@@ -8,6 +8,19 @@ Copyright (c) 1998-2003 Paulo Moura.  All Rights Reserved.
 
 RELEASE NOTES
 =============
+
+
+2.15.1 - March 8, 2003
+
+	New example, msglog, of using events and monitors to record, replay, and 
+	print user messages.
+
+	Corrected a typo on the jEdit templates that resulted in syntax errors.
+	Corrected wrong year format in info/1 directive in all entity templates.
+	Added missing version info key to jEdit prototype template.
+
+	Corrected documentation of built-in local methods self/1 and sender/1.
+	Updated documentation of built-in local methods parameter/2 and this/1.
 
 
 2.15.0 - February 5, 2003

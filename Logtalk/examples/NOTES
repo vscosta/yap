@@ -1,6 +1,6 @@
 =================================================================
 Logtalk - Object oriented extension to Prolog
-Release 2.15.0
+Release 2.15.1
 
 Copyright (c) 1998-2003 Paulo Moura.  All Rights Reserved.
 =================================================================
@@ -68,6 +68,10 @@ mi
 
 miscellaneous
 	unsorted examples
+
+msglog
+	example of using events and monitors for recording, replaying, and 
+	printing user messages
 
 parametric
 	simple example of parametric objects
