@@ -711,13 +711,6 @@ debugging :-
 
 %'$creep'(G) :- $current_module(M),write(user_error,[creep,M,G]),nl(user_error),fail.
 % skip calls to assembly versions of execute.
-'$creep'([_|'$execute_in_mod'(G,ModNum)]) :- !,
-	'$module_number'(Mod,ModNum),
-	'$creep'([Mod|G]).
-'$creep'([M|'$execute_within'(G)]) :- !,
-	'$creep'([M|G]).
-'$creep'([M|'$last_execute_within'(G)]) :- !,
-	'$creep'([M|G]).
 '$creep'(G) :-
 	'$get_value'('$alarm', true), !,
 	'$set_value'('$alarm', []),
@@ -735,15 +728,13 @@ debugging :-
 	'$handle_signals'(Signals),
 	G=[M|Goal],
 	'$execute'(M:Goal).
-'$creep'(_) :-
-	'$get_value'('$throw', true), !,
-	'$set_value'('$throw', false),
-	abort.
-'$creep'([_|'$trace'(P,G,Module,L)]) :- !,
-	'$trace'(P,G,Module,L).
-'$creep'([_|'$creep_call'(G,Mod,CP)]) :- !,
-	'$creep_call'(G,Mod,CP).
-'$creep'([_|'$leave_creep']) :- !.
+'$creep'([_|'$execute_in_mod'(G,ModNum)]) :- !,
+	'$module_number'(Mod,ModNum),
+	'$creep'([Mod|G]).
+'$creep'([M|'$execute_within'(G)]) :- !,
+	'$creep'([M|G]).
+'$creep'([M|'$last_execute_within'(G)]) :- !,
+	'$creep'([M|G]).
 '$creep'(G) :- '$direct_spy'(G).
 
 '$trace'(P,'!'(_),Mod,L,NC) :- !,

@@ -620,7 +620,7 @@ call_residue(Goal,Residue) :-
 	  '$pick_vars_for_project'(LIV,NLIV),
 	  '$project_module'(LMods,NLIV,LAV),
 	  '$all_attvars'(NLAV0),
-	  sort(NLAV0, NLAV),
+	  '$sort'(NLAV0, NLAV),
 	  '$convert_att_vars'(NLAV, LIV, Gs, Gs0)
 	).
 
