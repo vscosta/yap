@@ -1022,7 +1022,10 @@ execute_growstack(long size0, int from_trail)
     MoveLocalAndTrail();
   }
   if (GDiff) {
+#if !USE_SYSTEM_MALLOC
+    /* That is done by realloc */
     MoveGlobal();
+#endif
     AdjustStacksAndTrail();
     AdjustRegs(MaxTemps);
 #ifdef TABLING

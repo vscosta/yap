@@ -186,6 +186,10 @@ Yap_MkBigIntTerm(MP_INT *big)
     ret[0] = (CELL)FunctorBigInt;
     memmove((void *)new, (const void *)(big->_mp_d), nlimbs*CellSize);
     H = (CELL *)(new+nlimbs);
+    if ((char *)H-(char *)ret > MAX_SPECIALS_TAG-EndSpecials) {
+      /* too large */
+      return TermNil;
+    }
 #if GC_NO_TAGS
     H[0] = (H-ret)*sizeof(CELL)+EndSpecials;
 #else

@@ -1000,7 +1000,9 @@ check_global(void) {
 
     if (MARKED_PTR(current)) {
       CELL ccell = UNMARK_CELL(ccurr);
-      if (ccell < (CELL)AtomBase && ccell > EndSpecials && IsVarTerm(ccell)) {
+      if (
+	  ccell < MAX_SPECIALS_TAG &&  /* two first pages */
+	  ccell > EndSpecials && IsVarTerm(ccell)) {
 	/* oops, we found a blob */
 	int nofcells = (UNMARK_CELL(*current)-EndSpecials) / sizeof(CELL);
 	CELL *ptr = current - nofcells ;
@@ -2305,11 +2307,13 @@ sweep_trail(choiceptr gc_B, tr_fr_ptr old_TR)
 		 (long int)(hp_erased*100/(hp_erased+hp_in_use_erased)),
 		 (long int)(hp_erased+hp_in_use_erased));
 #endif
+#if !USE_SYSTEM_MALLOC
     fprintf(Yap_stderr,
-	       "%%       Heap: recovered %ld bytes (%ld%%) out of %ld\n",
-	       (unsigned long int)(OldHeapUsed-HeapUsed),
-	       (unsigned long int)((OldHeapUsed-HeapUsed)/(OldHeapUsed/100)),
-	       (unsigned long int)OldHeapUsed);
+	    "%%       Heap: recovered %ld bytes (%ld%%) out of %ld\n",
+	    (unsigned long int)(OldHeapUsed-HeapUsed),
+	    (unsigned long int)((OldHeapUsed-HeapUsed)/(OldHeapUsed/100)),
+	    (unsigned long int)OldHeapUsed);
+#endif
   }
   {
     DeadClause **cptr;
@@ -2838,7 +2842,9 @@ compact_heap(void)
   for (current = H - 1; current >= H0; current--) {
     if (MARKED_PTR(current)) {
       CELL ccell = UNMARK_CELL(*current);
-      if (ccell < (CELL)AtomBase && ccell > EndSpecials && IsVarTerm(ccell)
+      if (
+	  ccell < MAX_SPECIALS_TAG &&  /* two first pages */
+	  ccell > EndSpecials && IsVarTerm(ccell)
 	  ) {
 	/* oops, we found a blob */
 	int nofcells = (UNMARK_CELL(*current)-EndSpecials) / sizeof(CELL);
@@ -2927,7 +2933,9 @@ compact_heap(void)
     CELL ccur = *current;
     if (MARKED_PTR(current)) {
       CELL uccur = UNMARK_CELL(ccur);
-      if (uccur < (CELL)AtomBase && uccur > EndSpecials && IsVarTerm(uccur)) {
+      if (
+	  uccur < MAX_SPECIALS_TAG &&  /* two first pages */
+	  uccur > EndSpecials && IsVarTerm(uccur)) {
 	/* oops, we found a blob */
 	int nofcells = (uccur-EndSpecials) / sizeof(CELL) , i;
 
@@ -3063,7 +3071,8 @@ icompact_heap(void)
 
     current = *iptr;
     ccell = UNMARK_CELL(*current);
-    if (ccell < (CELL)AtomBase && ccell > EndSpecials && IsVarTerm(ccell)
+    if (ccell < MAX_SPECIALS_TAG &&  /* two first pages */
+	ccell > EndSpecials && IsVarTerm(ccell)
 	) {
       /* oops, we found a blob */
       int nofcells = (UNMARK_CELL(*current)-EndSpecials) / sizeof(CELL);
@@ -3128,7 +3137,7 @@ icompact_heap(void)
     CELL ccur = *current;
     CELL_PTR dest = H0+(iptr-ibase);
     CELL uccur = UNMARK_CELL(ccur);
-    if (uccur < (CELL)AtomBase && uccur > EndSpecials && IsVarTerm(uccur)) {
+    if (uccur < MAX_SPECIALS_TAG && uccur > EndSpecials && IsVarTerm(uccur)) {
       /* oops, we found a blob */
       int nofcells = (uccur-EndSpecials) / sizeof(CELL) , i;
 
@@ -3309,10 +3318,6 @@ do_gc(Int predarity, CELL *current_env, yamop *nextop)
   Int           effectiveness = 0;
   int           gc_trace = FALSE;
 
-#if USE_SYSTEM_MALLOC
-  /* I can't use it because I may have pointers to high memory */
-  return 0;
-#endif
 #if COROUTINING
   if (H0 - max < 1024+(2*NUM_OF_ATTS)) {
     if (!Yap_growglobal(&current_env)) {

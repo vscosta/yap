@@ -10,7 +10,7 @@
 * File:		TermExt.h						 *
 * mods:									 *
 * comments:	Extensions to standard terms for YAP			 *
-* version:      $Id: TermExt.h.m4,v 1.15 2004-09-16 17:29:08 vsc Exp $	 *
+* version:      $Id: TermExt.h.m4,v 1.16 2004-10-04 18:56:20 vsc Exp $	 *
 *************************************************************************/
 
 #ifdef USE_SYSTEM_MALLOC
@@ -33,7 +33,7 @@
 #define   TermNil MkAtomTerm(AtomNil)
 #define   TermDot MkAtomTerm(AtomDot)
 
-#ifdef IN_SECOND_QUADRANT
+#if defined(IN_SECOND_QUADRANT) && !GC_NO_TAGS
 typedef enum {
   db_ref_e = sizeof(Functor *)|RBIT,
   long_int_e = 2*sizeof(Functor *)|RBIT,
@@ -108,6 +108,12 @@ typedef struct special_functors_struct
   char AtDotChars[8];
 }
 special_functors;
+
+#if USE_SYSTEM_MALLOC
+#define MAX_SPECIALS_TAG (4*4096)
+#else
+#define MAX_SPECIALS_TAG ((CELL)AtomBase)
+#endif
 
 #if SIZEOF_DOUBLE == SIZEOF_LONG_INT
 #if GC_NO_TAGS

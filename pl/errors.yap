@@ -11,8 +11,11 @@
 * File:		errors.yap						 *
 * comments:	error messages for YAP					 *
 *									 *
-* Last rev:     $Date: 2004-09-17 19:34:53 $,$Author: vsc $						 *
+* Last rev:     $Date: 2004-10-04 18:56:20 $,$Author: vsc $						 *
 * $Log: not supported by cvs2svn $
+* Revision 1.55  2004/09/17 19:34:53  vsc
+* simplify frozen/2
+*
 * Revision 1.54  2004/07/22 21:32:22  vsc
 * debugger fixes
 * initial support for JPL
@@ -113,6 +116,9 @@ print_message(Level, Mss) :-
 	'$show_consult_level'(LC),
 	format(user_error, '~*|% ~a ~a...~n', [LC, What, AbsoluteFileName]).
 '$do_informational_message'(loaded(_,user,_,_,_)) :- !.
+'$do_informational_message'(loaded(included,AbsoluteFileName,Mod,Time,Space)) :- !,
+	'$show_consult_level'(LC),
+	format(user_error, '~*|% ~a included in module ~a, ~d msec ~d bytes~n', [LC, AbsoluteFileName,Mod,Time,Space]).
 '$do_informational_message'(loaded(What,AbsoluteFileName,Mod,Time,Space)) :- !,
 	'$show_consult_level'(LC0),
 	LC is LC0+1,

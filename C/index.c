@@ -11,8 +11,11 @@
 * File:		index.c							 *
 * comments:	Indexing a Prolog predicate				 *
 *									 *
-* Last rev:     $Date: 2004-09-30 21:37:41 $,$Author: vsc $						 *
+* Last rev:     $Date: 2004-10-04 18:56:19 $,$Author: vsc $						 *
 * $Log: not supported by cvs2svn $
+* Revision 1.101  2004/09/30 21:37:41  vsc
+* fixes for thread support
+*
 * Revision 1.100  2004/09/30 19:51:54  vsc
 * fix overflow from within clause/2
 *
@@ -2711,6 +2714,21 @@ valid_instructions(yamop *end, yamop *cl)
       break;
     case _get_atom:
       cl = NEXTOP(cl,xc);
+      break;
+    case _get_2atoms:
+      cl = NEXTOP(cl,cc);
+      break;
+    case _get_3atoms:
+      cl = NEXTOP(cl,ccc);
+      break;
+    case _get_4atoms:
+      cl = NEXTOP(cl,cccc);
+      break;
+    case _get_5atoms:
+      cl = NEXTOP(cl,ccccc);
+      break;
+    case _get_6atoms:
+      cl = NEXTOP(cl,cccccc);
       break;
     case _get_struct:
       cl = NEXTOP(cl,xf);
@@ -6215,11 +6233,11 @@ kill_unsafe_block(path_stack_entry *sp, op_numbers op, PredEntry *ap, int first,
       LogUpdClause *lc = lu_clause(ipc);
 
       if (first) {
-	cld[0].Code = lc->ClCode;
-	cld[1].Code = cls[0].Code;
-      } else {
 	cld[0].Code = cls[0].Code;
 	cld[1].Code = lc->ClCode;
+      } else {
+	cld[0].Code = lc->ClCode;
+	cld[1].Code = cls[0].Code;
       }
       intrs.expand_block = NULL;
       *sp->u.cle.entry_code = (yamop *)suspend_indexing(cld, cld+1, ap, &intrs);

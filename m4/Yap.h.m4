@@ -10,10 +10,8 @@
 * File:		Yap.h.m4						 *
 * mods:									 *
 * comments:	main header file for YAP				 *
-* version:      $Id: Yap.h.m4,v 1.68 2004-09-30 19:52:55 vsc Exp $	 *
+* version:      $Id: Yap.h.m4,v 1.69 2004-10-04 18:56:20 vsc Exp $	 *
 *************************************************************************/
-
-/* #define GC_NO_TAGS 1 */
 
 #include "config.h"
 
@@ -86,6 +84,10 @@
 #if defined(TABLING) || defined(SBA)
 #define FROZEN_STACKS 1
 #endif /* TABLING || SBA */
+
+#if USE_SYSTEM_MALLOC
+#define GC_NO_TAGS 1
+#endif
 
 #ifdef _MSC_VER /* Microsoft's Visual C++ Compiler */
 /* adjust a config.h from mingw32 to work with vc++ */
