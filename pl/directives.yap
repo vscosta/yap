@@ -67,8 +67,8 @@
 	op(P,OPSEC,OP).
 '$exec_directive'(set_prolog_flag(F,V), _, _) :-
 	set_prolog_flag(F,V).
-'$exec_directive'(ensure_loaded(F), _, _) :-
-	'$ensure_loaded'(F).
+'$exec_directive'(ensure_loaded(F), _, M) :-
+	'$ensure_loaded'(F, M).
 '$exec_directive'(char_conversion(IN,OUT), _, _) :-
 	char_conversion(IN,OUT).
 '$exec_directive'(public(P), _, M) :-

@@ -166,6 +166,8 @@
 
 #undef  HAVE_SIGSEGV
 
+#undef  HAVE_ENVIRON
+
 #define  SELECT_TYPE_ARG1    
 #define  SELECT_TYPE_ARG234  
 #define  SELECT_TYPE_ARG5    
