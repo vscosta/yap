@@ -16,38 +16,25 @@
 
 <h2>Yap-4.3.19:</h2>
 <ul>
-        <li> FIXED: make yap modules more compatible with SICStus Prolog</li>
-        <li> NEW: portray_clause/2 (request from Nicos Angelopoulos)</li>
-        <li> FIXED: document absolute_file_name/2</li>
-        <li> FIXED: absolute_file_name/2 should return absolute path,
-        never user name!  (bug report from Nicos Angelopoulos)</li>
-        <li> FIXED: in a:-b:call(X) X belongs to the module b  (bug
-        report from Nicos Angelopoulos)</li>
-        <li> FIXED: make consult/1 and friends meta-predicates (bug
-        report from Nicos Angelopoulos)</li>
-        <li> FIXED: allow [M:F] and friends (bug report from
-        Nicos Angelopoulos)</li>
-        <li> FIXED: ensure_loaded/1 can be used as a goal  (bug report
-        from Nicos Angelopoulos)</li>
-        <li> FIXED: abolish(VAR) should abolish all predicates in
-        current module  (bug report from Nicos Angelopoulos).</li>
-        <li> NEW: library(system), only for Unix system right now.</li>
-        <li> FIXED: allow current_stream/3 to work with third argument
-        known.</li>
-        <li> FIXED: always leave enough space so that the hybrid garbage
-        collection may work.</li>
-        <li> FIXED: add_to_path should not leave choice-points.</li>
-        <li> FIXED: don't initialise first occurrences in branches for
-        func outputs.</li>
-        <li> FIXED: handle void variables in body.</li>
-        <li> NEW: externd C-interface with StreamToFileNo,
-        BufferToString, and BufferToAtomList.</li>
-        <li> NEW: support pipes with open_pipe_stream/2.</li>
-	<li>FIXED: <code>functor/3</code> was generating too many
-	deallocates at the end of a clause.</li>
-	<li>FIXED: <code>call_residue/2</code> should not allow
-	constraints to escape (use
-	<code>copy_term_no_variables/2</code> to avoid this).</li>
+	<li>FIXED: make yap modules more compatible with SICStus Prolog</li>
+	<li>NEW: <code>portray_clause/2</code> (request from Nicos Angelopoulos)</li>
+	<li>FIXED: document <code>absolute_file_name/2</code></li>
+	<li>FIXED: <code>absolute_file_name/2</code> should return absolute path, never user name! (bug report from Nicos Angelopoulos)</li>
+	<li>FIXED: in <code>a:-b:call(X)</code> <code>X</code> belongs to the module <code>b</code> (bug report from Nicos Angelopoulos)</li>
+	<li>FIXED: make <code>consult/1</code> and friends meta-predicates (bug report from Nicos Angelopoulos)</li>
+	<li>FIXED: allow <code>[M:F]</code> and friends (bug report from Nicos Angelopoulos)</li>
+	<li>FIXED: <code>ensure_loaded/1</code> can be used as a goal (bug report from Nicos Angelopoulos)</li>
+	<li>FIXED: <code>abolish(VAR)</code> should abolish all predicates in current module (bug report from Nicos Angelopoulos).</li>
+	<li>NEW: <code>library(system)</code>, only for Unix system right now.</li>
+	<li>FIXED: allow <code>current_stream/3</code> to work with third argument known.</li>
+	<li>FIXED: always leave enough space so that the hybrid garbage collection may work.</li>
+	<li>FIXED: <code>add_to_path</code> should not leave choice-points.</li>
+	<li>FIXED: don't initialise first occurrences in branches for func outputs.</li>
+	<li>FIXED: handle void variables in body.</li>
+	<li>NEW: externd C-interface with <code>StreamToFileNo</code>, <code>BufferToString</code>, and <code>BufferToAtomList</code>.</li>
+	<li>NEW: support pipes with <code>open_pipe_stream/2</code>.</li>
+	<li>FIXED: <code>functor/3</code> was generating too many deallocates at the end of a clause.</li>
+	<li>FIXED: <code>call_residue/2</code> should not allow constraints to escape (use <code>copy_term_no_variables/2</code> to avoid this).</li>
 	<li>SPEEDUP: optimise away <code>true/0</code> at the end of a clause.</li>
 	<li>FIXED: do not short circuit trail entries.</li>
 	<li>FIXED: Patches for memory allocation in Apple's OS/X.</li>
@@ -58,10 +45,8 @@
 	<li>FIXED: force line buffering for text stream.</li>
 	<li>FIXED: force no buffering for <code>user_error</code>.</li>
 	<li>FIXED: flush all streams before writing answer.</li>
-	<li>FIXED: <code>YP_std*</code> are now streams, so that
-	<code>yap_flag(user_*)</code> will change them too.</li>
-	<li>FIXED: <code>nth/3</code> and <code>nth0/3</code> would
-	leave one extra choice-point.</li> 
+	<li>FIXED: <code>YP_std*</code> are now streams, so that <code>yap_flag(user_*)</code> will change them too.</li>
+	<li>FIXED: <code>nth/3</code> and <code>nth0/3</code> would leave one extra choice-point.</li> 
 	<li>FIXED: use <code>Contents</code> instead of <code>Uses</code> to determine live variables.</li>
 	<li>FIXED: <code>cputime</code> was actually <code>walltime</code> in WIN32, ugh (report from Steve Moyle).</li>
 	<li>FIXED: regexp library would not compile on recent versions of cygwin.</li>
