@@ -315,7 +315,8 @@ copy_suspended_goals(sus_record *pt, CELL ***to_visit_ptr)
   to_visit[0] = &(pt->SG)-1;
   to_visit[1] = &(pt->SG);
   to_visit[2] = &(gf->SG);
-  *to_visit_ptr = to_visit+3;
+  to_visit[3] = (CELL *)(*to_visit[0]);
+  *to_visit_ptr = to_visit+4;
 #ifdef MULTI_ASSIGNMENT_VARIABLES
   gf->NS = UpdateSVarList(gf);
 #endif
