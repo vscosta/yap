@@ -875,7 +875,7 @@ Yap_growstack_in_parser(tr_fr_ptr *old_trp, TokEntry **tksp, VarEntry **vep)
   AdjustScannerStacks(tksp, vep);
   {
     tr_fr_ptr nTR;
-    nTR = TR = PtoTRAdjust(TR);
+    nTR = TR;
     *old_trp = PtoTRAdjust(*old_trp);
     TR = *old_trp;
     AdjustGrowStack();
