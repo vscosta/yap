@@ -54,6 +54,26 @@ clean_tr(tr_fr_ptr TR0) {
   }
 }
 
+static inline void
+clean_dirty_tr(tr_fr_ptr TR0) {
+  if (TR != TR0) {
+    tr_fr_ptr pt = TR0;
+
+    do {
+      Term p = TrailTerm(pt++);
+      if (IsVarTerm(p)) {
+	RESET_VARIABLE(p);
+      } else {
+	TrailTerm(TR0+1) = TrailTerm(pt);
+	TrailTerm(TR0) = TrailTerm(TR0+2) = p;
+	pt+=2;
+	TR0 += 3;
+      }
+    } while (pt != TR);
+    TR = TR0;
+  }
+}
+
 static int
 copy_complex_term(register CELL *pt0, register CELL *pt0_end, CELL *ptf, CELL *HLow)
 {
@@ -201,43 +221,6 @@ copy_complex_term(register CELL *pt0, register CELL *pt0_end, CELL *ptf, CELL *H
 	  }
 	  to_visit = bp[0];
 	  HB = HLow;
-	  if (CurTR != TR) {
-	    /* Problem here is that the attached routine might
-	     *  have changed the list of suspended goals and stored
-	     *  new entries in the trail. This should be quite
-	     *  rare, so for simplicity we just swap cells from
-	     *  bottom and top of Trail, not nice but not worth
-	     *  complicating everything else.
-	     */
-	    CELL *pt1 = (CELL *)TR0;
-	    CELL *pt2 = (CELL *)CurTR;
-	    CELL *pt3 = (CELL *)TR;
-	    if (pt1 == pt2) {
-	      TR0 = TR;
-	    } else {
-	      /* make a backup copy */
-	      while (pt2 < pt3)
-		*((CELL *)TR)++ = *pt2++;
-	      /* reset pointers */
-	      TR = (tr_fr_ptr)pt3;
-	      pt2  = (CELL *)CurTR;
-	      /* now go to old trail */
-	      pt3 = pt1+(pt2-pt1);
-	      /* copy old trail above */
-	      if (pt3 != pt1) {
-		while (pt3 < pt2) {
-		  *pt3++ = *pt1++;
-		}
-	      }
-	      pt1 = (CELL *)TR0;
-	      pt2 = pt1 + (pt3-(CELL *)CurTR);
-	      /* copy new trail below */
-	      while (pt1 < pt2) {
-		*pt1++ = *pt3++;
-	      }
-	      TR0 = (tr_fr_ptr)pt1;
-	    }
-	  }
 	  ptf++;
 	  Bind_Global(ptd0, ptf[-1]);
 	}
@@ -271,7 +254,7 @@ copy_complex_term(register CELL *pt0, register CELL *pt0_end, CELL *ptf, CELL *H
 
   /* restore our nice, friendly, term to its original state */
   HB = HB0;
-  clean_tr(TR0);
+  clean_dirty_tr(TR0);
   return(0);
 
  overflow:
@@ -289,7 +272,7 @@ copy_complex_term(register CELL *pt0, register CELL *pt0_end, CELL *ptf, CELL *H
     *pt0 = (CELL)to_visit[3];
   }
 #endif
-  clean_tr(TR0);
+  clean_dirty_tr(TR0);
   return(-1);
 
  heap_overflow:
@@ -307,7 +290,7 @@ copy_complex_term(register CELL *pt0, register CELL *pt0_end, CELL *ptf, CELL *H
     *pt0 = (CELL)to_visit[3];
   }
 #endif
-  clean_tr(TR0);
+  clean_dirty_tr(TR0);
   return(-2);
 }
 
