@@ -3697,6 +3697,7 @@ format(Term tail, Term args, int sno)
   Term mytargs[8], *targs;
   Int tnum, targ = 0;
   char *fstr = NULL, *fptr;
+  Term oargs = args;
   
   if (IsVarTerm(tail)) {
     Yap_Error(INSTANTIATION_ERROR,tail,"format/2");
@@ -3968,7 +3969,9 @@ format(Term tail, Term args, int sno)
 	    if (targ > tnum || has_repeats)
 	      goto do_consistency_error;
 	    t = targs[targ++];
+	    *--ASP = MkIntTerm(0);
 	    Yap_plwrite (t, format_putc, Quote_illegal_f|Ignore_ops_f|To_heap_f );
+	    ASP++;
 	    break;
 	  case 'p':
 	    if (targ > tnum || has_repeats)
@@ -3998,13 +4001,17 @@ format(Term tail, Term args, int sno)
 	    if (targ > tnum || has_repeats)
 	      goto do_consistency_error;
 	    t = targs[targ++];
+	    *--ASP = MkIntTerm(0);
 	    Yap_plwrite (t, format_putc, Handle_vars_f|Quote_illegal_f|To_heap_f);
+	    ASP++;
 	    break;
 	  case 'w':
 	    if (targ > tnum || has_repeats)
 	      goto do_consistency_error;
 	    t = targs[targ++];
+	    *--ASP = MkIntTerm(0);
 	    Yap_plwrite (t, format_putc, Handle_vars_f|To_heap_f);
+	    ASP++;
 	    break;
 	  case '~':
 	    if (has_repeats)
@@ -4082,7 +4089,7 @@ format(Term tail, Term args, int sno)
 	    goto do_default_error;
 	  do_consistency_error:
 	  default:
-	    Yap_Error(CONSISTENCY_ERROR, args, "format/2");
+	    Yap_Error(CONSISTENCY_ERROR, oargs, "format/2");
 	  do_default_error:
 	    if (tnum <= 8)
 	      targs = NULL;

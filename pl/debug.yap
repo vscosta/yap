@@ -577,7 +577,7 @@ debugging :-
 	'$format'(user_error,"! g execute goal~n", []).
 	
 '$ilgl'(C) :-
-	'$format'(user_error,"[ Illegal option ~d. Use h for help. ]. ~n", []).
+	'$format'(user_error,"[ Illegal option ~d. Use h for help. ]. ~n", [C]).
 
 '$skipeol'(10) :- !.
 '$skipeol'(_) :- get0(user,C), '$skipeol'(C).

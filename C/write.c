@@ -782,7 +782,6 @@ Yap_plwrite(Term t, int (*mywrite) (int, int), int flags)
   wglb.keep_terms = (flags & (Use_portray_f|To_heap_f)); 
   wglb.Ignore_ops = flags & Ignore_ops_f;
   /* protect slots for portray */
-  *--ASP = MkIntTerm(0);
   writeTerm(t, 1200, 1, FALSE, &wglb);
 }
 
