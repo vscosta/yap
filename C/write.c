@@ -44,35 +44,39 @@ typedef enum {
 
 static wtype lastw;
 
-STATIC_PROTO(void wrputn, (Int));
-STATIC_PROTO(void wrputs, (char *));
-STATIC_PROTO(void wrputf, (Float));
-STATIC_PROTO(void wrputref, (CODEADDR));
+typedef  int      (*wrf) (int, int);
+
+typedef struct write_globs {
+  wrf      writech;
+  int      Quote_illegal, Ignore_ops, Handle_vars, Use_portray;
+  int      keep_terms;
+  UInt     MaxDepth, MaxList;
+} wglbs;
+
+STATIC_PROTO(void wrputn, (Int, wrf));
+STATIC_PROTO(void wrputs, (char *, wrf));
+STATIC_PROTO(void wrputf, (Float, wrf));
+STATIC_PROTO(void wrputref, (CODEADDR, wrf));
 STATIC_PROTO(int legalAtom, (char *));
 STATIC_PROTO(int LeftOpToProtect, (Atom, int));
 STATIC_PROTO(int RightOpToProtect, (Atom, int));
 STATIC_PROTO(wtype AtomIsSymbols, (char *));
-STATIC_PROTO(void putAtom, (Atom));
-STATIC_PROTO(void writeTerm, (Term, int, int, int));
+STATIC_PROTO(void putAtom, (Atom, int, wrf));
+STATIC_PROTO(void writeTerm, (Term, int, int, int, struct write_globs *));
 
-static int      (*writech) (int, int);
-static int      Quote_illegal, Ignore_ops, Handle_vars, Use_portray;
-static int      keep_terms;
-
-
-#define wrputc(X)	((*writech)(Yap_c_output_stream,X))	/* writes a character */
+#define wrputc(X,WF)	((*WF)(Yap_c_output_stream,X))	/* writes a character */
 
 static void 
-wrputn(Int n)			/* writes an integer	 */
+wrputn(Int n, wrf writech)	/* writes an integer	 */
 	                  
 {
   char s[256], *s1=s; /* that should be enough for most integers */
   if (n < 0) {
     if (lastw == symbol)
-      wrputc(' ');  
+      wrputc(' ', writech);  
   } else {
     if (lastw == alphanum)
-      wrputc(' ');
+      wrputc(' ', writech);
   }
 #if HAVE_SNPRINTF
 #if SHORT_INTS
@@ -88,48 +92,48 @@ wrputn(Int n)			/* writes an integer	 */
 #endif
 #endif
   while (*s1)
-    wrputc(*s1++);
+    wrputc(*s1++, writech);
   lastw = alphanum;
 }
 
 static void 
-wrputs(char *s)			/* writes a string	 */
+wrputs(char *s, wrf writech)		/* writes a string	 */
 {
   while (*s)
-    wrputc(*s++);
+    wrputc(*s++, writech);
 }
 
 static void 
-wrputf(Float f)			/* writes a float	 */
+wrputf(Float f, wrf writech)		/* writes a float	 */
 	                  
 {
   char            s[255], *pt = s, ch;
 
   if (f < 0) {
     if (lastw == symbol)
-      wrputc(' ');  
+      wrputc(' ', writech);  
   } else {
     if (lastw == alphanum)
-      wrputc(' ');
+      wrputc(' ', writech);
   }
   lastw = alphanum;
   sprintf(s, "%.15g", f);
   while (*pt == ' ')
     pt++;
   if (*pt == 'i' || *pt == 'n')  /* inf or nan */
-    wrputc('+');    
-  wrputs(pt);
+    wrputc('+', writech);    
+  wrputs(pt, writech);
   if (*pt == '-') pt++;
   while ((ch = *pt) != '\0') {
     if (ch < '0' || ch > '9')
       return;
     pt++;
   }
-  wrputs(".0");    
+  wrputs(".0", writech);    
 }
 
 static void 
-wrputref(CODEADDR ref)			/* writes a data base reference */
+wrputref(CODEADDR ref, wrf writech)			/* writes a data base reference */
 	                    
 {
   char            s[256];
@@ -143,7 +147,7 @@ wrputref(CODEADDR ref)			/* writes a data base reference */
   sprintf(s, "0x%p", ref);
 #endif
 #endif
-  wrputs(s);
+  wrputs(s, writech);
   lastw = alphanum;
 }
 
@@ -204,7 +208,7 @@ AtomIsSymbols(char *s)		/* Is this atom just formed by symbols ? */
 }
 
 static void 
-putAtom(Atom atom)			/* writes an atom	 */
+putAtom(Atom atom, int Quote_illegal, wrf writech)			/* writes an atom	 */
 	                     
 {
   char           *s = RepAtom(atom)->StrOfAE;
@@ -215,26 +219,26 @@ putAtom(Atom atom)			/* writes an atom	 */
   if (Yap_GetValue(Yap_LookupAtom("crypt_atoms")) != TermNil && Yap_GetAProp(atom, OpProperty) == NIL) {
     char s[16];
     sprintf(s,"x%x", (CELL)s);
-    wrputs(s);
+    wrputs(s, writech);
     return;
   }
 #endif
   if (lastw == atom_or_symbol && atom_or_symbol != separator /* solo */)
-    wrputc(' ');
+    wrputc(' ', writech);
   lastw = atom_or_symbol;
   if (!legalAtom(s) && Quote_illegal) {
-    wrputc('\'');
+    wrputc('\'', writech);
     while (*s) {
       int ch = *s++;
-      wrputc(ch);
+      wrputc(ch, writech);
       if (ch == '\\' && yap_flags[CHARACTER_ESCAPE_FLAG] != CPROLOG_CHARACTER_ESCAPES)
-	wrputc('\\');	/* be careful about backslashes */
+	wrputc('\\', writech);	/* be careful about backslashes */
       else if (ch == '\'')
-	wrputc('\'');	/* be careful about quotes */
+	wrputc('\'', writech);	/* be careful about quotes */
     }
-    wrputc('\'');
+    wrputc('\'', writech);
   } else {
-    wrputs(s);
+    wrputs(s, writech);
   }
 }
 
@@ -260,30 +264,30 @@ IsStringTerm(Term string)	/* checks whether this is a string */
 }
 
 static void 
-putString(Term string)			/* writes a string	 */
+putString(Term string, wrf writech)		/* writes a string	 */
 	                     
 {
-  wrputc('"');
+  wrputc('"', writech);
   while (string != TermNil) {
     int ch = IntOfTerm(HeadOfTerm(string));
-    wrputc(ch);
+    wrputc(ch, writech);
     if (ch == '\\' && yap_flags[CHARACTER_ESCAPE_FLAG] != CPROLOG_CHARACTER_ESCAPES)
-      wrputc('\\');	/* be careful about backslashes */
+      wrputc('\\', writech);	/* be careful about backslashes */
     else if (ch == '"')
-      wrputc('"');	/* be careful about quotes */
+      wrputc('"', writech);	/* be careful about quotes */
     string = TailOfTerm(string);
   }
-  wrputc('"');
+  wrputc('"', writech);
   lastw = alphanum;
 }
 
 static void 
-putUnquotedString(Term string)		/* writes a string	 */
+putUnquotedString(Term string, wrf writech)	/* writes a string	 */
 	                     
 {
   while (string != TermNil) {
     int ch = IntOfTerm(HeadOfTerm(string));
-    wrputc(ch);
+    wrputc(ch, writech);
     string = TailOfTerm(string);
   }
   lastw = alphanum;
@@ -291,12 +295,12 @@ putUnquotedString(Term string)		/* writes a string	 */
 
 
 static void
-write_var(CELL *t) 
+write_var(CELL *t,  struct write_globs *wglb) 
 {
   if (lastw == alphanum) {
-    wrputc(' ');
+    wrputc(' ', wglb->writech);
   }
-  wrputc('_');
+  wrputc('_', wglb->writech);
   /* make sure we don't get no creepy spaces where they shouldn't be */
   lastw = separator;
   if (CellPtr(t) < H0) {
@@ -307,24 +311,24 @@ write_var(CELL *t)
 
       Yap_Portray_delays = FALSE;
       if (ext == susp_ext) {
-	wrputs("$DL(");
-	write_var(t);
-	wrputc(')');
+	wrputs("$DL(",wglb->writech);
+	write_var(t, wglb);
+	wrputc(')', wglb->writech);
 	lastw = separator;
       } else if (ext == attvars_ext) {
 	attvar_record *attv = (attvar_record *)t;
 	int i;
 	long sl = 0;
 
-	wrputs("$AT(");
-	write_var(t);
-	wrputc(',');      
-	if (keep_terms) {
+	wrputs("$AT(",wglb->writech);
+	write_var(t, wglb);
+	wrputc(',', wglb->writech);      
+	if (wglb->keep_terms) {
 	  /* garbage collection may be called */
 	  sl = Yap_InitSlot((CELL)attv);
 	}
-	writeTerm((Term)&(attv->Value), 999, 1, FALSE);
-	if (keep_terms) {
+	writeTerm((Term)&(attv->Value), 999, 1, FALSE, wglb);
+	if (wglb->keep_terms) {
 	  attv = (attvar_record *)Yap_GetFromSlot(sl);
 	  Yap_RecoverSlots(1);
 	}
@@ -332,70 +336,56 @@ write_var(CELL *t)
 	  if (!IsVarTerm(attv->Atts[2*i+1])) {
 	    long sl = 0;
 
-	    wrputc(',');
-	    if (keep_terms) {
+	    wrputc(',', wglb->writech);
+	    if (wglb->keep_terms) {
 	      /* garbage collection may be called */
 	      sl = Yap_InitSlot((CELL)attv);
 	    }
-	    writeTerm((Term)&(attv->Atts[2*i+1]), 999, 1, FALSE);
-	    if (keep_terms) {
+	    writeTerm((Term)&(attv->Atts[2*i+1]), 999, 1, FALSE, wglb);
+	    if (wglb->keep_terms) {
 	      attv = (attvar_record *)Yap_GetFromSlot(sl);
 	      Yap_RecoverSlots(1);
 	    }
 	  }
 	}
-	wrputc(')');
+	wrputc(')', wglb->writech);
       }
       Yap_Portray_delays = TRUE;
       return;
     }
 #endif
 #endif
-    wrputc('D');
-    wrputn(((Int) (t- CellPtr(Yap_GlobalBase))));
+    wrputc('D', wglb->writech);
+    wrputn(((Int) (t- CellPtr(Yap_GlobalBase))),wglb->writech);
   } else {
-    wrputn(((Int) (t- H0)));
+    wrputn(((Int) (t- H0)),wglb->writech);
   }
 }
 
 static void 
-writeTerm(Term t, int p, int depth, int rinfixarg)
+writeTerm(Term t, int p, int depth, int rinfixarg, struct write_globs *wglb)
 	                  	/* term to write			 */
 	                  	/* context priority			 */
 	                      
 {
-  if (max_depth != 0 && depth > max_depth) {
-    putAtom(Yap_LookupAtom("..."));
+  if (wglb->MaxDepth != 0 && depth > wglb->MaxDepth) {
+    putAtom(Yap_LookupAtom("..."), wglb->Quote_illegal, wglb->writech);
     return;
   }
   if (EX != 0)
     return;
   t = Deref(t);
   if (IsVarTerm(t)) {
-    write_var((CELL *)t);
+    write_var((CELL *)t, wglb);
   } else if (IsIntTerm(t)) {
-    wrputn((Int) IntOfTerm(t));
+    wrputn((Int) IntOfTerm(t),wglb->writech);
   } else if (IsAtomTerm(t)) {
-    putAtom(AtomOfTerm(t));
-  } else if (IsFloatTerm(t)) {
-    wrputf(FloatOfTerm(t));
-  } else if (IsRefTerm(t)) {
-    wrputref(RefOfTerm(t));
-  } else if (IsLongIntTerm(t)) {
-    wrputn(LongIntOfTerm(t));
-#ifdef USE_GMP
-  } else if (IsBigIntTerm(t)) {
-    char *s = (char *)TR;
-    while (s+2+mpz_sizeinbase(Yap_BigIntOfTerm(t), 10) > (char *)Yap_TrailTop)
-      Yap_growtrail(64*1024);
-    mpz_get_str(s, 10, Yap_BigIntOfTerm(t));
-    wrputs(s);
-#endif
+    putAtom(AtomOfTerm(t), wglb->Quote_illegal, wglb->writech);
   } else if (IsPairTerm(t)) {
     int             eldepth = 1;
     Term ti;
 
-    if (Use_portray) {
+    if (wglb->Use_portray) {
       Term targs[1];
       Term old_EX = 0L;
       long sl = 0;
@@ -409,33 +399,32 @@ writeTerm(Term t, int p, int depth, int rinfixarg)
       t = Yap_GetFromSlot(sl);
       Yap_RecoverSlots(1);
       if (old_EX != 0L) EX = old_EX;
-      Use_portray = TRUE;
-      Use_portray = TRUE;
       if (Yap_GetValue(AtomPortray) == MkAtomTerm(AtomTrue))
 	return;
     }
     if (yap_flags[WRITE_QUOTED_STRING_FLAG] && IsStringTerm(t)) {
-      putString(t);
+      putString(t, wglb->writech);
     } else {
-      wrputc('[');
+      wrputc('[', wglb->writech);
       lastw = separator;
       while (1) {
 	int             new_depth = depth + 1;
 	long            sl= 0;
 
-	if (max_list && eldepth > max_list) {
-	  putAtom(Yap_LookupAtom("..."));
-	  wrputc(']');
+	if (wglb->MaxList && eldepth > wglb->MaxList) {
+	  putAtom(Yap_LookupAtom("..."), wglb->Quote_illegal, wglb->writech);
+	  wrputc(']', wglb->writech);
 	  lastw = separator;
 	  return;
-	} else
+	} else {
 	  eldepth++;
-	if (keep_terms) {
+	}
+	if (wglb->keep_terms) {
 	  /* garbage collection may be called */
 	  sl = Yap_InitSlot(t);
 	}
-	writeTerm(HeadOfTermCell(t), 999, new_depth, FALSE);
-	if (keep_terms) {
+	writeTerm(HeadOfTermCell(t), 999, new_depth, FALSE, wglb);
+	if (wglb->keep_terms) {
 	  t = Yap_GetFromSlot(sl);
 	  Yap_RecoverSlots(1);
 	}
@@ -445,15 +434,15 @@ writeTerm(Term t, int p, int depth, int rinfixarg)
 	if (!IsPairTerm(ti))
 	  break;
 	t = ti;
-	wrputc(',');
+	wrputc(',', wglb->writech);
 	lastw = separator;
       }
       if (ti != MkAtomTerm(AtomNil)) {
-	wrputc('|');
+	wrputc('|', wglb->writech);
 	lastw = separator;
-	writeTerm(TailOfTermCell(t), 999, depth + 1, FALSE);
+	writeTerm(TailOfTermCell(t), 999, depth + 1, FALSE, wglb);
       }
-      wrputc(']');
+      wrputc(']', wglb->writech);
       lastw = separator;
     }
   } else {		/* compound term */
@@ -463,6 +452,30 @@ writeTerm(Term t, int p, int depth, int rinfixarg)
     Prop            opinfo;
     int             op, lp, rp;
 
+    if (IsExtensionFunctor(functor)) {
+      switch((CELL)functor) {
+      case (CELL)FunctorDouble:
+	wrputf(FloatOfTerm(t),wglb->writech);
+	return;
+      case (CELL)FunctorDBRef:
+	wrputref(RefOfTerm(t),wglb->writech);
+	return;
+      case (CELL)FunctorLongInt:
+	wrputn(LongIntOfTerm(t),wglb->writech);
+	return;
+#ifdef USE_GMP
+      case (CELL)FunctorBigInt:
+	{
+	  char *s = (char *)TR;
+	  while (s+2+mpz_sizeinbase(Yap_BigIntOfTerm(t), 10) > (char *)Yap_TrailTop)
+	    Yap_growtrail(64*1024);
+	  mpz_get_str(s, 10, Yap_BigIntOfTerm(t));
+	  wrputs(s,wglb->writech);
+	}
+	return;
+#endif
+      }
+    }
     Arity = ArityOfFunctor(functor);
     atom = NameOfFunctor(functor);
     opinfo = Yap_GetAProp(atom, OpProperty);
@@ -470,39 +483,39 @@ writeTerm(Term t, int p, int depth, int rinfixarg)
     if (Arity == SFArity) {
       int             argno = 1;
       CELL           *p = ArgsOfSFTerm(t);
-      putAtom(atom);
-      wrputc('(');
+      putAtom(atom, wglb->Quote_illegal, wglb->writech);
+      wrputc('(', wglb->writech);
       lastw = separator;
       while (*p) {
 	long sl = 0;
 
 	while (argno < *p) {
-	  wrputc('_'), wrputc(',');
+	  wrputc('_', wglb->writech), wrputc(',', wglb->writech);
 	  ++argno;
 	}
 	*p++;
 	lastw = separator;
 	/* cannot use the term directly with the SBA */
-	if (keep_terms) {
+	if (wglb->keep_terms) {
 	  /* garbage collection may be called */
 	  sl = Yap_InitSlot((CELL)p);
 	}
-	writeTerm(Deref(p++), 999, depth + 1, FALSE);
-	if (keep_terms) {
+	writeTerm(Deref(p++), 999, depth + 1, FALSE, wglb);
+	if (wglb->keep_terms) {
 	  /* garbage collection may be called */
 	  p = (CELL *)Yap_GetFromSlot(sl);
 	  Yap_RecoverSlots(1);
 	}
 	if (*p)
-	  wrputc(',');
+	  wrputc(',', wglb->writech);
 	argno++;
       }
-      wrputc(')');
+      wrputc(')', wglb->writech);
       lastw = separator;
       return;
     }
 #endif
-    if (Use_portray) {
+    if (wglb->Use_portray) {
       Term targs[1];
       Term old_EX = 0L;
       long sl = 0;
@@ -515,11 +528,10 @@ writeTerm(Term t, int p, int depth, int rinfixarg)
       t = Yap_GetFromSlot(sl);
       Yap_RecoverSlots(1);
       if (old_EX != 0L) EX = old_EX;
-      Use_portray = TRUE;
       if (Yap_GetValue(AtomPortray) == MkAtomTerm(AtomTrue) || EX != 0L)
 	return;
     }
-    if (!Ignore_ops &&
+    if (!wglb->Ignore_ops &&
 	Arity == 1 && opinfo && Yap_IsPrefixOp(opinfo, &op,
 					   &rp)
 #ifdef DO_NOT_WRITE_PLUS_AND_MINUS_AS_PREFIX
@@ -538,25 +550,25 @@ writeTerm(Term t, int p, int depth, int rinfixarg)
       if (op > p) {
 	/* avoid stuff such as \+ (a,b) being written as \+(a,b) */
 	if (lastw != separator && !rinfixarg)
-	  wrputc(' ');
-	wrputc('(');
+	  wrputc(' ', wglb->writech);
+	wrputc('(', wglb->writech);
 	lastw = separator;
       }
-      putAtom(atom);
+      putAtom(atom, wglb->Quote_illegal, wglb->writech);
       if (bracket_right) {
-	wrputc('(');
+	wrputc('(', wglb->writech);
 	lastw = separator;
       }
-      writeTerm(ArgOfTermCell(1,t), rp, depth + 1, FALSE);
+      writeTerm(ArgOfTermCell(1,t), rp, depth + 1, FALSE, wglb);
       if (bracket_right) {
-	wrputc(')');
+	wrputc(')', wglb->writech);
 	lastw = separator;
       }
       if (op > p) {
-	wrputc(')');
+	wrputc(')', wglb->writech);
 	lastw = separator;
       }
-    } else if (!Ignore_ops &&
+    } else if (!wglb->Ignore_ops &&
 	       Arity == 1 && opinfo && Yap_IsPosfixOp(opinfo, &op, &lp)) {
       Term  tleft = ArgOfTerm(1, t);
       long sl = 0;
@@ -566,34 +578,34 @@ writeTerm(Term t, int p, int depth, int rinfixarg)
       if (op > p) {
 	/* avoid stuff such as \+ (a,b) being written as \+(a,b) */
 	if (lastw != separator && !rinfixarg)
-	  wrputc(' ');
-	wrputc('(');
+	  wrputc(' ', wglb->writech);
+	wrputc('(', wglb->writech);
 	lastw = separator;
       }
       if (bracket_left) {
-	wrputc('(');
+	wrputc('(', wglb->writech);
 	lastw = separator;
       }
-      if (keep_terms) {
+      if (wglb->keep_terms) {
 	/* garbage collection may be called */
 	sl = Yap_InitSlot(t);      
       }
-      writeTerm(ArgOfTermCell(1,t), lp, depth + 1, rinfixarg);
-      if (keep_terms) {
+      writeTerm(ArgOfTermCell(1,t), lp, depth + 1, rinfixarg, wglb);
+      if (wglb->keep_terms) {
 	/* garbage collection may be called */
 	t = Yap_GetFromSlot(sl);
 	Yap_RecoverSlots(1);
       }
       if (bracket_left) {
-	wrputc(')');
+	wrputc(')', wglb->writech);
 	lastw = separator;
       }
-      putAtom(atom);
+      putAtom(atom, wglb->Quote_illegal, wglb->writech);
       if (op > p) {
-	wrputc(')');
+	wrputc(')', wglb->writech);
 	lastw = separator;
       }
-    } else if (!Ignore_ops &&
+    } else if (!wglb->Ignore_ops &&
 	       Arity == 2 && opinfo && Yap_IsInfixOp(opinfo, &op, &lp,
 						 &rp) ) {
       Term  tleft = ArgOfTerm(1, t);
@@ -609,142 +621,142 @@ writeTerm(Term t, int p, int depth, int rinfixarg)
       if (op > p) {
 	/* avoid stuff such as \+ (a,b) being written as \+(a,b) */
 	if (lastw != separator && !rinfixarg)
-	  wrputc(' ');
-	wrputc('(');
+	  wrputc(' ', wglb->writech);
+	wrputc('(', wglb->writech);
 	lastw = separator;
       }
       if (bracket_left) {
-	wrputc('(');
+	wrputc('(', wglb->writech);
 	lastw = separator;
       }
-      if (keep_terms) {
+      if (wglb->keep_terms) {
 	/* garbage collection may be called */
 	sl = Yap_InitSlot(t);      
       }
-      writeTerm(ArgOfTermCell(1, t), lp, depth + 1, rinfixarg);
-      if (keep_terms) {
+      writeTerm(ArgOfTermCell(1, t), lp, depth + 1, rinfixarg, wglb);
+      if (wglb->keep_terms) {
 	/* garbage collection may be called */
 	t = Yap_GetFromSlot(sl);
 	Yap_RecoverSlots(1);
       }
       if (bracket_left) {
-	wrputc(')');
+	wrputc(')', wglb->writech);
 	lastw = separator;
       }
       /* avoid quoting commas */
       if (strcmp(RepAtom(atom)->StrOfAE,","))
-	putAtom(atom);
+	putAtom(atom, wglb->Quote_illegal, wglb->writech);
       else {
-	wrputc(',');
+	wrputc(',', wglb->writech);
 	lastw = separator;
       }
       if (bracket_right) {
-	wrputc('(');
+	wrputc('(', wglb->writech);
 	lastw = separator;
       }
-      writeTerm(ArgOfTermCell(2, t), rp, depth + 1, TRUE);
+      writeTerm(ArgOfTermCell(2, t), rp, depth + 1, TRUE, wglb);
       if (bracket_right) {
-	wrputc(')');
+	wrputc(')', wglb->writech);
 	lastw = separator;
       }
       if (op > p) {
-	wrputc(')');
+	wrputc(')', wglb->writech);
 	lastw = separator;
       }
-    } else if (Handle_vars && functor == FunctorVar) {
+    } else if (wglb->Handle_vars && functor == FunctorVar) {
       Term ti = ArgOfTerm(1, t);
       if (lastw == alphanum) {
-	wrputc(' ');
+	wrputc(' ', wglb->writech);
       }
       if (!IsVarTerm(ti) && (IsIntTerm(ti) || IsStringTerm(ti))) {
 	if (IsIntTerm(ti)) {
 	  Int k = IntOfTerm(ti);
 	  if (k == -1)  {
-	    wrputc('_');
+	    wrputc('_', wglb->writech);
 	    lastw = alphanum;
 	    return;
 	  } else {
-	    wrputc((k % 26) + 'A');
+	    wrputc((k % 26) + 'A', wglb->writech);
 	    if (k >= 26) {
 	      /* make sure we don't get confused about our context */
 	      lastw = separator;
-	      wrputn( k / 26 );
+	      wrputn( k / 26 ,wglb->writech);
 	    } else
 	      lastw = alphanum;
 	  }
 	} else {
-	  putUnquotedString(ti);
+	  putUnquotedString(ti, wglb->writech);
 	}
       } else {
 	long sl = 0;
 
-	wrputs("'$VAR'(");
+	wrputs("'$VAR'(",wglb->writech);
 	lastw = separator;
-	if (keep_terms) {
+	if (wglb->keep_terms) {
 	  /* garbage collection may be called */
 	  sl = Yap_InitSlot(t);      
 	}
-	writeTerm(ArgOfTermCell(1,t), 999, depth + 1, FALSE);
-	if (keep_terms) {
+	writeTerm(ArgOfTermCell(1,t), 999, depth + 1, FALSE, wglb);
+	if (wglb->keep_terms) {
 	  /* garbage collection may be called */
 	  t = Yap_GetFromSlot(sl);
 	  Yap_RecoverSlots(1);
 	}
-	wrputc(')');
+	wrputc(')', wglb->writech);
 	lastw = separator;
       }
     } else if (functor == FunctorBraces) {
-      wrputc('{');
+      wrputc('{', wglb->writech);
       lastw = separator;
-      writeTerm(ArgOfTermCell(1, t), 1200, depth + 1, FALSE);
-      wrputc('}');
+      writeTerm(ArgOfTermCell(1, t), 1200, depth + 1, FALSE, wglb);
+      wrputc('}', wglb->writech);
       lastw = separator;
     } else  if (atom == AtomArray) {
       long sl = 0;
 
-      wrputc('{');
+      wrputc('{', wglb->writech);
       lastw = separator;
       for (op = 1; op <= Arity; ++op) {
-	if (keep_terms) {
+	if (wglb->keep_terms) {
 	  /* garbage collection may be called */
 	  sl = Yap_InitSlot(t);      
 	}
-	writeTerm(ArgOfTermCell(op, t), 999, depth + 1, FALSE);
-	if (keep_terms) {
+	writeTerm(ArgOfTermCell(op, t), 999, depth + 1, FALSE, wglb);
+	if (wglb->keep_terms) {
 	  /* garbage collection may be called */
 	  t = Yap_GetFromSlot(sl);
 	  Yap_RecoverSlots(1);
 	}
 	if (op != Arity) {
-	  wrputc(',');
+	  wrputc(',', wglb->writech);
 	  lastw = separator;
 	}
       }
-      wrputc('}');
+      wrputc('}', wglb->writech);
       lastw = separator;
     } else {
-      putAtom(atom);
+      putAtom(atom, wglb->Quote_illegal, wglb->writech);
       lastw = separator;
-      wrputc('(');
+      wrputc('(', wglb->writech);
       for (op = 1; op <= Arity; ++op) {
 	long sl = 0;
 
-	if (keep_terms) {
+	if (wglb->keep_terms) {
 	  /* garbage collection may be called */
 	  sl = Yap_InitSlot(t);      
 	}
-	writeTerm(ArgOfTermCell(op, t), 999, depth + 1, FALSE);
-	if (keep_terms) {
+	writeTerm(ArgOfTermCell(op, t), 999, depth + 1, FALSE, wglb);
+	if (wglb->keep_terms) {
 	  /* garbage collection may be called */
 	  t = Yap_GetFromSlot(sl);
 	  Yap_RecoverSlots(1);
 	}
 	if (op != Arity) {
-	  wrputc(',');
+	  wrputc(',', wglb->writech);
 	  lastw = separator;
 	}
       }
-      wrputc(')');
+      wrputc(')', wglb->writech);
       lastw = separator;
     }
   }
@@ -756,15 +768,19 @@ Yap_plwrite(Term t, int (*mywrite) (int, int), int flags)
      /* consumer				 */
      /* write options			 */
 {
-  writech = mywrite;
+  struct write_globs wglb;
+
+  wglb.writech = mywrite;
   lastw = separator;
-  Quote_illegal = flags & Quote_illegal_f;
-  Handle_vars = flags & Handle_vars_f;
-  Use_portray = flags & Use_portray_f;
+  wglb.Quote_illegal = flags & Quote_illegal_f;
+  wglb.Handle_vars = flags & Handle_vars_f;
+  wglb.Use_portray = flags & Use_portray_f;
+  wglb.MaxDepth = max_depth;
+  wglb.MaxList = max_list;
   /* notice: we must have ASP well set when using portray, otherwise
      we cannot make recursive Prolog calls */
-  keep_terms = Use_portray;
-  Ignore_ops = flags & Ignore_ops_f;
-  writeTerm(t, 1200, 1, FALSE);
+  wglb.keep_terms = wglb.Use_portray;
+  wglb.Ignore_ops = flags & Ignore_ops_f;
+  writeTerm(t, 1200, 1, FALSE, &wglb);
 }
 
