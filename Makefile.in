@@ -499,6 +499,7 @@ install_unix: startup
 	@INSTALL_DLLS@ (cd library/regex; make install)
 	@INSTALL_DLLS@ (cd library/system; make install)
 	@INSTALL_DLLS@ (cd library/yap2swi; make install)
+	@INSTALL_DLLS@ (cd library/Tries; make install)
 	mkdir -p $(DESTDIR)$(INCLUDEDIR)
 	for h in $(INTERFACE_HEADERS); do $(INSTALL) $$h $(DESTDIR)$(INCLUDEDIR); done
 
@@ -518,6 +519,7 @@ install_win32: startup
 	(cd library/regex; make install)
 	(cd library/system; make install)
 	(cd library/yap2swi; make install)
+	(cd library/Tries; make install)
 
 install_library: @YAPLIB@
 	$(INSTALL_DATA) libYap.a  $(DESTDIR)$(LIBDIR)/libYap.a
