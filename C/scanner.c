@@ -764,6 +764,7 @@ Yap_tokenizer(int inp_stream)
 	} else if (chtype[ch] == EF) {
 	  Yap_ReleasePreAllocCodeSpace((CODEADDR)TokImage);
 	  t->Tok = Ord(kind = eot_tok);
+	  break;
 	} else {
 	  *charp++ = ch;
 	  ch = QuotedNxtch(inp_stream);
