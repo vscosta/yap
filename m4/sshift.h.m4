@@ -77,7 +77,7 @@ Inline(BlobTermAdjust, Term, Term, t, (t-HDiff) )
 Inline(BlobTermAdjust, Term, Term, t, (t+HDiff) )
 #endif
 Inline(AtomEntryAdjust, AtomEntry *, AtomEntry *, at, (AtomEntry *)(CharP(at)+HDiff) )
-Inline(ConsultObjAdjust, consult_obj *, consult_obj *, co, (consult_obj *)(CharP(co)+HDiff) )
+Inline(ConsultObjAdjust, union CONSULT_OBJ *, union CONSULT_OBJ *, co, (union CONSULT_OBJ *)(CharP(co)+HDiff) )
 Inline(DBRefAdjust, DBRef, DBRef, dbr, (DBRef)(CharP(dbr)+HDiff) )
 Inline(CodeAdjust, Term, Term, dbr, ((Term)(dbr)+HDiff) )
 Inline(AddrAdjust, ADDR, ADDR, addr, (ADDR)(CharP(addr)+HDiff) )

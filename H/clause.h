@@ -18,6 +18,15 @@
 #include "Yatom.h"
 #include "Heap.h"
 
+/* consulting files */
+
+typedef union CONSULT_OBJ {
+  char *filename;
+  int mode;
+  Prop  p;
+  UInt c;
+} consult_obj;
+
 /* Either we are assembling clauses or indexing code */
 
 #define ASSEMBLING_CLAUSE	0

@@ -10,7 +10,7 @@
 * File:		Heap.h         						 *
 * mods:									 *
 * comments:	Heap Init Structure					 *
-* version:      $Id: Heap.h,v 1.15 2001-12-17 18:31:10 vsc Exp $	 *
+* version:      $Id: Heap.h,v 1.16 2002-01-01 05:26:25 vsc Exp $	 *
 *************************************************************************/
 
 /* information that can be stored in Code Space */
@@ -80,10 +80,10 @@ typedef struct various_codes {
     CODEADDR clause;
     Functor func;
   } clausecode;
-  consult_obj *consultsp;
-  consult_obj *consultbase;
-  consult_obj *consultlow;
-  Int   consultcapacity;
+  union CONSULT_OBJ *consultsp;
+  union CONSULT_OBJ *consultbase;
+  union CONSULT_OBJ *consultlow;
+  UInt   consultcapacity;
 #if HAVE_LIBREADLINE
   char *readline_buf, *readline_pos;
 #endif

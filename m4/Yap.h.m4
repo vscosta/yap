@@ -10,7 +10,7 @@
 * File:		Yap.h.m4						 *
 * mods:									 *
 * comments:	main header file for YAP				 *
-* version:      $Id: Yap.h.m4,v 1.15 2001-12-20 17:19:43 vsc Exp $	 *
+* version:      $Id: Yap.h.m4,v 1.16 2002-01-01 05:26:25 vsc Exp $	 *
 *************************************************************************/
 
 #include "config.h"
@@ -732,15 +732,6 @@ extern int      emacs_mode;
 
 /************ variable concerned with version number *****************/
 extern char    version_number[];
-
-/* consult stack management */
-
-typedef union CONSULT_OBJ {
-  char *filename;
-  int mode;
-  Prop  p;
-  union CONSULT_OBJ *c;
-} consult_obj;
 
 /********* common instructions codes*************************/
 

@@ -15,6 +15,8 @@
 *									 *
 *************************************************************************/
 
+/* consult stack management */
+
 /* virtual machine instruction op-codes					*/
 typedef enum compiler_op {
   nop_op,

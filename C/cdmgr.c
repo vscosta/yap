@@ -709,13 +709,10 @@ assertz_dynam_clause(PredEntry *p, CODEADDR cp)
 
 static void  expand_consult(void)
 {
-  consult_obj *new_cl, *new_cb, *new_cs, *old_top;
-  UInt old_sz = ConsultCapacity-1, i;
-  Int diff;
-  
+  consult_obj *new_cl, *new_cb, *new_cs;
+  UInt OldConsultCapacity = ConsultCapacity;
 
-  old_top = ConsultBase+ConsultCapacity;
-  /* now increment consult capacity */
+  /* now double consult capacity */
   ConsultCapacity += InitialConsultCapacity;
   /* I assume it always works ;-) */
   new_cl = (consult_obj *)AllocCodeSpace(sizeof(consult_obj)*ConsultCapacity);
@@ -723,21 +720,16 @@ static void  expand_consult(void)
     Error(SYSTEM_ERROR,TermNil,"Could not expand consult space: Heap crashed against Stacks");
     return;
   }
-  new_cb = new_cl + (ConsultSp-ConsultBase);
   new_cs = new_cl + (InitialConsultCapacity+1);
+  new_cb = new_cs + (ConsultBase-ConsultSp);
   /* start copying */
-  memcpy((void *)(new_cs), (void *)(ConsultSp), (ConsultCapacity-(InitialConsultCapacity+1))*sizeof(consult_obj));
+  memcpy((void *)(new_cs), (void *)(ConsultSp), OldConsultCapacity*sizeof(consult_obj));
   /* copying done, release old space */
   FreeCodeSpace((char *)ConsultLow);
   /* next, set up pointers correctly */
-  diff = (char *)new_cb-(char *)ConsultBase;
   ConsultSp = new_cs;
   ConsultBase = new_cb;
   ConsultLow = new_cl;
-  /* adjust consultbase pointers */
-  for (i = 0; i < old_sz; i++) {
-    new_cs->c = (consult_obj *)((void *)(new_cs->c)+diff);
-  }
 }
 
 /* p was already locked */
@@ -1127,7 +1119,7 @@ init_consult(int mode, char *file)
   ConsultSp--;
   ConsultSp->mode = mode;
   ConsultSp--;
-  ConsultSp->c = ConsultBase;
+  ConsultSp->c = (ConsultBase-ConsultSp);
   ConsultBase = ConsultSp;
 #if !defined(YAPOR) && !defined(SBA)
   if (consult_level == 0)
@@ -1178,7 +1170,8 @@ end_consult(void)
   }
 #endif
   ConsultSp = ConsultBase;
-  ConsultBase = ConsultSp->c;
+  printf("ConsultBase is %p\n",ConsultBase);
+  ConsultBase = ConsultSp+ConsultSp->c;
   ConsultSp += 3;
   consult_level--;
 #if !defined(YAPOR) && !defined(SBA)
