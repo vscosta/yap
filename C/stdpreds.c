@@ -1375,6 +1375,12 @@ cont_current_predicate(void)
   UInt Arity;
   Atom name;
 
+  while (pp != NULL) {
+    if (pp->PredFlags & HiddenPredFlag)
+      pp = pp->NextPredOfModule;
+    else
+      break;
+  }
   if (pp == NULL)
     cut_fail();
   EXTRA_CBACK_ARG(3,1) = (CELL)MkIntegerTerm((Int)(pp->NextPredOfModule));

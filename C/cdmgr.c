@@ -2241,6 +2241,48 @@ p_system_pred(void)
   return(pe->ModuleOfPred == 0 || pe->PredFlags & (UserCPredFlag|CPredFlag|BinaryTestPredFlag|AsmPredFlag|TestPredFlag));
 }
 
+static Int			/* $system_predicate(P) */
+p_hide_predicate(void)
+{
+  PredEntry      *pe;
+
+  Term t1 = Deref(ARG1);
+  SMALLUNSGN mod = LookupModule(Deref(ARG2));
+
+ restart_system_pred:
+  if (IsVarTerm(t1))
+    return (FALSE);
+  if (IsAtomTerm(t1)) {
+    pe = RepPredProp(GetPredPropByAtom(AtomOfTerm(t1), mod));
+  } else if (IsApplTerm(t1)) {
+    Functor         funt = FunctorOfTerm(t1);
+    if (IsExtensionFunctor(funt)) {
+      return(FALSE);
+    } 
+    if (funt == FunctorModule) {
+      Term nmod = ArgOfTerm(1, t1);
+      if (IsVarTerm(nmod)) {
+	Error(INSTANTIATION_ERROR,ARG1,"hide_predicate/1");
+	return(FALSE);
+      } 
+      if (!IsAtomTerm(nmod)) {
+	Error(TYPE_ERROR_ATOM,ARG1,"hide_predicate/1");
+	return(FALSE);
+      }
+      t1 = ArgOfTerm(2, t1);
+      goto restart_system_pred;
+    }
+    pe = RepPredProp(GetPredPropByFunc(funt, mod));
+  } else if (IsPairTerm(t1)) {
+    return (TRUE);
+  } else
+    return (FALSE);
+  if (EndOfPAEntr(pe))
+    return(FALSE);
+  pe->PredFlags |= HiddenPredFlag;
+  return(TRUE);
+}
+
 static Int			/* $cut_transparent(P) */
 p_cut_transparent(void)
 {
@@ -2315,5 +2357,6 @@ InitCdMgr(void)
   InitCPred("$parent_pred", 3, p_parent_pred, SafePredFlag);
   InitCPred("$system_predicate", 2, p_system_pred, SafePredFlag);
   InitCPred("$cut_transparent", 1, p_cut_transparent, SafePredFlag);
+  InitCPred("$hide_predicate", 2, p_hide_predicate, SafePredFlag);
 }
 

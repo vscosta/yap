@@ -991,7 +991,7 @@ fast_tokenizer(void)
 	      if (ch == '\\' &&
 		  yap_flags[CHARACTER_ESCAPE_FLAG] != CPROLOG_CHARACTER_ESCAPES) {
 		/* escape sequence */
-		ch = my_fgetch();
+		my_fgetch();
 		switch (ch) {
 		case 10:
 		  goto restart;
@@ -1307,7 +1307,7 @@ fast_tokenizer(void)
 	    my_fgetch();
 	  } else if (ch == '\\' && yap_flags[CHARACTER_ESCAPE_FLAG] != CPROLOG_CHARACTER_ESCAPES) {
 	    /* escape sequence */
-	    ch = my_fgetch();
+	    my_fgetch();
 	    switch (ch) {
 	    case 10:
 	      /* just skip */

@@ -564,6 +564,7 @@ source_module(Mod) :-
 	findall(?,:,?),
 	findall(?,:,?,?),
 	freeze(?,:),
+	hide_predicate(:),
 	if(:,:,:),
 	incore(:),
 	listing(:),

@@ -1534,6 +1534,26 @@ q(A):-
       A is 22.
 @end example
 
+@item hide(+@var{Atom})
+@findex hide/1
+@snindex hide/1
+@cnindex hide/1
+Make atom @var{Atom} invisible.
+
+@item unhide(+@var{Atom})
+@findex unhide/1
+@snindex unhide/1
+@cnindex unhide/1
+Make hidden atom @var{Atom} visible.
+
+
+@item hide_predicate(+@var{Pred})
+@findex hide_predicate/1
+@snindex hide_predicate/1
+@cnindex hide_predicate/1
+Make atom @var{Atom} invisible to @code{current_predicate/2},
+@code{listing} and friends.
+
 @item expand_exprs(-@var{O},+@var{N})
 @findex expand_exprs/2
 @snindex expand_exprs/2

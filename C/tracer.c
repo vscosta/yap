@@ -119,7 +119,7 @@ low_level_trace(yap_low_level_port port, PredEntry *pred, CELL *args)
   /* if (vsc_count > 500000) exit(0); */
   /* if (gc_calls < 1) return;*/
 #if defined(__GNUC__)
-  YP_fprintf(YP_stderr,"%llu, %p %p %x ", vsc_count, H, TR, *(CELL *)0x91ca260);
+  YP_fprintf(YP_stderr,"%llu, %p ", vsc_count, H);
 #endif
   /* check_trail_consistency(); */
   if (pred == NULL) {

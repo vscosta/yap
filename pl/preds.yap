@@ -601,3 +601,24 @@ dynamic_predicate(P,Sem) :-
 	'$flags'(T,Mod,F,F),
 	F\/16'400000 \== 0.
 
+hide_predicate(V) :- var(V), !,
+	throw(error(instantiation_error,hide_predicate(X))).
+hide_predicate(M:P) :- !,
+	'$hide_predicate2'(P, M).
+hide_predicate(P) :-
+	'$current_module'(M),
+	'$hide_predicate2'(M, P).
+
+'$hide_predicate2'(V, M) :- var(V), !,
+	throw(error(instantiation_error,hide_predicate(M:V))).
+'$hide_predicate2'(N/A, M) :- !,
+	functor(S,N,A),
+	'$hide_predicate'(S, M) .
+'$hide_predicate2'(PredDesc, M) :-
+	throw(error(type_error(predicate_indicator,T),hide_predicate(M:PredDesc))).
+
+
+
+	
+	
+

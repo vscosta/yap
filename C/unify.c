@@ -493,7 +493,7 @@ loop:
 	to_visit[0] = pt0;
 	to_visit[1] = pt0_end;
 	to_visit[2] = pt1;
-	to_visit[3] = *pt0;
+	to_visit[3] = (CELL *)*pt0;
 	*pt0 = d1;
 #else
 	/* store the terms to visit */
@@ -535,7 +535,7 @@ loop:
 	to_visit[0] = pt0;
 	to_visit[1] = pt0_end;
 	to_visit[2] = pt1;
-	to_visit[3] = *pt0;
+	to_visit[3] = (CELL *)*pt0;
 	*pt0 = d1;
 #else
 	/* store the terms to visit */
