@@ -354,9 +354,16 @@ module(N) :-
 '$module_expansion'((A;B),(A1;B1),(AO;BO),M,MM,TM,HVars) :- !,
 	'$module_expansion'(A,A1,AO,M,MM,TM,HVars),
 	'$module_expansion'(B,B1,BO,M,MM,TM,HVars).
+'$module_expansion'((A|B),(A1|B1),(AO|BO),M,MM,TM,HVars) :- !,
+	'$module_expansion'(A,A1,AO,M,MM,TM,HVars),
+	'$module_expansion'(B,B1,BO,M,MM,TM,HVars).
 '$module_expansion'((A->B),(A1->B1),(AO->BO),M,MM,TM,HVars) :- !,
 	'$module_expansion'(A,A1,AO,M,MM,TM,HVars),
 	'$module_expansion'(B,B1,BO,M,MM,TM,HVars).
+'$module_expansion'(\+A,\+A1,\+AO,M,MM,TM,HVars) :- !,
+	'$module_expansion'(A,A1,AO,M,MM,TM,HVars).
+'$module_expansion'(not(A),not(A1),not(AO),M,MM,TM,HVars) :- !,
+	'$module_expansion'(A,A1,AO,M,MM,TM,HVars).
 '$module_expansion'(true,true,true,_,_,_,_) :- !.
 '$module_expansion'(fail,fail,fail,_,_,_,_) :- !.
 '$module_expansion'(false,false,false,_,_,_,_) :- !.
@@ -591,7 +598,8 @@ source_module(Mod) :-
 	use_module(:,?),
 	use_module(?,:,?),
 	when(?,:),
-	^(+,:).
+	^(+,:),
+	\+ : .
 
 
 %
