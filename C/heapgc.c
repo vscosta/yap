@@ -3341,6 +3341,7 @@ do_gc(Int predarity, CELL *current_env, yamop *nextop)
       Yap_Error(OUT_OF_STACK_ERROR, TermNil, Yap_ErrorMessage);
       return 0;
     }
+    max = (CELL *)Yap_ReadTimedVar(DelayedVars);
   }
 #else
   max = NULL;
@@ -3402,6 +3403,7 @@ do_gc(Int predarity, CELL *current_env, yamop *nextop)
     }
     current_env = (CELL *)*ASP;
     ASP++;
+    max = (CELL *)Yap_ReadTimedVar(DelayedVars);
   }
 #endif
   time_start = Yap_cputime();
@@ -3420,6 +3422,7 @@ do_gc(Int predarity, CELL *current_env, yamop *nextop)
       bp = (char *)Yap_ExpandPreAllocCodeSpace(alloc_sz, NULL);
       current_env = (CELL *)*ASP;
       ASP++;
+      max = (CELL *)Yap_ReadTimedVar(DelayedVars);
     }
     if (!bp)
       return 0;
