@@ -251,7 +251,7 @@ static void copy_complex_term(register CELL *pt0, register CELL *pt0_end, CELL *
   clean_tr(TR0);
 }
 
-static Term
+Term
 CopyTerm(Term inp) {
   Term t = Deref(inp);
 

@@ -10,7 +10,7 @@
 * File:		Yap.h.m4						 *
 * mods:									 *
 * comments:	main header file for YAP				 *
-* version:      $Id: Yap.h.m4,v 1.18 2002-01-27 20:40:10 vsc Exp $	 *
+* version:      $Id: Yap.h.m4,v 1.19 2002-01-29 05:37:31 vsc Exp $	 *
 *************************************************************************/
 
 #include "config.h"
@@ -496,7 +496,7 @@ typedef enum {
 #define ISO_CHARACTER_ESCAPES			1
 #define SICSTUS_CHARACTER_ESCAPES		2
 
-#define NUMBER_OF_YAP_FLAGS     HALT_AFTER_CONSULT_FLAG+1
+#define NUMBER_OF_YAP_FLAGS     FAST_BOOT_FLAG+1
 
 /************************  prototypes **********************************/
 

@@ -10,7 +10,7 @@
 * File:		Yap.proto						 *
 * mods:									 *
 * comments:	Function declarations for YAP				 *
-* version:      $Id: Yapproto.h,v 1.7 2002-01-07 06:28:03 vsc Exp $	 *
+* version:      $Id: Yapproto.h,v 1.8 2002-01-29 05:37:31 vsc Exp $	 *
 *************************************************************************/
 
 /* prototype file for Yap */
@@ -149,6 +149,7 @@ Int	STD_PROTO(EvFArt,(Term));
 /* exec.c */
 Term	STD_PROTO(ExecuteCallMetaCall,(SMALLUNSGN mod));
 void	STD_PROTO(InitExecFs,(void));
+Int	STD_PROTO(JumpToEnv,(Term));
 int	STD_PROTO(RunTopGoal,(Term));
 Int	STD_PROTO(execute_goal,(Term, int, SMALLUNSGN));
 int	STD_PROTO(exec_absmi,(int));
@@ -270,6 +271,7 @@ void	STD_PROTO(InitUserCPreds,(void));
 void	STD_PROTO(InitUserBacks,(void));
 
 /* utilpreds.c */
+Term	STD_PROTO(CopyTerm,(Term));
 Int     STD_PROTO(var_in_term, (Term, Term));
 void	STD_PROTO(InitUtilCPreds,(void));
 

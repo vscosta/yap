@@ -1250,9 +1250,8 @@ p_clean_ifcp(void) {
   return(TRUE);
 }
 
-/* This does very nasty stuff!!!!! */
-static Int
-p_jump_env(void) {
+Int
+JumpToEnv(Term t) {
   yamop *min = (yamop *)(PredCatch->CodeOfPred);
   yamop *max = (yamop *)(PredThrow->CodeOfPred);
   CELL *cur = ENV, *env;
@@ -1274,8 +1273,16 @@ p_jump_env(void) {
   B->cp_h = H;
   /* I could backtrack here, but it is easier to leave the unwinding
      to the emulator */
-  B->cp_a3 = Deref(ARG1);
+  B->cp_a3 = t;
   return(FALSE);
+}
+
+
+
+/* This does very nasty stuff!!!!! */
+static Int
+p_jump_env(void) {
+  return(JumpToEnv(Deref(ARG1)));
 }
 
 

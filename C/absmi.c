@@ -6195,7 +6195,9 @@ absmi(int inp)
 #ifdef DEBUG
       } else if (!IsApplTerm(d0)) {
 	/* this should not happen */
-	PREG = Error(SYSTEM_ERROR, d0,"argument to retry_first is a constant");
+	saveregs();
+	Error(SYSTEM_ERROR, d0,"argument to retry_first is a constant");
+	setregs();
 	JMPNext();
 #endif /* DEBUG */
       } else {
@@ -6209,7 +6211,9 @@ absmi(int inp)
       deref_body(d0, pt0, retry_first_unk, retry_first_nvar);
       /* this should never happen */
 #ifdef DEBUG
-      PREG = Error(SYSTEM_ERROR, d0, "unbound argument to retry_first");
+      saveregs();
+      Error(SYSTEM_ERROR, d0, "unbound argument to retry_first");
+      setregs();
       JMPNext();
 #endif /* DEBUG */
       ENDP(pt0);
@@ -6245,7 +6249,9 @@ absmi(int inp)
 #ifdef DEBUG
       } else if (!IsApplTerm(d0)) {
 	/* this should not happen */
-	PREG = Error(SYSTEM_ERROR, d0, "argument to trust_first_in is a constant");
+	saveregs();
+	Error(SYSTEM_ERROR, d0, "argument to trust_first_in is a constant");
+	setregs();
 	JMPNext();
 #endif /* DEBUG */
       } else {
@@ -6259,7 +6265,9 @@ absmi(int inp)
       deref_body(d0, pt0, trust_first_in_unk, trust_first_in_nvar);
       /* this should never happen */
 #ifdef DEBUG
-      PREG = Error(SYSTEM_ERROR, d0,"unbound argument to trust_first_in");
+      saveregs();
+      Error(SYSTEM_ERROR, d0,"unbound argument to trust_first_in");
+      setregs();
       JMPNext();
 #endif /* DEBUG */
       ENDP(pt0);
@@ -6304,7 +6312,9 @@ absmi(int inp)
 #ifdef DEBUG
       } else if (!IsApplTerm(d0)) {
 	/* this should not happen */
-	PREG = Error(SYSTEM_ERROR,d0,"argument to trust_first is a constant");
+	saveregs();
+	Error(SYSTEM_ERROR,d0,"argument to trust_first is a constant");
+	setregs();
 	JMPNext();
 #endif /* DEBUG */
       } else {
@@ -6318,7 +6328,9 @@ absmi(int inp)
       deref_body(d0, pt0, trust_first_unk, trust_first_nvar);
       /* this should never happen */
 #ifdef DEBUG
-      PREG = Error(SYSTEM_ERROR,(CELL)pt0,"argument to trust_first is a variable");
+      saveregs();
+      Error(SYSTEM_ERROR,(CELL)pt0,"argument to trust_first is a variable");
+      setregs();
       JMPNext();
 #endif /* DEBUG */
       ENDP(pt0);
@@ -6357,14 +6369,18 @@ absmi(int inp)
 #ifdef DEBUG
       } else if (!IsApplTerm(d0)) {
 	/* this should not happen */
-	PREG = Error(SYSTEM_ERROR,d0,"argument to retry_tail is a constant");
+	saveregs();
+	Error(SYSTEM_ERROR,d0,"argument to retry_tail is a constant");
+	setregs();
 	JMPNext();
 #endif /* DEBUG */
       } else {
 	/* appl */
 #ifdef DEBUG
 	/* this should never happen */
-	PREG = Error(SYSTEM_ERROR,d0,"argument to retry_tail is a compound term");
+	saveregs();
+	Error(SYSTEM_ERROR,d0,"argument to retry_tail is a compound term");
+	setregs();
 	JMPNext();
 #endif
       }
@@ -6373,7 +6389,9 @@ absmi(int inp)
       deref_body(d0, pt0, retry_tail_unk, retry_tail_nvar);
       /* this should never happen */
 #ifdef DEBUG
-      PREG = Error(SYSTEM_ERROR,(CELL)pt0,"unbound argument to retry_tail");
+      saveregs();
+      Error(SYSTEM_ERROR,(CELL)pt0,"unbound argument to retry_tail");
+      setregs();
       JMPNext();
 #endif /* DEBUG */
       ENDP(pt0);
@@ -6409,13 +6427,17 @@ absmi(int inp)
 #ifdef DEBUG
       } else if (!IsApplTerm(d0)) {
 	/* this should not happen */
-	PREG = Error(SYSTEM_ERROR, d0, "argument to trust_tail_in is a constant");
+	saveregs();
+	Error(SYSTEM_ERROR, d0, "argument to trust_tail_in is a constant");
+	setregs();
 	JMPNext();
 #endif /* DEBUG */
       } else {
 	/* appl */
 #ifdef DEBUG
-	PREG = Error(SYSTEM_ERROR, d0, "argument to trust_tail_in is a compound term");
+	saveregs();
+	Error(SYSTEM_ERROR, d0, "argument to trust_tail_in is a compound term");
+	setregs();
 	JMPNext();
 #endif
       }
@@ -6424,7 +6446,9 @@ absmi(int inp)
       deref_body(d0, pt0, trust_tail_in_unk, trust_tail_in_nvar);
       /* this should never happen */
 #ifdef DEBUG
-      PREG = Error(SYSTEM_ERROR, (CELL)pt0, "unbound argument to trust_tail_in");
+      saveregs();
+      Error(SYSTEM_ERROR, (CELL)pt0, "unbound argument to trust_tail_in");
+      setregs();
       JMPNext();
 #endif /* DEBUG */
       ENDP(pt0);
@@ -6469,14 +6493,18 @@ absmi(int inp)
 #ifdef DEBUG
       } else if (!IsApplTerm(d0)) {
 	/* this should not happen */
-	PREG = Error(SYSTEM_ERROR, d0, "argument to trust_tail is a constant");
+	saveregs();
+	Error(SYSTEM_ERROR, d0, "argument to trust_tail is a constant");
+	setregs();
 	JMPNext();
 #endif /* DEBUG */
       } else {
 	/* appl */
 #ifdef DEBUG
 	/* this should ever happen */
-	PREG = Error(SYSTEM_ERROR, d0, "argument to trust_tail is a constant");
+	saveregs();
+	Error(SYSTEM_ERROR, d0, "argument to trust_tail is a constant");
+	setregs();
 	JMPNext();
 #endif /* DEBUG */
       }
@@ -6485,7 +6513,9 @@ absmi(int inp)
       deref_body(d0, pt0, trust_tail_unk, trust_tail_nvar);
       /* this should never happen */
 #ifdef DEBUG
-      PREG = Error(SYSTEM_ERROR, (CELL)pt0, "unbound argument to trust_tail");
+      saveregs();
+      Error(SYSTEM_ERROR, (CELL)pt0, "unbound argument to trust_tail");
+      setregs();
       JMPNext();
 #endif /* DEBUG */
       ENDP(pt0);
@@ -6536,7 +6566,9 @@ absmi(int inp)
 #ifdef DEBUG
 	} else if (!IsApplTerm(d0)) {
 	  /* this should not happen */
-	  PREG = Error(SYSTEM_ERROR, d0, "constant argument to retry_head");
+	  saveregs();
+	  Error(SYSTEM_ERROR, d0, "constant argument to retry_head");
+	  setregs();
 	  JMPNext();
 #endif /* DEBUG */
 	} else {
@@ -6549,11 +6581,15 @@ absmi(int inp)
 	deref_body(d0, pt0, retry_head_first_unk, retry_head_first_nvar);
 	/* this should never happen */
 #ifdef DEBUG
-	PREG = Error(SYSTEM_ERROR, (CELL)pt0, "unbound argument to retry_head");
+	saveregs();
+	Error(SYSTEM_ERROR, (CELL)pt0, "unbound argument to retry_head");
+	setregs();
 	JMPNext();
       } else if (!IsApplTerm(d0)) {
 	/* this should not happen */
-	PREG = Error(SYSTEM_ERROR, d0, "constant argument to retry_head");
+	saveregs();
+	Error(SYSTEM_ERROR, d0, "constant argument to retry_head");
+	setregs();
 	JMPNext();
 #endif /* DEBUG */
       } else {
@@ -6567,7 +6603,9 @@ absmi(int inp)
       deref_body(d0, pt0, retry_head_unk, retry_head_nvar);
       /* this should never happen */
 #ifdef DEBUG
-      PREG = Error(SYSTEM_ERROR, (CELL)pt0, "unbound argument to retry_head");
+      saveregs();
+      Error(SYSTEM_ERROR, (CELL)pt0, "unbound argument to retry_head");
+      setregs();
       JMPNext();
 #endif /* DEBUG */
       ENDP(pt0);
@@ -6613,7 +6651,9 @@ absmi(int inp)
 #ifdef DEBUG
 	} else if (!IsApplTerm(d0)) {
 	  /* this should not happen */
-	  PREG = Error(SYSTEM_ERROR, d0, "head of argument to trust_head_in is a constant");
+	  saveregs();
+	  Error(SYSTEM_ERROR, d0, "head of argument to trust_head_in is a constant");
+	  setregs();
 	  JMPNext();
 #endif /* DEBUG */
 	} else {
@@ -6626,11 +6666,15 @@ absmi(int inp)
 	deref_body(d0, pt0, trust_head_in_first_unk, trust_head_in_first_nvar);
 	/* this should never happen */
 #ifdef DEBUG
-	PREG = Error(SYSTEM_ERROR, d0, "head of argument to trust_head_in is unbound");
+	saveregs();
+	Error(SYSTEM_ERROR, d0, "head of argument to trust_head_in is unbound");
+	setregs();
 	JMPNext();
       } else if (!IsApplTerm(d0)) {
 	/* this should not happen */
-	PREG = Error(SYSTEM_ERROR, d0, "argument to trust_head_in is a constant");
+	saveregs();
+	Error(SYSTEM_ERROR, d0, "argument to trust_head_in is a constant");
+	setregs();
 	JMPNext();
 #endif /* DEBUG */
       } else {
@@ -6644,7 +6688,9 @@ absmi(int inp)
       deref_body(d0, pt0, trust_head_in_unk, trust_head_in_nvar);
       /* this should never happen */
 #ifdef DEBUG
-      PREG = Error(SYSTEM_ERROR, d0, "unbound argument to trust_head_in");
+      saveregs();
+      Error(SYSTEM_ERROR, d0, "unbound argument to trust_head_in");
+      setregs();
       JMPNext();
 #endif /* DEBUG */
       ENDP(pt0);
@@ -6701,7 +6747,9 @@ absmi(int inp)
 #ifdef DEBUG
 	} else if (!IsApplTerm(d0)) {
 	  /* this should not happen */
-	  PREG = Error(SYSTEM_ERROR, d0, "head of argument to trust_head is a constant");
+	  saveregs();
+	  Error(SYSTEM_ERROR, d0, "head of argument to trust_head is a constant");
+	  setregs();
 	  JMPNext();
 #endif /* DEBUG */
 	} else {
@@ -6714,11 +6762,15 @@ absmi(int inp)
 	deref_body(d0, pt0, trust_head_first_unk, trust_head_first_nvar);
 	/* this should never happen */
 #ifdef DEBUG
-	PREG = Error(SYSTEM_ERROR, d0, "unbound head of argument to trust_head");
+	saveregs();
+	Error(SYSTEM_ERROR, d0, "unbound head of argument to trust_head");
+	setregs();
 	JMPNext();
       } else if (!IsApplTerm(d0)) {
 	/* this should not happen */
-	PREG = Error(SYSTEM_ERROR, d0, "argument to trust_head is a constant");
+	saveregs();
+	Error(SYSTEM_ERROR, d0, "argument to trust_head is a constant");
+	setregs();
 	JMPNext();
 #endif /* DEBUG */
       } else {
@@ -6732,7 +6784,9 @@ absmi(int inp)
       deref_body(d0, pt0, trust_head_unk, trust_head_nvar);
       /* this should never happen */
 #ifdef DEBUG
-      PREG = Error(SYSTEM_ERROR, d0, "unbound argument to trust_head");
+      saveregs();
+      Error(SYSTEM_ERROR, d0, "unbound argument to trust_head");
+      setregs();
       JMPNext();
 #endif /* DEBUG */
       ENDP(pt0);
@@ -6806,7 +6860,9 @@ absmi(int inp)
       deref_body(d0, pt0, swnv_unk, swnv_nvar);
 #ifdef DEBUG
       /* This should never happen */
-      PREG = Error(SYSTEM_ERROR, d0, "unbound argument to switch_nonvar");
+      saveregs();
+      Error(SYSTEM_ERROR, d0, "unbound argument to switch_nonvar");
+      setregs();
       JMPNext();
 #endif
       ENDP(pt0);
@@ -7015,7 +7071,9 @@ absmi(int inp)
       deref_body(d0, pt0, swnvl_unk, swnvl_nvar);
 #ifdef DEBUG
       /* This should never happen */
-      PREG = Error(SYSTEM_ERROR, d0, "switch_nv_list has unbound argument");
+      saveregs();
+      Error(SYSTEM_ERROR, d0, "switch_nv_list has unbound argument");
+      setregs();
       JMPNext();
 #endif /* DEBUG */
       ENDP(pt0);
@@ -7270,7 +7328,9 @@ absmi(int inp)
       deref_body(d0, pt0, swl_unk, swl_nvar);
 #ifdef DEBUG
       /* This should never happen */
-      PREG = Error(SYSTEM_ERROR, d0, "switch_last has unbound argument");
+      saveregs();
+      Error(SYSTEM_ERROR, d0, "switch_last has unbound argument");
+      setregs();
       JMPNext();
 #endif
       ENDP(pt0);
@@ -7310,7 +7370,9 @@ absmi(int inp)
       deref_body(d0, pt0, swll_unk, swll_nvar);
 #ifdef DEBUG
       /* This should never happen */
-      PREG = Error(SYSTEM_ERROR, d0, "switch_l_list has unbound argument");
+      saveregs();
+      Error(SYSTEM_ERROR, d0, "switch_l_list has unbound argument");
+      setregs();
       JMPNext();
 #endif
       ENDP(pt0);
@@ -7866,13 +7928,17 @@ absmi(int inp)
 
       BEGP(pt0);
       deref_body(d0, pt0, plus_vv_unk, plus_vv_nvar);
+      saveregs();
       Error(INSTANTIATION_ERROR, TermNil, "X is A+B");
+      setregs();
       FAIL();
       ENDP(pt0);
 
       BEGP(pt0);
       deref_body(d1, pt0, plus_vv_nvar_unk, plus_vv_nvar_nvar);
+      saveregs();
       Error(INSTANTIATION_ERROR, TermNil, "X is A+B");
+      setregs();
       FAIL();
       ENDP(pt0);
       ENDD(d1);
@@ -7904,7 +7970,9 @@ absmi(int inp)
 
       BEGP(pt0);
       deref_body(d0, pt0, plus_vc_unk, plus_vc_nvar);
+      saveregs();
       Error(INSTANTIATION_ERROR, TermNil, "X is A+B");
+      setregs();
       FAIL();
       ENDP(pt0);
       ENDD(d0);
@@ -7945,13 +8013,17 @@ absmi(int inp)
 
       BEGP(pt0);
       deref_body(d0, pt0, plus_y_vv_unk, plus_y_vv_nvar);
+      saveregs();
       Error(INSTANTIATION_ERROR, TermNil, "X is A+B");
+      setregs();
       FAIL();
       ENDP(pt0);
 
       BEGP(pt0);
       deref_body(d1, pt0, plus_y_vv_nvar_unk, plus_y_vv_nvar_nvar);
+      saveregs();
       Error(INSTANTIATION_ERROR, TermNil, "X is A+B");
+      setregs();
       FAIL();
       ENDP(pt0);
       ENDD(d1);
@@ -7990,7 +8062,9 @@ absmi(int inp)
 
       BEGP(pt0);
       deref_body(d0, pt0, plus_y_vc_unk, plus_y_vc_nvar);
+      saveregs();
       Error(INSTANTIATION_ERROR, TermNil, "X is A+B");
+      setregs();
       FAIL();
       ENDP(pt0);
       ENDD(d0);
@@ -8024,13 +8098,17 @@ absmi(int inp)
 
       BEGP(pt0);
       deref_body(d0, pt0, minus_vv_unk, minus_vv_nvar);
+      saveregs();
       Error(INSTANTIATION_ERROR, TermNil, "X is A-B");
+      setregs();
       FAIL();
       ENDP(pt0);
 
       BEGP(pt0);
       deref_body(d1, pt0, minus_vv_nvar_unk, minus_vv_nvar_nvar);
+      saveregs();
       Error(INSTANTIATION_ERROR, TermNil, "X is A-B");
+      setregs();
       FAIL();
       ENDP(pt0);
       ENDD(d1);
@@ -8062,7 +8140,9 @@ absmi(int inp)
 
       BEGP(pt0);
       deref_body(d0, pt0, minus_cv_unk, minus_cv_nvar);
+      saveregs();
       Error(INSTANTIATION_ERROR, TermNil, "X is A-B");
+      setregs();
       FAIL();
       ENDP(pt0);
       ENDD(d0);
@@ -8103,13 +8183,17 @@ absmi(int inp)
 
       BEGP(pt0);
       deref_body(d0, pt0, minus_y_vv_unk, minus_y_vv_nvar);
+      saveregs();
       Error(INSTANTIATION_ERROR, TermNil, "X is A-B");
+      setregs();
       FAIL();
       ENDP(pt0);
 
       BEGP(pt0);
       deref_body(d1, pt0, minus_y_vv_nvar_unk, minus_y_vv_nvar_nvar);
+      saveregs();
       Error(INSTANTIATION_ERROR, TermNil, "X is A-B");
+      setregs();
       FAIL();
       ENDP(pt0);
       ENDD(d1);
@@ -8148,7 +8232,9 @@ absmi(int inp)
 
       BEGP(pt0);
       deref_body(d0, pt0, minus_y_cv_unk, minus_y_cv_nvar);
+      saveregs();
       Error(INSTANTIATION_ERROR, TermNil, "X is A-B");
+      setregs();
       FAIL();
       ENDP(pt0);
       ENDD(d0);
@@ -8182,13 +8268,17 @@ absmi(int inp)
 
       BEGP(pt0);
       deref_body(d0, pt0, times_vv_unk, times_vv_nvar);
+      saveregs();
       Error(INSTANTIATION_ERROR, TermNil, "X is A*B");
+      setregs();
       FAIL();
       ENDP(pt0);
 
       BEGP(pt0);
       deref_body(d1, pt0, times_vv_nvar_unk, times_vv_nvar_nvar);
+      saveregs();
       Error(INSTANTIATION_ERROR, TermNil, "X is A*B");
+      setregs();
       FAIL();
       ENDP(pt0);
       ENDD(d1);
@@ -8220,7 +8310,9 @@ absmi(int inp)
 
       BEGP(pt0);
       deref_body(d0, pt0, times_vc_unk, times_vc_nvar);
+      saveregs();
       Error(INSTANTIATION_ERROR, TermNil, "X is A*B");
+      setregs();
       FAIL();
       ENDP(pt0);
       ENDD(d0);
@@ -8261,13 +8353,17 @@ absmi(int inp)
 
       BEGP(pt0);
       deref_body(d0, pt0, times_y_vv_unk, times_y_vv_nvar);
+      saveregs();
       Error(INSTANTIATION_ERROR, TermNil, "X is A*B");
+      setregs();
       FAIL();
       ENDP(pt0);
 
       BEGP(pt0);
       deref_body(d1, pt0, times_y_vv_nvar_unk, times_y_vv_nvar_nvar);
+      saveregs();
       Error(INSTANTIATION_ERROR, TermNil, "X is A*B");
+      setregs();
       FAIL();
       ENDP(pt0);
       ENDD(d1);
@@ -8306,7 +8402,9 @@ absmi(int inp)
 
       BEGP(pt0);
       deref_body(d0, pt0, times_y_vc_unk, times_y_vc_nvar);
+      saveregs();
       Error(INSTANTIATION_ERROR, TermNil, "X is A*B");
+      setregs();
       FAIL();
       ENDP(pt0);
       ENDD(d0);
@@ -8327,7 +8425,9 @@ absmi(int inp)
       if (IsIntTerm(d0) && IsIntTerm(d1)) {
 	Int div = IntOfTerm(d1);
 	if (div == 0) {
+	  saveregs();
 	  Error(EVALUATION_ERROR_ZERO_DIVISOR,TermNil,"// /2");
+	  setregs();
 	  FAIL();
 	}
 	d0 = MkIntTerm(IntOfTerm(d0) / div);
@@ -8345,13 +8445,17 @@ absmi(int inp)
 
       BEGP(pt0);
       deref_body(d0, pt0, div_vv_unk, div_vv_nvar);
+      saveregs();
       Error(INSTANTIATION_ERROR, TermNil, "X is A//B");
+      setregs();
       FAIL();
       ENDP(pt0);
 
       BEGP(pt0);
       deref_body(d1, pt0, div_vv_nvar_unk, div_vv_nvar_nvar);
+      saveregs();
       Error(INSTANTIATION_ERROR, TermNil, "X is A//B");
+      setregs();
       FAIL();
       ENDP(pt0);
       ENDD(d1);
@@ -8383,7 +8487,9 @@ absmi(int inp)
 
       BEGP(pt0);
       deref_body(d0, pt0, div_vc_unk, div_vc_nvar);
+      saveregs();
       Error(INSTANTIATION_ERROR, TermNil, "X is A//B");
+      setregs();
       FAIL();
       ENDP(pt0);
       ENDD(d0);
@@ -8400,7 +8506,9 @@ absmi(int inp)
 	if (IsIntTerm(d0)) {
 	  Int div = IntOfTerm(d0);
 	  if (div == 0){
+	    saveregs();
 	    Error(EVALUATION_ERROR_ZERO_DIVISOR,TermNil,"// /2");
+	    setregs();
 	    FAIL();
 	  }
 	  d0 = MkIntegerTerm(d1 / div);
@@ -8418,7 +8526,9 @@ absmi(int inp)
 
       BEGP(pt0);
       deref_body(d0, pt0, div_cv_unk, div_cv_nvar);
+      saveregs();
       Error(INSTANTIATION_ERROR, TermNil, "X is A//B");
+      setregs();
       FAIL();
       ENDP(pt0);
       ENDD(d0);
@@ -8439,7 +8549,9 @@ absmi(int inp)
       if (IsIntTerm(d0) && IsIntTerm(d1)) {
 	Int div = IntOfTerm(d1);
 	if (div == 0) {
+	  saveregs();
 	  Error(EVALUATION_ERROR_ZERO_DIVISOR,TermNil,"// /2");
+	  setregs();
 	  FAIL();
 	}
 	d0 = MkIntTerm(IntOfTerm(d0) / div);
@@ -8464,13 +8576,17 @@ absmi(int inp)
 
       BEGP(pt0);
       deref_body(d0, pt0, div_y_vv_unk, div_y_vv_nvar);
+      saveregs();
       Error(INSTANTIATION_ERROR, TermNil, "X is A//B");
+      setregs();
       FAIL();
       ENDP(pt0);
 
       BEGP(pt0);
       deref_body(d1, pt0, div_y_vv_nvar_unk, div_y_vv_nvar_nvar);
+      saveregs();
       Error(INSTANTIATION_ERROR, TermNil, "X is A//B");
+      setregs();
       FAIL();
       ENDP(pt0);
       ENDD(d1);
@@ -8509,7 +8625,9 @@ absmi(int inp)
 
       BEGP(pt0);
       deref_body(d0, pt0, div_y_vc_unk, div_y_vc_nvar);
+      saveregs();
       Error(INSTANTIATION_ERROR, TermNil, "X is A//B");
+      setregs();
       FAIL();
       ENDP(pt0);
       ENDD(d0);
@@ -8526,7 +8644,9 @@ absmi(int inp)
 	if (IsIntTerm(d0)) {
 	  Int div = IntOfTerm(d0);
 	  if (div == 0) {
+	    saveregs();
 	    Error(EVALUATION_ERROR_ZERO_DIVISOR,TermNil,"// /2");
+	    setregs();
 	    FAIL();
 	  }
 	  d0 = MkIntegerTerm(d1 / div);
@@ -8552,7 +8672,9 @@ absmi(int inp)
 
       BEGP(pt0);
       deref_body(d0, pt0, div_y_cv_unk, div_y_cv_nvar);
+      saveregs();
       Error(INSTANTIATION_ERROR, TermNil, "X is A//B");
+      setregs();
       FAIL();
       ENDP(pt0);
       ENDD(d0);
@@ -8587,13 +8709,17 @@ absmi(int inp)
 
       BEGP(pt0);
       deref_body(d0, pt0, and_vv_unk, and_vv_nvar);
+      saveregs();
       Error(INSTANTIATION_ERROR, TermNil, "X is A/\\B");
+      setregs();
       FAIL();
       ENDP(pt0);
 
       BEGP(pt0);
       deref_body(d1, pt0, and_vv_nvar_unk, and_vv_nvar_nvar);
+      saveregs();
       Error(INSTANTIATION_ERROR, TermNil, "X is A/\\B");
+      setregs();
       FAIL();
       ENDP(pt0);
       ENDD(d1);
@@ -8625,7 +8751,9 @@ absmi(int inp)
 
       BEGP(pt0);
       deref_body(d0, pt0, and_vc_unk, and_vc_nvar);
+      saveregs();
       Error(INSTANTIATION_ERROR, TermNil, "X is A/\\B");
+      setregs();
       FAIL();
       ENDP(pt0);
       ENDD(d0);
@@ -8666,13 +8794,17 @@ absmi(int inp)
 
       BEGP(pt0);
       deref_body(d0, pt0, and_y_vv_unk, and_y_vv_nvar);
+      saveregs();
       Error(INSTANTIATION_ERROR, TermNil, "X is A/\\B");
+      setregs();
       FAIL();
       ENDP(pt0);
 
       BEGP(pt0);
       deref_body(d1, pt0, and_y_vv_nvar_unk, and_y_vv_nvar_nvar);
+      saveregs();
       Error(INSTANTIATION_ERROR, TermNil, "X is A/\\B");
+      setregs();
       FAIL();
       ENDP(pt0);
       ENDD(d1);
@@ -8711,7 +8843,9 @@ absmi(int inp)
 
       BEGP(pt0);
       deref_body(d0, pt0, and_y_vc_unk, and_y_vc_nvar);
+      saveregs();
       Error(INSTANTIATION_ERROR, TermNil, "X is A/\\B");
+      setregs();
       FAIL();
       ENDP(pt0);
       ENDD(d0);
@@ -8746,13 +8880,17 @@ absmi(int inp)
 
       BEGP(pt0);
       deref_body(d0, pt0, or_vv_unk, or_vv_nvar);
+      saveregs();
       Error(INSTANTIATION_ERROR, TermNil, "X is A\\/B");
+      setregs();
       FAIL();
       ENDP(pt0);
 
       BEGP(pt0);
       deref_body(d1, pt0, or_vv_nvar_unk, or_vv_nvar_nvar);
+      saveregs();
       Error(INSTANTIATION_ERROR, TermNil, "X is A\\/B");
+      setregs();
       FAIL();
       ENDP(pt0);
       ENDD(d1);
@@ -8783,7 +8921,9 @@ absmi(int inp)
 
       BEGP(pt0);
       deref_body(d0, pt0, or_vc_unk, or_vc_nvar);
+      saveregs();
       Error(INSTANTIATION_ERROR, TermNil, "X is A\\/B");
+      setregs();
       FAIL();
       ENDP(pt0);
       ENDD(d0);
@@ -8824,13 +8964,17 @@ absmi(int inp)
 
       BEGP(pt0);
       deref_body(d0, pt0, or_y_vv_unk, or_y_vv_nvar);
+      saveregs();
       Error(INSTANTIATION_ERROR, TermNil, "X is A\\/B");
+      setregs();
       FAIL();
       ENDP(pt0);
 
       BEGP(pt0);
       deref_body(d1, pt0, or_y_vv_nvar_unk, or_y_vv_nvar_nvar);
+      saveregs();
       Error(INSTANTIATION_ERROR, TermNil, "X is A\\/B");
+      setregs();
       FAIL();
       ENDP(pt0);
       ENDD(d1);
@@ -8869,7 +9013,9 @@ absmi(int inp)
 
       BEGP(pt0);
       deref_body(d0, pt0, or_y_vc_unk, or_y_vc_nvar);
+      saveregs();
       Error(INSTANTIATION_ERROR, TermNil, "X is A\\/B");
+      setregs();
       FAIL();
       ENDP(pt0);
       ENDD(d0);
@@ -8903,13 +9049,17 @@ absmi(int inp)
 
       BEGP(pt0);
       deref_body(d0, pt0, sll_vv_unk, sll_vv_nvar);
+      saveregs();
       Error(INSTANTIATION_ERROR, TermNil, "X is A<<B");
+      setregs();
       FAIL();
       ENDP(pt0);
 
       BEGP(pt0);
       deref_body(d1, pt0, sll_vv_nvar_unk, sll_vv_nvar_nvar);
+      saveregs();
       Error(INSTANTIATION_ERROR, TermNil, "X is A<<B");
+      setregs();
       FAIL();
       ENDP(pt0);
       ENDD(d1);
@@ -8941,7 +9091,9 @@ absmi(int inp)
 
       BEGP(pt0);
       deref_body(d0, pt0, sll_vc_unk, sll_vc_nvar);
+      saveregs();
       Error(INSTANTIATION_ERROR, TermNil, "X is A<<B");
+      setregs();
       FAIL();
       ENDP(pt0);
       ENDD(d0);
@@ -8972,7 +9124,9 @@ absmi(int inp)
 
       BEGP(pt0);
       deref_body(d0, pt0, sll_cv_unk, sll_cv_nvar);
+      saveregs();
       Error(INSTANTIATION_ERROR, TermNil, "X is A<<B");
+      setregs();
       FAIL();
       ENDP(pt0);
       ENDD(d0);
@@ -9013,13 +9167,17 @@ absmi(int inp)
 
       BEGP(pt0);
       deref_body(d0, pt0, sll_y_vv_unk, sll_y_vv_nvar);
+      saveregs();
       Error(INSTANTIATION_ERROR, TermNil, "X is A<<B");
+      setregs();
       FAIL();
       ENDP(pt0);
 
       BEGP(pt0);
       deref_body(d1, pt0, sll_y_vv_nvar_unk, sll_y_vv_nvar_nvar);
+      saveregs();
       Error(INSTANTIATION_ERROR, TermNil, "X is A<<B");
+      setregs();
       FAIL();
       ENDP(pt0);
       ENDD(d1);
@@ -9058,7 +9216,9 @@ absmi(int inp)
 
       BEGP(pt0);
       deref_body(d0, pt0, sll_y_vc_unk, sll_y_vc_nvar);
+      saveregs();
       Error(INSTANTIATION_ERROR, TermNil, "X is A<<B");
+      setregs();
       FAIL();
       ENDP(pt0);
       ENDD(d0);
@@ -9097,7 +9257,9 @@ absmi(int inp)
 
       BEGP(pt0);
       deref_body(d0, pt0, sll_y_cv_unk, sll_y_cv_nvar);
+      saveregs();
       Error(INSTANTIATION_ERROR, TermNil, "X is A<<B");
+      setregs();
       FAIL();
       ENDP(pt0);
       ENDD(d0);
@@ -9131,13 +9293,17 @@ absmi(int inp)
 
       BEGP(pt0);
       deref_body(d0, pt0, slr_vv_unk, slr_vv_nvar);
+      saveregs();
       Error(INSTANTIATION_ERROR, TermNil, "X is A>>B");
+      setregs();
       FAIL();
       ENDP(pt0);
 
       BEGP(pt0);
       deref_body(d1, pt0, slr_vv_nvar_unk, slr_vv_nvar_nvar);
+      saveregs();
       Error(INSTANTIATION_ERROR, TermNil, "X is A>>B");
+      setregs();
       FAIL();
       ENDP(pt0);
       ENDD(d1);
@@ -9169,7 +9335,9 @@ absmi(int inp)
 
       BEGP(pt0);
       deref_body(d0, pt0, slr_vc_unk, slr_vc_nvar);
+      saveregs();
       Error(INSTANTIATION_ERROR, TermNil, "X is A>>B");
+      setregs();
       FAIL();
       ENDP(pt0);
       ENDD(d0);
@@ -9200,7 +9368,9 @@ absmi(int inp)
 
       BEGP(pt0);
       deref_body(d0, pt0, slr_cv_unk, slr_cv_nvar);
+      saveregs();
       Error(INSTANTIATION_ERROR, TermNil, "X is A>>B");
+      setregs();
       FAIL();
       ENDP(pt0);
       ENDD(d0);
@@ -9241,13 +9411,17 @@ absmi(int inp)
 
       BEGP(pt0);
       deref_body(d0, pt0, slr_y_vv_unk, slr_y_vv_nvar);
+      saveregs();
       Error(INSTANTIATION_ERROR, TermNil, "X is A>>B");
+      setregs();
       FAIL();
       ENDP(pt0);
 
       BEGP(pt0);
       deref_body(d1, pt0, slr_y_vv_nvar_unk, slr_y_vv_nvar_nvar);
+      saveregs();
       Error(INSTANTIATION_ERROR, TermNil, "X is A>>B");
+      setregs();
       FAIL();
       ENDP(pt0);
       ENDD(d1);
@@ -9286,7 +9460,9 @@ absmi(int inp)
 
       BEGP(pt0);
       deref_body(d0, pt0, slr_y_vc_unk, slr_y_vc_nvar);
+      saveregs();
       Error(INSTANTIATION_ERROR, TermNil, "X is A>>B");
+      setregs();
       ENDP(pt0);
       ENDD(d0);
       ENDOp();
@@ -9323,7 +9499,9 @@ absmi(int inp)
 
       BEGP(pt0);
       deref_body(d0, pt0, slr_y_cv_unk, slr_y_cv_nvar);
+      saveregs();
       Error(INSTANTIATION_ERROR, TermNil, "X is A>>B");
+      setregs();
       FAIL();
       ENDP(pt0);
       ENDD(d0);
@@ -9821,7 +9999,9 @@ absmi(int inp)
       else if (IsLongIntTerm(d0)) {
 	d0 = LongIntOfTerm(d0);
       } else {
+	saveregs();
 	Error(TYPE_ERROR_INTEGER,d0,"arg 1 of arg/3");
+	setregs();
 	FAIL();
       }
 
@@ -9843,8 +10023,10 @@ absmi(int inp)
 	    d0 > ArityOfFunctor((Functor) d1)) {
 	  /* don't complain here for Prolog compatibility 
 	  if ((Int)d0 <= 0) {
+	    saveregs();
 	    Error(DOMAIN_ERROR_NOT_LESS_THAN_ZERO,
 		  MkIntegerTerm(d0),"arg 1 of arg/3");	    
+	    setregs();
 	  }
 	  */
 	  FAIL();
@@ -9859,8 +10041,10 @@ absmi(int inp)
 	pt0 = RepPair(d1);
 	if (d0 != 1 && d0 != 2) {
 	  if ((Int)d0 < 0) {
+	    saveregs();
 	    Error(DOMAIN_ERROR_NOT_LESS_THAN_ZERO,
 		  MkIntegerTerm(d0),"arg 1 of arg/3");
+	    setregs();
 	  }
 	  FAIL();
 	}
@@ -9870,20 +10054,26 @@ absmi(int inp)
 	ENDP(pt0);
       }
       else {
+	saveregs();
 	Error(TYPE_ERROR_COMPOUND, d1, "arg 2 of arg/3");
+	setregs();
 	FAIL();
       }
 
       BEGP(pt0);
       deref_body(d1, pt0, arg_arg2_unk, arg_arg2_nvar);
+      saveregs();
       Error(INSTANTIATION_ERROR, d1,"arg 2 of arg/3");;
+      setregs();
       ENDP(pt0);
       FAIL();
       ENDD(d1);
 
       BEGP(pt0);
       deref_body(d0, pt0, arg_arg1_unk, arg_arg1_nvar);
+      saveregs();
       Error(INSTANTIATION_ERROR, d0, "arg 1 of arg/3");;
+      setregs();
       ENDP(pt0);
       FAIL();
       ENDD(d0);
@@ -9921,8 +10111,10 @@ absmi(int inp)
 	    d0 > ArityOfFunctor((Functor) d1)) {
 	  /* don't complain here for Prolog compatibility 
 	  if ((Int)d0 <= 0) {
+	    saveregs();
 	    Error(DOMAIN_ERROR_NOT_LESS_THAN_ZERO,
 		  MkIntegerTerm(d0),"arg 1 of arg/3");	    
+	    setregs();
 	  }
 	  */
 	  FAIL();
@@ -9937,8 +10129,10 @@ absmi(int inp)
 	pt0 = RepPair(d1);
 	if (d0 != 1 && d0 != 2) {
 	  if ((Int)d0 < 0) {
+	    saveregs();
 	    Error(DOMAIN_ERROR_NOT_LESS_THAN_ZERO,
 		  MkIntegerTerm(d0),"arg 1 of arg/3");
+	    setregs();
 	  }
 	  FAIL();
 	}
@@ -9948,13 +10142,17 @@ absmi(int inp)
 	ENDP(pt0);
       }
       else {
+	saveregs();
 	Error(TYPE_ERROR_COMPOUND, d1, "arg 2 of arg/3");
+	setregs();
 	FAIL();
       }
 
       BEGP(pt0);
       deref_body(d1, pt0, arg_arg2_vc_unk, arg_arg2_vc_nvar);
+      saveregs();
       Error(INSTANTIATION_ERROR, d1,"arg 2 of arg/3");;
+      setregs();
       ENDP(pt0);
       FAIL();
       ENDD(d1);
@@ -9981,7 +10179,9 @@ absmi(int inp)
       else if (IsLongIntTerm(d0)) {
 	d0 = LongIntOfTerm(d0);
       } else {
+	saveregs();
 	Error(TYPE_ERROR_INTEGER,d0,"arg 1 of arg/3");
+	setregs();
 	FAIL();
       }
 
@@ -10003,8 +10203,10 @@ absmi(int inp)
 	    d0 > ArityOfFunctor((Functor) d1)) {
 	  /* don't complain here for Prolog compatibility 
 	  if ((Int)d0 <= 0) {
+	    saveregs();
 	    Error(DOMAIN_ERROR_NOT_LESS_THAN_ZERO,
 		  MkIntegerTerm(d0),"arg 1 of arg/3");	    
+	    saveregs();
 	  }
 	  */
 	  FAIL();
@@ -10026,8 +10228,10 @@ absmi(int inp)
 	pt0 = RepPair(d1);
 	if (d0 != 1 && d0 != 2) {
 	  if ((Int)d0 < 0) {
+	    saveregs();
 	    Error(DOMAIN_ERROR_NOT_LESS_THAN_ZERO,
 		  MkIntegerTerm(d0),"arg 1 of arg/3");
+	    setregs();
 	  }
 	  FAIL();
 	}
@@ -10044,20 +10248,26 @@ absmi(int inp)
 	ENDP(pt0);
       }
       else {
+	saveregs();
 	Error(TYPE_ERROR_COMPOUND, d1, "arg 2 of arg/3");
+	setregs();
 	FAIL();
       }
 
       BEGP(pt0);
       deref_body(d1, pt0, arg_y_arg2_unk, arg_y_arg2_nvar);
+      saveregs();
       Error(INSTANTIATION_ERROR, d1,"arg 2 of arg/3");;
+      setregs();
       ENDP(pt0);
       FAIL();
       ENDD(d1);
 
       BEGP(pt0);
       deref_body(d0, pt0, arg_y_arg1_unk, arg_y_arg1_nvar);
+      saveregs();
       Error(INSTANTIATION_ERROR, d0, "arg 1 of arg/3");;
+      setregs();
       ENDP(pt0);
       FAIL();
       ENDD(d0);
@@ -10095,8 +10305,10 @@ absmi(int inp)
 	    d0 > ArityOfFunctor((Functor) d1)) {
 	  /* don't complain here for Prolog compatibility 
 	  if ((Int)d0 <= 0) {
+	    saveregs();
 	    Error(DOMAIN_ERROR_NOT_LESS_THAN_ZERO,
 		  MkIntegerTerm(d0),"arg 1 of arg/3");	    
+	    setregs();
 	  }
 	  */
 	  FAIL();
@@ -10118,8 +10330,10 @@ absmi(int inp)
 	pt0 = RepPair(d1);
 	if (d0 != 1 && d0 != 2) {
 	  if ((Int)d0 < 0) {
+	    saveregs();
 	    Error(DOMAIN_ERROR_NOT_LESS_THAN_ZERO,
 		  MkIntegerTerm(d0),"arg 1 of arg/3");
+	    setregs();
 	  }
 	  FAIL();
 	}
@@ -10136,13 +10350,17 @@ absmi(int inp)
 	ENDP(pt0);
       }
       else {
+	saveregs();
 	Error(TYPE_ERROR_COMPOUND, d1, "arg 2 of arg/3");
+	setregs();
 	FAIL();
       }
 
       BEGP(pt0);
       deref_body(d1, pt0, arg_y_arg2_vc_unk, arg_y_arg2_vc_nvar);
+      saveregs();
       Error(INSTANTIATION_ERROR, d1,"arg 2 of arg/3");;
+      setregs();
       ENDP(pt0);
       FAIL();
       ENDD(d1);
@@ -10175,11 +10393,15 @@ absmi(int inp)
       if (IsIntegerTerm(d1))
 	d1 = IntegerOfTerm(d1);
       else {
+	saveregs();
 	Error(TYPE_ERROR_INTEGER,d1,"functor/3");
+	setregs();
 	FAIL();
       }
       if (!IsAtomicTerm(d0)) {
+	saveregs();
 	Error(TYPE_ERROR_ATOM,d0,"functor/3");
+	setregs();
 	FAIL();
       }
       /* We made it!!!!! we got in d0 the name, in d1 the arity and
@@ -10198,7 +10420,9 @@ absmi(int inp)
       else if ((Int)d1 > 0) {
 	/* now let's build a compound term */
 	if (!IsAtomTerm(d0)) {
+	  saveregs();
 	  Error(TYPE_ERROR_ATOM,d0,"functor/3");
+	  setregs();
 	  FAIL();
 	}
 	BEGP(pt1);
@@ -10234,13 +10458,17 @@ absmi(int inp)
 	PREG = NEXTOP(NEXTOP(NEXTOP(PREG, xxx),sla),l);
 	GONext();
       }	else {
+	saveregs();
 	Error(DOMAIN_ERROR_NOT_LESS_THAN_ZERO,MkIntegerTerm(d1),"functor/3");
+	setregs();
 	FAIL();
       }
 
       BEGP(pt1);
       deref_body(d1, pt1, func2s_unk2, func2s_nvar2);
+      saveregs();
       Error(INSTANTIATION_ERROR, d1, "functor/3");
+      setregs();
       ENDP(pt1);
       /* Oops, third argument was unbound */
       FAIL();
@@ -10248,7 +10476,9 @@ absmi(int inp)
 
       BEGP(pt1);
       deref_body(d0, pt1, func2s_unk, func2s_nvar);
+      saveregs();
       Error(INSTANTIATION_ERROR, d0, "functor/3");
+      setregs();
       ENDP(pt1);
       /* Oops, second argument was unbound too */
       FAIL();
@@ -10278,7 +10508,9 @@ absmi(int inp)
       if (IsIntegerTerm(d1))
 	d1 = IntegerOfTerm(d1);
       else {
+	saveregs();
 	Error(TYPE_ERROR_INTEGER,d1,"functor/3");
+	setregs();
 	FAIL();
       }
       /* We made it!!!!! we got in d0 the name, in d1 the arity and
@@ -10296,7 +10528,9 @@ absmi(int inp)
       } else if ((Int)d1 > 0) {
 	/* now let's build a compound term */
 	if (!IsAtomTerm(d0)) {
+	  saveregs();
 	  Error(TYPE_ERROR_ATOM,d0,"functor/3");
+	  setregs();
 	  FAIL();
 	}
 	BEGP(pt1);
@@ -10332,13 +10566,17 @@ absmi(int inp)
 	PREG = NEXTOP(NEXTOP(NEXTOP(PREG, xxx),sla),l);
 	GONext();
       }	else {
+	saveregs();
 	Error(DOMAIN_ERROR_NOT_LESS_THAN_ZERO,MkIntegerTerm(d1),"functor/3");
+	setregs();
 	FAIL();
       }
 
       BEGP(pt1);
       deref_body(d1, pt1, func2s_unk2_cv, func2s_nvar2_cv);
+      saveregs();
       Error(INSTANTIATION_ERROR, d1, "functor/3");
+      setregs();
       ENDP(pt1);
       /* Oops, third argument was unbound */
       FAIL();
@@ -10370,7 +10608,9 @@ absmi(int inp)
       BEGD(d1);
       d1 = PREG->u.xxc.c;
       if (!IsAtomicTerm(d0)) {
+	saveregs();
 	Error(TYPE_ERROR_ATOM,d0,"functor/3");
+	setregs();
 	FAIL();
       }
       /* We made it!!!!! we got in d0 the name, in d1 the arity and
@@ -10393,7 +10633,9 @@ absmi(int inp)
 	GONext();
       }
       if (!IsAtomTerm(d0)) {
+	saveregs();
 	Error(TYPE_ERROR_ATOM,d0,"functor/3");
+	setregs();
 	FAIL();
       }
       BEGP(pt1);
@@ -10428,7 +10670,9 @@ absmi(int inp)
 
       BEGP(pt1);
       deref_body(d0, pt1, func2s_unk_vc, func2s_nvar_vc);
+      saveregs();
       Error(INSTANTIATION_ERROR, d0, "functor/3");
+      setregs();
       ENDP(pt1);
       /* Oops, second argument was unbound too */
       FAIL();
@@ -10460,11 +10704,15 @@ absmi(int inp)
       if (IsIntegerTerm(d1))
 	d1 = IntegerOfTerm(d1);
       else {
+	saveregs();
 	Error(TYPE_ERROR_INTEGER,d1,"functor/3");
+	setregs();
 	FAIL();
       }
       if (!IsAtomicTerm(d0)) {
+	saveregs();
 	Error(TYPE_ERROR_ATOM,d0,"functor/3");
+	setregs();
 	FAIL();
       }
       /* We made it!!!!! we got in d0 the name, in d1 the arity and
@@ -10487,7 +10735,9 @@ absmi(int inp)
       } else if ((Int)d1 > 0) {
 	/* now let's build a compound term */
 	if (!IsAtomTerm(d0)) {
+	  saveregs();
 	  Error(TYPE_ERROR_ATOM,d0,"functor/3");
+	  setregs();
 	  FAIL();
 	}
 	BEGP(pt1);
@@ -10537,13 +10787,17 @@ absmi(int inp)
 	ENDP(pt1);
 	GONext();
       }	else {
+	saveregs();
 	Error(DOMAIN_ERROR_NOT_LESS_THAN_ZERO,MkIntegerTerm(d1),"functor/3");
+	setregs();
 	FAIL();
       }
 
       BEGP(pt1);
       deref_body(d1, pt1, func2s_y_unk2, func2s_y_nvar2);
+      saveregs();
       Error(INSTANTIATION_ERROR, d1, "functor/3");
+      setregs();
       ENDP(pt1);
       /* Oops, third argument was unbound */
       FAIL();
@@ -10551,7 +10805,9 @@ absmi(int inp)
 
       BEGP(pt1);
       deref_body(d0, pt1, func2s_y_unk, func2s_y_nvar);
+      saveregs();
       Error(INSTANTIATION_ERROR, d0, "functor/3");
+      setregs();
       ENDP(pt1);
       /* Oops, second argument was unbound too */
       FAIL();
@@ -10581,7 +10837,9 @@ absmi(int inp)
       if (IsIntegerTerm(d1)) {
 	d1 = IntegerOfTerm(d1);
       } else {
+	saveregs();
 	Error(TYPE_ERROR_INTEGER,d1,"functor/3");
+	setregs();
 	FAIL();
       }
       /* We made it!!!!! we got in d0 the name, in d1 the arity and
@@ -10607,7 +10865,9 @@ absmi(int inp)
       else if ((Int)d1 > 0) {
 	/* now let's build a compound term */
 	if (!IsAtomTerm(d0)) {
+	  saveregs();
 	  Error(TYPE_ERROR_ATOM,d0,"functor/3");
+	  setregs();
 	  FAIL();
 	}
 	if (!IsAtomTerm(d0)) {
@@ -10657,13 +10917,17 @@ absmi(int inp)
 	ENDP(pt1);
 	GONext();
       }	else {
+	saveregs();
 	Error(DOMAIN_ERROR_NOT_LESS_THAN_ZERO,MkIntegerTerm(d1),"functor/3");
+	setregs();
 	FAIL();
       }
 
       BEGP(pt1);
       deref_body(d1, pt1, func2s_y_unk_cv, func2s_y_nvar_cv);
+      saveregs();
       Error(INSTANTIATION_ERROR, d1, "functor/3");
+      setregs();
       ENDP(pt1);
       /* Oops, third argument was unbound */
       FAIL();
@@ -10695,7 +10959,9 @@ absmi(int inp)
       BEGD(d1);
       d1 = PREG->u.yxc.c;
       if (!IsAtomicTerm(d0)) {
+	saveregs();
 	Error(TYPE_ERROR_ATOM,d0,"functor/3");
+	setregs();
 	FAIL();
       }
       /* We made it!!!!! we got in d0 the name, in d1 the arity and
@@ -10731,12 +10997,16 @@ absmi(int inp)
 	GONext();
       }
       if (!IsAtomTerm(d0)) {
+	saveregs();
 	Error(TYPE_ERROR_ATOM,d0,"functor/3");
+	setregs();
 	FAIL();
       }
       /* now let's build a compound term */
       if (!IsAtomTerm(d0)) {
+	saveregs();
 	Error(TYPE_ERROR_ATOM,d0,"functor/3");
+	setregs();
 	FAIL();
       }
       BEGP(pt1);
@@ -10778,7 +11048,9 @@ absmi(int inp)
 
       BEGP(pt1);
       deref_body(d0, pt1, func2s_y_unk_vc, func2s_y_nvar_vc);
+      saveregs();
       Error(INSTANTIATION_ERROR, d0, "functor/3");
+      setregs();
       ENDP(pt1);
       /* Oops, second argument was unbound too */
       FAIL();
@@ -10824,7 +11096,9 @@ absmi(int inp)
 
       BEGP(pt1);
       deref_body(d0, pt1, func2f_xx_unk, func2f_xx_nvar);
+      saveregs();
       Error(INSTANTIATION_ERROR, d0, "functor/3");
+      setregs();
       ENDP(pt1);
       /* Oops, second argument was unbound too */
       FAIL();
@@ -10873,7 +11147,9 @@ absmi(int inp)
 
       BEGP(pt1);
       deref_body(d0, pt1, func2f_xy_unk, func2f_xy_nvar);
+      saveregs();
       Error(INSTANTIATION_ERROR, d0, "functor/3");
+      setregs();
       ENDP(pt1);
       /* Oops, second argument was unbound too */
       FAIL();
@@ -10922,7 +11198,9 @@ absmi(int inp)
 
       BEGP(pt1);
       deref_body(d0, pt1, func2f_yx_unk, func2f_yx_nvar);
+      saveregs();
       Error(INSTANTIATION_ERROR, d0, "functor/3");
+      setregs();
       ENDP(pt1);
       /* Oops, second argument was unbound too */
       FAIL();
@@ -10974,7 +11252,9 @@ absmi(int inp)
 
       BEGP(pt1);
       deref_body(d0, pt1, func2f_yy_unk, func2f_yy_nvar);
+      saveregs();
       Error(INSTANTIATION_ERROR, d0, "functor/3");
+      setregs();
       ENDP(pt1);
       /* Oops, second argument was unbound too */
       FAIL();
@@ -11088,11 +11368,15 @@ absmi(int inp)
       if (IsIntTerm(d1))
 	d1 = IntOfTerm(d1);
       else {
+	saveregs();
 	Error(TYPE_ERROR_INTEGER,ARG3,"functor/3");
+	setregs();
 	FAIL();
       }
       if (!IsAtomicTerm(d0)) {
+	saveregs();
 	Error(TYPE_ERROR_ATOM,d0,"functor/3");
+	setregs();
 	FAIL();
       }      /* We made it!!!!! we got in d0 the name, in d1 the arity and
        * in pt0 the variable to bind it to. */
@@ -11105,7 +11389,9 @@ absmi(int inp)
       else if ((Int)d1 > 0) {
 	/* now let's build a compound term */
 	if (!IsAtomTerm(d0)) {
+	  saveregs();
 	  Error(TYPE_ERROR_ATOM,d0,"functor/3");
+	  setregs();
 	  FAIL();
 	}
 	BEGP(pt1);
@@ -11132,7 +11418,9 @@ absmi(int inp)
 	H = pt1;
 	ENDP(pt1);
       }	else if ((Int)d1  < 0) {
+	saveregs();
 	Error(DOMAIN_ERROR_NOT_LESS_THAN_ZERO,MkIntegerTerm(d1),"functor/3");
+	setregs();
 	FAIL();
       }
       /* else if arity is 0 just pass d0 through */
@@ -11149,7 +11437,9 @@ absmi(int inp)
 
       BEGP(pt1);
       deref_body(d1, pt1, func_var_3unk, func_var_3nvar);
+      saveregs();
       Error(INSTANTIATION_ERROR, d1, "functor/3");
+      setregs();
       ENDP(pt1);
       /* Oops, third argument was unbound */
       FAIL();
@@ -11157,7 +11447,9 @@ absmi(int inp)
 
       BEGP(pt1);
       deref_body(d0, pt1, func_var_2unk, func_var_2nvar);
+      saveregs();
       Error(INSTANTIATION_ERROR, d0, "functor/3");
+      setregs();
       ENDP(pt1);
       /* Oops, second argument was unbound too */
       FAIL();
@@ -11567,8 +11859,10 @@ absmi(int inp)
 
 #if !USE_THREADED_CODE
     default:
-      PREG = Error(SYSTEM_ERROR, MkIntegerTerm(opcode), "trying to execute invalid YAAM instruction %d", opcode);
-      JMPNext();
+      saveregs();
+      Error(SYSTEM_ERROR, MkIntegerTerm(opcode), "trying to execute invalid YAAM instruction %d", opcode);
+      setregs();
+      FAIL();
     }
   }
 #endif

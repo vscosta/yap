@@ -1749,24 +1749,10 @@ Error (yap_error_number type, Term where, char *format,...)
   }
   nt[1] = MkAtomTerm(LookupAtom(p));
   if (serious) {
-    choiceptr newb;
-    PredEntry *p = PredThrow;
-      
-    CreepFlag = CalculateStackGap();
-    ASP--;
-    newb = ((choiceptr)ASP)-1;
-    newb->cp_h     = H;
-    newb->cp_tr    = TR;
-    newb->cp_cp    = CP;
-    newb->cp_ap    = (yamop *)(p->CodeOfPred);
-    newb->cp_env   = ENV;
-    newb->cp_b     = B;
     if (type == PURE_ABORT)
-      ARG1 = newb->cp_a1 = MkAtomTerm(LookupAtom("abort"));
+      JumpToEnv(MkAtomTerm(LookupAtom("abort")));
     else
-      ARG1 = newb->cp_a1 = MkApplTerm(fun, 2, nt);
-    B = newb;
-    ASP = YENV = (CELL *)B;
+      JumpToEnv(CopyTerm(MkApplTerm(fun, 2, nt)));
     P = (yamop *)FAILCODE;
   }
   PrologMode &= ~InErrorMode;
