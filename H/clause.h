@@ -246,6 +246,8 @@ Yap_op_from_opcode(OPCODE opc)
 #endif /* USE_THREADED_CODE */
 
 #if defined(YAPOR) || defined(THREADS)
+static int same_lu_block(yamop **, yamop *);
+
 static int
 same_lu_block(yamop **paddr, yamop *p)
 {

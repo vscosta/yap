@@ -12,7 +12,7 @@
 * Last rev:								 *
 * mods:									 *
 * comments:	allocating space					 *
-* version:$Id: alloc.c,v 1.66 2004-11-19 22:08:40 vsc Exp $		 *
+* version:$Id: alloc.c,v 1.67 2004-12-02 06:06:45 vsc Exp $		 *
 *************************************************************************/
 #ifdef SCCS
 static char SccsId[] = "%W% %G%";
@@ -139,12 +139,12 @@ Yap_ExpandPreAllocCodeSpace(UInt sz0)
 
 #if USE_SYSTEM_MALLOC
 
-struct various_codes *heap_regs;
+struct various_codes *Yap_heap_regs;
 
 static void
 InitHeap(void)
 {
-  heap_regs = (struct various_codes *)malloc(sizeof(struct various_codes));
+  Yap_heap_regs = (struct various_codes *)malloc(sizeof(struct various_codes));
 }
 
 void

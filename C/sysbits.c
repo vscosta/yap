@@ -2120,8 +2120,8 @@ void
 Yap_ReInitWallTime (void)
 {
   InitWTime();
-  if (heap_regs->last_wtime != NULL) 
-    Yap_FreeCodeSpace(heap_regs->last_wtime);
+  if (Yap_heap_regs->last_wtime != NULL) 
+    Yap_FreeCodeSpace(Yap_heap_regs->last_wtime);
   InitLastWtime();
 }
 

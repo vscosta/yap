@@ -129,7 +129,7 @@ low_level_trace(yap_low_level_port port, PredEntry *pred, CELL *args)
   //  if (vsc_count == 218280)
   //    vsc_xstop = 1;
   if (vsc_count < 1468068888) {
-    UNLOCK(heap_regs->low_level_trace_lock);
+    UNLOCK(Yap_heap_regs->low_level_trace_lock);
     return;
   }
   if (port != enter_pred ||
@@ -263,7 +263,7 @@ low_level_trace(yap_low_level_port port, PredEntry *pred, CELL *args)
     }
     break;
   }
-  UNLOCK(heap_regs->low_level_trace_lock);
+  UNLOCK(Yap_heap_regs->low_level_trace_lock);
 }
 
 void

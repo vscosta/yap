@@ -10,7 +10,7 @@
 * File:		Heap.h         						 *
 * mods:									 *
 * comments:	Heap Init Structure					 *
-* version:      $Id: Heap.h,v 1.72 2004-11-19 21:32:53 vsc Exp $	 *
+* version:      $Id: Heap.h,v 1.73 2004-12-02 06:06:47 vsc Exp $	 *
 *************************************************************************/
 
 /* information that can be stored in Code Space */
@@ -425,320 +425,320 @@ typedef struct various_codes {
 } all_heap_codes;
 
 #ifdef USE_SYSTEM_MALLOC
-struct various_codes *heap_regs;
+struct various_codes *Yap_heap_regs;
 #else
-#define heap_regs  ((all_heap_codes *)HEAP_INIT_BASE)
+#define Yap_heap_regs  ((all_heap_codes *)HEAP_INIT_BASE)
 #endif
 
-#define  Yap_av                  heap_regs->av_
-#define  Yap_hole_start          heap_regs->hole_start
-#define  Yap_hole_end            heap_regs->hole_end
-#define  HeapUsed                heap_regs->heap_used
-#define  HeapMax                 heap_regs->heap_max
-#define  HeapTop                 heap_regs->heap_top
-#define  HeapLim                 heap_regs->heap_lim
-#define  ScannerStack            heap_regs->scanner_stack
+#define  Yap_av                  Yap_heap_regs->av_
+#define  Yap_hole_start          Yap_heap_regs->hole_start
+#define  Yap_hole_end            Yap_heap_regs->hole_end
+#define  HeapUsed                Yap_heap_regs->heap_used
+#define  HeapMax                 Yap_heap_regs->heap_max
+#define  HeapTop                 Yap_heap_regs->heap_top
+#define  HeapLim                 Yap_heap_regs->heap_lim
+#define  ScannerStack            Yap_heap_regs->scanner_stack
 #ifdef YAPOR
-#define  SEQUENTIAL_IS_DEFAULT   heap_regs->seq_def
-#define  GETWORK		 (&(heap_regs->getworkcode               ))
-#define  GETWORK_SEQ             (&(heap_regs->getworkcode_seq           ))
-#define  GETWORK_FIRST_TIME      (&(heap_regs->getworkfirsttimecode      ))
+#define  SEQUENTIAL_IS_DEFAULT   Yap_heap_regs->seq_def
+#define  GETWORK		 (&(Yap_heap_regs->getworkcode               ))
+#define  GETWORK_SEQ             (&(Yap_heap_regs->getworkcode_seq           ))
+#define  GETWORK_FIRST_TIME      (&(Yap_heap_regs->getworkfirsttimecode      ))
 #endif /* YAPOR */
 #ifdef TABLING
-#define  COMPLETION               ((yamop *)&(heap_regs->tablecompletioncode   ))
-#define  ANSWER_RESOLUTION        ((yamop *)&(heap_regs->tableanswerresolutioncode ))
+#define  COMPLETION               ((yamop *)&(Yap_heap_regs->tablecompletioncode   ))
+#define  ANSWER_RESOLUTION        ((yamop *)&(Yap_heap_regs->tableanswerresolutioncode ))
 #endif /* TABLING */
-#define  EXPAND_OP_CODE           heap_regs->expand_op_code
-#define  ExpandClausesFirst       heap_regs->expand_clauses_first
-#define  ExpandClausesLast        heap_regs->expand_clauses_last
-#define  ExpandClausesListLock    heap_regs->expand_clauses_list_lock
-#define  COMMA_CODE               heap_regs->comma_code
-#define  FAILCODE                 heap_regs->failcode
-#define  TRUSTFAILCODE            heap_regs->trustfailcode
-#define  YESCODE                  heap_regs->yescode
-#define  NOCODE                   heap_regs->nocode
-#define  RTRYCODE                 heap_regs->rtrycode
-#define  DUMMYCODE                heap_regs->dummycode
-#define  CLAUSECODE               heap_regs->clausecode
-#define  INVISIBLECHAIN           heap_regs->invisiblechain
-#define  max_depth                heap_regs->maxdepth
-#define  max_list                 heap_regs->maxlist
-#define  AtPrompt                 (&(heap_regs->atprompt    	         ))
-#define  Prompt                   heap_regs->prompt
+#define  EXPAND_OP_CODE           Yap_heap_regs->expand_op_code
+#define  ExpandClausesFirst       Yap_heap_regs->expand_clauses_first
+#define  ExpandClausesLast        Yap_heap_regs->expand_clauses_last
+#define  ExpandClausesListLock    Yap_heap_regs->expand_clauses_list_lock
+#define  COMMA_CODE               Yap_heap_regs->comma_code
+#define  FAILCODE                 Yap_heap_regs->failcode
+#define  TRUSTFAILCODE            Yap_heap_regs->trustfailcode
+#define  YESCODE                  Yap_heap_regs->yescode
+#define  NOCODE                   Yap_heap_regs->nocode
+#define  RTRYCODE                 Yap_heap_regs->rtrycode
+#define  DUMMYCODE                Yap_heap_regs->dummycode
+#define  CLAUSECODE               Yap_heap_regs->clausecode
+#define  INVISIBLECHAIN           Yap_heap_regs->invisiblechain
+#define  max_depth                Yap_heap_regs->maxdepth
+#define  max_list                 Yap_heap_regs->maxlist
+#define  AtPrompt                 (&(Yap_heap_regs->atprompt    	         ))
+#define  Prompt                   Yap_heap_regs->prompt
 #if USE_THREADED_CODE
-#define  OP_RTABLE                heap_regs->op_rtable
+#define  OP_RTABLE                Yap_heap_regs->op_rtable
 #endif
-#define  PROFILING                heap_regs->system_profiling
-#define  CALL_COUNTING            heap_regs->system_call_counting
-#define  PRED_GOAL_EXPANSION_ON   heap_regs->system_pred_goal_expansion_on
-#define  UPDATE_MODE              heap_regs->update_mode
-#define  RETRY_C_RECORDED_CODE    heap_regs->retry_recorded_code
-#define  RETRY_C_RECORDED_K_CODE  heap_regs->retry_recorded_k_code
-#define  RETRY_C_RECORDEDP_CODE   heap_regs->retry_c_recordedp_code
-#define  STATIC_PREDICATES_MARKED heap_regs->static_predicates_marked
-#define  yap_flags                heap_regs->yap_flags_field
-#define  UNDEF_OPCODE             heap_regs->undef_op
-#define  INDEX_OPCODE             heap_regs->index_op
-#define  FAIL_OPCODE              heap_regs->fail_op
+#define  PROFILING                Yap_heap_regs->system_profiling
+#define  CALL_COUNTING            Yap_heap_regs->system_call_counting
+#define  PRED_GOAL_EXPANSION_ON   Yap_heap_regs->system_pred_goal_expansion_on
+#define  UPDATE_MODE              Yap_heap_regs->update_mode
+#define  RETRY_C_RECORDED_CODE    Yap_heap_regs->retry_recorded_code
+#define  RETRY_C_RECORDED_K_CODE  Yap_heap_regs->retry_recorded_k_code
+#define  RETRY_C_RECORDEDP_CODE   Yap_heap_regs->retry_c_recordedp_code
+#define  STATIC_PREDICATES_MARKED Yap_heap_regs->static_predicates_marked
+#define  yap_flags                Yap_heap_regs->yap_flags_field
+#define  UNDEF_OPCODE             Yap_heap_regs->undef_op
+#define  INDEX_OPCODE             Yap_heap_regs->index_op
+#define  FAIL_OPCODE              Yap_heap_regs->fail_op
 #ifdef THREADS
-#define  ThreadHandlesLock	  heap_regs->thread_handles_lock
-#define  ThreadHandle		  heap_regs->thread_handle
+#define  ThreadHandlesLock	  Yap_heap_regs->thread_handles_lock
+#define  ThreadHandle		  Yap_heap_regs->thread_handle
 #endif
-#define  NOfAtoms                 heap_regs->n_of_atoms
-#define  AtomHashTableSize        heap_regs->atom_hash_table_size
-#define  HashChain                heap_regs->hash_chain
-#define  INT_KEYS_SIZE            heap_regs->int_keys_size
-#define  INT_KEYS_TIMESTAMP       heap_regs->int_keys_timestamp
-#define  INT_KEYS                 heap_regs->IntKeys
-#define  INT_LU_KEYS_SIZE         heap_regs->int_lu_keys_size
-#define  INT_LU_KEYS_TIMESTAMP    heap_regs->int_lu_keys_timestamp
-#define  INT_LU_KEYS              heap_regs->IntLUKeys
-#define  INT_BB_KEYS_SIZE         heap_regs->int_bb_keys_size
-#define  INT_BB_KEYS              heap_regs->IntBBKeys
-#define  CharConversionTable      heap_regs->char_conversion_table
-#define  CharConversionTable2     heap_regs->char_conversion_table2
-#define  ModuleName               heap_regs->module_name
-#define  ModulePred               heap_regs->module_pred
-#define  NoOfModules              heap_regs->no_of_modules
-#define  AtomAbol                 heap_regs->atom_abol
-#define  AtomAlarm                heap_regs->atom_alarm
-#define  AtomAppend               heap_regs->atom_append
-#define  AtomArray                heap_regs->atom_array
-#define  AtomAssert               heap_regs->atom_assert
-#define  AtomB                    heap_regs->atom_b
-#define  AtomBreak                heap_regs->atom_break
-#define  AtomCall                 heap_regs->atom_call
-#define  AtomCatch                heap_regs->atom_catch
-#define  AtomComma                heap_regs->atom_comma
-#define  AtomCpuTime              heap_regs->atom_cpu_time
-#define  AtomCsult                heap_regs->atom_csult
-#define  AtomCut                  heap_regs->atom_cut
-#define  AtomCutBy                heap_regs->atom_cut_by
+#define  NOfAtoms                 Yap_heap_regs->n_of_atoms
+#define  AtomHashTableSize        Yap_heap_regs->atom_hash_table_size
+#define  HashChain                Yap_heap_regs->hash_chain
+#define  INT_KEYS_SIZE            Yap_heap_regs->int_keys_size
+#define  INT_KEYS_TIMESTAMP       Yap_heap_regs->int_keys_timestamp
+#define  INT_KEYS                 Yap_heap_regs->IntKeys
+#define  INT_LU_KEYS_SIZE         Yap_heap_regs->int_lu_keys_size
+#define  INT_LU_KEYS_TIMESTAMP    Yap_heap_regs->int_lu_keys_timestamp
+#define  INT_LU_KEYS              Yap_heap_regs->IntLUKeys
+#define  INT_BB_KEYS_SIZE         Yap_heap_regs->int_bb_keys_size
+#define  INT_BB_KEYS              Yap_heap_regs->IntBBKeys
+#define  CharConversionTable      Yap_heap_regs->char_conversion_table
+#define  CharConversionTable2     Yap_heap_regs->char_conversion_table2
+#define  ModuleName               Yap_heap_regs->module_name
+#define  ModulePred               Yap_heap_regs->module_pred
+#define  NoOfModules              Yap_heap_regs->no_of_modules
+#define  AtomAbol                 Yap_heap_regs->atom_abol
+#define  AtomAlarm                Yap_heap_regs->atom_alarm
+#define  AtomAppend               Yap_heap_regs->atom_append
+#define  AtomArray                Yap_heap_regs->atom_array
+#define  AtomAssert               Yap_heap_regs->atom_assert
+#define  AtomB                    Yap_heap_regs->atom_b
+#define  AtomBreak                Yap_heap_regs->atom_break
+#define  AtomCall                 Yap_heap_regs->atom_call
+#define  AtomCatch                Yap_heap_regs->atom_catch
+#define  AtomComma                Yap_heap_regs->atom_comma
+#define  AtomCpuTime              Yap_heap_regs->atom_cpu_time
+#define  AtomCsult                Yap_heap_regs->atom_csult
+#define  AtomCut                  Yap_heap_regs->atom_cut
+#define  AtomCutBy                Yap_heap_regs->atom_cut_by
 #if defined(EUROTRA) && defined(SFUNC)
-#define  AtomDollarUndef          heap_regs->atom_dollar_undef
+#define  AtomDollarUndef          Yap_heap_regs->atom_dollar_undef
 #endif
-#define  AtomDBRef                heap_regs->atom_dbref
-#define  AtomE                    heap_regs->atom_e
-#define  AtomEQ                   heap_regs->atom_e_q
-#define  AtomEof                  heap_regs->atom_eof
+#define  AtomDBRef                Yap_heap_regs->atom_dbref
+#define  AtomE                    Yap_heap_regs->atom_e
+#define  AtomEQ                   Yap_heap_regs->atom_e_q
+#define  AtomEof                  Yap_heap_regs->atom_eof
 #ifdef EUROTRA
-#define  AtomFB                   heap_regs->atom_f_b
+#define  AtomFB                   Yap_heap_regs->atom_f_b
 #endif
-#define  AtomFail                 heap_regs->atom_fail
-#define  AtomFalse                heap_regs->atom_false
-#define  AtomFast                 heap_regs->atom_fast
-#define  AtomGT                   heap_regs->atom_g_t
-#define  AtomGc                   heap_regs->atom_gc
-#define  AtomGcMargin             heap_regs->atom_gc_margin
-#define  AtomGcTrace              heap_regs->atom_gc_trace
-#define  AtomGcVerbose            heap_regs->atom_gc_verbose
-#define  AtomGcVeryVerbose        heap_regs->atom_gc_very_verbose
-#define  AtomGlobal               heap_regs->atom_global
-#define  AtomHeapUsed             heap_regs->atom_heap_used
-#define  AtomInf                  heap_regs->atom_inf
-#define  AtomLocal                heap_regs->atom_local
-#define  AtomLT                   heap_regs->atom_l_t
-#define  AtomMetaCall             heap_regs->atom_meta_call
-#define  AtomMinus                heap_regs->atom_minus
-#define  AtomMultiFile            heap_regs->atom_multi_file
-#define  AtomNan                  heap_regs->atom_nan
-#define  AtomOtherwise            heap_regs->atom_otherwise
-#define  AtomPi                   heap_regs->atom_pi
-#define  AtomPlus                 heap_regs->atom_plus
-#define  AtomPortray              heap_regs->atom_portray
-#define  AtomProfile              heap_regs->atom_profile
-#define  AtomRandom               heap_regs->atom_random
-#define  AtomRead                 heap_regs->atom_read
-#define  AtomRepeat               heap_regs->atom_repeat
-#define  AtomRestoreRegs          heap_regs->atom_restore_regs
+#define  AtomFail                 Yap_heap_regs->atom_fail
+#define  AtomFalse                Yap_heap_regs->atom_false
+#define  AtomFast                 Yap_heap_regs->atom_fast
+#define  AtomGT                   Yap_heap_regs->atom_g_t
+#define  AtomGc                   Yap_heap_regs->atom_gc
+#define  AtomGcMargin             Yap_heap_regs->atom_gc_margin
+#define  AtomGcTrace              Yap_heap_regs->atom_gc_trace
+#define  AtomGcVerbose            Yap_heap_regs->atom_gc_verbose
+#define  AtomGcVeryVerbose        Yap_heap_regs->atom_gc_very_verbose
+#define  AtomGlobal               Yap_heap_regs->atom_global
+#define  AtomHeapUsed             Yap_heap_regs->atom_heap_used
+#define  AtomInf                  Yap_heap_regs->atom_inf
+#define  AtomLocal                Yap_heap_regs->atom_local
+#define  AtomLT                   Yap_heap_regs->atom_l_t
+#define  AtomMetaCall             Yap_heap_regs->atom_meta_call
+#define  AtomMinus                Yap_heap_regs->atom_minus
+#define  AtomMultiFile            Yap_heap_regs->atom_multi_file
+#define  AtomNan                  Yap_heap_regs->atom_nan
+#define  AtomOtherwise            Yap_heap_regs->atom_otherwise
+#define  AtomPi                   Yap_heap_regs->atom_pi
+#define  AtomPlus                 Yap_heap_regs->atom_plus
+#define  AtomPortray              Yap_heap_regs->atom_portray
+#define  AtomProfile              Yap_heap_regs->atom_profile
+#define  AtomRandom               Yap_heap_regs->atom_random
+#define  AtomRead                 Yap_heap_regs->atom_read
+#define  AtomRepeat               Yap_heap_regs->atom_repeat
+#define  AtomRestoreRegs          Yap_heap_regs->atom_restore_regs
 #if HAVE_SIGACTION
-#define  AtomSigPending           heap_regs->atom_sig_pending
+#define  AtomSigPending           Yap_heap_regs->atom_sig_pending
 #endif
-#define  AtomStackFree            heap_regs->atom_stack_free
-#define  AtomTrue                 heap_regs->atom_true
-#define  AtomUser                 heap_regs->atom_user
-#define  AtomUsrErr               heap_regs->atom_usr_err
-#define  AtomUsrIn                heap_regs->atom_usr_in
-#define  AtomUsrOut               heap_regs->atom_usr_out
-#define  AtomVersionNumber        heap_regs->atom_version_number
-#define  AtomWrite                heap_regs->atom_write
+#define  AtomStackFree            Yap_heap_regs->atom_stack_free
+#define  AtomTrue                 Yap_heap_regs->atom_true
+#define  AtomUser                 Yap_heap_regs->atom_user
+#define  AtomUsrErr               Yap_heap_regs->atom_usr_err
+#define  AtomUsrIn                Yap_heap_regs->atom_usr_in
+#define  AtomUsrOut               Yap_heap_regs->atom_usr_out
+#define  AtomVersionNumber        Yap_heap_regs->atom_version_number
+#define  AtomWrite                Yap_heap_regs->atom_write
 #ifdef   USE_SOCKET
-#define  FunctorAfInet            heap_regs->functor_af_inet
-#define  FunctorAfLocal           heap_regs->functor_af_local
-#define  FunctorAfUnix            heap_regs->functor_af_unix
+#define  FunctorAfInet            Yap_heap_regs->functor_af_inet
+#define  FunctorAfLocal           Yap_heap_regs->functor_af_local
+#define  FunctorAfUnix            Yap_heap_regs->functor_af_unix
 #endif
-#define  FunctorAltNot            heap_regs->functor_alt_not
+#define  FunctorAltNot            Yap_heap_regs->functor_alt_not
 #ifdef COROUTINING
-#define  FunctorArrayEntry        heap_regs->functor_array_entry
+#define  FunctorArrayEntry        Yap_heap_regs->functor_array_entry
 #endif
-#define  FunctorArrow             heap_regs->functor_arrow
-#define  FunctorAssert            heap_regs->functor_assert
+#define  FunctorArrow             Yap_heap_regs->functor_arrow
+#define  FunctorAssert            Yap_heap_regs->functor_assert
 #ifdef COROUTINING
-#define  FunctorAttGoal           heap_regs->functor_att_goal
+#define  FunctorAttGoal           Yap_heap_regs->functor_att_goal
 #endif
-#define  FunctorBraces            heap_regs->functor_braces
-#define  FunctorCall              heap_regs->functor_call
-#define  FunctorClist             heap_regs->functor_clist
-#define  FunctorComma             heap_regs->functor_comma
-#define  FunctorCreep             heap_regs->functor_creep
-#define  FunctorCsult             heap_regs->functor_csult
-#define  FunctorCutBy             heap_regs->functor_cut_by
-#define  FunctorEq                heap_regs->functor_eq
-#define  FunctorExecuteInMod      heap_regs->functor_execute_in_mod
-#define  FunctorExecuteWithin     heap_regs->functor_execute_within
-#define  FunctorGAtom             heap_regs->functor_g_atom
-#define  FunctorGAtomic           heap_regs->functor_g_atomic
-#define  FunctorGCompound         heap_regs->functor_g_compound
-#define  FunctorGFloat            heap_regs->functor_g_float
-#define  FunctorGInteger          heap_regs->functor_g_integer
-#define  FunctorGNumber           heap_regs->functor_g_number
-#define  FunctorGPrimitive        heap_regs->functor_g_primitive
-#define  FunctorGVar              heap_regs->functor_g_var
-#define  FunctorLastExecuteWithin     heap_regs->functor_last_execute_within
-#define  FunctorList              heap_regs->functor_list
-#define  FunctorMegaClause        heap_regs->functor_mega_clause
-#define  FunctorModule            heap_regs->functor_module
-#define  FunctorMultiFileClause   heap_regs->functor_multi_file_clause
+#define  FunctorBraces            Yap_heap_regs->functor_braces
+#define  FunctorCall              Yap_heap_regs->functor_call
+#define  FunctorClist             Yap_heap_regs->functor_clist
+#define  FunctorComma             Yap_heap_regs->functor_comma
+#define  FunctorCreep             Yap_heap_regs->functor_creep
+#define  FunctorCsult             Yap_heap_regs->functor_csult
+#define  FunctorCutBy             Yap_heap_regs->functor_cut_by
+#define  FunctorEq                Yap_heap_regs->functor_eq
+#define  FunctorExecuteInMod      Yap_heap_regs->functor_execute_in_mod
+#define  FunctorExecuteWithin     Yap_heap_regs->functor_execute_within
+#define  FunctorGAtom             Yap_heap_regs->functor_g_atom
+#define  FunctorGAtomic           Yap_heap_regs->functor_g_atomic
+#define  FunctorGCompound         Yap_heap_regs->functor_g_compound
+#define  FunctorGFloat            Yap_heap_regs->functor_g_float
+#define  FunctorGInteger          Yap_heap_regs->functor_g_integer
+#define  FunctorGNumber           Yap_heap_regs->functor_g_number
+#define  FunctorGPrimitive        Yap_heap_regs->functor_g_primitive
+#define  FunctorGVar              Yap_heap_regs->functor_g_var
+#define  FunctorLastExecuteWithin     Yap_heap_regs->functor_last_execute_within
+#define  FunctorList              Yap_heap_regs->functor_list
+#define  FunctorMegaClause        Yap_heap_regs->functor_mega_clause
+#define  FunctorModule            Yap_heap_regs->functor_module
+#define  FunctorMultiFileClause   Yap_heap_regs->functor_multi_file_clause
 #ifdef MULTI_ASSIGNMENT_VARIABLES
-#define  FunctorMutable           heap_regs->functor_mutable
+#define  FunctorMutable           Yap_heap_regs->functor_mutable
 #endif
-#define  FunctorNot               heap_regs->functor_not
-#define  FunctorOr                heap_regs->functor_or
-#define  FunctorPortray           heap_regs->functor_portray
-#define  FunctorQuery             heap_regs->functor_query
-#define  FunctorStaticClause      heap_regs->functor_static_clause
-#define  FunctorStream            heap_regs->functor_stream
-#define  FunctorStreamPos         heap_regs->functor_stream_pos
-#define  FunctorStreamEOS         heap_regs->functor_stream_eOS
-#define  FunctorThreadRun         heap_regs->functor_thread_run
-#define  FunctorChangeModule      heap_regs->functor_change_module
-#define  FunctorCurrentModule     heap_regs->functor_current_module
-#define  FunctorModSwitch         heap_regs->functor_mod_switch
-#define  FunctorUMinus            heap_regs->functor_u_minus
-#define  FunctorUPlus             heap_regs->functor_u_plus
-#define  FunctorVBar              heap_regs->functor_v_bar
-#define  FunctorVar               heap_regs->functor_var
-#define  TermDollarU              heap_regs->term_dollar_u
-#define  TermProlog               heap_regs->term_prolog
-#define  TermReFoundVar           heap_regs->term_refound_var
+#define  FunctorNot               Yap_heap_regs->functor_not
+#define  FunctorOr                Yap_heap_regs->functor_or
+#define  FunctorPortray           Yap_heap_regs->functor_portray
+#define  FunctorQuery             Yap_heap_regs->functor_query
+#define  FunctorStaticClause      Yap_heap_regs->functor_static_clause
+#define  FunctorStream            Yap_heap_regs->functor_stream
+#define  FunctorStreamPos         Yap_heap_regs->functor_stream_pos
+#define  FunctorStreamEOS         Yap_heap_regs->functor_stream_eOS
+#define  FunctorThreadRun         Yap_heap_regs->functor_thread_run
+#define  FunctorChangeModule      Yap_heap_regs->functor_change_module
+#define  FunctorCurrentModule     Yap_heap_regs->functor_current_module
+#define  FunctorModSwitch         Yap_heap_regs->functor_mod_switch
+#define  FunctorUMinus            Yap_heap_regs->functor_u_minus
+#define  FunctorUPlus             Yap_heap_regs->functor_u_plus
+#define  FunctorVBar              Yap_heap_regs->functor_v_bar
+#define  FunctorVar               Yap_heap_regs->functor_var
+#define  TermDollarU              Yap_heap_regs->term_dollar_u
+#define  TermProlog               Yap_heap_regs->term_prolog
+#define  TermReFoundVar           Yap_heap_regs->term_refound_var
 #define  PROLOG_MODULE            0
-#define  USER_MODULE              heap_regs->user_module
-#define  IDB_MODULE               heap_regs->idb_module
-#define  ATTRIBUTES_MODULE        heap_regs->attributes_module
-#define  CHARSIO_MODULE           heap_regs->charsio_module
-#define  TERMS_MODULE             heap_regs->terms_module
-#define  PredGoalExpansion        heap_regs->pred_goal_expansion
-#define  PredMetaCall             heap_regs->pred_meta_call
-#define  PredDollarCatch          heap_regs->pred_dollar_catch
-#define  PredRecordedWithKey      heap_regs->pred_recorded_with_key
-#define  PredLogUpdClause         heap_regs->pred_log_upd_clause
-#define  PredLogUpdClause0        heap_regs->pred_log_upd_clause0
-#define  PredStaticClause         heap_regs->pred_static_clause
-#define  PredThrow                heap_regs->pred_throw
-#define  PredHandleThrow          heap_regs->pred_handle_throw
-#define  DynArrayList             heap_regs->dyn_array_list
-#define  DBErasedMarker           heap_regs->db_erased_marker
+#define  USER_MODULE              Yap_heap_regs->user_module
+#define  IDB_MODULE               Yap_heap_regs->idb_module
+#define  ATTRIBUTES_MODULE        Yap_heap_regs->attributes_module
+#define  CHARSIO_MODULE           Yap_heap_regs->charsio_module
+#define  TERMS_MODULE             Yap_heap_regs->terms_module
+#define  PredGoalExpansion        Yap_heap_regs->pred_goal_expansion
+#define  PredMetaCall             Yap_heap_regs->pred_meta_call
+#define  PredDollarCatch          Yap_heap_regs->pred_dollar_catch
+#define  PredRecordedWithKey      Yap_heap_regs->pred_recorded_with_key
+#define  PredLogUpdClause         Yap_heap_regs->pred_log_upd_clause
+#define  PredLogUpdClause0        Yap_heap_regs->pred_log_upd_clause0
+#define  PredStaticClause         Yap_heap_regs->pred_static_clause
+#define  PredThrow                Yap_heap_regs->pred_throw
+#define  PredHandleThrow          Yap_heap_regs->pred_handle_throw
+#define  DynArrayList             Yap_heap_regs->dyn_array_list
+#define  DBErasedMarker           Yap_heap_regs->db_erased_marker
 #ifdef DEBUG
-#define  DBErasedList             heap_regs->db_erased_list
-#define  DBErasedIList            heap_regs->db_erased_ilist
-#define  Yap_expand_clauses_sz    heap_regs->expand_clauses_sz
+#define  DBErasedList             Yap_heap_regs->db_erased_list
+#define  DBErasedIList            Yap_heap_regs->db_erased_ilist
+#define  Yap_expand_clauses_sz    Yap_heap_regs->expand_clauses_sz
 #endif /* DEBUG */
-#define  Stream		          heap_regs->yap_streams
-#define  output_msg	          heap_regs->debugger_output_msg
-#define  NOfFileAliases           heap_regs->n_of_file_aliases
-#define  SzOfFileAliases          heap_regs->sz_of_file_aliases
-#define  FileAliases              heap_regs->file_aliases
+#define  Stream		          Yap_heap_regs->yap_streams
+#define  output_msg	          Yap_heap_regs->debugger_output_msg
+#define  NOfFileAliases           Yap_heap_regs->n_of_file_aliases
+#define  SzOfFileAliases          Yap_heap_regs->sz_of_file_aliases
+#define  FileAliases              Yap_heap_regs->file_aliases
 #if LOW_PROF
-#define  ProfilerOn		  heap_regs->profiler_on
-#define  FProf     		  ((FILE *)heap_regs->f_prof)
-#define  FPreds     		  ((FILE *)heap_regs->f_preds)
-#define  ProfPreds		  heap_regs->prof_preds
+#define  ProfilerOn		  Yap_heap_regs->profiler_on
+#define  FProf     		  ((FILE *)Yap_heap_regs->f_prof)
+#define  FPreds     		  ((FILE *)Yap_heap_regs->f_preds)
+#define  ProfPreds		  Yap_heap_regs->prof_preds
 #endif /* LOW_PROF */
-#define  ReductionsCounter        heap_regs->call_counters.reductions
-#define  PredEntriesCounter       heap_regs->call_counters.reductions_retries
-#define  RetriesCounter           heap_regs->call_counters.retries
-#define  ReductionsCounterOn      heap_regs->call_counters.reductions_on
-#define  PredEntriesCounterOn     heap_regs->call_counters.reductions_retries_on
-#define  RetriesCounterOn         heap_regs->call_counters.retries_on
-#define  Yap_LibDir               heap_regs->yap_lib_dir
-#define  AGCHook                  heap_regs->agc_hook
-#define  ParserErrorStyle         heap_regs->parser_error_style
+#define  ReductionsCounter        Yap_heap_regs->call_counters.reductions
+#define  PredEntriesCounter       Yap_heap_regs->call_counters.reductions_retries
+#define  RetriesCounter           Yap_heap_regs->call_counters.retries
+#define  ReductionsCounterOn      Yap_heap_regs->call_counters.reductions_on
+#define  PredEntriesCounterOn     Yap_heap_regs->call_counters.reductions_retries_on
+#define  RetriesCounterOn         Yap_heap_regs->call_counters.retries_on
+#define  Yap_LibDir               Yap_heap_regs->yap_lib_dir
+#define  AGCHook                  Yap_heap_regs->agc_hook
+#define  ParserErrorStyle         Yap_heap_regs->parser_error_style
 #ifdef  COROUTINING
-#define  WakeUpCode               heap_regs->wake_up_code
+#define  WakeUpCode               Yap_heap_regs->wake_up_code
 #endif
 #if defined(YAPOR) || defined(THREADS)
-#define  SignalLock               heap_regs->wl[worker_id].signal_lock
-#define  WPP                      heap_regs->wl[worker_id].wpp
-#define  UncaughtThrow            heap_regs->wl[worker_id].uncaught_throw
-#define  ActiveSignals            heap_regs->wl[worker_id].active_signals
-#define  DelayedTrace	          heap_regs->wl[worker_id].delayed_trace
-#define  IPredArity               heap_regs->wl[worker_id].i_pred_arity
-#define  ProfEnd                  heap_regs->wl[worker_id].prof_end
-#define  StartLine                heap_regs->wl[worker_id].start_line
-#define  ScratchPad               heap_regs->wl[worker_id].scratchpad
+#define  SignalLock               Yap_heap_regs->wl[worker_id].signal_lock
+#define  WPP                      Yap_heap_regs->wl[worker_id].wpp
+#define  UncaughtThrow            Yap_heap_regs->wl[worker_id].uncaught_throw
+#define  ActiveSignals            Yap_heap_regs->wl[worker_id].active_signals
+#define  DelayedTrace	          Yap_heap_regs->wl[worker_id].delayed_trace
+#define  IPredArity               Yap_heap_regs->wl[worker_id].i_pred_arity
+#define  ProfEnd                  Yap_heap_regs->wl[worker_id].prof_end
+#define  StartLine                Yap_heap_regs->wl[worker_id].start_line
+#define  ScratchPad               Yap_heap_regs->wl[worker_id].scratchpad
 #ifdef  COROUTINING
-#define  WokenGoals               heap_regs->wl[worker_id].woken_goals
-#define  MutableList              heap_regs->wl[worker_id].mutable_list
-#define  AttsMutableList          heap_regs->wl[worker_id].atts_mutable_list
+#define  WokenGoals               Yap_heap_regs->wl[worker_id].woken_goals
+#define  MutableList              Yap_heap_regs->wl[worker_id].mutable_list
+#define  AttsMutableList          Yap_heap_regs->wl[worker_id].atts_mutable_list
 #endif
-#define  GcCalls                  heap_regs->wl[worker_id].gc_calls
-#define  TotGcTime                heap_regs->wl[worker_id].tot_gc_time
-#define  TotGcRecovered           heap_regs->wl[worker_id].tot_gc_recovered
-#define  Yap_gc_restore           heap_regs->wl[worker_id].gc_restore
-#define  Yap_old_TR               heap_regs->wl[worker_id].old_TR
-#define  TrustLUCode              heap_regs->wl[worker_id].trust_lu_code
+#define  GcCalls                  Yap_heap_regs->wl[worker_id].gc_calls
+#define  TotGcTime                Yap_heap_regs->wl[worker_id].tot_gc_time
+#define  TotGcRecovered           Yap_heap_regs->wl[worker_id].tot_gc_recovered
+#define  Yap_gc_restore           Yap_heap_regs->wl[worker_id].gc_restore
+#define  Yap_old_TR               Yap_heap_regs->wl[worker_id].old_TR
+#define  TrustLUCode              Yap_heap_regs->wl[worker_id].trust_lu_code
 #else
-#define  ActiveSignals            heap_regs->wl.active_signals
-#define  DelayedTrace	          heap_regs->wl.delayed_trace
-#define  IPredArity               heap_regs->wl.i_pred_arity
-#define  ProfEnd                  heap_regs->wl.prof_end
-#define  UncaughtThrow            heap_regs->wl.uncaught_throw
-#define  StartLine                heap_regs->wl.start_line
-#define  ScratchPad               heap_regs->wl.scratchpad
+#define  ActiveSignals            Yap_heap_regs->wl.active_signals
+#define  DelayedTrace	          Yap_heap_regs->wl.delayed_trace
+#define  IPredArity               Yap_heap_regs->wl.i_pred_arity
+#define  ProfEnd                  Yap_heap_regs->wl.prof_end
+#define  UncaughtThrow            Yap_heap_regs->wl.uncaught_throw
+#define  StartLine                Yap_heap_regs->wl.start_line
+#define  ScratchPad               Yap_heap_regs->wl.scratchpad
 #ifdef  COROUTINING
-#define  WokenGoals               heap_regs->wl.woken_goals
-#define  MutableList              heap_regs->wl.mutable_list
-#define  AttsMutableList          heap_regs->wl.atts_mutable_list
+#define  WokenGoals               Yap_heap_regs->wl.woken_goals
+#define  MutableList              Yap_heap_regs->wl.mutable_list
+#define  AttsMutableList          Yap_heap_regs->wl.atts_mutable_list
 #endif
-#define  GcCalls                  heap_regs->wl.gc_calls
-#define  TotGcTime                heap_regs->wl.tot_gc_time
-#define  TotGcRecovered           heap_regs->wl.tot_gc_recovered
-#define  Yap_gc_restore           heap_regs->wl.gc_restore
-#define  Yap_old_TR               heap_regs->wl.old_TR
-#define  TrustLUCode              heap_regs->wl.trust_lu_code
+#define  GcCalls                  Yap_heap_regs->wl.gc_calls
+#define  TotGcTime                Yap_heap_regs->wl.tot_gc_time
+#define  TotGcRecovered           Yap_heap_regs->wl.tot_gc_recovered
+#define  Yap_gc_restore           Yap_heap_regs->wl.gc_restore
+#define  Yap_old_TR               Yap_heap_regs->wl.old_TR
+#define  TrustLUCode              Yap_heap_regs->wl.trust_lu_code
 #endif
-#define  profiling                heap_regs->compiler_profiling
-#define  call_counting            heap_regs->compiler_call_counting
-#define  compile_arrays           heap_regs->compiler_compile_arrays
-#define  optimizer_on             heap_regs->compiler_optimizer_on
-#define  compile_mode             heap_regs->compiler_compile_mode
-#define  P_before_spy             heap_regs->debugger_p_before_spy
-#define  ForeignCodeBase          heap_regs->foreign_code_base;
-#define  ForeignCodeTop           heap_regs->foreign_code_top;
-#define  ForeignCodeMax           heap_regs->foreign_code_max;
-#define  ForeignCodeLoaded        heap_regs->foreign_code_loaded
-#define  ParserErrorStyle         heap_regs->parser_error_style
-#define  DeadClauses              heap_regs->dead_clauses
-#define  SizeOfOverflow           heap_regs->size_of_overflow
-#define  LastWtimePtr             heap_regs->last_wtime
-#define  BGL			  heap_regs->bgl
-#define  FreeBlocks		  heap_regs->free_blocks
+#define  profiling                Yap_heap_regs->compiler_profiling
+#define  call_counting            Yap_heap_regs->compiler_call_counting
+#define  compile_arrays           Yap_heap_regs->compiler_compile_arrays
+#define  optimizer_on             Yap_heap_regs->compiler_optimizer_on
+#define  compile_mode             Yap_heap_regs->compiler_compile_mode
+#define  P_before_spy             Yap_heap_regs->debugger_p_before_spy
+#define  ForeignCodeBase          Yap_heap_regs->foreign_code_base;
+#define  ForeignCodeTop           Yap_heap_regs->foreign_code_top;
+#define  ForeignCodeMax           Yap_heap_regs->foreign_code_max;
+#define  ForeignCodeLoaded        Yap_heap_regs->foreign_code_loaded
+#define  ParserErrorStyle         Yap_heap_regs->parser_error_style
+#define  DeadClauses              Yap_heap_regs->dead_clauses
+#define  SizeOfOverflow           Yap_heap_regs->size_of_overflow
+#define  LastWtimePtr             Yap_heap_regs->last_wtime
+#define  BGL			  Yap_heap_regs->bgl
+#define  FreeBlocks		  Yap_heap_regs->free_blocks
 #if defined(YAPOR) || defined(THREADS)
-#define  FreeBlocksLock           heap_regs->free_blocks_lock
-#define  HeapTopLock              heap_regs->heap_top_lock
-#define  HeapTopOwner             heap_regs->heap_top_owner
-#define  NOfThreads               heap_regs->n_of_threads
-#define  NOfThreadsCreated        heap_regs->n_of_threads_created
-#define  ThreadsTotalTime         heap_regs->threads_total_time
-#define  HeapUsedLock             heap_regs->heap_used_lock
-#define  DeadClausesLock          heap_regs->dead_clauses_lock
+#define  FreeBlocksLock           Yap_heap_regs->free_blocks_lock
+#define  HeapTopLock              Yap_heap_regs->heap_top_lock
+#define  HeapTopOwner             Yap_heap_regs->heap_top_owner
+#define  NOfThreads               Yap_heap_regs->n_of_threads
+#define  NOfThreadsCreated        Yap_heap_regs->n_of_threads_created
+#define  ThreadsTotalTime         Yap_heap_regs->threads_total_time
+#define  HeapUsedLock             Yap_heap_regs->heap_used_lock
+#define  DeadClausesLock          Yap_heap_regs->dead_clauses_lock
 #endif
-#define  CreepCode                heap_regs->creep_code
-#define  UndefCode                heap_regs->undef_code
-#define  SpyCode                  heap_regs->spy_code
+#define  CreepCode                Yap_heap_regs->creep_code
+#define  UndefCode                Yap_heap_regs->undef_code
+#define  SpyCode                  Yap_heap_regs->spy_code
 #if defined(YAPOR) || defined(TABLING)
-#define  GLOBAL		          heap_regs->global
-#define  REMOTE                   heap_regs->remote
+#define  GLOBAL		          Yap_heap_regs->global
+#define  REMOTE                   Yap_heap_regs->remote
 #endif /* YAPOR || TABLING */
 
 #define UPDATE_MODE_IMMEDIATE          0
@@ -747,23 +747,23 @@ struct various_codes *heap_regs;
 
 
 #ifdef COROUTINING
-#define  NUM_OF_ATTS              heap_regs->num_of_atts
+#define  NUM_OF_ATTS              Yap_heap_regs->num_of_atts
 #endif
 
 /* initially allow for files with up to 1024 predicates. This number
    is extended whenever needed */
 #define  InitialConsultCapacity    1024
 /* current consult stack */
-#define  ConsultSp                (heap_regs->consultsp                   )
+#define  ConsultSp                (Yap_heap_regs->consultsp                   )
 /* top of consult stack  */
-#define  ConsultBase              (heap_regs->consultbase                 )
+#define  ConsultBase              (Yap_heap_regs->consultbase                 )
 /* low-water mark for consult  */
-#define  ConsultLow               (heap_regs->consultlow	          )
+#define  ConsultLow               (Yap_heap_regs->consultlow	          )
 /* current maximum number of cells in consult stack */
-#define  ConsultCapacity          (heap_regs->consultcapacity             )
+#define  ConsultCapacity          (Yap_heap_regs->consultcapacity             )
 #if HAVE_LIBREADLINE
-#define  ReadlineBuf              heap_regs->readline_buf
-#define  ReadlinePos              heap_regs->readline_pos
+#define  ReadlineBuf              Yap_heap_regs->readline_buf
+#define  ReadlinePos              Yap_heap_regs->readline_pos
 #endif
 
 ADDR    STD_PROTO(Yap_ExpandPreAllocCodeSpace, (UInt));
@@ -794,7 +794,7 @@ Yap_GetThreadPred(PredEntry *ap)
 {
   Functor f = ap->FunctorOfPred;
   Term  mod = ap->ModuleOfPred;
-  Prop p0 = AbsPredProp(heap_regs->thread_handle[worker_id].local_preds);
+  Prop p0 = AbsPredProp(Yap_heap_regs->thread_handle[worker_id].local_preds);
 
   while(p0) {
     PredEntry *ap = RepPredProp(p0);

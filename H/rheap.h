@@ -11,8 +11,11 @@
 * File:		rheap.h							 *
 * comments:	walk through heap code					 *
 *									 *
-* Last rev:     $Date: 2004-11-23 21:16:21 $,$Author: vsc $						 *
+* Last rev:     $Date: 2004-12-02 06:06:47 $,$Author: vsc $						 *
 * $Log: not supported by cvs2svn $
+* Revision 1.46  2004/11/23 21:16:21  vsc
+* A few extra fixes for saved states.
+*
 * Revision 1.45  2004/10/26 20:16:18  vsc
 * More bug fixes for overflow handling
 *
@@ -91,130 +94,130 @@ do_clean_susp_clauses(yamop *ipc) {
 static void 
 restore_codes(void)
 {
-  heap_regs->heap_top = AddrAdjust(OldHeapTop);
+  Yap_heap_regs->heap_top = AddrAdjust(OldHeapTop);
 #ifdef YAPOR
-  heap_regs->getworkfirsttimecode.opc = Yap_opcode(_getwork_first_time);
-  heap_regs->getworkcode.opc = Yap_opcode(_getwork);
-  INIT_YAMOP_LTT(&(heap_regs->getworkcode), 0);
-  heap_regs->getworkcode_seq.opc = Yap_opcode(_getwork_seq);
-  INIT_YAMOP_LTT(&(heap_regs->getworkcode_seq), 0);
+  Yap_heap_regs->getworkfirsttimecode.opc = Yap_opcode(_getwork_first_time);
+  Yap_heap_regs->getworkcode.opc = Yap_opcode(_getwork);
+  INIT_YAMOP_LTT(&(Yap_heap_regs->getworkcode), 0);
+  Yap_heap_regs->getworkcode_seq.opc = Yap_opcode(_getwork_seq);
+  INIT_YAMOP_LTT(&(Yap_heap_regs->getworkcode_seq), 0);
 #endif /* YAPOR */
 #ifdef TABLING
-  heap_regs->tablecompletioncode.opc = Yap_opcode(_table_completion);
-  heap_regs->tableanswerresolutioncode.opc = Yap_opcode(_table_answer_resolution);
+  Yap_heap_regs->tablecompletioncode.opc = Yap_opcode(_table_completion);
+  Yap_heap_regs->tableanswerresolutioncode.opc = Yap_opcode(_table_answer_resolution);
 #ifdef YAPOR
-  INIT_YAMOP_LTT(&(heap_regs->tablecompletioncode), 0);
-  INIT_YAMOP_LTT(&(heap_regs->tableanswerresolutioncode), 0);
+  INIT_YAMOP_LTT(&(Yap_heap_regs->tablecompletioncode), 0);
+  INIT_YAMOP_LTT(&(Yap_heap_regs->tableanswerresolutioncode), 0);
 #endif /* YAPOR */
 #endif /* TABLING */
-  heap_regs->expand_op_code = Yap_opcode(_expand_index);
-  if (heap_regs->expand_clauses_first)
-    heap_regs->expand_clauses_first = PtoOpAdjust(heap_regs->expand_clauses_first);
-  if (heap_regs->expand_clauses_last)
-    heap_regs->expand_clauses_last = PtoOpAdjust(heap_regs->expand_clauses_last);
+  Yap_heap_regs->expand_op_code = Yap_opcode(_expand_index);
+  if (Yap_heap_regs->expand_clauses_first)
+    Yap_heap_regs->expand_clauses_first = PtoOpAdjust(Yap_heap_regs->expand_clauses_first);
+  if (Yap_heap_regs->expand_clauses_last)
+    Yap_heap_regs->expand_clauses_last = PtoOpAdjust(Yap_heap_regs->expand_clauses_last);
   {
-    yamop *ptr = heap_regs->expand_clauses_first;
+    yamop *ptr = Yap_heap_regs->expand_clauses_first;
     while (ptr) {
       do_clean_susp_clauses(ptr);
       ptr = ptr->u.sp.snext;
     }
   }
-  heap_regs->failcode->opc = Yap_opcode(_op_fail);
-  heap_regs->failcode_1 = Yap_opcode(_op_fail);
-  heap_regs->failcode_2 = Yap_opcode(_op_fail);
-  heap_regs->failcode_3 = Yap_opcode(_op_fail);
-  heap_regs->failcode_4 = Yap_opcode(_op_fail);
-  heap_regs->failcode_5 = Yap_opcode(_op_fail);
-  heap_regs->failcode_6 = Yap_opcode(_op_fail);
+  Yap_heap_regs->failcode->opc = Yap_opcode(_op_fail);
+  Yap_heap_regs->failcode_1 = Yap_opcode(_op_fail);
+  Yap_heap_regs->failcode_2 = Yap_opcode(_op_fail);
+  Yap_heap_regs->failcode_3 = Yap_opcode(_op_fail);
+  Yap_heap_regs->failcode_4 = Yap_opcode(_op_fail);
+  Yap_heap_regs->failcode_5 = Yap_opcode(_op_fail);
+  Yap_heap_regs->failcode_6 = Yap_opcode(_op_fail);
 
-  heap_regs->env_for_trustfail_code.op = Yap_opcode(_call);
-  heap_regs->trustfailcode->opc = Yap_opcode(_trust_fail);
+  Yap_heap_regs->env_for_trustfail_code.op = Yap_opcode(_call);
+  Yap_heap_regs->trustfailcode->opc = Yap_opcode(_trust_fail);
 
-  heap_regs->env_for_yes_code.op = Yap_opcode(_call);
-  heap_regs->yescode->opc = Yap_opcode(_Ystop);
-  heap_regs->undef_op = Yap_opcode(_undef_p);
-  heap_regs->index_op = Yap_opcode(_index_pred);
-  heap_regs->fail_op = Yap_opcode(_op_fail);
-  heap_regs->nocode->opc = Yap_opcode(_Nstop);
+  Yap_heap_regs->env_for_yes_code.op = Yap_opcode(_call);
+  Yap_heap_regs->yescode->opc = Yap_opcode(_Ystop);
+  Yap_heap_regs->undef_op = Yap_opcode(_undef_p);
+  Yap_heap_regs->index_op = Yap_opcode(_index_pred);
+  Yap_heap_regs->fail_op = Yap_opcode(_op_fail);
+  Yap_heap_regs->nocode->opc = Yap_opcode(_Nstop);
 #ifdef YAPOR
-  INIT_YAMOP_LTT(&(heap_regs->nocode), 1);
-  INIT_YAMOP_LTT(&(heap_regs->rtrycode), 1);
+  INIT_YAMOP_LTT(&(Yap_heap_regs->nocode), 1);
+  INIT_YAMOP_LTT(&(Yap_heap_regs->rtrycode), 1);
 #endif /* YAPOR */
-  ((yamop *)(&heap_regs->rtrycode))->opc = Yap_opcode(_retry_and_mark);
-  if (((yamop *)(&heap_regs->rtrycode))->u.ld.d != NIL)
-    ((yamop *)(&heap_regs->rtrycode))->u.ld.d =
-      PtoOpAdjust(((yamop *)(&heap_regs->rtrycode))->u.ld.d);
+  ((yamop *)(&Yap_heap_regs->rtrycode))->opc = Yap_opcode(_retry_and_mark);
+  if (((yamop *)(&Yap_heap_regs->rtrycode))->u.ld.d != NIL)
+    ((yamop *)(&Yap_heap_regs->rtrycode))->u.ld.d =
+      PtoOpAdjust(((yamop *)(&Yap_heap_regs->rtrycode))->u.ld.d);
   {
     int             arity;
-    arity = heap_regs->clausecode->arity;
-    if (heap_regs->clausecode->clause != NIL)
-      heap_regs->clausecode->clause =
-	PtoOpAdjust(heap_regs->clausecode->clause);
+    arity = Yap_heap_regs->clausecode->arity;
+    if (Yap_heap_regs->clausecode->clause != NIL)
+      Yap_heap_regs->clausecode->clause =
+	PtoOpAdjust(Yap_heap_regs->clausecode->clause);
     if (arity) {
-      heap_regs->clausecode->func =
-	FuncAdjust(heap_regs->clausecode->func); 
+      Yap_heap_regs->clausecode->func =
+	FuncAdjust(Yap_heap_regs->clausecode->func); 
     } else {
       /* an atom */
-      heap_regs->clausecode->func =
-	(Functor)AtomAdjust((Atom)(heap_regs->clausecode->func));
+      Yap_heap_regs->clausecode->func =
+	(Functor)AtomAdjust((Atom)(Yap_heap_regs->clausecode->func));
     }
   }
   /* restore consult stack. It consists of heap pointers, so it
      is easy to fix.
   */
-  heap_regs->consultlow  = 
-    ConsultObjAdjust(heap_regs->consultlow);
-  heap_regs->consultbase =
-    ConsultObjAdjust(heap_regs->consultbase);
-  heap_regs->consultsp   =
-    ConsultObjAdjust(heap_regs->consultsp);
+  Yap_heap_regs->consultlow  = 
+    ConsultObjAdjust(Yap_heap_regs->consultlow);
+  Yap_heap_regs->consultbase =
+    ConsultObjAdjust(Yap_heap_regs->consultbase);
+  Yap_heap_regs->consultsp   =
+    ConsultObjAdjust(Yap_heap_regs->consultsp);
   {
     /* we assume all pointers have the same size */
-    register consult_obj *pt = heap_regs->consultsp;
+    register consult_obj *pt = Yap_heap_regs->consultsp;
     while (pt <
-	   heap_regs->consultlow+heap_regs->consultcapacity) {
+	   Yap_heap_regs->consultlow+Yap_heap_regs->consultcapacity) {
       pt->p = PropAdjust(pt->p);
       pt ++;
     }
   }
 #if USE_THREADED_CODE
-  heap_regs->op_rtable = (opentry *)
-    CodeAddrAdjust((CODEADDR)(heap_regs->op_rtable));
+  Yap_heap_regs->op_rtable = (opentry *)
+    CodeAddrAdjust((CODEADDR)(Yap_heap_regs->op_rtable));
 #endif
-  if (heap_regs->atprompt != NIL) {
-    heap_regs->atprompt =
-      AtomAdjust(heap_regs->atprompt);
+  if (Yap_heap_regs->atprompt != NIL) {
+    Yap_heap_regs->atprompt =
+      AtomAdjust(Yap_heap_regs->atprompt);
   }
-  if (heap_regs->char_conversion_table != NULL) {
-    heap_regs->char_conversion_table = (char *)
-      AddrAdjust((ADDR)heap_regs->char_conversion_table);
+  if (Yap_heap_regs->char_conversion_table != NULL) {
+    Yap_heap_regs->char_conversion_table = (char *)
+      AddrAdjust((ADDR)Yap_heap_regs->char_conversion_table);
   }
-  if (heap_regs->char_conversion_table2 != NULL) {
-    heap_regs->char_conversion_table2 = (char *)
-      AddrAdjust((ADDR)heap_regs->char_conversion_table2);
+  if (Yap_heap_regs->char_conversion_table2 != NULL) {
+    Yap_heap_regs->char_conversion_table2 = (char *)
+      AddrAdjust((ADDR)Yap_heap_regs->char_conversion_table2);
   }
-  if (heap_regs->dead_clauses != NULL) {
-    heap_regs->dead_clauses = (DeadClause *)
-      AddrAdjust((ADDR)(heap_regs->dead_clauses));
+  if (Yap_heap_regs->dead_clauses != NULL) {
+    Yap_heap_regs->dead_clauses = (DeadClause *)
+      AddrAdjust((ADDR)(Yap_heap_regs->dead_clauses));
   }
-  heap_regs->retry_recorded_k_code =
-    PtoOpAdjust(heap_regs->retry_recorded_k_code);
-  heap_regs->retry_c_recordedp_code =
-    PtoOpAdjust(heap_regs->retry_c_recordedp_code);
-  if (heap_regs->IntKeys != NULL) {
-    heap_regs->IntKeys = (Prop *)AddrAdjust((ADDR)(heap_regs->IntKeys));
+  Yap_heap_regs->retry_recorded_k_code =
+    PtoOpAdjust(Yap_heap_regs->retry_recorded_k_code);
+  Yap_heap_regs->retry_c_recordedp_code =
+    PtoOpAdjust(Yap_heap_regs->retry_c_recordedp_code);
+  if (Yap_heap_regs->IntKeys != NULL) {
+    Yap_heap_regs->IntKeys = (Prop *)AddrAdjust((ADDR)(Yap_heap_regs->IntKeys));
     {
       UInt i;
-      for (i = 0; i < heap_regs->int_keys_size; i++) {
-	if (heap_regs->IntKeys[i] != NIL) {
-	  Prop p0 = heap_regs->IntKeys[i] = PropAdjust(heap_regs->IntKeys[i]);
+      for (i = 0; i < Yap_heap_regs->int_keys_size; i++) {
+	if (Yap_heap_regs->IntKeys[i] != NIL) {
+	  Prop p0 = Yap_heap_regs->IntKeys[i] = PropAdjust(Yap_heap_regs->IntKeys[i]);
 	  RestoreEntries(RepProp(p0));
 	}
       }
     }
   }
-  if (heap_regs->IntLUKeys != NULL) {
-    heap_regs->IntLUKeys = (Prop *)AddrAdjust((ADDR)(heap_regs->IntLUKeys));
+  if (Yap_heap_regs->IntLUKeys != NULL) {
+    Yap_heap_regs->IntLUKeys = (Prop *)AddrAdjust((ADDR)(Yap_heap_regs->IntLUKeys));
     {
       Int i;
       for (i = 0; i < INT_KEYS_SIZE; i++) {
@@ -233,13 +236,13 @@ restore_codes(void)
       }
     }
   }
-  if (heap_regs->IntBBKeys != NULL) {
-    heap_regs->IntBBKeys = (Prop *)AddrAdjust((ADDR)(heap_regs->IntBBKeys));
+  if (Yap_heap_regs->IntBBKeys != NULL) {
+    Yap_heap_regs->IntBBKeys = (Prop *)AddrAdjust((ADDR)(Yap_heap_regs->IntBBKeys));
     {
       UInt i;
-      for (i = 0; i < heap_regs->int_bb_keys_size; i++) {
-	if (heap_regs->IntBBKeys[i] != NIL) {
-	  Prop p0 = heap_regs->IntBBKeys[i] = PropAdjust(heap_regs->IntBBKeys[i]);
+      for (i = 0; i < Yap_heap_regs->int_bb_keys_size; i++) {
+	if (Yap_heap_regs->IntBBKeys[i] != NIL) {
+	  Prop p0 = Yap_heap_regs->IntBBKeys[i] = PropAdjust(Yap_heap_regs->IntBBKeys[i]);
 	  RestoreEntries(RepProp(p0));
 	}
       }
@@ -249,193 +252,193 @@ restore_codes(void)
     /* adjust atoms in atom table */
     unsigned int i = 0;
 
-    for (i = 0; i < heap_regs->no_of_modules; i++) {
-      heap_regs->module_name[i] = AtomTermAdjust(heap_regs->module_name[i]);
-      if (heap_regs->module_pred[i]) {
-	heap_regs->module_pred[i] = PtoPredAdjust(heap_regs->module_pred[i]);
+    for (i = 0; i < Yap_heap_regs->no_of_modules; i++) {
+      Yap_heap_regs->module_name[i] = AtomTermAdjust(Yap_heap_regs->module_name[i]);
+      if (Yap_heap_regs->module_pred[i]) {
+	Yap_heap_regs->module_pred[i] = PtoPredAdjust(Yap_heap_regs->module_pred[i]);
       }
     }
   }
-  heap_regs->atom_abol = AtomAdjust(heap_regs->atom_abol);
-  heap_regs->atom_append = AtomAdjust(heap_regs->atom_append);
-  heap_regs->atom_array = AtomAdjust(heap_regs->atom_array);
-  heap_regs->atom_assert = AtomAdjust(heap_regs->atom_assert);
-  heap_regs->atom_alarm = AtomAdjust(heap_regs->atom_alarm);
-  heap_regs->atom_b = AtomAdjust(heap_regs->atom_b);
-  heap_regs->atom_break = AtomAdjust(heap_regs->atom_break);
-  heap_regs->atom_call = AtomAdjust(heap_regs->atom_call);
-  heap_regs->atom_catch = AtomAdjust(heap_regs->atom_catch);
-  heap_regs->atom_comma = AtomAdjust(heap_regs->atom_comma);
-  heap_regs->atom_cpu_time = AtomAdjust(heap_regs->atom_cpu_time);
-  heap_regs->atom_csult = AtomAdjust(heap_regs->atom_csult);
-  heap_regs->atom_cut = AtomAdjust(heap_regs->atom_cut);
-  heap_regs->atom_cut_by = AtomAdjust(heap_regs->atom_cut_by);
+  Yap_heap_regs->atom_abol = AtomAdjust(Yap_heap_regs->atom_abol);
+  Yap_heap_regs->atom_append = AtomAdjust(Yap_heap_regs->atom_append);
+  Yap_heap_regs->atom_array = AtomAdjust(Yap_heap_regs->atom_array);
+  Yap_heap_regs->atom_assert = AtomAdjust(Yap_heap_regs->atom_assert);
+  Yap_heap_regs->atom_alarm = AtomAdjust(Yap_heap_regs->atom_alarm);
+  Yap_heap_regs->atom_b = AtomAdjust(Yap_heap_regs->atom_b);
+  Yap_heap_regs->atom_break = AtomAdjust(Yap_heap_regs->atom_break);
+  Yap_heap_regs->atom_call = AtomAdjust(Yap_heap_regs->atom_call);
+  Yap_heap_regs->atom_catch = AtomAdjust(Yap_heap_regs->atom_catch);
+  Yap_heap_regs->atom_comma = AtomAdjust(Yap_heap_regs->atom_comma);
+  Yap_heap_regs->atom_cpu_time = AtomAdjust(Yap_heap_regs->atom_cpu_time);
+  Yap_heap_regs->atom_csult = AtomAdjust(Yap_heap_regs->atom_csult);
+  Yap_heap_regs->atom_cut = AtomAdjust(Yap_heap_regs->atom_cut);
+  Yap_heap_regs->atom_cut_by = AtomAdjust(Yap_heap_regs->atom_cut_by);
 #ifdef EUROTRA
 #ifdef SFUNC
-  heap_regs->atom_dollar_undef = AtomAdjust(heap_regs->atom_dollar_undef);
+  Yap_heap_regs->atom_dollar_undef = AtomAdjust(Yap_heap_regs->atom_dollar_undef);
 #endif
 #endif
-  heap_regs->atom_dbref = AtomAdjust(heap_regs->atom_dbref);
-  heap_regs->atom_e = AtomAdjust(heap_regs->atom_e);
-  heap_regs->atom_e_q = AtomAdjust(heap_regs->atom_e_q);
-  heap_regs->atom_eof = AtomAdjust(heap_regs->atom_eof);
+  Yap_heap_regs->atom_dbref = AtomAdjust(Yap_heap_regs->atom_dbref);
+  Yap_heap_regs->atom_e = AtomAdjust(Yap_heap_regs->atom_e);
+  Yap_heap_regs->atom_e_q = AtomAdjust(Yap_heap_regs->atom_e_q);
+  Yap_heap_regs->atom_eof = AtomAdjust(Yap_heap_regs->atom_eof);
 #ifdef EUROTRA
-  heap_regs->atom_f_b = AtomAdjust(heap_regs->atom_f_b);
+  Yap_heap_regs->atom_f_b = AtomAdjust(Yap_heap_regs->atom_f_b);
 #endif
-  heap_regs->atom_fail = AtomAdjust(heap_regs->atom_fail);
-  heap_regs->atom_false = AtomAdjust(heap_regs->atom_false);
-  heap_regs->atom_fast = AtomAdjust(heap_regs->atom_fast);
-  heap_regs->atom_g_t = AtomAdjust(heap_regs->atom_g_t);
-  heap_regs->atom_gc = AtomAdjust(heap_regs->atom_gc);
-  heap_regs->atom_gc_margin = AtomAdjust(heap_regs->atom_gc_margin);
-  heap_regs->atom_gc_trace = AtomAdjust(heap_regs->atom_gc_trace);
-  heap_regs->atom_gc_verbose = AtomAdjust(heap_regs->atom_gc_verbose);
-  heap_regs->atom_gc_very_verbose = AtomAdjust(heap_regs->atom_gc_very_verbose);
-  heap_regs->atom_global = AtomAdjust(heap_regs->atom_global);
-  heap_regs->atom_heap_used = AtomAdjust(heap_regs->atom_heap_used);
-  heap_regs->atom_inf = AtomAdjust(heap_regs->atom_inf);
-  heap_regs->atom_l_t = AtomAdjust(heap_regs->atom_l_t);
-  heap_regs->atom_local = AtomAdjust(heap_regs->atom_local);
-  heap_regs->atom_meta_call = AtomAdjust(heap_regs->atom_meta_call);
-  heap_regs->atom_minus = AtomAdjust(heap_regs->atom_minus);
-  heap_regs->atom_multi_file = AtomAdjust(heap_regs->atom_multi_file);
-  heap_regs->atom_nan = AtomAdjust(heap_regs->atom_nan);
-  heap_regs->atom_otherwise = AtomAdjust(heap_regs->atom_otherwise);
-  heap_regs->atom_pi = AtomAdjust(heap_regs->atom_pi);
-  heap_regs->atom_plus = AtomAdjust(heap_regs->atom_plus);
-  heap_regs->atom_portray = AtomAdjust(heap_regs->atom_portray);
-  heap_regs->atom_profile = AtomAdjust(heap_regs->atom_profile);
-  heap_regs->atom_random = AtomAdjust(heap_regs->atom_random);
-  heap_regs->atom_read = AtomAdjust(heap_regs->atom_read);
-  heap_regs->atom_repeat = AtomAdjust(heap_regs->atom_repeat);
-  heap_regs->atom_restore_regs = AtomAdjust(heap_regs->atom_restore_regs);
+  Yap_heap_regs->atom_fail = AtomAdjust(Yap_heap_regs->atom_fail);
+  Yap_heap_regs->atom_false = AtomAdjust(Yap_heap_regs->atom_false);
+  Yap_heap_regs->atom_fast = AtomAdjust(Yap_heap_regs->atom_fast);
+  Yap_heap_regs->atom_g_t = AtomAdjust(Yap_heap_regs->atom_g_t);
+  Yap_heap_regs->atom_gc = AtomAdjust(Yap_heap_regs->atom_gc);
+  Yap_heap_regs->atom_gc_margin = AtomAdjust(Yap_heap_regs->atom_gc_margin);
+  Yap_heap_regs->atom_gc_trace = AtomAdjust(Yap_heap_regs->atom_gc_trace);
+  Yap_heap_regs->atom_gc_verbose = AtomAdjust(Yap_heap_regs->atom_gc_verbose);
+  Yap_heap_regs->atom_gc_very_verbose = AtomAdjust(Yap_heap_regs->atom_gc_very_verbose);
+  Yap_heap_regs->atom_global = AtomAdjust(Yap_heap_regs->atom_global);
+  Yap_heap_regs->atom_heap_used = AtomAdjust(Yap_heap_regs->atom_heap_used);
+  Yap_heap_regs->atom_inf = AtomAdjust(Yap_heap_regs->atom_inf);
+  Yap_heap_regs->atom_l_t = AtomAdjust(Yap_heap_regs->atom_l_t);
+  Yap_heap_regs->atom_local = AtomAdjust(Yap_heap_regs->atom_local);
+  Yap_heap_regs->atom_meta_call = AtomAdjust(Yap_heap_regs->atom_meta_call);
+  Yap_heap_regs->atom_minus = AtomAdjust(Yap_heap_regs->atom_minus);
+  Yap_heap_regs->atom_multi_file = AtomAdjust(Yap_heap_regs->atom_multi_file);
+  Yap_heap_regs->atom_nan = AtomAdjust(Yap_heap_regs->atom_nan);
+  Yap_heap_regs->atom_otherwise = AtomAdjust(Yap_heap_regs->atom_otherwise);
+  Yap_heap_regs->atom_pi = AtomAdjust(Yap_heap_regs->atom_pi);
+  Yap_heap_regs->atom_plus = AtomAdjust(Yap_heap_regs->atom_plus);
+  Yap_heap_regs->atom_portray = AtomAdjust(Yap_heap_regs->atom_portray);
+  Yap_heap_regs->atom_profile = AtomAdjust(Yap_heap_regs->atom_profile);
+  Yap_heap_regs->atom_random = AtomAdjust(Yap_heap_regs->atom_random);
+  Yap_heap_regs->atom_read = AtomAdjust(Yap_heap_regs->atom_read);
+  Yap_heap_regs->atom_repeat = AtomAdjust(Yap_heap_regs->atom_repeat);
+  Yap_heap_regs->atom_restore_regs = AtomAdjust(Yap_heap_regs->atom_restore_regs);
 #if HAVE_SIGACTION
-  heap_regs->atom_sig_pending = AtomAdjust(heap_regs->atom_sig_pending);
+  Yap_heap_regs->atom_sig_pending = AtomAdjust(Yap_heap_regs->atom_sig_pending);
 #endif
-  heap_regs->atom_stack_free = AtomAdjust(heap_regs->atom_stack_free);
-  heap_regs->atom_true = AtomAdjust(heap_regs->atom_true);
-  heap_regs->atom_user = AtomAdjust(heap_regs->atom_user);
-  heap_regs->atom_usr_err = AtomAdjust(heap_regs->atom_usr_err);
-  heap_regs->atom_usr_in = AtomAdjust(heap_regs->atom_usr_in);
-  heap_regs->atom_usr_out = AtomAdjust(heap_regs->atom_usr_out);
-  heap_regs->atom_version_number = AtomAdjust(heap_regs->atom_version_number);
-  heap_regs->atom_write = AtomAdjust(heap_regs->atom_write);
+  Yap_heap_regs->atom_stack_free = AtomAdjust(Yap_heap_regs->atom_stack_free);
+  Yap_heap_regs->atom_true = AtomAdjust(Yap_heap_regs->atom_true);
+  Yap_heap_regs->atom_user = AtomAdjust(Yap_heap_regs->atom_user);
+  Yap_heap_regs->atom_usr_err = AtomAdjust(Yap_heap_regs->atom_usr_err);
+  Yap_heap_regs->atom_usr_in = AtomAdjust(Yap_heap_regs->atom_usr_in);
+  Yap_heap_regs->atom_usr_out = AtomAdjust(Yap_heap_regs->atom_usr_out);
+  Yap_heap_regs->atom_version_number = AtomAdjust(Yap_heap_regs->atom_version_number);
+  Yap_heap_regs->atom_write = AtomAdjust(Yap_heap_regs->atom_write);
 #ifdef   USE_SOCKET
-  heap_regs->functor_af_inet = FuncAdjust(heap_regs->functor_af_inet);
-  heap_regs->functor_af_local = FuncAdjust(heap_regs->functor_af_local);
-  heap_regs->functor_af_unix = FuncAdjust(heap_regs->functor_af_unix);
+  Yap_heap_regs->functor_af_inet = FuncAdjust(Yap_heap_regs->functor_af_inet);
+  Yap_heap_regs->functor_af_local = FuncAdjust(Yap_heap_regs->functor_af_local);
+  Yap_heap_regs->functor_af_unix = FuncAdjust(Yap_heap_regs->functor_af_unix);
 #endif
-  heap_regs->functor_alt_not = FuncAdjust(heap_regs->functor_alt_not);
-  heap_regs->functor_arrow = FuncAdjust(heap_regs->functor_arrow);
-  heap_regs->functor_assert = FuncAdjust(heap_regs->functor_assert);
+  Yap_heap_regs->functor_alt_not = FuncAdjust(Yap_heap_regs->functor_alt_not);
+  Yap_heap_regs->functor_arrow = FuncAdjust(Yap_heap_regs->functor_arrow);
+  Yap_heap_regs->functor_assert = FuncAdjust(Yap_heap_regs->functor_assert);
 #ifdef COROUTINING
-  heap_regs->functor_att_goal = FuncAdjust(heap_regs->functor_att_goal);
+  Yap_heap_regs->functor_att_goal = FuncAdjust(Yap_heap_regs->functor_att_goal);
 #endif
-  heap_regs->functor_braces = FuncAdjust(heap_regs->functor_braces);
-  heap_regs->functor_call = FuncAdjust(heap_regs->functor_call);
-  heap_regs->functor_cut_by = FuncAdjust(heap_regs->functor_cut_by);
-  heap_regs->functor_comma = FuncAdjust(heap_regs->functor_comma);
-  heap_regs->functor_creep = FuncAdjust(heap_regs->functor_creep);
-  heap_regs->functor_csult = FuncAdjust(heap_regs->functor_csult);
-  heap_regs->functor_eq = FuncAdjust(heap_regs->functor_eq);
-  heap_regs->functor_execute_in_mod = FuncAdjust(heap_regs->functor_execute_in_mod);
-  heap_regs->functor_execute_within = FuncAdjust(heap_regs->functor_execute_within);
-  heap_regs->functor_g_atom = FuncAdjust(heap_regs->functor_g_atom);
-  heap_regs->functor_g_atomic = FuncAdjust(heap_regs->functor_g_atomic);
-  heap_regs->functor_g_compound = FuncAdjust(heap_regs->functor_g_compound);
-  heap_regs->functor_g_float = FuncAdjust(heap_regs->functor_g_float);
-  heap_regs->functor_g_integer = FuncAdjust(heap_regs->functor_g_integer);
-  heap_regs->functor_g_number = FuncAdjust(heap_regs->functor_g_number);
-  heap_regs->functor_g_primitive = FuncAdjust(heap_regs->functor_g_primitive);
-  heap_regs->functor_g_var = FuncAdjust(heap_regs->functor_g_var);
-  heap_regs->functor_last_execute_within = FuncAdjust(heap_regs->functor_last_execute_within);
-  heap_regs->functor_list = FuncAdjust(heap_regs->functor_list);
-  heap_regs->functor_mega_clause = FuncAdjust(heap_regs->functor_mega_clause);
-  heap_regs->functor_module = FuncAdjust(heap_regs->functor_module);
-  heap_regs->functor_multi_file_clause = FuncAdjust(heap_regs->functor_multi_file_clause);
+  Yap_heap_regs->functor_braces = FuncAdjust(Yap_heap_regs->functor_braces);
+  Yap_heap_regs->functor_call = FuncAdjust(Yap_heap_regs->functor_call);
+  Yap_heap_regs->functor_cut_by = FuncAdjust(Yap_heap_regs->functor_cut_by);
+  Yap_heap_regs->functor_comma = FuncAdjust(Yap_heap_regs->functor_comma);
+  Yap_heap_regs->functor_creep = FuncAdjust(Yap_heap_regs->functor_creep);
+  Yap_heap_regs->functor_csult = FuncAdjust(Yap_heap_regs->functor_csult);
+  Yap_heap_regs->functor_eq = FuncAdjust(Yap_heap_regs->functor_eq);
+  Yap_heap_regs->functor_execute_in_mod = FuncAdjust(Yap_heap_regs->functor_execute_in_mod);
+  Yap_heap_regs->functor_execute_within = FuncAdjust(Yap_heap_regs->functor_execute_within);
+  Yap_heap_regs->functor_g_atom = FuncAdjust(Yap_heap_regs->functor_g_atom);
+  Yap_heap_regs->functor_g_atomic = FuncAdjust(Yap_heap_regs->functor_g_atomic);
+  Yap_heap_regs->functor_g_compound = FuncAdjust(Yap_heap_regs->functor_g_compound);
+  Yap_heap_regs->functor_g_float = FuncAdjust(Yap_heap_regs->functor_g_float);
+  Yap_heap_regs->functor_g_integer = FuncAdjust(Yap_heap_regs->functor_g_integer);
+  Yap_heap_regs->functor_g_number = FuncAdjust(Yap_heap_regs->functor_g_number);
+  Yap_heap_regs->functor_g_primitive = FuncAdjust(Yap_heap_regs->functor_g_primitive);
+  Yap_heap_regs->functor_g_var = FuncAdjust(Yap_heap_regs->functor_g_var);
+  Yap_heap_regs->functor_last_execute_within = FuncAdjust(Yap_heap_regs->functor_last_execute_within);
+  Yap_heap_regs->functor_list = FuncAdjust(Yap_heap_regs->functor_list);
+  Yap_heap_regs->functor_mega_clause = FuncAdjust(Yap_heap_regs->functor_mega_clause);
+  Yap_heap_regs->functor_module = FuncAdjust(Yap_heap_regs->functor_module);
+  Yap_heap_regs->functor_multi_file_clause = FuncAdjust(Yap_heap_regs->functor_multi_file_clause);
 #ifdef MULTI_ASSIGNMENT_VARIABLES
-  heap_regs->functor_mutable = FuncAdjust(heap_regs->functor_mutable);
+  Yap_heap_regs->functor_mutable = FuncAdjust(Yap_heap_regs->functor_mutable);
 #endif
-  heap_regs->functor_not = FuncAdjust(heap_regs->functor_not);
-  heap_regs->functor_or = FuncAdjust(heap_regs->functor_or);
-  heap_regs->functor_portray = FuncAdjust(heap_regs->functor_portray);
-  heap_regs->functor_query = FuncAdjust(heap_regs->functor_query);
-  heap_regs->functor_static_clause = FuncAdjust(heap_regs->functor_static_clause);
-  heap_regs->functor_stream = FuncAdjust(heap_regs->functor_stream);
-  heap_regs->functor_stream_pos = FuncAdjust(heap_regs->functor_stream_pos);
-  heap_regs->functor_stream_eOS = FuncAdjust(heap_regs->functor_stream_eOS);
-  heap_regs->functor_change_module = FuncAdjust(heap_regs->functor_change_module);
-  heap_regs->functor_current_module = FuncAdjust(heap_regs->functor_current_module);
-  heap_regs->functor_u_minus = FuncAdjust(heap_regs->functor_u_minus);
-  heap_regs->functor_u_plus = FuncAdjust(heap_regs->functor_u_plus);
-  heap_regs->functor_v_bar = FuncAdjust(heap_regs->functor_v_bar);
-  heap_regs->functor_var = FuncAdjust(heap_regs->functor_var);
+  Yap_heap_regs->functor_not = FuncAdjust(Yap_heap_regs->functor_not);
+  Yap_heap_regs->functor_or = FuncAdjust(Yap_heap_regs->functor_or);
+  Yap_heap_regs->functor_portray = FuncAdjust(Yap_heap_regs->functor_portray);
+  Yap_heap_regs->functor_query = FuncAdjust(Yap_heap_regs->functor_query);
+  Yap_heap_regs->functor_static_clause = FuncAdjust(Yap_heap_regs->functor_static_clause);
+  Yap_heap_regs->functor_stream = FuncAdjust(Yap_heap_regs->functor_stream);
+  Yap_heap_regs->functor_stream_pos = FuncAdjust(Yap_heap_regs->functor_stream_pos);
+  Yap_heap_regs->functor_stream_eOS = FuncAdjust(Yap_heap_regs->functor_stream_eOS);
+  Yap_heap_regs->functor_change_module = FuncAdjust(Yap_heap_regs->functor_change_module);
+  Yap_heap_regs->functor_current_module = FuncAdjust(Yap_heap_regs->functor_current_module);
+  Yap_heap_regs->functor_u_minus = FuncAdjust(Yap_heap_regs->functor_u_minus);
+  Yap_heap_regs->functor_u_plus = FuncAdjust(Yap_heap_regs->functor_u_plus);
+  Yap_heap_regs->functor_v_bar = FuncAdjust(Yap_heap_regs->functor_v_bar);
+  Yap_heap_regs->functor_var = FuncAdjust(Yap_heap_regs->functor_var);
 #ifdef EUROTRA
-  heap_regs->term_dollar_u = AtomTermAdjust(heap_regs->term_dollar_u);
+  Yap_heap_regs->term_dollar_u = AtomTermAdjust(Yap_heap_regs->term_dollar_u);
 #endif
-  heap_regs->term_prolog = AtomTermAdjust(heap_regs->term_prolog);
-  heap_regs->term_refound_var = AtomTermAdjust(heap_regs->term_refound_var);
-  heap_regs->user_module = AtomTermAdjust(heap_regs->user_module);
-  heap_regs->idb_module = AtomTermAdjust(heap_regs->idb_module);
-  heap_regs->attributes_module = AtomTermAdjust(heap_regs->attributes_module);
-  heap_regs->charsio_module = AtomTermAdjust(heap_regs->charsio_module);
-  heap_regs->terms_module = AtomTermAdjust(heap_regs->terms_module);
-  if (heap_regs->dyn_array_list != NULL) {
-    heap_regs->dyn_array_list =
-      (struct array_entry *)AddrAdjust((ADDR)heap_regs->dyn_array_list);
+  Yap_heap_regs->term_prolog = AtomTermAdjust(Yap_heap_regs->term_prolog);
+  Yap_heap_regs->term_refound_var = AtomTermAdjust(Yap_heap_regs->term_refound_var);
+  Yap_heap_regs->user_module = AtomTermAdjust(Yap_heap_regs->user_module);
+  Yap_heap_regs->idb_module = AtomTermAdjust(Yap_heap_regs->idb_module);
+  Yap_heap_regs->attributes_module = AtomTermAdjust(Yap_heap_regs->attributes_module);
+  Yap_heap_regs->charsio_module = AtomTermAdjust(Yap_heap_regs->charsio_module);
+  Yap_heap_regs->terms_module = AtomTermAdjust(Yap_heap_regs->terms_module);
+  if (Yap_heap_regs->dyn_array_list != NULL) {
+    Yap_heap_regs->dyn_array_list =
+      (struct array_entry *)AddrAdjust((ADDR)Yap_heap_regs->dyn_array_list);
   }
-  if (heap_regs->file_aliases != NULL) {
-    heap_regs->yap_streams =
-      (struct stream_desc *)AddrAdjust((ADDR)heap_regs->yap_streams);
+  if (Yap_heap_regs->file_aliases != NULL) {
+    Yap_heap_regs->yap_streams =
+      (struct stream_desc *)AddrAdjust((ADDR)Yap_heap_regs->yap_streams);
   }
-  if (heap_regs->file_aliases != NULL) {
-    heap_regs->file_aliases =
-      (struct AliasDescS *)AddrAdjust((ADDR)heap_regs->file_aliases);
+  if (Yap_heap_regs->file_aliases != NULL) {
+    Yap_heap_regs->file_aliases =
+      (struct AliasDescS *)AddrAdjust((ADDR)Yap_heap_regs->file_aliases);
   }
-  heap_regs->yap_lib_dir =
-    (char *)AddrAdjust((ADDR)heap_regs->yap_lib_dir);
-  heap_regs->pred_goal_expansion =
-    (PredEntry *)AddrAdjust((ADDR)heap_regs->pred_goal_expansion);
-  heap_regs->pred_meta_call =
-    (PredEntry *)AddrAdjust((ADDR)heap_regs->pred_meta_call);
-  heap_regs->pred_dollar_catch =
-    (PredEntry *)AddrAdjust((ADDR)heap_regs->pred_dollar_catch);
-  heap_regs->pred_recorded_with_key =
-    (PredEntry *)AddrAdjust((ADDR)heap_regs->pred_recorded_with_key);
-  heap_regs->pred_log_upd_clause =
-    (PredEntry *)AddrAdjust((ADDR)heap_regs->pred_log_upd_clause);
-  heap_regs->pred_log_upd_clause0 =
-    (PredEntry *)AddrAdjust((ADDR)heap_regs->pred_log_upd_clause0);
-  heap_regs->pred_static_clause =
-    (PredEntry *)AddrAdjust((ADDR)heap_regs->pred_static_clause);
-  heap_regs->pred_throw =
-    (PredEntry *)AddrAdjust((ADDR)heap_regs->pred_throw);
-  heap_regs->pred_handle_throw =
-    (PredEntry *)AddrAdjust((ADDR)heap_regs->pred_handle_throw);
-  if (heap_regs->dyn_array_list != NULL)
-    heap_regs->dyn_array_list = PtoArrayEAdjust(heap_regs->dyn_array_list);
-  if (heap_regs->undef_code != NULL)
-    heap_regs->undef_code = (PredEntry *)PtoHeapCellAdjust((CELL *)(heap_regs->undef_code));
-  if (heap_regs->creep_code != NULL)
-    heap_regs->creep_code = (PredEntry *)PtoHeapCellAdjust((CELL *)(heap_regs->creep_code));
-  if (heap_regs->spy_code != NULL)
-    heap_regs->spy_code = (PredEntry *)PtoHeapCellAdjust((CELL *)(heap_regs->spy_code));
+  Yap_heap_regs->yap_lib_dir =
+    (char *)AddrAdjust((ADDR)Yap_heap_regs->yap_lib_dir);
+  Yap_heap_regs->pred_goal_expansion =
+    (PredEntry *)AddrAdjust((ADDR)Yap_heap_regs->pred_goal_expansion);
+  Yap_heap_regs->pred_meta_call =
+    (PredEntry *)AddrAdjust((ADDR)Yap_heap_regs->pred_meta_call);
+  Yap_heap_regs->pred_dollar_catch =
+    (PredEntry *)AddrAdjust((ADDR)Yap_heap_regs->pred_dollar_catch);
+  Yap_heap_regs->pred_recorded_with_key =
+    (PredEntry *)AddrAdjust((ADDR)Yap_heap_regs->pred_recorded_with_key);
+  Yap_heap_regs->pred_log_upd_clause =
+    (PredEntry *)AddrAdjust((ADDR)Yap_heap_regs->pred_log_upd_clause);
+  Yap_heap_regs->pred_log_upd_clause0 =
+    (PredEntry *)AddrAdjust((ADDR)Yap_heap_regs->pred_log_upd_clause0);
+  Yap_heap_regs->pred_static_clause =
+    (PredEntry *)AddrAdjust((ADDR)Yap_heap_regs->pred_static_clause);
+  Yap_heap_regs->pred_throw =
+    (PredEntry *)AddrAdjust((ADDR)Yap_heap_regs->pred_throw);
+  Yap_heap_regs->pred_handle_throw =
+    (PredEntry *)AddrAdjust((ADDR)Yap_heap_regs->pred_handle_throw);
+  if (Yap_heap_regs->dyn_array_list != NULL)
+    Yap_heap_regs->dyn_array_list = PtoArrayEAdjust(Yap_heap_regs->dyn_array_list);
+  if (Yap_heap_regs->undef_code != NULL)
+    Yap_heap_regs->undef_code = (PredEntry *)PtoHeapCellAdjust((CELL *)(Yap_heap_regs->undef_code));
+  if (Yap_heap_regs->creep_code != NULL)
+    Yap_heap_regs->creep_code = (PredEntry *)PtoHeapCellAdjust((CELL *)(Yap_heap_regs->creep_code));
+  if (Yap_heap_regs->spy_code != NULL)
+    Yap_heap_regs->spy_code = (PredEntry *)PtoHeapCellAdjust((CELL *)(Yap_heap_regs->spy_code));
 #ifdef COROUTINING
-  if (heap_regs->wake_up_code != NULL)
-    heap_regs->wake_up_code = (PredEntry *)PtoHeapCellAdjust((CELL *)(heap_regs->wake_up_code));
+  if (Yap_heap_regs->wake_up_code != NULL)
+    Yap_heap_regs->wake_up_code = (PredEntry *)PtoHeapCellAdjust((CELL *)(Yap_heap_regs->wake_up_code));
 #if !defined(THREADS)
-  heap_regs->wl.mutable_list =
-    AbsAppl(PtoGloAdjust(RepAppl(heap_regs->wl.mutable_list)));
-  heap_regs->wl.atts_mutable_list =
-    AbsAppl(PtoGloAdjust(RepAppl(heap_regs->wl.atts_mutable_list)));
+  Yap_heap_regs->wl.mutable_list =
+    AbsAppl(PtoGloAdjust(RepAppl(Yap_heap_regs->wl.mutable_list)));
+  Yap_heap_regs->wl.atts_mutable_list =
+    AbsAppl(PtoGloAdjust(RepAppl(Yap_heap_regs->wl.atts_mutable_list)));
 #endif
 #endif
-  if (heap_regs->last_wtime != NULL)
-    heap_regs->last_wtime = (void *)PtoHeapCellAdjust((CELL *)(heap_regs->last_wtime));
-  heap_regs->db_erased_marker =
-    DBRefAdjust(heap_regs->db_erased_marker);
-  heap_regs->hash_chain = 
-    (AtomHashEntry *)PtoHeapCellAdjust((CELL *)(heap_regs->hash_chain));
+  if (Yap_heap_regs->last_wtime != NULL)
+    Yap_heap_regs->last_wtime = (void *)PtoHeapCellAdjust((CELL *)(Yap_heap_regs->last_wtime));
+  Yap_heap_regs->db_erased_marker =
+    DBRefAdjust(Yap_heap_regs->db_erased_marker);
+  Yap_heap_regs->hash_chain = 
+    (AtomHashEntry *)PtoHeapCellAdjust((CELL *)(Yap_heap_regs->hash_chain));
 }
 
 

@@ -357,7 +357,13 @@ Yap_Error(yap_error_number type, Term where, char *format,...)
     exit(1);
   }
   /* must do this here */
-  if (type == FATAL_ERROR || Yap_HeapBase == NULL) {
+  if (type == FATAL_ERROR
+#if USE_SYSTEM_MALLOC 
+      || !Yap_heap_regs
+#else
+      || !Yap_HeapBase
+#endif
+      ) {
     if (format != NULL) {
       va_start (ap, format);
       /* now build the error string */

@@ -47,6 +47,8 @@ allocate_new_tid(void)
 	ThreadHandle[new_worker_id].in_use == TRUE)
     new_worker_id++;
   ThreadHandle[new_worker_id].in_use = TRUE;
+  pthread_mutex_init(&ThreadHandle[new_worker_id].tlock, NULL);
+  pthread_mutex_lock(&(ThreadHandle[new_worker_id].tlock));
   UNLOCK(ThreadHandlesLock);
   if (new_worker_id == MAX_WORKERS) 
     return -1;
@@ -75,7 +77,8 @@ store_specs(int new_worker_id, UInt ssize, UInt tsize, Term tgoal, Term tdetach)
 static void
 kill_thread_engine (int wid)
 {
-  Prop p0 = AbsPredProp(heap_regs->thread_handle[wid].local_preds);
+  Prop p0 = AbsPredProp(Yap_heap_regs->thread_handle[wid].local_preds);
+
   /* kill all thread local preds */
   while(p0) {
     PredEntry *ap = RepPredProp(p0);
@@ -84,8 +87,8 @@ kill_thread_engine (int wid)
     Yap_FreeCodeSpace((char *)ap);
   }
   Yap_KillStacks(wid);
-  heap_regs->wl[wid].active_signals = 0L;
-  free(heap_regs->wl[wid].scratchpad.ptr);
+  Yap_heap_regs->wl[wid].active_signals = 0L;
+  free(Yap_heap_regs->wl[wid].scratchpad.ptr);
   free(ThreadHandle[wid].default_yaam_regs);
   free(ThreadHandle[wid].start_of_timesp);
   free(ThreadHandle[wid].last_timep);
@@ -111,23 +114,21 @@ thread_die(int wid, int always_die)
 static void
 setup_engine(int myworker_id)
 {
-  REGSTORE *standard_regs = (REGSTORE *)malloc(sizeof(REGSTORE));
-  int oldworker_id = worker_id;
+  REGSTORE *standard_regs;
   
+  standard_regs = (REGSTORE *)malloc(sizeof(REGSTORE));
   /* create the YAAM descriptor */
   ThreadHandle[myworker_id].default_yaam_regs = standard_regs;
   pthread_setspecific(Yap_yaamregs_key, (void *)standard_regs);
+  worker_id = myworker_id;
   Yap_InitExStacks(ThreadHandle[myworker_id].ssize, ThreadHandle[myworker_id].tsize);
   CurrentModule = ThreadHandle[myworker_id].cmod;
-  worker_id = myworker_id;
   Yap_InitTime();
   Yap_InitYaamRegs();
-  worker_id = oldworker_id;
-  {
-    Yap_ReleasePreAllocCodeSpace(Yap_PreAllocCodeSpace());
-  }
+  Yap_ReleasePreAllocCodeSpace(Yap_PreAllocCodeSpace());
   /* I exist */
   NOfThreadsCreated++;
+  pthread_mutex_unlock(&(ThreadHandle[myworker_id].tlock));  
 }
 
 static void
@@ -164,7 +165,6 @@ static void
 init_thread_engine(int new_worker_id, UInt ssize, UInt tsize, Term tgoal, Term tdetach)
 {
   store_specs(new_worker_id, ssize, tsize, tgoal, tdetach);
-  pthread_mutex_init(&ThreadHandle[new_worker_id].tlock, NULL);
 }
 
 static Int
@@ -185,9 +185,11 @@ p_create_thread(void)
   ThreadHandle[new_worker_id].id = new_worker_id;
   ThreadHandle[new_worker_id].ref_count = 1;
   if ((ThreadHandle[new_worker_id].ret = pthread_create(&ThreadHandle[new_worker_id].handle, NULL, thread_run, (void *)(&(ThreadHandle[new_worker_id].id)))) == 0) {
+    /* wait until the client is initialised */
+    pthread_mutex_lock(&(ThreadHandle[new_worker_id].tlock));
+    pthread_mutex_unlock(&(ThreadHandle[new_worker_id].tlock));  
     return TRUE;
   }
-  /* YAP ERROR */
   return FALSE;
 }
 
@@ -280,6 +282,7 @@ p_thread_join(void)
     return FALSE;
   }
   UNLOCK(ThreadHandlesLock);
+  /* make sure this lock is accessible */
   if (pthread_join(ThreadHandle[tid].handle, NULL) < 0) {
     /* ERROR */
     return FALSE;
@@ -495,10 +498,10 @@ p_thread_signal(void)
     pthread_mutex_unlock(&(ThreadHandle[wid].tlock));
     return TRUE;
   }
-  LOCK(heap_regs->wl[wid].signal_lock);
+  LOCK(Yap_heap_regs->wl[wid].signal_lock);
   ThreadHandle[wid].current_yaam_regs->CreepFlag_ = Unsigned(LCL0);
-  heap_regs->wl[wid].active_signals |= YAP_ITI_SIGNAL;
-  UNLOCK(heap_regs->wl[wid].signal_lock);
+  Yap_heap_regs->wl[wid].active_signals |= YAP_ITI_SIGNAL;
+  UNLOCK(Yap_heap_regs->wl[wid].signal_lock);
   pthread_mutex_unlock(&(ThreadHandle[wid].tlock));
   return TRUE;
 }

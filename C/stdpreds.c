@@ -11,8 +11,11 @@
 * File:		stdpreds.c						 *
 * comments:	General-purpose C implemented system predicates		 *
 *									 *
-* Last rev:     $Date: 2004-11-19 22:08:43 $,$Author: vsc $						 *
+* Last rev:     $Date: 2004-12-02 06:06:46 $,$Author: vsc $						 *
 * $Log: not supported by cvs2svn $
+* Revision 1.74  2004/11/19 22:08:43  vsc
+* replace SYSTEM_ERROR by out OUT_OF_WHATEVER_ERROR whenever appropriate.
+*
 * Revision 1.73  2004/11/19 17:14:14  vsc
 * a few fixes for 64 bit compiling.
 *
@@ -2690,9 +2693,9 @@ p_set_yap_flags(void)
     if (value < 0 || value > 2)
       return(FALSE);
     if (value == 1) {
-      heap_regs->pred_meta_call = RepPredProp(PredPropByFunc(Yap_MkFunctor(AtomMetaCall,4),0));
+      Yap_heap_regs->pred_meta_call = RepPredProp(PredPropByFunc(Yap_MkFunctor(AtomMetaCall,4),0));
     } else {
-      heap_regs->pred_meta_call = RepPredProp(PredPropByFunc(Yap_MkFunctor(AtomMetaCall,4),0));
+      Yap_heap_regs->pred_meta_call = RepPredProp(PredPropByFunc(Yap_MkFunctor(AtomMetaCall,4),0));
     }
     yap_flags[LANGUAGE_MODE_FLAG] = value;
     break;
