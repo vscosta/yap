@@ -60,7 +60,7 @@ static int      Quote_illegal, Ignore_ops, Handle_vars, Use_portray;
 static int      keep_terms;
 
 
-#define wrputc(X)	((*writech)(_YAP_c_output_stream,X))	/* writes a character */
+#define wrputc(X)	((*writech)(Yap_c_output_stream,X))	/* writes a character */
 
 static void 
 wrputn(Int n)			/* writes an integer	 */
@@ -154,24 +154,24 @@ legalAtom(char *s)			/* Is this a legal atom ? */
   register int ch = *s;
   if (ch == '\0')
     return(FALSE);
-  if (_YAP_chtype[ch] != LC) {
+  if (Yap_chtype[ch] != LC) {
     if (ch == '[')
       return (*++s == ']' && !(*++s));
     else if (ch == '{')
       return (*++s == '}' && !(*++s));
-    else if (_YAP_chtype[ch] == SL)
+    else if (Yap_chtype[ch] == SL)
       return (!*++s);
     else if ((ch == ',' || ch == '.') && !s[1])
       return (FALSE);
     else
       while (ch) {
-	if (_YAP_chtype[ch] != SY) return (FALSE);
+	if (Yap_chtype[ch] != SY) return (FALSE);
 	ch = *++s;
       }
     return (TRUE);
   } else
     while ((ch = *++s) != 0)
-      if (_YAP_chtype[ch] > NU)
+      if (Yap_chtype[ch] > NU)
 	return (FALSE);
   return (TRUE);
 }
@@ -179,25 +179,25 @@ legalAtom(char *s)			/* Is this a legal atom ? */
 static int LeftOpToProtect(Atom at, int p)
 {
   int op, rp;
-  Prop            opinfo = _YAP_GetAProp(at, OpProperty);
-  return(opinfo && _YAP_IsPrefixOp(opinfo, &op, &rp) );
+  Prop            opinfo = Yap_GetAProp(at, OpProperty);
+  return(opinfo && Yap_IsPrefixOp(opinfo, &op, &rp) );
 }
 
 static int RightOpToProtect(Atom at, int p)
 {
   int op, lp;
-  Prop            opinfo = _YAP_GetAProp(at, OpProperty);
-  return(opinfo && _YAP_IsPosfixOp(opinfo, &op, &lp) );
+  Prop            opinfo = Yap_GetAProp(at, OpProperty);
+  return(opinfo && Yap_IsPosfixOp(opinfo, &op, &lp) );
 }
 
 static wtype 
 AtomIsSymbols(char *s)		/* Is this atom just formed by symbols ? */
 {
   int ch;
-  if (_YAP_chtype[(int)s[0]] == SL && s[1] == '\0')
+  if (Yap_chtype[(int)s[0]] == SL && s[1] == '\0')
     return(separator);
   while ((ch = *s++) != '\0') {
-    if (_YAP_chtype[ch] != SY)
+    if (Yap_chtype[ch] != SY)
       return(alphanum);
   }
   return(symbol);
@@ -212,7 +212,7 @@ putAtom(Atom atom)			/* writes an atom	 */
 
   /* #define CRYPT_FOR_STEVE 1*/
 #ifdef CRYPT_FOR_STEVE
-  if (_YAP_GetValue(_YAP_LookupAtom("crypt_atoms")) != TermNil && _YAP_GetAProp(atom, OpProperty) == NIL) {
+  if (Yap_GetValue(Yap_LookupAtom("crypt_atoms")) != TermNil && Yap_GetAProp(atom, OpProperty) == NIL) {
     char s[16];
     sprintf(s,"x%x", (CELL)s);
     wrputs(s);
@@ -302,10 +302,10 @@ write_var(CELL *t)
   if (CellPtr(t) < H0) {
 #if COROUTINING
 #if DEBUG
-    if (_YAP_Portray_delays) {
+    if (Yap_Portray_delays) {
       exts ext = ExtFromCell(t);
 
-      _YAP_Portray_delays = FALSE;
+      Yap_Portray_delays = FALSE;
       if (ext == susp_ext) {
 	wrputs("$DL(");
 	write_var(t);
@@ -321,12 +321,12 @@ write_var(CELL *t)
 	wrputc(',');      
 	if (keep_terms) {
 	  /* garbage collection may be called */
-	  sl = _YAP_InitSlot((CELL)attv);
+	  sl = Yap_InitSlot((CELL)attv);
 	}
 	writeTerm((Term)&(attv->Value), 999, 1, FALSE);
 	if (keep_terms) {
-	  attv = (attvar_record *)_YAP_GetFromSlot(sl);
-	  _YAP_RecoverSlots(1);
+	  attv = (attvar_record *)Yap_GetFromSlot(sl);
+	  Yap_RecoverSlots(1);
 	}
 	for (i = 0; i < NUM_OF_ATTS; i ++) {
 	  if (!IsVarTerm(attv->Atts[2*i+1])) {
@@ -335,24 +335,24 @@ write_var(CELL *t)
 	    wrputc(',');
 	    if (keep_terms) {
 	      /* garbage collection may be called */
-	      sl = _YAP_InitSlot((CELL)attv);
+	      sl = Yap_InitSlot((CELL)attv);
 	    }
 	    writeTerm((Term)&(attv->Atts[2*i+1]), 999, 1, FALSE);
 	    if (keep_terms) {
-	      attv = (attvar_record *)_YAP_GetFromSlot(sl);
-	      _YAP_RecoverSlots(1);
+	      attv = (attvar_record *)Yap_GetFromSlot(sl);
+	      Yap_RecoverSlots(1);
 	    }
 	  }
 	}
 	wrputc(')');
       }
-      _YAP_Portray_delays = TRUE;
+      Yap_Portray_delays = TRUE;
       return;
     }
 #endif
 #endif
     wrputc('D');
-    wrputn(((Int) (t- CellPtr(_YAP_GlobalBase))));
+    wrputn(((Int) (t- CellPtr(Yap_GlobalBase))));
   } else {
     wrputn(((Int) (t- H0)));
   }
@@ -365,7 +365,7 @@ writeTerm(Term t, int p, int depth, int rinfixarg)
 	                      
 {
   if (*max_depth != 0 && depth > *max_depth) {
-    putAtom(_YAP_LookupAtom("..."));
+    putAtom(Yap_LookupAtom("..."));
     return;
   }
   if (EX != 0)
@@ -386,9 +386,9 @@ writeTerm(Term t, int p, int depth, int rinfixarg)
 #ifdef USE_GMP
   } else if (IsBigIntTerm(t)) {
     char *s = (char *)TR;
-    while (s+2+mpz_sizeinbase(_YAP_BigIntOfTerm(t), 10) > (char *)_YAP_TrailTop)
-      _YAP_growtrail(64*1024);
-    mpz_get_str(s, 10, _YAP_BigIntOfTerm(t));
+    while (s+2+mpz_sizeinbase(Yap_BigIntOfTerm(t), 10) > (char *)Yap_TrailTop)
+      Yap_growtrail(64*1024);
+    mpz_get_str(s, 10, Yap_BigIntOfTerm(t));
     wrputs(s);
 #endif
   } else if (IsPairTerm(t)) {
@@ -401,17 +401,17 @@ writeTerm(Term t, int p, int depth, int rinfixarg)
       long sl = 0;
 
       targs[0] = t;
-      _YAP_PutValue(AtomPortray, MkAtomTerm(AtomNil));
+      Yap_PutValue(AtomPortray, MkAtomTerm(AtomNil));
       if (EX != 0L) old_EX = EX;
       /* *--ASP = MkIntTerm(0); */
-      sl = _YAP_InitSlot(t);      
-      _YAP_execute_goal(_YAP_MkApplTerm(FunctorPortray, 1, targs), 0, 1);
-      t = _YAP_GetFromSlot(sl);
-      _YAP_RecoverSlots(1);
+      sl = Yap_InitSlot(t);      
+      Yap_execute_goal(Yap_MkApplTerm(FunctorPortray, 1, targs), 0, 1);
+      t = Yap_GetFromSlot(sl);
+      Yap_RecoverSlots(1);
       if (old_EX != 0L) EX = old_EX;
       Use_portray = TRUE;
       Use_portray = TRUE;
-      if (_YAP_GetValue(AtomPortray) == MkAtomTerm(AtomTrue))
+      if (Yap_GetValue(AtomPortray) == MkAtomTerm(AtomTrue))
 	return;
     }
     if (yap_flags[WRITE_QUOTED_STRING_FLAG] && IsStringTerm(t)) {
@@ -424,7 +424,7 @@ writeTerm(Term t, int p, int depth, int rinfixarg)
 	long            sl= 0;
 
 	if (*max_list && eldepth > *max_list) {
-	  putAtom(_YAP_LookupAtom("..."));
+	  putAtom(Yap_LookupAtom("..."));
 	  wrputc(']');
 	  lastw = separator;
 	  return;
@@ -432,12 +432,12 @@ writeTerm(Term t, int p, int depth, int rinfixarg)
 	  eldepth++;
 	if (keep_terms) {
 	  /* garbage collection may be called */
-	  sl = _YAP_InitSlot(t);
+	  sl = Yap_InitSlot(t);
 	}
 	writeTerm(HeadOfTermCell(t), 999, new_depth, FALSE);
 	if (keep_terms) {
-	  t = _YAP_GetFromSlot(sl);
-	  _YAP_RecoverSlots(1);
+	  t = Yap_GetFromSlot(sl);
+	  Yap_RecoverSlots(1);
 	}
 	ti = TailOfTerm(t);
 	if (IsVarTerm(ti))
@@ -465,7 +465,7 @@ writeTerm(Term t, int p, int depth, int rinfixarg)
 
     Arity = ArityOfFunctor(functor);
     atom = NameOfFunctor(functor);
-    opinfo = _YAP_GetAProp(atom, OpProperty);
+    opinfo = Yap_GetAProp(atom, OpProperty);
 #ifdef SFUNC
     if (Arity == SFArity) {
       int             argno = 1;
@@ -485,13 +485,13 @@ writeTerm(Term t, int p, int depth, int rinfixarg)
 	/* cannot use the term directly with the SBA */
 	if (keep_terms) {
 	  /* garbage collection may be called */
-	  sl = _YAP_InitSlot((CELL)p);
+	  sl = Yap_InitSlot((CELL)p);
 	}
 	writeTerm(Deref(p++), 999, depth + 1, FALSE);
 	if (keep_terms) {
 	  /* garbage collection may be called */
-	  p = (CELL *)_YAP_GetFromSlot(sl);
-	  _YAP_RecoverSlots(1);
+	  p = (CELL *)Yap_GetFromSlot(sl);
+	  Yap_RecoverSlots(1);
 	}
 	if (*p)
 	  wrputc(',');
@@ -508,19 +508,19 @@ writeTerm(Term t, int p, int depth, int rinfixarg)
       long sl = 0;
 
       targs[0] = t;
-      _YAP_PutValue(AtomPortray, MkAtomTerm(AtomNil));
+      Yap_PutValue(AtomPortray, MkAtomTerm(AtomNil));
       if (EX != 0L) old_EX = EX;
-      sl = _YAP_InitSlot(t);      
-      _YAP_execute_goal(_YAP_MkApplTerm(FunctorPortray, 1, targs),0, 1);
-      t = _YAP_GetFromSlot(sl);
-      _YAP_RecoverSlots(1);
+      sl = Yap_InitSlot(t);      
+      Yap_execute_goal(Yap_MkApplTerm(FunctorPortray, 1, targs),0, 1);
+      t = Yap_GetFromSlot(sl);
+      Yap_RecoverSlots(1);
       if (old_EX != 0L) EX = old_EX;
       Use_portray = TRUE;
-      if (_YAP_GetValue(AtomPortray) == MkAtomTerm(AtomTrue) || EX != 0L)
+      if (Yap_GetValue(AtomPortray) == MkAtomTerm(AtomTrue) || EX != 0L)
 	return;
     }
     if (!Ignore_ops &&
-	Arity == 1 && opinfo && _YAP_IsPrefixOp(opinfo, &op,
+	Arity == 1 && opinfo && Yap_IsPrefixOp(opinfo, &op,
 					   &rp)
 #ifdef DO_NOT_WRITE_PLUS_AND_MINUS_AS_PREFIX
 	&&
@@ -557,7 +557,7 @@ writeTerm(Term t, int p, int depth, int rinfixarg)
 	lastw = separator;
       }
     } else if (!Ignore_ops &&
-	       Arity == 1 && opinfo && _YAP_IsPosfixOp(opinfo, &op, &lp)) {
+	       Arity == 1 && opinfo && Yap_IsPosfixOp(opinfo, &op, &lp)) {
       Term  tleft = ArgOfTerm(1, t);
       long sl = 0;
       int            bracket_left =
@@ -576,13 +576,13 @@ writeTerm(Term t, int p, int depth, int rinfixarg)
       }
       if (keep_terms) {
 	/* garbage collection may be called */
-	sl = _YAP_InitSlot(t);      
+	sl = Yap_InitSlot(t);      
       }
       writeTerm(ArgOfTermCell(1,t), lp, depth + 1, rinfixarg);
       if (keep_terms) {
 	/* garbage collection may be called */
-	t = _YAP_GetFromSlot(sl);
-	_YAP_RecoverSlots(1);
+	t = Yap_GetFromSlot(sl);
+	Yap_RecoverSlots(1);
       }
       if (bracket_left) {
 	wrputc(')');
@@ -594,7 +594,7 @@ writeTerm(Term t, int p, int depth, int rinfixarg)
 	lastw = separator;
       }
     } else if (!Ignore_ops &&
-	       Arity == 2 && opinfo && _YAP_IsInfixOp(opinfo, &op, &lp,
+	       Arity == 2 && opinfo && Yap_IsInfixOp(opinfo, &op, &lp,
 						 &rp) ) {
       Term  tleft = ArgOfTerm(1, t);
       Term  tright = ArgOfTerm(2, t);
@@ -619,13 +619,13 @@ writeTerm(Term t, int p, int depth, int rinfixarg)
       }
       if (keep_terms) {
 	/* garbage collection may be called */
-	sl = _YAP_InitSlot(t);      
+	sl = Yap_InitSlot(t);      
       }
       writeTerm(ArgOfTermCell(1, t), lp, depth + 1, rinfixarg);
       if (keep_terms) {
 	/* garbage collection may be called */
-	t = _YAP_GetFromSlot(sl);
-	_YAP_RecoverSlots(1);
+	t = Yap_GetFromSlot(sl);
+	Yap_RecoverSlots(1);
       }
       if (bracket_left) {
 	wrputc(')');
@@ -682,13 +682,13 @@ writeTerm(Term t, int p, int depth, int rinfixarg)
 	lastw = separator;
 	if (keep_terms) {
 	  /* garbage collection may be called */
-	  sl = _YAP_InitSlot(t);      
+	  sl = Yap_InitSlot(t);      
 	}
 	writeTerm(ArgOfTermCell(1,t), 999, depth + 1, FALSE);
 	if (keep_terms) {
 	  /* garbage collection may be called */
-	  t = _YAP_GetFromSlot(sl);
-	  _YAP_RecoverSlots(1);
+	  t = Yap_GetFromSlot(sl);
+	  Yap_RecoverSlots(1);
 	}
 	wrputc(')');
 	lastw = separator;
@@ -707,13 +707,13 @@ writeTerm(Term t, int p, int depth, int rinfixarg)
       for (op = 1; op <= Arity; ++op) {
 	if (keep_terms) {
 	  /* garbage collection may be called */
-	  sl = _YAP_InitSlot(t);      
+	  sl = Yap_InitSlot(t);      
 	}
 	writeTerm(ArgOfTermCell(op, t), 999, depth + 1, FALSE);
 	if (keep_terms) {
 	  /* garbage collection may be called */
-	  t = _YAP_GetFromSlot(sl);
-	  _YAP_RecoverSlots(1);
+	  t = Yap_GetFromSlot(sl);
+	  Yap_RecoverSlots(1);
 	}
 	if (op != Arity) {
 	  wrputc(',');
@@ -731,13 +731,13 @@ writeTerm(Term t, int p, int depth, int rinfixarg)
 
 	if (keep_terms) {
 	  /* garbage collection may be called */
-	  sl = _YAP_InitSlot(t);      
+	  sl = Yap_InitSlot(t);      
 	}
 	writeTerm(ArgOfTermCell(op, t), 999, depth + 1, FALSE);
 	if (keep_terms) {
 	  /* garbage collection may be called */
-	  t = _YAP_GetFromSlot(sl);
-	  _YAP_RecoverSlots(1);
+	  t = Yap_GetFromSlot(sl);
+	  Yap_RecoverSlots(1);
 	}
 	if (op != Arity) {
 	  wrputc(',');
@@ -751,7 +751,7 @@ writeTerm(Term t, int p, int depth, int rinfixarg)
 }
 
 void 
-_YAP_plwrite(Term t, int (*mywrite) (int, int), int flags)
+Yap_plwrite(Term t, int (*mywrite) (int, int), int flags)
      /* term to be written			 */
      /* consumer				 */
      /* write options			 */

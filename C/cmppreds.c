@@ -98,7 +98,7 @@ static int compare_complex(register CELL *pt0, register CELL *pt0_end, register
 	  out = IntOfTerm(d0) - LongIntOfTerm(d1);
 #ifdef USE_GMP
 	} else if (IsBigIntTerm(d1)) {
-	  out = -mpz_cmp_si(_YAP_BigIntOfTerm(d1), IntOfTerm(d0));
+	  out = -mpz_cmp_si(Yap_BigIntOfTerm(d1), IntOfTerm(d0));
 #endif
 	} else if (IsRefTerm(d1))
 		out = 1 ;
@@ -124,7 +124,7 @@ static int compare_complex(register CELL *pt0, register CELL *pt0_end, register
 	  out = LongIntOfTerm(d0) - LongIntOfTerm(d1);
 #ifdef USE_GMP
 	} else if (IsBigIntTerm(d1)) {
-	  out = -mpz_cmp_si(_YAP_BigIntOfTerm(d1), LongIntOfTerm(d0));
+	  out = -mpz_cmp_si(Yap_BigIntOfTerm(d1), LongIntOfTerm(d0));
 #endif
 	} else if (IsRefTerm(d1)) {
 	  out = 1 ;
@@ -137,13 +137,13 @@ static int compare_complex(register CELL *pt0, register CELL *pt0_end, register
 #ifdef USE_GMP
       else if (IsBigIntTerm(d0)) {
 	if (IsIntTerm(d1))
-	  out = mpz_cmp_si(_YAP_BigIntOfTerm(d0), IntOfTerm(d1));
+	  out = mpz_cmp_si(Yap_BigIntOfTerm(d0), IntOfTerm(d1));
 	else if (IsFloatTerm(d1)) {
 	  out = 1;
 	} else if (IsLongIntTerm(d1))
-	  out = mpz_cmp_si(_YAP_BigIntOfTerm(d0), LongIntOfTerm(d1));
+	  out = mpz_cmp_si(Yap_BigIntOfTerm(d0), LongIntOfTerm(d1));
 	else if (IsBigIntTerm(d1))
-	  out = mpz_cmp(_YAP_BigIntOfTerm(d0), _YAP_BigIntOfTerm(d1));
+	  out = mpz_cmp(Yap_BigIntOfTerm(d0), Yap_BigIntOfTerm(d1));
 	else if (IsRefTerm(d1))
 	  out = 1 ;
 	else out = -1;
@@ -308,7 +308,7 @@ compare(register Term t1,register Term t2) /* compare terms t1 and t2	 */
 	    return(IntOfTerm(t1) - LongIntOfTerm(t2));
 #ifdef USE_GMP
 	  if (IsBigIntTerm(t2))
-	    return(-mpz_cmp_si(_YAP_BigIntOfTerm(t2),IntOfTerm(t1)));
+	    return(-mpz_cmp_si(Yap_BigIntOfTerm(t2),IntOfTerm(t1)));
 #endif
 	  if (IsRefTerm(t2))
 	    return (1);
@@ -331,7 +331,7 @@ compare(register Term t1,register Term t2) /* compare terms t1 and t2	 */
 	    return (LongIntOfTerm(t1) - LongIntOfTerm(t2));
 #ifdef USE_GMP
 	  if (IsBigIntTerm(t2))
-	    return(-mpz_cmp_si(_YAP_BigIntOfTerm(t2), LongIntOfTerm(t1)));
+	    return(-mpz_cmp_si(Yap_BigIntOfTerm(t2), LongIntOfTerm(t1)));
 #endif
 	  if (IsRefTerm(t2))
 	    return (1);
@@ -340,14 +340,14 @@ compare(register Term t1,register Term t2) /* compare terms t1 and t2	 */
 #ifdef USE_GMP
         if (IsBigIntTerm(t1)) {
 	  if (IsIntTerm(t2))
-	    return(mpz_cmp_si(_YAP_BigIntOfTerm(t1), IntOfTerm(t2)));
+	    return(mpz_cmp_si(Yap_BigIntOfTerm(t1), IntOfTerm(t2)));
 	  if (IsFloatTerm(t2)) {
 	    return(1);
 	  }
 	  if (IsLongIntTerm(t2))
-	    return(mpz_cmp_si(_YAP_BigIntOfTerm(t1), LongIntOfTerm(t2)));
+	    return(mpz_cmp_si(Yap_BigIntOfTerm(t1), LongIntOfTerm(t2)));
 	  if (IsBigIntTerm(t2))
-	    return(mpz_cmp(_YAP_BigIntOfTerm(t1), _YAP_BigIntOfTerm(t2)));
+	    return(mpz_cmp(Yap_BigIntOfTerm(t1), Yap_BigIntOfTerm(t2)));
 	  if (IsRefTerm(t2))
 	    return(1);
 	  return(-1);
@@ -400,7 +400,7 @@ compare(register Term t1,register Term t2) /* compare terms t1 and t2	 */
 	}
 }
 
-int _YAP_compare_terms(register CELL d0, register CELL d1)
+int Yap_compare_terms(register CELL d0, register CELL d1)
 {
   return (compare(d0,d1));
 }
@@ -416,29 +416,29 @@ p_compare(void)
 		p = AtomGT;
 	else
 		p = AtomEQ;
-	return (_YAP_unify_constant(ARG1, MkAtomTerm(p)));
+	return (Yap_unify_constant(ARG1, MkAtomTerm(p)));
 }
 
 inline static int
 int_cmp(Int dif)
 {
     if (dif < 0)
-      return(_YAP_unify_constant(ARG1,MkAtomTerm(AtomLT)));
+      return(Yap_unify_constant(ARG1,MkAtomTerm(AtomLT)));
     else if (dif > 0)
-      return(_YAP_unify_constant(ARG1,MkAtomTerm(AtomGT)));
+      return(Yap_unify_constant(ARG1,MkAtomTerm(AtomGT)));
     else
-      return(_YAP_unify_constant(ARG1,MkAtomTerm(AtomEQ)));
+      return(Yap_unify_constant(ARG1,MkAtomTerm(AtomEQ)));
 }
 
 inline static int
 flt_cmp(Float dif)
 {
     if (dif < 0.0)
-      return(_YAP_unify_constant(ARG1,MkAtomTerm(AtomLT)));
+      return(Yap_unify_constant(ARG1,MkAtomTerm(AtomLT)));
     else if (dif > 0.0)
-      return(_YAP_unify_constant(ARG1,MkAtomTerm(AtomGT)));
+      return(Yap_unify_constant(ARG1,MkAtomTerm(AtomGT)));
     else
-      return(_YAP_unify_constant(ARG1,MkAtomTerm(AtomEQ)));
+      return(Yap_unify_constant(ARG1,MkAtomTerm(AtomEQ)));
 }
 
 
@@ -451,11 +451,11 @@ p_acomp(void)
   union arith_ret v1;
 
   if (IsVarTerm(t1)) {
-    _YAP_Error(INSTANTIATION_ERROR, t1, "=:=/2");
+    Yap_Error(INSTANTIATION_ERROR, t1, "=:=/2");
     return(FALSE);
   }
   if (IsVarTerm(t2)) {
-    _YAP_Error(INSTANTIATION_ERROR, t2, "=:=/2");
+    Yap_Error(INSTANTIATION_ERROR, t2, "=:=/2");
     return(FALSE);
   }
   if (IsIntegerTerm(t1) && IsIntegerTerm(t2)) {
@@ -463,12 +463,12 @@ p_acomp(void)
   } if (IsFloatTerm(t1) && IsFloatTerm(t2)) {
     return(flt_cmp(FloatOfTerm(t1)-FloatOfTerm(t2)));
   }
-  bt1 = _YAP_Eval(t1, &v1);
+  bt1 = Yap_Eval(t1, &v1);
   switch (bt1) {
   case  long_int_e:
     {
       union arith_ret v2;
-      blob_type bt2 = _YAP_Eval(t2, &v2);
+      blob_type bt2 = Yap_Eval(t2, &v2);
 
       switch (bt2) {
       case  long_int_e:
@@ -486,7 +486,7 @@ p_acomp(void)
   case double_e:
     {
       union arith_ret v2;
-      blob_type bt2 = _YAP_Eval(t2, &v2);
+      blob_type bt2 = Yap_Eval(t2, &v2);
 
       switch (bt2) {
       case  long_int_e:
@@ -505,7 +505,7 @@ p_acomp(void)
   case big_int_e:
     {
       union arith_ret v2;
-      blob_type bt2 = _YAP_Eval(t2, &v2);
+      blob_type bt2 = Yap_Eval(t2, &v2);
 
       switch (bt2) {
       case  long_int_e:
@@ -531,23 +531,23 @@ a_eq(Term t1, Term t2)
   union arith_ret v1;
 
   if (IsVarTerm(t1)) {
-    _YAP_Error(INSTANTIATION_ERROR, t1, "=:=/2");
+    Yap_Error(INSTANTIATION_ERROR, t1, "=:=/2");
     return(FALSE);
   }
   if (IsVarTerm(t2)) {
-    _YAP_Error(INSTANTIATION_ERROR, t2, "=:=/2");
+    Yap_Error(INSTANTIATION_ERROR, t2, "=:=/2");
     return(FALSE);
   }
   if (IsIntegerTerm(t1) && IsIntegerTerm(t2))
     return (IntegerOfTerm(t1) == IntegerOfTerm(t2));
   if (IsFloatTerm(t1) && IsFloatTerm(t2))
     return (FloatOfTerm(t1) == FloatOfTerm(t2));
-  bt1 = _YAP_Eval(t1, &v1);
+  bt1 = Yap_Eval(t1, &v1);
   switch (bt1) {
   case  long_int_e:
     {
       union arith_ret v2;
-      blob_type bt2 = _YAP_Eval(t2, &v2);
+      blob_type bt2 = Yap_Eval(t2, &v2);
 
       switch (bt2) {
       case  long_int_e:
@@ -565,7 +565,7 @@ a_eq(Term t1, Term t2)
   case double_e:
     {
       union arith_ret v2;
-      blob_type bt2 = _YAP_Eval(t2, &v2);
+      blob_type bt2 = Yap_Eval(t2, &v2);
 
       switch (bt2) {
       case  long_int_e:
@@ -584,7 +584,7 @@ a_eq(Term t1, Term t2)
   case big_int_e:
     {
       union arith_ret v2;
-      blob_type bt2 = _YAP_Eval(t2, &v2);
+      blob_type bt2 = Yap_Eval(t2, &v2);
 
       switch (bt2) {
       case  long_int_e:
@@ -616,23 +616,23 @@ a_dif(Term t1, Term t2)
   union arith_ret v1;
 
   if (IsVarTerm(t1)) {
-    _YAP_Error(INSTANTIATION_ERROR, t1, "=\\=/2");
+    Yap_Error(INSTANTIATION_ERROR, t1, "=\\=/2");
     return(FALSE);
   }
   if (IsVarTerm(t2)) {
-    _YAP_Error(INSTANTIATION_ERROR, t2, "=\\=/2");
+    Yap_Error(INSTANTIATION_ERROR, t2, "=\\=/2");
     return(FALSE);
   }
   if (IsIntegerTerm(t1) && IsIntegerTerm(t2))
     return (IntegerOfTerm(t1) != IntegerOfTerm(t2));
   if (IsFloatTerm(t1) && IsFloatTerm(t2))
     return (FloatOfTerm(t1) != FloatOfTerm(t2));
-  bt1 = _YAP_Eval(t1, &v1);
+  bt1 = Yap_Eval(t1, &v1);
   switch (bt1) {
   case  long_int_e:
     {
       union arith_ret v2;
-      blob_type bt2 = _YAP_Eval(t2, &v2);
+      blob_type bt2 = Yap_Eval(t2, &v2);
 
       switch (bt2) {
       case  long_int_e:
@@ -650,7 +650,7 @@ a_dif(Term t1, Term t2)
   case double_e:
     {
       union arith_ret v2;
-      blob_type bt2 = _YAP_Eval(t2, &v2);
+      blob_type bt2 = Yap_Eval(t2, &v2);
 
       switch (bt2) {
       case  long_int_e:
@@ -669,7 +669,7 @@ a_dif(Term t1, Term t2)
   case big_int_e:
     {
       union arith_ret v2;
-      blob_type bt2 = _YAP_Eval(t2, &v2);
+      blob_type bt2 = Yap_Eval(t2, &v2);
 
       switch (bt2) {
       case  long_int_e:
@@ -701,23 +701,23 @@ a_gt(Term t1, Term t2)
   union arith_ret v1;
 
   if (IsVarTerm(t1)) {
-    _YAP_Error(INSTANTIATION_ERROR, t1, ">/2");
+    Yap_Error(INSTANTIATION_ERROR, t1, ">/2");
     return(FALSE);
   }
   if (IsVarTerm(t2)) {
-    _YAP_Error(INSTANTIATION_ERROR, t2, ">/2");
+    Yap_Error(INSTANTIATION_ERROR, t2, ">/2");
     return(FALSE);
   }
   if (IsIntegerTerm(t1) && IsIntegerTerm(t2))
     return (IntegerOfTerm(t1) > IntegerOfTerm(t2));
   if (IsFloatTerm(t1) && IsFloatTerm(t2))
     return (FloatOfTerm(t1) > FloatOfTerm(t2));
-  bt1 = _YAP_Eval(t1, &v1);
+  bt1 = Yap_Eval(t1, &v1);
   switch (bt1) {
   case  long_int_e:
     {
       union arith_ret v2;
-      blob_type bt2 = _YAP_Eval(t2, &v2);
+      blob_type bt2 = Yap_Eval(t2, &v2);
 
       switch (bt2) {
       case  long_int_e:
@@ -735,7 +735,7 @@ a_gt(Term t1, Term t2)
   case double_e:
     {
       union arith_ret v2;
-      blob_type bt2 = _YAP_Eval(t2, &v2);
+      blob_type bt2 = Yap_Eval(t2, &v2);
 
       switch (bt2) {
       case  long_int_e:
@@ -754,7 +754,7 @@ a_gt(Term t1, Term t2)
   case big_int_e:
     {
       union arith_ret v2;
-      blob_type bt2 = _YAP_Eval(t2, &v2);
+      blob_type bt2 = Yap_Eval(t2, &v2);
 
       switch (bt2) {
       case  long_int_e:
@@ -786,23 +786,23 @@ a_ge(Term t1, Term t2)
   union arith_ret v1;
 
   if (IsVarTerm(t1)) {
-    _YAP_Error(INSTANTIATION_ERROR, t1, ">=/2");
+    Yap_Error(INSTANTIATION_ERROR, t1, ">=/2");
     return(FALSE);
   }
   if (IsVarTerm(t2)) {
-    _YAP_Error(INSTANTIATION_ERROR, t1, ">=/2");
+    Yap_Error(INSTANTIATION_ERROR, t1, ">=/2");
     return(FALSE);
   }
   if (IsIntegerTerm(t1) && IsIntegerTerm(t2))
     return (IntegerOfTerm(t1) >= IntegerOfTerm(t2));
   if (IsFloatTerm(t1) && IsFloatTerm(t2))
     return (FloatOfTerm(t1) >= FloatOfTerm(t2));
-  bt1 = _YAP_Eval(t1, &v1);
+  bt1 = Yap_Eval(t1, &v1);
   switch (bt1) {
   case  long_int_e:
     {
       union arith_ret v2;
-      blob_type bt2 = _YAP_Eval(t2, &v2);
+      blob_type bt2 = Yap_Eval(t2, &v2);
 
       switch (bt2) {
       case  long_int_e:
@@ -820,7 +820,7 @@ a_ge(Term t1, Term t2)
   case double_e:
     {
       union arith_ret v2;
-      blob_type bt2 = _YAP_Eval(t2, &v2);
+      blob_type bt2 = Yap_Eval(t2, &v2);
 
       switch (bt2) {
       case  long_int_e:
@@ -839,7 +839,7 @@ a_ge(Term t1, Term t2)
   case big_int_e:
     {
       union arith_ret v2;
-      blob_type bt2 = _YAP_Eval(t2, &v2);
+      blob_type bt2 = Yap_Eval(t2, &v2);
 
       switch (bt2) {
       case  long_int_e:
@@ -871,23 +871,23 @@ a_lt(Term t1, Term t2)
   union arith_ret v1;
 
   if (IsVarTerm(t1)) {
-    _YAP_Error(INSTANTIATION_ERROR, t1, "</2");
+    Yap_Error(INSTANTIATION_ERROR, t1, "</2");
     return(FALSE);
   }
   if (IsVarTerm(t2)) {
-    _YAP_Error(INSTANTIATION_ERROR, t2, "</2");
+    Yap_Error(INSTANTIATION_ERROR, t2, "</2");
     return(FALSE);
   }
   if (IsIntegerTerm(t1) && IsIntegerTerm(t2))
     return (IntegerOfTerm(t1) < IntegerOfTerm(t2));
   if (IsFloatTerm(t1) && IsFloatTerm(t2))
     return (FloatOfTerm(t1) < FloatOfTerm(t2));
-  bt1 = _YAP_Eval(t1, &v1);
+  bt1 = Yap_Eval(t1, &v1);
   switch (bt1) {
   case  long_int_e:
     {
       union arith_ret v2;
-      blob_type bt2 = _YAP_Eval(t2, &v2);
+      blob_type bt2 = Yap_Eval(t2, &v2);
 
       switch (bt2) {
       case  long_int_e:
@@ -905,7 +905,7 @@ a_lt(Term t1, Term t2)
   case double_e:
     {
       union arith_ret v2;
-      blob_type bt2 = _YAP_Eval(t2, &v2);
+      blob_type bt2 = Yap_Eval(t2, &v2);
 
       switch (bt2) {
       case  long_int_e:
@@ -924,7 +924,7 @@ a_lt(Term t1, Term t2)
   case big_int_e:
     {
       union arith_ret v2;
-      blob_type bt2 = _YAP_Eval(t2, &v2);
+      blob_type bt2 = Yap_Eval(t2, &v2);
 
       switch (bt2) {
       case  long_int_e:
@@ -956,23 +956,23 @@ a_le(Term t1, Term t2)
   union arith_ret v1;
 
   if (IsVarTerm(t1)) {
-    _YAP_Error(INSTANTIATION_ERROR, t1, "=</2");
+    Yap_Error(INSTANTIATION_ERROR, t1, "=</2");
     return(FALSE);
   }
   if (IsVarTerm(t2)) {
-    _YAP_Error(INSTANTIATION_ERROR, t2, "=</2");
+    Yap_Error(INSTANTIATION_ERROR, t2, "=</2");
     return(FALSE);
   }
   if (IsIntegerTerm(t1) && IsIntegerTerm(t2))
     return (IntegerOfTerm(t1) <= IntegerOfTerm(t2));
   if (IsFloatTerm(t1) && IsFloatTerm(t2))
     return (FloatOfTerm(t1) <= FloatOfTerm(t2));
-  bt1 = _YAP_Eval(t1, &v1);
+  bt1 = Yap_Eval(t1, &v1);
   switch (bt1) {
   case  long_int_e:
     {
       union arith_ret v2;
-      blob_type bt2 = _YAP_Eval(t2, &v2);
+      blob_type bt2 = Yap_Eval(t2, &v2);
 
       switch (bt2) {
       case  long_int_e:
@@ -990,7 +990,7 @@ a_le(Term t1, Term t2)
   case double_e:
     {
       union arith_ret v2;
-      blob_type bt2 = _YAP_Eval(t2, &v2);
+      blob_type bt2 = Yap_Eval(t2, &v2);
 
       switch (bt2) {
       case  long_int_e:
@@ -1009,7 +1009,7 @@ a_le(Term t1, Term t2)
   case big_int_e:
     {
       union arith_ret v2;
-      blob_type bt2 = _YAP_Eval(t2, &v2);
+      blob_type bt2 = Yap_Eval(t2, &v2);
 
       switch (bt2) {
       case  long_int_e:
@@ -1066,19 +1066,19 @@ p_gen_ge(void)
 
 
 void 
-_YAP_InitCmpPreds(void)
+Yap_InitCmpPreds(void)
 {
-  _YAP_InitCmpPred("=:=", 2, a_eq, p_eq, SafePredFlag | BinaryTestPredFlag);
-  _YAP_InitCmpPred("=\\=", 2, a_dif, p_dif, SafePredFlag | BinaryTestPredFlag);
-  _YAP_InitCmpPred(">", 2, a_gt, p_gt,  SafePredFlag | BinaryTestPredFlag);
-  _YAP_InitCmpPred("=<", 2, a_le, p_le, SafePredFlag | BinaryTestPredFlag);
-  _YAP_InitCmpPred("<", 2, a_lt, p_lt, SafePredFlag | BinaryTestPredFlag);
-  _YAP_InitCmpPred(">=", 2, a_ge, p_ge, SafePredFlag | BinaryTestPredFlag);
-  _YAP_InitCPred("$a_compare", 3, p_acomp, TestPredFlag | SafePredFlag);
-  _YAP_InitCPred("\\==", 2, p_noteq, TestPredFlag | SafePredFlag);
-  _YAP_InitCPred("@<", 2, p_gen_lt, TestPredFlag | SafePredFlag);
-  _YAP_InitCPred("@=<", 2, p_gen_le, TestPredFlag | SafePredFlag);
-  _YAP_InitCPred("@>", 2, p_gen_gt, TestPredFlag | SafePredFlag);
-  _YAP_InitCPred("@>=", 2, p_gen_ge, TestPredFlag | SafePredFlag);
-  _YAP_InitCPred("compare", 3, p_compare, TestPredFlag | SafePredFlag);
+  Yap_InitCmpPred("=:=", 2, a_eq, p_eq, SafePredFlag | BinaryTestPredFlag);
+  Yap_InitCmpPred("=\\=", 2, a_dif, p_dif, SafePredFlag | BinaryTestPredFlag);
+  Yap_InitCmpPred(">", 2, a_gt, p_gt,  SafePredFlag | BinaryTestPredFlag);
+  Yap_InitCmpPred("=<", 2, a_le, p_le, SafePredFlag | BinaryTestPredFlag);
+  Yap_InitCmpPred("<", 2, a_lt, p_lt, SafePredFlag | BinaryTestPredFlag);
+  Yap_InitCmpPred(">=", 2, a_ge, p_ge, SafePredFlag | BinaryTestPredFlag);
+  Yap_InitCPred("$a_compare", 3, p_acomp, TestPredFlag | SafePredFlag);
+  Yap_InitCPred("\\==", 2, p_noteq, TestPredFlag | SafePredFlag);
+  Yap_InitCPred("@<", 2, p_gen_lt, TestPredFlag | SafePredFlag);
+  Yap_InitCPred("@=<", 2, p_gen_le, TestPredFlag | SafePredFlag);
+  Yap_InitCPred("@>", 2, p_gen_gt, TestPredFlag | SafePredFlag);
+  Yap_InitCPred("@>=", 2, p_gen_ge, TestPredFlag | SafePredFlag);
+  Yap_InitCPred("compare", 3, p_compare, TestPredFlag | SafePredFlag);
 }

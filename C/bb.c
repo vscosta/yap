@@ -38,10 +38,10 @@ PutBBProp(AtomEntry *ae, SMALLUNSGN mod)		/* get BBentry for at; */
     p = RepBBProp(p0 = p->NextOfPE);
   }
   if (p0 == NIL) {
-    p = (BBProp)_YAP_AllocAtomSpace(sizeof(*p));
+    p = (BBProp)Yap_AllocAtomSpace(sizeof(*p));
     if (p == NULL) {
       WRITE_UNLOCK(ae->ARWLock);
-      _YAP_Error(SYSTEM_ERROR,ARG1,"could not allocate space in bb_put/2");
+      Yap_Error(SYSTEM_ERROR,ARG1,"could not allocate space in bb_put/2");
       return(NULL);
     }
     p->NextOfPE = ae->PropsOfAE;
@@ -64,7 +64,7 @@ PutIntBBProp(Int key, SMALLUNSGN mod)	/* get BBentry for at; */
   UInt hash_key;
 
   if (INT_BB_KEYS == NULL) {
-    INT_BB_KEYS = (Prop *)_YAP_AllocCodeSpace(sizeof(Prop)*INT_BB_KEYS_SIZE);
+    INT_BB_KEYS = (Prop *)Yap_AllocCodeSpace(sizeof(Prop)*INT_BB_KEYS_SIZE);
     if (INT_BB_KEYS != NULL) {
       UInt i = 0;
       Prop *pp = INT_BB_KEYS;
@@ -73,7 +73,7 @@ PutIntBBProp(Int key, SMALLUNSGN mod)	/* get BBentry for at; */
 	pp++;
       }
     } else {
-      _YAP_Error(SYSTEM_ERROR,ARG1,"could not allocate space in bb_put/2");
+      Yap_Error(SYSTEM_ERROR,ARG1,"could not allocate space in bb_put/2");
       return(NULL);
     }
   }
@@ -87,10 +87,10 @@ PutIntBBProp(Int key, SMALLUNSGN mod)	/* get BBentry for at; */
   }
   if (p0 == NIL) {
     YAPEnterCriticalSection();
-    p = (BBProp)_YAP_AllocAtomSpace(sizeof(*p));
+    p = (BBProp)Yap_AllocAtomSpace(sizeof(*p));
     if (p == NULL) {
       YAPLeaveCriticalSection();
-      _YAP_Error(SYSTEM_ERROR,ARG1,"could not allocate space in bb_put/2");
+      Yap_Error(SYSTEM_ERROR,ARG1,"could not allocate space in bb_put/2");
       return(NULL);
     }
     p->ModuleOfBB = mod;
@@ -157,10 +157,10 @@ resize_bb_int_keys(UInt new_size) {
     YAPLeaveCriticalSection();
     return(TRUE);
   }
-  new = (Prop *)_YAP_AllocCodeSpace(sizeof(Prop)*new_size);
+  new = (Prop *)Yap_AllocCodeSpace(sizeof(Prop)*new_size);
   if (new == NULL) {
     YAPLeaveCriticalSection();
-    _YAP_Error(SYSTEM_ERROR,ARG1,"could not allocate space");
+    Yap_Error(SYSTEM_ERROR,ARG1,"could not allocate space");
     return(FALSE);
   }
   for (i = 0; i < new_size; i++) {
@@ -179,7 +179,7 @@ resize_bb_int_keys(UInt new_size) {
       }
     }
   }
-  _YAP_FreeCodeSpace((char *)INT_BB_KEYS);
+  Yap_FreeCodeSpace((char *)INT_BB_KEYS);
   INT_BB_KEYS = new;
   INT_BB_KEYS_SIZE = new_size;
   YAPLeaveCriticalSection();
@@ -193,7 +193,7 @@ AddBBProp(Term t1, char *msg, SMALLUNSGN mod)
 
  restart:
   if (IsVarTerm(t1)) {
-    _YAP_Error(INSTANTIATION_ERROR, t1, msg);
+    Yap_Error(INSTANTIATION_ERROR, t1, msg);
     return(NULL);
   } if (IsAtomTerm(t1)) {
     p = PutBBProp(RepAtom(AtomOfTerm(t1)), mod);
@@ -203,14 +203,14 @@ AddBBProp(Term t1, char *msg, SMALLUNSGN mod)
     Term tmod = ArgOfTerm(1, t1);
     if (!IsVarTerm(tmod) ) {
       t1 = ArgOfTerm(2, t1);
-      mod = _YAP_LookupModule(tmod);
+      mod = Yap_LookupModule(tmod);
       goto restart;
     } else {
-      _YAP_Error(INSTANTIATION_ERROR, t1, msg);
+      Yap_Error(INSTANTIATION_ERROR, t1, msg);
       return(NULL);
     }
   } else {
-    _YAP_Error(TYPE_ERROR_ATOM, t1, msg);
+    Yap_Error(TYPE_ERROR_ATOM, t1, msg);
     return(NULL);
   }
   return(p);
@@ -223,7 +223,7 @@ FetchBBProp(Term t1, char *msg, SMALLUNSGN mod)
 
  restart:
   if (IsVarTerm(t1)) {
-    _YAP_Error(INSTANTIATION_ERROR, t1, msg);
+    Yap_Error(INSTANTIATION_ERROR, t1, msg);
     return(NULL);
   } if (IsAtomTerm(t1)) {
     p = GetBBProp(RepAtom(AtomOfTerm(t1)), mod);
@@ -232,15 +232,15 @@ FetchBBProp(Term t1, char *msg, SMALLUNSGN mod)
   } else if (IsApplTerm(t1) && FunctorOfTerm(t1) == FunctorModule) {
     Term tmod = ArgOfTerm(1, t1);
     if (!IsVarTerm(tmod) ) {
-      mod = _YAP_LookupModule(tmod);
+      mod = Yap_LookupModule(tmod);
       t1 = ArgOfTerm(2, t1);
       goto restart;
     } else {
-      _YAP_Error(INSTANTIATION_ERROR, t1, msg);
+      Yap_Error(INSTANTIATION_ERROR, t1, msg);
       return(NULL);
     }
   } else {
-    _YAP_Error(TYPE_ERROR_ATOM, t1, msg);
+    Yap_Error(TYPE_ERROR_ATOM, t1, msg);
     return(NULL);
   }
   return(p);
@@ -255,9 +255,9 @@ p_bb_put(void)
     return(FALSE);
   WRITE_LOCK(p->BBRWLock);    
   if (p->Element != NULL) {
-    _YAP_ReleaseTermFromDB(p->Element);
+    Yap_ReleaseTermFromDB(p->Element);
   }
-  p->Element = _YAP_StoreTermInDB(2,2);
+  p->Element = Yap_StoreTermInDB(2,2);
   WRITE_UNLOCK(p->BBRWLock);
   return(p->Element != NULL);
 }
@@ -271,9 +271,9 @@ p_bb_get(void)
   if (p == NULL || p->Element == NULL)
     return(FALSE);
   READ_LOCK(p->BBRWLock);  
-  out = _YAP_FetchTermFromDB(p->Element,3);
+  out = Yap_FetchTermFromDB(p->Element,3);
   READ_UNLOCK(p->BBRWLock);
-  return(_YAP_unify(ARG2,out));
+  return(Yap_unify(ARG2,out));
 }
 
 static Int
@@ -286,12 +286,12 @@ p_bb_delete(void)
   p = FetchBBProp(t1, "bb_delete/2", CurrentModule);
   if (p == NULL || p->Element == NULL)
     return(FALSE);
-  out = _YAP_FetchTermFromDB(p->Element,3);
+  out = Yap_FetchTermFromDB(p->Element,3);
   WRITE_LOCK(p->BBRWLock);  
-  _YAP_ReleaseTermFromDB(p->Element);
+  Yap_ReleaseTermFromDB(p->Element);
   p->Element = NULL;
   WRITE_UNLOCK(p->BBRWLock);  
-  return(_YAP_unify(ARG2,out));
+  return(Yap_unify(ARG2,out));
 }
 
 static Int
@@ -305,14 +305,14 @@ p_bb_update(void)
   if (p == NULL || p->Element == NULL)
     return(FALSE);
   WRITE_LOCK(p->BBRWLock);  
-  out = _YAP_FetchTermFromDB(p->Element,3);
-  if (!_YAP_unify(ARG2,out)) {
+  out = Yap_FetchTermFromDB(p->Element,3);
+  if (!Yap_unify(ARG2,out)) {
     WRITE_UNLOCK(p->BBRWLock);  
     return(FALSE);
   }
 
-  _YAP_ReleaseTermFromDB(p->Element);
-  p->Element = _YAP_StoreTermInDB(3,3);
+  Yap_ReleaseTermFromDB(p->Element);
+  p->Element = Yap_StoreTermInDB(3,3);
   WRITE_UNLOCK(p->BBRWLock);
   return(p->Element != NULL);
 }
@@ -322,22 +322,22 @@ p_resize_bb_int_keys(void)
 {
   Term t1 = Deref(ARG1);
   if (IsVarTerm(t1)) {
-    return(_YAP_unify(ARG1,MkIntegerTerm((Int)INT_BB_KEYS_SIZE)));
+    return(Yap_unify(ARG1,MkIntegerTerm((Int)INT_BB_KEYS_SIZE)));
   }
   if (!IsIntegerTerm(t1)) {
-    _YAP_Error(TYPE_ERROR_INTEGER, t1, "yap_flag(resize_bb_int_keys,T)");
+    Yap_Error(TYPE_ERROR_INTEGER, t1, "yap_flag(resize_bb_int_keys,T)");
     return(FALSE);
   }
   return(resize_bb_int_keys(IntegerOfTerm(t1)));
 }
 
 void 
-_YAP_InitBBPreds(void)
+Yap_InitBBPreds(void)
 {
-  _YAP_InitCPred("bb_put", 2, p_bb_put, 0);
-  _YAP_InitCPred("bb_get", 2, p_bb_get, 0);
-  _YAP_InitCPred("bb_delete", 2, p_bb_delete, 0);
-  _YAP_InitCPred("bb_update", 3, p_bb_update, 0);
-  _YAP_InitCPred("$resize_bb_int_keys", 1, p_resize_bb_int_keys, SafePredFlag|SyncPredFlag);
+  Yap_InitCPred("bb_put", 2, p_bb_put, 0);
+  Yap_InitCPred("bb_get", 2, p_bb_get, 0);
+  Yap_InitCPred("bb_delete", 2, p_bb_delete, 0);
+  Yap_InitCPred("bb_update", 3, p_bb_update, 0);
+  Yap_InitCPred("$resize_bb_int_keys", 1, p_resize_bb_int_keys, SafePredFlag|SyncPredFlag);
 }
 

@@ -77,8 +77,8 @@ typedef	struct FREEB {
 #define ALIGN_YAPTYPE(X,TYPE) (((CELL)(X)+(sizeof(TYPE)-1)) & ~(sizeof(TYPE)-1))
 
 /* I'll assume page size is always a power of two */
-#define AdjustPageSize(X)  ((X) & (_YAP_page_size-1) ? \
-      ((X) + _YAP_page_size) & (~(_YAP_page_size-1)) :      \
+#define AdjustPageSize(X)  ((X) & (Yap_page_size-1) ? \
+      ((X) + Yap_page_size) & (~(Yap_page_size-1)) :      \
       (X) )
 
 #define BlockTrailer(b)		((YAP_SEG_SIZE *)b)[((BlockHeader *) b)->b_size]
@@ -86,9 +86,9 @@ typedef	struct FREEB {
 #define FreeBlocks heap_regs->free_blocks
 
 /* Operating system and architecture dependent page size */
-extern int _YAP_page_size;
+extern int Yap_page_size;
 
-void   STD_PROTO(_YAP_InitHeap, (void *));
+void   STD_PROTO(Yap_InitHeap, (void *));
 
 #if USE_MMAP
 

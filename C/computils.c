@@ -48,9 +48,9 @@ static compiler_vm_op ic;
 
 static CELL *cptr;
 
-char            _YAP_Option[20];
+char            Yap_Option[20];
 
-YP_FILE *_YAP_logfile;
+YP_FILE *Yap_logfile;
 #endif
 
 static char *
@@ -66,19 +66,19 @@ AllocCMem (int size)
   freep += size;
   if (ASP <= CellPtr (freep) + 256) {
     save_machine_regs();
-    longjmp(_YAP_CompilerBotch,3);
+    longjmp(Yap_CompilerBotch,3);
   }
   return (p);
 }
 
 char *
-_YAP_AllocCMem (int size)
+Yap_AllocCMem (int size)
 {
   return(AllocCMem(size));
 }
 
 int
-_YAP_is_a_test_pred (Term arg, SMALLUNSGN mod)
+Yap_is_a_test_pred (Term arg, SMALLUNSGN mod)
 {
   if (IsVarTerm (arg))
     return (FALSE);
@@ -103,7 +103,7 @@ _YAP_is_a_test_pred (Term arg, SMALLUNSGN mod)
 }
 
 void
-_YAP_emit (compiler_vm_op o, Int r1, CELL r2)
+Yap_emit (compiler_vm_op o, Int r1, CELL r2)
 {
   PInstr *p;
   p = (PInstr *) AllocCMem (sizeof (*p));
@@ -121,7 +121,7 @@ _YAP_emit (compiler_vm_op o, Int r1, CELL r2)
 }
 
 void
-_YAP_emit_3ops (compiler_vm_op o, CELL r1, CELL r2, CELL r3)
+Yap_emit_3ops (compiler_vm_op o, CELL r1, CELL r2, CELL r3)
 {
   PInstr *p;
   p = (PInstr *) AllocCMem (sizeof (*p)+sizeof(CELL));
@@ -140,7 +140,7 @@ _YAP_emit_3ops (compiler_vm_op o, CELL r1, CELL r2, CELL r3)
 }
 
 CELL *
-_YAP_emit_extra_size (compiler_vm_op o, CELL r1, int size)
+Yap_emit_extra_size (compiler_vm_op o, CELL r1, int size)
 {
   PInstr *p;
   p = (PInstr *) AllocCMem (sizeof (*p) + size - CellSize);
@@ -240,7 +240,7 @@ bip_name(Int op, char *s)
 }
 
 void
-_YAP_bip_name(Int op, char *s) {
+Yap_bip_name(Int op, char *s) {
   bip_name(op,s);
 }
 
@@ -258,7 +258,7 @@ ShowOp (f)
 	  {
 	  case 'a':
 	  case 'n':
-	    _YAP_plwrite ((Term) arg, _YAP_DebugPutc, 0);
+	    Yap_plwrite ((Term) arg, Yap_DebugPutc, 0);
 	    break;
 	  case 'b':
 	    /* write a variable bitmap for a call */
@@ -266,32 +266,32 @@ ShowOp (f)
 	      int max = arg/(8*sizeof(CELL)), i;
 	      CELL *ptr = cptr;
 	      for (i = 0; i <= max; i++) {
-		_YAP_plwrite(MkIntegerTerm((Int)(*ptr++)), _YAP_DebugPutc, 0);
+		Yap_plwrite(MkIntegerTerm((Int)(*ptr++)), Yap_DebugPutc, 0);
 	      }
 	    }
 	    break;		
 	  case 'l':
-	    _YAP_plwrite (MkIntTerm (arg), _YAP_DebugPutc, 0);
+	    Yap_plwrite (MkIntTerm (arg), Yap_DebugPutc, 0);
 	    break;
 	  case 'B':
 	    {
 	      char s[32];
 
 	      bip_name(rn,s);
-	      _YAP_plwrite (MkAtomTerm(_YAP_LookupAtom(s)), _YAP_DebugPutc, 0);
+	      Yap_plwrite (MkAtomTerm(Yap_LookupAtom(s)), Yap_DebugPutc, 0);
 	    }
 	    break;
 	  case 'd':
-	    _YAP_plwrite (MkIntTerm (rn), _YAP_DebugPutc, 0);
+	    Yap_plwrite (MkIntTerm (rn), Yap_DebugPutc, 0);
 	    break;
 	  case 'z':
-	    _YAP_plwrite (MkIntTerm (cpc->rnd3), _YAP_DebugPutc, 0);
+	    Yap_plwrite (MkIntTerm (cpc->rnd3), Yap_DebugPutc, 0);
 	    break;
 	  case 'v':
 	    {
 	      Ventry *v = (Ventry *) arg;
-	      _YAP_DebugPutc (_YAP_c_error_stream,v->KindOfVE == PermVar ? 'Y' : 'X');
-	      _YAP_plwrite (MkIntTerm ((v->NoOfVE) & MaskVarAdrs), _YAP_DebugPutc, 0);
+	      Yap_DebugPutc (Yap_c_error_stream,v->KindOfVE == PermVar ? 'Y' : 'X');
+	      Yap_plwrite (MkIntTerm ((v->NoOfVE) & MaskVarAdrs), Yap_DebugPutc, 0);
 	    }
 	    break;
 	  case 'N':
@@ -301,14 +301,14 @@ ShowOp (f)
 	      cpc = cpc->nextInst;
 	      arg = cpc->rnd1;
 	      v = (Ventry *) arg;
-	      _YAP_DebugPutc (_YAP_c_error_stream,v->KindOfVE == PermVar ? 'Y' : 'X');
-	      _YAP_plwrite (MkIntTerm ((v->NoOfVE) & MaskVarAdrs), _YAP_DebugPutc, 0);
+	      Yap_DebugPutc (Yap_c_error_stream,v->KindOfVE == PermVar ? 'Y' : 'X');
+	      Yap_plwrite (MkIntTerm ((v->NoOfVE) & MaskVarAdrs), Yap_DebugPutc, 0);
 	    }
 	    break;
 	  case 'm':
-	    _YAP_plwrite (MkAtomTerm ((Atom) arg), _YAP_DebugPutc, 0);
-	    _YAP_DebugPutc (_YAP_c_error_stream,'/');
-	    _YAP_plwrite (MkIntTerm (rn), _YAP_DebugPutc, 0);
+	    Yap_plwrite (MkAtomTerm ((Atom) arg), Yap_DebugPutc, 0);
+	    Yap_DebugPutc (Yap_c_error_stream,'/');
+	    Yap_plwrite (MkIntTerm (rn), Yap_DebugPutc, 0);
 	    break;
 	  case 'p':
 	    {
@@ -318,14 +318,14 @@ ShowOp (f)
 	      SMALLUNSGN mod = 0;
 
 	      if (p->ModuleOfPred) mod = IntOfTerm(p->ModuleOfPred);
-	      _YAP_plwrite (ModuleName[mod], _YAP_DebugPutc, 0);
-	      _YAP_DebugPutc (_YAP_c_error_stream,':');
+	      Yap_plwrite (ModuleName[mod], Yap_DebugPutc, 0);
+	      Yap_DebugPutc (Yap_c_error_stream,':');
 	      if (arity == 0)
-		_YAP_plwrite (MkAtomTerm ((Atom)f), _YAP_DebugPutc, 0);
+		Yap_plwrite (MkAtomTerm ((Atom)f), Yap_DebugPutc, 0);
 	      else
-		_YAP_plwrite (MkAtomTerm (NameOfFunctor (f)), _YAP_DebugPutc, 0);
-	      _YAP_DebugPutc (_YAP_c_error_stream,'/');
-	      _YAP_plwrite (MkIntTerm (arity), _YAP_DebugPutc, 0);
+		Yap_plwrite (MkAtomTerm (NameOfFunctor (f)), Yap_DebugPutc, 0);
+	      Yap_DebugPutc (Yap_c_error_stream,'/');
+	      Yap_plwrite (MkIntTerm (arity), Yap_DebugPutc, 0);
 	    }
 	    break;
 	  case 'P':
@@ -336,88 +336,88 @@ ShowOp (f)
 	      SMALLUNSGN mod = 0;
 
 	      if (p->ModuleOfPred) mod = IntOfTerm(p->ModuleOfPred);
-	      _YAP_plwrite (ModuleName[mod], _YAP_DebugPutc, 0);
-	      _YAP_DebugPutc (_YAP_c_error_stream,':');
+	      Yap_plwrite (ModuleName[mod], Yap_DebugPutc, 0);
+	      Yap_DebugPutc (Yap_c_error_stream,':');
 	      if (arity == 0)
-		_YAP_plwrite (MkAtomTerm ((Atom)f), _YAP_DebugPutc, 0);
+		Yap_plwrite (MkAtomTerm ((Atom)f), Yap_DebugPutc, 0);
 	      else
-		_YAP_plwrite (MkAtomTerm (NameOfFunctor (f)), _YAP_DebugPutc, 0);
-	      _YAP_DebugPutc (_YAP_c_error_stream,'/');
-	      _YAP_plwrite (MkIntTerm (arity), _YAP_DebugPutc, 0);
+		Yap_plwrite (MkAtomTerm (NameOfFunctor (f)), Yap_DebugPutc, 0);
+	      Yap_DebugPutc (Yap_c_error_stream,'/');
+	      Yap_plwrite (MkIntTerm (arity), Yap_DebugPutc, 0);
 	    }
 	    break;
 	  case 'f':
 	    if (IsExtensionFunctor((Functor)arg)) {
 	      if ((Functor)arg == FunctorDBRef) {
-		_YAP_plwrite(MkAtomTerm(_YAP_LookupAtom("DBRef")), _YAP_DebugPutc, 0);
+		Yap_plwrite(MkAtomTerm(Yap_LookupAtom("DBRef")), Yap_DebugPutc, 0);
 	      } else if ((Functor)arg == FunctorLongInt) {
-		_YAP_plwrite(MkAtomTerm(_YAP_LookupAtom("LongInt")), _YAP_DebugPutc, 0);
+		Yap_plwrite(MkAtomTerm(Yap_LookupAtom("LongInt")), Yap_DebugPutc, 0);
 	      } else if ((Functor)arg == FunctorDouble) {
-		_YAP_plwrite(MkAtomTerm(_YAP_LookupAtom("Double")), _YAP_DebugPutc, 0);
+		Yap_plwrite(MkAtomTerm(Yap_LookupAtom("Double")), Yap_DebugPutc, 0);
 	      }
 	    } else {
-	      _YAP_plwrite(MkAtomTerm(NameOfFunctor ((Functor) arg)), _YAP_DebugPutc, 0);
-	      _YAP_DebugPutc (_YAP_c_error_stream,'/');
-	      _YAP_plwrite(MkIntTerm(ArityOfFunctor ((Functor) arg)), _YAP_DebugPutc, 0);
+	      Yap_plwrite(MkAtomTerm(NameOfFunctor ((Functor) arg)), Yap_DebugPutc, 0);
+	      Yap_DebugPutc (Yap_c_error_stream,'/');
+	      Yap_plwrite(MkIntTerm(ArityOfFunctor ((Functor) arg)), Yap_DebugPutc, 0);
 	    }
 	    break;
 	  case 'r':
-	    _YAP_DebugPutc (_YAP_c_error_stream,'A');
-	    _YAP_plwrite (MkIntTerm (rn), _YAP_DebugPutc, 0);
+	    Yap_DebugPutc (Yap_c_error_stream,'A');
+	    Yap_plwrite (MkIntTerm (rn), Yap_DebugPutc, 0);
 	    break;
 	  case 'h':
 	    {
 	      CELL my_arg = *cptr++;
 	      if (my_arg & 1)
-		_YAP_plwrite (MkIntTerm (my_arg),
-			 _YAP_DebugPutc, 0);
+		Yap_plwrite (MkIntTerm (my_arg),
+			 Yap_DebugPutc, 0);
 	      else if (my_arg == (CELL) FAILCODE)
-		_YAP_plwrite (MkAtomTerm (AtomFail), _YAP_DebugPutc, 0);
+		Yap_plwrite (MkAtomTerm (AtomFail), Yap_DebugPutc, 0);
 	      else
-		_YAP_plwrite (MkIntegerTerm ((Int) my_arg),
-			 _YAP_DebugPutc, 0);
+		Yap_plwrite (MkIntegerTerm ((Int) my_arg),
+			 Yap_DebugPutc, 0);
 	    }
 	    break;
 	  case 'g':
 	    if (arg & 1)
-	      _YAP_plwrite (MkIntTerm (arg),
-		       _YAP_DebugPutc, 0);
+	      Yap_plwrite (MkIntTerm (arg),
+		       Yap_DebugPutc, 0);
 	    else if (arg == (CELL) FAILCODE)
-	      _YAP_plwrite (MkAtomTerm (AtomFail), _YAP_DebugPutc, 0);
+	      Yap_plwrite (MkAtomTerm (AtomFail), Yap_DebugPutc, 0);
 	    else
-	      _YAP_plwrite (MkIntegerTerm ((Int) arg), _YAP_DebugPutc, 0);
+	      Yap_plwrite (MkIntegerTerm ((Int) arg), Yap_DebugPutc, 0);
 	    break;
 	  case 'i':
-	    _YAP_plwrite (MkIntTerm (arg), _YAP_DebugPutc, 0);
+	    Yap_plwrite (MkIntTerm (arg), Yap_DebugPutc, 0);
 	    break;
 	  case 'j':
 	    {
 	      Functor fun = (Functor)*cptr++;
 	      if (IsExtensionFunctor(fun)) {
 		if (fun == FunctorDBRef) {
-		  _YAP_plwrite(MkAtomTerm(_YAP_LookupAtom("DBRef")), _YAP_DebugPutc, 0);
+		  Yap_plwrite(MkAtomTerm(Yap_LookupAtom("DBRef")), Yap_DebugPutc, 0);
 		} else if (fun == FunctorLongInt) {
-		  _YAP_plwrite(MkAtomTerm(_YAP_LookupAtom("LongInt")), _YAP_DebugPutc, 0);
+		  Yap_plwrite(MkAtomTerm(Yap_LookupAtom("LongInt")), Yap_DebugPutc, 0);
 		} else if (fun == FunctorDouble) {
-		  _YAP_plwrite(MkAtomTerm(_YAP_LookupAtom("Double")), _YAP_DebugPutc, 0);
+		  Yap_plwrite(MkAtomTerm(Yap_LookupAtom("Double")), Yap_DebugPutc, 0);
 		}
 	      } else {
-		_YAP_plwrite (MkAtomTerm(NameOfFunctor(fun)), _YAP_DebugPutc, 0);
-		_YAP_DebugPutc (_YAP_c_error_stream,'/');
-		_YAP_plwrite (MkIntTerm(ArityOfFunctor(fun)), _YAP_DebugPutc, 0);
+		Yap_plwrite (MkAtomTerm(NameOfFunctor(fun)), Yap_DebugPutc, 0);
+		Yap_DebugPutc (Yap_c_error_stream,'/');
+		Yap_plwrite (MkIntTerm(ArityOfFunctor(fun)), Yap_DebugPutc, 0);
 	      }
 	    }
 	    break;
 	  case 'O':
-	    _YAP_plwrite(AbsAppl(cptr), _YAP_DebugPutc, 0);
+	    Yap_plwrite(AbsAppl(cptr), Yap_DebugPutc, 0);
 	    break;
 	  case 'x':
-	    _YAP_plwrite (MkIntTerm (rn >> 1), _YAP_DebugPutc, 0);
-	    _YAP_DebugPutc (_YAP_c_error_stream,'\t');
-	    _YAP_plwrite (MkIntTerm (rn & 1), _YAP_DebugPutc, 0);
+	    Yap_plwrite (MkIntTerm (rn >> 1), Yap_DebugPutc, 0);
+	    Yap_DebugPutc (Yap_c_error_stream,'\t');
+	    Yap_plwrite (MkIntTerm (rn & 1), Yap_DebugPutc, 0);
 	    break;
 	  case 'o':
-	    _YAP_plwrite ((Term) * cptr++, _YAP_DebugPutc, 0);
+	    Yap_plwrite ((Term) * cptr++, Yap_DebugPutc, 0);
 	  case 'c':
 	    {
 	      int i;
@@ -426,23 +426,23 @@ ShowOp (f)
 		  CELL my_arg;
 		  if (*cptr)
 		    {
-		      _YAP_plwrite ((Term) * cptr++, _YAP_DebugPutc, 0);
+		      Yap_plwrite ((Term) * cptr++, Yap_DebugPutc, 0);
 		    }
 		  else
 		    {
-		      _YAP_plwrite (MkIntTerm (0), _YAP_DebugPutc, 0);
+		      Yap_plwrite (MkIntTerm (0), Yap_DebugPutc, 0);
 		      cptr++;
 		    }
-		  _YAP_DebugPutc (_YAP_c_error_stream,'\t');
+		  Yap_DebugPutc (Yap_c_error_stream,'\t');
 		  my_arg = *cptr++;
 		  if (my_arg & 1)
-		    _YAP_plwrite (MkIntTerm (my_arg),
-			     _YAP_DebugPutc, 0);
+		    Yap_plwrite (MkIntTerm (my_arg),
+			     Yap_DebugPutc, 0);
 		  else if (my_arg == (CELL) FAILCODE)
-		    _YAP_plwrite (MkAtomTerm (AtomFail), _YAP_DebugPutc, 0);
+		    Yap_plwrite (MkAtomTerm (AtomFail), Yap_DebugPutc, 0);
 		  else
-		    _YAP_plwrite (MkIntegerTerm ((Int) my_arg), _YAP_DebugPutc, 0);
-		  _YAP_DebugPutc (_YAP_c_error_stream,'\n');
+		    Yap_plwrite (MkIntegerTerm ((Int) my_arg), Yap_DebugPutc, 0);
+		  Yap_DebugPutc (Yap_c_error_stream,'\n');
 		}
 	    }
 	    break;
@@ -454,36 +454,36 @@ ShowOp (f)
 		  CELL my_arg;
 		  if (*cptr)
 		    {
-		      _YAP_plwrite (MkAtomTerm (NameOfFunctor ((Functor) * cptr)), _YAP_DebugPutc, 0);
-		      _YAP_DebugPutc (_YAP_c_error_stream,'/');
-		      _YAP_plwrite (MkIntTerm (ArityOfFunctor ((Functor) * cptr++)), _YAP_DebugPutc, 0);
+		      Yap_plwrite (MkAtomTerm (NameOfFunctor ((Functor) * cptr)), Yap_DebugPutc, 0);
+		      Yap_DebugPutc (Yap_c_error_stream,'/');
+		      Yap_plwrite (MkIntTerm (ArityOfFunctor ((Functor) * cptr++)), Yap_DebugPutc, 0);
 		    }
 		  else
 		    {
-		      _YAP_plwrite (MkIntTerm (0), _YAP_DebugPutc, 0);
+		      Yap_plwrite (MkIntTerm (0), Yap_DebugPutc, 0);
 		      cptr++;
 		    }
-		  _YAP_DebugPutc (_YAP_c_error_stream,'\t');
+		  Yap_DebugPutc (Yap_c_error_stream,'\t');
 		  my_arg = *cptr++;
 		  if (my_arg & 1)
-		    _YAP_plwrite (MkIntTerm (my_arg),
-			     _YAP_DebugPutc, 0);
+		    Yap_plwrite (MkIntTerm (my_arg),
+			     Yap_DebugPutc, 0);
 		  else if (my_arg == (CELL) FAILCODE)
-		    _YAP_plwrite (MkAtomTerm (AtomFail), _YAP_DebugPutc, 0);
+		    Yap_plwrite (MkAtomTerm (AtomFail), Yap_DebugPutc, 0);
 		  else
-		    _YAP_plwrite (MkIntegerTerm ((Int) my_arg), _YAP_DebugPutc, 0);
-		  _YAP_DebugPutc (_YAP_c_error_stream,'\n');
+		    Yap_plwrite (MkIntegerTerm ((Int) my_arg), Yap_DebugPutc, 0);
+		  Yap_DebugPutc (Yap_c_error_stream,'\n');
 		}
 	    }
 	    break;
 	  default:
-	    _YAP_DebugPutc (_YAP_c_error_stream,'%');
-	    _YAP_DebugPutc (_YAP_c_error_stream,ch);
+	    Yap_DebugPutc (Yap_c_error_stream,'%');
+	    Yap_DebugPutc (Yap_c_error_stream,ch);
 	  }
       else
-	_YAP_DebugPutc (_YAP_c_error_stream,ch);
+	Yap_DebugPutc (Yap_c_error_stream,ch);
     }
-  _YAP_DebugPutc (_YAP_c_error_stream,'\n');
+  Yap_DebugPutc (Yap_c_error_stream,'\n');
 }
 
 static char *opformat[] =
@@ -654,7 +654,7 @@ static char *opformat[] =
 
 
 void
-_YAP_ShowCode ()
+Yap_ShowCode ()
 {
   CELL *OldH = H;
 
@@ -671,7 +671,7 @@ _YAP_ShowCode ()
 	ShowOp (opformat[ic]);
       cpc = cpc->nextInst;
     }
-  _YAP_DebugPutc (_YAP_c_error_stream,'\n');
+  Yap_DebugPutc (Yap_c_error_stream,'\n');
   H = OldH;
 }
 

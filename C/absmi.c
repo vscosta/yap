@@ -37,10 +37,10 @@ AritFunctorOfTerm(Term t) {
 
 #define RINT(v)     return(MkIntegerTerm(v))
 #define RFLOAT(v)   return(MkFloatTerm(v))
-#define RBIG(v)     return(_YAP_MkBigIntTerm(v))
+#define RBIG(v)     return(Yap_MkBigIntTerm(v))
 #define RERROR()    return(TermNil)
 
-#define ArithIEval(t,v)     _YAP_Eval(Deref(t),v)
+#define ArithIEval(t,v)     Yap_Eval(Deref(t),v)
 
 #define E_FUNC   Term
 #define E_ARGS   
@@ -105,7 +105,7 @@ push_live_regs(yamop *pco)
       }
       curr >>= 1;
     }
-    start[0] = (CELL)_YAP_MkFunctor(AtomTrue, tot);
+    start[0] = (CELL)Yap_MkFunctor(AtomTrue, tot);
     return(AbsAppl(start));
   } else {
     return(TermNil);
@@ -121,22 +121,22 @@ PushModule(Term t,SMALLUNSGN mod) {
     Term ti[2], tf[2];
     ti[0] = tmod;
     ti[1] = ArgOfTerm(1,t);
-    tf[0] = _YAP_MkApplTerm(FunctorModule,2,ti);
+    tf[0] = Yap_MkApplTerm(FunctorModule,2,ti);
     ti[0] = tmod;
     ti[1] = ArgOfTerm(2,t);
-    tf[1] = _YAP_MkApplTerm(FunctorModule,2,ti);
-    return(_YAP_MkApplTerm(f,2,tf));
+    tf[1] = Yap_MkApplTerm(FunctorModule,2,ti);
+    return(Yap_MkApplTerm(f,2,tf));
   } else {
     Term ti[2], tf[1];
     ti[0] = tmod;
     ti[1] = ArgOfTerm(1,t);
-    tf[0] = _YAP_MkApplTerm(FunctorModule,2,ti);
-    return(_YAP_MkApplTerm(f,1,tf));
+    tf[0] = Yap_MkApplTerm(FunctorModule,2,ti);
+    return(Yap_MkApplTerm(f,1,tf));
   }
 }
 
 Int 
-_YAP_absmi(int inp)
+Yap_absmi(int inp)
 {
 
 
@@ -169,11 +169,11 @@ _YAP_absmi(int inp)
 #endif /* SHADOW_CP */
 
 #if SHADOW_Y
-  register CELL *YREG = _YAP_REGS.YENV_;
+  register CELL *YREG = Yap_REGS.YENV_;
 #endif /* SHADOW_Y */
 
 #if SHADOW_S
-  register CELL *SREG = _YAP_REGS.S_;
+  register CELL *SREG = Yap_REGS.S_;
 #else
 #define SREG S
 #endif /* SHADOW_S */
@@ -200,7 +200,7 @@ _YAP_absmi(int inp)
 #if SHADOW_REGS
 
   /* work with a local pointer to the registers */
-  register REGSTORE *regp = &_YAP_REGS;
+  register REGSTORE *regp = &Yap_REGS;
 
 #endif /* SHADOW_REGS */
 
@@ -211,14 +211,14 @@ _YAP_absmi(int inp)
 
   /* first allocate local space */
   REGSTORE absmi_regs;
-  REGSTORE *old_regs = _YAP_regp;
+  REGSTORE *old_regs = Yap_regp;
 
 #endif /* PUSH_REGS */
 
 #if USE_THREADED_CODE
   /* absmadr */
   if (inp > 0) {
-    _YAP_ABSMI_OPCODES = OpAddress;
+    Yap_ABSMI_OPCODES = OpAddress;
 #if BP_FREE
     P1REG = PCBACKUP;
 #endif
@@ -229,22 +229,22 @@ _YAP_absmi(int inp)
  reset_absmi:
 
 #if PUSH_REGS
-  old_regs = &_YAP_REGS;
+  old_regs = &Yap_REGS;
 
   /* done, let us now initialise this space */
   init_absmi_regs(&absmi_regs);
 
   /* the registers are all set up, let's swap */
-  _YAP_regp = &absmi_regs;
-#undef _YAP_REGS
-#define _YAP_REGS absmi_regs
+  Yap_regp = &absmi_regs;
+#undef Yap_REGS
+#define Yap_REGS absmi_regs
 
 #endif /* PUSH_REGS */
 
 #if SHADOW_REGS
 
   /* use regp as a copy of REGS */
-  regp = &_YAP_REGS;
+  regp = &Yap_REGS;
 
 #ifdef REGS
 #undef REGS
@@ -294,7 +294,7 @@ _YAP_absmi(int inp)
   op_switch:
 
 #ifdef ANALYST
-    _YAP_opcount[opcode]++;
+    Yap_opcount[opcode]++;
 #ifdef DEBUG_XX
     ops_done++;
     /*    if (B->cp_b > 0x103fff90)
@@ -312,9 +312,9 @@ _YAP_absmi(int inp)
 #if PUSH_REGS
       restore_absmi_regs(old_regs);
 #endif
-      if (!_YAP_growheap(FALSE)) {
+      if (!Yap_growheap(FALSE)) {
 	saveregs();
-	_YAP_Error(SYSTEM_ERROR, TermNil, "YAP failed to grow heap: %s", _YAP_ErrorMessage);
+	Yap_Error(SYSTEM_ERROR, TermNil, "YAP failed to grow heap: %s", Yap_ErrorMessage);
 	setregs();
 	FAIL();
       }
@@ -340,9 +340,9 @@ _YAP_absmi(int inp)
 #if PUSH_REGS
       restore_absmi_regs(old_regs);
 #endif
-      if(!_YAP_growtrail (sizeof(CELL) * 16 * 1024L)) {
+      if(!Yap_growtrail (sizeof(CELL) * 16 * 1024L)) {
 	saveregs();
-	_YAP_Error(SYSTEM_ERROR,TermNil,"YAP failed to reserve %ld bytes in growtrail",sizeof(CELL) * 16 * 1024L);
+	Yap_Error(SYSTEM_ERROR,TermNil,"YAP failed to reserve %ld bytes in growtrail",sizeof(CELL) * 16 * 1024L);
 	setregs();
 	FAIL();
       }
@@ -554,14 +554,14 @@ _YAP_absmi(int inp)
       ReductionsCounter--;
       if (ReductionsCounter == 0 && ReductionsCounterOn) {
 	saveregs();
-	_YAP_Error(CALL_COUNTER_UNDERFLOW,TermNil,"");
+	Yap_Error(CALL_COUNTER_UNDERFLOW,TermNil,"");
 	setregs();
 	JMPNext();
       } 
       PredEntriesCounter--;
       if (PredEntriesCounter == 0 && PredEntriesCounterOn) {
 	saveregs();
-	_YAP_Error(PRED_ENTRY_COUNTER_UNDERFLOW,TermNil,"");
+	Yap_Error(PRED_ENTRY_COUNTER_UNDERFLOW,TermNil,"");
 	setregs();
 	JMPNext();
       } 
@@ -577,14 +577,14 @@ _YAP_absmi(int inp)
       RetriesCounter--;
       if (RetriesCounter == 0 && RetriesCounterOn) {
 	saveregs();
-	_YAP_Error(RETRY_COUNTER_UNDERFLOW,TermNil,"");
+	Yap_Error(RETRY_COUNTER_UNDERFLOW,TermNil,"");
 	JMPNext();
 	setregs();
       } 
       PredEntriesCounter--;
       if (PredEntriesCounter == 0 && PredEntriesCounterOn) {
 	saveregs();
-	_YAP_Error(PRED_ENTRY_COUNTER_UNDERFLOW,TermNil,"");
+	Yap_Error(PRED_ENTRY_COUNTER_UNDERFLOW,TermNil,"");
 	setregs();
 	JMPNext();
       } 
@@ -603,14 +603,14 @@ _YAP_absmi(int inp)
       RetriesCounter--;
       if (RetriesCounter == 0 && RetriesCounterOn) {
 	saveregs();
-	_YAP_Error(RETRY_COUNTER_UNDERFLOW,TermNil,"");
+	Yap_Error(RETRY_COUNTER_UNDERFLOW,TermNil,"");
 	setregs();
 	JMPNext();
       } 
       PredEntriesCounter--;
       if (PredEntriesCounter == 0 && PredEntriesCounterOn) {
 	saveregs();
-	_YAP_Error(PRED_ENTRY_COUNTER_UNDERFLOW,TermNil,"");
+	Yap_Error(PRED_ENTRY_COUNTER_UNDERFLOW,TermNil,"");
 	setregs();
 	JMPNext();
       } 
@@ -657,14 +657,14 @@ _YAP_absmi(int inp)
       RetriesCounter--;
       if (RetriesCounter == 0) {
 	saveregs();
-	_YAP_Error(RETRY_COUNTER_UNDERFLOW,TermNil,"");
+	Yap_Error(RETRY_COUNTER_UNDERFLOW,TermNil,"");
 	setregs();
 	JMPNext();
       } 
       PredEntriesCounter--;
       if (PredEntriesCounter == 0) {
 	saveregs();
-	_YAP_Error(PRED_ENTRY_COUNTER_UNDERFLOW,TermNil,"");
+	Yap_Error(PRED_ENTRY_COUNTER_UNDERFLOW,TermNil,"");
 	setregs();
 	JMPNext();
       } 
@@ -1075,7 +1075,7 @@ _YAP_absmi(int inp)
 	if (!(cl->ClFlags & InUseMask)) {
 	  cl->ClFlags |= InUseMask;
 	  TRAIL_CLREF(cl);
-	  cl->u2.ClUse =  TR-(tr_fr_ptr)(_YAP_TrailBase);
+	  cl->u2.ClUse =  TR-(tr_fr_ptr)(Yap_TrailBase);
 	}
 #endif
 	UNLOCK(cl->ClLock);
@@ -1102,19 +1102,19 @@ _YAP_absmi(int inp)
 	  /* I am the last one using this clause, hence I don't need a lock
 	     to dispose of it 
 	  */
-	  _YAP_ErCl(cl);
+	  Yap_ErCl(cl);
 	} else {
 	  UNLOCK(cl->ClLock);
 	}
 #else
-	if (cl->u2.ClUse == TR-(tr_fr_ptr)(_YAP_TrailBase)) {
+	if (cl->u2.ClUse == TR-(tr_fr_ptr)(Yap_TrailBase)) {
 	  cl->u2.ClUse = 0;
 	  cl->ClFlags &= ~InUseMask;
 	  /* clear the entry from the trail */
 	  TR = --(B->cp_tr);
 	  /* next, recover space for the indexing code if it was erased */
 	  if (cl->ClFlags & ErasedMask) {
-	    _YAP_ErCl(cl);
+	    Yap_ErCl(cl);
 	  }
 	}
 #endif
@@ -1142,7 +1142,7 @@ _YAP_absmi(int inp)
 	if (!(cl->ClFlags |= InUseMask)) {
 	  /* Clause *cl = (Clause *)PREG->u.EC.ClBase;
 
-	  PREG->u.EC.ClTrail = TR-(tr_fr_ptr)_YAP_TrailBase;
+	  PREG->u.EC.ClTrail = TR-(tr_fr_ptr)Yap_TrailBase;
 	  PREG->u.EC.ClENV = LCL0-YENV;*/
 	  cl->ClFlags |= InUseMask;
 	  TRAIL_CLREF(cl);
@@ -1227,14 +1227,14 @@ _YAP_absmi(int inp)
       RetriesCounter--;
       if (RetriesCounter == 0) {
 	saveregs();
-	_YAP_Error(RETRY_COUNTER_UNDERFLOW,TermNil,"");
+	Yap_Error(RETRY_COUNTER_UNDERFLOW,TermNil,"");
 	setregs();
 	JMPNext();
       } 
       PredEntriesCounter--;
       if (PredEntriesCounter == 0) {
 	saveregs();
-	_YAP_Error(PRED_ENTRY_COUNTER_UNDERFLOW,TermNil,"");
+	Yap_Error(PRED_ENTRY_COUNTER_UNDERFLOW,TermNil,"");
 	setregs();
 	JMPNext();
       } 
@@ -1308,7 +1308,7 @@ _YAP_absmi(int inp)
       /* the fail builtin may end a loop of C builtins,
 	 and some of these built-ins may grow the heap. */
 #ifdef YAPOR
-      if (HeapTop > _YAP_GlobalBase - MinHeapGap) 
+      if (HeapTop > Yap_GlobalBase - MinHeapGap) 
 	goto noheapleft_in_fail;
 #else
       if (HeapTop > Addr(AuxSp) - MinHeapGap)
@@ -1327,7 +1327,7 @@ _YAP_absmi(int inp)
 	if (pt0 == S_TR) {
 #ifdef FROZEN_STACKS  /* TRAIL */
 #ifdef SBA
-	  if (pt0 < TR_FZ || pt0 > (tr_fr_ptr)_YAP_TrailTop)
+	  if (pt0 < TR_FZ || pt0 > (tr_fr_ptr)Yap_TrailTop)
 #else
 	  if (pt0 < TR_FZ)
 #endif /* SBA */
@@ -1338,15 +1338,15 @@ _YAP_absmi(int inp)
 #endif /* FROZEN_STACKS */
 	  SP = SP0;
 #ifdef LOW_LEVEL_TRACER
-	  if (_YAP_do_low_level_trace) {
-	    op_numbers opnum = _YAP_op_from_opcode(PREG->opc);
+	  if (Yap_do_low_level_trace) {
+	    op_numbers opnum = Yap_op_from_opcode(PREG->opc);
 	  restart_cp:
 	    switch (opnum) {
 #ifdef TABLING
 	    case _table_answer_resolution:
 	      {
 		PredEntry *pe = ENV_ToP(B->cp_cp);
-		op_numbers caller_op = _YAP_op_from_opcode(ENV_ToOp(B->cp_cp));
+		op_numbers caller_op = Yap_op_from_opcode(ENV_ToOp(B->cp_cp));
 		/* first condition  checks if this was a meta-call */
 		if ((caller_op != _call && caller_op != _fcall) || pe == NULL) {
 		  low_level_trace(retry_table_consumer, NULL, NULL);
@@ -1357,7 +1357,7 @@ _YAP_absmi(int inp)
 	    case _table_completion:
 	      {
 		PredEntry *pe = ENV_ToP(B->cp_cp);
-		op_numbers caller_op = _YAP_op_from_opcode(ENV_ToOp(B->cp_cp));
+		op_numbers caller_op = Yap_op_from_opcode(ENV_ToOp(B->cp_cp));
 		/* first condition  checks if this was a meta-call */
 		if ((caller_op != _call && caller_op != _fcall) || pe == NULL) {
 		  low_level_trace(retry_table_producer, NULL, NULL);
@@ -1399,7 +1399,7 @@ _YAP_absmi(int inp)
 	      low_level_trace(retry_pred, (PredEntry *)(PREG->u.lds.p), &(B->cp_a1));
 	      break;
 	    case _retry_profiled:
-	      opnum = _YAP_op_from_opcode(NEXTOP(B->cp_ap,l)->opc);
+	      opnum = Yap_op_from_opcode(NEXTOP(B->cp_ap,l)->opc);
 	      goto restart_cp;
 	    case _retry_me:
 	    case _trust_me:
@@ -1466,7 +1466,7 @@ _YAP_absmi(int inp)
 #ifdef SBA
 	    if ((ADDR) d1 >= HeapTop)
 #else
-	    if ((ADDR) d1 >= _YAP_TrailBase)
+	    if ((ADDR) d1 >= Yap_TrailBase)
 #endif
 	      {
 		pt0 = (tr_fr_ptr) d1;
@@ -1487,7 +1487,7 @@ _YAP_absmi(int inp)
 		/* at this point, 
 		   we are the only ones accessing the clause,
 		   hence we don't need to have a lock it */
-		_YAP_ErCl(cl);
+		Yap_ErCl(cl);
 		setregs();
 	      }
 	    } else {
@@ -1500,7 +1500,7 @@ _YAP_absmi(int inp)
 	      UNLOCK(dbr->lock);
 	      if (erase) {
 		saveregs();
-		_YAP_ErDBE(dbr);
+		Yap_ErDBE(dbr);
 		setregs();
 	      }
 	    }
@@ -1517,11 +1517,11 @@ _YAP_absmi(int inp)
 	    if (FlagOn(ErasedMask, flags)) {
 	      if (FlagOn(DBClMask, flags)) {
 		saveregs();
-		_YAP_ErDBE(DBStructFlagsToDBStruct(d1));
+		Yap_ErDBE(DBStructFlagsToDBStruct(d1));
 		setregs();
 	      } else {
 		saveregs();
-		_YAP_ErCl(ClauseFlagsToClause(d1));
+		Yap_ErCl(ClauseFlagsToClause(d1));
 		setregs();
 	      }
 	    }
@@ -1761,7 +1761,7 @@ _YAP_absmi(int inp)
 	DEPTH -= MkIntConstant(2);
 #endif	/* DEPTH_LIMIT */
 #ifdef LOW_LEVEL_TRACER
-      if (_YAP_do_low_level_trace) {
+      if (Yap_do_low_level_trace) {
 	low_level_trace(enter_pred,pred_entry(pt0),XREGS+1);
       }
 #endif	/* LOW_LEVEL_TRACE */
@@ -1808,7 +1808,7 @@ _YAP_absmi(int inp)
 	DEPTH -= MkIntConstant(2);
 #endif	/* DEPTH_LIMIT */
 #ifdef LOW_LEVEL_TRACER
-      if (_YAP_do_low_level_trace)
+      if (Yap_do_low_level_trace)
 	low_level_trace(enter_pred,pred_entry(pt0),XREGS+1);
 #endif	/* LOW_LEVEL_TRACER */
       PREG = (yamop *) PredCode(pt0);
@@ -1880,7 +1880,7 @@ _YAP_absmi(int inp)
 	DEPTH -= MkIntConstant(2);
 #endif	/* DEPTH_LIMIT */
 #ifdef LOW_LEVEL_TRACER
-      if (_YAP_do_low_level_trace)
+      if (Yap_do_low_level_trace)
 	low_level_trace(enter_pred,pred_entry(pt0),XREGS+1);
 #endif	/* LOW_LEVEL_TRACER */
 #ifdef FROZEN_STACKS
@@ -1920,7 +1920,7 @@ _YAP_absmi(int inp)
       }
 #ifdef COROUTINING
       if (CFREG == Unsigned(LCL0)) {
-	if (_YAP_ReadTimedVar(WokenGoals) != TermNil)
+	if (Yap_ReadTimedVar(WokenGoals) != TermNil)
 	  goto creepc;
 	else {
 	  CFREG = CalculateStackGap();
@@ -1934,8 +1934,8 @@ _YAP_absmi(int inp)
       if (ASP > (CELL *)B)
 	ASP = (CELL *)B;
       saveregs();
-      if (!_YAP_gc(((PredEntry *)SREG)->ArityOfPE, YREG, NEXTOP(PREG, sla))) {
-	_YAP_Error(OUT_OF_STACK_ERROR,TermNil,_YAP_ErrorMessage);
+      if (!Yap_gc(((PredEntry *)SREG)->ArityOfPE, YREG, NEXTOP(PREG, sla))) {
+	Yap_Error(OUT_OF_STACK_ERROR,TermNil,Yap_ErrorMessage);
       }
       setregs();
 
@@ -1947,8 +1947,8 @@ _YAP_absmi(int inp)
      /* This is easier: I know there is an environment so I cannot do allocate */
     NoStackComitY:
       /* find something to fool S */
-      if (CFREG == Unsigned(LCL0) && _YAP_ReadTimedVar(WokenGoals) != TermNil) {
-	SREG = (CELL *)RepPredProp(_YAP_GetPredPropByFunc(_YAP_MkFunctor(AtomRestoreRegs,2),0));
+      if (CFREG == Unsigned(LCL0) && Yap_ReadTimedVar(WokenGoals) != TermNil) {
+	SREG = (CELL *)RepPredProp(Yap_GetPredPropByFunc(Yap_MkFunctor(AtomRestoreRegs,2),0));
 	XREGS[0] = YREG[PREG->u.y.y];
 	PREG = NEXTOP(PREG,y);
 	goto creep_either;
@@ -1959,8 +1959,8 @@ _YAP_absmi(int inp)
       /* Problem: have I got an environment or not? */
     NoStackComitX:
       /* find something to fool S */
-      if (CFREG == Unsigned(LCL0) && _YAP_ReadTimedVar(WokenGoals) != TermNil) {
-	SREG = (CELL *)RepPredProp(_YAP_GetPredPropByFunc(_YAP_MkFunctor(AtomRestoreRegs,2),0));
+      if (CFREG == Unsigned(LCL0) && Yap_ReadTimedVar(WokenGoals) != TermNil) {
+	SREG = (CELL *)RepPredProp(Yap_GetPredPropByFunc(Yap_MkFunctor(AtomRestoreRegs,2),0));
 #if USE_THREADED_CODE
 	if (PREG->opc == (OPCODE)OpAddress[_fcall])
 #else
@@ -1986,7 +1986,7 @@ _YAP_absmi(int inp)
       /* don't forget I cannot creep at ; */
     NoStackEither:
       /* find something to fool S */
-      SREG = (CELL *)RepPredProp(_YAP_GetPredPropByFunc(_YAP_MkFunctor(AtomRestoreRegs,1),0));
+      SREG = (CELL *)RepPredProp(Yap_GetPredPropByFunc(Yap_MkFunctor(AtomRestoreRegs,1),0));
       if (CFREG == (CELL)(LCL0+1)) {
 	ASP = (CELL *) (((char *) YREG) + PREG->u.sla.s);
 	if (ASP > (CELL *)B)
@@ -1994,7 +1994,7 @@ _YAP_absmi(int inp)
 	goto noheapleft;
       }
       if (CFREG == Unsigned(LCL0)) {
-	if (_YAP_ReadTimedVar(WokenGoals) != TermNil)
+	if (Yap_ReadTimedVar(WokenGoals) != TermNil)
 	  goto creep_either;
 	else {
 	  CFREG = CalculateStackGap();
@@ -2008,8 +2008,8 @@ _YAP_absmi(int inp)
       if (ASP > (CELL *)B)
 	ASP = (CELL *)B;
       saveregs();
-      if (!_YAP_gc(0, YREG, NEXTOP(PREG, sla))) {
-	_YAP_Error(OUT_OF_STACK_ERROR,TermNil,_YAP_ErrorMessage);
+      if (!Yap_gc(0, YREG, NEXTOP(PREG, sla))) {
+	Yap_Error(OUT_OF_STACK_ERROR,TermNil,Yap_ErrorMessage);
       }
       setregs();
       JMPNext();
@@ -2076,7 +2076,7 @@ _YAP_absmi(int inp)
       }
 #ifdef COROUTINING
       if (CFREG == Unsigned(LCL0)) {
-	if (_YAP_ReadTimedVar(WokenGoals) != TermNil)
+	if (Yap_ReadTimedVar(WokenGoals) != TermNil)
 	  goto creepde;
 	else {
 	  CFREG = CalculateStackGap();
@@ -2092,8 +2092,8 @@ _YAP_absmi(int inp)
       if (ASP > (CELL *)B)
 	ASP = (CELL *)B;
       saveregs();
-      if (!_YAP_gc(((PredEntry *)(SREG))->ArityOfPE, (CELL *)YREG[E_E], (yamop *)YREG[E_CP])) {
-	_YAP_Error(OUT_OF_STACK_ERROR,TermNil,_YAP_ErrorMessage);
+      if (!Yap_gc(((PredEntry *)(SREG))->ArityOfPE, (CELL *)YREG[E_E], (yamop *)YREG[E_CP])) {
+	Yap_Error(OUT_OF_STACK_ERROR,TermNil,Yap_ErrorMessage);
       }
       setregs();
       /* hopefully, gc will succeeded, and we will retry
@@ -2108,8 +2108,8 @@ _YAP_absmi(int inp)
       if (ASP > (CELL *)B)
 	ASP = (CELL *)B;
       saveregs();
-      if (!_YAP_gc(((PredEntry *)(SREG))->ArityOfPE, ENV, CPREG)) {
-	_YAP_Error(OUT_OF_STACK_ERROR,TermNil,_YAP_ErrorMessage);
+      if (!Yap_gc(((PredEntry *)(SREG))->ArityOfPE, ENV, CPREG)) {
+	Yap_Error(OUT_OF_STACK_ERROR,TermNil,Yap_ErrorMessage);
       }
       setregs();
       /* hopefully, gc will succeeded, and we will retry
@@ -2158,11 +2158,11 @@ _YAP_absmi(int inp)
        * *cannot* fail before having woken up all suspended goals.
        */
       /* make sure we are here because of an awoken goal */
-      if (CFREG == Unsigned(LCL0) && !(_YAP_PrologMode & (InterruptMode|AbortMode))) {
+      if (CFREG == Unsigned(LCL0) && !(Yap_PrologMode & (InterruptMode|AbortMode))) {
 	Term WGs;
 	Term my_goal;
 
-	WGs = _YAP_ReadTimedVar(WokenGoals);
+	WGs = Yap_ReadTimedVar(WokenGoals);
 	my_goal = AbsAppl(H);
 	if (WGs != TermNil) {
 #if SHADOW_S
@@ -2212,15 +2212,15 @@ _YAP_absmi(int inp)
 	    ENDP(pt1);
 	  }
 	  ENDD(d0);
-	  H[0] = _YAP_Module_Name((CODEADDR)SREG);
+	  H[0] = Yap_Module_Name((CODEADDR)SREG);
 	  H[1] = my_goal;
 	  ARG1 = AbsPair(H);
 	  H += 2;
-	  ARG2 = _YAP_ListOfWokenGoals();
+	  ARG2 = Yap_ListOfWokenGoals();
 	  SREG = (CELL *) (WakeUpCode);
 
 	  /* no more goals to wake up */
-	  _YAP_UpdateTimedVar(WokenGoals, TermNil);
+	  Yap_UpdateTimedVar(WokenGoals, TermNil);
 	  CFREG = CalculateStackGap();
 	}
 	else {
@@ -2235,16 +2235,16 @@ _YAP_absmi(int inp)
 #if  _MSC_VER || defined(__MINGW32__)
 	/* I need this for Windows and other systems where SIGINT
 	   is not proceesed by same thread as absmi */
-	if (_YAP_PrologMode & (AbortMode|InterruptMode)) {
+	if (Yap_PrologMode & (AbortMode|InterruptMode)) {
 	  CFREG = CalculateStackGap();
 	  /* same instruction */
-	  if (_YAP_PrologMode & InterruptMode) {
-	    _YAP_PrologMode &= ~InterruptMode;
+	  if (Yap_PrologMode & InterruptMode) {
+	    Yap_PrologMode &= ~InterruptMode;
 	    ASP = YREG+E_CB;
 	    if (ASP > (CELL *)B)
 	      ASP = (CELL *)B;
 	    saveregs();
-	    _YAP_ProcessSIGINT();
+	    Yap_ProcessSIGINT();
 	    setregs();
 	  } 
 	  JMPNext();
@@ -2295,7 +2295,7 @@ _YAP_absmi(int inp)
 	  ENDP(pt1);
 	}
 	ENDD(d0);
-	H[0] = _YAP_Module_Name(((CODEADDR)(SREG)));
+	H[0] = Yap_Module_Name(((CODEADDR)(SREG)));
 	ARG1 = (Term) AbsPair(H);
 
 	H += 2;
@@ -2305,7 +2305,7 @@ _YAP_absmi(int inp)
       }
 #endif
 #ifdef LOW_LEVEL_TRACER
-      if (_YAP_do_low_level_trace)
+      if (Yap_do_low_level_trace)
 	low_level_trace(enter_pred,(PredEntry *)(SREG),XREGS+1);
 #endif	/* LOW_LEVEL_TRACE */
       PREG = (yamop *) ((PredEntry *)(SREG))->CodeOfPred;
@@ -2435,7 +2435,7 @@ _YAP_absmi(int inp)
       BIND(pt0, d0, bind_gvalx_nonvar_var);
 #ifdef COROUTINING
       DO_TRAIL(pt0, d0);
-      if (pt0 < H0) _YAP_WakeUp(pt0);
+      if (pt0 < H0) Yap_WakeUp(pt0);
     bind_gvalx_nonvar_var:
 #endif
       GONext();
@@ -2457,7 +2457,7 @@ _YAP_absmi(int inp)
       BIND(pt0, d1, bind_gvalx_var_nonvar);
 #ifdef COROUTINING
       DO_TRAIL(pt0, d1);
-      if (pt0 < H0) _YAP_WakeUp(pt0);
+      if (pt0 < H0) Yap_WakeUp(pt0);
     bind_gvalx_var_nonvar:
 #endif
       GONext();
@@ -2469,14 +2469,14 @@ _YAP_absmi(int inp)
       UnifyCells(pt0, pt1, uc1, uc2);
 #ifdef COROUTINING
       DO_TRAIL(pt0, (CELL)pt1);
-      if (pt0 < H0) _YAP_WakeUp(pt0);
+      if (pt0 < H0) Yap_WakeUp(pt0);
     uc1:
 #endif
       GONext();
 #ifdef COROUTINING
     uc2:
       DO_TRAIL(pt1, (CELL)pt0);
-      if (pt1 < H0) _YAP_WakeUp(pt1);
+      if (pt1 < H0) Yap_WakeUp(pt1);
       GONext();
 #endif
       ENDP(pt1);
@@ -2518,7 +2518,7 @@ _YAP_absmi(int inp)
       BIND(pt1, d0, bind_gvaly_nonvar_var);
 #ifdef COROUTINING
       DO_TRAIL(pt1, d0);
-      if (pt1 < H0) _YAP_WakeUp(pt1);
+      if (pt1 < H0) Yap_WakeUp(pt1);
     bind_gvaly_nonvar_var:
 #endif
       GONext();
@@ -2537,7 +2537,7 @@ _YAP_absmi(int inp)
       BIND(pt0, d1, bind_gvaly_var_nonvar);
 #ifdef COROUTINING
       DO_TRAIL(pt0, d1);
-      if (pt0 < H0) _YAP_WakeUp(pt0);
+      if (pt0 < H0) Yap_WakeUp(pt0);
     bind_gvaly_var_nonvar:
 #endif
       GONext();
@@ -2549,14 +2549,14 @@ _YAP_absmi(int inp)
       UnifyCells(pt0, pt1, uc3, uc4);
 #ifdef COROUTINING
       DO_TRAIL(pt0, (CELL)pt1);
-      if (pt0 < H0) _YAP_WakeUp(pt0);
+      if (pt0 < H0) Yap_WakeUp(pt0);
     uc3:
 #endif
       GONext();
 #ifdef COROUTINING
     uc4:
       DO_TRAIL(pt1, (CELL)pt0);
-      if (pt1 < H0) _YAP_WakeUp(pt1);
+      if (pt1 < H0) Yap_WakeUp(pt1);
       GONext();
 #endif
       ENDP(pt1);
@@ -2590,7 +2590,7 @@ _YAP_absmi(int inp)
       BIND(pt0, d1, bind_gatom);
 #ifdef COROUTINING
       DO_TRAIL(pt0, d1);
-      if (pt0 < H0) _YAP_WakeUp(pt0);
+      if (pt0 < H0) Yap_WakeUp(pt0);
     bind_gatom:
 #endif
       GONext();
@@ -2633,7 +2633,7 @@ _YAP_absmi(int inp)
 #ifdef COROUTINING
       DO_TRAIL(pt0, d0);
       if (pt0 < H0) {
-	_YAP_WakeUp(pt0);
+	Yap_WakeUp(pt0);
 	S_SREG = H;
       }
     bind_glist:
@@ -2686,7 +2686,7 @@ _YAP_absmi(int inp)
       BIND(pt0, d1, bind_gstruct);
 #ifdef COROUTINING
       DO_TRAIL(pt0, d1);
-      if (pt0 < H0) _YAP_WakeUp(pt0);
+      if (pt0 < H0) Yap_WakeUp(pt0);
     bind_gstruct:
 #endif
       /* now, set pt0 to point to the heap where we are going to
@@ -2750,7 +2750,7 @@ _YAP_absmi(int inp)
       BIND(pt0, d1, bind_gfloat);
 #ifdef COROUTINING
       DO_TRAIL(pt0, d1);
-      if (pt0 < H0) _YAP_WakeUp(pt0);
+      if (pt0 < H0) Yap_WakeUp(pt0);
     bind_gfloat:
 #endif
       GONext();
@@ -2798,7 +2798,7 @@ _YAP_absmi(int inp)
       BIND(pt0, d1, bind_glongint);
 #ifdef COROUTINING
       DO_TRAIL(pt0, d1);
-      if (pt0 < H0) _YAP_WakeUp(pt0);
+      if (pt0 < H0) Yap_WakeUp(pt0);
     bind_glongint:
 #endif
       GONext();
@@ -2831,7 +2831,7 @@ _YAP_absmi(int inp)
 	  FAIL();
 	}
 #ifdef USE_GMP
-      if (mpz_cmp(_YAP_BigIntOfTerm(d0),_YAP_BigIntOfTerm(PREG->u.xc.c)))
+      if (mpz_cmp(Yap_BigIntOfTerm(d0),Yap_BigIntOfTerm(PREG->u.xc.c)))
 	FAIL();
 #endif
       PREG = NEXTOP(PREG, xc);      
@@ -2853,7 +2853,7 @@ _YAP_absmi(int inp)
       BIND(pt0, d1, bind_gbigint);
 #ifdef COROUTINING
       DO_TRAIL(pt0, d1);
-      if (pt0 < H0) _YAP_WakeUp(pt0);
+      if (pt0 < H0) Yap_WakeUp(pt0);
     bind_gbigint:
 #endif
       GONext();
@@ -2905,7 +2905,7 @@ _YAP_absmi(int inp)
       BIND(pt1, d0, bind_glist_valx_nonvar_var);
 #ifdef COROUTINING
       DO_TRAIL(pt1, d0);
-      if (pt1 < H0) _YAP_WakeUp(pt1);
+      if (pt1 < H0) Yap_WakeUp(pt1);
     bind_glist_valx_nonvar_var:
 #endif
       GONext();
@@ -2926,7 +2926,7 @@ _YAP_absmi(int inp)
       BIND_GLOBAL(pt0, d0, bind_glist_valx_var_nonvar);
 #ifdef COROUTINING
       DO_TRAIL(pt0, d0);
-      if (pt0 < H0) _YAP_WakeUp(pt0);
+      if (pt0 < H0) Yap_WakeUp(pt0);
     bind_glist_valx_var_nonvar:
 #endif
       GONext();
@@ -2938,14 +2938,14 @@ _YAP_absmi(int inp)
       UnifyGlobalRegCells(pt0, pt1, uc5, uc6);
 #ifdef COROUTINING
       DO_TRAIL(pt0, (CELL)pt1);
-      if (pt0 < H0) _YAP_WakeUp(pt0);
+      if (pt0 < H0) Yap_WakeUp(pt0);
     uc5:
 #endif
       GONext();
 #ifdef COROUTINING
     uc6:
       DO_TRAIL(pt1, (CELL)pt0);
-      if (pt1 < H0) _YAP_WakeUp(pt1);
+      if (pt1 < H0) Yap_WakeUp(pt1);
       GONext();
 #endif
       ENDP(pt1);
@@ -2978,7 +2978,7 @@ _YAP_absmi(int inp)
 
 #ifdef COROUTINING
       DO_TRAIL(pt0, d0);
-      if (pt0 < H0) _YAP_WakeUp(pt0);
+      if (pt0 < H0) Yap_WakeUp(pt0);
     dbind:
 #endif
       ALWAYS_GONextW();
@@ -3027,7 +3027,7 @@ _YAP_absmi(int inp)
       BIND(pt1, d0, bind_glist_valy_nonvar_var);
 #ifdef COROUTINING
       DO_TRAIL(pt1, d0);
-      if (pt1 < H0) _YAP_WakeUp(pt1);
+      if (pt1 < H0) Yap_WakeUp(pt1);
     bind_glist_valy_nonvar_var:
 #endif
       GONext();
@@ -3048,7 +3048,7 @@ _YAP_absmi(int inp)
       BIND_GLOBAL(pt0, d1, bind_glist_valy_var_nonvar);
 #ifdef COROUTINING
       DO_TRAIL(pt0, d1);
-      if (pt0 < H0) _YAP_WakeUp(pt0);
+      if (pt0 < H0) Yap_WakeUp(pt0);
     bind_glist_valy_var_nonvar:
 #endif
       GONext();
@@ -3059,14 +3059,14 @@ _YAP_absmi(int inp)
       UnifyGlobalRegCells(pt0, pt1, uc7, uc8);
 #ifdef COROUTINING
       DO_TRAIL(pt0, (CELL)pt1);
-      if (pt0 < H0) _YAP_WakeUp(pt0);
+      if (pt0 < H0) Yap_WakeUp(pt0);
     uc7:
 #endif
       GONext();
 #ifdef COROUTINING
     uc8:
       DO_TRAIL(pt1, (CELL)pt0);
-      if (pt1 < H0) _YAP_WakeUp(pt1);
+      if (pt1 < H0) Yap_WakeUp(pt1);
       GONext();
 #endif
       ENDP(pt1);
@@ -3085,7 +3085,7 @@ _YAP_absmi(int inp)
       BIND(pt0, d0, bind_glist_valy_write);
 #ifdef COROUTINING
       DO_TRAIL(pt0, d0);
-      if (pt0 < H0) _YAP_WakeUp(pt0);
+      if (pt0 < H0) Yap_WakeUp(pt0);
     bind_glist_valy_write:
 #endif
       BEGD(d0);
@@ -3139,7 +3139,7 @@ _YAP_absmi(int inp)
       BIND(pt0, d0, bind_glist_varx_write);
 #ifdef COROUTINING
       DO_TRAIL(pt0, d0);
-      if (pt0 < H0) _YAP_WakeUp(pt0);
+      if (pt0 < H0) Yap_WakeUp(pt0);
     bind_glist_varx_write:
 #endif
       PREG = NEXTOP(PREG, xx);
@@ -3190,7 +3190,7 @@ _YAP_absmi(int inp)
       BIND(pt0, d0, bind_glist_void_vary_write);
 #ifdef COROUTINING
       DO_TRAIL(pt0, d0);
-      if (pt0 < H0) _YAP_WakeUp(pt0);
+      if (pt0 < H0) Yap_WakeUp(pt0);
     bind_glist_void_vary_write:
 #endif
       GONext();
@@ -3235,7 +3235,7 @@ _YAP_absmi(int inp)
       BIND(pt1, d0, bind_glist_void_valx_nonvar_var);
 #ifdef COROUTINING
       DO_TRAIL(pt1, d0);
-      if (pt1 < H0) _YAP_WakeUp(pt1);
+      if (pt1 < H0) Yap_WakeUp(pt1);
   bind_glist_void_valx_nonvar_var:
 #endif
       GONext();
@@ -3255,7 +3255,7 @@ _YAP_absmi(int inp)
       BIND_GLOBAL(pt0, d1, bind_glist_void_valx_var_nonvar);
 #ifdef COROUTINING
       DO_TRAIL(pt0, d1);
-      if (pt0 < H0) _YAP_WakeUp(pt0);
+      if (pt0 < H0) Yap_WakeUp(pt0);
   bind_glist_void_valx_var_nonvar:
 #endif
       GONext();
@@ -3267,14 +3267,14 @@ _YAP_absmi(int inp)
       UnifyGlobalRegCells(pt0, pt1, uc9, uc10);
 #ifdef COROUTINING
       DO_TRAIL(pt0, (CELL)pt1);
-      if (pt0 < H0) _YAP_WakeUp(pt0);
+      if (pt0 < H0) Yap_WakeUp(pt0);
     uc9:
 #endif
       GONext();
 #ifdef COROUTINING
     uc10:
       DO_TRAIL(pt1, (CELL)pt0);
-      if (pt1 < H0) _YAP_WakeUp(pt1);
+      if (pt1 < H0) Yap_WakeUp(pt1);
       GONext();
 #endif
       ENDP(pt1);
@@ -3290,7 +3290,7 @@ _YAP_absmi(int inp)
       BIND(pt0, d0, bind_glist_void_valx_write);
 #ifdef COROUTINING
       DO_TRAIL(pt0, d0);
-      if (pt0 < H0) _YAP_WakeUp(pt0);
+      if (pt0 < H0) Yap_WakeUp(pt0);
     bind_glist_void_valx_write:
 #endif
       BEGD(d0);
@@ -3344,7 +3344,7 @@ _YAP_absmi(int inp)
       BIND(pt1, d0, bind_glist_void_valy_nonvar_var);
 #ifdef COROUTINING
       DO_TRAIL(pt1, d0);
-      if (pt1 < H0) _YAP_WakeUp(pt1);
+      if (pt1 < H0) Yap_WakeUp(pt1);
   bind_glist_void_valy_nonvar_var:
 #endif
       GONext();
@@ -3365,7 +3365,7 @@ _YAP_absmi(int inp)
       BIND_GLOBAL(pt0, d1, bind_glist_void_valy_var_nonvar);
 #ifdef COROUTINING
       DO_TRAIL(pt0, d1);
-      if (pt0 < H0) _YAP_WakeUp(pt0);
+      if (pt0 < H0) Yap_WakeUp(pt0);
   bind_glist_void_valy_var_nonvar:
 #endif
       GONext();
@@ -3376,14 +3376,14 @@ _YAP_absmi(int inp)
       UnifyGlobalRegCells(pt0, pt1, uc11, uc12);
 #ifdef COROUTINING
       DO_TRAIL(pt0, (CELL)pt1);
-      if (pt0 < H0) _YAP_WakeUp(pt0);
+      if (pt0 < H0) Yap_WakeUp(pt0);
     uc11:
 #endif
       GONext();
 #ifdef COROUTINING
     uc12:
       DO_TRAIL(pt1, (CELL)pt0);
-      if (pt1 < H0) _YAP_WakeUp(pt1);
+      if (pt1 < H0) Yap_WakeUp(pt1);
       GONext();
 #endif
       ENDP(pt1);
@@ -3399,7 +3399,7 @@ _YAP_absmi(int inp)
       BIND(pt0, d0, bind_glist_void_valy_write);
 #ifdef COROUTINING
       DO_TRAIL(pt0, d0);
-      if (pt0 < H0) _YAP_WakeUp(pt0);
+      if (pt0 < H0) Yap_WakeUp(pt0);
     bind_glist_void_valy_write:
 #endif
       /* include XREG on it */
@@ -3697,7 +3697,7 @@ _YAP_absmi(int inp)
       BIND(pt1, d0, bind_uvalx_nonvar_var);
 #ifdef COROUTINING
       DO_TRAIL(pt1, d0);
-      if (pt1 < H0) _YAP_WakeUp(pt1);
+      if (pt1 < H0) Yap_WakeUp(pt1);
   bind_uvalx_nonvar_var:
 #endif
       GONext();
@@ -3716,7 +3716,7 @@ _YAP_absmi(int inp)
       BIND_GLOBAL(pt0, d1, bind_uvalx_var_nonvar);
 #ifdef COROUTINING
       DO_TRAIL(pt0, d1);
-      if (pt0 < H0) _YAP_WakeUp(pt0);
+      if (pt0 < H0) Yap_WakeUp(pt0);
   bind_uvalx_var_nonvar:
 #endif
       GONext();
@@ -3729,14 +3729,14 @@ _YAP_absmi(int inp)
       UnifyGlobalRegCells(pt0, pt1, uc13, uc14);
 #ifdef COROUTINING
       DO_TRAIL(pt0, (CELL)pt1);
-      if (pt0 < H0) _YAP_WakeUp(pt0);
+      if (pt0 < H0) Yap_WakeUp(pt0);
     uc13:
 #endif
       GONext();
 #ifdef COROUTINING
     uc14:
       DO_TRAIL(pt1, (CELL)pt0);
-      if (pt1 < H0) _YAP_WakeUp(pt1);
+      if (pt1 < H0) Yap_WakeUp(pt1);
       GONext();
 #endif
       ENDP(pt1);
@@ -3781,7 +3781,7 @@ _YAP_absmi(int inp)
       BIND(pt1, d0, bind_ulvalx_nonvar_var);
 #ifdef COROUTINING
       DO_TRAIL(pt1, d0);
-      if (pt1 < H0) _YAP_WakeUp(pt1);
+      if (pt1 < H0) Yap_WakeUp(pt1);
   bind_ulvalx_nonvar_var:
 #endif
       GONext();
@@ -3799,7 +3799,7 @@ _YAP_absmi(int inp)
       BIND_GLOBAL(pt0, d1, bind_ulvalx_var_nonvar);
 #ifdef COROUTINING
       DO_TRAIL(pt0, d1);
-      if (pt0 < H0) _YAP_WakeUp(pt0);
+      if (pt0 < H0) Yap_WakeUp(pt0);
   bind_ulvalx_var_nonvar:
 #endif
       GONext();
@@ -3811,14 +3811,14 @@ _YAP_absmi(int inp)
       UnifyGlobalRegCells(pt0, pt1, uc15, uc16);
 #ifdef COROUTINING
       DO_TRAIL(pt0, (CELL)pt1);
-      if (pt0 < H0) _YAP_WakeUp(pt0);
+      if (pt0 < H0) Yap_WakeUp(pt0);
     uc15:
 #endif
       GONext();
 #ifdef COROUTINING
     uc16:
       DO_TRAIL(pt1, (CELL)pt0);
-      if (pt1 < H0) _YAP_WakeUp(pt1);
+      if (pt1 < H0) Yap_WakeUp(pt1);
       GONext();
 #endif
       ENDP(pt1);
@@ -3874,7 +3874,7 @@ _YAP_absmi(int inp)
       BIND(pt1, d0, bind_uvaly_nonvar_var);
 #ifdef COROUTINING
       DO_TRAIL(pt1, d0);
-      if (pt1 < H0) _YAP_WakeUp(pt1);
+      if (pt1 < H0) Yap_WakeUp(pt1);
   bind_uvaly_nonvar_var:
 #endif
       GONext();
@@ -3895,7 +3895,7 @@ _YAP_absmi(int inp)
       BIND_GLOBAL(pt0, d1, bind_uvaly_var_nonvar);
 #ifdef COROUTINING
       DO_TRAIL(pt0, d1);
-      if (pt0 < H0) _YAP_WakeUp(pt0);
+      if (pt0 < H0) Yap_WakeUp(pt0);
   bind_uvaly_var_nonvar:
 #endif
       GONext();
@@ -3907,14 +3907,14 @@ _YAP_absmi(int inp)
       UnifyGlobalRegCells(pt0, pt1, uc17, uc18);
 #ifdef COROUTINING
       DO_TRAIL(pt0, (CELL)pt1);
-      if (pt0 < H0) _YAP_WakeUp(pt0);
+      if (pt0 < H0) Yap_WakeUp(pt0);
     uc17:
 #endif
       GONext();
 #ifdef COROUTINING
     uc18:
       DO_TRAIL(pt1, (CELL)pt1);
-      if (pt1 < H0) _YAP_WakeUp(pt1);
+      if (pt1 < H0) Yap_WakeUp(pt1);
       GONext();
 #endif
       ENDP(pt1);
@@ -3968,7 +3968,7 @@ _YAP_absmi(int inp)
       BIND(pt1, d0, bind_ulvaly_nonvar_var);
 #ifdef COROUTINING
       DO_TRAIL(pt1, d0);
-      if (pt1 < H0) _YAP_WakeUp(pt1);
+      if (pt1 < H0) Yap_WakeUp(pt1);
   bind_ulvaly_nonvar_var:
 #endif
       GONext();
@@ -3988,7 +3988,7 @@ _YAP_absmi(int inp)
       BIND_GLOBAL(pt0, d1, bind_ulvaly_var_nonvar);
 #ifdef COROUTINING
       DO_TRAIL(pt0, d1);
-      if (pt0 < H0) _YAP_WakeUp(pt0);
+      if (pt0 < H0) Yap_WakeUp(pt0);
   bind_ulvaly_var_nonvar:
 #endif
       GONext();
@@ -4001,14 +4001,14 @@ _YAP_absmi(int inp)
       UnifyGlobalRegCells(pt0, pt1, uc19, uc20);
 #ifdef COROUTINING
       DO_TRAIL(pt0, (CELL)pt1);
-      if (pt0 < H0) _YAP_WakeUp(pt0);
+      if (pt0 < H0) Yap_WakeUp(pt0);
     uc19:
 #endif
       GONext();
 #ifdef COROUTINING
     uc20:
       DO_TRAIL(pt1, (CELL)pt0);
-      if (pt1 < H0) _YAP_WakeUp(pt1);
+      if (pt1 < H0) Yap_WakeUp(pt1);
       GONext();
 #endif
       ENDP(pt1);
@@ -4082,7 +4082,7 @@ _YAP_absmi(int inp)
       BIND(pt1, d0, bind_uvalx_loc_nonvar_var);
 #ifdef COROUTINING
       DO_TRAIL(pt1, d0);
-      if (pt1 < H0) _YAP_WakeUp(pt1);
+      if (pt1 < H0) Yap_WakeUp(pt1);
   bind_uvalx_loc_nonvar_var:
 #endif
       GONext();
@@ -4102,7 +4102,7 @@ _YAP_absmi(int inp)
       BIND_GLOBAL(pt0, d1, bind_uvalx_loc_var_nonvar);
 #ifdef COROUTINING
       DO_TRAIL(pt0, d1);
-      if (pt0 < H0) _YAP_WakeUp(pt0);
+      if (pt0 < H0) Yap_WakeUp(pt0);
   bind_uvalx_loc_var_nonvar:
 #endif
       GONext();
@@ -4117,14 +4117,14 @@ _YAP_absmi(int inp)
       UnifyGlobalRegCells(pt0, pt1, uc21, uc22);
 #ifdef COROUTINING
       DO_TRAIL(pt0, (CELL)pt1);
-      if (pt0 < H0) _YAP_WakeUp(pt0);
+      if (pt0 < H0) Yap_WakeUp(pt0);
     uc21:
 #endif
       GONext();
 #ifdef COROUTINING
     uc22:
       DO_TRAIL(pt1, (CELL)pt0);
-      if (pt1 < H0) _YAP_WakeUp(pt1);
+      if (pt1 < H0) Yap_WakeUp(pt1);
       GONext();
 #endif
       ENDP(pt1);
@@ -4190,7 +4190,7 @@ _YAP_absmi(int inp)
       BIND(pt0, d0, bind_ulvalx_loc_nonvar_var);
 #ifdef COROUTINING
       DO_TRAIL(pt0, d0);
-      if (pt0 < H0) _YAP_WakeUp(pt0);
+      if (pt0 < H0) Yap_WakeUp(pt0);
   bind_ulvalx_loc_nonvar_var:
 #endif
       GONext();
@@ -4207,7 +4207,7 @@ _YAP_absmi(int inp)
       BIND_GLOBAL(pt0, d1, bind_ulvalx_loc_var_nonvar);
 #ifdef COROUTINING
       DO_TRAIL(pt0, d1);
-      if (pt0 < H0) _YAP_WakeUp(pt0);
+      if (pt0 < H0) Yap_WakeUp(pt0);
   bind_ulvalx_loc_var_nonvar:
 #endif
       GONext();
@@ -4219,14 +4219,14 @@ _YAP_absmi(int inp)
       UnifyGlobalRegCells(pt0, pt1, uc23, uc24);
 #ifdef COROUTINING
       DO_TRAIL(pt0, (CELL)pt1);
-      if (pt0 < H0) _YAP_WakeUp(pt0);
+      if (pt0 < H0) Yap_WakeUp(pt0);
     uc23:
 #endif
       GONext();
 #ifdef COROUTINING
     uc24:
       DO_TRAIL(pt1, (CELL)pt0);
-      if (pt1 < H0) _YAP_WakeUp(pt1);
+      if (pt1 < H0) Yap_WakeUp(pt1);
       GONext();
 #endif
       ENDP(pt1);
@@ -4300,7 +4300,7 @@ _YAP_absmi(int inp)
       BIND(pt1, d0, bind_uvaly_loc_nonvar_var);
 #ifdef COROUTINING
       DO_TRAIL(pt1, d0);
-      if (pt1 < H0) _YAP_WakeUp(pt1);
+      if (pt1 < H0) Yap_WakeUp(pt1);
   bind_uvaly_loc_nonvar_var:
 #endif
       GONext();
@@ -4321,7 +4321,7 @@ _YAP_absmi(int inp)
       BIND_GLOBAL(pt0, d1, bind_uvaly_loc_var_nonvar);
 #ifdef COROUTINING
       DO_TRAIL(pt0, d1);
-      if (pt0 < H0) _YAP_WakeUp(pt0);
+      if (pt0 < H0) Yap_WakeUp(pt0);
   bind_uvaly_loc_var_nonvar:
 #endif
       GONext();
@@ -4335,14 +4335,14 @@ _YAP_absmi(int inp)
       UnifyGlobalRegCells(pt0, pt1, uc25, uc26);
 #ifdef COROUTINING
       DO_TRAIL(pt0, (CELL)pt1);
-      if (pt0 < H0) _YAP_WakeUp(pt0);
+      if (pt0 < H0) Yap_WakeUp(pt0);
     uc25:
 #endif
       GONext();
 #ifdef COROUTINING
     uc26:
       DO_TRAIL(pt1, (CELL)pt0);
-      if (pt1 < H0) _YAP_WakeUp(pt1);
+      if (pt1 < H0) Yap_WakeUp(pt1);
       GONext();
 #endif
       ENDP(pt1);
@@ -4413,7 +4413,7 @@ _YAP_absmi(int inp)
       BIND(pt1, d0, bind_ulvaly_loc_nonvar_var);
 #ifdef COROUTINING
       DO_TRAIL(pt1, d0);
-      if (pt1 < H0) _YAP_WakeUp(pt1);
+      if (pt1 < H0) Yap_WakeUp(pt1);
   bind_ulvaly_loc_nonvar_var:
 #endif
       GONext();
@@ -4433,7 +4433,7 @@ _YAP_absmi(int inp)
       BIND_GLOBAL(pt0, d1, bind_ulvaly_loc_var_nonvar);
 #ifdef COROUTINING
       DO_TRAIL(pt0, d1);
-      if (pt0 < H0) _YAP_WakeUp(pt0);
+      if (pt0 < H0) Yap_WakeUp(pt0);
   bind_ulvaly_loc_var_nonvar:
 #endif
       GONext();
@@ -4446,14 +4446,14 @@ _YAP_absmi(int inp)
       UnifyGlobalRegCells(pt0, pt1, uc27, uc28);
 #ifdef COROUTINING
       DO_TRAIL(pt0, (CELL)pt1);
-      if (pt0 < H0) _YAP_WakeUp(pt0);
+      if (pt0 < H0) Yap_WakeUp(pt0);
     uc27:
 #endif
       GONext();
 #ifdef COROUTINING
     uc28:
       DO_TRAIL(pt1, (CELL)pt0);
-      if (pt1 < H0) _YAP_WakeUp(pt1);
+      if (pt1 < H0) Yap_WakeUp(pt1);
       GONext();
 #endif
       ENDP(pt1);
@@ -4556,7 +4556,7 @@ _YAP_absmi(int inp)
       BIND_GLOBAL(pt0, d0, bind_uatom);
 #ifdef COROUTINING
       DO_TRAIL(pt0, d0);
-      if (pt0 < H0) _YAP_WakeUp(pt0);
+      if (pt0 < H0) Yap_WakeUp(pt0);
   bind_uatom:
 #endif
       GONext();
@@ -4589,7 +4589,7 @@ _YAP_absmi(int inp)
       BIND_GLOBAL(pt0, d0, bind_ulatom);
 #ifdef COROUTINING
       DO_TRAIL(pt0, d0);
-      if (pt0 < H0) _YAP_WakeUp(pt0);
+      if (pt0 < H0) Yap_WakeUp(pt0);
   bind_ulatom:
 #endif
       GONext();
@@ -4637,7 +4637,7 @@ _YAP_absmi(int inp)
 	  BIND_GLOBAL(pt0, d1, bind_unlatom);
 #ifdef COROUTINING
 	  DO_TRAIL(pt0, d1);
-	  if (pt0 < H0) _YAP_WakeUp(pt0);
+	  if (pt0 < H0) Yap_WakeUp(pt0);
 	bind_unlatom:
 	  continue;
 #endif
@@ -4689,7 +4689,7 @@ _YAP_absmi(int inp)
       BIND_GLOBAL(pt0, d1, bind_ufloat);
 #ifdef COROUTINING
       DO_TRAIL(pt0, d1);
-      if (pt0 < H0) _YAP_WakeUp(pt0);
+      if (pt0 < H0) Yap_WakeUp(pt0);
   bind_ufloat:
 #endif
       GONext();
@@ -4736,7 +4736,7 @@ _YAP_absmi(int inp)
       BIND_GLOBAL(S_SREG, d1, bind_ulfloat);
 #ifdef COROUTINING
       DO_TRAIL(S_SREG, d1);
-      if (S_SREG < H0) _YAP_WakeUp(S_SREG);
+      if (S_SREG < H0) Yap_WakeUp(S_SREG);
   bind_ulfloat:
 #endif
       GONext();
@@ -4779,7 +4779,7 @@ _YAP_absmi(int inp)
       BIND_GLOBAL(pt0, d1, bind_ulongint);
 #ifdef COROUTINING
       DO_TRAIL(pt0, d1);
-      if (pt0 < H0) _YAP_WakeUp(pt0);
+      if (pt0 < H0) Yap_WakeUp(pt0);
   bind_ulongint:
 #endif
       GONext();
@@ -4821,7 +4821,7 @@ _YAP_absmi(int inp)
       BIND_GLOBAL(S_SREG, d1, bind_ullongint);
 #ifdef COROUTINING
       DO_TRAIL(S_SREG, d1);
-      if (S_SREG < H0) _YAP_WakeUp(S_SREG);
+      if (S_SREG < H0) Yap_WakeUp(S_SREG);
   bind_ullongint:
 #endif
       GONext();
@@ -4853,7 +4853,7 @@ _YAP_absmi(int inp)
       }
 #ifdef USE_GMP
       ENDD(d0);
-      if (mpz_cmp(_YAP_BigIntOfTerm(d0),_YAP_BigIntOfTerm(PREG->u.oc.c)))
+      if (mpz_cmp(Yap_BigIntOfTerm(d0),Yap_BigIntOfTerm(PREG->u.oc.c)))
 	FAIL();
       PREG = NEXTOP(PREG, oc);
 #endif
@@ -4869,7 +4869,7 @@ _YAP_absmi(int inp)
       BIND_GLOBAL(pt0, d1, bind_ubigint);
 #ifdef COROUTINING
       DO_TRAIL(pt0, d1);
-      if (pt0 < H0) _YAP_WakeUp(pt0);
+      if (pt0 < H0) Yap_WakeUp(pt0);
   bind_ubigint:
 #endif
       GONext();
@@ -4900,7 +4900,7 @@ _YAP_absmi(int inp)
       }
 #ifdef USE_GMP
       ENDD(d0);
-      if (mpz_cmp(_YAP_BigIntOfTerm(d0),_YAP_BigIntOfTerm(PREG->u.oc.c)))
+      if (mpz_cmp(Yap_BigIntOfTerm(d0),Yap_BigIntOfTerm(PREG->u.oc.c)))
 	FAIL();
       PREG = NEXTOP(PREG, oc);
 #endif
@@ -4916,7 +4916,7 @@ _YAP_absmi(int inp)
       BIND_GLOBAL(S_SREG, d1, bind_ulbigint);
 #ifdef COROUTINING
       DO_TRAIL(S_SREG, d1);
-      if (S_SREG < H0) _YAP_WakeUp(S_SREG);
+      if (S_SREG < H0) Yap_WakeUp(S_SREG);
   bind_ulbigint:
 #endif
       GONext();
@@ -4976,7 +4976,7 @@ _YAP_absmi(int inp)
       BIND_GLOBAL(pt0, d0, bind_ulist_var);
 #ifdef COROUTINING
       DO_TRAIL(pt0, d0);
-      if (pt0 < H0) _YAP_WakeUp(pt0);
+      if (pt0 < H0) Yap_WakeUp(pt0);
   bind_ulist_var:
 #endif
       GONextW();
@@ -5034,7 +5034,7 @@ _YAP_absmi(int inp)
       BIND_GLOBAL(pt0, d0, bind_ullist_var);
 #ifdef COROUTINING
       DO_TRAIL(pt0, d0);
-      if (pt0 < H0) _YAP_WakeUp(pt0);
+      if (pt0 < H0) Yap_WakeUp(pt0);
   bind_ullist_var:
 #endif
       GONextW();
@@ -5103,7 +5103,7 @@ _YAP_absmi(int inp)
       BIND_GLOBAL(pt0, d1, bind_ustruct);
 #ifdef COROUTINING
       DO_TRAIL(pt0, d1);
-      if (pt0 < H0) _YAP_WakeUp(pt0);
+      if (pt0 < H0) Yap_WakeUp(pt0);
     bind_ustruct:
 #endif
       /* now, set pt0 to point to the heap where we are going to
@@ -5176,7 +5176,7 @@ _YAP_absmi(int inp)
       BIND_GLOBAL(pt0, d1, bind_ulstruct);
 #ifdef COROUTINING
       DO_TRAIL(pt0, d1);
-      if (pt0 < H0) _YAP_WakeUp(pt0);
+      if (pt0 < H0) Yap_WakeUp(pt0);
     bind_ulstruct:
 #endif
       /* now, set pt0 to point to the heap where we are going to
@@ -5651,7 +5651,7 @@ _YAP_absmi(int inp)
 
       Op(either, sla);
 #ifdef LOW_LEVEL_TRACER
-      if (_YAP_do_low_level_trace) {
+      if (Yap_do_low_level_trace) {
 	low_level_trace(try_or, (PredEntry *)PREG, NULL);
       }
 #endif
@@ -5828,7 +5828,7 @@ _YAP_absmi(int inp)
       /* for slots to work */
 #endif /* FROZEN_STACKS */
 #ifdef LOW_LEVEL_TRACER
-      if (_YAP_do_low_level_trace)
+      if (Yap_do_low_level_trace)
 	low_level_trace(enter_pred,PREG->u.sla.p,XREGS+1);
 #endif	/* LOW_LEVEL_TRACE */
       BEGD(d0);
@@ -5870,7 +5870,7 @@ _YAP_absmi(int inp)
       *--ASP = MkIntTerm(0);
 #endif /* FROZEN_STACKS */
 #ifdef LOW_LEVEL_TRACER
-      if (_YAP_do_low_level_trace)
+      if (Yap_do_low_level_trace)
 	low_level_trace(enter_pred,PREG->u.sla.p,XREGS+1);
 #endif	/* LOW_LEVEL_TRACE */
       {
@@ -6075,7 +6075,7 @@ _YAP_absmi(int inp)
       if (ASP > (CELL *) B) {
 	ASP = (CELL *) B;
       }
-      _YAP_IPred((CODEADDR)PredFromDefCode(PREG));
+      Yap_IPred((CODEADDR)PredFromDefCode(PREG));
       /* IPred can generate errors, it thus must get rid of the lock itself */
       setregs();
       CACHED_A1() = ARG1;
@@ -6133,7 +6133,7 @@ _YAP_absmi(int inp)
 	  ENDP(pt1);
 	}
 	ENDD(d0);
-	H[0] = _YAP_Module_Name((CODEADDR)pe);
+	H[0] = Yap_Module_Name((CODEADDR)pe);
 	ARG1 = (Term) AbsPair(H);
 	H += 2;
       }
@@ -6141,9 +6141,9 @@ _YAP_absmi(int inp)
       if (UndefCode == NULL) {
 	Atom at;
 
-	at = _YAP_FullLookupAtom("$undefp");
+	at = Yap_FullLookupAtom("$undefp");
 	{
-	  Prop p = _YAP_GetPredPropByFunc(_YAP_MkFunctor(at, 1),0);
+	  Prop p = Yap_GetPredPropByFunc(Yap_MkFunctor(at, 1),0);
 	  if (p == NIL) {
 	    CFREG = CalculateStackGap();
 	    FAIL();
@@ -6216,7 +6216,7 @@ _YAP_absmi(int inp)
 	  ENDP(pt1);
 	}
 	ENDD(d0);
-	H[0] = _YAP_Module_Name((CODEADDR)pe);
+	H[0] = Yap_Module_Name((CODEADDR)pe);
       }
       ARG1 = (Term) AbsPair(H);
       H += 2;
@@ -6227,7 +6227,7 @@ _YAP_absmi(int inp)
 	PREG = (yamop *) (pt0->CodeOfPred);
 	CACHE_A1();
 #ifdef LOW_LEVEL_TRACER
-	if (_YAP_do_low_level_trace)
+	if (Yap_do_low_level_trace)
 	  low_level_trace(enter_pred,pt0,XREGS+1);
 #endif	/* LOW_LEVEL_TRACE */
       }
@@ -6358,7 +6358,7 @@ _YAP_absmi(int inp)
       } else if (!IsApplTerm(d0)) {
 	/* this should not happen */
 	saveregs();
-	_YAP_Error(SYSTEM_ERROR, d0,"argument to retry_first is a constant");
+	Yap_Error(SYSTEM_ERROR, d0,"argument to retry_first is a constant");
 	setregs();
 	JMPNext();
 #endif /* DEBUG */
@@ -6374,7 +6374,7 @@ _YAP_absmi(int inp)
       /* this should never happen */
 #ifdef DEBUG
       saveregs();
-      _YAP_Error(SYSTEM_ERROR, d0, "unbound argument to retry_first");
+      Yap_Error(SYSTEM_ERROR, d0, "unbound argument to retry_first");
       setregs();
       JMPNext();
 #endif /* DEBUG */
@@ -6412,7 +6412,7 @@ _YAP_absmi(int inp)
       } else if (!IsApplTerm(d0)) {
 	/* this should not happen */
 	saveregs();
-	_YAP_Error(SYSTEM_ERROR, d0, "argument to trust_first_in is a constant");
+	Yap_Error(SYSTEM_ERROR, d0, "argument to trust_first_in is a constant");
 	setregs();
 	JMPNext();
 #endif /* DEBUG */
@@ -6428,7 +6428,7 @@ _YAP_absmi(int inp)
       /* this should never happen */
 #ifdef DEBUG
       saveregs();
-      _YAP_Error(SYSTEM_ERROR, d0,"unbound argument to trust_first_in");
+      Yap_Error(SYSTEM_ERROR, d0,"unbound argument to trust_first_in");
       setregs();
       JMPNext();
 #endif /* DEBUG */
@@ -6475,7 +6475,7 @@ _YAP_absmi(int inp)
       } else if (!IsApplTerm(d0)) {
 	/* this should not happen */
 	saveregs();
-	_YAP_Error(SYSTEM_ERROR,d0,"argument to trust_first is a constant");
+	Yap_Error(SYSTEM_ERROR,d0,"argument to trust_first is a constant");
 	setregs();
 	JMPNext();
 #endif /* DEBUG */
@@ -6491,7 +6491,7 @@ _YAP_absmi(int inp)
       /* this should never happen */
 #ifdef DEBUG
       saveregs();
-      _YAP_Error(SYSTEM_ERROR,(CELL)pt0,"argument to trust_first is a variable");
+      Yap_Error(SYSTEM_ERROR,(CELL)pt0,"argument to trust_first is a variable");
       setregs();
       JMPNext();
 #endif /* DEBUG */
@@ -6532,7 +6532,7 @@ _YAP_absmi(int inp)
       } else if (!IsApplTerm(d0)) {
 	/* this should not happen */
 	saveregs();
-	_YAP_Error(SYSTEM_ERROR,d0,"argument to retry_tail is a constant");
+	Yap_Error(SYSTEM_ERROR,d0,"argument to retry_tail is a constant");
 	setregs();
 	JMPNext();
 #endif /* DEBUG */
@@ -6541,7 +6541,7 @@ _YAP_absmi(int inp)
 #ifdef DEBUG
 	/* this should never happen */
 	saveregs();
-	_YAP_Error(SYSTEM_ERROR,d0,"argument to retry_tail is a compound term");
+	Yap_Error(SYSTEM_ERROR,d0,"argument to retry_tail is a compound term");
 	setregs();
 	JMPNext();
 #endif
@@ -6552,7 +6552,7 @@ _YAP_absmi(int inp)
       /* this should never happen */
 #ifdef DEBUG
       saveregs();
-      _YAP_Error(SYSTEM_ERROR,(CELL)pt0,"unbound argument to retry_tail");
+      Yap_Error(SYSTEM_ERROR,(CELL)pt0,"unbound argument to retry_tail");
       setregs();
       JMPNext();
 #endif /* DEBUG */
@@ -6590,7 +6590,7 @@ _YAP_absmi(int inp)
       } else if (!IsApplTerm(d0)) {
 	/* this should not happen */
 	saveregs();
-	_YAP_Error(SYSTEM_ERROR, d0, "argument to trust_tail_in is a constant");
+	Yap_Error(SYSTEM_ERROR, d0, "argument to trust_tail_in is a constant");
 	setregs();
 	JMPNext();
 #endif /* DEBUG */
@@ -6598,7 +6598,7 @@ _YAP_absmi(int inp)
 	/* appl */
 #ifdef DEBUG
 	saveregs();
-	_YAP_Error(SYSTEM_ERROR, d0, "argument to trust_tail_in is a compound term");
+	Yap_Error(SYSTEM_ERROR, d0, "argument to trust_tail_in is a compound term");
 	setregs();
 	JMPNext();
 #endif
@@ -6609,7 +6609,7 @@ _YAP_absmi(int inp)
       /* this should never happen */
 #ifdef DEBUG
       saveregs();
-      _YAP_Error(SYSTEM_ERROR, (CELL)pt0, "unbound argument to trust_tail_in");
+      Yap_Error(SYSTEM_ERROR, (CELL)pt0, "unbound argument to trust_tail_in");
       setregs();
       JMPNext();
 #endif /* DEBUG */
@@ -6656,7 +6656,7 @@ _YAP_absmi(int inp)
       } else if (!IsApplTerm(d0)) {
 	/* this should not happen */
 	saveregs();
-	_YAP_Error(SYSTEM_ERROR, d0, "argument to trust_tail is a constant");
+	Yap_Error(SYSTEM_ERROR, d0, "argument to trust_tail is a constant");
 	setregs();
 	JMPNext();
 #endif /* DEBUG */
@@ -6665,7 +6665,7 @@ _YAP_absmi(int inp)
 #ifdef DEBUG
 	/* this should ever happen */
 	saveregs();
-	_YAP_Error(SYSTEM_ERROR, d0, "argument to trust_tail is a constant");
+	Yap_Error(SYSTEM_ERROR, d0, "argument to trust_tail is a constant");
 	setregs();
 	JMPNext();
 #endif /* DEBUG */
@@ -6676,7 +6676,7 @@ _YAP_absmi(int inp)
       /* this should never happen */
 #ifdef DEBUG
       saveregs();
-      _YAP_Error(SYSTEM_ERROR, (CELL)pt0, "unbound argument to trust_tail");
+      Yap_Error(SYSTEM_ERROR, (CELL)pt0, "unbound argument to trust_tail");
       setregs();
       JMPNext();
 #endif /* DEBUG */
@@ -6729,7 +6729,7 @@ _YAP_absmi(int inp)
 	} else if (!IsApplTerm(d0)) {
 	  /* this should not happen */
 	  saveregs();
-	  _YAP_Error(SYSTEM_ERROR, d0, "constant argument to retry_head");
+	  Yap_Error(SYSTEM_ERROR, d0, "constant argument to retry_head");
 	  setregs();
 	  JMPNext();
 #endif /* DEBUG */
@@ -6744,13 +6744,13 @@ _YAP_absmi(int inp)
 	/* this should never happen */
 #ifdef DEBUG
 	saveregs();
-	_YAP_Error(SYSTEM_ERROR, (CELL)pt0, "unbound argument to retry_head");
+	Yap_Error(SYSTEM_ERROR, (CELL)pt0, "unbound argument to retry_head");
 	setregs();
 	JMPNext();
       } else if (!IsApplTerm(d0)) {
 	/* this should not happen */
 	saveregs();
-	_YAP_Error(SYSTEM_ERROR, d0, "constant argument to retry_head");
+	Yap_Error(SYSTEM_ERROR, d0, "constant argument to retry_head");
 	setregs();
 	JMPNext();
 #endif /* DEBUG */
@@ -6766,7 +6766,7 @@ _YAP_absmi(int inp)
       /* this should never happen */
 #ifdef DEBUG
       saveregs();
-      _YAP_Error(SYSTEM_ERROR, (CELL)pt0, "unbound argument to retry_head");
+      Yap_Error(SYSTEM_ERROR, (CELL)pt0, "unbound argument to retry_head");
       setregs();
       JMPNext();
 #endif /* DEBUG */
@@ -6814,7 +6814,7 @@ _YAP_absmi(int inp)
 	} else if (!IsApplTerm(d0)) {
 	  /* this should not happen */
 	  saveregs();
-	  _YAP_Error(SYSTEM_ERROR, d0, "head of argument to trust_head_in is a constant");
+	  Yap_Error(SYSTEM_ERROR, d0, "head of argument to trust_head_in is a constant");
 	  setregs();
 	  JMPNext();
 #endif /* DEBUG */
@@ -6829,13 +6829,13 @@ _YAP_absmi(int inp)
 	/* this should never happen */
 #ifdef DEBUG
 	saveregs();
-	_YAP_Error(SYSTEM_ERROR, d0, "head of argument to trust_head_in is unbound");
+	Yap_Error(SYSTEM_ERROR, d0, "head of argument to trust_head_in is unbound");
 	setregs();
 	JMPNext();
       } else if (!IsApplTerm(d0)) {
 	/* this should not happen */
 	saveregs();
-	_YAP_Error(SYSTEM_ERROR, d0, "argument to trust_head_in is a constant");
+	Yap_Error(SYSTEM_ERROR, d0, "argument to trust_head_in is a constant");
 	setregs();
 	JMPNext();
 #endif /* DEBUG */
@@ -6851,7 +6851,7 @@ _YAP_absmi(int inp)
       /* this should never happen */
 #ifdef DEBUG
       saveregs();
-      _YAP_Error(SYSTEM_ERROR, d0, "unbound argument to trust_head_in");
+      Yap_Error(SYSTEM_ERROR, d0, "unbound argument to trust_head_in");
       setregs();
       JMPNext();
 #endif /* DEBUG */
@@ -6910,7 +6910,7 @@ _YAP_absmi(int inp)
 	} else if (!IsApplTerm(d0)) {
 	  /* this should not happen */
 	  saveregs();
-	  _YAP_Error(SYSTEM_ERROR, d0, "head of argument to trust_head is a constant");
+	  Yap_Error(SYSTEM_ERROR, d0, "head of argument to trust_head is a constant");
 	  setregs();
 	  JMPNext();
 #endif /* DEBUG */
@@ -6925,13 +6925,13 @@ _YAP_absmi(int inp)
 	/* this should never happen */
 #ifdef DEBUG
 	saveregs();
-	_YAP_Error(SYSTEM_ERROR, d0, "unbound head of argument to trust_head");
+	Yap_Error(SYSTEM_ERROR, d0, "unbound head of argument to trust_head");
 	setregs();
 	JMPNext();
       } else if (!IsApplTerm(d0)) {
 	/* this should not happen */
 	saveregs();
-	_YAP_Error(SYSTEM_ERROR, d0, "argument to trust_head is a constant");
+	Yap_Error(SYSTEM_ERROR, d0, "argument to trust_head is a constant");
 	setregs();
 	JMPNext();
 #endif /* DEBUG */
@@ -6947,7 +6947,7 @@ _YAP_absmi(int inp)
       /* this should never happen */
 #ifdef DEBUG
       saveregs();
-      _YAP_Error(SYSTEM_ERROR, d0, "unbound argument to trust_head");
+      Yap_Error(SYSTEM_ERROR, d0, "unbound argument to trust_head");
       setregs();
       JMPNext();
 #endif /* DEBUG */
@@ -7023,7 +7023,7 @@ _YAP_absmi(int inp)
 #ifdef DEBUG
       /* This should never happen */
       saveregs();
-      _YAP_Error(SYSTEM_ERROR, d0, "unbound argument to switch_nonvar");
+      Yap_Error(SYSTEM_ERROR, d0, "unbound argument to switch_nonvar");
       setregs();
       JMPNext();
 #endif
@@ -7234,7 +7234,7 @@ _YAP_absmi(int inp)
 #ifdef DEBUG
       /* This should never happen */
       saveregs();
-      _YAP_Error(SYSTEM_ERROR, d0, "switch_nv_list has unbound argument");
+      Yap_Error(SYSTEM_ERROR, d0, "switch_nv_list has unbound argument");
       setregs();
       JMPNext();
 #endif /* DEBUG */
@@ -7491,7 +7491,7 @@ _YAP_absmi(int inp)
 #ifdef DEBUG
       /* This should never happen */
       saveregs();
-      _YAP_Error(SYSTEM_ERROR, d0, "switch_last has unbound argument");
+      Yap_Error(SYSTEM_ERROR, d0, "switch_last has unbound argument");
       setregs();
       JMPNext();
 #endif
@@ -7533,7 +7533,7 @@ _YAP_absmi(int inp)
 #ifdef DEBUG
       /* This should never happen */
       saveregs();
-      _YAP_Error(SYSTEM_ERROR, d0, "switch_l_list has unbound argument");
+      Yap_Error(SYSTEM_ERROR, d0, "switch_l_list has unbound argument");
       setregs();
       JMPNext();
 #endif
@@ -8085,7 +8085,7 @@ _YAP_absmi(int inp)
       BEGP(pt0);
       deref_body(d0, pt0, plus_vv_unk, plus_vv_nvar);
       saveregs();
-      _YAP_Error(INSTANTIATION_ERROR, TermNil, "X is A+B");
+      Yap_Error(INSTANTIATION_ERROR, TermNil, "X is A+B");
       setregs();
       FAIL();
       ENDP(pt0);
@@ -8093,7 +8093,7 @@ _YAP_absmi(int inp)
       BEGP(pt0);
       deref_body(d1, pt0, plus_vv_nvar_unk, plus_vv_nvar_nvar);
       saveregs();
-      _YAP_Error(INSTANTIATION_ERROR, TermNil, "X is A+B");
+      Yap_Error(INSTANTIATION_ERROR, TermNil, "X is A+B");
       setregs();
       FAIL();
       ENDP(pt0);
@@ -8127,7 +8127,7 @@ _YAP_absmi(int inp)
       BEGP(pt0);
       deref_body(d0, pt0, plus_vc_unk, plus_vc_nvar);
       saveregs();
-      _YAP_Error(INSTANTIATION_ERROR, TermNil, "X is A+B");
+      Yap_Error(INSTANTIATION_ERROR, TermNil, "X is A+B");
       setregs();
       FAIL();
       ENDP(pt0);
@@ -8170,7 +8170,7 @@ _YAP_absmi(int inp)
       BEGP(pt0);
       deref_body(d0, pt0, plus_y_vv_unk, plus_y_vv_nvar);
       saveregs();
-      _YAP_Error(INSTANTIATION_ERROR, TermNil, "X is A+B");
+      Yap_Error(INSTANTIATION_ERROR, TermNil, "X is A+B");
       setregs();
       FAIL();
       ENDP(pt0);
@@ -8178,7 +8178,7 @@ _YAP_absmi(int inp)
       BEGP(pt0);
       deref_body(d1, pt0, plus_y_vv_nvar_unk, plus_y_vv_nvar_nvar);
       saveregs();
-      _YAP_Error(INSTANTIATION_ERROR, TermNil, "X is A+B");
+      Yap_Error(INSTANTIATION_ERROR, TermNil, "X is A+B");
       setregs();
       FAIL();
       ENDP(pt0);
@@ -8219,7 +8219,7 @@ _YAP_absmi(int inp)
       BEGP(pt0);
       deref_body(d0, pt0, plus_y_vc_unk, plus_y_vc_nvar);
       saveregs();
-      _YAP_Error(INSTANTIATION_ERROR, TermNil, "X is A+B");
+      Yap_Error(INSTANTIATION_ERROR, TermNil, "X is A+B");
       setregs();
       FAIL();
       ENDP(pt0);
@@ -8255,7 +8255,7 @@ _YAP_absmi(int inp)
       BEGP(pt0);
       deref_body(d0, pt0, minus_vv_unk, minus_vv_nvar);
       saveregs();
-      _YAP_Error(INSTANTIATION_ERROR, TermNil, "X is A-B");
+      Yap_Error(INSTANTIATION_ERROR, TermNil, "X is A-B");
       setregs();
       FAIL();
       ENDP(pt0);
@@ -8263,7 +8263,7 @@ _YAP_absmi(int inp)
       BEGP(pt0);
       deref_body(d1, pt0, minus_vv_nvar_unk, minus_vv_nvar_nvar);
       saveregs();
-      _YAP_Error(INSTANTIATION_ERROR, TermNil, "X is A-B");
+      Yap_Error(INSTANTIATION_ERROR, TermNil, "X is A-B");
       setregs();
       FAIL();
       ENDP(pt0);
@@ -8297,7 +8297,7 @@ _YAP_absmi(int inp)
       BEGP(pt0);
       deref_body(d0, pt0, minus_cv_unk, minus_cv_nvar);
       saveregs();
-      _YAP_Error(INSTANTIATION_ERROR, TermNil, "X is A-B");
+      Yap_Error(INSTANTIATION_ERROR, TermNil, "X is A-B");
       setregs();
       FAIL();
       ENDP(pt0);
@@ -8340,7 +8340,7 @@ _YAP_absmi(int inp)
       BEGP(pt0);
       deref_body(d0, pt0, minus_y_vv_unk, minus_y_vv_nvar);
       saveregs();
-      _YAP_Error(INSTANTIATION_ERROR, TermNil, "X is A-B");
+      Yap_Error(INSTANTIATION_ERROR, TermNil, "X is A-B");
       setregs();
       FAIL();
       ENDP(pt0);
@@ -8348,7 +8348,7 @@ _YAP_absmi(int inp)
       BEGP(pt0);
       deref_body(d1, pt0, minus_y_vv_nvar_unk, minus_y_vv_nvar_nvar);
       saveregs();
-      _YAP_Error(INSTANTIATION_ERROR, TermNil, "X is A-B");
+      Yap_Error(INSTANTIATION_ERROR, TermNil, "X is A-B");
       setregs();
       FAIL();
       ENDP(pt0);
@@ -8389,7 +8389,7 @@ _YAP_absmi(int inp)
       BEGP(pt0);
       deref_body(d0, pt0, minus_y_cv_unk, minus_y_cv_nvar);
       saveregs();
-      _YAP_Error(INSTANTIATION_ERROR, TermNil, "X is A-B");
+      Yap_Error(INSTANTIATION_ERROR, TermNil, "X is A-B");
       setregs();
       FAIL();
       ENDP(pt0);
@@ -8425,7 +8425,7 @@ _YAP_absmi(int inp)
       BEGP(pt0);
       deref_body(d0, pt0, times_vv_unk, times_vv_nvar);
       saveregs();
-      _YAP_Error(INSTANTIATION_ERROR, TermNil, "X is A*B");
+      Yap_Error(INSTANTIATION_ERROR, TermNil, "X is A*B");
       setregs();
       FAIL();
       ENDP(pt0);
@@ -8433,7 +8433,7 @@ _YAP_absmi(int inp)
       BEGP(pt0);
       deref_body(d1, pt0, times_vv_nvar_unk, times_vv_nvar_nvar);
       saveregs();
-      _YAP_Error(INSTANTIATION_ERROR, TermNil, "X is A*B");
+      Yap_Error(INSTANTIATION_ERROR, TermNil, "X is A*B");
       setregs();
       FAIL();
       ENDP(pt0);
@@ -8467,7 +8467,7 @@ _YAP_absmi(int inp)
       BEGP(pt0);
       deref_body(d0, pt0, times_vc_unk, times_vc_nvar);
       saveregs();
-      _YAP_Error(INSTANTIATION_ERROR, TermNil, "X is A*B");
+      Yap_Error(INSTANTIATION_ERROR, TermNil, "X is A*B");
       setregs();
       FAIL();
       ENDP(pt0);
@@ -8510,7 +8510,7 @@ _YAP_absmi(int inp)
       BEGP(pt0);
       deref_body(d0, pt0, times_y_vv_unk, times_y_vv_nvar);
       saveregs();
-      _YAP_Error(INSTANTIATION_ERROR, TermNil, "X is A*B");
+      Yap_Error(INSTANTIATION_ERROR, TermNil, "X is A*B");
       setregs();
       FAIL();
       ENDP(pt0);
@@ -8518,7 +8518,7 @@ _YAP_absmi(int inp)
       BEGP(pt0);
       deref_body(d1, pt0, times_y_vv_nvar_unk, times_y_vv_nvar_nvar);
       saveregs();
-      _YAP_Error(INSTANTIATION_ERROR, TermNil, "X is A*B");
+      Yap_Error(INSTANTIATION_ERROR, TermNil, "X is A*B");
       setregs();
       FAIL();
       ENDP(pt0);
@@ -8559,7 +8559,7 @@ _YAP_absmi(int inp)
       BEGP(pt0);
       deref_body(d0, pt0, times_y_vc_unk, times_y_vc_nvar);
       saveregs();
-      _YAP_Error(INSTANTIATION_ERROR, TermNil, "X is A*B");
+      Yap_Error(INSTANTIATION_ERROR, TermNil, "X is A*B");
       setregs();
       FAIL();
       ENDP(pt0);
@@ -8582,7 +8582,7 @@ _YAP_absmi(int inp)
 	Int div = IntOfTerm(d1);
 	if (div == 0) {
 	  saveregs();
-	  _YAP_Error(EVALUATION_ERROR_ZERO_DIVISOR,TermNil,"// /2");
+	  Yap_Error(EVALUATION_ERROR_ZERO_DIVISOR,TermNil,"// /2");
 	  setregs();
 	  FAIL();
 	}
@@ -8602,7 +8602,7 @@ _YAP_absmi(int inp)
       BEGP(pt0);
       deref_body(d0, pt0, div_vv_unk, div_vv_nvar);
       saveregs();
-      _YAP_Error(INSTANTIATION_ERROR, TermNil, "X is A//B");
+      Yap_Error(INSTANTIATION_ERROR, TermNil, "X is A//B");
       setregs();
       FAIL();
       ENDP(pt0);
@@ -8610,7 +8610,7 @@ _YAP_absmi(int inp)
       BEGP(pt0);
       deref_body(d1, pt0, div_vv_nvar_unk, div_vv_nvar_nvar);
       saveregs();
-      _YAP_Error(INSTANTIATION_ERROR, TermNil, "X is A//B");
+      Yap_Error(INSTANTIATION_ERROR, TermNil, "X is A//B");
       setregs();
       FAIL();
       ENDP(pt0);
@@ -8644,7 +8644,7 @@ _YAP_absmi(int inp)
       BEGP(pt0);
       deref_body(d0, pt0, div_vc_unk, div_vc_nvar);
       saveregs();
-      _YAP_Error(INSTANTIATION_ERROR, TermNil, "X is A//B");
+      Yap_Error(INSTANTIATION_ERROR, TermNil, "X is A//B");
       setregs();
       FAIL();
       ENDP(pt0);
@@ -8663,7 +8663,7 @@ _YAP_absmi(int inp)
 	  Int div = IntOfTerm(d0);
 	  if (div == 0){
 	    saveregs();
-	    _YAP_Error(EVALUATION_ERROR_ZERO_DIVISOR,TermNil,"// /2");
+	    Yap_Error(EVALUATION_ERROR_ZERO_DIVISOR,TermNil,"// /2");
 	    setregs();
 	    FAIL();
 	  }
@@ -8683,7 +8683,7 @@ _YAP_absmi(int inp)
       BEGP(pt0);
       deref_body(d0, pt0, div_cv_unk, div_cv_nvar);
       saveregs();
-      _YAP_Error(INSTANTIATION_ERROR, TermNil, "X is A//B");
+      Yap_Error(INSTANTIATION_ERROR, TermNil, "X is A//B");
       setregs();
       FAIL();
       ENDP(pt0);
@@ -8706,7 +8706,7 @@ _YAP_absmi(int inp)
 	Int div = IntOfTerm(d1);
 	if (div == 0) {
 	  saveregs();
-	  _YAP_Error(EVALUATION_ERROR_ZERO_DIVISOR,TermNil,"// /2");
+	  Yap_Error(EVALUATION_ERROR_ZERO_DIVISOR,TermNil,"// /2");
 	  setregs();
 	  FAIL();
 	}
@@ -8733,7 +8733,7 @@ _YAP_absmi(int inp)
       BEGP(pt0);
       deref_body(d0, pt0, div_y_vv_unk, div_y_vv_nvar);
       saveregs();
-      _YAP_Error(INSTANTIATION_ERROR, TermNil, "X is A//B");
+      Yap_Error(INSTANTIATION_ERROR, TermNil, "X is A//B");
       setregs();
       FAIL();
       ENDP(pt0);
@@ -8741,7 +8741,7 @@ _YAP_absmi(int inp)
       BEGP(pt0);
       deref_body(d1, pt0, div_y_vv_nvar_unk, div_y_vv_nvar_nvar);
       saveregs();
-      _YAP_Error(INSTANTIATION_ERROR, TermNil, "X is A//B");
+      Yap_Error(INSTANTIATION_ERROR, TermNil, "X is A//B");
       setregs();
       FAIL();
       ENDP(pt0);
@@ -8782,7 +8782,7 @@ _YAP_absmi(int inp)
       BEGP(pt0);
       deref_body(d0, pt0, div_y_vc_unk, div_y_vc_nvar);
       saveregs();
-      _YAP_Error(INSTANTIATION_ERROR, TermNil, "X is A//B");
+      Yap_Error(INSTANTIATION_ERROR, TermNil, "X is A//B");
       setregs();
       FAIL();
       ENDP(pt0);
@@ -8801,7 +8801,7 @@ _YAP_absmi(int inp)
 	  Int div = IntOfTerm(d0);
 	  if (div == 0) {
 	    saveregs();
-	    _YAP_Error(EVALUATION_ERROR_ZERO_DIVISOR,TermNil,"// /2");
+	    Yap_Error(EVALUATION_ERROR_ZERO_DIVISOR,TermNil,"// /2");
 	    setregs();
 	    FAIL();
 	  }
@@ -8829,7 +8829,7 @@ _YAP_absmi(int inp)
       BEGP(pt0);
       deref_body(d0, pt0, div_y_cv_unk, div_y_cv_nvar);
       saveregs();
-      _YAP_Error(INSTANTIATION_ERROR, TermNil, "X is A//B");
+      Yap_Error(INSTANTIATION_ERROR, TermNil, "X is A//B");
       setregs();
       FAIL();
       ENDP(pt0);
@@ -8866,7 +8866,7 @@ _YAP_absmi(int inp)
       BEGP(pt0);
       deref_body(d0, pt0, and_vv_unk, and_vv_nvar);
       saveregs();
-      _YAP_Error(INSTANTIATION_ERROR, TermNil, "X is A/\\B");
+      Yap_Error(INSTANTIATION_ERROR, TermNil, "X is A/\\B");
       setregs();
       FAIL();
       ENDP(pt0);
@@ -8874,7 +8874,7 @@ _YAP_absmi(int inp)
       BEGP(pt0);
       deref_body(d1, pt0, and_vv_nvar_unk, and_vv_nvar_nvar);
       saveregs();
-      _YAP_Error(INSTANTIATION_ERROR, TermNil, "X is A/\\B");
+      Yap_Error(INSTANTIATION_ERROR, TermNil, "X is A/\\B");
       setregs();
       FAIL();
       ENDP(pt0);
@@ -8908,7 +8908,7 @@ _YAP_absmi(int inp)
       BEGP(pt0);
       deref_body(d0, pt0, and_vc_unk, and_vc_nvar);
       saveregs();
-      _YAP_Error(INSTANTIATION_ERROR, TermNil, "X is A/\\B");
+      Yap_Error(INSTANTIATION_ERROR, TermNil, "X is A/\\B");
       setregs();
       FAIL();
       ENDP(pt0);
@@ -8951,7 +8951,7 @@ _YAP_absmi(int inp)
       BEGP(pt0);
       deref_body(d0, pt0, and_y_vv_unk, and_y_vv_nvar);
       saveregs();
-      _YAP_Error(INSTANTIATION_ERROR, TermNil, "X is A/\\B");
+      Yap_Error(INSTANTIATION_ERROR, TermNil, "X is A/\\B");
       setregs();
       FAIL();
       ENDP(pt0);
@@ -8959,7 +8959,7 @@ _YAP_absmi(int inp)
       BEGP(pt0);
       deref_body(d1, pt0, and_y_vv_nvar_unk, and_y_vv_nvar_nvar);
       saveregs();
-      _YAP_Error(INSTANTIATION_ERROR, TermNil, "X is A/\\B");
+      Yap_Error(INSTANTIATION_ERROR, TermNil, "X is A/\\B");
       setregs();
       FAIL();
       ENDP(pt0);
@@ -9000,7 +9000,7 @@ _YAP_absmi(int inp)
       BEGP(pt0);
       deref_body(d0, pt0, and_y_vc_unk, and_y_vc_nvar);
       saveregs();
-      _YAP_Error(INSTANTIATION_ERROR, TermNil, "X is A/\\B");
+      Yap_Error(INSTANTIATION_ERROR, TermNil, "X is A/\\B");
       setregs();
       FAIL();
       ENDP(pt0);
@@ -9037,7 +9037,7 @@ _YAP_absmi(int inp)
       BEGP(pt0);
       deref_body(d0, pt0, or_vv_unk, or_vv_nvar);
       saveregs();
-      _YAP_Error(INSTANTIATION_ERROR, TermNil, "X is A\\/B");
+      Yap_Error(INSTANTIATION_ERROR, TermNil, "X is A\\/B");
       setregs();
       FAIL();
       ENDP(pt0);
@@ -9045,7 +9045,7 @@ _YAP_absmi(int inp)
       BEGP(pt0);
       deref_body(d1, pt0, or_vv_nvar_unk, or_vv_nvar_nvar);
       saveregs();
-      _YAP_Error(INSTANTIATION_ERROR, TermNil, "X is A\\/B");
+      Yap_Error(INSTANTIATION_ERROR, TermNil, "X is A\\/B");
       setregs();
       FAIL();
       ENDP(pt0);
@@ -9078,7 +9078,7 @@ _YAP_absmi(int inp)
       BEGP(pt0);
       deref_body(d0, pt0, or_vc_unk, or_vc_nvar);
       saveregs();
-      _YAP_Error(INSTANTIATION_ERROR, TermNil, "X is A\\/B");
+      Yap_Error(INSTANTIATION_ERROR, TermNil, "X is A\\/B");
       setregs();
       FAIL();
       ENDP(pt0);
@@ -9121,7 +9121,7 @@ _YAP_absmi(int inp)
       BEGP(pt0);
       deref_body(d0, pt0, or_y_vv_unk, or_y_vv_nvar);
       saveregs();
-      _YAP_Error(INSTANTIATION_ERROR, TermNil, "X is A\\/B");
+      Yap_Error(INSTANTIATION_ERROR, TermNil, "X is A\\/B");
       setregs();
       FAIL();
       ENDP(pt0);
@@ -9129,7 +9129,7 @@ _YAP_absmi(int inp)
       BEGP(pt0);
       deref_body(d1, pt0, or_y_vv_nvar_unk, or_y_vv_nvar_nvar);
       saveregs();
-      _YAP_Error(INSTANTIATION_ERROR, TermNil, "X is A\\/B");
+      Yap_Error(INSTANTIATION_ERROR, TermNil, "X is A\\/B");
       setregs();
       FAIL();
       ENDP(pt0);
@@ -9170,7 +9170,7 @@ _YAP_absmi(int inp)
       BEGP(pt0);
       deref_body(d0, pt0, or_y_vc_unk, or_y_vc_nvar);
       saveregs();
-      _YAP_Error(INSTANTIATION_ERROR, TermNil, "X is A\\/B");
+      Yap_Error(INSTANTIATION_ERROR, TermNil, "X is A\\/B");
       setregs();
       FAIL();
       ENDP(pt0);
@@ -9206,7 +9206,7 @@ _YAP_absmi(int inp)
       BEGP(pt0);
       deref_body(d0, pt0, sll_vv_unk, sll_vv_nvar);
       saveregs();
-      _YAP_Error(INSTANTIATION_ERROR, TermNil, "X is A<<B");
+      Yap_Error(INSTANTIATION_ERROR, TermNil, "X is A<<B");
       setregs();
       FAIL();
       ENDP(pt0);
@@ -9214,7 +9214,7 @@ _YAP_absmi(int inp)
       BEGP(pt0);
       deref_body(d1, pt0, sll_vv_nvar_unk, sll_vv_nvar_nvar);
       saveregs();
-      _YAP_Error(INSTANTIATION_ERROR, TermNil, "X is A<<B");
+      Yap_Error(INSTANTIATION_ERROR, TermNil, "X is A<<B");
       setregs();
       FAIL();
       ENDP(pt0);
@@ -9248,7 +9248,7 @@ _YAP_absmi(int inp)
       BEGP(pt0);
       deref_body(d0, pt0, sll_vc_unk, sll_vc_nvar);
       saveregs();
-      _YAP_Error(INSTANTIATION_ERROR, TermNil, "X is A<<B");
+      Yap_Error(INSTANTIATION_ERROR, TermNil, "X is A<<B");
       setregs();
       FAIL();
       ENDP(pt0);
@@ -9281,7 +9281,7 @@ _YAP_absmi(int inp)
       BEGP(pt0);
       deref_body(d0, pt0, sll_cv_unk, sll_cv_nvar);
       saveregs();
-      _YAP_Error(INSTANTIATION_ERROR, TermNil, "X is A<<B");
+      Yap_Error(INSTANTIATION_ERROR, TermNil, "X is A<<B");
       setregs();
       FAIL();
       ENDP(pt0);
@@ -9324,7 +9324,7 @@ _YAP_absmi(int inp)
       BEGP(pt0);
       deref_body(d0, pt0, sll_y_vv_unk, sll_y_vv_nvar);
       saveregs();
-      _YAP_Error(INSTANTIATION_ERROR, TermNil, "X is A<<B");
+      Yap_Error(INSTANTIATION_ERROR, TermNil, "X is A<<B");
       setregs();
       FAIL();
       ENDP(pt0);
@@ -9332,7 +9332,7 @@ _YAP_absmi(int inp)
       BEGP(pt0);
       deref_body(d1, pt0, sll_y_vv_nvar_unk, sll_y_vv_nvar_nvar);
       saveregs();
-      _YAP_Error(INSTANTIATION_ERROR, TermNil, "X is A<<B");
+      Yap_Error(INSTANTIATION_ERROR, TermNil, "X is A<<B");
       setregs();
       FAIL();
       ENDP(pt0);
@@ -9373,7 +9373,7 @@ _YAP_absmi(int inp)
       BEGP(pt0);
       deref_body(d0, pt0, sll_y_vc_unk, sll_y_vc_nvar);
       saveregs();
-      _YAP_Error(INSTANTIATION_ERROR, TermNil, "X is A<<B");
+      Yap_Error(INSTANTIATION_ERROR, TermNil, "X is A<<B");
       setregs();
       FAIL();
       ENDP(pt0);
@@ -9414,7 +9414,7 @@ _YAP_absmi(int inp)
       BEGP(pt0);
       deref_body(d0, pt0, sll_y_cv_unk, sll_y_cv_nvar);
       saveregs();
-      _YAP_Error(INSTANTIATION_ERROR, TermNil, "X is A<<B");
+      Yap_Error(INSTANTIATION_ERROR, TermNil, "X is A<<B");
       setregs();
       FAIL();
       ENDP(pt0);
@@ -9450,7 +9450,7 @@ _YAP_absmi(int inp)
       BEGP(pt0);
       deref_body(d0, pt0, slr_vv_unk, slr_vv_nvar);
       saveregs();
-      _YAP_Error(INSTANTIATION_ERROR, TermNil, "X is A>>B");
+      Yap_Error(INSTANTIATION_ERROR, TermNil, "X is A>>B");
       setregs();
       FAIL();
       ENDP(pt0);
@@ -9458,7 +9458,7 @@ _YAP_absmi(int inp)
       BEGP(pt0);
       deref_body(d1, pt0, slr_vv_nvar_unk, slr_vv_nvar_nvar);
       saveregs();
-      _YAP_Error(INSTANTIATION_ERROR, TermNil, "X is A>>B");
+      Yap_Error(INSTANTIATION_ERROR, TermNil, "X is A>>B");
       setregs();
       FAIL();
       ENDP(pt0);
@@ -9492,7 +9492,7 @@ _YAP_absmi(int inp)
       BEGP(pt0);
       deref_body(d0, pt0, slr_vc_unk, slr_vc_nvar);
       saveregs();
-      _YAP_Error(INSTANTIATION_ERROR, TermNil, "X is A>>B");
+      Yap_Error(INSTANTIATION_ERROR, TermNil, "X is A>>B");
       setregs();
       FAIL();
       ENDP(pt0);
@@ -9525,7 +9525,7 @@ _YAP_absmi(int inp)
       BEGP(pt0);
       deref_body(d0, pt0, slr_cv_unk, slr_cv_nvar);
       saveregs();
-      _YAP_Error(INSTANTIATION_ERROR, TermNil, "X is A>>B");
+      Yap_Error(INSTANTIATION_ERROR, TermNil, "X is A>>B");
       setregs();
       FAIL();
       ENDP(pt0);
@@ -9568,7 +9568,7 @@ _YAP_absmi(int inp)
       BEGP(pt0);
       deref_body(d0, pt0, slr_y_vv_unk, slr_y_vv_nvar);
       saveregs();
-      _YAP_Error(INSTANTIATION_ERROR, TermNil, "X is A>>B");
+      Yap_Error(INSTANTIATION_ERROR, TermNil, "X is A>>B");
       setregs();
       FAIL();
       ENDP(pt0);
@@ -9576,7 +9576,7 @@ _YAP_absmi(int inp)
       BEGP(pt0);
       deref_body(d1, pt0, slr_y_vv_nvar_unk, slr_y_vv_nvar_nvar);
       saveregs();
-      _YAP_Error(INSTANTIATION_ERROR, TermNil, "X is A>>B");
+      Yap_Error(INSTANTIATION_ERROR, TermNil, "X is A>>B");
       setregs();
       FAIL();
       ENDP(pt0);
@@ -9617,7 +9617,7 @@ _YAP_absmi(int inp)
       BEGP(pt0);
       deref_body(d0, pt0, slr_y_vc_unk, slr_y_vc_nvar);
       saveregs();
-      _YAP_Error(INSTANTIATION_ERROR, TermNil, "X is A>>B");
+      Yap_Error(INSTANTIATION_ERROR, TermNil, "X is A>>B");
       setregs();
       ENDP(pt0);
       ENDD(d0);
@@ -9656,7 +9656,7 @@ _YAP_absmi(int inp)
       BEGP(pt0);
       deref_body(d0, pt0, slr_y_cv_unk, slr_y_cv_nvar);
       saveregs();
-      _YAP_Error(INSTANTIATION_ERROR, TermNil, "X is A>>B");
+      Yap_Error(INSTANTIATION_ERROR, TermNil, "X is A>>B");
       setregs();
       FAIL();
       ENDP(pt0);
@@ -9914,7 +9914,7 @@ _YAP_absmi(int inp)
 
       Op(p_equal, e);
       save_hb();
-      if (_YAP_IUnify(ARG1, ARG2) == FALSE) {
+      if (Yap_IUnify(ARG1, ARG2) == FALSE) {
 	FAIL();
       }
       PREG = NEXTOP(PREG, e);
@@ -9923,8 +9923,8 @@ _YAP_absmi(int inp)
 
       Op(p_dif, e);
 #ifdef LOW_LEVEL_TRACER
-      if (_YAP_do_low_level_trace)
-	low_level_trace(enter_pred,RepPredProp(_YAP_GetPredPropByFunc(_YAP_MkFunctor(_YAP_LookupAtom("\\="),2),0)),XREGS+1);
+      if (Yap_do_low_level_trace)
+	low_level_trace(enter_pred,RepPredProp(Yap_GetPredPropByFunc(Yap_MkFunctor(Yap_LookupAtom("\\="),2),0)),XREGS+1);
 #endif	/* LOW_LEVEL_TRACE */
       BEGD(d0);
       BEGD(d1);
@@ -9951,7 +9951,7 @@ _YAP_absmi(int inp)
 	 * woken goals that should be ok, but otherwise we need
 	 * to restore WokenGoals to its previous value.
 	 */
-	CELL OldWokenGoals = _YAP_ReadTimedVar(WokenGoals);
+	CELL OldWokenGoals = Yap_ReadTimedVar(WokenGoals);
 
 #endif
 	/* We will have to look inside compound terms */
@@ -9967,7 +9967,7 @@ _YAP_absmi(int inp)
 	B = (choiceptr) H;
 	SET_BB(B);
 	save_hb();
-	if (_YAP_IUnify(d0, d1) == TRUE) {
+	if (Yap_IUnify(d0, d1) == TRUE) {
 	  /* restore B, no need to restore HB */
 	  B = pt1;
 	  FAIL();
@@ -9977,7 +9977,7 @@ _YAP_absmi(int inp)
 	B = pt1;
 	SET_BB(PROTECT_FROZEN_B(pt1));
 	ENDCHO(pt1);
-	/* untrail all bindings made by _YAP_IUnify */
+	/* untrail all bindings made by Yap_IUnify */
 	while (TR != pt0) {
 	  BEGD(d1);
 	  d1 = TrailTerm(--TR);
@@ -9995,7 +9995,7 @@ _YAP_absmi(int inp)
 	HBREG = B->cp_h;
 #ifdef COROUTINING
 	/* now restore Woken Goals to its old value */
-	_YAP_UpdateTimedVar(WokenGoals, OldWokenGoals);
+	Yap_UpdateTimedVar(WokenGoals, OldWokenGoals);
 #endif
       }
       GONext();
@@ -10017,8 +10017,8 @@ _YAP_absmi(int inp)
 
       Op(p_eq, e);
 #ifdef LOW_LEVEL_TRACER
-      if (_YAP_do_low_level_trace)
-	low_level_trace(enter_pred,RepPredProp(_YAP_GetPredPropByFunc(_YAP_MkFunctor(_YAP_LookupAtom("=="),2),0)),XREGS+1);
+      if (Yap_do_low_level_trace)
+	low_level_trace(enter_pred,RepPredProp(Yap_GetPredPropByFunc(Yap_MkFunctor(Yap_LookupAtom("=="),2),0)),XREGS+1);
 #endif	/* LOW_LEVEL_TRACE */
       BEGD(d0);
       BEGD(d1);
@@ -10074,7 +10074,7 @@ _YAP_absmi(int inp)
 #ifdef USE_GMP
 	  case (CELL)FunctorBigInt:
 	    if (f1 != FunctorBigInt) FAIL();
-	    if (mpz_cmp(_YAP_BigIntOfTerm(d0), _YAP_BigIntOfTerm(d1)) == 0) GONext();
+	    if (mpz_cmp(Yap_BigIntOfTerm(d0), Yap_BigIntOfTerm(d1)) == 0) GONext();
 	    FAIL();
 #endif
 	  case (CELL)FunctorDouble:
@@ -10138,11 +10138,11 @@ _YAP_absmi(int inp)
 
       Op(p_arg_vv, xxx);
 #ifdef LOW_LEVEL_TRACER
-      if (_YAP_do_low_level_trace) {
+      if (Yap_do_low_level_trace) {
 	H[0] = XREG(PREG->u.xxx.x1);
 	H[1] = XREG(PREG->u.xxx.x2);
 	RESET_VARIABLE(H+2);
-	low_level_trace(enter_pred,RepPredProp(_YAP_GetPredPropByFunc(_YAP_MkFunctor(_YAP_LookupAtom("arg"),3),0)),H);
+	low_level_trace(enter_pred,RepPredProp(Yap_GetPredPropByFunc(Yap_MkFunctor(Yap_LookupAtom("arg"),3),0)),H);
       }
 #endif	/* LOW_LEVEL_TRACE */
       BEGD(d0);
@@ -10156,7 +10156,7 @@ _YAP_absmi(int inp)
 	d0 = LongIntOfTerm(d0);
       } else {
 	saveregs();
-	_YAP_Error(TYPE_ERROR_INTEGER,d0,"arg 1 of arg/3");
+	Yap_Error(TYPE_ERROR_INTEGER,d0,"arg 1 of arg/3");
 	setregs();
 	FAIL();
       }
@@ -10180,7 +10180,7 @@ _YAP_absmi(int inp)
 	  /* don't complain here for Prolog compatibility 
 	  if ((Int)d0 <= 0) {
 	    saveregs();
-	    _YAP_Error(DOMAIN_ERROR_NOT_LESS_THAN_ZERO,
+	    Yap_Error(DOMAIN_ERROR_NOT_LESS_THAN_ZERO,
 		  MkIntegerTerm(d0),"arg 1 of arg/3");	    
 	    setregs();
 	  }
@@ -10198,7 +10198,7 @@ _YAP_absmi(int inp)
 	if (d0 != 1 && d0 != 2) {
 	  if ((Int)d0 < 0) {
 	    saveregs();
-	    _YAP_Error(DOMAIN_ERROR_NOT_LESS_THAN_ZERO,
+	    Yap_Error(DOMAIN_ERROR_NOT_LESS_THAN_ZERO,
 		  MkIntegerTerm(d0),"arg 1 of arg/3");
 	    setregs();
 	  }
@@ -10211,7 +10211,7 @@ _YAP_absmi(int inp)
       }
       else {
 	saveregs();
-	_YAP_Error(TYPE_ERROR_COMPOUND, d1, "arg 2 of arg/3");
+	Yap_Error(TYPE_ERROR_COMPOUND, d1, "arg 2 of arg/3");
 	setregs();
 	FAIL();
       }
@@ -10219,7 +10219,7 @@ _YAP_absmi(int inp)
       BEGP(pt0);
       deref_body(d1, pt0, arg_arg2_unk, arg_arg2_nvar);
       saveregs();
-      _YAP_Error(INSTANTIATION_ERROR, d1,"arg 2 of arg/3");;
+      Yap_Error(INSTANTIATION_ERROR, d1,"arg 2 of arg/3");;
       setregs();
       ENDP(pt0);
       FAIL();
@@ -10228,7 +10228,7 @@ _YAP_absmi(int inp)
       BEGP(pt0);
       deref_body(d0, pt0, arg_arg1_unk, arg_arg1_nvar);
       saveregs();
-      _YAP_Error(INSTANTIATION_ERROR, d0, "arg 1 of arg/3");;
+      Yap_Error(INSTANTIATION_ERROR, d0, "arg 1 of arg/3");;
       setregs();
       ENDP(pt0);
       FAIL();
@@ -10237,13 +10237,13 @@ _YAP_absmi(int inp)
 
       Op(p_arg_cv, xxc);
 #ifdef LOW_LEVEL_TRACER
-      if (_YAP_do_low_level_trace) {
+      if (Yap_do_low_level_trace) {
 	CELL *Ho = H;
 	Term t = MkIntegerTerm(PREG->u.xxc.c); 
 	H[0] =  t;
 	H[1] = XREG(PREG->u.xxc.xi);
 	RESET_VARIABLE(H+2);
-	low_level_trace(enter_pred,RepPredProp(_YAP_GetPredPropByFunc(_YAP_MkFunctor(_YAP_LookupAtom("arg"),3),0)),H);
+	low_level_trace(enter_pred,RepPredProp(Yap_GetPredPropByFunc(Yap_MkFunctor(Yap_LookupAtom("arg"),3),0)),H);
 	H = Ho;
       }
 #endif	/* LOW_LEVEL_TRACE */
@@ -10268,7 +10268,7 @@ _YAP_absmi(int inp)
 	  /* don't complain here for Prolog compatibility 
 	  if ((Int)d0 <= 0) {
 	    saveregs();
-	    _YAP_Error(DOMAIN_ERROR_NOT_LESS_THAN_ZERO,
+	    Yap_Error(DOMAIN_ERROR_NOT_LESS_THAN_ZERO,
 		  MkIntegerTerm(d0),"arg 1 of arg/3");	    
 	    setregs();
 	  }
@@ -10286,7 +10286,7 @@ _YAP_absmi(int inp)
 	if (d0 != 1 && d0 != 2) {
 	  if ((Int)d0 < 0) {
 	    saveregs();
-	    _YAP_Error(DOMAIN_ERROR_NOT_LESS_THAN_ZERO,
+	    Yap_Error(DOMAIN_ERROR_NOT_LESS_THAN_ZERO,
 		  MkIntegerTerm(d0),"arg 1 of arg/3");
 	    setregs();
 	  }
@@ -10299,7 +10299,7 @@ _YAP_absmi(int inp)
       }
       else {
 	saveregs();
-	_YAP_Error(TYPE_ERROR_COMPOUND, d1, "arg 2 of arg/3");
+	Yap_Error(TYPE_ERROR_COMPOUND, d1, "arg 2 of arg/3");
 	setregs();
 	FAIL();
       }
@@ -10307,7 +10307,7 @@ _YAP_absmi(int inp)
       BEGP(pt0);
       deref_body(d1, pt0, arg_arg2_vc_unk, arg_arg2_vc_nvar);
       saveregs();
-      _YAP_Error(INSTANTIATION_ERROR, d1,"arg 2 of arg/3");;
+      Yap_Error(INSTANTIATION_ERROR, d1,"arg 2 of arg/3");;
       setregs();
       ENDP(pt0);
       FAIL();
@@ -10318,11 +10318,11 @@ _YAP_absmi(int inp)
 
       Op(p_arg_y_vv, yxx);
 #ifdef LOW_LEVEL_TRACER
-      if (_YAP_do_low_level_trace) {
+      if (Yap_do_low_level_trace) {
 	H[0] = XREG(PREG->u.yxx.x1);
 	H[1] = XREG(PREG->u.yxx.x2);
 	RESET_VARIABLE(H+2);
-	low_level_trace(enter_pred,RepPredProp(_YAP_GetPredPropByFunc(_YAP_MkFunctor(_YAP_LookupAtom("arg"),3),0)),H);
+	low_level_trace(enter_pred,RepPredProp(Yap_GetPredPropByFunc(Yap_MkFunctor(Yap_LookupAtom("arg"),3),0)),H);
       }
 #endif	/* LOW_LEVEL_TRACE */
       BEGD(d0);
@@ -10336,7 +10336,7 @@ _YAP_absmi(int inp)
 	d0 = LongIntOfTerm(d0);
       } else {
 	saveregs();
-	_YAP_Error(TYPE_ERROR_INTEGER,d0,"arg 1 of arg/3");
+	Yap_Error(TYPE_ERROR_INTEGER,d0,"arg 1 of arg/3");
 	setregs();
 	FAIL();
       }
@@ -10360,7 +10360,7 @@ _YAP_absmi(int inp)
 	  /* don't complain here for Prolog compatibility 
 	  if ((Int)d0 <= 0) {
 	    saveregs();
-	    _YAP_Error(DOMAIN_ERROR_NOT_LESS_THAN_ZERO,
+	    Yap_Error(DOMAIN_ERROR_NOT_LESS_THAN_ZERO,
 		  MkIntegerTerm(d0),"arg 1 of arg/3");	    
 	    saveregs();
 	  }
@@ -10385,7 +10385,7 @@ _YAP_absmi(int inp)
 	if (d0 != 1 && d0 != 2) {
 	  if ((Int)d0 < 0) {
 	    saveregs();
-	    _YAP_Error(DOMAIN_ERROR_NOT_LESS_THAN_ZERO,
+	    Yap_Error(DOMAIN_ERROR_NOT_LESS_THAN_ZERO,
 		  MkIntegerTerm(d0),"arg 1 of arg/3");
 	    setregs();
 	  }
@@ -10405,7 +10405,7 @@ _YAP_absmi(int inp)
       }
       else {
 	saveregs();
-	_YAP_Error(TYPE_ERROR_COMPOUND, d1, "arg 2 of arg/3");
+	Yap_Error(TYPE_ERROR_COMPOUND, d1, "arg 2 of arg/3");
 	setregs();
 	FAIL();
       }
@@ -10413,7 +10413,7 @@ _YAP_absmi(int inp)
       BEGP(pt0);
       deref_body(d1, pt0, arg_y_arg2_unk, arg_y_arg2_nvar);
       saveregs();
-      _YAP_Error(INSTANTIATION_ERROR, d1,"arg 2 of arg/3");;
+      Yap_Error(INSTANTIATION_ERROR, d1,"arg 2 of arg/3");;
       setregs();
       ENDP(pt0);
       FAIL();
@@ -10422,7 +10422,7 @@ _YAP_absmi(int inp)
       BEGP(pt0);
       deref_body(d0, pt0, arg_y_arg1_unk, arg_y_arg1_nvar);
       saveregs();
-      _YAP_Error(INSTANTIATION_ERROR, d0, "arg 1 of arg/3");;
+      Yap_Error(INSTANTIATION_ERROR, d0, "arg 1 of arg/3");;
       setregs();
       ENDP(pt0);
       FAIL();
@@ -10431,13 +10431,13 @@ _YAP_absmi(int inp)
 
       Op(p_arg_y_cv, xxc);
 #ifdef LOW_LEVEL_TRACER
-      if (_YAP_do_low_level_trace) {
+      if (Yap_do_low_level_trace) {
 	CELL *Ho = H;
 	Term t = MkIntegerTerm(PREG->u.yxc.c); 
 	H[0] =  t;
 	H[1] = XREG(PREG->u.yxc.xi);
 	RESET_VARIABLE(H+2);
-	low_level_trace(enter_pred,RepPredProp(_YAP_GetPredPropByFunc(_YAP_MkFunctor(_YAP_LookupAtom("arg"),3),0)),H);
+	low_level_trace(enter_pred,RepPredProp(Yap_GetPredPropByFunc(Yap_MkFunctor(Yap_LookupAtom("arg"),3),0)),H);
 	H = Ho;
       }
 #endif	/* LOW_LEVEL_TRACE */
@@ -10462,7 +10462,7 @@ _YAP_absmi(int inp)
 	  /* don't complain here for Prolog compatibility 
 	  if ((Int)d0 <= 0) {
 	    saveregs();
-	    _YAP_Error(DOMAIN_ERROR_NOT_LESS_THAN_ZERO,
+	    Yap_Error(DOMAIN_ERROR_NOT_LESS_THAN_ZERO,
 		  MkIntegerTerm(d0),"arg 1 of arg/3");	    
 	    setregs();
 	  }
@@ -10487,7 +10487,7 @@ _YAP_absmi(int inp)
 	if (d0 != 1 && d0 != 2) {
 	  if ((Int)d0 < 0) {
 	    saveregs();
-	    _YAP_Error(DOMAIN_ERROR_NOT_LESS_THAN_ZERO,
+	    Yap_Error(DOMAIN_ERROR_NOT_LESS_THAN_ZERO,
 		  MkIntegerTerm(d0),"arg 1 of arg/3");
 	    setregs();
 	  }
@@ -10507,7 +10507,7 @@ _YAP_absmi(int inp)
       }
       else {
 	saveregs();
-	_YAP_Error(TYPE_ERROR_COMPOUND, d1, "arg 2 of arg/3");
+	Yap_Error(TYPE_ERROR_COMPOUND, d1, "arg 2 of arg/3");
 	setregs();
 	FAIL();
       }
@@ -10515,7 +10515,7 @@ _YAP_absmi(int inp)
       BEGP(pt0);
       deref_body(d1, pt0, arg_y_arg2_vc_unk, arg_y_arg2_vc_nvar);
       saveregs();
-      _YAP_Error(INSTANTIATION_ERROR, d1,"arg 2 of arg/3");;
+      Yap_Error(INSTANTIATION_ERROR, d1,"arg 2 of arg/3");;
       setregs();
       ENDP(pt0);
       FAIL();
@@ -10528,11 +10528,11 @@ _YAP_absmi(int inp)
       /* A1 is a variable */
     restart_func2s:
 #ifdef LOW_LEVEL_TRACER
-      if (_YAP_do_low_level_trace) {
+      if (Yap_do_low_level_trace) {
 	RESET_VARIABLE(H);
 	H[1] = XREG(PREG->u.xxx.x1);
 	H[2] = XREG(PREG->u.xxx.x2);
-	low_level_trace(enter_pred,RepPredProp(_YAP_GetPredPropByFunc(_YAP_MkFunctor(_YAP_LookupAtom("functor"),3),0)),H);
+	low_level_trace(enter_pred,RepPredProp(Yap_GetPredPropByFunc(Yap_MkFunctor(Yap_LookupAtom("functor"),3),0)),H);
       }
 #endif	/* LOW_LEVEL_TRACE */
       /* We have to build the structure */
@@ -10550,13 +10550,13 @@ _YAP_absmi(int inp)
 	d1 = IntegerOfTerm(d1);
       else {
 	saveregs();
-	_YAP_Error(TYPE_ERROR_INTEGER,d1,"functor/3");
+	Yap_Error(TYPE_ERROR_INTEGER,d1,"functor/3");
 	setregs();
 	FAIL();
       }
       if (!IsAtomicTerm(d0)) {
 	saveregs();
-	_YAP_Error(TYPE_ERROR_ATOM,d0,"functor/3");
+	Yap_Error(TYPE_ERROR_ATOM,d0,"functor/3");
 	setregs();
 	FAIL();
       }
@@ -10577,7 +10577,7 @@ _YAP_absmi(int inp)
 	/* now let's build a compound term */
 	if (!IsAtomTerm(d0)) {
 	  saveregs();
-	  _YAP_Error(TYPE_ERROR_ATOM,d0,"functor/3");
+	  Yap_Error(TYPE_ERROR_ATOM,d0,"functor/3");
 	  setregs();
 	  FAIL();
 	}
@@ -10586,15 +10586,15 @@ _YAP_absmi(int inp)
 	  FAIL();
 	}
 	else
-	  d0 = (CELL) _YAP_MkFunctor(AtomOfTerm(d0), (Int) d1);
+	  d0 = (CELL) Yap_MkFunctor(AtomOfTerm(d0), (Int) d1);
 	pt1 = H;
 	*pt1++ = d0;
 	d0 = AbsAppl(H);
 	if (pt1+d1 > ENV || pt1+d1 > (CELL *)B) {
 	  /* make sure we have something to show for our trouble */
 	  saveregs();
-	  if (!_YAP_gc(0, YREG, NEXTOP(NEXTOP(PREG,xxx),sla))) {
-	    _YAP_Error(OUT_OF_STACK_ERROR,TermNil,_YAP_ErrorMessage);
+	  if (!Yap_gc(0, YREG, NEXTOP(NEXTOP(PREG,xxx),sla))) {
+	    Yap_Error(OUT_OF_STACK_ERROR,TermNil,Yap_ErrorMessage);
 	    setregs();
 	    JMPNext();
 	  } else {
@@ -10620,7 +10620,7 @@ _YAP_absmi(int inp)
 	GONext();
       }	else {
 	saveregs();
-	_YAP_Error(DOMAIN_ERROR_NOT_LESS_THAN_ZERO,MkIntegerTerm(d1),"functor/3");
+	Yap_Error(DOMAIN_ERROR_NOT_LESS_THAN_ZERO,MkIntegerTerm(d1),"functor/3");
 	setregs();
 	FAIL();
       }
@@ -10628,7 +10628,7 @@ _YAP_absmi(int inp)
       BEGP(pt1);
       deref_body(d1, pt1, func2s_unk2, func2s_nvar2);
       saveregs();
-      _YAP_Error(INSTANTIATION_ERROR, d1, "functor/3");
+      Yap_Error(INSTANTIATION_ERROR, d1, "functor/3");
       setregs();
       ENDP(pt1);
       /* Oops, third argument was unbound */
@@ -10638,7 +10638,7 @@ _YAP_absmi(int inp)
       BEGP(pt1);
       deref_body(d0, pt1, func2s_unk, func2s_nvar);
       saveregs();
-      _YAP_Error(INSTANTIATION_ERROR, d0, "functor/3");
+      Yap_Error(INSTANTIATION_ERROR, d0, "functor/3");
       setregs();
       ENDP(pt1);
       /* Oops, second argument was unbound too */
@@ -10650,11 +10650,11 @@ _YAP_absmi(int inp)
       /* A1 is a variable */
     restart_func2s_cv:
 #ifdef LOW_LEVEL_TRACER
-      if (_YAP_do_low_level_trace) {
+      if (Yap_do_low_level_trace) {
 	RESET_VARIABLE(H);
 	H[1] = XREG(PREG->u.xcx.c);
 	H[2] = XREG(PREG->u.xcx.xi);
-	low_level_trace(enter_pred,RepPredProp(_YAP_GetPredPropByFunc(_YAP_MkFunctor(_YAP_LookupAtom("functor"),3),0)),H);
+	low_level_trace(enter_pred,RepPredProp(Yap_GetPredPropByFunc(Yap_MkFunctor(Yap_LookupAtom("functor"),3),0)),H);
       }
 #endif	/* LOW_LEVEL_TRACE */
       BEGD(d0);
@@ -10670,7 +10670,7 @@ _YAP_absmi(int inp)
 	d1 = IntegerOfTerm(d1);
       else {
 	saveregs();
-	_YAP_Error(TYPE_ERROR_INTEGER,d1,"functor/3");
+	Yap_Error(TYPE_ERROR_INTEGER,d1,"functor/3");
 	setregs();
 	FAIL();
       }
@@ -10690,7 +10690,7 @@ _YAP_absmi(int inp)
 	/* now let's build a compound term */
 	if (!IsAtomTerm(d0)) {
 	  saveregs();
-	  _YAP_Error(TYPE_ERROR_ATOM,d0,"functor/3");
+	  Yap_Error(TYPE_ERROR_ATOM,d0,"functor/3");
 	  setregs();
 	  FAIL();
 	}
@@ -10699,15 +10699,15 @@ _YAP_absmi(int inp)
 	  FAIL();
 	}
 	else
-	  d0 = (CELL) _YAP_MkFunctor(AtomOfTerm(d0), (Int) d1);
+	  d0 = (CELL) Yap_MkFunctor(AtomOfTerm(d0), (Int) d1);
 	pt1 = H;
 	*pt1++ = d0;
 	d0 = AbsAppl(H);
 	if (pt1+d1 > ENV || pt1+d1 > (CELL *)B) {
 	  /* make sure we have something to show for our trouble */
 	  saveregs();
-	  if (!_YAP_gc(0, YREG, NEXTOP(NEXTOP(PREG,xcx),sla))) {
-	    _YAP_Error(OUT_OF_STACK_ERROR,TermNil,_YAP_ErrorMessage);
+	  if (!Yap_gc(0, YREG, NEXTOP(NEXTOP(PREG,xcx),sla))) {
+	    Yap_Error(OUT_OF_STACK_ERROR,TermNil,Yap_ErrorMessage);
 	    setregs();
 	    JMPNext();
 	  } else {
@@ -10733,7 +10733,7 @@ _YAP_absmi(int inp)
 	GONext();
       }	else {
 	saveregs();
-	_YAP_Error(DOMAIN_ERROR_NOT_LESS_THAN_ZERO,MkIntegerTerm(d1),"functor/3");
+	Yap_Error(DOMAIN_ERROR_NOT_LESS_THAN_ZERO,MkIntegerTerm(d1),"functor/3");
 	setregs();
 	FAIL();
       }
@@ -10741,7 +10741,7 @@ _YAP_absmi(int inp)
       BEGP(pt1);
       deref_body(d1, pt1, func2s_unk2_cv, func2s_nvar2_cv);
       saveregs();
-      _YAP_Error(INSTANTIATION_ERROR, d1, "functor/3");
+      Yap_Error(INSTANTIATION_ERROR, d1, "functor/3");
       setregs();
       ENDP(pt1);
       /* Oops, third argument was unbound */
@@ -10754,7 +10754,7 @@ _YAP_absmi(int inp)
       /* A1 is a variable */
     restart_func2s_vc:
 #ifdef LOW_LEVEL_TRACER
-      if (_YAP_do_low_level_trace) {
+      if (Yap_do_low_level_trace) {
 	Term ti;
 	CELL *hi = H;
 
@@ -10762,7 +10762,7 @@ _YAP_absmi(int inp)
 	RESET_VARIABLE(H);
 	H[1] = XREG(PREG->u.xxc.xi);
 	H[2] = ti;
-	low_level_trace(enter_pred,RepPredProp(_YAP_GetPredPropByFunc(_YAP_MkFunctor(_YAP_LookupAtom("functor"),3),0)),H);
+	low_level_trace(enter_pred,RepPredProp(Yap_GetPredPropByFunc(Yap_MkFunctor(Yap_LookupAtom("functor"),3),0)),H);
 	H = hi;
       }
 #endif	/* LOW_LEVEL_TRACE */
@@ -10775,7 +10775,7 @@ _YAP_absmi(int inp)
       d1 = PREG->u.xxc.c;
       if (!IsAtomicTerm(d0)) {
 	saveregs();
-	_YAP_Error(TYPE_ERROR_ATOM,d0,"functor/3");
+	Yap_Error(TYPE_ERROR_ATOM,d0,"functor/3");
 	setregs();
 	FAIL();
       }
@@ -10800,7 +10800,7 @@ _YAP_absmi(int inp)
       }
       if (!IsAtomTerm(d0)) {
 	saveregs();
-	_YAP_Error(TYPE_ERROR_ATOM,d0,"functor/3");
+	Yap_Error(TYPE_ERROR_ATOM,d0,"functor/3");
 	setregs();
 	FAIL();
       }
@@ -10809,15 +10809,15 @@ _YAP_absmi(int inp)
 	FAIL();
       }
       else
-	d0 = (CELL) _YAP_MkFunctor(AtomOfTerm(d0), (Int) d1);
+	d0 = (CELL) Yap_MkFunctor(AtomOfTerm(d0), (Int) d1);
       pt1 = H;
       *pt1++ = d0;
       d0 = AbsAppl(H);
       if (pt1+d1 > ENV || pt1+d1 > (CELL *)B) {
 	/* make sure we have something to show for our trouble */
 	saveregs();
-	if (!_YAP_gc(0, YREG, NEXTOP(NEXTOP(PREG,xxc),sla))) {
-	  _YAP_Error(OUT_OF_STACK_ERROR,TermNil,_YAP_ErrorMessage);
+	if (!Yap_gc(0, YREG, NEXTOP(NEXTOP(PREG,xxc),sla))) {
+	  Yap_Error(OUT_OF_STACK_ERROR,TermNil,Yap_ErrorMessage);
 	  setregs();
 	  JMPNext();
 	} else {
@@ -10842,7 +10842,7 @@ _YAP_absmi(int inp)
       BEGP(pt1);
       deref_body(d0, pt1, func2s_unk_vc, func2s_nvar_vc);
       saveregs();
-      _YAP_Error(INSTANTIATION_ERROR, d0, "functor/3");
+      Yap_Error(INSTANTIATION_ERROR, d0, "functor/3");
       setregs();
       ENDP(pt1);
       /* Oops, second argument was unbound too */
@@ -10854,11 +10854,11 @@ _YAP_absmi(int inp)
       /* A1 is a variable */
     restart_func2s_y:
 #ifdef LOW_LEVEL_TRACER
-      if (_YAP_do_low_level_trace) {
+      if (Yap_do_low_level_trace) {
 	RESET_VARIABLE(H);
 	H[1] = XREG(PREG->u.yxx.x1);
 	H[2] = XREG(PREG->u.yxx.x2);
-	low_level_trace(enter_pred,RepPredProp(_YAP_GetPredPropByFunc(_YAP_MkFunctor(_YAP_LookupAtom("functor"),3),0)),H);
+	low_level_trace(enter_pred,RepPredProp(Yap_GetPredPropByFunc(Yap_MkFunctor(Yap_LookupAtom("functor"),3),0)),H);
       }
 #endif	/* LOW_LEVEL_TRACE */
       /* We have to build the structure */
@@ -10876,13 +10876,13 @@ _YAP_absmi(int inp)
 	d1 = IntegerOfTerm(d1);
       else {
 	saveregs();
-	_YAP_Error(TYPE_ERROR_INTEGER,d1,"functor/3");
+	Yap_Error(TYPE_ERROR_INTEGER,d1,"functor/3");
 	setregs();
 	FAIL();
       }
       if (!IsAtomicTerm(d0)) {
 	saveregs();
-	_YAP_Error(TYPE_ERROR_ATOM,d0,"functor/3");
+	Yap_Error(TYPE_ERROR_ATOM,d0,"functor/3");
 	setregs();
 	FAIL();
       }
@@ -10907,7 +10907,7 @@ _YAP_absmi(int inp)
 	/* now let's build a compound term */
 	if (!IsAtomTerm(d0)) {
 	  saveregs();
-	  _YAP_Error(TYPE_ERROR_ATOM,d0,"functor/3");
+	  Yap_Error(TYPE_ERROR_ATOM,d0,"functor/3");
 	  setregs();
 	  FAIL();
 	}
@@ -10916,15 +10916,15 @@ _YAP_absmi(int inp)
 	  FAIL();
 	}
 	else
-	  d0 = (CELL) _YAP_MkFunctor(AtomOfTerm(d0), (Int) d1);
+	  d0 = (CELL) Yap_MkFunctor(AtomOfTerm(d0), (Int) d1);
 	pt1 = H;
 	*pt1++ = d0;
 	d0 = AbsAppl(H);
 	if (pt1+d1 > ENV || pt1+d1 > (CELL *)B) {
 	  /* make sure we have something to show for our trouble */
 	  saveregs();
-	  if (!_YAP_gc(0, YREG, NEXTOP(NEXTOP(PREG,yxx),sla))) {
-	    _YAP_Error(OUT_OF_STACK_ERROR,TermNil,_YAP_ErrorMessage);
+	  if (!Yap_gc(0, YREG, NEXTOP(NEXTOP(PREG,yxx),sla))) {
+	    Yap_Error(OUT_OF_STACK_ERROR,TermNil,Yap_ErrorMessage);
 	    setregs();
 	    JMPNext();
 	  } else {
@@ -10964,7 +10964,7 @@ _YAP_absmi(int inp)
 	GONext();
       }	else {
 	saveregs();
-	_YAP_Error(DOMAIN_ERROR_NOT_LESS_THAN_ZERO,MkIntegerTerm(d1),"functor/3");
+	Yap_Error(DOMAIN_ERROR_NOT_LESS_THAN_ZERO,MkIntegerTerm(d1),"functor/3");
 	setregs();
 	FAIL();
       }
@@ -10972,7 +10972,7 @@ _YAP_absmi(int inp)
       BEGP(pt1);
       deref_body(d1, pt1, func2s_y_unk2, func2s_y_nvar2);
       saveregs();
-      _YAP_Error(INSTANTIATION_ERROR, d1, "functor/3");
+      Yap_Error(INSTANTIATION_ERROR, d1, "functor/3");
       setregs();
       ENDP(pt1);
       /* Oops, third argument was unbound */
@@ -10982,7 +10982,7 @@ _YAP_absmi(int inp)
       BEGP(pt1);
       deref_body(d0, pt1, func2s_y_unk, func2s_y_nvar);
       saveregs();
-      _YAP_Error(INSTANTIATION_ERROR, d0, "functor/3");
+      Yap_Error(INSTANTIATION_ERROR, d0, "functor/3");
       setregs();
       ENDP(pt1);
       /* Oops, second argument was unbound too */
@@ -10994,11 +10994,11 @@ _YAP_absmi(int inp)
       /* A1 is a variable */
     restart_func2s_y_cv:
 #ifdef LOW_LEVEL_TRACER
-      if (_YAP_do_low_level_trace) {
+      if (Yap_do_low_level_trace) {
 	RESET_VARIABLE(H);
 	H[1] = XREG(PREG->u.ycx.c);
 	H[2] = XREG(PREG->u.ycx.xi);
-	low_level_trace(enter_pred,RepPredProp(_YAP_GetPredPropByFunc(_YAP_MkFunctor(_YAP_LookupAtom("functor"),3),0)),H);
+	low_level_trace(enter_pred,RepPredProp(Yap_GetPredPropByFunc(Yap_MkFunctor(Yap_LookupAtom("functor"),3),0)),H);
       }
 #endif	/* LOW_LEVEL_TRACE */
       /* We have to build the structure */
@@ -11014,7 +11014,7 @@ _YAP_absmi(int inp)
 	d1 = IntegerOfTerm(d1);
       } else {
 	saveregs();
-	_YAP_Error(TYPE_ERROR_INTEGER,d1,"functor/3");
+	Yap_Error(TYPE_ERROR_INTEGER,d1,"functor/3");
 	setregs();
 	FAIL();
       }
@@ -11042,7 +11042,7 @@ _YAP_absmi(int inp)
 	/* now let's build a compound term */
 	if (!IsAtomTerm(d0)) {
 	  saveregs();
-	  _YAP_Error(TYPE_ERROR_ATOM,d0,"functor/3");
+	  Yap_Error(TYPE_ERROR_ATOM,d0,"functor/3");
 	  setregs();
 	  FAIL();
 	}
@@ -11050,7 +11050,7 @@ _YAP_absmi(int inp)
 	  FAIL();
 	}
 	else
-	  d0 = (CELL) _YAP_MkFunctor(AtomOfTerm(d0), (Int) d1);
+	  d0 = (CELL) Yap_MkFunctor(AtomOfTerm(d0), (Int) d1);
 	BEGP(pt1);
 	pt1 = H;
 	*pt1++ = d0;
@@ -11058,8 +11058,8 @@ _YAP_absmi(int inp)
 	if (pt1+d1 > ENV || pt1+d1 > (CELL *)B) {
 	  /* make sure we have something to show for our trouble */
 	  saveregs();
-	  if (!_YAP_gc(0, YREG, NEXTOP(NEXTOP(PREG,ycx),sla))) {
-	    _YAP_Error(OUT_OF_STACK_ERROR,TermNil,_YAP_ErrorMessage);
+	  if (!Yap_gc(0, YREG, NEXTOP(NEXTOP(PREG,ycx),sla))) {
+	    Yap_Error(OUT_OF_STACK_ERROR,TermNil,Yap_ErrorMessage);
 	    setregs();
 	    JMPNext();
 	  } else {
@@ -11099,7 +11099,7 @@ _YAP_absmi(int inp)
 	GONext();
       }	else {
 	saveregs();
-	_YAP_Error(DOMAIN_ERROR_NOT_LESS_THAN_ZERO,MkIntegerTerm(d1),"functor/3");
+	Yap_Error(DOMAIN_ERROR_NOT_LESS_THAN_ZERO,MkIntegerTerm(d1),"functor/3");
 	setregs();
 	FAIL();
       }
@@ -11107,7 +11107,7 @@ _YAP_absmi(int inp)
       BEGP(pt1);
       deref_body(d1, pt1, func2s_y_unk_cv, func2s_y_nvar_cv);
       saveregs();
-      _YAP_Error(INSTANTIATION_ERROR, d1, "functor/3");
+      Yap_Error(INSTANTIATION_ERROR, d1, "functor/3");
       setregs();
       ENDP(pt1);
       /* Oops, third argument was unbound */
@@ -11120,7 +11120,7 @@ _YAP_absmi(int inp)
       /* A1 is a variable */
     restart_func2s_y_vc:
 #ifdef LOW_LEVEL_TRACER
-      if (_YAP_do_low_level_trace) {
+      if (Yap_do_low_level_trace) {
 	Term ti;
 	CELL *hi = H;
 
@@ -11128,7 +11128,7 @@ _YAP_absmi(int inp)
 	RESET_VARIABLE(H);
 	H[1] = XREG(PREG->u.yxc.xi);
 	H[2] = ti;
-	low_level_trace(enter_pred,RepPredProp(_YAP_GetPredPropByFunc(_YAP_MkFunctor(_YAP_LookupAtom("functor"),3),0)),H);
+	low_level_trace(enter_pred,RepPredProp(Yap_GetPredPropByFunc(Yap_MkFunctor(Yap_LookupAtom("functor"),3),0)),H);
 	H = hi;
       }
 #endif	/* LOW_LEVEL_TRACE */
@@ -11141,7 +11141,7 @@ _YAP_absmi(int inp)
       d1 = PREG->u.yxc.c;
       if (!IsAtomicTerm(d0)) {
 	saveregs();
-	_YAP_Error(TYPE_ERROR_ATOM,d0,"functor/3");
+	Yap_Error(TYPE_ERROR_ATOM,d0,"functor/3");
 	setregs();
 	FAIL();
       }
@@ -11179,14 +11179,14 @@ _YAP_absmi(int inp)
       }
       if (!IsAtomTerm(d0)) {
 	saveregs();
-	_YAP_Error(TYPE_ERROR_ATOM,d0,"functor/3");
+	Yap_Error(TYPE_ERROR_ATOM,d0,"functor/3");
 	setregs();
 	FAIL();
       }
       /* now let's build a compound term */
       if (!IsAtomTerm(d0)) {
 	saveregs();
-	_YAP_Error(TYPE_ERROR_ATOM,d0,"functor/3");
+	Yap_Error(TYPE_ERROR_ATOM,d0,"functor/3");
 	setregs();
 	FAIL();
       }
@@ -11195,15 +11195,15 @@ _YAP_absmi(int inp)
 	FAIL();
       }
       else 
-	d0 = (CELL) _YAP_MkFunctor(AtomOfTerm(d0), (Int) d1);
+	d0 = (CELL) Yap_MkFunctor(AtomOfTerm(d0), (Int) d1);
       pt1 = H;
       *pt1++ = d0;
       d0 = AbsAppl(H);
       if (pt1+d1 > ENV || pt1+d1 > (CELL *)B) {
 	/* make sure we have something to show for our trouble */
 	saveregs();
-	if (!_YAP_gc(0, YREG, NEXTOP(NEXTOP(PREG,yxc),sla))) {
-	  _YAP_Error(OUT_OF_STACK_ERROR,TermNil,_YAP_ErrorMessage);
+	if (!Yap_gc(0, YREG, NEXTOP(NEXTOP(PREG,yxc),sla))) {
+	  Yap_Error(OUT_OF_STACK_ERROR,TermNil,Yap_ErrorMessage);
 	  setregs();
 	  JMPNext();
 	} else {
@@ -11235,7 +11235,7 @@ _YAP_absmi(int inp)
       BEGP(pt1);
       deref_body(d0, pt1, func2s_y_unk_vc, func2s_y_nvar_vc);
       saveregs();
-      _YAP_Error(INSTANTIATION_ERROR, d0, "functor/3");
+      Yap_Error(INSTANTIATION_ERROR, d0, "functor/3");
       setregs();
       ENDP(pt1);
       /* Oops, second argument was unbound too */
@@ -11245,11 +11245,11 @@ _YAP_absmi(int inp)
 
       Op(p_func2f_xx, xxx);
 #ifdef LOW_LEVEL_TRACER
-      if (_YAP_do_low_level_trace) {
+      if (Yap_do_low_level_trace) {
 	H[0] = XREG(PREG->u.xxx.x);
 	RESET_VARIABLE(H+1);
 	RESET_VARIABLE(H+2);
-	low_level_trace(enter_pred,RepPredProp(_YAP_GetPredPropByFunc(_YAP_MkFunctor(_YAP_LookupAtom("functor"),3),0)),H);
+	low_level_trace(enter_pred,RepPredProp(Yap_GetPredPropByFunc(Yap_MkFunctor(Yap_LookupAtom("functor"),3),0)),H);
       }
 #endif	/* LOW_LEVEL_TRACE */
       BEGD(d0);
@@ -11283,7 +11283,7 @@ _YAP_absmi(int inp)
       BEGP(pt1);
       deref_body(d0, pt1, func2f_xx_unk, func2f_xx_nvar);
       saveregs();
-      _YAP_Error(INSTANTIATION_ERROR, d0, "functor/3");
+      Yap_Error(INSTANTIATION_ERROR, d0, "functor/3");
       setregs();
       ENDP(pt1);
       /* Oops, second argument was unbound too */
@@ -11293,11 +11293,11 @@ _YAP_absmi(int inp)
 
       Op(p_func2f_xy, xyx);
 #ifdef LOW_LEVEL_TRACER
-      if (_YAP_do_low_level_trace) {
+      if (Yap_do_low_level_trace) {
 	H[0] = XREG(PREG->u.xyx.x);
 	RESET_VARIABLE(H+1);
 	RESET_VARIABLE(H+2);
-	low_level_trace(enter_pred,RepPredProp(_YAP_GetPredPropByFunc(_YAP_MkFunctor(_YAP_LookupAtom("functor"),3),0)),H);
+	low_level_trace(enter_pred,RepPredProp(Yap_GetPredPropByFunc(Yap_MkFunctor(Yap_LookupAtom("functor"),3),0)),H);
       }
 #endif	/* LOW_LEVEL_TRACE */
       BEGD(d0);
@@ -11334,7 +11334,7 @@ _YAP_absmi(int inp)
       BEGP(pt1);
       deref_body(d0, pt1, func2f_xy_unk, func2f_xy_nvar);
       saveregs();
-      _YAP_Error(INSTANTIATION_ERROR, d0, "functor/3");
+      Yap_Error(INSTANTIATION_ERROR, d0, "functor/3");
       setregs();
       ENDP(pt1);
       /* Oops, second argument was unbound too */
@@ -11344,11 +11344,11 @@ _YAP_absmi(int inp)
 
       Op(p_func2f_yx, yxx);
 #ifdef LOW_LEVEL_TRACER
-      if (_YAP_do_low_level_trace) {
+      if (Yap_do_low_level_trace) {
 	H[0] = XREG(PREG->u.yxx.x2);
 	RESET_VARIABLE(H+1);
 	RESET_VARIABLE(H+2);
-	low_level_trace(enter_pred,RepPredProp(_YAP_GetPredPropByFunc(_YAP_MkFunctor(_YAP_LookupAtom("functor"),3),0)),H);
+	low_level_trace(enter_pred,RepPredProp(Yap_GetPredPropByFunc(Yap_MkFunctor(Yap_LookupAtom("functor"),3),0)),H);
       }
 #endif	/* LOW_LEVEL_TRACE */
       BEGD(d0);
@@ -11385,7 +11385,7 @@ _YAP_absmi(int inp)
       BEGP(pt1);
       deref_body(d0, pt1, func2f_yx_unk, func2f_yx_nvar);
       saveregs();
-      _YAP_Error(INSTANTIATION_ERROR, d0, "functor/3");
+      Yap_Error(INSTANTIATION_ERROR, d0, "functor/3");
       setregs();
       ENDP(pt1);
       /* Oops, second argument was unbound too */
@@ -11395,11 +11395,11 @@ _YAP_absmi(int inp)
 
       Op(p_func2f_yy, yyx);
 #ifdef LOW_LEVEL_TRACER
-      if (_YAP_do_low_level_trace) {
+      if (Yap_do_low_level_trace) {
 	H[0] = XREG(PREG->u.yyx.x);
 	RESET_VARIABLE(H+1);
 	RESET_VARIABLE(H+2);
-	low_level_trace(enter_pred,RepPredProp(_YAP_GetPredPropByFunc(_YAP_MkFunctor(_YAP_LookupAtom("functor"),3),0)),H);
+	low_level_trace(enter_pred,RepPredProp(Yap_GetPredPropByFunc(Yap_MkFunctor(Yap_LookupAtom("functor"),3),0)),H);
       }
 #endif	/* LOW_LEVEL_TRACE */
       BEGD(d0);
@@ -11439,7 +11439,7 @@ _YAP_absmi(int inp)
       BEGP(pt1);
       deref_body(d0, pt1, func2f_yy_unk, func2f_yy_nvar);
       saveregs();
-      _YAP_Error(INSTANTIATION_ERROR, d0, "functor/3");
+      Yap_Error(INSTANTIATION_ERROR, d0, "functor/3");
       setregs();
       ENDP(pt1);
       /* Oops, second argument was unbound too */
@@ -11449,8 +11449,8 @@ _YAP_absmi(int inp)
 
       Op(p_functor, e);
 #ifdef LOW_LEVEL_TRACER
-      if (_YAP_do_low_level_trace)
-	low_level_trace(enter_pred,RepPredProp(_YAP_GetPredPropByFunc(_YAP_MkFunctor(_YAP_LookupAtom("functor"),3),0)),XREGS+1);
+      if (Yap_do_low_level_trace)
+	low_level_trace(enter_pred,RepPredProp(Yap_GetPredPropByFunc(Yap_MkFunctor(Yap_LookupAtom("functor"),3),0)),XREGS+1);
 #endif	/* LOW_LEVEL_TRACE */
       restart_functor:
       BEGD(d0);
@@ -11500,7 +11500,7 @@ _YAP_absmi(int inp)
 	BIND(pt0, d0, bind_func_nvar_var);
 #ifdef COROUTINING
 	DO_TRAIL(pt0, d0);
-	if (pt0 < H0) _YAP_WakeUp(pt0);
+	if (pt0 < H0) Yap_WakeUp(pt0);
       bind_func_nvar_var:
 #endif
 	/* I have to this here so that I don't have a jump to a closing bracket */
@@ -11527,7 +11527,7 @@ _YAP_absmi(int inp)
 	/* Done */
 #ifdef COROUTINING
 	DO_TRAIL(pt0, d0);
-	if (pt0 < H0) _YAP_WakeUp(pt0);
+	if (pt0 < H0) Yap_WakeUp(pt0);
       bind_func_nvar3_var:
 #endif
 	GONext();
@@ -11555,13 +11555,13 @@ _YAP_absmi(int inp)
 	d1 = IntOfTerm(d1);
       else {
 	saveregs();
-	_YAP_Error(TYPE_ERROR_INTEGER,ARG3,"functor/3");
+	Yap_Error(TYPE_ERROR_INTEGER,ARG3,"functor/3");
 	setregs();
 	FAIL();
       }
       if (!IsAtomicTerm(d0)) {
 	saveregs();
-	_YAP_Error(TYPE_ERROR_ATOM,d0,"functor/3");
+	Yap_Error(TYPE_ERROR_ATOM,d0,"functor/3");
 	setregs();
 	FAIL();
       }      /* We made it!!!!! we got in d0 the name, in d1 the arity and
@@ -11576,7 +11576,7 @@ _YAP_absmi(int inp)
 	/* now let's build a compound term */
 	if (!IsAtomTerm(d0)) {
 	  saveregs();
-	  _YAP_Error(TYPE_ERROR_ATOM,d0,"functor/3");
+	  Yap_Error(TYPE_ERROR_ATOM,d0,"functor/3");
 	  setregs();
 	  FAIL();
 	}
@@ -11585,15 +11585,15 @@ _YAP_absmi(int inp)
 	  FAIL();
 	}
 	else
-	  d0 = (CELL) _YAP_MkFunctor(AtomOfTerm(d0), (Int) d1);
+	  d0 = (CELL) Yap_MkFunctor(AtomOfTerm(d0), (Int) d1);
 	pt1 = H;
 	*pt1++ = d0;
 	d0 = AbsAppl(H);
 	if (pt1+d1 > ENV || pt1+d1 > (CELL *)B) {
 	  /* make sure we have something to show for our trouble */
 	  saveregs();
-	  if (!_YAP_gc(3, YREG, NEXTOP(NEXTOP(PREG,e),sla))) {
-	    _YAP_Error(OUT_OF_STACK_ERROR,TermNil,_YAP_ErrorMessage);
+	  if (!Yap_gc(3, YREG, NEXTOP(NEXTOP(PREG,e),sla))) {
+	    Yap_Error(OUT_OF_STACK_ERROR,TermNil,Yap_ErrorMessage);
 	    setregs();
 	    JMPNext();
 	  } else {
@@ -11610,7 +11610,7 @@ _YAP_absmi(int inp)
 	ENDP(pt1);
       }	else if ((Int)d1  < 0) {
 	saveregs();
-	_YAP_Error(DOMAIN_ERROR_NOT_LESS_THAN_ZERO,MkIntegerTerm(d1),"functor/3");
+	Yap_Error(DOMAIN_ERROR_NOT_LESS_THAN_ZERO,MkIntegerTerm(d1),"functor/3");
 	setregs();
 	FAIL();
       }
@@ -11620,7 +11620,7 @@ _YAP_absmi(int inp)
       BIND(pt0, d0, bind_func_var_3nvar);
 #ifdef COROUTINING
       DO_TRAIL(pt0, d0);
-      if (pt0 < H0) _YAP_WakeUp(pt0);
+      if (pt0 < H0) Yap_WakeUp(pt0);
     bind_func_var_3nvar:
 #endif
       GONext();
@@ -11629,7 +11629,7 @@ _YAP_absmi(int inp)
       BEGP(pt1);
       deref_body(d1, pt1, func_var_3unk, func_var_3nvar);
       saveregs();
-      _YAP_Error(INSTANTIATION_ERROR, d1, "functor/3");
+      Yap_Error(INSTANTIATION_ERROR, d1, "functor/3");
       setregs();
       ENDP(pt1);
       /* Oops, third argument was unbound */
@@ -11639,7 +11639,7 @@ _YAP_absmi(int inp)
       BEGP(pt1);
       deref_body(d0, pt1, func_var_2unk, func_var_2nvar);
       saveregs();
-      _YAP_Error(INSTANTIATION_ERROR, d0, "functor/3");
+      Yap_Error(INSTANTIATION_ERROR, d0, "functor/3");
       setregs();
       ENDP(pt1);
       /* Oops, second argument was unbound too */
@@ -11660,22 +11660,22 @@ _YAP_absmi(int inp)
 	BEGD(d0);
 	d0 = ARG1;
 	if (PredGoalExpansion->OpcodeOfPred != UNDEF_OPCODE) {
-	  d0 = _YAP_ExecuteCallMetaCall(mod);
+	  d0 = Yap_ExecuteCallMetaCall(mod);
 	}
 	deref_head(d0, execute_unk);
       execute_nvar:
 	if (IsApplTerm(d0)) {
 	  Functor f = FunctorOfTerm(d0);
 	  if (IsExtensionFunctor(f)) {
-	    d0 = _YAP_ExecuteCallMetaCall(mod);
+	    d0 = Yap_ExecuteCallMetaCall(mod);
 	    goto execute_nvar;
 	  }
 	  pen = RepPredProp(PredPropByFunc(f, mod));
 	  if (pen->PredFlags & MetaPredFlag) {
 	    if (f == FunctorModule) {
-	      Term tmod = _YAP_LookupModule(ArgOfTerm(1,d0));
+	      Term tmod = Yap_LookupModule(ArgOfTerm(1,d0));
 	      if (!IsVarTerm(tmod) && IsAtomTerm(tmod) &&
-		 _YAP_LookupModule(tmod) == mod) {
+		 Yap_LookupModule(tmod) == mod) {
 		d0 = ArgOfTerm(2,d0);
 		goto execute_nvar;
 	      }
@@ -11683,7 +11683,7 @@ _YAP_absmi(int inp)
 	    if (pen->PredFlags & PushModPredFlag) {
 	      d0 = PushModule(d0,mod);
 	    } else {
-	      d0 = _YAP_ExecuteCallMetaCall(mod);
+	      d0 = Yap_ExecuteCallMetaCall(mod);
 	      goto execute_nvar;
 	    }
 	  }
@@ -11708,7 +11708,7 @@ _YAP_absmi(int inp)
 	} else if (IsAtomTerm(d0)) {
 	  pen = RepPredProp(PredPropByAtom(AtomOfTerm(d0), mod));
 	} else {
-	  d0 = _YAP_ExecuteCallMetaCall(mod);
+	  d0 = Yap_ExecuteCallMetaCall(mod);
 	  goto execute_nvar;
 	}
 
@@ -11731,7 +11731,7 @@ _YAP_absmi(int inp)
 	  DEPTH -= MkIntConstant(2);
 #endif	/* DEPTH_LIMIT */
 #ifdef LOW_LEVEL_TRACER
-	if (_YAP_do_low_level_trace)
+	if (Yap_do_low_level_trace)
 	  low_level_trace(enter_pred,pen,XREGS+1);
 #endif	/* LOW_LEVEL_TRACER */
 #ifdef FROZEN_STACKS
@@ -11759,7 +11759,7 @@ _YAP_absmi(int inp)
 
 	BEGP(pt1);
 	deref_body(d0, pt1, execute_unk, execute_nvar);
-	d0 = _YAP_ExecuteCallMetaCall(mod);
+	d0 = Yap_ExecuteCallMetaCall(mod);
 	goto execute_nvar;
 	ENDP(pt1);
 	ENDD(d0);
@@ -11782,14 +11782,14 @@ _YAP_absmi(int inp)
 	BEGD(d0);
 	d0 = ARG1;
 	if (PredGoalExpansion->OpcodeOfPred != UNDEF_OPCODE) {
-	  d0 = _YAP_ExecuteCallMetaCall(mod);
+	  d0 = Yap_ExecuteCallMetaCall(mod);
 	}
 	deref_head(d0, execute_within_unk);
       execute_within_nvar:
 	if (IsApplTerm(d0)) {
 	  Functor f = FunctorOfTerm(d0);
 	  if (IsExtensionFunctor(f)) {
-	    d0 = _YAP_ExecuteCallMetaCall(mod);
+	    d0 = Yap_ExecuteCallMetaCall(mod);
 	    goto execute_within_nvar;
 	  }
 	  pen = RepPredProp(PredPropByFunc(f, mod));
@@ -11798,7 +11798,7 @@ _YAP_absmi(int inp)
 	      Term tmod;
 	      tmod = ArgOfTerm(1,d0);
 	      if (!IsVarTerm(tmod) && IsAtomTerm(tmod) &&
-		  mod == _YAP_LookupModule(tmod)) {
+		  mod == Yap_LookupModule(tmod)) {
 		d0 = ArgOfTerm(2,d0);
 		goto execute_within_nvar;
 	      }
@@ -11806,7 +11806,7 @@ _YAP_absmi(int inp)
 	    if (pen->PredFlags & PushModPredFlag) {
 	      d0 = PushModule(d0,mod);
 	    } else {
-	      d0 = _YAP_ExecuteCallMetaCall(mod);
+	      d0 = Yap_ExecuteCallMetaCall(mod);
 	      goto execute_within_nvar;
 	    }
 	  }
@@ -11849,7 +11849,7 @@ _YAP_absmi(int inp)
 	  }else
 	    pen = RepPredProp(PredPropByAtom(AtomOfTerm(d0), mod));
 	} else {
-	  d0 = _YAP_ExecuteCallMetaCall(mod);
+	  d0 = Yap_ExecuteCallMetaCall(mod);
 	  goto execute_within_nvar;
 	}
 
@@ -11872,7 +11872,7 @@ _YAP_absmi(int inp)
 	  DEPTH -= MkIntConstant(2);
 #endif	/* DEPTH_LIMIT */
 #ifdef LOW_LEVEL_TRACER
-	if (_YAP_do_low_level_trace)
+	if (Yap_do_low_level_trace)
 	  low_level_trace(enter_pred,pen,XREGS+1);
 #endif	/* LOW_LEVEL_TRACER */
 #ifdef FROZEN_STACKS
@@ -11903,7 +11903,7 @@ _YAP_absmi(int inp)
 
 	BEGP(pt1);
 	deref_body(d0, pt1, execute_within_unk, execute_within_nvar);
-	d0 = _YAP_ExecuteCallMetaCall(mod);
+	d0 = Yap_ExecuteCallMetaCall(mod);
 	goto execute_within_nvar;
 	ENDP(pt1);
 	ENDD(d0);
@@ -11923,14 +11923,14 @@ _YAP_absmi(int inp)
 	BEGD(d0);
 	d0 = ARG1;
 	if (PredGoalExpansion->OpcodeOfPred != UNDEF_OPCODE) {
-	  d0 = _YAP_ExecuteCallMetaCall(mod);
+	  d0 = Yap_ExecuteCallMetaCall(mod);
 	}
 	deref_head(d0, last_execute_within_unk);
       last_execute_within_nvar:
 	if (IsApplTerm(d0)) {
 	  Functor f = FunctorOfTerm(d0);
 	  if (IsExtensionFunctor(f)) {
-	    d0 = _YAP_ExecuteCallMetaCall(mod);
+	    d0 = Yap_ExecuteCallMetaCall(mod);
 	    goto last_execute_within_nvar;
 	  }
 	  pen = RepPredProp(PredPropByFunc(f, mod));
@@ -11938,7 +11938,7 @@ _YAP_absmi(int inp)
 	    if (f == FunctorModule) {
 	      Term tmod = ArgOfTerm(1,d0);
 	      if (!IsVarTerm(tmod) && IsAtomTerm(tmod) &&
-		  mod == _YAP_LookupModule(tmod)) {
+		  mod == Yap_LookupModule(tmod)) {
 		d0 = ArgOfTerm(2,d0);
 		goto last_execute_within_nvar;
 	      }
@@ -11946,7 +11946,7 @@ _YAP_absmi(int inp)
 	    if (pen->PredFlags & PushModPredFlag) {
 	      d0 = PushModule(d0,mod);
 	    } else {
-	      d0 = _YAP_ExecuteCallMetaCall(mod);
+	      d0 = Yap_ExecuteCallMetaCall(mod);
 	      goto last_execute_within_nvar;
 	    }
 	  }
@@ -11989,7 +11989,7 @@ _YAP_absmi(int inp)
 	  }else
 	    pen = RepPredProp(PredPropByAtom(AtomOfTerm(d0), mod));
 	} else {
-	  d0 = _YAP_ExecuteCallMetaCall(mod);
+	  d0 = Yap_ExecuteCallMetaCall(mod);
 	  goto last_execute_within_nvar;
 	}
 
@@ -12041,7 +12041,7 @@ _YAP_absmi(int inp)
 
 	BEGP(pt1);
 	deref_body(d0, pt1, last_execute_within_unk, last_execute_within_nvar);
-	d0 = _YAP_ExecuteCallMetaCall(mod);
+	d0 = Yap_ExecuteCallMetaCall(mod);
 	goto last_execute_within_nvar;
 	ENDP(pt1);
 	ENDD(d0);
@@ -12053,7 +12053,7 @@ _YAP_absmi(int inp)
 #if !USE_THREADED_CODE
     default:
       saveregs();
-      _YAP_Error(SYSTEM_ERROR, MkIntegerTerm(opcode), "trying to execute invalid YAAM instruction %d", opcode);
+      Yap_Error(SYSTEM_ERROR, MkIntegerTerm(opcode), "trying to execute invalid YAAM instruction %d", opcode);
       setregs();
       FAIL();
     }

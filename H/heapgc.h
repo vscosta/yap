@@ -51,7 +51,7 @@
 #define ONHEAP(ptr) (CellPtr(ptr) >= H0  && CellPtr(ptr) < H)
 
 /* is ptr a pointer to code space? */
-#define ONCODE(ptr) (Addr(ptr) < HeapTop && Addr(ptr) >= _YAP_HeapBase)
+#define ONCODE(ptr) (Addr(ptr) < HeapTop && Addr(ptr) >= Yap_HeapBase)
 
 /* is val pointing to something bound to the heap? */
 
@@ -138,9 +138,9 @@ typedef CELL   *CELL_PTR;
 
 #define ENVSIZE(E) 	EnvSize(((CELL *)E)[E_CP])
 
-void  STD_PROTO(_YAP_mark_variable, (CELL *));
-void  STD_PROTO(_YAP_mark_external_reference, (CELL *));
-void  STD_PROTO(_YAP_inc_mark_variable, (void));
+void  STD_PROTO(Yap_mark_variable, (CELL *));
+void  STD_PROTO(Yap_mark_external_reference, (CELL *));
+void  STD_PROTO(Yap_inc_mark_variable, (void));
 
 
 

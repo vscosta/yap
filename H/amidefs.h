@@ -554,16 +554,16 @@ typedef struct choicept {
 /* access to instructions */
 
 #if USE_THREADED_CODE
-extern void **_YAP_ABSMI_OPCODES;
+extern void **Yap_ABSMI_OPCODES;
 
-#define absmadr(i) ((OPCODE)(_YAP_ABSMI_OPCODES[(i)]))
+#define absmadr(i) ((OPCODE)(Yap_ABSMI_OPCODES[(i)]))
 #else
 #define absmadr(i) ((OPCODE)(i))
 #endif
 
 /* used to find out how many instructions of each kind are executed */
 #ifdef ANALYST
-extern int _YAP_opcount[_std_top+1];
+extern int Yap_opcount[_std_top+1];
 #endif /* ANALYST */
 
 #if DEPTH_LIMIT

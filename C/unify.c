@@ -199,7 +199,7 @@ OCUnify_complex(register CELL *pt0, register CELL *pt0_end,
 	    goto cufail;
 #ifdef USE_GMP
 	  case (CELL)FunctorBigInt:
-	    if (mpz_cmp(_YAP_BigIntOfTerm(d0),_YAP_BigIntOfTerm(d1)) == 0) continue;
+	    if (mpz_cmp(Yap_BigIntOfTerm(d0),Yap_BigIntOfTerm(d1)) == 0) continue;
 	    goto cufail;
 #endif /* USE_GMP */
 	  default:
@@ -233,7 +233,7 @@ OCUnify_complex(register CELL *pt0, register CELL *pt0_end,
       BIND_GLOBAL(ptd1, d0, bind_ocunify1);
 #ifdef COROUTINING
       DO_TRAIL(ptd1, d0);
-      if (ptd1 < H0) _YAP_WakeUp(ptd1);
+      if (ptd1 < H0) Yap_WakeUp(ptd1);
     bind_ocunify1:
 #endif
       if (rational_tree_loop(ptd1-1, ptd1, to_visit))
@@ -255,7 +255,7 @@ OCUnify_complex(register CELL *pt0, register CELL *pt0_end,
       BIND_GLOBAL(ptd0, d1, bind_ocunify2);
 #ifdef COROUTINING
       DO_TRAIL(ptd0, d1);
-      if (ptd0 < H0) _YAP_WakeUp(ptd0);
+      if (ptd0 < H0) Yap_WakeUp(ptd0);
     bind_ocunify2:
 #endif
       if (rational_tree_loop(ptd0-1, ptd0, to_visit))
@@ -294,7 +294,7 @@ cufail:
   return (FALSE);
 #if SHADOW_REGS
 #if defined(B) || defined(TR)
-#undef _YAP_REGS
+#undef Yap_REGS
 #endif /* defined(B) || defined(TR) */
 #endif
 }
@@ -350,7 +350,7 @@ oc_unify_nvar_nvar:
 	  return(FloatOfTerm(AbsAppl(pt0)) == FloatOfTerm(AbsAppl(pt1)));
 #ifdef USE_GMP
 	case (CELL)FunctorBigInt:
-	  return(mpz_cmp(_YAP_BigIntOfTerm(AbsAppl(pt0)),_YAP_BigIntOfTerm(AbsAppl(pt0))) == 0);
+	  return(mpz_cmp(Yap_BigIntOfTerm(AbsAppl(pt0)),Yap_BigIntOfTerm(AbsAppl(pt0))) == 0);
 #endif /* USE_GMP */
 	default:
 	  return(FALSE);
@@ -368,7 +368,7 @@ oc_unify_nvar_nvar:
   BIND(pt1, d0, bind_ocunify4);
 #ifdef COROUTINING
   DO_TRAIL(pt1, d0);
-  if (pt1 < H0) _YAP_WakeUp(pt1);
+  if (pt1 < H0) Yap_WakeUp(pt1);
  bind_ocunify4:
 #endif
   if (rational_tree(d0))
@@ -383,7 +383,7 @@ oc_unify_var_nvar:
   BIND(pt0, d1, bind_ocunify5);
 #ifdef COROUTINING
   DO_TRAIL(pt0, d1);
-  if (pt0 < H0) _YAP_WakeUp(pt0);
+  if (pt0 < H0) Yap_WakeUp(pt0);
  bind_ocunify5:
 #endif
   if (rational_tree(d1))
@@ -395,7 +395,7 @@ oc_unify_var_nvar:
   UnifyCells(pt0, pt1, uc1, uc2);
 #ifdef COROUTINING
   DO_TRAIL(pt0, (CELL)pt1);
-  if (pt0 < H0) _YAP_WakeUp(pt0);
+  if (pt0 < H0) Yap_WakeUp(pt0);
  uc1:
 #endif
   return (TRUE);
@@ -403,7 +403,7 @@ oc_unify_var_nvar:
  uc2:
   DO_TRAIL(pt1, (CELL)pt0);
   if (pt1 < H0) {
-    _YAP_WakeUp(pt1);
+    Yap_WakeUp(pt1);
   }
 #endif
   return (TRUE);
@@ -434,13 +434,13 @@ p_acyclic(void)
 }
 
 int 
-_YAP_IUnify(register CELL d0, register CELL d1)
+Yap_IUnify(register CELL d0, register CELL d1)
 {
 #if SHADOW_REGS
 #if defined(B) || defined(TR)
-  register REGSTORE *regp = &_YAP_REGS;
+  register REGSTORE *regp = &Yap_REGS;
 
-#define _YAP_REGS (*regp)
+#define Yap_REGS (*regp)
 #endif /* defined(B) || defined(TR) */
 #endif
 
@@ -487,7 +487,7 @@ unify_nvar_nvar:
 	  return(FloatOfTerm(AbsAppl(pt0)) == FloatOfTerm(AbsAppl(pt1)));
 #ifdef USE_GMP
 	case (CELL)FunctorBigInt:
-	  return(mpz_cmp(_YAP_BigIntOfTerm(AbsAppl(pt0)),_YAP_BigIntOfTerm(AbsAppl(pt0))) == 0);
+	  return(mpz_cmp(Yap_BigIntOfTerm(AbsAppl(pt0)),Yap_BigIntOfTerm(AbsAppl(pt0))) == 0);
 #endif /* USE_GMP */
 	default:
 	  return(FALSE);
@@ -505,7 +505,7 @@ unify_nvar_nvar:
   BIND(pt1, d0, bind_unify3);
 #ifdef COROUTINING
   DO_TRAIL(pt1, d0);
-  if (pt1 < H0) _YAP_WakeUp(pt1);
+  if (pt1 < H0) Yap_WakeUp(pt1);
  bind_unify3:
 #endif
   return (TRUE);
@@ -518,7 +518,7 @@ unify_var_nvar:
   BIND(pt0, d1, bind_unify4);
 #ifdef COROUTINING
   DO_TRAIL(pt0, d1);
-  if (pt0 < H0) _YAP_WakeUp(pt0);
+  if (pt0 < H0) Yap_WakeUp(pt0);
  bind_unify4:
 #endif
   return (TRUE);
@@ -534,7 +534,7 @@ unify_var_nvar_trail:
   UnifyCells(pt0, pt1, uc1, uc2);
 #ifdef COROUTINING
   DO_TRAIL(pt0, (CELL)pt1);
-  if (pt0 < H0) _YAP_WakeUp(pt0);
+  if (pt0 < H0) Yap_WakeUp(pt0);
  uc1:
 #endif
   return (TRUE);
@@ -542,13 +542,13 @@ unify_var_nvar_trail:
  uc2:
   DO_TRAIL(pt1, (CELL)pt0);
   if (pt1 < H0) {
-    _YAP_WakeUp(pt1);
+    Yap_WakeUp(pt1);
   }
   return (TRUE);
 #endif
 #if SHADOW_REGS
 #if defined(B) || defined(TR)
-#undef _YAP_REGS
+#undef Yap_REGS
 #endif /* defined(B) || defined(TR) */
 #endif
 }
@@ -579,9 +579,9 @@ InitReverseLookupOpcode(void)
   int hash_size_mask = OP_HASH_SIZE-1;
 
   if (OP_RTABLE == NULL)
-    OP_RTABLE = (opentry *)_YAP_AllocCodeSpace(OP_HASH_SIZE*sizeof(struct opcode_tab_entry));
+    OP_RTABLE = (opentry *)Yap_AllocCodeSpace(OP_HASH_SIZE*sizeof(struct opcode_tab_entry));
   if (OP_RTABLE == NULL) {
-    _YAP_Error(FATAL_ERROR, TermNil,
+    Yap_Error(FATAL_ERROR, TermNil,
 	  "Couldn't obtain space for the reverse translation opcode table");
   }
   opeptr = OP_RTABLE;
@@ -594,11 +594,11 @@ InitReverseLookupOpcode(void)
     }
   }
   opeptr = OP_RTABLE;
-  opeptr[rtable_hash_op(_YAP_opcode(_Ystop),hash_size_mask)].opc
-	    = _YAP_opcode(_Ystop);
+  opeptr[rtable_hash_op(Yap_opcode(_Ystop),hash_size_mask)].opc
+	    = Yap_opcode(_Ystop);
   /* now place entries */
   for (i = _std_top; i > _Ystop; i--) {
-    OPCODE opc = _YAP_opcode(i);
+    OPCODE opc = Yap_opcode(i);
     int j = rtable_hash_op(opc,hash_size_mask);
 
     while (opeptr[j].opc != NIL) {
@@ -614,7 +614,7 @@ InitReverseLookupOpcode(void)
 /* given an opcode find the corresponding opnumber. This should make
    switches on ops a much easier operation */
 op_numbers
-_YAP_op_from_opcode(OPCODE opc)
+Yap_op_from_opcode(OPCODE opc)
 {
   int j = rtable_hash_op(opc,OP_HASH_SIZE-1);
 
@@ -628,7 +628,7 @@ _YAP_op_from_opcode(OPCODE opc)
 }
 #else
 op_numbers
-_YAP_op_from_opcode(OPCODE opc)
+Yap_op_from_opcode(OPCODE opc)
 {
   return((op_numbers)opc);
 }
@@ -636,20 +636,20 @@ _YAP_op_from_opcode(OPCODE opc)
 
 
 void 
-_YAP_InitUnify(void)
+Yap_InitUnify(void)
 {
-  _YAP_InitCPred("unify_with_occurs_check", 2, p_ocunify, SafePredFlag);
-  _YAP_InitCPred("cyclic_term", 1, p_cyclic, SafePredFlag|TestPredFlag);
-  _YAP_InitCPred("acyclic_term", 1, p_acyclic, SafePredFlag|TestPredFlag);
+  Yap_InitCPred("unify_with_occurs_check", 2, p_ocunify, SafePredFlag);
+  Yap_InitCPred("cyclic_term", 1, p_cyclic, SafePredFlag|TestPredFlag);
+  Yap_InitCPred("acyclic_term", 1, p_acyclic, SafePredFlag|TestPredFlag);
 }
 
 
 void 
-_YAP_InitAbsmi(void)
+Yap_InitAbsmi(void)
 {
   /* initialise access to abstract machine instructions */
 #if USE_THREADED_CODE
-  _YAP_absmi(1);
+  Yap_absmi(1);
   InitReverseLookupOpcode();
 #endif
 }

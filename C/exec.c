@@ -29,8 +29,8 @@ STATIC_PROTO(Int  p_execute0, (void));
 STATIC_PROTO(Int  p_at_execute, (void));
 
 /************ table of C-Predicates *************/
-CPredicate    _YAP_c_predicates[MAX_C_PREDS];
-cmp_entry     _YAP_cmp_funcs[MAX_CMP_FUNCS];
+CPredicate    Yap_c_predicates[MAX_C_PREDS];
+cmp_entry     Yap_cmp_funcs[MAX_CMP_FUNCS];
 
 static Term
 current_cp_as_integer(void)
@@ -52,7 +52,7 @@ CallPredicate(PredEntry *pen, choiceptr cut_pt) {
     DEPTH -= MkIntConstant(2);
 #endif	/* DEPTH_LIMIT */
 #ifdef LOW_LEVEL_TRACER
-  if (_YAP_do_low_level_trace)
+  if (Yap_do_low_level_trace)
     low_level_trace(enter_pred,pen,XREGS+1);
 #endif	/* LOW_LEVEL_TRACE */
   CP = P;
@@ -79,13 +79,13 @@ CallMetaCall(SMALLUNSGN mod) {
 }
 
 Term
-_YAP_ExecuteCallMetaCall(SMALLUNSGN mod) {
+Yap_ExecuteCallMetaCall(SMALLUNSGN mod) {
   Term ts[4];
   ts[0] = ARG1;
   ts[1] = current_cp_as_integer(); /* p_save_cp */
   ts[2] = ARG1;
   ts[3] = ModuleName[mod];
-  return(_YAP_MkApplTerm(PredMetaCall->FunctorOfPred,4,ts));
+  return(Yap_MkApplTerm(PredMetaCall->FunctorOfPred,4,ts));
 }
 
 static Int
@@ -94,7 +94,7 @@ CallError(yap_error_number err, SMALLUNSGN mod)
   if (yap_flags[LANGUAGE_MODE_FLAG] == 1) {
     return(CallMetaCall(mod));
   } else {
-    _YAP_Error(err, ARG1, "call/1");
+    Yap_Error(err, ARG1, "call/1");
     return(FALSE);
   }
 }
@@ -121,7 +121,7 @@ CallClause(PredEntry *pen, unsigned int arity, Int position)
       DEPTH -= MkIntConstant(2);
 #endif	/* DEPTH_LIMIT */
 #ifdef LOW_LEVEL_TRACER
-    if (_YAP_do_low_level_trace)
+    if (Yap_do_low_level_trace)
       low_level_trace(enter_pred,pen,XREGS+1);
 #endif	/* LOW_LEVEL_TRACE */
     ENV = YENV;
@@ -176,7 +176,7 @@ CallClause(PredEntry *pen, unsigned int arity, Int position)
       return (Unsigned(pen));
     }
   } else {
-    _YAP_Error(SYSTEM_ERROR,ARG1,"debugger tries to debug clause for builtin");    
+    Yap_Error(SYSTEM_ERROR,ARG1,"debugger tries to debug clause for builtin");    
     return (FALSE);
   }
 }
@@ -194,7 +194,7 @@ p_save_cp(void)
   BIND((CELL *)t,td,bind_save_cp);
 #ifdef COROUTINING
   DO_TRAIL(CellPtr(t), td);
-  if (CellPtr(t) < H0) _YAP_WakeUp((CELL *)t);
+  if (CellPtr(t) < H0) Yap_WakeUp((CELL *)t);
  bind_save_cp:
 #endif
   return(TRUE);
@@ -203,7 +203,7 @@ p_save_cp(void)
 static Int
 EnterCreepMode(SMALLUNSGN mod) {
   PredEntry *PredSpy = RepPredProp(PredPropByFunc(FunctorSpy,0));
-  Term tn = _YAP_MkApplTerm(_YAP_MkFunctor(AtomMetaCall,1),1,&ARG1);
+  Term tn = Yap_MkApplTerm(Yap_MkFunctor(AtomMetaCall,1),1,&ARG1);
   ARG1 = MkPairTerm(ModuleName[mod],tn);
   CreepFlag = CalculateStackGap();
   P_before_spy = P;
@@ -219,17 +219,17 @@ PushModule(Term t,SMALLUNSGN mod) {
     Term ti[2], tf[2];
     ti[0] = tmod;
     ti[1] = ArgOfTerm(1,t);
-    tf[0] = _YAP_MkApplTerm(FunctorModule,2,ti);
+    tf[0] = Yap_MkApplTerm(FunctorModule,2,ti);
     ti[0] = tmod;
     ti[1] = ArgOfTerm(2,t);
-    tf[1] = _YAP_MkApplTerm(FunctorModule,2,ti);
-    return(_YAP_MkApplTerm(f,2,tf));
+    tf[1] = Yap_MkApplTerm(FunctorModule,2,ti);
+    return(Yap_MkApplTerm(f,2,tf));
   } else {
     Term ti[2], tf[1];
     ti[0] = tmod;
     ti[1] = ArgOfTerm(1,t);
-    tf[0] = _YAP_MkApplTerm(FunctorModule,2,ti);
-    return(_YAP_MkApplTerm(f,1,tf));
+    tf[0] = Yap_MkApplTerm(FunctorModule,2,ti);
+    return(Yap_MkApplTerm(f,1,tf));
   }
 }
 
@@ -263,7 +263,7 @@ do_execute(Term t, SMALLUNSGN mod)
       if (f == FunctorModule) {
 	Term tmod = ArgOfTerm(1,t);
 	if (!IsVarTerm(tmod) && IsAtomTerm(tmod)) {
-	  mod = _YAP_LookupModule(tmod);
+	  mod = Yap_LookupModule(tmod);
 	  t = ArgOfTerm(2,t);
 	  goto restart_exec;
 	}
@@ -338,7 +338,7 @@ p_execute_within(void)
   unsigned int    arity;
   Prop            pe;
   Atom            a;
-  SMALLUNSGN      mod = _YAP_LookupModule(tmod);
+  SMALLUNSGN      mod = Yap_LookupModule(tmod);
 #ifdef SBA
   choiceptr cut_pt = (choiceptr)IntegerOfTerm(Deref(ARG2));
 #else
@@ -375,7 +375,7 @@ p_execute_within(void)
 	if (f == FunctorModule) {
 	  Term tmod = ArgOfTerm(1,t);
 	  if (!IsVarTerm(tmod) && IsAtomTerm(tmod)) {
-	    mod = _YAP_LookupModule(tmod);
+	    mod = Yap_LookupModule(tmod);
 	    t = ArgOfTerm(2,t);
 	    goto restart_exec;
 	  }
@@ -464,7 +464,7 @@ p_execute_within2(void)
     if (f == FunctorModule) {
       Term tmod = ArgOfTerm(1,t);
       if (!IsVarTerm(tmod) && IsAtomTerm(tmod)) {
-	mod = _YAP_LookupModule(tmod);
+	mod = Yap_LookupModule(tmod);
 	t = ArgOfTerm(2,t);
 	goto restart_exec;
       }
@@ -557,11 +557,11 @@ p_execute0(void)
   Term            tmod = Deref(ARG2);
   unsigned int    arity;
   Prop            pe;
-  SMALLUNSGN      mod = _YAP_LookupModule(tmod);
+  SMALLUNSGN      mod = Yap_LookupModule(tmod);
 
  restart_exec:
   if (IsVarTerm(t)) {
-    _YAP_Error(INSTANTIATION_ERROR,ARG3,"call/1");    
+    Yap_Error(INSTANTIATION_ERROR,ARG3,"call/1");    
     return(FALSE);
   } else if (IsAtomTerm(t)) {
     Atom a = AtomOfTerm(t);
@@ -576,7 +576,7 @@ p_execute0(void)
     if (f == FunctorModule) {
       Term tmod = ArgOfTerm(1,t);
       if (!IsVarTerm(tmod) && IsAtomTerm(tmod)) {
-	mod = _YAP_LookupModule(tmod);
+	mod = Yap_LookupModule(tmod);
 	t = ArgOfTerm(2,t);
 	goto restart_exec;
       }
@@ -602,7 +602,7 @@ p_execute0(void)
 #endif
     }
   } else {
-    _YAP_Error(TYPE_ERROR_CALLABLE,ARG3,"call/1");    
+    Yap_Error(TYPE_ERROR_CALLABLE,ARG3,"call/1");    
     return(FALSE);
   }
   /*	N = arity; */
@@ -614,7 +614,7 @@ static Int
 p_execute_0(void)
 {				/* '$execute_0'(Goal)	 */
   Term            t = Deref(ARG1);
-  SMALLUNSGN      mod = _YAP_LookupModule(Deref(ARG2));
+  SMALLUNSGN      mod = Yap_LookupModule(Deref(ARG2));
   Prop            pe;
 
   if (IsAtomTerm(t)) {
@@ -627,7 +627,7 @@ p_execute_0(void)
     CELL *ptr;
 
     if (IsExtensionFunctor(f)) {
-      _YAP_Error(TYPE_ERROR_CALLABLE, t, "call_with_args/1");
+      Yap_Error(TYPE_ERROR_CALLABLE, t, "call_with_args/1");
       return(FALSE);
     }
     pe = PredPropByFunc(f, mod);
@@ -639,7 +639,7 @@ p_execute_0(void)
   } else {
     CELL *ptr;
 
-    pe = PredPropByFunc(_YAP_MkFunctor(AtomDot,2), mod);
+    pe = PredPropByFunc(Yap_MkFunctor(AtomDot,2), mod);
     ptr = RepPair(t);
     XREGS[1] = ptr[0];
     XREGS[2] = ptr[1];
@@ -651,18 +651,18 @@ static Int
 p_execute_1(void)
 {				/* '$execute_0'(Goal)	 */
   Term            t = Deref(ARG1);
-  SMALLUNSGN      mod = _YAP_LookupModule(Deref(ARG3));
+  SMALLUNSGN      mod = Yap_LookupModule(Deref(ARG3));
   Prop            pe;
 
   if (!IsAtomTerm(t)) {
-    _YAP_Error(TYPE_ERROR_ATOM,ARG1,"call_with_args/2");
+    Yap_Error(TYPE_ERROR_ATOM,ARG1,"call_with_args/2");
     return(FALSE);
   }
   if (IsAtomTerm(t)) {
     Atom            a;
     a = AtomOfTerm(t);
     ARG1 = ARG2;
-    pe = PredPropByFunc(_YAP_MkFunctor(a,1),mod);
+    pe = PredPropByFunc(Yap_MkFunctor(a,1),mod);
   } else if (IsApplTerm(t)) {
     Functor f = FunctorOfTerm(t);
     Int Arity, i;
@@ -670,12 +670,12 @@ p_execute_1(void)
     CELL *ptr;
 
     if (IsExtensionFunctor(f)) {
-      _YAP_Error(TYPE_ERROR_CALLABLE, t, "call_with_args/2");
+      Yap_Error(TYPE_ERROR_CALLABLE, t, "call_with_args/2");
       return(FALSE);
     }
     Arity = ArityOfFunctor(f);
     a = NameOfFunctor(f);
-    pe = PredPropByFunc(_YAP_MkFunctor(a,Arity+1), mod);
+    pe = PredPropByFunc(Yap_MkFunctor(a,Arity+1), mod);
     XREGS[Arity+1] = ARG2;
     ptr = RepAppl(t)+1;
     for (i=1;i<=Arity;i++) {
@@ -684,7 +684,7 @@ p_execute_1(void)
   } else {
     CELL *ptr;
 
-    pe = PredPropByFunc(_YAP_MkFunctor(AtomDot,3), mod);
+    pe = PredPropByFunc(Yap_MkFunctor(AtomDot,3), mod);
     ptr = RepPair(t);
     XREGS[3] = ARG2;
     XREGS[1] = ptr[0];
@@ -697,7 +697,7 @@ static Int
 p_execute_2(void)
 {				/* '$execute_2'(Goal)	 */
   Term            t = Deref(ARG1);
-  SMALLUNSGN      mod = _YAP_LookupModule(Deref(ARG4));
+  SMALLUNSGN      mod = Yap_LookupModule(Deref(ARG4));
   Prop            pe;
 
   if (IsAtomTerm(t)) {
@@ -705,7 +705,7 @@ p_execute_2(void)
     a = AtomOfTerm(t);
     ARG1 = ARG2;
     ARG2 = ARG3;
-    pe = PredPropByFunc(_YAP_MkFunctor(a,2),mod);
+    pe = PredPropByFunc(Yap_MkFunctor(a,2),mod);
   } else if (IsApplTerm(t)) {
     Functor f = FunctorOfTerm(t);
     Int Arity, i;
@@ -713,12 +713,12 @@ p_execute_2(void)
     CELL *ptr;
 
     if (IsExtensionFunctor(f)) {
-      _YAP_Error(TYPE_ERROR_CALLABLE, t, "call_with_args/3");
+      Yap_Error(TYPE_ERROR_CALLABLE, t, "call_with_args/3");
       return(FALSE);
     }
     Arity = ArityOfFunctor(f);
     a = NameOfFunctor(f);
-    pe = PredPropByFunc(_YAP_MkFunctor(a,Arity+2), mod);
+    pe = PredPropByFunc(Yap_MkFunctor(a,Arity+2), mod);
     XREGS[Arity+2] = ARG3;
     XREGS[Arity+1] = ARG2;
     ptr = RepAppl(t)+1;
@@ -728,7 +728,7 @@ p_execute_2(void)
   } else {
     CELL *ptr;
 
-    pe = PredPropByFunc(_YAP_MkFunctor(AtomDot,4), mod);
+    pe = PredPropByFunc(Yap_MkFunctor(AtomDot,4), mod);
     ptr = RepPair(t);
     XREGS[4] = ARG3;
     XREGS[3] = ARG2;
@@ -742,11 +742,11 @@ static Int
 p_execute_3(void)
 {				/* '$execute_3'(Goal)	 */
   Term            t = Deref(ARG1);
-  SMALLUNSGN      mod = _YAP_LookupModule(Deref(ARG5));
+  SMALLUNSGN      mod = Yap_LookupModule(Deref(ARG5));
   Prop            pe;
 
   if (!IsAtomTerm(t)) {
-    _YAP_Error(TYPE_ERROR_ATOM,ARG1,"call_with_args/4");
+    Yap_Error(TYPE_ERROR_ATOM,ARG1,"call_with_args/4");
     return(FALSE);
   }
   if (IsAtomTerm(t)) {
@@ -755,7 +755,7 @@ p_execute_3(void)
     ARG1 = ARG2;
     ARG2 = ARG3;
     ARG3 = ARG4;
-    pe = PredPropByFunc(_YAP_MkFunctor(a,3),mod);
+    pe = PredPropByFunc(Yap_MkFunctor(a,3),mod);
   } else if (IsApplTerm(t)) {
     Functor f = FunctorOfTerm(t);
     Int Arity, i;
@@ -763,12 +763,12 @@ p_execute_3(void)
     CELL *ptr;
 
     if (IsExtensionFunctor(f)) {
-      _YAP_Error(TYPE_ERROR_CALLABLE, t, "call_with_args/2");
+      Yap_Error(TYPE_ERROR_CALLABLE, t, "call_with_args/2");
       return(FALSE);
     }
     Arity = ArityOfFunctor(f);
     a = NameOfFunctor(f);
-    pe = PredPropByFunc(_YAP_MkFunctor(a,Arity+3), mod);
+    pe = PredPropByFunc(Yap_MkFunctor(a,Arity+3), mod);
     XREGS[Arity+3] = ARG4;
     XREGS[Arity+2] = ARG3;
     XREGS[Arity+1] = ARG2;
@@ -779,7 +779,7 @@ p_execute_3(void)
   } else {
     CELL *ptr;
 
-    pe = PredPropByFunc(_YAP_MkFunctor(AtomDot,5), mod);
+    pe = PredPropByFunc(Yap_MkFunctor(AtomDot,5), mod);
     ptr = RepPair(t);
     XREGS[5] = ARG4;
     XREGS[4] = ARG3;
@@ -794,7 +794,7 @@ static Int
 p_execute_4(void)
 {				/* '$execute_4'(Goal)	 */
   Term            t = Deref(ARG1);
-  SMALLUNSGN      mod = _YAP_LookupModule(Deref(ARG6));
+  SMALLUNSGN      mod = Yap_LookupModule(Deref(ARG6));
   Prop            pe;
 
   if (IsAtomTerm(t)) {
@@ -804,7 +804,7 @@ p_execute_4(void)
     ARG2 = ARG3;
     ARG3 = ARG4;
     ARG4 = ARG5;
-    pe = PredPropByFunc(_YAP_MkFunctor(a,4),mod);
+    pe = PredPropByFunc(Yap_MkFunctor(a,4),mod);
   } else if (IsApplTerm(t)) {
     Functor f = FunctorOfTerm(t);
     Int Arity, i;
@@ -812,12 +812,12 @@ p_execute_4(void)
     CELL *ptr;
 
     if (IsExtensionFunctor(f)) {
-      _YAP_Error(TYPE_ERROR_CALLABLE, t, "call_with_args/5");
+      Yap_Error(TYPE_ERROR_CALLABLE, t, "call_with_args/5");
       return(FALSE);
     }
     Arity = ArityOfFunctor(f);
     a = NameOfFunctor(f);
-    pe = PredPropByFunc(_YAP_MkFunctor(a,Arity+4), mod);
+    pe = PredPropByFunc(Yap_MkFunctor(a,Arity+4), mod);
     XREGS[Arity+4] = ARG5;
     XREGS[Arity+3] = ARG4;
     XREGS[Arity+2] = ARG3;
@@ -829,7 +829,7 @@ p_execute_4(void)
   } else {
     CELL *ptr;
 
-    pe = PredPropByFunc(_YAP_MkFunctor(AtomDot,6), mod);
+    pe = PredPropByFunc(Yap_MkFunctor(AtomDot,6), mod);
     ptr = RepPair(t);
     XREGS[6] = ARG5;
     XREGS[5] = ARG4;
@@ -845,7 +845,7 @@ static Int
 p_execute_5(void)
 {				/* '$execute_5'(Goal)	 */
   Term            t = Deref(ARG1);
-  SMALLUNSGN      mod = _YAP_LookupModule(Deref(ARG7));
+  SMALLUNSGN      mod = Yap_LookupModule(Deref(ARG7));
   Prop            pe;
 
   if (IsAtomTerm(t)) {
@@ -856,7 +856,7 @@ p_execute_5(void)
     ARG3 = ARG4;
     ARG4 = ARG5;
     ARG5 = ARG6;
-    pe = PredPropByFunc(_YAP_MkFunctor(a,5),mod);
+    pe = PredPropByFunc(Yap_MkFunctor(a,5),mod);
   } else if (IsApplTerm(t)) {
     Functor f = FunctorOfTerm(t);
     Int Arity, i;
@@ -864,12 +864,12 @@ p_execute_5(void)
     CELL *ptr;
 
     if (IsExtensionFunctor(f)) {
-      _YAP_Error(TYPE_ERROR_CALLABLE, t, "call_with_args/6");
+      Yap_Error(TYPE_ERROR_CALLABLE, t, "call_with_args/6");
       return(FALSE);
     }
     Arity = ArityOfFunctor(f);
     a = NameOfFunctor(f);
-    pe = PredPropByFunc(_YAP_MkFunctor(a,Arity+5), mod);
+    pe = PredPropByFunc(Yap_MkFunctor(a,Arity+5), mod);
     XREGS[Arity+5] = ARG6;
     XREGS[Arity+4] = ARG5;
     XREGS[Arity+3] = ARG4;
@@ -882,7 +882,7 @@ p_execute_5(void)
   } else {
     CELL *ptr;
 
-    pe = PredPropByFunc(_YAP_MkFunctor(AtomDot,7), mod);
+    pe = PredPropByFunc(Yap_MkFunctor(AtomDot,7), mod);
     ptr = RepPair(t);
     XREGS[7] = ARG6;
     XREGS[6] = ARG5;
@@ -899,7 +899,7 @@ static Int
 p_execute_6(void)
 {				/* '$execute_6'(Goal)	 */
   Term            t = Deref(ARG1);
-  SMALLUNSGN      mod = _YAP_LookupModule(Deref(ARG8));
+  SMALLUNSGN      mod = Yap_LookupModule(Deref(ARG8));
   Prop            pe;
 
   if (IsAtomTerm(t)) {
@@ -911,7 +911,7 @@ p_execute_6(void)
     ARG4 = ARG5;
     ARG5 = ARG6;
     ARG6 = ARG7;
-    pe = PredPropByFunc(_YAP_MkFunctor(a,6),mod);
+    pe = PredPropByFunc(Yap_MkFunctor(a,6),mod);
   } else if (IsApplTerm(t)) {
     Functor f = FunctorOfTerm(t);
     Int Arity, i;
@@ -919,12 +919,12 @@ p_execute_6(void)
     CELL *ptr;
 
     if (IsExtensionFunctor(f)) {
-      _YAP_Error(TYPE_ERROR_CALLABLE, t, "call_with_args/7");
+      Yap_Error(TYPE_ERROR_CALLABLE, t, "call_with_args/7");
       return(FALSE);
     }
     Arity = ArityOfFunctor(f);
     a = NameOfFunctor(f);
-    pe = PredPropByFunc(_YAP_MkFunctor(a,Arity+6), mod);
+    pe = PredPropByFunc(Yap_MkFunctor(a,Arity+6), mod);
     XREGS[Arity+6] = ARG7;
     XREGS[Arity+5] = ARG6;
     XREGS[Arity+4] = ARG5;
@@ -938,7 +938,7 @@ p_execute_6(void)
   } else {
     CELL *ptr;
 
-    pe = PredPropByFunc(_YAP_MkFunctor(AtomDot,8), mod);
+    pe = PredPropByFunc(Yap_MkFunctor(AtomDot,8), mod);
     ptr = RepPair(t);
     XREGS[8] = ARG7;
     XREGS[7] = ARG6;
@@ -956,7 +956,7 @@ static Int
 p_execute_7(void)
 {				/* '$execute_7'(Goal)	 */
   Term            t = Deref(ARG1);
-  SMALLUNSGN      mod = _YAP_LookupModule(Deref(ARG9));
+  SMALLUNSGN      mod = Yap_LookupModule(Deref(ARG9));
   Prop            pe;
 
   if (IsAtomTerm(t)) {
@@ -969,7 +969,7 @@ p_execute_7(void)
     ARG5 = ARG6;
     ARG6 = ARG7;
     ARG7 = ARG8;
-    pe = PredPropByFunc(_YAP_MkFunctor(a,7),mod);
+    pe = PredPropByFunc(Yap_MkFunctor(a,7),mod);
   } else if (IsApplTerm(t)) {
     Functor f = FunctorOfTerm(t);
     Int Arity, i;
@@ -977,12 +977,12 @@ p_execute_7(void)
     CELL *ptr;
 
     if (IsExtensionFunctor(f)) {
-      _YAP_Error(TYPE_ERROR_CALLABLE, t, "call_with_args/8");
+      Yap_Error(TYPE_ERROR_CALLABLE, t, "call_with_args/8");
       return(FALSE);
     }
     Arity = ArityOfFunctor(f);
     a = NameOfFunctor(f);
-    pe = PredPropByFunc(_YAP_MkFunctor(a,Arity+7), mod);
+    pe = PredPropByFunc(Yap_MkFunctor(a,Arity+7), mod);
     XREGS[Arity+7] = ARG8;
     XREGS[Arity+6] = ARG7;
     XREGS[Arity+5] = ARG6;
@@ -997,7 +997,7 @@ p_execute_7(void)
   } else {
     CELL *ptr;
 
-    pe = PredPropByFunc(_YAP_MkFunctor(AtomDot,9), mod);
+    pe = PredPropByFunc(Yap_MkFunctor(AtomDot,9), mod);
     ptr = RepPair(t);
     XREGS[9] = ARG8;
     XREGS[8] = ARG7;
@@ -1016,7 +1016,7 @@ static Int
 p_execute_8(void)
 {				/* '$execute_8'(Goal)	 */
   Term            t = Deref(ARG1);
-  SMALLUNSGN      mod = _YAP_LookupModule(Deref(ARG10));
+  SMALLUNSGN      mod = Yap_LookupModule(Deref(ARG10));
   Prop            pe;
 
   if (IsAtomTerm(t)) {
@@ -1030,7 +1030,7 @@ p_execute_8(void)
     ARG6 = ARG7;
     ARG7 = ARG8;
     ARG8 = ARG9;
-    pe = PredPropByFunc(_YAP_MkFunctor(a,8),mod);
+    pe = PredPropByFunc(Yap_MkFunctor(a,8),mod);
   } else if (IsApplTerm(t)) {
     Functor f = FunctorOfTerm(t);
     Int Arity, i;
@@ -1038,12 +1038,12 @@ p_execute_8(void)
     CELL *ptr;
 
     if (IsExtensionFunctor(f)) {
-      _YAP_Error(TYPE_ERROR_CALLABLE, t, "call_with_args/9");
+      Yap_Error(TYPE_ERROR_CALLABLE, t, "call_with_args/9");
       return(FALSE);
     }
     Arity = ArityOfFunctor(f);
     a = NameOfFunctor(f);
-    pe = PredPropByFunc(_YAP_MkFunctor(a,Arity+8), mod);
+    pe = PredPropByFunc(Yap_MkFunctor(a,Arity+8), mod);
     XREGS[Arity+8] = ARG9;
     XREGS[Arity+7] = ARG8;
     XREGS[Arity+6] = ARG7;
@@ -1059,7 +1059,7 @@ p_execute_8(void)
   } else {
     CELL *ptr;
 
-    pe = PredPropByFunc(_YAP_MkFunctor(AtomDot,10), mod);
+    pe = PredPropByFunc(Yap_MkFunctor(AtomDot,10), mod);
     ptr = RepPair(t);
     XREGS[10] = ARG9;
     XREGS[9] = ARG8;
@@ -1079,7 +1079,7 @@ static Int
 p_execute_9(void)
 {				/* '$execute_9'(Goal)	 */
   Term            t = Deref(ARG1);
-  SMALLUNSGN      mod = _YAP_LookupModule(Deref(ARG11));
+  SMALLUNSGN      mod = Yap_LookupModule(Deref(ARG11));
   Prop            pe;
 
   if (IsAtomTerm(t)) {
@@ -1094,7 +1094,7 @@ p_execute_9(void)
     ARG7 = ARG8;
     ARG8 = ARG9;
     ARG9 = ARG10;
-    pe = PredPropByFunc(_YAP_MkFunctor(a,9),mod);
+    pe = PredPropByFunc(Yap_MkFunctor(a,9),mod);
   } else if (IsApplTerm(t)) {
     Functor f = FunctorOfTerm(t);
     Int Arity, i;
@@ -1102,12 +1102,12 @@ p_execute_9(void)
     CELL *ptr;
 
     if (IsExtensionFunctor(f)) {
-      _YAP_Error(TYPE_ERROR_CALLABLE, t, "call_with_args/10");
+      Yap_Error(TYPE_ERROR_CALLABLE, t, "call_with_args/10");
       return(FALSE);
     }
     Arity = ArityOfFunctor(f);
     a = NameOfFunctor(f);
-    pe = PredPropByFunc(_YAP_MkFunctor(a,Arity+9), mod);
+    pe = PredPropByFunc(Yap_MkFunctor(a,Arity+9), mod);
     XREGS[Arity+9] = ARG10;
     XREGS[Arity+8] = ARG9;
     XREGS[Arity+7] = ARG8;
@@ -1124,7 +1124,7 @@ p_execute_9(void)
   } else {
     CELL *ptr;
 
-    pe = PredPropByFunc(_YAP_MkFunctor(AtomDot,11), mod);
+    pe = PredPropByFunc(Yap_MkFunctor(AtomDot,11), mod);
     ptr = RepPair(t);
     XREGS[11] = ARG10;
     XREGS[10] = ARG9;
@@ -1145,7 +1145,7 @@ static Int
 p_execute_10(void)
 {				/* '$execute_10'(Goal)	 */
   Term            t = Deref(ARG1);
-  SMALLUNSGN      mod = _YAP_LookupModule(Deref(ARG12));
+  SMALLUNSGN      mod = Yap_LookupModule(Deref(ARG12));
   Prop            pe;
 
   if (IsAtomTerm(t)) {
@@ -1161,7 +1161,7 @@ p_execute_10(void)
     ARG8 = ARG9;
     ARG9 = ARG10;
     ARG10 = ARG11;
-    pe = PredPropByFunc(_YAP_MkFunctor(a,10),mod);
+    pe = PredPropByFunc(Yap_MkFunctor(a,10),mod);
   } else if (IsApplTerm(t)) {
     Functor f = FunctorOfTerm(t);
     Int Arity, i;
@@ -1169,12 +1169,12 @@ p_execute_10(void)
     CELL *ptr;
 
     if (IsExtensionFunctor(f)) {
-      _YAP_Error(TYPE_ERROR_CALLABLE, t, "call_with_args/11");
+      Yap_Error(TYPE_ERROR_CALLABLE, t, "call_with_args/11");
       return(FALSE);
     }
     Arity = ArityOfFunctor(f);
     a = NameOfFunctor(f);
-    pe = PredPropByFunc(_YAP_MkFunctor(a,Arity+10), mod);
+    pe = PredPropByFunc(Yap_MkFunctor(a,Arity+10), mod);
     XREGS[Arity+10] = ARG11;
     XREGS[Arity+9] = ARG10;
     XREGS[Arity+8] = ARG9;
@@ -1192,7 +1192,7 @@ p_execute_10(void)
   } else {
     CELL *ptr;
 
-    pe = PredPropByFunc(_YAP_MkFunctor(AtomDot,12), mod);
+    pe = PredPropByFunc(Yap_MkFunctor(AtomDot,12), mod);
     ptr = RepPair(t);
     XREGS[12] = ARG11;
     XREGS[11] = ARG10;
@@ -1215,9 +1215,9 @@ static Int
 p_execute_depth_limit(void) {
   Term d = Deref(ARG2);
   if (IsVarTerm(d)) {
-    _YAP_Error(INSTANTIATION_ERROR,d,"depth_bound_call/2");    
+    Yap_Error(INSTANTIATION_ERROR,d,"depth_bound_call/2");    
   } else if (!IsIntTerm(d)) {
-    _YAP_Error(TYPE_ERROR_INTEGER, d, "depth_bound_call/2");
+    Yap_Error(TYPE_ERROR_INTEGER, d, "depth_bound_call/2");
     return(FALSE);
   }
   DEPTH = MkIntTerm(IntOfTerm(d)*2);
@@ -1239,7 +1239,7 @@ p_at_execute(void)
   unsigned	  int arity;
   Prop            pe;
   Atom            a;
-  SMALLUNSGN      mod = _YAP_LookupModule(tmod);
+  SMALLUNSGN      mod = Yap_LookupModule(tmod);
 
  restart_exec:
   if (IsAtomTerm(t)) {
@@ -1256,14 +1256,14 @@ p_at_execute(void)
     if (f == FunctorModule) {
       Term tmod = ArgOfTerm(1,t);
       if (!IsVarTerm(tmod) && IsAtomTerm(tmod)) {
-	mod = _YAP_LookupModule(tmod);
+	mod = Yap_LookupModule(tmod);
 	t = ArgOfTerm(2,t);
 	goto restart_exec;
       }
       if (IsVarTerm(tmod)) {
-	_YAP_Error(INSTANTIATION_ERROR, ARG1, "calling clause in debugger");
+	Yap_Error(INSTANTIATION_ERROR, ARG1, "calling clause in debugger");
       }
-      _YAP_Error(TYPE_ERROR_ATOM, ARG1, "calling clause in debugger");
+      Yap_Error(TYPE_ERROR_ATOM, ARG1, "calling clause in debugger");
     }
     pe = PredPropByFunc(f,mod);
     if (RepPredProp(pe)->PredFlags & PushModPredFlag) {
@@ -1300,12 +1300,12 @@ static int
 exec_absmi(int top)
 {
   int lval;
-  if (top && (lval = sigsetjmp (_YAP_RestartEnv, 1)) != 0) {
+  if (top && (lval = sigsetjmp (Yap_RestartEnv, 1)) != 0) {
     switch(lval) {
     case 1:
       { /* restart */
 	/* otherwise, SetDBForThrow will fail entering critical mode */
-	_YAP_PrologMode = UserMode;
+	Yap_PrologMode = UserMode;
 	/* find out where to cut to */
 #if defined(__GNUC__)
 #if defined(hppa) || defined(__alpha)
@@ -1320,18 +1320,18 @@ exec_absmi(int top)
 	yap_flags[SPY_CREEP_FLAG] = 0;
 	CreepFlag = CalculateStackGap();
 	P = (yamop *)FAILCODE;
-	_YAP_PrologMode = UserMode;
+	Yap_PrologMode = UserMode;
       }
       break;
     case 2:
       {
 	/* arithmetic exception */
 	/* must be done here, otherwise siglongjmp will clobber all the registers */
-	_YAP_Error(_YAP_matherror,TermNil,NULL);
+	Yap_Error(Yap_matherror,TermNil,NULL);
 	/* reset the registers so that we don't have trash in abstract machine */
-	_YAP_set_fpu_exceptions(yap_flags[LANGUAGE_MODE_FLAG] == 1);
+	Yap_set_fpu_exceptions(yap_flags[LANGUAGE_MODE_FLAG] == 1);
 	P = (yamop *)FAILCODE;
-	_YAP_PrologMode = UserMode;
+	Yap_PrologMode = UserMode;
       }
       break;
     case 3:
@@ -1340,12 +1340,12 @@ exec_absmi(int top)
       }
     default:
       /* do nothing */
-      _YAP_PrologMode = UserMode;
+      Yap_PrologMode = UserMode;
     }
   } else {
-    _YAP_PrologMode = UserMode;
+    Yap_PrologMode = UserMode;
   }
-  return(_YAP_absmi(0));
+  return(Yap_absmi(0));
 }
 
 static int
@@ -1396,20 +1396,20 @@ do_goal(CODEADDR CodeAdr, int arity, CELL *pt, int args_to_save, int top)
   YENV[E_CB] = Unsigned (B);
   P = (yamop *) CodeAdr;
   CP = YESCODE;
-  S = CellPtr (RepPredProp (PredPropByFunc (_YAP_MkFunctor(AtomCall, 1),0)));	/* A1 mishaps */
+  S = CellPtr (RepPredProp (PredPropByFunc (Yap_MkFunctor(AtomCall, 1),0)));	/* A1 mishaps */
 
  return(exec_absmi(top));
 }
 
 int
-_YAP_exec_absmi(int top)
+Yap_exec_absmi(int top)
 {
   return exec_absmi(top);
 }
 
 
 Int
-_YAP_execute_goal(Term t, int nargs, SMALLUNSGN mod)
+Yap_execute_goal(Term t, int nargs, SMALLUNSGN mod)
 {
   Int             out;
   CODEADDR        CodeAdr;
@@ -1433,7 +1433,7 @@ _YAP_execute_goal(Term t, int nargs, SMALLUNSGN mod)
     Functor f = FunctorOfTerm(t);
 
     if (IsBlobFunctor(f)) {
-      _YAP_Error(TYPE_ERROR_CALLABLE,t,"call/1");
+      Yap_Error(TYPE_ERROR_CALLABLE,t,"call/1");
       return(FALSE);
     }
     /* I cannot use the standard macro here because
@@ -1442,7 +1442,7 @@ _YAP_execute_goal(Term t, int nargs, SMALLUNSGN mod)
     pt = RepAppl(t)+1;
     pe = PredPropByFunc(f, mod);
   } else {
-    _YAP_Error(TYPE_ERROR_CALLABLE,t,"call/1");
+    Yap_Error(TYPE_ERROR_CALLABLE,t,"call/1");
     return(FALSE);
   }
   ppe = RepPredProp(pe);
@@ -1508,13 +1508,13 @@ _YAP_execute_goal(Term t, int nargs, SMALLUNSGN mod)
     HB = PROTECT_FROZEN_H(B);
     return(FALSE);
   } else {
-    _YAP_Error(SYSTEM_ERROR,TermNil,"emulator crashed");
+    Yap_Error(SYSTEM_ERROR,TermNil,"emulator crashed");
     return(FALSE);
   }
 }
 
 void
-_YAP_trust_last(void)
+Yap_trust_last(void)
 {
   ASP  = B->cp_env;
   P    = (yamop *)(B->cp_env[E_CP]);
@@ -1533,7 +1533,7 @@ _YAP_trust_last(void)
 }
 
 int
-_YAP_RunTopGoal(Term t)
+Yap_RunTopGoal(Term t)
 {
   CODEADDR        CodeAdr;
   Prop pe;
@@ -1553,13 +1553,13 @@ _YAP_RunTopGoal(Term t)
     Functor f = FunctorOfTerm(t);
 
     if (IsBlobFunctor(f)) {
-      _YAP_Error(TYPE_ERROR_CALLABLE,t,"call/1");
+      Yap_Error(TYPE_ERROR_CALLABLE,t,"call/1");
       return(FALSE);
     }
     if (f == FunctorModule) {
       Term tmod = ArgOfTerm(1,t);
       if (!IsVarTerm(tmod) && IsAtomTerm(tmod)) {
-	mod = _YAP_LookupModule(tmod);
+	mod = Yap_LookupModule(tmod);
 	t = ArgOfTerm(2,t);
 	goto restart_runtopgoal;
       }
@@ -1567,11 +1567,11 @@ _YAP_RunTopGoal(Term t)
     /* I cannot use the standard macro here because
        otherwise I would dereference the argument and
        might skip a svar */
-    pe = _YAP_GetPredPropByFunc(f, CurrentModule);
+    pe = Yap_GetPredPropByFunc(f, CurrentModule);
     pt = RepAppl(t)+1;
     arity = ArityOfFunctor(f); 
   } else {
-    _YAP_Error(TYPE_ERROR_CALLABLE,t,"call/1");
+    Yap_Error(TYPE_ERROR_CALLABLE,t,"call/1");
     return(FALSE);
   }
   ppe = RepPredProp(pe);
@@ -1586,9 +1586,9 @@ _YAP_RunTopGoal(Term t)
     return(FALSE);
   }
   CodeAdr = ppe->CodeOfPred;
-  if (_YAP_TrailTop - HeapTop < 2048) {
-    _YAP_PrologMode = BootMode;
-    _YAP_Error(SYSTEM_ERROR,TermNil,
+  if (Yap_TrailTop - HeapTop < 2048) {
+    Yap_PrologMode = BootMode;
+    Yap_Error(SYSTEM_ERROR,TermNil,
 	  "unable to boot because of too little heap space");
   }
   goal_out = do_goal(CodeAdr, arity, pt, 0, TRUE);
@@ -1617,7 +1617,7 @@ p_restore_regs(void)
 {
   Term t = Deref(ARG1);
   if (IsVarTerm(t)) {
-    _YAP_Error(INSTANTIATION_ERROR,t,"support for coroutining");    
+    Yap_Error(INSTANTIATION_ERROR,t,"support for coroutining");    
     return(FALSE);
   }
   if (IsAtomTerm(t)) return(TRUE);
@@ -1633,7 +1633,7 @@ p_restore_regs2(void)
   Term t = Deref(ARG1), d0;
   choiceptr pt0;
   if (IsVarTerm(t)) {
-    _YAP_Error(INSTANTIATION_ERROR,t,"support for coroutining");    
+    Yap_Error(INSTANTIATION_ERROR,t,"support for coroutining");    
     return(FALSE);
   }
   d0 = Deref(ARG2);
@@ -1641,7 +1641,7 @@ p_restore_regs2(void)
     restore_regs(t);
   }
   if (IsVarTerm(d0)) {
-    _YAP_Error(INSTANTIATION_ERROR,d0,"support for coroutining");    
+    Yap_Error(INSTANTIATION_ERROR,d0,"support for coroutining");    
     return(FALSE);
   }
   if (!IsIntegerTerm(d0)) {
@@ -1714,9 +1714,9 @@ JumpToEnv(Term t) {
     if (B == NULL) {
       B = B0;
 #if PUSH_REGS
-      restore_absmi_regs(&_YAP_standard_regs);
+      restore_absmi_regs(&Yap_standard_regs);
 #endif
-      siglongjmp(_YAP_RestartEnv,1);
+      siglongjmp(Yap_RestartEnv,1);
     }
     /* is it a continuation? */
     env = B->cp_env;
@@ -1747,7 +1747,7 @@ JumpToEnv(Term t) {
 }
 
 Int
-_YAP_JumpToEnv(Term t) {
+Yap_JumpToEnv(Term t) {
   return JumpToEnv(t);
 }
 
@@ -1759,23 +1759,23 @@ p_jump_env(void) {
 }
 
 void
-_YAP_InitYaamRegs(void)
+Yap_InitYaamRegs(void)
 {
 #if PUSH_REGS
   /* Guarantee that after a longjmp we go back to the original abstract
      machine registers */
-  _YAP_regp = &_YAP_standard_regs;
+  Yap_regp = &Yap_standard_regs;
 #endif /* PUSH_REGS */
-  _YAP_PutValue (AtomBreak, MkIntTerm (0));
-  _YAP_PutValue (AtomIndex, MkAtomTerm (AtomTrue));
+  Yap_PutValue (AtomBreak, MkIntTerm (0));
+  Yap_PutValue (AtomIndex, MkAtomTerm (AtomTrue));
   AuxSp = (CELL *)AuxTop;
-  TR = (tr_fr_ptr)_YAP_TrailBase;
+  TR = (tr_fr_ptr)Yap_TrailBase;
 #ifdef COROUTINING
-  H = H0 = ((CELL *) _YAP_GlobalBase)+ 2048;
+  H = H0 = ((CELL *) Yap_GlobalBase)+ 2048;
 #else
-  H = H0 = (CELL *) _YAP_GlobalBase;
+  H = H0 = (CELL *) Yap_GlobalBase;
 #endif
-  LCL0 = ASP = (CELL *) _YAP_LocalBase;
+  LCL0 = ASP = (CELL *) Yap_LocalBase;
   /* notice that an initial choice-point and environment
    *must* be created since for the garbage collector to work */
   B = NULL;
@@ -1798,43 +1798,43 @@ _YAP_InitYaamRegs(void)
   /* for slots to work */
   *--ASP = MkIntTerm(0);
 #if COROUTINING
-  RESET_VARIABLE((CELL *)_YAP_GlobalBase);
-  DelayedVars = _YAP_NewTimedVar((CELL)_YAP_GlobalBase);
-  WokenGoals = _YAP_NewTimedVar(TermNil);
-  MutableList = _YAP_NewTimedVar(TermNil);
-  AttsMutableList = _YAP_NewTimedVar(TermNil);
+  RESET_VARIABLE((CELL *)Yap_GlobalBase);
+  DelayedVars = Yap_NewTimedVar((CELL)Yap_GlobalBase);
+  WokenGoals = Yap_NewTimedVar(TermNil);
+  MutableList = Yap_NewTimedVar(TermNil);
+  AttsMutableList = Yap_NewTimedVar(TermNil);
 #endif
 }
 
 void 
-_YAP_InitExecFs(void)
+Yap_InitExecFs(void)
 {
-  _YAP_InitCPred("$execute", 1, p_execute, 0);
-  _YAP_InitCPred("$execute_in_mod", 2, p_execute_in_mod, 0);
-  _YAP_InitCPred("$execute_within", 4, p_execute_within, 0);
-  _YAP_InitCPred("$execute_within", 1, p_execute_within2, 0);
-  _YAP_InitCPred("$last_execute_within", 1, p_execute_within2, 0);
-  _YAP_InitCPred("$execute", 3, p_at_execute, 0);
-  _YAP_InitCPred("$call_with_args", 2, p_execute_0, 0);
-  _YAP_InitCPred("$call_with_args", 3, p_execute_1, 0);
-  _YAP_InitCPred("$call_with_args", 4, p_execute_2, 0);
-  _YAP_InitCPred("$call_with_args", 5, p_execute_3, 0);
-  _YAP_InitCPred("$call_with_args", 6, p_execute_4, 0);
-  _YAP_InitCPred("$call_with_args", 7, p_execute_5, 0);
-  _YAP_InitCPred("$call_with_args", 8, p_execute_6, 0);
-  _YAP_InitCPred("$call_with_args", 9, p_execute_7, 0);
-  _YAP_InitCPred("$call_with_args", 10, p_execute_8, 0);
-  _YAP_InitCPred("$call_with_args", 11, p_execute_9, 0);
-  _YAP_InitCPred("$call_with_args", 12, p_execute_10, 0);
+  Yap_InitCPred("$execute", 1, p_execute, 0);
+  Yap_InitCPred("$execute_in_mod", 2, p_execute_in_mod, 0);
+  Yap_InitCPred("$execute_within", 4, p_execute_within, 0);
+  Yap_InitCPred("$execute_within", 1, p_execute_within2, 0);
+  Yap_InitCPred("$last_execute_within", 1, p_execute_within2, 0);
+  Yap_InitCPred("$execute", 3, p_at_execute, 0);
+  Yap_InitCPred("$call_with_args", 2, p_execute_0, 0);
+  Yap_InitCPred("$call_with_args", 3, p_execute_1, 0);
+  Yap_InitCPred("$call_with_args", 4, p_execute_2, 0);
+  Yap_InitCPred("$call_with_args", 5, p_execute_3, 0);
+  Yap_InitCPred("$call_with_args", 6, p_execute_4, 0);
+  Yap_InitCPred("$call_with_args", 7, p_execute_5, 0);
+  Yap_InitCPred("$call_with_args", 8, p_execute_6, 0);
+  Yap_InitCPred("$call_with_args", 9, p_execute_7, 0);
+  Yap_InitCPred("$call_with_args", 10, p_execute_8, 0);
+  Yap_InitCPred("$call_with_args", 11, p_execute_9, 0);
+  Yap_InitCPred("$call_with_args", 12, p_execute_10, 0);
 #ifdef DEPTH_LIMIT
-  _YAP_InitCPred("$execute_under_depth_limit", 2, p_execute_depth_limit, 0);
+  Yap_InitCPred("$execute_under_depth_limit", 2, p_execute_depth_limit, 0);
 #endif
-  _YAP_InitCPred("$execute0", 2, p_execute0, 0);
-  _YAP_InitCPred("$save_current_choice_point", 1, p_save_cp, 0);
-  _YAP_InitCPred("$pred_goal_expansion_on", 0, p_pred_goal_expansion_on, SafePredFlag);
-  _YAP_InitCPred("$restore_regs", 1, p_restore_regs, SafePredFlag);
-  _YAP_InitCPred("$restore_regs", 2, p_restore_regs2, SafePredFlag);
-  _YAP_InitCPred("$clean_ifcp", 1, p_clean_ifcp, SafePredFlag);
-  _YAP_InitCPred("$jump_env_and_store_ball", 1, p_jump_env, 0);
+  Yap_InitCPred("$execute0", 2, p_execute0, 0);
+  Yap_InitCPred("$save_current_choice_point", 1, p_save_cp, 0);
+  Yap_InitCPred("$pred_goal_expansion_on", 0, p_pred_goal_expansion_on, SafePredFlag);
+  Yap_InitCPred("$restore_regs", 1, p_restore_regs, SafePredFlag);
+  Yap_InitCPred("$restore_regs", 2, p_restore_regs2, SafePredFlag);
+  Yap_InitCPred("$clean_ifcp", 1, p_clean_ifcp, SafePredFlag);
+  Yap_InitCPred("$jump_env_and_store_ball", 1, p_jump_env, 0);
 }
 

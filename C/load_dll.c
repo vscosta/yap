@@ -28,7 +28,7 @@
  *   locate the executable of Yap
 */
 void
-_YAP_FindExecutable(char *name)
+Yap_FindExecutable(char *name)
 {
 }
 
@@ -45,8 +45,8 @@ LoadForeign(StringList ofiles, StringList libs,
   while (ofiles) {
     HINSTANCE handle;
 
-    if (_YAP_TrueFileName(ofiles->s, _YAP_FileNameBuf, TRUE) &&
-	(handle=LoadLibrary(_YAP_FileNameBuf)) != 0)
+    if (Yap_TrueFileName(ofiles->s, Yap_FileNameBuf, TRUE) &&
+	(handle=LoadLibrary(Yap_FileNameBuf)) != 0)
 	{
 	  if (*init_proc == NULL)
 	    *init_proc = (YapInitProc)GetProcAddress((HMODULE)handle, proc_name);
@@ -60,15 +60,15 @@ LoadForeign(StringList ofiles, StringList libs,
     HINSTANCE handle;
 
     if (libs->s[0] == '-') {
-      strcat(_YAP_FileNameBuf,libs->s+2);
-      strcat(_YAP_FileNameBuf,".dll");
+      strcat(Yap_FileNameBuf,libs->s+2);
+      strcat(Yap_FileNameBuf,".dll");
     } else {
-      strcpy(_YAP_FileNameBuf,libs->s);
+      strcpy(Yap_FileNameBuf,libs->s);
     }
 
-    if((handle=LoadLibrary(_YAP_FileNameBuf)) == 0)
+    if((handle=LoadLibrary(Yap_FileNameBuf)) == 0)
     {
-/*      strcpy(_YAP_ErrorSay,dlerror());*/
+/*      strcpy(Yap_ErrorSay,dlerror());*/
       return LOAD_FAILLED;
     }
 
@@ -79,7 +79,7 @@ LoadForeign(StringList ofiles, StringList libs,
   }
 
   if(*init_proc == NULL) {
-    strcpy(_YAP_ErrorSay,"Could not locate initialization routine");
+    strcpy(Yap_ErrorSay,"Could not locate initialization routine");
     return LOAD_FAILLED;
   }
 
@@ -87,19 +87,19 @@ LoadForeign(StringList ofiles, StringList libs,
 }
 
 Int
-_YAP_LoadForeign(StringList ofiles, StringList libs,
+Yap_LoadForeign(StringList ofiles, StringList libs,
 	       char *proc_name,	YapInitProc *init_proc)
 {
   return LoadForeign(ofiles, libs, proc_name, init_proc);
 }
 
 void 
-_YAP_ShutdownLoadForeign(void)
+Yap_ShutdownLoadForeign(void)
 {
 }
 
 Int
-_YAP_ReLoadForeign(StringList ofiles, StringList libs,
+Yap_ReLoadForeign(StringList ofiles, StringList libs,
 	       char *proc_name,	YapInitProc *init_proc)
 {
   return(LoadForeign(ofiles,libs, proc_name, init_proc));

@@ -23,21 +23,21 @@ static char     SccsId[] = "%W% %G%";
 #include "Yatom.h"
 #include "Heap.h"
 
-/* exile _YAP_standard_regs here, otherwise WIN32 linkers may complain */
-REGSTORE _YAP_standard_regs;
+/* exile Yap_standard_regs here, otherwise WIN32 linkers may complain */
+REGSTORE Yap_standard_regs;
 
 #if PUSH_REGS
 
-REGSTORE *_YAP_regp;
+REGSTORE *Yap_regp;
 
 #else
 
-REGSTORE _YAP_REGS;
+REGSTORE Yap_REGS;
 
 #endif
 
 Term 
-_YAP_MkNewPairTerm(void)
+Yap_MkNewPairTerm(void)
 {
   register CELL  *p = H;
 
@@ -48,7 +48,7 @@ _YAP_MkNewPairTerm(void)
 }
 
 Term
-_YAP_MkApplTerm(Functor f, unsigned int n, register Term *a)	
+Yap_MkApplTerm(Functor f, unsigned int n, register Term *a)	
      /* build compound term with functor f and n
       * args a */
 {
@@ -65,7 +65,7 @@ _YAP_MkApplTerm(Functor f, unsigned int n, register Term *a)
 }
 
 Term 
-_YAP_MkNewApplTerm(Functor f, unsigned int n)	
+Yap_MkNewApplTerm(Functor f, unsigned int n)	
      /* build compound term with functor f and n
       * args a */
 {

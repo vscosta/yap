@@ -32,7 +32,7 @@ static int do_trace_primitives = TRUE;
 static int
 TracePutchar(int sno, int ch)
 {
-  return(putc(ch, _YAP_stderr)); /* use standard error stream, which is supposed to be 2*/
+  return(putc(ch, Yap_stderr)); /* use standard error stream, which is supposed to be 2*/
 }
 
 static void
@@ -40,35 +40,35 @@ send_tracer_message(char *start, char *name, Int arity, char *mname, CELL *args)
 {
   if (name == NULL) {
 #ifdef  YAPOR
-    fprintf(_YAP_stderr, "(%d)%s", worker_id, start);
+    fprintf(Yap_stderr, "(%d)%s", worker_id, start);
 #else
-    fprintf(_YAP_stderr, "%s", start);
+    fprintf(Yap_stderr, "%s", start);
 #endif
   } else {
     int i;
 
     if (arity) {
-      fprintf(_YAP_stderr, "%s %s:%s(", start, mname, name);
+      fprintf(Yap_stderr, "%s %s:%s(", start, mname, name);
     } else {
-      fprintf(_YAP_stderr, "%s %s:%s", start, mname, name);
+      fprintf(Yap_stderr, "%s %s:%s", start, mname, name);
     }
     for (i= 0; i < arity; i++) {
-      if (i > 0) fprintf(_YAP_stderr, ",");
+      if (i > 0) fprintf(Yap_stderr, ",");
 #if DEBUG
 #if COROUTINING
-      _YAP_Portray_delays = TRUE;
+      Yap_Portray_delays = TRUE;
 #endif
 #endif
-      _YAP_plwrite(args[i], TracePutchar, Handle_vars_f);
+      Yap_plwrite(args[i], TracePutchar, Handle_vars_f);
 #if DEBUG
 #if COROUTINING
-      _YAP_Portray_delays = FALSE;
+      Yap_Portray_delays = FALSE;
 #endif
 #endif
     }
-    if (arity) fprintf(_YAP_stderr, ")");
+    if (arity) fprintf(Yap_stderr, ")");
   }
-  fprintf(_YAP_stderr, "\n");
+  fprintf(Yap_stderr, "\n");
 }
 
 #if defined(__GNUC__)
@@ -81,7 +81,7 @@ unsigned long vsc_count;
 static int
 check_trail_consistency(void) {
   tr_fr_ptr ptr = TR;
-  while (ptr > (CELL *)_YAP_TrailBase) {
+  while (ptr > (CELL *)Yap_TrailBase) {
     ptr = --ptr;
     if (!IsVarTerm(TrailTerm(ptr))) {
       if (IsApplTerm(TrailTerm(ptr))) {
@@ -119,7 +119,7 @@ low_level_trace(yap_low_level_port port, PredEntry *pred, CELL *args)
   /* if (vsc_count > 500000) exit(0); */
   /* if (gc_calls < 1) return; */
 #if defined(__GNUC__)
-  fprintf(_YAP_stderr,"%llu ", vsc_count);
+  fprintf(Yap_stderr,"%llu ", vsc_count);
 #endif
   /* check_trail_consistency(); */
   if (pred == NULL) {
@@ -130,7 +130,7 @@ low_level_trace(yap_low_level_port port, PredEntry *pred, CELL *args)
   }
   switch (port) {
   case enter_pred:
-    mname = RepAtom(AtomOfTerm(_YAP_Module_Name((CODEADDR)pred)))->StrOfAE;
+    mname = RepAtom(AtomOfTerm(Yap_Module_Name((CODEADDR)pred)))->StrOfAE;
     arity = pred->ArityOfPE;
     if (arity == 0)
       s = RepAtom((Atom)pred->FunctorOfPred)->StrOfAE;
@@ -153,7 +153,7 @@ low_level_trace(yap_low_level_port port, PredEntry *pred, CELL *args)
     if (pred == NULL) {
       send_tracer_message("RETRY TABLE: ", NULL, 0, NULL, args);
     } else {
-      mname = RepAtom(AtomOfTerm(_YAP_Module_Name((CODEADDR)pred)))->StrOfAE;
+      mname = RepAtom(AtomOfTerm(Yap_Module_Name((CODEADDR)pred)))->StrOfAE;
       arity = pred->ArityOfPE;
       if (arity == 0)
 	s = RepAtom((Atom)pred->FunctorOfPred)->StrOfAE;
@@ -170,7 +170,7 @@ low_level_trace(yap_low_level_port port, PredEntry *pred, CELL *args)
     if (pred == NULL) {
       send_tracer_message("RETRY TABLE: ", NULL, 0, NULL, args);
     } else {
-      mname = RepAtom(AtomOfTerm(_YAP_Module_Name((CODEADDR)pred)))->StrOfAE;
+      mname = RepAtom(AtomOfTerm(Yap_Module_Name((CODEADDR)pred)))->StrOfAE;
       arity = pred->ArityOfPE;
       if (arity == 0)
 	s = RepAtom((Atom)pred->FunctorOfPred)->StrOfAE;
@@ -182,7 +182,7 @@ low_level_trace(yap_low_level_port port, PredEntry *pred, CELL *args)
     }
     break;
   case retry_pred:
-    mname = RepAtom(AtomOfTerm(_YAP_Module_Name((CODEADDR)pred)))->StrOfAE;
+    mname = RepAtom(AtomOfTerm(Yap_Module_Name((CODEADDR)pred)))->StrOfAE;
     arity = pred->ArityOfPE;
     if (arity == 0)
       s = RepAtom((Atom)pred->FunctorOfPred)->StrOfAE;
@@ -199,27 +199,27 @@ low_level_trace(yap_low_level_port port, PredEntry *pred, CELL *args)
 void
 toggle_low_level_trace(void)
 {
-  _YAP_do_low_level_trace = !_YAP_do_low_level_trace;
+  Yap_do_low_level_trace = !Yap_do_low_level_trace;
 }
 
 static Int p_start_low_level_trace(void)
 {
-  _YAP_do_low_level_trace = TRUE;
+  Yap_do_low_level_trace = TRUE;
   return(TRUE);
 }
 
 static Int p_stop_low_level_trace(void)
 {
-  _YAP_do_low_level_trace = FALSE;
+  Yap_do_low_level_trace = FALSE;
   do_trace_primitives = TRUE;
   return(TRUE);
 }
 
 void
-_YAP_InitLowLevelTrace(void)
+Yap_InitLowLevelTrace(void)
 {
-  _YAP_InitCPred("start_low_level_trace", 0, p_start_low_level_trace, SafePredFlag);
-  _YAP_InitCPred("stop_low_level_trace", 0, p_stop_low_level_trace, SafePredFlag);
+  Yap_InitCPred("start_low_level_trace", 0, p_start_low_level_trace, SafePredFlag);
+  Yap_InitCPred("stop_low_level_trace", 0, p_stop_low_level_trace, SafePredFlag);
 }
 
 #endif

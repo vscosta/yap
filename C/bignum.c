@@ -35,7 +35,7 @@ static char     SccsId[] = "%W% %G%";
 static CELL *pre_alloc_base = NULL, *alloc_ptr;
 
 MP_INT *
-_YAP_PreAllocBigNum(void)
+Yap_PreAllocBigNum(void)
 {
   MP_INT *ret;
 
@@ -54,14 +54,14 @@ _YAP_PreAllocBigNum(void)
 }
 
 void
-_YAP_CleanBigNum(void)
+Yap_CleanBigNum(void)
 {
   H = pre_alloc_base;
   pre_alloc_base = NULL;
 }
 
 MP_INT *
-_YAP_InitBigNum(Int in)
+Yap_InitBigNum(Int in)
 {
   MP_INT *ret;
 
@@ -99,7 +99,7 @@ AllocBigNumSpace(size_t size)
   alloc_ptr[0] = size;
   alloc_ptr += size+1;
   if (alloc_ptr > ASP-1024)
-    _YAP_Error(SYSTEM_ERROR,TermNil,"no space for bignum");
+    Yap_Error(SYSTEM_ERROR,TermNil,"no space for bignum");
   return(ret);
 }
 
@@ -117,7 +117,7 @@ ReAllocBigNumSpace(void *optr, size_t osize, size_t size)
     alloc_ptr += (size-osize);
     ((CELL *)optr)[-1] = size;
     if (alloc_ptr > ASP-1024)
-      _YAP_Error(SYSTEM_ERROR,TermNil,"no space for bignum");
+      Yap_Error(SYSTEM_ERROR,TermNil,"no space for bignum");
     return(optr);
   }
   out = AllocBigNumSpace(size);
@@ -154,7 +154,7 @@ FreeBigNumSpace(void *optr, size_t size)
   pre_alloc_base; 
 */
 Term
-_YAP_MkBigIntTerm(MP_INT *big)
+Yap_MkBigIntTerm(MP_INT *big)
 {
   CELL *new = (CELL *)(big+1);
   Int nlimbs = (big->_mp_alloc)*(sizeof(mp_limb_t)/CellSize);
@@ -198,7 +198,7 @@ _YAP_MkBigIntTerm(MP_INT *big)
 }
 
 MP_INT *
-_YAP_BigIntOfTerm(Term t)
+Yap_BigIntOfTerm(Term t)
 {
   MP_INT *new = (MP_INT *)(RepAppl(t)+1);
 
@@ -220,7 +220,7 @@ p_is_bignum(void)
 }
 
 void
-_YAP_InitBigNums(void)
+Yap_InitBigNums(void)
 {
 #ifdef USE_GMP
   /* YAP style memory allocation */
@@ -229,5 +229,5 @@ _YAP_InitBigNums(void)
 			  ReAllocBigNumSpace,
 			  FreeBigNumSpace);
 #endif
-  _YAP_InitCPred("$bignum", 1, p_is_bignum, SafePredFlag);
+  Yap_InitCPred("$bignum", 1, p_is_bignum, SafePredFlag);
 }

@@ -16,7 +16,7 @@
  *   locate the executable of Yap
 */
 
-void _YAP_FindExecutable(char *name)
+void Yap_FindExecutable(char *name)
 {
 }
 
@@ -41,17 +41,17 @@ LoadForeign( StringList ofiles, StringList libs,
     int valid_fname;
 
     /* shl_load wants to follow the LD_CONFIG_PATH */
-    valid_fname = _YAP_TrueFileName( ofiles->s, _YAP_FileNameBuf, TRUE );
+    valid_fname = Yap_TrueFileName( ofiles->s, Yap_FileNameBuf, TRUE );
 
     if( !valid_fname ) {
-      strcpy( _YAP_ErrorSay, "[ Trying to open non-existing file in LoadForeign ]" );
+      strcpy( Yap_ErrorSay, "[ Trying to open non-existing file in LoadForeign ]" );
       return LOAD_FAILLED;
     }
 
-    ofiles->handle = _YAP_AllocCodeSpace( sizeof(shl_t) );
-    *(shl_t *)ofiles->handle = shl_load( _YAP_FileNameBuf, BIND_DEFERRED, 0 );
+    ofiles->handle = Yap_AllocCodeSpace( sizeof(shl_t) );
+    *(shl_t *)ofiles->handle = shl_load( Yap_FileNameBuf, BIND_DEFERRED, 0 );
     if( *(shl_t *)ofiles->handle == NULL ) {
-      strncpy( _YAP_ErrorSay, strerror(errno), MAX_ERROR_MSG_SIZE );
+      strncpy( Yap_ErrorSay, strerror(errno), MAX_ERROR_MSG_SIZE );
       return LOAD_FAILLED;
     }
 
@@ -64,24 +64,24 @@ LoadForeign( StringList ofiles, StringList libs,
   }
 
   if( init_missing ) {
-    strcpy( _YAP_ErrorSay, "Could not locate initialization routine" );
+    strcpy( Yap_ErrorSay, "Could not locate initialization routine" );
     return LOAD_FAILLED;
   }
 
   while( libs ) {
     
     if( libs->s[0] == '-' ) {
-      strcpy( _YAP_FileNameBuf, "lib" );
-      strcat( _YAP_FileNameBuf, libs->s+2 );
-      strcat( _YAP_FileNameBuf, ".sl" );
+      strcpy( Yap_FileNameBuf, "lib" );
+      strcat( Yap_FileNameBuf, libs->s+2 );
+      strcat( Yap_FileNameBuf, ".sl" );
     }
     else {
-      strcpy( _YAP_FileNameBuf, libs->s );
+      strcpy( Yap_FileNameBuf, libs->s );
     }
 
-    *(shl_t *)libs->handle = shl_load( _YAP_FileNameBuf, BIND_DEFERRED, 0 );
+    *(shl_t *)libs->handle = shl_load( Yap_FileNameBuf, BIND_DEFERRED, 0 );
     if( *(shl_t *)libs->handle == NULL ) {
-      strncpy( _YAP_ErrorSay, strerror(errno), MAX_ERROR_MSG_SIZE );
+      strncpy( Yap_ErrorSay, strerror(errno), MAX_ERROR_MSG_SIZE );
       return LOAD_FAILLED;
     }
 
@@ -93,14 +93,14 @@ LoadForeign( StringList ofiles, StringList libs,
 
 
 Int
-_YAP_LoadForeign(StringList ofiles, StringList libs,
+Yap_LoadForeign(StringList ofiles, StringList libs,
 	       char *proc_name,	YapInitProc *init_proc)
 {
   return LoadForeign(ofiles, libs, proc_name, init_proc);
 }
 
 void
-_YAP_ShutdownLoadForeign( void )
+Yap_ShutdownLoadForeign( void )
 {
   ForeignObj *f_code;
   int err;
@@ -117,7 +117,7 @@ _YAP_ShutdownLoadForeign( void )
 	perror( NULL );
 	return;
       }
-      _YAP_FreeCodeSpace( objs->handle );
+      Yap_FreeCodeSpace( objs->handle );
       objs = objs->next;
     }
 
@@ -129,7 +129,7 @@ _YAP_ShutdownLoadForeign( void )
 	perror( NULL );
 	return;
       }
-      _YAP_FreeCodeSpace( libs->handle );
+      Yap_FreeCodeSpace( libs->handle );
       libs = libs->next;
     }
     f_code = f_code->next;
@@ -137,7 +137,7 @@ _YAP_ShutdownLoadForeign( void )
 }
 
 Int
-_YAP_ReLoadForeign(StringList ofiles, StringList libs,
+Yap_ReLoadForeign(StringList ofiles, StringList libs,
 		  char *proc_name, YapInitProc *init_proc)
 {
   ShutdownLoadForeign();

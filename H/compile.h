@@ -250,17 +250,17 @@ typedef struct CEXPENTRY {
 #define Two	 2
 
 
-CODEADDR	STD_PROTO(_YAP_assemble,(int));
-void	STD_PROTO(_YAP_emit,(compiler_vm_op,Int,CELL));
-void	STD_PROTO(_YAP_emit_3ops,(compiler_vm_op,CELL,CELL,CELL));
-CELL   *STD_PROTO(_YAP_emit_extra_size,(compiler_vm_op,CELL,int));
-char   *STD_PROTO(_YAP_AllocCMem,(int));
-int	STD_PROTO(_YAP_is_a_test_pred,(Term, SMALLUNSGN));
-void    STD_PROTO(_YAP_bip_name,(Int, char *));
+CODEADDR	STD_PROTO(Yap_assemble,(int));
+void	STD_PROTO(Yap_emit,(compiler_vm_op,Int,CELL));
+void	STD_PROTO(Yap_emit_3ops,(compiler_vm_op,CELL,CELL,CELL));
+CELL   *STD_PROTO(Yap_emit_extra_size,(compiler_vm_op,CELL,int));
+char   *STD_PROTO(Yap_AllocCMem,(int));
+int	STD_PROTO(Yap_is_a_test_pred,(Term, SMALLUNSGN));
+void    STD_PROTO(Yap_bip_name,(Int, char *));
 #ifdef DEBUG
-void	STD_PROTO(_YAP_ShowCode,(void));
+void	STD_PROTO(Yap_ShowCode,(void));
 #endif /* DEBUG */
 
 
-extern jmp_buf _YAP_CompilerBotch;
+extern jmp_buf Yap_CompilerBotch;
 

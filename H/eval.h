@@ -50,8 +50,8 @@ typedef union arith_ret {
 /*
 #define RINT(v)     return(MkIntegerTerm(v))
 #define RFLOAT(v)   return(MkFloatTerm(v))
-#define RBIG(v)     return(_YAP_MkBigIntTerm(v))
-#define RBIG_FL(v)  return(_YAP_MkBigIntTerm((MP_INT *)(Int)v))
+#define RBIG(v)     return(Yap_MkBigIntTerm(v))
+#define RBIG_FL(v)  return(Yap_MkBigIntTerm((MP_INT *)(Int)v))
 #define RERROR()    return(MkIntTerm(0))
 */
 
@@ -88,14 +88,14 @@ Functor     STD_PROTO(EvalArg,(Term,arith_retptr));
 #define FL(X)		((double)(X))
 #endif
 
-extern yap_error_number _YAP_matherror;
+extern yap_error_number Yap_matherror;
 
-void	STD_PROTO(_YAP_InitConstExps,(void));
-void	STD_PROTO(_YAP_InitUnaryExps,(void));
-void	STD_PROTO(_YAP_InitBinaryExps,(void));
+void	STD_PROTO(Yap_InitConstExps,(void));
+void	STD_PROTO(Yap_InitUnaryExps,(void));
+void	STD_PROTO(Yap_InitBinaryExps,(void));
 
-int	STD_PROTO(_YAP_ReInitConstExps,(void));
-int	STD_PROTO(_YAP_ReInitUnaryExps,(void));
-int	STD_PROTO(_YAP_ReInitBinaryExps,(void));
+int	STD_PROTO(Yap_ReInitConstExps,(void));
+int	STD_PROTO(Yap_ReInitUnaryExps,(void));
+int	STD_PROTO(Yap_ReInitBinaryExps,(void));
 
-blob_type	STD_PROTO(_YAP_Eval,(Term, union arith_ret *));
+blob_type	STD_PROTO(Yap_Eval,(Term, union arith_ret *));

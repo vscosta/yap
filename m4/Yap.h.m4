@@ -10,7 +10,7 @@
 * File:		Yap.h.m4						 *
 * mods:									 *
 * comments:	main header file for YAP				 *
-* version:      $Id: Yap.h.m4,v 1.36 2002-11-11 17:38:08 vsc Exp $	 *
+* version:      $Id: Yap.h.m4,v 1.37 2002-11-18 18:17:13 vsc Exp $	 *
 *************************************************************************/
 
 #include "config.h"
@@ -222,19 +222,19 @@
 
 #ifdef USE_GMP
 #ifdef __GNUC__
-typedef long long int SIGNED_YAP_LONG_LONG;
+typedef long long int SIGNEDYap_LONG_LONG;
 typedef unsigned long long int YAP_LONG_LONG;
 #else
-typedef long int      SIGNED_YAP_LONG_LONG;
+typedef long int      SIGNEDYap_LONG_LONG;
 typedef unsigned long int YAP_LONG_LONG;
 #endif
 #else
-typedef long int      SIGNED_YAP_LONG_LONG;
+typedef long int      SIGNEDYap_LONG_LONG;
 typedef unsigned long int YAP_LONG_LONG;
 #endif
 
 #if DEBUG
-extern char     _YAP_Option[20];
+extern char     Yap_Option[20];
 #endif
 
 /* #define FORCE_SECOND_QUADRANT 1 */
@@ -268,8 +268,8 @@ extern char     _YAP_Option[20];
 #define HEAP_INIT_BASE  (MMAP_ADDR)
 #define AtomBase        ((char *)MMAP_ADDR)
 #else
-#define HEAP_INIT_BASE  ((CELL)_YAP_HeapBase)
-#define AtomBase        (_YAP_HeapBase)
+#define HEAP_INIT_BASE  ((CELL)Yap_HeapBase)
+#define AtomBase        (Yap_HeapBase)
 #endif
 
 
@@ -393,7 +393,7 @@ typedef volatile int lockvar;
 #define siglongjmp(Env, Arg) longjmp(Env, Arg)
 #endif
 
-extern sigjmp_buf    _YAP_RestartEnv;   /* used to restart after an abort */
+extern sigjmp_buf    Yap_RestartEnv;   /* used to restart after an abort */
 
 /* Support for arrays */
 #include "arrays.h"
@@ -485,9 +485,9 @@ typedef enum {
   UNKNOWN_ERROR
 } yap_error_number;
 
-extern char    *_YAP_ErrorMessage;	/* used to pass error messages		*/
-extern Term     _YAP_Error_Term;	/* used to pass error terms */
-extern yap_error_number  _YAP_Error_TYPE;	/* used to pass the error */
+extern char    *Yap_ErrorMessage;	/* used to pass error messages		*/
+extern Term     Yap_Error_Term;	/* used to pass error terms */
+extern yap_error_number  Yap_Error_TYPE;	/* used to pass the error */
 
 typedef enum {
   YAP_INT_BOUNDED_FLAG = 0,
@@ -641,11 +641,11 @@ and  RefOfTerm(t) : Term -> DBRef = ...
 
 /************* variables related to memory allocation *******************/
 /* must be before TermExt.h */
-extern ADDR     _YAP_HeapBase,
-		_YAP_LocalBase,
-		_YAP_GlobalBase,
-		_YAP_TrailBase,
-                _YAP_TrailTop;
+extern ADDR     Yap_HeapBase,
+		Yap_LocalBase,
+		Yap_GlobalBase,
+		Yap_TrailBase,
+                Yap_TrailTop;
 
 
 /* applies to unbound variables */
@@ -776,7 +776,7 @@ typedef struct opcode_tab_entry {
 
 /******************* storing error messages ****************************/
 #define MAX_ERROR_MSG_SIZE 256
-extern char      _YAP_ErrorSay[MAX_ERROR_MSG_SIZE];
+extern char      Yap_ErrorSay[MAX_ERROR_MSG_SIZE];
 
 /********************* how to write a Prolog term ***********************/
 
@@ -793,13 +793,13 @@ typedef enum {
   ExtendStackMode = 128		/* trying to extend stack */
 } prolog_exec_mode;
 
-extern prolog_exec_mode      _YAP_PrologMode;
-extern int      _YAP_CritLocks;
+extern prolog_exec_mode      Yap_PrologMode;
+extern int      Yap_CritLocks;
 
 /************** Access to yap initial arguments ***************************/
 
-extern char   **_YAP_argv;
-extern int      _YAP_argc;
+extern char   **Yap_argv;
+extern int      Yap_argc;
 
 /******************* number of modules ****************************/
 
@@ -812,21 +812,21 @@ extern int      _YAP_argc;
 	    LOCK(GLOBAL_LOCKS_heap_access);                              \
 	    GLOBAL_LOCKS_who_locked_heap = worker_id;                    \
 	  }                                                              \
-          _YAP_PrologMode |= CritMode;                                   \
-          _YAP_CritLocks++;                                              \
+          Yap_PrologMode |= CritMode;                                   \
+          Yap_CritLocks++;                                              \
         }
 #define YAPLeaveCriticalSection()                                        \
 	{                                                                \
-          _YAP_CritLocks--;                                              \
-          if (!_YAP_CritLocks) {                                         \
-            _YAP_PrologMode &= ~CritMode;                                \
-            if (_YAP_PrologMode & InterruptMode) {                       \
-	      _YAP_PrologMode &= ~InterruptMode;                         \
-	      _YAP_ProcessSIGINT();                                      \
+          Yap_CritLocks--;                                              \
+          if (!Yap_CritLocks) {                                         \
+            Yap_PrologMode &= ~CritMode;                                \
+            if (Yap_PrologMode & InterruptMode) {                       \
+	      Yap_PrologMode &= ~InterruptMode;                         \
+	      Yap_ProcessSIGINT();                                      \
             }                                                            \
-            if (_YAP_PrologMode & AbortMode) {                           \
-	      _YAP_PrologMode &= ~AbortMode;                             \
-	      _YAP_Error(PURE_ABORT, 0, "");                             \
+            if (Yap_PrologMode & AbortMode) {                           \
+	      Yap_PrologMode &= ~AbortMode;                             \
+	      Yap_Error(PURE_ABORT, 0, "");                             \
             }                                                            \
 	    GLOBAL_LOCKS_who_locked_heap = MAX_WORKERS;                  \
             UNLOCK(GLOBAL_LOCKS_heap_access);                            \
@@ -835,21 +835,21 @@ extern int      _YAP_argc;
 #else
 #define YAPEnterCriticalSection()                                        \
 	{                                                                \
-          _YAP_PrologMode |= CritMode;                                   \
-          _YAP_CritLocks++;                                              \
+          Yap_PrologMode |= CritMode;                                   \
+          Yap_CritLocks++;                                              \
         }
 #define YAPLeaveCriticalSection()                                        \
 	{                                                                \
-          _YAP_CritLocks--;                                              \
-          if (!_YAP_CritLocks) {                                         \
-            _YAP_PrologMode &= ~CritMode;                                \
-            if (_YAP_PrologMode & InterruptMode) {                       \
-	      _YAP_PrologMode &= ~InterruptMode;                         \
-	      _YAP_ProcessSIGINT();                                      \
+          Yap_CritLocks--;                                              \
+          if (!Yap_CritLocks) {                                         \
+            Yap_PrologMode &= ~CritMode;                                \
+            if (Yap_PrologMode & InterruptMode) {                       \
+	      Yap_PrologMode &= ~InterruptMode;                         \
+	      Yap_ProcessSIGINT();                                      \
             }                                                            \
-            if (_YAP_PrologMode & AbortMode) {                           \
-	      _YAP_PrologMode &= ~AbortMode;                             \
-	      _YAP_Error(PURE_ABORT, 0, "");                             \
+            if (Yap_PrologMode & AbortMode) {                           \
+	      Yap_PrologMode &= ~AbortMode;                             \
+	      Yap_Error(PURE_ABORT, 0, "");                             \
             }                                                            \
           }                                                              \
         }

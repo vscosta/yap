@@ -35,32 +35,32 @@ p_setarg(void)
   CELL ti = Deref(ARG1), ts = Deref(ARG2);
   Int i;
   if (IsVarTerm(ti)) {
-    _YAP_Error(INSTANTIATION_ERROR,ti,"setarg/3");
+    Yap_Error(INSTANTIATION_ERROR,ti,"setarg/3");
     return(FALSE);
   } else {
     if (IsIntTerm(ti))
       i = IntOfTerm(ti);
     else {
       union arith_ret v;
-      if (_YAP_Eval(ti, &v) == long_int_e) {
+      if (Yap_Eval(ti, &v) == long_int_e) {
 	i = v.Int;
       } else {
-	_YAP_Error(TYPE_ERROR_INTEGER,ti,"setarg/3");
+	Yap_Error(TYPE_ERROR_INTEGER,ti,"setarg/3");
 	return(FALSE);
       }
     }
   }
   if (IsVarTerm(ts)) {
-    _YAP_Error(INSTANTIATION_ERROR,ts,"setarg/3");
+    Yap_Error(INSTANTIATION_ERROR,ts,"setarg/3");
   } else if(IsApplTerm(ts)) {
     CELL *pt;
     if (IsExtensionFunctor(FunctorOfTerm(ts))) {
-      _YAP_Error(TYPE_ERROR_COMPOUND,ts,"setarg/3");
+      Yap_Error(TYPE_ERROR_COMPOUND,ts,"setarg/3");
       return(FALSE);
     }
     if (i < 0 || i > (Int)ArityOfFunctor(FunctorOfTerm(ts))) {
       if (i<0)
-	_YAP_Error(DOMAIN_ERROR_NOT_LESS_THAN_ZERO,ts,"setarg/3");
+	Yap_Error(DOMAIN_ERROR_NOT_LESS_THAN_ZERO,ts,"setarg/3");
       return(FALSE);
     }
     pt = RepAppl(ts)+i;
@@ -70,14 +70,14 @@ p_setarg(void)
     CELL *pt;
     if (i != 1 || i != 2) {
       if (i<0)
-	_YAP_Error(DOMAIN_ERROR_NOT_LESS_THAN_ZERO,ts,"setarg/3");
+	Yap_Error(DOMAIN_ERROR_NOT_LESS_THAN_ZERO,ts,"setarg/3");
       return(FALSE);
     }
     pt = RepPair(ts)+i-1;
     /* the evil deed is to be done now */
     MaBind(pt, Deref(ARG3));    
   } else {
-    _YAP_Error(TYPE_ERROR_COMPOUND,ts,"setarg/3");
+    Yap_Error(TYPE_ERROR_COMPOUND,ts,"setarg/3");
     return(FALSE);
   }
   return(TRUE);
@@ -112,7 +112,7 @@ static void
 CreateTimedVar(Term val)
 {
   timed_var *tv = (timed_var *)H;
-  tv->clock = MkIntegerTerm(B->cp_tr-(tr_fr_ptr)_YAP_TrailBase);
+  tv->clock = MkIntegerTerm(B->cp_tr-(tr_fr_ptr)Yap_TrailBase);
   if (B->cp_tr == TR) {
     /* we run the risk of not making non-determinate bindings before
        the end of the night */
@@ -127,7 +127,7 @@ static void
 CreateEmptyTimedVar(void)
 {
   timed_var *tv = (timed_var *)H;
-  tv->clock = MkIntegerTerm(B->cp_tr-(tr_fr_ptr)_YAP_TrailBase);
+  tv->clock = MkIntegerTerm(B->cp_tr-(tr_fr_ptr)Yap_TrailBase);
   if (B->cp_tr == TR) {
     /* we run the risk of not making non-determinate bindings before
        the end of the night */
@@ -158,13 +158,13 @@ NewTimedVar(CELL val)
 }
 
 Term
-_YAP_NewTimedVar(CELL val)
+Yap_NewTimedVar(CELL val)
 {
   return NewTimedVar(val);
 }
 
 Term
-_YAP_NewEmptyTimedVar(void)
+Yap_NewEmptyTimedVar(void)
 {
   Term out = AbsAppl(H);
 #if FROZEN_STACKS
@@ -189,7 +189,7 @@ ReadTimedVar(Term inv)
 }
 
 Term
-_YAP_ReadTimedVar(Term inv)
+Yap_ReadTimedVar(Term inv)
 {
   return ReadTimedVar(inv);
 }
@@ -202,7 +202,7 @@ UpdateTimedVar(Term inv, Term new)
   timed_var *tv = (timed_var *)(RepAppl(inv)+1);
   CELL t = tv->value;
 #if FROZEN_STACKS
-  tr_fr_ptr timestmp = (tr_fr_ptr)_YAP_TrailBase + IntegerOfTerm(tv->clock);
+  tr_fr_ptr timestmp = (tr_fr_ptr)Yap_TrailBase + IntegerOfTerm(tv->clock);
 
   if (B->cp_tr <= timestmp && timestmp <= TR) {
     /* last assignment more recent than last B */
@@ -219,7 +219,7 @@ UpdateTimedVar(Term inv, Term new)
   } else {
     Term nclock;
     MaBind(&(tv->value), new);
-    nclock = MkIntegerTerm(TR-(tr_fr_ptr)_YAP_TrailBase);
+    nclock = MkIntegerTerm(TR-(tr_fr_ptr)Yap_TrailBase);
     MaBind(&(tv->clock), nclock);
   }
 #else
@@ -246,7 +246,7 @@ UpdateTimedVar(Term inv, Term new)
 
 /* update a timed var with a new value */
 Term
-_YAP_UpdateTimedVar(Term inv, Term new)
+Yap_UpdateTimedVar(Term inv, Term new)
 {
   return UpdateTimedVar(inv, new);
 }
@@ -255,7 +255,7 @@ static Int
 p_create_mutable(void)
 {
   Term t = NewTimedVar(Deref(ARG1));
-  return(_YAP_unify(ARG2,t));
+  return(Yap_unify(ARG2,t));
 }
 
 static Int
@@ -263,19 +263,19 @@ p_get_mutable(void)
 {
   Term t = Deref(ARG2);
   if (IsVarTerm(t)) {
-    _YAP_Error(INSTANTIATION_ERROR, t, "get_mutable/3");
+    Yap_Error(INSTANTIATION_ERROR, t, "get_mutable/3");
     return(FALSE);
   }
   if (!IsApplTerm(t)) {
-    _YAP_Error(TYPE_ERROR_COMPOUND,t,"get_mutable/3");
+    Yap_Error(TYPE_ERROR_COMPOUND,t,"get_mutable/3");
     return(FALSE);
   }
   if (FunctorOfTerm(t) != FunctorMutable) { 
-    _YAP_Error(DOMAIN_ERROR_MUTABLE,t,"get_mutable/3");
+    Yap_Error(DOMAIN_ERROR_MUTABLE,t,"get_mutable/3");
     return(FALSE);
   }
   t = ReadTimedVar(t);
-  return(_YAP_unify(ARG1, t));
+  return(Yap_unify(ARG1, t));
 }
 
 static Int
@@ -283,15 +283,15 @@ p_update_mutable(void)
 {
   Term t = Deref(ARG2);
   if (IsVarTerm(t)) {
-    _YAP_Error(INSTANTIATION_ERROR, t, "update_mutable/3");
+    Yap_Error(INSTANTIATION_ERROR, t, "update_mutable/3");
     return(FALSE);
   }
   if (!IsApplTerm(t)) {
-    _YAP_Error(TYPE_ERROR_COMPOUND,t,"update_mutable/3");
+    Yap_Error(TYPE_ERROR_COMPOUND,t,"update_mutable/3");
     return(FALSE);
   }
   if (FunctorOfTerm(t) != FunctorMutable) { 
-    _YAP_Error(DOMAIN_ERROR_MUTABLE,t,"update_mutable/3");
+    Yap_Error(DOMAIN_ERROR_MUTABLE,t,"update_mutable/3");
     return(FALSE);
   }
   UpdateTimedVar(t, Deref(ARG1));
@@ -317,14 +317,14 @@ p_is_mutable(void)
 #endif
 
 void
-_YAP_InitMaVarCPreds(void)
+Yap_InitMaVarCPreds(void)
 {
 #ifdef MULTI_ASSIGNMENT_VARIABLES
   /* The most famous contributions of SICStus to the Prolog language */
-  _YAP_InitCPred("setarg", 3, p_setarg, SafePredFlag);  
-  _YAP_InitCPred("create_mutable", 2, p_create_mutable, SafePredFlag);  
-  _YAP_InitCPred("get_mutable", 2, p_get_mutable, SafePredFlag);  
-  _YAP_InitCPred("update_mutable", 2, p_update_mutable, SafePredFlag);  
-  _YAP_InitCPred("is_mutable", 1, p_is_mutable, SafePredFlag);  
+  Yap_InitCPred("setarg", 3, p_setarg, SafePredFlag);  
+  Yap_InitCPred("create_mutable", 2, p_create_mutable, SafePredFlag);  
+  Yap_InitCPred("get_mutable", 2, p_get_mutable, SafePredFlag);  
+  Yap_InitCPred("update_mutable", 2, p_update_mutable, SafePredFlag);  
+  Yap_InitCPred("is_mutable", 1, p_is_mutable, SafePredFlag);  
 #endif
 }

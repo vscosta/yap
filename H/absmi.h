@@ -168,14 +168,14 @@ static char *op_names[_std_top + 1] =
 inline EXTERN void
 init_absmi_regs(REGSTORE * absmi_regs)
 {
-  memcpy(absmi_regs, _YAP_regp, sizeof(REGSTORE));
+  memcpy(absmi_regs, Yap_regp, sizeof(REGSTORE));
 }
 
 inline EXTERN void
 restore_absmi_regs(REGSTORE * old_regs)
 {
-  memcpy(old_regs, _YAP_regp, sizeof(REGSTORE));
-  _YAP_regp = old_regs;
+  memcpy(old_regs, Yap_regp, sizeof(REGSTORE));
+  Yap_regp = old_regs;
 }
 #endif /* PUSH_REGS */
 
@@ -681,7 +681,7 @@ Macros to check the limits of stacks
 
 #else
 
-#define check_trail() if (Unsigned(_YAP_TrailTop) - Unsigned(TR) < MinTrailGap) \
+#define check_trail() if (Unsigned(Yap_TrailTop) - Unsigned(TR) < MinTrailGap) \
 			goto notrailleft
 
 #endif
@@ -1154,9 +1154,9 @@ IUnify_complex(CELL *pt0, CELL *pt0_end, CELL *pt1)
 {
 #if SHADOW_REGS
 #if defined(B) || defined(TR)
-  register REGSTORE *regp = &_YAP_REGS;
+  register REGSTORE *regp = &Yap_REGS;
 
-#define _YAP_REGS (*regp)
+#define Yap_REGS (*regp)
 #endif /* defined(B) || defined(TR) || defined(HB) */
 #endif
 
@@ -1311,7 +1311,7 @@ cufail:
   return (FALSE);
 #if SHADOW_REGS
 #if defined(B) || defined(TR)
-#undef _YAP_REGS
+#undef Yap_REGS
 #endif /* defined(B) || defined(TR) */
 #endif
 }
@@ -1405,7 +1405,7 @@ loop:
 	    return (FALSE);
 #ifdef USE_GMP
 	  case (CELL)FunctorBigInt:
-	    if (IsBigIntTerm(d1) && mpz_cmp((MP_INT *)(ap2+1),_YAP_BigIntOfTerm(d1)) == 0) continue;
+	    if (IsBigIntTerm(d1) && mpz_cmp((MP_INT *)(ap2+1),Yap_BigIntOfTerm(d1)) == 0) continue;
 	    UNWIND_CUNIF();
 	    return (FALSE);
 #endif /* USE_GMP */

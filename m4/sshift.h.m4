@@ -33,7 +33,7 @@ extern ADDR     OldHeapBase, OldHeapTop;
 
 #define CharP(ptr)	((char *) (ptr))
 
-Inline(IsHeapP, int, CELL *, ptr, (ptr >= (CELL *)_YAP_HeapBase && ptr <= (CELL *)HeapTop) )
+Inline(IsHeapP, int, CELL *, ptr, (ptr >= (CELL *)Yap_HeapBase && ptr <= (CELL *)HeapTop) )
 
 /* Adjusting cells and pointers to cells */
 Inline(PtoGloAdjust, CELL *, CELL *, ptr, ((CELL *)(CharP(ptr) + GDiff)) )
@@ -108,7 +108,7 @@ Inline(IsOldTrail, int, CELL, reg, IN_BETWEEN(OldTrailBase, reg, OldTR) )
 Inline(IsOldTrailPtr, int, CELL *, ptr, IN_BETWEEN(OldTrailBase, ptr, OldTR) )
 Inline(IsOldCode, int, CELL, reg, IN_BETWEEN(OldHeapBase, reg, OldHeapTop) )
 Inline(IsOldCodeCellPtr, int, CELL *, ptr, IN_BETWEEN(OldHeapBase, ptr, OldHeapTop) )
-Inline(IsGlobal, int, CELL, reg, IN_BETWEEN(_YAP_GlobalBase, reg, H) )
+Inline(IsGlobal, int, CELL, reg, IN_BETWEEN(Yap_GlobalBase, reg, H) )
 
-void STD_PROTO(_YAP_AdjustStacksAndTrail, (void));
-void STD_PROTO(_YAP_AdjustRegs, (int));
+void STD_PROTO(Yap_AdjustStacksAndTrail, (void));
+void STD_PROTO(Yap_AdjustRegs, (int));

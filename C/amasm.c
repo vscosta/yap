@@ -297,8 +297,8 @@ DumpOpCodes(void)
 
   while (i < 30) {
     for (j = i; j <= _std_top; j += 25)
-      fprintf(_YAP_stderr, "%5d %6lx", j, absmadr(j));
-    fputc('\n',_YAP_stderr);
+      fprintf(Yap_stderr, "%5d %6lx", j, absmadr(j));
+    fputc('\n',Yap_stderr);
     ++i;
   }
 }
@@ -317,7 +317,7 @@ opcode(op_numbers op)
 }
 
 OPCODE
-_YAP_opcode(op_numbers op)
+Yap_opcode(op_numbers op)
 {
   return (opcode(op));
 }
@@ -731,15 +731,15 @@ a_p(op_numbers opcode)
       break;
     default:
       op = _p_equal;  /* just to make some compilers happy */
-      _YAP_Error(SYSTEM_ERROR, TermNil, "internal assembler error for built-in (%d)", (Flags & 0x7f));
+      Yap_Error(SYSTEM_ERROR, TermNil, "internal assembler error for built-in (%d)", (Flags & 0x7f));
       save_machine_regs();
-      longjmp(_YAP_CompilerBotch, 1);
+      longjmp(Yap_CompilerBotch, 1);
     }
     a_e(op);
     if (!comit_ok) {
-      _YAP_Error(SYSTEM_ERROR, TermNil,"internal assembler error for commit");
+      Yap_Error(SYSTEM_ERROR, TermNil,"internal assembler error for commit");
       save_machine_regs();
-      longjmp(_YAP_CompilerBotch, 1);
+      longjmp(Yap_CompilerBotch, 1);
     }
     return;
   }
@@ -748,10 +748,10 @@ a_p(op_numbers opcode)
     if (!comit_ok && (Flags & TestPredFlag)) {
       if (pass_no) {
 	if (Flags & UserCPredFlag) {
-	  _YAP_Error(SYSTEM_ERROR, TermNil,
+	  Yap_Error(SYSTEM_ERROR, TermNil,
 		"user defined predicate cannot be a test predicate");
 	  save_machine_regs();
-	  longjmp(_YAP_CompilerBotch, 1);
+	  longjmp(Yap_CompilerBotch, 1);
 	} else
 	  code_p->opc = emit_op(_call_c_wfail);
 	code_p->u.sdl.s =
@@ -796,9 +796,9 @@ a_p(op_numbers opcode)
       GONEXT(sla);
     }
     if (!comit_ok) {
-      _YAP_Error(SYSTEM_ERROR, TermNil, "internal assembler error for commit");
+      Yap_Error(SYSTEM_ERROR, TermNil, "internal assembler error for commit");
       save_machine_regs();
-      longjmp(_YAP_CompilerBotch,1);
+      longjmp(Yap_CompilerBotch,1);
     }
     return;
   }
@@ -838,9 +838,9 @@ a_p(op_numbers opcode)
     GONEXT(l);
   }
   if (!comit_ok) {
-    _YAP_Error(SYSTEM_ERROR, TermNil, "internal assembler error for commit");
+    Yap_Error(SYSTEM_ERROR, TermNil, "internal assembler error for commit");
     save_machine_regs();
-    longjmp(_YAP_CompilerBotch,1);
+    longjmp(Yap_CompilerBotch,1);
   }
 }
 
@@ -862,7 +862,7 @@ a_empty_call(void)
       code_p->opc = emit_op(_fcall);
   }
   if (pass_no) {
-    PredEntry *pe = RepPredProp(_YAP_GetPredPropByAtom(AtomTrue,0));
+    PredEntry *pe = RepPredProp(Yap_GetPredPropByAtom(AtomTrue,0));
     code_p->u.sla.s = emit_count(-Signed(RealEnvSize) - CELLSIZE *
 				   cpc->rnd2);
     code_p->u.sla.l = emit_a((CELL)&(pe->StateOfPred));
@@ -906,7 +906,7 @@ compile_cmp_flags(char *s)
   if (strcmp(s,">") == 0)   return(GT_OK_IN_CMP);
   if (strcmp(s,"=:=") == 0) return(EQ_OK_IN_CMP);
   if (strcmp(s,"=\\=") == 0) return(GT_OK_IN_CMP|LT_OK_IN_CMP);
-  _YAP_Error(SYSTEM_ERROR, x1_arg, "internal assembler error in flags for %s", s);
+  Yap_Error(SYSTEM_ERROR, x1_arg, "internal assembler error in flags for %s", s);
   return(0);
 }
 
@@ -1189,7 +1189,7 @@ a_either(op_numbers opcode, CELL opr, CELL lab)
 #endif /* YAPOR */
 {
   if (pass_no) {
-    Prop fe = _YAP_GetPredPropByAtom(AtomTrue,0);
+    Prop fe = Yap_GetPredPropByAtom(AtomTrue,0);
     code_p->opc = emit_op(opcode);
     code_p->u.sla.s = emit_count(opr);
     code_p->u.sla.l = emit_a(lab);
@@ -1712,40 +1712,40 @@ a_f2(int var)
       if (pass_no) {
 	switch (opc) {
 	case _plus:
-	  _YAP_Error(SYSTEM_ERROR, x1_arg, "internal assembler error CX for +/2");
+	  Yap_Error(SYSTEM_ERROR, x1_arg, "internal assembler error CX for +/2");
 	  save_machine_regs();
-	  longjmp(_YAP_CompilerBotch, 1);
+	  longjmp(Yap_CompilerBotch, 1);
 	  break;
 	case _minus:
 	  code_p->opc = emit_op(_p_minus_y_cv);
 	  break;
 	case _times:
-	  _YAP_Error(SYSTEM_ERROR, x1_arg, "internal assembler error CX for */2");
+	  Yap_Error(SYSTEM_ERROR, x1_arg, "internal assembler error CX for */2");
 	  save_machine_regs();
-	  longjmp(_YAP_CompilerBotch, 1);
+	  longjmp(Yap_CompilerBotch, 1);
 	  break;
 	case _div:
 	  code_p->opc = emit_op(_p_div_y_cv);
 	  break;
 	case _and:
-	  _YAP_Error(SYSTEM_ERROR, x1_arg, "internal assembler error CX for /\\/2");
+	  Yap_Error(SYSTEM_ERROR, x1_arg, "internal assembler error CX for /\\/2");
 	  save_machine_regs();
-	  longjmp(_YAP_CompilerBotch, 1);
+	  longjmp(Yap_CompilerBotch, 1);
 	  break;
 	case _or:
-	  _YAP_Error(SYSTEM_ERROR, x1_arg, "internal assembler error CX for \\//2");
+	  Yap_Error(SYSTEM_ERROR, x1_arg, "internal assembler error CX for \\//2");
 	  save_machine_regs();
-	  longjmp(_YAP_CompilerBotch, 1);
+	  longjmp(Yap_CompilerBotch, 1);
 	  break;
 	case _sll:
 	  code_p->opc = emit_op(_p_sll_y_cv);
 	  save_machine_regs();
-	  longjmp(_YAP_CompilerBotch, 1);
+	  longjmp(Yap_CompilerBotch, 1);
 	  break;
 	case _slr:
 	  code_p->opc = emit_op(_p_slr_y_cv);
 	  save_machine_regs();
-	  longjmp(_YAP_CompilerBotch, 1);
+	  longjmp(Yap_CompilerBotch, 1);
 	  break;
 	case _arg:
 	  code_p->opc = emit_op(_p_arg_y_cv);
@@ -1767,9 +1767,9 @@ a_f2(int var)
 	  code_p->opc = emit_op(_p_plus_y_vc);
 	  break;
 	case _minus:
-	  _YAP_Error(SYSTEM_ERROR, x2_arg, "internal assembler error XC for -/2");
+	  Yap_Error(SYSTEM_ERROR, x2_arg, "internal assembler error XC for -/2");
 	  save_machine_regs();
-	  longjmp(_YAP_CompilerBotch, 1);
+	  longjmp(Yap_CompilerBotch, 1);
 	  break;
 	case _times:
 	  code_p->opc = emit_op(_p_times_y_vc);
@@ -1790,9 +1790,9 @@ a_f2(int var)
 	  code_p->opc = emit_op(_p_slr_y_vc);
 	  break;
 	case _arg:
-	  _YAP_Error(SYSTEM_ERROR, x2_arg, "internal assembler error for arg/3");
+	  Yap_Error(SYSTEM_ERROR, x2_arg, "internal assembler error for arg/3");
 	  save_machine_regs();
-	  longjmp(_YAP_CompilerBotch, 1);
+	  longjmp(Yap_CompilerBotch, 1);
 	  break;
 	case _functor:
 	  code_p->opc = emit_op(_p_func2s_y_vc);
@@ -1851,30 +1851,30 @@ a_f2(int var)
       if (pass_no) {
 	switch (opc) {
 	case _plus:
-	  _YAP_Error(SYSTEM_ERROR, x1_arg, "internal assembler error CX for +/2");
+	  Yap_Error(SYSTEM_ERROR, x1_arg, "internal assembler error CX for +/2");
 	  save_machine_regs();
-	  longjmp(_YAP_CompilerBotch, 1);
+	  longjmp(Yap_CompilerBotch, 1);
 	  break;
 	case _minus:
 	  code_p->opc = emit_op(_p_minus_cv);
 	  break;
 	case _times:
-	  _YAP_Error(SYSTEM_ERROR, x1_arg, "internal assembler error CX for */2");
+	  Yap_Error(SYSTEM_ERROR, x1_arg, "internal assembler error CX for */2");
 	  save_machine_regs();
-	  longjmp(_YAP_CompilerBotch, 1);
+	  longjmp(Yap_CompilerBotch, 1);
 	  break;
 	case _div:
 	  code_p->opc = emit_op(_p_div_cv);
 	  break;
 	case _and:
-	  _YAP_Error(SYSTEM_ERROR, x1_arg, "internal assembler error CX for /\\/2");
+	  Yap_Error(SYSTEM_ERROR, x1_arg, "internal assembler error CX for /\\/2");
 	  save_machine_regs();
-	  longjmp(_YAP_CompilerBotch, 1);
+	  longjmp(Yap_CompilerBotch, 1);
 	  break;
 	case _or:
-	  _YAP_Error(SYSTEM_ERROR, x1_arg, "internal assembler error CX for \\//2");
+	  Yap_Error(SYSTEM_ERROR, x1_arg, "internal assembler error CX for \\//2");
 	  save_machine_regs();
-	  longjmp(_YAP_CompilerBotch, 1);
+	  longjmp(Yap_CompilerBotch, 1);
 	  break;
 	case _sll:
 	  code_p->opc = emit_op(_p_sll_cv);
@@ -1902,9 +1902,9 @@ a_f2(int var)
 	  code_p->opc = emit_op(_p_plus_vc);
 	  break;
 	case _minus:
-	  _YAP_Error(SYSTEM_ERROR, x2_arg, "internal assembler error XC for -/2");
+	  Yap_Error(SYSTEM_ERROR, x2_arg, "internal assembler error XC for -/2");
 	  save_machine_regs();
-	  longjmp(_YAP_CompilerBotch, 1);
+	  longjmp(Yap_CompilerBotch, 1);
 	  break;
 	case _times:
 	  code_p->opc = emit_op(_p_times_vc);
@@ -1925,9 +1925,9 @@ a_f2(int var)
 	  code_p->opc = emit_op(_p_slr_vc);
 	  break;
 	case _arg:
-	  _YAP_Error(SYSTEM_ERROR, x2_arg, "internal assembler error for arg/3");
+	  Yap_Error(SYSTEM_ERROR, x2_arg, "internal assembler error for arg/3");
 	  save_machine_regs();
-	  longjmp(_YAP_CompilerBotch, 1);
+	  longjmp(Yap_CompilerBotch, 1);
 	  break;
 	case _functor:
 	  code_p->opc = emit_op(_p_func2s_vc);
@@ -1985,7 +1985,7 @@ do_pass(void)
 	cl_p->ClFlags |= HasBlobsMask;
       }
       cl_p->u2.ClExt = NULL;
-      cl_p->Owner = _YAP_ConsultingFile();
+      cl_p->Owner = Yap_ConsultingFile();
     }
     code_p = (yamop *)(cl_p->ClCode);
     IPredArity = cpc->rnd2;	/* number of args */
@@ -2396,7 +2396,7 @@ do_pass(void)
       if (!pass_no) {
 	if (CellPtr(label_offset+cpc->rnd1) > ASP-256) {
 	  save_machine_regs();
-	  longjmp(_YAP_CompilerBotch,3);	  
+	  longjmp(Yap_CompilerBotch,3);	  
 	}
 	
 	if ( (char *)(label_offset+cpc->rnd1) > freep)
@@ -2545,9 +2545,9 @@ do_pass(void)
       break;
     case fetch_args_for_bccall:
       if (cpc->nextInst->op != bccall_op) {
-	_YAP_Error(SYSTEM_ERROR, TermNil, "compiling binary test", (int) cpc->op);
+	Yap_Error(SYSTEM_ERROR, TermNil, "compiling binary test", (int) cpc->op);
 	save_machine_regs();
-	longjmp(_YAP_CompilerBotch, 1);
+	longjmp(Yap_CompilerBotch, 1);
       }
       a_bfunc(cpc->nextInst->rnd2);
       break;
@@ -2566,9 +2566,9 @@ do_pass(void)
     case name_op:
       break;
     default:
-      _YAP_Error(SYSTEM_ERROR, TermNil, "instruction %d found while assembling", (int) cpc->op);
+      Yap_Error(SYSTEM_ERROR, TermNil, "instruction %d found while assembling", (int) cpc->op);
       save_machine_regs();
-      longjmp(_YAP_CompilerBotch, 1);
+      longjmp(Yap_CompilerBotch, 1);
     }
     cpc = cpc->nextInst;
   }
@@ -2577,7 +2577,7 @@ do_pass(void)
 }
 
 CODEADDR
-_YAP_assemble(int mode)
+Yap_assemble(int mode)
 {
   /*
    * the assembly proccess is done in two passes: 1 - a first pass
@@ -2594,8 +2594,8 @@ _YAP_assemble(int mode)
   asm_error = FALSE;
   do_pass();
   if (asm_error) {
-    _YAP_Error_TYPE = SYSTEM_ERROR;
-    _YAP_ErrorMessage = "internal assembler error";
+    Yap_Error_TYPE = SYSTEM_ERROR;
+    Yap_ErrorMessage = "internal assembler error";
     return (NIL);
   }
   pass_no = 1;
@@ -2610,9 +2610,9 @@ _YAP_assemble(int mode)
 #else
   size = (CELL)code_p;
 #endif
-  while ((code_addr = (CODEADDR) _YAP_AllocCodeSpace(size)) == NULL) {
-    if (!_YAP_growheap(TRUE)) {
-      _YAP_Error_TYPE = SYSTEM_ERROR;
+  while ((code_addr = (CODEADDR) Yap_AllocCodeSpace(size)) == NULL) {
+    if (!Yap_growheap(TRUE)) {
+      Yap_Error_TYPE = SYSTEM_ERROR;
       return (NIL);
     }
   }

@@ -68,12 +68,12 @@ static E_FUNC
 p_inf(E_ARGS)
 {
 #ifdef _MSC_VER /* Microsoft's Visual C++ Compiler */
-    _YAP_Error(TYPE_ERROR_EVALUABLE, TermNil, "evaluating infinity");
+    Yap_Error(TYPE_ERROR_EVALUABLE, TermNil, "evaluating infinity");
     P = (yamop *)FAILCODE;
     RERROR();
 #else
   if (yap_flags[LANGUAGE_MODE_FLAG] == 1) {/* iso */
-    _YAP_Error(TYPE_ERROR_EVALUABLE, TermNil, "evaluating infinity");
+    Yap_Error(TYPE_ERROR_EVALUABLE, TermNil, "evaluating infinity");
     P = (yamop *)FAILCODE;
     RERROR();
   } else {
@@ -91,12 +91,12 @@ static E_FUNC
 p_nan(E_ARGS)
 {
 #ifdef _MSC_VER /* Microsoft's Visual C++ Compiler */
-    _YAP_Error(TYPE_ERROR_EVALUABLE, TermNil, "evaluating infinity");
+    Yap_Error(TYPE_ERROR_EVALUABLE, TermNil, "evaluating infinity");
     P = (yamop *)FAILCODE;
     RERROR();
 #else
   if (yap_flags[LANGUAGE_MODE_FLAG] == 1) {/* iso */
-    _YAP_Error(TYPE_ERROR_EVALUABLE, TermNil, "evaluating not-a-number");
+    Yap_Error(TYPE_ERROR_EVALUABLE, TermNil, "evaluating not-a-number");
     P = (yamop *)FAILCODE;
     RERROR();
   } else {
@@ -108,13 +108,13 @@ p_nan(E_ARGS)
 static E_FUNC
 p_random(E_ARGS)
 {
-  RFLOAT(_YAP_random());
+  RFLOAT(Yap_random());
 }
 
 static E_FUNC
 p_cputime(E_ARGS)
 {
-  RFLOAT((Float)_YAP_cputime()/1000.0);
+  RFLOAT((Float)Yap_cputime()/1000.0);
 }
 
 static E_FUNC
@@ -204,19 +204,19 @@ static InitConstEntry InitConstTab[] = {
 };
 
 void
-_YAP_InitConstExps(void)
+Yap_InitConstExps(void)
 {
   unsigned int    i;
   ExpEntry       *p;
 
   for (i = 0; i < sizeof(InitConstTab)/sizeof(InitConstEntry); ++i) {
-    AtomEntry *ae = RepAtom(_YAP_LookupAtom(InitConstTab[i].OpName));
+    AtomEntry *ae = RepAtom(Yap_LookupAtom(InitConstTab[i].OpName));
     WRITE_LOCK(ae->ARWLock);
-    if (_YAP_GetExpPropHavingLock(ae, 0)) {
+    if (Yap_GetExpPropHavingLock(ae, 0)) {
       WRITE_UNLOCK(ae->ARWLock);
       break;
     }
-    p = (ExpEntry *) _YAP_AllocAtomSpace(sizeof(ExpEntry));
+    p = (ExpEntry *) Yap_AllocAtomSpace(sizeof(ExpEntry));
     p->KindOfPE = ExpProperty;
     p->ArityOfEE = 0;
     p->ENoOfEE = 0;
@@ -229,16 +229,16 @@ _YAP_InitConstExps(void)
 
 /* This routine is called from Restore to make sure we have the same arithmetic operators */
 int
-_YAP_ReInitConstExps(void)
+Yap_ReInitConstExps(void)
 {
   unsigned int i;
   Prop p;
 
   for (i = 0; i < sizeof(InitConstTab)/sizeof(InitConstEntry); ++i) {
-    AtomEntry *ae = RepAtom(_YAP_FullLookupAtom(InitConstTab[i].OpName));
+    AtomEntry *ae = RepAtom(Yap_FullLookupAtom(InitConstTab[i].OpName));
 
     WRITE_LOCK(ae->ARWLock);
-    if ((p = _YAP_GetExpPropHavingLock(ae, 0)) == NULL) {
+    if ((p = Yap_GetExpPropHavingLock(ae, 0)) == NULL) {
       WRITE_UNLOCK(ae->ARWLock);
       return(FALSE);
     }

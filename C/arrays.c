@@ -173,7 +173,7 @@ AccessNamedArray(Atom a, Int indx)
 
       READ_LOCK(ptr->ArRWLock);
       if (-(pp->ArrayEArity) <= indx || indx < 0) {
-	/*	_YAP_Error(DOMAIN_ERROR_ARRAY_OVERFLOW, MkIntegerTerm(indx), "access_array");*/
+	/*	Yap_Error(DOMAIN_ERROR_ARRAY_OVERFLOW, MkIntegerTerm(indx), "access_array");*/
 	READ_UNLOCK(ptr->ArRWLock);
 	P = (yamop *)FAILCODE;
 	return(MkAtomTerm(AtomFoundVar));
@@ -259,7 +259,7 @@ AccessNamedArray(Atom a, Int indx)
 
 	  READ_UNLOCK(ptr->ArRWLock);
 	  if (ref != NULL) {
-	    TRef = _YAP_FetchTermFromDB(ref,3);
+	    TRef = Yap_FetchTermFromDB(ref,3);
 	  } else {
 	    P = (yamop *)FAILCODE;
 	    TRef = TermNil;
@@ -273,7 +273,7 @@ AccessNamedArray(Atom a, Int indx)
     }      
   }
   else {
-    _YAP_Error(EXISTENCE_ERROR_ARRAY,MkAtomTerm(a),"named array");
+    Yap_Error(EXISTENCE_ERROR_ARRAY,MkAtomTerm(a),"named array");
     return (TermNil);
   }
 
@@ -291,22 +291,22 @@ p_access_array(void)
     union arith_ret v;
     if (IsIntTerm(ti))
       indx = IntOfTerm(ti);
-    else if (_YAP_Eval(ti, &v) == long_int_e)
+    else if (Yap_Eval(ti, &v) == long_int_e)
       indx = v.Int;
     else {
-      _YAP_Error(TYPE_ERROR_INTEGER,ti,"access_array");
+      Yap_Error(TYPE_ERROR_INTEGER,ti,"access_array");
       return (FALSE);
     }
   }
   else {
-    _YAP_Error(INSTANTIATION_ERROR,ti,"access_array");
+    Yap_Error(INSTANTIATION_ERROR,ti,"access_array");
     return (TermNil);
   }
 
   if (IsNonVarTerm(t)) {
     if (IsApplTerm(t)) {
       if (indx >= ArityOfFunctor(FunctorOfTerm(t)) || indx < 0) {
-	/*	_YAP_Error(DOMAIN_ERROR_ARRAY_OVERFLOW, MkIntegerTerm(indx), "access_array");*/
+	/*	Yap_Error(DOMAIN_ERROR_ARRAY_OVERFLOW, MkIntegerTerm(indx), "access_array");*/
 	P = (yamop *)FAILCODE;
 	return(FALSE);
       }
@@ -317,14 +317,14 @@ p_access_array(void)
 	return(FALSE);
       }
     } else {
-      _YAP_Error(TYPE_ERROR_ARRAY,t,"access_array");
+      Yap_Error(TYPE_ERROR_ARRAY,t,"access_array");
       return(FALSE);
     }    
   } else {
-    _YAP_Error(INSTANTIATION_ERROR,t,"access_array");
+    Yap_Error(INSTANTIATION_ERROR,t,"access_array");
     return(FALSE);
   }
-  return (_YAP_unify(tf, ARG3));
+  return (Yap_unify(tf, ARG3));
 }
 
 static Int 
@@ -337,35 +337,35 @@ p_array_arg(void)
     union arith_ret v;
     if (IsIntTerm(ti))
       indx = IntOfTerm(ti);
-    else if (_YAP_Eval(ti, &v) == long_int_e)
+    else if (Yap_Eval(ti, &v) == long_int_e)
       indx =  v.Int;
     else {
-      _YAP_Error(TYPE_ERROR_INTEGER,ti,"array_arg");
+      Yap_Error(TYPE_ERROR_INTEGER,ti,"array_arg");
       return (FALSE);
     }
   }
   else {
-    _YAP_Error(INSTANTIATION_ERROR,ti,"array_arg");
+    Yap_Error(INSTANTIATION_ERROR,ti,"array_arg");
     return (FALSE);
   }
 
   t = Deref(ARG2);
   if (IsNonVarTerm(t)) {
     if (IsApplTerm(t)) {
-      return (_YAP_unify(((RepAppl(t))[indx + 1]), ARG1));
+      return (Yap_unify(((RepAppl(t))[indx + 1]), ARG1));
     }
     else if (IsAtomTerm(t)) {
       Term tf = AccessNamedArray(AtomOfTerm(t), indx);
       if (tf == MkAtomTerm(AtomFoundVar)) {
 	return(FALSE);
       }
-      return (_YAP_unify(tf, ARG1));
+      return (Yap_unify(tf, ARG1));
     }
     else
-      _YAP_Error(TYPE_ERROR_ARRAY,t,"array_arg");
+      Yap_Error(TYPE_ERROR_ARRAY,t,"array_arg");
   }
   else
-    _YAP_Error(INSTANTIATION_ERROR,t,"array_arg");
+    Yap_Error(INSTANTIATION_ERROR,t,"array_arg");
 
   return (FALSE);
 
@@ -382,7 +382,7 @@ InitNamedArray(ArrayEntry * p, Int dim)
   /* place terms in reverse order */
   Bind_Global(&(p->ValueOfVE),AbsAppl(H));
   tp = H;
-  tp[0] =  (CELL)_YAP_MkFunctor(AtomArray, dim);
+  tp[0] =  (CELL)Yap_MkFunctor(AtomArray, dim);
   tp++;
   p->ArrayEArity = dim;
   /* Initialise the array as a set of variables */
@@ -399,7 +399,7 @@ CreateNamedArray(PropEntry * pp, Int dim, AtomEntry *ae)
 {
   ArrayEntry *p;
 
-  p = (ArrayEntry *) _YAP_AllocAtomSpace(sizeof(*p));
+  p = (ArrayEntry *) Yap_AllocAtomSpace(sizeof(*p));
   p->KindOfPE = ArrayProperty;
   p->NextOfPE = ae->PropsOfAE;
   INIT_RWLOCK(p->ArRWLock);
@@ -439,10 +439,10 @@ AllocateStaticArraySpace(StaticArrayEntry *p, static_array_types atype, Int arra
     asize = array_size*sizeof(DBRef);
     break;
   }
-  while ((p->ValueOfVE.floats = (Float *) _YAP_AllocAtomSpace(asize) ) == NULL) {
+  while ((p->ValueOfVE.floats = (Float *) Yap_AllocAtomSpace(asize) ) == NULL) {
     YAPLeaveCriticalSection();
-    if (!_YAP_growheap(FALSE)) {
-      _YAP_Error(SYSTEM_ERROR, TermNil, _YAP_ErrorMessage);
+    if (!Yap_growheap(FALSE)) {
+      Yap_Error(SYSTEM_ERROR, TermNil, Yap_ErrorMessage);
       return;
     }
     YAPEnterCriticalSection();
@@ -454,7 +454,7 @@ static void
 CreateStaticArray(AtomEntry *ae, Int dim, static_array_types type, CODEADDR start_addr, StaticArrayEntry *p)
 {
   if (EndOfPAEntr(p)) {
-    p = (StaticArrayEntry *) _YAP_AllocAtomSpace(sizeof(*p));
+    p = (StaticArrayEntry *) Yap_AllocAtomSpace(sizeof(*p));
     p->KindOfPE = ArrayProperty;
     p->NextOfPE = ae->PropsOfAE;
     INIT_RWLOCK(p->ArRWLock);
@@ -520,7 +520,7 @@ ResizeStaticArray(StaticArrayEntry *pp, Int dim)
     return;
   pp->ArrayEArity = -dim;
 #if HAVE_MMAP
-  if (pp->ValueOfVE.chars < (char *)_YAP_HeapBase || 
+  if (pp->ValueOfVE.chars < (char *)Yap_HeapBase || 
       pp->ValueOfVE.chars > (char *)HeapTop) {
     ResizeMmappedArray(pp, dim, (void *)(pp->ValueOfVE.chars));
     return;
@@ -595,10 +595,10 @@ p_create_array(void)
     union arith_ret v;
     if (IsIntTerm(ti))
       size = IntOfTerm(ti);
-    else if (_YAP_Eval(ti, &v) == long_int_e)
+    else if (Yap_Eval(ti, &v) == long_int_e)
       size = v.Int;
     else {
-      _YAP_Error(TYPE_ERROR_INTEGER,ti,"create_array");
+      Yap_Error(TYPE_ERROR_INTEGER,ti,"create_array");
       return (FALSE);
     }
   }
@@ -607,15 +607,15 @@ p_create_array(void)
     /* Create an anonymous array */
     Functor farray;
 
-    farray = _YAP_MkFunctor(AtomArray, size);
+    farray = Yap_MkFunctor(AtomArray, size);
     if (H+1+size > ASP-1024) {
-      if (!_YAP_gc(2, ENV, P)) {
-	_YAP_Error(OUT_OF_STACK_ERROR,TermNil,_YAP_ErrorMessage);
+      if (!Yap_gc(2, ENV, P)) {
+	Yap_Error(OUT_OF_STACK_ERROR,TermNil,Yap_ErrorMessage);
 	return(FALSE);
       } else {
 	if (H+1+size > ASP-1024) {
-	  if (!_YAP_growstack( sizeof(CELL) * (size+1-(H-ASP-1024)))) {
-	    _YAP_Error(SYSTEM_ERROR, TermNil, _YAP_ErrorMessage);
+	  if (!Yap_growstack( sizeof(CELL) * (size+1-(H-ASP-1024)))) {
+	    Yap_Error(SYSTEM_ERROR, TermNil, Yap_ErrorMessage);
 	    return FALSE;
 	  }
 	}
@@ -628,7 +628,7 @@ p_create_array(void)
       RESET_VARIABLE(H);
       H++;
     }
-    return (_YAP_unify(t, ARG1));
+    return (Yap_unify(t, ARG1));
   }
   else if (IsAtomTerm(t)) {
     /* Create a named array */
@@ -642,8 +642,8 @@ p_create_array(void)
     if (EndOfPAEntr(pp)) {
       if (H+1+size > ASP-1024) {
 	WRITE_UNLOCK(ae->ARWLock);
-	if (!_YAP_gc(2, ENV, P)) {
-	  _YAP_Error(OUT_OF_STACK_ERROR,TermNil,_YAP_ErrorMessage);
+	if (!Yap_gc(2, ENV, P)) {
+	  Yap_Error(OUT_OF_STACK_ERROR,TermNil,Yap_ErrorMessage);
 	  return(FALSE);
 	} else
 	  goto restart;
@@ -656,12 +656,12 @@ p_create_array(void)
 
       WRITE_UNLOCK(ae->ARWLock);
       if (!IsVarTerm(app->ValueOfVE) || !IsUnboundVar(app->ValueOfVE))
-	_YAP_Error(PERMISSION_ERROR_CREATE_ARRAY,t,"create_array",
+	Yap_Error(PERMISSION_ERROR_CREATE_ARRAY,t,"create_array",
 	      ae->StrOfAE);
       else {
 	if (H+1+size > ASP-1024) {
-	  if (!_YAP_gc(2, ENV, P)) {
-	    _YAP_Error(OUT_OF_STACK_ERROR,TermNil,_YAP_ErrorMessage);
+	  if (!Yap_gc(2, ENV, P)) {
+	    Yap_Error(OUT_OF_STACK_ERROR,TermNil,Yap_ErrorMessage);
 	    return(FALSE);
 	  } else
 	    goto restart;
@@ -685,23 +685,23 @@ p_create_static_array(void)
   static_array_types props;
 
   if (IsVarTerm(ti)) {
-    _YAP_Error(INSTANTIATION_ERROR,ti,"create static array");
+    Yap_Error(INSTANTIATION_ERROR,ti,"create static array");
     return (FALSE);
   } else if (IsIntTerm(ti))
     size = IntOfTerm(ti);
   else {
     union arith_ret v;
-    if (_YAP_Eval(ti, &v) == long_int_e) {
+    if (Yap_Eval(ti, &v) == long_int_e) {
       size = v.Int;
     }
     else {
-      _YAP_Error(TYPE_ERROR_INTEGER,ti,"create static array");
+      Yap_Error(TYPE_ERROR_INTEGER,ti,"create static array");
       return (FALSE);
     }
   }
 
   if (IsVarTerm(tprops)) {
-    _YAP_Error(INSTANTIATION_ERROR,tprops,"create static array");
+    Yap_Error(INSTANTIATION_ERROR,tprops,"create static array");
     return (FALSE);
   } else if (IsAtomTerm(tprops)) {
     char *atname = RepAtom(AtomOfTerm(tprops))->StrOfAE;
@@ -722,16 +722,16 @@ p_create_static_array(void)
     else if (!strcmp(atname, "term"))
       props = array_of_terms;
     else {
-      _YAP_Error(DOMAIN_ERROR_ARRAY_TYPE,tprops,"create static array");
+      Yap_Error(DOMAIN_ERROR_ARRAY_TYPE,tprops,"create static array");
       return(FALSE);
     }
   } else {
-    _YAP_Error(TYPE_ERROR_ATOM,tprops,"create static array");
+    Yap_Error(TYPE_ERROR_ATOM,tprops,"create static array");
     return (FALSE);
   }
 
   if (IsVarTerm(t)) {
-    _YAP_Error(INSTANTIATION_ERROR,t,"create static array");
+    Yap_Error(INSTANTIATION_ERROR,t,"create static array");
     return (FALSE);
   }
   else if (IsAtomTerm(t)) {
@@ -754,15 +754,15 @@ p_create_static_array(void)
 	CreateStaticArray(ae, size, props, NULL, pp);
 	return (TRUE);
       } else {
-	_YAP_Error(PERMISSION_ERROR_CREATE_ARRAY,t,"cannot create static array over dynamic array");
+	Yap_Error(PERMISSION_ERROR_CREATE_ARRAY,t,"cannot create static array over dynamic array");
 	return (FALSE);
       }
     } else {
-      _YAP_Error(PERMISSION_ERROR_CREATE_ARRAY,t,"cannot create static array over static array");
+      Yap_Error(PERMISSION_ERROR_CREATE_ARRAY,t,"cannot create static array over static array");
       return (FALSE);
     }
   }
-  _YAP_Error(TYPE_ERROR_ATOM,t,"create static array");
+  Yap_Error(TYPE_ERROR_ATOM,t,"create static array");
   return (FALSE);
 }
 
@@ -806,23 +806,23 @@ p_resize_static_array(void)
   Int size;
 
   if (IsVarTerm(ti)) {
-    _YAP_Error(INSTANTIATION_ERROR,ti,"resize a static array");
+    Yap_Error(INSTANTIATION_ERROR,ti,"resize a static array");
     return (FALSE);
   } else if (IsIntTerm(ti))
     size = IntOfTerm(ti);
   else {
     union arith_ret v;
-    if (_YAP_Eval(ti, &v) == long_int_e) {
+    if (Yap_Eval(ti, &v) == long_int_e) {
       size = v.Int;
     }
     else {
-      _YAP_Error(TYPE_ERROR_INTEGER,ti,"resize a static array");
+      Yap_Error(TYPE_ERROR_INTEGER,ti,"resize a static array");
       return (FALSE);
     }
   }
 
   if (IsVarTerm(t)) {
-    _YAP_Error(INSTANTIATION_ERROR,t,"resize a static array");
+    Yap_Error(INSTANTIATION_ERROR,t,"resize a static array");
     return (FALSE);
   }
   else if (IsAtomTerm(t)) {
@@ -833,15 +833,15 @@ p_resize_static_array(void)
     while (!EndOfPAEntr(pp) && pp->KindOfPE != ArrayProperty)
       pp = RepStaticArrayProp(pp->NextOfPE);
     if (EndOfPAEntr(pp) || pp->ValueOfVE.ints == NULL) {
-      _YAP_Error(PERMISSION_ERROR_RESIZE_ARRAY,t,"resize a static array");
+      Yap_Error(PERMISSION_ERROR_RESIZE_ARRAY,t,"resize a static array");
       return(FALSE);
     } else {
       Int osize =  - pp->ArrayEArity;
       ResizeStaticArray(pp, size);
-      return(_YAP_unify(ARG2,MkIntegerTerm(osize)));
+      return(Yap_unify(ARG2,MkIntegerTerm(osize)));
     }
   } else {
-    _YAP_Error(TYPE_ERROR_ATOM,t,"resize a static array");
+    Yap_Error(TYPE_ERROR_ATOM,t,"resize a static array");
     return (FALSE);
   }
 }
@@ -854,7 +854,7 @@ p_close_static_array(void)
   Term t = Deref(ARG1);
 
   if (IsVarTerm(t)) {
-    _YAP_Error(INSTANTIATION_ERROR,t,"close static array");
+    Yap_Error(INSTANTIATION_ERROR,t,"close static array");
     return (FALSE);
   }
   else if (IsAtomTerm(t)) {
@@ -873,12 +873,12 @@ p_close_static_array(void)
       StaticArrayEntry *ptr = (StaticArrayEntry *)pp;
       if (ptr->ValueOfVE.ints != NULL) {
 #if HAVE_MMAP
-	if (ptr->ValueOfVE.chars < (char *)_YAP_HeapBase || 
+	if (ptr->ValueOfVE.chars < (char *)Yap_HeapBase || 
 	    ptr->ValueOfVE.chars > (char *)HeapTop) {
 	  return(CloseMmappedArray(ptr, (void *)ptr->ValueOfVE.chars));
 	}
 #endif
-	_YAP_FreeAtomSpace((char *)(ptr->ValueOfVE.ints));
+	Yap_FreeAtomSpace((char *)(ptr->ValueOfVE.ints));
 	ptr->ValueOfVE.ints = NULL;
 	ptr->ArrayEArity = 0;
 	return(TRUE);
@@ -887,7 +887,7 @@ p_close_static_array(void)
       }
     }
   } else {
-    _YAP_Error(TYPE_ERROR_ATOM,t,"close static array");
+    Yap_Error(TYPE_ERROR_ATOM,t,"close static array");
     return (FALSE);
   }
 }
@@ -932,21 +932,21 @@ CloseMmappedArray(StaticArrayEntry *pp, void *area)
     optr = ptr;
   }
   if (ptr == NULL) {
-    _YAP_Error(SYSTEM_ERROR,ARG1,"close_mmapped_array (array chain incoherent)", strerror(errno));
+    Yap_Error(SYSTEM_ERROR,ARG1,"close_mmapped_array (array chain incoherent)", strerror(errno));
     return(FALSE);
   }
   if (munmap(ptr->start, ptr->size) == -1) {
-      _YAP_Error(SYSTEM_ERROR,ARG1,"close_mmapped_array (munmap: %s)", strerror(errno));
+      Yap_Error(SYSTEM_ERROR,ARG1,"close_mmapped_array (munmap: %s)", strerror(errno));
       return(FALSE);
   }
   optr->next = ptr->next;
   pp->ValueOfVE.ints = NULL;
   pp->ArrayEArity = 0;
   if (close(ptr->fd) < 0) {
-    _YAP_Error(SYSTEM_ERROR,ARG1,"close_mmapped_array (close: %s)", strerror(errno));
+    Yap_Error(SYSTEM_ERROR,ARG1,"close_mmapped_array (close: %s)", strerror(errno));
     return(FALSE);
   }
-  _YAP_FreeAtomSpace((char *)ptr);
+  Yap_FreeAtomSpace((char *)ptr);
   return(TRUE);
 }
 
@@ -966,24 +966,24 @@ ResizeMmappedArray(StaticArrayEntry *pp, Int dim, void *area)
      and last we initialise again
   */
   if (munmap(ptr->start, ptr->size) == -1) {
-      _YAP_Error(SYSTEM_ERROR,ARG1,"resize_mmapped_array (munmap: %s)", strerror(errno));
+      Yap_Error(SYSTEM_ERROR,ARG1,"resize_mmapped_array (munmap: %s)", strerror(errno));
       return;
   }
   total_size = (ptr->size / ptr->items)*dim;
   if (ftruncate(ptr->fd, total_size) < 0) {
-    _YAP_Error(SYSTEM_ERROR,ARG1,"resize_mmapped_array (ftruncate: %s)", strerror(errno));
+    Yap_Error(SYSTEM_ERROR,ARG1,"resize_mmapped_array (ftruncate: %s)", strerror(errno));
     return;
   }
   if (lseek(ptr->fd, total_size-1, SEEK_SET) < 0) {
-    _YAP_Error(SYSTEM_ERROR,ARG1,"resize_mmapped_array (lseek: %s)", strerror(errno));
+    Yap_Error(SYSTEM_ERROR,ARG1,"resize_mmapped_array (lseek: %s)", strerror(errno));
     return;
   }
   if (write(ptr->fd, "", 1) < 0) {
-    _YAP_Error(SYSTEM_ERROR,ARG1,"resize_mmapped_array (write: %s)", strerror(errno));
+    Yap_Error(SYSTEM_ERROR,ARG1,"resize_mmapped_array (write: %s)", strerror(errno));
     return;
   }
   if ((ptr->start = (void *)mmap(0, (size_t) total_size, PROT_READ | PROT_WRITE, MAP_SHARED, ptr->fd, 0)) == (void *) - 1) {
-    _YAP_Error(SYSTEM_ERROR,ARG1,"resize_mmapped_array (mmap: %s)", strerror(errno));
+    Yap_Error(SYSTEM_ERROR,ARG1,"resize_mmapped_array (mmap: %s)", strerror(errno));
     return;
   }
   ptr->size = total_size;
@@ -1009,23 +1009,23 @@ p_create_mmapped_array(void)
   int fd;
 
   if (IsVarTerm(ti)) {
-    _YAP_Error(INSTANTIATION_ERROR,ti,"create_mmapped_array");
+    Yap_Error(INSTANTIATION_ERROR,ti,"create_mmapped_array");
     return (FALSE);
   } else if (IsIntTerm(ti))
     size = IntOfTerm(ti);
   else {
     union arith_ret v;
-    if (_YAP_Eval(ti, &v) == long_int_e) {
+    if (Yap_Eval(ti, &v) == long_int_e) {
       size = v.Int;
     }
     else {
-      _YAP_Error(TYPE_ERROR_INTEGER,ti,"create_mmapped_array");
+      Yap_Error(TYPE_ERROR_INTEGER,ti,"create_mmapped_array");
       return (FALSE);
     }
   }
 
   if (IsVarTerm(tprops)) {
-    _YAP_Error(INSTANTIATION_ERROR,tprops,"create_mmapped_array");
+    Yap_Error(INSTANTIATION_ERROR,tprops,"create_mmapped_array");
     return (FALSE);
   } else if (IsAtomTerm(tprops)) {
     char *atname = RepAtom(AtomOfTerm(tprops))->StrOfAE;
@@ -1051,16 +1051,16 @@ p_create_mmapped_array(void)
       props = array_of_uchars;
       total_size = size*sizeof(unsigned char);
     } else {
-      _YAP_Error(DOMAIN_ERROR_ARRAY_TYPE,tprops,"create_mmapped_array");
+      Yap_Error(DOMAIN_ERROR_ARRAY_TYPE,tprops,"create_mmapped_array");
       return(FALSE);
     }
   } else {
-    _YAP_Error(TYPE_ERROR_ATOM,tprops,"create_mmapped_array");
+    Yap_Error(TYPE_ERROR_ATOM,tprops,"create_mmapped_array");
     return (FALSE);
   }
 
   if (IsVarTerm(tfile)) {
-    _YAP_Error(INSTANTIATION_ERROR,tfile,"create_mmapped_array");
+    Yap_Error(INSTANTIATION_ERROR,tfile,"create_mmapped_array");
     return (FALSE);
   } else if (IsAtomTerm(tfile)) {
     char *filename = RepAtom(AtomOfTerm(tfile))->StrOfAE;
@@ -1068,26 +1068,26 @@ p_create_mmapped_array(void)
 
     fd = open(filename, O_RDWR|O_CREAT, S_IRUSR|S_IWUSR);
     if (fd == -1) {
-      _YAP_Error(SYSTEM_ERROR,ARG1,"create_mmapped_array (open: %s)", strerror(errno));
+      Yap_Error(SYSTEM_ERROR,ARG1,"create_mmapped_array (open: %s)", strerror(errno));
       return(FALSE);
     }
     if (lseek(fd, total_size-1, SEEK_SET) < 0)
-      _YAP_Error(SYSTEM_ERROR,tfile,"create_mmapped_array (lseek: %s)", strerror(errno));
+      Yap_Error(SYSTEM_ERROR,tfile,"create_mmapped_array (lseek: %s)", strerror(errno));
     if (write(fd, "", 1) < 0)
-      _YAP_Error(SYSTEM_ERROR,tfile,"create_mmapped_array (write: %s)", strerror(errno));
+      Yap_Error(SYSTEM_ERROR,tfile,"create_mmapped_array (write: %s)", strerror(errno));
     /*
       if (ftruncate(fd, total_size) < 0)
-      _YAP_Error(SYSTEM_ERROR,tfile,"create_mmapped_array");
+      Yap_Error(SYSTEM_ERROR,tfile,"create_mmapped_array");
     */
     if ((array_addr = (CODEADDR)mmap(0, (size_t) total_size, PROT_READ | PROT_WRITE, MAP_SHARED, fd, 0)) == (CODEADDR) - 1)
-      _YAP_Error(SYSTEM_ERROR,tfile,"create_mmapped_array (mmap: %s)", strerror(errno));
+      Yap_Error(SYSTEM_ERROR,tfile,"create_mmapped_array (mmap: %s)", strerror(errno));
   } else {
-    _YAP_Error(TYPE_ERROR_ATOM,tfile,"create_mmapped_array");
+    Yap_Error(TYPE_ERROR_ATOM,tfile,"create_mmapped_array");
     return (FALSE);
   }
 
   if (IsVarTerm(t)) {
-    _YAP_Error(INSTANTIATION_ERROR,t,"create_mmapped_array");
+    Yap_Error(INSTANTIATION_ERROR,t,"create_mmapped_array");
     return (FALSE);
   }
   else if (IsAtomTerm(t)) {
@@ -1106,7 +1106,7 @@ p_create_mmapped_array(void)
       mmap_array_block *ptr;
 
       CreateStaticArray(ae, size, props, array_addr, pp);
-      ptr = (mmap_array_block *)_YAP_AllocAtomSpace(sizeof(mmap_array_block));
+      ptr = (mmap_array_block *)Yap_AllocAtomSpace(sizeof(mmap_array_block));
       ptr->name = AbsAtom(ae);
       ptr->size = total_size;
       ptr->items = size;
@@ -1118,15 +1118,15 @@ p_create_mmapped_array(void)
     } else {
       WRITE_UNLOCK(pp->ArRWLock);
       WRITE_UNLOCK(ae->ARWLock);
-      _YAP_Error(DOMAIN_ERROR_ARRAY_TYPE,t,"create_mmapped_array", ae->StrOfAE);
+      Yap_Error(DOMAIN_ERROR_ARRAY_TYPE,t,"create_mmapped_array", ae->StrOfAE);
       return(FALSE);
     }
   } else {
-    _YAP_Error(TYPE_ERROR_ATOM,t,"create_mmapped_array");
+    Yap_Error(TYPE_ERROR_ATOM,t,"create_mmapped_array");
     return (FALSE);
   }
 #else
-  _YAP_Error(SYSTEM_ERROR,ARG1,"create_mmapped_array (mmap)");
+  Yap_Error(SYSTEM_ERROR,ARG1,"create_mmapped_array (mmap)");
   return (FALSE);
 #endif
 }
@@ -1139,7 +1139,7 @@ replace_array_references_complex(register CELL *pt0,
 				 Term Var)
 {
 
-  register CELL **to_visit = (CELL **) _YAP_PreAllocCodeSpace();
+  register CELL **to_visit = (CELL **) Yap_PreAllocCodeSpace();
   CELL **to_visit_base = to_visit;
 
 loop:
@@ -1235,7 +1235,7 @@ loop:
   }
 
   Bind_Global(PtrOfTerm(Var), TermNil);
-  _YAP_ReleasePreAllocCodeSpace((ADDR)to_visit);
+  Yap_ReleasePreAllocCodeSpace((ADDR)to_visit);
 }
 
 /*
@@ -1285,7 +1285,7 @@ p_array_references(void)
   Term t1 = HeadOfTerm(t);
   Term t2 = TailOfTerm(t);
 
-  return (_YAP_unify(t1, ARG2) && _YAP_unify(t2, ARG3));
+  return (Yap_unify(t1, ARG2) && Yap_unify(t2, ARG3));
 }
 
 static Int 
@@ -1301,22 +1301,22 @@ p_assign_static(void)
       indx = IntOfTerm(t2);
     else  {
       union arith_ret v;
-      if (_YAP_Eval(t2, &v) == long_int_e) {
+      if (Yap_Eval(t2, &v) == long_int_e) {
 	indx = v.Int;
       } else {
-	_YAP_Error(TYPE_ERROR_INTEGER,t2,"update_array");
+	Yap_Error(TYPE_ERROR_INTEGER,t2,"update_array");
 	return (FALSE);
       }
     }
   } else {
-    _YAP_Error(INSTANTIATION_ERROR,t2,"update_array");
+    Yap_Error(INSTANTIATION_ERROR,t2,"update_array");
     return (FALSE);
   }
   t3 = Deref(ARG3);
 
   t1 = Deref(ARG1);
   if (IsVarTerm(t1)) {
-    _YAP_Error(INSTANTIATION_ERROR,t1,"update_array");
+    Yap_Error(INSTANTIATION_ERROR,t1,"update_array");
     return(FALSE);
   }
   if (!IsAtomTerm(t1)) {
@@ -1325,11 +1325,11 @@ p_assign_static(void)
       Functor f = FunctorOfTerm(t1);
       /* store the terms to visit */
       if (IsExtensionFunctor(f)) {
-	_YAP_Error(TYPE_ERROR_ARRAY,t1,"update_array");
+	Yap_Error(TYPE_ERROR_ARRAY,t1,"update_array");
 	return(FALSE);
       }
       if (indx > 0 && indx > ArityOfFunctor(f)) {
-	_YAP_Error(DOMAIN_ERROR_ARRAY_OVERFLOW,t2,"update_array");
+	Yap_Error(DOMAIN_ERROR_ARRAY_OVERFLOW,t2,"update_array");
 	return(FALSE);
       }
       ptr = RepAppl(t1)+indx+1;
@@ -1337,11 +1337,11 @@ p_assign_static(void)
       MaBind(ptr, t3);
       return(TRUE);
 #else
-      _YAP_Error(SYSTEM_ERROR,t2,"update_array");
+      Yap_Error(SYSTEM_ERROR,t2,"update_array");
       return(FALSE);
 #endif
     } else {
-      _YAP_Error(TYPE_ERROR_ATOM,t1,"update_array");
+      Yap_Error(TYPE_ERROR_ATOM,t1,"update_array");
       return(FALSE);
     }
   }
@@ -1356,7 +1356,7 @@ p_assign_static(void)
   }
 
   if (EndOfPAEntr(ptr)) {
-    _YAP_Error(EXISTENCE_ERROR_ARRAY,t1,"assign_static %s", RepAtom(AtomOfTerm(t1))->StrOfAE);
+    Yap_Error(EXISTENCE_ERROR_ARRAY,t1,"assign_static %s", RepAtom(AtomOfTerm(t1))->StrOfAE);
     return(FALSE);
   }
 
@@ -1365,7 +1365,7 @@ p_assign_static(void)
     ArrayEntry *pp = (ArrayEntry *)ptr;
     CELL *pt;
     if (indx < 0 || indx >= pp->ArrayEArity) {
-      _YAP_Error(DOMAIN_ERROR_ARRAY_OVERFLOW,t2,"assign_static");
+      Yap_Error(DOMAIN_ERROR_ARRAY_OVERFLOW,t2,"assign_static");
       READ_UNLOCK(((ArrayEntry *)ptr)->ArRWLock);
       return(FALSE);
     }
@@ -1376,7 +1376,7 @@ p_assign_static(void)
     MaBind(pt, t3);
     return(TRUE);
 #else
-    _YAP_Error(SYSTEM_ERROR,t2,"update_array");
+    Yap_Error(SYSTEM_ERROR,t2,"update_array");
     return(FALSE);
 #endif
   }
@@ -1384,12 +1384,12 @@ p_assign_static(void)
   /* a static array */
   if (IsVarTerm(t3)) {
     WRITE_UNLOCK(ptr->ArRWLock);
-    _YAP_Error(INSTANTIATION_ERROR,t3,"assign_static");
+    Yap_Error(INSTANTIATION_ERROR,t3,"assign_static");
     return (FALSE);
   }
    if (indx < 0 || indx >= - ptr->ArrayEArity) {
     WRITE_UNLOCK(ptr->ArRWLock);
-    _YAP_Error(DOMAIN_ERROR_ARRAY_OVERFLOW,t2,"assign_static");
+    Yap_Error(DOMAIN_ERROR_ARRAY_OVERFLOW,t2,"assign_static");
     return(FALSE);
   }
   switch (ptr->ArrayType) {
@@ -1400,11 +1400,11 @@ p_assign_static(void)
       
       if (IsIntTerm(t3))
 	i = IntOfTerm(t3);
-      else if (_YAP_Eval(t3, &v) == long_int_e)
+      else if (Yap_Eval(t3, &v) == long_int_e)
 	i = v.Int;
       else {
 	WRITE_UNLOCK(ptr->ArRWLock);
-	_YAP_Error(TYPE_ERROR_INTEGER,t3,"assign_static");
+	Yap_Error(TYPE_ERROR_INTEGER,t3,"assign_static");
 	return (FALSE);
       }
       ptr->ValueOfVE.ints[indx]= i;
@@ -1418,15 +1418,15 @@ p_assign_static(void)
       
       if (IsIntTerm(t3))
 	i = IntOfTerm(t3);
-      else if (_YAP_Eval(t3, &v) == long_int_e)
+      else if (Yap_Eval(t3, &v) == long_int_e)
 	i = v.Int;
       else {
-	_YAP_Error(TYPE_ERROR_INTEGER,t3,"assign_static");
+	Yap_Error(TYPE_ERROR_INTEGER,t3,"assign_static");
 	return (FALSE);
       }
       if (i > 127 || i < -128) {
 	WRITE_UNLOCK(ptr->ArRWLock);
-	_YAP_Error(TYPE_ERROR_BYTE,t3,"assign_static");
+	Yap_Error(TYPE_ERROR_BYTE,t3,"assign_static");
 	return (FALSE);
       }
       ptr->ValueOfVE.chars[indx]= i;
@@ -1440,16 +1440,16 @@ p_assign_static(void)
       
       if (IsIntTerm(t3))
 	i = IntOfTerm(t3);
-      else if (_YAP_Eval(t3, &v) == long_int_e)
+      else if (Yap_Eval(t3, &v) == long_int_e)
 	i = v.Int;
       else {
 	WRITE_UNLOCK(ptr->ArRWLock);
-	_YAP_Error(TYPE_ERROR_INTEGER,t3,"assign_static");
+	Yap_Error(TYPE_ERROR_INTEGER,t3,"assign_static");
 	return (FALSE);
       }
       if (i > 255 || i < 0) {
 	WRITE_UNLOCK(ptr->ArRWLock);
-	_YAP_Error(TYPE_ERROR_UBYTE,t3,"assign_static");
+	Yap_Error(TYPE_ERROR_UBYTE,t3,"assign_static");
 	return (FALSE);
       }
       ptr->ValueOfVE.chars[indx]= i;
@@ -1463,11 +1463,11 @@ p_assign_static(void)
 
       if (IsFloatTerm(t3))
 	f = FloatOfTerm(t3);
-      else if (_YAP_Eval(t3, &v) == double_e)
+      else if (Yap_Eval(t3, &v) == double_e)
 	f = v.dbl;
       else {
 	WRITE_UNLOCK(ptr->ArRWLock);
-	_YAP_Error(TYPE_ERROR_FLOAT,t3,"assign_static");
+	Yap_Error(TYPE_ERROR_FLOAT,t3,"assign_static");
 	return (FALSE);
       }
       ptr->ValueOfVE.floats[indx]= f;
@@ -1482,7 +1482,7 @@ p_assign_static(void)
 	r = IntegerOfTerm(t3);
       else {
 	WRITE_UNLOCK(ptr->ArRWLock);
-	_YAP_Error(TYPE_ERROR_PTR,t3,"assign_static");
+	Yap_Error(TYPE_ERROR_PTR,t3,"assign_static");
 	return (FALSE);
       }
       ptr->ValueOfVE.ptrs[indx]= (AtomEntry *)r;
@@ -1493,7 +1493,7 @@ p_assign_static(void)
     {
       if (!IsAtomTerm(t3)) {
 	WRITE_UNLOCK(ptr->ArRWLock);
-	_YAP_Error(TYPE_ERROR_ATOM,t3,"assign_static");
+	Yap_Error(TYPE_ERROR_ATOM,t3,"assign_static");
 	return (FALSE);
       }
       ptr->ValueOfVE.atoms[indx]= t3;
@@ -1507,7 +1507,7 @@ p_assign_static(void)
       
       if (!IsDBRefTerm(t3)) {
 	WRITE_UNLOCK(ptr->ArRWLock);
-	_YAP_Error(TYPE_ERROR_DBREF,t3,"assign_static");
+	Yap_Error(TYPE_ERROR_DBREF,t3,"assign_static");
 	return (FALSE);
       }
       ptr->ValueOfVE.dbrefs[indx]= t3;
@@ -1523,9 +1523,9 @@ p_assign_static(void)
       DBRef ref = ptr->ValueOfVE.terms[indx];
 
       if (ref != NULL) {
-	_YAP_ReleaseTermFromDB(ref);
+	Yap_ReleaseTermFromDB(ref);
       }
-      ptr->ValueOfVE.terms[indx] = _YAP_StoreTermInDB(3,3);
+      ptr->ValueOfVE.terms[indx] = Yap_StoreTermInDB(3,3);
       if (ptr->ValueOfVE.terms[indx] == NULL){
 	WRITE_UNLOCK(ptr->ArRWLock);
 	return(FALSE);
@@ -1564,20 +1564,20 @@ p_sync_mmapped_arrays(void)
 }
 
 void 
-_YAP_InitArrayPreds(void)
+Yap_InitArrayPreds(void)
 {
-  _YAP_InitCPred("$create_array", 2, p_create_array, SyncPredFlag);
-  _YAP_InitCPred("$array_references", 3, p_array_references, SafePredFlag);
-  _YAP_InitCPred("$array_arg", 3, p_array_arg, SafePredFlag);
-  _YAP_InitCPred("static_array", 3, p_create_static_array, SafePredFlag|SyncPredFlag);
-  _YAP_InitCPred("resize_static_array", 3, p_resize_static_array, SafePredFlag|SyncPredFlag);
-  _YAP_InitCPred("mmapped_array", 4, p_create_mmapped_array, SafePredFlag|SyncPredFlag);
-  _YAP_InitCPred("update_array", 3, p_assign_static, SafePredFlag);
-  _YAP_InitCPred("array_element", 3, p_access_array, 0);
-  _YAP_InitCPred("close_static_array", 1, p_close_static_array, SafePredFlag);
-  _YAP_InitCPred("$sync_mmapped_arrays", 0, p_sync_mmapped_arrays, SafePredFlag);
-  _YAP_InitCPred("$compile_array_refs", 0, p_compile_array_refs, SafePredFlag);
-  _YAP_InitCPred("$array_refs_compiled", 0, p_array_refs_compiled, SafePredFlag);
-  _YAP_InitCPred("$has_static_array", 1, p_has_static_array, TestPredFlag|SafePredFlag);
+  Yap_InitCPred("$create_array", 2, p_create_array, SyncPredFlag);
+  Yap_InitCPred("$array_references", 3, p_array_references, SafePredFlag);
+  Yap_InitCPred("$array_arg", 3, p_array_arg, SafePredFlag);
+  Yap_InitCPred("static_array", 3, p_create_static_array, SafePredFlag|SyncPredFlag);
+  Yap_InitCPred("resize_static_array", 3, p_resize_static_array, SafePredFlag|SyncPredFlag);
+  Yap_InitCPred("mmapped_array", 4, p_create_mmapped_array, SafePredFlag|SyncPredFlag);
+  Yap_InitCPred("update_array", 3, p_assign_static, SafePredFlag);
+  Yap_InitCPred("array_element", 3, p_access_array, 0);
+  Yap_InitCPred("close_static_array", 1, p_close_static_array, SafePredFlag);
+  Yap_InitCPred("$sync_mmapped_arrays", 0, p_sync_mmapped_arrays, SafePredFlag);
+  Yap_InitCPred("$compile_array_refs", 0, p_compile_array_refs, SafePredFlag);
+  Yap_InitCPred("$array_refs_compiled", 0, p_array_refs_compiled, SafePredFlag);
+  Yap_InitCPred("$has_static_array", 1, p_has_static_array, TestPredFlag|SafePredFlag);
 }
 

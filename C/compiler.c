@@ -125,7 +125,7 @@ static Int tmpreg;
 static int nvars, MaxCTemps;
 static unsigned int max_args;
 
-#define FAIL(M,T,E) { _YAP_ErrorMessage=M; _YAP_Error_TYPE = T; _YAP_Error_Term = E; return; }
+#define FAIL(M,T,E) { Yap_ErrorMessage=M; Yap_Error_TYPE = T; Yap_Error_Term = E; return; }
 
 #define IsNewVar(v) (Addr(v)<freep0 || Addr(v)>freep)
 
@@ -139,7 +139,7 @@ pop_code(unsigned int level)
   if (cpc->op == pop_op)
     ++(cpc->rnd1);
   else
-    _YAP_emit(pop_op, One, Zero);
+    Yap_emit(pop_op, One, Zero);
 }
 
 static void
@@ -160,7 +160,7 @@ c_var(Term t, Int argno, unsigned int arity, unsigned int level)
   Ventry *v = (Ventry *) Deref(t);
 
   if (IsNewVar(v)) {		/* new var */
-    v = (Ventry *) _YAP_AllocCMem(sizeof(*v));
+    v = (Ventry *) Yap_AllocCMem(sizeof(*v));
 #if SBA
     v->SelfOfVE = 0;
 #else
@@ -230,49 +230,49 @@ c_var(Term t, Int argno, unsigned int arity, unsigned int level)
     v->FlagsOfVE |= OnHeadFlag;
   switch (argno) {
   case save_b_flag:
-    _YAP_emit(save_b_op, (CELL) v, Zero);
+    Yap_emit(save_b_op, (CELL) v, Zero);
     break;
   case comit_b_flag:
-    _YAP_emit(comit_b_op, (CELL) v, Zero);
-    _YAP_emit(empty_call_op, Zero, Zero);
-    _YAP_emit(restore_tmps_and_skip_op, Zero, Zero);
+    Yap_emit(comit_b_op, (CELL) v, Zero);
+    Yap_emit(empty_call_op, Zero, Zero);
+    Yap_emit(restore_tmps_and_skip_op, Zero, Zero);
     break;
   case patch_b_flag:
-    _YAP_emit(patch_b_op, (CELL) v, 0);
+    Yap_emit(patch_b_op, (CELL) v, 0);
     break;
   case save_pair_flag:
-    _YAP_emit(save_pair_op, (CELL) v, 0);
+    Yap_emit(save_pair_op, (CELL) v, 0);
     break;
   case save_appl_flag:
-    _YAP_emit(save_appl_op, (CELL) v, 0);
+    Yap_emit(save_appl_op, (CELL) v, 0);
     break;
   case f_flag:
     if (new) {
       ++nvars;
-      _YAP_emit(f_var_op, (CELL) v, (CELL)arity);
+      Yap_emit(f_var_op, (CELL) v, (CELL)arity);
     } else
-      _YAP_emit(f_val_op, (CELL) v, (CELL)arity);
+      Yap_emit(f_val_op, (CELL) v, (CELL)arity);
     break;
   case bt1_flag:
-    _YAP_emit(fetch_args_for_bccall, (CELL)v, 0);
+    Yap_emit(fetch_args_for_bccall, (CELL)v, 0);
     break;
   case bt2_flag:
-    _YAP_emit(bccall_op, (CELL)v, (CELL)current_p0);
+    Yap_emit(bccall_op, (CELL)v, (CELL)current_p0);
     break;
   default:
 #ifdef SFUNC
     if (argno < 0) {
       if (new)
-	_YAP_emit((onhead ? unify_s_var_op : write_s_var_op), v, -argno);
+	Yap_emit((onhead ? unify_s_var_op : write_s_var_op), v, -argno);
       else
-	_YAP_emit((onhead ? unify_s_val_op : write_s_val_op), v, -argno);
+	Yap_emit((onhead ? unify_s_val_op : write_s_val_op), v, -argno);
     } else
 #endif
     if (onhead) {
       if (level == 0)
-	_YAP_emit((new ? (++nvars, get_var_op) : get_val_op), (CELL) v, argno);
+	Yap_emit((new ? (++nvars, get_var_op) : get_val_op), (CELL) v, argno);
       else
-	_YAP_emit((new ? (++nvars, (argno == (Int)arity ?
+	Yap_emit((new ? (++nvars, (argno == (Int)arity ?
 			       unify_last_var_op :
 			       unify_var_op)) :
 	      (argno == (Int)arity ? unify_last_val_op :
@@ -281,9 +281,9 @@ c_var(Term t, Int argno, unsigned int arity, unsigned int level)
     }
     else {
       if (level == 0)
-	_YAP_emit((new ? (++nvars, put_var_op) : put_val_op), (CELL) v, argno);
+	Yap_emit((new ? (++nvars, put_var_op) : put_val_op), (CELL) v, argno);
       else
-	_YAP_emit((new ? (++nvars, write_var_op) : write_val_op), (CELL) v, Zero);
+	Yap_emit((new ? (++nvars, write_var_op) : write_val_op), (CELL) v, Zero);
     }
   }
   if (new) {
@@ -320,7 +320,7 @@ optimize_ce(Term t, unsigned int arity, unsigned int level)
   while (p != NULL) {
     CELL *OldH = H;
     H = (CELL *)freep;
-    cmp = _YAP_compare_terms(t, (p->TermOfCE));
+    cmp = Yap_compare_terms(t, (p->TermOfCE));
     H = OldH;
 
     if (cmp > 0) {
@@ -341,14 +341,14 @@ optimize_ce(Term t, unsigned int arity, unsigned int level)
   if (onbranch)
     return (t);
   ++n_common_exps;
-  p = (CExpEntry *) _YAP_AllocCMem(sizeof(CExpEntry));
+  p = (CExpEntry *) Yap_AllocCMem(sizeof(CExpEntry));
 
   p->TermOfCE = t;
   p->VarOfCE = MkVarTerm();
   if (H >= (CELL *)freep0) {
     /* oops, too many new variables */
     save_machine_regs();
-    longjmp(_YAP_CompilerBotch,4);
+    longjmp(Yap_CompilerBotch,4);
   }
   p->RightCE = NULL;
   p->LeftCE = NULL;
@@ -371,25 +371,25 @@ compile_sf_term(Term t, int argno, int level)
 {
   Functor f = FunctorOfTerm(t);
   CELL *p = ArgsOfSFTerm(t) - 1;
-  SFEntry *pe = RepSFProp(_YAP_GetAProp(NameOfFunctor(f), SFProperty));
+  SFEntry *pe = RepSFProp(Yap_GetAProp(NameOfFunctor(f), SFProperty));
   Term nullvalue = pe->NilValue;
 
   if (level == 0)
-    _YAP_emit((onhead ? get_s_f_op : put_s_f_op), f, argno);
+    Yap_emit((onhead ? get_s_f_op : put_s_f_op), f, argno);
   else
-    _YAP_emit((onhead ? unify_s_f_op : write_s_f_op), f, Zero);
+    Yap_emit((onhead ? unify_s_f_op : write_s_f_op), f, Zero);
   ++level;
   while ((argno = *++p)) {
     t = Derefa(++p);
     if (t != nullvalue) {
       if (IsAtomicTerm(t))
-	_YAP_emit((onhead ? unify_s_a_op : write_s_a_op), t, (CELL) argno);
+	Yap_emit((onhead ? unify_s_a_op : write_s_a_op), t, (CELL) argno);
       else if (!IsVarTerm(t)) {
-	_YAP_Error_TYPE = SYSTEM_ERROR;
-	_YAP_Error_Term = TermNil;
-	_YAP_ErrorMessage = "illegal argument of soft functor";
+	Yap_Error_TYPE = SYSTEM_ERROR;
+	Yap_Error_Term = TermNil;
+	Yap_ErrorMessage = "illegal argument of soft functor";
 	save_machine_regs();
-	longjmp(_YAP_CompilerBotch, 2);
+	longjmp(Yap_CompilerBotch, 2);
       }
       else
 	c_var(t, -argno, arity, level);
@@ -397,9 +397,9 @@ compile_sf_term(Term t, int argno, int level)
   }
   --level;
   if (level == 0)
-    _YAP_emit((onhead ? get_s_end_op : put_s_end_op), Zero, Zero);
+    Yap_emit((onhead ? get_s_end_op : put_s_end_op), Zero, Zero);
   else
-    _YAP_emit((onhead ? unify_s_end_op : write_s_end_op), Zero, Zero);
+    Yap_emit((onhead ? unify_s_end_op : write_s_end_op), Zero, Zero);
 }
 #endif
 
@@ -412,11 +412,11 @@ c_args(Term app, unsigned int level)
 
   if (level == 0) {
     if (Arity >= MaxTemps) {
-      _YAP_Error_TYPE = SYSTEM_ERROR;
-      _YAP_Error_Term = TermNil;
-      _YAP_ErrorMessage = "exceed maximum arity of compiled goal";
+      Yap_Error_TYPE = SYSTEM_ERROR;
+      Yap_Error_Term = TermNil;
+      Yap_ErrorMessage = "exceed maximum arity of compiled goal";
       save_machine_regs();
-      longjmp(_YAP_CompilerBotch, 2);
+      longjmp(Yap_CompilerBotch, 2);
     }
     if (Arity > max_args)
       max_args = Arity;
@@ -433,9 +433,9 @@ c_arg(Int argno, Term t, unsigned int arity, unsigned int level)
     c_var(t, argno, arity, level);
   else if (IsAtomTerm(t)) {
     if (level == 0)
-      _YAP_emit((onhead ? get_atom_op : put_atom_op), (CELL) t, argno);
+      Yap_emit((onhead ? get_atom_op : put_atom_op), (CELL) t, argno);
     else
-      _YAP_emit((onhead ? (argno == (Int)arity ? unify_last_atom_op
+      Yap_emit((onhead ? (argno == (Int)arity ? unify_last_atom_op
 		      : unify_atom_op) :
 	    write_atom_op), (CELL) t, Zero);
   }
@@ -450,11 +450,11 @@ c_arg(Int argno, Term t, unsigned int arity, unsigned int level)
 
       /* use a special list to store the blobs */
       cpc = icpc;
-      _YAP_emit(label_op, l1, Zero);
+      Yap_emit(label_op, l1, Zero);
       if (IsFloatTerm(t)) {
 	/* let us do floats first */
 	CELL *dest = 
-	  _YAP_emit_extra_size(blob_op,
+	  Yap_emit_extra_size(blob_op,
 			  (CELL)(SIZEOF_DOUBLE/SIZEOF_LONG_INT+1),
 			  (1+SIZEOF_DOUBLE/SIZEOF_LONG_INT)*CellSize);
 	/* copy the float bit by bit */
@@ -473,9 +473,9 @@ c_arg(Int argno, Term t, unsigned int arity, unsigned int level)
 	/* The argument to pass to the structure is now the label for
 	   where we are storing the blob */
 	if (level == 0)
-	  _YAP_emit((onhead ? get_float_op : put_float_op), l1, argno);
+	  Yap_emit((onhead ? get_float_op : put_float_op), l1, argno);
 	else
-	  _YAP_emit((onhead ? (argno == (Int)arity ? unify_last_float_op
+	  Yap_emit((onhead ? (argno == (Int)arity ? unify_last_float_op
 			  : unify_float_op) :
 		write_float_op), l1, Zero);
 #if USE_GMP
@@ -485,7 +485,7 @@ c_arg(Int argno, Term t, unsigned int arity, unsigned int level)
 	  sizeof(MP_INT)+
 	   ((((MP_INT *)(RepAppl(t)+1))->_mp_alloc)*sizeof(mp_limb_t));
 	CELL *dest = 
-	  _YAP_emit_extra_size(blob_op, sz/CellSize, sz);
+	  Yap_emit_extra_size(blob_op, sz/CellSize, sz);
 	/* copy the bignum */
 	memcpy(dest, src, sz);
 	/* note that we don't need to copy size info, unless we wanted
@@ -498,16 +498,16 @@ c_arg(Int argno, Term t, unsigned int arity, unsigned int level)
 	/* The argument to pass to the structure is now the label for
 	   where we are storing the blob */
 	if (level == 0)
-	  _YAP_emit((onhead ? get_bigint_op : put_bigint_op), l1, argno);
+	  Yap_emit((onhead ? get_bigint_op : put_bigint_op), l1, argno);
 	else
-	  _YAP_emit((onhead ? (argno == (Int)arity ? unify_last_bigint_op
+	  Yap_emit((onhead ? (argno == (Int)arity ? unify_last_bigint_op
 			  : unify_bigint_op) :
 		write_bigint_op), l1, Zero);
 #endif
       } else {
 	/* for now, it's just a long int */
 	CELL *dest = 
-	  _YAP_emit_extra_size(blob_op,
+	  Yap_emit_extra_size(blob_op,
 			  2,
 			  2*CellSize);
 	/* copy the long int in one fell swoop */
@@ -519,9 +519,9 @@ c_arg(Int argno, Term t, unsigned int arity, unsigned int level)
 	cpc = ocpc;
 	CodeStart = OCodeStart;
 	if (level == 0)
-	  _YAP_emit((onhead ? get_longint_op : put_longint_op), l1, argno);
+	  Yap_emit((onhead ? get_longint_op : put_longint_op), l1, argno);
 	else
-	  _YAP_emit((onhead ? (argno == (Int)arity ? unify_last_longint_op
+	  Yap_emit((onhead ? (argno == (Int)arity ? unify_last_longint_op
 			  : unify_longint_op) :
 		write_longint_op), l1, Zero);
       }
@@ -529,9 +529,9 @@ c_arg(Int argno, Term t, unsigned int arity, unsigned int level)
       return;
     } 
     if (level == 0)
-      _YAP_emit((onhead ? get_num_op : put_num_op), (CELL) t, argno);
+      Yap_emit((onhead ? get_num_op : put_num_op), (CELL) t, argno);
     else
-      _YAP_emit((onhead ? (argno == (Int)arity ? unify_last_num_op
+      Yap_emit((onhead ? (argno == (Int)arity ? unify_last_num_op
 		      : unify_num_op) :
 	    write_num_op), (CELL) t, Zero);
   }
@@ -544,11 +544,11 @@ c_arg(Int argno, Term t, unsigned int arity, unsigned int level)
       }
     }
     if (level == 0)
-      _YAP_emit((onhead ? get_list_op : put_list_op), Zero, argno);
+      Yap_emit((onhead ? get_list_op : put_list_op), Zero, argno);
     else if (argno == (Int)arity)
-      _YAP_emit((onhead ? unify_last_list_op : write_last_list_op), Zero, Zero);
+      Yap_emit((onhead ? unify_last_list_op : write_last_list_op), Zero, Zero);
     else
-      _YAP_emit((onhead ? unify_list_op : write_list_op), Zero, Zero);
+      Yap_emit((onhead ? unify_list_op : write_list_op), Zero, Zero);
     ++level;
     c_arg(1, HeadOfTerm(t), 2, level);
     if (argno == (Int)arity) {
@@ -566,7 +566,7 @@ c_arg(Int argno, Term t, unsigned int arity, unsigned int level)
       READ_UNLOCK(CurrentPred->PRWLock);
       FAIL("can not compile data base reference",TYPE_ERROR_CALLABLE,t);
     } else {
-      _YAP_emit((onhead ? get_atom_op : put_atom_op), (CELL) t, argno);      
+      Yap_emit((onhead ? get_atom_op : put_atom_op), (CELL) t, argno);      
     }
   } else {
 
@@ -586,13 +586,13 @@ c_arg(Int argno, Term t, unsigned int arity, unsigned int level)
       }
     }
     if (level == 0)
-      _YAP_emit((onhead ? get_struct_op : put_struct_op),
+      Yap_emit((onhead ? get_struct_op : put_struct_op),
 	   (CELL) FunctorOfTerm(t), argno);
     else if (argno == (Int)arity)
-      _YAP_emit((onhead ? unify_last_struct_op : write_last_struct_op),
+      Yap_emit((onhead ? unify_last_struct_op : write_last_struct_op),
 	   (CELL) FunctorOfTerm(t), Zero);
     else
-      _YAP_emit((onhead ? unify_struct_op : write_struct_op),
+      Yap_emit((onhead ? unify_struct_op : write_struct_op),
 	   (CELL) FunctorOfTerm(t), Zero);
     ++level;
     c_args(t, level);
@@ -647,18 +647,18 @@ c_test(Int Op, Term t1) {
   if (!IsVarTerm(t)) {
     char s[32];
 
-    _YAP_Error_TYPE = TYPE_ERROR_VARIABLE;
-    _YAP_Error_Term = t;
-    _YAP_ErrorMessage = _YAP_ErrorSay;
-    _YAP_bip_name(Op, s);
-    sprintf(_YAP_ErrorMessage, "when compiling %s/1", s);
+    Yap_Error_TYPE = TYPE_ERROR_VARIABLE;
+    Yap_Error_Term = t;
+    Yap_ErrorMessage = Yap_ErrorSay;
+    Yap_bip_name(Op, s);
+    sprintf(Yap_ErrorMessage, "when compiling %s/1", s);
     save_machine_regs();
-    longjmp(_YAP_CompilerBotch, 1);
+    longjmp(Yap_CompilerBotch, 1);
   }
   if (IsNewVar(t)) {
     /* in this case, var trivially succeeds and the others trivially fail */
     if (Op != _var)
-      _YAP_emit(fail_op, Zero, Zero);
+      Yap_emit(fail_op, Zero, Zero);
   } else {
     c_var(t,f_flag,(unsigned int)Op, 0);
   }
@@ -701,30 +701,30 @@ c_bifun(Int Op, Term t1, Term t2, Term t3, int mod)
     if (IsNewVar(t1)) {
       char s[32];
 
-      _YAP_Error_TYPE = INSTANTIATION_ERROR;
-      _YAP_Error_Term = t1;
-      _YAP_ErrorMessage = _YAP_ErrorSay;
-      _YAP_bip_name(Op, s);
-      sprintf(_YAP_ErrorMessage, "when compiling %s/2",  s);
+      Yap_Error_TYPE = INSTANTIATION_ERROR;
+      Yap_Error_Term = t1;
+      Yap_ErrorMessage = Yap_ErrorSay;
+      Yap_bip_name(Op, s);
+      sprintf(Yap_ErrorMessage, "when compiling %s/2",  s);
       save_machine_regs();
-      longjmp(_YAP_CompilerBotch, 1);
+      longjmp(Yap_CompilerBotch, 1);
     } else if (IsVarTerm(t2)) {
       if (IsNewVar(t2)) {
 	char s[32];
 
-	_YAP_Error_TYPE = INSTANTIATION_ERROR;
-	_YAP_Error_Term = t2;
-	_YAP_ErrorMessage = _YAP_ErrorSay;
-	_YAP_bip_name(Op, s);
-	sprintf(_YAP_ErrorMessage, "when compiling %s/2",  s);
+	Yap_Error_TYPE = INSTANTIATION_ERROR;
+	Yap_Error_Term = t2;
+	Yap_ErrorMessage = Yap_ErrorSay;
+	Yap_bip_name(Op, s);
+	sprintf(Yap_ErrorMessage, "when compiling %s/2",  s);
 	save_machine_regs();
-	longjmp(_YAP_CompilerBotch, 1);
+	longjmp(Yap_CompilerBotch, 1);
       } else {
 	/* first temp */
 	Int v1 = --tmpreg;
 	/* second temp */
 	Int v2 = --tmpreg;
-	_YAP_emit(fetch_args_vv_op, Zero, Zero);
+	Yap_emit(fetch_args_vv_op, Zero, Zero);
 	/* these should be the arguments */
 	c_var(t1, v1, 0, 0);
 	c_var(t2, v2, 0, 0);
@@ -736,7 +736,7 @@ c_bifun(Int Op, Term t1, Term t2, Term t3, int mod)
 	Int v1 = --tmpreg;
 	Int v2 = --tmpreg;
 	c_arg(t2, v2, 0, 0);
-	_YAP_emit(fetch_args_vv_op, Zero, Zero);
+	Yap_emit(fetch_args_vv_op, Zero, Zero);
 	/* these should be the arguments */
 	c_var(t1, v1, 0, 0);
 	c_var(tn, v2, 0, 0);
@@ -744,27 +744,27 @@ c_bifun(Int Op, Term t1, Term t2, Term t3, int mod)
       } else if (IsIntTerm(t2)) {
 	/* first temp */
 	Int v1 = --tmpreg;
-	_YAP_emit(fetch_args_vc_op, (CELL)IntOfTerm(t2), Zero);
+	Yap_emit(fetch_args_vc_op, (CELL)IntOfTerm(t2), Zero);
 	/* these should be the arguments */
 	c_var(t1, v1, 0, 0);
 	/* now we know where the arguments are */
       } else if (IsLongIntTerm(t2)) {
 	/* first temp */
 	Int v1 = --tmpreg;
-	_YAP_emit(fetch_args_vc_op, (CELL)LongIntOfTerm(t2), Zero);
+	Yap_emit(fetch_args_vc_op, (CELL)LongIntOfTerm(t2), Zero);
 	/* these should be the arguments */
 	c_var(t1, v1, 0, 0);
 	/* now we know where the arguments are */
       } else {
 	char s[32];
 
-	_YAP_Error_TYPE = TYPE_ERROR_NUMBER;
-	_YAP_Error_Term = t2;
-	_YAP_ErrorMessage = _YAP_ErrorSay;
-	_YAP_bip_name(Op, s);
-	sprintf(_YAP_ErrorMessage, "compiling %s/2 with output bound", s);
+	Yap_Error_TYPE = TYPE_ERROR_NUMBER;
+	Yap_Error_Term = t2;
+	Yap_ErrorMessage = Yap_ErrorSay;
+	Yap_bip_name(Op, s);
+	sprintf(Yap_ErrorMessage, "compiling %s/2 with output bound", s);
 	save_machine_regs();
-	longjmp(_YAP_CompilerBotch,1);
+	longjmp(Yap_CompilerBotch,1);
       }
     }
   } else { /* t1 is bound */
@@ -773,13 +773,13 @@ c_bifun(Int Op, Term t1, Term t2, Term t3, int mod)
       if (IsNewVar(t2)) {
 	char s[32];
 
-	_YAP_Error_TYPE = INSTANTIATION_ERROR;
-	_YAP_Error_Term = t2;
-	_YAP_ErrorMessage = _YAP_ErrorSay;
-	_YAP_bip_name(Op, s);
-	sprintf(_YAP_ErrorMessage, "compiling functor/3");
+	Yap_Error_TYPE = INSTANTIATION_ERROR;
+	Yap_Error_Term = t2;
+	Yap_ErrorMessage = Yap_ErrorSay;
+	Yap_bip_name(Op, s);
+	sprintf(Yap_ErrorMessage, "compiling functor/3");
 	save_machine_regs();
-	longjmp(_YAP_CompilerBotch,1);
+	longjmp(Yap_CompilerBotch,1);
       }
     } else {
       if (Op == _functor) {
@@ -789,25 +789,25 @@ c_bifun(Int Op, Term t1, Term t2, Term t3, int mod)
 	if (!IsIntegerTerm(t2)) {
 	  char s[32];
 
-	  _YAP_Error_TYPE = TYPE_ERROR_INTEGER;
-	  _YAP_Error_Term = t2;
-	  _YAP_ErrorMessage = _YAP_ErrorSay;
-	  _YAP_bip_name(Op, s);
-	  sprintf(_YAP_ErrorMessage, "compiling functor/3");
+	  Yap_Error_TYPE = TYPE_ERROR_INTEGER;
+	  Yap_Error_Term = t2;
+	  Yap_ErrorMessage = Yap_ErrorSay;
+	  Yap_bip_name(Op, s);
+	  sprintf(Yap_ErrorMessage, "compiling functor/3");
 	  save_machine_regs();
-	  longjmp(_YAP_CompilerBotch,1);
+	  longjmp(Yap_CompilerBotch,1);
 	}
 	i2 = IntegerOfTerm(t2);
 	if (i2 < 0) {
 	  char s[32];
 
-	  _YAP_Error_TYPE = DOMAIN_ERROR_NOT_LESS_THAN_ZERO;
-	  _YAP_Error_Term = t2;
-	  _YAP_ErrorMessage = _YAP_ErrorSay;
-	  _YAP_bip_name(Op, s);
-	  sprintf(_YAP_ErrorMessage, "compiling functor/3");
+	  Yap_Error_TYPE = DOMAIN_ERROR_NOT_LESS_THAN_ZERO;
+	  Yap_Error_Term = t2;
+	  Yap_ErrorMessage = Yap_ErrorSay;
+	  Yap_bip_name(Op, s);
+	  sprintf(Yap_ErrorMessage, "compiling functor/3");
 	  save_machine_regs();
-	  longjmp(_YAP_CompilerBotch,1);
+	  longjmp(Yap_CompilerBotch,1);
 	}
 	if (IsNumTerm(t1)) {
 	  /* we will always fail */
@@ -816,13 +816,13 @@ c_bifun(Int Op, Term t1, Term t2, Term t3, int mod)
 	} else if (!IsAtomTerm(t1)) {
 	  char s[32];
 
-	  _YAP_Error_TYPE = TYPE_ERROR_ATOM;
-	  _YAP_Error_Term = t2;
-	  _YAP_ErrorMessage = _YAP_ErrorSay;
-	  _YAP_bip_name(Op, s);
-	  sprintf(_YAP_ErrorMessage, "compiling functor/3");
+	  Yap_Error_TYPE = TYPE_ERROR_ATOM;
+	  Yap_Error_Term = t2;
+	  Yap_ErrorMessage = Yap_ErrorSay;
+	  Yap_bip_name(Op, s);
+	  sprintf(Yap_ErrorMessage, "compiling functor/3");
 	  save_machine_regs();
-	  longjmp(_YAP_CompilerBotch,1);
+	  longjmp(Yap_CompilerBotch,1);
 	}
 	if (i2 == 0)
 	  c_eq(t1, t3);
@@ -834,19 +834,19 @@ c_bifun(Int Op, Term t1, Term t2, Term t3, int mod)
 	    if (H+2 >= (CELL *)freep0) {
 	      /* oops, too many new variables */
 	      save_machine_regs();
-	      longjmp(_YAP_CompilerBotch,4);
+	      longjmp(Yap_CompilerBotch,4);
 	    }
 	    RESET_VARIABLE(H);
 	    RESET_VARIABLE(H+1);
 	    H += 2;
 	    c_eq(AbsPair(H-2),t3);
 	  } else {
-	    *H++ = (CELL)_YAP_MkFunctor(AtomOfTerm(t1),i2);
+	    *H++ = (CELL)Yap_MkFunctor(AtomOfTerm(t1),i2);
 	    for (i=0; i < i2; i++) {
 	      if (H >= (CELL *)freep0) {
 		/* oops, too many new variables */
 		save_machine_regs();
-		longjmp(_YAP_CompilerBotch,4);
+		longjmp(Yap_CompilerBotch,4);
 	      }
 	      RESET_VARIABLE(H);
 	      H++;	    
@@ -861,25 +861,25 @@ c_bifun(Int Op, Term t1, Term t2, Term t3, int mod)
 	else {
 	  char s[32];
 
-	  _YAP_Error_TYPE = TYPE_ERROR_INTEGER;
-	  _YAP_Error_Term = t2;
-	  _YAP_ErrorMessage = _YAP_ErrorSay;
-	  _YAP_bip_name(Op, s);
-	  sprintf(_YAP_ErrorMessage, "compiling %s/2",  s);
+	  Yap_Error_TYPE = TYPE_ERROR_INTEGER;
+	  Yap_Error_Term = t2;
+	  Yap_ErrorMessage = Yap_ErrorSay;
+	  Yap_bip_name(Op, s);
+	  sprintf(Yap_ErrorMessage, "compiling %s/2",  s);
 	  save_machine_regs();
-	  longjmp(_YAP_CompilerBotch,1);
+	  longjmp(Yap_CompilerBotch,1);
 	}
 	if (IsAtomicTerm(t2) ||
 	    (IsApplTerm(t2) && IsExtensionFunctor(FunctorOfTerm(t2)))) {
 	  char s[32];
 
-	  _YAP_Error_TYPE = TYPE_ERROR_COMPOUND;
-	  _YAP_Error_Term = t2;
-	  _YAP_ErrorMessage = _YAP_ErrorSay;
-	  _YAP_bip_name(Op, s);
-	  sprintf(_YAP_ErrorMessage, "compiling %s/2",  s);
+	  Yap_Error_TYPE = TYPE_ERROR_COMPOUND;
+	  Yap_Error_Term = t2;
+	  Yap_ErrorMessage = Yap_ErrorSay;
+	  Yap_bip_name(Op, s);
+	  sprintf(Yap_ErrorMessage, "compiling %s/2",  s);
 	  save_machine_regs();
-	  longjmp(_YAP_CompilerBotch,1);
+	  longjmp(Yap_CompilerBotch,1);
 	} else if (IsApplTerm(t2)) {
 	  Functor f = FunctorOfTerm(t2);
 	  if (i1 < 1 || i1 > ArityOfFunctor(f)) {
@@ -904,26 +904,26 @@ c_bifun(Int Op, Term t1, Term t2, Term t3, int mod)
       } else {
 	char s[32];
 
-	_YAP_Error_TYPE = TYPE_ERROR_INTEGER;
-	_YAP_Error_Term = t2;
-	_YAP_ErrorMessage = _YAP_ErrorSay;
-	_YAP_bip_name(Op, s);
-	sprintf(_YAP_ErrorMessage, "compiling %s/2",  s);
+	Yap_Error_TYPE = TYPE_ERROR_INTEGER;
+	Yap_Error_Term = t2;
+	Yap_ErrorMessage = Yap_ErrorSay;
+	Yap_bip_name(Op, s);
+	sprintf(Yap_ErrorMessage, "compiling %s/2",  s);
 	save_machine_regs();
-	longjmp(_YAP_CompilerBotch,1);
+	longjmp(Yap_CompilerBotch,1);
       }
     }
     if (Op == _functor) {
       if (!IsAtomicTerm(t1)) {
 	char s[32];
 
-	_YAP_Error_TYPE = TYPE_ERROR_ATOM;
-	_YAP_Error_Term = t1;
-	_YAP_ErrorMessage = _YAP_ErrorSay;
-	_YAP_bip_name(Op, s);
-	sprintf(_YAP_ErrorMessage, "compiling %s/2",  s);
+	Yap_Error_TYPE = TYPE_ERROR_ATOM;
+	Yap_Error_Term = t1;
+	Yap_ErrorMessage = Yap_ErrorSay;
+	Yap_bip_name(Op, s);
+	sprintf(Yap_ErrorMessage, "compiling %s/2",  s);
 	save_machine_regs();
-	longjmp(_YAP_CompilerBotch,1);
+	longjmp(Yap_CompilerBotch,1);
       } else {
 	if (!IsVarTerm(t2)) {
 	  Int arity;
@@ -932,39 +932,39 @@ c_bifun(Int Op, Term t1, Term t2, Term t3, int mod)
 	  if (!IsIntegerTerm(t2)) {
 	    char s[32];
 
-	    _YAP_Error_TYPE = TYPE_ERROR_INTEGER;
-	    _YAP_Error_Term = t2;
-	    _YAP_ErrorMessage = _YAP_ErrorSay;
-	    _YAP_bip_name(Op, s);
-	    sprintf(_YAP_ErrorMessage, "compiling %s/2",  s);
+	    Yap_Error_TYPE = TYPE_ERROR_INTEGER;
+	    Yap_Error_Term = t2;
+	    Yap_ErrorMessage = Yap_ErrorSay;
+	    Yap_bip_name(Op, s);
+	    sprintf(Yap_ErrorMessage, "compiling %s/2",  s);
 	    save_machine_regs();
-	    longjmp(_YAP_CompilerBotch,1);
+	    longjmp(Yap_CompilerBotch,1);
 	  }
 	  arity = IntOfTerm(t2);
 	  if (arity < 0) {
 	    /* fail straight away */
-	    _YAP_emit(fail_op, Zero, Zero);
+	    Yap_emit(fail_op, Zero, Zero);
 	  }
 	  if (arity) {
 	    Term tnew;
 	    if (!IsAtomTerm(t1)) {
 	      char s[32];
 
-	      _YAP_Error_TYPE = TYPE_ERROR_ATOM;
-	      _YAP_Error_Term = t1;
-	      _YAP_ErrorMessage = _YAP_ErrorSay;
-	      _YAP_bip_name(Op, s);
-	      sprintf(_YAP_ErrorMessage, "compiling %s/2",  s);
+	      Yap_Error_TYPE = TYPE_ERROR_ATOM;
+	      Yap_Error_Term = t1;
+	      Yap_ErrorMessage = Yap_ErrorSay;
+	      Yap_bip_name(Op, s);
+	      sprintf(Yap_ErrorMessage, "compiling %s/2",  s);
 	      save_machine_regs();
-	      longjmp(_YAP_CompilerBotch,1);
+	      longjmp(Yap_CompilerBotch,1);
 	    }
 	    if (H+1+arity >= (CELL *)freep0) {
 	      /* oops, too many new variables */
 	      save_machine_regs();
-	      longjmp(_YAP_CompilerBotch,4);
+	      longjmp(Yap_CompilerBotch,4);
 	    }
 	    tnew = AbsAppl(H);
-	    *H++ = (CELL)_YAP_MkFunctor(AtomOfTerm(t1),arity);
+	    *H++ = (CELL)Yap_MkFunctor(AtomOfTerm(t1),arity);
 	    while (arity--) {
 	      RESET_VARIABLE(H);
 	      H++;
@@ -978,7 +978,7 @@ c_bifun(Int Op, Term t1, Term t2, Term t3, int mod)
 	} else {
 	  /* first temp */
 	  Int v1 = --tmpreg;
-	  _YAP_emit(fetch_args_cv_op, t1, Zero);
+	  Yap_emit(fetch_args_cv_op, t1, Zero);
 	  /* these should be the arguments */
 	  c_var(t2, v1, 0, 0);
 	  /* now we know where the arguments are */
@@ -987,27 +987,27 @@ c_bifun(Int Op, Term t1, Term t2, Term t3, int mod)
     } else if (IsIntTerm(t1)) {
       /* first temp */
       Int v1 = --tmpreg;
-      _YAP_emit(fetch_args_cv_op, (CELL)IntOfTerm(t1), Zero);
+      Yap_emit(fetch_args_cv_op, (CELL)IntOfTerm(t1), Zero);
       /* these should be the arguments */
       c_var(t2, v1, 0, 0);
       /* now we know where the arguments are */
     } else if (IsLongIntTerm(t1)) {
       /* first temp */
       Int v1 = --tmpreg;
-      _YAP_emit(fetch_args_cv_op, (CELL)LongIntOfTerm(t1), Zero);
+      Yap_emit(fetch_args_cv_op, (CELL)LongIntOfTerm(t1), Zero);
       /* these should be the arguments */
       c_var(t2, v1, 0, 0);
       /* now we know where the arguments are */
     } else {
       char s[32];
 
-      _YAP_Error_TYPE = TYPE_ERROR_VARIABLE;
-      _YAP_Error_Term = t1;
-      _YAP_ErrorMessage = _YAP_ErrorSay;
-      _YAP_bip_name(Op, s);
-      sprintf(_YAP_ErrorMessage, "compiling %s/2 with output bound",  s);
+      Yap_Error_TYPE = TYPE_ERROR_VARIABLE;
+      Yap_Error_Term = t1;
+      Yap_ErrorMessage = Yap_ErrorSay;
+      Yap_bip_name(Op, s);
+      sprintf(Yap_ErrorMessage, "compiling %s/2 with output bound",  s);
       save_machine_regs();
-      longjmp(_YAP_CompilerBotch,1);
+      longjmp(Yap_CompilerBotch,1);
     }
   }      
   /* then we compile the opcode/result */
@@ -1017,26 +1017,26 @@ c_bifun(Int Op, Term t1, Term t2, Term t3, int mod)
       if (H == (CELL *)freep0) {
 	/* oops, too many new variables */
 	save_machine_regs();
-	longjmp(_YAP_CompilerBotch,4);
+	longjmp(Yap_CompilerBotch,4);
       }
       c_var(tmpvar,f_flag,(unsigned int)Op, 0);
       c_eq(tmpvar,t3);
     } else {
       char s[32];
 
-      _YAP_Error_TYPE = TYPE_ERROR_VARIABLE;
-      _YAP_Error_Term = t3;
-      _YAP_ErrorMessage = _YAP_ErrorSay;
-      _YAP_bip_name(Op, s);
-      sprintf(_YAP_ErrorMessage, "compiling %s/2 with input unbound",  s);
+      Yap_Error_TYPE = TYPE_ERROR_VARIABLE;
+      Yap_Error_Term = t3;
+      Yap_ErrorMessage = Yap_ErrorSay;
+      Yap_bip_name(Op, s);
+      sprintf(Yap_ErrorMessage, "compiling %s/2 with input unbound",  s);
       save_machine_regs();
-      longjmp(_YAP_CompilerBotch,1);
+      longjmp(Yap_CompilerBotch,1);
     }
   } else if (IsNewVar(t3) && cur_branch == 0 /* otherwise you may have trouble with z(X) :- ( Z is X*2 ; write(Z)) */) {
     c_var(t3,f_flag,(unsigned int)Op, 0);
     if (Op == _functor) {
-      _YAP_emit(empty_call_op, Zero, Zero);
-      _YAP_emit(restore_tmps_and_skip_op, Zero, Zero);
+      Yap_emit(empty_call_op, Zero, Zero);
+      Yap_emit(restore_tmps_and_skip_op, Zero, Zero);
     }
   } else {
     /* generate code for a temp and then unify temp with previous variable */ 
@@ -1044,13 +1044,13 @@ c_bifun(Int Op, Term t1, Term t2, Term t3, int mod)
     if (H == (CELL *)freep0) {
       /* oops, too many new variables */
       save_machine_regs();
-      longjmp(_YAP_CompilerBotch,4);
+      longjmp(Yap_CompilerBotch,4);
     }
     c_var(tmpvar,f_flag,(unsigned int)Op, 0);
     /* I have to dit here, before I do the unification */
     if (Op == _functor) {
-      _YAP_emit(empty_call_op, Zero, Zero);
-      _YAP_emit(restore_tmps_and_skip_op, Zero, Zero);
+      Yap_emit(empty_call_op, Zero, Zero);
+      Yap_emit(restore_tmps_and_skip_op, Zero, Zero);
     }
     c_eq(tmpvar,t3);
   }
@@ -1080,7 +1080,7 @@ c_functor(Term Goal, int mod)
   } else if (IsVarTerm(t2) && IsNewVar(t2) &&
 	     IsVarTerm(t3) && IsNewVar(t3)) {
     Int v1 = --tmpreg;
-    _YAP_emit(fetch_args_vc_op, Zero, Zero);
+    Yap_emit(fetch_args_vc_op, Zero, Zero);
     c_var(t1, v1, 0, 0);
     c_var(t2,f_flag,(unsigned int)_functor, 0);
     c_var(t3,f_flag,(unsigned int)_functor, 0);
@@ -1088,13 +1088,13 @@ c_functor(Term Goal, int mod)
     Functor f = FunctorOfTerm(Goal);
     Prop p0 = PredPropByFunc(f, mod);
     if (profiling)
-      _YAP_emit(enter_profiling_op, (CELL)RepPredProp(p0), Zero);
+      Yap_emit(enter_profiling_op, (CELL)RepPredProp(p0), Zero);
     else if (call_counting)
-      _YAP_emit(count_call_op, (CELL)RepPredProp(p0), Zero);
+      Yap_emit(count_call_op, (CELL)RepPredProp(p0), Zero);
     c_args(Goal, 0);
-    _YAP_emit(safe_call_op, (CELL)p0 , Zero);
-    _YAP_emit(empty_call_op, Zero, Zero);
-    _YAP_emit(restore_tmps_and_skip_op, Zero, Zero);
+    Yap_emit(safe_call_op, (CELL)p0 , Zero);
+    Yap_emit(empty_call_op, Zero, Zero);
+    Yap_emit(restore_tmps_and_skip_op, Zero, Zero);
   }
 }
 
@@ -1122,79 +1122,79 @@ c_goal(Term Goal, int mod)
   Prop p0;
 
   if (IsVarTerm(Goal)) {
-    Goal = _YAP_MkApplTerm(FunctorCall, 1, &Goal);
+    Goal = Yap_MkApplTerm(FunctorCall, 1, &Goal);
   }
   if (IsApplTerm(Goal) && FunctorOfTerm(Goal) == FunctorModule) {
     Term M = ArgOfTerm(1, Goal);
 
     if (!IsVarTerm(M) && !IsAtomTerm(M)) {
-      _YAP_Error_TYPE = TYPE_ERROR_ATOM;
-      _YAP_Error_Term = M;
-      _YAP_ErrorMessage = "in module name";
+      Yap_Error_TYPE = TYPE_ERROR_ATOM;
+      Yap_Error_Term = M;
+      Yap_ErrorMessage = "in module name";
       save_machine_regs();
-      longjmp(_YAP_CompilerBotch, 1);
+      longjmp(Yap_CompilerBotch, 1);
     }
     Goal = ArgOfTerm(2, Goal);
-    mod = _YAP_LookupModule(M);
+    mod = Yap_LookupModule(M);
   }
   if (IsNumTerm(Goal)) {
     FAIL("goal can not be a number", TYPE_ERROR_CALLABLE, Goal);
   }
   else if (IsRefTerm(Goal)) {
-    _YAP_Error_TYPE = TYPE_ERROR_DBREF;
-    _YAP_Error_Term = Goal;
+    Yap_Error_TYPE = TYPE_ERROR_DBREF;
+    Yap_Error_Term = Goal;
     FAIL("goal argument in static procedure can not be a data base reference", TYPE_ERROR_CALLABLE, Goal);
   }
   else if (IsPairTerm(Goal)) {
-    Goal = _YAP_MkApplTerm(FunctorCall, 1, &Goal);
+    Goal = Yap_MkApplTerm(FunctorCall, 1, &Goal);
   }
   else if (IsVarTerm(Goal)) {
-    Goal = _YAP_MkApplTerm(FunctorCall, 1, &Goal);
+    Goal = Yap_MkApplTerm(FunctorCall, 1, &Goal);
   }
   if (IsAtomTerm(Goal)) {
     Atom atom = AtomOfTerm(Goal);
 
     if (atom == AtomFail || atom == AtomFalse) {
-      _YAP_emit(fail_op, Zero, Zero);
+      Yap_emit(fail_op, Zero, Zero);
       return;
     }
     else if (atom == AtomTrue || atom == AtomOtherwise) {
       if (onlast) {
-	_YAP_emit(deallocate_op, Zero, Zero);
+	Yap_emit(deallocate_op, Zero, Zero);
 #ifdef TABLING
 	if (is_tabled(CurrentPred))
-	  _YAP_emit(table_new_answer_op, Zero, CurrentPred->ArityOfPE);
+	  Yap_emit(table_new_answer_op, Zero, CurrentPred->ArityOfPE);
 	else
 #endif /* TABLING */
-	  _YAP_emit(procceed_op, Zero, Zero);
+	  Yap_emit(procceed_op, Zero, Zero);
       }
       return;
     }
     else if (atom == AtomCut) {
       if (profiling)
-	_YAP_emit(enter_profiling_op, (CELL)RepPredProp(PredPropByAtom(AtomCut,0)), Zero);
+	Yap_emit(enter_profiling_op, (CELL)RepPredProp(PredPropByAtom(AtomCut,0)), Zero);
       else if (call_counting)
-	_YAP_emit(count_call_op, (CELL)RepPredProp(PredPropByAtom(AtomCut,0)), Zero);
+	Yap_emit(count_call_op, (CELL)RepPredProp(PredPropByAtom(AtomCut,0)), Zero);
       if (onlast) {
 	/* never a problem here with a -> b, !, c ; d */
-	_YAP_emit(deallocate_op, Zero, Zero);
+	Yap_emit(deallocate_op, Zero, Zero);
 #ifdef TABLING
 	READ_LOCK(CurrentPred->PRWLock);
 	if (is_tabled(CurrentPred)) {
-	  _YAP_emit(cut_op, Zero, Zero);
-	  _YAP_emit(table_new_answer_op, Zero, CurrentPred->ArityOfPE);
+	  Yap_emit(cut_op, Zero, Zero);
+	  Yap_emit(table_new_answer_op, Zero, CurrentPred->ArityOfPE);
 	}
 	else
 #endif /* TABLING */
 	  {
-	    _YAP_emit(cutexit_op, Zero, Zero);
+	    Yap_emit(cutexit_op, Zero, Zero);
 	  }
 #ifdef TABLING
 	READ_UNLOCK(CurrentPred->PRWLock);
 #endif
       }
       else {
-	_YAP_emit(cut_op, Zero, Zero);
+	Yap_emit(cut_op, Zero, Zero);
 	/* needs to adjust previous commits */
 	adjust_current_commits();
       }
@@ -1206,31 +1206,31 @@ c_goal(Term Goal, int mod)
       CELL l2 = ++labelno;
 
       if (profiling)
-	_YAP_emit(enter_profiling_op, (CELL)RepPredProp(PredPropByAtom(AtomRepeat,0)), Zero);
+	Yap_emit(enter_profiling_op, (CELL)RepPredProp(PredPropByAtom(AtomRepeat,0)), Zero);
       else if (call_counting)
-	_YAP_emit(count_call_op, (CELL)RepPredProp(PredPropByAtom(AtomRepeat,0)), Zero);
+	Yap_emit(count_call_op, (CELL)RepPredProp(PredPropByAtom(AtomRepeat,0)), Zero);
       or_found = 1;
       push_branch(onbranch, TermNil);
       cur_branch++;
       onbranch = cur_branch;
       if (onlast)
-	_YAP_emit(deallocate_op, Zero, Zero);
-      _YAP_emit_3ops(push_or_op, l1, Zero, Zero);
-      _YAP_emit_3ops(either_op, l1, Zero, Zero);
-      _YAP_emit(restore_tmps_op, Zero, Zero);
-      _YAP_emit(jump_op, l2, Zero);
-      _YAP_emit(label_op, l1, Zero);
-      _YAP_emit(pushpop_or_op, Zero, Zero);
-      _YAP_emit_3ops(orelse_op, l1, Zero, Zero);
-      _YAP_emit(label_op, l2, Zero);
+	Yap_emit(deallocate_op, Zero, Zero);
+      Yap_emit_3ops(push_or_op, l1, Zero, Zero);
+      Yap_emit_3ops(either_op, l1, Zero, Zero);
+      Yap_emit(restore_tmps_op, Zero, Zero);
+      Yap_emit(jump_op, l2, Zero);
+      Yap_emit(label_op, l1, Zero);
+      Yap_emit(pushpop_or_op, Zero, Zero);
+      Yap_emit_3ops(orelse_op, l1, Zero, Zero);
+      Yap_emit(label_op, l2, Zero);
       if (onlast) {
 #ifdef TABLING
 	READ_LOCK(CurrentPred->PRWLock);
 	if (is_tabled(CurrentPred))
-	  _YAP_emit(table_new_answer_op, Zero, CurrentPred->ArityOfPE);
+	  Yap_emit(table_new_answer_op, Zero, CurrentPred->ArityOfPE);
 	else
 #endif /* TABLING */
-	  _YAP_emit(procceed_op, Zero, Zero);
+	  Yap_emit(procceed_op, Zero, Zero);
 #ifdef TABLING
 	READ_UNLOCK(CurrentPred->PRWLock);
 #endif
@@ -1238,7 +1238,7 @@ c_goal(Term Goal, int mod)
       else
 	++goalno;
       onbranch = pop_branch();
-      _YAP_emit(pop_or_op, Zero, Zero);
+      Yap_emit(pop_or_op, Zero, Zero);
       /*                      --onbranch; */
       return;
     }
@@ -1246,9 +1246,9 @@ c_goal(Term Goal, int mod)
     p = RepPredProp(p0 = PredPropByAtom(atom, mod));
     /* if we are profiling, make sure we register we entered this predicate */
     if (profiling)
-      _YAP_emit(enter_profiling_op, (CELL)p, Zero);
+      Yap_emit(enter_profiling_op, (CELL)p, Zero);
     if (call_counting)
-      _YAP_emit(count_call_op, (CELL)p, Zero);
+      Yap_emit(count_call_op, (CELL)p, Zero);
   }
   else {
     f = FunctorOfTerm(Goal);
@@ -1276,31 +1276,31 @@ c_goal(Term Goal, int mod)
 		FunctorOfTerm(arg) == FunctorArrow;
 	if (frst) {
 	  if (optimizing_comit) {
-	    _YAP_emit(label_op, l, Zero);
+	    Yap_emit(label_op, l, Zero);
 	    l = ++labelno;
 	  }
-	  _YAP_emit_3ops(push_or_op, l, Zero, Zero);
+	  Yap_emit_3ops(push_or_op, l, Zero, Zero);
 	  if (looking_at_comit &&
-	      _YAP_is_a_test_pred(ArgOfTerm(1, arg), mod)) {
+	      Yap_is_a_test_pred(ArgOfTerm(1, arg), mod)) {
 	    /*
 	     * let them think they are still the
 	     * first 
 	     */
-	    _YAP_emit(comit_opt_op, l, Zero);
+	    Yap_emit(comit_opt_op, l, Zero);
 	    optimizing_comit = TRUE;
 	  }
 	  else {
 	    optimizing_comit = FALSE;
-	    _YAP_emit_3ops(either_op, l,  Zero, Zero);
-	    _YAP_emit(restore_tmps_op, Zero, Zero);
+	    Yap_emit_3ops(either_op, l,  Zero, Zero);
+	    Yap_emit(restore_tmps_op, Zero, Zero);
 	    frst = FALSE;
 	  }
 	}
 	else {
 	  optimizing_comit = FALSE;
-	  _YAP_emit(label_op, l, Zero);
-	  _YAP_emit(pushpop_or_op, Zero, Zero);
-	  _YAP_emit_3ops(orelse_op, l = ++labelno, Zero, Zero);
+	  Yap_emit(label_op, l, Zero);
+	  Yap_emit(pushpop_or_op, Zero, Zero);
+	  Yap_emit_3ops(orelse_op, l = ++labelno, Zero, Zero);
 	}
 	/*
 	 * if(IsApplTerm(arg) &&
@@ -1323,7 +1323,7 @@ c_goal(Term Goal, int mod)
 	    if (H == (CELL *)freep0) {
 	      /* oops, too many new variables */
 	      save_machine_regs();
-	      longjmp(_YAP_CompilerBotch,4);
+	      longjmp(Yap_CompilerBotch,4);
 	    }
 	    savecpc = cpc;
 	    savencpc = FirstP->nextInst;
@@ -1349,7 +1349,7 @@ c_goal(Term Goal, int mod)
 	else
 	  c_goal(ArgOfTerm(1, Goal), mod);
 	if (!onlast) {
-	  _YAP_emit(jump_op, m, Zero);
+	  Yap_emit(jump_op, m, Zero);
 	}
 	goalno = savegoalno + 1;
 	Goal = ArgOfTerm(2, Goal);
@@ -1357,10 +1357,10 @@ c_goal(Term Goal, int mod)
 	onbranch = cur_branch;
       } while (IsNonVarTerm(Goal) && IsApplTerm(Goal)
 	       && FunctorOfTerm(Goal) == FunctorOr);
-      _YAP_emit(pushpop_or_op, Zero, Zero);
-      _YAP_emit(label_op, l, Zero);
+      Yap_emit(pushpop_or_op, Zero, Zero);
+      Yap_emit(label_op, l, Zero);
       if (!optimizing_comit)
-	_YAP_emit(orlast_op, Zero, Zero);
+	Yap_emit(orlast_op, Zero, Zero);
       else {
 	optimizing_comit = FALSE;	/* not really necessary */
       }
@@ -1368,11 +1368,11 @@ c_goal(Term Goal, int mod)
       /*              --onbranch; */
       onbranch = pop_branch();
       if (!onlast) {
-	_YAP_emit(label_op, m, Zero);
+	Yap_emit(label_op, m, Zero);
 	if ((onlast = save))
 	  c_goal(MkAtomTerm(AtomTrue), mod);
       }
-      _YAP_emit(pop_or_op, Zero, Zero);
+      Yap_emit(pop_or_op, Zero, Zero);
       return;
     }
     else if (f == FunctorComma) {
@@ -1395,7 +1395,7 @@ c_goal(Term Goal, int mod)
       if (H == (CELL *)freep0) {
 	/* oops, too many new variables */
 	save_machine_regs();
-	longjmp(_YAP_CompilerBotch,4);
+	longjmp(Yap_CompilerBotch,4);
       }
       push_branch(onbranch, comitvar);
       ++cur_branch;
@@ -1403,23 +1403,23 @@ c_goal(Term Goal, int mod)
       or_found = 1;
       onlast = FALSE;
       c_var(comitvar, save_b_flag, 1, 0);
-      _YAP_emit_3ops(push_or_op, label, Zero, Zero);
-      _YAP_emit_3ops(either_op, label,  Zero, Zero);
-      _YAP_emit(restore_tmps_op, Zero, Zero);
+      Yap_emit_3ops(push_or_op, label, Zero, Zero);
+      Yap_emit_3ops(either_op, label,  Zero, Zero);
+      Yap_emit(restore_tmps_op, Zero, Zero);
       c_goal(ArgOfTerm(1, Goal), mod);
       c_var(comitvar, comit_b_flag, 1, 0);
       onlast = save;
-      _YAP_emit(fail_op, end_label, Zero);
-      _YAP_emit(pushpop_or_op, Zero, Zero);
-      _YAP_emit(label_op, label, Zero);
-      _YAP_emit(orlast_op, Zero, Zero);
-      _YAP_emit(label_op, end_label, Zero);
+      Yap_emit(fail_op, end_label, Zero);
+      Yap_emit(pushpop_or_op, Zero, Zero);
+      Yap_emit(label_op, label, Zero);
+      Yap_emit(orlast_op, Zero, Zero);
+      Yap_emit(label_op, end_label, Zero);
       onlast = save;
       /*              --onbranch; */
       onbranch = pop_branch();
       c_goal(MkAtomTerm(AtomTrue), mod);
       ++goalno;
-      _YAP_emit(pop_or_op, Zero, Zero);
+      Yap_emit(pop_or_op, Zero, Zero);
       return;
     }
     else if (f == FunctorArrow) {
@@ -1430,7 +1430,7 @@ c_goal(Term Goal, int mod)
       if (H == (CELL *)freep0) {
 	/* oops, too many new variables */
 	save_machine_regs();
-	longjmp(_YAP_CompilerBotch,4);
+	longjmp(Yap_CompilerBotch,4);
       }
       onlast = FALSE;
       c_var(comitvar, save_b_flag, 1, 0);
@@ -1442,19 +1442,19 @@ c_goal(Term Goal, int mod)
     }
     else if (f == FunctorEq) {
       if (profiling)
-	_YAP_emit(enter_profiling_op, (CELL)p, Zero);
+	Yap_emit(enter_profiling_op, (CELL)p, Zero);
       else if (call_counting)
-	_YAP_emit(count_call_op, (CELL)p, Zero);
+	Yap_emit(count_call_op, (CELL)p, Zero);
       c_eq(ArgOfTerm(1, Goal), ArgOfTerm(2, Goal));
       if (onlast) {
-	_YAP_emit(deallocate_op, Zero, Zero);
+	Yap_emit(deallocate_op, Zero, Zero);
 #ifdef TABLING
 	READ_LOCK(CurrentPred->PRWLock);
 	if (is_tabled(CurrentPred))
-	  _YAP_emit(table_new_answer_op, Zero, CurrentPred->ArityOfPE);
+	  Yap_emit(table_new_answer_op, Zero, CurrentPred->ArityOfPE);
 	else
 #endif /* TABLING */
-	  _YAP_emit(procceed_op, Zero, Zero);
+	  Yap_emit(procceed_op, Zero, Zero);
 #ifdef TABLING
 	READ_UNLOCK(CurrentPred->PRWLock);
 #endif
@@ -1464,20 +1464,20 @@ c_goal(Term Goal, int mod)
     else if (p->PredFlags & AsmPredFlag) {
       int op = p->PredFlags & 0x7f;
       if (profiling)
-	_YAP_emit(enter_profiling_op, (CELL)p, Zero);
+	Yap_emit(enter_profiling_op, (CELL)p, Zero);
       else if (call_counting)
-	_YAP_emit(count_call_op, (CELL)p, Zero);
+	Yap_emit(count_call_op, (CELL)p, Zero);
       if (op >= _atom && op <= _primitive) {
 	c_test(op, ArgOfTerm(1, Goal));
 	if (onlast) {
-	  _YAP_emit(deallocate_op, Zero, Zero);
+	  Yap_emit(deallocate_op, Zero, Zero);
 #ifdef TABLING
 	  READ_LOCK(CurrentPred->PRWLock);
 	  if (is_tabled(CurrentPred))
-	    _YAP_emit(table_new_answer_op, Zero, CurrentPred->ArityOfPE);
+	    Yap_emit(table_new_answer_op, Zero, CurrentPred->ArityOfPE);
 	  else
 #endif /* TABLING */
-	    _YAP_emit(procceed_op, Zero, Zero);
+	    Yap_emit(procceed_op, Zero, Zero);
 #ifdef TABLING
 	  READ_UNLOCK(CurrentPred->PRWLock);
 #endif
@@ -1496,14 +1496,14 @@ c_goal(Term Goal, int mod)
 		  mod);
 	}
 	if (onlast) {
-	  _YAP_emit(deallocate_op, Zero, Zero);
+	  Yap_emit(deallocate_op, Zero, Zero);
 #ifdef TABLING
 	  READ_LOCK(CurrentPred->PRWLock);
 	  if (is_tabled(CurrentPred))
-	    _YAP_emit(table_new_answer_op, Zero, CurrentPred->ArityOfPE);
+	    Yap_emit(table_new_answer_op, Zero, CurrentPred->ArityOfPE);
 	  else
 #endif /* TABLING */
-	    _YAP_emit(procceed_op, Zero, Zero);
+	    Yap_emit(procceed_op, Zero, Zero);
 #ifdef TABLING
 	  READ_UNLOCK(CurrentPred->PRWLock);
 #endif
@@ -1520,12 +1520,12 @@ c_goal(Term Goal, int mod)
 	Term a2 = ArgOfTerm(2,Goal);
 	if (IsVarTerm(a2) && !IsNewVar(a2)) {
 	  if (IsNewVar(a2))  {
-	    _YAP_Error_TYPE = INSTANTIATION_ERROR;
-	    _YAP_Error_Term = a2;
-	    _YAP_ErrorMessage = _YAP_ErrorSay;
-	    sprintf(_YAP_ErrorMessage, "compiling %s/2 with second arg unbound",  RepAtom(NameOfFunctor(p->FunctorOfPred))->StrOfAE);
+	    Yap_Error_TYPE = INSTANTIATION_ERROR;
+	    Yap_Error_Term = a2;
+	    Yap_ErrorMessage = Yap_ErrorSay;
+	    sprintf(Yap_ErrorMessage, "compiling %s/2 with second arg unbound",  RepAtom(NameOfFunctor(p->FunctorOfPred))->StrOfAE);
 	    save_machine_regs();
-	    longjmp(_YAP_CompilerBotch,1);
+	    longjmp(Yap_CompilerBotch,1);
 	  }
 	  c_var(a1, bt1_flag, 2, 0);
 	  current_p0 = p0;
@@ -1536,7 +1536,7 @@ c_goal(Term Goal, int mod)
 	  if (H == (CELL *)freep0) {
 	    /* oops, too many new variables */
 	    save_machine_regs();
-	    longjmp(_YAP_CompilerBotch,4);
+	    longjmp(Yap_CompilerBotch,4);
 	  }
 
 	  c_eq(t2, a2);
@@ -1551,7 +1551,7 @@ c_goal(Term Goal, int mod)
 	if (H == (CELL *)freep0) {
 	  /* oops, too many new variables */
 	  save_machine_regs();
-	  longjmp(_YAP_CompilerBotch,4);
+	  longjmp(Yap_CompilerBotch,4);
 	}
 
 	c_eq(t1, a1);
@@ -1565,7 +1565,7 @@ c_goal(Term Goal, int mod)
 	  if (H == (CELL *)freep0) {
 	    /* oops, too many new variables */
 	    save_machine_regs();
-	    longjmp(_YAP_CompilerBotch,4);
+	    longjmp(Yap_CompilerBotch,4);
 	  }
 
 	  c_eq(t2, a2);
@@ -1575,14 +1575,14 @@ c_goal(Term Goal, int mod)
 	}
       }
       if (onlast) {
-	_YAP_emit(deallocate_op, Zero, Zero);
+	Yap_emit(deallocate_op, Zero, Zero);
 #ifdef TABLING
 	READ_LOCK(CurrentPred->PRWLock);
 	if (is_tabled(CurrentPred))
-	  _YAP_emit(table_new_answer_op, Zero, CurrentPred->ArityOfPE);
+	  Yap_emit(table_new_answer_op, Zero, CurrentPred->ArityOfPE);
 	else
 #endif /* TABLING */
-	  _YAP_emit(procceed_op, Zero, Zero);
+	  Yap_emit(procceed_op, Zero, Zero);
 #ifdef TABLING
 	READ_UNLOCK(CurrentPred->PRWLock);
 #endif
@@ -1591,9 +1591,9 @@ c_goal(Term Goal, int mod)
     }
     else {
       if (profiling)
-	_YAP_emit(enter_profiling_op, (CELL)p, Zero);
+	Yap_emit(enter_profiling_op, (CELL)p, Zero);
       else if (call_counting)
-	_YAP_emit(count_call_op, (CELL)p, Zero);
+	Yap_emit(count_call_op, (CELL)p, Zero);
       c_args(Goal, 0);
     }
   }
@@ -1605,16 +1605,16 @@ c_goal(Term Goal, int mod)
 #endif /* YAPOR */
       ) {
     if (onlast)
-      _YAP_emit(deallocate_op, Zero, Zero);
-    _YAP_emit(safe_call_op, (CELL) p0, Zero);
+      Yap_emit(deallocate_op, Zero, Zero);
+    Yap_emit(safe_call_op, (CELL) p0, Zero);
     if (onlast) {
 #ifdef TABLING
       READ_LOCK(CurrentPred->PRWLock);
       if (is_tabled(CurrentPred))
-	_YAP_emit(table_new_answer_op, Zero, CurrentPred->ArityOfPE);
+	Yap_emit(table_new_answer_op, Zero, CurrentPred->ArityOfPE);
       else
 #endif /* TABLING */
-	_YAP_emit(procceed_op, Zero, Zero);
+	Yap_emit(procceed_op, Zero, Zero);
 #ifdef TABLING
       READ_UNLOCK(CurrentPred->PRWLock);
 #endif
@@ -1624,20 +1624,20 @@ c_goal(Term Goal, int mod)
     if (p->PredFlags & (CPredFlag | AsmPredFlag)) {
 #ifdef YAPOR
       if (p->PredFlags & SyncPredFlag)
-	_YAP_emit(sync_op, (CELL)p, (CELL)(p->ArityOfPE));
+	Yap_emit(sync_op, (CELL)p, (CELL)(p->ArityOfPE));
 #endif /* YAPOR */
-      _YAP_emit_3ops(call_op, (CELL) p0, Zero, Zero);
+      Yap_emit_3ops(call_op, (CELL) p0, Zero, Zero);
       /* functor is allowed to call the garbage collector */
       if (onlast) {
-	_YAP_emit(deallocate_op, Zero, Zero);
+	Yap_emit(deallocate_op, Zero, Zero);
 	or_found = 1;
 #ifdef TABLING
 	READ_LOCK(CurrentPred->PRWLock);
 	if (is_tabled(CurrentPred))
-	  _YAP_emit(table_new_answer_op, Zero, CurrentPred->ArityOfPE);
+	  Yap_emit(table_new_answer_op, Zero, CurrentPred->ArityOfPE);
 	else
 #endif /* TABLING */
-	  _YAP_emit(procceed_op, Zero, Zero);
+	  Yap_emit(procceed_op, Zero, Zero);
 #ifdef TABLING
 	READ_UNLOCK(CurrentPred->PRWLock);
 #endif
@@ -1645,22 +1645,22 @@ c_goal(Term Goal, int mod)
     }
     else {
       if (onlast) {
-	_YAP_emit(deallocate_op, Zero, Zero);
+	Yap_emit(deallocate_op, Zero, Zero);
 #ifdef TABLING
 	READ_LOCK(CurrentPred->PRWLock);
 	if (is_tabled(CurrentPred)) {
-	  _YAP_emit_3ops(call_op, (CELL) p0, Zero, Zero);
-	  _YAP_emit(table_new_answer_op, Zero, CurrentPred->ArityOfPE);
+	  Yap_emit_3ops(call_op, (CELL) p0, Zero, Zero);
+	  Yap_emit(table_new_answer_op, Zero, CurrentPred->ArityOfPE);
 	}
 	else
 #endif /* TABLING */
-	  _YAP_emit(execute_op, (CELL) p0, Zero);
+	  Yap_emit(execute_op, (CELL) p0, Zero);
 #ifdef TABLING
 	READ_UNLOCK(CurrentPred->PRWLock);
 #endif
       }
       else {
-	_YAP_emit_3ops(call_op, (CELL) p0, Zero, Zero);
+	Yap_emit_3ops(call_op, (CELL) p0, Zero, Zero);
       }
     }
     if (!onlast)
@@ -1768,11 +1768,11 @@ c_head(Term t)
   cur_branch = onbranch = 0;
   branch_pointer = parent_branches;
   if (IsAtomTerm(t)) {
-    _YAP_emit(name_op, (CELL) AtomOfTerm(t), Zero);
+    Yap_emit(name_op, (CELL) AtomOfTerm(t), Zero);
     return;
   }
   f = FunctorOfTerm(t);
-  _YAP_emit(name_op, (CELL) NameOfFunctor(f), ArityOfFunctor(f));
+  Yap_emit(name_op, (CELL) NameOfFunctor(f), ArityOfFunctor(f));
   c_args(t, 0);
   get_cl_info(ArgOfTerm(1, t));
 }
@@ -1843,7 +1843,7 @@ AssignPerm(PInstr *pc)
       Ventry *v = (Ventry *) (pc->rnd1);
       if (v->AgeOfVE == v->FirstOfVE
 	  && !(v->FlagsOfVE & (GlobalVal|OnHeadFlag|OnLastGoal|NonVoid)) ) {
-	EnvTmp *x = (EnvTmp *)_YAP_AllocCMem(sizeof(*x));
+	EnvTmp *x = (EnvTmp *)Yap_AllocCMem(sizeof(*x));
 	x->Next = EnvTmps;
 	x->Var = v;
 	EnvTmps = x;
@@ -1911,7 +1911,7 @@ init_bvarray(int nperm)
   unsigned int i;
   CELL *vptr;
 
-  vptr = vinfo = (CELL *)_YAP_AllocCMem(sizeof(CELL)*(1+nperm/(8*sizeof(CELL))));
+  vptr = vinfo = (CELL *)Yap_AllocCMem(sizeof(CELL)*(1+nperm/(8*sizeof(CELL))));
   for (i = 0; i <= nperm/(8*sizeof(CELL)); i++) {
     *vptr++ = (CELL)(0L);
   }
@@ -1934,11 +1934,11 @@ clear_bvarray(int var, CELL *bvarray)
 #ifdef DEBUG
   if (*bvarray & nbit) {
     /* someone had already marked this variable: complain */
-    _YAP_Error_TYPE = SYSTEM_ERROR;
-    _YAP_Error_Term = TermNil;
-    _YAP_ErrorMessage = "repeated bit for variable";
+    Yap_Error_TYPE = SYSTEM_ERROR;
+    Yap_Error_Term = TermNil;
+    Yap_ErrorMessage = "repeated bit for variable";
     save_machine_regs();
-    longjmp(_YAP_CompilerBotch, 2);
+    longjmp(Yap_CompilerBotch, 2);
   }
   pbvars++;
 #endif
@@ -1953,7 +1953,7 @@ add_bvarray_op(PInstr *cp, CELL *bvarray, int env_size)
   CELL *dest;
 
   dest = 
-    _YAP_emit_extra_size(mark_initialised_pvars_op, (CELL)env_size, (size+1)*sizeof(CELL));
+    Yap_emit_extra_size(mark_initialised_pvars_op, (CELL)env_size, (size+1)*sizeof(CELL));
   /* copy the cells to dest */
   for (i = 0; i <= size; i++)
     *dest++ = *bvarray++;
@@ -1975,11 +1975,11 @@ static void
 push_bvmap(int label, PInstr *pcpc)
 {
   if (bvindex == MAX_DISJUNCTIONS) {
-    _YAP_Error_TYPE = SYSTEM_ERROR;
-    _YAP_Error_Term = TermNil;
-    _YAP_ErrorMessage = "Too many embedded disjunctions";
+    Yap_Error_TYPE = SYSTEM_ERROR;
+    Yap_Error_Term = TermNil;
+    Yap_ErrorMessage = "Too many embedded disjunctions";
     save_machine_regs();
-    longjmp(_YAP_CompilerBotch, 2);
+    longjmp(Yap_CompilerBotch, 2);
   }
   /* the label instruction */
   bvstack[bvindex].lab = label;
@@ -1995,11 +1995,11 @@ reset_bvmap(CELL *bvarray, int nperm)
   int size, size1, env_size, i;
   CELL *source;
   if (bvindex == 0) {
-    _YAP_Error_TYPE = SYSTEM_ERROR;
-    _YAP_Error_Term = TermNil;
-    _YAP_ErrorMessage = "No embedding in disjunctions";
+    Yap_Error_TYPE = SYSTEM_ERROR;
+    Yap_Error_Term = TermNil;
+    Yap_ErrorMessage = "No embedding in disjunctions";
     save_machine_regs();
-    longjmp(_YAP_CompilerBotch, 2);
+    longjmp(Yap_CompilerBotch, 2);
   }
   env_size = (bvstack[bvindex-1].pc)->rnd1;
   size = env_size/(8*sizeof(CELL));
@@ -2015,11 +2015,11 @@ static void
 pop_bvmap(CELL *bvarray, int nperm)
 {
   if (bvindex == 0) {
-    _YAP_Error_TYPE = SYSTEM_ERROR;
-    _YAP_Error_Term = TermNil;
-    _YAP_ErrorMessage = "Too few embedded disjunctions";
+    Yap_Error_TYPE = SYSTEM_ERROR;
+    Yap_Error_Term = TermNil;
+    Yap_ErrorMessage = "Too few embedded disjunctions";
     /*  save_machine_regs();
-	longjmp(_YAP_CompilerBotch, 2); */
+	longjmp(Yap_CompilerBotch, 2); */
   }
   reset_bvmap(bvarray, nperm);
   bvindex--;
@@ -2039,7 +2039,7 @@ CheckUnsafe(PInstr *pc)
   /* say that all variables are yet to initialise */
   CELL *vstat = init_bvarray(nperm);
   UnsafeEntry *UnsafeStack =
-    (UnsafeEntry *) _YAP_AllocCMem(nperm * sizeof(UnsafeEntry));
+    (UnsafeEntry *) Yap_AllocCMem(nperm * sizeof(UnsafeEntry));
   /* keep a copy of previous cpc and CodeStart */
   PInstr *opc = cpc;
   PInstr *OldCodeStart = CodeStart;
@@ -2047,7 +2047,7 @@ CheckUnsafe(PInstr *pc)
   CodeStart = BlobsStart;
   cpc = icpc;
   bvindex = 0;
-  bvstack = (bventry *)_YAP_AllocCMem(MAX_DISJUNCTIONS * sizeof(bventry));
+  bvstack = (bventry *)Yap_AllocCMem(MAX_DISJUNCTIONS * sizeof(bventry));
   while (pc != NIL) {
     switch(pc->op) {
     case put_val_op:
@@ -2081,14 +2081,14 @@ CheckUnsafe(PInstr *pc)
       }
       break;
     case push_or_op:
-      _YAP_emit(label_op, ++labelno, Zero);
+      Yap_emit(label_op, ++labelno, Zero);
       pc->ops.opseqt[1] = (CELL)labelno;
       add_bvarray_op(pc, vstat, pc->rnd2);
       push_bvmap((CELL)labelno, cpc);
       break;
     case either_op:
       /* add a first entry to the array */
-      _YAP_emit(label_op, ++labelno, Zero);
+      Yap_emit(label_op, ++labelno, Zero);
       pc->ops.opseqt[1] = (CELL)labelno;
       add_bvarray_op(pc, vstat, pc->rnd2);
       break;
@@ -2096,7 +2096,7 @@ CheckUnsafe(PInstr *pc)
       reset_bvmap(vstat, nperm);
       break;
     case orelse_op:
-      _YAP_emit(label_op, ++labelno, Zero);
+      Yap_emit(label_op, ++labelno, Zero);
       pc->ops.opseqt[1] = (CELL)labelno;
       add_bvarray_op(pc, vstat, pc->rnd2);
       break;
@@ -2106,12 +2106,12 @@ CheckUnsafe(PInstr *pc)
     case empty_call_op:
       /* just get ourselves a label describing how
 	 many permanent variables are alive */
-      _YAP_emit(label_op, ++labelno, Zero);
+      Yap_emit(label_op, ++labelno, Zero);
       pc->rnd1 = (CELL)labelno;
       add_bvarray_op(pc, vstat, pc->rnd2);
       break;
     case call_op:
-      _YAP_emit(label_op, ++labelno, Zero);
+      Yap_emit(label_op, ++labelno, Zero);
       pc->ops.opseqt[1] = (CELL)labelno;
       add_bvarray_op(pc, vstat, pc->rnd2);
     case deallocate_op:
@@ -2269,11 +2269,11 @@ checktemp(void)
       ++target1;
     }
   if (target1 == MaxCTemps) {
-    _YAP_Error_TYPE = SYSTEM_ERROR;
-    _YAP_Error_Term = TermNil;
-    _YAP_ErrorMessage = "too many temporaries";
+    Yap_Error_TYPE = SYSTEM_ERROR;
+    Yap_Error_Term = TermNil;
+    Yap_ErrorMessage = "too many temporaries";
     save_machine_regs();
-    longjmp(_YAP_CompilerBotch, 1);
+    longjmp(Yap_CompilerBotch, 1);
   }
   v->NoOfVE = vadr = TempVar | target1;
   v->KindOfVE = TempVar;
@@ -2335,7 +2335,7 @@ copy_live_temps_bmap(int max)
 {
   unsigned int size = (max|7)/8+1;
   int i;
-  CELL *dest = _YAP_emit_extra_size(mark_live_regs_op, max, size);
+  CELL *dest = Yap_emit_extra_size(mark_live_regs_op, max, size);
   CELL *ptr=dest;
   *ptr = 0L;
   for (i=1; i <= max; i++) {
@@ -2366,7 +2366,7 @@ c_layout(void)
     if (v->FlagsOfVE & BranchVar) {
       v->AgeOfVE = v->FirstOfVE + 1;	/* force permanent */
       ++(v->RCountOfVE);
-      _YAP_emit(put_var_op, (CELL) v, Zero);
+      Yap_emit(put_var_op, (CELL) v, Zero);
       v->FlagsOfVE &= ~GlobalVal;
       v->FirstOpForV = cpc;
     }
@@ -2384,11 +2384,11 @@ c_layout(void)
   CheckUnsafe(CodeStart);
 #ifdef DEBUG
   if (pbvars != nperm) {
-    _YAP_Error_TYPE = SYSTEM_ERROR;
-    _YAP_Error_Term = TermNil;
-    _YAP_ErrorMessage = "wrong number of variables found in bitmap";
+    Yap_Error_TYPE = SYSTEM_ERROR;
+    Yap_Error_Term = TermNil;
+    Yap_ErrorMessage = "wrong number of variables found in bitmap";
     save_machine_regs();
-    longjmp(_YAP_CompilerBotch, 2);
+    longjmp(Yap_CompilerBotch, 2);
   }    
 #endif
   MaxCTemps = nvars + max_args - tmpreg + n_common_exps + 2;
@@ -2564,7 +2564,7 @@ c_layout(void)
 	for (i = 1; i < MaxCTemps; ++i) {
 	  if (Contents[i]) max = i;
 	}
-	_YAP_emit(label_op, ++labelno, Zero);
+	Yap_emit(label_op, ++labelno, Zero);
 	mycpc->rnd1 = labelno;
 	rn = copy_live_temps_bmap(max);
 	icpc = cpc;
@@ -2727,7 +2727,7 @@ c_optimize(PInstr *pc)
 }
 
 CODEADDR
-_YAP_cclause(Term inp_clause, int NOfArgs, int mod)
+Yap_cclause(Term inp_clause, int NOfArgs, int mod)
 {				/* compile a prolog clause, copy of clause myst be in ARG1 */
   /* returns address of code for clause */
   Term head, body;
@@ -2739,23 +2739,23 @@ _YAP_cclause(Term inp_clause, int NOfArgs, int mod)
   volatile Term my_clause = inp_clause;
   /* may botch while doing a different module */
 
-  /* first, initialise _YAP_CompilerBotch to handle all cases of interruptions */
-  _YAP_ErrorMessage = NULL;
-  if ((botch_why = setjmp(_YAP_CompilerBotch)) == 3) {
+  /* first, initialise Yap_CompilerBotch to handle all cases of interruptions */
+  Yap_ErrorMessage = NULL;
+  if ((botch_why = setjmp(Yap_CompilerBotch)) == 3) {
     /* out of local stack, just duplicate the stack */
     restore_machine_regs();
     reset_vars();
     {
       Int osize = 2*sizeof(CELL)*(ASP-H);
       ARG1 = my_clause;
-      if (!_YAP_gc(2, ENV, P)) {
-	_YAP_Error_TYPE = OUT_OF_STACK_ERROR;
-	_YAP_Error_Term = my_clause;
+      if (!Yap_gc(2, ENV, P)) {
+	Yap_Error_TYPE = OUT_OF_STACK_ERROR;
+	Yap_Error_Term = my_clause;
       }
       if (osize > ASP-H) {
-	if (!_YAP_growstack(2*sizeof(CELL)*(ASP-H))) {
-	  _YAP_Error_TYPE = SYSTEM_ERROR;
-	  _YAP_Error_Term = my_clause;
+	if (!Yap_growstack(2*sizeof(CELL)*(ASP-H))) {
+	  Yap_Error_TYPE = SYSTEM_ERROR;
+	  Yap_Error_Term = my_clause;
 	}
       }
       my_clause = ARG1;
@@ -2773,19 +2773,19 @@ _YAP_cclause(Term inp_clause, int NOfArgs, int mod)
     /* not enough heap */
     restore_machine_regs();
     reset_vars();
-    _YAP_Error_TYPE = SYSTEM_ERROR;
-    _YAP_Error_Term = TermNil;
+    Yap_Error_TYPE = SYSTEM_ERROR;
+    Yap_Error_Term = TermNil;
     return(0);
   }
  restart_compilation:
-  if (_YAP_ErrorMessage != NULL) {
+  if (Yap_ErrorMessage != NULL) {
     reset_vars();
     return (0);
   }
   SaveH = H;
   clause_mask = 0;
   or_found = 0;
-  _YAP_ErrorMessage = NULL;
+  Yap_ErrorMessage = NULL;
   /* initialize variables for code generation                              */
   CodeStart = cpc = NULL;
   BlobsStart = icpc = NULL;
@@ -2793,7 +2793,7 @@ _YAP_cclause(Term inp_clause, int NOfArgs, int mod)
   if (ASP <= CellPtr (freep) + 256) {
     vtable = NIL;
     save_machine_regs();
-    longjmp(_YAP_CompilerBotch,3);
+    longjmp(Yap_CompilerBotch,3);
   }
   common_exps = NULL;
   n_common_exps = 0;
@@ -2810,9 +2810,9 @@ _YAP_cclause(Term inp_clause, int NOfArgs, int mod)
   labelno = 0L;
 
   if (IsVarTerm(my_clause)) {
-    _YAP_Error_TYPE = INSTANTIATION_ERROR;
-    _YAP_Error_Term = my_clause;
-    _YAP_ErrorMessage = "in compiling clause";
+    Yap_Error_TYPE = INSTANTIATION_ERROR;
+    Yap_Error_Term = my_clause;
+    Yap_ErrorMessage = "in compiling clause";
     return (0);
   }
   if (IsApplTerm(my_clause) && FunctorOfTerm(my_clause) == FunctorAssert) {
@@ -2823,9 +2823,9 @@ _YAP_cclause(Term inp_clause, int NOfArgs, int mod)
     head = my_clause, body = MkAtomTerm(AtomTrue);
   }
   if (IsVarTerm(head) || IsPairTerm(head) || IsIntTerm(head) || IsFloatTerm(head) || IsRefTerm(head)) {
-    _YAP_Error_TYPE = TYPE_ERROR_CALLABLE;
-    _YAP_Error_Term = my_clause;
-    _YAP_ErrorMessage = "clause should be atom or term";
+    Yap_Error_TYPE = TYPE_ERROR_CALLABLE;
+    Yap_Error_Term = my_clause;
+    Yap_ErrorMessage = "clause should be atom or term";
     return (0);
   } else {
     
@@ -2854,7 +2854,7 @@ _YAP_cclause(Term inp_clause, int NOfArgs, int mod)
   }
   /* phase 1 : produce skeleton code and variable information              */
   c_head(head);
-  _YAP_emit(allocate_op, Zero, Zero);
+  Yap_emit(allocate_op, Zero, Zero);
   c_body(body, mod);
   /* Insert blobs at the very end */ 
   if (BlobsStart != NULL) {
@@ -2863,11 +2863,11 @@ _YAP_cclause(Term inp_clause, int NOfArgs, int mod)
   }
   reset_vars();
   H = SaveH;
-  if (_YAP_ErrorMessage)
+  if (Yap_ErrorMessage)
     return (0);
 #ifdef DEBUG
-  if (_YAP_Option['g' - 96])
-    _YAP_ShowCode();
+  if (Yap_Option['g' - 96])
+    Yap_ShowCode();
 #endif
   /* phase 2: classify variables and optimize temporaries          */
   c_layout();
@@ -2881,19 +2881,19 @@ _YAP_cclause(Term inp_clause, int NOfArgs, int mod)
   /* eliminate superfluous pop's and unify_var's                   */
   c_optimize(CodeStart);
 #ifdef DEBUG
-  if (_YAP_Option['f' - 96])
-    _YAP_ShowCode();
+  if (Yap_Option['f' - 96])
+    Yap_ShowCode();
 #endif
   /* phase 3: assemble code                                                */
-  acode = _YAP_assemble(ASSEMBLING_CLAUSE);
+  acode = Yap_assemble(ASSEMBLING_CLAUSE);
   /* check first if there was space for us */
   if (acode == NIL) {
     /* make sure we have enough space */
     reset_vars();
-    if (!_YAP_growheap(FALSE)) {
+    if (!Yap_growheap(FALSE)) {
       save_machine_regs();
       my_clause = Deref(ARG1);
-      longjmp(_YAP_CompilerBotch, 2);
+      longjmp(Yap_CompilerBotch, 2);
       return(NULL);
     } else {
       my_clause = Deref(ARG1);

@@ -103,11 +103,11 @@ StreamDesc;
 
 #define ALIASES_BLOCK_SIZE 8
 
-void STD_PROTO (_YAP_InitStdStreams, (void));
+void STD_PROTO (Yap_InitStdStreams, (void));
 
 EXTERN inline int
 GetCurInpPos (void)
 {
-  return (Stream[_YAP_c_input_stream].linecount);
+  return (Stream[Yap_c_input_stream].linecount);
 }
 

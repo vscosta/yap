@@ -139,14 +139,14 @@ Term            T1, T2;
   Term t2 = Deref(T2);
   if (IsVarTerm(t1)) {	/* Testing for variables should be done first */
     if (IsVarTerm(t2) || IsPrimitiveTerm(t2))
-      return (_YAP_unify(T1, t2));
+      return (Yap_unify(T1, t2));
     if (occurs_check(t1, t2))
-      return (_YAP_unify(T1, t2));
+      return (Yap_unify(T1, t2));
     return (FALSE);
   }
   if (IsVarTerm(t2)) {
     if (occurs_check(t2, t1))
-      return (_YAP_unify(T2, t1));
+      return (Yap_unify(T2, t1));
     return (FALSE);
   }
   if (IsPrimitiveTerm(t1)) {
@@ -220,10 +220,10 @@ p_counter()
     return (FALSE);
   a = AtomOfTerm(T1);
   if (IsVarTerm(T2)) {
-    TCount = _YAP_GetValue(a);
+    TCount = Yap_GetValue(a);
     if (!IsIntTerm(TCount))
       return (FALSE);
-    _YAP_unify_constant(ARG2, TCount);	/* always succeeds */
+    Yap_unify_constant(ARG2, TCount);	/* always succeeds */
     val = IntOfTerm(TCount);
   } else {
     if (!IsIntTerm(T2))
@@ -232,8 +232,8 @@ p_counter()
   }
   val++;
   /* The atom will now take the incremented value */
-  _YAP_PutValue(a, TNext = MkIntTerm(val));
-  return (_YAP_unify_constant(ARG3, TNext));
+  Yap_PutValue(a, TNext = MkIntTerm(val));
+  return (Yap_unify_constant(ARG3, TNext));
 }
 
 /*
@@ -272,7 +272,7 @@ p_iconcat()
   while (L0 = *--Tkp)
     L1 = MkPairTerm(L0, L1);
   T2 = L1;
-  return (_YAP_unify(T2, ARG3));
+  return (Yap_unify(T2, ARG3));
 }
 #endif				/* COMMENT */
 
@@ -295,7 +295,7 @@ p_iconcat()
   *Tkp++ = Deref(ARG2);
   T2 = *H;
   H = Tkp;
-  return (_YAP_unify(T2, ARG3));
+  return (Yap_unify(T2, ARG3));
 }
 
 #endif /* USERPREDS */
@@ -333,7 +333,7 @@ p_clean()			/* predicate clean for ets 			 */
       if ((*pt++ = *ntp++) == MkAtomTerm(AtomDollarUndef))
 	pt -= 2;
     H = pt;
-    return (_YAP_unify(tn, ARG2));
+    return (Yap_unify(tn, ARG2));
   }
 #endif
   for (i = 1; i <= arity; ++i) {
@@ -341,8 +341,8 @@ p_clean()			/* predicate clean for ets 			 */
       t = MkVarTerm();
     Args[i - 1] = t;
   }
-  t = _YAP_MkApplTerm(FunctorOfTerm(t1), arity, Args);
-  return (_YAP_unify(ARG2, t));
+  t = Yap_MkApplTerm(FunctorOfTerm(t1), arity, Args);
+  return (Yap_unify(ARG2, t));
 }
 
 static Term    *subs_table;
@@ -364,7 +364,7 @@ Term            T1, T2;
       if (subs_table[i] == T2)
 	return (FALSE);
     if (T2 < T1) {	/* T1 gets instantiated with T2 */
-      _YAP_unify(T1, T2);
+      Yap_unify(T1, T2);
       for (i = 0; i < subs_entries; ++i)
 	if (subs_table[i] == T1) {
 	  subs_table[i] = T2;
@@ -374,7 +374,7 @@ Term            T1, T2;
       return (TRUE);
     }
     /* T2 gets instantiated with T1 */
-    _YAP_unify(T1, T2);
+    Yap_unify(T1, T2);
     for (i = 0; i < subs_entries; ++i)
       if (subs_table[i] == T1)
 	return (TRUE);
@@ -385,7 +385,7 @@ Term            T1, T2;
     for (i = 0; i < subs_entries; ++i)
       if (subs_table[i] == T2)
 	return (FALSE);
-    return (_YAP_unify(T1, T2));
+    return (Yap_unify(T1, T2));
   }
   if (IsPrimitiveTerm(T1)) {
     if (IsFloatTerm(T1))
@@ -506,7 +506,7 @@ p_namelength()
   }
   if (IsAtomTerm(t)) {
     Term            tf = MkIntTerm(strlen(RepAtom(AtomOfTerm(t))->StrOfAE));
-    return (_YAP_unify_constant(ARG2, tf));
+    return (Yap_unify_constant(ARG2, tf));
   } else if (IsIntTerm(t)) {
     register int    i = 1, k = IntOfTerm(t);
     if (k < 0)
@@ -514,7 +514,7 @@ p_namelength()
     while (k > 10)
       ++i, k /= 10;
     tf = MkIntTerm(i);
-    return (_YAP_unify_constant(ARG2, tf));
+    return (Yap_unify_constant(ARG2, tf));
   } else
     return (FALSE);
 }
@@ -527,7 +527,7 @@ p_getpid()
 #else
   Term            t = MkIntTerm(1);
 #endif
-  return (_YAP_unify_constant(ARG1, t));
+  return (Yap_unify_constant(ARG1, t));
 }
 
 static int 
@@ -536,7 +536,7 @@ p_exit()
   register Term   t = Deref(ARG1);
   if (IsVarTerm(t) || !IsIntTerm(t))
     return (FALSE);
-  _YAP_exit((int) IntOfTerm(t));
+  Yap_exit((int) IntOfTerm(t));
   return(FALSE);
 }
 
@@ -557,7 +557,7 @@ p_setcounter()
 {
   register Term   t = Deref(ARG1);
   if (IsVarTerm(t) || !IsIntTerm(t)) {
-    return (_YAP_unify_constant(ARG1, MkIntTerm(current_pos)));
+    return (Yap_unify_constant(ARG1, MkIntTerm(current_pos)));
   } else {
     current_pos = IntOfTerm(t);
     return (TRUE);
@@ -596,34 +596,34 @@ p_grab_tokens()
   Functor         IdFunctor, VarFunctor;
   char            ch, IdChars[255], *chp;
 
-  IdAtom = _YAP_LookupAtom("id");
-  IdFunctor = _YAP_MkFunctor(IdAtom, 1);
-  VarAtom = _YAP_LookupAtom("var");
-  VarFunctor = _YAP_MkFunctor(VarAtom, 1);
+  IdAtom = Yap_LookupAtom("id");
+  IdFunctor = Yap_MkFunctor(IdAtom, 1);
+  VarAtom = Yap_LookupAtom("var");
+  VarFunctor = Yap_MkFunctor(VarAtom, 1);
   p0 = p;
-  ch = _YAP_PlGetchar();
+  ch = Yap_PlGetchar();
   while (1) {
     while (ch <= ' ' && ch != EOF)
-      ch = _YAP_PlGetchar();
+      ch = Yap_PlGetchar();
     if (ch == '.' || ch == EOF)
       break;
     if (ch == '%') {
-      while ((ch = _YAP_PlGetchar()) != 10);
-      ch = _YAP_PlGetchar();
+      while ((ch = Yap_PlGetchar()) != 10);
+      ch = Yap_PlGetchar();
       continue;
     }
     if (ch == '\'') {
       chp = IdChars;
       while (1) {
-	ch = _YAP_PlGetchar();
+	ch = Yap_PlGetchar();
 	if (ch == '\'')
 	  break;
 	*chp++ = ch;
       }
       *chp = 0;
-      t = MkAtomTerm(_YAP_LookupAtom(IdChars));
-      *p-- = _YAP_MkApplTerm(IdFunctor, 1, &t);
-      ch = _YAP_PlGetchar();
+      t = MkAtomTerm(Yap_LookupAtom(IdChars));
+      *p-- = Yap_MkApplTerm(IdFunctor, 1, &t);
+      ch = Yap_PlGetchar();
       continue;
       
     }
@@ -631,40 +631,40 @@ p_grab_tokens()
       chp = IdChars;
       *chp++ = ch;
       while (1) {
-	ch = _YAP_PlGetchar();
+	ch = Yap_PlGetchar();
 	if (!idchar(ch))
 	  break;
 	*chp++ = ch;
       }
       *chp = 0;
-      t = MkAtomTerm(_YAP_LookupAtom(IdChars));
-      *p-- = _YAP_MkApplTerm(VarFunctor, 1, &t);
+      t = MkAtomTerm(Yap_LookupAtom(IdChars));
+      *p-- = Yap_MkApplTerm(VarFunctor, 1, &t);
       continue;
     }
     if (idstarter(ch)) {
       chp = IdChars;
       *chp++ = ch;
       while (1) {
-	ch = _YAP_PlGetchar();
+	ch = Yap_PlGetchar();
 	if (!idchar(ch))
 	  break;
 	*chp++ = ch;
       }
       *chp = 0;
-      t = MkAtomTerm(_YAP_LookupAtom(IdChars));
-      *p-- = _YAP_MkApplTerm(IdFunctor, 1, &t);
+      t = MkAtomTerm(Yap_LookupAtom(IdChars));
+      *p-- = Yap_MkApplTerm(IdFunctor, 1, &t);
       continue;
     }
     IdChars[0] = ch;
     IdChars[1] = 0;
-    *p-- = MkAtomTerm(_YAP_LookupAtom(IdChars));
-    ch = _YAP_PlGetchar();
+    *p-- = MkAtomTerm(Yap_LookupAtom(IdChars));
+    ch = Yap_PlGetchar();
   }
   t = MkAtomTerm(AtomNil);
   while (p != p0) {
     t = MkPairTerm(*++p, t);
   }
-  return (_YAP_unify(ARG1, t));
+  return (Yap_unify(ARG1, t));
 }
 
 #endif				/* EUROTRA */
@@ -687,8 +687,8 @@ p_softfunctor()
     return (FALSE);
   a = AtomOfTerm(t1);
   WRITE_LOCK(RepAtom(a)->ARWLock);
-  if ((p0 = _YAP_GetAProp(a, SFProperty)) == NIL) {
-    pe = (SFEntry *) _YAP_AllocAtomSpace(sizeof(*pe));
+  if ((p0 = Yap_GetAProp(a, SFProperty)) == NIL) {
+    pe = (SFEntry *) Yap_AllocAtomSpace(sizeof(*pe));
     pe->NextOfPE = RepAtom(a)->PropsOfAE;
     pe->KindOfPE = SFProperty;
     RepAtom(a)->PropsOfAE = AbsSFProp(pe);
@@ -712,34 +712,34 @@ p_matching_distances(void)
 */
 
 void 
-_YAP_InitUserCPreds(void)
+Yap_InitUserCPreds(void)
 {
 #ifdef XINTERFACE
-  _YAP_InitXPreds();
+  Yap_InitXPreds();
 #endif
 #ifdef EUROTRA
-  _YAP_InitCPred("clean", 2, p_clean, SafePredFlag|SyncPredFlag);
-  _YAP_InitCPred("name_length", 2, p_namelength, SafePredFlag|SyncPredFlag);
-  _YAP_InitCPred("get_pid", 1, p_getpid, SafePredFlag);
-  _YAP_InitCPred("exit", 1, p_exit, SafePredFlag|SyncPredFlag);
-  _YAP_InitCPred("incr_counter", 1, p_incrcounter, SafePredFlag|SyncPredFlag);
-  _YAP_InitCPred("set_counter", 1, p_setcounter, SafePredFlag|SyncPredFlag);
-  _YAP_InitCPred("trap_signal", 0, p_trapsignal, SafePredFlag|SyncPredFlag);
-  _YAP_InitCPred("mark2_grab_tokens", 1, p_grab_tokens, SafePredFlag|SyncPredFlag);
-  _YAP_InitCPred("subsumes", 2, p_subsumes, SafePredFlag);
+  Yap_InitCPred("clean", 2, p_clean, SafePredFlag|SyncPredFlag);
+  Yap_InitCPred("name_length", 2, p_namelength, SafePredFlag|SyncPredFlag);
+  Yap_InitCPred("get_pid", 1, p_getpid, SafePredFlag);
+  Yap_InitCPred("exit", 1, p_exit, SafePredFlag|SyncPredFlag);
+  Yap_InitCPred("incr_counter", 1, p_incrcounter, SafePredFlag|SyncPredFlag);
+  Yap_InitCPred("set_counter", 1, p_setcounter, SafePredFlag|SyncPredFlag);
+  Yap_InitCPred("trap_signal", 0, p_trapsignal, SafePredFlag|SyncPredFlag);
+  Yap_InitCPred("mark2_grab_tokens", 1, p_grab_tokens, SafePredFlag|SyncPredFlag);
+  Yap_InitCPred("subsumes", 2, p_subsumes, SafePredFlag);
 #endif
 #ifdef SFUNC
-  _YAP_InitCPred("sparse_functor", 2, p_softfunctor, SafePredFlag);
+  Yap_InitCPred("sparse_functor", 2, p_softfunctor, SafePredFlag);
 #endif				/* SFUNC */
-  /*  _YAP_InitCPred("match_distances", 3, p_matching_distances, SafePredFlag); */
-  /* _YAP_InitCPred("unify",2,p_unify,SafePredFlag); */
-  /* _YAP_InitCPred("occurs_check",2,p_occurs_check,SafePredFlag); */
-  /* _YAP_InitCPred("counter",3,p_counter,SafePredFlag); */
-  /* _YAP_InitCPred("iconcat",3,p_iconcat,SafePredFlag); */
+  /*  Yap_InitCPred("match_distances", 3, p_matching_distances, SafePredFlag); */
+  /* Yap_InitCPred("unify",2,p_unify,SafePredFlag); */
+  /* Yap_InitCPred("occurs_check",2,p_occurs_check,SafePredFlag); */
+  /* Yap_InitCPred("counter",3,p_counter,SafePredFlag); */
+  /* Yap_InitCPred("iconcat",3,p_iconcat,SafePredFlag); */
 }
 
 
 void 
-_YAP_InitUserBacks(void)
+Yap_InitUserBacks(void)
 {
 }

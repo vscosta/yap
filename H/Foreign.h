@@ -103,11 +103,11 @@ typedef void (*YapInitProc)(void);
 #define STD_PROTO(F,A)  F A
 #endif
 
-void STD_PROTO(_YAP_FindExecutable,(char *));
-Int STD_PROTO(_YAP_LoadForeign,(StringList, StringList, char *, YapInitProc *));
-Int STD_PROTO(_YAP_ReLoadForeign,(StringList, StringList, char *, YapInitProc *));
-void	STD_PROTO(_YAP_ReOpenLoadForeign,(void));
-void	STD_PROTO(_YAP_ShutdownLoadForeign,(void));
+void STD_PROTO(Yap_FindExecutable,(char *));
+Int STD_PROTO(Yap_LoadForeign,(StringList, StringList, char *, YapInitProc *));
+Int STD_PROTO(Yap_ReLoadForeign,(StringList, StringList, char *, YapInitProc *));
+void	STD_PROTO(Yap_ReOpenLoadForeign,(void));
+void	STD_PROTO(Yap_ShutdownLoadForeign,(void));
 
 
 

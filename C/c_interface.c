@@ -262,7 +262,7 @@ YAP_AtomName(Atom a)
 X_API Atom
 YAP_LookupAtom(char *c)
 {
-  return(_YAP_LookupAtom(c));
+  return(Yap_LookupAtom(c));
 }
 
 X_API Atom
@@ -270,7 +270,7 @@ YAP_FullLookupAtom(char *c)
 {
   Atom at;
 
-  at = _YAP_FullLookupAtom(c);
+  at = Yap_FullLookupAtom(c);
   return(at);
 }
 
@@ -304,7 +304,7 @@ YAP_MkNewPairTerm()
   Term t; 
   BACKUP_H();
 
-  t = _YAP_MkNewPairTerm();
+  t = Yap_MkNewPairTerm();
   
   RECOVER_H();
   return(t);
@@ -328,7 +328,7 @@ YAP_MkApplTerm(Functor f,unsigned long int arity, Term args[])
   Term t; 
   BACKUP_H();
 
-  t = _YAP_MkApplTerm(f, arity, args);
+  t = Yap_MkApplTerm(f, arity, args);
 
   RECOVER_H();
   return(t);
@@ -340,7 +340,7 @@ YAP_MkNewApplTerm(Functor f,unsigned long int arity)
   Term t; 
   BACKUP_H();
 
-  t = _YAP_MkNewApplTerm(f, arity);
+  t = Yap_MkNewApplTerm(f, arity);
 
   RECOVER_H();
   return(t);
@@ -364,7 +364,7 @@ YAP_ArgOfTerm(Int n, Term t)
 X_API Functor 
 YAP_MkFunctor(Atom a, Int n)
 {
-  return (_YAP_MkFunctor(a, n));
+  return (Yap_MkFunctor(a, n));
  }
 
 X_API Atom 
@@ -422,7 +422,7 @@ YAP_Unify(Term t1, Term t2)
   Int out;
   BACKUP_MACHINE_REGS();
 
-  out = _YAP_unify(t1, t2);
+  out = Yap_unify(t1, t2);
 
   RECOVER_MACHINE_REGS();
   return(out);
@@ -431,37 +431,37 @@ YAP_Unify(Term t1, Term t2)
 X_API long
 YAP_NewSlots(int n)
 {
-  return _YAP_NewSlots(n);
+  return Yap_NewSlots(n);
 }
 
 X_API long
 YAP_InitSlot(Term t)
 {
-  return _YAP_InitSlot(t);
+  return Yap_InitSlot(t);
 }
 
 X_API void
 YAP_RecoverSlots(int n)
 {
-  _YAP_RecoverSlots(n);
+ Yap_RecoverSlots(n);
 }
 
 X_API Term
 YAP_GetFromSlot(long slot)
 {
-  return _YAP_GetFromSlot(slot);
+  return Yap_GetFromSlot(slot);
 }
 
 X_API Term *
 YAP_AddressFromSlot(long slot)
 {
-  return _YAP_AddressFromSlot(slot);
+  return Yap_AddressFromSlot(slot);
 }
 
 X_API void
 YAP_PutInSlot(long slot, Term t)
 {
-  _YAP_PutInSlot(slot, t);
+  Yap_PutInSlot(slot, t);
 }
 
 
@@ -573,10 +573,10 @@ YAP_CallProlog(Term t)
     Term tmod = ArgOfTerm(1,t);
     if (IsVarTerm(tmod)) return(FALSE);
     if (!IsAtomTerm(tmod)) return(FALSE);
-    mod = _YAP_LookupModule(tmod);
+    mod = Yap_LookupModule(tmod);
     t = ArgOfTerm(2,t);
   }
-  out = _YAP_execute_goal(t, 0, mod);
+  out = Yap_execute_goal(t, 0, mod);
   RECOVER_MACHINE_REGS();
   return(out);
 }
@@ -587,9 +587,9 @@ YAP_AllocSpaceFromYap(unsigned int size)
   void *ptr;
   BACKUP_MACHINE_REGS();
 
-  if ((ptr = _YAP_AllocCodeSpace(size)) == NULL) {
-    if (!_YAP_growheap(FALSE)) {
-      _YAP_Error(SYSTEM_ERROR, TermNil, _YAP_ErrorMessage);
+  if ((ptr = Yap_AllocCodeSpace(size)) == NULL) {
+    if (!Yap_growheap(FALSE)) {
+      Yap_Error(SYSTEM_ERROR, TermNil, Yap_ErrorMessage);
       return(NULL);
     }
   }
@@ -601,7 +601,7 @@ YAP_AllocSpaceFromYap(unsigned int size)
 X_API void
 YAP_FreeSpaceFromYap(void *ptr)
 {
-  _YAP_FreeCodeSpace(ptr);
+  Yap_FreeCodeSpace(ptr);
 }
 
 /* copy a string to a buffer */
@@ -616,15 +616,15 @@ YAP_StringToBuffer(Term t, char *buf, unsigned int bufsize)
 
     Head = HeadOfTerm(t);
     if (IsVarTerm(Head)) {
-      _YAP_Error(INSTANTIATION_ERROR,Head,"user defined procedure");
+      Yap_Error(INSTANTIATION_ERROR,Head,"user defined procedure");
       return(FALSE);
     } else if (!IsIntTerm(Head)) {
-      _YAP_Error(REPRESENTATION_ERROR_CHARACTER_CODE,Head,"user defined procedure");
+      Yap_Error(REPRESENTATION_ERROR_CHARACTER_CODE,Head,"user defined procedure");
       return(FALSE);		
     }
     i = IntOfTerm(Head);
     if (i < 0 || i > 255) {
-      _YAP_Error(REPRESENTATION_ERROR_CHARACTER_CODE,Head,"user defined procedure");
+      Yap_Error(REPRESENTATION_ERROR_CHARACTER_CODE,Head,"user defined procedure");
       return(FALSE);		
     }
     buf[j++] = i;
@@ -634,10 +634,10 @@ YAP_StringToBuffer(Term t, char *buf, unsigned int bufsize)
     }
     t = TailOfTerm(t);
     if (IsVarTerm(t)) {
-      _YAP_Error(INSTANTIATION_ERROR,t,"user defined procedure");
+      Yap_Error(INSTANTIATION_ERROR,t,"user defined procedure");
       return(FALSE);
     } else if (!IsPairTerm(t) && t != TermNil) {
-      _YAP_Error(TYPE_ERROR_LIST, t, "user defined procedure");
+      Yap_Error(TYPE_ERROR_LIST, t, "user defined procedure");
       return(FALSE);
     }
   }
@@ -653,7 +653,7 @@ YAP_BufferToString(char *s)
   Term t; 
   BACKUP_H();
 
-  t = _YAP_StringToList(s);
+  t = Yap_StringToList(s);
 
   RECOVER_H();
   return(t);
@@ -666,7 +666,7 @@ YAP_BufferToAtomList(char *s)
   Term t; 
   BACKUP_H();
 
-  t = _YAP_StringToListOfAtoms(s);
+  t = Yap_StringToListOfAtoms(s);
 
   RECOVER_H();
   return(t);
@@ -676,7 +676,7 @@ YAP_BufferToAtomList(char *s)
 X_API void
 YAP_Error(char *buf)
 {
-  _YAP_Error(SYSTEM_ERROR,TermNil,buf);
+  Yap_Error(SYSTEM_ERROR,TermNil,buf);
 }
 
 static void myputc (int ch)
@@ -691,7 +691,7 @@ YAP_RunGoal(Term t)
   yamop *old_CP = CP;
   BACKUP_MACHINE_REGS();
 
-  out = _YAP_RunTopGoal(t);
+  out = Yap_RunTopGoal(t);
   if (out) {
     P = (yamop *)ENV[E_CP];
     ENV = (CELL *)ENV[E_E];
@@ -713,10 +713,10 @@ YAP_RestartGoal(void)
 
   P = (yamop *)FAILCODE;
   do_putcf = myputc;
-  out = _YAP_exec_absmi(TRUE);
+  out = Yap_exec_absmi(TRUE);
   if (out == FALSE) {
     /* cleanup */
-    _YAP_trust_last();
+    Yap_trust_last();
   }
 
   RECOVER_MACHINE_REGS();
@@ -729,7 +729,7 @@ YAP_ContinueGoal(void)
   int out;
   BACKUP_MACHINE_REGS();
 
-  out = _YAP_exec_absmi(TRUE);
+  out = Yap_exec_absmi(TRUE);
 
   RECOVER_MACHINE_REGS();
   return(out);
@@ -767,9 +767,9 @@ YAP_InitConsult(int mode, char *filename)
   BACKUP_MACHINE_REGS();
 
   if (mode == YAP_CONSULT_MODE)
-    _YAP_init_consult(FALSE, filename);
+    Yap_init_consult(FALSE, filename);
   else
-    _YAP_init_consult(TRUE, filename);
+    Yap_init_consult(TRUE, filename);
 
   RECOVER_MACHINE_REGS();
 }
@@ -779,7 +779,7 @@ YAP_EndConsult(void)
 {
   BACKUP_MACHINE_REGS();
 
-  _YAP_end_consult();
+  Yap_end_consult();
 
   RECOVER_MACHINE_REGS();
 }
@@ -794,14 +794,14 @@ YAP_Read(int (*mygetc)(void))
 
   do_getf = mygetc;
   old_TR = TR;
-  _YAP_tokptr = _YAP_toktide = _YAP_tokenizer(do_yap_getc, do_yap_getc);
-  if (_YAP_ErrorMessage)
+  Yap_tokptr = Yap_toktide = Yap_tokenizer(do_yap_getc, do_yap_getc);
+  if (Yap_ErrorMessage)
     {
       TR = old_TR;
       save_machine_regs();
       return(0);
     }
-  t = _YAP_Parse();
+  t = Yap_Parse();
   TR = old_TR;
 
   RECOVER_MACHINE_REGS();
@@ -814,7 +814,7 @@ YAP_Write(Term t, void (*myputc)(int), int flags)
   BACKUP_MACHINE_REGS();
 
   do_putcf = myputc;
-  _YAP_plwrite (t, do_yap_putc, flags);
+  Yap_plwrite (t, do_yap_putc, flags);
 
   RECOVER_MACHINE_REGS();
 }
@@ -822,22 +822,22 @@ YAP_Write(Term t, void (*myputc)(int), int flags)
 X_API char *
 YAP_CompileClause(Term t)
 {
-  char *_YAP_ErrorMessage;
+  char *Yap_ErrorMessage;
   CODEADDR codeaddr;
   int mod = CurrentModule;
 
   BACKUP_MACHINE_REGS();
 
-  _YAP_ErrorMessage = NULL;
+  Yap_ErrorMessage = NULL;
   ARG1 = t;
-  codeaddr = _YAP_cclause (t,0, mod);
+  codeaddr = Yap_cclause (t,0, mod);
   if (codeaddr != NULL) {
     t = Deref(ARG1); /* just in case there was an heap overflow */
-    _YAP_addclause (t, codeaddr, TRUE, mod);
+    Yap_addclause (t, codeaddr, TRUE, mod);
   }
 
   RECOVER_MACHINE_REGS();
-  return(_YAP_ErrorMessage);
+  return(Yap_ErrorMessage);
 }
 
 /* this routine is supposed to be called from an external program
@@ -850,11 +850,11 @@ YAP_Init(YAP_init_args *yap_init)
   CELL Trail = 0, Stack = 0, Heap = 0;
   BACKUP_MACHINE_REGS();
 
-  _YAP_argv = yap_init->Argv;
-  _YAP_argc = yap_init->Argc;
+  Yap_argv = yap_init->Argv;
+  Yap_argc = yap_init->Argc;
   if (yap_init->SavedState != NULL ||
       yap_init->YapPrologBootFile == NULL) {
-    if (_YAP_SavedInfo (yap_init->SavedState, yap_init->YapLibDir, &Trail, &Stack, &Heap) != 1) {
+    if (Yap_SavedInfo (yap_init->SavedState, yap_init->YapLibDir, &Trail, &Stack, &Heap) != 1) {
       return(YAP_BOOT_FROM_SAVED_ERROR);
     }
   }
@@ -877,18 +877,18 @@ YAP_Init(YAP_init_args *yap_init)
     Heap = yap_init->HeapSize;
   }
 
-  _YAP_InitStacks (Heap, Stack, Trail,
+  Yap_InitStacks (Heap, Stack, Trail,
 	      yap_init->NumberWorkers,
 	      yap_init->SchedulerLoop,
 	      yap_init->DelayedReleaseLoad
 	      );
-  _YAP_InitYaamRegs();
+  Yap_InitYaamRegs();
 
 #if HAVE_MPI
-  _YAP_InitMPI ();
+  Yap_InitMPI ();
 #endif
 #if HAVE_MPE
-  _YAP_InitMPE ();
+  Yap_InitMPE ();
 #endif
 
   if (yap_init->YapPrologRCFile != NULL) {
@@ -900,7 +900,7 @@ YAP_Init(YAP_init_args *yap_init)
   }
   if (yap_init->SavedState != NULL ||
       yap_init->YapPrologBootFile == NULL) {
-    restore_result = _YAP_Restore(yap_init->SavedState, yap_init->YapLibDir);
+    restore_result = Yap_Restore(yap_init->SavedState, yap_init->YapLibDir);
   } else {
     restore_result = FAIL_RESTORE;
   }
@@ -918,12 +918,12 @@ YAP_Init(YAP_init_args *yap_init)
       In the SBA we cannot just happily inherit registers
       from the other workers
     */
-    _YAP_InitYaamRegs();
+    Yap_InitYaamRegs();
 #endif
     /* slaves, waiting for work */
     CurrentModule = 1;
     P = GETWORK_FIRST_TIME;
-    _YAP_exec_absmi(FALSE);
+    Yap_exec_absmi(FALSE);
     abort_optyap("abstract machine unexpected exit");
   }
 #endif /* YAPOR */
@@ -931,7 +931,7 @@ YAP_Init(YAP_init_args *yap_init)
   RECOVER_MACHINE_REGS();
 
   if (yap_init->YapPrologRCFile != NULL) {
-    _YAP_PutValue(_YAP_FullLookupAtom("$consult_on_boot"), MkAtomTerm(_YAP_LookupAtom(yap_init->YapPrologRCFile)));
+    Yap_PutValue(Yap_FullLookupAtom("$consult_on_boot"), MkAtomTerm(Yap_LookupAtom(yap_init->YapPrologRCFile)));
     /*
       This must be done again after restore, as yap_flags
       has been overwritten ....
@@ -977,13 +977,13 @@ YAP_FastInit(char saved_state[])
 X_API void
 YAP_PutValue(Atom at, Term t)
 {
-  _YAP_PutValue(at, t);
+  Yap_PutValue(at, t);
 }
 
 X_API Term
 YAP_GetValue(Atom at)
 {
-  return(_YAP_GetValue(at));
+  return(Yap_GetValue(at));
 }
 
 X_API int
@@ -996,11 +996,11 @@ YAP_Reset(void)
     while (B->cp_b != NULL)
       B = B->cp_b;
     P = (yamop *)FAILCODE;
-    if (_YAP_exec_absmi(0) != 0)
+    if (Yap_exec_absmi(0) != 0)
       return(FALSE);
   }
   /* reinitialise the engine */
-  _YAP_InitYaamRegs();
+  Yap_InitYaamRegs();
 
   RECOVER_MACHINE_REGS();
   return(TRUE);
@@ -1009,14 +1009,14 @@ YAP_Reset(void)
 X_API void
 YAP_Exit(int retval)
 {
-  _YAP_exit(retval);
+  Yap_exit(retval);
 }
 
 X_API void
 YAP_InitSocks(char *host, long port)
 {
 #if USE_SOCKET
-  _YAP_init_socks(host, port);
+  Yap_init_socks(host, port);
 #endif
 }
 
@@ -1031,7 +1031,7 @@ YAP_SetOutputMessage(void)
 X_API int
 YAP_StreamToFileNo(Term t)
 {
-  return(_YAP_StreamToFileNo(t));
+  return(Yap_StreamToFileNo(t));
 }
 
 X_API void
@@ -1039,7 +1039,7 @@ YAP_CloseAllOpenStreams(void)
 {
   BACKUP_H();
 
-  _YAP_CloseStreams(FALSE);
+  Yap_CloseStreams(FALSE);
 
   RECOVER_H();
 }
@@ -1051,7 +1051,7 @@ YAP_OpenStream(void *fh, char *name, Term nm, int flags)
 
   BACKUP_H();
 
-  retv = _YAP_OpenStream((FILE *)fh, name, nm, flags);
+  retv = Yap_OpenStream((FILE *)fh, name, nm, flags);
 
   RECOVER_H();
   return retv;
@@ -1061,14 +1061,14 @@ X_API void
 YAP_Throw(Term t)
 {
   BACKUP_MACHINE_REGS();
-  _YAP_JumpToEnv(t);
+  Yap_JumpToEnv(t);
   RECOVER_MACHINE_REGS();
 }
 
 X_API int
 YAP_LookupModule(Term t)
 {
-  return(_YAP_LookupModule(t));
+  return(Yap_LookupModule(t));
 }
 
 X_API Term
@@ -1080,7 +1080,7 @@ YAP_ModuleName(int i)
 X_API void
 YAP_Halt(int i)
 {
-  _YAP_exit(i);
+  Yap_exit(i);
 }
 
 X_API CELL *
@@ -1095,7 +1095,7 @@ YAP_Predicate(Atom a, unsigned long int arity, int m)
   if (arity == 0) {
     return((void *)RepPredProp(PredPropByAtom(a,m)));
   } else {
-    Functor f = _YAP_MkFunctor(a, arity);
+    Functor f = Yap_MkFunctor(a, arity);
     return((void *)RepPredProp(PredPropByFunc(f,m)));
   }
 } 
@@ -1117,14 +1117,14 @@ YAP_PredicateInfo(void *p, Atom* a, unsigned long int* arity, int* m)
 X_API void 
 YAP_UserCPredicate(char *name, CPredicate def, unsigned long int arity)
 {
-  _YAP_InitCPred(name, arity, def, UserCPredFlag);
+  Yap_InitCPred(name, arity, def, UserCPredFlag);
 }
 
 X_API void 
 YAP_UserBackCPredicate(char *name, CPredicate init, CPredicate cont,
 		   unsigned long int arity, unsigned int extra)
 {
-  _YAP_InitCPredBack(name, arity, extra, init, cont, UserCPredFlag);
+  Yap_InitCPredBack(name, arity, extra, init, cont, UserCPredFlag);
 }
 
 X_API void
@@ -1135,9 +1135,9 @@ YAP_UserCPredicateWithArgs(char *a, CPredicate f, unsigned long int arity, int m
   CurrentModule = mod;
   YAP_UserCPredicate(a,f,arity);
   if (arity == 0) {
-    pe = RepPredProp(PredPropByAtom(_YAP_LookupAtom(a),mod));
+    pe = RepPredProp(PredPropByAtom(Yap_LookupAtom(a),mod));
   } else {
-    Functor f = _YAP_MkFunctor(_YAP_LookupAtom(a), arity);
+    Functor f = Yap_MkFunctor(Yap_LookupAtom(a), arity);
     pe = RepPredProp(PredPropByFunc(f,mod));
   }
   pe->PredFlags |= CArgsPredFlag;

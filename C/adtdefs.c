@@ -61,7 +61,7 @@ InlinedUnlockedMkFunctor(AtomEntry *ae, unsigned int arity)
   if (p0 != NIL) {
     return ((Functor) RepProp(p0));
   }
-  p = (FunctorEntry *) _YAP_AllocAtomSpace(sizeof(*p));
+  p = (FunctorEntry *) Yap_AllocAtomSpace(sizeof(*p));
   p->KindOfPE = FunctorProperty;
   p->NameOfFE = AbsAtom(ae);
   p->ArityOfFE = arity;
@@ -73,14 +73,14 @@ InlinedUnlockedMkFunctor(AtomEntry *ae, unsigned int arity)
 }
 
 Functor
-_YAP_UnlockedMkFunctor(AtomEntry *ae, unsigned int arity)
+Yap_UnlockedMkFunctor(AtomEntry *ae, unsigned int arity)
 {
   return(InlinedUnlockedMkFunctor(ae, arity));
 }
 
 /* vsc: We must guarantee that IsVarTerm(functor) returns true! */
 Functor
-_YAP_MkFunctor(Atom ap, unsigned int arity)
+Yap_MkFunctor(Atom ap, unsigned int arity)
 {
   AtomEntry *ae = RepAtom(ap);
   Functor f;
@@ -93,7 +93,7 @@ _YAP_MkFunctor(Atom ap, unsigned int arity)
 
 /* vsc: We must guarantee that IsVarTerm(functor) returns true! */
 void
-_YAP_MkFunctorWithAddress(Atom ap, unsigned int arity, FunctorEntry *p)
+Yap_MkFunctorWithAddress(Atom ap, unsigned int arity, FunctorEntry *p)
 {
   AtomEntry *ae = RepAtom(ap);
   
@@ -160,7 +160,7 @@ LookupAtom(char *atom)
     return(a);
   }
   /* add new atom to start of chain */
-  ae = (AtomEntry *) _YAP_AllocAtomSpace((sizeof *ae) + strlen(atom));
+  ae = (AtomEntry *) Yap_AllocAtomSpace((sizeof *ae) + strlen(atom));
   a = AbsAtom(ae);
   ae->NextOfAE = HashChain[hash].Entry;
   HashChain[hash].Entry = a;
@@ -173,13 +173,13 @@ LookupAtom(char *atom)
 }
 
 Atom
-_YAP_LookupAtom(char *atom)
+Yap_LookupAtom(char *atom)
 {				/* lookup atom in atom table            */
   return(LookupAtom(atom));
 }
 
 Atom
-_YAP_FullLookupAtom(char *atom)
+Yap_FullLookupAtom(char *atom)
 {				/* lookup atom in atom table            */
   Atom t;
 
@@ -190,7 +190,7 @@ _YAP_FullLookupAtom(char *atom)
 }
 
 void
-_YAP_LookupAtomWithAddress(char *atom, AtomEntry *ae)
+Yap_LookupAtomWithAddress(char *atom, AtomEntry *ae)
 {				/* lookup atom in atom table            */
   register CELL hash;
   register unsigned char *p;
@@ -204,7 +204,7 @@ _YAP_LookupAtomWithAddress(char *atom, AtomEntry *ae)
   a = HashChain[hash].Entry;
   /* search atom in chain */
   if (SearchAtom(p, a) != NIL) {
-    _YAP_Error(FATAL_ERROR,TermNil,"repeated initialisation for atom %s", ae);
+    Yap_Error(FATAL_ERROR,TermNil,"repeated initialisation for atom %s", ae);
     WRITE_UNLOCK(HashChain[hash].AERWLock);
     return;
   }
@@ -218,7 +218,7 @@ _YAP_LookupAtomWithAddress(char *atom, AtomEntry *ae)
 }
 
 void
-_YAP_ReleaseAtom(Atom atom)
+Yap_ReleaseAtom(Atom atom)
 {				/* Releases an atom from the hash chain */
   register Int hash;
   register unsigned char *p;
@@ -257,7 +257,7 @@ GetAPropHavingLock(AtomEntry *ae, PropFlags kind)
 }
 
 Prop
-_YAP_GetAPropHavingLock(AtomEntry *ae, PropFlags kind)
+Yap_GetAPropHavingLock(AtomEntry *ae, PropFlags kind)
 {				/* look property list of atom a for kind  */
   return (GetAPropHavingLock(ae,kind));
 }
@@ -275,7 +275,7 @@ GetAProp(Atom a, PropFlags kind)
 }
 
 Prop
-_YAP_GetAProp(Atom a, PropFlags kind)
+Yap_GetAProp(Atom a, PropFlags kind)
 {				/* look property list of atom a for kind  */
   return GetAProp(a,kind);
 }
@@ -299,7 +299,7 @@ GetPredPropByAtomHavingLock(AtomEntry* ae, SMALLUNSGN cur_mod)
 }
 
 Prop
-_YAP_GetPredPropByAtom(Atom at, SMALLUNSGN cur_mod)
+Yap_GetPredPropByAtom(Atom at, SMALLUNSGN cur_mod)
 /* get predicate entry for ap/arity; create it if neccessary.              */
 {
   Prop p0;
@@ -332,7 +332,7 @@ GetPredPropByFuncHavingLock(Functor f, SMALLUNSGN cur_mod)
 }
 
 Prop
-_YAP_GetPredPropByFunc(Functor f, SMALLUNSGN cur_mod)
+Yap_GetPredPropByFunc(Functor f, SMALLUNSGN cur_mod)
      /* get predicate entry for ap/arity;               */
 {
   Prop p0;
@@ -344,7 +344,7 @@ _YAP_GetPredPropByFunc(Functor f, SMALLUNSGN cur_mod)
 }
 
 Prop
-_YAP_GetPredPropHavingLock(Atom ap, unsigned int arity, SMALLUNSGN mod)
+Yap_GetPredPropHavingLock(Atom ap, unsigned int arity, SMALLUNSGN mod)
      /* get predicate entry for ap/arity;               */
 {
   Prop p0;
@@ -363,7 +363,7 @@ _YAP_GetPredPropHavingLock(Atom ap, unsigned int arity, SMALLUNSGN mod)
 
 /* get expression entry for at/arity;               */
 Prop
-_YAP_GetExpProp(Atom at, unsigned int arity)
+Yap_GetExpProp(Atom at, unsigned int arity)
 {
   Prop p0;
   AtomEntry *ae = RepAtom(at);
@@ -379,7 +379,7 @@ _YAP_GetExpProp(Atom at, unsigned int arity)
 
 /* get expression entry for at/arity, at is already locked;         */
 Prop
-_YAP_GetExpPropHavingLock(AtomEntry *ae, unsigned int arity)
+Yap_GetExpPropHavingLock(AtomEntry *ae, unsigned int arity)
 {
   Prop p0;
   ExpEntry *p;
@@ -391,10 +391,10 @@ _YAP_GetExpPropHavingLock(AtomEntry *ae, unsigned int arity)
 }
 
 Prop
-_YAP_NewPredPropByFunctor(FunctorEntry *fe, SMALLUNSGN cur_mod)
+Yap_NewPredPropByFunctor(FunctorEntry *fe, SMALLUNSGN cur_mod)
 {
   Prop p0;
-  PredEntry *p = (PredEntry *) _YAP_AllocAtomSpace(sizeof(*p));
+  PredEntry *p = (PredEntry *) Yap_AllocAtomSpace(sizeof(*p));
 
   /*  printf("entering %s:%s/%d\n", RepAtom(AtomOfTerm(ModuleName[cur_mod]))->StrOfAE, RepAtom(fe->NameOfFE)->StrOfAE, fe->ArityOfFE); */
 
@@ -426,10 +426,10 @@ _YAP_NewPredPropByFunctor(FunctorEntry *fe, SMALLUNSGN cur_mod)
 }
 
 Prop
-_YAP_NewPredPropByAtom(AtomEntry *ae, SMALLUNSGN cur_mod)
+Yap_NewPredPropByAtom(AtomEntry *ae, SMALLUNSGN cur_mod)
 {
   Prop p0;
-  PredEntry *p = (PredEntry *) _YAP_AllocAtomSpace(sizeof(*p));
+  PredEntry *p = (PredEntry *) Yap_AllocAtomSpace(sizeof(*p));
 
 /* Printf("entering %s:%s/0\n", RepAtom(AtomOfTerm(ModuleName[cur_mod]))->StrOfAE, ae->StrOfAE); */
 
@@ -461,7 +461,7 @@ _YAP_NewPredPropByAtom(AtomEntry *ae, SMALLUNSGN cur_mod)
 }
 
 Term
-_YAP_GetValue(Atom a)
+Yap_GetValue(Atom a)
 {
   Prop p0 = GetAProp(a, ValProperty);
   Term out;
@@ -479,7 +479,7 @@ _YAP_GetValue(Atom a)
     }
 #ifdef USE_GMP
     else {
-      out = _YAP_MkBigIntTerm(_YAP_BigIntOfTerm(out));
+      out = Yap_MkBigIntTerm(Yap_BigIntOfTerm(out));
     }
 #endif
   }
@@ -488,7 +488,7 @@ _YAP_GetValue(Atom a)
 }
 
 void
-_YAP_PutValue(Atom a, Term v)
+Yap_PutValue(Atom a, Term v)
 {
   AtomEntry *ae = RepAtom(a);
   Prop p0;
@@ -502,7 +502,7 @@ _YAP_PutValue(Atom a, Term v)
     WRITE_LOCK(p->VRWLock);
     WRITE_UNLOCK(ae->ARWLock);
   } else {
-    p = (ValEntry *) _YAP_AllocAtomSpace(sizeof(ValEntry));
+    p = (ValEntry *) Yap_AllocAtomSpace(sizeof(ValEntry));
     p->NextOfPE = RepAtom(a)->PropsOfAE;
     RepAtom(a)->PropsOfAE = AbsValProp(p);
     p->KindOfPE = ValProperty;
@@ -528,9 +528,9 @@ _YAP_PutValue(Atom a, Term v)
       pt = RepAppl(t0);
     } else {
       if (IsApplTerm(t0)) {
-	_YAP_FreeCodeSpace((char *) (RepAppl(t0)));
+	Yap_FreeCodeSpace((char *) (RepAppl(t0)));
       }
-      pt = (CELL *) _YAP_AllocAtomSpace(sizeof(CELL)*(1 + 2*sizeof(Float)/sizeof(CELL)));
+      pt = (CELL *) Yap_AllocAtomSpace(sizeof(CELL)*(1 + 2*sizeof(Float)/sizeof(CELL)));
       p->ValueOfVE = AbsAppl(pt);
       pt[0] = (CELL)FunctorDouble;
     }
@@ -547,9 +547,9 @@ _YAP_PutValue(Atom a, Term v)
       pt = RepAppl(t0);
     } else {
       if (IsApplTerm(t0)) {
-	_YAP_FreeCodeSpace((char *) (RepAppl(t0)));
+	Yap_FreeCodeSpace((char *) (RepAppl(t0)));
       }
-      pt = (CELL *) _YAP_AllocAtomSpace(2*sizeof(CELL));
+      pt = (CELL *) Yap_AllocAtomSpace(2*sizeof(CELL));
       p->ValueOfVE = AbsAppl(pt);
       pt[0] = (CELL)FunctorLongInt;
     }
@@ -560,9 +560,9 @@ _YAP_PutValue(Atom a, Term v)
     Int sz = 
       sizeof(MP_INT)+sizeof(CELL)+
       (((MP_INT *)(ap+1))->_mp_alloc*sizeof(mp_limb_t));
-    CELL *pt = (CELL *) _YAP_AllocAtomSpace(sz);
+    CELL *pt = (CELL *) Yap_AllocAtomSpace(sz);
     if (IsApplTerm(t0)) {
-      _YAP_FreeCodeSpace((char *) RepAppl(t0));
+      Yap_FreeCodeSpace((char *) RepAppl(t0));
     }
     memcpy((void *)pt, (void *)ap, sz);
     p->ValueOfVE = AbsAppl(pt);
@@ -570,7 +570,7 @@ _YAP_PutValue(Atom a, Term v)
   } else {
     if (IsApplTerm(t0)) {
       /* recover space */
-      _YAP_FreeCodeSpace((char *) (RepAppl(p->ValueOfVE)));
+      Yap_FreeCodeSpace((char *) (RepAppl(p->ValueOfVE)));
     }
     p->ValueOfVE = v;
   }
@@ -578,7 +578,7 @@ _YAP_PutValue(Atom a, Term v)
 }
 
 Term
-_YAP_StringToList(char *s)
+Yap_StringToList(char *s)
 {
   register Term t;
   register unsigned char *cp = (unsigned char *)s + strlen(s);
@@ -591,7 +591,7 @@ _YAP_StringToList(char *s)
 }
 
 Term
-_YAP_StringToListOfAtoms(char *s)
+Yap_StringToListOfAtoms(char *s)
 {
   register Term t;
   char so[2];
@@ -607,7 +607,7 @@ _YAP_StringToListOfAtoms(char *s)
 }
 
 Term
-_YAP_ArrayToList(register Term *tp, int nof)
+Yap_ArrayToList(register Term *tp, int nof)
 {
   register Term *pt = tp + nof;
   register Term t;
@@ -626,7 +626,7 @@ _YAP_ArrayToList(register Term *tp, int nof)
 }
 
 int
-_YAP_GetName(char *s, UInt max, Term t)
+Yap_GetName(char *s, UInt max, Term t)
 {
   register Term Head;
   register Int i;
@@ -643,7 +643,7 @@ _YAP_GetName(char *s, UInt max, Term t)
     *s++ = i;
     t = TailOfTerm(t);
     if (--max == 0) {
-      _YAP_Error(FATAL_ERROR,t,"not enough space for GetName");      
+      Yap_Error(FATAL_ERROR,t,"not enough space for GetName");      
     }
   }
   *s = '\0';
@@ -685,7 +685,7 @@ ArgsOfSFTerm(Term t)
 #endif
 
 long
-_YAP_NewSlots(int n)
+Yap_NewSlots(int n)
 {
   Int old_slots = IntOfTerm(ASP[0]), oldn = n;
   while (n > 0) {
@@ -698,7 +698,7 @@ _YAP_NewSlots(int n)
 }
 
 long
-_YAP_InitSlot(Term t)
+Yap_InitSlot(Term t)
 {
   Int old_slots = IntOfTerm(ASP[0]);
   *ASP = t;
@@ -708,7 +708,7 @@ _YAP_InitSlot(Term t)
 }
 
 void
-_YAP_RecoverSlots(int n)
+Yap_RecoverSlots(int n)
 {
   Int old_slots = IntOfTerm(ASP[0]);
   ASP += n;
@@ -716,19 +716,19 @@ _YAP_RecoverSlots(int n)
 }
 
 Term
-_YAP_GetFromSlot(long slot)
+Yap_GetFromSlot(long slot)
 {
   return(Deref(LCL0[slot]));
 }
 
 Term *
-_YAP_AddressFromSlot(long slot)
+Yap_AddressFromSlot(long slot)
 {
   return(LCL0+slot);
 }
 
 void
-_YAP_PutInSlot(long slot, Term t)
+Yap_PutInSlot(long slot, Term t)
 {
   LCL0[slot] = t;
 }

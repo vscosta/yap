@@ -10,7 +10,7 @@
 * File:		TermExt.h						 *
 * mods:									 *
 * comments:	Extensions to standard terms for YAP			 *
-* version:      $Id: TermExt.h.m4,v 1.7 2002-11-11 17:38:07 vsc Exp $	 *
+* version:      $Id: TermExt.h.m4,v 1.8 2002-11-18 18:17:04 vsc Exp $	 *
 *************************************************************************/
 
 #if USE_OFFSETS
@@ -162,11 +162,11 @@ Inline(IsLongIntTerm, int, Term, t, IsApplTerm(t) && FunctorOfTerm(t) == Functor
 #include <gmp.h>
 
 
-MP_INT *STD_PROTO(_YAP_PreAllocBigNum,(void));
-MP_INT *STD_PROTO(_YAP_InitBigNum,(Int));
-Term    STD_PROTO(_YAP_MkBigIntTerm, (MP_INT *));
-MP_INT *STD_PROTO(_YAP_BigIntOfTerm, (Term));
-void    STD_PROTO(_YAP_CleanBigNum,(void));
+MP_INT *STD_PROTO(Yap_PreAllocBigNum,(void));
+MP_INT *STD_PROTO(Yap_InitBigNum,(Int));
+Term    STD_PROTO(Yap_MkBigIntTerm, (MP_INT *));
+MP_INT *STD_PROTO(Yap_BigIntOfTerm, (Term));
+void    STD_PROTO(Yap_CleanBigNum,(void));
 
 Inline(IsBigIntTerm, int, Term, t, IsApplTerm(t) && FunctorOfTerm(t) == FunctorBigInt)
 
@@ -222,7 +222,7 @@ unify_extension(Functor f, CELL d0, CELL *pt0, CELL d1)
     return(pt0[1] == RepAppl(d1)[1]);
 #ifdef USE_GMP
   case big_int_e:
-    return (mpz_cmp(_YAP_BigIntOfTerm(d0),_YAP_BigIntOfTerm(d1)) == 0);
+    return (mpz_cmp(Yap_BigIntOfTerm(d0),Yap_BigIntOfTerm(d1)) == 0);
 #endif /* USE_GMP */
   case double_e:
     {

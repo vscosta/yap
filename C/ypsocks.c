@@ -191,7 +191,7 @@ crash(char *msg)
 }
 
 void
-_YAP_init_socks(char *host, long interface_port)
+Yap_init_socks(char *host, long interface_port)
 {
    int s;
    int r;
@@ -230,57 +230,57 @@ _YAP_init_socks(char *host, long interface_port)
 
    r = connect ( s, (struct sockaddr *) &soadr, sizeof(soadr));
    if (r<0) {
-        fprintf(_YAP_stderr,"connect failed with %d\n",r);
+        fprintf(Yap_stderr,"connect failed with %d\n",r);
    	crash("[ could not connect to interface]");
    }
    /* now reopen stdin stdout and stderr */
 #if HAVE_DUP2 && !defined(__MINGW32__)
    if(dup2(s,0)<0) {
-   	fprintf(_YAP_stderr,"could not dup2 stdin\n");
+   	fprintf(Yap_stderr,"could not dup2 stdin\n");
    	return;
    }
    if(dup2(s,1)<0) {
-   	fprintf(_YAP_stderr,"could not dup2 stdout\n");
+   	fprintf(Yap_stderr,"could not dup2 stdout\n");
    	return;
    }
    if(dup2(s,2)<0) {
-   	fprintf(_YAP_stderr,"could not dup2 stderr\n");
+   	fprintf(Yap_stderr,"could not dup2 stderr\n");
    	return;
    }
 #elif _MSC_VER || defined(__MINGW32__)
    if(_dup2(s,0)<0) {
-   	fprintf(_YAP_stderr,"could not dup2 stdin\n");
+   	fprintf(Yap_stderr,"could not dup2 stdin\n");
    	return;
    }
    if(_dup2(s,1)<0) {
-   	fprintf(_YAP_stderr,"could not dup2 stdout\n");
+   	fprintf(Yap_stderr,"could not dup2 stdout\n");
    	return;
    }
    if(_dup2(s,2)<0) {
-   	fprintf(_YAP_stderr,"could not dup2 stderr\n");
+   	fprintf(Yap_stderr,"could not dup2 stderr\n");
    	return;
    }
 #else
    if(dup2(s,0)<0) {
-   	fprintf(_YAP_stderr,"could not dup2 stdin\n");
+   	fprintf(Yap_stderr,"could not dup2 stdin\n");
    	return;
    }
    yp_iob[0].cnt = 0;
    yp_iob[0].flags = _YP_IO_SOCK | _YP_IO_READ;
    if(dup2(s,1)<0) {
-   	fprintf(_YAP_stderr,"could not dup2 stdout\n");
+   	fprintf(Yap_stderr,"could not dup2 stdout\n");
    	return;
    }
    yp_iob[1].cnt = 0;
    yp_iob[1].flags = _YP_IO_SOCK | _YP_IO_WRITE;
    if(dup2(s,2)<0) {
-   	fprintf(_YAP_stderr,"could not dup2 stderr\n");
+   	fprintf(Yap_stderr,"could not dup2 stderr\n");
    	return;
    }
    yp_iob[2].cnt = 0;
    yp_iob[2].flags = _YP_IO_SOCK | _YP_IO_WRITE;
 #endif
-   _YAP_sockets_io = 1;
+   Yap_sockets_io = 1;
 #if _MSC_VER || defined(__MINGW32__)
    _close(s);
 #else
@@ -300,27 +300,27 @@ p_socket(void)
   Term out;
 
   if (IsVarTerm(t1)) {
-    _YAP_Error(INSTANTIATION_ERROR,t1,"socket/4");
+    Yap_Error(INSTANTIATION_ERROR,t1,"socket/4");
     return(FALSE);
   }
   if (!IsAtomTerm(t1)) {
-    _YAP_Error(TYPE_ERROR_ATOM,t1,"socket/4");
+    Yap_Error(TYPE_ERROR_ATOM,t1,"socket/4");
     return(FALSE);
   }
   if (IsVarTerm(t2)) {
-    _YAP_Error(INSTANTIATION_ERROR,t2,"socket/4");
+    Yap_Error(INSTANTIATION_ERROR,t2,"socket/4");
     return(FALSE);
   }
   if (!IsAtomTerm(t2)) {
-    _YAP_Error(TYPE_ERROR_ATOM,t2,"socket/4");
+    Yap_Error(TYPE_ERROR_ATOM,t2,"socket/4");
     return(FALSE);
   }
   if (IsVarTerm(t3)) {
-    _YAP_Error(INSTANTIATION_ERROR,t3,"socket/4");
+    Yap_Error(INSTANTIATION_ERROR,t3,"socket/4");
     return(FALSE);
   }
   if (!IsIntTerm(t3)) {
-    _YAP_Error(TYPE_ERROR_ATOM,t3,"socket/4");
+    Yap_Error(TYPE_ERROR_ATOM,t3,"socket/4");
     return(FALSE);
   }
   sdomain = RepAtom(AtomOfTerm(t1))->StrOfAE;
@@ -421,18 +421,18 @@ p_socket(void)
   fd = socket(domain, type, protocol);
   if (invalid_socket_fd(fd)) {
 #if HAVE_STRERROR
-    _YAP_Error(SYSTEM_ERROR, TermNil, 
+    Yap_Error(SYSTEM_ERROR, TermNil, 
 	"socket/4 (socket: %s)", strerror(socket_errno));
 #else
-    _YAP_Error(SYSTEM_ERROR, TermNil,
+    Yap_Error(SYSTEM_ERROR, TermNil,
 	  "socket/4 (socket)");
 #endif
     return(FALSE);
   }
   if (domain == AF_UNIX || domain == AF_LOCAL )
-    out = _YAP_InitSocketStream(fd, new_socket, af_unix);
+    out = Yap_InitSocketStream(fd, new_socket, af_unix);
   else if (domain == AF_INET )
-    out = _YAP_InitSocketStream(fd, new_socket, af_inet);
+    out = Yap_InitSocketStream(fd, new_socket, af_inet);
   else {
     /* ok, we currently don't support these sockets */
 #if _MSC_VER || defined(__MINGW32__)
@@ -443,11 +443,11 @@ p_socket(void)
     return(FALSE);
   }
   if (out == TermNil) return(FALSE);
-  return(_YAP_unify(out,ARG4));
+  return(Yap_unify(out,ARG4));
 }
 
 Int
-_YAP_CloseSocket(int fd, socket_info status, socket_domain domain)
+Yap_CloseSocket(int fd, socket_info status, socket_domain domain)
 {
 #if _MSC_VER || defined(__MINGW32__)
   /* prevent further writing
@@ -457,7 +457,7 @@ _YAP_CloseSocket(int fd, socket_info status, socket_domain domain)
     char bfr;
 
     if (shutdown(fd, 1) != 0) {
-      _YAP_Error(SYSTEM_ERROR, TermNil,
+      Yap_Error(SYSTEM_ERROR, TermNil,
 	    "socket_close/1 (close)");
       return(FALSE);
     }
@@ -467,7 +467,7 @@ _YAP_CloseSocket(int fd, socket_info status, socket_domain domain)
     /* prevent further reading
        from the socket */
     if (shutdown(fd, 0) < 0)  {
-      _YAP_Error(SYSTEM_ERROR, TermNil,
+      Yap_Error(SYSTEM_ERROR, TermNil,
 	    "socket_close/1 (close)");
       return(FALSE);
     }
@@ -475,10 +475,10 @@ _YAP_CloseSocket(int fd, socket_info status, socket_domain domain)
     /* close the socket */
     if (closesocket(fd) != 0) {
 #if HAVE_STRERROR
-      _YAP_Error(SYSTEM_ERROR, TermNil, 
+      Yap_Error(SYSTEM_ERROR, TermNil, 
 	    "socket_close/1 (close: %s)", strerror(socket_errno));
 #else
-      _YAP_Error(SYSTEM_ERROR, TermNil,
+      Yap_Error(SYSTEM_ERROR, TermNil,
 	    "socket_close/1 (close)");
 #endif
     }
@@ -487,10 +487,10 @@ _YAP_CloseSocket(int fd, socket_info status, socket_domain domain)
       status == client_socket) {
     if (shutdown(fd,2) < 0) {
 #if HAVE_STRERROR
-      _YAP_Error(SYSTEM_ERROR, TermNil, 
+      Yap_Error(SYSTEM_ERROR, TermNil, 
 	    "socket_close/1 (shutdown: %s)", strerror(socket_errno));
 #else
-      _YAP_Error(SYSTEM_ERROR, TermNil,
+      Yap_Error(SYSTEM_ERROR, TermNil,
 	    "socket_close/1 (shutdown)");
 #endif
       return(FALSE);
@@ -498,10 +498,10 @@ _YAP_CloseSocket(int fd, socket_info status, socket_domain domain)
   }
   if (close(fd) != 0) {
 #if HAVE_STRERROR
-    _YAP_Error(SYSTEM_ERROR, TermNil, 
+    Yap_Error(SYSTEM_ERROR, TermNil, 
 	    "socket_close/1 (close: %s)", strerror(socket_errno));
 #else
-    _YAP_Error(SYSTEM_ERROR, TermNil,
+    Yap_Error(SYSTEM_ERROR, TermNil,
 	    "socket_close/1 (close)");
 #endif
 #endif
@@ -516,10 +516,10 @@ p_socket_close(void)
   Term t1 = Deref(ARG1);
   int sno;
 
-  if ((sno = _YAP_CheckSocketStream(t1, "socket_close/1")) < 0) {
+  if ((sno = Yap_CheckSocketStream(t1, "socket_close/1")) < 0) {
     return (FALSE);
   }
-  _YAP_CloseStream(sno);
+  Yap_CloseStream(sno);
   return(TRUE);
 }
 
@@ -533,21 +533,21 @@ p_socket_bind(void)
   socket_info status;
   int fd;
 
-  if ((sno = _YAP_CheckSocketStream(t1, "socket_bind/2")) < 0) {
+  if ((sno = Yap_CheckSocketStream(t1, "socket_bind/2")) < 0) {
     return (FALSE);
   }
-  status = _YAP_GetSocketStatus(sno);
-  fd = _YAP_GetStreamFd(sno);
+  status = Yap_GetSocketStatus(sno);
+  fd = Yap_GetStreamFd(sno);
   if (status != new_socket) {
     /* ok, this should be an error, as you are trying to bind  */
     return(FALSE);
   }
   if (IsVarTerm(t2)) {
-    _YAP_Error(INSTANTIATION_ERROR,t2,"socket_bind/2");
+    Yap_Error(INSTANTIATION_ERROR,t2,"socket_bind/2");
     return(FALSE);
   }
   if (!IsApplTerm(t2)) {
-    _YAP_Error(DOMAIN_ERROR_STREAM,t2,"socket_bind/2");
+    Yap_Error(DOMAIN_ERROR_STREAM,t2,"socket_bind/2");
     return(FALSE);
   }
   fun = FunctorOfTerm(t2);
@@ -559,17 +559,17 @@ p_socket_bind(void)
     int len;
     
     if (IsVarTerm(taddr)) {
-      _YAP_Error(INSTANTIATION_ERROR,t2,"socket_bind/2");
+      Yap_Error(INSTANTIATION_ERROR,t2,"socket_bind/2");
       return(FALSE);
     }
     if (!IsAtomTerm(taddr)) {
-      _YAP_Error(TYPE_ERROR_ATOM,taddr,"socket_bind/2");
+      Yap_Error(TYPE_ERROR_ATOM,taddr,"socket_bind/2");
       return(FALSE);
     }
     s = RepAtom(AtomOfTerm(taddr))->StrOfAE;
     sock.sun_family = AF_UNIX;
     if ((len = strlen(s)) > 107) /* hit me with a broomstick */ {
-      _YAP_Error(DOMAIN_ERROR_STREAM,taddr,"socket_bind/2");
+      Yap_Error(DOMAIN_ERROR_STREAM,taddr,"socket_bind/2");
       return(FALSE);
     }      
     sock.sun_family=AF_UNIX;
@@ -579,15 +579,15 @@ p_socket_bind(void)
 	     ((size_t) (((struct sockaddr_un *) 0)->sun_path) + len))
 	< 0) {
 #if HAVE_STRERROR
-      _YAP_Error(SYSTEM_ERROR, TermNil, 
+      Yap_Error(SYSTEM_ERROR, TermNil, 
 	    "socket_bind/2 (bind: %s)", strerror(socket_errno));
 #else
-      _YAP_Error(SYSTEM_ERROR, TermNil,
+      Yap_Error(SYSTEM_ERROR, TermNil,
 	    "socket_bind/2 (bind)");
 #endif
       return(FALSE);
     }
-    _YAP_UpdateSocketStream(sno, server_socket, af_unix);
+    Yap_UpdateSocketStream(sno, server_socket, af_unix);
     return(TRUE);
   } else
 #endif
@@ -603,16 +603,16 @@ p_socket_bind(void)
     if (IsVarTerm(thost)) {
       saddr.sin_addr.s_addr = INADDR_ANY;
     } else if (!IsAtomTerm(thost)) {
-      _YAP_Error(TYPE_ERROR_ATOM,thost,"socket_bind/2");
+      Yap_Error(TYPE_ERROR_ATOM,thost,"socket_bind/2");
       return(FALSE);
     } else {
       shost = RepAtom(AtomOfTerm(thost))->StrOfAE;
       if((he=gethostbyname(shost))==NULL) {
 #if HAVE_STRERROR
-	_YAP_Error(SYSTEM_ERROR, TermNil, 
+	Yap_Error(SYSTEM_ERROR, TermNil, 
 	      "socket_bind/2 (gethostbyname: %s)", strerror(socket_errno));
 #else
-	_YAP_Error(SYSTEM_ERROR, TermNil,
+	Yap_Error(SYSTEM_ERROR, TermNil,
 	      "socket_bind/2 (gethostbyname)");
 #endif
 	return(FALSE);
@@ -628,10 +628,10 @@ p_socket_bind(void)
     saddr.sin_family = AF_INET;
     if(bind(fd,(struct sockaddr *)&saddr, sizeof(saddr))==-1) {
 #if HAVE_STRERROR
-      _YAP_Error(SYSTEM_ERROR, TermNil, 
+      Yap_Error(SYSTEM_ERROR, TermNil, 
 	    "socket_bind/2 (bind: %s)", strerror(socket_errno));
 #else
-      _YAP_Error(SYSTEM_ERROR, TermNil,
+      Yap_Error(SYSTEM_ERROR, TermNil,
 	    "socket_bind/2 (bind)");
 #endif
       return(FALSE);
@@ -643,18 +643,18 @@ p_socket_bind(void)
       Term t;
       if (getsockname(fd, (struct sockaddr *)&saddr, &namelen) < 0) {
 #if HAVE_STRERROR
-	_YAP_Error(SYSTEM_ERROR, TermNil, 
+	Yap_Error(SYSTEM_ERROR, TermNil, 
 	      "socket_bind/2 (getsockname: %s)", strerror(socket_errno));
 #else
-	_YAP_Error(SYSTEM_ERROR, TermNil,
+	Yap_Error(SYSTEM_ERROR, TermNil,
 	      "socket_bind/2 (getsockname)");
 #endif
 	return(FALSE);
       } 
       t = MkIntTerm(ntohs(saddr.sin_port));
-      _YAP_unify(ArgOfTermCell(2, t2),t);
+      Yap_unify(ArgOfTermCell(2, t2),t);
     }
-    _YAP_UpdateSocketStream(sno, server_socket, af_inet);
+    Yap_UpdateSocketStream(sno, server_socket, af_inet);
     return(TRUE);
   } else
     return(FALSE);
@@ -672,20 +672,20 @@ p_socket_connect(void)
   int flag;
   Term out;
 
-  if ((sno = _YAP_CheckSocketStream(t1, "socket_connect/3")) < 0) {
+  if ((sno = Yap_CheckSocketStream(t1, "socket_connect/3")) < 0) {
     return (FALSE);
   }
   if (IsVarTerm(t2)) {
-    _YAP_Error(INSTANTIATION_ERROR,t2,"socket_connect/3");
+    Yap_Error(INSTANTIATION_ERROR,t2,"socket_connect/3");
     return(FALSE);
   }
   if (!IsApplTerm(t2)) {
-    _YAP_Error(DOMAIN_ERROR_STREAM,t2,"socket_connect/3");
+    Yap_Error(DOMAIN_ERROR_STREAM,t2,"socket_connect/3");
     return(FALSE);
   }
   fun = FunctorOfTerm(t2);
-  fd = _YAP_GetStreamFd(sno);
-  status = _YAP_GetSocketStatus(sno);
+  fd = Yap_GetStreamFd(sno);
+  status = Yap_GetSocketStatus(sno);
   if (status != new_socket) {
     /* ok, this should be an error, as you are trying to bind  */
     return(FALSE);
@@ -698,17 +698,17 @@ p_socket_connect(void)
     int len;
     
     if (IsVarTerm(taddr)) {
-      _YAP_Error(INSTANTIATION_ERROR,t2,"socket_connect/3");
+      Yap_Error(INSTANTIATION_ERROR,t2,"socket_connect/3");
       return(FALSE);
     }
     if (!IsAtomTerm(taddr)) {
-      _YAP_Error(TYPE_ERROR_ATOM,taddr,"socket_connect/3");
+      Yap_Error(TYPE_ERROR_ATOM,taddr,"socket_connect/3");
       return(FALSE);
     }
     s = RepAtom(AtomOfTerm(taddr))->StrOfAE;
     sock.sun_family = AF_UNIX;
     if ((len = strlen(s)) > 107) /* beat me with a broomstick */ {
-      _YAP_Error(DOMAIN_ERROR_STREAM,taddr,"socket_connect/3");
+      Yap_Error(DOMAIN_ERROR_STREAM,taddr,"socket_connect/3");
       return(FALSE);
     }      
     sock.sun_family=AF_UNIX;
@@ -718,15 +718,15 @@ p_socket_connect(void)
 		   ((size_t) (((struct sockaddr_un *) 0)->sun_path) + len)))
 	< 0) {
 #if HAVE_STRERROR
-      _YAP_Error(SYSTEM_ERROR, TermNil, 
+      Yap_Error(SYSTEM_ERROR, TermNil, 
 	    "socket_connect/3 (connect: %s)", strerror(socket_errno));
 #else
-      _YAP_Error(SYSTEM_ERROR, TermNil,
+      Yap_Error(SYSTEM_ERROR, TermNil,
 	    "socket_connect/3 (connect)");
 #endif
       return(FALSE);
     }
-    _YAP_UpdateSocketStream(sno, client_socket, af_unix);
+    Yap_UpdateSocketStream(sno, client_socket, af_unix);
   } else
 #endif
   if (fun == FunctorAfInet) {
@@ -740,19 +740,19 @@ p_socket_connect(void)
 
     memset((void *)&saddr,(int) 0, sizeof(saddr));
     if (IsVarTerm(thost)) {
-      _YAP_Error(INSTANTIATION_ERROR,thost,"socket_connect/3");
+      Yap_Error(INSTANTIATION_ERROR,thost,"socket_connect/3");
       return(FALSE);
     } else if (!IsAtomTerm(thost)) {
-      _YAP_Error(TYPE_ERROR_ATOM,thost,"socket_connect/3");
+      Yap_Error(TYPE_ERROR_ATOM,thost,"socket_connect/3");
       return(FALSE);
     } else {
       shost = RepAtom(AtomOfTerm(thost))->StrOfAE;
       if((he=gethostbyname(shost))==NULL) {
 #if HAVE_STRERROR
-	_YAP_Error(SYSTEM_ERROR, TermNil, 
+	Yap_Error(SYSTEM_ERROR, TermNil, 
 	      "socket_connect/3 (gethostbyname: %s)", strerror(socket_errno));
 #else
-	_YAP_Error(SYSTEM_ERROR, TermNil,
+	Yap_Error(SYSTEM_ERROR, TermNil,
 	      "socket_connect/3 (gethostbyname)");
 #endif
 	return(FALSE);
@@ -760,10 +760,10 @@ p_socket_connect(void)
       memcpy((void *)&saddr.sin_addr, (void *)he->h_addr_list[0], he->h_length);
     }
     if (IsVarTerm(tport)) {
-      _YAP_Error(INSTANTIATION_ERROR,tport,"socket_connect/3");
+      Yap_Error(INSTANTIATION_ERROR,tport,"socket_connect/3");
       return(FALSE);
     } else if (!IsIntegerTerm(tport)) {
-      _YAP_Error(TYPE_ERROR_INTEGER,tport,"socket_connect/3");
+      Yap_Error(TYPE_ERROR_INTEGER,tport,"socket_connect/3");
       return(FALSE);
     } else {
       port = (unsigned short int)IntegerOfTerm(tport);
@@ -775,10 +775,10 @@ p_socket_connect(void)
     if (setsockopt(fd, SOL_SOCKET, SO_LINGER, (char *) &ling,
 		   sizeof(ling)) < 0) {
 #if HAVE_STRERROR
-      _YAP_Error(SYSTEM_ERROR, TermNil, 
+      Yap_Error(SYSTEM_ERROR, TermNil, 
 	    "socket_connect/3 (setsockopt_linger: %s)", strerror(socket_errno));
 #else
-      _YAP_Error(SYSTEM_ERROR, TermNil,
+      Yap_Error(SYSTEM_ERROR, TermNil,
 	    "socket_connect/3 (setsockopt_linger)");
 #endif
       return(FALSE);
@@ -786,19 +786,19 @@ p_socket_connect(void)
     flag = connect(fd,(struct sockaddr *)&saddr, sizeof(saddr));
     if(flag<0) {
 #if HAVE_STRERROR
-      _YAP_Error(SYSTEM_ERROR, TermNil, 
+      Yap_Error(SYSTEM_ERROR, TermNil, 
 	    "socket_connect/3 (connect: %s)", strerror(socket_errno));
 #else
-      _YAP_Error(SYSTEM_ERROR, TermNil,
+      Yap_Error(SYSTEM_ERROR, TermNil,
 	    "socket_connect/3 (connect)");
 #endif
       return(FALSE);
     }
-    _YAP_UpdateSocketStream(sno, client_socket, af_inet);
+    Yap_UpdateSocketStream(sno, client_socket, af_inet);
   } else 
     return(FALSE);
   out = t1;
-  return(_YAP_unify(out,ARG3));
+  return(Yap_unify(out,ARG3));
 }
 
 static Int
@@ -811,34 +811,34 @@ p_socket_listen(void)
   int fd;
   Int j;
 
-  if ((sno = _YAP_CheckSocketStream(t1, "socket_listen/2")) < 0) {
+  if ((sno = Yap_CheckSocketStream(t1, "socket_listen/2")) < 0) {
     return (FALSE);
   }
   if (IsVarTerm(t2)) {
-    _YAP_Error(INSTANTIATION_ERROR,t2,"socket_listen/2");
+    Yap_Error(INSTANTIATION_ERROR,t2,"socket_listen/2");
     return(FALSE);
   }
   if (!IsIntTerm(t2)) {
-    _YAP_Error(TYPE_ERROR_INTEGER,t2,"socket_listen/2");
+    Yap_Error(TYPE_ERROR_INTEGER,t2,"socket_listen/2");
     return(FALSE);
   }
   j = IntOfTerm(t2);
   if (j < 0) {
-    _YAP_Error(DOMAIN_ERROR_STREAM,t1,"socket_listen/2");
+    Yap_Error(DOMAIN_ERROR_STREAM,t1,"socket_listen/2");
     return(FALSE);
   }
-  fd = _YAP_GetStreamFd(sno);
-  status = _YAP_GetSocketStatus(sno);
+  fd = Yap_GetStreamFd(sno);
+  status = Yap_GetSocketStatus(sno);
   if (status != server_socket) {
     /* ok, this should be an error, as you are trying to bind  */
     return(FALSE);
   }
   if (listen(fd,j) < 0) {
 #if HAVE_STRERROR
-      _YAP_Error(SYSTEM_ERROR, TermNil, 
+      Yap_Error(SYSTEM_ERROR, TermNil, 
 	    "socket_listen/2 (listen: %s)", strerror(socket_errno));
 #else
-      _YAP_Error(SYSTEM_ERROR, TermNil,
+      Yap_Error(SYSTEM_ERROR, TermNil,
 	    "socket_listen/2 (listen)");
 #endif
   }
@@ -855,16 +855,16 @@ p_socket_accept(void)
   int ofd, fd;
   Term out;
 
-  if ((sno = _YAP_CheckSocketStream(t1, "socket_accept/3")) < 0) {
+  if ((sno = Yap_CheckSocketStream(t1, "socket_accept/3")) < 0) {
     return (FALSE);
   }
-  ofd = _YAP_GetStreamFd(sno);
-  status = _YAP_GetSocketStatus(sno);
+  ofd = Yap_GetStreamFd(sno);
+  status = Yap_GetSocketStatus(sno);
   if (status != server_socket) {
     /* ok, this should be an error, as you are trying to bind  */
     return(FALSE);
   }
-  domain = _YAP_GetSocketDomain(sno);
+  domain = Yap_GetSocketDomain(sno);
 #if HAVE_SYS_UN_H
   if (domain == af_unix) {
     char tmp[sizeof(struct sockaddr_un)+107]; /* hit me with a broomstick */
@@ -875,15 +875,15 @@ p_socket_accept(void)
     memset((void *)&caddr,(int) 0, len);
     if ((fd=accept(ofd, (struct sockaddr *)tmp, &len)) < 0) {
 #if HAVE_STRERROR
-      _YAP_Error(SYSTEM_ERROR, TermNil, 
+      Yap_Error(SYSTEM_ERROR, TermNil, 
 	    "socket_accept/3 (accept: %s)", strerror(socket_errno));
 #else
-      _YAP_Error(SYSTEM_ERROR, TermNil,
+      Yap_Error(SYSTEM_ERROR, TermNil,
 	       "socket_accept/3 (accept)");
 #endif
     }
     /* ignore 2nd argument */
-    out = _YAP_InitSocketStream(fd, server_session_socket, af_unix );
+    out = Yap_InitSocketStream(fd, server_session_socket, af_unix );
   } else
 #endif
   if (domain == af_inet)  {
@@ -896,31 +896,31 @@ p_socket_accept(void)
     memset((void *)&caddr,(int) 0, sizeof(caddr));
     if (invalid_socket_fd(fd=accept(ofd, (struct sockaddr *)&caddr, &len))) {
 #if HAVE_STRERROR
-      _YAP_Error(SYSTEM_ERROR, TermNil, 
+      Yap_Error(SYSTEM_ERROR, TermNil, 
 	    "socket_accept/3 (accept: %s)", strerror(socket_errno));
 #else
-      _YAP_Error(SYSTEM_ERROR, TermNil,
+      Yap_Error(SYSTEM_ERROR, TermNil,
 	    "socket_accept/3 (accept)");
 #endif
       return(FALSE);
     }
     if ((s = inet_ntoa(caddr.sin_addr)) == NULL) {
 #if HAVE_STRERROR
-      _YAP_Error(SYSTEM_ERROR, TermNil, 
+      Yap_Error(SYSTEM_ERROR, TermNil, 
 	    "socket_accept/3 (inet_ntoa: %s)", strerror(socket_errno));
 #else
-      _YAP_Error(SYSTEM_ERROR, TermNil,
+      Yap_Error(SYSTEM_ERROR, TermNil,
 	    "socket_accept/3 (inet_ntoa)");
 #endif
     }
-    tcli = MkAtomTerm(_YAP_LookupAtom(s));
-    if (!_YAP_unify(ARG2,tcli))
+    tcli = MkAtomTerm(Yap_LookupAtom(s));
+    if (!Yap_unify(ARG2,tcli))
       return(FALSE);
-    out = _YAP_InitSocketStream(fd, server_session_socket, af_inet );
+    out = Yap_InitSocketStream(fd, server_session_socket, af_inet );
   } else
       return(FALSE);
   if (out == TermNil) return(FALSE);
-  return(_YAP_unify(out,ARG3));
+  return(Yap_unify(out,ARG3));
 }
 
 static Int
@@ -935,15 +935,15 @@ p_socket_buffering(void)
   unsigned int bufsize, len;
   int sno;
 
-  if ((sno = _YAP_CheckSocketStream(t1, "socket_buffering/4")) < 0) {
+  if ((sno = Yap_CheckSocketStream(t1, "socket_buffering/4")) < 0) {
     return (FALSE);
   }
   if (IsVarTerm(t2)) {
-    _YAP_Error(INSTANTIATION_ERROR,t2,"socket_buffering/4");
+    Yap_Error(INSTANTIATION_ERROR,t2,"socket_buffering/4");
     return(FALSE);
   }
   if (!IsAtomTerm(t2)) {
-    _YAP_Error(TYPE_ERROR_ATOM,t2,"socket_buffering/4");
+    Yap_Error(TYPE_ERROR_ATOM,t2,"socket_buffering/4");
     return(FALSE);
   }
   mode = AtomOfTerm(t2);
@@ -952,28 +952,28 @@ p_socket_buffering(void)
   else if (mode == AtomWrite) 
     writing = TRUE;
   else {
-    _YAP_Error(DOMAIN_ERROR_IO_MODE,t2,"socket_buffering/4");
+    Yap_Error(DOMAIN_ERROR_IO_MODE,t2,"socket_buffering/4");
     return(FALSE);
   }
-  fd = _YAP_GetStreamFd(sno);
+  fd = Yap_GetStreamFd(sno);
   if (writing) {
     getsockopt(fd, SOL_SOCKET, SO_SNDBUF, &bufsize, &len);
   } else {
     getsockopt(fd, SOL_SOCKET, SO_RCVBUF, &bufsize, &len);
   }
-  if (!_YAP_unify(ARG3,MkIntegerTerm(bufsize)))
+  if (!Yap_unify(ARG3,MkIntegerTerm(bufsize)))
     return(FALSE);
   if (IsVarTerm(t4)) {
     bufsize = BUFSIZ;
   } else {
     Int siz;
     if (!IsIntegerTerm(t4)) {
-      _YAP_Error(TYPE_ERROR_INTEGER,t4,"socket_buffering/4");
+      Yap_Error(TYPE_ERROR_INTEGER,t4,"socket_buffering/4");
       return(FALSE);
     }
     siz = IntegerOfTerm(t4);
     if (siz < 0) {
-      _YAP_Error(DOMAIN_ERROR_NOT_LESS_THAN_ZERO,t4,"socket_buffering/4");
+      Yap_Error(DOMAIN_ERROR_NOT_LESS_THAN_ZERO,t4,"socket_buffering/4");
       return(FALSE);
     }
     bufsize = siz; 
@@ -997,8 +997,8 @@ select_out_list(Term t1, fd_set *readfds_ptr)
     Term next = select_out_list(TailOfTerm(t1), readfds_ptr);
     Term Head = HeadOfTerm(t1);
 
-    sno  = _YAP_CheckIOStream(Head,"stream_select/5");
-    fd = _YAP_GetStreamFd(sno);
+    sno  = Yap_CheckIOStream(Head,"stream_select/5");
+    fd = Yap_GetStreamFd(sno);
     if (FD_ISSET(fd, readfds_ptr))
       return(MkPairTerm(Head,next));
     else 
@@ -1024,27 +1024,27 @@ p_socket_select(void)
   Term tout = TermNil, ti, Head;
 
   if (IsVarTerm(t1)) {
-    _YAP_Error(INSTANTIATION_ERROR,t1,"socket_select/5");
+    Yap_Error(INSTANTIATION_ERROR,t1,"socket_select/5");
     return(FALSE);
   }
   if (!IsPairTerm(t1)) {
-    _YAP_Error(TYPE_ERROR_LIST,t1,"socket_select/5");
+    Yap_Error(TYPE_ERROR_LIST,t1,"socket_select/5");
     return(FALSE);
   }
   if (IsVarTerm(t2)) {
-    _YAP_Error(INSTANTIATION_ERROR,t2,"socket_select/5");
+    Yap_Error(INSTANTIATION_ERROR,t2,"socket_select/5");
     return(FALSE);
   }
   if (!IsIntegerTerm(t2)) {
-    _YAP_Error(TYPE_ERROR_INTEGER,t2,"socket_select/5");
+    Yap_Error(TYPE_ERROR_INTEGER,t2,"socket_select/5");
     return(FALSE);
   }
   if (IsVarTerm(t3)) {
-    _YAP_Error(INSTANTIATION_ERROR,t3,"socket_select/5");
+    Yap_Error(INSTANTIATION_ERROR,t3,"socket_select/5");
     return(FALSE);
   }
   if (!IsIntegerTerm(t3)) {
-    _YAP_Error(TYPE_ERROR_INTEGER,t3,"socket_select/5");
+    Yap_Error(TYPE_ERROR_INTEGER,t3,"socket_select/5");
     return(FALSE);
   }
   FD_ZERO(&readfds);
@@ -1061,10 +1061,10 @@ p_socket_select(void)
     int sno;
 
     Head = HeadOfTerm(ti);
-    sno  = _YAP_CheckIOStream(Head,"stream_select/5");
+    sno  = Yap_CheckIOStream(Head,"stream_select/5");
     if (sno < 0)
       return(FALSE);
-    fd = _YAP_GetStreamFd(sno);
+    fd = Yap_GetStreamFd(sno);
     FD_SET(fd, &readfds);
     if (fd > fdmax)
       fdmax = fd;
@@ -1083,16 +1083,16 @@ p_socket_select(void)
   /* do the real work */
   if (select(fdmax+1, &readfds, &writefds, &exceptfds, ptime) < 0) {
 #if HAVE_STRERROR
-      _YAP_Error(SYSTEM_ERROR, TermNil, 
+      Yap_Error(SYSTEM_ERROR, TermNil, 
 	    "socket_select/5 (select: %s)", strerror(socket_errno));
 #else
-      _YAP_Error(SYSTEM_ERROR, TermNil,
+      Yap_Error(SYSTEM_ERROR, TermNil,
 	    "socket_select/5 (select)");
 #endif
   }
   tout = select_out_list(t1, &readfds);
   /* we're done, just pass the info back */
-  return(_YAP_unify(ARG4,tout));
+  return(Yap_unify(ARG4,tout));
 }
 
 
@@ -1102,16 +1102,16 @@ p_current_host(void) {
   Term t1 = Deref(ARG1), out;
 
   if (!IsVarTerm(t1) && !IsAtomTerm(t1)) {
-    _YAP_Error(TYPE_ERROR_ATOM,t1,"current_host/2");
+    Yap_Error(TYPE_ERROR_ATOM,t1,"current_host/2");
     return(FALSE);
   }
   name = oname;
   if (gethostname(name, sizeof(oname)) < 0) {
 #if HAVE_STRERROR
-    _YAP_Error(SYSTEM_ERROR, TermNil, 
+    Yap_Error(SYSTEM_ERROR, TermNil, 
 	  "current_host/2 (gethostname: %s)", strerror(socket_errno));
 #else
-    _YAP_Error(SYSTEM_ERROR, TermNil,
+    Yap_Error(SYSTEM_ERROR, TermNil,
 	  "current_host/2 (gethostname)");
 #endif
     return(FALSE);
@@ -1122,10 +1122,10 @@ p_current_host(void) {
     /* not a fully qualified name, ask the name server */
     if((he=gethostbyname(name))==NULL) {
 #if HAVE_STRERROR
-      _YAP_Error(SYSTEM_ERROR, TermNil, 
+      Yap_Error(SYSTEM_ERROR, TermNil, 
 	    "current_host/2 (gethostbyname: %s)", strerror(socket_errno));
 #else
-      _YAP_Error(SYSTEM_ERROR, TermNil,
+      Yap_Error(SYSTEM_ERROR, TermNil,
 	    "current_host/2 (gethostbyname)");
 #endif
       return(FALSE);
@@ -1145,7 +1145,7 @@ p_current_host(void) {
     else {
       int isize = strlen(sin);
       if (isize >= 256) {
-	_YAP_Error(SYSTEM_ERROR, ARG1,
+	Yap_Error(SYSTEM_ERROR, ARG1,
 	      "current_host/2 (input longer than longest FAQ host name)");
 	return(FALSE);
       }
@@ -1158,8 +1158,8 @@ p_current_host(void) {
 #endif
     }
   } else {
-    out = MkAtomTerm(_YAP_LookupAtom(name));
-    return(_YAP_unify(ARG1,out));
+    out = MkAtomTerm(Yap_LookupAtom(name));
+    return(Yap_unify(ARG1,out));
   }
 }
 
@@ -1173,62 +1173,62 @@ p_hostname_address(void) {
 
   if (!IsVarTerm(t1)) {
     if (!IsAtomTerm(t1)) {
-      _YAP_Error(TYPE_ERROR_ATOM,t1,"hostname_address/2");
+      Yap_Error(TYPE_ERROR_ATOM,t1,"hostname_address/2");
       return(FALSE);
     } else tin = t1;
   } else if (IsVarTerm(t2)) {
-    _YAP_Error(INSTANTIATION_ERROR,t1,"hostname_address/5");
+    Yap_Error(INSTANTIATION_ERROR,t1,"hostname_address/5");
     return(FALSE);
   } else if (!IsAtomTerm(t2)) {
-    _YAP_Error(TYPE_ERROR_ATOM,t2,"hostname_address/2");
+    Yap_Error(TYPE_ERROR_ATOM,t2,"hostname_address/2");
     return(FALSE);
   } else tin = t2;
   s = RepAtom(AtomOfTerm(tin))->StrOfAE;
   if (IsVarTerm(t1)) {
     if ((he = gethostbyaddr(s, strlen(s), AF_INET)) == NULL) {
 #if HAVE_STRERROR
-      _YAP_Error(SYSTEM_ERROR, TermNil, 
+      Yap_Error(SYSTEM_ERROR, TermNil, 
 	    "hostname_address/2 (gethostbyname: %s)", strerror(socket_errno));
 #else
-      _YAP_Error(SYSTEM_ERROR, TermNil,
+      Yap_Error(SYSTEM_ERROR, TermNil,
 	    "hostname_address/2 (gethostbyname)");
 #endif
     }
-    out = MkAtomTerm(_YAP_LookupAtom((char *)(he->h_name)));
-    return(_YAP_unify(out, ARG1));
+    out = MkAtomTerm(Yap_LookupAtom((char *)(he->h_name)));
+    return(Yap_unify(out, ARG1));
   } else {
     struct in_addr adr;
     if ((he = gethostbyname(s)) == NULL) {
 #if HAVE_STRERROR
-      _YAP_Error(SYSTEM_ERROR, TermNil, 
+      Yap_Error(SYSTEM_ERROR, TermNil, 
 	    "hostname_address/2 (gethostbyname: %s)", strerror(socket_errno));
 #else
-      _YAP_Error(SYSTEM_ERROR, TermNil,
+      Yap_Error(SYSTEM_ERROR, TermNil,
 	    "hostname_address/2 (gethostbyname)");
 #endif
     }
     memcpy((char *) &adr,
 	   (char *) he->h_addr_list[0], (size_t) he->h_length);
-    out = MkAtomTerm(_YAP_LookupAtom(inet_ntoa(adr)));
-    return(_YAP_unify(out, ARG2));
+    out = MkAtomTerm(Yap_LookupAtom(inet_ntoa(adr)));
+    return(Yap_unify(out, ARG2));
   }
 }
 #endif
 
 void
-_YAP_InitSockets(void)
+Yap_InitSockets(void)
 {
 #ifdef   USE_SOCKET
-  _YAP_InitCPred("socket", 4, p_socket, SafePredFlag|SyncPredFlag);
-  _YAP_InitCPred("socket_close", 1, p_socket_close, SafePredFlag|SyncPredFlag);
-  _YAP_InitCPred("socket_bind", 2, p_socket_bind, SafePredFlag|SyncPredFlag);
-  _YAP_InitCPred("socket_connect", 3, p_socket_connect, SafePredFlag|SyncPredFlag);
-  _YAP_InitCPred("socket_listen", 2, p_socket_listen, SafePredFlag|SyncPredFlag);
-  _YAP_InitCPred("socket_accept", 3, p_socket_accept, SafePredFlag|SyncPredFlag);
-  _YAP_InitCPred("$socket_buffering", 4, p_socket_buffering, SafePredFlag|SyncPredFlag);
-  _YAP_InitCPred("$socket_select", 4, p_socket_select, SafePredFlag|SyncPredFlag);
-  _YAP_InitCPred("current_host", 1, p_current_host, SafePredFlag);
-  _YAP_InitCPred("hostname_address", 2, p_hostname_address, SafePredFlag);
+  Yap_InitCPred("socket", 4, p_socket, SafePredFlag|SyncPredFlag);
+  Yap_InitCPred("socket_close", 1, p_socket_close, SafePredFlag|SyncPredFlag);
+  Yap_InitCPred("socket_bind", 2, p_socket_bind, SafePredFlag|SyncPredFlag);
+  Yap_InitCPred("socket_connect", 3, p_socket_connect, SafePredFlag|SyncPredFlag);
+  Yap_InitCPred("socket_listen", 2, p_socket_listen, SafePredFlag|SyncPredFlag);
+  Yap_InitCPred("socket_accept", 3, p_socket_accept, SafePredFlag|SyncPredFlag);
+  Yap_InitCPred("$socket_buffering", 4, p_socket_buffering, SafePredFlag|SyncPredFlag);
+  Yap_InitCPred("$socket_select", 4, p_socket_select, SafePredFlag|SyncPredFlag);
+  Yap_InitCPred("current_host", 1, p_current_host, SafePredFlag);
+  Yap_InitCPred("hostname_address", 2, p_hostname_address, SafePredFlag);
 #if _MSC_VER || defined(__MINGW32__)
   {
     WSADATA info;

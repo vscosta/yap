@@ -79,7 +79,7 @@ static JMPBUFF FailBuff;
 
 #define TRY(S,P) \
   {	Volatile JMPBUFF saveenv;\
-	Volatile TokEntry *saveT=_YAP_tokptr; \
+	Volatile TokEntry *saveT=Yap_tokptr; \
         Volatile CELL *saveH=H;\
         Volatile int savecurprio=curprio;\
         saveenv=FailBuff;\
@@ -91,39 +91,39 @@ static JMPBUFF FailBuff;
 	else { FailBuff=saveenv; \
 		H=saveH; \
 		curprio = savecurprio; \
-                _YAP_tokptr=saveT; \
+                Yap_tokptr=saveT; \
 	}\
    }\
 
 #define TRY3(S,P,F) \
   {	Volatile JMPBUFF saveenv;\
-	Volatile TokEntry *saveT=_YAP_tokptr; Volatile CELL *saveH=H;\
+	Volatile TokEntry *saveT=Yap_tokptr; Volatile CELL *saveH=H;\
     saveenv=FailBuff;\
     if(!setjmp(FailBuff.JmpBuff)) {\
 		S;\
 		FailBuff=saveenv;\
 		P;\
 	  }\
-	else { FailBuff=saveenv; H=saveH; _YAP_tokptr=saveT; F }\
+	else { FailBuff=saveenv; H=saveH; Yap_tokptr=saveT; F }\
    }\
 
 #define FAIL  longjmp(FailBuff.JmpBuff,1)
 
 VarEntry *
-_YAP_LookupVar(char *var)	/* lookup variable in variables table   */
+Yap_LookupVar(char *var)	/* lookup variable in variables table   */
 {
   VarEntry *p;
 
 #ifdef DEBUG
-  if (_YAP_Option[4])
-    fprintf(_YAP_stderr,"[LookupVar %s]", var);
+  if (Yap_Option[4])
+    fprintf(Yap_stderr,"[LookupVar %s]", var);
 #endif
   if (var[0] != '_' || var[1] != '\0') {
-    VarEntry **op = &_YAP_VarTable;
+    VarEntry **op = &Yap_VarTable;
     unsigned char *vp = (unsigned char *)var;
     CELL hv;
 
-    p = _YAP_VarTable;
+    p = Yap_VarTable;
     HashFunction(vp, hv);
     while (p != NULL) {
       CELL hpv = p->hv;
@@ -146,16 +146,16 @@ _YAP_LookupVar(char *var)	/* lookup variable in variables table   */
 	p = p->VarRight;
       }
     }
-    p = (VarEntry *) _YAP_AllocScannerMemory(strlen(var) + sizeof(VarEntry));
+    p = (VarEntry *) Yap_AllocScannerMemory(strlen(var) + sizeof(VarEntry));
     *op = p;
     p->VarLeft = p->VarRight = NULL;
     p->hv = hv;
     strcpy(p->VarRep, var);
   } else {
     /* anon var */
-    p = (VarEntry *) _YAP_AllocScannerMemory(sizeof(VarEntry) + 2);
-    p->VarLeft = _YAP_AnonVarTable;
-    _YAP_AnonVarTable = p;
+    p = (VarEntry *) Yap_AllocScannerMemory(sizeof(VarEntry) + 2);
+    p->VarLeft = Yap_AnonVarTable;
+    Yap_AnonVarTable = p;
     p->VarRight = NULL;    
     p->hv = 0L;
     p->VarRep[0] = '_';
@@ -170,11 +170,11 @@ VarNames(VarEntry *p,Term l)
 {
   if (p != NULL) {
     if (strcmp(p->VarRep, "_") != 0) {
-      Term o = MkPairTerm(MkPairTerm(_YAP_StringToList(p->VarRep), p->VarAdr),
+      Term o = MkPairTerm(MkPairTerm(Yap_StringToList(p->VarRep), p->VarAdr),
 			  VarNames(p->VarRight,
 				   VarNames(p->VarLeft,l)));
       if (H > ASP-4096) {
-	longjmp(_YAP_IOBotch,1);
+	longjmp(Yap_IOBotch,1);
       }  
       return(o);
     } else {
@@ -186,7 +186,7 @@ VarNames(VarEntry *p,Term l)
 }
 
 Term
-_YAP_VarNames(VarEntry *p,Term l)
+Yap_VarNames(VarEntry *p,Term l)
 {
   return VarNames(p,l);
 }
@@ -210,7 +210,7 @@ IsPrefixOp(Prop opinfo,int  *pptr, int *rpptr)
 }
 
 int
-_YAP_IsPrefixOp(Prop opinfo,int  *pptr, int *rpptr)
+Yap_IsPrefixOp(Prop opinfo,int  *pptr, int *rpptr)
 {
   return IsPrefixOp(opinfo,pptr,rpptr);
 }
@@ -236,7 +236,7 @@ IsInfixOp(Prop opinfo, int *pptr, int *lpptr, int *rpptr)
 }
 
 int
-_YAP_IsInfixOp(Prop opinfo, int *pptr, int *lpptr, int *rpptr)
+Yap_IsInfixOp(Prop opinfo, int *pptr, int *lpptr, int *rpptr)
 {
   return IsInfixOp(opinfo, pptr, lpptr, rpptr);
 }
@@ -259,7 +259,7 @@ IsPosfixOp(Prop opinfo, int *pptr, int *lpptr)
 }
 
 int
-_YAP_IsPosfixOp(Prop opinfo, int *pptr, int *lpptr)
+Yap_IsPosfixOp(Prop opinfo, int *pptr, int *lpptr)
 {
   return IsPosfixOp(opinfo, pptr, lpptr);
 }
@@ -267,24 +267,24 @@ _YAP_IsPosfixOp(Prop opinfo, int *pptr, int *lpptr)
 inline static void
 GNextToken(void)
 {
-	if (_YAP_tokptr->Tok == Ord(eot_tok))
+	if (Yap_tokptr->Tok == Ord(eot_tok))
 		return;
 #ifdef EMACS
-	if ((_YAP_tokptr = _YAP_tokptr->TokNext)->TokPos > _YAP_toktide->TokPos)
-		_YAP_toktide = _YAP_tokptr;
+	if ((Yap_tokptr = Yap_tokptr->TokNext)->TokPos > Yap_toktide->TokPos)
+		Yap_toktide = Yap_tokptr;
 #else
-	if (_YAP_tokptr == _YAP_toktide)
-	  _YAP_toktide = _YAP_tokptr = _YAP_tokptr->TokNext;
+	if (Yap_tokptr == Yap_toktide)
+	  Yap_toktide = Yap_tokptr = Yap_tokptr->TokNext;
 	else
-	  _YAP_tokptr = _YAP_tokptr->TokNext;
+	  Yap_tokptr = Yap_tokptr->TokNext;
 #endif
 }
 
 inline static void
 checkfor(Term c)
 {
-  if (_YAP_tokptr->Tok != Ord(Ponctuation_tok)
-      || _YAP_tokptr->TokInfo != c)
+  if (Yap_tokptr->Tok != Ord(Ponctuation_tok)
+      || Yap_tokptr->TokInfo != c)
     FAIL;
   NextToken;
 }
@@ -295,7 +295,7 @@ ParseArgs(Atom a)
   int nargs = 0;
   Term *p, t;
 #ifdef SFUNC
-  SFEntry *pe = (SFEntry *) _YAP_GetAProp(a, SFProperty);
+  SFEntry *pe = (SFEntry *) Yap_GetAProp(a, SFProperty);
 #endif
   
   NextToken;
@@ -305,9 +305,9 @@ ParseArgs(Atom a)
     *tp++ = Unsigned(ParseTerm(999));
     ParserAuxSp = (tr_fr_ptr)tp;
     ++nargs;
-    if (_YAP_tokptr->Tok != Ord(Ponctuation_tok))
+    if (Yap_tokptr->Tok != Ord(Ponctuation_tok))
       break;
-    if (((int) _YAP_tokptr->TokInfo) != ',')
+    if (((int) Yap_tokptr->TokInfo) != ',')
       break;
     NextToken;
   }
@@ -317,16 +317,16 @@ ParseArgs(Atom a)
    * order 
    */
   if (H > ASP-(nargs+1)) {
-    _YAP_ErrorMessage = "Stack Overflow";
+    Yap_ErrorMessage = "Stack Overflow";
     FAIL;
   }  
 #ifdef SFUNC
   if (pe)
-    t = MkSFTerm(_YAP_MkFunctor(a, SFArity), nargs, p, pe->NilValue);
+    t = MkSFTerm(Yap_MkFunctor(a, SFArity), nargs, p, pe->NilValue);
   else
-    t = _YAP_MkApplTerm(_YAP_MkFunctor(a, nargs), nargs, p);
+    t = Yap_MkApplTerm(Yap_MkFunctor(a, nargs), nargs, p);
 #else
-  t = _YAP_MkApplTerm(_YAP_MkFunctor(a, nargs), nargs, p);
+  t = Yap_MkApplTerm(Yap_MkFunctor(a, nargs), nargs, p);
 #endif
   /* check for possible overflow against local stack */
   checkfor((Term) ')');
@@ -344,25 +344,25 @@ ParseList(void)
   to_store = H;
   H+=2;
   to_store[0] = ParseTerm(999);
-  if (_YAP_tokptr->Tok == Ord(Ponctuation_tok)) {
-    if (((int) _YAP_tokptr->TokInfo) == ',') {
+  if (Yap_tokptr->Tok == Ord(Ponctuation_tok)) {
+    if (((int) Yap_tokptr->TokInfo) == ',') {
       NextToken;
-      if (_YAP_tokptr->Tok == Ord(Name_tok)
-	  && strcmp(RepAtom((Atom)(_YAP_tokptr->TokInfo))->StrOfAE, "..") == 0) {
+      if (Yap_tokptr->Tok == Ord(Name_tok)
+	  && strcmp(RepAtom((Atom)(Yap_tokptr->TokInfo))->StrOfAE, "..") == 0) {
 	NextToken;
 	to_store[1] = ParseTerm(999);
       } else {
 	/* check for possible overflow against local stack */
 	if (H > ASP-4096) {
 	  to_store[1] = TermNil;
-	  _YAP_ErrorMessage = "Stack Overflow";
+	  Yap_ErrorMessage = "Stack Overflow";
 	  FAIL;
 	} else {
 	  to_store[1] = AbsPair(H);
 	  goto loop;
 	}
       }
-    } else if (((int) _YAP_tokptr->TokInfo) == '|') {
+    } else if (((int) Yap_tokptr->TokInfo) == '|') {
       NextToken;
       to_store[1] = ParseTerm(999);
     } else {
@@ -391,29 +391,29 @@ ParseTerm(int prio)
   Volatile VarEntry *varinfo;
   Volatile int curprio = 0, opprio, oplprio, oprprio;
 
-  switch (_YAP_tokptr->Tok) {
+  switch (Yap_tokptr->Tok) {
   case Name_tok:
-    t = _YAP_tokptr->TokInfo;
+    t = Yap_tokptr->TokInfo;
     NextToken;
-    if ((_YAP_tokptr->Tok != Ord(Ponctuation_tok)
-	 || Unsigned(_YAP_tokptr->TokInfo) != 'l')
-	&& (opinfo = _YAP_GetAProp((Atom) t, OpProperty))
+    if ((Yap_tokptr->Tok != Ord(Ponctuation_tok)
+	 || Unsigned(Yap_tokptr->TokInfo) != 'l')
+	&& (opinfo = Yap_GetAProp((Atom) t, OpProperty))
 	&& IsPrefixOp(opinfo, &opprio, &oprprio)
 	) {
       /* special rules apply for +1, -2.3, etc... */
-      if (_YAP_tokptr->Tok == Number_tok) {
+      if (Yap_tokptr->Tok == Number_tok) {
 	if ((Atom)t == AtomMinus) {
-	  t = _YAP_tokptr->TokInfo;
+	  t = Yap_tokptr->TokInfo;
 	  if (IsIntTerm(t))
 	    t = MkIntTerm(-IntOfTerm(t));
 	  else if (IsFloatTerm(t))
 	    t = MkFloatTerm(-FloatOfTerm(t));
 #ifdef USE_GMP
 	  else if (IsBigIntTerm(t)) {
-	    MP_INT *new = _YAP_PreAllocBigNum();
+	    MP_INT *new = Yap_PreAllocBigNum();
 
-	    mpz_neg(new, _YAP_BigIntOfTerm(t));
-	    t = _YAP_MkBigIntTerm(new);
+	    mpz_neg(new, Yap_BigIntOfTerm(t));
+	    t = Yap_MkBigIntTerm(new);
 	  }
 #endif
 	  else
@@ -421,12 +421,12 @@ ParseTerm(int prio)
 	  NextToken;
 	  break;
 	} else if ((Atom)t == AtomPlus) {
-	  t = _YAP_tokptr->TokInfo;
+	  t = Yap_tokptr->TokInfo;
 	  NextToken;
 	  break;
 	}
-      } else if (_YAP_tokptr->Tok == Name_tok) {
-	Atom at = (Atom)_YAP_tokptr->TokInfo;
+      } else if (Yap_tokptr->Tok == Name_tok) {
+	Atom at = (Atom)Yap_tokptr->TokInfo;
 #ifndef _MSC_VER
 	if ((Atom)t == AtomPlus) {
 	  if (at == AtomInf) {
@@ -455,12 +455,12 @@ ParseTerm(int prio)
       /* try to parse as a prefix operator */
 	TRY(
 	  /* build appl on the heap */
-	  func = _YAP_MkFunctor((Atom) t, 1);
+	  func = Yap_MkFunctor((Atom) t, 1);
 	  t = ParseTerm(oprprio);
-	  t = _YAP_MkApplTerm(func, 1, &t);
+	  t = Yap_MkApplTerm(func, 1, &t);
 	  /* check for possible overflow against local stack */
 	  if (H > ASP-4096) {
-	    _YAP_ErrorMessage = "Stack Overflow";
+	    Yap_ErrorMessage = "Stack Overflow";
 	    FAIL;
 	  }  
 	  curprio = opprio;
@@ -469,35 +469,35 @@ ParseTerm(int prio)
 	  )
 	}
     }
-    if (_YAP_tokptr->Tok == Ord(Ponctuation_tok)
-	&& Unsigned(_YAP_tokptr->TokInfo) == 'l')
+    if (Yap_tokptr->Tok == Ord(Ponctuation_tok)
+	&& Unsigned(Yap_tokptr->TokInfo) == 'l')
       t = ParseArgs((Atom) t);
     else
       t = MkAtomTerm((Atom)t);
     break;
 
   case Number_tok:
-    t = _YAP_tokptr->TokInfo;
+    t = Yap_tokptr->TokInfo;
     NextToken;
     break;
 
   case String_tok:	/* build list on the heap */
     {
-      Volatile char *p = (char *) _YAP_tokptr->TokInfo;
+      Volatile char *p = (char *) Yap_tokptr->TokInfo;
       if (*p == 0)
 	t = MkAtomTerm(AtomNil);
       else if (yap_flags[YAP_DOUBLE_QUOTES_FLAG] == STRING_AS_CHARS)
-	t = _YAP_StringToListOfAtoms(p);
+	t = Yap_StringToListOfAtoms(p);
       else if (yap_flags[YAP_DOUBLE_QUOTES_FLAG] == STRING_AS_ATOM)
-	t = MkAtomTerm(_YAP_LookupAtom(p));
+	t = MkAtomTerm(Yap_LookupAtom(p));
       else
-	t = _YAP_StringToList(p);
+	t = Yap_StringToList(p);
       NextToken;
     }
   break;
 
   case Var_tok:
-    varinfo = (VarEntry *) (_YAP_tokptr->TokInfo);
+    varinfo = (VarEntry *) (Yap_tokptr->TokInfo);
     if ((t = varinfo->VarAdr) == TermNil) {
       t = varinfo->VarAdr = MkVarTerm();
     }
@@ -505,7 +505,7 @@ ParseTerm(int prio)
     break;
 
   case Ponctuation_tok:
-    switch ((int) _YAP_tokptr->TokInfo) {
+    switch ((int) Yap_tokptr->TokInfo) {
     case '(':
     case 'l':	/* non solo ( */
       NextToken;
@@ -519,16 +519,16 @@ ParseTerm(int prio)
       break;
     case '{':
       NextToken;
-      if (_YAP_tokptr->Tok == Ord(Ponctuation_tok) &&
-	  Unsigned(_YAP_tokptr->TokInfo) == '}') {
+      if (Yap_tokptr->Tok == Ord(Ponctuation_tok) &&
+	  Unsigned(Yap_tokptr->TokInfo) == '}') {
 	t = MkAtomTerm(NameOfFunctor(FunctorBraces));
 	NextToken;
       } else {
 	t = ParseTerm(1200);
-	t = _YAP_MkApplTerm(FunctorBraces, 1, &t);
+	t = Yap_MkApplTerm(FunctorBraces, 1, &t);
 	/* check for possible overflow against local stack */
 	if (H > ASP-4096) {
-	  _YAP_ErrorMessage = "Stack Overflow";
+	  Yap_ErrorMessage = "Stack Overflow";
 	  FAIL;
 	}  
 	checkfor((Term) '}');
@@ -546,24 +546,24 @@ ParseTerm(int prio)
 
   /* main loop to parse infix and posfix operators starts here */
   while (TRUE) {
-    if (_YAP_tokptr->Tok == Ord(Name_tok)
-	&& (opinfo = _YAP_GetAProp((Atom)(_YAP_tokptr->TokInfo), OpProperty))) {
+    if (Yap_tokptr->Tok == Ord(Name_tok)
+	&& (opinfo = Yap_GetAProp((Atom)(Yap_tokptr->TokInfo), OpProperty))) {
       Prop save_opinfo = opinfo;
       if (IsInfixOp(opinfo, &opprio, &oplprio, &oprprio)
 	  && opprio <= prio && oplprio >= curprio) {
 	/* try parsing as infix operator */
 	Volatile int oldprio = curprio;
 	TRY3(
-	     func = _YAP_MkFunctor((Atom) _YAP_tokptr->TokInfo, 2);
+	     func = Yap_MkFunctor((Atom) Yap_tokptr->TokInfo, 2);
 	     NextToken;
 	     {
 	       Term args[2];
 	       args[0] = t;
 	       args[1] = ParseTerm(oprprio);
-	       t = _YAP_MkApplTerm(func, 2, args);
+	       t = Yap_MkApplTerm(func, 2, args);
 	       /* check for possible overflow against local stack */
 	       if (H > ASP-4096) {
-		 _YAP_ErrorMessage = "Stack Overflow";
+		 Yap_ErrorMessage = "Stack Overflow";
 		 FAIL;
 	       }  
 	     },
@@ -578,10 +578,10 @@ ParseTerm(int prio)
       if (IsPosfixOp(opinfo, &opprio, &oplprio)
 	  && opprio <= prio && oplprio >= curprio) {
 	/* parse as posfix operator */
-	t = _YAP_MkApplTerm(_YAP_MkFunctor((Atom) _YAP_tokptr->TokInfo, 1), 1, &t);
+	t = Yap_MkApplTerm(Yap_MkFunctor((Atom) Yap_tokptr->TokInfo, 1), 1, &t);
 	/* check for possible overflow against local stack */
 	if (H > ASP-4096) {
-	  _YAP_ErrorMessage = "Stack Overflow";
+	  Yap_ErrorMessage = "Stack Overflow";
 	  FAIL;
 	}  
 	curprio = opprio;
@@ -590,38 +590,38 @@ ParseTerm(int prio)
       }
       break;
     }
-    if (_YAP_tokptr->Tok == Ord(Ponctuation_tok)) {
-      if (Unsigned(_YAP_tokptr->TokInfo) == ',' &&
+    if (Yap_tokptr->Tok == Ord(Ponctuation_tok)) {
+      if (Unsigned(Yap_tokptr->TokInfo) == ',' &&
 	  prio >= 1000 && curprio <= 999) {
 	Volatile Term args[2];
 	NextToken;
 	args[0] = t;
 	args[1] = ParseTerm(1000);
-	t = _YAP_MkApplTerm(_YAP_MkFunctor(AtomComma, 2), 2, args);
+	t = Yap_MkApplTerm(Yap_MkFunctor(AtomComma, 2), 2, args);
 	/* check for possible overflow against local stack */
 	if (H > ASP-4096) {
-	  _YAP_ErrorMessage = "Stack Overflow";
+	  Yap_ErrorMessage = "Stack Overflow";
 	  FAIL;
 	}  
 	curprio = 1000;
 	continue;
-      } else if (Unsigned(_YAP_tokptr->TokInfo) == '|' && prio >= 1100 &&
+      } else if (Unsigned(Yap_tokptr->TokInfo) == '|' && prio >= 1100 &&
 		 curprio <= 1099) {
 	Volatile Term args[2];
 	NextToken;
 	args[0] = t;
 	args[1] = ParseTerm(1100);
-	t = _YAP_MkApplTerm(FunctorVBar, 2, args);
+	t = Yap_MkApplTerm(FunctorVBar, 2, args);
 	/* check for possible overflow against local stack */
 	if (H > ASP-4096) {
-	  _YAP_ErrorMessage = "Stack Overflow";
+	  Yap_ErrorMessage = "Stack Overflow";
 	  FAIL;
 	}  
 	curprio = 1100;
 	continue;
       }
     }
-    if (_YAP_tokptr->Tok <= Ord(String_tok))
+    if (Yap_tokptr->Tok <= Ord(String_tok))
       FAIL;
     break;
   }
@@ -630,12 +630,12 @@ ParseTerm(int prio)
 
 
 Term
-_YAP_Parse(void)
+Yap_Parse(void)
 {
   Volatile Term t;
   if (!setjmp(FailBuff.JmpBuff)) {
     t = ParseTerm(1200);
-    if (_YAP_tokptr->Tok != Ord(eot_tok))
+    if (Yap_tokptr->Tok != Ord(eot_tok))
       return (0L);
     return (t);
   } else

@@ -117,8 +117,8 @@ typedef struct clause_struct {
 #endif
 
 /* cdmgr.c */
-void	STD_PROTO(_YAP_RemoveLogUpdIndex,(Clause *));
-void	STD_PROTO(_YAP_IPred,(CODEADDR sp));
+void	STD_PROTO(Yap_RemoveLogUpdIndex,(Clause *));
+void	STD_PROTO(Yap_IPred,(CODEADDR sp));
 
 /* dbase.c */
-void	STD_PROTO(_YAP_ErCl,(Clause *));
+void	STD_PROTO(Yap_ErCl,(Clause *));

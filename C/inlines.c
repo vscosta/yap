@@ -245,7 +245,7 @@ p_var(void)
 static Int 
 p_equal(void)
 {				/* ?=? */
-  return(_YAP_IUnify(ARG1, ARG2));
+  return(Yap_IUnify(ARG1, ARG2));
 }
 
 static Int 
@@ -288,7 +288,7 @@ p_eq(void)
 	    return(LongIntOfTerm(d0) == LongIntOfTerm(d1));
 #ifdef USE_GMP
 	  case (CELL)FunctorBigInt:
-	    return (mpz_cmp(_YAP_BigIntOfTerm(d0), _YAP_BigIntOfTerm(d1)) == 0);
+	    return (mpz_cmp(Yap_BigIntOfTerm(d0), Yap_BigIntOfTerm(d1)) == 0);
 #endif
 	  case (CELL)FunctorDouble:
 	    return(FloatOfTerm(d0) == FloatOfTerm(d1));
@@ -362,7 +362,7 @@ p_dif(void)
 	 * woken goals that should be ok, but otherwise we need
 	 * to restore WokenGoals to its previous value.
 	 */
-	CELL OldWokenGoals = _YAP_ReadTimedVar(WokenGoals);
+	CELL OldWokenGoals = Yap_ReadTimedVar(WokenGoals);
 
 #endif
 	/* We will have to look inside compound terms */
@@ -377,7 +377,7 @@ p_dif(void)
 	HBREG = H;
 	B = (choiceptr) H;
 	save_hb();
-	if (_YAP_IUnify(d0, d1) == TRUE) {
+	if (Yap_IUnify(d0, d1) == TRUE) {
 	  /* restore B, no need to restore HB */
 	  B = pt1;
 	  return(FALSE);
@@ -386,7 +386,7 @@ p_dif(void)
 	/* restore B, and later HB */
 	ENDCHO(pt1);
 	BEGP(pt1);
-	/* untrail all bindings made by _YAP_IUnify */
+	/* untrail all bindings made by Yap_IUnify */
 	while (TR != (tr_fr_ptr)pt0) {
 	  pt1 = (CELL *) TrailTerm(--TR);
 	  RESET_VARIABLE(pt1);
@@ -396,7 +396,7 @@ p_dif(void)
       }
 #ifdef COROUTINING
       /* now restore Woken Goals to its old value */
-      _YAP_UpdateTimedVar(WokenGoals, OldWokenGoals);
+      Yap_UpdateTimedVar(WokenGoals, OldWokenGoals);
 #endif
       return(TRUE);
       ENDP(pt0);
@@ -432,7 +432,7 @@ p_arg(void)
       else if (IsLongIntTerm(d0)) {
 	d0 = LongIntOfTerm(d0);
       } else {
-	_YAP_Error(TYPE_ERROR_INTEGER,d0,"arg 1 of arg/3");
+	Yap_Error(TYPE_ERROR_INTEGER,d0,"arg 1 of arg/3");
 	return(FALSE);
       }
 
@@ -453,10 +453,10 @@ p_arg(void)
 	save_hb();
 	if ((Int)d0 <= 0 ||
 	    (Int)d0 > ArityOfFunctor((Functor) d1) ||
-	    _YAP_IUnify(pt0[d0], ARG3) == FALSE) {
+	    Yap_IUnify(pt0[d0], ARG3) == FALSE) {
 	  /* don't complain here for Prolog compatibility 
 	  if ((Int)d0 <= 0) {
-	    _YAP_Error(DOMAIN_ERROR_NOT_LESS_THAN_ZERO,
+	    Yap_Error(DOMAIN_ERROR_NOT_LESS_THAN_ZERO,
 		  MkIntegerTerm(d0),"arg 1 of arg/3");	    
 	  }
 	  */
@@ -470,41 +470,41 @@ p_arg(void)
 	pt0 = RepPair(d1);
 	if (d0 == 1) {
 	  save_hb();
-	  if (_YAP_IUnify((CELL)pt0, ARG3) == FALSE) {
+	  if (Yap_IUnify((CELL)pt0, ARG3) == FALSE) {
 	    return(FALSE);
 	  }
 	  return(TRUE);
 	}
 	else if (d0 == 2) {
 	  save_hb();
-	  if (_YAP_IUnify((CELL)(pt0+1), ARG3) == FALSE) {
+	  if (Yap_IUnify((CELL)(pt0+1), ARG3) == FALSE) {
 	    return(FALSE);
 	  }
 	  return(TRUE);
 	}
 	else {
 	  if ((Int)d0 < 0)
-	    _YAP_Error(DOMAIN_ERROR_NOT_LESS_THAN_ZERO,
+	    Yap_Error(DOMAIN_ERROR_NOT_LESS_THAN_ZERO,
 		  MkIntegerTerm(d0),"arg 1 of arg/3");	 
 	  return(FALSE);
 	}
 	ENDP(pt0);
       }
       else {
-	_YAP_Error(TYPE_ERROR_COMPOUND, d1, "arg 2 of arg/3");
+	Yap_Error(TYPE_ERROR_COMPOUND, d1, "arg 2 of arg/3");
 	return(FALSE);
       }
 
       BEGP(pt0);
       deref_body(d1, pt0, arg_arg2_unk, arg_arg2_nvar);
-      _YAP_Error(INSTANTIATION_ERROR,(CELL)pt0,"arg 2 of arg/3");;
+      Yap_Error(INSTANTIATION_ERROR,(CELL)pt0,"arg 2 of arg/3");;
       ENDP(pt0);
       return(FALSE);
       ENDD(d1);
 
       BEGP(pt0);
       deref_body(d0, pt0, arg_arg1_unk, arg_arg1_nvar);
-      _YAP_Error(INSTANTIATION_ERROR,(CELL)pt0,"arg 1 of arg/3");;
+      Yap_Error(INSTANTIATION_ERROR,(CELL)pt0,"arg 1 of arg/3");;
       ENDP(pt0);
       return(FALSE);
       ENDD(d0);
@@ -571,7 +571,7 @@ p_functor(void)			/* functor(?,?,?) */
     BIND(pt0, d0, bind_func_nvar_var);
 #ifdef COROUTINING
     DO_TRAIL(pt0, d0);
-    if (pt0 < H0) _YAP_WakeUp(pt0);
+    if (pt0 < H0) Yap_WakeUp(pt0);
   bind_func_nvar_var:
 #endif
     /* have to buffer ENDP and label */
@@ -598,7 +598,7 @@ p_functor(void)			/* functor(?,?,?) */
     /* Done */
 #ifdef COROUTINING
     DO_TRAIL(pt0, d0);
-    if (pt0 < H0) _YAP_WakeUp(pt0);
+    if (pt0 < H0) Yap_WakeUp(pt0);
   bind_func_nvar3_var:
 #endif
     return(TRUE);
@@ -624,11 +624,11 @@ p_functor(void)			/* functor(?,?,?) */
   if (IsIntTerm(d1))
     d1 = IntOfTerm(d1);
   else {
-    _YAP_Error(TYPE_ERROR_INTEGER,ARG3,"functor/3");
+    Yap_Error(TYPE_ERROR_INTEGER,ARG3,"functor/3");
     return(FALSE);
   }
   if (!IsAtomicTerm(d0)) {
-    _YAP_Error(TYPE_ERROR_ATOMIC,d0,"functor/3");
+    Yap_Error(TYPE_ERROR_ATOMIC,d0,"functor/3");
     return(FALSE);
   }
   /* We made it!!!!! we got in d0 the name, in d1 the arity and
@@ -642,7 +642,7 @@ p_functor(void)			/* functor(?,?,?) */
   else if ((Int)d1 > 0) {
     /* now let's build a compound term */
     if (!IsAtomTerm(d0)) {
-      _YAP_Error(TYPE_ERROR_ATOM,d0,"functor/3");
+      Yap_Error(TYPE_ERROR_ATOM,d0,"functor/3");
       return(FALSE);
     }
     BEGP(pt1);
@@ -650,13 +650,13 @@ p_functor(void)			/* functor(?,?,?) */
       return(FALSE);
     }
     else
-      d0 = (CELL) _YAP_MkFunctor(AtomOfTerm(d0), (Int) d1);
+      d0 = (CELL) Yap_MkFunctor(AtomOfTerm(d0), (Int) d1);
     pt1 = H;
     *pt1++ = d0;
     d0 = AbsAppl(H);
     if (pt1+d1 > ENV - CreepFlag) {
-      if (!_YAP_gc(3, ENV, P)) {
-	_YAP_Error(OUT_OF_STACK_ERROR, TermNil, _YAP_ErrorMessage);
+      if (!Yap_gc(3, ENV, P)) {
+	Yap_Error(OUT_OF_STACK_ERROR, TermNil, Yap_ErrorMessage);
 	return(FALSE);
       }
       goto restart;
@@ -669,7 +669,7 @@ p_functor(void)			/* functor(?,?,?) */
     H = pt1;
     ENDP(pt1);
   } else if ((Int)d1  < 0) {
-    _YAP_Error(DOMAIN_ERROR_NOT_LESS_THAN_ZERO,MkIntegerTerm(d1),"functor/3");
+    Yap_Error(DOMAIN_ERROR_NOT_LESS_THAN_ZERO,MkIntegerTerm(d1),"functor/3");
     return(FALSE);
   } 
   /* else if arity is 0 just pass d0 through */
@@ -677,7 +677,7 @@ p_functor(void)			/* functor(?,?,?) */
   BIND(pt0, d0, bind_func_var_3nvar);
 #ifdef COROUTINING
   DO_TRAIL(pt0, d0);
-  if (pt0 < H0) _YAP_WakeUp(pt0);
+  if (pt0 < H0) Yap_WakeUp(pt0);
  bind_func_var_3nvar:
 #endif
   return(TRUE);
@@ -685,7 +685,7 @@ p_functor(void)			/* functor(?,?,?) */
 
   BEGP(pt1);
   deref_body(d1, pt1, func_var_3unk, func_var_3nvar);
-  _YAP_Error(INSTANTIATION_ERROR,(CELL)pt1,"functor/3");
+  Yap_Error(INSTANTIATION_ERROR,(CELL)pt1,"functor/3");
   ENDP(pt1);
   /* Oops, third argument was unbound */
   return(FALSE);
@@ -694,7 +694,7 @@ p_functor(void)			/* functor(?,?,?) */
   BEGP(pt1);
 
   deref_body(d0, pt1, func_var_2unk, func_var_2nvar);
-  _YAP_Error(INSTANTIATION_ERROR,(CELL)pt1,"functor/3");
+  Yap_Error(INSTANTIATION_ERROR,(CELL)pt1,"functor/3");
   ENDP(pt1);
   /* Oops, second argument was unbound too */
   return(FALSE);
@@ -751,37 +751,37 @@ p_cut_by( void)
 static Int
 p_erroneous_call(void)
 {
-  _YAP_Error(SYSTEM_ERROR, TermNil, "bad call to internal built-in");
+  Yap_Error(SYSTEM_ERROR, TermNil, "bad call to internal built-in");
   return(FALSE);
 }
 
 void 
-_YAP_InitInlines(void)
+Yap_InitInlines(void)
 {
-  _YAP_InitAsmPred("$$cut_by", 1, _cut_by, p_cut_by, SafePredFlag);
+  Yap_InitAsmPred("$$cut_by", 1, _cut_by, p_cut_by, SafePredFlag);
 
-  _YAP_InitAsmPred("atom", 1, _atom, p_atom, SafePredFlag);
-  _YAP_InitAsmPred("atomic", 1, _atomic, p_atomic, SafePredFlag);
-  _YAP_InitAsmPred("integer", 1, _integer, p_integer, SafePredFlag);
-  _YAP_InitAsmPred("nonvar", 1, _nonvar, p_nonvar, SafePredFlag);
-  _YAP_InitAsmPred("number", 1, _number, p_number, SafePredFlag);
-  _YAP_InitAsmPred("var", 1, _var, p_var, SafePredFlag);
-  _YAP_InitAsmPred("db_reference", 1, _db_ref, p_db_ref, SafePredFlag);
-  _YAP_InitAsmPred("primitive", 1, _primitive, p_primitive, SafePredFlag);
-  _YAP_InitAsmPred("compound", 1, _compound, p_compound, SafePredFlag);
-  _YAP_InitAsmPred("float", 1, _float, p_float, SafePredFlag);
-  _YAP_InitAsmPred("=", 2, _equal, p_equal, SafePredFlag);
-  _YAP_InitAsmPred("\\=", 2, _dif, p_dif, SafePredFlag);
-  _YAP_InitAsmPred("==", 2, _eq, p_eq, SafePredFlag);
-  _YAP_InitAsmPred("arg", 3, _arg, p_arg, SafePredFlag);
-  _YAP_InitAsmPred("functor", 3, _functor, p_functor, SafePredFlag);
-  _YAP_InitAsmPred("$plus", 3, _plus, p_erroneous_call, SafePredFlag);
-  _YAP_InitAsmPred("$minus", 3, _minus, p_erroneous_call, SafePredFlag);
-  _YAP_InitAsmPred("$times", 3, _times, p_erroneous_call, SafePredFlag);
-  _YAP_InitAsmPred("$div", 3, _div, p_erroneous_call, SafePredFlag);
-  _YAP_InitAsmPred("$and", 3, _and, p_erroneous_call, SafePredFlag);
-  _YAP_InitAsmPred("$or", 3, _or, p_erroneous_call, SafePredFlag);
-  _YAP_InitAsmPred("$sll", 3, _sll, p_erroneous_call, SafePredFlag);
-  _YAP_InitAsmPred("$slr", 3, _slr, p_erroneous_call, SafePredFlag);
+  Yap_InitAsmPred("atom", 1, _atom, p_atom, SafePredFlag);
+  Yap_InitAsmPred("atomic", 1, _atomic, p_atomic, SafePredFlag);
+  Yap_InitAsmPred("integer", 1, _integer, p_integer, SafePredFlag);
+  Yap_InitAsmPred("nonvar", 1, _nonvar, p_nonvar, SafePredFlag);
+  Yap_InitAsmPred("number", 1, _number, p_number, SafePredFlag);
+  Yap_InitAsmPred("var", 1, _var, p_var, SafePredFlag);
+  Yap_InitAsmPred("db_reference", 1, _db_ref, p_db_ref, SafePredFlag);
+  Yap_InitAsmPred("primitive", 1, _primitive, p_primitive, SafePredFlag);
+  Yap_InitAsmPred("compound", 1, _compound, p_compound, SafePredFlag);
+  Yap_InitAsmPred("float", 1, _float, p_float, SafePredFlag);
+  Yap_InitAsmPred("=", 2, _equal, p_equal, SafePredFlag);
+  Yap_InitAsmPred("\\=", 2, _dif, p_dif, SafePredFlag);
+  Yap_InitAsmPred("==", 2, _eq, p_eq, SafePredFlag);
+  Yap_InitAsmPred("arg", 3, _arg, p_arg, SafePredFlag);
+  Yap_InitAsmPred("functor", 3, _functor, p_functor, SafePredFlag);
+  Yap_InitAsmPred("$plus", 3, _plus, p_erroneous_call, SafePredFlag);
+  Yap_InitAsmPred("$minus", 3, _minus, p_erroneous_call, SafePredFlag);
+  Yap_InitAsmPred("$times", 3, _times, p_erroneous_call, SafePredFlag);
+  Yap_InitAsmPred("$div", 3, _div, p_erroneous_call, SafePredFlag);
+  Yap_InitAsmPred("$and", 3, _and, p_erroneous_call, SafePredFlag);
+  Yap_InitAsmPred("$or", 3, _or, p_erroneous_call, SafePredFlag);
+  Yap_InitAsmPred("$sll", 3, _sll, p_erroneous_call, SafePredFlag);
+  Yap_InitAsmPred("$slr", 3, _slr, p_erroneous_call, SafePredFlag);
 }
 

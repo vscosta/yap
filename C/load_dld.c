@@ -28,7 +28,7 @@ static char YapExecutable[YAP_FILE_MAX];
  *   locate the executable of Yap
 */
 void
-_YAP_FindExecutable(char *name)
+Yap_FindExecutable(char *name)
 {
   /* use dld_find_executable */
   char *res;
@@ -54,7 +54,7 @@ LoadForeign(StringList ofiles, StringList libs,
   if(firstTime) {
     error = dld_init(YapExecutable);
     if(error) {
-      strcpy(_YAP_ErrorSay,dld_strerror(error));
+      strcpy(Yap_ErrorSay,dld_strerror(error));
       return LOAD_FAILLED;
     }
     firstTime=0;
@@ -62,7 +62,7 @@ LoadForeign(StringList ofiles, StringList libs,
 
   while (ofiles) {
     if((error=dld_link(ofiles->s)) !=0) {
-      strcpy(_YAP_ErrorSay,dld_strerror(error));
+      strcpy(Yap_ErrorSay,dld_strerror(error));
       return LOAD_FAILLED;
     }
     ofiles = ofiles->next;
@@ -72,14 +72,14 @@ LoadForeign(StringList ofiles, StringList libs,
   /* TODO: handle libs */
   *init_proc = (YapInitProc) dld_get_func(proc_name);
   if(! *init_proc) {
-    strcpy(_YAP_ErrorSay,"Could not locate initialization routine");
+    strcpy(Yap_ErrorSay,"Could not locate initialization routine");
     return LOAD_FAILLED;
   }
   if(!dld_function_executable_p(proc_name)) {
     char **undefs = dld_list_undefined_sym();
     char **p = undefs;
     int k = dld_undefined_sym_count;
-    strcpy(_YAP_ErrorSay,"Could not resolve all symbols");
+    strcpy(Yap_ErrorSay,"Could not resolve all symbols");
     while(k) {
       YP_printf("[undefined symbol %s]\n",*p++);
       --k;
@@ -92,19 +92,19 @@ LoadForeign(StringList ofiles, StringList libs,
 }
 
 Int
-_YAP_LoadForeign(StringList ofiles, StringList libs,
+Yap_LoadForeign(StringList ofiles, StringList libs,
 	       char *proc_name,	YapInitProc *init_proc)
 {
   return LoadForeign(ofiles, libs, proc_name, init_proc);
 }
 
 void 
-_YAP_ShutdownLoadForeign(void)
+Yap_ShutdownLoadForeign(void)
 {
 }
 
 Int
-_YAP_ReLoadForeign(StringList ofiles, StringList libs,
+Yap_ReLoadForeign(StringList ofiles, StringList libs,
 	       char *proc_name,	YapInitProc *init_proc)
 {
   return(LoadForeign(ofiles,libs, proc_name, init_proc));

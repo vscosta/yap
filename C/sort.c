@@ -58,8 +58,8 @@ build_new_list(CELL *pt, Term t)
     }
     pt += 2;
     if (pt > ASP - 4096) {
-      if (!_YAP_gc(2, ENV, P)) {
-	_YAP_Error(OUT_OF_STACK_ERROR, TermNil, _YAP_ErrorMessage);
+      if (!Yap_gc(2, ENV, P)) {
+	Yap_Error(OUT_OF_STACK_ERROR, TermNil, Yap_ErrorMessage);
 	return(FALSE);
       }
       t = Deref(ARG1);
@@ -101,7 +101,7 @@ void simple_mergesort(CELL *pt, Int size, int my_p)
     /* while there are elements in the left or right vector do compares */
     while (pt_left < end_pt_left && pt_right < end_pt) {
       /* if the element to the left is larger than the one to the right */
-      if (_YAP_compare_terms(pt_left[0], pt_right[0]) <= 0) {
+      if (Yap_compare_terms(pt_left[0], pt_right[0]) <= 0) {
 	/* copy the one to the left */
 	pt[0] = pt_left[0];
 	/* and avance the two pointers */
@@ -130,7 +130,7 @@ void simple_mergesort(CELL *pt, Int size, int my_p)
       }
     }
   } else {
-    if (size > 1 && (_YAP_compare_terms(pt[0],pt[2]) > 0)) {
+    if (size > 1 && (Yap_compare_terms(pt[0],pt[2]) > 0)) {
       CELL t = pt[2];
       pt[2+my_p] = pt[0];
       pt[my_p] = t;
@@ -181,7 +181,7 @@ int key_mergesort(CELL *pt, Int size, int my_p, Functor FuncDMinus)
       if (IsVarTerm(t1) || !IsApplTerm(t1) || FunctorOfTerm(t1) != FuncDMinus)
 	return(FALSE);
       t1 = ArgOfTerm(1,t1);
-      if (_YAP_compare_terms(t0, t1) <= 0) {
+      if (Yap_compare_terms(t0, t1) <= 0) {
 	/* copy the one to the left */
 	pt[0] = pt_left[0];
 	/* and avance the two pointers */
@@ -218,7 +218,7 @@ int key_mergesort(CELL *pt, Int size, int my_p, Functor FuncDMinus)
       if (IsVarTerm(t1) || !IsApplTerm(t1) || FunctorOfTerm(t1) != FuncDMinus)
 	return(FALSE);
       t1 = ArgOfTerm(1,t1);
-      if (_YAP_compare_terms(t0,t1) > 0) {
+      if (Yap_compare_terms(t0,t1) > 0) {
 	CELL t = pt[2];
 	pt[2+my_p] = pt[0];
 	pt[my_p] = t;
@@ -266,7 +266,7 @@ Int compact_mergesort(CELL *pt, Int size, int my_p)
     /* while there are elements in the left or right vector do compares */
     while (pt_left < end_pt_left && pt_right < end_pt_right) {
       /* if the element to the left is larger than the one to the right */
-      Int cmp = _YAP_compare_terms(pt_left[0], pt_right[0]);
+      Int cmp = Yap_compare_terms(pt_left[0], pt_right[0]);
       if (cmp < 0) {
 	/* copy the one to the left */
 	pt[0] = pt_left[0];
@@ -302,7 +302,7 @@ Int compact_mergesort(CELL *pt, Int size, int my_p)
     }
     return(size);
   } else if (size == 2) {
-    Int cmp = _YAP_compare_terms(pt[0],pt[2]);
+    Int cmp = Yap_compare_terms(pt[0],pt[2]);
     if (cmp > 0) {
       /* swap */
       CELL t = pt[2];
@@ -354,7 +354,7 @@ p_sort(void)
   if (size < 0)
     return(FALSE);
   if (size < 2)
-     return(_YAP_unify(ARG1, ARG2));
+     return(Yap_unify(ARG1, ARG2));
   pt = H;            /* because of possible garbage collection */
   /* make sure no one writes on our temp data structure */
   H += size*2;
@@ -364,7 +364,7 @@ p_sort(void)
   H = pt+size*2;
   adjust_vector(pt, size);
   out = AbsPair(pt);
-  return(_YAP_unify(out, ARG2));
+  return(Yap_unify(out, ARG2));
 }
 
 static Int
@@ -379,14 +379,14 @@ p_msort(void)
   if (size < 0)
     return(FALSE);
   if (size < 2)
-     return(_YAP_unify(ARG1, ARG2));
+     return(Yap_unify(ARG1, ARG2));
   pt = H;            /* because of possible garbage collection */
   /* reserve the necessary space */
   H += size*2;
   simple_mergesort(pt, size, M_EVEN);
   adjust_vector(pt, size);
   out = AbsPair(pt);
-  return(_YAP_unify(out, ARG2));
+  return(Yap_unify(out, ARG2));
 }
 
 static Int
@@ -401,21 +401,21 @@ p_ksort(void)
   if (size < 0)
     return(FALSE);
   if (size < 2)
-     return(_YAP_unify(ARG1, ARG2));
+     return(Yap_unify(ARG1, ARG2));
   /* reserve the necessary space */
   pt = H;            /* because of possible garbage collection */
   H += size*2;
-  if (!key_mergesort(pt, size, M_EVEN, _YAP_MkFunctor(AtomMinus,2)))
+  if (!key_mergesort(pt, size, M_EVEN, Yap_MkFunctor(AtomMinus,2)))
     return(FALSE);
   adjust_vector(pt, size);
   out = AbsPair(pt);
-  return(_YAP_unify(out, ARG2));
+  return(Yap_unify(out, ARG2));
 }
 
 void 
-_YAP_InitSortPreds(void)
+Yap_InitSortPreds(void)
 {
-  _YAP_InitCPred("$sort", 2, p_sort, 0);
-  _YAP_InitCPred("$msort", 2, p_msort, 0);
-  _YAP_InitCPred("$keysort", 2, p_ksort, 0);
+  Yap_InitCPred("$sort", 2, p_sort, 0);
+  Yap_InitCPred("$msort", 2, p_msort, 0);
+  Yap_InitCPred("$keysort", 2, p_ksort, 0);
 }

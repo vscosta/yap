@@ -9,14 +9,14 @@
 **************************************************************************
 *									 *
 * File:		mpe.c  							 *
-* Last rev:	$Date: 2002-11-11 17:38:03 $				 *
+* Last rev:	$Date: 2002-11-18 18:16:43 $				 *
 * mods:									 *
 * comments:	Interface to an MPE library                              *
 *									 *
 *************************************************************************/
 
 #ifndef lint
-static char *rcsid = "$Header: /Users/vitor/Yap/yap-cvsbackup/library/mpi/mpe.c,v 1.4 2002-11-11 17:38:03 vsc Exp $";
+static char *rcsid = "$Header: /Users/vitor/Yap/yap-cvsbackup/library/mpi/mpe.c,v 1.5 2002-11-18 18:16:43 vsc Exp $";
 #endif
 
 #include "Yap.h"
@@ -204,14 +204,14 @@ p_log()                  /* mpe_log(+EventType, +EventNum, +EventStr) */
 
 
 void
-_YAP_InitMPE(void)
+Yap_InitMPE(void)
 {
-  _YAP_InitCPred( "mpe_open", 0, p_init, SafePredFlag );
-  _YAP_InitCPred( "mpe_start", 0, p_start, SafePredFlag );
-  _YAP_InitCPred( "mpe_close", 1, p_close, SafePredFlag );
-  _YAP_InitCPred( "mpe_create_event", 1, p_create_event, SafePredFlag );
-  _YAP_InitCPred( "mpe_create_state", 4, p_create_state, SafePredFlag );
-  _YAP_InitCPred( "mpe_log", 3, p_log, SafePredFlag );
+  Yap_InitCPred( "mpe_open", 0, p_init, SafePredFlag );
+  Yap_InitCPred( "mpe_start", 0, p_start, SafePredFlag );
+  Yap_InitCPred( "mpe_close", 1, p_close, SafePredFlag );
+  Yap_InitCPred( "mpe_create_event", 1, p_create_event, SafePredFlag );
+  Yap_InitCPred( "mpe_create_state", 4, p_create_state, SafePredFlag );
+  Yap_InitCPred( "mpe_log", 3, p_log, SafePredFlag );
 }
 
 #endif /* HAVE_MPE */
