@@ -38,29 +38,39 @@
 '$process_error'(Throw) :-
 	print_message(error,Throw).
 
-print_message(force(_Severity), Msg) :- !,
+print_message(Level, Mss) :-
+	'$print_message'(Level, Mss).
+
+'$print_message'(force(_Severity), Msg) :- !,
 	print(user_error,Msg).
-print_message(Severity, Msg) :-
+'$print_message'(Severity, Msg) :-
 	\+ '$undefined'(portray_message(Severity, Msg), user),
 	user:portray_message(Severity, Msg), !.
-print_message(error,error(Msg,Where)) :-
+'$print_message'(error,error(Msg,Where)) :-
 	'$output_error_message'(Msg, Where), !.
-print_message(error,Throw) :-
+'$print_message'(error,Throw) :-
 	'$format'(user_error,"[ No handler for ball ~w ]~n", [Throw]).
-print_message(informational,debug(trace)) :-
-	'$format'(user_error,"[ The debugger will first creep -- showing everything (trace) ]~n",[]).
-print_message(informational,M) :-
-	'$format'(user_error,"[ ", []),
-	'$do_print_message'(M),
-	'$format'(user_error," ]", []).
-print_message(warning,M) :-
-	'$format'(user_error,"[ Warning: ", []),
-	'$do_print_message'(M),
-	'$format'(user_error," ]~n", []).
-print_message(help,M) :-
+'$print_message'(informational,M) :-
+	( '$get_value'('$verbose',on) ->
+	    '$do_print_message'(M) ;
+	    true
+	).
+'$print_message'(warning,M) :-
+	'$do_print_message'(M).
+'$print_message'(help,M) :-
 	'$format'(user_error,"help on ~p",[M]).
 
 
+'$do_print_message'(loading(_,user)) :- !.
+'$do_print_message'(loading(What,AbsoluteFileName)) :- !,
+	'$show_consult_level'(LC),
+	'$format'(user_error, "~*|[ ~a ~a... ]~n", [LC, What, AbsoluteFileName]).
+'$do_print_message'(loaded(_,user,_,_,_)) :- !.
+'$do_print_message'(loaded(What,AbsoluteFileName,Mod,Time,Space)) :- !,
+	'$show_consult_level'(LC0),
+	LC is LC0+1,
+	'$format'(user_error, "~*|[ ~a ~a in module ~a, ~d msec ~d bytes ]~n", [LC, What, AbsoluteFileName,Mod,Time,Space]).
+%message(loaded(Past,AbsoluteFileName,user,Msec,Bytes), Prefix, Suffix) :- !,
 '$do_print_message'(debug(trace)) :- !,
 	'$format'(user_error,"[ The debugger will first creep -- showing everything (trace) ]~n",[]).
 '$do_print_message'('$format'(Msg, Args)) :- !,

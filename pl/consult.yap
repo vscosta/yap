@@ -128,30 +128,23 @@ reconsult(Fs) :-
 	'$getcwd'(OldD),
 	'$get_value'('$consulting_file',OldF),
 	'$set_consulting_file'(Stream),
-	H0 is heapused, T0 is cputime,
+	H0 is heapused, '$cputime'(T0,_),
 	current_stream(File,_,Stream),
 	'$get_value'('$consulting',Old),
 	'$set_value'('$consulting',false),
+	'$current_module'(OldModule),
 	'$start_reconsulting'(F),
 	'$start_consult'(reconsult,File,LC),
 	'$recorda'('$initialisation','$',_),
-	( '$get_value'('$verbose',on) ->
-		'$tab'(user_error,LC),
-		'$format'(user_error, "[ reconsulting ~w... ]~n", [F])
-	    ; true ),
+	'$print_message'(informational, loading(reconsulting, F)),
 	'$loop'(Stream,reconsult),
-	 '$end_consult',
+	'$exec_initialisation_goals',
+	'$current_module'(Mod,OldModule),
+	'$end_consult',
 	'$clear_reconsulting',
 	( LC == 0 -> prompt(_,'   |: ') ; true),
-	( '$get_value'('$verbose',on) ->
-		'$tab'(user_error,LC) ;
-	true ),	
-	H is heapused-H0, T is cputime-T0,
-	( '$get_value'('$verbose',off) ->
-	  true
-	;
-	  '$format'(user_error, "[ ~w reconsulted ~w bytes in ~g seconds ]~n", [F,H,T])
-	),
+	H is heapused-H0, '$cputime'(TF,_), T is TF-T0,
+	'$print_message'(informational, loaded(reconsulted, F, Mod, T, H)),
 	'$set_value'('$consulting',Old),
 	'$set_value'('$consulting_file',OldF),
 	'$cd'(OldD),
@@ -169,29 +162,22 @@ reconsult(Fs) :-
 	'$open'(File,'$csult',Stream0,0),
 	'$get_value'('$consulting_file',OldF),
 	'$set_consulting_file'(Stream0),
-	H0 is heapused, T0 is cputime,
+	H0 is heapused, '$cputime'(T0,_),
 	'$get_value'('$consulting',Old),
 	'$set_value'('$consulting',false),
 	'$start_reconsulting'(File),
 	'$start_consult'(reconsult,File,LC),
+	'$current_module'(OldModule),
 	'$recorda'('$initialisation','$',_),
-	( '$get_value'('$verbose',on) ->
-		'$tab'(user_error,LC),
-		'$format'(user_error, "[ reconsulting ~w... ]~n", [F])
-	    ; true ),
+	'$print_message'(informational, loading(reconsulting, F)),
 	'$loop'(Stream,reconsult),
+	'$exec_initialisation_goals',
+	'$current_module'(Mod,OldModule),
 	'$end_consult',
 	'$clear_reconsulting',
 	( LC == 0 -> prompt(_,'   |: ') ; true),
-	( '$get_value'('$verbose',on) ->
-		'$tab'(user_error,LC) ;
-	true ),	
-	H is heapused-H0, T is cputime-T0,
-	( '$get_value'('$verbose',off) ->
-	  true
-	;
-	  '$format'(user_error, "[ ~w reconsulted ~w bytes in ~g seconds ]~n", [F,H,T])
-	),
+	H is heapused-H0, '$cputime'(TF,_), T is TF-T0,
+	'$print_message'(informational, loaded(reconsulted, F, Mod, T, H)),
 	'$set_value'('$consulting',Old),
 	'$set_value'('$consulting_file',OldF),
 	'$cd'(OldD),

@@ -652,12 +652,10 @@ put_code(S,V) :-
 
 
 
-get(Stream,_) :- \+ '$check_stream'(Stream,read), !, fail.
 get(Stream,N) :- '$get'(Stream,N).
 
 get0(N) :- current_input(S), '$get0'(S,N).
 
-get0(Stream,_) :- \+ '$check_stream'(Stream,read), !, fail.
 get0(Stream,N) :- '$get0'(Stream,N).
 
 put(N) :- current_output(S),  N1 is N, '$put'(S,N1).

@@ -74,6 +74,7 @@ read_sig.
 		       (nl,writeq('[ Received user signal 2 ]'),nl,halt)), _),
 	'$set_yap_flags'(10,0),
 	'$set_value'('$gc',on),
+	'$set_value'('$verbose',on),
 	prompt('  ?- '),
 	(
 	    '$get_value'('$break',0)
@@ -915,27 +916,34 @@ break :- '$get_value'('$break',BL), NBL is BL+1,
 	'$getcwd'(OldD),
 	'$get_value'('$consulting_file',OldF),
 	'$set_consulting_file'(Stream),
-	H0 is heapused, T0 is cputime,
+	H0 is heapused, '$cputime'(T0,_),
 	'$current_stream'(File,_,Stream),
+	'$current_module'(OldModule),
 	'$start_consult'(consult,File,LC),
 	'$get_value'('$consulting',Old),
 	'$set_value'('$consulting',true),
 	'$recorda'('$initialisation','$',_),
-	( '$get_value'('$verbose',on) ->
-		'$tab'(user_error,LC),
-		'$format'(user_error, "[ consulting ~w... ]~n", [F])
-	    ; true ),
+	( '$undefined'('$print_message'(_,_),prolog) -> 
+	    ( '$get_value'('$verbose',on) ->
+		'$format'(user_error, "~*|[ consulting ~w... ]~n", [LC,F])
+		; true )
+	;
+	    '$print_message'(informational, loading(consulting, F))
+	),
 	'$loop'(Stream,consult),
+	'$exec_initialisation_goals',
+	'$current_module'(Mod,OldModule),
 	'$end_consult',
 	( LC == 0 -> prompt(_,'   |: ') ; true),
-	( '$get_value'('$verbose',on) ->
-		'$tab'(user_error,LC) ;
-	true ),
-	H is heapused-H0, T is cputime-T0,
-	( '$get_value'('$verbose',off) ->
-	  true
+	H is heapused-H0, '$cputime'(TF,_), T is TF-T0,
+	( '$undefined'('$print_message'(_,_),prolog) -> 
+	  ( '$get_value'('$verbose',on) ->
+	     '$format'(user_error, "~*|[ ~w consulted ~w bytes in ~d msecs ]~n", [LC,F,H,T])
+	  ;
+	     true
+	  )
 	;
-	  '$format'(user_error, "[ ~w consulted ~w bytes in ~g seconds ]~n", [F,H,T])
+	    '$print_message'(informational, loaded(consulted, F, Mod, T, H))
 	),
 	'$set_value'('$consulting',Old),
 	'$set_value'('$consulting_file',OldF),
@@ -982,7 +990,6 @@ break :- '$get_value'('$break',BL), NBL is BL+1,
 	
 
 '$loop'(Stream,Status) :-
-	'$current_module'(OldModule),
 	'$change_alias_to_stream'('$loop_stream',Stream),
 	repeat,
 		( '$current_stream'(_,_,Stream) -> true
@@ -991,9 +998,7 @@ break :- '$get_value'('$break',BL), NBL is BL+1,
 		prompt('|     '), prompt(_,'| '),
 		'$system_catch'('$enter_command'(Stream,Status), OldModule, Error,
 			 user:'$LoopError'(Error)),
-	!,
-	'$exec_initialisation_goals',
-	'$current_module'(_,OldModule).
+	!.
 
 '$enter_command'(Stream,Status) :-
 	'$read_vars'(Stream,Command,Vars),
