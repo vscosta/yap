@@ -11,8 +11,11 @@
 * File:		index.c							 *
 * comments:	Indexing a Prolog predicate				 *
 *									 *
-* Last rev:     $Date: 2004-09-14 03:30:06 $,$Author: vsc $						 *
+* Last rev:     $Date: 2004-09-27 20:45:03 $,$Author: vsc $						 *
 * $Log: not supported by cvs2svn $
+* Revision 1.98  2004/09/14 03:30:06  vsc
+* make sure that condor version always grows trail!
+*
 * Revision 1.97  2004/09/03 03:11:09  vsc
 * memory management fixes
 *
@@ -142,9 +145,22 @@ cleanup_sw_on_clauses(CELL larg, UInt sz, OPCODE ecls)
     yamop *xp = (yamop *)larg;
     if (xp->opc == ecls) {
       if (xp->u.sp.s3 == 1) {
-	UInt nsz = sz + (UInt)(NEXTOP((yamop *)NULL,sp)+xp->u.sp.s1*sizeof(yamop *));
+	UInt nsz = sz + (UInt)(NEXTOP((yamop *)NULL,sp))+xp->u.sp.s1*sizeof(yamop *);
+	LOCK(ExpandClausesListLock);
+	if (ExpandClausesFirst == xp)
+	  ExpandClausesFirst = xp->u.sp.snext;
+	if (ExpandClausesLast == xp) {
+	  ExpandClausesLast = xp->u.sp.sprev;
+	}
+	if (xp->u.sp.sprev) {
+	  xp->u.sp.sprev->u.sp.snext = xp->u.sp.snext;
+	}
+	if (xp->u.sp.snext) {
+	  xp->u.sp.snext->u.sp.sprev = xp->u.sp.sprev;
+	}
+	UNLOCK(ExpandClausesListLock);
 #if DEBUG
-	Yap_expand_clauses_sz -= (UInt)(NEXTOP((yamop *)NULL,sp)+xp->u.sp.s1*sizeof(yamop *));
+	Yap_expand_clauses_sz -= (UInt)(NEXTOP((yamop *)NULL,sp))+xp->u.sp.s1*sizeof(yamop *);
 #endif
 	Yap_FreeCodeSpace((char *)xp);
 	return nsz;
@@ -419,7 +435,6 @@ sort_group(GroupDef *grp, CELL *top, struct intermediates *cint)
   while (top+2*max > (CELL *)Yap_TrailTop) {
 #if USE_SYSTEM_MALLOC
     Yap_Error_Size = 2*max*sizeof(CELL);
-    recover_from_failed_susp_on_cls(cint, 0);
     /* grow stack */
     longjmp(cint->CompilerBotch,4);
 #else
@@ -578,6 +593,12 @@ has_cut(yamop *pc)
     case _skip:
     case _jump_if_var:
     case _try_in:
+    case _try_clause2:
+    case _try_clause3:
+    case _try_clause4:
+    case _retry2:
+    case _retry3:
+    case _retry4:
       pc = NEXTOP(pc,l);
       break;
     case _jump_if_nonvar:
@@ -734,6 +755,26 @@ has_cut(yamop *pc)
     case _get_longint:
     case _get_bigint:
       pc = NEXTOP(pc,xc);
+      break;
+      /* instructions type cc */
+    case _get_2atoms:
+      pc = NEXTOP(pc,cc);
+      break;
+      /* instructions type ccc */
+    case _get_3atoms:
+      pc = NEXTOP(pc,ccc);
+      break;
+      /* instructions type cccc */
+    case _get_4atoms:
+      pc = NEXTOP(pc,cccc);
+      break;
+      /* instructions type ccccc */
+    case _get_5atoms:
+      pc = NEXTOP(pc,ccccc);
+      break;
+      /* instructions type cccccc */
+    case _get_6atoms:
+      pc = NEXTOP(pc,cccccc);
       break;
       /* instructions type xf */
     case _get_struct:
@@ -1308,6 +1349,91 @@ add_info(ClauseDef *clause, UInt regno)
 	cl = NEXTOP(cl,xc);
       }
       break;
+    case _get_2atoms:
+      if (regcopy_in(myregs, nofregs, Yap_regnotoreg(1))) {
+	clause->Tag = cl->u.cc.c1;
+	return;
+      } else if (regcopy_in(myregs, nofregs, Yap_regnotoreg(2))) {
+	clause->Tag = cl->u.cc.c2;
+	return;
+      } else {
+	cl = NEXTOP(cl,cc);
+      }
+      break;
+    case _get_3atoms:
+      if (regcopy_in(myregs, nofregs,Yap_regnotoreg(1) )) {
+	clause->Tag = cl->u.ccc.c1;
+	return;
+      } else if (regcopy_in(myregs, nofregs, Yap_regnotoreg(2))) {
+	clause->Tag = cl->u.ccc.c2;
+	return;
+      } else if (regcopy_in(myregs, nofregs, Yap_regnotoreg(3))) {
+	clause->Tag = cl->u.ccc.c3;
+	return;
+      } else {
+	cl = NEXTOP(cl,ccc);
+      }
+      break;
+    case _get_4atoms:
+      if (regcopy_in(myregs, nofregs, Yap_regnotoreg(1))) {
+	clause->Tag = cl->u.cccc.c1;
+	return;
+      } else if (regcopy_in(myregs, nofregs, Yap_regnotoreg(2))) {
+	clause->Tag = cl->u.cccc.c2;
+	return;
+      } else if (regcopy_in(myregs, nofregs, Yap_regnotoreg(3))) {
+	clause->Tag = cl->u.cccc.c3;
+	return;
+      } else if (regcopy_in(myregs, nofregs, Yap_regnotoreg(4))) {
+	clause->Tag = cl->u.cccc.c4;
+	return;
+      } else {
+	cl = NEXTOP(cl,cccc);
+      }
+      break;
+    case _get_5atoms:
+      if (regcopy_in(myregs, nofregs, Yap_regnotoreg(1))) {
+	clause->Tag = cl->u.ccccc.c1;
+	return;
+      } else if (regcopy_in(myregs, nofregs, Yap_regnotoreg(2))) {
+	clause->Tag = cl->u.ccccc.c2;
+	return;
+      } else if (regcopy_in(myregs, nofregs, Yap_regnotoreg(3))) {
+	clause->Tag = cl->u.ccccc.c3;
+	return;
+      } else if (regcopy_in(myregs, nofregs, Yap_regnotoreg(4))) {
+	clause->Tag = cl->u.ccccc.c4;
+	return;
+      } else if (regcopy_in(myregs, nofregs, Yap_regnotoreg(5))) {
+	clause->Tag = cl->u.ccccc.c5;
+	return;
+      } else {
+	cl = NEXTOP(cl,ccccc);
+      }
+      break;
+    case _get_6atoms:
+      if (regcopy_in(myregs, nofregs, Yap_regnotoreg(1))) {
+	clause->Tag = cl->u.cccccc.c1;
+	return;
+      } else if (regcopy_in(myregs, nofregs, Yap_regnotoreg(2))) {
+	clause->Tag = cl->u.cccccc.c2;
+	return;
+      } else if (regcopy_in(myregs, nofregs, Yap_regnotoreg(3))) {
+	clause->Tag = cl->u.cccccc.c3;
+	return;
+      } else if (regcopy_in(myregs, nofregs, Yap_regnotoreg(4))) {
+	clause->Tag = cl->u.cccccc.c4;
+	return;
+      } else if (regcopy_in(myregs, nofregs, Yap_regnotoreg(5))) {
+	clause->Tag = cl->u.cccccc.c5;
+	return;
+      } else if (regcopy_in(myregs, nofregs, Yap_regnotoreg(6))) {
+	clause->Tag = cl->u.cccccc.c6;
+	return;
+      } else {
+	cl = NEXTOP(cl,cccccc);
+      }
+      break;
     case _get_float:
       if (regcopy_in(myregs, nofregs, cl->u.xc.x)) {
 	clause->u.t_ptr = cl->u.xc.c;
@@ -1777,6 +1903,12 @@ add_info(ClauseDef *clause, UInt regno)
     case _try_in:
     case _lock_lu:
     case _unlock_lu:
+    case _try_clause2:
+    case _try_clause3:
+    case _try_clause4:
+    case _retry2:
+    case _retry3:
+    case _retry4:
       clause->Tag = (CELL)NULL;
       return;
     case _jump_if_nonvar:
@@ -1897,6 +2029,91 @@ add_head_info(ClauseDef *clause, UInt regno)
 	return;
       } else {
 	cl = NEXTOP(cl,xc);
+      }
+      break;
+    case _get_2atoms:
+      if (Yap_regnotoreg(1) == iarg) {
+	clause->Tag = cl->u.cc.c1;
+	return;
+      } else if (Yap_regnotoreg(2) == iarg) {
+	clause->Tag = cl->u.cc.c2;
+	return;
+      } else {
+	cl = NEXTOP(cl,cc);
+      }
+      break;
+    case _get_3atoms:
+      if (Yap_regnotoreg(1) == iarg) {
+	clause->Tag = cl->u.ccc.c1;
+	return;
+      } else if (Yap_regnotoreg(2) == iarg) {
+	clause->Tag = cl->u.ccc.c2;
+	return;
+      } else if (Yap_regnotoreg(3) == iarg) {
+	clause->Tag = cl->u.ccc.c3;
+	return;
+      } else {
+	cl = NEXTOP(cl,ccc);
+      }
+      break;
+    case _get_4atoms:
+      if (Yap_regnotoreg(1) == iarg) {
+	clause->Tag = cl->u.cccc.c1;
+	return;
+      } else if (Yap_regnotoreg(2) == iarg) {
+	clause->Tag = cl->u.cccc.c2;
+	return;
+      } else if (Yap_regnotoreg(3) == iarg) {
+	clause->Tag = cl->u.cccc.c3;
+	return;
+      } else if (Yap_regnotoreg(4) == iarg) {
+	clause->Tag = cl->u.cccc.c4;
+	return;
+      } else {
+	cl = NEXTOP(cl,cccc);
+      }
+      break;
+    case _get_5atoms:
+      if (Yap_regnotoreg(1) == iarg) {
+	clause->Tag = cl->u.ccccc.c1;
+	return;
+      } else if (Yap_regnotoreg(2) == iarg) {
+	clause->Tag = cl->u.ccccc.c2;
+	return;
+      } else if (Yap_regnotoreg(3) == iarg) {
+	clause->Tag = cl->u.ccccc.c3;
+	return;
+      } else if (Yap_regnotoreg(4) == iarg) {
+	clause->Tag = cl->u.ccccc.c4;
+	return;
+      } else if (Yap_regnotoreg(5) == iarg) {
+	clause->Tag = cl->u.ccccc.c5;
+	return;
+      } else {
+	cl = NEXTOP(cl,ccccc);
+      }
+      break;
+    case _get_6atoms:
+      if (Yap_regnotoreg(1) == iarg) {
+	clause->Tag = cl->u.cccccc.c1;
+	return;
+      } else if (Yap_regnotoreg(2) == iarg) {
+	clause->Tag = cl->u.cccccc.c2;
+	return;
+      } else if (Yap_regnotoreg(3) == iarg) {
+	clause->Tag = cl->u.cccccc.c3;
+	return;
+      } else if (Yap_regnotoreg(4) == iarg) {
+	clause->Tag = cl->u.cccccc.c4;
+	return;
+      } else if (Yap_regnotoreg(5) == iarg) {
+	clause->Tag = cl->u.cccccc.c5;
+	return;
+      } else if (Yap_regnotoreg(6) == iarg) {
+	clause->Tag = cl->u.cccccc.c6;
+	return;
+      } else {
+	cl = NEXTOP(cl,cccccc);
       }
       break;
     case _get_float:
@@ -2120,6 +2337,16 @@ move_next(ClauseDef *clause, UInt regno)
     if (wreg == cl->u.xc.x) {
       clause->CurrentCode = NEXTOP(cl,xc);
     }	
+    return;
+  case _get_2atoms:
+    return;
+  case _get_3atoms:
+    return;
+  case _get_4atoms:
+    return;
+  case _get_5atoms:
+    return;
+  case _get_6atoms:
     return;
     /*
       matching is not guaranteed:
@@ -2458,6 +2685,63 @@ skip_to_arg(ClauseDef *clause, PredEntry *ap, UInt argno, int at_point)
   }
 }
 
+
+static int
+valid_instructions(yamop *end, yamop *cl)
+{
+  while (end > cl) {
+    op_numbers op = Yap_op_from_opcode(cl->opc);
+    switch (op) {
+    case _p_db_ref_x:
+    case _p_float_x:
+    case _get_list:
+      cl = NEXTOP(cl,x);
+      break;
+    case _get_atom:
+      cl = NEXTOP(cl,xc);
+      break;
+    case _get_struct:
+      cl = NEXTOP(cl,xf);
+      break;      
+    case _unify_void:
+    case _unify_void_write:
+    case _unify_list:
+    case _unify_l_list:
+    case _unify_list_write:
+    case _unify_l_list_write:
+      cl = NEXTOP(cl,o);
+      break;
+    case _unify_atom:
+    case _unify_l_atom:
+    case _unify_atom_write:
+    case _unify_l_atom_write:
+      cl = NEXTOP(cl,oc);
+      break;
+    case _unify_struct:
+    case _unify_struct_write:
+    case _unify_l_struc:
+    case _unify_l_struc_write:
+      cl = NEXTOP(cl,of);
+      break;      
+    case _unify_n_voids:
+    case _unify_l_n_voids:
+    case _unify_n_voids_write:
+    case _unify_l_n_voids_write:
+      cl = NEXTOP(cl,os);
+      break;      
+    case _pop:
+      cl = NEXTOP(cl,e);
+      break;            
+    case _pop_n:
+      cl = NEXTOP(cl,s);
+      break;      
+    default:
+      return FALSE;
+    }
+  }
+  return TRUE;
+}
+
 static UInt
 groups_in(ClauseDef *min, ClauseDef *max, GroupDef *grp)
 {
@@ -2610,7 +2894,6 @@ emit_switch_space(UInt n, UInt item_size, struct intermediates *cint)
     UInt sz = sizeof(LogUpdIndex)+n*item_size;
     LogUpdIndex *cl = (LogUpdIndex *)Yap_AllocCodeSpace(sz);
     if (cl == NULL) {
-       Yap_Error_Size = recover_from_failed_susp_on_cls(cint, sz);
       /* grow stack */
       longjmp(cint->CompilerBotch,2);
     }
@@ -2622,7 +2905,6 @@ emit_switch_space(UInt n, UInt item_size, struct intermediates *cint)
     UInt sz = sizeof(StaticIndex)+n*item_size;
     StaticIndex *cl = (StaticIndex *)Yap_AllocCodeSpace(sz);
     if (cl == NULL) {
-      Yap_Error_Size = recover_from_failed_susp_on_cls(cint, sz);
       /* grow stack */
       longjmp(cint->CompilerBotch,2);
     }
@@ -2924,13 +3206,12 @@ suspend_indexing(ClauseDef *min, ClauseDef *max, PredEntry *ap, struct intermedi
   if (cls < tcls/8) {
     yamop *ncode;
     yamop **st;
-    UInt sz = (UInt)(NEXTOP((yamop *)NULL,sp)+cls*sizeof(yamop *));
+    UInt sz = (UInt)NEXTOP((yamop *)NULL,sp)+cls*sizeof(yamop *);
 
 #if DEBUG
     Yap_expand_clauses_sz += sz;
 #endif
     if ((ncode = (yamop *)Yap_AllocCodeSpace(sz)) == NULL) {
-      Yap_Error_Size = recover_from_failed_susp_on_cls(cint, sz);
       longjmp(cint->CompilerBotch, 2);
     }
     /* create an expand_block */
@@ -2943,6 +3224,15 @@ suspend_indexing(ClauseDef *min, ClauseDef *max, PredEntry *ap, struct intermedi
       *st++ = min->Code;
       min++;
     }
+    LOCK(ExpandClausesListLock);
+    ncode->u.sp.snext = ExpandClausesFirst;
+    ncode->u.sp.sprev = NULL;
+    if (ExpandClausesFirst)
+      ExpandClausesFirst->u.sp.sprev = ncode;
+    ExpandClausesFirst = ncode;
+    if (ExpandClausesLast == NULL)
+      ExpandClausesLast = ncode;
+    UNLOCK(ExpandClausesListLock);
     return (UInt)ncode;
   }
   return (UInt)&(ap->cs.p_code.ExpandCode);
@@ -2953,8 +3243,21 @@ recover_ecls_block(yamop *ipc)
 {
   ipc->u.sp.s3--;
   if (!ipc->u.sp.s3) {
+    LOCK(ExpandClausesListLock);
+    if (ExpandClausesFirst == ipc)
+      ExpandClausesFirst = ipc->u.sp.snext;
+    if (ExpandClausesLast == ipc) {
+      ExpandClausesLast = ipc->u.sp.sprev;
+    }
+    if (ipc->u.sp.sprev) {
+      ipc->u.sp.sprev->u.sp.snext = ipc->u.sp.snext;
+    }
+    if (ipc->u.sp.snext) {
+      ipc->u.sp.snext->u.sp.sprev = ipc->u.sp.sprev;
+    }
+    UNLOCK(ExpandClausesListLock);
 #if DEBUG
-	Yap_expand_clauses_sz -= (UInt)(NEXTOP((yamop *)NULL,sp)+ipc->u.sp.s1*sizeof(yamop *));
+	Yap_expand_clauses_sz -= (UInt)(NEXTOP((yamop *)NULL,sp))+ipc->u.sp.s1*sizeof(yamop *);
 #endif
     Yap_FreeCodeSpace((char *)ipc);
   }
@@ -3450,17 +3753,9 @@ copy_clauses(ClauseDef *max0, ClauseDef *min0, CELL *top, struct intermediates *
 {
   UInt sz = ((max0+1)-min0)*sizeof(ClauseDef);
   while ((char *)top + sz > Yap_TrailTop) {
-#if USE_SYSTEM_MALLOC
     Yap_Error_Size = sz;
     /* grow stack */
-    recover_from_failed_susp_on_cls(cint, 0);
     longjmp(cint->CompilerBotch,4);
-#else
-    if(!Yap_growtrail (sz)) {
-      recover_from_failed_susp_on_cls(cint, 0);
-      longjmp(cint->CompilerBotch,3);
-    }
-#endif
   }
   memcpy((void *)top, (void *)min0, sz);
   return (ClauseDef *)top;
@@ -3599,15 +3894,26 @@ do_blob_index(ClauseDef *min, ClauseDef* max, Term t, struct intermediates *cint
 static void
 init_clauses(ClauseDef *cl, PredEntry *ap)
 {
-  StaticClause *scl = ClauseCodeToStaticClause(ap->cs.p_code.FirstClause);
+  if (ap->PredFlags & MegaClausePredFlag) {
+    MegaClause *mcl = ClauseCodeToMegaClause(ap->cs.p_code.FirstClause);
+    yamop *end = (yamop *)((char *)mcl->ClCode+mcl->ClSize);
+    yamop *cd = mcl->ClCode;
+    while (cd < end) {
+      cl->Code = cl->CurrentCode = cd;
+      cd = (yamop *)((char *)cd+mcl->ClItemSize);
+      cl++;
+    }
+  } else {
+    StaticClause *scl = ClauseCodeToStaticClause(ap->cs.p_code.FirstClause);
 
-  do {
-    cl->Code = cl->CurrentCode = scl->ClCode;
-    cl++;
-    if (scl->ClCode == ap->cs.p_code.LastClause)
-      return;
-    scl = scl->ClNext;
-  } while (TRUE);
+    do {
+      cl->Code = cl->CurrentCode = scl->ClCode;
+      cl++;
+      if (scl->ClCode == ap->cs.p_code.LastClause)
+	return;
+      scl = scl->ClNext;
+    } while (TRUE);
+  }
 }
 
 static void
@@ -3633,13 +3939,12 @@ compile_index(struct intermediates *cint)
   /* only global variable I use directly */
   labelno = 1;
 
-  Yap_Error_Size = NClauses*sizeof(ClauseDef);
+  Yap_Error_Size = 0;
   /* reserve double the space for compiler */
   if (cls+2*NClauses > (ClauseDef *)(ASP-4096)) {
     /* tell how much space we need */
     Yap_Error_Size += NClauses*sizeof(ClauseDef);
     /* grow stack */
-    recover_from_failed_susp_on_cls(cint, 0);
     longjmp(cint->CompilerBotch,3);
   }
   cint->freep = (char *)(cls+NClauses);
@@ -3655,8 +3960,6 @@ compile_index(struct intermediates *cint)
 }
 
 
-static int  vsc_index;
-
 yamop *
 Yap_PredIsIndexable(PredEntry *ap)
 {
@@ -3664,32 +3967,37 @@ Yap_PredIsIndexable(PredEntry *ap)
   int setjres;
   struct intermediates cint;
 
-  vsc_index++;
   cint.CurrentPred = ap;
   Yap_Error_Size = 0;
+
   if ((setjres = setjmp(cint.CompilerBotch)) == 3) {
     restore_machine_regs();
+    recover_from_failed_susp_on_cls(&cint, 0);
     Yap_gcl(Yap_Error_Size, ap->ArityOfPE, ENV, CP);
   } else if (setjres == 2) {
     restore_machine_regs();
+    Yap_Error_Size = recover_from_failed_susp_on_cls(&cint, Yap_Error_Size);
     if (!Yap_growheap(FALSE, Yap_Error_Size, NULL)) {
       Yap_Error(OUT_OF_HEAP_ERROR, TermNil, Yap_ErrorMessage);
       return FAILCODE;
     }
   } else if (setjres == 4) {
     restore_machine_regs();
+    recover_from_failed_susp_on_cls(&cint, 0);
     if (!Yap_growtrail(Yap_Error_Size)) {
       Yap_Error(OUT_OF_TRAIL_ERROR, TermNil, Yap_ErrorMessage);
       return FAILCODE;
     }
   } else if (setjres != 0) {
+    recover_from_failed_susp_on_cls(&cint, 0);
     if (!Yap_growheap(FALSE, Yap_Error_Size, NULL)) {
       Yap_Error(SYSTEM_ERROR, TermNil, Yap_ErrorMessage);
       return FAILCODE;
     }
   }
  restart_index:
-  cint.CodeStart = cint.BlobsStart = cint.cpc = cint.icpc = NIL;
+  Yap_BuildMegaClause(ap);
+  cint.CodeStart = cint.BlobsStart = cint.cpc = cint.icpc = NULL;
   cint.expand_block = NULL;
   Yap_ErrorMessage = NULL;
   if (compile_index(&cint) == (UInt)FAILCODE) {
@@ -3801,30 +4109,60 @@ static ClauseDef *
 install_clauses(ClauseDef *cls, PredEntry *ap, istack_entry *stack, yamop *beg, yamop *end)
 {
   istack_entry *sp = stack;
-  StaticClause *cl = ClauseCodeToStaticClause(beg);
+  if (ap->PredFlags & MegaClausePredFlag) {
+    MegaClause *mcl = ClauseCodeToMegaClause(beg);
+    yamop *end = (yamop *)((char *)mcl->ClCode+mcl->ClSize);
+    yamop *cd = mcl->ClCode;
 
-  if (stack[0].pos == 0) {
+    if (stack[0].pos == 0) {
+      while (TRUE) {
+	cls->Code =  cls->CurrentCode = cd;
+	cls->Tag =  0;
+	cls++;
+	cd = (yamop *)((char *)cd+mcl->ClItemSize);
+	if (cd == end) {
+	  return cls-1;
+	}
+      }
+    }
+    while (TRUE) {
+      cls->Code =  cls->CurrentCode = cd;
+      sp = install_clause(cls, ap, stack);
+      /* we reached a matching clause */
+      if (!sp->pos && (sp[-1].val == 0L || cls->Tag == sp[-1].val)) {
+	cls++;
+      }
+      cd = (yamop *)((char *)cd+mcl->ClItemSize);
+      if (cd == end) {
+	return cls-1;
+      }
+    }
+  } else {
+    StaticClause *cl = ClauseCodeToStaticClause(beg);
+
+    if (stack[0].pos == 0) {
+      while (TRUE) {
+	cls->Code =  cls->CurrentCode = cl->ClCode;
+	cls->Tag =  0;
+	cls++;
+	if (cl->ClCode == end) {
+	  return cls-1;
+	}
+	cl = cl->ClNext;
+      }
+    }
     while (TRUE) {
       cls->Code =  cls->CurrentCode = cl->ClCode;
-      cls->Tag =  0;
-      cls++;
-      if (cl->ClCode == end) {
+      sp = install_clause(cls, ap, stack);
+      /* we reached a matching clause */
+      if (!sp->pos && (sp[-1].val == 0L || cls->Tag == sp[-1].val)) {
+	cls++;
+      }
+      if (cl->ClCode == end || cl->ClCode == NULL) {
 	return cls-1;
       }
       cl = cl->ClNext;
     }
-  }
-  while (TRUE) {
-    cls->Code =  cls->CurrentCode = cl->ClCode;
-    sp = install_clause(cls, ap, stack);
-    /* we reached a matching clause */
-    if (!sp->pos && (sp[-1].val == 0L || cls->Tag == sp[-1].val)) {
-      cls++;
-    }
-    if (cl->ClCode == end || cl->ClCode == NULL) {
-      return cls-1;
-    }
-    cl = cl->ClNext;
   }
 }
 
@@ -4043,6 +4381,11 @@ count_clauses_left(yamop *cl, PredEntry *ap)
       c = c->ClNext;
     }
     return i;
+  } else if (ap->PredFlags & MegaClausePredFlag) {
+    MegaClause *mcl = ClauseCodeToMegaClause(ap->cs.p_code.FirstClause);
+    UInt ncls = mcl->ClSize/mcl->ClItemSize;
+
+    return (ncls-1)-((char *)cl-(char *)mcl->ClCode)/mcl->ClItemSize;
   } else {
     yamop *last = ap->cs.p_code.LastClause;
     StaticClause *c = ClauseCodeToStaticClause(cl);
@@ -4097,15 +4440,27 @@ expand_index(struct intermediates *cint) {
       /* this clause had no indexing */
       if (ap->PredFlags & LogUpdatePredFlag) {
 	first = ClauseCodeToLogUpdClause(ipc->u.ld.d)->ClNext->ClCode;
+      } else if (ap->PredFlags & MegaClausePredFlag) {
+	MegaClause *mcl = ClauseCodeToMegaClause(ap->cs.p_code.FirstClause);
+	first = (yamop *)((char *)ipc->u.ld.d)+mcl->ClItemSize;
       } else {
 	first = ClauseCodeToStaticClause(ipc->u.ld.d)->ClNext->ClCode;
       }
       isfirstcl = FALSE;
       ipc = NEXTOP(ipc,ld);
       break;
+    case _try_clause2:
+    case _try_clause3:
+    case _try_clause4:
+    case _retry2:
+    case _retry3:
+    case _retry4:
     case _try_in:
       if (ap->PredFlags & LogUpdatePredFlag) {
 	first = ClauseCodeToLogUpdClause(ipc->u.l.l)->ClNext->ClCode;
+      } else if (ap->PredFlags & MegaClausePredFlag) {
+	MegaClause *mcl = ClauseCodeToMegaClause(ap->cs.p_code.FirstClause);
+	first = (yamop *)((char *)ipc->u.ld.d)+mcl->ClItemSize;
       } else {
 	first = ClauseCodeToStaticClause(ipc->u.l.l)->ClNext->ClCode;
       }
@@ -4419,6 +4774,8 @@ expand_index(struct intermediates *cint) {
       op_numbers op = Yap_op_from_opcode(alt->opc);
       if (op == _trust_logical_pred) {
 	last = NEXTOP(alt,l)->u.ld.d;
+      } else if (op >= _retry2 && op <= _retry4) {
+	last = alt->u.l.l;
       } else {
 	last = alt->u.ld.d;
       }
@@ -4427,6 +4784,8 @@ expand_index(struct intermediates *cint) {
       if (op == _retry ||
 	  op == _trust) {
 	last = alt->u.ld.d;
+      } else if (op >= _retry2 && op <= _retry4) {
+	last = alt->u.l.l;
       }
     }
     fail_l = (UInt)alt;
@@ -4452,7 +4811,6 @@ expand_index(struct intermediates *cint) {
       /* tell how much space we need (worst case) */
       Yap_Error_Size += 2*NClauses*sizeof(ClauseDef);
       /* grow stack */
-      recover_from_failed_susp_on_cls(cint, 0);
       longjmp(cint->CompilerBotch,3);
     }
     if (ap->PredFlags & LogUpdatePredFlag) {
@@ -4465,8 +4823,6 @@ expand_index(struct intermediates *cint) {
     if (cls+2*NClauses > (ClauseDef *)(ASP-4096)) {
       /* tell how much space we need (worst case) */
       Yap_Error_Size += 2*NClauses*sizeof(ClauseDef);
-      /* grow stack */
-      recover_from_failed_susp_on_cls(cint, 0);
       longjmp(cint->CompilerBotch,3);
     }
     if (ap->PredFlags & LogUpdatePredFlag) {
@@ -4561,9 +4917,12 @@ ExpandIndex(PredEntry *ap) {
 
   if ((cb = setjmp(cint.CompilerBotch)) == 3) {
     restore_machine_regs();
+    /* grow stack */
+    recover_from_failed_susp_on_cls(&cint, 0);
     Yap_gcl(Yap_Error_Size, ap->ArityOfPE, ENV, CP);
   } else if (cb == 2) {
     restore_machine_regs();
+    Yap_Error_Size = recover_from_failed_susp_on_cls(&cint, Yap_Error_Size);
     if (!Yap_growheap(FALSE, Yap_Error_Size, NULL)) {
       save_machine_regs();
       if (ap->PredFlags & LogUpdatePredFlag) {
@@ -4574,7 +4933,10 @@ ExpandIndex(PredEntry *ap) {
 	cl = ClauseCodeToStaticIndex(ap->cs.p_code.TrueCodeOfPred);
 	Yap_kill_iblock((ClauseUnion *)ClauseCodeToStaticIndex(ap->cs.p_code.TrueCodeOfPred),NULL, ap);
       }
-      return NULL;
+      ap->OpcodeOfPred = INDEX_OPCODE;
+      ap->CodeOfPred = ap->cs.p_code.TrueCodeOfPred = (yamop *)(&(ap->OpcodeOfPred)); 
+      Yap_Error(OUT_OF_HEAP_ERROR, TermNil, Yap_ErrorMessage);
+      return FAILCODE;
     }
   } else if (cb == 4) {
     restore_machine_regs();
@@ -4648,7 +5010,7 @@ ExpandIndex(PredEntry *ap) {
   if (cint.CodeStart) {
     if ((indx_out = Yap_assemble(ASSEMBLING_EINDEX, TermNil, ap, FALSE, &cint)) == NULL) {
       if (!Yap_growheap(FALSE, Yap_Error_Size, NULL)) {
-	Yap_Error(SYSTEM_ERROR, TermNil, Yap_ErrorMessage);
+	Yap_Error(OUT_OF_HEAP_ERROR, TermNil, Yap_ErrorMessage);
 	return FAILCODE;
       }
       goto restart_index;
@@ -5078,6 +5440,31 @@ kill_clause(yamop *ipc, yamop *bg, yamop *lt, path_stack_entry *sp0, PredEntry *
 	    codep = NEXTOP(codep,ld);
 	  }
 	  break;
+	case _retry2:
+	case _retry3:
+	case _retry4:
+	case _try_clause2:
+	case _try_clause3:
+	case _try_clause4:
+	  /* kill block and replace by this single clause */
+	  if (codep->u.l.l != FAILCODE) {
+	    path_stack_entry *nsp;
+	    LogUpdClause *tgl = ClauseCodeToLogUpdClause(codep->u.l.l);
+    
+	    if (tgl->ClFlags & ErasedMask ||
+		IN_BETWEEN(bg, codep->u.l.l, lt)) {
+	      codep = NEXTOP(codep,l);
+	      break;
+	    }
+	    nsp = sp;
+	    while ((--nsp)->flag != block_entry);
+	    *sp->u.cle.entry_code = codep->u.l.l;
+	    Yap_kill_iblock(sp->u.cle.block, nsp->u.cle.block, ap);
+	    return sp;
+	  } else {
+	    codep = NEXTOP(codep,l);
+	  }
+	  break;
 	case _trust_logical_pred:
 	  codep = NEXTOP(codep, l);
 	  break;
@@ -5086,7 +5473,7 @@ kill_clause(yamop *ipc, yamop *bg, yamop *lt, path_stack_entry *sp0, PredEntry *
 	  codep = NEXTOP(codep, p);
 	  break;
 	default:
-	  Yap_Error(FATAL_ERROR, TermNil, "Invalid Opcode");
+	  Yap_Error(FATAL_ERROR, TermNil, "Invalid Opcode %d", op);
 	  return sp;
 	}
       }
@@ -5094,8 +5481,15 @@ kill_clause(yamop *ipc, yamop *bg, yamop *lt, path_stack_entry *sp0, PredEntry *
     /* just mark the clause as dead and the code as unreachable, but 
        don't do anything else
     */
-    if (IN_BETWEEN(bg, start->u.Ill.l1->u.ld.d, lt)) {
-      start->u.Ill.l1->u.ld.d = FAILCODE;
+    if (ap->ArityOfPE >= 2 &&
+	ap->ArityOfPE <=4) {
+      if (IN_BETWEEN(bg, start->u.Ill.l1->u.l.l, lt)) {
+	start->u.Ill.l1->u.l.l = FAILCODE;
+      }
+    } else {
+      if (IN_BETWEEN(bg, start->u.Ill.l1->u.ld.d, lt)) {
+	start->u.Ill.l1->u.l.l = FAILCODE;
+      }
     }
     start->opc = Yap_opcode(_stale_lu_index);
     return sp0;
@@ -5119,7 +5513,7 @@ copy_ld(yamop *codep, yamop *ocodep, PredEntry *ap, yamop *code, int has_cut)
 }
 
 static yamop *
-gen_lui_retry(yamop *codep, yamop *ocodep, int profiled, int count_call, PredEntry *ap)
+gen_lui_retry(yamop *codep, yamop *ocodep, int profiled, int count_call, yamop *cl, PredEntry *ap)
 {
     if (profiled) {
       codep->opc = Yap_opcode(_retry_profiled);
@@ -5131,8 +5525,15 @@ gen_lui_retry(yamop *codep, yamop *ocodep, int profiled, int count_call, PredEnt
       codep->u.p.p = ap;
       codep = NEXTOP(codep,p);
     }
-    codep->opc = Yap_opcode(_retry);
-    return copy_ld(codep, ocodep, ap, ocodep->u.ld.d, FALSE);
+    if (ap->ArityOfPE >= 2 &&
+	ap->ArityOfPE <= 4) {
+      codep->opc = Yap_opcode(_retry2+(ap->ArityOfPE-2));
+      codep->u.l.l = cl;
+      return NEXTOP(codep, l);
+    } else {
+      codep->opc = Yap_opcode(_retry);
+      return copy_ld(codep, ocodep, ap, cl, FALSE);
+    }
 }
 
 static yamop *
@@ -5158,7 +5559,11 @@ gen_lui_trust(yamop *codep, yamop *ocodep, int profiled, int count_call, PredEnt
 static void
 clean_ref_to_clause(LogUpdClause *tgl, op_numbers op, int compact_mode)
 {
-  if (op == _try_clause || !compact_mode)
+  if (op == _try_clause ||
+      op == _try_clause2||
+      op == _try_clause3||
+      op == _try_clause4||
+      !compact_mode)
     return;
   LOCK(tgl->ClLock);
   tgl->ClRefCount--;
@@ -5184,6 +5589,51 @@ cp_lu_trychain(yamop *codep, yamop *ocodep, yamop *ostart, int flag, PredEntry *
 	 ocodep < ostart->u.Ill.l2) {
     op_numbers op = Yap_op_from_opcode(ocodep->opc);
     switch (op) {
+    case _try_clause2:
+    case _try_clause3:
+    case _try_clause4:
+      if (ocodep->u.l.l == FAILCODE) {
+	ocodep = NEXTOP(ocodep, l);
+	break;
+      }
+    case _retry2:
+    case _retry3:
+    case _retry4:
+      {
+	/* set up a try_clause2 */
+	LogUpdClause *tgl = ClauseCodeToLogUpdClause(ocodep->u.l.l);
+
+	if (tgl->ClFlags & ErasedMask) {
+	  clean_ref_to_clause(tgl, op, compact_mode);
+	  ocodep = NEXTOP(ocodep, l);
+	  break;
+	} else if (i == 0) {
+	  if (compact_mode &&
+	      op != _try_clause2 +(ap->ArityOfPE-2)) {
+	    tgl->ClRefCount--;
+	  }
+	  codep->opc = Yap_opcode(_try_clause2+(ap->ArityOfPE-2));
+	  codep->u.l.l = ocodep->u.l.l;
+	  codep = NEXTOP(codep,l);
+	} else if (i == ncls-1) {
+	  if (!compact_mode) {
+	    tgl->ClRefCount++;
+	  } else {
+	    Yap_cleanup_dangling_indices(NEXTOP(ocodep,l),ostart->u.Ill.l1,ostart->u.Ill.l2,(yamop *)&(ap->cs.p_code.ExpandCode));
+	  }
+	  codep = gen_lui_trust(codep, ocodep, profiled, count_reds, ap, ocodep->u.l.l, TRUE, nblk);
+	  ocodep = NULL;
+	  break;
+	} else {
+	  if (op == _try_clause2+(ap->ArityOfPE-2) || !compact_mode) {
+	    tgl->ClRefCount++;
+	  }
+	  codep = gen_lui_retry(codep, ocodep, profiled, count_reds, ocodep->u.l.l, ap);
+	}
+      }
+      i++;
+      ocodep = NEXTOP(ocodep, l);
+      break;
     case _try_clause:
       if (ocodep->u.ld.d == FAILCODE) {
 	ocodep = NEXTOP(ocodep, ld);
@@ -5204,8 +5654,15 @@ cp_lu_trychain(yamop *codep, yamop *ocodep, yamop *ostart, int flag, PredEntry *
 	      op != _try_clause) {
 	    tgl->ClRefCount--;
 	  }
-	  codep->opc = Yap_opcode(_try_clause);
-	  codep = copy_ld(codep, ocodep, ap, ocodep->u.ld.d, FALSE);
+	  if (ap->ArityOfPE >= 2 &&
+	      ap->ArityOfPE <= 4) {
+	    codep->opc = Yap_opcode(_try_clause2+(ap->ArityOfPE-2));
+	    codep->u.l.l = ocodep->u.ld.d;
+	    codep = NEXTOP(codep, l);
+	  } else {
+	    codep->opc = Yap_opcode(_try_clause);
+	    codep = copy_ld(codep, ocodep, ap, ocodep->u.ld.d, FALSE);
+	  }
 	} else if (i == ncls-1) {
 	  if (!compact_mode) {
 	    tgl->ClRefCount++;
@@ -5219,7 +5676,7 @@ cp_lu_trychain(yamop *codep, yamop *ocodep, yamop *ostart, int flag, PredEntry *
 	  if (op == _try_clause || !compact_mode) {
 	    tgl->ClRefCount++;
 	  }
-	  codep = gen_lui_retry(codep, ocodep, profiled, count_reds, ap);
+	  codep = gen_lui_retry(codep, ocodep, profiled, count_reds, ocodep->u.ld.d, ap);	
 	}
       }
       i++;
@@ -5269,11 +5726,20 @@ replace_lu_block(LogUpdIndex *blk, int flag, PredEntry *ap, yamop *code, int has
     ncls = begin->u.Ill.s;
     xcls = ncls;
   }
-  sz = sizeof(LogUpdIndex)+
-    xcls*((UInt)NEXTOP((yamop *)NULL,ld))+
-    jnvs*((UInt)NEXTOP((yamop *)NULL,xl))+
-    (UInt)NEXTOP((yamop *)NULL,Ill)+
-    (UInt)NEXTOP((yamop *)NULL,p);
+  if (ap->ArityOfPE == 2) {
+    sz = sizeof(LogUpdIndex)+
+      (xcls-1)*((UInt)NEXTOP((yamop *)NULL,l))+
+      ((UInt)NEXTOP((yamop *)NULL,ld))+
+      jnvs*((UInt)NEXTOP((yamop *)NULL,xl))+
+      (UInt)NEXTOP((yamop *)NULL,Ill)+
+      (UInt)NEXTOP((yamop *)NULL,p);
+  } else {
+    sz = sizeof(LogUpdIndex)+
+      xcls*((UInt)NEXTOP((yamop *)NULL,ld))+
+      jnvs*((UInt)NEXTOP((yamop *)NULL,xl))+
+      (UInt)NEXTOP((yamop *)NULL,Ill)+
+      (UInt)NEXTOP((yamop *)NULL,p);
+  }
   if (count_reds) sz += xcls*((UInt)NEXTOP((yamop *)NULL,p));
   if (profiled) sz += xcls*((UInt)NEXTOP((yamop *)NULL,p));
   ncl = (LogUpdIndex *)Yap_AllocCodeSpace(sz);
@@ -5333,14 +5799,25 @@ replace_lu_block(LogUpdIndex *blk, int flag, PredEntry *ap, yamop *code, int has
     int j;
 
     for (j=0; j < ncls/2; j++) {
-      codep = NEXTOP(codep, ld);
+      if (ap->ArityOfPE == 2) {
+	codep = NEXTOP(codep, l);
+      } else {
+	codep = NEXTOP(codep, ld);
+      }
       if (profiled) codep = NEXTOP(codep, p);
       if (count_reds) codep = NEXTOP(codep, p);
     }
     start->u.Ill.l1 = codep;
     i = 1;
-    codep->opc = Yap_opcode(_try_clause);
-    codep = copy_ld(codep, ocodep, ap, code, has_cut);
+    if (ap->ArityOfPE >= 2 &&
+	ap->ArityOfPE <= 4) {
+      codep->opc = Yap_opcode(_try_clause2+(ap->ArityOfPE-2));
+      codep->u.l.l = code;
+      codep = NEXTOP(codep,l);
+    } else {
+      codep->opc = Yap_opcode(_try_clause);
+      codep = copy_ld(codep, ocodep, ap, code, has_cut);
+    }
   } else if (flag == RECORDZ) {
     LogUpdClause *tgl = ClauseCodeToLogUpdClause(code);
 
@@ -5459,10 +5936,18 @@ insertz_in_lu_block(LogUpdIndex *blk, PredEntry *ap, yamop *code)
 	/* we need to rebuild the code */
 	/* first, shift the last retry down, getting rid of the trust logical pred */
 	yamop *nlast = PREVOP(last, l);
-	  
-	memmove((void *)nlast, (void *)last, (CELL)NEXTOP((yamop *)NULL,ld));
-	nlast->opc = Yap_opcode(_retry);
-	where = NEXTOP(nlast,ld);
+
+	if (ap->ArityOfPE >= 2 && 
+	    ap->ArityOfPE <= 4) {
+	  yamop *cl = last->u.ld.d;
+	  nlast->opc = Yap_opcode(_retry2+(ap->ArityOfPE-2));
+	  nlast->u.l.l = cl;
+	  where = NEXTOP(nlast,l);
+	} else {
+	  memmove((void *)nlast, (void *)last, (CELL)NEXTOP((yamop *)NULL,ld));
+	  nlast->opc = Yap_opcode(_retry);
+	  where = NEXTOP(nlast,ld);
+	}
 	if (ap->PredFlags & ProfiledPredFlag) {
 	  where->opc = Yap_opcode(_retry_profiled);
 	  where->u.p.p = ap;
@@ -5526,44 +6011,65 @@ inserta_in_lu_block(LogUpdIndex *blk, PredEntry *ap, yamop *code)
     here->u.ld.d = code;
     return blk->ClCode;
   }
+  if (here->opc == Yap_opcode(_try_clause2+(ap->ArityOfPE-2))
+      && here->u.l.l == FAILCODE) {
+    begin->u.Ill.s++;
+    here->u.l.l = code;
+    return blk->ClCode;
+  }
   start = NEXTOP(begin,Ill);
-  here = PREVOP(here, ld);
+  if (ap->ArityOfPE >= 2 &&
+      ap->ArityOfPE <= 4)
+    here = PREVOP(here, l);
+  else
+    here = PREVOP(here, ld);
   /* follow profiling and counting instructions */ 
   if (ap->PredFlags & ProfiledPredFlag) {
-    next = NEXTOP(next, p);
     here = PREVOP(here, p);
   }
   if (ap->PredFlags & CountPredFlag) {
-    next = NEXTOP(next, p);
     here = PREVOP(here, p);
   }
   if (here >= start) {
     /* we got space to put something in */
-    LogUpdClause *tgl = ClauseCodeToLogUpdClause(next->u.ld.d);
-    next->opc = Yap_opcode(_retry);
-    tgl->ClRefCount++;
-    begin->u.Ill.l1 = here;
-    begin->u.Ill.s++;
-    here->opc = Yap_opcode(_try_clause);
-    here->u.ld.s = next->u.ld.s;
-    here->u.ld.p = ap; 
-    here->u.ld.d = code;
+    if (ap->ArityOfPE >= 2 &&
+	ap->ArityOfPE <= 4) {
+      LogUpdClause *tgl = ClauseCodeToLogUpdClause(next->u.l.l);
+      next->opc = Yap_opcode(_retry2+(ap->ArityOfPE-2));
+      tgl->ClRefCount++;
+      begin->u.Ill.l1 = here;
+      begin->u.Ill.s++;
+      here->opc = Yap_opcode(_try_clause2+(ap->ArityOfPE-2));
+      here->u.l.l = code;
+      here = NEXTOP(here,l);
+    } else {
+      LogUpdClause *tgl = ClauseCodeToLogUpdClause(next->u.ld.d);
+      next->opc = Yap_opcode(_retry);
+      tgl->ClRefCount++;
+      begin->u.Ill.l1 = here;
+      begin->u.Ill.s++;
+      here->opc = Yap_opcode(_try_clause);
+      here->u.ld.s = next->u.ld.s;
+      here->u.ld.p = ap; 
+      here->u.ld.d = code;
 #ifdef YAPOR
-    /* FIX ME */
-    here->u.ld.or_arg = next->u.ld.or_arg;
+      /* FIX ME */
+      here->u.ld.or_arg = next->u.ld.or_arg;
 #endif /* YAPOR */
 #ifdef TABLING
-    here->u.ld.te = next->u.ld.te;
+      here->u.ld.te = next->u.ld.te;
 #endif /* TABLING */
-    here = NEXTOP(here,ld);
+      here = NEXTOP(here,ld);
+    }
     if (ap->PredFlags & ProfiledPredFlag) {
       here->opc = Yap_opcode(_retry_profiled);
       here->u.p.p = ap;
       here = NEXTOP(here, p);
     }
-    if (ap->PredFlags & ProfiledPredFlag) {
-      here->opc = Yap_opcode(_retry_profiled);
+    if (ap->PredFlags & CountPredFlag) {
+      here->opc = Yap_opcode(_count_retry);
       here->u.p.p = ap;
+      here = NEXTOP(here, p);
     }
     return blk->ClCode;
   } else {
@@ -5639,18 +6145,37 @@ lu_clause(yamop *ipc)
 }
 
 static StaticClause *
-static_clause(yamop *ipc)
+static_clause(yamop *ipc, PredEntry *ap)
 {
   StaticClause *c;
   CELL *p = (CELL *)ipc;
 
   if (ipc == FAILCODE)
     return NULL;
-  while ((c = ClauseCodeToStaticClause(p))->Id != FunctorDBRef ||
-	 (c->ClFlags & (LogUpdMask|IndexMask|DynamicMask|SwitchTableMask|SwitchRootMask))) {
+  if (ap->PredFlags & MegaClausePredFlag)
+    return (StaticClause *)ipc;
+  while ((c = ClauseCodeToStaticClause(p))) {
+    UInt fls = c->ClFlags & ~HasBlobsMask;
+    if (fls == StaticMask) {
+      if ((char *)c->usc.ClSource < (char *)c+c->ClSize &&
+	  valid_instructions(ipc, c->ClCode));
+	return c;
+    } else if (fls == (StaticMask|FactMask)) {
+      if (c->usc.ClPred == ap &&
+	  valid_instructions(ipc,c->ClCode))
+	return c;
+    }
     p--;
   }
-  return c;
+  return NULL;
+}
+
+static StaticClause *
+simple_static_clause(yamop *ipc)
+{
+  if (ipc == FAILCODE)
+    return NULL;
+  return ClauseCodeToStaticClause(ipc);
 }
 
 /* this code should be called when we jumped to clauses */
@@ -5665,14 +6190,15 @@ kill_unsafe_block(path_stack_entry *sp, op_numbers op, PredEntry *ap, int first,
   if (Yap_op_from_opcode(ipc->opc) == op) {
     /* the new block was the current clause */
     ClauseDef cld[2];
-    struct intermediates intrs;
 
     if (remove) {
       *sp->u.cle.entry_code = FAILCODE;
       return sp;
     }
     if (ap->PredFlags & LogUpdatePredFlag) {
+      struct intermediates intrs;
       LogUpdClause *lc = lu_clause(ipc);
+
       if (first) {
 	cld[0].Code = lc->ClCode;
 	cld[1].Code = cls[0].Code;
@@ -5680,18 +6206,13 @@ kill_unsafe_block(path_stack_entry *sp, op_numbers op, PredEntry *ap, int first,
 	cld[0].Code = cls[0].Code;
 	cld[1].Code = lc->ClCode;
       }
+      intrs.expand_block = NULL;
+      *sp->u.cle.entry_code = (yamop *)suspend_indexing(cld, cld+1, ap, &intrs);
     } else {
-      StaticClause *lc = static_clause(ipc);
-      if (first) {
-	cld[0].Code = cls[0].Code;
-	cld[1].Code = lc->ClCode;
-      } else {
-	cld[0].Code = lc->ClCode;
-	cld[1].Code = cls[0].Code;
-      }
+      /* static predicate, shouldn't do much, just suspend the code here */
+      *sp->u.cle.entry_code = (yamop *)&(ap->cs.p_code.ExpandCode);
+      return sp;
     }
-    intrs.expand_block = NULL;
-    *sp->u.cle.entry_code = (yamop *)suspend_indexing(cld, cld+1, ap, &intrs);
     return sp;
   }
   /* we didn't have protection, should kill now */
@@ -5793,6 +6314,20 @@ add_to_index(struct intermediates *cint, int first, path_stack_entry *sp, Clause
 	ipc = NEXTOP(ipc,ld);
       }
       break;
+    case _try_clause2:
+    case _try_clause3:
+    case _try_clause4:
+      /* I cannot expand a predicate that starts on a variable,
+         have to expand the index.
+      */
+      if (first) {
+	sp = expanda_block(sp, ap, cls, group1, alt, cint);
+	ipc = pop_path(&sp, cls, ap);
+      } else {
+	/* just go to next instruction */
+	ipc = NEXTOP(ipc,l);
+      }
+      break;
     case _stale_lu_index:
     case _enter_lu_pred:
       if (first) {
@@ -5805,6 +6340,12 @@ add_to_index(struct intermediates *cint, int first, path_stack_entry *sp, Clause
     case _retry:
       /* this clause had no indexing */
       ipc = NEXTOP(ipc,ld);
+      break;
+    case _retry2:
+    case _retry3:
+    case _retry4:
+      /* this clause had no indexing */
+      ipc = NEXTOP(ipc,l);
       break;
       /* instructions type l */
     case _retry_me:
@@ -6377,6 +6918,23 @@ remove_from_index(PredEntry *ap, path_stack_entry *sp, ClauseDef *cls, yamop *bg
 	ipc = NEXTOP(ipc,ld);
       }
       break;
+    case _try_clause2:
+    case _try_clause3:
+    case _try_clause4:
+    case _retry2:
+    case _retry3:
+    case _retry4:
+      /* I cannot expand a predicate that starts on a variable,
+         have to expand the index.
+      */
+      if (IN_BETWEEN(bg,ipc->u.l.l,lt)) {
+	sp = kill_clause(ipc, bg, lt, sp, ap);
+	ipc = pop_path(&sp, cls, ap);
+      } else {
+	/* just go to next instruction */
+	ipc = NEXTOP(ipc,l);
+      }
+      break;
     case _trust_logical_pred:
       ipc = NEXTOP(ipc,l);
       break;
@@ -6724,9 +7282,12 @@ Yap_RemoveClauseFromIndex(PredEntry *ap, yamop *beg) {
   int cb;
   yamop *last;
   struct intermediates cint; 
- 
+
+  if (ap->PredFlags & MegaClausePredFlag) {
+    return;
+  }
   cint.expand_block = NULL;
-  cint.CodeStart = cint.BlobsStart = cint.cpc = cint.icpc = NIL;
+  cint.CodeStart = cint.BlobsStart = cint.cpc = cint.icpc = NULL;
   if ((cb = setjmp(cint.CompilerBotch)) == 3) {
     restore_machine_regs();
     Yap_gcl(Yap_Error_Size, ap->ArityOfPE, ENV, CP);
@@ -6867,8 +7428,10 @@ to_clause(yamop *ipc, PredEntry *ap)
 {
   if (ap->PredFlags & LogUpdatePredFlag)
     return lu_clause(ipc);
+  else if (ap->PredFlags & MegaClausePredFlag)
+    return (LogUpdClause *)ipc;
   else
-    return (LogUpdClause *)static_clause(ipc);
+    return (LogUpdClause *)simple_static_clause(ipc);
 }
 
 LogUpdClause *
@@ -6901,7 +7464,7 @@ Yap_FollowIndexingCode(PredEntry *ap, yamop *ipc, Term Terms[3], yamop *ap_pc, y
       if (lu_pred)
 	return lu_clause(ipc->u.l.l);
       else
-	return (LogUpdClause *)static_clause(ipc->u.l.l);
+	return (LogUpdClause *)static_clause(ipc->u.l.l, ap);
       break;
     case _try_clause:
       if (b0 == NULL)
@@ -6911,7 +7474,18 @@ Yap_FollowIndexingCode(PredEntry *ap, yamop *ipc, Term Terms[3], yamop *ap_pc, y
       if (lu_pred)
 	return lu_clause(ipc->u.ld.d);
       else
-	return (LogUpdClause *)static_clause(ipc->u.ld.d);
+	return (LogUpdClause *)static_clause(ipc->u.ld.d, ap);
+    case _try_clause2:
+    case _try_clause3:
+    case _try_clause4:
+      if (b0 == NULL)
+	store_clause_choice_point(Terms[0], Terms[1], Terms[2], NEXTOP(ipc,l), ap, ap_pc, cp_pc);
+      else
+	update_clause_choice_point(NEXTOP(ipc,l), ap_pc);
+      if (lu_pred)
+	return lu_clause(ipc->u.l.l);
+      else
+	return (LogUpdClause *)static_clause(ipc->u.l.l, ap);
     case _try_me:
     case _try_me1:
     case _try_me2:
@@ -6932,7 +7506,15 @@ Yap_FollowIndexingCode(PredEntry *ap, yamop *ipc, Term Terms[3], yamop *ap_pc, y
       if (lu_pred)
 	return lu_clause(ipc->u.ld.d);
       else
-	return (LogUpdClause *)static_clause(ipc->u.ld.d);
+	return (LogUpdClause *)static_clause(ipc->u.ld.d, ap);
+    case _retry2:
+    case _retry3:
+    case _retry4:
+      update_clause_choice_point(NEXTOP(ipc,l),ap_pc);
+      if (lu_pred)
+	return lu_clause(ipc->u.l.l);
+      else
+	return (LogUpdClause *)static_clause(ipc->u.l.l, ap);
     case _retry_me:
     case _retry_me1:
     case _retry_me2:
@@ -6954,7 +7536,7 @@ Yap_FollowIndexingCode(PredEntry *ap, yamop *ipc, Term Terms[3], yamop *ap_pc, y
       if (lu_pred)
 	return lu_clause(ipc->u.ld.d);
       else
-	return (LogUpdClause *)static_clause(ipc->u.ld.d);
+	return (LogUpdClause *)static_clause(ipc->u.ld.d, ap);
     case _profiled_trust_me:
     case _trust_me:
     case _count_trust_me:
@@ -7274,7 +7856,7 @@ Yap_FollowIndexingCode(PredEntry *ap, yamop *ipc, Term Terms[3], yamop *ap_pc, y
       if (lu_pred)
 	return lu_clause(ipc);
       else
-	return (LogUpdClause *)static_clause(ipc);
+	return (LogUpdClause *)static_clause(ipc, ap);
     }
   }
   if (b0) {
@@ -7356,6 +7938,34 @@ Yap_NthClause(PredEntry *ap, Int ncls)
 	ncls--;
       }
       ipc = NEXTOP(ipc,ld);
+      break;
+    case _try_clause2:
+    case _try_clause3:
+    case _try_clause4:
+    case _retry2:
+    case _retry3:
+    case _retry4:
+      if (ncls == 1)
+	return to_clause(ipc->u.l.l, ap);
+      else if (alt == NULL) {
+	ncls -= 2;
+	/* get there in a fell swoop */
+	if (ap->PredFlags & ProfiledPredFlag) {
+	  if (ap->PredFlags & CountPredFlag) {
+	    ipc = (yamop *)((char *)ipc+ncls*(UInt)NEXTOP(NEXTOP(NEXTOP((yamop *)NULL,l),p),p));
+	  } else {
+	    ipc = (yamop *)((char *)ipc+ncls*(UInt)NEXTOP(NEXTOP((yamop *)NULL,l),p));
+	  }
+	} else if (ap->PredFlags & CountPredFlag) {
+	  ipc = (yamop *)((char *)ipc+ncls*(UInt)NEXTOP(NEXTOP((yamop *)NULL,l),p));
+	} else {
+	  ipc = (yamop *)((char *)ipc+ncls*(UInt)NEXTOP((yamop *)NULL,l));
+	}
+	ncls = 1;
+      } else {
+	ncls--;
+      }
+      ipc = NEXTOP(ipc,l);
       break;
     case _trust:
       if (ncls == 1)

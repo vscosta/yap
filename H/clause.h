@@ -109,7 +109,6 @@ typedef struct static_index {
 
 typedef struct static_clause {
   /* A set of flags describing info on the clause */
-  Functor         Id;
   CELL            ClFlags;
   UInt		  ClSize;
   union {
@@ -120,6 +119,16 @@ typedef struct static_clause {
   /* The instructions, at least one of the form sl */
   yamop            ClCode[MIN_ARRAY];
 } StaticClause;
+
+typedef struct static_mega_clause {
+  /* A set of flags describing info on the clause */
+  CELL            ClFlags;
+  UInt		  ClSize;
+  PredEntry      *ClPred;
+  UInt            ClItemSize;
+  /* The instructions, at least one of the form sl */
+  yamop            ClCode[MIN_ARRAY];
+} MegaClause;
 
 typedef struct dead_clause {
   CELL            ClFlags;
@@ -137,12 +146,14 @@ typedef union clause_obj {
   struct logic_upd_index lui;
   struct dynamic_clause ic;
   struct static_clause sc;
+  struct static_mega_clause mc;
   struct static_index si;
 } ClauseUnion;
 
 #define ClauseCodeToDynamicClause(p)    ((DynamicClause *)((CODEADDR)(p)-(CELL)(((DynamicClause *)NULL)->ClCode)))
 #define ClauseCodeToStaticClause(p)    ((StaticClause *)((CODEADDR)(p)-(CELL)(((StaticClause *)NULL)->ClCode)))
 #define ClauseCodeToLogUpdClause(p)    ((LogUpdClause *)((CODEADDR)(p)-(CELL)(((LogUpdClause *)NULL)->ClCode)))
+#define ClauseCodeToMegaClause(p)    ((MegaClause *)((CODEADDR)(p)-(CELL)(((MegaClause *)NULL)->ClCode)))
 #define ClauseCodeToLogUpdIndex(p)    ((LogUpdIndex *)((CODEADDR)(p)-(CELL)(((LogUpdIndex *)NULL)->ClCode)))
 #define ClauseCodeToStaticIndex(p)    ((StaticIndex *)((CODEADDR)(p)-(CELL)(((StaticIndex *)NULL)->ClCode)))
 
@@ -215,6 +226,8 @@ Yap_op_from_opcode(OPCODE opc)
   int j = rtable_hash_op(opc,OP_HASH_SIZE-1);
 
   while (OP_RTABLE[j].opc != opc) {
+    if (!OP_RTABLE[j].opc)
+      return _Nstop;
     if (j == OP_HASH_SIZE-1) {
       j = 0;
     } else {
@@ -249,4 +262,39 @@ same_lu_block(yamop **paddr, yamop *p)
   }
 }
 #endif
+
+static inline Term 
+Yap_MkStaticRefTerm(StaticClause *cp)
+{
+  Term t[1];
+  t[0] = MkIntegerTerm((Int)cp);
+  return Yap_MkApplTerm(FunctorStaticClause,1,t);
+}
+
+static inline StaticClause *
+Yap_ClauseFromTerm(Term t)
+{
+  return (StaticClause *)IntegerOfTerm(ArgOfTerm(1,t));
+}
+
+static inline Term 
+Yap_MkMegaRefTerm(PredEntry *ap,yamop *ipc)
+{
+  Term t[2];
+  t[0] = MkIntegerTerm((Int)ap);
+  t[0] = MkIntegerTerm((Int)ipc);
+  return Yap_MkApplTerm(FunctorMegaClause,2,t);
+}
+
+static inline yamop * 
+Yap_MegaClauseFromTerm(Term t)
+{
+  return (yamop *)IntegerOfTerm(ArgOfTerm(1,t));
+}
+
+static inline PredEntry * 
+Yap_MegaClausePredicateFromTerm(Term t)
+{
+  return (PredEntry *)IntegerOfTerm(ArgOfTerm(2,t));
+}
 

@@ -31,7 +31,7 @@ static char SccsId[]="%W% %G%";
 #ifdef COROUTINING
 
 STATIC_PROTO(Term  InitVarTime, (void));
-STATIC_PROTO(Int   PutAtt, (attvar_record *,Int,Term));
+STATIC_PROTO(void   PutAtt, (attvar_record *,Int,Term));
 STATIC_PROTO(Int   BuildNewAttVar, (Term,Int,Term));
 
 static CELL *
@@ -240,7 +240,7 @@ InitVarTime(void) {
 #endif
 }
 
-static Int
+static void
 PutAtt(attvar_record *attv, Int i, Term tatt) {
   Int pos = i*2;
 #if FROZEN_STACKS
@@ -276,7 +276,6 @@ PutAtt(attvar_record *attv, Int i, Term tatt) {
     MaBind(attv->Atts+pos, tnewt);    
   }
 #endif
-  return(TRUE);
 }
 
 static Int
@@ -288,7 +287,8 @@ UpdateAtt(attvar_record *attv, Int i, Term tatt) {
   } else {
     tatt = MkPairTerm(tatt, TermNil);
   }    
-  return PutAtt(attv, i, tatt);
+  PutAtt(attv, i, tatt);
+  return TRUE;
 }
 
 static Int
@@ -344,17 +344,7 @@ BuildNewAttVar(Term t, Int i, Term tatt)
 
   attvar_record *attv = (attvar_record *)Yap_ReadTimedVar(DelayedVars);
   if (H0 - (CELL *)attv < 1024+(2*NUM_OF_ATTS)) {
-    H[0] = t;
-    H[1] = tatt;
-    H += 2;
-    if (!Yap_growglobal(NULL)) {
-      Yap_Error(SYSTEM_ERROR, t, Yap_ErrorMessage);
-      return FALSE;
-    }
-    H -= 2;
-    t = H[0];
-    tatt = H[1];
-    attv = (attvar_record *)Yap_ReadTimedVar(DelayedVars);
+    return FALSE;
   }
   time = InitVarTime();
   RESET_VARIABLE(&(attv->Value));
@@ -380,9 +370,10 @@ BuildNewAttVar(Term t, Int i, Term tatt)
       j++;
       tatt = TailOfTerm(tatt);
     }
-    return(TRUE);
+    return TRUE;
   } else {
-    return(PutAtt(attv, i, tatt));
+    PutAtt(attv, i, tatt);
+    return TRUE;
   }
 }
 
@@ -476,9 +467,17 @@ p_put_att(void) {
 	Yap_Error(TYPE_ERROR_VARIABLE,inp,"put_attributes/2");
 	return(FALSE);
       }
-      return(PutAtt(attv, IntegerOfTerm(Deref(ARG2)), Deref(ARG3)));
+      PutAtt(attv, IntegerOfTerm(Deref(ARG2)), Deref(ARG3));
+      return TRUE;
     }
-    return(BuildNewAttVar(inp, IntegerOfTerm(Deref(ARG2)), Deref(ARG3)));
+    while (!BuildNewAttVar(inp, IntegerOfTerm(Deref(ARG2)), Deref(ARG3))) {
+      if (!Yap_growglobal(NULL)) {
+	Yap_Error(OUT_OF_ATTVARS_ERROR, ARG1, Yap_ErrorMessage);
+	return FALSE;
+      }
+      inp = Deref(ARG1);
+    }
+    return TRUE;
   } else {
     Yap_Error(TYPE_ERROR_VARIABLE,inp,"put_attributes/2");
     return(FALSE);
@@ -501,7 +500,14 @@ p_update_att(void) {
       }
       return(UpdateAtt(attv, IntegerOfTerm(Deref(ARG2)), Deref(ARG3)));
     }
-    return(BuildNewAttVar(inp, IntegerOfTerm(Deref(ARG2)), MkPairTerm(Deref(ARG3),TermNil)));
+    while (!BuildNewAttVar(inp, IntegerOfTerm(Deref(ARG2)), MkPairTerm(Deref(ARG3),TermNil))) {
+      if (!Yap_growglobal(NULL)) {
+	Yap_Error(OUT_OF_ATTVARS_ERROR, ARG1, Yap_ErrorMessage);
+	return FALSE;
+      }
+      inp = Deref(ARG1);
+    }
+    return TRUE;
   } else {
     Yap_Error(TYPE_ERROR_VARIABLE,inp,"put_attributes/2");
     return(FALSE);

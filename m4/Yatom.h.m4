@@ -162,7 +162,8 @@ Inline(IsValProperty, PropFlags, int, flags, (flags == ValProperty) )
 	    CodeOfPred holds the address of the	correspondent C-function.
 */
 typedef enum {
- ThreadLocalPredFlag=0x40000000L, /* local to a thread		*/
+  MegaClausePredFlag=0x80000000L, /* predicate is implemented as a mega-clause		*/
+  ThreadLocalPredFlag=0x40000000L, /* local to a thread		*/
   MultiFileFlag =    0x20000000L, /* is multi-file		*/
   UserCPredFlag =    0x10000000L, /* CPred defined by the user	*/
   LogUpdatePredFlag= 0x08000000L, /* dynamic predicate with log. upd. sem.*/
@@ -258,6 +259,7 @@ Inline(IsPredProperty, PropFlags, int, flags, (flags == PEProp) )
 /* Flags for code or dbase entry */
 /* There are several flags for code and data base entries */
 typedef enum {
+  MegaMask = 0x200000,     /* informs this is a mega clause */
   FactMask = 0x100000,     /* informs this is a fact */
   SwitchRootMask= 0x80000, /* informs this is the root for the index tree */
   SwitchTableMask=0x40000, /* informs this is a switch table */

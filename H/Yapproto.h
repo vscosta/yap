@@ -10,7 +10,7 @@
 * File:		Yap.proto						 *
 * mods:									 *
 * comments:	Function declarations for YAP				 *
-* version:      $Id: Yapproto.h,v 1.55 2004-08-16 21:02:04 vsc Exp $	 *
+* version:      $Id: Yapproto.h,v 1.56 2004-09-27 20:45:04 vsc Exp $	 *
 *************************************************************************/
 
 /* prototype file for Yap */
@@ -108,6 +108,7 @@ Int    STD_PROTO(YAP_Execute,(struct pred_entry *, CPredicate));
 Term	STD_PROTO(Yap_all_calls,(void));
 Atom	STD_PROTO(Yap_ConsultingFile,(void));
 Int	STD_PROTO(Yap_PredForCode,(yamop *, Atom *, UInt *, Term *));
+struct pred_entry *STD_PROTO(Yap_PredForChoicePt,(choiceptr));
 void	STD_PROTO(Yap_InitCdMgr,(void));
 #if     EMACS
 int     STD_PROTO(where_new_clause, (Prop, int));
@@ -115,6 +116,8 @@ int     STD_PROTO(where_new_clause, (Prop, int));
 void	STD_PROTO(Yap_init_consult,(int, char *));
 void	STD_PROTO(Yap_end_consult,(void));
 void	STD_PROTO(Yap_Abolish,(struct pred_entry *));
+void	STD_PROTO(Yap_BuildMegaClause,(struct pred_entry *));
+void	STD_PROTO(Yap_EraseMegaClause,(yamop *,struct pred_entry *));
 
 
 /* cmppreds.c */

@@ -11,8 +11,11 @@
 * File:		YapOpcodes.h						 *
 * comments:	Central Table with all YAP opcodes                       *
 *									 *
-* Last rev:     $Date: 2004-03-31 01:03:10 $							 *
+* Last rev:     $Date: 2004-09-27 20:45:04 $							 *
 * $Log: not supported by cvs2svn $
+* Revision 1.23  2004/03/31 01:03:10  vsc
+* support expand group of clauses
+*
 * Revision 1.22  2004/03/19 11:35:42  vsc
 * trim_trail for default machine
 * be more aggressive about try-retry-trust chains.
@@ -104,6 +107,11 @@
     OPCODE(get_x_val               ,xx),		
     OPCODE(get_y_val               ,yx),		
     OPCODE(get_atom                ,xc),		
+    OPCODE(get_2atoms              ,cc),		
+    OPCODE(get_3atoms              ,ccc),		
+    OPCODE(get_4atoms              ,cccc),		
+    OPCODE(get_5atoms              ,ccccc),		
+    OPCODE(get_6atoms              ,cccccc),		
     OPCODE(get_float               ,xc),		
     OPCODE(get_longint             ,xc),		
     OPCODE(get_bigint              ,xc),		
@@ -156,7 +164,13 @@
     OPCODE(cut_t                   ,e),		
     OPCODE(cut_e                   ,sla),	
     OPCODE(try_clause              ,ld),		
+    OPCODE(try_clause2             ,l),		
+    OPCODE(try_clause3             ,l),		
+    OPCODE(try_clause4             ,l),		
     OPCODE(retry                   ,ld),		
+    OPCODE(retry2                  ,l),		
+    OPCODE(retry3                  ,l),		
+    OPCODE(retry4                  ,l),		
     OPCODE(trust                   ,ld),		
     OPCODE(try_in                  ,l),
     OPCODE(jump_if_var             ,l),	

@@ -187,6 +187,11 @@ p_show_op_counters()
   print_instruction(_get_x_val);
   print_instruction(_get_y_val);
   print_instruction(_get_atom);
+  print_instruction(_get_2atoms);
+  print_instruction(_get_3atoms);
+  print_instruction(_get_4atoms);
+  print_instruction(_get_5atoms);
+  print_instruction(_get_6atoms);
   print_instruction(_get_list);
   print_instruction(_get_struct);
   fprintf(Yap_stderr, "\n   Optimised Get Instructions\n");
@@ -342,7 +347,12 @@ p_show_ops_by_group(void)
   c_get.nyval =
     Yap_opcount[_get_y_val];
   c_get.ncons =
-    Yap_opcount[_get_atom];
+    Yap_opcount[_get_atom]+
+    Yap_opcount[_get_2atoms]+
+    Yap_opcount[_get_3atoms]+
+    Yap_opcount[_get_4atoms]+
+    Yap_opcount[_get_5atoms]+
+    Yap_opcount[_get_6atoms];
   c_get.nlist =
     Yap_opcount[_get_list] +
     Yap_opcount[_glist_valx] +

@@ -1684,65 +1684,14 @@ mark_choicepoints(register choiceptr gc_B, tr_fr_ptr saved_TR, int very_verbose)
 	opnum = Yap_op_from_opcode(op);
       }
     if (very_verbose) {
-      switch (opnum) {
-      case _retry_c:
-      case _or_else:
-      case _or_last:
-      case _Nstop:
-      case _retry_userc:
-      case _trust_logical_pred:
-      case _retry_profiled:
-      case _count_retry:
-	{
-	  Atom at;
-	  UInt arity;
-	  Term mod;
-	  if (Yap_PredForCode(gc_B->cp_ap, &at, &arity, &mod)) {
-	    if (arity) 
-	      fprintf(Yap_stderr,"%%       %s/%ld marked %ld (%s)\n", RepAtom(at)->StrOfAE, (long int)arity, total_marked, op_names[opnum]);
-	    else
-	      fprintf(Yap_stderr,"%%       %s marked %ld (%s)\n", RepAtom(at)->StrOfAE, total_marked, op_names[opnum]);
-	  } else
-	    fprintf(Yap_stderr,"%%       marked %ld (%s)\n", total_marked, op_names[opnum]);
-	}
-	break;
-#ifdef TABLING
-      case _table_completion:
-      case _table_answer_resolution:
-	{
-	  PredEntry *pe = ENV_ToP(gc_B->cp_cp);
-	  op_numbers caller_op = Yap_op_from_opcode(ENV_ToOp(gc_B->cp_cp));
-	  /* first condition  checks if this was a meta-call */
-	  if ((caller_op != _call  && caller_op != _fcall) || pe == NULL) {
-	    fprintf(Yap_stderr,"%%       marked %ld (%s)\n", total_marked, op_names[opnum]);
-	  } else
-	    fprintf(Yap_stderr,"%%       %s/%d marked %ld (%s)\n", RepAtom(NameOfFunctor(pe->FunctorOfPred))->StrOfAE, pe->ArityOfPE, total_marked, op_names[opnum]);
-	}
-	break;
-      case _trie_retry_var:
-      case _trie_trust_var:
-      case _trie_retry_val:
-      case _trie_trust_val:
-      case _trie_retry_atom:
-      case _trie_trust_atom:
-      case _trie_retry_list:
-      case _trie_trust_list:
-      case _trie_retry_struct:
-      case _trie_trust_struct:
+      PredEntry *pe = Yap_PredForChoicePt(gc_B);
+
+      if (pe == NULL) {
 	fprintf(Yap_stderr,"%%       marked %ld (%s)\n", total_marked, op_names[opnum]);
-	break;
-#endif
-      default:
-	{
-	  PredEntry *pe = (PredEntry *)gc_B->cp_ap->u.ld.p;
-	  if (pe == NULL) {
-	    fprintf(Yap_stderr,"%%       marked %ld (%s)\n", total_marked, op_names[opnum]);
-	  } else
-	    if (pe->ArityOfPE)
-	      fprintf(Yap_stderr,"%%       %s/%d marked %ld (%s)\n", RepAtom(NameOfFunctor(pe->FunctorOfPred))->StrOfAE, pe->ArityOfPE, total_marked, op_names[opnum]);
-	    else
-	      fprintf(Yap_stderr,"%%       %s marked %ld (%s)\n", RepAtom((Atom)(pe->FunctorOfPred))->StrOfAE, total_marked, op_names[opnum]);
-	}
+      } else if (pe->ArityOfPE) {
+	  fprintf(Yap_stderr,"%%       %s/%d marked %ld (%s)\n", RepAtom(NameOfFunctor(pe->FunctorOfPred))->StrOfAE, pe->ArityOfPE, total_marked, op_names[opnum]);
+      } else {
+	  fprintf(Yap_stderr,"%%       %s marked %ld (%s)\n", RepAtom((Atom)(pe->FunctorOfPred))->StrOfAE, total_marked, op_names[opnum]);
       }
     }
     {
@@ -1938,6 +1887,15 @@ mark_choicepoints(register choiceptr gc_B, tr_fr_ptr saved_TR, int very_verbose)
       case _count_retry_and_mark:
       case _retry_and_mark:
 	ClauseCodeToDynamicClause(gc_B->cp_ap)->ClFlags |= GcFoundMask;
+      case _retry2:
+	nargs = 2;
+	break;
+      case _retry3:
+	nargs = 3;
+	break;
+      case _retry4:
+	nargs = 4;
+	break;
 #ifdef DEBUG
       case _retry_me:
       case _trust_me:
@@ -2412,6 +2370,29 @@ sweep_slots(CELL *ptr)
   }
 }
 
+static void
+sweep_b(choiceptr gc_B, UInt arity)
+{
+  register CELL_PTR saved_reg;
+
+  sweep_environments(gc_B->cp_env,
+		     EnvSize((CELL_PTR) (gc_B->cp_cp)),
+		     EnvBMap((CELL_PTR) (gc_B->cp_cp)));
+
+  /* for each saved register */
+  for (saved_reg = &gc_B->cp_a1;
+       saved_reg < &gc_B->cp_a1 + arity;
+       saved_reg++) {
+    CELL cp_cell = *saved_reg;
+    if (MARKED_PTR(saved_reg)) {
+      UNMARK(saved_reg);
+      if (HEAP_PTR(cp_cell)) {
+	into_relocation_chain(saved_reg, GET_NEXT(cp_cell));
+      }
+    }
+  }
+}
+
 
 /*
  * insert cells of each choicepoint & its chain of environments which point
@@ -2648,6 +2629,15 @@ sweep_choicepoints(choiceptr gc_B)
 	}
 	break;
 #endif
+    case _retry2:
+      sweep_b(gc_B, 2);
+      break;
+    case _retry3:
+      sweep_b(gc_B, 3);
+      break;
+    case _retry4:
+      sweep_b(gc_B, 4);
+      break;
     case _retry_c:
     case _retry_userc:
       {
@@ -2668,26 +2658,7 @@ sweep_choicepoints(choiceptr gc_B)
       }
       /* continue to clean environments and arguments */
     default:
-      {
-	register CELL_PTR saved_reg;
-
-	sweep_environments(gc_B->cp_env,
-			   EnvSize((CELL_PTR) (gc_B->cp_cp)),
-			   EnvBMap((CELL_PTR) (gc_B->cp_cp)));
-
-	/* for each saved register */
-	for (saved_reg = &gc_B->cp_a1;
-	     saved_reg < &gc_B->cp_a1 + rtp->u.ld.s;
-	     saved_reg++) {
-	  CELL cp_cell = *saved_reg;
-	  if (MARKED_PTR(saved_reg)) {
-	    UNMARK(saved_reg);
-	    if (HEAP_PTR(cp_cell)) {
-	      into_relocation_chain(saved_reg, GET_NEXT(cp_cell));
-	    }
-	  }
-	}
-      }
+      sweep_b(gc_B,rtp->u.ld.s);
     }
 
     /* link to prev choicepoint */

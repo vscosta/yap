@@ -57,7 +57,7 @@ typedef	struct FREEB {
 
 #define MinBlockSize	(sizeof(BlockHeader)+sizeof(YAP_SEG_SIZE))
 #define MaxBlockSize	0xffffff
-#define	InUseFlag	0x1000000
+#define	InUseFlag	0x80000000
 
 /* the following defines are machine dependant and are used to enforce
    the correct alignment for allocated blocks							*/

@@ -10,7 +10,7 @@
 * File:		Heap.h         						 *
 * mods:									 *
 * comments:	Heap Init Structure					 *
-* version:      $Id: Heap.h,v 1.65 2004-09-03 03:11:09 vsc Exp $	 *
+* version:      $Id: Heap.h,v 1.66 2004-09-27 20:45:03 vsc Exp $	 *
 *************************************************************************/
 
 /* information that can be stored in Code Space */
@@ -112,6 +112,10 @@ typedef struct various_codes {
   yamop tableanswerresolutioncode;
 #endif /* TABLING */
   OPCODE expand_op_code;
+  yamop *expand_clauses_first, *expand_clauses_last;
+#if defined(YAPOR) || defined(THREADS)
+  lockvar expand_clauses_list_lock;
+#endif
   yamop comma_code[5];
   yamop failcode[1];
   OPCODE failcode_1;
@@ -317,6 +321,7 @@ typedef struct various_codes {
     functor_g_var,
     functor_last_execute_within,
     functor_list,
+    functor_mega_clause,
     functor_module,
 #ifdef MULTI_ASSIGNMENT_VARIABLES
     functor_mutable,
@@ -325,6 +330,7 @@ typedef struct various_codes {
     functor_or,
     functor_portray,
     functor_query,
+    functor_static_clause,
     functor_stream,
     functor_stream_pos,
     functor_stream_eOS,
@@ -426,6 +432,9 @@ struct various_codes *heap_regs;
 #define  ANSWER_RESOLUTION        ((yamop *)&(heap_regs->tableanswerresolutioncode ))
 #endif /* TABLING */
 #define  EXPAND_OP_CODE           heap_regs->expand_op_code
+#define  ExpandClausesFirst       heap_regs->expand_clauses_first
+#define  ExpandClausesLast        heap_regs->expand_clauses_last
+#define  ExpandClausesListLock    heap_regs->expand_clauses_list_lock
 #define  COMMA_CODE               heap_regs->comma_code
 #define  FAILCODE                 heap_regs->failcode
 #define  TRUSTFAILCODE            heap_regs->trustfailcode
@@ -569,6 +578,7 @@ struct various_codes *heap_regs;
 #define  FunctorGVar              heap_regs->functor_g_var
 #define  FunctorLastExecuteWithin     heap_regs->functor_last_execute_within
 #define  FunctorList              heap_regs->functor_list
+#define  FunctorMegaClause        heap_regs->functor_mega_clause
 #define  FunctorModule            heap_regs->functor_module
 #ifdef MULTI_ASSIGNMENT_VARIABLES
 #define  FunctorMutable           heap_regs->functor_mutable
@@ -577,6 +587,7 @@ struct various_codes *heap_regs;
 #define  FunctorOr                heap_regs->functor_or
 #define  FunctorPortray           heap_regs->functor_portray
 #define  FunctorQuery             heap_regs->functor_query
+#define  FunctorStaticClause      heap_regs->functor_static_clause
 #define  FunctorStream            heap_regs->functor_stream
 #define  FunctorStreamPos         heap_regs->functor_stream_pos
 #define  FunctorStreamEOS         heap_regs->functor_stream_eOS

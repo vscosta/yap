@@ -11,8 +11,12 @@
 * File:		amasm.c							 *
 * comments:	abstract machine assembler				 *
 *									 *
-* Last rev:     $Date: 2004-08-20 16:16:23 $							 *
+* Last rev:     $Date: 2004-09-27 20:45:02 $							 *
 * $Log: not supported by cvs2svn $
+* Revision 1.62  2004/08/20 16:16:23  vsc
+* growheap was not checking some compiler instructions
+* source was getting confused in reconsult
+*
 * Revision 1.61  2004/04/29 03:45:50  vsc
 * fix garbage collection in execute_tail
 *
@@ -711,15 +715,93 @@ a_rf(op_numbers opcode, yamop *code_p, int pass_no, struct PSEUDO *cpc)
   return code_p;
 }
 
-inline static yamop *
-a_rc(op_numbers opcode, yamop *code_p, int pass_no, struct PSEUDO *cpc)
+static yamop *
+a_rc(op_numbers opcode, yamop *code_p, int pass_no, struct intermediates *cip)
 {
-  if (pass_no) {
-    code_p->opc = emit_op(opcode);
-    code_p->u.xc.x = emit_x(cpc->rnd2);
-    code_p->u.xc.c = emit_c(cpc->rnd1);
+  if (cip->cpc->rnd2 == 1 &&
+      cip->cpc->nextInst->rnd2 == 2 &&
+      (cip->cpc->nextInst->op == get_atom_op ||
+       cip->cpc->nextInst->op == get_num_op)) {
+    struct PSEUDO *next;
+
+    next = cip->cpc->nextInst;
+    if (next->nextInst->rnd2 == 3 &&
+	(next->nextInst->op == get_atom_op ||
+	 next->nextInst->op == get_num_op)) {
+      struct PSEUDO *snext = next->nextInst;
+
+      if (snext->nextInst->rnd2 == 4 &&
+	  (snext->nextInst->op == get_atom_op ||
+	   snext->nextInst->op == get_num_op)) {
+	struct PSEUDO *s2next = snext->nextInst;
+	if (s2next->nextInst->rnd2 == 5 &&
+	    (s2next->nextInst->op == get_atom_op ||
+	     s2next->nextInst->op == get_num_op)) {
+	  struct PSEUDO *s3next = s2next->nextInst;
+	  if (s3next->nextInst->rnd2 == 6 &&
+	      (s3next->nextInst->op == get_atom_op ||
+	       s3next->nextInst->op == get_num_op)) {
+	    if (pass_no) {
+	      code_p->opc = emit_op(_get_6atoms);
+	      code_p->u.cccccc.c1 = emit_c(cip->cpc->rnd1);
+	      code_p->u.cccccc.c2 = emit_c(next->rnd1);
+	      code_p->u.cccccc.c3 = emit_c(snext->rnd1);
+	      code_p->u.cccccc.c4 = emit_c(s2next->rnd1);
+	      code_p->u.cccccc.c5 = emit_c(s3next->rnd1);
+	      code_p->u.cccccc.c6 = emit_c(s3next->nextInst->rnd1);
+	    }
+	    cip->cpc = s3next->nextInst;
+	    GONEXT(cccccc);
+	  } else {
+	    if (pass_no) {
+	      code_p->opc = emit_op(_get_5atoms);
+	      code_p->u.ccccc.c1 = emit_c(cip->cpc->rnd1);
+	      code_p->u.ccccc.c2 = emit_c(next->rnd1);
+	      code_p->u.ccccc.c3 = emit_c(snext->rnd1);
+	      code_p->u.ccccc.c4 = emit_c(s2next->rnd1);
+	      code_p->u.ccccc.c5 = emit_c(s3next->rnd1);
+	    }
+	    cip->cpc = s3next;
+	    GONEXT(ccccc);
+	  }
+	} else {
+	  if (pass_no) {
+	    code_p->opc = emit_op(_get_4atoms);
+	    code_p->u.cccc.c1 = emit_c(cip->cpc->rnd1);
+	    code_p->u.cccc.c2 = emit_c(next->rnd1);
+	    code_p->u.cccc.c3 = emit_c(snext->rnd1);
+	    code_p->u.cccc.c4 = emit_c(s2next->rnd1);
+	  }
+	  cip->cpc = s2next;
+	  GONEXT(cccc);
+	}
+      } else {
+	if (pass_no) {
+	  code_p->opc = emit_op(_get_3atoms);
+	  code_p->u.ccc.c1 = emit_c(cip->cpc->rnd1);
+	  code_p->u.ccc.c2 = emit_c(next->rnd1);
+	  code_p->u.ccc.c3 = emit_c(snext->rnd1);
+	}      
+	cip->cpc = snext;
+	GONEXT(ccc);
+      }
+    } else {
+      if (pass_no) {
+	code_p->opc = emit_op(_get_2atoms);
+	code_p->u.cc.c1 = emit_c(cip->cpc->rnd1);
+	code_p->u.cc.c2 = emit_c(next->rnd1);
+      }      
+      cip->cpc = next;
+      GONEXT(cc);
+    }
+  } else {
+    if (pass_no) {
+      code_p->opc = emit_op(opcode);
+      code_p->u.xc.x = emit_x(cip->cpc->rnd2);
+      code_p->u.xc.c = emit_c(cip->cpc->rnd1);
+    }
+    GONEXT(xc);
   }
-  GONEXT(xc);
   return code_p;
 }
 
@@ -1288,6 +1370,56 @@ a_try(op_numbers opcode, CELL lab, CELL opr, clause_info *clinfo, int nofalts, i
 a_try(op_numbers opcode, CELL lab, CELL opr, clause_info *clinfo, yamop *code_p, int pass_no)
 #endif	/* YAPOR */
 {
+  switch (opr) {
+  case 2:
+    if (opcode == _try_clause) {
+      if (pass_no) {
+	code_p->opc = emit_op(_try_clause2);
+	code_p->u.l.l = emit_a(lab);
+      }
+      GONEXT(l);
+      return code_p;
+    } else if (opcode == _retry) {
+      if (pass_no) {
+	code_p->opc = emit_op(_retry2);
+	code_p->u.l.l = emit_a(lab);
+      }
+      GONEXT(l);
+      return code_p;
+    }
+  case 3:
+    if (opcode == _try_clause) {
+      if (pass_no) {
+	code_p->opc = emit_op(_try_clause3);
+	code_p->u.l.l = emit_a(lab);
+      }
+      GONEXT(l);
+      return code_p;
+    } else if (opcode == _retry) {
+      if (pass_no) {
+	code_p->opc = emit_op(_retry3);
+	code_p->u.l.l = emit_a(lab);
+      }
+      GONEXT(l);
+      return code_p;
+    }
+  case 4:
+    if (opcode == _try_clause) {
+      if (pass_no) {
+	code_p->opc = emit_op(_try_clause4);
+	code_p->u.l.l = emit_a(lab);
+      }
+      GONEXT(l);
+      return code_p;
+    } else if (opcode == _retry) {
+      if (pass_no) {
+	code_p->opc = emit_op(_retry4);
+	code_p->u.l.l = emit_a(lab);
+      }
+      GONEXT(l);
+      return code_p;
+    }
+  }
   if (pass_no) {
     code_p->opc = emit_op(opcode);
     code_p->u.ld.d = emit_a(lab);
@@ -2172,7 +2304,6 @@ do_pass(int pass_no, yamop **entry_codep, int assembling, int *clause_has_blobsp
     } else {
       /* static clause */
       if (pass_no) {
-	cl_u->sc.Id = FunctorDBRef;
 	cl_u->sc.ClFlags = StaticMask;
 	cl_u->sc.ClNext = NULL;
 	cl_u->sc.ClSize = size;
@@ -2308,7 +2439,7 @@ do_pass(int pass_no, yamop **entry_codep, int assembling, int *clause_has_blobsp
       break;
     case get_num_op:
     case get_atom_op:
-      code_p = a_rc(_get_atom, code_p, pass_no, cip->cpc);
+      code_p = a_rc(_get_atom, code_p, pass_no, cip);
       break;
     case get_float_op:
       code_p = a_rb(_get_float, clause_has_blobsp, code_p, pass_no, cip);
@@ -2321,7 +2452,7 @@ do_pass(int pass_no, yamop **entry_codep, int assembling, int *clause_has_blobsp
       break;
     case put_num_op:
     case put_atom_op:
-      code_p = a_rc(_put_atom, code_p, pass_no, cip->cpc);
+      code_p = a_rc(_put_atom, code_p, pass_no, cip);
       break;
     case put_float_op:
     case put_longint_op:
@@ -2805,8 +2936,10 @@ Yap_assemble(int mode, Term t, PredEntry *ap, int is_fact, struct intermediates 
   cip->label_offset = (int *)cip->freep;
   cip->code_addr = NULL;
   code_p = do_pass(0, &entry_code, mode, &clause_has_blobs, cip, size);
-  size =
-    (CELL)NEXTOP(NEXTOP(NEXTOP((yamop *)(((DynamicClause *)NULL)->ClCode),ld),sla),e);
+  if (ap->PredFlags & DynamicPredFlag) {
+    size =
+      (CELL)NEXTOP(NEXTOP(NEXTOP((yamop *)(((DynamicClause *)NULL)->ClCode),ld),sla),e);
+  }
   if ((CELL)code_p > size)
     size = (CELL)code_p;
   if (mode == ASSEMBLING_CLAUSE && 

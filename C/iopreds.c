@@ -2477,16 +2477,13 @@ Yap_CloseStreams (int loud)
       if (loud)
 	fprintf (Yap_stderr, "%% YAP Error: while closing stream: %s\n", RepAtom (Stream[sno].u.file.name)->StrOfAE);
     }
-    if (Yap_c_input_stream == sno)
-      {
-	Yap_c_input_stream = StdInStream;
-      }
-    else if (Yap_c_output_stream == sno)
-      {
-	Yap_c_output_stream = StdOutStream;
-      }
+    if (Yap_c_input_stream == sno) {
+      Yap_c_input_stream = StdInStream;
+    } else if (Yap_c_output_stream == sno) {
+      Yap_c_output_stream = StdOutStream;
+    }
+    Stream[sno].status = Free_Stream_f;
   }
-  Stream[sno].status = Free_Stream_f;
 }
 
 
@@ -4804,7 +4801,8 @@ Yap_InitIOPreds(void)
   Yap_stdin = stdin;
   Yap_stdout = stdout;
   Yap_stderr = stderr;
-  Stream = (StreamDesc *)Yap_AllocCodeSpace(sizeof(StreamDesc)*MaxStreams);
+  if (!Stream)
+    Stream = (StreamDesc *)Yap_AllocCodeSpace(sizeof(StreamDesc)*MaxStreams);
   /* here the Input/Output predicates */
   Yap_InitCPred ("$check_stream", 2, p_check_stream, SafePredFlag|SyncPredFlag);
   Yap_InitCPred ("$check_stream", 1, p_check_if_stream, SafePredFlag|SyncPredFlag);

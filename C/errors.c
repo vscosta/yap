@@ -137,30 +137,10 @@ DumpActiveGoals (void)
   while (TRUE)
     {
       PredEntry *pe;
-      op_numbers opnum;
       
       if (!ONLOCAL (b_ptr) || b_ptr->cp_b == NULL)
 	break;
-      opnum = Yap_op_from_opcode(b_ptr->cp_ap->opc);
-    restart_cp:
-      switch(opnum) {
-      case _or_else:
-	if (b_ptr->cp_ap == (yamop *)(b_ptr->cp_ap->u.sla.sla_u.l))
-	  {
-	    Yap_plwrite(MkAtomTerm(Yap_LookupAtom("repeat ")), Yap_DebugPutc, 0);
-	  }
-      case _or_last:
-	pe = b_ptr->cp_cp->u.sla.p0;
-	break;
-      case _retry_profiled:
-	opnum = Yap_op_from_opcode(NEXTOP(b_ptr->cp_ap,l)->opc);
-	goto restart_cp;
-      case _count_retry_me:
-	opnum = Yap_op_from_opcode(NEXTOP(b_ptr->cp_ap,l)->opc);
-	goto restart_cp;
-      default:
-	pe = (PredEntry *)(b_ptr->cp_ap->u.ld.p);
-      }
+      pe = Yap_PredForChoicePt(b_ptr);
       READ_LOCK(pe->PRWLock);
       {
 	Functor f;

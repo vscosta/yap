@@ -1379,12 +1379,20 @@ UnmarkTrEntries(void)
 	  Yap_ErDBE(DBStructFlagsToDBStruct(ent));
 	} else {
 	  if (flags & LogUpdMask) {
-	    Yap_ErLogUpdCl(ClauseFlagsToLogUpdClause(ent));
+	    if (flags & IndexMask) {
+	      Yap_ErLogUpdIndex(ClauseFlagsToLogUpdIndex(ent));
+	    } else {
+	      Yap_ErLogUpdCl(ClauseFlagsToLogUpdClause(ent));
+	    }
 	  } else {
 	    Yap_ErCl(ClauseFlagsToDynamicClause(ent));
 	  }
 	}
       }
+#ifdef MULTI_ASSIGNMENT_VARIABLES
+    } else /* if (IsApplTerm(d1)) */ {
+      Entries += 2;
+#endif
     }
   }
   B = NULL;

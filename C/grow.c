@@ -124,32 +124,50 @@ SetHeapRegs(void)
   AuxSp = PtoDelayAdjust(AuxSp);
   AuxTop = (ADDR)PtoDelayAdjust((CELL *)AuxTop);
 #endif
-  HeapLim = DelayAddrAdjust(HeapLim);
+  if (HeapLim)
+    HeapLim = DelayAddrAdjust(HeapLim);
   /* The registers pointing to one of the stacks */
-  ENV = PtoLocAdjust(ENV);
-  ASP = PtoLocAdjust(ASP);
-  H0 = PtoGloAdjust(H0);
-  LCL0 = PtoLocAdjust(LCL0);
-  H = PtoGloAdjust(H);
-  HB = PtoGloAdjust(HB);
-  B = ChoicePtrAdjust(B);
+  if (ENV)
+    ENV = PtoLocAdjust(ENV);
+  if (ASP)
+    ASP = PtoLocAdjust(ASP);
+  if (H0)
+    H0 = PtoGloAdjust(H0);
+  if (LCL0)
+    LCL0 = PtoLocAdjust(LCL0);
+  if (H)
+    H = PtoGloAdjust(H);
+  if (HB)
+    HB = PtoGloAdjust(HB);
+  if (B)
+    B = ChoicePtrAdjust(B);
 #ifdef TABLING
-  B_FZ = ChoicePtrAdjust(B_FZ);
-  BB = ChoicePtrAdjust(BB);
-  H_FZ = PtoGloAdjust(H_FZ);
-  TR_FZ = PtoTRAdjust(TR_FZ);
+  if (B_FZ)
+    B_FZ = ChoicePtrAdjust(B_FZ);
+  if (BB)
+    BB = ChoicePtrAdjust(BB);
+  if (H_FZ)
+    H_FZ = PtoGloAdjust(H_FZ);
+  if (TR_FZ)
+    TR_FZ = PtoTRAdjust(TR_FZ);
 #endif /* TABLING */
-  TR = PtoTRAdjust(TR);
-  YENV = PtoLocAdjust(YENV);
+  if (TR)
+    TR = PtoTRAdjust(TR);
+  if (YENV)
+    YENV = PtoLocAdjust(YENV);
   if (IsOldGlobalPtr(S))
     S = PtoGloAdjust(S);
   else if (IsOldLocalPtr(S))
     S = PtoLocAdjust(S);	   
 #ifdef COROUTINING
-  DelayedVars = AbsAppl(PtoGloAdjust(RepAppl(DelayedVars)));
-  MutableList = AbsAppl(PtoGloAdjust(RepAppl(MutableList)));
-  AttsMutableList = AbsAppl(PtoGloAdjust(RepAppl(AttsMutableList)));
-  WokenGoals = AbsAppl(PtoGloAdjust(RepAppl(WokenGoals)));
+  if (DelayedVars)
+    DelayedVars = AbsAppl(PtoGloAdjust(RepAppl(DelayedVars)));
+  if (MutableList)
+    MutableList = AbsAppl(PtoGloAdjust(RepAppl(MutableList)));
+  if (AttsMutableList)
+    AttsMutableList = AbsAppl(PtoGloAdjust(RepAppl(AttsMutableList)));
+  if (WokenGoals)
+    WokenGoals = AbsAppl(PtoGloAdjust(RepAppl(WokenGoals)));
 #endif
 }
 
@@ -173,21 +191,33 @@ SetStackRegs(void)
   Yap_LocalBase = LocalAddrAdjust(Yap_LocalBase);
   TR = PtoTRAdjust(TR);
   /* The registers pointing to the local stack */
-  ENV = PtoLocAdjust(ENV);
-  ASP = PtoLocAdjust(ASP);
-  LCL0 = PtoLocAdjust(LCL0);
-  B = ChoicePtrAdjust(B);
+  if (ENV)
+    ENV = PtoLocAdjust(ENV);
+  if (ASP)
+    ASP = PtoLocAdjust(ASP);
+  if (LCL0)
+    LCL0 = PtoLocAdjust(LCL0);
+  if (B)
+    B = ChoicePtrAdjust(B);
 #ifdef TABLING
-  B_FZ = ChoicePtrAdjust(B_FZ);
-  BB = ChoicePtrAdjust(BB);
-  TR_FZ = PtoTRAdjust(TR_FZ);
+  if (B_FZ)
+    B_FZ = ChoicePtrAdjust(B_FZ);
+  if (BB)
+    BB = ChoicePtrAdjust(BB);
+  if (TR_FZ)
+    TR_FZ = PtoTRAdjust(TR_FZ);
 #endif /* TABLING */
-  YENV = PtoLocAdjust(YENV);
+  if (YENV)
+    YENV = PtoLocAdjust(YENV);
 #ifdef COROUTINING
-  DelayedVars = AbsAppl(PtoGloAdjust(RepAppl(DelayedVars)));
-  MutableList = AbsAppl(PtoGloAdjust(RepAppl(MutableList)));
-  AttsMutableList = AbsAppl(PtoGloAdjust(RepAppl(AttsMutableList)));
-  WokenGoals = AbsAppl(PtoGloAdjust(RepAppl(WokenGoals)));
+  if (DelayedVars)
+    DelayedVars = AbsAppl(PtoGloAdjust(RepAppl(DelayedVars)));
+  if (MutableList)
+    MutableList = AbsAppl(PtoGloAdjust(RepAppl(MutableList)));
+  if (AttsMutableList)
+    AttsMutableList = AbsAppl(PtoGloAdjust(RepAppl(AttsMutableList)));
+  if (WokenGoals)
+    WokenGoals = AbsAppl(PtoGloAdjust(RepAppl(WokenGoals)));
 #endif
 }
 

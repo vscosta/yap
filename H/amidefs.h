@@ -11,8 +11,12 @@
 * File:		amidefs.h						 *
 * comments:	Abstract machine peculiarities				 *
 *									 *
-* Last rev:     $Date: 2004-04-14 19:10:40 $							 *
+* Last rev:     $Date: 2004-09-27 20:45:04 $							 *
 * $Log: not supported by cvs2svn $
+* Revision 1.24  2004/04/14 19:10:40  vsc
+* expand_clauses: keep a list of clauses to expand
+* fix new trail scheme for multi-assignment variables
+*
 * Revision 1.23  2004/03/31 01:03:10  vsc
 * support expand group of clauses
 *
@@ -139,6 +143,41 @@ typedef struct yami {
 	 CELL                c;
 	 CELL next;
        } c;
+       struct {
+	 CELL                c1;
+	 CELL                c2;
+	 CELL next;
+       } cc;
+       struct {
+	 CELL                c1;
+	 CELL                c2;
+	 CELL                c3;
+	 CELL next;
+       } ccc;
+       struct {
+	 CELL                c1;
+	 CELL                c2;
+	 CELL                c3;
+	 CELL                c4;
+	 CELL next;
+       } cccc;
+       struct {
+	 CELL                c1;
+	 CELL                c2;
+	 CELL                c3;
+	 CELL                c4;
+	 CELL                c5;
+	 CELL next;
+       } ccccc;
+       struct {
+	 CELL                c1;
+	 CELL                c2;
+	 CELL                c3;
+	 CELL                c4;
+	 CELL                c5;
+	 CELL                c6;
+	 CELL next;
+       } cccccc;
        struct {
 	 CELL                c;
 	 struct yami        *l1;
@@ -366,6 +405,7 @@ typedef struct yami {
 	 COUNT               s1;
 	 COUNT               s2;
 	 COUNT               s3;
+	 struct yami  *sprev, *snext;
 	 struct pred_entry  *p;
 	 CELL next;
        } sp;

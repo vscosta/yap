@@ -1391,8 +1391,8 @@ p_clean_ifcp(void) {
 
 static Int
 JumpToEnv(Term t) {
-  yamop *pos = NEXTOP(PredDollarCatch->cs.p_code.TrueCodeOfPred,ld),
-    *catchpos = NEXTOP(PredHandleThrow->cs.p_code.TrueCodeOfPred,ld);
+  yamop *pos = NEXTOP(PredDollarCatch->cs.p_code.TrueCodeOfPred,l),
+    *catchpos = NEXTOP(PredHandleThrow->cs.p_code.TrueCodeOfPred,l);
   CELL *env;
   choiceptr first_func = NULL, B0 = B;
 
@@ -1434,7 +1434,7 @@ JumpToEnv(Term t) {
   } while (TRUE);
   /* step one environment above */
   B->cp_cp = (yamop *)env[E_CP];
-  B->cp_ap = NEXTOP(PredHandleThrow->CodeOfPred,ld);
+  B->cp_ap = NEXTOP(PredHandleThrow->CodeOfPred,l);
   B->cp_env = (CELL *)env[E_E];
   /* cannot recover Heap because of copy term :-( */
   B->cp_h = H;

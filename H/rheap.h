@@ -11,8 +11,12 @@
 * File:		rheap.h							 *
 * comments:	walk through heap code					 *
 *									 *
-* Last rev:     $Date: 2004-06-05 03:37:00 $,$Author: vsc $						 *
+* Last rev:     $Date: 2004-09-27 20:45:04 $,$Author: vsc $						 *
 * $Log: not supported by cvs2svn $
+* Revision 1.42  2004/06/05 03:37:00  vsc
+* coroutining is now a part of attvars.
+* some more fixes.
+*
 * Revision 1.41  2004/04/29 03:45:50  vsc
 * fix garbage collection in execute_tail
 *
@@ -46,6 +50,26 @@ static char *op_names[_std_top + 1] =
 
 /* Now, everything on its place so you must adjust the pointers */
 
+static void 
+do_clean_susp_clauses(yamop *ipc) {
+  COUNT i;
+  yamop **st = (yamop **)NEXTOP(ipc,sp);
+
+  ipc->opc = Yap_opcode(_expand_clauses);
+  ipc->u.sp.p = PtoPredAdjust(ipc->u.sp.p);
+  if (ipc->u.sp.sprev) {
+    ipc->u.sp.sprev = PtoOpAdjust(ipc->u.sp.sprev);
+  }
+  if (ipc->u.sp.snext) {
+    ipc->u.sp.snext = PtoOpAdjust(ipc->u.sp.snext);
+  }
+  for (i = 0; i < ipc->u.sp.s1; i++, st++) {
+    if (*st) {
+      *st = PtoOpAdjust(*st);
+    }
+  }
+}
+
 /* restore the failcodes */
 static void 
 restore_codes(void)
@@ -67,6 +91,17 @@ restore_codes(void)
 #endif /* YAPOR */
 #endif /* TABLING */
   heap_regs->expand_op_code = Yap_opcode(_expand_index);
+  if (heap_regs->expand_clauses_first)
+    heap_regs->expand_clauses_first = PtoOpAdjust(heap_regs->expand_clauses_first);
+  if (heap_regs->expand_clauses_last)
+    heap_regs->expand_clauses_last = PtoOpAdjust(heap_regs->expand_clauses_last);
+  {
+    yamop *ptr = heap_regs->expand_clauses_first;
+    while (ptr) {
+      do_clean_susp_clauses(ptr);
+      ptr = ptr->u.sp.snext;
+    }
+  }
   heap_regs->failcode->opc = Yap_opcode(_op_fail);
   heap_regs->failcode_1 = Yap_opcode(_op_fail);
   heap_regs->failcode_2 = Yap_opcode(_op_fail);
@@ -297,6 +332,7 @@ restore_codes(void)
   heap_regs->functor_g_var = FuncAdjust(heap_regs->functor_g_var);
   heap_regs->functor_last_execute_within = FuncAdjust(heap_regs->functor_last_execute_within);
   heap_regs->functor_list = FuncAdjust(heap_regs->functor_list);
+  heap_regs->functor_mega_clause = FuncAdjust(heap_regs->functor_mega_clause);
   heap_regs->functor_module = FuncAdjust(heap_regs->functor_module);
 #ifdef MULTI_ASSIGNMENT_VARIABLES
   heap_regs->functor_mutable = FuncAdjust(heap_regs->functor_mutable);
@@ -305,6 +341,7 @@ restore_codes(void)
   heap_regs->functor_or = FuncAdjust(heap_regs->functor_or);
   heap_regs->functor_portray = FuncAdjust(heap_regs->functor_portray);
   heap_regs->functor_query = FuncAdjust(heap_regs->functor_query);
+  heap_regs->functor_static_clause = FuncAdjust(heap_regs->functor_static_clause);
   heap_regs->functor_stream = FuncAdjust(heap_regs->functor_stream);
   heap_regs->functor_stream_pos = FuncAdjust(heap_regs->functor_stream_pos);
   heap_regs->functor_stream_eOS = FuncAdjust(heap_regs->functor_stream_eOS);
@@ -617,6 +654,12 @@ restore_opcodes(yamop *pc)
     case _skip:
     case _jump_if_var:
     case _try_in:
+    case _try_clause2:
+    case _try_clause3:
+    case _try_clause4:
+    case _retry2:
+    case _retry3:
+    case _retry4:
       pc->u.l.l = PtoOpAdjust(pc->u.l.l);
       pc = NEXTOP(pc,l);
       break;
@@ -725,17 +768,9 @@ restore_opcodes(yamop *pc)
       pc = NEXTOP(pc,xF);
       break;
     case _expand_clauses:
-      pc->u.sp.p = PtoPredAdjust(pc->u.sp.p);
-      {
-	COUNT i;
-	yamop **st = (yamop **)NEXTOP(pc,sp);
-
-	for (i = 0; i < pc->u.sp.s1; i++, st++) {
-	  if (*st) {
-	    *st = PtoOpAdjust(*st);
-	  }
-	}
-      }
+      Yap_Error(SYSTEM_ERROR, TermNil,
+	    "Invalid Opcode expand_clauses at %p", pc);
+      break;
       /* instructions type y */
     case _save_b_y:
     case _commit_b_y:
@@ -839,6 +874,166 @@ restore_opcodes(yamop *pc)
 	  pc->u.xc.c = BlobTermAdjust(t);
       }
       pc = NEXTOP(pc,xc);
+      break;
+      /* instructions type cc */
+    case _get_2atoms:
+      {
+	Term t = pc->u.cc.c1;
+	if (IsAtomTerm(t))
+	  pc->u.cc.c1 = AtomTermAdjust(t);
+	else if (IsApplTerm(t))
+	  pc->u.cc.c1 = BlobTermAdjust(t);
+      }
+      {
+	Term t = pc->u.cc.c2;
+	if (IsAtomTerm(t))
+	  pc->u.cc.c2 = AtomTermAdjust(t);
+	else if (IsApplTerm(t))
+	  pc->u.cc.c2 = BlobTermAdjust(t);
+      }
+      pc = NEXTOP(pc,cc);
+      break;
+      /* instructions type ccc */
+    case _get_3atoms:
+      {
+	Term t = pc->u.ccc.c1;
+	if (IsAtomTerm(t))
+	  pc->u.ccc.c1 = AtomTermAdjust(t);
+	else if (IsApplTerm(t))
+	  pc->u.ccc.c1 = BlobTermAdjust(t);
+      }
+      {
+	Term t = pc->u.ccc.c2;
+	if (IsAtomTerm(t))
+	  pc->u.ccc.c2 = AtomTermAdjust(t);
+	else if (IsApplTerm(t))
+	  pc->u.ccc.c2 = BlobTermAdjust(t);
+      }
+      {
+	Term t = pc->u.ccc.c3;
+	if (IsAtomTerm(t))
+	  pc->u.ccc.c3 = AtomTermAdjust(t);
+	else if (IsApplTerm(t))
+	  pc->u.ccc.c3 = BlobTermAdjust(t);
+      }
+      pc = NEXTOP(pc,ccc);
+      break;
+      /* instructions type cccc */
+    case _get_4atoms:
+      {
+	Term t = pc->u.cccc.c1;
+	if (IsAtomTerm(t))
+	  pc->u.cccc.c1 = AtomTermAdjust(t);
+	else if (IsApplTerm(t))
+	  pc->u.cccc.c1 = BlobTermAdjust(t);
+      }
+      {
+	Term t = pc->u.cccc.c2;
+	if (IsAtomTerm(t))
+	  pc->u.cccc.c2 = AtomTermAdjust(t);
+	else if (IsApplTerm(t))
+	  pc->u.cccc.c2 = BlobTermAdjust(t);
+      }
+      {
+	Term t = pc->u.cccc.c3;
+	if (IsAtomTerm(t))
+	  pc->u.cccc.c3 = AtomTermAdjust(t);
+	else if (IsApplTerm(t))
+	  pc->u.cccc.c3 = BlobTermAdjust(t);
+      }
+      {
+	Term t = pc->u.cccc.c4;
+	if (IsAtomTerm(t))
+	  pc->u.cccc.c4 = AtomTermAdjust(t);
+	else if (IsApplTerm(t))
+	  pc->u.cccc.c4 = BlobTermAdjust(t);
+      }
+      pc = NEXTOP(pc,cccc);
+      break;
+      /* instructions type ccccc */
+    case _get_5atoms:
+      {
+	Term t = pc->u.ccccc.c1;
+	if (IsAtomTerm(t))
+	  pc->u.ccccc.c1 = AtomTermAdjust(t);
+	else if (IsApplTerm(t))
+	  pc->u.ccccc.c1 = BlobTermAdjust(t);
+      }
+      {
+	Term t = pc->u.ccccc.c2;
+	if (IsAtomTerm(t))
+	  pc->u.ccccc.c2 = AtomTermAdjust(t);
+	else if (IsApplTerm(t))
+	  pc->u.ccccc.c2 = BlobTermAdjust(t);
+      }
+      {
+	Term t = pc->u.ccccc.c3;
+	if (IsAtomTerm(t))
+	  pc->u.ccccc.c3 = AtomTermAdjust(t);
+	else if (IsApplTerm(t))
+	  pc->u.ccccc.c3 = BlobTermAdjust(t);
+      }
+      {
+	Term t = pc->u.ccccc.c4;
+	if (IsAtomTerm(t))
+	  pc->u.ccccc.c4 = AtomTermAdjust(t);
+	else if (IsApplTerm(t))
+	  pc->u.ccccc.c4 = BlobTermAdjust(t);
+      }
+      {
+	Term t = pc->u.ccccc.c5;
+	if (IsAtomTerm(t))
+	  pc->u.ccccc.c5 = AtomTermAdjust(t);
+	else if (IsApplTerm(t))
+	  pc->u.ccccc.c5 = BlobTermAdjust(t);
+      }
+      pc = NEXTOP(pc,ccccc);
+      break;
+      /* instructions type cccccc */
+    case _get_6atoms:
+      {
+	Term t = pc->u.cccccc.c1;
+	if (IsAtomTerm(t))
+	  pc->u.cccccc.c1 = AtomTermAdjust(t);
+	else if (IsApplTerm(t))
+	  pc->u.cccccc.c1 = BlobTermAdjust(t);
+      }
+      {
+	Term t = pc->u.cccccc.c2;
+	if (IsAtomTerm(t))
+	  pc->u.cccccc.c2 = AtomTermAdjust(t);
+	else if (IsApplTerm(t))
+	  pc->u.cccccc.c2 = BlobTermAdjust(t);
+      }
+      {
+	Term t = pc->u.cccccc.c3;
+	if (IsAtomTerm(t))
+	  pc->u.cccccc.c3 = AtomTermAdjust(t);
+	else if (IsApplTerm(t))
+	  pc->u.cccccc.c3 = BlobTermAdjust(t);
+      }
+      {
+	Term t = pc->u.cccccc.c4;
+	if (IsAtomTerm(t))
+	  pc->u.cccccc.c4 = AtomTermAdjust(t);
+	else if (IsApplTerm(t))
+	  pc->u.cccccc.c4 = BlobTermAdjust(t);
+      }
+      {
+	Term t = pc->u.cccccc.c5;
+	if (IsAtomTerm(t))
+	  pc->u.cccccc.c5 = AtomTermAdjust(t);
+	else if (IsApplTerm(t))
+	  pc->u.cccccc.c5 = BlobTermAdjust(t);
+      }
+      {
+	Term t = pc->u.cccccc.c6;
+	if (IsAtomTerm(t))
+	  pc->u.cccccc.c6 = AtomTermAdjust(t);
+	else if (IsApplTerm(t))
+	  pc->u.cccccc.c6 = BlobTermAdjust(t);
+      }
+      pc = NEXTOP(pc,cccccc);
       break;
       /* instructions type xf */
     case _get_struct:
@@ -1336,6 +1531,18 @@ RestoreStaticClause(StaticClause *cl, PredEntry *pp)
 
 /* Restores a prolog clause, in its compiled form */
 static void 
+RestoreMegaClause(MegaClause *cl, PredEntry *pp)
+/*
+ * Cl points to the start of the code, IsolFlag tells if we have a single
+ * clause for this predicate or not 
+ */
+{
+  cl->ClPred = PtoPredAdjust(cl->ClPred);
+  restore_opcodes(cl->ClCode);
+}
+
+/* Restores a prolog clause, in its compiled form */
+static void 
 RestoreDynamicClause(DynamicClause *cl, PredEntry *pp)
 /*
  * Cl points to the start of the code, IsolFlag tells if we have a single
@@ -1389,6 +1596,10 @@ CleanClauses(yamop *First, yamop *Last, PredEntry *pp)
       RestoreLUClause(cl, pp);
       cl = cl->ClNext;
     }
+  } else if (pp->PredFlags & MegaClausePredFlag) {
+    MegaClause *cl = ClauseCodeToMegaClause(First);
+
+    RestoreMegaClause(cl, pp);
   } else if (pp->PredFlags & DynamicPredFlag) {
     yamop *cl = First;
 

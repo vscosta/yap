@@ -1,8 +1,8 @@
 #/bin/bash
 # Guess what: this code works for me!
-parent=$(cd ..;pwd)
-version=${PWD##$parent/}
 
+version="Yap-4.5.3"
+PATH="$PATH":~/bin/noarch
 splat
 cd C
 splat
@@ -14,16 +14,26 @@ cd ../VC
 splat
 cd ../LGPL
 splat
-cd pillow
+cd JPL
+splat
+cd src
+splat
+cd ../java
+splat
+cd jpl
+splat
+cd fli
+splat
+cd ../../../../pillow
 splat
 cd examples
 splat
 cd  ../../../include
 splat
-/bin/cp config.h config.h.mine
-/bin/cp ../../../bins/cyg/*.h .
-/bin/mv config.h.mine config.h
-cd ../../console
+#/bin/cp config.h config.h.mine
+#/bin/cp ../../../bins/cyg/*.h .
+#/bin/mv config.h.mine config.h
+cd ../console
 splat
 cd ../docs
 splat
@@ -65,11 +75,15 @@ cd ../../CHR
 splat
 cd chr
 splat
+cd ../../CLPBN
+splat
+cd clpbn
+splat
 cd examples
 splat
 cd ../../../..
 if test "$1" = "--small"; then
-  tar cvzf  "$version"-small.tar.gz --exclude=CVS --exclude=CHR/chr/examples --exclude=CLPQR/clpqr/examples "$version"/{Artistic,INSTALL,README*,changes*,config*,install-sh,Makefile.in,.depend.in,distribute,C,H,VC,console,docs,include,library,m4,misc,pl,LGPL/README,LGPL/CVS,LGPL/pillow/[C-Z]*,LGPL/pillow/*.pl,LGPL/pillow/doc/*info*,build-distr,OPTYap,CLPQR,CHR}
+  tar cvzf  "$version"-small.tar.gz --exclude=CVS --exclude=CHR/chr/examples --exclude=CLPQR/clpqr/examples "$version"/{Artistic,INSTALL,README*,changes*,config*,install-sh,Makefile.in,.depend.in,distribute,C,H,VC,console,docs,include,library,m4,misc,pl,LGPL/README,LGPL/pillow/[C-Z]*,LGPL/pillow/*.pl,LGPL/pillow/doc/*info*,LGPL/JPL/jpl.yap,LGPL/JPL/Makefile.in,LGPL/JPL/java,LGPL/JPL/src,build-distr,OPTYap,CLPQR,CHR,CLPBN}
 else
-  tar cvzf "$version".tar.gz --exclude=CVS  "$version"/{Artistic,INSTALL,README*,changes*,config*,install-sh,Makefile.in,.depend.in,distribute,C,H,VC,console,docs,include,library,m4,misc,pl,LGPL,build-distr,OPTYap,CLPQR,CHR,Logtalk}
+  tar cvzf "$version".tar.gz --exclude=CVS  "$version"/{Artistic,INSTALL,README*,changes*,config*,install-sh,Makefile.in,.depend.in,distribute,C,H,VC,console,docs,include,library,m4,misc,pl,LGPL/README,LGPL/pillow/[C-Z]*,LGPL/pillow/*.pl,LGPL/pillow/doc/*info*,LGPL/JPL/jpl.yap,LGPL/JPL/Makefile.in,LGPL/JPL/java,LGPL/JPL/src,build-distr,build-distr,OPTYap,CLPQR,CHR,CLPBN,Logtalk}
 fi

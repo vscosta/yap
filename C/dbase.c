@@ -713,14 +713,12 @@ static CELL *MkDBTerm(register CELL *pt0, register CELL *pt0_end,
 #ifdef IDB_LINK_TABLE
 	    dbg->lr--;
 #endif
-	    if (!(dbentry->Flags & StaticMask)) {
-	      if (dbentry->Flags & LogUpdMask) {
-		LogUpdClause *cl = (LogUpdClause *)dbentry;
+	    if (dbentry->Flags & LogUpdMask) {
+	      LogUpdClause *cl = (LogUpdClause *)dbentry;
 
-		cl->ClRefCount++;
-	      } else {
-		dbentry->NOfRefsTo++;
-	      }
+	      cl->ClRefCount++;
+	    } else {
+	      dbentry->NOfRefsTo++;
 	    }
 	    *--dbg->tofref = dbentry;
 	    db_check_trail(dbg->lr);
@@ -2394,8 +2392,8 @@ static int
 copy_attachments(CELL *ts)
 {
   while (TRUE) {
-
     attvar_record *orig = (attvar_record *)Yap_ReadTimedVar(DelayedVars);
+
     /* store away in case there is an overflow */
     if (attas[IntegerOfTerm(ts[2])].term_to_op(ts[1], ts[0])  == FALSE) {
       /* oops, we did not have enough space to copy the elements */
@@ -3776,44 +3774,6 @@ p_key_erased_statistics(void)
 }
 
 static Int
-p_predicate_erased_statistics(void)
-{
-  UInt sz = 0, cls = 0;
-  UInt isz = 0, icls = 0;
-  Term twork = Deref(ARG1);
-  PredEntry *pe;
-  LogUpdClause *cl = DBErasedList;
-  LogUpdIndex *icl = DBErasedIList;
-
-  /* only for log upds */
-  if ((pe = find_lu_entry(twork)) == NULL) 
-    return FALSE;
-  while (cl) {
-    if (cl->ClPred == pe) {
-      cls++;
-      sz += cl->ClSize;
-    }
-    cl = cl->ClNext;
-  }
-  while (icl) {
-    LogUpdIndex *c = icl;
-
-    while (!c->ClFlags & SwitchRootMask)
-      c = c->u.ParentIndex;
-    if (pe == c->u.pred) {
-      icls++;
-      isz += c->ClSize;
-    }
-    icl = icl->SiblingIndex;
-  }
-  return
-    Yap_unify(ARG2,MkIntegerTerm(cls)) &&
-    Yap_unify(ARG3,MkIntegerTerm(sz)) &&
-    Yap_unify(ARG4,MkIntegerTerm(icls)) &&
-    Yap_unify(ARG5,MkIntegerTerm(isz));
-}
-
-static Int
 p_heap_space_info(void)
 {
   return
@@ -4312,9 +4272,6 @@ EraseEntry(DBRef entryref)
 
   if (entryref->Flags & ErasedMask)
     return;
-  if (entryref->Flags & StaticMask) {
-    return;
-  }
   if (entryref->Flags & LogUpdMask &&
       !(entryref->Flags & DBClMask)) {
     EraseLogUpdCl((LogUpdClause *)entryref);
@@ -4383,16 +4340,20 @@ p_erase_clause(void)
     return (FALSE);
   }
   if (!IsDBRefTerm(t1)) {
+    if (IsApplTerm(t1)) {
+      if (FunctorOfTerm(t1) == FunctorStaticClause) {
+	Yap_EraseStaticClause(Yap_ClauseFromTerm(t1), Deref(ARG2));
+	return TRUE;
+      }
+      if (FunctorOfTerm(t1) == FunctorMegaClause) {
+	Yap_EraseMegaClause(Yap_MegaClauseFromTerm(t1), Yap_MegaClausePredicateFromTerm(t1));
+	return TRUE;
+      }
+    }
     Yap_Error(TYPE_ERROR_DBREF, t1, "erase");
     return (FALSE);
   } else {
     entryref = DBRefOfTerm(t1);
-  }
-  if (entryref->Flags & StaticMask) {
-    if (entryref->Flags & ErasedMask)
-      return FALSE;
-    Yap_EraseStaticClause((StaticClause *)entryref, Deref(ARG2));
-    return TRUE;
   }
   EraseEntry(entryref);
   return TRUE;
@@ -4539,6 +4500,34 @@ static_instance(StaticClause *cl)
   }
 }
 
+static Int
+mega_instance(yamop *code, PredEntry *ap)
+{
+  if (ap->ArityOfPE == 0) {
+    return Yap_unify(ARG2,MkAtomTerm((Atom)ap->FunctorOfPred));
+  } else {
+    Functor f = ap->FunctorOfPred;
+    UInt arity = ArityOfFunctor(ap->FunctorOfPred), i;
+    Term t2 = Deref(ARG2);
+    CELL *ptr;
+
+    if (IsVarTerm(t2)) {
+      Yap_unify(ARG2, (t2 = Yap_MkNewApplTerm(f,arity)));
+    } else if (!IsApplTerm(t2) || FunctorOfTerm(t2) != f) {
+      return FALSE;
+    }
+    ptr = RepAppl(t2)+1;
+    for (i=0; i<arity; i++) {
+      XREGS[i+1] = ptr[i];
+    }
+    CP = P;
+    YENV = ASP;
+    YENV[E_CB] = (CELL) B;
+    P = code;
+    return TRUE;
+  }
+}
+
 /* instance(+Ref,?Term) */
 static Int 
 p_instance(void)
@@ -4547,13 +4536,19 @@ p_instance(void)
   DBRef dbr;
 
   if (IsVarTerm(t1) || !IsDBRefTerm(t1)) {
-    return (FALSE);
+    if (IsApplTerm(t1)) {
+      if (FunctorOfTerm(t1) == FunctorStaticClause) {
+	return static_instance(Yap_ClauseFromTerm(t1));
+      }
+      if (FunctorOfTerm(t1) == FunctorMegaClause) {
+	return mega_instance(Yap_MegaClauseFromTerm(t1),Yap_MegaClausePredicateFromTerm(t1));
+      }
+    }
+    return FALSE;
   } else {
     dbr = DBRefOfTerm(t1);
   }
-  if (dbr->Flags & StaticMask) {
-    return static_instance((StaticClause *)dbr);
-  } else if (dbr->Flags & LogUpdMask) {
+  if (dbr->Flags & LogUpdMask) {
     op_numbers opc;
     LogUpdClause *cl = (LogUpdClause *)dbr;
 
@@ -5224,7 +5219,6 @@ Yap_InitDBPreds(void)
 #ifdef DEBUG
   Yap_InitCPred("total_erased", 4, p_total_erased, SyncPredFlag);
   Yap_InitCPred("key_erased_statistics", 5, p_key_erased_statistics, SyncPredFlag);
-  Yap_InitCPred("predicate_erased_statistics", 5, p_predicate_erased_statistics, SyncPredFlag);
   Yap_InitCPred("heap_space_info", 3, p_heap_space_info, SyncPredFlag);
 #endif
   Yap_InitCPred("nth_instance", 3, p_nth_instance, SyncPredFlag);

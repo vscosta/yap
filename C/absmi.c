@@ -10,8 +10,11 @@
 *									 *
 * File:		absmi.c							 *
 * comments:	Portable abstract machine interpreter                    *
-* Last rev:     $Date: 2004-09-17 20:47:35 $,$Author: vsc $						 *
+* Last rev:     $Date: 2004-09-27 20:45:02 $,$Author: vsc $						 *
 * $Log: not supported by cvs2svn $
+* Revision 1.145  2004/09/17 20:47:35  vsc
+* fix some overflows recorded.
+*
 * Revision 1.144  2004/09/17 19:34:49  vsc
 * simplify frozen/2
 *
@@ -460,7 +463,7 @@ Yap_absmi(int inp)
 #if BP_FREE
       P1REG = PCBACKUP;
 #endif
-      return (1);
+      return 1;
       ENDBOp();
 
       BOp(Nstop, e);
@@ -1737,6 +1740,9 @@ Yap_absmi(int inp)
 	      case _or_last:
 		low_level_trace(retry_or, (PredEntry *)ipc, &(B->cp_a1));
 		break;
+	      case _retry2:
+	      case _retry3:
+	      case _retry4:
 	      case _trust_logical_pred:
 		ipc = NEXTOP(ipc,l);
 		go_on = TRUE;
@@ -3071,6 +3077,521 @@ Yap_absmi(int inp)
       DO_TRAIL(pt0, d1);
       if (pt0 < H0) Yap_WakeUp(pt0);
     bind_gatom:
+#endif
+      GONext();
+      ENDP(pt0);
+      ENDD(d1);
+      ENDD(d0);
+      ENDOp();
+
+      Op(get_2atoms, cc);
+      BEGD(d0);
+      BEGD(d1);
+      /* fetch arguments */
+      d0 = ARG1;
+
+      BEGP(pt0);
+      deref_head(d0, gatom_2unk);
+      /* argument is nonvar */
+    gatom_2nonvar:
+      if (d0 == PREG->u.cc.c1) {
+	goto gatom_2b;
+      }
+      else {
+	FAIL();
+      }
+
+      deref_body(d0, pt0, gatom_2unk, gatom_2nonvar);
+      /* argument is a variable */
+      BIND(pt0, PREG->u.cc.c1, gatom_2b);
+#ifdef COROUTINING
+      DO_TRAIL(pt0, d1);
+      if (pt0 < H0) Yap_WakeUp(pt0);
+#endif
+      ENDP(pt0);
+    gatom_2b:
+      /* fetch arguments */
+      d0 = ARG2;
+      d1 = PREG->u.cc.c2;
+
+      BEGP(pt0);
+      deref_head(d0, gatom_2bunk);
+      /* argument is nonvar */
+    gatom_2bnonvar:
+      if (d0 == d1) {
+	PREG = NEXTOP(PREG, cc);
+	GONext();
+      }
+      else {
+	FAIL();
+      }
+
+      deref_body(d0, pt0, gatom_2bunk, gatom_2bnonvar);
+      /* argument is a variable */
+      PREG = NEXTOP(PREG, cc);
+      BIND(pt0, d1, gatom_2c);
+#ifdef COROUTINING
+      DO_TRAIL(pt0, d1);
+      if (pt0 < H0) Yap_WakeUp(pt0);
+    gatom_2c:
+#endif
+      GONext();
+      ENDP(pt0);
+      ENDD(d1);
+      ENDD(d0);
+      ENDOp();
+
+      Op(get_3atoms, ccc);
+      BEGD(d0);
+      BEGD(d1);
+      /* fetch arguments */
+      d0 = ARG1;
+
+      BEGP(pt0);
+      deref_head(d0, gatom_3unk);
+      /* argument is nonvar */
+    gatom_3nonvar:
+      if (d0 == PREG->u.ccc.c1) {
+	goto gatom_3b;
+      }
+      else {
+	FAIL();
+      }
+
+      deref_body(d0, pt0, gatom_3unk, gatom_3nonvar);
+      /* argument is a variable */
+      BIND(pt0, PREG->u.ccc.c1, gatom_3b);
+#ifdef COROUTINING
+      DO_TRAIL(pt0, d1);
+      if (pt0 < H0) Yap_WakeUp(pt0);
+#endif
+      ENDP(pt0);
+    gatom_3b:
+      /* fetch arguments */
+      d0 = ARG2;
+
+      BEGP(pt0);
+      deref_head(d0, gatom_3bunk);
+      /* argument is nonvar */
+    gatom_3bnonvar:
+      if (d0 == PREG->u.ccc.c2) {
+	goto gatom_3c;
+      }
+      else {
+	FAIL();
+      }
+
+      deref_body(d0, pt0, gatom_3bunk, gatom_3bnonvar);
+      /* argument is a variable */
+      BIND(pt0, PREG->u.ccc.c2, gatom_3c);
+#ifdef COROUTINING
+      DO_TRAIL(pt0, d1);
+      if (pt0 < H0) Yap_WakeUp(pt0);
+#endif
+      ENDP(pt0);
+    gatom_3c:
+      /* fetch arguments */
+      d0 = ARG3;
+      d1 = PREG->u.ccc.c3;
+
+      BEGP(pt0);
+      deref_head(d0, gatom_3cunk);
+      /* argument is nonvar */
+    gatom_3cnonvar:
+      if (d0 == d1) {
+	PREG = NEXTOP(PREG, ccc);
+	GONext();
+      }
+      else {
+	FAIL();
+      }
+
+      deref_body(d0, pt0, gatom_3cunk, gatom_3cnonvar);
+      /* argument is a variable */
+      PREG = NEXTOP(PREG, ccc);
+      BIND(pt0, d1, gatom_3d);
+#ifdef COROUTINING
+      DO_TRAIL(pt0, d1);
+      if (pt0 < H0) Yap_WakeUp(pt0);
+    gatom_3d:
+#endif
+      GONext();
+      ENDP(pt0);
+      ENDD(d1);
+      ENDD(d0);
+      ENDOp();
+
+      Op(get_4atoms, cccc);
+      BEGD(d0);
+      BEGD(d1);
+      /* fetch arguments */
+      d0 = ARG1;
+
+      BEGP(pt0);
+      deref_head(d0, gatom_4unk);
+      /* argument is nonvar */
+    gatom_4nonvar:
+      if (d0 == PREG->u.cccc.c1) {
+	goto gatom_4b;
+      }
+      else {
+	FAIL();
+      }
+
+      deref_body(d0, pt0, gatom_4unk, gatom_4nonvar);
+      /* argument is a variable */
+      BIND(pt0, PREG->u.cccc.c1, gatom_4b);
+#ifdef COROUTINING
+      DO_TRAIL(pt0, d1);
+      if (pt0 < H0) Yap_WakeUp(pt0);
+#endif
+      ENDP(pt0);
+    gatom_4b:
+      /* fetch arguments */
+      d0 = ARG2;
+
+      BEGP(pt0);
+      deref_head(d0, gatom_4bunk);
+      /* argument is nonvar */
+    gatom_4bnonvar:
+      if (d0 == PREG->u.cccc.c2) {
+	goto gatom_4c;
+      }
+      else {
+	FAIL();
+      }
+
+      deref_body(d0, pt0, gatom_4bunk, gatom_4bnonvar);
+      /* argument is a variable */
+      BIND(pt0, PREG->u.cccc.c2, gatom_4c);
+#ifdef COROUTINING
+      DO_TRAIL(pt0, d1);
+      if (pt0 < H0) Yap_WakeUp(pt0);
+#endif
+      ENDP(pt0);
+    gatom_4c:
+      /* fetch arguments */
+      d0 = ARG3;
+
+      BEGP(pt0);
+      deref_head(d0, gatom_4cunk);
+      /* argument is nonvar */
+    gatom_4cnonvar:
+      if (d0 == PREG->u.cccc.c3) {
+	goto gatom_4d;
+      }
+      else {
+	FAIL();
+      }
+
+      deref_body(d0, pt0, gatom_4cunk, gatom_4cnonvar);
+      /* argument is a variable */
+      BIND(pt0, PREG->u.cccc.c3, gatom_4d);
+#ifdef COROUTINING
+      DO_TRAIL(pt0, d1);
+      if (pt0 < H0) Yap_WakeUp(pt0);
+#endif
+      ENDP(pt0);
+   gatom_4d:
+      /* fetch arguments */
+      d0 = ARG4;
+      d1 = PREG->u.cccc.c4;
+
+      BEGP(pt0);
+      deref_head(d0, gatom_4dunk);
+      /* argument is nonvar */
+    gatom_4dnonvar:
+      if (d0 == d1) {
+	PREG = NEXTOP(PREG, cccc);
+	GONext();
+      }
+      else {
+	FAIL();
+      }
+
+      deref_body(d0, pt0, gatom_4dunk, gatom_4dnonvar);
+      /* argument is a variable */
+      PREG = NEXTOP(PREG, cccc);
+      BIND(pt0, d1, gatom_4e);
+#ifdef COROUTINING
+      DO_TRAIL(pt0, d1);
+      if (pt0 < H0) Yap_WakeUp(pt0);
+    gatom_4e:
+#endif
+      GONext();
+      ENDP(pt0);
+      ENDD(d1);
+      ENDD(d0);
+      ENDOp();
+
+      Op(get_5atoms, ccccc);
+      BEGD(d0);
+      BEGD(d1);
+      /* fetch arguments */
+      d0 = ARG1;
+
+      BEGP(pt0);
+      deref_head(d0, gatom_5unk);
+      /* argument is nonvar */
+    gatom_5nonvar:
+      if (d0 == PREG->u.ccccc.c1) {
+	goto gatom_5b;
+      }
+      else {
+	FAIL();
+      }
+
+      deref_body(d0, pt0, gatom_5unk, gatom_5nonvar);
+      /* argument is a variable */
+      BIND(pt0, PREG->u.ccccc.c1, gatom_5b);
+#ifdef COROUTINING
+      DO_TRAIL(pt0, d1);
+      if (pt0 < H0) Yap_WakeUp(pt0);
+#endif
+      ENDP(pt0);
+    gatom_5b:
+      /* fetch arguments */
+      d0 = ARG2;
+
+      BEGP(pt0);
+      deref_head(d0, gatom_5bunk);
+      /* argument is nonvar */
+    gatom_5bnonvar:
+      if (d0 == PREG->u.ccccc.c2) {
+	goto gatom_5c;
+      }
+      else {
+	FAIL();
+      }
+
+      deref_body(d0, pt0, gatom_5bunk, gatom_5bnonvar);
+      /* argument is a variable */
+      BIND(pt0, PREG->u.ccccc.c2, gatom_5c);
+#ifdef COROUTINING
+      DO_TRAIL(pt0, d1);
+      if (pt0 < H0) Yap_WakeUp(pt0);
+#endif
+      ENDP(pt0);
+    gatom_5c:
+      /* fetch arguments */
+      d0 = ARG3;
+
+      BEGP(pt0);
+      deref_head(d0, gatom_5cunk);
+      /* argument is nonvar */
+    gatom_5cnonvar:
+      if (d0 == PREG->u.ccccc.c3) {
+	goto gatom_5d;
+      }
+      else {
+	FAIL();
+      }
+
+      deref_body(d0, pt0, gatom_5cunk, gatom_5cnonvar);
+      /* argument is a variable */
+      BIND(pt0, PREG->u.ccccc.c3, gatom_5d);
+#ifdef COROUTINING
+      DO_TRAIL(pt0, d1);
+      if (pt0 < H0) Yap_WakeUp(pt0);
+#endif
+      ENDP(pt0);
+   gatom_5d:
+      /* fetch arguments */
+      d0 = ARG4;
+
+      BEGP(pt0);
+      deref_head(d0, gatom_5dunk);
+      /* argument is nonvar */
+    gatom_5dnonvar:
+      if (d0 == PREG->u.ccccc.c4) {
+	goto gatom_5e;
+      }
+      else {
+	FAIL();
+      }
+
+      deref_body(d0, pt0, gatom_5dunk, gatom_5dnonvar);
+      /* argument is a variable */
+      BIND(pt0, PREG->u.ccccc.c4, gatom_5e);
+#ifdef COROUTINING
+      DO_TRAIL(pt0, d1);
+      if (pt0 < H0) Yap_WakeUp(pt0);
+#endif
+      ENDP(pt0);
+   gatom_5e:
+      /* fetch arguments */
+      d0 = ARG5;
+      d1 = PREG->u.ccccc.c5;
+
+      BEGP(pt0);
+      deref_head(d0, gatom_5eunk);
+      /* argument is nonvar */
+    gatom_5enonvar:
+      if (d0 == d1) {
+	PREG = NEXTOP(PREG, ccccc);
+	GONext();
+      }
+      else {
+	FAIL();
+      }
+
+      deref_body(d0, pt0, gatom_5eunk, gatom_5enonvar);
+      /* argument is a variable */
+      PREG = NEXTOP(PREG, ccccc);
+      BIND(pt0, d1, gatom_5f);
+#ifdef COROUTINING
+      DO_TRAIL(pt0, d1);
+      if (pt0 < H0) Yap_WakeUp(pt0);
+    gatom_5f:
+#endif
+      GONext();
+      ENDP(pt0);
+      ENDD(d1);
+      ENDD(d0);
+      ENDOp();
+
+      Op(get_6atoms, cccccc);
+      BEGD(d0);
+      BEGD(d1);
+      /* fetch arguments */
+      d0 = ARG1;
+
+      BEGP(pt0);
+      deref_head(d0, gatom_6unk);
+      /* argument is nonvar */
+    gatom_6nonvar:
+      if (d0 == PREG->u.cccccc.c1) {
+	goto gatom_6b;
+      }
+      else {
+	FAIL();
+      }
+
+      deref_body(d0, pt0, gatom_6unk, gatom_6nonvar);
+      /* argument is a variable */
+      BIND(pt0, PREG->u.cccccc.c1, gatom_6b);
+#ifdef COROUTINING
+      DO_TRAIL(pt0, d1);
+      if (pt0 < H0) Yap_WakeUp(pt0);
+#endif
+      ENDP(pt0);
+    gatom_6b:
+      /* fetch arguments */
+      d0 = ARG2;
+
+      BEGP(pt0);
+      deref_head(d0, gatom_6bunk);
+      /* argument is nonvar */
+    gatom_6bnonvar:
+      if (d0 == PREG->u.cccccc.c2) {
+	goto gatom_6c;
+      }
+      else {
+	FAIL();
+      }
+
+      deref_body(d0, pt0, gatom_6bunk, gatom_6bnonvar);
+      /* argument is a variable */
+      BIND(pt0, PREG->u.cccccc.c2, gatom_6c);
+#ifdef COROUTINING
+      DO_TRAIL(pt0, d1);
+      if (pt0 < H0) Yap_WakeUp(pt0);
+#endif
+      ENDP(pt0);
+    gatom_6c:
+      /* fetch arguments */
+      d0 = ARG3;
+
+      BEGP(pt0);
+      deref_head(d0, gatom_6cunk);
+      /* argument is nonvar */
+    gatom_6cnonvar:
+      if (d0 == PREG->u.cccccc.c3) {
+	goto gatom_6d;
+      }
+      else {
+	FAIL();
+      }
+
+      deref_body(d0, pt0, gatom_6cunk, gatom_6cnonvar);
+      /* argument is a variable */
+      BIND(pt0, PREG->u.cccccc.c3, gatom_6d);
+#ifdef COROUTINING
+      DO_TRAIL(pt0, d1);
+      if (pt0 < H0) Yap_WakeUp(pt0);
+#endif
+      ENDP(pt0);
+   gatom_6d:
+      /* fetch arguments */
+      d0 = ARG4;
+
+      BEGP(pt0);
+      deref_head(d0, gatom_6dunk);
+      /* argument is nonvar */
+    gatom_6dnonvar:
+      if (d0 == PREG->u.cccccc.c4) {
+	goto gatom_6e;
+      }
+      else {
+	FAIL();
+      }
+
+      deref_body(d0, pt0, gatom_6dunk, gatom_6dnonvar);
+      /* argument is a variable */
+      BIND(pt0, PREG->u.cccccc.c4, gatom_6e);
+#ifdef COROUTINING
+      DO_TRAIL(pt0, d1);
+      if (pt0 < H0) Yap_WakeUp(pt0);
+#endif
+      ENDP(pt0);
+   gatom_6e:
+      /* fetch arguments */
+      d0 = ARG5;
+
+      BEGP(pt0);
+      deref_head(d0, gatom_6eunk);
+      /* argument is nonvar */
+    gatom_6enonvar:
+      if (d0 == PREG->u.cccccc.c5) {
+	goto gatom_6f;
+      }
+      else {
+	FAIL();
+      }
+
+      deref_body(d0, pt0, gatom_6eunk, gatom_6enonvar);
+      /* argument is a variable */
+      BIND(pt0, PREG->u.cccccc.c4, gatom_6f);
+#ifdef COROUTINING
+      DO_TRAIL(pt0, d1);
+      if (pt0 < H0) Yap_WakeUp(pt0);
+#endif
+      ENDP(pt0);
+    gatom_6f:
+      /* fetch arguments */
+      d0 = ARG6;
+      d1 = PREG->u.cccccc.c6;
+
+      BEGP(pt0);
+      deref_head(d0, gatom_6funk);
+      /* argument is nonvar */
+    gatom_6fnonvar:
+      if (d0 == d1) {
+	PREG = NEXTOP(PREG, cccccc);
+	GONext();
+      }
+      else {
+	FAIL();
+      }
+
+      deref_body(d0, pt0, gatom_6funk, gatom_6fnonvar);
+      /* argument is a variable */
+      PREG = NEXTOP(PREG, cccccc);
+      BIND(pt0, d1, gatom_6g);
+#ifdef COROUTINING
+      DO_TRAIL(pt0, d1);
+      if (pt0 < H0) Yap_WakeUp(pt0);
+    gatom_6g:
 #endif
       GONext();
       ENDP(pt0);
@@ -6797,6 +7318,72 @@ Yap_absmi(int inp)
       JMPNext();
       ENDBOp();
 
+      BOp(try_clause2, l);
+      check_trail(TR);
+      CACHE_Y(YREG);
+      /* Point AP to the code that follows this instruction */
+      {
+	register CELL x2 = ARG2;
+	register CELL x1 = CACHED_A1();
+
+	store_yaam_regs(NEXTOP(PREG, l), 2);
+	B_YREG->cp_a1 = x1;
+	B_YREG->cp_a2 = x2;
+      }
+      PREG = PREG->u.l.l;
+      set_cut(S_YREG, B);
+      B = B_YREG;
+#ifdef YAPOR
+      SCH_set_load(B_YREG);
+#endif	/* YAPOR */
+      SET_BB(B_YREG);
+      ENDCACHE_Y();
+      JMPNext();
+      ENDBOp();
+
+      BOp(try_clause3, l);
+      check_trail(TR);
+      CACHE_Y(YREG);
+      /* Point AP to the code that follows this instruction */
+      {
+	store_yaam_regs(NEXTOP(PREG, l), 3);
+	B_YREG->cp_a1 = CACHED_A1();
+	B_YREG->cp_a2 = ARG2;
+	B_YREG->cp_a3 = ARG3;
+      }
+      PREG = PREG->u.l.l;
+      set_cut(S_YREG, B);
+      B = B_YREG;
+#ifdef YAPOR
+      SCH_set_load(B_YREG);
+#endif	/* YAPOR */
+      SET_BB(B_YREG);
+      ENDCACHE_Y();
+      JMPNext();
+      ENDBOp();
+
+      BOp(try_clause4, l);
+      check_trail(TR);
+      CACHE_Y(YREG);
+      /* Point AP to the code that follows this instruction */
+      {
+	store_yaam_regs(NEXTOP(PREG, l), 4);
+	B_YREG->cp_a1 = CACHED_A1();
+	B_YREG->cp_a2 = ARG2;
+	B_YREG->cp_a3 = ARG3;
+	B_YREG->cp_a4 = ARG4;
+      }
+      PREG = PREG->u.l.l;
+      set_cut(S_YREG, B);
+      B = B_YREG;
+#ifdef YAPOR
+      SCH_set_load(B_YREG);
+#endif	/* YAPOR */
+      SET_BB(B_YREG);
+      ENDCACHE_Y();
+      JMPNext();
+      ENDBOp();
+
       BOp(retry, ld);
       CACHE_Y(B);
       restore_yaam_regs(NEXTOP(PREG, ld));
@@ -6810,6 +7397,60 @@ Yap_absmi(int inp)
       SET_BB(B_YREG);
       ENDCACHE_Y();
       PREG = PREG->u.ld.d;
+      JMPNext();
+      ENDBOp();
+
+      BOp(retry2, l);
+      CACHE_Y(B);
+      restore_yaam_regs(NEXTOP(PREG, l));
+      PREG = PREG->u.l.l;
+      ARG1 = B_YREG->cp_a1;
+      ARG2 = B_YREG->cp_a2;
+#ifdef FROZEN_STACKS
+      B_YREG = PROTECT_FROZEN_B(B_YREG);
+      set_cut(S_YREG, B->cp_b);
+#else
+      set_cut(S_YREG, B_YREG->cp_b);
+#endif /* FROZEN_STACKS */
+      SET_BB(B_YREG);
+      ENDCACHE_Y();
+      JMPNext();
+      ENDBOp();
+
+      BOp(retry3, l);
+      CACHE_Y(B);
+      restore_yaam_regs(NEXTOP(PREG, l));
+      PREG = PREG->u.l.l;
+      ARG1 = B_YREG->cp_a1;
+      ARG2 = B_YREG->cp_a2;
+      ARG3 = B_YREG->cp_a3;
+#ifdef FROZEN_STACKS
+      B_YREG = PROTECT_FROZEN_B(B_YREG);
+      set_cut(S_YREG, B->cp_b);
+#else
+      set_cut(S_YREG, B_YREG->cp_b);
+#endif /* FROZEN_STACKS */
+      SET_BB(B_YREG);
+      ENDCACHE_Y();
+      JMPNext();
+      ENDBOp();
+
+      BOp(retry4, l);
+      CACHE_Y(B);
+      restore_yaam_regs(NEXTOP(PREG, l));
+      PREG = PREG->u.l.l;
+      ARG1 = B_YREG->cp_a1;
+      ARG2 = B_YREG->cp_a2;
+      ARG3 = B_YREG->cp_a3;
+      ARG4 = B_YREG->cp_a4;
+#ifdef FROZEN_STACKS
+      B_YREG = PROTECT_FROZEN_B(B_YREG);
+      set_cut(S_YREG, B->cp_b);
+#else
+      set_cut(S_YREG, B_YREG->cp_b);
+#endif /* FROZEN_STACKS */
+      SET_BB(B_YREG);
+      ENDCACHE_Y();
       JMPNext();
       ENDBOp();
 
