@@ -379,10 +379,10 @@ static CELL *linkcells(register CELL *to, Int n)
 
 static Int cmpclls(CELL *a,CELL *b,Int n)
 {
-     while (n-- >= 0)
-       if(*a++ != *b++) return 0;
-
-     return 1;
+  while (n-- > 0) {
+    if(*a++ != *b++) return FALSE;
+  }
+  return TRUE;
 }
 
 int DBTrailOverflow(void)
@@ -1103,7 +1103,7 @@ check_if_wvars(DBRef p, unsigned int NOfCells, CELL *BTptr)
       p = NextDBRef(p);
     if (p == NIL)
       return (p);
-    memptr = CellPtr(p->Contents);
+    memptr = CellPtr(&(p->Contents));
     if (NOfCells == p->NOfCells
 	&& cmpclls(memptr, BTptr, NOfCells))
       return (p);
@@ -1120,7 +1120,7 @@ scheckcells(int NOfCells, register CELL *m1, register CELL *m2, link_entry *lp, 
   CELL            base = Unsigned(m1 + 1);
   link_entry         *lp1;
 
-  while (NOfCells-- >= 0) {
+  while (NOfCells-- > 0) {
     Register CELL   r1, r2;
 
     r1 = *m1++;
