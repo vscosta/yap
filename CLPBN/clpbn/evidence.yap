@@ -109,7 +109,6 @@ extract_vars([_-V|Cache], [V|AllVs]) :-
 
 add_evidence(K, V) :-
 	evidence(K, Ev), !,
-	listing(evidence),
 	clpbn:put_atts(V, [evidence(Ev)]).
 add_evidence(_, _).
 
