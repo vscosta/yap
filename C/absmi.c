@@ -6508,8 +6508,8 @@ absmi(int inp)
       d0 = ARG1;
       /* deref it first */
       deref_head(d0,retry_tail_unk);
-      PREG = (yamop *) (PREG->u.ld.d);
     retry_tail_nvar:
+      PREG = (yamop *) (PREG->u.ld.d);
       if (IsPairTerm(d0)) {
 	/* pair */
 	SREG = RepPair(d0)+1;
