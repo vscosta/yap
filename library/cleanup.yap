@@ -137,9 +137,10 @@ on_cleanupz(L,G) :-
 % helpers
 cleanup_expansion(X) :-
 	var(X),!,throw(error(instantiation_error,fragile(X))).
-cleanup_expansion((H,T)) :- cleanup_expansion(H),cleanup_expansion(T).
-cleanup_expansion([H,T]) :- cleanup_expansion(H),cleanup_expansion(T).
-cleanup_expansion(G/A) :-
+cleanup_expansion((H,T)) :- !,cleanup_expansion(H),cleanup_expansion(T).
+cleanup_expansion([H,T]) :- !, cleanup_expansion(H),
+	( T = [] -> true ; cleanup_expansion(T) ).
+cleanup_expansion(M:G/A) :-
  	atom(G),integer(A),!,
 	compose_var_goal(G/A,GG),
         \+ user:goal_expansion(GG,M,call_cleanup(M:GG)),
@@ -149,6 +150,8 @@ cleanup_expansion(G/A) :-
 		   NG=call_cleanup(M:GG)
 	       ;   bb_put(expansion_toggle,1),
 		   NG=M:GG )).
+cleanup_expansion(G/A) :-
+       !,prolog_flag(typein_module,M),cleanup_expansion(M:G/A).
 cleanup_expansion(X) :-
 	!,throw(error(instantiation_error,fragile(X))).
 

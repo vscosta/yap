@@ -5616,10 +5616,10 @@ Unify the current value of mutable term @var{M} with term @var{D}.
 @cnindex is_mutable/1
 Holds if @var{D} is a mutable term.
 
-@item set_mutable(?@var{D},+@var{M})
-@findex set_mutable/2
-@syindex set_mutable/2
-@cnindex set_mutable/2
+@item get_mutable(?@var{D},+@var{M})
+@findex get_mutable/2
+@syindex get_mutable/2
+@cnindex get_mutable/2
 Unify the current value of mutable term @var{M} with term @var{D}.
 
 @item update_mutable(+@var{D},+@var{M})
@@ -8191,10 +8191,24 @@ term @var{Term}.
 @cindex cleanup
 
 @t{call_cleanup/1} and @t{call_cleanup/2} allow predicates to register
-code for execution after the call is finished. This library is loaded
-with the @code{use_module(library(cleanup))} command.
+code for execution after the call is finished. Predicates can be
+declared to be @t{fragile} to ensure that @t{call_cleanup} is called
+for any Goal which needs it. This library is loaded with the
+@code{use_module(library(cleanup))} command.
 
 @table @code
+@item :- fragile @var{P},....,@var{Pn}
+@findex fragile
+@syindex fragile
+@cnindex fragile
+Declares the predicate @var{P}=@t{[module:]name/arity} as a fragile
+predicate, module is optional, default is the current
+typein_module. Whenever such a fragile predicate is used in a query
+it will be called through call_cleanup/1.
+@example
+:- fragile foo/1,bar:baz/2.
+@end example
+
 @item call_cleanup(+@var{Goal})
 @findex call_cleanup/1
 @syindex call_cleanup/1
