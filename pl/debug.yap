@@ -264,7 +264,7 @@ debugging :-
 	'$spy'([NM|NG]).
 '$spy'([Module|G]) :-
 %    '$format'(user_error,"$spym(~w,~w)~n",[Module,G]),
-         '$hidden'(G),
+         '$hidden_predicate'(G,Module),
          !,
 	 /* called from prolog module   */
 	 '$execute0'(G,Module),

@@ -12,7 +12,7 @@
 * Last rev:								 *
 * mods:									 *
 * comments:	allocating space					 *
-* version:$Id: alloc.c,v 1.21 2002-07-23 15:49:06 vsc Exp $		 *
+* version:$Id: alloc.c,v 1.22 2002-09-02 17:33:00 vsc Exp $		 *
 *************************************************************************/
 #ifdef SCCS
 static char SccsId[] = "%W% %G%";
@@ -382,7 +382,7 @@ AllocCodeSpace(unsigned int size)
 #include "windows.h"
 
 #define BASE_ADDRESS  ((LPVOID) MMAP_ADDR)
-#define MAX_WORKSPACE 0x20000000L
+#define MAX_WORKSPACE 0x80000000L
 
 static LPVOID brk;
 

@@ -384,7 +384,7 @@ abolish(X) :-
 
 '$new_abolish'(V,M) :- var(V), !,
 	'$abolish_all'(M).
-'$new_abolish'(A,M) :- var(A), !,
+'$new_abolish'(A,M) :- atom(A), !,
 	'$abolish_all_atoms'(A,M).
 '$new_abolish'(M:PS,_) :- !,
 	'$new_abolish'(PS,M).
@@ -407,7 +407,7 @@ abolish(X) :-
 '$abolish_all'(_).
 
 '$abolish_all_atoms'(Na, M) :-
-        '$current_predicate'(M,Na,Ar),
+        '$current_predicate_for_atom'(Na,M,Ar),
 	'$new_abolish'(Na/Ar, M),
 	fail.
 '$abolish_all_atoms'(_,_).
@@ -476,7 +476,7 @@ abolish(X) :-
 '$abolish_all_old'(_).
 
 '$abolish_all_atoms_old'(Na, M) :-
-        '$current_predicate'(M, Na, Ar),
+        '$current_predicate_for_atom'(Na, M, Ar),
 	'$abolish'(Na, Ar, M),
 	fail.
 '$abolish_all_atoms_old'(_,_).

@@ -64,6 +64,8 @@ STD_PROTO(static Int init_current_atom, (void));
 STD_PROTO(static Int cont_current_atom, (void));
 STD_PROTO(static Int init_current_predicate, (void));
 STD_PROTO(static Int cont_current_predicate, (void));
+STD_PROTO(static Int init_current_predicate_for_atom, (void));
+STD_PROTO(static Int cont_current_predicate_for_atom, (void));
 STD_PROTO(static OpEntry *NextOp, (OpEntry *));
 STD_PROTO(static Int init_current_op, (void));
 STD_PROTO(static Int cont_current_op, (void));
@@ -1397,10 +1399,56 @@ static Int
 init_current_predicate(void)
 {
   Term t1 = Deref(ARG1);
+  Term t2 = Deref(ARG2);
 
   if (IsVarTerm(t1) || !IsAtomTerm(t1)) cut_fail();
-  EXTRA_CBACK_ARG(3,1) = (CELL)MkIntegerTerm((Int)ModulePred[LookupModule(t1)]);
+  if (IsVarTerm(t2) || !IsAtomTerm(t2)) cut_fail();
+  EXTRA_CBACK_ARG(3,1) = MkIntegerTerm((Int)ModulePred[LookupModule(t1)]);
   return (cont_current_predicate());
+}
+
+static Int 
+cont_current_predicate_for_atom(void)
+{
+  Prop pf = (Prop)IntegerOfTerm(EXTRA_CBACK_ARG(3,1));
+  SMALLUNSGN mod = LookupModule(Deref(ARG2));
+
+  while (pf != NIL) {
+    FunctorEntry *pp = RepFunctorProp(pf);
+    if (IsFunctorProperty(pp->KindOfPE)) {
+      Prop p0 = pp->PropsOfFE;
+      while (p0) {
+	PredEntry *p = RepPredProp(p0);
+	if (p->ModuleOfPred == mod ||
+	    p->ModuleOfPred == 0) {
+	  /* we found the predicate */
+	  EXTRA_CBACK_ARG(3,1) = (CELL)MkIntegerTerm((Int)(pp->NextOfPE));
+	  return(unify(ARG3,MkNewApplTerm(p->FunctorOfPred,p->ArityOfPE)));
+	}
+	p0 = p->NextOfPE;
+      }
+    } else if (pp->KindOfPE == PEProp) {
+      PredEntry *pe = RepPredProp(pf);
+      if (pe->ModuleOfPred == mod ||
+	  pe->ModuleOfPred == 0) {
+	/* we found the predicate */
+	EXTRA_CBACK_ARG(3,1) = (CELL)MkIntegerTerm((Int)(pp->NextOfPE));
+	return(unify(ARG3,MkAtomTerm((Atom)(pe->FunctorOfPred))));
+      }
+    }
+    pf = pp->NextOfPE;
+  }
+  cut_fail();
+}
+
+static Int 
+init_current_predicate_for_atom(void)
+{
+  Term t1 = Deref(ARG1);
+
+  if (IsVarTerm(t1) || !IsAtomTerm(t1)) cut_fail();
+  EXTRA_CBACK_ARG(3,1) = MkIntegerTerm((Int)RepAtom(AtomOfTerm(t1))->PropsOfAE);
+  return (cont_current_predicate_for_atom());
 }
 
 static OpEntry *
@@ -2119,6 +2167,8 @@ InitBackCPreds(void)
   InitCPredBack("$current_atom", 1, 2, init_current_atom, cont_current_atom,
 		SafePredFlag|SyncPredFlag);
   InitCPredBack("$current_predicate", 3, 1, init_current_predicate, cont_current_predicate,
+		SafePredFlag|SyncPredFlag);
+  InitCPredBack("$current_predicate_for_atom", 3, 1, init_current_predicate_for_atom, cont_current_predicate_for_atom,
 		SafePredFlag|SyncPredFlag);
   InitCPredBack("current_op", 3, 3, init_current_op, cont_current_op,
 		SafePredFlag|SyncPredFlag);

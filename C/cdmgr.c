@@ -2283,6 +2283,47 @@ p_hide_predicate(void)
   return(TRUE);
 }
 
+static Int			/* $hidden_predicate(P) */
+p_hidden_predicate(void)
+{
+  PredEntry      *pe;
+
+  Term t1 = Deref(ARG1);
+  SMALLUNSGN mod = LookupModule(Deref(ARG2));
+
+ restart_system_pred:
+  if (IsVarTerm(t1))
+    return (FALSE);
+  if (IsAtomTerm(t1)) {
+    pe = RepPredProp(GetPredPropByAtom(AtomOfTerm(t1), mod));
+  } else if (IsApplTerm(t1)) {
+    Functor         funt = FunctorOfTerm(t1);
+    if (IsExtensionFunctor(funt)) {
+      return(FALSE);
+    } 
+    if (funt == FunctorModule) {
+      Term nmod = ArgOfTerm(1, t1);
+      if (IsVarTerm(nmod)) {
+	Error(INSTANTIATION_ERROR,ARG1,"hide_predicate/1");
+	return(FALSE);
+      } 
+      if (!IsAtomTerm(nmod)) {
+	Error(TYPE_ERROR_ATOM,ARG1,"hide_predicate/1");
+	return(FALSE);
+      }
+      t1 = ArgOfTerm(2, t1);
+      goto restart_system_pred;
+    }
+    pe = RepPredProp(GetPredPropByFunc(funt, mod));
+  } else if (IsPairTerm(t1)) {
+    return (TRUE);
+  } else
+    return (FALSE);
+  if (EndOfPAEntr(pe))
+    return(FALSE);
+  return(pe->PredFlags & HiddenPredFlag);
+}
+
 static Int			/* $cut_transparent(P) */
 p_cut_transparent(void)
 {
@@ -2358,5 +2399,6 @@ InitCdMgr(void)
   InitCPred("$system_predicate", 2, p_system_pred, SafePredFlag);
   InitCPred("$cut_transparent", 1, p_cut_transparent, SafePredFlag);
   InitCPred("$hide_predicate", 2, p_hide_predicate, SafePredFlag);
+  InitCPred("$hidden_predicate", 2, p_hidden_predicate, SafePredFlag);
 }
 
