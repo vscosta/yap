@@ -4507,6 +4507,9 @@ absmi(int inp)
       d0 = *pt0;
       deref_head(d0, ufloat_unk);
     ufloat_nonvar:
+      if (!IsApplTerm(d0)) {
+	FAIL();	
+      }
       /* look inside term */
       BEGP(pt0);
       pt0 = RepAppl(d0);
@@ -4552,6 +4555,9 @@ absmi(int inp)
       d0 = *S_SREG;
       deref_head(d0, ulfloat_unk);
     ulfloat_nonvar:
+      if (!IsApplTerm(d0)) {
+	FAIL();	
+      }
       BEGP(pt0);
       pt0 = RepAppl(d0);
       BEGD(d0);
@@ -4597,6 +4603,9 @@ absmi(int inp)
       deref_head(d0, ulongint_unk);
     ulongint_nonvar:
       /* look inside term */
+      if (!IsApplTerm(d0)) {
+	FAIL();	
+      }
       BEGP(pt0);
       pt0 = RepAppl(d0);
       BEGD(d0);
@@ -4636,6 +4645,9 @@ absmi(int inp)
       d0 = *S_SREG;
       deref_head(d0, ullongint_unk);
     ullongint_nonvar:
+      if (!IsApplTerm(d0)) {
+	FAIL();	
+      }
       BEGP(pt0);
       pt0 = RepAppl(d0);
       BEGD(d0);
@@ -4676,6 +4688,9 @@ absmi(int inp)
       deref_head(d0, ubigint_unk);
     ubigint_nonvar:
       /* look inside term */
+      if (!IsApplTerm(d0)) {
+	FAIL();	
+      }
 #ifdef USE_GMP
       BEGP(pt0);
       pt0 = RepAppl(d0);
@@ -4720,6 +4735,9 @@ absmi(int inp)
       d0 = *S_SREG;
       deref_head(d0, ulbigint_unk);
     ulbigint_nonvar:
+      if (!IsApplTerm(d0)) {
+	FAIL();	
+      }
 #ifdef USE_GMP
       BEGP(pt0);
       pt0 = RepAppl(d0);
