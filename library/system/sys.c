@@ -8,9 +8,9 @@
 *									 *
 **************************************************************************
 *									 *
-* File:		regexp.c						 *
-* Last rev:								 *
-* mods:									 *
+* File:		sys.c							 *
+* Last rev:	$Revision: 1.15 $						 *
+* mods:		$Log: not supported by cvs2svn $							 *
 * comments:	regular expression interpreter                           *
 *									 *
 *************************************************************************/
