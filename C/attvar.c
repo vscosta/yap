@@ -199,10 +199,10 @@ InitVarTime(void) {
 static Int
 PutAtt(attvar_record *attv, Int i, Term tatt) {
   Int pos = i*2;
-  CELL *timestamp = (CELL *)(attv->Atts[pos]);
-  if (B->cp_h <= timestamp
+  CELL *timestmp = (CELL *)(attv->Atts[pos]);
+  if (B->cp_h <= timestmp
 #if defined(SBA) || defined(TABLING)
-      && timestamp <= H
+      && timestmp <= H
 #endif
     ) {
 #if defined(SBA)
