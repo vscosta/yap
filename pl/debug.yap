@@ -553,7 +553,7 @@ debugging :-
 	fail.
 
 % if we are in the interpreter, don't need to care about forcing a trace, do we?
-'$continue_debugging'(yes) :- !.
+'$continue_debugging'(no) :- !.
 '$continue_debugging'(_) :-
 	'$access_yap_flags'(10,1), !,
 	'$creep'.
