@@ -188,7 +188,8 @@ yamop   *STD_PROTO(Yap_ExpandIndex,(PredEntry *));
 yamop   *STD_PROTO(Yap_CleanUpIndex,(struct logic_upd_index *));
 void     STD_PROTO(Yap_AddClauseToIndex,(PredEntry *,yamop *,int));
 void     STD_PROTO(Yap_RemoveClauseFromIndex,(PredEntry *,yamop *));
-LogUpdClause  *STD_PROTO(Yap_follow_indexing_code,(PredEntry *,yamop *,Term,Term,Term, yamop *,yamop *));
+LogUpdClause  *STD_PROTO(Yap_NthClause,(PredEntry *,Int));
+LogUpdClause  *STD_PROTO(Yap_FollowIndexingCode,(PredEntry *,yamop *,Term,Term,Term, yamop *,yamop *));
 
 #if LOW_PROF
 /* profiling */

@@ -2995,7 +2995,7 @@ fetch_next_lu_clause(PredEntry *pe, yamop *i_code, Term th, Term tb, Term tr, ya
   LogUpdClause *cl;
   Term rtn;
 
-  cl = Yap_follow_indexing_code(pe, i_code, th, tb, tr, NEXTOP(PredLogUpdClause->CodeOfPred,ld), cp_ptr);
+  cl = Yap_FollowIndexingCode(pe, i_code, th, tb, tr, NEXTOP(PredLogUpdClause->CodeOfPred,ld), cp_ptr);
   if (cl == NULL) {
     WRITE_UNLOCK(pe->PRWLock);
     return FALSE;
@@ -3069,6 +3069,16 @@ p_log_update_clause(void)
   if (pe == NULL || EndOfPAEntr(pe))
     return FALSE;
   WRITE_LOCK(pe->PRWLock);
+  if (pe->ModuleOfPred != 2 &&
+      pe->ArityOfPE) {
+    UInt i;
+    CELL *tar = RepAppl(t1);
+
+    /* makes no sense for IDB, as ArityOfPE means nothing */
+    for (i = 1; i <= pe->ArityOfPE; i++) {
+      XREGS[i] = tar[i];
+    }
+  }
   if(pe->OpcodeOfPred == INDEX_OPCODE) {
     IPred(pe);
   }
@@ -3090,7 +3100,7 @@ fetch_next_lu_clause0(PredEntry *pe, yamop *i_code, Term th, Term tb, yamop *cp_
 {
   LogUpdClause *cl;
 
-  cl = Yap_follow_indexing_code(pe, i_code, th, tb, TermNil, NEXTOP(PredLogUpdClause0->CodeOfPred,ld), cp_ptr);
+  cl = Yap_FollowIndexingCode(pe, i_code, th, tb, TermNil, NEXTOP(PredLogUpdClause0->CodeOfPred,ld), cp_ptr);
   WRITE_UNLOCK(pe->PRWLock);
   if (cl == NULL) {
     return FALSE;
@@ -3149,6 +3159,16 @@ p_log_update_clause0(void)
   if (pe == NULL || EndOfPAEntr(pe))
     return FALSE;
   WRITE_LOCK(pe->PRWLock);
+  if (pe->ModuleOfPred != 2 &&\
+      pe->ArityOfPE) {
+    UInt i;
+    CELL *tar = RepAppl(t1);
+
+    /* makes no sense for IDB, as ArityOfPE means nothing */
+    for (i = 1; i <= pe->ArityOfPE; i++) {
+      XREGS[i] = tar[i];
+    }
+  }
   if(pe->OpcodeOfPred == INDEX_OPCODE) {
     IPred(pe);
   }
@@ -3171,7 +3191,7 @@ fetch_next_static_clause(PredEntry *pe, yamop *i_code, Term th, Term tb, Term tr
   StaticClause *cl;
   Term rtn;
 
-  cl = (StaticClause *)Yap_follow_indexing_code(pe, i_code, th, tb, tr, NEXTOP(PredStaticClause->CodeOfPred,ld), cp_ptr);
+  cl = (StaticClause *)Yap_FollowIndexingCode(pe, i_code, th, tb, tr, NEXTOP(PredStaticClause->CodeOfPred,ld), cp_ptr);
   WRITE_UNLOCK(pe->PRWLock);
   if (cl == NULL)
     return FALSE;
@@ -3231,10 +3251,71 @@ p_static_clause(void)
   if (pe == NULL || EndOfPAEntr(pe))
     return FALSE;
   WRITE_LOCK(pe->PRWLock);
+  if (pe->ArityOfPE &&
+      pe->ArityOfPE) {
+    UInt i;
+    CELL *tar = RepAppl(t1);
+
+    for (i = 1; i <= pe->ArityOfPE; i++) {
+      XREGS[i] = tar[i];
+    }
+  }
   if(pe->OpcodeOfPred == INDEX_OPCODE) {
     IPred(pe);
   }
   return fetch_next_static_clause(pe, pe->cs.p_code.TrueCodeOfPred, t1, ARG3, ARG4, P, TRUE);
+}
+
+static Int			/* $hidden_predicate(P) */
+p_nth_clause(void)
+{
+  PredEntry      *pe;
+  Term t1 = Deref(ARG1);
+  Term tn = Deref(ARG3);
+  LogUpdClause *cl;
+  Int ncls;
+
+  if (!IsIntegerTerm(tn))
+    return FALSE;
+  ncls = IntegerOfTerm(tn);
+  pe = get_pred(t1, Deref(ARG2), "clause/3");
+  if (pe == NULL || EndOfPAEntr(pe))
+    return FALSE;
+  WRITE_LOCK(pe->PRWLock);
+  if (!(pe->PredFlags & (SourcePredFlag|LogUpdatePredFlag))) {
+    WRITE_UNLOCK(pe->PRWLock);
+    return FALSE;
+  }
+  /* in case we have to index or to expand code */
+  if (pe->ModuleOfPred != 2) {
+    UInt i;
+
+    for (i = 1; i <= pe->ArityOfPE; i++) {
+      XREGS[i] = MkVarTerm();
+    }
+  } else {
+      XREGS[2] = MkVarTerm();
+  }
+  if(pe->OpcodeOfPred == INDEX_OPCODE) {
+    IPred(pe);
+  }
+  cl = Yap_NthClause(pe, ncls);
+  if (cl == NULL) 
+    return FALSE;
+  if (cl->ClFlags & LogUpdatePredFlag) {
+#if defined(YAPOR) || defined(THREADS)
+    LOCK(cl->ClLock);
+    TRAIL_CLREF(cl);		/* So that fail will erase it */
+    INC_DBREF_COUNT(cl);
+    UNLOCK(cl->ClLock);
+#else
+    if (!(cl->ClFlags & InUseMask)) {
+      cl->ClFlags |= InUseMask;
+      TRAIL_CLREF(cl);	/* So that fail will erase it */
+    }
+#endif
+  }
+  return Yap_unify(MkDBRefTerm((DBRef)cl), ARG4);
 }
 
 static Int			/* $hidden_predicate(P) */
@@ -3461,5 +3542,6 @@ Yap_InitCdMgr(void)
   Yap_InitCPred("$static_clause", 4, p_static_clause, SyncPredFlag);
   Yap_InitCPred("$continue_static_clause", 5, p_continue_static_clause, SafePredFlag|SyncPredFlag);
   Yap_InitCPred("$static_pred_statistics", 5, p_static_pred_statistics, SyncPredFlag);
+  Yap_InitCPred("$p_nth_clause", 4, p_nth_clause, SyncPredFlag);
 }
 

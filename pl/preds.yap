@@ -355,6 +355,8 @@ clause(V,Q,R) :-
 
 nth_clause(P,I,R) :- nonvar(R), !,
 	'$nth_instancep'(P,I,R).
+nth_clause(V,I,R) :- var(V), !,
+	'$do_error'(instantiation_error,M:nth_clause(V,I,R)).
 nth_clause(M:V,I,R) :- !,
 	'$nth_clause'(V,M,I,R).
 nth_clause(V,I,R) :-
@@ -371,11 +373,14 @@ nth_clause(V,I,R) :-
 '$nth_clause'(M:P,_,I,R) :- !,
 	'$nth_clause'(P,M,I,R).
 '$nth_clause'(P,M,I,R) :-
-	'$some_recordedp'(M:P), !,
+	( '$is_log_updatable'(P,M) ; '$is_source'(P,M) ), !,
+	'$p_nth_clause'(P,M,I,R).
+'$nth_clause'(P,M,I,R) :-
+	'$is_dynamic'(H,M), !,
 	'$nth_instancep'(M:P,I,R).
 '$nth_clause'(P,M,I,R) :-
 	( '$system_predicate'(P,M) -> true ;
-	    '$number_of_nth_clauses'(P,M,N), N > 0 ),
+	    '$number_of_clauses'(P,M,N), N > 0 ),
 	functor(P,Name,Arity),
 	'$do_error'(permission_error(access,private_procedure,Name/Arity),
 	      nth_clause(M:P,I,R)).
