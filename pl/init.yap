@@ -59,6 +59,7 @@ not(G) :-    '$current_module'(Module), '$meta_call'(not(G),Module).
 	 % modules must be after preds, otherwise we will have trouble
 	 % with meta-predicate expansion being invoked
 	 'modules.yap',
+	 'signals.yap',
 	 'profile.yap',
 	 'callcount.yap',
 	 'load_foreign.yap',
@@ -67,6 +68,7 @@ not(G) :-    '$current_module'(Module), '$meta_call'(not(G),Module).
 	 'setof.yap',
 	 'strict_iso.yap',
 	 'tabling.yap',
+	 'threads.yap',
 	 'yapor.yap'].
 
 :-	 ['protect.yap'].

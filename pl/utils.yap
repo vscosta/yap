@@ -250,23 +250,6 @@ putenv(Na,Val) :-
 getenv(Na,Val) :-
 	'$getenv'(Na,Val).
 
-alarm(_, _, _) :-
-	recorded('$alarm_handler',_, Ref), erase(Ref), fail.
-alarm(Interval, Goal, Left) :-
-	'$current_module'(M),
-	recordz('$alarm_handler',M:Goal,_),
-	'$alarm'(Interval, Left).
-
-on_signal(Signal,OldAction,default) :-
-	recorded('$sig_handler', default(Signal,Action), _Ref),
-	on_signal(Signal,OldAction,Action).
-on_signal(Signal,OldAction,Action) :-
-	recorded('$sig_handler', action(Signal,OldAction), Ref),
-	erase(Ref),
-	'$current_module'(M),
-	recordz('$sig_handler', action(Signal,M:Action), _).
-
-
 %%% Saving and restoring a computation
 
 save(A) :- var(A), !,
@@ -820,12 +803,3 @@ user_defined_directive(Dir,Action) :-
 	recorda('$toplevel_hooks',H,_),
 	fail.
 '$set_toplevel_hook'(_).
-
-
-raise_exception(Ball) :- throw(Ball).
-on_exception(Pat, G, H) :- catch(G, Pat, H).
-
-'$append'([], L, L) .
-'$append'([H|T], L, [H|R]) :-
-	'$append'(T, L, R).
-

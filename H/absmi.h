@@ -175,7 +175,11 @@ inline EXTERN void
 restore_absmi_regs(REGSTORE * old_regs)
 {
   memcpy(old_regs, Yap_regp, sizeof(REGSTORE));
+#ifdef THREADS
+  pthread_setspecific(yaamregs_key, (void *)old_regs);
+#else
   Yap_regp = old_regs;
+#endif
 }
 #endif /* PUSH_REGS */
 
@@ -554,7 +558,7 @@ typedef CELL label;
 
 #define XREG(I)		XREGS[I]
 
-#endif /* ALIGN_LONGS */
+#endif /* PRECOMPUTE_REGADDRESS */
 
 	/* The Unification Stack is the Auxiliary stack */
 

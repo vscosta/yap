@@ -25,6 +25,7 @@ static char     SccsId[] = "%W% %G%";
 
 #include "Yap.h"
 #include "yapio.h"
+#include "alloc.h"
 #include "clause.h"
 #include "Foreign.h"
 #ifdef LOW_LEVEL_TRACER
@@ -72,19 +73,52 @@ STD_PROTO(void  exit, (int));
 /**************	YAP PROLOG GLOBAL VARIABLES *************************/
 
 /************* variables related to memory allocation ***************/
-ADDR            Yap_HeapBase,
-		Yap_LocalBase,
-                Yap_GlobalBase,
-                Yap_TrailBase,
-                Yap_TrailTop;
 
-/* Functor		FunctorDouble, FunctorLongInt, FunctorDBRef; */
+ADDR Yap_HeapBase;
+
+#ifdef THREADS
+
+struct thread_globs Yap_thread_gl[MAX_WORKERS];
+
+#else
+ADDR Yap_HeapBase,
+  Yap_LocalBase,
+  Yap_GlobalBase,
+  Yap_TrailBase,
+  Yap_TrailTop;
 
 /************ variables	concerned with Error Handling *************/
 char           *Yap_ErrorMessage;	/* used to pass error messages */
 Term              Yap_Error_Term;	/* used to pass error terms */
 yap_error_number  Yap_Error_TYPE;	/* used to pass the error */
 UInt             Yap_Error_Size;	/* used to pass a size associated with an error */
+
+/******************* storing error messages ****************************/
+char      Yap_ErrorSay[MAX_ERROR_MSG_SIZE];
+
+/* if we botched in a LongIO operation */
+jmp_buf Yap_IOBotch;
+
+/* if we botched in the compiler */
+jmp_buf Yap_CompilerBotch;
+
+/************ variables	concerned with Error Handling *************/
+sigjmp_buf         Yap_RestartEnv;	/* used to restart after an abort execution */
+
+/********* IO support	*****/
+
+/********* parsing ********************************************/
+
+TokEntry *Yap_tokptr, *Yap_toktide;
+VarEntry *Yap_VarTable, *Yap_AnonVarTable;
+int Yap_eot_before_eof = FALSE;
+
+/******************* intermediate buffers **********************/
+
+char     Yap_FileNameBuf[YAP_FILENAME_MAX],
+         Yap_FileNameBuf2[YAP_FILENAME_MAX];
+
+#endif /* THREADS */
 
 /********* readline support	*****/
 #if HAVE_LIBREADLINE
@@ -107,14 +141,6 @@ char            emacs_tmp[256], emacs_tmp2[256];
 
 #endif
 
-/******************* storing error messages ****************************/
-char      Yap_ErrorSay[MAX_ERROR_MSG_SIZE];
-
-/******************* intermediate buffers **********************/
-
-char     Yap_FileNameBuf[YAP_FILENAME_MAX],
-         Yap_FileNameBuf2[YAP_FILENAME_MAX];
-
 /********* Prolog State ********************************************/
 
 prolog_exec_mode      Yap_PrologMode = BootMode;
@@ -129,11 +155,6 @@ YP_FILE *Yap_stdin;
 YP_FILE *Yap_stdout;
 YP_FILE *Yap_stderr;
 
-/********* parsing ********************************************/
-
-TokEntry *Yap_tokptr, *Yap_toktide;
-VarEntry *Yap_VarTable, *Yap_AnonVarTable;
-int Yap_eot_before_eof = FALSE;
 
 /************** Access to yap initial arguments ***************************/
 
@@ -147,18 +168,9 @@ int             Yap_argc;
 ext_op attas[attvars_ext+1];
 #endif
 
-/************ variables	concerned with Error Handling *************/
-sigjmp_buf         Yap_RestartEnv;	/* used to restart after an abort execution */
-
 /**************	declarations local to init.c ************************/
 static char    *optypes[] =
 {"", "xfx", "xfy", "yfx", "xf", "yf", "fx", "fy"};
-
-/* if we botched in a LongIO operation */
-jmp_buf Yap_IOBotch;
-
-/* if we botched in the compiler */
-jmp_buf Yap_CompilerBotch;
 
 /* OS page size for memory allocation */
 int Yap_page_size;
@@ -751,6 +763,20 @@ InitCodes(void)
   INIT_YAMOP_LTT(&(heap_regs->rtrycode), 1);
 #endif /* YAPOR */
 
+#ifdef  THREADS
+  INIT_LOCK(heap_regs->thread_handles_lock);
+  {
+    int i;
+    for (i=0; i < MAX_WORKERS; i++) {
+      heap_regs->thread_handle[i].in_use = FALSE;
+    }
+  }
+  heap_regs->thread_handle[0].id = 0;
+  heap_regs->thread_handle[0].in_use = TRUE;
+  heap_regs->thread_handle[0].default_yaam_regs = 
+    &Yap_standard_regs;
+  heap_regs->thread_handle[0].handle = pthread_self();
+#endif
 #if defined(YAPOR) || defined(THREADS)
   INIT_RWLOCK(heap_regs->bgl);
   INIT_LOCK(heap_regs->free_blocks_lock);
@@ -759,6 +785,14 @@ InitCodes(void)
   INIT_LOCK(heap_regs->dead_clauses_lock);
   heap_regs->n_of_threads = 1;
   heap_regs->heap_top_owner = -1;
+  {
+    int i;
+    for (i=0; i < MAX_WORKERS; i++) {
+      heap_regs->wl[i].scratchpad.ptr = NULL;
+      heap_regs->wl[i].scratchpad.sz = SCRATCH_START_SIZE;
+      heap_regs->wl[i].scratchpad.msz = SCRATCH_START_SIZE;
+    }
+  }
 #endif /* YAPOR */
   heap_regs->clausecode->arity = 0;
   heap_regs->clausecode->clause = NULL;
@@ -929,6 +963,7 @@ InitCodes(void)
   heap_regs->functor_stream = Yap_MkFunctor (AtomStream, 1);
   heap_regs->functor_stream_pos = Yap_MkFunctor (AtomStreamPos, 3);
   heap_regs->functor_stream_eOS = Yap_MkFunctor (Yap_LookupAtom("end_of_stream"), 1);
+  heap_regs->functor_thread_run = Yap_MkFunctor (Yap_LookupAtom("$top_thread_goal"), 1);
   heap_regs->functor_change_module = Yap_MkFunctor (Yap_LookupAtom("$change_module"), 1);
   heap_regs->functor_current_module = Yap_MkFunctor (Yap_LookupAtom("$current_module"), 1);
   FunctorThrow = Yap_MkFunctor( Yap_LookupAtom("throw"), 1);
@@ -1087,7 +1122,7 @@ InitYapOr(int Heap,
 
 
 void
-Yap_InitStacks(int Heap,
+Yap_InitWorkspace(int Heap,
 	   int Stack,
 	   int Trail,
 	   int aux_number_workers,
@@ -1100,10 +1135,15 @@ Yap_InitStacks(int Heap,
   /* initialise system stuff */
 
 #if PUSH_REGS
-    /* In this case we need to initialise the abstract registers */
+#ifdef THREADS
+  pthread_key_create(&yaamregs_key, NULL);
+  pthread_setspecific(yaamregs_key, (const void *)&Yap_standard_regs);
+#else
+  /* In this case we need to initialise the abstract registers */
   Yap_regp = &Yap_standard_regs;
   /* the emulator will eventually copy them to its own local
      register array, but for now they exist */
+#endif
 #endif /* PUSH_REGS */
 
 #ifdef THREADS
@@ -1112,26 +1152,6 @@ Yap_InitStacks(int Heap,
   /* Init signal handling and time */
   /* also init memory page size, required by later functions */
   Yap_InitSysbits ();
-
-  /* sanity checking for data areas */
-  if (Trail < MinTrailSpace)
-    Trail = MinTrailSpace;
-  if (Stack < MinStackSpace)
-    Stack = MinStackSpace;
-#if defined(YAPOR) || defined(TABLING)
-  {
-#ifdef USE_HEAP
-    int OKHeap = MinHeapSpace+(sizeof(struct global_data) + aux_number_workers*sizeof(struct local_data))/1024;
-#else
-    int OKHeap = MinHeapSpace+(sizeof(struct global_data) + aux_number_workers*sizeof(struct local_data)+OPT_CHUNK_SIZE)/1024;
-#endif
-    if (Heap < OKHeap)
-      Heap = OKHeap;
-  }
-#else
-  if (Heap < MinHeapSpace)
-    Heap = MinHeapSpace;
-#endif /* YAPOR || TABLING */
 
 #if defined(YAPOR) || defined(TABLING)
   InitYapOr(Heap,
@@ -1170,6 +1190,10 @@ Yap_InitStacks(int Heap,
   Yap_InitSysPath();
   InitFlags();
   InitStdPreds();
+  /* make sure tmp area is available */
+  {
+    Yap_ReleasePreAllocCodeSpace(Yap_PreAllocCodeSpace());
+  }
 }
 
 void

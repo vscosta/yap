@@ -591,7 +591,7 @@ YAP_AllocSpaceFromYap(unsigned int size)
   BACKUP_MACHINE_REGS();
 
   if ((ptr = Yap_AllocCodeSpace(size)) == NULL) {
-    if (!Yap_growheap(FALSE, size)) {
+    if (!Yap_growheap(FALSE, size, NULL)) {
       Yap_Error(SYSTEM_ERROR, TermNil, Yap_ErrorMessage);
       return(NULL);
     }
@@ -835,7 +835,6 @@ YAP_Write(Term t, void (*myputc)(int), int flags)
 X_API char *
 YAP_CompileClause(Term t)
 {
-  char *Yap_ErrorMessage;
   yamop *codeaddr;
   int mod = CurrentModule;
 
@@ -890,11 +889,12 @@ YAP_Init(YAP_init_args *yap_init)
     Heap = yap_init->HeapSize;
   }
 
-  Yap_InitStacks (Heap, Stack, Trail,
+  Yap_InitWorkspace(Heap, Stack, Trail,
 	      yap_init->NumberWorkers,
 	      yap_init->SchedulerLoop,
 	      yap_init->DelayedReleaseLoad
 	      );
+  Yap_InitExStacks (Stack, Trail);
   Yap_InitYaamRegs();
 
 #if HAVE_MPI
@@ -975,6 +975,7 @@ YAP_FastInit(char saved_state[])
   init_args.TrailSize = 0;
   init_args.YapLibDir = NULL;
   init_args.YapPrologBootFile = NULL;
+  init_args.YapPrologInitFile = NULL;
   init_args.YapPrologRCFile = NULL;
   init_args.HaltAfterConsult = FALSE;
   init_args.FastBoot = FALSE;

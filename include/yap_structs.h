@@ -50,6 +50,7 @@ typedef struct AtomEntry *YAP_Atom;
 #define YAP_BOOT_FROM_PROLOG       0
 #define YAP_BOOT_FROM_SAVED_CODE   1
 #define YAP_BOOT_FROM_SAVED_STACKS 2
+#define YAP_FULL_BOOT_FROM_PROLOG  4
 #define YAP_BOOT_FROM_SAVED_ERROR  -1
 
 #define YAP_WRITE_QUOTED		0
@@ -72,6 +73,8 @@ typedef struct {
   char *YapLibDir;
   /* if NON-NULL, name for a Prolog file to use when booting  */
   char *YapPrologBootFile;
+  /* if NON-NULL, name for a Prolog file to use when initialising  */
+  char *YapPrologInitFile;
   /* if NON-NULL, name for a Prolog file to consult before entering top-level  */
   char *YapPrologRCFile;
   /* if previous NON-NULL and TRUE, halt after consulting that file  */

@@ -177,6 +177,7 @@ then
   CC="condor_compile $CC"
   dnl no readline with condor.
   yap_cv_readline="no"
+  AC_DEFINE(SUPPORT_CONDOR, 1)
 fi
 
 dnl Compilation Flags
@@ -330,6 +331,14 @@ fi
 if test "$yap_cv_gmp" != "no"
 then
   AC_CHECK_LIB(gmp,main)
+fi
+
+if test "$threads" = yes
+then
+  AC_DEFINE(SUPPORT_THREADS, 1)
+  AC_CHECK_LIB(pthread,pthread_create)
+  AC_CHECK_HEADERS(pthread.h)	
+  AC_CHECK_FUNCS(pthread_mutexattr_setkind_np pthread_mutexattr_settype)
 fi
 
 MPI_OBJS=

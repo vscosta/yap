@@ -53,27 +53,6 @@ read_sig.
 	;
 	  true
 	),
-	% If this is not here, the following get written twice in the idb. Why?
-	eraseall('$sig_handler'),
-	% The default interrupt handlers are kept, so that it's
-	% possible to revert to them with on_signal(S,_,default)
-	recordz('$sig_handler',default(sig_hup,
-		         (( exists('~/.yaprc') -> [-'~/.yaprc'] ; true ),
-			  ( exists('~/.prologrc') -> [-'~/.prologrc'] ; true ),
-			  ( exists('~/prolog.ini') -> [-'~/prolog.ini'] ; true ))), _),
-	recordz('$sig_handler',default(sig_usr1,
-		       (nl,writeq('[ Received user signal 1 ]'),nl,halt)), _),
-	recordz('$sig_handler',default(sig_usr2,
-		       (nl,writeq('[ Received user signal 2 ]'),nl,halt)), _),
-	% The current interrupt handlers are also set the default values
-	recordz('$sig_handler',action(sig_hup,
-		         (( exists('~/.yaprc') -> [-'~/.yaprc'] ; true ),
-			  ( exists('~/.prologrc') -> [-'~/.prologrc'] ; true ),
-			  ( exists('~/prolog.ini') -> [-'~/prolog.ini'] ; true ))), _),
-	recordz('$sig_handler',action(sig_usr1,
-		       (nl,writeq('[ Received user signal 1 ]'),nl,halt)), _),
-	recordz('$sig_handler',action(sig_usr2,
-		       (nl,writeq('[ Received user signal 2 ]'),nl,halt)), _),
 	'$set_yap_flags'(10,0),
 	set_value('$gc',on),
 	set_value('$verbose',on),

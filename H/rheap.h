@@ -328,10 +328,12 @@ restore_codes(void)
 #ifdef COROUTINING
   if (heap_regs->wake_up_code != NULL)
     heap_regs->wake_up_code = (PredEntry *)PtoHeapCellAdjust((CELL *)(heap_regs->wake_up_code));
-  heap_regs->mutable_list =
-    AbsAppl(PtoGloAdjust(RepAppl(heap_regs->mutable_list)));
-  heap_regs->atts_mutable_list =
-    AbsAppl(PtoGloAdjust(RepAppl(heap_regs->atts_mutable_list)));
+#if !defined(THREADS)
+  heap_regs->wl.mutable_list =
+    AbsAppl(PtoGloAdjust(RepAppl(heap_regs->wl.mutable_list)));
+  heap_regs->wl.atts_mutable_list =
+    AbsAppl(PtoGloAdjust(RepAppl(heap_regs->wl.atts_mutable_list)));
+#endif
 #endif
   if (heap_regs->last_wtime != NULL)
     heap_regs->last_wtime = (void *)PtoHeapCellAdjust((CELL *)(heap_regs->last_wtime));

@@ -10,7 +10,7 @@
 * File:		Heap.h         						 *
 * mods:									 *
 * comments:	Heap Init Structure					 *
-* version:      $Id: Heap.h,v 1.49 2003-12-01 17:27:41 vsc Exp $	 *
+* version:      $Id: Heap.h,v 1.50 2004-01-23 02:22:06 vsc Exp $	 *
 *************************************************************************/
 
 /* information that can be stored in Code Space */
@@ -36,6 +36,40 @@ typedef struct reduction_counters {
   int retries_on;
 } red_counters;
 
+typedef struct scratch_block_struct {
+  char *ptr;
+  UInt sz, msz;
+} scratch_block;
+
+typedef struct worker_local_struct {
+#ifdef THREADS
+  lockvar  signal_lock;        /* protect signal handlers from IPIs */
+#endif
+  UInt   active_signals;
+  UInt   i_pred_arity;
+  yamop *prof_end;
+  Int    start_line;
+  scratch_block scratchpad;
+#ifdef MULTI_ASSIGNMENT_VARIABLES
+  Term   woken_goals;
+  Term   mutable_list;
+  Term   atts_mutable_list;
+#endif
+} worker_local;
+
+#ifdef THREADS
+typedef struct thandle {
+  int in_use;
+  UInt ssize;
+  UInt tsize;
+  struct DB_TERM *tgoal;
+  int id;
+  int ret;
+  REGSTORE *default_yaam_regs;
+  pthread_t handle;
+} yap_thandle;
+#endif
+
 typedef int   (*Agc_hook)(Atom);
 
 typedef struct various_codes {
@@ -43,10 +77,14 @@ typedef struct various_codes {
   Int heap_used;
   Int heap_max;
   ADDR heap_top;
+  ADDR heap_lim;
   struct FREEB  *free_blocks;
 #if defined(YAPOR) || defined(THREADS)
   rwlock_t  bgl;		 /* protect long critical regions   */
   lockvar  free_blocks_lock;     /* protect the list of free blocks */
+  worker_local wl[MAX_WORKERS];
+#else
+  worker_local wl;
 #endif
 #ifdef YAPOR
   int   seq_def;
@@ -112,11 +150,6 @@ typedef struct various_codes {
 #endif
 #ifdef COROUTINING
   int  num_of_atts;            /* max. number of attributes we have for a variable */
-#ifdef MULTI_ASSIGNMENT_VARIABLES
-  Term   woken_goals;
-  Term   mutable_list;
-  Term   atts_mutable_list;
-#endif
   struct pred_entry  *wake_up_code;
 #endif
   struct pred_entry  *creep_code;
@@ -127,7 +160,6 @@ typedef struct various_codes {
   int   system_pred_goal_expansion_on;
   int   compiler_optimizer_on;
   int   compiler_compile_mode;
-  struct pred_entry   *compiler_current_pred;
   AtomHashEntry invisiblechain;
   OPCODE dummycode[1];
   UInt maxdepth, maxlist;
@@ -275,6 +307,7 @@ typedef struct various_codes {
     functor_stream,
     functor_stream_pos,
     functor_stream_eOS,
+    functor_thread_run,
     functor_change_module,
     functor_current_module,
     functor_u_minus,
@@ -325,14 +358,6 @@ typedef struct various_codes {
   ADDR  foreign_code_top;
   ADDR  foreign_code_max;
   int parser_error_style;
-  char *compiler_freep;
-  char *compiler_freep0;
-  struct PSEUDO *compiler_cpc;
-  struct PSEUDO *compiler_CodeStart;
-  struct PSEUDO *compiler_icpc;
-  struct PSEUDO *compiler_BlobsStart;
-  int  *compiler_label_offset;
-  UInt   i_pred_arity;
   int   compiler_profiling;
   int   compiler_call_counting;
   /********* whether we should try to compile array references ******************/
@@ -346,16 +371,25 @@ typedef struct various_codes {
   struct global_data global;
   struct local_data remote[MAX_WORKERS];
 #endif /* YAPOR || TABLING */
+#ifdef THREADS
+  lockvar  thread_handles_lock;        /* protect ThreadManipulation */
+  struct thandle thread_handle[MAX_WORKERS];
+#endif
   UInt n_of_atoms;
   UInt atom_hash_table_size;
   AtomHashEntry *hash_chain;
 } all_heap_codes;
 
+#ifdef THREADS
+struct various_codes *heap_regs;
+#else
 #define heap_regs  ((all_heap_codes *)HEAP_INIT_BASE)
+#endif
 
 #define  HeapUsed                heap_regs->heap_used
 #define  HeapMax                 heap_regs->heap_max
-#define  HeapTop            heap_regs->heap_top
+#define  HeapTop                 heap_regs->heap_top
+#define  HeapLim                 heap_regs->heap_lim
 #ifdef YAPOR
 #define  SEQUENTIAL_IS_DEFAULT   heap_regs->seq_def
 #define  GETWORK		 (&(heap_regs->getworkcode               ))
@@ -395,6 +429,10 @@ typedef struct various_codes {
 #define  UNDEF_OPCODE             heap_regs->undef_op
 #define  INDEX_OPCODE             heap_regs->index_op
 #define  FAIL_OPCODE              heap_regs->fail_op
+#ifdef THREADS
+#define  ThreadHandlesLock	  heap_regs->thread_handles_lock
+#define  ThreadHandle		  heap_regs->thread_handle
+#endif
 #define  NOfAtoms                 heap_regs->n_of_atoms
 #define  AtomHashTableSize        heap_regs->atom_hash_table_size
 #define  HashChain                heap_regs->hash_chain
@@ -518,6 +556,7 @@ typedef struct various_codes {
 #define  FunctorStream            heap_regs->functor_stream
 #define  FunctorStreamPos         heap_regs->functor_stream_pos
 #define  FunctorStreamEOS         heap_regs->functor_stream_eOS
+#define  FunctorThreadRun         heap_regs->functor_thread_run
 #define  FunctorChangeModule      heap_regs->functor_change_module
 #define  FunctorCurrentModule     heap_regs->functor_current_module
 #define  FunctorModSwitch         heap_regs->functor_mod_switch
@@ -565,21 +604,39 @@ typedef struct various_codes {
 #define  Yap_LibDir               heap_regs->yap_lib_dir
 #define  AGCHook                  heap_regs->agc_hook
 #define  ParserErrorStyle         heap_regs->parser_error_style
-#define  freep                    heap_regs->compiler_freep
-#define  freep0                   heap_regs->compiler_freep0
-#define  cpc                      heap_regs->compiler_cpc
-#define  CodeStart                heap_regs->compiler_CodeStart
-#define  icpc                     heap_regs->compiler_icpc
-#define  BlobsStart               heap_regs->compiler_BlobsStart
-#define  label_offset             heap_regs->compiler_label_offset
-#define  IPredArity               heap_regs->i_pred_arity
+#ifdef  COROUTINING
+#define  WakeUpCode               heap_regs->wake_up_code
+#endif
+#if defined(YAPOR) || defined(THREADS)
+#define  SignalLock               heap_regs->wl[worker_id].signal_lock
+#define  ActiveSignals            heap_regs->wl[worker_id].active_signals
+#define  IPredArity               heap_regs->wl[worker_id].i_pred_arity
+#define  ProfEnd                  heap_regs->wl[worker_id].prof_end
+#define  StartLine                heap_regs->wl[worker_id].start_line
+#define  ScratchPad               heap_regs->wl[worker_id].scratchpad
+#ifdef  COROUTINING
+#define  WokenGoals               heap_regs->wl[worker_id].woken_goals
+#define  MutableList              heap_regs->wl[worker_id].mutable_list
+#define  AttsMutableList          heap_regs->wl[worker_id].atts_mutable_list
+#endif
+#else
+#define  ActiveSignals            heap_regs->wl.active_signals
+#define  IPredArity               heap_regs->wl.i_pred_arity
+#define  ProfEnd                  heap_regs->wl.prof_end
+#define  StartLine                heap_regs->wl.start_line
+#define  ScratchPad               heap_regs->wl.scratchpad
+#ifdef  COROUTINING
+#define  WokenGoals               heap_regs->wl.woken_goals
+#define  MutableList              heap_regs->wl.mutable_list
+#define  AttsMutableList          heap_regs->wl.atts_mutable_list
+#endif
+#endif
 #define  profiling                heap_regs->compiler_profiling
 #define  call_counting            heap_regs->compiler_call_counting
 #define  compile_arrays           heap_regs->compiler_compile_arrays
 #define  optimizer_on             heap_regs->compiler_optimizer_on
 #define  compile_mode             heap_regs->compiler_compile_mode
 #define  P_before_spy             heap_regs->debugger_p_before_spy
-#define  CurrentPred              heap_regs->compiler_current_pred
 #define  ForeignCodeBase          heap_regs->foreign_code_base;
 #define  ForeignCodeTop           heap_regs->foreign_code_top;
 #define  ForeignCodeMax           heap_regs->foreign_code_max;
@@ -590,12 +647,6 @@ typedef struct various_codes {
 #define  LastWtimePtr             heap_regs->last_wtime
 #define  BGL			  heap_regs->bgl
 #define  FreeBlocks		  heap_regs->free_blocks
-#ifdef  COROUTINING
-#define  WakeUpCode               heap_regs->wake_up_code
-#define  WokenGoals               heap_regs->woken_goals
-#define  MutableList              heap_regs->mutable_list
-#define  AttsMutableList          heap_regs->atts_mutable_list
-#endif
 #if defined(YAPOR) || defined(THREADS)
 #define  FreeBlocksLock           heap_regs->free_blocks_lock
 #define  HeapTopLock              heap_regs->heap_top_lock
@@ -637,4 +688,18 @@ typedef struct various_codes {
 #define  ReadlinePos              heap_regs->readline_pos
 #endif
 
+
+#if defined(YAPOR) || defined(THREADS)
+ADDR    STD_PROTO(Yap_PreAllocCodeSpace, (void));
+ADDR    STD_PROTO(Yap_ExpandPreAllocCodeSpace, (void));
+void    STD_PROTO(Yap_ReleasePreAllocCodeSpace, (ADDR));
+#else
+EXTERN inline ADDR
+Yap_PreAllocCodeSpace(void)
+{
+  return Addr(HeapTop) + sizeof(CELL);
+}
+#define Yap_ExpandPreAllocCodeSpace() NULL
+#define Yap_ReleasePreAllocCodeSpace(x)
+#endif
 

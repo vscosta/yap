@@ -10,7 +10,7 @@
 * File:		Regs.h							 *
 * mods:									 *
 * comments:	YAP abstract machine registers				 *
-* version:      $Id: Regs.h,v 1.21 2003-11-05 18:55:03 ricroc Exp $	 *
+* version:      $Id: Regs.h,v 1.22 2004-01-23 02:22:20 vsc Exp $	 *
 *************************************************************************/
 
 
@@ -20,9 +20,7 @@
 
 #ifdef i386
 #define PUSH_REGS 1
-#ifdef THREADS
 #undef  PUSH_X
-#endif
 #endif
 
 #if defined(sparc) || defined(__sparc)
@@ -48,6 +46,16 @@
 #ifdef mips
 #undef  PUSH_REGS
 #undef  PUSH_X
+#endif
+
+/* force a cache of WAM regs for multi-threaded architectures! */
+#ifdef THREADS
+#ifndef PUSH_REGS
+#define PUSH_REGS 1
+#endif
+#ifndef PUSH_X
+#define PUSH_X 1
+#endif
 #endif
 
 EXTERN void restore_machine_regs(void);
@@ -80,8 +88,6 @@ typedef struct
     CELL  *LCL0_;		/* 3 local stack base                         */
     CELL  *AuxSp_;		/* 9 Auxiliary stack pointer                  */
     ADDR   AuxTop_;		/* 10 Auxiliary stack top                     */
-    ADDR   HeapPlus_;		/* 11 To avoid collisions with HeapTop        */
-    tr_fr_ptr MyTR_;		/* 12                                         */
 /* visualc*/
     CELL   FlipFlop_;		/* 18                                         */
     CELL   EX_;	    	        /* 18                                         */
@@ -123,19 +129,19 @@ typedef struct
 
 #if PUSH_X
     Term XTERMS[MaxTemps];	/* 29                                    */
-
-#define XREGS	  REGS.XTERMS
-
 #endif
   }
 REGSTORE;
 
-
 extern REGSTORE *Yap_regp;
 
-#if !PUSH_X
+#if PUSH_X
 
-	/* keep X as a global variable */
+#define XREGS  (Yap_regp->XTERMS)
+
+#else
+
+/* keep X as a global variable */
 
 Term Yap_XREGS[MaxTemps];	/* 29                                     */
 
@@ -143,9 +149,17 @@ Term Yap_XREGS[MaxTemps];	/* 29                                     */
 
 #endif
 
+#ifdef THREADS
+
+extern pthread_key_t yaamregs_key;
+
+#define Yap_regp ((REGSTORE *)pthread_getspecific(yaamregs_key))
+
+#endif
+
 #define Yap_REGS (*Yap_regp)
 
-#else /* PUSH_REGS */
+#else /* !PUSH_REGS */
 
     Term X[MaxTemps];		/* 29                                     */
 
@@ -629,15 +643,13 @@ EXTERN inline void restore_B(void) {
 
 #endif
 
-#define	AuxSp     Yap_REGS.AuxSp_
-#define	AuxTop    Yap_REGS.AuxTop_
-#define	HeapPlus  Yap_REGS.HeapPlus_	/*To avoid any chock with HeapTop */
-#define MyTR	  Yap_REGS.MyTR_
-#define TopB      Yap_REGS.TopB_
-#define DelayedB  Yap_REGS.DelayedB_
-#define FlipFlop  Yap_REGS.FlipFlop_
-#define EX        Yap_REGS.EX_
-#define DEPTH	  Yap_REGS.DEPTH_
+#define	AuxSp         Yap_REGS.AuxSp_
+#define	AuxTop        Yap_REGS.AuxTop_
+#define TopB          Yap_REGS.TopB_
+#define DelayedB      Yap_REGS.DelayedB_
+#define FlipFlop      Yap_REGS.FlipFlop_
+#define EX            Yap_REGS.EX_
+#define DEPTH	      Yap_REGS.DEPTH_
 #if defined(SBA) || defined(TABLING)
 #define H_FZ          Yap_REGS.H_FZ_
 #define B_FZ          Yap_REGS.B_FZ_

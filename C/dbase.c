@@ -631,6 +631,11 @@ static CELL *MkDBTerm(register CELL *pt0, register CELL *pt0_end,
 		     int *vars_foundp)
 {
 
+#if THREADS
+#undef Yap_REGS
+  register REGSTORE *regp = Yap_regp;
+#define Yap_REGS (*regp)
+#endif
   register visitel *visited = (visitel *)AuxSp;
   /* store this in H */
   register CELL **to_visit = (CELL **)H;
@@ -1022,6 +1027,10 @@ static CELL *MkDBTerm(register CELL *pt0, register CELL *pt0_end,
 #endif
   return(NULL);
 #endif
+#if THREADS
+#undef Yap_REGS
+#define Yap_REGS (*Yap_regp)  
+#endif /* THREADS */
 }
 
 
@@ -1871,11 +1880,16 @@ p_rcda(void)
     Yap_Error(SYSTEM_ERROR, TermNil, "YAP could not grow trail in recorda/3");
     return(FALSE);
   case OUT_OF_HEAP_ERROR:
-    if (!Yap_growheap(FALSE, Yap_Error_Size)) {
-      Yap_Error(SYSTEM_ERROR, TermNil, Yap_ErrorMessage);
-      return(FALSE);
-    } else
-      goto recover_record;
+    while (!Yap_ExpandPreAllocCodeSpace()) {
+      if (!Yap_growheap(FALSE, Yap_Error_Size, NULL)) {
+	Yap_Error(SYSTEM_ERROR, TermNil, Yap_ErrorMessage);
+	return FALSE;
+      }
+#ifndef THREADS
+      break;
+#endif
+    }
+    goto recover_record;
   default:
     Yap_Error(Yap_Error_TYPE, Yap_Error_Term, Yap_ErrorMessage);
     return(FALSE);
@@ -1911,12 +1925,16 @@ p_rcdap(void)
     Yap_Error(SYSTEM_ERROR, TermNil, "YAP could not grow trail in recorda/3");
     return FALSE;
   case OUT_OF_HEAP_ERROR:
-    if (!Yap_growheap(FALSE, Yap_Error_Size)) {
-      Yap_Error(SYSTEM_ERROR, TermNil, Yap_ErrorMessage);
-      return FALSE;
-    } else {
-      goto recover_record;
+    while (!Yap_ExpandPreAllocCodeSpace()) {
+      if (!Yap_growheap(FALSE, Yap_Error_Size, NULL)) {
+	Yap_Error(SYSTEM_ERROR, TermNil, Yap_ErrorMessage);
+	return FALSE;
+      }
+#ifndef THREADS
+      break;
+#endif
     }
+    goto recover_record;
   default:
     Yap_Error(Yap_Error_TYPE, Yap_Error_Term, Yap_ErrorMessage);
     return FALSE;
@@ -1961,11 +1979,16 @@ p_rcda_at(void)
     Yap_Error(SYSTEM_ERROR, TermNil, "YAP could not grow trail in recorda/3");
     return(FALSE);
   case OUT_OF_HEAP_ERROR:
-    if (!Yap_growheap(FALSE, Yap_Error_Size)) {
-      Yap_Error(SYSTEM_ERROR, TermNil, Yap_ErrorMessage);
-      return(FALSE);
-    } else
-      goto recover_record;
+    while (!Yap_ExpandPreAllocCodeSpace()) {
+      if (!Yap_growheap(FALSE, Yap_Error_Size, NULL)) {
+	Yap_Error(SYSTEM_ERROR, TermNil, Yap_ErrorMessage);
+	return(FALSE);
+      }
+#ifndef THREADS
+      break;
+#endif
+    }
+    goto recover_record;
   default:
     Yap_Error(Yap_Error_TYPE, Yap_Error_Term, Yap_ErrorMessage);
     return(FALSE);
@@ -2011,18 +2034,23 @@ p_rcdz(void)
   case OUT_OF_STACK_ERROR:
     if (!Yap_gc(3, ENV, P)) {
       Yap_Error(OUT_OF_STACK_ERROR, TermNil, Yap_ErrorMessage);
-      return(FALSE);
+      return FALSE;
     }
     goto recover_record;
   case OUT_OF_TRAIL_ERROR:
     Yap_Error(SYSTEM_ERROR, TermNil, "YAP could not grow trail in recorda/3");
     return(FALSE);
   case OUT_OF_HEAP_ERROR:
-    if (!Yap_growheap(FALSE, Yap_Error_Size)) {
-      Yap_Error(SYSTEM_ERROR, TermNil, Yap_ErrorMessage);
-      return(FALSE);
-    } else
-      goto recover_record;
+    while (!Yap_ExpandPreAllocCodeSpace()) {
+      if (!Yap_growheap(FALSE, Yap_Error_Size, NULL)) {
+	Yap_Error(SYSTEM_ERROR, TermNil, Yap_ErrorMessage);
+	return FALSE;
+      }
+#ifndef THREADS
+      break;
+#endif
+    }
+    goto recover_record;
   default:
     Yap_Error(Yap_Error_TYPE, Yap_Error_Term, Yap_ErrorMessage);
     return(FALSE);
@@ -2058,11 +2086,16 @@ p_rcdzp(void)
     Yap_Error(SYSTEM_ERROR, TermNil, "YAP could not grow trail in recorda/3");
     return(FALSE);
   case OUT_OF_HEAP_ERROR:
-    if (!Yap_growheap(FALSE, Yap_Error_Size)) {
-      Yap_Error(SYSTEM_ERROR, TermNil, Yap_ErrorMessage);
-      return(FALSE);
-    } else
-      goto recover_record;
+    while (!Yap_ExpandPreAllocCodeSpace()) {
+      if (!Yap_growheap(FALSE, Yap_Error_Size, NULL)) {
+	Yap_Error(SYSTEM_ERROR, TermNil, Yap_ErrorMessage);
+	return FALSE;
+      }
+#ifndef THREADS
+      break;
+#endif
+    }
+    goto recover_record;
   default:
     Yap_Error(Yap_Error_TYPE, Yap_Error_Term, Yap_ErrorMessage);
     return(FALSE);
@@ -2107,11 +2140,16 @@ p_rcdz_at(void)
     Yap_Error(SYSTEM_ERROR, TermNil, "YAP could not grow trail in recordz_at/3");
     return(FALSE);
   case OUT_OF_HEAP_ERROR:
-    if (!Yap_growheap(FALSE, Yap_Error_Size)) {
-      Yap_Error(SYSTEM_ERROR, TermNil, Yap_ErrorMessage);
-      return(FALSE);
-    } else
-      goto recover_record;
+    while (!Yap_ExpandPreAllocCodeSpace()) {
+      if (!Yap_growheap(FALSE, Yap_Error_Size, NULL)) {
+	Yap_Error(SYSTEM_ERROR, TermNil, Yap_ErrorMessage);
+	return FALSE;
+      }
+#ifndef THREADS
+      break;
+#endif
+    }
+    goto recover_record;
   default:
     Yap_Error(Yap_Error_TYPE, Yap_Error_Term, Yap_ErrorMessage);
     return(FALSE);
@@ -2145,7 +2183,7 @@ p_rcdstatp(void)
   switch(Yap_Error_TYPE) {
   case YAP_NO_ERROR:
     return (Yap_unify(ARG4,TRef));
-  case OUT_OF_HEAP_ERROR:
+  case OUT_OF_STACK_ERROR:
     if (!Yap_gc(3, ENV, P)) {
       Yap_Error(OUT_OF_STACK_ERROR, TermNil, Yap_ErrorMessage);
       return(FALSE);
@@ -2153,13 +2191,18 @@ p_rcdstatp(void)
     goto recover_record;
   case OUT_OF_TRAIL_ERROR:
     Yap_Error(SYSTEM_ERROR, TermNil, "YAP could not grow trail in record_stat_source/3");
-    return(FALSE);
-  case OUT_OF_STACK_ERROR:
-    if (!Yap_growheap(FALSE, Yap_Error_Size)) {
-      Yap_Error(SYSTEM_ERROR, TermNil, Yap_ErrorMessage);
-      return(FALSE);
-    } else
-      goto recover_record;
+    return FALSE;
+  case OUT_OF_HEAP_ERROR:
+    while (!Yap_ExpandPreAllocCodeSpace()) {
+      if (!Yap_growheap(FALSE, Yap_Error_Size, NULL)) {
+	Yap_Error(SYSTEM_ERROR, TermNil, Yap_ErrorMessage);
+	return FALSE;
+      }
+#ifndef THREADS
+      break;
+#endif
+    }
+    goto recover_record;
   default:
     Yap_Error(Yap_Error_TYPE, Yap_Error_Term, Yap_ErrorMessage);
     return(FALSE);
@@ -2198,11 +2241,16 @@ p_drcdap(void)
     Yap_Error(SYSTEM_ERROR, TermNil, "YAP could not grow trail in recorda/3");
     return(FALSE);
   case OUT_OF_HEAP_ERROR:
-    if (!Yap_growheap(FALSE, Yap_Error_Size)) {
-      Yap_Error(SYSTEM_ERROR, TermNil, Yap_ErrorMessage);
-      return(FALSE);
-    } else
-      goto recover_record;
+    while (!Yap_ExpandPreAllocCodeSpace()) {
+      if (!Yap_growheap(FALSE, Yap_Error_Size, NULL)) {
+	Yap_Error(SYSTEM_ERROR, TermNil, Yap_ErrorMessage);
+	return FALSE;
+      } 
+#ifndef THREADS
+      break;
+#endif
+    }
+    goto recover_record;
   default:
     Yap_Error(Yap_Error_TYPE, Yap_Error_Term, Yap_ErrorMessage);
     return(FALSE);
@@ -2242,11 +2290,16 @@ p_drcdzp(void)
     Yap_Error(SYSTEM_ERROR, TermNil, "YAP could not grow trail in recorda/3");
     return(FALSE);
   case OUT_OF_HEAP_ERROR:
-    if (!Yap_growheap(FALSE, Yap_Error_Size)) {
-      Yap_Error(SYSTEM_ERROR, TermNil, Yap_ErrorMessage);
-      return(FALSE);
-    } else
-      goto recover_record;
+    while (!Yap_ExpandPreAllocCodeSpace()) {
+      if (!Yap_growheap(FALSE, Yap_Error_Size, NULL)) {
+	Yap_Error(SYSTEM_ERROR, TermNil, Yap_ErrorMessage);
+	return FALSE;
+      } 
+#ifndef THREADS
+      break;
+#endif
+    }
+    goto recover_record;
   default:
     Yap_Error(Yap_Error_TYPE, Yap_Error_Term, Yap_ErrorMessage);
     return(FALSE);
@@ -4621,13 +4674,17 @@ StoreTermInDB(Term t, int nargs)
       return(FALSE);
     case OUT_OF_HEAP_ERROR:
       XREGS[nargs+1] = t;
-      if (!Yap_growheap(FALSE, Yap_Error_Size)) {
-	Yap_Error(OUT_OF_HEAP_ERROR, TermNil, Yap_ErrorMessage);
-	return(FALSE);
-      } else {
-	t = Deref(XREGS[nargs+1]);
-	break;
+      while (!Yap_ExpandPreAllocCodeSpace()) {
+	if (!Yap_growheap(FALSE, Yap_Error_Size, NULL)) {
+	  Yap_Error(OUT_OF_HEAP_ERROR, TermNil, Yap_ErrorMessage);
+	  return FALSE;
+	} 
+#ifndef THREADS
+      break;
+#endif
       }
+      t = Deref(XREGS[nargs+1]);
+      break;
     default:
       Yap_Error(Yap_Error_TYPE, Yap_Error_Term, Yap_ErrorMessage);
       return(FALSE);
@@ -4657,7 +4714,7 @@ p_init_queue(void)
   Term t;
 
   while ((dbq = (db_queue *)AllocDBSpace(sizeof(db_queue))) == NULL) {
-    if (!Yap_growheap(FALSE, sizeof(db_queue))) {
+    if (!Yap_growheap(FALSE, sizeof(db_queue), NULL)) {
       Yap_Error(SYSTEM_ERROR, TermNil, Yap_ErrorMessage);
       return(FALSE);
     }

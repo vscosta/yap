@@ -10,7 +10,7 @@
 * File:		Yap.proto						 *
 * mods:									 *
 * comments:	Function declarations for YAP				 *
-* version:      $Id: Yapproto.h,v 1.41 2003-11-21 16:56:20 vsc Exp $	 *
+* version:      $Id: Yapproto.h,v 1.42 2004-01-23 02:22:23 vsc Exp $	 *
 *************************************************************************/
 
 /* prototype file for Yap */
@@ -75,6 +75,7 @@ int     STD_PROTO(Yap_ExtendWorkSpace,(Int));
 void	STD_PROTO(Yap_FreeAtomSpace,(char *));
 int     STD_PROTO(Yap_FreeWorkSpace, (void));
 void	STD_PROTO(Yap_InitMemory,(int,int,int));
+void	STD_PROTO(Yap_InitExStacks,(int,int));
 
 /* amasm.c */
 OPCODE	STD_PROTO(Yap_opcode,(op_numbers));
@@ -156,7 +157,7 @@ void	STD_PROTO(Yap_trust_last,(void));
 /* grow.c */
 Int     STD_PROTO(Yap_total_stack_shift_time,(void));
 void    STD_PROTO(Yap_InitGrowPreds, (void));
-int     STD_PROTO(Yap_growheap,      (int, UInt));
+int     STD_PROTO(Yap_growheap,      (int, UInt, void *));
 int     STD_PROTO(Yap_growstack,     (long));
 int     STD_PROTO(Yap_growtrail,     (long));
 int     STD_PROTO(Yap_growglobal,    (CELL **));
@@ -178,11 +179,12 @@ void	STD_PROTO(Yap_DebugEndline,(void));
 int	STD_PROTO(Yap_DebugGetc,(void));
 #endif
 int	STD_PROTO(Yap_IsOpType,(char *));
-void	STD_PROTO(Yap_InitStacks,(int,int,int,int,int,int));
 void	STD_PROTO(Yap_InitCPred,(char *, unsigned long int, CPredicate, int));
 void	STD_PROTO(Yap_InitAsmPred,(char *, unsigned long int, int, CPredicate, int));
 void	STD_PROTO(Yap_InitCmpPred,(char *, unsigned long int, CmpPredicate, int));
 void	STD_PROTO(Yap_InitCPredBack,(char *, unsigned long int, unsigned int, CPredicate,CPredicate,int));
+void	STD_PROTO(Yap_InitWorkspace,(int,int,int,int,int,int));
+void	STD_PROTO(Yap_KillStacks,(void));
 void	STD_PROTO(Yap_InitYaamRegs,(void));
 void    STD_PROTO(Yap_ReInitWallTime, (void));
 int	STD_PROTO(Yap_OpDec,(int,char *,Atom));
@@ -250,7 +252,7 @@ void    STD_PROTO(Yap_InitSortPreds,(void));
 void	STD_PROTO(Yap_InitBackCPreds,(void));
 void	STD_PROTO(Yap_InitCPreds,(void));
 void	STD_PROTO(Yap_show_statistics,(void));
-Int	STD_PROTO(Yap_creep,(void));
+void	STD_PROTO(Yap_signal,(yap_signals));
 
 /* sysbits.c */
 void	STD_PROTO(Yap_set_fpu_exceptions,(int));
@@ -269,6 +271,11 @@ void	STD_PROTO(Yap_InitSysPreds,(void));
 int     STD_PROTO(Yap_TrueFileName, (char *, char *, int));
 int	STD_PROTO(Yap_ProcessSIGINT,(void));
 double  STD_PROTO(Yap_random, (void));
+
+/* threads.c */
+#ifdef THREADS
+void   STD_PROTO(Yap_InitThreadPreds,(void));
+#endif /* ANALYST */
 
 /* tracer.c */
 #ifdef LOW_LEVEL_TRACER

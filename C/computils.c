@@ -33,7 +33,7 @@ static char SccsId[] = "%W% %G%";
 #endif
 
 #ifdef DEBUG
-STATIC_PROTO (void ShowOp, (char *));
+STATIC_PROTO (void ShowOp, (char *, struct PSEUDO *));
 #endif /* DEBUG */
 
 /*
@@ -42,11 +42,6 @@ STATIC_PROTO (void ShowOp, (char *));
  */
 
 #ifdef DEBUG
-static Int arg, rn;
-
-static compiler_vm_op ic;
-
-static CELL *cptr;
 
 char            Yap_Option[20];
 
@@ -54,28 +49,28 @@ YP_FILE *Yap_logfile;
 #endif
 
 static char *
-AllocCMem (int size)
+AllocCMem (int size, struct intermediates *cip)
 {
   char *p;
-  p = freep;
+  p = cip->freep;
 #if SIZEOF_INT_P==8
   size = (size + 7) & 0xfffffffffffffff8L;
 #else
   size = (size + 3) & 0xfffffffcL;
 #endif
-  freep += size;
-  if (ASP <= CellPtr (freep) + 256) {
-    Yap_Error_Size = 256+((char *)freep - (char *)H);
+  cip->freep += size;
+  if (ASP <= CellPtr (cip->freep) + 256) {
+    Yap_Error_Size = 256+((char *)cip->freep - (char *)H);
     save_machine_regs();
-    longjmp(Yap_CompilerBotch,3);
+    longjmp(cip->CompilerBotch,3);
   }
   return (p);
 }
 
 char *
-Yap_AllocCMem (int size)
+Yap_AllocCMem (int size, struct intermediates *cip)
 {
-  return(AllocCMem(size));
+  return(AllocCMem(size, cip));
 }
 
 int
@@ -101,75 +96,75 @@ Yap_is_a_test_pred (Term arg, SMALLUNSGN mod)
 }
 
 void
-Yap_emit (compiler_vm_op o, Int r1, CELL r2)
+Yap_emit (compiler_vm_op o, Int r1, CELL r2, struct intermediates *cip)
 {
   PInstr *p;
-  p = (PInstr *) AllocCMem (sizeof (*p));
+  p = (PInstr *) AllocCMem (sizeof (*p), cip);
   p->op = o;
   p->rnd1 = r1;
   p->rnd2 = r2;
   p->nextInst = NULL;
-  if (cpc == NIL) {
-    cpc = CodeStart = p;
+  if (cip->cpc == NIL) {
+    cip->cpc = cip->CodeStart = p;
   } else {
-    cpc->nextInst = p;
-    cpc = p;
+    cip->cpc->nextInst = p;
+    cip->cpc = p;
   }
 }
 
 void
-Yap_emit_3ops (compiler_vm_op o, CELL r1, CELL r2, CELL r3)
+Yap_emit_3ops (compiler_vm_op o, CELL r1, CELL r2, CELL r3, struct intermediates *cip)
 {
   PInstr *p;
-  p = (PInstr *) AllocCMem (sizeof (*p)+sizeof(CELL));
+  p = (PInstr *) AllocCMem (sizeof (*p)+sizeof(CELL), cip);
   p->op = o;
   p->rnd1 = r1;
   p->rnd2 = r2;
   p->rnd3 = r3;
   p->nextInst = NIL;
-  if (cpc == NIL)
-    cpc = CodeStart = p;
+  if (cip->cpc == NIL)
+    cip->cpc = cip->CodeStart = p;
   else
     {
-      cpc->nextInst = p;
-      cpc = p;
+      cip->cpc->nextInst = p;
+      cip->cpc = p;
     }
 }
 
 void
-Yap_emit_4ops (compiler_vm_op o, CELL r1, CELL r2, CELL r3, CELL r4)
+Yap_emit_4ops (compiler_vm_op o, CELL r1, CELL r2, CELL r3, CELL r4, struct intermediates *cip)
 {
   PInstr *p;
-  p = (PInstr *) AllocCMem (sizeof (*p)+2*sizeof(CELL));
+  p = (PInstr *) AllocCMem (sizeof (*p)+2*sizeof(CELL), cip);
   p->op = o;
   p->rnd1 = r1;
   p->rnd2 = r2;
   p->rnd3 = r3;
   p->rnd4 = r4;
   p->nextInst = NIL;
-  if (cpc == NIL)
-    cpc = CodeStart = p;
+  if (cip->cpc == NIL)
+    cip->cpc = cip->CodeStart = p;
   else
     {
-      cpc->nextInst = p;
-      cpc = p;
+      cip->cpc->nextInst = p;
+      cip->cpc = p;
     }
 }
 
 CELL *
-Yap_emit_extra_size (compiler_vm_op o, CELL r1, int size)
+Yap_emit_extra_size (compiler_vm_op o, CELL r1, int size, struct intermediates *cip)
 {
   PInstr *p;
-  p = (PInstr *) AllocCMem (sizeof (*p) + size - CellSize);
+  p = (PInstr *) AllocCMem (sizeof (*p) + size - CellSize, cip);
   p->op = o;
   p->rnd1 = r1;
   p->nextInst = NIL;
-  if (cpc == NIL)
-    cpc = CodeStart = p;
+  if (cip->cpc == NIL)
+    cip->cpc = cip->CodeStart = p;
   else
     {
-      cpc->nextInst = p;
-      cpc = p;
+      cip->cpc->nextInst = p;
+      cip->cpc = p;
     }
   return (p->arnds);
 }
@@ -307,9 +302,13 @@ write_functor(Functor f)
 }
 
 static void
-ShowOp (char *f)
+ShowOp (char *f, struct PSEUDO *cpc)
 {
   char ch;
+  Int arg = cpc->rnd1;
+  Int rn = cpc->rnd2;
+  CELL *cptr = cpc->arnds;
+
   while ((ch = *f++) != 0)
     {
       if (ch == '%')
@@ -654,24 +653,21 @@ static char *opformat[] =
 
 
 void
-Yap_ShowCode ()
+Yap_ShowCode (struct intermediates *cint)
 {
   CELL *OldH = H;
+  struct PSEUDO *cpc;
 
-  cpc = CodeStart;
+  cpc = cint->CodeStart;
   /* MkIntTerm and friends may build terms in the global stack */
-  H = (CELL *)freep;
-  while (cpc)
-    {
-      ic = cpc->op;
-      arg = cpc->rnd1;
-      rn = cpc->rnd2;
-      cptr = cpc->arnds;
-      if (ic != nop_op) {
-	ShowOp (opformat[ic]);
-      }
-      cpc = cpc->nextInst;
+  H = (CELL *)cint->freep;
+  while (cpc) {
+    compiler_vm_op ic = cpc->op;
+    if (ic != nop_op) {
+      ShowOp (opformat[ic], cpc);
     }
+    cpc = cpc->nextInst;
+  }
   Yap_DebugPutc (Yap_c_error_stream,'\n');
   H = OldH;
 }

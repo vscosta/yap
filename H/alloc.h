@@ -25,9 +25,7 @@
 	
 	HeapTop		\
 				 | 	Free Space
-	AuxSp		\
-				 |	Auxiliary stack
-	AuxTop		/
+	HeapMax		/
 
 	GlobalBase-1/
 
@@ -123,12 +121,6 @@ MALLOC_T calloc(size_t,size_t);
 
 #endif
 
-#if defined(YAPOR) || defined(THREADS)
-#define HEAPTOP_OWNER(worker_id)  ((worker_id) == HeapTopOwner)
-#define HEAPTOP_OWN(worker_id)  (HeapTopOwner = (worker_id))
-#define HEAPTOP_DISOWN(worker_id)  (HeapTopOwner = -1)
-#else
-#define HEAPTOP_OWNER(worker_id)   (FALSE)
-#define HEAPTOP_OWN(worker_id)  
-#define HEAPTOP_DISOWN(worker_id)
-#endif
+#define SCRATCH_START_SIZE        (64*1024L)
+#define SCRATCH_INC_SIZE          (64*1024L)
+

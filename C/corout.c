@@ -220,9 +220,7 @@ static void ReleaseGoals(sus_record *from)
     CELL *where_to = (CELL *)Deref((CELL)WGs);
     Bind_Global(where_to, (CELL)from);
   }
-  /* from now on, we have to start waking up goals */
-  if (CreepFlag != Unsigned(LCL0) - Unsigned(H0))
-    CreepFlag = Unsigned(LCL0);
+  Yap_signal(YAP_WAKEUP_SIGNAL);
 }
 
 static void

@@ -436,7 +436,11 @@ p_acyclic(void)
 int 
 Yap_IUnify(register CELL d0, register CELL d1)
 {
-#if SHADOW_REGS
+#if THREADS
+#undef Yap_REGS
+  register REGSTORE *regp = Yap_regp;
+#define Yap_REGS (*regp)
+#elif SHADOW_REGS
 #if defined(B) || defined(TR)
   register REGSTORE *regp = &Yap_REGS;
 
@@ -546,7 +550,10 @@ unify_var_nvar_trail:
   }
   return (TRUE);
 #endif
-#if SHADOW_REGS
+#if THREADS
+#undef Yap_REGS
+#define Yap_REGS (*Yap_regp)  
+#elif SHADOW_REGS
 #if defined(B) || defined(TR)
 #undef Yap_REGS
 #endif /* defined(B) || defined(TR) */

@@ -63,7 +63,7 @@ STATIC_PROTO(void AdjustTrail, (int));
 STATIC_PROTO(void AdjustLocal, (void));
 STATIC_PROTO(void AdjustGlobal, (void));
 STATIC_PROTO(void AdjustGrowStack, (void));
-STATIC_PROTO(int  static_growheap, (long,int));
+STATIC_PROTO(int  static_growheap, (long,int,struct intermediates *));
 STATIC_PROTO(void cpcellsd, (CELL *, CELL *, CELL));
 STATIC_PROTO(CELL AdjustAppl, (CELL));
 STATIC_PROTO(CELL AdjustPair, (CELL));
@@ -121,7 +121,8 @@ SetHeapRegs(void)
   Yap_GlobalBase = DelayAddrAdjust(Yap_GlobalBase);
   Yap_LocalBase = LocalAddrAdjust(Yap_LocalBase);
   AuxSp = PtoDelayAdjust(AuxSp);
-  AuxTop = DelayAddrAdjust(AuxTop);
+  AuxTop = (ADDR)PtoDelayAdjust((CELL *)AuxTop);
+  HeapLim = DelayAddrAdjust(HeapLim);
   /* The registers pointing to one of the stacks */
   ENV = PtoLocAdjust(ENV);
   ASP = PtoLocAdjust(ASP);
@@ -142,8 +143,6 @@ SetHeapRegs(void)
     S = PtoGloAdjust(S);
   else if (IsOldLocalPtr(S))
     S = PtoLocAdjust(S);	   
-  if (MyTR)
-    MyTR = PtoTRAdjust(MyTR);
 #ifdef COROUTINING
   DelayedVars = AbsAppl(PtoGloAdjust(RepAppl(DelayedVars)));
   MutableList = AbsAppl(PtoGloAdjust(RepAppl(MutableList)));
@@ -182,8 +181,6 @@ SetStackRegs(void)
   TR_FZ = PtoTRAdjust(TR_FZ);
 #endif /* TABLING */
   YENV = PtoLocAdjust(YENV);
-  if (MyTR)
-    MyTR = PtoTRAdjust(MyTR);
 }
 
 static void
@@ -493,7 +490,7 @@ Yap_AdjustRegs(int n)
 
 /* Used by do_goal() when we're short of heap space */
 static int
-static_growheap(long size, int fix_code)
+static_growheap(long size, int fix_code, struct intermediates *cip)
 {
   Int start_growth_time, growth_time;
   int gc_verbose;
@@ -521,7 +518,7 @@ static_growheap(long size, int fix_code)
     fprintf(Yap_stderr, "[HO]   growing the heap %ld bytes\n", size);
   }
   /* CreepFlag is set to force heap expansion */
-  if (CreepFlag == Unsigned(LCL0+1)) {
+  if (ActiveSignals == YAP_CDOVF_SIGNAL) {
     CreepFlag = CalculateStackGap();
   }
   ASP -= 256;
@@ -532,7 +529,7 @@ static_growheap(long size, int fix_code)
   MoveLocalAndTrail();
   if (fix_code) {
     CELL *SaveOldH = OldH;
-    OldH = (CELL *)freep;
+    OldH = (CELL *)cip->freep;
     MoveGlobal();
     OldH = SaveOldH;
   } else {
@@ -663,7 +660,7 @@ fix_tabling_info(void)
 #endif /* TABLING */
 
 static int
-do_growheap(int fix_code, UInt in_size)
+do_growheap(int fix_code, UInt in_size, struct intermediates *cip)
 {
   unsigned long size = sizeof(CELL) * 16 * 1024L;
   int shift_factor = (heap_overflows > 8 ? 8 : heap_overflows);
@@ -680,7 +677,7 @@ do_growheap(int fix_code, UInt in_size)
 #endif
   if (SizeOfOverflow > sz)
     sz = AdjustPageSize(SizeOfOverflow);
-  while(sz >= sizeof(CELL) * 16 * 1024L && !static_growheap(sz, fix_code)) {
+  while(sz >= sizeof(CELL) * 16 * 1024L && !static_growheap(sz, fix_code, cip)) {
     size = size/2;
     sz =  size << shift_factor;
     if (sz < in_size) {
@@ -689,18 +686,18 @@ do_growheap(int fix_code, UInt in_size)
   }
   /* we must fix an instruction chain */
   if (fix_code) {
-    PInstr *pcpc = CodeStart;
+    PInstr *pcpc = cip->CodeStart;
     if (pcpc != NULL) {
-      CodeStart = pcpc = (PInstr *)GlobalAddrAdjust((ADDR)pcpc);
+      cip->CodeStart = pcpc = (PInstr *)GlobalAddrAdjust((ADDR)pcpc);
     }
     fix_compiler_instructions(pcpc);
-    pcpc = BlobsStart;
+    pcpc = cip->BlobsStart;
     if (pcpc != NULL) {
-      BlobsStart = pcpc = (PInstr *)GlobalAddrAdjust((ADDR)pcpc);
+      cip->BlobsStart = pcpc = (PInstr *)GlobalAddrAdjust((ADDR)pcpc);
     }
     fix_compiler_instructions(pcpc);
-    freep = (char *)GlobalAddrAdjust((ADDR)freep);
-    label_offset = (int *)GlobalAddrAdjust((ADDR)label_offset);
+    cip->freep = (char *)GlobalAddrAdjust((ADDR)cip->freep);
+    cip->label_offset = (int *)GlobalAddrAdjust((ADDR)cip->label_offset);
   }
 #ifdef TABLING
   fix_tabling_info();
@@ -713,9 +710,9 @@ do_growheap(int fix_code, UInt in_size)
 }
 
 int
-Yap_growheap(int fix_code, UInt in_size)
+Yap_growheap(int fix_code, UInt in_size, void *cip)
 {
-  return do_growheap(fix_code, in_size);
+  return do_growheap(fix_code, in_size, (struct intermediates *)cip);
 }
 
 int
@@ -992,7 +989,7 @@ Yap_growatomtable(void)
 
   while ((ntb = (AtomHashEntry *)Yap_AllocCodeSpace(nsize*sizeof(AtomHashEntry))) == NULL) {
     /* leave for next time */
-    if (!do_growheap(FALSE, nsize*sizeof(AtomHashEntry)))
+    if (!do_growheap(FALSE, nsize*sizeof(AtomHashEntry), NULL))
       return;
   }
   atom_table_overflows++;
@@ -1063,7 +1060,7 @@ p_growheap(void)
   if (diff < 0) {
     Yap_Error(DOMAIN_ERROR_NOT_LESS_THAN_ZERO, t1, "grow_heap/1");
   }
-  return(static_growheap(diff, FALSE));
+  return(static_growheap(diff, FALSE, NULL));
 }
 
 static Int

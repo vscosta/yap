@@ -28,9 +28,18 @@ REGSTORE Yap_standard_regs;
 
 #if PUSH_REGS
 
-REGSTORE *Yap_regp;
+#ifdef THREADS
+/* PushRegs always on */
+
+pthread_key_t yaamregs_key;
 
 #else
+
+REGSTORE *Yap_regp;
+
+#endif
+
+#else /* !PUSH_REGS */
 
 REGSTORE Yap_REGS;
 

@@ -8,7 +8,7 @@
 *									 *
 **************************************************************************
 *									 *
-* File:		boot.yap						 *
+* File:		errors.yap						 *
 * Last rev:	8/2/88							 *
 * mods:									 *
 * comments:	error messages for YAP					 *
@@ -396,6 +396,12 @@ print_message(Level, Mss) :-
 '$output_error_message'(existence_error(array,F), W) :-
 	'$format'(user_error,"[ EXISTENCE ERROR- ~w could not open array ~w ]~n",
 	[W,F]).
+'$output_error_message'(existence_error(mutex,F), W) :-
+	'$format'(user_error,"[ EXISTENCE ERROR- ~w could not open mutex ~w ]~n",
+	[W,F]).
+'$output_error_message'(existence_error(queue,F), W) :-
+	'$format'(user_error,"[ EXISTENCE ERROR- ~w could not open message queue ~w ]~n",
+	[W,F]).
 '$output_error_message'(existence_error(procedure,P), _) :-
 	'$format'(user_error,"[ EXISTENCE ERROR- procedure ~w undefined ]~n",
 	[P]).
@@ -447,6 +453,12 @@ print_message(Level, Mss) :-
 '$output_error_message'(permission_error(create,array,P), Where) :-
 	'$format'(user_error,"[ PERMISSION ERROR- ~w: cannot create array ~w ]~n",
 	[Where,P]).
+'$output_error_message'(permission_error(create,mutex,P), Where) :-
+	'$format'(user_error,"[ PERMISSION ERROR- ~w: cannot create mutex ~a ]~n",
+	[Where,P]).
+'$output_error_message'(permission_error(create,queue,P), Where) :-
+	'$format'(user_error,"[ PERMISSION ERROR- ~w: cannot create queue ~a ]~n",
+	[Where,P]).
 '$output_error_message'(permission_error(create,operator,P), Where) :-
 	'$format'(user_error,"[ PERMISSION ERROR- ~w: cannot create operator ~w ]~n",
 	[Where,P]).
@@ -494,6 +506,9 @@ print_message(Level, Mss) :-
 	[Where,Stream]).
 '$output_error_message'(permission_error(resize,array,P), Where) :-
 	'$format'(user_error,"[ PERMISSION ERROR- ~w: cannot resize array ~w ]~n",
+	[Where,P]).
+'$output_error_message'(permission_error(unlock,mutex,P), Where) :-
+	'$format'(user_error,"[ PERMISSION ERROR- ~w: cannot unlock mutex ~w ]~n",
 	[Where,P]).
 '$output_error_message'(representation_error(character), Where) :-
 	'$format'(user_error,"[ REPRESENTATION ERROR- ~w: expected character ]~n",

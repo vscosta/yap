@@ -191,11 +191,6 @@ void     STD_PROTO(Yap_RemoveClauseFromIndex,(PredEntry *,yamop *));
 LogUpdClause  *STD_PROTO(Yap_NthClause,(PredEntry *,Int));
 LogUpdClause  *STD_PROTO(Yap_FollowIndexingCode,(PredEntry *,yamop *,Term,Term,Term, yamop *,yamop *));
 
-#if LOW_PROF
-/* profiling */
-yamop *Yap_prof_end;
-#endif /* LOW_PROF */
-
 #if USE_THREADED_CODE
 
 #define OP_HASH_SIZE 2048

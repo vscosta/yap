@@ -10,8 +10,14 @@
 * File:		TermExt.h						 *
 * mods:									 *
 * comments:	Extensions to standard terms for YAP			 *
-* version:      $Id: TermExt.h.m4,v 1.11 2003-12-27 00:38:53 vsc Exp $	 *
+* version:      $Id: TermExt.h.m4,v 1.12 2004-01-23 02:23:12 vsc Exp $	 *
 *************************************************************************/
+
+#ifdef THREADS
+#define SF_STORE  (&(heap_regs->funcs))
+#else
+#define SF_STORE  ((special_functors *)HEAP_INIT_BASE)
+#endif
 
 #if USE_OFFSETS
 #define   AtomFoundVar ((Atom)(&(((special_functors *)(NULL))->AtFoundVar)))
@@ -60,8 +66,6 @@ typedef enum {
 #define   EndSpecials     (double_e)
 
 Destructor(Functor, BlobOf, blob_type, f, (CELL)f)
-
-#define SF_STORE  ((special_functors *)HEAP_INIT_BASE)
 
 #ifdef COROUTINING
 

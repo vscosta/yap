@@ -58,7 +58,7 @@ static int
 copy_complex_term(register CELL *pt0, register CELL *pt0_end, CELL *ptf, CELL *HLow)
 {
 
-  CELL **to_visit = (CELL **)(HeapTop + sizeof(CELL));
+  CELL **to_visit0, **to_visit = (CELL **)Yap_PreAllocCodeSpace();
   tr_fr_ptr TR0 = TR;
   CELL *HB0 = HB;
 #ifdef COROUTINING
@@ -66,6 +66,7 @@ copy_complex_term(register CELL *pt0, register CELL *pt0_end, CELL *ptf, CELL *H
 #endif
   HB = HLow;
 
+  to_visit0 = to_visit;
  loop:
   while (pt0 < pt0_end) {
     register CELL d0;
@@ -234,7 +235,7 @@ copy_complex_term(register CELL *pt0, register CELL *pt0_end, CELL *ptf, CELL *H
     }
   }
   /* Do we still have compound terms to visit */
-  if (to_visit > (CELL **)(HeapTop + sizeof(CELL))) {
+  if (to_visit > to_visit0) {
 #ifdef RATIONAL_TREES
     to_visit -= 4;
     pt0 = to_visit[0];
@@ -262,7 +263,7 @@ copy_complex_term(register CELL *pt0, register CELL *pt0_end, CELL *ptf, CELL *H
   /* restore our nice, friendly, term to its original state */
   HB = HB0;
 #ifdef RATIONAL_TREES
-  while (to_visit > (CELL **)(HeapTop + sizeof(CELL))) {
+  while (to_visit > to_visit0) {
     to_visit -= 4;
     pt0 = to_visit[0];
     pt0_end = to_visit[1];
@@ -280,7 +281,7 @@ copy_complex_term(register CELL *pt0, register CELL *pt0_end, CELL *ptf, CELL *H
   /* restore our nice, friendly, term to its original state */
   HB = HB0;
 #ifdef RATIONAL_TREES
-  while (to_visit > (CELL **)(HeapTop + sizeof(CELL))) {
+  while (to_visit > to_visit0) {
     to_visit -= 4;
     pt0 = to_visit[0];
     pt0_end = to_visit[1];
@@ -316,7 +317,7 @@ CopyTerm(Term inp) {
 	  t = Deref(ARG1);
 	  goto restart_attached;
 	} else { /* handle overflow */
-	  if (!Yap_growheap(FALSE, 0)) {
+	  if (!Yap_growheap(FALSE, 0, NULL)) {
 	    Yap_Error(SYSTEM_ERROR, TermNil, Yap_ErrorMessage);
 	    return(FALSE);
 	  }
@@ -352,7 +353,7 @@ CopyTerm(Term inp) {
 	  t = Deref(ARG1);
 	  goto restart_list;
 	} else { /* handle overflow */
-	  if (!Yap_growheap(FALSE, 0)) {
+	  if (!Yap_growheap(FALSE, 0, NULL)) {
 	    Yap_Error(SYSTEM_ERROR, TermNil, Yap_ErrorMessage);
 	    return(FALSE);
 	  }
@@ -387,7 +388,7 @@ CopyTerm(Term inp) {
 	  t = Deref(ARG1);
 	  goto restart_appl;
 	} else { /* handle overflow */
-	  if (!Yap_growheap(FALSE, 0)) {
+	  if (!Yap_growheap(FALSE, 0, NULL)) {
 	    Yap_Error(SYSTEM_ERROR, TermNil, Yap_ErrorMessage);
 	    return(FALSE);
 	  }
@@ -414,11 +415,12 @@ p_copy_term(void)		/* copy term t to a new instance  */
 static int copy_complex_term_no_delays(register CELL *pt0, register CELL *pt0_end, CELL *ptf, CELL *HLow)
 {
 
-  CELL **to_visit = (CELL **)(HeapTop + sizeof(CELL));
+  CELL **to_visit0, **to_visit = (CELL **)Yap_PreAllocCodeSpace();
   tr_fr_ptr TR0 = TR;
   CELL *HB0 = HB;
   HB = HLow;
 
+  to_visit0 = to_visit;
  loop:
   while (pt0 < pt0_end) {
     register CELL d0;
@@ -538,7 +540,7 @@ static int copy_complex_term_no_delays(register CELL *pt0, register CELL *pt0_en
     }
   }
   /* Do we still have compound terms to visit */
-  if (to_visit > (CELL **)(HeapTop + sizeof(CELL))) {
+  if (to_visit > to_visit0) {
 #ifdef RATIONAL_TREES
     to_visit -= 4;
     pt0 = to_visit[0];
@@ -567,7 +569,7 @@ static int copy_complex_term_no_delays(register CELL *pt0, register CELL *pt0_en
   /* restore our nice, friendly, term to its original state */
   HB = HB0;
 #ifdef RATIONAL_TREES
-  while (to_visit > (CELL **)(HeapTop + sizeof(CELL))) {
+  while (to_visit > to_visit0) {
     to_visit -= 4;
     pt0 = to_visit[0];
     pt0_end = to_visit[1];
@@ -585,7 +587,7 @@ static int copy_complex_term_no_delays(register CELL *pt0, register CELL *pt0_en
   /* restore our nice, friendly, term to its original state */
   HB = HB0;
 #ifdef RATIONAL_TREES
-  while (to_visit > (CELL **)(HeapTop + sizeof(CELL))) {
+  while (to_visit > to_visit0) {
     to_visit -= 4;
     pt0 = to_visit[0];
     pt0_end = to_visit[1];
@@ -625,7 +627,7 @@ CopyTermNoDelays(Term inp) {
 	t = Deref(ARG1);
 	goto restart_list;
       } else { /* handle overflow */
-	if (!Yap_growheap(FALSE, 0)) {
+	if (!Yap_growheap(FALSE, 0, NULL)) {
 	  Yap_Error(SYSTEM_ERROR, TermNil, Yap_ErrorMessage);
 	  return(FALSE);
 	}
@@ -657,7 +659,7 @@ CopyTermNoDelays(Term inp) {
 	t = Deref(ARG1);
 	goto restart_appl;
       } else { /* handle overflow */
-	if (!Yap_growheap(FALSE, 0)) {
+	if (!Yap_growheap(FALSE, 0, NULL)) {
 	  Yap_Error(SYSTEM_ERROR, TermNil, Yap_ErrorMessage);
 	  return(FALSE);
 	}
@@ -679,11 +681,12 @@ p_copy_term_no_delays(void)		/* copy term t to a new instance  */
 static Term vars_in_complex_term(register CELL *pt0, register CELL *pt0_end)
 {
 
-  register CELL **to_visit = (CELL **)(HeapTop + sizeof(CELL));
+  register CELL **to_visit0, **to_visit = (CELL **)Yap_PreAllocCodeSpace();
   register tr_fr_ptr TR0 = TR;
   CELL *InitialH = H;
   CELL output = AbsPair(H);
 
+  to_visit0 = to_visit;
  loop:
   while (pt0 < pt0_end) {
     register CELL d0;
@@ -753,7 +756,7 @@ static Term vars_in_complex_term(register CELL *pt0, register CELL *pt0_end)
     TrailTerm(TR++) = (CELL)ptd0;
   }
   /* Do we still have compound terms to visit */
-  if (to_visit > (CELL **)(HeapTop + sizeof(CELL))) {
+  if (to_visit > to_visit0) {
 #ifdef RATIONAL_TREES
     to_visit -= 3;
     pt0 = to_visit[0];
@@ -768,6 +771,7 @@ static Term vars_in_complex_term(register CELL *pt0, register CELL *pt0_end)
   }
 
   clean_tr(TR0);
+  Yap_ReleasePreAllocCodeSpace((ADDR)to_visit0);
   if (H != InitialH) {
     /* close the list */
     Term t2 = Deref(ARG2);
@@ -814,11 +818,12 @@ p_variables_in_term(void)	/* variables in term t		 */
 static Term non_singletons_in_complex_term(register CELL *pt0, register CELL *pt0_end)
 {
 
-  register CELL **to_visit = (CELL **)(HeapTop + sizeof(CELL));
+  register CELL **to_visit0, **to_visit = (CELL **)Yap_PreAllocCodeSpace();
   register tr_fr_ptr TR0 = TR;
   CELL *InitialH = H;
   CELL output = AbsPair(H);
 
+  to_visit0 = to_visit;
  loop:
   while (pt0 < pt0_end) {
     register CELL d0;
@@ -893,7 +898,7 @@ static Term non_singletons_in_complex_term(register CELL *pt0, register CELL *pt
     TrailTerm(TR++) = (CELL)ptd0;
   }
   /* Do we still have compound terms to visit */
-  if (to_visit > (CELL **)(HeapTop + sizeof(CELL))) {
+  if (to_visit > to_visit0) {
 #ifdef RATIONAL_TREES
     to_visit -= 3;
     pt0 = to_visit[0];
@@ -940,8 +945,9 @@ p_non_singletons_in_term(void)	/* non_singletons in term t		 */
 static Int ground_complex_term(register CELL *pt0, register CELL *pt0_end)
 {
 
-  register CELL **to_visit = (CELL **)(HeapTop + sizeof(CELL));
+  register CELL **to_visit0, **to_visit = (CELL **)Yap_PreAllocCodeSpace();
 
+  to_visit0 = to_visit;
  loop:
   while (pt0 < pt0_end) {
     register CELL d0;
@@ -1003,7 +1009,7 @@ static Int ground_complex_term(register CELL *pt0, register CELL *pt0_end)
 
     derefa_body(d0, ptd0, vars_in_term_unk, vars_in_term_nvar);
 #ifdef RATIONAL_TREES
-    while (to_visit > (CELL **)(HeapTop + sizeof(CELL))) {
+    while (to_visit > to_visit0) {
       to_visit -= 3;
       pt0 = to_visit[0];
       pt0_end = to_visit[1];
@@ -1013,7 +1019,7 @@ static Int ground_complex_term(register CELL *pt0, register CELL *pt0_end)
     return(FALSE);
   }
   /* Do we still have compound terms to visit */
-  if (to_visit > (CELL **)(HeapTop + sizeof(CELL))) {
+  if (to_visit > to_visit0) {
 #ifdef RATIONAL_TREES
     to_visit -= 3;
     pt0 = to_visit[0];
@@ -1057,9 +1063,10 @@ static Int var_in_complex_term(register CELL *pt0,
 			       Term v)
 {
 
-  register CELL **to_visit = (CELL **)(HeapTop + sizeof(CELL));
+  register CELL **to_visit0, **to_visit = (CELL **)Yap_PreAllocCodeSpace();
   register tr_fr_ptr TR0 = TR;
 
+  to_visit0 = to_visit;
  loop:
   while (pt0 < pt0_end) {
     register CELL d0;
@@ -1130,7 +1137,7 @@ static Int var_in_complex_term(register CELL *pt0,
     TrailTerm(TR++) = (CELL)ptd0;
   }
   /* Do we still have compound terms to visit */
-  if (to_visit > (CELL **)(HeapTop + sizeof(CELL))) {
+  if (to_visit > to_visit0) {
 #ifdef RATIONAL_TREES
     to_visit -= 3;
     pt0 = to_visit[0];

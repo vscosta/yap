@@ -446,7 +446,7 @@ AllocateStaticArraySpace(StaticArrayEntry *p, static_array_types atype, Int arra
   }
   while ((p->ValueOfVE.floats = (Float *) Yap_AllocAtomSpace(asize) ) == NULL) {
     YAPLeaveCriticalSection();
-    if (!Yap_growheap(FALSE, asize)) {
+    if (!Yap_growheap(FALSE, asize, NULL)) {
       Yap_Error(SYSTEM_ERROR, TermNil, Yap_ErrorMessage);
       return;
     }
@@ -460,7 +460,7 @@ CreateStaticArray(AtomEntry *ae, Int dim, static_array_types type, CODEADDR star
 {
   if (EndOfPAEntr(p)) {
     while ((p = (StaticArrayEntry *) Yap_AllocAtomSpace(sizeof(*p))) == NULL) {
-      if (!Yap_growheap(FALSE, sizeof(*p))) {
+      if (!Yap_growheap(FALSE, sizeof(*p), NULL)) {
 	Yap_Error(SYSTEM_ERROR, TermNil, Yap_ErrorMessage);
 	return NULL;
       }
@@ -1169,7 +1169,7 @@ p_create_mmapped_array(void)
 #endif
 }
 
-/* This routine verifies whether a complex has variables. */
+/* This routine removes array references from complex terms? */
 static void 
 replace_array_references_complex(register CELL *pt0,
 				 register CELL *pt0_end,

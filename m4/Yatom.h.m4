@@ -543,13 +543,6 @@ PredPropByAtom(Atom at, SMALLUNSGN cur_mod)
   return(Yap_NewPredPropByAtom(ae,cur_mod));
 }
 
-ADDR    STD_PROTO(Yap_PreAllocCodeSpace, (void));
-#if defined(YAPOR) || defined(THREADS)
-void    STD_PROTO(Yap_ReleasePreAllocCodeSpace, (ADDR));
-#else
-#define Yap_ReleasePreAllocCodeSpace(x) 
-#endif
-
 typedef enum {
   PROLOG_MODULE = 0,
   USER_MODULE = 1,

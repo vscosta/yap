@@ -203,6 +203,22 @@ typedef struct CEXPENTRY {
 	 struct CEXPENTRY *RightCE, *LeftCE;
        } CExpEntry;
 
+
+typedef struct intermediates {
+  char *freep;
+  char *freep0;
+  struct PSEUDO *cpc;
+  struct PSEUDO *CodeStart;
+  struct PSEUDO *icpc;
+  struct PSEUDO *BlobsStart;
+  int  *label_offset;
+  Int  *uses;
+  Term *contents;
+  struct pred_entry *CurrentPred;  
+  jmp_buf CompilerBotch;
+  yamop *code_addr; 
+} CIntermediates;
+
 #define	 SafeVar	0x01
 #define  PermFlag	0x02
 #define  GlobalVal	0x04
@@ -234,17 +250,16 @@ typedef struct CEXPENTRY {
 #define Two	 2
 
 
-yamop  *STD_PROTO(Yap_assemble,(int,Term,struct pred_entry *,int));
-void	STD_PROTO(Yap_emit,(compiler_vm_op,Int,CELL));
-void	STD_PROTO(Yap_emit_3ops,(compiler_vm_op,CELL,CELL,CELL));
-void	STD_PROTO(Yap_emit_4ops,(compiler_vm_op,CELL,CELL,CELL,CELL));
-CELL   *STD_PROTO(Yap_emit_extra_size,(compiler_vm_op,CELL,int));
-char   *STD_PROTO(Yap_AllocCMem,(int));
+yamop  *STD_PROTO(Yap_assemble,(int,Term,struct pred_entry *,int, struct intermediates *));
+void	STD_PROTO(Yap_emit,(compiler_vm_op,Int,CELL, struct intermediates *));
+void	STD_PROTO(Yap_emit_3ops,(compiler_vm_op,CELL,CELL,CELL, struct intermediates *));
+void	STD_PROTO(Yap_emit_4ops,(compiler_vm_op,CELL,CELL,CELL,CELL, struct intermediates *));
+CELL   *STD_PROTO(Yap_emit_extra_size,(compiler_vm_op,CELL,int, struct intermediates *));
+char   *STD_PROTO(Yap_AllocCMem,(int, struct intermediates *));
 int	STD_PROTO(Yap_is_a_test_pred,(Term, SMALLUNSGN));
 void    STD_PROTO(Yap_bip_name,(Int, char *));
 #ifdef DEBUG
-void	STD_PROTO(Yap_ShowCode,(void));
+void	STD_PROTO(Yap_ShowCode,(struct intermediates *));
 #endif /* DEBUG */
 
-extern jmp_buf Yap_CompilerBotch;
 

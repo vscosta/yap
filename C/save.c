@@ -379,7 +379,6 @@ save_regs(int mode)
     putcellptr(YENV);
     putcellptr(S);
     putcellptr((CELL *)P);
-    putcellptr((CELL *)MyTR);
     putout(CreepFlag);
     putout(FlipFlop);
     putout(EX);
@@ -388,7 +387,6 @@ save_regs(int mode)
 #endif
   }
   putout(CurrentModule);
-  putcellptr((CELL *)HeapPlus);
   if (mode == DO_EVERYTHING) {
 #ifdef COROUTINING
     putout(WokenGoals);
@@ -642,8 +640,9 @@ check_header(CELL *info, CELL *ATrail, CELL *AStack, CELL *AHeap)
   hp_size = get_cell();
   if (Yap_ErrorMessage)
      return(FAIL_RESTORE);
-  while (Yap_HeapBase != NULL && hp_size > Unsigned(AuxTop) - Unsigned(Yap_HeapBase)) {
-    if(!Yap_growheap(FALSE, hp_size)) {
+  while (Yap_HeapBase != NULL &&
+	 hp_size > Unsigned(HeapLim) - Unsigned(Yap_HeapBase)) {
+    if(!Yap_growheap(FALSE, hp_size, NULL)) {
       return(FAIL_RESTORE);      
     }
   }
@@ -714,7 +713,6 @@ get_regs(int flag)
     YENV = get_cellptr();
     S = get_cellptr();
     P = (yamop *)get_cellptr();
-    MyTR = (tr_fr_ptr)get_cellptr();
     CreepFlag = get_cell();
     FlipFlop = get_cell();
 #ifdef COROUTINING
@@ -722,7 +720,6 @@ get_regs(int flag)
 #endif
   }
   CurrentModule = get_cell();
-  HeapPlus = (ADDR)get_cellptr();
   if (flag == DO_EVERYTHING) {
 #ifdef COROUTINING
     WokenGoals = get_cell();
@@ -860,7 +857,6 @@ get_coded(int flag, OPCODE old_ops[])
 static void 
 restore_heap_regs(void)
 {
-  HeapPlus = AddrAdjust(HeapPlus);
   HeapTop = AddrAdjust(HeapTop);
   *((YAP_SEG_SIZE *) HeapTop) = InUseFlag;
   HeapMax = HeapUsed = OldHeapUsed;
@@ -883,9 +879,6 @@ restore_regs(int flag)
     HB = PtoLocAdjust(HB);
     YENV = PtoLocAdjust(YENV);
     S = PtoGloAdjust(S);
-    HeapPlus = AddrAdjust(HeapPlus);
-    if (MyTR)
-      MyTR = PtoTRAdjust(MyTR);
 #ifdef COROUTINING
     DelayedVars = AbsAppl(PtoGloAdjust(RepAppl(DelayedVars)));
 #ifdef MULTI_ASSIGNMENT_VARIABLES

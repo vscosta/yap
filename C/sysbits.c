@@ -1130,7 +1130,7 @@ InteractSIGINT(int ch) {
     Yap_PutValue (Yap_LookupAtom ("spy_sl"), MkIntTerm (0));
     Yap_PutValue (Yap_FullLookupAtom ("$trace"), MkIntTerm (1));
     yap_flags[SPY_CREEP_FLAG] = 1;
-    Yap_creep ();
+    Yap_signal (YAP_CREEP_SIGNAL);
     return(1);
 #ifdef LOW_LEVEL_TRACER
   case 'T':
@@ -1229,7 +1229,7 @@ HandleALRM(int s)
 {
   my_signal (SIGALRM, HandleALRM);
   /* force the system to creep */
-  Yap_creep ();
+  Yap_signal (YAP_ALARM_SIGNAL);
   /* now, say what is going on */
   Yap_PutValue(AtomAlarm, MkAtomTerm(AtomTrue));
 }
@@ -1266,35 +1266,19 @@ ReceiveSignal (int s)
 #if defined(SIGUSR1)
     case SIGUSR1:
       /* force the system to creep */
-      Yap_creep ();
-      /* add to the set of signals pending */
-      {
-	Term t;
-	t = Yap_GetValue(AtomSigPending);
-	t = MkPairTerm(MkAtomTerm(Yap_LookupAtom("sig_usr1")), t);
-	Yap_PutValue(AtomSigPending, t);
-      }
+      Yap_signal (YAP_USR1_SIGNAL);
       break;
 #endif /* defined(SIGUSR1) */
 #if defined(SIGUSR2)
     case SIGUSR2:
       /* force the system to creep */
-      Yap_creep ();
-      /* add to the set of signals pending */
-      {
-	Term t;
-	t = Yap_GetValue(AtomSigPending);
-	t = MkPairTerm(MkAtomTerm(Yap_LookupAtom("sig_usr2")), t);
-	Yap_PutValue(AtomSigPending, t);
-      }
+      Yap_signal (YAP_USR2_SIGNAL);
       break;
 #endif /* defined(SIGUSR2) */
 #if defined(SIGHUP)
     case SIGHUP:
       /* force the system to creep */
-      Yap_creep ();
-      /* raise the '$sig_pending' flag */
-      Yap_PutValue(AtomSigPending, MkAtomTerm(Yap_LookupAtom("sig_hup")));
+      Yap_signal (YAP_HUP_SIGNAL);
       break;
 #endif /* defined(SIGHUP) */
     default:
@@ -1310,7 +1294,7 @@ MSCHandleSignal(DWORD dwCtrlType) {
   switch(dwCtrlType) {
   case CTRL_C_EVENT:
   case CTRL_BREAK_EVENT:
-    Yap_creep();
+    Yap_signal(YAP_ALARM_SIGNAL);
     Yap_PrologMode |= InterruptMode;
     return(TRUE);
   default:
@@ -1948,7 +1932,7 @@ DoTimerThread(LPVOID targ)
   }
   if (WaitForSingleObject(htimer, INFINITE) != WAIT_OBJECT_0)
     fprintf(stderr,"WaitForSingleObject failed (%ld)\n", GetLastError());
-  Yap_creep ();
+  Yap_signal (YAP_ALARM_SIGNAL);
   /* now, say what is going on */
   Yap_PutValue(AtomAlarm, MkAtomTerm(AtomTrue));
   ExitThread(1);
@@ -2119,6 +2103,84 @@ Yap_ReInitWallTime (void)
   InitLastWtime();
 }
 
+static Int
+p_first_signal(void)
+{
+  LOCK(SignalLock);
+  /* always do wakeups first, because you don't want to keep the
+     non-backtrackable variable bad */
+  if (ActiveSignals & YAP_WAKEUP_SIGNAL) {
+    ActiveSignals &= ~YAP_WAKEUP_SIGNAL;
+    UNLOCK(SignalLock);
+    return Yap_unify(ARG1, MkAtomTerm(Yap_LookupAtom("sig_wake_up")));
+  }
+  if (ActiveSignals & YAP_ITI_SIGNAL) {
+    ActiveSignals &= ~YAP_ITI_SIGNAL;
+    UNLOCK(SignalLock);
+    return Yap_unify(ARG1, MkAtomTerm(Yap_LookupAtom("sig_iti")));
+  }
+  if (ActiveSignals & YAP_INT_SIGNAL) {
+    ActiveSignals &= ~YAP_INT_SIGNAL;
+    UNLOCK(SignalLock);
+    return Yap_unify(ARG1, MkAtomTerm(Yap_LookupAtom("sig_int")));
+  }
+  if (ActiveSignals & YAP_USR2_SIGNAL) {
+    ActiveSignals &= ~YAP_USR2_SIGNAL;
+    UNLOCK(SignalLock);
+    return Yap_unify(ARG1, MkAtomTerm(Yap_LookupAtom("sig_usr2")));
+  }
+  if (ActiveSignals & YAP_USR1_SIGNAL) {
+    ActiveSignals &= ~YAP_USR1_SIGNAL;
+    UNLOCK(SignalLock);
+    return Yap_unify(ARG1, MkAtomTerm(Yap_LookupAtom("sig_usr1")));
+  }
+  if (ActiveSignals & YAP_HUP_SIGNAL) {
+    ActiveSignals &= ~YAP_HUP_SIGNAL;
+    UNLOCK(SignalLock);
+    return Yap_unify(ARG1, MkAtomTerm(Yap_LookupAtom("sig_hup")));
+  }
+  if (ActiveSignals & YAP_ALARM_SIGNAL) {
+    ActiveSignals &= ~YAP_ALARM_SIGNAL;
+    UNLOCK(SignalLock);
+    return Yap_unify(ARG1, MkAtomTerm(Yap_LookupAtom("sig_alarm")));
+  }
+  if (ActiveSignals & YAP_CREEP_SIGNAL) {
+    ActiveSignals &= ~YAP_CREEP_SIGNAL;
+    UNLOCK(SignalLock);
+    return Yap_unify(ARG1, MkAtomTerm(Yap_LookupAtom("sig_creep")));
+  }
+  UNLOCK(SignalLock);
+  return FALSE;
+}
+
+static Int
+p_continue_signals(void)
+{
+  /* hack to force the signal anew */
+  if (ActiveSignals & YAP_ITI_SIGNAL) {
+    Yap_signal(YAP_ITI_SIGNAL);
+  }
+  if (ActiveSignals & YAP_INT_SIGNAL) {
+    Yap_signal(YAP_INT_SIGNAL);
+  }
+  if (ActiveSignals & YAP_USR2_SIGNAL) {
+    Yap_signal(YAP_USR2_SIGNAL);
+  }
+  if (ActiveSignals & YAP_USR1_SIGNAL) {
+    Yap_signal(YAP_USR1_SIGNAL);
+  }
+  if (ActiveSignals & YAP_HUP_SIGNAL) {
+    Yap_signal(YAP_HUP_SIGNAL);
+  }
+  if (ActiveSignals & YAP_ALARM_SIGNAL) {
+    Yap_signal(YAP_ALARM_SIGNAL);
+  }
+  if (ActiveSignals & YAP_CREEP_SIGNAL) {
+    Yap_signal(YAP_CREEP_SIGNAL);
+  }
+  return TRUE;
+}
+
 void
 Yap_InitSysPreds(void)
 {
@@ -2138,6 +2200,8 @@ Yap_InitSysPreds(void)
   Yap_InitCPred ("$file_age", 2, p_file_age, SafePredFlag|SyncPredFlag);
   Yap_InitCPred ("$set_fpu_exceptions", 0, p_set_fpu_exceptions, SafePredFlag|SyncPredFlag);
   Yap_InitCPred ("$host_type", 1, p_host_type, SafePredFlag|SyncPredFlag);
+  Yap_InitCPred ("$first_signal", 1, p_first_signal, SafePredFlag|SyncPredFlag);
+  Yap_InitCPred ("$continue_signals", 0, p_continue_signals, SafePredFlag|SyncPredFlag);
 }
 
 

@@ -56,10 +56,10 @@ static char     SccsId[] = "%W% %G%";
 #include <string.h>
 #endif
 
-UInt STATIC_PROTO(do_index, (ClauseDef *,ClauseDef *,PredEntry *,UInt,UInt,int,int,CELL *));
-UInt STATIC_PROTO(do_compound_index, (ClauseDef *,ClauseDef *,Term *t,PredEntry *,UInt,UInt,UInt,UInt,int,int,int,CELL *,int));
-UInt STATIC_PROTO(do_dbref_index, (ClauseDef *,ClauseDef *,Term,PredEntry *,UInt,UInt,int,int,CELL *));
-UInt STATIC_PROTO(do_blob_index, (ClauseDef *,ClauseDef *,Term,PredEntry *,UInt,UInt,int,int,CELL *));
+UInt STATIC_PROTO(do_index, (ClauseDef *,ClauseDef *,struct intermediates *,UInt,UInt,int,int,CELL *));
+UInt STATIC_PROTO(do_compound_index, (ClauseDef *,ClauseDef *,Term *t,struct intermediates *,UInt,UInt,UInt,UInt,int,int,int,CELL *,int));
+UInt STATIC_PROTO(do_dbref_index, (ClauseDef *,ClauseDef *,Term,struct intermediates *,UInt,UInt,int,int,CELL *));
+UInt STATIC_PROTO(do_blob_index, (ClauseDef *,ClauseDef *,Term,struct intermediates *,UInt,UInt,int,int,CELL *));
 
 static UInt labelno;
 
@@ -2310,32 +2310,36 @@ new_label(void)
 }
 
 static void
-emit_trust(ClauseDef *cl, PredEntry *ap, UInt nxtlbl, int clauses)
+emit_trust(ClauseDef *cl, struct intermediates *cint, UInt nxtlbl, int clauses)
 {
-  if (CurrentPred->PredFlags & ProfiledPredFlag) {
-    Yap_emit(retry_profiled_op, Unsigned(ap), Zero);
+  PredEntry *ap = cint->CurrentPred;
+
+  if (ap->PredFlags & ProfiledPredFlag) {
+    Yap_emit(retry_profiled_op, Unsigned(ap), Zero, cint);
   }
-  if (CurrentPred->PredFlags & CountPredFlag) {
-    Yap_emit(count_retry_op, Unsigned(ap), Zero);
+  if (ap->PredFlags & CountPredFlag) {
+    Yap_emit(count_retry_op, Unsigned(ap), Zero, cint);
   }
   if (clauses == 0) {
-    Yap_emit(trust_op, (CELL)(cl->Code), has_cut(cl->CurrentCode) );
+    Yap_emit(trust_op, (CELL)(cl->Code), has_cut(cl->CurrentCode) , cint);
   } else {
-    Yap_emit(retry_op, (CELL)(cl->Code), (clauses << 1) | has_cut(cl->CurrentCode) );
-    Yap_emit(jumpi_op, nxtlbl, Zero);
+    Yap_emit(retry_op, (CELL)(cl->Code), (clauses << 1) | has_cut(cl->CurrentCode) , cint);
+    Yap_emit(jumpi_op, nxtlbl, Zero, cint);
   }
 }
 
 static void
-emit_retry(ClauseDef *cl, PredEntry *ap, int clauses)
+emit_retry(ClauseDef *cl, struct intermediates *cint, int clauses)
 {
-  if (CurrentPred->PredFlags & ProfiledPredFlag) {
-    Yap_emit(retry_profiled_op, Unsigned(ap), Zero);
+  PredEntry *ap = cint->CurrentPred;
+
+  if (ap->PredFlags & ProfiledPredFlag) {
+    Yap_emit(retry_profiled_op, Unsigned(ap), Zero, cint);
   }
-  if (CurrentPred->PredFlags & CountPredFlag) {
-    Yap_emit(count_retry_op, Unsigned(ap), Zero);
+  if (ap->PredFlags & CountPredFlag) {
+    Yap_emit(count_retry_op, Unsigned(ap), Zero, cint);
   }
-  Yap_emit(retry_op, (CELL)(cl->Code), (clauses << 1) | has_cut(cl->CurrentCode) );
+  Yap_emit(retry_op, (CELL)(cl->Code), (clauses << 1) | has_cut(cl->CurrentCode), cint);
 }
 
 static compiler_vm_op
@@ -2369,47 +2373,49 @@ emit_optry(int var_group, int first, int clauses, int clleft, PredEntry *ap)
 
 
 static void
-emit_try(ClauseDef *cl, PredEntry *ap, int var_group, int first, int clauses, int clleft, UInt nxtlbl)
+emit_try(ClauseDef *cl, struct intermediates *cint, int var_group, int first, int clauses, int clleft, UInt nxtlbl)
 {
-  compiler_vm_op comp_op = emit_optry(var_group, first, clauses, clleft, ap);
-  Yap_emit(comp_op, (CELL)(cl->CurrentCode), ((clauses+clleft) << 1) | has_cut(cl->CurrentCode) );
+  compiler_vm_op comp_op = emit_optry(var_group, first, clauses, clleft, cint->CurrentPred);
+  Yap_emit(comp_op, (CELL)(cl->CurrentCode), ((clauses+clleft) << 1) | has_cut(cl->CurrentCode), cint);
 }
 
 static TypeSwitch *
-emit_type_switch(compiler_vm_op op)
+emit_type_switch(compiler_vm_op op, struct intermediates *cint)
 {
- return (TypeSwitch *)Yap_emit_extra_size(op, 0, sizeof(TypeSwitch));
+ return (TypeSwitch *)Yap_emit_extra_size(op, 0, sizeof(TypeSwitch), cint);
 }
 
 
 static yamop *
-emit_switch_space(UInt n, UInt item_size, PredEntry *ap)
+emit_switch_space(UInt n, UInt item_size, struct intermediates *cint)
 {
-    if (ap->PredFlags & LogUpdatePredFlag) {
-      LogUpdIndex *cl = (LogUpdIndex *)Yap_AllocCodeSpace(sizeof(LogUpdIndex)+n*item_size);
-      if (cl == NULL) {
-	Yap_Error_Size = sizeof(LogUpdIndex)+n*item_size;
-	/* grow stack */
-	longjmp(Yap_CompilerBotch,2);
-      }
-      cl->ClFlags = SwitchTableMask|LogUpdMask;
-      /* insert into code chain */
-      return cl->ClCode;
-    } else {
-      StaticIndex *cl = (StaticIndex *)Yap_AllocCodeSpace(sizeof(StaticIndex)+n*item_size);
-      if (cl == NULL) {
-	Yap_Error_Size = sizeof(LogUpdIndex)+n*item_size;
-	/* grow stack */
-	longjmp(Yap_CompilerBotch,2);
-      }
-      cl->ClFlags = SwitchTableMask;
-      return cl->ClCode;
-      /* insert into code chain */
-    }  
+  PredEntry *ap = cint->CurrentPred;
+
+  if (ap->PredFlags & LogUpdatePredFlag) {
+    LogUpdIndex *cl = (LogUpdIndex *)Yap_AllocCodeSpace(sizeof(LogUpdIndex)+n*item_size);
+    if (cl == NULL) {
+      Yap_Error_Size = sizeof(LogUpdIndex)+n*item_size;
+      /* grow stack */
+      longjmp(cint->CompilerBotch,2);
+    }
+    cl->ClFlags = SwitchTableMask|LogUpdMask;
+    /* insert into code chain */
+    return cl->ClCode;
+  } else {
+    StaticIndex *cl = (StaticIndex *)Yap_AllocCodeSpace(sizeof(StaticIndex)+n*item_size);
+    if (cl == NULL) {
+      Yap_Error_Size = sizeof(LogUpdIndex)+n*item_size;
+      /* grow stack */
+      longjmp(cint->CompilerBotch,2);
+    }
+    cl->ClFlags = SwitchTableMask;
+    return cl->ClCode;
+    /* insert into code chain */
+  }  
 }
 
 static AtomSwiEntry *
-emit_cswitch(int n, UInt fail_l, PredEntry *ap)
+emit_cswitch(int n, UInt fail_l, struct intermediates *cint)
 {
   compiler_vm_op op;
   AtomSwiEntry *target;
@@ -2420,18 +2426,18 @@ emit_cswitch(int n, UInt fail_l, PredEntry *ap)
     while (cases < n) cases *= 2;
     n = cases;
     op = switch_c_op;
-    target = (AtomSwiEntry *)emit_switch_space(n, sizeof(AtomSwiEntry), ap);
+    target = (AtomSwiEntry *)emit_switch_space(n, sizeof(AtomSwiEntry), cint);
     for (i=0; i<n; i++) {
       target[i].Tag = Zero;
       target[i].Label = fail_l;
     }
-    Yap_emit(op, Unsigned(n), (CELL)target);
+    Yap_emit(op, Unsigned(n), (CELL)target, cint);
   } else {
     op = if_c_op;
-    target = (AtomSwiEntry *)emit_switch_space(n+1, sizeof(AtomSwiEntry), ap);
+    target = (AtomSwiEntry *)emit_switch_space(n+1, sizeof(AtomSwiEntry), cint);
     target[n].Tag = Zero;
     target[n].Label = fail_l;
-    Yap_emit(op, Unsigned(n), (CELL)target);
+    Yap_emit(op, Unsigned(n), (CELL)target, cint);
   }
   return target;
 }
@@ -2470,7 +2476,7 @@ fetch_centry(AtomSwiEntry *cebase, Term wt, int i, int n)
 }
 
 static FuncSwiEntry *
-emit_fswitch(int n, UInt fail_l, PredEntry *ap)
+emit_fswitch(int n, UInt fail_l, struct intermediates *cint)
 {
   compiler_vm_op op;
   FuncSwiEntry *target;
@@ -2481,18 +2487,18 @@ emit_fswitch(int n, UInt fail_l, PredEntry *ap)
     while (cases < n) cases *= 2;
     n = cases;
     op = switch_f_op;
-    target = (FuncSwiEntry *)emit_switch_space(n, sizeof(FuncSwiEntry), ap);
+    target = (FuncSwiEntry *)emit_switch_space(n, sizeof(FuncSwiEntry), cint);
     for (i=0; i<n; i++) {
       target[i].Tag = NULL;
       target[i].Label = fail_l;
     }
-    Yap_emit(op, Unsigned(n), (CELL)target);
+    Yap_emit(op, Unsigned(n), (CELL)target, cint);
   } else {
     op = if_f_op;
-    target = (FuncSwiEntry *)emit_switch_space(n+1, sizeof(FuncSwiEntry), ap);
+    target = (FuncSwiEntry *)emit_switch_space(n+1, sizeof(FuncSwiEntry), cint);
     target[n].Tag = NULL;
     target[n].Label = fail_l;
-    Yap_emit(op, Unsigned(n), (CELL)target);
+    Yap_emit(op, Unsigned(n), (CELL)target, cint);
   }
   return target;
 }
@@ -2533,43 +2539,43 @@ fetch_fentry(FuncSwiEntry *febase, Functor ft, int i, int n)
 
 /* we assume there is at least one clause, that is, c0 < cf */
 static UInt
-do_var_clauses(ClauseDef *c0, ClauseDef *cf, int var_group, PredEntry *ap, int first, int clleft, UInt nxtlbl, UInt argno0) {
+do_var_clauses(ClauseDef *c0, ClauseDef *cf, int var_group, struct intermediates *cint, int first, int clleft, UInt nxtlbl, UInt argno0) {
   UInt labl;
   UInt labl_dyn0 = 0, labl_dynf = 0;
 
   labl = new_label();
-  Yap_emit(label_op, labl, Zero);
+  Yap_emit(label_op, labl, Zero, cint);
   /*
     add expand_node if var_group == TRUE (jump on var) ||
 		       var_group == FALSE (leaf node)
    */
   if (first &&
-      ap->PredFlags & LogUpdatePredFlag) {
+      cint->CurrentPred->PredFlags & LogUpdatePredFlag) {
     labl_dyn0 = new_label();
     if (clleft)
       labl_dynf = labl_dyn0;
     else
       labl_dynf = new_label();
-    Yap_emit_3ops(enter_lu_op, labl_dyn0, labl_dynf, (cf-c0)+1);
-    Yap_emit(label_op, labl_dyn0, Zero); 
+    Yap_emit_3ops(enter_lu_op, labl_dyn0, labl_dynf, (cf-c0)+1, cint);
+    Yap_emit(label_op, labl_dyn0, Zero, cint); 
   }
   if (c0 == cf) {
-    emit_try(c0, ap, var_group, first, 0, clleft, nxtlbl);
+    emit_try(c0, cint, var_group, first, 0, clleft, nxtlbl);
   } else {
 
     if (c0 < cf) {
-      emit_try(c0, ap, var_group, first, cf-c0, clleft, nxtlbl);
+      emit_try(c0, cint, var_group, first, cf-c0, clleft, nxtlbl);
     }
     c0++;
     while (c0 < cf) {
-      emit_retry(c0, ap, clleft+(cf-c0));
+      emit_retry(c0, cint, clleft+(cf-c0));
       c0++;
     }
     if (c0 == cf) {
-      emit_trust(c0, ap, nxtlbl, clleft);
+      emit_trust(c0, cint, nxtlbl, clleft);
       if (!clleft && 
-	  ap->PredFlags & LogUpdatePredFlag) {
-	Yap_emit(label_op, labl_dynf, Zero); 
+	  cint->CurrentPred->PredFlags & LogUpdatePredFlag) {
+	Yap_emit(label_op, labl_dynf, Zero, cint); 
       }
     }
   }
@@ -2577,8 +2583,8 @@ do_var_clauses(ClauseDef *c0, ClauseDef *cf, int var_group, PredEntry *ap, int f
 }
 
 static UInt
-do_var_group(GroupDef *grp, PredEntry *ap, int var_group, int first, int clleft, UInt nxtlbl, UInt argno0) {
-  return do_var_clauses(grp->FirstClause, grp->LastClause, var_group, ap, first, clleft, nxtlbl, argno0);
+do_var_group(GroupDef *grp, struct intermediates *cint, int var_group, int first, int clleft, UInt nxtlbl, UInt argno0) {
+  return do_var_clauses(grp->FirstClause, grp->LastClause, var_group, cint, first, clleft, nxtlbl, argno0);
 }
 
 
@@ -2645,7 +2651,7 @@ count_funcs(GroupDef *grp)
 }
 
 static UInt
-emit_single_switch_case(ClauseDef *min, PredEntry *ap, int first, int clleft, UInt nxtlbl)
+emit_single_switch_case(ClauseDef *min, struct intermediates *cint, int first, int clleft, UInt nxtlbl)
 {
 #ifdef TABLING
   if (ap->PredFlags & TabledPredFlag) {
@@ -2656,11 +2662,11 @@ emit_single_switch_case(ClauseDef *min, PredEntry *ap, int first, int clleft, UI
     */
     if (clleft == 0) {
       UInt lbl = new_label();
-      Yap_emit(label_op, lbl, Zero);
+      Yap_emit(label_op, lbl, Zero, cint);
       if (first) {
-	Yap_emit(table_try_single_op, (UInt)(min->CurrentCode), has_cut(cl->CurrentCode));
+	Yap_emit(table_try_single_op, (UInt)(min->CurrentCode), has_cut(cl->CurrentCode), cint);
       } else {
-	Yap_emit(trust_op, (UInt)(min->CurrentCode), has_cut(cl->CurrentCode));
+	Yap_emit(trust_op, (UInt)(min->CurrentCode), has_cut(cl->CurrentCode), cint);
       }
       return lbl;
     }
@@ -2677,15 +2683,17 @@ suspend_indexing(ClauseDef *min, ClauseDef *max, PredEntry *ap)
 
 
 static UInt
-do_var_entries(GroupDef *grp, Term t, PredEntry *ap, UInt argno, int first, int clleft, UInt nxtlbl){
+do_var_entries(GroupDef *grp, Term t, struct intermediates *cint, UInt argno, int first, int clleft, UInt nxtlbl){
+  PredEntry *ap = cint->CurrentPred;
+
   if (!IsVarTerm(t) || t != 0L) {
     return suspend_indexing(grp->FirstClause, grp->LastClause, ap);
   }
-  return do_var_group(grp, ap, FALSE, first, clleft, nxtlbl, ap->ArityOfPE+1);
+  return do_var_group(grp, cint, FALSE, first, clleft, nxtlbl, ap->ArityOfPE+1);
 }
 
 static UInt
-do_consts(GroupDef *grp, Term t, PredEntry *ap, int compound_term, CELL *sreg, UInt arity, int last_arg, UInt argno, int first, UInt nxtlbl, int clleft, CELL *top)
+do_consts(GroupDef *grp, Term t, struct intermediates *cint, int compound_term, CELL *sreg, UInt arity, int last_arg, UInt argno, int first, UInt nxtlbl, int clleft, CELL *top)
 {
   UInt n;
   ClauseDef *min = grp->FirstClause;
@@ -2693,6 +2701,7 @@ do_consts(GroupDef *grp, Term t, PredEntry *ap, int compound_term, CELL *sreg, U
   UInt lbl;
   /* generate a switch */
   AtomSwiEntry *cs;
+  PredEntry *ap = cint->CurrentPred;
 
   if (!IsAtomTerm(min->Tag) && !IsIntTerm(min->Tag)) {
     /* no clauses, just skip */
@@ -2700,8 +2709,8 @@ do_consts(GroupDef *grp, Term t, PredEntry *ap, int compound_term, CELL *sreg, U
   }
   n = count_consts(grp);
   lbl = new_label();
-  Yap_emit(label_op, lbl, Zero);
-  cs = emit_cswitch(n, (UInt)FAILCODE, ap);
+  Yap_emit(label_op, lbl, Zero, cint);
+  cs = emit_cswitch(n, (UInt)FAILCODE, cint);
   for (i = 0; i < n; i++) {
     AtomSwiEntry *ics;
     ClauseDef *max = min;
@@ -2715,14 +2724,14 @@ do_consts(GroupDef *grp, Term t, PredEntry *ap, int compound_term, CELL *sreg, U
 	if (ap->PredFlags & LogUpdatePredFlag && max > min)
 	  ics->Label = suspend_indexing(min, max, ap);
 	else
-	  ics->Label = do_compound_index(min, max, sreg, ap, compound_term, arity, argno+1, nxtlbl, first, last_arg, clleft, top, TRUE);
+	  ics->Label = do_compound_index(min, max, sreg, cint, compound_term, arity, argno+1, nxtlbl, first, last_arg, clleft, top, TRUE);
       } else if (ap->PredFlags & LogUpdatePredFlag) {
-	ics->Label = suspend_indexing(min, max, ap);
+	ics->Label = suspend_indexing(min, max, cint->CurrentPred);
       } else {
-	ics->Label = do_index(min, max, ap, argno+1, nxtlbl, first, clleft, top);
+	ics->Label = do_index(min, max, cint, argno+1, nxtlbl, first, clleft, top);
       }
     } else {
-      ics->Label = do_index(min, max, ap, argno+1, nxtlbl, first, clleft, top);
+      ics->Label = do_index(min, max, cint, argno+1, nxtlbl, first, clleft, top);
     }
     grp->FirstClause = min = max+1;
   }
@@ -2730,16 +2739,17 @@ do_consts(GroupDef *grp, Term t, PredEntry *ap, int compound_term, CELL *sreg, U
 }
 
 static void
-do_blobs(GroupDef *grp, Term t, PredEntry *ap, UInt argno, int first, UInt nxtlbl, int clleft, CELL *top)
+do_blobs(GroupDef *grp, Term t, struct intermediates *cint, UInt argno, int first, UInt nxtlbl, int clleft, CELL *top)
 {
   UInt n;
   ClauseDef *min = grp->FirstClause;
   UInt i;
   /* generate a switch */
   AtomSwiEntry *cs;
+  PredEntry *ap = cint->CurrentPred;
 
   n = count_blobs(grp);
-  cs = emit_cswitch(n, nxtlbl, ap);
+  cs = emit_cswitch(n, nxtlbl, cint);
   for (i = 0; i < n; i++) {
     AtomSwiEntry *ics;
     ClauseDef *max = min;
@@ -2752,14 +2762,14 @@ do_blobs(GroupDef *grp, Term t, PredEntry *ap, UInt argno, int first, UInt nxtlb
 	(ap->PredFlags & LogUpdatePredFlag)) {
       ics->Label = suspend_indexing(min, max, ap);
     } else {
-      ics->Label = do_index(min, max, ap, argno+1, nxtlbl, first, clleft, top);
+      ics->Label = do_index(min, max, cint, argno+1, nxtlbl, first, clleft, top);
     }
     grp->FirstClause = min = max+1;
   }
 }
 
 static UInt
-do_funcs(GroupDef *grp, Term t, PredEntry *ap, UInt argno, int first, int last_arg, UInt nxtlbl, int clleft, CELL *top)
+do_funcs(GroupDef *grp, Term t, struct intermediates *cint, UInt argno, int first, int last_arg, UInt nxtlbl, int clleft, CELL *top)
 {
   UInt n = count_funcs(grp);
   ClauseDef *min = grp->FirstClause;
@@ -2772,9 +2782,9 @@ do_funcs(GroupDef *grp, Term t, PredEntry *ap, UInt argno, int first, int last_a
     return nxtlbl;
   }
   lbl = new_label();
-  Yap_emit(label_op, lbl, Zero);
+  Yap_emit(label_op, lbl, Zero, cint);
   /* generate a switch */
-  fs = emit_fswitch(n, (UInt)FAILCODE, ap);
+  fs = emit_fswitch(n, (UInt)FAILCODE, cint);
   for (i = 0; i < n ; i++) {
     Functor f = (Functor)RepAppl(min->Tag);
     FuncSwiEntry *ifs;
@@ -2792,9 +2802,9 @@ do_funcs(GroupDef *grp, Term t, PredEntry *ap, UInt argno, int first, int last_a
     */
     if (IsExtensionFunctor(f)) {
       if (f == FunctorDBRef) 
-	ifs->Label = do_dbref_index(min, max, t, ap, argno, nxtlbl, first, clleft, top);
+	ifs->Label = do_dbref_index(min, max, t, cint, argno, nxtlbl, first, clleft, top);
       else
-	ifs->Label = do_blob_index(min, max, t, ap, argno, nxtlbl, first, clleft, top);
+	ifs->Label = do_blob_index(min, max, t, cint, argno, nxtlbl, first, clleft, top);
 	
     } else {
       CELL *sreg;
@@ -2804,7 +2814,7 @@ do_funcs(GroupDef *grp, Term t, PredEntry *ap, UInt argno, int first, int last_a
       } else {
 	sreg = NULL;
       }
-      ifs->Label = do_compound_index(min, max, sreg, ap, 0, ArityOfFunctor(f), argno+1, nxtlbl, first, last_arg, clleft, top, TRUE);
+      ifs->Label = do_compound_index(min, max, sreg, cint, 0, ArityOfFunctor(f), argno+1, nxtlbl, first, last_arg, clleft, top, TRUE);
     }
     grp->FirstClause = min = max+1;
   }
@@ -2812,7 +2822,7 @@ do_funcs(GroupDef *grp, Term t, PredEntry *ap, UInt argno, int first, int last_a
 }
 
 static UInt
-do_pair(GroupDef *grp, Term t, PredEntry *ap, UInt argno, int first, int last_arg, UInt nxtlbl, int clleft, CELL *top)
+do_pair(GroupDef *grp, Term t, struct intermediates *cint, UInt argno, int first, int last_arg, UInt nxtlbl, int clleft, CELL *top)
 {
   ClauseDef *min = grp->FirstClause;
   ClauseDef *max = grp->FirstClause;
@@ -2830,52 +2840,54 @@ do_pair(GroupDef *grp, Term t, PredEntry *ap, UInt argno, int first, int last_ar
     return (UInt)(min->CurrentCode);
   }
   if (min != max && !IsPairTerm(t)) {
-    return suspend_indexing(min, max, ap);
+    return suspend_indexing(min, max, cint->CurrentPred);
   }
-  return do_compound_index(min, max, (IsPairTerm(t) ? RepPair(t) : NULL), ap, 0, 2, argno+1, nxtlbl, first, last_arg, clleft, top, TRUE);
+  return do_compound_index(min, max, (IsPairTerm(t) ? RepPair(t) : NULL), cint, 0, 2, argno+1, nxtlbl, first, last_arg, clleft, top, TRUE);
 }
 
 static void
-group_prologue(int compound_term, UInt argno, int first)
+group_prologue(int compound_term, UInt argno, int first, struct intermediates *cint)
 {
   if (compound_term) {
-    Yap_emit(cache_sub_arg_op, compound_term-1, compound_term-1);
+    Yap_emit(cache_sub_arg_op, compound_term-1, compound_term-1, cint);
   } else {
     if (!first || argno != 1) {
-      Yap_emit(cache_arg_op, argno, argno);
+      Yap_emit(cache_arg_op, argno, argno, cint);
     }
   }
 }
 
 /* make sure that we can handle failure correctly */
 static void
-emit_protection_choicepoint(int first, int clleft, UInt nxtlbl, PredEntry *ap)
+emit_protection_choicepoint(int first, int clleft, UInt nxtlbl, struct intermediates *cint)
 {
 
   if (first) {
     if (clleft) {
-      if (ap->PredFlags & LogUpdatePredFlag) {
+      if (cint->CurrentPred->PredFlags & LogUpdatePredFlag) {
 	UInt labl = new_label();
-	Yap_emit_3ops(enter_lu_op, labl, labl, ap->cs.p_code.NOfClauses);
-	Yap_emit(label_op, labl, Zero);
+	PredEntry *ap = cint->CurrentPred;
+
+	Yap_emit_3ops(enter_lu_op, labl, labl, ap->cs.p_code.NOfClauses, cint);
+	Yap_emit(label_op, labl, Zero, cint);
       }
-      Yap_emit(tryme_op, nxtlbl, (clleft << 1));
+      Yap_emit(tryme_op, nxtlbl, (clleft << 1), cint);
     }
   } else {
     /* !first */
     if (clleft) {
-      Yap_emit(retryme_op, nxtlbl, (clleft << 1));
+      Yap_emit(retryme_op, nxtlbl, (clleft << 1), cint);
 #ifdef TABLING
-    } else if ((ap->PredFlags & TabledPredFlag)) {
+    } else if ((cint->CurrentPred->PredFlags & TabledPredFlag)) {
       /*
 	we cannot get rid of the choice-point for tabled predicates, all
 	kinds of hell would follow, so we just keep it around: not nice,
 	but should work.
       */
-      Yap_emit(retryme_op, (CELL)TRUSTFAILCODE, 0);
+      Yap_emit(retryme_op, (CELL)TRUSTFAILCODE, 0, cint);
 #endif
     } else {
-      Yap_emit(trustme_op, 0, 0);
+      Yap_emit(trustme_op, 0, 0, cint);
     }
   }
 }
@@ -2932,21 +2944,22 @@ purge_pvar(GroupDef *group) {
 
 
 static UInt *
-do_nonvar_group(GroupDef *grp, Term t, int compound_term, CELL *sreg, UInt arity, UInt labl, PredEntry *ap, UInt argno, int first, int last_arg, UInt nxtlbl, int clleft, CELL *top) {
+do_nonvar_group(GroupDef *grp, Term t, int compound_term, CELL *sreg, UInt arity, UInt labl, struct intermediates *cint, UInt argno, int first, int last_arg, UInt nxtlbl, int clleft, CELL *top) {
   TypeSwitch *type_sw;
+  PredEntry *ap = cint->CurrentPred;
 
   /* move cl pointer */
   if (grp->AtomClauses + grp->PairClauses + grp->StructClauses > 1) {
-    Yap_emit(label_op, labl, Zero);
+    Yap_emit(label_op, labl, Zero, cint);
     if (argno == 1 && !compound_term) {
-      emit_protection_choicepoint(first, clleft, nxtlbl, ap);
+      emit_protection_choicepoint(first, clleft, nxtlbl, cint);
     }
-    group_prologue(compound_term, argno, first);
+    group_prologue(compound_term, argno, first, cint);
     if (grp->LastClause < grp->FirstClause) { /* only tests */
       return NULL;
     }
-    type_sw = emit_type_switch(switch_on_type_op);
-    type_sw->VarEntry = do_var_entries(grp, t, ap, argno, first, clleft, nxtlbl);
+    type_sw = emit_type_switch(switch_on_type_op, cint);
+    type_sw->VarEntry = do_var_entries(grp, t, cint, argno, first, clleft, nxtlbl);
     grp->LastClause = cls_move(grp->FirstClause, ap, grp->LastClause, compound_term, argno, last_arg);
     sort_group(grp,top);
     type_sw->ConstEntry = 
@@ -2955,23 +2968,23 @@ do_nonvar_group(GroupDef *grp, Term t, int compound_term, CELL *sreg, UInt arity
       nxtlbl;
     while (grp->FirstClause <= grp->LastClause) {
       if (IsAtomOrIntTerm(grp->FirstClause->Tag)) {
-	type_sw->ConstEntry = do_consts(grp, t, ap, compound_term, sreg, arity, last_arg, argno, first, nxtlbl, clleft, top);
+	type_sw->ConstEntry = do_consts(grp, t, cint, compound_term, sreg, arity, last_arg, argno, first, nxtlbl, clleft, top);
       } else if (IsApplTerm(grp->FirstClause->Tag)) {
-	type_sw->FuncEntry = do_funcs(grp, t, ap, argno, first, last_arg, nxtlbl, clleft, top);
+	type_sw->FuncEntry = do_funcs(grp, t, cint, argno, first, last_arg, nxtlbl, clleft, top);
       } else {
-	type_sw->PairEntry = do_pair(grp, t, ap, argno, first, last_arg, nxtlbl, clleft, top);
+	type_sw->PairEntry = do_pair(grp, t, cint, argno, first, last_arg, nxtlbl, clleft, top);
       }
     }
     return &(type_sw->VarEntry);
   } else {
-    Yap_emit(label_op,labl,Zero);
-    do_var_group(grp, ap, TRUE, first, clleft, nxtlbl, ap->ArityOfPE+1);
+    Yap_emit(label_op,labl,Zero, cint);
+    do_var_group(grp, cint, TRUE, first, clleft, nxtlbl, ap->ArityOfPE+1);
     return NULL;
   }
 }
 
 static UInt
-do_optims(GroupDef *group, int ngroups, UInt fail_l, ClauseDef *min, PredEntry *ap)
+do_optims(GroupDef *group, int ngroups, UInt fail_l, ClauseDef *min, struct intermediates *cint)
 {
   if (ngroups==2 && group[0].FirstClause ==  group[0].LastClause &&
       group[0].AtomClauses == 1 && group[1].VarClauses == 1) {
@@ -2979,11 +2992,11 @@ do_optims(GroupDef *group, int ngroups, UInt fail_l, ClauseDef *min, PredEntry *
     UInt labl;
 
     labl = new_label();
-    sp = Yap_emit_extra_size(if_not_op, Zero, 4*CellSize);
+    sp = Yap_emit_extra_size(if_not_op, Zero, 4*CellSize, cint);
     sp[0] = (CELL)(group[0].FirstClause->Tag);
     sp[1] = (CELL)(group[1].FirstClause->Code);
-    sp[2] = do_var_clauses(group[0].FirstClause, group[1].LastClause, FALSE, ap, TRUE, 0, (CELL)FAILCODE, ap->ArityOfPE+1);      
-    sp[3] = do_var_clauses(min, group[1].LastClause, FALSE, ap, TRUE, 0, (CELL)FAILCODE, ap->ArityOfPE+1);
+    sp[2] = do_var_clauses(group[0].FirstClause, group[1].LastClause, FALSE, cint, TRUE, 0, (CELL)FAILCODE, cint->CurrentPred->ArityOfPE+1);      
+    sp[3] = do_var_clauses(min, group[1].LastClause, FALSE, cint, TRUE, 0, (CELL)FAILCODE, cint->CurrentPred->ArityOfPE+1);
     return labl;
   }
   return fail_l;
@@ -3020,7 +3033,7 @@ cls_head_info(ClauseDef *min, ClauseDef *max, UInt argno)
 }
 
 static UInt
-do_index(ClauseDef *min, ClauseDef* max, PredEntry *ap, UInt argno, UInt fail_l, int first, int clleft, CELL *top)
+do_index(ClauseDef *min, ClauseDef* max, struct intermediates *cint, UInt argno, UInt fail_l, int first, int clleft, CELL *top)
 {
   UInt ngroups, found_pvar = FALSE;
   UInt i = 0;
@@ -3029,14 +3042,15 @@ do_index(ClauseDef *min, ClauseDef* max, PredEntry *ap, UInt argno, UInt fail_l,
   Term t;
   /* remember how we entered here */
   UInt argno0 = argno;
+  PredEntry *ap = cint->CurrentPred;
 
   if (min == max) {
     /* base case, just commit to the current code */
-    return emit_single_switch_case(min, ap, first, clleft, fail_l);
+    return emit_single_switch_case(min, cint, first, clleft, fail_l);
   }
   if ((argno > 1 && yap_flags[INDEXING_MODE_FLAG] == INDEX_MODE_SINGLE) ||
       ap->ArityOfPE < argno) {
-    return do_var_clauses(min, max, FALSE, ap, first, clleft, fail_l, ap->ArityOfPE+1);
+    return do_var_clauses(min, max, FALSE, cint, first, clleft, fail_l, ap->ArityOfPE+1);
   }
   t = Deref(XREGS[argno]);
   if (ap->PredFlags & LogUpdatePredFlag) {
@@ -3049,11 +3063,11 @@ do_index(ClauseDef *min, ClauseDef* max, PredEntry *ap, UInt argno, UInt fail_l,
       max - min > 2 &&
       ap->ModuleOfPred != 2) {
     lablx = new_label();
-    Yap_emit(label_op, lablx, Zero);
+    Yap_emit(label_op, lablx, Zero, cint);
     while (IsVarTerm(t)) {
-      Yap_emit(jump_nv_op, (CELL)(&(ap->cs.p_code.ExpandCode)), argno);
+      Yap_emit(jump_nv_op, (CELL)(&(ap->cs.p_code.ExpandCode)), argno, cint);
       if (argno == ap->ArityOfPE) {
-	do_var_clauses(min, max, FALSE, ap, first, clleft, fail_l, argno0);
+	do_var_clauses(min, max, FALSE, cint, first, clleft, fail_l, argno0);
 	return lablx;
       }
       argno++;
@@ -3074,9 +3088,9 @@ do_index(ClauseDef *min, ClauseDef* max, PredEntry *ap, UInt argno, UInt fail_l,
     /* don't try being smart for other arguments than the first */
     if (ngroups > 1 || group->VarClauses != 0 || found_pvar) {
       if (ap->ArityOfPE == argno) {
-	return do_var_clauses(min, max, FALSE, ap, first, clleft, fail_l, ap->ArityOfPE+1);
+	return do_var_clauses(min, max, FALSE, cint, first, clleft, fail_l, ap->ArityOfPE+1);
       } else {
-	return do_index(min, max, ap, argno+1, fail_l, first, clleft, top);
+	return do_index(min, max, cint, argno+1, fail_l, first, clleft, top);
       }
     } else {
       ClauseDef *cl = min;
@@ -3104,15 +3118,15 @@ do_index(ClauseDef *min, ClauseDef* max, PredEntry *ap, UInt argno, UInt fail_l,
 	group[1].LastClause = group[ngroups-1].LastClause;
 	ngroups = 2;
       }
-    } else if ((special_options = do_optims(group, ngroups, fail_l, min, ap)) != fail_l) {
+    } else if ((special_options = do_optims(group, ngroups, fail_l, min, cint)) != fail_l) {
       return special_options;
     }
     if (ngroups == 1 && group->VarClauses && !found_pvar) {
-      return do_index(min, max, ap, argno+1, fail_l, first, clleft, top);
+      return do_index(min, max, cint, argno+1, fail_l, first, clleft, top);
     } else if (found_pvar) {
-      Yap_emit(label_op, labl0, Zero);
+      Yap_emit(label_op, labl0, Zero, cint);
       labl = new_label();
-      Yap_emit(jump_v_op, suspend_indexing(min, max, ap), Zero);
+      Yap_emit(jump_v_op, suspend_indexing(min, max, ap), Zero, cint);
     }
   }
   for (i=0; i < ngroups; i++) {
@@ -3129,13 +3143,13 @@ do_index(ClauseDef *min, ClauseDef* max, PredEntry *ap, UInt argno, UInt fail_l,
       purge_pvar(group);
     }
     if (group->FirstClause==group->LastClause && first && left_clauses == 0) {
-      Yap_emit(jumpi_op, (CELL)(group->FirstClause->Code), Zero);
+      Yap_emit(jumpi_op, (CELL)(group->FirstClause->Code), Zero, cint);
     } else {
       if (group->VarClauses) {
-	Yap_emit(label_op,labl,Zero);
-	do_var_group(group, ap, argno == 1, first, left_clauses, nextlbl, ap->ArityOfPE+1);
+	Yap_emit(label_op,labl,Zero, cint);
+	do_var_group(group, cint, argno == 1, first, left_clauses, nextlbl, ap->ArityOfPE+1);
       } else {
-	do_nonvar_group(group, t, 0, NULL, 0, labl, ap, argno, first, TRUE, nextlbl, left_clauses, top);
+	do_nonvar_group(group, t, 0, NULL, 0, labl, cint, argno, first, TRUE, nextlbl, left_clauses, top);
       }
     }
     first = FALSE;
@@ -3146,12 +3160,12 @@ do_index(ClauseDef *min, ClauseDef* max, PredEntry *ap, UInt argno, UInt fail_l,
 }
 
 static ClauseDef *
-copy_clauses(ClauseDef *max0, ClauseDef *min0, CELL *top)
+copy_clauses(ClauseDef *max0, ClauseDef *min0, CELL *top, struct intermediates *cint)
 {
   UInt sz = ((max0+1)-min0)*sizeof(ClauseDef);
   while ((char *)top + sz > Yap_TrailTop) {
     if(!Yap_growtrail (sizeof(CELL) * 16 * 1024L)) {
-      longjmp(Yap_CompilerBotch,3);
+      longjmp(cint->CompilerBotch,3);
     }                                              
   }
   memcpy((void *)top, (void *)min0, sz);
@@ -3161,21 +3175,22 @@ copy_clauses(ClauseDef *max0, ClauseDef *min0, CELL *top)
 
 /* execute an index inside a structure */
 static UInt
-do_compound_index(ClauseDef *min0, ClauseDef* max0, Term* sreg, PredEntry *ap, UInt i, UInt arity, UInt argno, UInt fail_l, int first, int last_arg, int clleft, CELL *top, int done_work)
+do_compound_index(ClauseDef *min0, ClauseDef* max0, Term* sreg, struct intermediates *cint, UInt i, UInt arity, UInt argno, UInt fail_l, int first, int last_arg, int clleft, CELL *top, int done_work)
 {
   int ret_lab = 0, *newlabp;
   CELL *top0 = top;
   ClauseDef *min, *max;
+  PredEntry *ap = cint->CurrentPred;
   int found_index = FALSE, lu_pred = ap->PredFlags & LogUpdatePredFlag;
 
   newlabp = & ret_lab;
   if (min0 == max0) {
     /* base case, just commit to the current code */
-    return emit_single_switch_case(min0, ap, first, clleft, fail_l);
+    return emit_single_switch_case(min0, cint, first, clleft, fail_l);
   }
   if (yap_flags[INDEXING_MODE_FLAG] == INDEX_MODE_SINGLE) {
     *newlabp = 
-      do_var_clauses(min0, max0, FALSE, ap, first, clleft, fail_l, ap->ArityOfPE+1);
+      do_var_clauses(min0, max0, FALSE, cint, first, clleft, fail_l, ap->ArityOfPE+1);
     return ret_lab;
   }
   if (sreg == NULL) {
@@ -3187,7 +3202,7 @@ do_compound_index(ClauseDef *min0, ClauseDef* max0, Term* sreg, PredEntry *ap, U
     UInt ngroups;
     int isvt = IsVarTerm(Deref(sreg[i]));
 
-    min = copy_clauses(max0, min0, top);
+    min = copy_clauses(max0, min0, top, cint);
     max = min+(max0-min0);
     top = (CELL *)(max+1);
     cl = min;
@@ -3203,7 +3218,7 @@ do_compound_index(ClauseDef *min0, ClauseDef* max0, Term* sreg, PredEntry *ap, U
       /* process groups */
       *newlabp = new_label();
       top = (CELL *)(group+1);
-      newlabp = do_nonvar_group(group, (sreg == NULL ? 0L : Deref(sreg[i])), i+1, (isvt ? NULL : sreg), arity, *newlabp, ap, argno, argno == 1, (last_arg && i+1 == arity), fail_l, clleft, top);
+      newlabp = do_nonvar_group(group, (sreg == NULL ? 0L : Deref(sreg[i])), i+1, (isvt ? NULL : sreg), arity, *newlabp, cint, argno, argno == 1, (last_arg && i+1 == arity), fail_l, clleft, top);
       if (newlabp == NULL) {
 	found_index = TRUE;
 	top = top0;
@@ -3220,7 +3235,7 @@ do_compound_index(ClauseDef *min0, ClauseDef* max0, Term* sreg, PredEntry *ap, U
   }
   if (!found_index) {
     if (!lu_pred || !done_work)
-      *newlabp = do_index(min0, max0, ap, argno+1, fail_l, first, clleft, top);
+      *newlabp = do_index(min0, max0, cint, argno+1, fail_l, first, clleft, top);
     else
       *newlabp = suspend_indexing(min0, max0, ap);
   }
@@ -3228,7 +3243,7 @@ do_compound_index(ClauseDef *min0, ClauseDef* max0, Term* sreg, PredEntry *ap, U
 }
 
 static UInt
-do_dbref_index(ClauseDef *min, ClauseDef* max, Term t, PredEntry *ap, UInt argno, UInt fail_l, int first, int clleft, CELL *top)
+do_dbref_index(ClauseDef *min, ClauseDef* max, Term t, struct intermediates *cint, UInt argno, UInt fail_l, int first, int clleft, CELL *top)
 {
   UInt ngroups;
   GroupDef *group;
@@ -3243,20 +3258,20 @@ do_dbref_index(ClauseDef *min, ClauseDef* max, Term t, PredEntry *ap, UInt argno
   }
   ngroups = groups_in(min, max, group);
   if (ngroups > 1 || group->VarClauses) {
-    return do_index(min, max, ap, argno+1, fail_l, first, clleft, top);
+    return do_index(min, max, cint, argno+1, fail_l, first, clleft, top);
   } else {
     int labl = new_label();
 
-    Yap_emit(label_op, labl, Zero);
-    Yap_emit(index_dbref_op, Zero, Zero);
+    Yap_emit(label_op, labl, Zero, cint);
+    Yap_emit(index_dbref_op, Zero, Zero, cint);
     sort_group(group,(CELL *)(group+1));
-    do_blobs(group, t, ap, argno, first, fail_l, clleft, (CELL *)group+1);
+    do_blobs(group, t, cint, argno, first, fail_l, clleft, (CELL *)group+1);
     return labl;
   }
 }
 
 static UInt
-do_blob_index(ClauseDef *min, ClauseDef* max, Term t,PredEntry *ap, UInt argno, UInt fail_l, int first, int clleft, CELL *top)
+do_blob_index(ClauseDef *min, ClauseDef* max, Term t, struct intermediates *cint, UInt argno, UInt fail_l, int first, int clleft, CELL *top)
 {
   UInt ngroups;
   GroupDef *group;
@@ -3275,14 +3290,14 @@ do_blob_index(ClauseDef *min, ClauseDef* max, Term t,PredEntry *ap, UInt argno, 
   }
   ngroups = groups_in(min, max, group);
   if (ngroups > 1 || group->VarClauses) {
-    return do_index(min, max, ap, argno+1, fail_l, first, clleft, top);
+    return do_index(min, max, cint, argno+1, fail_l, first, clleft, top);
   } else {
     int labl = new_label();
 
-    Yap_emit(label_op, labl, Zero);
-    Yap_emit(index_blob_op, Zero, Zero);
+    Yap_emit(label_op, labl, Zero, cint);
+    Yap_emit(index_blob_op, Zero, Zero, cint);
     sort_group(group,(CELL *)(group+1));
-    do_blobs(group, t, ap, argno, first, fail_l, clleft, (CELL *)group+1);
+    do_blobs(group, t, cint, argno, first, fail_l, clleft, (CELL *)group+1);
     return labl;
   }
 }
@@ -3314,8 +3329,9 @@ init_log_upd_clauses(ClauseDef *cl, PredEntry *ap)
 }
 
 static UInt
-compile_index(PredEntry *ap)
+compile_index(struct intermediates *cint)
 {
+  PredEntry *ap = cint->CurrentPred;
   int NClauses = ap->cs.p_code.NOfClauses;
   ClauseDef *cls = (ClauseDef *)H;
   CELL *top = (CELL *) TR;
@@ -3329,10 +3345,9 @@ compile_index(PredEntry *ap)
     /* tell how much space we need */
     Yap_Error_Size += NClauses*sizeof(ClauseDef);
     /* grow stack */
-    longjmp(Yap_CompilerBotch,3);
+    longjmp(cint->CompilerBotch,3);
   }
-  freep = (char *)(cls+NClauses);
-  CodeStart = cpc = NIL;
+  cint->freep = (char *)(cls+NClauses);
   if (ap->PredFlags & LogUpdatePredFlag) {
     /* throw away a label */
     new_label();
@@ -3341,7 +3356,7 @@ compile_index(PredEntry *ap)
     /* prepare basic data structures */ 
     init_clauses(cls,ap);
   }
-  return do_index(cls, cls+(NClauses-1), ap, 1, (UInt)FAILCODE, TRUE, 0, top);
+  return do_index(cls, cls+(NClauses-1), cint, 1, (UInt)FAILCODE, TRUE, 0, top);
 }
 
 
@@ -3350,39 +3365,41 @@ Yap_PredIsIndexable(PredEntry *ap)
 {
   yamop *indx_out;
   int setjres;
+  struct intermediates cint;
 
+  cint.CodeStart = cint.cpc = NIL;
+  cint.CurrentPred = ap;
   Yap_Error_Size = 0;
-  if ((setjres = setjmp(Yap_CompilerBotch)) == 3) {
+  if ((setjres = setjmp(cint.CompilerBotch)) == 3) {
     restore_machine_regs();
     Yap_gcl(Yap_Error_Size, ap->ArityOfPE, ENV, CP);
   } else if (setjres == 2) {
     restore_machine_regs();
-    if (!Yap_growheap(FALSE, Yap_Error_Size)) {
+    if (!Yap_growheap(FALSE, Yap_Error_Size, NULL)) {
       Yap_Error(SYSTEM_ERROR, TermNil, Yap_ErrorMessage);
       return FAILCODE;
     }
   } else if (setjres != 0) {
-    if (!Yap_growheap(FALSE, Yap_Error_Size)) {
+    if (!Yap_growheap(FALSE, Yap_Error_Size, NULL)) {
       Yap_Error(SYSTEM_ERROR, TermNil, Yap_ErrorMessage);
       return FAILCODE;
     }
   }
  restart_index:
   Yap_ErrorMessage = NULL;
-  if (compile_index(ap) == (UInt)FAILCODE) {
+  if (compile_index(&cint) == (UInt)FAILCODE) {
     return FAILCODE;
   }
 #ifdef DEBUG
   if (Yap_Option['i' - 'a' + 1]) {
-    Yap_ShowCode();
+    Yap_ShowCode(&cint);
   }
 #endif
   /* globals for assembler */
-  CurrentPred = ap;
   IPredArity = ap->ArityOfPE;
-  if (CodeStart) {
-    if ((indx_out = Yap_assemble(ASSEMBLING_INDEX, TermNil, ap, FALSE)) == NULL) {
-      if (!Yap_growheap(FALSE, Yap_Error_Size)) {
+  if (cint.CodeStart) {
+    if ((indx_out = Yap_assemble(ASSEMBLING_INDEX, TermNil, ap, FALSE, &cint)) == NULL) {
+      if (!Yap_growheap(FALSE, Yap_Error_Size, NULL)) {
 	Yap_Error(SYSTEM_ERROR, TermNil, Yap_ErrorMessage);
 	return NULL;
       }
@@ -3391,11 +3408,9 @@ Yap_PredIsIndexable(PredEntry *ap)
   } else {
     return NULL;
   }
-#ifdef LOW_PROF
   if (ProfilerOn) {
-    Yap_inform_profiler_of_clause(indx_out, Yap_prof_end, ap); 
+    Yap_inform_profiler_of_clause(indx_out, ProfEnd, ap); 
   }
-#endif
   if (ap->PredFlags & LogUpdatePredFlag) {
     LogUpdIndex *cl = ClauseCodeToLogUpdIndex(indx_out);
     cl->ClFlags |= SwitchRootMask;
@@ -3662,8 +3677,9 @@ count_clauses_left(yamop *cl, PredEntry *ap)
 }
 
 static yamop **
-expand_index(PredEntry *ap) {
+expand_index(struct intermediates *cint) {
   /* first clause */
+  PredEntry *ap = cint->CurrentPred;
   yamop *first = ap->cs.p_code.FirstClause, *last = NULL, *alt = NULL;
   istack_entry *stack, *sp;
   ClauseDef *cls = (ClauseDef *)H, *max;
@@ -4007,7 +4023,7 @@ expand_index(PredEntry *ap) {
     /* tell how much space we need (worst case) */
     Yap_Error_Size += NClauses*sizeof(ClauseDef);
     /* grow stack */
-    longjmp(Yap_CompilerBotch,3);
+    longjmp(cint->CompilerBotch,3);
   }
   if (ap->PredFlags & LogUpdatePredFlag) {
     max = install_log_upd_clauses(cls, ap, stack, first, last);
@@ -4020,13 +4036,13 @@ expand_index(PredEntry *ap) {
     *labp = FAILCODE;
     return labp;
   }
-  freep = (char *)(max+1);
-  CodeStart = cpc = NULL;
+  cint->freep = (char *)(max+1);
+  cint->CodeStart = cint->cpc = NULL;
   
   if (!IsVarTerm(sp[-1].val)  && sp > stack) {
     if (IsAtomOrIntTerm(sp[-1].val)) {
       if (s_reg == NULL) { /* we have not yet looked into terms */
-	lab = do_index(cls, max, ap, argno+1, fail_l, isfirstcl, clleft, top);
+	lab = do_index(cls, max, cint, argno+1, fail_l, isfirstcl, clleft, top);
       } else {
 	UInt arity = 0;
 
@@ -4053,25 +4069,25 @@ expand_index(PredEntry *ap) {
 	    sp--;
 	  }
 	}
-	lab = do_compound_index(cls, max, s_reg, ap, i, arity, argno, fail_l, isfirstcl, is_last_arg, clleft, top, FALSE);
+	lab = do_compound_index(cls, max, s_reg, cint, i, arity, argno, fail_l, isfirstcl, is_last_arg, clleft, top, FALSE);
       }
     } else if (IsPairTerm(sp[-1].val) && sp > stack) {
-      lab = do_compound_index(cls, max, s_reg, ap, i, 2, argno, fail_l, isfirstcl, is_last_arg, clleft, top, FALSE);
+      lab = do_compound_index(cls, max, s_reg, cint, i, 2, argno, fail_l, isfirstcl, is_last_arg, clleft, top, FALSE);
     } else {
       Functor f = (Functor)RepAppl(sp[-1].val);
       /* we are continuing within a compound term */
       if (IsExtensionFunctor(f)) {
-	lab = do_index(cls, max, ap, argno+1, fail_l, isfirstcl, clleft, top);
+	lab = do_index(cls, max, cint, argno+1, fail_l, isfirstcl, clleft, top);
       } else {
-	lab = do_compound_index(cls, max, s_reg, ap, i, ArityOfFunctor(f), argno, fail_l, isfirstcl, is_last_arg, clleft, top, FALSE);
+	lab = do_compound_index(cls, max, s_reg, cint, i, ArityOfFunctor(f), argno, fail_l, isfirstcl, is_last_arg, clleft, top, FALSE);
       }
     }
   } else {
     if (argno == ap->ArityOfPE) {
       lab = 
-	do_var_clauses(cls, max, FALSE, ap, isfirstcl, clleft, fail_l, ap->ArityOfPE+1);
+	do_var_clauses(cls, max, FALSE, cint, isfirstcl, clleft, fail_l, ap->ArityOfPE+1);
     } else {
-      lab = do_index(cls, max, ap, argno+1, fail_l, isfirstcl, clleft, top);
+      lab = do_index(cls, max, cint, argno+1, fail_l, isfirstcl, clleft, top);
     }
   }
   *labp = (yamop *)lab; /* in case we have a single clause */
@@ -4084,14 +4100,17 @@ ExpandIndex(PredEntry *ap) {
   yamop *indx_out;
   yamop **labp;
   int cb;
+  struct intermediates cint;
 
+  cint.CodeStart = cint.cpc = NIL;
+  cint.CurrentPred = ap;
   Yap_Error_Size = 0;
-  if ((cb = setjmp(Yap_CompilerBotch)) == 3) {
+  if ((cb = setjmp(cint.CompilerBotch)) == 3) {
     restore_machine_regs();
     Yap_gcl(Yap_Error_Size, ap->ArityOfPE, ENV, CP);
   } else if (cb == 2) {
     restore_machine_regs();
-    if (!Yap_growheap(FALSE, Yap_Error_Size)) {
+    if (!Yap_growheap(FALSE, Yap_Error_Size, NULL)) {
       save_machine_regs();
       if (ap->PredFlags & LogUpdatePredFlag) {
 	Yap_kill_iblock((ClauseUnion *)ClauseCodeToLogUpdIndex(ap->cs.p_code.TrueCodeOfPred),NULL, ap);
@@ -4140,7 +4159,7 @@ ExpandIndex(PredEntry *ap) {
     Yap_DebugPutc(Yap_c_error_stream,'\n');
   }
 #endif
-  if ((labp = expand_index(ap)) == NULL) {
+  if ((labp = expand_index(&cint)) == NULL) {
     return NULL;
   }
   if (*labp == FAILCODE) {
@@ -4148,15 +4167,14 @@ ExpandIndex(PredEntry *ap) {
   }
 #ifdef DEBUG
   if (Yap_Option['i' - 'a' + 1]) {
-    Yap_ShowCode();
+    Yap_ShowCode(&cint);
   }
 #endif
   /* globals for assembler */
-  CurrentPred = ap;
   IPredArity = ap->ArityOfPE;
-  if (CodeStart) {
-    if ((indx_out = Yap_assemble(ASSEMBLING_INDEX, TermNil, ap, FALSE)) == NULL) {
-      if (!Yap_growheap(FALSE, Yap_Error_Size)) {
+  if (cint.CodeStart) {
+    if ((indx_out = Yap_assemble(ASSEMBLING_INDEX, TermNil, ap, FALSE, &cint)) == NULL) {
+      if (!Yap_growheap(FALSE, Yap_Error_Size, NULL)) {
 	Yap_Error(SYSTEM_ERROR, TermNil, Yap_ErrorMessage);
 	return NULL;
       }
@@ -4165,11 +4183,9 @@ ExpandIndex(PredEntry *ap) {
   } else {
     return *labp;
   }
-#ifdef LOW_PROF
   if (ProfilerOn) {
-    Yap_inform_profiler_of_clause(indx_out, Yap_prof_end, ap); 
+    Yap_inform_profiler_of_clause(indx_out, ProfEnd, ap); 
   }
-#endif
   if (indx_out == NULL) {
     return FAILCODE;
   }
@@ -4389,8 +4405,9 @@ replace_index_block(ClauseUnion *parent_block, yamop *cod, yamop *ncod, PredEntr
 }
 		 
 static AtomSwiEntry *
-expand_ctable(yamop *pc, ClauseUnion *blk, PredEntry *ap, Term at)
+expand_ctable(yamop *pc, ClauseUnion *blk, struct intermediates *cint, Term at)
 {
+  PredEntry *ap = cint->CurrentPred;
   int n = pc->u.sl.s, i, i0 = n;
   UInt fail_l = Zero;
   AtomSwiEntry *old_ae = (AtomSwiEntry *)(pc->u.sl.l), *target;
@@ -4416,7 +4433,7 @@ expand_ctable(yamop *pc, ClauseUnion *blk, PredEntry *ap, Term at)
       return fetch_centry(old_ae, at, n-1, n);
     }
     /* initialise */
-    target = (AtomSwiEntry *)emit_switch_space(cases, sizeof(AtomSwiEntry), ap);
+    target = (AtomSwiEntry *)emit_switch_space(cases, sizeof(AtomSwiEntry), cint);
     pc->opc = Yap_opcode(_switch_on_cons);
     pc->u.sl.s = cases;
     for (i=0; i<cases; i++) {
@@ -4426,7 +4443,7 @@ expand_ctable(yamop *pc, ClauseUnion *blk, PredEntry *ap, Term at)
   } else {
     pc->opc = Yap_opcode(_if_cons);
     pc->u.sl.s = n;
-    target = (AtomSwiEntry *)emit_switch_space(n+1, sizeof(AtomSwiEntry), ap);
+    target = (AtomSwiEntry *)emit_switch_space(n+1, sizeof(AtomSwiEntry), cint);
     target[n].Tag = Zero;
     target[n].Label = fail_l;
   }
@@ -4445,8 +4462,9 @@ expand_ctable(yamop *pc, ClauseUnion *blk, PredEntry *ap, Term at)
 }
 
 static FuncSwiEntry *
-expand_ftable(yamop *pc, ClauseUnion *blk, PredEntry *ap, Functor f)
+expand_ftable(yamop *pc, ClauseUnion *blk, struct intermediates *cint, Functor f)
 {
+  PredEntry *ap = cint->CurrentPred;
   int n = pc->u.sl.s, i, i0 = n;
   UInt fail_l =  Zero;
   FuncSwiEntry *old_fe = (FuncSwiEntry *)(pc->u.sl.l), *target;
@@ -4475,7 +4493,7 @@ expand_ftable(yamop *pc, ClauseUnion *blk, PredEntry *ap, Functor f)
     pc->opc = Yap_opcode(_switch_on_func);
     pc->u.sl.s = cases;
     /* initialise */
-    target = (FuncSwiEntry *)emit_switch_space(cases, sizeof(FuncSwiEntry), ap);
+    target = (FuncSwiEntry *)emit_switch_space(cases, sizeof(FuncSwiEntry), cint);
     for (i=0; i<cases; i++) {
       target[i].Tag = NULL;
       target[i].Label = fail_l;
@@ -4483,7 +4501,7 @@ expand_ftable(yamop *pc, ClauseUnion *blk, PredEntry *ap, Functor f)
   } else {
     pc->opc = Yap_opcode(_if_func);
     pc->u.sl.s = n;
-    target = (FuncSwiEntry *)emit_switch_space(n+1, sizeof(FuncSwiEntry), ap);
+    target = (FuncSwiEntry *)emit_switch_space(n+1, sizeof(FuncSwiEntry), cint);
     target[n].Tag = Zero;
     target[n].Label = fail_l;
   }
@@ -5041,8 +5059,9 @@ kill_unsafe_block(path_stack_entry *sp, op_numbers op, PredEntry *ap)
 
 
 static void
-add_to_index(PredEntry *ap, int first, path_stack_entry *sp, ClauseDef *cls) {
+add_to_index(struct intermediates *cint, int first, path_stack_entry *sp, ClauseDef *cls) {
   /* last clause to experiment with */
+  PredEntry *ap = cint->CurrentPred;
   yamop *ipc = ap->cs.p_code.TrueCodeOfPred;
   int group1 = TRUE;
   yamop *alt = NULL;
@@ -5384,8 +5403,13 @@ add_to_index(PredEntry *ap, int first, path_stack_entry *sp, ClauseDef *cls) {
 	} else if (newpc == FAILCODE) {
 	  /* oops, nothing there */
 	  if (fe->Tag != f) {
+	    if (IsExtensionFunctor(f)) {
+	      sp = kill_unsafe_block(sp, op, ap);
+	      ipc = pop_path(&sp, cls, ap);
+	      break;
+	    }
 	    if (table_fe_overflow(ipc, f)) {
-	      fe = expand_ftable(ipc, current_block(sp), ap, f);
+	      fe = expand_ftable(ipc, current_block(sp), cint, f);
 	    }
 	    fe->Tag = f;
 	  }
@@ -5429,7 +5453,7 @@ add_to_index(PredEntry *ap, int first, path_stack_entry *sp, ClauseDef *cls) {
 	  /* oops, nothing there */
 	  if (ae->Tag != at) {
 	    if (table_ae_overflow(ipc, at)) {
-	      ae = expand_ctable(ipc, current_block(sp), ap, at);
+	      ae = expand_ctable(ipc, current_block(sp), cint, at);
 	    }
 	    ae->Tag = at;
 	  }
@@ -5460,18 +5484,20 @@ Yap_AddClauseToIndex(PredEntry *ap, yamop *beg, int first) {
   /* first clause */
   path_stack_entry *stack, *sp;
   int cb;
+  struct intermediates cint;
 
   if (!(ap->PredFlags & LogUpdatePredFlag)) {
     if (ap->PredFlags & IndexedPredFlag)
       Yap_RemoveIndexation(ap);
     return;
   }
-  if ((cb = setjmp(Yap_CompilerBotch)) == 3) {
+  cint.CurrentPred = ap;
+  if ((cb = setjmp(cint.CompilerBotch)) == 3) {
     restore_machine_regs();
     Yap_gcl(Yap_Error_Size, ap->ArityOfPE, ENV, CP);
   } else if (cb == 2) {
     restore_machine_regs();
-    if (!Yap_growheap(FALSE, Yap_Error_Size)) {
+    if (!Yap_growheap(FALSE, Yap_Error_Size, NULL)) {
       save_machine_regs();
       if (ap->PredFlags & LogUpdatePredFlag) {
 	Yap_kill_iblock((ClauseUnion *)ClauseCodeToLogUpdIndex(ap->cs.p_code.TrueCodeOfPred),NULL, ap);
@@ -5522,7 +5548,7 @@ Yap_AddClauseToIndex(PredEntry *ap, yamop *beg, int first) {
   stack = (path_stack_entry *)TR;
   cl.Code =  cl.CurrentCode = beg;
   sp = push_path(stack, NULL, &cl);
-  add_to_index(ap, first, sp, &cl); 
+  add_to_index(&cint, first, sp, &cl); 
 }
 		 
 
@@ -5946,13 +5972,15 @@ Yap_RemoveClauseFromIndex(PredEntry *ap, yamop *beg) {
   path_stack_entry *stack, *sp;
   int cb;
   yamop *last;
+  struct intermediates cint; 
+ 
 
-  if ((cb = setjmp(Yap_CompilerBotch)) == 3) {
+  if ((cb = setjmp(cint.CompilerBotch)) == 3) {
     restore_machine_regs();
     Yap_gcl(Yap_Error_Size, ap->ArityOfPE, ENV, CP);
   } else if (cb == 2) {
     restore_machine_regs();
-    if (!Yap_growheap(FALSE, Yap_Error_Size)) {
+    if (!Yap_growheap(FALSE, Yap_Error_Size, NULL)) {
       save_machine_regs();
       if (ap->PredFlags & LogUpdatePredFlag) {
 	Yap_kill_iblock((ClauseUnion *)ClauseCodeToLogUpdIndex(ap->cs.p_code.TrueCodeOfPred),NULL, ap);

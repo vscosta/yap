@@ -61,53 +61,57 @@ static char SccsId[] = "%W% %G%";
 #endif
 
 
-STATIC_PROTO(void GNextToken, (void));
-STATIC_PROTO(void checkfor, (Term));
-STATIC_PROTO(Term ParseArgs, (Atom));
-STATIC_PROTO(Term ParseList, (void));
-STATIC_PROTO(Term ParseTerm, (int));
-
-
 /* weak backtraking mechanism based on long_jump */
 
-typedef struct {
+typedef struct jmp_buff_struct {
 	jmp_buf JmpBuff;
 } JMPBUFF;
 
-static JMPBUFF FailBuff;
+STATIC_PROTO(void GNextToken, (void));
+STATIC_PROTO(void checkfor, (Term, JMPBUFF *));
+STATIC_PROTO(Term ParseArgs, (Atom, JMPBUFF *));
+STATIC_PROTO(Term ParseList, (JMPBUFF *));
+STATIC_PROTO(Term ParseTerm, (int, JMPBUFF *));
 
 
-#define TRY(S,P) \
-  {	Volatile JMPBUFF saveenv;\
-	Volatile TokEntry *saveT=Yap_tokptr; \
-        Volatile CELL *saveH=H;\
-        Volatile int savecurprio=curprio;\
-        saveenv=FailBuff;\
-        if(!setjmp(FailBuff.JmpBuff)) {\
-		S;\
-		FailBuff=saveenv;\
-		P;\
-	  }\
-	else { FailBuff=saveenv; \
-		H=saveH; \
-		curprio = savecurprio; \
-                Yap_tokptr=saveT; \
-	}\
-   }\
+#define TRY(S,P)                               \
+  {	Volatile JMPBUFF *saveenv, newenv;     \
+	Volatile TokEntry *saveT=Yap_tokptr;   \
+        Volatile CELL *saveH=H;                \
+        Volatile int savecurprio=curprio;      \
+        saveenv=FailBuff;                      \
+        if(!setjmp(newenv.JmpBuff)) {          \
+                FailBuff = &newenv;            \
+		S;                             \
+		FailBuff=saveenv;              \
+		P;                             \
+	  }                                    \
+	else { FailBuff=saveenv;               \
+		H=saveH;                       \
+		curprio = savecurprio;         \
+                Yap_tokptr=saveT;              \
+	}                                      \
+   }
 
-#define TRY3(S,P,F) \
-  {	Volatile JMPBUFF saveenv;\
-	Volatile TokEntry *saveT=Yap_tokptr; Volatile CELL *saveH=H;\
-    saveenv=FailBuff;\
-    if(!setjmp(FailBuff.JmpBuff)) {\
-		S;\
-		FailBuff=saveenv;\
-		P;\
-	  }\
-	else { FailBuff=saveenv; H=saveH; Yap_tokptr=saveT; F }\
-   }\
+#define TRY3(S,P,F)                            \
+  {	Volatile JMPBUFF *saveenv, newenv;     \
+	Volatile TokEntry *saveT=Yap_tokptr;   \
+        Volatile CELL *saveH=H;                \
+        saveenv=FailBuff;                      \
+        if(!setjmp(newenv.JmpBuff)) {          \
+                FailBuff = &newenv;            \
+		S;                             \
+		FailBuff=saveenv;              \
+		P;                             \
+	  }                                    \
+	else {                                 \
+                FailBuff=saveenv;              \
+                H=saveH;                       \
+                Yap_tokptr=saveT;              \
+                F }                            \
+   }
 
-#define FAIL  longjmp(FailBuff.JmpBuff,1)
+#define FAIL  longjmp(FailBuff->JmpBuff,1)
 
 VarEntry *
 Yap_LookupVar(char *var)	/* lookup variable in variables table   */
@@ -281,7 +285,7 @@ GNextToken(void)
 }
 
 inline static void
-checkfor(Term c)
+checkfor(Term c, JMPBUFF *FailBuff)
 {
   if (Yap_tokptr->Tok != Ord(Ponctuation_tok)
       || Yap_tokptr->TokInfo != c)
@@ -290,7 +294,7 @@ checkfor(Term c)
 }
 
 static Term
-ParseArgs(Atom a)
+ParseArgs(Atom a, JMPBUFF *FailBuff)
 {
   int nargs = 0;
   Term *p, t;
@@ -302,7 +306,7 @@ ParseArgs(Atom a)
   p = (Term *) ParserAuxSp;
   while (1) {
     Term *tp = (Term *)ParserAuxSp;
-    *tp++ = Unsigned(ParseTerm(999));
+    *tp++ = Unsigned(ParseTerm(999, FailBuff));
     ParserAuxSp = (tr_fr_ptr)tp;
     ++nargs;
     if (Yap_tokptr->Tok != Ord(Ponctuation_tok))
@@ -329,13 +333,13 @@ ParseArgs(Atom a)
   t = Yap_MkApplTerm(Yap_MkFunctor(a, nargs), nargs, p);
 #endif
   /* check for possible overflow against local stack */
-  checkfor((Term) ')');
+  checkfor((Term) ')', FailBuff);
   return (t);
 }
 
 
 static Term
-ParseList(void)
+ParseList(JMPBUFF *FailBuff)
 {
   Term o;
   CELL *to_store;
@@ -343,14 +347,14 @@ ParseList(void)
  loop:
   to_store = H;
   H+=2;
-  to_store[0] = ParseTerm(999);
+  to_store[0] = ParseTerm(999, FailBuff);
   if (Yap_tokptr->Tok == Ord(Ponctuation_tok)) {
     if (((int) Yap_tokptr->TokInfo) == ',') {
       NextToken;
       if (Yap_tokptr->Tok == Ord(Name_tok)
 	  && strcmp(RepAtom((Atom)(Yap_tokptr->TokInfo))->StrOfAE, "..") == 0) {
 	NextToken;
-	to_store[1] = ParseTerm(999);
+	to_store[1] = ParseTerm(999, FailBuff);
       } else {
 	/* check for possible overflow against local stack */
 	if (H > ASP-4096) {
@@ -364,7 +368,7 @@ ParseList(void)
       }
     } else if (((int) Yap_tokptr->TokInfo) == '|') {
       NextToken;
-      to_store[1] = ParseTerm(999);
+      to_store[1] = ParseTerm(999, FailBuff);
     } else {
       to_store[1] = MkAtomTerm(AtomNil);
     }
@@ -382,7 +386,7 @@ ParseList(void)
 #endif
 
 static Term
-ParseTerm(int prio)
+ParseTerm(int prio, JMPBUFF *FailBuff)
 {
   /* parse term with priority prio */
   Volatile Prop opinfo;
@@ -456,7 +460,7 @@ ParseTerm(int prio)
 	TRY(
 	  /* build appl on the heap */
 	  func = Yap_MkFunctor((Atom) t, 1);
-	  t = ParseTerm(oprprio);
+	  t = ParseTerm(oprprio, FailBuff);
 	  t = Yap_MkApplTerm(func, 1, &t);
 	  /* check for possible overflow against local stack */
 	  if (H > ASP-4096) {
@@ -471,7 +475,7 @@ ParseTerm(int prio)
     }
     if (Yap_tokptr->Tok == Ord(Ponctuation_tok)
 	&& Unsigned(Yap_tokptr->TokInfo) == 'l')
-      t = ParseArgs((Atom) t);
+      t = ParseArgs((Atom) t, FailBuff);
     else
       t = MkAtomTerm((Atom)t);
     break;
@@ -512,13 +516,13 @@ ParseTerm(int prio)
     case '(':
     case 'l':	/* non solo ( */
       NextToken;
-      t = ParseTerm(1200);
-      checkfor((Term) ')');
+      t = ParseTerm(1200, FailBuff);
+      checkfor((Term) ')', FailBuff);
       break;
     case '[':
       NextToken;
-      t = ParseList();
-      checkfor((Term) ']');
+      t = ParseList(FailBuff);
+      checkfor((Term) ']', FailBuff);
       break;
     case '{':
       NextToken;
@@ -527,14 +531,14 @@ ParseTerm(int prio)
 	t = MkAtomTerm(NameOfFunctor(FunctorBraces));
 	NextToken;
       } else {
-	t = ParseTerm(1200);
+	t = ParseTerm(1200, FailBuff);
 	t = Yap_MkApplTerm(FunctorBraces, 1, &t);
 	/* check for possible overflow against local stack */
 	if (H > ASP-4096) {
 	  Yap_ErrorMessage = "Stack Overflow";
 	  FAIL;
 	}  
-	checkfor((Term) '}');
+	checkfor((Term) '}', FailBuff);
       }
       break;
     default:
@@ -562,7 +566,7 @@ ParseTerm(int prio)
 	     {
 	       Term args[2];
 	       args[0] = t;
-	       args[1] = ParseTerm(oprprio);
+	       args[1] = ParseTerm(oprprio, FailBuff);
 	       t = Yap_MkApplTerm(func, 2, args);
 	       /* check for possible overflow against local stack */
 	       if (H > ASP-4096) {
@@ -599,7 +603,7 @@ ParseTerm(int prio)
 	Volatile Term args[2];
 	NextToken;
 	args[0] = t;
-	args[1] = ParseTerm(1000);
+	args[1] = ParseTerm(1000, FailBuff);
 	t = Yap_MkApplTerm(Yap_MkFunctor(AtomComma, 2), 2, args);
 	/* check for possible overflow against local stack */
 	if (H > ASP-4096) {
@@ -613,7 +617,7 @@ ParseTerm(int prio)
 	Volatile Term args[2];
 	NextToken;
 	args[0] = t;
-	args[1] = ParseTerm(1100);
+	args[1] = ParseTerm(1100, FailBuff);
 	t = Yap_MkApplTerm(FunctorVBar, 2, args);
 	/* check for possible overflow against local stack */
 	if (H > ASP-4096) {
@@ -636,8 +640,10 @@ Term
 Yap_Parse(void)
 {
   Volatile Term t;
+  JMPBUFF FailBuff;
+
   if (!setjmp(FailBuff.JmpBuff)) {
-    t = ParseTerm(1200);
+    t = ParseTerm(1200, &FailBuff);
     if (Yap_tokptr->Tok != Ord(eot_tok))
       return (0L);
     return (t);

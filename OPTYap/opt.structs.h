@@ -4,11 +4,6 @@
 
 typedef double realtime;
 typedef unsigned long bitmap;
-#ifdef YAPOR
-#define MAX_WORKERS (sizeof(bitmap) * 8)
-#else
-#define MAX_WORKERS 1
-#endif /* YAPOR */
 
 
 

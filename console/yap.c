@@ -90,6 +90,7 @@ static int output_msg;
 #endif
 
 static char BootFile[] = "boot.yap";
+static char InitFile[] = "init.yap";
 
 #ifdef lint
 /* VARARGS1 */
@@ -249,9 +250,13 @@ static int
 parse_yap_arguments(int argc, char *argv[], YAP_init_args *iap)
 {
   char *p;
+#if defined(SUPPORT_THREADS) || defined(SUPPORT_CONDOR)
+  int BootMode = YAP_FULL_BOOT_FROM_PROLOG;
+#else
   int BootMode = YAP_BOOT_FROM_SAVED_CODE;
+#endif
   int *ssize;
-  
+
   while (--argc > 0)
     {
       p = *++argv;
@@ -418,6 +423,8 @@ parse_yap_arguments(int argc, char *argv[], YAP_init_args *iap)
   return(BootMode);
 }
 
+static char boot_file[256];
+
 static int
 init_standard_system(int argc, char *argv[], YAP_init_args *iap)
 {
@@ -429,6 +436,7 @@ init_standard_system(int argc, char *argv[], YAP_init_args *iap)
   iap->TrailSize = 0;
   iap->YapLibDir = NULL;
   iap->YapPrologBootFile = NULL;
+  iap->YapPrologInitFile = NULL;
   iap->YapPrologRCFile = NULL;
   iap->HaltAfterConsult = FALSE;
   iap->FastBoot = FALSE;
@@ -440,8 +448,23 @@ init_standard_system(int argc, char *argv[], YAP_init_args *iap)
 
   BootMode = parse_yap_arguments(argc,argv,iap);
 
+  if (BootMode == YAP_FULL_BOOT_FROM_PROLOG) {
+
+#if HAVE_STRNCAT
+    strncpy(boot_file, PL_SRC_DIR, 256);
+#else
+    strcpy(boot_file, PL_SRC_DIR);
+#endif
+#if HAVE_STRNCAT
+    strncat(boot_file, BootFile, 256);
+#else
+    strcat(boot_file, BootFile);
+#endif
+    iap->YapPrologBootFile = boot_file;
+  }
   /* init memory */
-  if (BootMode == YAP_BOOT_FROM_PROLOG) {
+  if (BootMode == YAP_BOOT_FROM_PROLOG ||
+      BootMode == YAP_FULL_BOOT_FROM_PROLOG) {
     YAP_Init(iap);
   } else {
     BootMode = YAP_Init(iap);
@@ -461,14 +484,45 @@ exec_top_level(int BootMode, YAP_init_args *iap)
       /* continue executing from the frozen stacks */
       YAP_ContinueGoal();
     }
-  else if (BootMode == YAP_BOOT_FROM_PROLOG)
+  else if (BootMode == YAP_BOOT_FROM_PROLOG ||
+	   BootMode == YAP_FULL_BOOT_FROM_PROLOG)
     {
       YAP_Atom livegoal;
       /* read the bootfile */
       do_bootfile (iap->YapPrologBootFile ? iap->YapPrologBootFile : BootFile);
       livegoal = YAP_FullLookupAtom("$live");
       /* initialise the top-level */
+      if (BootMode == YAP_FULL_BOOT_FROM_PROLOG) {
+	char init_file[256];
+	YAP_Atom atfile;
+	YAP_Functor fgoal;
+	YAP_Term goal, as[1];
+
+#if HAVE_STRNCAT
+	strncpy(init_file, PL_SRC_DIR, 256);
+#else
+	strcpy(init_file, PL_SRC_DIR);
+#endif
+#if HAVE_STRNCAT
+	strncat(init_file, InitFile, 256);
+#else
+	strcat(init_file, InitFile);
+#endif
+	/* consult init file */
+	atfile = YAP_LookupAtom(init_file);
+	as[0] = YAP_MkAtomTerm(atfile);
+	fgoal = YAP_MkFunctor(YAP_FullLookupAtom("$consult"), 1);
+	goal = YAP_MkApplTerm(fgoal, 1, as);
+	/* launch consult */
+	YAP_RunGoal(goal);
+	/* set default module to user */
+	as[0] = YAP_MkAtomTerm(YAP_LookupAtom("user"));
+	fgoal = YAP_MkFunctor(YAP_FullLookupAtom("module"), 1);
+	goal = YAP_MkApplTerm(fgoal, 1, as);
+	YAP_RunGoal(goal);
+      }
       YAP_PutValue(livegoal, YAP_MkAtomTerm (YAP_FullLookupAtom("$true")));
+      
     }
       /* the top-level is now ready */
 

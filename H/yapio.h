@@ -162,14 +162,6 @@ extern YP_FILE yp_iob[YP_MAX_FILES];
 
 #endif /* YAP_STDIO */
 
-#if defined(FILENAME_MAX) && !defined(__hpux)
-#define YAP_FILENAME_MAX FILENAME_MAX
-#else
-#define YAP_FILENAME_MAX 1024 /* This is ok for Linux, should be ok for everyone */
-#endif
-
-extern char Yap_FileNameBuf[YAP_FILENAME_MAX], Yap_FileNameBuf2[YAP_FILENAME_MAX];
-
 typedef YP_FILE *YP_File;
 
 enum TokenKinds {
@@ -253,11 +245,6 @@ typedef struct AliasDescS {
 /****************** character definition table **************************/
 #define NUMBER_OF_CHARS 256
 extern char *Yap_chtype;
-
-/*************** variables concerned with parsing   *********************/
-extern TokEntry	*Yap_tokptr, *Yap_toktide;
-extern VarEntry	*Yap_VarTable, *Yap_AnonVarTable;
-extern int Yap_eot_before_eof;
 
 /* parser stack, used to be AuxSp, now is ASP */
 #define ParserAuxSp (TR)
@@ -349,7 +336,26 @@ HashFunction(char *CHP)
 #define CONTINUE_ON_PARSER_ERROR  2
 #define EXCEPTION_ON_PARSER_ERROR 3
 
+#ifdef THREADS
+#define    Yap_IOBotch    Yap_thread_gl[worker_id].io_botch
+#define    Yap_tokptr     Yap_thread_gl[worker_id].tokptr
+#define    Yap_toktide    Yap_thread_gl[worker_id].toktide
+#define    Yap_VarTable   Yap_thread_gl[worker_id].var_table
+#define    Yap_AnonVarTable   Yap_thread_gl[worker_id].anon_var_table
+#define    Yap_eot_before_eof   Yap_thread_gl[worker_id].eot_before_eof
+#define    Yap_FileNameBuf   Yap_thread_gl[worker_id].file_name_buf
+#define    Yap_FileNameBuf2   Yap_thread_gl[worker_id].file_name_buf2
+#else
 extern jmp_buf Yap_IOBotch;
+
+/*************** variables concerned with parsing   *********************/
+extern TokEntry	*Yap_tokptr, *Yap_toktide;
+extern VarEntry	*Yap_VarTable, *Yap_AnonVarTable;
+extern int Yap_eot_before_eof;
+
+extern char Yap_FileNameBuf[YAP_FILENAME_MAX], Yap_FileNameBuf2[YAP_FILENAME_MAX];
+
+#endif
 
 #ifdef DEBUG
 extern YP_FILE *Yap_logfile;

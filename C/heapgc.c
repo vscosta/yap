@@ -3090,7 +3090,7 @@ do_gc(Int predarity, CELL *current_env, yamop *nextop)
   }
   if (HeapTop >= Yap_GlobalBase - MinHeapGap) {
     *--ASP = (CELL)current_env;
-    if (!Yap_growheap(FALSE, MinHeapGap)) {
+    if (!Yap_growheap(FALSE, MinHeapGap, NULL)) {
       Yap_Error(SYSTEM_ERROR, TermNil, Yap_ErrorMessage);
       return(FALSE);
     }

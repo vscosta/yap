@@ -223,7 +223,7 @@ EnterCreepMode(SMALLUNSGN mod) {
 inline static Int
 do_execute(Term t, SMALLUNSGN mod)
 {
-  if (CreepFlag == (CELL)(LCL0+2)) {
+  if (ActiveSignals) {
     return(EnterCreepMode(mod));
   } else if (PRED_GOAL_EXPANSION_ON) {
     return(CallMetaCall(mod));
@@ -1362,11 +1362,11 @@ Yap_RunTopGoal(Term t)
     READ_LOCK(ppe->PRWLock);
   }
   if (pe == NIL) {
-    if (pe != NIL) {
-      READ_UNLOCK(ppe->PRWLock);
-    }
     /* we must always start the emulator with Prolog code */
     return(FALSE);
+  }
+  if (pe != NIL) {
+    READ_UNLOCK(ppe->PRWLock);
   }
   CodeAdr = ppe->CodeOfPred;
   if (Yap_TrailTop - HeapTop < 2048) {
@@ -1555,13 +1555,19 @@ p_generate_pred_info(void) {
 void
 Yap_InitYaamRegs(void)
 {
+
 #if PUSH_REGS
   /* Guarantee that after a longjmp we go back to the original abstract
      machine registers */
+#ifdef THREADS
+  int myworker_id = worker_id;
+  pthread_setspecific(yaamregs_key, (const void *)ThreadHandle[myworker_id].default_yaam_regs);
+  worker_id = myworker_id;
+#else
   Yap_regp = &Yap_standard_regs;
+#endif
 #endif /* PUSH_REGS */
   Yap_PutValue (AtomBreak, MkIntTerm (0));
-  AuxSp = (CELL *)AuxTop;
   TR = (tr_fr_ptr)Yap_TrailBase;
 #ifdef COROUTINING
   H = H0 = ((CELL *) Yap_GlobalBase)+ 2048;

@@ -26,6 +26,7 @@ static char SccsId[] = "%W% %G%";
 #endif
 
 #include "Yap.h"
+ADDR    STD_PROTO(Yap_PreAllocCodeSpace, (void));
 Prop	STD_PROTO(PredPropByFunc,(Functor, SMALLUNSGN));
 Prop	STD_PROTO(PredPropByAtom,(Atom, SMALLUNSGN));
 #include "Yatom.h"
@@ -184,7 +185,7 @@ LookupAtom(char *atom)
   INIT_RWLOCK(ae->ARWLock);
   WRITE_UNLOCK(HashChain[hash].AERWLock);
   if (NOfAtoms > 2*AtomHashTableSize) {
-    CreepFlag = Unsigned(LCL0+1);
+    Yap_signal(YAP_CDOVF_SIGNAL);
   }
   return na;
 }

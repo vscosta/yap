@@ -120,7 +120,7 @@ Yap_inform_profiler_of_clause(yamop *code_start, yamop *code_end, PredEntry *pe)
   */
   ProfPreds++;
   if (FPreds != NULL) {
-    fprintf(FPreds,"+%p %p %p %ld\n",code_start,code_end, pe, ProfCalls);
+    fprintf(FPreds,"+%p %p %p %uld\n",code_start,code_end, pe, ProfCalls);
   }
 }
 
@@ -261,7 +261,7 @@ showprofres(int tipo) {
   (void)fseek(FPreds, 0L, SEEK_SET);
 
   while (i) {
-    if (fscanf(FPreds,"+%p %p %p %ld\n",&(pr->beg),&(pr->end),&(pr->pp),&(pr->ts)) == 0){
+    if (fscanf(FPreds,"+%p %p %p %uld\n",&(pr->beg),&(pr->end),&(pr->pp),&(pr->ts)) == 0){
       /* error */
       return FALSE;
     }
@@ -301,13 +301,13 @@ showprofres(int tipo) {
     }
     if (calls) {
       if (myp->ArityOfPE) {
-	printf("%s:%s/%d -> %ld\n",
+	printf("%s:%s/%d -> %uld\n",
 	       RepAtom(AtomOfTerm(ModuleName[myp->ModuleOfPred]))->StrOfAE,
 	       RepAtom(NameOfFunctor(myp->FunctorOfPred))->StrOfAE,
 	       myp->ArityOfPE,
 	       calls);
       } else {
-	printf("%s:%s -> %ld\n",
+	printf("%s:%s -> %uld\n",
 	       RepAtom(AtomOfTerm(ModuleName[myp->ModuleOfPred]))->StrOfAE,
 	       RepAtom((Atom)(myp->FunctorOfPred))->StrOfAE,
 	       calls);
@@ -405,17 +405,26 @@ p_setflop(void)
   return (FALSE);
 }
 
+inline static void
+do_signal(yap_signals sig)
+{
+  LOCK(SignalLock);
+  CreepFlag = Unsigned(LCL0);
+  ActiveSignals |= sig;
+  UNLOCK(SignalLock);
+}
+
 static Int 
 p_creep(void)
 {
   Atom            at;
   PredEntry      *pred;
 
-  yap_flags[SPY_CREEP_FLAG] = TRUE;
   at = Yap_FullLookupAtom("$creep");
   pred = RepPredProp(PredPropByFunc(Yap_MkFunctor(at, 1),0));
   CreepCode = pred;
-  CreepFlag = Unsigned(LCL0+2);
+  yap_flags[SPY_CREEP_FLAG] = TRUE;
+  do_signal(YAP_CREEP_SIGNAL);
   FlipFlop = 0;
   return TRUE;
 }
@@ -427,10 +436,10 @@ p_stop_creep(void)
   return TRUE;
 }
 
-Int 
-Yap_creep(void)
+void 
+Yap_signal(yap_signals sig)
 {
-  return p_creep();
+  do_signal(sig);
 }
 
 #ifdef undefined
@@ -924,7 +933,7 @@ p_atom_concat(void)
     sz = strlen(atom_str);
     if (cptr+sz >= top-1024) {
       Yap_ReleasePreAllocCodeSpace((ADDR)cpt0);
-      if (!Yap_growheap(FALSE, sz+1024)) {
+      if (!Yap_growheap(FALSE, sz+1024, NULL)) {
 	Yap_Error(SYSTEM_ERROR, TermNil, Yap_ErrorMessage);
 	return(FALSE);
       }
@@ -2647,6 +2656,9 @@ Yap_InitCPreds(void)
 #if defined(YAPOR) || defined(TABLING)
   Yap_init_optyap_preds();
 #endif /* YAPOR || TABLING */
+#ifdef THREADS
+  Yap_InitThreadPreds();
+#endif /* ANALYST */
   {
     void            (*(*(p))) (void) = E_Modules;
     while (*p)

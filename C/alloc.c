@@ -12,7 +12,7 @@
 * Last rev:								 *
 * mods:									 *
 * comments:	allocating space					 *
-* version:$Id: alloc.c,v 1.42 2003-11-28 01:26:53 vsc Exp $		 *
+* version:$Id: alloc.c,v 1.43 2004-01-23 02:20:59 vsc Exp $		 *
 *************************************************************************/
 #ifdef SCCS
 static char SccsId[] = "%W% %G%";
@@ -48,6 +48,186 @@ static char SccsId[] = "%W% %G%";
 #endif
 #endif
 
+#define K		((Int) 1024)
+
+
+/************************************************************************/
+/* Yap workspace management                                             */
+
+#if THREADS
+#define USE_SYSTEM_MALLOC 1
+#endif
+
+#if USE_SYSTEM_MALLOC
+
+int
+Yap_SizeOfBlock(CODEADDR p)
+{
+  return ((UInt *)p)[-1];
+}
+
+char *
+Yap_AllocCodeSpace(unsigned int size)
+{
+  char *ptr = malloc(size+sizeof(UInt));
+  UInt *pi = (UInt *)ptr;
+  pi[0] = size;
+  return (char *)(pi+1);  
+}
+
+void
+Yap_FreeCodeSpace(char *p)
+{
+  free (p-sizeof(UInt));
+}
+
+char *
+Yap_AllocAtomSpace(unsigned int size)
+{
+  char *ptr = malloc(size+sizeof(UInt));
+  UInt *pi = (UInt *)ptr;
+  pi[0] = size;
+  return (char *)(pi+1);  
+}
+
+void
+Yap_FreeAtomSpace(char *p)
+{
+  free (p-sizeof(UInt));
+}
+
+/* If you need to dinamically allocate space from the heap, this is
+ * the macro you should use */
+ADDR
+Yap_PreAllocCodeSpace(void)
+{
+  char *ptr;
+  UInt sz = ScratchPad.msz;
+  if (ScratchPad.ptr == NULL) {
+    while (!(ptr = malloc(sz)))
+      if (!Yap_growheap(FALSE, Yap_Error_Size, NULL)) {
+	Yap_Error(SYSTEM_ERROR, TermNil, Yap_ErrorMessage);
+	return(NULL);
+      }
+    ScratchPad.ptr = ptr;
+  } else {
+    ptr = ScratchPad.ptr;
+  }
+  AuxSp = (CELL *)(AuxTop = (ADDR)(ptr+ScratchPad.sz));
+  return ptr;
+}
+
+ADDR
+Yap_ExpandPreAllocCodeSpace(void)
+{
+  char *ptr;
+  UInt sz = ScratchPad.msz;
+  ScratchPad.msz =
+    ScratchPad.sz =
+    sz = sz + SCRATCH_INC_SIZE;
+    
+  if (!(ptr = malloc(sz)))
+    return NULL;
+  ScratchPad.ptr = ptr;
+  AuxSp = (CELL *)(AuxTop = ptr+sz);
+  return ptr;
+}
+
+/* Grabbing the HeapTop is an excellent idea for a sequential system,
+   but does work as well in parallel systems. Anyway, this will do for now */
+void
+Yap_ReleasePreAllocCodeSpace(ADDR ptr)
+{
+}
+
+struct various_codes *heap_regs;
+
+static void
+InitHeap(void)
+{
+  heap_regs = (struct various_codes *)malloc(sizeof(struct various_codes));
+}
+
+void
+Yap_InitHeap(void *heap_addr)
+{
+  InitHeap();
+}
+
+static void
+InitExStacks(int Trail, int Stack)
+{
+  UInt pm, sa, ta;
+
+  /* sanity checking for data areas */
+  if (Trail < MinTrailSpace)
+    Trail = MinTrailSpace;
+  if (Stack < MinStackSpace)
+    Stack = MinStackSpace;
+  pm = (Trail + Stack)*K;	/* memory to be
+				 * requested         */
+  sa = Stack*K;			/* stack area size   */
+
+  Yap_GlobalBase = malloc(pm);
+  Yap_TrailTop = Yap_GlobalBase + pm;
+  Yap_LocalBase = Yap_GlobalBase + sa;
+  Yap_TrailBase = Yap_LocalBase + sizeof(CELL);
+
+  AuxSp = NULL;
+
+#ifdef DEBUG
+  if (Yap_output_msg) {
+    fprintf(stderr, "HeapBase = %p  GlobalBase = %p\n  LocalBase = %p  TrailTop = %p\n",
+	       Yap_HeapBase, Yap_GlobalBase, Yap_LocalBase, Yap_TrailTop);
+
+    ta = Trail*K;			/* trail area size   */
+    fprintf(stderr, "Heap+Aux: %ld\tLocal+Global: %uld\tTrail: %uld\n",
+	       (long int)(pm - sa - ta), (unsigned long int)sa, (unsigned long int)ta);
+  }
+#endif /* DEBUG */
+}
+
+void
+Yap_InitExStacks(int Trail, int Stack)
+{
+  InitExStacks(Trail, Stack);
+}
+
+void
+Yap_KillStacks(void)
+{
+  if (Yap_GlobalBase) {
+    free(Yap_GlobalBase);
+    Yap_GlobalBase = NULL;
+  }
+}
+
+void
+Yap_InitMemory(int Trail, int Heap, int Stack)
+{
+  InitHeap();
+  InitExStacks(Trail, Stack);
+}
+
+int
+Yap_ExtendWorkSpace(Int s)
+{
+  return -1;
+}
+
+UInt
+Yap_ExtendWorkSpaceThroughHole(UInt s)
+{
+  return -1;
+}
+
+void
+Yap_AllocHole(UInt actual_request, UInt total_size)
+{
+}
+
+#else
+
 #if HAVE_SNPRINTF
 #define snprintf3(A,B,C)  snprintf(A,B,C)
 #define snprintf4(A,B,C,D)  snprintf(A,B,C,D)
@@ -68,12 +248,7 @@ STATIC_PROTO(void AddToFreeList, (BlockHeader *));
 #include <stdlib.h>
 #endif
 
-#define K		((Int) 1024)
-
 #define MinHGap   256*K
-
-/************************************************************************/
-/* Yap workspace management                                             */
 
 int
 Yap_SizeOfBlock(CODEADDR p)
@@ -187,10 +362,7 @@ FreeBlock(BlockHeader *b)
     RemoveFromFreeList(p);
     b->b_size += p->b_size + 1;
   }
-  /* check if we are the HeapTop */
-  if (!HEAPTOP_OWNER(worker_id)) {
-    LOCK(HeapTopLock);
-  }
+  LOCK(HeapTopLock);
   if (sp == (YAP_SEG_SIZE *)HeapTop) {
     LOCK(HeapUsedLock);
     HeapUsed -= (b->b_size + 1) * sizeof(YAP_SEG_SIZE);
@@ -201,9 +373,7 @@ FreeBlock(BlockHeader *b)
   /* insert on list of free blocks */
     AddToFreeList(b);
   }
-  if (!HEAPTOP_OWNER(worker_id)) {
-    UNLOCK(HeapTopLock);
-  }
+  UNLOCK(HeapTopLock);
   UNLOCK(FreeBlocksLock);
 }
 
@@ -277,10 +447,8 @@ AllocHeap(unsigned int size)
     UNLOCK(FreeBlocksLock);
     return (Addr(b) + sizeof(YAP_SEG_SIZE));
   }
+  LOCK(HeapTopLock);
   UNLOCK(FreeBlocksLock);
-  if (!HEAPTOP_OWNER(worker_id)) {
-    LOCK(HeapTopLock);
-  }
   b = (BlockHeader *) HeapTop;
   HeapTop += size * sizeof(CELL) + sizeof(YAP_SEG_SIZE);
   LOCK(HeapUsedLock);
@@ -291,35 +459,29 @@ AllocHeap(unsigned int size)
     abort_optyap("No heap left in function AllocHeap");
   }
 #else
-  if (HeapTop > Addr(AuxSp) - MinHeapGap) {
+  if (HeapTop > HeapLim - MinHeapGap) {
     HeapTop -= size * sizeof(CELL) + sizeof(YAP_SEG_SIZE);
     HeapUsed -= size * sizeof(CELL) + sizeof(YAP_SEG_SIZE);
-    if (HeapTop > Addr(AuxSp)) {
+    if (HeapTop > HeapLim) {
       UNLOCK(HeapUsedLock);
-      if (!HEAPTOP_OWNER(worker_id)) {
-	UNLOCK(HeapTopLock);
-      }
+      UNLOCK(HeapTopLock);
       /* we destroyed the stack */
       Yap_Error(SYSTEM_ERROR, TermNil, "Stack Crashed against Heap...");
       return(NULL);
     } else {
-      if (HeapTop + size * sizeof(CELL) + sizeof(YAP_SEG_SIZE) < Addr(AuxSp)) {
+      if (HeapTop + size * sizeof(CELL) + sizeof(YAP_SEG_SIZE) < HeapLim) {
 	/* small allocations, we can wait */
 	HeapTop += size * sizeof(CELL) + sizeof(YAP_SEG_SIZE);
 	HeapUsed += size * sizeof(CELL) + sizeof(YAP_SEG_SIZE);
 	UNLOCK(HeapUsedLock);
-	if (!HEAPTOP_OWNER(worker_id)) {
-	  UNLOCK(HeapTopLock);
-	}
-	CreepFlag = Unsigned(LCL0+1);
+	UNLOCK(HeapTopLock);
+	Yap_signal(YAP_CDOVF_SIGNAL);
       } else {
 	if (size > SizeOfOverflow)
 	  SizeOfOverflow = size*sizeof(CELL) + sizeof(YAP_SEG_SIZE);
 	/* big allocations, the caller must handle the problem */
 	UNLOCK(HeapUsedLock);
-	if (!HEAPTOP_OWNER(worker_id)) {
-	  UNLOCK(HeapTopLock);
-	}
+	UNLOCK(HeapTopLock);
 	return(NULL);
       }
     }
@@ -328,37 +490,13 @@ AllocHeap(unsigned int size)
   *((YAP_SEG_SIZE *) HeapTop) = InUseFlag;
   if (HeapUsed > HeapMax)
     HeapMax = HeapUsed;
-  HeapPlus = HeapTop + MinHGap / CellSize;
   UNLOCK(HeapUsedLock);
   b->b_size = size | InUseFlag;
   sp = &(b->b_size) + size;
   *sp = b->b_size;
-  if (!HEAPTOP_OWNER(worker_id)) {
-    UNLOCK(HeapTopLock);
-  }
+  UNLOCK(HeapTopLock);
   return (Addr(b) + sizeof(YAP_SEG_SIZE));
 }
-
-/* If you need to dinamically allocate space from the heap, this is
- * the macro you should use */
-ADDR
-Yap_PreAllocCodeSpace(void)
-{
-  LOCK(HeapTopLock);
-  HEAPTOP_OWN(worker_id);
-  return (Addr(HeapTop) + sizeof(YAP_SEG_SIZE));
-}
-
-#if defined(YAPOR) || defined(THREADS)
-/* Grabbing the HeapTop is an excellent idea for a sequential system,
-   but does work as well in parallel systems. Anyway, this will do for now */
-void
-Yap_ReleasePreAllocCodeSpace(ADDR ptr)
-{
-  HEAPTOP_DISOWN(worker_id);
-  UNLOCK(HeapTopLock);
-}
-#endif
 
 /* If you need to dinamically allocate space from the heap, this is
  * the macro you should use */
@@ -401,6 +539,7 @@ Yap_AllocCodeSpace(unsigned int size)
 {
   return AllocCodeSpace(size);
 }
+
 
 /************************************************************************/
 /* Workspace allocation                                                 */
@@ -1053,6 +1192,10 @@ InitHeap(void *heap_addr)
   /* reserve space for specially allocated functors and atoms so that
      their values can be known statically */
   HeapTop = Yap_HeapBase + AdjustSize(sizeof(all_heap_codes));
+#if SIZEOF_DOUBLE == 2*SIZEOF_LONG_INT
+  /* guarantee blocks always start at even addresses */
+  HeapTop += sizeof(YAP_SEG_SIZE);
+#endif
 
   HeapMax = HeapUsed = HeapTop-Yap_HeapBase;
 
@@ -1061,9 +1204,7 @@ InitHeap(void *heap_addr)
   HeapTop = HeapTop + sizeof(YAP_SEG_SIZE);
   *((YAP_SEG_SIZE *) HeapTop) = InUseFlag;
 
-  HeapPlus = HeapTop + MinHGap / CellSize;
   FreeBlocks = NIL;
-  HEAPTOP_DISOWN(worker_id);  
 
 #if defined(YAPOR) || defined(TABLING)
 #ifdef USE_HEAP
@@ -1089,7 +1230,27 @@ Yap_InitMemory(int Trail, int Heap, int Stack)
 {
   Int pm, sa, ta;
 
+#if defined(YAPOR) || defined(TABLING)
+  {
+#ifdef USE_HEAP
+    int OKHeap = MinHeapSpace+(sizeof(struct global_data) + aux_number_workers*sizeof(struct local_data))/1024;
+#else
+    int OKHeap = MinHeapSpace+(sizeof(struct global_data) + aux_number_workers*sizeof(struct local_data)+OPT_CHUNK_SIZE)/1024;
+#endif
+    if (Heap < OKHeap)
+      Heap = OKHeap;
+  }
+#else
+  if (Heap < MinHeapSpace)
+    Heap = MinHeapSpace;
+#endif /* YAPOR || TABLING */
+
+  /* sanity checking for data areas */
+  if (Trail < MinTrailSpace)
+    Trail = MinTrailSpace;
   Trail = AdjustPageSize(Trail * K);
+  if (Stack < MinStackSpace)
+    Stack = MinStackSpace;
   Stack = AdjustPageSize(Stack * K);
   Heap = AdjustPageSize(Heap * K);
 
@@ -1105,9 +1266,10 @@ Yap_InitMemory(int Trail, int Heap, int Stack)
   Yap_TrailBase = Yap_LocalBase + sizeof(CELL);
 
   Yap_GlobalBase = Yap_LocalBase - sa;
-  AuxTop = Yap_GlobalBase - CellSize;	/* avoid confusions while
+  HeapLim = Yap_GlobalBase;	/* avoid confusions while
 					 * * restoring */
-  AuxSp = (CELL *) AuxTop;
+
+  AuxTop = (ADDR)(AuxSp = (CELL *)Yap_GlobalBase);
 
 #ifdef DEBUG
 #if SIZEOF_INT_P!=SIZEOF_INT
@@ -1131,6 +1293,11 @@ Yap_InitMemory(int Trail, int Heap, int Stack)
   }
 #endif /* DEBUG */
 
+}
+
+void
+Yap_InitExStacks(int Trail, int Stack)
+{
 }
 
 int
@@ -1177,3 +1344,7 @@ Yap_AllocHole(UInt actual_request, UInt total_size)
   AddToFreeList(newb);
 #endif
 }
+
+#endif /* USE_SYSTEM_MALLOC */
+
+

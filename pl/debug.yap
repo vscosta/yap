@@ -244,23 +244,12 @@ debugging :-
 %	when 1 spying is enabled *(the same as spy stop).
 
 
-'$creep'([Mod|G]) :-
-	'$stop_debugging',
-	CP is '$last_choice_pt',	
-	'$do_spy'(G, Mod, CP, no).
-
 %'$spy'(G) :- write(user_error,'$spy'(G)), nl, fail.
 %
 % handle suspended goals
 % take care with hidden goals.
 %
 % $spy may be called from user code, so be careful.
-'$spy'(G) :-
-	'$stop_debugging',
-	% we can start working now.
-	'$awoken_goals'(LG), !,
-	'$creep',
-	'$wake_up_goal'(G, LG).
 '$spy'([Mod|G]) :-
 	CP is '$last_choice_pt',	
 	'$do_spy'(G, Mod, CP, no).

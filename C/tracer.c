@@ -153,6 +153,9 @@ low_level_trace(yap_low_level_port port, PredEntry *pred, CELL *args)
   } 
   if (gc_calls < 1) return;
 #endif
+#if defined(THREADS) || defined(YAPOR)
+  fprintf(Yap_stderr,"(%d)", worker_id);
+#endif
 #if defined(__GNUC__)
   fprintf(Yap_stderr,"%llu ", vsc_count);
 #endif

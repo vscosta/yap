@@ -10,7 +10,7 @@
 * File:		Yap.h.m4						 *
 * mods:									 *
 * comments:	main header file for YAP				 *
-* version:      $Id: Yap.h.m4,v 1.49 2003-11-12 12:33:31 vsc Exp $	 *
+* version:      $Id: Yap.h.m4,v 1.50 2004-01-23 02:23:15 vsc Exp $	 *
 *************************************************************************/
 
 #include "config.h"
@@ -142,6 +142,16 @@
 ** and integer types Short and UShort with half the size of a ptr 
 */
 
+#ifdef THREADS
+#include <pthread.h>
+#endif
+
+#if defined(YAPOR) || defined(THREADS)
+#define MAX_WORKERS (sizeof(unsigned long) * 8)
+#else
+#define MAX_WORKERS 1
+#endif /* YAPOR */
+
 #if SIZEOF_INT_P==4
 
 #if SIZEOF_INT==4
@@ -251,12 +261,17 @@ extern char     Yap_Option[20];
 #endif
 #endif /* !IN_SECOND_QUADRANT */
 
+#ifdef THREADS
+#define HEAP_INIT_BASE  0L
+#define AtomBase        NULL
+#else
 #if defined(MMAP_ADDR) && (USE_MMAP || USE_SHMAT || _WIN32) && !__simplescalar__
 #define HEAP_INIT_BASE  (MMAP_ADDR)
 #define AtomBase        ((char *)MMAP_ADDR)
 #else
 #define HEAP_INIT_BASE  ((CELL)Yap_HeapBase)
 #define AtomBase        (Yap_HeapBase)
+#endif
 #endif
 
 
@@ -380,8 +395,6 @@ typedef volatile int lockvar;
 #define siglongjmp(Env, Arg) longjmp(Env, Arg)
 #endif
 
-extern sigjmp_buf    Yap_RestartEnv;   /* used to restart after an abort */
-
 /* Support for arrays */
 #include "arrays.h"
 
@@ -474,11 +487,6 @@ typedef enum {
   UNKNOWN_ERROR
 } yap_error_number;
 
-extern char    *Yap_ErrorMessage;	/* used to pass error messages		*/
-extern Term     Yap_Error_Term;	/* used to pass error terms */
-extern yap_error_number  Yap_Error_TYPE;	/* used to pass the error */
-extern UInt  Yap_Error_Size;	/* used to pass the error */
-
 typedef enum {
   YAP_INT_BOUNDED_FLAG = 0,
   MAX_ARITY_FLAG = 1,
@@ -518,6 +526,20 @@ typedef enum {
   INDEX_MODE_MULTI = 3,
   INDEX_MODE_MAX = 4
 } index_mode_options;
+
+typedef enum {
+  YAP_CREEP_SIGNAL   =   0x1,		/* received a creep */
+  YAP_WAKEUP_SIGNAL  =   0x2,		/* goals to wake up */
+  YAP_ALARM_SIGNAL   =   0x4,		/* received an alarm */
+  YAP_HUP_SIGNAL     =   0x8,		/* received SIGHUP */
+  YAP_USR1_SIGNAL    =  0x10,		/* received SIGUSR1 */
+  YAP_USR2_SIGNAL    =  0x20,		/* received SIGUSR2 */
+  YAP_INT_SIGNAL     =  0x40,		/* received SIGINT (unused for now) */
+  YAP_ITI_SIGNAL     =  0x80,		/* received inter thread signal */
+  YAP_TROVF_SIGNAL   = 0x100,		/* received trail overflow */
+  YAP_CDOVF_SIGNAL   = 0x200,		/* received code overflow */
+  YAP_STOVF_SIGNAL   = 0x400		/* received stack overflow */
+} yap_signals;
 
 #define NUMBER_OF_YAP_FLAGS     INDEXING_MODE_FLAG+1
 
@@ -642,11 +664,73 @@ and  RefOfTerm(t) : Term -> DBRef = ...
 
 /************* variables related to memory allocation *******************/
 /* must be before TermExt.h */
-extern ADDR     Yap_HeapBase,
-		Yap_LocalBase,
-		Yap_GlobalBase,
-		Yap_TrailBase,
-                Yap_TrailTop;
+
+extern ADDR Yap_HeapBase;
+
+#define MAX_ERROR_MSG_SIZE 256
+
+/* This is ok for Linux, should be ok for everyone */
+#define YAP_FILENAME_MAX 1024
+
+#ifdef THREADS
+typedef struct thread_globs {
+  ADDR local_base;
+  ADDR global_base;
+  ADDR trail_base;
+  ADDR trail_top;
+  char *error_message;
+  Term  error_term;
+  Term error_type;
+  UInt  error_size;
+  char  error_say[MAX_ERROR_MSG_SIZE];
+  jmp_buf io_botch;
+  sigjmp_buf restart_env;
+  struct TOKEN *tokptr;
+  struct TOKEN *toktide;
+  struct VARSTRUCT *var_table;
+  struct VARSTRUCT *anon_var_table;
+  int eot_before_eof;
+  char  file_name_buf[YAP_FILENAME_MAX];
+  char  file_name_buf2[YAP_FILENAME_MAX];
+
+} tglobs;
+
+extern struct thread_globs Yap_thread_gl[MAX_WORKERS];
+
+
+#define    Yap_LocalBase  Yap_thread_gl[worker_id].local_base
+#define    Yap_GlobalBase Yap_thread_gl[worker_id].global_base
+#define    Yap_TrailBase  Yap_thread_gl[worker_id].trail_base
+#define    Yap_TrailTop   Yap_thread_gl[worker_id].trail_top
+#define    Yap_ErrorMessage   Yap_thread_gl[worker_id].error_message
+#define    Yap_Error_Term   Yap_thread_gl[worker_id].error_term
+#define    Yap_Error_TYPE     Yap_thread_gl[worker_id].error_type
+#define    Yap_Error_Size   Yap_thread_gl[worker_id].error_size
+#define    Yap_ErrorSay    Yap_thread_gl[worker_id].error_say
+#define    Yap_RestartEnv    Yap_thread_gl[worker_id].restart_env
+#else
+extern ADDR Yap_HeapBase,
+  Yap_LocalBase,
+  Yap_GlobalBase,
+  Yap_TrailBase,
+  Yap_TrailTop;
+
+extern sigjmp_buf    Yap_RestartEnv;   /* used to restart after an abort */
+
+extern char    *Yap_ErrorMessage;	/* used to pass error messages		*/
+extern Term     Yap_Error_Term;	/* used to pass error terms */
+extern yap_error_number  Yap_Error_TYPE;	/* used to pass the error */
+extern UInt  Yap_Error_Size;	/* used to pass the error */
+
+/******************* storing error messages ****************************/
+extern char      Yap_ErrorSay[MAX_ERROR_MSG_SIZE];
+
+#endif
+
+#ifdef DEBUG
+/************** Debugging Support ***************************/
+extern int Yap_output_msg;
+#endif
 
 
 /* applies to unbound variables */
@@ -775,10 +859,6 @@ typedef struct opcode_tab_entry {
 
 #endif
 
-/******************* storing error messages ****************************/
-#define MAX_ERROR_MSG_SIZE 256
-extern char      Yap_ErrorSay[MAX_ERROR_MSG_SIZE];
-
 /********* Prolog may be in several modes *******************************/
 
 typedef enum {
@@ -799,11 +879,6 @@ extern int      Yap_CritLocks;
 
 extern char   **Yap_argv;
 extern int      Yap_argc;
-
-#ifdef DEBUG
-/************** Debugging Support ***************************/
-extern int Yap_output_msg;
-#endif
 
 /******************* number of modules ****************************/
 

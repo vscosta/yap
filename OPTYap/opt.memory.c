@@ -182,8 +182,7 @@ void map_memory(long HeapArea, long GlobalLocalArea, long TrailAuxArea, int n_wo
     Yap_TrailTop = Yap_TrailBase + TrailAuxArea / 2;
 
 
-  AuxTop = Yap_TrailBase + TrailAuxArea - CellSize;
-  AuxSp = (CELL *) AuxTop;
+  HeapMax = Yap_TrailBase + TrailAuxArea - CellSize;
   Yap_InitHeap(mmap_addr);
   BaseWorkArea = mmap_addr;
 
@@ -254,8 +253,6 @@ void remap_memory(void) {
   Yap_TrailBase += worker_id * WorkerArea;
   Yap_LocalBase += worker_id * WorkerArea;
   Yap_TrailTop += worker_id * WorkerArea;
-  AuxTop += worker_id * WorkerArea;
-  AuxSp = (CELL *) AuxTop; 
 #endif /* SBA */
 #ifdef ENV_COPY
   void *remap_addr;

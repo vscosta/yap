@@ -41,6 +41,9 @@
 /* Host Name ?				*/
 #undef HOST_ALIAS
 
+#undef SUPPORT_CONDOR
+#undef SUPPORT_THREADS
+
 #undef HAVE_SYS_WAIT_H
 #undef NO_UNION_WAIT
 
@@ -63,6 +66,7 @@
 #undef  HAVE_MEMORY_H
 #undef  HAVE_NETDB_H
 #undef  HAVE_NETINET_IN_H
+#undef  HAVE_PTHREAD_H
 #undef  HAVE_READLINE_READLINE_H
 #undef  HAVE_REGEX_H
 #undef  HAVE_SIGINFO_H
@@ -171,6 +175,8 @@
 #undef  HAVE_NSLINKMODULE
 #undef  HAVE_OPENDIR
 #undef  HAVE_POPEN
+#undef	HAVE_PTHREAD_MUTEXATTR_SETKIND_NP
+#undef	HAVE_PTHREAD_MUTEXATTR_SETTYPE
 #undef  HAVE_PUTENV
 #undef  HAVE_RAND
 #undef  HAVE_RANDOM
