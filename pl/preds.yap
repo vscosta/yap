@@ -331,8 +331,7 @@ retractall(V) :- !,
 '$retractall'(T,M) :-
 	'$undefined'(T,M),
 	functor(T,Na,Ar),
-	'$dynamic'(Na/Ar,M), !,
-	fail.
+	'$dynamic'(Na/Ar,M), !.
 '$retractall'(T,M) :-
 	\+ '$is_dynamic'(T,M), !,
 	functor(T,Na,Ar),
