@@ -113,6 +113,26 @@ p_module_number(void)
   return(TRUE);
 }
 
+static Int 
+cont_current_module(void)
+{
+  Int             mod = IntOfTerm(EXTRA_CBACK_ARG(1,1));
+  Term t = ModuleName[mod];
+
+  if (mod == NoOfModules) {
+    cut_fail();
+  }
+  EXTRA_CBACK_ARG(1,1) = MkIntTerm(mod+1);
+  return(unify(ARG1,t));
+}
+
+static Int 
+init_current_module(void)
+{				/* current_module(?ModuleName)		 */
+  EXTRA_CBACK_ARG(1,1) = MkIntTerm(0);
+  return (cont_current_module());
+}
+
 void 
 InitModules(void)
 {
@@ -126,4 +146,6 @@ InitModules(void)
   InitCPred("$current_module", 1, p_current_module1, SafePredFlag|SyncPredFlag);
   InitCPred("$change_module", 1, p_change_module, SafePredFlag|SyncPredFlag);
   InitCPred("$module_number", 2, p_module_number, SafePredFlag);
+  InitCPredBack("$all_current_modules", 1, 1, init_current_module, cont_current_module,
+		SafePredFlag|SyncPredFlag);
 }

@@ -510,11 +510,12 @@ module(N) :-
 '$not_in_vars'(_,[]).
 '$not_in_vars'(V,[X|L]) :- X\==V, '$not_in_vars'(V,L).
 
-current_module(Mod) :- 
-	'$recorded'('$module','$module'(Mod),_).
+current_module(Mod) :-
+	'$all_current_modules'(Mod).
 
 current_module(Mod,TFN) :-
-	'$recorded'('$module','$module'(TFN,Mod,_Publics),_).
+	'$all_current_modules'(Mod),
+	( '$recorded'('$module','$module'(TFN,Mod,_Publics),_) -> true ; TFN = user ).
 
 source_module(Mod) :-
 	'$current_module'(Mod).
