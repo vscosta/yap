@@ -2018,9 +2018,14 @@ static void
 copy_attachments(CELL *ts)
 {
   while (TRUE) {
+    Term t;
+    /* store away in case there is an overflow */
+    *--ASP = ts[3];
     attas[IntegerOfTerm(ts[2])].term_to_op(ts[1], ts[0]);
-    if (ts[3] == TermNil) return;
-    ts = RepAppl(ts[3])+1;
+    t = *ASP;
+    ASP++;
+    if (t == TermNil) return;
+    ts = RepAppl(t)+1;
   }
 }
 #endif
