@@ -679,15 +679,16 @@ dynamic(X) :-
 '$dynamic'([], _) :- !.
 '$dynamic'([H|L], M) :- !, '$dynamic'(H, M), '$dynamic'(L, M).
 '$dynamic'((A,B),M) :- !, '$dynamic'(A,M), '$dynamic'(B,M).
-'$dynamic'(X,M) :- !,
+'$dynamic'(X,M) :-
 	'$dynamic2'(X,M).
 
 '$dynamic2'(X, Mod) :- '$log_upd'(Stat), Stat\=0, !,
 	'$logical_updatable'(X, Mod).
-'$dynamic2'(A/N, Mod) :- integer(N), atom(A), !,
+'$dynamic2'(A/N, Mod) :-
+	integer(N), atom(A), !,
 	functor(T,A,N), '$flags'(T,Mod,F,F),
 	% LogUpd,BinaryTest,Safe,C,Dynamic,Compiled,Standard,Asm,
-	( F/\ 0x19D1FA80 =:= 0 -> NF is F \/ 0x00002000, '$flags'(T, Mod, F, NF);
+	( F/\ 0x19D1FA80 =:= 0, '$undefined'(T,Mod) -> NF is F \/ 0x00002000, '$flags'(T, Mod, F, NF);
 	    F /\ 0x00002000 =:= 0x00002000 -> true;                     % dynamic
 	    F /\ 0x08000000 =:= 0x08000000 -> true ;      % LU
 	    F /\ 0x00000400 =:= 0x00000400, '$undefined'(T,Mod) -> F1 is F /\ \(0x400), N1F is F1 \/ 0x00002000, NF is N1F /\ \(0x00420000), '$flags'(T,Mod,F,NF);
@@ -700,7 +701,7 @@ dynamic(X) :-
 '$logical_updatable'(A/N,Mod) :- integer(N), atom(A), !,
 	functor(T,A,N), '$flags'(T,Mod,F,F),
 	(
-	    F/\ 0x19D1FA80 =:= 0 -> NF is F \/ 0x08000400, '$flags'(T,Mod,F,NF);
+	    F/\ 0x19D1FA80 =:= 0, '$undefined'(T,Mod) -> NF is F \/ 0x08000400, '$flags'(T,Mod,F,NF);
 	    F /\ 0x08000000 =:= 0x08000000 -> true ;      % LU
 	    F /\ 0x00002000 =:= 0x00002000 -> true;      % dynamic
 	    F /\ 0x00000400 =:= 0x00000400 , '$undefined'(T,Mod) -> N1F is F \/ 0x08000000, NF is N1F /\ \(0x00420000), '$flags'(T,Mod,F,NF);
