@@ -10,7 +10,7 @@
 * File:		Yap.proto						 *
 * mods:									 *
 * comments:	Function declarations for YAP				 *
-* version:      $Id: Yapproto.h,v 1.35 2003-05-20 19:11:59 vsc Exp $	 *
+* version:      $Id: Yapproto.h,v 1.36 2003-05-21 13:00:23 vsc Exp $	 *
 *************************************************************************/
 
 /* prototype file for Yap */
@@ -299,4 +299,5 @@ void    STD_PROTO(Yap_init_optyap_preds,(void));
 
 #if LOW_PROF
 void STD_PROTO(Yap_dump_code_area_for_profiler,(void));
+void STD_PROTO(Yap_inform_profiler_of_clause,(yamop *,yamop *, struct pred_entry *));
 #endif /* LOW_PROF */

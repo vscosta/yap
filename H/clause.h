@@ -148,6 +148,4 @@ yamop   *STD_PROTO(Yap_PredIsIndexable,(PredEntry *));
 #if LOW_PROF
 /* profiling */
 yamop *Yap_prof_end;
-
-void STD_PROTO(Yap_inform_profiler_of_clause,(yamop *,yamop *, PredEntry *));
 #endif /* LOW_PROF */

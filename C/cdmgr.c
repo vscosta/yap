@@ -2543,23 +2543,6 @@ p_hidden_predicate(void)
 #ifdef LOW_PROF
 
 static void
-inform_profiler_of_clause(yamop *code_start, yamop *code_end, PredEntry *pe) {
-  /*
-    I can only open once, otherwise I'll have heaps of trouble
-    whenever Yap changes directory
-  */
-  ProfPreds++;
-  if (FPreds != NULL) {
-    fprintf(FPreds,"+%p %p %p %ld\n",code_start,code_end, pe, ProfCalls);
-  }
-}
-
-void
-Yap_inform_profiler_of_clause(yamop *code_start, yamop *code_end, PredEntry *pe) {
-  inform_profiler_of_clause(code_start, code_end, pe);
-}
-
-static void
 add_code_in_pred(PredEntry *pp) {
   yamop *clcode;
 
@@ -2573,7 +2556,7 @@ add_code_in_pred(PredEntry *pp) {
     clcode = pp->CodeOfPred;
     cl = ClauseCodeToStaticClause(clcode);
     code_end = (char *)cl + Yap_SizeOfBlock((CODEADDR)cl);
-    inform_profiler_of_clause(clcode, (yamop *)code_end, pp);
+    Yap_inform_profiler_of_clause(clcode, (yamop *)code_end, pp);
     return;
   }
   clcode = pp->cs.p_code.TrueCodeOfPred;
@@ -2586,7 +2569,7 @@ add_code_in_pred(PredEntry *pp) {
       StaticClause *cl = ClauseCodeToStaticClause(clcode);
       code_end = (char *)cl + Yap_SizeOfBlock((CODEADDR)cl);
     }
-    inform_profiler_of_clause(clcode, (yamop *)code_end, pp);
+    Yap_inform_profiler_of_clause(clcode, (yamop *)code_end, pp);
   }	      
   clcode = pp->cs.p_code.FirstClause;
   if (clcode != NULL) {
@@ -2602,7 +2585,7 @@ add_code_in_pred(PredEntry *pp) {
 	cl = (CODEADDR)ClauseCodeToStaticClause(clcode);
       }
       code_end = cl + Yap_SizeOfBlock((CODEADDR)cl);
-      inform_profiler_of_clause(clcode, (yamop *)code_end, pp);
+      Yap_inform_profiler_of_clause(clcode, (yamop *)code_end, pp);
       if (clcode == pp->cs.p_code.LastClause)
 	break;
       clcode = NextClause(clcode);
@@ -2619,7 +2602,7 @@ Yap_dump_code_area_for_profiler(void) {
   for (i_table = NoOfModules-1; i_table >= 0; --i_table) {
     PredEntry *pp = ModulePred[i_table];
     while (pp != NULL) {
-      if (pp->ArityOfPE) {
+      /*      if (pp->ArityOfPE) {
 	fprintf(stderr,"%s/%d %p\n",
 		RepAtom(NameOfFunctor(pp->FunctorOfPred))->StrOfAE,
 		pp->ArityOfPE,
@@ -2628,13 +2611,13 @@ Yap_dump_code_area_for_profiler(void) {
 	fprintf(stderr,"%s %p\n",
 		RepAtom((Atom)(pp->FunctorOfPred))->StrOfAE,
 		pp);
-      }
+		}*/
       add_code_in_pred(pp);
       pp = pp->NextPredOfModule;
     }
   }
-  inform_profiler_of_clause(COMMA_CODE, FAILCODE, RepPredProp(Yap_GetPredPropByFunc(FunctorComma,0)));
-  inform_profiler_of_clause(FAILCODE, FAILCODE+1, RepPredProp(Yap_GetPredPropByAtom(AtomFail,0)));
+  Yap_inform_profiler_of_clause(COMMA_CODE, FAILCODE, RepPredProp(Yap_GetPredPropByFunc(FunctorComma,0)));
+  Yap_inform_profiler_of_clause(FAILCODE, FAILCODE+1, RepPredProp(Yap_GetPredPropByAtom(AtomFail,0)));
 }
 
 #endif /* LOW_PROF */

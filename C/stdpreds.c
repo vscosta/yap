@@ -108,6 +108,22 @@ STD_PROTO(static Int profres2, (void));
 
 #define TIMER_DEFAULT 1000
 
+typedef struct prof_files {
+  FILE *f_prof, *f_preds;
+};
+
+void
+Yap_inform_profiler_of_clause(yamop *code_start, yamop *code_end, PredEntry *pe) {
+  /*
+    I can only open once, otherwise I'll have heaps of trouble
+    whenever Yap changes directory
+  */
+  ProfPreds++;
+  if (FPreds != NULL) {
+    fprintf(FPreds,"+%p %p %p %ld\n",code_start,code_end, pe, ProfCalls);
+  }
+}
+
 static void
 prof_alrm(int signo)
 {
