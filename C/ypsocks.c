@@ -178,18 +178,6 @@
 #define invalid_socket_fd(fd) (fd) < 0
 #endif
 
-#define INTERFACE_PORT 8081
-#define HOST "khome.ncc.up.pt"
-
-STD_PROTO(static void crash, (char *));
-
-static void
-crash(char *msg)
-{
-  fprintf(stderr, msg);
-  exit(1);
-}
-
 void
 Yap_init_socks(char *host, long interface_port)
 {
@@ -201,9 +189,15 @@ Yap_init_socks(char *host, long interface_port)
    struct linger ling;			/* For making sockets linger. */
 
 
+#if   USE_SOCKET
    he = gethostbyname(host);
    if (!he) {
-   	crash("[can not get address for host]");
+#if HAVE_STRERROR
+     Yap_Error(SYSTEM_ERROR, TermNil, "can not get address for host: %s", strerror(errno));
+#else
+     Yap_Error(SYSTEM_ERROR, TermNil, "can not get address for host");
+#endif
+     return;
    }	
    
    (void) memset((char *) &adr, '\0', sizeof(struct sockaddr_in));
@@ -220,7 +214,12 @@ Yap_init_socks(char *host, long interface_port)
 
    s = socket ( AF_INET, SOCK_STREAM, 0);
    if (s<0) {
-   	crash("[ could not create socket ]");
+#if HAVE_STRERROR
+     Yap_Error(SYSTEM_ERROR, TermNil, "could not create socket: %s", strerror(errno));
+#else
+     Yap_Error(SYSTEM_ERROR, TermNil, "could not create socket");
+#endif
+     return;
    }
 
    ling.l_onoff = 1;
@@ -230,22 +229,38 @@ Yap_init_socks(char *host, long interface_port)
 
    r = connect ( s, (struct sockaddr *) &soadr, sizeof(soadr));
    if (r<0) {
-        fprintf(stderr,"connect failed with %d\n",r);
-   	crash("[ could not connect to interface]");
+#if HAVE_STRERROR
+     Yap_Error(SYSTEM_ERROR, TermNil, "connect failed, could not connect to interface: %s", strerror(errno));
+#else
+     Yap_Error(SYSTEM_ERROR, TermNil, "connect failed, could not connect to interface");
+#endif
+     return;
    }
    /* now reopen stdin stdout and stderr */
 #if HAVE_DUP2 && !defined(__MINGW32__)
    if(dup2(s,0)<0) {
-   	fprintf(stderr,"could not dup2 stdin\n");
-   	return;
+#if HAVE_STRERROR
+     Yap_Error(SYSTEM_ERROR, TermNil, "could not dup2 stdin: %s", strerror(errno));
+#else
+     Yap_Error(SYSTEM_ERROR, TermNil, "could not dup2 stdin");
+#endif
+     return;
    }
    if(dup2(s,1)<0) {
-   	fprintf(stderr,"could not dup2 stdout\n");
-   	return;
+#if HAVE_STRERROR
+     Yap_Error(SYSTEM_ERROR, TermNil, "could not dup2 stdout: %s", strerror(errno));
+#else
+     Yap_Error(SYSTEM_ERROR, TermNil, "could not dup2 stdout");
+#endif
+     return;
    }
    if(dup2(s,2)<0) {
-   	fprintf(stderr,"could not dup2 stderr\n");
-   	return;
+#if HAVE_STRERROR
+     Yap_Error(SYSTEM_ERROR, TermNil, "could not dup2 stderr: %s", strerror(errno));
+#else
+     Yap_Error(SYSTEM_ERROR, TermNil, "could not dup2 stderr");
+#endif
+     return;
    }
 #elif _MSC_VER || defined(__MINGW32__)
    if(_dup2(s,0)<0) {
@@ -286,6 +301,9 @@ Yap_init_socks(char *host, long interface_port)
 #else
    close(s);
 #endif
+#else /* USE_SOCKET */
+   Yap_Error(SYSTEM_ERROR, TermNil, "sockets not installed", strerror(errno));
+#endif /* USE_SOCKET */
 }
 
 static Int
