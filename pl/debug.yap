@@ -247,6 +247,8 @@ debugging :-
 	'$awoken_goals'(LG), !,
 	'$creep',
 	'$wake_up_goal'(G, LG).
+'$spy'([_|Mod:G]) :- !,
+	'$spy'([Mod|G]).
 '$spy'([Module|G]) :-
 %    '$format'(user_error,"$spym(~w,~w)~n",[Module,G]),
          ( '$hidden'(G)
@@ -729,14 +731,14 @@ debugging :-
 '$creep_call_undefined'(A,M,CP) :-
 	functor(A,F,N),
 	'$recorded'('$import','$import'(S,M,F,N),_), !,
-	'$creep_call'(S:A,CP).
-'$creep_call_undefined'(G, M, _) :-
+	'$creep_call'(A,S,CP).
+'$creep_call_undefined'(G, M, CP) :-
 	( \+ '$undefined'(unknown_predicate_handler(_,_,_), user),
 	  user:unknown_predicate_handler(G,NM,NG) ->
-	  '$creep_call'(NM:NG) ;
+	  '$creep_call'(NG,NM,CP) ;
 	   '$is_dynamic'(G, M) -> fail ;
 	    '$recorded'('$unknown','$unknown'(M:G,US),_),
-	    '$creep_call'(user:US,_)
+	    '$creep_call'(US,M,CP)
         ).
 
 %'$creep'(G) :- $current_module(M),write(user_error,[creep,M,G]),nl(user_error),fail.

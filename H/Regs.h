@@ -10,7 +10,7 @@
 * File:		Regs.h							 *
 * mods:									 *
 * comments:	YAP abstract machine registers				 *
-* version:      $Id: Regs.h,v 1.7 2001-11-25 19:48:34 vsc Exp $	 *
+* version:      $Id: Regs.h,v 1.8 2001-12-07 20:27:03 vsc Exp $	 *
 *************************************************************************/
 
 
@@ -96,7 +96,7 @@ typedef struct
     Term   TermNil_;		/* 20                                         */
 #endif
 #endif
-    SMALLUNSGN  CurrentModulePtr_;
+    SMALLUNSGN  CurrentModule_;
 #if (defined(YAPOR) && defined(SBA)) || defined(TABLING)
     CELL *H_FZ_;
     choiceptr B_FZ_;
@@ -644,7 +644,7 @@ EXTERN inline void restore_B(void) {
 #ifdef COROUTINING
 #define DelayedVars   REGS.DelayedVars_
 #endif
-#define CurrentModule REGS.CurrentModulePtr_
+#define CurrentModule REGS.CurrentModule_
 
 #define REG_SIZE	sizeof(REGS)/sizeof(CELL *)
 

@@ -191,9 +191,9 @@ p_save_cp(void)
 }
 
 inline static Int
-EnterCreepMode(PredEntry *pen, Term t) {
+EnterCreepMode(void) {
   PredEntry *PredSpy = RepPredProp(PredPropByFunc(FunctorSpy,0));
-  ARG1 = MkPairTerm(Module_Name((CODEADDR)(pen)),t);
+  ARG1 = MkPairTerm(ModuleName[CurrentModule],ARG1);
   CreepFlag = CalculateStackGap();
   P_before_spy = P;
   return (CallPredicate(PredSpy, B));
@@ -202,7 +202,9 @@ EnterCreepMode(PredEntry *pen, Term t) {
 inline static Int
 do_execute(Term t, int mod)
 {
-  if (PredGoalExpansion->OpcodeOfPred != UNDEF_OPCODE) {
+  if (yap_flags[SPY_CREEP_FLAG]) {
+    return(EnterCreepMode());
+  } else if (PredGoalExpansion->OpcodeOfPred != UNDEF_OPCODE) {
     return(CallMetaCall(mod));
   }
  restart_exec:
@@ -234,9 +236,6 @@ do_execute(Term t, int mod)
       }
       return(CallMetaCall(mod));
     }
-    if (yap_flags[SPY_CREEP_FLAG]) {
-      return(EnterCreepMode(pen, t));
-    }
     /* now let us do what we wanted to do from the beginning !! */
     /* I cannot use the standard macro here because
        otherwise I would dereference the argument and
@@ -264,9 +263,6 @@ do_execute(Term t, int mod)
       return(FALSE);
     /* call may not define new system predicates!! */
     pe = RepPredProp(PredPropByAtom(a, mod));
-    if (yap_flags[SPY_CREEP_FLAG]) {
-      return(EnterCreepMode(pe, t));
-    }
     return (CallPredicate(pe, B));
   } else if (IsIntTerm(t)) {
     return CallError(TYPE_ERROR_CALLABLE, mod);
@@ -307,8 +303,11 @@ p_execute_within(void)
   SMALLUNSGN      mod = LookupModule(tmod);
 
  restart_exec:
-  if (PredGoalExpansion->OpcodeOfPred != UNDEF_OPCODE) {
+  if (yap_flags[SPY_CREEP_FLAG]) {
+    return(EnterCreepMode());
+  } else  if (PredGoalExpansion->OpcodeOfPred != UNDEF_OPCODE) {
     return(CallMetaCallWithin());
+    /* at this point check if we should enter creep mode */ 
   } else  if (IsVarTerm(t)) {
     return CallError(INSTANTIATION_ERROR, mod);
   } else if (IsApplTerm(t)) {
@@ -339,10 +338,6 @@ p_execute_within(void)
 	  }
 	}
 	return(CallMetaCallWithin());
-      }
-      /* at this point check if we should enter creep mode */ 
-      if (yap_flags[SPY_CREEP_FLAG]) {
-	return(EnterCreepMode(pen,t));
       }
       /* now let us do what we wanted to do from the beginning !! */
       /* I cannot use the standard macro here because
@@ -397,9 +392,6 @@ p_execute_within(void)
     } else {
       /* call may not define new system predicates!! */
       pe = PredPropByAtom(a, mod);
-      if (yap_flags[SPY_CREEP_FLAG]) {
-	return(EnterCreepMode(RepPredProp(pe),t));
-      }
       return (CallPredicate(RepPredProp(pe), B));
     }
   } else {
@@ -415,7 +407,9 @@ p_execute_within2(void)
   Term            t = Deref(ARG1);
   Prop            pe;
 
-  if (PredGoalExpansion->OpcodeOfPred != UNDEF_OPCODE) {
+  if (yap_flags[SPY_CREEP_FLAG]) {
+    return(EnterCreepMode());
+  } else if (PredGoalExpansion->OpcodeOfPred != UNDEF_OPCODE) {
     return(CallMetaCallWithin());
   } else  if (IsVarTerm(t)) {
     return CallError(INSTANTIATION_ERROR, CurrentModule);
@@ -441,9 +435,6 @@ p_execute_within2(void)
 	return(CallMetaCallWithin());
       }
       /* at this point check if we should enter creep mode */ 
-      if (yap_flags[SPY_CREEP_FLAG]) {
-	return(EnterCreepMode(pen,t));
-      }
       /* now let us do what we wanted to do from the beginning !! */
       /* I cannot use the standard macro here because
 	 otherwise I would dereference the argument and
@@ -494,9 +485,6 @@ p_execute_within2(void)
     }
     /* call may not define new system predicates!! */
     pe = PredPropByAtom(a, CurrentModule);
-    if (yap_flags[SPY_CREEP_FLAG]) {
-      return(EnterCreepMode(RepPredProp(pe),t));
-    }
     return (CallPredicate(RepPredProp(pe), B));
   } else if (IsIntTerm(t)) {
     return CallError(TYPE_ERROR_CALLABLE, CurrentModule);

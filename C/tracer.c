@@ -41,33 +41,17 @@ send_tracer_message(char *start, char *name, Int arity, char *mname, CELL *args)
 {
   if (name == NULL) {
 #ifdef  YAPOR
-#ifdef  DEPTH_LIMIT
-    YP_fprintf(YP_stderr, "(%d)%s (D:%ld)", worker_id, start, (CELL)IntegerOfTerm(DEPTH)/2);
-#else
     YP_fprintf(YP_stderr, "(%d)%s", worker_id, start);
-#endif
-#else
-#ifdef  DEPTH_LIMIT
-    YP_fprintf(YP_stderr, "%s (D:%ld)", start, (CELL)IntegerOfTerm(DEPTH)/2);
 #else
     YP_fprintf(YP_stderr, "%s", start);
-#endif
 #endif
   } else {
     int i;
 
     if (arity) {
-#ifdef  DEPTH_LIMIT
-      YP_fprintf(YP_stderr, "%s (D:%ld) %s:%s(", start, (CELL)IntegerOfTerm(DEPTH)/2, mname, name);
-#else
       YP_fprintf(YP_stderr, "%s %s:%s(", start, mname, name);
-#endif
     } else {
-#ifdef  DEPTH_LIMIT
-      YP_fprintf(YP_stderr, "%s (D:%ld) %s:%s", start, (CELL)IntegerOfTerm(DEPTH)/2, mname, name);
-#else
       YP_fprintf(YP_stderr, "%s %s:%s", start, mname, name);
-#endif
     }
     for (i= 0; i < arity; i++) {
       if (i > 0) YP_fprintf(YP_stderr, ",");
@@ -133,7 +117,7 @@ low_level_trace(yap_low_level_port port, PredEntry *pred, CELL *args)
   /* if (vsc_count < 13198050) return; */
   /* if (vsc_count > 500000) exit(0); */
   /* if (gc_calls < 1) return;*/
-  YP_fprintf(YP_stderr,"%lu ", vsc_count);
+  YP_fprintf(YP_stderr,"%lu (%x) ", vsc_count, CreepFlag);
   /* check_trail_consistency(); */
   if (pred == NULL) {
     return;
