@@ -1129,7 +1129,7 @@ Yap_absmi(int inp)
 	/* clear the entry from the trail */
 	TR = --(B->cp_tr);
 	/* actually get rid of the code */
-	if (cl->ref_count == 0 && cl->ClFlags & ErasedMask) {
+	if (cl->ClRefCount == 0 && cl->ClFlags & ErasedMask) {
 	  UNLOCK(cl->ClLock);
 	  /* I am the last one using this clause, hence I don't need a lock
 	     to dispose of it 
@@ -1208,7 +1208,6 @@ Yap_absmi(int inp)
 	setregs();
 
 #if defined(YAPOR) || defined(THREADS)
-
 	LOCK(cl->ClLock);
 	/* always add an extra reference */
 	INC_CLREF_COUNT(cl);
@@ -1253,7 +1252,6 @@ Yap_absmi(int inp)
 	/* say that an environment is using this clause */
 	/* we have our own copy for the clause */
 #if defined(YAPOR) || defined(THREADS)
-
 	LOCK(cl->ClLock);
 	/* always add an extra reference */
 	INC_CLREF_COUNT(cl);
@@ -1619,7 +1617,7 @@ Yap_absmi(int inp)
 		int erase;
 		LOCK(cl->ClLock);
 		DEC_CLREF_COUNT(cl);
-		erase = (cl->ClFlags & ErasedMask) && (cl->ref_count == 0);
+		erase = (cl->ClFlags & ErasedMask) && !(cl->ClRefCount);
 		UNLOCK(cl->ClLock);
 		if (erase) {
 		  saveregs();
@@ -1628,12 +1626,13 @@ Yap_absmi(int inp)
 		     hence we don't need to have a lock it */
 		  Yap_ErLogUpdCl(cl);
 		  setregs();
+		}
 	      } else {
 		DynamicClause *cl = ClauseFlagsToDynamicClause(pt1);
 		int erase;
 		LOCK(cl->ClLock);
 		DEC_CLREF_COUNT(cl);
-		erase = (cl->ClFlags & ErasedMask) && (cl->ref_count == 0);
+		erase = (cl->ClFlags & ErasedMask) && !(cl->ClRefCount);
 		UNLOCK(cl->ClLock);
 		if (erase) {
 		  saveregs();
@@ -6359,17 +6358,10 @@ Yap_absmi(int inp)
 	we do not lock access to the predicate,
 	we must take extra care here
       */
-      /*
-	Ideally, this code should only be executed by
-	dynamic procedures in YAPOR. Unfortunately, it also seems
-	to be executed when 
-	running a procedure from within the file that defines it.
-      */
-      /* THIS SHOULD BE AN ERROR !!!!! */
       if (PredFromDefCode(PREG)->OpcodeOfPred != INDEX_OPCODE) {
 	/* someone was here before we were */
 	Yap_Error(SYSTEM_ERROR,TermNil,"Bad locking");
-	PREG = FAILCODE;
+	PREG = PredFromDefCode(PREG)->CodeOfPred;
 	WRITE_UNLOCK(PredFromDefCode(PREG)->PRWLock);
 	JMPNext();
       }

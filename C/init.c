@@ -1105,7 +1105,7 @@ Yap_InitStacks(int Heap,
 #endif /* PUSH_REGS */
 
 #ifdef THREADS
-  regp->worker_id_ = 0;
+  Yap_regp->worker_id_ = 0;
 #endif
   /* Init signal handling and time */
   /* also init memory page size, required by later functions */

@@ -156,7 +156,7 @@ CallClause(PredEntry *pen, Int position)
 	
 	LOCK(cl->ClLock);
 	TRAIL_CLREF(cl);
-	INC_DBREF_COUNT(cl);
+	INC_CLREF_COUNT(cl);
 	UNLOCK(cl->ClLock);
       }
 #else 

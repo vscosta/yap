@@ -2351,10 +2351,13 @@ emit_optry(int var_group, int first, int clauses, int clleft, PredEntry *ap)
       return trust_op;
     }
   } else if (clleft == 0) {
+#ifdef TABLING
     if (ap->PredFlags & TabledPredFlag && !first) {
       /* we never actually get to remove the last choice-point in this case */
       return retry_op;
-    } else {
+    } else
+#endif
+    {
       /* last group */
       return try_op;
     }
@@ -2862,6 +2865,7 @@ emit_protection_choicepoint(int first, int clleft, UInt nxtlbl, PredEntry *ap)
     /* !first */
     if (clleft) {
       Yap_emit(retryme_op, nxtlbl, (clleft << 1));
+#ifdef TABLING
     } else if ((ap->PredFlags & TabledPredFlag)) {
       /*
 	we cannot get rid of the choice-point for tabled predicates, all
@@ -2870,6 +2874,7 @@ emit_protection_choicepoint(int first, int clleft, UInt nxtlbl, PredEntry *ap)
       */
       Yap_emit(retryme_op, (CELL)TRUSTFAILCODE, 0);
     } else {
+#endif
       Yap_emit(trustme_op, 0, 0);
     }
   }
@@ -6203,7 +6208,7 @@ Yap_FollowIndexingCode(PredEntry *ap, yamop *ipc, Term t1, Term tb, Term tr, yam
 	/* clear the entry from the trail */
 	TR = --(B->cp_tr);
 	/* actually get rid of the code */
-	if (cl->ref_count == 0 && cl->ClFlags & ErasedMask) {
+	if (cl->ClRefCount == 0 && cl->ClFlags & ErasedMask) {
 	  UNLOCK(cl->ClLock);
 	  /* I am the last one using this clause, hence I don't need a lock
 	     to dispose of it 

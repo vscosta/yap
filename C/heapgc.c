@@ -1949,7 +1949,7 @@ sweep_trail(choiceptr gc_B, tr_fr_ptr old_TR)
 		indx->ClFlags &= ~InUseMask;
 		erase = (indx->ClFlags & ErasedMask)
 #if  defined(YAPOR) || defined(THREADS)
-		  && (indx->ref_count == 0)
+		  && (indx->ClRefCount == 0)
 #endif
 		  ;
 		if (erase) {
@@ -1964,7 +1964,7 @@ sweep_trail(choiceptr gc_B, tr_fr_ptr old_TR)
 		cl->ClFlags &= ~InUseMask;
 		erase = (cl->ClFlags & ErasedMask)
 #if  defined(YAPOR) || defined(THREADS)
-		  && (cl->ref_count == 0)
+		  && (cl->ClRefCount == 0)
 #endif
 		  ;
 		if (erase) {
@@ -1980,7 +1980,7 @@ sweep_trail(choiceptr gc_B, tr_fr_ptr old_TR)
 	      cl->ClFlags &= ~InUseMask;
 	      erase = (cl->ClFlags & ErasedMask)
 #if  defined(YAPOR) || defined(THREADS)
-		&& (cl->ref_count == 0)
+		&& (cl->ClRefCount == 0)
 #endif
 	      ;
 	      if (erase) {

@@ -3049,10 +3049,10 @@ fetch_next_lu_clause(PredEntry *pe, yamop *i_code, Term th, Term tb, Term tr, ya
     return FALSE;
   }
   rtn = MkDBRefTerm((DBRef)cl);
-#if defined(OR) || defined(THREADS)
+#if defined(YAPOR) || defined(THREADS)
   LOCK(cl->ClLock);
   TRAIL_CLREF(cl);		/* So that fail will erase it */
-  INC_DBREF_COUNT(cl);
+  INC_CLREF_COUNT(cl);
   UNLOCK(cl->ClLock);
 #else
   if (!(cl->ClFlags & InUseMask)) {
@@ -3325,7 +3325,7 @@ p_nth_clause(void)
 #if defined(YAPOR) || defined(THREADS)
     LOCK(cl->ClLock);
     TRAIL_CLREF(cl);		/* So that fail will erase it */
-    INC_DBREF_COUNT(cl);
+    INC_CLREF_COUNT(cl);
     UNLOCK(cl->ClLock);
 #else
     if (!(cl->ClFlags & InUseMask)) {

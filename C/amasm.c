@@ -2067,8 +2067,8 @@ do_pass(void)
 	cl_u->luc.ClExt = NULL;
 	cl_u->luc.ClPrev = cl_u->luc.ClNext = NULL;
 #if defined(YAPOR) || defined(THREADS)
-	INIT_LOCK(cl_u.luc->ClLock);
-	INIT_CLREF_COUNT(cl_u.luc);
+	INIT_LOCK(cl_u->luc.ClLock);
+	INIT_CLREF_COUNT(&(cl_u->luc));
 #endif
       }
       code_p = cl_u->luc.ClCode;
@@ -2080,8 +2080,8 @@ do_pass(void)
 	}
 	cl_u->ic.ClRefCount = 0;
 #if defined(YAPOR) || defined(THREADS)
-	INIT_LOCK(cl_u.ic->ClLock);
-	INIT_CLREF_COUNT(cl_u.ic);
+	INIT_LOCK(cl_u->ic.ClLock);
+	INIT_CLREF_COUNT(&(cl_u->ic));
 #endif
       }
       code_p = cl_u->ic.ClCode;

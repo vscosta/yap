@@ -2606,7 +2606,7 @@ new_lu_entry(Term t)
     WRITE_LOCK(RepAtom(at)->ARWLock);
     p0 = Yap_NewPredPropByAtom(at,2);
   } else {
-    WRITE_LOCK(f->FRWLock);
+    WRITE_LOCK(FunctorList->FRWLock);
     p0 = Yap_NewPredPropByFunctor(FunctorList,2);
   }
   pe = RepPredProp(p0);
@@ -3729,7 +3729,7 @@ find_next_clause(DBRef ref0)
 
       LOCK(cl->ClLock);
       TRAIL_CLREF(cl);
-      INC_DBREF_COUNT(cl);
+      INC_CLREF_COUNT(cl);
       UNLOCK(cl->ClLock);
     }
 #else 
