@@ -84,6 +84,9 @@ extern X_API YAP_Term PROTO(YAP_MkVarTerm,(void));
 /*  YAP_Bool IsIntTerm(YAP_Term)  */
 extern X_API YAP_Bool PROTO(YAP_IsIntTerm,(YAP_Term));
 
+/*  YAP_Bool IsBigNumTerm(YAP_Term)  */
+extern X_API YAP_Bool PROTO(YAP_IsBigNumTerm,(YAP_Term));
+
 /*  YAP_Bool IsFloatTerm(YAP_Term)  */
 extern X_API YAP_Bool PROTO(YAP_IsFloatTerm,(YAP_Term));
 
@@ -102,8 +105,14 @@ extern X_API YAP_Bool PROTO(YAP_IsApplTerm,(YAP_Term));
 /*    Term MkIntTerm(long int)  */
 extern X_API YAP_Term PROTO(YAP_MkIntTerm,(long int));
 
+/*    Term MkBigNumTerm(void *)  */
+extern X_API YAP_Term PROTO(YAP_MkBigNumTerm,(void *));
+
 /*    long int  IntOfTerm(Term) */
 extern X_API long int PROTO(YAP_IntOfTerm,(YAP_Term));
+
+/*    long int  BigNumOfTerm(Term) */
+extern X_API void *PROTO(YAP_BigNumOfTerm,(YAP_Term));
 
 /*    Term MkFloatTerm(double)  */
 extern X_API YAP_Term PROTO(YAP_MkFloatTerm,(double));

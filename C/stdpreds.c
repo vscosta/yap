@@ -11,8 +11,11 @@
 * File:		stdpreds.c						 *
 * comments:	General-purpose C implemented system predicates		 *
 *									 *
-* Last rev:     $Date: 2004-05-14 16:33:45 $,$Author: vsc $						 *
+* Last rev:     $Date: 2004-05-14 17:11:30 $,$Author: vsc $						 *
 * $Log: not supported by cvs2svn $
+* Revision 1.67  2004/05/14 16:33:45  vsc
+* add Yap_ReadBuffer
+*
 * Revision 1.66  2004/05/13 20:54:58  vsc
 * debugger fixes
 * make sure we always go back to current module, even during initizlization.
@@ -56,8 +59,6 @@ static char     SccsId[] = "%W% %G%";
 STD_PROTO(static Int p_setval, (void));
 STD_PROTO(static Int p_value, (void));
 STD_PROTO(static Int p_values, (void));
-STD_PROTO(static Int p_flipflop, (void));
-STD_PROTO(static Int p_setflop, (void));
 #ifdef undefined
 STD_PROTO(static CODEADDR *FindAtom, (CODEADDR, int *));
 #endif /* undefined */

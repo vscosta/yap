@@ -5,13 +5,16 @@ YAP_MkVarTerm
 YAP_IsVarTerm
 YAP_IsNonVarTerm
 YAP_IsIntTerm
+YAP_IsBigNumTerm
 YAP_IsFloatTerm
 YAP_IsDbRefTerm
 YAP_IsAtomTerm
 YAP_IsPairTerm
 YAP_IsApplTerm
 YAP_MkIntTerm
+YAP_MkBigNumTerm
 YAP_IntOfTerm
+YAP_BigNumOfTerm
 YAP_MkFloatTerm
 YAP_FloatOfTerm
 YAP_AtomOfTerm

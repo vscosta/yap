@@ -13434,7 +13434,7 @@ The following primitives are provided for creating an integer term from an
 integer and to access the value of an integer term.
 @example
       YAP_Term YAP_MkIntTerm(YAP_Int  @var{i})
-      YAP_Int  YAP_IntOfTerm(YAP_YAP_Term @var{t})
+      YAP_Int  YAP_IntOfTerm(YAP_Term @var{t})
 @end example
 @noindent
 where @code{YAP_Int} is a typedef for the C integer type appropriate for
@@ -13448,11 +13448,26 @@ on 64 bit machines.
 The two following primitives play a similar role for floating-point terms
 @example
       YAP_Term YAP_MkFloatTerm(YAP_flt @var{double})
-      YAP_flt  YAP_FloatOfTerm(YAP_YAP_Term @var{t})
+      YAP_flt  YAP_FloatOfTerm(YAP_Term @var{t})
 @end example
 @noindent
 where @code{flt} is a typedef for the appropriate C floating point type,
 nowadays a @code{double}
+
+@findex YAP_IsBigNumTerm (C-Interface function)
+@findex YAP_MkBigNumTerm (C-Interface function)
+@findex YAP_BigNumOfTerm (C-Interface function)
+The following primitives are provided for verifying whether a term is
+a big int, creating a term from a big integer and to access the value
+of a big int from a term.
+@example
+      YAP_Term YAP_MkBigNumTerm(YAP_Int  @var{i})
+      YAP_Int  YAP_BigNumOfTerm(YAP_Term @var{t})
+@end example
+@noindent
+YAP must support bignum for the configuration you are using (check
+the YAP configuration and setup). For now, Yap only supports the GNU
+GMP library and the @code{MP_INT *} type.
 
 Currently, no primitives are supplied to users for manipulating data base
 references. 
@@ -13464,7 +13479,7 @@ A special typedef @code{YAP_Atom} is provided to describe prolog
 to manipulate atom terms
 @example
       YAP_Term YAP_MkAtomTerm(YAP_Atom at)
-      YAP_Atom YAP_AtomOfTerm(YAP_YAP_Term @var{t})
+      YAP_Atom YAP_AtomOfTerm(YAP_Term @var{t})
 @end example
 @noindent
 @findex YAP_LookupAtom (C-Interface function)
@@ -13514,7 +13529,7 @@ functors
       YAP_Term     YAP_MkApplTerm(YAP_Functor @var{f}, unsigned long int @var{n}, YAP_Term[] @var{args})
       YAP_Term     YAP_MkNewApplTerm(YAP_Functor @var{f}, int @var{n})
       YAP_Term     YAP_ArgOfTerm(int argno,YAP_Term @var{ts})
-      YAP_Functor  YAP_FunctorOfTerm(YAP_YAP_Term @var{ts})
+      YAP_Functor  YAP_FunctorOfTerm(YAP_Term @var{ts})
 @end example
 @noindent
 The @code{YAP_MkApplTerm} function constructs a new term, with functor

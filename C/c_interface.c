@@ -10,8 +10,11 @@
 * File:		c_interface.c						 *
 * comments:	c_interface primitives definition 			 *
 *									 *
-* Last rev:	$Date: 2004-05-14 16:33:44 $,$Author: vsc $						 *
-* $Log: not supported by cvs2svn $									 *
+* Last rev:	$Date: 2004-05-14 17:11:30 $,$Author: vsc $						 *
+* $Log: not supported by cvs2svn $
+* Revision 1.44  2004/05/14 16:33:44  vsc
+* add Yap_ReadBuffer
+*									 *
 *									 *
 *************************************************************************/
 
@@ -49,13 +52,16 @@ X_API Term    STD_PROTO(YAP_MkVarTerm,(void));
 X_API Bool    STD_PROTO(YAP_IsVarTerm,(Term));
 X_API Bool    STD_PROTO(YAP_IsNonVarTerm,(Term));
 X_API Bool    STD_PROTO(YAP_IsIntTerm,(Term));
+X_API Bool    STD_PROTO(YAP_IsBigNumTerm,(Term));
 X_API Bool    STD_PROTO(YAP_IsFloatTerm,(Term));
 X_API Bool    STD_PROTO(YAP_IsDbRefTerm,(Term));
 X_API Bool    STD_PROTO(YAP_IsAtomTerm,(Term));
 X_API Bool    STD_PROTO(YAP_IsPairTerm,(Term));
 X_API Bool    STD_PROTO(YAP_IsApplTerm,(Term));
 X_API Term    STD_PROTO(YAP_MkIntTerm,(Int));
+X_API Term    STD_PROTO(YAP_MkBigNumTerm,(void *));
 X_API Int     STD_PROTO(YAP_IntOfTerm,(Term));
+X_API void   *STD_PROTO(YAP_BigNumOfTerm,(Term));
 X_API Term    STD_PROTO(YAP_MkFloatTerm,(flt));
 X_API flt     STD_PROTO(YAP_FloatOfTerm,(Term));
 X_API Term    STD_PROTO(YAP_MkAtomTerm,(Atom));
@@ -153,7 +159,17 @@ YAP_Deref(Term t)
 X_API Bool 
 YAP_IsIntTerm(Term t)
 {
-  return (IsIntegerTerm(t));
+  return IsIntegerTerm(t);
+}
+
+X_API Bool 
+YAP_IsBigNumTerm(Term t)
+{
+#if USE_GMP
+  return IsIntegerTerm(t);
+#else
+  return FALSE;
+#endif
 }
 
 X_API Bool 
@@ -214,9 +230,39 @@ X_API Int
 YAP_IntOfTerm(Term t)
 {
   if (!IsApplTerm(t))
-    return (IntOfTerm(t));
-  else
-    return(LongIntOfTerm(t));
+    return IntOfTerm(t);
+  else {
+    return LongIntOfTerm(t);
+  }
+}
+
+X_API Term 
+YAP_MkBigNumTerm(void *big)
+{
+#if USE_GMP
+  Term I;
+  BACKUP_H();
+
+  I = Yap_MkBigIntTerm((MP_INT *)big);
+  RECOVER_H();
+  return I;
+#else
+  return TermNil;
+#endif /* USE_GMP */
+}
+
+X_API void * 
+YAP_BigNumOfTerm(Term t)
+{
+#if USE_GMP
+  if (IsVarTerm(t))
+    return NULL;
+  if (!IsBigIntTerm(t))
+    return NULL;
+  return (void *)Yap_BigIntOfTerm(t); 
+#else
+  return NULL;
+#endif /* USE_GMP */
 }
 
 X_API Term 
