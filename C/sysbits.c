@@ -1124,35 +1124,31 @@ InteractSIGINT(int ch) {
       siglongjmp (Yap_RestartEnv, 1);
 #endif
     }
-    return(-1);
+    return -1;
   case 'c':
     /* continue */
-    return(1);
+    return 1;
   case 'd':
+    Yap_signal (YAP_DEBUG_SIGNAL);
     /* enter debug mode */
-    Yap_PutValue (Yap_LookupAtom ("debug"), MkIntTerm (1));
-    return(1);
+    return 1;
   case 'e':
     /* exit */
     Yap_exit(0);
-    return(-1);
+    return -1;
   case 't':
     /* start tracing */
-    Yap_PutValue (Yap_LookupAtom ("debug"), MkIntTerm (1));
-    Yap_PutValue (Yap_LookupAtom ("spy_sl"), MkIntTerm (0));
-    Yap_PutValue (Yap_FullLookupAtom ("$trace"), MkIntTerm (1));
-    yap_flags[SPY_CREEP_FLAG] = 1;
-    Yap_signal (YAP_CREEP_SIGNAL);
-    return(1);
+    Yap_signal (YAP_TRACE_SIGNAL);
+    return 1;
 #ifdef LOW_LEVEL_TRACER
   case 'T':
     toggle_low_level_trace();
-    return(1);
+    return 1;
 #endif
   case 's':
     /* show some statistics */
-    Yap_show_statistics();
-    return(1);
+    Yap_signal (YAP_STATISTICS_SIGNAL);
+    return 1;
   case EOF:
     return(0);
     break;
@@ -2166,6 +2162,31 @@ p_first_signal(void)
     UNLOCK(SignalLock);
     return Yap_unify(ARG1, MkAtomTerm(Yap_LookupAtom("sig_creep")));
   }
+  if (ActiveSignals & YAP_TRACE_SIGNAL) {
+    ActiveSignals &= ~YAP_TRACE_SIGNAL;
+    UNLOCK(SignalLock);
+    return Yap_unify(ARG1, MkAtomTerm(Yap_LookupAtom("sig_trace")));
+  }
+  if (ActiveSignals & YAP_DEBUG_SIGNAL) {
+    ActiveSignals &= ~YAP_DEBUG_SIGNAL;
+    UNLOCK(SignalLock);
+    return Yap_unify(ARG1, MkAtomTerm(Yap_LookupAtom("sig_debug")));
+  }
+  if (ActiveSignals & YAP_BREAK_SIGNAL) {
+    ActiveSignals &= ~YAP_BREAK_SIGNAL;
+    UNLOCK(SignalLock);
+    return Yap_unify(ARG1, MkAtomTerm(Yap_LookupAtom("sig_break")));
+  }
+  if (ActiveSignals & YAP_STACK_DUMP_SIGNAL) {
+    ActiveSignals &= ~YAP_STACK_DUMP_SIGNAL;
+    UNLOCK(SignalLock);
+    return Yap_unify(ARG1, MkAtomTerm(Yap_LookupAtom("sig_stack_dump")));
+  }
+  if (ActiveSignals & YAP_STATISTICS_SIGNAL) {
+    ActiveSignals &= ~YAP_STATISTICS_SIGNAL;
+    UNLOCK(SignalLock);
+    return Yap_unify(ARG1, MkAtomTerm(Yap_LookupAtom("sig_statistics")));
+  }
   UNLOCK(SignalLock);
   return FALSE;
 }
@@ -2194,6 +2215,21 @@ p_continue_signals(void)
   }
   if (ActiveSignals & YAP_CREEP_SIGNAL) {
     Yap_signal(YAP_CREEP_SIGNAL);
+  }
+  if (ActiveSignals & YAP_TRACE_SIGNAL) {
+    Yap_signal(YAP_TRACE_SIGNAL);
+  }
+  if (ActiveSignals & YAP_DEBUG_SIGNAL) {
+    Yap_signal(YAP_DEBUG_SIGNAL);
+  }
+  if (ActiveSignals & YAP_BREAK_SIGNAL) {
+    Yap_signal(YAP_BREAK_SIGNAL);
+  }
+  if (ActiveSignals & YAP_STACK_DUMP_SIGNAL) {
+    Yap_signal(YAP_STACK_DUMP_SIGNAL);
+  }
+  if (ActiveSignals & YAP_STATISTICS_SIGNAL) {
+    Yap_signal(YAP_STATISTICS_SIGNAL);
   }
   return TRUE;
 }

@@ -10,7 +10,7 @@
 * File:		Yap.h.m4						 *
 * mods:									 *
 * comments:	main header file for YAP				 *
-* version:      $Id: Yap.h.m4,v 1.70 2004-10-06 16:55:48 vsc Exp $	 *
+* version:      $Id: Yap.h.m4,v 1.71 2004-10-08 17:20:03 vsc Exp $	 *
 *************************************************************************/
 
 #include "config.h"
@@ -564,7 +564,12 @@ typedef enum {
   YAP_ITI_SIGNAL     =  0x80,		/* received inter thread signal */
   YAP_TROVF_SIGNAL   = 0x100,		/* received trail overflow */
   YAP_CDOVF_SIGNAL   = 0x200,		/* received code overflow */
-  YAP_STOVF_SIGNAL   = 0x400		/* received stack overflow */
+  YAP_STOVF_SIGNAL   = 0x400,		/* received stack overflow */
+  YAP_TRACE_SIGNAL   = 0x800,		/* received start trace */
+  YAP_DEBUG_SIGNAL   = 0x1000,		/* received start debug */
+  YAP_BREAK_SIGNAL   = 0x2000,		/* received break signal */
+  YAP_STACK_DUMP_SIGNAL= 0x4000,	/* received stack dump signal */
+  YAP_STATISTICS_SIGNAL= 0x8000		/* received statistics */
 } yap_signals;
 
 #define NUMBER_OF_YAP_FLAGS     INDEXING_MODE_FLAG+1

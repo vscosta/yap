@@ -38,7 +38,30 @@
 	% if more signals alive, set creep flag
 	'$continue_signals',
 	'$current_module'(M0),
-	'$execute0'((Goal,M:G),M0).
+	'$execute0'(G,M0).
+'$do_signal'(sig_trace, G) :-
+	'$continue_signals',
+	trace.
+'$do_signal'(sig_debug, G) :-
+	'$continue_signals',
+	'$current_module'(M0),
+	debug,
+	'$execute0'(G,M0).
+'$do_signal'(sig_break, G) :-
+	'$continue_signals',
+	'$current_module'(M0),
+	break,
+	'$execute0'(G,M0).
+'$do_signal'(sig_statistics, G) :-
+	'$continue_signals',
+	'$current_module'(M0),
+	statistics,
+	'$execute0'(G,M0).
+'$do_signal'(sig_stack_dump, G) :-
+	'$continue_signals',
+	'$current_module'(M0),
+	'$stack_dump',
+	'$execute0'(G,M0).
 % Unix signals
 '$do_signal'(sig_alarm, G) :-
 	'$signal_handler'(sig_alarm, G).
