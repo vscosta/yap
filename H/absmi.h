@@ -895,15 +895,14 @@ Macros to check the limits of stacks
 #endif /* TABLING */
 
 #define pop_yaam_regs()                                           \
-                 { register CELL *ptr1;                           \
+                 {                                                \
                    H = PROTECT_FROZEN_H(B_YREG);                  \
 		   B = B_YREG->cp_b;	                          \
                    pop_yaam_reg_cpdepth(B_YREG);                  \
 		   CPREG = B_YREG->cp_cp;		          \
-		   ptr1 = B_YREG->cp_env;			  \
+		   ENV = B_YREG->cp_env;			  \
                    TABLING_close_alt(B_YREG);	                  \
                    HBREG = PROTECT_FROZEN_H(B);		          \
-                   ENV = ptr1;                                    \
                  }
 
 #define pop_args(NArgs)                                           \
