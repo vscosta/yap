@@ -2009,10 +2009,8 @@ p_set_yap_flags(void)
       return(FALSE);
     if (value == 1) {
       heap_regs->pred_meta_call = RepPredProp(PredPropByFunc(MkFunctor(AtomMetaCall,4),0));
-      set_fpu_exceptions(TRUE);
     } else {
       heap_regs->pred_meta_call = RepPredProp(PredPropByFunc(MkFunctor(AtomMetaCall,4),0));
-      set_fpu_exceptions(FALSE);
     }
     yap_flags[LANGUAGE_MODE_FLAG] = value;
     break;

@@ -33,7 +33,7 @@
 #define YAP_BOOT_FROM_SAVED_STACKS 2
 #define YAP_BOOT_FROM_SAVED_ERROR  -1
 
-#if defined(_MSC_VER) && defined(YAPDLL_EXPORTS)
+#if defined(_MSC_VER) && defined(YAP_EXPORTS)
 #define X_API __declspec(dllexport)
 #else
 #define X_API

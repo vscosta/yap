@@ -18,7 +18,7 @@
 * Last rev:	December 90						 *
 * mods:									 *
 * comments:	Tag Scheme for machines with 24 bits adresses (m68000)   *
-* version:      $Id: Tags_24bits.h,v 1.7 2002-01-05 04:04:14 vsc Exp $	 *
+* version:      $Id: Tags_24bits.h,v 1.8 2002-02-04 16:12:54 vsc Exp $	 *
 *************************************************************************/
 
      /*   Version for 24 bit	addresses (68000)

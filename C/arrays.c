@@ -282,7 +282,7 @@ p_access_array(void)
   Term t = Deref(ARG1);
   Term ti = Deref(ARG2);
   Term tf;
-  UInt indx;
+  Int indx;
 
   if (IsNonVarTerm(ti)) {
     union arith_ret v;
@@ -1344,7 +1344,7 @@ p_assign_static(void)
 	Error(TYPE_ERROR_ARRAY,t1,"update_array");
 	return(FALSE);
       }
-      if (indx > 0 && (UInt)indx > ArityOfFunctor(f)) {
+      if (indx > 0 && indx > ArityOfFunctor(f)) {
 	Error(DOMAIN_ERROR_ARRAY_OVERFLOW,t2,"update_array");
 	return(FALSE);
       }

@@ -204,7 +204,6 @@ typedef	struct pred_entry {
   Prop	NextOfPE;	/* used to chain properties	    	*/
   PropFlags	KindOfPE;	/* kind of property		    	*/
   unsigned int  ArityOfPE;	/* arity of property		    	*/
-  int		ModuleOfPred;	/* module for this definition		*/
   CELL	        PredFlags;
   CODEADDR	CodeOfPred;	/* code address		    		*/
   CODEADDR	TrueCodeOfPred;	/* if needing to spy or to lock 	*/
@@ -218,6 +217,7 @@ typedef	struct pred_entry {
 #ifdef TABLING
   tab_ent_ptr   TableOfPred;
 #endif /* TABLING */
+  SMALLUNSGN	ModuleOfPred;	/* module for this definition		*/
   OPCODE        OpcodeOfPred;	/* undefcode, indexcode, spycode, ....  */
   profile_data  StatisticsForPred; /* enable profiling for predicate  */
   SMALLUNSGN	StateOfPred;	/* actual state of predicate 		*/

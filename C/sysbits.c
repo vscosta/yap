@@ -294,18 +294,25 @@ void cputime_interval(Int *now,Int *interval)
 
 static FILETIME StartOfTimes, last_time;
 
+static clock_t TimesStartOfTimes, Times_last_time;
+
 /* store user time in this variable */
 static void
 InitTime (void)
 {
   HANDLE hProcess = GetCurrentProcess();
   FILETIME CreationTime, ExitTime, KernelTime, UserTime;
-  if (!GetProcessTimes(hProcess, &CreationTime, &ExitTime, &KernelTime, &UserTime)) 
-    WinError("could not query cputime");
-  last_time.dwLowDateTime = UserTime.dwLowDateTime;
-  last_time.dwHighDateTime = UserTime.dwHighDateTime;
-  StartOfTimes.dwLowDateTime = UserTime.dwLowDateTime;
-  StartOfTimes.dwHighDateTime = UserTime.dwHighDateTime;
+  if (!GetProcessTimes(hProcess, &CreationTime, &ExitTime, &KernelTime, &UserTime)) {
+    /* WIN98 */
+    clock_t t;
+    t = clock ();
+    Times_last_time = TimesStartOfTimes = t;
+  } else {
+    last_time.dwLowDateTime = UserTime.dwLowDateTime;
+    last_time.dwHighDateTime = UserTime.dwHighDateTime;
+    StartOfTimes.dwLowDateTime = UserTime.dwLowDateTime;
+    StartOfTimes.dwHighDateTime = UserTime.dwHighDateTime;
+  }
 }
 
 Int
@@ -313,10 +320,12 @@ cputime (void)
 {
   HANDLE hProcess = GetCurrentProcess();
   FILETIME CreationTime, ExitTime, KernelTime, UserTime;
-  if (!GetProcessTimes(hProcess, &CreationTime, &ExitTime, &KernelTime, &UserTime)) 
-    WinError("could not query cputime");
+  if (!GetProcessTimes(hProcess, &CreationTime, &ExitTime, &KernelTime, &UserTime)) {
+    clock_t t;
+    t = clock ();
+    return(((t - TimesStartOfTimes)*1000) / CLOCKS_PER_SEC);
+  } else {
 #ifdef __GNUC__
-  {
     unsigned long long int t =
       *(unsigned long long int *)&UserTime - 
       *(unsigned long long int *)&StartOfTimes;
@@ -324,7 +333,7 @@ cputime (void)
     return((Int)t);
 #endif
 #ifdef _MSC_VER
-    LONG_INTEGER t = *(LONG_INTEGER *)&UserTime - *(LONG_INTEGER *)&StartOfTimes;
+    __int64 t = *(__int64 *)&UserTime - *(__int64 *)&StartOfTimes;
     return((Int)(t/10000));
 #endif
   }
@@ -334,9 +343,13 @@ void cputime_interval(Int *now,Int *interval)
 {
   HANDLE hProcess = GetCurrentProcess();
   FILETIME CreationTime, ExitTime, KernelTime, UserTime;
-  if (!GetProcessTimes(hProcess, &CreationTime, &ExitTime, &KernelTime, &UserTime)) 
-    WinError("could not query cputime");
-  {
+  if (!GetProcessTimes(hProcess, &CreationTime, &ExitTime, &KernelTime, &UserTime)) {
+    clock_t t;
+    t = clock ();
+    *now = ((t - TimesStartOfTimes)*1000) / CLOCKS_PER_SEC;
+    *interval = (t - Times_last_time) * 1000 / CLOCKS_PER_SEC;
+    Times_last_time = t;
+  } else {
 #ifdef __GNUC__
     unsigned long long int t1 =
       *(unsigned long long int *)&UserTime -
@@ -350,8 +363,8 @@ void cputime_interval(Int *now,Int *interval)
     *interval = (Int)t2;
 #endif
 #ifdef _MSC_VER
-    LONG_INTEGER t1 = *(LONG_INTEGER *)&UserTime - *(LONG_INTEGER *)&StartOfTimes;
-    LONG_INTEGER t2 = *(LONG_INTEGER *)&UserTime - *(LONG_INTEGER *)&last_time;
+    __int64 t1 = *(__int64 *)&UserTime - *(__int64 *)&StartOfTimes;
+    __int64 t2 = *(__int64 *)&UserTime - *(__int64 *)&last_time;
     *now = (Int)(t1/10000);
     *interval = (Int)(t2/10000);
 #endif
@@ -882,8 +895,8 @@ HandleMatherr(int  sig, siginfo_t *sip, ucontext_t *uap)
   default:
     error_no = EVALUATION_ERROR_UNDEFINED;
   }
-  YAP_matherror = error_no;
-  siglongjmp(RestartEnv, 2);  
+  set_fpu_exceptions(0);
+  Error(error_no, TermNil, "");
 }
 
 
@@ -950,11 +963,6 @@ STATIC_PROTO (void my_signal, (int, void (*)(int)));
 #include <fenv.h>
 #endif
 
-#ifdef __linux__
-/* fetestexcept does not seem to work in linux :-( :-( */
-#undef HAVE_FETESTEXCEPT
-#endif
-
 static RETSIGTYPE
 HandleMatherr(int sig)
 {
@@ -964,7 +972,6 @@ HandleMatherr(int sig)
   
   int raised = fetestexcept(FE_ALL_EXCEPT);
 
-  feclearexcept(FE_ALL_EXCEPT);
   if (raised & FE_OVERFLOW) {
     YAP_matherror = EVALUATION_ERROR_FLOAT_OVERFLOW;
   } else if (raised & (FE_INVALID|FE_INEXACT)) {
@@ -973,18 +980,12 @@ HandleMatherr(int sig)
     YAP_matherror = EVALUATION_ERROR_ZERO_DIVISOR;
   } else if (raised & FE_UNDERFLOW) {
     YAP_matherror = EVALUATION_ERROR_FLOAT_UNDERFLOW;
-  } else {
-    YAP_matherror = EVALUATION_ERROR_UNDEFINED;
-  }
-    else
+  } else
 #endif
-      YAP_matherror = EVALUATION_ERROR_UNDEFINED;
+    YAP_matherror = EVALUATION_ERROR_UNDEFINED;
   /* something very bad happened on the way to the forum */
-  my_signal (SIGFPE, HandleMatherr);
-  /* do a longjmp because Linux is an idiot, and it makes our life
-     easier anyway, but not an abort!!
-  */ 
-  siglongjmp(RestartEnv, 2);  
+  set_fpu_exceptions(FALSE);
+  Error(YAP_matherror, TermNil, "");
 }
 
 static void
@@ -1064,7 +1065,7 @@ void (*handler)(int);
 
 
 static int
-InteractSIGINT(char ch) {
+InteractSIGINT(int ch) {
   switch (ch) {
   case 'a':
     /* abort computation */
@@ -1278,7 +1279,7 @@ ReceiveSignal (int s)
     {
 #ifndef MPW
     case SIGFPE:
-      my_signal (SIGFPE, HandleMatherr);
+      set_fpu_exceptions(FALSE);
       Error (SYSTEM_ERROR, TermNil, "floating point exception ]");
       break;
 #endif
@@ -1948,7 +1949,8 @@ DoTimerThread(LPVOID targ)
   LARGE_INTEGER liDueTime;
 
   htimer = CreateWaitableTimer(NULL,FALSE,NULL);
-  liDueTime.QuadPart =  -10000000LL*time;
+  liDueTime.QuadPart =  -10000000;
+  liDueTime.QuadPart *=  time;
   /* Copy the relative time into a LARGE_INTEGER. */
   if (SetWaitableTimer(htimer, &liDueTime,0,NULL,NULL,0) == 0) {
     return(FALSE);
@@ -1959,6 +1961,9 @@ DoTimerThread(LPVOID targ)
   /* now, say what is going on */
   PutValue(AtomAlarm, MkAtomTerm(AtomTrue));
   ExitThread(1);
+#if _MSC_VER
+  return(0L);
+#endif
 }
 
 #endif
@@ -2028,7 +2033,7 @@ set_fpu_exceptions(int flag)
 #if defined(__hpux)
     fpsetmask(FP_X_INV|FP_X_DZ|FP_X_OFL|FP_X_UFL);
 #endif
-#if HAVE_FPU_CONTROL_H && i386 && FIX_CONFIGURE
+#if HAVE_FPU_CONTROL_H && i386
     /* I shall ignore denormalization and precision errors */
     int v = _FPU_IEEE & ~(_FPU_MASK_IM|_FPU_MASK_ZM|_FPU_MASK_OM|_FPU_MASK_UM);
     _FPU_SETCW(v);
@@ -2036,17 +2041,29 @@ set_fpu_exceptions(int flag)
 #if HAVE_FETESTEXCEPT
     feclearexcept(FE_ALL_EXCEPT);
 #endif
+    my_signal (SIGFPE, HandleMatherr);
   } else {
     /* do IEEE arithmetic in the way the big boys do */
 #if defined(__hpux)
     fpsetmask(FP_X_CLEAR);
 #endif
-#if HAVE_FPU_CONTROL_H && i386 && FIX_CONFIGURE
+#if HAVE_FPU_CONTROL_H && i386
     /* this will probably not work in older releases of Linux */
     int v = _FPU_IEEE;
    _FPU_SETCW(v);
 #endif    
+    my_signal (SIGFPE, SIG_IGN);
   }
+}
+
+static Int
+p_set_fpu_exceptions(void) {
+  if (yap_flags[LANGUAGE_MODE_FLAG] == 1) {
+    set_fpu_exceptions(FALSE); /* can't make it work right */
+  } else {
+    set_fpu_exceptions(FALSE);
+  }
+  return(TRUE);
 }
 
 /*
@@ -2096,6 +2113,7 @@ InitSysPreds(void)
   InitCPred ("$getenv", 2, p_getenv, SafePredFlag);
   InitCPred ("$putenv", 2, p_putenv, SafePredFlag|SyncPredFlag);
   InitCPred ("$file_age", 2, p_file_age, SafePredFlag|SyncPredFlag);
+  InitCPred ("$set_fpu_exceptions", 0, p_set_fpu_exceptions, SafePredFlag|SyncPredFlag);
 }
 
 

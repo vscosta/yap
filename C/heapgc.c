@@ -40,7 +40,7 @@ static Int      tot_gc_time = 0; /* total time spent in GC */
 static Int      tot_gc_recovered = 0; /* number of heap objects in all garbage collections */
 
 /* in a single gc */
-UInt     total_marked;	/* number of heap objects marked */
+Int     total_marked;	/* number of heap objects marked */
 
 struct gc_ma_h_entry *live_list;
 
@@ -202,11 +202,11 @@ partition(CELL *a[], Int p, Int r)
 static void
 insort(CELL *a[], Int p, Int q)
 {
-  UInt j;
+  Int j;
     
   for (j = p+1; j <= q; j ++) {
     CELL *key;
-    UInt i;
+    Int i;
 
     key = a[j];
     i = j;
@@ -223,7 +223,7 @@ insort(CELL *a[], Int p, Int q)
 static void
 quicksort(CELL *a[], Int p, Int r)
 { 
-  UInt q;
+  Int q;
   if (p < r) {
     if (r - p < 100) {
       insort(a, p, r);
@@ -2807,7 +2807,7 @@ gc(Int predarity, CELL *current_env, yamop *nextop)
   }
   /* expand the stack if effectiveness is less than 20 % */
   if (ASP - H < gc_margin || !gc_on || effectiveness < 20) {
-    UInt gap = CalculateStackGap();
+    Int gap = CalculateStackGap();
     if (ASP-H > gc_margin)
       gc_margin = (ASP-H)+gap;
     else

@@ -24,7 +24,7 @@
 
 #include "yap_structs.h"
 
-#if defined(_MSC_VER) && defined(YAPDLL_EXPORTS)
+#if defined(_MSC_VER) && defined(YAP_EXPORTS)
 #define X_API __declspec(dllexport)
 #else
 #define X_API

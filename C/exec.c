@@ -200,7 +200,7 @@ EnterCreepMode(SMALLUNSGN mod) {
 }
 
 inline static Int
-do_execute(Term t, int mod)
+do_execute(Term t, SMALLUNSGN mod)
 {
   if (yap_flags[SPY_CREEP_FLAG]) {
     return(EnterCreepMode(mod));
@@ -1278,7 +1278,7 @@ JumpToEnv(Term t) {
   /* I could backtrack here, but it is easier to leave the unwinding
      to the emulator */
   B->cp_a3 = t;
-  P = FAILCODE;
+  P = (yamop *)FAILCODE;
   return(FALSE);
 }
 

@@ -138,7 +138,7 @@ typedef CELL   *CELL_PTR;
 
 #define ENVSIZE(E) 	EnvSize(((CELL *)E)[E_CP])
 
-extern UInt      total_marked;
+extern Int      total_marked;
 
 void  STD_PROTO(mark_variable, (CELL *));
 void  STD_PROTO(mark_external_reference, (CELL *));

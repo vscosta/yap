@@ -68,12 +68,12 @@ push_live_regs(yamop *pco)
 {
   CELL *lab = (CELL *)(pco->u.l.l);
   CELL max = lab[0];
-  Int curr = lab[1];
+  CELL curr = lab[1];
   CELL *start = H;
   Int tot = 0;
 
   if (max) {
-    Int i;
+    CELL i;
 
     lab += 2;
     H++;
@@ -10020,7 +10020,7 @@ absmi(int inp)
 	  FAIL();
 	}
 	if ((Int)d0 <= 0 ||
-	    d0 > ArityOfFunctor((Functor) d1)) {
+	    (Int)d0 > ArityOfFunctor((Functor) d1)) {
 	  /* don't complain here for Prolog compatibility 
 	  if ((Int)d0 <= 0) {
 	    saveregs();
@@ -10108,7 +10108,7 @@ absmi(int inp)
 	  FAIL();
 	}
 	if ((Int)d0 <= 0 ||
-	    d0 > ArityOfFunctor((Functor) d1)) {
+	    (Int)d0 > ArityOfFunctor((Functor) d1)) {
 	  /* don't complain here for Prolog compatibility 
 	  if ((Int)d0 <= 0) {
 	    saveregs();
@@ -10200,7 +10200,7 @@ absmi(int inp)
 	  FAIL();
 	}
 	if ((Int)d0 <= 0 ||
-	    d0 > ArityOfFunctor((Functor) d1)) {
+	    (Int)d0 > ArityOfFunctor((Functor) d1)) {
 	  /* don't complain here for Prolog compatibility 
 	  if ((Int)d0 <= 0) {
 	    saveregs();
@@ -10302,7 +10302,7 @@ absmi(int inp)
 	  FAIL();
 	}
 	if ((Int)d0 <= 0 ||
-	    d0 > ArityOfFunctor((Functor) d1)) {
+	    (Int)d0 > ArityOfFunctor((Functor) d1)) {
 	  /* don't complain here for Prolog compatibility 
 	  if ((Int)d0 <= 0) {
 	    saveregs();
@@ -11460,7 +11460,7 @@ absmi(int inp)
       BOp(p_execute, sla);
       { 
 	PredEntry *pen;
-	int mod = IntOfTerm(ARG2);
+	SMALLUNSGN mod = IntOfTerm(ARG2);
 
 	CACHE_Y_AS_ENV(Y);
 #ifndef NO_CHECKING
@@ -11577,7 +11577,7 @@ absmi(int inp)
       BOp(p_execute_within, sla);
       { 
 	PredEntry *pen;
-	int mod = CurrentModule;
+	SMALLUNSGN mod = CurrentModule;
 
 
 	CACHE_Y_AS_ENV(Y);
@@ -11720,7 +11720,7 @@ absmi(int inp)
       BOp(p_last_execute_within, sla);
       { 
 	PredEntry *pen;
-	int mod = CurrentModule;
+	SMALLUNSGN mod = CurrentModule;
 
 	CACHE_Y_AS_ENV(Y);
 #ifndef NO_CHECKING

@@ -132,6 +132,8 @@ do_bootfile (char *bootfilename)
   Term term_true = MkAtomTerm(YapLookupAtom("true"));
   Term functor_query = MkFunctor(YapLookupAtom("?-"),1);
 
+
+  fprintf(stderr,"Entering Yap\n");
   /* consult boot.pl */
   bootfile = fopen (bootfilename, "r");
   if (bootfile == NULL)

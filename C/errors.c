@@ -331,7 +331,7 @@ Error (yap_error_number type, Term where, char *format,...)
     fprintf(stderr,"[ ERROR WITHIN ERROR: %s ]\n", p);
     exit(1);
   }
- if (P == FAILCODE) 
+  if (P == (yamop *)(FAILCODE))
    return(P);
   /* PURE_ABORT may not have set where correctly */
   if (type == PURE_ABORT)

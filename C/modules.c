@@ -46,7 +46,7 @@ Module_Name(CODEADDR cap)
   }
 }
 
-int 
+SMALLUNSGN 
 LookupModule(Term a)
 {
   unsigned int             i;

@@ -541,6 +541,7 @@ yap_flag(host_type,X) :-
 	'$transl_to_on_off'(Y,off), % disable character escapes.
 	'$set_yap_flags'(12,Y),
 	'$set_yap_flags'(14,1),
+	'$set_fpu_exceptions',
 	unknown(_,error).
 '$adjust_language'(sicstus) :-
 	'$switch_log_upd'(1),
@@ -553,6 +554,7 @@ yap_flag(host_type,X) :-
 	'$set_yap_flags'(5,X1),
 	'$force_char_conversion',
 	'$set_yap_flags'(14,0),
+	'$set_fpu_exceptions',
 	unknown(_,error).
 '$adjust_language'(iso) :-
 	'$switch_log_upd'(2),
@@ -566,6 +568,7 @@ yap_flag(host_type,X) :-
 	'$set_yap_flags'(5,X1),
 	'$force_char_conversion',
 	'$set_yap_flags'(14,0),
+	'$set_fpu_exceptions',
 	unknown(_,error).
 
 '$transl_to_character_escape_modes'(0,off) :- !.

@@ -397,6 +397,7 @@ ParseTerm(int prio)
 	}
       } else if (tokptr->Tok == Name_tok) {
 	Atom at = (Atom)tokptr->TokInfo;
+#ifndef _MSC_VER
 	if ((Atom)t == AtomPlus) {
 	  if (at == AtomInf) {
 	    t = MkFloatTerm(INFINITY);
@@ -418,6 +419,7 @@ ParseTerm(int prio)
 	    break;
 	  }
 	}
+#endif
       }
       if (opprio <= prio) {
       /* try to parse as a prefix operator */

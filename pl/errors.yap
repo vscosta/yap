@@ -34,7 +34,8 @@
         write(user_error,'[ Execution Aborted ]'),
         nl(user_error).
 '$process_error'(error(Msg, Where)) :- !,
-	print_message(error,error(Msg, Where)).
+	'$set_fpu_exceptions',
+	'$print_message'(error,error(Msg, Where)).
 '$process_error'(Throw) :-
 	print_message(error,Throw).
 

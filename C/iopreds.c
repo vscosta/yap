@@ -68,6 +68,9 @@ static char SccsId[] = "%W% %G%";
 #if !HAVE_STRNCPY
 #define strncpy(X,Y,Z) strcpy(X,Y)
 #endif
+#if _MSC_VER
+#include <windows.h>
+#endif
 #if _MSC_VER || defined(__MINGW32__) 
 #if USE_SOCKET
 #include <winsock2.h>
@@ -4812,8 +4815,10 @@ StreamToFileNo(Term t)
 #else
     return(Stream[sno].u.pipe.fd);
 #endif
+#if USE_SOCKET
   } else if (Stream[sno].status & Socket_Stream_f) {
     return(Stream[sno].u.socket.fd);
+#endif
   } else if (Stream[sno].status & (Null_Stream_f|InMemory_Stream_f)) {
     return(-1);
   } else {

@@ -263,7 +263,7 @@ GetAProp(Atom a, PropFlags kind)
 }
 
 inline static Prop
-GetPredPropByAtomHavingLock(AtomEntry* ae, int cur_mod)
+GetPredPropByAtomHavingLock(AtomEntry* ae, SMALLUNSGN cur_mod)
 /* get predicate entry for ap/arity; create it if neccessary.              */
 {
   Prop p0;
@@ -281,7 +281,7 @@ GetPredPropByAtomHavingLock(AtomEntry* ae, int cur_mod)
 }
 
 Prop
-GetPredPropByAtom(Atom at, int cur_mod)
+GetPredPropByAtom(Atom at, SMALLUNSGN cur_mod)
 /* get predicate entry for ap/arity; create it if neccessary.              */
 {
   Prop p0;
@@ -314,7 +314,7 @@ GetPredPropByFuncHavingLock(Functor f, SMALLUNSGN cur_mod)
 }
 
 Prop
-GetPredPropByFunc(Functor f, int cur_mod)
+GetPredPropByFunc(Functor f, SMALLUNSGN cur_mod)
      /* get predicate entry for ap/arity;               */
 {
   Prop p0;
