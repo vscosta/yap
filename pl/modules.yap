@@ -430,7 +430,7 @@ module(N) :-
 
 % directive now meta_predicate Ps :- $meta_predicate(Ps).
 
-:- dynamic user:'$meta_predicate'/4.
+:- dynamic_predicate('$meta_predicate'/4,logical).
 
 '$meta_predicate'((P,Ps), M) :- !,
 	'$meta_predicate'(P, M),
@@ -440,8 +440,8 @@ module(N) :-
 '$meta_predicate'(P, M1) :-
 	functor(P,F,N),
 	( M1 = prolog -> M = _ ; M1 = M),
-	( retractall(user:'$meta_predicate'(F,M,N,_)), fail ; true),
-	asserta(user:'$meta_predicate'(F,M,N,P)),
+	( retractall('$meta_predicate'(F,M,N,_)), fail ; true),
+	asserta('$meta_predicate'(F,M,N,P)),
 	'$flags'(P, M1, Fl, Fl),
 	NFlags is Fl \/ 0x200000,
 	'$flags'(P, M1, Fl, NFlags).
@@ -452,7 +452,7 @@ module(N) :-
 %
 '$module_u_vars'(H,UVars,M) :-
 	functor(H,F,N),
-	user:'$meta_predicate'(F,M,N,D), !,
+	'$meta_predicate'(F,M,N,D), !,
 	'$module_u_vars'(N,D,H,UVars).
 '$module_u_vars'(_,[],_).
 
@@ -471,7 +471,7 @@ module(N) :-
 
 '$meta_expansion'(Mod,MP,G,G1,HVars) :- 
 	functor(G,F,N),
-	user:'$meta_predicate'(F,Mod,N,D), !,
+	'$meta_predicate'(F,Mod,N,D), !,
 	functor(G1,F,N),
 %	'$format'(user_error,"[expanding ~w:~w in ~w",[Mod,G,MP]),
 	'$meta_expansion_loop'(N,D,G,G1,HVars,MP).
