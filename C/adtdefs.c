@@ -310,6 +310,37 @@ Yap_GetPredPropByAtom(Atom at, SMALLUNSGN cur_mod)
 }
 
 
+inline static Prop
+GetPredPropByAtomHavingLockInThisModule(AtomEntry* ae, SMALLUNSGN cur_mod)
+/* get predicate entry for ap/arity; create it if neccessary.              */
+{
+  Prop p0;
+
+  p0 = ae->PropsOfAE;
+  while (p0) {
+    PredEntry *pe = RepPredProp(p0);
+    if ( pe->KindOfPE == PEProp && pe->ModuleOfPred == cur_mod ) {
+      return(p0);
+    }
+    p0 = pe->NextOfPE;
+  }
+  return(NIL);
+}
+
+Prop
+Yap_GetPredPropByAtomInThisModule(Atom at, SMALLUNSGN cur_mod)
+/* get predicate entry for ap/arity; create it if neccessary.              */
+{
+  Prop p0;
+  AtomEntry *ae = RepAtom(at);
+
+  READ_LOCK(ae->ARWLock);
+  p0 = GetPredPropByAtomHavingLockInThisModule(ae, cur_mod);
+  READ_UNLOCK(ae->ARWLock);
+  return(p0);
+}
+
+
 static inline Prop
 GetPredPropByFuncHavingLock(Functor f, SMALLUNSGN cur_mod)
 /* get predicate entry for ap/arity; create it if neccessary.              */
@@ -337,6 +368,36 @@ Yap_GetPredPropByFunc(Functor f, SMALLUNSGN cur_mod)
 
   READ_LOCK(f->FRWLock);
   p0 = GetPredPropByFuncHavingLock(f, cur_mod);
+  READ_UNLOCK(f->FRWLock);
+  return (p0);
+}
+
+static inline Prop
+GetPredPropByFuncHavingLockInThisModule(Functor f, SMALLUNSGN cur_mod)
+/* get predicate entry for ap/arity; create it if neccessary.              */
+{
+  Prop p0;
+  FunctorEntry *fe = (FunctorEntry *)f;
+
+  p0 = fe->PropsOfFE;
+  while (p0) {
+    PredEntry *p = RepPredProp(p0);
+    if (p->ModuleOfPred == cur_mod) {
+      return (p0);
+    }
+    p0 = p->NextOfPE;
+  }
+  return(NIL);
+}
+
+Prop
+Yap_GetPredPropByFuncInThisModule(Functor f, SMALLUNSGN cur_mod)
+     /* get predicate entry for ap/arity;               */
+{
+  Prop p0;
+
+  READ_LOCK(f->FRWLock);
+  p0 = GetPredPropByFuncHavingLockInThisModule(f, cur_mod);
   READ_UNLOCK(f->FRWLock);
   return (p0);
 }
@@ -402,9 +463,10 @@ Yap_NewPredPropByFunctor(FunctorEntry *fe, SMALLUNSGN cur_mod)
   p->cs.p_code.FirstClause = p->cs.p_code.LastClause = NULL;
   p->cs.p_code.NOfClauses = 0;
   p->PredFlags = 0L;
-  p->OwnerFile = AtomNil;
+  p->src.OwnerFile = AtomNil;
   p->OpcodeOfPred = UNDEF_OPCODE;
   p->CodeOfPred = p->cs.p_code.TrueCodeOfPred = (yamop *)(&(p->OpcodeOfPred)); 
+  p->cs.p_code.ExpandCode = EXPAND_OP_CODE; 
   p->ModuleOfPred = cur_mod;
   p->NextPredOfModule = ModulePred[cur_mod];
   ModulePred[cur_mod] = p;
@@ -437,8 +499,9 @@ Yap_NewPredPropByAtom(AtomEntry *ae, SMALLUNSGN cur_mod)
   p->cs.p_code.FirstClause = p->cs.p_code.LastClause = NULL;
   p->cs.p_code.NOfClauses = 0;
   p->PredFlags = 0L;
-  p->OwnerFile = AtomNil;
+  p->src.OwnerFile = AtomNil;
   p->OpcodeOfPred = UNDEF_OPCODE;
+  p->cs.p_code.ExpandCode = EXPAND_OP_CODE; 
   p->CodeOfPred = p->cs.p_code.TrueCodeOfPred = (yamop *)(&(p->OpcodeOfPred)); 
   p->ModuleOfPred = cur_mod;
   p->NextPredOfModule = ModulePred[cur_mod];
