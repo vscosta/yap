@@ -244,10 +244,13 @@ repeat :- '$repeat'.
 '$execute_commands'(V,_,_) :- var(V), !,
 	'$do_error'(instantiation_error,meta_call(V)).
 '$execute_commands'([],_,_) :- !, fail.
-'$execute_commands'([C|_],VL,Con) :-
-	'$execute_command'(C,VL,Con).
-'$execute_commands'([_|Cs],VL,Con) :- !,
-	'$execute_commands'(Cs,VL,Con).
+'$execute_commands'([C|_],VL,Con) :- !,
+	(
+	  '$execute_command'(C,VL,Con)
+	;
+	  '$execute_commands'(Cs,VL,Con)
+	),
+	fail.
 '$execute_commands'(C,VL,Con) :-
 	'$execute_command'(C,VL,Con).
 
@@ -856,26 +859,26 @@ break :- get_value('$break',BL), NBL is BL+1,
 '$consult'(X) :-
 	'$find_in_path'(X,Y,consult(X)),
 	'$open'(Y,'$csult',Stream,0), !,
-        '$consult'(X,Stream),
+	'$current_module'(OldModule),
+        '$consult'(X,OldModule,Stream),
 	'$close'(Stream).
 '$consult'(X) :-
 	'$do_error'(permission_error(input,stream,X),consult(X)).
 
 
-'$consult'(_,Stream) :-
-        '$record_loaded'(Stream),
+'$consult'(_,Module,Stream) :-
+        '$record_loaded'(Stream,Module),
 	fail.
-'$consult'(F,Stream) :-
+'$consult'(F,Module,Stream) :-
 	'$access_yap_flags'(8, 2), % SICStus Prolog compatibility
 	!,
-	'$reconsult'(F,Stream).
-'$consult'(F,Stream) :-
+	'$reconsult'(F,Module,Stream).
+'$consult'(F,Mod,Stream) :-
 	'$getcwd'(OldD),
 	get_value('$consulting_file',OldF),
 	'$set_consulting_file'(Stream),
 	H0 is heapused, '$cputime'(T0,_),
 	'$current_stream'(File,_,Stream),
-	'$current_module'(OldModule),
 	'$start_consult'(consult,File,LC),
 	get_value('$consulting',Old),
 	set_value('$consulting',true),
@@ -895,7 +898,6 @@ break :- get_value('$break',BL), NBL is BL+1,
 	'$cd'(OldD),
 	( LC == 0 -> prompt(_,'   |: ') ; true),
 	'$exec_initialisation_goals',
-	'$current_module'(Mod,OldModule),
 	H is heapused-H0, '$cputime'(TF,_), T is TF-T0,
 	( '$undefined'('$print_message'(_,_),prolog) -> 
 	  ( get_value('$verbose',on) ->
@@ -909,14 +911,14 @@ break :- get_value('$break',BL), NBL is BL+1,
 	!.
 
 
-'$record_loaded'(user).
-'$record_loaded'(user_input).
-'$record_loaded'(Stream) :-
-	'$loaded'(Stream,_), !.
-'$record_loaded'(Stream) :-
+'$record_loaded'(user, _).
+'$record_loaded'(user_input, _).
+'$record_loaded'(Stream, M) :-
+	'$loaded'(Stream, M, _), !.
+'$record_loaded'(Stream, M) :-
 	'$file_name'(Stream,F),
 	'$file_age'(F,Age),
-	recorda('$loaded','$loaded'(F,Age),_).
+	recorda('$loaded','$loaded'(F,M,Age),_).
 
 '$set_consulting_file'(user) :- !,
 	set_value('$consulting_file',user_input).

@@ -85,12 +85,6 @@ static char     SccsId[] = "%W% %G%";
 #define AllocDBSpace(V)	((DBRef)Yap_AllocCodeSpace(V))
 #define FreeDBSpace(V)	Yap_FreeCodeSpace(V)
 
-#define NO_ERROR_IN_DB 0
-#define OVF_ERROR_IN_DB 1
-#define SOVF_ERROR_IN_DB 2
-#define TOVF_ERROR_IN_DB 3
-#define OTHER_ERROR_IN_DB 4
-
 #if SIZEOF_INT_P==4
 #define ToSmall(V)	((link_entry)(Unsigned(V)>>2))
 #else
@@ -156,13 +150,9 @@ typedef BITS16 link_entry;
 #ifdef IDB_LINK_TABLE
 static link_entry  *lr = NULL, *LinkAr;
 #endif
-static int      DBErrorFlag = FALSE; /* error while recording */
 /* we cannot call Error directly from within recorded(). These flags are used
    to delay for a while
 */
-static yap_error_number DBErrorNumber; /* error number */
-static Term      DBErrorTerm; /* error term */
-static char     *DBErrorMsg;       /* Error Message */
 static DBRef    *tofref;	/* place the refs also up	 */
 
 CELL *next_float = NULL;
@@ -970,8 +960,8 @@ static CELL *MkDBTerm(register CELL *pt0, register CELL *pt0_end,
   return(CodeMax);
 
  error:
+  Yap_Error_TYPE = OUT_OF_HEAP_ERROR;
   Yap_Error_Size = 1024+((char *)AuxSp-(char *)HeapTop);
-  DBErrorFlag = OVF_ERROR_IN_DB;
   *vars_foundp = vars_found;
 #ifdef RATIONAL_TREES
   while (to_visit > to_visit_base) {
@@ -989,7 +979,7 @@ static CELL *MkDBTerm(register CELL *pt0, register CELL *pt0_end,
   return(NULL);
 
  error2:
-  DBErrorFlag = SOVF_ERROR_IN_DB;
+  Yap_Error_TYPE = OUT_OF_STACK_ERROR;
   *vars_foundp = vars_found;
 #ifdef RATIONAL_TREES
   while (to_visit > to_visit_base) {
@@ -1008,7 +998,7 @@ static CELL *MkDBTerm(register CELL *pt0, register CELL *pt0_end,
 
 #if !OS_HANDLES_TR_OVERFLOW
  error_tr_overflow:
-  DBErrorFlag = TOVF_ERROR_IN_DB;              \
+  Yap_Error_TYPE = OUT_OF_TRAIL_ERROR;
   *vars_foundp = vars_found;
 #ifdef RATIONAL_TREES
   while (to_visit > to_visit_base) {
@@ -1071,10 +1061,9 @@ sf_include(sfp)
       *StoPoint++ = tvalue;
       j += 2;
     } else {
-      DBErrorFlag = OTHER_ERROR_IN_DB;
-      DBErrorNumber = TYPE_ERROR_DBTERM;
-      DBErrorTerm = d0;
-      DBErrorMsg = "wrong term in SF";
+      Yap_Error_TYPE = TYPE_ERROR_DBTERM;
+      Yap_Error_Term = d0;
+      Yap_ErrorMessage = "wrong term in SF";
       return(NULL);
     }
   }
@@ -1210,10 +1199,9 @@ static DBRef
 generate_dberror_msg(int errnumb, UInt sz, char *msg)
 {
   Yap_Error_Size = sz;
-  DBErrorFlag = errnumb;
-  DBErrorNumber = SYSTEM_ERROR;
-  DBErrorTerm = TermNil;
-  DBErrorMsg = msg;
+  Yap_Error_TYPE = errnumb;
+  Yap_Error_Term = TermNil;
+  Yap_ErrorMessage = msg;
   return NULL;
 }
 
@@ -1226,13 +1214,13 @@ CreateDBWithDBRef(Term Tm, DBProp p)
   if (p == NULL) {
     ppt = (DBTerm *)AllocDBSpace(sizeof(DBTerm)+2*sizeof(CELL));
     if (ppt == NULL) {
-      return generate_dberror_msg(OTHER_ERROR_IN_DB, 0, "could not allocate space");
+      return generate_dberror_msg(OUT_OF_HEAP_ERROR, TermNil, "could not allocate space");
     }
     pp = (DBRef)ppt;
   } else {
     pp = AllocDBSpace(DBLength(2*sizeof(DBRef)));
     if (pp == NULL) {
-      return generate_dberror_msg(OTHER_ERROR_IN_DB, 0, "could not allocate space");
+      return generate_dberror_msg(OUT_OF_HEAP_ERROR, 0, "could not allocate space");
     }
     pp->id = FunctorDBRef;
     pp->Flags = DBNoVars|DBComplex|DBWithRefs;
@@ -1259,7 +1247,7 @@ CreateDBTermForAtom(Term Tm, UInt extra_size) {
 
   ptr = (ADDR)AllocDBSpace(extra_size+sizeof(DBTerm));
   if (ptr == NULL) {
-    return (DBTerm *)generate_dberror_msg(OTHER_ERROR_IN_DB, 0, "could not allocate space");
+    return (DBTerm *)generate_dberror_msg(OUT_OF_HEAP_ERROR, 0, "could not allocate space");
   }
   ppt = (DBTerm *)(ptr+extra_size);
   ppt->NOfCells = 0;
@@ -1280,7 +1268,7 @@ CreateDBTermForVar(UInt extra_size)
 
   ptr = (ADDR)AllocDBSpace(extra_size+sizeof(DBTerm));
   if (ptr == NULL) {
-    return (DBTerm *)generate_dberror_msg(OTHER_ERROR_IN_DB, 0, "could not allocate space");
+    return (DBTerm *)generate_dberror_msg(OUT_OF_HEAP_ERROR, 0, "could not allocate space");
   }
   ppt = (DBTerm *)(ptr+extra_size);
   ppt->NOfCells = 0;
@@ -1303,7 +1291,7 @@ CreateDBRefForAtom(Term Tm, DBProp p, int InFlag) {
     return (found_one);
   pp = AllocDBSpace(DBLength(NIL));
   if (pp == NIL) {
-    return generate_dberror_msg(OTHER_ERROR_IN_DB, 0, "could not allocate space");
+    return generate_dberror_msg(OUT_OF_HEAP_ERROR, 0, "could not allocate space");
   }
   pp->id = FunctorDBRef;
   INIT_LOCK(pp->lock);
@@ -1327,7 +1315,7 @@ CreateDBRefForVar(Term Tm, DBProp p, int InFlag) {
     return (found_one);
   pp = AllocDBSpace(DBLength(NULL));
   if (pp == NULL) {
-    return generate_dberror_msg(OTHER_ERROR_IN_DB, 0, "could not allocate space");
+    return generate_dberror_msg(OUT_OF_HEAP_ERROR, 0, "could not allocate space");
   }
   pp->id = FunctorDBRef;
   pp->Flags = DBVar;
@@ -1356,7 +1344,7 @@ CreateDBStruct(Term Tm, DBProp p, int InFlag, int *pstat, UInt extra_size)
   CELL	   *CodeAbs;	/* how much code did we find	 */
   int vars_found;
 
-  DBErrorFlag = NO_ERROR_IN_DB;
+  Yap_Error_TYPE = YAP_NO_ERROR;
 
   if (p == NULL) {
     if (IsVarTerm(Tm)) {
@@ -1477,7 +1465,7 @@ CreateDBStruct(Term Tm, DBProp p, int InFlag, int *pstat, UInt extra_size)
       }
     } 
     CodeAbs = (CELL *)((CELL)ntp-(CELL)ntp0);
-    if (DBErrorFlag) {
+    if (Yap_Error_TYPE) {
       Yap_ReleasePreAllocCodeSpace((ADDR)pp0);
       return (NULL);	/* Error Situation */
     }
@@ -1497,7 +1485,7 @@ CreateDBStruct(Term Tm, DBProp p, int InFlag, int *pstat, UInt extra_size)
       CodeAbs += CellPtr(lr) - CellPtr(LinkAr);
       if ((CELL *)((char *)ntp0+(CELL)CodeAbs) > AuxSp) {
 	Yap_Error_Size = (UInt)DBLength(CodeAbs);
-	DBErrorFlag = OVF_ERROR_IN_DB;
+	Yap_Error_TYPE = OUT_OF_HEAP_ERROR;
 	Yap_ReleasePreAllocCodeSpace((ADDR)pp0);
 	return(NULL);
       }
@@ -1524,7 +1512,7 @@ CreateDBStruct(Term Tm, DBProp p, int InFlag, int *pstat, UInt extra_size)
       CodeAbs += (TmpRefBase - tofref) + 1;
       if ((CELL *)((char *)ntp0+(CELL)CodeAbs) > AuxSp) {
 	Yap_Error_Size = (UInt)DBLength(CodeAbs);
-	DBErrorFlag = OVF_ERROR_IN_DB;
+	Yap_Error_TYPE = OUT_OF_HEAP_ERROR;
 	Yap_ReleasePreAllocCodeSpace((ADDR)pp0);
 	return(NULL);
       }
@@ -1534,7 +1522,7 @@ CreateDBStruct(Term Tm, DBProp p, int InFlag, int *pstat, UInt extra_size)
 #if SIZEOF_LINK_ENTRY==2
     if (Unsigned(CodeAbs) >= 0x40000) {
       Yap_ReleasePreAllocCodeSpace((ADDR)pp0);
-      return generate_dberror_msg(OTHER_ERROR_IN_DB, 0, "trying to store term larger than 256KB");
+      return generate_dberror_msg(SYSTEM_ERROR, 0, "trying to store term larger than 256KB");
     }
 #endif
 #endif
@@ -1543,14 +1531,14 @@ CreateDBStruct(Term Tm, DBProp p, int InFlag, int *pstat, UInt extra_size)
       ppt = (DBTerm *)(ptr+extra_size);
       if (ppt == NULL) {
 	Yap_ReleasePreAllocCodeSpace((ADDR)pp0);
-	return generate_dberror_msg(OVF_ERROR_IN_DB, (UInt)DBLength(CodeAbs), "heap crashed against stacks");
+	return generate_dberror_msg(OUT_OF_HEAP_ERROR, (UInt)DBLength(CodeAbs), "heap crashed against stacks");
       }
       pp = (DBRef)ppt;
     } else {
       pp = AllocDBSpace(DBLength(CodeAbs));
       if (pp == NULL) {
 	Yap_ReleasePreAllocCodeSpace((ADDR)pp0);
-	return generate_dberror_msg(OVF_ERROR_IN_DB, (UInt)DBLength(CodeAbs), "heap crashed against stacks");
+	return generate_dberror_msg(OUT_OF_HEAP_ERROR, (UInt)DBLength(CodeAbs), "heap crashed against stacks");
       }
       pp->id = FunctorDBRef;
       pp->Flags = flag;
@@ -1851,30 +1839,30 @@ p_rcda(void)
   } else { 
     TRef = MkDBRefTerm(record(MkFirst, t1, t2, Unsigned(0)));
   }
-  switch(DBErrorFlag) {
-  case NO_ERROR_IN_DB:
+  switch(Yap_Error_TYPE) {
+  case YAP_NO_ERROR:
     return (Yap_unify(ARG3, TRef));
-  case SOVF_ERROR_IN_DB:
+  case OUT_OF_STACK_ERROR:
     if (!Yap_gc(3, ENV, P)) {
       Yap_Error(OUT_OF_STACK_ERROR, TermNil, Yap_ErrorMessage);
       return(FALSE);
     }
     goto recover_record;
-  case TOVF_ERROR_IN_DB:
+  case OUT_OF_TRAIL_ERROR:
     Yap_Error(SYSTEM_ERROR, TermNil, "YAP could not grow trail in recorda/3");
     return(FALSE);
-  case OVF_ERROR_IN_DB:
+  case OUT_OF_HEAP_ERROR:
     if (!Yap_growheap(FALSE, Yap_Error_Size)) {
       Yap_Error(SYSTEM_ERROR, TermNil, Yap_ErrorMessage);
       return(FALSE);
     } else
       goto recover_record;
   default:
-    Yap_Error(DBErrorNumber, DBErrorTerm, DBErrorMsg);
+    Yap_Error(Yap_Error_TYPE, Yap_Error_Term, Yap_ErrorMessage);
     return(FALSE);
   }
  recover_record:
-  DBErrorFlag = NO_ERROR_IN_DB;
+  Yap_Error_TYPE = YAP_NO_ERROR;
   t1 = Deref(ARG1);
   t2 = Deref(ARG2);
   goto restart_record;
@@ -1891,19 +1879,19 @@ p_rcdap(void)
  restart_record:
   Yap_Error_Size = 0;
   TRef = MkDBRefTerm(record(MkFirst | MkCode, t1, t2, Unsigned(0)));
-  switch(DBErrorFlag) {
-  case NO_ERROR_IN_DB:
+  switch(Yap_Error_TYPE) {
+  case YAP_NO_ERROR:
     return Yap_unify(ARG3, TRef);
-  case SOVF_ERROR_IN_DB:
+  case OUT_OF_STACK_ERROR:
     if (!Yap_gc(3, ENV, P)) {
       Yap_Error(OUT_OF_STACK_ERROR, TermNil, Yap_ErrorMessage);
       return FALSE;
     }
     goto recover_record;
-  case TOVF_ERROR_IN_DB:
+  case OUT_OF_TRAIL_ERROR:
     Yap_Error(SYSTEM_ERROR, TermNil, "YAP could not grow trail in recorda/3");
     return FALSE;
-  case OVF_ERROR_IN_DB:
+  case OUT_OF_HEAP_ERROR:
     if (!Yap_growheap(FALSE, Yap_Error_Size)) {
       Yap_Error(SYSTEM_ERROR, TermNil, Yap_ErrorMessage);
       return FALSE;
@@ -1911,11 +1899,11 @@ p_rcdap(void)
       goto recover_record;
     }
   default:
-    Yap_Error(DBErrorNumber, DBErrorTerm, DBErrorMsg);
+    Yap_Error(Yap_Error_TYPE, Yap_Error_Term, Yap_ErrorMessage);
     return FALSE;
   }
  recover_record:
-  DBErrorFlag = NO_ERROR_IN_DB;
+  Yap_Error_TYPE = YAP_NO_ERROR;
   t1 = Deref(ARG1);
   t2 = Deref(ARG2);
   goto restart_record;
@@ -1941,30 +1929,30 @@ p_rcda_at(void)
  restart_record:
   Yap_Error_Size = 0;
   TRef = MkDBRefTerm(record_at(MkFirst, DBRefOfTerm(t1), t2, Unsigned(0)));
-  switch(DBErrorFlag) {
-  case NO_ERROR_IN_DB:
+  switch(Yap_Error_TYPE) {
+  case YAP_NO_ERROR:
     return (Yap_unify(ARG3, TRef));
-  case SOVF_ERROR_IN_DB:
+  case OUT_OF_STACK_ERROR:
     if (!Yap_gc(3, ENV, P)) {
       Yap_Error(OUT_OF_STACK_ERROR, TermNil, Yap_ErrorMessage);
       return(FALSE);
     }
     goto recover_record;
-  case TOVF_ERROR_IN_DB:
+  case OUT_OF_TRAIL_ERROR:
     Yap_Error(SYSTEM_ERROR, TermNil, "YAP could not grow trail in recorda/3");
     return(FALSE);
-  case OVF_ERROR_IN_DB:
+  case OUT_OF_HEAP_ERROR:
     if (!Yap_growheap(FALSE, Yap_Error_Size)) {
       Yap_Error(SYSTEM_ERROR, TermNil, Yap_ErrorMessage);
       return(FALSE);
     } else
       goto recover_record;
   default:
-    Yap_Error(DBErrorNumber, DBErrorTerm, DBErrorMsg);
+    Yap_Error(Yap_Error_TYPE, Yap_Error_Term, Yap_ErrorMessage);
     return(FALSE);
   }
  recover_record:
-  DBErrorFlag = NO_ERROR_IN_DB;
+  Yap_Error_TYPE = YAP_NO_ERROR;
   t1 = Deref(ARG1);
   t2 = Deref(ARG2);
   goto restart_record;
@@ -1994,30 +1982,30 @@ p_rcdz(void)
   } else { 
     TRef = MkDBRefTerm(record(MkLast, t1, t2, Unsigned(0)));
   }
-  switch(DBErrorFlag) {
-  case NO_ERROR_IN_DB:
+  switch(Yap_Error_TYPE) {
+  case YAP_NO_ERROR:
     return (Yap_unify(ARG3, TRef));
-  case SOVF_ERROR_IN_DB:
+  case OUT_OF_STACK_ERROR:
     if (!Yap_gc(3, ENV, P)) {
       Yap_Error(OUT_OF_STACK_ERROR, TermNil, Yap_ErrorMessage);
       return(FALSE);
     }
     goto recover_record;
-  case TOVF_ERROR_IN_DB:
+  case OUT_OF_TRAIL_ERROR:
     Yap_Error(SYSTEM_ERROR, TermNil, "YAP could not grow trail in recorda/3");
     return(FALSE);
-  case OVF_ERROR_IN_DB:
+  case OUT_OF_HEAP_ERROR:
     if (!Yap_growheap(FALSE, Yap_Error_Size)) {
       Yap_Error(SYSTEM_ERROR, TermNil, Yap_ErrorMessage);
       return(FALSE);
     } else
       goto recover_record;
   default:
-    Yap_Error(DBErrorNumber, DBErrorTerm, DBErrorMsg);
+    Yap_Error(Yap_Error_TYPE, Yap_Error_Term, Yap_ErrorMessage);
     return(FALSE);
   }
  recover_record:
-  DBErrorFlag = NO_ERROR_IN_DB;
+  Yap_Error_TYPE = YAP_NO_ERROR;
   t1 = Deref(ARG1);
   t2 = Deref(ARG2);
   goto restart_record;
@@ -2034,30 +2022,30 @@ p_rcdzp(void)
  restart_record:
   Yap_Error_Size = 0;
   TRef = MkDBRefTerm(record(MkLast | MkCode, t1, t2, Unsigned(0)));
-  switch(DBErrorFlag) {
-  case NO_ERROR_IN_DB:
+  switch(Yap_Error_TYPE) {
+  case YAP_NO_ERROR:
     return (Yap_unify(ARG3, TRef));
-  case SOVF_ERROR_IN_DB:
+  case OUT_OF_STACK_ERROR:
     if (!Yap_gc(3, ENV, P)) {
       Yap_Error(OUT_OF_STACK_ERROR, TermNil, Yap_ErrorMessage);
       return(FALSE);
     }
     goto recover_record;
-  case TOVF_ERROR_IN_DB:
+  case OUT_OF_TRAIL_ERROR:
     Yap_Error(SYSTEM_ERROR, TermNil, "YAP could not grow trail in recorda/3");
     return(FALSE);
-  case OVF_ERROR_IN_DB:
+  case OUT_OF_HEAP_ERROR:
     if (!Yap_growheap(FALSE, Yap_Error_Size)) {
       Yap_Error(SYSTEM_ERROR, TermNil, Yap_ErrorMessage);
       return(FALSE);
     } else
       goto recover_record;
   default:
-    Yap_Error(DBErrorNumber, DBErrorTerm, DBErrorMsg);
+    Yap_Error(Yap_Error_TYPE, Yap_Error_Term, Yap_ErrorMessage);
     return(FALSE);
   }
  recover_record:
-  DBErrorFlag = NO_ERROR_IN_DB;
+  Yap_Error_TYPE = YAP_NO_ERROR;
   t1 = Deref(ARG1);
   t2 = Deref(ARG2);
   goto restart_record;
@@ -2083,30 +2071,30 @@ p_rcdz_at(void)
  restart_record:
   Yap_Error_Size = 0;
   TRef = MkDBRefTerm(record_at(MkLast, DBRefOfTerm(t1), t2, Unsigned(0)));
-  switch(DBErrorFlag) {
-  case NO_ERROR_IN_DB:
+  switch(Yap_Error_TYPE) {
+  case YAP_NO_ERROR:
     return (Yap_unify(ARG3, TRef));
-  case SOVF_ERROR_IN_DB:
+  case OUT_OF_STACK_ERROR:
     if (!Yap_gc(3, ENV, P)) {
       Yap_Error(OUT_OF_STACK_ERROR, TermNil, Yap_ErrorMessage);
       return(FALSE);
     }
     goto recover_record;
-  case TOVF_ERROR_IN_DB:
+  case OUT_OF_TRAIL_ERROR:
     Yap_Error(SYSTEM_ERROR, TermNil, "YAP could not grow trail in recordz_at/3");
     return(FALSE);
-  case OVF_ERROR_IN_DB:
+  case OUT_OF_HEAP_ERROR:
     if (!Yap_growheap(FALSE, Yap_Error_Size)) {
       Yap_Error(SYSTEM_ERROR, TermNil, Yap_ErrorMessage);
       return(FALSE);
     } else
       goto recover_record;
   default:
-    Yap_Error(DBErrorNumber, DBErrorTerm, DBErrorMsg);
+    Yap_Error(Yap_Error_TYPE, Yap_Error_Term, Yap_ErrorMessage);
     return(FALSE);
   }
  recover_record:
-  DBErrorFlag = NO_ERROR_IN_DB;
+  Yap_Error_TYPE = YAP_NO_ERROR;
   t1 = Deref(ARG1);
   t2 = Deref(ARG2);
   goto restart_record;
@@ -2131,30 +2119,30 @@ p_rcdstatp(void)
     TRef = MkDBRefTerm(record(MkFirst | MkCode, t1, t2, MkIntTerm(0)));
   else
     TRef = MkDBRefTerm(record(MkLast | MkCode, t1, t2, MkIntTerm(0)));
-  switch(DBErrorFlag) {
-  case NO_ERROR_IN_DB:
+  switch(Yap_Error_TYPE) {
+  case YAP_NO_ERROR:
     return (Yap_unify(ARG4,TRef));
-  case SOVF_ERROR_IN_DB:
+  case OUT_OF_HEAP_ERROR:
     if (!Yap_gc(3, ENV, P)) {
       Yap_Error(OUT_OF_STACK_ERROR, TermNil, Yap_ErrorMessage);
       return(FALSE);
     }
     goto recover_record;
-  case TOVF_ERROR_IN_DB:
+  case OUT_OF_TRAIL_ERROR:
     Yap_Error(SYSTEM_ERROR, TermNil, "YAP could not grow trail in record_stat_source/3");
     return(FALSE);
-  case OVF_ERROR_IN_DB:
+  case OUT_OF_STACK_ERROR:
     if (!Yap_growheap(FALSE, Yap_Error_Size)) {
       Yap_Error(SYSTEM_ERROR, TermNil, Yap_ErrorMessage);
       return(FALSE);
     } else
       goto recover_record;
   default:
-    Yap_Error(DBErrorNumber, DBErrorTerm, DBErrorMsg);
+    Yap_Error(Yap_Error_TYPE, Yap_Error_Term, Yap_ErrorMessage);
     return(FALSE);
   }
  recover_record:
-  DBErrorFlag = NO_ERROR_IN_DB;
+  Yap_Error_TYPE = YAP_NO_ERROR;
   t1 = Deref(ARG1);
   t2 = Deref(ARG2);
   goto restart_record;
@@ -2174,30 +2162,30 @@ p_drcdap(void)
   Yap_Error_Size = 0;
   TRef = MkDBRefTerm(record(MkFirst | MkCode | WithRef,
 			    t1, t2, t4));
-  switch(DBErrorFlag) {
-  case NO_ERROR_IN_DB:
+  switch(Yap_Error_TYPE) {
+  case YAP_NO_ERROR:
     return (Yap_unify(ARG3, TRef));
-  case SOVF_ERROR_IN_DB:
+  case OUT_OF_STACK_ERROR:
     if (!Yap_gc(4, ENV, P)) {
       Yap_Error(OUT_OF_STACK_ERROR, TermNil, Yap_ErrorMessage);
       return(FALSE);
     }
     goto recover_record;
-  case TOVF_ERROR_IN_DB:
+  case OUT_OF_TRAIL_ERROR:
     Yap_Error(SYSTEM_ERROR, TermNil, "YAP could not grow trail in recorda/3");
     return(FALSE);
-  case OVF_ERROR_IN_DB:
+  case OUT_OF_HEAP_ERROR:
     if (!Yap_growheap(FALSE, Yap_Error_Size)) {
       Yap_Error(SYSTEM_ERROR, TermNil, Yap_ErrorMessage);
       return(FALSE);
     } else
       goto recover_record;
   default:
-    Yap_Error(DBErrorNumber, DBErrorTerm, DBErrorMsg);
+    Yap_Error(Yap_Error_TYPE, Yap_Error_Term, Yap_ErrorMessage);
     return(FALSE);
   }
  recover_record:
-  DBErrorFlag = NO_ERROR_IN_DB;
+  Yap_Error_TYPE = YAP_NO_ERROR;
   t1 = Deref(ARG1);
   t2 = Deref(ARG2);
   t4 = Deref(ARG4);
@@ -2218,30 +2206,30 @@ p_drcdzp(void)
   Yap_Error_Size = 0;
   TRef = MkDBRefTerm(record(MkLast | MkCode | WithRef,
 			    t1, t2, t4));
-  switch(DBErrorFlag) {
-  case NO_ERROR_IN_DB:
-    return (Yap_unify(ARG3, TRef));
-  case SOVF_ERROR_IN_DB:
+  switch(Yap_Error_TYPE) {
+  case YAP_NO_ERROR:
+    return Yap_unify(ARG3, TRef);
+  case OUT_OF_STACK_ERROR:
     if (!Yap_gc(4, ENV, P)) {
       Yap_Error(OUT_OF_STACK_ERROR, TermNil, Yap_ErrorMessage);
       return(FALSE);
     }
     goto recover_record;
-  case TOVF_ERROR_IN_DB:
+  case OUT_OF_TRAIL_ERROR:
     Yap_Error(SYSTEM_ERROR, TermNil, "YAP could not grow trail in recorda/3");
     return(FALSE);
-  case OVF_ERROR_IN_DB:
+  case OUT_OF_HEAP_ERROR:
     if (!Yap_growheap(FALSE, Yap_Error_Size)) {
       Yap_Error(SYSTEM_ERROR, TermNil, Yap_ErrorMessage);
       return(FALSE);
     } else
       goto recover_record;
   default:
-    Yap_Error(DBErrorNumber, DBErrorTerm, DBErrorMsg);
+    Yap_Error(Yap_Error_TYPE, Yap_Error_Term, Yap_ErrorMessage);
     return(FALSE);
   }
  recover_record:
-  DBErrorFlag = NO_ERROR_IN_DB;
+  Yap_Error_TYPE = YAP_NO_ERROR;
   t1 = Deref(ARG1);
   t2 = Deref(ARG2);
   t4 = Deref(ARG4);
@@ -2494,10 +2482,9 @@ resize_int_keys(UInt new_size) {
   new = (Prop *)Yap_AllocCodeSpace(sizeof(Prop)*new_size);
   if (new == NULL) {
     YAPLeaveCriticalSection();
-    DBErrorFlag = OTHER_ERROR_IN_DB;
-    DBErrorNumber = SYSTEM_ERROR;
-    DBErrorTerm = TermNil;
-    DBErrorMsg = "could not allocate space";
+    Yap_Error_TYPE = OUT_OF_HEAP_ERROR;
+    Yap_Error_Term = TermNil;
+    Yap_ErrorMessage = "could not allocate space";
     return(FALSE);
   }
   for (i = 0; i < new_size; i++) {
@@ -2577,10 +2564,9 @@ new_lu_int_key(Int key)
   if (INT_LU_KEYS == NULL) {
     init_int_lu_keys();
     if (INT_LU_KEYS == NULL) {
-      DBErrorFlag = OTHER_ERROR_IN_DB;
-      DBErrorNumber = SYSTEM_ERROR;
-      DBErrorTerm = TermNil;
-      DBErrorMsg = "could not allocate space";
+      Yap_Error_TYPE = OUT_OF_HEAP_ERROR;
+      Yap_Error_Term = TermNil;
+      Yap_ErrorMessage = "could not allocate space";
       return NULL;
     }
   }
@@ -2693,10 +2679,9 @@ FetchIntDBPropFromKey(Int key, int flag, int new, char *error_mssg)
   if (INT_KEYS == NULL) {
     init_int_keys();
     if (INT_KEYS == NULL) {
-      DBErrorFlag = OTHER_ERROR_IN_DB;
-      DBErrorNumber = SYSTEM_ERROR;
-      DBErrorTerm = TermNil;
-      DBErrorMsg = "could not allocate space";
+      Yap_Error_TYPE = OUT_OF_HEAP_ERROR;
+      Yap_Error_Term = TermNil;
+      Yap_ErrorMessage = "could not allocate space";
       return(NULL);
     }
   }
@@ -4579,13 +4564,13 @@ StoreTermInDB(Term t, int nargs)
   Yap_Error_Size = 0;
   while ((x = (DBTerm *)CreateDBStruct(t, (DBProp)NULL,
 			  InQueue, &needs_vars, 0)) == NULL) {
-    switch(DBErrorFlag) {
-    case NO_ERROR_IN_DB:
+    switch(Yap_Error_TYPE) {
+    case YAP_NO_ERROR:
 #ifdef DEBUG
       Yap_Error(SYSTEM_ERROR, TermNil, "no error but null return in enqueue/2");
 #endif
       break;
-    case SOVF_ERROR_IN_DB:
+    case OUT_OF_STACK_ERROR:
       XREGS[nargs+1] = t;
       if (!Yap_gc(nargs+1, ENV, P)) {
 	Yap_Error(OUT_OF_STACK_ERROR, TermNil, Yap_ErrorMessage);
@@ -4594,20 +4579,20 @@ StoreTermInDB(Term t, int nargs)
 	t = Deref(XREGS[nargs+1]);
 	break;
       }
-    case TOVF_ERROR_IN_DB:
-      Yap_Error(SYSTEM_ERROR, TermNil, "YAP could not grow trail in recorda/3");
+    case OUT_OF_TRAIL_ERROR:
+      Yap_Error(OUT_OF_TRAIL_ERROR, TermNil, "YAP could not grow trail in recorda/3");
       return(FALSE);
-    case OVF_ERROR_IN_DB:
+    case OUT_OF_HEAP_ERROR:
       XREGS[nargs+1] = t;
       if (!Yap_growheap(FALSE, Yap_Error_Size)) {
-	Yap_Error(SYSTEM_ERROR, TermNil, Yap_ErrorMessage);
+	Yap_Error(OUT_OF_HEAP_ERROR, TermNil, Yap_ErrorMessage);
 	return(FALSE);
       } else {
 	t = Deref(XREGS[nargs+1]);
 	break;
       }
     default:
-      Yap_Error(DBErrorNumber, DBErrorTerm, DBErrorMsg);
+      Yap_Error(Yap_Error_TYPE, Yap_Error_Term, Yap_ErrorMessage);
       return(FALSE);
     }
   }

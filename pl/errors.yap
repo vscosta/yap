@@ -93,7 +93,6 @@ print_message(Level, Mss) :-
 	'$do_print_message'(M),
 	'$format'(user_error," ]~n", []).
 
-
 %message(loaded(Past,AbsoluteFileName,user,Msec,Bytes), Prefix, Suffix) :- !,
 '$do_print_message'(debug(debug)) :- !,
 	'$format'(user_error,"Debug mode on.",[]).

@@ -3438,7 +3438,7 @@ install_clauses(ClauseDef *cls, PredEntry *ap, istack_entry *stack, yamop *beg, 
       cls->Code =  cls->CurrentCode = cl->ClCode;
       cls->Tag =  0;
       cls++;
-      if (cl->ClCode == end || cl->ClCode == NULL) {
+      if (cl->ClCode == end) {
 	return cls-1;
       }
       cl = cl->ClNext;
@@ -3698,6 +3698,7 @@ expand_index(PredEntry *ap) {
     case _trust_me4:
       /* we will commit to this group for sure */
       ipc = NEXTOP(ipc,ld);
+      alt = NULL;
       /* start of a group, reset stack */
       sp = stack;
       stack[0].pos = 0;

@@ -2675,13 +2675,29 @@ Yap_assemble(int mode, Term t, PredEntry *ap, int is_fact)
 
     H = (CELL *)freep;
     while ((x = Yap_StoreTermInDBPlusExtraSpace(t, size)) == NULL) {
-      H = h0;
-      if (!Yap_growheap(TRUE, size)) {
-	Yap_Error_TYPE = SYSTEM_ERROR;
+      switch (Yap_Error_TYPE) {
+      case OUT_OF_STACK_ERROR:
+	Yap_Error_Size = 256+((char *)freep - (char *)H);
+	save_machine_regs();
+	longjmp(Yap_CompilerBotch,3);
+      case OUT_OF_TRAIL_ERROR:
+	Yap_growtrail(64 * 1024L);
+	Yap_Error_TYPE = YAP_NO_ERROR;
+	break;
+      case OUT_OF_HEAP_ERROR:
+	/* don't just return NULL */
+	H = h0;
+	ARG1 = t;
+	if (!Yap_growheap(TRUE, size)) {
+	  return NULL;
+	}
+	Yap_Error_TYPE = YAP_NO_ERROR;
+	t = ARG1;
+	h0 = H;
+	H = (CELL *)freep;
+      default:
 	return NULL;
       }
-      h0 = H;
-      H = (CELL *)freep;
     }
     H = h0;
     cl = (StaticClause *)((CODEADDR)x-(UInt)size);

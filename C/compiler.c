@@ -2724,6 +2724,7 @@ Yap_cclause(Term inp_clause, int NOfArgs, int mod, Term src)
     {
       Int osize = 2*sizeof(CELL)*(ASP-H);
       ARG1 = my_clause;
+      *H++ = src;
       if (!Yap_gcl(Yap_Error_Size, 2, ENV, P)) {
 	Yap_Error_TYPE = OUT_OF_STACK_ERROR;
 	Yap_Error_Term = my_clause;
@@ -2734,6 +2735,7 @@ Yap_cclause(Term inp_clause, int NOfArgs, int mod, Term src)
 	  Yap_Error_Term = my_clause;
 	}
       }
+      src = *--H;
       my_clause = ARG1;
     }
   } else if (botch_why == 4) {

@@ -16,6 +16,7 @@
 *************************************************************************/
 
 ensure_loaded(V) :-
+	'$current_module'(M),
 	'$ensure_loaded'(V).
 
 '$ensure_loaded'(V) :- var(V), !,
@@ -32,14 +33,15 @@ ensure_loaded(V) :-
 '$ensure_loaded'(X) :-
 	'$find_in_path'(X,Y,ensure_loaded(X)),
 	'$open'(Y, '$csult', Stream, 0), !,
-	( '$loaded'(Stream,TFN) ->
-	    (  	recorded('$module','$module'(TFN,M,P),_) ->
-		'$current_module'(T), '$import'(P,M,T)
+        '$current_module'(M),
+	( '$loaded'(Stream, M, TFN) ->
+	    (  	recorded('$module','$module'(TFN,NM,P),_) ->
+		'$import'(P,NM,M)
 		;
 		true
 	    )
 	;
-	    '$reconsult'(X,Stream)
+	    '$reconsult'(X,M,Stream)
 	    ),
 	'$close'(Stream).
 '$ensure_loaded'(X) :-		
@@ -89,15 +91,16 @@ reconsult(Fs) :-
 '$reconsult'(X) :-
 	'$find_in_path'(X,Y,reconsult(X)),
 	'$open'(Y,'$csult',Stream,0), !,
-	'$reconsult'(X,Stream),
+        '$current_module'(M),
+	'$reconsult'(X,M,Stream),
 	'$close'(Stream).
 '$reconsult'(X) :-
 	'$do_error'(permission_error(input,stream,X),reconsult(X)).
 
-'$reconsult'(F,Stream) :-
-	'$record_loaded'(Stream),
+'$reconsult'(F,M,Stream) :-
+	'$record_loaded'(Stream, M),
 	fail.
-'$reconsult'(F,Stream) :-
+'$reconsult'(F, OldModule, Stream) :-
 	'$getcwd'(OldD),
 	get_value('$consulting_file',OldF),
 	'$set_consulting_file'(Stream),
@@ -105,7 +108,6 @@ reconsult(Fs) :-
 	current_stream(File,_,Stream),
 	get_value('$consulting',Old),
 	set_value('$consulting',false),
-	'$current_module'(OldModule),
 	'$start_reconsulting'(F),
 	'$start_consult'(reconsult,File,LC),
 	'$remove_multifile_clauses'(File),
@@ -210,13 +212,25 @@ prolog_load_context(term_position, Position) :-
 	stream_position(Stream, Position).
 
 
-'$loaded'(Stream,F1) :-
-	'$file_name'(Stream,F),			%
-	recorded('$loaded','$loaded'(F1,Age),R),
+'$loaded'(Stream,M,F1) :-
+	'$file_name'(Stream,F),
+	'$loaded_file'(F,M,F1).
+
+% if the file exports a module, then we can
+% be imported from any module.
+'$loaded_file'(F,M,F1) :-
+	recorded('$module','$module'(F1,_,P),_),
+	recorded('$loaded','$loaded'(F1,_,Age),R),
 	'$same_file'(F1,F), !,
+	'$loaded_file_age'(F, R).
+'$loaded_file'(F,M,F1) :-
+	recorded('$loaded','$loaded'(F1,M,Age),R),
+	'$same_file'(F1,F), !,
+	'$loaded_file_age'(F, R).
+
+'$loaded_file_age'(F, R) :-
         '$file_age'(F,CurrentAge),
          ((CurrentAge = Age ; Age = -1)  -> true; erase(R), fail).
-
 
 
 

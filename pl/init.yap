@@ -114,7 +114,7 @@ system_mode(verbose,off) :- set_value('$verbose',off).
 %
 % cleanup ensure loaded and recover some data-base space.
 %
-:- ( recorded('$loaded','$loaded'(_,_),R), erase(R), fail ; true ).
+:- ( recorded('$loaded','$loaded'(_,_,_),R), erase(R), fail ; true ).
 
 :- set_value('$user_module',user), '$protect'.
 
