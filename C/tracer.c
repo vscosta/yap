@@ -120,10 +120,6 @@ low_level_trace(yap_low_level_port port, PredEntry *pred, CELL *args)
   /*  extern int gc_calls; */
 
   vsc_count++;
-  if (vsc_count < 845900)
-    return;
-  if (vsc_count == 845979)
-    jmp_deb(1);
 #ifdef COMMENTED
   //  if (vsc_count == 218280)
   //    vsc_xstop = 1;

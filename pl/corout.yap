@@ -220,7 +220,8 @@ dif(_, _).
 %
 % check if the variable was really bound
 %
-'$redo_freeze'(Done, V, _) :- var(V), !.
+'$redo_freeze'(Done, V, G) :- var(V), !,
+	'$freeze'(V, '$redo_freeze'(Done,V,G)).
 %
 % I can't believe it: we're done and can actually execute our
 % goal. Notice we have to say we are done, otherwise someone else in
