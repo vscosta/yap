@@ -2481,7 +2481,7 @@ Undefined predicate: user:xyz(A1,A2)
 @noindent
 followed by the failure of that call.
 
-@item yap_flag(unknown,+SPEC)
+@item yap_flag(unknown,+@var{SPEC})
 Alternatively, one can use @code{yap_flag/2},
 @code{current_prolog_flag/2}, or @code{set_prolog_flag/2}, to set this
 functionality. In this case, the first argument for the built-ins should
@@ -4769,7 +4769,7 @@ Lists in the current output stream all the clauses for which source code
 is available (these include all clauses for dynamic predicates and
 clauses for static predicates compiled when source mode was @code{on}).
 
-@item listing +@var{P}
+@item listing(+@var{P})
 @findex listing/1
 @syindex listing/1
 @caindex listing/1
@@ -7256,7 +7256,7 @@ current state of the random number generator.
 @cnindex random/1
 Unify @var{Number} with a floating-point number in the range @code{[0...1)}.
 
-@item random(-@var{Number}, +@var{LOW}, +@var{HIGH})
+@item random(+@var{LOW}, +@var{HIGH}, -@var{NUMBER})
 @findex random/3
 @syindex random/3
 @cnindex random/3
