@@ -18,8 +18,7 @@ output_var(Stream, V) :-
 	format(Stream, ' [ shape=box, style=filled, fillcolor=red, fontsize=18.0  ]~n',[]),
 	fail.
 output_var(Stream, V) :-
-	clpbn:get_atts(V,[key(Key),dist(DInfo)]),
-	extract_parents(DInfo,Parents),
+	clpbn:get_atts(V,[key(Key),dist(_,_,Parents)]),
 	Parents = [_|_], !,
 	format(Stream, '	',[]),
 	output_parents(Stream, Parents),
@@ -51,13 +50,6 @@ output_parents1(Stream,[V|L]) :-
 	put_code(Stream, 0' ),
 	output_parents1(Stream,L).
 
-
-extract_parents(tab(_,_),[]).
-extract_parents(tab(_,_,Parents),Parents).	
-extract_parents((sum.Parents->_),Parents) :- !.
-extract_parents((normalised_average(_).Parents->_),Parents) :- !.
-extract_parents(([_|_].Parents->_),Parents) :- !.
-extract_parents((_->_),[]).
 
 output_key(Stream, Key) :-
 	output_key(Stream, 0, Key).
