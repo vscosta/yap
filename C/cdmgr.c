@@ -2565,6 +2565,17 @@ add_code_in_pred(PredEntry *pp) {
 
   READ_LOCK(pp->PRWLock);
   /* check if the codeptr comes from the indexing code */
+  
+  if (pp->PredFlags & (CPredFlag|AsmPredFlag)) {
+    char *code_end;
+    StaticClause *cl;
+
+    clcode = pp->CodeOfPred;
+    cl = ClauseCodeToStaticClause(clcode);
+    code_end = (char *)cl + Yap_SizeOfBlock((CODEADDR)cl);
+    inform_profiler_of_clause(clcode, (yamop *)code_end, pp);
+    return;
+  }
   clcode = pp->cs.p_code.TrueCodeOfPred;
   if (pp->PredFlags & IndexedPredFlag) {
     char *code_end;
@@ -2590,7 +2601,7 @@ add_code_in_pred(PredEntry *pp) {
       } else {
 	cl = (CODEADDR)ClauseCodeToStaticClause(clcode);
       }
-      code_end = (char *)cl + Yap_SizeOfBlock((CODEADDR)cl);
+      code_end = cl + Yap_SizeOfBlock((CODEADDR)cl);
       inform_profiler_of_clause(clcode, (yamop *)code_end, pp);
       if (clcode == pp->cs.p_code.LastClause)
 	break;
@@ -2608,10 +2619,22 @@ Yap_dump_code_area_for_profiler(void) {
   for (i_table = NoOfModules-1; i_table >= 0; --i_table) {
     PredEntry *pp = ModulePred[i_table];
     while (pp != NULL) {
+      if (pp->ArityOfPE) {
+	fprintf(stderr,"%s/%d %p\n",
+		RepAtom(NameOfFunctor(pp->FunctorOfPred))->StrOfAE,
+		pp->ArityOfPE,
+		pp);
+      } else {
+	fprintf(stderr,"%s %p\n",
+		RepAtom((Atom)(pp->FunctorOfPred))->StrOfAE,
+		pp);
+      }
       add_code_in_pred(pp);
       pp = pp->NextPredOfModule;
     }
   }
+  inform_profiler_of_clause(COMMA_CODE, FAILCODE, RepPredProp(Yap_GetPredPropByFunc(FunctorComma,0)));
+  inform_profiler_of_clause(FAILCODE, FAILCODE+1, RepPredProp(Yap_GetPredPropByAtom(AtomFail,0)));
 }
 
 #endif /* LOW_PROF */

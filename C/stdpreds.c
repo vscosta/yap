@@ -205,10 +205,9 @@ static void
 search_pc_pred(yamop *pc_ptr,clauseentry *beg, clauseentry *end) {
   /* binary search, dynamic clauses not supported yet */
   Int i, j, f, l;
-  f = 0; l = (end-beg)-1;
+  f = 0; l = (end-beg);
   i = l/2;
   while (TRUE) {
-    printf("i %d\n", i);
     if (beg[i].beg > pc_ptr) {
       l = i-1;
       if (l < f) {

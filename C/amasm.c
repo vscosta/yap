@@ -2590,7 +2590,4 @@ Yap_InitComma(void)
     code_p->opc = opcode(_p_execute_tail);
     GONEXT(e);
   }
-#ifdef LOW_PROF
-  Yap_inform_profiler_of_clause(COMMA_CODE, code_p, RepPredProp(Yap_GetPredPropByFunc(FunctorComma,2)));
-#endif
 }
