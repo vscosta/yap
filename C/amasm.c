@@ -2870,7 +2870,7 @@ Yap_InitComma(void)
   code_p->u.sla.s = emit_count(-Signed(RealEnvSize) - sizeof(CELL) * 3);
   code_p->u.sla.sla_u.p = 
     code_p->u.sla.p0 =
-    RepPredProp(PredPropByFunc(FunctorComma,2));
+    RepPredProp(PredPropByFunc(FunctorComma,0));
   code_p->u.sla.bmap = NULL;
   GONEXT(sla);
   if (PRED_GOAL_EXPANSION_ON) {

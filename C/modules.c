@@ -51,6 +51,9 @@ LookupModule(Term a)
 {
   unsigned int             i;
 
+  /* prolog module */
+  if (a == 0)
+    return 0;
   for (i = 0; i < NoOfModules; ++i) {
     if (ModuleName[i] == a) {       
       return i;
@@ -121,13 +124,13 @@ p_change_module(void)
 static Int 
 cont_current_module(void)
 {
-  Int             mod = IntOfTerm(EXTRA_CBACK_ARG(1,1));
-  Term t = ModuleName[mod];
+  Int  imod = IntOfTerm(EXTRA_CBACK_ARG(1,1));
+  Term t = ModuleName[imod];
 
-  if (mod == NoOfModules) {
+  if (imod == NoOfModules) {
     cut_fail();
   }
-  EXTRA_CBACK_ARG(1,1) = MkIntTerm(mod+1);
+  EXTRA_CBACK_ARG(1,1) = MkIntTerm(imod+1);
   return(Yap_unify(ARG1,t));
 }
 
@@ -152,7 +155,7 @@ Yap_InitModulesC(void)
 void 
 Yap_InitModules(void)
 {
-  ModuleName[0] =
+  ModuleName[PROLOG_MODULE] =
     TermProlog;
   ModuleName[1] = 
     USER_MODULE;

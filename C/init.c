@@ -713,6 +713,7 @@ InitCodes(void)
   Functor
     FunctorThrow;
 
+  heap_regs->term_prolog = MkAtomTerm(Yap_LookupAtom("prolog"));
   heap_regs->user_module = MkAtomTerm(Yap_LookupAtom("user"));
   heap_regs->idb_module = MkAtomTerm(Yap_LookupAtom("idb"));
   heap_regs->attributes_module = MkAtomTerm(Yap_LookupAtom("attributes"));
@@ -991,7 +992,6 @@ InitCodes(void)
 #ifdef EUROTRA
   heap_regs->term_dollar_u = MkAtomTerm(Yap_FullLookupAtom("$u"));
 #endif
-  heap_regs->term_prolog = MkAtomTerm(Yap_LookupAtom("prolog"));
   heap_regs->term_refound_var = MkAtomTerm(Yap_FullLookupAtom("$I_FOUND_THE_VARIABLE_AGAIN"));
   heap_regs->dyn_array_list = NULL;
   heap_regs->n_of_file_aliases = 0;
