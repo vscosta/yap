@@ -1075,14 +1075,17 @@ Yap_absmi(int inp)
       BOp(stale_lu_index, Ill);
       saveregs();
       {
+	yamop *ipc;
+
 	/* update ASP before calling IPred */
 	ASP = YREG+E_CB;
 	if (ASP > (CELL *) B) {
 	  ASP = (CELL *) B;
 	}
-	PREG = Yap_CleanUpIndex(PREG->u.Ill.I);
+	ipc = Yap_CleanUpIndex(PREG->u.Ill.I);
 	/* restart index */
 	setregs();
+	PREG = ipc;
 	CACHED_A1() = ARG1;
 	JMPNext();
       }
