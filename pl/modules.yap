@@ -217,7 +217,7 @@ module(N) :-
 	'$import'(L,M,T).
 
 '$check_import'(M,T,N,K) :-
-    recorded('$import','$import'(M1,T0,N,K),R), T0 == T, M1 \= M, /* ZP */ !,
+    recorded('$import','$import'(M1,T,N,K),R), M1 \= M, /* ZP */ !,
     '$format'(user_error,"NAME CLASH: ~w was already imported to module ~w;~n",[M1:N/K,T]),
     '$format'(user_error,"            Do you want to import it from ~w ? [y or n] ",M),
     repeat,
@@ -254,7 +254,7 @@ module(N) :-
 
 '$abolish_module_data'(M) :-
 	'$current_module'(T),
-	( recorded('$import','$import'(M,T0,_,_),R), T0 == T, erase(R), fail; true),
+	( recorded('$import','$import'(M,T,_,_),R), erase(R), fail; true),
 	recorded('$module','$module'(_,M,_),R),
 	erase(R),
 	fail.

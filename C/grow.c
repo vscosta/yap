@@ -137,6 +137,8 @@ SetHeapRegs(void)
   YENV = PtoLocAdjust(YENV);
   if (IsOldGlobalPtr(S))
     S = PtoGloAdjust(S);
+  else if (IsOldLocalPtr(S))
+    S = PtoLocAdjust(S);	   
   if (MyTR)
     MyTR = PtoTRAdjust(MyTR);
 #ifdef COROUTINING

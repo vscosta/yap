@@ -1085,13 +1085,14 @@ RestoreClause(yamop *pc, PredEntry *pp, int mode)
       /* instructions type lll */
     case _if_not_then:
       {
-	Term t = pc->u.cll.c;
+	Term t = pc->u.clll.c;
 	if (IsAtomTerm(t))
-	    pc->u.cll.c = AtomTermAdjust(t);
+	    pc->u.clll.c = AtomTermAdjust(t);
       }
-      pc->u.cll.l1 = PtoOpAdjust(pc->u.cll.l1);
-      pc->u.cll.l2 = PtoOpAdjust(pc->u.cll.l2);
-      pc = NEXTOP(pc,cll);
+      pc->u.clll.l1 = PtoOpAdjust(pc->u.clll.l1);
+      pc->u.clll.l2 = PtoOpAdjust(pc->u.clll.l2);
+      pc->u.clll.l3 = PtoOpAdjust(pc->u.clll.l3);
+      pc = NEXTOP(pc,clll);
       break;
       /* switch_on_func */
     case _switch_on_func:
@@ -1184,7 +1185,6 @@ RestoreClause(yamop *pc, PredEntry *pp, int mode)
       }
       pc = NEXTOP(pc,sl);
       break;
-      /* instructions type cll */
     case _if_cons:
       {
 	CELL *oldcode = (CELL *)(pc->u.sl.l = PtoOpAdjust(pc->u.sl.l));

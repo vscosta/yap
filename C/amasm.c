@@ -1192,11 +1192,12 @@ a_ifnot(op_numbers opcode)
 {
   if (pass_no) {
     code_p->opc = emit_op(opcode);
-    code_p->u.cll.c = cpc->arnds[0];		    /* tag */
-    code_p->u.cll.l1 = emit_ilabel(cpc->arnds[1]);  /* success point */
-    code_p->u.cll.l2 = emit_ilabel(cpc->arnds[2]);  /* fail point */
+    code_p->u.clll.c = cpc->arnds[0];		    /* tag */
+    code_p->u.clll.l1 = emit_ilabel(cpc->arnds[1]);  /* success point */
+    code_p->u.clll.l2 = emit_ilabel(cpc->arnds[2]);  /* fail point */
+    code_p->u.clll.l3 = emit_ilabel(cpc->arnds[3]);  /* delay point */
   }
-  GONEXT(cll);
+  GONEXT(clll);
 }
 
 static void

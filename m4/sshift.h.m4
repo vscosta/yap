@@ -93,6 +93,7 @@ Inline(XAdjust, wamreg, wamreg, reg, (reg) )
 Inline(YAdjust, yslot, yslot, reg, (reg) )
 
 Inline(IsOldLocal, int, CELL, reg, IN_BETWEEN(OldASP, reg, OldLCL0))
+Inline(IsOldLocalPtr, int, CELL *, ptr, IN_BETWEEN(OldASP, ptr, OldLCL0))
 
 /* require because the trail might contain dangling pointers */
 Inline(IsOldLocalInTR, int, CELL, reg, IN_BETWEEN(OldH, reg, OldLCL0) )

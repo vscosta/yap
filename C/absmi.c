@@ -2164,6 +2164,10 @@ Yap_absmi(int inp)
 	GONext();
       }
       ASP = YREG;
+      /* cut_e */
+      if (SREG <= ASP) {
+	ASP = SREG-EnvSizeInCells;
+      }
       if (CFREG == (CELL)(LCL0+1)) {
 	goto noheapleft;
       }
@@ -6792,21 +6796,21 @@ Yap_absmi(int inp)
       ENDD(d0);
       ENDBOp();
 
-      BOp(if_not_then, cll);
+      BOp(if_not_then, clll);
       BEGD(d0);
       d0 = CACHED_A1();
       deref_head(d0, if_n_unk);
     if_n_nvar:
       /* not variable */
-      if (d0 == PREG->u.cll.c) {
+      if (d0 == PREG->u.clll.c) {
 	/* equal to test value */
-	PREG = PREG->u.cll.l2;
+	PREG = PREG->u.clll.l2;
 	JMPNext();
       }
       else {
 	/* different from test value */
 	/* the case to optimise */
-	PREG = PREG->u.cll.l1;
+	PREG = PREG->u.clll.l1;
 	JMPNext();
       }
 
@@ -6814,7 +6818,7 @@ Yap_absmi(int inp)
       deref_body(d0, pt0, if_n_unk, if_n_nvar);
       ENDP(pt0);
       /* variable */
-      PREG = PREG->u.cll.l2;
+      PREG = PREG->u.clll.l3;
       JMPNext();
       ENDD(d0);
       ENDBOp();

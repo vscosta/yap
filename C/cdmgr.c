@@ -345,7 +345,7 @@ decrease_log_indices(LogUpdIndex *c, yamop *suspend_code)
       ipc = NEXTOP(ipc,sllll);
       break;
     case _if_not_then:
-      ipc = NEXTOP(ipc,cll);
+      ipc = NEXTOP(ipc,clll);
       break;
     case _switch_on_func:
     case _if_func:

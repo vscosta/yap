@@ -136,8 +136,9 @@ typedef struct yami {
 	 CELL                c;
 	 struct yami        *l1;
 	 struct yami        *l2;
+	 struct yami        *l3;
 	 CELL next;
-       } cll;
+       } clll;
        struct {
 	 CODEADDR            d;
 	 CELL next;

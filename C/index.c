@@ -1894,6 +1894,13 @@ move_next(ClauseDef *clause, UInt regno)
       clause->CurrentCode = NEXTOP(cl,x);
     }	
     return;
+  case _glist_valx:
+  case _gl_void_vary:
+  case _gl_void_valy:
+  case _gl_void_varx:
+  case _gl_void_valx:
+  case _glist_valy:
+    return;
   case _get_atom:
   case _get_float:
   case _get_longint:
@@ -1907,6 +1914,7 @@ move_next(ClauseDef *clause, UInt regno)
       clause->CurrentCode = NEXTOP(cl,xf);
     }	
   default:
+    clause->CurrentCode = clause->Code;
     return;
   }
 }
@@ -2024,6 +2032,7 @@ add_arg_info(ClauseDef *clause, PredEntry *ap, UInt argno)
     case _unify_l_list:
       if (argno == 1) {
 	clause->Tag = AbsPair(NULL);
+	clause->u.WorkPC = NEXTOP(cl,o);
 	return;
       }
       argno += 1; /* 2-1: have two extra arguments to skip */
@@ -2098,6 +2107,7 @@ add_arg_info(ClauseDef *clause, PredEntry *ap, UInt argno)
     case _unify_l_struc:
       if (argno == 1) {
 	clause->Tag = AbsAppl((CELL *)cl->u.of.f);
+	clause->u.WorkPC = NEXTOP(cl,of);
 	return;
       }
       argno--;
@@ -2149,160 +2159,31 @@ skip_to_arg(ClauseDef *clause, PredEntry *ap, UInt argno, int at_point)
   yamop *cl;
   int done = FALSE;
   if (ap->ModuleOfPred == 2) {
-    cl = clause->Code;
+    return;
   } else {
-    cl = clause->u.WorkPC;
+    cl = clause->CurrentCode;
   }
 
-  at_point = at_point & (clause->u.WorkPC == clause->CurrentCode); 
+  if (!at_point) {
+    clause->CurrentCode = clause->Code;
+    return;
+  }
+
   while (!done) {
     op_numbers op = Yap_op_from_opcode(cl->opc);
     switch (op) {
-    case _glist_valx:
-      at_point = FALSE;
-      cl = NEXTOP(cl,xx);
-      if (argno == 1) {
-	clause->u.WorkPC=cl;
-	done = TRUE;
-      } else {
-	/* looking to adjust workpc */
-	argno--;
-      }
-      break;
-    case _gl_void_vary:
-    case _gl_void_valy:
-      if (argno == 2) {
-	clause->u.WorkPC = NEXTOP(cl,xy);
-      } else {
-	clause->u.WorkPC = cl;
-      }
-      done = TRUE;
-      break;
-    case _gl_void_varx:
-    case _gl_void_valx:
-      if (argno == 2) {
-	clause->u.WorkPC = NEXTOP(cl,xx);
-      } else {
-	clause->u.WorkPC = cl;
-      }
-      done = TRUE;
-      break;
-    case _glist_valy:
-      done = TRUE;
-      at_point = FALSE;
-      clause->u.WorkPC = NEXTOP(cl,xy);
-      break;
-    case _unify_l_x_var:
-    case _unify_l_x_val:
-    case _unify_l_x_loc:
-    case _unify_x_var:
-    case _unify_x_val:
-    case _unify_x_loc:
-      if (argno == 1) {
-	clause->u.WorkPC = NEXTOP(cl,ox);
-	done = TRUE;
-      } else {
-	argno--;
-	at_point = FALSE;
-      }
-    case _unify_l_x_var_write:
-    case _unify_l_x_val_write:
-    case _unify_l_x_loc_write:
-    case _unify_x_var_write:
-    case _unify_x_val_write:
-    case _unify_x_loc_write:
-      cl = NEXTOP(cl,ox);
-      break;
-    case _save_pair_x_write:
-    case _save_pair_x:
-    case _save_appl_x_write:
-    case _save_appl_x:
-      at_point = FALSE;
-      cl = NEXTOP(cl,ox);
-      break;
-    case _unify_l_x_var2:
-    case _unify_x_var2:
-      at_point = FALSE;
-      if (argno == 1 || argno == 2) {
-	if (argno == 2) {
-	  clause->u.WorkPC = NEXTOP(cl,oxx);
-	} else {
-	  clause->u.WorkPC = cl;
-	}
-	done = TRUE;
-      } else {
-	argno -= 2;
-      }
-    case _unify_l_x_var2_write:
-    case _unify_x_var2_write:
-      break;
-    case _unify_y_var:
-    case _unify_y_val:
-    case _unify_y_loc:
-    case _unify_l_y_var:
-    case _unify_l_y_val:
-    case _unify_l_y_loc:
-      /* we're just done with the head of a list, but there
-	 is nothing inside.
-       */
-      at_point = FALSE;
-      if (argno == 1) {
-	clause->u.WorkPC = NEXTOP(cl,oy);
-	done = TRUE;
-      } else {
-	argno--;
-      }
-    case _unify_y_var_write:
-    case _unify_y_val_write:
-    case _unify_y_loc_write:
-    case _unify_l_y_var_write:
-    case _unify_l_y_val_write:
-    case _unify_l_y_loc_write:
-      cl = NEXTOP(cl,oy);
-      break;
-    case _save_pair_y_write:
-    case _save_pair_y:
-    case _save_appl_y_write:
-    case _save_appl_y:
-      at_point = FALSE;
-      cl = NEXTOP(cl,oy);
-      break;
-    case _unify_l_void:
     case _unify_void:
       if (argno == 1) {
-	done = TRUE;
+	clause->CurrentCode = clause->Code;
+	return;
       } else {
 	argno--;
       }
-    case _unify_l_void_write:
     case _unify_void_write:
       cl = NEXTOP(cl,o);
       break;
     case _unify_list:
     case _unify_l_list:
-      if (argno == 1) {
-	clause->u.WorkPC = NEXTOP(cl,o);
-	done = TRUE;
-      } else {
-	argno += 1; /* 2-1: have two extra arguments to skip */
-	at_point = FALSE;
-      }
-    case _unify_list_write:
-    case _unify_l_list_write:
-      cl = NEXTOP(cl,o);
-      break;
-    case _unify_n_voids:
-    case _unify_l_n_voids:
-      if (argno <= cl->u.os.s) {
-	clause->u.WorkPC = cl;
-	done = TRUE;
-      } else {
-	argno -= cl->u.os.s;
-      }
-    case _unify_n_voids_write:
-    case _unify_l_n_voids_write:
-      cl = NEXTOP(cl,os);
-      break;      
     case _unify_atom:
     case _unify_l_atom:
     case _unify_longint:
@@ -2310,41 +2191,34 @@ skip_to_arg(ClauseDef *clause, PredEntry *ap, UInt argno, int at_point)
     case _unify_bigint:
     case _unify_l_bigint:
     case _unify_l_float:
-      if (argno == 1) {
-	done = TRUE;
+    case _unify_struct:
+    case _unify_l_struc:
+      if (cl == clause->u.WorkPC) {
+	clause->CurrentCode = cl;
       } else {
-	at_point = FALSE;
-	argno--;
+	clause->CurrentCode = clause->Code;
       }
+      return;
+    case _unify_list_write:
+    case _unify_l_list_write:
+      cl = NEXTOP(cl,o);
+      break;
+    case _unify_n_voids:
+    case _unify_l_n_voids:
+      if (argno <= cl->u.os.s) {
+	clause->CurrentCode = clause->Code;
+	return;
+      } else {
+	argno -= cl->u.os.s;
+      }
+    case _unify_n_voids_write:
+    case _unify_l_n_voids_write:
+      cl = NEXTOP(cl,os);
+      break;      
     case _unify_atom_write:
     case _unify_l_atom_write:
       cl = NEXTOP(cl,oc);
       break;      
-    case _unify_n_atoms:
-      if (argno <= cl->u.osc.s) {
-	if (argno == cl->u.osc.s) {
-	  clause->u.WorkPC = NEXTOP(cl,oc);
-	} else {
-	  clause->u.WorkPC = cl;
-	  at_point = FALSE;
-	}
-	done = TRUE;
-      } else {
-	at_point = FALSE;
-	argno -= cl->u.osc.s;
-      }
-    case _unify_n_atoms_write:
-      cl = NEXTOP(cl,osc);
-      break;      
-    case _unify_struct:
-    case _unify_l_struc:
-      if (argno == 1) {
-	clause->u.WorkPC = NEXTOP(cl,of);
-	done = TRUE;
-      } else {
-	at_point = FALSE;
-	argno--;
-      }
     case _unify_l_struc_write:
     case _unify_struct_write:
       cl = NEXTOP(cl,of);
@@ -2356,13 +2230,9 @@ skip_to_arg(ClauseDef *clause, PredEntry *ap, UInt argno, int at_point)
       cl = NEXTOP(cl,s);
       break;      
     default:
-      done = TRUE;
+      clause->CurrentCode = clause->Code;
+      return;      
     }
-  }
-  if (at_point) {
-    clause->CurrentCode = clause->u.WorkPC;
-  } else {
-    clause->CurrentCode = clause->Code;
   }
 }
 
@@ -3065,7 +2935,7 @@ do_nonvar_group(GroupDef *grp, Term t, int compound_term, CELL *sreg, UInt arity
 }
 
 static UInt
-do_optims(GroupDef *group, int ngroups, UInt fail_l)
+do_optims(GroupDef *group, int ngroups, UInt fail_l, ClauseDef *min, PredEntry *ap)
 {
   if (ngroups==2 && group[0].FirstClause ==  group[0].LastClause &&
       group[0].AtomClauses == 1 && group[1].VarClauses == 1) {
@@ -3073,10 +2943,19 @@ do_optims(GroupDef *group, int ngroups, UInt fail_l)
     UInt labl;
 
     labl = new_label();
-    sp = Yap_emit_extra_size(if_not_op, Zero, 3*CellSize);
+    sp = Yap_emit_extra_size(if_not_op, Zero, 4*CellSize);
     sp[0] = (CELL)(group[0].FirstClause->Tag);
     sp[1] = (CELL)(group[1].FirstClause->Code);
-    sp[2] = (CELL)PREVOP(group[0].FirstClause->Code,ld);
+    if (group[0].FirstClause->Code == ap->cs.p_code.FirstClause) {
+      sp[2] = (CELL)PREVOP(group[0].FirstClause->Code,ld);
+    } else {
+      sp[2] = do_var_clauses(group[0].FirstClause, group[1].LastClause, FALSE, ap, TRUE, 0, (CELL)FAILCODE, ap->ArityOfPE+1);      
+    }
+    if (PREVOP(min->Code,ld) == ap->cs.p_code.FirstClause) {
+      sp[3] = (CELL)(ap->cs.p_code.FirstClause);
+    } else {
+      sp[3] = do_var_clauses(min, group[1].LastClause, FALSE, ap, TRUE, 0, (CELL)FAILCODE, ap->ArityOfPE+1);
+    }
     return labl;
   }
   return fail_l;
@@ -3192,7 +3071,7 @@ do_index(ClauseDef *min, ClauseDef* max, PredEntry *ap, UInt argno, UInt fail_l,
 	group[1].LastClause = group[ngroups-1].LastClause;
 	ngroups = 2;
       }
-    } else if ((special_options = do_optims(group, ngroups, fail_l)) != fail_l) {
+    } else if ((special_options = do_optims(group, ngroups, fail_l, min, ap)) != fail_l) {
       return special_options;
     }
     if (ngroups == 1 && group->VarClauses && !found_pvar) {
@@ -3273,6 +3152,7 @@ do_compound_index(ClauseDef *min0, ClauseDef* max0, Term* sreg, PredEntry *ap, U
     ClauseDef *cl;
     GroupDef *group;
     UInt ngroups;
+    int isvt = IsVarTerm(Deref(sreg[i]));
 
     min = copy_clauses(max0, min0, top);
     max = min+(max0-min0);
@@ -3290,13 +3170,13 @@ do_compound_index(ClauseDef *min0, ClauseDef* max0, Term* sreg, PredEntry *ap, U
       /* process groups */
       *newlabp = new_label();
       top = (CELL *)(group+1);
-      newlabp = do_nonvar_group(group, (sreg == NULL ? 0L : Deref(sreg[i])), i+1, sreg, arity, *newlabp, ap, argno, argno == 1, (last_arg && i+1 == arity), fail_l, clleft, top);
+      newlabp = do_nonvar_group(group, (sreg == NULL ? 0L : Deref(sreg[i])), i+1, (isvt ? NULL : sreg), arity, *newlabp, ap, argno, argno == 1, (last_arg && i+1 == arity), fail_l, clleft, top);
       if (newlabp == NULL) {
 	found_index = TRUE;
 	top = top0;
 	break;
       }
-      if (sreg == NULL || !IsVarTerm(Deref(sreg[i]))) {
+      if (sreg == NULL || !isvt) {
 	found_index = TRUE;
       } else {
 	done_work = TRUE;
@@ -3507,7 +3387,7 @@ install_clause(ClauseDef *cls, PredEntry *ap, istack_entry *stack)
       UInt argno = -sp->pos;
       add_arg_info(cls, ap, argno);
     }
-    /* go straught to the meat for dbrefs and friends */
+    /* go straight to the meat for dbrefs and friends */
     if (IsApplTerm(cls->Tag)) {
       Functor f = (Functor)RepAppl(cls->Tag);
       if (IsExtensionFunctor(f)) {
@@ -3864,7 +3744,6 @@ expand_index(PredEntry *ap) {
       t = Deref(ARG1);
       argno = 1;
       i = 0;
-      sp = reset_stack(stack);
       if (IsVarTerm(t)) {
 	labp = &(ipc->u.llll.l4);
 	ipc = ipc->u.llll.l4;
@@ -3883,7 +3762,6 @@ expand_index(PredEntry *ap) {
       break;
     case _switch_list_nl:
       t = Deref(ARG1);
-      sp = reset_stack(stack);
       argno = 1;
       i = 0;
       if (IsVarTerm(t)) {	
@@ -3936,13 +3814,16 @@ expand_index(PredEntry *ap) {
 	sp = push_stack(sp, -i-1, AbsPair(NULL));
 	labp = &(ipc->u.sllll.l1);
 	ipc = ipc->u.sllll.l1;
+	i = 0;
       } else if (IsApplTerm(t)) {
 	sp = push_stack(sp, -i-1, AbsAppl((CELL *)FunctorOfTerm(t)));
-	ipc = ipc->u.sllll.l3;	
+	ipc = ipc->u.sllll.l3;
+	i = 0;
       } else {
 	/* We don't push stack here, instead we go over to next argument
 	   sp = push_stack(sp, -i-1, t);
 	*/
+	sp = push_stack(sp, -i-1, t);
 	ipc = ipc->u.sllll.l2;	
 	i++;
       }
@@ -4068,37 +3949,54 @@ expand_index(PredEntry *ap) {
     *labp = FAILCODE;
     return labp;
   }
-  if (sp[-1].pos < 0 &&
-      sp > stack+1 &&
-      s_reg != NULL &&
-      !IsVarTerm(sp[-1].val) &&
-      IsAtomOrIntTerm(sp[-1].val)) {
-    /* if an atom or int continue from where we stopped */
-    i = -sp[-1].pos;
-    sp[-1].pos = 0;
-    sp--;
-    /* we have to put the right masks now */
-    if (ap->PredFlags & LogUpdatePredFlag) {
-      reinstall_log_upd_clauses(cls, max, ap, stack);
-    } else {
-      reinstall_clauses(cls, max, ap, stack);
-    }
-  }
   freep = (char *)(max+1);
   CodeStart = cpc = NULL;
   
-  if (!IsVarTerm(sp[-1].val) && IsPairTerm(sp[-1].val) && sp > stack) {
-    lab = do_compound_index(cls, max, s_reg, ap, i, 2, argno+1, fail_l, isfirstcl, is_last_arg, clleft, top);
-  } else if (!IsVarTerm(sp[-1].val) && IsApplTerm(sp[-1].val) && sp > stack) {
-    /* we are continuing within a compound term */
-    Functor f = (Functor)RepAppl(sp[-1].val);
-    if (IsExtensionFunctor(f)) {
-      if (f == FunctorDBRef) 
-	lab = do_dbref_index(cls, max, t, ap, argno, fail_l, isfirstcl, clleft, top);
-      else
-	lab = do_blob_index(cls, max, t, ap, argno, fail_l, isfirstcl, clleft, top);
+  if (!IsVarTerm(sp[-1].val)  && sp > stack) {
+    if (IsAtomOrIntTerm(sp[-1].val)) {
+      if (s_reg == NULL) { /* we have not yet looked into terms */
+	lab = do_index(cls, max, ap, argno+1, fail_l, isfirstcl, clleft, top);
+      } else {
+	UInt arity = 0;
+
+	if (ap->PredFlags & LogUpdatePredFlag) {
+	  reinstall_log_upd_clauses(cls, max, ap, stack);
+	} else {
+	  reinstall_clauses(cls, max, ap, stack);
+	}
+	sp--;
+	while (sp > stack) {
+	  Term t = sp[-1].val;
+	  if (IsApplTerm(t)) {
+	    Functor f = (Functor)RepAppl(t);
+	    if (!IsExtensionFunctor(f)) {
+	      arity = ArityOfFunctor(f);
+	      break;
+	    } else {
+	      sp--;
+	    }
+	  } else if (IsPairTerm(t)) {
+	    arity = 2;
+	    break;
+	  } else {
+	    sp--;
+	  }
+	}
+	lab = do_compound_index(cls, max, s_reg, ap, i, arity, argno, fail_l, isfirstcl, is_last_arg, clleft, top);
+      }
+    } else if (IsPairTerm(sp[-1].val) && sp > stack) {
+      lab = do_compound_index(cls, max, s_reg, ap, i, 2, argno, fail_l, isfirstcl, is_last_arg, clleft, top);
     } else {
-      lab = do_compound_index(cls, max, s_reg, ap, i, ArityOfFunctor(f), argno, fail_l, isfirstcl, is_last_arg, clleft, top);
+      /* we are continuing within a compound term */
+      Functor f = (Functor)RepAppl(sp[-1].val);
+      if (IsExtensionFunctor(f)) {
+	if (f == FunctorDBRef) 
+	  lab = do_dbref_index(cls, max, t, ap, argno, fail_l, isfirstcl, clleft, top);
+	else
+	  lab = do_blob_index(cls, max, t, ap, argno, fail_l, isfirstcl, clleft, top);
+      } else {
+	lab = do_compound_index(cls, max, s_reg, ap, i, ArityOfFunctor(f), argno, fail_l, isfirstcl, is_last_arg, clleft, top);
+      }
     }
   } else {
     if (argno == ap->ArityOfPE) {
@@ -4145,6 +4043,10 @@ ExpandIndex(PredEntry *ap) {
   if (Yap_Option['i' - 'a' + 1]) {
     Term tmod = ModuleName[ap->ModuleOfPred];
     Yap_DebugPutc(Yap_c_error_stream,'>');
+    {
+      extern long long int vsc_count;
+      fprintf(stderr,"%lld",vsc_count);
+    }
     Yap_DebugPutc(Yap_c_error_stream,'\t');
     Yap_plwrite(tmod, Yap_DebugPutc, 0);
     Yap_DebugPutc(Yap_c_error_stream,':');
@@ -4846,28 +4748,30 @@ insertz_in_lu_block(LogUpdIndex *blk, PredEntry *ap, yamop *code)
   }
   if (next <= end) {
     /* we got space to put something in */
-    if (blk->ClFlags & InUseMask) {
-      blk->ClCode->opc = Yap_opcode(_stale_lu_index);
-    } else {
-      /* we need to rebuild the code */
-      /* first, shift the last retry down, getting rid of the trust logical pred */
-      yamop *nlast = PREVOP(last, l);
-      memmove((void *)nlast, (void *)last, (CELL)NEXTOP((yamop *)NULL,ld));
-      nlast->opc = Yap_opcode(_retry);
-      where = NEXTOP(nlast,ld);
-      if (ap->PredFlags & ProfiledPredFlag) {
-	where->opc = Yap_opcode(_retry_profiled);
-	where->u.p.p = ap;
-	where = NEXTOP(where, p);
+    if (blk->ClCode->opc != Yap_opcode(_stale_lu_index)) {
+      if (blk->ClFlags & InUseMask) {
+	blk->ClCode->opc = Yap_opcode(_stale_lu_index);
+      } else {
+	/* we need to rebuild the code */
+	/* first, shift the last retry down, getting rid of the trust logical pred */
+	yamop *nlast = PREVOP(last, l);
+	memmove((void *)nlast, (void *)last, (CELL)NEXTOP((yamop *)NULL,ld));
+	nlast->opc = Yap_opcode(_retry);
+	where = NEXTOP(nlast,ld);
+	if (ap->PredFlags & ProfiledPredFlag) {
+	  where->opc = Yap_opcode(_retry_profiled);
+	  where->u.p.p = ap;
+	  where = NEXTOP(where, p);
+	}
+	if (ap->PredFlags & CountPredFlag) {
+	  where->opc = Yap_opcode(_count_retry);
+	  where->u.p.p = ap;
+	  where = NEXTOP(where, p);
+	}
+	where->opc = Yap_opcode(_trust_logical_pred);
+	where->u.l.l = (yamop *)blk;
+	where = NEXTOP(where, l);
       }
-      if (ap->PredFlags & CountPredFlag) {
-	where->opc = Yap_opcode(_count_retry);
-	where->u.p.p = ap;
-	where = NEXTOP(where, p);
-      }
-      where->opc = Yap_opcode(_trust_logical_pred);
-      where->u.l.l = (yamop *)blk;
-      where = NEXTOP(where, l);
     }
     where->opc = Yap_opcode(_trust);
     where->u.ld.s = ap->ArityOfPE;
@@ -5016,13 +4920,13 @@ add_to_index(PredEntry *ap, int first, path_stack_entry *sp, ClauseDef *cls) {
   yamop *ipc = ap->cs.p_code.TrueCodeOfPred;
   int group1 = TRUE;
   yamop *alt = NULL;
+  UInt current_arity = 0;
+  int last_arg = TRUE;
 
   sp = init_block_stack(sp, ipc, ap);
   /* try to refine the interval using the indexing code */
   while (ipc != NULL) {
     op_numbers op = Yap_op_from_opcode(ipc->opc);
-    UInt current_arity = 0;
-    int last_arg = TRUE;
 
     switch(op) {
     case _try_clause:
@@ -5125,6 +5029,8 @@ add_to_index(PredEntry *ap, int first, path_stack_entry *sp, ClauseDef *cls) {
       }
       if (IsPairTerm(cls->Tag)) {
 	yamop *nipc = ipc->u.llll.l1;
+
+	current_arity = 2;
 	move_next(cls, 1);
 	if (nipc == FAILCODE) {
 	  /* jump straight to clause */
@@ -5174,6 +5080,8 @@ add_to_index(PredEntry *ap, int first, path_stack_entry *sp, ClauseDef *cls) {
       }
       if (IsPairTerm(cls->Tag)) {
 	yamop *nipc = ipc->u.ollll.l1;
+
+	current_arity = 2;
 	move_next(cls, 1);
 	if (nipc == FAILCODE) {
 	  /* jump straight to clause */
@@ -5223,6 +5131,8 @@ add_to_index(PredEntry *ap, int first, path_stack_entry *sp, ClauseDef *cls) {
       }
       if (IsPairTerm(cls->Tag)) {
 	yamop *nipc = ipc->u.xllll.l1;
+
+	current_arity = 2;
 	move_next(cls, Yap_regtoregno(ipc->u.xllll.x));
 	if (nipc == FAILCODE) {
 	  /* jump straight to clause */
@@ -5269,6 +5179,7 @@ add_to_index(PredEntry *ap, int first, path_stack_entry *sp, ClauseDef *cls) {
       add_arg_info(cls, ap, ipc->u.sllll.s+1);
       if (IsPairTerm(cls->Tag)) {
 	yamop *nipc = ipc->u.sllll.l1;
+	current_arity = 2;
 	skip_to_arg(cls, ap, ipc->u.sllll.s, current_arity);
 	if (current_arity != ipc->u.sllll.s+1) {
 	  last_arg = FALSE;
@@ -5525,6 +5436,7 @@ remove_from_index(PredEntry *ap, path_stack_entry *sp, ClauseDef *cls, yamop *bg
   /* last clause to experiment with */
   yamop *ipc = ap->cs.p_code.TrueCodeOfPred;
   sp = init_block_stack(sp, ipc, ap);
+  UInt current_arity = 0;
 
   if (ap->cs.p_code.NOfClauses == 1 &&
       ap->OpcodeOfPred != INDEX_OPCODE) {
@@ -5535,7 +5447,6 @@ remove_from_index(PredEntry *ap, path_stack_entry *sp, ClauseDef *cls, yamop *bg
   /* try to refine the interval using the indexing code */
   while (ipc != NULL) {
     op_numbers op = Yap_op_from_opcode(ipc->opc);
-    UInt current_arity = 0;
 
     switch(op) {
     case _retry_profiled:
@@ -5614,6 +5525,7 @@ remove_from_index(PredEntry *ap, path_stack_entry *sp, ClauseDef *cls, yamop *bg
       }
       if (IsPairTerm(cls->Tag)) {
 	yamop *nipc = ipc->u.llll.l1;
+	current_arity = 2;
 	move_next(cls, 1);
 	if (nipc == FAILCODE) {
 	  ipc = pop_path(&sp, cls, ap);
@@ -5671,6 +5583,7 @@ remove_from_index(PredEntry *ap, path_stack_entry *sp, ClauseDef *cls, yamop *bg
       }
       if (IsPairTerm(cls->Tag)) {
 	yamop *nipc = ipc->u.ollll.l1;
+	current_arity = 2;
 	move_next(cls, 1);
 	if (nipc == FAILCODE) {
 	  ipc = pop_path(&sp, cls, ap);
@@ -5721,6 +5634,7 @@ remove_from_index(PredEntry *ap, path_stack_entry *sp, ClauseDef *cls, yamop *bg
       break;
     case _switch_on_arg_type:
       sp = push_path(sp, &(ipc->u.xllll.l4), cls);
+      current_arity = 2;
       if (ap->PredFlags & LogUpdatePredFlag) {
 	add_head_info(cls, Yap_regtoregno(ipc->u.xllll.x));
       } else {
@@ -5778,6 +5692,7 @@ remove_from_index(PredEntry *ap, path_stack_entry *sp, ClauseDef *cls, yamop *bg
       break;
     case _switch_on_sub_arg_type:
       sp = push_path(sp, &(ipc->u.sllll.l4), cls);
+      current_arity = 2;
       add_arg_info(cls, ap, ipc->u.sllll.s+1);
       if (IsPairTerm(cls->Tag)) {
 	yamop *nipc = ipc->u.sllll.l1;
@@ -6271,12 +6186,15 @@ Yap_follow_lu_indexing_code(PredEntry *ap, yamop *ipc, Term t1, Term tb, Term tr
       break;
     case _if_not_then:
       t = Deref(ARG1);
-      if (!IsVarTerm(t) && t != ipc->u.cll.c) {
-	jlbl = &(ipc->u.cll.l2);
-	ipc = ipc->u.cll.l2;
+      if (IsVarTerm(t)) {
+	jlbl = &(ipc->u.clll.l3);
+	ipc = ipc->u.clll.l3;
+      } else if (!IsVarTerm(t) && t != ipc->u.clll.c) {
+	jlbl = &(ipc->u.clll.l2);
+	ipc = ipc->u.clll.l2;
       } else {
-	jlbl = &(ipc->u.cll.l1);
-	ipc = ipc->u.cll.l1;
+	jlbl = &(ipc->u.clll.l1);
+	ipc = ipc->u.clll.l1;
       }
       break;
       /* instructions type ollll */
