@@ -251,9 +251,10 @@ module(N) :-
 	( '$check_import'(M,T,N,K) ->
 %	    '$format'(user_error,"[vsc1: Importing ~w to ~w]~n",[M:N/K,T]),
 	     ( T = user ->
-	       recordz('$import','$import'(M,user,N,K),_)
+	       ( recordzifnot('$import','$import'(M,user,N,K),_) -> write(importing(M,T,N,K)),nl
+ ; true)
              ;
-	       recorda('$import','$import'(M,T,N,K),_)
+	       ( recordaifnot('$import','$import'(M,T,N,K),_) -> write(importing(M,T,N,K)),nl ; true )
              )
 	 ;
 	    true
@@ -291,9 +292,9 @@ module(N) :-
         %            '$trace_module'(importing(M:N/K,Mod)),
 %         '$format'(user_error,"[vsc2: Importing ~w to ~w]~n",[M:N/K,T]),
 	  (Mod = user ->
-             recordz('$import','$import'(M,user,N,K),_)
+             ( recordzifnot('$import','$import'(M,user,N,K),_) -> write(importing(M,T,N,K)),nl ; true )
 	     ;
-	     recorda('$import','$import'(M,Mod,N,K),_)
+	     ( recordaifnot('$import','$import'(M,Mod,N,K),_) -> write(importing(M,T,N,K)),nl ; true )
           )
 	 ;
 	   true
