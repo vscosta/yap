@@ -58,9 +58,12 @@ p_setarg(void)
       Yap_Error(TYPE_ERROR_COMPOUND,ts,"setarg/3");
       return(FALSE);
     }
-    if (i < 0 || i > (Int)ArityOfFunctor(FunctorOfTerm(ts))) {
+    if (i < 1 || i > (Int)ArityOfFunctor(FunctorOfTerm(ts))) {
       if (i<0)
 	Yap_Error(DOMAIN_ERROR_NOT_LESS_THAN_ZERO,ts,"setarg/3");
+      return(FALSE);
+      if (i==0)
+	Yap_Error(DOMAIN_ERROR_NOT_ZERO,ts,"setarg/3");
       return(FALSE);
     }
     pt = RepAppl(ts)+i;
