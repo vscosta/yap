@@ -1369,7 +1369,7 @@ cont_current_predicate(void)
   else
     name = (Atom)pp->FunctorOfPred;
   return (unify(ARG2,MkAtomTerm(name)) &&
-	  unify(ARG3, MkIntegerTerm(Arity)));
+	  unify(ARG3, MkIntegerTerm((Int)Arity)));
 }
 
 static Int 
