@@ -561,13 +561,6 @@ unify_var_nvar_trail:
 
 #if USE_THREADED_CODE
 
-static inline int
-rtable_hash_op(OPCODE opc, int hash_mask) {
-  return((((CELL)opc) >> 3) & hash_mask);
-}
-
-#define OP_HASH_SIZE 2048
-
 /* mask a hash table that allows for fast reverse translation from
    instruction address to corresponding opcode */
 static void
@@ -610,30 +603,7 @@ InitReverseLookupOpcode(void)
     opeptr[j].opc = opc;
   }
 }
-
-/* given an opcode find the corresponding opnumber. This should make
-   switches on ops a much easier operation */
-op_numbers
-Yap_op_from_opcode(OPCODE opc)
-{
-  int j = rtable_hash_op(opc,OP_HASH_SIZE-1);
-
-  while (OP_RTABLE[j].opc != opc) {
-    if (j == OP_HASH_SIZE-1)
-      j = 0;
-    else
-      j++;
-  }
-  return(OP_RTABLE[j].opnum);
-}
-#else
-op_numbers
-Yap_op_from_opcode(OPCODE opc)
-{
-  return((op_numbers)opc);
-}
 #endif
-
 
 void 
 Yap_InitUnify(void)

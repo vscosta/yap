@@ -667,6 +667,8 @@ InitFlags(void)
 #else
   yap_flags[ALLOW_ASSERTING_STATIC_FLAG] = TRUE;
 #endif
+  /* current default */
+  yap_flags[INDEXING_MODE_FLAG] = INDEX_MODE_MULTI;
 }
 
 static void 
@@ -838,7 +840,6 @@ InitCodes(void)
   AtomGVar = Yap_LookupAtom("var");
   heap_regs->atom_global = Yap_LookupAtom("global_sp");
   heap_regs->atom_heap_used = Yap_LookupAtom("heapused");
-  heap_regs->atom_index = Yap_LookupAtom("$doindex");
   heap_regs->atom_inf = Yap_LookupAtom("inf");
   heap_regs->atom_l_t = Yap_LookupAtom("<");
   heap_regs->atom_local = Yap_LookupAtom("local_sp");

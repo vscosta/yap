@@ -144,8 +144,40 @@ Term    STD_PROTO(Yap_cp_as_integer,(choiceptr));
 /* index.c */
 yamop   *STD_PROTO(Yap_PredIsIndexable,(PredEntry *));
 
-
 #if LOW_PROF
 /* profiling */
 yamop *Yap_prof_end;
 #endif /* LOW_PROF */
+
+#if USE_THREADED_CODE
+
+#define OP_HASH_SIZE 2048
+
+static inline int
+rtable_hash_op(OPCODE opc, int hash_mask) {
+  return((((CELL)opc) >> 3) & hash_mask);
+}
+
+/* given an opcode find the corresponding opnumber. This should make
+   switches on ops a much easier operation */
+static inline op_numbers
+Yap_op_from_opcode(OPCODE opc)
+{
+  int j = rtable_hash_op(opc,OP_HASH_SIZE-1);
+
+  while (OP_RTABLE[j].opc != opc) {
+    if (j == OP_HASH_SIZE-1) {
+      j = 0;
+    } else {
+      j++;
+    }
+  }
+  return OP_RTABLE[j].opnum;
+}
+#else
+static inline op_numbers
+Yap_op_from_opcode(OPCODE opc)
+{
+  return((op_numbers)opc);
+}
+#endif /* USE_THREADED_CODE */

@@ -88,102 +88,209 @@ smaller(Term t1, Term t2)
   }
 }
 
+static inline int
+smaller_or_eq(Term t1, Term t2)
+{
+  if (IsVarTerm(t1)) {
+    if (!IsVarTerm(t2)) return TRUE;
+    return (t1 <= t2);
+  } else if (IsIntTerm(t1)) {
+    if (IsVarTerm(t2)) return FALSE;
+    if (!IsIntTerm(t2)) return TRUE;
+    return (IntOfTerm(t1) <= IntOfTerm(t2));
+  } else if (IsAtomTerm(t1)) {
+    if (IsVarTerm(t2) || IsIntTerm(t2)) return FALSE;
+    if (IsApplTerm(t2) || IsPairTerm(t2)) return TRUE;
+    return (t1 <= t2);
+  } else if (IsApplTerm(t1)) {
+    if (IsVarTerm(t2) || IsAtomTerm(t2) || IsIntTerm(t2)) return FALSE;
+    if (IsPairTerm(t2)) return TRUE;
+    return (t1 <= t2);
+  } else /* if (IsPairTerm(t1)) */ {
+    return FALSE;
+  }
+}
+
 static inline void
 clcpy(ClauseDef *d, ClauseDef *s)
 {
   memcpy((void *)d, (void *)s, sizeof(ClauseDef));
 }
 
-/*
-  original code from  In Hyuk Choi,
-  found at http://userpages.umbc.edu/~ichoi1/project/cs441.htm
-*/
-
-static inline void
-exchange(ClauseDef b[], Int i, Int j)
-{
-  ClauseDef t;
-
-  clcpy(&t, b+j);
-  clcpy(b+j, b+i);
-  clcpy(b+i, &t);
-}
-
-static UInt
-partition(ClauseDef a[], Int p, Int r)
-{ 
-  Term x;
-  UInt i, j;
-
-  x = a[p].Tag;
-  i = p+1;
-  j = r;
-
-  while (smaller(x,a[j].Tag) && i < j) {
-    j--;
-  }
-  while (smaller(a[i].Tag, x) && i < j) {
-    i++;
-  }
-  while(i < j) {
-    exchange(a, i, j);
-    i++;
-    j--;
-    while (smaller(x, a[j].Tag) && i < j) {
-      j--;
-    }
-    while (smaller(a[i].Tag, x) && i < j) {
-      i++;
-    }
-  }
-  if (smaller(x, a[i].Tag))
-    i--;
-  exchange(a, p, i);
-  return(i);
-}
-
 static void
-insort(ClauseDef a[], Int p, Int q)
+insort(ClauseDef base[], CELL *p, CELL *q, int my_p)
 {
-  Int j;
+  CELL *j;
+
+  if (my_p) {
+    p[1] = p[0];
+    for (j = p+2; j < q; j += 2) {
+      Term key;
+      Int off = *j;
+      CELL *i;
+
+      key = base[off].Tag;
+      i = j+1;
     
-  for (j = p+1; j <= q; j ++) {
-    ClauseDef key;
-    Int i;
-
-    clcpy(&key, a+j);
-    i = j;
-	 
-    while (i > p && smaller(key.Tag,a[i-1].Tag)) {
-      clcpy(a+i, a+(i-1));
-      i --;
+      /* we are at offset 1 */
+      while (i > p+1 && smaller(key,base[i[-2]].Tag)) {
+	i[0] = i[-2];
+	i -= 2;
+      }
+      i[0] = off;
     }
-    clcpy(a+i, &key);
+  } else {
+    for (j = p+2; j < q; j += 2) {
+      Term key;
+      Int off = *j;
+      CELL *i;
+
+      key = base[off].Tag;
+      i = j;
+    
+      /* we are at offset 1 */
+      while (i > p && smaller(key,base[i[-2]].Tag)) {
+	i[0] = i[-2];
+	i -= 2;
+      }
+      i[0] = off;
+    }
   }
 }
 
 
-static void
-quicksort(ClauseDef a[], Int p, Int r)
-{ 
-  Int q;
-  if (p < r) {
-    if (r - p < 100) {
-      insort(a, p, r);
-      return;
+/* copy to a new list of terms */
+static
+void msort(ClauseDef *base, Int *pt, Int size, int my_p)
+{
+
+  if (size > 2) {
+    Int half_size = size / 2;
+    Int *pt_left, *pt_right, *end_pt, *end_pt_left;
+    int left_p, right_p;
+
+    if (size < 50) {
+       insort(base, pt, pt+2*size, my_p);
+       return;
     }
-    exchange(a, p, (p+r)/2);
-    q = partition (a, p, r);  
-    quicksort(a, p, q-1);
-    quicksort(a, q + 1, r);
+    pt_right = pt + half_size*2;
+    left_p = my_p^1;
+    right_p = my_p;
+    msort(base, pt, half_size, left_p);
+    msort(base, pt_right, size-half_size, right_p);
+    /* now implement a simple merge routine */
+    
+    /* pointer to after the end of the list */
+    end_pt = pt + 2*size;
+    /* pointer to the element after the last element to the left */
+    end_pt_left = pt+half_size*2;
+    /* where is left list */
+    pt_left = pt+left_p;
+    /* where is right list */
+    pt_right += right_p;
+    /* where is new list */
+    pt += my_p;
+    /* while there are elements in the left or right vector do compares */
+    while (pt_left < end_pt_left && pt_right < end_pt) {
+      /* if the element to the left is larger than the one to the right */
+      if (smaller_or_eq(base[pt_left[0]].Tag, base[pt_right[0]].Tag)) {
+	/* copy the one to the left */
+	pt[0] = pt_left[0];
+	/* and avance the two pointers */
+	pt += 2;
+	pt_left += 2;
+      } else {
+	/* otherwise, copy the one to the right */
+	pt[0] = pt_right[0];
+	pt += 2;
+	pt_right += 2;
+      }
+    }
+    /* if any elements were left in the left vector just copy them */
+    while (pt_left < end_pt_left) {
+      pt[0] = pt_left[0];
+      pt += 2;
+      pt_left += 2;
+    }
+    /* if any elements were left in the right vector
+       and they are in the wrong place, just copy them */
+    if (my_p != right_p) {
+      while(pt_right < end_pt) {
+	pt[0] = pt_right[0];
+	pt += 2;
+	pt_right += 2;
+      }
+    }
+  } else {
+    if (size > 1 && smaller(base[pt[2]].Tag,base[pt[0]].Tag)) {
+      CELL t = pt[2];
+      pt[2+my_p] = pt[0];
+      pt[my_p] = t;
+    } else if (my_p) {
+      pt[1] = pt[0];
+      if (size > 1)
+	pt[3] = pt[2];
+    }
+  }
+}
+
+static void
+copy_back(ClauseDef *dest, CELL *pt, int max) {
+  /* first need to say that we had no need to make a copy */
+  int i;
+  CELL *tmp = pt;
+  for (i=0; i < max; i++) {
+    if (*tmp != i) {
+      ClauseDef cl;
+      int j = i;
+      CELL *pnt = tmp;
+
+      /* found a chain */
+      /* make a backup copy */
+      clcpy(&cl, dest+i);
+      do {
+	/* follow the chain */
+	int k = *pnt;
+
+	*pnt = j;
+	//	printf("i=%d, k = %d, j = %d\n",i,j,k);
+	if (k == i) {
+	  clcpy(dest+j, &cl);
+	  break;
+	} else {
+	  clcpy(dest+j, dest+k);
+	}
+	pnt = pt+2*k;
+	j = k;
+      } while (TRUE);
+    }
+    /* we don't need to do swap */
+    tmp += 2;
   }
 }
 
 /* sort a group of clauses by using their tags */
 static void
-sort_group(GroupDef *grp)
+sort_group(GroupDef *grp, CELL *top)
 {
-  quicksort(grp->FirstClause, 0, grp->LastClause-grp->FirstClause);
+  int max = (grp->LastClause-grp->FirstClause)+1, i;
+  CELL *pt = top;
+
+  while (top+2*max > (CELL *)Yap_TrailTop) {
+    if (!Yap_growtrail(2*max*CellSize)) {
+      Yap_Error(SYSTEM_ERROR,TermNil,"YAP failed to reserve %ld in growtrail",
+		2*max*CellSize);
+      return;
+    }
+  }
+  /* initialise vector */
+  for (i=0; i < max; i++) {
+    *pt = i;
+    pt += 2;
+  }
+#define M_EVEN  0
+  msort(grp->FirstClause, top, max, M_EVEN);
+  copy_back(grp->FirstClause, top, max);
 }
 
 /* add copy to register stack for original reg */
@@ -195,6 +302,14 @@ add_regcopy(wamreg regs[MAX_REG_COPIES], int regs_count, wamreg copy)
   }
   regs[regs_count] = copy;
   return regs_count+1;
+}
+
+/* add copy to register stack for original reg */
+static int
+init_regcopy(wamreg regs[MAX_REG_COPIES], wamreg copy)
+{
+  regs[0] = copy;
+  return 1;
 }
 
 /* add copy to register stack for original reg */
@@ -219,12 +334,12 @@ inline static int
 regcopy_in(wamreg regs[MAX_REG_COPIES], int regs_count, wamreg copy)
 {
   int i = 0;
-  while (i < regs_count) {
+  do {
     if (regs[i] == copy) {
       return TRUE;
     }
     i++;
-  }
+  } while (i < regs_count);
   /* this copy could not be found */
   return FALSE;
 }
@@ -237,6 +352,7 @@ has_cut(yamop *pc)
  * clause for this predicate or not 
  */
 {
+#if YAPOR
   do {
     op_numbers op = Yap_op_from_opcode(pc->opc);
     pc->opc = Yap_opcode(op);
@@ -715,6 +831,9 @@ has_cut(yamop *pc)
       break;
     }
   } while (TRUE);
+#else /* YAPOR */
+  return FALSE;
+#endif /* YAPOR */
 }
 
 static void 
@@ -725,117 +844,14 @@ add_info(ClauseDef *clause, UInt regno)
   yslot ycopy = 0;
   yamop *cl;
   
-  nofregs = add_regcopy(myregs, 0, Yap_regnotoreg(regno));
+  nofregs = init_regcopy(myregs, Yap_regnotoreg(regno));
   cl = clause->CurrentCode;
   while (TRUE) {
     op_numbers op = Yap_op_from_opcode(cl->opc);
     switch (op) {
-    case _Ystop:
-    case _Nstop:
-    case _try_me:
-    case _retry_me:
-    case _trust_me:
-    case _profiled_retry_me:
-    case _profiled_trust_me:
-    case _count_retry_me:
-    case _count_trust_me:
-    case _try_me0:
-    case _retry_me0:
-    case _trust_me0:
-    case _try_me1:
-    case _retry_me1:
-    case _trust_me1:
-    case _try_me2:
-    case _retry_me2:
-    case _trust_me2:
-    case _try_me3:
-    case _retry_me3:
-    case _trust_me3:
-    case _try_me4:
-    case _retry_me4:
-    case _trust_me4:
-    case _spy_or_trymark:
-    case _try_and_mark:
-    case _profiled_retry_and_mark:
-    case _count_retry_and_mark:
-    case _retry_and_mark:
-    case _try_clause:
-    case _retry:
-    case _trust:
-#ifdef YAPOR
-    case _getwork:
-    case _getwork_seq:
-    case _sync:
-#endif
-#ifdef TABLING
-    case _table_try_me_single:
-    case _table_try_me:
-    case _table_retry_me:
-    case _table_trust_me:
-    case _table_answer_resolution:
-    case _table_completion:
-#endif
-    case _enter_profiling:
-    case _count_call:
-    case _retry_profiled:
-    case _count_retry:
-    case _try_logical_pred:
-    case _trust_logical_pred:
-    case _execute:
-    case _dexecute:
-    case _jump:
-    case _move_back:
-    case _skip:
-    case _jump_if_var:
-    case _try_in:
-      clause->Tag = (CELL)NULL;
-      return;
     case _alloc_for_logical_pred:
       cl = NEXTOP(cl,EC);
       break;
-      /* instructions type e */
-    case _trust_fail:
-    case _op_fail:
-    case _procceed:
-#if !defined(YAPOR)
-    case _or_last:
-#endif
-    case _pop:
-    case _index_pred:
-    case _undef_p:
-    case _spy_pred:
-    case _p_equal:
-    case _p_dif:
-    case _p_eq:
-    case _p_functor:
-    case _p_execute_tail:
-#ifdef YAPOR
-    case _getwork_first_time:
-#endif
-#ifdef TABLING
-    case _trie_do_var:
-    case _trie_trust_var:
-    case _trie_try_var:
-    case _trie_retry_var:
-    case _trie_do_val:
-    case _trie_trust_val:
-    case _trie_try_val:
-    case _trie_retry_val:
-    case _trie_do_atom:
-    case _trie_trust_atom:
-    case _trie_try_atom:
-    case _trie_retry_atom:
-    case _trie_do_list:
-    case _trie_trust_list:
-    case _trie_try_list:
-    case _trie_retry_list:
-    case _trie_do_struct:
-    case _trie_trust_struct:
-    case _trie_try_struct:
-    case _trie_retry_struct:
-#endif
-      clause->Tag = (CELL)NULL;
-      return;
     case _cut:
     case _cut_t:
     case _cut_e:
@@ -1487,6 +1503,109 @@ add_info(ClauseDef *clause, UInt regno)
     case _call_bfunc_yy:
       cl = NEXTOP(cl,lyy);
       break;
+    case _Ystop:
+    case _Nstop:
+    case _try_me:
+    case _retry_me:
+    case _trust_me:
+    case _profiled_retry_me:
+    case _profiled_trust_me:
+    case _count_retry_me:
+    case _count_trust_me:
+    case _try_me0:
+    case _retry_me0:
+    case _trust_me0:
+    case _try_me1:
+    case _retry_me1:
+    case _trust_me1:
+    case _try_me2:
+    case _retry_me2:
+    case _trust_me2:
+    case _try_me3:
+    case _retry_me3:
+    case _trust_me3:
+    case _try_me4:
+    case _retry_me4:
+    case _trust_me4:
+    case _spy_or_trymark:
+    case _try_and_mark:
+    case _profiled_retry_and_mark:
+    case _count_retry_and_mark:
+    case _retry_and_mark:
+    case _try_clause:
+    case _retry:
+    case _trust:
+#ifdef YAPOR
+    case _getwork:
+    case _getwork_seq:
+    case _sync:
+#endif
+#ifdef TABLING
+    case _table_try_me_single:
+    case _table_try_me:
+    case _table_retry_me:
+    case _table_trust_me:
+    case _table_answer_resolution:
+    case _table_completion:
+#endif
+    case _enter_profiling:
+    case _count_call:
+    case _retry_profiled:
+    case _count_retry:
+    case _try_logical_pred:
+    case _trust_logical_pred:
+    case _execute:
+    case _dexecute:
+    case _jump:
+    case _move_back:
+    case _skip:
+    case _jump_if_var:
+    case _try_in:
+      clause->Tag = (CELL)NULL;
+      return;
+      /* instructions type e */
+    case _trust_fail:
+    case _op_fail:
+    case _procceed:
+#if !defined(YAPOR)
+    case _or_last:
+#endif
+    case _pop:
+    case _index_pred:
+    case _undef_p:
+    case _spy_pred:
+    case _p_equal:
+    case _p_dif:
+    case _p_eq:
+    case _p_functor:
+    case _p_execute_tail:
+#ifdef YAPOR
+    case _getwork_first_time:
+#endif
+#ifdef TABLING
+    case _trie_do_var:
+    case _trie_trust_var:
+    case _trie_try_var:
+    case _trie_retry_var:
+    case _trie_do_val:
+    case _trie_trust_val:
+    case _trie_try_val:
+    case _trie_retry_val:
+    case _trie_do_atom:
+    case _trie_trust_atom:
+    case _trie_try_atom:
+    case _trie_retry_atom:
+    case _trie_do_list:
+    case _trie_trust_list:
+    case _trie_try_list:
+    case _trie_retry_list:
+    case _trie_do_struct:
+    case _trie_trust_struct:
+    case _trie_try_struct:
+    case _trie_retry_struct:
+#endif
+      clause->Tag = (CELL)NULL;
+      return;
     }
   }
 }
@@ -2484,7 +2603,7 @@ do_nonvar_group(GroupDef *grp, int compound_term, UInt labl, PredEntry *ap, UInt
     type_sw = emit_type_switch(switch_on_type_op);
     type_sw->VarEntry = do_var_entries(grp, ap, argno, first, clleft, nxtlbl);
     grp->LastClause = cls_move(grp->FirstClause, grp->LastClause, compound_term, argno, last_arg);
-    sort_group(grp);
+    sort_group(grp,top);
     type_sw->ConstEntry = do_consts(grp, ap, argno, first, nxtlbl, clleft, top);
     type_sw->FuncEntry = do_funcs(grp, ap, argno, first, last_arg, nxtlbl, clleft, top);
     type_sw->PairEntry = do_pair(grp, ap, argno, first, last_arg, nxtlbl, clleft, top);
@@ -2540,7 +2659,8 @@ do_index(ClauseDef *min, ClauseDef* max, PredEntry *ap, UInt argno, UInt fail_l,
     /* base case, just commit to the current code */
     return emit_single_switch_case(min, ap, first, clleft, fail_l);
   }
-  if (ap->ArityOfPE < argno) {
+  if ((argno > 1 && yap_flags[INDEXING_MODE_FLAG] == INDEX_MODE_SINGLE) ||
+      ap->ArityOfPE < argno) {
     UInt labl = new_label();
     do_var_clauses(min, max, FALSE, ap, labl, first, clleft, fail_l);
     return labl;
@@ -2642,6 +2762,11 @@ do_compound_index(ClauseDef *min, ClauseDef* max, PredEntry *ap, UInt arity, UIn
   if (min == max) {
     /* base case, just commit to the current code */
     return emit_single_switch_case(cl, ap, first, clleft, fail_l);
+  }
+  if (yap_flags[INDEXING_MODE_FLAG] == INDEX_MODE_SINGLE) {
+    UInt labl = new_label();
+    do_var_clauses(min, max, FALSE, ap, labl, first, clleft, fail_l);
+    return labl;
   }
   group = (GroupDef *)top;
   cl = min;

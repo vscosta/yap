@@ -10,7 +10,7 @@
 * File:		Yap.proto						 *
 * mods:									 *
 * comments:	Function declarations for YAP				 *
-* version:      $Id: Yapproto.h,v 1.36 2003-05-21 13:00:23 vsc Exp $	 *
+* version:      $Id: Yapproto.h,v 1.37 2003-06-06 11:54:02 vsc Exp $	 *
 *************************************************************************/
 
 /* prototype file for Yap */
@@ -275,7 +275,6 @@ void	STD_PROTO(Yap_InitLowLevelTrace,(void));
 void         STD_PROTO(Yap_InitAbsmi,(void));
 void         STD_PROTO(Yap_InitUnify,(void));
 int          STD_PROTO(Yap_IUnify,(register CELL d0,register CELL d1));
-op_numbers   STD_PROTO(Yap_op_from_opcode,(OPCODE));
 
 /* userpreds.c */
 void	STD_PROTO(Yap_InitUserCPreds,(void));

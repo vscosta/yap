@@ -1552,7 +1552,6 @@ Yap_InitYaamRegs(void)
   Yap_regp = &Yap_standard_regs;
 #endif /* PUSH_REGS */
   Yap_PutValue (AtomBreak, MkIntTerm (0));
-  Yap_PutValue (AtomIndex, MkAtomTerm (AtomTrue));
   AuxSp = (CELL *)AuxTop;
   TR = (tr_fr_ptr)Yap_TrailBase;
 #ifdef COROUTINING

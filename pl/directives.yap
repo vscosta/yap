@@ -205,10 +205,23 @@ yap_flag(bounded,X) :-
 	'$do_error'(domain_error(flag_value,bounded+X),yap_flag(bounded,X)).
 
 % do or do not indexation
-yap_flag(index,X) :- var(X), !,
-	 ( '$get_value'('$doindex',true) -> X=on ; X=off).
-yap_flag(index,on)  :- !, '$set_value'('$doindex',true).
-yap_flag(index,off) :- '$set_value'('$doindex',[]).
+yap_flag(index,X) :- var(X),
+	'$access_yap_flags'(18, X1),
+	'$transl_to_index_mode'(X1,X), !.
+yap_flag(index,X)  :-
+	'$transl_to_index_mode'(X1,X), !,
+	'$set_yap_flags'(18,X1).
+yap_flag(index,X) :-
+	'$do_error'(domain_error(flag_value,index+X),yap_flag(index,X)).
+
+% should match definitions in Yap.h.m4
+'$transl_to_index_mode'(0, off).
+'$transl_to_index_mode'(1, single).
+'$transl_to_index_mode'(2, compact).
+'$transl_to_index_mode'(3, multi).
+'$transl_to_index_mode'(3, on). % default is multi argument indexing
+'$transl_to_index_mode'(4, max).
+
 
 yap_flag(informational_messages,X) :- var(X), !,
 	 '$get_value'('$verbose',X).

@@ -110,7 +110,7 @@ STD_PROTO(static Int profres2, (void));
 
 typedef struct prof_files {
   FILE *f_prof, *f_preds;
-};
+} prof_files_struct;
 
 void
 Yap_inform_profiler_of_clause(yamop *code_start, yamop *code_end, PredEntry *pe) {
@@ -2433,6 +2433,11 @@ p_set_yap_flags(void)
     if (value != 0 && value !=  1)
       return(FALSE);
     yap_flags[STACK_DUMP_ON_ERROR_FLAG] = value;
+    break;
+  case INDEXING_MODE_FLAG:
+    if (value < INDEX_MODE_OFF || value >  INDEX_MODE_MAX)
+      return(FALSE);
+    yap_flags[INDEXING_MODE_FLAG] = value;
     break;
   default:
     return(FALSE);

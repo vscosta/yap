@@ -906,14 +906,14 @@ addclause(Term t, yamop *cp, int mode, int mod)
       p->PredFlags |= CompiledPredFlag | FastPredFlag;
     else
       p->PredFlags |= CompiledPredFlag;
-    if ((Yap_GetValue(AtomIndex) != TermNil) && 
-	(p->cs.p_code.FirstClause != NIL) &&
-	(Arity != 0)) {
+    if (yap_flags[INDEXING_MODE_FLAG] != INDEX_MODE_OFF && 
+	p->cs.p_code.FirstClause != NULL &&
+	Arity != 0) {
       p->OpcodeOfPred = INDEX_OPCODE;
       p->CodeOfPred = (yamop *)(&(p->OpcodeOfPred)); 
     }
   }
-  if (p->cs.p_code.FirstClause == NIL) {
+  if (p->cs.p_code.FirstClause == NULL) {
     if (!(p->PredFlags & DynamicPredFlag)) {
       add_first_static(p, cp, spy_flag);
       /* make sure we have a place to jump to */

@@ -615,4 +615,3 @@ extern int Yap_opcount[_std_top+1];
 #endif
 
 
-

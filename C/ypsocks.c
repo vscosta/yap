@@ -191,9 +191,9 @@ Yap_init_socks(char *host, long interface_port)
 
 #if   USE_SOCKET
    he = gethostbyname(host);
-   if (!he) {
+   if (he == NULL) {
 #if HAVE_STRERROR
-     Yap_Error(SYSTEM_ERROR, TermNil, "can not get address for host: %s", strerror(errno));
+     Yap_Error(SYSTEM_ERROR, TermNil, "can not get address for host %s: %s", host, strerror(h_errno));
 #else
      Yap_Error(SYSTEM_ERROR, TermNil, "can not get address for host");
 #endif
