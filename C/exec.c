@@ -405,7 +405,9 @@ p_execute_within2(void)
 { 
   Term            t = Deref(ARG1);
   Prop            pe;
+  SMALLUNSGN mod = CurrentModule;
 
+ restart_exec:
   if (yap_flags[SPY_CREEP_FLAG]) {
     return(EnterCreepMode(CurrentModule));
   } else if (PredGoalExpansion->OpcodeOfPred != UNDEF_OPCODE) {
@@ -416,7 +418,15 @@ p_execute_within2(void)
     register Functor f = FunctorOfTerm(t);
 
     if (IsExtensionFunctor(f)) {
-      return CallError(TYPE_ERROR_CALLABLE, CurrentModule);
+      return CallError(TYPE_ERROR_CALLABLE, mod);
+    }
+    if (f == FunctorModule) {
+      Term tmod = ArgOfTerm(1,t);
+      if (!IsVarTerm(tmod) && IsAtomTerm(tmod)) {
+	mod = LookupModule(tmod);
+	t = ArgOfTerm(2,t);
+	goto restart_exec;
+      }
     }
     
     {
@@ -426,7 +436,7 @@ p_execute_within2(void)
       register unsigned int    i;
       unsigned int arity = ArityOfFunctor(f);
 
-      pe = PredPropByFunc(f, CurrentModule);
+      pe = PredPropByFunc(f, mod);
       pen = RepPredProp(pe);
       /* You thought we would be over by now */
       /* but no meta calls require special preprocessing */
@@ -487,7 +497,7 @@ p_execute_within2(void)
     pe = PredPropByAtom(a, CurrentModule);
     return (CallPredicate(RepPredProp(pe), B));
   } else if (IsIntTerm(t)) {
-    return CallError(TYPE_ERROR_CALLABLE, CurrentModule);
+    return CallError(TYPE_ERROR_CALLABLE, mod);
   } else {
     /* Is Pair Term */
     return(CallMetaCallWithin());
@@ -504,6 +514,7 @@ p_execute0(void)
   Prop            pe;
   SMALLUNSGN      mod = LookupModule(tmod);
 
+ restart_exec:
   if (IsVarTerm(t)) {
     Error(INSTANTIATION_ERROR,ARG3,"call/1");    
     return(FALSE);
@@ -517,6 +528,14 @@ p_execute0(void)
 
     if (IsExtensionFunctor(f))
       return(FALSE);
+    if (f == FunctorModule) {
+      Term tmod = ArgOfTerm(1,t);
+      if (!IsVarTerm(tmod) && IsAtomTerm(tmod)) {
+	mod = LookupModule(tmod);
+	t = ArgOfTerm(2,t);
+	goto restart_exec;
+      }
+    }
     arity = ArityOfFunctor(f);
     /* I cannot use the standard macro here because
        otherwise I would dereference the argument and
