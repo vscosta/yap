@@ -4,9 +4,20 @@
 * Comments: Tries module for yap          *
 ******************************************/
 
+
+
 /* --------------------------- */
 /*           Defines           */
 /* --------------------------- */
+
+/* WARNING: the following macros need Yap tag scheme from file 'Tags_32LowTag' */
+#define ApplTag       1          
+#define PairInitTag   3
+#define PairEndTag   19  /* 0x13 */
+#define CommaInitTag 35  /* 0x23 */
+#define CommaEndTag  51  /* 0x33 */
+#define FloatInitTag 67  /* 0x43 */
+#define FloatEndTag  83  /* 0x53 */
 
 #define TERM_STACK_SIZE 1000
 #define MODE_STANDARD 0
@@ -18,41 +29,53 @@
 /*           Structs           */
 /* --------------------------- */
 
-struct trie_stats {
-  long memory_in_use;
-  long memory_max_used;
-  long nodes_in_use;
-  long nodes_max_used;
-  long hashes_in_use;
-  long hashes_max_used;
-  long buckets_in_use;
-  long buckets_max_used;
-} STATS;
+struct global_trie_stats {
+  int memory_in_use;
+  int memory_max_used;
+  int nodes_in_use;
+  int nodes_max_used;
+  int hashes_in_use;
+  int hashes_max_used;
+  int buckets_in_use;
+  int buckets_max_used;
+};
 
-#define MEMORY_IN_USE     (STATS.memory_in_use)
-#define MEMORY_MAX_USED   (STATS.memory_max_used)
-#define NODES_IN_USE      (STATS.nodes_in_use)
-#define NODES_MAX_USED    (STATS.nodes_max_used)
-#define HASHES_IN_USE     (STATS.hashes_in_use)
-#define HASHES_MAX_USED   (STATS.hashes_max_used)
-#define BUCKETS_IN_USE    (STATS.buckets_in_use)
-#define BUCKETS_MAX_USED  (STATS.buckets_max_used)
+#define MEMORY_IN_USE     (GLOBAL_STATS.memory_in_use)
+#define MEMORY_MAX_USED   (GLOBAL_STATS.memory_max_used)
+#define NODES_IN_USE      (GLOBAL_STATS.nodes_in_use)
+#define NODES_MAX_USED    (GLOBAL_STATS.nodes_max_used)
+#define HASHES_IN_USE     (GLOBAL_STATS.hashes_in_use)
+#define HASHES_MAX_USED   (GLOBAL_STATS.hashes_max_used)
+#define BUCKETS_IN_USE    (GLOBAL_STATS.buckets_in_use)
+#define BUCKETS_MAX_USED  (GLOBAL_STATS.buckets_max_used)
+
+struct local_trie_stats{
+  int entries;
+  int nodes;
+  int virtual_nodes;
+};
+
+#define TRIE_ENTRIES        (LOCAL_STATS.entries)
+#define TRIE_NODES          (LOCAL_STATS.nodes)
+#define TRIE_VIRTUAL_NODES  (LOCAL_STATS.virtual_nodes)
 
 typedef struct trie_node {
   YAP_Term entry;
-  int hits;
   struct trie_node *parent;
   struct trie_node *child;
   struct trie_node *next;
+#ifdef ALLOW_REMOVE_TRIE
   struct trie_node *previous;
+  int hits;
+#endif /* ALLOW_REMOVE_TRIE */
 } *TrNode;
 
 #define TrNode_entry(X)     ((X)->entry)
-#define TrNode_hits(X)      ((X)->hits)
 #define TrNode_parent(X)    ((X)->parent)
 #define TrNode_child(X)     ((X)->child)
 #define TrNode_next(X)      ((X)->next)
 #define TrNode_previous(X)  ((X)->previous)
+#define TrNode_hits(X)      ((X)->hits)
 
 typedef struct trie_hash {
   YAP_Term entry;  /* for compatibility with the trie_node data structure */
@@ -104,12 +127,14 @@ typedef struct trie_hash {
 #define PUSH_DOWN(STACK, ITEM, STACK_TOP)                            \
         { if (STACK > STACK_TOP)                                     \
             fprintf(stderr, "\nTries module: TERM_STACK full");      \
-          *STACK++ = (YAP_Term)(ITEM);                               \
+          *STACK = (YAP_Term)(ITEM);                                 \
+          STACK++;                                                   \
 	}
 #define PUSH_UP(STACK, ITEM, STACK_TOP)                              \
         { if (STACK < STACK_TOP)                                     \
             fprintf(stderr, "\nTries module: TERM_STACK full");      \
-          *STACK-- = (YAP_Term)(ITEM);                               \
+          *STACK = (YAP_Term)(ITEM);                                 \
+          STACK--;                                                   \
         }
 
 
@@ -128,14 +153,23 @@ typedef struct trie_hash {
         free_struct(STR);                                            \
         STATS_hash_dec()
 
+
+
+#ifdef ALLOW_REMOVE_TRIE
+#define TrNode_allow_remove_trie(TR_NODE, PREVIOUS)                  \
+        TrNode_previous(TR_NODE) = PREVIOUS;                         \
+        TrNode_hits(TR_NODE) = 0
+#else
+#define TrNode_allow_remove_trie(TR_NODE, PREVIOUS)
+#endif /* ALLOW_REMOVE_TRIE */
+
 #define new_trie_node(TR_NODE, ENTRY, PARENT, CHILD, NEXT, PREVIOUS) \
         new_struct(TR_NODE, TYPE_TR_NODE, SIZEOF_TR_NODE);           \
         TrNode_entry(TR_NODE) = ENTRY;                               \
-        TrNode_hits(TR_NODE) = 0;                                    \
         TrNode_parent(TR_NODE) = PARENT;                             \
         TrNode_child(TR_NODE) = CHILD;                               \
         TrNode_next(TR_NODE) = NEXT;                                 \
-        TrNode_previous(TR_NODE) = PREVIOUS;                         \
+        TrNode_allow_remove_trie(TR_NODE, PREVIOUS);                 \
         STATS_node_inc()
 #define new_hash_buckets(TR_HASH, NUM_BUCKETS)                       \
         { int i; void **ptr;                                         \
@@ -195,16 +229,14 @@ typedef struct trie_hash {
 /*             API             */
 /* --------------------------- */
 
-extern int MODE;
-extern TrNode TRIES;
-extern TrHash HASHES;
-extern YAP_Functor FunctorComma;
-
+void     init_tries_module(void);
 TrNode   open_trie(void);
 void     close_trie(TrNode node);
 void     close_all_tries(void);
-TrNode   put_trie_entry(TrNode node, YAP_Term entry);
-YAP_Term get_trie_entry(TrNode node);
+TrNode   put_trie_entry(TrNode node, YAP_Term entry, int mode);
+YAP_Term get_trie_entry(TrNode node, int mode);
 void     remove_trie_entry(TrNode node);
-void     trie_stats(void);
+void     trie_stats(int *nodes, int *hashes, int *buckets, int *memory);
+void     trie_max_stats(int *nodes, int *hashes, int *buckets, int *memory);
+void     trie_usage(TrNode node, int *entries, int *nodes, int *virtual_nodes);
 void     print_trie(TrNode node);
