@@ -158,6 +158,8 @@ ext_op attas[attvars_ext+1];
 */
 yamop *P_before_spy;
 
+int creep_on = FALSE;
+
 #ifdef DEBUG
 int output_msg = FALSE;
 #endif
@@ -806,9 +808,6 @@ InitCodes(void)
   heap_regs->env_for_yes_code.s = -Signed(RealEnvSize);
   heap_regs->env_for_yes_code.l = NULL;
   heap_regs->env_for_yes_code.l2 = NULL;
-  heap_regs->env_for_yes_code.p =
-    heap_regs->env_for_yes_code.p0 =
-    RepPredProp(PredPropByAtom(LookupAtom("true"),0));
   heap_regs->yescode = opcode(_Ystop);
   heap_regs->undef_op = opcode(_undef_p);
   heap_regs->index_op = opcode(_index_pred);
@@ -1019,14 +1018,32 @@ InitCodes(void)
   heap_regs->yap_lib_dir = NULL;
   heap_regs->size_of_overflow  = 0;
   /* make sure no one else can use these two atoms */
-  heap_regs->pred_goal_expansion = RepPredProp(PredPropByFunc(MkFunctor(LookupAtom("goal_expansion"),3),1));
   CurrentModule = 0;
   heap_regs->dead_clauses = NULL;
+  ReleaseAtom(AtomOfTerm(heap_regs->term_refound_var));
+  /* make sure we have undefp defined */
+  {
+    Atom undefp_at = FullLookupAtom("$undefp");
+    Prop p = GetPredPropByFunc(MkFunctor(undefp_at, 1),0);
+    if (p == NIL) {
+      UndefCode = NULL;
+    } else {
+      PredEntry *undefpe;
+
+      undefpe = RepPredProp (p);
+      UndefCode = undefpe;
+      /* undefp is originally undefined */
+      undefpe->OpcodeOfPred = UNDEF_OPCODE;
+    }
+  }
+  heap_regs->env_for_yes_code.p =
+    heap_regs->env_for_yes_code.p0 =
+    RepPredProp(PredPropByAtom(heap_regs->atom_true,0));
   heap_regs->pred_meta_call = RepPredProp(PredPropByFunc(MkFunctor(heap_regs->atom_meta_call,4),0));
   heap_regs->pred_dollar_catch = RepPredProp(PredPropByFunc(MkFunctor(LookupAtom("$catch"),3),0));
   heap_regs->pred_throw = RepPredProp(PredPropByFunc(FunctorThrow,0));
   heap_regs->pred_handle_throw = RepPredProp(PredPropByFunc(MkFunctor(LookupAtom("$handle_throw"),3),0));
-  ReleaseAtom(AtomOfTerm(heap_regs->term_refound_var));
+  heap_regs->pred_goal_expansion = RepPredProp(PredPropByFunc(MkFunctor(LookupAtom("goal_expansion"),3),1));
   {
     /* make sure we know about the module predicate */
     PredEntry *modp = RepPredProp(PredPropByFunc(heap_regs->functor_module,0));
@@ -1044,9 +1061,6 @@ InitVersion(void)
 void
 InitYaamRegs(void)
 {
-  Atom at;
-  PredEntry *undefpe;
-
 #if PUSH_REGS
   /* Guarantee that after a longjmp we go back to the original abstract
      machine registers */
@@ -1070,16 +1084,6 @@ InitYaamRegs(void)
 #ifdef DEPTH_LIMIT
   DEPTH = RESET_DEPTH();
 #endif
-  at = FullLookupAtom("$undefp");
-  {
-    Prop p = GetPredPropByFunc(MkFunctor(at, 1),0);
-    if (p == NIL) {
-      UndefCode = NULL;
-    } else {
-      undefpe = RepPredProp (p);
-      UndefCode = undefpe;
-    }
-  }
   STATIC_PREDICATES_MARKED = FALSE;
 #ifdef FROZEN_STACKS
   H = HB = H0 = H_FZ = H_BASE;
