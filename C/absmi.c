@@ -11954,7 +11954,7 @@ Yap_absmi(int inp)
 	      E_YREG[-EnvSizeInCells-2]  = MkIntegerTerm((Int)PredPropByAtom(AtomOfTerm(d1),mod));
 	    } else if (IsApplTerm(d1)) {
 	      Functor f = FunctorOfTerm(d1);
-	      if (IsExtensionFunctor(f)) {
+	      if (IsExtensionFunctor(f) || f == FunctorModule) {
 		goto execute_metacall_after_comma;
 	      } else {
 		E_YREG[-EnvSizeInCells-2]  = MkIntegerTerm((Int)PredPropByFunc(f,mod));
@@ -12000,7 +12000,7 @@ Yap_absmi(int inp)
 	      goto execute_comma;
 	    } else if (IsApplTerm(d0)) {
 	      Functor f = FunctorOfTerm(d0);
-	      if (IsExtensionFunctor(f)) {
+	      if (IsExtensionFunctor(f) || f == FunctorModule) {
 		goto execute_metacall_after_comma;
 	      } else {
 		pen = RepPredProp(PredPropByFunc(f,mod));
