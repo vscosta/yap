@@ -49,7 +49,7 @@ LoadForeign(StringList ofiles, StringList libs,
 
     /* dlopen wants to follow the LD_CONFIG_PATH */
     if (!Yap_TrueFileName(ofiles->s, Yap_FileNameBuf, TRUE)) {
-      strcpy(Yap_ErrorSay, "[ Trying to open unexisting file in LoadForeign ]");
+      strcpy(Yap_ErrorSay, "%% Trying to open unexisting file in LoadForeign");
       return LOAD_FAILLED;
     }
 #ifdef __osf__

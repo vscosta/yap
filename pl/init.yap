@@ -42,7 +42,8 @@ not(G) :-    '$current_module'(Module), '$meta_call'(not(G),Module).
 
 :- 	['errors.yap',
 	 'utils.yap',
-	 'arith.yap'].
+	 'arith.yap',
+	 'directives.yap'].
 
 :- compile_expressions.
 
@@ -51,7 +52,6 @@ not(G) :-    '$current_module'(Module), '$meta_call'(not(G),Module).
 	 'consult.yap',
 	 'checker.yap',
 	 'depth_bound.yap',
-	 'directives.yap',
 	 'grammar.yap',
 	 'ground.yap',
 	 'listing.yap',

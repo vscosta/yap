@@ -645,8 +645,7 @@ abolish(X) :-
 	'$access_yap_flags'(8, 2), % only do this in sicstus mode
 	'$undefined'(G, Module),
 	functor(G,Name,Arity),
-	'$format'(user_error,"[ Warning: abolishing undefined predicate (~w:~w/~w) ]~n",[Module,Name,Arity]),
-	fail.
+	'$print_message'(warning,no_match(abolish(Module:Name/Arity))).
 % I cannot allow modifying static procedures in YAPOR
 % this code has to be here because of abolish/2
 '$abolishs'(G, Module) :-

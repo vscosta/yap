@@ -292,9 +292,9 @@ dump_stack(void)
   CELL *env_ptr = ENV;
   
   if (H > ASP || H > LCL0) {
-    fprintf(stderr,"[ YAP ERROR: Global Collided against Local ]\n");
+    fprintf(stderr,"%% YAP ERROR: Global Collided against Local\n");
   } else   if (HeapTop > (ADDR)Yap_GlobalBase) {
-    fprintf(stderr,"[ YAP ERROR: Code Space Collided against Global ]\n");
+    fprintf(stderr,"%% YAP ERROR: Code Space Collided against Global\n");
   } else {
     if (b_ptr != NULL) {
       fprintf(stderr," [ Goals with alternatives open:\n");
@@ -302,7 +302,7 @@ dump_stack(void)
 	cl_position(b_ptr->cp_ap);
 	b_ptr = b_ptr->cp_b;
       }
-      fprintf(stderr," ]\n");
+      fprintf(stderr,"\n");
     }
     if (env_ptr != NULL) {
       fprintf(stderr," [ Goals left to continue:\n");
@@ -310,7 +310,7 @@ dump_stack(void)
 	cl_position((yamop *)(env_ptr[E_CP]));
 	env_ptr = (CELL *)(env_ptr[E_E]);      
       }
-      fprintf(stderr," ]\n");
+      fprintf(stderr,"\n");
     }
   }
 }
@@ -356,7 +356,7 @@ Yap_Error (yap_error_number type, Term where, char *format,...)
   int psize = YAP_BUF_SIZE;
 
   if (type == INTERRUPT_ERROR) {
-    fprintf(stderr,"[ YAP exiting: cannot handle signal %d ]\n",
+    fprintf(stderr,"%% YAP exiting: cannot handle signal %d\n",
 	    (int)IntOfTerm(where));
     Yap_exit(1);
   }
@@ -375,7 +375,7 @@ Yap_Error (yap_error_number type, Term where, char *format,...)
       tmpbuf[0] = '\0';
     }
     va_end (ap);
-    fprintf(stderr,"[ ERROR WITHIN ERROR: %s ]\n", tmpbuf);
+    fprintf(stderr,"%% ERROR WITHIN ERROR: %s\n", tmpbuf);
     exit(1);
   }
   /* must do this here */
@@ -396,7 +396,7 @@ Yap_Error (yap_error_number type, Term where, char *format,...)
       tmpbuf[0] = '\0';
     }
     va_end (ap);
-    fprintf(stderr,"[ Fatal YAP Error: %s exiting.... ]\n",tmpbuf);
+    fprintf(stderr,"%% Fatal YAP Error: %s exiting....\n",tmpbuf);
     error_exit_yap (1);
   }
   if (P == (yamop *)(FAILCODE))
@@ -435,7 +435,7 @@ Yap_Error (yap_error_number type, Term where, char *format,...)
   va_end (ap);
   if (Yap_PrologMode & BootMode) {
     /* crash in flames! */
-    fprintf(stderr,"[ Fatal Error: %s exiting.... ]\n",tmpbuf);
+    fprintf(stderr,"%% Fatal Error: %s exiting....\n",tmpbuf);
     error_exit_yap (1);
   }
 #ifdef DEBUGX
@@ -444,15 +444,15 @@ Yap_Error (yap_error_number type, Term where, char *format,...)
   switch (type) {
   case INTERNAL_ERROR:
     {
-      fprintf(stderr,"[ Internal YAP Error: %s exiting.... ]\n",tmpbuf);
+      fprintf(stderr,"%% Internal YAP Error: %s exiting....\n",tmpbuf);
       serious = TRUE;
       detect_bug_location(P, tmpbuf, YAP_BUF_SIZE);
-      fprintf(stderr,"[ Bug found while executing %s ]\n",tmpbuf);
+      fprintf(stderr,"%% Bug found while executing %s\n",tmpbuf);
       error_exit_yap (1);
     }
   case FATAL_ERROR:
     {
-      fprintf(stderr,"[ Fatal YAP Error: %s exiting.... ]\n",tmpbuf);
+      fprintf(stderr,"%% Fatal YAP Error: %s exiting....\n",tmpbuf);
       error_exit_yap (1);
     }
   case INTERRUPT_ERROR:

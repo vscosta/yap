@@ -44,7 +44,7 @@ LoadForeign( StringList ofiles, StringList libs,
     valid_fname = Yap_TrueFileName( ofiles->s, Yap_FileNameBuf, TRUE );
 
     if( !valid_fname ) {
-      strcpy( Yap_ErrorSay, "[ Trying to open non-existing file in LoadForeign ]" );
+      strcpy( Yap_ErrorSay, "%% Trying to open non-existing file in LoadForeign" );
       return LOAD_FAILLED;
     }
 

@@ -1048,7 +1048,7 @@ static RETSIGTYPE
 HandleSIGSEGV(int   sig)
 {
   if (Yap_PrologMode & ExtendStackMode) {
-    fprintf(stderr,  "[ FATAL ERROR: OS memory allocation crashed: bailing out ]~n");
+    fprintf(stderr,  "%% YAP FATAL ERROR: OS memory allocation crashed: bailing out~n");
     exit(1);
   }
   SearchForTrailFault();

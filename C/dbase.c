@@ -3895,10 +3895,18 @@ static void
 EraseLogUpdCl(LogUpdClause *clau)
 {
   PredEntry *ap;
+#if defined(YAPOR) || defined(THREADS)
+  int i_locked = FALSE;
+#endif
+
   ap = clau->ClPred;
 #if defined(YAPOR) || defined(THREADS)
   if (WPP != ap) {
     WRITE_LOCK(ap->PRWLock);
+    if (WPP == NULL) {
+      i_locked = TRUE;
+      WPP = ap;
+    }
   }
 #endif
   LOCK(clau->ClLock);
@@ -3958,7 +3966,8 @@ EraseLogUpdCl(LogUpdClause *clau)
   UNLOCK(clau->ClLock);
   complete_lu_erase(clau);
 #if defined(YAPOR) || defined(THREADS)
-    if (WPP != ap) {
+    if (WPP != ap || i_locked) {
+      if (i_locked) WPP= NULL;
       WRITE_UNLOCK(ap->PRWLock);
     }
 #endif
@@ -4030,7 +4039,7 @@ static void
 PrepareToEraseLogUpdClause(LogUpdClause *clau, DBRef dbr)
 {
   yamop          *code_p = clau->ClCode;
-  PredEntry *p = (PredEntry *)(code_p->u.ld.p);
+  PredEntry *p = clau->ClPred;
   yamop *cl = code_p;
 
   if (clau->ClFlags & ErasedMask)

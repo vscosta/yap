@@ -569,7 +569,7 @@ Yap_DebugSetIFile(char *fname)
   curfile = YP_fopen(fname, "r");
   if (curfile == NULL) {
     curfile = stdin;
-    fprintf(stderr,"[ Warning: can not open %s for input]\n", fname);
+    fprintf(stderr,"%% YAP Warning: can not open %s for input\n", fname);
   }
 }
 
@@ -2469,7 +2469,7 @@ Yap_CloseStreams (int loud)
       YP_fclose (Stream[sno].u.file.file);
     else {
       if (loud)
-	fprintf (Yap_stderr, "[ Error: while closing stream: %s ]\n", RepAtom (Stream[sno].u.file.name)->StrOfAE);
+	fprintf (Yap_stderr, "%% YAP Error: while closing stream: %s\n", RepAtom (Stream[sno].u.file.name)->StrOfAE);
     }
     if (Yap_c_input_stream == sno)
       {

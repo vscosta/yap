@@ -123,7 +123,7 @@ LoadForeign(StringList ofiles, StringList libs,
 
     /* mydlopen wants to follow the LD_CONFIG_PATH */
     if (!Yap_TrueFileName(ofiles->s, Yap_FileNameBuf, TRUE)) {
-      strcpy(Yap_ErrorSay, "[ Trying to open unexisting file in LoadForeign ]");
+      strcpy(Yap_ErrorSay, "%% Trying to open unexisting file in LoadForeign");
       return LOAD_FAILLED;
     }
     if((handle=mydlopen(Yap_FileNameBuf)) == 0)

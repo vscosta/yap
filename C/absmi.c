@@ -10,8 +10,11 @@
 *									 *
 * File:		absmi.c							 *
 * comments:	Portable abstract machine interpreter                    *
-* Last rev:     $Date: 2004-06-17 22:07:22 $,$Author: vsc $						 *
+* Last rev:     $Date: 2004-06-23 17:24:19 $,$Author: vsc $						 *
 * $Log: not supported by cvs2svn $
+* Revision 1.136  2004/06/17 22:07:22  vsc
+* bad bug in indexing code.
+*
 * Revision 1.135  2004/06/09 03:32:02  vsc
 * fix bugs
 *
@@ -90,6 +93,25 @@ AritFunctorOfTerm(Term t) {
 #define USE_E_ARGS   
 
 #include "arith2.h"
+
+#ifdef THREADS
+static int
+same_lu_block(yamop **paddr, yamop *p)
+{
+  yamop *np = *paddr;
+  if (np != p) {
+    OPCODE jmp_op = Yap_opcode(_jump_if_nonvar);
+
+    while (np->opc == jmp_op) {
+      np = NEXTOP(np, xl);
+      if (np == p) return TRUE;
+    }
+    return FALSE;
+  } else {
+    return TRUE;
+  }
+}
+#endif
 
 #ifdef COROUTINING
 /*
@@ -1167,6 +1189,7 @@ Yap_absmi(int inp)
       BOp(stale_lu_index, Ill);
       {
 	yamop *ipc;
+	PredEntry *pe = PREG->u.Ill.l1->u.ld.p;
 
 	/* update ASP before calling IPred */
 	ASP = YREG+E_CB;
@@ -1174,19 +1197,24 @@ Yap_absmi(int inp)
 	  ASP = (CELL *) B;
 	}
 #if defined(YAPOR) || defined(THREADS)
-	LOCK(PREG->u.Ill.l1->u.ld.p->PELock);
-	if (*PREG_ADDR != PREG) {
+	LOCK(pe->PELock);
+	if (PP) {
+	  /* PP would be NULL for local preds */
+	  READ_UNLOCK(PP->PRWLock);
+	  PP = NULL;
+	}
+	if (!same_lu_block(PREG_ADDR, PREG)) {
 	  PREG = *PREG_ADDR;
-	  UNLOCK(PREG->u.Ill.l1->u.ld.p->PELock);
+	  UNLOCK(pe->PELock);
 	  JMPNext();
 	}
 #endif
 	saveregs();
 	ipc = Yap_CleanUpIndex(PREG->u.Ill.I);
 	setregs();
-	UNLOCK(PREG->u.Ill.l1->u.ld.p->PELock);
 	/* restart index */
 	PREG = ipc;
+	UNLOCK(pe->PELock);
 	if (PREG == NULL) FAIL();
 	CACHED_A1() = ARG1;
 	JMPNext();
@@ -1253,7 +1281,7 @@ Yap_absmi(int inp)
 	      INC_CLREF_COUNT(lcl);
 	      TRAIL_CLREF(lcl);
 	    }
-	    UNLOCK(cl->ClLock);
+	    UNLOCK(lcl->ClLock);
 	  }
 	  Yap_ErLogUpdIndex(cl);
 	} else {
@@ -6484,7 +6512,7 @@ Yap_absmi(int inp)
 	  PP = pe;
 	}
 	LOCK(pe->PELock);
-	if (*PREG_ADDR != PREG) {
+	if (!same_lu_block(PREG_ADDR, PREG)) {
 	  PREG = *PREG_ADDR;
 	  if (pe->PredFlags & (ThreadLocalPredFlag|LogUpdatePredFlag)) {
 	    READ_UNLOCK(pe->PRWLock);
@@ -6526,7 +6554,7 @@ Yap_absmi(int inp)
 	  PP = pe;
 	}
 	LOCK(pe->PELock);
-	if (*PREG_ADDR != PREG) {
+	if (!same_lu_block(PREG_ADDR, PREG)) {
 	  PREG = *PREG_ADDR;
 	  if (pe->PredFlags & (ThreadLocalPredFlag|LogUpdatePredFlag)) {
 	    READ_UNLOCK(pe->PRWLock);

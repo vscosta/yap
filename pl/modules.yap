@@ -42,8 +42,8 @@ use_module(M) :-
 	'$do_error'(permission_error(input,stream,File),use_module(File)).
 	
 
-use_module(M,I) :-
-	'$use_module'(M, I).
+use_module(File,I) :-
+	'$use_module'(File, I).
 
 '$use_module'(File,Imports) :- var(File), !,
 	'$do_error'(instantiation_error,use_module(File,Imports)).
@@ -70,8 +70,8 @@ use_module(M,I) :-
 	 ( recorded('$module','$module'(TrueFileName,Mod,Publics),_) ->
 	     '$use_preds'(Imports,Publics,Mod,M)
 	 ;
-	 '$format'(user_error,"[ use_module/2 can not find a module in file ~w]~n",File),
-	 fail
+
+	  true
 	 ).
 '$use_module'(File,Imports) :-
 	'$do_error'(permission_error(input,stream,File),use_module(File,Imports)).
@@ -109,8 +109,7 @@ use_module(Mod,F,I) :-
 	  ->
 	  '$use_preds'(Imports,Publics,Module,M)
 	  ;
-	  '$format'(user_error,"[ use_module/2 can not find module ~w in file ~w]~n",[Module,File]),
-	  fail
+	  true
 	).
 '$use_module'(Module,File,Imports) :-
 	'$do_error'(permission_error(input,stream,File),use_module(Module,File,Imports)).
@@ -214,7 +213,6 @@ module(N) :-
 '$import'([N/K|L],M,T) :-
 	integer(K), atom(N), !,
 	( '$check_import'(M,T,N,K) ->
-%	    '$format'(user_error,"[vsc1: Importing ~w to ~w]~n",[M:N/K,T]),
 	     ( T = user ->
 	       ( recordzifnot('$import','$import'(M,user,N,K),_) -> true ; true)
              ;
@@ -225,8 +223,7 @@ module(N) :-
 	),
 	'$import'(L,M,T).
 '$import'([PS|L],M,T) :-
-	'$format'(user_error,"[Illegal pred specification(~w) in module declaration for module ~w]~n",[PS,M]),
-	'$import'(L,M,T).
+	'$do_error'(domain_error(predicate_spec,PS),import([PS|L])).
 
 '$check_import'(M,T,N,K) :-
     recorded('$import','$import'(M1,T,N,K),R), M1 \= M, /* ZP */ !,
@@ -254,7 +251,6 @@ module(N) :-
     ( '$check_import'(M,Mod,N,K) -> 
 	%	     '$format'(user_error,'[ Importing ~w to ~w]~n',[M:N/K,Mod]),
         %            '$trace_module'(importing(M:N/K,Mod)),
-%         '$format'(user_error,"[vsc2: Importing ~w to ~w]~n",[M:N/K,T]),
 	  (Mod = user ->
              ( recordzifnot('$import','$import'(M,user,N,K),_) -> true ; true )
 	     ;
@@ -489,7 +485,6 @@ module(N) :-
 	functor(G,F,N),
 	'$meta_predicate'(F,Mod,N,D), !,
 	functor(G1,F,N),
-%	'$format'(user_error,"[expanding ~w:~w in ~w",[Mod,G,MP]),
 	'$meta_expansion_loop'(N,D,G,G1,HVars,MP).
 %	'$format'(user_error," gives ~w~n]",[G1]).
 

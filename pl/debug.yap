@@ -23,6 +23,8 @@
 
 :- op(900,fx,[spy,nospy]).
 
+:- thread_local([idb:'$debug',idb:'$trace',idb:'$spy_skip',idb:'$spy_stop']).
+
 % First part : setting and reseting spy points
 
 % $suspy does most of the work
@@ -94,7 +96,6 @@
 	'$print_message'(informational,breakp(bp(debugger,plain,M:T,M:F/N,N),add,already)).
 '$suspy2'(spy,F,N,T,M) :- !,
 	recorda('$spy','$spy'(T,M),_), 
-	set_value('$spypoint_added', true), 
 	'$set_spy'(T,M),
 	'$print_message'(informational,breakp(bp(debugger,plain,M:T,M:F/N,N),add,ok)).
 '$suspy2'(nospy,F,N,T,M) :- 
@@ -108,11 +109,9 @@
 '$pred_being_spied'(G, M) :-
 	recorded('$spy','$spy'(G,M),_), !.
 
-spy _ :- set_value('$spypoint_added', false), fail.
 spy L :-
 	'$current_module'(M),
 	'$suspy'(L, spy, M), fail.
-spy _ :- get_value('$spypoint_added', false), !.
 spy _ :- debug.
 
 nospy L :-
@@ -126,29 +125,35 @@ nospyall.
 
 % debug mode -> debug flag = 1
 
-debug :- get_value(debug,1), !.
-debug :- set_value(debug,1),
+debug :- recordaifnot('$debug',on,_), !,
 	'$print_message'(informational,debug(debug)).
-
+debug.
+	
+nodebug :- 
+	recorded('$debug',_,R), erase(R), fail.
+nodebug :- 
+	recorded('$trace',_,R), erase(R), fail.
 nodebug :- nospyall,
-	set_value(debug,0),
-	set_value('$trace',0),
 	'$set_yap_flags'(10,0),
 	'$print_message'(informational,debug(off)).
 
-trace :- get_value('$trace',1), !.
+trace :- 
+	recorded('$trace',on,_), !.
+trace :- 
+	recorded('$spy_skip',_,R), erase(R), fail.
 trace :-
 	'$print_message'(informational,debug(trace)),
-	set_value('$trace',1),
-	set_value(debug,1),
-	set_value(spy_skip,off),
-	set_value(spy_stop,on),
+	( recordaifnot('$trace',on,_) -> true ; true),
+	( recordaifnot('$debug',on,_) -> true ; true),
+	( recordaifnot('$spy_stop',on,_) -> true ; true),
 	'$set_yap_flags'(10,1),
 	'$creep'.
 
 notrace :- 
-	set_value('$trace',0),
-	set_value(debug,0),
+	recorded('$debug',_,R), erase(R), fail.
+notrace :- 
+	recorded('$trace',_,R), erase(R), fail.
+notrace :- 
 	'$print_message'(informational,debug(off)).
 
 /*-----------------------------------------------------------------------------
@@ -207,7 +212,7 @@ leash(X) :-
 -----------------------------------------------------------------------------*/
 
 debugging :-
-	( get_value(debug,1) ->
+	( recorded('$debug',on,_) ->
 	    '$print_message'(help,debug(debug))
 	    ;
 	    '$print_message'(help,debug(off))
@@ -365,15 +370,14 @@ debugging :-
 	'$trace'(P,G,Module,GoalNumber).
 
 '$avoid_goal'(GoalNumber, G, Module) :-
-    get_value(debug,0), !.
+    \+ recorded('$debug',on,_), !.
 '$avoid_goal'(GoalNumber, G, Module) :-
-    get_value(spy_skip, Value),
-    number(Value),  % we are in skip mode
+    recorded('$spy_skip', Value, _),
     '$continue_avoid_goal'(GoalNumber, G, Module, Value).
 
 % for leap keep on going until finding something spied.
 '$continue_avoid_goal'(_, G, Module, _) :-
-    get_value(spy_stop, on), !,
+    recorded('$spy_stop', on, _), !,
     \+ '$pred_being_spied'(G, Module).
 % fpr skip keep on going until we get back.
 '$continue_avoid_goal'(GoalNumber, _, _, Value) :-
@@ -401,12 +405,11 @@ debugging :-
 '$trace'(P,G,Module,L) :-
 	flush_output(user_output),
 	flush_output(user_error),
-	get_value(debug,1),
+	recorded('$debug',on,R0), erase(R0),
 	repeat,
 		('$pred_being_spied'(G,Module) -> CSPY = '*' ; CSPY = ' '),
 		( SL = L -> SLL = '>' ; SLL = ' '),
-	        get_value(debug,OldDebug),
-	        set_value(debug,0),
+	        ( recorded('$debug',on, R), erase(R), fail ; true),
 		( Module\=prolog,
 		  Module\=user ->
 		    '$format'(user_error,"~a~a (~d) ~q: ~a:",[CSPY,SLL,L,P,Module])
@@ -414,7 +417,7 @@ debugging :-
 		    '$format'(user_error,"~a~a (~d) ~q:",[CSPY,SLL,L,P])
 		),
 		'$debugger_write'(user_error,G),
-	        set_value(debug,OldDebug),
+	        ( nonvar(R0), recordaifnot('$debug',on,_), fail ; true),
 		( 
 		  '$unleashed'(P),
 		  '$action'(10,P,L,G,Module)
@@ -438,7 +441,7 @@ debugging :-
 	writeq(Stream, G).
 
 '$action'(10,_,_,_,_) :- 			% newline 	creep
-	set_value(spy_skip,off),
+	( recorded('$spy_skip',_,R), erase(R), fail ; true ),
 	'$set_yap_flags'(10,1).
 '$action'(33,_,_,_,_) :- !,			% ! g		execute
 	read(user,G),
@@ -501,18 +504,18 @@ debugging :-
 '$action'(0'l,_,CallNumber,_,_) :- !,		% l		leap
 	'$skipeol'(0'l),
 	'$set_yap_flags'(10,1),
-	set_value(spy_skip,CallNumber),
-	set_value(spy_stop,on).
+	( recorded('$spy_skip',_,R), erase(R), fail ; recorda('$spy_skip',CallNumber,_) ),
+	( recordaifnot('$spy_stop',on,_) -> true ; true ).
 '$action'(0'n,_,_,_,_) :- !,			% n		nodebug
 	'$skipeol'(0'n),
 	'$set_yap_flags'(10,0),
-	set_value(spy_stop,off),
+	( recorded('$spy_stop',_,R), erase(R), fail ; true).
 	nodebug.
 '$action'(0'k,_,CallNumber,_,_) :- !,		% k		quasi leap
 	'$skipeol'(0'k),
 	'$set_yap_flags'(10,0),
-	set_value(spy_skip,CallNumber),
-	set_value(spy_stop,on).
+	( recorded('$spy_skip',_,R), erase(R), fail ; recorda('$spy_skip',CallNumber,_) ),
+	( recordaifnot('$spy_stop',on,_) -> true ; true ).
 	% skip first call (for current goal),
 	% stop next time.
 '$action'(0'r,P,CallId,_,_) :- !,		% r		retry
@@ -522,17 +525,17 @@ debugging :-
 	'$skipeol'(0's),
 	( (P=call; P=redo) ->
 		'$set_yap_flags'(10,1),
-		set_value(spy_skip,CallNumber),
-		set_value(spy_stop,off)
+		( recorded('$spy_skip',_,R), erase(R), fail ; recorda('$spy_skip',CallNumber,_) ),
+		( recorded('$spy_stop',_,R), erase(R), fail ; true)
 	;
 	    '$ilgl'(0's)
 	).
 '$action'(0't,P,CallNumber,_,_) :- !,		% t		fast skip
 	'$skipeol'(0't),
 	( (P=call; P=redo) ->
-		set_value(spy_skip,CallNumber),
+		( recorded('$spy_skip',_,R), erase(R), fail ; recorda('$spy_skip',CallNumber,_) ),
 	        '$set_yap_flags'(10,0),
-	        set_value(spy_stop,off)
+		( recorded('$spy_stop',_,R), erase(R), fail ; true)
 	    ;
 	        '$ilgl'(0't)
 	).
@@ -555,7 +558,7 @@ debugging :-
 	'$access_yap_flags'(10,1), !,
 	'$creep'.
 '$continue_debugging'(_) :-
-	get_value(spy_stop, On).
+	recorded('$spy_stop', _, _).
 
 '$stop_debugging' :-
 	'$stop_creep'.
@@ -575,7 +578,8 @@ debugging :-
 	'$format'(user_error,"! g execute goal~n", []).
 	
 '$ilgl'(C) :-
-	'$format'(user_error,"[ Illegal option ~d. Use h for help. ]. ~n", [C]).
+	'$print_message'(warning, trace_command(C)),
+	'$print_message'(help, trace_help).
 
 '$skipeol'(10) :- !.
 '$skipeol'(_) :- get0(user,C), '$skipeol'(C).

@@ -233,15 +233,23 @@ AccessNamedArray(Atom a, Int indx)
 	  READ_UNLOCK(ptr->ArRWLock);
 	  if (TRef != 0L) {
 	    DBRef ref = DBRefOfTerm(TRef);
+
 #if defined(YAPOR) || defined(THREADS)
 	    LOCK(ref->lock);
 	    INC_DBREF_COUNT(ref);
 	    TRAIL_REF(ref);	/* So that fail will erase it */
 	    UNLOCK(ref->lock);
 #else
-	    if (!(ref->Flags & InUseMask)) {
-	      ref->Flags |= InUseMask;
-	      TRAIL_REF(ref);	/* So that fail will erase it */
+	    if (ref->Flags & LogUpdMask) {
+	      LogUpdClause *cl = (LogUpdClause *)ref;
+
+	      cl->ClFlags |= InUseMask;
+	      TRAIL_CLREF(cl);
+	    } else {
+	      if (!(ref->Flags & InUseMask)) {
+		ref->Flags |= InUseMask;
+		TRAIL_REF(ref);	/* So that fail will erase it */
+	      }
 	    }
 #endif
 	  } else {
@@ -1551,11 +1559,22 @@ p_assign_static(void)
       ptr->ValueOfVE.dbrefs[indx]= t3;
       if (t0 != 0L) {
 	DBRef ptr = DBRefOfTerm(t0);
+
 	if (ptr->Flags & LogUpdMask) {
 	  LogUpdClause *lup = (LogUpdClause *)ptr;
 	  lup->ClRefCount--;
+	  if (lup->ClRefCount == 0 &&
+	      (lup->ClFlags & ErasedMask) &&
+	      !(lup->ClFlags & InUseMask)) {
+	    Yap_ErLogUpdCl(lup);
+	  }
 	} else {
 	  ptr->NOfRefsTo--;
+	  if (ptr->NOfRefsTo == 0 &&
+	      (ptr->Flags & ErasedMask) &&
+	      !(ptr->Flags & InUseMask)) {
+	    Yap_ErDBE(ptr);
+	  }
 	}
       }
       

@@ -554,8 +554,8 @@ Yap_InitCoroutPreds(void)
   at = Yap_LookupAtom("$wake_up_goal");
   pred = RepPredProp(PredPropByFunc(Yap_MkFunctor(at, 2),0));
   WakeUpCode = pred;
+#endif
   Yap_InitAttVarPreds();
-#endif /* COROUTINING */
   Yap_InitCPred("$yap_has_rational_trees", 0, p_yap_has_rational_trees, SafePredFlag);
   Yap_InitCPred("$yap_has_coroutining", 0, p_yap_has_coroutining, SafePredFlag);
   Yap_InitCPred("$read_svar_list", 1, p_read_svar_list, SafePredFlag);

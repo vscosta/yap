@@ -20,8 +20,6 @@ static char SccsId[]="%W% %G%";
 
 #include "Yap.h"
 
-#ifdef COROUTINING
-
 #include "Yatom.h"
 #include "Heap.h"
 #include "heapgc.h"
@@ -29,6 +27,8 @@ static char SccsId[]="%W% %G%";
 #ifndef NULL
 #define NULL (void *)0
 #endif
+
+#ifdef COROUTINING
 
 STATIC_PROTO(Term  InitVarTime, (void));
 STATIC_PROTO(Int   PutAtt, (attvar_record *,Int,Term));
@@ -636,14 +636,14 @@ static Int
 p_n_atts(void)
 {
   Term t = MkIntegerTerm(NUM_OF_ATTS);
-  return(Yap_unify(ARG1,t));
+  return Yap_unify(ARG1,t);
 }
 
 static Int
 p_all_attvars(void)
 {
   Term t = Yap_ReadTimedVar(AttsMutableList);
-  return(Yap_unify(ARG1,AllAttVars(t)));
+  return Yap_unify(ARG1,AllAttVars(t));
 }
 
 static Int
@@ -666,15 +666,38 @@ p_attvar_bound(void)
          !IsUnboundVar(((attvar_record *)VarOfTerm(t))->Done));
 }
 
+#else
+
+static Int
+p_all_attvars(void)
+{
+  return FALSE;
+}
+
+static Int
+p_is_attvar(void)
+{
+  return FALSE;
+}
+
+static Int
+p_attvar_bound(void)
+{
+  return FALSE;
+}
+
+#endif /* COROUTINING */
+
 void Yap_InitAttVarPreds(void)
 {
   Term OldCurrentModule = CurrentModule;
+  CurrentModule = ATTRIBUTES_MODULE;
+#ifdef COROUTINING
   attas[attvars_ext].bind_op = WakeAttVar;
   attas[attvars_ext].copy_term_op = CopyAttVar;
   attas[attvars_ext].to_term_op = AttVarToTerm;
   attas[attvars_ext].term_to_op = TermToAttVar;
   attas[attvars_ext].mark_op = mark_attvar;
-  CurrentModule = ATTRIBUTES_MODULE;
   Yap_InitCPred("get_att", 3, p_get_att, SafePredFlag);
   Yap_InitCPred("get_all_atts", 2, p_get_all_atts, SafePredFlag);
   Yap_InitCPred("free_att", 2, p_free_att, SafePredFlag);
@@ -684,12 +707,12 @@ void Yap_InitAttVarPreds(void)
   Yap_InitCPred("inc_n_of_atts", 1, p_inc_atts, SafePredFlag);
   Yap_InitCPred("n_of_atts", 1, p_n_atts, SafePredFlag);
   Yap_InitCPred("bind_attvar", 1, p_bind_attvar, SafePredFlag);
+#endif /* COROUTINING */
   Yap_InitCPred("all_attvars", 1, p_all_attvars, SafePredFlag);
   CurrentModule = OldCurrentModule;
   Yap_InitCPred("$is_att_variable", 1, p_is_attvar, SafePredFlag|TestPredFlag);
   Yap_InitCPred("$att_bound", 1, p_attvar_bound, SafePredFlag|TestPredFlag);
 }
 
-#endif /* COROUTINING */
 
 

@@ -365,9 +365,9 @@ atom_gc(void)
   agc_calls++;
   agc_collected = 0;
   if (gc_trace) {
-    fprintf(Yap_stderr, "AGC]\n");
+    fprintf(Yap_stderr, "%% agc:\n");
   } else if (gc_verbose) {
-    fprintf(Yap_stderr, "[AGC] Start of atom garbage collection %d:\n", agc_calls);
+    fprintf(Yap_stderr, "%%   Start of atom garbage collection %d:\n", agc_calls);
   }
   time_start = Yap_cputime();
   /* get the number of active registers */
@@ -380,8 +380,8 @@ atom_gc(void)
   tot_agc_time += agc_time;
   tot_agc_recovered += agc_collected;
   if (gc_verbose) {
-    fprintf(Yap_stderr, "[AGC] collected %ld bytes.\n", agc_collected);
-    fprintf(Yap_stderr, "[AGC] GC %d took %g sec, total of %g sec doing GC so far.\n", agc_calls, (double)agc_time/1000, (double)tot_agc_time/1000);
+    fprintf(Yap_stderr, "%%   Collected %ld bytes.\n", agc_collected);
+    fprintf(Yap_stderr, "%%   GC %d took %g sec, total of %g sec doing GC so far.\n", agc_calls, (double)agc_time/1000, (double)tot_agc_time/1000);
   }
 }
 

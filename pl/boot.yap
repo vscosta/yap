@@ -124,11 +124,11 @@ read_sig.
 	'$system_catch'('$do_yes_no'((G->true),user),user,Error,user:'$Error'(Error)),
 	fail.
 '$enter_top_level' :-
-	( get_value('$trace', 1) ->
-	    '$format'(user_error, '[trace]~n', [])
+	( recorded('$trace', on, _) ->
+	    '$format'(user_error, '% trace~n', [])
 	;
-	  get_value(debug, 1) ->
-	    '$format'(user_error, '[debug]~n', [])
+	  recorded('$debug', on, _) ->
+	    '$format'(user_error, '% debug~n', [])
 	),
 	fail.
 '$enter_top_level' :-
@@ -136,11 +136,9 @@ read_sig.
 	prompt('   | '),
 	'$run_toplevel_hooks',
 	'$read_vars'(user_input,Command,_,Varnames),
-	set_value(spy_fs,0),
-	set_value(spy_sp,0),
 	set_value(spy_gn,1),
-	set_value(spy_skip,off),
-	set_value(spy_stop,on),
+	( recorded('$spy_skip',_,R), erase(R), fail ; true),
+	( recorded('$spy_stop',_,R), erase(R), fail ; true),
 	prompt(_,'   |: '),
 	'$command'((?-Command),Varnames,top),
 	'$sync_mmapped_arrays',
@@ -434,7 +432,7 @@ repeat :- '$repeat'.
 
 
 '$start_creep' :-
-	( get_value('$trace', 1) ->
+	( recorded('$trace', on, _) ->
 	    '$creep'
 	;
 	    true
@@ -451,6 +449,8 @@ repeat :- '$repeat'.
 	'$format'(user_error,'~ntrue',[]).
 '$write_query_answer_true'(_).
 
+'$show_frozen'(_,_,[]) :-
+	'$undefined'(all_attvars(LAV), attributes), !.
 '$show_frozen'(G,V,LGs) :-
 	attributes:all_attvars(LAV),
 	LAV = [_|_], !,
@@ -795,7 +795,7 @@ incore(G) :- '$execute'(G).
 '$undefp'([M|G]) :-
 	\+ '$undefined'(unknown_predicate_handler(_,_,_), user),
 	user:unknown_predicate_handler(G,M,NG), !,
-	'$execute'(M:NG).
+	'$execute'(user:NG).
 '$undefp'([M|G]) :-
 	recorded('$unknown','$unknown'(M:G,US),_), !,
 	'$execute'(user:US).
@@ -806,20 +806,16 @@ incore(G) :- '$execute'(G).
 	debugger state */
 
 break :- get_value('$break',BL), NBL is BL+1,
-	get_value(spy_fs,SPY_FS),
-	get_value(spy_sp,SPY_SP),
 	get_value(spy_gn,SPY_GN),
 	'$access_yap_flags'(10,SPY_CREEP),
 	get_value(spy_cl,SPY_CL),
 	get_value(spy_leap,_Leap),
 	set_value('$break',NBL),
 	current_output(OutStream), current_input(InpStream),
-	'$format'(user_error, '[ Break (level ~w) ]~n', [NBL]),
+	'$format'(user_error, '% Break (level ~w)~n', [NBL]),
 	'$do_live',
 	!,
 	set_value('$live','$true'),
-	get_value(spy_fs,SPY_FS),
-	set_value(spy_sp,SPY_SP),
 	set_value(spy_gn,SPY_GN),
 	'$set_yap_flags'(10,SPY_CREEP),
 	set_value(spy_cl,SPY_CL),
@@ -875,7 +871,7 @@ break :- get_value('$break',BL), NBL is BL+1,
 	recorda('$initialisation','$',_),
 	( '$undefined'('$print_message'(_,_),prolog) -> 
 	    ( get_value('$verbose',on) ->
-		'$format'(user_error, '~*|[ consulting ~w... ]~n', [LC,F])
+		'$format'(user_error, '~*|% consulting ~w...~n', [LC,F])
 		; true )
 	;
 	    '$print_message'(informational, loading(consulting, File))
@@ -891,7 +887,7 @@ break :- get_value('$break',BL), NBL is BL+1,
 	H is heapused-H0, '$cputime'(TF,_), T is TF-T0,
 	( '$undefined'('$print_message'(_,_),prolog) -> 
 	  ( get_value('$verbose',on) ->
-	     '$format'(user_error, '~*|[ ~w consulted ~w bytes in ~d msecs ]~n', [LC,F,H,T])
+	     '$format'(user_error, '~*|% ~w consulted ~w bytes in ~d msecs~n', [LC,F,H,T])
 	  ;
 	     true
 	  )

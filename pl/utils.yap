@@ -438,8 +438,7 @@ unknown(V0,V) :-
 '$unknown_warning'(P) :-
 	P=M:F,
 	functor(F,Na,Ar),
-	'$format'(user_error,"[ EXISTENCE ERROR: ~w, procedure ~w:~w/~w undefined ]~n",
-	[P,M,Na,Ar]),
+	'$print_message'(existence_error(P,0,procedure,M:F,0), [P,M,Na,Ar]),
 	fail.
 
 %%% Some "dirty" predicates

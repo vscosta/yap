@@ -342,7 +342,7 @@ yap_flag(language,X) :-
 
 yap_flag(debug,X) :-
 	var(X), !,
-	(get_value(debug,1) ->
+	(recorded('$debug',on,_) ->
 	    X = on
 	;
 	    X = off

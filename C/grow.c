@@ -254,7 +254,7 @@ AdjustAppl(register CELL t0)
 #ifdef DEBUG
   else {
     /* strange cell */
-    /*    fprintf(Yap_stderr,"[ garbage appl %lx found in stacks by stack shifter ]\n", t0);*/
+    /*    fprintf(Yap_stderr,"% garbage appl %lx found in stacks by stack shifter\n", t0);*/
   }
 #endif
   return(t0);
@@ -274,7 +274,7 @@ AdjustPair(register CELL t0)
   else if (IsHeapP(t))
     return (AbsPair(CellPtoHeapAdjust(t)));
 #ifdef DEBUG
-  /* fprintf(Yap_stderr,"[ garbage pair %lx found in stacks by stack shifter ]\n", t0);*/
+  /* fprintf(Yap_stderr,"% garbage pair %lx found in stacks by stack shifter\n", t0);*/
 #endif
   return(t0);
 }
@@ -313,7 +313,7 @@ AdjustTrail(int adjusting_heap)
 	}
 #ifdef DEBUG
 	else 
-	  fprintf(Yap_stderr,"[ garbage heap ptr %p to %lx found in trail at %p by stack shifter ]\n", ptr, (unsigned long int)*ptr, ptt);
+	  fprintf(Yap_stderr,"%% garbage heap ptr %p to %lx found in trail at %p by stack shifter\n", ptr, (unsigned long int)*ptr, ptt);
 #endif
       }
     } else if (IsPairTerm(reg)) {
@@ -820,20 +820,20 @@ growstack(long size)
   gc_verbose = Yap_is_gc_verbose();
   stack_overflows++;
   if (gc_verbose) {
-    fprintf(Yap_stderr, "[SO] Stack Overflow %d\n", stack_overflows);
-    fprintf(Yap_stderr, "[SO] Heap: %8ld cells (%p-%p)\n", (unsigned long int)(H-(CELL *)Yap_GlobalBase),Yap_GlobalBase,H);
-    fprintf(Yap_stderr, "[SO] Local:%8ld cells (%p-%p)\n", (unsigned long int)(LCL0-ASP),LCL0,ASP);
-    fprintf(Yap_stderr, "[SO] Trail:%8ld cells (%p-%p)\n",
+    fprintf(Yap_stderr, "%% Stack Overflow %d\n", stack_overflows);
+    fprintf(Yap_stderr, "%%   Heap: %8ld cells (%p-%p)\n", (unsigned long int)(H-(CELL *)Yap_GlobalBase),Yap_GlobalBase,H);
+    fprintf(Yap_stderr, "%%   Local:%8ld cells (%p-%p)\n", (unsigned long int)(LCL0-ASP),LCL0,ASP);
+    fprintf(Yap_stderr, "%%   Trail:%8ld cells (%p-%p)\n",
 	       (unsigned long int)(TR-(tr_fr_ptr)Yap_TrailBase),Yap_TrailBase,TR);
-    fprintf(Yap_stderr, "[SO]    growing the stacks %ld bytes\n", size);
+    fprintf(Yap_stderr, "%% Growing the stacks %ld bytes\n", size);
   }
   if (!execute_growstack(size, FALSE))
     return FALSE;
   growth_time = Yap_cputime()-start_growth_time;
   total_stack_overflow_time += growth_time;
   if (gc_verbose) {
-    fprintf(Yap_stderr, "[SO]    took %g sec\n", (double)growth_time/1000);
-    fprintf(Yap_stderr, "[SO] Total of %g sec expanding stacks \n", (double)total_stack_overflow_time/1000);
+    fprintf(Yap_stderr, "%%   took %g sec\n", (double)growth_time/1000);
+    fprintf(Yap_stderr, "%% Total of %g sec expanding stacks \n", (double)total_stack_overflow_time/1000);
   }
   return(TRUE);
 }
@@ -936,12 +936,12 @@ Yap_growstack_in_parser(tr_fr_ptr *old_trp, TokEntry **tksp, VarEntry **vep)
   gc_verbose = Yap_is_gc_verbose();
   stack_overflows++;
   if (gc_verbose) {
-    fprintf(Yap_stderr, "[SO] Stack overflow %d\n", stack_overflows);
-    fprintf(Yap_stderr, "[SO] Heap: %8ld cells (%p-%p)\n", (unsigned long int)(H-(CELL *)Yap_GlobalBase),(CELL *)Yap_GlobalBase,H);
-    fprintf(Yap_stderr, "[SO] Local:%8ld cells (%p-%p)\n", (unsigned long int)(LCL0-ASP),LCL0,ASP);
-    fprintf(Yap_stderr, "[SO] Trail:%8ld cells (%p-%p)\n",
+    fprintf(Yap_stderr, "%% Stack overflow %d\n", stack_overflows);
+    fprintf(Yap_stderr, "%%   Heap: %8ld cells (%p-%p)\n", (unsigned long int)(H-(CELL *)Yap_GlobalBase),(CELL *)Yap_GlobalBase,H);
+    fprintf(Yap_stderr, "%%   Local:%8ld cells (%p-%p)\n", (unsigned long int)(LCL0-ASP),LCL0,ASP);
+    fprintf(Yap_stderr, "%%   Trail:%8ld cells (%p-%p)\n",
 	       (unsigned long int)(TR-(tr_fr_ptr)Yap_TrailBase),Yap_TrailBase,TR);
-    fprintf(Yap_stderr, "[SO]    growing the stacks %ld bytes\n", size);
+    fprintf(Yap_stderr, "%%  growing the stacks %ld bytes\n", size);
   }
   TrDiff = LDiff = size;
   XDiff = HDiff = GDiff = DelayDiff = 0;
@@ -964,8 +964,8 @@ Yap_growstack_in_parser(tr_fr_ptr *old_trp, TokEntry **tksp, VarEntry **vep)
   growth_time = Yap_cputime()-start_growth_time;
   total_stack_overflow_time += growth_time;
   if (gc_verbose) {
-    fprintf(Yap_stderr, "[SO]    took %g sec\n", (double)growth_time/1000);
-    fprintf(Yap_stderr, "[SO] Total of %g sec expanding stacks \n", (double)total_stack_overflow_time/1000);
+    fprintf(Yap_stderr, "%%   took %g sec\n", (double)growth_time/1000);
+    fprintf(Yap_stderr, "%% Total of %g sec expanding stacks \n", (double)total_stack_overflow_time/1000);
   }
   return(TRUE);  
 }
@@ -979,14 +979,14 @@ static int do_growtrail(long size)
   size = AdjustPageSize(size);
   trail_overflows++;
   if (gc_verbose) {
-    fprintf(Yap_stderr, "[TO] Trail overflow %d\n", trail_overflows);
+    fprintf(Yap_stderr, "%% Trail overflow %d\n", trail_overflows);
 #if USE_SYSTEM_MALLOC
-    fprintf(Yap_stderr, "[TO] Heap: %8ld cells (%p-%p)\n", (unsigned long int)(H-(CELL *)Yap_GlobalBase),(CELL *)Yap_GlobalBase,H);
-    fprintf(Yap_stderr, "[TO] Local:%8ld cells (%p-%p)\n", (unsigned long int)(LCL0-ASP),LCL0,ASP);
-    fprintf(Yap_stderr, "[TO] Trail:%8ld cells (%p-%p)\n",
+    fprintf(Yap_stderr, "%%  Heap: %8ld cells (%p-%p)\n", (unsigned long int)(H-(CELL *)Yap_GlobalBase),(CELL *)Yap_GlobalBase,H);
+    fprintf(Yap_stderr, "%%  Local:%8ld cells (%p-%p)\n", (unsigned long int)(LCL0-ASP),LCL0,ASP);
+    fprintf(Yap_stderr, "%%  Trail:%8ld cells (%p-%p)\n",
 	       (unsigned long int)(TR-(tr_fr_ptr)Yap_TrailBase),Yap_TrailBase,TR);
 #endif
-    fprintf(Yap_stderr, "[TO]    growing the trail %ld bytes\n", size);
+    fprintf(Yap_stderr, "%% growing the trail %ld bytes\n", size);
   }
   Yap_ErrorMessage = NULL;
 #if USE_SYSTEM_MALLOC
@@ -1003,8 +1003,8 @@ static int do_growtrail(long size)
   growth_time = Yap_cputime()-start_growth_time;
   total_trail_overflow_time += growth_time;
   if (gc_verbose) {
-    fprintf(Yap_stderr, "[TO]   took %g sec\n", (double)growth_time/1000);
-    fprintf(Yap_stderr, "[TO] Total of %g sec expanding trail \n", (double)total_trail_overflow_time/1000);
+    fprintf(Yap_stderr, "%%  took %g sec\n", (double)growth_time/1000);
+    fprintf(Yap_stderr, "%% Total of %g sec expanding trail \n", (double)total_trail_overflow_time/1000);
   }
   LOCK(SignalLock);
   if (ActiveSignals == YAP_TROVF_SIGNAL) {
@@ -1076,8 +1076,8 @@ Yap_growatomtable(void)
   }
   atom_table_overflows++;
   if (gc_verbose) {
-    fprintf(Yap_stderr, "[AO] Atom Table overflow %d\n", atom_table_overflows);
-    fprintf(Yap_stderr, "[AO]    growing the atom table to %ld entries\n", (long int)(nsize));
+    fprintf(Yap_stderr, "%% Atom Table overflow %d\n", atom_table_overflows);
+    fprintf(Yap_stderr, "%%    growing the atom table to %ld entries\n", (long int)(nsize));
   }
   YAPEnterCriticalSection();
   for (i = 0; i < nsize; ++i) {
@@ -1109,8 +1109,8 @@ Yap_growatomtable(void)
   growth_time = Yap_cputime()-start_growth_time;
   total_atom_table_overflow_time += growth_time;
   if (gc_verbose) {
-    fprintf(Yap_stderr, "[AO]   took %g sec\n", (double)growth_time/1000);
-    fprintf(Yap_stderr, "[AO] Total of %g sec expanding atom table \n", (double)total_atom_table_overflow_time/1000);
+    fprintf(Yap_stderr, "%%   took %g sec\n", (double)growth_time/1000);
+    fprintf(Yap_stderr, "%% Total of %g sec expanding atom table \n", (double)total_atom_table_overflow_time/1000);
   }
 }
 

@@ -2546,7 +2546,8 @@ The user may also define clauses for
 @code{user:unknown_predicate_handler/3} hook predicate. This
 user-defined procedure is called before any system processing for the
 undefined procedure, with the first argument @var{G} set to the current
-goal, and the second @var{M} set to the current module.
+goal, and the second @var{M} set to the current module. The predicate
+@var{G} will be called from within the user module.
 
 If @code{user:unknown_predicate_handler/3} succeeds, the system will
 execute @var{NG}. If  @code{user:unknown_predicate_handler/3} fails, the
