@@ -83,7 +83,7 @@ AC_ARG_WITH(mpi,
 		LDFLAGS="$LDFLAGS -L${yap_cv_mpi}/lib"
 		CPPFLAGS="$CPPFLAGS -I${yap_cv_mpi}/include"
 	fi,
-	[yap_cv_mpi=yes])
+	[yap_cv_mpi=no])
 
 AC_ARG_WITH(mpe,
 	[ --with-mpe[=DIR]           use MPE library in DIR],
@@ -96,7 +96,7 @@ AC_ARG_WITH(mpe,
 		LDFLAGS="$LDFLAGS -L${yap_cv_mpe}/lib"
 		CPPFLAGS="$CPPFLAGS -I${yap_cv_mpe}/include"
 	fi,
-	[yap_cv_mpe=yes])
+	[yap_cv_mpe=no])
 
 AC_ARG_WITH(heap-space,
 	[ --with-heap-space[=space]  default heap size in Kbytes],
@@ -306,6 +306,8 @@ then
     fi
   fi
   CC=${OLD_CC}
+else
+  MPI_CC=${CC}
 fi
 
 MPI_LIBS=
