@@ -12,7 +12,7 @@
 * Last rev:								 *
 * mods:									 *
 * comments:	allocating space					 *
-* version:$Id: alloc.c,v 1.29 2002-11-19 17:10:42 vsc Exp $		 *
+* version:$Id: alloc.c,v 1.30 2002-12-03 06:06:43 vsc Exp $		 *
 *************************************************************************/
 #ifdef SCCS
 static char SccsId[] = "%W% %G%";
@@ -760,33 +760,33 @@ ExtendWorkSpace(Int s)
 {
   MALLOC_T ptr;
   int shm_id;
-  prolog_exec_mode OldPrologMode = PrologMode;
+  prolog_exec_mode OldPrologMode = Yap_PrologMode;
 
-  PrologMode = ExtendStackMode;
+  Yap_PrologMode = ExtendStackMode;
   /* mapping heap area */
   if((shm_id = shmget(IPC_PRIVATE, (size_t)s, SHM_R|SHM_W)) == -1) {
     Yap_ErrorMessage = Yap_ErrorSay;
     snprintf4(Yap_ErrorMessage, MAX_ERROR_MSG_SIZE,
 	      "could not shmget %d bytes", s);
-    PrologMode = OldPrologMode;
+    Yap_PrologMode = OldPrologMode;
     return(FALSE);
    }
   if((ptr = (MALLOC_T)shmat(shm_id, WorkSpaceTop, 0)) == (MALLOC_T) -1) {
     Yap_ErrorMessage = Yap_ErrorSay;
     snprintf4(Yap_ErrorMessage, MAX_ERROR_MSG_SIZE,
 	      "could not shmat at %p", MMAP_ADDR);
-    PrologMode = OldPrologMode;
+    Yap_PrologMode = OldPrologMode;
     return(FALSE);
   }
   if (shmctl(shm_id, IPC_RMID, 0) != 0) {
     Yap_ErrorMessage = Yap_ErrorSay;
     snprintf4(Yap_ErrorMessage, MAX_ERROR_MSG_SIZE,
 	      "could not remove shm segment", shm_id);
-    PrologMode = OldPrologMode;
+    Yap_PrologMode = OldPrologMode;
     return(FALSE);
   }
   WorkSpaceTop = (char *) ptr + s;
-  PrologMode = OldPrologMode;
+  Yap_PrologMode = OldPrologMode;
   return(TRUE);
 }
 
@@ -835,17 +835,17 @@ static int
 ExtendWorkSpace(Int s)
 {
   MALLOC_T ptr = (MALLOC_T)sbrk(s);
-  prolog_exec_mode OldPrologMode = PrologMode;
+  prolog_exec_mode OldPrologMode = Yap_PrologMode;
 
-  PrologMode = ExtendStackMode;
+  Yap_PrologMode = ExtendStackMode;
   if (ptr == ((MALLOC_T) - 1)) {
     Yap_ErrorMessage = Yap_ErrorSay;
     snprintf4(Yap_ErrorMessage, MAX_ERROR_MSG_SIZE,
 	      "could not expand stacks over %d bytes", s);
-    PrologMode = OldPrologMode;
+    Yap_PrologMode = OldPrologMode;
     return(FALSE);
   }
-  PrologMode = OldPrologMode;
+  Yap_PrologMode = OldPrologMode;
   return TRUE;
 }
 
@@ -965,9 +965,9 @@ static int
 ExtendWorkSpace(Int s)
 {
   MALLOC_T ptr;
-  prolog_exec_mode OldPrologMode = PrologMode;
+  prolog_exec_mode OldPrologMode = Yap_PrologMode;
 
-  PrologMode = ExtendStackMode;
+  Yap_PrologMode = ExtendStackMode;
   total_space += s;
   if (total_space < MAX_SPACE) return(TRUE);
   ptr = (MALLOC_T)realloc((void *)Yap_HeapBase, total_space);
@@ -975,24 +975,24 @@ ExtendWorkSpace(Int s)
     Yap_ErrorMessage = Yap_ErrorSay;
     snprintf4(Yap_ErrorMessage, MAX_ERROR_MSG_SIZE,
 	      "could not allocate %d bytes", s);
-    PrologMode = OldPrologMode;
+    Yap_PrologMode = OldPrologMode;
     return(FALSE);
   }
   if (ptr != (MALLOC_T)Yap_HeapBase) {
     Yap_ErrorMessage = Yap_ErrorSay;
     snprintf4(Yap_ErrorMessage, MAX_ERROR_MSG_SIZE,
 	      "could not expand contiguous stacks  %d bytes", s);
-    PrologMode = OldPrologMode;
+    Yap_PrologMode = OldPrologMode;
     return(FALSE);
   }
   if ((CELL)ptr & MBIT) {
     Yap_ErrorMessage = Yap_ErrorSay;
     snprintf5(Yap_ErrorMessage, MAX_ERROR_MSG_SIZE,
 	      "memory at %p conflicts with MBIT %lx", ptr, (unsigned long)MBIT);
-    PrologMode = OldPrologMode;
+    Yap_PrologMode = OldPrologMode;
     return(FALSE);
   }
-  PrologMode = OldPrologMode;
+  Yap_PrologMode = OldPrologMode;
   return TRUE;
 }
 
