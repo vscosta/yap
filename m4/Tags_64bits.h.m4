@@ -11,7 +11,7 @@
 * Last rev:	December 90						 *
 * mods:									 *
 * comments:	Original Tag Scheme for machines with 32 bits adresses   *
-* version:      $Id: Tags_64bits.h.m4,v 1.2 2001-06-27 15:14:02 vsc Exp $	 *
+* version:      $Id: Tags_64bits.h.m4,v 1.3 2003-06-06 13:16:40 vsc Exp $	 *
 *************************************************************************/
 
 #define TAG_64BITS 1
@@ -57,6 +57,7 @@ property list
 #define PrimiBits   /* 0x70000004L */ MKTAG(0x7,7)
 #define NumberMask  /* 0x20000007L */ MKTAG(0x2,7)
 
+#define TagOf(t) 	(Unsigned(t)&TagBits)
 #define	NonTagPart(X)	(Signed(X) & MaskPrim)
 #define TAGGEDA(TAG,V)	(TAG | Unsigned(V))
 #define TAGGED(TAG,V)   (TAG | NonTagPart(Unsigned(V)<<3)) /* SQRT(8) */

@@ -68,47 +68,21 @@ static UInt labelno;
 static inline int
 smaller(Term t1, Term t2)
 {
-  if (IsVarTerm(t1)) {
-    if (!IsVarTerm(t2)) return TRUE;
-    return (t1 < t2);
-  } else if (IsIntTerm(t1)) {
-    if (IsVarTerm(t2)) return FALSE;
-    if (!IsIntTerm(t2)) return TRUE;
-    return (IntOfTerm(t1) < IntOfTerm(t2));
-  } else if (IsAtomTerm(t1)) {
-    if (IsVarTerm(t2) || IsIntTerm(t2)) return FALSE;
-    if (IsApplTerm(t2) || IsPairTerm(t2)) return TRUE;
-    return (t1 < t2);
-  } else if (IsApplTerm(t1)) {
-    if (IsVarTerm(t2) || IsAtomTerm(t2) || IsIntTerm(t2)) return FALSE;
-    if (IsPairTerm(t2)) return TRUE;
-    return (t1 < t2);
-  } else /* if (IsPairTerm(t1)) */ {
-    return FALSE;
-  }
+  CELL tg1 = TagOf(t1), tg2 = TagOf(t2);
+  if (tg1 == tg2) {
+    return t1 < t2;
+  } else
+    return tg1 < tg2;
 }
 
 static inline int
 smaller_or_eq(Term t1, Term t2)
 {
-  if (IsVarTerm(t1)) {
-    if (!IsVarTerm(t2)) return TRUE;
-    return (t1 <= t2);
-  } else if (IsIntTerm(t1)) {
-    if (IsVarTerm(t2)) return FALSE;
-    if (!IsIntTerm(t2)) return TRUE;
-    return (IntOfTerm(t1) <= IntOfTerm(t2));
-  } else if (IsAtomTerm(t1)) {
-    if (IsVarTerm(t2) || IsIntTerm(t2)) return FALSE;
-    if (IsApplTerm(t2) || IsPairTerm(t2)) return TRUE;
-    return (t1 <= t2);
-  } else if (IsApplTerm(t1)) {
-    if (IsVarTerm(t2) || IsAtomTerm(t2) || IsIntTerm(t2)) return FALSE;
-    if (IsPairTerm(t2)) return TRUE;
-    return (t1 <= t2);
-  } else /* if (IsPairTerm(t1)) */ {
-    return FALSE;
-  }
+  CELL tg1 = TagOf(t1), tg2 = TagOf(t2);
+  if (tg1 == tg2) {
+    return t1 <= t2;
+  } else
+    return tg1 < tg2;
 }
 
 static inline void
@@ -345,6 +319,7 @@ regcopy_in(wamreg regs[MAX_REG_COPIES], int regs_count, wamreg copy)
 }
 
 /* Restores a prolog clause, in its compiled form */
+#if YAPOR
 static int 
 has_cut(yamop *pc)
 /*
@@ -352,7 +327,6 @@ has_cut(yamop *pc)
  * clause for this predicate or not 
  */
 {
-#if YAPOR
   do {
     op_numbers op = Yap_op_from_opcode(pc->opc);
     pc->opc = Yap_opcode(op);
@@ -831,10 +805,10 @@ has_cut(yamop *pc)
       break;
     }
   } while (TRUE);
-#else /* YAPOR */
-  return FALSE;
-#endif /* YAPOR */
 }
+#else
+#define has_cut(pc) 0
+#endif /* YAPOR */
 
 static void 
 add_info(ClauseDef *clause, UInt regno)
@@ -2177,7 +2151,7 @@ emit_try(ClauseDef *cl, PredEntry *ap, int var_group, int first, int clauses, in
 static TypeSwitch *
 emit_type_switch(compiler_vm_op op)
 {
-  return (TypeSwitch *)Yap_emit_extra_size(op, 0, sizeof(TypeSwitch));
+ return (TypeSwitch *)Yap_emit_extra_size(op, 0, sizeof(TypeSwitch));
 }
 
 
@@ -2329,17 +2303,20 @@ log_update_chain(PredEntry *ap)
 {
   yamop *codep = ap->cs.p_code.FirstClause;
   yamop *lastp = ap->cs.p_code.LastClause;
+  int nclauses = (lastp-codep);
 
   Yap_emit(label_op, 1, Zero);
-  Yap_emit(try_op, (CELL)NEXTOP(codep,ld), Zero);
+  Yap_emit(try_op, (CELL)NEXTOP(codep,ld), (nclauses << 1) | has_cut(NEXTOP(codep,ld)->CurrentCode) );
+  nclauses--;
   add_lu_cl_info(codep);
   codep = NextClause(codep);
   while (codep != lastp) { 
-    Yap_emit(retry_op, (CELL)NEXTOP(codep,ld), Zero);
+    Yap_emit(retry_op, (CELL)NEXTOP(codep,ld), (nclauses << 1) | has_cut(NEXTOP(codep,ld)->CurrentCode));
+    nclauses--;
     add_lu_cl_info(codep);
     codep = NextClause(codep);
   }
-  Yap_emit(trust_op, (CELL)NEXTOP(codep,ld), Zero);
+  Yap_emit(trust_op, (CELL)NEXTOP(codep,ld), has_cut(codep->CurrentCode));
   add_lu_cl_info(codep);
   return 1;
 }
@@ -2462,7 +2439,7 @@ do_funcs(GroupDef *grp, PredEntry *ap, UInt argno, int first, int last_arg, UInt
   FuncSwiEntry *fs;
   UInt lbl;
 
-  if (min > grp->LastClause || !IsApplTerm(min->Tag)) {
+  if (min > grp->LastClause || n == 0) {
     /* no clauses, just skip */
     return nxtlbl;
   }
@@ -2493,12 +2470,17 @@ static UInt
 do_pair(GroupDef *grp, PredEntry *ap, UInt argno, int first, int last_arg, UInt nxtlbl, int clleft, CELL *top)
 {
   ClauseDef *min = grp->FirstClause;
-  ClauseDef *max = grp->LastClause;
+  ClauseDef *max = grp->FirstClause;
 
-  if (min > max) {
+  while (IsPairTerm(max->Tag) && max != grp->LastClause) {
+    max++;
+  }
+  if (min > grp->LastClause) {
     /* no clauses, just skip */
     return nxtlbl;
-  } else if (min == max) {
+  }
+  grp->FirstClause = max+1;
+  if (min == max) {
     /* single clause, no need to do indexing, but we do know it is a list */ 
     return (UInt)(min->CurrentCode);
   }
@@ -2604,9 +2586,19 @@ do_nonvar_group(GroupDef *grp, int compound_term, UInt labl, PredEntry *ap, UInt
     type_sw->VarEntry = do_var_entries(grp, ap, argno, first, clleft, nxtlbl);
     grp->LastClause = cls_move(grp->FirstClause, grp->LastClause, compound_term, argno, last_arg);
     sort_group(grp,top);
-    type_sw->ConstEntry = do_consts(grp, ap, argno, first, nxtlbl, clleft, top);
-    type_sw->FuncEntry = do_funcs(grp, ap, argno, first, last_arg, nxtlbl, clleft, top);
-    type_sw->PairEntry = do_pair(grp, ap, argno, first, last_arg, nxtlbl, clleft, top);
+    type_sw->ConstEntry = 
+      type_sw->FuncEntry = 
+      type_sw->PairEntry = 
+      nxtlbl;
+    while (grp->FirstClause <= grp->LastClause) {
+      if (IsAtomOrIntTerm(grp->FirstClause->Tag)) {
+	type_sw->ConstEntry = do_consts(grp, ap, argno, first, nxtlbl, clleft, top);
+      } else if (IsApplTerm(grp->FirstClause->Tag)) {
+	type_sw->FuncEntry = do_funcs(grp, ap, argno, first, last_arg, nxtlbl, clleft, top);
+      } else {
+	type_sw->PairEntry = do_pair(grp, ap, argno, first, last_arg, nxtlbl, clleft, top);
+      }
+    }
   } else {
     do_var_group(grp, ap, labl, TRUE, first, clleft, nxtlbl);
   }
@@ -2875,3 +2867,11 @@ Yap_PredIsIndexable(PredEntry *ap)
 #endif
   return(indx_out);
 }
+
+/* store a new clause in the index, right now it may be first or last  */
+/*Yap_IncrementalIndexing(PredEntry *ap, yamop *cl, int flag)
+{
+  CELL *top = (CELL *) TR;
+  pc = ap->TrueCodeOfPred;
+}
+*/

@@ -11,7 +11,7 @@
 * Last rev:	December 90						 *
 * mods:									 *
 * comments:	Tag Scheme for machines with 24 bits adresses (m68000)   *
-* version:      $Id: Tags_24bits.h.m4,v 1.1.1.1 2001-04-09 19:53:46 vsc Exp $	 *
+* version:      $Id: Tags_24bits.h.m4,v 1.2 2003-06-06 13:16:40 vsc Exp $	 *
 *************************************************************************/
 
      /*   Version for 24 bit	addresses (68000)
@@ -46,6 +46,7 @@
 #define NumberMask	0xb8000000L
 #define MAX_ABS_INT /* 0xfe00000LL */ ((((UInt)(1<<7))-1) << SHIFT_HIGH_TAG)
 
+#define	TagOf(X)	(Unsigned(X) & TagBits)
 #define	NonTagPart(X)	(Signed(X) & MaskAdr)
 #define TAGGEDA(TAG,V)	(TAG | Unsigned(V))
 #define TAGGED(TAG,V)   (TAG | NonTagPart(Unsigned(V)))
