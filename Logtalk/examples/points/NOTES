@@ -1,6 +1,6 @@
 =================================================================
 Logtalk - Object oriented extension to Prolog
-Release 2.9.2
+Release 2.9.3
 
 Copyright (c) 1998-2002 Paulo Moura.  All Rights Reserved.
 =================================================================
@@ -15,6 +15,9 @@ files).
 
 You will also need to consult the following files in the library directory: 
 events.loader, types.loader, metapredicates.loader, and hierarchies.loader.
+Alternatively, you may load the library/all.loader file to load all library 
+entities.
+
 
 You can find the original description of this example (and a solution using 
 SICStus Objects) at the URL:

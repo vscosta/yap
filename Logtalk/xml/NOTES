@@ -1,25 +1,29 @@
 =================================================================
 Logtalk - Object oriented extension to Prolog
-Release 2.9.2
+Release 2.9.3
 
 Copyright (c) 1998-2002 Paulo Moura.  All Rights Reserved.
 =================================================================
 
 This folder contains several files that enables .xml documentation files 
-created when compiling objects, categories, or protocols, to be viewed 
-in a web browser that supports the W3C standards XML, XSLT, CSS and HTML 4
-or to be converted to LateX for printing.
+created when compiling objects, categories, or protocols, to be converted 
+to PDF files, to be viewed in a web browser that supports the W3C standards 
+XML, XSLT, CSS and HTML 4, or to be converted to LateX for printing.
 
 You will need to either copy your .xml files to this directory or copy
-these files to the directory where the .xml files reside. The links to 
-the .xsl files on the .xml files and the links to the .css files in the 
-generated .html files assume that all files reside in the same directory.
+these files to the directory where the .xml files reside.
+
+Regarding conversion to HTML, the links to  the .xsl files on the .xml 
+files and the links to the .css files in the generated .html files assume 
+that all files reside in the same directory.
 
 The choice of the default .xsl file to use is made in the config files by 
 the lgt_default_compiler_option/2 predicate. You can also choose a different 
 .xsl file by using the xsl/1 compiler option in the logtalk_compile/2 or 
 logtalk_load/2 calls. The default file is lgtxml.xsl (described below).
 
+Brief description of each file in this folder:
+ 
 
 lgthtml.xsl
 
@@ -37,6 +41,13 @@ lgtxml.xsl
 	HTML files point to related XML files.
 
 
+lgtpdfa4.xsl lgtpdfus.xsl
+
+	XSLT files to generate PDF files from the .xml files (formatted either 
+	for A4 paper or US Letter paper) using XSL Formatting Objects. Tested 
+	with Apache Fop processor (http://xml.apache.org/fop).
+
+
 texml.xsl
 
 	XSLT file to output TeXML files that can be further processed by  
@@ -47,9 +58,10 @@ texml.xsl
 ie5.xsl
 
 	XSLT file for viewing .xml files in Microsoft Internet Explorer 5.x 
-	(works with both Macintosh and Windows versions). The links in the
-	(internally generated) HTML files point to related XML files. It can 
-	be used to browse and view the XML files directly.
+	(using the outdated Microsoft XML Parser; works with both Macintosh 
+	and Windows versions). The links in the (internally generated) HTML 
+	files point to related XML files. It can be used to browse and view 
+	the XML files directly.
 
 
 logtalk.dtd
@@ -70,18 +82,36 @@ logtalk.css
 	in a web browser.
 
 
-script.sh
+html.sh
 
-	Sample unix shell script to batch convert .xml files to .html files.
-	Edit the file to match your environment.
+	Sample Unix shell script to batch convert .xml files to .html files.
+	Edit the script to match your environment before running it.
+	Requires James Clarck XT processor (http://www.jclark.com/xml/xt.html).
 
 
-script.bat
+html.bat
 
-	Sample dos batch script to convert .xml files to .html files.
-	Edit the file to match your environment.
+	Sample DOS batch script to convert .xml files to .html files.
+	Edit the script to match your environment before running it.
+	Requires James Clarck XT processor (http://www.jclark.com/xml/xt.html).
+
+
+pdf.sh
+
+	Sample Unix shell script to batch convert .xml files to .pdf files.
+	Edit the script to match your environment and paper format preference 
+	before running it.
+	Requires Apache FOP processor (http://xml.apache.org/fop).
+
+
+pdf.bat
+
+	Sample DOS batch script to convert .xml files to .pdf files.
+	Edit the script to match your environment and paper format preference 
+	before running it.
+	Requires Apache FOP processor (http://xml.apache.org/fop).
 
 
 Note that you can write other XSLT files for converting the XML files to 
-other formats besides HTML or LaTeX. You can also write alternative CSS 
-and XSLT files to change the appearance of the HTML and LaTeX files.
+other formats besides PDF, HTML, or LaTeX. You can also write alternative 
+CSS and XSLT files to change the appearance of the HTML and LaTeX files.

@@ -1,6 +1,6 @@
 =================================================================
 Logtalk - Object oriented extension to Prolog
-Release 2.9.2
+Release 2.9.3
 
 Copyright (c) 1998-2002 Paulo Moura.  All Rights Reserved.
 =================================================================
@@ -11,7 +11,9 @@ file.
 
 You will also need to load the following files in the library directory: 
 types.loader, events.loader, metapredicates.loader, and dates.loader (note 
-that the *.loader files are Prolog files).
+that the *.loader files are Prolog files). Alternatively, you may load the 
+library/all.loader file to load all library entities.
+
 
 This is a very simple example of the use of events and monitors to make 
 profilers for an application. It's easy to modify to make it do much more. 

@@ -1,6 +1,6 @@
 =================================================================
 Logtalk - Object oriented extension to Prolog
-Release 2.9.2
+Release 2.9.3
 
 Copyright (c) 1998-2002 Paulo Moura.  All Rights Reserved.
 =================================================================
@@ -8,6 +8,20 @@ Copyright (c) 1998-2002 Paulo Moura.  All Rights Reserved.
 
 RELEASE NOTES
 =============
+
+
+2.9.3 - February 9, 2002
+
+	New current_logtalk_flag/2 and set_logtalk_flag/2 built-in predicates.
+
+	Updated documentation on new built-in predicates.
+
+	Renamed SWI-Prolog config file swi330.config to swi.config.
+
+	Renamed config file predicate lgt_default_compiler_option/2 to lgt_flag/2.
+
+	New XSL stylesheets and shell scripts to convert Logtalk XML entity 
+	documenting files to PDF format using XSL Formating Objects.
 
 
 2.9.2 - January 4, 2002

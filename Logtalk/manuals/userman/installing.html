@@ -201,10 +201,10 @@ Both predicates expect a list of entity names (atoms) as an argument. The Logtal
 If you have more than a few source files then you may want to use a loader utility file containing the calls to the <code>logtalk_load/1</code> predicate (see the description above). Consulting or compiling the loader file will then compile and load all your Logtalk entities into memory.
 </p>
 
-<h3><a class="back" title="Return to index" name="options" href="index.html#installing_options">Compiler options</a></h3>
+<h3><a class="back" title="Return to index" name="options" href="index.html#installing_options">Compiler option flags</a></h3>
 
 <p>
-The <a title="Consult reference manual" href="../refman/builtins/logtalk_load1.html"><code>logtalk_load/1</code></a> and <a title="Consult reference manual" href="../refman/builtins/logtalk_compile1.html"><code>logtalk_compile/1</code></a> always use the set of default compiler options specified in the Logtalk configuration files. Although the default options cover the usual cases, you may want to use a different set of options while compiling or loading some of your Logtalk source files. This can be accomplished by using the <a title="Consult reference manual" href="../refman/builtins/logtalk_load2.html"><code>logtalk_load/2</code></a> or the <a title="Consult reference manual" href="../refman/builtins/logtalk_compile2.html"><code>logtalk_compile/2</code></a> built-in predicates. These two predicates accept a list of options affecting how a Logtalk source file is compiled and loaded:
+The <a title="Consult reference manual" href="../refman/builtins/logtalk_load1.html"><code>logtalk_load/1</code></a> and <a title="Consult reference manual" href="../refman/builtins/logtalk_compile1.html"><code>logtalk_compile/1</code></a> always use the set of default compiler option flags specified in the Logtalk configuration files. Although the default options cover the usual cases, you may want to use a different set of options while compiling or loading some of your Logtalk source files. This can be accomplished by using the <a title="Consult reference manual" href="../refman/builtins/logtalk_load2.html"><code>logtalk_load/2</code></a> or the <a title="Consult reference manual" href="../refman/builtins/logtalk_compile2.html"><code>logtalk_compile/2</code></a> built-in predicates. These two predicates accept a list of options affecting how a Logtalk source file is compiled and loaded:
 </p>
 <pre>
     | ?- logtalk_compile(Files, Options).
@@ -262,12 +262,28 @@ You can use the following options:
 		<dd>Controls the use of the <code>initialization/1</code> directive in the Logtalk generated Prolog code. Possible option values are <code>true</code> (if the Prolog compiler supports the ISO definition of the directive) and <code>false</code> (if the Prolog compiler either does not implement the directive or if the implementation does not conform to the ISO standard).</dd>
 </dl>
 
+<p>
+We may also change the default options values from the ones loaded from the config file by using the <a title="Consult reference manual" href="../refman/builtins/set_logtalk_flag2.html"><code>set_logtalk_flag/2</code></a> built-in predicate. For example:
+<pre>
+    | ?- set_logtalk_flag(xml, off).
+</pre>
+</p>
+<p>
+The current values of the default flags can be enumerated using the <a title="Consult reference manual" href="../refman/builtins/current_logtalk_flag2.html"><code>current_logtalk_flag/2</code></a> built-in predicate:
+</p>
+<pre>
+    | ?- current_logtalk_flag(xml, Value).
+
+    Value = off
+    yes
+</pre>
+
 <hr />
 <p class="center">
 <strong><a href="configuration.html">Previous</a> | <a href="programming.html">Next</a> | <a href="index.html">Table of Contents</a> | <a href="../bibliography.html">Bibliography</a> | <a href="../glossary.html">Glossary</a></strong>
 </p>
 <p class="center">
-Last updated on: December 30, 2001
+Last updated on: February 9, 2002
 </p>
 <hr />
 
