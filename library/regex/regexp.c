@@ -20,7 +20,15 @@
 #include <sys/types.h>
 #endif
 #include "c_interface.h"
+#if HAVE_REGEX_H
+#include "regex.h"
+#define yap_regcomp(A,B,C) regcomp(A,B,C)
+#define yap_regexec(A,B,C,D,E) regexec(A,B,C,D,E)
+#define yap_regfree(A) regfree(A)
+#define yap_regerror(A,B,C,D) regfree(A,B,C,D)
+#else
 #include "yapregex.h"
+#endif
 /* for the sake of NULL */
 #include <stdio.h>
 

@@ -33,8 +33,8 @@ SHLIB_SUFFIX=@SHLIB_SUFFIX@
 CWD=$(PWD)
 #
 
-OBJS=regexp.o regcomp.o regexec.o regerror.o regfree.o
-SOBJS=regexp@SHLIB_SUFFIX@ regcomp@SHLIB_SUFFIX@ regexec@SHLIB_SUFFIX@ regerror@SHLIB_SUFFIX@ regfree@SHLIB_SUFFIX@ 
+OBJS=regexp.o @NO_BUILTIN_REGEXP@ regcomp.o regexec.o regerror.o regfree.o
+SOBJS=regexp@SHLIB_SUFFIX@ @NO_BUILTIN_REGEXP@ regcomp@SHLIB_SUFFIX@ regexec@SHLIB_SUFFIX@ regerror@SHLIB_SUFFIX@ regfree@SHLIB_SUFFIX@ 
 
 #in some systems we just create a single object, in others we need to
 # create a libray
@@ -45,7 +45,7 @@ sobjs: $(SOBJS)
 
 dll: regexp@SHLIB_SUFFIX@
 
-regexp.o: $(srcdir)/regexp.c $(srcdir)/regex2.h  $(srcdir)/engine.c
+regexp.o: $(srcdir)/regexp.c  @NO_BUILTIN_REGEXP@ $(srcdir)/regex2.h  $(srcdir)/engine.c
 	$(CC) -c $(CFLAGS) $(SHLIB_CFLAGS) $(srcdir)/regexp.c -o regexp.o
 
 regcomp.o: $(srcdir)/regcomp.c $(srcdir)/regex2.h
