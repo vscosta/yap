@@ -1,0 +1,12 @@
+=================================================================
+Logtalk - Object oriented extension to Prolog
+Release 2.17.1
+
+Copyright (c) 1998-2004 Paulo Moura.  All Rights Reserved.
+=================================================================
+
+This folder contains objects, categories, and protocols whose 
+implementation is Prolog-compiler dependent. Each sub-folder 
+contains files specific for a Prolog compiler. All code in this 
+folder is under development, incomplete, and should be considered 
+highly experimental.

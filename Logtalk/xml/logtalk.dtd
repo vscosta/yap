@@ -3,7 +3,7 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %
 %  Logtalk - Object oriented extension to Prolog
-%  Release 2.17.0
+%  Release 2.17.1
 %
 %  Copyright (c) 1998-2004 Paulo Moura.  All Rights Reserved.
 %
@@ -70,7 +70,7 @@
 <!ELEMENT private (predicate*)>
 
 
-<!ELEMENT predicate (name, scope, compilation, meta?, mode*, comment?, template?, info*)>
+<!ELEMENT predicate (name, scope, compilation, meta?, mode*, comment?, template?, exceptions?, info*)>
 
 <!ELEMENT meta (#PCDATA)>
 
@@ -79,3 +79,11 @@
 <!ELEMENT template (#PCDATA)>
 
 <!ELEMENT solutions (#PCDATA)>
+
+<!ELEMENT exceptions (exception*)>
+
+<!ELEMENT exception (condition, term)>
+
+<!ELEMENT condition (#PCDATA)>
+
+<!ELEMENT term (#PCDATA)>

@@ -2,7 +2,7 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %
 %  Logtalk - Object oriented extension to Prolog
-%  Release 2.17.0
+%  Release 2.17.1
 %
 %  Copyright (c) 1998-2004 Paulo Moura.  All Rights Reserved.
 %
@@ -1105,7 +1105,7 @@ current_logtalk_flag(Flag, Value) :-
 	'$lgt_default_flag'(Flag, Value),
 	\+ '$lgt_flag_'(Flag, _).
 
-current_logtalk_flag(version, version(2, 17, 0)).
+current_logtalk_flag(version, version(2, 17, 1)).
 
 
 
@@ -1163,11 +1163,11 @@ current_logtalk_flag(version, version(2, 17, 0)).
 	findall(
 		Functor/Arity - (PScope, SCtn),
 		('$lgt_call'(Dcl, Pred, PScope, _, _, SCtn, _),
+		 once((\+ \+ PScope = Scope; Sender = SCtn)),
 		 functor(Pred, Functor, Arity)),
 		Preds),
 	'$lgt_cp_filter'(Preds, Filtered),
-	'$lgt_member'(Functor/Arity - (PScope, SCtn), Filtered),
-	once((\+ \+ PScope = Scope; Sender = SCtn)).
+	'$lgt_member'(Functor/Arity - (PScope, SCtn), Filtered).
 
 
 % '$lgt_cp_filter'(+list, -list)
@@ -2120,10 +2120,11 @@ current_logtalk_flag(version, version(2, 17, 0)).
 
 
 '$lgt_dbg_pretty_print_spypoint'(Sender, This, Self, Goal) :-
-	(var(Sender) -> write('_, '); '$lgt_pretty_print_vars'(Sender), write(', ')),
-	(var(This) -> write('_, '); '$lgt_pretty_print_vars'(This), write(', ')),
-	(var(Self) -> write('_, '); '$lgt_pretty_print_vars'(Self), write(', ')),
-	(var(Goal) -> write('_'); '$lgt_pretty_print_vars'(Goal)).
+	current_ouput(Output),
+	(var(Sender) -> write('_, '); '$lgt_pretty_print_vars_quoted'(Output, Sender), write(', ')),
+	(var(This) -> write('_, '); '$lgt_pretty_print_vars_quoted'(Output, This), write(', ')),
+	(var(Self) -> write('_, '); '$lgt_pretty_print_vars_quoted'(Output, Self), write(', ')),
+	(var(Goal) -> write('_'); '$lgt_pretty_print_vars_quoted'(Output, Goal)).
 
 
 '$lgt_dbg_spy'(Preds) :-
@@ -2311,7 +2312,7 @@ current_logtalk_flag(version, version(2, 17, 0)).
 			call(TGoal),
 			Error,
 			('$lgt_dbg_port'(exception, Goal, Error, Ctx, TAction),
-			 (TAction = fail -> fail; throw(Error)))),
+			 (TAction = fail -> fail; TAction = throw -> throw(Error)))),
 		(	'$lgt_dbg_port'(exit, Goal, _, Ctx, EAction),
 			call(EAction)
 			;
@@ -2378,7 +2379,6 @@ current_logtalk_flag(version, version(2, 17, 0)).
 '$lgt_dbg_valid_port_option'(@, _, _).
 '$lgt_dbg_valid_port_option'(b, _, _).
 '$lgt_dbg_valid_port_option'(a, _, _).
-'$lgt_dbg_valid_port_option'(e, _, _).
 '$lgt_dbg_valid_port_option'(d, _, _).
 '$lgt_dbg_valid_port_option'(x, _, _).
 '$lgt_dbg_valid_port_option'(h, _, _).
@@ -2387,7 +2387,7 @@ current_logtalk_flag(version, version(2, 17, 0)).
 '$lgt_dbg_valid_port_option'(*, _, ' ').
 '$lgt_dbg_valid_port_option'(+, _, ' ').
 '$lgt_dbg_valid_port_option'(-, _, +).
-'$lgt_dbg_valid_port_option'(t, exception, _).
+'$lgt_dbg_valid_port_option'(e, exception, _).
 
 
 '$lgt_dbg_do_port_option'(' ', _, _, _, true).
@@ -2407,7 +2407,7 @@ current_logtalk_flag(version, version(2, 17, 0)).
 	'$lgt_dbg_debugging'.
 
 '$lgt_dbg_do_port_option'(+, Goal, _, _, _) :-
-	(Goal = _ :: Pred ->
+	(Goal = (_ :: Pred) ->
 		functor(Pred, Functor, Arity)
 		;
 		functor(Goal, Functor, Arity)),
@@ -2415,7 +2415,7 @@ current_logtalk_flag(version, version(2, 17, 0)).
 	fail.
 
 '$lgt_dbg_do_port_option'(-, Goal, _, _, true) :-
-	(Goal = _ :: Pred ->
+	(Goal = (_ :: Pred) ->
 		functor(Pred, Functor, Arity)
 		;
 		functor(Goal, Functor, Arity)),
@@ -2445,9 +2445,6 @@ current_logtalk_flag(version, version(2, 17, 0)).
 '$lgt_dbg_do_port_option'(a, _, _, _, _) :-
 	throw(error(logtalk_debugger_aborted)).
 
-'$lgt_dbg_do_port_option'(e, _, _, _, _) :-
-	halt.
-
 '$lgt_dbg_do_port_option'(d, Goal, _, _, _) :-
 	write('    Current goal: '), write_term(Goal, [ignore_ops(true)]), nl,
 	fail.
@@ -2461,7 +2458,7 @@ current_logtalk_flag(version, version(2, 17, 0)).
 	write('    Self:   '), writeq(Self), nl,
 	fail.
 
-'$lgt_dbg_do_port_option'(t, _, Error, _, _) :-
+'$lgt_dbg_do_port_option'(e, _, Error, _, _) :-
 	write('    Exception term: '), writeq(Error), nl,
 	fail.
 
@@ -2475,10 +2472,9 @@ current_logtalk_flag(version, version(2, 17, 0)).
 	write('        @ - command (reads and executes a query)'), nl,
 	write('        b - break (suspends execution and starts new interpreter; type end_of_file to terminate)'), nl,
 	write('        a - abort (returns to top level interpreter)'), nl,
-	write('        e - exit (terminates Logtalk execution)'), nl,
 	write('        d - display (writes current goal without using operator notation)'), nl,
 	write('        x - context (prints execution context)'), nl,
-	write('        t - thrown (prints exception term thrown by current goal)'), nl,
+	write('        e - exception (prints exception term thrown by current goal)'), nl,
 	write('        = - debugging (prints debugging information)'), nl,
 	write('        * - add (adds a context spy point for current goal)'), nl,
 	write('        + - add (adds a predicate spy point for current goal)'), nl,
@@ -2518,50 +2514,134 @@ current_logtalk_flag(version, version(2, 17, 0)).
 
 '$lgt_load_entity'(Entity) :-
 	'$lgt_compile_entity'(Entity),
-	('$lgt_compiler_option'(report, on) ->
-		'$lgt_report_redefined_entity'(Entity)
+	('$lgt_redefined_entity'(Entity, Type, Identifier) ->
+		'$lgt_remove_old_entity'(Type, Identifier),
+		'$lgt_report_redefined_entity'(Type, Identifier)
 		;
 		true),
 	'$lgt_file_name'(prolog, Entity, File),
 	'$lgt_load_prolog_code'(File),
-	('$lgt_compiler_option'(report, on) ->
+	'$lgt_report_loaded_entity'(Entity).
+
+
+
+% '$lgt_redefined_entity'(+atom, -atom)
+%
+% true if an entity of the same name is already loaded
+
+'$lgt_redefined_entity'(Entity, object, Entity) :-
+	'$lgt_current_object_'(Entity, _, _, _, _, _),
+	!.
+
+'$lgt_redefined_entity'(Entity, object, Identifier) :-		% parametric objects
+	atom_codes(Entity, Codes),								% this is a quick and dirty hack
+	'$lgt_compiler_option'(code_prefix, Atom),				% assuming that code_prefix does
+	atom_codes(Atom, Code),									% not change between entity
+	'$lgt_append'(Code, Codes, Codes2),						% compilations
+	'$lgt_append'(Codes2, '_', Prefix),
+	'$lgt_current_object_'(Identifier, Prefix, _, _, _, _),
+	!.
+
+'$lgt_redefined_entity'(Entity, protocol, Entity) :-
+	'$lgt_current_protocol_'(Entity, _, _),
+	!.
+
+'$lgt_redefined_entity'(Entity, category, Entity) :-
+	'$lgt_current_category_'(Entity, _, _).
+
+
+
+% '$lgt_remove_old_entity'(+atom, +entity_identifier)
+%
+% remove old entity if dynamic otherwise retract all 
+% clauses for all dynamic predicates
+
+'$lgt_remove_old_entity'(object, Entity) :-
+	object_property(Entity, (dynamic)) ->
+		abolish_object(Entity)
+		;
+		forall(
+			('$lgt_current_predicate'(Entity, Functor/Arity, Entity, _),
+			 functor(Head, Functor, Arity),
+			 '$lgt_predicate_property'(Entity, Head, (dynamic), Entity, _)), 
+			'$lgt_retractall'(Entity, Head, Entity, _)).
+
+'$lgt_remove_old_entity'(protocol, Entity) :-
+	protocol_property(Entity, (dynamic)) ->
+		abolish_protocol(Entity)
+		;
+		true.
+
+'$lgt_remove_old_entity'(category, Entity) :-
+	category_property(Entity, (dynamic)) ->
+		abolish_category(Entity)
+		;
+		true.
+
+
+
+% '$lgt_report_redefined_entity'(+atom, +entity_identifier)
+%
+% prints a warning for redefined entities
+
+'$lgt_report_redefined_entity'(Type, Entity) :-
+	'$lgt_compiler_option'(report, on) ->
+		write('> WARNING!  redefining '), write(Type), write(' '), write(Entity), nl
+		;
+		true.
+
+
+% '$lgt_report_up_to_date_entity'(+entity_identifier)
+%
+% prints a message that an entity is up-to-date
+
+'$lgt_report_up_to_date_entity'(Entity) :-
+	'$lgt_compiler_option'(report, on) ->
+		nl, write('>>> compiling '), writeq(Entity), write('... up-to-date'), nl
+		;
+		true.
+
+
+
+% '$lgt_report_compiling_entity'(+entity_identifier)
+%
+% prints a message that an entity is being compiled
+
+'$lgt_report_compiling_entity'(Entity) :-
+	'$lgt_compiler_option'(report, on) ->
+		nl, write('>>> compiling '), writeq(Entity),
+		('$lgt_compiler_option'(debug, on) ->
+			write(' in debug mode...')
+			;
+			write('...')),
+		nl
+		;
+		true.
+
+
+
+% '$lgt_report_compiled_entity'(+entity_identifier)
+%
+% prints a message that an entity is finished compiling
+
+'$lgt_report_compiled_entity'(Entity) :-
+	'$lgt_compiler_option'(report, on) ->
+		write('>>> '), writeq(Entity), write(' compiled'), nl
+		;
+		true.
+
+
+
+% '$lgt_report_loaded_entity'(+entity_identifier)
+%
+% prints a message that an entity finished loading
+
+'$lgt_report_loaded_entity'(Entity) :-
+	'$lgt_compiler_option'(report, on) ->
 		write('<<< '), writeq(Entity), write(' loaded'), nl
 		;
-		true).
+		true.
 
-
-
-% '$lgt_report_redefined_entity'(+atom)
-%
-% prints a warning if an entity of the same name is already loaded
-
-'$lgt_report_redefined_entity'(Entity) :-
-	'$lgt_current_object_'(Entity, _, _, _, _, _),
-	!,
-	write('> WARNING!  redefining object '), write(Entity), nl.
-
-'$lgt_report_redefined_entity'(Entity) :-		% parametric objects
-	atom_codes(Entity, Codes),					% this is a quick and dirty hack
-	'$lgt_compiler_option'(code_prefix, Atom),	% assuming that code_prefix does
-	atom_codes(Atom, Code),						% not change between entity
-	'$lgt_append'(Code, Codes, Codes2),			% compilations
-	'$lgt_append'(Codes2, '_', Prefix),
-	'$lgt_current_object_'(_, Prefix, _, _, _, _),
-	!,
-	write('> WARNING!  redefining object '), write(Entity), nl.
-
-'$lgt_report_redefined_entity'(Entity) :-
-	'$lgt_current_protocol_'(Entity, _, _),
-	!,
-	write('> WARNING!  redefining protocol '), write(Entity), nl.
-
-'$lgt_report_redefined_entity'(Entity) :-
-	'$lgt_current_category_'(Entity, _, _),
-	!,
-	write('> WARNING!  redefining category '), write(Entity), nl.
-
-'$lgt_report_redefined_entity'(_).
-	
 
 
 % '$lgt_compile_entities'(+list)
@@ -2584,31 +2664,17 @@ current_logtalk_flag(version, version(2, 17, 0)).
 	'$lgt_compiler_option'(smart_compilation, on),
 	\+ '$lgt_needs_recompilation'(Entity),
 	!,
-	('$lgt_compiler_option'(report, on) ->
-		nl, write('>>> compiling '), writeq(Entity), write('... up-to-date'), nl
-		;
-		true).
+	'$lgt_report_up_to_date_entity'(Entity).
 
 '$lgt_compile_entity'(Entity) :-
-	('$lgt_compiler_option'(report, on) ->
-		nl, write('>>> compiling '), writeq(Entity),
-		('$lgt_compiler_option'(debug, on) ->
-			write(' in debug mode...')
-			;
-			write('...')),
-		nl
-		;
-		true),
+	'$lgt_report_compiling_entity'(Entity),
 	'$lgt_clean_up',
 	'$lgt_tr_entity'(Entity),
 	'$lgt_write_tr_entity'(Entity),
 	'$lgt_write_entity_doc'(Entity),
 	'$lgt_report_unknown_entities',
 	'$lgt_clean_up',
-	('$lgt_compiler_option'(report, on) ->
-		write('>>> '), writeq(Entity), write(' compiled'), nl
-		;
-		true).
+	'$lgt_report_compiled_entity'(Entity).
 
 
 
@@ -6885,7 +6951,7 @@ current_logtalk_flag(version, version(2, 17, 0)).
 
 '$lgt_write_xml_header'(web, XMLSpec, Stream) :-
 	'$lgt_write_xml_open_tag'(Stream, '?xml version="1.0" standalone="no"?', []),
-	write(Stream, '<!DOCTYPE logtalk SYSTEM "http://www.logtalk.org/xml/1.0/logtalk.'),
+	write(Stream, '<!DOCTYPE logtalk SYSTEM "http://www.logtalk.org/xml/1.1/logtalk.'),
 	write(Stream, XMLSpec), write(Stream, '">'), nl(Stream),
 	'$lgt_compiler_option'(xsl, XSL),
 	write(Stream, '<?xml-stylesheet type="text/xsl" href="'),
@@ -7097,10 +7163,21 @@ current_logtalk_flag(version, version(2, 17, 0)).
 		'$lgt_write_xml_cdata_element'(Stream, template, [], Template)
 		;
 		true),
+	(('$lgt_info_'(Functor/Arity, List), '$lgt_member'(exceptions is Terms, List), Terms \= []) ->
+		'$lgt_write_xml_open_tag'(Stream, exceptions, []),
+		forall(
+			'$lgt_member'(Cond-Term, Terms),
+		 	('$lgt_write_xml_open_tag'(Stream, exception, []),
+		 	 '$lgt_write_xml_cdata_element'(Stream, condition, [], Cond),
+		 	 '$lgt_write_xml_cdata_element'(Stream, term, [], Term),
+		 	 '$lgt_write_xml_close_tag'(Stream, exception))),
+		 '$lgt_write_xml_close_tag'(Stream, exceptions)
+		;
+		true),
 	forall(
 		('$lgt_info_'(Functor/Arity, List),
 		 '$lgt_member'(Key is Value, List),
-		 \+ '$lgt_member'(Key, [comment, argnames])),
+		 \+ '$lgt_member'(Key, [comment, argnames, exceptions])),
 		('$lgt_write_xml_open_tag'(Stream, info, []),
 		 '$lgt_write_xml_element'(Stream, key, [], Key),
 		 '$lgt_write_xml_cdata_element'(Stream, value, [], Value),
@@ -7218,7 +7295,7 @@ current_logtalk_flag(version, version(2, 17, 0)).
 	write(Stream, Tag),
 	'$lgt_write_xml_tag_attributes'(Stream, Atts),
 	write(Stream, '><![CDATA['),
-	write(Stream, Text),
+	'$lgt_pretty_print_vars'(Stream, Text),
 	write(Stream, ']]></'),
 	write(Stream, Tag),
 	write(Stream, '>'), nl(Stream).

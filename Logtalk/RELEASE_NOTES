@@ -1,6 +1,6 @@
 =================================================================
 Logtalk - Object oriented extension to Prolog
-Release 2.17.0
+Release 2.17.1
 
 Copyright (c) 1998-2004 Paulo Moura.  All Rights Reserved.
 =================================================================
@@ -8,6 +8,47 @@ Copyright (c) 1998-2004 Paulo Moura.  All Rights Reserved.
 
 RELEASE NOTES
 =============
+
+
+2.17.1 - June 7, 2004
+
+	Added custom handling of specification of predicate exceptions in info/2 
+	documenting directives when writing XML documenting files (declared as 
+	"exceptions is [Cond1-Term1, Cond2-Term2, ...]"; each pair (Condi, Termi) 
+	represents an error condition and its respective exception). 
+
+	Changed debugger command "e" to print exception terms instead of exiting 
+	Logtalk session.
+
+	Corrected a compilation error with B-Prolog due to operator priorities.
+
+	Corrected a possible problem with the redefinition of loaded entities that 
+	define (possibly at runtime) dynamic predicates. All clauses for an entity 
+	dynamic predicates are retracted before loading the new entity definition.
+
+	Corrected a potential bug when pretty printing terms with variables in the 
+	debugger and in the created XML documenting files.
+
+	Added four more DCGs examples ("walker movements", "iterative shell command 
+	parsing", "bill of materials", and "command language").
+	
+	New "puzzles" and "metainterpreters" examples.
+
+	Added a mode bundle for the SubEthaEdit 2.x (MacOS X) text editor providing 
+	syntax coloring for editing Logtalk source files. Optimized some of the 
+	regular expressions in the syntax coloring files for the Kate/Kwrite and Vim 
+	text editors.
+
+	Removed predicate nth/3 from library entities listp, list, and difflist. 
+	Replaced by the predicates nth0/3 and nth1/3. Added new predicates nth1/4 
+	and nth0/4.
+
+	Updated the config file for Quintus Prolog to make use of the "files" 
+	library.
+
+	Added experimental implementations for some Prolog compilers of the library 
+	portable protocol for operating system access (systemp.lgt). See the file 
+	library/experimental/NOTES for details.
 
 
 2.17.0 - April 26, 2004

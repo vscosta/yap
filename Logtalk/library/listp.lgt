@@ -3,9 +3,9 @@
 
 
 	:- info([
-		version is 1.1,
+		version is 1.2,
 		author is 'Paulo Moura',
-		date is 2003/4/17,
+		date is 2004/5/9,
 		comment is 'List protocol.']).
 
 
@@ -117,13 +117,49 @@
 		 argnames is ['List', 'Minimum']]).
 
 
-	:- public(nth/3).
+	:- public(nextto/3).
 
-	:- mode(nth(?integer, +list, ?term), zero_or_more).
+	:- mode(nextto(?term, ?term, ?list), zero_or_more).
 
-	:- info(nth/3, [
-		comment is 'Nth element of a list.',
+	:- info(nextto/3, [
+		comment is 'X and Y are consecutive elements in List.',
+		argnames is ['X', 'Y', 'List']]).
+
+
+	:- public(nth0/3).
+
+	:- mode(nth0(?integer, ?list, ?term), zero_or_more).
+
+	:- info(nth0/3, [
+		comment is 'Nth element of a list (counting from zero).',
 		argnames is ['Nth', 'List', 'Element']]).
+
+
+	:- public(nth0/4).
+
+	:- mode(nth0(?integer, ?list, ?term, ?list), zero_or_more).
+
+	:- info(nth0/4, [
+		comment is 'Nth element of a list (counting from zero).',
+		argnames is ['Nth', 'List', 'Element', 'Residue']]).
+
+
+	:- public(nth1/3).
+
+	:- mode(nth1(?integer, ?list, ?term), zero_or_more).
+
+	:- info(nth1/3, [
+		comment is 'Nth element of a list (counting from one).',
+		argnames is ['Nth', 'List', 'Element']]).
+
+
+	:- public(nth1/4).
+
+	:- mode(nth1(?integer, ?list, ?term, ?list), zero_or_more).
+
+	:- info(nth1/4, [
+		comment is 'Nth element of a list (counting from zero).',
+		argnames is ['Nth', 'List', 'Element', 'Residue']]).
 
 
 	:- public(permutation/2).

@@ -1,6 +1,6 @@
 =================================================================
 Logtalk - Object oriented extension to Prolog
-Release 2.17.0
+Release 2.17.1
 
 Copyright (c) 1998-2004 Paulo Moura.  All Rights Reserved.
 =================================================================
@@ -9,5 +9,33 @@ Copyright (c) 1998-2004 Paulo Moura.  All Rights Reserved.
 To load all entities in this example consult the dcgs.loader 
 utility file (note that this is a Prolog file).
 
-This folder contains examples of using DCGs inside objects and 
-categories.
+This folder contains the following examples of using DCGs inside 
+objects and categories:
+
+	calculator
+		canonical DCG example of parsing arithmetic expressions
+	bom
+		bill of materials DCG example (see below for original source)
+	sentence
+		simple parsing of natural language sentences
+	parsetree
+		same as above but building and returning the parse tree
+	xml
+		conversion between XML and Prolog terms
+	url
+		parsing of URLs, decomposing them in components
+	shell
+		parsing of coomand-line shell commands
+	faa
+		command language DCG example (see below for original source)
+	walker
+		parsing of walker movements and calculation of distance
+		travelled
+
+This folder contains two examples of DCGs (bom and faa) adopted with 
+permission from the Amzi! Prolog documentation. The documentation is 
+available on-line in HTML format at the URL:
+
+	http://www.amzi.com/
+
+Please refer to the book for more information on the original examples.

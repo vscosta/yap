@@ -5,9 +5,9 @@
 
 
 	:- info([
-		version is 1.0,
+		version is 1.1,
 		author is 'Paulo Moura',
-		date is 2000/7/24,
+		date is 2004/5/9,
 		comment is 'Difference list predicates.']).
 
 
@@ -178,19 +178,31 @@
 		once(member(Element, List)).
 
 
-	nth(Position, List, Element) :-
-		nth(Element, List, 1, Position).
+	nth0(Position, List, Element) :-
+		nth(Element, List, 0, Position, _).
 
 
-	nth(Element, List-Back, Position, Position) :-
+	nth0(Nth, List, Element, Tail) :-
+		nth(Element, List, 0, Nth, Tail).
+
+
+	nth1(Position, List, Element) :-
+		nth(Element, List, 1, Position, _).
+
+
+	nth1(Nth, List, Element, Tail) :-
+		nth(Element, List, 1, Nth, Tail).
+
+
+	nth(Element, List-Back, Position, Position, Tail-Back) :-
 		List \== Back,
-		List = [Element| _].
+		List = [Element| Tail].
 
-	nth(Element, List-Back, Count, Position) :-
+	nth(Element, List-Back, Count, Position, Tail-Back) :-
 		List \== Back,
-		List = [_| Tail],
+		List = [_| List2],
 		Count2 is Count + 1,
-		nth(Element, Tail-Back, Count2, Position).
+		nth(Element, List2-Back, Count2, Position, Tail-Back).
 
 
 	min(List-Back, Min) :-

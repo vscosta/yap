@@ -1,0 +1,13 @@
+=================================================================
+Logtalk - Object oriented extension to Prolog
+Release 2.17.1
+
+Copyright (c) 1998-2004 Paulo Moura.  All Rights Reserved.
+=================================================================
+
+
+To load all entities in this example consult the puzzles.loader 
+utility file (note that this is a Prolog file).
+
+This folder contains examples of Logtalk implementations for popular 
+logical puzzles.

@@ -5,9 +5,9 @@
 
 
 	:- info([
-		version is 1.1,
+		version is 1.2,
 		author is 'Paulo Moura',
-		date is 2003/4/25,
+		date is 2004/5/9,
 		comment is 'List predicates.']).
 
 
@@ -152,15 +152,33 @@
 	new([]).
 
 
-	nth(Nth, List, Element) :-
-		nth(Element, List, 1, Nth).
+	nextto(X, Y, [X, Y| _]).
+
+	nextto(X, Y, [_| Tail]) :-
+		nextto(X, Y, Tail).
 
 
-	nth(Head, [Head| _], Position, Position).
+	nth0(Nth, List, Element) :-
+		nth(Element, List, 0, Nth, _).
 
-	nth(Head, [_| Tail], Count, Position) :-
+
+	nth0(Nth, List, Element, Tail) :-
+		nth(Element, List, 0, Nth, Tail).
+
+
+	nth1(Nth, List, Element) :-
+		nth(Element, List, 1, Nth, _).
+
+
+	nth1(Nth, List, Element, Tail) :-
+		nth(Element, List, 1, Nth, Tail).
+
+
+	nth(Head, [Head| Tail], Position, Position, Tail).
+
+	nth(Head, [_| List], Count, Position, Tail) :-
 		Count2 is Count + 1,
-		nth(Head, Tail, Count2, Position).
+		nth(Head, List, Count2, Position, Tail).
 
 
 	permutation(List, Permutation) :-

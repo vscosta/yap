@@ -9,4 +9,8 @@
 		verbs,
 		sentence,
 		url,
-		xml])). 
+		xml,
+		shell,
+		walker,
+		bom,
+		faa])). 

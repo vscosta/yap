@@ -9,7 +9,7 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %
 %  Logtalk - Object oriented extension to Prolog
-%  Release 2.17.0
+%  Release 2.17.1
 %
 %  Copyright (c) 1998-2004 Paulo Moura.  All Rights Reserved.
 %
@@ -470,6 +470,30 @@
 					font-family="monospace"
 					margin-left="10mm">
 				<xsl:value-of select="template"/> - <xsl:value-of select="solutions"/>
+			</fo:block>
+		</xsl:for-each>
+	</xsl:if>
+
+	<xsl:if test="exceptions">
+       	<fo:block
+				font-size="10pt"
+				font-family="serif" 
+				keep-with-next="always">
+     		exceptions:
+     	</fo:block>
+		<xsl:for-each select="exceptions/exception">
+       		<fo:block
+					font-size="10pt"
+					font-family="serif" 
+					keep-with-next="always"
+					margin-left="10mm">
+     			<xsl:value-of select="condition" />:
+     		</fo:block>
+			<fo:block
+					font-size="9pt"
+					font-family="monospace"
+					margin-left="20mm">
+				<xsl:value-of select="term" />
 			</fo:block>
 		</xsl:for-each>
 	</xsl:if>

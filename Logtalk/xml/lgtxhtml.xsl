@@ -15,7 +15,7 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %
 %  Logtalk - Object oriented extension to Prolog
-%  Release 2.17.0
+%  Release 2.17.1
 %
 %  Copyright (c) 1998-2004 Paulo Moura.  All Rights Reserved.
 %
@@ -208,6 +208,12 @@
 		<dt>mode - number of solutions:</dt>
 		<xsl:for-each select="mode">
 			<dd><code><xsl:value-of select="template" /><xsl:text> - </xsl:text><xsl:value-of select="solutions" /></code></dd>
+		</xsl:for-each>
+		</xsl:if>
+		<xsl:if test="exceptions">
+		<dt>exceptions:</dt>
+		<xsl:for-each select="exceptions/exception">
+			<dd><xsl:value-of select="condition" />: <code><xsl:value-of select="term" /></code></dd>
 		</xsl:for-each>
 		</xsl:if>
 	</dl>

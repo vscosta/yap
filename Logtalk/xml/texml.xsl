@@ -12,7 +12,7 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %
 %  Logtalk - Object oriented extension to Prolog
-%  Release 2.17.0
+%  Release 2.17.1
 %
 %  Copyright (c) 1998-2004 Paulo Moura.  All Rights Reserved.
 %
@@ -263,6 +263,17 @@
 			<cmd name="texttt"><parm><xsl:value-of select="template" /></parm></cmd>
 			<cmd name="space"/> <cmd name="textendash"/> <cmd name="space"/>
 			<cmd name="texttt"><parm><xsl:value-of select="solutions" /></parm></cmd>
+		</xsl:for-each>
+	</xsl:if>
+	<xsl:if test="exceptions">
+		<cmd name="medskip"/>
+		<cmd name="noindent"/>
+		exceptions:
+		<cmd name="par"/>
+		<xsl:for-each select="exceptions/exception">
+			<cmd name="textsf"><parm><xsl:value-of select="condition" /></parm></cmd>
+			<cmd name="space"/> <cmd name="textendash"/> <cmd name="space"/>
+			<cmd name="texttt"><parm><xsl:value-of select="term" /></parm></cmd>
 		</xsl:for-each>
 	</xsl:if>
 	<xsl:for-each select="info">

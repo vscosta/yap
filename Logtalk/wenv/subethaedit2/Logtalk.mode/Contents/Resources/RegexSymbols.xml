@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE syntax SYSTEM "symbol.dtd">
+<symbols>
+
+    <symbol id="Declarations" image="SymbolM" indentation="1">
+        
+        <regex></regex>
+                
+        <postprocess>
+            <find></find>
+            <replace></replace>
+        </postprocess>
+    </symbol>
+
+    <symbol id="Definitions" font-weight="bold" image="SymbolF" indentation="0">
+        <regex></regex>
+    </symbol>
+    
+</symbols>

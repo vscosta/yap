@@ -22,7 +22,7 @@
 
 
 	set_cv(Value) :-
-		retractall(cv_(_)),		% retract old cv value from this class
+		retractall(cv_(_)),	% retract old cv value from this class
 		asserta(cv_(Value)).	% assert the new value in this class
 
 

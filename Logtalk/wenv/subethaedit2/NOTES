@@ -1,0 +1,21 @@
+=================================================================
+Logtalk - Object oriented extension to Prolog
+Release 2.17.1
+
+Copyright (c) 1998-2004 Paulo Moura.  All Rights Reserved.
+=================================================================
+
+
+This directory contains the Logtalk.mode bundle that provides syntax 
+highlighting for editing Logtalk source files with the SubEthaEdit 2.x 
+text editor (http://www.codingmonkeys.de/subethaedit/).
+
+
+To install copy the bundle "Logtalk.mode" to one of the following 
+folders:
+
+	~/Library/Application Support/SubEthaEdit/Modes/
+	/Library/Application Support/SubEthaEdit/Modes/
+	/Network/Library/Application Support/SubEthaEdit/Modes/
+
+(create the chosen folder if it does not exist).

@@ -1,0 +1,107 @@
+=================================================================
+Logtalk - Object oriented extension to Prolog
+Release 2.17.1
+
+Copyright (c) 1998-2004 Paulo Moura.  All Rights Reserved.
+=================================================================
+
+
+% solver - a simple meta-interpreter for pure Prolog:
+
+| ?- solver::assertz(member_of(H, [H| _])).
+
+H = _G178 
+yes
+
+| ?- solver::assertz((member_of(H, [_| T]) :- member_of(H, T))).
+
+H = _G181
+T = _G179 
+yes
+
+| ?- solver::solve(member_of(2, [1,2,3])).
+
+yes
+
+| ?- solver::solve(member_of(X, [1,2,3])).
+
+X = 1 ;
+X = 2 ;
+X = 3
+yes
+
+
+% proof_tree - a simple meta-interpreter for pure Prolog that 
+% construct a proof tree:
+
+| ?- proof_tree::assertz(member_of(H, [H| _])).
+
+H = _G178 
+yes
+
+| ?- proof_tree::assertz((member_of(H, [_| T]) :- member_of(H, T))).
+
+H = _G181
+T = _G179 
+yes
+
+| ?- proof_tree::solve(member_of(2, [1,2,3]), Tree).
+
+Tree = member_of(2, [1, 2, 3]):- (member_of(2, [2, 3]):-true) 
+yes
+
+
+% tracer - a simple meta-interpreter for tracing goal proofs 
+% using pure Prolog:
+
+
+| ?- tracer::assertz(member_of(H, [H| _])).
+
+H = _G178 
+yes
+
+| ?- tracer::assertz((member_of(H, [_| T]) :- member_of(H, T))).
+
+H = _G181
+T = _G179 
+yes
+
+| ?- tracer::trace(member_of(3, [1,2,3])).
+
+1 call: member_of(3, [1, 2, 3])
+2 call: member_of(3, [2, 3])
+3 call: member_of(3, [3])
+3 exit: member_of(3, [3])
+2 exit: member_of(3, [2, 3])
+1 exit: member_of(3, [1, 2, 3])
+yes
+
+| ?- tracer::trace(member_of(X, [1,2,3])).
+
+1 call: member_of(_G187, [1, 2, 3])
+1 exit: member_of(1, [1, 2, 3])
+
+X = 1 ;
+1 redo: member_of(1, [1, 2, 3])
+2 call: member_of(_G187, [2, 3])
+2 exit: member_of(2, [2, 3])
+1 exit: member_of(2, [1, 2, 3])
+
+X = 2 ;
+1 redo: member_of(2, [1, 2, 3])
+2 redo: member_of(2, [2, 3])
+3 call: member_of(_G187, [3])
+3 exit: member_of(3, [3])
+2 exit: member_of(3, [2, 3])
+1 exit: member_of(3, [1, 2, 3])
+
+X = 3 ;
+1 redo: member_of(3, [1, 2, 3])
+2 redo: member_of(3, [2, 3])
+3 redo: member_of(3, [3])
+4 call: member_of(_G187, [])
+4 fail: member_of(_G187, [])
+3 fail: member_of(_G187, [3])
+2 fail: member_of(_G187, [2, 3])
+1 fail: member_of(_G187, [1, 2, 3])
+no

@@ -6,8 +6,8 @@
 
 
 	:- info([
-		version is 1.0,
-		date is 2000/7/24,
+		version is 1.1,
+		date is 2004/5/9,
 		author is 'Esteban Zimanyi, Paulo Moura',
 		comment is 'Enables the representation of relations between independent objects.']).
 
@@ -49,8 +49,8 @@
 
 	add_tuple(Tuple) :-
 		::descriptor(Descriptor),
-		list::nth(Position, Tuple, Object),
-		list::nth(Position, Descriptor, Role),
+		list::nth1(Position, Tuple, Object),
+		list::nth1(Position, Descriptor, Role),
 		::cardinality(Role, _, Maximum),
 		::plays_role_n_times(Object, Role, Number),
 		Maximum = Number,
@@ -60,8 +60,8 @@
 
 	add_tuple(Tuple) :-
 		::descriptor(Descriptor),
-		list::nth(Position, Tuple, Object),
-		list::nth(Position, Descriptor, Role),
+		list::nth1(Position, Tuple, Object),
+		list::nth1(Position, Descriptor, Role),
 		::domain(Role, Domain),
 		(Domain::strict_instance ->
 			\+ Domain::valid(Object)
@@ -94,8 +94,8 @@
 
 	remove_tuple(Tuple) :-
 		::descriptor(Descriptor),
-		list::nth(Position, Tuple, Object),
-		list::nth(Position, Descriptor, Role),
+		list::nth1(Position, Tuple, Object),
+		list::nth1(Position, Descriptor, Role),
 		::cardinality(Role, Minimum, _),
 		::plays_role_n_times(Object, Role, Number),
 		Minimum = Number,
@@ -123,24 +123,24 @@
 		setof(Role,
 			Tuple^Position^ (::tuple(Tuple),
                            list::member(Object, Tuple),
-                           list::nth(Position, Tuple, Object),
-                           once(list::nth(Position, Descriptor, Role))),
+                           list::nth1(Position, Tuple, Object),
+                           once(list::nth1(Position, Descriptor, Role))),
          Roles).
 
 
 	plays_role_in_tuple(Object, Role, Tuple) :-
 		::descriptor(Descriptor),
 		::tuple(Tuple),
-		list::nth(Position, Tuple, Object),
-		list::nth(Position, Descriptor, Role).
+		list::nth1(Position, Tuple, Object),
+		list::nth1(Position, Descriptor, Role).
 
 
 	plays_role_n_times(Object, Role, Number) :-
 		::descriptor(Descriptor),
-		list::nth(Position, Descriptor, Role),
+		list::nth1(Position, Descriptor, Role),
 		setof(Tuple,
 			(::tuple(Tuple),
-			 list::nth(Position, Tuple, Object)), 
+			 list::nth1(Position, Tuple, Object)), 
 			Tuples),
 		list::length(Tuples, Number).
 
