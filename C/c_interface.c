@@ -80,7 +80,6 @@ X_API Int     STD_PROTO(YapFastInit,(char *));
 X_API Int     STD_PROTO(YapCallProlog,(Term));
 X_API void   *STD_PROTO(YapAllocSpaceFromYap,(unsigned int));
 X_API void    STD_PROTO(YapFreeSpaceFromYap,(void *));
-X_API void    STD_PROTO(YapFreeSpaceFromYap,(void *));
 X_API int     STD_PROTO(YapStringToBuffer, (Term, char *, unsigned int));
 X_API Term    STD_PROTO(YapBufferToString, (char *));
 X_API Term    STD_PROTO(YapBufferToAtomList, (char *));

@@ -331,10 +331,10 @@ static int
 p_mktemp(void)
 {
 #if HAVE_MKTEMP
-  char *s, tmp[1024];
+  char *s, tmp[BUF_SIZE];
   s = AtomName(AtomOfTerm(ARG1));
 #if HAVE_STRNCPY
-  strncpy(tmp, s, 1024);
+  strncpy(tmp, s, BUF_SIZE);
 #else
   strcpy(tmp, s);
 #endif
@@ -585,12 +585,78 @@ static int
 do_system(void)
 {
   char *command = AtomName(AtomOfTerm(ARG1));
-  int sys = system(command);
 #if HAVE_SYSTEM
+  int sys = system(command);
   if (sys < 0) {
     return(unify(ARG3,MkIntTerm(errno)));
   }
   return(unify(ARG2, MkIntTerm(sys)));
+#else
+  YapError("system not available in this configuration");
+  return(FALSE);
+#endif
+}
+
+
+
+/* execute a command as a detached process */
+static int
+do_shell(void)
+{
+#if defined(__MINGW32__) || _MSC_VER
+  char *buf = YapAllocSpaceFromYap(BUF_SIZE);
+  int sys;
+
+  if (buf == NULL) {
+    YapError("No Temporary Space for Shell");
+    return(FALSE);
+  }
+#if HAVE_STRNCPY
+  strncpy(YapAtomName(AtomOfTerm(ARG1)), buf, BUF_SIZE);
+  strncpy(" ", buf, BUF_SIZE);
+  strncpy(YapAtomName(AtomOfTerm(ARG2)), buf, BUF_SIZE);
+  strncpy(" ", buf, BUF_SIZE);
+  strncpy(YapAtomName(AtomOfTerm(ARG3)), buf, BUF_SIZE);
+#else
+  strcpy(YapAtomName(AtomOfTerm(ARG1)), buf);
+  strcpy(" ", buf);
+  strcpy(YapAtomName(AtomOfTerm(ARG2)), buf);
+  strcpy(" ", buf);
+  strcpy(YapAtomName(AtomOfTerm(ARG3)), buf);
+#endif
+#if HAVE_SYSTEM
+  sys = system(buf);
+  YapFreeSpaceFromYap(buf);
+  if (sys < 0) {
+    return(unify(ARG5,MkIntTerm(errno)));
+  }
+  return(unify(ARG4, MkIntTerm(sys)));
+#else
+  YapError("system not available in this configuration");
+  return(FALSE);
+#endif
+#else
+  char *cptr[4];
+  int t;
+  int sys;
+
+  cptr[0]= YapAtomName(AtomOfTerm(ARG1));
+  cptr[1]= YapAtomName(AtomOfTerm(ARG2));
+  cptr[2]= YapAtomName(AtomOfTerm(ARG3));
+  cptr[3]= NULL;
+  t = fork();
+  if (t < 0) {
+    return(unify(ARG5,MkIntTerm(errno)));
+  } else if (t == 0) {
+    t = execvp(YapAtomName(AtomOfTerm(ARG1)),cptr);
+    return(t);
+  } else {
+    t = wait(&sys);
+    if (t < 0) {
+      return(unify(ARG5,MkIntTerm(errno)));
+    }
+  }
+  return(unify(ARG4, MkIntTerm(sys)));
 #endif
 }
 
@@ -802,6 +868,7 @@ init_sys(void)
   UserCPredicate("dir_separator", dir_separator, 1);
   UserCPredicate("p_environ", p_environ, 2);
   UserCPredicate("exec_command", execute_command, 6);
+  UserCPredicate("do_shell", do_shell, 5);
   UserCPredicate("do_system", do_system, 3);
   UserCPredicate("popen", p_popen, 4);
   UserCPredicate("wait", p_wait, 3);

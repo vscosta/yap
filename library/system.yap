@@ -347,23 +347,15 @@ shell :-
 shell(Command) :-
 	G = shell(Command),
 	check_command(Command, G),
-	get_shell(Shell),
-	atom_codes(Command, SC0),
-	protect_command(SC0,SC),
-	append(Shell, [0'"|SC], ShellCommand),
-	atom_codes(FullCommand, ShellCommand),
-	do_system(FullCommand, _, Error),
+	get_shell(Shell,Opt),
+	do_shell(Shell, Opt, Command, _, Error),
 	handle_system_error(Error, off, G).
 
 shell(Command, Status) :-
 	G = shell(Command, Status),
 	check_command(Command, G),
-	get_shell(Shell),
-	atom_codes(Command, SC0),
-	protect_command(SC0,SC),
-	append(Shell, [0'"|SC], ShellCommand),
-	atom_codes(FullCommand, ShellCommand),
-	do_system(FullCommand, Status, Error),
+	get_shell(Shell,Opt),
+	do_shell(Shell, Opt, Command, Status, Error),
 	handle_system_error(Error, off, G).
 
 protect_command([], [0'"]).
@@ -377,16 +369,12 @@ get_shell0(Shell) :-
 	getenv('COMSPEC', Shell).
 get_shell0('/bin/sh').
 
-get_shell(Shell) :-
-	getenv('SHELL', Shell0), !,
-	atom_codes(Shell0, Codes),
-	append(Codes," -c ", Shell).
-get_shell(Shell) :-
+get_shell(Shell, '-c') :-
+	getenv('SHELL', Shell), !.
+get_shell(Shell, '/c') :-
 	win, !,
-	getenv('COMSPEC', Shell0),
-	atom_codes(Shell0, Codes),
-	append(Codes," /c ", Shell).
-get_shell("/bin/sh -c ").
+	getenv('COMSPEC', Shell).
+get_shell('/bin/sh','-c').
 	   
 system :-
 	default_shell(Command),
