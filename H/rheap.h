@@ -180,7 +180,9 @@ restore_codes(void)
 
     for (i = 0; i < heap_regs->no_of_modules; i++) {
       heap_regs->module_name[i] = AtomTermAdjust(heap_regs->module_name[i]);
-      heap_regs->module_pred[i] = PtoPredAdjust(heap_regs->module_pred[i]);
+      if (heap_regs->module_pred[i]) {
+	heap_regs->module_pred[i] = PtoPredAdjust(heap_regs->module_pred[i]);
+      }
     }
   }
   heap_regs->atom_abol = AtomAdjust(heap_regs->atom_abol);
