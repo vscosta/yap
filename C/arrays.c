@@ -243,8 +243,10 @@ AccessNamedArray(Atom a, Int indx)
 	    if (ref->Flags & LogUpdMask) {
 	      LogUpdClause *cl = (LogUpdClause *)ref;
 
-	      cl->ClFlags |= InUseMask;
-	      TRAIL_CLREF(cl);
+	      if (!(cl->ClFlags & InUseMask)) {
+		cl->ClFlags |= InUseMask;
+		TRAIL_CLREF(cl);
+	      }
 	    } else {
 	      if (!(ref->Flags & InUseMask)) {
 		ref->Flags |= InUseMask;

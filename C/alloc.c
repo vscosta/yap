@@ -12,7 +12,7 @@
 * Last rev:								 *
 * mods:									 *
 * comments:	allocating space					 *
-* version:$Id: alloc.c,v 1.58 2004-09-27 20:45:02 vsc Exp $		 *
+* version:$Id: alloc.c,v 1.59 2004-09-28 18:37:05 vsc Exp $		 *
 *************************************************************************/
 #ifdef SCCS
 static char SccsId[] = "%W% %G%";
@@ -308,6 +308,8 @@ AddToFreeList(BlockHeader *b)
   *q = b;
 }
 
+static int vsc_count_b;
+
 static void
 FreeBlock(BlockHeader *b)
 {
@@ -324,7 +326,8 @@ FreeBlock(BlockHeader *b)
 
   /* sanity check */
   sp = &(b->b_size) + (b->b_size & ~InUseFlag);
-  if (*sp != b->b_size) {
+  if (b == 0x8a04428) vsc_count_b++;
+  if (!(b->b_size & InUseFlag) || *sp != b->b_size) {
 #if !SHORT_INTS
     fprintf(stderr, "%% YAP INTERNAL ERROR: sanity check failed in FreeBlock %p %x %x\n",
 	       b, b->b_size, Unsigned(*sp));
