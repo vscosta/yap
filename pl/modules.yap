@@ -423,7 +423,9 @@ module(N) :-
 	'$system_predicate'(G,M), !,
 	'$c_built_in'(G,M,Gi),
 	(Gi \== G ->
-	   '$module_expansion'(Gi,Gi,G2,M,CM,TM,HVars)
+	   '$module_expansion'(Gi,_,G2,M,CM,TM,HVars),
+	    % make built-in processing transparent.
+	    (TM = M -> G1 = G ; G1 = M:G)
 	 ; TM = M ->
 	    G2 = G, G1 = G
 	;
