@@ -465,7 +465,7 @@ AllocateStaticArraySpace(StaticArrayEntry *p, static_array_types atype, Int arra
   while ((p->ValueOfVE.floats = (Float *) Yap_AllocAtomSpace(asize) ) == NULL) {
     YAPLeaveCriticalSection();
     if (!Yap_growheap(FALSE, asize, NULL)) {
-      Yap_Error(SYSTEM_ERROR, TermNil, Yap_ErrorMessage);
+      Yap_Error(OUT_OF_HEAP_ERROR, TermNil, Yap_ErrorMessage);
       return;
     }
     YAPEnterCriticalSection();
@@ -479,7 +479,7 @@ CreateStaticArray(AtomEntry *ae, Int dim, static_array_types type, CODEADDR star
   if (EndOfPAEntr(p)) {
     while ((p = (StaticArrayEntry *) Yap_AllocAtomSpace(sizeof(*p))) == NULL) {
       if (!Yap_growheap(FALSE, sizeof(*p), NULL)) {
-	Yap_Error(SYSTEM_ERROR, TermNil, Yap_ErrorMessage);
+	Yap_Error(OUT_OF_HEAP_ERROR, TermNil, Yap_ErrorMessage);
 	return NULL;
       }
     }
@@ -646,7 +646,7 @@ p_create_array(void)
       } else {
 	if (H+1+size > ASP-1024) {
 	  if (!Yap_growstack( sizeof(CELL) * (size+1-(H-ASP-1024)))) {
-	    Yap_Error(SYSTEM_ERROR, TermNil, Yap_ErrorMessage);
+	    Yap_Error(OUT_OF_HEAP_ERROR, TermNil, Yap_ErrorMessage);
 	    return FALSE;
 	  }
 	}
@@ -1880,7 +1880,7 @@ p_static_array_to_term(void)
 	} else {
 	  if (H+1+dim > ASP-1024) {
 	    if (!Yap_growstack( sizeof(CELL) * (dim+1-(H-ASP-1024)))) {
-	      Yap_Error(SYSTEM_ERROR, TermNil, Yap_ErrorMessage);
+	      Yap_Error(OUT_OF_STACK_ERROR, TermNil, Yap_ErrorMessage);
 	      return FALSE;
 	    }
 	  }

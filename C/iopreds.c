@@ -1228,7 +1228,7 @@ PipeGetc(int sno)
 #if _MSC_VER || defined(__MINGW32__) 
   DWORD count;
   if (WriteFile(s->u.pipe.hdl, &c, sizeof(c), &count, NULL) == FALSE) {
-    PlIOError (SYSTEM_ERROR,TermNil, "read from pipe returned error");
+    PlIOError (SYSTEM_ERROR,TermNil, "write to pipe returned error");
     return(EOF);
   }
 #else
@@ -2054,7 +2054,7 @@ p_open_mem_read_stream (void)   /* $open_mem_read_stream(+List,-Stream) */
   }
   while ((nbuf = (char *)Yap_AllocAtomSpace((sl+1)*sizeof(char))) == NULL) {
     if (!Yap_growheap(FALSE, (sl+1)*sizeof(char), NULL)) {
-      Yap_Error(SYSTEM_ERROR, TermNil, Yap_ErrorMessage);
+      Yap_Error(OUT_OF_HEAP_ERROR, TermNil, Yap_ErrorMessage);
       return(FALSE);
     }
   }
@@ -2115,7 +2115,7 @@ p_open_mem_write_stream (void)   /* $open_mem_write_stream(-Stream) */
 
   while ((nbuf = (char *)Yap_AllocAtomSpace(Yap_page_size*sizeof(char))) == NULL) {
     if (!Yap_growheap(FALSE, Yap_page_size*sizeof(char), NULL)) {
-      Yap_Error(SYSTEM_ERROR, TermNil, Yap_ErrorMessage);
+      Yap_Error(OUT_OF_HEAP_ERROR, TermNil, Yap_ErrorMessage);
       return(FALSE);
     }
   }
@@ -4550,7 +4550,7 @@ p_char_conversion(void)
     CharConversionTable2 = Yap_AllocCodeSpace(NUMBER_OF_CHARS*sizeof(char));
     while (CharConversionTable2 == NULL) {
       if (!Yap_growheap(FALSE, NUMBER_OF_CHARS*sizeof(char), NULL)) {
-	Yap_Error(SYSTEM_ERROR, TermNil, Yap_ErrorMessage);
+	Yap_Error(OUT_OF_HEAP_ERROR, TermNil, Yap_ErrorMessage);
 	return(FALSE);
       }
     }

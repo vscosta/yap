@@ -11,8 +11,11 @@
 * File:		compiler.c						 *
 * comments:	Clause compiler						 *
 *									 *
-* Last rev:     $Date: 2004-09-03 03:11:08 $,$Author: vsc $						 *
+* Last rev:     $Date: 2004-11-19 22:08:41 $,$Author: vsc $						 *
 * $Log: not supported by cvs2svn $
+* Revision 1.53  2004/09/03 03:11:08  vsc
+* memory management fixes
+*
 * Revision 1.52  2004/07/15 17:20:23  vsc
 * fix error message
 * change makefile and configure for clpbn
@@ -2770,7 +2773,7 @@ Yap_cclause(Term inp_clause, int NOfArgs, int mod, Term src)
       }
       if (osize > ASP-H) {
 	if (!Yap_growstack(2*sizeof(CELL)*(ASP-H))) {
-	  Yap_Error_TYPE = SYSTEM_ERROR;
+	  Yap_Error_TYPE = OUT_OF_STACK_ERROR;
 	  Yap_Error_Term = my_clause;
 	}
       }
@@ -2791,7 +2794,7 @@ Yap_cclause(Term inp_clause, int NOfArgs, int mod, Term src)
     /* not enough heap */
     restore_machine_regs();
     reset_vars(cglobs.vtable);
-    Yap_Error_TYPE = SYSTEM_ERROR;
+    Yap_Error_TYPE = OUT_OF_HEAP_ERROR;
     Yap_Error_Term = TermNil;
     return(0);
   }

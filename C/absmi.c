@@ -10,8 +10,11 @@
 *									 *
 * File:		absmi.c							 *
 * comments:	Portable abstract machine interpreter                    *
-* Last rev:     $Date: 2004-11-19 17:14:12 $,$Author: vsc $						 *
+* Last rev:     $Date: 2004-11-19 22:08:35 $,$Author: vsc $						 *
 * $Log: not supported by cvs2svn $
+* Revision 1.152  2004/11/19 17:14:12  vsc
+* a few fixes for 64 bit compiling.
+*
 * Revision 1.151  2004/11/04 18:22:28  vsc
 * don't ever use memory that has been freed (that was done by LU).
 * generic fixes for WIN32 libraries
@@ -12617,7 +12620,7 @@ Yap_absmi(int inp)
 	if (ActiveSignals & YAP_CDOVF_SIGNAL) {
 	  saveregs_and_ycache();
 	  if (!Yap_growheap(FALSE, 0, NULL)) {
-	    Yap_Error(SYSTEM_ERROR, TermNil, "YAP failed to grow heap: %s", Yap_ErrorMessage);
+	    Yap_Error(OUT_OF_HEAP_ERROR, TermNil, "YAP failed to grow heap: %s", Yap_ErrorMessage);
 	    setregs_and_ycache();
 	    FAIL();
 	  }

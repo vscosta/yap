@@ -1290,7 +1290,7 @@ Yap_RunTopGoal(Term t)
 #if !USE_MALLOC
   if (Yap_TrailTop - HeapTop < 2048) {
     Yap_PrologMode = BootMode;
-    Yap_Error(SYSTEM_ERROR,TermNil,
+    Yap_Error(OUT_OF_TRAIL_ERROR,TermNil,
 	  "unable to boot because of too little heap space");
   }
 #endif

@@ -964,7 +964,7 @@ rehash(CELL *oldcode, int NOfE, int KindOfEntries)
     basep = (CELL *)TR;
     if (basep + (NOfE*2) > (CELL *)Yap_TrailTop) {
       if (!Yap_growtrail((ADDR)(basep + (NOfE*2))-Yap_TrailTop)) {
-	Yap_Error(SYSTEM_ERROR, TermNil,
+	Yap_Error(OUT_OF_TRAIL_ERROR, TermNil,
 	      "not enough space to restore hash tables for indexing");
 	Yap_exit(1);
       }

@@ -11,8 +11,11 @@
 * File:		index.c							 *
 * comments:	Indexing a Prolog predicate				 *
 *									 *
-* Last rev:     $Date: 2004-11-19 17:14:14 $,$Author: vsc $						 *
+* Last rev:     $Date: 2004-11-19 22:08:42 $,$Author: vsc $						 *
 * $Log: not supported by cvs2svn $
+* Revision 1.107  2004/11/19 17:14:14  vsc
+* a few fixes for 64 bit compiling.
+*
 * Revision 1.106  2004/11/18 22:32:36  vsc
 * fix situation where we might assume nonextsing double initialisation of C predicates (use
 * Hidden Pred Flag).
@@ -473,7 +476,7 @@ sort_group(GroupDef *grp, CELL *top, struct intermediates *cint)
     longjmp(cint->CompilerBotch,4);
 #else
     if (!Yap_growtrail(2*max*CellSize)) {
-      Yap_Error(SYSTEM_ERROR,TermNil,"YAP failed to reserve %ld in growtrail",
+      Yap_Error(OUT_OF_TRAIL_ERROR,TermNil,"YAP failed to reserve %ld in growtrail",
 		2*max*CellSize);
       return;
     }
@@ -4040,7 +4043,7 @@ Yap_PredIsIndexable(PredEntry *ap, UInt NSlots)
   } else if (setjres != 0) {
     recover_from_failed_susp_on_cls(&cint, 0);
     if (!Yap_growheap(FALSE, Yap_Error_Size, NULL)) {
-      Yap_Error(SYSTEM_ERROR, TermNil, Yap_ErrorMessage);
+      Yap_Error(OUT_OF_HEAP_ERROR, TermNil, Yap_ErrorMessage);
       return FAILCODE;
     }
   }
@@ -4062,7 +4065,7 @@ Yap_PredIsIndexable(PredEntry *ap, UInt NSlots)
   if (cint.CodeStart) {
     if ((indx_out = Yap_assemble(ASSEMBLING_INDEX, TermNil, ap, FALSE, &cint)) == NULL) {
       if (!Yap_growheap(FALSE, Yap_Error_Size, NULL)) {
-	Yap_Error(SYSTEM_ERROR, TermNil, Yap_ErrorMessage);
+	Yap_Error(OUT_OF_HEAP_ERROR, TermNil, Yap_ErrorMessage);
 	return NULL;
       }
       goto restart_index;

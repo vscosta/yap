@@ -11,8 +11,11 @@
 * File:		stdpreds.c						 *
 * comments:	General-purpose C implemented system predicates		 *
 *									 *
-* Last rev:     $Date: 2004-11-19 17:14:14 $,$Author: vsc $						 *
+* Last rev:     $Date: 2004-11-19 22:08:43 $,$Author: vsc $						 *
 * $Log: not supported by cvs2svn $
+* Revision 1.73  2004/11/19 17:14:14  vsc
+* a few fixes for 64 bit compiling.
+*
 * Revision 1.72  2004/11/18 22:32:37  vsc
 * fix situation where we might assume nonextsing double initialisation of C predicates (use
 * Hidden Pred Flag).
@@ -1105,7 +1108,7 @@ p_atom_concat(void)
     if (cptr+sz >= top-1024) {
       Yap_ReleasePreAllocCodeSpace((ADDR)cpt0);
       if (!Yap_growheap(FALSE, sz+1024, NULL)) {
-	Yap_Error(SYSTEM_ERROR, TermNil, Yap_ErrorMessage);
+	Yap_Error(OUT_OF_HEAP_ERROR, TermNil, Yap_ErrorMessage);
 	return(FALSE);
       }
       goto restart;
@@ -1167,7 +1170,7 @@ p_atomic_concat(void)
       if (cptr+sz >= top-1024) {
 	Yap_ReleasePreAllocCodeSpace((ADDR)cpt0);
 	if (!Yap_growheap(FALSE, sz+1024, NULL)) {
-	  Yap_Error(SYSTEM_ERROR, TermNil, Yap_ErrorMessage);
+	  Yap_Error(OUT_OF_HEAP_ERROR, TermNil, Yap_ErrorMessage);
 	  return(FALSE);
 	}
 	goto restart;
@@ -1196,7 +1199,7 @@ p_atomic_concat(void)
       if ((sz = mpz_sizeinbase (n, 10)) > (top-cptr)-1024) {
 	Yap_ReleasePreAllocCodeSpace((ADDR)cpt0);
 	if (!Yap_growheap(FALSE, sz+1024, NULL)) {
-	  Yap_Error(SYSTEM_ERROR, TermNil, Yap_ErrorMessage);
+	  Yap_Error(OUT_OF_HEAP_ERROR, TermNil, Yap_ErrorMessage);
 	  return(FALSE);
 	}
 	goto restart;
@@ -1361,7 +1364,7 @@ p_atom_split(void)
   if (len > (Int)strlen(s)) return(FALSE);
   for (i = 0; i< len; i++) {
     if (s1 > (char *)LCL0-1024)
-      Yap_Error(SYSTEM_ERROR,t1,"$atom_split/4");
+      Yap_Error(OUT_OF_STACK_ERROR,t1,"$atom_split/4");
     s1[i] = s[i];
   }
   s1[len] = '\0';

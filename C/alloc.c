@@ -12,7 +12,7 @@
 * Last rev:								 *
 * mods:									 *
 * comments:	allocating space					 *
-* version:$Id: alloc.c,v 1.65 2004-11-17 05:24:20 vsc Exp $		 *
+* version:$Id: alloc.c,v 1.66 2004-11-19 22:08:40 vsc Exp $		 *
 *************************************************************************/
 #ifdef SCCS
 static char SccsId[] = "%W% %G%";
@@ -99,7 +99,7 @@ Yap_InitPreAllocCodeSpace(void)
   if (ScratchPad.ptr == NULL) {
     while (!(ptr = malloc(sz)))
       if (!Yap_growheap(FALSE, Yap_Error_Size, NULL)) {
-	Yap_Error(SYSTEM_ERROR, TermNil, Yap_ErrorMessage);
+	Yap_Error(OUT_OF_HEAP_ERROR, TermNil, Yap_ErrorMessage);
 	return(NULL);
       }
     ScratchPad.ptr = ptr;
@@ -476,7 +476,7 @@ AllocHeap(unsigned int size)
       UNLOCK(HeapUsedLock);
       UNLOCK(HeapTopLock);
       /* we destroyed the stack */
-      Yap_Error(SYSTEM_ERROR, TermNil, "Stack Crashed against Heap...");
+      Yap_Error(OUT_OF_HEAP_ERROR, TermNil, "Stack Crashed against Heap...");
       return(NULL);
     } else {
       if (HeapTop + size * sizeof(CELL) + sizeof(YAP_SEG_SIZE) < HeapLim) {

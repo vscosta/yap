@@ -3338,7 +3338,7 @@ do_gc(Int predarity, CELL *current_env, yamop *nextop)
   max = (CELL *)Yap_ReadTimedVar(DelayedVars);
   if (H0 - max < 1024+(2*NUM_OF_ATTS)) {
     if (!Yap_growglobal(&current_env)) {
-      Yap_Error(SYSTEM_ERROR, TermNil, Yap_ErrorMessage);
+      Yap_Error(OUT_OF_STACK_ERROR, TermNil, Yap_ErrorMessage);
       return 0;
     }
   }
@@ -3397,7 +3397,7 @@ do_gc(Int predarity, CELL *current_env, yamop *nextop)
   if (HeapTop >= Yap_GlobalBase - MinHeapGap) {
     *--ASP = (CELL)current_env;
     if (!Yap_growheap(FALSE, MinHeapGap, NULL)) {
-      Yap_Error(SYSTEM_ERROR, TermNil, Yap_ErrorMessage);
+      Yap_Error(OUT_OF_HEAP_ERROR, TermNil, Yap_ErrorMessage);
       return(FALSE);
     }
     current_env = (CELL *)*ASP;

@@ -11,8 +11,11 @@
 * File:		amasm.c							 *
 * comments:	abstract machine assembler				 *
 *									 *
-* Last rev:     $Date: 2004-10-26 20:15:48 $							 *
+* Last rev:     $Date: 2004-11-19 22:08:41 $							 *
 * $Log: not supported by cvs2svn $
+* Revision 1.65  2004/10/26 20:15:48  vsc
+* More bug fixes for overflow handling
+*
 * Revision 1.64  2004/09/30 21:37:40  vsc
 * fixes for thread support
 *
@@ -2968,7 +2971,7 @@ Yap_assemble(int mode, Term t, PredEntry *ap, int is_fact, struct intermediates 
     while ((x = Yap_StoreTermInDBPlusExtraSpace(t, size)) == NULL) {
       *H++ = (CELL)h0;
       if (!Yap_growheap(TRUE, size, cip)) {
-	Yap_Error_TYPE = SYSTEM_ERROR;
+	Yap_Error_TYPE = OUT_OF_HEAP_ERROR;
 	return NULL;
       }
       h0 = (CELL *)*--H;
@@ -3024,7 +3027,7 @@ Yap_assemble(int mode, Term t, PredEntry *ap, int is_fact, struct intermediates 
     while ((cip->code_addr = (yamop *) Yap_AllocCodeSpace(size)) == NULL) {
 
       if (!Yap_growheap(TRUE, size, cip)) {
-	Yap_Error_TYPE = SYSTEM_ERROR;
+	Yap_Error_TYPE = OUT_OF_HEAP_ERROR;
 	return NULL;
       }
     }

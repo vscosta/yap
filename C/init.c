@@ -660,8 +660,8 @@ Yap_InitCPredBack(char *Name, unsigned long int Arity, unsigned int Extra, CPred
     pe->PredFlags |= SequentialPredFlag;
 #endif /* YAPOR */
     cl = (StaticClause *)Yap_AllocCodeSpace((CELL)NEXTOP(NEXTOP(NEXTOP(code,lds),lds),e));
-    if (cl == NIL) {
-      Yap_Error(SYSTEM_ERROR,TermNil,"No Heap Space in InitCPredBack");
+    if (cl == NULL) {
+      Yap_Error(OUT_OF_HEAP_ERROR,TermNil,"No Heap Space in InitCPredBack");
       return;
     }
     cl->ClFlags = 0;
@@ -860,8 +860,8 @@ InitCodes(void)
   INIT_RWLOCK(heap_regs->invisiblechain.AERWLock);
   
   heap_regs->consultlow = (consult_obj *)Yap_AllocCodeSpace(sizeof(consult_obj)*InitialConsultCapacity);
-  if (heap_regs->consultlow == NIL) {
-    Yap_Error(SYSTEM_ERROR,TermNil,"No Heap Space in InitCodes");
+  if (heap_regs->consultlow == NULL) {
+    Yap_Error(OUT_OF_HEAP_ERROR,TermNil,"No Heap Space in InitCodes");
    return;
   }
   heap_regs->consultcapacity = InitialConsultCapacity;

@@ -818,7 +818,7 @@ do_growheap(int fix_code, UInt in_size, struct intermediates *cip)
     sz = in_size;
   }
 #if YAPOR
-  Yap_Error(SYSTEM_ERROR,TermNil,"cannot grow Heap: more than a worker/thread running");
+  Yap_Error(OUT_OF_HEAP_ERROR,TermNil,"cannot grow Heap: more than a worker/thread running");
   return FALSE;
 #endif
   if (SizeOfOverflow > sz)
@@ -959,7 +959,7 @@ Yap_growglobal(CELL **ptr)
 
 #if YAPOR
   if (NOfThreads != 1) {
-    Yap_Error(SYSTEM_ERROR,TermNil,"cannot grow Global: more than a worker/thread running");
+    Yap_Error(OUT_OF_STACK_ERROR,TermNil,"cannot grow Global: more than a worker/thread running");
     return(FALSE);
   }
 #endif
@@ -1167,7 +1167,7 @@ Yap_growstack_in_parser(tr_fr_ptr *old_trp, TokEntry **tksp, VarEntry **vep)
 
 #if YAPOR
   if (NOfThreads != 1) {
-    Yap_Error(SYSTEM_ERROR,TermNil,"cannot grow Parser Stack: more than a worker/thread running");
+    Yap_Error(OUT_OF_STACK_ERROR,TermNil,"cannot grow Parser Stack: more than a worker/thread running");
     return(FALSE);
   }
 #endif
@@ -1298,7 +1298,7 @@ Yap_shift_visit(CELL **to_visit, CELL ***to_visit_maxp)
     cpcellsd((CELL *)dest, (CELL *)to_visit, (CELL)((CELL *)old_top-(CELL *)to_visit));
     return dest;
   } else {
-    Yap_Error(SYSTEM_ERROR,TermNil,"cannot grow temporary stack for unification (%p)", Yap_TrailTop);    
+    Yap_Error(OUT_OF_HEAP_ERROR,TermNil,"cannot grow temporary stack for unification (%p)", Yap_TrailTop);    
     return to_visit;
   }
 #endif

@@ -10,8 +10,13 @@
 * File:		c_interface.c						 *
 * comments:	c_interface primitives definition 			 *
 *									 *
-* Last rev:	$Date: 2004-11-18 22:32:31 $,$Author: vsc $						 *
+* Last rev:	$Date: 2004-11-19 22:08:41 $,$Author: vsc $						 *
 * $Log: not supported by cvs2svn $
+* Revision 1.57  2004/11/18 22:32:31  vsc
+* fix situation where we might assume nonextsing double initialisation of C predicates (use
+* Hidden Pred Flag).
+* $host_type was double initialised.
+*
 * Revision 1.56  2004/10/31 02:18:03  vsc
 * fix bug in handling Yap heap overflow while adding new clause.
 *
@@ -715,7 +720,7 @@ YAP_AllocSpaceFromYap(unsigned int size)
 
   if ((ptr = Yap_AllocCodeSpace(size)) == NULL) {
     if (!Yap_growheap(FALSE, size, NULL)) {
-      Yap_Error(SYSTEM_ERROR, TermNil, Yap_ErrorMessage);
+      Yap_Error(OUT_OF_HEAP_ERROR, TermNil, Yap_ErrorMessage);
       return(NULL);
     }
   }

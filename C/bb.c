@@ -41,7 +41,7 @@ PutBBProp(AtomEntry *ae, Term mod)		/* get BBentry for at; */
     p = (BBProp)Yap_AllocAtomSpace(sizeof(*p));
     if (p == NULL) {
       WRITE_UNLOCK(ae->ARWLock);
-      Yap_Error(SYSTEM_ERROR,ARG1,"could not allocate space in bb_put/2");
+      Yap_Error(OUT_OF_HEAP_ERROR,ARG1,"could not allocate space in bb_put/2");
       return(NULL);
     }
     p->NextOfPE = ae->PropsOfAE;
@@ -73,7 +73,7 @@ PutIntBBProp(Int key, Term mod)	/* get BBentry for at; */
 	pp++;
       }
     } else {
-      Yap_Error(SYSTEM_ERROR,ARG1,"could not allocate space in bb_put/2");
+      Yap_Error(OUT_OF_HEAP_ERROR,ARG1,"could not allocate space in bb_put/2");
       return(NULL);
     }
   }
@@ -90,7 +90,7 @@ PutIntBBProp(Int key, Term mod)	/* get BBentry for at; */
     p = (BBProp)Yap_AllocAtomSpace(sizeof(*p));
     if (p == NULL) {
       YAPLeaveCriticalSection();
-      Yap_Error(SYSTEM_ERROR,ARG1,"could not allocate space in bb_put/2");
+      Yap_Error(OUT_OF_HEAP_ERROR,ARG1,"could not allocate space in bb_put/2");
       return(NULL);
     }
     p->ModuleOfBB = mod;
@@ -160,7 +160,7 @@ resize_bb_int_keys(UInt new_size) {
   new = (Prop *)Yap_AllocCodeSpace(sizeof(Prop)*new_size);
   if (new == NULL) {
     YAPLeaveCriticalSection();
-    Yap_Error(SYSTEM_ERROR,ARG1,"could not allocate space");
+    Yap_Error(OUT_OF_HEAP_ERROR,ARG1,"could not allocate space");
     return(FALSE);
   }
   for (i = 0; i < new_size; i++) {
