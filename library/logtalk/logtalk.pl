@@ -2,7 +2,7 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %
 %  Logtalk - Object oriented extension to Prolog
-%  Release 2.15.1
+%  Release 2.15.2
 %
 %  Copyright (c) 1998-2003 Paulo Moura.  All Rights Reserved.
 %
@@ -1088,7 +1088,7 @@ current_logtalk_flag(Flag, Value) :-
 	\+ '$lgt_flag_'(Flag, _),
 	'$lgt_default_flag'(Flag, Value).
 
-current_logtalk_flag(version, version(2, 15, 1)).
+current_logtalk_flag(version, version(2, 15, 2)).
 
 
 
@@ -1626,6 +1626,62 @@ current_logtalk_flag(version, version(2, 15, 1)).
 % method clause/2 to store original clause body
 
 '$lgt_nop'(_).
+
+
+
+% '$lgt_phrase'(+ruleset, ?list)
+%
+% removes duplicated and redeclared predicates 
+
+'$lgt_phrase'(Obj, Ruleset, Input, Sender, Scope) :-
+	catch(
+		'$lgt_phrase'(Obj, Ruleset, Input, [], Sender, Scope),
+		error(Error, _),
+		throw(error(Error, Obj::phrase(Ruleset, Input), Sender))).
+
+
+
+% '$lgt_phrase'(+ruleset, ?list, ?list)
+%
+% removes duplicated and redeclared predicates 
+
+'$lgt_phrase'(Obj, Ruleset, Input, Rest, Sender, _) :-
+	var(Ruleset),
+	throw(error(instantiation_error, Obj::phrase(Ruleset, Input, Rest), Sender)).
+
+'$lgt_phrase'(Obj, Ruleset, Input, Rest, Sender, _) :-
+	\+ '$lgt_callable'(Ruleset),
+	throw(error(type_error(callable, Ruleset), Obj::phrase(Ruleset, Input, Rest), Sender)).
+
+'$lgt_phrase'(Obj, Ruleset, Input, Rest, Sender, _) :-
+	nonvar(Input),
+	\+ '$lgt_proper_list'(Input),
+	throw(error(type_error(list, Input), Obj::phrase(Ruleset, Input, Rest), Sender)).
+
+'$lgt_phrase'(Obj, Ruleset, Input, Rest, Sender, _) :-
+	nonvar(Rest),
+	\+ '$lgt_proper_list'(Rest),
+	throw(error(type_error(list, Rest), Obj::phrase(Ruleset, Input, Rest), Sender)).
+
+'$lgt_phrase'(Obj, Ruleset, Input, Rest, Sender, Scope) :-
+	Ruleset =.. [Functor| Args],
+	'$lgt_append'(Args, [Input, Rest], Args2),
+	Pred =.. [Functor| Args2],
+	'$lgt_current_object_'(Obj, _, Dcl, Def, _),
+	('$lgt_once'(Dcl, Pred, PScope, _, _, SContainer, _) ->
+		((\+ \+ PScope = Scope; Sender = SContainer) ->
+			'$lgt_once'(Def, Pred, Sender, Obj, Obj, Call, _),
+			call(Call)
+			;
+			(PScope = p ->
+				throw(error(permission_error(access, private_predicate, Pred), Obj::phrase(Ruleset, Input, Rest), Sender))
+				;
+				throw(error(permission_error(access, protected_predicate, Pred), Obj::phrase(Ruleset, Input, Rest), Sender))))
+		;
+		((Obj = Sender, '$lgt_once'(Def, Pred, Obj, Obj, Obj, Call, _)) ->
+			call(Call)
+			;
+			throw(error(existence_error(procedure, Pred), Obj::phrase(Ruleset, Input, Rest), Sender)))).
 
 
 
@@ -2172,6 +2228,11 @@ user0__def(Pred, _, _, _, Pred, user).
 	write('ERROR!    '), writeq(Error), nl,
 	write('          in clause: '), write(Clause), nl.
 
+'$lgt_report_compiler_error'(error(Error, dcgrule(Rule))) :-
+	!,
+	write('ERROR!    '), writeq(Error), nl,
+	write('          in grammar rule: '), write((Rule)), nl.
+
 '$lgt_report_compiler_error'(error(Error, Term)) :-
 	!,
 	write('ERROR!    '), writeq(Error), nl,
@@ -2295,13 +2356,18 @@ user0__def(Pred, _, _, _, Pred, user).
 %
 % translates an entity term (either a clause or a directive)
 
-'$lgt_tr_term'((Head:-Body)) :-
+'$lgt_tr_term'((Head :- Body)) :-
 	!,
-	'$lgt_tr_clause'((Head:-Body)).
+	'$lgt_tr_clause'((Head :- Body)).
 
-'$lgt_tr_term'((:-Dir)) :-
+'$lgt_tr_term'((:- Directive)) :-
 	!,
-	'$lgt_tr_directive'(Dir).
+	'$lgt_tr_directive'(Directive).
+
+'$lgt_tr_term'((Head --> Body)) :-
+	!,
+	'$lgt_dcgrule_to_clause'((Head --> Body), Clause),
+	'$lgt_tr_clause'(Clause).
 
 '$lgt_tr_term'(Fact) :-
 	'$lgt_tr_clause'(Fact).
@@ -2935,6 +3001,17 @@ user0__def(Pred, _, _, _, Pred, user).
 	'$lgt_this'(Context, This).
 
 
+% DCG predicates
+
+'$lgt_tr_body'(phrase(Ruleset, List), '$lgt_phrase'(This, Ruleset, List, This, _), Context) :-
+	!,
+	'$lgt_this'(Context, This).
+
+'$lgt_tr_body'(phrase(Ruleset, List, Rest), '$lgt_phrase'(This, Ruleset, List, Rest, This, _), Context) :-
+	!,
+	'$lgt_this'(Context, This).
+
+
 % inline methods (translated to a single unification with the corresponding context argument)
 
 '$lgt_tr_body'(sender(Sender), true, Context) :-
@@ -3149,6 +3226,17 @@ user0__def(Pred, _, _, _, Pred, user).
 	'$lgt_this'(Context, This).
 
 
+% DCG predicates
+
+'$lgt_tr_msg'(Obj, phrase(Ruleset, List), '$lgt_phrase'(Obj, Ruleset, List, This, p(p(p))), Context) :-
+	!,
+	'$lgt_this'(Context, This).
+
+'$lgt_tr_msg'(Obj, phrase(Ruleset, List, Rest), '$lgt_phrase'(Obj, Ruleset, List, Rest, This, p(p(p))), Context) :-
+	!,
+	'$lgt_this'(Context, This).
+
+
 % invalid goal
 
 '$lgt_tr_msg'(_, Pred, _, _) :-
@@ -3295,6 +3383,19 @@ user0__def(Pred, _, _, _, Pred, user).
 	'$lgt_this'(Context, This).
 
 '$lgt_tr_self_msg'(retractall(Pred), '$lgt_retractall'(Self, Pred, This, p(_)), Context) :-
+	!,
+	'$lgt_self'(Context, Self),
+	'$lgt_this'(Context, This).
+
+
+% DCG predicates
+
+'$lgt_tr_self_msg'(phrase(Ruleset, List), '$lgt_phrase'(Self, Ruleset, List, This, p(_)), Context) :-
+	!,
+	'$lgt_self'(Context, Self),
+	'$lgt_this'(Context, This).
+
+'$lgt_tr_self_msg'(phrase(Ruleset, List, Rest), '$lgt_phrase'(Self, Ruleset, List, Rest, This, p(_)), Context) :-
 	!,
 	'$lgt_self'(Context, Self),
 	'$lgt_this'(Context, This).
@@ -5038,6 +5139,9 @@ user0__def(Pred, _, _, _, Pred, user).
 '$lgt_built_in_method'(forall(_, _), p(p(p))).
 '$lgt_built_in_method'(setof(_, _, _), p(p(p))).
 
+'$lgt_built_in_method'(phrase(_, _), p(p(p))).
+'$lgt_built_in_method'(phrase(_, _, _), p(p(p))).
+
 
 
 % Logtalk directives
@@ -5444,6 +5548,209 @@ user0__def(Pred, _, _, _, Pred, user).
 
 '$lgt_lgt_built_in'(current_logtalk_flag(_, _)).
 '$lgt_lgt_built_in'(set_logtalk_flag(_, _)).
+
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%
+%  DCG rule conversion
+%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+
+% '$lgt_dcgrule_to_clause'(@dcgrule, -clause)
+%
+% converts a DCG rule to a normal clause
+
+
+'$lgt_dcgrule_to_clause'(Rule, Clause) :-
+	catch(
+		'$lgt_dcg_rule'(Rule, Clause),
+		Error,
+		throw(error(Error, dcgrule(Rule)))).
+
+
+
+% '$lgt_dcg_rule'(@dcgrule, -clause)
+%
+% converts a DCG rule to a normal clause
+
+'$lgt_dcg_rule'((RHead --> RBody), CHead) :-
+	RBody == [],
+	!,
+	'$lgt_dcg_head'(RHead, CHead, S, S).
+
+'$lgt_dcg_rule'((RHead --> RBody), (CHead :- CBody)) :-
+	'$lgt_dcg_head'(RHead, CHead, S0, S),
+	'$lgt_dcg_body'(RBody, Body, S0, S),
+	'$lgt_dcg_fold_unifications'(Body, CBody, S0, S).
+
+
+
+% '$lgt_dcg_head'(@dcghead, -head, @var, @var)
+%
+% translates DCG rule head to a Prolog clause head
+
+'$lgt_dcg_head'(Nonterminal, _, _, _) :-
+	var(Nonterminal),
+	throw(instantiation_error).
+
+'$lgt_dcg_head'(Nonterminal, CHead, S0, S) :-
+	'$lgt_dcg_goal'(Nonterminal, CHead, S0, S).
+
+
+
+% '$lgt_dcg_body'(@dcgbody, -body, @var, @var)
+%
+% translates DCG rule body to a Prolog clause body
+
+'$lgt_dcg_body'(Var, phrase(Var, S0, S), S0, S) :-
+	var(Var),
+	!.
+
+'$lgt_dcg_body'(::Goal, ::phrase(Goal, S0, S), S0, S) :-
+	!.
+
+'$lgt_dcg_body'(Object::Goal, Object::phrase(Goal, S0, S), S0, S) :-
+	!.
+
+'$lgt_dcg_body'((RGoal,RGoals), (CGoal,CGoals), S0, S) :-
+	!,
+	'$lgt_dcg_body'(RGoal, CGoal, S0, S1),
+	'$lgt_dcg_body'(RGoals, CGoals, S1, S).
+
+'$lgt_dcg_body'((RGoal1 -> RGoal2), (CGoal1 -> CGoal2), S0, S) :-
+	!,
+	'$lgt_dcg_body'(RGoal1, CGoal1, S0, S1),
+	'$lgt_dcg_body'(RGoal2, CGoal2, S1, S).
+
+'$lgt_dcg_body'((RGoal1;RGoal2), (CGoal1;CGoal2), S0, S) :-
+	!,
+	'$lgt_dcg_body'(RGoal1, CGoal1, S0, S),
+	'$lgt_dcg_body'(RGoal2, CGoal2, S0, S).
+
+'$lgt_dcg_body'({Goal}, (CGoal, S0=S), S0, S) :-
+	!,
+	(var(Goal) -> CGoal = call(Goal); CGoal = Goal).
+
+'$lgt_dcg_body'(!, (!, S0=S), S0, S) :-
+	!.
+
+'$lgt_dcg_body'([], (S0=S), S0, S) :-
+	!.
+
+'$lgt_dcg_body'(\+ RGoal, CGoal, S0, S) :-
+	!,
+	'$lgt_dcg_body'((RGoal -> {fail};{true}), CGoal, S0, S).
+
+'$lgt_dcg_body'([Terminal| Terminals], (CGoal,CGoals), S0, S) :-
+	!,
+	'$lgt_dcg_terminal'(Terminal, CGoal, S0, S1),
+	'$lgt_dcg_body'(Terminals, Goals, S1, S),
+	'$lgt_dcg_simplify_terminals'(Goals, CGoals).
+
+'$lgt_dcg_body'(Non_terminal, CGoal, S0, S) :-
+	'$lgt_dcg_goal'(Non_terminal, CGoal, S0, S).
+
+
+
+% '$lgt_dcg_goal'(@goal, -goal, @var, @var)
+%
+% translates DCG goal to Prolog goal
+
+'$lgt_dcg_goal'(RGoal, _, _, _) :-
+	\+ '$lgt_callable'(RGoal),
+	throw(type_error(callable, RGoal)).
+
+'$lgt_dcg_goal'(RGoal, CGoal, S0, S) :-
+	RGoal =.. RList,
+	'$lgt_append'(RList, [S0, S], CList),
+	CGoal =.. CList.
+
+
+
+% '$lgt_dcg_goal'(@goal, -goal, @var, @var)
+%
+% translate terminal; note that we don't use the traditional 'C'/3 predicate
+
+'$lgt_dcg_terminal'(Goal, S0=[Goal|S], S0, S).
+
+
+
+% '$lgt_dcg_fold_unifications'(+goal, -goal)
+%
+% folds redundant calls to =/2 by calling the unification goals
+
+'$lgt_dcg_fold_unifications'((Goal1 -> Goal2), (SGoal1 -> SGoal2), S0, S) :-
+	!,
+	'$lgt_dcg_fold_unifications'(Goal1, SGoal1, S0, S),
+	(Goal2 = (_,_) ->
+		'$lgt_dcg_fold_unifications'(Goal2, SGoal2, S0, S)
+		;
+		Goal2 = SGoal2).
+
+'$lgt_dcg_fold_unifications'((Goal1;Goal2), (SGoal1;SGoal2), S0, S) :-
+	!,
+	'$lgt_dcg_fold_unifications'(Goal1, SGoal1, S0, S),
+	'$lgt_dcg_fold_unifications'(Goal2, SGoal2, S0, S).
+
+'$lgt_dcg_fold_unifications'((Goal1,Goal2), Body, S0, S) :-
+	!,
+	'$lgt_dcg_fold_unifications'(Goal1, SGoal1, S0, S),
+	'$lgt_dcg_fold_unifications'(Goal2, SGoal2, S0, S),
+	'$lgt_dcg_simplify_and'((SGoal1,SGoal2), Body).
+
+'$lgt_dcg_fold_unifications'(S1=S2, S0=S, S0, S) :-
+	S1 == S0,
+	S2 == S,
+	!.
+
+'$lgt_dcg_fold_unifications'(S1=S2, true, S0, S) :-
+	var(S2),
+	(S1 \== S0; S2 \== S),
+	!,
+	S1 = S2.
+
+'$lgt_dcg_fold_unifications'(Body, Body, _, _).
+
+
+
+% '$lgt_dcg_simplify_and'(+goal, -goal)
+%
+% removes redundant calls to true/0 and flats a conjunction of goals
+
+'$lgt_dcg_simplify_and'(((Goal1,Goal2),Goal3), Body) :-
+	!,
+	'$lgt_dcg_simplify_and'((Goal1,(Goal2,Goal3)), Body).
+
+'$lgt_dcg_simplify_and'((true,Goal), Body) :-
+	!,
+	'$lgt_dcg_simplify_and'(Goal, Body).
+
+'$lgt_dcg_simplify_and'((Goal,true), Body) :-
+	!,
+	'$lgt_dcg_simplify_and'(Goal, Body).
+
+'$lgt_dcg_simplify_and'((Goal1,Goal2), (Goal1,Goal3)) :-
+	!,
+	'$lgt_dcg_simplify_and'(Goal2, Goal3).
+
+'$lgt_dcg_simplify_and'(Goal, Goal).
+
+
+
+% '$lgt_dcg_simplify_terminals'(+goal, -goal)
+%
+% simplifies code generated for list of terminals by folding the chain of unifications
+
+'$lgt_dcg_simplify_terminals'((S=L,Goal1), Goal2) :-
+	!,
+	S = L,
+	'$lgt_dcg_simplify_terminals'(Goal1, Goal2).
+
+'$lgt_dcg_simplify_terminals'(Goal, Goal).
 
 
 

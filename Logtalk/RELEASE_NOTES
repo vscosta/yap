@@ -1,6 +1,6 @@
 =================================================================
 Logtalk - Object oriented extension to Prolog
-Release 2.15.1
+Release 2.15.2
 
 Copyright (c) 1998-2003 Paulo Moura.  All Rights Reserved.
 =================================================================
@@ -8,6 +8,15 @@ Copyright (c) 1998-2003 Paulo Moura.  All Rights Reserved.
 
 RELEASE NOTES
 =============
+
+
+2.15.2 - April 2, 2003
+
+	Experimental support for DCG rules inside categories and objects. Added 
+	built-in methods phrase/2 and phrase/3.
+
+	Updated GNU Prolog config file to not hide compiled entity predicates in 
+	order to avoid incompatibilities with dynamic entities.
 
 
 2.15.1 - March 8, 2003

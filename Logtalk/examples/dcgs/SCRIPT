@@ -1,0 +1,35 @@
+=================================================================
+Logtalk - Object oriented extension to Prolog
+Release 2.15.2
+
+Copyright (c) 1998-2003 Paulo Moura.  All Rights Reserved.
+=================================================================
+
+
+% DCG rules implementing a simple calculator:
+
+| ?- calculator::parse("1+2-3*4", Result).
+
+Result = -9
+yes
+
+
+% recognizing gramatically correct sentences
+
+| ?- sentence::parse([the, girl, likes, the, boy], Result).
+
+Result = true
+yes
+
+| ?- sentence::parse([the, girl, scares, the, boy], Result).
+
+Result = false
+yes
+
+
+% generating parse trees for sentences
+
+| ?- parsetree::parse([the, girl, likes, the, boy], Tree).
+
+Tree = Tree = s(np(d(the), n(girl)), vp(v(likes), np(d(the), n(boy))))
+yes
