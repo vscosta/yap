@@ -48,8 +48,12 @@ print_message(Level, Mss) :-
 '$print_message'(force(_Severity), Msg) :- !,
 	print(user_error,Msg).
 '$print_message'(Severity, Msg) :-
+	nonvar(Severity), nonvar(Msg),
 	\+ '$undefined'(portray_message(Severity, Msg), user),
 	user:portray_message(Severity, Msg), !.
+'$print_message'(error,error(Msg,Info)) :-
+	( var(Msg) ; var(Info) ), !,
+	'$format'(user_error,"[ No handler for error ~w ]~n", [error(Msg,Info)]).
 '$print_message'(error,error(syntax_error(A,B,C,D,E,F),_)) :- !,
 	'$output_error_message'(syntax_error(A,B,C,D,E,F), 'SYNTAX ERROR').
 '$print_message'(error,error(Msg,[Info|local_sp(Where,Envs,CPs)])) :- !,
@@ -57,8 +61,8 @@ print_message(Level, Mss) :-
 	'$output_error_message'(Msg, Location), !,
 	'$do_stack_dump'(Envs, CPs).
 % old format: don't want a stack dump.
-'$print_message'(error,error(Type,Where)) :- !,
-	'$output_error_message'(Type, Where).
+'$print_message'(error,error(Type,Where)) :-
+	'$output_error_message'(Type, Where), !.
 '$print_message'(error,Throw) :-
 	'$format'(user_error,"[ No handler for error ~w ]~n", [Throw]).
 '$print_message'(informational,M) :-
