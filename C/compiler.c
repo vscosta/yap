@@ -27,11 +27,11 @@ static char SccsId[] = "%W% %G%";
 #endif
 
 STATIC_PROTO(int active_branch, (int));
-STATIC_PROTO(void c_var, (Term, Int, unsigned int));
+STATIC_PROTO(void c_var, (Term, Int, unsigned int, unsigned int));
 STATIC_PROTO(void reset_vars, (void));
-STATIC_PROTO(Term optimize_ce, (Term, unsigned int));
-STATIC_PROTO(void c_arg, (Int, Term, unsigned int));
-STATIC_PROTO(void c_args, (Term));
+STATIC_PROTO(Term optimize_ce, (Term, unsigned int, unsigned int));
+STATIC_PROTO(void c_arg, (Int, Term, unsigned int, unsigned int));
+STATIC_PROTO(void c_args, (Term, unsigned int));
 STATIC_PROTO(void c_eq, (Term, Term));
 STATIC_PROTO(void c_test, (Int, Term));
 STATIC_PROTO(void c_bifun, (Int, Term, Term, Term, int));
@@ -47,7 +47,7 @@ STATIC_PROTO(void add_bvarray_op, (PInstr *,CELL *, int));
 STATIC_PROTO(void AssignPerm, (PInstr *));
 STATIC_PROTO(void CheckUnsafe, (PInstr *));
 STATIC_PROTO(void CheckVoids, (void));
-STATIC_PROTO(int checktemp, (void));
+STATIC_PROTO( int checktemp, (void));
 STATIC_PROTO(void checkreg, (int));
 STATIC_PROTO(void c_layout, (void));
 STATIC_PROTO(void c_optimize, (PInstr *));
@@ -75,7 +75,7 @@ CExpEntry *common_exps;
 
 int   n_common_exps, profiling, call_counting;
 
-static int goalno, level, onlast, onhead, onbranch, cur_branch;
+static int goalno, onlast, onhead, onbranch, cur_branch;
 
 typedef struct branch_descriptor {
   int    id;                /* the branch id */
@@ -141,10 +141,10 @@ jmp_buf CompilerBotch;
 
 #define IsNewVar(v) (Addr(v)<freep0 || Addr(v)>freep)
 
-inline static void pop_code(void);
+inline static void pop_code(unsigned int);
 
 inline static void
-pop_code(void)
+pop_code(unsigned int level)
 {
   if (level == 0)
     return;
@@ -160,13 +160,13 @@ adjust_current_commits(void) {
   while (bp > parent_branches) {
     bp--;
     if (bp->cm != TermNil) {
-      c_var(bp->cm, patch_b_flag, 1);
+      c_var(bp->cm, patch_b_flag, 1, 0);
     }
   }
 }
 
 static void
-c_var(Term t, Int argno, unsigned int arity)
+c_var(Term t, Int argno, unsigned int arity, unsigned int level)
 {
   int flags, new = FALSE;
   Ventry *v = (Ventry *) Deref(t);
@@ -322,7 +322,7 @@ reset_vars(void)
 }
 
 static Term
-optimize_ce(Term t, unsigned int arity)
+optimize_ce(Term t, unsigned int arity, unsigned int level)
 {
   CExpEntry *p = common_exps, *parent = common_exps;
   int cmp = 0;
@@ -357,7 +357,7 @@ optimize_ce(Term t, unsigned int arity)
 
   p->TermOfCE = t;
   p->VarOfCE = MkVarTerm();
-  if (H == (CELL *)freep0) {
+  if (H >= (CELL *)freep0) {
     /* oops, too many new variables */
     save_machine_regs();
     longjmp(CompilerBotch,4);
@@ -371,15 +371,15 @@ optimize_ce(Term t, unsigned int arity)
   else				/* if (cmp < 0) */
     parent->LeftCE = p;
   if (IsApplTerm(t))
-    c_var(p->VarOfCE, save_appl_flag, arity);
+    c_var(p->VarOfCE, save_appl_flag, arity, level);
   else if (IsPairTerm(t))
-    c_var(p->VarOfCE, save_pair_flag, arity);
+    c_var(p->VarOfCE, save_pair_flag, arity, level);
   return (t);
 }
 
 #ifdef SFUNC
 static void
-compile_sf_term(Term t, int argno)
+compile_sf_term(Term t, int argno, int level)
 {
   Functor f = FunctorOfTerm(t);
   CELL *p = ArgsOfSFTerm(t) - 1;
@@ -404,7 +404,7 @@ compile_sf_term(Term t, int argno)
 	longjmp(CompilerBotch, 2);
       }
       else
-	c_var(t, -argno, arity);
+	c_var(t, -argno, arity, level);
     }
   }
   --level;
@@ -416,7 +416,7 @@ compile_sf_term(Term t, int argno)
 #endif
 
 inline static void
-c_args(Term app)
+c_args(Term app, unsigned int level)
 {
   Functor f = FunctorOfTerm(app);
   unsigned int Arity = ArityOfFunctor(f);
@@ -434,14 +434,15 @@ c_args(Term app)
       max_args = Arity;
   }
   for (i = 1; i <= Arity; ++i)
-    c_arg(i, ArgOfTerm(i, app), Arity);
+    c_arg(i, ArgOfTerm(i, app), Arity, level);
 }
 
 static void
-c_arg(Int argno, Term t, unsigned int arity)
+c_arg(Int argno, Term t, unsigned int arity, unsigned int level)
 {
+ restart:
   if (IsVarTerm(t))
-    c_var(t, argno, arity);
+    c_var(t, argno, arity, level);
   else if (IsAtomTerm(t)) {
     if (level == 0)
       emit((onhead ? get_atom_op : put_atom_op), (CELL) t, argno);
@@ -548,9 +549,9 @@ c_arg(Int argno, Term t, unsigned int arity)
   }
   else if (IsPairTerm(t)) {
     if (optimizer_on && (!onhead || argno != 1 || level > 1) && level < 6) {
-      t = optimize_ce(t, arity);
+      t = optimize_ce(t, arity, level);
       if (IsVarTerm(t)) {
-	c_var(t, argno, arity);
+	c_var(t, argno, arity, level);
 	return;
       }
     }
@@ -561,11 +562,16 @@ c_arg(Int argno, Term t, unsigned int arity)
     else
       emit((onhead ? unify_list_op : write_list_op), Zero, Zero);
     ++level;
-    c_arg(1, HeadOfTerm(t), 2);
-    c_arg(2, TailOfTerm(t), 2);
+    c_arg(1, HeadOfTerm(t), 2, level);
+    if (argno == (Int)arity) {
+      /* optimise for tail recursion */
+      t = TailOfTerm(t);
+      goto restart;
+    }
+    c_arg(2, TailOfTerm(t), 2, level);
     --level;
     if (argno != (Int)arity)
-      pop_code();
+      pop_code(level);
   } else if (IsRefTerm(t)) {
     READ_LOCK(CurrentPred->PRWLock);
     if (!(CurrentPred->PredFlags & (DynamicPredFlag|LogUpdatePredFlag))) {
@@ -584,9 +590,9 @@ c_arg(Int argno, Term t, unsigned int arity)
 #endif
 
     if (optimizer_on && (!onhead || argno != 1 || level > 1)) {
-      t = optimize_ce(t, arity);
+      t = optimize_ce(t, arity, level);
       if (IsVarTerm(t)) {
-	c_var(t, argno, arity);
+	c_var(t, argno, arity, level);
 	return;
 
       }
@@ -601,10 +607,10 @@ c_arg(Int argno, Term t, unsigned int arity)
       emit((onhead ? unify_struct_op : write_struct_op),
 	   (CELL) FunctorOfTerm(t), Zero);
     ++level;
-    c_args(t);
+    c_args(t, level);
     --level;
     if (argno != (Int)arity)
-      pop_code();
+      pop_code(level);
   }
 }
 
@@ -620,28 +626,28 @@ c_eq(Term t1, Term t2)
     if (IsVarTerm(t2)) {	/* both are variables */
       if (IsNewVar(t2))
 	t = t2, t2 = t1, t1 = t;
-      c_var(t2, tmpreg, 2);
+      c_var(t2, tmpreg, 2, 0);
       onhead = 1;
-      c_var(t1, tmpreg, 2);
+      c_var(t1, tmpreg, 2, 0);
       onhead = 0;
     }
     else if (IsNewVar(t1)) {
-      c_arg(tmpreg, t2, 0);
+      c_arg(tmpreg, t2, 0, 0);
       onhead = 1;
-      c_var(t1, tmpreg, 2);
+      c_var(t1, tmpreg, 2, 0);
       onhead = 0;
     }
     else {			/* t2 is non var */
-      c_var(t1, tmpreg, 2);
+      c_var(t1, tmpreg, 2, 0);
       onhead = 1;
-      c_arg(tmpreg, t2, 0);
+      c_arg(tmpreg, t2, 0, 0);
       onhead = 0;
     }
   }
   else {
-    c_arg(tmpreg, t1, 0);
+    c_arg(tmpreg, t1, 0, 0);
     onhead = 1;
-    c_arg(tmpreg, t2, 0);
+    c_arg(tmpreg, t2, 0, 0);
     onhead = 0;
   }
 }
@@ -666,7 +672,7 @@ c_test(Int Op, Term t1) {
     if (Op != _var)
       emit(fail_op, Zero, Zero);
   } else {
-    c_var(t,f_flag,(unsigned int)Op);
+    c_var(t,f_flag,(unsigned int)Op, 0);
   }
 }
 
@@ -732,8 +738,8 @@ c_bifun(Int Op, Term t1, Term t2, Term t3, int mod)
 	Int v2 = --tmpreg;
 	emit(fetch_args_vv_op, Zero, Zero);
 	/* these should be the arguments */
-	c_var(t1, v1, 0);
-	c_var(t2, v2, 0);
+	c_var(t1, v1, 0, 0);
+	c_var(t2, v2, 0, 0);
 	/* now we know where the arguments are */
       }
     } else {
@@ -741,25 +747,25 @@ c_bifun(Int Op, Term t1, Term t2, Term t3, int mod)
 	Term tn = MkVarTerm();
 	Int v1 = --tmpreg;
 	Int v2 = --tmpreg;
-	c_arg(t2, v2, 0);
+	c_arg(t2, v2, 0, 0);
 	emit(fetch_args_vv_op, Zero, Zero);
 	/* these should be the arguments */
-	c_var(t1, v1, 0);
-	c_var(tn, v2, 0);
+	c_var(t1, v1, 0, 0);
+	c_var(tn, v2, 0, 0);
       /* it has to be either an integer or a floating point */
       } else if (IsIntTerm(t2)) {
 	/* first temp */
 	Int v1 = --tmpreg;
 	emit(fetch_args_vc_op, (CELL)IntOfTerm(t2), Zero);
 	/* these should be the arguments */
-	c_var(t1, v1, 0);
+	c_var(t1, v1, 0, 0);
 	/* now we know where the arguments are */
       } else if (IsLongIntTerm(t2)) {
 	/* first temp */
 	Int v1 = --tmpreg;
 	emit(fetch_args_vc_op, (CELL)LongIntOfTerm(t2), Zero);
 	/* these should be the arguments */
-	c_var(t1, v1, 0);
+	c_var(t1, v1, 0, 0);
 	/* now we know where the arguments are */
       } else {
 	char s[32];
@@ -986,7 +992,7 @@ c_bifun(Int Op, Term t1, Term t2, Term t3, int mod)
 	  Int v1 = --tmpreg;
 	  emit(fetch_args_cv_op, t1, Zero);
 	  /* these should be the arguments */
-	  c_var(t2, v1, 0);
+	  c_var(t2, v1, 0, 0);
 	  /* now we know where the arguments are */
 	}
       }
@@ -995,14 +1001,14 @@ c_bifun(Int Op, Term t1, Term t2, Term t3, int mod)
       Int v1 = --tmpreg;
       emit(fetch_args_cv_op, (CELL)IntOfTerm(t1), Zero);
       /* these should be the arguments */
-      c_var(t2, v1, 0);
+      c_var(t2, v1, 0, 0);
       /* now we know where the arguments are */
     } else if (IsLongIntTerm(t1)) {
       /* first temp */
       Int v1 = --tmpreg;
       emit(fetch_args_cv_op, (CELL)LongIntOfTerm(t1), Zero);
       /* these should be the arguments */
-      c_var(t2, v1, 0);
+      c_var(t2, v1, 0, 0);
       /* now we know where the arguments are */
     } else {
       char s[32];
@@ -1025,7 +1031,7 @@ c_bifun(Int Op, Term t1, Term t2, Term t3, int mod)
 	save_machine_regs();
 	longjmp(CompilerBotch,4);
       }
-      c_var(tmpvar,f_flag,(unsigned int)Op);
+      c_var(tmpvar,f_flag,(unsigned int)Op, 0);
       c_eq(tmpvar,t3);
     } else {
       char s[32];
@@ -1039,7 +1045,7 @@ c_bifun(Int Op, Term t1, Term t2, Term t3, int mod)
       longjmp(CompilerBotch,1);
     }
   } else if (IsNewVar(t3) && cur_branch == 0 /* otherwise you may have trouble with z(X) :- ( Z is X*2 ; write(Z)) */) {
-    c_var(t3,f_flag,(unsigned int)Op);
+    c_var(t3,f_flag,(unsigned int)Op, 0);
     if (Op == _functor) {
       emit(empty_call_op, Zero, Zero);
       emit(restore_tmps_and_skip_op, Zero, Zero);
@@ -1052,7 +1058,7 @@ c_bifun(Int Op, Term t1, Term t2, Term t3, int mod)
       save_machine_regs();
       longjmp(CompilerBotch,4);
     }
-    c_var(tmpvar,f_flag,(unsigned int)Op);
+    c_var(tmpvar,f_flag,(unsigned int)Op, 0);
     /* I have to dit here, before I do the unification */
     if (Op == _functor) {
       emit(empty_call_op, Zero, Zero);
@@ -1087,9 +1093,9 @@ c_functor(Term Goal, int mod)
 	     IsVarTerm(t3) && IsNewVar(t3)) {
     Int v1 = --tmpreg;
     emit(fetch_args_vc_op, Zero, Zero);
-    c_var(t1, v1, 0);
-    c_var(t2,f_flag,(unsigned int)_functor);
-    c_var(t3,f_flag,(unsigned int)_functor);
+    c_var(t1, v1, 0, 0);
+    c_var(t2,f_flag,(unsigned int)_functor, 0);
+    c_var(t3,f_flag,(unsigned int)_functor, 0);
   } else {
     Functor f = FunctorOfTerm(Goal);
     Prop p0 = PredPropByFunc(f, mod);
@@ -1097,7 +1103,7 @@ c_functor(Term Goal, int mod)
       emit(enter_profiling_op, (CELL)RepPredProp(p0), Zero);
     else if (call_counting)
       emit(count_call_op, (CELL)RepPredProp(p0), Zero);
-    c_args(Goal);
+    c_args(Goal, 0);
     emit(safe_call_op, (CELL)p0 , Zero);
     emit(empty_call_op, Zero, Zero);
     emit(restore_tmps_and_skip_op, Zero, Zero);
@@ -1335,7 +1341,7 @@ c_goal(Term Goal, int mod)
 	    savencpc = FirstP->nextInst;
 	    cpc = FirstP;
 	    onbranch = pop_branch();
-	    c_var(comitvar, save_b_flag, 1);
+	    c_var(comitvar, save_b_flag, 1, 0);
 	    push_branch(onbranch,  comitvar);
 	    onbranch = cur_branch;
 	    cpc->nextInst = savencpc;
@@ -1347,7 +1353,7 @@ c_goal(Term Goal, int mod)
 	  c_goal(ArgOfTerm(1, arg), mod);
 	  if (!optimizing_comit) {
 	    c_var((Term) comitvar, comit_b_flag,
-		  1);
+		  1, 0);
 	  }
 	  onlast = save;
 	  c_goal(ArgOfTerm(2, arg), mod);
@@ -1408,12 +1414,12 @@ c_goal(Term Goal, int mod)
       onbranch = cur_branch;
       or_found = 1;
       onlast = FALSE;
-      c_var(comitvar, save_b_flag, 1);
+      c_var(comitvar, save_b_flag, 1, 0);
       emit_3ops(push_or_op, label, Zero, Zero);
       emit_3ops(either_op, label,  Zero, Zero);
       emit(restore_tmps_op, Zero, Zero);
       c_goal(ArgOfTerm(1, Goal), mod);
-      c_var(comitvar, comit_b_flag, 1);
+      c_var(comitvar, comit_b_flag, 1, 0);
       onlast = save;
       emit(fail_op, end_label, Zero);
       emit(pushpop_or_op, Zero, Zero);
@@ -1439,9 +1445,9 @@ c_goal(Term Goal, int mod)
 	longjmp(CompilerBotch,4);
       }
       onlast = FALSE;
-      c_var(comitvar, save_b_flag, 1);
+      c_var(comitvar, save_b_flag, 1, 0);
       c_goal(ArgOfTerm(1, Goal), mod);
-      c_var(comitvar, comit_b_flag, 1);
+      c_var(comitvar, comit_b_flag, 1, 0);
       onlast = save;
       c_goal(ArgOfTerm(2, Goal), mod);
       return;
@@ -1517,7 +1523,7 @@ c_goal(Term Goal, int mod)
 	return;
       }
       else {
-	c_args(Goal);
+	c_args(Goal, 0);
       }
     }
     else if (p->PredFlags & BinaryTestPredFlag) {
@@ -1533,9 +1539,9 @@ c_goal(Term Goal, int mod)
 	    save_machine_regs();
 	    longjmp(CompilerBotch,1);
 	  }
-	  c_var(a1, bt1_flag, 2);
+	  c_var(a1, bt1_flag, 2, 0);
 	  current_p0 = p0;
-	  c_var(a2, bt2_flag, 2);
+	  c_var(a2, bt2_flag, 2, 0);
 	}
 	else {
 	  Term t2 = MkVarTerm();
@@ -1546,9 +1552,9 @@ c_goal(Term Goal, int mod)
 	  }
 
 	  c_eq(t2, a2);
-	  c_var(a1, bt1_flag, 2);
+	  c_var(a1, bt1_flag, 2, 0);
 	  current_p0 = p0;
-	  c_var(t2, bt2_flag, 2);
+	  c_var(t2, bt2_flag, 2, 0);
 	}
       }
       else {
@@ -1562,9 +1568,9 @@ c_goal(Term Goal, int mod)
 
 	c_eq(t1, a1);
 	if (IsVarTerm(a2) && !IsNewVar(a2)) {
-	  c_var(t1, bt1_flag, 2);
+	  c_var(t1, bt1_flag, 2, 0);
 	  current_p0 = p0;
-	  c_var(a2, bt2_flag, 2);
+	  c_var(a2, bt2_flag, 2, 0);
 	}
 	else {
 	  Term t2 = MkVarTerm();
@@ -1575,9 +1581,9 @@ c_goal(Term Goal, int mod)
 	  }
 
 	  c_eq(t2, a2);
-	  c_var(t1, bt1_flag, 2);
+	  c_var(t1, bt1_flag, 2, 0);
 	  current_p0 = p0;
-	  c_var(t2, bt2_flag, 2);
+	  c_var(t2, bt2_flag, 2, 0);
 	}
       }
       if (onlast) {
@@ -1600,7 +1606,7 @@ c_goal(Term Goal, int mod)
 	emit(enter_profiling_op, (CELL)p, Zero);
       else if (call_counting)
 	emit(count_call_op, (CELL)p, Zero);
-      c_args(Goal);
+      c_args(Goal, 0);
     }
   }
 
@@ -1769,7 +1775,6 @@ c_head(Term t)
   Functor f;
 
   goalno = 0;
-  level = 0;
   onhead = TRUE;
   onlast = FALSE;
   cur_branch = onbranch = 0;
@@ -1780,7 +1785,7 @@ c_head(Term t)
   }
   f = FunctorOfTerm(t);
   emit(name_op, (CELL) NameOfFunctor(f), ArityOfFunctor(f));
-  c_args(t);
+  c_args(t, 0);
   get_cl_info(ArgOfTerm(1, t));
 }
 
