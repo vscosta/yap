@@ -279,11 +279,10 @@ case $target_os in
 	AC_DEFINE(FORCE_SECOND_QUADRANT)
 	#this tells ld to export all non-static symbols,
 	#otherwise no external predicates.
-	LDFLAGS="${LDFLAGS} -Wl,-E"
 	M4="/usr/bin/m4"
 	if test $CC = cc -o $CC = c89
 	then
-	 SHLIB_LD="cc ${LDFLAGS} -Wl,-b"
+	 SHLIB_LD="ld -b -E ${LDFLAGS}"
          SHLIB_SUFFIX=".sl"
 	 SHLIB_CFLAGS="+z"
 	 INSTALL_DLLS=""
