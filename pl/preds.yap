@@ -630,8 +630,13 @@ hide_predicate(P) :-
 '$hide_predicate2'(PredDesc, M) :-
 	'$do_error'(type_error(predicate_indicator,T),hide_predicate(M:PredDesc)).
 
+'$make_pred_push_mod'(P) :-
+	'$flags'(P,prolog,F,F),
+	NF is F \/ 0x8200000,
+	'$flags'(P,prolog,F,NF).
 
-
-	
-	
-
+:- '$make_pred_push_mod'((_,_)).
+:- '$make_pred_push_mod'((_;_)).
+:- '$make_pred_push_mod'((_|_)).
+:- '$make_pred_push_mod'((_->_)).
+:- '$make_pred_push_mod'((\+_)).

@@ -588,8 +588,7 @@ source_module(Mod) :-
 	use_module(:,?),
 	use_module(?,:,?),
 	when(?,:),
-	^(+,:),
-	\+(:).
+	^(+,:).
 
 
 %

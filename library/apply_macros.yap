@@ -110,7 +110,7 @@ user:goal_expansion(sumlist(Meta, List, AccIn, AccOut), Module, Goal) :-
 		     (RecursionHead :- Apply, RecursiveCall)
 		    ], Module).
 
-user:goal_expansion(mapargs(Meta, In, Out), Module, NewGoal) :-
+user:goal_expansion(mapargs(Meta, In, Out), _Module, NewGoal) :-
 	( var(Out)
 	->
 	    NewGoal = (
@@ -126,7 +126,7 @@ user:goal_expansion(mapargs(Meta, In, Out), Module, NewGoal) :-
 		      )
 	).	    
 
-user:goal_expansion(sumargs(Meta, Term, AccIn, AccOut), Module, Goal) :-
+user:goal_expansion(sumargs(Meta, Term, AccIn, AccOut), _Module, Goal) :-
 	Goal = (
 		 Term =.. [_|TermArgs],
 		 sumlist(Meta, TermArgs, AccIn, AccOut)

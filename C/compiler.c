@@ -34,8 +34,8 @@ STATIC_PROTO(void c_arg, (Int, Term, unsigned int));
 STATIC_PROTO(void c_args, (Term));
 STATIC_PROTO(void c_eq, (Term, Term));
 STATIC_PROTO(void c_test, (Int, Term));
-STATIC_PROTO(void c_bifun, (Int, Term, Term, Term, int, int *));
-STATIC_PROTO(void c_goal, (Term, int, int *));
+STATIC_PROTO(void c_bifun, (Int, Term, Term, Term, int));
+STATIC_PROTO(void c_goal, (Term, int));
 STATIC_PROTO(void get_type_info, (Term));
 STATIC_PROTO(void c_body, (Term, int));
 STATIC_PROTO(void get_cl_info, (Term));
@@ -699,7 +699,7 @@ bip_cons	   Op,Xk,Ri,C
 
  */
 static void
-c_bifun(Int Op, Term t1, Term t2, Term t3, int mod, int *uncutable)
+c_bifun(Int Op, Term t1, Term t2, Term t3, int mod)
 {
   /* compile Z = X Op Y  arithmetic function */
   /* first we fetch the arguments */
@@ -818,7 +818,7 @@ c_bifun(Int Op, Term t1, Term t2, Term t3, int mod, int *uncutable)
 	if (IsNumTerm(t1)) {
 	  /* we will always fail */
 	  if (i2)
-	    c_goal(MkAtomTerm(AtomFalse), mod, uncutable);
+	    c_goal(MkAtomTerm(AtomFalse), mod);
 	} else if (!IsAtomTerm(t1)) {
 	  char s[32];
 
@@ -889,7 +889,7 @@ c_bifun(Int Op, Term t1, Term t2, Term t3, int mod, int *uncutable)
 	} else if (IsApplTerm(t2)) {
 	  Functor f = FunctorOfTerm(t2);
 	  if (i1 < 1 || i1 > ArityOfFunctor(f)) {
-	    c_goal(MkAtomTerm(AtomFalse), mod, uncutable);
+	    c_goal(MkAtomTerm(AtomFalse), mod);
 	  } else {
 	    c_eq(ArgOfTerm(i1, t2), t3);
 	  }
@@ -903,7 +903,7 @@ c_bifun(Int Op, Term t1, Term t2, Term t3, int mod, int *uncutable)
 	    c_eq(TailOfTerm(t2), t3);
 	    return;
 	  default:
-	    c_goal(MkAtomTerm(AtomFalse), mod, uncutable);
+	    c_goal(MkAtomTerm(AtomFalse), mod);
 	    return;
 	  }
 	}
@@ -1063,13 +1063,13 @@ c_bifun(Int Op, Term t1, Term t2, Term t3, int mod, int *uncutable)
 }
 
 static void
-c_functor(Term Goal, int mod, int *uncutable)
+c_functor(Term Goal, int mod)
 {
   Term t1 = ArgOfTerm(1, Goal);
   Term t2 = ArgOfTerm(2, Goal);
   Term t3 = ArgOfTerm(3, Goal);
   if (IsVarTerm(t1) && IsNewVar(t1)) {
-    c_bifun(_functor, t2, t3, t1, mod, uncutable);
+    c_bifun(_functor, t2, t3, t1, mod);
   } else if (IsNonVarTerm(t1)) {
     /* just split the structure */
     if (IsAtomicTerm(t1)) {
@@ -1121,7 +1121,7 @@ IsTrueGoal(Term t) {
 }
 
 static void
-c_goal(Term Goal, int mod, int* uncutable)
+c_goal(Term Goal, int mod)
 {
   Functor f;
   PredEntry *p;
@@ -1177,11 +1177,6 @@ c_goal(Term Goal, int mod, int* uncutable)
       return;
     }
     else if (atom == AtomCut) {
-      if (*uncutable){
-	Error_TYPE = UNKNOWN_ERROR;  /*ceh: needs an official assigned error*/
-	Error_Term = Goal;
-	FAIL("tried to cut an uncutable goal", UNKNOWN_ERROR, Goal);
-      }
       if (profiling)
 	emit(enter_profiling_op, (CELL)RepPredProp(PredPropByAtom(AtomCut,0)), Zero);
       else if (call_counting)
@@ -1349,16 +1344,16 @@ c_goal(Term Goal, int mod, int* uncutable)
 	  }
 	  save = onlast;
 	  onlast = FALSE;
-	  c_goal(ArgOfTerm(1, arg), mod, uncutable);
+	  c_goal(ArgOfTerm(1, arg), mod);
 	  if (!optimizing_comit) {
 	    c_var((Term) comitvar, comit_b_flag,
 		  1);
 	  }
 	  onlast = save;
-	  c_goal(ArgOfTerm(2, arg), mod, uncutable);
+	  c_goal(ArgOfTerm(2, arg), mod);
 	}
 	else
-	  c_goal(ArgOfTerm(1, Goal), mod, uncutable);
+	  c_goal(ArgOfTerm(1, Goal), mod);
 	if (!onlast) {
 	  emit(jump_op, m, Zero);
 	}
@@ -1375,13 +1370,13 @@ c_goal(Term Goal, int mod, int* uncutable)
       else {
 	optimizing_comit = FALSE;	/* not really necessary */
       }
-      c_goal(Goal, mod, uncutable);
+      c_goal(Goal, mod);
       /*              --onbranch; */
       onbranch = pop_branch();
       if (!onlast) {
 	emit(label_op, m, Zero);
 	if ((onlast = save))
-	  c_goal(MkAtomTerm(AtomTrue), mod, uncutable);
+	  c_goal(MkAtomTerm(AtomTrue), mod);
       }
       emit(pop_or_op, Zero, Zero);
       return;
@@ -1391,9 +1386,9 @@ c_goal(Term Goal, int mod, int* uncutable)
       int t2 = ArgOfTerm(2, Goal);
 
       onlast = FALSE;
-      c_goal(ArgOfTerm(1, Goal), mod, uncutable);
+      c_goal(ArgOfTerm(1, Goal), mod);
       onlast = save;
-      c_goal(t2, mod, uncutable);
+      c_goal(t2, mod);
       return;
     }
     else if (f == FunctorNot || f == FunctorAltNot) {
@@ -1417,7 +1412,7 @@ c_goal(Term Goal, int mod, int* uncutable)
       emit_3ops(push_or_op, label, Zero, Zero);
       emit_3ops(either_op, label,  Zero, Zero);
       emit(restore_tmps_op, Zero, Zero);
-      c_goal(ArgOfTerm(1, Goal), mod, uncutable);
+      c_goal(ArgOfTerm(1, Goal), mod);
       c_var(comitvar, comit_b_flag, 1);
       onlast = save;
       emit(fail_op, end_label, Zero);
@@ -1428,7 +1423,7 @@ c_goal(Term Goal, int mod, int* uncutable)
       onlast = save;
       /*              --onbranch; */
       onbranch = pop_branch();
-      c_goal(MkAtomTerm(AtomTrue), mod, uncutable);
+      c_goal(MkAtomTerm(AtomTrue), mod);
       ++goalno;
       emit(pop_or_op, Zero, Zero);
       return;
@@ -1445,10 +1440,10 @@ c_goal(Term Goal, int mod, int* uncutable)
       }
       onlast = FALSE;
       c_var(comitvar, save_b_flag, 1);
-      c_goal(ArgOfTerm(1, Goal), mod, uncutable);
+      c_goal(ArgOfTerm(1, Goal), mod);
       c_var(comitvar, comit_b_flag, 1);
       onlast = save;
-      c_goal(ArgOfTerm(2, Goal), mod, uncutable);
+      c_goal(ArgOfTerm(2, Goal), mod);
       return;
     }
     else if (f == FunctorEq) {
@@ -1497,14 +1492,14 @@ c_goal(Term Goal, int mod, int* uncutable)
       }
       else if (op >= _plus && op <= _functor) {
 	if (op == _functor) {
-	  c_functor(Goal, mod, uncutable);
+	  c_functor(Goal, mod);
 	}
 	else {
 	  c_bifun(op,
 		  ArgOfTerm(1, Goal),
 		  ArgOfTerm(2, Goal),
 		  ArgOfTerm(3, Goal),
-		  mod, uncutable);
+		  mod);
 	}
 	if (onlast) {
 	  emit(deallocate_op, Zero, Zero);
@@ -1609,10 +1604,6 @@ c_goal(Term Goal, int mod, int* uncutable)
     }
   }
 
-  if (p->PredFlags & UnCutAblePredFlag ){
-    (void)(*uncutable)++;
-  }
-
   if (p->PredFlags & SafePredFlag
 #ifdef YAPOR
       /* synchronisation means saving the state, so it is never safe in YAPOR */
@@ -1710,7 +1701,6 @@ get_type_info(Term Goal)
 static void
 c_body(Term Body, int mod)
 {
-  int uncutable=0;
   onhead = FALSE;
   BodyStart = cpc;
   goalno = 1;
@@ -1730,11 +1720,11 @@ c_body(Term Body, int mod)
       Body = ArgOfTerm(1, Body);
       break;
     }
-    c_goal(ArgOfTerm(1, Body), mod, &uncutable);
+    c_goal(ArgOfTerm(1, Body), mod);
     Body = t2;
   }
   onlast = TRUE;
-  c_goal(Body, mod, &uncutable);
+  c_goal(Body, mod);
 }
 
 static void

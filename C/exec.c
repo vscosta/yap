@@ -206,6 +206,29 @@ EnterCreepMode(SMALLUNSGN mod) {
   return (CallPredicate(PredSpy, B));
 }
 
+/* push module inside so that it will visible to the next calls */
+static Term
+PushModule(Term t,SMALLUNSGN mod) {
+  Functor f = FunctorOfTerm(t);
+  Term tmod =  ModuleName[mod];
+  if (ArityOfFunctor(f) == 2) {
+    Term ti[2], tf[2];
+    ti[0] = tmod;
+    ti[1] = ArgOfTerm(1,t);
+    tf[0] = MkApplTerm(FunctorModule,2,ti);
+    ti[0] = tmod;
+    ti[1] = ArgOfTerm(2,t);
+    tf[1] = MkApplTerm(FunctorModule,2,ti);
+    return(MkApplTerm(f,2,tf));
+  } else {
+    Term ti[2], tf[1];
+    ti[0] = tmod;
+    ti[1] = ArgOfTerm(1,t);
+    tf[0] = MkApplTerm(FunctorModule,2,ti);
+    return(MkApplTerm(f,1,tf));
+  }
+}
+
 inline static Int
 do_execute(Term t, SMALLUNSGN mod)
 {
@@ -240,6 +263,9 @@ do_execute(Term t, SMALLUNSGN mod)
 	  t = ArgOfTerm(2,t);
 	  goto restart_exec;
 	}
+      }
+      if (pen->PredFlags & PushModPredFlag) {
+	t = PushModule(t,mod);
       }
       return(CallMetaCall(mod));
     }
