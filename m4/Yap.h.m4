@@ -10,7 +10,7 @@
 * File:		Yap.h.m4						 *
 * mods:									 *
 * comments:	main header file for YAP				 *
-* version:      $Id: Yap.h.m4,v 1.22 2002-02-22 06:10:16 vsc Exp $	 *
+* version:      $Id: Yap.h.m4,v 1.23 2002-03-08 06:33:16 vsc Exp $	 *
 *************************************************************************/
 
 #include "config.h"
@@ -772,6 +772,9 @@ extern int      CritLocks;
 
 extern char   **yap_args;
 extern int      yap_argc;
+
+/******************* controlling debugging ****************************/
+extern int      creep_on;
 
 #ifdef YAPOR
 #define YAPEnterCriticalSection()                           \

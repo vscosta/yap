@@ -18,7 +18,8 @@
 % This one should come first so that disjunctions and long distance
 % cuts are compiled right with co-routining.
 %
-true :- true. % otherwise, $$compile will ignore this clause.
+
+true :- true.
 
 '$live' :-
 	'$init_system',
@@ -679,7 +680,7 @@ incore(G) :- '$execute'(G).
 	'$last_execute_within'(B).
 
 % Be careful with -> cutting through
-';'(A,B) :- (A = ( T->G) ->
+(A;B) :- (A = ( T->G) ->
 	     ( '$execute_within'(T) ->  '$execute_within'(G) ; '$execute_within'(A) ; '$execute_within'(B) )
 	    ;
 	     ( '$execute_within'(A) ; '$execute_within'(B) ) ).

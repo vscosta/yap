@@ -1634,12 +1634,7 @@ absmi(int inp)
 
     NoStackExecute:
       SREG = (CELL *) pred_entry(PREG->u.l.l);
-#ifdef YAPOR
-      /* abort_optyap("NoStackExecute in function absmi"); */
-      if (HeapTop > GlobalBase - MinHeapGap)
-#else	/* YAPOR */
-      if (HeapTop > Addr(AuxSp) - MinHeapGap)
-#endif
+      if (CFREG == (CELL)(LCL0+1))
 	{
 	  ASP = Y+E_CB;
 	  if (ASP > (CELL *)B)
@@ -1777,18 +1772,12 @@ absmi(int inp)
     NoStackCall:
       /* on X86 machines S will not actually be holding the pointer to pred */
       SREG = (CELL *) PREG->u.sla.p;
-#ifdef YAPOR
-      /* abort_optyap("NoStackCall in function absmi"); */
-      if (HeapTop > GlobalBase - MinHeapGap)
-#else
-      if (HeapTop > Addr(AuxSp) - MinHeapGap)
-#endif /* YAPOR */
-	{
-	  ASP = (CELL *) (((char *) Y) + PREG->u.sla.s);
-	  if (ASP > (CELL *)B)
-	    ASP = (CELL *)B;
-	  goto noheapleft;
-	}
+      if (CFREG == (CELL)(LCL0+1)) {
+	ASP = (CELL *) (((char *) Y) + PREG->u.sla.s);
+	if (ASP > (CELL *)B)
+	  ASP = (CELL *)B;
+	goto noheapleft;
+      }
 #ifdef COROUTINING
       if (CFREG == Unsigned(LCL0)) {
 	if (ReadTimedVar(WokenGoals) != TermNil)
@@ -1856,18 +1845,12 @@ absmi(int inp)
     NoStackEither:
       /* find something to fool S */
       SREG = (CELL *)RepPredProp(GetPredPropByFunc(MkFunctor(AtomRestoreRegs,1),0));
-#ifdef YAPOR
-      /* abort_optyap("NoStackCall in function absmi"); */
-      if (HeapTop > GlobalBase - MinHeapGap)
-#else
-      if (HeapTop > Addr(AuxSp) - MinHeapGap)
-#endif /* YAPOR */
-	{
-	  ASP = (CELL *) (((char *) Y) + PREG->u.sla.s);
-	  if (ASP > (CELL *)B)
-	    ASP = (CELL *)B;
-	  goto noheapleft;
-	}
+      if (CFREG == (CELL)(LCL0+1)) {
+	ASP = (CELL *) (((char *) Y) + PREG->u.sla.s);
+	if (ASP > (CELL *)B)
+	  ASP = (CELL *)B;
+	goto noheapleft;
+      }
       if (CFREG == Unsigned(LCL0)) {
 	if (ReadTimedVar(WokenGoals) != TermNil)
 	  goto creep_either;
@@ -1941,18 +1924,12 @@ absmi(int inp)
     NoStackDExecute:
       /* set SREG for next instructions */
       SREG = (CELL *) pred_entry(PREG->u.l.l);
-#ifdef YAPOR
-      /* abort_optyap("noStackDExecute in function absmi"); */
-      if (HeapTop > GlobalBase - MinHeapGap)
-#else
-      if (HeapTop > Addr(AuxSp) - MinHeapGap)
-#endif /* YAPOR */
-	{
-	  ASP = Y+E_CB;
-	  if (ASP > (CELL *)B)
-	    ASP = (CELL *)B;
-	  goto noheapleft;
-	}
+      if (CFREG == (CELL)(LCL0+1)) {
+	ASP = Y+E_CB;
+	if (ASP > (CELL *)B)
+	  ASP = (CELL *)B;
+	goto noheapleft;
+      }
 #ifdef COROUTINING
       if (CFREG == Unsigned(LCL0)) {
 	if (ReadTimedVar(WokenGoals) != TermNil)
@@ -2125,6 +2102,7 @@ absmi(int inp)
 	  JMPNext();
 	}
 #endif
+	creep_on = FALSE;
 #if SHADOW_S
 	S = SREG;
 #endif

@@ -12,7 +12,7 @@
 * Last rev:								 *
 * mods:									 *
 * comments:	allocating space					 *
-* version:$Id: alloc.c,v 1.16 2002-02-26 17:41:53 vsc Exp $		 *
+* version:$Id: alloc.c,v 1.17 2002-03-08 06:33:16 vsc Exp $		 *
 *************************************************************************/
 #ifdef SCCS
 static char SccsId[] = "%W% %G%";
@@ -169,8 +169,23 @@ FreeBlock(BlockHeader *b)
     RemoveFromFreeList(p);
     b->b_size += p->b_size + 1;
   }
+  /* check if we are the HeapTop */
+  if (!HEAPTOP_OWNER(worker_id)) {
+    LOCK(HeapTopLock);
+  }
+  if (sp == (YAP_SEG_SIZE *)HeapTop) {
+    LOCK(HeapUsedLock);
+    HeapUsed -= (b->b_size + 1) * sizeof(YAP_SEG_SIZE);
+    UNLOCK(HeapUsedLock);
+    HeapTop = (ADDR)b;
+    *((YAP_SEG_SIZE *) HeapTop) = InUseFlag;
+  } else {
   /* insert on list of free blocks */
-  AddToFreeList(b);
+    AddToFreeList(b);
+  }
+  if (!HEAPTOP_OWNER(worker_id)) {
+    UNLOCK(HeapTopLock);
+  }
   UNLOCK(GLOBAL_LOCKS_alloc_block);
   UNLOCK(FreeBlocksLock);
 }
@@ -265,7 +280,7 @@ AllocHeap(unsigned int size)
 	if (!HEAPTOP_OWNER(worker_id)) {
 	  UNLOCK(HeapTopLock);
 	}
-	CreepFlag = Unsigned(LCL0) - Unsigned(H0);
+	CreepFlag = Unsigned(LCL0+1);
       } else {
 	if (size > SizeOfOverflow)
 	  SizeOfOverflow = size*sizeof(CELL) + sizeof(YAP_SEG_SIZE);

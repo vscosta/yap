@@ -10,7 +10,7 @@
 * File:		Regs.h							 *
 * mods:									 *
 * comments:	YAP abstract machine registers				 *
-* version:      $Id: Regs.h,v 1.13 2002-02-06 17:35:25 vsc Exp $	 *
+* version:      $Id: Regs.h,v 1.14 2002-03-08 06:33:16 vsc Exp $	 *
 *************************************************************************/
 
 
@@ -697,6 +697,9 @@ EXTERN inline void restore_B(void) {
 /* In this case we need to initialise the abstract registers */
 REGSTORE standard_regs;
 #endif /* PUSH_REGS */
+
+/******************* controlling debugging ****************************/
+extern int      creep_on;
 
 static inline UInt
 CalculateStackGap(void)
