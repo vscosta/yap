@@ -763,13 +763,20 @@ debugging :-
 	'$do_error'(instantiation_error,M:call(M:V)).
 '$creep'([M|'$execute_in_mod'(G,ModNum)]) :- !,
 	'$module_number'(Mod,ModNum),
-	'$creep'([Mod|G]).
+	'$clean_module_for_creep'(G,Mod,TrueMod,TrueG),
+	'$creep'([TrueMod|TrueG]).
 '$creep'([M|'$execute_within'(G)]) :- !,
-	'$creep'([M|G]).
+	'$clean_module_for_creep'(G,M,TrueMod),
+	'$creep'([TrueMod|TrueG]).
 '$creep'([M|'$last_execute_within'(G)]) :- !,
-	'$creep'([M|G]).
+	'$clean_module_for_creep'(G,M,TrueMod,TrueG),
+	'$creep'([TrueMod|TrueG]).
 '$creep'(G) :- '$direct_spy'(G).
 
+'$clean_module_for_creep'(M:G,_,TrueMod,TrueG) :- !,
+	'$clean_module_for_creep'(G,M,TrueMod,TrueG).
+'$clean_module_for_creep'(G,M,M,G).
+	
 '$trace'(P,'$!'(_),Mod,L,NC) :- !,
 	'$trace'(P,!,Mod,L,NC).
 '$trace'(P,G,Mod,L,NC) :-
@@ -984,23 +991,22 @@ debugging :-
 	arg(H,A1,A).
 
 '$new_deb_depth' :-
-	'$get_deb_depth'(0,D),
+	get0(user_input,C),
+	'$get_deb_depth'(C,D),
 	'$set_deb_depth'(D).
 
-'$get_deb_depth'(X0,XF) :-
-	get0(user_input,C),
-	'$get_depth_handle_char'(C,X0,XI),
-	'$post_process_depth'(XI, XF).
+'$get_deb_depth'(10,10) :-  !. % default depth is 0
+'$get_deb_depth'(C,XF) :-
+	'$get_deb_depth_char_by_char'(C,0,XF).
 
-'$post_process_depth'(0, 10) :- !.
-'$post_process_depth'(X, X).
-
-'$get_depth_handle_char'(10,X,X) :- !.
-'$get_depth_handle_char'(C,X0,XF) :-
-	 C >= "0", C =< "9", !,
+'$get_deb_depth_char_by_char'(10,X,X) :- !.
+'$get_deb_depth_char_by_char'(C,X0,XF) :-
+	C >= "0", C =< "9", !,
 	XI is X0*10+C-"0",
-	'$get_deb_depth'(XI,XF).
-'$get_depth_handle_char'(C,X,X) :- '$skipeol'(C).
+	get0(user_input,NC),
+	'$get_deb_depth_char_by_char'(NC,XI,XF).
+% reset when given garbage.
+'$get_deb_depth_char_by_char'(C,_,10) :- '$skipeol'(C).
 
 '$set_deb_depth'(D) :-
 	recorded('$print_options','$debugger'(L),R), !,
