@@ -1140,9 +1140,12 @@ Yap_InitStacks(int Heap,
 	    aux_delayed_release_load);
 #else /* Yap */
   Yap_InitMemory (Trail, Heap, Stack);
+#endif /* YAPOR || TABLING */
   AtomHashTableSize = MaxHash;
   HashChain = (AtomHashEntry *)Yap_AllocAtomSpace(sizeof(AtomHashEntry) * MaxHash);
-#endif /* YAPOR || TABLING */
+  if (HashChain == NULL) {
+    Yap_Error(FATAL_ERROR,MkIntTerm(0),"allocating initial atom table");
+  }
   for (i = 0; i < MaxHash; ++i) {
     INIT_RWLOCK(HashChain[i].AERWLock);
     HashChain[i].Entry = NIL;

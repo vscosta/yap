@@ -20,7 +20,7 @@
 table(M:X) :- !,
 	'$table'(X, M).
 table(X) :-
-	current_module(M),
+	'$current_module'(M),
 	'$table'(X, M).
 
 '$table'(X, _) :- var(X), !,
@@ -30,17 +30,24 @@ table(X) :-
 '$table'(M:A, _) :- !, '$table'(A, M).
 '$table'((A,B), M) :- !, '$table'(A, M), '$table'(B, M).
 '$table'(A/N, M) :- integer(N), atom(A), !,
-              functor(T,A,N), '$flags'(T,M,F,F),
-              (
-                X is F /\ 0x1991F880, X =:= 0, !, '$do_table'(T, M)
-              ;
-		'$do_error'(permission_error(modify,static_procedure,A/N),tabled(Mod:A/N))
-              ).
+	functor(P, A, N),
+	'$declare_tabled'(P, M).
 '$table'(X, _) :- write(user_error, '[ Error: '),
-            write(user_error, X),
-            write(user_error, ' is an invalid argument to table/1 ]'),
-            nl(user_error),
-            fail.
+        write(user_error, X),
+        write(user_error, ' is an invalid argument to table/1 ]'),
+        nl(user_error),
+        fail.
+
+'$declare_tabled'(P, M) :-
+	'$undefined'(P, M), !,
+	'$do_table'(P, M).
+'$declare_tabled'(P, M) :-
+	'$flags'(P,M,F,F),
+	X is F /\ 0x1991F880, X =:= 0, !,
+	'$do_table'(P, M).
+'$declare_tabled'(P, M) :-
+	functor(P, A, N),
+	'$do_error'(permission_error(modify,static_procedure,A/N),tabled(Mod:A/N)).
 
 abolish_trie(M:X)   :- !,
 	'$abolish_trie'(X, M).

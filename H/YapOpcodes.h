@@ -29,10 +29,13 @@
     OPCODE(sync                    ,ld),
 #endif /* YAPOR */
 #ifdef TABLING
-    OPCODE(table_try_me_single     ,ld),
     OPCODE(table_try_me            ,ld),
     OPCODE(table_retry_me          ,ld),
     OPCODE(table_trust_me          ,ld),
+    OPCODE(table_try_single        ,ld),
+    OPCODE(table_try	           ,ld),
+    OPCODE(table_retry	           ,ld),
+    OPCODE(table_trust             ,ld),
     OPCODE(table_new_answer        ,s),
     OPCODE(table_answer_resolution ,ld),
     OPCODE(table_completion        ,ld),

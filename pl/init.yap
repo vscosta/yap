@@ -131,6 +131,8 @@ system_mode(verbose,off) :- set_value('$verbose',off).
 
 :- module(user).
 
+:- current_module(X), write(X).
+
 :- multifile goal_expansion/3.
 
 :- dynamic_predicate(goal_expansion/3, logical).
@@ -156,6 +158,4 @@ library_directory(D) :-
 	getenv('YAPSHAREDIR', D).
 
 :- get_value(system_library_directory,D), assert(library_directory(D)).
-
-
 

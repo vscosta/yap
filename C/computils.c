@@ -624,6 +624,7 @@ static char *opformat[] =
 #endif /* YAPOR */
 #ifdef TABLING
   "table_new_answer",
+  "table_try_single\t%g\t%x",
 #endif /* TABLING */
 #ifdef TABLING_INNER_CUTS
   "clause_with_cut",

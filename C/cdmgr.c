@@ -151,13 +151,6 @@ IPred(PredEntry *ap)
 {
   yamop          *BaseAddr;
 
-#ifdef TABLING
-  if (is_tabled(ap)) {
-    ap->CodeOfPred = ap->cs.p_code.TrueCodeOfPred;
-    ap->OpcodeOfPred = ap->CodeOfPred->opc;
-    return;
-  }
-#endif /* TABLING */
 #ifdef DEBUG
   if (Yap_Option['i' - 'a' + 1]) {
     Term tmod = ModuleName[ap->ModuleOfPred];
@@ -235,7 +228,11 @@ RemoveMainIndex(PredEntry *ap)
   if (First != NULL && spied) {
     ap->OpcodeOfPred = Yap_opcode(_spy_pred);
     ap->cs.p_code.TrueCodeOfPred = ap->CodeOfPred = (yamop *)(&(ap->OpcodeOfPred)); 
-  } else if (ap->cs.p_code.NOfClauses > 1) {
+  } else if (ap->cs.p_code.NOfClauses > 1
+#ifdef TABLING
+	     ||ap->PredFlags & TabledPredFlag
+#endif
+	     ) {
     ap->OpcodeOfPred = INDEX_OPCODE;
     ap->CodeOfPred = ap->cs.p_code.TrueCodeOfPred = (yamop *)(&(ap->OpcodeOfPred)); 
   } else {
@@ -657,10 +654,9 @@ add_first_static(PredEntry *p, yamop *cp, int spy_flag)
 #endif /* YAPOR */
 #ifdef TABLING
     if (is_tabled(p)) {
-      pt->u.ld.te = p->TableOfPred; XXXXX
-      pt->opc = Yap_opcode(_table_try_me_single);
+      p->OpcodeOfPred = INDEX_OPCODE;
+      p->cs.p_code.TrueCodeOfPred = p->CodeOfPred = (yamop *)(&(p->OpcodeOfPred)); 
     }
-    else	
 #endif /* TABLING */
   }
   p->cs.p_code.TrueCodeOfPred = pt;
@@ -800,11 +796,6 @@ asserta_stat_clause(PredEntry *p, yamop *q, int spy_flag)
 #ifdef YAPOR
   PUT_YAMOP_LTT(q, YAMOP_LTT((yamop *)(p->cs.p_code.FirstClause)) + 1);
 #endif /* YAPOR */
-#ifdef TABLING
-  if (is_tabled(p)) XXX
-    q->opc = Yap_opcode(_table_try_me);    
-  else
-#endif /* TABLING */
   p->cs.p_code.FirstClause = q;
   p->cs.p_code.TrueCodeOfPred = q;
   if (p->PredFlags & SpiedPredFlag) {

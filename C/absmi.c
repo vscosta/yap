@@ -1139,7 +1139,7 @@ Yap_absmi(int inp)
 	  UNLOCK(cl->ClLock);
 	}
 #else
-	if (B->cp_tr[-1] == CLREF_TO_TRENTRY(cl) &&
+	if (TrailTerm(B->cp_tr-1) == CLREF_TO_TRENTRY(cl) &&
 	    B->cp_tr > B->cp_b->cp_tr) {
 	  cl->ClFlags &= ~InUseMask;
 	  TR = --B->cp_tr;
@@ -1419,7 +1419,14 @@ Yap_absmi(int inp)
 
       /* trust_fail                       */
       BOp(trust_fail, e);
+#ifdef YAPOR
+      CUT_prune_to((choiceptr) d0);
+#else
       B = B->cp_b;
+#endif	/* YAPOR */
+#ifdef TABLING
+      abolish_incomplete_subgoals(B);
+#endif /* TABLING */
       goto fail;
       ENDBOp();
 
@@ -1601,7 +1608,6 @@ Yap_absmi(int inp)
 	    if ((ADDR) pt1 >= Yap_TrailBase)
 #endif /* SBA */
 	      {
-		pt1 = (tr_fr_ptr) pt1;
 		goto failloop;
 	      }
 #endif /* FROZEN_STACKS */

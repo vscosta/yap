@@ -180,10 +180,7 @@ module(N) :-
 	'$current_module'(_,N),
 	get_value('$consulting_file',F),
 	( recordzifnot('$module','$module'(N),_) -> true; true),
-	( recorded('$module','$module'(F,N,[]),_) ->
-	  true ;
-	  recorda('$module','$module'(F,N,[]),_)
-	).
+	( recordaifnot('$module','$module'(F,N,[]),_) -> true, true).
 module(N) :-
 	'$do_error'(type_error(atom,N),module(N)).
 

@@ -1550,10 +1550,13 @@ add_info(ClauseDef *clause, UInt regno)
     case _sync:
 #endif
 #ifdef TABLING
-    case _table_try_me_single:
+    case _table_try_single:
     case _table_try_me:
     case _table_retry_me:
     case _table_trust_me:
+    case _table_try:
+    case _table_retry:
+    case _table_trust:
     case _table_answer_resolution:
     case _table_completion:
 #endif
@@ -1597,6 +1600,7 @@ add_info(ClauseDef *clause, UInt regno)
     case _getwork_first_time:
 #endif
 #ifdef TABLING
+    case _table_new_answer:
     case _trie_do_var:
     case _trie_trust_var:
     case _trie_try_var:
@@ -2335,7 +2339,7 @@ emit_retry(ClauseDef *cl, PredEntry *ap, int clauses)
 }
 
 static compiler_vm_op
-emit_optry(int var_group, int first, int clauses, int clleft)
+emit_optry(int var_group, int first, int clauses, int clleft, PredEntry *ap)
 {
   /* var group */
   if (var_group || clauses == 0) {
@@ -2347,8 +2351,13 @@ emit_optry(int var_group, int first, int clauses, int clleft)
       return trust_op;
     }
   } else if (clleft == 0) {
-    /* last group */
-    return try_op;
+    if (ap->PredFlags & TabledPredFlag && !first) {
+      /* we never actually get to remove the last choice-point in this case */
+      return retry_op;
+    } else {
+      /* last group */
+      return try_op;
+    }
   } else {
     /* nonvar group */
     return try_in_op;
@@ -2359,7 +2368,7 @@ emit_optry(int var_group, int first, int clauses, int clleft)
 static void
 emit_try(ClauseDef *cl, PredEntry *ap, int var_group, int first, int clauses, int clleft, UInt nxtlbl)
 {
-  compiler_vm_op comp_op = emit_optry(var_group, first, clauses, clleft);
+  compiler_vm_op comp_op = emit_optry(var_group, first, clauses, clleft, ap);
   Yap_emit(comp_op, (CELL)(cl->CurrentCode), ((clauses+clleft) << 1) | has_cut(cl->CurrentCode) );
 }
 
@@ -2635,6 +2644,25 @@ count_funcs(GroupDef *grp)
 static UInt
 emit_single_switch_case(ClauseDef *min, PredEntry *ap, int first, int clleft, UInt nxtlbl)
 {
+#ifdef TABLING
+  if (ap->PredFlags & TabledPredFlag) {
+    /* we have two differences with tabling:
+       1. we cannot allow straight jumps to clauses, otherwise thetabled
+         would never get to be created.
+       2. we don't clean trust at the very end of computation.
+    */
+    if (clleft == 0) {
+      UInt lbl = new_label();
+      Yap_emit(label_op, lbl, Zero);
+      if (first) {
+	Yap_emit(table_try_single_op, (UInt)(min->CurrentCode), has_cut(cl->CurrentCode));
+      } else {
+	Yap_emit(trust_op, (UInt)(min->CurrentCode), has_cut(cl->CurrentCode));
+      }
+      return lbl;
+    }
+  }
+#endif
   return (UInt)(min->CurrentCode);
 }
 
@@ -2834,6 +2862,13 @@ emit_protection_choicepoint(int first, int clleft, UInt nxtlbl, PredEntry *ap)
     /* !first */
     if (clleft) {
       Yap_emit(retryme_op, nxtlbl, (clleft << 1));
+    } else if ((ap->PredFlags & TabledPredFlag)) {
+      /*
+	we cannot get rid of the choice-point for tabled predicates, all
+	kinds of hell would follow, so we just keep it around: not nice,
+	but should work.
+      */
+      Yap_emit(retryme_op, (CELL)TRUSTFAILCODE, 0);
     } else {
       Yap_emit(trustme_op, 0, 0);
     }
@@ -6178,7 +6213,7 @@ Yap_FollowIndexingCode(PredEntry *ap, yamop *ipc, Term t1, Term tb, Term tr, yam
 	  UNLOCK(cl->ClLock);
 	}
 #else
-	if (B->cp_tr[-1] == CLREF_TO_TRENTRY(cl) &&
+	if (TrailTerm(B->cp_tr-1) == CLREF_TO_TRENTRY(cl) &&
 	    B->cp_tr > B->cp_b->cp_tr) {
 	  cl->ClFlags &= ~InUseMask;
 	  /* clear the entry from the trail */

@@ -189,7 +189,7 @@
 
 
 
-  PBOp(table_try_me_single, ld)
+  PBOp(table_try_single, ld)
     tab_ent_ptr tab_ent;
     sg_node_ptr sg_node;
     sg_fr_ptr sg_fr;
@@ -221,7 +221,7 @@
 #endif /* TABLE_LOCK_LEVEL */
       LOCAL_top_sg_fr = sg_fr;
       store_generator_node(YENV, PREG->u.ld.s, COMPLETION, sg_fr);
-      PREG = NEXTOP(PREG, ld);
+      PREG = PREG->u.ld.d;
       PREFETCH_OP(PREG);
       allocate_environment(YENV);
       GONext();
@@ -386,6 +386,115 @@
   ENDPBOp();
 
 
+  PBOp(table_try, ld)
+    tab_ent_ptr tab_ent;
+    sg_node_ptr sg_node;
+    sg_fr_ptr sg_fr;
+    CELL *Yaddr;
+
+    Yaddr = YENV;
+    check_trail();
+    tab_ent = PREG->u.ld.te;
+#ifdef TABLE_LOCK_AT_ENTRY_LEVEL
+    LOCK(TabEnt_lock(tab_ent));
+#endif /* TABLE_LOCK_LEVEL */
+    sg_node = subgoal_search(tab_ent, PREG->u.ld.s, &Yaddr);
+    YENV = Yaddr;
+#if defined(TABLE_LOCK_AT_NODE_LEVEL)
+    LOCK(TrNode_lock(sg_node));
+#elif defined(TABLE_LOCK_AT_WRITE_LEVEL)
+    LOCK_TABLE(sg_node);
+#endif /* TABLE_LOCK_LEVEL */
+    if (TrNode_sg_fr(sg_node) == NULL) {
+      /* new tabled subgoal */
+      new_subgoal_frame(sg_fr, sg_node, PREG->u.ld.s, LOCAL_top_sg_fr);
+      TrNode_sg_fr(sg_node) = (sg_node_ptr) sg_fr;
+#if defined(TABLE_LOCK_AT_ENTRY_LEVEL)
+      UNLOCK(TabEnt_lock(tab_ent));
+#elif defined(TABLE_LOCK_AT_NODE_LEVEL)
+      UNLOCK(TrNode_lock(sg_node));
+#elif defined(TABLE_LOCK_AT_WRITE_LEVEL)
+      UNLOCK_TABLE(sg_node);
+#endif /* TABLE_LOCK_LEVEL */
+      LOCAL_top_sg_fr = sg_fr;
+      store_generator_node(YENV, PREG->u.ld.s, NEXTOP(PREG,ld), sg_fr);
+      PREG = PREG->u.ld.d;
+      PREFETCH_OP(PREG);
+      allocate_environment(YENV);
+      GONext();
+    } else {
+      /* tabled subgoal not new */
+#if defined(TABLE_LOCK_AT_ENTRY_LEVEL)
+      UNLOCK(TabEnt_lock(tab_ent));
+#elif defined(TABLE_LOCK_AT_NODE_LEVEL)
+      UNLOCK(TrNode_lock(sg_node));
+#elif defined(TABLE_LOCK_AT_WRITE_LEVEL)
+      UNLOCK_TABLE(sg_node);
+#endif /* TABLE_LOCK_LEVEL */
+      sg_fr = (sg_fr_ptr) TrNode_sg_fr(sg_node);
+      LOCK(SgFr_lock(sg_fr));
+      if (SgFr_state(sg_fr)) {
+        /* subgoal completed */
+        if (SgFr_state(sg_fr) == complete)
+          update_answer_trie(sg_fr);
+        UNLOCK(SgFr_lock(sg_fr));
+        if (SgFr_first_answer(sg_fr) == NULL) {
+          /* no answers --> fail */
+          goto fail;
+        } else if (SgFr_first_answer(sg_fr) == SgFr_answer_trie(sg_fr)) {
+          /* yes answer --> procceed */
+          PREG = (yamop *) CPREG;
+          PREFETCH_OP(PREG);
+          YENV = ENV;
+          GONext();
+        } else {
+          /* answers -> load first answer */
+          PREG = (yamop *) TrNode_child(SgFr_answer_trie(sg_fr));
+          PREFETCH_OP(PREG);
+          *--YENV = 0;  /* vars_arity */
+          *--YENV = 0;  /* heap_arity */
+          GONext();
+        }
+      } else {
+        /* subgoal not completed */
+        choiceptr leader_cp;
+        int leader_dep_on_stack;
+        find_dependency_node(sg_fr, leader_cp, leader_dep_on_stack);
+        UNLOCK(SgFr_lock(sg_fr));
+        find_leader_node(leader_cp, leader_dep_on_stack);
+        store_consumer_node(YENV, sg_fr, leader_cp, leader_dep_on_stack);
+#ifdef OPTYAP_ERRORS
+        if (PARALLEL_EXECUTION_MODE) {
+          choiceptr aux_cp;
+          aux_cp = B;
+          while (YOUNGER_CP(aux_cp, LOCAL_top_cp_on_stack))
+            aux_cp = aux_cp->cp_b;
+          if (aux_cp->cp_or_fr != DepFr_top_or_fr(LOCAL_top_dep_fr))
+            OPTYAP_ERROR_MESSAGE("Error on DepFr_top_or_fr (table_try_me)");
+          aux_cp = B;
+          while (YOUNGER_CP(aux_cp, DepFr_leader_cp(LOCAL_top_dep_fr)))
+            aux_cp = aux_cp->cp_b;
+          if (aux_cp != DepFr_leader_cp(LOCAL_top_dep_fr))
+            OPTYAP_ERROR_MESSAGE("Error on DepFr_leader_cp (table_try_me)");
+        }
+#endif /* OPTYAP_ERRORS */
+        goto answer_resolution;
+      }
+    }
+  ENDPBOp();
+
+
+
+  Op(table_retry, ld)
+    restore_generator_node(B, PREG->u.ld.s, NEXTOP(PREG,ld));
+    YENV = (CELL *) PROTECT_FROZEN_B(B);
+    set_cut(YENV, B->cp_b);
+    SET_BB(NORM_CP(YENV));
+    allocate_environment(YENV);
+    PREG = PREG->u.ld.d;
+    GONext();
+  ENDOp();
+
 
   Op(table_retry_me, ld)
     restore_generator_node(B, PREG->u.ld.s, PREG->u.ld.d);
@@ -409,6 +518,15 @@
     GONext();
   ENDOp();
 
+  Op(table_trust, ld)
+    restore_generator_node(B, PREG->u.ld.s, COMPLETION);
+    YENV = (CELL *) PROTECT_FROZEN_B(B);
+    set_cut(YENV, B->cp_b);
+    SET_BB(NORM_CP(YENV));
+    allocate_environment(YENV);
+    PREG = PREG->u.ld.d;
+    GONext();
+  ENDOp();
 
 
   PBOp(table_new_answer, s)

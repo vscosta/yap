@@ -1490,9 +1490,9 @@ mark_choicepoints(register choiceptr gc_B, tr_fr_ptr saved_TR, int very_verbose)
 	  op_numbers caller_op = Yap_op_from_opcode(ENV_ToOp(gc_B->cp_cp));
 	  /* first condition  checks if this was a meta-call */
 	  if ((caller_op != _call  && caller_op != _fcall) || pe == NULL) {
-	    fprintf(Yap_stderr,"[GC]       marked %d (%s)\n", total_marked, op_names[opnum]);
+	    fprintf(Yap_stderr,"[GC]       marked %ld (%s)\n", total_marked, op_names[opnum]);
 	  } else
-	    fprintf(Yap_stderr,"[GC]       %s/%d marked %d (%s)\n", RepAtom(NameOfFunctor(pe->FunctorOfPred))->StrOfAE, pe->ArityOfPE, total_marked, op_names[opnum]);
+	    fprintf(Yap_stderr,"[GC]       %s/%d marked %ld (%s)\n", RepAtom(NameOfFunctor(pe->FunctorOfPred))->StrOfAE, pe->ArityOfPE, total_marked, op_names[opnum]);
 	}
 	break;
       case _trie_retry_var:
@@ -1505,7 +1505,7 @@ mark_choicepoints(register choiceptr gc_B, tr_fr_ptr saved_TR, int very_verbose)
       case _trie_trust_list:
       case _trie_retry_struct:
       case _trie_trust_struct:
-	fprintf(Yap_stderr,"[GC]       marked %d (%s)\n", total_marked, op_names[opnum]);
+	fprintf(Yap_stderr,"[GC]       marked %ld (%s)\n", total_marked, op_names[opnum]);
 	break;
 #endif
       default:
@@ -1640,6 +1640,8 @@ mark_choicepoints(register choiceptr gc_B, tr_fr_ptr saved_TR, int very_verbose)
 	break;
       case _table_retry_me:
       case _table_trust_me:
+      case _table_retry:
+      case _table_trust:
 	{
 	  register gen_cp_ptr gcp = GEN_CP(gc_B);	  
 	  int nargs = rtp->u.ld.s;
@@ -2312,6 +2314,8 @@ sweep_choicepoints(choiceptr gc_B)
 	break;
     case _table_retry_me:
     case _table_trust_me:
+    case _table_retry:
+    case _table_trust:
       {
 	register gen_cp_ptr gcp = GEN_CP(gc_B);
 	int nargs;

@@ -138,6 +138,7 @@ typedef enum compiler_op {
 #endif /* YAPOR */
 #ifdef TABLING
   table_new_answer_op,
+  table_try_single_op,
 #endif /* TABLING */
 #ifdef TABLING_INNER_CUTS
   clause_with_cut_op,

@@ -1245,6 +1245,9 @@ a_try(op_numbers opcode, CELL lab, CELL opr)
     code_p->u.ld.d = emit_a(lab);
     code_p->u.ld.s = emit_count(opr);
     code_p->u.ld.p = CurrentPred;
+#ifdef TABLING
+    code_p->u.ld.te = CurrentPred->TableOfPred;
+#endif
 #ifdef YAPOR
     INIT_YAMOP_LTT(code_p, nofalts);
     if (hascut)
@@ -2016,9 +2019,11 @@ a_f2(int var)
 
 #define TRYOP(G,P)   (IPredArity<5 ? (op_numbers)((int)(P)+(IPredArity*3)) : (G))
 #ifdef YAPOR
-#define TRYCODE(G,P) a_try(TRYOP(G,P), Unsigned(code_addr) + label_offset[cpc->rnd1], IPredArity, cpc->rnd2 >> 1, cpc->rnd2 & 1);
+#define TRYCODE(G,P) a_try(TRYOP(G,P), Unsigned(code_addr) + label_offset[cpc->rnd1], IPredArity, cpc->rnd2 >> 1, cpc->rnd2 & 1)
+#define TABLE_TRYCODE(G) a_try(G, (CELL)emit_ilabel(cpc->rnd1), IPredArity, cpc->rnd2 >> 1, cpc->rnd2 & 1)
 #else
-#define TRYCODE(G,P) a_try(TRYOP(G,P), Unsigned(code_addr) + label_offset[cpc->rnd1], IPredArity);
+#define TRYCODE(G,P) a_try(TRYOP(G,P), Unsigned(code_addr) + label_offset[cpc->rnd1], IPredArity)
+#define TABLE_TRYCODE(G) a_try(G, (CELL)emit_ilabel(cpc->rnd1), IPredArity)
 #endif /* YAPOR */
 
 static yamop *
@@ -2032,6 +2037,9 @@ do_pass(void)
 #endif	/* YAPOR */
   int log_update;
   int dynamic;
+#ifdef TABLING
+  int tabled;
+#endif
   int ystop_found = FALSE;
   union clause_obj *cl_u;
 
@@ -2043,6 +2051,9 @@ do_pass(void)
   /* Space while for the clause flags */
   log_update = CurrentPred->PredFlags & LogUpdatePredFlag;
   dynamic = CurrentPred->PredFlags & DynamicPredFlag;
+#ifdef TABLING
+  tabled = CurrentPred->PredFlags & TabledPredFlag;
+#endif
   if (assembling != ASSEMBLING_INDEX) {
     if (log_update) {
       if (pass_no) {
@@ -2127,6 +2138,9 @@ do_pass(void)
 #ifdef TABLING
     case table_new_answer_op:
       a_n(_table_new_answer, (int) cpc->rnd2);
+      break;
+    case table_try_single_op:
+      a_gl(_table_try_single);
       break;
 #endif /* TABLING */
 #ifdef TABLING_INNER_CUTS
@@ -2359,35 +2373,65 @@ do_pass(void)
       a_deallocate();
       break;
     case tryme_op:
-      TRYCODE(_try_me, _try_me0);
+#ifdef TABLING
+      if (tabled)
+	TABLE_TRYCODE(_table_try_me);
+      else
+#endif
+	TRYCODE(_try_me, _try_me0);
       break;
     case retryme_op:
-      TRYCODE(_retry_me, _retry_me0);
+#ifdef TABLING
+      if (tabled)
+	TABLE_TRYCODE(_table_retry_me);
+      else
+#endif
+	TRYCODE(_retry_me, _retry_me0);
       break;
     case trustme_op:
       if (log_update && assembling == ASSEMBLING_INDEX) {
-	a_cl(_trust_logical_pred);
+	a_gl(_trust_logical_pred);
       }
-      TRYCODE(_trust_me, _trust_me0);
+#ifdef TABLING
+      if (tabled)
+	TABLE_TRYCODE(_table_trust_me);
+      else
+#endif
+	TRYCODE(_trust_me, _trust_me0);
       break;
     case enter_lu_op:
       a_lucl(_enter_lu_pred);
       break;
     case try_op:
-      a_gl(_try_clause);
+#ifdef TABLING
+      if (tabled)
+	a_gl(_table_try);
+      else
+#endif
+	a_gl(_try_clause);
       break;
     case retry_op:
       if (log_update) {
 	add_clref(cpc->rnd1);
       }
-      a_gl(_retry);
+#ifdef TABLING
+      if (tabled)
+	a_gl(_table_retry);
+      else
+#endif
+	a_gl(_retry);
       break;
     case trust_op:
       if (log_update) {
 	add_clref(cpc->rnd1);
 	a_cl(_trust_logical_pred);
       }
-      a_gl(_trust);
+#ifdef TABLING
+      if (tabled)
+	a_gl(_table_trust);
+      else
+#endif
+	a_gl(_trust);
       break;
     case try_in_op:
       a_il(_try_in);

@@ -1789,10 +1789,8 @@ record_lu(PredEntry *pe, Term t, int position)
   LogUpdClause *cl;
   int needs_vars = FALSE;
 
-  WRITE_LOCK(pe->PRWLock);
   ipc = NEXTOP(((LogUpdClause *)NULL)->ClCode,e);
   if ((x = (DBTerm *)CreateDBStruct(t, NULL, 0, &needs_vars, (UInt)ipc)) == NULL) {
-    WRITE_UNLOCK(pe->PRWLock);
     return NULL; /* crash */
   }
   cl = (LogUpdClause *)((ADDR)x-(UInt)ipc);
@@ -1812,6 +1810,7 @@ record_lu(PredEntry *pe, Term t, int position)
     ipc->opc = Yap_opcode(_copy_idb_term);
   else
     ipc->opc = Yap_opcode(_unify_idb_term);
+  WRITE_LOCK(pe->PRWLock);
   Yap_add_logupd_clause(pe, cl, (position == MkFirst ? 2 : 0));
   WRITE_UNLOCK(pe->PRWLock);
   return cl;
@@ -1829,7 +1828,6 @@ p_rcda(void)
   if (!IsVarTerm(Deref(ARG3)))
     return (FALSE);
   pe = find_lu_entry(t1);
-  WRITE_LOCK(pe->PRWLock);
  restart_record:
   Yap_Error_Size = 0;
   if (pe) {
@@ -4366,7 +4364,12 @@ p_instance_module(void)
   Term t1 = Deref(ARG1);
   DBRef dbr;
 
-  if (IsVarTerm(t1) || !IsDBRefTerm(t1)) {
+  if (IsVarTerm(t1)) {
+    return FALSE;
+  }
+  if (IsDBRefTerm(t1)) {
+    dbr = DBRefOfTerm(t1);
+  } else {
     if (IsIntegerTerm(t1)) 
       dbr = (DBRef)IntegerOfTerm(t1);
     else
@@ -4375,8 +4378,6 @@ p_instance_module(void)
     if (dbr > (DBRef)Yap_HeapBase && dbr < (DBRef)HeapTop && dbr->id != FunctorDBRef) {
       return FALSE;
     }
-  } else {
-    dbr = DBRefOfTerm(t1);
   }
   if (dbr->Flags & LogUpdMask) {
     LogUpdClause *cl = (LogUpdClause *)dbr;
