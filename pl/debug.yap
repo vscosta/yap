@@ -521,7 +521,8 @@ debugging :-
 	('$undefined'('$set_depth_limit'(_),prolog) -> true ; '$set_depth_limit'(D)),
         CP is '$last_choice_pt',
 	(
-	    '$fetch_clause'(G,M,Cl,Clause),
+	    '$nth_instancep'(M:G,Cl,R),
+	    instance(R,(G:-Clause)),
 	    (Clause = true -> true ; '$call'(Clause,CP,Clause,M) )
 	;
 	     Next is Cl+1, '$set_value'(spy_cl,Next), fail
@@ -576,10 +577,15 @@ debugging :-
 	('$undefined'('$set_depth_limit'(_),prolog) -> true ; '$set_depth_limit'(D)),
         CP is '$last_choice_pt',
 	(
-	    '$fetch_clause'(G,M,Cl,Clause),
-	    (Clause = true -> true ;
-             '$creep_call'(Clause,M,CP)
-            )
+	  '$nth_instancep'(M:G,Cl,R),
+	  instance(R,(G:-Clause)),
+	  (
+	    Clause = true
+	  ->
+	      true
+	  ;
+	    '$creep_call'(Clause,M,CP)
+	  )
 	;
 	    Next is Cl+1, '$set_value'(spy_cl,Next), fail
         ).
@@ -637,21 +643,6 @@ debugging :-
 '$creep_execute'(G,M,Cl) :-
 	'$creep',
 	'$execute'(G,M,Cl).
-
-'$fetch_clause'(G,M,ClNum,Body) :-
-	% I'd like an easier way to keep a counter
-	'$set_value'('$fetching_clauses',1),
-	'$recordedp'(M:G,Clause,_),
-	'$get_value'('$fetching_clauses',Num),
-	( Num = ClNum ->
-	    !,
-	    Clause = (G :- Body)
-	;
-	    Num1 is Num+1,
-	    '$set_value'('$fetching_clauses',Num1),
-	    fail
-	).
-
 
 %'$creep_call'(G,_) :- write(user_error,'$creepcall'(G)), nl(user_error), fail.
 '$creep_call'(V,M,_) :- var(V), !,

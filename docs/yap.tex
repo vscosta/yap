@@ -4744,7 +4744,25 @@ program. Its head and body are respectively unified with @var{H} and
 @var{true}.
 
 This predicate is applicable to static procedures compiled with
-@code{source} active, and to all the dynamic procedures.
+@code{source} active, and to all dynamic procedures.
+
+@item clause(+@var{H},@var{B},-@var{R})
+@findex clause/3
+@saindex clause/3
+@caindex clause/3
+The same as @code{clause/2}, plus @var{R} is unified with the
+reference to the clause in the database. You can use @code{instance/2}
+to access the reference's value. Note that you may not use
+@code{erase/1} on the reference on static procedures.
+
+@item nth_clause(+@var{H},@var{I},-@var{R})
+@findex nth_clause/3
+@saindex nth_clause/3
+@caindex nth_clause/3
+Find the @var{I}th clause in the predicate defining @var{H}, and give
+a reference to the clause. Alternatively, if the reference @var{R} is
+given the head @var{H} is unified with a description of the predicate
+and @var{I} is bound to its position.
 
 @end table
 
@@ -4856,6 +4874,9 @@ true if the predicate is public; note that all dynamic predicates are
 public.
 @item source
 true if source for the predicate is available.
+@item number_of_clauses(@var{ClauseCount})
+Number of clauses in the predicate definition. Always one if external
+or built-in.
 @end table
 
 @end table
@@ -4904,15 +4925,8 @@ declared dynamic.
 @saindex retract/2
 @caindex retract/2
  Erases from the program the clause @var{C} whose 
-database reference is @var{R}.
+database reference is @var{R}. The predicate must be dynamic.
 
-
-@item clause(+H,B,-@var{R})
-@findex clause/3
-@saindex clause/3
-@caindex clause/3
- The same as @code{clause(H,B)} but @var{R} is unified with  the
-reference to the clause in the database.
 
 @end table
 
@@ -4976,6 +4990,16 @@ elements of the internal data-base that match the key.
 @item @var{R} may be given, if so returning the key and element that
 match the reference.
 @end itemize
+
+@item nth_instance(?@var{K},?@var{Index},@var{T},?@var{R})
+@findex nth_recorded/3
+@saindex nth_recorded/3
+@cnindex nth_recorded/3
+Fetches the @var{Index}nth entry in the internal database under the
+key @var{K}. Entries are numbered from one. If the key @var{K} are the
+@var{Index} are bound, a reference is unified with @var{R}. Otherwise,
+the reference @var{R} must be given, and the term the system will find
+the matching key and index. 
 
 @item erase(+@var{R})
 @findex erase/1
@@ -5671,31 +5695,30 @@ newer implementation.
 @item Currently only information on entries and retries to a predicate
 are maintained. This may change in the future.
 @item As an example, the following user-level program gives a list of
-the most often called procedures in a program:
+the most often called procedures in a program. The procedure
+@code{list_profile} shows all procedures, irrespective of module, and
+the procedure @code{list_profile/1} shows the procedures being used in
+a specific module.
 @example
 list_profile :-
         % get number of calls for each profiled procedure
-        findall(D-P,profile_data(P,calls,D),LP),
-        % sort them
-        sort(LP,SLP),
+        setof(D-[M:P|D1],(current_module(M),profile_data(M:P,calls,D),profile_data(M:P,retries,D1)),LP),
         % output so that the most often called
         % predicates will come last:
-        write_profile_data(SLP).
+        write_profile_data(LP).
 
 list_profile(Module) :-
         % get number of calls for each profiled procedure
-        findall(D-P,profile_data(Module:P,calls,D),LP),
-        % sort them
-        sort(LP,SLP),
+        setof(D-[Module:P|D1],(profile_data(Module:P,calls,D),profile_data(Module:P,retries,D1)),LP),
         % output so that the most often called
         % predicates will come last:
-        write_profile_data(SLP).
+        write_profile_data(LP).
 
 write_profile_data([]).
-write_profile_data([D-P|SLP]) :-
+write_profile_data([D-[M:P|R]|SLP]) :-
         % swap the two calls if you want the most often
         %  called predicates first.
-        format('~w: ~w~n', [P,D]),
+        format('~a:~w: ~32+~t~d~12+~t~d~12+~n', [M,P,D,R]),
         write_profile_data(SLP).
 @end example
 @end itemize
@@ -13630,9 +13653,6 @@ Prolog implements Unix-like escape sequences.
 @item YAP implements @code{initialization/1} as per the ISO
 standard. Use @code{prolog_initialization/1} for the SICStus Prolog
 compatible built-in.
-
-@item YAP does not implement the tabbing primitives in
-@code{format/2} and @code{format/3}.
 
 @item Prolog flags are different in SICStus Prolog and in YAP.
 

@@ -1467,7 +1467,7 @@ p_number_of_clauses(void)
       ncl++;
   }
   READ_UNLOCK(RepPredProp(pe)->PRWLock);
-  t = MkIntTerm(ncl);
+  t = MkIntegerTerm(ncl);
   return (Yap_unify_constant(ARG3, t));
 }
 

@@ -540,57 +540,6 @@ unknown(V0,V) :-
 	[P,M,Na,Ar]),
 	fail.
 
-predicate_property(Mod:Pred,Prop) :- !,
-	'$predicate_property2'(Pred,Prop,Mod).
-predicate_property(Pred,Prop) :- 
-	'$current_module'(Mod),
-	'$predicate_property2'(Pred,Prop,Mod).
-
-'$predicate_property2'(Pred,Prop,M) :- var(Pred), !,
-	'$generate_all_preds_from_mod'(Pred, SourceMod, M),
-	'$predicate_property'(Pred,SourceMod,M,Prop).
-'$predicate_property2'(M:Pred,Prop,_) :- !,
-	'$predicate_property2'(Pred,Prop,M).
-'$predicate_property2'(Pred,Prop,Mod) :- 
-	'$pred_exists'(Pred,Mod), !,
-	'$predicate_property'(Pred,Mod,Mod,Prop).
-'$predicate_property2'(Pred,Prop,Mod) :- 
-	functor(Pred, N, K),
-	'$recorded'('$import','$import'(M,Mod,N,K),_),
-	'$predicate_property'(Pred,M,Mod,Prop).
-
-'$generate_all_preds_from_mod'(Pred, M, M) :-
-	'$current_predicate'(M,Na,Ar),
-	functor(Pred, Na, Ar).
-'$generate_all_preds_from_mod'(Pred, SourceMod, Mod) :-
-	'$recorded'('$import','$import'(SourceMod,Mod,N,K),_),
-	functor(Pred, N, K).
-
-
-'$predicate_property'(P,M,_,built_in) :- 
-	'$system_predicate'(P,M), !.
-'$predicate_property'(P,M,_,source) :- 
-	( '$recordedp'(M:P,_,_) -> true ; false).
-'$predicate_property'(P,M,_,dynamic) :-
-	'$is_dynamic'(P,M).
-'$predicate_property'(P,M,_,static) :-
-	\+ '$is_dynamic'(P,M),
-	\+ '$undefined'(P,M).
-'$predicate_property'(P,M,_,meta_predicate(P)) :-
-	functor(P,Na,Ar),
-	'$meta_predicate'(M,Na,Ar,P).
-'$predicate_property'(P,M,_,multifile) :-
-	'$is_multifile'(P,M).
-'$predicate_property'(P,Mod,M,imported_from(Mod)) :-
-	functor(P,N,K),
-	'$recorded'('$import','$import'(Mod,M,N,K),_).
-'$predicate_property'(P,M,_,public) :-
-	'$is_public'(P,M).
-'$predicate_property'(P,M,M,exported) :-
-	functor(P,N,A),
-	'$recorded'('$module','$module'(_TFN,M,Publics),_),
-	'$member'(N/A,Publics), !.	/* defined in modules.yap */
-
 %%% Some "dirty" predicates
 
 % Only efective if yap compiled with -DDEBUG

@@ -46,8 +46,6 @@ profile_data(P, Parm, Data) :-
 	'$profile_info'(M, P, Stats),
 	'$profile_say'(Stats, Parm, Data).
 
-
-
 '$profile_say'('$profile'(Entries, _, _), calls, Entries).
 '$profile_say'('$profile'(_, _, Backtracks), retries, Backtracks).
 

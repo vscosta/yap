@@ -230,36 +230,61 @@ assert(C,R) :-
 	'$assert_dynamic'(C,M,last,R,assert(C,R)).
 
 clause(M:P,Q) :- !,
-	'$clause'(P,M,Q).
+	'$clause'(P,M,Q,_).
 clause(V,Q) :-
 	'$current_module'(M),
-	'$clause'(V,M,Q).
-
-'$clause'(V,M,Q) :- var(V), !, 
-	'$do_error'(instantiation_error,M:clause(V,Q)).
-'$clause'(C,M,Q) :- number(C), !,
-	'$do_error'(type_error(callable,C),M:clause(C,Q)).
-'$clause'(R,M,Q) :- db_reference(R), !,
-	'$do_error'(type_error(callable,R),M:clause(R,Q)).
-'$clause'(M:P,_,Q) :- !,
-	'$clause'(P,M,Q).
-'$clause'(P,Mod,Q) :- '$is_dynamic'(P, Mod), !,
-	 '$recordedp'(Mod:P,(P:-Q),_). 
-'$clause'(P,M,Q) :-
-	'$some_recordedp'(M:P), !,
-	'$recordedp'(M:P,(P:-Q),_).
-'$clause'(P,M,Q) :-
-	( '$system_predicate'(P,M) -> true ;
-	    '$number_of_clauses'(P,M,N), N > 0 ),
-	functor(P,Name,Arity),
-	'$do_error'(permission_error(access,private_procedure,Name/Arity),
-	      clause(M:P,Q)).
+	'$clause'(V,M,Q,R).
 
 clause(M:P,Q,R) :- !,
 	'$clause'(P,M,Q,R).
 clause(V,Q,R) :-
 	'$current_module'(M),
 	'$clause'(V,M,Q,R).
+
+'$clause'(V,M,Q,_) :- var(V), !, 
+	'$do_error'(instantiation_error,M:clause(V,Q)).
+'$clause'(C,M,Q,_) :- number(C), !,
+	'$do_error'(type_error(callable,C),M:clause(C,Q)).
+'$clause'(R,M,Q,_) :- db_reference(R), !,
+	'$do_error'(type_error(callable,R),M:clause(R,Q)).
+'$clause'(M:P,_,Q,R) :- !,
+	'$clause'(P,M,Q,R).
+'$clause'(P,M,Q,R) :-
+	'$some_recordedp'(M:P), !,
+	'$recordedp'(M:P,(P:-Q),R).
+'$clause'(P,M,Q,_) :-
+	( '$system_predicate'(P,M) -> true ;
+	    '$number_of_clauses'(P,M,N), N > 0 ),
+	functor(P,Name,Arity),
+	'$do_error'(permission_error(access,private_procedure,Name/Arity),
+	      clause(M:P,Q)).
+
+nth_clause(P,I,R) :- nonvar(R), !,
+	'$nth_instancep'(P,I,R).
+nth_clause(M:V,I,R) :- !,
+	'$nth_clause'(V,M,I,R).
+nth_clause(V,I,R) :-
+	'$current_module'(M),
+	'$nth_clause'(V,M,I,R).
+
+
+'$nth_clause'(V,M,I,R) :- var(V), !, 
+	'$do_error'(instantiation_error,M:nth_clause(V,I,R)).
+'$nth_clause'(C,M,I,R) :- number(C), !,
+	'$do_error'(type_error(callable,C),M:nth_clause(C,I,R)).
+'$nth_clause'(R,M,I,R) :- db_reference(R), !,
+	'$do_error'(type_error(callable,R),M:nth_clause(R,I,R)).
+'$nth_clause'(M:P,_,I,R) :- !,
+	'$nth_clause'(P,M,I,R).
+'$nth_clause'(P,M,I,R) :-
+	'$some_recordedp'(M:P), !,
+	'$nth_instancep'(M:P,I,R).
+'$nth_clause'(P,M,I,R) :-
+	( '$system_predicate'(P,M) -> true ;
+	    '$number_of_nth_clauses'(P,M,N), N > 0 ),
+	functor(P,Name,Arity),
+	'$do_error'(permission_error(access,private_procedure,Name/Arity),
+	      nth_clause(M:P,I,R)).
 
 '$clause'(V,M,Q,R) :- var(V), !, 
 	'$do_error'(instantiation_error,M:clause(V,Q,R)).
@@ -635,8 +660,63 @@ hide_predicate(P) :-
 	NF is F \/ 0x8200000,
 	'$flags'(P,prolog,F,NF).
 
+predicate_property(Mod:Pred,Prop) :- !,
+	'$predicate_property2'(Pred,Prop,Mod).
+predicate_property(Pred,Prop) :- 
+	'$current_module'(Mod),
+	'$predicate_property2'(Pred,Prop,Mod).
+
+'$predicate_property2'(Pred,Prop,M) :- var(Pred), !,
+	'$generate_all_preds_from_mod'(Pred, SourceMod, M),
+	'$predicate_property'(Pred,SourceMod,M,Prop).
+'$predicate_property2'(M:Pred,Prop,_) :- !,
+	'$predicate_property2'(Pred,Prop,M).
+'$predicate_property2'(Pred,Prop,Mod) :- 
+	'$pred_exists'(Pred,Mod), !,
+	'$predicate_property'(Pred,Mod,Mod,Prop).
+'$predicate_property2'(Pred,Prop,Mod) :- 
+	functor(Pred, N, K),
+	'$recorded'('$import','$import'(M,Mod,N,K),_),
+	'$predicate_property'(Pred,M,Mod,Prop).
+
+'$generate_all_preds_from_mod'(Pred, M, M) :-
+	'$current_predicate'(M,Na,Ar),
+	functor(Pred, Na, Ar).
+'$generate_all_preds_from_mod'(Pred, SourceMod, Mod) :-
+	'$recorded'('$import','$import'(SourceMod,Mod,N,K),_),
+	functor(Pred, N, K).
+
+
+'$predicate_property'(P,M,_,built_in) :- 
+	'$system_predicate'(P,M), !.
+'$predicate_property'(P,M,_,source) :- 
+	( '$recordedp'(M:P,_,_) -> true ; false).
+'$predicate_property'(P,M,_,dynamic) :-
+	'$is_dynamic'(P,M).
+'$predicate_property'(P,M,_,static) :-
+	\+ '$is_dynamic'(P,M),
+	\+ '$undefined'(P,M).
+'$predicate_property'(P,M,_,meta_predicate(P)) :-
+	functor(P,Na,Ar),
+	'$meta_predicate'(M,Na,Ar,P).
+'$predicate_property'(P,M,_,multifile) :-
+	'$is_multifile'(P,M).
+'$predicate_property'(P,Mod,M,imported_from(Mod)) :-
+	functor(P,N,K),
+	'$recorded'('$import','$import'(Mod,M,N,K),_).
+'$predicate_property'(P,M,_,public) :-
+	'$is_public'(P,M).
+'$predicate_property'(P,M,M,exported) :-
+	functor(P,N,A),
+	'$recorded'('$module','$module'(_TFN,M,Publics),_),
+	'$member'(N/A,Publics), !.	/* defined in modules.yap */
+'$predicate_property'(P,Mod,_,number_of_clauses(NCl)) :-
+	'$number_of_clauses'(P,Mod,NCl).
+
+
 :- '$make_pred_push_mod'((_,_)).
 :- '$make_pred_push_mod'((_;_)).
 :- '$make_pred_push_mod'((_|_)).
 :- '$make_pred_push_mod'((_->_)).
 :- '$make_pred_push_mod'((\+_)).
+
