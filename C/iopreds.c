@@ -1426,8 +1426,10 @@ InitSocketStream(int fd, socket_info flags, socket_domain domain) {
   for (sno = 0; sno < MaxStreams; ++sno)
     if (Stream[sno].status & Free_Stream_f)
       break;
-  if (sno == MaxStreams)
-    return (PlIOError (SYSTEM_ERROR,TermNil, "new stream not available for socket/4"));
+  if (sno == MaxStreams) {
+    PlIOError (SYSTEM_ERROR,TermNil, "new stream not available for socket/4");
+    return(TermNil);
+  }
   st = &Stream[sno];
   st->u.socket.domain = domain;
   st->u.socket.flags = flags;

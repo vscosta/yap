@@ -454,6 +454,7 @@ p_socket(void)
 #endif
     return(FALSE);
   }
+  if (out == TermNil) return(FALSE);
   return(unify(out,ARG4));
 }
 
@@ -897,6 +898,7 @@ p_socket_accept(void)
     out = InitSocketStream(fd, server_session_socket, af_inet );
   } else
       return(FALSE);
+  if (out == TermNil) return(FALSE);
   return(unify(out,ARG3));
 }
 
