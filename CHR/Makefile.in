@@ -29,7 +29,7 @@ CHR_PROGRAMS= $(srcdir)/chr/chrcmp.pl \
 	$(srcdir)/chr/sbag.pl \
 	$(srcdir)/chr/sbag_a.pl \
 	$(srcdir)/chr/sbag_l.pl \
-	$(srcdir)/chr/trace.yap \
+	$(srcdir)/chr/trace.yap
 
 CHR_TOP= $(srcdir)/chr.yap
 
