@@ -1010,7 +1010,7 @@ SearchForTrailFault(void)
 #ifdef DEBUG
   /*  fprintf(stderr,"Catching a sigsegv at %p with %p\n", TR, TrailTop); */
 #endif
-#if  !OS_HANDLES_TR_OVERFLOW
+#if  OS_HANDLES_TR_OVERFLOW
   if ((TR > (tr_fr_ptr)TrailTop-1024  && 
        TR < (tr_fr_ptr)TrailTop+(64*1024))|| DBTrailOverflow()) {
     if (!growtrail(64 * 1024L)) {
