@@ -11,8 +11,12 @@
 * File:		compiler.c						 *
 * comments:	Clause compiler						 *
 *									 *
-* Last rev:     $Date: 2005-01-28 23:14:35 $,$Author: vsc $						 *
+* Last rev:     $Date: 2005-02-21 16:49:39 $,$Author: vsc $						 *
 * $Log: not supported by cvs2svn $
+* Revision 1.61  2005/01/28 23:14:35  vsc
+* move to Yap-4.5.7
+* Fix clause size
+*
 * Revision 1.60  2005/01/14 20:55:16  vsc
 * improve register liveness calculations.
 *
@@ -1943,13 +1947,13 @@ clear_bvarray(int var, CELL *bvarray
     var -= max;
   }
   /* now put a 0 on it, from now on the variable is initialised */
-  nbit = (1 << var);
+  nbit = (1L << var);
 #ifdef DEBUG
   if (*bvarray & nbit) {
     /* someone had already marked this variable: complain */
     Yap_Error_TYPE = SYSTEM_ERROR;
     Yap_Error_Term = TermNil;
-    Yap_ErrorMessage = "repeated bit for variable";
+    Yap_ErrorMessage = "compiler internal error: variable initialised twice";
     save_machine_regs();
     longjmp(cglobs->cint.CompilerBotch, 2);
   }
@@ -2007,6 +2011,9 @@ reset_bvmap(CELL *bvarray, int nperm, compiler_struct *cglobs)
 {
   int size, size1, env_size, i;
   CELL *source;
+
+  if (bvarray == NULL)
+
   if (bvindex == 0) {
     Yap_Error_TYPE = SYSTEM_ERROR;
     Yap_Error_Term = TermNil;

@@ -11,8 +11,12 @@
 * File:		stdpreds.c						 *
 * comments:	General-purpose C implemented system predicates		 *
 *									 *
-* Last rev:     $Date: 2005-02-08 04:05:35 $,$Author: vsc $						 *
+* Last rev:     $Date: 2005-02-21 16:50:04 $,$Author: vsc $						 *
 * $Log: not supported by cvs2svn $
+* Revision 1.81  2005/02/08 04:05:35  vsc
+* fix mess with add clause
+* improves on sigsegv handling
+*
 * Revision 1.80  2005/01/05 05:32:37  vsc
 * Ricardo's latest version of profiler.
 *
@@ -231,7 +235,7 @@ static Int order=0;
     Int temp;
     order++;
     if (index_code) temp=-order; else temp=order;
-    fprintf(FPreds,"+%p %p %p %d",code_start,code_end, pe, temp);
+    fprintf(FPreds,"+%p %p %p %ld",code_start,code_end, pe, (long int)temp);
 #if MORE_INFO_FILE
     if (pe->FunctorOfPred->KindOfPE==47872) {
       if (pe->ArityOfPE) {
@@ -334,7 +338,7 @@ showprofres(UInt type) {
 
   ProfPreds=0;
   pr=(clauseentry *) TR;
-  while (fscanf(FPreds,"+%p %p %p %d",&(pr->beg),&(pr->end),&(pr->pp),&(pr->ts)) > 0){
+  while (fscanf(FPreds,"+%p %p %p %ld",&(pr->beg),&(pr->end),&(pr->pp),&(pr->ts)) > 0){
     int c;
     pr->pcs = 0L;
     pr++;
@@ -447,7 +451,7 @@ showprofres(UInt type) {
 	printf(" %s",RepAtom(AtomOfTerm(myp->ModuleOfPred))->StrOfAE);
 	printf(":%s",RepAtom(NameOfFunctor(myp->FunctorOfPred))->StrOfAE);
         if (myp->ArityOfPE) printf("/%d",myp->ArityOfPE);	
-	printf(" -> %u (%3.1f%c)\n",calls,(float) calls*100/ProfCalls,'%');
+	printf(" -> %lu (%3.1f%c)\n",(unsigned long int)calls,(float) calls*100/ProfCalls,'%');
       }
       while (t<pr && t->pp == myp) t++;
     }
@@ -472,19 +476,19 @@ showprofres(UInt type) {
         printf(" %s",RepAtom(AtomOfTerm(t->pp->ModuleOfPred))->StrOfAE);
         printf(":%s",RepAtom(NameOfFunctor(t->pp->FunctorOfPred))->StrOfAE);
         if (t->pp->ArityOfPE) printf("/%d",t->pp->ArityOfPE);	
-        printf(" -> %u (%3.1f%c)\n",calls,(float) calls*100/ProfCalls,'%');
+        printf(" -> %lu (%3.1f%c)\n",(unsigned long int)calls,(float) calls*100/ProfCalls,'%');
       }
       t++;
     }
   }
   count=ProfCalls-(count+InGrowHeap+InGrowStack+InGC+InError+InUnify+InCCall); // Falta +InCCall
-  if (InGrowHeap>0) printf("%p sys: GrowHeap -> %u (%3.1f%c)\n",(void *) GrowHeapMode,InGrowHeap,(float) InGrowHeap*100/ProfCalls,'%');
-  if (InGrowStack>0) printf("%p sys: GrowStack -> %u (%3.1f%c)\n",(void *) GrowStackMode,InGrowStack,(float) InGrowStack*100/ProfCalls,'%');
-  if (InGC>0) printf("%p sys: GC -> %u (%3.1f%c)\n",(void *) GCMode,InGC,(float) InGC*100/ProfCalls,'%');
-  if (InError>0) printf("%p sys: ErrorHandling -> %u (%3.1f%c)\n",(void *) ErrorHandlingMode,InError,(float) InError*100/ProfCalls,'%');
-  if (InUnify>0) printf("%p sys: Unify -> %u (%3.1f%c)\n",(void *) UnifyMode,InUnify,(float) InUnify*100/ProfCalls,'%');
-  if (InCCall>0) printf("%p sys: C Code -> %u (%3.1f%c)\n",(void *) CCallMode,InCCall,(float) InCCall*100/ProfCalls,'%');
-  if (count>0) printf("Unknown:Unknown -> %u (%3.1f%c)\n",count,(float) count*100/ProfCalls,'%');
+  if (InGrowHeap>0) printf("%p sys: GrowHeap -> %lu (%3.1f%c)\n",(void *) GrowHeapMode,(unsigned long int)InGrowHeap,(float) InGrowHeap*100/ProfCalls,'%');
+  if (InGrowStack>0) printf("%p sys: GrowStack -> %lu (%3.1f%c)\n",(void *) GrowStackMode,(unsigned long int)InGrowStack,(float) InGrowStack*100/ProfCalls,'%');
+  if (InGC>0) printf("%p sys: GC -> %lu (%3.1f%c)\n",(void *) GCMode,(unsigned long int)InGC,(float) InGC*100/ProfCalls,'%');
+  if (InError>0) printf("%p sys: ErrorHandling -> %lu (%3.1f%c)\n",(void *) ErrorHandlingMode,(unsigned long int)InError,(float) InError*100/ProfCalls,'%');
+  if (InUnify>0) printf("%p sys: Unify -> %lu (%3.1f%c)\n",(void *) UnifyMode,(unsigned long int)InUnify,(float) InUnify*100/ProfCalls,'%');
+  if (InCCall>0) printf("%p sys: C Code -> %lu (%3.1f%c)\n",(void *) CCallMode,(unsigned long int)InCCall,(float) InCCall*100/ProfCalls,'%');
+  if (count>0) printf("Unknown:Unknown -> %lu (%3.1f%c)\n",(unsigned long int)count,(float) count*100/ProfCalls,'%');
   printf("Total of Calls=%u \n",ProfCalls);
 
   return TRUE;

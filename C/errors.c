@@ -273,16 +273,16 @@ dump_stack(void)
     fprintf(stderr,"%% YAP ERROR: Code Space Collided against Global (%p--%p)\n", HeapTop, Yap_GlobalBase);
   } else {
 #if !USE_SYSTEM_MALLOC
-    fprintf (stderr,"%dKB of Code Space (%p--%p)\n",((CELL)HeapTop-(CELL)Yap_HeapBase)/1024,Yap_HeapBase,HeapTop); 
+    fprintf (stderr,"%ldKB of Code Space (%p--%p)\n",(long int)((CELL)HeapTop-(CELL)Yap_HeapBase)/1024,Yap_HeapBase,HeapTop); 
 #if USE_DL_MALLOC 
     if (Yap_hole_start) {
       fprintf (stderr,"  Last hole: %p--%p\n", Yap_hole_start, Yap_hole_end);
     }
 #endif
 #endif
-    fprintf (stderr,"%dKB of Global Stack (%p--%p)\n",(sizeof(CELL)*(H-H0))/1024,H0,H); 
-    fprintf (stderr,"%dKB of Local Stack (%p--%p)\n",(sizeof(CELL)*(LCL0-ASP))/1024,ASP,LCL0); 
-    fprintf (stderr,"%dKB of Trail (%p--%p)\n",((ADDR)TR-Yap_TrailBase)/1024,Yap_TrailBase,TR); 
+    fprintf (stderr,"%ldKB of Global Stack (%p--%p)\n",(long int)(sizeof(CELL)*(H-H0))/1024,H0,H); 
+    fprintf (stderr,"%ldKB of Local Stack (%p--%p)\n",(long int)(sizeof(CELL)*(LCL0-ASP))/1024,ASP,LCL0); 
+    fprintf (stderr,"%ldKB of Trail (%p--%p)\n",(long int)((ADDR)TR-Yap_TrailBase)/1024,Yap_TrailBase,TR); 
     fprintf (stderr,"Performed %d garbage collections\n", GcCalls);
 #if LOW_LEVEL_TRACER
     {

@@ -11,8 +11,12 @@
 * File:		index.c							 *
 * comments:	Indexing a Prolog predicate				 *
 *									 *
-* Last rev:     $Date: 2005-01-28 23:14:36 $,$Author: vsc $						 *
+* Last rev:     $Date: 2005-02-21 16:50:00 $,$Author: vsc $						 *
 * $Log: not supported by cvs2svn $
+* Revision 1.114  2005/01/28 23:14:36  vsc
+* move to Yap-4.5.7
+* Fix clause size
+*
 * Revision 1.113  2005/01/15 05:21:36  vsc
 * fix bug in clause emulator
 *
@@ -3485,6 +3489,9 @@ do_pair(GroupDef *grp, Term t, struct intermediates *cint, UInt argno, int first
   while (IsPairTerm(max->Tag) && max != grp->LastClause) {
     max++;
   }
+  if (!IsPairTerm(max->Tag)) {
+    max--;
+  }
   if (min > grp->LastClause) {
     /* no clauses, just skip */
     return nxtlbl;
@@ -3840,7 +3847,7 @@ copy_clauses(ClauseDef *max0, ClauseDef *min0, CELL *top, struct intermediates *
 static UInt
 do_compound_index(ClauseDef *min0, ClauseDef* max0, Term* sreg, struct intermediates *cint, UInt i, UInt arity, UInt argno, UInt fail_l, int first, int last_arg, int clleft, CELL *top, int done_work)
 {
-  int ret_lab = 0, *newlabp;
+  UInt ret_lab = 0, *newlabp;
   CELL *top0 = top;
   ClauseDef *min, *max;
   PredEntry *ap = cint->CurrentPred;

@@ -11,8 +11,12 @@
 * File:		errors.yap						 *
 * comments:	error messages for YAP					 *
 *									 *
-* Last rev:     $Date: 2005-01-28 23:14:41 $,$Author: vsc $						 *
+* Last rev:     $Date: 2005-02-21 16:50:21 $,$Author: vsc $						 *
 * $Log: not supported by cvs2svn $
+* Revision 1.60  2005/01/28 23:14:41  vsc
+* move to Yap-4.5.7
+* Fix clause size
+*
 * Revision 1.59  2005/01/13 05:47:27  vsc
 * lgamma broke arithmetic optimisation
 * integer_y has type y
@@ -482,6 +486,9 @@ print_message(Level, Mss) :-
 	[W,F]).
 '$output_error_message'(existence_error(mutex,F), W) :-
 	format(user_error,'% EXISTENCE ERROR- ~w could not open mutex ~w~n',
+	[W,F]).
+'$output_error_message'(existence_error(library,F), W) :-
+	format(user_error,'% EXISTENCE ERROR- ~w could not open library ~w~n',
 	[W,F]).
 '$output_error_message'(existence_error(queue,F), W) :-
 	format(user_error,'% EXISTENCE ERROR- ~w could not open message queue ~w~n',

@@ -1661,7 +1661,7 @@ msb(Int inp)	/* calculate the most significant bit for an integer */
   }
 
   while (off) {
-    int limit = 1 << (off);
+    Int limit = 1L << (off);
     if (inp >= limit) {
       out += off;
       inp >>= off;

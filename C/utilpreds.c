@@ -1587,7 +1587,7 @@ static int subsumes_complex(register CELL *pt0, register CELL *pt0_end, register
  loop:
   while (pt0 < pt0_end) {
     register CELL d0, d1;
-    int our_write_mode = write_mode;
+    Int our_write_mode = write_mode;
 
     ++ pt0;
     ++ pt1;
