@@ -229,6 +229,9 @@ extern X_API YAP_Term PROTO(YAP_Read,(int (*)(void)));
 /*  void YAP_Write(YAP_Term,void (*)(int),int) */
 extern X_API void PROTO(YAP_Write,(YAP_Term,void (*)(int),int));
 
+/*  void YAP_WriteBuffer(YAP_Term,char *,unsgined int,int) */
+extern X_API void PROTO(YAP_WriteBuffer,(YAP_Term,char *,unsigned int,int));
+
 /*  char *YAP_CompileClause(YAP_Term) */
 extern X_API char *PROTO(YAP_CompileClause,(YAP_Term));
 

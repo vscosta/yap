@@ -14006,43 +14006,43 @@ interface may change and improve in the future.
 The following C-functions are available from Yap:
 
 @itemize @bullet
-@item  YapCompileClause(@code{Term} @var{Clause})
-@findex  YapCompileClause/1
+@item  YAP_CompileClause(@code{Term} @var{Clause})
+@findex  YAP_CompileClause/1
 Compile the Prolog term @var{Clause} and assert it as the last clause
 for the corresponding procedure.
 
-@item  @code{int} YapContinueGoal(@code{void})
-@findex YapContinueGoal/0
+@item  @code{int} YAP_ContinueGoal(@code{void})
+@findex YAP_ContinueGoal/0
 Continue execution from the point where it stopped.
 
-@item  @code{void} YapError(@code{char *} @var{error_description})
-@findex YapError/1
+@item  @code{void} YAP_Error(@code{char *} @var{error_description})
+@findex YAP_Error/1
 Generate an YAP System Error with description given by the string
 @var{error_description}.
 
-@item  @code{void} YapExit(@code{int} @var{exit_code})
-@findex YapExit/1
+@item  @code{void} YAP_Exit(@code{int} @var{exit_code})
+@findex YAP_Exit/1
 Exit YAP immediately. The argument @var{exit_code} gives the error code
 and is supposed to be 0 after successful execution in Unix and Unix-like
 systems.
 
-@item  @code{Term} YapGetValue(@code{Atom} @var{at})
-@findex  YapGetValue/1
+@item  @code{Term} YAP_GetValue(@code{Atom} @var{at})
+@findex  YAP_GetValue/1
 Return the term @var{value} associated with the atom @var{at}. If no
 such term exists the function will return the empty list.
 
-@item  YapFastInit(@code{char *} @var{SavedState})
-@findex  YapFastInit/1
+@item  YAP_FastInit(@code{char *} @var{SavedState})
+@findex  YAP_FastInit/1
 Initialize a copy of YAP from @var{SavedState}. The copy is
 monolithic and currently must be loaded at the same address where it was
-saved. @code{YapFastInit} is a simpler version of @code{YapInit}.
+saved. @code{YAP_FastInit} is a simpler version of @code{YAP_Init}.
 
-@item  YapInit(@code{char *} @var{SavedState},  @code{int}
+@item  YAP_Init(@code{char *} @var{SavedState},  @code{int}
 @var{HeapSize}, @code{int} @var{StackSize}, @code{int}
 @var{TrailSize}, @code{int}  @var{NumberofWorkers}, @code{int}
 @var{SchedulerLoop}, @code{int} @var{DelayedReleaseLoad}, @code{int}
 @var{argc}, @code{char **}  @var{argv})
-@findex  YapInit/9
+@findex  YAP_Init/9
 Initialize YAP. In the future the arguments as a single @code{C}
 structure.
 
@@ -14066,41 +14066,50 @@ The argument count @var{argc} and string of arguments @var{argv}
 arguments are to be passed to user programs as the arguments used to
 call YAP.
 
-@item  @code{void} YapPutValue(@code{Atom} @var{at}, @code{Term} @var{value})
-@findex  YapPutValue/2
+@item  @code{void} YAP_PutValue(@code{Atom} @var{at}, @code{Term} @var{value})
+@findex  YAP_PutValue/2
 Associate the term @var{value} with the atom @var{at}. The term
 @var{value} must be a constant. This functionality is used by YAP as a
 simple way for controlling and communicating with the Prolog run-time.
 
-@item  @code{Term} YapRead(@code{int (*)(void)} @var{GetC})
-@findex  YapRead/1
+@item  @code{Term} YAP_Read(@code{int (*)(void)} @var{GetC})
+@findex  YAP_Read/1
 Parse a Term  using the function @var{GetC} to input characters.
 
-@item  @code{int} YapRunGoal(@code{Term} @var{Goal})
-@findex YapRunGoal/1
+@item  @code{int} YAP_RunGoal(@code{Term} @var{Goal})
+@findex YAP_RunGoal/1
 Execute query @var{Goal} and return 1 if the query succeeds, and
 0 otherwise.
 
-@item  @code{int} YapRestartGoal(@code{void})
-@findex YapRestartGoal/0
+@item  @code{int} YAP_RestartGoal(@code{void})
+@findex YAP_RestartGoal/0
 Look for the next solution to the current query by forcing YAP to backtrack.
 
-@item  @code{int} YapReset(@code{void})
-@findex YapReset/0
+@item  @code{int} YAP_Reset(@code{void})
+@findex YAP_Reset/0
 Reset execution environment (similar to the @code{abort/0}
 builtin). This is useful when you want to start a new query before
 asking all solutions to the previous query.
 
-@item  @code{void} YapWrite(@code{Term} @var{t}, @code{void (*)(int)}
+@item  @code{void} YAP_Write(@code{Term} @var{t}, @code{void (*)(int)}
 @var{PutC}, @code{int} @var{flags})
-@findex  YapRead/1
+@findex  YAP_Write/3
 Write a Term @var{t} using the function @var{PutC} to output
 characters. The term is written according to a mask of the following
 flags in the @code{flag} argument: @code{YAP_WRITE_QUOTED},
 @code{YAP_WRITE_HANDLE_VARS},  and @code{YAP_WRITE_IGNORE_OPS}.
 
-@item  @code{void} YapInitConsult(@code{int} @var{mode}, @code{char *} @var{filename})
-@findex YapInitConsult/2
+@item  @code{void} YAP_WriteBuffer(@code{Term} @var{t}, @code{char *}
+@var{buff}, @code{unsigned int}
+@var{size}, @code{int} @var{flags})
+@findex  YAP_WriteBuffer/4
+Write a Term @var{t} to buffer @var{buff} with size @var{size}. The
+term is written according to a mask of the following flags in the
+@code{flag} argument: @code{YAP_WRITE_QUOTED},
+@code{YAP_WRITE_HANDLE_VARS}, and @code{YAP_WRITE_IGNORE_OPS}.
+
+@item  @code{void} YAP_InitConsult(@code{int} @var{mode}, @code{char *} @var{filename})
+@findex YAP_InitConsult/2
 Enter consult mode on file @var{filename}. This mode maintains a few
 data-structures internally, for instance to know whether a predicate
 before or not. It is still possible to execute goals in consult mode.
@@ -14111,11 +14120,11 @@ bootstrapping Prolog, as otherwise one may call the Prolog predicate
 @code{compile/1} or @code{consult/1} to do compilation.
 
 Note that it is up to the user to open the file @var{filename}. The
-@code{YapInitConsult} function only uses the file name for internal
+@code{YAP_InitConsult} function only uses the file name for internal
 bookkeeping.
 
-@item  @code{void} YapEndConsult(@code{void})
-@findex YapEndConsult/0
+@item  @code{void} YAP_EndConsult(@code{void})
+@findex YAP_EndConsult/0
 Finish consult mode.
 
 @end itemize

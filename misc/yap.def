@@ -57,6 +57,7 @@ YAP_InitConsult
 YAP_EndConsult
 YAP_Read
 YAP_Write
+YAP_WriteBuffer
 YAP_CompileClause
 YAP_PutValue
 YAP_GetValue

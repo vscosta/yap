@@ -2058,26 +2058,17 @@ p_open_mem_read_stream (void)   /* $open_mem_read_stream(+List,-Stream) */
   return (Yap_unify (ARG2, t));
 }
 
-static Int
-p_open_mem_write_stream (void)   /* $open_mem_write_stream(-Stream) */
+static int
+open_buf_write_stream(char *nbuf, UInt  sz)
 {
-  Term t;
-  StreamDesc *st;
   int sno;
-  char *nbuf;
-  extern int Yap_page_size;
+  StreamDesc *st;
 
-  while ((nbuf = (char *)Yap_AllocAtomSpace(Yap_page_size*sizeof(char))) == NULL) {
-    if (!Yap_growheap(FALSE, Yap_page_size*sizeof(char), NULL)) {
-      Yap_Error(SYSTEM_ERROR, TermNil, Yap_ErrorMessage);
-      return(FALSE);
-    }
-  }
   for (sno = 0; sno < MaxStreams; ++sno)
     if (Stream[sno].status & Free_Stream_f)
       break;
   if (sno == MaxStreams)
-    return (PlIOError (SYSTEM_ERROR,TermNil, "new stream not available for open_mem_read_stream/1"));
+    return -1;
   st = &Stream[sno];
   /* currently these streams are not seekable */
   st->status = Output_Stream_f | InMemory_Stream_f;
@@ -2092,7 +2083,27 @@ p_open_mem_write_stream (void)   /* $open_mem_write_stream(-Stream) */
     st->stream_getc_for_read = MemGetc;
   st->u.mem_string.pos = 0;
   st->u.mem_string.buf = nbuf;
-  st->u.mem_string.max_size = Yap_page_size;
+  st->u.mem_string.max_size = sz;
+  return sno;
+}
+
+static Int
+p_open_mem_write_stream (void)   /* $open_mem_write_stream(-Stream) */
+{
+  Term t;
+  int sno;
+  char *nbuf;
+  extern int Yap_page_size;
+
+  while ((nbuf = (char *)Yap_AllocAtomSpace(Yap_page_size*sizeof(char))) == NULL) {
+    if (!Yap_growheap(FALSE, Yap_page_size*sizeof(char), NULL)) {
+      Yap_Error(SYSTEM_ERROR, TermNil, Yap_ErrorMessage);
+      return(FALSE);
+    }
+  }
+  sno = open_buf_write_stream(nbuf, Yap_page_size);
+  if (sno == -1)
+    return (PlIOError (SYSTEM_ERROR,TermNil, "new stream not available for open_mem_read_stream/1"));
   t = MkStream (sno);
   return (Yap_unify (ARG1, t));
 }
@@ -4670,6 +4681,24 @@ Yap_StringToTerm(char *s,Term *tp)
   }
   Yap_clean_tokenizer(tokstart, Yap_VarTable, Yap_AnonVarTable);
   return t;
+}
+
+Term
+Yap_TermToString(Term t, char *s, unsigned int sz, int flags)
+{
+  int sno = open_buf_write_stream(s, sz);
+  int old_output_stream = Yap_c_output_stream;
+
+  if (sno < 0)
+    return FALSE;
+  *--ASP = MkIntTerm(0);
+  Yap_c_output_stream = sno;
+  Yap_plwrite (t, Stream[sno].stream_putc, flags);
+  s[Stream[sno].u.mem_string.pos] = '\0';
+  Stream[sno].status = Free_Stream_f;
+  Yap_c_output_stream = old_output_stream;
+  ++ASP;
+  return EX;
 }
 
 void

@@ -10,8 +10,11 @@
 * File:		c_interface.c						 *
 * comments:	c_interface primitives definition 			 *
 *									 *
-* Last rev:	$Date: 2004-05-14 17:11:30 $,$Author: vsc $						 *
+* Last rev:	$Date: 2004-05-14 17:56:45 $,$Author: vsc $						 *
 * $Log: not supported by cvs2svn $
+* Revision 1.45  2004/05/14 17:11:30  vsc
+* support BigNums in interface
+*
 * Revision 1.44  2004/05/14 16:33:44  vsc
 * add Yap_ReadBuffer
 *									 *
@@ -104,6 +107,7 @@ X_API void    STD_PROTO(YAP_InitConsult,(int, char *));
 X_API void    STD_PROTO(YAP_EndConsult,(void));
 X_API Term    STD_PROTO(YAP_Read, (int (*)(void)));
 X_API void    STD_PROTO(YAP_Write, (Term, void (*)(int), int));
+X_API Term    STD_PROTO(YAP_WriteBuffer, (Term, char *, unsigned int, int));
 X_API char   *STD_PROTO(YAP_CompileClause, (Term));
 X_API void    STD_PROTO(YAP_PutValue, (Atom,Term));
 X_API Term    STD_PROTO(YAP_GetValue, (Atom));
@@ -891,6 +895,15 @@ YAP_Write(Term t, void (*myputc)(int), int flags)
   Yap_plwrite (t, do_yap_putc, flags);
 
   RECOVER_MACHINE_REGS();
+}
+
+X_API Term
+YAP_WriteBuffer(Term t, char *buf, unsigned int sze, int flags)
+{
+  BACKUP_MACHINE_REGS();
+  t = Yap_TermToString(t, buf, sze, flags);
+  RECOVER_MACHINE_REGS();
+  return t;
 }
 
 X_API char *
