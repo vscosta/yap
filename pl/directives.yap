@@ -20,6 +20,7 @@
 '$directive'(initialization(_)).
 '$directive'(include(_)).
 '$directive'(module(_,_)).
+'$directive'(module(_,_,_)).
 '$directive'(meta_predicate(_)).
 '$directive'(public(_)).
 '$directive'(dynamic(_)).
@@ -56,6 +57,8 @@
 	'$include'(F, Status).
 '$exec_directive'(module(N,P), Status) :-
 	'$module'(Status,N,P).
+'$exec_directive'(module(N,P,Op), Status) :-
+	'$module'(Status,N,P,Op).
 '$exec_directive'(meta_predicate(P), _) :-
 	'$meta_predicate'(P).
 '$exec_directive'(dynamic(P), _) :-

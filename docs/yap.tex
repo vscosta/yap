@@ -1698,6 +1698,31 @@ accessed if the module name is prefixed to the file name through the
 The built-in @code{module/1} sets the current source module:
 @table @code
 
+@item module(+@var{M},+@var{L}, +@var{Options})
+@findex module/3 (directive)
+@syindex module/3 (directive)
+@cnindex module/3 (directive)
+Similar to @code{module/2}, this predicate defines the file where it
+appears as a module file; it must be the first declaration in the file.
+@var{M} must be an atom specifying the module name; @var{L} must be a
+list containing the module's public predicates specification, in the
+form @code{[predicate_name/arity,...]}.
+
+The last argument @var{Options} must be a list of options, which can be:
+
+@table @code
+@item filename
+ the filename for a module to import into the current module.
+
+@table @code
+@item library(file)
+ a library file to import into the current module.
+
+@item hide(@var{Opt})
+ if @var{Opt} is @code{false}, keep source code for current module, if
+@code{true}, disable.
+@end table
+
 @item module(+@var{M})
 @findex module/1
 @syindex module/1

@@ -69,8 +69,6 @@ version(yap,[4,1]).
 system_mode(verbose,on)  :- '$set_value'('$verbose',on).
 system_mode(verbose,off) :- '$set_value'('$verbose',off).
 
-mode(_).
-
 :- op(1150,fx,(mode)).
 
 :- dynamic 'extensions_to_present_answer'/1.

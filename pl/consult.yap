@@ -45,8 +45,8 @@
 	( open(Y,'$csult',Stream), !,
 	     ( '$loaded'(Stream) ->
 		(  '$consulting_file_name'(Stream,TFN),
-		    '$recorded'($module,$module(TFN,M,P),_) ->
-			$current_module(T,T), $import(P,M,T)
+		    '$recorded'('$module','$module'(TFN,M,P),_) ->
+			'$current_module'(T,T), $import(P,M,T)
 		;
 		   true
 		)

@@ -116,6 +116,7 @@ use_module(Module,V,Decls) :-
 '$consulting_file_name'(Stream,F)  :-
 	'$file_name'(Stream, F).
 
+
 '$module'(reconsult,N,P) :- !,
 	'$abolish_module_data'(N),
 	'$module_dec'(N,P).
@@ -128,6 +129,48 @@ use_module(Module,V,Decls) :-
 	   	true
 	),
 	'$module_dec'(N,P).
+
+'$module'(O,N,P,Opts) :- !,
+	'$module'(O,N,P),
+	'$process_module_decls_options'(Opts,module(Opts,N,P)).
+
+	
+'$process_module_decls_options'(Var,Mod) :-
+	var(Var), 
+	throw(error(instantiation_error,Mod)).
+'$process_module_decls_options'([],_).
+'$process_module_decls_options'([H|L],M) :-
+	'$process_module_decls_option'(H,M),
+	'$process_module_decls_options'(L,M).
+'$process_module_decls_options'(T,M) :-
+	throw(error(type_error(list,T),M)).
+
+'$process_module_decls_option'(Var,M) :- 
+	var(Var), 
+	throw(error(instantiation_error,M)).
+'$process_module_decls_option'(At,_) :- 
+	atom(At), 
+	use_module(At).
+'$process_module_decls_option'(library(L),_) :- 
+	use_module(library(L)).
+'$process_module_decls_option'(hidden(Bool),M) :- 
+	'$process_hidden_module'(Bool, M).
+'$process_module_decls_option'(Opt,M) :- 
+	throw(error(domain_error(module_decl_options,Opt),M)).
+
+'$process_hidden_module'(TNew,M) :-
+        '$convert_true_off_mod3'(TNew, New, M),
+	source_mode(Old, New),
+	'$prepare_restore_hidden'(Old,New).
+
+'$convert_true_off_mod3'(true, off, _).
+'$convert_true_off_mod3'(false, on, _).
+'$convert_true_off_mod3'(X, _, M) :-
+	throw(error(domain_error(module_decl_options,hidden(X)),M)).
+
+'$prepare_restore_hidden'(Old,Old) :- !.
+'$prepare_restore_hidden'(Old,New) :-
+	'$recorda'('$system_initialisation', source_mode(New,Old), _).
 
 module(N) :-
 	var(N), 
@@ -400,7 +443,7 @@ $trace_module(X,Y).
 	arg(I,H,Y), var(Y), !,
 	I1 is I-1,
 	'$module_u_vars'(I1,D,H,L).
-$module_u_vars(I,D,H,L) :-
+'$module_u_vars'(I,D,H,L) :-
 	I1 is I-1,
 	'$module_u_vars'(I1,D,H,L).
 
@@ -410,7 +453,7 @@ $module_u_vars(I,D,H,L) :-
 '$meta_expansion'(Mod,MP,G,G1,HVars) :- 
 	functor(G,F,N),
 %	'$recorded'('$meta_predicate','$meta_predicate'(Mod,F,N,D),_), !,
-	$meta_predicate(F,Mod,N,D), !,
+	'$meta_predicate'(F,Mod,N,D), !,
 	functor(G1,F,N),
 %	format(user_error,'[expanding ~w:~w in ~w',[Mod,G,MP]),
 	'$meta_expansion_loop'(N,D,G,G1,HVars,MP).
@@ -446,11 +489,6 @@ current_module(Mod,TFN) :-
 
 source_module(Mod) :-
 	'$current_module'(Mod).
-
-module(Mod) :- 
-	atom(Mod),
-	( recordzifnot('$module','$module'(Mod),_) -> true; true),
-	'$current_module'(_,Mod).
 
 
 $member(X,[X|_]) :- !.

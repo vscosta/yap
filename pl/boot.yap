@@ -1243,6 +1243,13 @@ throw(G) :-
 	'$recorded'('$blocking_code',_,R),
 	erase(R),
 	fail.
+% system goals must be performed first 
+'$exec_initialisation_goals' :-
+	'$recorded'('$system_initialisation',G,R),
+	erase(R),
+	G \= '$',
+	call(G),
+	fail.
 '$exec_initialisation_goals' :-
 	'$recorded'('$initialisation',G,R),
 	erase(R),

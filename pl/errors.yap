@@ -122,6 +122,9 @@ print_message(help,M) :-
 '$output_error_message'(domain_error(mutable,N), Where) :-
 	format(user_error,"[ DOMAIN ERROR- ~w: invalid mutable ~w ]~n",
 	[Where,N]).
+'$output_error_message'(domain_error(module_decl_options,N), Where) :-
+	format(user_error,"[ DOMAIN ERROR- ~w: expect module declaration options, found ~w ]~n",
+	[Where,N]).
 '$output_error_message'(domain_error(not_empty_list,_), Where) :-
 	format(user_error,"[ DOMAIN ERROR- ~w: found empty list ]~n",
 	[Where]).
