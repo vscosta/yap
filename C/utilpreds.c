@@ -30,7 +30,7 @@ typedef struct {
 }              *vcell;
 
 
-STATIC_PROTO(void  copy_complex_term, (CELL *, CELL *, CELL *, CELL *));
+STATIC_PROTO(int   copy_complex_term, (CELL *, CELL *, CELL *, CELL *));
 STATIC_PROTO(CELL  vars_in_complex_term, (CELL *, CELL *));
 STATIC_PROTO(Int   p_non_singletons_in_term, (void));
 STATIC_PROTO(CELL  non_singletons_in_complex_term, (CELL *, CELL *));
@@ -54,7 +54,8 @@ clean_tr(tr_fr_ptr TR0) {
   }
 }
 
-static void copy_complex_term(register CELL *pt0, register CELL *pt0_end, CELL *ptf, CELL *HLow)
+static int
+copy_complex_term(register CELL *pt0, register CELL *pt0_end, CELL *ptf, CELL *HLow)
 {
 
   CELL **to_visit = (CELL **)(HeapTop + sizeof(CELL));
@@ -82,6 +83,9 @@ static void copy_complex_term(register CELL *pt0, register CELL *pt0_end, CELL *
 	*ptf = AbsPair(H);
 	ptf++;
 #ifdef RATIONAL_TREES
+	if (to_visit + 4 >= (CELL **)H0) {
+	  goto heap_overflow;
+	}
 	to_visit[0] = pt0;
 	to_visit[1] = pt0_end;
 	to_visit[2] = ptf;
@@ -91,6 +95,9 @@ static void copy_complex_term(register CELL *pt0, register CELL *pt0_end, CELL *
 	to_visit += 4;
 #else
 	if (pt0 < pt0_end) {
+	  if (to_visit + 3 >= (CELL **)H0) {
+	    goto heap_overflow;
+	  }
 	  to_visit[0] = pt0;
 	  to_visit[1] = pt0_end;
 	  to_visit[2] = ptf;
@@ -126,6 +133,9 @@ static void copy_complex_term(register CELL *pt0, register CELL *pt0_end, CELL *
 	ptf++;
 	/* store the terms to visit */
 #ifdef RATIONAL_TREES
+	if (to_visit + 4 >= (CELL **)H0) {
+	  goto heap_overflow;
+	}
 	to_visit[0] = pt0;
 	to_visit[1] = pt0_end;
 	to_visit[2] = ptf;
@@ -135,6 +145,9 @@ static void copy_complex_term(register CELL *pt0, register CELL *pt0_end, CELL *
 	to_visit += 4;
 #else
 	if (pt0 < pt0_end) {
+	  if (to_visit + 3 >= (CELL **)H0) {
+	    goto heap_overflow;
+	  }
 	  to_visit[0] = pt0;
 	  to_visit[1] = pt0_end;
 	  to_visit[2] = ptf;
@@ -231,7 +244,7 @@ static void copy_complex_term(register CELL *pt0, register CELL *pt0_end, CELL *
   /* restore our nice, friendly, term to its original state */
   HB = HB0;
   clean_tr(TR0);
-  return;
+  return(0);
 
  overflow:
   /* oops, we're in trouble */
@@ -249,6 +262,25 @@ static void copy_complex_term(register CELL *pt0, register CELL *pt0_end, CELL *
   }
 #endif
   clean_tr(TR0);
+  return(-1);
+
+ heap_overflow:
+  /* oops, we're in trouble */
+  H = HLow;
+  /* we've done it */
+  /* restore our nice, friendly, term to its original state */
+  HB = HB0;
+#ifdef RATIONAL_TREES
+  while (to_visit > (CELL **)(HeapTop + sizeof(CELL))) {
+    to_visit -= 4;
+    pt0 = to_visit[0];
+    pt0_end = to_visit[1];
+    ptf = to_visit[2];
+    *pt0 = (CELL)to_visit[3];
+  }
+#endif
+  clean_tr(TR0);
+  return(-2);
 }
 
 Term
@@ -259,16 +291,25 @@ CopyTerm(Term inp) {
 #if COROUTINING
     if (IsAttachedTerm(t)) {
       CELL *Hi;
+      int res;
     restart_attached:
 
       *H = t;
       Hi = H+1;
       H += 2;
-      copy_complex_term(Hi-2, Hi-1, Hi, Hi);
-      if (H == Hi) { /* handle overflow */
-	gc(2, ENV, P);
-	t = Deref(ARG1);
-	goto restart_attached;
+      if ((res = copy_complex_term(Hi-2, Hi-1, Hi, Hi)) < 0) {
+	if (res == -1) { /* handle overflow */
+	  gc(2, ENV, P);
+	  t = Deref(ARG1);
+	  goto restart_attached;
+	} else { /* handle overflow */
+	  if (!growheap(FALSE)) {
+	    Error(SYSTEM_ERROR, TermNil, "YAP failed to reserve space in growheap");
+	    return(FALSE);
+	  }
+	  t = Deref(ARG1);
+	  goto restart_attached;
+	}
       }
       return(Hi[0]);
     }
@@ -286,11 +327,22 @@ CopyTerm(Term inp) {
     Hi = H;
     tf = AbsPair(H);
     H += 2;
-    copy_complex_term(ap-1, ap+1, Hi, Hi);
-    if (H == Hi) { /* handle overflow */
-      gc(2, ENV, P);
-      t = Deref(ARG1);
-      goto restart_list;
+    {
+      int res;
+      if ((res = copy_complex_term(ap-1, ap+1, Hi, Hi)) < 0) {
+	if (res == -1) { /* handle overflow */
+	  gc(2, ENV, P);
+	  t = Deref(ARG1);
+	  goto restart_list;
+	} else { /* handle overflow */
+	  if (!growheap(FALSE)) {
+	    Error(SYSTEM_ERROR, TermNil, "YAP failed to reserve space in growheap");
+	    return(FALSE);
+	  }
+	  t = Deref(ARG1);
+	  goto restart_list;
+	}
+      }
     }
     return(tf);
   } else {
@@ -306,11 +358,22 @@ CopyTerm(Term inp) {
     tf = AbsAppl(H);
     H[0] = (CELL)f;
     H += 1+ArityOfFunctor(f);
-    copy_complex_term(ap, ap+ArityOfFunctor(f), HB0+1, HB0);
-    if (H == HB0) {
-      gc(2, ENV, P);
-      t = Deref(ARG1);
-      goto restart_appl;
+    {
+      int res;
+      if ((res = copy_complex_term(ap, ap+ArityOfFunctor(f), HB0+1, HB0)) < 0) {
+	if (res == -1) {
+	  gc(2, ENV, P);
+	  t = Deref(ARG1);
+	  goto restart_appl;
+	} else { /* handle overflow */
+	  if (!growheap(FALSE)) {
+	    Error(SYSTEM_ERROR, TermNil, "YAP failed to reserve space in growheap");
+	    return(FALSE);
+	  }
+	  t = Deref(ARG1);
+	  goto restart_appl;
+	}
+      }
     }
     return(tf);
   }
