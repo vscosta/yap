@@ -932,7 +932,7 @@ YAP_Init(YAP_init_args *yap_init)
       from the other workers
     */
     Yap_InitYaamRegs();
-#endif
+#endif /* SBA */
     /* slaves, waiting for work */
     CurrentModule = 1;
     P = GETWORK_FIRST_TIME;

@@ -2630,7 +2630,7 @@ Yap_InitCPreds(void)
   Yap_InitGrowPreds();
 #if defined(YAPOR) || defined(TABLING)
   Yap_init_optyap_preds();
-#endif
+#endif /* YAPOR || TABLING */
   {
     void            (*(*(p))) (void) = E_Modules;
     while (*p)

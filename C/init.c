@@ -978,8 +978,8 @@ InitCodes(void)
     modp->PredFlags |= MetaPredFlag;
   }
 #ifdef YAPOR
-  heap_regs->getworkcode.u.ld.p = (CODEADDR)RepPredProp(PredPropByAtom(Yap_LookupAtom("$getwork"), 0));
-  heap_regs->getworkcode_seq.u.ld.p = (CODEADDR)RepPredProp(PredPropByAtom(Yap_LookupAtom("$getwork_seq"), 0));
+  heap_regs->getworkcode.u.ld.p = RepPredProp(PredPropByAtom(Yap_LookupAtom("$getwork"), 0));
+  heap_regs->getworkcode_seq.u.ld.p = RepPredProp(PredPropByAtom(Yap_LookupAtom("$getwork_seq"), 0));
 #endif
   heap_regs->db_erased_marker =
     (DBRef)Yap_AllocCodeSpace(sizeof(DBStruct));
@@ -1011,7 +1011,7 @@ InitYapOr(int Heap,
 
 #ifdef YAPOR
   worker_id = 0;
-#endif
+#endif /* YAPOR */
 
   /* starting message */
 #ifdef YAPOR
@@ -1027,21 +1027,52 @@ InitYapOr(int Heap,
 #endif /* YAPOR */
 #ifdef TABLING
 #ifdef TABLING_BATCHED_SCHEDULING
+#ifdef YAPOR
+#ifdef ALLOC_BEFORE_CHECK
+  INFORMATION_MESSAGE("YapTab: batched scheduling (TLWL-ABC)");
+#endif
+#if defined(TABLE_LOCK_AT_WRITE_LEVEL) && ! defined(ALLOC_BEFORE_CHECK)
+  INFORMATION_MESSAGE("YapTab: batched scheduling (TLWL)");
+#endif
+#ifdef TABLE_LOCK_AT_NODE_LEVEL
+  INFORMATION_MESSAGE("YapTab: batched scheduling (TLNL)");
+#endif
+#ifdef TABLE_LOCK_AT_ENTRY_LEVEL
+  INFORMATION_MESSAGE("YapTab: batched scheduling (TLEL)");
+#endif
+#else
   INFORMATION_MESSAGE("YapTab: batched scheduling");
+#endif /* YAPOR */
 #else /* TABLING_LOCAL_SCHEDULING */
+#ifdef YAPOR
+#ifdef ALLOC_BEFORE_CHECK
+  INFORMATION_MESSAGE("YapTab: local scheduling (TLWL-ABC)");
+#endif
+#if defined(TABLE_LOCK_AT_WRITE_LEVEL) && ! defined(ALLOC_BEFORE_CHECK)
+  INFORMATION_MESSAGE("YapTab: local scheduling (TLWL)");
+#endif
+#ifdef TABLE_LOCK_AT_NODE_LEVEL
+  INFORMATION_MESSAGE("YapTab: local scheduling (TLNL)");
+#endif
+#ifdef TABLE_LOCK_AT_ENTRY_LEVEL
+  INFORMATION_MESSAGE("YapTab: local scheduling (TLEL)");
+#endif
+#else
   INFORMATION_MESSAGE("YapTab: local scheduling");
+#endif /* YAPOR */
 #endif /* TABLING_SCHEDULING */
 #endif /* TABLING */
 #ifdef YAPOR
   map_memory(Heap, Stack, Trail, aux_number_workers);
 #else
   Yap_InitMemory (Trail, Heap, Stack);
-#endif
+#endif /* YAPOR */
   /* global initializations */ 
   init_global(aux_number_workers, aux_scheduler_loop, aux_delayed_release_load);
   init_signals();
 }
-#endif
+#endif /* YAPOR || TABLING */
+
 
 void
 Yap_InitStacks(int Heap,
@@ -1088,7 +1119,7 @@ Yap_InitStacks(int Heap,
 #else
   if (Heap < MinHeapSpace)
     Heap = MinHeapSpace;
-#endif
+#endif /* YAPOR || TABLING */
 
 #if defined(YAPOR) || defined(TABLING)
   InitYapOr(Heap,
@@ -1131,7 +1162,7 @@ Yap_exit (int value)
 {
 #if defined(YAPOR)
   unmap_memory();
-#endif /* YAPOR || TABLING */
+#endif /* YAPOR */
   if (! (Yap_PrologMode & BootMode) )
     Yap_ShutdownLoadForeign();
   exit(value);

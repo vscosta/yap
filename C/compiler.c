@@ -49,11 +49,13 @@ STATIC_PROTO( int checktemp, (void));
 STATIC_PROTO(void checkreg, (int));
 STATIC_PROTO(void c_layout, (void));
 STATIC_PROTO(void c_optimize, (PInstr *));
-
 #ifdef SFUNC
 STATIC_PROTO(void compile_sf_term, (Term, int));
-
 #endif
+
+#ifdef TABLING_INNER_CUTS
+PInstr *cut_mark;
+#endif /* TABLING_INNER_CUTS */
 
 static PInstr *BodyStart;
 
@@ -2364,6 +2366,12 @@ c_layout(void)
 #else
     switch (ic) {
 #endif
+#ifdef TABLING_INNER_CUTS
+    case cut_op:
+    case cutexit_op:
+      cut_mark->op = clause_with_cut_op;
+      break;
+#endif /* TABLING_INNER_CUTS */
     case allocate_op:
     case deallocate_op:
 #ifdef TABLING
@@ -2476,8 +2484,11 @@ c_layout(void)
       Contents[rn] = NIL;
       ++Uses[rn];
       break;
-    case save_b_op:
     case comit_b_op:
+#ifdef TABLING_INNER_CUTS
+      cut_mark->op = clause_with_cut_op;
+#endif /* TABLING_INNER_CUTS */
+    case save_b_op:
     case patch_b_op: 
     case save_appl_op:
     case save_pair_op:
@@ -2819,6 +2830,10 @@ Yap_cclause(Term inp_clause, int NOfArgs, int mod)
   }
   /* phase 1 : produce skeleton code and variable information              */
   c_head(head);
+#ifdef TABLING_INNER_CUTS
+  Yap_emit(nop_op, Zero, Zero);
+  cut_mark = cpc;
+#endif /* TABLING_INNER_CUTS */
   Yap_emit(allocate_op, Zero, Zero);
   c_body(body, mod);
   /* Insert blobs at the very end */ 

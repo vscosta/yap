@@ -344,17 +344,10 @@ put_info(int info, int mode)
   /* say whether we just saved the heap or everything */
   putout(mode);
   /* current state of stacks, to be used by SavedInfo */
-#if defined(YAPOR) || defined(TABLING)
-  /* space available in heap area */
-  putout(Unsigned(Yap_GlobalBase)-Unsigned(Yap_HeapBase));
-  /* space available for stacks */
-  putout(Unsigned(Yap_LocalBase)-Unsigned(Yap_GlobalBase)+CellSize);
-#else
   /* space available in heap area */
   putout(Unsigned(Yap_GlobalBase)-Unsigned(Yap_HeapBase));
   /* space available for stacks */
   putout(Unsigned(Yap_LocalBase)-Unsigned(Yap_GlobalBase));
-#endif /* YAPOR || TABLING */
   /* space available for trail */
   putout(Unsigned(Yap_TrailTop)-Unsigned(Yap_TrailBase));
   /* Space used in heap area */
@@ -468,7 +461,7 @@ save_heap(void)
   j = Unsigned(HeapTop) - Unsigned(Yap_HeapBase);
   /* store 10 more cells because of the memory manager */
   mywrite(splfild, (char *) Yap_HeapBase, j);
-#endif
+#endif /* YAPOR || TABLING */
 }
 
 static void
@@ -804,7 +797,7 @@ CopyCode(void)
 #else
   myread(splfild, (char *) Yap_HeapBase,
 	 (Unsigned(OldHeapTop) - Unsigned(OldHeapBase)));
-#endif
+#endif /* YAPOR || TABLING */
 }
 
 /* Copy the local and global stack and also the trail to their new home */

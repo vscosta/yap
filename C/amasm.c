@@ -2129,6 +2129,11 @@ do_pass(void)
       a_n(_table_new_answer, (int) cpc->rnd2);
       break;
 #endif /* TABLING */
+#ifdef TABLING_INNER_CUTS
+    case clause_with_cut_op:
+      a_e(_clause_with_cut);
+      break;
+#endif /* TABLING_INNER_CUTS */
 #ifdef SFUNC
     case get_s_f_op:
       a_rf(_get_s_f);

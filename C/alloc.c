@@ -12,7 +12,7 @@
 * Last rev:								 *
 * mods:									 *
 * comments:	allocating space					 *
-* version:$Id: alloc.c,v 1.39 2003-10-30 22:52:46 vsc Exp $		 *
+* version:$Id: alloc.c,v 1.40 2003-11-07 16:31:08 ricroc Exp $		 *
 *************************************************************************/
 #ifdef SCCS
 static char SccsId[] = "%W% %G%";
@@ -1049,10 +1049,8 @@ InitHeap(void *heap_addr)
   BaseAllocArea = AllocCodeSpace(OPT_CHUNK_SIZE);
   TopAllocArea = BaseAllocArea; 
 #endif
-
   LOCAL = REMOTE; /* point to the first area */
-#endif
-
+#endif /* YAPOR || TABLING */
 }
 
 void

@@ -135,7 +135,7 @@ SetHeapRegs(void)
   BB = ChoicePtrAdjust(BB);
   H_FZ = PtoGloAdjust(H_FZ);
   TR_FZ = PtoTRAdjust(TR_FZ);
-#endif
+#endif /* TABLING */
   TR = PtoTRAdjust(TR);
   YENV = PtoLocAdjust(YENV);
   if (IsOldGlobalPtr(S))
@@ -180,7 +180,7 @@ SetStackRegs(void)
   B_FZ = ChoicePtrAdjust(B_FZ);
   BB = ChoicePtrAdjust(BB);
   TR_FZ = PtoTRAdjust(TR_FZ);
-#endif
+#endif /* TABLING */
   YENV = PtoLocAdjust(YENV);
   if (MyTR)
     MyTR = PtoTRAdjust(MyTR);
@@ -704,7 +704,7 @@ do_growheap(int fix_code, UInt in_size)
   }
 #ifdef TABLING
   fix_tabling_info();
-#endif
+#endif /* TABLING */
   if (sz >= sizeof(CELL) * 16 * 1024L) {
     return (TRUE);
   }
@@ -733,7 +733,7 @@ Yap_growglobal(CELL **ptr)
     return(FALSE);
 #ifdef TABLING
   fix_tabling_info();
-#endif
+#endif /* TABLING */
   return(TRUE);
 }
 
@@ -779,7 +779,7 @@ growstack(long size)
   AdjustRegs(MaxTemps);
 #ifdef TABLING
   fix_tabling_info();
-#endif
+#endif /* TABLING */
   YAPLeaveCriticalSection();
   CreepFlag = CalculateStackGap();
   ASP += 256;

@@ -619,12 +619,15 @@ static char *opformat[] =
   "restore_temps_and_skip\t\t%l",
   "enter_lu",
   "empty_call\t\t%l,%d",
-#ifdef TABLING
-  "table_new_answer",
-#endif /* TABLING */
 #ifdef YAPOR
   "sync",
 #endif /* YAPOR */
+#ifdef TABLING
+  "table_new_answer",
+#endif /* TABLING */
+#ifdef TABLING_INNER_CUTS
+  "clause_with_cut",
+#endif /* TABLING_INNER_CUTS */
   "fetch_args_for_bccall\t%v",
   "binary_cfunc\t\t%v,%P",
   "blob\t%O"
