@@ -388,7 +388,8 @@ retract(C) :-
 
 '$retract2'(H,M,B) :- 	
 	'$is_log_updatable'(H, M), !,
-	'$log_update_retract'(H,M,B).
+	'$log_update_clause'(H,M,B,R),
+	erase(R).
 '$retract2'(H,M,B) :- 	
 	'$is_dynamic'(H,M), !,
 	'$recordedp'(M:H,(H:-B),R), erase(R).
@@ -465,7 +466,8 @@ retractall(V) :-
 	
 
 '$retractall_lu'(T,M) :-
-	'$log_update_retract'(T,M,_),
+	'$log_update_clause'(T,M,_,R),
+	erase(R),
 	fail.
 '$retractall_lu'(_,_).
 
