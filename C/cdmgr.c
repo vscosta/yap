@@ -1147,16 +1147,19 @@ addclause(Term t, yamop *cp, int mode, int mod, Term src)
   Atom           at;
   UInt           Arity;
   CELL		 pflags;
+  Term		 tf;
 
 
   if (IsApplTerm(t) && FunctorOfTerm(t) == FunctorAssert)
-    t = ArgOfTerm(1, t);
-  if (IsAtomTerm(t)) {
-    at = AtomOfTerm(t);
+    tf = ArgOfTerm(1, t);
+  else
+    tf = t;
+  if (IsAtomTerm(tf)) {
+    at = AtomOfTerm(tf);
     p = RepPredProp(PredPropByAtom(at, mod));
     Arity = 0;
   } else {
-    Functor f = FunctorOfTerm(t);
+    Functor f = FunctorOfTerm(tf);
     Arity = ArityOfFunctor(f);
     at = NameOfFunctor(f);
     p = RepPredProp(PredPropByFunc(f, mod));
@@ -1189,10 +1192,17 @@ addclause(Term t, yamop *cp, int mode, int mod, Term src)
     if (pflags & LogUpdatePredFlag) {
       LogUpdClause     *clp = ClauseCodeToLogUpdClause(cp);
       clp->ClFlags |= LogUpdMask;
-      clp->ClSource = Yap_StoreTermInDB(src, 4);
+      if (IsAtomTerm(t) ||
+	  FunctorOfTerm(t) != FunctorAssert) {
+	clp->ClFlags |= FactMask;
+	clp->ClSource = NULL;
+      }
     } else {
       StaticClause     *clp = ClauseCodeToStaticClause(cp);
       clp->ClFlags |= StaticMask;
+      if (IsAtomTerm(t) ||
+	  FunctorOfTerm(t) != FunctorAssert)
+	clp->ClFlags |= FactMask;
     }
     if (compile_mode)
       p->PredFlags = pflags | CompiledPredFlag | FastPredFlag;
@@ -2971,24 +2981,10 @@ static Int
 fetch_next_lu_clause(PredEntry *pe, yamop *i_code, Term th, Term tb, Term tr, yamop *cp_ptr, int first_time)
 {
   LogUpdClause *cl = Yap_follow_lu_indexing_code(pe, i_code, th, tb, tr, NextClause(PredLogUpdClause->cs.p_code.FirstClause), cp_ptr);
-  Term t;
   Term rtn;
 
   if (cl == NULL)
     return FALSE;
-  while ((t = Yap_FetchTermFromDB(cl->ClSource)) == 0L) {
-    if (first_time) {
-      if (!Yap_gc(4, YENV, P)) {
-	Yap_Error(OUT_OF_STACK_ERROR, TermNil, Yap_ErrorMessage);
-	return FALSE;
-      }
-    } else {
-      if (!Yap_gc(5, ENV, CP)) {
-	Yap_Error(OUT_OF_STACK_ERROR, TermNil, Yap_ErrorMessage);
-	return FALSE;
-      }
-    }
-  }
   rtn = MkDBRefTerm((DBRef)cl);
 #if defined(OR) || defined(THREADS)
   LOCK(cl->ClLock);
@@ -3001,13 +2997,44 @@ fetch_next_lu_clause(PredEntry *pe, yamop *i_code, Term th, Term tb, Term tr, ya
     TRAIL_CLREF(cl);	/* So that fail will erase it */
   }
 #endif
-  if (IsApplTerm(t) && FunctorOfTerm(t) == FunctorAssert) {
+  if (cl->ClFlags & FactMask) {
+    Functor f = FunctorOfTerm(th);
+    UInt arity = ArityOfFunctor(f), i;
+    CELL *pt = RepAppl(th)+1;
+
+    if (!Yap_unify(tb, MkAtomTerm(AtomTrue)) ||
+	!Yap_unify(tr, rtn))
+      return FALSE;
+    for (i=0; i<arity; i++) {
+      XREGS[i+1] = pt[i];
+    }
+    /* don't need no ENV */
+    if (first_time) {
+      CP = P;
+      ENV = YENV;
+      YENV = ASP;
+      YENV[E_CB] = (CELL) B;
+    }
+    P = cl->ClCode;
+    return TRUE;
+  } else {
+    Term t;
+
+    while ((t = Yap_FetchTermFromDB(cl->ClSource)) == 0L) {
+      if (first_time) {
+	if (!Yap_gc(4, YENV, P)) {
+	  Yap_Error(OUT_OF_STACK_ERROR, TermNil, Yap_ErrorMessage);
+	  return FALSE;
+	}
+      } else {
+	if (!Yap_gc(5, ENV, CP)) {
+	  Yap_Error(OUT_OF_STACK_ERROR, TermNil, Yap_ErrorMessage);
+	  return FALSE;
+	}
+      }
+    }
     return(Yap_unify(th, ArgOfTerm(1,t)) &&
 	   Yap_unify(tb, ArgOfTerm(2,t)) &&
-	   Yap_unify(tr, rtn));
-  } else {
-    return(Yap_unify(th, t) &&
-	   Yap_unify(tb, MkAtomTerm(AtomTrue)) &&
 	   Yap_unify(tr, rtn));
   }
 }
@@ -3037,29 +3064,46 @@ static Int
 fetch_next_lu_clause0(PredEntry *pe, yamop *i_code, Term th, Term tb, yamop *cp_ptr, int first_time)
 {
   LogUpdClause *cl = Yap_follow_lu_indexing_code(pe, i_code, th, tb, TermNil, NextClause(PredLogUpdClause0->cs.p_code.FirstClause), cp_ptr);
-  Term t;
 
   if (cl == NULL)
     return FALSE;
-  while ((t = Yap_FetchTermFromDB(cl->ClSource)) == 0L) {
+  if (cl->ClFlags & FactMask) {
+    Functor f = FunctorOfTerm(th);
+    UInt arity = ArityOfFunctor(f), i;
+    CELL *pt = RepAppl(th)+1;
+
+    if (!Yap_unify(tb, MkAtomTerm(AtomTrue)))
+      return FALSE;
+    for (i=0; i<arity; i++) {
+      XREGS[i+1] = pt[i];
+    }
+    /* don't need no ENV */
     if (first_time) {
-      if (!Yap_gc(4, YENV, P)) {
-	Yap_Error(OUT_OF_STACK_ERROR, TermNil, Yap_ErrorMessage);
-	return FALSE;
-      }
-    } else {
-      if (!Yap_gc(5, ENV, CP)) {
-	Yap_Error(OUT_OF_STACK_ERROR, TermNil, Yap_ErrorMessage);
-	return FALSE;
+      CP = P;
+      ENV = YENV;
+      YENV = ASP;
+      YENV[E_CB] = (CELL) B;
+    }
+    P = cl->ClCode;
+    return TRUE;
+  } else {
+    Term t;
+
+    while ((t = Yap_FetchTermFromDB(cl->ClSource)) == 0L) {
+      if (first_time) {
+	if (!Yap_gc(4, YENV, P)) {
+	  Yap_Error(OUT_OF_STACK_ERROR, TermNil, Yap_ErrorMessage);
+	  return FALSE;
+	}
+      } else {
+	if (!Yap_gc(5, ENV, CP)) {
+	  Yap_Error(OUT_OF_STACK_ERROR, TermNil, Yap_ErrorMessage);
+	  return FALSE;
+	}
       }
     }
-  }
-  if (IsApplTerm(t) && FunctorOfTerm(t) == FunctorAssert) {
     return(Yap_unify(th, ArgOfTerm(1,t)) &&
 	   Yap_unify(tb, ArgOfTerm(2,t)));
-  } else {
-    return(Yap_unify(th, t) &&
-	   Yap_unify(tb, MkAtomTerm(AtomTrue)));
   }
 }
 
@@ -3082,61 +3126,6 @@ p_continue_log_update_clause0(void)
   yamop *ipc = (yamop *)IntegerOfTerm(ARG2);
 
   return fetch_next_lu_clause0(pe, ipc, Deref(ARG3), ARG4, B->cp_ap, FALSE);
-}
-
-static Int
-fetch_next_lu_retract(PredEntry *pe, yamop *i_code, Term th, Term tb, yamop *cp_ptr, int first_time)
-{
-  LogUpdClause *cl = Yap_follow_lu_indexing_code(pe, i_code, th, tb, TermNil, NextClause(PredLogUpdRetract->cs.p_code.FirstClause), cp_ptr);
-  Term t;
-
-  if (cl == NULL)
-    return FALSE;
-  while ((t = Yap_FetchTermFromDB(cl->ClSource)) == 0L) {
-    if (first_time) {
-      if (!Yap_gc(3, YENV, P)) {
-	Yap_Error(OUT_OF_STACK_ERROR, TermNil, Yap_ErrorMessage);
-	return FALSE;
-      }
-    } else {
-      if (!Yap_gc(4, ENV, CP)) {
-	Yap_Error(OUT_OF_STACK_ERROR, TermNil, Yap_ErrorMessage);
-	return FALSE;
-      }
-    }
-  }
-  if (IsApplTerm(t) && FunctorOfTerm(t) == FunctorAssert) {
-    if (!(Yap_unify(th, ArgOfTerm(1,t)) &&
-	  Yap_unify(tb, ArgOfTerm(2,t))))
-      return FALSE;
-  } else {
-    if (!(Yap_unify(th, t) &&
-	  Yap_unify(tb, MkAtomTerm(AtomTrue))))
-      return FALSE;
-  }
-  Yap_ErLogUpdCl(cl);
-  return TRUE;
-}
-
-static Int			/* $hidden_predicate(P) */
-p_log_update_retract(void)
-{
-  PredEntry      *pe;
-  Term           t1 = Deref(ARG1);
-
-  pe = get_pred(t1, Deref(ARG2), "retract/2");
-  if (pe == NULL || EndOfPAEntr(pe))
-    return FALSE;
-  return fetch_next_lu_retract(pe, pe->cs.p_code.TrueCodeOfPred, t1, ARG3, P, TRUE);
-}
-
-static Int			/* $hidden_predicate(P) */
-p_continue_log_update_retract(void)
-{
-  PredEntry *pe = (PredEntry *)IntegerOfTerm(Deref(ARG1));
-  yamop *ipc = (yamop *)IntegerOfTerm(ARG2);
-
-  return fetch_next_lu_retract(pe, ipc, Deref(ARG3), ARG4, B->cp_ap, FALSE);
 }
 
 #ifdef LOW_PROF
@@ -3344,8 +3333,7 @@ Yap_InitCdMgr(void)
   Yap_InitCPred("$continue_log_update_clause", 5, p_continue_log_update_clause, SafePredFlag|SyncPredFlag);
   Yap_InitCPred("$log_update_clause", 3, p_log_update_clause0, SyncPredFlag);
   Yap_InitCPred("$continue_log_update_clause", 4, p_continue_log_update_clause0, SafePredFlag|SyncPredFlag);
-  Yap_InitCPred("$log_update_retract", 3, p_log_update_retract, SyncPredFlag);
-  Yap_InitCPred("$continue_log_update_retract", 4, p_continue_log_update_retract, SafePredFlag|SyncPredFlag);
+  Yap_InitCPred("$continue_log_update_clause", 4, p_continue_log_update_clause0, SafePredFlag|SyncPredFlag);
   Yap_InitCPred("$static_pred_statistics", 5, p_static_pred_statistics, SyncPredFlag);
 }
 

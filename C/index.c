@@ -3357,7 +3357,7 @@ Yap_PredIsIndexable(PredEntry *ap)
   CurrentPred = ap;
   IPredArity = ap->ArityOfPE;
   if (CodeStart) {
-    if ((indx_out = Yap_assemble(ASSEMBLING_INDEX)) == NULL) {
+    if ((indx_out = Yap_assemble(ASSEMBLING_INDEX, TermNil, ap, FALSE)) == NULL) {
       if (!Yap_growheap(FALSE, Yap_Error_Size)) {
 	Yap_Error(SYSTEM_ERROR, TermNil, Yap_ErrorMessage);
 	return NULL;
@@ -4121,7 +4121,7 @@ ExpandIndex(PredEntry *ap) {
   CurrentPred = ap;
   IPredArity = ap->ArityOfPE;
   if (CodeStart) {
-    if ((indx_out = Yap_assemble(ASSEMBLING_INDEX)) == NULL) {
+    if ((indx_out = Yap_assemble(ASSEMBLING_INDEX, TermNil, ap, FALSE)) == NULL) {
       if (!Yap_growheap(FALSE, Yap_Error_Size)) {
 	Yap_Error(SYSTEM_ERROR, TermNil, Yap_ErrorMessage);
 	return NULL;

@@ -254,6 +254,7 @@ Inline(IsPredProperty, PropFlags, int, flags, (flags == PEProp) )
 /* Flags for code or dbase entry */
 /* There are several flags for code and data base entries */
 typedef enum {
+  FactMask = 0x100000,     /* informs this is a fact */
   SwitchRootMask= 0x80000, /* informs this is the root for the index tree */
   SwitchTableMask=0x40000, /* informs this is a switch table */
   HasBlobsMask  = 0x20000, /* informs this has blobs which may be in use */
@@ -487,6 +488,7 @@ int		STD_PROTO(Yap_RemoveIndexation,(PredEntry *));
 /* dbase.c */
 void		STD_PROTO(Yap_ErDBE,(DBRef));
 DBTerm	       *STD_PROTO(Yap_StoreTermInDB,(Term,int));
+DBTerm	       *STD_PROTO(Yap_StoreTermInDBPlusExtraSpace,(Term,UInt));
 Term		STD_PROTO(Yap_FetchTermFromDB,(DBTerm *));
 void		STD_PROTO(Yap_ReleaseTermFromDB,(DBTerm *));
 

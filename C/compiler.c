@@ -2868,7 +2868,7 @@ Yap_cclause(Term inp_clause, int NOfArgs, int mod)
     Yap_ShowCode();
 #endif
   /* phase 3: assemble code                                                */
-  acode = Yap_assemble(ASSEMBLING_CLAUSE);
+  acode = Yap_assemble(ASSEMBLING_CLAUSE, inp_clause, CurrentPred, body == MkAtomTerm(AtomTrue));
 
 
   /* check first if there was space for us */

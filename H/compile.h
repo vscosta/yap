@@ -232,7 +232,7 @@ typedef struct CEXPENTRY {
 #define Two	 2
 
 
-yamop  *STD_PROTO(Yap_assemble,(int));
+yamop  *STD_PROTO(Yap_assemble,(int,Term,struct pred_entry *,int));
 void	STD_PROTO(Yap_emit,(compiler_vm_op,Int,CELL));
 void	STD_PROTO(Yap_emit_3ops,(compiler_vm_op,CELL,CELL,CELL));
 void	STD_PROTO(Yap_emit_4ops,(compiler_vm_op,CELL,CELL,CELL,CELL));

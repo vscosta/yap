@@ -3486,10 +3486,6 @@ lu_statistics(PredEntry *pe)
     while (x != NULL) {
       cls++;
       sz += Yap_SizeOfBlock((CODEADDR)x);
-      if (pe->ModuleOfPred != 2 &&
-	  x->ClSource != NULL) {
-	sz += Yap_SizeOfBlock((CODEADDR)(x->ClSource));
-      }
       x = x->ClNext;
     }
   }
@@ -3770,7 +3766,11 @@ p_jump_to_next_dynamic_clause(void)
 static void
 complete_lu_erase(LogUpdClause *clau)
 {
-  DBRef *cp = clau->ClSource->DBRefs;
+  DBRef *cp;
+  if (clau->ClSource)
+    cp = clau->ClSource->DBRefs;
+  else 
+    cp = NULL;
   if (CL_IN_USE(clau)) {
     return;
   }
@@ -3778,8 +3778,6 @@ complete_lu_erase(LogUpdClause *clau)
       clau->ClExt->u.EC.ClRefs > 0) {
     return;
   }
-  if (clau->ClPred->ModuleOfPred != 2)
-    ReleaseTermFromDB(clau->ClSource);
 #ifdef DEBUG
   if (clau->ClNext)
     clau->ClNext->ClPrev = clau->ClPrev;
@@ -4231,10 +4229,36 @@ p_instance(void)
     if (cl->ClFlags & ErasedMask) {
       return FALSE;
     }
+    if (cl->ClSource == NULL) {
+      PredEntry *ap = cl->ClPred;
+      if (ap->ArityOfPE == 0) {
+	return Yap_unify(ARG2,MkAtomTerm((Atom)ap->FunctorOfPred));
+      } else {
+	Functor f = ap->FunctorOfPred;
+	UInt arity = ArityOfFunctor(ap->FunctorOfPred), i;
+	Term t2 = Deref(ARG2);
+	CELL *ptr;
+
+	if (IsVarTerm(t2)) {
+	  Yap_unify(ARG2, (t2 = Yap_MkNewApplTerm(f,arity)));
+	} else if (!IsApplTerm(t2) || FunctorOfTerm(t2) != f) {
+	  return FALSE;
+	}
+	ptr = RepAppl(t2)+1;
+	for (i=0; i<arity; i++) {
+	  XREGS[i+1] = ptr[i];
+	}
+	CP = P;
+	YENV = ASP;
+	YENV[E_CB] = (CELL) B;
+	P = cl->ClCode;
+	return TRUE;
+      }
+    }
     opc = Yap_op_from_opcode(cl->ClCode->opc);
     if (opc == _unify_idb_term) {
       return Yap_unify(ARG2, cl->ClSource->Entry);
-    } else {
+    } else  {
       while ((TermDB = GetDBTerm(cl->ClSource)) == 0L) {
 	/* oops, we are in trouble, not enough stack space */
 	if (!Yap_gc(2, ENV, P)) {
@@ -4517,6 +4541,14 @@ StoreTermInDB(Term t, int nargs)
 DBTerm *
 Yap_StoreTermInDB(Term t, int nargs) {
   return StoreTermInDB(t, nargs);
+}
+
+DBTerm *
+Yap_StoreTermInDBPlusExtraSpace(Term t, UInt extra_size) {
+  int needs_vars;
+
+  return (DBTerm *)CreateDBStruct(t, (DBProp)NULL,
+			  InQueue, &needs_vars, extra_size);
 }
 
 
