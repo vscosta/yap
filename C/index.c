@@ -1031,6 +1031,7 @@ add_info(ClauseDef *clause, UInt regno)
     case _get_x_var:
       if (regcopy_in(myregs, nofregs, cl->u.xx.xr)) {
 	nofregs = add_regcopy(myregs, nofregs, cl->u.xx.xl);
+	cl = NEXTOP(cl,xx);
 	break;
       }
     case _put_x_var:
@@ -2686,10 +2687,15 @@ compile_index(PredEntry *ap)
   int NClauses = ap->cs.p_code.NOfClauses;
   ClauseDef *cls = (ClauseDef *)H;
   CELL *top = (CELL *) TR;
+
   /* only global variable I use directly */
   labelno = 1;
 
-  if (cls+NClauses > (ClauseDef *)(ASP-4096)) {
+  Yap_Error_Size = NClauses*sizeof(ClauseDef);
+  /* reserve double the space for compiler */
+  if (cls+2*NClauses > (ClauseDef *)(ASP-4096)) {
+    /* tell how much space we need */
+    Yap_Error_Size += NClauses*sizeof(ClauseDef);
     /* grow stack */
     longjmp(Yap_CompilerBotch,3);
   }
@@ -2710,10 +2716,10 @@ Yap_PredIsIndexable(PredEntry *ap)
 {
   yamop *indx_out;
 
+  Yap_Error_Size = 0;
   if (setjmp(Yap_CompilerBotch) == 3) {
-    /* just duplicate the stack */
     restore_machine_regs();
-    Yap_gc(ap->ArityOfPE, ENV, CP);
+    Yap_gcl(Yap_Error_Size, ap->ArityOfPE, ENV, CP);
   }
  restart_index:
   Yap_ErrorMessage = NULL;
@@ -2729,7 +2735,7 @@ Yap_PredIsIndexable(PredEntry *ap)
   CurrentPred = ap;
   IPredArity = ap->ArityOfPE;
   if ((indx_out = Yap_assemble(ASSEMBLING_INDEX)) == NULL) {
-    if (!Yap_growheap(FALSE)) {
+    if (!Yap_growheap(FALSE, Yap_Error_Size)) {
       Yap_Error(SYSTEM_ERROR, TermNil, Yap_ErrorMessage);
       return NULL;
     }

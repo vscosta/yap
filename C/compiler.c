@@ -136,8 +136,9 @@ pop_code(unsigned int level)
     return;
   if (cpc->op == pop_op)
     ++(cpc->rnd1);
-  else
+  else {
     Yap_emit(pop_op, One, Zero);
+  }
 }
 
 static void
@@ -462,7 +463,7 @@ c_arg(Int argno, Term t, unsigned int arity, unsigned int level)
 	dest[2] = src[2];
 #endif
 	/* note that we don't need to copy size info, unless we wanted
-	 to garbage collect clauses ;-) */
+	   to garbage collect clauses ;-) */
 	icpc = cpc;
 	if (BlobsStart == NULL)
 	  BlobsStart = CodeStart;
@@ -556,8 +557,9 @@ c_arg(Int argno, Term t, unsigned int arity, unsigned int level)
     }
     c_arg(2, TailOfTerm(t), 2, level);
     --level;
-    if (argno != (Int)arity)
+    if (argno != (Int)arity) {
       pop_code(level);
+    }
   } else if (IsRefTerm(t)) {
     READ_LOCK(CurrentPred->PRWLock);
     if (!(CurrentPred->PredFlags & (DynamicPredFlag|LogUpdatePredFlag))) {
@@ -595,8 +597,9 @@ c_arg(Int argno, Term t, unsigned int arity, unsigned int level)
     ++level;
     c_args(t, level);
     --level;
-    if (argno != (Int)arity)
+    if (argno != (Int)arity) {
       pop_code(level);
+    }
   }
 }
 
@@ -2682,6 +2685,7 @@ Yap_cclause(Term inp_clause, int NOfArgs, int mod)
 
   /* first, initialise Yap_CompilerBotch to handle all cases of interruptions */
   Yap_ErrorMessage = NULL;
+  Yap_Error_Size = 0;
   if ((botch_why = setjmp(Yap_CompilerBotch)) == 3) {
     /* out of local stack, just duplicate the stack */
     restore_machine_regs();
@@ -2689,7 +2693,7 @@ Yap_cclause(Term inp_clause, int NOfArgs, int mod)
     {
       Int osize = 2*sizeof(CELL)*(ASP-H);
       ARG1 = my_clause;
-      if (!Yap_gc(2, ENV, P)) {
+      if (!Yap_gcl(Yap_Error_Size, 2, ENV, P)) {
 	Yap_Error_TYPE = OUT_OF_STACK_ERROR;
 	Yap_Error_Term = my_clause;
       }
@@ -2723,7 +2727,7 @@ Yap_cclause(Term inp_clause, int NOfArgs, int mod)
     reset_vars();
     return (0);
   }
-  SaveH = H;
+  HB = H;
   or_found = 0;
   Yap_ErrorMessage = NULL;
   /* initialize variables for code generation                              */
@@ -2731,7 +2735,8 @@ Yap_cclause(Term inp_clause, int NOfArgs, int mod)
   BlobsStart = icpc = NULL;
   freep = freep0 = (char *) (H + maxvnum);
   if (ASP <= CellPtr (freep) + 256) {
-    vtable = NIL;
+    vtable = NULL;
+    Yap_Error_Size = (256+maxvnum)*sizeof(CELL);
     save_machine_regs();
     longjmp(Yap_CompilerBotch,3);
   }
@@ -2746,7 +2751,7 @@ Yap_cclause(Term inp_clause, int NOfArgs, int mod)
    * 2000 added to H in case we need to construct call(G) when G is a
    * variable used as a goal                                       
    */
-  vtable = NIL;
+  vtable = NULL;
   labelno = 0L;
 
   if (IsVarTerm(my_clause)) {
@@ -2802,7 +2807,8 @@ Yap_cclause(Term inp_clause, int NOfArgs, int mod)
     BlobsStart = NULL;
   }
   reset_vars();
-  H = SaveH;
+  H = HB;
+  HB = B->cp_h;
   if (Yap_ErrorMessage)
     return (0);
 #ifdef DEBUG
@@ -2859,7 +2865,7 @@ Yap_cclause(Term inp_clause, int NOfArgs, int mod)
   if (acode == NIL) {
     /* make sure we have enough space */
     reset_vars();
-    if (!Yap_growheap(FALSE)) {
+    if (!Yap_growheap(FALSE, Yap_Error_Size)) {
       save_machine_regs();
       my_clause = Deref(ARG1);
       longjmp(Yap_CompilerBotch, 2);

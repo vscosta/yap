@@ -10,7 +10,7 @@
 * File:		Yap.h.m4						 *
 * mods:									 *
 * comments:	main header file for YAP				 *
-* version:      $Id: Yap.h.m4,v 1.44 2003-04-30 17:44:18 vsc Exp $	 *
+* version:      $Id: Yap.h.m4,v 1.45 2003-05-19 13:04:09 vsc Exp $	 *
 *************************************************************************/
 
 #include "config.h"
@@ -485,6 +485,7 @@ typedef enum {
 extern char    *Yap_ErrorMessage;	/* used to pass error messages		*/
 extern Term     Yap_Error_Term;	/* used to pass error terms */
 extern yap_error_number  Yap_Error_TYPE;	/* used to pass the error */
+extern UInt  Yap_Error_Size;	/* used to pass the error */
 
 typedef enum {
   YAP_INT_BOUNDED_FLAG = 0,

@@ -3050,7 +3050,7 @@ do_gc(Int predarity, CELL *current_env, yamop *nextop)
   }
   if (HeapTop >= Yap_GlobalBase - MinHeapGap) {
     *--ASP = (CELL)current_env;
-    if (!Yap_growheap(FALSE)) {
+    if (!Yap_growheap(FALSE, MinHeapGap)) {
       Yap_Error(SYSTEM_ERROR, TermNil, Yap_ErrorMessage);
       return(FALSE);
     }
@@ -3155,13 +3155,13 @@ p_inform_gc(void)
 }
 
 
-int 
-Yap_gc(Int predarity, CELL *current_env, yamop *nextop)
+static int
+call_gc(UInt gc_lim, Int predarity, CELL *current_env, yamop *nextop)
 {
-  Int           gc_margin = 128;
-  Term          Tgc_margin;
-  Int           effectiveness = 0;
-  int           gc_on = FALSE;
+  UInt   gc_margin = 128;
+  Term   Tgc_margin;
+  Int    effectiveness = 0;
+  int    gc_on = FALSE;
 
 #if defined(YAPOR) || defined(THREADS)
   if (NOfThreads != 1) {
@@ -3171,45 +3171,52 @@ Yap_gc(Int predarity, CELL *current_env, yamop *nextop)
 #endif
   if (Yap_GetValue(AtomGc) != TermNil)
     gc_on = TRUE;
-  if (IsIntTerm(Tgc_margin = Yap_GetValue(AtomGcMargin))) {
-    gc_margin = IntOfTerm(Tgc_margin);
+  if (IsIntegerTerm(Tgc_margin = Yap_GetValue(AtomGcMargin)) &&
+      gc_margin > 0) {
+    gc_margin = (UInt)IntegerOfTerm(Tgc_margin);
   } else {
+    /* only go exponential for the first 8 calls */
     if (gc_calls < 8) 
       gc_margin <<= gc_calls;
-    else
+    else {
+      /* next grow linearly */
       gc_margin <<= 8;
+      gc_margin *= gc_calls;
+    }
   }
-  if (gc_margin < 0 || gc_margin > 4000) {
-    gc_margin = (LCL0 - H0) >> 9;
-  }
-  gc_margin = gc_margin << 8;
+  if (gc_margin < gc_lim)
+    gc_margin = gc_lim;
   if (gc_on) {
     effectiveness = do_gc(predarity, current_env, nextop);
-  }
-  if (effectiveness > 90) {
-    while (gc_margin < H-H0) 
-      gc_margin <<= 1;
+    if (effectiveness > 90) {
+      while (gc_margin < H-H0) 
+	gc_margin <<= 1;
+    }
+  } else {
+    effectiveness = 0;
   }
   /* expand the stack if effectiveness is less than 20 % */
-  if (ASP - H < gc_margin || !gc_on || effectiveness < 20) {
-    Int gap = CalculateStackGap();
-    if (ASP-H > gc_margin)
-      gc_margin = (ASP-H)+gap;
-    else
-      gc_margin = 8 * (gc_margin - (ASP - H));
-    gc_margin = ((gc_margin >> 16) + 1) << 16;
-    if (gc_margin < gap)
-      gc_margin = gap;
-    while (gc_margin >= gap && !Yap_growstack(gc_margin))
-      gc_margin = gc_margin/2;
-    check_global();
-    return(gc_margin >= gap);
+  if (ASP - H < gc_margin ||
+      effectiveness < 20) {
+    return (Yap_growstack(gc_margin));
   }
   /*
    * debug for(save_total=1; save_total<=N; ++save_total)
    * plwrite(XREGS[save_total],Yap_DebugPutc,0); 
    */
   return ( TRUE );
+}
+
+int 
+Yap_gc(Int predarity, CELL *current_env, yamop *nextop)
+{
+  return call_gc(128, predarity, current_env, nextop);
+}
+
+int 
+Yap_gcl(UInt gc_lim, Int predarity, CELL *current_env, yamop *nextop)
+{
+  return call_gc(gc_lim, predarity, current_env, nextop);
 }
 
 

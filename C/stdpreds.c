@@ -853,7 +853,7 @@ p_atom_concat(void)
     sz = strlen(atom_str);
     if (cptr+sz >= top-1024) {
       Yap_ReleasePreAllocCodeSpace((ADDR)cpt0);
-      if (!Yap_growheap(FALSE)) {
+      if (!Yap_growheap(FALSE, sz+1024)) {
 	Yap_Error(SYSTEM_ERROR, TermNil, Yap_ErrorMessage);
 	return(FALSE);
       }

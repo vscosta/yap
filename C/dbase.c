@@ -940,6 +940,7 @@ static CELL *MkDBTerm(register CELL *pt0, register CELL *pt0_end,
   return(CodeMax);
 
  error:
+  Yap_Error_Size = 1024+((char *)AuxSp-(char *)HeapTop);
   DBErrorFlag = OVF_ERROR_IN_DB;
   *vars_foundp = vars_found;
 #ifdef RATIONAL_TREES
@@ -1391,6 +1392,7 @@ CreateDBStruct(Term Tm, DBProp p, int InFlag)
       CodeAbs++;	/* We have one more cell */
       CodeAbs += CellPtr(lr) - CellPtr(LinkAr);
       if ((CELL *)((char *)ntp0+(CELL)CodeAbs) > AuxSp) {
+	Yap_Error_Size = (UInt)DBLength(CodeAbs);
 	DBErrorFlag = OVF_ERROR_IN_DB;
 	Yap_ReleasePreAllocCodeSpace((ADDR)pp0);
 	return(NULL);
@@ -1417,6 +1419,7 @@ CreateDBStruct(Term Tm, DBProp p, int InFlag)
     if (tofref != TmpRefBase) {
       CodeAbs += TmpRefBase - tofref + 1;
       if ((CELL *)((char *)ntp0+(CELL)CodeAbs) > AuxSp) {
+	Yap_Error_Size = (UInt)DBLength(CodeAbs);
 	DBErrorFlag = OVF_ERROR_IN_DB;
 	Yap_ReleasePreAllocCodeSpace((ADDR)pp0);
 	return(NULL);
@@ -1437,6 +1440,7 @@ CreateDBStruct(Term Tm, DBProp p, int InFlag)
 #endif
     pp = AllocDBSpace(DBLength(CodeAbs));
     if (pp == NIL) {
+      Yap_Error_Size = (UInt)DBLength(CodeAbs);
       DBErrorFlag = OVF_ERROR_IN_DB;
       DBErrorNumber = SYSTEM_ERROR;
       DBErrorTerm = TermNil;
@@ -1735,6 +1739,7 @@ p_rcda(void)
   if (!IsVarTerm(Deref(ARG3)))
     return (FALSE);
  restart_record:
+  Yap_Error_Size = 0;
   TRef = MkDBRefTerm(record(MkFirst, t1, t2, Unsigned(0)));
   switch(DBErrorFlag) {
   case NO_ERROR_IN_DB:
@@ -1749,7 +1754,7 @@ p_rcda(void)
     Yap_Error(SYSTEM_ERROR, TermNil, "YAP could not grow trail in recorda/3");
     return(FALSE);
   case OVF_ERROR_IN_DB:
-    if (!Yap_growheap(FALSE)) {
+    if (!Yap_growheap(FALSE, Yap_Error_Size)) {
       Yap_Error(SYSTEM_ERROR, TermNil, Yap_ErrorMessage);
       return(FALSE);
     } else
@@ -1774,6 +1779,7 @@ p_rcdap(void)
   if (!IsVarTerm(Deref(ARG3)))
     return FALSE;
  restart_record:
+  Yap_Error_Size = 0;
   TRef = MkDBRefTerm(record(MkFirst | MkCode, t1, t2, Unsigned(0)));
   switch(DBErrorFlag) {
   case NO_ERROR_IN_DB:
@@ -1788,7 +1794,7 @@ p_rcdap(void)
     Yap_Error(SYSTEM_ERROR, TermNil, "YAP could not grow trail in recorda/3");
     return FALSE;
   case OVF_ERROR_IN_DB:
-    if (!Yap_growheap(FALSE)) {
+    if (!Yap_growheap(FALSE, Yap_Error_Size)) {
       Yap_Error(SYSTEM_ERROR, TermNil, Yap_ErrorMessage);
       return FALSE;
     } else {
@@ -1823,6 +1829,7 @@ p_rcda_at(void)
       return(FALSE);
   }
  restart_record:
+  Yap_Error_Size = 0;
   TRef = MkDBRefTerm(record_at(MkFirst, DBRefOfTerm(t1), t2, Unsigned(0)));
   switch(DBErrorFlag) {
   case NO_ERROR_IN_DB:
@@ -1837,7 +1844,7 @@ p_rcda_at(void)
     Yap_Error(SYSTEM_ERROR, TermNil, "YAP could not grow trail in recorda/3");
     return(FALSE);
   case OVF_ERROR_IN_DB:
-    if (!Yap_growheap(FALSE)) {
+    if (!Yap_growheap(FALSE, Yap_Error_Size)) {
       Yap_Error(SYSTEM_ERROR, TermNil, Yap_ErrorMessage);
       return(FALSE);
     } else
@@ -1862,6 +1869,7 @@ p_rcdz(void)
   if (!IsVarTerm(Deref(ARG3)))
     return (FALSE);
  restart_record:
+  Yap_Error_Size = 0;
   TRef = MkDBRefTerm(record(MkLast, t1, t2, Unsigned(0)));
   switch(DBErrorFlag) {
   case NO_ERROR_IN_DB:
@@ -1876,7 +1884,7 @@ p_rcdz(void)
     Yap_Error(SYSTEM_ERROR, TermNil, "YAP could not grow trail in recorda/3");
     return(FALSE);
   case OVF_ERROR_IN_DB:
-    if (!Yap_growheap(FALSE)) {
+    if (!Yap_growheap(FALSE, Yap_Error_Size)) {
       Yap_Error(SYSTEM_ERROR, TermNil, Yap_ErrorMessage);
       return(FALSE);
     } else
@@ -1901,6 +1909,7 @@ p_rcdzp(void)
   if (!IsVarTerm(Deref(ARG3)))
     return (FALSE);
  restart_record:
+  Yap_Error_Size = 0;
   TRef = MkDBRefTerm(record(MkLast | MkCode, t1, t2, Unsigned(0)));
   switch(DBErrorFlag) {
   case NO_ERROR_IN_DB:
@@ -1915,7 +1924,7 @@ p_rcdzp(void)
     Yap_Error(SYSTEM_ERROR, TermNil, "YAP could not grow trail in recorda/3");
     return(FALSE);
   case OVF_ERROR_IN_DB:
-    if (!Yap_growheap(FALSE)) {
+    if (!Yap_growheap(FALSE, Yap_Error_Size)) {
       Yap_Error(SYSTEM_ERROR, TermNil, Yap_ErrorMessage);
       return(FALSE);
     } else
@@ -1949,6 +1958,7 @@ p_rcdz_at(void)
       return(FALSE);
   }
  restart_record:
+  Yap_Error_Size = 0;
   TRef = MkDBRefTerm(record_at(MkLast, DBRefOfTerm(t1), t2, Unsigned(0)));
   switch(DBErrorFlag) {
   case NO_ERROR_IN_DB:
@@ -1963,7 +1973,7 @@ p_rcdz_at(void)
     Yap_Error(SYSTEM_ERROR, TermNil, "YAP could not grow trail in recordz_at/3");
     return(FALSE);
   case OVF_ERROR_IN_DB:
-    if (!Yap_growheap(FALSE)) {
+    if (!Yap_growheap(FALSE, Yap_Error_Size)) {
       Yap_Error(SYSTEM_ERROR, TermNil, Yap_ErrorMessage);
       return(FALSE);
     } else
@@ -1993,6 +2003,7 @@ p_rcdstatp(void)
     return (FALSE);
   mk_first = ((IntOfTerm(t3) % 4) == 2);
  restart_record:
+  Yap_Error_Size = 0;
   if (mk_first)
     TRef = MkDBRefTerm(record(MkFirst | MkCode, t1, t2, MkIntTerm(0)));
   else
@@ -2010,7 +2021,7 @@ p_rcdstatp(void)
     Yap_Error(SYSTEM_ERROR, TermNil, "YAP could not grow trail in record_stat_source/3");
     return(FALSE);
   case OVF_ERROR_IN_DB:
-    if (!Yap_growheap(FALSE)) {
+    if (!Yap_growheap(FALSE, Yap_Error_Size)) {
       Yap_Error(SYSTEM_ERROR, TermNil, Yap_ErrorMessage);
       return(FALSE);
     } else
@@ -2037,6 +2048,7 @@ p_drcdap(void)
   if (IsVarTerm(t4) || !IsIntegerTerm(t4))
     return (FALSE);
  restart_record:
+  Yap_Error_Size = 0;
   TRef = MkDBRefTerm(record(MkFirst | MkCode | WithRef,
 			    t1, t2, t4));
   switch(DBErrorFlag) {
@@ -2052,7 +2064,7 @@ p_drcdap(void)
     Yap_Error(SYSTEM_ERROR, TermNil, "YAP could not grow trail in recorda/3");
     return(FALSE);
   case OVF_ERROR_IN_DB:
-    if (!Yap_growheap(FALSE)) {
+    if (!Yap_growheap(FALSE, Yap_Error_Size)) {
       Yap_Error(SYSTEM_ERROR, TermNil, Yap_ErrorMessage);
       return(FALSE);
     } else
@@ -2080,6 +2092,7 @@ p_drcdzp(void)
   if (IsVarTerm(t4) || !IsIntegerTerm(t4))
     return (FALSE);
  restart_record:
+  Yap_Error_Size = 0;
   TRef = MkDBRefTerm(record(MkLast | MkCode | WithRef,
 			    t1, t2, t4));
   switch(DBErrorFlag) {
@@ -2095,7 +2108,7 @@ p_drcdzp(void)
     Yap_Error(SYSTEM_ERROR, TermNil, "YAP could not grow trail in recorda/3");
     return(FALSE);
   case OVF_ERROR_IN_DB:
-    if (!Yap_growheap(FALSE)) {
+    if (!Yap_growheap(FALSE, Yap_Error_Size)) {
       Yap_Error(SYSTEM_ERROR, TermNil, Yap_ErrorMessage);
       return(FALSE);
     } else
@@ -2120,6 +2133,7 @@ p_rcdaifnot(void)
   DBRef           db_ref;
 
  restart_record:
+  Yap_Error_Size = 0;
   if (!IsVarTerm(Deref(ARG3)))
     return (FALSE);
   found_one = NIL;
@@ -2140,7 +2154,7 @@ p_rcdaifnot(void)
     Yap_Error(SYSTEM_ERROR, TermNil, "YAP could not grow trail in recorda/3");
     return(FALSE);
   case OVF_ERROR_IN_DB:
-    if (!Yap_growheap(FALSE)) {
+    if (!Yap_growheap(FALSE, Yap_Error_Size)) {
       Yap_Error(SYSTEM_ERROR, TermNil, Yap_ErrorMessage);
       return(FALSE);
     } else
@@ -2162,6 +2176,7 @@ p_rcdzifnot(void)
   DBRef           db_ref;
 
  restart_record:
+  Yap_Error_Size = 0;
   if (!IsVarTerm(Deref(ARG3)))
     return (FALSE);
   found_one = NIL;
@@ -2182,7 +2197,7 @@ p_rcdzifnot(void)
     Yap_Error(SYSTEM_ERROR, TermNil, "YAP could not grow trail in recorda/3");
     return(FALSE);
   case OVF_ERROR_IN_DB:
-    if (!Yap_growheap(FALSE)) {
+    if (!Yap_growheap(FALSE, Yap_Error_Size)) {
       Yap_Error(SYSTEM_ERROR, TermNil, Yap_ErrorMessage);
       return(FALSE);
     } else
@@ -2544,7 +2559,7 @@ nth_recorded_log(LogUpdDBProp AtProp, Int Count)
   } else {
     if (AtProp->Index == NULL) {
       while((AtProp->Index = new_lu_index(AtProp)) == NULL) {
-	if (!Yap_growheap(FALSE)) {
+	if (!Yap_growheap(FALSE,DBLength((AtProp->NOfEntries+1)*sizeof(DBRef *)))) {
 	  Yap_Error(SYSTEM_ERROR, TermNil, Yap_ErrorMessage);
 	  READ_UNLOCK(AtProp->DBRWLock);
 	  return NULL;
@@ -2732,7 +2747,7 @@ i_log_upd_recorded(LogUpdDBProp AtProp)
   } else {
     if (AtProp->Index == NULL) {
       while((AtProp->Index = new_lu_index(AtProp)) == NULL) {
-	if (!Yap_growheap(FALSE)) {
+	if (!Yap_growheap(FALSE,DBLength((AtProp->NOfEntries+1)*sizeof(DBRef *)))) {
 	  Yap_Error(SYSTEM_ERROR, TermNil, Yap_ErrorMessage);
 	  return FALSE;
 	}
@@ -4262,6 +4277,7 @@ StoreTermInDB(int arg, int nargs)
 {
   DBRef x;
   Term t = Deref(XREGS[arg]);
+  Yap_Error_Size = 0;
 
   while ((x = CreateDBStruct(t, (DBProp)NIL,
 			  InQueue)) == NULL) {
@@ -4283,7 +4299,7 @@ StoreTermInDB(int arg, int nargs)
       Yap_Error(SYSTEM_ERROR, TermNil, "YAP could not grow trail in recorda/3");
       return(FALSE);
     case OVF_ERROR_IN_DB:
-      if (!Yap_growheap(FALSE)) {
+      if (!Yap_growheap(FALSE, Yap_Error_Size)) {
 	Yap_Error(SYSTEM_ERROR, TermNil, Yap_ErrorMessage);
 	return(FALSE);
       } else {
@@ -4311,7 +4327,7 @@ p_init_queue(void)
   Term t;
 
   while ((dbq = (db_queue *)AllocDBSpace(sizeof(db_queue))) == NULL) {
-    if (!Yap_growheap(FALSE)) {
+    if (!Yap_growheap(FALSE, sizeof(db_queue))) {
       Yap_Error(SYSTEM_ERROR, TermNil, Yap_ErrorMessage);
       return(FALSE);
     }

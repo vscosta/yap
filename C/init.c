@@ -84,6 +84,7 @@ ADDR            Yap_HeapBase,
 char           *Yap_ErrorMessage;	/* used to pass error messages */
 Term              Yap_Error_Term;	/* used to pass error terms */
 yap_error_number  Yap_Error_TYPE;	/* used to pass the error */
+UInt             Yap_Error_Size;	/* used to pass a size associated with an error */
 
 /********* readline support	*****/
 #if HAVE_LIBREADLINE

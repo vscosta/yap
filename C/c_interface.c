@@ -591,7 +591,7 @@ YAP_AllocSpaceFromYap(unsigned int size)
   BACKUP_MACHINE_REGS();
 
   if ((ptr = Yap_AllocCodeSpace(size)) == NULL) {
-    if (!Yap_growheap(FALSE)) {
+    if (!Yap_growheap(FALSE, size)) {
       Yap_Error(SYSTEM_ERROR, TermNil, Yap_ErrorMessage);
       return(NULL);
     }

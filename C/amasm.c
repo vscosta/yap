@@ -2337,8 +2337,9 @@ do_pass(void)
       }
       if (!pass_no) {
 	if (CellPtr(label_offset+cpc->rnd1) > ASP-256) {
+	  Yap_Error_Size = 256+((char *)(label_offset+cpc->rnd1) - (char *)H);
 	  save_machine_regs();
-	  longjmp(Yap_CompilerBotch,3);	  
+	  longjmp(Yap_CompilerBotch, 3);	  
 	}
 	
 	if ( (char *)(label_offset+cpc->rnd1) > freep)
@@ -2537,7 +2538,7 @@ Yap_assemble(int mode)
       size = (CELL)code_p;
   }
   while ((code_addr = (yamop *) Yap_AllocCodeSpace(size)) == NULL) {
-    if (!Yap_growheap(TRUE)) {
+    if (!Yap_growheap(TRUE, size)) {
       Yap_Error_TYPE = SYSTEM_ERROR;
       return NULL;
     }

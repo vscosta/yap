@@ -763,7 +763,7 @@ static void  expand_consult(void)
   ConsultCapacity += InitialConsultCapacity;
   /* I assume it always works ;-) */
   while ((new_cl = (consult_obj *)Yap_AllocCodeSpace(sizeof(consult_obj)*ConsultCapacity)) == NULL) {
-    if (!Yap_growheap(FALSE)) {
+    if (!Yap_growheap(FALSE, sizeof(consult_obj)*ConsultCapacity)) {
       Yap_Error(SYSTEM_ERROR,TermNil,Yap_ErrorMessage);
       return;
     }

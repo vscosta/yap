@@ -644,12 +644,15 @@ fix_tabling_info(void)
 #endif /* TABLING */
 
 int
-Yap_growheap(int fix_code)
+Yap_growheap(int fix_code, UInt in_size)
 {
   unsigned long size = sizeof(CELL) * 16 * 1024L;
   int shift_factor = (heap_overflows > 8 ? 8 : heap_overflows);
   unsigned long sz =  size << shift_factor;
 
+  if (sz < in_size) {
+    sz = in_size;
+  }
 #if defined(YAPOR) || defined(THREADS)
   if (NOfThreads != 1) {
     Yap_Error(SYSTEM_ERROR,TermNil,"cannot grow Heap: more than a worker/thread running");
@@ -661,6 +664,9 @@ Yap_growheap(int fix_code)
   while(sz >= sizeof(CELL) * 16 * 1024L && !static_growheap(sz, fix_code)) {
     size = size/2;
     sz =  size << shift_factor;
+    if (sz < in_size) {
+      return FALSE;
+    }
   }
   /* we must fix an instruction chain */
   if (fix_code) {

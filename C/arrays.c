@@ -441,7 +441,7 @@ AllocateStaticArraySpace(StaticArrayEntry *p, static_array_types atype, Int arra
   }
   while ((p->ValueOfVE.floats = (Float *) Yap_AllocAtomSpace(asize) ) == NULL) {
     YAPLeaveCriticalSection();
-    if (!Yap_growheap(FALSE)) {
+    if (!Yap_growheap(FALSE, asize)) {
       Yap_Error(SYSTEM_ERROR, TermNil, Yap_ErrorMessage);
       return;
     }
@@ -455,7 +455,7 @@ CreateStaticArray(AtomEntry *ae, Int dim, static_array_types type, CODEADDR star
 {
   if (EndOfPAEntr(p)) {
     while ((p = (StaticArrayEntry *) Yap_AllocAtomSpace(sizeof(*p))) == NULL) {
-      if (!Yap_growheap(FALSE)) {
+      if (!Yap_growheap(FALSE, sizeof(*p))) {
 	Yap_Error(SYSTEM_ERROR, TermNil, Yap_ErrorMessage);
 	return NULL;
       }

@@ -65,6 +65,7 @@ AllocCMem (int size)
 #endif
   freep += size;
   if (ASP <= CellPtr (freep) + 256) {
+    Yap_Error_Size = 256+((char *)freep - (char *)H);
     save_machine_regs();
     longjmp(Yap_CompilerBotch,3);
   }
@@ -82,24 +83,21 @@ Yap_is_a_test_pred (Term arg, SMALLUNSGN mod)
 {
   if (IsVarTerm (arg))
     return (FALSE);
-  else if (IsAtomTerm (arg))
-    {
+  else if (IsAtomTerm (arg)) {
       Atom At = AtomOfTerm (arg);
       PredEntry *pe = RepPredProp(PredPropByAtom(At, mod));
       if (EndOfPAEntr(pe))
 	return (FALSE);
       return (pe->PredFlags & TestPredFlag);
-    }
-  else if (IsApplTerm (arg))
-    {
-      Functor f = FunctorOfTerm (arg);
+  } else if (IsApplTerm (arg)) {
+    Functor f = FunctorOfTerm (arg);
       PredEntry *pe = RepPredProp(PredPropByFunc(f, mod));
       if (EndOfPAEntr(pe))
 	return (FALSE);
       return (pe->PredFlags & TestPredFlag);
-    }
-  else
+  } else {
     return (FALSE);
+  }
 }
 
 void
@@ -110,14 +108,13 @@ Yap_emit (compiler_vm_op o, Int r1, CELL r2)
   p->op = o;
   p->rnd1 = r1;
   p->rnd2 = r2;
-  p->nextInst = NIL;
-  if (cpc == NIL)
+  p->nextInst = NULL;
+  if (cpc == NIL) {
     cpc = CodeStart = p;
-  else
-    {
-      cpc->nextInst = p;
-      cpc = p;
-    }
+  } else {
+    cpc->nextInst = p;
+    cpc = p;
+  }
 }
 
 void

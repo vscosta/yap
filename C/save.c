@@ -650,7 +650,7 @@ check_header(CELL *info, CELL *ATrail, CELL *AStack, CELL *AHeap)
   if (Yap_ErrorMessage)
      return(FAIL_RESTORE);
   while (Yap_HeapBase != NULL && hp_size > Unsigned(AuxTop) - Unsigned(Yap_HeapBase)) {
-    if(!Yap_growheap(FALSE)) {
+    if(!Yap_growheap(FALSE, hp_size)) {
       return(FAIL_RESTORE);      
     }
   }

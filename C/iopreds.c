@@ -2004,7 +2004,7 @@ p_open_mem_read_stream (void)   /* $open_mem_read_stream(+List,-Stream) */
     }
   }
   while ((nbuf = (char *)Yap_AllocAtomSpace((sl+1)*sizeof(char))) == NULL) {
-    if (!Yap_growheap(FALSE)) {
+    if (!Yap_growheap(FALSE, (sl+1)*sizeof(char))) {
       Yap_Error(SYSTEM_ERROR, TermNil, Yap_ErrorMessage);
       return(FALSE);
     }
@@ -2058,7 +2058,7 @@ p_open_mem_write_stream (void)   /* $open_mem_write_stream(-Stream) */
   extern int Yap_page_size;
 
   while ((nbuf = (char *)Yap_AllocAtomSpace(Yap_page_size*sizeof(char))) == NULL) {
-    if (!Yap_growheap(FALSE)) {
+    if (!Yap_growheap(FALSE, Yap_page_size*sizeof(char))) {
       Yap_Error(SYSTEM_ERROR, TermNil, Yap_ErrorMessage);
       return(FALSE);
     }
@@ -4833,7 +4833,7 @@ p_char_conversion(void)
       return(TRUE);
     CharConversionTable2 = Yap_AllocCodeSpace(NUMBER_OF_CHARS*sizeof(char));
     while (CharConversionTable2 == NULL) {
-      if (!Yap_growheap(FALSE)) {
+      if (!Yap_growheap(FALSE, NUMBER_OF_CHARS*sizeof(char))) {
 	Yap_Error(SYSTEM_ERROR, TermNil, Yap_ErrorMessage);
 	return(FALSE);
       }
