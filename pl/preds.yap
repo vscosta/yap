@@ -449,13 +449,13 @@ abolish(X) :-
 	throw(error(type_error(predicate_indicator,T),abolish(M:T))).
 	
 '$abolish_all_old'(M) :-
-        '$current_predicate'(Mod,Na,Ar),
-	'$abolish'(Na, Ar, Mod),
+        '$current_predicate'(M, Na, Ar),
+	'$abolish'(Na, Ar, M),
 	fail.
-'$abolish_all_old'.
+'$abolish_all_old'(_).
 
 '$abolish_all_atoms_old'(Na, M) :-
-        '$current_predicate'(M,Na,Ar),
+        '$current_predicate'(M, Na, Ar),
 	'$abolish'(Na, Ar, M),
 	fail.
 '$abolish_all_atoms_old'(_,_).
