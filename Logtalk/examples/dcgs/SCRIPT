@@ -1,6 +1,6 @@
 =================================================================
 Logtalk - Object oriented extension to Prolog
-Release 2.21.0
+Release 2.21.1
 
 Copyright (c) 1998-2004 Paulo Moura.  All Rights Reserved.
 =================================================================
@@ -37,7 +37,7 @@ yes
 
 | ?- parsetree::parse([the, girl, likes, the, boy], Tree).
 
-Tree = Tree = s(np(d(the), n(girl)), vp(v(likes), np(d(the), n(boy))))
+Tree = s(np(d(the), n(girl)), vp(v(likes), np(d(the), n(boy))))
 yes
 
 
@@ -116,7 +116,7 @@ yes
 
 % command language example:
 
-?- faa::main.
+| ?- faa::main.
 Fly Amzi! Air
 enter command> list flights
 aa101
@@ -129,3 +129,18 @@ elana
 tom
 enter command> exit
 yes
+
+
+% double bypass using the {}/1 control constructs of grammar rules and Logtalk:
+
+| ?- bypass::foo(_, _).
+    
+bar predicate called
+yes
+
+
+% run the Logtalk DCG translator on the test cases:
+
+| ?- dcgtest::run.
+
+...

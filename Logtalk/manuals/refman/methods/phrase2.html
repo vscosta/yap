@@ -46,6 +46,12 @@
 			<dd><code>type_error(callable, Ruleset)</code></dd>
 		<dt>Input is neither a variable nor a proper list:</dt>
 			<dd><code>type_error(list, Input)</code></dd>
+		<dt>The predicate Pred corresponding to Ruleset is private:</dt>
+			<dd><code>permission_error(access, private_predicate, Pred)</code></dd>
+		<dt>The predicate Pred corresponding to Ruleset is protected:</dt>
+			<dd><code>permission_error(access, protected_predicate, Pred)</code></dd>
+		<dt>The predicate Pred corresponding to Ruleset is not declared:</dt>
+			<dd><code>existence_error(predicate_declaration, Pred)</code></dd>
 	</dl>
 </blockquote>
 
@@ -64,7 +70,7 @@ Copyright &copy; <a href="mailto:pmoura@logtalk.org">Paulo Moura</a> &mdash; <a 
 </div>
 
 <div class="footer">
-<p><span class="bleft"><a href="http://validator.w3.org/check/referer">XHTML</a> + <a href="http://jigsaw.w3.org/css-validator/check/referer">CSS</a></span><span class="bright">Last updated on: December 23, 2003</span></p>
+<p><span class="bleft"><a href="http://validator.w3.org/check/referer">XHTML</a> + <a href="http://jigsaw.w3.org/css-validator/check/referer">CSS</a></span><span class="bright">Last updated on: September 23, 2004</span></p>
 </div>
 </body>
 </html>

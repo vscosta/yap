@@ -7,7 +7,7 @@
 	written by		Paulo Moura
 	version			1.42
 	created on		2 May 2002
-	last revised	7 September 2004
+	last revised	18 September 2004
 	
 	To install, copy this file to the "modes" subdirectory in jEdit 
 	directory installation.   Next, check the "catalog" file in the 
@@ -221,6 +221,7 @@
 			<FUNCTION>before</FUNCTION>
 			<FUNCTION>after</FUNCTION>
 
+			<FUNCTION>expand_term</FUNCTION>
 			<FUNCTION>phrase</FUNCTION>
 
 			<!-- Control constructs -->

@@ -13,4 +13,6 @@
 		shell,
 		walker,
 		bom,
-		faa])). 
+		faa,
+		bypass,
+		dcgtest])). 

@@ -2,7 +2,7 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %
 %  Logtalk - Object oriented extension to Prolog
-%  Release 2.21.0
+%  Release 2.21.1
 %
 %  Copyright (c) 1998-2004 Paulo Moura.  All Rights Reserved.
 %
@@ -1133,7 +1133,7 @@ current_logtalk_flag(Flag, Value) :-
 	'$lgt_default_flag'(Flag, Value),
 	\+ '$lgt_current_flag_'(Flag, _).
 
-current_logtalk_flag(version, version(2, 21, 0)).
+current_logtalk_flag(version, version(2, 21, 1)).
 
 
 
@@ -1537,31 +1537,36 @@ current_logtalk_flag(version, version(2, 21, 0)).
 	\+ callable(Body),
 	throw(error(type_error(callable, Body), Obj::clause(Head, Body), Sender)).
 
-'$lgt_clause'(Obj, Head, Body, Sender, _) :-
-	\+ '$lgt_current_object_'(Obj, _, _, _, _, _),
-	throw(error(existence_error(object, Obj), Obj::clause(Head, Body), Sender)).
-
 '$lgt_clause'(Obj, Head, Body, Sender, Scope) :-
-	'$lgt_current_object_'(Obj, Prefix, _, _, _, _),
-	'$lgt_call'(Prefix, Dcl, Def, _, _, _, _, DDef),
-	('$lgt_call'(Dcl, Head, PScope, Type, _, SCtn, _) ->
-		(Type = (dynamic) ->
-			((\+ \+ PScope = Scope; Sender = SCtn) ->
-				once(('$lgt_once'(Def, Head, _, _, _, Call); '$lgt_once'(DDef, Head, _, _, _, Call))),
+	'$lgt_current_object_'(Obj, Prefix, _, _, _, _) ->
+		'$lgt_call'(Prefix, Dcl, Def, _, _, _, _, DDef),
+		('$lgt_call'(Dcl, Head, PScope, Type, _, SCtn, _) ->
+			(Type = (dynamic) ->
+				((\+ \+ PScope = Scope; Sender = SCtn) ->
+					once(('$lgt_once'(Def, Head, _, _, _, Call); '$lgt_once'(DDef, Head, _, _, _, Call))),
+					clause(Call, TBody),
+					(TBody = ('$lgt_nop'(Body), _) ->
+						true
+						;
+						Body = TBody)
+					;
+					(PScope = p ->
+						throw(error(permission_error(access, private_predicate, Head), Obj::clause(Head, Body), Sender))
+						;
+						throw(error(permission_error(access, protected_predicate, Head), Obj::clause(Head, Body), Sender))))
+				;
+				throw(error(permission_error(access, static_predicate, Head), Obj::clause(Head, Body), Sender)))
+			;
+			('$lgt_once'(DDef, Head, _, _, _, Call) ->	% local dynamic predicate with no scope declaration
 				clause(Call, TBody),
 				(TBody = ('$lgt_nop'(Body), _) ->
 					true
 					;
 					Body = TBody)
 				;
-				(PScope = p ->
-					throw(error(permission_error(access, private_predicate, Head), Obj::clause(Head, Body), Sender))
-					;
-					throw(error(permission_error(access, protected_predicate, Head), Obj::clause(Head, Body), Sender))))
-			;
-			throw(error(permission_error(access, static_predicate, Head), Obj::clause(Head, Body), Sender)))
+				throw(error(existence_error(predicate_declaration, Head), Obj::clause(Head, Body), Sender))))
 		;
-		throw(error(existence_error(predicate_declaration, Head), Obj::clause(Head, Body), Sender))).
+		throw(error(existence_error(object, Obj), Obj::clause(Head, Body), Sender)).
 
 
 
@@ -1659,36 +1664,34 @@ current_logtalk_flag(version, version(2, 21, 0)).
 	\+ callable(Head),
 	throw(error(type_error(callable, Head), Obj::retractall(Head), Sender)).
 
-'$lgt_retractall'(Obj, Head, Sender, _) :-
-	\+ '$lgt_current_object_'(Obj, _, _, _, _, _),
-	throw(error(existence_error(object, Obj), Obj::retractall(Head), Sender)).
-
 '$lgt_retractall'(Obj, Head, Sender, Scope) :-
-	'$lgt_current_object_'(Obj, Prefix, _, _, _, _),
-	'$lgt_call'(Prefix, Dcl, Def, _, _, _, _, DDef),
-	('$lgt_call'(Dcl, Head, PScope, Type, _, SCtn, _) ->
-		(Type = (dynamic) ->
-			((\+ \+ PScope = Scope; Sender = SCtn) ->
-				('$lgt_call'(Def, Head, _, _, _, Call) ->
-					retractall(Call)
-					;
-					('$lgt_call'(DDef, Head, _, _, _, Call) ->
-						retractall(Call),
-						'$lgt_update_ddef_table'(DDef, Head, Call)
+	'$lgt_current_object_'(Obj, Prefix, _, _, _, _) ->
+		'$lgt_call'(Prefix, Dcl, Def, _, _, _, _, DDef),
+		('$lgt_call'(Dcl, Head, PScope, Type, _, SCtn, _) ->
+			(Type = (dynamic) ->
+				((\+ \+ PScope = Scope; Sender = SCtn) ->
+					('$lgt_call'(Def, Head, _, _, _, Call) ->
+						retractall(Call)
 						;
-						true))
-				;
-				(PScope = p ->
-					throw(error(permission_error(modify, private_predicate, Head), Obj::retractall(Head), Sender))
+						('$lgt_call'(DDef, Head, _, _, _, Call) ->
+							retractall(Call),
+							'$lgt_update_ddef_table'(DDef, Head, Call)
+							;
+							true))
 					;
-					throw(error(permission_error(modify, protected_predicate, Head), Obj::retractall(Head), Sender))))
+					(PScope = p ->
+						throw(error(permission_error(modify, private_predicate, Head), Obj::retractall(Head), Sender))
+						;
+						throw(error(permission_error(modify, protected_predicate, Head), Obj::retractall(Head), Sender))))
+				;
+				throw(error(permission_error(modify, static_predicate, Head), Obj::retractall(Head), Sender)))
 			;
-			throw(error(permission_error(modify, static_predicate, Head), Obj::retractall(Head), Sender)))
+			('$lgt_call'(DDef, Head, _, _, _, Call) ->	% local dynamic predicate with no scope declaration
+				retractall(Call)
+				;
+				throw(error(existence_error(predicate_declaration, Head), Obj::retractall(Head), Sender))))
 		;
-		('$lgt_call'(DDef, Head, _, _, _, Call) ->	% local dynamic predicate with no scope declaration
-			retractall(Call)
-			;
-			throw(error(existence_error(predicate_declaration, Head), Obj::retractall(Head), Sender)))).
+		throw(error(existence_error(object, Obj), Obj::retractall(Head), Sender)).
 
 
 
@@ -1701,7 +1704,7 @@ current_logtalk_flag(version, version(2, 21, 0)).
 
 
 
-% '$lgt_phrase'(+ruleset, ?list)
+% '$lgt_phrase'(+object_identifier, +ruleset, ?list, +object_identifier, +scope)
 %
 % phrase/2 built-in method
 
@@ -1713,7 +1716,7 @@ current_logtalk_flag(version, version(2, 21, 0)).
 
 
 
-% '$lgt_phrase'(+ruleset, ?list, ?list)
+% '$lgt_phrase'(+object_identifier, +ruleset, +list, ?list, +object_identifier, +scope)
 %
 % phrase/3 built-in method
 
@@ -1744,24 +1747,43 @@ current_logtalk_flag(version, version(2, 21, 0)).
 	'$lgt_append'([Head| Tail], Rest, Input).
 
 '$lgt_phrase'(Obj, Ruleset, Input, Rest, Sender, Scope) :-
-	Ruleset =.. [Functor| Args],
-	'$lgt_append'(Args, [Input, Rest], Args2),
-	Pred =.. [Functor| Args2],
-	'$lgt_current_object_'(Obj, _, Dcl, Def, _, _),
-	('$lgt_call'(Dcl, Pred, PScope, _, _, SCtn, _) ->
-		((\+ \+ PScope = Scope; Sender = SCtn) ->
-			'$lgt_once'(Def, Pred, Sender, Obj, Obj, Call, _),
-			call(Call)
-			;
-			(PScope = p ->
-				throw(error(permission_error(access, private_predicate, Pred), Obj::phrase(Ruleset, Input, Rest), Sender))
+	'$lgt_current_object_'(Obj, Prefix, Dcl, Def, _, _) ->
+		Ruleset =.. [Functor| Args],
+		'$lgt_append'(Args, [Input, Rest], Args2),
+		Pred =.. [Functor| Args2],
+		('$lgt_call'(Dcl, Pred, PScope, _, _, SCtn, _) ->
+			((\+ \+ PScope = Scope; Sender = SCtn) ->
+				'$lgt_once'(Def, Pred, Sender, Obj, Obj, Call, _),
+				call(Call)
 				;
-				throw(error(permission_error(access, protected_predicate, Pred), Obj::phrase(Ruleset, Input, Rest), Sender))))
-		;
-		((Obj = Sender, '$lgt_call'(Def, Pred, Obj, Obj, Obj, Call, _)) ->
-			call(Call)
+				(PScope = p ->
+					throw(error(permission_error(access, private_predicate, Pred), Obj::phrase(Ruleset, Input, Rest), Sender))
+					;
+					throw(error(permission_error(access, protected_predicate, Pred), Obj::phrase(Ruleset, Input, Rest), Sender))))
 			;
-			throw(error(existence_error(procedure, Pred), Obj::phrase(Ruleset, Input, Rest), Sender)))).
+			((Obj = Sender,
+			  ('$lgt_call'(Def, Pred, Obj, Obj, Obj, Call)
+			   ;
+			   '$lgt_call'(Prefix, _, _, _, _, _, _, DDef), '$lgt_call'(DDef, Pred, Obj, Obj, Obj, Call))) ->
+				call(Call)
+				;
+				throw(error(existence_error(predicate_declaration, Pred), Obj::phrase(Ruleset, Input, Rest), Sender))))
+		;
+		throw(error(existence_error(object, Obj), Obj::phrase(Ruleset, Input, Rest), Sender)).
+
+
+
+% '$lgt_expand_term'(+object_identifier, @term, -clause, +object_identifier, +scope)
+%
+% expand_term/2 built-in method
+
+'$lgt_expand_term'(_, Term, Clause, _, _) :-
+	nonvar(Term),
+	Term = (_ --> _),
+	!,
+	'$lgt_dcgrule_to_clause'(Term, Clause).
+
+'$lgt_expand_term'(_, Term, Term, _, _).
 
 
 
@@ -4025,11 +4047,15 @@ current_logtalk_flag(version, version(2, 21, 0)).
 
 % DCG predicates
 
-'$lgt_tr_body'(phrase(Ruleset, List), '$lgt_phrase'(This, Ruleset, List, This, _), '$lgt_dbg_goal'(phrase(Ruleset, List), '$lgt_phrase'(This, Ruleset, List, This, _), Ctx), Ctx) :-
+'$lgt_tr_body'(expand_term(Term, Clause), '$lgt_expand_term'(This, Term, Clause, This, _), '$lgt_dbg_goal'(expand_term(Term, Clause), '$lgt_expand_term'(This, Term, Clause, This, _), Ctx), Ctx) :-
 	!,
 	'$lgt_this'(Ctx, This).
 
-'$lgt_tr_body'(phrase(Ruleset, List, Rest), '$lgt_phrase'(This, Ruleset, List, Rest, This, _), '$lgt_dbg_goal'(phrase(Ruleset, List, Rest), '$lgt_phrase'(This, Ruleset, List, Rest, This, _), Ctx), Ctx) :-
+'$lgt_tr_body'(phrase(Ruleset, Input), '$lgt_phrase'(This, Ruleset, Input, This, _), '$lgt_dbg_goal'(phrase(Ruleset, Input), '$lgt_phrase'(This, Ruleset, Input, This, _), Ctx), Ctx) :-
+	!,
+	'$lgt_this'(Ctx, This).
+
+'$lgt_tr_body'(phrase(Ruleset, Input, Rest), '$lgt_phrase'(This, Ruleset, Input, Rest, This, _), '$lgt_dbg_goal'(phrase(Ruleset, Input, Rest), '$lgt_phrase'(This, Ruleset, Input, Rest, This, _), Ctx), Ctx) :-
 	!,
 	'$lgt_this'(Ctx, This).
 
@@ -4326,6 +4352,10 @@ current_logtalk_flag(version, version(2, 21, 0)).
 
 % DCG predicates
 
+'$lgt_tr_msg'(expand_term(Term, Clause), Obj, '$lgt_expand_term'(Obj, Term, Clause, This, p(p(p))), Ctx) :-
+	!,
+	'$lgt_this'(Ctx, This).
+
 '$lgt_tr_msg'(phrase(Ruleset, List), Obj, '$lgt_phrase'(Obj, Ruleset, List, This, p(p(p))), Ctx) :-
 	!,
 	'$lgt_this'(Ctx, This).
@@ -4479,6 +4509,11 @@ current_logtalk_flag(version, version(2, 21, 0)).
 
 
 % DCG predicates
+
+'$lgt_tr_self_msg'(expand_term(Term, Clause), '$lgt_expand_term'(Self, Term, Clause, This, p(_)), Ctx) :-
+	!,
+	'$lgt_self'(Ctx, Self),
+	'$lgt_this'(Ctx, This).
 
 '$lgt_tr_self_msg'(phrase(Ruleset, List), '$lgt_phrase'(Self, Ruleset, List, This, p(_)), Ctx) :-
 	!,
@@ -6672,6 +6707,7 @@ current_logtalk_flag(version, version(2, 21, 0)).
 '$lgt_built_in_method'(forall(_, _), p(p(p))).
 '$lgt_built_in_method'(setof(_, _, _), p(p(p))).
 
+'$lgt_built_in_method'(expand_term(_, _), p(p(p))).
 '$lgt_built_in_method'(phrase(_, _), p(p(p))).
 '$lgt_built_in_method'(phrase(_, _, _), p(p(p))).
 
@@ -7182,13 +7218,13 @@ current_logtalk_flag(version, version(2, 21, 0)).
 	'$lgt_dcg_head'(RHead, CHead, _, _, S, S, _).
 
 '$lgt_dcg_rule'((RHead --> RBody), (CHead :- CBody)) :-
-	'$lgt_dcg_head'(RHead, CHead, Body, Body2, S0, S, S1),
-	'$lgt_dcg_body'(RBody, Body, S0, S),
-	'$lgt_dcg_fold_unifications'(Body2, CBody, S1).
+	'$lgt_dcg_head'(RHead, CHead, Body, Body2, S0, S1, S),
+	'$lgt_dcg_body'(RBody, Body, S0, S1),
+	'$lgt_dcg_fold_unifications'(Body2, CBody, S0, S).
 
 
 
-% '$lgt_dcg_head'(@dcghead, -head, @goal, -goal, @var, @var, -var)
+% '$lgt_dcg_head'(@dcghead, -head, @goal, -goal, @var, @var, @var)
 %
 % translates DCG rule head to a Prolog clause head
 % (the last argument returns the variable representing the ouput list)
@@ -7201,13 +7237,13 @@ current_logtalk_flag(version, version(2, 21, 0)).
 	\+ '$lgt_proper_list'(Terminals),
 	throw(type_error(list, Terminals)).
 
-'$lgt_dcg_head'((Nonterminal, Terminals), CHead, Body, (Body,Goal), S0, S, S1) :-
+'$lgt_dcg_head'((RHead, Terminals), CHead, Body, (Body,Goal), S0, S1, S) :-
 	!,
-	'$lgt_dcg_terminals'(Terminals, Goal, S1, S),
-	'$lgt_dcg_goal'(Nonterminal, CHead, S0, S1).
+	'$lgt_dcg_goal'(RHead, CHead, S0, S),
+	'$lgt_dcg_terminals'(Terminals, Goal, S, S1).
 
-'$lgt_dcg_head'(Nonterminal, CHead, Body, Body, S0, S, S) :-
-	'$lgt_dcg_goal'(Nonterminal, CHead, S0, S).
+'$lgt_dcg_head'(RHead, CHead, Body, Body, S0, S, S) :-
+	'$lgt_dcg_goal'(RHead, CHead, S0, S).
 
 
 
@@ -7219,11 +7255,13 @@ current_logtalk_flag(version, version(2, 21, 0)).
 	var(Var),
 	!.
 
-'$lgt_dcg_body'(::Goal, ::phrase(Goal, S0, S), S0, S) :-
-	!.
+'$lgt_dcg_body'(::RGoal, ::CGoal, S0, S) :-
+	!,
+	'$lgt_dcg_body'(RGoal, CGoal, S0, S).
 
-'$lgt_dcg_body'(Object::Goal, Object::phrase(Goal, S0, S), S0, S) :-
-	!.
+'$lgt_dcg_body'(Object::RGoal, Object::CGoal, S0, S) :-
+	!,
+	'$lgt_dcg_body'(RGoal, CGoal, S0, S).
 
 '$lgt_dcg_body'((RGoal,RGoals), (CGoal,CGoals), S0, S) :-
 	!,
@@ -7247,9 +7285,9 @@ current_logtalk_flag(version, version(2, 21, 0)).
 '$lgt_dcg_body'(!, (!, S0=S), S0, S) :-
 	!.
 
-'$lgt_dcg_body'(\+ RGoal, CGoal, S0, S) :-
+'$lgt_dcg_body'(\+ RGoal, \+ CGoal, S0, S0) :-
 	!,
-	'$lgt_dcg_body'((RGoal -> {fail};{true}), CGoal, S0, S).
+	'$lgt_dcg_body'(RGoal, CGoal, S0, _).
 
 '$lgt_dcg_body'([], (S0=S), S0, S) :-
 	!.
@@ -7258,8 +7296,8 @@ current_logtalk_flag(version, version(2, 21, 0)).
 	!,
 	'$lgt_dcg_terminals'([Terminal| Terminals], CGoal, S0, S).
 
-'$lgt_dcg_body'(Non_terminal, CGoal, S0, S) :-
-	'$lgt_dcg_goal'(Non_terminal, CGoal, S0, S).
+'$lgt_dcg_body'(RGoal, CGoal, S0, S) :-
+	'$lgt_dcg_goal'(RGoal, CGoal, S0, S).
 
 
 
@@ -7294,43 +7332,43 @@ current_logtalk_flag(version, version(2, 21, 0)).
 
 
 
-% '$lgt_dcg_fold_unifications'(+goal, -goal, @var)
+% '$lgt_dcg_fold_unifications'(+goal, -goal, @var, @var)
 %
 % folds redundant calls to =/2 by calling the unification
-% goals execept for output unifications
+% goals except for output unifications
 
-'$lgt_dcg_fold_unifications'((Goal1 -> Goal2), (SGoal1 -> SGoal2), S) :-
+'$lgt_dcg_fold_unifications'((Goal1 -> Goal2), (SGoal1 -> SGoal2), S0, S) :-
 	!,
-	'$lgt_dcg_fold_unifications'(Goal1, SGoal1, S),
-	'$lgt_dcg_fold_unifications'(Goal2, SGoal2, S).
+	'$lgt_dcg_fold_unifications'(Goal1, SGoal1, S0, S),
+	'$lgt_dcg_fold_unifications'(Goal2, SGoal2, S0, S).
 
-'$lgt_dcg_fold_unifications'((Goal1;Goal2), (SGoal1;SGoal2), S) :-
+'$lgt_dcg_fold_unifications'((Goal1;Goal2), (SGoal1;SGoal2), S0, S) :-
 	!,
-	'$lgt_dcg_fold_unifications'(Goal1, SGoal1, S),
-	'$lgt_dcg_fold_unifications'(Goal2, SGoal2, S).
+	'$lgt_dcg_fold_unifications'(Goal1, SGoal1, S0, S),
+	'$lgt_dcg_fold_unifications'(Goal2, SGoal2, S0, S).
 
-'$lgt_dcg_fold_unifications'((Goal1,Goal2), SGoal, S) :-
+'$lgt_dcg_fold_unifications'((Goal1,Goal2), SGoal, S0, S) :-
 	!,
-	'$lgt_dcg_fold_unifications'(Goal1, SGoal1, S),
-	'$lgt_dcg_fold_unifications'(Goal2, SGoal2, S),
+	'$lgt_dcg_fold_unifications'(Goal1, SGoal1, S0, S),
+	'$lgt_dcg_fold_unifications'(Goal2, SGoal2, S0, S),
 	'$lgt_dcg_simplify_and'((SGoal1,SGoal2), SGoal).
 
-'$lgt_dcg_fold_unifications'(S1=S2, S1=S2, S) :-
+'$lgt_dcg_fold_unifications'(S1=S2, S1=S2, _, S) :-
 	(S1 == S; S2 == S),		% avoid output unifications
 	!.
 
-'$lgt_dcg_fold_unifications'(S1=S2, true, _) :-
+'$lgt_dcg_fold_unifications'(S1=S2, true, _, _) :-
 	var(S2),				% avoid unification with list of terminals
 	!,
 	S1 = S2.
 
-'$lgt_dcg_fold_unifications'(Goal, Goal, _).
+'$lgt_dcg_fold_unifications'(Goal, Goal, _, _).
 
 
 
 % '$lgt_dcg_simplify_and'(+goal, -goal)
 %
-% removes redundant calls to true/0 and flats a conjunction of goals
+% removes redundant calls to true/0 and flats conjunction of goals
 
 '$lgt_dcg_simplify_and'((Goal1 -> Goal2), (SGoal1 -> SGoal2)) :-
 	!,
@@ -7357,6 +7395,10 @@ current_logtalk_flag(version, version(2, 21, 0)).
 '$lgt_dcg_simplify_and'((Goal1,Goal2), (Goal1,Goal3)) :-
 	!,
 	'$lgt_dcg_simplify_and'(Goal2, Goal3).
+
+'$lgt_dcg_simplify_and'(\+ Goal, \+ SGoal) :-
+	!,
+	'$lgt_dcg_simplify_and'(Goal, SGoal).
 
 '$lgt_dcg_simplify_and'(Goal, Goal).
 

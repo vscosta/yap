@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE language SYSTEM "language.dtd">
 
-<language name="Logtalk" version="1.31" kateversion="2.1" section="Sources" extensions="*.mlgt;*.lgt;*.loader;*.config" mimetype="text/x-logtalk" author="Paulo Moura (pmoura@logtalk.org)" license="Artistic License 2.0">
+<language name="Logtalk" version="1.32" kateversion="2.1" section="Sources" extensions="*.mlgt;*.lgt;*.loader;*.config" mimetype="text/x-logtalk" author="Paulo Moura (pmoura@logtalk.org)" license="Artistic License 2.0">
 
     <highlighting>
 
@@ -17,7 +17,7 @@
 				<!-- Reflection -->
                 <RegExpr String = "\b(current_predicate|predicate_property)(?=[(])" attribute="Built-in" context="#stay" />
 				<!-- DCGs -->
-                <RegExpr String = "\bphrase(?=[(])" attribute="Built-in" context="#stay" />
+                <RegExpr String = "\b(expand_term|phrase)(?=[(])" attribute="Built-in" context="#stay" />
 				<!-- Entity -->
                 <RegExpr String = "\bcurrent_(object|protocol|category)(?=[(])" attribute="Built-in" context="#stay" />
                 <RegExpr String = "\bcreate_(object|protocol|category)(?=[(])" attribute="Built-in" context="#stay" />

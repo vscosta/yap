@@ -1,6 +1,6 @@
 =================================================================
 Logtalk - Object oriented extension to Prolog
-Release 2.21.0
+Release 2.21.1
 
 Copyright (c) 1998-2004 Paulo Moura.  All Rights Reserved.
 =================================================================
@@ -24,7 +24,10 @@ lgt_install.js
 	by setting the LOGTALKHOME system environment variable and by creating a 
 	new program group named "Logtalk" in the Windows Start Menu (must be run 
 	from this directory by a user with administration privileges after 
-	decompressing the Logtalk distribution into its final destination)
+	decompressing the Logtalk distribution into its final destination; you might
+	need to logout and login again in order to use the items in the created 
+	"Logtalk" program group due to the definition of a new system environment 
+	variable)
 
 logtalk.spec
 	specification file for building Linux RPMs

@@ -83,6 +83,7 @@
 				<regex>\b(f(ind|or)all)\(</regex>
 				<regex>\b(before)\(</regex>
 				<regex>\b(after)\(</regex>
+				<regex>\b(expand_term)\(</regex>
 				<regex>\b(phrase)\(</regex>
 			</keywords>
 
@@ -207,11 +208,11 @@
 			</keywords>
 
 			<keywords id="Numbers" color="#bf4b18" useforautocomplete="no">
-				<regex>(?&lt;=[^[A-Za-z0-9]]|^)([0-9]+((\.[0-9]+)?([eE][-+][0-9]+)?)?)</regex>
-				<regex>(?&lt;=[^[A-Za-z0-9]]|^)(0b[0-1]+)</regex>
-				<regex>(?&lt;=[^[A-Za-z0-9]]|^)(0o[0-7]+)</regex>
-				<regex>(?&lt;=[^[A-Za-z0-9]]|^)(0x[0-9a-fA-F]+)</regex>
-				<regex>(?&lt;=[^[A-Za-z0-9]]|^)(0'[0-9a-zA-Z])</regex>
+				<regex>(?&lt;=[^[A-Za-z_0-9]]|^)([0-9]+((\.[0-9]+)?([eE][-+][0-9]+)?)?)</regex>
+				<regex>(?&lt;=[^[A-Za-z_0-9]]|^)(0b[0-1]+)</regex>
+				<regex>(?&lt;=[^[A-Za-z_0-9]]|^)(0o[0-7]+)</regex>
+				<regex>(?&lt;=[^[A-Za-z_0-9]]|^)(0x[0-9a-fA-F]+)</regex>
+				<regex>(?&lt;=[^[A-Za-z_0-9]]|^)(0'[0-9a-zA-Z])</regex>
 			</keywords>
 
 			<keywords id="Mode Operators" color="#0000ff" useforautocomplete="no">

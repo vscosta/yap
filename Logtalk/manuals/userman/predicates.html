@@ -412,6 +412,116 @@ will not work as you might expect because the meta-argument is not called as a g
 Note that the predicate <code>apply/2</code> is no longer declared as a metapredicate. However, it will work as expected when called because of the implicit passing of the method execution context between the two predicates.
 </p>
 
+<h3>Definite clause grammars<a name="dcgs"></a></h3>
+
+<p>
+Definite clause grammar rules provide a convenient notation to represent the rewrite rules common of most grammars in Prolog. In Logtalk, definite clause grammar rules can be encapsulated in objects and categories. Currently, the ISO/IEC WG17 group is working on a draft specification for a definite clause grammars Prolog standard. Therefore, in the mean time, Logtalk follows the common practice of Prolog compilers supporting definite clause grammars, extending it to support calling grammar rules contained in categories and objects. A common example of a definite clause grammar is the definition of a set of rules for parsing simple arithmetic expressions:
+</p>
+<pre>
+    :- object(calculator).
+
+        :- public(parse/2).
+
+        parse(Expression, Value) :-
+            phrase(expr(Value), Expression).
+
+        expr(Z) --> term(X), "+", expr(Y), {Z is X + Y}.
+        expr(Z) --> term(X), "-", expr(Y), {Z is X - Y}.
+        expr(X) --> term(X).
+
+        term(Z) --> number(X), "*", term(Y), {Z is X * Y}.
+        term(Z) --> number(X), "/", term(Y), {Z is X / Y}.
+        term(Z) --> number(Z).
+
+        number(C) --> "+", number(C).
+        number(C) --> "-", number(X), {C is -X}.
+        number(X) --> [C], {0'0 =< C, C =< 0'9, X is C - 0'0}.
+
+    :- end_object. 
+</pre>
+<p>
+The predicate <a title="Consult reference manual" href="../refman/methods/phrase2.html"><code>phrase/2</code></a> called in the definition of predicate <a title="Consult reference manual" href="../refman/methods/phrase3.html"><code>phrase/3</code></a> is a Logtalk builtin method, similar to the predicate with the same name found on most Prolog compilers that support definite clause grammars. After compiling and loading this object, we can test the grammar rules with calls such as the following one:
+</p>
+<pre>
+    | ?- calculator::parse("1+2-3*4", Result).
+
+    Result = -9
+    yes
+</pre>
+<p>
+In most cases, the predicates resulting from the translation of the grammar rules to regular clauses are not declared. Instead, these predicates are usually called by using the built-in methods <code>phrase/2</code> and <code>phrase/3</code>. Nevertheless, in case we want to call grammar rules the same way we call any other predicate, the corresponding predicate arity will be the arity of the rule head plus two. For the above example, assuming that we want the predicate corresponding to the <code>expr/1</code> rule to be public, the declaration would be:
+</p>
+<pre>
+    :- public(expr/3). 
+</pre>
+<p>
+In the body of a grammar rule, we can call rules that are inherited from ancestor objects, imported from categories, or contained in other objects. This is accomplished by using non-terminals as messages. Using a non-terminal as a message to self allows us to call grammar rules in categories and ancestor objects. To call grammar rules encapsulated in other objects, we use a non-terminal as a message to those objects. Consider the following example, containing grammar rules for parsing natural language sentences:
+</p>
+<pre>
+    :- object(sentence,
+        imports(determiners, nouns, verbs)).
+
+        :- public(parse/2).
+
+        parse(List, true) :-
+            phrase(sentence, List).
+        parse(_, false).
+
+        sentence --> noun_phrase, verb_phrase.
+
+        noun_phrase --> ::determiner, ::noun.
+        noun_phrase --> ::noun.
+
+        verb_phrase --> ::verb.
+        verb_phrase --> ::verb, noun_phrase.
+
+    :- end_object.
+</pre>
+<p>
+The object imported categories would contain the necessary grammar rules for parsing determiners, nouns, and verbs. For example:
+</p>
+<pre>
+    :- category(determiners).
+
+        :- private(determiner/2).
+
+        determiner --> [the].
+        determiner --> [a].
+
+    :- end_category.
+</pre>
+<p>
+Along with the message sending operators (<code>::/1</code> and <code>::/2</code>), we may also use other control constructs such as <code>\+/1</code>, <code>!/0</code>, <code>;/2</code>, <code>->/2</code>, and <code>{}/1</code> in the body of a grammar. In addition, grammar rules may contain metacalls (a variable taking the place of a non-terminal), which are translated to calls of the built-in method <code>phrase/3</code>. 
+</p>
+<p>
+You may have noticed that Logtalk defines <code>{}/1</code> as a control construct for bypassing the compiler when compiling a clause body goal. As exemplified above, this is the same control construct that is used in grammar rules for bypassing the expansion of rule body goals when a rule is converted into a clause. Both control constructs can be combined in order to call a goal from a grammar rule body, while bypassing at the same time the Logtalk compiler. Consider the following example:
+</p>
+<pre>
+    bar :-
+        write('bar predicate called'), nl.
+
+
+    :- object(bypass).
+
+        :- public(foo/2).
+
+        foo --> {{bar}}.
+
+    :- end_object.
+</pre>
+<p>
+After compiling and loading this code, we may try the following query:
+</p>
+<pre>
+    | ?- bypass::foo(_, _).
+    
+    bar predicate called
+    yes
+</pre>
+<p>
+This is the expected result as the expansion of the grammar rule into a clause leves the <code>{bar}</code> goal untouched, which, in turn, is converted into the goal <code>bar</code> when the clause is compiled.
+</p>
+
 <h2>Built-in object predicates (methods)<a name="methods"></a></h2>
 
 <p>
@@ -507,6 +617,12 @@ The usual all solutions metapredicates are pre-defined methods in Logtalk: <a ti
 Logtalk provides two built-in methods for inspecting object predicates: <a title="Consult reference manual" href="../refman/methods/predicate_property2.html"><code>predicate_property/2</code></a>, that return predicate properties and <a title="Consult reference manual" href="../refman/methods/current_predicate1.html"><code>current_predicate/1</code></a>, that enables us to query about predicate definitions. See below for a more detailed description of both methods.
 </p>
 
+<h3>Definite clause grammar parsing methods<a name="parsing"></a></h3>
+
+<p>
+Logtalk supports two definite clause grammar parsing built-in methods, <a title="Consult reference manual" href="../refman/methods/phrase2.html"><code>phrase/2</code></a> and <a title="Consult reference manual" href="../refman/methods/phrase3.html"><code>phrase/3</code></a>, with definitions similar to the predicates with the same name found on most Prolog compilers that support definite clause grammars. The current implementation of the parsing methods only accepts as first argument a non-terminal instead of a rule body.
+</p>
+
 <h2>Predicate properties<a name="properties"></a></h2>
 
 <p>
@@ -536,7 +652,7 @@ Possible predicate propertie values are:
 The last two properties, <code>declared_in/1</code> and <code>defined_in/1</code>, do not apply to built-in methods and Logtalk or Prolog built-in predicates.
 </p>
 <p>
-Note that if a predicate is declared in a category imported by the object, it will be the category name - not the object name - which will be returned by the property <code>declared_in/1</code>.
+Note that if a predicate is declared in a category imported by the object, it will be the category name - not the object name - which will be returned by the property <code>declared_in/1</code>. The same goes for protocol declared predicates.
 </p>
 
 <h2>Finding declared predicates<a name="finding"></a></h2>
@@ -566,7 +682,7 @@ In predicate definitions, predicate calls which are not prefixed with a message 
 the call to the predicate <code>write/1</code> will be compiled as a call to the corresponding Prolog built-in predicate unless the object (or category) encapsulating the above definition also contains a predicate named <code>write/1</code> or a dynamic declaration for the predicate.
 </p>
 <p>
-When calling non-standard Prolog built-in predicates, you may run into portability problems when trying your applications with other Prolog compilers which might not have the same set of built-in predicates. You may use the Logtalk compiler option <code>portability/1</code> in  order to check for any problematic calls in your code.
+When calling non-standard Prolog built-in predicates, you may run into portability problems when trying your applications with other Prolog compilers which might not have the same set of built-in predicates. You may use the Logtalk compiler option <a title="Consult user manual" href="running.html#options"><code>portability/1</code></a> to help you check for problematic calls in your code.
 </p>
 
 <h3>Calling Prolog non-standard metapredicates<a name="prolog_meta"></a></h3>
@@ -590,7 +706,7 @@ Copyright &copy; <a href="mailto:pmoura@logtalk.org">Paulo Moura</a> &mdash; <a 
 </div>
 
 <div class="footer">
-<p><span class="bleft"><a href="http://validator.w3.org/check/referer">XHTML</a> + <a href="http://jigsaw.w3.org/css-validator/check/referer">CSS</a></span><span class="bright">Last updated on: September 7, 2004</span></p>
+<p><span class="bleft"><a href="http://validator.w3.org/check/referer">XHTML</a> + <a href="http://jigsaw.w3.org/css-validator/check/referer">CSS</a></span><span class="bright">Last updated on: September 27, 2004</span></p>
 </div>
 </body>
 </html>
