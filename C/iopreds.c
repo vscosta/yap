@@ -908,7 +908,7 @@ ReadlineGetc(int sno)
       char *cptr = Prompt, ch;
 
       if ((Stream[FileAliases[2].alias_stream].status & Tty_Stream_f) &&
-	  Stream[FileAliases[2].alias_stream].u.file.name == Stream[sno].u.file.name) {
+	  Stream[FileAliases[0].alias_stream].u.file.name == Stream[sno].u.file.name) {
 	/* don't just output the prompt */
 	while ((ch = *cptr++) != '\0') {
 	  console_count_output_char(ch,Stream+StdErrStream,StdErrStream);

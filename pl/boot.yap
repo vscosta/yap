@@ -526,9 +526,11 @@ repeat :- '$repeat'.
 '$another' :-
 	'$format'(user_error," ? ",[]),
 	'$get0'(user_input,C),
-	(       C==59 ->
-	    '$skip'(user_input,10),fail;
-	    C==10 -> '$format'(user_error,"~n", [])
+	(   C== 0'; ->  '$skip'(user_input,10), fail
+	;
+	    C== 10 -> '$format'(user_error,"~n", [])
+	;
+	    C== -1 -> halt
 	;
 	    '$skip'(user_input,10), '$ask_again_for_another'
 	).

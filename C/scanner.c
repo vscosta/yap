@@ -1428,6 +1428,10 @@ fast_tokenizer(void)
 	    *charp++ = ch;
 	    my_fgetch();
 	  }
+	  if (chtype[ch] == EF) {
+	    kind = eot_tok;
+	    break;
+	  }
 	  ++len;
 	  if (charp > (char *)AuxSp - 1024) {
 	    /* Not enough space to read in the string. */
