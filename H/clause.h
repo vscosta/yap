@@ -173,7 +173,6 @@ wamreg  STD_PROTO(Yap_compile_cmp_flags,(PredEntry *));
 void    STD_PROTO(Yap_InitComma,(void));
 
 /* cdmgr.c */
-void	STD_PROTO(Yap_RemoveLogUpdIndex,(LogUpdIndex *));
 void	STD_PROTO(Yap_IPred,(PredEntry *));
 void	STD_PROTO(Yap_addclause,(Term,yamop *,int,Term));
 void	STD_PROTO(Yap_add_logupd_clause,(PredEntry *,LogUpdClause *,int));

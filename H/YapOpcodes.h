@@ -11,8 +11,11 @@
 * File:		YapOpcodes.h						 *
 * comments:	Central Table with all YAP opcodes                       *
 *									 *
-* Last rev:     $Date: 2004-03-10 14:59:55 $							 *
-* $Log: not supported by cvs2svn $									 *
+* Last rev:     $Date: 2004-03-19 11:35:42 $							 *
+* $Log: not supported by cvs2svn $
+* Revision 1.21  2004/03/10 14:59:55  vsc
+* optimise -> for type tests
+*									 *
 *									 *
 *************************************************************************/
     OPCODE(Ystop                   ,e),
@@ -151,7 +154,7 @@
     OPCODE(trust                   ,ld),		
     OPCODE(try_in                  ,l),
     OPCODE(jump_if_var             ,l),	
-    OPCODE(jump_if_nonvar          ,l),	
+    OPCODE(jump_if_nonvar          ,xl),	
     OPCODE(switch_on_cons          ,ssl),	
     OPCODE(switch_on_type          ,llll),	
     OPCODE(switch_list_nl          ,ollll),
@@ -264,8 +267,6 @@
     OPCODE(alloc_for_logical_pred  ,EC),
     OPCODE(unify_idb_term          ,e),
     OPCODE(copy_idb_term           ,e),
-    OPCODE(retry_killed            ,ld),
-    OPCODE(trust_killed            ,ld),
 #if THREADS
     OPCODE(thread_local            ,e),
 #endif

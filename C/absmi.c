@@ -10,8 +10,11 @@
 *									 *
 * File:		absmi.c							 *
 * comments:	Portable abstract machine interpreter                    *
-* Last rev:     $Date: 2004-03-10 14:59:54 $,$Author: vsc $						 *
+* Last rev:     $Date: 2004-03-19 11:35:42 $,$Author: vsc $						 *
 * $Log: not supported by cvs2svn $
+* Revision 1.125  2004/03/10 14:59:54  vsc
+* optimise -> for type tests
+*
 * Revision 1.124  2004/03/08 19:31:01  vsc
 * move to 4.5.3
 *									 *
@@ -1198,7 +1201,7 @@ Yap_absmi(int inp)
 	  /* I am the last one using this clause, hence I don't need a lock
 	     to dispose of it 
 	  */
-	  Yap_RemoveLogUpdIndex(cl);
+	  Yap_ErLogUpdIndex(cl);
 	} else {
 	  UNLOCK(cl->ClLock);
 	}
@@ -1209,7 +1212,7 @@ Yap_absmi(int inp)
 	  TR = --B->cp_tr;
 	  /* next, recover space for the indexing code if it was erased */
 	  if (cl->ClFlags & ErasedMask) {
-	    Yap_RemoveLogUpdIndex(cl);
+	    Yap_ErLogUpdIndex(cl);
 	  }
 	}
 #endif
@@ -1627,9 +1630,7 @@ Yap_absmi(int inp)
 	      case _retry_and_mark:
 	      case _profiled_retry_and_mark:
 	      case _retry:
-	      case _retry_killed:
 	      case _trust:
-	      case _trust_killed:
 		low_level_trace(retry_pred, ipc->u.ld.p, B->cp_args);
 		break;
 	      case _Nstop:
@@ -1780,12 +1781,12 @@ Yap_absmi(int inp)
 	  /* AbsAppl means */
 	  /* multi-assignment variable */
 	  /* so the next cell is the old value */ 
-	  pt0--;
 #if FROZEN_STACKS
 	  pt[0] = TrailVal(pt0);
 #else
 	  pt[0] = TrailTerm(pt0);
 #endif /* FROZEN_STACKS */
+	  pt0 -= 2;
 	  goto failloop;
 	}
 #endif
@@ -1818,7 +1819,56 @@ Yap_absmi(int inp)
 #endif /* TABLING */
 	SET_BB(PROTECT_FROZEN_B(B));
 	HBREG = PROTECT_FROZEN_H(B);
-	TR = trim_trail(B, TR, HBREG);
+      trim_trail:
+        {
+	  tr_fr_ptr pt1, pt0;
+	  pt1 = pt0 = B->cp_tr;
+	  while (pt1 != TR) {
+	    BEGD(d1);
+	    if (IsVarTerm(d1 = TrailTerm(pt1))) {
+	      if (d1 < (CELL)HBREG || d1 > Unsigned(B)) { 
+		TrailTerm(pt0) = d1;
+		pt0++;
+	      }                                
+	      pt1++;
+	    } else if (IsApplTerm(d1)) {
+	      TrailTerm(pt0) = TrailTerm(pt0+2) = d1;
+	      TrailTerm(pt0+1) = TrailTerm(pt1+1);
+	      pt0 += 3;
+	      pt1 += 3;
+	    } else if (IsPairTerm(d1)) {
+	      CELL *pt = RepPair(d1);
+	      if ((*pt & (LogUpdMask|IndexMask)) == (LogUpdMask|IndexMask)) {
+		LogUpdIndex *cl = ClauseFlagsToLogUpdIndex(pt);
+		int erase;
+
+		LOCK(cl->ClLock);
+		DEC_CLREF_COUNT(cl);
+		cl->ClFlags &= ~InUseMask;
+		erase = (cl->ClFlags & ErasedMask) && !(cl->ClRefCount);
+		UNLOCK(cl->ClLock);
+		if (erase) {
+		  /* at this point, 
+		     we are the only ones accessing the clause,
+		     hence we don't need to have a lock it */
+		  saveregs();
+		  Yap_ErLogUpdIndex(cl);
+		  setregs();
+		}
+	      } else {
+		TrailTerm(pt0) = d1;
+		pt0++;
+	      }
+	      pt1++;
+	    } else {
+	      TrailTerm(pt0) = d1;
+	      pt0++;
+	      pt1++;
+	    }
+	    ENDD(d1);                              
+	  }  
+	  TR = pt0;
+	}
       }
       ENDD(d0);
       GONext();
@@ -1843,7 +1893,7 @@ Yap_absmi(int inp)
 #endif /* TABLING */
 	SET_BB(PROTECT_FROZEN_B(B));
 	HBREG = PROTECT_FROZEN_H(B);
-	TR = trim_trail(B, TR, HBREG);
+	goto trim_trail;
       }
       ENDD(d0);
       GONext();
@@ -1867,7 +1917,7 @@ Yap_absmi(int inp)
 #endif /* TABLING */
 	SET_BB(PROTECT_FROZEN_B(B));
 	HBREG = PROTECT_FROZEN_H(B);
-	TR = trim_trail(B, TR, HBREG);
+	goto trim_trail;
       }
       ENDD(d0);
       GONext();
@@ -1928,7 +1978,7 @@ Yap_absmi(int inp)
 #endif /* TABLING */
 	  SET_BB(PROTECT_FROZEN_B(B));
 	  HBREG = PROTECT_FROZEN_H(pt0);
-	  TR = trim_trail(B, TR, HBREG);
+	  goto trim_trail;
 	}
       }
       ENDD(d0);
@@ -1964,7 +2014,7 @@ Yap_absmi(int inp)
 #endif /* TABLING */
 	  SET_BB(PROTECT_FROZEN_B(B));
 	  HBREG = PROTECT_FROZEN_H(pt0);
-	  TR = trim_trail(B, TR, HBREG);
+	  goto trim_trail;
 	}
       }
       ENDD(d0);
@@ -6564,23 +6614,6 @@ Yap_absmi(int inp)
       JMPNext();
       ENDBOp();
 
-      /* same as retry */
-      BOp(retry_killed, ld);
-      CACHE_Y(B);
-      restore_yaam_regs(NEXTOP(PREG, ld));
-      restore_at_least_one_arg(PREG->u.ld.s);
-#ifdef FROZEN_STACKS
-      B_YREG = PROTECT_FROZEN_B(B_YREG);
-      set_cut(S_YREG, B->cp_b);
-#else
-      set_cut(S_YREG, B_YREG->cp_b);
-#endif /* FROZEN_STACKS */
-      SET_BB(B_YREG);
-      ENDCACHE_Y();
-      PREG = PREG->u.ld.d;
-      JMPNext();
-      ENDBOp();
-
       BOp(retry, ld);
       CACHE_Y(B);
       restore_yaam_regs(NEXTOP(PREG, ld));
@@ -6591,34 +6624,6 @@ Yap_absmi(int inp)
 #else
       set_cut(S_YREG, B_YREG->cp_b);
 #endif /* FROZEN_STACKS */
-      SET_BB(B_YREG);
-      ENDCACHE_Y();
-      PREG = PREG->u.ld.d;
-      JMPNext();
-      ENDBOp();
-
-      /* same as trust */
-      BOp(trust_killed, ld);
-      CACHE_Y(B);
-#ifdef YAPOR
-      if (SCH_top_shared_cp(B)) {
-	SCH_last_alternative(PREG, B_YREG);
-	restore_at_least_one_arg(PREG->u.ld.s);
-#ifdef FROZEN_STACKS
-        B_YREG = PROTECT_FROZEN_B(B_YREG);
-#endif /* FROZEN_STACKS */
-	set_cut(S_YREG, B->cp_b);
-      }
-      else
-#endif	/* YAPOR */
-      {
-	pop_yaam_regs();
-	pop_at_least_one_arg(PREG->u.ld.s);
-#ifdef FROZEN_STACKS
-        B_YREG = PROTECT_FROZEN_B(B_YREG);
-#endif /* FROZEN_STACKS */
-	set_cut(S_YREG, B);
-      }
       SET_BB(B_YREG);
       ENDCACHE_Y();
       PREG = PREG->u.ld.d;
@@ -7641,10 +7646,11 @@ Yap_absmi(int inp)
         abolish_incomplete_subgoals(B);
 #endif /* TABLING */
 	HBREG = PROTECT_FROZEN_H(B);
-	TR = trim_trail(B, TR, HBREG);
+	PREG = NEXTOP(PREG, xF);
+	goto trim_trail;
       }
-      ENDCHO(pt0);
       PREG = NEXTOP(PREG, xF);
+      ENDCHO(pt0);
       GONext();
 
       BEGP(pt1);
@@ -7688,7 +7694,8 @@ Yap_absmi(int inp)
         abolish_incomplete_subgoals(B);
 #endif /* TABLING */
 	HBREG = PROTECT_FROZEN_H(B);
-	TR = trim_trail(B, TR, HBREG);
+	PREG = NEXTOP(PREG, yF);
+	goto trim_trail;
       }
       PREG = NEXTOP(PREG, yF);
       GONext();

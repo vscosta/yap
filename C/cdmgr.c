@@ -9,9 +9,10 @@
 **************************************************************************
 *									 *
 * File:		cdmgr.c							 *
-* Last rev:	8/2/88							 *
-* mods:									 *
 * comments:	Code manager						 *
+*									 *
+* Last rev:     $Date: 2004-03-19 11:35:42 $,$Author: vsc $						 *
+* $Log: not supported by cvs2svn $
 *									 *
 *************************************************************************/
 #ifdef SCCS
@@ -80,6 +81,7 @@ STATIC_PROTO(Int  p_call_count_reset, (void));
 STATIC_PROTO(Int  p_toggle_static_predicates_in_use, (void));
 STATIC_PROTO(Atom  YapConsultingFile, (void));
 STATIC_PROTO(Int  PredForCode,(yamop *, Atom *, UInt *, Term *));
+STATIC_PROTO(void  kill_first_log_iblock,(LogUpdIndex *, LogUpdIndex *, PredEntry *));
 
 #define PredArity(p) (p->ArityOfPE)
 #define TRYCODE(G,F,N) ( (N)<5 ? (op_numbers)((int)F+(N)*3) : G)
@@ -162,6 +164,8 @@ IPred(PredEntry *ap)
     if (ap->ModuleOfPred == IDB_MODULE) {
       Term t = Deref(ARG1);
       if (IsAtomTerm(t)) {
+	Yap_plwrite(t, Yap_DebugPutc, 0);
+      } else if (IsIntegerTerm(t)) {
 	Yap_plwrite(t, Yap_DebugPutc, 0);
       } else {
 	Functor f = FunctorOfTerm(t);
@@ -289,9 +293,7 @@ cleanup_dangling_indices(yamop *ipc, yamop *beg, yamop *end, yamop *suspend_code
       ipc = NEXTOP(ipc,p);
       break;
     case _retry:
-    case _retry_killed:
     case _trust:
-    case _trust_killed:
       decrease_ref_counter(ipc->u.ld.d, beg, end, suspend_code);
       ipc = NEXTOP(ipc,ld);
       break;
@@ -402,6 +404,48 @@ kill_static_child_indxs(StaticIndex *indx)
 }
 
 static void
+kill_off_lu_block(LogUpdIndex *c, LogUpdIndex *parent, PredEntry *ap)
+{
+  if (parent != NULL) {
+    /* sat bye bye */
+    /* decrease refs */
+    decrease_log_indices(c, (yamop *)&(ap->cs.p_code.ExpandCode));
+    LOCK(parent->ClLock);
+    parent->ClRefCount--;
+    if (parent->ClFlags & ErasedMask &&
+	!(parent->ClFlags & InUseMask) &&
+	parent->ClRefCount == 0) {
+      /* cool, I can erase the father too. */
+      if (parent->ClFlags & SwitchRootMask) {
+	UNLOCK(parent->ClLock);
+	kill_off_lu_block(parent, NULL, ap);
+      } else {
+	UNLOCK(parent->ClLock);
+	kill_off_lu_block(parent, parent->u.ParentIndex, ap);
+      }
+    } else {
+      UNLOCK(parent->ClLock);
+    }
+  }
+  UNLOCK(c->ClLock);
+#ifdef DEBUG
+  {
+    LogUpdIndex *parent = DBErasedIList, *c0 = NULL;
+    while (parent != NULL) {
+      if (c == parent) {
+	if (c0) c0->SiblingIndex = c->SiblingIndex;
+	else DBErasedIList = c->SiblingIndex;
+	break;
+      }
+      c0 = parent;
+      parent = parent->SiblingIndex;
+    }
+  }
+#endif
+  Yap_FreeCodeSpace((CODEADDR)c);
+}
+
+static void
 kill_first_log_iblock(LogUpdIndex *c, LogUpdIndex *parent, PredEntry *ap)
 {
 
@@ -440,44 +484,11 @@ kill_first_log_iblock(LogUpdIndex *c, LogUpdIndex *parent, PredEntry *ap)
   }
   LOCK(c->ClLock);
   c->ClRefCount--;
-#ifdef DEBUG
-    {
-      LogUpdIndex *parent = DBErasedIList, *c0 = NULL;
-      while (parent != NULL) {
-	if (c == parent) {
-	  if (c0) c0->SiblingIndex = c->SiblingIndex;
-	  else DBErasedIList = c->SiblingIndex;
-	}
-	c0 = parent;
-	parent = parent->SiblingIndex;
-      }
-    }
-#endif
   if (!((c->ClFlags & InUseMask) || c->ClRefCount)) {
-    if (parent != NULL) {
-      /* sat bye bye */
-      /* decrease refs */
-      decrease_log_indices(c, (yamop *)&(ap->cs.p_code.ExpandCode));
-      LOCK(parent->ClLock);
-      parent->ClRefCount--;
-      if (parent->ClFlags & ErasedMask &&
-	  !(parent->ClFlags & InUseMask) &&
-	  parent->ClRefCount == 0) {
-	/* cool, I can erase the father too. */
-	if (parent->ClFlags & SwitchRootMask) {
-	  UNLOCK(parent->ClLock);
-	  kill_first_log_iblock(parent, NULL, ap);
-	} else {
-	  UNLOCK(parent->ClLock);
-	  kill_first_log_iblock(parent, parent->u.ParentIndex, ap);
-	}
-      } else {
-	UNLOCK(parent->ClLock);
-      }
-    }
-    UNLOCK(c->ClLock);
-    Yap_FreeCodeSpace((CODEADDR)c);
+    kill_off_lu_block(c, parent, ap);
   } else {
+    if (c->ClFlags & ErasedMask)
+      return;
     c->ClFlags |= ErasedMask;
     /* try to move up, so that we don't hold a switch table */
     if (parent != NULL &&
@@ -498,6 +509,7 @@ kill_first_log_iblock(LogUpdIndex *c, LogUpdIndex *parent, PredEntry *ap)
 #endif
     UNLOCK(c->ClLock);
   }
+
 }
 
 static void
@@ -555,12 +567,21 @@ Yap_ErLogUpdIndex(LogUpdIndex *clau)
 {
   LogUpdIndex *c = clau;
   if (clau->ClFlags & ErasedMask) {
-    /* nothing I can do, I have been erased already */
+    if (!c->ClRefCount) {
+      if (c->ClFlags & SwitchRootMask) {
+	kill_off_lu_block(clau, NULL, c->u.pred);
+      } else {
+	while (!(c->ClFlags & SwitchRootMask)) 
+	  c = c->u.ParentIndex;
+	kill_off_lu_block(clau, clau->u.ParentIndex, c->u.pred);
+      }
+    }
+    /* otherwise, nothing I can do, I have been erased already */
     return;
   }
   if (c->ClFlags & SwitchRootMask) {
     kill_first_log_iblock(clau, NULL, c->u.pred);
- } else {
+  } else {
     while (!(c->ClFlags & SwitchRootMask)) 
       c = c->u.ParentIndex;
 #if defined(THREADS) || defined(YAPOR)
@@ -577,36 +598,6 @@ Yap_ErLogUpdIndex(LogUpdIndex *clau)
     UNLOCK(clau->u.ParentIndex->ClLock);
 #endif
  }
-}
-
-void
-Yap_RemoveLogUpdIndex(LogUpdIndex *cl)
-{
-  if (cl->ClFlags & ErasedMask) {
-    /* nothing I can do, I have been erased already */
-    return;
-  }
-  if (cl->ClFlags & SwitchRootMask) {
-    kill_first_log_iblock(cl, NULL, cl->u.pred);
-  } else {
-    LogUpdIndex *pcl = cl;
-    while (!(pcl->ClFlags & SwitchRootMask)) {
-      pcl = pcl->u.ParentIndex;
-    }
-#if defined(THREADS) || defined(YAPOR)
-    LOCK(cl->u.ParentIndex->ClLock);
-    /* protect against attempts at erasing */
-    cl->u.ParentIndex->ClRefCount++;
-    UNLOCK(cl->u.ParentIndex->ClLock);
-#endif
-    kill_first_log_iblock(cl, cl->u.ParentIndex, pcl->u.pred);
-#if defined(THREADS) || defined(YAPOR)
-    LOCK(cl->u.ParentIndex->ClLock);
-    /* protect against attempts at erasing */
-    cl->u.ParentIndex->ClRefCount--;
-    UNLOCK(cl->u.ParentIndex->ClLock);
-#endif
-  }
 }
 
 /* Routine used when wanting to remove the indexation */

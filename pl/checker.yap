@@ -9,9 +9,10 @@
 **************************************************************************
 *									 *
 * File:		checker.yap						 *
-* Last rev:	8/2/88							 *
-* mods:									 *
-* comments:	style checker Prolog					 *
+* comments:	style checker for Prolog				 *
+*									 *
+* Last rev:     $Date: 2004-03-19 11:35:42 $,$Author: vsc $						 *
+* $Log: not supported by cvs2svn $                                                                  *
 *									 *
 *************************************************************************/
 

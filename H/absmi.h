@@ -1092,60 +1092,6 @@ Macros to check the limits of stacks
 #define save_hb()
 #endif
 
-
-#if defined(SBA) || defined(MULTI_ASSIGNMENT_VARIABLES)
-#define trim_trail(B, TR, HBREG)  (TR)
-#elif FROZEN_STACKS
-static inline tr_fr_ptr
-trim_trail(choiceptr b, tr_fr_ptr tr, CELL *hbreg)
-{
-  tr_fr_ptr pt1, pt0;
-  pt1 = tr;
-  pt0 = TR = B->cp_tr;
-  BEGD(d0);
-  d0 = Unsigned(hbreg);
-  while (pt0 < pt1) {
-    BEGD(d1);
-    if (IsVarTerm(d1 = TrailTerm(pt0))) {
-      if (d1 < d0 || d1 > Unsigned(B)) { 
-	DO_TRAIL(d1, TrailVal(pt0));     
-      }                                  
-      pt0++;                                 
-    } else {
-      if (!IsPairTerm(d1)) {
-	DO_TRAIL(d1, TrailVal(pt0));
-      }               
-      pt0++;                  
-    }
-    ENDD(d1);                              
-  }  
-  ENDD(d0);                                
-  return(TR);
-}
-#else
-static inline tr_fr_ptr
-trim_trail(choiceptr b, tr_fr_ptr tr, CELL *hbreg)
-{
-  tr_fr_ptr pt1, pt0;
-  pt1 = TR;
-  pt0 = TR = B->cp_tr;
-  BEGD(d0);
-  d0 = Unsigned(HBREG);
-  while (pt0 < pt1) {
-    BEGD(d1);
-    if (IsVarTerm(d1 = TrailTerm(pt0))) {
-      if (d1 < d0 || d1 > Unsigned(B)) { 
-	DO_TRAIL(d1, TrailVal(pt0));     
-      }                                  
-      pt0++;                              
-    }
-    ENDD(d1);                              
-  }  
-  ENDD(d0);                                
-  return(TR);
-}
-#endif
-
 #if IN_ABSMI_C || IN_UNIFY_C
 
 static int 

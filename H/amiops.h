@@ -292,9 +292,10 @@ Binding Macros for Multiple Assignment Variables.
 
 ************************************************************/
 
-#define DO_MATRAIL(VP, OLDV, D)                 \
-        { TrailTerm(TR++) = OLDV;               \
-          TrailTerm(TR++) = AbsAppl(VP);        \
+#define DO_MATRAIL(VP, OLDV, D)                                  \
+        { TrailTerm(TR+1) = OLDV;                                \
+          TrailTerm(TR) = TrailTerm(TR+2) = AbsAppl(VP);         \
+          TR += 2;                                               \
         }
 
 #define MATRAIL(VP,OLDV,D)    if (OUTSIDE(HBREG,VP,B))          \
@@ -332,6 +333,7 @@ Binding Macros for Multiple Assignment Variables.
 #endif
 
 #define Bind_Local(A,D)	   { TRAIL_LOCAL(A,D); *(A) = (D); }
+
 
 #define MaBind(VP,D)    { MATRAIL((VP),*(VP),(D)); *(VP) = (D); }
 

@@ -127,6 +127,10 @@ low_level_trace(yap_low_level_port port, PredEntry *pred, CELL *args)
   }
 #endif
   vsc_count++;
+  if (vsc_count < 5319900)
+    return;
+  if (vsc_count == 5319949)
+    vsc_xstop = 1;
 #ifdef COMMENTED
   //  if (vsc_count == 218280)
   //    vsc_xstop = 1;

@@ -8,10 +8,11 @@
 *									 *
 **************************************************************************
 *									 *
-* File:		rheap.c							 *
-* Last rev:								 *
-* mods:									 *
+* File:		rheap.h							 *
 * comments:	walk through heap code					 *
+*									 *
+* Last rev:     $Date: 2004-03-19 11:35:42 $,$Author: vsc $						 *
+* $Log: not supported by cvs2svn $									 *
 *									 *
 *************************************************************************/
 #ifdef SCCS
@@ -559,9 +560,7 @@ restore_opcodes(yamop *pc)
     case _retry_and_mark:
     case _try_clause:
     case _retry:
-    case _retry_killed:
     case _trust:
-    case _trust_killed:
 #ifdef YAPOR
     case _getwork:
     case _getwork_seq:

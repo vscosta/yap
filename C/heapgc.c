@@ -1335,7 +1335,7 @@ mark_trail(tr_fr_ptr trail_ptr, tr_fr_ptr trail_base, CELL *gc_H, choiceptr gc_B
 	  /* reset the gc to believe the original tag */
 	  TrailTerm(trail_ptr) = AbsAppl((CELL *)TrailTerm(trail_ptr));
 	} 
-	trail_ptr --;
+	trail_ptr -= 2;
       } else {
 	tr_fr_ptr trp = (*lkp)-1;
 	TrailTerm(trp) = TrailTerm(trail_ptr-1);
@@ -1350,6 +1350,8 @@ mark_trail(tr_fr_ptr trail_ptr, tr_fr_ptr trail_base, CELL *gc_H, choiceptr gc_B
 #ifdef FROZEN_STACKS
 	RESET_VARIABLE(&TrailVal(trail_ptr));
 #endif
+	trail_ptr--;
+	RESET_VARIABLE(&TrailTerm(trail_ptr));
       }
     }
 #endif
@@ -1365,14 +1367,6 @@ mark_trail(tr_fr_ptr trail_ptr, tr_fr_ptr trail_base, CELL *gc_H, choiceptr gc_B
     if (HEAP_PTR(TrailVal(trail_ptr))) {
       mark_external_reference(&TrailVal(trail_ptr));
     }
-#endif
-    /*
-      swap the two so that the sweep_trail() knows we have
-      a multi-assignment binding
-    */
-    TrailTerm(live_list->trptr) = TrailTerm(live_list->trptr-1);
-    TrailTerm(live_list->trptr-1) = trail_cell2;
-#ifdef FROZEN_STACKS
     if (HEAP_PTR(TrailVal(trail_ptr-1))) {
       mark_external_reference(&TrailVal(trail_ptr-1));
     }
@@ -1739,9 +1733,7 @@ mark_choicepoints(register choiceptr gc_B, tr_fr_ptr saved_TR, int very_verbose)
       case _retry_me4:
       case _trust_me4:
       case _retry:
-      case _retry_killed:
       case _trust:
-      case _trust_killed:
 	nargs = rtp->u.ld.s;
 	break;
       default:
@@ -2004,7 +1996,7 @@ sweep_trail(choiceptr gc_B, tr_fr_ptr old_TR)
 	}
 #if  MULTI_ASSIGNMENT_VARIABLES
       } else {
-	CELL trail_cell = TrailTerm(trail_ptr);
+	CELL trail_cell = TrailTerm(trail_ptr+2);
 	CELL *ptr;
 	CELL old = TrailTerm(trail_ptr+1);
 
@@ -2013,40 +2005,40 @@ sweep_trail(choiceptr gc_B, tr_fr_ptr old_TR)
 	else
 	  ptr = RepAppl(trail_cell);
 
-	TrailTerm(dest) = old;
-	TrailTerm(dest+1) = trail_cell;
+	TrailTerm(dest+1) = old;
+	TrailTerm(dest+2) = TrailTerm(dest) = trail_cell;
 	if (MARKED(old)) {
-	  UNMARK(&TrailTerm(dest));
+	  UNMARK(&TrailTerm(dest+1));
 	  if (HEAP_PTR(old)) {
-	    into_relocation_chain(&TrailTerm(dest), GET_NEXT(old));
+	    into_relocation_chain(&TrailTerm(dest+1), GET_NEXT(old));
 	  }
 	}
 #ifdef FROZEN_STACKS
-	TrailVal(dest) = TrailVal(trail_ptr);
-	if (MARKED(TrailVal(dest))) {
-	  UNMARK(&TrailVal(dest));
-	  if (HEAP_PTR(TrailVal(dest))) {
-	    into_relocation_chain(&TrailVal(dest), GET_NEXT(TrailTerm(dest)));
+	TrailVal(dest+1) = TrailVal(trail_ptr+1);
+	if (MARKED(TrailVal(dest+1))) {
+	  UNMARK(&TrailVal(dest+1));
+	  if (HEAP_PTR(TrailVal(dest+1))) {
+	    into_relocation_chain(&TrailVal(dest+1), GET_NEXT(TrailTerm(dest+1)));
+	  }
+	}
+	TrailVal(dest+2) = TrailVal(trail_ptr+2);
+	if (MARKED(TrailVal(dest+2))) {
+	  UNMARK(&TrailVal(dest+2));
+	  if (HEAP_PTR(TrailVal(dest+2))) {
+	    into_relocation_chain(&TrailVal(dest+2), GET_NEXT(TrailTerm(dest+2)));
 	  }
 	}
 #endif
-	dest++;
 	if (MARKED(trail_cell)) {
 	  UNMARK(&TrailTerm(dest));
+	  UNMARK(&TrailTerm(dest+2));
 	  if (HEAP_PTR(trail_cell)) {
 	    into_relocation_chain(&TrailTerm(dest), GET_NEXT(trail_cell));
+	    into_relocation_chain(&TrailTerm(dest+2), GET_NEXT(trail_cell));
 	  }
 	}
-	trail_ptr++;
-#ifdef FROZEN_STACKS
-	TrailVal(dest) = TrailVal(trail_ptr);
-	if (MARKED(TrailVal(dest))) {
-	  UNMARK(&TrailVal(dest));
-	  if (HEAP_PTR(TrailVal(dest))) {
-	    into_relocation_chain(&TrailVal(dest), GET_NEXT(TrailTerm(dest)));
-	  }
-	}
-#endif
+	trail_ptr += 2;
+	dest += 2;
 #endif
       }
       trail_ptr++;
