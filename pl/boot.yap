@@ -926,9 +926,13 @@ break :- '$get_value'('$break',BL), NBL is BL+1,
 	    '$print_message'(informational, loading(consulting, File))
 	),
 	'$loop'(Stream,consult),
-	'$current_module'(Mod,OldModule),
 	'$end_consult',
+	'$cd'(OldD),
+	'$set_value'('$consulting',Old),
+	'$set_value'('$consulting_file',OldF),
 	( LC == 0 -> prompt(_,'   |: ') ; true),
+	'$exec_initialisation_goals',
+	'$current_module'(Mod,OldModule),
 	H is heapused-H0, '$cputime'(TF,_), T is TF-T0,
 	( '$undefined'('$print_message'(_,_),prolog) -> 
 	  ( '$get_value'('$verbose',on) ->
@@ -939,10 +943,6 @@ break :- '$get_value'('$break',BL), NBL is BL+1,
 	;
 	    '$print_message'(informational, loaded(consulted, File, Mod, T, H))
 	),
-	'$set_value'('$consulting',Old),
-	'$set_value'('$consulting_file',OldF),
-	'$cd'(OldD),
-	'$exec_initialisation_goals',
 	!.
 
 

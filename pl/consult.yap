@@ -111,16 +111,16 @@ reconsult(Fs) :-
 	'$recorda'('$initialisation','$',_),
 	'$print_message'(informational, loading(reconsulting, File)),
 	'$loop'(Stream,reconsult),
-	'$current_module'(Mod,OldModule),
 	'$end_consult',
 	'$clear_reconsulting',
-	( LC == 0 -> prompt(_,'   |: ') ; true),
-	H is heapused-H0, '$cputime'(TF,_), T is TF-T0,
-	'$print_message'(informational, loaded(reconsulted, File, Mod, T, H)),
 	'$set_value'('$consulting',Old),
 	'$set_value'('$consulting_file',OldF),
 	'$cd'(OldD),
 	'$exec_initialisation_goals',
+	'$current_module'(Mod,OldModule),
+	( LC == 0 -> prompt(_,'   |: ') ; true),
+	H is heapused-H0, '$cputime'(TF,_), T is TF-T0,
+	'$print_message'(informational, loaded(reconsulted, File, Mod, T, H)),
 	!.
 
 '$start_reconsulting'(F) :-
@@ -144,16 +144,16 @@ reconsult(Fs) :-
 	'$recorda'('$initialisation','$',_),
 	'$print_message'(informational, loading(reconsulting, File)),
 	'$loop'(Stream,reconsult),
-	'$current_module'(Mod,OldModule),
 	'$end_consult',
 	'$clear_reconsulting',
-	( LC == 0 -> prompt(_,'   |: ') ; true),
-	H is heapused-H0, '$cputime'(TF,_), T is TF-T0,
-	'$print_message'(informational, loaded(reconsulted, File, Mod, T, H)),
 	'$set_value'('$consulting',Old),
 	'$set_value'('$consulting_file',OldF),
 	'$cd'(OldD),
 	'$exec_initialisation_goals',
+	'$current_module'(Mod,OldModule),
+	( LC == 0 -> prompt(_,'   |: ') ; true),
+	H is heapused-H0, '$cputime'(TF,_), T is TF-T0,
+	'$print_message'(informational, loaded(reconsulted, File, Mod, T, H)),
 	!.
 
 
