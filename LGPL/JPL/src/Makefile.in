@@ -1,0 +1,63 @@
+#
+#
+JAVA_HOME=@JAVA_HOME@
+JVM_INC = -I$(JAVA_HOME)/include -I$(JAVA_HOME)/include/linux
+JVM_LIB = -L$(JAVA_HOME)/jre/lib/i386 -L$(JAVA_HOME)/jre/lib/i386/client  -ljava -lverify -ljvm
+#
+#
+#
+# default base directory for YAP installation
+# (EROOT for architecture-dependent files)
+#
+prefix = @prefix@
+ROOTDIR = $(prefix)
+EROOTDIR = @exec_prefix@
+#
+# where the binary should be
+#
+BINDIR = $(EROOTDIR)/bin
+#
+# where YAP should look for libraries
+#
+LIBDIR=$(EROOTDIR)/lib/Yap
+#
+#
+CC=@CC@
+CFLAGS= @CFLAGS@ $(YAP_EXTRAS) $(DEFS) -I$(srcdir) -I../.. -I$(srcdir)/../../../include -I$(srcdir)/../../../library/yap2swi $(JVM_INC) -DIN_YAP=1 -DJAVA_HOME=\"$(JAVA_HOME)\"
+#
+#
+# You shouldn't need to change what follows.
+#
+INSTALL=@INSTALL@
+INSTALL_DATA=@INSTALL_DATA@
+INSTALL_PROGRAM=@INSTALL_PROGRAM@
+SHELL=/bin/sh
+RANLIB=@RANLIB@
+srcdir=@srcdir@
+SHLIB_CFLAGS=@SHLIB_CFLAGS@
+SHLIB_SUFFIX=@SHLIB_SUFFIX@
+#4.1VPATH=@srcdir@:@srcdir@/OPTYap
+CWD=$(PWD)
+#
+
+OBJS=jpl.o
+SOBJS=jpl@SHLIB_SUFFIX@
+
+all: $(SOBJS)
+
+jpl.o: $(srcdir)/jpl.c
+	$(CC) -c $(CFLAGS) $(SHLIB_CFLAGS) $(srcdir)/jpl.c -o jpl.o
+
+
+@DO_SECOND_LD@%@SHLIB_SUFFIX@: %.o
+@DO_SECOND_LD@	@SHLIB_LD@ -o $@ $<
+
+@DO_SECOND_LD@jpl_jni@SHLIB_SUFFIX@: jpl_jni.o jvm.o
+@DO_SECOND_LD@	@SHLIB_LD@ -o jpl_jni@SHLIB_SUFFIX@ jpl.o $(JVM_LIB)
+
+install: all
+	$(INSTALL_PROGRAM) $(SOBJS) $(DESTDIR)$(LIBDIR)
+
+clean:
+	rm -f *.o *~ $(OBJS) $(SOBJS) *.BAK
+
