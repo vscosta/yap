@@ -10,7 +10,7 @@
 * File:		Yap.h.m4						 *
 * mods:									 *
 * comments:	main header file for YAP				 *
-* version:      $Id: Yap.h.m4,v 1.47 2003-06-06 11:54:02 vsc Exp $	 *
+* version:      $Id: Yap.h.m4,v 1.48 2003-11-05 18:31:49 ricroc Exp $	 *
 *************************************************************************/
 
 #include "config.h"
@@ -23,8 +23,6 @@
 
 #define COROUTINING 1
 
-#define YAPOR      1
-
 #define ANALYST 1
 
 */
@@ -33,7 +31,7 @@
 
 #if defined(TABLING)
 #error Do not explicitly define TABLING
-#endif /* YAPOR */
+#endif /* TABLING */
 
 #if defined(TABLING_BATCHED_SCHEDULING) && defined(TABLING_LOCAL_SCHEDULING)
 #error Do not define multiple tabling scheduling strategies
@@ -79,19 +77,9 @@
 #endif
 #endif
 
-#ifdef SBA
-#ifdef YAPOR
-#ifndef FROZEN_STACKS
+#if defined(TABLING) || defined(SBA)
 #define FROZEN_STACKS 1
-#endif
-#endif
-#endif
-
-#ifdef TABLING
-#ifndef FROZEN_STACKS
-#define FROZEN_STACKS 1
-#endif
-#endif
+#endif /* TABLING || SBA */
 
 #ifdef _MSC_VER /* Microsoft's Visual C++ Compiler */
 /* adjust a config.h from mingw32 to work with vc++ */
@@ -542,7 +530,7 @@ typedef enum {
 /* These must be included before unification handlers */
 #if defined(YAPOR) || defined(TABLING)
 #include "opt.config.h"
-#endif
+#endif /* YAPOR || TABLING */
 
 /***********************************************************************/
 
@@ -603,6 +591,7 @@ and  RefOfTerm(t) : Term -> DBRef = ...
 	incompatible with the high tag scheme. Linux-ELF also does not like
 	if you place things in the lower addresses (power to the libc people).
 */
+
 #if (defined(_AIX) || defined(_WIN32) || defined(sparc) || defined(__sparc) || defined(mips) || defined(__FreeBSD__) || defined(_POWER) || defined(__linux__) || defined(IN_SECOND_QUADRANT)) && !defined(TABLING)
 #define USE_LOW32_TAGS 1
 #endif

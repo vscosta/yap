@@ -495,17 +495,12 @@ main (int argc, char **argv)
   int BootMode;
   YAP_init_args init_args;
 
-#ifdef SIMICS
-  fprintf(stdout,"Entering YAP\n");
-#endif /* SIMICS */
   BootMode = init_standard_system(argc, argv, &init_args);
   if (BootMode == YAP_BOOT_FROM_SAVED_ERROR) {
     fprintf(stderr,"[ FATAL ERROR: could not find saved state ]\n");
     exit(1);
   }
-#if defined(YAPOR) || defined(TABLING)
-  start_workers();
-#endif /* YAPOR || TABLING */
+
   exec_top_level(BootMode, &init_args);
 
   return(0);
