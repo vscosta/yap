@@ -359,7 +359,7 @@ repeat :- '$repeat'.
 
 '$prepare_term'(G,V,G0,G1, Mod) :-
 	( '$get_value'('$syntaxcheckflag',on) ->
-		'$check_term'(G,V) ; true ),
+		'$check_term'(G,V,Mod) ; true ),
 	'$precompile_term'(G, G0, G1, Mod).
 
 % process an input clause
