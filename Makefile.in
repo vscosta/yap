@@ -509,14 +509,15 @@ install_win32: startup
 	mkdir -p $(DESTDIR)$(INCLUDEDIR)
 	$(INSTALL_PROGRAM) -m 755 yap.exe $(DESTDIR)$(BINDIR)/yap.exe
 	$(INSTALL_PROGRAM) -m 755 yap.dll $(DESTDIR)$(BINDIR)/yap.dll
+	$(INSTALL_PROGRAM) -m 755 libWYap.a $(DESTDIR)$(YAPLIBDIR)/libWYap.a
 	$(INSTALL_PROGRAM) -m 755 startup $(DESTDIR)$(YAPLIBDIR)/startup
 	$(INSTALL) $(HEADERS) $(DESTDIR)$(INCLUDEDIR)
 	$(INSTALL) $(srcdir)/include/c_interface.h $(DESTDIR)$(INCLUDEDIR)/c_interface.h
 	$(INSTALL) config.h $(INCLUDEDIR)/config.h
-	(cd library/random; make install_win32)
-	(cd library/regex; make install_win32)
-	(cd library/system; make install_win32)
-	(cd library/yap2swi; make install_win32)
+	(cd library/random; make install)
+	(cd library/regex; make install)
+	(cd library/system; make install)
+	(cd library/yap2swi; make install)
 
 install_library: @YAPLIB@
 	$(INSTALL_DATA) libYap.a  $(DESTDIR)$(LIBDIR)/libYap.a
@@ -554,34 +555,18 @@ dist:
 .c.s:
 	$(CC) $(CFLAGS) -S $<
 
-#
-# create a new DLL library on cygwin environments
-#
-# DLLNAME: name of the new dll
-# OBJS: list of object files I want to put in
-# LIBS: list of libraries to link with
-# DEFFILE is the name of the definitions file.
-# BASEFILE temporary 
-# EXPFILE  temporary
-# ENTRY is the entry point  int WINAPI startup (HINSTANCE, DWORD, LPVOID)
-# 
-DLLTOOL=dlltool
-DLLNAME=yap.dll
-DLL_LIBS=@DLL_LIBS@ $(LIBS)
-BASE_FILE=yap.base
-EXP_FILE=yap.exp
-DEF_FILE=$(srcdir)/misc/yap.def
-ENTRY_FUNCTION=_win_yap@12
-#
+# use my own .def file.
 libWYap.a: yap.dll
-	$(DLLTOOL) --as=$(AS) --dllname $(DLLNAME) --def $(DEF_FILE) --output-lib libWYap.a
+	dlltool --def $(srcdir)/misc/yap.def \
+	--dllname yap.dll \
+	--output-lib libWYap.a
 
-yap.dll: $(HEADERS) $(LIB_OBJECTS) $(DEF_FILE)
-	$(LD) -s --base-file $(BASE_FILE) --dll -o $(DLLNAME) $(LIB_OBJECTS) $(DLL_LIBS) -e $(ENTRY_FUNCTION)
-	$(DLLTOOL) --as=$(AS) --dllname $(DLLNAME) --def $(DEF_FILE) --base-file $(BASE_FILE) --output-exp $(EXP_FILE)
-	$(LD) -s --base-file $(BASE_FILE) $(EXP_FILE) -dll -o $(DLLNAME) $(LIB_OBJECTS) $(DLL_LIBS) -e $(ENTRY_FUNCTION)
-	$(DLLTOOL) --as=$(AS) --dllname $(DLLNAME) --def $(DEF_FILE) --base-file $(BASE_FILE) --output-exp $(EXP_FILE)
-	$(LD) $(EXP_FILE) --dll -o $(DLLNAME) $(LIB_OBJECTS) $(DLL_LIBS) -e $(ENTRY_FUNCTION)
+yap.dll:  libYap.a
+	$(CC) $(CFLAGS) -shared -o yap.dll \
+	-Wl,--export-all-symbols \
+	-Wl,--enable-auto-import \
+	-Wl,--whole-archive libYap.a \
+	-Wl,--no-whole-archive $(LIBS)
 
 install_info:
 	make info; \

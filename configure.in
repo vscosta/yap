@@ -282,27 +282,25 @@ then
     INSTALL_COMMAND=install_win32
     CC="gcc  -mno-cygwin"
     AC_CHECK_LIB(wsock32,main)
+    yap_cv_readline=no
     if test "$prefix" = "NONE"
     then
       prefix="c:/Program\\ Files/Yap"
     fi
-    DLL_LIBS="-L /usr/lib/mingw -lmsvcrt -lmingw32  -lkernel32"
   else
-    DLL_LIBS=""
     LIBS="-lcygwin -lkernel32"
     INSTALL_COMMAND=install_unix
   fi
 elif test "$target_os" = "mingw32" 
 then
+  yap_cv_readline=no
   INSTALL_COMMAND=install_win32
   AC_CHECK_LIB(wsock32,main)
   if test "$prefix" = "NONE"
   then
     prefix="c:/Program\\ Files/Yap"
   fi
-  DLL_LIBS="-L /usr/mingw/lib -lmsvcrt -lmingw32  -lkernel32"
 else
-  DLL_LIBS=""
   INSTALL_COMMAND="install_unix"
   AC_CHECK_LIB(m,sin)
   AC_CHECK_LIB(socket,socket)
@@ -389,6 +387,8 @@ dnl Exports:
 dnl
 dnl "" if we can do dynamic linking, "#" otherwise
 AC_SUBST(INSTALL_DLLS)
+dnl if we need to merge several .o files into a single dll.
+AC_SUBST(MERGE_DLL_OBJS)
 dnl C-flags used to compile a file that will be loaded dynamically
 AC_SUBST(SHLIB_CFLAGS)
 dnl suffix for loadable binary (.so,.dll,.o)
@@ -399,23 +399,20 @@ AC_SUBST(EXEC_SUFFIX)
 dnl how to call the loader
 AC_SUBST(DO_SECOND_LD)
 AC_SUBST(SHLIB_LD)
-dnl makefile target for building YAP library or dll
-AC_SUBST(NEWSHOBJ)
 dnl objects in YAP library
 AC_SUBST(YAPLIB)
 dnl install_info
 AC_SUBST(INSTALL_INFO)
 dnl let YAP_EXTRAS fall through configure, from the env into Makefile
 AC_SUBST(YAP_EXTRAS)
-AC_SUBST(DLL_LIBS)
 AC_SUBST(NO_BUILTIN_REGEXP)
 
 dnl defaults
 INSTALL_DLLS="#"
 SHLIB_LD="@#"
 DO_SECOND_LD="#"
-NEWSHOBJ="sobjs"
 M4="m4"
+MERGE_DLL_OBJS="#"
 
 if test "$dynamic_loading" = "yes"
 then 
@@ -567,25 +564,18 @@ dnl Linux has both elf and a.out, in this case we found elf
 	  INSTALL_DLLS=""
         fi
 	;;
-      *cyg*)
+      *cyg*|*mingw*)
 	# gcc on cygwin seems to have trouble with longjmp
         # and -fomit-frame-point -DBP_FREE
 	YAPLIB="libWYap.a"
 	SHLIB_CFLAGS=""
-	NEWSHOBJ="dll"
+        SHLIB_LD="gcc -shared ../../yap.dll"
 	SHLIB_SUFFIX=".dll"
 	C_PARSER_FLAGS="$C_INTERF_FLAGS"
 	EXEC_SUFFIX=".exe"
 	INSTALL_DLLS=""
-	;;
-      *mingw*)
-	# gcc on cygwin seems to have trouble with longjmp
-        # and -fomit-frame-point -DBP_FREE
-	YAPLIB="libWYap.a"
-	SHLIB_SUFFIX=".dll"
-	NEWSHOBJ="dll"
-	C_PARSER_FLAGS="$C_INTERF_FLAGS"
-	EXEC_SUFFIX=".exe"
+	DO_SECOND_LD=""
+	MERGE_DLL_OBJS=""
 	;;
       *)
 	AC_CHECK_LIB(dl,dlopen,

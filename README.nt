@@ -6,30 +6,68 @@ how to do it from scratch.
 $YAPSRC is the directory where you can find the sources
 $YAPVERSION  is the current version for YAP.
 
-CYGWIN:
+GCC-Based compilation:
 
-	This is our suggested approach as YAP can use GCC features to
-generate faster code. You should install the CygWin environment first,
-as available from sourceware.cygnus.com and mirrors. YAP should
-compile under cygwin 20.1 but we suggest using the newer 1.1.1 (April
-Release), which has a more complete implementation of the WIN32 API
-and uses GCC2.95.2 instead of egcs. The compilation steps under the
-cygwin shell are as follows:
+GCC is distributed in the MINGW32 and CYGWIN packages.
 
-	mkdir cyg
-	CC="gcc -mno-cygwin" $YAPSRC/configure
-	make
-	make install
+The Mingw32 environment is available from the URL:
 
-	The "-mno-cygwin" disables the use of the cygwin dll. The
-compiler will use the mingw32 environment instead.
+@code{http://www.mingw.org}
 
-	You should also check the default installation path which is
-set to "/PROGRA~1/Yap" in the Makefile. This should correspond to
-"/Program Files/Yap".
+You will need to install the @code{msys} and @code{mingw}
+packages. You should be able to do configure, make and make install.
 
-The cygwin environment does not provide gmp. You can fetch a dll for
-the gmp library from "http://www.sf.net/projects/mingwrep".
+If you use mingw32 you may want to search the contributed packages for
+the @code{gmp} multi-precision arithmetic library. If you do setup Yap
+with @code{gmp} note that @code{libgmp.dll} must be in the path,
+otherwise Yap will not be able to execute.
+
+CygWin environment is available from the URL:
+
+@code{http://www.cygwin.com}
+
+@noindent
+and mirrors. We suggest using recent versions of the cygwin shell. The
+compilation steps under the cygwin shell are as follows:
+
+@example
+mkdir cyg
+$YAPSRC/configure --enable-coroutining \\
+                  --enable-depth-limit \\
+                  --enable-max-performance
+make
+make install
+@end example
+
+By default, Yap will use the @code{--enable-cygwin=no} option to
+disable the use of the cygwin dll and to enable the mingw32 subsystem
+instead. Yap thus will not need the cygwin dll. It instead accesses
+the system's @code{CRTDLL.DLL} @code{C} run time library supplied with
+Win32 platforms through the mingw32 interface. Note that some older
+WIN95 systems may not have @code{CRTDLL.DLL}, in this case it should
+be sufficient to import the file from a newer WIN95 or WIN98 machine.
+
+You should check the default installation path which is set to
+@code{/PROGRA~1/Yap} in the standard Makefile. This string will usually
+be expanded into @code{c:\Program Files\Yap} by Windows.
+
+The cygwin environment does not provide @t{gmp}. You can fetch a dll for
+the @t{gmp} library from @url{http://www.sf.net/projects/mingwrep}.
+
+It is also possible to configure Yap to be a part of the cygwin
+environment. In this case you should use:
+@example
+mkdir cyg
+$YAPSRC/configure --enable-coroutining \\
+                  --enable-max-performance \\
+                  --enable-cygwin=yes
+make
+make install
+@end example
+Yap will then compile using the cygwin library and will be installed
+in cygwin's @code{/usr/local}. You can use Yap from a cygwin console,
+or as a standalone application as long as it can find
+@code{cygwin1.dll} in its path.
 
 VISUAL C++:
 
