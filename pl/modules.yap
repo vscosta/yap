@@ -551,6 +551,8 @@ source_module(Mod) :-
 	listing(?),
 	nospy(:),
         not(:),
+        phrase(:,?),
+        phrase(:,?,+),
 	retract(:),
 	retract(:,?),
 	retractall(:),

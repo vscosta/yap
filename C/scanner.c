@@ -557,7 +557,7 @@ token(void)
     my_get_quoted_ch();
     while (1) {
       if (charp + 1024 > (char *)AuxSp) {
-	ErrorMessage = "Heap Overflow While Scanning: please increase heap";
+	ErrorMessage = "Heap Overflow While Scanning: please increase code space (-h)";
 	break;
       }
       if (ch == quote) {
@@ -1292,7 +1292,7 @@ fast_tokenizer(void)
 	my_fgetch();
 	while (1) {
 	  if (charp + 1024 > (char *)AuxSp) {
-	    ErrorMessage = "Heap Overflow While Scanning: please increase heap";
+	    ErrorMessage = "Heap Overflow While Scanning: please increase code space (-h)";
 	    break;
 	  }
 	  if (ch == quote) {
