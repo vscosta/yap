@@ -2717,7 +2717,8 @@ do_blobs(GroupDef *grp, Term t, PredEntry *ap, UInt argno, int first, UInt nxtlb
     ics->Tag = min->Tag;
     while ((max+1)->Tag == min->Tag &&
 	   max != grp->LastClause) max++;
-    if (min != max && t != min->Tag) {
+    if (min != max &&
+	(ap->PredFlags & LogUpdatePredFlag)) {
       ics->Label = suspend_indexing(min, max, ap);
     } else {
       ics->Label = do_index(min, max, ap, argno+1, nxtlbl, first, clleft, top);
@@ -3208,6 +3209,7 @@ do_dbref_index(ClauseDef *min, ClauseDef* max, Term t, PredEntry *ap, UInt argno
 
     Yap_emit(label_op, labl, Zero);
     Yap_emit(index_dbref_op, Zero, Zero);
+    sort_group(group,(CELL *)(group+1));
     do_blobs(group, t, ap, argno, first, fail_l, clleft, (CELL *)group+1);
     return labl;
   }
@@ -3239,6 +3241,7 @@ do_blob_index(ClauseDef *min, ClauseDef* max, Term t,PredEntry *ap, UInt argno, 
 
     Yap_emit(label_op, labl, Zero);
     Yap_emit(index_blob_op, Zero, Zero);
+    sort_group(group,(CELL *)(group+1));
     do_blobs(group, t, ap, argno, first, fail_l, clleft, (CELL *)group+1);
     return labl;
   }
@@ -3403,11 +3406,11 @@ install_clause(ClauseDef *cls, PredEntry *ap, istack_entry *stack)
 	Functor f = (Functor)RepAppl(cls->Tag);
 	if (IsExtensionFunctor(f)) {
 	  if (f == FunctorDBRef) {
-	    if (cls->u.t_ptr == sp->extra) break;
+	    if (cls->u.t_ptr != sp->extra) break;
 	  } else {
 	    Term t = MkIntTerm(RepAppl(sp->extra)[1]),
 	      t1 = MkIntTerm(RepAppl(cls->u.t_ptr)[1]);
-	      if (t == t1) break;
+	      if (t != t1) break;
 	  }
 	}
       }
@@ -3932,6 +3935,10 @@ expand_index(PredEntry *ap) {
     }
   }
 
+  /* if there was an overflow while generating the code, make sure
+     S is still correct */
+  if (s_reg != NULL)
+    S = s_reg;
   if (alt == NULL) {
     /* oops, we are at last clause */
     fail_l = (UInt)FAILCODE;
@@ -5124,8 +5131,8 @@ add_to_index(PredEntry *ap, int first, path_stack_entry *sp, ClauseDef *cls) {
 	yamop *nipc = ipc->u.llll.l2;
 	move_next(cls, 1);
 	if (nipc == FAILCODE) {
-	  /* jump straight to clause */
-	  ipc->u.llll.l2 = cls->CurrentCode;
+	  /* need to expand the block */
+	  sp = kill_block(sp, ap);
 	  ipc = pop_path(&sp, cls, ap);
 	} else {
 	  /* I do not have to worry about crossing a block here */
@@ -5134,9 +5141,8 @@ add_to_index(PredEntry *ap, int first, path_stack_entry *sp, ClauseDef *cls) {
       } else if (IsApplTerm(cls->Tag)) {
 	yamop *nipc = ipc->u.llll.l3;
 	if (nipc == FAILCODE) {
-	  /* jump straight to clause */
-	  move_next(cls, 1);
-	  ipc->u.llll.l3 = cls->CurrentCode;
+	  /* need to expand the block */
+	  sp = kill_block(sp, ap);
 	  ipc = pop_path(&sp, cls, ap);
 	} else {
 	  /* I do not have to worry about crossing a block here */
@@ -5175,8 +5181,8 @@ add_to_index(PredEntry *ap, int first, path_stack_entry *sp, ClauseDef *cls) {
 	yamop *nipc = ipc->u.ollll.l2;
 	move_next(cls, 1);
 	if (nipc == FAILCODE) {
-	  /* jump straight to clause */
-	  ipc->u.ollll.l2 = cls->CurrentCode;
+	  /* need to expand the block */
+	  sp = kill_block(sp, ap);
 	  ipc = pop_path(&sp, cls, ap);
 	} else {
 	  /* I do not have to worry about crossing a block here */
@@ -5185,9 +5191,8 @@ add_to_index(PredEntry *ap, int first, path_stack_entry *sp, ClauseDef *cls) {
       } else if (IsApplTerm(cls->Tag)) {
 	yamop *nipc = ipc->u.ollll.l3;
 	if (nipc == FAILCODE) {
-	  /* jump straight to clause */
-	  move_next(cls, 1);
-	  ipc->u.ollll.l3 = cls->CurrentCode;
+	  /* need to expand the block */
+	  sp = kill_block(sp, ap);
 	  ipc = pop_path(&sp, cls, ap);
 	} else {
 	  /* I do not have to worry about crossing a block here */
@@ -5226,8 +5231,8 @@ add_to_index(PredEntry *ap, int first, path_stack_entry *sp, ClauseDef *cls) {
 	yamop *nipc = ipc->u.xllll.l2;
 	move_next(cls, Yap_regtoregno(ipc->u.xllll.x));
 	if (nipc == FAILCODE) {
-	  /* jump straight to clause */
-	  ipc->u.xllll.l2 = cls->CurrentCode;
+	  /* need to expand the block */
+	  sp = kill_block(sp, ap);
 	  ipc = pop_path(&sp, cls, ap);
 	} else {
 	  /* I do not have to worry about crossing a block here */
@@ -5237,9 +5242,8 @@ add_to_index(PredEntry *ap, int first, path_stack_entry *sp, ClauseDef *cls) {
 	yamop *nipc = ipc->u.xllll.l3;
 	move_next(cls, Yap_regtoregno(ipc->u.xllll.x));
 	if (nipc == FAILCODE) {
-	  /* jump straight to clause */
-	  move_next(cls, 1);
-	  ipc->u.xllll.l3 = cls->CurrentCode;
+	  /* need to expand the block */
+	  sp = kill_block(sp, ap);
 	  ipc = pop_path(&sp, cls, ap);
 	} else {
 	  /* I do not have to worry about crossing a block here */
@@ -5279,8 +5283,8 @@ add_to_index(PredEntry *ap, int first, path_stack_entry *sp, ClauseDef *cls) {
 	  last_arg = FALSE;
 	}
 	if (nipc == FAILCODE) {
-	  /* jump straight to clause */
-	  ipc->u.sllll.l2 = cls->CurrentCode;
+	  /* need to expand the block */
+	  sp = kill_block(sp, ap);
 	  ipc = pop_path(&sp, cls, ap);
 	} else {
 	  /* I do not have to worry about crossing a block here */
@@ -5293,9 +5297,8 @@ add_to_index(PredEntry *ap, int first, path_stack_entry *sp, ClauseDef *cls) {
 	  last_arg = FALSE;
 	}
 	if (nipc == FAILCODE) {
-	  /* jump straight to clause */
-	  move_next(cls, 1);
-	  ipc->u.sllll.l3 = cls->CurrentCode;
+	  /* need to expand the block */
+	  sp = kill_block(sp, ap);
 	  ipc = pop_path(&sp, cls, ap);
 	} else {
 	  /* I do not have to worry about crossing a block here */
