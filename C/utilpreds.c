@@ -310,17 +310,18 @@ CopyTerm(Term inp) {
       H += 2;
       if ((res = copy_complex_term(Hi-2, Hi-1, Hi, Hi)) < 0) {
 	ARG3 = t;
+	H = Hi-1;
 	if (res == -1) { /* handle overflow */
 	  if (!Yap_gc(3, ENV, P)) {
 	    Yap_Error(OUT_OF_STACK_ERROR, TermNil, Yap_ErrorMessage);
-	    return(FALSE);
+	    return FALSE;
 	  }
 	  t = Deref(ARG3);
 	  goto restart_attached;
 	} else { /* handle overflow */
 	  if (!Yap_ExpandPreAllocCodeSpace(0,NULL)) {
-	    Yap_Error(OUT_OF_HEAP_ERROR, TermNil, Yap_ErrorMessage);
-	    return(FALSE);
+	    Yap_Error(OUT_OF_AUXSPACE_ERROR, TermNil, Yap_ErrorMessage);
+	    return FALSE;
 	  }
 	  t = Deref(ARG3);
 	  goto restart_attached;
@@ -345,18 +346,19 @@ CopyTerm(Term inp) {
     {
       int res;
       if ((res = copy_complex_term(ap-1, ap+1, Hi, Hi)) < 0) {
+	H = Hi;
 	ARG3 = t;
 	if (res == -1) { /* handle overflow */
 	  if (!Yap_gc(3, ENV, P)) {
 	    Yap_Error(OUT_OF_STACK_ERROR, TermNil, Yap_ErrorMessage);
-	    return(FALSE);
+	    return FALSE;
 	  }
 	  t = Deref(ARG3);
 	  goto restart_list;
 	} else { /* handle overflow */
 	  if (!Yap_ExpandPreAllocCodeSpace(0,NULL)) {
-	    Yap_Error(OUT_OF_HEAP_ERROR, TermNil, Yap_ErrorMessage);
-	    return(FALSE);
+	    Yap_Error(OUT_OF_AUXSPACE_ERROR, TermNil, Yap_ErrorMessage);
+	    return FALSE;
 	  }
 	  t = Deref(ARG3);
 	  goto restart_list;
@@ -379,19 +381,21 @@ CopyTerm(Term inp) {
     H += 1+ArityOfFunctor(f);
     {
       int res;
+
       if ((res = copy_complex_term(ap, ap+ArityOfFunctor(f), HB0+1, HB0)) < 0) {
+	H = HB0;
 	ARG3 = t;
 	if (res == -1) {
 	  if (!Yap_gc(3, ENV, P)) {
 	    Yap_Error(OUT_OF_STACK_ERROR, TermNil, Yap_ErrorMessage);
-	    return(FALSE);
+	    return FALSE;
 	  }
 	  t = Deref(ARG3);
 	  goto restart_appl;
 	} else { /* handle overflow */
 	  if (!Yap_ExpandPreAllocCodeSpace(0,NULL)) {
-	    Yap_Error(OUT_OF_HEAP_ERROR, TermNil, Yap_ErrorMessage);
-	    return(FALSE);
+	    Yap_Error(OUT_OF_AUXSPACE_ERROR, TermNil, Yap_ErrorMessage);
+	    return FALSE;
 	  }
 	  t = Deref(ARG3);
 	  goto restart_appl;
@@ -411,6 +415,9 @@ static Int
 p_copy_term(void)		/* copy term t to a new instance  */
 {
   Term t = CopyTerm(ARG1); 
+  if (t == 0L)
+    return FALSE;
+  /* be careful, there may be a stack shift here */
   return Yap_unify(ARG2,t);
 }
 
@@ -621,6 +628,7 @@ CopyTermNoDelays(Term inp) {
     H += 2;
     res = copy_complex_term_no_delays(ap-1, ap+1, H-2, H-2);
     if (res) {
+      H = Hi;
       if (res == -1) { /* handle overflow */
 	if (!Yap_gc(2, ENV, P)) {
 	  Yap_Error(OUT_OF_STACK_ERROR, TermNil, Yap_ErrorMessage);
@@ -630,7 +638,7 @@ CopyTermNoDelays(Term inp) {
 	goto restart_list;
       } else { /* handle overflow */
 	if (!Yap_ExpandPreAllocCodeSpace(0,NULL)) {
-	  Yap_Error(OUT_OF_HEAP_ERROR, TermNil, Yap_ErrorMessage);
+	  Yap_Error(OUT_OF_AUXSPACE_ERROR, TermNil, Yap_ErrorMessage);
 	  return(FALSE);
 	}
 	t = Deref(ARG1);
@@ -653,6 +661,7 @@ CopyTermNoDelays(Term inp) {
     H += 1+ArityOfFunctor(f);
     res = copy_complex_term_no_delays(ap, ap+ArityOfFunctor(f), HB0+1, HB0);
     if (res) {
+      H = HB0;
       if (res == -1) {
 	if (!Yap_gc(2, ENV, P)) {
 	  Yap_Error(OUT_OF_STACK_ERROR, TermNil, Yap_ErrorMessage);
@@ -662,7 +671,7 @@ CopyTermNoDelays(Term inp) {
 	goto restart_appl;
       } else { /* handle overflow */
 	if (!Yap_ExpandPreAllocCodeSpace(0,NULL)) {
-	  Yap_Error(OUT_OF_HEAP_ERROR, TermNil, Yap_ErrorMessage);
+	  Yap_Error(OUT_OF_AUXSPACE_ERROR, TermNil, Yap_ErrorMessage);
 	  return(FALSE);
 	}
 	t = Deref(ARG1);
@@ -676,7 +685,11 @@ CopyTermNoDelays(Term inp) {
 static Int 
 p_copy_term_no_delays(void)		/* copy term t to a new instance  */
 {
-  return(Yap_unify(ARG2,CopyTermNoDelays(ARG1)));
+  Term t = CopyTermNoDelays(ARG1);
+  if (t == 0L)
+    return FALSE;
+  /* be careful, there may be a stack shift here */
+  return(Yap_unify(ARG2,t));
 }
 
 

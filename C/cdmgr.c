@@ -11,8 +11,11 @@
 * File:		cdmgr.c							 *
 * comments:	Code manager						 *
 *									 *
-* Last rev:     $Date: 2004-12-08 00:10:48 $,$Author: vsc $						 *
+* Last rev:     $Date: 2004-12-16 05:57:23 $,$Author: vsc $						 *
 * $Log: not supported by cvs2svn $
+* Revision 1.144  2004/12/08 00:10:48  vsc
+* more grow fixes
+*
 * Revision 1.143  2004/12/05 05:01:23  vsc
 * try to reduce overheads when running with goal expansion enabled.
 * CLPBN fixes
@@ -2021,7 +2024,7 @@ p_compile_dynamic(void)
   old_optimize = optimizer_on;
   optimizer_on = FALSE;
   YAPEnterCriticalSection();
-  code_adr = Yap_cclause(t, 3, mod, Deref(ARG3)); /* vsc: give the number of arguments to
+  code_adr = Yap_cclause(t, 5, mod, Deref(ARG3)); /* vsc: give the number of arguments to
 			       cclause() in case there is a overflow */
   t = Deref(ARG1);        /* just in case there was an heap overflow */
   if (!Yap_ErrorMessage) {

@@ -2290,14 +2290,16 @@ p_still_variant(void)
 static int
 copy_attachments(CELL *ts)
 {
-  while (TRUE) {
-    attvar_record *orig = (attvar_record *)Yap_ReadTimedVar(DelayedVars);
+  Term orig = Yap_ReadTimedVar(DelayedVars);
+  Term orig2 = Yap_ReadTimedVar(AttsMutableList);
 
+  while (TRUE) {
     /* store away in case there is an overflow */
     if (attas[IntegerOfTerm(ts[2])].term_to_op(ts[1], ts[0])  == FALSE) {
       /* oops, we did not have enough space to copy the elements */
       /* reset queue of woken up goals */
-      Yap_UpdateTimedVar(DelayedVars, (CELL)orig);      
+      Yap_UpdateTimedVar(DelayedVars, orig);      
+      Yap_UpdateTimedVar(AttsMutableList, orig2);
       return FALSE;
     }
     if (ts[3] == TermNil) return TRUE;
@@ -2423,9 +2425,10 @@ GetDBTerm(DBTerm *DBSP)
 #ifdef COROUTINING
     if (DBSP->attachments != 0L)  {
       if (!copy_attachments((CELL *)AdjustIDBPtr(DBSP->attachments,(CELL)HOld-(CELL)(DBSP->Contents)))) {
-	  Yap_Error_TYPE = OUT_OF_ATTVARS_ERROR;
-	  Yap_Error_Size = 0;
-	  return (Term)0;
+	H = HOld;
+	Yap_Error_TYPE = OUT_OF_ATTVARS_ERROR;
+	Yap_Error_Size = 0;
+	return (Term)0;
       }
     }
 #endif

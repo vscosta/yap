@@ -438,12 +438,12 @@ GetAllAtts(attvar_record *attv) {
 static Term
 AllAttVars(Term t) {
   if (t == TermNil) {
-    return(t);
+    return t;
   } else {
     attvar_record *attv = (attvar_record *)VarOfTerm(t);
     if (!IsVarTerm(attv->Done) || !IsUnboundVar(&attv->Done))
-      return(AllAttVars(attv->NS));
-    else return(MkPairTerm(t,AllAttVars(attv->NS)));
+      return AllAttVars(attv->NS);
+    else return MkPairTerm(t,AllAttVars(attv->NS));
   }
 }
 
@@ -623,12 +623,12 @@ p_get_all_atts(void) {
 	Yap_Error(TYPE_ERROR_VARIABLE,inp,"get_att/2");
 	return(FALSE);
       }
-      return(Yap_unify(ARG2,GetAllAtts(attv)));
+      return Yap_unify(ARG2,GetAllAtts(attv));
     }
-    return(TRUE);
+    return TRUE;
   } else {
     Yap_Error(TYPE_ERROR_VARIABLE,inp,"get_att/2");
-    return(FALSE);
+    return FALSE;
   }
 }
 

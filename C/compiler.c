@@ -11,8 +11,13 @@
 * File:		compiler.c						 *
 * comments:	Clause compiler						 *
 *									 *
-* Last rev:     $Date: 2004-12-05 05:01:23 $,$Author: vsc $						 *
+* Last rev:     $Date: 2004-12-16 05:57:32 $,$Author: vsc $						 *
 * $Log: not supported by cvs2svn $
+* Revision 1.55  2004/12/05 05:01:23  vsc
+* try to reduce overheads when running with goal expansion enabled.
+* CLPBN fixes
+* Handle overflows when allocating big clauses properly.
+*
 * Revision 1.54  2004/11/19 22:08:41  vsc
 * replace SYSTEM_ERROR by out OUT_OF_WHATEVER_ERROR whenever appropriate.
 *
@@ -2770,7 +2775,7 @@ Yap_cclause(volatile Term inp_clause, int NOfArgs, int mod, volatile Term src)
       ARG3 = src;
 
       YAPLeaveCriticalSection();
-      if (!Yap_gcl(Yap_Error_Size, 3, ENV, P)) {
+      if (!Yap_gcl(Yap_Error_Size, NOfArgs, ENV, P)) {
 	Yap_Error_TYPE = OUT_OF_STACK_ERROR;
 	Yap_Error_Term = inp_clause;
       }
