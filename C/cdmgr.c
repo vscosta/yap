@@ -108,7 +108,7 @@ static_in_use(PredEntry *p, int check_everything)
     return (p->StateOfPred & InUseMask);
   } else {
     /* This code does not work for YAPOR or THREADS!!!!!!!! */
-    return(search_for_static_predicate_in_use(p, TRUE /*check_everything*/));
+    return(search_for_static_predicate_in_use(p, check_everything));
   }
 #endif
 }
@@ -290,7 +290,7 @@ RemoveIndexation(PredEntry *ap)
     RemoveLogUpdIndex(ClauseCodeToClause(ap->TrueCodeOfPred));
   else {
     Clause *cl = ClauseCodeToClause(ap->TrueCodeOfPred);
-    if (static_in_use(ap, TRUE)) {
+    if (static_in_use(ap, FALSE)) {
       Int Arity = ap->ArityOfPE;
 
       ErrorMessage = ErrorSay;
@@ -752,8 +752,10 @@ not_was_reconsulted(PredEntry *p, Term t, int mode)
     if (ConsultBase[1].mode) /* we are in reconsult mode */ {
       if (static_in_use(p, TRUE)) {
 	Int Arity = p->ArityOfPE;
-
+	
+#ifdef DEBUG
 	list_all_predicates_in_use();
+#endif
 	ErrorMessage = ErrorSay;
 	Error_Term = t;
 	Error_TYPE = PERMISSION_ERROR_MODIFY_STATIC_PROCEDURE;
@@ -1716,6 +1718,40 @@ p_compile_mode(void)
 }
 
 #if !defined(YAPOR) && !defined(THREADS)
+static yamop *next_clause(PredEntry *pe, CODEADDR codeptr)
+{
+  CODEADDR clcode, cl;
+  clcode = pe->FirstClause;
+  cl = (CODEADDR)ClauseCodeToClause(clcode);
+  do {
+    if (clcode == pe->LastClause)
+      break;
+    if (codeptr > cl && codeptr <= cl + SizeOfBlock(cl)) {
+      return((yamop *)NextClause(clcode));
+    }
+    cl = (CODEADDR)ClauseCodeToClause(clcode = NextClause(clcode));
+  } while (TRUE);
+  Error(SYSTEM_ERROR,TermNil,"could not find clause for indexing code");
+  return(NULL);
+}
+
+static yamop *cur_clause(PredEntry *pe, CODEADDR codeptr)
+{
+  CODEADDR clcode, cl;
+  clcode = pe->FirstClause;
+  cl = (CODEADDR)ClauseCodeToClause(clcode);
+  do {
+    if (codeptr > cl && codeptr <= cl + SizeOfBlock(cl)) {
+      return((yamop *)clcode);
+    }
+    if (clcode == pe->LastClause)
+      break;
+    cl = (CODEADDR)ClauseCodeToClause(clcode = NextClause(clcode));
+  } while (TRUE);
+  Error(SYSTEM_ERROR,TermNil,"could not find clause for indexing code");
+  return(NULL);
+}
+
 static Int
 search_for_static_predicate_in_use(PredEntry *p, int check_everything)
 {
@@ -1762,19 +1798,32 @@ search_for_static_predicate_in_use(PredEntry *p, int check_everything)
 	pe = (PredEntry *)(b_ptr->cp_ap->u.ld.p);
       }
       if (pe == p) {
-	if (check_everything) return(TRUE);
+	if (check_everything)
+	  return(TRUE);
 	READ_LOCK(pe->PRWLock);
 	if (p->PredFlags & IndexedPredFlag) {
 	  CODEADDR code_p = (CODEADDR)(b_ptr->cp_ap);
 	  if (code_p >= p->TrueCodeOfPred &&
-	      code_p <= p->TrueCodeOfPred + SizeOfBlock(p->TrueCodeOfPred)) {
-	    /* oops, we are trying to assert a clause and we have a pointer
-	       to its indexing code live in the local stack */
+	      code_p <= p->TrueCodeOfPred + SizeOfBlock((CODEADDR)ClauseCodeToClause(p->TrueCodeOfPred))) {
+	    yamop *prev;
+	    /* fix the choicepoint */
+	    switch(opnum) {
+	    case _switch_last:
+	    case _switch_l_list:
+	      {
+		prev =  (yamop *)((CODEADDR)(code_p)-(CELL)NEXTOP((yamop *)NIL,ld));
+		/* previous clause must be a try or a retry */
+		b_ptr->cp_ap = next_clause(pe, prev->u.ld.d);
+	      }
+	      break;
+	    default:
+		b_ptr->cp_ap = cur_clause(pe, b_ptr->cp_ap->u.ld.d);
+	    }	    
 	    READ_UNLOCK(pe->PRWLock);
-	    return(TRUE);
 	  }
+	} else {
+	  READ_UNLOCK(pe->PRWLock);
 	}
-	READ_UNLOCK(pe->PRWLock);
       }
       env_ptr = b_ptr->cp_env;
       b_ptr = b_ptr->cp_b;
