@@ -1,0 +1,412 @@
+<?xml version="1.0"?>
+
+<!DOCTYPE MODE SYSTEM "xmode.dtd">
+
+<!--	jEdit Logtalk syntax file
+
+	written by	Paulo Moura
+	version		1.0
+	created on	2 May 2002
+	last revised	2 May 2002
+-->
+
+<MODE>
+
+	<PROPS>
+		<PROPERTY NAME="lineComment" VALUE="%" />
+		<PROPERTY NAME="commentStart" VALUE="/*" />
+		<PROPERTY NAME="commentEnd" VALUE="*/" />
+	</PROPS>
+
+	<RULES IGNORE_CASE="FALSE">
+	
+		<!-- Whitespace -->
+		<WHITESPACE> </WHITESPACE>
+		<WHITESPACE>	</WHITESPACE>
+	
+		<!-- Comments -->
+		<EOL_SPAN TYPE="COMMENT1">%</EOL_SPAN>
+		<SPAN TYPE="COMMENT1" NO_LINE_BREAK="FALSE">
+			<BEGIN>/*</BEGIN>
+			<END>*/</END>
+		</SPAN>
+
+		<!-- String literals -->
+		<SPAN TYPE="LITERAL1" NO_LINE_BREAK="TRUE">
+			<BEGIN>'</BEGIN>
+			<END>'</END>
+		</SPAN>
+		<SPAN TYPE="LITERAL1" NO_LINE_BREAK="TRUE">
+			<BEGIN>"</BEGIN>
+			<END>"</END>
+		</SPAN>
+		
+		<!-- External call -->
+		<SPAN TYPE="OPERATOR" DELEGATE="MAIN">
+			<BEGIN>{</BEGIN>
+			<END>}</END>
+		</SPAN>
+
+		<!-- Opening entity directives -->
+		<SPAN TYPE="FUNCTION" NO_LINE_BREAK="FALSE" DELEGATE="ENTITY_RELATIONS">
+			<BEGIN>:- object(</BEGIN>
+			<END>).</END>
+		</SPAN>
+		<SPAN TYPE="FUNCTION" NO_LINE_BREAK="FALSE" DELEGATE="ENTITY_RELATIONS">
+			<BEGIN>:- protocol(</BEGIN>
+			<END>).</END>
+		</SPAN>
+		<SPAN TYPE="FUNCTION" NO_LINE_BREAK="FALSE" DELEGATE="ENTITY_RELATIONS">
+			<BEGIN>:- category(</BEGIN>
+			<END>).</END>
+		</SPAN>
+
+		<!-- Closing entity directives -->
+		<SPAN TYPE="FUNCTION" NO_LINE_BREAK="FALSE">
+			<BEGIN>:- end_object</BEGIN>
+			<END>.</END>
+		</SPAN>
+		<SPAN TYPE="FUNCTION" NO_LINE_BREAK="FALSE">
+			<BEGIN>:- end_protocol</BEGIN>
+			<END>.</END>
+		</SPAN>
+		<SPAN TYPE="FUNCTION" NO_LINE_BREAK="FALSE">
+			<BEGIN>:- end_category</BEGIN>
+			<END>.</END>
+		</SPAN>
+
+
+		<!-- Directives -->
+		<SPAN TYPE="FUNCTION" NO_LINE_BREAK="FALSE" DELEGATE="MAIN">
+			<BEGIN>:- initialization(</BEGIN>
+			<END>).</END>
+		</SPAN>
+		<SPAN TYPE="FUNCTION" NO_LINE_BREAK="FALSE" DELEGATE="MAIN">
+			<BEGIN>:- info(</BEGIN>
+			<END>).</END>
+		</SPAN>
+		<SPAN TYPE="FUNCTION" NO_LINE_BREAK="FALSE" DELEGATE="MAIN">
+			<BEGIN>:- mode(</BEGIN>
+			<END>).</END>
+		</SPAN>
+		<SPAN TYPE="FUNCTION" NO_LINE_BREAK="FALSE" DELEGATE="MAIN">
+			<BEGIN>:- dynamic(</BEGIN>
+			<END>).</END>
+		</SPAN>
+		<SPAN TYPE="FUNCTION" NO_LINE_BREAK="FALSE" DELEGATE="MAIN">
+			<BEGIN>:- dynamic</BEGIN>
+			<END>.</END>
+		</SPAN>
+		<SPAN TYPE="FUNCTION" NO_LINE_BREAK="FALSE" DELEGATE="MAIN">
+			<BEGIN>:- discontiguous(</BEGIN>
+			<END>).</END>
+		</SPAN>
+		<SPAN TYPE="FUNCTION" NO_LINE_BREAK="FALSE" DELEGATE="MAIN">
+			<BEGIN>:- public(</BEGIN>
+			<END>).</END>
+		</SPAN>
+		<SPAN TYPE="FUNCTION" NO_LINE_BREAK="FALSE" DELEGATE="MAIN">
+			<BEGIN>:- protected(</BEGIN>
+			<END>).</END>
+		</SPAN>
+		<SPAN TYPE="FUNCTION" NO_LINE_BREAK="FALSE" DELEGATE="MAIN">
+			<BEGIN>:- private(</BEGIN>
+			<END>).</END>
+		</SPAN>
+		<SPAN TYPE="FUNCTION" NO_LINE_BREAK="FALSE" DELEGATE="MAIN">
+			<BEGIN>:- metapredicate(</BEGIN>
+			<END>).</END>
+		</SPAN>
+		<SPAN TYPE="FUNCTION" NO_LINE_BREAK="FALSE" DELEGATE="MAIN">
+			<BEGIN>:- op(</BEGIN>
+			<END>).</END>
+		</SPAN>
+		<SPAN TYPE="FUNCTION" NO_LINE_BREAK="FALSE" DELEGATE="MAIN">
+			<BEGIN>:- calls(</BEGIN>
+			<END>).</END>
+		</SPAN>
+		<SPAN TYPE="FUNCTION" NO_LINE_BREAK="FALSE" DELEGATE="MAIN">
+			<BEGIN>:- uses(</BEGIN>
+			<END>).</END>
+		</SPAN>
+
+		<!-- Logtalk message sending operators -->
+		<SEQ TYPE="OPERATOR">::</SEQ>
+		<SEQ TYPE="OPERATOR">:</SEQ>
+		<SEQ TYPE="OPERATOR">^^</SEQ>
+		
+		<!-- Parentheses -->
+		<SEQ TYPE="NULL">(</SEQ>
+		<SEQ TYPE="NULL">)</SEQ>
+		<SEQ TYPE="NULL">{</SEQ>
+		<SEQ TYPE="NULL">}</SEQ>
+		
+		<KEYWORDS IGNORE_CASE="FALSE">
+
+			<!-- Logtalk built-in predicates -->
+
+			<FUNCTION>current_object</FUNCTION>
+			<FUNCTION>current_protocol</FUNCTION>
+			<FUNCTION>current_category</FUNCTION>
+
+			<FUNCTION>create_object</FUNCTION>
+			<FUNCTION>create_protocol</FUNCTION>
+			<FUNCTION>create_category</FUNCTION>
+
+			<FUNCTION>object_property</FUNCTION>
+			<FUNCTION>protocol_property</FUNCTION>
+			<FUNCTION>category_property</FUNCTION>
+
+			<FUNCTION>abolish_object</FUNCTION>
+			<FUNCTION>abolish_protocol</FUNCTION>
+			<FUNCTION>abolish_category</FUNCTION>
+
+			<FUNCTION>extends_object</FUNCTION>
+			<FUNCTION>extends_protocol</FUNCTION>
+			<FUNCTION>implements_protocol</FUNCTION>
+			<FUNCTION>instantiates_object</FUNCTION>
+			<FUNCTION>specializes_object</FUNCTION>
+			<FUNCTION>imports_category</FUNCTION>
+
+			<FUNCTION>abolish_events</FUNCTION>
+			<FUNCTION>current_event</FUNCTION>
+			<FUNCTION>define_events</FUNCTION>
+
+			<FUNCTION>current_logtalk_flag</FUNCTION>
+			<FUNCTION>set_logtalk_flag</FUNCTION>
+
+			<FUNCTION>logtalk_compile</FUNCTION>
+			<FUNCTION>logtalk_load</FUNCTION>
+
+			<FUNCTION>forall</FUNCTION>
+			<FUNCTION>logtalk_version</FUNCTION>
+			<FUNCTION>retractall</FUNCTION>
+
+			<!-- Logtalk built-in methods -->
+
+			<FUNCTION>parameter</FUNCTION>
+			<FUNCTION>self</FUNCTION>
+			<FUNCTION>sender</FUNCTION>
+			<FUNCTION>this</FUNCTION>
+
+			<FUNCTION>current_predicate</FUNCTION>
+			<FUNCTION>predicate_property</FUNCTION>
+
+			<FUNCTION>abolish</FUNCTION>
+			<FUNCTION>asserta</FUNCTION>
+			<FUNCTION>assertz</FUNCTION>
+			<FUNCTION>clause</FUNCTION>
+			<FUNCTION>retract</FUNCTION>
+			<FUNCTION>retractall</FUNCTION>
+
+			<FUNCTION>bagof</FUNCTION>
+			<FUNCTION>findall</FUNCTION>
+			<FUNCTION>forall</FUNCTION>
+			<FUNCTION>setof</FUNCTION>
+
+			<FUNCTION>before</FUNCTION>
+			<FUNCTION>after</FUNCTION>
+
+			<!-- Mode operators -->
+			<SEQ TYPE="OPERATOR">?</SEQ>
+			<SEQ TYPE="OPERATOR">@</SEQ>
+
+			<!-- Control constructs -->
+			<FUNCTION>true</FUNCTION>
+			<FUNCTION>fail</FUNCTION>
+			<FUNCTION>call</FUNCTION>
+			<SEQ TYPE="FUNCTION">!</SEQ>
+			<SEQ TYPE="OPERATOR">,</SEQ>
+			<SEQ TYPE="OPERATOR">;</SEQ>
+			<SEQ TYPE="OPERATOR">-&gt;</SEQ>
+			<FUNCTION>catch</FUNCTION>
+			<FUNCTION>throw</FUNCTION>
+
+			<!-- Term unification -->
+			<SEQ TYPE="OPERATOR">=</SEQ>
+			<FUNCTION>unify_with_occurs_check</FUNCTION>
+			<SEQ TYPE="OPERATOR">\=</SEQ>
+
+			<!-- Term testing -->
+			<FUNCTION>var</FUNCTION>
+			<FUNCTION>atom</FUNCTION>
+			<FUNCTION>integer</FUNCTION>
+			<FUNCTION>float</FUNCTION>
+			<FUNCTION>atomic</FUNCTION>
+			<FUNCTION>compound</FUNCTION>
+			<FUNCTION>nonvar</FUNCTION>
+			<FUNCTION>number</FUNCTION>
+
+			<!-- Term comparison -->
+			<SEQ TYPE="OPERATOR">@=&lt;</SEQ>
+			<SEQ TYPE="OPERATOR">==</SEQ>
+			<SEQ TYPE="OPERATOR">\==</SEQ>
+			<SEQ TYPE="OPERATOR">@&lt;</SEQ>
+			<SEQ TYPE="OPERATOR">@&gt;</SEQ>
+			<SEQ TYPE="OPERATOR">@&gt;=</SEQ>
+
+			<!-- Term creation and decomposition -->
+			<FUNCTION>functor</FUNCTION>
+			<FUNCTION>arg</FUNCTION>
+			<SEQ TYPE="OPERATOR">=..</SEQ>
+			<FUNCTION>copy_term</FUNCTION>
+
+			<!-- Arithemtic evaluation -->
+			<FUNCTION>is</FUNCTION>
+
+			<!-- Arithemtic comparison -->
+			<SEQ TYPE="OPERATOR">=:=</SEQ>
+			<SEQ TYPE="OPERATOR">=\=</SEQ>
+			<SEQ TYPE="OPERATOR">&lt;</SEQ>
+			<SEQ TYPE="OPERATOR">=&lt;</SEQ>
+			<SEQ TYPE="OPERATOR">&gt;</SEQ>
+			<SEQ TYPE="OPERATOR">&gt;=</SEQ>
+
+			<!-- Clause retrievel and information -->
+			<FUNCTION>clause</FUNCTION>
+			<FUNCTION>current_predicate</FUNCTION>
+
+			<!-- Clause creation and destruction -->
+			<FUNCTION>asserta</FUNCTION>
+			<FUNCTION>assertz</FUNCTION>
+			<FUNCTION>retract</FUNCTION>
+			<FUNCTION>abolish</FUNCTION>
+
+			<!-- All solutions -->
+			<FUNCTION>findall</FUNCTION>
+			<FUNCTION>bagof</FUNCTION>
+			<FUNCTION>setof</FUNCTION>
+
+			<!-- Stream selection and control -->
+			<FUNCTION>current_input</FUNCTION>
+			<FUNCTION>current_output</FUNCTION>
+			<FUNCTION>set_input</FUNCTION>
+			<FUNCTION>set_output</FUNCTION>
+			<FUNCTION>open</FUNCTION>
+			<FUNCTION>close</FUNCTION>
+			<FUNCTION>flush_output</FUNCTION>
+			<FUNCTION>stream_property</FUNCTION>
+			<FUNCTION>at_end_of_stream</FUNCTION>
+			<FUNCTION>set_stream_position</FUNCTION>
+			
+			<!-- Character input/output -->
+			<FUNCTION>get_char</FUNCTION>
+			<FUNCTION>get_code</FUNCTION>
+			<FUNCTION>peek_char</FUNCTION>
+			<FUNCTION>peek_code</FUNCTION>
+			<FUNCTION>put_char</FUNCTION>
+			<FUNCTION>put_code</FUNCTION>
+			<FUNCTION>nl</FUNCTION>
+
+			<!-- Byte input/output -->
+			<FUNCTION>get_byte</FUNCTION>
+			<FUNCTION>peek_byte</FUNCTION>
+			<FUNCTION>put_byte</FUNCTION>
+
+			<!-- Term input/output -->
+			<FUNCTION>read_term</FUNCTION>
+			<FUNCTION>read</FUNCTION>
+			<FUNCTION>write_term</FUNCTION>
+			<FUNCTION>write</FUNCTION>
+			<FUNCTION>writeq</FUNCTION>
+			<FUNCTION>write_canonical</FUNCTION>
+			<FUNCTION>op</FUNCTION>
+			<FUNCTION>current_op</FUNCTION>
+			<FUNCTION>char_conversion</FUNCTION>
+			<FUNCTION>current_char_conversion</FUNCTION>
+
+			<!-- Logic and control -->
+			<SEQ TYPE="FUNCTION">\+</SEQ>
+			<FUNCTION>once</FUNCTION>
+			<FUNCTION>repeat</FUNCTION>
+
+			<!-- Atomic term processing -->
+			<FUNCTION>atom_length</FUNCTION>
+			<FUNCTION>atom_concat</FUNCTION>
+			<FUNCTION>sub_atom</FUNCTION>
+			<FUNCTION>atom_chars</FUNCTION>
+			<FUNCTION>atom_codes</FUNCTION>
+			<FUNCTION>char_code</FUNCTION>
+			<FUNCTION>number_chars</FUNCTION>
+			<FUNCTION>number_codes</FUNCTION>
+
+			<!-- Implementation defined hooks functions -->
+			<FUNCTION>set_prolog_flag</FUNCTION>
+			<FUNCTION>current_prolog_flag</FUNCTION>
+			<FUNCTION>halt</FUNCTION>
+
+			<!-- Evaluable functors -->
+			<SEQ TYPE="OPERATOR">+</SEQ>
+			<SEQ TYPE="OPERATOR">-</SEQ>
+			<SEQ TYPE="OPERATOR">*</SEQ>
+			<SEQ TYPE="OPERATOR">//</SEQ>
+			<SEQ TYPE="OPERATOR">/</SEQ>
+			<FUNCTION>rem</FUNCTION>
+			<FUNCTION>mod</FUNCTION>
+			<FUNCTION>abs</FUNCTION>
+			<FUNCTION>sign</FUNCTION>
+			<FUNCTION>float_integer_part</FUNCTION>
+			<FUNCTION>float_fractional_part</FUNCTION>
+			<FUNCTION>float</FUNCTION>
+			<FUNCTION>floor</FUNCTION>
+			<FUNCTION>truncate</FUNCTION>
+			<FUNCTION>round</FUNCTION>
+			<FUNCTION>ceiling</FUNCTION>
+
+			<!-- Other arithemtic functors -->
+			<SEQ TYPE="OPERATOR">**</SEQ>
+			<FUNCTION>sin</FUNCTION>
+			<FUNCTION>cos</FUNCTION>
+			<FUNCTION>atan</FUNCTION>
+			<FUNCTION>exp</FUNCTION>
+			<FUNCTION>log</FUNCTION>
+			<FUNCTION>sqrt</FUNCTION>
+
+			<!-- Bitwise functors -->
+			<SEQ TYPE="OPERATOR">&gt;&gt;</SEQ>
+			<SEQ TYPE="OPERATOR">&lt;&lt;</SEQ>
+			<SEQ TYPE="OPERATOR">/\</SEQ>
+			<SEQ TYPE="OPERATOR">\/</SEQ>
+			<SEQ TYPE="OPERATOR">\</SEQ>
+
+			<SEQ TYPE="OPERATOR">.</SEQ>
+
+		</KEYWORDS>
+		
+	</RULES>
+
+	<RULES SET="ENTITY_RELATIONS" IGNORE_CASE="FALSE">
+		<SPAN TYPE="FUNCTION" NO_LINE_BREAK="FALSE" DELEGATE="ENTITY_NAMES">
+			<BEGIN>instantiates(</BEGIN>
+			<END>)</END>
+		</SPAN>
+		<SPAN TYPE="FUNCTION" NO_LINE_BREAK="FALSE" DELEGATE="ENTITY_NAMES">
+			<BEGIN>specializes(</BEGIN>
+			<END>)</END>
+		</SPAN>
+		<SPAN TYPE="FUNCTION" NO_LINE_BREAK="FALSE" DELEGATE="ENTITY_NAMES">
+			<BEGIN>extends(</BEGIN>
+			<END>)</END>
+		</SPAN>
+		<SPAN TYPE="FUNCTION" NO_LINE_BREAK="FALSE" DELEGATE="ENTITY_NAMES">
+			<BEGIN>imports(</BEGIN>
+			<END>)</END>
+		</SPAN>
+		<SPAN TYPE="FUNCTION" NO_LINE_BREAK="FALSE" DELEGATE="ENTITY_NAMES">
+			<BEGIN>implements(</BEGIN>
+			<END>)</END>
+		</SPAN>
+	</RULES>
+
+
+	<RULES SET="ENTITY_NAMES" IGNORE_CASE="FALSE">	
+	</RULES>
+
+	
+	<RULES SET="DIRECTIVE_CONTENTS" IGNORE_CASE="FALSE">	
+	</RULES>
+
+	<RULES SET="PROLOG" IGNORE_CASE="FALSE">	
+	</RULES>
+	
+</MODE>

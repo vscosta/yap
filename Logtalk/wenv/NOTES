@@ -1,0 +1,56 @@
+=================================================================
+Logtalk - Object oriented extension to Prolog
+Release 2.12.0
+
+Copyright (c) 1998-2002 Paulo Moura.  All Rights Reserved.
+=================================================================
+
+
+This directory contains some files that provide syntax highlighting 
+for editing Logtalk source files with common text editors.
+
+
+logtalk.xml
+
+	edit mode file for jEdit 4.0 (http://www.jedit.org/)
+
+	If this file is not included with your version of jEdit or if the 
+	included file is older than the one provided here, copy this file 
+	to the "modes" subdirectory in jEdit directory installation. Next, 
+	check the "catalog" file in the same subdirectory and add (if not 
+	present) the following entry:
+	
+	<MODE NAME="logtalk" FILE="logtalk.xml" FILE_NAME_GLOB="*.lgt" />
+
+
+logtalk.vim
+
+	syntax file for VIM 6.1 (http://www.vim.org)
+
+	If this file is not included with your version of VIM or if the 
+	included file is older than the one provided here, copy this file 
+	to the "syntax" sub-directory in your VIM installation directory 
+	and add the following entry to the "filetype.vim" configuration 
+	file (if not present):
+
+	" Logtalk
+	au BufNewFile,BufRead *.lgt                     setf logtalk
+
+
+logtalk.syn
+
+	syntax file for TextPad 4.5 (http://www.textpad.com)
+
+	To install, copy this file to the SAMPLES subdirectory in the TextPad 
+	application directory and define a new document class for Logtalk source 
+	files. THIS SYNTAX FILE IS UNDER DEVELOPMENT.
+
+
+logtalk.pats
+
+	syntax highlighting patterns file for NEdit 5.2 (http://www.nedit.org)
+
+	To install, follow the instructions included in the file itself or take 
+	a look at:
+	
+		http://www.nedit.org/download/patterns.shtml
