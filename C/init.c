@@ -567,10 +567,16 @@ InitCmpPred(char *Name, int Arity, CmpPredicate cmp_code, CPredicate code, int f
   c_predicates[NUMBER_OF_CPREDS] = code;
   pe->StateOfPred = NUMBER_OF_CPREDS;
   NUMBER_OF_CPREDS++;
+  if (NUMBER_OF_CPREDS == MAX_C_PREDS) {
+    Error(SYSTEM_ERROR, TermNil, "not enough table for c-predicates");
+  }
   pe->TrueCodeOfPred = (CODEADDR) cmp_code;
   cmp_funcs[NUMBER_OF_CMPFUNCS].p = pe;
   cmp_funcs[NUMBER_OF_CMPFUNCS].f = cmp_code;
   NUMBER_OF_CMPFUNCS++;
+  if (NUMBER_OF_CMPFUNCS == MAX_CMP_FUNCS) {
+    Error(SYSTEM_ERROR, TermNil, "not enough table for comparison predicates");
+  }
 }
 
 void 
@@ -773,11 +779,9 @@ InitCodes(void)
   heap_regs->seq_def = TRUE;
   heap_regs->getworkfirsttimecode.opc = opcode(_getwork_first_time);
   heap_regs->getworkcode.opc = opcode(_getwork);
-  heap_regs->getworkcode.u.ld.p = (CODEADDR)RepPredProp(PredPropByAtom(LookupAtom("$getwork"), 0));
   INIT_YAMOP_LTT(&(heap_regs->getworkcode), 0);
   heap_regs->getworkcode_seq.opc = opcode(_getwork_seq);
   INIT_YAMOP_LTT(&(heap_regs->getworkcode_seq), 0);
-  heap_regs->getworkcode_seq.u.ld.p = (CODEADDR)RepPredProp(PredPropByAtom(LookupAtom("$getwork_seq"), 0));
 #endif /* YAPOR */
 #ifdef TABLING
   heap_regs->tablecompletioncode.opc = opcode(_table_completion);
@@ -799,9 +803,6 @@ InitCodes(void)
   heap_regs->env_for_trustfail_code.s = -Signed(RealEnvSize);
   heap_regs->env_for_trustfail_code.l = NULL;
   heap_regs->env_for_trustfail_code.l2 = NULL;
-  heap_regs->env_for_trustfail_code.p =
-    heap_regs->env_for_trustfail_code.p0 =
-    RepPredProp(PredPropByAtom(LookupAtom("false"),0));
   heap_regs->trustfailcode = opcode(_trust_fail);
 
   heap_regs->env_for_yes_code.op = opcode(_call);
@@ -1036,6 +1037,7 @@ InitCodes(void)
       undefpe->OpcodeOfPred = UNDEF_OPCODE;
     }
   }
+  /* predicates can only be defined after this point */
   heap_regs->env_for_yes_code.p =
     heap_regs->env_for_yes_code.p0 =
     RepPredProp(PredPropByAtom(heap_regs->atom_true,0));
@@ -1044,11 +1046,18 @@ InitCodes(void)
   heap_regs->pred_throw = RepPredProp(PredPropByFunc(FunctorThrow,0));
   heap_regs->pred_handle_throw = RepPredProp(PredPropByFunc(MkFunctor(LookupAtom("$handle_throw"),3),0));
   heap_regs->pred_goal_expansion = RepPredProp(PredPropByFunc(MkFunctor(LookupAtom("goal_expansion"),3),1));
+  heap_regs->env_for_trustfail_code.p =
+    heap_regs->env_for_trustfail_code.p0 =
+    RepPredProp(PredPropByAtom(LookupAtom("false"),0));
   {
     /* make sure we know about the module predicate */
     PredEntry *modp = RepPredProp(PredPropByFunc(heap_regs->functor_module,0));
     modp->PredFlags |= MetaPredFlag;
   }
+#ifdef YAPOR
+  heap_regs->getworkcode.u.ld.p = (CODEADDR)RepPredProp(PredPropByAtom(LookupAtom("$getwork"), 0));
+  heap_regs->getworkcode_seq.u.ld.p = (CODEADDR)RepPredProp(PredPropByAtom(LookupAtom("$getwork_seq"), 0));
+#endif
 }
 
 static void 

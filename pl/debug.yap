@@ -367,19 +367,6 @@ debugging :-
 '$spycalls'(Mod:G,_,Res) :-
 	!,
 	'$spycalls'(G,Mod,Res).
-'$spycalls'(repeat,_,_) :-
-	!,
-	repeat.
-'$spycalls'(fail,_,_) :-
-	!,
-	fail.
-'$spycalls'(false,_,_) :-
-	!,
-	false.
-'$spycalls'(true,_,_) :-
-	!.
-'$spycalls'(otherwise,_,_) :-
-	!.
 '$spycalls'(\+ G,Mod,Res) :-
 	!,
 	CP is '$last_choice_pt',
@@ -910,12 +897,18 @@ debugging :-
 	'$set_value'(spy_sp,call),
 	'$set_value'(spy_sl,L),
 	write(user_error,'[ retry ]'), nl(user_error).
-'$action'(0's,P,L,_,_,_) :- !,		% s		skip
-	( P=call; P=redo; '$ilgl'(115) ), !,
-	'$set_value'(spy_sl,L).
-'$action'(0't,P,L,_,_,_) :- !,		% t		fast skip
-	( P=call; P=redo; '$ilgl'(116) ), !,
-	'$set_value'(spy_sl,L), '$set_value'(spy_fs,1).
+'$action'(0's,P,L,_,_,C) :- !,		% s		skip
+	( (P=call; P=redo) ->
+	    '$set_value'(spy_sl,L)
+	    ;
+	    C = continue
+	).
+'$action'(0't,P,L,_,_,C) :- !,		% t		fast skip
+	( (P=call; P=redo) ->
+	    '$set_value'(spy_sl,L), '$set_value'(spy_fs,1)
+	    ;
+	    C = continue
+	).
 '$action'(0'+,_,_,G,M,_) :- !,		% +		spy this
 	functor(G,F,N), spy(M:(F/N)),
 	'$skipeol'(43), fail.
