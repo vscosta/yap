@@ -250,7 +250,7 @@ see(F) :- current_input(Stream),
 	'$user_file_name'(Stream,F).
 see(F) :- current_stream(_,read,Stream), '$user_file_name'(Stream,F), !,
 	set_input(Stream).
-see(Stream) :- current_stream(_,read,Stream), !,
+see(Stream) :- '$stream'(Stream), current_stream(_,read,Stream), !,
 	set_input(Stream).
 see(F) :- open(F,read,Stream), set_input(Stream).
 
@@ -267,7 +267,7 @@ tell(F) :- current_output(Stream),
 	'$user_file_name'(Stream,F), !.
 tell(F) :- current_stream(_,write,Stream), '$user_file_name'(Stream, F), !,
 	set_output(Stream).
-tell(Stream) :- current_stream(_,write,Stream), !,
+tell(Stream) :- '$stream'(Stream), current_stream(_,write,Stream), !,
 	set_output(Stream).
 tell(F) :- open(F,write,Stream), set_output(Stream).
 		

@@ -2077,9 +2077,12 @@ init_cur_s (void)
 {				/* Init current_stream */
   Term t3 = Deref(ARG3);
   if (!IsVarTerm(t3)) {
-    Int i = CheckStream (t3, Input_Stream_f|Output_Stream_f, "current_stream/3");
-    Term t1 = StreamName(i), t2;
     
+    Int i;
+    Term t1, t2;
+
+    i = CheckStream (t3, Input_Stream_f|Output_Stream_f, "current_stream/3");
+    t1 = StreamName(i);
     t2 = (Stream[i].status & Input_Stream_f ?
 	  MkAtomTerm (AtomRead) :
 	  MkAtomTerm (AtomWrite));
@@ -4519,6 +4522,19 @@ StreamToFileNo(Term t)
   }
 }
 
+int
+p_stream(Term t)
+{
+  Term in = Deref(ARG1);
+  if (IsVarTerm(in))
+    return(FALSE);
+  if (IsAtomTerm(in))
+    return(CheckAlias(AtomOfTerm(in)) >= 0);
+  if (IsApplTerm(in))
+    return(FunctorOfTerm(in) == FunctorStream);
+  return(FALSE);
+}
+
 void
 InitBackIO (void)
 {
@@ -4589,6 +4605,7 @@ InitIOPreds(void)
   InitCPred ("$change_alias_to_stream", 2, p_change_alias_to_stream, SafePredFlag|SyncPredFlag);
   InitCPred ("$check_if_valid_new_alias", 1, p_check_if_valid_new_alias, TestPredFlag|SafePredFlag|SyncPredFlag);
   InitCPred ("$fetch_stream_alias", 2, p_fetch_stream_alias, SafePredFlag|SyncPredFlag);
+  InitCPred ("$stream", 2, p_stream, SafePredFlag|TestPredFlag),
 #if HAVE_SELECT
   InitCPred ("stream_select", 3, p_stream_select, SafePredFlag|SyncPredFlag);
 #endif
