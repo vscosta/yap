@@ -1,6 +1,6 @@
 =================================================================
 Logtalk - Object oriented extension to Prolog
-Release 2.14.3
+Release 2.14.4
 
 Copyright (c) 1998-2002 Paulo Moura.  All Rights Reserved.
 =================================================================
@@ -41,3 +41,6 @@ protocols, and categories.
 
 Logtalk version 2.10.0 changes some of the semantics of object dynamic 
 predicates. See the release notes for a description of the changes.
+
+Logtalk version 2.14.4 removes the definition of the depracated built-in 
+predicate logtalk_version/3 (use current_logtalk_flag/3 instead).

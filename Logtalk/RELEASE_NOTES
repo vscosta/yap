@@ -1,6 +1,6 @@
 =================================================================
 Logtalk - Object oriented extension to Prolog
-Release 2.14.3
+Release 2.14.4
 
 Copyright (c) 1998-2002 Paulo Moura.  All Rights Reserved.
 =================================================================
@@ -8,6 +8,23 @@ Copyright (c) 1998-2002 Paulo Moura.  All Rights Reserved.
 
 RELEASE NOTES
 =============
+
+
+2.14.4 - November 5, 2002
+
+	Removed definition of depracated built-in predicate logtalk_version/3.
+
+	Show flag names when printing at startup the default flag values.
+
+	Small change to messages printed on console with smart compilation of 
+	source files turned on.
+
+	Updated YAP 4.3.x config file to use the YAP "system" library to access 
+	the operating system for time, date, and file properties (enabling smart 
+	source code compilation).
+
+	Updated the lgtpdfa4.xsl and lgtpdfus.xsl XSLT files to workaround a bug 
+	in the PassiveTeX 1.21 XSL:FO processor.
 
 
 2.14.3 - Sptember 16, 2002

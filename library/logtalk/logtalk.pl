@@ -1005,27 +1005,6 @@ logtalk_load(Entities, Options) :-
 
 
 
-% logtalk_version(?integer, ?integer, ?integer)
-
-logtalk_version(Major, Minor, Patch) :-
-	nonvar(Major),
-	\+ integer(Major),
-	throw(error(type_error(integer, Major), logtalk_version(Major, Minor, Patch))).
-
-logtalk_version(Major, Minor, Patch) :-
-	nonvar(Minor),
-	\+ integer(Minor),
-	throw(error(type_error(integer, Minor), logtalk_version(Major, Minor, Patch))).
-
-logtalk_version(Major, Minor, Patch) :-
-	nonvar(Patch),
-	\+ integer(Patch),
-	throw(error(type_error(integer, Patch), logtalk_version(Major, Minor, Patch))).
-
-logtalk_version(2, 14, 4).
-
-
-
 % set_logtalk_flag(+atom, +nonvar)
 %
 % sets a Logtalk flag
@@ -5371,8 +5350,6 @@ user0__def(Pred, _, _, _, Pred, user).
 '$lgt_lgt_built_in'(logtalk_load(_)).
 '$lgt_lgt_built_in'(logtalk_load(_, _)).
 
-'$lgt_lgt_built_in'(logtalk_version(_, _, _)).
-
 '$lgt_lgt_built_in'(protocol_property(_, _)).
 '$lgt_lgt_built_in'(category_property(_, _)).
 '$lgt_lgt_built_in'(object_property(_, _)).
@@ -5982,33 +5959,33 @@ user0__def(Pred, _, _, _, Pred, user).
 '$lgt_default_flags' :-
 	write('Default compilation flags:'), nl,
 	'$lgt_default_flag'(iso_initialization_dir, ISO),
-	write('  ISO initialization/1 directive: '), write(ISO), nl,
+	write('  ISO initialization/1 directive (iso_initialization_dir): '), write(ISO), nl,
 	'$lgt_default_flag'(xml, XML),
-	write('  XML documenting files:          '), write(XML), nl,
+	write('  XML documenting files (xml):                             '), write(XML), nl,
 	'$lgt_default_flag'(doctype, Doctype),
-	write('  XML doctype reference:          '), write(Doctype), nl,
+	write('  XML doctype reference (doctype):                         '), write(Doctype), nl,
 	'$lgt_default_flag'(xsl, XSL),
-	write('  XSL stylesheet:                 '), write(XSL), nl,
+	write('  XSL stylesheet (xsl):                                    '), write(XSL), nl,
 	'$lgt_default_flag'(unknown, Unknown),
-	write('  Unknown entities:               '), write(Unknown), nl,
+	write('  Unknown entities (unknown):                              '), write(Unknown), nl,
 	'$lgt_default_flag'(misspelt, Misspelt),
-	write('  Misspelt predicates:            '), write(Misspelt), nl,
+	write('  Misspelt predicates (misspelt):                          '), write(Misspelt), nl,
 	'$lgt_default_flag'(singletons, Singletons),
-	write('  Singletons variables:           '), write(Singletons), nl,
+	write('  Singletons variables (singletons):                       '), write(Singletons), nl,
 	'$lgt_default_flag'(lgtredef, Lgtredef),
-	write('  Logtalk built-ins redefinition: '), write(Lgtredef), nl,
+	write('  Logtalk built-ins redefinition (lgtredef):               '), write(Lgtredef), nl,
 	'$lgt_default_flag'(plredef, Plredef),
-	write('  Prolog built-ins redefinition:  '), write(Plredef), nl,
+	write('  Prolog built-ins redefinition (plredef):                 '), write(Plredef), nl,
 	'$lgt_default_flag'(portability, Portability),
-	write('  Non portable calls:             '), write(Portability), nl,
+	write('  Non portable calls (portability):                        '), write(Portability), nl,
 	'$lgt_default_flag'(report, Report),
-	write('  Compilation report:             '), write(Report), nl,
+	write('  Compilation report (report):                             '), write(Report), nl,
 	'$lgt_default_flag'(named_anonymous_vars, Named),
-	write('  Named anonymous variables:      '), write(Named), nl,
+	write('  Named anonymous variables (named_anonymous_vars):        '), write(Named), nl,
 	'$lgt_default_flag'(code_prefix, Code),
-	write('  Compiled code functors prefix:  '), writeq(Code), nl,
+	write('  Compiled code functors prefix (code_prefix):             '), writeq(Code), nl,
 	'$lgt_default_flag'(smart_compilation, Smart),
-	write('  Smart compilation:              '), write(Smart), nl, nl.
+	write('  Smart compilation (smart_compilation):                   '), write(Smart), nl, nl.
 
 
 

@@ -5,9 +5,15 @@
 <!--	jEdit 4.1 Logtalk syntax file
 
 	written by		Paulo Moura
-	version			1.1
+	version			1.2
 	created on		2 May 2002
-	last revised	28 August 2002
+	last revised	3 October 2002
+	
+	To install, copy this file to the "modes" subdirectory in jEdit 
+	directory installation.   Next, check the "catalog" file in the 
+	same subdirectory and add (if not present) the following entry:
+	
+	<MODE NAME="logtalk" FILE="logtalk.xml" FILE_NAME_GLOB="*.lgt" />
 -->
 
 <MODE>
