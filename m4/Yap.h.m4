@@ -10,7 +10,7 @@
 * File:		Yap.h.m4						 *
 * mods:									 *
 * comments:	main header file for YAP				 *
-* version:      $Id: Yap.h.m4,v 1.14 2001-12-18 22:01:26 vsc Exp $	 *
+* version:      $Id: Yap.h.m4,v 1.15 2001-12-20 17:19:43 vsc Exp $	 *
 *************************************************************************/
 
 #include "config.h"
@@ -832,7 +832,7 @@ extern int      yap_argc;
             }                                                            \
             if (PrologMode & AbortMode) {                                \
 	      PrologMode &= ~AbortMode;                                  \
-	      Error(PURE_ABORT, TermNil, "");                            \
+	      Error(PURE_ABORT, 0, "");                            \
             }                                                            \
 	    GLOBAL_LOCKS_who_locked_heap = MAX_WORKERS;                  \
             UNLOCK(GLOBAL_LOCKS_heap_access);                            \
@@ -855,7 +855,7 @@ extern int      yap_argc;
             }                                                            \
             if (PrologMode & AbortMode) {                                \
 	      PrologMode &= ~AbortMode;                                  \
-	      Error(PURE_ABORT, TermNil, "");                            \
+	      Error(PURE_ABORT, 0, "");                            \
             }                                                            \
           }                                                              \
         }
