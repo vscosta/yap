@@ -41,7 +41,7 @@ LoadForeign( StringList ofiles, StringList libs,
     int valid_fname;
 
     /* shl_load wants to follow the LD_CONFIG_PATH */
-    valid_fname = _YAP_TrueFileName( ofiles->s, FileNameBuf, TRUE );
+    valid_fname = _YAP_TrueFileName( ofiles->s, _YAP_FileNameBuf, TRUE );
 
     if( !valid_fname ) {
       strcpy( _YAP_ErrorSay, "[ Trying to open non-existing file in LoadForeign ]" );
@@ -49,7 +49,7 @@ LoadForeign( StringList ofiles, StringList libs,
     }
 
     ofiles->handle = _YAP_AllocCodeSpace( sizeof(shl_t) );
-    *(shl_t *)ofiles->handle = shl_load( FileNameBuf, BIND_DEFERRED, 0 );
+    *(shl_t *)ofiles->handle = shl_load( _YAP_FileNameBuf, BIND_DEFERRED, 0 );
     if( *(shl_t *)ofiles->handle == NULL ) {
       strncpy( _YAP_ErrorSay, strerror(errno), MAX_ERROR_MSG_SIZE );
       return LOAD_FAILLED;
@@ -71,15 +71,15 @@ LoadForeign( StringList ofiles, StringList libs,
   while( libs ) {
     
     if( libs->s[0] == '-' ) {
-      strcpy( FileNameBuf, "lib" );
-      strcat( FileNameBuf, libs->s+2 );
-      strcat( FileNameBuf, ".sl" );
+      strcpy( _YAP_FileNameBuf, "lib" );
+      strcat( _YAP_FileNameBuf, libs->s+2 );
+      strcat( _YAP_FileNameBuf, ".sl" );
     }
     else {
-      strcpy( FileNameBuf, libs->s );
+      strcpy( _YAP_FileNameBuf, libs->s );
     }
 
-    *(shl_t *)libs->handle = shl_load( FileNameBuf, BIND_DEFERRED, 0 );
+    *(shl_t *)libs->handle = shl_load( _YAP_FileNameBuf, BIND_DEFERRED, 0 );
     if( *(shl_t *)libs->handle == NULL ) {
       strncpy( _YAP_ErrorSay, strerror(errno), MAX_ERROR_MSG_SIZE );
       return LOAD_FAILLED;
