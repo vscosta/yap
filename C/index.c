@@ -4274,6 +4274,9 @@ Yap_ExpandIndex(PredEntry *ap) {
 static path_stack_entry *
 push_path(path_stack_entry *sp, yamop **pipc, ClauseDef *clp)
 {
+  if (Yap_Option['i' - 'a' + 1]) {
+    printf("+ %p=>%p\n",sp,sp+1);
+  }
   sp->flag = pc_entry;
   sp->u.pce.pi_pc = pipc;
   sp->u.pce.code = clp->Code;
@@ -4352,6 +4355,9 @@ pop_path(path_stack_entry **spp, ClauseDef *clp, PredEntry *ap)
   path_stack_entry *sp = *spp;
   yamop *nipc;
 
+  if (Yap_Option['i' - 'a' + 1]) {
+    printf("- %p-->",sp+1);
+  }
   while ((--sp)->flag != pc_entry);
   *spp = sp;
   clp->Code = sp->u.pce.code;
@@ -4360,10 +4366,16 @@ pop_path(path_stack_entry **spp, ClauseDef *clp, PredEntry *ap)
   clp->Tag = sp->u.pce.tag;
   if (sp->u.pce.pi_pc == NULL) {
     *spp = sp;
+    if (Yap_Option['i' - 'a' + 1]) {
+      printf("%p\n", sp);
+    }
     return NULL;
   }
   nipc = *(sp->u.pce.pi_pc);
   *spp = cross_block(sp, sp->u.pce.pi_pc, ap);
+  if (Yap_Option['i' - 'a' + 1]) {
+    printf("%p\n",*spp);
+  }
   return nipc;
 }
 

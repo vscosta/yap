@@ -3854,7 +3854,6 @@ EraseLogUpdCl(LogUpdClause *clau)
   ap = clau->ClPred;
   /* no need to erase what has been erased */ 
   if (!(clau->ClFlags & ErasedMask)) {
-
     /* get ourselves out of the list */
     if (clau->ClNext != NULL) {
       LOCK(clau->ClNext->ClLock);
@@ -3881,9 +3880,9 @@ EraseLogUpdCl(LogUpdClause *clau)
 	ap->cs.p_code.LastClause = clau->ClPrev->ClCode;
       }
     }
-    clau->ClFlags |= ErasedMask;
     ap->cs.p_code.NOfClauses--;
     WRITE_UNLOCK(ap->PRWLock);
+    clau->ClFlags |= ErasedMask;
 #ifdef DEBUG
     {
       LogUpdClause *er_head = DBErasedList;

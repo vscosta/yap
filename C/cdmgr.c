@@ -432,14 +432,14 @@ kill_first_log_iblock(LogUpdIndex *c, LogUpdIndex *parent, PredEntry *ap)
     LOCK(c->ClLock);
     ncl = c->ChildIndex;
   }
-  c->ClRefCount--;
+  UNLOCK(c->ClLock);
   /* check if we are still the main index */
   if (parent == NULL &&
       ap->cs.p_code.TrueCodeOfPred == c->ClCode) {
     RemoveMainIndex(ap);
   }
-  /* decrease refs */
-  decrease_log_indices(c, (yamop *)&(ap->cs.p_code.ExpandCode));
+  LOCK(c->ClLock);
+  c->ClRefCount--;
 #ifdef DEBUG
     {
       LogUpdIndex *parent = DBErasedIList, *c0 = NULL;
@@ -456,6 +456,8 @@ kill_first_log_iblock(LogUpdIndex *c, LogUpdIndex *parent, PredEntry *ap)
   if (!((c->ClFlags & InUseMask) || c->ClRefCount)) {
     if (parent != NULL) {
       /* sat bye bye */
+      /* decrease refs */
+      decrease_log_indices(c, (yamop *)&(ap->cs.p_code.ExpandCode));
       LOCK(parent->ClLock);
       parent->ClRefCount--;
       if (parent->ClFlags & ErasedMask &&
