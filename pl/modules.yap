@@ -65,7 +65,7 @@ use_module(File,Imports) :-
 	 ( '$recorded'('$module','$module'(TrueFileName,Mod,Publics),_) ->
 	     '$use_preds'(Imports,Publics,Mod,M)
 	 ;
-	 '$format'(user_error,'[ use_module/2 can not find a module in file ~w]~n',File),
+	 '$format'(user_error,"[ use_module/2 can not find a module in file ~w]~n",File),
 	 fail
      )
     ;  
@@ -88,7 +88,7 @@ use_module(library(File),Imports) :- !,
 	 ( '$recorded'('$module','$module'(TrueFileName,Mod,Publics),_) ->
 	     '$use_preds'(Imports,Publics,Mod,M)
 	 ;
-	 '$format'(user_error,'[ use_module/2 can not find a module in file ~w]~n',[File]),
+	 '$format'(user_error,"[ use_module/2 can not find a module in file ~w]~n",[File]),
 	 fail
      )
     ;  
@@ -114,7 +114,7 @@ use_module(Module,File,Imports) :-
 	 ( '$recorded'('$module','$module'(TrueFileName,Module,Publics),_) ->
 	     '$use_preds'(Imports,Publics,Module,M)
 	 ;
-	     '$format'(user_error,'[ use_module/2 can not find module ~w in file ~w]~n',[Module,File]),
+	     '$format'(user_error,"[ use_module/2 can not find module ~w in file ~w]~n",[Module,File]),
 	 fail
      )
     ;  
@@ -132,7 +132,7 @@ use_module(Module,V,Decls) :-
 	'$module_dec'(N,P).
 '$module'(consult,N,P) :-
 	( '$recorded'('$module','$module'(F,N,_),_),
-	     '$format'(user_error,'[ Module ~w was already defined in file ~w]~n',[N,F]),
+	     '$format'(user_error,"[ Module ~w was already defined in file ~w]~n",[N,F]),
 		'$abolish_module_data'(N),
 		fail
 	;
@@ -212,7 +212,7 @@ module(N) :-
 '$import'([N/K|L],M,T) :-
 	integer(K), atom(N), !,
 	( '$check_import'(M,T,N,K) ->
-%	    '$format'(user_error,'[vsc1: Importing ~w to ~w]~n',[M:N/K,T]),
+%	    '$format'(user_error,"[vsc1: Importing ~w to ~w]~n",[M:N/K,T]),
 	     ( T = user ->
 	       recordz('$import','$import'(M,user,N,K),_)
              ;
@@ -223,13 +223,13 @@ module(N) :-
 	),
 	'$import'(L,M,T).
 '$import'([PS|L],M,T) :-
-	'$format'(user_error,'[Illegal pred specification(~w) in module declaration for module ~w]~n',[PS,M]),
+	'$format'(user_error,"[Illegal pred specification(~w) in module declaration for module ~w]~n",[PS,M]),
 	'$import'(L,M,T).
 
 '$check_import'(M,T,N,K) :-
     '$recorded'('$import','$import'(M1,T0,N,K),R), T0 == T, M1 \= M, /* ZP */ !,
-    '$format'(user_error,'NAME CLASH: ~w was already imported to module ~w;~n',[M1:N/K,T]),
-    '$format'(user_error,'            Do you want to import it from ~w ? [y or n] ',M),
+    '$format'(user_error,"NAME CLASH: ~w was already imported to module ~w;~n",[M1:N/K,T]),
+    '$format'(user_error,"            Do you want to import it from ~w ? [y or n] ",M),
     repeat,
 	get0(C), '$skipeol'(C),
 	( C is "y" -> erase(R), !;
@@ -250,7 +250,7 @@ module(N) :-
     ( '$check_import'(M,Mod,N,K) -> 
 	%	     '$format'(user_error,'[ Importing ~w to ~w]~n',[M:N/K,Mod]),
         %            '$trace_module'(importing(M:N/K,Mod)),
-%         '$format'(user_error,'[vsc2: Importing ~w to ~w]~n',[M:N/K,T]),
+%         '$format'(user_error,"[vsc2: Importing ~w to ~w]~n",[M:N/K,T]),
 	  (Mod = user ->
              recordz('$import','$import'(M,user,N,K),_)
 	     ;
@@ -464,9 +464,9 @@ module(N) :-
 	functor(G,F,N),
 	user:'$meta_predicate'(F,Mod,N,D), !,
 	functor(G1,F,N),
-%	'$format'(user_error,'[expanding ~w:~w in ~w',[Mod,G,MP]),
+%	'$format'(user_error,"[expanding ~w:~w in ~w",[Mod,G,MP]),
 	'$meta_expansion_loop'(N,D,G,G1,HVars,MP).
-%	'$format'(user_error,' gives ~w~n]',[G1]).
+%	'$format'(user_error," gives ~w~n]",[G1]).
 
 % expand argument
 '$meta_expansion_loop'(0,_,_,_,_,_) :- !.

@@ -1031,7 +1031,7 @@ break :- '$get_value'('$break',BL), NBL is BL+1,
 	atom_codes(NewFile,NewS),
 	'$exists'(NewFile,'$csult'), !.
 '$find_library_in_path'(File, NewFile) :-
-	'$getenv'('YAPLIBDIR', LibDir),
+	'$getenv'('YAPSHAREDIR', LibDir),
 	'$dir_separator'(A),
 	atom_codes(File,FileS),
 	atom_codes(LibDir,Dir1S),
