@@ -16,6 +16,13 @@
 
 <h2>Yap-4.3.19:</h2>
 <ul>
+	<li>FIXED: ^c works with Yap/MINGW32 (not in cygwin).</li>
+	<li>FIXED: ^c a should never core dump.</li>
+	<li>FIXED: comparison of variables in sub-terms.</li>
+	<li>FIXED: parse +inf, -inf, +nan, -nan as floats and write
+	them accordingly.</li>
+	<li>FIXED: comparison was breaking ISO.</li>
+	<li>FIXED: use $(CC) never gcc directly.</li>
 	<li>FIXED: support newer versions of readline by moving text
 	to prompt.</li>
 	<li>FIXED: upgrade to autoconf 2.5.</li>

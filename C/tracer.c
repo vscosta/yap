@@ -210,7 +210,6 @@ low_level_trace(yap_low_level_port port, PredEntry *pred, CELL *args)
     send_tracer_message("RETRY: ", s, arity, mname, args);
     break;
   }
-
 }
 
 void

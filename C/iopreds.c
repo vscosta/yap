@@ -51,6 +51,9 @@ static char SccsId[] = "%W% %G%";
 #if HAVE_STRING_H
 #include <string.h>
 #endif
+#if HAVE_SIGNAL_H
+#include <signal.h>
+#endif
 #if HAVE_FCNTL_H
 /* for O_BINARY and O_TEXT in WIN32 */
 #include <fcntl.h>
@@ -76,6 +79,18 @@ static char SccsId[] = "%W% %G%";
 
 /* if we botched in a LongIO operation */
 jmp_buf IOBotch;
+
+int  in_getc = FALSE;
+
+int  sigint_pending = FALSE;
+
+#if HAVE_LIBREADLINE
+jmp_buf readline_jmpbuf;
+
+#if _MSC_VER || defined(__MINGW32__)
+FILE *rl_instream, *rl_outstream;
+#endif
+#endif
 
 typedef struct
   {
@@ -319,8 +334,8 @@ unix_upd_stream_info (StreamDesc * s)
 #endif /* USE_SOCKET */
 #if _MSC_VER || defined(__MINGW32__)
   {
-    struct stat buf;
-    if (fstat(fileno(s->u.file.file), &buf) == -1) {
+    struct _stat buf;
+    if (_fstat(YP_fileno(s->u.file.file), &buf) == -1) {
       return;
     }
     if (buf.st_mode & S_IFCHR) {
@@ -768,6 +783,10 @@ static void
 InitReadline(void) {
   ReadlineBuf = (char *)AllocAtomSpace(READLINE_OUT_BUF_MAX+1);
   ReadlinePos = ReadlineBuf;
+#if _MSC_VER || defined(__MINGW32__)
+  rl_instream = stdin;
+  rl_outstream = stdout;
+#endif
 }
 
 static int
@@ -813,6 +832,10 @@ ReadlineGetc(int sno)
   register int ch;
 
   if (ttyptr == NIL) {
+    if (setjmp(readline_jmpbuf) < 0) {
+      Abort("");
+    }
+    in_getc = TRUE;
     /* Do it the gnu way */
     YP_fflush (YP_stdout);
     /* Only sends a newline if we are at the start of a line */
@@ -845,10 +868,8 @@ ReadlineGetc(int sno)
     }
     newline=FALSE;
     strncpy (Prompt, RepAtom (*AtPrompt)->StrOfAE, MAX_PROMPT);
+    in_getc = FALSE;
     /* window of vulnerability closed */
-    if (PrologMode & AbortMode) {
-      Abort ((char *) NULL);
-    }
     if (_line == NULL || _line == (char *) EOF)
       return(console_post_process_read_char(EOF, s, sno));
     if (_line[0] != '\0' && _line[1] != '\0')
@@ -1156,18 +1177,15 @@ ISOGetc (int sno)
   return(ch); 
 }
 
-#ifdef _WIN32
-int  in_getc = FALSE;
-#endif
-
 /* send a prompt, and use the system for internal buffering. Speed is
    not of the essence here !!! */
 static int
 ConsoleGetc(int sno)
 {
   register StreamDesc *s = &Stream[sno];
-  register int ch;
+  char ch;
 
+ restart:
   if (newline) {
     char *cptr = Prompt, ch;
 
@@ -1178,20 +1196,28 @@ ConsoleGetc(int sno)
     strncpy (Prompt, RepAtom (*AtPrompt)->StrOfAE, MAX_PROMPT);
     newline = FALSE;
   }
-#if defined(__MINGW32__) || _MSC_VER
- next_getc:
   in_getc = TRUE;
+#if HAVE_SIGINTERRUPT
+  siginterrupt(SIGINT, TRUE);
 #endif
-  ch = YP_getc (s->u.file.file);
-#if defined(__MINGW32__) || _MSC_VER
-  if (!in_getc) {
-    ProcessSIGINT();
-    if (PrologMode & AbortMode) {
-      Abort((char *)NULL);
-    } else 
-      goto next_getc;
-  }  
+  ch = YP_fgetc(s->u.file.file);
+#if HAVE_SIGINTERRUPT
+  siginterrupt(SIGINT, FALSE);
 #endif
+  in_getc = FALSE;
+  if (PrologMode & AbortMode) {
+    PrologMode &= ~AbortMode;
+    CreepFlag = CalculateStackGap();
+    if (ProcessSIGINT() < 0) Abort("");
+    newline = TRUE;
+    goto restart;
+  } else if (ch == -1 && errno == EINTR) {
+    errno = 0;
+    PrologMode &= ~AbortMode;
+    if (ProcessSIGINT() < 0) Abort("");
+    newline = TRUE;
+    goto restart;
+  }
   return(console_post_process_read_char(ch, s, sno));
 }
 
@@ -1393,8 +1419,13 @@ static int
 binary_file(char *file_name)
 {
 #if HAVE_STAT
+#if _MSC_VER || defined(__MINGW32__) 
+  struct _stat ss;
+  if (_stat(file_name, &ss) != 0) {
+#else
   struct stat ss;
   if (stat(file_name, &ss) != 0) {
+#endif
     /* ignore errors while checking a file */
     return(FALSE);
   }

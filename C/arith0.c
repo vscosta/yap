@@ -86,6 +86,7 @@ p_inf(E_ARGS)
 #define NAN      (0.0/0.0)
 #endif
 
+
 static E_FUNC
 p_nan(E_ARGS)
 {

@@ -78,7 +78,7 @@
 #include <sys/param.h>
 #endif
 #endif /* HAVE_WINSOCK_H */
-#if _MSC_VER
+#if _MSC_VER || defined(__MINGW32__)
 #include <io.h>
 #include <winsock2.h>
 #endif
@@ -177,7 +177,7 @@
 #define MAXHOSTNAMELEN 256
 #endif
 
-#if _MSC_VER
+#if _MSC_VER || defined(__MINGW32__)
 #define socket_errno WSAGetLastError()
 #define invalid_socket_fd(fd) (fd) == INVALID_SOCKET
 #else
@@ -468,7 +468,7 @@ CloseSocket(int fd, socket_info status, socket_domain domain)
       return(FALSE);
     }
   }
-#if _MSC_VER
+#if _MSC_VER || defined(__MINGW32__)
   if (closesocket(fd) != 0) {
 #else
   if (close(fd) < 0) {
@@ -905,7 +905,7 @@ p_socket_select(void)
   fd_set readfds, writefds, exceptfds;
   struct timeval timeout, *ptime;
 
-#if _MSC_VER
+#if _MSC_VER || defined(__MINGW32__)
   u_int fdmax=0;
 #else
   int fdmax=0;
@@ -943,7 +943,7 @@ p_socket_select(void)
   /* fetch the input streams */
   ti = t1;
   while (ti != TermNil) {
-#if _MSC_VER
+#if _MSC_VER || defined(__MINGW32__)
 	u_int fd;
 #else
     int fd;
@@ -1038,8 +1038,8 @@ p_current_hostname(void) {
     int faq = (strrchr(sin,'.') != NULL);
     
     if (faq)
-#if _MSC_VER
-     return(stricmp(name,sin) == 0);
+#if _MSC_VER || defined(__MINGW32__)
+     return(_stricmp(name,sin) == 0);
 #else
       return(strcasecmp(name,sin) == 0);
 #endif
@@ -1052,8 +1052,8 @@ p_current_hostname(void) {
       }
       if (name[isize] != '.') return(FALSE);
       name[isize] = '\0';
-#if _MSC_VER
-      return(stricmp(name,sin) == 0);
+#if _MSC_VER || defined(__MINGW32__)
+      return(_stricmp(name,sin) == 0);
 #else
       return(strcasecmp(name,sin) == 0);
 #endif
@@ -1129,7 +1129,7 @@ InitSockets(void)
   InitCPred("$socket_select", 4, p_socket_select, SafePredFlag|SyncPredFlag);
   InitCPred("current_hostname", 1, p_current_hostname, SafePredFlag);
   InitCPred("hostname_address", 2, p_hostname_address, SafePredFlag);
-#if _MSC_VER
+#if _MSC_VER || defined(__MINGW32__)
   {
     WSADATA info;
     if (WSAStartup(MAKEWORD(2,1), &info) != 0)

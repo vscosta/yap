@@ -1160,11 +1160,6 @@ catch(G,C,A) :-
         '$erase_catch_elements'(I),
 	fail.
 
-'$erase_catch_elements'(catch(X, J, P), I, Catch) :-
-          J >= I, !,
-	  '$erase_catch_elements'(P, I, Catch).
-'$erase_catch_elements'(Catch, _, Catch).
-	  
 '$catch_call'(X,G,I,NX) :-
 	array_element('$catch_queue', 0, OldCatch),
 	update_array('$catch_queue', 0, catch(X,I,OldCatch)),
@@ -1222,6 +1217,11 @@ catch(G,C,A) :-
 	'$erase_catch_elements'(OldCatch, I, Catch),
 	update_array('$catch_queue', 0, Catch).
 
+'$erase_catch_elements'(catch(X, J, P), I, Catch) :-
+          J >= I, !,
+	  '$erase_catch_elements'(P, I, Catch).
+'$erase_catch_elements'(Catch, _, Catch).
+	  
 '$system_catch_call'(X,G,I, NX) :-
 	array_element('$catch_queue', 0, OldCatch),
 	update_array('$catch_queue', 0, catch(X,I,OldCatch)),

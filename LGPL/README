@@ -1,4 +1,6 @@
 
 This directory includes programs that are distributed under the GNU
-LGPL.  Please check pillow/Copyright for further information.
+LGPL.  Please check pillow/Copyright for further information on
+pillow's copyright and SWI-Prolog's win32console library directory for
+more detailed info.
 

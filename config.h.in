@@ -38,6 +38,7 @@
 #undef  HAVE_MEMORY_H
 #undef  HAVE_NETDB_H
 #undef  HAVE_NETINET_IN_H
+#undef  HAVE_READLINE_READLINE_H
 #undef  HAVE_REGEX_H
 #undef  HAVE_SIGINFO_H
 #undef  HAVE_SIGNAL_H
@@ -96,22 +97,22 @@
 /* Define return type for signal	*/
 #undef  RETSIGTYPE
 
+#undef  HAVE_ACOSH
 #undef  HAVE_ALARM
 #undef  HAVE_ASINH
-#undef  HAVE_ACOSH
 #undef  HAVE_ATANH
 #undef  HAVE_CHDIR
 #undef  HAVE_DUP2
 #undef  HAVE_FETESTEXCEPT
 #undef  HAVE_FINITE
+#undef  HAVE_GETCWD
+#undef  HAVE_GETENV
 #undef  HAVE_GETHOSTBYNAME
 #undef  HAVE_GETHOSTID
 #undef  HAVE_GETHOSTNAME
-#undef  HAVE_GETRUSAGE
-#undef  HAVE_GETCWD
-#undef  HAVE_GETENV
 #undef  HAVE_GETHRTIME
 #undef  HAVE_GETPWNAM
+#undef  HAVE_GETRUSAGE
 #undef  HAVE_GETTIMEOFDAY
 #undef  HAVE_GETWD
 #undef  HAVE_ISATTY
@@ -121,11 +122,11 @@
 #undef  HAVE_LINK
 #undef  HAVE_LOCALTIME
 #undef  HAVE_LSTAT
-#undef  HAVE_MMAP
 #undef  HAVE_MEMCPY
 #undef  HAVE_MEMMOVE
 #undef  HAVE_MKSTEMP
 #undef  HAVE_MKTEMP
+#undef  HAVE_MMAP
 #undef  HAVE_OPENDIR
 #undef  HAVE_POPEN
 #undef  HAVE_PUTENV
@@ -134,24 +135,24 @@
 #undef  HAVE_RENAME
 #undef  HAVE_RINT
 #undef  HAVE_SBRK
-#undef  HAVE_STAT
 #undef  HAVE_SELECT
 #undef  HAVE_SETBUF
 #undef  HAVE_SETLINEBUF
 #undef  HAVE_SHMAT
 #undef  HAVE_SIGACTION
 #undef  HAVE_SIGGETMASK
+#undef  HAVE_SIGINTERRUPT
 #undef  HAVE_SIGNAL
 #undef  HAVE_SIGPROCMASK
-#undef  HAVE_SIGSEGV
 #undef  HAVE_SIGSETJMP
 #undef  HAVE_SLEEP
 #undef  HAVE_SNPRINTF
 #undef  HAVE_SOCKET
+#undef  HAVE_STAT
+#undef  HAVE_STRCHR
 #undef  HAVE_STRERROR
 #undef  HAVE_STRNCAT
 #undef  HAVE_STRNCPY
-#undef  HAVE_STRCHR
 #undef  HAVE_STRTOD
 #undef  HAVE_SYSTEM
 #undef  HAVE_TIME
@@ -160,8 +161,9 @@
 #undef  HAVE_USLEEP
 #undef  HAVE_VSNPRINTF
 #undef  HAVE_WAITPID
-#undef  HAVE_ENVIRON
 #undef  HAVE_MPZ_XOR
+
+#undef  HAVE_SIGSEGV
 
 #define  SELECT_TYPE_ARG1    
 #define  SELECT_TYPE_ARG234  

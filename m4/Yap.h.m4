@@ -10,7 +10,7 @@
 * File:		Yap.h.m4						 *
 * mods:									 *
 * comments:	main header file for YAP				 *
-* version:      $Id: Yap.h.m4,v 1.4 2001-05-03 17:13:18 vsc Exp $	 *
+* version:      $Id: Yap.h.m4,v 1.5 2001-06-22 17:53:36 vsc Exp $	 *
 *************************************************************************/
 
 #include "config.h"
@@ -639,8 +639,8 @@ Inline(IsIntTerm, int, Term, t, CHKTAG((t), NumberTag))
 #ifdef TAGS_FAST_OPS
 #define IntInBnd(X)	(Unsigned( ( (Int)(X) >> (32-7) ) + 1) <= 1)
 #else
-#define IntInBnd(X)	( (X) < (Int)MAX_ABS_INT && \
-                          (X) > -(Int)MAX_ABS_INT-1 )
+#define IntInBnd(X)	( (X) < (MAX_ABS_INT) && \
+                          (X) > (-MAX_ABS_INT)-1 )
 #endif
 #endif
 #ifdef C_PROLOG

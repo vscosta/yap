@@ -51,14 +51,6 @@ static char SccsId[] = "@(#)scanner.c	1.2";
 				 C <= (SU)) || (C >= 'a' && C <= (SL)))
 #define my_isupper(C)	( C >= 'A' && C <= 'Z' )
 
-#ifndef INFINITY
-#define INFINITY (1.0/0.0)
-#endif
-
-#ifndef NAN
-#define NAN      (0.0/0.0)
-#endif
-
 STATIC_PROTO(void my_ungetch, (void));
 STATIC_PROTO(int my_getch, (void));
 STATIC_PROTO(Term float_send, (char *));
@@ -224,7 +216,7 @@ float_send(char *s)
 
 /* we have an overflow at s */
 static Term
-read_int_overflow(const char *s, Int base)
+read_int_overflow(const char *s, Int base, Int val)
 {
 #ifdef USE_GMP
   /* try to scan it as a bignum */
@@ -234,7 +226,7 @@ read_int_overflow(const char *s, Int base)
   return(MkBigIntTerm(new));
 #else
   /* try to scan it as a float */
-  return(float_send((char *)s));
+  return(MkIntegerTerm(val));
 #endif    
 }
 
@@ -434,7 +426,7 @@ get_num(void)
 	my_ungetch();
 	*--sp = '\0';
 	if (has_overflow)
-	  return(read_int_overflow(s,base));
+	  return(read_int_overflow(s,base,val));
 	return (MkIntegerTerm(val));
       }
       do
@@ -465,12 +457,12 @@ get_num(void)
     *sp = '\0';
     /* skip base */
     if (s[0] == '0' && (s[1] == 'x' || s[1] == 'X'))
-      return(read_int_overflow(s+2,16));
+      return(read_int_overflow(s+2,16,val));
     if (s[1] == '\'')
-      return(read_int_overflow(s+2,base));
+      return(read_int_overflow(s+2,base,val));
     if (s[2] == '\'')
-      return(read_int_overflow(s+3,base));
-    return(read_int_overflow(s,base));
+      return(read_int_overflow(s+3,base,val));
+    return(read_int_overflow(s,base,val));
   } else
     return (MkIntegerTerm(val));
 }
@@ -1172,7 +1164,7 @@ fast_tokenizer(void)
 		 */
 #endif
 		if (has_overflow)
-		  t->TokInfo = read_int_overflow(TokImage,base);
+		  t->TokInfo = read_int_overflow(TokImage,base,val);
 		else
 		  t->TokInfo = MkIntegerTerm(val);
 		t->TokPos = TokenPos;
@@ -1274,13 +1266,13 @@ fast_tokenizer(void)
 	    *sp = '\0';
 	    /* skip base */
 	    if (TokImage[0] == '0' && (TokImage[1] == 'x' || TokImage[1] == 'X'))
-	      TokenInfo = read_int_overflow(TokImage+2,16);
+	      TokenInfo = read_int_overflow(TokImage+2,16,val);
 	    else if (TokImage[1] == '\'')
-	      TokenInfo = read_int_overflow(TokImage+2,base);
+	      TokenInfo = read_int_overflow(TokImage+2,base,val);
 	    else if (TokImage[2] == '\'')
-	      TokenInfo = read_int_overflow(TokImage+3,base);
+	      TokenInfo = read_int_overflow(TokImage+3,base,val);
 	    else
-	      TokenInfo = read_int_overflow(TokImage,base);
+	      TokenInfo = read_int_overflow(TokImage,base,val);
 	  } else
 	    TokenInfo = (CELL) MkIntegerTerm(val);
 	}

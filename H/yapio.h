@@ -33,7 +33,11 @@
 #define YP_clearerr     clearerr
 #define YP_feof		feof
 #define YP_ferror	ferror
+#if _MSC_VER || defined(__MINGW32__)
+#define YP_fileno	_fileno
+#else
 #define YP_fileno	fileno
+#endif
 #define YP_fopen	fopen
 #define YP_fclose	fclose
 #define YP_ftell	ftell
@@ -43,6 +47,19 @@
 #define YP_ungetc	ungetc
 #define YP_fdopen	fdopen
 #define init_yp_stdio()
+
+#if _MSC_VER || defined(__MINGW32__)
+#define open _open
+#define close _close
+#define popen _popen
+#define pclose _pclose
+#define read _read
+#define write _write
+#define isatty _isatty
+#define putenv(S) _putenv(S)
+#define chdir(P) _chdir(P)
+#define getcwd(B,S) _getcwd(B,S)
+#endif
 
 #define YP_FILE		FILE
 extern int YP_stdin;
@@ -298,3 +315,10 @@ extern int  Portray_delays;
 #define HashFunction(CHP,OUT) { (OUT)=0; while(*(CHP) != '\0') (OUT) += *(CHP)++; (OUT) %= MaxHash; }
 
 extern jmp_buf IOBotch;
+
+#if HAVE_LIBREADLINE
+extern jmp_buf readline_jmpbuf;
+#endif
+
+extern int in_getc, sigint_pending;
+

@@ -3818,12 +3818,14 @@ p_enqueue(void)
   } else
     father_key = (db_queue *)DBRefOfTerm(Father);
   x = StoreTermInDB(Deref(ARG2), 2);
+  x->Parent = NULL;
   WRITE_LOCK(father_key->QRWLock);
-  if (father_key->LastInQueue != NIL)
+  if (father_key->LastInQueue != NULL)
     father_key->LastInQueue->Parent = (DBProp)x;
   father_key->LastInQueue = x;
-  if (father_key->FirstInQueue == NIL)
+  if (father_key->FirstInQueue == NULL) {
     father_key->FirstInQueue = x;
+  }
   WRITE_UNLOCK(father_key->QRWLock);
   return(TRUE);
 }
@@ -3873,7 +3875,7 @@ p_dequeue(void)
   } else
     father_key = (db_queue *)DBRefOfTerm(Father);
   WRITE_LOCK(father_key->QRWLock);
-  if ((cur_instance = father_key->FirstInQueue) == NIL) {
+  if ((cur_instance = father_key->FirstInQueue) == NULL) {
     /* an empty queue automatically goes away */
     if (father_key == DBQueues)
       DBQueues = father_key->next;

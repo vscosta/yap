@@ -873,6 +873,12 @@ restore_codes(void)
 #endif /* YAPOR */
 #endif /* TABLING */
   heap_regs->failcode = opcode(_op_fail);
+  heap_regs->failcode_1 = opcode(_op_fail);
+  heap_regs->failcode_2 = opcode(_op_fail);
+  heap_regs->failcode_3 = opcode(_op_fail);
+  heap_regs->failcode_4 = opcode(_op_fail);
+  heap_regs->failcode_5 = opcode(_op_fail);
+  heap_regs->failcode_6 = opcode(_op_fail);
   heap_regs->trustfailcode = opcode(_trust_fail);
   heap_regs->yescode = opcode(_Ystop);
 #ifdef YAPOR
@@ -1089,6 +1095,8 @@ restore_codes(void)
   heap_regs->functor_change_module = FuncAdjust(heap_regs->functor_change_module);
   heap_regs->functor_current_module = FuncAdjust(heap_regs->functor_current_module);
   heap_regs->functor_mod_switch = FuncAdjust(heap_regs->functor_mod_switch);
+  heap_regs->functor_u_minus = FuncAdjust(heap_regs->functor_u_minus);
+  heap_regs->functor_u_plus = FuncAdjust(heap_regs->functor_u_plus);
   heap_regs->functor_v_bar = FuncAdjust(heap_regs->functor_v_bar);
   heap_regs->functor_var = FuncAdjust(heap_regs->functor_var);
 #ifdef EUROTRA

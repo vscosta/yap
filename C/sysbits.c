@@ -652,7 +652,7 @@ void walltime_interval(Int *now,Int *interval)
 #include <time.h>
 
 /* since the point YAP was started */
-static struct timeb StartOfWTimes;
+static struct _timeb StartOfWTimes;
 
 /* since last call to walltime */
 #define LastWtime (*(struct timeb *)LastWtimePtr)
@@ -661,7 +661,7 @@ static struct timeb StartOfWTimes;
 static void
 InitWTime (void)
 {
-  ftime(&StartOfWTimes);
+  _ftime(&StartOfWTimes);
 }
 
 static void
@@ -675,9 +675,9 @@ InitLastWtime(void) {
 Int
 walltime (void)
 {
-  struct timeb   tp;
+  struct _timeb   tp;
 
-  ftime(&tp);
+  _ftime(&tp);
   if (StartOfWTimes.millitm > tp.millitm)
     return((tp.time - StartOfWTimes.time - 1) * 1000 +
 	   (StartOfWTimes.millitm - tp.millitm));
@@ -688,9 +688,9 @@ walltime (void)
 
 void walltime_interval(Int *now,Int *interval)
 {
-  struct timeb   tp;
+  struct _timeb   tp;
 
-  ftime(&tp);
+  _ftime(&tp);
   *now = (tp.time - StartOfWTimes.time) * 1000 +
     (tp.millitm - StartOfWTimes.millitm);
   *interval = (tp.time - LastWtime.time) * 1000 +
@@ -1068,151 +1068,157 @@ void (*handler)(int);
 static  char *_line = NULL;
 #endif
 
-void
+static int
+InteractSIGINT(char ch) {
+  switch (ch) {
+  case 'a':
+    /* abort computation */
+    /* we can't do a direct abort, so ask the system to do
+       it for us */
+    p_creep();
+    PutValue(AtomThrow, MkAtomTerm(AtomTrue));
+    return(-1);
+  case 'c':
+    /* continue */
+    return(1);
+  case 'e':
+    /* exit */
+    exit_yap(0, "");
+    return(-1);
+  case 't':
+    /* start tracing */
+    PutValue (LookupAtom ("debug"), MkIntTerm (1));
+    PutValue (LookupAtom ("spy_sl"), MkIntTerm (0));
+    PutValue (LookupAtom ("spy_creep"), MkIntTerm (1));
+    p_creep ();
+    return(1);
+#ifdef LOW_LEVEL_TRACER
+  case 'T':
+    toggle_low_level_trace();
+    return(1);
+#endif
+  case 'd':
+    /* enter debug mode */
+    PutValue (LookupAtom ("debug"), MkIntTerm (1));
+    return(1);
+  case 's':
+    /* show some statistics */
+#if SHORT_INTS==0
+    YP_fprintf(YP_stderr, "aux. stack: %d ", Unsigned (AuxTop) -
+	       Unsigned (LCL0 + 1));
+    if (Unsigned (AuxSp) <= Unsigned (LCL0))
+      YP_fprintf(YP_stderr, "( 0 bytes used)\n");
+    else
+      YP_fprintf(YP_stderr, "( %d bytes used)\n",
+		 Unsigned (AuxSp) - Unsigned (LCL0 + 1));
+    YP_fprintf(YP_stderr, "heap space: %d ", Unsigned (AuxTop) -
+	       Unsigned (HeapBase));
+    YP_fprintf(YP_stderr, "( %d bytes used for heap",
+	       Unsigned (HeapUsed));
+    YP_fprintf(YP_stderr, " and %d bytes used for trail)\n",
+	       Unsigned (TR) - Unsigned (TrailBase));
+    YP_fprintf(YP_stderr, "stack space: %d ", Unsigned (LCL0) -
+	       Unsigned (H0));
+    YP_fprintf(YP_stderr, "( %d bytes used for local",
+	       Unsigned (LCL0) - Unsigned (ASP));
+    YP_fprintf(YP_stderr, " and %d bytes used for global)\n",
+	       Unsigned (H) - Unsigned (H0));
+#else
+    YP_fprintf(YP_stderr, "aux. stack: %ld ", Unsigned (AuxTop) -
+	       Unsigned (LCL0 + 1));
+    if (Unsigned (AuxSp) <= Unsigned (LCL0))
+      YP_fprintf(YP_stderr, "( 0 bytes used)\n");
+    else
+      YP_fprintf(YP_stderr, "( %ld bytes used)\n",
+		 Unsigned (AuxSp) - Unsigned (LCL0 + 1));
+    YP_fprintf(YP_stderr, "heap space: %ld ", Unsigned (AuxTop) -
+	       Unsigned (HeapBase));
+    YP_fprintf(YP_stderr, "( %ld bytes used for heap",
+	       Unsigned (HeapUsed));
+    YP_fprintf(YP_stderr, " and %ld bytes used for trail)\n",
+	       Unsigned (TR) - Unsigned (TrailBase));
+    YP_fprintf(YP_stderr, "stack space: %ld ", Unsigned (LCL0) -
+	       Unsigned (H0));
+    YP_fprintf(YP_stderr, "( %ld bytes used for local",
+	       Unsigned (LCL0) - Unsigned (ASP));
+    YP_fprintf(YP_stderr, " and %ld bytes used for global)\n",
+	       Unsigned (H) - Unsigned (H0));
+#endif
+#if SHORT_INTS
+    YP_fprintf(YP_stderr, "Runtime: %lds.\n", runtime ());
+    YP_fprintf(YP_stderr, "Cputime: %lds.\n", cputime ());
+    YP_fprintf(YP_stderr, "Walltime: %lds.\n", walltime ());
+#else
+    YP_fprintf(YP_stderr, "Runtime: %ds.\n", runtime ());
+    YP_fprintf(YP_stderr, "Cputime: %ds.\n", cputime ());
+    YP_fprintf(YP_stderr, "Walltime: %ds.\n", walltime ());
+#endif
+    return(1);
+  case EOF:
+    return(0);
+    break;
+  case 'h':
+  case '?':
+  default:
+    /* show an helpful message */
+    YP_fprintf(YP_stderr, "Please press one of:\n");
+    YP_fprintf(YP_stderr, "  a for abort\n  c for continue\n  d for debug\n");
+    YP_fprintf(YP_stderr, "  e for exit\n  t for trace\n  s for statistics\n");
+    return(0);
+  }
+}
+
+/*
+  This function talks to the user about a signal. We assume we are in
+  the context of the main Prolog thread (trivial in Unix, but hard in WIN32)
+*/ 
+int
 ProcessSIGINT(void)
 {
+  int ch, out;
 
-  while (TRUE) {
-    int ch;
-#ifdef MPW
-    int ch0;
+#if HAVE_ISATTY
+  if (!isatty(0)) {
+    InteractSIGINT('e');
+  }
+#if !HAVE_LIBREADLINE
+  if (in_getc) {
+    return(0);
+  }
 #endif
-
+#endif
+  do {
 #if  HAVE_LIBREADLINE
     if (_line != (char *) NULL && _line != (char *) EOF)
       free (_line);
     _line = readline ("Action (h for help): ");
-    if (_line == (char *)NULL || _line == (char *)EOF)
+    if (_line == (char *)NULL || _line == (char *)EOF) {
+      ch = EOF;
       continue;
+    }
     ch = _line[0];
 #else
-    YP_fprintf(YP_stderr, "\nAction (h for help): ");
-    ch = YP_getchar ( );
-      while ((YP_getchar()) != '\n');
+    /* ask for a new line */
+    fprintf(stderr, "Action (h for help): ");
+    ch = getc(stdin);
+    /* first process up to end of line */
+    while ((fgetc(stdin)) != '\n');
 #endif
-    switch (ch)
-      {
-      case 'a':
-	/* abort computation, but take care in case we are within readline
-	   code */
-	if (!(PrologMode & CritMode))
-	  {
-#if HAVE_SIGPROCMASK
-	    sigset_t sig_set;
-	    sigemptyset(&sig_set);
-	    sigaddset(&sig_set, SIGINT);
-	    sigprocmask(SIG_UNBLOCK, &sig_set, NULL);
-#elif HAVE_SIGGETMASK
-	    sigsetmask (siggetmask () ^ (1 << (SIGINT - 1)));
-#endif
-#ifdef VAX
-	    VaxFixFrame (CritMode);
-#endif
-	    /* we cannot abort until we finish readline :-( */
-	    if (!(PrologMode & CritMode)) {
-#if defined(__MINGW32__) || _MSC_VER
-	      /* we can't do a direct abort, so ask the system to do it for us */
-	      p_creep();
-	      PutValue(AtomThrow, MkAtomTerm(AtomTrue));
-#else
-	      Abort ((char *) NULL);
-#endif
-#if   HAVE_LIBREADLINE
-	    }
-#endif
-	  }
-	PrologMode |= AbortMode;
-	return;
-      case 'c':
-	/* continue */
-	return;
-      case 'e':
-	/* exit */
-	exit_yap(0, "");
-      case 't':
-	/* start tracing */
-	PutValue (LookupAtom ("debug"), MkIntTerm (1));
-	PutValue (LookupAtom ("spy_sl"), MkIntTerm (0));
-	PutValue (LookupAtom ("spy_creep"), MkIntTerm (1));
-	p_creep ();
-	return;
-#ifdef LOW_LEVEL_TRACER
-      case 'T':
-	toggle_low_level_trace();
-	return;
-#endif
-      case 'd':
-	/* enter debug mode */
-	PutValue (LookupAtom ("debug"), MkIntTerm (1));
-	return;
-      case 's':
-	/* show some statistics */
-#if SHORT_INTS==0
-	YP_fprintf(YP_stderr, "aux. stack: %d ", Unsigned (AuxTop) -
-		   Unsigned (LCL0 + 1));
-	if (Unsigned (AuxSp) <= Unsigned (LCL0))
-	  YP_fprintf(YP_stderr, "( 0 bytes used)\n");
-	else
-	  YP_fprintf(YP_stderr, "( %d bytes used)\n",
-		     Unsigned (AuxSp) - Unsigned (LCL0 + 1));
-	YP_fprintf(YP_stderr, "heap space: %d ", Unsigned (AuxTop) -
-		   Unsigned (HeapBase));
-	YP_fprintf(YP_stderr, "( %d bytes used for heap",
-		   Unsigned (HeapUsed));
-	YP_fprintf(YP_stderr, " and %d bytes used for trail)\n",
-		   Unsigned (TR) - Unsigned (TrailBase));
-	YP_fprintf(YP_stderr, "stack space: %d ", Unsigned (LCL0) -
-		   Unsigned (H0));
-	YP_fprintf(YP_stderr, "( %d bytes used for local",
-		   Unsigned (LCL0) - Unsigned (ASP));
-	YP_fprintf(YP_stderr, " and %d bytes used for global)\n",
-		   Unsigned (H) - Unsigned (H0));
-#else
-	YP_fprintf(YP_stderr, "aux. stack: %ld ", Unsigned (AuxTop) -
-		   Unsigned (LCL0 + 1));
-	if (Unsigned (AuxSp) <= Unsigned (LCL0))
-	  YP_fprintf(YP_stderr, "( 0 bytes used)\n");
-	else
-	  YP_fprintf(YP_stderr, "( %ld bytes used)\n",
-		     Unsigned (AuxSp) - Unsigned (LCL0 + 1));
-	YP_fprintf(YP_stderr, "heap space: %ld ", Unsigned (AuxTop) -
-		   Unsigned (HeapBase));
-	YP_fprintf(YP_stderr, "( %ld bytes used for heap",
-		   Unsigned (HeapUsed));
-	YP_fprintf(YP_stderr, " and %ld bytes used for trail)\n",
-		   Unsigned (TR) - Unsigned (TrailBase));
-	YP_fprintf(YP_stderr, "stack space: %ld ", Unsigned (LCL0) -
-		   Unsigned (H0));
-	YP_fprintf(YP_stderr, "( %ld bytes used for local",
-		   Unsigned (LCL0) - Unsigned (ASP));
-	YP_fprintf(YP_stderr, " and %ld bytes used for global)\n",
-		   Unsigned (H) - Unsigned (H0));
-#endif
-#if SHORT_INTS
-	YP_fprintf(YP_stderr, "Runtime: %lds.\n", runtime ());
-	YP_fprintf(YP_stderr, "Cputime: %lds.\n", cputime ());
-	YP_fprintf(YP_stderr, "Walltime: %lds.\n", walltime ());
-#else
-	YP_fprintf(YP_stderr, "Runtime: %ds.\n", runtime ());
-	YP_fprintf(YP_stderr, "Cputime: %ds.\n", cputime ());
-	YP_fprintf(YP_stderr, "Walltime: %ds.\n", walltime ());
-#endif
-	break;
-      case EOF:
-	/* ignore end of file */
-	break;
-      case 'h':
-      case '?':
-      default:
-	/* show an helpful message */
-	YP_fprintf(YP_stderr, "Please press one of:\n");
-	YP_fprintf(YP_stderr, "  a for abort\n  c for continue\n  d for debug\n");
-	YP_fprintf(YP_stderr, "  e for exit\n  t for trace\n  s for statistics\n");
-	break;
-      }
+  } while (!(out = InteractSIGINT(ch)));
+  if (out < 0)
+    sigint_pending = out;
+#if  HAVE_LIBREADLINE
+  if (in_getc) {
+    longjmp(readline_jmpbuf, (out < 0 ? -1 : 1));
   }
+#endif
+  return(out);
 }
 
+/* This function is called from the signal handler to process signals.
+   We assume we are within the context of the signal handler, whatever
+   that might be
+*/
 static RETSIGTYPE
 #if defined(__svr4__)
 HandleSIGINT (int sig, siginfo_t   *x, ucontext_t *y)
@@ -1220,21 +1226,14 @@ HandleSIGINT (int sig, siginfo_t   *x, ucontext_t *y)
 HandleSIGINT (int sig)
 #endif
 {
-#if defined(__MINGW32__) || _MSC_VER
-  extern int in_getc;
-
-  if (in_getc) {
-    /*    YP_ungetc(YP_stdin,'\n');
-	  PrologMode |= InterruptMode; */
-    in_getc = FALSE;
-    return;
-  }
-#else
+  my_signal(SIGINT, HandleSIGINT);
+#if (_MSC_VER || defined(__MINGW32__))
+  printf("hello\n");
+  return;
+#endif
 #ifdef HAVE_SETBUF
   /* make sure we are not waiting for the end of line */
   YP_setbuf (stdin, NULL); 
-#endif
-  my_signal(SIGINT, HandleSIGINT);
 #endif
   if (snoozing)
     {
@@ -1266,6 +1265,7 @@ HandleALRM(int s)
  * 6 possibilities : abort, continue, trace, debug, help, exit
  */
 
+#if !defined(LIGHT) && !_MSC_VER && !defined(__MINGW32__) && !defined(LIGHT) 
 static RETSIGTYPE
 #if defined(__svr4__)
 ReceiveSignal (int s, siginfo_t   *x, ucontext_t *y)
@@ -1292,20 +1292,21 @@ ReceiveSignal (int s)
       exit (FALSE);
     }
 }
+#endif
 
-#if _MSC_VER || defined(__MINGW32__)
-static BOOL WINAPI MSCHandleSignal(DWORD dwCtrlType) {
+#if (_MSC_VER || defined(__MINGW32__))
+static BOOL WINAPI
+MSCHandleSignal(DWORD dwCtrlType) {
   switch(dwCtrlType) {
   case CTRL_C_EVENT:
-    HandleSIGINT(SIGINT);
-    break;
   case CTRL_BREAK_EVENT:
-    HandleSIGINT(SIGINT);
-    break;
+    p_creep();
+    PutValue(AtomThrow, MkAtomTerm(AtomTrue));
+    PrologMode |= AbortMode;
+    return(TRUE);
   default:
-    exit_yap(1, "[ SYSTEM ERROR: Received Termination Event ]\n");
+    return(FALSE);
   }
-  return(TRUE);
 }
 #endif
 
@@ -1313,31 +1314,27 @@ static BOOL WINAPI MSCHandleSignal(DWORD dwCtrlType) {
 static void
 InitSignals (void)
 {
+#if !defined(LIGHT) && !_MSC_VER && !defined(__MINGW32__) && !defined(LIGHT) 
+  my_signal (SIGQUIT, ReceiveSignal);
+  my_signal (SIGKILL, ReceiveSignal);
+  my_signal(SIGALRM, HandleALRM);
+#endif
 #if _MSC_VER || defined(__MINGW32__)
+  signal (SIGINT, SIG_IGN);
   SetConsoleCtrlHandler(MSCHandleSignal,TRUE);
 #else
   my_signal (SIGINT, HandleSIGINT);
+#endif
 #ifndef MPW
   my_signal (SIGFPE, HandleMatherr);
-#if !defined(LIGHT) && !defined(_WIN32)
-  my_signal (SIGQUIT, ReceiveSignal);
-#endif
-#endif
-#if !defined(LIGHT) && !defined(_WIN32)
-  my_signal (SIGKILL, ReceiveSignal);
 #endif
 #if HAVE_SIGSEGV
   my_signal_info (SIGSEGV, HandleSIGSEGV);
-#endif
-#if !defined(LIGHT) && !defined(_WIN32)
-  my_signal(SIGALRM, HandleALRM);
-#endif
 #endif
 #ifdef ACOW
   signal(SIGCHLD, SIG_IGN);  /* avoid ghosts */ 
 #endif
 }
-
 
 #endif /* HAVE_SIGNAL */
 

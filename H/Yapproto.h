@@ -10,7 +10,7 @@
 * File:		Yap.proto						 *
 * mods:									 *
 * comments:	Function declarations for YAP				 *
-* version:      $Id: Yapproto.h,v 1.1.1.1 2001-04-09 19:53:39 vsc Exp $	 *
+* version:      $Id: Yapproto.h,v 1.2 2001-06-22 17:53:36 vsc Exp $	 *
 *************************************************************************/
 
 /* prototype file for Yap */
@@ -244,7 +244,7 @@ void    STD_PROTO(walltime_interval,(Int *,Int *));
 void	STD_PROTO(InitSysbits,(void));
 void	STD_PROTO(InitSysPreds,(void));
 int     STD_PROTO(TrueFileName, (char *, char *, int));
-void	STD_PROTO(ProcessSIGINT,(void));
+int	STD_PROTO(ProcessSIGINT,(void));
 double  STD_PROTO(yap_random, (void));
 
 /* tracer.c */

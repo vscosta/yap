@@ -1978,9 +1978,11 @@ absmi(int inp)
        */
       /* make sure we are here because of an awoken goal */
       if (CFREG == Unsigned(LCL0) && !(PrologMode & AbortMode)) {
-	Term WGs = ReadTimedVar(WokenGoals);
-	Term my_goal = AbsAppl(H);
+	Term WGs;
+	Term my_goal;
 
+	WGs = ReadTimedVar(WokenGoals);
+	my_goal = AbsAppl(H);
 	if (WGs != TermNil) {
 #if SHADOW_S
 	  /* save S for ModuleName() */
@@ -2049,6 +2051,13 @@ absmi(int inp)
       }
       else {
 #endif
+	if (PrologMode & AbortMode) {
+	  PrologMode &= ~AbortMode;
+	  CFREG = CalculateStackGap();
+	  /* same instruction */
+	  if (ProcessSIGINT() < 0) Abort("");
+	  JMPNext();
+	}
 #if SHADOW_S
 	S = SREG;
 #endif
@@ -2100,7 +2109,6 @@ absmi(int inp)
 	H += 2;
 	CFREG = CalculateStackGap();
 	SREG = (CELL *) (Unsigned(CreepCode) - sizeof(SMALLUNSGN));
-
 #ifdef COROUTINING
       }
 #endif

@@ -756,6 +756,7 @@ debugging :-
 	'$execute'(M:Goal).
 '$creep'(G) :-
 	'$get_value'('$throw', true), !,
+	'$set_value'('$throw', false),
 	abort.
 '$creep'([Module|'$trace'(P,G,L)]) :- !,
     (     Module=prolog -> '$trace'(P,G,L);

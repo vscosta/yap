@@ -47,8 +47,9 @@ YAP_EXTRAS=@YAP_EXTRAS@
 # for c_interface.c
 #
 CC=@CC@
-CFLAGS= @CFLAGS@ $(YAP_EXTRAS) $(DEFS) -I. -I$(srcdir)/H -I$(srcdir)/OPTYap
-C_INTERF_FLAGS= @C_INTERF_FLAGS@ $(YAP_EXTRAS) $(DEFS) -I. -I$(srcdir)/H  -I$(srcdir)/OPTYap -I$(srcdir)/include
+CPPFLAGS=@CPPFLAGS@  -I. -I$(srcdir)/H -I$(srcdir)/OPTYap
+CFLAGS= @CFLAGS@ $(YAP_EXTRAS) $(DEFS) $(CPPFLAGS)
+C_INTERF_FLAGS= @C_INTERF_FLAGS@ $(YAP_EXTRAS) $(DEFS) $(CPPFLAGS) -I$(srcdir)/include
 #
 #
 # You shouldn't need to change what follows.
@@ -57,7 +58,6 @@ CPP=@CPP@
 DEFS=@DEFS@
 LIBS=@LIBS@
 LDFLAGS=@LDFLAGS@
-CPPFLAGS=@CPPFLAGS@
 LN_S=@LN_S@
 M4=@M4@
 GCC=@GCC@
@@ -438,7 +438,7 @@ libYap.a: $(LIB_OBJECTS)
 
 install: @INSTALL_COMMAND@
 
-install_unix:
+install_unix: startup
 	-mkdir -p $(DESTDIR)$(BINDIR)
 	$(INSTALL_PROGRAM) -m 755 yap $(DESTDIR)$(BINDIR)/yap
 	-mkdir -p $(DESTDIR)$(YAPLIBDIR)
@@ -455,13 +455,13 @@ install_unix:
 	-mkdir -p $(DESTDIR)$(INCLUDEDIR)
 	for h in $(INTERFACE_HEADERS); do $(INSTALL) $$h $(DESTDIR)$(INCLUDEDIR); done
 
-install_mingw32:
-	-mkdir $(DESTDIR)$(ROOTDIR)
-	-mkdir $(DESTDIR)$(BINDIR)
-	-mkdir $(DESTDIR)$(ROOTDIR)/lib
-	-mkdir $(DESTDIR)$(YAPLIBDIR)
-	-mkdir $(DESTDIR)$(ROOTDIR)/include
-	-mkdir $(DESTDIR)$(INCLUDEDIR)
+install_mingw32: startup
+	-mkdir -p $(DESTDIR)$(ROOTDIR)
+	-mkdir -p $(DESTDIR)$(BINDIR)
+	-mkdir -p $(DESTDIR)$(ROOTDIR)/lib
+	-mkdir -p $(DESTDIR)$(YAPLIBDIR)
+	-mkdir -p $(DESTDIR)$(ROOTDIR)/include
+	-mkdir -p $(DESTDIR)$(INCLUDEDIR)
 	$(INSTALL_PROGRAM) -m 755 yap.exe $(DESTDIR)$(BINDIR)/yap.exe
 	$(INSTALL_PROGRAM) -m 755 yap.dll $(DESTDIR)$(BINDIR)/yap.dll
 	$(INSTALL_PROGRAM) -m 755 startup $(DESTDIR)$(YAPLIBDIR)/startup
@@ -479,7 +479,7 @@ install_mingw32:
 
 install_library: libYap.a
 	$(INSTALL_DATA) -m 644 libYap.a  $(DESTDIR)$(LIBDIR)/libYap.a
-	-mkdir $(DESTDIR)$(INCLUDEDIR)
+	-mkdir -p $(DESTDIR)$(INCLUDEDIR)
 	$(INSTALL) $(HEADERS) $(DESTDIR)$(INCLUDEDIR)
 
 ##########
@@ -488,7 +488,7 @@ TAGS: $(C_SOURCES) $(PL_SOURCES) $(HEADERS)
 
 depend: $(HEADERS) $(C_SOURCES) 
 	-@if test "$(GCC)" = yes; then\
-	  gcc -MM $(CFLAGS) -I$(srcdir)/include $(C_SOURCES) > .depend;\
+	  $(CC) -MM $(CFLAGS) -I$(srcdir)/include $(C_SOURCES) > .depend;\
 	else\
           makedepend -f - -- $(CFLAGS) -I$(srcdir)/include -- $(C_SOURCES) |\
           sed 's|.*/\([^:]*\):|\1:|' > .depend ;\
@@ -518,7 +518,7 @@ dist:
 # 
 DLLTOOL=dlltool
 DLLNAME=yap.dll
-DLL_LIBS=-L /usr/lib/mingw -lmoldname -lcrtdll -lkernel32 $(LIBS)
+DLL_LIBS=-L /usr/lib/mingw -lmoldname -lkernel32 $(LIBS)
 BASE_FILE=yap.base
 EXP_FILE=yap.exp
 DEF_FILE=$(srcdir)/misc/yap.def

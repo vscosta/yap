@@ -11,15 +11,7 @@ AC_PROG_CC
 AC_SUBST(GCC)
 AC_SUBST(C_INTERF_FLAGS)
 
-AC_CYGWIN
-if test "$ac_cv_cygwin" = "yes"  -a "$CC" = "gcc"
-then
-  CC="gcc -mno-cygwin"
-fi
-AC_MINGW32
-
 dnl Checks for programs.
-AC_PROG_CPP
 AC_PROG_LN_S
 AC_PROG_INSTALL
 AC_PROG_RANLIB
@@ -67,16 +59,22 @@ AC_ARG_WITH(gmp,
 	fi
 	[yap_cv_gmp=yes])
 
+AC_ARG_WITH(readline,
+	[ --with-readline[=DIR]    use GNU Readline Library in DIR],
+	if test $withval = yes; then
+		yap_cv_readline=yes
+	elif test $withval = no; then
+		yap_cv_readline=no
+	else
+		yap_cv_readline=$with_readline
+		LDFLAGS="$LDFLAGS -L${yap_cv_readline}/lib"
+		CPPFLAGS="$CPPFLAGS -I${yap_cv_readline}/include"
+	fi
+	[yap_cv_readline=yes])
+
 AC_CANONICAL_SYSTEM
 
 AC_DEFINE_UNQUOTED(HOST_ALIAS,"${host_alias}")
-
-if test "$cross_compiling" = "yes"
-then
-  YAP_EXTRAS=
-else
-  AC_SYS_RESTARTABLE_SYSCALLS
-fi
 
 dnl Compilation Flags
 if test "$GCC" = "yes"
@@ -167,22 +165,22 @@ dnl Check for libraries.
 dnl mingw does not get along well with libm
 dnl cygnus and mingw32 also need wsock32 to use sockets.
 dnl
-if test "$MINGW32" = "yes"
+if test "$target_os" = "cygwin"
 then
-  AC_CHECK_LIB(wsock32,main)
-  INSTALL_COMMAND=install_mingw32
-else
-  if test "$CYGWIN" = "yes" -a "$MINGW32" = "no"
+  if test "$CC" = "gcc"
   then
+    CC="gcc  -mno-cygwin"
+    AC_CHECK_LIB(wsock32,main)
+    INSTALL_COMMAND=install_mingw32
+    yap_cv_readline=no
+  else
     AC_CHECK_LIB(wsock32,main)
     AC_CHECK_LIB(cygwin,main) 
   fi
+else
   INSTALL_COMMAND="install_unix"
   AC_CHECK_LIB(m,sin)
   AC_CHECK_LIB(socket,socket)
-  AC_CHECK_LIB(termcap,tgetent)
-  AC_CHECK_LIB(readline,readline)
-  AC_CHECK_LIB(gmp,main)
   AC_CHECK_LIB(nsl,main,
 	have_nsl=yes
 	,
@@ -192,6 +190,24 @@ dnl Linux has both elf and a.out, in this case we found elf
 	have_dl=yes
 	,
 	have_dl=no)
+fi
+if test "$yap_cv_readline" != "no"
+then
+  AC_CHECK_LIB(termcap,tgetent)
+  AC_CHECK_LIB(readline,readline)
+fi
+if test "$yap_cv_gmp" != "no"
+then
+  AC_CHECK_LIB(gmp,main)
+fi
+
+AC_PROG_CPP
+
+if test "$cross_compiling" = "yes"
+then
+  YAP_EXTRAS=
+else
+  AC_SYS_RESTARTABLE_SYSCALLS
 fi
 
 dnl System stuff for dynamic linking.
@@ -389,16 +405,22 @@ esac
 dnl Checks for header files.
 AC_HEADER_STDC
 AC_HEADER_SYS_WAIT
-AC_CHECK_HEADERS(fcntl.h sys/file.h sys/socket.h sys/types.h sys/time.h)
-AC_CHECK_HEADERS(sys/ucontext.h sys/un.h unistd.h sys/times.h ieeefp.h)
-AC_CHECK_HEADERS(sys/param.h errno.h netdb.h netinet/in.h arpa/inet.h)
-AC_CHECK_HEADERS(string.h memory.h sys/mman.h sys/stat.h stdarg.h ctype.h)
-AC_CHECK_HEADERS(sys/resource.h limits.h siginfo.h time.h fenv.h)
-AC_CHECK_HEADERS(fpu_control.h sys/shm.h regex.h winsock.h winsock2.h)
-AC_CHECK_HEADERS(sys/select.h direct.h dirent.h signal.h io.h)
+AC_CHECK_HEADERS(arpa/inet.h ctype.h direct.h dirent.h errno.h fcntl.h)
+AC_CHECK_HEADERS(fenv.h fpu_control.h ieeefp.h io.h limits.h memory.h)
+AC_CHECK_HEADERS(netdb.h netinet/in.h regex.h)
+AC_CHECK_HEADERS(siginfo.h signal.h stdarg.h string.h sys/file.h)
+AC_CHECK_HEADERS(sys/mman.h sys/param.h sys/resource.h sys/select.h)
+AC_CHECK_HEADERS(sys/shm.h sys/socket.h sys/stat.h)
+AC_CHECK_HEADERS(sys/time.h sys/times.h sys/types.h)
+AC_CHECK_HEADERS(sys/ucontext.h sys/un.h)
+AC_CHECK_HEADERS(time.h unistd.h winsock.h winsock2.h)
 if test "$yap_cv_gmp" != "no"
 then
   AC_CHECK_HEADERS(gmp.h)
+fi
+if test "$yap_cv_readline" != "no"
+then
+  AC_CHECK_HEADERS( readline/readline.h)
 fi
 
 dnl Checks for typedefs, structures, and compiler characteristics.
@@ -561,15 +583,17 @@ fi
 
 dnl Checks for library functions.
 AC_TYPE_SIGNAL
-AC_CHECK_FUNCS(getcwd getwd strtod getrusage chdir signal times siggetmask)
-AC_CHECK_FUNCS(strchr memcpy isatty sbrk shmat mmap random rand sigaction)
-AC_CHECK_FUNCS(snprintf vsnprintf setbuf system link getpwnam dup2 sigprocmask)
-AC_CHECK_FUNCS(labs strncat tmpnam getenv gettimeofday gethrtime putenv)
-AC_CHECK_FUNCS(strerror socket memmove alarm asinh acosh atanh rint)
-AC_CHECK_FUNCS(stat select fetestexcept finite strncpy mkstemp isnan)
-AC_CHECK_FUNCS(setlinebuf lstat opendir localtime time gethostname)
-AC_CHECK_FUNCS(gethostid gethostbyname kill mktemp popen rename waitpid)
-AC_CHECK_FUNCS(sleep usleep)
+AC_CHECK_FUNCS(acosh alarm asinh atanh chdir dup2)
+AC_CHECK_FUNCS(fetestexcept finite getcwd getenv)
+AC_CHECK_FUNCS(gethostbyname gethostid gethostname)
+AC_CHECK_FUNCS(gethrtime getpwnam getrusage gettimeofday getwd)
+AC_CHECK_FUNCS(isatty isnan kill labs link localtime lstat)
+AC_CHECK_FUNCS(memcpy memmove mkstemp mktemp mmap opendir)
+AC_CHECK_FUNCS(popen putenv rand random rename rint sbrk select)
+AC_CHECK_FUNCS(setbuf setlinebuf shmat sigaction siggetmask siginterrupt)
+AC_CHECK_FUNCS(signal sigprocmask sleep snprintf socket stat)
+AC_CHECK_FUNCS(strchr strerror strncat strncpy strtod system)
+AC_CHECK_FUNCS(time times tmpnam usleep vsnprintf waitpid)
 
 dnl check for mpz_xor
 AC_MSG_CHECKING(for mpz_xor)
@@ -595,7 +619,7 @@ mkdir -p  library/system
 mkdir -p  CHR
 mkdir -p  CLPQR
 
-AC_OUTPUT(Makefile library/regex/Makefile library/system/Makefile  library/random/Makefile .depend library/Makefile CHR/Makefile CLPQR/Makefile)
+AC_OUTPUT(Makefile library/regex/Makefile library/system/Makefile  library/random/Makefile .depend library/Makefile CHR/Makefile CLPQR/Makefile LGPL/win32cons/Makefile)
 
 make depend
 

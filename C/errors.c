@@ -249,22 +249,20 @@ Abort (char *format,...)
 #ifdef DEBUGX
   DumpActiveGoals();
 #endif /* DEBUG */
-  if (PrologMode & BootMode)
-    {
-      exit_yap (1, NIL);
-    }
-  else
-    {
-      CreepFlag = CalculateStackGap();
+  if (PrologMode & BootMode) {
+    exit_yap (1, NIL);
+  } else {
+    PutValue(AtomThrow, MkAtomTerm(AtomFalse));
+    CreepFlag = CalculateStackGap();
 #if PUSH_REGS
-      restore_absmi_regs(&standard_regs);
+    restore_absmi_regs(&standard_regs);
 #endif
 #if defined(__GNUC__) && defined(hppa)
-      /* siglongjmp resets the TR hardware register */
-      save_TR();
+    /* siglongjmp resets the TR hardware register */
+    save_TR();
 #endif
-      siglongjmp (RestartEnv, 1);
-    }
+    siglongjmp (RestartEnv, 1);
+  }
 }
 
 

@@ -304,14 +304,6 @@ get_char_from_string(int sno)
 }
 
     
-#ifndef INFINITY
-#define INFINITY (1.0/0.0)
-#endif
-
-#ifndef NAN
-#define NAN      (0.0/0.0)
-#endif
-
 static Term 
 get_num(char *t)
 {
@@ -1249,7 +1241,7 @@ p_abort(void)
   /* make sure we won't go creeping around */
   CreepFlag = CalculateStackGap();
   yap_flags[SPY_CREEP_FLAG] = 0;
-  Error(PURE_ABORT,TermNil,"");
+  Abort("");
   return(FALSE);
 }
 
@@ -2084,6 +2076,7 @@ p_has_yap_or(void)
   return(FALSE);
 #endif
 }
+
 
 static Int 
 p_has_tabling(void)

@@ -747,6 +747,12 @@ InitCodes(void)
 #endif /* YAPOR */
 #endif /* TABLING */
   heap_regs->failcode = opcode(_op_fail);
+  heap_regs->failcode_1 = opcode(_op_fail);
+  heap_regs->failcode_2 = opcode(_op_fail);
+  heap_regs->failcode_3 = opcode(_op_fail);
+  heap_regs->failcode_4 = opcode(_op_fail);
+  heap_regs->failcode_5 = opcode(_op_fail);
+  heap_regs->failcode_6 = opcode(_op_fail);
   
   heap_regs->trustfailcode = opcode(_trust_fail);
 
@@ -941,6 +947,8 @@ InitCodes(void)
   heap_regs->functor_change_module = MkFunctor (LookupAtom("$change_module"), 1);
   heap_regs->functor_current_module = MkFunctor (LookupAtom("$current_module"), 1);
   heap_regs->functor_mod_switch = MkFunctor (LookupAtom("$mod_switch"), 2);
+  heap_regs->functor_u_minus = MkFunctor (heap_regs->atom_minus, 1);
+  heap_regs->functor_u_plus = MkFunctor (heap_regs->atom_plus, 1);
   heap_regs->functor_v_bar = MkFunctor(LookupAtom("|"), 2);
   heap_regs->functor_var = MkFunctor(AtomVar, 1);
 #ifdef EUROTRA

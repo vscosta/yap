@@ -10,7 +10,7 @@
 * File:		Heap.h         						 *
 * mods:									 *
 * comments:	Heap Init Structure					 *
-* version:      $Id: Heap.h,v 1.6 2001-06-11 17:40:16 vsc Exp $	 *
+* version:      $Id: Heap.h,v 1.7 2001-06-22 17:53:36 vsc Exp $	 *
 *************************************************************************/
 
 /* information that can be stored in Code Space */
@@ -47,6 +47,12 @@ typedef struct various_codes {
   yamop tableanswerresolutioncode;
 #endif /* TABLING */
   OPCODE failcode;
+  OPCODE failcode_1;
+  OPCODE failcode_2;
+  OPCODE failcode_3;
+  OPCODE failcode_4;
+  OPCODE failcode_5;
+  OPCODE failcode_6;
   OPCODE trustfailcode;
   struct {
     OPCODE op;
@@ -244,6 +250,8 @@ typedef struct various_codes {
     functor_change_module,
     functor_current_module,
     functor_mod_switch,
+    functor_u_minus,
+    functor_u_plus,
     functor_v_bar,
     functor_var;
   Term
@@ -426,6 +434,8 @@ typedef struct various_codes {
 #define  FunctorChangeModule      heap_regs->functor_change_module
 #define  FunctorCurrentModule     heap_regs->functor_current_module
 #define  FunctorModSwitch         heap_regs->functor_mod_switch
+#define  FunctorUMinus            heap_regs->functor_u_minus
+#define  FunctorUPlus             heap_regs->functor_u_plus
 #define  FunctorVBar              heap_regs->functor_v_bar
 #define  FunctorVar               heap_regs->functor_var
 #define  TermDollarU              heap_regs->term_dollar_u

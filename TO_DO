@@ -13,7 +13,6 @@ BEFORE 4.4:
 - document system(library)
 - document new interface functions.
 - ^C can break code.
-- check library(random)
 - add more precision when outputting floats.
 - make statistics/0 better looking.
 - mask when installing.
@@ -78,3 +77,4 @@ DONE:
 - remove pl/nfr.yap and misc/yap.spec from CVS.
 - deterministic trail entries for multi-assignment variables.
 - weird going ons with prompt and readline
+- check library(random)
