@@ -799,7 +799,10 @@ incore(G) :- '$execute'(G).
 	it saves the importante data about current streams and
 	debugger state */
 
-break :- get_value('$break',BL), NBL is BL+1,
+break :-
+	( recorded('$trace',Val,R) -> Trace = Val, erase(R); true),
+	( recorded('$debug',Val,R1) -> Debug = Val, erase(R1); true),
+	get_value('$break',BL), NBL is BL+1,
 	get_value(spy_gn,SPY_GN),
 	'$access_yap_flags'(10,SPY_CREEP),
 	get_value(spy_cl,SPY_CL),
@@ -815,6 +818,10 @@ break :- get_value('$break',BL), NBL is BL+1,
 	set_value(spy_cl,SPY_CL),
 	set_value(spy_leap,_Leap),
 	'$set_input'(InpStream), '$set_output'(OutStream),
+	( recorded('$trace',_,R2), erase(R2), fail; true),
+	( recorded('$debug',_,R3), erase(R3), fail; true),
+	(nonvar(Trace) -> recorda('$trace',Trace,_)),
+	(nonvar(Debug) -> recorda('$debug',Debug,_)),
 	set_value('$break',BL).
 
 

@@ -1159,6 +1159,7 @@ InteractSIGINT(int ch) {
     fprintf(Yap_stderr, "Please press one of:\n");
     fprintf(Yap_stderr, "  a for abort\n  c for continue\n  d for debug\n");
     fprintf(Yap_stderr, "  e for exit\n  s for statistics\n  t for trace\n");
+    fprintf(Yap_stderr, "  b for break\n");
     return(0);
   }
 }

@@ -11,8 +11,13 @@
 * File:		cdmgr.c							 *
 * comments:	Code manager						 *
 *									 *
-* Last rev:     $Date: 2004-10-06 16:55:46 $,$Author: vsc $						 *
+* Last rev:     $Date: 2004-10-22 16:53:19 $,$Author: vsc $						 *
 * $Log: not supported by cvs2svn $
+* Revision 1.136  2004/10/06 16:55:46  vsc
+* change configure to support big mem configs
+* get rid of extra globals
+* fix trouble with multifile preds
+*
 * Revision 1.135  2004/09/30 21:37:40  vsc
 * fixes for thread support
 *
@@ -395,26 +400,29 @@ split_megaclause(PredEntry *ap)
 	  StaticClause *cl = start;
 	  start = cl->ClNext;
 	  Yap_FreeCodeSpace((char *)cl);
+	  start = NULL;
 	}
 	if (ap->ArityOfPE) {
 	  Yap_Error(OUT_OF_HEAP_ERROR,TermNil,"while breaking up mega clause for %s/%d\n",RepAtom(NameOfFunctor(ap->FunctorOfPred))->StrOfAE,ap->ArityOfPE);
 	} else {
 	  Yap_Error(OUT_OF_HEAP_ERROR,TermNil,"while breaking up mega clause for %s\n", RepAtom((Atom)ap->FunctorOfPred)->StrOfAE);
 	}
+	WRITE_UNLOCK(ap->PRWLock);
+	return;
       }
-      new->ClFlags = FactMask;
-      new->ClSize = mcl->ClItemSize;
-      new->usc.ClPred = ap;
-      new->ClNext = NULL;
-      memcpy((void *)new->ClCode, (void *)ptr, mcl->ClItemSize);
-      if (prev) {
-	prev->ClNext = new;
-      } else {
-	start = new;
-      }
-      ptr = (yamop *)((char *)ptr + mcl->ClItemSize);
-      prev = new;
     }
+    new->ClFlags = FactMask;
+    new->ClSize = mcl->ClItemSize;
+    new->usc.ClPred = ap;
+    new->ClNext = NULL;
+    memcpy((void *)new->ClCode, (void *)ptr, mcl->ClItemSize);
+    if (prev) {
+      prev->ClNext = new;
+    } else {
+      start = new;
+    }
+    ptr = (yamop *)((char *)ptr + mcl->ClItemSize);
+    prev = new;
   }
   ap->PredFlags &= ~MegaClausePredFlag;
   ap->cs.p_code.FirstClause = start->ClCode;

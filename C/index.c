@@ -11,8 +11,12 @@
 * File:		index.c							 *
 * comments:	Indexing a Prolog predicate				 *
 *									 *
-* Last rev:     $Date: 2004-10-04 18:56:19 $,$Author: vsc $						 *
+* Last rev:     $Date: 2004-10-22 16:53:19 $,$Author: vsc $						 *
 * $Log: not supported by cvs2svn $
+* Revision 1.102  2004/10/04 18:56:19  vsc
+* fixes for thread support
+* fix indexing bug (serious)
+*
 * Revision 1.101  2004/09/30 21:37:41  vsc
 * fixes for thread support
 *
@@ -5943,7 +5947,13 @@ insertz_in_lu_block(LogUpdIndex *blk, PredEntry *ap, yamop *code)
   bsize = blk->ClSize;
   end = (yamop *)((CODEADDR)blk+bsize);
   where = last = begin->u.Ill.l2;
-  next = NEXTOP(NEXTOP(where, ld),p);  /* trust logical followed by trust */
+  next = NEXTOP(where, ld);
+  if (ap->PredFlags & CountPredFlag) {
+    next = NEXTOP(where,p);  /* trust logical followed by trust */
+  }
+  if (ap->PredFlags & ProfiledPredFlag) {
+    next = NEXTOP(where,p);  /* trust logical followed by trust */
+  }
   last = PREVOP(last, ld);
   /* follow profiling and counting instructions */ 
   if (ap->PredFlags & ProfiledPredFlag) {
@@ -6793,36 +6803,21 @@ Yap_AddClauseToIndex(PredEntry *ap, yamop *beg, int first) {
   if ((cb = setjmp(cint.CompilerBotch)) == 3) {
     restore_machine_regs();
     Yap_gcl(Yap_Error_Size, ap->ArityOfPE, ENV, CP);
+    save_machine_regs();
   } else if (cb == 2) {
     restore_machine_regs();
-    if (!Yap_growheap(FALSE, Yap_Error_Size, NULL)) {
-      save_machine_regs();
-      if (ap->PredFlags & LogUpdatePredFlag) {
-	Yap_kill_iblock((ClauseUnion *)ClauseCodeToLogUpdIndex(ap->cs.p_code.TrueCodeOfPred),NULL, ap);
-      } else {
-	StaticIndex *cl;
-
-	cl = ClauseCodeToStaticIndex(ap->cs.p_code.TrueCodeOfPred);
-	Yap_kill_iblock((ClauseUnion *)cl, NULL, ap);
-      }
-      return;
-    }
+    Yap_growheap(FALSE, Yap_Error_Size, NULL);
+    save_machine_regs();
   } else if (cb == 4) {
     restore_machine_regs();
-    if (!Yap_growtrail(Yap_Error_Size)) {
-      save_machine_regs();
-      if (ap->PredFlags & LogUpdatePredFlag) {
-	Yap_kill_iblock((ClauseUnion *)ClauseCodeToLogUpdIndex(ap->cs.p_code.TrueCodeOfPred),NULL, ap);
-      } else {
-	StaticIndex *cl;
-
-	cl = ClauseCodeToStaticIndex(ap->cs.p_code.TrueCodeOfPred);
-	Yap_kill_iblock((ClauseUnion *)cl, NULL, ap);
-      }
-      return;
-    }
-    Yap_Error_Size = 0;
+    Yap_growtrail(Yap_Error_Size);
+    save_machine_regs();
   }
+  if (cb) {
+    Yap_RemoveIndexation(ap);
+    return;
+  }
+  Yap_Error_Size = 0;
   Yap_ErrorMessage = NULL;
 #ifdef DEBUG
   if (Yap_Option['i' - 'a' + 1]) {
@@ -7324,38 +7319,30 @@ Yap_RemoveClauseFromIndex(PredEntry *ap, yamop *beg) {
   if ((cb = setjmp(cint.CompilerBotch)) == 3) {
     restore_machine_regs();
     Yap_gcl(Yap_Error_Size, ap->ArityOfPE, ENV, CP);
+    save_machine_regs();
   } else if (cb == 2) {
     restore_machine_regs();
-    if (!Yap_growheap(FALSE, Yap_Error_Size, NULL)) {
-      save_machine_regs();
-      if (ap->PredFlags & LogUpdatePredFlag) {
-	Yap_kill_iblock((ClauseUnion *)ClauseCodeToLogUpdIndex(ap->cs.p_code.TrueCodeOfPred),NULL, ap);
-      } else {
-	StaticIndex *cl;
-
-	cl = ClauseCodeToStaticIndex(ap->cs.p_code.TrueCodeOfPred);
-	Yap_kill_iblock((ClauseUnion *)cl, NULL, ap);
-      }
-      return;
-    }
-    Yap_Error_Size = 0;
+    Yap_growheap(FALSE, Yap_Error_Size, NULL);
+    save_machine_regs();
   } else if (cb == 4) {
     restore_machine_regs();
-    if (!Yap_growtrail(Yap_Error_Size)) {
-      save_machine_regs();
-      if (ap->PredFlags & LogUpdatePredFlag) {
-	Yap_kill_iblock((ClauseUnion *)ClauseCodeToLogUpdIndex(ap->cs.p_code.TrueCodeOfPred),NULL, ap);
-      } else {
-	StaticIndex *cl;
-
-	cl = ClauseCodeToStaticIndex(ap->cs.p_code.TrueCodeOfPred);
-	Yap_kill_iblock((ClauseUnion *)cl, NULL, ap);
-      }
-      return;
-    }
-    Yap_Error_Size = 0;
+    Yap_growtrail(Yap_Error_Size);
+    save_machine_regs();
   }
+  Yap_Error_Size = 0;
   Yap_ErrorMessage = NULL;
+  if (cb) {
+    /* cannot rely on the code */
+    if (ap->PredFlags & LogUpdatePredFlag) {
+      Yap_kill_iblock((ClauseUnion *)ClauseCodeToLogUpdIndex(ap->cs.p_code.TrueCodeOfPred),NULL, ap);
+    } else {
+      StaticIndex *cl;
+      
+      cl = ClauseCodeToStaticIndex(ap->cs.p_code.TrueCodeOfPred);
+      Yap_kill_iblock((ClauseUnion *)cl, NULL, ap);
+    }
+    return;
+  }
 #ifdef DEBUG
   if (Yap_Option['i' - 'a' + 1]) {
     Term tmod = ap->ModuleOfPred;

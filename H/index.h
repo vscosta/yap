@@ -45,8 +45,8 @@ typedef struct StructClauseDef {
   yamop *CurrentCode;		/* start of code for clause */
   union {
     yamop *WorkPC;		/* start of code for clause */
-    CELL  *c_sreg;
     Term   t_ptr;
+    CELL  *c_sreg;
   } u;
 } ClauseDef;
 
