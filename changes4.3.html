@@ -16,183 +16,184 @@
 
 <h2>Yap-4.3.21:</h2>
 <ul>
+	<li>UPDATE: new Logtalk version (2.10.0).</li>
 	<li>FIXED: debugger could enter infinite loop if spying
-	portray (Steve Moyle).</li>
-	<li>FIXED: predicate_property(P,source) (Ines Dutra).</li>
+	<code>portray</code> (Steve Moyle).</li>
+	<li>FIXED: <code>predicate_property(P,source)</code> (Ines Dutra).</li>
 	<li>NEW: use system regex routines if available.</li>
 	<li>FIXED: profiling.</li>
 	<li>FIXED: Yap in CYGWIN, including DLLs.</li>
-	<li>NEW: variable_in_term/2 at library(terms).</li>
-	<li>FIXED: debugger would not step through [-F].</li>
-	<li>FIXED: unix(argv(L)) was doing bad type checking.</li>
-	<li>FIXED: assert((a:- m:[f])) would core dump.</li>
-	<li>FIXED: gc in dexecute should not use current Y, instead if
-	should look at parent's Y (Ines Dutra).</li>
+	<li>NEW: <code>variable_in_term/2</code> at <code>library(terms)</code>.</li>
+	<li>FIXED: debugger would not step through <code>[-F]</code>.</li>
+	<li>FIXED: <code>unix(argv(L))</code> was doing bad type checking.</li>
+	<li>FIXED: <code>assert((a:- m:[f]))</code> would core dump.</li>
+	<li>FIXED: gc in <code>dexecute</code> should not use current <code>Y</code>, instead if
+	should look at parent's <code>Y</code> (Ines Dutra).</li>
 	<li>FIXED: do not loop on unbound metacalls.</li>
 	<li>FIXED: do not assert clauses if the predicate is active
 	and you had to abolish first.</li>
 	<li>FIXED: always allow asserting over static predicates.</li>
 	<li>FIXED: disable cache when checking whether static was
 	in use.</li>
-	<li>FIXED: heap overflow while storing db term.</li>
-	<li>FIXED: trust_fail should be preceeded by an sla.</li>
-	<li>FIXED: make sla point to current pred, get rid of current
+	<li>FIXED: heap overflow while storing <code>db</code> term.</li>
+	<li>FIXED: <code>trust_fail</code> should be preceeded by an <code>sla</code>.</li>
+	<li>FIXED: make <code>sla</code> point to current pred, get rid of current
 	pred in bitmap.</li>
-	<li>FIXED: MkVarTerm in c_interface.h (Christophe Billard)</li>
-	<li>FIXED: get rid of unnecessary USE_OFFSETS</li>
-	<li>FIXED: stupid limit on Heap Size with LowTags. (David Page)</li>
-	<li>FIXED: make fileerrors default for SICStus. (Nicos Angelopoulos)</li>
-	<li>FIXED: g(X) :- (Z is 2*X; a(Z)) Z cannot be seen as a free
+	<li>FIXED: <code>MkVarTerm</code> in <code>c_interface.h</code> (Christophe Billard)</li>
+	<li>FIXED: get rid of unnecessary <code>USE_OFFSETS</code></li>
+	<li>FIXED: stupid limit on Heap Size with <code>LowTags</code>. (David Page)</li>
+	<li>FIXED: make <code>fileerrors</code> default for SICStus. (Nicos Angelopoulos)</li>
+	<li>FIXED: <code>g(X) :- (Z is 2*X; a(Z))</code>: <code>Z</code> cannot be seen as a free
 	var. (Nicos Angelopoulos).</li>
-	<li>FIXED: atom_concat was not allocating heap correctly (Nicos Angelopoulos).</li>
-	<li>NEW: ord_intersection/4 (Nicos Angelopoulos).</li>
-	<li>NEW: file_search_path/2 (Nicos Angelopoulos).</li>
-	<li>FIXED: fix yap_flag(host_type).</li>
+	<li>FIXED: <code>atom_concat</code> was not allocating heap correctly (Nicos Angelopoulos).</li>
+	<li>NEW: <code>ord_intersection/4</code> (Nicos Angelopoulos).</li>
+	<li>NEW: <code>file_search_path/2</code> (Nicos Angelopoulos).</li>
+	<li>FIXED: fix <code>yap_flag(host_type)</code>.</li>
 	<li>FIXED: make Yap compile under VC++ again.</li>
-	<li>FIXED: don't try to handle X/0 the ISO way.</li>
+	<li>FIXED: don't try to handle <code>X/0</code> the ISO way.</li>
 	<li>FIXED: make Yap runnable in WIN98.</li>
 	<li>FIXED: access to non-existing dynamic array should not core-dump.</li>
-	<li>FIXED: abolish(_) should give error in ISO mode.</li>
-	<li>NEW: yap_flag(argv,L) (Nicos Angelopoulos).</li>
-	<li>FIXED: make user the name of the first three streams.</li>
-	<li>NEW: reachable/3 in ugraphs (Nicos Angelopoulos).</li>
-	<li>NEW: -f flag in boot (Nicos Angelopoulos).</li>
+	<li>FIXED: <code>abolish(_)</code> should give error in ISO mode.</li>
+	<li>NEW: <code>yap_flag(argv,L)</code> (Nicos Angelopoulos).</li>
+	<li>FIXED: make <code>user</code> the name of the first three streams.</li>
+	<li>NEW: <code>reachable/3</code> in ugraphs (Nicos Angelopoulos).</li>
+	<li>NEW: <code>-f</code> flag in boot (Nicos Angelopoulos).</li>
 	<li>FIXED: manual html warnings (Nicos Angelopoulos).</li>
-	<li>NEW: yap_flag(informational_messages) allows disabling
+	<li>NEW: <code>yap_flag(informational_messages)</code> allows disabling
 	informational messages (Nicos Angelopoulos).</li>
-	<li>FIXED: lcc would choke when compiling Yap.</li>
-	<li>FIXED: simplesim miscompilations.</li>
+	<li>FIXED: <code>lcc</code> would choke when compiling Yap.</li>
+	<li>FIXED: <code>simplesim</code> miscompilations.</li>
 	<li>FIXED: more SICStus like top-level messaging (Nicos Angelopoulos).</li>
 	<li>FIXED: missing WIN32 interface declaration (Christophe Billard).</li>
-	<li>FIXED: alarm was not working in WIN32 (Tolga Konick).</li>
-	<li>FIXED: get0/2 and get/2 should call $get directly.</li>
+	<li>FIXED: <code>alarm</code> was not working in WIN32 (Tolga Konick).</li>
+	<li>FIXED: <code>get0/2</code> and <code>get/2</code> should call <code>$get</code> directly.</li>
 	<li>CHANGE: make full leash default.</li>
 	<li>NEW: continue creeping after a goal. (Ines Dutra)</li>
-	<li>FIXED: creep should not creep the whole debugger.</li>
-	<li>FIXED: break should not start the whole system.</li>
-	<li>FIXED: abolish could backtrack and give weird error (Nicos
+	<li>FIXED: <code>creep</code> should not creep the whole debugger.</li>
+	<li>FIXED: <code>break</code> should not start the whole system.</li>
+	<li>FIXED: <code>abolish</code> could backtrack and give weird error (Nicos
 	Angelopoulos).</li>
-	<li>FIXED: make consult, use_module and friends meta-predicates
+	<li>FIXED: make <code>consult</code>, <code>use_module</code>, and friends meta-predicates
 	(Nicos Angelopoulos).</li>
-	<li>FIXED: make use_module a directive.</li>
-	<li>FIXED: predicate_property/2 to handle modules correctly
+	<li>FIXED: make <code>use_module</code> a directive.</li>
+	<li>FIXED: <code>predicate_property/2</code> to handle modules correctly
 	(Nicos Angelopoulos).</li>
 	<li>FIXED: stack expansion in meta-execution.</li>
-	<li>FIXED: depth_limit was not handled correct in
+	<li>FIXED: <code>depth_limit</code> was not handled correct in
 	meta-execution of conjunctions (Rui Camacho).</li>
 	<li>NEW: new option for error handling in the debugger.</li>
 	<li>UPDATE: new version of logtalk.</li>
 	<li>FIXED: heap library.</li>
-	<li>NEW: empty_heap/3.</li>
+	<li>NEW: <code>empty_heap/3</code>.</li>
 	<li>FIXED: some system predicates are exported outside the
 	prolog module.</li>
-	<li>FIXED: calls to open/3, current_stream/3, tab/{1,2}, and format/3
+	<li>FIXED: calls to <code>open/3</code>, <code>current_stream/3</code>, <code>tab/{1,2}</code>, and <code>format/3</code>
 	might interfere with trace.</li>
-	<li>NEW: new catch/3 and throw/1 mechanism.</li>
-	<li>FIXED: p_socket would crash if no streams were
+	<li>NEW: new <code>catch/3</code> and <code>throw/1</code> mechanism.</li>
+	<li>FIXED: <code>p_socket</code> would crash if no streams were
 	available (Ines Dutra).</li>
 	<li>FIXED: CLPQR complaints on importing private predicates.</li>
 </ul>
 
 <h2>Yap-4.3.20:</h2>
 <ul>
-	<li>FIXED: 'aaaa''xaaa' was inserting x instead of ' (Miguel Filgueiras).</li>
+	<li>FIXED: <code>'aaaa''xaaa'</code> was inserting <code>x</code> instead of <code>'</code> (Miguel Filgueiras).</li>
 	<li>FIXED: fix CHR using merge from prolog instead of ordsets.</li>
 	<li>FIXED: store infinite terms in DB properly (at last).</li>
-	<li>FIXED: execute_7 (Paulo Moura).</li>
+	<li>FIXED: <code>execute_7</code> (Paulo Moura).</li>
 	<li>FIXED: expand meta-call arguments even if they are
-	built-ins (otherwise breaks bb_*).</li>
-	<li>FIXED: always generate FATAL_ERROR on SIGSEGV.</li>
+	built-ins (otherwise breaks <code>bb_*</code>).</li>
+	<li>FIXED: always generate <code>FATAL_ERROR</code> on <code>SIGSEGV</code>.</li>
 	<li>FIXED: another GC bug.</li>
-	<li>FIXED: phrase/2 and phrase/3 are meta-predicates.</li>
-	<li>FIXED: use TR instead of H for system.</li>
-	<li>FIXED: absolute_file_name/2 should be SICStus compatible (Nicos Angelopoulos).</li>
+	<li>FIXED: <code>phrase/2</code> and <code>phrase/3</code> are meta-predicates.</li>
+	<li>FIXED: use <code>TR</code> instead of <code>H</code> for system.</li>
+	<li>FIXED: <code>absolute_file_name/2</code> should be SICStus compatible (Nicos Angelopoulos).</li>
 	<li>FIXED: put < debugger back to work (Ines Dutra).</li>
-	<li>FIXED: make rem and mod ISO-compatible operators (Paulo Moura).</li>
+	<li>FIXED: make <code>rem</code> and <code>mod</code> ISO-compatible operators (Paulo Moura).</li>
 	<li>FIXED: expand consult stack when there are too many
 	predicates (David Page).</li>
 	<li>FIXED: create DLs even when you don't need .so.</li>
-	<li>FIXED: abolish/1.</li>
+	<li>FIXED: <code>abolish/1</code>.</li>
 	<li>NEW: try to make module system really compatible.</li>
 	<li>CLEANUP: don't use state of Pred.</li>
 	<li>SPEEDUP: improve predicate access by linking predicates to
 	functors.</li>
-	<li>FIXED: listing broke when current_predicate became meta.</li>
-	<li>FIXED: consult should not erase dynamic clauses (report
+	<li>FIXED: <code>listing</code> broke when <code>current_predicate</code> became meta.</li>
+	<li>FIXED: <code>consult</code> should not erase dynamic clauses (report
 	from James Cussens).</li>
-	<li>FIXED: check if we still can do garbage collection (MBIT
-	and RBIT ok)  (report from James Cussens).</li>
-	<li>FIXED: always release stack after InitBigNum  (report from
+	<li>FIXED: check if we still can do garbage collection (<code>MBIT</code>
+	and <code>RBIT</code> ok)  (report from James Cussens).</li>
+	<li>FIXED: always release stack after <code>InitBigNum</code> (report from
 	Nicos Angelopoulos).</li>
-	<li>FIXED: random would not load in windows  (report from
+	<li>FIXED: <code>random</code> would not load in windows (report from
 	Henrik Boström).</li>
 	<li>FIXED: don't send warnings about repeated predicates from
-	different modules  (report from Henrik Boström).</li>
-	<li>NEW: socket_buffering/4 (report from Henrik Boström).</li>
-	<li>FIXED: current_hostname/1 to current_host/1 (report from
+	different modules (report from Henrik Boström).</li>
+	<li>NEW: <code>socket_buffering/4</code> (report from Henrik Boström).</li>
+	<li>FIXED: <code>current_hostname/1</code> to <code>current_host/1</code> (report from
 	Henrik Boström).</li>
-	<li>FIXED: socket_select/5 was completely broken (report from
+	<li>FIXED: <code>socket_select/5</code> was completely broken (report from
 	Henrik Boström).</li>
 	<li>FIXED: avoid unnecessary choice-point in
-	yap_flag(user_*,Who) (report from Nicos Angelopoulos).</li>
-	<li>FIXED: flush should work with readline.</li>
+	<code>yap_flag(user_*,Who)</code> (report from Nicos Angelopoulos).</li>
+	<li>FIXED: <code>flush</code> should work with readline.</li>
 	<li>FIXED: reset alarm at top-level.</li>
-	<li>FIXED: do signal(ALARM) immediately.</li>
-	<li>FIXED: don't use full optimization for parser.c in cygwin
+	<li>FIXED: do <code>signal(ALARM)</code> immediately.</li>
+	<li>FIXED: don't use full optimization for <code>parser.c</code> in cygwin
 	(report from Steve Moyle).</li>
 	<li>NEW: Erik Alphonse's apply_macros library.</li>
-	<li>FIXED: ord_del_element/3 (Nicos Angelopoulos).</li>
+	<li>FIXED: <code>ord_del_element/3</code> (Nicos Angelopoulos).</li>
 	<li>FIXED: texinfo warnings (Stasinos).</li>
 	<li>FIXED: under emacs/win32: prompt if $EMACS=t and buf NULL.</li>
-	<li>FIXED: ^C and readline (I hope).</li>
-	<li>NEW: trace and notrace.</li>
-	<li>FIXED: make C-c t actually trace.</li>
-	<li>FIXED: put [debug] when in debug mode.</li>
-	<li>FIXED: make install_info.(actual fix is in Yap-4.3.19)</li>
+	<li>FIXED: <code>^C</code> and <code>readline</code> (I hope).</li>
+	<li>NEW: <code>trace</code> and <code>notrace</code>.</li>
+	<li>FIXED: make <code>C-c t</code> actually trace.</li>
+	<li>FIXED: put <code>[debug]</code> when in debug mode.</li>
+	<li>FIXED: <code>make install_info</code> (actual fix is in Yap-4.3.19).</li>
 </ul>
 
 
 <h2>Yap-4.3.19:</h2>
 <ul>
-	<li>FIXED: fflush(NULL) broken in some machines (Stasinos).</li>
+	<li>FIXED: <code>fflush(NULL)</code> broken in some machines (Stasinos).</li>
 	<li>FIXED: don't flush input streams (Stasinos).</li>
-	<li>FIXED: new statistics/0.</li>
+	<li>FIXED: new <code>statistics/0</code>.</li>
 	<li>FIXED: use 15 bits of precision for floats, instead of the
 	default 6..</li>
-	<li>FIXED: check for last file modification in use_module.</li>
-	<li>FIXED: get_list + unify_local was being compiled into
-	glval, breaking ENV vars </li>
-	<li>FIXED: abort was crashing in Alpha machines.</li>
-	<li>FIXED: make ^c-a work within gc.</li>
+	<li>FIXED: check for last file modification in <code>use_module</code>.</li>
+	<li>FIXED: <code>get_list</code> + <code>unify_local</code> was being compiled into
+	<code>glval</code>, breaking <code>ENV</code> vars </li>
+	<li>FIXED: <code>abort</code> was crashing in Alpha machines.</li>
+	<li>FIXED: make <code>^c-a</code> work within gc.</li>
 	<li>FIXED: handle correctly very deep nested terms while gc
 	marking.</li>
-	<li>FIXED: ArityOfFunctor was giving trouble with HP-UX cc
+	<li>FIXED: <code>ArityOfFunctor</code> was giving trouble with HP-UX cc
 	(Stasinos Konstantinos).</li>
-	<li>FIXED: ^c works with Yap/MINGW32 (not in cygwin).</li>
-	<li>FIXED: ^c a should never core dump.</li>
+	<li>FIXED: <code>^c</code> works with Yap/MINGW32 (not in cygwin).</li>
+	<li>FIXED: <code>^c</code> a should never core dump.</li>
 	<li>FIXED: comparison of variables in sub-terms.</li>
 	<li>FIXED: parse +inf, -inf, +nan, -nan as floats and write
 	them accordingly.</li>
 	<li>FIXED: comparison was breaking ISO.</li>
-	<li>FIXED: use $(CC) never gcc directly.</li>
+	<li>FIXED: use <code>$(CC)</code> never <code>gcc</code> directly.</li>
 	<li>FIXED: support newer versions of readline by moving text
 	to prompt.</li>
 	<li>FIXED: upgrade to autoconf 2.5.</li>
-	<li>FIXED: catch and throw should not leave unnecessary
+	<li>FIXED: <code>catch</code> and <code>throw</code> should not leave unnecessary
 		choice-points behind.</li>
 	<li>FIXED: make catch cleanup queue of findall entries.</li>
-	<li>FIXED: change catch and throw to use arrays.</li>
-	<li>CLEANUP: split TRAIL_REF.</li>
-	<li>FIXED: give correct type to FreeBlocks.</li>
+	<li>FIXED: change <code>catch/3</code> and <code>throw/1</code> to use arrays.</li>
+	<li>CLEANUP: split <code>TRAIL_REF</code>.</li>
+	<li>FIXED: give correct type to <code>FreeBlocks</code>.</li>
 	<li>FIXED: give correct type to alias list.</li>
-	<li>FIXED: format ~NN wasn't implemented (report from Markus Walther).</li>
-	<li>DELETED: shell/1 is now available through system library.</li>
-	<li>FIXED: ! in meta-call wasn't cutting.</li>
-	<li>FIXED: MkLongIntTerm (from Stasinos Konstantinos).</li>
+	<li>FIXED: format <code>~NN</code> wasn't implemented (report from Markus Walther).</li>
+	<li>DELETED: <code>shell/1</code> is now available through system library.</li>
+	<li>FIXED: <code>!/0</code> in meta-call wasn't cutting.</li>
+	<li>FIXED: <code>MkLongIntTerm</code> (from Stasinos Konstantinos).</li>
 	<li>NEW: Logtalk OO library (from Paulo Moura).</li>
 	<li>FIXED: CHR instalation.</li>
 	<li>SPEEDUP: avoid unnecessary choice-points with CLPQR.</li>
-	<li>NEW: inline $mod_switch, $mod_switch now uses
+	<li>NEW: inline <code>$mod_switch</code>, <code>$mod_switch</code> now uses
 	backtrackable updates to modules.</li>
 	<li>NEW: new method for marking timestamps that simplifies gc</li>
 	<li>FIXED: bug while collecting multi-assignment variables</li>
