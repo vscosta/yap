@@ -493,9 +493,9 @@ install_win32: startup
 	$(INSTALL) $(HEADERS) $(DESTDIR)$(INCLUDEDIR)
 	$(INSTALL) $(srcdir)/include/c_interface.h $(DESTDIR)$(INCLUDEDIR)/c_interface.h
 	$(INSTALL) config.h $(INCLUDEDIR)/config.h
-	(cd library/regex; make install_mingw32)
-	(cd library/system; make install_mingw32)
-	(cd library/random; make install_mingw32)
+	(cd library/regex; make install_win32)
+	(cd library/system; make install_win32)
+	(cd library/random; make install_win32)
 
 install_library: libYap.a
 	$(INSTALL_DATA) libYap.a  $(DESTDIR)$(LIBDIR)/libYap.a
