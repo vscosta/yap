@@ -314,6 +314,11 @@ extern int  Portray_delays;
 
 #define HashFunction(CHP,OUT) { (OUT)=0; while(*(CHP) != '\0') (OUT) += *(CHP)++; (OUT) %= MaxHash; }
 
+#define FAIL_ON_PARSER_ERROR      0
+#define QUIET_ON_PARSER_ERROR     1
+#define CONTINUE_ON_PARSER_ERROR  2
+#define EXCEPTION_ON_PARSER_ERROR 3
+
 extern jmp_buf IOBotch;
 
 extern int in_getc;

@@ -170,8 +170,6 @@ STATIC_PROTO (Int GetArgSizeFromChar, (Term *));
 
 
 
-static int parser_error_style = EXCEPTION_ON_PARSER_ERROR;
-
 #if EMACS
 static int first_char;
 #endif
@@ -2794,13 +2792,13 @@ p_set_read_error_handler(void)
   }
   s = RepAtom(AtomOfTerm(t))->StrOfAE;
   if (!strcmp(s, "fail")) {
-    parser_error_style = FAIL_ON_PARSER_ERROR;
+    ParserErrorStyle = FAIL_ON_PARSER_ERROR;
   } else if (!strcmp(s, "error")) {
-    parser_error_style = EXCEPTION_ON_PARSER_ERROR;
+    ParserErrorStyle = EXCEPTION_ON_PARSER_ERROR;
   } else if (!strcmp(s, "quiet")) {
-    parser_error_style = QUIET_ON_PARSER_ERROR;
+    ParserErrorStyle = QUIET_ON_PARSER_ERROR;
   } else if (!strcmp(s, "dec10")) {
-    parser_error_style = CONTINUE_ON_PARSER_ERROR;
+    ParserErrorStyle = CONTINUE_ON_PARSER_ERROR;
   } else {
     Error(DOMAIN_ERROR_SYNTAX_ERROR_HANDLER,t,"bad syntax_error handler");
     return(FALSE);
@@ -2814,7 +2812,7 @@ p_get_read_error_handler(void)
 {
   Term t;
 
-  switch (parser_error_style) {
+  switch (ParserErrorStyle) {
   case FAIL_ON_PARSER_ERROR:
     t = MkAtomTerm(LookupAtom("fail"));
     break;
@@ -2893,10 +2891,10 @@ p_read (void)
 	}
       }
       TR = old_TR;
-      if (parser_error_style == QUIET_ON_PARSER_ERROR) {
+      if (ParserErrorStyle == QUIET_ON_PARSER_ERROR) {
 	/* just fail */
 	return(FALSE);
-      } else if (parser_error_style == CONTINUE_ON_PARSER_ERROR) {
+      } else if (ParserErrorStyle == CONTINUE_ON_PARSER_ERROR) {
 	ErrorMessage = NULL;
 	/* try again */
 	goto repeat_cycle;
@@ -2905,7 +2903,7 @@ p_read (void)
 	if (ErrorMessage == NULL)
 	  ErrorMessage = "SYNTAX ERROR";
 	
-	if (parser_error_style == EXCEPTION_ON_PARSER_ERROR) {
+	if (ParserErrorStyle == EXCEPTION_ON_PARSER_ERROR) {
 	  Error(SYNTAX_ERROR,terr,ErrorMessage);
 	  return(FALSE);
 	} else /* FAIL ON PARSER ERROR */ {

@@ -10,7 +10,7 @@
 * File:		Heap.h         						 *
 * mods:									 *
 * comments:	Heap Init Structure					 *
-* version:      $Id: Heap.h,v 1.28 2002-06-04 18:21:54 vsc Exp $	 *
+* version:      $Id: Heap.h,v 1.29 2002-06-05 01:34:06 vsc Exp $	 *
 *************************************************************************/
 
 /* information that can be stored in Code Space */
@@ -291,6 +291,7 @@ typedef struct various_codes {
   void *foreign_code_loaded;
   char *yap_lib_dir;
   Agc_hook  agc_hook;
+  int parser_error_style;
 #if defined(YAPOR) || defined(TABLING)
   struct global_data global;
   struct local_data remote[MAX_WORKERS];
@@ -485,6 +486,7 @@ typedef struct various_codes {
 #define  ForeignCodeLoaded        heap_regs->foreign_code_loaded
 #define  Yap_LibDir               heap_regs->yap_lib_dir
 #define  AGCHook                  heap_regs->agc_hook
+#define  ParserErrorStyle         heap_regs->parser_error_style
 #define  DeadClauses              heap_regs->dead_clauses
 #define  SizeOfOverflow           heap_regs->size_of_overflow
 #define  LastWtimePtr             heap_regs->last_wtime

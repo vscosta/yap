@@ -102,11 +102,6 @@ StreamDesc Stream[MaxStreams];
 #define Pipe_Stream_f		0x040000
 #define Popen_Stream_f		0x080000
 
-#define FAIL_ON_PARSER_ERROR      0
-#define QUIET_ON_PARSER_ERROR     1
-#define CONTINUE_ON_PARSER_ERROR  2
-#define EXCEPTION_ON_PARSER_ERROR 3
-
 #define StdInStream	0
 #define StdOutStream	1
 #define	StdErrStream	2

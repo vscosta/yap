@@ -1030,6 +1030,7 @@ InitCodes(void)
   heap_regs->foreign_code_loaded = NULL;
   heap_regs->yap_lib_dir = NULL;
   heap_regs->agc_hook = NULL;
+  heap_regs->parser_error_style = EXCEPTION_ON_PARSER_ERROR;
   heap_regs->size_of_overflow  = 0;
   /* make sure no one else can use these two atoms */
   CurrentModule = 0;
