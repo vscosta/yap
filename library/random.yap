@@ -114,6 +114,9 @@ setrand(rand(X,Y,Z)) :-
 	Z < 30323,
 	setrand(X,Y,Z).
 
+getrand(rand(X,Y,Z)) :-
+	getrand(X,Y,Z).
+
 
 
 
