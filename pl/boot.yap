@@ -498,8 +498,6 @@ repeat :- '$repeat'.
 	'$is_same_tty'(user_input, user_error), !.
 '$add_nl_outside_console' :-
 	'$format'(user_error,'~n',[]).
-	
-	
 
 '$ask_again_for_another' :-
 	'$format'(user_error,'Action (\";\" for more choices, <return> for exit)', []),

@@ -11,8 +11,11 @@
 * File:		errors.yap						 *
 * comments:	error messages for YAP					 *
 *									 *
-* Last rev:     $Date: 2004-06-09 03:32:03 $,$Author: vsc $						 *
+* Last rev:     $Date: 2004-06-18 15:41:19 $,$Author: vsc $						 *
 * $Log: not supported by cvs2svn $
+* Revision 1.51  2004/06/09 03:32:03  vsc
+* fix bugs
+*
 * Revision 1.50  2004/04/27 16:21:25  vsc
 * stupid bug
 *									 *
@@ -105,9 +108,9 @@ print_message(Level, Mss) :-
 
 %message(loaded(Past,AbsoluteFileName,user,Msec,Bytes), Prefix, Suffix) :- !,
 '$do_print_message'(no) :- !,
-	'$format'(user_error, 'no~n', []).
+	'$format'(user_error, 'no', []).
 '$do_print_message'(yes) :- !,
-	'$format'(user_error, 'yes~n', []).
+	'$format'(user_error, 'yes', []).
 '$do_print_message'(debug(debug)) :- !,
 	'$format'(user_error,'Debug mode on.',[]).
 '$do_print_message'(debug(off)) :- !,
