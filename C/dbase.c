@@ -4808,6 +4808,7 @@ static Int
 p_enqueue(void)
 {
   Term Father = Deref(ARG1);
+  Term t;
   QueueEntry *x;
   db_queue *father_key;
 
@@ -4825,9 +4826,11 @@ p_enqueue(void)
       return FALSE;
     }
   }
+  t = Deref(ARG1);
   x->DBT = StoreTermInDB(Deref(ARG2), 2);
-  if (x->DBT == NULL)
+  if (x->DBT == NULL) {
     return FALSE;
+  }
   x->next = NULL;
   WRITE_LOCK(father_key->QRWLock);
   if (father_key->LastInQueue != NULL)

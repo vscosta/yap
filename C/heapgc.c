@@ -3418,18 +3418,18 @@ do_gc(Int predarity, CELL *current_env, yamop *nextop)
   {
     UInt alloc_sz = (CELL *)Yap_TrailTop-(CELL*)Yap_GlobalBase;
     bp = Yap_PreAllocCodeSpace();
-    if (bp+alloc_sz > (char *)AuxSp) {
+    while (bp+alloc_sz > (char *)AuxSp) {
       /* not enough space */
       *--ASP = (CELL)current_env;
       bp = (char *)Yap_ExpandPreAllocCodeSpace(alloc_sz, NULL);
+      if (!bp)
+	return 0;
       current_env = (CELL *)*ASP;
       ASP++;
 #if COROUTINING
       max = (CELL *)Yap_ReadTimedVar(DelayedVars);
 #endif
     }
-    if (!bp)
-      return 0;
     memset((void *)bp, 0, alloc_sz);
   }
 #endif /* GC_NO_TAGS */

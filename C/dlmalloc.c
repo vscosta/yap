@@ -175,7 +175,7 @@ yapsbrk(long size)
   LOCK(HeapUsedLock);
   newHeapTop = HeapTop+size;
   if (Yap_hole_start && newHeapTop > Yap_hole_start) {
-    oldHeapTop = Yap_hole_end;
+    HeapTop = oldHeapTop = Yap_hole_end;
     newHeapTop = oldHeapTop+size;
     Yap_hole_start = Yap_hole_end = NULL;
   }

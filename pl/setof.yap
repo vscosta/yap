@@ -69,12 +69,11 @@ findall(Template, Generator, Answers, SoFar) :-
 
 % by getting all answers
 '$collect_for_findall'(Ref, SoFar, Out) :-
-	( '$db_dequeue'(Ref, Term) ->
-            Out = [Term|Answers],
-	    '$collect_for_findall'(Ref, SoFar, Answers)
-        ;
-	    Out = SoFar
-	).
+	'$db_dequeue'(Ref, Term), !,
+	Out = [Term|Answers],
+	'$collect_for_findall'(Ref, SoFar, Answers).
+'$collect_for_findall'(Ref, SoFar, SoFar) :-
+	Out = SoFar.
 
 % findall_with_key is very similar to findall, but uses the SICStus
 % algorithm to guarantee that variables will have the same names.
