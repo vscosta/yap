@@ -2277,6 +2277,7 @@ p_check_if_stream (void)
 static Term
 StreamName(int i)
 {
+  if (i < 3) return(MkAtomTerm(AtomUser));
 #if USE_SOCKET
   if (Stream[i].status & Socket_Stream_f)
     return(MkAtomTerm(LookupAtom("socket")));
