@@ -731,13 +731,15 @@ debugging :-
 	'$handle_signals'(Signals),
 	G=[M|Goal],
 	'$execute'(M:Goal).
-'$creep'([_|'$execute_in_mod'(G,ModNum)]) :- !,
+'$creep'([M|V]) :- var(V), !,
+	throw(error(instantiation_error,M:call(M:V))).
+'$creep'([M|'$execute_in_mod'(G,ModNum)]) :- !,
 	'$module_number'(Mod,ModNum),
 	'$creep'([Mod|G]).
 '$creep'([M|'$execute_within'(G)]) :- !,
 	'$creep'([M|G]).
 '$creep'([M|'$last_execute_within'(G)]) :- !,
-	'$creep'([M|G]).
+	'$creep'([M|G])).
 '$creep'(G) :- '$direct_spy'(G).
 
 '$trace'(P,'!'(_),Mod,L,NC) :- !,
