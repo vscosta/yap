@@ -466,6 +466,7 @@ PutValue(Atom a, Term v)
   AtomEntry *ae = RepAtom(a);
   Prop p0;
   ValEntry *p;
+  Term t0;
 
   WRITE_LOCK(ae->ARWLock);
   p0 = GetAPropHavingLock(ae, ValProperty);
@@ -478,12 +479,14 @@ PutValue(Atom a, Term v)
     p->NextOfPE = RepAtom(a)->PropsOfAE;
     RepAtom(a)->PropsOfAE = AbsValProp(p);
     p->KindOfPE = ValProperty;
+    p->ValueOfVE = TermNil;
     /* take care that the lock for the property will be inited even
        if someone else searches for the property */
     INIT_RWLOCK(p->VRWLock);
     WRITE_LOCK(p->VRWLock);
     WRITE_UNLOCK(ae->ARWLock);
   }
+  t0 = p->ValueOfVE;
   if (IsFloatTerm(v)) {
     /* store a float in code space, so that we can access the property */
     union {
@@ -494,33 +497,51 @@ PutValue(Atom a, Term v)
     unsigned int i;
 
     un.f = FloatOfTerm(v);
-    if (p0 != NIL && IsApplTerm(p->ValueOfVE))
-      pt = RepAppl(p->ValueOfVE);
-    else {
+    if (IsFloatTerm(t0)) {
+      pt = RepAppl(t0);
+    } else {
+      if (IsApplTerm(t0)) {
+	FreeCodeSpace((char *) (RepAppl(t0)));
+      }
       pt = (CELL *) AllocAtomSpace(sizeof(CELL)*(1 + 2*sizeof(Float)/sizeof(CELL)));
+      p->ValueOfVE = AbsAppl(pt);
+      pt[0] = (CELL)FunctorDouble;
     }
 
-    pt[0] = (CELL)FunctorDouble;
     iptr = pt+1;
     for (i = 0; i < sizeof(Float) / sizeof(CELL); i++) {
-      *iptr++ = MkIntTerm(un.ar[i]/65536);
-      *iptr++ = MkIntTerm(un.ar[i]%65536);
+      *iptr++ = (CELL)un.ar[i];
     }
-    p->ValueOfVE = AbsAppl(pt);
   } else if (IsLongIntTerm(v)) {
     CELL *pt;
     Int val = LongIntOfTerm(v);
-    if (p0 != NIL && IsApplTerm(p->ValueOfVE)) { 
-      pt = RepAppl(p->ValueOfVE);
+
+    if (IsLongIntTerm(t0)) {
+      pt = RepAppl(t0);
     } else {
-      pt = (CELL *) AllocAtomSpace(3 * sizeof(CELL));
+      if (IsApplTerm(t0)) {
+	FreeCodeSpace((char *) (RepAppl(t0)));
+      }
+      pt = (CELL *) AllocAtomSpace(2*sizeof(CELL));
+      p->ValueOfVE = AbsAppl(pt);
+      pt[0] = (CELL)FunctorLongInt;
     }
-    pt[0] = (CELL)FunctorLongInt;
-    pt[1] = MkIntTerm(val/65536);
-    pt[2] = MkIntTerm(val%65536);
+    pt[1] = (CELL)val;
+#ifdef USE_GMP
+  } else if (IsBigIntTerm(v)) {
+    CELL *ap = RepAppl(v);
+    Int sz = 
+      sizeof(MP_INT)+sizeof(CELL)+
+      (((MP_INT *)(ap+1))->_mp_alloc*sizeof(mp_limb_t));
+    CELL *pt = (CELL *) AllocAtomSpace(sz);
+    if (IsApplTerm(t0)) {
+      FreeCodeSpace((char *) RepAppl(t0));
+    }
+    memcpy((void *)pt, (void *)ap, sz);
     p->ValueOfVE = AbsAppl(pt);
+#endif
   } else {
-    if (p0 != NIL && IsApplTerm(p->ValueOfVE)) {
+    if (IsApplTerm(t0)) {
       /* recover space */
       FreeCodeSpace((char *) (RepAppl(p->ValueOfVE)));
     }
