@@ -1,3 +1,9 @@
+%   File   : apply_macros.yap
+%   Author : E. Alphonse from code by Joachim Schimpf
+%   Updated: 15 June 2002
+%   Purpose: Macros to apply a predicate to all elements
+%            of a list or to all sub-terms of a term.
+
 :- module(apply_macros, []).
 
 :- multifile user:goal_expansion/3.
@@ -258,4 +264,3 @@ aux_args([Arg|Args], MVars, [Arg|PArgs], PVars, [Arg|ProtoArgs]) :-
 pred_name(Macro, Proto, Name) :-
 	format_to_chars("'~a(~w)'.",[Macro, Proto], Chars),
 	read_from_chars(Chars, Name).
-
