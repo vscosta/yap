@@ -25,9 +25,7 @@
 #ifndef YAP_STDIO
 
 #define YP_printf	printf
-#define YP_fprintf      fprintf
 #define YP_putchar	putchar
-#define YP_putc		putc
 #define YP_getc		getc
 #define YP_fgetc	fgetc
 #define YP_getchar	getchar
@@ -38,7 +36,6 @@
 #define YP_fileno	fileno
 #define YP_fopen	fopen
 #define YP_fclose	fclose
-#define YP_fflush	fflush
 #define YP_ftell	ftell
 #define YP_fseek	fseek
 #define YP_setbuf	setbuf
@@ -48,9 +45,13 @@
 #define init_yp_stdio()
 
 #define YP_FILE		FILE
-#define YP_stdin	stdin
-#define YP_stdout	stdout
-#define YP_stderr	stderr
+extern int YP_stdin;
+extern int YP_stdout;
+extern int YP_stderr;
+
+int     STD_PROTO(YP_fprintf,(int, char *, ...));
+int     STD_PROTO(YP_putc,(int, int));
+int     STD_PROTO(YP_fflush,(int));
 
 #else
 

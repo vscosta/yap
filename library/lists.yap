@@ -111,12 +111,11 @@ nextto(X,Y, [_|List]) :-
 nth0(0, [Head|_], Head) :- !.
 
 nth0(N, [_|Tail], Elem) :-
-	nonvar(N),
+	nonvar(N), !,
 	M is N-1,
 	nth0(M, Tail, Elem).
 
 nth0(N,[_|T],Item) :-		% Clause added KJ 4-5-87 to allow mode
-	var(N),			% nth0(-,+,+)
 	nth0(M,T,Item),
 	N is M + 1.
 
@@ -124,12 +123,12 @@ nth0(N,[_|T],Item) :-		% Clause added KJ 4-5-87 to allow mode
 nth(1, [Head|_], Head) :- !.
 
 nth(N, [_|Tail], Elem) :-
-	nonvar(N),
+	nonvar(N), !,
 	M is N-1,			% should be succ(M, N)
 	nth(M, Tail, Elem).
 
 nth(N,[_|T],Item) :-		% Clause added KJ 4-5-87 to allow mode
-	var(N),			% nth(-,+,+)
+				% nth(-,+,+)
 	nth(M,T,Item),
 	N is M + 1.
 

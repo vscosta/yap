@@ -205,7 +205,7 @@ int
 DebugPutc(int sno, int ch)
 {
   if (Option['l' - 96])
-    (void) YP_putc(ch, logfile);
+    (void) putc(ch, logfile);
   return (YP_putc(ch, YP_stderr));
 }
 
@@ -236,13 +236,13 @@ InTTYLine(char *line)
 void 
 DebugSetIFile(char *fname)
 {
-	if (curfile)
-		YP_fclose(curfile);
-	curfile = YP_fopen(fname, "r");
-	if (curfile == Nill) {
-		curfile = YP_stdin;
-		YP_fprintf(YP_stderr,"[ Warning: can not open %s for input]\n", fname);
-	}
+  if (curfile)
+    YP_fclose(curfile);
+  curfile = YP_fopen(fname, "r");
+  if (curfile == Nill) {
+    curfile = stdin;
+    YP_fprintf(YP_stderr,"[ Warning: can not open %s for input]\n", fname);
+  }
 }
 
 void 
@@ -257,22 +257,22 @@ static       int   eolflg = 1;
 int 
 DebugGetc()
 {
-	int             ch;
-	if (eolflg) {
-		if (curfile != Nill) {
-			if (YP_fgets(my_line, 200, curfile) == 0)
-				curfile = Nill;
-		}
-		if (curfile == Nill)
-			YP_fgets(my_line, 200, YP_stdin);
-		eolflg = 0;
-		lp = my_line;
-	}
-	if ((ch = *lp++) == 0)
-		ch = '\n', eolflg = 1;
-	if (Option['l' - 96])
-		YP_putc(ch, logfile);
-	return (ch);
+  int             ch;
+  if (eolflg) {
+    if (curfile != Nill) {
+      if (YP_fgets(my_line, 200, curfile) == 0)
+	curfile = Nill;
+    }
+    if (curfile == Nill)
+      YP_fgets(my_line, 200, stdin);
+    eolflg = 0;
+    lp = my_line;
+  }
+  if ((ch = *lp++) == 0)
+    ch = '\n', eolflg = 1;
+  if (Option['l' - 96])
+    putc(ch, logfile);
+  return (ch);
 }
 
 #endif

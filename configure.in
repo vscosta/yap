@@ -567,6 +567,7 @@ AC_CHECK_FUNCS(snprintf vsnprintf setbuf system link getpwnam dup2 sigprocmask)
 AC_CHECK_FUNCS(labs strncat tmpnam getenv gettimeofday gethrtime putenv)
 AC_CHECK_FUNCS(strerror socket memmove alarm asinh acosh atanh rint)
 AC_CHECK_FUNCS(stat select fetestexcept finite strncpy mkstemp isnan)
+AC_CHECK_FUNCS(setlinebuf)
 
 dnl check for mpz_xor
 AC_MSG_CHECKING(for mpz_xor)

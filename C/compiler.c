@@ -2318,7 +2318,7 @@ copy_live_temps_bmap(int max)
       *ptr = 0L;
     }
     /* set the register live bit */
-    if (Uses[i]) {
+    if (Contents[i]) {
       int j = i%(8*CellSize);
       *ptr |= (1<<j);
     }
@@ -2535,7 +2535,7 @@ c_layout(void)
 	cpc = icpc;
 	max = 0;
 	for (i = 1; i < MaxCTemps; ++i) {
-	  if (Uses[i]) max = i;
+	  if (Contents[i]) max = i;
 	}
 	emit(label_op, ++labelno, Zero);
 	mycpc->rnd1 = labelno;

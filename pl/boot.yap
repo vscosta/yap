@@ -493,8 +493,7 @@ repeat :- '$repeat'.
 % the arguments.
 %
 '$present_answer'(_,_):-
-	flush_output(user_output),
-	flush_output(user_error),
+        '$flush_all_streams',
 	fail.
 '$present_answer'((?-), Answ) :-
 	nl(user_error),
@@ -522,8 +521,7 @@ repeat :- '$repeat'.
 	'$another'.
 
 '$write_answer'(_,_,_) :-
-	flush_output(user_output),
-	flush_output(user_error),
+        '$flush_all_streams',
 	fail.
 '$write_answer'(Vs, LBlk, LAnsw) :-
 	'$purge_dontcares'(Vs,NVs),
@@ -802,7 +800,9 @@ incore(G) :- '$execute'(G).
 % Called by the abstract machine, if no clauses exist for a predicate
 '$undefp'([M|G]) :-
 	functor(G,F,N),
-	'$recorded'('$import','$import'(S,M,F,N),_), !,
+	'$recorded'('$import','$import'(S,M,F,N),_),
+	S\= M, % can't try importing from the module itself.
+	!,
 	'$exec_with_expansion'(G, S, M).
 '$undefp'([M|G]) :-
 	\+ '$undefined'(user:unknown_predicate_handler(_,_,_)),

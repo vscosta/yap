@@ -6,6 +6,14 @@
 
 <H2 ALIGN=CENTER>Yap-4.3.19:</H2>
 <UL>
+      <LI> FIXED: don't allow importing from the module itself.
+      <LI> FIXED: force line buffering for text stream.
+      <LI> FIXED: force no buffering for user_error.
+      <LI> FIXED: flush all streams before writing answer..
+      <LI> FIXED: YP_std* are now streams, so that yap_flag(user_*)
+      will change them too.
+      <LI> FIXED: nth/3 and nth0/3 would leave one extra choice-point.
+      <LI> FIXED: use Contents instead of Uses to determine live variables.
       <LI> FIXED: cputime was actually walltime in WIN32, ugh (report
       from Steve Moyle).
       <LI> FIXED: regexp library would not compile on recent versions

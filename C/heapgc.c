@@ -1168,7 +1168,23 @@ mark_trail(tr_fr_ptr trail_ptr, tr_fr_ptr trail_base, CELL *gc_H, choiceptr gc_B
 #endif /* TABLING_SCHEDULING */
 #endif
 
-/* #define CHECK_CHOICEPOINTS 1*/
+#ifdef DEBUG
+#define CHECK_CHOICEPOINTS 1
+#endif
+
+#ifdef CHECK_CHOICEPOINTS
+#ifndef ANALYST
+
+static char *op_names[_std_top + 1] =
+{
+#define OPCODE(OP,TYPE) #OP
+#include "YapOpcodes.h"
+#undef  OPCODE
+};
+
+#endif
+#endif
+
 
 static void 
 mark_choicepoints(register choiceptr gc_B, tr_fr_ptr saved_TR)

@@ -30,6 +30,9 @@ static char SccsId[] = "%W% %G%";
 #include "yapio.h"
 
 #include <stdlib.h>
+#if HAVE_STDARG_H
+#include <stdarg.h>
+#endif
 #if HAVE_SYS_TIME_H
 #include <sys/time.h>
 #endif
@@ -161,6 +164,7 @@ STATIC_PROTO (Int p_put, (void));
 STATIC_PROTO (Int p_put_byte, (void));
 STATIC_PROTO (Int p_skip, (void));
 STATIC_PROTO (Int p_flush, (void));
+STATIC_PROTO (Int p_flush_all_streams, (void));
 STATIC_PROTO (Int p_write_depth, (void));
 STATIC_PROTO (Int p_open_null_stream, (void));
 STATIC_PROTO (Int p_user_file_name, (void));
@@ -211,6 +215,10 @@ StreamDesc Stream[MaxStreams];
 #endif
 #define InMemory_Stream_f	0x020000
 
+int YP_stdin = 0;
+int YP_stdout = 1;
+int YP_stderr = 2;
+
 int c_input_stream, c_output_stream;
 
 #if EMACS
@@ -233,6 +241,45 @@ static int parser_error_style = FAIL_ON_PARSER_ERROR;
 #if USE_SOCKET
 extern int YP_sockets_io;
 #endif
+
+/* note: fprintf may be called from anywhere, so please don't try
+   to be smart and allocate stack from somewhere else */
+int
+YP_fprintf(int sno, char *format,...)
+{
+  va_list ap;
+  char buf[512], *ptr = buf;
+  int r = 0;
+
+  va_start(ap,format);
+#ifdef HAVE_VSNPRINTF
+  vsnprintf(buf,512,format,ap);
+#else
+  vsprintf(buf,format,ap);
+#endif
+  va_end(ap);
+
+  while (*ptr) {
+    Stream[sno].stream_putc(sno, *ptr++);
+    r++;
+  }
+  return r;
+}
+
+int
+YP_putc(int ch, int sno)
+{
+  Stream[sno].stream_putc(sno, ch);
+  return(ch);
+}
+
+int
+YP_fflush(int sno)
+{
+  if (Stream[sno].status & (Null_Stream_f|InMemory_Stream_f|Socket_Stream_f))
+    return(0);
+  return(fflush(Stream[sno].u.file.file));
+}
 
 static void
 unix_upd_stream_info (StreamDesc * s)
@@ -270,8 +317,7 @@ unix_upd_stream_info (StreamDesc * s)
   {
     int filedes; /* visualc */
     filedes = YP_fileno (s->u.file.file);
-    if (isatty (filedes))
-      {
+    if (isatty (filedes)) {
 	char *ttys = ttyname(filedes);
 	if (ttys == NULL)
 	  s->u.file.name = LookupAtom("tty");
@@ -279,7 +325,7 @@ unix_upd_stream_info (StreamDesc * s)
 	  s->u.file.name = LookupAtom(ttys);
 	s->status |= Tty_Stream_f|Reset_Eof_Stream_f|Promptable_Stream_f;
 	return;
-      }
+    }
   }
 #endif /* HAVE_ISATTY */
 #endif /* _MSC_VER */
@@ -366,7 +412,7 @@ InitStdStream (int sno, SMALLUNSGN flags, YP_File file, Atom name)
   if ((s->status & Tty_Stream_f) && file == stdin)
     /* make sure input is unbuffered if it comes from stdin, this
        makes life simpler for interrupt handling */
-    YP_setbuf (YP_stdin, NULL); 
+    YP_setbuf (stdin, NULL); 
 #endif /* HAVE_SETBUF */
 
 }
@@ -376,11 +422,12 @@ void
 InitPlIO (void)
 {
   Int i;
+
   for (i = 0; i < MaxStreams; ++i)
     Stream[i].status = Free_Stream_f;
-  InitStdStream (StdInStream, Input_Stream_f, YP_stdin, AtomUsrIn);
-  InitStdStream (StdOutStream, Output_Stream_f, YP_stdout, AtomUsrOut);
-  InitStdStream (StdErrStream, Output_Stream_f, YP_stderr, AtomUsrErr);
+  InitStdStream (StdInStream, Input_Stream_f, stdin, AtomUsrIn);
+  InitStdStream (StdOutStream, Output_Stream_f, stdout, AtomUsrOut);
+  InitStdStream (StdErrStream, Output_Stream_f, stderr, AtomUsrErr);
   c_input_stream = StdInStream;
   c_output_stream = StdOutStream;
   /* alloca alias array */
@@ -424,9 +471,9 @@ count_output_char(int ch, StreamDesc *s, int sno)
 		       StdErrStream) &&
 	  !(s->status & Null_Stream_f))
 	{
-	  YP_putc (MPWSEP, s->u.file.file);
+	  putc (MPWSEP, s->u.file.file);
 	  if (!(Stream[c_output_stream].status & Null_Stream_f))
-	    YP_fflush (YP_stdout);
+	    fflush (stdout);
 	}
 #endif
       /* Inform that we have written a newline */
@@ -455,9 +502,9 @@ console_count_output_char(int ch, StreamDesc *s, int sno)
 		       StdErrStream) &&
 	  !(s->status & Null_Stream_f))
 	{
-	  YP_putc (MPWSEP, s->u.file.file);
+	  putc (MPWSEP, s->u.file.file);
 	  if (!(Stream[c_output_stream].status & Null_Stream_f))
-	    YP_fflush (YP_stdout);
+	    fflush (stdout);
 	}
 #endif
       ++s->charcount;
@@ -489,7 +536,13 @@ FilePutc(int sno, int ch)
       ch = '\n';
     }
 #endif
-  YP_putc(ch, s->u.file.file);
+  putc(ch, s->u.file.file);
+#if MAC || _MSC_VER
+  if (ch == 10)
+    {
+      fflush(s->u.file.file);
+    }
+#endif
   count_output_char(ch,s,sno);
   return ((int) ch);
 }
@@ -603,7 +656,7 @@ ConsolePutc (int sno, int ch)
       ch = '\n';
     }
 #endif
-  YP_putc (ch, s->u.file.file);
+  putc (ch, s->u.file.file);
   console_count_output_char(ch,s,sno);
   return ((int) ch);
 }
@@ -668,8 +721,8 @@ ReadlineGetc(int sno)
     /* Only sends a newline if we are at the start of a line */
     if (_line != (char *) NULL && _line != (char *) EOF)
       free (_line);
-    rl_instream = YP_stdin;
-    rl_outstream = YP_stderr;
+    rl_instream = stdin;
+    rl_outstream = stderr;
     /* window of vulnerability opened */
     in_readline = TRUE;
     if (newline) {
@@ -1236,9 +1289,9 @@ p_open (void)
   opts = IntOfTerm(topts);
 #ifdef _WIN32
   if (st->status & Binary_Stream_f) {
-	  strncat(io_mode, "b", 8);
+    strncat(io_mode, "b", 8);
   } else {
-	  strncat(io_mode, "t", 8);
+    strncat(io_mode, "t", 8);
   }
 #endif
   if ((st->u.file.file = YP_fopen (FileNameBuf, io_mode)) == YAP_ERROR ||
@@ -1598,7 +1651,25 @@ SetAlias (Atom arg, int sno)
 
   while (aliasp < aliasp_max) {
     if (aliasp->name == arg) {
+      Int alno = aliasp-FileAliases;
       aliasp->alias_stream = sno;
+      switch(alno) {
+      case 0:
+	YP_stdin = sno;
+	break;
+      case 1:
+	YP_stdout = sno;
+	break;
+      case 2:
+	YP_stderr = sno;
+#if HAVE_SETBUF
+	if (!(Stream[sno].status &
+	      (Null_Stream_f|InMemory_Stream_f|Socket_Stream_f)))
+	  YP_setbuf (Stream[sno].u.file.file, NULL); 
+#endif /* HAVE_SETBUF */
+	break;
+      default:
+      }
       return;
     }
     aliasp++;
@@ -1621,7 +1692,20 @@ PurgeAlias (int sno)
     if (aliasp->alias_stream == sno) {
       if (aliasp - FileAliases < 3) {
 	/* get back to std streams, but keep alias around */
-	new_aliasp->alias_stream = aliasp-FileAliases;
+	Int alno = aliasp-FileAliases;
+	new_aliasp->alias_stream = alno;
+	switch(alno) {
+	case 0:
+	  YP_stdin = 0;
+	  break;
+	case 1:
+	  YP_stdout = 1;
+	  break;
+	case 2:
+	  YP_stderr = 2;
+	  break;
+	default:
+	}
 	new_aliasp++;
       } else {
 	NOfFileAliases--;
@@ -3812,7 +3896,14 @@ p_flush (void)
   if (sno < 0)
     return (FALSE);
   if (!(Stream[sno].status & (Null_Stream_f|Socket_Stream_f|InMemory_Stream_f)))
-    YP_fflush (Stream[sno].u.file.file);
+    YP_fflush (sno);
+  return (TRUE);
+}
+
+static Int
+p_flush_all_streams (void)
+{				/* $flush_all_streams          */
+  fflush (NULL);
   return (TRUE);
 }
 
@@ -4174,6 +4265,7 @@ InitIOPreds(void)
   InitCPred ("$close", 1, p_close, SafePredFlag|SyncPredFlag);
   InitCPred ("peek_mem_write_stream", 3, p_peek_mem_write_stream, SyncPredFlag);
   InitCPred ("flush_output", 1, p_flush, SafePredFlag|SyncPredFlag);
+  InitCPred ("$flush_all_streams", 0, p_flush_all_streams, SafePredFlag|SyncPredFlag);
   InitCPred ("$get", 2, p_get, SafePredFlag|SyncPredFlag);
   InitCPred ("$get0", 2, p_get0, SafePredFlag|SyncPredFlag);
   InitCPred ("$get0_line_codes", 2, p_get0_line_codes, SafePredFlag|SyncPredFlag);

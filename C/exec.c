@@ -1245,7 +1245,12 @@ p_clean_ifcp(void) {
 #else
   choiceptr pt0 = (choiceptr)(LCL0-IntOfTerm(Deref(ARG1)));
 #endif
-  pt0->cp_ap = (yamop *)TRUSTFAILCODE;
+  if (pt0 == B) {
+    B = B->cp_b;
+    HB = B->cp_h;
+  } else {
+    pt0->cp_ap = (yamop *)TRUSTFAILCODE;
+  }
   return(TRUE);
 }
 

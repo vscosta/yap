@@ -124,6 +124,7 @@
 #undef  HAVE_STAT
 #undef  HAVE_SELECT
 #undef  HAVE_SETBUF
+#undef  HAVE_SETLINEBUF
 #undef  HAVE_SHMAT
 #undef  HAVE_SIGACTION
 #undef  HAVE_SIGGETMASK
