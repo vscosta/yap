@@ -1,13 +1,13 @@
 =================================================================
 Logtalk - Object oriented extension to Prolog
-Release 2.19.0
+Release 2.19.1
 
 Copyright (c) 1998-2004 Paulo Moura.  All Rights Reserved.
 =================================================================
 
 
 This directory contains files that provide syntax highlighting 
-for editing Logtalk source files with the KDE Kate and Kwrite 
+for editing Logtalk source files with the KDE Kate and KWrite 
 text editors (http://kate.kde.org/).
 
 
@@ -19,7 +19,7 @@ or:
     
     ~/.kde/share/apps/katepart/syntax/
 
-and restart Kate and Kwrite.
+and restart Kate and KWrite.
 
 
 THIS SYNTAX FILE IS UNDER DEVELOPMENT.

@@ -1,6 +1,6 @@
 =================================================================
 Logtalk - Object oriented extension to Prolog
-Release 2.19.0
+Release 2.19.1
 
 Copyright (c) 1998-2004 Paulo Moura.  All Rights Reserved.
 =================================================================
@@ -11,7 +11,7 @@ To load all entities in this example compile and load the loader file:
 | ?- logtalk_load(loader).
 
 You will also need to load the library hierarchies_loader file.
-Alternatively, you may load the library all-loader file to load 
+Alternatively, you may load the library all_loader file to load 
 all library entities.
 
 This folder contains an example of using parametric objects to implement
@@ -26,5 +26,5 @@ Current limitations:
 
 	- only integers can be used as constants.
 
-This example is still incomplete. For example, using sum distribuition 
+This example is still incomplete. For example, using sum distribution 
 property to simplify expressions is not yet implemented. 

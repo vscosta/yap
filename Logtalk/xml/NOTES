@@ -1,6 +1,6 @@
 =================================================================
 Logtalk - Object oriented extension to Prolog
-Release 2.19.0
+Release 2.19.1
 
 Copyright (c) 1998-2004 Paulo Moura.  All Rights Reserved.
 =================================================================
@@ -114,7 +114,7 @@ html.sh
 	The script also generates an index.html file which contains links to all the 
 	converted files. The title of the index.html file can be given as a parameter 
 	to the script. Edit the script to match your environment before running it 
-	and to chose between HTML or XHTML output. Requires James Clarck XT XSLT 
+	and to chose between HTML or XHTML output. Requires James Clark XT XSLT 
 	processor 20020426a or later version (http://www.jclark.com/xml/).
 
 
@@ -124,7 +124,7 @@ htmlnt.cmd
 	The script also generates an index.html file that contains links to all 
 	converted files. The title of the index.html can be given as a parameter 
 	to the script. Edit the script to match your environment before running 
-	it and to chose between HTML or XHTML output. Requires James Clarck XT 
+	it and to chose between HTML or XHTML output. Requires James Clark XT 
 	XSLT processor 20020426a or later version (http://www.jclark.com/xml/).
 
 
@@ -132,7 +132,7 @@ htmldos.bat
 
 	Sample DOS batch script to convert .xml files to .html files. Edit the 
 	script to match your environment before running it and to chose between 
-	HTML or XHTML output. Requires James Clarck XT XSLT processor 20020426a 
+	HTML or XHTML output. Requires James Clark XT XSLT processor 20020426a 
 	or later version (http://www.jclark.com/xml/).
 
 

@@ -1,6 +1,6 @@
 =================================================================
 Logtalk - Object oriented extension to Prolog
-Release 2.19.0
+Release 2.19.1
 
 Copyright (c) 1998-2004 Paulo Moura.  All Rights Reserved.
 =================================================================
@@ -30,7 +30,7 @@ To install:
 
 Note:
 
-You can costumized the templates for objects, caterories, and protocols 
+You can customize the templates for objects, categories, and protocols 
 to use your name by default by changing the line that reads:
 
 #prompt ( "Author name:" $authorname )

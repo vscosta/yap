@@ -1,6 +1,6 @@
 =================================================================
 Logtalk - Object oriented extension to Prolog
-Release 2.19.0
+Release 2.19.1
 
 Copyright (c) 1998-2004 Paulo Moura.  All Rights Reserved.
 =================================================================
@@ -18,7 +18,7 @@ between asserting predicates in a class and in a prototype.
 The following objects are defined:
 
 	root
-		root of the protoype hierarchy; declares and defines a public,
+		root of the prototype hierarchy; declares and defines a public,
 		dynamic predicate
 	descendant
 		simple prototype extending the root prototype

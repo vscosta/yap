@@ -24,7 +24,7 @@
 Logtalk objects should be regarded as a way to encapsulate and reuse predicate definitions. Instead of a single clause database containing all your code, Logtalk objects provide separated namespaces or databases allowing the partitioning of code in more manageable parts. Logtalk does not try to bring some sort of new dynamic state change concept to Logic Programming or Prolog.
 </p>
 <p>
-In Logtalk, the only pre-defined object is the pseudo-object <code>user</code> that contains all the clauses in the Prolog database not contained in some Logtalk entity.
+In Logtalk, the only pre-defined objects are the pseudo-objects <code>user</code> and <code>debugger</code>, which are described later at the end of this section.
 </p>
 
 <h2>Objects, prototypes, classes and instances<a name="kind"></a></h2>
@@ -441,7 +441,13 @@ An object may have the property <code>static</code>, <code>dynamic</code>, or <c
 <h2>The pseudo-object user<a name="user"></a></h2>
 
 <p>
-Logtalk defines a pseudo-object named <code>user</code> that contains all user predicate definitions not contained in a Logtalk entity. These predicates are assumed to be implicitly declared public.
+Logtalk defines a pseudo-object named <code>user</code> which contains all user predicate definitions not contained in a Logtalk entity. These predicates are assumed to be implicitly declared public.
+</p>
+
+<h2>The pseudo-object debugger<a name="user"></a></h2>
+
+<p>
+Logtalk defines a pseudo-object named <code>debugger</code> which implements the Logtalk built-in debugger (see the section <a href="running.html#debugging">Debugging Logtalk programs</a>).
 </p>
 
 <div class="navbottom">
@@ -453,7 +459,7 @@ Copyright &copy; <a href="mailto:pmoura@logtalk.org">Paulo Moura</a> &mdash; <a 
 </div>
 
 <div class="footer">
-<p><span class="bleft"><a href="http://validator.w3.org/check/referer">XHTML</a> + <a href="http://jigsaw.w3.org/css-validator/check/referer">CSS</a></span><span class="bright">Last updated on: December 23, 2003</span></p>
+<p><span class="bleft"><a href="http://validator.w3.org/check/referer">XHTML</a> + <a href="http://jigsaw.w3.org/css-validator/check/referer">CSS</a></span><span class="bright">Last updated on: July 28, 2004</span></p>
 </div>
 </body>
 </html>

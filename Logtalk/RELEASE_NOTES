@@ -1,6 +1,6 @@
 =================================================================
 Logtalk - Object oriented extension to Prolog
-Release 2.19.0
+Release 2.19.1
 
 Copyright (c) 1998-2004 Paulo Moura.  All Rights Reserved.
 =================================================================
@@ -10,9 +10,20 @@ RELEASE NOTES
 =============
 
 
+2.19.1 - August 2, 2004
+
+	Corrected a bug where entities could not be reloaded if they depend on 
+	other, not yet loaded entities.
+
+	Corrected a bug where compiler options would not be used when compiling 
+	source metafiles.
+
+	Corrected several typos on the Logtalk manuals.
+
+
 2.19.0 - July 26, 2004
 
-	Added support for defining more that one entity per file using Logtalk 
+	Added support for defining more than one entity per file using Logtalk 
 	source metafiles (*.mlgt), which the runtime engine automatically splits 
 	on single entity source files plus loading and compiling helper files.
 

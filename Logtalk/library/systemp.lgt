@@ -2,9 +2,9 @@
 :- protocol(systemp).
 
 	:- info([
-		version is 1.81,
+		version is 1.9,
 		author is 'Portable Operating-System Interface (POSI) initiative',
-		date is 2004/7/20,
+		date is 2004/7/27,
 		comment is 'Portable operating system access protocol.']).
 
 	:- public(make_directory/1).
@@ -220,19 +220,19 @@
 		comment is 'Host name (default is localhost).',
 		argnames is ['Name']]).
 
-	:- public(canonical_os_file_name/2).
-	:- mode(canonical_os_file_name(+atom, -atom), one).
-	:- mode(canonical_os_file_name(-atom, +atom), one).
-	:- info(canonical_os_file_name/2, [
-		comment is 'Converts between canonical and operating system dependent file names.',
+	:- public(portable_os_file_name/2).
+	:- mode(portable_os_file_name(+atom, -atom), one).
+	:- mode(portable_os_file_name(-atom, +atom), one).
+	:- info(portable_os_file_name/2, [
+		comment is 'Converts between portable and operating-system dependent file names.',
 		argnames is ['Canonical', 'OS']]).
 
-	:- public(canonical_file_name/3).
-	:- mode(canonical_file_name(+atom, -atom, -atom), one).
-	:- mode(canonical_file_name(-atom, +atom, -atom), one).
-	:- mode(canonical_file_name(-atom, -atom, +atom), one).
-	:- info(canonical_file_name/3, [
-		comment is 'Converts between relative, absolute, and URL canonical file names.',
+	:- public(portable_file_name/3).
+	:- mode(portable_file_name(+atom, -atom, -atom), one).
+	:- mode(portable_file_name(-atom, +atom, -atom), one).
+	:- mode(portable_file_name(-atom, -atom, +atom), one).
+	:- info(portable_file_name/3, [
+		comment is 'Converts between relative, absolute, and URL portable file names.',
 		argnames is ['Relative', 'Absolute', 'URL'],
 		exceptions is [
 			'None of the arguments is instantiated' - instantiation_error,
@@ -243,7 +243,7 @@
 	:- public(relative_file_name/1).
 	:- mode(relative_file_name(+atom), zero_or_one).
 	:- info(relative_file_name/1, [
-		comment is 'True when the argument is a valid, relative file name.',
+		comment is 'True when the argument is a valid, relative file name. Argument is expanded to a canonical file name before testing.',
 		argnames is ['File'],
 		exceptions is [
 			'File is not instantiated' - instantiation_error,
@@ -252,7 +252,7 @@
 	:- public(absolute_file_name/1).
 	:- mode(absolute_file_name(+atom), zero_or_one).
 	:- info(absolute_file_name/1, [
-		comment is 'True if the argument is a valid, absolute file name.',
+		comment is 'True if the argument is a valid, absolute file name. Argument is expanded to a canonical file name before testing.',
 		argnames is ['File'],
 		exceptions is [
 			'File is not instantiated' - instantiation_error,
@@ -261,7 +261,7 @@
 	:- public(url_file_name/1).
 	:- mode(url_file_name(+atom), zero_or_one).
 	:- info(url_file_name/1, [
-		comment is 'True when the argument is a valid, URL file name.',
+		comment is 'True when the argument is a valid, URL file name. Argument is expanded to a canonical file name before testing.',
 		argnames is ['File'],
 		exceptions is [
 			'File is not instantiated' - instantiation_error,
@@ -270,7 +270,7 @@
 	:- public(absolute_file_name/2).
 	:- mode(absolute_file_name(+atom, ?atom), zero_or_one).
 	:- info(absolute_file_name/2, [
-		comment is 'Expands a file name into an absolute file name.',
+		comment is 'Expands a file name into a canonical absolute file name.',
 		argnames is ['File', 'Absolute'],
 		exceptions is [
 			'File is not instantiated' - instantiation_error,
@@ -280,7 +280,7 @@
 	:- public(url_file_name/2).
 	:- mode(url_file_name(+atom, ?atom), zero_or_one).
 	:- info(url_file_name/2, [
-		comment is 'Expands a file name into a URL file name.',
+		comment is 'Expands a file name into a canonical URL file name.',
 		argnames is ['File', 'URL'],
 		exceptions is [
 			'File is not instantiated' - instantiation_error,
@@ -290,7 +290,7 @@
 	:- public(file_name_part/2).
 	:- mode(file_name_part(+atom, ?compound), zero_or_more).
 	:- info(file_name_part/2, [
-		comment is 'File name parts.',
+		comment is 'File name parts. The file name is expanded to a canonical file name before decomposing in parts.',
 		argnames is ['File', 'Part'],
 		exceptions is [
 			'File is not instantiated' - instantiation_error,
@@ -302,7 +302,7 @@
 	:- mode(file_name_parts(+atom, -list(compound)), one).
 	:- mode(file_name_parts(-atom, +list(compound)), zero_or_one).
 	:- info(file_name_parts/2, [
-		comment is 'Converts between a file name and its constituent parts (represented as a list of compound terms).',
+		comment is 'Converts between a file name and its constituent parts (represented as a list of compound terms). The file name (when instantiated) is expanded to a canonical file name before decomposing in parts.',
 		argnames is ['File', 'Parts'],
 		exceptions is [
 			'None of the arguments are instantiated' - instantiation_error,

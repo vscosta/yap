@@ -38,7 +38,7 @@ by defining a category that implements a set of predicates for handling dynamic 
 We want to define a set of predicates to handle dynamic object attributes. We need public predicates to set, get, and delete attributes, and a private dynamic predicate to store the attributes values. Let us name these predicates <code>set_attribute/2</code> and <code>get_attribute/2</code>, for getting and setting an attribute value, <code>del_attribute/2</code> and <code>del_attributes/2</code>, for deleting attributes, and <code>attribute_/2</code>, for storing the attributes values.
 </p>
 <p>
-We do not want to encapsulate these predicates in an object. Why? Because they are a set of usefull, closely related, predicates that may be used by several, unrelated, objects. If defined at an object level, we would be constrained to use inheritance in order to have the predicates available to other objects. Furthermore, this could force us to use multi-inheritance or to have some kind of generic root object containing all kinds of possible useful predicates.
+We do not want to encapsulate these predicates in an object. Why? Because they are a set of useful, closely related, predicates that may be used by several, unrelated, objects. If defined at an object level, we would be constrained to use inheritance in order to have the predicates available to other objects. Furthermore, this could force us to use multi-inheritance or to have some kind of generic root object containing all kinds of possible useful predicates.
 </p>
 <p>
 For this kind of situation, Logtalk enables the programmer to encapsulate the predicates in a <em>category</em>, so that they can be used in any object. A category is a Logtalk entity, at the same level as objects and protocols. It can contain predicates directives and/or definitions. Category predicates can be imported by any object, without code duplication and without resorting to inheritance.
@@ -148,7 +148,7 @@ Copyright &copy; <a href="mailto:pmoura@logtalk.org">Paulo Moura</a> &mdash; <a 
 </div>
 
 <div class="footer">
-<p><span class="bleft"><a href="http://validator.w3.org/check/referer">XHTML</a> + <a href="http://jigsaw.w3.org/css-validator/check/referer">CSS</a></span><span class="bright">Last updated on: July 22, 2004</span></p>
+<p><span class="bleft"><a href="http://validator.w3.org/check/referer">XHTML</a> + <a href="http://jigsaw.w3.org/css-validator/check/referer">CSS</a></span><span class="bright">Last updated on: July 28, 2004</span></p>
 </div>
 </body>
 </html>

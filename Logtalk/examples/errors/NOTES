@@ -1,6 +1,6 @@
 =================================================================
 Logtalk - Object oriented extension to Prolog
-Release 2.19.0
+Release 2.19.1
 
 Copyright (c) 1998-2004 Paulo Moura.  All Rights Reserved.
 =================================================================
@@ -21,6 +21,6 @@ source files in a text editor to better understand how the compiler
 deals with common programming errors.
 
 Note that the warnings and errors that you will get while compiling 
-your files depend on your compiler options (setted explicitly as 
+your files depend on your compiler options (defined explicitly as 
 parameters in the logtalk_compile/2 or logtalk_load/2 built-in 
 predicates or by default in your configuration file).

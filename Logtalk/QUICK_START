@@ -1,6 +1,6 @@
 =================================================================
 Logtalk - Object oriented extension to Prolog
-Release 2.19.0
+Release 2.19.1
 
 Copyright (c) 1998-2004 Paulo Moura.  All Rights Reserved.
 =================================================================
@@ -80,7 +80,7 @@ Therefore, you will need to type the query:
 This will compile and load all the example files.
 
 6. Open the example SCRIPT file, which contains sample queries that you 
-may try by copying-and-pasting or draging-and-droping them on your Prolog 
+may try by copying-and-pasting or dragging-and-droping them on your Prolog 
 interpreter top-level.
 
 
