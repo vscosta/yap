@@ -187,9 +187,6 @@ LookupAtom(char *atom)
   if (NOfAtoms > 2*AtomHashTableSize) {
     Yap_signal(YAP_CDOVF_SIGNAL);
   }
-  {extern int vsc_xstop;
-  if (ae == 0x81cf80c) vsc_xstop = 1;
-  }
   return na;
 }
 

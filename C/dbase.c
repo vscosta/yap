@@ -3852,17 +3852,21 @@ EraseLogUpdCl(LogUpdClause *clau)
   PredEntry *ap;
   LOCK(clau->ClLock);
   ap = clau->ClPred;
-  WRITE_LOCK(ap->PRWLock);
   /* no need to erase what has been erased */ 
   if (!(clau->ClFlags & ErasedMask)) {
 
     /* get ourselves out of the list */
     if (clau->ClNext != NULL) {
+      LOCK(clau->ClNext->ClLock);
       clau->ClNext->ClPrev = clau->ClPrev;
+      UNLOCK(clau->ClNext->ClLock);
     }
     if (clau->ClPrev != NULL) {
+      LOCK(clau->ClPrev->ClLock);
       clau->ClPrev->ClNext = clau->ClNext;
+      UNLOCK(clau->ClPrev->ClLock);
     }
+    WRITE_LOCK(ap->PRWLock);
     if (clau->ClCode == ap->cs.p_code.FirstClause) {
       if (clau->ClNext == NULL) {
 	ap->cs.p_code.FirstClause = NULL;
@@ -3879,6 +3883,7 @@ EraseLogUpdCl(LogUpdClause *clau)
     }
     clau->ClFlags |= ErasedMask;
     ap->cs.p_code.NOfClauses--;
+    WRITE_UNLOCK(ap->PRWLock);
 #ifdef DEBUG
     {
       LogUpdClause *er_head = DBErasedList;
@@ -3900,9 +3905,8 @@ EraseLogUpdCl(LogUpdClause *clau)
     LOCK(clau->ClLock);
     clau->ClRefCount--;
   }
-  complete_lu_erase(clau);
   UNLOCK(clau->ClLock);
-  WRITE_UNLOCK(ap->PRWLock);
+  complete_lu_erase(clau);
 }
 
 static void

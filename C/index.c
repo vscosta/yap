@@ -4427,6 +4427,7 @@ replace_index_block(ClauseUnion *parent_block, yamop *cod, yamop *ncod, PredEntr
     ncl->ClRefCount = cl->ClRefCount;
     ncl->ChildIndex = cl->ChildIndex;
     ncl->u.ParentIndex = cl->u.ParentIndex;
+    INIT_LOCK(ncl->ClLock);
     if (c == cl) {
       parent_block->lui.ChildIndex = ncl;
     } else {
@@ -4748,16 +4749,9 @@ cp_lu_trychain(yamop *codep, yamop *ocodep, yamop *ostart, int flag, PredEntry *
 	    if (tgl->ClFlags & ErasedMask &&
 		!(tgl->ClRefCount) &&
 		!(tgl->ClFlags & InUseMask)) {
-#if defined(YAPOR) || defined(THREADS)
-	      /* can't do erase now without risking deadlocks */
-	      tgl->ClRefCount++;
-	      TRAIL_CLREF(tgl);
-	      UNLOCK(tgl->ClLock);
-#else
 	      /* last ref to the clause */
 	      UNLOCK(tgl->ClLock);
 	      Yap_ErLogUpdCl(tgl);
-#endif
 	    } else {
 	      UNLOCK(tgl->ClLock);
 	    }
@@ -4800,15 +4794,8 @@ cp_lu_trychain(yamop *codep, yamop *ocodep, yamop *ostart, int flag, PredEntry *
 	    !(tgl->ClRefCount) &&
 	    !(tgl->ClFlags & InUseMask)) {
 	  /* last ref to the clause */
-#if defined(YAPOR) || defined(THREADS)
-	      /* can't do erase now without risking deadlocks */
-	  tgl->ClRefCount++;
-	  TRAIL_CLREF(tgl);
-	  UNLOCK(tgl->ClLock);
-#else
 	  UNLOCK(tgl->ClLock);
 	  Yap_ErLogUpdCl(tgl);
-#endif
 	} else {
 	  UNLOCK(tgl->ClLock);
 	}
@@ -4868,10 +4855,8 @@ replace_lu_block(LogUpdIndex *blk, int flag, PredEntry *ap, yamop *code, int has
   ncl->ClRefCount = 0;
   ncl->u.ParentIndex = blk->u.ParentIndex;
   ncl->ChildIndex = NULL;
-#if defined(YAPOR) || defined(THREADS)
   INIT_LOCK(ncl->ClLock);
   INIT_CLREF_COUNT(ncl);
-#endif
   codep = start = ncl->ClCode;
   /* ok, we've allocated and set up things, now let's finish */
   codep->opc = Yap_opcode(_enter_lu_pred);

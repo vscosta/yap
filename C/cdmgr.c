@@ -254,15 +254,8 @@ decrease_ref_counter(yamop *ptr, yamop *b, yamop *e, yamop *sc)
 	!(cl->ClRefCount) &&
 	!(cl->ClFlags & InUseMask)) {
       /* last ref to the clause */
-#if defined(YAPOR) || defined(THREADS)
-      /* can't do erase now without risking deadlocks */
-      cl->ClRefCount++;
-      TRAIL_CLREF(cl);
-      UNLOCK(cl->ClLock);
-#else
       UNLOCK(cl->ClLock);
       Yap_ErLogUpdCl(cl);
-#endif
     } else {
       UNLOCK(cl->ClLock);
     }
@@ -415,9 +408,9 @@ kill_first_log_iblock(LogUpdIndex *c, LogUpdIndex *parent, PredEntry *ap)
   LogUpdIndex *ncl;
   /* parent is always locked, now I lock myself */
   LOCK(c->ClLock);
-  if (parent != NULL &&
-      !(c->ClFlags & ErasedMask)) {
+  if (parent != NULL) {
     /* remove myself from parent */
+    LOCK(parent->ClLock);
     if (c == parent->ChildIndex) {
       parent->ChildIndex = c->SiblingIndex;
     } else {
@@ -427,14 +420,17 @@ kill_first_log_iblock(LogUpdIndex *c, LogUpdIndex *parent, PredEntry *ap)
       }
       tcl->SiblingIndex = c->SiblingIndex;
     }
+    UNLOCK(parent->ClLock);
   }
   /* make sure that a child cannot remove us */
   c->ClRefCount++;
   ncl = c->ChildIndex;
-  while (ncl != NULL) {
-    LogUpdIndex *next = ncl->SiblingIndex;
+  /* kill children */
+  while (ncl) {
+    UNLOCK(c->ClLock);
     kill_first_log_iblock(ncl, c, ap);
-    ncl = next;
+    LOCK(c->ClLock);
+    ncl = c->ChildIndex;
   }
   c->ClRefCount--;
   /* check if we are still the main index */
@@ -442,6 +438,7 @@ kill_first_log_iblock(LogUpdIndex *c, LogUpdIndex *parent, PredEntry *ap)
       ap->cs.p_code.TrueCodeOfPred == c->ClCode) {
     RemoveMainIndex(ap);
   }
+  /* decrease refs */
   decrease_log_indices(c, (yamop *)&(ap->cs.p_code.ExpandCode));
 #ifdef DEBUG
     {
@@ -458,6 +455,8 @@ kill_first_log_iblock(LogUpdIndex *c, LogUpdIndex *parent, PredEntry *ap)
 #endif
   if (!((c->ClFlags & InUseMask) || c->ClRefCount)) {
     if (parent != NULL) {
+      /* sat bye bye */
+      LOCK(parent->ClLock);
       parent->ClRefCount--;
       if (parent->ClFlags & ErasedMask &&
 	  !(parent->ClFlags & InUseMask) &&
@@ -466,34 +465,35 @@ kill_first_log_iblock(LogUpdIndex *c, LogUpdIndex *parent, PredEntry *ap)
 	if (parent->ClFlags & SwitchRootMask) {
 	  UNLOCK(parent->ClLock);
 	  kill_first_log_iblock(parent, NULL, ap);
-	  LOCK(parent->ClLock);
 	} else {
-	  LOCK(parent->u.ParentIndex->ClLock);
 	  UNLOCK(parent->ClLock);
 	  kill_first_log_iblock(parent, parent->u.ParentIndex, ap);
-	  LOCK(parent->ClLock);
-	  UNLOCK(parent->u.ParentIndex->ClLock);
 	}
+      } else {
+	UNLOCK(parent->ClLock);
       }
     }
     UNLOCK(c->ClLock);
     Yap_FreeCodeSpace((CODEADDR)c);
   } else {
+    c->ClFlags |= ErasedMask;
+    /* try to move up, so that we don't hold a switch table */
+    if (parent != NULL &&
+	parent->ClFlags & SwitchTableMask) {
+    
+      LOCK(parent->ClLock);
+      c->u.ParentIndex = parent->u.ParentIndex;
+      LOCK(parent->u.ParentIndex->ClLock);
+      parent->u.ParentIndex->ClRefCount++;
+      UNLOCK(parent->u.ParentIndex->ClLock);
+      parent->ClRefCount--;
+      UNLOCK(parent->ClLock);
+    }
+    c->ChildIndex = NULL;
 #ifdef DEBUG
     c->SiblingIndex = DBErasedIList;
     DBErasedIList = c;
 #endif
-    c->ClFlags |= ErasedMask;
-#if !defined(THREADS) && !defined(YAPOR)
-    /* try to move up, so that we don't hold an index */
-    if (parent != NULL &&
-	parent->ClFlags & SwitchTableMask) {
-      c->u.ParentIndex = parent->u.ParentIndex;
-      parent->u.ParentIndex->ClRefCount++;
-      parent->ClRefCount--;
-    }
-#endif
-    c->ChildIndex = NULL;
     UNLOCK(c->ClLock);
   }
 }
@@ -512,9 +512,18 @@ Yap_kill_iblock(ClauseUnion *blk, ClauseUnion *parent_blk, PredEntry *ap)
     LogUpdIndex *c = (LogUpdIndex *)blk;
     if (parent_blk != NULL) {
       LogUpdIndex *cl = (LogUpdIndex *)parent_blk;
+#if defined(THREADS) || defined(YAPOR)
       LOCK(cl->ClLock);
-      kill_first_log_iblock(c, cl, ap);
+      /* protect against attempts at erasing */
+      cl->ClRefCount++;
       UNLOCK(cl->ClLock);
+#endif
+      kill_first_log_iblock(c, cl, ap);
+#if defined(THREADS) || defined(YAPOR)
+      LOCK(cl->ClLock);
+      cl->ClRefCount--;
+      UNLOCK(cl->ClLock);
+#endif
     } else {
       kill_first_log_iblock(c, NULL, ap);
     }
@@ -548,13 +557,23 @@ Yap_ErLogUpdIndex(LogUpdIndex *clau)
     return;
   }
   if (c->ClFlags & SwitchRootMask) {
-     kill_first_log_iblock(clau, NULL, c->u.pred);
+    kill_first_log_iblock(clau, NULL, c->u.pred);
  } else {
     while (!(c->ClFlags & SwitchRootMask)) 
       c = c->u.ParentIndex;
+#if defined(THREADS) || defined(YAPOR)
     LOCK(clau->u.ParentIndex->ClLock);
-    kill_first_log_iblock(clau, clau->u.ParentIndex, c->u.pred);
+    /* protect against attempts at erasing */
+    clau->ClRefCount++;
     UNLOCK(clau->u.ParentIndex->ClLock);
+#endif
+    kill_first_log_iblock(clau, clau->u.ParentIndex, c->u.pred);
+#if defined(THREADS) || defined(YAPOR)
+    LOCK(clau->u.ParentIndex->ClLock);
+    /* protect against attempts at erasing */
+    clau->ClRefCount--;
+    UNLOCK(clau->u.ParentIndex->ClLock);
+#endif
  }
 }
 
@@ -572,9 +591,19 @@ Yap_RemoveLogUpdIndex(LogUpdIndex *cl)
     while (!(pcl->ClFlags & SwitchRootMask)) {
       pcl = pcl->u.ParentIndex;
     }
+#if defined(THREADS) || defined(YAPOR)
     LOCK(cl->u.ParentIndex->ClLock);
-    kill_first_log_iblock(cl, cl->u.ParentIndex, pcl->u.pred);
+    /* protect against attempts at erasing */
+    cl->u.ParentIndex->ClRefCount++;
     UNLOCK(cl->u.ParentIndex->ClLock);
+#endif
+    kill_first_log_iblock(cl, cl->u.ParentIndex, pcl->u.pred);
+#if defined(THREADS) || defined(YAPOR)
+    LOCK(cl->u.ParentIndex->ClLock);
+    /* protect against attempts at erasing */
+    cl->u.ParentIndex->ClRefCount--;
+    UNLOCK(cl->u.ParentIndex->ClLock);
+#endif
   }
 }
 
