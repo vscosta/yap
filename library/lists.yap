@@ -222,8 +222,10 @@ prefix([Elem | Rest_of_part], [Elem | Rest_of_whole]) :-
 %   removes duplicated elements from List.  Beware: if the List has
 %   non-ground elements, the result may surprise you.
 
-remove_duplicates(List, Pruned) :-
-	sort(List, Pruned).
+remove_duplicates([], []).
+remove_duplicates([Elem|L], [Elem|NL]) :-
+	delete(L, Elem, Temp),
+	remove_duplicates(Temp, NL).
 
 %   reverse(List, Reversed)
 %   is true when List and Reversed are lists with the same elements
