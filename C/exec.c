@@ -53,7 +53,13 @@ CallPredicate(PredEntry *pen, choiceptr cut_pt) {
 #endif	/* LOW_LEVEL_TRACE */
   CP = P;
   P = (yamop *)(pen->CodeOfPred);
+  /* vsc: increment reduction counter at meta-call entry */
   WRITE_UNLOCK(pen->PRWLock);
+  if (pen->PredFlags & ProfiledPredFlag) {
+    LOCK(pen->StatisticsForPred.lock);
+    pen->StatisticsForPred.NOfEntries++;
+    UNLOCK(pen->StatisticsForPred.lock);
+  }
   ENV = YENV;
   YENV = ASP;
   YENV[E_CB] = (CELL) cut_pt;

@@ -17,7 +17,7 @@
 
 :- meta_predicate profile_data(:,+,-).
 
-profile_data(P, Parm, Data) :- P = M:D, !,
+profile_data(M:D, Parm, Data) :- P = M:D, !,
 	(
 	  var(M) ->
 	  '$do_error'(instantiation_error,profile_data(M:D, Parm, Data))
