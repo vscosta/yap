@@ -871,7 +871,7 @@ absolute_file_name(V,Out) :- var(V), !,
 	throw(error(instantiation_error, absolute_file_name(V, Out))).
 absolute_file_name(user,user) :- !.
 absolute_file_name(RelFile,AbsFile) :-
-	'$find_in_path'(RelFile,PathFile),
+	'$find_in_path'(RelFile,PathFile,absolute_file_name(RelFile,AbsFile)),
 	'$exists'(PathFile,'$csult', AbsFile), !.
 absolute_file_name(RelFile, AbsFile) :-
 	'$file_expansion'(RelFile, AbsFile).

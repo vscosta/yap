@@ -1612,6 +1612,34 @@ directories are the places where files specified in the form
 @code{consult/1}, @code{reconsult/1}, @code{use_module/1} or
 @code{ensure_loaded/1}.
 
+@item file_search_path(+@var{NAME},-@var{DIRECTORY})
+@findex file_search_path/2
+@syindex file_search_path/2
+@cnindex file_search_path/2
+Allows writing file names as compound terms. The @var{NAME} and
+ @var{DIRECTORY} must be atoms. The predicate may generate multiple
+solutions. The predicate is originally defined as follows:
+
+@example
+file_search_path(library,A) :-
+   library_directory(A).
+file_search_path(system,A) :-
+   prolog_flag(host_type,A).
+@end example
+
+Thus, [library(A)] will search for a file using
+@var{library_directory}/1 to obtain the prefix.
+
+@item library_directory(+@var{D})
+@findex library_directory/1
+@snindex library_directory/1
+@cnindex library_directory/1
+Succeeds when @var{D} is a current library directory name. Library
+directories are the places where files specified in the form
+@code{library(@var{File})} are searched by the predicates
+@code{consult/1}, @code{reconsult/1}, @code{use_module/1} or
+@code{ensure_loaded/1}.
+
 @item prolog_file_name(+@var{Name},-@var{FullPath})
 @findex prolog_file_name/2
 @syindex prolog_file_name/1
@@ -5997,6 +6025,11 @@ shift happened, if @code{verbose} give detailed information on garbage
 collection and stack shifts. Last, if @code{very_verbose} give detailed
 information on data-structures found during the garbage collection
 process, namely, on choice-points.
+
+@item  host_type
+@findex host_type (yap_flag/2 option)
+@* Return @code{configure} system information, including the machine-id
+for which Yap was compiled and Operating System information. 
 
 @item  index
 @findex index (yap_flag/2 option)

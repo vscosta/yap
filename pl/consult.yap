@@ -29,8 +29,8 @@ ensure_loaded(V) :-
         '$change_module'(M),
         '$ensure_loaded'(X),
         '$change_module'(M0).
-'$ensure_loaded'(X) :- atom(X), !,
-	'$find_in_path'(X,Y),
+'$ensure_loaded'(X) :-
+	'$find_in_path'(X,Y,ensure_loaded(X)),
 	( '$open'(Y, '$csult', Stream, 0), !,
 	     ( '$loaded'(Stream) ->
 		(  '$consulting_file_name'(Stream,TFN),
@@ -48,26 +48,6 @@ ensure_loaded(V) :-
 		
 	throw(error(permission_error(input,stream,X),ensure_loaded(X)))
 	).
-'$ensure_loaded'(library(X)) :- !,
-	'$find_in_path'(library(X),Y),
-	( '$open'(Y,'$csult',Stream, 0), !,
-	     ( '$loaded'(Stream) ->
-		(  '$consulting_file_name'(Stream,TFN),
-		    '$recorded'('$module','$module'(TFN,M,P),_) ->
-			'$current_module'(T), '$import'(P,M,T)
-		;
-		   true
-		)
-	     ;
-	       '$record_loaded'(Stream),
-	       '$reconsult'(Y,Stream)
-	     ),
-	     '$close'(Stream)
-	;
-	throw(error(permission_error(input,stream,library(X)),ensure_loaded(library(X))))
-	).
-'$ensure_loaded'(V) :- 
-	throw(error(type_error(atom,V),ensure_loaded(V))).
 
 
 compile(P) :-
@@ -105,24 +85,14 @@ reconsult(Fs) :-
 '$reconsult'([F|Fs]) :- !,
 	'$reconsult'(F),
 	'$reconsult'(Fs).
-'$reconsult'(X) :- atom(X), !,
-	'$find_in_path'(X,Y),
+'$reconsult'(X) :-
+	'$find_in_path'(X,Y,reconsult(X)),
 	( '$open'(Y,'$csult',Stream,0), !,
 		'$record_loaded'(Stream),
 		'$reconsult'(X,Stream), '$close'(Stream)
 	;
 		throw(error(permission_error(input,stream,X),reconsult(X)))
 	).
-'$reconsult'(library(X)) :- !,
-	'$find_in_path'(library(X),Y),
-	( '$open'(Y,'$csult',Stream,0), !,
-		'$record_loaded'(Stream),
-		'$reconsult'(library(X),Stream), '$close'(Stream)
-	;
-		throw(error(permission_error(input,stream,library(X)),reconsult(library(X))))
-	).
-'$reconsult'(V) :- 
-	throw(error(type_error(atom,V),reconsult(V))).
 
 '$reconsult'(F,Stream) :-
 	'$getcwd'(OldD),
@@ -158,7 +128,7 @@ reconsult(Fs) :-
 	'$format'('''EMACS_RECONSULT''(~w).~n',[File0]),
 	'$getcwd'(OldD),
 	'$open'(F,'$csult',Stream,0),
-	'$find_in_path'(File0,File),
+	'$find_in_path'(File0,File,emacs(F)),
 	'$open'(File,'$csult',Stream0,0),
 	'$get_value'('$consulting_file',OldF),
 	'$set_consulting_file'(Stream0),
@@ -203,8 +173,8 @@ reconsult(Fs) :-
 '$include'([F|Fs], Status) :- !,
 	'$include'(F, Status),
 	'$include'(Fs, Status).
-'$include'(X, Status) :- atom(X), !,
-	'$find_in_path'(X,Y),
+'$include'(X, Status) :-
+	'$find_in_path'(X,Y,include(X)),
 	'$values'('$included_file',OY,Y),
 	( '$open'(Y,'$csult',Stream,0), !,
 		'$loop'(Stream,Status), '$close'(Stream)
@@ -212,8 +182,6 @@ reconsult(Fs) :-
 		throw(error(permission_error(input,stream,Y),include(X)))
 	),
 	'$set_value'('$included_file',OY).
-'$include'(V, _) :- 
-	throw(error(type_error(atom,V),include(V))).
 
 '$do_startup_reconsult'(X) :-
 	( '$access_yap_flags'(15, 0) ->
@@ -221,7 +189,7 @@ reconsult(Fs) :-
 	;
 	  '$set_value'('$verbose',off)
 	),
-	'$find_in_path'(X,Y),
+	'$find_in_path'(X,Y,reconsult(X)),
 	( '$open'(Y,'$csult',Stream,0), !,
 		'$record_loaded'(Stream),
 		( '$access_yap_flags'(15, 0) -> true ; '$skip_unix_comments'(Stream) ),

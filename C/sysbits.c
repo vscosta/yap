@@ -2066,6 +2066,12 @@ p_set_fpu_exceptions(void) {
   return(TRUE);
 }
 
+static Int
+p_host_type(void) {
+  Term out = MkAtomTerm(LookupAtom(HOST_ALIAS));
+  return(unify(out,ARG1));
+}
+
 /*
  * This is responsable for the initialization of all machine dependant
  * predicates
@@ -2114,6 +2120,7 @@ InitSysPreds(void)
   InitCPred ("$putenv", 2, p_putenv, SafePredFlag|SyncPredFlag);
   InitCPred ("$file_age", 2, p_file_age, SafePredFlag|SyncPredFlag);
   InitCPred ("$set_fpu_exceptions", 0, p_set_fpu_exceptions, SafePredFlag|SyncPredFlag);
+  InitCPred ("$host_type", 1, p_host_type, SafePredFlag|SyncPredFlag);
 }
 
 
@@ -2182,3 +2189,4 @@ int WINAPI win_yap(HANDLE hinst, DWORD reason, LPVOID reserved)
   return 1;
 }
 #endif
+

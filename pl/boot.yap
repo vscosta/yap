@@ -884,8 +884,8 @@ break :- '$get_value'('$break',BL), NBL is BL+1,
         '$change_module'(M),
         '$consult'(X),
         '$change_module'(M0).
-'$consult'(X) :- atom(X), !,
-	'$find_in_path'(X,Y),
+'$consult'(X) :-
+	'$find_in_path'(X,Y,consult(X)),
 	( '$open'(Y,'$csult',Stream,0), !,
 		'$record_loaded'(Stream),
 		'$consult'(X,Stream),
@@ -893,22 +893,6 @@ break :- '$get_value'('$break',BL), NBL is BL+1,
 	;
 		throw(error(permission_error(input,stream,Y),consult(X)))
 	).
-'$consult'(M:X) :- !,
-	% set the type-in module
-        '$current_module'(Mod),
-        module(M),
-        '$consult'(X),
-        '$current_module'(Mod).
-'$consult'(library(X)) :- !,
-	'$find_in_path'(library(X),Y),
-	( '$open'(Y,'$csult',Stream,0), !,
-		'$record_loaded'(Stream),
-		'$consult'(library(X),Stream), '$close'(Stream)
-	;
-		throw(error(permission_error(input,stream,library(X)),consult(library(X))))
-	).
-'$consult'(V) :- 
-	throw(error(type_error(atom,V),consult(V))).
 
 
 '$consult'(F,Stream) :-
@@ -1012,10 +996,6 @@ break :- '$get_value'('$break',BL), NBL is BL+1,
 
 /* General purpose predicates				*/
 
-'$append'([], L, L) .
-'$append'([H|T], L, [H|R]) :-
-	'$append'(T, L, R).
-
 '$head_and_body'((H:-B),H,B) :- !.
 '$head_and_body'(H,H,true).
 
@@ -1042,37 +1022,26 @@ break :- '$get_value'('$break',BL), NBL is BL+1,
 	  '$set_value'(fileerrors,V), fail).
 
 
-'$find_in_path'(user,user_input) :- !.
-'$find_in_path'(user_input,user_input) :- !.
-'$find_in_path'(library(File),NewFile) :- !,
-	'$find_library_in_path'(File, NewFile).
-'$find_in_path'(File,File) :- '$exists'(File,'$csult'), !.
-'$find_in_path'(File,NewFile) :- name(File,FileStr),
-	'$search_in_path'(FileStr,NewFile),!.
-'$find_in_path'(File,File).
+'$find_in_path'(user,user_input, _) :- !.
+'$find_in_path'(user_input,user_input, _) :- !.
+'$find_in_path'(S,NewFile, _) :-
+	S =.. [Name,File], !,
+	user:file_search_path(Name, Dir),
+	'$dir_separator'(D),
+	atom_codes(A,[D]),
+	atom_concat([Dir,A,File],NFile),
+	'$search_in_path'(NFile, NewFile).
+'$find_in_path'(File,NewFile,_) :- atom(File), !,
+	'$search_in_path'(File,NewFile),!.
+'$find_in_path'(File,_,Call) :-
+	throw(error(domain_error(source_sink,File),G)).
 
-'$find_library_in_path'(File, NewFile) :-
-	user:library_directory(Dir),
-	atom_codes(File,FileS),
-	atom_codes(Dir,DirS),
-	'$dir_separator'(A),
-	'$append'(DirS,[A|FileS],NewS),
-	atom_codes(NewFile,NewS),
-	'$exists'(NewFile,'$csult'), !.
-'$find_library_in_path'(File, NewFile) :-
-	'$getenv'('YAPSHAREDIR', LibDir),
-	'$dir_separator'(A),
-	atom_codes(File,FileS),
-	atom_codes(LibDir,Dir1S),
-	'$append'(Dir1S,[A|"library"],DirS),
-	'$append'(DirS,[A|FileS],NewS),
-	atom_codes(NewFile,NewS),
-	'$exists'(NewFile,'$csult'), !.
-'$find_library_in_path'(File, File).
-
+'$search_in_path'(New,New) :-
+	'$exists'(New,'$csult'), !.
 '$search_in_path'(File,New) :-
-	'$recorded'('$path',Path,_), '$append'(Path,File,NewStr),
-	name(New,NewStr),'$exists'(New,'$csult').
+	'$recorded'('$path',Path,_),
+	atom_concat([Path,File],New),
+	'$exists'(New,'$csult').
 
 path(Path) :- findall(X,'$in_path'(X),Path).
 

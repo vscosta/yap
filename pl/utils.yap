@@ -808,3 +808,7 @@ user_defined_directive(Dir,Action) :-
 raise_exception(Ball) :- throw(Ball).
 on_exception(Pat, G, H) :- catch(G, Pat, H).
 
+'$append'([], L, L) .
+'$append'([H|T], L, [H|R]) :-
+	'$append'(T, L, R).
+

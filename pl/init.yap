@@ -119,9 +119,6 @@ system_mode(verbose,off) :- '$set_value'('$verbose',off).
 
 :- module(user).
 
-:- multifile library_directory/1.
-
-:- dynamic_predicate(library_directory/1, logical).
 
 :- multifile goal_expansion/3.
 
@@ -130,6 +127,19 @@ system_mode(verbose,off) :- '$set_value'('$verbose',off).
 :- multifile term_expansion/2.
 
 :- dynamic_predicate(term_expansion/2, logical).
+
+:- multifile file_search_path/2.
+
+:- dynamic_predicate(file_search_path/2, logical).
+
+file_search_path(library, Dir) :-
+     library_directory(Dir).
+file_search_path(system, Dir) :-
+     prolog_flag(host_type, Dir).
+
+:- multifile library_directory/1.
+
+:- dynamic_predicate(library_directory/1, logical).
 
 :- get_value(system_library_directory,D), assert(library_directory(D)).
 

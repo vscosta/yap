@@ -113,7 +113,7 @@ A contains the address of the variable that is to be trailed
 
 #if SIZEOF_DOUBLE == 2*SIZEOF_LONG_INT
 
-inline EXTERN void
+EXTERN inline void
 AlignGlobalForDouble(void)
 {
   /* Force Alignment for floats. Note that garbage collector may
@@ -380,7 +380,8 @@ Int unify(Term t0, Term t1)
   }
 }
 
-EXTERN inline Int unify_constant(register Term a, register Term cons)
+EXTERN inline Int
+unify_constant(register Term a, register Term cons)
 {
   CELL *pt;
   deref_head(a,unify_cons_unk);
