@@ -47,7 +47,7 @@ PROGRAMS= $(srcdir)/apply_macros.yap \
 
 LOGTALK_PROGRAMS= \
 	$(srcdir)/logtalk/logtalk.pl \
-	$(srcdir)/logtalk/yap430.config
+	$(srcdir)/logtalk/yap.config
 
 install: $(PROGRAMS)
 	mkdir -p $(DESTDIR)$(SHAREDIR)/Yap
