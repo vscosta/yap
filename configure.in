@@ -277,9 +277,9 @@ dnl cygnus and mingw32 also need wsock32 to use sockets.
 dnl
 if test "$target_os" = "cygwin"
 then
+  INSTALL_COMMAND=install_win32
   if test "$cygwin" = "no"
   then
-    INSTALL_COMMAND=install_win32
     CC="gcc  -mno-cygwin"
     AC_CHECK_LIB(wsock32,main)
     yap_cv_readline=no
@@ -288,7 +288,7 @@ then
       prefix="c:/Program\\ Files/Yap"
     fi
   else
-    LIBS="-lcygwin -lkernel32"
+    LIBS="-lcygwin"
     INSTALL_COMMAND=install_unix
   fi
 elif test "$target_os" = "mingw32" 
