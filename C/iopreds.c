@@ -4522,8 +4522,8 @@ StreamToFileNo(Term t)
   }
 }
 
-int
-p_stream(Term t)
+static Int
+p_stream(void)
 {
   Term in = Deref(ARG1);
   if (IsVarTerm(in))

@@ -282,7 +282,7 @@ shell(Command, Status) :-
 system(Command, Status) :-
 	G = system(Command, Status),
 	check_command(Command, G),
-	do_system(Status, Status).
+	do_system(Command, Status).
 
 sleep(Interval) :- var(Interval), !,
 	throw(error(instantiation_error,sleep(Interval))).

@@ -80,8 +80,8 @@ datime(void)
    if (loc == NULL) {
      return(unify(ARG2, MkIntTerm(errno)));    
    }
-   out[0] = MkIntTerm(loc->tm_year);
-   out[1] = MkIntTerm(loc->tm_mon);
+   out[0] = MkIntTerm(1900+loc->tm_year);
+   out[1] = MkIntTerm(1+loc->tm_mon);
    out[2] = MkIntTerm(loc->tm_mday);
    out[3] = MkIntTerm(loc->tm_hour);
    out[4] = MkIntTerm(loc->tm_min);
@@ -389,7 +389,7 @@ shell(void)
 
 /* execute a command as a detached process */
 static int
-p_system(void)
+do_system(void)
 {
   char *command = AtomName(AtomOfTerm(ARG1));
   int sys = system(command);
@@ -543,7 +543,7 @@ init_sys(void)
   UserCPredicate("p_environ", p_environ, 2);
   UserCPredicate("exec_command", execute_command, 6);
   UserCPredicate("do_shell", shell, 2);
-  UserCPredicate("do_system", p_system, 2);
+  UserCPredicate("do_system", do_system, 2);
   UserCPredicate("popen", p_popen, 4);
   UserCPredicate("wait", p_wait, 3);
   UserCPredicate("host_name", host_name, 2);
