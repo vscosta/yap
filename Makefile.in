@@ -54,6 +54,7 @@ YAP_EXTRAS=@YAP_EXTRAS@
 # for c_interface.c
 #
 CC=@CC@
+MPI_CC=@MPI_CC@
 CPPFLAGS=@CPPFLAGS@  -I. -I$(srcdir)/H -I$(srcdir)/OPTYap
 CFLAGS= @CFLAGS@ $(YAP_EXTRAS) $(DEFS) $(CPPFLAGS)
 C_INTERF_FLAGS= @C_INTERF_FLAGS@ $(YAP_EXTRAS) $(DEFS) $(CPPFLAGS) -I$(srcdir)/include
@@ -76,7 +77,7 @@ INSTALL_PROGRAM=@INSTALL_PROGRAM@
 M4GENHDRS=$(srcdir)/@M4GENHDRS@
 M4GENABSMI=$(srcdir)/@M4GENABSMI@
 INDENT=@INDENT@
-SHELL=/bin/sh
+SHELL=@SHELL@
 RANLIB=@RANLIB@
 AR=@AR@
 srcdir=@srcdir@
@@ -146,7 +147,7 @@ C_SOURCES= \
 	$(srcdir)/OPTYap/or.cowengine.c $(srcdir)/OPTYap/or.sbaengine.c \
 	$(srcdir)/OPTYap/or.scheduler.c $(srcdir)/OPTYap/or.cut.c \
 	$(srcdir)/OPTYap/tab.tries.c $(srcdir)/OPTYap/tab.suspend.c \
-	$(srcdir)/library/mpi/mpi.c
+	$(srcdir)/library/mpi/mpi.c $(srcdir)/library/mpi/mpe.c
 
 PL_SOURCES= \
 	$(srcdir)/pl/arith.yap $(srcdir)/pl/arrays.yap $(srcdir)/pl/boot.yap \
@@ -170,9 +171,10 @@ ENGINE_OBJECTS = \
 	cdmgr.o cmppreds.o compiler.o computils.o \
 	corout.o dbase.o errors.o eval.o bignum.o \
 	exec.o grow.o heapgc.o index.o init.o  \
-	iopreds.o depth_bound.o mavar.o modules.o mpi.o other.o   \
+	iopreds.o depth_bound.o mavar.o modules.o other.o   \
 	parser.o save.o scanner.o sort.o stdpreds.o sysbits.o tracer.o \
-	unify.o userpreds.o utilpreds.o write.o ypsocks.o ypstdio.o
+	unify.o userpreds.o utilpreds.o write.o ypsocks.o ypstdio.o \
+	mpi.o mpe.o
 
 C_INTERFACE_OBJECTS = \
 	load_foreign.o load_dl.o load_dld.o \
@@ -432,8 +434,10 @@ tab.suspend.o: $(srcdir)/OPTYap/tab.suspend.c
 	$(CC) -c $(CFLAGS) $(srcdir)/OPTYap/tab.suspend.c -o $@
 
 mpi.o: $(srcdir)/library/mpi/mpi.c
-	$(CC) -c $(CFLAGS) $(srcdir)/library/mpi/mpi.c -o $@
+	$(MPI_CC) -c $(CFLAGS) $(srcdir)/library/mpi/mpi.c -o $@
 
+mpe.o: $(srcdir)/library/mpi/mpe.c
+	$(MPI_CC) -c $(CFLAGS) $(srcdir)/library/mpi/mpe.c -o $@
 
 ## CPP'ed files (for macro debugging)
 
@@ -455,7 +459,7 @@ startup: yap $(PL_SOURCES)
 	echo "['$(srcdir)/pl/init.yap']. save_program(startup)." |  @CROSS_SIMULATOR@ ./yap -b $(srcdir)/pl/boot.yap
 
 yap: $(HEADERS) yap.o @YAPLIB@
-	$(CC) $(STANDARD_CFLAGS) $(LDFLAGS) -o yap yap.o @YAPLIB@ $(LIBS)
+	$(MPI_CC) $(STANDARD_CFLAGS) $(LDFLAGS) -o yap yap.o @YAPLIB@ $(LIBS)
 
 libYap.a: $(LIB_OBJECTS)
 	-rm -f libYap.a

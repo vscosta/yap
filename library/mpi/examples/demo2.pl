@@ -23,20 +23,35 @@ calc( From, To, Acc, Res ) :- !,
 
 do(0, Num) :-
 	!,
+	mpe_create_event(Ev1),
+	mpe_create_event(Ev2),
+	format( "Ev1 == ~q, Ev2 == ~q~n", [Ev1,Ev2] ),
+	mpe_create_state(Ev1,Ev2),
+	format( "1 AA~n", [] ),
+	mpe_log(Ev1),
+	format( "2 AA~n", [] ),
 	mpi_bcast( Num, 0 ),
-	format( 'Proc 0: broadcast ~q.~n', [Num] ).
+	format( 'Proc 0: broadcast ~q.~n', [Num] ),
+	mpe_log(Ev2).
 do(Rank, _) :-
 	!,
+	mpe_create_event(Ev1),
+	mpe_create_event(Ev2),
+	format( "Ev1 == ~q, Ev2 == ~q~n", [Ev1,Ev2] ),
+	mpe_log(Ev1),
 	mpi_bcast( Num, 0 ),
-	format( 'Proc ~q: had ~q broadcast from 0.~n', [Rank, Num] ).
+	format( 'Proc ~q: had ~q broadcast from 0.~n', [Rank, Num] ),
+	mpe_log(Ev2).
 
 
 %%
 %% This is the entry point
 %%
 
-start(Num) :-
+start(Msg) :-
 	mpi_open( Rank, NumProc, ProcName ),
 	format( 'Rank: ~q NumProc: ~q, ProcName: ~q~n', [Rank,NumProc,ProcName] ),
-	do( Rank, Num ),
-	format( 'Rank ~q finished!~n', [Rank] ).
+	mpe_open,
+	do(Rank, Msg),
+	format( 'Rank ~q finished!~n', [Rank] ),
+	mpe_close.

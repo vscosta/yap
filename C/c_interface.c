@@ -657,6 +657,9 @@ YapInit(yap_init_args *yap_init)
 #if HAVE_MPI
   InitMPI ();
 #endif
+#if HAVE_MPE
+  InitMPE ();
+#endif
 
   if (yap_init->YapPrologBootFile != NULL) {
     /*

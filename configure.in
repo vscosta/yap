@@ -69,18 +69,31 @@ AC_ARG_WITH(readline,
 	fi,
 	[yap_cv_readline=yes])
 
-AC_ARG_WITH(mpich,
-	[ --with-mpich[=DIR]         use MPICH library in DIR],
+AC_ARG_WITH(mpi,
+	[ --with-mpi[=DIR]           use MPI library in DIR],
 	if test $withval = yes; then
-		yap_cv_mpich=yes
+		yap_cv_mpi=yes
 	elif test $withval = no; then
-		yap_cv_mpich=no
+		yap_cv_mpi=no
 	else
-		yap_cv_mpich=$with_mpich
-		LDFLAGS="$LDFLAGS -L${yap_cv_mpich}/lib"
-		CPPFLAGS="$CPPFLAGS -I${yap_cv_mpich}/include"
+		yap_cv_mpi=$with_mpi
+		LDFLAGS="$LDFLAGS -L${yap_cv_mpi}/lib"
+		CPPFLAGS="$CPPFLAGS -I${yap_cv_mpi}/include"
 	fi,
-	[yap_cv_mpich=yes])
+	[yap_cv_mpi=yes])
+
+AC_ARG_WITH(mpe,
+	[ --with-mpe[=DIR]           use MPE library in DIR],
+	if test $withval = yes; then
+		yap_cv_mpe=yes
+	elif test $withval = no; then
+		yap_cv_mpe=no
+	else
+		yap_cv_mpe=$with_mpe
+		LDFLAGS="$LDFLAGS -L${yap_cv_mpe}/lib"
+		CPPFLAGS="$CPPFLAGS -I${yap_cv_mpe}/include"
+	fi,
+	[yap_cv_mpe=yes])
 
 AC_ARG_WITH(heap-space,
 	[ --with-heap-space[=space]  default heap size in Kbytes],
@@ -216,9 +229,11 @@ dnl Checks for programs.
 AC_PROG_LN_S
 AC_PROG_INSTALL
 AC_PROG_RANLIB
-AC_CHECK_TOOL(INDENT,indent,true)
-AC_CHECK_TOOL(AR,ar,true)
+AC_CHECK_TOOL(INDENT,indent,:)
+AC_CHECK_TOOL(AR,ar,:)
+AC_CHECK_TOOL(MPI_CC,mpicc,:)
 AC_PATH_PROG(INSTALL_INFO,install-info,true,$PATH:/sbin:/usr/sbin:/usr/etc:/usr/local/sbin)
+AC_PATH_PROG(SHELL,sh)
 
 AC_SUBST(INSTALL_COMMAND)
 AC_SUBST(CROSS_SIMULATOR)
@@ -262,14 +277,38 @@ if test "$yap_cv_gmp" != "no"
 then
   AC_CHECK_LIB(gmp,main)
 fi
-if test "$yap_cv_mpich" != "no"
+
+if test "$yap_cv_mpi" != "no"
 then
-  AC_CHECK_LIB(mpich,MPI_Init)
-  if test "$ac_cv_lib_mpich_MPI_Init" = yes
+  OLD_CC=${CC}
+  CC=${MPI_CC}
+  AC_CHECK_LIB(mpi,MPI_Init)
+  if test "$ac_cv_lib_mpi_MPI_Init" = yes
   then
+	#LIBS="$LIBS -lpmpich"
+	YAPMPILIB=YapMPI.a
+  else
+    AC_CHECK_LIB(mpich,MPI_Init)
+    if test "$ac_cv_lib_mpi_MPI_Init" = yes
+    then
 	LIBS="$LIBS -lpmpich"
+	YAPMPILIB=YapMPI.a
+    else
+	YAPMPILIB=
+    fi
   fi
+  CC=${OLD_CC}
 fi
+
+if test "$yap_cv_mpe" != "no"
+then
+  OLD_CC=${CC}
+  CC=${MPI_CC}
+  AC_CHECK_LIB(mpe,MPE_Init_log)
+  CC=${OLD_CC}
+fi
+
+AC_SUBST(YAPMPILIB)
 
 AC_PROG_CPP
 
@@ -755,10 +794,11 @@ fi
 
 mkdir -p  library/regex
 mkdir -p  library/system
+mkdir -p  library/mpi
 mkdir -p  CHR
 mkdir -p  CLPQR
 
-AC_OUTPUT(Makefile library/regex/Makefile library/system/Makefile  library/random/Makefile .depend library/Makefile CHR/Makefile CLPQR/Makefile)
+AC_OUTPUT(Makefile library/regex/Makefile library/system/Makefile library/random/Makefile library/mpi/Makefile .depend library/Makefile CHR/Makefile CLPQR/Makefile)
 
 make depend
 

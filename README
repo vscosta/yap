@@ -13,7 +13,7 @@ Yap is and for instructions on how to build it.
 
 YAP 4.2 is known to build with many versions of gcc (<= gcc-2.7.2, >=
 gcc-2.8.1, >= egcs-1.0.1, gcc-2.95.*) and on a variety of Unix'es:
-SunOS 4.1, Solaris 2.*, Irix 5.2, HP-UX 10, Dec Alpha Unix, Linux 1.2
+SunOS 4.1, Solaris 2.*, Irix 5.2, HP-UX 10.20, Dec Alpha Unix, Linux 1.2
 and Linux 2.* (RedHat 4.0 through 5.2, Debian 2.*) in both the x86 and
 alpha platforms. It has been built on Windows NT 4.0 using Cygwin from
 Cygnus Solutions (see README.cygwin) and using Visual C++ 6.0.
@@ -31,9 +31,9 @@ distribute these packages.
 
 If you have a question about this software, desire to add code, found
 a bug, want to request a feature, or wonder how to get further
-assistance, please send e-mail to yappers@ncc.up.pt.  To subscribe to
-the mailing list, send a request to majordomo@ncc.up.pt with body
-"subscribe yappers".
+assistance, please send e-mail to yap-users@lists.sourceforge.net. To
+subscribe to the mailing list or access the list archives, please see
+http://lists.sourceforge.net/lists/listinfo/yap-users
 
 Online documentation is available for Yap at:
 
@@ -88,10 +88,11 @@ To compile YAP just do:
 
  (7) Happy? make install
 
- (8) "make install-info" will create the info files in the standard info directory.
+ (8) "make install_info" will create the info files in the standard
+     info directory.
 
  (9) "make html" will create documentation in html format in the
-current directory.
+     current directory.
 
 In most systems you will need to be superuser in order to do "make
 install" and "make info" on the standard directories.

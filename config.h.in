@@ -12,14 +12,26 @@
 #undef HAVE_LIBGMP
 
 /* What MPI libraries are there? */
-#undef HAVE_LIBMPICH
+#define HAVE_LIBMPI 0
+#define HAVE_LIBMPICH 0
 
 /* Should we use MPI ? */
-#if HAVE_LIBMPICH
+#if HAVE_LIBMPI
  #define HAVE_MPI 1
 #else
  #define HAVE_MPI 0
 #endif
+
+/* Is there an MPE library? */
+#define HAVE_LIBMPE 0
+
+/* Should we use MPE ? */
+#if HAVE_LIBMPE &&  HAVE_MPI
+ #define HAVE_MPE 1
+#else
+ #define HAVE_MPE 0
+#endif
+
 
 /* does the compiler support inline ? */
 #undef inline

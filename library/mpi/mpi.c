@@ -9,14 +9,14 @@
 **************************************************************************
 *									 *
 * File:		mpi.c  							 *
-* Last rev:	$Date: 2002-02-12 17:35:41 $				 *
+* Last rev:	$Date: 2002-02-22 14:31:45 $				 *
 * mods:									 *
 * comments:	Interface to an MPI library                              *
 *									 *
 *************************************************************************/
 
 #ifndef lint
-static char *rcsid = "$Header: /Users/vitor/Yap/yap-cvsbackup/library/mpi/mpi.c,v 1.2 2002-02-12 17:35:41 stasinos Exp $";
+static char *rcsid = "$Header: /Users/vitor/Yap/yap-cvsbackup/library/mpi/mpi.c,v 1.3 2002-02-22 14:31:45 stasinos Exp $";
 #endif
 
 #include "Yap.h"
@@ -173,13 +173,14 @@ mpi_parse(void)
 static Int
 p_mpi_open(void)         /* mpi_open(?rank, ?num_procs, ?proc_name) */
 {
-  Term t_rank = ARG1, t_numprocs = ARG2, t_name = ARG3;
+  Term t_rank = Deref(ARG1), t_numprocs = Deref(ARG2), t_procname = Deref(ARG3);
+  Int retv;
 
-  unify( MkIntTerm(rank), t_rank );
-  unify( MkIntTerm(numprocs), t_numprocs );
-  unify( MkAtomTerm(LookupAtom(processor_name)), t_name );
+  retv = unify(t_rank, MkIntTerm(rank));
+  retv = retv && unify(t_numprocs, MkIntTerm(numprocs));
+  retv = retv && unify(t_procname, MkAtomTerm(LookupAtom(processor_name)));
 
-  return TRUE;
+  return retv;
 }
 
 
@@ -280,9 +281,10 @@ p_mpi_receive()          /* mpi_receive(-data, ?orig, ?tag) */
 
   /* NULL-terminate the string and add the ". " termination
      required by the parser. */
-  buf[status.count] = 0;
+  MPI_Get_count( &status, MPI_CHAR, &buflen );
+  buf[buflen] = 0;
   strcat( buf, ". " );
-  buflen = status.count + 2;
+  buflen += 2;
   bufptr = 0;
 
   /* parse received string into a Prolog term */
@@ -388,11 +390,11 @@ InitMPI(void)
   MPI_Comm_rank( MPI_COMM_WORLD, &rank );
   MPI_Get_processor_name( processor_name, &namelen );
 
-  InitCPred( "mpi_open", 3, p_mpi_open, SafePredFlag );
+  InitCPred( "mpi_open", 3, p_mpi_open, /*SafePredFlag|SyncPredFlag*/ 0 );
   InitCPred( "mpi_close", 0, p_mpi_close, SafePredFlag );
   InitCPred( "mpi_send", 3, p_mpi_send, SafePredFlag );
-  InitCPred( "mpi_receive", 3, p_mpi_receive, SafePredFlag );
-  InitCPred( "mpi_bcast", 2, p_mpi_bcast, SafePredFlag );
+  InitCPred( "mpi_receive", 3, p_mpi_receive, SyncPredFlag );
+  InitCPred( "mpi_bcast", 2, p_mpi_bcast, SyncPredFlag );
 }
 
 #endif /* HAVE_MPI */
