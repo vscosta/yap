@@ -404,6 +404,33 @@ yap_flag(single_var_warnings,X) :-
 yap_flag(single_var_warnings,X) :-
 	'$do_error'(domain_error(flag_value,single_var_warnings+X),yap_flag(single_var_warnings,X)).
 
+yap_flag(single_var_warnings,X) :-
+	var(X), !,
+	('$syntax_check_mode'(on,_), '$syntax_check_single_var'(on,_) ->
+	    X = on
+	;
+	    X = off
+	).
+yap_flag(system_options,X) :-
+	'$system_options'(X).
+
+'$system_options'(coroutining) :-
+	'$yap_has_coroutining'.
+'$system_options'(depth_limit) :-
+	\+ '$undefined'(get_depth_limit(_), prolog).
+'$system_options'(low_level_tracer) :-
+	\+ '$undefined'(start_low_level_trace, prolog).
+'$system_options'(or_parallelism) :-
+	\+ '$undefined'('$yapor_on', prolog).
+'$system_options'(rational_trees) :-
+	'$yap_has_rational_trees'.
+'$system_options'(tabling) :-
+	\+ '$undefined'('$do_table'(_,_), prolog).
+'$system_options'(threads) :-
+	\+ '$no_threads'.
+'$system_options'(wam_profiler) :-
+	\+ '$undefined'(reset_op_counters, prolog).
+	
 yap_flag(unknown,X) :-
 	var(X), !,
 	unknown(X,_).
@@ -565,6 +592,7 @@ yap_flag(host_type,X) :-
 	    V = strict_iso ;
 	    V = stack_dump_on_error ;
 	    V = syntax_errors ;
+	    V = system_options ;
 	    V = to_chars_mode ;
 	    V = toplevel_hook ;
 	    V = toplevel_print_options ;

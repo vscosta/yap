@@ -10,7 +10,7 @@
 * File:		Yap.proto						 *
 * mods:									 *
 * comments:	Function declarations for YAP				 *
-* version:      $Id: Yapproto.h,v 1.49 2004-03-02 16:44:58 vsc Exp $	 *
+* version:      $Id: Yapproto.h,v 1.50 2004-03-04 18:33:33 vsc Exp $	 *
 *************************************************************************/
 
 /* prototype file for Yap */
@@ -284,9 +284,7 @@ int	STD_PROTO(Yap_ProcessSIGINT,(void));
 double  STD_PROTO(Yap_random, (void));
 
 /* threads.c */
-#ifdef THREADS
 void   STD_PROTO(Yap_InitThreadPreds,(void));
-#endif /* ANALYST */
 
 /* tracer.c */
 #ifdef LOW_LEVEL_TRACER

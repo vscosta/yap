@@ -6460,6 +6460,14 @@ Report the syntax error and generate an error.
 Just fail
 @end table
 
+@item system_options
+@findex system_options (yap_flag/2 option)
+@* This read only flag tells which options were used to compile
+Yap. Currently it informs whether the system supports
+@code{coroutining}, @code{depth_limit}, the @code{low_level_tracer},
+@code{or-parallelism}, @code{rational_trees}, @code{tabling},
+@code{threads}, or the @code{wam_profiler}.
+
 @item to_chars_mode
 @findex to_chars_modes (yap_flag/2 option)
 @* Define whether YAP should follow @code{quintus}-like

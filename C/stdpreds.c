@@ -2796,9 +2796,7 @@ Yap_InitCPreds(void)
 #if defined(YAPOR) || defined(TABLING)
   Yap_init_optyap_preds();
 #endif /* YAPOR || TABLING */
-#ifdef THREADS
   Yap_InitThreadPreds();
-#endif /* ANALYST */
   {
     void            (*(*(p))) (void) = E_Modules;
     while (*p)

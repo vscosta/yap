@@ -1220,8 +1220,28 @@ Yap_WakeUp(CELL *pt0) {
 }
 #endif
 
+static Int
+p_yap_has_rational_trees(void)
+{
+#if RATIONAL_TREES
+  return TRUE;
+#else
+  return FALSE;
+#endif
+}
 
-void Yap_InitCoroutPreds(void)
+static Int
+p_yap_has_coroutining(void)
+{
+#if COROUTINING
+  return TRUE;
+#else
+  return FALSE;
+#endif
+}
+
+void
+Yap_InitCoroutPreds(void)
 {
 #ifdef COROUTINING
   Atom            at;
@@ -1237,6 +1257,8 @@ void Yap_InitCoroutPreds(void)
   WakeUpCode = pred;
   Yap_InitAttVarPreds();
 #endif /* COROUTINING */
+  Yap_InitCPred("$yap_has_rational_trees", 0, p_yap_has_rational_trees, SafePredFlag);
+  Yap_InitCPred("$yap_has_coroutining", 0, p_yap_has_coroutining, SafePredFlag);
   Yap_InitCPred("$read_svar_list", 2, p_read_svar_list, SafePredFlag);
   Yap_InitCPred("$set_svar_list", 2, p_set_svar_list, SafePredFlag);
   Yap_InitCPred("$freeze", 2, p_freeze, 0);
