@@ -524,9 +524,10 @@ InitCPred(char *Name, int Arity, CPredicate code, int flags)
     p_code->opc = pe->OpcodeOfPred = opcode(_call_usercpred);
   else
     p_code->opc = pe->OpcodeOfPred = opcode(_call_cpred);
-  p_code->u.sla.l2 = (CELL)NIL;
+  p_code->u.sla.l2 = NULL;
   p_code->u.sla.s = -Signed(RealEnvSize);
-  p_code->u.sla.p = (CODEADDR)pe;
+  p_code->u.sla.p = pe;
+  p_code->u.sla.p0 = pe;
   p_code = NEXTOP(p_code,sla);
   p_code->opc = opcode(_procceed);
   { 
@@ -556,9 +557,9 @@ InitCmpPred(char *Name, int Arity, CmpPredicate cmp_code, CPredicate code, int f
   pe->CodeOfPred = pe->FirstClause = pe->LastClause = (CODEADDR) p_code;
   pe->ModuleOfPred = CurrentModule;
   p_code->opc = pe->OpcodeOfPred = opcode(_call_cpred);
-  p_code->u.sla.l2 = (CELL)NIL;
+  p_code->u.sla.l2 = NULL;
   p_code->u.sla.s = -Signed(RealEnvSize);
-  p_code->u.sla.p = (CODEADDR)pe;
+  p_code->u.sla.p = p_code->u.sla.p0 = pe;
   p_code = NEXTOP(p_code,sla);
   p_code->opc = opcode(_procceed);
   c_predicates[NUMBER_OF_CPREDS] = code;
@@ -588,9 +589,9 @@ InitAsmPred(char *Name,  int Arity, int code, CPredicate def, int flags)
     pe->CodeOfPred = pe->FirstClause = pe->LastClause = (CODEADDR) p_code;
     pe->ModuleOfPred = CurrentModule;
     p_code->opc = pe->OpcodeOfPred = opcode(_call_cpred);
-    p_code->u.sla.l2 = (CELL)NIL;
+    p_code->u.sla.l2 = NULL;
     p_code->u.sla.s = -Signed(RealEnvSize);
-    p_code->u.sla.p = (CODEADDR)pe;
+    p_code->u.sla.p = p_code->u.sla.p0 = pe;
     p_code = NEXTOP(p_code,sla);
     p_code->opc = opcode(_procceed);
     c_predicates[NUMBER_OF_CPREDS] = def;
@@ -792,12 +793,22 @@ InitCodes(void)
   heap_regs->failcode_5 = opcode(_op_fail);
   heap_regs->failcode_6 = opcode(_op_fail);
   
+  heap_regs->env_for_trustfail_code.op = opcode(_call);
+  heap_regs->env_for_trustfail_code.s = -Signed(RealEnvSize);
+  heap_regs->env_for_trustfail_code.l = NULL;
+  heap_regs->env_for_trustfail_code.l2 = NULL;
+  heap_regs->env_for_trustfail_code.p =
+    heap_regs->env_for_trustfail_code.p0 =
+    RepPredProp(PredPropByAtom(LookupAtom("false"),0));
   heap_regs->trustfailcode = opcode(_trust_fail);
 
   heap_regs->env_for_yes_code.op = opcode(_call);
   heap_regs->env_for_yes_code.s = -Signed(RealEnvSize);
   heap_regs->env_for_yes_code.l = NULL;
   heap_regs->env_for_yes_code.l2 = NULL;
+  heap_regs->env_for_yes_code.p =
+    heap_regs->env_for_yes_code.p0 =
+    RepPredProp(PredPropByAtom(LookupAtom("true"),0));
   heap_regs->yescode = opcode(_Ystop);
   heap_regs->undef_op = opcode(_undef_p);
   heap_regs->index_op = opcode(_index_pred);

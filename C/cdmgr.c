@@ -1135,8 +1135,8 @@ init_consult(int mode, char *file)
   ConsultSp->c = (ConsultBase-ConsultSp);
   ConsultBase = ConsultSp;
 #if !defined(YAPOR) && !defined(SBA)
-  if (consult_level == 0)
-    do_toggle_static_predicates_in_use(TRUE);
+  /*  if (consult_level == 0)
+      do_toggle_static_predicates_in_use(TRUE); */
 #endif
   consult_level++;
 }
@@ -1187,8 +1187,8 @@ end_consult(void)
   ConsultSp += 3;
   consult_level--;
 #if !defined(YAPOR) && !defined(SBA)
-  if (consult_level == 0)
-    do_toggle_static_predicates_in_use(FALSE);
+  /*  if (consult_level == 0)
+      do_toggle_static_predicates_in_use(FALSE);*/
 #endif
 }
 
@@ -1749,9 +1749,9 @@ search_for_static_predicate_in_use(PredEntry *p, int check_everything)
 	  continue;
 	}
 #ifdef YAPOR
-	pe = PredFromOr(b_ptr->cp_cp->u.ldl.bl);
+	pe = b_ptr->cp_cp->u.ldl.p;
 #else
-	pe = PredFromOr(b_ptr->cp_cp->u.sla.l2);
+	pe = b_ptr->cp_cp->u.sla.p0;
 #endif /* YAPOR */
 	break;
       case _retry_profiled:
@@ -1797,6 +1797,18 @@ mark_pred(int mark, PredEntry *pe)
   }
 }
 
+#ifndef ANALYST
+
+static char *op_names[_std_top + 1] =
+{
+#define OPCODE(OP,TYPE) #OP
+#include "YapOpcodes.h"
+#undef  OPCODE
+};
+
+#endif
+
+
 /* go up the chain of choice_points and environments,
    marking all static predicates that current execution is depending 
    upon */
@@ -1808,13 +1820,72 @@ do_toggle_static_predicates_in_use(int mask)
 
   if (b_ptr == NULL)
     return;
+  {
+    op_numbers opnum;
+    register OPCODE op;
+    op = b_ptr->cp_ap->opc;
+    opnum = op_from_opcode(op);
+    if (1) {
+      switch (opnum) {
+      case _or_else:
+      case _or_last:
+      case _Nstop:
+      case _switch_last:
+      case _switch_l_list:
+      case _retry_c:
+      case _retry_userc:
+      case _trust_logical_pred:
+      case _retry_profiled:
+	{
+	  Atom at;
+	  Int arity;
+	  SMALLUNSGN mod;
+	  if (PredForCode((CODEADDR)b_ptr->cp_ap, &at, &arity, &mod)) {
+	    if (arity) 
+	      YP_fprintf(YP_stderr,"CP       %s/%d (%s)\n", RepAtom(at)->StrOfAE, arity, op_names[opnum]);
+	    else
+	      YP_fprintf(YP_stderr,"CP       %s (%s)\n", RepAtom(at)->StrOfAE, op_names[opnum]);
+	  } else
+	    YP_fprintf(YP_stderr,"CP      (%s)\n", op_names[opnum]);
+	}
+	break;
+      default:
+	{
+	  PredEntry *pe = (PredEntry *)b_ptr->cp_ap->u.ld.p;
+	  if (pe == NULL) {
+	    YP_fprintf(YP_stderr,"CP       (%s)\n", op_names[opnum]);
+	  } else
+	    if (pe->ArityOfPE)
+	      YP_fprintf(YP_stderr,"CP       %s/%d (%s)\n", RepAtom(NameOfFunctor(pe->FunctorOfPred))->StrOfAE, pe->ArityOfPE, op_names[opnum]);
+	    else
+	      YP_fprintf(YP_stderr,"CP       %d (%s)\n", RepAtom((Atom)(pe->FunctorOfPred))->StrOfAE, op_names[opnum]);
+	}
+      }
+    }
+  }
+
   do {
     PredEntry *pe;
     /* check first environments that are younger than our latest choicepoint */
     while (b_ptr > (choiceptr)env_ptr) {
       PredEntry *pe = EnvPreg(env_ptr[E_CP]);
-      if (pe != NULL)
+      
+      if (pe != NULL && FALSE) {
+	op_numbers op = op_from_opcode(ENV_ToOp(env_ptr[E_CP]));
+	if (pe->ArityOfPE)
+	  YP_fprintf(YP_stderr,"ENV %p  %s/%d %s\n", env_ptr, RepAtom(NameOfFunctor(pe->FunctorOfPred))->StrOfAE, pe->ArityOfPE, op_names[op]);
+	else
+	  YP_fprintf(YP_stderr,"ENV %p  %s %s\n", env_ptr, RepAtom((Atom)(pe->FunctorOfPred))->StrOfAE, op_names[op]);
+	if (env_ptr == 0x21d0b24) {
+	  CELL *next_ee = (CELL *)(env_ptr[E_E]);
+	  do {
+	    YP_fprintf(YP_stderr,"looking for parent %p with CP %x value %x\n", next_ee, next_ee[E_CP], EnvPreg(next_ee[E_CP]));
+	    next_ee = (CELL *)(next_ee[E_E]);
+	   } while (next_ee != 0x21d0f28);
+	}
+
 	mark_pred(mask, pe);
+      }
       env_ptr = (CELL *)(env_ptr[E_E]);
     }
     /* now mark the choicepoint */
@@ -1827,9 +1898,9 @@ do_toggle_static_predicates_in_use(int mask)
       case _or_else:
       case _or_last:
 #ifdef YAPOR
-	pe = PredFromOr(b_ptr->cp_cp->u.ldl.bl);
+	pe = b_ptr->cp_cp->u.ldl.p;
 #else
-	pe = PredFromOr(b_ptr->cp_cp->u.sla.l2);
+	pe = b_ptr->cp_cp->u.sla.p0;
 #endif /* YAPOR */
 	break;
       case _Nstop:

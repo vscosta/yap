@@ -151,7 +151,7 @@ DumpActiveGoals (void)
 #ifdef YAPOR
 	pe = PredFromOr(b_ptr->cp_cp->u.ldl.bl);
 #else
-	pe = PredFromOr(b_ptr->cp_cp->u.sla.l2);
+	pe = b_ptr->cp_cp->u.sla.p0;
 #endif /* YAPOR */
 	break;
       case _retry_profiled:
@@ -199,6 +199,7 @@ exit_yap (int value)
   ShutdownLoadForeign();
   exit(value);
 }
+
 
 static void
 detect_bug_location(char *tp, int psize)
@@ -287,6 +288,21 @@ detect_bug_location(char *tp, int psize)
 #endif
   }
 }
+
+#ifdef DEBUG
+
+#include <stdio.h>
+
+void
+bug_location(yamop *pc)
+{
+  yamop *oldp = pc;
+  P = pc;
+  detect_bug_location((char *)H, 256);
+  P = oldp;
+  fprintf(stderr,"%s\n",(char *)H);
+}
+#endif
 
 /* This needs to be a static because I can't trust the stack (WIN32), and
    I can't trust the Yap stacks  (error) */

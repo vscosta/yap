@@ -3191,7 +3191,7 @@ find_next_clause(DBRef ref0)
 static Int
 jump_to_next_dynamic_clause(void)
 {
-  DBRef ref = (DBRef)(DBRef)(((yamop *)((CODEADDR)P-(CELL)NEXTOP((yamop *)NIL,sla)))->u.sla.l2);
+  DBRef ref = (DBRef)(((yamop *)((CODEADDR)P-(CELL)NEXTOP((yamop *)NIL,sla)))->u.sla.l2);
   yamop *newp = find_next_clause(ref);
   
   if (newp == (yamop *)NULL) {
@@ -3493,7 +3493,7 @@ PrepareToEraseClause(Clause *clau, DBRef dbr)
      out  what is the next clause, if there is one */
   code_p->opc = opcode(_call_cpred);
   code_p->u.sla.l = (CODEADDR)(&jump_to_next_dynamic_clause);
-  code_p->u.sla.l2 = (CODEADDR)(dbr);
+  code_p->u.sla.l2 = (CELL *)(dbr);
 #endif /* DISCONNECT_OLD_ENTRIES */
 }
 
@@ -3881,9 +3881,10 @@ ReleaseTermFromDB(DBRef ref)
 }
 
 DBRef
-StoreTermInDB(Term t, int nargs)
+StoreTermInDB(int arg, int nargs)
 {
   DBRef x;
+  Term t = Deref(XREGS[arg]);
 
   while ((x = CreateDBStruct(t, (DBProp)NIL,
 			  InQueue)) == NULL) {
@@ -3897,8 +3898,10 @@ StoreTermInDB(Term t, int nargs)
       if (!gc(nargs, ENV, P)) {
 	Error(SYSTEM_ERROR, TermNil, "YAP could not grow stack in enqueue/2");
 	return(FALSE);
-      } else
+      } else {
+	t = Deref(XREGS[arg]);
 	break;
+      }
     case TOVF_ERROR_IN_DB:
       Error(SYSTEM_ERROR, TermNil, "YAP could not grow trail in recorda/3");
       return(FALSE);
@@ -3906,8 +3909,10 @@ StoreTermInDB(Term t, int nargs)
       if (!growheap(FALSE)) {
 	Error(SYSTEM_ERROR, TermNil, "YAP could not grow heap in enqueue/2");
 	return(FALSE);
-      } else
+      } else {
+	t = Deref(XREGS[arg]);
 	break;
+      }
     default:
       Error(DBErrorNumber, DBErrorTerm, DBErrorMsg);
       return(FALSE);
@@ -3962,7 +3967,7 @@ p_enqueue(void)
     return(FALSE);
   } else
     father_key = (db_queue *)DBRefOfTerm(Father);
-  x = StoreTermInDB(Deref(ARG2), 2);
+  x = StoreTermInDB(2, 2);
   x->Parent = NULL;
   WRITE_LOCK(father_key->QRWLock);
   if (father_key->LastInQueue != NULL)

@@ -1533,7 +1533,7 @@ p_assign_static(void)
       if (ref != NULL) {
 	ReleaseTermFromDB(ref);
       }
-      ptr->ValueOfVE.terms[indx] = StoreTermInDB(t3,3);
+      ptr->ValueOfVE.terms[indx] = StoreTermInDB(3,3);
     }
     break;
   }

@@ -257,7 +257,7 @@ p_bb_put(void)
   if (p->Element != NULL) {
     ReleaseTermFromDB(p->Element);
   }
-  p->Element = StoreTermInDB(Deref(ARG2),3);
+  p->Element = StoreTermInDB(2,2);
   WRITE_UNLOCK(p->BBRWLock);
   return(p->Element != NULL);
 }
@@ -312,7 +312,7 @@ p_bb_update(void)
   }
 
   ReleaseTermFromDB(p->Element);
-  p->Element = StoreTermInDB(Deref(ARG3),3);
+  p->Element = StoreTermInDB(3,3);
 
   WRITE_UNLOCK(p->BBRWLock);
   return(TRUE);

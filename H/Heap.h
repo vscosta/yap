@@ -10,7 +10,7 @@
 * File:		Heap.h         						 *
 * mods:									 *
 * comments:	Heap Init Structure					 *
-* version:      $Id: Heap.h,v 1.23 2002-01-30 03:49:50 vsc Exp $	 *
+* version:      $Id: Heap.h,v 1.24 2002-02-26 15:51:54 vsc Exp $	 *
 *************************************************************************/
 
 /* information that can be stored in Code Space */
@@ -53,6 +53,19 @@ typedef struct various_codes {
   OPCODE failcode_4;
   OPCODE failcode_5;
   OPCODE failcode_6;
+  struct {
+    OPCODE op;
+#ifdef YAPOR
+    COUNT             ltt;
+    COUNT             cut;
+    COUNT             seq;
+#endif /* YAPOR */
+    COUNT s;
+    CODEADDR l;
+    CELL *l2;
+    struct pred_entry *p;
+    struct pred_entry *p0;
+  } env_for_trustfail_code; /* sla */
   OPCODE trustfailcode;
   struct {
     OPCODE op;
@@ -63,8 +76,9 @@ typedef struct various_codes {
 #endif /* YAPOR */
     COUNT s;
     CODEADDR l;
-    CODEADDR l2;
-    CODEADDR p;
+    CELL *l2;
+    struct pred_entry *p;
+    struct pred_entry *p0;
   } env_for_yes_code; /* sla */
   OPCODE yescode;
 #ifdef YAPOR

@@ -1748,25 +1748,21 @@ RestoreClause(Clause *Cl)
     case _or_last:
 #endif
       pc->u.sla.l = CodeAddrAdjust(pc->u.sla.l);
-      if (pc->u.sla.l2 != NIL) {
-	CELL *p;
-	p = (CELL *)(pc->u.sla.l2 = CodeAddrAdjust(pc->u.sla.l2));
-	/* restore entry to predicate from bitmap */
-	p[0] = (CELL)PtoPredAdjust((PredEntry *)(p[0]));
+      if (pc->u.sla.l2 != NULL) {
+	pc->u.sla.l2 = CellPtoHeapAdjust(pc->u.sla.l2);
       }
-      pc->u.sla.p = CodeAddrAdjust(pc->u.sla.p);
+      pc->u.sla.p = PtoPredAdjust(pc->u.sla.p);
+      pc->u.sla.p0 = PtoPredAdjust(pc->u.sla.p0);
       pc = NEXTOP(pc,sla);
       break;
       /* instructions type sla, but for functions */
     case _call_cpred:
     case _call_usercpred:
-      pc->u.sla.p = CodeAddrAdjust(pc->u.sla.p);
+      pc->u.sla.p = PtoPredAdjust(pc->u.sla.p);
+      pc->u.sla.p0 = PtoPredAdjust(pc->u.sla.p0);
       pc->u.sla.l = CCodeAdjust((PredEntry *)(pc->u.sla.p));
-      if (pc->u.sla.l2 != NIL) {
-	CELL *p;
-	p = (CELL *)(pc->u.sla.l2 = CodeAddrAdjust(pc->u.sla.l2));
-	/* restore entry to predicate from bitmap */
-	p[0] = (CELL)PtoPredAdjust((PredEntry *)(p[0]));
+      if (pc->u.sla.l2 != NULL) {
+	pc->u.sla.l2 = CellPtoHeapAdjust(pc->u.sla.l2);
       }
       pc = NEXTOP(pc,sla);
       break;

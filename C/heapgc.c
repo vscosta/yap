@@ -576,6 +576,17 @@ init_dbtable(tr_fr_ptr trail_ptr) {
 
 /* #define INSTRUMENT_GC 1 */
 
+#ifndef ANALYST
+
+static char *op_names[_std_top + 1] =
+{
+#define OPCODE(OP,TYPE) #OP
+#include "YapOpcodes.h"
+#undef  OPCODE
+};
+
+#endif
+
 #ifdef INSTRUMENT_GC
 typedef enum {
   gc_var,
@@ -1078,6 +1089,17 @@ mark_environments(CELL_PTR gc_ENV, OPREG size, CELL *pvbmap)
     
     size = EnvSize((CELL_PTR) (gc_ENV[E_CP]));	/* size = EnvSize(CP) */
     pvbmap = EnvBMap((CELL_PTR) (gc_ENV[E_CP]));
+#if 1
+      if (size < 0) {
+	PredEntry *pe = EnvPreg(gc_ENV[E_CP]);
+	op_numbers op = op_from_opcode(ENV_ToOp(gc_ENV[E_CP]));
+	YP_fprintf(YP_stderr,"ENV %p-%p(%d) %s\n", gc_ENV, pvbmap, size-EnvSizeInCells, op_names[op]);
+	if (pe->ArityOfPE)
+	  YP_fprintf(YP_stderr,"   %s/%d\n", RepAtom(NameOfFunctor(pe->FunctorOfPred))->StrOfAE, pe->ArityOfPE);
+	else
+	  YP_fprintf(YP_stderr,"   %s\n", RepAtom((Atom)(pe->FunctorOfPred))->StrOfAE);
+      }
+#endif
     gc_ENV = (CELL_PTR) gc_ENV[E_E];	/* link to prev
 					 * environment */
   }
@@ -1272,17 +1294,6 @@ mark_trail(tr_fr_ptr trail_ptr, tr_fr_ptr trail_base, CELL *gc_H, choiceptr gc_B
 #endif /* TABLING_SCHEDULING */
 #endif
 
-#ifndef ANALYST
-
-static char *op_names[_std_top + 1] =
-{
-#define OPCODE(OP,TYPE) #OP
-#include "YapOpcodes.h"
-#undef  OPCODE
-};
-
-#endif
-
 
 static void 
 mark_choicepoints(register choiceptr gc_B, tr_fr_ptr saved_TR, int very_verbose)
@@ -1383,10 +1394,10 @@ mark_choicepoints(register choiceptr gc_B, tr_fr_ptr saved_TR, int very_verbose)
       mark_environments((CELL_PTR) (gc_B->cp_a1),
 #ifdef YAPOR
 			-gc_B->cp_cp->u.ldl.s / ((OPREG)sizeof(CELL)),
-			EnvBMapOffset((CELL *)(gc_B->cp_cp->u.ldl.bl))
+			(CELL *)(gc_B->cp_cp->u.ldl.bl)
 #else
 			-gc_B->cp_cp->u.sla.s / ((OPREG)sizeof(CELL)),
-			  EnvBMapOffset((CELL *)(gc_B->cp_cp->u.sla.l2))
+			  gc_B->cp_cp->u.sla.l2
 #endif
 			);
     } else {
@@ -1942,10 +1953,10 @@ sweep_choicepoints(choiceptr gc_B)
       sweep_environments((CELL_PTR)(gc_B->cp_a1),
 #ifdef YAPOR
 			 -gc_B->cp_cp->u.ldl.s / ((OPREG)sizeof(CELL)),
-			 EnvBMapOffset((CELL *)(gc_B->cp_cp->u.ldl.bl))
+			 (CELL *)(gc_B->cp_cp->u.ldl.bl)
 #else
 			 -gc_B->cp_cp->u.sla.s / ((OPREG)sizeof(CELL)),
-			 EnvBMapOffset((CELL *)(gc_B->cp_cp->u.sla.l2))
+			 gc_B->cp_cp->u.sla.l2
 #endif
 			 );
       break;

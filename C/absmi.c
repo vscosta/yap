@@ -5671,7 +5671,7 @@ absmi(int inp)
 #endif /* FROZEN_REGS */
 #ifdef LOW_LEVEL_TRACER
       if (do_low_level_trace)
-	low_level_trace(enter_pred,(PredEntry *)(PREG->u.sla.p),XREGS+1);
+	low_level_trace(enter_pred,PREG->u.sla.p,XREGS+1);
 #endif	/* LOW_LEVEL_TRACE */
       BEGD(d0);
       d0 = (CELL) (PREG->u.sla.l);
@@ -5711,15 +5711,15 @@ absmi(int inp)
 #endif /* FROZEN_REGS */
 #ifdef LOW_LEVEL_TRACER
       if (do_low_level_trace)
-	low_level_trace(enter_pred,(PredEntry *)(PREG->u.sla.p),XREGS+1);
+	low_level_trace(enter_pred,PREG->u.sla.p,XREGS+1);
 #endif	/* LOW_LEVEL_TRACE */
       {
-	CODEADDR p = PREG->u.sla.p;
+	PredEntry *p = PREG->u.sla.p;
 	PREG = NEXTOP(PREG, sla);
 	saveregs();
 	save_machine_regs();
 
-	SREG = (CELL *) YapExecute((CPredicate)(((PredEntry *)p)->TrueCodeOfPred));
+	SREG = (CELL *) YapExecute((CPredicate)(p->TrueCodeOfPred));
       }
 
       restore_machine_regs();

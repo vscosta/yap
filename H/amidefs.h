@@ -329,10 +329,11 @@ typedef struct yami {
 #endif /* YAPOR */
 	 COUNT               s;
 	 CODEADDR            l;
-	 CODEADDR            l2;
-	 CODEADDR            p;
+	 CELL               *l2;
+	 struct pred_entry  *p;
+         struct pred_entry  *p0;
 	 CELL next;
-       } sla; /* also check env for yes code before making any changes */
+       } sla; /* also check env for yes and trustfail code before making any changes */
        struct {
 	 AREG                x;
 	 CELL next;
@@ -547,11 +548,8 @@ typedef struct choicept {
 #define ENV_ToP(cp)        ((PredEntry *)(((yamop *)((CODEADDR)(cp) - (CELL)NEXTOP((yamop *)NIL,sla)))->u.sla.p))
 #define ENV_ToOp(cp)       (((yamop *)((CODEADDR)(cp) - (CELL)NEXTOP((yamop *)NIL,sla)))->opc)
 #define EnvSize(cp)        ((-ENV_Size(cp))/(OPREG)sizeof(CELL))
-#define EnvPrdBMP(p)       ((CELL *)(((yamop *)((CODEADDR)(p) - (CELL)NEXTOP((yamop *)NIL,sla)))->u.sla.l2))
-#define EnvBMapOffset(p)   ((p)+1)
-#define EnvBMap(p)         EnvBMapOffset(EnvPrdBMP(p))
-#define EnvPreg(p)         ((PredEntry *)(EnvPrdBMP(p) == NIL ? NIL : EnvPrdBMP(p)[0] ))
-#define PredFromOr(p)      ((PredEntry *)(((CELL *)(p))[0] == NIL ? NIL : ((CELL *)(p))[0] ))
+#define EnvBMap(p)         (((yamop *)((CODEADDR)(p) - (CELL)NEXTOP((yamop *)NIL,sla)))->u.sla.l2)
+#define EnvPreg(p)         (((yamop *)((CODEADDR)(p) - (CELL)NEXTOP((yamop *)NIL,sla)))->u.sla.p0)
 
 /* access to instructions */
 

@@ -37,7 +37,7 @@ STATIC_PROTO(AREG emit_xreg2, (void));
 STATIC_PROTO(AREG emit_x, (CELL));
 STATIC_PROTO(YREG emit_y, (Ventry *));
 STATIC_PROTO(CODEADDR emit_a, (CELL));
-STATIC_PROTO(CODEADDR emit_bmlabel, (CELL));
+STATIC_PROTO(CELL *emit_bmlabel, (CELL));
 STATIC_PROTO(CODEADDR emit_ilabel, (CELL));
 STATIC_PROTO(Functor emit_f, (CELL));
 STATIC_PROTO(CELL emit_c, (CELL));
@@ -259,10 +259,10 @@ emit_ilabel(register CELL addr)
     return (emit_a(addr));
 }
 
-inline static CODEADDR
+inline static CELL *
 emit_bmlabel(register CELL addr)
 {
-  return (emit_a(Unsigned(code_addr) + label_offset[addr]));
+  return ((CELL *)(emit_a(Unsigned(code_addr) + label_offset[addr])));
 }
 
 inline static Functor
@@ -781,13 +781,13 @@ a_p(op_numbers opcode)
 				     * (cpc->rnd2));
 	code_p->u.sla.l = emit_a((CELL)
 				 RepPredProp(fe)->TrueCodeOfPred);
-	code_p->u.sla.p = emit_a((CELL)
-				 RepPredProp(fe));
+	code_p->u.sla.p =  RepPredProp(fe);
+	code_p->u.sla.p0 =  CurrentPred;
 	if (cpc->rnd2)
 	  code_p->u.sla.l2 = emit_bmlabel(cpc->arnds[1]);
 	else
 	  /* there is no bitmap as there are no variables in the environment */
-	  code_p->u.sla.l2 = (CELL)NIL;
+	  code_p->u.sla.l2 = NULL;
       }
       GONEXT(sla);
     }
@@ -818,13 +818,13 @@ a_p(op_numbers opcode)
 				   cpc->rnd2);
       code_p->u.sla.l = emit_a((CELL) &
 			       RepPredProp(fe)->StateOfPred);
-      code_p->u.sla.p = emit_a((CELL)
-			       RepPredProp(fe));
+      code_p->u.sla.p = RepPredProp(fe);
+      code_p->u.sla.p0 = CurrentPred;
       if (cpc->rnd2)
 	code_p->u.sla.l2 = emit_bmlabel(cpc->arnds[1]);
       else
 	/* there is no bitmap as there are no variables in the environment */
-	code_p->u.sla.l2 = (CELL)NIL;
+	code_p->u.sla.l2 = NULL;
     }
     GONEXT(sla);
   }
@@ -862,12 +862,13 @@ a_empty_call(void)
     code_p->u.sla.s = emit_count(-Signed(RealEnvSize) - CELLSIZE *
 				   cpc->rnd2);
     code_p->u.sla.l = emit_a((CELL)&(pe->StateOfPred));
-    code_p->u.sla.p = emit_a((CELL)pe);
+    code_p->u.sla.p = pe;
+    code_p->u.sla.p0 = CurrentPred;
     if (cpc->rnd2)
       code_p->u.sla.l2 = emit_bmlabel(cpc->rnd1);
     else
       /* there is no bitmap as there are no variables in the environment */
-      code_p->u.sla.l2 = (CELL)NIL;
+      code_p->u.sla.l2 = NULL;
   }
   GONEXT(sla);
 }
@@ -1189,8 +1190,8 @@ a_either(op_numbers opcode, CELL opr, CELL lab)
     code_p->u.sla.s = emit_count(opr);
     code_p->u.sla.l = emit_a(lab);
     /* use code for atom true so that we won't try to do anything smart */
-    code_p->u.sla.p = emit_a((CELL)
-				 RepPredProp(fe));;
+    code_p->u.sla.p = RepPredProp(fe);
+    code_p->u.sla.p0 =  CurrentPred;
 #ifdef YAPOR
     /* code_p->u.sla.p = (CODEADDR)CurrentPred; */
     INIT_YAMOP_LTT(code_p, nofalts);
@@ -1408,7 +1409,6 @@ a_bmap(void)
 {
   /* how much space do we need to reserve */
   int i, max = (cpc->rnd1)/(8*sizeof(CELL));
-  fill_a((CELL)CurrentPred);
   for (i = 0; i <= max; i++) fill_a(cpc->arnds[i]);    
 }
 

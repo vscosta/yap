@@ -10,7 +10,7 @@
 * File:		Yap.proto						 *
 * mods:									 *
 * comments:	Function declarations for YAP				 *
-* version:      $Id: Yapproto.h,v 1.12 2002-02-22 06:12:18 vsc Exp $	 *
+* version:      $Id: Yapproto.h,v 1.13 2002-02-26 15:51:54 vsc Exp $	 *
 *************************************************************************/
 
 /* prototype file for Yap */
@@ -139,7 +139,9 @@ void	STD_PROTO(InitDBPreds,(void));
 /* errors.c */
 void	STD_PROTO(exit_yap,(int));
 yamop  *STD_PROTO(Error,(yap_error_number,Term,char *msg, ...));
-
+#if DEBUG
+void  STD_PROTO(bug_location,(yamop *));
+#endif
 
 /* eval.c */
 void	STD_PROTO(InitEval,(void));

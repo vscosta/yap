@@ -487,7 +487,7 @@ int		STD_PROTO(RemoveIndexation,(PredEntry *));
 
 /* dbase.c */
 void		STD_PROTO(ErDBE,(DBRef));
-DBRef		STD_PROTO(StoreTermInDB,(Term,int));
+DBRef		STD_PROTO(StoreTermInDB,(int,int));
 Term		STD_PROTO(FetchTermFromDB,(DBRef,int));
 void		STD_PROTO(ReleaseTermFromDB,(DBRef));
 
