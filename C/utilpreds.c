@@ -653,6 +653,12 @@ p_copy_term_no_delays(void)		/* copy term t to a new instance  */
 }
 
 
+#if defined(__GNUC__)
+unsigned long long vsc_count;
+#else
+unsigned long vsc_count;
+#endif
+
 static Term vars_in_complex_term(register CELL *pt0, register CELL *pt0_end)
 {
 
