@@ -39,6 +39,8 @@ cd ../library
 splat
 cd regex
 splat
+cd ../yap2swi
+splat
 cd ../../m4
 splat
 cd ../misc

@@ -39,6 +39,7 @@ alloc_ring_buf(void)
 X_API PL_agc_hook_t
 PL_agc_hook(PL_agc_hook_t entry)
 {
+  return entry;
 }
 
 /* SWI: char* PL_atom_chars(atom_t atom)
