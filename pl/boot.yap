@@ -313,7 +313,7 @@ repeat :- '$repeat'.
 % not 100% compatible with SICStus Prolog, as SICStus Prolog would put
 % module prefixes all over the place, although unnecessarily so.
 %
-'$go_compile_clause'(M:G,V,N) :- !,
+'$go_compile_clause'(Mod:G,V,N) :- !,
 	'$go_compile_clause'(G,V,N,Mod).
 '$go_compile_clause'((M:G :- B),V,N) :- !,
 	'$current_module'(M1),
