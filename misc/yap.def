@@ -84,8 +84,11 @@ YAP_UserCPredicate
 YAP_UserBackCPredicate
 YAP_UserCPredicateWithArgs
 YAP_CurrentModule
+YAP_CreateModule
 YAP_ThreadSelf
 YAP_ThreadCreateEngine
 YAP_ThreadAttachEngine
 YAP_ThreadDetachEngine
 YAP_ThreadDestroyEngine
+YAP_CompareTerms
+

@@ -457,10 +457,11 @@ get_num(int *chp, int *chbuffp, int inp_stream, int (*Nxtch) (int), int (*Quoted
   }
   while (chtype[ch] == NU) {
     Int oval = val;
-    if (ch != '0')
+    if (!(val == 0 && ch == '0')) {
       *sp++ = ch;
+    }
     if (ch - '0' >= base)
-      return (MkIntegerTerm(val));
+      return MkIntegerTerm(val);
     val = val * base + ch - '0';
     if (val/base != oval || val -oval*base != ch-'0') /* overflow */
       has_overflow = (has_overflow || TRUE);

@@ -10,8 +10,11 @@
 * File:		c_interface.c						 *
 * comments:	c_interface primitives definition 			 *
 *									 *
-* Last rev:	$Date: 2004-07-23 03:37:16 $,$Author: vsc $						 *
+* Last rev:	$Date: 2004-08-11 16:14:51 $,$Author: vsc $						 *
 * $Log: not supported by cvs2svn $
+* Revision 1.52  2004/07/23 03:37:16  vsc
+* fix heap overflow in YAP_LookupAtom
+*
 * Revision 1.51  2004/07/22 21:32:20  vsc
 * debugger fixes
 * initial support for JPL
@@ -49,6 +52,7 @@
 
 #define Bool int
 #define flt double
+#define YAP_Term Term
 #define C_INTERFACE
 
 #include "Yap.h"
@@ -138,6 +142,7 @@ X_API Term    STD_PROTO(YAP_WriteBuffer, (Term, char *, unsigned int, int));
 X_API char   *STD_PROTO(YAP_CompileClause, (Term));
 X_API void    STD_PROTO(YAP_PutValue, (Atom,Term));
 X_API Term    STD_PROTO(YAP_GetValue, (Atom));
+X_API int     STD_PROTO(YAP_CompareTerms, (Term,Term));
 X_API int     STD_PROTO(YAP_Reset, (void));
 X_API void    STD_PROTO(YAP_Exit, (int));
 X_API void    STD_PROTO(YAP_InitSocks, (char *, long));
@@ -155,12 +160,15 @@ X_API void    STD_PROTO(YAP_Throw,(Term));
 X_API void    STD_PROTO(YAP_Halt,(int));
 X_API Term   *STD_PROTO(YAP_TopOfLocalStack,(void));
 X_API void   *STD_PROTO(YAP_Predicate,(Atom,unsigned long int,int));
-X_API void    STD_PROTO(YAP_PredicateInfo,(void *,Atom *,unsigned long int *,int *));
+X_API void    STD_PROTO(YAP_PredicateInfo,(void *,Atom *,unsigned long int *,Term *));
 X_API void    STD_PROTO(YAP_UserCPredicate,(char *,CPredicate,unsigned long int));
 X_API void    STD_PROTO(YAP_UserBackCPredicate,(char *,CPredicate,CPredicate,unsigned long int,unsigned int));
 X_API void    STD_PROTO(YAP_UserCPredicateWithArgs,(char *,CPredicate,unsigned long int,Term));
-X_API Int     STD_PROTO(YAP_CurrentModule,(void));
+X_API Term     STD_PROTO(YAP_CurrentModule,(void));
+X_API Term     STD_PROTO(YAP_CreateModule,(Atom));
 X_API int     STD_PROTO(YAP_ThreadSelf,(void));
+X_API int     STD_PROTO(YAP_GetThreadRefCount,(int));
+X_API void    STD_PROTO(YAP_SetThreadRefCount,(int,int));
 X_API int     STD_PROTO(YAP_ThreadCreateEngine,(thread_attr *));
 X_API int     STD_PROTO(YAP_ThreadAttachEngine,(int));
 X_API int     STD_PROTO(YAP_ThreadDetachEngine,(int));
@@ -1121,6 +1129,12 @@ YAP_GetValue(Atom at)
 }
 
 X_API int
+YAP_CompareTerms(Term t1, Term t2)
+{
+  return Yap_compare_terms(t1, t2);
+} 
+
+X_API int
 YAP_Reset(void)
 {
   BACKUP_MACHINE_REGS();
@@ -1223,7 +1237,7 @@ YAP_Predicate(Atom a, unsigned long int arity, int m)
 } 
 
 X_API void
-YAP_PredicateInfo(void *p, Atom* a, unsigned long int* arity, int* m)
+YAP_PredicateInfo(void *p, Atom* a, unsigned long int* arity, Term* m)
 {
   PredEntry *pd = (PredEntry *)p;
   if (pd->ArityOfPE) {
@@ -1269,10 +1283,16 @@ YAP_UserCPredicateWithArgs(char *a, CPredicate f, unsigned long int arity, Term 
   CurrentModule = cm;
 } 
 
-X_API Int
+X_API Term
 YAP_CurrentModule(void)
 {
   return(CurrentModule);
+} 
+
+X_API Term
+YAP_CreateModule(Atom at)
+{
+  return Yap_Module(MkAtomTerm(at));
 } 
 
 X_API int

@@ -42,7 +42,7 @@
 	system/0,
 	system/1,
 	system/2,
-	time/1,
+	mktime/2,
 	tmpnam/1,
 	wait/2,
 	working_directory/2
@@ -58,6 +58,32 @@ datime(X) :-
 	datime(X, Error),
 	handle_system_error(Error, off, datime(X)).
  
+mktime(V, A) :- var(V), !,
+	throw(error(instantiation_error,mktime(V,A))).
+mktime(In,Out) :-
+	check_mktime_inp(In, mktime(In,Out)),
+	In = datime(Y,Mo,D,H,Mi,S),
+	mktime(Y, Mo, D, H, Mi, S, Out, Error),
+	handle_system_error(Error, off, mktime(In,Out)).
+ 
+check_mktime_inp(V, Inp) :- var(V), !,
+	throw(error(instantiation_error,Inp)).
+check_mktime_inp(datime(Y,Mo,D,H,Mi,S), Inp) :- !,
+	check_int(Y, Inp),
+	check_int(Mo, Inp),
+	check_int(D, Inp),
+	check_int(H, Inp),
+	check_int(Mi, Inp),
+	check_int(S, Inp).
+check_mktime_inp(T, Inp) :-
+	throw(error(domain_error(mktime,T),Inp)).
+	
+check_int(I, _) :- integer(I), !.
+check_int(I, Inp) :- var(I),
+	throw(error(instantiation_error,Inp)).
+check_int(I, Inp) :-
+	throw(error(type_error(integer,I),Inp)).
+
 % file operations
 
 delete_file(File) :-

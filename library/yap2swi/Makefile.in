@@ -41,7 +41,7 @@ SOBJS=yap2swi@SHLIB_SUFFIX@
 
 all: $(SOBJS) 
 
-yap2swi.o: $(srcdir)/yap2swi.c
+yap2swi.o: $(srcdir)/yap2swi.c $(srcdir)/yap2swi.h
 	$(CC) -c $(CFLAGS) $(SHLIB_CFLAGS) $(srcdir)/yap2swi.c -o yap2swi.o
 
 @DO_SECOND_LD@@DO_SECOND_LD@%@SHLIB_SUFFIX@: %.o

@@ -34,6 +34,8 @@ typedef int YAP_Bool;
 
 typedef YAP_CELL YAP_Term;
 
+typedef YAP_Term YAP_Module;
+
 typedef struct FunctorEntry *YAP_Functor;
 
 typedef struct AtomEntry *YAP_Atom;
@@ -101,6 +103,7 @@ typedef struct {
 typedef struct {
   unsigned long int		    ssize;
   unsigned long int		    tsize;
+  YAP_Term		   alias;
   int		   (*cancel)(int);
 } YAP_thread_attr;
 

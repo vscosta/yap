@@ -194,12 +194,16 @@ p_create_thread(void)
 static Int
 p_thread_self(void)
 {
+  if (pthread_getspecific(Yap_yaamregs_key) == NULL)
+    return Yap_unify(MkIntegerTerm(-1), ARG1);
   return Yap_unify(MkIntegerTerm(worker_id), ARG1);
 }
 
 int
 Yap_thread_self(void)
 {
+  if (pthread_getspecific(Yap_yaamregs_key) == NULL)
+    return -1;
   return worker_id;
 }
 
@@ -223,6 +227,11 @@ int
 Yap_thread_attach_engine(int wid)
 {
   pthread_mutex_lock(&(ThreadHandle[wid].tlock));
+  if (ThreadHandle[wid].ref_count &&
+      ThreadHandle[wid].handle != pthread_self()) {
+    pthread_mutex_unlock(&(ThreadHandle[wid].tlock));
+    return FALSE;
+  }
   ThreadHandle[wid].handle = pthread_self();
   ThreadHandle[wid].ref_count++;
   worker_id = wid;
@@ -234,7 +243,8 @@ int
 Yap_thread_detach_engine(int wid)
 {
   pthread_mutex_lock(&(ThreadHandle[wid].tlock));
-  ThreadHandle[wid].handle = 0;
+  if (ThreadHandle[wid].handle == worker_id)
+    ThreadHandle[wid].handle = 0;
   ThreadHandle[wid].ref_count--;
   pthread_mutex_unlock(&(ThreadHandle[wid].tlock));
   return TRUE;
@@ -253,6 +263,7 @@ Yap_thread_destroy_engine(int wid)
     return FALSE;
   }
 }
+
 
 static Int
 p_thread_join(void)

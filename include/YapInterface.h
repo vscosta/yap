@@ -337,16 +337,23 @@ extern X_API YAP_Term  *PROTO(YAP_TopOfLocalStack,(void));
 extern X_API void  *PROTO(YAP_Predicate,(YAP_Atom,unsigned long int,int));
 
 /*  int  YAP_Predicate()  */
-extern X_API void  PROTO(YAP_PredicateInfo,(void *,YAP_Atom *,unsigned long int*,int*));
+extern X_API void  PROTO(YAP_PredicateInfo,(void *,YAP_Atom *,unsigned long int*,YAP_Module*));
 
 /*  int  YAP_CurrentModule()  */
-extern X_API int  PROTO(YAP_CurrentModule,(void));
+extern X_API YAP_Module  PROTO(YAP_CurrentModule,(void));
 
-extern X_API int PROTO(YAP_ThreadSelf,(void));
-extern X_API int PROTO(YAP_ThreadCreateEngine,(YAP_thread_attr *));
-extern X_API int PROTO(YAP_ThreadAttachEngine,(int));
-extern X_API int PROTO(YAP_ThreadDetachEngine,(int));
-extern X_API int PROTO(YAP_ThreadDestroyEngine,(int));
+/*  int  YAP_CurrentModule()  */
+extern X_API YAP_Module  PROTO(YAP_CreateModule,(YAP_Atom));
+
+/* thread stuff */
+extern X_API int  PROTO(YAP_ThreadSelf,(void));
+extern X_API int  PROTO(YAP_ThreadCreateEngine,(YAP_thread_attr *));
+extern X_API int  PROTO(YAP_ThreadAttachEngine,(int));
+extern X_API int  PROTO(YAP_ThreadDetachEngine,(int));
+extern X_API int  PROTO(YAP_ThreadDestroyEngine,(int));
+
+/*  term comparison */
+extern X_API int  PROTO(YAP_CompareTerms,(YAP_Term, YAP_Term));
 
 #define YAP_InitCPred(N,A,F)  YAP_UserCPredicate(N,F,A)
 

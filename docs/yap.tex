@@ -7987,6 +7987,24 @@ on local time. This function uses the WIN32
 X = datime(2001,5,28,15,29,46) ? 
 @end example
 
+@item mktime(datime(+@var{Year}, +@var{Month}, +@var{DayOfTheMonth},
++@var{Hour}, +@var{Minute}, +@var{Second}), -@var{Seconds})
+@findex  mktime/2
+@snindex mktime/2
+@cnindex mktime/2
+The @code{mktime/1} procedure returns the number of @var{Seconds}
+elapsed since 00:00:00 on January 1, 1970, Coordinated Universal Time
+(UTC).  The user provides information on @var{Year}, @var{Month},
+@var{DayOfTheMonth}, @var{Hour}, @var{Minute}, and @var{Second}. The
+@var{Hour} is returned on local time. This function uses the WIN32
+@code{GetLocalTime} function or the Unix @code{mktime} function.
+
+@example
+   ?- mktime(datime(2001,5,28,15,29,46),X).
+
+X = 991081786 ? ;
+@end example
+
 @item delete_file(+@var{File})
 @findex  delete_file/1
 @syindex delete_file/1

@@ -10,8 +10,11 @@
 *									 *
 * File:		absmi.c							 *
 * comments:	Portable abstract machine interpreter                    *
-* Last rev:     $Date: 2004-07-23 21:08:44 $,$Author: vsc $						 *
+* Last rev:     $Date: 2004-08-11 16:14:51 $,$Author: vsc $						 *
 * $Log: not supported by cvs2svn $
+* Revision 1.141  2004/07/23 21:08:44  vsc
+* windows fixes
+*
 * Revision 1.140  2004/07/22 21:32:20  vsc
 * debugger fixes
 * initial support for JPL
@@ -1929,6 +1932,7 @@ Yap_absmi(int inp)
 	  B = B->cp_b;
 	}
       trim_trail:
+	HBREG = PROTECT_FROZEN_H(B->cp_b);
         {
 	  tr_fr_ptr pt1, pt0;
 	  pt1 = pt0 = B->cp_tr;
@@ -1984,7 +1988,6 @@ Yap_absmi(int inp)
         abolish_incomplete_subgoals(B);
 #endif /* TABLING */
 	SET_BB(PROTECT_FROZEN_B(B));
-	HBREG = PROTECT_FROZEN_H(B);
       }
       ENDD(d0);
       GONext();

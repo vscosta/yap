@@ -124,7 +124,7 @@ Yap_WinError(char *yap_error)
 {
   char msg[256];
   /* Error, we could not read time */
-    FormatMessage(FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS,
+     FormatMessage(FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS,
 		  NULL, GetLastError(), 
 		  MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT), msg, 256,
 		  NULL);
@@ -1040,7 +1040,7 @@ SearchForTrailFault(void)
     /*    my_signal_info(SIGSEGV, HandleSIGSEGV); */
   } else
 #endif /* OS_HANDLES_TR_OVERFLOW */
-    Yap_Error(FATAL_ERROR, TermNil,
+    Yap_Error(OUT_OF_TRAIL_ERROR, TermNil,
 	  "likely bug in YAP, segmentation violation");
 }
 

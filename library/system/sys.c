@@ -8,8 +8,11 @@
 *									 *
 **************************************************************************
 *									 *
-* $Id: sys.c,v 1.20 2004-07-23 19:02:09 vsc Exp $									 *
+* $Id: sys.c,v 1.21 2004-08-11 16:14:54 vsc Exp $									 *
 * mods:		$Log: not supported by cvs2svn $
+* mods:		Revision 1.20  2004/07/23 19:02:09  vsc
+* mods:		misc fixes
+* mods:		
 * mods:		Revision 1.19  2004/07/23 03:37:17  vsc
 * mods:		fix heap overflow in YAP_LookupAtom
 * mods:		
@@ -96,6 +99,66 @@ WinError(void)
     return(YAP_MkAtomTerm(YAP_LookupAtom(msg)));
 }
 #endif
+
+/* Return time in a structure */
+static int
+sysmktime(void)
+{
+
+#if defined(__MINGW32__) || _MSC_VER
+  SYSTEMTIME stime, stime0;
+  FILETIME ftime, ftime0;
+
+  stime.wYear = YAP_IntOfTerm(YAP_ARG1);
+  stime.wMonth = YAP_IntOfTerm(YAP_ARG2);
+  stime.wDay = YAP_IntOfTerm(YAP_ARG3);
+  stime.wHour = YAP_IntOfTerm(YAP_ARG4);
+  stime.wMinute = YAP_IntOfTerm(YAP_ARG5);
+  stime.wSecond = YAP_IntOfTerm(YAP_ARG6);
+  stime.wMilliseconds = 0;
+  stime0.wYear = 1970;
+  stime0.wMonth = 1;
+  stime0.wDay = 1;
+  stime0.wHour = 12;
+  stime0.wMinute = 0;
+  stime0.wSecond = 0;
+  stime0.wMilliseconds = 0;
+  if (!SystemTimeToFileTime(&stime,&ftime)) {
+    return YAP_Unify(YAP_ARG8, YAP_MkIntTerm(errno));
+  }
+  if (!SystemTimeToFileTime(&stime0,&ftime0)) {
+    return YAP_Unify(YAP_ARG8, YAP_MkIntTerm(errno));
+  }
+#if __GNUC__
+  {
+    unsigned long long f1 = (((unsigned long long)ftime.dwHighDateTime)<<32)+(unsigned long long)ftime.dwLowDateTime;
+    unsigned long long f0 = (((unsigned long long)ftime0.dwHighDateTime)<<32)+(unsigned long long)ftime0.dwLowDateTime;
+    return YAP_Unify(YAP_ARG8,YAP_MkIntTerm((long int)((f1-f0)/10000000)));
+  }
+#else
+  return FALSE
+#endif
+#else
+#ifdef HAVE_MKTIME
+  struct tm loc;
+  time_t tim;
+   
+  loc.tm_year = YAP_IntOfTerm(YAP_ARG1)-1900;
+  loc.tm_mon = YAP_IntOfTerm(YAP_ARG2)-1;
+  loc.tm_mday = YAP_IntOfTerm(YAP_ARG3);
+  loc.tm_hour = YAP_IntOfTerm(YAP_ARG4);
+  loc.tm_min = YAP_IntOfTerm(YAP_ARG5);
+  loc.tm_sec = YAP_IntOfTerm(YAP_ARG6);
+
+  if ((tim = mktime(&loc)) < 0) {
+    return YAP_Unify(YAP_ARG8, YAP_MkIntTerm(errno));
+  }
+  return YAP_Unify(YAP_ARG7,YAP_MkIntTerm(tim));
+#else
+  oops
+#endif /* HAVE_MKTIME */
+#endif /* WINDOWS */
+}
 
 /* Return time in a structure */
 static int
@@ -878,6 +941,7 @@ void
 init_sys(void)
 {
   YAP_UserCPredicate("datime", datime, 2);
+  YAP_UserCPredicate("mktime", sysmktime, 8);
   YAP_UserCPredicate("list_directory", list_directory, 3);
   YAP_UserCPredicate("file_property", file_property, 7);
   YAP_UserCPredicate("unlink", p_unlink, 2);

@@ -10,7 +10,7 @@
 * File:		Yap.proto						 *
 * mods:									 *
 * comments:	Function declarations for YAP				 *
-* version:      $Id: Yapproto.h,v 1.53 2004-07-22 21:32:21 vsc Exp $	 *
+* version:      $Id: Yapproto.h,v 1.54 2004-08-11 16:14:52 vsc Exp $	 *
 *************************************************************************/
 
 /* prototype file for Yap */
@@ -216,6 +216,7 @@ Term	STD_PROTO(Yap_ReadTimedVar,(Term));
 Term    STD_PROTO(Yap_UpdateTimedVar,(Term, Term));
 
 /* modules.c */
+Term    STD_PROTO(Yap_Module, (Term));
 Term    STD_PROTO(Yap_Module_Name, (struct pred_entry *));
 struct pred_entry *STD_PROTO(Yap_ModulePred, (Term));
 void    STD_PROTO(Yap_NewModulePred, (Term, struct pred_entry *));

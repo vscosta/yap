@@ -12,7 +12,7 @@
 * Last rev:								 *
 * mods:									 *
 * comments:	allocating space					 *
-* version:$Id: alloc.c,v 1.55 2004-07-28 22:09:01 vsc Exp $		 *
+* version:$Id: alloc.c,v 1.56 2004-08-11 16:14:51 vsc Exp $		 *
 *************************************************************************/
 #ifdef SCCS
 static char SccsId[] = "%W% %G%";
@@ -565,27 +565,42 @@ Yap_ExpandPreAllocCodeSpace(UInt sz)
 /* #define MAX_WORKSPACE 0x40000000L */
 #define MAX_WORKSPACE 0x80000000L
 
+#define ALLOC_SIZE (64*1024)
+
 static LPVOID brk;
 
 static int
-ExtendWorkSpace(Int s)
+ExtendWorkSpace(Int s, int fixed_allocation)
 {
   LPVOID b = brk;
   prolog_exec_mode OldPrologMode = Yap_PrologMode;
 
+  s = ((s+ (ALLOC_SIZE-1))/ALLOC_SIZE)*ALLOC_SIZE;
   Yap_PrologMode = ExtendStackMode;
-  b = VirtualAlloc(b, s, MEM_COMMIT, PAGE_READWRITE);
-  if (b) {
-    brk = (LPVOID) ((Int) brk + s);
-    Yap_PrologMode = OldPrologMode;
-    return TRUE;
+  if (fixed_allocation)
+    b = VirtualAlloc(b, s, MEM_RESERVE, PAGE_NOACCESS);
+  else {
+    b = VirtualAlloc(NULL, s, MEM_RESERVE, PAGE_NOACCESS);
+    if (b && b < brk) {
+      return ExtendWorkSpace(s, fixed_allocation);
+    }
   }
-  Yap_ErrorMessage = Yap_ErrorSay;
-  snprintf4(Yap_ErrorMessage, MAX_ERROR_MSG_SIZE,
-	    "VirtualAlloc could not commit %ld bytes",
-	    (long int)s);
+  if (!b) {
+    Yap_PrologMode = OldPrologMode;
+    return FALSE;
+  }
+  b = VirtualAlloc(b, s, MEM_COMMIT, PAGE_READWRITE);
+  if (!b) {
+    Yap_ErrorMessage = Yap_ErrorSay;
+    snprintf4(Yap_ErrorMessage, MAX_ERROR_MSG_SIZE,
+	      "VirtualAlloc could not commit %ld bytes",
+	      (long int)s);
+    Yap_PrologMode = OldPrologMode;
+    return FALSE;
+  }
+  brk = (LPVOID) ((Int) brk + s);
   Yap_PrologMode = OldPrologMode;
-  return FALSE;
+  return TRUE;
 }
 
 static MALLOC_T
@@ -597,27 +612,30 @@ InitWorkSpace(Int s)
 
   GetSystemInfo(&si);
   Yap_page_size = si.dwPageSize;
-
+  
+  s = ((s+ (ALLOC_SIZE-1))/ALLOC_SIZE)*ALLOC_SIZE;
   brk = NULL;
-  for (max_mem = MAX_WORKSPACE; max_mem >= s; max_mem = max_mem - (max_mem >> 2)) {
-    b = VirtualAlloc((LPVOID)MMAP_ADDR, max_mem, MEM_RESERVE, PAGE_NOACCESS);
-    if (b == NULL) {
-      b = VirtualAlloc(NULL, max_mem, MEM_RESERVE, PAGE_NOACCESS);
-      if (b != NULL) {
-	brk = b;
-	fprintf(stderr,"%% Warning: YAP reserving space at variable address %p\n", brk);
-	break;
-      } 
-    } else {
-      brk = BASE_ADDRESS;
-      break;
+  b = VirtualAlloc((LPVOID)MMAP_ADDR, s, MEM_RESERVE, PAGE_NOACCESS);
+  if (b == NULL) {
+    b = VirtualAlloc(NULL, max_mem, MEM_RESERVE, PAGE_NOACCESS);
+    if (!b) {
+      fprintf(stderr,"%% Warning: YAP reserving space at variable address %p\n", brk);
+      return NULL;
+    } 
+    b = VirtualAlloc(b, s, MEM_COMMIT, PAGE_READWRITE);
+    if (b== NULL) {
+      fprintf(stderr,"%% Warning: YAP failed to reserve space at %p\n", brk);
+      return NULL;
+    }
+  } else {
+    b = VirtualAlloc(b, s, MEM_COMMIT, PAGE_READWRITE);
+    if (!b) {
+      fprintf(stderr,"%% Warning: YAP failed to reserve space at %p\n", brk);
+      return NULL;
     }
   }
-  if (brk && ExtendWorkSpace(s)) {
-    return (MALLOC_T)b;
-  }
-  Yap_Error(FATAL_ERROR,TermNil,"VirtualAlloc Failed");
-  return NULL;
+  brk = (LPVOID) ((Int) b + s);
+  return b;
 }
 
 int
@@ -1299,10 +1317,17 @@ Yap_InitExStacks(int Trail, int Stack)
 {
 }
 
+#if defined(_WIN32)
+#define WorkSpaceTop brk
+#define MAP_FIXED 1
+#endif
+
 int
 Yap_ExtendWorkSpace(Int s)
 {
 #if USE_MMAP
+  return ExtendWorkSpace(s, MAP_FIXED);
+#elif defined(_WIN32)
   return ExtendWorkSpace(s, MAP_FIXED);
 #else
   return ExtendWorkSpace(s);
@@ -1312,9 +1337,27 @@ Yap_ExtendWorkSpace(Int s)
 UInt
 Yap_ExtendWorkSpaceThroughHole(UInt s)
 {
-#if USE_MMAP
+#if USE_MMAP || defined(_WIN32)
   MALLOC_T WorkSpaceTop0 = WorkSpaceTop;
 
+#if SIZEOF_INT_P==4
+  while (WorkSpaceTop < (MALLOC_T)0xc0000000L) {
+    /* progress 1 MB */
+    WorkSpaceTop += 512*1024;
+    if (ExtendWorkSpace(s, MAP_FIXED)) {
+      return WorkSpaceTop-WorkSpaceTop0;
+    }
+#if defined(_WIN32)
+    /* 487 happens when you step over someone else's memory */
+    if (GetLastError() != 487) {
+      /* I could not manage to allocate the memory*/
+      fprintf(stderr,"I am in trouble here\n");
+      break;
+    }
+#endif
+  }
+  WorkSpaceTop = WorkSpaceTop0;
+#endif
   if (ExtendWorkSpace(s, 0))
     return WorkSpaceTop-WorkSpaceTop0;
 #endif
@@ -1324,7 +1367,7 @@ Yap_ExtendWorkSpaceThroughHole(UInt s)
 void
 Yap_AllocHole(UInt actual_request, UInt total_size)
 {
-#if USE_MMAP
+#if USE_MMAP || defined(_WIN32)
   /* where we were when the hole was created,
    also where is the hole store */
   ADDR WorkSpaceTop0 = WorkSpaceTop-total_size;

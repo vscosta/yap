@@ -510,7 +510,7 @@ static_growheap(long size, int fix_code, struct intermediates *cip)
 {
   UInt start_growth_time, growth_time;
   int gc_verbose;
-  UInt hole = 0L;
+  UInt minimal_request = 0L;
 
   /* adjust to a multiple of 256) */
   size = AdjustPageSize(size);
@@ -519,7 +519,7 @@ static_growheap(long size, int fix_code, struct intermediates *cip)
     Int min_size = AdjustPageSize(((CELL)Yap_TrailTop-(CELL)Yap_GlobalBase)+MinHeapGap);
 
     if (size < min_size) size = min_size;
-    hole = size;
+    minimal_request = size;
     size = Yap_ExtendWorkSpaceThroughHole(size);
     if (size < 0) {
       strncat(Yap_ErrorMessage,": heap crashed against stacks", MAX_ERROR_MSG_SIZE);
@@ -557,8 +557,8 @@ static_growheap(long size, int fix_code, struct intermediates *cip)
   AdjustRegs(MaxTemps);
   YAPLeaveCriticalSection();
   ASP += 256;
-  if (hole) 
-    Yap_AllocHole(hole, size);
+  if (minimal_request) 
+    Yap_AllocHole(minimal_request, size);
   growth_time = Yap_cputime()-start_growth_time;
   total_heap_overflow_time += growth_time;
   if (gc_verbose) {
@@ -837,17 +837,33 @@ Yap_growglobal(CELL **ptr)
 
 
 static int
-execute_growstack(long size, int from_trail)
+execute_growstack(long size0, int from_trail)
 {
-  char *MyGlobalBase = Yap_GlobalBase;
+  UInt minimal_request = 0L;
+  long size = size0;
+  ADDR old_Yap_GlobalBase = Yap_GlobalBase;
   
   if (!Yap_ExtendWorkSpace(size)) {
-    strncat(Yap_ErrorMessage,": local crashed against global", MAX_ERROR_MSG_SIZE);
-    return(FALSE);
+    /* make sure stacks and trail are contiguous */
+    Int minimal_request = AdjustPageSize(((CELL)Yap_TrailTop-(CELL)Yap_GlobalBase)+MinHeapGap+size0);
+
+    size = Yap_ExtendWorkSpaceThroughHole(minimal_request);
+    if (size < 0) {
+      strncat(Yap_ErrorMessage,": heap crashed against stacks", MAX_ERROR_MSG_SIZE);
+      return FALSE;
+    }
+    YAPEnterCriticalSection();
+    GDiff = DelayDiff = size-size0;
+  } else {
+    YAPEnterCriticalSection();
+    if (Yap_GlobalBase != old_Yap_GlobalBase) {
+      GDiff = DelayDiff = Yap_GlobalBase-old_Yap_GlobalBase;
+      Yap_GlobalBase=old_Yap_GlobalBase;
+    } else {
+      GDiff = DelayDiff = 0;
+    }
   }
-  YAPEnterCriticalSection();  
   XDiff = HDiff = 0;
-  GDiff = DelayDiff = Yap_GlobalBase-MyGlobalBase;
 #if USE_SYSTEM_MALLOC
   if (from_trail) {
     TrDiff = LDiff = GDiff;
@@ -857,9 +873,6 @@ execute_growstack(long size, int from_trail)
 #else
   TrDiff = LDiff = size;
 #endif
-  if (GDiff) {
-    Yap_GlobalBase = (char *)MyGlobalBase;
-  }
   ASP -= 256;
   if (GDiff) {
     SetHeapRegs();
@@ -872,9 +885,14 @@ execute_growstack(long size, int from_trail)
   if (LDiff) {
     MoveLocalAndTrail();
   }
-  if (GDiff) 
-    AdjustGlobal();
-  if (LDiff) {
+  if (GDiff) {
+    MoveGlobal();
+    AdjustStacksAndTrail();
+    AdjustRegs(MaxTemps);
+#ifdef TABLING
+    fix_tabling_info();
+#endif /* TABLING */
+  } else if (LDiff) {
     AdjustGrowStack();
     AdjustRegs(MaxTemps);
 #ifdef TABLING
@@ -883,6 +901,8 @@ execute_growstack(long size, int from_trail)
   }
   YAPLeaveCriticalSection();
   ASP += 256;
+  if (minimal_request) 
+    Yap_AllocHole(minimal_request, size);
   return TRUE;
 }
 
@@ -901,7 +921,7 @@ growstack(long size)
   stack_overflows++;
   if (gc_verbose) {
     fprintf(Yap_stderr, "%% Stack Overflow %d\n", stack_overflows);
-    fprintf(Yap_stderr, "%%   Heap: %8ld cells (%p-%p)\n", (unsigned long int)(H-(CELL *)Yap_GlobalBase),Yap_GlobalBase,H);
+    fprintf(Yap_stderr, "%%   Global: %8ld cells (%p-%p)\n", (unsigned long int)(H-(CELL *)Yap_GlobalBase),Yap_GlobalBase,H);
     fprintf(Yap_stderr, "%%   Local:%8ld cells (%p-%p)\n", (unsigned long int)(LCL0-ASP),LCL0,ASP);
     fprintf(Yap_stderr, "%%   Trail:%8ld cells (%p-%p)\n",
 	       (unsigned long int)(TR-(tr_fr_ptr)Yap_TrailBase),Yap_TrailBase,TR);
@@ -1022,7 +1042,7 @@ Yap_growstack_in_parser(tr_fr_ptr *old_trp, TokEntry **tksp, VarEntry **vep)
   stack_overflows++;
   if (gc_verbose) {
     fprintf(Yap_stderr, "%% Stack overflow %d\n", stack_overflows);
-    fprintf(Yap_stderr, "%%   Heap: %8ld cells (%p-%p)\n", (unsigned long int)(H-(CELL *)Yap_GlobalBase),(CELL *)Yap_GlobalBase,H);
+    fprintf(Yap_stderr, "%%   Global: %8ld cells (%p-%p)\n", (unsigned long int)(H-(CELL *)Yap_GlobalBase),(CELL *)Yap_GlobalBase,H);
     fprintf(Yap_stderr, "%%   Local:%8ld cells (%p-%p)\n", (unsigned long int)(LCL0-ASP),LCL0,ASP);
     fprintf(Yap_stderr, "%%   Trail:%8ld cells (%p-%p)\n",
 	       (unsigned long int)(TR-(tr_fr_ptr)Yap_TrailBase),Yap_TrailBase,TR);
@@ -1078,8 +1098,7 @@ static int do_growtrail(long size)
   execute_growstack(size, TRUE);
 #else
   if (!Yap_ExtendWorkSpace(size)) {
-    strncat(Yap_ErrorMessage,": trail stack overflowed", MAX_ERROR_MSG_SIZE);
-    return FALSE;
+    execute_growstack(size, TRUE);
   }
   YAPEnterCriticalSection();
   Yap_TrailTop += size;

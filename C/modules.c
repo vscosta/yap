@@ -46,7 +46,7 @@ Yap_Module_Name(PredEntry *ap)
   return TermProlog;
 }
 
-static Term 
+static int 
 LookupModule(Term a)
 {
   unsigned int             i;
@@ -64,6 +64,12 @@ LookupModule(Term a)
     Yap_Error(SYSTEM_ERROR,a,"number of modules overflowed");
   }
   return (i);
+}
+
+Term
+Yap_Module(Term tmod)
+{
+  return ModuleName[LookupModule(tmod)];
 }
 
 struct pred_entry *

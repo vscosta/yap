@@ -3540,7 +3540,7 @@ format_putc(int sno, int ch) {
       format_buf_size = new_max_size;
       if (ActiveSignals & YAP_CDOVF_SIGNAL) {
 	if (!Yap_growheap(FALSE, 0, NULL)) {
-	  Yap_Error(FATAL_ERROR, TermNil, "YAP failed to grow heap at format");
+	  Yap_Error(OUT_OF_HEAP_ERROR, TermNil, "YAP failed to grow heap at format");
 	}
       }
     }

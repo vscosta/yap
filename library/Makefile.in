@@ -39,6 +39,7 @@ PROGRAMS= $(srcdir)/apply_macros.yap \
 	$(srcdir)/rbtrees.yap \
 	$(srcdir)/regexp.yap \
 	$(srcdir)/splay.yap \
+	$(srcdir)/swi.yap \
 	$(srcdir)/system.yap \
 	$(srcdir)/terms.yap \
 	$(srcdir)/tries.yap \

@@ -1286,11 +1286,13 @@ Yap_RunTopGoal(Term t)
   READ_LOCK(ppe->PRWLock);
   CodeAdr = ppe->CodeOfPred;
   READ_UNLOCK(ppe->PRWLock);
+#if !USE_MALLOC
   if (Yap_TrailTop - HeapTop < 2048) {
     Yap_PrologMode = BootMode;
     Yap_Error(SYSTEM_ERROR,TermNil,
 	  "unable to boot because of too little heap space");
   }
+#endif
   goal_out = do_goal(t, CodeAdr, arity, pt, TRUE);
   return(goal_out);
 }

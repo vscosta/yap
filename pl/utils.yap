@@ -438,7 +438,7 @@ unknown(V0,V) :-
 '$unknown_warning'(P) :-
 	P=M:F,
 	functor(F,Na,Ar),
-	'$print_message'(existence_error(P,0,procedure,M:F,0), [P,M,Na,Ar]),
+	'$print_message'(error,error(existence_error(procedure,M:Na/Ar), [P])),
 	fail.
 
 %%% Some "dirty" predicates
@@ -487,7 +487,13 @@ atom_concat(X,Y,At) :-
 	'$append'(S1,S2,S),
 	atom_codes(At,S).
 
-
+atomic_concat(X,Y,At) :-
+	atom(At), !,
+	atom_length(At,Len),
+	'$atom_contact_split'(At,0,Len,X,Y).
+/* Let atom_chars do our error handling */
+atomic_concat(X,Y,At) :-
+	atomic_concat([X,Y],At).
 
 '$atom_contact_split'(At,Len,Len,X,Y) :- !,
 	'$atom_split'(At,Len,X,Y).

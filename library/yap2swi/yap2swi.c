@@ -46,7 +46,7 @@ PL_agc_hook(PL_agc_hook_t entry)
    YAP: char* AtomName(Atom) */
 X_API char* PL_atom_chars(atom_t a)	 /* SAM check type */
 {
-  return YAP_AtomName(a);
+  return YAP_AtomName((YAP_Atom)a);
 }
 
 
@@ -108,7 +108,7 @@ X_API int PL_get_atom(term_t ts, atom_t *a)
   YAP_Term t = YAP_GetFromSlot(ts);
   if ( !YAP_IsAtomTerm(t))
     return 0;
-  *a = YAP_AtomOfTerm(t);
+  *a = (atom_t)YAP_AtomOfTerm(t);
   return 1;
 }
 
@@ -323,8 +323,14 @@ X_API int PL_get_module(term_t ts, module_t *m)
   YAP_Term t = YAP_GetFromSlot(ts);
   if (!YAP_IsAtomTerm(t) )
     return 0;
-  *m = YAP_LookupModule(t);
+  *m = (module_t)YAP_LookupModule(t);
   return 1;
+}
+
+/* SWI: int PL_new_module(term_t t, module_t *m) */
+X_API module_t PL_new_module(atom_t at)
+{
+  return (module_t)YAP_CreateModule((YAP_Atom)at);
 }
 
 /* SWI: int PL_get_atom(term_t t, YAP_Atom *a)
@@ -333,18 +339,18 @@ X_API int PL_get_name_arity(term_t ts, atom_t *name, int *arity)
 {
   YAP_Term t = YAP_GetFromSlot(ts);
   if (YAP_IsAtomTerm(t)) {
-    *name = YAP_AtomOfTerm(t);
+    *name = (atom_t)YAP_AtomOfTerm(t);
     *arity = 0;
     return 1;
   }
   if (YAP_IsApplTerm(t)) {
     YAP_Functor f = YAP_FunctorOfTerm(t);
-    *name = YAP_NameOfFunctor(f);
+    *name = (atom_t)YAP_NameOfFunctor(f);
     *arity = YAP_ArityOfFunctor(f);
     return 1;
   }
   if (YAP_IsPairTerm(t)) {
-    *name = YAP_LookupAtom(".");
+    *name = (atom_t)YAP_LookupAtom(".");
     *arity = 2;
     return 1;
   }
@@ -410,16 +416,16 @@ X_API int PL_get_tail(term_t ts, term_t tl)
       */
 X_API atom_t PL_new_atom(const char *c)
 {
-  return YAP_LookupAtom((char *)c);
+  return (atom_t)YAP_LookupAtom((char *)c);
 }
 
 X_API functor_t PL_new_functor(atom_t name, int arity)
 {
   functor_t f;
   if (arity == 0) {
-    f = (functor_t)YAP_MkAtomTerm(name);
+    f = (functor_t)YAP_MkAtomTerm((YAP_Atom)name);
   } else {
-    f = (functor_t)YAP_MkFunctor(name,arity);
+    f = (functor_t)YAP_MkFunctor((YAP_Atom)name,arity);
   }
   return f;
 }
@@ -427,9 +433,9 @@ X_API functor_t PL_new_functor(atom_t name, int arity)
 X_API atom_t PL_functor_name(functor_t f)
 {
   if (YAP_IsAtomTerm(f)) {
-    return YAP_AtomOfTerm(f);
+    return (atom_t)YAP_AtomOfTerm(f);
   } else {
-    return YAP_NameOfFunctor((YAP_Functor)f);
+    return (atom_t)YAP_NameOfFunctor((YAP_Functor)f);
   }
 }
 
@@ -494,7 +500,7 @@ X_API void PL_cons_list(term_t d, term_t h, term_t t)
 
 X_API void PL_put_atom(term_t t, atom_t a)
 {
-  YAP_PutInSlot(t,YAP_MkAtomTerm(a));
+  YAP_PutInSlot(t,YAP_MkAtomTerm((YAP_Atom)a));
 }
 
 X_API void PL_put_atom_chars(term_t t, const char *s)
@@ -529,6 +535,11 @@ X_API void PL_put_integer(term_t t, long n)
 X_API void PL_put_list(term_t t)
 {
   YAP_PutInSlot(t,YAP_MkNewPairTerm());
+}
+
+X_API void PL_put_list_chars(term_t t, const char *s)
+{
+  YAP_PutInSlot(t,YAP_BufferToString((char *)s));
 }
 
 X_API void PL_put_nil(term_t t)
@@ -583,7 +594,7 @@ X_API int PL_unify(term_t t1, term_t t2)
    YAP long int  unify(YAP_Term* a, Term* b) */
 X_API int PL_unify_atom(term_t t, atom_t at)
 {
-  YAP_Term cterm = YAP_MkAtomTerm(at);
+  YAP_Term cterm = YAP_MkAtomTerm((YAP_Atom)at);
   return YAP_Unify(YAP_GetFromSlot(t),cterm);
 }
 
@@ -679,7 +690,7 @@ get_term(arg_types **buf)
     t = YAP_MkVarTerm();
     break;
   case PL_ATOM:
-    t = YAP_MkAtomTerm(ptr->arg.a);
+    t = YAP_MkAtomTerm((YAP_Atom)ptr->arg.a);
     break;
   case PL_INTEGER:
     t = YAP_MkIntTerm(ptr->arg.l);
@@ -800,11 +811,38 @@ X_API int PL_unify_term(term_t l,...)
 
 /* end PL_unify_* functions =============================*/
 
+/* SWI: void PL_register_atom(atom_t atom)
+   YAP: NO EQUIVALENT */
+/* SAM TO DO */
+X_API void PL_register_atom(atom_t atom)
+{
+  YAP_Term ti = YAP_GetValue((YAP_Atom)atom);
+  if (ti == YAP_MkAtomTerm(YAP_LookupAtom("[]"))) {
+    YAP_PutValue((YAP_Atom)atom, YAP_MkIntTerm(1));
+  } else if (YAP_IsIntTerm(ti)) {
+    long int i = YAP_IntOfTerm(ti);
+    YAP_PutValue((YAP_Atom)atom, YAP_MkIntTerm(i++));
+  }
+}
+
 /* SWI: void PL_unregister_atom(atom_t atom)
    YAP: NO EQUIVALENT */
 /* SAM TO DO */
 X_API void PL_unregister_atom(atom_t atom)
 {
+  YAP_Term ti = YAP_GetValue((YAP_Atom)atom);
+  if (YAP_IsIntTerm(ti)) {
+    long int i = YAP_IntOfTerm(ti);
+    if (i == 1)
+      YAP_PutValue((YAP_Atom)atom, YAP_MkAtomTerm(YAP_LookupAtom("[]")));
+    YAP_PutValue((YAP_Atom)atom, YAP_MkIntTerm(i--));
+  }
+}
+
+X_API int PL_get_string_chars(term_t t, char **s, int *len)
+{
+  /* there are no such objects in Prolog */
+  return FALSE;
 }
 
 X_API int PL_term_type(term_t t)
@@ -907,9 +945,62 @@ X_API int PL_is_variable(term_t ts)
   return YAP_IsVarTerm(t);
 }
 
+X_API int PL_compare(term_t ts1, term_t ts2)
+{
+  YAP_Term t1 = YAP_GetFromSlot(ts1);
+  YAP_Term t2 = YAP_GetFromSlot(ts2);
+  return YAP_CompareTerms(t1, t2);
+}
+
 X_API void PL_halt(int e)
 {
    YAP_Halt(e);
+}
+
+X_API int PL_action(int action,...)
+{
+  va_list ap;
+
+  va_start (ap, action);
+  switch (action) {
+  case PL_ACTION_TRACE:
+    fprintf(stderr, "PL_ACTION_TRACE not supported\n");
+    break;
+  case PL_ACTION_DEBUG:
+    fprintf(stderr, "PL_ACTION_DEBUG not supported\n");
+    break;
+  case PL_ACTION_BACKTRACE:
+    fprintf(stderr, "PL_ACTION_BACKTRACE not supported\n");
+    break;
+  case PL_ACTION_HALT:
+    {
+      int halt_arg = va_arg(ap, int);
+      YAP_Halt(halt_arg);
+    }
+    break;
+  case PL_ACTION_ABORT:
+    {
+      YAP_Throw(YAP_MkAtomTerm(YAP_LookupAtom("abort")));
+    }
+    break;
+  case PL_ACTION_BREAK:
+    fprintf(stderr, "PL_ACTION_BREAK not supported\n");
+    break;
+  case PL_ACTION_GUIAPP:
+    fprintf(stderr, "PL_ACTION_GUIAPP not supported\n");
+    break;
+  case PL_ACTION_WRITE:
+    fprintf(stderr, "PL_ACTION_WRITE not supported\n");
+    break;
+  case PL_ACTION_FLUSH:
+    fprintf(stderr, "PL_ACTION_WRITE not supported\n");
+    break;
+  case PL_ACTION_ATTACH_CONSOLE:
+    fprintf(stderr, "PL_ACTION_WRITE not supported\n");
+    break;
+  }
+  va_end (ap);
+  return 0;
 }
 
 X_API fid_t
@@ -944,7 +1035,7 @@ PL_exception(qid_t q)
 }
 
 X_API int
-PL_initialise(int myargc, char **myargv, char **myenviron)
+PL_initialise(int myargc, char **myargv)
 {
   YAP_init_args init_args;
 
@@ -964,13 +1055,19 @@ PL_initialise(int myargc, char **myargv, char **myenviron)
   return YAP_Init(&init_args);
 }
 
+X_API int
+PL_is_initialised(int *argc, char ***argv)
+{
+  return TRUE;
+}
+
 X_API predicate_t PL_pred(functor_t f, module_t m)
 {
   if (YAP_IsAtomTerm(f)) {
-    return YAP_Predicate(YAP_AtomOfTerm(f),0,m);
+    return YAP_Predicate(YAP_AtomOfTerm(f),0,(YAP_Module)m);
   } else {
     YAP_Functor tf = (YAP_Functor)f;
-    return YAP_Predicate(YAP_NameOfFunctor(tf),YAP_ArityOfFunctor(tf),m);
+    return YAP_Predicate(YAP_NameOfFunctor(tf),YAP_ArityOfFunctor(tf),(YAP_Module)m);
   }
 }
 
@@ -988,7 +1085,7 @@ X_API predicate_t PL_predicate(const char *name, int arity, const char *m)
 
 X_API void PL_predicate_info(predicate_t p,atom_t *name, int *arity, module_t *m)
 {
-  YAP_PredicateInfo(p, name, (unsigned long int  *)arity, (int *)m);
+  YAP_PredicateInfo(p, (YAP_Atom *)name, (unsigned long int  *)arity, (YAP_Module *)m);
 }
 
 typedef struct open_query_struct {
@@ -1003,7 +1100,7 @@ X_API qid_t PL_open_query(module_t ctx, int flags, predicate_t p, term_t t0)
 {
   atom_t name;
   unsigned long int  arity;
-  int  m;
+  YAP_Module  m;
   YAP_Term t[2];
 
   /* ignore flags  and module for now */
@@ -1012,12 +1109,12 @@ X_API qid_t PL_open_query(module_t ctx, int flags, predicate_t p, term_t t0)
   }
   execution.open=1;
   execution.state=0;
-  YAP_PredicateInfo(p, &name, &arity, &m);
+  YAP_PredicateInfo(p, (YAP_Atom *)&name, &arity, &m);
   t[0] = YAP_ModuleName(m);
   if (arity == 0) {
-    t[1] = YAP_MkAtomTerm(name);
+    t[1] = YAP_MkAtomTerm((YAP_Atom)name);
   } else {
-    YAP_Functor f = YAP_MkFunctor(name, arity);
+    YAP_Functor f = YAP_MkFunctor((YAP_Atom)name, arity);
     t[1] = YAP_MkApplTerm(f,arity,YAP_AddressFromSlot(t0));
   }
   execution.g = YAP_MkApplTerm(YAP_MkFunctor(YAP_LookupAtom(":"),2),2,t);
@@ -1068,7 +1165,7 @@ X_API int PL_call_predicate(module_t ctx, int flags, predicate_t p, term_t t0)
 X_API int PL_call(term_t tp, module_t m)
 {
   YAP_Term t[2], g;
-  t[0] = YAP_ModuleName(m);
+  t[0] = YAP_ModuleName((YAP_Module)m);
   t[1] = YAP_GetFromSlot(tp);
   g = YAP_MkApplTerm(YAP_MkFunctor(YAP_LookupAtom(":"),2),2,t);
   return YAP_RunGoal(g);
@@ -1078,7 +1175,16 @@ X_API void PL_register_extensions(PL_extension *ptr)
 {
   /* ignore flags for now */
   while(ptr->predicate_name != NULL) {
-    YAP_UserCPredicateWithArgs(ptr->predicate_name,ptr->function,ptr->arity,YAP_CurrentModule());
+    YAP_UserCPredicateWithArgs(ptr->predicate_name,(YAP_Bool (*)(void))ptr->function,ptr->arity,YAP_CurrentModule());
+    ptr++;
+  }
+}
+
+X_API void PL_load_extensions(PL_extension *ptr)
+{
+  /* ignore flags for now */
+  while(ptr->predicate_name != NULL) {
+    YAP_UserCPredicateWithArgs(ptr->predicate_name,(YAP_Bool (*)(void))ptr->function,ptr->arity,YAP_CurrentModule());
     ptr++;
   }
 }
@@ -1090,9 +1196,94 @@ X_API int PL_thread_self(void)
 
 X_API int PL_thread_attach_engine(const PL_thread_attr_t *attr)
 {
-  /*  YAP_thread_attr yap; */
-  return YAP_ThreadSelf();
+  int wid = YAP_ThreadSelf();
+  
+  if (wid < 0) {
+    /* we do not have an engine */
+    if (attr) {
+      YAP_thread_attr yapt;
+      int wid; 
+
+      yapt.ssize = attr->local_size;
+      yapt.tsize = attr->global_size;
+      yapt.alias = (YAP_Term)attr->alias;
+      yapt.cancel =  attr->cancel;
+      wid = YAP_ThreadCreateEngine(&yapt);
+    } else {
+      wid = YAP_ThreadCreateEngine(NULL);
+    }
+    if (wid < 0)
+      return -1;
+    if (YAP_ThreadAttachEngine(wid)) {
+      return wid;
+    }
+    return -1;
+  } else {
+    /* attach myself again */
+    YAP_ThreadAttachEngine(wid);
+    return wid;
+  }
 }
+
+X_API int PL_thread_destroy_engine(void)
+{
+  int wid = YAP_ThreadSelf();
+
+  if (wid < 0) {
+    /* we do not have an engine */
+    return FALSE;
+  }
+  YAP_ThreadDetachEngine(wid);
+  return YAP_ThreadDestroyEngine(wid);
+}
+
+X_API int
+PL_thread_at_exit(void (*function)(void *), void *closure, int global)
+{
+  /* don't do nothing for now */
+  fprintf(stderr,"%% YAP ERROR: PL_thread_at_exit not implemented yet\n");
+  return TRUE;
+}
+
+
+X_API PL_engine_t
+PL_create_engine(const PL_thread_attr_t *attr)
+{
+  if (attr) {
+    YAP_thread_attr yapt;
+
+    yapt.ssize = attr->local_size;
+    yapt.tsize = attr->global_size;
+    yapt.alias = (YAP_Term)attr->alias;
+    yapt.cancel =  attr->cancel;
+    return (PL_engine_t)YAP_ThreadCreateEngine(&yapt);
+  } else {
+    return (PL_engine_t)YAP_ThreadCreateEngine(NULL);
+  }
+}
+
+
+X_API int
+PL_destroy_engine(PL_engine_t e)
+{
+  return YAP_ThreadDestroyEngine((int)e);
+}
+
+X_API int
+PL_set_engine(PL_engine_t engine, PL_engine_t *old)
+{
+  int cwid = YAP_ThreadSelf();
+  if (*old) *old = (PL_engine_t)cwid;
+  if (engine == PL_ENGINE_CURRENT)
+    return PL_ENGINE_SET;
+  if (engine < 0) /* should really check if engine does not exist */
+    return PL_ENGINE_INVAL;
+  if (!(YAP_ThreadAttachEngine((int)engine))) {
+    return PL_ENGINE_INUSE;
+  }
+  return PL_ENGINE_SET;
+}
+
 
 /* note: fprintf may be called from anywhere, so please don't try
    to be smart and allocate stack from somewhere else */
@@ -1113,6 +1304,33 @@ X_API int Sprintf(char *format,...)
   return 1;
 }
 
+
+/* note: fprintf may be called from anywhere, so please don't try
+   to be smart and allocate stack from somewhere else */
+X_API int Sdprintf(char *format,...)
+{
+  va_list ap;
+  char buf[512];
+
+  va_start(ap,format);
+#ifdef HAVE_VSNPRINTF
+  vsnprintf(buf,512,format,ap);
+#else
+  vsprintf(buf,format,ap);
+#endif
+  va_end(ap);
+
+#if DEBUG
+  fputs(buf, stderr);
+#endif
+  return 1;
+}
+
+int
+swi_install(void)
+{
+  return TRUE;
+}
 
 #ifdef _WIN32
 

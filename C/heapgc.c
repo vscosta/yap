@@ -3213,7 +3213,7 @@ call_gc(UInt gc_lim, Int predarity, CELL *current_env, yamop *nextop)
   /* expand the stack if effectiveness is less than 20 % */
   if (ASP - H < gc_margin/sizeof(CELL) ||
       effectiveness < 20) {
-    return (Yap_growstack(gc_margin));
+    return Yap_growstack(gc_margin);
   }
   /*
    * debug for(save_total=1; save_total<=N; ++save_total)

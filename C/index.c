@@ -11,8 +11,11 @@
 * File:		index.c							 *
 * comments:	Indexing a Prolog predicate				 *
 *									 *
-* Last rev:     $Date: 2004-07-29 18:15:18 $,$Author: vsc $						 *
+* Last rev:     $Date: 2004-08-11 16:14:52 $,$Author: vsc $						 *
 * $Log: not supported by cvs2svn $
+* Revision 1.94  2004/07/29 18:15:18  vsc
+* fix severe bug in indexing of floating point numbers
+*
 * Revision 1.93  2004/07/23 19:01:14  vsc
 * fix bad ref count in expand_clauses when copying indexing block
 *
@@ -5280,7 +5283,10 @@ replace_lu_block(LogUpdIndex *blk, int flag, PredEntry *ap, yamop *code, int has
     nbegin->u.xl.x = begin->u.xl.x;
     nbegin->u.xl.l = begin->u.xl.l;
     if (nbegin->u.xl.l->opc == Yap_opcode(_expand_clauses)) {
-      nbegin->u.xl.l->u.sp.s3++;
+      if (!(blk->ClFlags & ErasedMask)) {
+	/* we haven't done erase yet */
+	nbegin->u.xl.l->u.sp.s3++;
+      }
     }
     begin = NEXTOP(begin, xl);
     nbegin = NEXTOP(nbegin, xl);

@@ -297,7 +297,7 @@ dump_stack(void)
     fprintf(stderr,"%% YAP ERROR: Code Space Collided against Global\n");
   } else {
     if (b_ptr != NULL) {
-      fprintf(stderr," [ Goals with alternatives open:\n");
+      fprintf(stderr," [ Goals with open alternatives:\n");
       while (b_ptr != NULL) {
 	cl_position(b_ptr->cp_ap);
 	b_ptr = b_ptr->cp_b;
@@ -355,6 +355,7 @@ Yap_Error (yap_error_number type, Term where, char *format,...)
   char *tp = tmpbuf;
   int psize = YAP_BUF_SIZE;
 
+  
   if (type == INTERRUPT_ERROR) {
     fprintf(stderr,"%% YAP exiting: cannot handle signal %d\n",
 	    (int)IntOfTerm(where));
@@ -367,7 +368,7 @@ Yap_Error (yap_error_number type, Term where, char *format,...)
     /* now build the error string */
     if (format != NULL) {
 #if   HAVE_VSNPRINTF
-      (void) vsnprintf(tmpbuf, 512, format, ap);
+      (void) vsnprintf(tmpbuf, YAP_BUF_SIZE, format, ap);
 #else
       (void) vsprintf(tmpbuf, format, ap);
 #endif

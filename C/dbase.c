@@ -570,7 +570,7 @@ typedef struct {
          }
 
 /* no checking for overflow while building DB terms yet */
-#define  CheckDBOverflow() if (CodeMax+1024 >= (CELL *)visited) {     \
+#define  CheckDBOverflow(X) if (CodeMax+X >= (CELL *)visited-1024) {     \
     goto error;					                      \
    }
     
@@ -717,13 +717,13 @@ static CELL *MkDBTerm(register CELL *pt0, register CELL *pt0_end,
 #else
 	  *StoPoint++ = AbsAppl(CodeMax);
 #endif
-	  CheckDBOverflow();
+	  CheckDBOverflow(3);
 	  CodeMax = copy_long_int(CodeMax, ap2);
 	  ++pt0;
 	  continue;
 #ifdef USE_GMP
 	case (CELL)FunctorBigInt:
-	  CheckDBOverflow();
+	  CheckDBOverflow(3);
 	  /* first thing, store a link to the list before we move on */
 #ifdef IDB_USE_MBIT
 	  *StoPoint++ = AbsAppl(CodeMax)|MBIT;
@@ -738,7 +738,7 @@ static CELL *MkDBTerm(register CELL *pt0, register CELL *pt0_end,
 	  {
 	    CELL *st = CodeMax;
 
-	    CheckDBOverflow();
+	    CheckDBOverflow(4);
 	    /* first thing, store a link to the list before we move on */
 #ifdef IDB_USE_MBIT
 	    *StoPoint++ = AbsAppl(st)|MBIT;
@@ -779,7 +779,7 @@ static CELL *MkDBTerm(register CELL *pt0, register CELL *pt0_end,
       pt0_end = ap2 + d0;
       /* prepare for our new compound term */
       /* first the functor */
-      CheckDBOverflow();
+      CheckDBOverflow(d0);
       *CodeMax++ = (CELL)f;
       /* we'll be working here */
       StoPoint = CodeMax;
@@ -834,7 +834,7 @@ static CELL *MkDBTerm(register CELL *pt0, register CELL *pt0_end,
       pt0_end = RepPair(d0) + 1;
       /* reserve space for our new list */
       CodeMax += 2;
-      CheckDBOverflow();
+      CheckDBOverflow(2);
       continue;
     } else if (IsAtomOrIntTerm(d0)) {
       *StoPoint++ = d0;
@@ -869,7 +869,7 @@ static CELL *MkDBTerm(register CELL *pt0, register CELL *pt0_end,
 	/* store previous value */ 
 	visited --;
 	visited->addr = ptd0;
-	CheckDBOverflow();
+	CheckDBOverflow(1);
 	/* variables need to be offset at read time */
 	*ptd0 = (CELL)StoPoint;
 #if SBA
@@ -947,7 +947,7 @@ static CELL *MkDBTerm(register CELL *pt0, register CELL *pt0_end,
     to_visit -= 3;
     pt0 = to_visit[0];
     pt0_end = to_visit[1];
-    CheckDBOverflow();
+    CheckDBOverflow(1);
     StoPoint = to_visit[2];
 #endif
     goto loop;
@@ -965,7 +965,7 @@ static CELL *MkDBTerm(register CELL *pt0, register CELL *pt0_end,
     StoPoint = CodeMax;
     *StoPoint++ = RepAppl(ConstraintsTerm)[0];
     ConstraintsTerm = AbsAppl(CodeMax);
-    CheckDBOverflow();
+    CheckDBOverflow(1);
     CodeMax += 5;
     goto loop;
   }
