@@ -266,8 +266,9 @@ do_execute(Term t, SMALLUNSGN mod)
       }
       if (pen->PredFlags & PushModPredFlag) {
 	t = PushModule(t,mod);
+      } else{
+	return(CallMetaCall(mod));
       }
-      return(CallMetaCall(mod));
     }
     /* now let us do what we wanted to do from the beginning !! */
     /* I cannot use the standard macro here because
@@ -375,7 +376,11 @@ p_execute_within(void)
 	    goto restart_exec;
 	  }
 	}
-	return(CallMetaCallWithin());
+	if (pen->PredFlags & PushModPredFlag) {
+	  t = PushModule(t,mod);
+	} else {
+	  return(CallMetaCallWithin());
+	}
       }
       /* now let us do what we wanted to do from the beginning !! */
       /* I cannot use the standard macro here because
@@ -473,7 +478,11 @@ p_execute_within2(void)
       /* You thought we would be over by now */
       /* but no meta calls require special preprocessing */
       if (pen->PredFlags & MetaPredFlag) {
-	return(CallMetaCallWithin());
+	if (pen->PredFlags & PushModPredFlag) {
+	  t = PushModule(t,mod);
+	} else {
+	  return(CallMetaCallWithin());
+	}
       }
       /* at this point check if we should enter creep mode */ 
       /* now let us do what we wanted to do from the beginning !! */
@@ -568,6 +577,10 @@ p_execute0(void)
 	goto restart_exec;
       }
     }
+    pe = PredPropByFunc(f, mod);
+    if (RepPredProp(pe)->PredFlags & PushModPredFlag) {
+      t = PushModule(t,mod);
+    }
     arity = ArityOfFunctor(f);
     /* I cannot use the standard macro here because
        otherwise I would dereference the argument and
@@ -584,7 +597,6 @@ p_execute0(void)
       XREGS[i] = *pt++;
 #endif
     }
-    pe = PredPropByFunc(f, mod);
   } else {
     Error(TYPE_ERROR_CALLABLE,ARG3,"call/1");    
     return(FALSE);
@@ -1249,6 +1261,10 @@ p_at_execute(void)
       }
       Error(TYPE_ERROR_ATOM, ARG1, "calling clause in debugger");
     }
+    pe = PredPropByFunc(f,mod);
+    if (RepPredProp(pe)->PredFlags & PushModPredFlag) {
+      t = PushModule(t,mod);
+    }
     arity = ArityOfFunctor(f);
     a = NameOfFunctor(f);
     /* I cannot use the standard macro here because
@@ -1267,7 +1283,6 @@ p_at_execute(void)
 #else
       XREGS[i] = *pt++;
 #endif
-      pe = PredPropByFunc(f,mod);
   } else
     return (FALSE);	/* for the moment */
   if (IsVarTerm(t2) || !IsIntTerm(t2))

@@ -120,6 +120,28 @@ push_live_regs(yamop *pco)
 }
 #endif
 
+static Term
+PushModule(Term t,SMALLUNSGN mod) {
+  Functor f = FunctorOfTerm(t);
+  Term tmod =  ModuleName[mod];
+  if (ArityOfFunctor(f) == 2) {
+    Term ti[2], tf[2];
+    ti[0] = tmod;
+    ti[1] = ArgOfTerm(1,t);
+    tf[0] = MkApplTerm(FunctorModule,2,ti);
+    ti[0] = tmod;
+    ti[1] = ArgOfTerm(2,t);
+    tf[1] = MkApplTerm(FunctorModule,2,ti);
+    return(MkApplTerm(f,2,tf));
+  } else {
+    Term ti[2], tf[1];
+    ti[0] = tmod;
+    ti[1] = ArgOfTerm(1,t);
+    tf[0] = MkApplTerm(FunctorModule,2,ti);
+    return(MkApplTerm(f,1,tf));
+  }
+}
+
 Int 
 absmi(int inp)
 {
@@ -11666,8 +11688,12 @@ absmi(int inp)
 		goto execute_nvar;
 	      }
 	    }
-	    d0 = ExecuteCallMetaCall(mod);
-	    goto execute_nvar;
+	    if (pen->PredFlags & PushModPredFlag) {
+	      d0 = PushModule(d0,mod);
+	    } else {
+	      d0 = ExecuteCallMetaCall(mod);
+	      goto execute_nvar;
+	    }
 	  }
 	  BEGP(pt1);
 	  pt1 = RepAppl(d0);
@@ -11785,8 +11811,12 @@ absmi(int inp)
 		goto execute_within_nvar;
 	      }
 	    }
-	    d0 = ExecuteCallMetaCall(mod);
-	    goto execute_within_nvar;
+	    if (pen->PredFlags & PushModPredFlag) {
+	      d0 = PushModule(d0,mod);
+	    } else {
+	      d0 = ExecuteCallMetaCall(mod);
+	      goto execute_within_nvar;
+	    }
 	  }
 	  BEGP(pt1);
 	  pt1 = RepAppl(d0);
@@ -11921,8 +11951,12 @@ absmi(int inp)
 		goto last_execute_within_nvar;
 	      }
 	    }
-	    d0 = ExecuteCallMetaCall(mod);
-	    goto last_execute_within_nvar;
+	    if (pen->PredFlags & PushModPredFlag) {
+	      d0 = PushModule(d0,mod);
+	    } else {
+	      d0 = ExecuteCallMetaCall(mod);
+	      goto last_execute_within_nvar;
+	    }
 	  }
 	  BEGP(pt1);
 	  pt1 = RepAppl(d0);
