@@ -2287,8 +2287,12 @@ StreamName(int i)
       return(MkAtomTerm(LookupAtom("pipe")));
     if (Stream[i].status & InMemory_Stream_f)
       return(MkAtomTerm(LookupAtom("charsio")));
-    else
-      return(MkAtomTerm(Stream[i].u.file.name));
+    else {
+      if (yap_flags[LANGUAGE_MODE_FLAG] == ISO_CHARACTER_ESCAPES) {
+	return(Stream[i].u.file.user_name);
+      } else
+	return(MkAtomTerm(Stream[i].u.file.name));
+    }
 }
 
 static Int
@@ -2301,6 +2305,9 @@ init_cur_s (void)
     Term t1, t2;
 
     i = CheckStream (t3, Input_Stream_f|Output_Stream_f, "current_stream/3");
+    if (i < 0) {
+      return(FALSE);
+    }
     t1 = StreamName(i);
     t2 = (Stream[i].status & Input_Stream_f ?
 	  MkAtomTerm (AtomRead) :
@@ -2481,6 +2488,46 @@ p_past_eof (void)
   if (sno < 0)
     return (FALSE);
   return(Stream[sno].status & Eof_Stream_f);
+}
+
+static Int
+p_peek_byte (void)
+{				/* at_end_of_stream */
+  /* the next character is a EOF */ 
+  int sno = CheckStream (ARG1, Input_Stream_f, "peek/2");
+  StreamDesc *s;
+  Int ocharcount, olinecount, olinepos;
+  Int status;
+  Int ch;
+
+  if (sno < 0)
+    return(FALSE);
+  status = Stream[sno].status;
+  if (!(status & Binary_Stream_f)) {
+    Error(PERMISSION_ERROR_INPUT_TEXT_STREAM, ARG1, "peek/2");
+    return(FALSE);
+  }
+  if (status & Eof_Stream_f) {
+    Error(PERMISSION_ERROR_INPUT_PAST_END_OF_STREAM, ARG1, "peek/2");
+    return(FALSE);
+  }
+  s = Stream+sno;
+  ocharcount = s->charcount;
+  olinecount = s->linecount;
+  olinepos = s->linepos;
+  ch = Stream[sno].stream_getc(sno);
+  s->charcount = ocharcount;
+  s->linecount = olinecount;
+  s->linepos = olinepos;
+  /* buffer the character */
+  s->och = ch;
+  /* mark a special function to recover this character */
+  s->stream_getc = PlUnGetc;
+  if (CharConversionTable != NULL)
+    s->stream_getc_for_read = ISOGetc;
+  else
+    s->stream_getc_for_read = s->stream_getc;
+  return(unify_constant(ARG2,MkIntTerm(ch)));
 }
 
 static Int
@@ -4840,7 +4887,7 @@ InitIOPreds(void)
   InitCPred ("$file_name", 2, p_file_name, SafePredFlag|SyncPredFlag),
   InitCPred ("$past_eof", 1, p_past_eof, SafePredFlag|SyncPredFlag),
   InitCPred ("$peek", 2, p_peek, SafePredFlag|SyncPredFlag),
-  InitCPred ("$peek_byte", 2, p_peek, SafePredFlag|SyncPredFlag),
+  InitCPred ("$peek_byte", 2, p_peek_byte, SafePredFlag|SyncPredFlag),
   InitCPred ("current_input", 1, p_current_input, SafePredFlag|SyncPredFlag);
   InitCPred ("current_output", 1, p_current_output, SafePredFlag|SyncPredFlag);
   InitCPred ("prompt", 1, p_setprompt, SafePredFlag|SyncPredFlag);

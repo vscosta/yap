@@ -436,9 +436,17 @@ abolish(X) :-
 	throw(error(type_error(atom,M), Msg)).
 
 '$old_abolish'(V,M) :- var(V), !,
-	'$abolish_all_old'(M).
+	( '$access_yap_flags'(8, 1) ->
+	    throw(error(instantiation_error,abolish(M:V)))
+	;
+	    '$abolish_all_old'(M)
+	).
 '$old_abolish'(A,M) :- atom(A), !,
-	'$abolish_all_atoms_old'(A,M).
+	( '$access_yap_flags'(8, 1) ->
+	  throw(error(type_error(predicate_indicator,A),abolish(M:A)))
+	;
+	    '$abolish_all_atoms_old'(A,M)
+	).
 '$old_abolish'(M:N,_) :- !,
 	'$old_abolish'(N,M).
 '$old_abolish'([], _) :- !.

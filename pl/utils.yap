@@ -338,10 +338,10 @@ current_predicate(M:F) :-			% module specified
 current_predicate(M:F) :- % module specified
 	!,
 	'$current_predicate3'(M,F).
-current_predicate(F) :-			% only for the predicate
+current_predicate(S) :-			% only for the predicate
 	'$current_module'(M),
-	'$current_predicate3'(M,F).
-
+	'$current_predicate3'(M,S).
+	
 system_predicate(A,P) :-
 	'$current_predicate_no_modules'(prolog,A,P),
 	\+ '$hidden'(A).
@@ -356,11 +356,13 @@ system_predicate(P) :-
 	functor(T,A,Arity),
 	'$pred_exists'(T,M).
 
-'$current_predicate3'(M,A/Arity) :-
+'$current_predicate3'(M,A/Arity) :- !,
 	'$current_predicate'(M,A,Arity),
 	\+ '$hidden'(A),
 	functor(T,A,Arity),
 	'$pred_exists'(T,M).
+'$current_predicate3'(M,BadSpec) :-			% only for the predicate
+	throw(error(type_error(predicate_indicator,BadSpec),current_predicate(M:BadSpec))).
 
 %%% User interface for statistics
 

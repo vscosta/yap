@@ -664,7 +664,6 @@ put(Stream,N) :-  N1 is N, '$put'(Stream,N1).
 
 skip(N) :- current_input(S),  N1 is N, '$skip'(S,N1).
 
-skip(Stream,_) :- \+ '$check_stream'(Stream,read), !, fail.
 skip(Stream,N) :- N1 is N, '$skip'(Stream,N1).
 
 '$tab'(N) :- N<1, !.
@@ -774,7 +773,6 @@ stream_property(Stream, Props) :-  var(Stream), !,
 	'$current_stream'(_,_,Stream),
 	'$stream_property'(Stream, Props).
 stream_property(Stream, Props) :-
-	'$check_stream'(Stream), !,
 	'$stream_property'(Stream, Props).
 stream_property(Stream, Props) :-
 	throw(error(domain_error(stream,Stream),stream_property(Stream, Props))).
