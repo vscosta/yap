@@ -504,6 +504,9 @@ ParseTerm(int prio)
     NextToken;
     break;
 
+  case Error_tok:
+    FAIL;
+
   case Ponctuation_tok:
     switch ((int) Yap_tokptr->TokInfo) {
     case '(':

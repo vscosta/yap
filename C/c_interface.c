@@ -1024,7 +1024,7 @@ X_API void
 YAP_SetOutputMessage(void)
 {
 #if DEBUG
-  output_msg = TRUE;
+  Yap_output_msg = TRUE;
 #endif
 }
 

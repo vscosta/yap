@@ -52,6 +52,8 @@ static char     SccsId[] = "%W% %G%";
 
 #define	LOGFILE	"logfile"
 
+int  Yap_output_msg = FALSE;
+
 #ifdef MACC
 STATIC_PROTO(void  InTTYLine, (char *));
 #endif
@@ -402,7 +404,7 @@ InitDebug(void)
 
   for (i = 1; i < 20; ++i)
     Yap_Option[i] = 0;
-  if (output_msg) {
+  if (Yap_output_msg) {
     char            ch;
 
 #if HAVE_ISATTY
@@ -967,9 +969,6 @@ InitCodes(void)
   heap_regs->term_prolog = MkAtomTerm(Yap_LookupAtom("prolog"));
   heap_regs->term_refound_var = MkAtomTerm(Yap_LookupAtom("$I_FOUND_THE_VARIABLE_AGAIN"));
   heap_regs->dyn_array_list = NULL;
-#if DEBUG
-  heap_regs->debugger_output_msg = FALSE;
-#endif
   heap_regs->n_of_file_aliases = 0;
   heap_regs->file_aliases = NULL;
   heap_regs->foreign_code_loaded = NULL;

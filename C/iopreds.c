@@ -819,7 +819,9 @@ extern void add_history (const char *);
 
 static char *ttyptr = NULL;
 
-static char *_line = (char *) NULL;
+
+
+static char *myrl_line = (char *) NULL;
 
 static int cur_out_sno = 2;
 
@@ -879,8 +881,8 @@ ReadlineGetc(int sno)
 
   while (ttyptr == NULL) {
     /* Only sends a newline if we are at the start of a line */
-    if (_line != NULL && _line != (char *) EOF)
-      free (_line);
+    if (myrl_line != NULL && myrl_line != (char *) EOF)
+      free (myrl_line);
     rl_instream = Stream[sno].u.file.file;
     rl_outstream = Stream[cur_out_sno].u.file.file;
     /* window of vulnerability opened */
@@ -894,20 +896,20 @@ ReadlineGetc(int sno)
 	  console_count_output_char(ch,Stream+StdErrStream,StdErrStream);
 	}
 	Yap_PrologMode |= ConsoleGetcMode;
-	_line = readline (Prompt);
+	myrl_line = readline (Prompt);
       } else {
 	Yap_PrologMode |= ConsoleGetcMode;
-	_line = readline (NULL);
+	myrl_line = readline (NULL);
       }
     } else {
       if (ReadlinePos != ReadlineBuf) {
 	ReadlinePos[0] = '\0';
 	ReadlinePos = ReadlineBuf;
 	Yap_PrologMode |= ConsoleGetcMode;
-	_line = readline (ReadlineBuf);
+	myrl_line = readline (ReadlineBuf);
       } else {
 	Yap_PrologMode |= ConsoleGetcMode;
-	_line = readline (NULL);
+	myrl_line = readline (NULL);
       }
     }
     /* Do it the gnu way */
@@ -927,11 +929,11 @@ ReadlineGetc(int sno)
     newline=FALSE;
     strncpy (Prompt, RepAtom (*AtPrompt)->StrOfAE, MAX_PROMPT);
     /* window of vulnerability closed */
-    if (_line == NULL || _line == (char *) EOF)
+    if (myrl_line == NULL || myrl_line == (char *) EOF)
       return(console_post_process_read_char(EOF, s, sno));
-    if (_line[0] != '\0' && _line[1] != '\0')
-      add_history (_line);
-    ttyptr = _line;
+    if (myrl_line[0] != '\0' && myrl_line[1] != '\0')
+      add_history (myrl_line);
+    ttyptr = myrl_line;
   }
   if (*ttyptr == '\0') {
     ttyptr = NIL;
@@ -950,18 +952,18 @@ Yap_GetCharForSIGINT(void)
 {
   int ch;
 #if  HAVE_LIBREADLINE
-  if ((Yap_PrologMode & ConsoleGetcMode) && _line != (char *) NULL) {
-    ch = _line[0];
-    free(_line);
-    _line = NULL;
+  if ((Yap_PrologMode & ConsoleGetcMode) && myrl_line != (char *) NULL) {
+    ch = myrl_line[0];
+    free(myrl_line);
+    myrl_line = NULL;
   } else {
-    _line = readline ("Action (h for help): ");
-    if (_line == (char *)NULL || _line == (char *)EOF) {
+    myrl_line = readline ("Action (h for help): ");
+    if (myrl_line == (char *)NULL || myrl_line == (char *)EOF) {
       ch = EOF;
     } else {
-      ch = _line[0];
-      free(_line);
-      _line = NULL;
+      ch = myrl_line[0];
+      free(myrl_line);
+      myrl_line = NULL;
     }
   }
 #else
@@ -2788,6 +2790,8 @@ syntax_error (TokEntry * tokptr)
 	ts[0] = Yap_MkApplTerm(Yap_MkFunctor(Yap_LookupAtom("string"),1),1,&t0);
       }
       break;
+    case Error_tok:
+      break;
     case Ponctuation_tok:
       {
 	char s[2];
@@ -2804,12 +2808,13 @@ syntax_error (TokEntry * tokptr)
       *error = TermNil;
       end = tokptr->TokPos;
       break;
+    } else if (tokptr->Tok != Ord (Error_tok)) {
+      ts[1] = MkIntegerTerm(tokptr->TokPos);
+      *error =
+	MkPairTerm(Yap_MkApplTerm(Yap_MkFunctor(Yap_LookupAtom("-"),2),2,ts),TermNil);
+      error = RepPair(*error)+1;
+      count++;
     }
-    ts[1] = MkIntegerTerm(tokptr->TokPos);
-    *error =
-      MkPairTerm(Yap_MkApplTerm(Yap_MkFunctor(Yap_LookupAtom("-"),2),2,ts),TermNil);
-    error = RepPair(*error)+1;
-    count++;
     tokptr = tokptr->TokNext;
   }
   tf[0] = Yap_MkApplTerm(Yap_MkFunctor(Yap_LookupAtom("read"),1),1,&ARG2);

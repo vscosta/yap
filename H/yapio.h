@@ -172,9 +172,15 @@ extern char Yap_FileNameBuf[YAP_FILENAME_MAX], Yap_FileNameBuf2[YAP_FILENAME_MAX
 
 typedef YP_FILE *YP_File;
 
-enum TokenKinds
-  { Name_tok, Number_tok, Var_tok, String_tok, Ponctuation_tok,
-    eot_tok };
+enum TokenKinds {
+  Name_tok,
+  Number_tok,
+  Var_tok,
+  String_tok,
+  Ponctuation_tok,
+  Error_tok,
+  eot_tok
+};
 
 typedef	 struct	TOKEN {
   unsigned char Tok;

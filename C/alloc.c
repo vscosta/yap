@@ -12,7 +12,7 @@
 * Last rev:								 *
 * mods:									 *
 * comments:	allocating space					 *
-* version:$Id: alloc.c,v 1.28 2002-11-18 17:56:30 vsc Exp $		 *
+* version:$Id: alloc.c,v 1.29 2002-11-19 17:10:42 vsc Exp $		 *
 *************************************************************************/
 #ifdef SCCS
 static char SccsId[] = "%W% %G%";
@@ -1071,11 +1071,11 @@ Yap_InitMemory(int Trail, int Heap, int Stack)
 
 #ifdef DEBUG
 #if SIZEOF_INT_P!=SIZEOF_INT
-  if (output_msg) {
+  if (Yap_output_msg) {
     fprintf(stderr, "HeapBase = %p  GlobalBase = %p\n  LocalBase = %p  TrailTop = %p\n",
 	       Yap_HeapBase, Yap_GlobalBase, Yap_LocalBase, Yap_TrailTop);
 #else
-  if (output_msg) {
+  if (Yap_output_msg) {
     fprintf(stderr, "HeapBase = %x  GlobalBase = %x\n  LocalBase = %x  TrailTop = %x\n",
 	       (UInt) Yap_HeapBase, (UInt) Yap_GlobalBase,
 	       (UInt) Yap_LocalBase, (UInt) Yap_TrailTop);

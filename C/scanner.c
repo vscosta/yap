@@ -573,6 +573,11 @@ token(void)
 	Yap_ErrorMessage = "Heap Overflow While Scanning: please increase code space (-h)";
 	break;
       }
+      if (ch == 10  &&  yap_flags[CHARACTER_ESCAPE_FLAG] == ISO_CHARACTER_ESCAPES) {
+	/* in ISO a new line terminates a string */
+	Yap_ErrorMessage = "layout character \n inside quotes";
+	break;
+      }
       if (ch == quote) {
 	my_get_quoted_ch();
 	if (ch != quote)
@@ -585,7 +590,6 @@ token(void)
 	switch (ch) {
 	case 10:
 	  /* don't add characters */
-	  printf("I am here\n");
 	  my_get_quoted_ch();
 	  break;
 	case 'a':
@@ -865,6 +869,23 @@ Yap_tokenizer(int (*Nxtch) (int), int (*QuotedNxtch) (int))
     t->TokInfo = (Term) TokenInfo;
     t->TokPos = TokenPos;
     t->TokNext = NIL;
+    if (Yap_ErrorMessage) {
+      /* insert an error token to inform the system on what happened */
+      TokEntry *e = (TokEntry *) AllocScannerMemory(sizeof(TokEntry));
+      if (e == NULL) {
+	Yap_ErrorMessage = "not enough stack space to read in term";
+	p->TokInfo = eot_tok;
+	/* serious error now */
+	return(l);
+      }
+      p->TokNext = e;
+      e->Tok = Error_tok;
+      e->TokInfo = MkAtomTerm(Yap_LookupAtom(Yap_ErrorMessage));
+      e->TokPos = TokenPos;
+      e->TokNext = NIL;
+      Yap_ErrorMessage = NULL;
+      p = e;
+    }
   } while (kind != eot_tok);
   return (l);
 }
@@ -1308,6 +1329,11 @@ Yap_fast_tokenizer(void)
 	    Yap_ErrorMessage = "Heap Overflow While Scanning: please increase code space (-h)";
 	    break;
 	  }
+	  if (ch == 10  &&  yap_flags[CHARACTER_ESCAPE_FLAG] == ISO_CHARACTER_ESCAPES) {
+	    /* in ISO a new line terminates a string */
+	    Yap_ErrorMessage = "layout character \n inside quotes";
+	    break;
+	  }
 	  if (ch == quote) {
 	    my_fgetch();
 	    if (ch != quote)
@@ -1569,6 +1595,23 @@ Yap_fast_tokenizer(void)
     t->TokPos = TokenPos;
     t->TokNext = NIL;
     Yap_ReleasePreAllocCodeSpace((CODEADDR)TokImage);
+    if (Yap_ErrorMessage) {
+      /* insert an error token to inform the system on what happened */
+      TokEntry *e = (TokEntry *) AllocScannerMemory(sizeof(TokEntry));
+      if (e == NULL) {
+	Yap_ErrorMessage = "not enough stack space to read in term";
+	p->TokInfo = eot_tok;
+	/* serious error now */
+	return(l);
+      }
+      p->TokNext = e;
+      e->Tok = Error_tok;
+      e->TokInfo = MkAtomTerm(Yap_LookupAtom(Yap_ErrorMessage));
+      e->TokPos = TokenPos;
+      e->TokNext = NIL;
+      Yap_ErrorMessage = NULL;
+      p = e;
+    }
   } while (kind != eot_tok);
   return (l);
 }

@@ -10,7 +10,7 @@
 * File:		Yap.h.m4						 *
 * mods:									 *
 * comments:	main header file for YAP				 *
-* version:      $Id: Yap.h.m4,v 1.37 2002-11-18 18:17:13 vsc Exp $	 *
+* version:      $Id: Yap.h.m4,v 1.38 2002-11-19 17:10:45 vsc Exp $	 *
 *************************************************************************/
 
 #include "config.h"
@@ -778,8 +778,6 @@ typedef struct opcode_tab_entry {
 #define MAX_ERROR_MSG_SIZE 256
 extern char      Yap_ErrorSay[MAX_ERROR_MSG_SIZE];
 
-/********************* how to write a Prolog term ***********************/
-
 /********* Prolog may be in several modes *******************************/
 
 typedef enum {
@@ -800,6 +798,11 @@ extern int      Yap_CritLocks;
 
 extern char   **Yap_argv;
 extern int      Yap_argc;
+
+#ifdef DEBUG
+/************** Debugging Support ***************************/
+extern int Yap_output_msg;
+#endif
 
 /******************* number of modules ****************************/
 
