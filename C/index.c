@@ -11,8 +11,11 @@
 * File:		index.c							 *
 * comments:	Indexing a Prolog predicate				 *
 *									 *
-* Last rev:     $Date: 2004-04-29 03:44:04 $,$Author: vsc $						 *
+* Last rev:     $Date: 2004-06-17 22:07:23 $,$Author: vsc $						 *
 * $Log: not supported by cvs2svn $
+* Revision 1.90  2004/04/29 03:44:04  vsc
+* fix bad suspended clause counter
+*
 * Revision 1.89  2004/04/27 15:03:43  vsc
 * more fixes for expand_clauses
 *
@@ -4972,11 +4975,12 @@ kill_block(path_stack_entry *sp, PredEntry *ap)
 }
 
 static path_stack_entry *
-kill_clause(yamop *ipc, yamop *bg, yamop *lt, path_stack_entry *sp, PredEntry *ap)
+kill_clause(yamop *ipc, yamop *bg, yamop *lt, path_stack_entry *sp0, PredEntry *ap)
 {
   LogUpdIndex *blk;
   yamop *start;
   op_numbers op0;
+  path_stack_entry *sp = sp0;
 
   while ((--sp)->flag != block_entry);
   blk = (LogUpdIndex *)(sp->u.cle.block);
@@ -5041,7 +5045,7 @@ kill_clause(yamop *ipc, yamop *bg, yamop *lt, path_stack_entry *sp, PredEntry *a
       start->u.Ill.l1->u.ld.d = FAILCODE;
     }
     start->opc = Yap_opcode(_stale_lu_index);
-    return sp;
+    return sp0;
   }
 }
 

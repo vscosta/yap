@@ -10,8 +10,11 @@
 *									 *
 * File:		absmi.c							 *
 * comments:	Portable abstract machine interpreter                    *
-* Last rev:     $Date: 2004-06-09 03:32:02 $,$Author: vsc $						 *
+* Last rev:     $Date: 2004-06-17 22:07:22 $,$Author: vsc $						 *
 * $Log: not supported by cvs2svn $
+* Revision 1.135  2004/06/09 03:32:02  vsc
+* fix bugs
+*
 * Revision 1.134  2004/06/05 03:36:59  vsc
 * coroutining is now a part of attvars.
 * some more fixes.
@@ -7049,7 +7052,7 @@ Yap_absmi(int inp)
       ENDD(d1);
       ENDBOp();
 
-      BOp(switch_on_cons, ssl);
+      BOp(switch_on_cons, sssl);
       BEGD(d1);
       d1 = I_R;
       /* we use a very simple hash function to find elements in a
