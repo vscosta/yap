@@ -15,6 +15,40 @@
 *									 *
 *************************************************************************/
 
+/* stream predicates							*/
+
+open(Source,M,T) :- var(Source), !,
+	throw(error(instantiation_error,open(Source,M,T))).
+open(Source,M,T) :- var(M), !,
+	throw(error(instantiation_error,open(Source,M,T))).
+open(Source,M,T) :- nonvar(T), !,
+	throw(error(type_error(variable,T),open(Source,M,T))).
+open(File,Mode,Stream) :-
+	'$open'(File,Mode,Stream,0).
+
+/* meaning of flags for '$write' is
+	 1	quote illegal atoms
+	 2	ignore operator declarations
+	 4	output '$VAR'(N) terms as A, B, C, ...
+	 8	use portray(_)
+*/
+
+close(V) :- var(V), !,
+	throw(error(instantiation_error,close(V))).
+close(File) :-
+	atom(File), !,
+	(
+	    '$access_yap_flags'(8, 0),
+	    current_stream(_,_,Stream),
+	    '$user_file_name'(Stream,File)
+        ->
+	    '$close'(Stream)
+	;
+	    '$close'(File)
+	).
+close(Stream) :-
+	'$close'(Stream).
+
 close(V,Opts) :- var(V), !,
 	throw(error(instantiation_error,close(V,Opts))).
 close(S,Opts) :-
@@ -234,6 +268,12 @@ open(F,T,S,Opts) :-
 '$check_write_portrayed'(X,G) :-
 	throw(error(domain_error(write_option,max_depth(X)),G)).
 
+set_input(Stream) :-
+	'$set_input'(Stream).
+	
+set_output(Stream) :-
+	'$set_output'(Stream).
+
 open_null_stream(S) :- '$open_null_stream'(S).
 
 open_pipe_streams(P1,P2) :- '$open_pipe_stream'(P1, P2).
@@ -364,6 +404,17 @@ read_term(Stream, T, Options) :-
 	 8	use portray(_)
 */
 
+
+nl(Stream) :- '$put'(Stream,10).
+
+nl :- current_output(Stream), '$put'(Stream,10), fail.
+nl.
+
+write(T) :-
+	'$write'(4, T).
+
+write(Stream,T) :- 
+	'$write'(Stream,4,T).
 
 writeq(T) :- '$write'(5,T).
 
@@ -616,6 +667,8 @@ get0(Stream,_) :- \+ '$check_stream'(Stream,read), !, fail.
 get0(Stream,N) :- '$get0'(Stream,N).
 
 put(N) :- current_output(S),  N1 is N, '$put'(S,N1).
+
+put(Stream,N) :-  N1 is N, '$put'(Stream,N1).
 
 skip(N) :- current_input(S),  N1 is N, '$skip'(S,N1).
 

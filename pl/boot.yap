@@ -24,7 +24,7 @@ true :- true. % otherwise, $$compile will ignore this clause.
 '$live' :-
 	'$init_system',
 	repeat,
-		set_input(user),set_output(user),
+		'$set_input'(user),'$set_output'(user),
 		'$current_module'(Module),
 		( Module=user ->
 		    '$compile_mode'(_,0)
@@ -89,39 +89,6 @@ true :- true. % otherwise, $$compile will ignore this clause.
 
 /*		I/O predicates						*/
 
-/* stream predicates							*/
-
-open(Source,M,T) :- var(Source), !,
-	throw(error(instantiation_error,open(Source,M,T))).
-open(Source,M,T) :- var(M), !,
-	throw(error(instantiation_error,open(Source,M,T))).
-open(Source,M,T) :- nonvar(T), !,
-	throw(error(type_error(variable,T),open(Source,M,T))).
-open(File,Mode,Stream) :-
-	'$open'(File,Mode,Stream,0).
-
-close(V) :- var(V), !,
-	throw(error(instantiation_error,close(V))).
-close(File) :-
-	atom(File), !,
-	(
-	    '$access_yap_flags'(8, 0),
-	    current_stream(_,_,Stream),
-	    '$user_file_name'(Stream,File)
-        ->
-	    '$close'(Stream)
-	;
-	    '$close'(File)
-	).
-close(Stream) :-
-	'$close'(Stream).
-
-set_input(Stream) :-
-	'$set_input'(Stream).
-	
-set_output(Stream) :-
-	'$set_output'(Stream).
-
 /* meaning of flags for '$write' is
 	 1	quote illegal atoms
 	 2	ignore operator declarations
@@ -129,25 +96,12 @@ set_output(Stream) :-
 	 8	use portray(_)
 */
 
-write(T) :-
-	'$write'(4, T).
-
-write(Stream,T) :- 
-	'$write'(Stream,4,T).
-
-put(Stream,N) :-  N1 is N, '$put'(Stream,N1).
-
-nl(Stream) :- '$put'(Stream,10).
-
-nl :- current_output(Stream), '$put'(Stream,10), fail.
-nl.
-
 /* main execution loop							*/
 '$read_vars'(Stream,T,V) :-
 	current_input(Old),
-	set_input(Stream),
+	'$set_input'(Stream),
 	'$read'(true,T,V),
-	set_input(Old).
+	'$set_input'(Old).
 
 % reset alarms when entering top-level.
 '$enter_top_level' :-
@@ -526,7 +480,7 @@ repeat :- '$repeat'.
         '$flush_all_streams',
 	fail.
 '$present_answer'((?-), Answ) :-
-	nl(user_error),
+	'$format'(user_error,"~n", []),
 	'$get_value'('$break',BL),
 	( BL \= 0 -> 	'$format'(user_error, "[~p] ",[BL]) ;
 			true ),
@@ -534,20 +488,20 @@ repeat :- '$repeat'.
 	   write_term(user_error,Answ,Opts) ;
 	   '$format'(user_error,"~w",[Answ])
         ),
-	nl(user_error).
+	'$format'(user_error,"~n", []).
 
 '$another' :-
-	write(user_error,' ? '),
+	'$format'(user_error," ? ",[]),
 	'$get0'(user_input,C),
 	(       C==59 ->
 	    '$skip'(user_input,10),fail;
-	    C==10 -> nl(user_error)
+	    C==10 -> '$format'(user_error,"~n", [])
 	;
 	    '$skip'(user_input,10), '$ask_again_for_another'
 	).
 
 '$ask_again_for_another' :-
-	write(user_error,'Action (";" for more choices, <return> for exit)'),
+	'$format'(user_error,"Action (\";\" for more choices, <return> for exit)", []),
 	'$another'.
 
 '$write_answer'(_,_,_) :-
@@ -856,7 +810,7 @@ break :- '$get_value'('$break',BL), NBL is BL+1,
 	'$set_yap_flags'(10,SPY_CREEP),
 	'$set_value'(spy_cl,SPY_CL),
 	'$set_value'(spy_leap,_Leap),
-	set_input(InpStream), set_output(OutStream),
+	'$set_input'(InpStream), '$set_output'(OutStream),
 	'$set_value'('$break',BL).
 
 
@@ -874,10 +828,10 @@ break :- '$get_value'('$break',BL), NBL is BL+1,
 	'$consult'(Fs).
 '$consult'(X) :- atom(X), !,
 	'$find_in_path'(X,Y),
-	( open(Y,'$csult',Stream), !,
+	( '$open'(Y,'$csult',Stream,0), !,
 		'$record_loaded'(Stream),
 		'$consult'(X,Stream),
-		close(Stream)
+		'$close'(Stream)
 	;
 		throw(error(permission_error(input,stream,Y),consult(X)))
 	).
@@ -885,9 +839,9 @@ break :- '$get_value'('$break',BL), NBL is BL+1,
         '$mod_switch'(M,'$consult'(X)).
 '$consult'(library(X)) :- !,
 	'$find_in_path'(library(X),Y),
-	( open(Y,'$csult',Stream), !,
+	( '$open'(Y,'$csult',Stream,0), !,
 		'$record_loaded'(Stream),
-		'$consult'(library(X),Stream), close(Stream)
+		'$consult'(library(X),Stream), '$close'(Stream)
 	;
 		throw(error(permission_error(input,stream,library(X)),consult(library(X))))
 	).
@@ -1018,7 +972,7 @@ break :- '$get_value'('$break',BL), NBL is BL+1,
 % Path predicates
 
 '$exists'(F,Mode) :- '$get_value'(fileerrors,V), '$set_value'(fileerrors,0),
-	( open(F,Mode,S), !, close(S), '$set_value'(fileerrors,V);
+	( '$open'(F,Mode,S,0), !, '$close'(S), '$set_value'(fileerrors,V);
 	  '$set_value'(fileerrors,V), fail).
 
 
@@ -1257,7 +1211,7 @@ throw(A) :-
         '$$cut_by'(X),
         fail.
 throw(G) :-
-        write(user_error,system_error_at(G)),
+        '$format'(user_error,"system_error_at(~w)",[G]),
         abort.
 
 '$check_list'(V, _) :- var(V), !.
