@@ -228,7 +228,7 @@ ord_del_element([Head1|Tail1], Head2, Rest) :-
 ord_del_element(=, _,     Tail1, _, Tail1).
 ord_del_element(<, Head1, Tail1, Head2, [Head1|Difference]) :-
 	ord_del_element(Tail1, Head2, Difference).
-ord_del_element(>, _, Tail1, _, Tail1).
+ord_del_element(>, Head1, Tail1, _, [Head1|Tail1]).
 
 
 
