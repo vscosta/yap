@@ -1,0 +1,65 @@
+BEFORE 4.4:
+- mixed constraints and delays.
+- write infinite terms
+- constraints in DB.
+- fix SBA plus co-routining
+- non-void temporaries going to global
+- interrupt handling in WIN32
+- timestamps on files.
+- warnings in documentation file.
+- system library
+- fixed restore when code is moved around.
+
+TO CHECK:
+- bad register allocation for a(X,Y) :- X is Y+2.3 ?
+
+TABLING
+- pass all tabling tests from Kostis and Bart paper
+- handle floats, long ints and friends in tables.
+
+AFTER 4.4(?)
+- change compilation order for arguments
+- fix code for arithmetic
+- large memory configurations on 32 bit machines (3GB).
+- big data-bases
+- CLP(FD)
+- garbage collector cleans up clauses and logical update DB.
+- atom garbage collector.
+- lpdoc.
+- deterministic trail entries for multi-assignment variables.
+
+DONE:
+- compilation of bignums.
+- expansion in the middle of compilation.
+- garbage collect multiple assignment variables properly.
+- read inf, nan, improve print_message.
+- Too large term in copy_term.
+- block.
+- include Stasinos patches for gmp configuration and documentation.
+- debug new code for delays
+- debug new code for attributes.
+- bug in CHR, run3, deussen1(X).
+- functor
+- check how terms are written by debugger
+- tabling garbage collector.
+- port to HP-UX (4.3.15)
+- port to Alpha (4.3.15)
+- fix trail overflow in gc
+- fix opt.mavar.h trouble
+- fix [] lookup
+- fix documentation complaint
+- fix overflow in tab_fib
+- fix rpm build
+- build problems with cygwin 1.1.7?
+- Trail Overflow in WIN32.
+- save/restore for DB
+- Ashwin bug on storing floats as head of db term.
+- save/restore for arrays.
+- save/restore for arithmetic.
+- fix aliases, user error, etc.
+- set user_input, user_output, and user_error
+- include Mandrake makefiles
+- system enters loop if predicate exported by module is not defined. 
+- copying garbage collector: implemented hybrid
+- dif example in Manual.
+- initial port to OS_X
