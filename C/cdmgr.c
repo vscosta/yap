@@ -2918,7 +2918,7 @@ get_pred(Term t1, Term tmod, char *command)
 }
 
 static Int
-fetch_next_lu_clause(PredEntry *pe, yamop *i_code, Term th, Term tb, Term tr, yamop *cp_ptr)
+fetch_next_lu_clause(PredEntry *pe, yamop *i_code, Term th, Term tb, Term tr, yamop *cp_ptr, int first_time)
 {
   LogUpdClause *cl = Yap_follow_lu_indexing_code(pe, i_code, th, tb, tr, NextClause(PredLogUpdClause->cs.p_code.FirstClause), cp_ptr);
   Term t;
@@ -2926,7 +2926,19 @@ fetch_next_lu_clause(PredEntry *pe, yamop *i_code, Term th, Term tb, Term tr, ya
 
   if (cl == NULL)
     return FALSE;
-  t = Yap_FetchTermFromDB(cl->ClSource, 4);
+  while ((t = Yap_FetchTermFromDB(cl->ClSource)) == 0L) {
+    if (first_time) {
+      if (!Yap_gc(4, YENV, P)) {
+	Yap_Error(OUT_OF_STACK_ERROR, TermNil, Yap_ErrorMessage);
+	return FALSE;
+      }
+    } else {
+      if (!Yap_gc(5, ENV, CP)) {
+	Yap_Error(OUT_OF_STACK_ERROR, TermNil, Yap_ErrorMessage);
+	return FALSE;
+      }
+    }
+  }
   rtn = MkDBRefTerm((DBRef)cl);
 #if defined(OR) || defined(THREADS)
   LOCK(cl->ClLock);
@@ -2959,7 +2971,7 @@ p_log_update_clause(void)
   pe = get_pred(t1, Deref(ARG2), "clause/3");
   if (pe == NULL || EndOfPAEntr(pe))
     return FALSE;
-  return fetch_next_lu_clause(pe, pe->cs.p_code.TrueCodeOfPred, t1, ARG3, ARG4,P);
+  return fetch_next_lu_clause(pe, pe->cs.p_code.TrueCodeOfPred, t1, ARG3, ARG4, P, TRUE);
 }
 
 static Int			/* $hidden_predicate(P) */
@@ -2968,18 +2980,30 @@ p_continue_log_update_clause(void)
   PredEntry *pe = (PredEntry *)IntegerOfTerm(Deref(ARG1));
   yamop *ipc = (yamop *)IntegerOfTerm(ARG2);
 
-  return fetch_next_lu_clause(pe, ipc, Deref(ARG3), ARG4, ARG5, B->cp_ap);
+  return fetch_next_lu_clause(pe, ipc, Deref(ARG3), ARG4, ARG5, B->cp_ap, FALSE);
 }
 
 static Int
-fetch_next_lu_clause0(PredEntry *pe, yamop *i_code, Term th, Term tb, yamop *cp_ptr)
+fetch_next_lu_clause0(PredEntry *pe, yamop *i_code, Term th, Term tb, yamop *cp_ptr, int first_time)
 {
   LogUpdClause *cl = Yap_follow_lu_indexing_code(pe, i_code, th, tb, TermNil, NextClause(PredLogUpdClause0->cs.p_code.FirstClause), cp_ptr);
   Term t;
 
   if (cl == NULL)
     return FALSE;
-  t = Yap_FetchTermFromDB(cl->ClSource, 4);
+  while ((t = Yap_FetchTermFromDB(cl->ClSource)) == 0L) {
+    if (first_time) {
+      if (!Yap_gc(4, YENV, P)) {
+	Yap_Error(OUT_OF_STACK_ERROR, TermNil, Yap_ErrorMessage);
+	return FALSE;
+      }
+    } else {
+      if (!Yap_gc(5, ENV, CP)) {
+	Yap_Error(OUT_OF_STACK_ERROR, TermNil, Yap_ErrorMessage);
+	return FALSE;
+      }
+    }
+  }
   if (IsApplTerm(t) && FunctorOfTerm(t) == FunctorAssert) {
     return(Yap_unify(th, ArgOfTerm(1,t)) &&
 	   Yap_unify(tb, ArgOfTerm(2,t)));
@@ -2998,7 +3022,7 @@ p_log_update_clause0(void)
   pe = get_pred(t1, Deref(ARG2), "clause/3");
   if (pe == NULL || EndOfPAEntr(pe))
     return FALSE;
-  return fetch_next_lu_clause0(pe, pe->cs.p_code.TrueCodeOfPred, t1, ARG3, P);
+  return fetch_next_lu_clause0(pe, pe->cs.p_code.TrueCodeOfPred, t1, ARG3, P, TRUE);
 }
 
 static Int			/* $hidden_predicate(P) */
@@ -3007,18 +3031,30 @@ p_continue_log_update_clause0(void)
   PredEntry *pe = (PredEntry *)IntegerOfTerm(Deref(ARG1));
   yamop *ipc = (yamop *)IntegerOfTerm(ARG2);
 
-  return fetch_next_lu_clause0(pe, ipc, Deref(ARG3), ARG4, B->cp_ap);
+  return fetch_next_lu_clause0(pe, ipc, Deref(ARG3), ARG4, B->cp_ap, FALSE);
 }
 
 static Int
-fetch_next_lu_retract(PredEntry *pe, yamop *i_code, Term th, Term tb, yamop *cp_ptr)
+fetch_next_lu_retract(PredEntry *pe, yamop *i_code, Term th, Term tb, yamop *cp_ptr, int first_time)
 {
   LogUpdClause *cl = Yap_follow_lu_indexing_code(pe, i_code, th, tb, TermNil, NextClause(PredLogUpdRetract->cs.p_code.FirstClause), cp_ptr);
   Term t;
 
   if (cl == NULL)
     return FALSE;
-  t = Yap_FetchTermFromDB(cl->ClSource, 4);
+  while ((t = Yap_FetchTermFromDB(cl->ClSource)) == 0L) {
+    if (first_time) {
+      if (!Yap_gc(3, YENV, P)) {
+	Yap_Error(OUT_OF_STACK_ERROR, TermNil, Yap_ErrorMessage);
+	return FALSE;
+      }
+    } else {
+      if (!Yap_gc(4, ENV, CP)) {
+	Yap_Error(OUT_OF_STACK_ERROR, TermNil, Yap_ErrorMessage);
+	return FALSE;
+      }
+    }
+  }
   if (IsApplTerm(t) && FunctorOfTerm(t) == FunctorAssert) {
     if (!(Yap_unify(th, ArgOfTerm(1,t)) &&
 	  Yap_unify(tb, ArgOfTerm(2,t))))
@@ -3041,7 +3077,7 @@ p_log_update_retract(void)
   pe = get_pred(t1, Deref(ARG2), "retract/2");
   if (pe == NULL || EndOfPAEntr(pe))
     return FALSE;
-  return fetch_next_lu_retract(pe, pe->cs.p_code.TrueCodeOfPred, t1, ARG3, P);
+  return fetch_next_lu_retract(pe, pe->cs.p_code.TrueCodeOfPred, t1, ARG3, P, TRUE);
 }
 
 static Int			/* $hidden_predicate(P) */
@@ -3050,7 +3086,7 @@ p_continue_log_update_retract(void)
   PredEntry *pe = (PredEntry *)IntegerOfTerm(Deref(ARG1));
   yamop *ipc = (yamop *)IntegerOfTerm(ARG2);
 
-  return fetch_next_lu_retract(pe, ipc, Deref(ARG3), ARG4, B->cp_ap);
+  return fetch_next_lu_retract(pe, ipc, Deref(ARG3), ARG4, B->cp_ap, FALSE);
 }
 
 #ifdef LOW_PROF

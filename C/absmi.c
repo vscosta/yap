@@ -1185,7 +1185,14 @@ Yap_absmi(int inp)
 	LogUpdClause *cl = ClauseCodeToLogUpdClause(PREG);
 	Term t;
 
-	t = Yap_FetchTermFromDB(cl->ClSource, 3);
+	saveregs();
+	while ((t = Yap_FetchTermFromDB(cl->ClSource)) == 0L) {
+	  if (!Yap_gc(3, ENV, CP)) {
+	    Yap_Error(OUT_OF_STACK_ERROR, TermNil, Yap_ErrorMessage);
+	    FAIL();
+	  }
+	}
+	setregs();
 	if (!Yap_IUnify(ARG2, t)) {
 	  FAIL();
 	}

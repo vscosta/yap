@@ -1184,20 +1184,20 @@ c_goal(Term Goal, int mod)
 #ifdef TABLING
 	READ_LOCK(CurrentPred->PRWLock);
 	if (is_tabled(CurrentPred)) {
-	  Yap_emit(cut_op, Zero, Zero);
+	  Yap_emit_3ops(cut_op, Zero, Zero, Zero);
 	  Yap_emit(table_new_answer_op, Zero, CurrentPred->ArityOfPE);
 	}
 	else
 #endif /* TABLING */
 	  {
-	    Yap_emit(cutexit_op, Zero, Zero);
+	    Yap_emit_3ops(cutexit_op, Zero, Zero, Zero);
 	  }
 #ifdef TABLING
 	READ_UNLOCK(CurrentPred->PRWLock);
 #endif
       }
       else {
-	Yap_emit(cut_op, Zero, Zero);
+	Yap_emit_3ops(cut_op, Zero, Zero, Zero);
 	/* needs to adjust previous commits */
 	adjust_current_commits();
       }
@@ -1611,10 +1611,9 @@ c_goal(Term Goal, int mod)
       && !(p->PredFlags & SyncPredFlag)
 #endif /* YAPOR */
       ) {
-    if (onlast)
-      Yap_emit(deallocate_op, Zero, Zero);
     Yap_emit(safe_call_op, (CELL) p0, Zero);
     if (onlast) {
+      Yap_emit(deallocate_op, Zero, Zero);
 #ifdef TABLING
       READ_LOCK(CurrentPred->PRWLock);
       if (is_tabled(CurrentPred))
@@ -1842,6 +1841,8 @@ AssignPerm(PInstr *pc)
       }
 #endif
       pc->rnd2 = nperm;
+    } else if (pc->op == cut_op || pc->op == cutexit_op) {
+      pc->rnd2 = nperm;
     }
     opc = pc;
     pc = npc;
@@ -2048,6 +2049,14 @@ CheckUnsafe(PInstr *pc)
       pop_bvmap(vstat, nperm);
       break;
     case empty_call_op:
+      /* just get ourselves a label describing how
+	 many permanent variables are alive */
+      Yap_emit(label_op, ++labelno, Zero);
+      pc->rnd1 = (CELL)labelno;
+      add_bvarray_op(pc, vstat, pc->rnd2);
+      break;
+    case cut_op:
+    case cutexit_op:
       /* just get ourselves a label describing how
 	 many permanent variables are alive */
       Yap_emit(label_op, ++labelno, Zero);
@@ -2490,6 +2499,18 @@ c_layout(void)
       for (rn = 1; rn < MaxCTemps; ++rn)
 	*up++ = *cop++ = NIL;
       break;
+    case cut_op:
+    case cutexit_op:
+      {
+	int i, max;
+
+	max = 0;
+	for (i = 1; i < MaxCTemps; ++i) {
+	  if (Contents[i]) max = i;
+	}
+	cpc->ops.opseqt[1] = max;
+      }
+      break;
     case restore_tmps_and_skip_op:
     case restore_tmps_op:
       /*
@@ -2497,7 +2518,7 @@ c_layout(void)
 	how many temporaries are live right now. It is also useful when
 	waking up goals before an either or ! instruction.
       */
-     {
+      {
 	PInstr *mycpc = cpc, *oldCodeStart = CodeStart;
 	int i, max;
 

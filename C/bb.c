@@ -271,7 +271,12 @@ p_bb_get(void)
   if (p == NULL || p->Element == NULL)
     return(FALSE);
   READ_LOCK(p->BBRWLock);  
-  out = Yap_FetchTermFromDB(p->Element,3);
+  while ((out = Yap_FetchTermFromDB(p->Element)) == 0L) {
+    if (!Yap_gc(2, YENV, P)) {
+      Yap_Error(OUT_OF_STACK_ERROR, TermNil, Yap_ErrorMessage);
+      return(TermNil);
+    }
+  }
   READ_UNLOCK(p->BBRWLock);
   return(Yap_unify(ARG2,out));
 }
@@ -286,7 +291,12 @@ p_bb_delete(void)
   p = FetchBBProp(t1, "bb_delete/2", CurrentModule);
   if (p == NULL || p->Element == NULL)
     return(FALSE);
-  out = Yap_FetchTermFromDB(p->Element,3);
+  while ((out = Yap_FetchTermFromDB(p->Element)) == 0L) {
+    if (!Yap_gc(2, YENV, P)) {
+      Yap_Error(OUT_OF_STACK_ERROR, TermNil, Yap_ErrorMessage);
+      return(TermNil);
+    }
+  }
   WRITE_LOCK(p->BBRWLock);  
   Yap_ReleaseTermFromDB(p->Element);
   p->Element = NULL;
@@ -305,7 +315,12 @@ p_bb_update(void)
   if (p == NULL || p->Element == NULL)
     return(FALSE);
   WRITE_LOCK(p->BBRWLock);  
-  out = Yap_FetchTermFromDB(p->Element,3);
+  while ((out = Yap_FetchTermFromDB(p->Element)) == 0L) {
+    if (!Yap_gc(3, YENV, P)) {
+      Yap_Error(OUT_OF_STACK_ERROR, TermNil, Yap_ErrorMessage);
+      return(TermNil);
+    }
+  }
   if (!Yap_unify(ARG2,out)) {
     WRITE_UNLOCK(p->BBRWLock);  
     return(FALSE);

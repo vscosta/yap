@@ -259,7 +259,12 @@ AccessNamedArray(Atom a, Int indx)
 
 	  READ_UNLOCK(ptr->ArRWLock);
 	  if (ref != NULL) {
-	    TRef = Yap_FetchTermFromDB(ref,3);
+	    while ((TRef = Yap_FetchTermFromDB(ref)) == 0L) {
+	      if (!Yap_gc(3, ENV, CP)) {
+		Yap_Error(OUT_OF_STACK_ERROR, TermNil, Yap_ErrorMessage);
+		return(TermNil);
+	      }
+	    }
 	  } else {
 	    P = (yamop *)FAILCODE;
 	    TRef = TermNil;
@@ -1917,7 +1922,12 @@ p_static_array_to_term(void)
 	    Term TRef;
 
 	    if (ref != NULL) {
-	      TRef = Yap_FetchTermFromDB(ref,3);
+	      while ((TRef = Yap_FetchTermFromDB(ref)) == 0L) {
+		if (!Yap_gc(3, YENV, P)) {
+		  Yap_Error(OUT_OF_STACK_ERROR, TermNil, Yap_ErrorMessage);
+		  return(TermNil);
+		}
+	      }
 	    } else {
 	      P = (yamop *)FAILCODE;
 	      TRef = TermNil;
@@ -1960,6 +1970,6 @@ Yap_InitArrayPreds(void)
   Yap_InitCPred("$compile_array_refs", 0, p_compile_array_refs, SafePredFlag);
   Yap_InitCPred("$array_refs_compiled", 0, p_array_refs_compiled, SafePredFlag);
   Yap_InitCPred("$static_array_properties", 3, p_static_array_properties, SafePredFlag);
-  Yap_InitCPred("static_array_to_term", 2, p_static_array_to_term, SafePredFlag);
+  Yap_InitCPred("static_array_to_term", 2, p_static_array_to_term, 0L);
 }
 

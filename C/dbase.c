@@ -257,7 +257,6 @@ STATIC_PROTO(PredEntry *new_lu_entry, (Term));
 STATIC_PROTO(PredEntry *new_lu_int_key, (Int));
 STATIC_PROTO(PredEntry *find_lu_entry, (Term));
 STATIC_PROTO(DBProp find_int_key, (Int));
-STATIC_PROTO(Term  FetchTermFromDB, (DBTerm *, int));
 
 #if OS_HANDLES_TR_OVERFLOW
 #define db_check_trail(x)
@@ -4021,7 +4020,7 @@ p_instance(void)
     if (opc == _unify_idb_term) {
       return Yap_unify(ARG2, cl->ClSource->Entry);
     } else {
-      while ((TermDB = FetchTermFromDB(cl->ClSource, 2)) == TermNil) {
+      while ((TermDB = GetDBTerm(cl->ClSource)) == 0L) {
 	/* oops, we are in trouble, not enough stack space */
 	if (!Yap_gc(2, ENV, P)) {
 	  Yap_Error(OUT_OF_STACK_ERROR, TermNil, Yap_ErrorMessage);
@@ -4031,7 +4030,7 @@ p_instance(void)
       return Yap_unify(ARG2, TermDB);
     }
   } else {
-    while ((TermDB = GetDBTermFromDBEntry(dbr)) == (CELL)0) {
+    while ((TermDB = GetDBTermFromDBEntry(dbr)) == 0L) {
       /* oops, we are in trouble, not enough stack space */
       if (!Yap_gc(2, ENV, P)) {
 	Yap_Error(OUT_OF_STACK_ERROR, TermNil, Yap_ErrorMessage);
@@ -4250,24 +4249,10 @@ cont_current_key_integer(void)
   return(Yap_unify(term,ARG1) && Yap_unify(term,ARG2));
 }
 
-static Term 
-FetchTermFromDB(DBTerm *ref, int args)
-{
-  Term TDB;
-  while ((TDB = GetDBTerm(ref)) == (CELL)0) {
-    /* oops, we are in trouble, not enough stack space */
-    if (!Yap_gc(args, ENV, P)) {
-      Yap_Error(OUT_OF_STACK_ERROR, TermNil, Yap_ErrorMessage);
-      return(TermNil);
-    }
-  }
-  return(TDB);
-}
-
 Term 
-Yap_FetchTermFromDB(DBTerm *ref, int args)
+Yap_FetchTermFromDB(DBTerm *ref)
 {
-  return FetchTermFromDB(ref,args);
+  return GetDBTerm(ref);
 }
 
 static DBTerm *
@@ -4433,7 +4418,12 @@ p_dequeue(void)
     else
       father_key->FirstInQueue = cur_instance->next;
     WRITE_UNLOCK(father_key->QRWLock);
-    TDB = FetchTermFromDB(cur_instance->DBT, 2);
+    while ((TDB = GetDBTerm(cur_instance->DBT)) == 0L) {
+      if (!Yap_gc(2, YENV, P)) {
+	Yap_Error(OUT_OF_STACK_ERROR, TermNil, Yap_ErrorMessage);
+	return FALSE;
+      }
+    }
     /* release space for cur_instance */
     keepdbrefs(cur_instance->DBT);
     ErasePendingRefs(cur_instance->DBT);

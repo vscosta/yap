@@ -138,7 +138,7 @@
     OPCODE(call_bfunc_yx           ,lxy),
     OPCODE(call_bfunc_yy           ,lyy),
     OPCODE(cut_t                   ,e),		
-    OPCODE(cut_e                   ,e),	
+    OPCODE(cut_e                   ,sla),	
     OPCODE(try_clause              ,ld),		
     OPCODE(retry                   ,ld),		
     OPCODE(trust                   ,ld),		

@@ -163,7 +163,7 @@ freeze(_, G) :-
 % whether that is in fact the case.
 %
 dif(X, Y) :- '$can_unify'(X, Y, LVars), !,
-	LVars = [_|_],
+	LVars = [_|_], 
 	'$dif_suspend_on_lvars'(LVars, '$redo_dif'(_Done, X, Y)).
 dif(_, _).
 

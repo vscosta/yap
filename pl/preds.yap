@@ -293,9 +293,8 @@ clause(V,Q) :-
 	'$clause'(P,M,Q,_).
 
 clause(P,Q,R) :- db_reference(R), !,
-	'$instance_module'(R, M),
 	instance(R,T),
-	( T = (H :- B) -> P = M:H, Q = B ; P=M:T, Q = true).
+	( T = (H :- B) -> P = H, Q = B ; P=T, Q = true).
 clause(M:P,Q,R) :- !,
 	'$clause'(P,M,Q,R).
 clause(V,Q,R) :-

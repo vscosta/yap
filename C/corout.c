@@ -964,23 +964,25 @@ can_unify(Term t1, Term t2, Term *Vars)
 {
   t1 = Deref(t1);
   t2 = Deref(t2);
-  if (t1 == t2)
-    return (TRUE);
+  if (t1 == t2) {
+    *Vars = TermNil;
+    return TRUE;
+  }
   if (IsVarTerm(t1)) {
     /* we know for sure  they can't be different */
     if (IsVarTerm(t2)) {
       /* we need to suspend on both variables because otherwise
 	 Y = susp(_) would not wakeup susp ! */
       *Vars = MkPairTerm(t1,MkPairTerm(t2,TermNil));
-      return(TRUE);
+      return TRUE;
     } else {
       *Vars = MkPairTerm(t1,TermNil);
-      return(TRUE);
+      return TRUE;
     }
   } else if (IsVarTerm(t2)) {
     /* wait until t2 is bound */
     *Vars = MkPairTerm(t2,TermNil);
-    return(TRUE);
+    return TRUE;
   }
   /* Two standard terms at last! */
   if (IsAtomOrIntTerm(t1) || IsAtomOrIntTerm(t2)) {
@@ -988,44 +990,44 @@ can_unify(Term t1, Term t2, Term *Vars)
        the same. If they are, $eq succeeds without further ado.
        */
     if (t1 != t2)
-      return(FALSE);
+      return FALSE;
     else {
       *Vars = TermNil;
-      return(TRUE);
+      return TRUE;
     }
   } else if (IsPairTerm(t1)) {
     if (IsPairTerm(t2)) {
       return(can_unify_complex(RepPair(t1)-1, RepPair(t1)+1,
 			       RepPair(t2)-1, Vars));
-    } else return(FALSE);
+    } else return FALSE;
   } else {
     Functor f = FunctorOfTerm(t1);
     if (f != FunctorOfTerm(t2))
-      return (FALSE);
+      return FALSE;
     if (IsExtensionFunctor(f)) {
       switch((CELL)f) {
       case (CELL)FunctorDBRef:
 	if (t1 == t2) return(FALSE);
-	return(FALSE);
+	return FALSE;
       case (CELL)FunctorLongInt:
 	if (RepAppl(t1)[1] == RepAppl(t2)[1]) return(TRUE);
-	return(FALSE);
+	return FALSE;
       case (CELL)FunctorDouble:
 	if (FloatOfTerm(t1) == FloatOfTerm(t2)) return(TRUE);
-	return(FALSE);
+	return FALSE;
 #ifdef USE_GMP
       case (CELL)FunctorBigInt:
 	if (mpz_cmp(Yap_BigIntOfTerm(t1),Yap_BigIntOfTerm(t2)) == 0) return(TRUE);
 	return(FALSE);
 #endif /* USE_GMP */
       default:
-	return(FALSE);
+	return FALSE;
       }
     }
     /* Two complex terms with the same functor */
-    return(can_unify_complex(RepAppl(t1),
+    return can_unify_complex(RepAppl(t1),
 			     RepAppl(t1)+ArityOfFunctor(f),
-			     RepAppl(t2), Vars));
+			     RepAppl(t2), Vars);
   }
 }
 
@@ -1164,10 +1166,10 @@ static Int p_can_unify(void)
 #ifdef COROUTINING
   Term r = TermNil;
   if (!can_unify(ARG1, ARG2, &r))
-    return(FALSE);
-  return (Yap_unify(ARG3, r));
+    return FALSE;
+  return Yap_unify(ARG3, r);
 #else
-  return(FALSE);
+  return FALSE;
 #endif
 }
 

@@ -376,9 +376,10 @@ a_cle(op_numbers opcode)
 inline static void
 a_e(op_numbers opcode)
 {
-  if (pass_no)
+  if (pass_no) {
     code_p->opc = emit_op(opcode);
-  GONEXT(e);
+  }
+  GONEXT(e);  
 }
 
 inline static void
@@ -1198,6 +1199,27 @@ a_ifnot(op_numbers opcode)
   }
   GONEXT(clll);
 }
+
+/*
+static void
+a_cut_e(void)
+{
+  if (pass_no) {
+    code_p->opc = emit_op(_cut_e);
+    code_p->u.sla.s = emit_count(-Signed(RealEnvSize) - CELLSIZE
+				     * (cpc->rnd2));
+    code_p->u.sla.sla_u.m_num = cpc->rnd3;
+    if (cpc->rnd2) {
+      code_p->u.sla.bmap = emit_bmlabel(cpc->rnd1);
+    } else {
+    // there is no bitmap as there are no variables in the environment 
+      code_p->u.sla.bmap = NULL;
+    }
+    code_p->u.sla.p0 =  CurrentPred;
+  }
+  GONEXT(sla);
+}
+*/
 
 static void
 a_cut(void)

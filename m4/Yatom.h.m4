@@ -487,7 +487,7 @@ int		STD_PROTO(Yap_RemoveIndexation,(PredEntry *));
 /* dbase.c */
 void		STD_PROTO(Yap_ErDBE,(DBRef));
 DBTerm	       *STD_PROTO(Yap_StoreTermInDB,(Term,int));
-Term		STD_PROTO(Yap_FetchTermFromDB,(DBTerm *,int));
+Term		STD_PROTO(Yap_FetchTermFromDB,(DBTerm *));
 void		STD_PROTO(Yap_ReleaseTermFromDB,(DBTerm *));
 
 /* init.c */
