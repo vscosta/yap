@@ -278,7 +278,7 @@ do_execute(Term t, SMALLUNSGN mod)
 	P = NEXTOP(COMMA_CODE,sla);
 	t = ArgOfTerm(1,t);
 	goto restart_exec;
-    }  else if (mod != CurrentModule) {
+    } else if (mod != CurrentModule) {
       return(CallMetaCall(mod));
     }
     }
@@ -411,7 +411,7 @@ p_execute_within(void)
 	  XREGS[i] = *pt++;
 #endif
 	}
-	return (CallPredicate(pen, cut_pt));
+	return (CallPredicate(pen, B));
       }
     }
   } else if (IsAtomOrIntTerm(t)) {
@@ -447,7 +447,7 @@ p_execute_within(void)
 	return(CallMetaCallWithin(mod, B));
       }
       pe = PredPropByAtom(a, mod);
-      return (CallPredicate(RepPredProp(pe), cut_pt));
+      return (CallPredicate(RepPredProp(pe), B));
     }
   } else {
     /* Is Pair Term */
