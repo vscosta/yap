@@ -11,6 +11,16 @@
 /* Should we use gmp ? 	*/
 #undef HAVE_LIBGMP
 
+/* What MPI libraries are there? */
+#undef HAVE_LIBMPICH
+
+/* Should we use MPI ? */
+#if HAVE_LIBMPICH
+ #define HAVE_MPI 1
+#else
+ #define HAVE_MPI 0
+#endif
+
 /* does the compiler support inline ? */
 #undef inline
 

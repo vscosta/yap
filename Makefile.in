@@ -65,7 +65,7 @@ C_PARSER_FLAGS= @C_PARSER_FLAGS@ $(YAP_EXTRAS) $(DEFS) $(CPPFLAGS)
 CPP=@CPP@
 DEFS=@DEFS@
 LIBS=@LIBS@
-LDFLAGS=@LDFLAGS@
+LDFLAGS=-Wl,-E @LDFLAGS@
 LN_S=@LN_S@
 M4=@M4@
 GCC=@GCC@
@@ -145,7 +145,8 @@ C_SOURCES= \
 	$(srcdir)/OPTYap/opt.preds.c $(srcdir)/OPTYap/or.engine.c \
 	$(srcdir)/OPTYap/or.cowengine.c $(srcdir)/OPTYap/or.sbaengine.c \
 	$(srcdir)/OPTYap/or.scheduler.c $(srcdir)/OPTYap/or.cut.c \
-	$(srcdir)/OPTYap/tab.tries.c $(srcdir)/OPTYap/tab.suspend.c
+	$(srcdir)/OPTYap/tab.tries.c $(srcdir)/OPTYap/tab.suspend.c \
+	$(srcdir)/library/mpi/mpi.c
 
 PL_SOURCES= \
 	$(srcdir)/pl/arith.yap $(srcdir)/pl/arrays.yap $(srcdir)/pl/boot.yap \
@@ -169,7 +170,7 @@ ENGINE_OBJECTS = \
 	cdmgr.o cmppreds.o compiler.o computils.o \
 	corout.o dbase.o errors.o eval.o bignum.o \
 	exec.o grow.o heapgc.o index.o init.o  \
-	iopreds.o depth_bound.o mavar.o modules.o other.o       \
+	iopreds.o depth_bound.o mavar.o modules.o mpi.o other.o   \
 	parser.o save.o scanner.o sort.o stdpreds.o sysbits.o tracer.o \
 	unify.o userpreds.o utilpreds.o write.o ypsocks.o ypstdio.o
 
@@ -429,6 +430,9 @@ tab.tries.o: $(srcdir)/OPTYap/tab.tries.c
 
 tab.suspend.o: $(srcdir)/OPTYap/tab.suspend.c
 	$(CC) -c $(CFLAGS) $(srcdir)/OPTYap/tab.suspend.c -o $@
+
+mpi.o: $(srcdir)/library/mpi/mpi.c
+	$(CC) -c $(CFLAGS) $(srcdir)/library/mpi/mpi.c -o $@
 
 
 ## CPP'ed files (for macro debugging)

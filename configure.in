@@ -69,6 +69,19 @@ AC_ARG_WITH(readline,
 	fi,
 	[yap_cv_readline=yes])
 
+AC_ARG_WITH(mpich,
+	[ --with-mpich[=DIR]         use MPICH library in DIR],
+	if test $withval = yes; then
+		yap_cv_mpich=yes
+	elif test $withval = no; then
+		yap_cv_mpich=no
+	else
+		yap_cv_mpich=$with_mpich
+		LDFLAGS="$LDFLAGS -L${yap_cv_mpich}/lib"
+		CPPFLAGS="$CPPFLAGS -I${yap_cv_mpich}/include"
+	fi,
+	[yap_cv_mpich=yes])
+
 AC_ARG_WITH(heap-space,
 	[ --with-heap-space[=space]  default heap size in Kbytes],
 	if test $withval = yes; then
@@ -191,6 +204,7 @@ else
              CFLAGS="-Ae +O3 +Onolimit"
            fi
         fi
+dnl	LDFLAGS="+e UserCPredicate $LDFLAGS"
         ;;
      esac
    fi
@@ -247,6 +261,14 @@ fi
 if test "$yap_cv_gmp" != "no"
 then
   AC_CHECK_LIB(gmp,main)
+fi
+if test "$yap_cv_mpich" != "no"
+then
+  AC_CHECK_LIB(mpich,MPI_Init)
+  if test "$ac_cv_lib_mpich_MPI_Init" = yes
+  then
+	LIBS="$LIBS -lpmpich"
+  fi
 fi
 
 AC_PROG_CPP

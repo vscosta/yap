@@ -653,6 +653,11 @@ YapInit(yap_init_args *yap_init)
 	      yap_init->DelayedReleaseLoad
 	      );
   InitYaamRegs();
+
+#if HAVE_MPI
+  InitMPI ();
+#endif
+
   if (yap_init->YapPrologBootFile != NULL) {
     /*
       This must be done before restore, otherwise
