@@ -81,18 +81,18 @@ delete_file(File, Dir, Recurse, Ignore) :-
 	file_property(File, Type, _, _, _Permissions, Ignore),
 	delete_file(Type, File, Dir, Recurse, Ignore).
 
-delete_file(N, File, Dir, Recurse, Ignore) :- number(N), !, % error.
+delete_file(N, File, _Dir, _Recurse, Ignore) :- number(N), !, % error.
 	handle_system_error(N, Ignore, delete_file(File)).
 delete_file(directory, File, Dir, Recurse, Ignore) :-
 	delete_directory(Dir, File, Recurse, Ignore).
-delete_file(_, File, Dir, Recurse, Ignore) :-
+delete_file(_, File, _Dir, _Recurse, Ignore) :-
 	unlink_file(File, Ignore).
 
 unlink_file(File, Ignore) :-
 	unlink(File, N),
 	handle_system_error(N, Ignore, delete_file(File)).
 
-delete_directory(on, File, Recurse, Ignore) :-
+delete_directory(on, File, _Recurse, Ignore) :-
 	rm_directory(File, Ignore).
 delete_directory(off, File, Recurse, Ignore) :-
 	delete_directory(Recurse, File, Ignore).
@@ -109,8 +109,10 @@ delete_directory(on, File, Ignore) :-
 	rmdir(File, Ignore).
 
 delete_dirfiles([], _, _).
-delete_dirfiles(['.'|Fs], File, Ignore) :- !.
-delete_dirfiles(['..'|Fs], File, Ignore) :- !.
+delete_dirfiles(['.'|Fs], File, Ignore) :- !,
+	delete_dirfiles(Fs, File, Ignore).
+delete_dirfiles(['..'|Fs], File, Ignore) :- !,
+	delete_dirfiles(Fs, File, Ignore).
 delete_dirfiles([F|Fs], File, Ignore) :-
 	atom_concat(File,F,TrueF),
 	delete_file(TrueF, off, on, Ignore),
@@ -123,7 +125,7 @@ directory_files(File, FileList, Ignore) :-
        list_directory(File, FileList, Error),
        handle_system_error(Error, Ignore, directory_files(File, FileList)).
 
-handle_system_error(Error, Ignore, G) :- var(Error), !.
+handle_system_error(Error, _Ignore, _G) :- var(Error), !.
 handle_system_error(Error, off, G) :-
 	error_message(Error, Message),
 	throw(error(system_error(Message),G)).
@@ -136,7 +138,7 @@ file_property(File, mod_time(Date)) :-
 	file_property(File, _Type, _Size, Date).
 
 file_property(File, Type, Size, Date) :-
-	file_property(File, Type, Size, Date, Permissions, Error),
+	file_property(File, Type, Size, Date, _Permissions, Error),
 	handle_system_error(Error, off, file_property(File)).
 
 file_exists(File) :-
@@ -156,10 +158,10 @@ make_directory(Dir) :-
 	throw(error(instantiation_error,mkdir(Dir))).
 make_directory(Dir) :-
 	atom(Dir), !,
-	mkdir(Dir,Err),
+	mkdir(Dir,Error),
 	handle_system_error(Error, off, mkdir(Dir)).
 make_directory(Dir) :-
-	throw(error(type_error(atom,X),make_directory(Dir))).
+	throw(error(type_error(atom,Dir),make_directory(Dir))).
 
 rename_file(Old, New) :-
 	atom(Old), atom(New), !,
@@ -258,15 +260,15 @@ popen(Command, Mode, Stream) :-
 	check_command(Command, G),
 	check_mode(Mode, M, G),
 	popen(Command, M, Stream, Result),
-	handle_system_error(Error, off, G).
+	handle_system_error(Result, off, G).
 
 check_command(Com, G) :- var(Com), !,
 	throw(error(instantiation_error,G)).
-check_command(Com, G) :- atom(Com), !.
+check_command(Com, _) :- atom(Com), !.
 check_command(Com, G) :-
 	throw(type_error(atom,Com),G).
 
-check_mode(Mode, _, G) :- var(G), !,
+check_mode(Mode, _, G) :- var(Mode), !,
 	throw(error(instantiation_error,G)).
 check_mode(read, 0, _) :- !.
 check_mode(write,1, _) :- !.
