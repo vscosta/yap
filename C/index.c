@@ -1331,6 +1331,7 @@ PredIsIndexable(PredEntry *ap)
     gc(ap->ArityOfPE, ENV, CP);
   }
  restart_index:
+  ErrorMessage = NULL;
   labelno = 1;
   RemovedCl = FALSE;
   FirstCl = (yamop *)(ap->FirstClause);
@@ -1352,7 +1353,7 @@ PredIsIndexable(PredEntry *ap)
   Entries = (EntryDef *) (Groups + NGroups);
   CodeStart = cpc = NIL;
   freep = (char *) (ArOfCl + NClauses);
-  if (ErrorMessage != NIL) {
+  if (ErrorMessage != NULL) {
     return (NIL);
   }
   if (CurrentPred->PredFlags & LogUpdatePredFlag) {
