@@ -292,6 +292,7 @@ parse_yap_arguments(int argc, char *argv[], yap_init_args *init_args)
 	    break;
 #endif
 	  case 's':
+	  case 'S':
 	    ssize = &(init_args->StackSize);
 	    if (p[1] == 'l') {
 	      p++;
@@ -299,9 +300,11 @@ parse_yap_arguments(int argc, char *argv[], yap_init_args *init_args)
 	    }
 	    goto GetSize;
 	  case 'h':
+	  case 'H':
 	    ssize = &(init_args->HeapSize);
 	    goto GetSize;
 	  case 't':
+	  case 'T':
 	    ssize = &(init_args->TrailSize);
 	  GetSize:
 	    if (*++p == '\0')
