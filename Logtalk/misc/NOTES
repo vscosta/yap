@@ -1,6 +1,6 @@
 =================================================================
 Logtalk - Object oriented extension to Prolog
-Release 2.17.2
+Release 2.18.0
 
 Copyright (c) 1998-2004 Paulo Moura.  All Rights Reserved.
 =================================================================
@@ -37,6 +37,9 @@ debian
 The following shell scripts must be run by a user with administration 
 privileges:
 
+make_ciaolgt.sh
+	makes a script named ciaolgt for running Logtalk with CIAO Prolog
+
 make_eclipselgt.sh
 	makes a script named eclipselgt for running Logtalk with ECLiPSe
 
@@ -44,23 +47,20 @@ make_gplgt.sh
 	makes a script named gplgt for running Logtalk with GNU Prolog
 
 make_qplgt.sh
-
 	makes a script named qplgt for running Logtalk with Qu-Prolog 
 	(based on script code contributed by Peter Robinson)
 
 make_sicstuslgt.sh
-
 	makes a script named sicstuslgt for running Logtalk with SICStus Prolog
 
 make_swilgt.sh
-
 	makes a script named swilgt for running Logtalk with SWI-Prolog
 
 make_yaplgt.sh
 	makes a script named yaplgt for running Logtalk with YAP
 
-make_yaplgt.sh
-	makes a script named ciaolgt for running Logtalk with CIAO Prolog
+make_xsblgt.sh
+	makes a script named ciaolgt for running Logtalk with XSB
 
 These scripts require the environment variable LOGTALKHOME (pointing to the 
 Logtalk installation directory) to be defined. In addition, they accept as 

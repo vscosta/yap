@@ -30,7 +30,7 @@
 				<regex>:-\s(dynamic)\.</regex>			
 				<regex>:-\s(discontiguous)\(</regex>			
 				<regex>:-\s(p(ublic|r(otected|ivate)))\(</regex>			
-				<regex>:-\s(metapredicate)\(</regex>			
+				<regex>:-\s(m(etapredicate|ultifile))\(</regex>			
 				<regex>:-\s(op)\(</regex>			
 				<regex>:-\s(calls)\(</regex>			
 				<regex>:-\s(uses)\(</regex>			

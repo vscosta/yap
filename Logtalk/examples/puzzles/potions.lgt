@@ -29,7 +29,7 @@ http://www.csci.csusb.edu/dick/cs320/prolog/Potions.htm
 		contents(H1),
 		list::select(P1, H1, H2),
 		list::select(P7, H2, H3),
-		P1 \= P7, P1 \= forward, P7 \= forward,				% second clue
+		P1 \= P7, P1 \= forward, P7 \= forward,					% second clue
 		list::select(P2, H3, H4),
 		P2 \= poison,
 		list::select(P3, H4, H5),

@@ -3,9 +3,9 @@
 
 
 	:- info([
-		version is 1.0,
+		version is 1.1,
 		author is 'Paulo Moura',
-		date is 1998/3/23,
+		date is 2004/6/30,
 		comment is 'Call executing time profiler.']).
 
 
@@ -44,7 +44,11 @@
 		time::cpu_time(Start),
 		loop::forto(1, Times, Call),
 		time::cpu_time(End),
-		Time is (End - Start) / Times.
+		time::cpu_time(Start2),
+		loop::forto(1, 0, true),
+		time::cpu_time(End2),
+		Overhead is End2 - Start2,
+		Time is (End - Start - Overhead) / Times.
 
 
 :- end_object.

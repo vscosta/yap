@@ -18,10 +18,11 @@
 
 @techreport{pmoura00,
 	author = "Paulo Moura",
-	title = "Logtalk 2.6 {D}ocumentation",
+	title = "{Logtalk 2.6 Documentation}",
 	institution = "University of Beira Interior, Portugal",
 	number = "DMI 2000/1",
-	year = 2000
+	year = 2000,
+	howpublished = "\url{http://www.logtalk.org/files/trdmi20001a4.pdf.gz}"
 }
 
 

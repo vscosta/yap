@@ -2,7 +2,7 @@
 <!DOCTYPE language SYSTEM "language.dtd">
 
 <language
-	name="Logtalk" version="1.1" kateversion="2.1" section="Sources"
+	name="Logtalk" version="1.2" kateversion="2.1" section="Sources"
 	extensions="*.lgt;*.loader;*.config" mimetype="text/x-logtalk"
 	author="Paulo Moura (pmoura@logtalk.org)" license="Artistic License 2.0">
 
@@ -167,7 +167,7 @@
                 <RegExpr String = "\bin(fo|itialization)(?=[(])" attribute="Directive" context="#pop" />
                 <RegExpr String = "\bmode(?=[(])" attribute="Directive" context="#pop" />
                 <RegExpr String = "\bdynamic[.]" attribute="Directive" context="#pop" />
-				<RegExpr String = "\b(d(ynamic|iscontiguous)|metapredicate)(?=[(])" attribute="Directive" context="#pop" />
+				<RegExpr String = "\b(d(ynamic|iscontiguous)|m(etapredicate|ultifile))(?=[(])" attribute="Directive" context="#pop" />
                 <RegExpr String = "\bop(?=[(])" attribute="Directive" context="#pop" />
                 <RegExpr String = "\b(calls|uses)(?=[(])" attribute="Directive" context="#pop" />
             </context>

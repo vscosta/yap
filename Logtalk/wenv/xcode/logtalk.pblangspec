@@ -39,6 +39,7 @@
 			"mode",
 			"dynamic",
 			"discontiguous",
+			"multifile",
 			"public",
 			"protected",
 			"private",

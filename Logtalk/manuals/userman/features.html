@@ -46,6 +46,14 @@ Event-driven programming enables the building of reactive systems, where computi
 </p>
 </blockquote>
 
+<h2>Support for component-based programming<a name="categories"></a></h2>
+
+<blockquote>
+<p>
+Predicates can be encapsulated inside <em>categories</em> which can be imported by any object. A category is a first-class encapsulation entity, at the same level as objects and protocols, which can be used as a component when building new objects. Categories allows for code reuse between non-related objects, independent of hierarchy relations, in the same vein as protocols allow for interface reuse.
+</p>
+</blockquote>
+
 <h2>Support for both prototype and class-based systems<a name="both"></a></h2>
 
 <blockquote>
@@ -110,6 +118,20 @@ The Logtalk system has been designed to be compatible with most Prolog compilers
 </p>
 </blockquote>
 
+<h2>Performance<a name="performance"></a></h2>
+
+<blockquote>
+<p>
+The current Logtalk implementation works as a pre-processor: Logtalk source files are first compiled to Prolog source files, which are then compiled by the chosen Prolog compiler. Therefore, Logtalk performance necessarily depends on the back-end Prolog compiler. The Logtalk pre-processor respects the programmers choices when writing efficient code that takes advantage of tail recursion and first-argument indexing.
+</p>
+<p>
+As an object-oriented language, Logtalk uses dynamic binding for matching messages and methods. Furthermore, Logtalk entities (objects, protocols, and categories) are independently compiled, allowing for a very flexible programming development. Entities can be edited, compiled, and loaded at runtime, without necessarily implying recompilation of all related entities.
+</p>
+<p>
+The Logtalk runtime engine implements caching of method lookups (including messages to self and super calls), ensuring a performance level close to what could be achieved with static binding implementations.
+</p>
+</blockquote>
+
 <div class="navbottom">
 <a href="index.html">previous</a> | <a href="../glossary.html">glossary</a> | <a href="messages.html">next</a>
 </div>
@@ -119,7 +141,7 @@ Copyright &copy; <a href="mailto:pmoura@logtalk.org">Paulo Moura</a> &mdash; <a 
 </div>
 
 <div class="footer">
-<p><span class="bleft"><a href="http://validator.w3.org/check/referer">XHTML</a> + <a href="http://jigsaw.w3.org/css-validator/check/referer">CSS</a></span><span class="bright">Last updated on: December 23, 2003</span></p>
+<p><span class="bleft"><a href="http://validator.w3.org/check/referer">XHTML</a> + <a href="http://jigsaw.w3.org/css-validator/check/referer">CSS</a></span><span class="bright">Last updated on: July 8, 2004</span></p>
 </div>
 </body>
 </html>

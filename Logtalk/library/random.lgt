@@ -43,7 +43,7 @@
 		Upper >= Lower,
 		!,
 		random(Float),
-		Random is truncate((Float*(Upper-Lower)+Lower)).
+		Random is truncate((Float * (Upper-Lower)+Lower)).
 
 
 	random(Lower, Upper, Random) :-
@@ -51,7 +51,7 @@
 		float(Upper),
 		Upper >= Lower,
 		random(Float),
-		Random is Float*(Upper-Lower)+Lower.
+		Random is Float * (Upper-Lower)+Lower.
 
 
 	randseq(Length, Lower, Upper, Sequence) :-
@@ -83,7 +83,7 @@
 	randseq(N, Lower, Upper, (A0, A1, A2), (C0, C1, C2), Acc, List) :-
 		N2 is N - 1,
 		random(A0, A1, A2, B0, B1, B2, R),
-		Random is R*(Upper-Lower)+Lower,
+		Random is R * (Upper-Lower)+Lower,
 		randseq(N2, Lower, Upper, (B0, B1, B2), (C0, C1, C2), [Random| Acc], List).
 
 
@@ -123,7 +123,7 @@
 	randset(N, Lower, Upper, (A0, A1, A2), (C0, C1, C2), Acc, List) :-
 		N2 is N - 1,
 		random(A0, A1, A2, B0, B1, B2, Float),
-		Float2 is Float*(Upper-Lower)+Lower,
+		Float2 is Float * (Upper-Lower)+Lower,
 		(integer(Lower) ->
 			Random is truncate(Float2)
 			;

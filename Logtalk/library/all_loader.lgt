@@ -1,10 +1,10 @@
 
 :- initialization(
 	logtalk_load([
-		datep, date,										% dates
+		datep, date,									% dates
 		timep, time,
 		
-		event_handlersp,									% events
+		event_handlersp,								% events
 		event_registryp, event_registry,
 		before_event_registry, after_event_registry,
 		monitorp, monitor,
@@ -12,22 +12,22 @@
 		event_dbgp,										% debugging
 		event_dbg, 
 
-        subject,                                     		% dependents
+        subject,                                     	% dependents
         observer,
 
 		hierarchyp,										% hierarchies
 		proto_hierarchyp, proto_hierarchy,
 		class_hierarchyp, class_hierarchy,
 
-		metap, meta,										% metapredicates
+		metap, meta,									% metapredicates
 		loopp, loop,
 
-		randomp,											% random
+		randomp,										% random
 		random,
 
-		systemp,											% os interface protocol
+		systemp,										% os interface protocol
 
-		termp, term,										% types
+		termp, term,									% types
 		atomic,
 		atom, callable,
 		characterp, character,

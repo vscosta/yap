@@ -1,6 +1,6 @@
 =================================================================
 Logtalk - Object oriented extension to Prolog
-Release 2.17.2
+Release 2.18.0
 
 Copyright (c) 1998-2004 Paulo Moura.  All Rights Reserved.
 =================================================================
@@ -10,7 +10,7 @@ This folder contains several examples of Logtalk programs. A brief
 description of each example is included below.
 
 Each example contains a NOTES file and a loader utility file that may 
-be used to load all the example entities. In addtion, most examples 
+be used to load all the example entities. In addition, most examples 
 contain a SCRIPT file with sample queries for your to try.
 
 Most of these examples need objects, protocols, and categories that 
@@ -68,7 +68,7 @@ lo
 	examples adopted from the Francis G. McCabe L&O system
 
 logic
-	example of a translator of logic propostions to clauses in conjunctive 
+	example of a translator of logic propositions to clauses in conjunctive 
 	normal form
 
 lpa
