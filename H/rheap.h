@@ -711,6 +711,7 @@ restore_opcodes(yamop *pc)
     case _p_float_x:
     case _p_cut_by_x:
       pc->u.xF.x = XAdjust(pc->u.xF.x);
+      pc->u.xF.F = PtoOpAdjust(pc->u.xF.F);
       pc = NEXTOP(pc,xF);
       break;
       /* instructions type y */
@@ -735,6 +736,7 @@ restore_opcodes(yamop *pc)
     case _p_float_y:
     case _p_cut_by_y:
       pc->u.yF.y = YAdjust(pc->u.yF.y);
+      pc->u.yF.F = PtoOpAdjust(pc->u.yF.F);
       pc = NEXTOP(pc,yF);
       break;
       /* instructions type sla */      
