@@ -2394,7 +2394,7 @@ do_pass(void)
 	}
 	
 	if ( (char *)(label_offset+cpc->rnd1) > freep)
-	  freep = (char *)(label_offset+cpc->rnd1);
+	  freep = (char *)(label_offset+(cpc->rnd1+1));
 	label_offset[cpc->rnd1] = (CELL) code_p;
       }
       /* reset dealloc_found in case there was a branch */
