@@ -363,6 +363,7 @@ Error (yap_error_number type, Term where, char *format,...)
     PrologMode &= ~AbortMode;
     PrologMode |= InErrorMode;
   } else {
+    plwrite( where, DebugPutc, 0);
     where = CopyTerm(Deref(where));
     if (IsVarTerm(where)) {
       /* we must be careful someone gave us a copy to a local variable */

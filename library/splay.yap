@@ -19,6 +19,7 @@
 	splay_access/5,
 	splay_insert/4,
 	splay_del/3,
+	splay_init/1,
 	splay_join/3,
 	splay_split/5]).
 
@@ -183,4 +184,6 @@ join(Left-n(X, VX, A, B), n(X, VX, A, n(Y, VY, B, var)), Right,	n(Y, VY, Left, R
 join(Left-n(Y, VY, n(X, VX, C, B), NL), n(X, VX, C, n(Y, VY, B, n(Z, VZ, A1, A2))), Right, New):-
 	join(Left-NL, n(Z, VZ,A1, A2), Right, New).
  
+
+splay_init(_).
 

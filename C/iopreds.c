@@ -2692,6 +2692,7 @@ syntax_error (TokEntry * tokptr)
 
   start = tokptr->TokPos;
   clean_vars(VarTable);
+  clean_vars(AnonVarTable);
   while (1) {
     Term ts[2];
 

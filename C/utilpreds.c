@@ -108,7 +108,7 @@ copy_complex_term(register CELL *pt0, register CELL *pt0_end, CELL *ptf, CELL *H
 	pt0_end = ap2 + 1;
 	ptf = H;
 	H += 2;
-	if (H > ENV - 2048) {
+	if (H > ASP - 2048) {
 	  goto overflow;
 	}
       } else if (IsApplTerm(d0)) {
@@ -161,7 +161,7 @@ copy_complex_term(register CELL *pt0, register CELL *pt0_end, CELL *ptf, CELL *H
 	H[0] = (CELL)f;
 	ptf = H+1;
 	H += 1+d0;
-	if (H > ENV - 2048) {
+	if (H > ASP - 2048) {
 	  goto overflow;
 	}
       } else {
