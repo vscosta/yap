@@ -2337,8 +2337,12 @@ i_log_upd_recorded(LogUpdDBProp AtProp)
   twork = Deref(ARG2);	/* now working with ARG2 */
   if (IsVarTerm(twork)) {
     mask = key = 0;
-    EXTRA_CBACK_ARG(3,2) = MkIntegerTerm(((Int)mask));
-    EXTRA_CBACK_ARG(3,3) = MkIntegerTerm(((Int)key));
+    /* EXTRA_CBACK_ARG(3,2) is being assigned the value MkIntegerTerm(((Int)mask)),
+       and EXTRA_CBACK_ARG(3,3) the value MkIntegerTerm(((Int)key)) which is here 0.
+       This is working around a bug in the O2 optimiser of the compiler that ships
+       with HP-UX 10.20: cc Rel. 10.32.30, April 1999. */
+    EXTRA_CBACK_ARG(3,2) = MkIntegerTerm(((Int)0));
+    EXTRA_CBACK_ARG(3,3) = MkIntegerTerm(((Int)0));
     B->cp_h = H;
     while ((TermDB = GetDBTerm(ref)) == (CELL)0) {
       /* make sure the garbage collector sees what we want it to see! */
@@ -2352,9 +2356,12 @@ i_log_upd_recorded(LogUpdDBProp AtProp)
       cut_fail();
     }
   } else if (IsAtomOrIntTerm(twork)) {
+    /* EXTRA_CBACK_ARG(3,2) is being assigned the value MkIntegerTerm(((Int)mask)),
+       which is here 0. This is working around a bug in the O2 optimiser of the
+       compiler that ships with HP-UX 10.20: cc Rel. 10.32.30, April 1999. */
     mask = 0;
+    EXTRA_CBACK_ARG(3,2) = MkIntegerTerm(((Int)0));
     key = Unsigned(twork);
-    EXTRA_CBACK_ARG(3,2) = MkIntegerTerm(((Int)mask));
     EXTRA_CBACK_ARG(3,3) = MkIntegerTerm(((Int)key));
     B->cp_h = H;
     do {
