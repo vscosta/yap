@@ -21,9 +21,9 @@ static char     SccsId[] = "@(#)agc.c	1.3 3/15/90";
 
 #include "absmi.h"
 #include "alloc.h"
+#include "yapio.h"
 
 #ifdef DEBUG
-#include "yapio.h"
 /* #define DEBUG_RESTORE2 1 */
 #define errout YP_stderr
 #endif
