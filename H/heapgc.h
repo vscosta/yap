@@ -16,6 +16,7 @@
 *************************************************************************/
 
 
+
 /* macros used by garbage collection */
 
 #if TAG_64BITS
@@ -126,7 +127,8 @@ UNRMARK(CELL* ptr)
 static inline int
 RMARKED(CELL* ptr)
 {
-  return !GCIsPrimitiveTerm(*ptr) && (mcell(ptr) & RMARK_BIT);
+  CELL val = *ptr;
+  return !GCIsPrimitiveTerm(val) && (mcell(ptr) & RMARK_BIT);
 }
 
 #else
@@ -158,8 +160,8 @@ RMARKED(CELL* ptr)
 
 #ifdef TAGS_FAST_OPS
 
-#define RMARKED(val)    (!GCIsPrimitiveTerm(val) && (IsVarTerm(val) ?\
-				((val) & RBIT) : !((val) & RBIT)))
+#define RMARKED(ptr)    (!GCIsPrimitiveTerm(*(ptr)) && (IsVarTerm(*(ptr)) ?\
+				((*(ptr)) & RBIT) : !((*(ptr)) & RBIT)))
 
 #define UNMARKED(val)   ((Int)(val) < 0 && (((val) & LowTagBits) != 2)\
 			? \
@@ -170,9 +172,9 @@ RMARKED(CELL* ptr)
 #else
 
 #if INVERT_RBIT
-#define RMARKED(val)   (!GCIsPrimitiveTerm(val) && !((val) & RBIT))
+#define RMARKED(ptr)   (!GCIsPrimitiveTerm(*(ptr)) && !((*(ptr)) & RBIT))
 #else
-#define RMARKED(val)   (!GCIsPrimitiveTerm(val) && ((val) & RBIT))
+#define RMARKED(ptr)   (!GCIsPrimitiveTerm(*(ptr)) && ((*(ptr)) & RBIT))
 #endif
 
 #endif /* GC_NO_TAGS */

@@ -11,8 +11,17 @@
 * File:		index.c							 *
 * comments:	Indexing a Prolog predicate				 *
 *									 *
-* Last rev:     $Date: 2004-09-27 20:45:03 $,$Author: vsc $						 *
+* Last rev:     $Date: 2004-09-30 19:51:54 $,$Author: vsc $						 *
 * $Log: not supported by cvs2svn $
+* Revision 1.99  2004/09/27 20:45:03  vsc
+* Mega clauses
+* Fixes to sizeof(expand_clauses) which was being overestimated
+* Fixes to profiling+indexing
+* Fixes to reallocation of memory after restoring
+* Make sure all clauses, even for C, end in _Ystop
+* Don't reuse space for Streams
+* Fix Stream_F on StreaNo+1
+*
 * Revision 1.98  2004/09/14 03:30:06  vsc
 * make sure that condor version always grows trail!
 *
@@ -3961,7 +3970,7 @@ compile_index(struct intermediates *cint)
 
 
 yamop *
-Yap_PredIsIndexable(PredEntry *ap)
+Yap_PredIsIndexable(PredEntry *ap, UInt NSlots)
 {
   yamop *indx_out;
   int setjres;
@@ -3973,7 +3982,7 @@ Yap_PredIsIndexable(PredEntry *ap)
   if ((setjres = setjmp(cint.CompilerBotch)) == 3) {
     restore_machine_regs();
     recover_from_failed_susp_on_cls(&cint, 0);
-    Yap_gcl(Yap_Error_Size, ap->ArityOfPE, ENV, CP);
+    Yap_gcl(Yap_Error_Size, ap->ArityOfPE+NSlots, ENV, CP);
   } else if (setjres == 2) {
     restore_machine_regs();
     Yap_Error_Size = recover_from_failed_susp_on_cls(&cint, Yap_Error_Size);
@@ -4909,7 +4918,7 @@ expand_index(struct intermediates *cint) {
 
 
 static yamop *
-ExpandIndex(PredEntry *ap) {
+ExpandIndex(PredEntry *ap, int ExtraArgs) {
   yamop *indx_out;
   yamop **labp;
   int cb;
@@ -4919,7 +4928,7 @@ ExpandIndex(PredEntry *ap) {
     restore_machine_regs();
     /* grow stack */
     recover_from_failed_susp_on_cls(&cint, 0);
-    Yap_gcl(Yap_Error_Size, ap->ArityOfPE, ENV, CP);
+    Yap_gcl(Yap_Error_Size, ap->ArityOfPE+ExtraArgs, ENV, CP);
   } else if (cb == 2) {
     restore_machine_regs();
     Yap_Error_Size = recover_from_failed_susp_on_cls(&cint, Yap_Error_Size);
@@ -5054,8 +5063,8 @@ ExpandIndex(PredEntry *ap) {
 }
 
 yamop *
-Yap_ExpandIndex(PredEntry *ap) {
-  return ExpandIndex(ap);
+Yap_ExpandIndex(PredEntry *ap, UInt nargs) {
+  return ExpandIndex(ap, nargs);
 }
 
 static path_stack_entry *
@@ -7794,28 +7803,26 @@ Yap_FollowIndexingCode(PredEntry *ap, yamop *ipc, Term Terms[3], yamop *ap_pc, y
       break;
     case _expand_index:
     case _expand_clauses:
-      *H++ = (CELL)s_reg;
-      *H++ = t;
-      H[0] = Terms[0];
-      H[1] = Terms[1];
-      H[2] = Terms[2];
-      H += 3;
-#if defined(YAPOR) || defined(THREADS)
+      XREGS[ap->ArityOfPE+1] = (CELL)s_reg;
+      XREGS[ap->ArityOfPE+2] = (CELL)t;
+      XREGS[ap->ArityOfPE+3] = Terms[0];
+      XREGS[ap->ArityOfPE+4] = Terms[1];
+      XREGS[ap->ArityOfPE+5] = Terms[2];
       LOCK(ap->PELock);
+#if defined(YAPOR) || defined(THREADS)
       if (!same_lu_block(jlbl, ipc)) {
 	ipc = *jlbl;
 	UNLOCK(ap->PELock);
 	break;
       }
 #endif
-      ipc = ExpandIndex(ap);
+      ipc = ExpandIndex(ap, 5);
       UNLOCK(ap->PELock);
-      H -= 3;
-      Terms[0] = H[0];
-      Terms[1] = H[1];
-      Terms[2] = H[2];
-      t = *--H;
-      s_reg = (CELL *)(*--H);
+      s_reg = (CELL *)XREGS[ap->ArityOfPE+1];
+      t = XREGS[ap->ArityOfPE+2];
+      Terms[0] = XREGS[ap->ArityOfPE+3];
+      Terms[1] = XREGS[ap->ArityOfPE+4];
+      Terms[2] = XREGS[ap->ArityOfPE+5];
       break;
     case _op_fail:
       /*
@@ -7836,10 +7843,24 @@ Yap_FollowIndexingCode(PredEntry *ap, yamop *ipc, Term Terms[3], yamop *ap_pc, y
       ipc = ap->CodeOfPred;
       break;
 #endif
-    case _index_pred:
     case _spy_pred:
-      Yap_IPred(ap);
+      if (!(ap->PredFlags & MetaPredFlag)) {
+	ipc = ap->cs.p_code.TrueCodeOfPred;
+	break;
+      }
+    case _index_pred:
+      XREGS[ap->ArityOfPE+1] = (CELL)s_reg;
+      XREGS[ap->ArityOfPE+2] = (CELL)t;
+      XREGS[ap->ArityOfPE+3] = Terms[0];
+      XREGS[ap->ArityOfPE+4] = Terms[1];
+      XREGS[ap->ArityOfPE+5] = Terms[2];
+      Yap_IPred(ap, 5);
       start_pc = ipc = ap->cs.p_code.TrueCodeOfPred;
+      s_reg = (CELL *)XREGS[ap->ArityOfPE+1];
+      t = XREGS[ap->ArityOfPE+2];
+      Terms[0] = XREGS[ap->ArityOfPE+3];
+      Terms[1] = XREGS[ap->ArityOfPE+4];
+      Terms[2] = XREGS[ap->ArityOfPE+5];
       break;
     default:
       if (b0) {
@@ -8071,7 +8092,7 @@ Yap_NthClause(PredEntry *ap, Int ncls)
 	break;
       }
 #endif
-      ipc = ExpandIndex(ap);
+      ipc = ExpandIndex(ap, 0);
       UNLOCK(ap->PELock);
       break;
     case _op_fail:
@@ -8079,7 +8100,7 @@ Yap_NthClause(PredEntry *ap, Int ncls)
       break;
     case _index_pred:
     case _spy_pred:
-      Yap_IPred(ap);
+      Yap_IPred(ap, 0);
       ipc = ap->cs.p_code.TrueCodeOfPred;
       break;
     case _undef_p:

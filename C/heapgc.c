@@ -1089,7 +1089,13 @@ mark_variable(CELL_PTR current)
 	    inc_var(current, current);
 #endif	      
 	    *next = (CELL)current;
+#if GC_NO_TAGS
+	    UNMARK(next);
+	    MARK(current);
+	    *current = (CELL)current;
+#else
 	    *current = MARK_CELL((CELL)current);
+#endif
 	    POP_CONTINUATION();
 	  } else {
 	      /* can't help here */
@@ -1101,6 +1107,9 @@ mark_variable(CELL_PTR current)
 	} else {
 	  /* binding to a determinate reference */
 	  if (next >= HB && current < LCL0 && cnext != TermFoundVar) {
+#if GC_NO_TAGS
+	    UNMARK(current);
+#endif
 	    *current = cnext;
 	    total_marked--;
 	    POP_POINTER();
@@ -1116,6 +1125,9 @@ mark_variable(CELL_PTR current)
 		 current < LCL0) {
 	/* This step is possible because we clean up the trail */
 	*current = UNMARK_CELL(cnext);
+#if GC_NO_TAGS
+	UNMARK(current);
+#endif
 	total_marked--;
 	POP_POINTER();
       } else
@@ -1187,6 +1199,9 @@ mark_variable(CELL_PTR current)
       switch (cnext) {
       case (CELL)FunctorLongInt:
 	MARK(next);
+#if GC_NO_TAGS
+	MARK(next+2);
+#endif
 	total_marked += 3;
 	PUSH_POINTER(next);
 	PUSH_POINTER(next+1);
@@ -1200,6 +1215,11 @@ mark_variable(CELL_PTR current)
 	PUSH_POINTER(next+2);
 #if SIZEOF_DOUBLE==2*SIZEOF_LONG_INT
 	PUSH_POINTER(next+3);
+#if GC_NO_TAGS
+	MARK(next+3);
+#endif
+#elif GC_NO_TAGS
+	MARK(next+2);
 #endif
 	POP_CONTINUATION();
 #ifdef USE_GMP
@@ -1214,8 +1234,12 @@ mark_variable(CELL_PTR current)
 	  PUSH_POINTER(next);
 	  for (i = 1; i <= (sizeof(MP_INT)+
 		 (((MP_INT *)(next+1))->_mp_alloc*sizeof(mp_limb_t)))/CellSize;
-	       i++)
+	       i++) {
 	    PUSH_POINTER(next+i);
+	  }
+#if GC_NO_TAGS
+	  MARK(next+i);
+#endif
 	  PUSH_POINTER(next+i);
 	}
 	POP_CONTINUATION();
@@ -1645,12 +1669,14 @@ static void
 mark_choicepoints(register choiceptr gc_B, tr_fr_ptr saved_TR, int very_verbose)
 {
 
-    yamop *lu_cl0 = NEXTOP(PredLogUpdClause0->CodeOfPred,ld), *lu_cl = NEXTOP(PredLogUpdClause->CodeOfPred,ld), *su_cl = NEXTOP(PredStaticClause->CodeOfPred,ld);
+  yamop *lu_cl0 = NEXTOP(PredLogUpdClause0->CodeOfPred,ld),
+    *lu_cl = NEXTOP(PredLogUpdClause->CodeOfPred,ld),
+    *su_cl = NEXTOP(PredStaticClause->CodeOfPred,ld);
 #ifdef TABLING
-   dep_fr_ptr depfr = LOCAL_top_dep_fr;
+  dep_fr_ptr depfr = LOCAL_top_dep_fr;
 #endif
 #ifdef EASY_SHUNTING
-    HB = H;
+  HB = H;
 #endif
 
   while (gc_B != NULL) {
@@ -1689,9 +1715,9 @@ mark_choicepoints(register choiceptr gc_B, tr_fr_ptr saved_TR, int very_verbose)
       if (pe == NULL) {
 	fprintf(Yap_stderr,"%%       marked %ld (%s)\n", total_marked, op_names[opnum]);
       } else if (pe->ArityOfPE) {
-	  fprintf(Yap_stderr,"%%       %s/%d marked %ld (%s)\n", RepAtom(NameOfFunctor(pe->FunctorOfPred))->StrOfAE, pe->ArityOfPE, total_marked, op_names[opnum]);
+	fprintf(Yap_stderr,"%%       %s/%d marked %ld (%s)\n", RepAtom(NameOfFunctor(pe->FunctorOfPred))->StrOfAE, pe->ArityOfPE, total_marked, op_names[opnum]);
       } else {
-	  fprintf(Yap_stderr,"%%       %s marked %ld (%s)\n", RepAtom((Atom)(pe->FunctorOfPred))->StrOfAE, total_marked, op_names[opnum]);
+	fprintf(Yap_stderr,"%%       %s marked %ld (%s)\n", RepAtom((Atom)(pe->FunctorOfPred))->StrOfAE, total_marked, op_names[opnum]);
       }
     }
     {
@@ -1715,7 +1741,7 @@ mark_choicepoints(register choiceptr gc_B, tr_fr_ptr saved_TR, int very_verbose)
 			(CELL *)(gc_B->cp_cp->u.ldl.bl)
 #else
 			-gc_B->cp_cp->u.sla.s / ((OPREG)sizeof(CELL)),
-			  gc_B->cp_cp->u.sla.bmap
+			gc_B->cp_cp->u.sla.bmap
 #endif
 			);
     } else {
@@ -1731,9 +1757,9 @@ mark_choicepoints(register choiceptr gc_B, tr_fr_ptr saved_TR, int very_verbose)
 #ifdef TABLING
 	if (opnum != _table_completion)
 #endif
-	mark_environments((CELL_PTR) gc_B->cp_env,
-			  EnvSize((CELL_PTR) (gc_B->cp_cp)),
-			  EnvBMap((CELL_PTR) (gc_B->cp_cp)));
+	  mark_environments((CELL_PTR) gc_B->cp_env,
+			    EnvSize((CELL_PTR) (gc_B->cp_cp)),
+			    EnvBMap((CELL_PTR) (gc_B->cp_cp)));
       /* extended choice point */
     restart_cp:
       switch (opnum) {
@@ -1786,7 +1812,7 @@ mark_choicepoints(register choiceptr gc_B, tr_fr_ptr saved_TR, int very_verbose)
 	{
 	  CELL *answ_fr;
 	  CELL vars;
-
+	  
 	  /* fetch the solution */
 	  init_substitution_pointer(gc_B, answ_fr, CONS_CP(gc_B)->ccp_dep_fr);
 	  vars = *answ_fr++;
@@ -1961,19 +1987,32 @@ into_relocation_chain(CELL_PTR current, CELL_PTR next)
   register CELL ccur = *current, cnext = *next;
 
   if (IsVarTerm(ccur)) {
+#if GC_NO_TAGS
+  RMARK(next);
+  *current = UNMARKED(cnext);
+#else
     *current = ( MARKED(ccur) ? MARK_CELL(UNMARKED(cnext)) :
 		 UNMARKED(cnext) );
     *next = (MARKED(cnext) ? MBIT : 0) | RBIT | (Int) current;
+#endif
   } else if (IsPairTerm(ccur)) {
+#if GC_NO_TAGS
+    *next = current;
+#else
     *current = ( MARKED(ccur) ? MARK_CELL(UNMARKED(cnext)) :
 		 UNMARKED(cnext) );
     *next = AbsPair((CELL *)
 		    ((MARKED(cnext) ? MBIT : 0) | RBIT | (Int) current));
+#endif
   } else if (IsApplTerm(ccur)) {
+#if GC_NO_TAGS
+    *next = AbsPair((CELL *)current);
+#else
     *current = ( MARKED(ccur) ? MARK_CELL(UNMARKED(cnext)) :
 		 UNMARKED(cnext) );
     *next = AbsAppl((CELL *)
 		    ((MARKED(cnext) ? MBIT : 0) | RBIT | (Int) current));
+#endif
   } else {
     fprintf(Yap_stderr," OH MY GOD !!!!!!!!!!!!\n");
   }
@@ -1981,12 +2020,22 @@ into_relocation_chain(CELL_PTR current, CELL_PTR next)
   CELL             current_tag;
 
   current_tag = TAG(*current);
+#if GC_NO_TAGS
+  if (RMARKED(next))
+    RMARK(current);
+  else
+    UNRMARK(current);
+  *current = *next;
+  *next = (CELL) current | current_tag;
+  RMARK(next);
+#else
   *current = (*current & MBIT) | (*next & ~MBIT);
 #if INVERT_RBIT
   *next = ((*next & MBIT) | (CELL) current | current_tag) & ~RBIT;
 #else
   *next = (*next & MBIT) | RBIT | (CELL) current | current_tag;
 #endif
+#endif /* GC_NO_TAGS */
 #endif
 }
 
@@ -2677,7 +2726,7 @@ update_relocation_chain(CELL_PTR current, CELL_PTR dest)
   CELL            ccur = *current;
 
 #ifdef TAGS_FAST_OPS
-  while (RMARKED(ccur)) {
+  while (RMARKED(current)) {
     register CELL cnext;
 
     next = GET_NEXT(ccur);
@@ -2710,16 +2759,26 @@ update_relocation_chain(CELL_PTR current, CELL_PTR dest)
 #endif
   }
 #else /* TAGS_FAST_OPS */
-  while (RMARKED(ccur)) {
+  while (RMARKED(current)) {
     CELL             current_tag;
     next = GET_NEXT(ccur);
     current_tag = TAG(ccur);
+#if GC_NO_TAGS
+    ccur = *current = *next;
+    if (RMARKED(next))
+      RMARK(current);
+    else
+      UNRMARK(current);
+    *next = (CELL) dest | current_tag;
+    UNRMARK(next);
+#else
     ccur = *current = (ccur & MBIT) | (*next & ~MBIT);
 #if INVERT_RBIT
     *next = (*next & MBIT) | (CELL) dest | current_tag | RBIT;
 #else
     *next = (*next & MBIT) | (CELL) dest | current_tag;
 #endif
+#endif /* GC_NO_TAGS */
   }
 #endif /* TAGS_FAST_OPS */
 }
@@ -2795,6 +2854,9 @@ compact_heap(void)
 	  {
 	    CELL tmp = current[0];
 	    current[0] = ptr[1];
+#if GC_NO_TAGS
+	    MARK(ptr+1);
+#endif
 	    ptr[1] = tmp;
 	  }
 	  if (in_garbage > 0) {
@@ -2826,9 +2888,15 @@ compact_heap(void)
 	if (next < current)	/* push into reloc.
 				 * chain */
 	  into_relocation_chain(current, next);
-	else if (current == next)	/* cell pointing to
+	else if (current == next)	{ /* cell pointing to
 					 * itself */
+#if GC_NO_TAGS
+	  UNRMARK(current);
+	  *current = (CELL) dest;	/* no tag */
+#else
 	  *current = (*current & MBIT) | (CELL) dest;	/* no tag */
+#endif
+	}
       }
       dest--;
     } else {
@@ -3010,6 +3078,9 @@ icompact_heap(void)
       {
 	CELL tmp = current[0];
 	current[0] = ptr[1];
+#if GC_NO_TAGS
+	MARK(ptr+1);
+#endif
 	ptr[1] = tmp;
       }
       current = ptr;
@@ -3024,9 +3095,14 @@ icompact_heap(void)
       if (next < current)	/* push into reloc.
 				 * chain */
 	into_relocation_chain(current, next);
-      else if (current == next)	/* cell pointing to
-				 * itself */
+      else if (current == next)	{ /* cell pointing to
+				   * itself */
+#if GC_NO_TAGS
+	*current = (CELL) (H0+(iptr-ibase));	/* no tag */
+#else
 	*current = (*current & MBIT) | (CELL) (H0+(iptr-ibase));	/* no tag */
+#endif
+      }
     }
   }
 
@@ -3206,10 +3282,13 @@ compaction_phase(tr_fr_ptr old_TR, CELL *current_env, yamop *curp, CELL *max)
 #endif /* HYBRID_SCHEME */
     {
 #ifdef DEBUG
-#ifdef HYBID_SCHEME
+      /*
+#ifdef HYBRID_SCHEME
       int effectiveness = (((H-H0)-total_marked)*100)/(H-H0);
       fprintf(stderr,"%% not using pointers (%d) ASP: %p, ip %p (expected %p) \n", effectiveness, ASP, iptop, H+total_marked);
+
 #endif
+      */
 #endif
       compact_heap();
     }
@@ -3267,6 +3346,7 @@ do_gc(Int predarity, CELL *current_env, yamop *nextop)
 #endif
   if (Yap_GetValue(AtomGcTrace) != TermNil)
     gc_trace = 1;
+#if !GC_NO_TAGS
   /* sanity check: can we still do garbage_collection ? */
   if ((CELL)Yap_TrailTop & (MBIT|RBIT)) {
     /* oops, we can't */
@@ -3276,6 +3356,7 @@ do_gc(Int predarity, CELL *current_env, yamop *nextop)
     }
     return(0);
   }
+#endif
   if (gc_trace) {
     fprintf(Yap_stderr, "[gc]\n");
   } else if (gc_verbose) {
@@ -3311,7 +3392,10 @@ do_gc(Int predarity, CELL *current_env, yamop *nextop)
     bp = Yap_PreAllocCodeSpace();
     if (bp+alloc_sz > (char *)AuxSp) {
       /* not enough space */
+      *--ASP = (CELL)current_env;
       bp = (char *)Yap_ExpandPreAllocCodeSpace(alloc_sz);
+      current_env = (CELL *)*ASP;
+      ASP++;
     }
     if (!bp)
       return 0;

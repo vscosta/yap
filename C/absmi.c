@@ -10,8 +10,17 @@
 *									 *
 * File:		absmi.c							 *
 * comments:	Portable abstract machine interpreter                    *
-* Last rev:     $Date: 2004-09-27 20:45:02 $,$Author: vsc $						 *
+* Last rev:     $Date: 2004-09-30 19:51:53 $,$Author: vsc $						 *
 * $Log: not supported by cvs2svn $
+* Revision 1.146  2004/09/27 20:45:02  vsc
+* Mega clauses
+* Fixes to sizeof(expand_clauses) which was being overestimated
+* Fixes to profiling+indexing
+* Fixes to reallocation of memory after restoring
+* Make sure all clauses, even for C, end in _Ystop
+* Don't reuse space for Streams
+* Fix Stream_F on StreaNo+1
+*
 * Revision 1.145  2004/09/17 20:47:35  vsc
 * fix some overflows recorded.
 *
@@ -3561,7 +3570,7 @@ Yap_absmi(int inp)
 
       deref_body(d0, pt0, gatom_6eunk, gatom_6enonvar);
       /* argument is a variable */
-      BIND(pt0, PREG->u.cccccc.c4, gatom_6f);
+      BIND(pt0, PREG->u.cccccc.c5, gatom_6f);
 #ifdef COROUTINING
       DO_TRAIL(pt0, d1);
       if (pt0 < H0) Yap_WakeUp(pt0);
@@ -7068,7 +7077,7 @@ Yap_absmi(int inp)
 	  ASP = (CELL *) B;
 	}
 	saveregs();
-	Yap_IPred(ap);
+	Yap_IPred(ap, 0);
       /* IPred can generate errors, it thus must get rid of the lock itself */
 	setregs();
 	CACHED_A1() = ARG1;
@@ -7116,7 +7125,7 @@ Yap_absmi(int inp)
 	}
 #endif
  	saveregs();
-	pt0 = Yap_ExpandIndex(pe);
+	pt0 = Yap_ExpandIndex(pe, 0);
 	/* restart index */
 	setregs();
 	UNLOCK(pe->PELock);
@@ -7158,7 +7167,7 @@ Yap_absmi(int inp)
 	}
 #endif
  	saveregs();
-	pt0 = Yap_ExpandIndex(pe);
+	pt0 = Yap_ExpandIndex(pe, 0);
 	/* restart index */
 	setregs();
 	UNLOCK(pe->PELock);
@@ -12559,6 +12568,10 @@ Yap_absmi(int inp)
 	PREG = pen->CodeOfPred;
 	ALWAYS_LOOKAHEAD(pen->OpcodeOfPred);
 	E_YREG[E_CB] = (CELL)B;
+#ifdef LOW_LEVEL_TRACER
+	if (Yap_do_low_level_trace)
+	  low_level_trace(enter_pred,pen,XREGS+1);
+#endif	/* LOW_LEVEL_TRACER */
 #ifdef DEPTH_LIMIT
 	if (DEPTH <= MkIntTerm(1)) {/* I assume Module==0 is primitives */
 	  if (pen->ModuleOfPred) {

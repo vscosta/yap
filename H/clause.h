@@ -184,7 +184,7 @@ wamreg  STD_PROTO(Yap_compile_cmp_flags,(PredEntry *));
 void    STD_PROTO(Yap_InitComma,(void));
 
 /* cdmgr.c */
-void	STD_PROTO(Yap_IPred,(PredEntry *));
+void	STD_PROTO(Yap_IPred,(PredEntry *, UInt));
 void	STD_PROTO(Yap_addclause,(Term,yamop *,int,Term));
 void	STD_PROTO(Yap_add_logupd_clause,(PredEntry *,LogUpdClause *,int));
 void	STD_PROTO(Yap_kill_iblock,(ClauseUnion *,ClauseUnion *,PredEntry *));
@@ -201,8 +201,8 @@ void	STD_PROTO(Yap_ErLogUpdIndex,(LogUpdIndex *));
 Term    STD_PROTO(Yap_cp_as_integer,(choiceptr));
 
 /* index.c */
-yamop   *STD_PROTO(Yap_PredIsIndexable,(PredEntry *));
-yamop   *STD_PROTO(Yap_ExpandIndex,(PredEntry *));
+yamop   *STD_PROTO(Yap_PredIsIndexable,(PredEntry *, UInt));
+yamop   *STD_PROTO(Yap_ExpandIndex,(PredEntry *, UInt));
 yamop   *STD_PROTO(Yap_CleanUpIndex,(struct logic_upd_index *));
 void     STD_PROTO(Yap_AddClauseToIndex,(PredEntry *,yamop *,int));
 void     STD_PROTO(Yap_RemoveClauseFromIndex,(PredEntry *,yamop *));
@@ -282,7 +282,7 @@ Yap_MkMegaRefTerm(PredEntry *ap,yamop *ipc)
 {
   Term t[2];
   t[0] = MkIntegerTerm((Int)ap);
-  t[0] = MkIntegerTerm((Int)ipc);
+  t[1] = MkIntegerTerm((Int)ipc);
   return Yap_MkApplTerm(FunctorMegaClause,2,t);
 }
 

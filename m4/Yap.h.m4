@@ -10,8 +10,10 @@
 * File:		Yap.h.m4						 *
 * mods:									 *
 * comments:	main header file for YAP				 *
-* version:      $Id: Yap.h.m4,v 1.66 2004-09-18 14:03:42 vsc Exp $	 *
+* version:      $Id: Yap.h.m4,v 1.67 2004-09-30 19:51:54 vsc Exp $	 *
 *************************************************************************/
+
+#define GC_NO_TAGS 1
 
 #include "config.h"
 

@@ -166,11 +166,16 @@ reconsult(Fs) :-
 '$include'(X, Status) :-
 	'$find_in_path'(X,Y,include(X)),
 	'$values'('$included_file',OY,Y),
+	'$current_module'(Mod),
+	H0 is heapused, '$cputime'(T0,_),
 	( '$open'(Y,'$csult',Stream,0), !,
+		'$print_message'(informational, loading(including, Y)),
 		'$loop'(Stream,Status), '$close'(Stream)
 	;
 		'$do_error'(permission_error(input,stream,Y),include(X))
 	),
+	H is heapused-H0, '$cputime'(TF,_), T is TF-T0,
+	'$print_message'(informational, loaded(included, Y, Mod, T, H)),
 	set_value('$included_file',OY).
 
 '$do_startup_reconsult'(X) :-

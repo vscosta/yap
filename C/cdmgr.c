@@ -12,8 +12,17 @@
 * File:		cdmgr.c							 *
 * comments:	Code manager						 *
 *									 *
-* Last rev:     $Date: 2004-09-27 20:45:02 $,$Author: vsc $						 *
+* Last rev:     $Date: 2004-09-30 19:51:53 $,$Author: vsc $						 *
 * $Log: not supported by cvs2svn $
+* Revision 1.133  2004/09/27 20:45:02  vsc
+* Mega clauses
+* Fixes to sizeof(expand_clauses) which was being overestimated
+* Fixes to profiling+indexing
+* Fixes to reallocation of memory after restoring
+* Make sure all clauses, even for C, end in _Ystop
+* Don't reuse space for Streams
+* Fix Stream_F on StreaNo+1
+*
 * Revision 1.132  2004/09/17 19:34:51  vsc
 * simplify frozen/2
 *
@@ -420,7 +429,7 @@ split_megaclause(PredEntry *ap)
 /* Index a prolog pred, given its predicate entry */
 /* ap is already locked. */
 static void 
-IPred(PredEntry *ap)
+IPred(PredEntry *ap, UInt NSlots)
 {
   yamop          *BaseAddr;
 
@@ -465,7 +474,7 @@ IPred(PredEntry *ap)
     Yap_Error(SYSTEM_ERROR,TermNil,"trying to index a dynamic predicate");
     return;
   }
-  if ((BaseAddr = Yap_PredIsIndexable(ap)) != NULL) {
+  if ((BaseAddr = Yap_PredIsIndexable(ap, NSlots)) != NULL) {
     ap->cs.p_code.TrueCodeOfPred = BaseAddr;
     ap->PredFlags |= IndexedPredFlag;
   }
@@ -483,9 +492,9 @@ IPred(PredEntry *ap)
 }
 
 void 
-Yap_IPred(PredEntry *p)
+Yap_IPred(PredEntry *p, UInt NSlots)
 {
-  IPred(p);
+  IPred(p, NSlots);
 }
 
 #define GONEXT(TYPE)      code_p = ((yamop *)(&(code_p->u.TYPE.next)))
@@ -2085,7 +2094,7 @@ p_setspy(void)
     return (FALSE);
   }
   if (pred->OpcodeOfPred == INDEX_OPCODE) {
-    IPred(pred);
+    IPred(pred, 0);
     goto restart_spy;
   }
   fg = pred->PredFlags;
@@ -3432,19 +3441,14 @@ fetch_next_lu_clause(PredEntry *pe, yamop *i_code, Term th, Term tb, Term tr, ya
   LogUpdClause *cl;
   Term rtn;
   Term Terms[3];
-  long slh, slb, slr;
 
-  Yap_StartSlots();
-  slh = Yap_InitSlot(th);
-  slb = Yap_InitSlot(tb);
-  slr = Yap_InitSlot(tr);
   Terms[0] = th;
   Terms[1] = tb;
   Terms[2] = tr;
   cl = Yap_FollowIndexingCode(pe, i_code, Terms, NEXTOP(PredLogUpdClause->CodeOfPred,ld), cp_ptr);
-  th = Yap_GetFromSlot(slh);
-  tb = Yap_GetFromSlot(slb);
-  tr = Yap_GetFromSlot(slr);
+  th = Terms[0];
+  tb = Terms[1];
+  tr = Terms[2];
   /* don't do this!! I might have stored a choice-point and changed ASP
      Yap_RecoverSlots(3);
   */
@@ -3551,7 +3555,7 @@ p_log_update_clause(void)
   READ_LOCK(pe->PRWLock);
   PP = pe;
 #endif
-  ret = fetch_next_lu_clause(pe, pe->cs.p_code.TrueCodeOfPred, t1, ARG3, ARG4, P, TRUE);
+  ret = fetch_next_lu_clause(pe, pe->CodeOfPred, t1, ARG3, ARG4, P, TRUE);
   return ret;
 }
 
@@ -3573,17 +3577,13 @@ fetch_next_lu_clause0(PredEntry *pe, yamop *i_code, Term th, Term tb, yamop *cp_
 {
   LogUpdClause *cl;
   Term Terms[3];
-  long slh, slb;
 
-  Yap_StartSlots();
-  slh = Yap_InitSlot(th);
-  slb = Yap_InitSlot(tb);
   Terms[0] = th;
   Terms[1] = tb;
   Terms[2] = TermNil;
   cl = Yap_FollowIndexingCode(pe, i_code, Terms, NEXTOP(PredLogUpdClause0->CodeOfPred,l), cp_ptr);
-  th = Yap_GetFromSlot(slh);
-  tb = Yap_GetFromSlot(slb);
+  th = Terms[0];
+  tb = Terms[1];
   /* don't do this!! I might have stored a choice-point and changed ASP
      Yap_RecoverSlots(2);
   */
@@ -3661,7 +3661,7 @@ p_log_update_clause0(void)
   READ_LOCK(pe->PRWLock);
   PP = pe;
 #endif
-  ret = fetch_next_lu_clause0(pe, pe->cs.p_code.TrueCodeOfPred, t1, ARG3, P, TRUE);
+  ret = fetch_next_lu_clause0(pe, pe->CodeOfPred, t1, ARG3, P, TRUE);
   return ret;
 }
 
@@ -3684,19 +3684,14 @@ fetch_next_static_clause(PredEntry *pe, yamop *i_code, Term th, Term tb, Term tr
   StaticClause *cl;
   Term rtn;
   Term Terms[3];
-  long slh, slb, slr;
 
-  Yap_StartSlots();
-  slh = Yap_InitSlot(th);
-  slb = Yap_InitSlot(tb);
-  slr = Yap_InitSlot(tr);
   Terms[0] = th;
   Terms[1] = tb;
   Terms[2] = tr;
   cl = (StaticClause *)Yap_FollowIndexingCode(pe, i_code, Terms, NEXTOP(PredStaticClause->CodeOfPred,ld), cp_ptr);
-  th = Yap_GetFromSlot(slh);
-  tb = Yap_GetFromSlot(slb);
-  tr = Yap_GetFromSlot(slr);
+  th = Terms[0];
+  tb = Terms[1];
+  tr = Terms[2];
   /* don't do this!! I might have stored a choice-point and changed ASP
      Yap_RecoverSlots(3);
   */
@@ -3791,15 +3786,7 @@ p_static_clause(void)
   pe = get_pred(t1, Deref(ARG2), "clause/3");
   if (pe == NULL || EndOfPAEntr(pe))
     return FALSE;
-  if(pe->OpcodeOfPred == INDEX_OPCODE) {
-    WRITE_LOCK(pe->PRWLock);
-#if defined(YAPOR) || defined(THREADS)
-    if (pe->OpcodeOfPred == INDEX_OPCODE)
-#endif
-      IPred(pe);
-    WRITE_UNLOCK(pe->PRWLock);
-  }
-  return fetch_next_static_clause(pe, pe->cs.p_code.TrueCodeOfPred, ARG1, ARG3, ARG4, P, TRUE);
+  return fetch_next_static_clause(pe, pe->CodeOfPred, ARG1, ARG3, ARG4, P, TRUE);
 }
 
 static Int			/* $hidden_predicate(P) */
@@ -3831,7 +3818,7 @@ p_nth_clause(void)
       XREGS[2] = MkVarTerm();
   }
   if(pe->OpcodeOfPred == INDEX_OPCODE) {
-    IPred(pe);
+    IPred(pe, 0);
   }
   cl = Yap_NthClause(pe, ncls);
   if (cl == NULL) 
