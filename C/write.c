@@ -126,6 +126,8 @@ wrputf(Float f)			/* writes a float	 */
   sprintf(s, "%.6g", f);
   while (*pt == ' ')
     pt++;
+  if (*pt == 'i' || *pt == 'n')  /* inf or nan */
+    wrputc('+');    
   wrputs(pt);
   if (*pt == '-') pt++;
   while ((ch = *pt) != '\0') {

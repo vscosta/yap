@@ -343,6 +343,14 @@ ParseList(void)
   return (t);
 }
 
+#ifndef INFINITY
+#define INFINITY (1.0/0.0)
+#endif
+
+#ifndef NAN
+#define NAN      (0.0/0.0)
+#endif
+
 static Term
 ParseTerm(int prio)
 {
@@ -386,6 +394,29 @@ ParseTerm(int prio)
 	  t = tokptr->TokInfo;
 	  NextToken;
 	  break;
+	}
+      } else if (tokptr->Tok == Name_tok) {
+	Atom at = (Atom)tokptr->TokInfo;
+	if ((Atom)t == AtomPlus) {
+	  if (at == AtomInf) {
+	    t = MkFloatTerm(INFINITY);
+	    NextToken;
+	    break;
+	  } else if (at == AtomNan) {
+	    t = MkFloatTerm(NAN);
+	    NextToken;
+	    break;
+	  }
+	} else if ((Atom)t == AtomMinus) {
+	  if (at == AtomInf) {
+	    t = MkFloatTerm(-INFINITY);
+	    NextToken;
+	    break;
+	  } else if (at == AtomNan) {
+	    t = MkFloatTerm(NAN);
+	    NextToken;
+	    break;
+	  }
 	}
       }
       if (opprio <= prio) {
