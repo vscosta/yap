@@ -81,6 +81,9 @@ static char SccsId[] = "%W% %G%";
 #include <sys/param.h>
 #endif
 #endif
+#if HAVE_LIBREADLINE
+#include <readline/readline.h>
+#endif
 
 STATIC_PROTO (void InitPageSize, (void));
 STATIC_PROTO (void InitTime, (void));
@@ -1060,6 +1063,11 @@ void (*handler)(int);
 
 #endif
 
+
+#if  HAVE_LIBREADLINE
+static  char *_line = NULL;
+#endif
+
 void
 ProcessSIGINT(void)
 {
@@ -1070,12 +1078,18 @@ ProcessSIGINT(void)
     int ch0;
 #endif
 
+#if  HAVE_LIBREADLINE
+    if (_line != (char *) NULL && _line != (char *) EOF)
+      free (_line);
+    _line = readline ("Action (h for help): ");
+    if (_line == (char *)NULL || _line == (char *)EOF)
+      continue;
+    ch = _line[0];
+#else
     YP_fprintf(YP_stderr, "\nAction (h for help): ");
     ch = YP_getchar ( );
-#if  HAVE_LIBREADLINE
-    if (!in_readline)
-#endif
       while ((YP_getchar()) != '\n');
+#endif
     switch (ch)
       {
       case 'a':
@@ -1094,13 +1108,8 @@ ProcessSIGINT(void)
 #ifdef VAX
 	    VaxFixFrame (CritMode);
 #endif
-#if  HAVE_LIBREADLINE
 	    /* we cannot abort until we finish readline :-( */
-	    if (in_readline) {
-	      /* readline must eat a newline, otherwise we will
-		 have to wait before we do the Abort() */
-	    } else if (!(PrologMode & CritMode)) {
-#endif
+	    if (!(PrologMode & CritMode)) {
 #if defined(__MINGW32__) || _MSC_VER
 	      /* we can't do a direct abort, so ask the system to do it for us */
 	      p_creep();
@@ -1201,10 +1210,6 @@ ProcessSIGINT(void)
 	YP_fprintf(YP_stderr, "  e for exit\n  t for trace\n  s for statistics\n");
 	break;
       }
-#if  HAVE_LIBREADLINE
-    /* we must do the reading now, because libreadline won't have a chance here */
-    while ((YP_getchar()) != '\n');
-#endif
   }
 }
 

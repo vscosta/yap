@@ -283,10 +283,6 @@ void	STD_PROTO(plwrite,(Term,int (*)(int, int),int));
 /* grow.c */
 int  STD_PROTO(growstack_in_parser,  (tr_fr_ptr *, TokEntry **, VarEntry **));
 
-#ifdef HAVE_LIBREADLINE
-extern int in_readline;
-#endif
-
 #if HAVE_ERRNO_H
 #include <errno.h>
 #else

@@ -760,8 +760,6 @@ static char *ttyptr = NULL;
 
 static char *_line = (char *) NULL;
 
-int in_readline = FALSE;
-
 static int cur_out_sno = 2;
 
 #define READLINE_OUT_BUF_MAX 256
@@ -776,8 +774,7 @@ static int
 ReadlinePutc (int sno, int ch)
 {
   if (ReadlinePos != ReadlineBuf &&
-      (sno != cur_out_sno ||
-       ReadlinePos - ReadlineBuf == READLINE_OUT_BUF_MAX-1 ||
+      (ReadlinePos - ReadlineBuf == READLINE_OUT_BUF_MAX-1 /* overflow */ ||
 #if MAC || _MSC_VER
        ch == 10 ||
 #endif
@@ -824,7 +821,6 @@ ReadlineGetc(int sno)
     rl_instream = Stream[sno].u.file.file;
     rl_outstream = Stream[cur_out_sno].u.file.file;
     /* window of vulnerability opened */
-    in_readline = TRUE;
     if (newline) {
       char *cptr = Prompt, ch;
 
@@ -848,7 +844,6 @@ ReadlineGetc(int sno)
       }
     }
     newline=FALSE;
-    in_readline = FALSE;
     strncpy (Prompt, RepAtom (*AtPrompt)->StrOfAE, MAX_PROMPT);
     /* window of vulnerability closed */
     if (PrologMode & AbortMode) {
