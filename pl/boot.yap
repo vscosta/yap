@@ -1033,7 +1033,7 @@ break :- '$get_value'('$break',BL), NBL is BL+1,
 '$find_in_path'(File,NewFile,_) :- atom(File), !,
 	'$search_in_path'(File,NewFile),!.
 '$find_in_path'(File,_,Call) :-
-	throw(error(domain_error(source_sink,File),G)).
+	throw(error(domain_error(source_sink,File),Call)).
 
 '$search_in_path'(New,New) :-
 	'$exists'(New,'$csult'), !.
