@@ -857,6 +857,16 @@ exec_absmi(int top)
       /* otherwise, SetDBForThrow will fail entering critical mode */
       PrologMode = UserMode;
       /* find out where to cut to */
+#if defined(__GNUC__)
+#if defined(hppa) || defined(__alpha)
+     /* siglongjmp resets the TR hardware register */
+      restore_TR();
+#endif
+#if defined(__alpha)
+     /* siglongjmp resets the H hardware register */
+      restore_H();
+#endif
+#endif
       depth = SetDBForThrow(MkAtomTerm(LookupAtom("abort")));
       if (depth == 0) {
 	Error(SYSTEM_ERROR, TermNil, "database entry for throw corrupted");
@@ -870,16 +880,6 @@ exec_absmi(int top)
 #endif
       yap_flags[SPY_CREEP_FLAG] = 0;
       CreepFlag = CalculateStackGap();
-#if defined(__GNUC__)
-#if defined(hppa) || defined(__alpha)
-     /* siglongjmp resets the TR hardware register */
-      restore_TR();
-#endif
-#if defined(__alpha)
-     /* siglongjmp resets the H hardware register */
-      restore_H();
-#endif
-#endif
       P = (yamop *)FAILCODE;
     }
     if (lval == 2) { /* arithmetic exception */
