@@ -93,9 +93,7 @@ static int compare_complex(register CELL *pt0, register CELL *pt0_end, register
 	if (IsIntTerm(d1))
 	  out = IntOfTerm(d0) - IntOfTerm(d1);
 	else if (IsFloatTerm(d1)) {
-	  out = rfloat(IntOfTerm(d0) - FloatOfTerm(d1));
-	  if (out == 0)
-	     out = 1;
+	  out = 1;
 	} else if (IsLongIntTerm(d1)) {
 	  out = IntOfTerm(d0) - LongIntOfTerm(d1);
 #ifdef USE_GMP
@@ -107,48 +105,32 @@ static int compare_complex(register CELL *pt0, register CELL *pt0_end, register
 	else out = -1;
 	if (out != 0)
 	  goto done;
-      }
-      else if (IsFloatTerm(d0)) {
-	if (IsFloatTerm(d1))
+      } else if (IsFloatTerm(d0)) {
+	if (IsFloatTerm(d1)){
 	  out = rfloat(FloatOfTerm(d0) - FloatOfTerm(d1));
-	else if (IsIntTerm(d1)) {
-	  out = rfloat(FloatOfTerm(d0) - IntOfTerm(d1));
-	  if (out == 0)
-	    out = -1;
-	} else if (IsLongIntTerm(d1)) {
-	  out = rfloat(FloatOfTerm(d0) - LongIntOfTerm(d1));
-	  if (out == 0)
-	     out = -1;
-#ifdef USE_GMP
-	} else if (IsBigIntTerm(d1)) {
-	  Float outf = FloatOfTerm(d0) - mpz_get_d(BigIntOfTerm(d1));
-	  if (outf <= 0.0)
-	     out = -1;
-	  else
-	    out = 1;
-#endif
-	} else if (IsRefTerm(d1))
+	} else if (IsRefTerm(d1)) {
 	  out = 1;
-	else out = -1;
+	} else {
+	  out = -1;
+	}
 	if (out != 0)
 	  goto done;
-      }
-      else if (IsLongIntTerm(d0)) {
+      } else if (IsLongIntTerm(d0)) {
 	if (IsIntTerm(d1))
 	  out = LongIntOfTerm(d0) - IntOfTerm(d1);
 	else if (IsFloatTerm(d1)) {
-	  out = rfloat(LongIntOfTerm(d0) - FloatOfTerm(d1));
-	  if (out == 0)
-	     out = 1;
-	} else if (IsLongIntTerm(d1))
+	  out = 1;
+	} else if (IsLongIntTerm(d1)) {
 	  out = LongIntOfTerm(d0) - LongIntOfTerm(d1);
 #ifdef USE_GMP
-	else if (IsBigIntTerm(d1))
+	} else if (IsBigIntTerm(d1)) {
 	  out = -mpz_cmp_si(BigIntOfTerm(d1), LongIntOfTerm(d0));
 #endif
-	else if (IsRefTerm(d1))
+	} else if (IsRefTerm(d1)) {
 	  out = 1 ;
-	else out = -1;
+	} else {
+	  out = -1;
+	}
 	if (out != 0)
 	  goto done;
       }
@@ -157,11 +139,7 @@ static int compare_complex(register CELL *pt0, register CELL *pt0_end, register
 	if (IsIntTerm(d1))
 	  out = mpz_cmp_si(BigIntOfTerm(d0), IntOfTerm(d1));
 	else if (IsFloatTerm(d1)) {
-	  Float fout = mpz_get_d(BigIntOfTerm(d0)) - FloatOfTerm(d1);
-	  if (fout >= 0.0)
-	    out = 1;
-	  else
-	    out = -1;
+	  out = 1;
 	} else if (IsLongIntTerm(d1))
 	  out = mpz_cmp_si(BigIntOfTerm(d0), LongIntOfTerm(d1));
 	else if (IsBigIntTerm(d1))
@@ -324,11 +302,7 @@ compare(register Term t1,register Term t2) /* compare terms t1 and t2	 */
 	  if (IsIntTerm(t2))
 	    return (IntOfTerm(t1) - IntOfTerm(t2));
 	  if (IsFloatTerm(t2)) {
-	    int out = rfloat(IntOfTerm(t1) - FloatOfTerm(t2));
-	    if (out == 0)
-	      return(1);
-	    else
-	      return(out);
+	    return(1);
 	  }
 	  if (IsLongIntTerm(t2))
 	    return(IntOfTerm(t1) - LongIntOfTerm(t2));
@@ -343,26 +317,7 @@ compare(register Term t1,register Term t2) /* compare terms t1 and t2	 */
 	if (IsFloatTerm(t1)) {
 	  if (IsFloatTerm(t2))
 	    return(rfloat(FloatOfTerm(t1) - FloatOfTerm(t2)));
-	  else if (IsIntTerm(t2)) {
-	    int out = rfloat(FloatOfTerm(t1) - IntOfTerm(t2));
-	    if (out == 0)
-	      return(-1);
-	    else
-	      return(out);
-	  } else if (IsLongIntTerm(t2)) {
-	    int out = rfloat(FloatOfTerm(t1) - LongIntOfTerm(t2));
-	    if (out == 0)
-	      return(-1);
-	    else
-	      return(out);
-#ifdef USE_GMP
-	  } else if (IsBigIntTerm(t2)) {
-	    Float out = FloatOfTerm(t2) - mpz_get_d(BigIntOfTerm(t1));
-	    if (out <= 0.0)
-	      return (-1);
-	    return(1);
-#endif
-	  } else if (IsRefTerm(t2))
+	  if (IsRefTerm(t2))
 	    return (1);
 	  return (-1);
 	}
@@ -370,11 +325,7 @@ compare(register Term t1,register Term t2) /* compare terms t1 and t2	 */
 	  if (IsIntTerm(t2))
 	    return (LongIntOfTerm(t1) - IntOfTerm(t2));
 	  if (IsFloatTerm(t2)) {
-	    int out = rfloat(LongIntOfTerm(t1) - FloatOfTerm(t2));
-	    if (out == 0)
-	      return(1);
-	    else
-	      return(out);
+	    return(1);
 	  }
 	  if (IsLongIntTerm(t2))
 	    return (LongIntOfTerm(t1) - LongIntOfTerm(t2));
@@ -391,11 +342,7 @@ compare(register Term t1,register Term t2) /* compare terms t1 and t2	 */
 	  if (IsIntTerm(t2))
 	    return(mpz_cmp_si(BigIntOfTerm(t1), IntOfTerm(t2)));
 	  if (IsFloatTerm(t2)) {
-	    Float out = mpz_get_d(BigIntOfTerm(t1)) - FloatOfTerm(t2);
-	    if (out >= 0.0)
-	      return(1);
-	    else
-	      return(-1);
+	    return(1);
 	  }
 	  if (IsLongIntTerm(t2))
 	    return(mpz_cmp_si(BigIntOfTerm(t1), LongIntOfTerm(t2)));
