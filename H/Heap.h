@@ -10,7 +10,7 @@
 * File:		Heap.h         						 *
 * mods:									 *
 * comments:	Heap Init Structure					 *
-* version:      $Id: Heap.h,v 1.45 2003-10-28 01:16:02 vsc Exp $	 *
+* version:      $Id: Heap.h,v 1.46 2003-11-05 18:55:03 ricroc Exp $	 *
 *************************************************************************/
 
 /* information that can be stored in Code Space */
@@ -340,7 +340,7 @@ typedef struct various_codes {
 #if defined(YAPOR) || defined(TABLING)
   struct global_data global;
   struct local_data remote[MAX_WORKERS];
-#endif
+#endif /* YAPOR || TABLING */
   UInt n_of_atoms;
   UInt atom_hash_table_size;
   AtomHashEntry *hash_chain;
@@ -598,9 +598,9 @@ typedef struct various_codes {
 #define  UndefCode                heap_regs->undef_code
 #define  SpyCode                  heap_regs->spy_code
 #if defined(YAPOR) || defined(TABLING)
-#define  REMOTE                   heap_regs->remote
 #define  GLOBAL		          heap_regs->global
-#endif
+#define  REMOTE                   heap_regs->remote
+#endif /* YAPOR || TABLING */
 
 #define UPDATE_MODE_IMMEDIATE          0
 #define UPDATE_MODE_LOGICAL            1

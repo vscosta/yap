@@ -809,7 +809,7 @@ Macros to check the limits of stacks
 #define SET_BB(V)    BBREG = (V)
 #else
 #define SET_BB(V)
-#endif
+#endif /* FROZEN_STACKS && !BFZ_TRAIL_SCHEME */
 
 
 #ifdef FROZEN_STACKS
@@ -827,13 +827,13 @@ Macros to check the limits of stacks
 
 #define PROTECT_FROZEN_B(CPTR)  ((CPTR) < B_FZ && (CPTR) > (choiceptr)H_FZ ? (CPTR) : B_FZ )
 	 */
-#else
-#define PROTECT_FROZEN_B(CPTR)  (YOUNGER_CP(CPTR, B_FZ) ? CPTR         : B_FZ)
+#else /* TABLING */
+#define PROTECT_FROZEN_B(CPTR)  (YOUNGER_CP(CPTR, B_FZ) ? CPTR        : B_FZ)
 #define PROTECT_FROZEN_H(CPTR)  (((CPTR)->cp_h > H_FZ) ? (CPTR)->cp_h : H_FZ)
 #endif /* SBA */
 #else
 #define PROTECT_FROZEN_H(CPTR)  (CPTR)->cp_h
-#endif /* TABLING */
+#endif /* FROZEN_STACKS */
 
 #define restore_yaam_regs(AP)                                    \
                  { register CELL *x1 = B_YREG->cp_env;	         \
@@ -1099,7 +1099,9 @@ Macros to check the limits of stacks
 #endif
 
 
-#if FROZEN_STACKS
+#if defined(SBA) || defined(MULTI_ASSIGNMENT_VARIABLES)
+#define trim_trail(B, TR, HBREG)  (TR)
+#elif FROZEN_STACKS
 static inline tr_fr_ptr
 trim_trail(choiceptr b, tr_fr_ptr tr, CELL *hbreg)
 {
@@ -1126,11 +1128,6 @@ trim_trail(choiceptr b, tr_fr_ptr tr, CELL *hbreg)
   ENDD(d0);                                
   return(TR);
 }
-
-#elif defined(SBA) || defined(MULTI_ASSIGNMENT_VARIABLES)
-
-#define trim_trail(B, TR, HBREG)  (TR)
-
 #else
 static inline tr_fr_ptr
 trim_trail(choiceptr b, tr_fr_ptr tr, CELL *hbreg)
@@ -1153,7 +1150,7 @@ trim_trail(choiceptr b, tr_fr_ptr tr, CELL *hbreg)
   ENDD(d0);                                
   return(TR);
 }
-#endif /* FROZEN_STACKS */
+#endif
 
 #if IN_ABSMI_C || IN_UNIFY_C
 

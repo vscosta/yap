@@ -10,7 +10,7 @@
 * File:		Regs.h							 *
 * mods:									 *
 * comments:	YAP abstract machine registers				 *
-* version:      $Id: Regs.h,v 1.20 2003-02-14 12:20:57 vsc Exp $	 *
+* version:      $Id: Regs.h,v 1.21 2003-11-05 18:55:03 ricroc Exp $	 *
 *************************************************************************/
 
 
@@ -61,9 +61,9 @@ typedef struct
   {
     CELL    CreepFlag_;		/* 13                                         */
     CELL   *HB_;		/* 4 heap (global) stack top at latest c.p.   */
-#if (defined(YAPOR) && defined(SBA)) || defined(TABLING)
+#if defined(SBA) || defined(TABLING)
     choiceptr BB_;		/* 4 local stack top at latest c.p.   */
-#endif
+#endif /* SBA || TABLING */
     CELL  *H0_;			/* 2 base of heap (global) stack              */
     tr_fr_ptr TR_;		/* 24 top of trail                            */
     CELL   *H_;			/* 25 top of heap (global)  stack             */
@@ -95,11 +95,11 @@ typedef struct
 #endif
 #endif
     SMALLUNSGN  CurrentModule_;
-#if (defined(YAPOR) && defined(SBA)) || defined(TABLING)
+#if defined(SBA) || defined(TABLING)
     CELL *H_FZ_;
     choiceptr B_FZ_;
     tr_fr_ptr TR_FZ_;
-#endif
+#endif /* SBA || TABLING */
 #if defined(YAPOR) || defined(THREADS)
     unsigned int worker_id_;
 #ifdef SBA
@@ -638,11 +638,11 @@ EXTERN inline void restore_B(void) {
 #define FlipFlop  Yap_REGS.FlipFlop_
 #define EX        Yap_REGS.EX_
 #define DEPTH	  Yap_REGS.DEPTH_
-#if (defined(YAPOR) && defined(SBA)) || defined(TABLING)
+#if defined(SBA) || defined(TABLING)
 #define H_FZ          Yap_REGS.H_FZ_
 #define B_FZ          Yap_REGS.B_FZ_
 #define TR_FZ         Yap_REGS.TR_FZ_
-#endif
+#endif /* SBA || TABLING */
 #if defined(YAPOR) || defined(THREADS)
 #define worker_id         (Yap_REGS.worker_id_)
 #ifdef SBA
@@ -687,10 +687,10 @@ EXTERN inline void restore_B(void) {
 
 #define HBREG HB
 
-#if (defined(YAPOR) && defined(SBA)) || defined(TABLING)
+#if defined(SBA) || defined(TABLING)
 #define BB            Yap_REGS.BB_
 #define BBREG         BB
-#endif
+#endif /* SBA || TABLING */
 
 #if !THREADS
 /* use actual addresses for regs */

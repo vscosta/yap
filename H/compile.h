@@ -133,12 +133,15 @@ typedef enum compiler_op {
   restore_tmps_and_skip_op,
   enter_lu_op,
   empty_call_op,
-#ifdef TABLING
-  table_new_answer_op,
-#endif /* TABLING */
 #ifdef YAPOR
   sync_op,
 #endif /* YAPOR */
+#ifdef TABLING
+  table_new_answer_op,
+#endif /* TABLING */
+#ifdef TABLING_INNER_CUTS
+  clause_with_cut_op,
+#endif /* TABLING_INNER_CUTS */
   fetch_args_for_bccall,
   bccall_op,
   blob_op

@@ -656,7 +656,7 @@ RestoreClause(yamop *pc, PredEntry *pp, int mode)
     case _table_trust_me:
     case _table_answer_resolution:
     case _table_completion:
-#endif
+#endif /* TABLING */
       pc->u.ld.p = PtoPredAdjust(pc->u.ld.p);
       pc->u.ld.d = PtoOpAdjust(pc->u.ld.d);
       pc = NEXTOP(pc,ld);
@@ -750,7 +750,10 @@ RestoreClause(yamop *pc, PredEntry *pp, int mode)
     case _trie_trust_struct:
     case _trie_try_struct:
     case _trie_retry_struct:
-#endif
+#endif /* TABLING */
+#ifdef TABLING_INNER_CUTS
+    case _clause_with_cut:
+#endif /* TABLING_INNER_CUTS */
       pc = NEXTOP(pc,e);
       break;
       /* instructions type x */
@@ -1002,7 +1005,7 @@ RestoreClause(yamop *pc, PredEntry *pp, int mode)
     case _pop_n:
 #ifdef TABLING
     case _table_new_answer:
-#endif
+#endif /* TABLING */
       pc = NEXTOP(pc,s);
       break;
       /* instructions type c */

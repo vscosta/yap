@@ -58,6 +58,9 @@
     OPCODE(trie_try_struct         ,e),
     OPCODE(trie_retry_struct       ,e),
 #endif /* TABLING */
+#ifdef TABLING_INNER_CUTS
+    OPCODE(clause_with_cut         ,e),
+#endif /* TABLING_INNER_CUTS */
     OPCODE(try_me                  ,ld),	
     OPCODE(retry_me                ,ld),	
     OPCODE(trust_me                ,ld),	
