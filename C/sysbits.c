@@ -1789,6 +1789,7 @@ p_cd (void)
 #if  __simplescalar__
   strncpy(FileNameBuf,"PWD=",YAP_FILENAME_MAX);
   strncat(FileNameBuf,FileNameBuf2,YAP_FILENAME_MAX);
+  fprintf(stderr,"adding %s\n", FileNameBuf);
   putenv(FileNameBuf);
 #endif
   return (!chdir (FileNameBuf2));

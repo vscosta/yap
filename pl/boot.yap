@@ -928,7 +928,7 @@ break :- '$get_value'('$break',BL), NBL is BL+1,
 		'$format'(user_error, "~*|[ consulting ~w... ]~n", [LC,F])
 		; true )
 	;
-	    '$print_message'(informational, loading(consulting, F))
+	    '$print_message'(informational, loading(consulting, File))
 	),
 	'$loop'(Stream,consult),
 	'$exec_initialisation_goals',
@@ -943,7 +943,7 @@ break :- '$get_value'('$break',BL), NBL is BL+1,
 	     true
 	  )
 	;
-	    '$print_message'(informational, loaded(consulted, F, Mod, T, H))
+	    '$print_message'(informational, loaded(consulted, File, Mod, T, H))
 	),
 	'$set_value'('$consulting',Old),
 	'$set_value'('$consulting_file',OldF),
