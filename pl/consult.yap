@@ -243,9 +243,9 @@ prolog_load_context(term_position, Position) :-
 '$loaded_file'(F,M,F1) :-
 	recorded('$loaded','$loaded'(F1,M,Age),R),
 	'$same_file'(F1,F), !,
-	'$loaded_file_age'(F, R).
+	'$loaded_file_age'(F, R, Age).
 
-'$loaded_file_age'(F, R) :-
+'$loaded_file_age'(F, R, Age) :-
         '$file_age'(F,CurrentAge),
          ((CurrentAge = Age ; Age = -1)  -> true; erase(R), fail).
 
