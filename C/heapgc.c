@@ -2890,6 +2890,9 @@ marking_phase(tr_fr_ptr old_TR, CELL *current_env, yamop *curp, CELL *max)
   cont_top = (cont *)db_vec;
   /* These two must be marked first so that our trail optimisation won't lose
      values */
+#ifdef COROUTINING
+  mark_all_suspended_goals();
+#endif
   mark_regs(old_TR);		/* active registers & trail */
 #ifdef COROUTINING
   mark_delays(max);
@@ -2967,7 +2970,7 @@ do_gc(Int predarity, CELL *current_env, yamop *nextop)
   int		gc_verbose = is_gc_verbose();
   tr_fr_ptr     old_TR;
   Int		m_time, c_time, time_start, gc_time;
-#ifdef COROUTINING
+#if COROUTINING
   CELL *max = (CELL *)ReadTimedVar(DelayedVars);
 #else
   CELL *max = NULL;
@@ -2976,7 +2979,7 @@ do_gc(Int predarity, CELL *current_env, yamop *nextop)
   int           gc_trace = FALSE;
 
 #if COROUTINING
-  if (H0 - (CELL *)ReadTimedVar(DelayedVars) < 1024+(2*NUM_OF_ATTS)) {
+  if (H0 - max < 1024+(2*NUM_OF_ATTS)) {
     if (!growglobal(&current_env)) {
       Error(SYSTEM_ERROR, TermNil, ErrorMessage);
       return FALSE;

@@ -403,7 +403,7 @@ mark_sus_record(sus_record *sg)
 #ifdef MULTI_ASSIGNMENT_VARIABLES
   total_marked++;
   if (!IsAtomTerm((CELL)(sg->NS)))
-    mark_suspended_goal((CELL *)(sg->NS));
+    mark_sus_record(sg->NS);
   MARK(((CELL *)&(sg->NS)));
 #endif
 }
@@ -414,6 +414,26 @@ static void mark_suspended_goal(CELL *orig)
 
   mark_sus_record(sreg->SG);
   mark_external_reference(((CELL *)&(sreg->SG)));
+}
+
+
+void
+mark_all_suspended_goals(void)
+{
+  sus_record *sg = GetSVarList();
+  if (sg == NULL)
+    return;
+  /* okay, we are on top of the list of variables. Let's burn rubber!
+   */
+  while (sg != (sus_record *)TermNil) {
+    CELL tmp;
+    mark_sus_record(sg);
+    tmp = (CELL)(sg->NS);
+    if (MARKED(tmp))
+      sg = (sus_record *)UNMARK_CELL(tmp);
+    else
+      sg = (sus_record *)tmp;
+  }
 }
 
 

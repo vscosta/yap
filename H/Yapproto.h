@@ -10,7 +10,7 @@
 * File:		Yap.proto						 *
 * mods:									 *
 * comments:	Function declarations for YAP				 *
-* version:      $Id: Yapproto.h,v 1.25 2002-10-21 22:14:28 vsc Exp $	 *
+* version:      $Id: Yapproto.h,v 1.26 2002-10-29 17:23:32 vsc Exp $	 *
 *************************************************************************/
 
 /* prototype file for Yap */
@@ -143,6 +143,7 @@ void	STD_PROTO(InitCoroutPreds,(void));
 #ifdef COROUTINING
 Term	STD_PROTO(ListOfWokenGoals,(void));
 void	STD_PROTO(WakeUp,(CELL *));
+void	STD_PROTO(mark_all_suspended_goals,(void));
 #endif
 
 /* dbase.c */
