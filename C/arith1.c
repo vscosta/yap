@@ -1289,7 +1289,7 @@ p_ceiling(Term t E_ARGS)
   if (yap_flags[LANGUAGE_MODE_FLAG] == 1) { /* iso */
     RBIG_FL(ceil(dbl));
   } else {
-    RFLOAT(floor(dbl));
+    RFLOAT(ceil(dbl));
   }
 }
 
