@@ -9,14 +9,14 @@
 **************************************************************************
 *									 *
 * File:		mpi.c  							 *
-* Last rev:	$Date: 2002-11-21 15:54:38 $				 *
+* Last rev:	$Date: 2002-11-21 15:57:23 $				 *
 * mods:									 *
 * comments:	Interface to an MPI library                              *
 *									 *
 *************************************************************************/
 
 #ifndef lint
-static char *rcsid = "$Header: /Users/vitor/Yap/yap-cvsbackup/library/mpi/mpi.c,v 1.17 2002-11-21 15:54:38 stasinos Exp $";
+static char *rcsid = "$Header: /Users/vitor/Yap/yap-cvsbackup/library/mpi/mpi.c,v 1.18 2002-11-21 15:57:23 stasinos Exp $";
 #endif
 
 #include "Yap.h"
@@ -428,7 +428,7 @@ p_mpi_receive()          /* mpi_receive(-data, ?orig, ?tag) */
   }
 
   /* Receive the message as a C string */
-  retv = MPI_Recv( &buf[bufptr], bufstrlen, MPI_CHAR, orig, tag,
+  retv = MPI_Recv( buf, bufstrlen, MPI_CHAR, orig, tag,
 		   MPI_COMM_WORLD, &status );
   if( retv != MPI_SUCCESS ) {
     /* Getting in here would be weird; it means the first package
