@@ -1524,7 +1524,7 @@ mark_choicepoints(register choiceptr gc_B, tr_fr_ptr saved_TR, int very_verbose)
 	    fprintf(Yap_stderr,"[GC]       marked %ld (%s)\n", total_marked, op_names[opnum]);
 	  } else
 	    if (pe->ArityOfPE)
-	      fprintf(Yap_stderr,"[GC]       %s/%ld marked %ld (%s)\n", RepAtom(NameOfFunctor(pe->FunctorOfPred))->StrOfAE, pe->ArityOfPE, total_marked, op_names[opnum]);
+	      fprintf(Yap_stderr,"[GC]       %s/%d marked %ld (%s)\n", RepAtom(NameOfFunctor(pe->FunctorOfPred))->StrOfAE, pe->ArityOfPE, total_marked, op_names[opnum]);
 	    else
 	      fprintf(Yap_stderr,"[GC]       %s marked %ld (%s)\n", RepAtom((Atom)(pe->FunctorOfPred))->StrOfAE, total_marked, op_names[opnum]);
 	}
