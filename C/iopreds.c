@@ -2839,9 +2839,6 @@ p_read (void)
   if (Stream[c_input_stream].status & Binary_Stream_f) {
     Error(PERMISSION_ERROR_INPUT_BINARY_STREAM, MkAtomTerm(Stream[c_input_stream].u.file.name), "read_term/2");
     return(FALSE);
-  } else if (Stream[c_input_stream].status & Eof_Error_Stream_f) {
-    Error(PERMISSION_ERROR_INPUT_PAST_END_OF_STREAM, MkAtomTerm(Stream[c_input_stream].u.file.name), "read_term/2");
-    return(FALSE);
   }
   old_TR = TR;
   while (TRUE) {

@@ -24,7 +24,7 @@ open(Source,M,T) :- var(M), !,
 open(Source,M,T) :- nonvar(T), !,
 	'$do_error'(type_error(variable,T),open(Source,M,T)).
 open(File,Mode,Stream) :-
-	'$open'(File,Mode,Stream,0).
+	'$open'(File,Mode,Stream,16).
 
 /* meaning of flags for '$write' is
 	 1	quote illegal atoms
