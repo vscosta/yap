@@ -166,7 +166,7 @@ typedef struct yami {
          struct table_entry *te; /* pointer to table entry */
 #endif /* TABLING */
 	 COUNT               s;
-	 CODEADDR	     p;
+	 struct pred_entry  *p;
 	 CODEADDR            d;
 	 CELL next;
        } ld;
@@ -178,7 +178,7 @@ typedef struct yami {
          struct table_entry *te; /* pointer to table entry */
 #endif /* TABLING */
 	 COUNT               s;
-	 CODEADDR	     p;
+	 struct pred_entry  *p;
 	 CODEADDR            d;
 	 CODEADDR            bl;
 	 CELL next;
@@ -196,7 +196,7 @@ typedef struct yami {
          struct table_entry *te; /* pointer to table entry */
 #endif /* TABLING */
 	 COUNT               s;
-	 CODEADDR	     p;
+	 struct pred_entry  *p;
 	 CODEADDR            d;
 	 COUNT               extra;
 	 CELL next;
@@ -215,7 +215,7 @@ typedef struct yami {
          struct table_entry *te; /* pointer to table entry */
 #endif /* TABLING */
 	 COUNT               s;
-	 CODEADDR	     p;
+	 struct pred_entry  *p;
 	 CODEADDR            l1;
 	 CODEADDR            l2;
 	 CODEADDR            l3;
@@ -229,7 +229,7 @@ typedef struct yami {
 	 CELL next;
        } llll;
        struct {
-	 CODEADDR            p;
+	 struct pred_entry  *p;
 	 CODEADDR            l;
 	 AREG                x1;
 	 AREG                x2;
@@ -237,7 +237,7 @@ typedef struct yami {
 	 CELL next;
        } lxx;
        struct {
-	 CODEADDR            p;
+	 struct pred_entry  *p;
 	 CODEADDR            l;
 	 AREG                x;
 	 YREG                y;
@@ -245,7 +245,7 @@ typedef struct yami {
 	 CELL next;
        } lxy;
        struct {
-	 CODEADDR            p;
+	 struct pred_entry  *p;
 	 CODEADDR            l;
 	 AREG                y1;
 	 YREG                y2;
@@ -315,7 +315,7 @@ typedef struct yami {
 	 COUNT               s;
 	 CODEADDR            d;
 	 CODEADDR            l;
-	 CODEADDR            p;
+	 struct pred_entry  *p;
 	 CELL next;
        } sdl;
        struct {

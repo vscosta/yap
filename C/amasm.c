@@ -250,6 +250,12 @@ emit_a(CELL a)
   return ((CODEADDR) (a));
 }
 
+inline static struct pred_entry *
+emit_pe(struct pred_entry *a)
+{
+  return (a);
+}
+
 inline static CODEADDR
 emit_ilabel(register CELL addr)
 {
@@ -757,7 +763,7 @@ a_p(op_numbers opcode)
 	code_p->u.sdl.l =
 	  emit_a(Unsigned(code_addr) + label_offset[comit_lab]);
 	code_p->u.sdl.p =
-	  emit_a((CELL) RepPredProp(fe));
+	  emit_pe(RepPredProp(fe));
       }
       GONEXT(sdl);
       comit_lab = 0;
@@ -921,8 +927,8 @@ a_bfunc(CELL pred)
     if (ve->KindOfVE == PermVar) {
       if (pass_no) {
 	code_p->opc = emit_op(_call_bfunc_yy);
-	code_p->u.lxy.p = (CODEADDR) RepPredProp(((Prop)pred));
-	code_p->u.lyy.l = (CODEADDR) (RepPredProp(((Prop)pred))->TrueCodeOfPred);
+	code_p->u.lxy.p = RepPredProp(((Prop)pred));
+	code_p->u.lyy.l = RepPredProp(((Prop)pred))->TrueCodeOfPred;
 	code_p->u.lyy.y1 = v1;
 	code_p->u.lyy.y2 = emit_yreg(var_offset);
 	code_p->u.lyy.flags = compile_cmp_flags(RepAtom(NameOfFunctor(RepPredProp(((Prop)pred))->FunctorOfPred))->StrOfAE);
@@ -931,8 +937,8 @@ a_bfunc(CELL pred)
     } else {
       if (pass_no) {
 	code_p->opc = emit_op(_call_bfunc_yx);
-	code_p->u.lxy.l = (CODEADDR) (RepPredProp(((Prop)pred))->TrueCodeOfPred);
-	code_p->u.lxy.p = (CODEADDR) RepPredProp(((Prop)pred));
+	code_p->u.lxy.l = RepPredProp(((Prop)pred))->TrueCodeOfPred;
+	code_p->u.lxy.p = RepPredProp(((Prop)pred));
 	code_p->u.lxy.x = emit_xreg(var_offset);
 	code_p->u.lxy.y = v1;
 	code_p->u.lxy.flags = compile_cmp_flags(RepAtom(NameOfFunctor(RepPredProp(((Prop)pred))->FunctorOfPred))->StrOfAE);
@@ -947,8 +953,8 @@ a_bfunc(CELL pred)
     if (ve->KindOfVE == PermVar) {
       if (pass_no) {
 	code_p->opc = emit_op(_call_bfunc_xy);
-	code_p->u.lxy.l = (CODEADDR) (RepPredProp(((Prop)pred))->TrueCodeOfPred);
-	code_p->u.lxy.p = (CODEADDR) RepPredProp(((Prop)pred));
+	code_p->u.lxy.l = RepPredProp(((Prop)pred))->TrueCodeOfPred;
+	code_p->u.lxy.p = RepPredProp(((Prop)pred));
 	code_p->u.lxy.x = x1;
 	code_p->u.lxy.y = emit_yreg(var_offset);
 	code_p->u.lxy.flags = compile_cmp_flags(RepAtom(NameOfFunctor(RepPredProp(((Prop)pred))->FunctorOfPred))->StrOfAE);
@@ -957,8 +963,8 @@ a_bfunc(CELL pred)
     } else {
       if (pass_no) {
 	code_p->opc = emit_op(_call_bfunc_xx);
-	code_p->u.lxy.p = (CODEADDR) RepPredProp(((Prop)pred));
-	code_p->u.lxx.l = (CODEADDR) (RepPredProp(((Prop)pred))->TrueCodeOfPred);
+	code_p->u.lxy.p = RepPredProp(((Prop)pred));
+	code_p->u.lxx.l = RepPredProp(((Prop)pred))->TrueCodeOfPred;
 	code_p->u.lxx.x1 = x1;
 	code_p->u.lxx.x2 = emit_xreg(var_offset);
 	code_p->u.lxx.flags = compile_cmp_flags(RepAtom(NameOfFunctor(RepPredProp(((Prop)pred))->FunctorOfPred))->StrOfAE);
@@ -1002,7 +1008,7 @@ a_3sws(op_numbers opcode)
     code_p->opc = emit_op(opcode);
     seq_ptr = cpc->arnds;
     code_p->u.slll.s  = IPredArity;
-    code_p->u.slll.p = (CODEADDR)CurrentPred;
+    code_p->u.slll.p = CurrentPred;
 #ifdef YAPOR
     INIT_YAMOP_LTT(code_p, cpc->rnd1 >> 1);
     if (cpc->rnd1 & 1)
@@ -1141,7 +1147,7 @@ a_try(op_numbers opcode, CELL lab, CELL opr)
     code_p->opc = emit_op(opcode);
     code_p->u.ld.d = emit_a(lab);
     code_p->u.ld.s = emit_count(opr);
-    code_p->u.ld.p = (CODEADDR)CurrentPred;
+    code_p->u.ld.p = CurrentPred;
 #ifdef YAPOR
     INIT_YAMOP_LTT(code_p, nofalts);
     if (hascut)
@@ -1160,7 +1166,7 @@ a_gl_in(op_numbers opcode)
     code_p->opc = emit_op(opcode);
     code_p->u.ldl.d = emit_a(cpc->rnd1);
     code_p->u.ldl.s = emit_count(IPredArity);
-    code_p->u.ldl.p = (CODEADDR)CurrentPred;
+    code_p->u.ldl.p = CurrentPred;
 #ifdef YAPOR
     INIT_YAMOP_LTT(code_p, cpc->rnd2 >> 1);
     if (cpc->rnd2 & 1)

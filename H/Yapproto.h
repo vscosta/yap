@@ -10,7 +10,7 @@
 * File:		Yap.proto						 *
 * mods:									 *
 * comments:	Function declarations for YAP				 *
-* version:      $Id: Yapproto.h,v 1.17 2002-05-14 18:24:33 vsc Exp $	 *
+* version:      $Id: Yapproto.h,v 1.18 2002-05-16 20:33:00 vsc Exp $	 *
 *************************************************************************/
 
 /* prototype file for Yap */
@@ -101,7 +101,7 @@ void   STD_PROTO(InitBBPreds,(void));
 void   STD_PROTO(InitBigNums,(void));
 
 /* c_interface.c */
-Int    STD_PROTO(YapExecute,(CPredicate));
+Int    STD_PROTO(YapExecute,(struct pred_entry *));
 
 /* cdmgr.c */
 void	STD_PROTO(mark_as_fast,(Term));

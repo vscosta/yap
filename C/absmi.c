@@ -5757,7 +5757,7 @@ absmi(int inp)
 	saveregs();
 	save_machine_regs();
 
-	SREG = (CELL *) YapExecute((CPredicate)(p->TrueCodeOfPred));
+	SREG = (CELL *) YapExecute(p);
       }
 
       restore_machine_regs();
@@ -5885,12 +5885,7 @@ absmi(int inp)
       ASP = YENV;
       saveregs();
       save_machine_regs();
-      {
-	CPredicate p;
-
-	p = (CPredicate)(PREG->u.lds.d);
-	SREG = (CELL *) YapExecute(p);
-      }
+      SREG = (CELL *) YapExecute(PREG->u.lds.p);
       restore_machine_regs();
       setregs();
       if (!SREG) {

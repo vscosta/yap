@@ -363,6 +363,13 @@ static void (*YapIUserBackCPredicate)() = UserBackCPredicate;
 #define UserBackCPredicate(N,F,G,A,B) (*YapIUserBackCPredicate)(N,F,G,A,B)
 #endif
 
+/*  void UserCPredicate(char *name, int *fn(), int arity) */
+extern X_API void PROTO(YapUserCPredicateWithArgs,(char *, int (*)(void), Int,Int));
+#ifdef IndirectCalls
+static void (*YapIUserCPredicateWithArgs)() = UserCPredicateWithArgs;
+#define YapUserCPredicateWithArgs(N,F,A,M) (*YapIUserCPredicateWithArgs)(N,F,A,M)
+#endif
+
 /*  void CallProlog(Term t) */
 extern X_API Int PROTO(YapCallProlog,(Term t));
 #ifdef IndirectCalls

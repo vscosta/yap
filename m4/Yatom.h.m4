@@ -162,6 +162,7 @@ Inline(IsValProperty, PropFlags, int, flags, (flags == ValProperty) )
 	    CodeOfPred holds the address of the	correspondent C-function.
 */
 typedef enum {
+  CArgsPredFlag =    0x1000000L,	/* ! should ! across */
   CutTransparentPredFlag =   0x800000L,	/* ! should ! across */
   SourcePredFlag =   0x400000L,	/* static predicate with source declaration */
   MetaPredFlag =     0x200000L,	/* predicate subject to a meta declaration */

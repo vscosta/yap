@@ -74,7 +74,7 @@ X_API Int     STD_PROTO(Yapcut_fail,(void));
 X_API Int     STD_PROTO(Yapcut_succeed,(void));
 X_API Int     STD_PROTO(YapUnify,(Term,Term));
 X_API Int     STD_PROTO(YapUnify,(Term,Term));
-      Int     STD_PROTO(YapExecute,(CPredicate));
+      Int     STD_PROTO(YapExecute,(PredEntry *));
 X_API int     STD_PROTO(YapReset,(void));
 X_API Int     STD_PROTO(YapInit,(yap_init_args *));
 X_API Int     STD_PROTO(YapFastInit,(char *));
@@ -117,6 +117,7 @@ X_API void    STD_PROTO(YapHalt,(int));
 X_API Term   *STD_PROTO(YapTopOfLocalStack,(void));
 X_API void   *STD_PROTO(YapPredicate,(Atom,Int,Int));
 X_API void    STD_PROTO(YapPredicateInfo,(void *,Atom *,Int *,Int *));
+X_API void    STD_PROTO(YapUserCPredicateWithArgs,(char *,CPredicate,Int,Int));
 X_API Int     STD_PROTO(YapCurrentModule,(void));
 
 static int (*do_getf)(void);
@@ -420,10 +421,74 @@ YapUnify(Term t1, Term t2)
   return(out);
 }
 
+typedef Int (*CPredicate1)(Term);
+typedef Int (*CPredicate2)(Term,Term);
+typedef Int (*CPredicate3)(Term,Term,Term);
+typedef Int (*CPredicate4)(Term,Term,Term,Term);
+typedef Int (*CPredicate5)(Term,Term,Term,Term,Term);
+typedef Int (*CPredicate6)(Term,Term,Term,Term,Term,Term);
+typedef Int (*CPredicate7)(Term,Term,Term,Term,Term,Term,Term);
+typedef Int (*CPredicate8)(Term,Term,Term,Term,Term,Term,Term,Term);
+
+
 Int
-YapExecute(CPredicate code)
+YapExecute(PredEntry *pe)
 {
-  return((code)());
+  if (pe->PredFlags & CArgsPredFlag) {
+    CODEADDR code = pe->TrueCodeOfPred;
+    switch (pe->ArityOfPE) {
+    case 0:
+      {
+	CPredicate code0 = (CPredicate)code;
+	return ((code0)());
+      }
+    case 1:
+      {
+	CPredicate1 code1 = (CPredicate1)code;
+	return ((code1)(Deref(ARG1)));
+      }
+    case 2:
+      {
+	CPredicate2 code2 = (CPredicate2)code;
+	return ((code2)(Deref(ARG1),Deref(ARG2)));
+      }
+    case 3:
+      {
+	CPredicate3 code3 = (CPredicate3)code;
+	return ((code3)(Deref(ARG1),Deref(ARG2),Deref(ARG3)));
+      }
+    case 4:
+      {
+	CPredicate4 code4 = (CPredicate4)code;
+	return ((code4)(Deref(ARG1),Deref(ARG2),Deref(ARG3),Deref(ARG4)));
+      }
+    case 5:
+      {
+	CPredicate5 code5 = (CPredicate5)code;
+	return ((code5)(Deref(ARG1),Deref(ARG2),Deref(ARG3),Deref(ARG4),Deref(ARG5)));
+      }
+    case 6:
+      {
+	CPredicate6 code6 = (CPredicate6)code;
+	return ((code6)(Deref(ARG1),Deref(ARG2),Deref(ARG3),Deref(ARG4),Deref(ARG5),Deref(ARG6)));
+      }
+    case 7:
+      {
+	CPredicate7 code7 = (CPredicate7)code;
+	return ((code7)(Deref(ARG1),Deref(ARG2),Deref(ARG3),Deref(ARG4),Deref(ARG5),Deref(ARG6),Deref(ARG7)));
+      }
+    case 8:
+      {
+	CPredicate8 code8 = (CPredicate8)code;
+	return ((code8)(Deref(ARG1),Deref(ARG2),Deref(ARG3),Deref(ARG4),Deref(ARG5),Deref(ARG6),Deref(ARG7),Deref(ARG8)));
+      }
+    default:
+      return(FALSE);
+    }
+  } else {
+    CPredicate code = (CPredicate)(pe->TrueCodeOfPred);
+    return((code)());
+  }
 }
 
 X_API Int
@@ -1008,6 +1073,23 @@ YapPredicateInfo(void *p, Atom* a, Int* arity, Int* m)
     *a = (Atom)(pd->FunctorOfPred);
   }
   *m = pd->ModuleOfPred;
+} 
+
+X_API void
+YapUserCPredicateWithArgs(char *a, CPredicate f, Int arity, Int mod)
+{
+  PredEntry *pe;
+  SMALLUNSGN cm = CurrentModule;
+  CurrentModule = mod;
+  UserCPredicate(a,f,arity);
+  if (arity == 0) {
+    pe = RepPredProp(PredPropByAtom(LookupAtom(a),mod));
+  } else {
+    Functor f = MkFunctor(LookupAtom(a), arity);
+    pe = RepPredProp(PredPropByFunc(f,mod));
+  }
+  pe->PredFlags |= CArgsPredFlag;
+  CurrentModule = cm;
 } 
 
 X_API Int

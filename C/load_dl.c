@@ -101,7 +101,6 @@ LoadForeign(StringList ofiles, StringList libs,
     }
     libs = libs->next;
   }
-
   return LOAD_SUCCEEDED;
 }
 

@@ -419,7 +419,7 @@ add_first_static(PredEntry *p, CODEADDR cp, int spy_flag)
   yamop *pt = (yamop *)cp;
 
   pt->u.ld.d = cp;
-  pt->u.ld.p = (CODEADDR)p;
+  pt->u.ld.p = p;
 #ifdef YAPOR
   if (SEQUENTIAL_IS_DEFAULT) {
     p->PredFlags |= SequentialPredFlag;
@@ -515,7 +515,7 @@ add_first_dynamic(PredEntry *p, CODEADDR cp, int spy_flag)
   else
     p->OpcodeOfPred = ncp->opc = opcode(_try_and_mark);
   ncp->u.ld.s = p->ArityOfPE;
-  ncp->u.ld.p = (CODEADDR)p;
+  ncp->u.ld.p = p;
   ncp->u.ld.d = cp;
 #ifdef YAPOR
   INIT_YAMOP_LTT(ncp, 1);
@@ -530,7 +530,7 @@ add_first_dynamic(PredEntry *p, CODEADDR cp, int spy_flag)
   else
     ((yamop *)cp)->opc = opcode(_retry_and_mark);
   ((yamop *)cp)->u.ld.s = p->ArityOfPE;
-  ((yamop *)cp)->u.ld.p = (CODEADDR)p;
+  ((yamop *)cp)->u.ld.p = p;
   ((yamop *)cp)->u.ld.d = (CODEADDR)ncp;
 #ifdef KEEP_ENTRY_AGE
   /* also, keep a backpointer for the days you delete the clause */
@@ -558,7 +558,7 @@ asserta_stat_clause(PredEntry *p, CODEADDR cp, int spy_flag)
 {
   yamop        *q = (yamop *)cp;
   q->u.ld.d = p->FirstClause;
-  q->u.ld.p = (CODEADDR)p;
+  q->u.ld.p = p;
 #ifdef YAPOR
   PUT_YAMOP_LTT(q, YAMOP_LTT((yamop *)(p->FirstClause)) + 1);
 #endif /* YAPOR */
@@ -611,18 +611,18 @@ asserta_dynam_clause(PredEntry *p, CODEADDR cp)
   UNLOCK(ClauseCodeToClause(p->FirstClause)->ClLock);
   q->u.ld.d = p->FirstClause;
   q->u.ld.s = p->ArityOfPE;
-  q->u.ld.p = (CODEADDR)p;
+  q->u.ld.p = p;
   if (p->PredFlags & ProfiledPredFlag)
     ((yamop *)cp)->opc = opcode(_retry_and_mark);
   else
     ((yamop *)cp)->opc = opcode(_profiled_retry_and_mark);
   ((yamop *)cp)->u.ld.s = p->ArityOfPE;
-  ((yamop *)cp)->u.ld.p = (CODEADDR)p;
+  ((yamop *)cp)->u.ld.p = p;
   p->FirstClause = cp;
   q = (yamop *)p->CodeOfPred;
   q->u.ld.d = cp;
   q->u.ld.s = p->ArityOfPE;
-  q->u.ld.p = (CODEADDR)p;
+  q->u.ld.p = p;
 }
 
 /* p is already locked */
@@ -704,7 +704,7 @@ assertz_dynam_clause(PredEntry *p, CODEADDR cp)
     q->opc = opcode(_retry_and_mark);
   q->u.ld.d = p->CodeOfPred;
   q->u.ld.s = p->ArityOfPE;
-  q->u.ld.p = (CODEADDR)p;
+  q->u.ld.p = p;
 }
 
 static void  expand_consult(void)
