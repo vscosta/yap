@@ -116,89 +116,89 @@ void rw_lock_voodoo(void) {
   /* code taken from the Linux kernel, it handles shifting between locks */
   /* Read/writer locks, as usual this is overly clever to make it as fast as possible. */
 	/* caches... */
-	__asm__ __volatile__("
-___rw_read_enter_spin_on_wlock:
-	orcc	%g2, 0x0, %g0
-	be,a	___rw_read_enter
-	 ldstub	[%g1 + 3], %g2
-	b	___rw_read_enter_spin_on_wlock
-	 ldub	[%g1 + 3], %g2
-___rw_read_exit_spin_on_wlock:
-	orcc	%g2, 0x0, %g0
-	be,a	___rw_read_exit
-	 ldstub	[%g1 + 3], %g2
-	b	___rw_read_exit_spin_on_wlock
-	 ldub	[%g1 + 3], %g2
-___rw_write_enter_spin_on_wlock:
-	orcc	%g2, 0x0, %g0
-	be,a	___rw_write_enter
-	 ldstub	[%g1 + 3], %g2
-	b	___rw_write_enter_spin_on_wlock
-	 ld	[%g1], %g2
+	__asm__ __volatile__(
+"___rw_read_enter_spin_on_wlock:"
+"	orcc	%g2, 0x0, %g0"
+"	be,a	___rw_read_enter"
+"	 ldstub	[%g1 + 3], %g2"
+"	b	___rw_read_enter_spin_on_wlock"
+"	 ldub	[%g1 + 3], %g2"
+"___rw_read_exit_spin_on_wlock:"
+"	orcc	%g2, 0x0, %g0"
+"	be,a	___rw_read_exit"
+"	 ldstub	[%g1 + 3], %g2"
+"	b	___rw_read_exit_spin_on_wlock"
+"	 ldub	[%g1 + 3], %g2"
+"___rw_write_enter_spin_on_wlock:"
+"	orcc	%g2, 0x0, %g0"
+"	be,a	___rw_write_enter"
+"	 ldstub	[%g1 + 3], %g2"
+"	b	___rw_write_enter_spin_on_wlock"
+"	 ld	[%g1], %g2"
+""
+"	.globl	___rw_read_enter"
+"___rw_read_enter:"
+"	orcc	%g2, 0x0, %g0"
+"	bne,a	___rw_read_enter_spin_on_wlock"
+"	 ldub	[%g1 + 3], %g2"
+"	ld	[%g1], %g2"
+"	add	%g2, 1, %g2"
+"	st	%g2, [%g1]"
+"	retl"
+"	 mov	%g4, %o7"
 
-	.globl	___rw_read_enter
-___rw_read_enter:
-	orcc	%g2, 0x0, %g0
-	bne,a	___rw_read_enter_spin_on_wlock
-	 ldub	[%g1 + 3], %g2
-	ld	[%g1], %g2
-	add	%g2, 1, %g2
-	st	%g2, [%g1]
-	retl
-	 mov	%g4, %o7
+"	.globl	___rw_read_exit"
+"___rw_read_exit:"
+"	orcc	%g2, 0x0, %g0"
+"	bne,a	___rw_read_exit_spin_on_wlock"
+"	 ldub	[%g1 + 3], %g2"
+"	ld	[%g1], %g2"
+"	sub	%g2, 0x1ff, %g2"
+"	st	%g2, [%g1]"
+"	retl"
+"	 mov	%g4, %o7"
 
-	.globl	___rw_read_exit
-___rw_read_exit:
-	orcc	%g2, 0x0, %g0
-	bne,a	___rw_read_exit_spin_on_wlock
-	 ldub	[%g1 + 3], %g2
-	ld	[%g1], %g2
-	sub	%g2, 0x1ff, %g2
-	st	%g2, [%g1]
-	retl
-	 mov	%g4, %o7
-
-	.globl	___rw_write_enter
-___rw_write_enter:
-	orcc	%g2, 0x0, %g0
-	bne	___rw_write_enter_spin_on_wlock
-	 ld	[%g1], %g2
-	andncc	%g2, 0xff, %g0
-	bne,a	___rw_write_enter_spin_on_wlock
-	 stb	%g0, [%g1 + 3]
-	retl
-	 mov	%g4, %o7
-   ");
+"	.globl	___rw_write_enter"
+"___rw_write_enter:"
+"	orcc	%g2, 0x0, %g0"
+"	bne	___rw_write_enter_spin_on_wlock"
+"	 ld	[%g1], %g2"
+"	andncc	%g2, 0xff, %g0"
+"	bne,a	___rw_write_enter_spin_on_wlock"
+"	 stb	%g0, [%g1 + 3]"
+"	retl"
+"	 mov	%g4, %o7"
+   );
 }
 #endif /* sparc */
 
 
 #ifdef i386
 asm(
-"
-.align	4
-.globl	__write_lock_failed
-__write_lock_failed:
-	lock;   addl	$" RW_LOCK_BIAS_STR ",(%eax)
-1:	cmpl	$" RW_LOCK_BIAS_STR ",(%eax)
-	jne	1b
 
-	lock;   subl	$" RW_LOCK_BIAS_STR ",(%eax)
-	jnz	__write_lock_failed
-	ret
+".align	4"
+".globl	__write_lock_failed"
+"__write_lock_failed:"
+"	lock;   addl	$" RW_LOCK_BIAS_STR ",(%eax)"
+"1:	cmpl	$" RW_LOCK_BIAS_STR ",(%eax)"
+"	jne	1b"
+""
+"	lock;   subl	$" RW_LOCK_BIAS_STR ",(%eax)"
+"	jnz	__write_lock_failed"
+"	ret"
+""
+""
+".align	4"
+".globl	__read_lock_failed"
+"__read_lock_failed:"
+"	lock ; incl	(%eax)"
+"1:	cmpl	$1,(%eax)"
+"	js	1b"
+""
+"	lock ; decl	(%eax)"
+"	js	__read_lock_failed"
+"	ret"
 
-
-.align	4
-.globl	__read_lock_failed
-__read_lock_failed:
-	lock ; incl	(%eax)
-1:	cmpl	$1,(%eax)
-	js	1b
-
-	lock ; decl	(%eax)
-	js	__read_lock_failed
-	ret
-"
 );
 #endif /* i386 */
 #endif /* YAPOR */

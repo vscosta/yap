@@ -22,7 +22,7 @@ static char     SccsId[] = "%W% %G%";
 #include "yapio.h"
 
 #define EARLY_RESET 1
-#if !defined(TABLING) && HAVE_GCC
+#if !defined(TABLING)
 #define EASY_SHUNTING 1
 #endif
 #define HYBRID_SCHEME 1
@@ -291,7 +291,8 @@ GC_ALLOC_NEW_MASPACE(void)
   if ((char *)gc_ma_h_top > TrailTop-1024)
     growtrail(64 * 1024L);
   gc_ma_h_top++;
-  cont_top0 = cont_top = (cont *)gc_ma_h_top;
+  cont_top = (cont *)gc_ma_h_top;
+  sTR = (tr_fr_ptr)cont_top;
   return(new);
 }
 
@@ -342,7 +343,8 @@ GC_NEW_MAHASH(gc_ma_h_inner_struct *top) {
     time = ++timestamp;
   }
   gc_ma_h_top = top;
-  cont_top0 = cont_top = (cont *)gc_ma_h_top;
+  cont_top = (cont *)gc_ma_h_top;
+  sTR = (tr_fr_ptr)cont_top;
   live_list = NULL;
 }
 
@@ -1160,7 +1162,8 @@ mark_trail(tr_fr_ptr trail_ptr, tr_fr_ptr trail_base, CELL *gc_H, choiceptr gc_B
 	  else
 	    TrailTerm(endsTR) = (CELL)nsTR;
 	  endsTR = nsTR;
-	  cont_top0 = cont_top = (cont *)(nsTR+3);
+	  cont_top = (cont *)(nsTR+3);
+	  sTR = (tr_fr_ptr)cont_top;
 	  gc_ma_h_top = (gc_ma_h_inner_struct *)(nsTR+3);
 	  RESET_VARIABLE(cptr);
 	  MARK(cptr);
@@ -1239,7 +1242,7 @@ mark_trail(tr_fr_ptr trail_ptr, tr_fr_ptr trail_base, CELL *gc_H, choiceptr gc_B
     live_list = live_list->ma_list;
   }
 #endif
-  cont_top0 = old_cont_top0;
+  sTR = (tr_fr_ptr)old_cont_top0;
 #ifdef EASY_SHUNTING
   while (begsTR != NULL) {
     tr_fr_ptr newsTR = (tr_fr_ptr)TrailTerm(begsTR);
@@ -2536,7 +2539,8 @@ marking_phase(tr_fr_ptr old_TR, CELL *current_env, yamop *curp, CELL *max)
 #ifdef EASY_SHUNTING
   sTR0 = (tr_fr_ptr)db_vec;
 #endif
-  cont_top0 = cont_top = (cont *)db_vec;
+  cont_top = (cont *)db_vec;
+  sTR = (tr_fr_ptr)db_vec;
   /* These two must be marked first so that our trail optimisation won't lose
      values */
   mark_regs(old_TR);		/* active registers & trail */
