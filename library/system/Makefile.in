@@ -45,11 +45,11 @@ dll: sys@SHLIB_SUFFIX@
 sys.o: $(srcdir)/sys.c
 	$(CC) -c $(CFLAGS) $(SHLIB_CFLAGS) $(srcdir)/sys.c -o sys.o
 
-%.so: %.o
+%@SHLIB_SUFFIX@: %.o
 	@SHLIB_LD@ -o $@ $<
 
-sys.so: sys.o
-	@SHLIB_LD@ -o sys.so sys.o
+sys@SHLIB_SUFFIX@: sys.o
+	@SHLIB_LD@ -o sys@SHLIB_SUFFIX@ sys.o
 
 #
 # create a new DLL library on cygwin environments
@@ -84,5 +84,5 @@ install_mingw32: dll
 	$(INSTALL_PROGRAM) -m 755 sys.dll $(LIBDIR)/sys.dll
 
 clean:
-	rm -f *.o *.so *~ $(OBJS) *.BAK
+	rm -f *.o *@SHLIB_SUFFIX@ *~ $(OBJS) *.BAK
 

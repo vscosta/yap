@@ -57,23 +57,23 @@ regfree.o: $(srcdir)/regfree.c
 regexec.o: $(srcdir)/regexec.c
 	$(CC) -c $(CFLAGS) $(SHLIB_CFLAGS) $(srcdir)/regexec.c -o regexec.o
 
-%.so: %.o
+%@SHLIB_SUFFIX@: %.o
 	@SHLIB_LD@ -o $@ $<
 
-regexp.so: regexp.o
-	@SHLIB_LD@ -o regexp.so regexp.o
+regexp@SHLIB_SUFFIX@: regexp.o
+	@SHLIB_LD@ -o regexp@SHLIB_SUFFIX@ regexp.o
 
-regcomp.so: regcomp.o
-	@SHLIB_LD@ -o regcomp.so regcomp.o
+regcomp@SHLIB_SUFFIX@: regcomp.o
+	@SHLIB_LD@ -o regcomp@SHLIB_SUFFIX@ regcomp.o
 
-regerror.so: regerror.o
-	@SHLIB_LD@ -o regerror.so regerror.o
+regerror@SHLIB_SUFFIX@: regerror.o
+	@SHLIB_LD@ -o regerror@SHLIB_SUFFIX@ regerror.o
 
-regfree.so: regfree.o
-	@SHLIB_LD@ -o regfree.so regfree.o
+regfree@SHLIB_SUFFIX@: regfree.o
+	@SHLIB_LD@ -o regfree@SHLIB_SUFFIX@ regfree.o
 
-regexec.so: regexec.o
-	@SHLIB_LD@ -o regexec.so regexec.o
+regexec@SHLIB_SUFFIX@: regexec.o
+	@SHLIB_LD@ -o regexec@SHLIB_SUFFIX@ regexec.o
 
 #
 # create a new DLL library on cygwin environments
@@ -108,5 +108,5 @@ install_mingw32: dll
 	$(INSTALL_PROGRAM) -m 755 regexp.dll $(LIBDIR)/regexp.dll
 
 clean:
-	rm -f *.o *.so *~ $(OBJS) *.BAK
+	rm -f *.o *@SHLIB_SUFFIX@ *~ $(OBJS) *.BAK
 

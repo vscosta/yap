@@ -45,11 +45,11 @@ dll: random@SHLIB_SUFFIX@
 random.o: $(srcdir)/random.c
 	$(CC) -c $(CFLAGS) $(SHLIB_CFLAGS) $(srcdir)/random.c -o random.o
 
-%.so: %.o
+%@SHLIB_SUFFIX@: %.o
 	@SHLIB_LD@ -o $@ $<
 
-random.so: random.o
-	@SHLIB_LD@ -o random.so random.o
+random@SHLIB_SUFFIX@: random.o
+	@SHLIB_LD@ -o random@SHLIB_SUFFIX@ random.o
 
 #
 # create a new DLL library on cygwin environments
@@ -84,5 +84,5 @@ install_mingw32: dll
 	$(INSTALL_PROGRAM) -m 755 random.dll $(LIBDIR)/random.dll
 
 clean:
-	rm -f *.o *.so *~ $(OBJS) *.BAK
+	rm -f *.o *@SHLIB_SUFFIX@ *~ $(OBJS) *.BAK
 
