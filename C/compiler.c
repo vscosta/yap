@@ -2908,9 +2908,11 @@ Yap_cclause(Term inp_clause, int NOfArgs, int mod, Term src)
       goto restart_compilation;
     }
   } else {
+#ifdef LOW_PROF
     if (ProfilerOn) {
-      Yap_inform_profiler_of_clause(acode, ProfEnd, cglobs.cint.CurrentPred);
+      Yap_inform_profiler_of_clause(acode, ProfEnd, cglobs.cint.CurrentPred,0);
     }
+#endif /* LOW_PROF */
     return(acode);
   }
 }

@@ -101,100 +101,108 @@ STD_PROTO(static Int p_access_yap_flags, (void));
 STD_PROTO(static Int p_set_yap_flags, (void));
 
 #ifdef LOW_PROF
-STD_PROTO(static Int useprof,  (void));
-STD_PROTO(static Int useprof0, (void));
-STD_PROTO(static Int profres, (void));
-STD_PROTO(static Int profres2, (void));
 
 #define TIMER_DEFAULT 1000
-
-typedef struct prof_files {
-  FILE *f_prof, *f_preds;
-} prof_files_struct;
+#define MORE_INFO_FILE 1
 
 void
-Yap_inform_profiler_of_clause(yamop *code_start, yamop *code_end, PredEntry *pe) {
-  /*
-    I can only open once, otherwise I'll have heaps of trouble
-    whenever Yap changes directory
-  */
+Yap_inform_profiler_of_clause(yamop *code_start, yamop *code_end, PredEntry *pe,int index_code) {
+static Int order=0;
+ 
   ProfPreds++;
   if (FPreds != NULL) {
-    fprintf(FPreds,"+%p %p %p %uld\n",code_start,code_end, pe, ProfCalls);
+    Int temp;
+    order++;
+    if (index_code) temp=-order; else temp=order;
+    fprintf(FPreds,"+%p %p %p %d",code_start,code_end, pe, temp);
+#if MORE_INFO_FILE
+    if (pe->FunctorOfPred->KindOfPE==47872) {
+      if (pe->ArityOfPE) {
+	fprintf(FPreds," %s/%d", RepAtom(NameOfFunctor(pe->FunctorOfPred))->StrOfAE, pe->ArityOfPE);
+      } else {
+	fprintf(FPreds," %s",RepAtom((Atom)(pe->FunctorOfPred))->StrOfAE);
+      }
+      }
+#endif
+    fprintf(FPreds,"\n");
   }
 }
+
+#if defined(__linux__)
 
 static void
 prof_alrm(int signo)
 {
-  ProfCalls++;
-  fprintf(FProf,"%p\n", P);
+  //  printf("%p\n", Yap_regp->P_);
+  fprintf(FProf,"%p\n", Yap_regp->P_);
+  //  fprintf(FProf,"%p\n", P);
   return;
 }
 
-static Int set_prof_timer(int msec) {
-  static int n=-1;
+static Int start_profilers(int msec)
+{
   struct itimerval t;
+  
+  if (ProfilerOn==msec) return(TRUE);
 
-  if (msec==0 || n>0) {
+  if (ProfilerOn) {
     setitimer(ITIMER_PROF,NULL,NULL);
-    n=0;
+    fclose(FPreds);
+    fclose(FProf);
+    ProfilerOn = 0;
     return TRUE;
   }
+
   if (signal(SIGPROF,prof_alrm) == SIG_ERR) {
     return FALSE;
   }
 
-  n=1;
+  FPreds=fopen("PROFPREDS","w+"); 
+  if (FPreds == NULL) return FALSE;
+  FProf=fopen("PROFILING","w+"); 
+  if (FProf==NULL) { fclose(FPreds); return FALSE; }
+
+  Yap_dump_code_area_for_profiler();
+  
   t.it_interval.tv_sec=0;
   t.it_interval.tv_usec=msec;
   t.it_value.tv_sec=0;
   t.it_value.tv_usec=msec;
   setitimer(ITIMER_PROF,&t,NULL);
 
+  ProfilerOn = msec;
   return(TRUE);
 }
 
-static void
-start_profilers(void)
-{
-  ProfCalls = 0L;
-  if (FPreds == NULL) { 
-    FPreds=fopen("PROFPREDS","w+"); 
-  }
-  if (FPreds == NULL)
-    return;
-  Yap_dump_code_area_for_profiler();
-  if (FProf != NULL) {
-    /* close previous profiling session */
-    fclose(FProf);
-  }
-  FProf=fopen("PROFILING","w+"); 
-  if (FProf==NULL) {
-    return;
-  }
-  ProfilerOn = TRUE;
-}
+#endif /* Linux */
 
 static Int useprof(void) { 
+#if defined(__linux__)
   Term p;
-
   p=Deref(ARG1);
-  start_profilers();
-  return (set_prof_timer(IntOfTerm(p)));
+  return(start_profilers(IntOfTerm(p)));
+#else
+  return(FALSE);
+#endif
 }
 
 static Int useprof0(void) { 
-
-  start_profilers();
-  return(set_prof_timer(TIMER_DEFAULT));
+#if defined(__linux__)
+  return(start_profilers(TIMER_DEFAULT));
+#else
+  return(FALSE);
+#endif
 }
+
+#if defined(__linux__)
 
 typedef struct clause_entry {
   yamop *beg, *end;
   PredEntry *pp;
-  UInt pcs;
-  UInt ts, tf; /* start end timestamp towards retracts, eventually */
+  UInt pcs;  /* counter with total for each clause */
+  UInt pca;  /* counter with total for each predicate (repeats for each clause)*/  
+  Int ts; /* start end timestamp towards retracts, eventually */
+  Int tf;
 } clauseentry;
 
 static int
@@ -214,12 +222,14 @@ p_cmp(const void *c1, const void *c2)
   const clauseentry *cl2 = (const clauseentry *)c2;
   if (cl1->pp > cl2->pp) return 1;
   if (cl1->pp < cl2->pp) return -1;
-  return 0;
+
+  /* else same pp, but they are always different on the ts */
+  if (cl1->ts > cl2->ts) return 1;
+  else return -1;
 }
 
-static void
+static clauseentry *
 search_pc_pred(yamop *pc_ptr,clauseentry *beg, clauseentry *end) {
-  /* binary search, dynamic clauses not supported yet */
   Int i, j, f, l;
   f = 0; l = (end-beg);
   i = l/2;
@@ -227,103 +237,189 @@ search_pc_pred(yamop *pc_ptr,clauseentry *beg, clauseentry *end) {
     if (beg[i].beg > pc_ptr) {
       l = i-1;
       if (l < f) {
-	printf("Could not find %p\n", pc_ptr);
-	return;
+	return NULL;
       }
       j = i;
       i = (f+l)/2;
     } else if (beg[i].end < pc_ptr) {
       f = i+1;
       if (f > l) {
-	printf("Could not find %p\n", pc_ptr);
-	return;
+	return NULL;
       }
       i = (f+l)/2;
     } else if (beg[i].beg <= pc_ptr && beg[i].end >= pc_ptr) {
-      beg[i].pcs++;
-      return;
+      return (&beg[i]);
     } else {
-      printf("Could not find %p\n", pc_ptr);
-      return;
+      return NULL;
     }
   }
 }
 
-
 static int
-showprofres(int tipo) { 
-  clauseentry *pr = (clauseentry *)TR, *t;
-  UInt i = ProfPreds;
+showprofres(UInt type) { 
+  clauseentry *pr=(clauseentry *) TR, *t, *t2;
+  UInt count=0, ProfCalls=0;
+  yamop *pc_ptr;
 
-  if (FPreds == NULL ||
-      FProf == NULL) return FALSE;
+  if (ProfilerOn) {
+    setitimer(ITIMER_PROF,NULL,NULL);
+    fclose(FPreds);
+    fclose(FProf);
+    ProfilerOn = 0;
+  }  
 
-  (void)fseek(FPreds, 0L, SEEK_SET);
+  /* First part: Read information about predicates and store it on yap trail */
 
-  while (i) {
-    if (fscanf(FPreds,"+%p %p %p %uld\n",&(pr->beg),&(pr->end),&(pr->pp),&(pr->ts)) == 0){
-      /* error */
-      return FALSE;
-    }
+  FPreds=fopen("PROFPREDS","r"); 
+  if (FPreds == NULL) return FALSE;
+
+  ProfPreds=0;
+  while (fscanf(FPreds,"+%p %p %p %d",&(pr->beg),&(pr->end),&(pr->pp),&(pr->ts)) > 0){
+    int c;
     pr->pcs = 0L;
     pr++;
     if (pr > (clauseentry *)Yap_TrailTop - 1024) {
       Yap_growtrail(64 * 1024L);
     }
-    i--;
-  }
+    ProfPreds++;
 
-  /* so that we can write again */
-  (void)fseek(FPreds, 0L, SEEK_END);
+    do {
+      c=fgetc(FPreds);
+    } while(c!=EOF && c!='\n');
+  }
+  fclose(FPreds);
+  if (ProfPreds==0) return(FALSE);
 
   qsort((void *)TR, ProfPreds, sizeof(clauseentry), cl_cmp);
 
-  (void)fseek(FProf, 0L, SEEK_SET);
-  for (; i < ProfCalls; i++) {
-    yamop *pc_ptr;
-    if (fscanf(FProf,"%p\n",&pc_ptr) == 0){
-      /* error */
-      return FALSE;
-    }
-    search_pc_pred(pc_ptr,(clauseentry *)TR,pr);
-  }
-  (void)fseek(FProf, 0L, SEEK_END);
-  qsort((void *)TR, ProfPreds, sizeof(clauseentry), p_cmp);
+  /* Second part: Read Profiling to know how many times each predicate has been profiled */
 
+  FProf=fopen("PROFILING","r"); 
+  if (FProf==NULL) { return FALSE; }
+
+  t2=NULL;
+  ProfCalls=0;
+  while(fscanf(FProf,"%p\n",&pc_ptr) >0){
+    if (type<10) ProfCalls++;
+    t=search_pc_pred(pc_ptr,(clauseentry *)TR,pr);
+    if (t!=NULL) { /* pc was found */
+      if (type<10) t->pcs++;
+      else {
+	if (t->pp==(PredEntry *)type) {
+	  ProfCalls++;
+	  if (t2!=NULL) t2->pcs++;
+	}
+      } 
+      t2=t;
+    } 
+  }
+  fclose(FProf);
+  if (ProfCalls==0) return(FALSE);
+
+  /*I have the counting by clauses, but we also need them by predicate */
+  qsort((void *)TR, ProfPreds, sizeof(clauseentry), p_cmp);
   t = (clauseentry *)TR;
   while (t < pr) {
-    UInt calls = t->pcs;
-    PredEntry *myp = t->pp;
-    t++;
-    while (t->pp == myp) {
-      calls += t->pcs;
+      UInt calls=t->pcs;
+
+      t2=t+1;
+      while(t2<pr && t2->pp==t->pp) {
+	calls+=t2->pcs;
+	t2++;
+      }
+      while(t<t2) {
+	t->pca=calls;
+	t++;
+      }
+  }
+
+  /* counting done: now it is time to present the results */
+
+  if (type>10) {
+    PredEntry *myp = (PredEntry *)type;
+    if (myp->FunctorOfPred->KindOfPE==47872) {
+	printf("Details on predicate:");
+	printf(" %s",RepAtom(AtomOfTerm(myp->ModuleOfPred))->StrOfAE);
+	printf(":%s",RepAtom(NameOfFunctor(myp->FunctorOfPred))->StrOfAE);
+        if (myp->ArityOfPE) printf("/%d\n",myp->ArityOfPE);	
+    }    
+    type=1;
+  }
+
+  if (type==0) {  /* Results by predicate */
+    t = (clauseentry *)TR;
+    while (t < pr) {
+      UInt calls=t->pca;
+      PredEntry *myp = t->pp;
+      
+      if (calls && myp->FunctorOfPred->KindOfPE==47872) {
+        count+=calls;
+	printf("%p",myp);
+	printf(" %s",RepAtom(AtomOfTerm(myp->ModuleOfPred))->StrOfAE);
+	printf(":%s",RepAtom(NameOfFunctor(myp->FunctorOfPred))->StrOfAE);
+        if (myp->ArityOfPE) printf("/%d",myp->ArityOfPE);	
+	printf(" -> %u (%3.1f%c)\n",calls,(float) calls*100/ProfCalls,'%');
+      }
+      while (t<pr && t->pp == myp) t++;
+    }
+    count=ProfCalls-count;
+    if (count>0) printf("Unknown:Unknown -> %u (%3.1f%c)\n",count,(float) count*100/ProfCalls,'%');
+    printf("Total of Calls=%u \n",ProfCalls);
+
+  } else { /* Results by clauses */
+    t = (clauseentry *)TR;
+    while (t < pr) {
+      if (t->pca!=0 && (t->ts>=0 || t->pcs!=0) && t->pp->FunctorOfPred->KindOfPE==47872) {
+	UInt calls=t->pcs;
+	if (t->ts<0) { /* join all index entries */
+	  t2=t+1;
+	  while(t2<pr && t2->pp==t->pp && t2->ts<0) {
+	    t++;
+	    calls+=t->pcs;
+	    t2++;
+	  }
+          printf("IDX"); 
+	} else {
+          printf("   ");
+	}
+        count+=calls;
+	//	printf("%p %p",t->pp, t->beg);
+        printf(" %s",RepAtom(AtomOfTerm(t->pp->ModuleOfPred))->StrOfAE);
+        printf(":%s",RepAtom(NameOfFunctor(t->pp->FunctorOfPred))->StrOfAE);
+        if (t->pp->ArityOfPE) printf("/%d",t->pp->ArityOfPE);	
+        printf(" -> %u (%3.1f%c)\n",calls,(float) calls*100/ProfCalls,'%');
+      }
       t++;
     }
-    if (calls) {
-      if (myp->ArityOfPE) {
-	printf("%s:%s/%d -> %uld\n",
-	       RepAtom(AtomOfTerm(myp->ModuleOfPred))->StrOfAE,
-	       RepAtom(NameOfFunctor(myp->FunctorOfPred))->StrOfAE,
-	       myp->ArityOfPE,
-	       calls);
-      } else {
-	printf("%s:%s -> %uld\n",
-	       RepAtom(AtomOfTerm(myp->ModuleOfPred))->StrOfAE,
-	       RepAtom((Atom)(myp->FunctorOfPred))->StrOfAE,
-	       calls);
-      }
-    }
-  }
-  
+    count=ProfCalls-count;
+    if (count>0) printf("Unknown:Unknown -> %u (%3.1f%c)\n",count,(float) count*100/ProfCalls,'%');
+    printf("Total of Calls=%u \n",ProfCalls);
+
+  } 
+
   return TRUE;
 }
 
+#endif /*Linux */
+
+
 static Int profres(void) { 
-  return showprofres(0);
+#if defined(__linux__)
+  Term p;
+  p=Deref(ARG1);
+  if (IsLongIntTerm(p)) return(showprofres(LongIntOfTerm(p)));
+  else return(showprofres(IntOfTerm(p)));
+#else
+  return(FALSE);
+#endif
 }
 
-static Int profres2(void) { 
-  return showprofres(1);
+static Int profres0(void) { 
+#if defined(__linux__)
+  return(showprofres(0));
+#else
+  return(FALSE);
+#endif
 }
 
 #endif /* LOW_PROF */
@@ -2652,8 +2748,8 @@ Yap_InitCPreds(void)
 #ifdef LOW_PROF
   Yap_InitCPred("useprof", 1, useprof, SafePredFlag);
   Yap_InitCPred("useprof", 0, useprof0, SafePredFlag);
-  Yap_InitCPred("profres", 0, profres, SafePredFlag);
-  Yap_InitCPred("profres2", 0, profres2, SafePredFlag);
+  Yap_InitCPred("profres", 1, profres, SafePredFlag);
+  Yap_InitCPred("profres", 0, profres0, SafePredFlag);
 #endif
 #ifndef YAPOR
   Yap_InitCPred("$default_sequential", 1, p_default_sequential, SafePredFlag|SyncPredFlag);

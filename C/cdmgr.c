@@ -3476,7 +3476,7 @@ add_code_in_pred(PredEntry *pp) {
     clcode = pp->CodeOfPred;
     cl = ClauseCodeToStaticClause(clcode);
     code_end = (char *)cl + Yap_SizeOfBlock((CODEADDR)cl);
-    Yap_inform_profiler_of_clause(clcode, (yamop *)code_end, pp);
+    Yap_inform_profiler_of_clause(clcode, (yamop *)code_end, pp,0);
     READ_UNLOCK(pp->PRWLock);
     return;
   }
@@ -3490,7 +3490,7 @@ add_code_in_pred(PredEntry *pp) {
       StaticIndex *cl = ClauseCodeToStaticIndex(clcode);
       code_end = (char *)cl + Yap_SizeOfBlock((CODEADDR)cl);
     }
-    Yap_inform_profiler_of_clause(clcode, (yamop *)code_end, pp);
+    Yap_inform_profiler_of_clause(clcode, (yamop *)code_end, pp,0);
   }	      
   clcode = pp->cs.p_code.FirstClause;
   if (clcode != NULL) {
@@ -3500,7 +3500,7 @@ add_code_in_pred(PredEntry *pp) {
 	char *code_end;
 
 	code_end = (char *)cl + Yap_SizeOfBlock((CODEADDR)cl);
-	Yap_inform_profiler_of_clause(cl->ClCode, (yamop *)code_end, pp);
+	Yap_inform_profiler_of_clause(cl->ClCode, (yamop *)code_end, pp,0);
 	cl = cl->ClNext;
       } while (cl != NULL);
     } else if (pp->PredFlags & DynamicPredFlag) {
@@ -3510,7 +3510,7 @@ add_code_in_pred(PredEntry *pp) {
 
 	cl = (CODEADDR)ClauseCodeToDynamicClause(clcode);
 	code_end = cl + Yap_SizeOfBlock((CODEADDR)cl);
-	Yap_inform_profiler_of_clause(clcode, (yamop *)code_end, pp);
+	Yap_inform_profiler_of_clause(clcode, (yamop *)code_end, pp,0);
 	if (clcode == pp->cs.p_code.LastClause)
 	  break;
 	clcode = NextDynamicClause(clcode);
@@ -3521,7 +3521,7 @@ add_code_in_pred(PredEntry *pp) {
 	char *code_end;
 
 	code_end = (char *)cl + Yap_SizeOfBlock((CODEADDR)cl);
-	Yap_inform_profiler_of_clause(cl->ClCode, (yamop *)code_end, pp);
+	Yap_inform_profiler_of_clause(cl->ClCode, (yamop *)code_end, pp,0);
 	if (cl->ClCode == pp->cs.p_code.FirstClause)
 	  break;
 	cl = cl->ClNext;
@@ -3553,8 +3553,8 @@ Yap_dump_code_area_for_profiler(void) {
       pp = pp->NextPredOfModule;
     }
   }
-  Yap_inform_profiler_of_clause(COMMA_CODE, FAILCODE, RepPredProp(Yap_GetPredPropByFunc(FunctorComma,0)));
-  Yap_inform_profiler_of_clause(FAILCODE, FAILCODE+1, RepPredProp(Yap_GetPredPropByAtom(AtomFail,0)));
+  Yap_inform_profiler_of_clause(COMMA_CODE, FAILCODE, RepPredProp(Yap_GetPredPropByFunc(FunctorComma,0)),0);
+  Yap_inform_profiler_of_clause(FAILCODE, FAILCODE+1, RepPredProp(Yap_GetPredPropByAtom(AtomFail,0)),0);
 }
 
 #endif /* LOW_PROF */

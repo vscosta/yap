@@ -1206,6 +1206,12 @@ Yap_exit (int value)
 #if defined(YAPOR)
   unmap_memory();
 #endif /* YAPOR */
+
+#ifdef LOW_PROF
+  remove("PROFPREDS");
+  remove("PROFILING");
+#endif
+
   if (! (Yap_PrologMode & BootMode) )
     Yap_ShutdownLoadForeign();
   exit(value);
