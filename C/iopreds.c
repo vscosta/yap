@@ -4037,15 +4037,21 @@ format(Term tail, Term args, int sno)
 	      column_boundary = 0;
 	      pad_max = pad_entries;
 	    case 'N':
-	      if (size_args) {
-		FreeAtomSpace(format_base);
-		return (FALSE);
+	      if (!size_args) {
+		arg_size = 1;
 	      }
 	      if (Stream[sno].linepos != 0)
 		{
 		  format_putc(sno, (int) '\n');
+		  column_boundary = 0;
 		  pad_max = pad_entries;
 		}
+	      if (arg_size > 1) {
+		for (i = 1; i < arg_size; i++)
+		  format_putc(sno, (int) '\n');
+		column_boundary = 0;
+		pad_max = pad_entries;
+	      }
 	      break;
 	      /* padding */
 	    case '|':
