@@ -40,6 +40,7 @@
 #endif
 
 X_API Term    STD_PROTO(YAP_A,(int));
+X_API Term    STD_PROTO(YAP_Deref,(Term));
 X_API Term    STD_PROTO(YAP_MkVarTerm,(void));
 X_API Bool    STD_PROTO(YAP_IsVarTerm,(Term));
 X_API Bool    STD_PROTO(YAP_IsNonVarTerm,(Term));
@@ -138,6 +139,12 @@ X_API Term
 YAP_A(int i)
 {
   return(Deref(XREGS[i]));
+}
+
+X_API Term
+YAP_Deref(Term t)
+{
+  return(Deref(t));
 }
 
 X_API Bool 
