@@ -1,6 +1,6 @@
 =================================================================
 Logtalk - Object oriented extension to Prolog
-Release 2.16.1
+Release 2.16.2
 
 Copyright (c) 1998-2004 Paulo Moura.  All Rights Reserved.
 =================================================================
@@ -68,7 +68,7 @@ configuration files for popular text editors that enable syntax coloring
 when editing Logtalk source files.
 
 2. Create a sub-directory with a suitable name to hold all the files of your 
-program.
+application.
 
-3. Copy to this sub-directory a *.loader file form one of the examples and 
-modify it to load your own source files.
+3. Copy to this sub-directory a *.loader file from one of the example 
+directories and modify it to load your own source files.

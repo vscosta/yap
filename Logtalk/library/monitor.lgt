@@ -4,9 +4,9 @@
 
 
 	:- info([
-		version is 1.0,
+		version is 1.1,
 		author is 'Paulo Moura',
-		date is 2000/7/24,
+		date is 2004/3/31,
 		comment is 'Monitor predicates.']).
 
 
@@ -43,7 +43,7 @@
 	reset_monitor :-
 		self(Self),
 		abolish_events(before, _, _, _, Self),
-		abolish_events(after, _, _, _, Self).
+		abolish_events(after, _, _, _, Self),
 		::retractall(spy_point_(_, _, _, _)).
 
 

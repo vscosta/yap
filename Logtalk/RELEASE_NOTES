@@ -1,6 +1,6 @@
 =================================================================
 Logtalk - Object oriented extension to Prolog
-Release 2.16.1
+Release 2.16.2
 
 Copyright (c) 1998-2004 Paulo Moura.  All Rights Reserved.
 =================================================================
@@ -8,6 +8,26 @@ Copyright (c) 1998-2004 Paulo Moura.  All Rights Reserved.
 
 RELEASE NOTES
 =============
+
+
+2.16.2 - April 2, 2004
+
+	Corrected a bug in the library category monitor (file library/monitor.lgt) 
+	that prevents its compilation.
+
+	Changed the possible values of the read-only flag startup_message (defined 
+	in the config files) to "flags" (print banner and flag values), "banner" 
+	(print only the banner), and "none" (do not print neither the banner nor the 
+	flag values). Default value is "flags".
+
+	Updated the "errors" example to illustrate the error messages thrown when 
+	trying to redefine Logtalk built-in control constructs.
+
+	Corrected a small problem with the Logtalk language specification file for 
+	Apple's Xcode IDE.
+
+	Added preliminary support for syntax coloring using the Windows text editor 
+	Crimson Editor.
 
 
 2.16.1 - March 23, 2004

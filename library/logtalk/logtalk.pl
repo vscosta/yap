@@ -2,7 +2,7 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %
 %  Logtalk - Object oriented extension to Prolog
-%  Release 2.16.1
+%  Release 2.16.2
 %
 %  Copyright (c) 1998-2004 Paulo Moura.  All Rights Reserved.
 %
@@ -1074,7 +1074,7 @@ current_logtalk_flag(Flag, Value) :-
 	'$lgt_default_flag'(Flag, Value),
 	\+ '$lgt_flag_'(Flag, _).
 
-current_logtalk_flag(version, version(2, 16, 1)).
+current_logtalk_flag(version, version(2, 16, 2)).
 
 
 
@@ -6789,11 +6789,18 @@ user0__def(Pred, _, _, _, Pred, user).
 
 
 '$lgt_startup_message' :-
-	'$lgt_default_flag'(startup_message, on) ->
-		'$lgt_banner',
-		'$lgt_default_flags'
-		;
-		true.
+	'$lgt_default_flag'(startup_message, Flag),
+	'$lgt_startup_message'(Flag).
+
+
+'$lgt_startup_message'(flags) :-
+	'$lgt_banner',
+	'$lgt_default_flags'.
+
+'$lgt_startup_message'(banner) :-
+	'$lgt_banner'.
+
+'$lgt_startup_message'(none).
 
 
 

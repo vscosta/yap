@@ -8,6 +8,7 @@
   	Name = "Logtalk";
   	Description = "Logtalk";
   	BasedOn = c;
+	SupportsIndentation = NO;
   	SyntaxColoring = {
     	CaseSensitive = YES;
 		IdentifierStartChars = "_";

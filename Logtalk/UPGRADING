@@ -1,6 +1,6 @@
 =================================================================
 Logtalk - Object oriented extension to Prolog
-Release 2.16.1
+Release 2.16.2
 
 Copyright (c) 1998-2004 Paulo Moura.  All Rights Reserved.
 =================================================================
@@ -70,3 +70,12 @@ Logtalk 2.16.0 improves support for the declaration and use of operators
 local to objects and categories. Recompilation of any objects and categories 
 containing operator declarations is needed in order to take advantage of the 
 improvements made.
+
+Logtalk 2.16.1 now checks for attempts to redefined built-in Logtalk control 
+constructs when compiling source files. These checks may generate compilation 
+errors on files containing bugs that are not detected on previous versions of 
+the compiler.
+
+Logtalk version 2.16.2 changed the possible option values of the read-only 
+compiler option "startup_message" to "none", "banner", and "flags". Default 
+value is "flags" (print both banner and default flag values).
