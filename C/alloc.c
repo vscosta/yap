@@ -12,7 +12,7 @@
 * Last rev:								 *
 * mods:									 *
 * comments:	allocating space					 *
-* version:$Id: alloc.c,v 1.5 2001-05-07 13:53:19 vsc Exp $		 *
+* version:$Id: alloc.c,v 1.6 2001-05-07 19:56:02 vsc Exp $		 *
 *************************************************************************/
 #ifdef SCCS
 static char SccsId[] = "%W% %G%";
@@ -924,20 +924,20 @@ InitMemory(int Trail, int Heap, int Stack)
 #ifdef DEBUG
 #if SIZEOF_INT_P!=SIZEOF_INT
   if (output_msg) {
-    YP_fprintf(YP_stderr, "HeapBase = %p  GlobalBase = %p\n  LocalBase = %p  TrailTop = %p\n",
+    fprintf(stderr, "HeapBase = %p  GlobalBase = %p\n  LocalBase = %p  TrailTop = %p\n",
 	       HeapBase, GlobalBase, LocalBase, TrailTop);
 #else
   if (output_msg) {
-    YP_fprintf(YP_stderr, "HeapBase = %x  GlobalBase = %x\n  LocalBase = %x  TrailTop = %x\n",
+    fprintf(stderr, "HeapBase = %x  GlobalBase = %x\n  LocalBase = %x  TrailTop = %x\n",
 	       (UInt) HeapBase, (UInt) GlobalBase,
 	       (UInt) LocalBase, (UInt) TrailTop);
 #endif
 
 #if !SHORT_INTS
-    YP_fprintf(YP_stderr, "Heap+Aux: %d\tLocal+Global: %d\tTrail: %d\n",
+    fprintf(stderr, "Heap+Aux: %d\tLocal+Global: %d\tTrail: %d\n",
 	       pm - sa - ta, sa, ta);
 #else /* SHORT_INTS */
-    YP_fprintf(YP_stderr, "Heap+Aux: %ld\tLocal+Global: %ld\tTrail: %ld\n",
+    fprintf(stderr, "Heap+Aux: %ld\tLocal+Global: %ld\tTrail: %ld\n",
 	       pm - sa - ta, sa, ta);
 #endif /* SHORT_INTS */
   }

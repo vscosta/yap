@@ -488,26 +488,22 @@ InitDebug(void)
   if (output_msg) {
     char            ch;
     opcode(_Ystop);
-#if !SHORT_INTS
-    YP_fprintf(YP_stderr,"absmi address:%x\n", Unsigned(FunAdr(absmi)));
-#else
-    YP_fprintf(YP_stderr,"absmi address:%lx\n", Unsigned(FunAdr(absmi)));
-#endif
-    YP_fprintf(YP_stderr,"Set	Trace Options:\n");
-    YP_fprintf(YP_stderr,"a getch\t\tb token\t\tc Lookup\td LookupVar\ti Index\n");
-    YP_fprintf(YP_stderr,"e SetOp\t\tf compile\tg icode\t\th boot\t\tl log\n");
-    YP_fprintf(YP_stderr,"m Machine\n");
+    fprintf(stderr,"absmi address:%p\n", FunAdr(absmi));
+    fprintf(stderr,"Set	Trace Options:\n");
+    fprintf(stderr,"a getch\t\tb token\t\tc Lookup\td LookupVar\ti Index\n");
+    fprintf(stderr,"e SetOp\t\tf compile\tg icode\t\th boot\t\tl log\n");
+    fprintf(stderr,"m Machine\n");
     while ((ch = YP_putchar(YP_getchar())) != '\n')
       if (ch >= 'a' && ch <= 'z')
 	Option[ch - 'a' + 1] = 1;
     if (Option['l' - 96]) {
-      logfile = YP_fopen(LOGFILE, "w");
+      logfile = fopen(LOGFILE, "w");
       if (logfile == Nill) {
-	YP_fprintf(YP_stderr,"can not open %s\n", LOGFILE);
-	YP_getchar();
+	fprintf(stderr,"can not open %s\n", LOGFILE);
+	getchar();
 	exit(0);
       }
-      YP_fprintf(YP_stderr,"logging session to file 'logfile'\n");
+      fprintf(stderr,"logging session to file 'logfile'\n");
 #ifdef MAC
       SetTextFile(LOGFILE);
       lp = my_line;

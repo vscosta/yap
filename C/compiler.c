@@ -1107,6 +1107,22 @@ c_functor(Term Goal)
   }
 }
 
+static int
+IsTrueGoal(Term t) {
+  if (IsVarTerm(t)) return(FALSE);
+  if (IsApplTerm(t)) {
+    Functor f = FunctorOfTerm(t);
+    if (f == FunctorModule) {
+      return(IsTrueGoal(ArgOfTerm(2,t)));
+    }
+    if (f == FunctorComma || f == FunctorOr || f == FunctorArrow) {
+      return(IsTrueGoal(ArgOfTerm(1,t)) && IsTrueGoal(ArgOfTerm(2,t)));
+    }
+    return(FALSE);
+  }
+  return(t == MkAtomTerm(AtomTrue));
+}
+
 static void
 c_goal(Term Goal)
 {
@@ -1372,11 +1388,12 @@ c_goal(Term Goal)
     }
     else if (f == FunctorComma) {
       int save = onlast;
+      int t2 = ArgOfTerm(2, Goal);
 
       onlast = FALSE;
       c_goal(ArgOfTerm(1, Goal));
       onlast = save;
-      c_goal(ArgOfTerm(2, Goal));
+      c_goal(t2);
       CurrentModule = save_CurrentModule;
       return;
     }
@@ -1690,8 +1707,16 @@ c_body(Term Body)
   }
   while (IsNonVarTerm(Body) && IsApplTerm(Body)
 	 && FunctorOfTerm(Body) == FunctorComma) {
+    Term t2 = ArgOfTerm(2, Body);
+    if (IsTrueGoal(t2)) {
+      /* optimise the case where some idiot left trues at the end
+	 of the clause.
+      */
+      Body = ArgOfTerm(1, Body);
+      break;
+    }
     c_goal(ArgOfTerm(1, Body));
-    Body = ArgOfTerm(2, Body);
+    Body = t2;
   }
   onlast = TRUE;
   c_goal(Body);

@@ -1300,7 +1300,6 @@ mark_trail(tr_fr_ptr trail_ptr, tr_fr_ptr trail_base, CELL *gc_H, choiceptr gc_B
 #if  MULTI_ASSIGNMENT_VARIABLES
   while (live_list != NULL) {
     CELL trail_cell = TrailTerm(live_list->trptr-1);
-    printf("multi assignment marking cell %p:%x\n", &TrailTerm(live_list->trptr-1), trail_cell);
     if (HEAP_PTR(trail_cell)) {
       mark_external_reference(&TrailTerm(live_list->trptr-1));
     }
@@ -1327,6 +1326,7 @@ mark_trail(tr_fr_ptr trail_ptr, tr_fr_ptr trail_base, CELL *gc_H, choiceptr gc_B
 #endif
 
 #ifdef DEBUG
+//#define CHECK_CHOICEPOINTS 1
 #endif
 
 #ifdef CHECK_CHOICEPOINTS
@@ -2328,6 +2328,43 @@ compact_heap(void)
 }
 
 #ifdef HYBRID_SCHEME
+static void
+adjust_cp_hbs(void)
+{
+  choiceptr gc_B = B;
+  CELL_PTR *top = iptop-1, *base = (CELL_PTR *)H;
+
+  while (gc_B != NULL) {
+    CELL *gc_H = gc_B->cp_h;
+    CELL_PTR *nbase = base;
+    if (top[0] <= gc_H) {
+      if (top[0] == gc_H)
+	gc_B->cp_h = H0+(top-base);
+      else
+	gc_B->cp_h = H0+((top+1)-base);
+    } else while (TRUE) {
+      CELL_PTR *nxt = nbase+(top-nbase)/2;
+      if (nxt[0] > gc_H) {
+	top = nxt;
+      } else if (nxt[0] < gc_H && nxt[1] < gc_H) {
+	nbase = nxt+1;
+      } else {
+	if (nxt[0] == gc_H) {
+	  gc_B->cp_h = H0+(nxt-base);
+	  top = nxt;
+	  break;
+	} else {
+	  gc_B->cp_h = H0+((nxt-base)+1);
+	  top = nxt;
+	  break;
+	}
+      } 
+    }
+    gc_B = gc_B->cp_b;
+  }
+}
+
+
 /*
  * move marked objects on the heap upwards over unmarked objects, and reset
  * all pointers to point to new locations 
@@ -2339,8 +2376,6 @@ icompact_heap(void)
 #ifdef DEBUG
   Int             found_marked = 0;
 #endif /* DEBUG */
-  choiceptr        gc_B = B;
- 
 
   /*
    * upward phase - scan heap from high to low, setting marked upward
@@ -2360,7 +2395,6 @@ icompact_heap(void)
       int nofcells = (UNMARK_CELL(*current)-EndSpecials) / sizeof(CELL);
       CELL *ptr = current - nofcells ;
 
-      gc_B = update_B_H(gc_B, current, H0+(iptr-ibase), H0+(iptr-ibase)+1);
       iptr -= nofcells;
 #ifdef DEBUG
       found_marked+=nofcells;
@@ -2373,9 +2407,6 @@ icompact_heap(void)
 	ptr[1] = tmp;
       }
       current = ptr;
-    } else {
-      /* process the functor next */
-      gc_B = update_B_H(gc_B, current, H0+(iptr-ibase), H0+((iptr-ibase)+1));
     }
 #ifdef DEBUG
     found_marked++;
@@ -2555,6 +2586,7 @@ compaction_phase(tr_fr_ptr old_TR, CELL *current_env, yamop *curp, CELL *max)
     fprintf(stderr,"using pointers (%d)\n", effectiveness);
 #endif
     quicksort((CELL_PTR *)H, 0, (iptop-(CELL_PTR *)H)-1);
+    adjust_cp_hbs();
     icompact_heap();
   } else
 #endif /* HYBRID_SCHEME */

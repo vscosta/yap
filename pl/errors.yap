@@ -284,6 +284,9 @@ print_message(help,M) :-
 '$output_error_message'(system_error, Where) :-
 	format(user_error,"[ SYSTEM ERROR- ~w ]~n",
 	[Where]).
+'$output_error_message'(type_error(T,_,Err,M), Where) :-
+	format(user_error,"[ TYPE ERROR- ~w: expected ~w, got ~w ]~n",
+	[T,Err,M]).
 '$output_error_message'(type_error(array,W), Where) :-
 	format(user_error,"[ TYPE ERROR- ~w: expected array, got ~w ]~n",
 	[Where,W]).

@@ -6,6 +6,9 @@
 
 <H2 ALIGN=CENTER>Yap-4.3.19:</H2>
 <UL>
+      <LI> FIXED: call_residue/2 should not allow constraints to
+      escape (use copy_term_no_variables/2 to avoid this).
+      <LI> SPEEDUP: optimise away true/0 at the end of a clause.
       <LI> FIXED: do not short circuit trail entries.
       <LI> FIXED: Patches for memory allocation in Apple's OS/X..
       <LI> FIXED: checked whether mmap work right in alloc.c.
