@@ -371,7 +371,7 @@ stdpreds.o: $(srcdir)/C/stdpreds.c
 	$(CC) -c $(CFLAGS) $(srcdir)/C/stdpreds.c -o $@
 
 sysbits.o: $(srcdir)/C/sysbits.c
-	$(CC) -c $(CFLAGS) -DLIB_DIR=\"$(LIBDIR)\" -DSHARE_DIR=\"$(SHAREDIR)\" $(srcdir)/C/sysbits.c -o $@
+	$(CC) -c $(CFLAGS) -DLIB_DIR=\"$(YAPLIBDIR)\" -DSHARE_DIR=\"$(SHAREDIR)\" $(srcdir)/C/sysbits.c -o $@
 
 tracer.o: $(srcdir)/C/tracer.c
 	$(CC) -c $(CFLAGS) $(srcdir)/C/tracer.c -o $@
