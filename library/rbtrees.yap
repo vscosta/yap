@@ -401,11 +401,9 @@ build_ptree(X1,X,T0,TF) :-
 
 
 clean_tree(X,X,T0,TF) :- !,
-	format("cleaning ~d~n", [X]),
 	delete(T0,X,TF),
 	( rbtree(TF) -> true ; abort).
 clean_tree(X1,X,T0,TF) :-
-	format("cleaning ~d~n", [X1]),
 	delete(T0,X1,TI),
 	X2 is X1+1,
 	( rbtree(TI) -> true ; abort),
@@ -431,8 +429,9 @@ test_neg :-
 	build_ntree(2,Size,T0,T),
 %	pretty_print(T),
 	rbtree(T),
-	clean_tree(1,Size,T,_),
-	bclean_tree(Size,1,T,_),
+	MSize is -Size,
+	clean_tree(MSize,-1,T,_),
+	bclean_tree(-1,MSize,T,_),
 	count(1,Size,X), NX is -X, ( delete(T,NX,TF) -> true ; abort ),
 %	pretty_print(TF), 
 	rbtree(TF),
