@@ -249,8 +249,11 @@ debugging :-
 	'$wake_up_goal'(G, LG).
 '$spy'([Module|G]) :-
 %    '$format'(user_error,"$spym(~w,~w)~n",[Module,G]),
+         ( '$hidden'(G)
+	 ;
         '$system_predicate'(G),
-	'$parent_pred'(0,_,_),
+	'$parent_pred'(0,_,_)
+	 ),
          !,
 	 /* called from prolog module   */
 	 '$creep',
