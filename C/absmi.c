@@ -397,8 +397,8 @@ Yap_absmi(int inp)
        * choicepoint for the current B */
       restore_yaam_regs(PREG->u.ld.d);
       restore_at_least_one_arg(PREG->u.ld.s);
-#if defined(SBA) && defined(FROZEN_STACKS)
-      S_YREG = (CELL *)PROTECT_FROZEN_B(B_YREG);
+#ifdef FROZEN_STACKS
+      B_YREG = PROTECT_FROZEN_B(B_YREG);
       set_cut(S_YREG, B->cp_b);
 #else
       set_cut(S_YREG, B_YREG->cp_b);
@@ -429,7 +429,7 @@ Yap_absmi(int inp)
 	/* After trust, cut should be pointing at the new top
 	 * choicepoint */
 #ifdef FROZEN_STACKS
-	S_YREG = (CELL *)PROTECT_FROZEN_B(B_YREG);
+	B_YREG = PROTECT_FROZEN_B(B_YREG);
 #endif /* FROZEN_STACKS */
 	set_cut(S_YREG, B);
       }
@@ -484,7 +484,7 @@ Yap_absmi(int inp)
       restore_yaam_regs(PREG->u.ld.d);
       restore_args(PREG->u.ld.s);
 #ifdef FROZEN_STACKS
-      S_YREG = (CELL *)PROTECT_FROZEN_B(B_YREG);
+      B_YREG = PROTECT_FROZEN_B(B_YREG);
       set_cut(S_YREG, B->cp_b);
 #else
       set_cut(S_YREG, B_YREG->cp_b);
@@ -503,7 +503,7 @@ Yap_absmi(int inp)
 	SCH_last_alternative(PREG, B_YREG);
 	restore_args(PREG->u.ld.s);
 #ifdef FROZEN_STACKS
-	B_YREG = PROTECT_FROZEN_B(B_YREG);
+        B_YREG = PROTECT_FROZEN_B(B_YREG);
 #endif /* FROZEN_STACKS */
 	set_cut(S_YREG, B->cp_b);
       }
@@ -515,7 +515,7 @@ Yap_absmi(int inp)
 	/* After trust, cut should be pointing at the new top
 	 * choicepoint */
 #ifdef FROZEN_STACKS
-	S_YREG = (CELL *)PROTECT_FROZEN_B(B_YREG);
+	B_YREG = PROTECT_FROZEN_B(B_YREG);
 #endif /* FROZEN_STACKS */
 	set_cut(S_YREG, B);
       }
@@ -629,7 +629,7 @@ Yap_absmi(int inp)
       restore_yaam_regs(PREG->u.ld.d);
       restore_args(PREG->u.ld.s);
 #ifdef FROZEN_STACKS
-      S_YREG = (CELL *)PROTECT_FROZEN_B(B_YREG);
+      B_YREG = PROTECT_FROZEN_B(B_YREG);
       set_cut(S_YREG, B->cp_b);
 #else
       set_cut(S_YREG, B_YREG->cp_b);
@@ -648,7 +648,7 @@ Yap_absmi(int inp)
 	SCH_last_alternative(PREG, B_YREG);
 	restore_args(PREG->u.ld.s);
 #ifdef FROZEN_STACKS
-	B_YREG = PROTECT_FROZEN_B(B_YREG);
+        B_YREG = PROTECT_FROZEN_B(B_YREG);
 #endif /* FROZEN_STACKS */
 	set_cut(S_YREG, B->cp_b);
       }
@@ -660,7 +660,7 @@ Yap_absmi(int inp)
 	/* After trust, cut should be pointing at the new top
 	 * choicepoint */
 #ifdef FROZEN_STACKS
-	S_YREG = (CELL *)PROTECT_FROZEN_B(B_YREG);
+	B_YREG = PROTECT_FROZEN_B(B_YREG);
 #endif /* FROZEN_STACKS */
 	set_cut(S_YREG, B);
       }
@@ -711,7 +711,7 @@ Yap_absmi(int inp)
       CACHE_Y(B);
       restore_yaam_regs(PREG->u.ld.d);
 #ifdef FROZEN_STACKS
-      S_YREG = (CELL *)PROTECT_FROZEN_B(B_YREG);
+      B_YREG = PROTECT_FROZEN_B(B_YREG);
       set_cut(S_YREG, B->cp_b);
 #else
       set_cut(S_YREG, B_YREG->cp_b);
@@ -729,7 +729,7 @@ Yap_absmi(int inp)
       if (SCH_top_shared_cp(B)) {
 	SCH_last_alternative(PREG, B_YREG);
 #ifdef FROZEN_STACKS
-	B_YREG = PROTECT_FROZEN_B(B_YREG);
+        B_YREG = PROTECT_FROZEN_B(B_YREG);
 #endif /* FROZEN_STACKS */
 	set_cut(S_YREG, B->cp_b);
       }
@@ -739,7 +739,7 @@ Yap_absmi(int inp)
 	pop_yaam_regs();
 	S_YREG = (CELL *)(B_YREG+1);
 #ifdef FROZEN_STACKS
-	S_YREG = (CELL *)PROTECT_FROZEN_B(B_YREG);
+	B_YREG = PROTECT_FROZEN_B(B_YREG);
 #endif /* FROZEN_STACKS */
 	set_cut(S_YREG, B);
       }
@@ -776,7 +776,7 @@ Yap_absmi(int inp)
       restore_yaam_regs(PREG->u.ld.d);
       ARG1 = B_YREG->cp_a1;
 #ifdef FROZEN_STACKS
-      S_YREG = (CELL *)PROTECT_FROZEN_B(B_YREG);
+      B_YREG = PROTECT_FROZEN_B(B_YREG);
       set_cut(S_YREG, B->cp_b);
 #else
       set_cut(S_YREG, B_YREG->cp_b);
@@ -795,7 +795,7 @@ Yap_absmi(int inp)
 	SCH_last_alternative(PREG, B_YREG);
 	ARG1 = B_YREG->cp_a1;
 #ifdef FROZEN_STACKS
-	B_YREG = PROTECT_FROZEN_B(B_YREG);
+        B_YREG = PROTECT_FROZEN_B(B_YREG);
 #endif /* FROZEN_STACKS */
 	set_cut(S_YREG, B->cp_b);
       }
@@ -806,7 +806,7 @@ Yap_absmi(int inp)
 	ARG1 = B_YREG->cp_a1;
 	S_YREG = &(B_YREG->cp_a2);
 #ifdef FROZEN_STACKS
-	S_YREG = (CELL *)PROTECT_FROZEN_B(B_YREG);
+	B_YREG = PROTECT_FROZEN_B(B_YREG);
 #endif /* FROZEN_STACKS */
 	set_cut(S_YREG, B);
       }
@@ -852,7 +852,7 @@ Yap_absmi(int inp)
       ARG1 = B_YREG->cp_a1;
       ARG2 = B_YREG->cp_a2;
 #ifdef FROZEN_STACKS
-      S_YREG = (CELL *)PROTECT_FROZEN_B(B_YREG);
+      B_YREG = PROTECT_FROZEN_B(B_YREG);
       set_cut(S_YREG, B->cp_b);
 #else
       set_cut(S_YREG, B_YREG->cp_b);
@@ -872,7 +872,7 @@ Yap_absmi(int inp)
 	ARG1 = B_YREG->cp_a1;
 	ARG2 = B_YREG->cp_a2;
 #ifdef FROZEN_STACKS
-	B_YREG = PROTECT_FROZEN_B(B_YREG);
+        B_YREG = PROTECT_FROZEN_B(B_YREG);
 #endif /* FROZEN_STACKS */
 	set_cut(S_YREG, B->cp_b);
       }
@@ -884,7 +884,7 @@ Yap_absmi(int inp)
 	ARG2 = B_YREG->cp_a2;
 	S_YREG = &(B_YREG->cp_a3);
 #ifdef FROZEN_STACKS
-	S_YREG = (CELL *)PROTECT_FROZEN_B(B_YREG);
+	B_YREG = PROTECT_FROZEN_B(B_YREG);
 #endif /* FROZEN_STACKS */
 	set_cut(S_YREG, B);
       }
@@ -934,7 +934,7 @@ Yap_absmi(int inp)
       ARG2 = B_YREG->cp_a2;
       ARG3 = B_YREG->cp_a3;
 #ifdef FROZEN_STACKS
-      S_YREG = (CELL *)PROTECT_FROZEN_B(B_YREG);
+      B_YREG = PROTECT_FROZEN_B(B_YREG);
       set_cut(S_YREG, B->cp_b);
 #else
       set_cut(S_YREG, B_YREG->cp_b);
@@ -955,7 +955,7 @@ Yap_absmi(int inp)
 	ARG2 = B_YREG->cp_a2;
 	ARG3 = B_YREG->cp_a3;
 #ifdef FROZEN_STACKS
-	B_YREG = PROTECT_FROZEN_B(B_YREG);
+        B_YREG = PROTECT_FROZEN_B(B_YREG);
 #endif /* FROZEN_STACKS */
 	set_cut(S_YREG, B->cp_b);
       }
@@ -968,7 +968,7 @@ Yap_absmi(int inp)
 	ARG3 = B_YREG->cp_a3;
 	S_YREG = &(B_YREG->cp_a4);
 #ifdef FROZEN_STACKS
-	S_YREG = (CELL *)PROTECT_FROZEN_B(B_YREG);
+	B_YREG = PROTECT_FROZEN_B(B_YREG);
 #endif /* FROZEN_STACKS */
 	set_cut(S_YREG, B);
       }
@@ -1021,7 +1021,7 @@ Yap_absmi(int inp)
       ARG3 = B_YREG->cp_a3;
       ARG4 = B_YREG->cp_a4;
 #ifdef FROZEN_STACKS
-      S_YREG = (CELL *)PROTECT_FROZEN_B(B_YREG);
+      B_YREG = PROTECT_FROZEN_B(B_YREG);
       set_cut(S_YREG, B->cp_b);
 #else
       set_cut(S_YREG, B_YREG->cp_b);
@@ -1043,7 +1043,7 @@ Yap_absmi(int inp)
 	ARG3 = B_YREG->cp_a3;
 	ARG4 = B_YREG->cp_a4;
 #ifdef FROZEN_STACKS
-	B_YREG = PROTECT_FROZEN_B(B_YREG);
+        B_YREG = PROTECT_FROZEN_B(B_YREG);
 #endif /* FROZEN_STACKS */
 	set_cut(S_YREG, B->cp_b);
       }
@@ -1057,7 +1057,7 @@ Yap_absmi(int inp)
 	ARG4 = B_YREG->cp_a4;
 	S_YREG = &(B_YREG->cp_a5);
 #ifdef FROZEN_STACKS
-	S_YREG = (CELL *)PROTECT_FROZEN_B(B_YREG);
+	B_YREG = PROTECT_FROZEN_B(B_YREG);
 #endif /* FROZEN_STACKS */
 	set_cut(S_YREG, B);
       }
@@ -1390,7 +1390,7 @@ Yap_absmi(int inp)
       restore_yaam_regs(PREG);
       restore_args(PREG->u.ld.s);
 #ifdef FROZEN_STACKS
-      S_YREG = (CELL *)PROTECT_FROZEN_B(B_YREG);
+      B_YREG = PROTECT_FROZEN_B(B_YREG);
       set_cut(S_YREG, B->cp_b);
 #else
       set_cut(S_YREG, B_YREG->cp_b);
@@ -1514,7 +1514,7 @@ Yap_absmi(int inp)
 	      case _table_trust_me:
 		low_level_trace(retry_pred, ipc->u.lds.p, (CELL *)(((gen_cp_ptr)B)+1));
 		break;
-#endif
+#endif /* TABLING */
 	      case _or_else:
 	      case _or_last:
 		low_level_trace(retry_or, (PredEntry *)ipc, &(B->cp_a1));
@@ -1598,7 +1598,7 @@ Yap_absmi(int inp)
 	    if ((ADDR) pt1 >= HeapTop)
 #else
 	    if ((ADDR) pt1 >= Yap_TrailBase)
-#endif
+#endif /* SBA */
 	      {
 		pt1 = (tr_fr_ptr) pt1;
 		goto failloop;
@@ -1687,7 +1687,7 @@ Yap_absmi(int inp)
 	  pt[0] = TrailVal(pt0);
 #else
 	  pt[0] = TrailTerm(pt0);
-#endif
+#endif /* FROZEN_STACKS */
 	  goto failloop;
 	}
 #endif
@@ -1987,12 +1987,11 @@ Yap_absmi(int inp)
 #ifdef FROZEN_STACKS
 	{ 
 	  choiceptr top_b = PROTECT_FROZEN_B(B);
-
 #ifdef SBA
 	  if (E_YREG > (CELL *) top_b || E_YREG < H) E_YREG = (CELL *) top_b;
 #else
 	  if (E_YREG > (CELL *) top_b) E_YREG = (CELL *) top_b;
-#endif
+#endif /* SBA */
 	  else E_YREG = (CELL *)((CELL)E_YREG + ENV_Size(CPREG));
 	}
 #else
@@ -2058,7 +2057,7 @@ Yap_absmi(int inp)
 	if (E_YREG > (CELL *) top_b || E_YREG < H) E_YREG = (CELL *) top_b;
 #else
 	if (E_YREG > (CELL *) top_b) E_YREG = (CELL *) top_b;
-#endif
+#endif /* SBA */
       }
 #else
       if (E_YREG > (CELL *) B) {
@@ -2274,7 +2273,7 @@ Yap_absmi(int inp)
 	if (YREG > (CELL *) top_b || YREG < H) YREG = (CELL *) top_b;
 #else
 	if (YREG > (CELL *) top_b) YREG = (CELL *) top_b;
-#endif
+#endif /* SBA */
 	else YREG = YREG + ENV_Size(CPREG);
       }
 #else
@@ -2300,7 +2299,7 @@ Yap_absmi(int inp)
 	if (YREG > (CELL *) top_b || YREG < H) YREG = (CELL *) top_b;
 #else
 	if (YREG > (CELL *) top_b) YREG = (CELL *) top_b;
-#endif
+#endif /* SBA */
 	else YREG = YREG + ENV_Size(CPREG);
       }
 #else
@@ -2420,7 +2419,7 @@ Yap_absmi(int inp)
 	if (YREG > (CELL *) top_b || YREG < H) YREG = (CELL *) top_b;
 #else
 	if (YREG > (CELL *) top_b) YREG = (CELL *) top_b;
-#endif
+#endif /* SBA */
 	else YREG = (CELL *) ((CELL)YREG + ENV_Size(CPREG));
       }
 #else
@@ -2645,7 +2644,7 @@ Yap_absmi(int inp)
 	if (E_YREG > (CELL *) top_b || E_YREG < H) E_YREG = (CELL *) top_b;
 #else
 	if (E_YREG > (CELL *) top_b) E_YREG = (CELL *) top_b;
-#endif
+#endif /* SBA */
 	else E_YREG = (CELL *)((CELL) E_YREG + ENV_Size(CPREG));
       }
 #else
@@ -3895,10 +3894,10 @@ Yap_absmi(int inp)
 	YREG[PREG->u.oy.y] = (CELL)(SREG-1);
       } else
 	YREG[PREG->u.oy.y] = d0;
-#endif
+#endif /* FROZEN_STACKS */
 #else
       YREG[PREG->u.oy.y] = d0;
-#endif
+#endif /* SBA */
       PREG = NEXTOP(PREG, oy);
       GONext();
       ENDD(d0);
@@ -3935,10 +3934,10 @@ Yap_absmi(int inp)
       } else {
 	YREG[PREG->u.oy.y] = d0;
       }
-#endif
+#endif /* FROZEN_STACKS */
 #else
       YREG[PREG->u.oy.y] = d0;
-#endif
+#endif /* SBA */
       PREG = NEXTOP(PREG, oy);
       GONext();
       ENDD(d0);
@@ -5971,7 +5970,7 @@ Yap_absmi(int inp)
 	if (pt1 > top_b || pt1 < (choiceptr)H) pt1 = top_b;
 #else
 	if (pt1 > top_b) pt1 = top_b;
-#endif
+#endif /* SBA */
       }
 #else
       if (pt1 > B) {
@@ -6114,7 +6113,7 @@ Yap_absmi(int inp)
 	if (YREG > (CELL *) top_b || YREG < H) ASP = (CELL *)top_b;
 #else
 	if (YREG > (CELL *) top_b) ASP = (CELL *)top_b;
-#endif
+#endif /* SBA */
 	else ASP = (CELL *)(((char *)YREG) +  PREG->u.sla.s);
       }
 #else
@@ -6155,7 +6154,7 @@ Yap_absmi(int inp)
 	if (YREG > (CELL *) top_b || YREG < H) ASP = (CELL *) top_b;
 #else
 	if (YREG > (CELL *) top_b) ASP = (CELL *) top_b;
-#endif
+#endif /* SBA */
 	else ASP = (CELL *)(((char *)YREG) +  PREG->u.sla.s);
       }
 #else
@@ -6197,7 +6196,7 @@ Yap_absmi(int inp)
 	if (YREG > (CELL *) top_b || YREG < H) ASP = (CELL *) top_b;
 #else
 	if (YREG > (CELL *) top_b) ASP = (CELL *) top_b;
-#endif
+#endif /* SBA */
 	else {
 	  BEGD(d0);
 	  d0 = PREG->u.sdl.s;
@@ -6603,7 +6602,7 @@ Yap_absmi(int inp)
 	SCH_last_alternative(PREG, B_YREG);
 	restore_at_least_one_arg(PREG->u.ld.s);
 #ifdef FROZEN_STACKS
-	B_YREG = PROTECT_FROZEN_B(B_YREG);
+        B_YREG = PROTECT_FROZEN_B(B_YREG);
 #endif /* FROZEN_STACKS */
 	set_cut(S_YREG, B->cp_b);
       }
@@ -6613,7 +6612,7 @@ Yap_absmi(int inp)
 	pop_yaam_regs();
 	pop_at_least_one_arg(PREG->u.ld.s);
 #ifdef FROZEN_STACKS
-	B_YREG = PROTECT_FROZEN_B(B_YREG);
+        B_YREG = PROTECT_FROZEN_B(B_YREG);
 #endif /* FROZEN_STACKS */
 	set_cut(S_YREG, B);
       }
@@ -11223,7 +11222,7 @@ Yap_absmi(int inp)
 	  if (E_YREG > (CELL *) top_b || E_YREG < H) E_YREG = (CELL *) top_b;
 #else
 	  if (E_YREG > (CELL *) top_b) E_YREG = (CELL *) top_b;
-#endif
+#endif /* SBA */
 	}
 #else
 	if (E_YREG > (CELL *) B) {
