@@ -4994,12 +4994,12 @@ with its most general instance. If @var{R} refers to an unit clause
 @var{R} is not a reference to an existing clause or to a recorded term,
 this goal fails.
 
-@item eraseall(+@var{R})
+@item eraseall(+@var{K})
 @findex eraseall/1
 @snindex eraseall/1
 @cnindex eraseall/1
-All terms referred to by @var{R} are erased from the internal
-database. If reference @var{R} does not exist in the database,
+All terms belonging to the key @code{K} are erased from the internal
+database. The predicate always succeeds.
 @code{eraseall} just fails.
 
 @item current_key(@var{A},@var{P})
