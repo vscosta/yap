@@ -11,8 +11,14 @@
 * File:		index.c							 *
 * comments:	Indexing a Prolog predicate				 *
 *									 *
-* Last rev:     $Date: 2004-03-19 11:35:42 $,$Author: vsc $						 *
-* $Log: not supported by cvs2svn $                                                                  *
+* Last rev:     $Date: 2004-03-25 02:19:10 $,$Author: pmoura $						 *
+* $Log: not supported by cvs2svn $
+* Revision 1.80  2004/03/19 11:35:42  vsc
+* trim_trail for default machine
+* be more aggressive about try-retry-trust chains.
+*    - handle cases where block starts with a wait
+*    - don't use _killed instructions, just let the thing rot by itself.
+*                                                                  *
 *									 *
 *************************************************************************/
 #ifdef SCCS
@@ -4099,7 +4105,6 @@ expand_index(struct intermediates *cint) {
   } else {
     max = install_clauses(cls, ap, stack, first, last);
   }
-  fprintf(stderr,"expanding %d/%d\n",(max-cls)+1,NClauses);
   /* don't count last clause if you don't have to */
   if (alt && max->Code == last) max--;
   if (max < cls && labp != NULL) {
