@@ -196,7 +196,8 @@ exit_yap (int value)
 #if defined(YAPOR)
   unmap_memory();
 #endif /* YAPOR || TABLING */
-  ShutdownLoadForeign();
+  if (PrologMode != BootMode)
+    ShutdownLoadForeign();
   exit(value);
 }
 

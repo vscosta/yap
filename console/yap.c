@@ -310,7 +310,7 @@ parse_yap_arguments(int argc, char *argv[], yap_init_args *init_args)
 		  --argc, p = *++argv;
 		else
 		  {
-		    fprintf(stderr,"[ YAP unrecoverable error: missing size in flag %s ]", argv[-1]);
+		    fprintf(stderr,"[ YAP unrecoverable error: missing size in flag %s ]", argv[0]);
 		  YapExit(1);
 		  }
 	      }
