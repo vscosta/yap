@@ -11,8 +11,11 @@
 * File:		computils.c						 *
 * comments:	some useful routines for YAP's compiler			 *
 *									 *
-* Last rev:     $Date: 2004-04-16 19:27:31 $							 *
+* Last rev:     $Date: 2004-11-19 17:14:13 $							 *
 * $Log: not supported by cvs2svn $
+* Revision 1.24  2004/04/16 19:27:31  vsc
+* more bug fixes
+*
 * Revision 1.23  2004/03/10 14:59:55  vsc
 * optimise -> for type tests
 *									 *
@@ -281,9 +284,9 @@ write_address(CELL address)
     char buf[32], *p = buf;
 
 #if HAVE_SNPRINTF
-    snprintf(buf,32,"%x",address);
+    snprintf(buf,32,"%p",(void *)address);
 #else
-    snprintf(buf,"%x",address);
+    snprintf(buf,"%p",(void *)address);
 #endif
     p[31] = '\0'; /* so that I don't have to worry */
     Yap_DebugPutc(Yap_c_error_stream,'0');

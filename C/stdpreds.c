@@ -11,8 +11,13 @@
 * File:		stdpreds.c						 *
 * comments:	General-purpose C implemented system predicates		 *
 *									 *
-* Last rev:     $Date: 2004-11-18 22:32:37 $,$Author: vsc $						 *
+* Last rev:     $Date: 2004-11-19 17:14:14 $,$Author: vsc $						 *
 * $Log: not supported by cvs2svn $
+* Revision 1.72  2004/11/18 22:32:37  vsc
+* fix situation where we might assume nonextsing double initialisation of C predicates (use
+* Hidden Pred Flag).
+* $host_type was double initialised.
+*
 * Revision 1.71  2004/07/23 21:08:44  vsc
 * windows fixes
 *
@@ -139,7 +144,7 @@ static Int order=0;
     Int temp;
     order++;
     if (index_code) temp=-order; else temp=order;
-    fprintf(FPreds,"+%p %p %p %d",code_start,code_end, pe, temp);
+    fprintf(FPreds,"+%p %p %p %l",code_start,code_end, pe, (long int)temp);
 #if MORE_INFO_FILE
     if (pe->FunctorOfPred->KindOfPE==47872) {
       if (pe->ArityOfPE) {
@@ -242,7 +247,7 @@ showprofres(UInt type) {
 
   ProfPreds=0;
   pr=(clauseentry *) TR;
-  while (fscanf(FPreds,"+%p %p %p %d",&(pr->beg),&(pr->end),&(pr->pp),&(pr->ts)) > 0){
+  while (fscanf(FPreds,"+%p %p %p %l",&(pr->beg),&(pr->end),&(pr->pp),&(pr->ts)) > 0){
     int c;
     pr->pcs = 0L;
     pr++;

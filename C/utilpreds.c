@@ -1315,7 +1315,7 @@ GvNTermHash(void)
   i3 = GvNht[2];
   i2 ^= i3; i1 ^= i2; i1 = (((i3 << 7) + i2) << 7) + i1;
   result = MkIntegerTerm(i1 % size);
-  return(Yap_unify(ARG4,result));
+  return Yap_unify(ARG4,result);
 }
 
 static int variant_complex(register CELL *pt0, register CELL *pt0_end, register

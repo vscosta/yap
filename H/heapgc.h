@@ -20,7 +20,11 @@
 /* macros used by garbage collection */
 
 #if TAG_64BITS
+#if GC_NO_TAGS
+#define MaskAdr		(~0x7L)
+#else
 #define MaskAdr		(~(MBIT|RBIT|0x7L))
+#endif
 #endif
 
 /* return pointer from object pointed to by ptr (remove tag & mark) */

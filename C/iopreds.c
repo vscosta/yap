@@ -3851,7 +3851,7 @@ format(volatile Term otail, volatile Term oargs, int sno)
   while ((ch = *fptr++)) {
     Term t = TermNil;
     int has_repeats = FALSE;
-    Int repeats = 0;
+    int repeats = 0;
 
     if (ch == '~') {
       /* start command */

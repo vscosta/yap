@@ -311,7 +311,7 @@ ParseArgs(Atom a, JMPBUFF *FailBuff)
       FAIL;
     }
     *tp++ = Unsigned(ParseTerm(999, FailBuff));
-    ParserAuxSp = tp;
+    ParserAuxSp = (char *)tp;
     ++nargs;
     if (Yap_tokptr->Tok != Ord(Ponctuation_tok))
       break;

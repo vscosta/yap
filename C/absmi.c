@@ -10,8 +10,12 @@
 *									 *
 * File:		absmi.c							 *
 * comments:	Portable abstract machine interpreter                    *
-* Last rev:     $Date: 2004-11-04 18:22:28 $,$Author: vsc $						 *
+* Last rev:     $Date: 2004-11-19 17:14:12 $,$Author: vsc $						 *
 * $Log: not supported by cvs2svn $
+* Revision 1.151  2004/11/04 18:22:28  vsc
+* don't ever use memory that has been freed (that was done by LU).
+* generic fixes for WIN32 libraries
+*
 * Revision 1.150  2004/10/26 20:15:36  vsc
 * More bug fixes for overflow handling
 *
@@ -235,7 +239,7 @@ void prof_alrm(int signo, siginfo_t *si, ucontext_t *sc);
 
 void prof_alrm(int signo, siginfo_t *si, ucontext_t *sc)
 {
-#if __linux__
+#if __linux__ && defined(i386)
   void * oldpc=(void *) sc->uc_mcontext.gregs[14]; /* 14= REG_EIP */
 
   if (Yap_PrologMode & TestMode) {

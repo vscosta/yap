@@ -11,8 +11,13 @@
 * File:		index.c							 *
 * comments:	Indexing a Prolog predicate				 *
 *									 *
-* Last rev:     $Date: 2004-11-18 22:32:36 $,$Author: vsc $						 *
+* Last rev:     $Date: 2004-11-19 17:14:14 $,$Author: vsc $						 *
 * $Log: not supported by cvs2svn $
+* Revision 1.106  2004/11/18 22:32:36  vsc
+* fix situation where we might assume nonextsing double initialisation of C predicates (use
+* Hidden Pred Flag).
+* $host_type was double initialised.
+*
 * Revision 1.105  2004/11/04 18:22:32  vsc
 * don't ever use memory that has been freed (that was done by LU).
 * generic fixes for WIN32 libraries
@@ -3568,7 +3573,7 @@ purge_pvar(GroupDef *group) {
 
 
 static UInt *
-do_nonvar_group(GroupDef *grp, Term t, int compound_term, CELL *sreg, UInt arity, UInt labl, struct intermediates *cint, UInt argno, int first, int last_arg, UInt nxtlbl, int clleft, CELL *top) {
+do_nonvar_group(GroupDef *grp, Term t, UInt compound_term, CELL *sreg, UInt arity, UInt labl, struct intermediates *cint, UInt argno, int first, int last_arg, UInt nxtlbl, int clleft, CELL *top) {
   TypeSwitch *type_sw;
   PredEntry *ap = cint->CurrentPred;
 

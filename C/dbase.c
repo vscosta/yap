@@ -644,9 +644,9 @@ copy_double(CELL *st, CELL *pt)
 #endif /* GC_NO_TAGS */
 #else
 #if GC_NO_TAGS
-  st[2] = ((2*sizeof(CELL)+EndSpecials)|MBIT);
-#else
   st[2] = 2*sizeof(CELL)+EndSpecials;
+#else
+  st[2] = ((2*sizeof(CELL)+EndSpecials)|MBIT);
 #endif /* GC_NO_TAGS */
 #endif
   /* now reserve space */
