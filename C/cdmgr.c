@@ -399,7 +399,9 @@ kill_first_log_iblock(LogUpdIndex *c, LogUpdIndex *cl, PredEntry *ap)
     ncl = next;
   }
   c->ClRefCount--;
-  if (cl == NULL) {
+  /* check if we are still the main index */
+  if (cl == NULL &&
+      ap->cs.p_code.TrueCodeOfPred == c->ClCode) {
     RemoveMainIndex(ap);
   }
   if (!((c->ClFlags & InUseMask) || c->ClRefCount)) {

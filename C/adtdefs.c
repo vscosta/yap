@@ -158,7 +158,7 @@ LookupAtom(char *atom)
     return(a);
   }
   /* add new atom to start of chain */
-  ae = (AtomEntry *) Yap_AllocAtomSpace((sizeof *ae) + strlen(atom));
+  ae = (AtomEntry *) Yap_AllocAtomSpace((sizeof *ae) + strlen(atom) + 1);
   a = AbsAtom(ae);
   ae->NextOfAE = HashChain[hash].Entry;
   HashChain[hash].Entry = a;
