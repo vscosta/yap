@@ -613,43 +613,6 @@ nogc :-
 
 '$force_environment_for_gc'.
 
-profile_data(P, Parm, Data) :- var(P), !,
-	'$current_module'(M),
-	'$profile_data'(P, Parm, Data, M).
-
-'$profile_data'(P, Parm, Data,M) :- var(P), !,
-	'$profile_data_for_var'(P, Parm, Data,M).
-'$profile_data'(M:P, Parm, Data, _) :- var(M), !,
-	throw(error(instantiation_error,profile_data(M:P, Parm, Data))).
-'$profile_data'(M:P, Parm, Data, _) :- 
-	'$profile_data'(P, Parm, Data, M).
-'$profile_data'(P, Parm, Data, M) :-
-	'$profile_data2'(P, Parm, Data, M).
-
-'$profile_data2'(Na/Ar,Parm,Data, M) :-
-	functor(P, Na, Ar),
-	'$profile_info'(M, P, Stats),
-	'$profile_say'(Stats, Parm, Data).
-
-'$profile_data_for_var'(Name/Arity, Parm, Data, M) :-
-	'$current_predicate'(M,Name,Arity),
-	functor(P,Na,Ar),
-	'$profile_info'(M, P, Stats),
-	'$profile_say'(Stats, Parm, Data).
-
-
-
-'$profile_say'('$profile'(Entries, _, _), calls, Entries).
-'$profile_say'('$profile'(_, _, Backtracks), retries, Backtracks).
-
-profile_reset :-
-	current_module(M),
-	'$current_predicate'(M,Na,Ar),
-	functor(P,Na,Ar),
-	'$profile_reset'(M, P),
-	fail.
-profile_reset.
-
 '$good_list_of_character_codes'(V) :- var(V), !.
 '$good_list_of_character_codes'([]).
 '$good_list_of_character_codes'([X|L]) :-
