@@ -10,8 +10,12 @@
 *									 *
 * File:		absmi.c							 *
 * comments:	Portable abstract machine interpreter                    *
-* Last rev:     $Date: 2004-04-22 03:24:17 $,$Author: vsc $						 *
+* Last rev:     $Date: 2004-04-22 20:07:02 $,$Author: vsc $						 *
 * $Log: not supported by cvs2svn $
+* Revision 1.130  2004/04/22 03:24:17  vsc
+* trust_logical should protect the last clause, otherwise it cannot
+* jump there.
+*
 * Revision 1.129  2004/04/16 19:27:30  vsc
 * more bug fixes
 *
@@ -1221,10 +1225,12 @@ Yap_absmi(int inp)
 	       to dispose of it 
 	    */
 	    LOCK(lcl->ClLock);
-	    /* make sure the clause isn't destroyed */
-	    /* always add an extra reference */
-	    INC_CLREF_COUNT(lcl);
-	    TRAIL_CLREF(lcl);
+	    if (lcl->ClRefCount == 1) {
+	      /* make sure the clause isn't destroyed */
+	      /* always add an extra reference */
+	      INC_CLREF_COUNT(lcl);
+	      TRAIL_CLREF(lcl);
+	    }
 	    UNLOCK(cl->ClLock);
 	  }
 	  Yap_ErLogUpdIndex(cl);
@@ -1242,7 +1248,7 @@ Yap_absmi(int inp)
 	    if (next != FAILCODE) {
 	      LogUpdClause *lcl = ClauseCodeToLogUpdClause(next);
 	      /* make sure we don't erase the clause we are jumping too */
-	      if (!(lcl->ClFlags & InUseMask)) {
+	      if (lcl->ClRefCount == 1 && !(lcl->ClFlags & InUseMask)) {
 		lcl->ClFlags |= InUseMask;
 		TRAIL_CLREF(lcl);
 	      }

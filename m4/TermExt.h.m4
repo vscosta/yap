@@ -10,10 +10,10 @@
 * File:		TermExt.h						 *
 * mods:									 *
 * comments:	Extensions to standard terms for YAP			 *
-* version:      $Id: TermExt.h.m4,v 1.12 2004-01-23 02:23:12 vsc Exp $	 *
+* version:      $Id: TermExt.h.m4,v 1.13 2004-04-22 20:07:06 vsc Exp $	 *
 *************************************************************************/
 
-#ifdef THREADS
+#ifdef USE_SYSTEM_MALLOC
 #define SF_STORE  (&(heap_regs->funcs))
 #else
 #define SF_STORE  ((special_functors *)HEAP_INIT_BASE)

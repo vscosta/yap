@@ -763,7 +763,7 @@ check_global(void) {
 #if INSTRUMENT_GC
     if (IsVarTerm(ccurr)) {
       if (IsBlobFunctor((Functor)ccurr)) vars[gc_num]++;
-      else if (ccurr != 0 && ccurr < (CELL)HeapTop) {
+      else if (ccurr != 0 && (ccurr < (CELL)Yap_GlobalBase || ccurr > (CELL)Yap_TrailTop)) {
 	/*	printf("%p: %s/%d\n", current,
 	       RepAtom(NameOfFunctor((Functor)ccurr))->StrOfAE,
 	       ArityOfFunctor((Functor)ccurr));*/
@@ -875,7 +875,7 @@ mark_variable(CELL_PTR current)
 	}
       goto begin;
 #ifdef DEBUG
-    } else if (next < (CELL *)AtomBase || next < (CELL *)HeapTop) {
+    } else if (next < (CELL *)Yap_GlobalBase || next > (CELL *)Yap_TrailTop) {
       fprintf(Yap_stderr, "ooops while marking %lx, %p at %p\n", (unsigned long int)ccur, current, next);
 #endif
     } else {
@@ -1844,7 +1844,8 @@ sweep_trail(choiceptr gc_B, tr_fr_ptr old_TR)
 	    }
 	  }
 #endif
-	} else if ((CELL *)trail_cell < (CELL *)HeapTop) {
+	} else if ((CELL *)trail_cell < (CELL *)Yap_GlobalBase ||
+		   (CELL *)trail_cell > (CELL *)Yap_TrailTop) {
 	  /* we may have pointers from the heap back into the cell */
 	  CELL *next =  GET_NEXT(*CellPtr(trail_cell));
 	  UNMARK(CellPtr(trail_cell));
@@ -1871,7 +1872,7 @@ sweep_trail(choiceptr gc_B, tr_fr_ptr old_TR)
 	/* process all segments */
 	if (
 #ifdef SBA
-	    (ADDR) pt0 >= HeapTop
+	    (ADDR) pt0 >= Yap_GlobalBase
 #else
 	    (ADDR) pt0 >= Yap_TrailBase
 #endif
@@ -2994,6 +2995,7 @@ do_gc(Int predarity, CELL *current_env, yamop *nextop)
   int           gc_trace = FALSE;
 
 #if USE_SYSTEM_MALLOC
+  /* I can't use it because I may have pointers to high memory */
   return 0;
 #endif
 #if COROUTINING
@@ -3050,6 +3052,7 @@ do_gc(Int predarity, CELL *current_env, yamop *nextop)
     fprintf(Yap_stderr, "[GC]       Trail:%8ld cells (%p-%p)\n",
 	       (unsigned long int)(TR-(tr_fr_ptr)Yap_TrailBase),Yap_TrailBase,TR);
   }
+#if !USE_SYSTEM_MALLOC
   if (HeapTop >= Yap_GlobalBase - MinHeapGap) {
     *--ASP = (CELL)current_env;
     if (!Yap_growheap(FALSE, MinHeapGap, NULL)) {
@@ -3059,6 +3062,7 @@ do_gc(Int predarity, CELL *current_env, yamop *nextop)
     current_env = (CELL *)*ASP;
     ASP++;
   }
+#endif
   time_start = Yap_cputime();
   total_marked = 0;
 #ifdef COROUTING

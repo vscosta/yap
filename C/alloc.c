@@ -12,7 +12,7 @@
 * Last rev:								 *
 * mods:									 *
 * comments:	allocating space					 *
-* version:$Id: alloc.c,v 1.48 2004-03-05 15:26:32 vsc Exp $		 *
+* version:$Id: alloc.c,v 1.49 2004-04-22 20:07:03 vsc Exp $		 *
 *************************************************************************/
 #ifdef SCCS
 static char SccsId[] = "%W% %G%";
@@ -114,6 +114,7 @@ Yap_ExpandPreAllocCodeSpace(UInt sz0)
 
   if (!(ptr = realloc(ScratchPad.ptr, sz)))
     return NULL;
+  ScratchPad.ptr = ptr;
   AuxSp = (CELL *)(AuxTop = ptr+sz);
   return ptr;
 }

@@ -11,8 +11,11 @@
 * File:		amasm.c							 *
 * comments:	abstract machine assembler				 *
 *									 *
-* Last rev:     $Date: 2004-03-31 01:03:09 $							 *
+* Last rev:     $Date: 2004-04-22 20:07:04 $							 *
 * $Log: not supported by cvs2svn $
+* Revision 1.59  2004/03/31 01:03:09  vsc
+* support expand group of clauses
+*
 * Revision 1.58  2004/03/10 14:59:55  vsc
 * optimise -> for type tests
 *									 *
@@ -435,10 +438,11 @@ a_vv(op_numbers opcode, op_numbers opcodew, yamop *code_p, int pass_no, struct i
   }
   cip->cpc = cip->cpc->nextInst;
   if (pass_no) {
-    ve = (Ventry *) cip->cpc->rnd1;
     OPREG var_offset;
-    int is_y_var = (ve->KindOfVE == PermVar);
+    int is_y_var;
 
+    ve = (Ventry *) cip->cpc->rnd1;
+    is_y_var = (ve->KindOfVE == PermVar);
     var_offset = Var_Ref(ve, is_y_var);
     code_p->u.oxx.xr = emit_xreg(var_offset);
   }

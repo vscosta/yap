@@ -51,7 +51,11 @@
 #define ONHEAP(ptr) (CellPtr(ptr) >= H0  && CellPtr(ptr) < H)
 
 /* is ptr a pointer to code space? */
+#if USE_SYSTEM_MALLOC
+#define ONCODE(ptr) (Addr(ptr) < Yap_GlobalBase || Addr(ptr) > Yap_TrailTop)
+#else
 #define ONCODE(ptr) (Addr(ptr) < HeapTop && Addr(ptr) >= Yap_HeapBase)
+#endif
 
 /* is val pointing to something bound to the heap? */
 

@@ -86,7 +86,7 @@ copy_complex_term(register CELL *pt0, register CELL *pt0_end, CELL *ptf, CELL *H
 	*ptf = AbsPair(H);
 	ptf++;
 #ifdef RATIONAL_TREES
-	if (to_visit + 4 >= (CELL **)Yap_GlobalBase) {
+	if (to_visit + 4 >= (CELL **)AuxSp) {
 	  goto heap_overflow;
 	}
 	to_visit[0] = pt0;
@@ -98,7 +98,7 @@ copy_complex_term(register CELL *pt0, register CELL *pt0_end, CELL *ptf, CELL *H
 	to_visit += 4;
 #else
 	if (pt0 < pt0_end) {
-	  if (to_visit + 3 >= (CELL **)Yap_GlobalBase) {
+	  if (to_visit + 3 >= (CELL **)AuxSp) {
 	    goto heap_overflow;
 	  }
 	  to_visit[0] = pt0;
@@ -136,7 +136,7 @@ copy_complex_term(register CELL *pt0, register CELL *pt0_end, CELL *ptf, CELL *H
 	ptf++;
 	/* store the terms to visit */
 #ifdef RATIONAL_TREES
-	if (to_visit + 4 >= (CELL **)Yap_GlobalBase) {
+	if (to_visit + 4 >= (CELL **)AuxSp) {
 	  goto heap_overflow;
 	}
 	to_visit[0] = pt0;
@@ -148,7 +148,7 @@ copy_complex_term(register CELL *pt0, register CELL *pt0_end, CELL *ptf, CELL *H
 	to_visit += 4;
 #else
 	if (pt0 < pt0_end) {
-	  if (to_visit + 3 >= (CELL **)Yap_GlobalBase) {
+	  if (to_visit + 3 >= (CELL **)AuxSp) {
 	    goto heap_overflow;
 	  }
 	  to_visit[0] = pt0;
@@ -335,8 +335,8 @@ CopyTerm(Term inp) {
 	  t = Deref(ARG1);
 	  goto restart_attached;
 	} else { /* handle overflow */
-	  if (!Yap_growheap(FALSE, 0, NULL)) {
-	    Yap_Error(SYSTEM_ERROR, TermNil, Yap_ErrorMessage);
+	  if (!Yap_ExpandPreAllocCodeSpace(0)) {
+	    Yap_Error(OUT_OF_HEAP_ERROR, TermNil, Yap_ErrorMessage);
 	    return(FALSE);
 	  }
 	  t = Deref(ARG1);
@@ -371,8 +371,8 @@ CopyTerm(Term inp) {
 	  t = Deref(ARG1);
 	  goto restart_list;
 	} else { /* handle overflow */
-	  if (!Yap_growheap(FALSE, 0, NULL)) {
-	    Yap_Error(SYSTEM_ERROR, TermNil, Yap_ErrorMessage);
+	  if (!Yap_ExpandPreAllocCodeSpace(0)) {
+	    Yap_Error(OUT_OF_HEAP_ERROR, TermNil, Yap_ErrorMessage);
 	    return(FALSE);
 	  }
 	  t = Deref(ARG1);
@@ -406,8 +406,8 @@ CopyTerm(Term inp) {
 	  t = Deref(ARG1);
 	  goto restart_appl;
 	} else { /* handle overflow */
-	  if (!Yap_growheap(FALSE, 0, NULL)) {
-	    Yap_Error(SYSTEM_ERROR, TermNil, Yap_ErrorMessage);
+	  if (!Yap_ExpandPreAllocCodeSpace(0)) {
+	    Yap_Error(OUT_OF_HEAP_ERROR, TermNil, Yap_ErrorMessage);
 	    return(FALSE);
 	  }
 	  t = Deref(ARG1);
@@ -459,7 +459,7 @@ static int copy_complex_term_no_delays(register CELL *pt0, register CELL *pt0_en
 	*ptf = AbsPair(H);
 	ptf++;
 #ifdef RATIONAL_TREES
-	if (to_visit + 4 >= (CELL **)Yap_GlobalBase) {
+	if (to_visit + 4 >= (CELL **)AuxSp) {
 	  goto heap_overflow;
 	}
 	to_visit[0] = pt0;
@@ -471,7 +471,7 @@ static int copy_complex_term_no_delays(register CELL *pt0, register CELL *pt0_en
 	to_visit += 4;
 #else
 	if (pt0 < pt0_end) {
-	  if (to_visit + 3 >= (CELL **)Yap_GlobalBase) {
+	  if (to_visit + 3 >= (CELL **)AuxSp) {
 	    goto heap_overflow;
 	  }
 	  to_visit[0] = pt0;
@@ -507,7 +507,7 @@ static int copy_complex_term_no_delays(register CELL *pt0, register CELL *pt0_en
 	ptf++;
 	/* store the terms to visit */
 #ifdef RATIONAL_TREES
-	if (to_visit + 4 >= (CELL **)Yap_GlobalBase) {
+	if (to_visit + 4 >= (CELL **)AuxSp) {
 	  goto heap_overflow;
 	}
 	to_visit[0] = pt0;
@@ -518,7 +518,7 @@ static int copy_complex_term_no_delays(register CELL *pt0, register CELL *pt0_en
 	*pt0 = AbsAppl(H);
 	to_visit += 4;
 #else
-	if (to_visit + 3 >= (CELL **)Yap_GlobalBase) {
+	if (to_visit + 3 >= (CELL **)AuxSp) {
 	  goto heap_overflow;
 	}
 	if (pt0 < pt0_end) {
@@ -645,8 +645,8 @@ CopyTermNoDelays(Term inp) {
 	t = Deref(ARG1);
 	goto restart_list;
       } else { /* handle overflow */
-	if (!Yap_growheap(FALSE, 0, NULL)) {
-	  Yap_Error(SYSTEM_ERROR, TermNil, Yap_ErrorMessage);
+	if (!Yap_ExpandPreAllocCodeSpace(0)) {
+	  Yap_Error(OUT_OF_HEAP_ERROR, TermNil, Yap_ErrorMessage);
 	  return(FALSE);
 	}
 	t = Deref(ARG1);
@@ -677,8 +677,8 @@ CopyTermNoDelays(Term inp) {
 	t = Deref(ARG1);
 	goto restart_appl;
       } else { /* handle overflow */
-	if (!Yap_growheap(FALSE, 0, NULL)) {
-	  Yap_Error(SYSTEM_ERROR, TermNil, Yap_ErrorMessage);
+	if (!Yap_ExpandPreAllocCodeSpace(0)) {
+	  Yap_Error(OUT_OF_HEAP_ERROR, TermNil, Yap_ErrorMessage);
 	  return(FALSE);
 	}
 	t = Deref(ARG1);

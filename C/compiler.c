@@ -11,8 +11,11 @@
 * File:		compiler.c						 *
 * comments:	Clause compiler						 *
 *									 *
-* Last rev:     $Date: 2004-03-10 16:27:39 $,$Author: vsc $						 *
+* Last rev:     $Date: 2004-04-22 20:07:04 $,$Author: vsc $						 *
 * $Log: not supported by cvs2svn $
+* Revision 1.49  2004/03/10 16:27:39  vsc
+* skip compilation steps for ground facts.
+*
 * Revision 1.48  2004/03/08 19:31:01  vsc
 * move to 4.5.3
 *									 *
@@ -2732,12 +2735,11 @@ Yap_cclause(Term inp_clause, int NOfArgs, int mod, Term src)
   int botch_why;
   volatile Term my_clause = inp_clause;
   /* may botch while doing a different module */
-
   /* first, initialise cglobs->cint.CompilerBotch to handle all cases of interruptions */
-  Yap_ErrorMessage = NULL;
-  Yap_Error_Size = 0;
   compiler_struct cglobs;
 
+  Yap_ErrorMessage = NULL;
+  Yap_Error_Size = 0;
   if ((botch_why = setjmp(cglobs.cint.CompilerBotch)) == 3) {
     /* out of local stack, just duplicate the stack */
     restore_machine_regs();

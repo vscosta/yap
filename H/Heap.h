@@ -10,7 +10,7 @@
 * File:		Heap.h         						 *
 * mods:									 *
 * comments:	Heap Init Structure					 *
-* version:      $Id: Heap.h,v 1.61 2004-03-02 16:44:55 vsc Exp $	 *
+* version:      $Id: Heap.h,v 1.62 2004-04-22 20:07:05 vsc Exp $	 *
 *************************************************************************/
 
 /* information that can be stored in Code Space */
@@ -402,7 +402,7 @@ typedef struct various_codes {
   AtomHashEntry *hash_chain;
 } all_heap_codes;
 
-#ifdef THREADS
+#ifdef USE_SYSTEM_MALLOC
 struct various_codes *heap_regs;
 #else
 #define heap_regs  ((all_heap_codes *)HEAP_INIT_BASE)
@@ -719,7 +719,7 @@ struct various_codes *heap_regs;
 
 ADDR    STD_PROTO(Yap_ExpandPreAllocCodeSpace, (UInt));
 #define Yap_ReleasePreAllocCodeSpace(x)
-#if defined(YAPOR) || defined(THREADS)
+#if USE_SYSTEM_MALLOC
 ADDR    STD_PROTO(Yap_InitPreAllocCodeSpace, (void));
 EXTERN inline ADDR
 Yap_PreAllocCodeSpace(void)

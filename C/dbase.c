@@ -655,6 +655,7 @@ static CELL *MkDBTerm(register CELL *pt0, register CELL *pt0_end,
   CELL *ConstraintsBottom = NULL;
   CELL *origH = H;
 #endif
+  CELL *CodeMaxBase = CodeMax;
 
  loop:
   while (pt0 <= pt0_end) {
@@ -981,7 +982,7 @@ static CELL *MkDBTerm(register CELL *pt0, register CELL *pt0_end,
 
  error:
   Yap_Error_TYPE = OUT_OF_HEAP_ERROR;
-  Yap_Error_Size = 1024+((char *)AuxSp-(char *)HeapTop);
+  Yap_Error_Size = 1024+((char *)AuxSp-(char *)CodeMaxBase);
   *vars_foundp = vars_found;
 #ifdef RATIONAL_TREES
   while (to_visit > to_visit_base) {
