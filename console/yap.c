@@ -19,6 +19,21 @@
 #include "config.h"
 #include "c_interface.h"
 
+#if (DefTrailSpace < MinTrailSpace)
+#undef DefTrailSpace
+#define DefTrailSpace	MinTrailSpace
+#endif
+
+#if (DefStackSpace < MinStackSpace)
+#undef DefStackSpace
+#define DefStackSpace	MinStackSpace
+#endif
+
+#if (DefHeapSpace < MinHeapSpace)
+#undef DefHeapSpace
+#define DefHeapSpace	MinHeapSpace
+#endif
+
 #ifdef _MSC_VER /* Microsoft's Visual C++ Compiler */
 #ifdef  HAVE_UNISTD_H
 #undef  HAVE_UNISTD_H
@@ -198,6 +213,30 @@ do_bootfile (char *bootfilename)
 
 static char *filename;
 
+
+static void
+print_usage(const yap_init_args *init_args)
+{
+  fprintf(stderr,"\n[ Valid switches for command line arguments: ]\n");
+  fprintf(stderr,"  -?   Shows this screen\n");
+  fprintf(stderr,"  -b   Boot file (%s)\n", StartUpFile);
+  fprintf(stderr,"  -l   Prolog file\n");
+  fprintf(stderr,"  -h   Heap area in Kbytes (default: %d, minimum: %d)\n",
+	  DefHeapSpace, MinHeapSpace);
+  fprintf(stderr,"  -s   Stack area in Kbytes (default: %d, minimum: %d)\n",
+	  DefStackSpace, MinStackSpace);
+  fprintf(stderr,"  -t   Trail area in Kbytes (default: %d, minimum: %d)\n",
+	  DefTrailSpace, MinTrailSpace);
+#ifdef YAPOR
+  fprintf(stderr,"  -w   YapOr option: Number of workers (default: %d)\n",
+	  init_args->NumberWorkers);
+  fprintf(stderr,"  -sl  YapOr option: Loop scheduler executions before look for hiden shared work (default: %d)\n", init_args->SchedulerLoop);
+  fprintf(stderr,"  -d   YapOr option: Value of delayed release of load (default: %d)\n",
+	  init_args->DelayedReleaseLoad);
+#endif
+  fprintf(stderr,"\n");
+}
+
 /*
  * proccess command line arguments: valid switches are: -b    boot -s
  * stack area size (K) -h    heap area size -a    aux stack size -e
@@ -205,6 +244,7 @@ static char *filename;
  * want to check out startup IF MAC -mpw  if we are using the mpw
  * shell
  */
+
 static int
 parse_yap_arguments(int argc, char *argv[], yap_init_args *init_args)
 {
@@ -222,18 +262,8 @@ parse_yap_arguments(int argc, char *argv[], yap_init_args *init_args)
 	    BootMode = YAP_BOOT_FROM_PROLOG;
 	    break;
           case '?':
-            fprintf(stderr,"\n[ Valid switches for command line arguments: ]\n");
-            fprintf(stderr,"  -?   Shows this screen\n");
-            fprintf(stderr,"  -b   Boot file (%s)\n", StartUpFile);
-            fprintf(stderr,"  -l   Prolog file\n");
-            fprintf(stderr,"  -h   Heap area in Kbytes (default: %d, minimum: %d)\n", DefHeapSpace, MinHeapSpace);
-	    fprintf(stderr,"  -s   Stack area in Kbytes (default: %d, minimum: %d)\n", DefStackSpace, MinStackSpace);
-	    fprintf(stderr,"  -t   Trail area in Kbytes (default: %d, minimum: %d)\n", DefTrailSpace, MinTrailSpace);
-            fprintf(stderr,"  -w   YapOr option: Number of workers (default: %d)\n", init_args->NumberWorkers);
-            fprintf(stderr,"  -sl  YapOr option: Loop scheduler executions before look for hiden shared work (default: %d)\n", init_args->SchedulerLoop);
-            fprintf(stderr,"  -d   YapOr option: Value of delayed release of load (default: %d)\n", init_args->DelayedReleaseLoad);
-            fprintf(stderr,"\n");
-            exit(0);
+	    print_usage(init_args);
+            exit(EXIT_SUCCESS);
 	  case 'w':
 	    ssize = &(init_args->NumberWorkers);
 	    goto GetSize;
@@ -314,7 +344,8 @@ parse_yap_arguments(int argc, char *argv[], yap_init_args *init_args)
 		else
 		  {
 		    fprintf(stderr,"[ YAP unrecoverable error: missing size in flag %s ]", argv[0]);
-		  YapExit(1);
+		    print_usage(init_args);
+		    exit(EXIT_FAILURE);
 		  }
 	      }
 	    {
@@ -361,7 +392,7 @@ parse_yap_arguments(int argc, char *argv[], yap_init_args *init_args)
 	      argc--;
 	      if (argc == 0) {
 		fprintf(stderr," [ YAP unrecoverable error: missing file name with option 'l' ]\n");
-		exit(1);
+		exit(EXIT_FAILURE);
 	      }
 	      argv++;
 	      init_args->YapPrologBootFile = *argv;
@@ -374,7 +405,8 @@ parse_yap_arguments(int argc, char *argv[], yap_init_args *init_args)
 	  default:
 	    {
 	      fprintf(stderr,"[ YAP unrecoverable error: unknown switch -%c ]\n", *p);
-	      exit(1);
+	      print_usage(init_args);
+	      exit(EXIT_FAILURE);
 	    }
 	  }
       else {
@@ -459,7 +491,7 @@ exec_top_level(int BootMode, char *filename)
   while (YapGetValue (livegoal) != atomfalse) {
     do_top_goal (MkAtomTerm (livegoal));
   }
-  YapExit(0);
+  YapExit(EXIT_SUCCESS);
 }
 
 #ifdef LIGHT

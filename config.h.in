@@ -131,22 +131,6 @@
 #undef DefStackSpace
 #undef  DefHeapSpace
 
-#if (DefTrailSpace < MinTrailSpace)
-#undef DefTrailSpace
-#define DefTrailSpace	MinTrailSpace
-#endif
-
-#if (DefStackSpace < MinStackSpace)
-#undef DefStackSpace
-#define DefStackSpace	MinStackSpace
-#endif
-
-#if (DefHeapSpace < MinHeapSpace)
-#undef DefHeapSpace
-#define DefHeapSpace	MinHeapSpace
-#endif
-
-
 
 /* Define return type for signal	*/
 #undef  RETSIGTYPE
