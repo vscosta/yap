@@ -1,6 +1,6 @@
 =================================================================
 Logtalk - Object oriented extension to Prolog
-Release 2.9.3
+Release 2.10.0
 
 Copyright (c) 1998-2002 Paulo Moura.  All Rights Reserved.
 =================================================================
@@ -8,6 +8,31 @@ Copyright (c) 1998-2002 Paulo Moura.  All Rights Reserved.
 
 RELEASE NOTES
 =============
+
+
+2.10.0 - April 5, 2002
+
+	Scope of object asserted predicates for which there is no declaration is 
+	now a function of the context instead of always being declared public. 
+	Asserting in this, the predicate is declared private, asserting in self, 
+	the predicate is declared protected, otherwise the predicate is declared 
+	public.
+
+	Throw an error if a category contains clauses for dynamic predicates.
+
+	Updated documentation on categories and built-in methods for database 
+	handling.
+
+	Retracting all clauses for a dynamic predicate from an object now allows 
+	an inherited definition to be called when sending the corresponding 
+	message. In previous versions the message just failed.
+
+	Added missing entries for the built-in predicates current_logtalk_flag/2 
+	and set_logtalk_flag/2 to the Logtalk compiler built-in predicates table.
+
+	Updated config file for Amzi! Prolog 6.1.74.
+
+	Updated notes on patching XSB to work with Logtalk.
 
 
 2.9.3 - February 9, 2002

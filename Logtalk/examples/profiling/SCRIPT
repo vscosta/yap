@@ -1,6 +1,6 @@
 =================================================================
 Logtalk - Object oriented extension to Prolog
-Release 2.9.3
+Release 2.10.0
 
 Copyright (c) 1998-2002 Paulo Moura.  All Rights Reserved.
 =================================================================
@@ -99,6 +99,6 @@ yes
 % try a message 1000 times and return the average time:
 
 | ?- timer::timer(list::length([1, 2, 3], _), 1000, Time).
-Time = 0.00070799999999996994
+Time = 0.00008
 
 yes

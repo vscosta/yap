@@ -1,11 +1,15 @@
 =================================================================
 Logtalk - Object oriented extension to Prolog
-Release 2.9.3
+Release 2.10.0
 
 Copyright (c) 1998-2002 Paulo Moura.  All Rights Reserved.
 =================================================================
 
-This example is an adaptation of a LPA Prolog++ example.
+This example is an adaptation of a LPA Prolog++ example that is 
+described in the LPA Prolog++ Reference Manual. This manual can 
+be downloaded from the LPA web site <http://www.lpa.co.uk>. Please 
+consult this reference manual for further informations about this 
+example.
 
 To load all objects in this example consult the lpa.loader utility
 file.

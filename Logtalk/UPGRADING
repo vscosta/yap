@@ -1,6 +1,6 @@
 =================================================================
 Logtalk - Object oriented extension to Prolog
-Release 2.9.3
+Release 2.10.0
 
 Copyright (c) 1998-2002 Paulo Moura.  All Rights Reserved.
 =================================================================
@@ -38,3 +38,6 @@ to compile or load a single entity.
 Logtalk version 2.9.0 changes compiled code functors postfixes from "_sdcl" 
 and "_sdef" to  "_idcl"	and "_idef", impliying recompilation of all objects, 
 protocols, and categories.
+
+Logtalk version 2.10.0 changes some of the semantics of object dynamic 
+predicates. See the release notes for a description of the changes.

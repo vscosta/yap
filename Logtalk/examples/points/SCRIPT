@@ -1,6 +1,6 @@
 =================================================================
 Logtalk - Object oriented extension to Prolog
-Release 2.9.3
+Release 2.10.0
 
 Copyright (c) 1998-2002 Paulo Moura.  All Rights Reserved.
 =================================================================
@@ -68,14 +68,5 @@ yes
 
 % clean up instances:
 
-| ?- point::delete_all.
-yes
-
-| ?- bounded_point::delete_all.
-yes
-
-| ?- history_point::delete_all.
-yes
-
-| ?- bounded_history_point::delete_all.
+| ?- (point, bounded_point, history_point, bounded_history_point)::delete_all.
 yes

@@ -22,7 +22,7 @@ abolish(Predicate)
 abolish(Functor/Arity)
 </pre>
 <p>
-	Removes a dynamic predicate from an object database. Note however that if the dynamic predicate is declared in a category the predicate will fail.
+Removes a runtime declared dynamic predicate from an object database.
 </p>
 </blockquote>
 
@@ -54,7 +54,7 @@ abolish(+predicate_indicator)
 			<dd><code>permission_error(modify, protected_predicate, Functor/Arity)</code></dd>
 		<dt>Predicate is a static predicate:</dt>
 			<dd><code>permission_error(modify, static_predicate, Functor/Arity)</code></dd>
-		<dt>Predicate is not declared:</dt>
+		<dt>Predicate is not declared or is declared but not in the object receiving the message:</dt>
 			<dd><code>existence_error(predicate_declaration, Functor/Arity)</code></dd>
 	</dl>
 </blockquote>
@@ -77,7 +77,7 @@ abolish(+predicate_indicator)
 <strong><a href="predicate_property2.html">Previous</a> | <a href="asserta1.html">Next</a> | <a href="../index.html">Table of Contents</a> | <a href="../../bibliography.html">Bibliography</a> | <a href="../../glossary.html">Glossary</a></strong>
 </p>
 <p class="center">
-Last updated on: October 21, 2001
+Last updated on: March 31, 2002
 </p>
 <hr />
 

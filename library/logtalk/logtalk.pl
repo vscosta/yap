@@ -2,7 +2,7 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %
 %  Logtalk - Object oriented extension to Prolog
-%  Release 2.9.3
+%  Release 2.10.0
 %
 %  Copyright (c) 1998-2002 Paulo Moura.  All Rights Reserved.
 %
@@ -77,7 +77,9 @@
 
 
 :- dynamic(lgt_dcl_/1).						% lgt_dcl_(Clause)
+:- dynamic(lgt_ddcl_/1).					% lgt_ddcl_(Clause)
 :- dynamic(lgt_def_/1).						% lgt_def_(Clause)
+:- dynamic(lgt_ddef_/1).					% lgt_ddef_(Clause)
 :- dynamic(lgt_super_/1).					% lgt_super_(Clause)
 
 :- dynamic(lgt_dynamic_/1).					% lgt_dynamic_(Functor/Arity)
@@ -305,7 +307,7 @@ create_object(Obj, Rels, Dirs, Clauses) :-
 create_object(Obj, Rels, Dirs, Clauses) :-
 	lgt_clean_up,
 	lgt_tr_directive(object, [Obj| Rels]),
-	lgt_tr_directives(Dirs),
+	lgt_tr_directives([(dynamic)| Dirs]),
 	lgt_tr_clauses(Clauses),
 	lgt_fix_redef_built_ins,
 	lgt_gen_object_clauses,
@@ -352,7 +354,7 @@ create_category(Ctg, Rels, Dirs, Clauses) :-
 create_category(Ctg, Rels, Dirs, Clauses) :-
 	lgt_clean_up,
 	lgt_tr_directive(category, [Ctg| Rels]),
-	lgt_tr_directives(Dirs),
+	lgt_tr_directives([(dynamic)| Dirs]),
 	lgt_tr_clauses(Clauses),
 	lgt_fix_redef_built_ins,
 	lgt_gen_category_clauses,
@@ -395,7 +397,7 @@ create_protocol(Ptc, Rels, Dirs) :-
 create_protocol(Ptc, Rels, Dirs) :-
 	lgt_clean_up,
 	lgt_tr_directive(protocol, [Ptc| Rels]),
-	lgt_tr_directives(Dirs),
+	lgt_tr_directives([(dynamic)| Dirs]),
 	lgt_gen_protocol_clauses,
 	lgt_gen_protocol_directives,
 	lgt_assert_tr_entity,
@@ -1017,7 +1019,7 @@ logtalk_version(Major, Minor, Patch) :-
 	\+ integer(Patch),
 	throw(error(type_error(integer, Patch), logtalk_version(Major, Minor, Patch))).
 
-logtalk_version(2, 9, 3).
+logtalk_version(2, 10, 0).
 
 
 
@@ -1229,10 +1231,6 @@ lgt_abolish(Obj, Functor/Arity, Sender, _) :-
 	throw(error(instantiation_error, Obj::abolish(Functor/Arity), Sender)).
 
 lgt_abolish(Obj, Functor/Arity, Sender, _) :-
-	(var(Functor); var(Arity)),
-	throw(error(instantiation_error, Obj::abolish(Functor/Arity), Sender)).
-
-lgt_abolish(Obj, Functor/Arity, Sender, _) :-
 	\+ atom(Functor),
 	throw(error(type_error(atom, Functor), Obj::abolish(Functor/Arity), Sender)).
 
@@ -1240,38 +1238,39 @@ lgt_abolish(Obj, Functor/Arity, Sender, _) :-
 	\+ integer(Arity),
 	throw(error(type_error(integer, Arity), Obj::abolish(Functor/Arity), Sender)).
 
-lgt_abolish(Obj, Functor/Arity, Sender, _) :-
-	\+ lgt_current_object_(Obj, _, _, _, _),
-	throw(error(existence_error(object, Obj), Obj::abolish(Functor/Arity), Sender)).
-
 lgt_abolish(Obj, Functor/Arity, Sender, Scope) :-
-	functor(Pred, Functor, Arity),
-	lgt_current_object_(Obj, Prefix, _, _, _),
-	lgt_once(Prefix, Dcl, _, _, _, _, DDcl, DDef),
-	(lgt_once(Dcl, Pred, PScope, Type, _, SContainer, _) ->
-		(Type = (dynamic) ->
+	lgt_current_object_(Obj, Prefix, Dcl, _, _) ->
+		((functor(Pred, Functor, Arity),
+		  lgt_once(Dcl, Pred, PScope, Compilation, _, SContainer, _)) ->
 			((\+ \+ PScope = Scope; Sender = SContainer) ->
-				(lgt_once(DDcl, Pred, _, _, _) ->
-					(lgt_once(DDef, Pred, _, _, _, Call) ->
-						functor(Call, CFunctor, CArity),
-						abolish(CFunctor/CArity),
-						Clause =.. [DDef, Pred, _, _, _, Call],
-						retractall(Clause)
+				(Compilation = (dynamic) ->
+					lgt_once(Prefix, _, _, _, _, _, DDcl, DDef),
+					(lgt_once(DDcl, Pred, _, _, _) ->
+						Clause =.. [DDcl, Pred, _, _, _],
+						retractall(Clause),
+						(lgt_once(DDef, Pred, _, _, _, Call) ->
+							functor(Call, CFunctor, CArity),
+							abolish(CFunctor/CArity),
+							Clause2 =.. [DDef, Pred, _, _, _, Call],
+							retractall(Clause2)
+							;
+							true)
 						;
-						true),
-					Clause2 =.. [DDcl, Pred, _, _, _],
-					retractall(Clause2)
+						(lgt_once(Dcl, Pred, _, _, _) ->
+							throw(error(permission_error(modify, predicate_declaration, Pred), Obj::abolish(Functor/Arity), Sender))
+							;
+							throw(error(existence_error(predicate_declaration, Pred), Obj::abolish(Functor/Arity), Sender))))
 					;
-					throw(error(permission_error(modify, predicate_declaration, Pred), Obj::abolish(Functor/Arity), Sender)))
+					throw(error(permission_error(modify, static_predicate, Pred), Obj::abolish(Functor/Arity), Sender)))
 				;
 				(PScope = p ->
 					throw(error(permission_error(modify, private_predicate, Pred), Obj::abolish(Functor/Arity), Sender))
 					;
 					throw(error(permission_error(modify, protected_predicate, Pred), Obj::abolish(Functor/Arity), Sender))))
 			;
-			throw(error(permission_error(modify, static_predicate, Pred), Obj::abolish(Functor/Arity), Sender)))
+			throw(error(existence_error(predicate_declaration, Pred), Obj::abolish(Functor/Arity), Sender)))
 		;
-		throw(error(existence_error(predicate_declaration, Pred), Obj::abolish(Functor/Arity), Sender))).
+		throw(error(existence_error(object, Obj), Obj::abolish(Functor/Arity), Sender)).
 
 
 
@@ -1304,22 +1303,26 @@ lgt_asserta(Obj, (Head:-Body), Sender, Scope) :-
 	(lgt_once(Dcl, Head, PScope, Type, Meta, SContainer, _) ->
 	 	true
 	 	;
-	 	lgt_assert_dynamic_dcl_clause(Head, DDcl)),
+	 	lgt_convert_test_scope(Scope, Scope2),
+	 	lgt_assert_ddcl_clause(DDcl, Head, Scope2)),
 	(Type = (dynamic) ->
 		((\+ \+ PScope = Scope; Sender = SContainer)  ->
 			((lgt_once(Def, Head, Sender2, This, Self, Call); lgt_once(DDef, Head, Sender2, This, Self, Call)) ->
 				true
 				;
 				functor(Head, Functor, Arity),
-				lgt_assert_dynamic_def_clause(Functor, Arity, Prefix, DDef, _),
+				lgt_assert_ddef_clause(Functor, Arity, Prefix, DDef, _),
 				lgt_once(DDef, Head, Sender2, This, Self, Call)),
 			lgt_self(Context, Self),
 			lgt_this(Context, This),
 			lgt_sender(Context, Sender2),
 			lgt_prefix(Context, Prefix),
-			Head =.. [_| Args],
-			Meta =.. [_| MArgs],
-			lgt_extract_metavars(Args, MArgs, Metavars),
+			(nonvar(Meta) ->
+				Head =.. [_| Args],
+				Meta =.. [_| MArgs],
+				lgt_extract_metavars(Args, MArgs, Metavars)
+				;
+				Metavars = []),
 			lgt_metavars(Context, Metavars),
 			asserta((Call:-lgt_tr_body(Body, TBody, Context), call(TBody)))
 			;
@@ -1336,14 +1339,15 @@ lgt_asserta(Obj, Head, Sender, Scope) :-
 	(lgt_once(Dcl, Head, PScope, Type, _, SContainer, _) ->
 	 	true
 	 	;
-	 	lgt_assert_dynamic_dcl_clause(Head, DDcl)),
+	 	lgt_convert_test_scope(Scope, Scope2),
+	 	lgt_assert_ddcl_clause(DDcl, Head, Scope2)),
 	(Type = (dynamic) ->
 		((\+ \+ PScope = Scope; Sender = SContainer)  ->
 			((lgt_once(Def, Head, _, _, _, Call); lgt_once(DDef, Head, _, _, _, Call)) ->
 				true
 				;
 				functor(Head, Functor, Arity),
-				lgt_assert_dynamic_def_clause(Functor, Arity, Prefix, DDef, _),
+				lgt_assert_ddef_clause(Functor, Arity, Prefix, DDef, _),
 				lgt_once(DDef, Head, _, _, _, Call)),
 			asserta(Call)
 			;
@@ -1385,22 +1389,26 @@ lgt_assertz(Obj, (Head:-Body), Sender, Scope) :-
 	(lgt_once(Dcl, Head, PScope, Type, Meta, SContainer, _) ->
 	 	true
 	 	;
-	 	lgt_assert_dynamic_dcl_clause(Head, DDcl)),
+	 	lgt_convert_test_scope(Scope, Scope2),
+	 	lgt_assert_ddcl_clause(DDcl, Head, Scope2)),
 	(Type = (dynamic) ->
 		((\+ \+ PScope = Scope; Sender = SContainer)  ->
 			((lgt_once(Def, Head, Sender2, This, Self, Call); lgt_once(DDef, Head, Sender2, This, Self, Call)) ->
 				true
 				;
 				functor(Head, Functor, Arity),
-				lgt_assert_dynamic_def_clause(Functor, Arity, Prefix, DDef, _),
+				lgt_assert_ddef_clause(Functor, Arity, Prefix, DDef, _),
 				lgt_once(DDef, Head, Sender2, This, Self, Call)),
 			lgt_self(Context, Self),
 			lgt_this(Context, This),
 			lgt_sender(Context, Sender2),
 			lgt_prefix(Context, Prefix),
-			Head =.. [_| Args],
-			Meta =.. [_| MArgs],
-			lgt_extract_metavars(Args, MArgs, Metavars),
+			(nonvar(Meta) ->
+				Head =.. [_| Args],
+				Meta =.. [_| MArgs],
+				lgt_extract_metavars(Args, MArgs, Metavars)
+				;
+				Metavars = []),
 			lgt_metavars(Context, Metavars),
 			assertz((Call:-lgt_tr_body(Body, TBody, Context), call(TBody)))
 			;
@@ -1417,14 +1425,15 @@ lgt_assertz(Obj, Head, Sender, Scope) :-
 	(lgt_once(Dcl, Head, PScope, Type, _, SContainer, _) ->
 	 	true
 	 	;
-	 	lgt_assert_dynamic_dcl_clause(Head, DDcl)),
+	 	lgt_convert_test_scope(Scope, Scope2),
+	 	lgt_assert_ddcl_clause(DDcl, Head, Scope2)),
 	(Type = (dynamic) ->
 		((\+ \+ PScope = Scope; Sender = SContainer)  ->
 			((lgt_once(Def, Head, _, _, _, Call); lgt_once(DDef, Head, _, _, _, Call)) ->
 				true
 				;
 				functor(Head, Functor, Arity),
-				lgt_assert_dynamic_def_clause(Functor, Arity, Prefix, DDef, _),
+				lgt_assert_ddef_clause(Functor, Arity, Prefix, DDef, _),
 				lgt_once(DDef, Head, _, _, _, Call)),
 			assertz(Call)
 			;
@@ -1505,11 +1514,14 @@ lgt_retract(Obj, (Head:-Body), Sender, Scope) :-
 	(lgt_once(Dcl, Head, PScope, Type, _, SContainer, _) ->
 		(Type = (dynamic) ->
 			((\+ \+ PScope = Scope; Sender = SContainer) ->
-				((lgt_once(Def, Head, _, _, _, Call); lgt_once(DDef, Head, _, _, _, Call)) ->
-					TBody = (lgt_tr_body(Body, _, _), _),
-					retract((Call:-TBody))
+				(lgt_once(Def, Head, _, _, _, Call) ->
+					retract((Call:-(lgt_tr_body(Body, _, _), _)))
 					;
-					fail)
+					(lgt_once(DDef, Head, _, _, _, Call) ->
+						retract((Call:-(lgt_tr_body(Body, _, _), _))),
+						lgt_update_ddef_table(DDef, Call)
+						;
+						fail))
 				;
 				(PScope = p ->
 					throw(error(permission_error(modify, private_predicate, Head), Obj::retract((Head:-Body)), Sender))
@@ -1526,10 +1538,14 @@ lgt_retract(Obj, Head, Sender, Scope) :-
 	(lgt_once(Dcl, Head, PScope, Type, _, SContainer, _) ->
 		(Type = (dynamic) ->
 			((\+ \+ PScope = Scope; Sender = SContainer) ->
-				((lgt_once(Def, Head, _, _, _, Call); lgt_once(DDef, Head, _, _, _, Call)) ->
+				(lgt_once(Def, Head, _, _, _, Call) ->
 					retract(Call)
 					;
-					fail)
+					(lgt_once(DDef, Head, _, _, _, Call) ->
+						retract(Call),
+						lgt_update_ddef_table(DDef, Call)
+						;
+						fail))
 				;
 				(PScope = p ->
 					throw(error(permission_error(modify, private_predicate, Head), Obj::retract(Head), Sender))
@@ -1562,10 +1578,14 @@ lgt_retractall(Obj, Head, Sender, Scope) :-
 	(lgt_once(Dcl, Head, PScope, Type, _, SContainer, _) ->
 		(Type = (dynamic) ->
 			((\+ \+ PScope = Scope; Sender = SContainer) ->
-				((lgt_once(Def, Head, _, _, _, Call); lgt_once(DDef, Head, _, _, _, Call)) ->
+				(lgt_once(Def, Head, _, _, _, Call) ->
 					retractall(Call)
 					;
-					true)
+					(lgt_once(DDef, Head, _, _, _, Call) ->
+						retractall(Call),
+						lgt_update_ddef_table(DDef, Call)
+						;
+						true))
 				;
 				(PScope = p ->
 					throw(error(permission_error(modify, private_predicate, Head), Obj::retractall(Head), Sender))
@@ -2078,7 +2098,9 @@ lgt_clean_up :-
 	retractall(lgt_fentity_init_(_)),
 	retractall(lgt_entity_comp_mode_(_)),
 	retractall(lgt_dcl_(_)),
+	retractall(lgt_ddcl_(_)),
 	retractall(lgt_def_(_)),
+	retractall(lgt_ddef_(_)),
 	retractall(lgt_super_(_)),
 	retractall(lgt_rclause_(_)),
 	retractall(lgt_eclause_(_)),
@@ -2094,6 +2116,8 @@ lgt_clean_up :-
 
 % dump all dynamic predicates used during entity compilation
 % in the current ouput stream (just a debugging utility)
+%
+% only works on Prolog compilers implementing listing/1
 
 lgt_dump_all :-
 	listing(lgt_object_/9),
@@ -2123,7 +2147,9 @@ lgt_dump_all :-
 	listing(lgt_fentity_init_/1),
 	listing(lgt_entity_comp_mode_/1),
 	listing(lgt_dcl_/1),
+	listing(lgt_ddcl_/1),
 	listing(lgt_def_/1),
+	listing(lgt_ddef_/1),
 	listing(lgt_super_/1),
 	listing(lgt_rclause_/1),
 	listing(lgt_eclause_/1),
@@ -2556,11 +2582,21 @@ lgt_tr_clause(Fact, TFact, Context) :-
 % translates an entity clause head
 
 
+% definition of dynamic predicates inside categories
+
+lgt_tr_head(Head, _, _) :-
+	lgt_entity_(category, _, _, _),
+	functor(Head, Functor, Arity), 
+	lgt_dynamic_(Functor/Arity),
+	throw(permission_error(define, dynamic_predicate, Functor/Arity)).
+
+
 % redefinition of built-in methods
 
 lgt_tr_head(Head, _, _) :-
 	lgt_built_in_method(Head, _),
-	throw(permission_error(modify, built_in_method, Head)).
+	functor(Head, Functor, Arity), 
+	throw(permission_error(modify, built_in_method, Functor/Arity)).
 
 
 % redefinition of Logtalk built-in predicates
@@ -2594,7 +2630,13 @@ lgt_tr_head(Head, THead, Context) :-
 	Head =.. [_| Args],
 	lgt_prefix(Context, EPrefix),
 	lgt_construct_predicate_functor(EPrefix, Functor, Arity, PPrefix),
-	lgt_add_def_clause(Functor, Arity, PPrefix, Context),
+	((lgt_dynamic_(Functor/Arity),
+	  \+ lgt_public_(Functor/Arity),
+	  \+ lgt_protected_(Functor/Arity),
+	  \+ lgt_private_(Functor/Arity)) ->
+		lgt_add_ddef_clause(Functor, Arity, PPrefix, Context)
+		;
+		lgt_add_def_clause(Functor, Arity, PPrefix, Context)),
 	lgt_sender(Context, Sender),
 	lgt_this(Context, This),
 	lgt_self(Context, Self),
@@ -2930,38 +2972,38 @@ lgt_tr_msg(Obj, setof(Term, Pred, List), setof(Term, TPred, List), Context) :-
 
 % "reflection" built-in predicates
 
-lgt_tr_msg(Obj, current_predicate(Pred), lgt_current_predicate(Obj, Pred, This, p(p(_))), Context) :-
+lgt_tr_msg(Obj, current_predicate(Pred), lgt_current_predicate(Obj, Pred, This, p(p(p))), Context) :-
 	!,
 	lgt_this(Context, This).
 
-lgt_tr_msg(Obj, predicate_property(Pred, Property), lgt_predicate_property(Obj, Pred, Property, This, p(p(_))), Context) :-
+lgt_tr_msg(Obj, predicate_property(Pred, Property), lgt_predicate_property(Obj, Pred, Property, This, p(p(p))), Context) :-
 	!,
 	lgt_this(Context, This).
 
 
 % database handling built-in predicates
 
-lgt_tr_msg(Obj, abolish(Pred), lgt_abolish(Obj, Pred, This, p(p(_))), Context) :-
+lgt_tr_msg(Obj, abolish(Pred), lgt_abolish(Obj, Pred, This, p(p(p))), Context) :-
 	!,
 	lgt_this(Context, This).
 
-lgt_tr_msg(Obj, asserta(Pred), lgt_asserta(Obj, Pred, This, p(p(_))), Context) :-
+lgt_tr_msg(Obj, asserta(Pred), lgt_asserta(Obj, Pred, This, p(p(p))), Context) :-
 	!,
 	lgt_this(Context, This).
 
-lgt_tr_msg(Obj, assertz(Pred), lgt_assertz(Obj, Pred, This, p(p(_))), Context) :-
+lgt_tr_msg(Obj, assertz(Pred), lgt_assertz(Obj, Pred, This, p(p(p))), Context) :-
 	!,
 	lgt_this(Context, This).
 
-lgt_tr_msg(Obj, clause(Head, Body), lgt_clause(Obj, Head, Body, This, p(p(_))), Context) :-
+lgt_tr_msg(Obj, clause(Head, Body), lgt_clause(Obj, Head, Body, This, p(p(p))), Context) :-
 	!,
 	lgt_this(Context, This).
 
-lgt_tr_msg(Obj, retract(Pred), lgt_retract(Obj, Pred, This, p(p(_))), Context) :-
+lgt_tr_msg(Obj, retract(Pred), lgt_retract(Obj, Pred, This, p(p(p))), Context) :-
 	!,
 	lgt_this(Context, This).
 
-lgt_tr_msg(Obj, retractall(Pred), lgt_retractall(Obj, Pred, This, p(p(_))), Context) :-
+lgt_tr_msg(Obj, retractall(Pred), lgt_retractall(Obj, Pred, This, p(p(p))), Context) :-
 	!,
 	lgt_this(Context, This).
 
@@ -3556,11 +3598,40 @@ lgt_add_def_clause(Functor, Arity, Prefix, Context) :-
 
 
 
-% lgt_assert_dynamic_def_clause(+atom, +integer, +atom, +atom, -callable)
+% lgt_add_ddef_clause(+atom, +integer, +atom, +term)
 %
-% asserts a dynamic "def clause" (used to translate a predicate call)
+% adds a "ddef clause" (used to translate a predicate call)
 
-lgt_assert_dynamic_def_clause(Functor, Arity, OPrefix, DDef, Call) :-
+lgt_add_ddef_clause(Functor, Arity, Prefix, Context) :-
+	functor(Head, Functor, Arity),
+	Head =.. [_| Args],
+	lgt_sender(Context, Sender),
+	lgt_this(Context, This),
+	lgt_self(Context, Self),
+	lgt_append(Args, [Sender, This, Self], TArgs),
+	THead =.. [Prefix|TArgs],
+	lgt_object_(_, _, _, _, _, _, _, _, DDef),
+	Clause =.. [DDef, Head, Sender, This, Self, THead],
+	(lgt_ddef_(Clause) ->
+		true
+		;
+		assertz(lgt_ddef_(Clause))),
+	(lgt_built_in(Head) ->
+		assertz(lgt_redefined_built_in_(Head, Context, THead))
+		;
+		true),
+	(lgt_defs_pred_(Functor/Arity) ->
+		true
+		;
+		assertz(lgt_defs_pred_(Functor/Arity))).
+
+
+
+% lgt_assert_ddef_clause(+atom, +integer, +atom, +atom, -callable)
+%
+% asserts a dynamic "ddef clause" (used to translate a predicate call)
+
+lgt_assert_ddef_clause(Functor, Arity, OPrefix, DDef, Call) :-
 	lgt_construct_predicate_functor(OPrefix, Functor, Arity, PPrefix),
 	functor(Pred, Functor, Arity),
 	Pred =.. [_| Args],
@@ -3571,14 +3642,45 @@ lgt_assert_dynamic_def_clause(Functor, Arity, OPrefix, DDef, Call) :-
 
 
 
-% lgt_assert_dynamic_dcl_clause(+term, +atom)
+% lgt_update_ddef_table(+atom, +callable)
+%
+% retracts a dynamic "ddef clause" (used to translate a predicate call)
+% if there are no more clauses for the predicate otherwise does nothing
+
+lgt_update_ddef_table(DDef, Call) :-
+	functor(Call, Functor, Arity),
+	functor(Call2, Functor, Arity),
+	(clause(Call2, _) ->
+		true
+		;
+		Clause =.. [DDef, _, _, _, _, Call2],
+		retractall(Clause)).
+
+
+
+% lgt_convert_test_scope(@term, +term),
+%
+% convert asserta/z test scope to predicate declaration scope
+
+lgt_convert_test_scope(Scope, Scope2) :-
+	var(Scope) ->
+		Scope2 = p
+		;
+		((Scope = p(V), var(V)) ->
+			Scope2 = p(p)
+			;
+			Scope2 = p(p(p))).
+
+
+
+% lgt_assert_ddcl_clause(+atom, +term, +term)
 %
 % asserts a dynamic predicate declaration
 
-lgt_assert_dynamic_dcl_clause(Pred, DDcl) :-
+lgt_assert_ddcl_clause(DDcl, Pred, Scope) :-
 	functor(Pred, Functor, Arity),
 	functor(DPred, Functor, Arity),
-	Clause =.. [DDcl, DPred, p(p(p)), (dynamic), no],
+	Clause =.. [DDcl, DPred, Scope, (dynamic), no],
 	assertz(Clause).
 
 
@@ -3730,6 +3832,8 @@ lgt_gen_object_clauses :-
 
 
 
+% lgt_gen_local_dcl_clauses
+%
 % a (local) predicate declaration is only generated
 % if there is a scope declaration for the predicate
 
@@ -3738,12 +3842,16 @@ lgt_gen_local_dcl_clauses :-
 	((lgt_public_(Functor/Arity), Scope = p(p(p)));
 	 (lgt_protected_(Functor/Arity), Scope = p(p));
 	 (lgt_private_(Functor/Arity), Scope = p)),
-	((lgt_entity_comp_mode_((dynamic)); lgt_dynamic_(Functor/Arity)) ->
-		Compilation = (dynamic);
-		Compilation = static),
 	functor(Meta, Functor, Arity),
-	(lgt_metapredicate_(Meta) -> Meta2 = Meta; Meta2 = no),
+	(lgt_metapredicate_(Meta) ->
+		Meta2 = Meta
+		;
+		Meta2 = no),
 	functor(Pred, Functor, Arity),
+	(lgt_dynamic_(Functor/Arity)->
+		Compilation = (dynamic)
+		;
+		Compilation = static),
 	Fact =.. [Dcl, Pred, Scope, Compilation, Meta2],
 	assertz(lgt_dcl_(Fact)),
 	fail.
@@ -3752,16 +3860,46 @@ lgt_gen_local_dcl_clauses.
 
 
 
-lgt_gen_dynamic_def_clauses :-
+lgt_gen_catchall_dcl_clause :-
+	\+ lgt_dcl_(_) ->
+		lgt_entity_(_, _, _, Dcl),
+		Head =.. [Dcl, _, _, _, _],
+		assertz(lgt_dcl_((Head:-fail)))
+		;
+		true.
+
+
+
+% lgt_gen_local_def_clauses
+%
+% generates local def clauses for undefined but declared (via scope or
+% dynamic directives) predicates
+
+lgt_gen_local_def_clauses :-
 	lgt_entity_(_, _, EPrefix, _),
 	lgt_dynamic_(Functor/Arity),
 	\+ lgt_defs_pred_(Functor/Arity),
 	lgt_construct_predicate_functor(EPrefix, Functor, Arity, PPrefix),
 	lgt_context(Context),
-	lgt_add_def_clause(Functor, Arity, PPrefix, Context),
+	((\+ lgt_public_(Functor/Arity),
+	  \+ lgt_protected_(Functor/Arity),
+	  \+ lgt_private_(Functor/Arity)) ->
+		lgt_add_ddef_clause(Functor, Arity, PPrefix, Context)
+		;
+		lgt_add_def_clause(Functor, Arity, PPrefix, Context)),
 	fail.
 
-lgt_gen_dynamic_def_clauses.
+lgt_gen_local_def_clauses.
+
+
+
+lgt_gen_obj_catchall_def_clause :-
+	\+ lgt_def_(_) ->
+		lgt_object_(_, _, _, Def, _, _, _, _, _),
+		Head =.. [Def, _, _, _, _, _],
+		assertz(lgt_def_((Head:-fail)))
+		;
+		true.
 
 
 
@@ -3774,12 +3912,7 @@ lgt_gen_protocol_clauses :-
 
 lgt_gen_protocol_local_clauses :-
 	lgt_gen_local_dcl_clauses,
-	(\+ lgt_dcl_(_) ->
-		lgt_protocol_(_, _, PDcl),
-		Head =.. [PDcl, _, _, _, _],
-		assertz(lgt_dcl_((Head:-fail)))
-		;
-		true).
+	lgt_gen_catchall_dcl_clause.
 
 
 
@@ -3818,20 +3951,10 @@ lgt_gen_category_clauses :-
 
 
 lgt_gen_category_dcl_clauses :-
-	lgt_gen_category_local_dcl_clauses,
+	lgt_gen_local_dcl_clauses,
+	lgt_gen_catchall_dcl_clause,
 	lgt_gen_category_linking_dcl_clauses,
 	lgt_gen_category_implements_dcl_clauses.
-
-
-
-lgt_gen_category_local_dcl_clauses :-
-	lgt_gen_local_dcl_clauses,
-	(\+ lgt_dcl_(_) ->
-		lgt_category_(_, _, CDcl, _),
-		Head =.. [CDcl, _, _, _, _],
-		assertz(lgt_dcl_((Head:-fail)))
-		;
-		true).
 
 
 
@@ -3864,14 +3987,14 @@ lgt_gen_category_implements_dcl_clauses.
 
 
 lgt_gen_category_def_clauses :-
-	lgt_gen_category_local_def_clauses.
+	lgt_gen_category_catchall_def_clause.
 
-	
 
-lgt_gen_category_local_def_clauses :-
+
+lgt_gen_category_catchall_def_clause :-
 	\+ lgt_def_(_) ->
-		lgt_category_(_, _, _, CDef),
-		Head =.. [CDef, _, _, _, _, _],
+		lgt_category_(_, _, _, Def),
+		Head =.. [Def, _, _, _, _, _],
 		assertz(lgt_def_((Head:-fail)))
 		;
 		true.
@@ -3886,22 +4009,12 @@ lgt_gen_prototype_clauses :-
 
 
 lgt_gen_prototype_dcl_clauses :-
-	lgt_gen_prototype_local_dcl_clauses,
+	lgt_gen_local_dcl_clauses,
+	lgt_gen_catchall_dcl_clause,
 	lgt_gen_prototype_linking_dcl_clauses,
 	lgt_gen_prototype_implements_dcl_clauses,
 	lgt_gen_prototype_imports_dcl_clauses,
 	lgt_gen_prototype_extends_dcl_clauses.
-
-
-
-lgt_gen_prototype_local_dcl_clauses :-
-	lgt_gen_local_dcl_clauses,
-	(\+ lgt_dcl_(_) ->
-		lgt_object_(_, _, ODcl, _, _, _, _, _, _),
-		Head =.. [ODcl, _, _, _, _],
-		assertz(lgt_dcl_((Head:-fail)))
-		;
-		true).
 
 
 
@@ -3977,21 +4090,11 @@ lgt_gen_prototype_extends_dcl_clauses.
 
 
 lgt_gen_prototype_def_clauses :-
-	lgt_gen_dynamic_def_clauses,
-	lgt_gen_prototype_local_def_clauses,
+	lgt_gen_local_def_clauses,
+	lgt_gen_obj_catchall_def_clause,
 	lgt_gen_prototype_linking_def_clauses,
 	lgt_gen_prototype_imports_def_clauses,
 	lgt_gen_prototype_extends_def_clauses.
-
-
-
-lgt_gen_prototype_local_def_clauses :-
-	\+ lgt_def_(_) ->
-		lgt_object_(_, _, _, Def, _, _, _, _, _),
-		Head =.. [Def, _, _, _, _, _],
-		assertz(lgt_def_((Head:-fail)))
-		;
-		true.
 
 
 
@@ -4065,19 +4168,9 @@ lgt_gen_ic_clauses :-
 
 
 lgt_gen_ic_dcl_clauses :-
-	lgt_gen_ic_local_dcl_clauses,
-	lgt_gen_ic_hierarchy_dcl_clauses.
-
-
-
-lgt_gen_ic_local_dcl_clauses :-
 	lgt_gen_local_dcl_clauses,
-	(\+ lgt_dcl_(_) ->
-		lgt_object_(_, _, ODcl, _, _, _, _, _, _),
-		Head =.. [ODcl, _, _, _, _],
-		assertz(lgt_dcl_((Head:-fail)))
-		;
-		true).
+	lgt_gen_catchall_dcl_clause,
+	lgt_gen_ic_hierarchy_dcl_clauses.
 
 
 
@@ -4192,21 +4285,11 @@ lgt_gen_ic_hierarchy_idcl_clauses.
 
 
 lgt_gen_ic_def_clauses :-
-	lgt_gen_dynamic_def_clauses,
-	lgt_gen_ic_local_def_clauses,
+	lgt_gen_local_def_clauses,
+	lgt_gen_obj_catchall_def_clause,
 	lgt_gen_ic_linking_def_clauses,
 	lgt_gen_ic_imports_def_clauses,
 	lgt_gen_ic_hierarchy_def_clauses.
-
-
-
-lgt_gen_ic_local_def_clauses :-
-	\+ lgt_def_(_) ->
-		lgt_object_(_, _, _, Def, _, _, _, _, _),
-		Head =.. [Def, _, _, _, _, _],
-		assertz(lgt_def_((Head:-fail)))
-		;
-		true.
 
 
 
@@ -4487,6 +4570,7 @@ lgt_write_clauses(Stream) :-
 	lgt_write_functors_clause(Stream),
 	lgt_write_dcl_clauses(Stream),
 	lgt_write_def_clauses(Stream),
+	lgt_write_ddef_clauses(Stream),
 	lgt_write_super_clauses(Stream),
 	lgt_write_entity_clauses(Stream).
 
@@ -4507,6 +4591,16 @@ lgt_write_def_clauses(Stream) :-
 	fail.
 
 lgt_write_def_clauses(_).
+
+
+
+lgt_write_ddef_clauses(Stream) :-
+	lgt_ddef_(Clause),
+	write_term(Stream, Clause, [quoted(true)]),
+	write_term(Stream, '.', []), nl(Stream),
+	fail.
+
+lgt_write_ddef_clauses(_).
 
 
 
@@ -4587,6 +4681,7 @@ lgt_assert_tr_entity :-
 	lgt_assert_functors_clause,
 	lgt_assert_dcl_clauses,
 	lgt_assert_def_clauses,
+	lgt_assert_ddef_clauses,
 	lgt_assert_super_clauses,
 	lgt_assert_entity_clauses,
 	lgt_assert_relation_clauses,
@@ -4631,6 +4726,15 @@ lgt_assert_def_clauses :-
 	fail.
 
 lgt_assert_def_clauses.
+
+
+
+lgt_assert_ddef_clauses :-
+	lgt_ddef_(Clause),
+	assertz(Clause),
+	fail.
+
+lgt_assert_ddef_clauses.
 
 
 
@@ -4685,7 +4789,7 @@ lgt_assert_relation_clauses([Clause| Clauses]) :-
 	arg(1, Clause, Entity),
 	lgt_retract_old_relation_clauses(Entity),
 	lgt_assert_new_relation_clauses([Clause| Clauses]).
-	
+
 
 lgt_retract_old_relation_clauses(Entity) :-
 	retractall(lgt_current_object_(Entity, _, _, _, _)),
@@ -5202,6 +5306,9 @@ lgt_lgt_built_in(extends_object(_, _, _)).
 lgt_lgt_built_in(abolish_events(_, _, _, _, _)).
 lgt_lgt_built_in(define_events(_, _, _, _, _)).
 lgt_lgt_built_in(current_event(_, _, _, _, _)).
+
+lgt_lgt_built_in(current_logtalk_flag(_, _)).
+lgt_lgt_built_in(set_logtalk_flag(_, _)).
 
 
 

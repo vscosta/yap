@@ -35,4 +35,10 @@
 			[unmatchdir],
 			[unknown(warning), misspelt(warning), singletons(warning), plredef(warning), lgtredef(warning), report(on)]),
 		_,
+		true),
+	catch(
+		logtalk_load(
+			[catdynpred],
+			[unknown(warning), misspelt(warning), singletons(warning), plredef(warning), lgtredef(warning), report(on)]),
+		_,
 		true))).
