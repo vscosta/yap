@@ -397,6 +397,9 @@ statistics :-
 	'$inform_stack_overflows'(NOfSO,TotSOTime),
 	'$inform_trail_overflows'(NOfTO,TotTOTime),
 	'$inform_gc'(NOfGC,TotGCTime,TotGCSize),
+	'$statistics'(Runtime,CPUtime,Walltime,HpSpa,HpInUse,HpMax,TrlSpa, TrlInUse,TrlMax,StkSpa, GlobInU, LocInU,GlobMax,LocMax,NOfHO,TotHOTime,NOfSO,TotSOTime,NOfTO,TotTOTime,NOfGC,TotGCTime,TotGCSize).
+
+'$statistics'(Runtime,CPUtime,Walltime,HpSpa,HpInUse,HpMax,TrlSpa, TrlInUse,TrlMax,StkSpa, GlobInU, LocInU,GlobMax,LocMax,NOfHO,TotHOTime,NOfSO,TotSOTime,NOfTO,TotTOTime,NOfGC,TotGCTime,TotGCSize) :-
 	TotalMemory is HpSpa+StkSpa+TrlSpa,
 	format(user_error,"memory (total)~t~d bytes~35+~n", [TotalMemory]),
 	format(user_error,"   program space~t~d bytes~35+", [HpSpa]),
@@ -429,7 +432,9 @@ statistics :-
 	CPUTime is float(CPUtime)/1000,
 	format("~t~3f~12+ sec. cputime~n", [CPUTime]),
 	WallTime is float(Walltime)/1000,
-	format("~t~3f~12+ sec. elapsed time~n~n", [WallTime]).
+	format("~t~3f~12+ sec. elapsed time~n~n", [WallTime]),
+	fail.
+'$statistics'(_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_).
 
 statistics(runtime,[T,L]) :-
 	'$runtime'(T,L).
