@@ -25,7 +25,7 @@ static char     SccsId[] = "%W% %G%";
 
 #define EARLY_RESET 1
 #define EASY_SHUNTING 1
-//#define HYBRID_SCHEME 1
+#define HYBRID_SCHEME 1
 
 
 #ifdef MULTI_ASSIGNMENT_VARIABLES
@@ -2865,7 +2865,7 @@ gc(Int predarity, CELL *current_env, yamop *nextop)
       gc_margin <<= 1;
   }
   /* expand the stak if effectiveness is less than 20 % */
-  if (FALSE&& ASP - H < gc_margin || !gc_on || effectiveness < 20) {
+  if (ASP - H < gc_margin || !gc_on || effectiveness < 20) {
     UInt gap = CalculateStackGap();
     if (ASP-H > gc_margin)
       gc_margin = (ASP-H)+gap;
