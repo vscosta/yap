@@ -41,7 +41,7 @@ Destructor(Prop, RepFunctor, FunctorEntry *, p, p)
 Constructor(Prop, AbsFunctor, FunctorEntry *, p, p)
 #endif
 
-Inline(ArityOfFunctor, unsigned int, Functor, Fun, ((FunctorEntry *)Fun)->ArityOfFE)
+Inline(ArityOfFunctor, Int, Functor, Fun, ((FunctorEntry *)Fun)->ArityOfFE)
 Inline(NameOfFunctor, Atom, Functor, Fun, ((FunctorEntry *)Fun)->NameOfFE)
 
 Inline(IsFunctorProperty, PropFlags, int, flags, (flags == FunctorProperty) )
