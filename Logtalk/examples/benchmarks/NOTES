@@ -1,6 +1,6 @@
 =================================================================
 Logtalk - Object oriented extension to Prolog
-Release 2.23.0
+Release 2.23.1
 
 Copyright (c) 1998-2005 Paulo Moura.  All Rights Reserved.
 =================================================================
@@ -24,13 +24,19 @@ This example is made of four source files:
 	benchmark.pl
 		contains the benchmark predicates
 	plain.pl
-		contains a definition for a list length predicate
+		contains a definition for a list length predicate and a predicate 
+		for testing performance of the built-in predicates assertz/1 and 
+		retract/1
 	module.pl
 		contains the same definition of a list length predicate 
 		encapsulated in a module
 	object.lgt
 		contains the same definition of a list length predicate 
 		encapsulated in an object
+	database.lgt
+		contains predicates for testing the performance of the built-in 
+		database methods assertz/1 and retract/1
+
 
 The Prolog files above are loaded (from the loader.lgt file) by using 
 ensure_loaded/1 directives. If this directive is not supported on your 

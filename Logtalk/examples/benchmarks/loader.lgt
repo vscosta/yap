@@ -9,4 +9,4 @@
 % comment the next line if your Prolog compiler does not support modules
 :- ensure_loaded(module).
 
-:- initialization(logtalk_load(object)). 
+:- initialization(logtalk_load([object, database])). 

@@ -5,8 +5,8 @@
 
 	:- info([
 		author is 'Paulo Moura',
-		version is 1.0,
-		date is 2000/2/18,
+		version is 1.1,
+		date is 2005/3/6,
 		comment is 'Expert system for bird identification.',
 		source is 'Example adopted from an Amzi! Inc Prolog book.']).
 
@@ -111,7 +111,7 @@
 		!, fail.
 
 	ask(Attribute, Value):-
-		write(Attribute:Value),
+		write(Attribute), write(': '), write(Value),
 		write('? (yes or no): '),
 		read(Answer),
 		::asserta(known_(Answer, Attribute, Value)),
@@ -151,7 +151,8 @@
 	pick_menu(N, Val, Menu):-
 		integer(N),
 		pic_menu(1, N, Val, Menu), !.
-		pick_menu(Val, Val, _).
+
+	pick_menu(Val, Val, _).
 
 
 	pic_menu(_, _, none_of_the_above, []).

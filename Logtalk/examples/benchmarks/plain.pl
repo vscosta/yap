@@ -20,3 +20,17 @@ my_length([], Length, Length).
 my_length([_| Tail], Acc, Length) :-
 	Acc2 is Acc + 1,
 	my_length(Tail, Acc2, Length).
+
+
+:- dynamic(pred_plain/0).
+
+db_test_plain :-
+	repeat(100),
+		assertz(pred_plain),
+	fail.
+
+db_test_plain :-
+	retract(pred_plain),
+	fail.
+
+db_test_plain.

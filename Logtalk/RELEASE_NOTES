@@ -1,6 +1,6 @@
 =================================================================
 Logtalk - Object oriented extension to Prolog
-Release 2.23.0
+Release 2.23.1
 
 Copyright (c) 1998-2005 Paulo Moura.  All Rights Reserved.
 =================================================================
@@ -8,6 +8,35 @@ Copyright (c) 1998-2005 Paulo Moura.  All Rights Reserved.
 
 RELEASE NOTES
 =============
+
+
+2.23.1 - March 7, 2005
+
+	Simplified message sending compilation, improving performance of both 
+	entity compilation and runtime top-level message sending.
+
+	Simplified implementation and improved performance of the built-in method 
+	current_predicate/2.
+
+	Updated the runtime error handler for top-level ::/2 calls to recognize 
+	non-existing predicate exceptions thrown by XSB, SICStus Prolog, CIAO, 
+	B-Prolog, and recent development versions of SWI-Prolog. Rewritten the 
+	::/2 predicate in order to minimize the overhead of the catch/3 calls 
+	associated with the runtime error handler, thus improving performance.
+
+	Expanded the benchmarks example to test performance of the built-in 
+	database methods.
+
+	Lookup caches are now cleaned before loading a redefined entity in order 
+	to avoid potential problems with entity initialization goals containing 
+	message sending calls (previous versions cleaned the caches only after 
+	entity loading).
+
+	When reloading an object, its tables of dynamic predicate declarations 
+	and dynamic predicate definitions are now reseted.
+
+	Corrected a compatibility problem with the "birds" example due to the use 
+	of an operator not available in some Prolog compilers.
 
 
 2.23.0 - February 21, 2005

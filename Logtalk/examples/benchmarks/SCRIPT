@@ -1,6 +1,6 @@
 =================================================================
 Logtalk - Object oriented extension to Prolog
-Release 2.23.0
+Release 2.23.1
 
 Copyright (c) 1998-2005 Paulo Moura.  All Rights Reserved.
 =================================================================
@@ -85,3 +85,43 @@ Goal time: 102.77 seconds
 Average time per call: 0.0010273 seconds
 Number of calls per second: 973.425484279178
 yes
+
+
+% test assertz/1 and retract/1 performance in plain Prolog:
+
+| ?- benchmark(db_test_plain).
+Number of repetitions: 100000
+Loop time: 0.0599999999999454 seconds
+Goal time: 81.25 seconds
+Average time per call: 0.000811900000000001 seconds
+Number of calls per second: 1231.67877817465
+
+
+% test assertz/1 and retract/1 performance in this:
+
+| ?- benchmark('$lgt_send_to_object_ne_nv'(database, db_test_this, user)).
+Number of repetitions: 100000
+Loop time: 0.0699999999999363 seconds
+Goal time: 92.03 seconds
+Average time per call: 0.0009196 seconds
+Number of calls per second: 1087.42931709439
+
+
+% test assertz/1 and retract/1 performance in self:
+
+| ?- benchmark('$lgt_send_to_object_ne_nv'(database, db_test_self, user)).
+Number of repetitions: 100000
+Loop time: 0.0599999999999454 seconds
+Goal time: 111.92 seconds
+Average time per call: 0.0011186 seconds
+Number of calls per second: 893.974611121043
+
+
+% test assertz/1 and retract/1 performance using ::/2:
+
+| ?- benchmark('$lgt_send_to_object_ne_nv'(database, db_test_obj, user)).
+Number of repetitions: 100000
+Loop time: 0.0600000000001728 seconds
+Goal time: 114.37 seconds
+Average time per call: 0.0011431 seconds
+Number of calls per second: 874.814102003327
