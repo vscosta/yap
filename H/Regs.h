@@ -10,7 +10,7 @@
 * File:		Regs.h							 *
 * mods:									 *
 * comments:	YAP abstract machine registers				 *
-* version:      $Id: Regs.h,v 1.11 2002-01-14 22:26:51 vsc Exp $	 *
+* version:      $Id: Regs.h,v 1.12 2002-02-01 15:48:17 vsc Exp $	 *
 *************************************************************************/
 
 
@@ -336,7 +336,7 @@ EXTERN inline void restore_TR(void) {
   TR = REGS.TR_;
 }
 
-#elif defined(__GNUC__) && defined(mips)
+#elif defined(__GNUC__) && defined(mips) && defined(VSC_UNDEFINED)
 
 #define P               REGS.P_	/* prolog machine program counter */
 #define YENV            REGS.YENV_	/* current environment (may differ from ENV) */

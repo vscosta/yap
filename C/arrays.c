@@ -160,7 +160,7 @@ AccessNamedArray(Atom a, Int indx)
       READ_LOCK(pp->ArRWLock);
       if (IsVarTerm(pp->ValueOfVE)) {
 	READ_UNLOCK(pp->ArRWLock);
-	return(FALSE);
+	return(MkAtomTerm(AtomFoundVar));
       }
       out = RepAppl(pp->ValueOfVE)[indx+1];
       READ_UNLOCK(pp->ArRWLock);
@@ -310,6 +310,9 @@ p_access_array(void)
       tf = (RepAppl(t))[indx + 1];
     } else if (IsAtomTerm(t)) {
       tf = AccessNamedArray(AtomOfTerm(t), indx);
+      if (tf == MkAtomTerm(AtomFoundVar)) {
+	return(FALSE);
+      }
     } else {
       Error(TYPE_ERROR_ARRAY,t,"access_array");
       return(FALSE);
@@ -350,7 +353,9 @@ p_array_arg(void)
     }
     else if (IsAtomTerm(t)) {
       Term tf = AccessNamedArray(AtomOfTerm(t), indx);
-
+      if (tf == MkAtomTerm(AtomFoundVar)) {
+	return(FALSE);
+      }
       return (unify(tf, ARG1));
     }
     else

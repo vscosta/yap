@@ -1278,6 +1278,7 @@ JumpToEnv(Term t) {
   /* I could backtrack here, but it is easier to leave the unwinding
      to the emulator */
   B->cp_a3 = t;
+  P = FAILCODE;
   return(FALSE);
 }
 

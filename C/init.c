@@ -1188,8 +1188,6 @@ InitStacks(int Heap,
   ReleaseAtom(AtomFoundVar);
   LookupAtomWithAddress("[]",&(SF_STORE->AtNil));
   LookupAtomWithAddress(".",&(SF_STORE->AtDot));
-  PutValue(LookupAtom("$catch_counter"),
-	   MkIntTerm(0));
   /* InitAbsmi must be done before InitCodes */
 #ifdef MPW
   InitAbsmi(REGS, FunctorList);

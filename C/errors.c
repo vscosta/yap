@@ -313,9 +313,26 @@ Error (yap_error_number type, Term where, char *format,...)
   char *tp = p;
   int psize = 512;
  
-  /* disallow recursive error handling */
-  if (PrologMode & InErrorMode)
-    return(P);
+  /* disallow recursive error handling */ 
+  if (PrologMode & InErrorMode) {
+    /* error within error */
+    va_start (ap, format);
+    /* now build the error string */
+    if (format != NULL) {
+#if   HAVE_VSNPRINTF
+      (void) vsnprintf(p, 512, format, ap);
+#else
+      (void) vsprintf(p, format, ap);
+#endif
+    } else {
+      p[0] = '\0';
+    }
+    va_end (ap);
+    fprintf(stderr,"[ ERROR WITHIN ERROR: %s ]\n", p);
+    exit(1);
+  }
+ if (P == FAILCODE) 
+   return(P);
   /* PURE_ABORT may not have set where correctly */
   if (type == PURE_ABORT)
     where = TermNil;
