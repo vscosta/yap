@@ -315,7 +315,8 @@ Error (yap_error_number type, Term where, char *format,...)
   /* disallow recursive error handling */
   if (PrologMode & InErrorMode)
     return(P);
-  where = Deref(where);
+  if (type != PURE_ABORT)
+    where = Deref(where);
   if (IsVarTerm(where)) {
     /* we must be careful someone gave us a copy to a local variable */
     Term t = MkVarTerm();
