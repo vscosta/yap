@@ -1,0 +1,109 @@
+=================================================================
+Logtalk - Object oriented extension to Prolog
+Release 2.8.4
+
+Copyright (c) 1998-2001 Paulo Moura.  All Rights Reserved.
+=================================================================
+
+
+
+% we can start by asking joe its age:
+
+| ?- joePerson::age(Age).
+
+Age = 30
+yes
+
+
+% the same question could be made via any of its viewpoints:
+
+| ?- joeSportsman::age(Age).
+
+Age = 30
+yes
+
+
+% now let's tell joe to grow old:
+
+| ?- joePerson::growOld.
+
+yes
+
+
+% we can verify the effect of the above message from any of the viewpoints:
+
+| ?- joeFilmEnthusiast::age(Age).
+
+Age = 31
+yes
+
+
+% because the growOld/0 and the age/1 predicates are implemented using 
+% property sharing, we can send the growOld message to any viewpoint:
+
+| ?- joeEmployee::growOld.
+
+yes
+
+
+% we can check this by asking joe its age:
+
+
+| ?- joePerson::age(Age).
+
+Age = 32
+yes
+
+
+% as you can see, although the modification message have been sent to a 
+% descendant, its the predicate age/1 in the parent that got updated
+
+
+% to illustrate value sharing we use a couple of predicates, counter/1 and
+% incCounter/0, defined in joePerson:
+
+
+| ?- joePerson::counter(Counter).
+
+Counter = 0
+yes
+
+
+% initially, counter/1 is only defined for joePerson, so every descendant 
+% or viewpoint will share its value/definition:
+
+| ?- joeSportsman::counter(Counter).
+
+Counter = 0
+yes
+
+
+% but if we decide to increment the counter by sending the incCounter/0 
+% message to a descendant:
+
+| ?- joeFilmEnthusiast::incCounter.
+
+yes
+
+| ?- joeFilmEnthusiast::counter(Counter).
+
+Counter = 1
+yes
+
+
+% then the descendant will now have a local definition for counter/1,
+% independent of the definition in its parent, joePerson:
+
+| ?- joePerson::counter(Counter).
+
+Counter = 0
+yes
+
+
+% the other descendants/viewpoints will continue to share the definition 
+% in joePerson:
+
+| ?- joeSportsman::counter(Counter).
+
+Counter = 0
+yes

@@ -1,0 +1,79 @@
+
+a:link {
+	color: blue;
+	text-decoration: underline
+}
+
+a:visited {
+	color: navy;
+	text-decoration: underline
+}
+
+a:hover {
+	color: blue;
+	text-decoration: underline
+} 
+
+a:active {
+	color: red;
+	text-decoration: underline
+}
+
+code, pre {
+  color: navy;
+  background-color: white;
+  font-family: courier, monospace;
+}
+
+p {
+  line-height: normal;
+  font-weight: normal;
+  font-style: normal;
+}
+
+body {
+	color: black;
+	background-color: white;
+	font-family: sans-serif;
+	margin-left: 2em;
+	margin-right: 2em;
+}
+
+h1, h2, h3, h4, h5, h6 {
+	color: maroon; font-family: helvetica, arial, sans-serif; }
+
+.center { text-align: center; }
+
+.indent { margin-left: 3em; margin-right: 3em; }
+
+.smallcaps { font-variant: small-caps; }
+
+
+a.back {
+	color: maroon;
+	text-decoration: none;
+}
+
+a.back:hover {
+	color: blue;
+	text-decoration: underline;
+}
+
+
+a.glossary {
+	color: teal;
+	font-style: italic;
+	text-decoration: none;
+}
+
+a.glossary:hover {
+	color: blue;
+	font-style: italic;
+	text-decoration: underline;
+}
+
+.glossary {
+	color: teal;
+	font-style: italic;
+	text-decoration: none;
+}

@@ -1,0 +1,21 @@
+=================================================================
+Logtalk - Object oriented extension to Prolog
+Release 2.8.4
+
+Copyright (c) 1998-2001 Paulo Moura.  All Rights Reserved.
+=================================================================
+
+To load all objects in this example consult the polygons.loader utility
+file (note that the *.loader files are Prolog files).
+
+You will need to load the objects in the roots and relations 
+examples (consulting the corresponding roots.loader and relations.loader 
+files).
+
+You will also need to consult the following files in the library directory: 
+events.loader, types.loader, metapredicates.loader, and hierarchies.loader.
+
+In this example we have several types of polygons that can be concentric.
+This is represented by a concentric binary relation ensuring that whenever 
+a polygon is moved towards a new position, all polygons likewise concentric 
+are moved along with them.

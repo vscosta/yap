@@ -1,0 +1,16 @@
+=================================================================
+Logtalk - Object oriented extension to Prolog
+Release 2.8.4
+
+Copyright (c) 1998-2001 Paulo Moura.  All Rights Reserved.
+=================================================================
+
+To consult the Logtalk documentation open the file index.html with a
+web browser.
+
+Starting with version 2.6.0, all the pages are being converted to 
+conform to the HTML 4.01 Strict W3C Standard. In a future version,
+they will also be XHTML 1.0 ready. You can change the appearence of 
+the pages by changing the included styles.css cascade style sheet file.
+Needless to say, the manual pages look better in recent web navigator 
+releases that support both the HTML 4 and CSS1 web standards.

@@ -1,0 +1,16 @@
+=================================================================
+Logtalk - Object oriented extension to Prolog
+Release 2.8.4
+
+Copyright (c) 1998-2001 Paulo Moura.  All Rights Reserved.
+=================================================================
+
+To load all objects in this example consult the inheritance.loader utility
+file (note that the *.loader files are Prolog files).
+
+This folder contains examples of public, protected and private inheritance,
+for both prototypes and classes/instances. The category "predicates" defines 
+a set of three predicates, one public, one protected and one private. This
+category is imported by the root objects: "parent" for the prototypes and 
+"object" for the classes/instances. Each root object have a set of three 
+descendants, each one using one of the inheritance types.

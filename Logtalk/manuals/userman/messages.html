@@ -1,0 +1,188 @@
+<!doctype html public "-//W3C//DTD HTML 4.01//EN"
+	"http://www.w3.org/TR/html4/strict.dtd">
+
+<html>
+
+<head>
+	<title>Message sending</title>
+	<link rel=stylesheet  href="../styles.css" type="text/css">
+</head>
+
+<body>
+
+<hr />
+<h1><a class="back" title="Return to index" href="index.html#messages">Message sending</a></h1>
+
+<p>
+Note that message sending is only the same as calling an object's predicate if the object does not inherit (or import) predicate definitions from other objects (or categories). Otherwise, the predicate definition that will be executed may depend on the relationships of the object with other Logtalk entities.
+</p>
+
+<hr />
+<h2><a class="back" title="Return to index" name="operators" href="index.html#messages_operators">Operators used in message sending</a></h2>
+
+<p>
+Logtalk uses the following three operators for message sending:
+</p>
+<pre>
+    :- op(600, xfx, ::).
+    :- op(600,  fx, ::).
+    :- op(600,  fx, ^^).
+</pre>
+<p>
+It is assumed that these operators remain active (once the Logtalk pre-processor and runtime files are loaded) until the end of the Prolog session (this is the usual behaviour of most Prolog compilers). Note that these operator definitions are compatible with the pre-defined operators in the Prolog ISO standard.
+</p>
+
+<hr />
+<h2><a class="back" title="Return to index" name="sending" href="index.html#messages_sending">Sending a message to an object</a></h2>
+
+<p>
+Sending a message to an object is done by using the <a title="Consult reference manual" href="../refman/control/to_object2.html"><code>::/2</code></a> infix  operator:
+</p>
+<pre>
+    | ?- Object::Message.
+</pre>
+<p>
+The message must match a public predicate declared for the receiving object or a Logtalk/Prolog built-in predicate, otherwise an error will be thrown (see the Reference Manual for details).
+</p>
+
+<hr />
+<h2><a class="back" title="Return to index" name="broadcasting" href="index.html#messages_broadcasting">Broadcasting</a></h2>
+
+<p>
+In the Logtalk context, broadcasting is interpreted as the sending of the same message to a group of objects or the sending of several messages to the same object. Both needs can be achieved by using the message sending method described above. However, for convenience, Logtalk implements an extended syntax for message sending that makes programming easier in these situations.
+</p>
+<p>
+If we wish to send several messages to the same object, we can write:
+</p>
+<pre>
+    | ?- Object::(Message1, Message2, ...).
+</pre>
+<p>
+This is semantically equivalent to:
+</p>
+<pre>
+    | ?- Object::Message1, Object::Message2, ... .
+</pre>
+<p>
+We can also write:
+</p>
+<pre>
+    | ?- Object::(Message1; Message2; ...).
+</pre>
+<p>
+This will be semantically equivalent to writing:
+</p>
+<pre>
+    | ?- Object::Message1; Object::Message2; ... .
+</pre>
+<p>
+To send the same message to a set of objects we can write:
+</p>
+<pre>
+    | ?- (Object1, Object2, ...)::Message.
+</pre>
+<p>
+This will have the same semantics as:
+</p>
+<pre>
+    | ?- Object1::Message, Object2::Message, ... .
+</pre>
+<p>
+If we want to use backtracking to try the same message over a set of objects we can write:
+</p>
+<pre>
+    | ?- (Object1; Object2, ...)::Message.
+</pre>
+<p>
+This will be equivalent to:
+</p>
+<pre>
+    | ?- Object1::Message; Object2::Message; ... .
+</pre>
+
+<hr />
+<h2><a class="back" title="Return to index" name="self" href="index.html#messages_self">Sending a message to <em>self</em></a></h2>
+
+<p>
+While defining a predicate, we sometimes need to send a message to <em>self</em>, that is, to the same object that has received the original message. This is done in Logtalk through the <a title="Consult reference manual" href="../refman/control/to_self1.html"><code>::/1</code></a> prefix operator:
+</p>
+<pre>
+    ::Message
+</pre>
+<p>
+We can also use the broadcasting constructs with this operator:
+</p>
+<pre>
+    ::(Message1, Message2, ...)
+</pre>
+<p>
+or:
+</p>
+<pre>
+    ::(Message1; Message2; ...)
+</pre>
+<p>
+The message must match a public or protected predicate declared for the receiving object or a Logtalk/Prolog built-in predicate otherwise an error will be thrown (see the Reference Manual for details). If the message is sent from inside a category or if we are using private inheritance, then the message may also match a private predicate.
+</p>
+
+<hr />
+<h2><a class="back" title="Return to index" name="super" href="index.html#messages_super">Calling an overridden predicate definition</a></h2>
+
+<p>
+When redefining a predicate, we sometimes have the need to call the inherited definition in the new code. This possibility, introduced by the Smalltalk language through the <code>super</code> primitive, is available in Logtalk through the <a title="Consult reference manual" href="../refman/control/to_super1.html"><code>^^/1</code></a> prefix operator:
+</p>
+<pre>
+    ^^Predicate
+</pre>
+<p>
+Most of the time we will use this operator by instantiating the pattern:
+</p>
+<pre>
+    Predicate :-
+        ...,            % do something
+        ^^Predicate,    % call inherited definition
+        ... .           % do something more
+</pre>
+
+<hr />
+<h2><a class="back" title="Return to index" name="events" href="index.html#messages_events">Message sending and event generation</a></h2>
+
+<p>
+Every message sent using <a title="Consult reference manual" href="../refman/control/to_object2.html"><code>::/2</code></a> operator generates two events, one before and one after the message execution. Messages that are sent using the <a title="Consult reference manual" href="../refman/control/to_self1.html"><code>::/1</code></a> (message to <em>self</em>) operator or the <a title="Consult reference manual" href="../refman/control/to_super1.html"><code>^^/1</code></a> super mechanism described above do not generate any events. The rational behind this distinction is that messages to <em>self</em> and <em>super</em> calls are only used indirectly in the definition of methods or to execute aditional messages with the same target object (represented by <em>self</em>). In other words, events are only generated when using an object's public interface. They can not be used to break object encapsulation.
+</p>
+<p>
+If we need to generate events for a public message sent to <em>self</em>, then we just need to write something like:
+</p>
+<pre>
+    Predicate :-
+        ...,
+        self(Self),       % get self reference
+        Self::Message,    % send a message to self using ::/2
+        ... .
+</pre>
+<p>
+If we also need the sender of the message to be other than the object containing the predicate definition, we can write:
+</p>
+<pre>
+    Predicate :-
+        ...,
+        self(Self),         % get self reference
+        {Self::Message},    % send a message to self using ::/2
+        ... .               % sender will be the pseudo-object user
+</pre>
+<p>
+See the session on Event-driven programming for more details.
+</p>
+
+<hr />
+<p class="center">
+<strong><a href="features.html">Previous</a> | <a href="objects.html">Next</a> | <a href="index.html">Table of Contents</a> | <a href="../bibliography.html">Bibliography</a> | <a href="../glossary.html">Glossary</a></strong>
+</p>
+<p class="center">
+Last updated on: July 4, 2000
+</p>
+<hr />
+
+</body>
+
+</html>

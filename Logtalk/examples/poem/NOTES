@@ -1,0 +1,18 @@
+The example in this folder is an adpation of an example of POEM, an 
+object-oriented extension to Prolog developed by Ben Staveley-Taylor.
+
+To load all objects in this example consult the poem.loader utility
+file (note that the *.loader files are Prolog files).
+
+Contrary to the other cases, to test this example consult the file 
+SCRIPT and then call the predicate run/0 to run the example.
+
+Original author contact:
+
+	Ben Staveley-Taylor,
+	Plessey Electronic Systems Research Ltd.,
+	Roke Manor,
+	ROMSEY,
+	Hants.    SO5 0ZN.
+
+	Tel. Romsey (0794) 515222 ext 311

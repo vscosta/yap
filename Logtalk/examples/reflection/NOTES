@@ -1,0 +1,23 @@
+=================================================================
+Logtalk - Object oriented extension to Prolog
+Release 2.8.4
+
+Copyright (c) 1998-2001 Paulo Moura.  All Rights Reserved.
+=================================================================
+
+To load all objects in this example consult the reflection.loader utility
+file (note that the *.loader files are Prolog files). Run this example with 
+no other examples loaded at the same time.
+
+This folder contains an example that shows how to implement a reflective
+class-based system. There are three main classes:
+
+	object - root of the inheritance graph
+	class - default metaclass for all instantiable classes
+	abstract_class - default metaclass for all abstract classes
+
+Each class inherit all the methods form the other two classes and from 
+itself (without any inheritance loops of course ;-).
+
+You can find more sophisticated versions of these classes in the roots
+example.

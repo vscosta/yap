@@ -1,0 +1,283 @@
+<!doctype html public "-//W3C//DTD HTML 4.01//EN"
+	"http://www.w3.org/TR/html4/strict.dtd">
+
+<html>
+
+<head>
+	<title>Categories</title>
+	<link rel=stylesheet  href="../styles.css" type="text/css">
+</head>
+
+<body>
+
+<hr />
+<h1><a class="back" title="Return to index" href="index.html#categories">Categories</a></h1>
+
+<p>
+Categories provide a way to encapsulate a set of related predicate definitions that do not represent an object and that only make sense when composed with other predicates. Categories may also be used to break a complex object in functional units. A category can be imported by several objects (without code duplication), including objects participating in prototype or class-based hierarchies. This concept of categories shares some ideas with Smalltalk-80 functional categories <a href="../bibliography.html#Goldberg83">[Goldberg 83]</a>, Flavors mix-ins <a href="../bibliography.html#Moon86">[Moon 86]</a> (without implying multi-inheritance) and Objective-C categories <a href="../bibliography.html#Cox86">[Cox 86]</a>. There are no pre-defined categories in Logtalk.
+</p>
+
+<hr />
+<h2><a class="back" title="Return to index" name="defining" href="index.html#categories_defining">Defining a new category</a></h2>
+
+<p>
+We can define a new category in the same way we write Prolog code: by using a text editor. Each category (object or protocol) we define should be contained in its own text file. It is recommended that this text file be named after the category. By default, all Logtalk source files use the extension <code>.lgt</code> but this is optional and can be set in the configuration files. Compiled source files (by the Logtalk pre-processor) have, by default, a <code>.pl</code> extension. Again, this can be set to match the needs of a particular Prolog compiler in the corresponding configuration file. For instance, we may define a category named <code>documenting</code> and save it in a <code>documenting.lgt</code> source file that will be compiled to a <code>documenting.pl</code> Prolog file.
+</p>
+<p>
+Category names must be atoms. Objects, categories and protocols share the same name space: we can not have a category with the same name as an object or a protocol.
+</p>
+<p>
+Category code (directives and predicates) is textually encapsulated by using two Logtalk directives: <a title="Consult reference manual" href="../refman/directives/category1_2.html"><code>category/1-2</code></a> and <a title="Consult reference manual" href="../refman/directives/end_category0.html"><code>end_category/0</code></a>. The most simple category will be one that is self-contained, not depending on any other Logtalk entity:
+</p>
+<pre>
+    :- category(Category).
+        ...
+    :- end_category.
+</pre>
+<p>
+If a category implements one or more protocols then the opening directive will be:
+</p>
+<pre>
+    :- category(Category,
+        implements(Protocol)).
+        ...
+    :- end_category.
+</pre>
+<p>
+Note that a category can't import other categories or inherit code from an object.
+</p>
+
+<hr />
+<h2><a class="back" title="Return to index" name="finding" href="index.html#categories_finding">Finding defined categories</a></h2>
+
+<p>
+We can find, by backtracking, all defined categories by using the <a title="Consult reference manual" href="../refman/builtins/current_category1.html"><code>current_category/1</code></a> Logtalk built-in predicate with an uninstantiated variable:
+</p>
+<pre>
+    | ?- current_category(Category).
+</pre>
+<p>
+This predicate can also be used to test if a category is defined by calling it with a valid category identifier (an atom or a compound term).
+</p>
+
+<hr />
+<h2><a class="back" title="Return to index" name="creating" href="index.html#categories_creating">Creating a new category in runtime</a></h2>
+
+<p>
+A category can be dynamically created at runtime by using the <a title="Consult reference manual" href="../refman/builtins/create_category4.html"><code>create_category/4</code></a> built-in predicate:
+</p>
+<pre>
+    | ?- create_category(Category, Directives, Clauses, Relations).
+</pre>
+<p>
+The first argument, the name of the new category - a Prolog atom - should not match with an existing entity name. The remaining three arguments correspond to the relations described in the opening category directive and to the category code contents (directives and clauses).
+</p>
+<p>
+For instance, the call:
+</p>
+<pre>
+    | ?- create_category(ccc, [implements(ppp)], [private(bar/1)], [(foo(X):-bar(X)), bar(1), bar(2)]).
+</pre>
+<p>
+is equivalent to compiling and loading the category:
+</p>
+<pre>
+    :- category(ccc,
+        implements(ppp)).
+
+        :- dynamic.
+
+        :- private(bar/1).
+
+        foo(X) :-
+            bar(X).
+
+        bar(1).
+        bar(2).
+
+    :- end_category.
+</pre>
+<p>
+If we need to create a lot of (dynamic) categories at runtime, then is best to to define a metaclass or a prototype with a predicate that will call this built-in predicate in order to provide more sophisticated behaviour.
+</p>
+
+<hr />
+<h2><a class="back" title="Return to index" name="abolishing" href="index.html#categories_abolishing">Abolishing an existing category</a></h2>
+
+<p>
+Dynamic categories can be abolished using the <a title="Consult reference manual" href="../refman/builtins/abolish_category1.html"><code>abolish_category/1</code></a> built-in predicate:
+</p>
+<pre>
+    | ?- abolish_category(Category).
+</pre>
+<p>
+The argument must be an identifier of a defined dynamic category, otherwise an error will be thrown.
+</p>
+
+<hr />
+<h2><a class="back" title="Return to index" name="directives" href="index.html#categories_directives">Category directives</a></h2>
+
+<p>
+Category directives are used to set initialization goals and category properties and to document a category dependencies on other Logtalk entities.
+</p>
+
+<h3><a class="back" title="Return to index" name="initialization" href="index.html#categories_initialization">Category initialization</a></h3>
+
+<p>
+We can define a goal to be executed as soon as a category is (compiled and) loaded to memory with the <a title="Consult reference manual" href="../refman/directives/initialization1.html"><code>initialization/1</code></a> directive:
+</p>
+<pre>
+    :- initialization(Goal).
+</pre>
+<p>
+The argument can be any valid Prolog or Logtalk goal, including a message sending call.
+</p>
+
+<h3><a class="back" title="Return to index" name="dynamic" href="index.html#categories_dynamic">Dynamic categories</a></h3>
+
+<p>
+As usually happens with Prolog code, a category can be either static or dynamic. A category created during the execution of a program is always dynamic. A category defined in a file can be either dynamic or static. Dynamic categories are declared by using the <a title="Consult reference manual" href="../refman/directives/dynamic0.html"><code>dynamic/0</code></a> directive in the category source code:
+</p>
+<pre>
+    :- dynamic.
+</pre>
+<p>
+Let us just remember that the loss of performance of the dynamic code is usually of considerable importance to the static code. We should only use dynamic categories when these need to be abolished during program execution.
+</p>
+
+<h3><a class="back" title="Return to index" name="dependencies" href="index.html#categories_dependencies">Category dependencies</a></h3>
+
+<p>
+Besides the relations declared in the category opening directive, the predicate definitions contained in the category may imply other dependencies. This can be documented by using the <a title="Consult reference manual" href="../refman/directives/calls1.html"><code>calls/1</code></a> and the <a title="Consult reference manual" href="../refman/directives/uses1.html"><code>uses/1</code></a> directives.
+</p>
+<p>
+The <code>calls/1</code> directive can be used when a predicate definition sends a message that is declared in a specific protocol:
+</p>
+<pre>
+    :- calls(Protocol).
+</pre>
+<p>
+If a predicate definition sends a message to a specific object, this dependence can be declared with the <code>uses/1</code> directive:
+</p>
+<pre>
+    :- uses(Object).
+</pre>
+<p>
+These two directives can be used by the Logtalk runtime to ensure that all needed entities are loaded when running an application.
+</p>
+
+<h3><a class="back" title="Return to index" name="documentation" href="index.html#categories_documentation">Category documentation</a></h3>
+
+<p>
+A category can be documented with arbitrary user-defined information by using the <a title="Consult reference manual" href="../refman/directives/info1.html"><code>info/1</code></a> directive:
+</p>
+<pre>
+    :- info(List).
+</pre>
+<p>
+See the <a href="documenting.html">Documenting Logtalk programs</a> session for details.
+</p>
+
+<hr />
+<h2><a class="back" title="Return to index" name="relationships" href="index.html#categories_relationships">Category relationships</a></h2>
+
+<p>
+Logtalk provides two sets of built-in predicates that enable us to query the system about the possible relationships that a category can have with other entities.
+</p>
+<p>
+The built-in predicates <a title="Consult reference manual" href="../refman/builtins/implements_protocol2_3.html"><code>implements_protocol/2</code></a> and <a title="Consult reference manual" href="../refman/builtins/implements_protocol2_3.html"><code>implements_protocol/3</code></a> find which categories implements which protocols:
+</p>
+<pre>
+    | ?- implements_protocol(Category, Protocol).
+</pre>
+<p>
+or, if we want to know the implementation scope:
+</p>
+<pre>
+    | ?- implements_protocol(Category, Protocol, Scope).
+</pre>
+<p>
+Note that, if we use an uninstantiated variable for the first argument, we will need to use the <a title="Consult reference manual" href="../refman/builtins/current_category1.html"><code>current_category/1</code></a> built-in predicate to ensure that the returned entity is a category and not an object.
+</p>
+<p>
+To find which objects import which categories we can use the 
+<a title="Consult reference manual" href="../refman/builtins/imports_category2_3.html"><code>imports_category/2</code></a> or <a title="Consult reference manual" href="../refman/builtins/imports_category2_3.html"><code>imports_category/3</code></a> built-in predicates:
+</p>
+<pre>
+    | ?- imports_category(Object, Category).
+</pre>
+<p>
+or, if we want to know the importation scope:
+</p>
+<pre>
+    | ?- imports_category(Object, Category, Scope).
+</pre>
+<p>
+Note that several objects can import a category.
+</p>
+
+<hr />
+<h2><a class="back" title="Return to index" name="properties" href="index.html#categories_properties">Category properties</a></h2>
+
+<p>
+We can find the properties of defined categories by calling the built-in predicate <a title="Consult reference manual" href="../refman/builtins/category_property2.html"><code>category_property/2</code></a>:
+</p>
+<pre>
+    | ?- category_property(Category, Property).
+</pre>
+<p>
+A category may have the property <code>static</code>, <code>dynamic</code>, or <code>built_in</code>. Dynamic categories can be abolished in runtime by calling the <a title="Consult reference manual" href="../refman/builtins/abolish_category1.html"><code>abolish_category/1</code></a> built-in predicate.
+</p>
+
+<hr />
+<h2><a class="back" title="Return to index" name="importing" href="index.html#categories_importing">Importing categories</a></h2>
+
+<p>
+Any number of objects can import a category. The syntax is very simple:
+</p>
+<pre>
+    :- object(Object,
+        imports(Category).
+        ...
+    :- end_object.
+</pre>
+<p>
+To make all public predicates imported via a category protected or to make all public and protected predicates private we prefix the category's name with the corresponding keyword:
+</p>
+<pre>
+    :- object(Object,
+        imports(private::Category).
+        ...
+    :- end_object.
+</pre>
+<p>
+or:
+</p>
+<pre>
+    :- object(Object,
+        imports(protected::Category).
+        ...
+    :- end_object.
+</pre>
+<p>
+Omitting the scope keyword is equivalent to writing:
+</p>
+<pre>
+    :- object(Object,
+        imports(public::Category).
+        ...
+    :- end_object.
+</pre>
+
+<hr />
+<p class="center">
+<strong><a href="protocols.html">Previous</a> | <a href="predicates.html">Next</a> | <a href="index.html">Table of Contents</a> | <a href="../bibliography.html">Bibliography</a> | <a href="../glossary.html">Glossary</a></strong>
+</p>
+<p class="center">
+Last updated on: July 4, 2000
+</p>
+<hr />
+
+</body>
+
+</html>

@@ -1,0 +1,383 @@
+<!doctype html public "-//W3C//DTD HTML 4.01//EN"
+	"http://www.w3.org/TR/html4/strict.dtd">
+
+<html>
+
+<head>
+	<title>Predicates</title>
+	<link rel=stylesheet  href="../styles.css" type="text/css">
+</head>
+
+<body>
+
+<hr />
+<h1><a class="back" title="Return to index" href="index.html#predicates">Predicates</a></h1>
+
+<p>
+Predicate declarations and definitions can be encapsulated inside objects and categories. Protocols can only contain predicate declarations.
+</p>
+
+<hr />
+<h2><a class="back" title="Return to index" name="declaring" href="index.html#predicates_declaring">Declaring predicates</a></h2>
+
+<p>
+All object (or category) predicates that we want to access from other objects must be explicitly declared. A predicate declaration must contain, at least, a scope directive. Other directives may be used to document the predicate or to ensure proper compilation of the predicate definitions.
+</p>
+
+<h3><a class="back" title="Return to index" name="scope" href="index.html#predicates_scope">Scope directives</a></h3>
+
+<p>
+A predicate can be public, protected or private. Public predicates can be called from any object. Protected predicates can only be called from the container object or from a container descendant. Private predicates can only be called from the container object.
+</p>
+<p>
+The scope declarations are made using the <a title="Consult reference manual" href="../refman/directives/public1.html"><code>public/1</code></a>, <a title="Consult reference manual" href="../refman/directives/protected1.html"><code>protected/1</code></a> and <a title="Consult reference manual" href="../refman/directives/private1.html"><code>private/1</code></a> directives. For example:
+</p>
+<pre>
+    :- public(init/1).
+
+    :- protected(valid_init_option/1).
+
+    :- private(process_init_options/1).
+</pre>
+<p>
+Note that we do not need to write scope declarations for all defined predicates. If a predicate does not have a scope declaration, it is assumed that the predicate is private, although it will be invisible to the reflection methods and to the message and error handling mechanisms.
+</p>
+
+<h3><a class="back" title="Return to index" name="mode" href="index.html#predicates_mode">Mode directive</a></h3>
+
+<p>
+Many predicates cannot be called with arbitrary arguments with arbitrary instantiation status. The valid arguments and instantiation modes can be documented by using the <a title="Consult reference manual" href="../refman/directives/mode2.html"><code>mode/2</code></a> directive. For instance:
+</p>
+<pre>
+    :- mode(member(?term, +list), zero_or_more).
+</pre>
+<p>
+The first argument describes a valid calling mode. The minimum information will be the instantiation mode of each argument. There are four possible values (described in <a title="ISO Prolog Standard" href="../bibliography.html#ISO95">[ISO 95]</a>):
+</p>
+<blockquote>
+<dl>
+	<dt><code>+</code></dt>
+		<dd>Argument must be instantiated.</dd>
+	<dt><code>-</code></dt>
+		<dd>Argument must be a free (non-instantiated) variable.</dd>
+	<dt><code>?</code></dt>
+		<dd>Argument can either be instantiated or free.</dd>
+	<dt><code>@</code></dt>
+		<dd>Argument will not be modified.</dd>
+</dl>
+</blockquote>
+<p>
+These four mode atoms are also declared as prefix operators by the Logtalk pre-processor. This makes it possible to include type information for each argument like in the example above. Some of the possible type values are: <code>event</code>, <code>object</code>, <code>category</code>, <code>protocol</code>, <code>callable</code>, <code>term</code>, <code>nonvar</code>, <code>var</code>, <code>atomic</code>, <code>atom</code>, <code>number</code>, <code>integer</code>, <code>float</code>, <code>compound</code>, and <code>list</code>. The first four are Logtalk specific. The remaining are common Prolog types. We can also use our own types that can be either atoms or compound terms. 
+</p>
+<p>
+The second argument documents the number of proofs (or solutions) for the specified mode. The possible values are:
+</p>
+<blockquote>
+<dl>
+	<dt><code>zero</code></dt>
+		<dd>Predicate always fails.</dd>
+	<dt><code>one</code></dt>
+		<dd>Predicate always succeeds once.</dd>
+	<dt><code>zero_or_one</code></dt>
+		<dd>Predicate either fails or succeeds.</dd>
+	<dt><code>zero_or_more</code></dt>
+		<dd>Predicate has zero or more solutions.</dd>
+	<dt><code>one_or_more</code></dt>
+		<dd>Predicate has one or more solutions.</dd>
+	<dt><code>error</code></dt>
+		<dd>Predicate will throw an error (see below).</dd>
+</dl>
+</blockquote>
+<p>
+Mode declarations can also be used to document that some call modes will throw an error. For instance, regarding the <code>arg/3</code> ISO Prolog built-in predicate, we may write:
+</p>
+<pre>
+    :- mode(arg(-, -, +), error).
+</pre> 
+<p>
+Note that most predicates have more than one valid mode implying several mode directives. For example, to document the possible use modes of the atom_concat/3 ISO built-in predicate we would write:
+</p>
+<pre>
+    :- mode(atom_concat(?atom, ?atom, +atom), one_or_more).
+    :- mode(atom_concat(+atom, +atom, -atom), zero_or_one).
+</pre>
+<p>
+Some old Prolog compilers supported some sort of mode directives to improve performance. To the best of my knowledge, there is no modern Prolog compiler supporting these kind of directive. The current version of the Logtalk pre-processor just parses and than discards this directive. Nevertheless, the use of mode directives is a good starting point to the documentation of your predicates.
+</p>
+
+<h3><a class="back" title="Return to index" name="meta" href="index.html#predicates_meta">Metapredicate directive</a></h3>
+
+<p>
+Some predicates may have arguments that will be called as goals. To ensure that these calls will be executed in the correct scope we need to use the <a title="Consult reference manual" href="../refman/directives/metapredicate1.html"><code>metapredicate/1</code></a> directive. For example:
+</p>
+<pre>
+    :- metapredicate(findall(*, ::, *)).
+</pre>
+<p>
+The predicate arguments in this directive have the following meaning:
+</p>
+<blockquote>
+<dl>
+	<dt><code>::</code></dt>
+		<dd>Meta-argument that will be called as a goal.</dd>
+	<dt><code>*</code></dt>
+		<dd>Normal argument.</dd>
+</dl>
+</blockquote>
+<p>
+This is similar to the declaration of metapredicates in the ISO draft for Prolog modules except that we use the atom <code>::</code> instead of <code>:</code> to be consistent with the message sending operators.
+</p>
+<p>
+Since each Logtalk entity is independently compiled, this directive must be included in every object or category that contains a definition for the described predicate, even if the predicate declaration is inherited from another entity, to ensure proper compilation of meta-arguments.
+</p>
+
+<h3><a class="back" title="Return to index" name="discontiguous" href="index.html#predicates_discontiguous">Discontiguous directive</a></h3>
+
+<p>
+The clause of an object (or category) predicate may not be contiguous. In that case, we must declare the predicate discontiguous by using the <a title="Consult reference manual" href="../refman/directives/discontiguous1.html"><code>discontiguous/1</code></a> directive:
+</p>
+<pre>
+    :- discontiguous(foo/1).
+</pre>
+<p>
+This is a directive that we should avoid using: it makes your code harder to read and it is not supported by some Prolog compilers.
+</p>
+<p>
+Because each Logtalk entity is compiled independently from other entities, this directive must be included in every object or category that contains a definition for the described predicate (even if the predicate declaration is inherited from other entity).
+</p>
+
+<h3><a class="back" title="Return to index" name="dynamic" href="index.html#predicates_dynamic">Dynamic directive</a></h3>
+
+<p>
+An object (or category) predicate can be static or dynamic. By default, all object predicates are static. To declare a dynamic predicate we use the <a title="Consult reference manual" href="../refman/directives/dynamic1.html"><code>dynamic/1</code></a> directive:
+</p>
+<pre>
+    :- dynamic(foo/1).
+</pre>
+<p>
+Because each Logtalk entity is compiled independently from other entities, this directive must be included in every object or category that contains a definition for the described predicate (even if the predicate declaration is inherited from other entity). If we omit the dynamic declaration then the predicate definition will be compiled to static code. Note that any static object may declare and define dynamic predicates.
+</p>
+
+<h3><a class="back" title="Return to index" name="info" href="index.html#predicates_info">Documenting directive</a></h3>
+
+<p>
+A predicate can be documented with arbitrary user-defined information by using the <a title="Consult reference manual" href="../refman/directives/info2.html"><code>info/2</code></a> directive:
+</p>
+<pre>
+    :- info(Functor/Arity, List).
+</pre>
+<p>
+The second argument is a list of <code>Key is Value</code> terms. See the <a href="documenting.html">Documenting Logtalk programs</a> session for details.
+</p>
+
+<hr />
+<h2><a class="back" title="Return to index" name="defining" href="index.html#predicates_defining">Defining predicates</a></h2>
+
+<h3><a class="back" title="Return to index" name="objects" href="index.html#predicates_objects">Object predicates</a></h3>
+
+<p>
+We define object predicates as we have always defined Prolog predicates, the only difference be that we have four more control structures (the three message sending operators plus the external call operator) to play with. For example, if we wish to define an object containing common utility list predicates like <code>append/2</code> or <code>member/2</code> we could write something like:
+</p>
+<pre>
+    :- object(list).
+
+        :- public(append/2).
+        :- public(member/2).
+
+        append([], L, L).
+        append([H| T], L, [H| T2]) :-
+            append(T, L, T2).
+
+        member(H, [H| _]).
+        member(H, [_| T]) :-
+            member(H, T).
+
+    :- end_object.
+</pre>
+<p>
+Note that, abstracting from the opening and closing object directives and the scope directives, what we have written is plain Prolog.  Calls in a predicate definition body default to the local predicates, unless we use the message sending operators or the external call operator. This enables easy conversion from Prolog code to Logtalk objects: we just need to add the necessary encapsulation and scope directives to the old code.
+</p>
+
+<h3><a class="back" title="Return to index" name="categories" href="index.html#predicates_categories">Category predicates</a></h3>
+
+<p>
+Because a category can be imported by several different objects, dynamic private predicates must be called using the <a title="Consult reference manual" href="../refman/control/to_self1.html"><code>::/1</code></a> message sending operator. This ensures that the correct predicate definition will be used. For example, if we want to define a category implementing variables using destructive assignment we could write:
+</p>
+<pre>
+    :- category(variable).
+
+        :- public(get/2).
+        :- public(set/2).
+
+        :- private(value_/2).
+        :- dynamic(value_/2).
+
+        get(Var, Value) :-
+            ::value_(Var, Value).
+
+        set(Var, Value) :-
+            ::retractall(value_(Var, _)), 
+            ::asserta(value_(Var, Value).
+
+    :- end_category.
+</pre>
+<p>
+This way, each importing object will have its own definition for the <code>value_/2</code> private predicate. Furthermore, the <code>get/2</code> and <code>set/2</code> predicates will always access/update the correct definition, contained in the object receiving the messages.
+</p>
+
+<hr />
+<h2><a class="back" title="Return to index" name="methods" href="index.html#predicates_methods">Built-in object predicates (methods)</a></h2>
+
+<p>
+Logtalk defines a set of built-in object predicates or methods to access message execution context, to find sets of solutions, to inspect objects and for database handling. Similar to Prolog built-in predicates, these built-in methods should not be redefined.
+</p>
+
+<h3><a class="back" title="Return to index" name="local" href="index.html#predicates_local">Local methods</a></h3>
+
+<p>
+Logtalk defines four built-in methods to access an object execution context. These methods are compiled in-line and can be freely used without worrying about performance penalties.
+</p>
+<p>
+To find the object that received the message under execution we may use the <a title="Consult reference manual" href="../refman/methods/self1.html"><code>self/1</code></a> method. We may also retrieve the object that has sent the message under execution using the <a title="Consult reference manual" href="../refman/methods/sender1.html"><code>sender/1</code></a> method.
+</p>
+<p>
+The method <a title="Consult reference manual" href="../refman/methods/this1.html"><code>this/1</code></a> enables us to retrieve the name of the object that contains the code that is being executed instead of using the name directly. This helps to avoid breaking the code if we decide to change the object name and forget to change the name references.
+</p>
+<p>
+Here is a short example including calls to these three object execution context methods:
+</p>
+<pre>
+    :- object(test).
+
+        :- public(test/0).
+
+        test :-
+            this(This), 
+            write('Executing  a predicate definition contained in '), writeq(This), nl,
+            self(Self),
+            write('to answer a message received by '), writeq(Self), nl,
+            sender(Sender),
+            write('that was sent by '), writeq(Sender), nl, nl.
+
+    :- end_object.
+
+
+    :- object(descendant,
+        extends(test)).
+
+    :- end_object.
+</pre>
+<p>
+After compiling and loading these two objects, we can try the following goal:
+</p>
+<pre>
+    | ?- descendant::test.
+
+    Executing  a predicate definition contained in test
+    to answer a message received by descendant
+    that was sent by user
+    yes
+</pre>
+<p>
+For parametric objects, the method <a title="Consult reference manual" href="../refman/methods/parameter2.html"><code>parameter/2</code></a> enables us to retrieve current parameter values (see the session on <a href="objects.html#parametric">parametric objects</a> for a detailed description). For example:
+</p>
+<pre>
+    :- object(block(_Color)).
+
+        :- public(test/0).
+
+        test :-
+            parameter(1, Color), 
+            write('Color parameter value  is '), writeq(Color), nl.
+
+    :- end_object.
+</pre>
+<p>
+After compiling and loading these two objects, we can try the following goal:
+</p>
+<pre>
+    | ?- block(blue)::test.
+
+    Color parameter value is blue
+    yes
+</pre>
+
+<h3><a class="back" title="Return to index" name="database" href="index.html#predicates_database">Database methods</a></h3>
+
+<p>
+Logtalk provides a set of built-in methods for object database handling similar to the usual database Prolog predicates: <a title="Consult reference manual" href="../refman/methods/abolish1.html"><code>abolish/1</code></a>, <a title="Consult reference manual" href="../refman/methods/asserta1.html"><code>asserta/1</code></a>, <a title="Consult reference manual" href="../refman/methods/assertz1.html"><code>assertz/1</code></a>, <a title="Consult reference manual" href="../refman/methods/clause2.html"><code>clause/2</code></a>, <a title="Consult reference manual" href="../refman/methods/retract1.html"><code>retract/1</code></a> and <a title="Consult reference manual" href="../refman/methods/retractall1.html"><code>retractall/1</code></a>.
+</p>
+<p>
+Note that if we define clauses for a dynamic predicate inside a category, some of these methods will fail. Because several objects can import a category, category dynamic predicates can not be abolished and its clauses can not be access by <code>clause/2</code> or retracted. The clauses can however be overridden for an importing object by using the assert methods.
+</p>
+
+<h3><a class="back" title="Return to index" name="solutions" href="index.html#predicates_solutions">All solutions methods</a></h3>
+
+<p>
+The usual all solutions meta-predicates are pre-defined methods in Logtalk: <a title="Consult reference manual" href="../refman/methods/bagof3.html"><code>bagof/3</code></a>, <a title="Consult reference manual" href="../refman/methods/findall3.html"><code>findall/3</code></a> and <a title="Consult reference manual" href="../refman/methods/setof3.html"><code>setof/3</code></a>. There is also a <a title="Consult reference manual" href="../refman/methods/forall2.html"><code>forall/2</code></a> method that implements generate and test loops.
+</p>
+
+<h3><a class="back" title="Return to index" name="reflection" href="index.html#predicates_reflection">Reflection methods</a></h3>
+
+<p>
+Logtalk provides two built-in methods for inspecting object predicates: <a title="Consult reference manual" href="../refman/methods/predicate_property2.html"><code>predicate_property/2</code></a>, that return predicate properties and <a title="Consult reference manual" href="../refman/methods/current_predicate1.html"><code>current_predicate/1</code></a>, that enables us to query about predicate definitions. See below for a more detailed description of both methods.
+</p>
+
+<hr />
+<h2><a class="back" title="Return to index" name="properties" href="index.html#predicates_properties">Predicate properties</a></h2>
+
+<p>
+We can find the properties of visible predicates by calling the <a title="Consult reference manual" href="../refman/methods/predicate_property2.html"><code>predicate_property/2</code></a> built-in method. For example:
+</p>
+<pre>
+	| ?- bar::predicate_property(foo(_), Property).
+</pre>
+<p>
+Note that this method respects the predicate's scope declarations. For instance, the above call will only return properties for public predicates.
+</p>
+<p>
+An object's set of visible predicates is the union of all the predicates declared for the object with all the built-in methods and all the Logtalk and Prolog built-in predicates.
+</p>
+<p>
+Possible predicate propertie values are:
+</p>
+<ul>
+	<li><code>public</code>, <code>protected</code>, <code>private</code></li>
+	<li><code>static</code>, <code>dynamic</code></li>
+	<li><code>built_in</code></li>
+	<li><code>metapredicate(Mode)</code></li>
+	<li><code>declared_in(Entity)</code></li>
+	<li><code>defined_in(Entity)</code></li>
+</ul>
+<p>
+The last two properties, <code>declared_in/1</code> and <code>defined_in/1</code>, do not apply to built-in methods and Logtalk or Prolog built-in predicates.
+</p>
+<p>
+Note that if a predicate is declared in a category imported by the object, it will be the category name - not the object name - which will be returned by the property <code>declared_in/1</code>.
+</p>
+
+<hr />
+<h2><a class="back" title="Return to index" name="finding" href="index.html#predicates_finding">Finding declared predicates</a></h2>
+
+<p>
+We can find, by backtracking, all visible user predicates by calling the <a title="Consult reference manual" href="../refman/methods/current_predicate1.html"><code>current_predicate/1</code></a> built-in method. This method respects the predicate's scope declarations. For instance, the following call:
+</p>
+<pre>
+	| ?- some_object::current_predicate(Functor/Arity).
+</pre>
+<p>
+will only return user predicates that are declared public.
+</p>
+
+<hr />
+<p class="center">
+<strong><a href="categories.html">Previous</a> | <a href="inheritance.html">Next</a> | <a href="index.html">Table of Contents</a> | <a href="../bibliography.html">Bibliography</a> | <a href="../glossary.html">Glossary</a></strong>
+</p>
+<p class="center">
+Last updated on: July 4, 2000
+</p>
+<hr />
+
+</body>
+
+</html>

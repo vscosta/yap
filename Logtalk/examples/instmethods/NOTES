@@ -1,0 +1,14 @@
+=================================================================
+Logtalk - Object oriented extension to Prolog
+Release 2.8.4
+
+Copyright (c) 1998-2001 Paulo Moura.  All Rights Reserved.
+=================================================================
+
+To load all objects in this example consult the instmethods.loader utility
+file (note that the *.loader files are Prolog files).
+
+This folder contains an example of instance defined methods. When using 
+classes and instances, methods must be declared in a class but the method 
+definitions may be stored in the instances, either overriding or specializing 
+the class definitions.

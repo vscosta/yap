@@ -1,0 +1,61 @@
+=================================================================
+Logtalk - Object oriented extension to Prolog
+Release 2.8.4
+
+Copyright (c) 1998-2001 Paulo Moura.  All Rights Reserved.
+=================================================================
+
+
+Quick start
+===========
+
+
+1. Open the manuals/index.html file with a web browser.
+
+2. Select the Tutorial link. This will provide you with a basic understanding
+of the main Logtalk concepts.
+
+3. Go back to the index.html file and select the User Manual link and then 
+the Installing and running Logtalk link. This will provide you with a basic 
+understanding of how to start Logtalk and compile and load Logtalk code.
+
+
+Assuming that Logtalk supports your Prolog compiler:
+
+1. Read the NOTES file in the configs sub-directory to check if any patch 
+or workaround is needed for your compiler.
+
+2. Start your Prolog compiler.
+
+3. Compile and load the config file for your Prolog compiler.
+
+4. Compile and load the Logtalk pre-processor/runtime found in the compiler 
+sub-directory.
+
+Note that both the configuration files and the compiler/pre-processor 
+files are Prolog files. The predicate called to load these files depends 
+on your Prolog compiler. In case of doubt, consult your Prolog compiler 
+reference manual or take a look at the definition of the predicate 
+lgt_load_prolog_code/1 in the configuration file. 
+
+
+Now you can try some of the included examples:
+
+1. Open the examples sub-directory. There you find several sub-directories
+with ready to run examples. Select and open one of them.
+
+3. Read the example NOTES file. Some examples are dependent on other 
+examples or on library objects. You may need to load additional files before 
+running the chosen example.
+
+4. Change the working directory of your Prolog compiler to the example 
+directory. If you don't know what predicate to use, check the configs/NOTES 
+file or your Prolog reference manual.
+
+5. Compile and load the file named <example name>.loader. This will compile 
+and load all the example files. Note that the loader file is a Prolog file.
+
+6. Open the example SCRIPT file. One by one, copy&paste or drag&drop the 
+queries in the file to your Prolog top-level.
+
+7. Enjoy!

@@ -1,0 +1,117 @@
+<!doctype html public "-//W3C//DTD HTML 4.01//EN"
+	"http://www.w3.org/TR/html4/strict.dtd">
+
+<html>
+
+<head>
+	<title>Logtalk features</title>
+	<link rel=stylesheet  href="../styles.css" type="text/css">
+</head>
+
+<body>
+
+<hr />
+<h1><a class="back" title="Return to index" href="index.html#features">Logtalk features</a></h1>
+
+<p>
+Some years ago, I decided that the best way to learn object-oriented programming was to build my own object-oriented language. Prolog always being my favorite language, I chose to extend it with object-oriented capabilities. Eventually this work has lead to the Logtalk system. The first public release of Logtalk 1.x occurred in February of 1995. Based on feedback by users and on the author subsequent work, the second major version went public in July of 1998.
+</p>
+<p>
+Although this version of Logtalk shares many ideas and goals with previous 1.x versions, programs written for one version are not compatible with the other (however, conversion from previous versions can easily be accomplished in most cases). This is a consequence of the desire to have a more friendly system, with a very smooth learning curve, bringing Logtalk programming closer to traditional Prolog programming. There are, of course, also other important changes, that result in a more powerful and funnier system. Logtalk 2.x development provides the following features:
+</p>
+
+<h2><a class="back" title="Return to index" name="logic" href="index.html#features_logic">Integration of logic and object-oriented programming</a></h2>
+
+<blockquote>
+<p>
+Logtalk tries to bring together the main advantages of these two programming paradigms. On one hand, the object orientation allows us to work with the same set of entities in the successive  phases of application development, giving us a way of organizing and encapsulating the knowledge of each entity within a given domain. On the other hand, logic programming allows us to represent, in a declarative way, the knowledge we have of each entity. Together, these two advantages allow us to minimize the distance between an application and its problem domain, turning the writing and maintenance of programming easier and more productive.
+</p>
+<p>
+In a more pragmatically view, Logtalk objects provide Prolog with the possibility of defining several namespaces, instead of the traditional Prolog single database, addressing some of the needs of large software projects.
+</p>
+</blockquote>
+
+<h2><a class="back" title="Return to index" name="events" href="index.html#features_events">Integration of event-driven and object-oriented programming</a></h2>
+
+<blockquote>
+<p>
+Event-driven programming enables the building of reactive systems, where computing which takes place at each moment is a result of the observation of occurring events. This integration complements object-oriented programming, in which each computing is initiated by the explicit sending of a message to an object. The user dynamically defines what events are to be observed and establishes monitors for these events. This is specially useful when representing relationships between objects that imply constraints in the state of participating objects <a href="../bibliography.html#Rumbaugh87">[Rumbaugh 87</a>, <a href="../bibliography.html#Rumbaugh88">Rumbaugh 88</a>, <a href="../bibliography.html#Fornarino89">Fornarino 89</a>, <a href="../bibliography.html#Razek92">Razek 92]</a>. Other common uses are reflective applications like code debugging or profiling <a href="../bibliography.html#Maes87">[Maes 87]</a>.
+</p>
+</blockquote>
+
+<h2><a class="back" title="Return to index" name="both" href="index.html#features_both">Support for both prototype and class-based systems</a></h2>
+
+<blockquote>
+<p>
+Almost any (if not all) object-oriented languages available today are either class-based or prototype-based <a href="../bibliography.html#Lieberman86">[Lieberman 86]</a>, with a strong predominance of class-based languages. Logtalk provides support for both hierarchy types. That is, we can have both prototype and class hierarchies in the same application. Prototypes solve a problem of class-based systems where we sometimes have to define a class that will have only one instance in order to reuse a piece of code. Classes solves a dual problem in prototype based systems where it is not possible to encapsulate some code to be reused by other objects but not by the encapsulating object. Stand-alone objects, that is, objects that do not belong to any hierarchy, are a convenient solution to encapsulate code that will be reused by several unrelated objects.
+</p>
+</blockquote>
+
+<h2><a class="back" title="Return to index" name="multiple" href="index.html#features_multiple">Support for multiple object hierarchies</a></h2>
+
+<blockquote>
+<p>
+Languages like Smalltalk-80 <a href="../bibliography.html#Goldberg83">[Goldberg 83]</a>, Objective-C <a href="../bibliography.html#Cox86">[Cox 86]</a> and Java <a href="../bibliography.html#Joy00">[Joy et al. 00]</a> define a single hierarchy rooted in a class usually named <code>Object</code>. This makes it easy to ensure that all objects share a common behaviour but also tends to result in lengthy hierarchies where it is difficult to express objects which represent exceptions to default behaviour. In Logtalk we can have multiple, independent, object hierarchies. Some of them can be prototype-based while others can be class-based. Furthermore, stand-alone objects provide a simple way to encapsulate utility predicates that do not need or fit in an object hierarchy.
+</p>
+</blockquote>
+
+<h2><a class="back" title="Return to index" name="interface" href="index.html#features_interface">Separation between interface and implementation</a></h2>
+
+<blockquote>
+<p>
+This is an expected (should we say standard ?) feature of almost any modern programming language. Logtalk provides support for separating interface from implementation in a flexible way: protocol directives can be contained in an object, a category or a protocol (first-order entities in Logtalk) or can be spread in both objects, categories and protocols.
+</p>
+</blockquote>
+
+<h2><a class="back" title="Return to index" name="inheritance" href="index.html#features_inheritance">Private, protected and public inheritance</a></h2>
+
+<blockquote>
+<p>
+Logtalk supports private, protected and public inheritance in a similar way to C++ <a href="../bibliography.html#Stroustrup86">[Stroustrup 86]</a>, enabling us to restrict the scope of inherited, imported or implemented predicates (by default inheritance is public).
+</p>
+</blockquote>
+
+<h2><a class="back" title="Return to index" name="predicates" href="index.html#features_predicates">Private, protected and public object predicates</a></h2>
+
+<blockquote>
+<p>
+Logtalk supports data hiding by implementing private, protected and public object predicates in a way similar to C++ <a href="../bibliography.html#Stroustrup86">[Stroustrup 86]</a>. Private predicates can only be called from the container object. Protected predicates can be called by the container object or by the container descendants. Public predicates can be called from any object.
+</p>
+</blockquote>
+
+<h2><a class="back" title="Return to index" name="parametric" href="index.html#features_parametric">Parametric objects</a></h2>
+
+<blockquote>
+<p>
+Object names can be compound terms (instead of atoms), providing a way to parameterize object predicates. Parametric objects are implemented in a similar way to <code>L&amp;O</code> <a href="../bibliography.html#McCabe92">[McCabe 92]</a>, <code>OL(P)</code> <a href="../bibliography.html#Fromherz93">[Fromherz 93]</a> or <code>SICStus Objects</code> <a href="../bibliography.html#SICStus95">[SICStus 95]</a>. However, access to parameter values is done via a built-in method instead of making the parameters scope global over the whole object.
+</p>
+</blockquote>
+
+<h2><a class="back" title="Return to index" name="learning" href="index.html#features_learning">Smooth learning curve</a></h2>
+
+<blockquote>
+<p>
+Logtalk has a smooth learning curve, by adopting standard Prolog syntax (using a pre-processor) and by enabling an incremental learning and use of most of its features.
+</p>
+</blockquote>
+
+<h2><a class="back" title="Return to index" name="compatibility" href="index.html#features_compatibility">Compatibility with most Prologs and the ISO standard</a></h2>
+
+<blockquote>
+<p>
+The Logtalk system has been designed to be compatible with most Prolog compilers and, in particular, with the ISO Prolog standard <a href="../bibliography.html#ISO95">[ISO 95]</a>. It runs in almost any computer system with a modern Prolog compiler.
+</p>
+</blockquote>
+
+<hr />
+<p class="center">
+<strong><a href="index.html">Previous</a> | <a href="messages.html">Next</a> | <a href="index.html">Table of Contents</a> | <a href="../bibliography.html">Bibliography</a> | <a href="../glossary.html">Glossary</a></strong>
+</p>
+<p class="center">
+Last updated on: July 4, 2000
+</p>
+<hr />
+
+</body>
+
+</html>

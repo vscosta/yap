@@ -1,0 +1,89 @@
+<!doctype html public "-//W3C//DTD HTML 4.01//EN"
+	"http://www.w3.org/TR/html4/strict.dtd">
+
+<html>
+
+<head>
+	<title>A reflective class-based system</title>
+	<link rel=stylesheet  href="../styles.css" type="text/css">
+</head>
+
+<body>
+
+<hr />
+<h1><a class="back" title="Return to index" href="index.html#reflection">A reflective class-based system</a></h1>
+
+<p>
+When compiling an object, Logtalk distinguishes prototypes from instance or classes by examining the object relations. If an object instantiates and/or specializes another object, then it is compiled as an instance or class, otherwise it is compiled as a prototype. A consequence of this is that, in order to work with instance or classes, we always have to define root objects for the instantiation and specialization hierarchies (however, we are not restricted to a single hierarchy). The best solution is often to define a reflective class-based system <a href="../bibliography.html#Maes87">[Maes 87]</a>, where every class is also an object and, as such, an instance of some class.
+</p>
+<p>
+In this example, we are going to define the basis for a reflective class-based system, based on an extension of the ideas presented in <a href="../bibliography.html#Cointe87">[Cointe 87]</a>. This extension provides, along with root objects for the instantiation and specialization hierarchies, explicit support for abstract classes <a href="../bibliography.html#Moura94">[Moura 94]</a>.
+</p>
+
+<hr />
+<h2><a class="back" title="Return to index" name="classes" href="index.html#reflection_classes">Defining the base classes</a></h2>
+
+<p>
+We will start by defining three classes: <code>object</code>, <code>abstract_class</code>, and <code>class</code>. The class <code>object</code> will contain all predicates common to all objects. It will be the root of the inheritance graph:
+</p>
+<pre>
+    :- object(object,
+        instantiates(class)).
+
+        % predicates common to all objects
+
+    :- end_object.
+</pre>
+<p>
+The class <code>abstract_class</code> specializes <code>object</code> by adding predicates common to all classes. It will be the default metaclass for abstract classes:
+</p>
+<pre>
+    :- object(abstract_class,
+        instantiates(class),
+        specializes(object)).
+
+        % predicates common to all classes
+
+    :- end_object.
+</pre>
+<p>
+The class <code>class</code> specializes <code>abstract_class</code> by adding predicates common to all instantiable classes. It will be the root of the instantiation graph and the default metaclass for instantiable classes:
+</p>
+<pre>
+    :- object(class,
+        instantiates(class),
+        specializes(abstract_class)).
+
+        % predicates common to all instantiable classes
+
+    :- end_object.
+</pre>
+<p>
+Note that all three objects are instances of class <code>class</code>. The instantiation and specialization relationships are choosen so that each object may use the predicates defined in itself and in the other two objects, with no danger of method lookup endless loops.
+</p>
+
+<hr />
+<h2><a class="back" title="Return to index" name="summary" href="index.html#reflection_summary">Summary</a></h2>
+
+<ul>
+	<li>An object that does not instantiate or specialize other objects is always compiled as a prototype.</li>
+</ul>
+<ul>
+	<li>An instance must instantiate at least one object (its class). Similarly, a class must at least specialize or instantiate other object.</li>
+</ul>
+<ul>
+	<li>The distinction between abstract classes and instantiable classes is a operational one, depending on the class inherited methods. A class is instantiable if inherits methods for creating instances. Conversely, a class is abstract if does not inherit any instance creation method.
+</ul>
+
+<hr />
+<p class="center">
+<strong><a href="index.html">Previous</a> | <a href="profiling.html">Next</a> | <a href="index.html">Table of Contents</a> | <a href="../bibliography.html">Bibliography</a> | <a href="../glossary.html">Glossary</a></strong>
+</p>
+<p class="center">
+Last updated on: July 4, 2000
+</p>
+<hr />
+
+</body>
+
+</html>

@@ -1,0 +1,10 @@
+
+:- initialization(
+	logtalk_load([
+		space,
+		space_time,
+		time,
+
+		space3,
+		space_time4,
+		time1])).

@@ -1,0 +1,16 @@
+=================================================================
+Logtalk - Object oriented extension to Prolog
+Release 2.8.4
+
+Copyright (c) 1998-2001 Paulo Moura.  All Rights Reserved.
+=================================================================
+
+To load all objects in this library consult the metapredicates.loader utility
+file.
+
+You will also need to load the library/types.loader file (note that the 
+*.loader files are Prolog files).
+
+This example shows the use of metapredicates in Logtalk. Metapredicates are 
+predicates whose head contains arguments that will be called as goals in the 
+body of the predicate definition.

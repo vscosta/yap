@@ -1,0 +1,13 @@
+
+:- initialization(
+	logtalk_load([
+		circle11,
+		circle2,
+		colours,
+		math_constants,
+		ellipse3,
+		rational,
+		rectangle2,
+		red_circle1,
+		sort1,
+		square1])).

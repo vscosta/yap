@@ -1,0 +1,98 @@
+=================================================================
+Logtalk - Object oriented extension to Prolog
+Release 2.8.4
+
+Copyright (c) 1998-2001 Paulo Moura.  All Rights Reserved.
+=================================================================
+
+
+
+% parent interface
+
+| ?- parent::interface.
+
+public/0 - public
+protected/0 - protected
+private/0 - private
+interface/0 - public
+
+yes
+
+
+% prototype1 extends public::parent
+
+| ?- prototype1::interface.
+
+interface/0 - public
+public/0 - public
+protected/0 - protected
+
+yes
+
+
+% prototype2 extends protected::parent
+
+| ?- prototype2::interface.
+
+interface/0 - public
+public/0 - protected
+protected/0 - protected
+
+yes
+
+
+% prototype3 extends private::parent
+
+| ?- prototype3::interface.
+
+interface/0 - public
+public/0 - private
+protected/0 - private
+
+yes
+
+
+
+% object (root of the inheritance graph) interface
+
+| ?- root::interface.
+
+public/0 - public
+protected/0 - protected
+private/0 - private
+interface/0 - public
+
+yes
+
+
+% instance1 instantiates subclass1 that specializes public::root
+
+| ?- instance1::interface.
+
+interface/0 - public
+public/0 - public
+protected/0 - protected
+
+yes
+
+
+% instance2 instantiates subclass2 that specializes protected::root
+
+| ?- instance2::interface.
+
+interface/0 - public
+public/0 - protected
+protected/0 - protected
+
+yes
+
+
+% instance3 instantiates subclass3 that specializes private::root
+
+| ?- instance3::interface.
+
+interface/0 - public
+public/0 - private
+protected/0 - private
+
+yes

@@ -1,0 +1,15 @@
+=================================================================
+Logtalk - Object oriented extension to Prolog
+Release 2.8.4
+
+Copyright (c) 1998-2001 Paulo Moura.  All Rights Reserved.
+=================================================================
+
+To load all objects in this example consult the classvars.loader utility
+file (note that the *.loader files are Prolog files).
+
+This folder contains an example that shows how to implement class variables 
+as defined in Smalltalk. The name shared instance variables is however much
+more accurate. In systems like Logtalk that enable the use of explicit 
+metaclasses, true class variables are just the class (as an object) own 
+instance variables!

@@ -1,0 +1,98 @@
+<!doctype html public "-//W3C//DTD HTML 4.01//EN"
+	"http://www.w3.org/TR/html4/strict.dtd">
+
+<html>
+
+<head>
+	<title>Programming in Logtalk</title>
+	<link rel=stylesheet  href="../styles.css" type="text/css">
+</head>
+
+<body>
+
+<hr />
+<h1><a class="back" title="Return to index" href="index.html#programming">Programming in Logtalk</a></h1>
+
+<hr />
+<h2><a class="back" title="Return to index" name="scope" href="index.html#programming_scope">Logtalk scope</a></h2>
+
+<p>
+Logtalk, as an object-oriented extension to Prolog, shares with it the same preferred areas of application but also extends them with those areas where object-oriented features provide an advantage compared to plain Prolog. Among these areas we have:
+</p>
+<dl>
+	<dt><strong>Object-oriented programming teaching and researching</strong></dt>
+		<dd>Logtalk smooth learning curve, combined with support for prototype and class-based programming, protocols, and other advanced object-oriented features allow a smooth introduction to object-oriented programming to people with a background in Prolog programming. The distribution of Logtalk source code using an open-source license provide a framework for people to learn and then modify to try out new ideas on object-oriented programming research.</dd>
+</dl>
+<dl>
+	<dt><strong>Structured knowledge representations and Knowledge-based systems</strong></dt>
+		<dd>Logtalk objects, coupled with event-driven programming features enable easy implementation of frame-like systems and similar structured knowledge representations.</dd>
+</dl>
+<dl>
+	<dt><strong>Blackboard systems, Agent-based systems and systems with complex object relationships</strong></dt>
+		<dd>Logtalk support for event-driven programming can provide a basis for the dynamic and reactive nature of these types of applications.</dd>
+</dl>
+<dl>
+	<dt><strong>Highly portable applications</strong></dt>
+		<dd>Logtalk is compatible with almost any modern Prolog compiler. Used as a way to provide Prolog with namespaces, it avoids the porting problems of most Prolog module systems. Platform, operating system, or compiler specific code can be isolated from the rest of the code by encapsulating it in objects with well defined interfaces.</dd>
+</dl>
+<dl>
+	<dt><strong>Alternative to a Prolog module system</strong></dt>
+		<dd>Logtalk can be used as an alternative to a Prolog compiler module system. Any Prolog application that use modules can be converted to a Logtalk application, improving portability across Prolog compilers and taking advantage of the stronger reuse framework provided by Logtalk object-oriented features.</dd>
+</dl>
+<dl>
+	<dt><strong>Integration with other programming languages</strong></dt>
+		<dd>Logtalk support for most key object-oriented features helps users integrating Prolog with object-oriented languages like C++, Java, or Smalltalk by providing an high-level mapping between the two languages.</dd>
+</dl>
+
+<hr />
+<h2><a class="back" title="Return to index" name="writing" href="index.html#programming_writing">Writing programs</a></h2>
+
+<p>
+For a successful programming in Logtalk, you need a good working knowledge of Prolog and an understanding of the principles of object-oriented programming. All guidelines for writing good Prolog code apply as well to Logtalk programming. To those guidelines, you should add the basics of good object-oriented design.
+</p>
+<p>
+One of the advantages of a system like Logtalk is that it enable us to use the currently available object-oriented methodologies, tools, and metrics <a href="../bibliography.html#Champaux92">[Champaux 92]</a> in Prolog programming. That said, writing programs in Logtalk is similar to writing programs in Prolog: we define new predicates describing what is true about our domain objects, about our problem solution. We encapsulate our predicate directives and definitions inside new objects, categories and protocols that we create by hand with a text editor or by using the Logtalk built-in predicates. Some of the information collected during the analysis and design phases can be integrated in the objects, categories and protocols that we define by using the available entity and predicate documenting directives.
+</p>
+
+<h3><a class="back" title="Return to index" name="source_files" href="index.html#programming_source_files">Source files</a></h3>
+
+<p>
+A Logtalk source file must contain only one entity, either an object, a category, or a protocol. It is recommended that each source file be named after the entity identifier. For parametric objects, the identifier arity can be appended to the identifier functor. By default, all Logtalk source files use the extension <code>.lgt</code> but this is optional and can be set in the configuration files. Compiled source files (by the Logtalk pre-processor) have, by default, a <code>.pl</code> extension. Again, this can be set to match the needs of a particular Prolog compiler in the corresponding configuration file. For example, we may define an object named <code>vehicle</code> and save it in a <code>vehicle.lgt</code> source file that will be compiled to a <code>vehicle.pl</code> Prolog file. If we have a <code>sort(_)</code> parametric object we can save it on a <code>sort1.lgt</code> source file that will be compiled to a <code>sort1.pl</code> Prolog file. This name scheme helps avoid file name conflicts (remember that all Logtalk entities share the same name space).
+</p>
+<p>
+Any Logtalk source file can contain arbitrary directives and clauses before the opening entity directive. These directives and clauses will not be compiled by the Logtalk pre-processor and will be copied unchanged to the beginning of the corresponding Prolog output file. This feature is included to help the integration of Logtalk with other Prolog extensions like, for example, constraint programming extensions.
+</p>
+
+<h3><a class="back" title="Return to index" name="errors" href="index.html#programming_errors">Avoiding common errors</a></h3>
+
+<p>
+Try to write objects and protocol documentation <strong>before</strong> writing any other code; if you are having trouble documenting a predicate perhaps we need to go back to the design stage.
+</p>
+<p>
+Try to avoid lengthy hierarchies. Besides performance penalties, composition is often a better choice over inheritance for defining new objects. In addition, prototype-based hierarchies are conceptually simpler and more efficient than class-based hierarchies.
+</p>
+<p>
+Dynamic predicates or dynamic entities are sometimes needed, but we should always try to minimize the use of non-logical features like destructive assignment (asserts and retracts).
+</p>
+<p>
+Since each Logtalk entity is independently compiled, if an object inherits a dynamic or a metapredicate predicate, then we must repeat the respective directives in order to ensure a correct compilation. 
+</p>
+<p>
+In general, Logtalk does not verify if a user predicate call/return arguments comply with the declared modes. On the other hand, Logtalk built-in predicates, built-in methods and message sending control structures are carefully checked for calling mode errors.
+</p>
+<p>
+Logtalk error handling strongly depends on the ISO compliance of the chosen Prolog compiler. For instance, the error terms that are generated by some Logtalk built-in predicates assume that the Prolog built-ins behave as defined in the ISO standard regarding error conditions. In particular, if your Prolog compiler does not support a <code>read_term/3</code> built-in predicate compliant with the ISO Prolog Standard definition, then the current version of the Logtalk pre-processor will not be able to detect misspell variables in your source code.
+</p>
+
+<hr />
+<p class="center">
+<strong><a href="installing.html">Previous</a> | <a href="index.html">Next</a> | <a href="index.html">Table of Contents</a> | <a href="../bibliography.html">Bibliography</a> | <a href="../glossary.html">Glossary</a></strong>
+</p>
+<p class="center">
+Last updated on: February 10, 2001
+</p>
+<hr />
+
+</body>
+
+</html>

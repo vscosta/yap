@@ -1,0 +1,33 @@
+<?xml version="1.0"?>
+<!DOCTYPE logtalk SYSTEM "logtalk.dtd">
+<?xml-stylesheet type="text/xsl" href="logtalk.xsl"?>
+<logtalk>
+<entity>
+<name><![CDATA[Expression1-Expression2]]></name>
+<type>object</type>
+<compilation>static</compilation>
+<comment><![CDATA[Symbolic differentiation and simplification of -/2 expressions.]]></comment>
+<authors><![CDATA[Paulo Moura]]></authors>
+<version>1.0</version>
+<date>1999/12/29</date>
+<info>
+<key>source</key>
+<value><![CDATA[Example based on the Clocksin and Mellish Prolog book.]]></value>
+</info>
+</entity>
+<relations>
+<implements>
+<name><![CDATA[symdiffp]]></name>
+<scope>public</scope>
+<file><![CDATA[symdiffp]]></file>
+</implements>
+</relations>
+<predicates>
+<public>
+</public>
+<protected>
+</protected>
+<private>
+</private>
+</predicates>
+</logtalk>

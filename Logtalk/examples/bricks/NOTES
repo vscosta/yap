@@ -1,0 +1,26 @@
+=================================================================
+Logtalk - Object oriented extension to Prolog
+Release 2.8.4
+
+Copyright (c) 1998-2001 Paulo Moura.  All Rights Reserved.
+=================================================================
+
+To load all objects in this example consult the bricks.loader utility
+file (note that the *.loader files are Prolog files).
+
+You will need to load the objects in the roots and relations 
+examples (consulting the corresponding roots.loader and relations.loader 
+files).
+
+You will also need to consult the following files in the library directory: 
+events.loader, types.loader, metapredicates.loader, and hierarchies.loader.
+
+This folder contains an example of representation and handling of
+relations using events. We have instances of class brick and a binary
+brick_stack relation between the bricks. Every time we move a brick, we
+want the bricks on top of it to move along. If we break the stack by
+moving a middle brick, we want to automatically destroy the
+corresponding relation tuple.
+
+It's instructive to use the debugger to better understand this example.
+Set spy points in all brick instances and then activate the debugger.

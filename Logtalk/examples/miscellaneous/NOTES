@@ -1,0 +1,17 @@
+=================================================================
+Logtalk - Object oriented extension to Prolog
+Release 2.8.4
+
+Copyright (c) 1998-2001 Paulo Moura.  All Rights Reserved.
+=================================================================
+
+To load all objects in this library consult the miscellaneous.loader utility
+file (note that the *.loader files are Prolog files).
+
+You will also need to load the library/types.loader file.
+
+hanoi.lgt
+	Towers of Hanoi example
+
+queens.lgt
+	N-Queens example

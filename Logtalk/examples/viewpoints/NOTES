@@ -1,0 +1,22 @@
+=================================================================
+Logtalk - Object oriented extension to Prolog
+Release 2.8.4
+
+Copyright (c) 1998-2001 Paulo Moura.  All Rights Reserved.
+=================================================================
+
+To load all objects in this example consult the viewpoints.loader utility
+file (note that the *.loader files are Prolog files).
+
+Example adopted from the paper "Classifying Prototype-Based Programming
+Languages" by Christophe Dony, Jacques Malenfant and Daniel Bardou.
+
+This prototype programming example ilustrates how we can do both property 
+sharing and value sharing in Logtalk by calling the built-in predicate 
+modification methods asserta/1, assertz/1 and retract/1 either in the 
+context of "this" or in the context of "self".
+
+In this example we have a prototype named joePerson, containing general data
+on joe like its age, name or address, and three descendants/viewpoints named 
+joeSportsman, joeEmployee, and joeFilmEnthusiast. Each descendant contains
+data related to a particular viewpoint about joe.

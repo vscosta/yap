@@ -1,0 +1,32 @@
+=================================================================
+Logtalk - Object oriented extension to Prolog
+Release 2.8.4
+
+Copyright (c) 1998-2001 Paulo Moura.  All Rights Reserved.
+=================================================================
+
+
+% some queries dealing with instance/class hierarchies:
+
+
+| ?- object::ancestors(Ancestors).
+
+Ancestors = [class, abstract_class, object] 
+
+Yes
+
+
+| ?- class::instances(Instances).
+
+Instances = [object, abstract_class, class] 
+
+Yes
+
+
+| ?- class::superclass(Super).
+
+Super = abstract_class ;
+
+Super = object ;
+
+No

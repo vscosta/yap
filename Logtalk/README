@@ -1,0 +1,122 @@
+=================================================================
+Logtalk - Object oriented extension to Prolog
+Release 2.8.4
+
+Copyright (c) 1998-2001 Paulo Moura.  All Rights Reserved.
+=================================================================
+
+
+CONTENTS
+
+1. License 
+2. Home of Logtalk package 
+3. Registration 
+4. Support 
+5. Installation 
+6. Documentation 
+7. Upgrading 
+8. Contributions
+
+
+1. LICENSE
+
+The overall copyright and permission notice for Logtalk can be found in
+the LICENSE file in this directory. Logtalk follows the Perl Artistic
+license. The copyright notice and license applies to all files in this 
+release (sources, documentation and examples) unless otherwise explicitly
+stated.
+
+
+2. HOME OF LOGTALK PACKAGE
+
+The latest release of the Logtalk package is always available at the
+URL:
+
+http://www.ci.uc.pt/logtalk/logtalk.html
+
+At this address you can also find useful documentation and information
+about Logtalk.
+
+
+3. REGISTRATION
+
+To register as a Logtalk user either use the registration form found at 
+the Logtalk web site or send an email message to:
+
+pmoura@noe.ubi.pt
+
+with the following information:
+
+email address, full name, organization, organization type
+(education, commercial, government,...) prolog compilers used (optional), 
+platforms (mac, pc, unix,...) (optional)
+
+
+4. SUPPORT
+
+Logtalk support is available for registered users via email to 
+pmoura@noe.ubi.pt.
+
+At the URL http://www.ci.uc.pt/logtalk/bugs.html you can find a list of 
+known problems and download bug fixes. The latest news about Logtalk are
+available at the URL http://www.ci.uc.pt/logtalk/news.html
+
+There is also a mailing list, logtalk, used to announce new releases and
+bug fixes and for discussion between Logtalk users, that you can subscribe.
+For instructions on how to subscribe send an email message to:
+
+majordomo@ci.uc.pt
+
+with the words:
+
+help
+end
+
+in the body of the message (not in the subject).
+
+
+5. INSTALLATION
+
+Installing Logtalk is just a matter of uncompressing/unpacking the
+distribution archive file for your operating system. You can install
+Logtalk in any directory that you find convenient.
+
+See the user manual for a description of the source files organization
+and for installing/using instructions (to read the user manual open the
+file manuals/index.html with a web browser).
+
+
+6. DOCUMENTATION
+
+The reference and user manuals and the tutorial are provided in HTML format 
+and are contained in the manuals directory.
+
+PDF versions of all documentation are also available as a separated download 
+from the Logtalk web site. The PDF files include page numbers, index and a 
+table of contents and are available for printing in both A4 and US Letter 
+paper formats.
+
+The file RELEASE_NOTES contains descriptions of the changes made in
+Logtalk since the first public version. Read it carefully if you have
+been using a previous Logtalk version.
+
+The file QUICK_START provides quick instructions for those of you in a hurry 
+to run Logtalk, provided that your usual Prolog compiler is supported.
+
+
+7. UPGRADING
+
+If you have been using a previous Logtalk version read the file UPGRADING for 
+instructions on how to upgrade your programs to run under this new version.
+
+
+8. CONTRIBUTIONS
+
+Contributions, constructive criticisms, code and suggestions are always 
+welcome. If you want to contribute to this project, drop me a line to the 
+support address given above.
+
+
+Happy Logtalking!
+
+Paulo Moura

@@ -1,0 +1,143 @@
+<!doctype html public "-//W3C//DTD HTML 4.01//EN"
+	"http://www.w3.org/TR/html4/strict.dtd">
+
+<html>
+
+<head>
+	<title>Documenting Logtalk programs</title>
+	<link rel=stylesheet  href="../styles.css" type="text/css">
+</head>
+
+<body>
+
+<hr />
+<h1><a class="back" title="Return to index" href="index.html#documenting">Documenting Logtalk programs</a></h1>
+
+<p>
+Logtalk automatically generates a documentation file for each compiled entity (object, protocol, or category) in <a href="http://www.w3.org/XML/">XML</a> format. Contents of the XML file include the entity name, type, and compilation mode (static or dynamic), the entity relations with other entities, and a description of any declared predicates (name, compilation mode, scope, ...).
+</p>
+<p>
+The XML documentation files can be enriched with arbitrary user-defined information, either about an entity or about its predicates, by using the two directives described below.
+</p>
+
+<hr />
+<h2><a class="back" title="Return to index" name="directives" href="index.html#documenting_directives">Documenting directives</a></h2>
+
+<p>
+Logtalk supports two documentation directives for providing arbitrary user-defined information about an entity or a predicate. These two directives complement other Logtalk directives that also provide important documentation information like <a title="Consult reference manual" href="../refman/directives/uses1.html"><code>uses/1</code></a>, <a title="Consult reference manual" href="../refman/directives/calls1.html"><code>calls/1</code></a>, or <a title="Consult reference manual" href="../refman/directives/mode2.html"><code>mode/2</code></a>.
+</p>
+
+<h3><a class="back" title="Return to index" name="entity" href="index.html#documenting_entity">Entity directives</a></h3>
+
+<p>
+Arbitrary user-defined entity information can be represented using the <a title="Consult reference manual" href="../refman/directives/info1.html"><code>info/1</code></a> directive:
+</p>
+<pre>
+    :- info([
+        Key1 is Value1,
+        Key2 is Value2,
+        ...]).
+</pre>
+<p>
+In this pattern, keys should be atoms and values should be ground terms. The following keys are pre-defined and may be processed specially by Logtalk:
+</p>
+<blockquote>
+<dl>
+	<dt><code>comment</code></dt>
+		<dd>Comment describing entity purpose (an atom).</dd>
+	<dt><code>authors</code></dt>
+		<dd>Entity authors (an atom).</dd>
+	<dt><code>version</code></dt>
+		<dd>Version number (a number).</dd>
+	<dt><code>date</code></dt>
+		<dd>Date of last modification (formatted as Year/Month/Day).</dd>
+	<dt><code>parnames</code></dt>
+		<dd>Parameter names for parametric entities (a list of atoms).</dd>
+</dl>
+</blockquote>
+<p>
+For example:
+</p>
+<pre>
+    :- info([
+        version is 2.1,
+        authors is 'Paulo Moura',
+        date is 2000/4/20,
+        comment is 'Building representation.',
+        diagram is 'UML Class Diagram #312']).
+</pre>
+<p>
+Use only the keywords that make sense for your application and remember that you are free to invent your own keywords.
+</p>
+
+<h3><a class="back" title="Return to index" name="predicate" href="index.html#documenting_predicate">Predicate directives</a></h3>
+
+<p>
+Arbitrary user-defined predicate information can be represented using the
+<a title="Consult reference manual" href="../refman/directives/info2.html"><code>info/2</code></a> directive:
+</p>
+<pre>
+    :- info(Functor/Arity, [
+        Key1 is Value1,
+        Key2 is Value2,
+        ...]).
+</pre>
+<p>
+Keys should be atoms and values should be ground terms. The following keys are pre-defined and may be processed specially by Logtalk:
+</p>
+<blockquote>
+<dl>
+	<dt><code>comment</code></dt>
+		<dd>Comment describing predicate purpose (an atom).</dd>
+	<dt><code>argnames</code></dt>
+		<dd>Names of predicate arguments for pretty print output (a list of atoms).</dd>
+	<dt><code>allocation</code></dt>
+		<dd>Objects where we should define the predicate. Some possible values are <code>container</code>, <code>descendants</code>, <code>instances</code>, <code>classes</code>, <code>subclasses</code>, and <code>any</code>.</dd>
+	<dt><code>redefinition</code></dt>
+		<dd>Describes if the predicate can be redefined and in what way. Some possible values are <code>never</code>, <code>free</code>, <code>specialize</code>, <code>call_super_first</code>, <code>call_super_last</code>.</dd>
+</dl>
+</blockquote>
+<p>
+For example:
+</p>
+<pre>
+    :- info(color/1, [
+        comment is 'Table of defined colors.',
+        argnames is ['Color'],
+        constraint is 'Only a maximum of four visible colors allowed.']).
+</pre>
+<p>
+Use only the keywords that make sense for your application and remember that you are free to invent your own keywords.
+</p>
+
+<hr />
+<h2><a class="back" title="Return to index" name="processing" href="index.html#documenting_processing">Processing and viewing documenting files</a></h2>
+
+<p>
+The XML documenting files are (by default) automatically generated when you compile a Logtalk entity. For example, assuming the default filename extensions, compiling a <code>sort1.lgt</code> file generates a <code>sort1.pl</code> Prolog file and a <code>sort1.xml</code> XML file. The filename extension for each kind of file can be changed in the config files via the <code>lgt_file_extension/2</code> predicate.
+</p>
+<p>
+Each XML file contains references to two other files: <code>logtalk.dtd</code>, a DTD file describing the XML file structure, and a <a href="http://www.w3.org/Style/XSL/">XSL</a> style sheet file responsible for converting the XML files to some desired format like <a href="http://www.w3.org/MarkUp/">HTML</a>. The name of the XSL file can be changed in the configuration files via the <code>lgt_file_name/2</code> predicate. The default value is <code>logtalk.xsl</code>, a XSL file that converts Logtalk XML files to HTML files. The HTML output refers a <a href="http://www.w3.org/Style/CSS/">CSS</a> file, <code>logtalk.css</code>, that specifies how the HTML code will be rendered. The three default <code>logtalk.*</code> files are contained in the <code>xml</code> sub-directory in the Logtalk installation directory. This directory may also contain other files for specific <a href="http://www.xslt.com/">XSLT</a> processors or for converting XML to other formats besides HTML. Please read the <code>NOTES</code> file included in the directory for details.
+</p>
+<p>
+There is a set of compilers options, used with the Logtalk <a title="Consult reference manual" href="../refman/builtins/logtalk_load2.html"><code>logtalk_load/2</code></a> or the <a title="Consult reference manual" href="../refman/builtins/logtalk_compile2.html"><code>logtalk_compile/2</code></a> built-in predicates, that can be used to control the generation of the XML documentation files. Please see the <A HREF="installing.html#options">Installing and running Logtalk</A> section of this manual for details.
+</p>
+<p>
+By default, all file references use relative paths, assuming that the <code>.xml</code> documentation files and the <code>.dtd</code>, <code>.xsl</code>, and <code>.css</code> files reside in the same directory. This can acomplished either by copying the DTD and style files to the your application compiling directory or by using file aliases or symbolic links, depending on the operating system that you are using. Of course, you may also copy the <code>*.xml</code> files to the <code>xml</code> sub-directory.
+</p>
+<p>
+To view the XML documenting files you can open them in a web browser that supports the XML, XSL, CSS 1, and HTML 4 standards or use a XSLT tool to compile the <code>.xml</code> files to <code>.html</code> files. You can also write new XSL files to convert the XML code to alternative formats like <a href="http://www.tug.org/">LaTeX</a> or any other desired format.
+</p>
+
+<hr />
+<p class="center">
+<strong><a href="errors.html">Previous</a> | <a href="configuration.html">Next</a> | <a href="index.html">Table of Contents</a> | <a href="../bibliography.html">Bibliography</a> | <a href="../glossary.html">Glossary</a></strong>
+</p>
+<p class="center">
+Last updated on: February 10, 2001
+</p>
+<hr />
+
+</body>
+
+</html>

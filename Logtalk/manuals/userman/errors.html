@@ -1,0 +1,126 @@
+<!doctype html public "-//W3C//DTD HTML 4.01//EN"
+	"http://www.w3.org/TR/html4/strict.dtd">
+
+<html>
+
+<head>
+	<title>Error handling</title>
+	<link rel=stylesheet  href="../styles.css" type="text/css">
+</head>
+
+<body>
+
+<hr />
+<h1><a class="back" title="Return to index" href="index.html#errors">Error handling</a></h1>
+
+<p>
+All error/exception handling is done in Logtalk by using the ISO defined <code>catch/3</code> and <code>throw/1</code> predicates <a title="ISO Prolog Standard" href="../bibliography.html#ISO95">[ISO 95]</a>. Some Prolog compilers do not implement these predicates or, if they do, the implementation is not compatible with the standard. Furthermore, the nature of these predicates does not allow their definition by the user. For these reasons, we should check our Prolog compiler before trying to add error handling code to your Logtalk applications.
+</p>
+<p>
+Errors thrown by Logtalk defined built-in predicates have the following format:
+</p>
+<pre>
+    error(Error, Call)
+</pre>
+<p>
+For example:
+</p>
+<pre>
+    error(type_error(object_identifier, 33), current_object(33))
+</pre>
+<p>
+Errors thrown while processing a message have the following format:
+</p>
+<pre>
+    error(Error, Message, Sender)
+</pre>
+<p>
+For example:
+</p>
+<pre>
+    error(permission_error(modify, private_predicate, bar(_)), foo::abolish(bar/1), user)
+</pre>
+
+<hr />
+<h2><a class="back" title="Return to index" name="compiler" href="index.html#errors_compiler">Compiler warnings and errors</a></h2>
+
+<p>
+The Logtalk pre-processor/compiler uses the <code>read_term/3</code> ISO Prolog defined built-in predicate to read and process a Logtalk source file. One consequence of this is that invalid Prolog terms or syntax errors may abort the compilation process with limited information given to the user (due to the inherent limitations of the <code>read_term/3</code> predicate). 
+</p>
+<p>
+If all the (Prolog) terms in a source file are valid, then there is a set of errors or potential errors, described below, that the pre-processor will try to detect and report, depending on the used compiler options (see the <A HREF="installing.html#options">Installing and running Logtalk</A> section of this manual for details).
+</p>
+
+<h3><a class="back" title="Return to index" name="wsingletons" href="index.html#errors_wsingletons">Singleton variables</a></h3>
+
+<p>
+Singleton variables in a clause are often misspell variables and, as such, one of the most common errors when programming in Prolog. If your Prolog compiler complies with the Prolog ISO standard or at least supports the ISO predicate <code>read_term/3</code> called with the option <code>singletons(S)</code>, then the Logtalk pre-processor/compiler will warn us of any singleton it finds while compiling a Logtalk entity.
+</p>
+
+<h3><a class="back" title="Return to index" name="wprolog" href="index.html#errors_wprolog">Redefinition of Prolog built-in predicates</a></h3>
+
+<p>
+The Logtalk pre-processor/compiler will warn us of any redefinition of a Prolog built-in predicate inside an object or category. Sometimes the redefinition is intended. In other cases, the user may not be aware that the subjacent Prolog compiler may already provide the predicate as a built-in or we may want to ensure code portability among several Prolog compilers with different sets of built-in predicates.
+</p>
+
+<h3><a class="back" title="Return to index" name="wpredicates" href="index.html#errors_wpredicates">Redefinition of Logtalk built-in predicates</a></h3>
+
+<p>
+Similar to the redefinition of Prolog built-in predicates, the Logtalk compiler will warn us if we try to redefine a Logtalk built-in. The redefinition will probably be an error in almost all (if not all) cases.
+</p>
+
+<h3><a class="back" title="Return to index" name="wmethods" href="index.html#errors_wmethods">Redefinition of Logtalk built-in methods</a></h3>
+
+<p>
+An error will be thrown if we attempt to redefine a Logtalk built-in method inside an entity. The default behaviour is to report the error and abort the compilation of the offending entity. 
+</p>
+
+<h3><a class="back" title="Return to index" name="wmethods" href="index.html#errors_wmisspell">Misspell calls of local predicates</a></h3>
+
+<p>
+A warning will be reported if Logtalk finds (in the body of a predicate definition) a call to a local predicate that is not defined, built-in (either in Prolog or in Logtalk) or declared dynamic. In most cases these calls are simple misspell errors.
+</p>
+
+<h3><a class="back" title="Return to index" name="wothers" href="index.html#errors_wothers">Other warnings and errors</a></h3>
+
+<p>
+The Logtalk pre-processor/compiler will throw an error if it finds a predicate clause or a directive that cannot be parsed. The default behaviour is to report the error and abort the compilation of the offending entity.
+</p>
+
+<hr />
+<h2><a class="back" title="Return to index" name="runtime" href="index.html#errors_runtime">Runtime errors</a></h2>
+
+<p>
+This session briefly describes runtime errors that result from misuse of Logtalk built-in predicates, built-in methods or from message sending. For a complete and detailed description of runtime errors please consult the <a title="Consult reference manual" href="../refman/index.html">Reference Manual</a>.
+</p>
+
+<h3><a class="back" title="Return to index" name="predicates" href="index.html#errors_predicates">Logtalk built-in predicates</a></h3>
+
+<p>
+All Logtalk built-in predicates checks the type and mode of the calling arguments, throwing an exception in case of misuse.
+</p>
+
+<h3><a class="back" title="Return to index" name="methods" href="index.html#errors_methods">Logtalk built-in methods</a></h3>
+
+<p>
+Every Logtalk built-in method checks the type and mode of the calling arguments, throwing an exception in case of misuse.
+</p>
+
+<h3><a class="back" title="Return to index" name="sending" href="index.html#errors_sending">Message sending</a></h3>
+
+<p>
+The message sending mechanisms always check if the receiver of a message is a defined object and if the message corresponds to a declared predicate within the scope of the sender.
+</p>
+
+<hr />
+<p class="center">
+<strong><a href="events.html">Previous</a> | <a href="documenting.html">Next</a> | <a href="index.html">Table of Contents</a> | <a href="../bibliography.html">Bibliography</a> | <a href="../glossary.html">Glossary</a></strong>
+</p>
+<p class="center">
+Last updated on: February 10, 2001
+</p>
+<hr />
+
+</body>
+
+</html>

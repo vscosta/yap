@@ -1,0 +1,24 @@
+=================================================================
+Logtalk - Object oriented extension to Prolog
+Release 2.8.4
+
+Copyright (c) 1998-2001 Paulo Moura.  All Rights Reserved.
+=================================================================
+
+To load all objects in this example consult the symdiff.loader utility
+file (note that the *.loader files are Prolog files).
+
+This folder contains an example of using parametric objects to implement
+symbolic expression differentiation and simplification.
+
+Limitations:
+
+	- the expression that we intend to differentiate or simplify 
+	must be a compound term. Accepted functors are *, +, -, **, and log.
+
+	- use as a variable the atom x.
+
+	- only integers can be used as constants.
+
+This example is still incomplete. For example, using sum distribuition 
+property to simplify expressions is not yet implemented. 

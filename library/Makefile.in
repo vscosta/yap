@@ -25,6 +25,7 @@ PROGRAMS= $(srcdir)/assoc.yap \
 	$(srcdir)/charsio.yap \
 	$(srcdir)/heaps.yap \
 	$(srcdir)/lists.yap \
+	$(srcdir)/logtalk.yap
 	$(srcdir)/ordsets.yap \
 	$(srcdir)/prandom.yap \
 	$(srcdir)/queues.yap \
@@ -35,8 +36,14 @@ PROGRAMS= $(srcdir)/assoc.yap \
 	$(srcdir)/trees.yap \
 	$(srcdir)/ugraphs.yap
 
+LOGTALK_PROGRAMS=
+	$(srcdir)/logtalk.pl \
+	$(srcdir)/yap430.config
+
 install: $(PROGRAMS)
 	-mkdir $(DESTDIR)$(LIBDIR)/library
+	-mkdir $(DESTDIR)$(LIBDIR)/library/logtalk
 	$(INSTALL_DATA) $(PROGRAMS) $(DESTDIR)$(LIBDIR)/library
+	$(INSTALL_DATA) $(LOGTALK_PROGRAMS) $(DESTDIR)$(LIBDIR)/library/logtalk
 
 

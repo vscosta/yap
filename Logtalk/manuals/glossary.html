@@ -1,0 +1,176 @@
+<!doctype html public "-//W3C//DTD HTML 4.01//EN"
+	"http://www.w3.org/TR/html4/strict.dtd">
+
+<html>
+
+<head>
+	<title>Logtalk Glossary</title>
+	<link rel=stylesheet  href="styles.css" type="text/css">
+</head>
+
+<body>
+
+<hr />
+<h1><a class="back" title="Return to index" href="index.html#glossary">Glossary</a></h1>
+<hr />
+
+<dl>
+
+<dt class="glossary"><a name="ancestor">ancestor</a></dt>
+<dd>A class or parent that contributes (via inheritance) to the definition of an object. The ancestors of an object are its class and all the superclasses of its class (in class-based hierarchies) or its parent and the ancestors of its parent (in prototype-based hierarchies).</dd>
+
+<dt class="glossary"><a name="category">category</a></dt>
+<dd>A set of predicates directives and clauses that can be imported by any object.</dd>
+
+<dt class="glossary"><a name="class">class</a></dt>
+<dd>An object that defines the common predicates of a set of objects (its instances).</dd>
+
+<dd><dl>
+
+<dt class="glossary"><a name="abstractclass">abstract class</a></dt>
+<dd>A class that can not be instantiated. Usually used to store common predicates that are inherited by other classes.</dd>
+
+<dt class="glossary"><a name="metaclass">metaclass</a></dt>
+<dd>The class of a class, when we see it as an object. Metaclass instances are themselves classes. In a reflexive system any metaclass is also an object.</dd>
+
+<dt class="glossary"><a name="subclass">subclass</a></dt>
+<dd>A class that is a specialization, direct or indirectly, of another class.</dd>
+
+<dt class="glossary"><a name="superclass">superclass</a></dt>
+<dd>A class from each another class is a specialization (direct or indirectly, via another class).</dd>
+
+</dl></dd>
+
+<dt class="glossary"><a name="directive">directive</a></dt>
+<dd>A Prolog term that affects the interpretation of Prolog code. Directives are represented using the <code>:-/1</code> prefix functor.</dd>
+
+<dd><dl>
+
+<dt class="glossary"><a name="entity_directive">entity directive</a></dt>
+<dd>A directive that affects how Logtalk entities (objects, protocols, or categories) are used or compiled.</dd>
+
+<dt class="glossary"><a name="predicate_directive">predicate directive</a></dt>
+<dd>A directive that affects how predicates are called or compiled.</dd>
+
+</dl></dd>
+
+<dt class="glossary"><a name="encapsulation">encapsulation</a></dt>
+<dd>The hiding of an object implementation. This promotes software reuse by isolating users from implementation details.</dd>
+
+<dt class="glossary"><a name="entity">entity</a></dt>
+<dd>Generic name for Logtalk compilation units: objects, categories and protocols.</dd>
+
+<dt class="glossary"><a name="event">event</a></dt>
+<dd>The sending of a message to an object. An event can be expressed as an ordered tuple: <code>(Event, Object, Message, Sender)</code>. Logtalk distinguish between the sending of a message - <code>before</code> event - and the return of control to the sender - <code>after</code> event.</dd>
+
+<dt class="glossary"><a name="identity">identity</a></dt>
+<dd>Property of an entity that distinguish it from every other entity. In Logtalk an entity identity can be an atom or a compound term. All Logtalk entities, objects, protocols and categories share the same name space.</dd>
+
+<dt class="glossary"><a name="inheritance">inheritance</a></dt>
+<dd>An object inherits predicate directives and clauses from other objects that it extends or specializes. If an object extends other object then we have a prototype-based inheritance. If an object specializes or instantiates another object we have a class-based inheritance.</dd>
+
+<dd><dl>
+
+<dt class="glossary"><a name="private_inheritance">private inheritance</a></dt>
+<dd>All public and protected predicates are inherited as private predicates.</dd>
+
+<dt class="glossary"><a name="protected_inheritance">protected inheritance</a></dt>
+<dd>All public predicates are inherited as protected. No change for protected or private predicates.</dd>
+
+<dt class="glossary"><a name="public_inheritance">public inheritance</a></dt>
+<dd>All inherited predicates maintain the declared scope.</dd>
+
+</dl></dd>
+
+<dt class="glossary"><a name="instance">instance</a></dt>
+<dd>The same as object. This term is used when we want to emphasize that an object characteristics are defined by another object (its class).</dd>
+
+<dt class="glossary"><a name="instantiation">instantiation</a></dt>
+<dd>The process of creating a new class instance.</dd>
+
+<dt class="glossary"><a name="message">message</a></dt>
+<dd>A request for a service, sent to an object. In more logical terms, a message can be seen as a request for proof construction using an object's predicates.</dd>
+
+<dt class="glossary"><a name="metainterpreter">metainterpreter</a></dt>
+<dd>A program capable of running and modifying other programs written in the same language.</dd>
+
+<dt class="glossary"><a name="method">method</a></dt>
+<dd>Set of predicate clauses used to answer a message sent to an object. Logtalk uses dynamic binding to find which method to run to answer a message.</dd>
+
+<dt class="glossary"><a name="monitor">monitor</a></dt>
+<dd>Any object that is notified when a spied event occurs. The spied events can be set by the monitor or by any other object.</dd>
+
+<dt class="glossary"><a name="object">object</a></dt>
+<dd>An entity characterized by an identity and a set of predicate directives and clauses. In Logtalk objects can be either static or dynamic, like any other Prolog code.</dd>
+
+<dd><dl>
+
+<dt class="glossary"><a name="parametric">parametric object</a></dt>
+<dd>An object whose name is a compound term containing free variables that can be used to parameterize the object predicates.</dd>
+
+</dl></dd>
+
+
+<dt class="glossary"><a name="parent">parent</a></dt>
+<dd>An object that is extended by another object.</dd>
+
+<dt class="glossary"><a name="predicate">predicate</a></dt>
+<dd>Predicates describe what is true about the application domain. A predicate is identified by its name and number of arguments using the notation <CODE>&lt;name&gt;/&lt;nargs&gt;</CODE>.</dd>
+
+<dd><dl>
+
+<dt class="glossary"><a name="local_predicate">local predicate</a></dt>
+<dd>A predicate that is defined in an object (or in a category) but that is not listed in a scope directive. These predicates behave like private predicates but are invisible to the reflection methods.</dd>
+
+<dt class="glossary"><a name="metapredicate">metapredicate</a></dt>
+<dd>A predicate where one of its arguments will be called as a goal. For instance, <code>findall/3</code> and <code>call/1</code> are Prolog built-ins metapredicates.</dd>
+
+<dt class="glossary"><a name="private_predicate">private predicate</a></dt>
+<dd>A predicate that can only be called from the object that contains the scope directive.</dd>
+
+<dt class="glossary"><a name="protected_predicate">protected predicate</a></dt>
+<dd>A predicate that can only be called from the object containing the scope directive or from an object that inherits the predicate.</dd>
+
+<dt class="glossary"><a name="public_predicate">public predicate</a></dt>
+<dd>A predicate that can be called from any object.</dd>
+
+<dt class="glossary"><a name="visible_predicate">visible predicate</a></dt>
+<dd>A predicate that is declared for an object, a built-in method, or a Prolog or Logtalk built-in predicate.</dd>
+
+</dl></dd>
+
+<dt class="glossary"><a name="profiler">profiler</a></dt>
+<dd>A program that collects data about other program performance.</dd>
+
+<dt class="glossary"><a name="protocol">protocol</a></dt>
+<dd>A set of predicates directives that can be implemented by an object or a category (or extended by another protocol).</dd>
+
+<dt class="glossary"><a name="protocol">prototype</a></dt>
+<dd>A self-describing object that may extend or be extended by other objects.</dd>
+
+<dt class="glossary"><a name="self">self</a></dt>
+<dd>The original object that received the message under execution.</dd>
+
+<dt class="glossary"><a name="sender">sender</a></dt>
+<dd>An object that sends a message to other object.</dd>
+
+<dt class="glossary"><a name="specialization">specialization</a></dt>
+<dd>A class is specialized by constructing a new class that inherit its predicates and possibly add new ones.</dd>
+
+<dt class="glossary"><a name="this">this</a></dt>
+<dd>The object that contains the predicate clause under execution.</dd>
+
+</dl>
+
+<hr />
+<p class="center">
+<strong><a href="userman/index.html">User manual</a> | <a href="refman/index.html">Reference manual</a> | <a href="bibliography.html">Bibliography</a></strong>
+</p>
+<p class="center">
+Last updated on: February 10, 2001
+</p>
+<hr />
+
+</body>
+
+</html>

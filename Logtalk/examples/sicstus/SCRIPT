@@ -1,0 +1,98 @@
+=================================================================
+Logtalk - Object oriented extension to Prolog
+Release 2.8.4
+
+Copyright (c) 1998-2001 Paulo Moura.  All Rights Reserved.
+=================================================================
+
+
+| ?- sort(rational)::sort([1/8, 2/7, 6/5, 2/9, 1/3], Sorted).
+
+Sorted = [1/8, 2/9, 2/7, 1/3, 6/5]
+yes.
+
+
+| ?- sort(colours)::sort([orange, indigo, red, yellow, violet, blue, green], Sorted).
+
+Sorted = [red, orange, yellow, green, blue, indigo, violet]
+yes
+
+
+| ?- sort(user)::sort([3, 1, 4, 2, 9], Sorted).
+
+Sorted = [1, 2, 3, 4, 9]
+yes
+
+
+| ?- red_circle(3)::color(Color).
+
+Color = red
+yes.
+
+
+| ?- red_circle(3)::area(Area).
+
+Area = 28.274334
+yes.
+
+
+| ?- red_circle(3)::ancestors(As).
+
+As = [circle(3, red), ellipse(3, 3, red)]
+yes.
+
+
+
+| ?- red_circle(3)::context.
+
+red_circle1
+self: red_circle(3)
+this: red_circle(3)
+sender: user
+
+circle2
+self: red_circle(3)
+this: circle(3,red)
+sender: user
+
+ellipse3
+self: red_circle(3)
+this: ellipse(3,3,red)
+sender: user
+
+yes
+
+
+| ?- square(2)::(side(Side), width(Width), height(Height), area(Area)).
+
+Side = 2
+Width = 2
+Height = 2
+Area = 4
+yes.
+
+
+| ?- square(2)::current_predicate(Pred).
+
+Pred = side/1 ; 
+
+Pred = width/1 ;
+
+Pred = height/1 ;
+
+Pred = area/1 ; 
+
+no
+
+
+| ?- square(_)::predicate_property(side(_), Prop).
+
+Prop = public ;
+
+Prop = static ;
+
+Prop = declared_in(square(_133)) ;
+
+Prop = defined_in(square(_164)) ;
+
+no

@@ -1,0 +1,33 @@
+=================================================================
+Logtalk - Object oriented extension to Prolog
+Release 2.8.4
+
+Copyright (c) 1998-2001 Paulo Moura.  All Rights Reserved.
+=================================================================
+
+
+% some queries using the time and date parametric objects:
+
+| ?- date(Year, Month, Day)::today.
+
+Year = 2000
+Month = 8
+Day = 15 
+
+Yes
+
+
+| ?- date(Year, _, _)::(today, leap_year). 
+
+Year = 2000
+
+yes
+
+
+| ?- time(Hours, Mins, Secs)::now.
+
+Hours = 13
+Mins = 52
+Secs = 42 
+
+Yes

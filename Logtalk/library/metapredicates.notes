@@ -1,0 +1,17 @@
+=================================================================
+Logtalk - Object oriented extension to Prolog
+Release 2.8.4
+
+Copyright (c) 1998-2001 Paulo Moura.  All Rights Reserved.
+=================================================================
+
+
+To load all objects in this group consult the metapredicates.loader 
+utility file.
+
+
+The object loop implements several kinds of loops typical of imperative 
+languages.
+
+The object meta implements common Prolog metapredicates like apply/2 
+and map/3.

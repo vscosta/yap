@@ -1,0 +1,81 @@
+
+a:link {
+	color: blue;
+	text-decoration: none
+}
+
+a:visited {
+	color: blue;
+	text-decoration: none
+}
+
+a:hover {
+	color: blue;
+	text-decoration: underline
+} 
+
+a:active {
+	color: red;
+	text-decoration: underline
+}
+
+
+.code, code, pre {
+	color: navy;
+	font-family: monospace;
+}
+
+
+.type {
+	color: maroon;
+	text-align: right;
+	padding-top: 0em;
+	border-top: 0em;
+	margin-top: 0em;
+}
+
+
+p {
+	line-height: normal;
+	font-weight: normal;
+	font-style: normal;
+}
+
+
+body {
+	color: black;
+	background-color: white;
+	font-family: sans-serif;
+	margin-left: 2em;
+	margin-right: 2em;
+}
+
+
+h1, h2, h3, h4, h5, h6 {
+	color: teal;
+	font-family: sans-serif;
+}
+
+
+dt {
+	color: teal;
+}
+
+
+dd {
+	color: navy;
+	font-family: monospace;
+}
+
+
+dl.predicate {
+	margin-left: 2em;
+}
+
+
+blockquote {
+	color: navy;
+	font-family: sans-serif;
+	font-style: italic;
+	margin-left: 2em;
+}

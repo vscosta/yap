@@ -1,0 +1,81 @@
+
+<!-- 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%
+%  Logtalk - Object oriented extension to Prolog
+%  Release 2.8.4
+%
+%  Copyright (c) 1998-2001 Paulo Moura.  All Rights Reserved.
+%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+-->
+
+
+<!ELEMENT logtalk (entity, relations, predicates)>
+
+
+<!ELEMENT entity (name, type, compilation, comment?, authors?, version?, date?, info*)>
+
+<!ELEMENT name (#PCDATA)>
+
+<!ELEMENT type (#PCDATA)>
+
+<!ELEMENT compilation (#PCDATA)>
+
+<!ELEMENT comment (#PCDATA)>
+
+<!ELEMENT authors (#PCDATA)>
+
+<!ELEMENT version (#PCDATA)>
+
+<!ELEMENT date (#PCDATA)>
+
+<!ELEMENT info (key, value)>
+
+
+<!ELEMENT key (#PCDATA)>
+
+<!ELEMENT value (#PCDATA)>
+
+
+<!ELEMENT relations (implements*, imports*, extends*, instantiates*, specializes*, uses*, calls*)>
+
+<!ELEMENT implements (name, scope, file)>
+
+<!ELEMENT imports (name, scope, file)>
+
+<!ELEMENT extends (name, scope, file)>
+
+<!ELEMENT instantiates (name, scope, file)>
+
+<!ELEMENT specializes (name, scope, file)>
+
+<!ELEMENT uses (name, file)>
+
+<!ELEMENT calls (name, file)>
+
+
+<!ELEMENT scope (#PCDATA)>
+
+<!ELEMENT file (#PCDATA)>
+
+
+<!ELEMENT predicates (public, protected, private)>
+
+
+<!ELEMENT public (predicate*)>
+
+<!ELEMENT protected (predicate*)>
+
+<!ELEMENT private (predicate*)>
+
+
+<!ELEMENT predicate (name, scope, compilation, meta?, mode*, comment?, template?, info*)>
+
+<!ELEMENT meta (#PCDATA)>
+
+<!ELEMENT mode (template, solutions)>
+
+<!ELEMENT template (#PCDATA)>
+
+<!ELEMENT solutions (#PCDATA)>

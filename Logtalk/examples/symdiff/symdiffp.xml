@@ -1,0 +1,50 @@
+<?xml version="1.0"?>
+<!DOCTYPE logtalk SYSTEM "logtalk.dtd">
+<?xml-stylesheet type="text/xsl" href="logtalk.xsl"?>
+<logtalk>
+<entity>
+<name><![CDATA[symdiffp]]></name>
+<type>protocol</type>
+<compilation>static</compilation>
+<comment><![CDATA[Symbolic differentiation and simplification protocol.]]></comment>
+<authors><![CDATA[Paulo Moura]]></authors>
+<version>1.0</version>
+<date>1999/12/29</date>
+<info>
+<key>source</key>
+<value><![CDATA[Example based on the Clocksin and Mellish Prolog book.]]></value>
+</info>
+</entity>
+<relations>
+</relations>
+<predicates>
+<public>
+<predicate>
+<name><![CDATA[diff/1]]></name>
+<scope>public</scope>
+<compilation>static</compilation>
+<mode>
+<template><![CDATA[diff(-expression)]]></template>
+<solutions>one</solutions>
+</mode>
+<comment><![CDATA[Returns the symbolic differentiation of self.]]></comment>
+<template><![CDATA[diff(Expression)]]></template>
+</predicate>
+<predicate>
+<name><![CDATA[simplify/1]]></name>
+<scope>public</scope>
+<compilation>static</compilation>
+<mode>
+<template><![CDATA[simplify(-expression)]]></template>
+<solutions>one</solutions>
+</mode>
+<comment><![CDATA[Returns the symbolic simplification of self.]]></comment>
+<template><![CDATA[simplify(Expression)]]></template>
+</predicate>
+</public>
+<protected>
+</protected>
+<private>
+</private>
+</predicates>
+</logtalk>

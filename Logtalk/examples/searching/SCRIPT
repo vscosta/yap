@@ -1,0 +1,248 @@
+=================================================================
+Logtalk - Object oriented extension to Prolog
+Release 2.8.4
+
+Copyright (c) 1998-2001 Paulo Moura.  All Rights Reserved.
+=================================================================
+
+
+% farmer, cabbage, goat and wolf problem
+
+| ?- farmer::initial_state(Initial), depth_first(10)::solve(farmer, Initial, Path), farmer::print_path(Path).
+
+cgwf.<__>..........____
+c_w_..........<__>.f_g_
+c_wf.<__>..........__g_
+__w_..........<__>.fcg_
+_gwf.<__>.........._c__
+_g__..........<__>.fc_w
+_g_f.<__>.........._c_w
+____..........<__>.fcgw
+
+Path = [(north,north,north,north),(north,south,north,south),(north,south,north,north),(south,south,north,south),(south,north,north,north),(south,north,south,south),(south,north,south,north),(south,south,south,south)],
+Initial = (north,north,north,north) ? 
+
+yes
+
+
+% missionaires and cannibals problem, solved using a hill-climbing strategy
+
+| ?- miss_cann::initial_state(Initial), hill_climbing(16)::solve(miss_cann, Initial, Path, Cost), miss_cann::print_path(Path).
+
+MMMCCC.<__>..........
+MMCC..........<__>.MC
+MMMCC.<__>..........C
+MMM..........<__>.CCC
+MMMC.<__>..........CC
+MC..........<__>.MMCC
+MMCC.<__>..........MC
+CC..........<__>.MMMC
+CCC.<__>..........MMM
+C..........<__>.MMMCC
+CC.<__>..........MMMC
+..........<__>.MMMCCC
+
+Cost = 15,
+Path = [((3,3),esq,0,0),((2,2),dir,1,1),((3,2),esq,0,1),((3,0),dir,0,3),((3,1),esq,0,2),((1,1),dir,2,2),((2,2),esq,1,1),((0,2),dir,3,1),((0,3),esq,3,0),((0,1),dir,3,2),((0,2),esq,3,1),((0,0),dir,3,3)],
+Initial = ((3,3),esq,0,0)
+yes
+
+
+% same problem as above with the addition of a monitor to measure hill-climbing performance
+
+| ?- performance::init, miss_cann::initial_state(Initial), hill_climbing(16)::solve(miss_cann, Initial, Path, Cost), miss_cann::print_path(Path), performance::report.
+
+MMMCCC.<__>..........
+MMCC..........<__>.MC
+MMMCC.<__>..........C
+MMM..........<__>.CCC
+MMMC.<__>..........CC
+MC..........<__>.MMCC
+MMCC.<__>..........MC
+CC..........<__>.MMMC
+CCC.<__>..........MMM
+C..........<__>.MMMCC
+CC.<__>..........MMMC
+..........<__>.MMMCCC
+solution length: 12
+number of state transitions: 27
+ratio solution length / state transitions: 0.4444444444444444
+minimum branching degree: 2
+average branching degree: 2.5555555555555554
+maximum branching degree: 3
+time: 0.067999999999756255
+
+Cost = 15,
+Path = [((3,3),esq,0,0),((2,2),dir,1,1),((3,2),esq,0,1),((3,0),dir,0,3),((3,1),esq,0,2),((1,1),dir,2,2),((2,2),esq,1,1),((0,2),dir,3,1),((0,3),esq,3,0),((0,1),dir,3,2),((0,2),esq,3,1),((0,0),dir,3,3)],
+Initial = ((3,3),esq,0,0) ? 
+
+yes
+
+
+% water jugs problem solved using a breadth and a depth first strategy, with performance monitors
+% it's interesting to compare the results
+
+| ?- performance::init, water_jug::initial_state(Initial), breadth_first(6)::solve(water_jug, Initial, Path), water_jug::print_path(Path), performance::report.
+
+4-gallon jug: 0
+3-gallon jug: 0
+
+4-gallon jug: 0
+3-gallon jug: 3
+
+4-gallon jug: 3
+3-gallon jug: 0
+
+4-gallon jug: 3
+3-gallon jug: 3
+
+4-gallon jug: 4
+3-gallon jug: 2
+
+4-gallon jug: 0
+3-gallon jug: 2
+
+solution length: 6
+number of state transitions: 105
+ratio solution length / state transitions: 0.05714285714285714
+minimum branching degree: 2
+average branching degree: 3.6315789473684212
+maximum branching degree: 4
+time: 0.20000000000027285
+
+Path = [(0,0),(0,3),(3,0),(3,3),(4,2),(0,2)],
+Initial = (0,0) ? 
+
+yes
+
+
+| ?- performance::init, water_jug::initial_state(Initial), depth_first(10)::solve(water_jug, Initial, Path), water_jug::print_path(Path), performance::report.
+
+4-gallon jug: 0
+3-gallon jug: 0
+
+4-gallon jug: 4
+3-gallon jug: 0
+
+4-gallon jug: 4
+3-gallon jug: 3
+
+4-gallon jug: 0
+3-gallon jug: 3
+
+4-gallon jug: 3
+3-gallon jug: 0
+
+4-gallon jug: 3
+3-gallon jug: 3
+
+4-gallon jug: 4
+3-gallon jug: 2
+
+4-gallon jug: 0
+3-gallon jug: 2
+
+solution length: 8
+number of state transitions: 12
+ratio solution length / state transitions: 0.6666666666666666
+
+
+
+minimum branching degree: 1
+average branching degree: 2.0
+maximum branching degree: 3
+time: 0.021999999999934516
+
+Path = [(0,0),(4,0),(4,3),(0,3),(3,0),(3,3),(4,2),(0,2)],
+Initial = (0,0) ? 
+
+yes
+
+
+% eight puzzle solved using a hill-climbing strategy
+
+| ?- performance::init, eight_puzzle::initial_state(five_steps, Initial), hill_climbing(25)::solve(eight_puzzle, Initial, Path, Cost), eight_puzzle::print_path(Path), performance::report.
+
+283
+164
+7 5
+
+283
+1 4
+765
+
+2 3
+184
+765
+
+ 23
+184
+765
+
+123
+ 84
+765
+
+123
+8 4
+765
+solution length: 6
+number of state transitions: 15
+ratio solution length / state transitions: 0.4
+minimum branching degree: 2
+average branching degree: 3.1333333333333333
+maximum branching degree: 4
+time: 0.050000000000181899
+
+Cost = 5,
+Path = [[2/1,1/2,1/3,3/3,3/2,3/1,2/2,1/1,2/3],[2/2,1/2,1/3,3/3,3/2,3/1,2/1,1/1,2/3],[2/3,1/2,1/3,3/3,3/2,3/1,2/1,1/1,2/2],[1/3,1/2,2/3,3/3,3/2,3/1,2/1,1/1,2/2],[1/2,1/3,2/3,3/3,3/2,3/1,2/1,1/1,2/2],[2/2,1/3,2/3,3/3,3/2,3/1,2/1,1/1,1/2]],
+Initial = [2/1,1/2,1/3,3/3,3/2,3/1,2/2,1/1,2/3] ? 
+
+yes
+
+
+% eight puzzle solved using a best-first strategy
+
+| ?- performance::init, eight_puzzle::initial_state(five_steps, Initial), best_first(25)::solve(eight_puzzle, Initial, Path, Cost), eight_puzzle::print_path(Path), performance::report.
+
+283
+164
+7 5
+
+283
+1 4
+765
+
+2 3
+184
+765
+
+ 23
+184
+765
+
+123
+ 84
+765
+
+123
+8 4
+765
+solution length: 6
+number of state transitions: 15
+ratio solution length / state transitions: 0.4
+minimum branching degree: 2
+average branching degree: 3.1333333333333333
+maximum branching degree: 4
+time: 0.046000000000276486
+
+Cost = 5,
+Path = [[2/1,1/2,1/3,3/3,3/2,3/1,2/2,1/1,2/3],[2/2,1/2,1/3,3/3,3/2,3/1,2/1,1/1,2/3],[2/3,1/2,1/3,3/3,3/2,3/1,2/1,1/1,2/2],[1/3,1/2,2/3,3/3,3/2,3/1,2/1,1/1,2/2],[1/2,1/3,2/3,3/3,3/2,3/1,2/1,1/1,2/2],[2/2,1/3,2/3,3/3,3/2,3/1,2/1,1/1,1/2]],
+Initial = [2/1,1/2,1/3,3/3,3/2,3/1,2/2,1/1,2/3] ? 
+
+yes
+
+
+% turn off performance monitor
+
+| ?- performance::stop.

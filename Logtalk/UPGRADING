@@ -1,0 +1,36 @@
+=================================================================
+Logtalk - Object oriented extension to Prolog
+Release 2.8.4
+
+Copyright (c) 1998-2001 Paulo Moura.  All Rights Reserved.
+=================================================================
+
+
+
+Upgrading from Logtalk 1.x
+==========================
+
+Logtalk 2.x is not compatible with programs written for version 1.x.
+However, you should be able to translate most programs to make them 
+run under this new version. Most of the examples provided with previous 
+versions have been rewritten to run under version 2.x. Use them as 
+translation examples.
+
+
+Upgrading from a previous Logtalk 2.x version
+=============================================
+
+If your Logtalk programs depend on some of the example files, it is
+advisable that you check your code against the new version before 
+throwing away the older release.
+
+Logtalk source files will need to be recompiled because of the changes 
+done in the version 2.5.0 to improve message sending performance.
+
+Logtalk version 2.7.0 provides the first cut of the Logtalk standard library.
+Most examples have been rewritten to take advantage of the library.
+
+Logtalk version 2.8.0 introduces a small change on the logtalk_compile/1-2 
+and logtalk_load/1-2 predicates that may imply updating your loader utility
+files: the first argument is now always a list of entities even if we want 
+to compile or laod a single entity.

@@ -1,0 +1,15 @@
+=================================================================
+Logtalk - Object oriented extension to Prolog
+Release 2.8.4
+
+Copyright (c) 1998-2001 Paulo Moura.  All Rights Reserved.
+=================================================================
+
+To load all objects in this example consult the mi.loader utility
+file (note that the *.loader files are Prolog files).
+
+There are two examples in this folder. The first one is an adoption of a 
+multi-inheritance C++ example found on the D. M. Capper book "Introducing 
+C++ for Scientists, Engineers and Mathematicians" published by 
+Springer-Verlag. It uses dynamic predicates for storing state. The second 
+example is a variant of the first using parametric objects.

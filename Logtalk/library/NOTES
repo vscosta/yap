@@ -1,0 +1,23 @@
+=================================================================
+Logtalk - Object oriented extension to Prolog
+Release 2.8.4
+
+Copyright (c) 1998-2001 Paulo Moura.  All Rights Reserved.
+=================================================================
+
+This folder contains objects, categories, and protocols that implement
+predicates for dealing with common Prolog types and structures.
+
+To load all a group of objects, protocols and categories in this 
+library consult the corresponding *.loader utility file.
+
+Some files represent work in progress and are not loaded by default by 
+any loader utility file.
+
+Specific notes about each group of objects, categories, and protocols 
+can be found in the corresponding *.notes files.
+
+Some of the code in this library is based on public domain Prolog code, 
+in particular, adopted from the Edinburgh Prolog library.
+
+All source files are formatted using four-spaces tabs.

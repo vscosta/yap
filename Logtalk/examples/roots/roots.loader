@@ -1,0 +1,8 @@
+
+:- initialization(
+	logtalk_load([
+		initialization,
+		objectp, object,
+		abstract_classp, abstract_class,
+		classp, class,
+		nil])).

@@ -1,0 +1,522 @@
+=================================================================
+Logtalk - Object oriented extension to Prolog
+Release 2.8.4
+
+Copyright (c) 1998-2001 Paulo Moura.  All Rights Reserved.
+=================================================================
+
+
+RELEASE NOTES
+=============
+
+
+2.8.4 - March 9, 2001
+
+	Updated config files for BinProlog 8.0, K-Prolog 5.01, XSB 2.3, and
+	Amzi! Prolog 4.103~5.0.
+	
+	New config file for Amzi! Prolog 6.1 beta.
+
+	Corrected an incomplete entity definition in the Logtalk XML DTD.
+	Rewrite the Logtalk XSLT files for improved compatibility with XSLT 
+	processors regarding handling of whitespace.
+
+	A first cut of a XML Schema for the Logtalk XML documentation files
+	(file xml/logtalk.xsd).
+
+	Small improvements to the documentation.
+
+
+2.8.3 - November 21, 2000
+
+	Corrected a bug where sending a message for a built-in method to an 
+	unknown object fails instead of generating the expected exception.
+
+	Put some ocorrences of atoms public, mode, and type between ()'s to 
+	avoid compilation errors in BinProlog 8.0 and other Prolog compilers 
+	that declare these atoms as operators.
+
+	Corrected the definition of the state space of the "Missionaires and 
+	Cannibals" problem in the "searching" example that resulted in some 
+	wrong solutions.
+
+
+2.8.2 - November 5, 2000
+
+	New .xsl file to convert .xml files to TeXML files.
+
+	Fixed a problem with explicit compilation options being correctly parsed 
+	but not processed.
+
+	Corrected a bug regarding default init options definition for the 
+	points, polygons, and bricks examples. Updated category initialization 
+	in roots example.
+
+
+2.8.1 - October 28, 2000
+
+	New config file for K-Prolog 5.0.
+
+	Improved compiler error detection and reporting of invalid directives 
+	and clauses.
+	
+	Corrected a problem with some Prolog compilers where compiling a file 
+	containing syntax errors may not close the file after the errors are 
+	reported.
+
+	Many small improvements to all documentation.
+	
+	Small improvements to the .xsl files and to the output of .xml files.
+
+
+2.8.0 - October 1, 2000
+
+	I have found just a few days ago that I have uploaded to the Logtalk web 
+	server a development version of Logtalk 2.7.0 instead of the final one!
+	To avoid confusions I decided to release a new version.
+
+	Changed implementation of the logtalk_compile/1-2 and logtalk_load/1-2 
+	predicates to only accept a list of entities instead of either an entity 
+	or a list of entities, simplifying and improving the performance of these 
+	predicates. Improved error reporting for the logtalk_compile/1 and 
+	logtalk_load/1 predicates. Updated relevant sessions in the user and 
+	reference manuals.
+
+	Simplified the implementation of the following predicates, by sharing 
+	the error checking code with the corresponding extended versions: 
+	implements_protocol/2, imports_category/2, instantiates_class/2, 
+	specializes_class/2, extends_protocol/2, and extends_object/2.
+
+	Completed some missing library file dependencies documentation in some 
+	examples.
+
+	New version of the QUICK_START help file. Updated tutorial.
+
+
+2.7.0 - August 24, 2000
+
+	First release of the Logtalk standard library of objects, protocols and 
+	categories.
+
+	Rewritten all examples to use the new Logtalk standard library.
+
+	New logtalk_load/2 and logtalk_compile/2 Logtalk built-in predicates,
+	accepting a list of compiler options. See the User and Reference Manuals 
+	for details.
+
+	New XSLT file for viewing .xml files in Microsoft Internet Explorer 5.5 
+	for Windows after installing the latest Microsoft XML Parser Preview 
+	Release. Small improvements in all XSLT files.
+
+	Starting with this version all config files need to provide a definition 
+	for the compare/3 predicate if it is not built-in in the corresponding 
+	Prolog compiler. Also, default Logtalk compiler options are now also set 
+	in the config files using the lgt_default_compiler_option/2 predicate.
+
+	Updated config file for CIAO 1.6p1. See the configs/NOTES file for 
+	details.
+
+
+2.6.2 - July 4, 2000
+
+	Improved performance and error checking for the built-in predicates 
+	create_object/4, create_protocol/3 and create_category/4.
+
+	Updated config file for BinProlog 7.83.
+
+	Many small updates to all documentation.
+
+	New PDF versions of the documentation formated for printing (with page 
+	numbers, table of contents and index)are now available in both A4 and 
+	US letter formats.
+
+
+2.6.1 - May 5, 2000
+
+	Modified the structure of the automatically generated XML documenting 
+	files to improve XSL translation performance. Added a new, more standard 
+	compliant, XSL file to generate HTML files and renamed the old one to 
+	ie5.xsl. See the xml/NOTES file for details. Corrected an error in the 
+	logtalk.css CSS file.   
+
+	Modified the definitions of predicates lgt_file_extension/2 and 
+	lgt_file_name/2 in all config files.
+
+	Updated all the user manual sessions related to automatic documentation.
+
+	Updated all HTML documentation for future XHTML 1.0 conformance.
+
+	Start adding documenting directives to most examples.
+
+
+2.6.0 - April 27, 2000
+
+	Added support for documentation of objects, protocols, and categories, 
+	using automatic generation of XML files.
+
+	Added info/1 and info/2 directives for documenting objects, protocols,
+	categories, and predicates. Added definition of documentation file name
+	extension and default file names for the DTD and XSL files to the config 
+	files.
+
+	Improved error checking for the built-in predicates create_object/4,
+	create_protocol/3 and create_category/4 to also detect invalid entity 
+	identifiers.
+
+	Updated the user and reference manuals to describe the new automatic 
+	documenting features.
+
+	Updated all HTML documentation to conform to HTML 4.01 strict standard.
+
+	Corrected some wrong cross-reference links and titles in the reference 
+	and user manuals HTML pages.
+
+	PDF versions of the manuals and tutorial are now available in both A4 
+	and US letter formats.
+
+	Corrected two errors in the searching example, one in the definition of 
+	the farmer problem state space and the other when backtracking over
+	performance reports.
+
+
+2.5.2 - March 7, 2000
+
+	Updated manuals to clarify some limitations of declaring and defining
+	dynamic predicates inside categories and documented a way of using the 
+	built-in local method this/1 to access object parameters.
+
+	Removed references to parametric categories from the Logtalk 
+	documentation (at runtime we can only access object parameters, 
+	not category parameters).
+
+	Corrected two wrong declarations of built-in methods (forall/2 and
+	retractall/1) in the Logtalk pre-processor.
+
+	Corrected bug where predicates declared in dynamic entities may have
+	a "static" instead of a "dynamic" property.
+
+	Corrected a bug in category compilation that prevented a dynamic category
+	from being abolished. Speedup predicate definition lookups for categories.
+
+
+2.5.1 - February 18, 2000
+
+	Two new examples: birds, a bird identification expert system adopted 
+	(with permission) from an Amzi example, and viewpoints, a set of 
+	prototypes showing how to do property sharing and value sharing in 
+	Logtalk.
+
+	Renamed config file yap421.config to yap430.config to match the name of 
+	the new YAP 4.3.0 public release (named 4.2.1 while on beta testing).
+
+	Partial config file for Trinc Prolog R3.
+
+
+2.5.0 - December 29, 1999
+
+	The Logtalk pre-processor now accepts arbitrary clauses and directives
+	to appear in a file before an opening entity directive. The clauses and
+	directives are added unchanged to the compiled file.
+
+	Improved performance for all kinds of message sending.
+
+	Two new examples: reflection, showing how to implement a simple 
+	class-based reflective system, and symdiff, showing how to use 
+	parametric objects to implement symbolic expression differentiation 
+	and simplification.
+
+	Updated config file for the beta 8 release of SWI-Prolog 3.3.0.
+
+
+2.4.0 - December 1, 1999
+
+	Logtalk is now an Open Source project, available under Perl's Artistic 
+	license.
+
+	Two new examples: instmethods, ilustrating the use of instance defined 
+	methods, and classvars, showing how to implement class variables.
+
+	Updated Logtalk grammar to explicitly allow for user-defined types
+	in mode/2 directives.
+
+	New config files for SWI-Prolog 3.3.0, SICStus Prolog 3.8 and CIAO 
+	Prolog 1.4p0 (incomplete).
+
+	Updated config file for B-Prolog 4.0.
+
+	Updated config file for GNU Prolog to use the new call_with_args() 
+	built-in predicate added in version 1.1.0.
+
+	Updated config file for YAP Prolog to use the new call_with_args() 
+	built-in predicate added in version 4.2.1.
+
+
+2.3.1 - September 22, 1999
+
+	Logtalk pre-processor updated to only report one warning per redefined
+	Logtalk or Prolog built-in predicate.
+
+	Changed some occurrences of atom "public" to "(public)" in 
+	compiler/logtalk.pl file to avoid syntax errors in Prolog compilers 
+	(like BinProlog) that define "public" as an operator. Also put some 
+	terms between ()'s to avoid syntax errors with ALS Prolog 3.1
+
+	Update config file for ALS Prolog to work with version 3.1.
+
+	Updated configs/NOTES file include a workaround to use Logtalk with
+	XSB 2.0, some guidelines on how to write loader utility files for
+	BinProlog 7.50, and a bug in ALS Prolog 3.1 that affects Logtalk.
+
+
+2.3.0 - September 12, 1999
+
+	Metapredicate information is now stored with the other predicate 
+	properties, instead of being discarded after compiling the clauses of
+	a metapredicate. Added predicate property metapredicate/1. It is now 
+	possible to assert clauses for dynamic metapredicates. 
+
+	Corrected a bug in the processing of metacalls in pseudo-object user. 
+
+	Corrected a bug in the implementation of private inheritance.
+	Improved performance of protected inheritance.
+
+	Corrected failure of processing initialization/1 and op/3 directives in 
+	create_object/4, create_category/4 and create_protocol/3 built-in 
+	predicates.
+
+	Corrected a bug when calling private static category predicates from 
+	importing objects. Simplified code generated for categories.
+
+	Rewrite code for the built-in method current_predicate/1 to avoid 
+	duplicated or wrong results when overriding predicate declarations 
+	and to ensure that all possible argument type errors are detected.
+
+	Changed compilation of classes that do not instantiate any (meta)class
+	in order to throw the correct exception when a message is sent to them.
+
+	Changed compilation of root objects (that do not instantiate, specialize 
+	or extend other objects) so that calls to "super" (^^/1) fail (as they 
+	should) instead of generating a "predicate does not exist" error message.
+
+	Changed implementation of "super" calls (^^/1) to avoid a potential 
+	endless loop problem when using these calls from the inheritance root 
+	object of a reflexive class-based systems.
+
+	Pre-processor now checks for callable and object identifier errors.
+	Runtime now checks for non-instantiated messages.
+
+	Added new example (inheritance) about public, protected and private 
+	inheritance.
+
+	Updated metapredicates, lo, kernel, and types examples. Most of the 
+	code in the last two examples is being updated to form the basis of an 
+	upcoming Logtalk standard library.
+
+	Small changes in the pre-processor/runtime code for compatibility with
+	ECLiPSe 4.2.2. Updated config files for this Prolog compiler.
+
+	Rewrite some predicates in the config files for SWI-Prolog and LPA 
+	Mac & WIN Prologs for improved performance.
+
+	New tutorial session about events and monitors.
+
+	Updated documentation to match the changes made in this version.
+
+
+2.2.0 - July 10, 1999
+
+	Implemented public, protected and private object inheritance, protocol
+	implementation and category importation.
+	
+	New Logtalk built-in predicates instantiates_class/3, extends_object/3,
+	extends_protocol/3, specializes_class/3, imports_category/3 and
+	implements_protocol/3. The third argument returns the relation scope.
+
+	Pre-processor now checks most directive errors.
+
+	Changed ^^/1 (super call) implementation to only allow the use of a 
+	single predicate call for argument and to retain the original sender
+	of the message (see the updated sicstus example).
+
+	Fixed bug that prevented directives with a variable number of arguments
+	(like dynamic(), public(), uses(), ...) being recognized.
+
+	Changed definition of predicate read_term/3 in the configs files of Amzi!,
+	Aquarius, Arity, Eclipse, IC, K, LPA Mac&WIN, Master and XSB to always
+	instantiates the singleton variables list to the empty list. Needed to
+	prevent backtracking problems in logtalk_load/1 and logtalk_compile/1
+	predicates.
+
+	Removed choice-point in processing metacalls in predicate definitions.
+
+	A banner with the Logtalk version is printed after loading the runtime/
+	pre-processor.
+
+	Removed variables example. The category attributes is now part of the
+	kernel example. Corrected some warmless syntax errors in directives in
+	kernel/attributes.lgt, kernel/monitor.lgt and miscellaneous/queens.lgt.
+
+	Changed name of blocks example to bricks and object "block" to "brick" 
+	in order to avoid problems with some Prolog compilers that use the atom 
+	"block" for operators or built-in predicates.
+
+
+2.1.0 - May 11, 1999
+
+	Fixed some bugs in the definition of the pseudo-object user when sending 
+	the message predicate_property/2.
+
+	Renamed config file for Calypso to GNU Prolog.
+
+	New config file for LPA WinProlog 4.0.
+
+	Corrected the omission in the documentation of the Logtalk grammar of the 
+	built_in entity property.
+
+	New tutorial pages about building reflective class-based systems.
+
+	Modified pre-processor to compile throw/1 as a control structure to 
+	ensure compatibility with the GNU-Prolog compiler.
+
+	Modified pre-processor to ensure compatibility with Prolog compilers that
+	use immediate update semantics instead of the ISO logical database update.
+
+	Improved simplification of compiled object and category clauses.
+
+	Rewrite and clean up pre-processor code for better compiler performance.
+
+	Several updates to the examples files.
+
+	Changed all example loader files to wrap the call to logtalk_load/1 inside
+	an initialization/1 directive for ISO standard compliance.
+
+
+2.0 GM - February 9, 1999
+
+	Removed some redundant choice-points that are being created when 
+	compiling Logtalk entities.
+
+	Small compilation speed optimizations.
+
+	Logtalk compiled files now contain the declarations for the message 
+	sending operators to ensure compatibility with some Prolog compilers.
+
+	Changed the way Logtalk pre-processor writes directives to ensure 
+	compatibility with some Prolog compilers. Corrected a bug in the
+	processing of the op/3 directive.
+
+	Updated PrologII+ config file for version 4.5.
+
+	Changed the definitions of catch/3 and throw/1 in the config files for 
+	LPA Prolog compilers.
+
+	New config file for MasterProlog 4.1; removed config file for the 
+	old BIM Prolog 4.0.
+
+	Corrected an error in the config file for OpenProlog in the definiton
+	of the write_term/3 predicate.
+
+	Added a safer definition for write_term/3 predicate in the config  
+	files for Amzi, Aquarius, Arity, Eclipse, IC, K, LPA Mac, LPA Win, 
+	and XSB Prolog compilers.
+
+	Added a QUICK_START file.
+
+
+2.0 Beta 3 - February 1, 1999
+
+	Closed some encapsulation holes in the implementation of super calls.
+
+	Changed Logtalk pre-processor to use write_term/3 instead of write/2 and 
+	writeq/2 to workaround some compatibility problems with some Prolog 
+	compilers.
+
+	Changed mode operators priority and type to be compatible with the ISO
+	standard.
+
+	Modified definition of predicate read_term/3 in the config file for Amzi 
+	compiler to return the atom end_of_file instead of '!EOF' at the end of
+	a file (this prevented Logtalk to complete compilation any file under 
+	this compiler). Improved detection of built-in predicates while compiling.
+
+	Removed config file for wamcc. This compiler have been replaced by 
+	Calypso (developed by the same author).
+
+	Updated K-Prolog config file for version 4.50.
+
+	Improved documentation of template config file.
+
+	Added SCRIPT files to the kernel and types examples.
+
+	Updated Tutorial and User and Reference Manuals.
+
+	New end user license.
+
+
+2.0 Beta 2 - November 16, 1998
+
+	Built-ins logtalk_compile/1 and logtalk_load/1 updated to match 
+	the documentation regarding thrown errors and to accept a list of
+	entities to compile/load.
+
+	Modified the examples loader utility files to make only a call to
+	logtalk_load/1 by using a list of entities. This should make it easy to
+	modify these files for compilers that don't support arbritrary queries
+	in a file. 
+
+	Logtalk runtime no longer tries to catch some of the errors thrown 
+	by ::/2.
+
+	Added to all config files a Logtalk predicate to check if a file 
+	exists in the current working directory (used by the logtalk_load/1
+	and logtalk_compile/1 Logtalk built-in predicates).
+
+	New configs files for the K-Prolog 4.14 and Calypso 1.0b6 Prolog 
+	compilers.
+
+	Completed the config file for Open Prolog 1.03d38 (with the exception
+	of lgt_current_date/3 that still have a dummy definition).
+
+	Added a missing definition for Logtalk predicate forall/2 to the config
+	file for Prolog II+ 4.4.
+
+	Modified Logtalk pre-processor/runtime to avoid syntax errors when
+	running on Open Prolog or Calypso and to remove some redundant
+	choice-points that are being created when compiling categories and
+	protocols.
+
+	Modified some examples that use operators to avoid syntax errors in
+	some Prolog compilers.
+
+	Modified the implementation of the built-in method 
+	predicate_property/2 to avoid duplicate answers and to throw an
+	instantiation error if the first argument is not bound.
+
+	Modified definition of the pseudo-object user to hide Logtalk pre-
+	processor predicates from the current_predicate/1 built-in method and
+	to ensure that the predicate_property/2 built-in method returns
+	Logtalk defined predicate properties for built-in Logtalk and Prolog
+	predicates.
+
+	Modified Prolog code generated by the pre-processor to further minimize
+	possible conflicts with user defined predicates.
+
+	Added a lgt_predicate_property/2 predicate to the config files to
+	improve Logtalk portability.
+
+	Updated Tutorial and User and Reference Manuals.
+
+
+2.0 Beta 1 - October 18, 1998
+
+	Added basic support for implementation multi-inheritance.
+
+	Logtalk pre-processor updated to try to detect misspelt local 
+	predicate calls.
+
+	First public beta.
+
+
+2.0 Alpha 1 - July, 1998
+
+	First release for registered users.

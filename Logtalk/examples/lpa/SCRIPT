@@ -1,0 +1,21 @@
+=================================================================
+Logtalk - Object oriented extension to Prolog
+Release 2.8.4
+
+Copyright (c) 1998-2001 Paulo Moura.  All Rights Reserved.
+=================================================================
+
+
+| ?- fault::findall.
+
+Please answer all questions with yes or no.
+
+The starter turns but the engine doesnt fire?   no.
+The engine has difficulty starting?     yes.
+The engine cuts out shortly after starting?     yes.
+
+Location      : distributor
+Possible Fault: Worn distributor brushes
+
+No (more) explanations found.
+yes.

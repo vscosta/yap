@@ -1,0 +1,180 @@
+
+<?xml version="1.0"?>
+
+<xsd:schema xmlns:xsd="http://www.w3.org/2000/10/XMLSchema">
+
+
+<xsd:annotation>
+	<xsd:documentation>
+	XML Schema for Logtalk XML documentation files.
+	</xsd:documentation>
+</xsd:annotation>
+ 
+
+<!-- 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%
+%  Logtalk - Object oriented extension to Prolog
+%  Release 2.8.4
+%
+%  Copyright (c) 1998-2001 Paulo Moura.  All Rights Reserved.
+%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+-->
+
+
+<xsd:element name="logtalk" type="logtalk"/>
+
+
+<xsd:complexType name="logtalk">
+	<xsd:sequence>
+		<xsd:element name="entity"		type="entity"/>
+		<xsd:element name="relations"	type="relations"/>
+		<xsd:element name="predicates"	type="predicates"/>
+	</xsd:sequence>
+</xsd:complexType>
+
+
+<xsd:complexType name="entity">
+	<xsd:sequence>
+		<xsd:element name="name"		type="xsd:string"/>
+		<xsd:element name="type"		type="type"/>
+		<xsd:element name="compilation"	type="compilation"/>
+		<xsd:element name="comment"		type="xsd:string"	minOccurs="0"/>
+		<xsd:element name="authors"		type="xsd:string"	minOccurs="0"/>
+		<xsd:element name="version"		type="xsd:string"	minOccurs="0"/>
+		<xsd:element name="date"		type="xsd:string"	minOccurs="0"/>
+		<xsd:element name="info"		type="info"			minOccurs="0" maxOccurs="unbounded"/>
+	</xsd:sequence>
+</xsd:complexType>
+
+
+<xsd:simpleType name="type">
+	<xsd:restriction base="xsd:string">
+		<xsd:enumeration value="category"/>
+		<xsd:enumeration value="object"/>
+		<xsd:enumeration value="protocol"/>
+	</xsd:restriction>
+</xsd:simpleType>
+
+
+<xsd:simpleType name="compilation">
+	<xsd:restriction base="xsd:string">
+		<xsd:enumeration value="static"/>
+		<xsd:enumeration value="dynamic"/>
+	</xsd:restriction>
+</xsd:simpleType>
+
+
+<xsd:complexType name="info">
+	<xsd:sequence>
+		<xsd:element name="key"		type="xsd:string"/>
+		<xsd:element name="value"	type="xsd:string"/>
+	</xsd:sequence>
+</xsd:complexType>
+
+
+<xsd:complexType name="relations">
+	<xsd:sequence>
+		<xsd:element name="implements"		type="relation"		minOccurs="0" maxOccurs="unbounded"/>
+		<xsd:element name="imports"			type="relation"		minOccurs="0" maxOccurs="unbounded"/>
+		<xsd:element name="extends"			type="relation"		minOccurs="0" maxOccurs="unbounded"/>
+		<xsd:element name="instantiates"	type="relation"		minOccurs="0" maxOccurs="unbounded"/>
+		<xsd:element name="specializes"		type="relation"		minOccurs="0" maxOccurs="unbounded"/>
+		<xsd:element name="uses"			type="docrelation"	minOccurs="0" maxOccurs="unbounded"/>
+		<xsd:element name="calls"			type="docrelation"	minOccurs="0" maxOccurs="unbounded"/>
+	</xsd:sequence>
+</xsd:complexType>
+
+
+<xsd:complexType name="relation">
+	<xsd:sequence>
+		<xsd:element name="name"	type="xsd:string"/>
+		<xsd:element name="scope"	type="scope"/>
+		<xsd:element name="file"	type="xsd:string"/>
+	</xsd:sequence>
+</xsd:complexType>
+
+
+<xsd:complexType name="docrelation">
+	<xsd:sequence>
+		<xsd:element name="name"	type="xsd:string"/>
+		<xsd:element name="file"	type="xsd:string"/>
+	</xsd:sequence>
+</xsd:complexType>
+
+
+<xsd:simpleType name="scope">
+	<xsd:restriction base="xsd:string">
+		<xsd:enumeration value="public"/>
+		<xsd:enumeration value="protected"/>
+		<xsd:enumeration value="private"/>
+	</xsd:restriction>
+</xsd:simpleType>
+
+
+<xsd:complexType name="predicates">
+	<xsd:sequence>
+		<xsd:element name="public"		type="public"/>
+		<xsd:element name="protected"	type="protected"/>
+		<xsd:element name="private"		type="private"/>
+	</xsd:sequence>
+</xsd:complexType>
+
+
+<xsd:complexType name="public">
+	<xsd:sequence>
+		<xsd:element name="predicate"	type="predicate"	minOccurs="0" maxOccurs="unbounded"/>
+	</xsd:sequence>
+</xsd:complexType>
+
+
+<xsd:complexType name="protected">
+	<xsd:sequence>
+		<xsd:element name="predicate"	type="predicate"	minOccurs="0" maxOccurs="unbounded"/>
+	</xsd:sequence>
+</xsd:complexType>
+
+
+<xsd:complexType name="private">
+	<xsd:sequence>
+		<xsd:element name="predicate"	type="predicate"	minOccurs="0" maxOccurs="unbounded"/>
+	</xsd:sequence>
+</xsd:complexType>
+
+
+<xsd:complexType name="predicate">
+	<xsd:sequence>
+		<xsd:element name="name"		type="xsd:string"/>
+		<xsd:element name="scope"		type="scope"/>
+		<xsd:element name="compilation"	type="compilation"/>
+		<xsd:element name="meta"		type="xsd:string"		minOccurs="0"/>
+		<xsd:element name="mode"		type="mode"				minOccurs="0" maxOccurs="unbounded"/>
+		<xsd:element name="comment"		type="xsd:string"		minOccurs="0"/>
+		<xsd:element name="template"	type="xsd:string"		minOccurs="0" maxOccurs="unbounded"/>
+		<xsd:element name="info"		type="info"				minOccurs="0" maxOccurs="unbounded"/>
+	</xsd:sequence>
+</xsd:complexType>
+
+
+<xsd:complexType name="mode">
+	<xsd:sequence>
+		<xsd:element name="template"	type="xsd:string"/>
+		<xsd:element name="solutions"	type="solutions"/>
+	</xsd:sequence>
+</xsd:complexType>
+
+
+<xsd:simpleType name="solutions">
+	<xsd:restriction base="xsd:string">
+		<xsd:enumeration value="zero"/>
+		<xsd:enumeration value="zero_or_one"/>
+		<xsd:enumeration value="zero_or_more"/>
+		<xsd:enumeration value="one"/>
+		<xsd:enumeration value="one_or_more"/>
+		<xsd:enumeration value="error"/>
+	</xsd:restriction>
+</xsd:simpleType>
+
+
+</xsd:schema>
