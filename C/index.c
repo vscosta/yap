@@ -11,8 +11,12 @@
 * File:		index.c							 *
 * comments:	Indexing a Prolog predicate				 *
 *									 *
-* Last rev:     $Date: 2004-12-28 22:20:35 $,$Author: vsc $						 *
+* Last rev:     $Date: 2005-01-15 05:21:36 $,$Author: vsc $						 *
 * $Log: not supported by cvs2svn $
+* Revision 1.112  2004/12/28 22:20:35  vsc
+* some extra bug fixes for trail overflows: some cannot be recovered that easily,
+* some can.
+*
 * Revision 1.111  2004/12/21 17:17:15  vsc
 * miscounting of variable-only clauses in groups might lead to bug in indexing
 * code.
@@ -7791,11 +7795,11 @@ Yap_FollowIndexingCode(PredEntry *ap, yamop *ipc, Term Terms[3], yamop *ap_pc, y
 	jlbl = &(ipc->u.clll.l3);
 	ipc = ipc->u.clll.l3;
       } else if (!IsVarTerm(t) && t != ipc->u.clll.c) {
-	jlbl = &(ipc->u.clll.l2);
-	ipc = ipc->u.clll.l2;
-      } else {
 	jlbl = &(ipc->u.clll.l1);
 	ipc = ipc->u.clll.l1;
+      } else {
+	jlbl = &(ipc->u.clll.l2);
+	ipc = ipc->u.clll.l2;
       }
       break;
       /* instructions type ollll */

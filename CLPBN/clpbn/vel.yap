@@ -38,7 +38,12 @@
 check_if_vel_done(Var) :-
 	get_atts(Var, [size(_)]), !.
 
-vel(LVs,Vs0,AllDiffs) :-
+vel(LVs0,Vs0,AllDiffs) :-
+	get_rid_of_ev_vars(LVs0,LVs),
+	do_vel(LVs,Vs0,AllDiffs).
+	       
+do_vel([],_,_) :- !.
+do_vel(LVs,Vs0,AllDiffs) :-
 	check_for_hidden_vars(Vs0, Vs0, Vs1),
 	sort(Vs1,Vs),
 	find_all_clpbn_vars(Vs, LV0, LVi, Tables0),
@@ -49,6 +54,17 @@ vel(LVs,Vs0,AllDiffs) :-
 	Dist =.. [_|Ps0],
 	normalise(Ps0,Ps),
 	bind_vals(LVs,Ps,AllDiffs).
+
+%
+% some variables might already have evidence in the data-base.
+%
+get_rid_of_ev_vars([],[]).
+get_rid_of_ev_vars([V|LVs0],LVs) :-
+	clpbn:get_atts(V, [evidence(_)]), !,
+	get_rid_of_ev_vars(LVs0,LVs).
+get_rid_of_ev_vars([V|LVs0],[V|LVs]) :-
+	get_rid_of_ev_vars(LVs0,LVs).
+
 
 find_all_clpbn_vars([], [], [], []) :- !.
 find_all_clpbn_vars([V|Vs], [Var|LV], ProcessedVars, [table(I,Table,Deps,Sizes)|Tables]) :-
@@ -370,8 +386,10 @@ divide_by_sum([P|Ps0],Sum,[PN|Ps]) :-
 % what is actually output
 %
 attribute_goal(V, G) :-
-	get_atts(V, [posterior(Vs,Vals,Ps,AllDiffs)]),
+	get_atts(V, [posterior(Vs,Vals,Ps,AllDiffs)]), !,
 	massage_out(Vs, Vals, Ps, G, AllDiffs).
+attribute_goal(V, true) :-
+	get_atts(V, [evidence(Ev)]), Ev = V.
 
 massage_out(Vs, [D], [P], p(CEqs)=P, AllDiffs) :- !,
 	gen_eqs(Vs,D,Eqs),
