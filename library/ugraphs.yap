@@ -31,20 +31,21 @@
 */
 
 :- module(ugraphs, [
-	vertices_edges_to_ugraph/3,
-	vertices/2,
-	edges/2,
 	add_vertices/3,
-	del_vertices/3,
 	add_edges/3,
-	del_edges/3,
-	transpose/2,
-	neighbours/3,
-	neighbors/3,
 	complement/2,
 	compose/3,
+	del_edges/3,
+	del_vertices/3,
+	edges/2,
+	neighbours/3,
+	neighbors/3,
+	reachable/3,
 	top_sort/2,
-	transitive_closure/2
+	transitive_closure/2,
+	transpose/2,
+	vertices/2,
+	vertices_edges_to_ugraph/3
 	]).
 
 :- use_module(library(lists), [
@@ -54,9 +55,10 @@
    ]).
 
 :- use_module(library(ordsets), [
-	ord_union/3,
+	ord_add_element/3,
 	ord_subtract/3,
-	ord_add_element/3
+	ord_union/3,
+	ord_union/4
    ]).
 
 
@@ -524,4 +526,13 @@ complement([V-Ns|G], Vs, [V-INs|NG]) :-
 
 
 
+reachable(N, G, Rs) :-
+	reachable([N], G, [N], Rs).
+
+reachable([], _, Rs, Rs).
+reachable([N|Ns], G, Rs0, RsF) :-
+	neighbours(N, G, Nei),
+	ord_union(Rs0, Nei, Rs1, D),
+	append(Ns, D, Nsi),
+	reachable(Nsi, G, Rs1, RsF).
 
