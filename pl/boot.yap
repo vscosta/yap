@@ -676,9 +676,9 @@ incore(G) :- '$execute'(G).
 	    '$call'(B,CP,G0,M)
 	).
 '$call'(\+ X, CP, G0, M) :- !,
-	\+ '$call'(X, CP, G0, M).
+	\+ '$execute'(X).
 '$call'(not(X), CP, G0, M) :- !,
-	\+ '$call'(X, CP, G0, M).
+	\+ '$execute'(X).
 '$call'(!, CP, _,_) :- !,
 	'$$cut_by'(CP).
 '$call'([A|B], _, _, M) :- !,
