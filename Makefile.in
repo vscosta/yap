@@ -440,8 +440,8 @@ install_unix:
 	$(INSTALL_DATA) -m 644 startup $(DESTDIR)$(YAPLIBDIR)/startup
 	$(INSTALL_DATA) -m 644 libYap.a  $(DESTDIR)$(LIBDIR)/libYap.a
 	(cd $(srcdir) ; tar cf - library) | (cd $(DESTDIR)$(YAPLIBDIR) ; tar xf -)
-	$(INSTALL_DATA) $(srcdir)/LGPL/icon_address.pl $(DESTDIR)$(YAPLIBDIR)/library
-	$(INSTALL_DATA) $(srcdir)/LGPL/pillow.pl $(DESTDIR)$(YAPLIBDIR)/library
+	$(INSTALL_DATA) $(srcdir)/LGPL/pillow/icon_address.pl $(DESTDIR)$(YAPLIBDIR)/library
+	$(INSTALL_DATA) $(srcdir)/LGPL/pillow/pillow.pl $(DESTDIR)$(YAPLIBDIR)/library
 	(cd $(srcdir)/CLPQR ; tar cf - .) | (cd $(DESTDIR)$(YAPLIBDIR)/library ; tar xf -)
 	(cd $(srcdir)/CHR ; tar cf - .) | (cd $(DESTDIR)$(YAPLIBDIR)/library ; tar xf -)
 	@INSTALL_DLLS@ (cd library/regex; make install)
