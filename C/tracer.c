@@ -115,6 +115,9 @@ low_level_trace(yap_low_level_port port, PredEntry *pred, CELL *args)
   /*  extern int gc_calls; */
 
   vsc_count++;
+  if (vsc_count == 395950L)
+    vsc_xstop = 1;
+  return;
 #ifdef COMMENTED
   if (port != enter_pred ||
       !pred ||

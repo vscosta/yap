@@ -1152,8 +1152,11 @@ Yap_absmi(int inp)
 #endif
 	UNLOCK(cl->ClLock);
 #if defined(YAPOR) || defined(THREADS)
-	READ_UNLOCK(PP->PRWLock);
-	PP = NULL;
+	if (PP) {
+	  /* PP would be NULL for local preds */
+	  READ_UNLOCK(PP->PRWLock);
+	  PP = NULL;
+	}
 #endif
       }
       GONext();
