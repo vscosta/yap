@@ -611,6 +611,28 @@ incore(G) :- '$execute'(G).
 	'$save_current_choice_point'(CP),
 	'$call'(G, CP, G, M).
 
+
+','(X,Y) :-
+	'$save_current_choice_point'(CP),
+	'$current_module'(M),
+        '$call'(X,CP,G0,M),
+        '$call'(Y,CP,G0,M).
+';'(X,Y) :-
+	'$save_current_choice_point'(CP),
+	'$current_module'(M),
+        ( '$call'(X,CP,G0,M) ; '$call'(Y,CP,G0,M) ).
+'|'(X,Y) :-
+	'$save_current_choice_point'(CP),
+	'$current_module'(M),
+        ( '$call'(X,CP,G0,M) ; '$call'(Y,CP,G0,M) ).
+'|'(X,Y) :-
+	'$save_current_choice_point'(CP),
+	'$current_module'(M),
+        ( '$call'(X,CP,G0,M) -> '$call'(Y,CP,G0,M) ).
+\+(G) :-     \+ '$execute'(G).
+not(G) :-    \+ '$execute'(G).
+
+
 %
 % do it in ISO mode.
 %

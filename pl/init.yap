@@ -27,12 +27,6 @@ false :- fail.
 (:- G) :- '$execute'(G), !.
 '$$!'(CP) :- '$cut_by'(CP).
 [] :- true.
-','(A,B) :-  '$execute'(A), '$execute'(B).
-';'(A,B) :-  ('$execute'(A) ; '$execute'(B)).
-'|'(A,B) :-  ('$execute'(A) ; '$execute'(B)).
-'->'(A,B) :- ('$execute'(A) -> '$execute'(B)).
-\+(G) :-     \+ '$execute'(G).
-not(G) :-    \+ '$execute'(G).
 
 
 :- set_value('$doindex',true).
