@@ -567,7 +567,7 @@ init_dbtable(tr_fr_ptr trail_ptr) {
 #ifdef DEBUG
 
 #define INSTRUMENT_GC 1
-/*#define CHECK_CHOICEPOINTS 1 */
+/* #define CHECK_CHOICEPOINTS 1  */
 
 #ifdef INSTRUMENT_GC
 typedef enum {
@@ -803,7 +803,7 @@ mark_variable(CELL_PTR current)
       goto begin;
     }
 #ifdef DEBUG
-    else if (next < (CELL *)AtomBase)
+    else if (next < (CELL *)AtomBase || next < (CELL *)HeapTop)
       YP_fprintf(YP_stderr, "ooops while marking %lx, %p at %p\n", (unsigned long int)ccur, current, next);
 #endif
 #ifdef INSTRUMENT_GC
@@ -1325,7 +1325,10 @@ mark_choicepoints(register choiceptr gc_B, tr_fr_ptr saved_TR)
 	if (pe == NULL) {
 	  YP_fprintf(YP_stderr,"B  %p (%s) with %d\n", gc_B, op_names[opnum], total_marked);
 	} else
-	  YP_fprintf(YP_stderr,"B  %p (%s for %s/%d) with %d,%d\n", gc_B, op_names[opnum], RepAtom(NameOfFunctor(pe->FunctorOfPred))->StrOfAE, pe->ArityOfPE, gc_B->cp_h-H0, total_marked);
+	  if (pe->ArityOfPE)
+	    YP_fprintf(YP_stderr,"B  %p (%s for %s/%d) with %d,%d\n", gc_B, op_names[opnum], RepAtom(NameOfFunctor(pe->FunctorOfPred))->StrOfAE, pe->ArityOfPE, gc_B->cp_h-H0, total_marked);
+	  else
+	    YP_fprintf(YP_stderr,"B  %p (%s for %s) with %d,%d\n", gc_B, op_names[opnum], RepAtom(pe->FunctorOfPred)->StrOfAE, gc_B->cp_h-H0, total_marked);
       }
     }
 #endif /* CHECK_CHOICEPOINTS */
@@ -2301,6 +2304,15 @@ adjust_cp_hbs(void)
     } else while (TRUE) {
       CELL_PTR *nxt = nbase+(top-nbase)/2;
       if (nxt[0] > gc_H) {
+	if (nbase == top) {
+	  if (nbase == base) {
+	    gc_B->cp_h = H0;
+	    break;
+	  } else {
+	    Error(SYSTEM_ERROR,TermNil,"Bug in Garbage collector");
+	    return;
+	  }
+	}
 	top = nxt;
       } else if (nxt[0] < gc_H && nxt[1] < gc_H) {
 	nbase = nxt+1;

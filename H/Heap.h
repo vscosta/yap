@@ -10,7 +10,7 @@
 * File:		Heap.h         						 *
 * mods:									 *
 * comments:	Heap Init Structure					 *
-* version:      $Id: Heap.h,v 1.13 2001-11-15 00:01:40 vsc Exp $	 *
+* version:      $Id: Heap.h,v 1.14 2001-11-26 12:33:05 vsc Exp $	 *
 *************************************************************************/
 
 /* information that can be stored in Code Space */
@@ -143,7 +143,7 @@ typedef struct various_codes {
 #endif
   int   primitives_module;
   int   user_module;
-  struct idb_queue *db_queues;
+  struct idb_queue *db_queues, *db_queues_cache;
   Atom
     atom_abol,
     atom_alarm,
@@ -333,6 +333,7 @@ typedef struct various_codes {
 #define  PrimitivesModule         heap_regs->primitives_module
 #define  UserModule               heap_regs->user_module
 #define  DBQueues                 heap_regs->db_queues
+#define  DBQueuesCache            heap_regs->db_queues_cache
 #define  NoOfModules              heap_regs->no_of_modules
 #define  AtomAbol                 heap_regs->atom_abol
 #define  AtomAlarm                heap_regs->atom_alarm

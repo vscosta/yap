@@ -3798,18 +3798,23 @@ p_init_queue(void)
   db_queue *dbq;
   Term t;
 
-  while ((dbq = (db_queue *)AllocDBSpace(sizeof(db_queue))) == NULL) {
-    if (!growheap(FALSE)) {
-      Abort("[ SYSTEM ERROR: YAP failed to reserve space in growheap ]\n");
-      return(FALSE);
+  if (DBQueuesCache) {
+    dbq = DBQueuesCache;
+    DBQueuesCache = dbq->next;
+  } else {
+    while ((dbq = (db_queue *)AllocDBSpace(sizeof(db_queue))) == NULL) {
+      if (!growheap(FALSE)) {
+	Abort("[ SYSTEM ERROR: YAP failed to reserve space in growheap ]\n");
+	return(FALSE);
+      }
     }
+    dbq->id = FunctorDBRef;
+    dbq->EntryTerm = MkAtomTerm(AbsAtom((AtomEntry *)dbq));
+    dbq->Flags = DBClMask;
+    dbq->FirstInQueue = dbq->LastInQueue = NULL;
+    dbq->next = DBQueues;
+    dbq->prev = NULL;
   }
-  dbq->id = FunctorDBRef;
-  dbq->EntryTerm = MkAtomTerm(AbsAtom((AtomEntry *)dbq));
-  dbq->Flags = DBClMask;
-  dbq->FirstInQueue = dbq->LastInQueue = NULL;
-  dbq->next = DBQueues;
-  dbq->prev = NULL;
   DBQueues = dbq;
   dbq->age = IntOfTerm(GetValue(AtomCatch));
   INIT_RWLOCK(dbq->QRWLock);
@@ -3899,8 +3904,9 @@ p_dequeue(void)
       father_key->prev->next = father_key->next;
     if (father_key->next != NULL)
       father_key->next->prev = father_key->prev;
+    father_key->next = DBQueuesCache;
+    DBQueuesCache = father_key;
     WRITE_UNLOCK(father_key->QRWLock);
-    FreeDBSpace((char *) father_key);
     return(FALSE);
   } else {
     Term TDB;

@@ -862,6 +862,7 @@ InitCodes(void)
   heap_regs->primitives_module = 0;
   heap_regs->user_module = 1;
   heap_regs->db_queues = NULL;
+  heap_regs->db_queues_cache = NULL;
   heap_regs->atom_abol = LookupAtom("$abol");
   AtomAltNot = LookupAtom("not");
   heap_regs->atom_append = LookupAtom ("append");
