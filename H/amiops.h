@@ -392,12 +392,12 @@ Int Yap_unify(Term t0, Term t1)
 	  /* AbsAppl means */
 	  /* multi-assignment variable */
 	  /* so the next cell is the old value */ 
-	  TR--;
 #if FROZEN_STACKS
-	  pt[0] = TrailVal(TR);
+	  pt[0] = TrailVal(TR-1);
 #else
-	  pt[0] = TrailTerm(TR);
+	  pt[0] = TrailTerm(TR-1);
 #endif /* FROZEN_STACKS */
+	  TR -= 2;
       }
 #endif
     }

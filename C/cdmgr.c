@@ -11,8 +11,11 @@
 * File:		cdmgr.c							 *
 * comments:	Code manager						 *
 *									 *
-* Last rev:     $Date: 2004-09-07 16:25:22 $,$Author: vsc $						 *
+* Last rev:     $Date: 2004-09-07 16:48:04 $,$Author: vsc $						 *
 * $Log: not supported by cvs2svn $
+* Revision 1.129  2004/09/07 16:25:22  vsc
+* memory management bug fixes
+*
 * Revision 1.128  2004/09/03 03:11:07  vsc
 * memory management fixes
 *
@@ -2808,7 +2811,6 @@ PredForCode(yamop *codeptr, Atom *pat, UInt *parity, Term *pmodule) {
   for (i_table = 0; i_table < NoOfModules; i_table++) {
 
     PredEntry *pp;
-  restart:
     pp = ModulePred[i_table];
     while (pp != NULL) {
       if ((found = code_in_pred(pp,  pat, parity, codeptr)) != 0) {
