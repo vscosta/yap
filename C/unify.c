@@ -462,7 +462,7 @@ IUnify_complex(CELL *pt0, CELL *pt0_end, CELL *pt1)
   register CELL *HBREG = HB;
 #endif /* SHADOW_HB */
 
-  CELL  **to_visit  = (CELL **)H;
+  CELL  **to_visit  = (CELL **)AuxSp;
 
 loop:
   while (pt0 < pt0_end) {
@@ -489,19 +489,19 @@ loop:
 #ifdef RATIONAL_TREES
 	/* now link the two structures so that no one else will */
 	/* come here */
+	to_visit -= 4;
 	to_visit[0] = pt0;
 	to_visit[1] = pt0_end;
 	to_visit[2] = pt1;
 	to_visit[3] = (CELL *)d0;
-	to_visit += 4;
 	*pt0 = d1;
 #else
 	/* store the terms to visit */
 	if (pt0 < pt0_end) {
+	  to_visit -= 3;
 	  to_visit[0] = pt0;
 	  to_visit[1] = pt0_end;
 	  to_visit[2] = pt1;
-	  to_visit += 3;
 	}
 
 #endif
@@ -531,19 +531,19 @@ loop:
 #ifdef RATIONAL_TREES
 	/* now link the two structures so that no one else will */
 	/* come here */
+	to_visit -= 4;
 	to_visit[0] = pt0;
 	to_visit[1] = pt0_end;
 	to_visit[2] = pt1;
 	to_visit[3] = (CELL *)d0;
-	to_visit += 4;
 	*pt0 = d1;
 #else
 	/* store the terms to visit */
 	if (pt0 < pt0_end) {
+	  to_visit -= 3;
 	  to_visit[0] = pt0;
 	  to_visit[1] = pt0_end;
 	  to_visit[2] = pt1;
-	  to_visit += 3;
 	}
 #endif
 	d0 = ArityOfFunctor(f);
@@ -579,18 +579,18 @@ loop:
     }
   }
   /* Do we still have compound terms to visit */
-  if (to_visit > (CELL **) H) {
+  if (to_visit < (CELL **) AuxSp) {
 #ifdef RATIONAL_TREES
-    to_visit -= 4;
     pt0 = to_visit[0];
     pt0_end = to_visit[1];
     pt1 = to_visit[2];
     *pt0 = (CELL)to_visit[3];
+    to_visit += 4;
 #else
-    to_visit -= 3;
     pt0 = to_visit[0];
     pt0_end = to_visit[1];
     pt1 = to_visit[2];
+    to_visit += 3;
 #endif
     goto loop;
   }
@@ -599,11 +599,11 @@ loop:
 cufail:
 #ifdef RATIONAL_TREES
   /* failure */
-  while (to_visit > (CELL **) H) {
+  while (to_visit < (CELL **) AuxSp) {
     CELL *pt0;
-    to_visit -= 4;
     pt0 = to_visit[0];
     *pt0 = (CELL)to_visit[3];
+    to_visit += 4;
   }
 #endif
   return (FALSE);

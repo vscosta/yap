@@ -171,16 +171,15 @@ static void copy_complex_term(register CELL *pt0, register CELL *pt0_end, CELL *
 	tr_fr_ptr CurTR;
 
 	bp[0] = to_visit;
-	*ptf = (CELL)(H+2);
 	Bind_Global(ptd0,(CELL)ptf);
-	ptf++;
 	CurTR = TR;
 	HB = HB0;
-	if (!attas[ExtFromCell(ptd0)].copy_term_op((Term)(ptd0-2), bp)) {
+	if (!attas[ExtFromCell(ptd0)].copy_term_op(ptd0, bp, ptf)) {
 	  goto overflow;
 	}
 	to_visit = bp[0];
 	HB = HLow;
+	ptf++;
 	if (CurTR != TR) {
 	  /* Problem here is that the attached routine might
 	   *  have changed the list of suspended goals and stored
@@ -258,18 +257,20 @@ CopyTerm(Term inp) {
 
   if (IsVarTerm(t)) {
 #if COROUTINING
-  restart_attached:
     if (IsAttachedTerm(t)) {
-      CELL *ap = VarOfTerm(t), *HB0;
-      H++;
-      HB0 = H;
-      copy_complex_term(ap-1, ap, HB0-1, HB0-1);
-      if (H == HB0-1) { /* handle overflow */
-	gc(3, ENV, P);
+      CELL *Hi;
+    restart_attached:
+
+      *H = t;
+      Hi = H+1;
+      H += 2;
+      copy_complex_term(Hi-2, Hi-1, Hi, Hi);
+      if (H == Hi) { /* handle overflow */
+	gc(2, ENV, P);
 	t = Deref(ARG1);
 	goto restart_attached;
       }
-      return((CELL)(HB0+2));  /* advance two cells */
+      return(Hi[0]);
     }
 #endif
     return(MkVarTerm());
@@ -287,7 +288,7 @@ CopyTerm(Term inp) {
     H += 2;
     copy_complex_term(ap-1, ap+1, Hi, Hi);
     if (H == Hi) { /* handle overflow */
-      gc(3, ENV, P);
+      gc(2, ENV, P);
       t = Deref(ARG1);
       goto restart_list;
     }
@@ -307,7 +308,7 @@ CopyTerm(Term inp) {
     H += 1+ArityOfFunctor(f);
     copy_complex_term(ap, ap+ArityOfFunctor(f), HB0+1, HB0);
     if (H == HB0) {
-      gc(3, ENV, P);
+      gc(2, ENV, P);
       t = Deref(ARG1);
       goto restart_appl;
     }

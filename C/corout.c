@@ -326,7 +326,7 @@ copy_suspended_goals(sus_record *pt, CELL ***to_visit_ptr)
 }
 
 static int
-CopySuspendedVar(Term orig, CELL ***to_visit_ptr)
+CopySuspendedVar(CELL *orig, CELL ***to_visit_ptr, CELL *res)
 {
   register sus_tag *sreg = (sus_tag *)orig, *vs;
 
@@ -337,6 +337,7 @@ CopySuspendedVar(Term orig, CELL ***to_visit_ptr)
   RESET_VARIABLE(&(vs->ActiveSus));
   vs->sus_id = susp_ext;
   vs->SG = copy_suspended_goals(sreg->SG, to_visit_ptr);
+  *res = (CELL)&(vs->ActiveSus);
   UpdateTimedVar(DelayedVars, (CELL)(vs+1));
   return(TRUE);
 }

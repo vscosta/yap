@@ -90,7 +90,7 @@ AddFailToQueue(void)
 }
 
 static int
-CopyAttVar(Term orig, CELL ***to_visit_ptr)
+CopyAttVar(CELL *orig, CELL ***to_visit_ptr, CELL *res)
 {
   register attvar_record *attv = (attvar_record *)orig;
   register attvar_record *newv;
@@ -107,13 +107,32 @@ CopyAttVar(Term orig, CELL ***to_visit_ptr)
   RESET_VARIABLE(&(newv->Value));
   newv->NS = UpdateTimedVar(AttsMutableList, (CELL)&(newv->Done));
   for (j = 0; j < NUM_OF_ATTS; j++) {
+    Term t = Deref(attv->Atts[2*j+1]);
     newv->Atts[2*j] = time;
-    to_visit[0] = attv->Atts+2*j;
-    to_visit[1] = attv->Atts+2*j+1;
-    to_visit[2] = newv->Atts+2*j+1;
-    to_visit += 3;
+    
+    if (IsVarTerm(t)) {
+      RESET_VARIABLE(newv->Atts+(2*j+1));
+    } else if (IsAtomicTerm(t)) {
+      newv->Atts[2*j+1] = t;
+    } else {
+#ifdef RATIONAL_TREES
+      to_visit[0] = attv->Atts+2*j;
+      to_visit[1] = attv->Atts+2*j+1;
+      to_visit[2] = newv->Atts+2*j+1;
+      to_visit[3] = (CELL *)(attv->Atts[2*j]);
+      /* fool the system into thinking we had a variable there */
+      attv->Atts[2*j] = AbsAppl(H);
+      to_visit += 4;
+#else
+      to_visit[0] = attv->Atts+2*j;
+      to_visit[1] = attv->Atts+2*j+1;
+      to_visit[2] = newv->Atts+2*j+1;
+      to_visit += 3;
+#endif
+    }
   }
   *to_visit_ptr = to_visit;
+  *res = (CELL)&(newv->Done);
   UpdateTimedVar(DelayedVars, (CELL)(newv->Atts+2*j));
   return(TRUE);
 }

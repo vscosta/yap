@@ -8475,11 +8475,12 @@ User-defined procedure, called to convert the attributes in @var{Var} to
 a @var{Goal}. Should fail when no interpretation is available.
 
 @item @var{Module}:project_attributes(@var{-QueryVars}, @var{+AttrVars})
-@findex attribute_goal/2
-@syindex attribute_goal/2
-@cnindex attribute_goal/2
-User-defined procedure, called to convert the attributes in @var{Var} to
-a @var{Goal}. Should fail when no interpretation is available.
+@findex project_attributes/2
+@syindex project_attributes/2
+@cnindex project_attributes/2
+User-defined procedure, called to project the attributes in the query,
+@var{AttrVars}, given that the set of variables in the query is
+@var{QueryVars}.
 
 @end table
 
