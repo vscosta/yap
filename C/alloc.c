@@ -12,7 +12,7 @@
 * Last rev:								 *
 * mods:									 *
 * comments:	allocating space					 *
-* version:$Id: alloc.c,v 1.8 2001-06-08 13:39:07 vsc Exp $		 *
+* version:$Id: alloc.c,v 1.9 2001-09-24 14:35:58 vsc Exp $		 *
 *************************************************************************/
 #ifdef SCCS
 static char SccsId[] = "%W% %G%";
@@ -850,6 +850,10 @@ ExtendWorkSpace(Int s)
   }
   if (ptr != (MALLOC_T)HeapBase) {
      Error(SYSTEM_ERROR, TermNil, "could not expand contiguous stacks  %d bytes", s);
+     return(FALSE);
+  }
+  if ((CELL)ptr & MBIT) {
+     Error(SYSTEM_ERROR, TermNil, "memory at %p conflicts with MBIT %lx", ptr, NMBIT);
      return(FALSE);
   }
   return TRUE;

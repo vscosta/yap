@@ -2608,7 +2608,7 @@ do_gc(Int predarity, CELL *current_env, yamop *nextop)
   if ((CELL)TrailTop & (MBIT|RBIT)) {
     /* oops, we can't */
     if (gc_verbose) {
-      YP_fprintf(YP_stderr, "[GC] LCLO at %p clashes with gc bits: %lx\n", LCL0, (MBIT|RBIT));
+      YP_fprintf(YP_stderr, "[GC] TrailTop at %p clashes with gc bits: %lx\n", TrailTop, (MBIT|RBIT));
       YP_fprintf(YP_stderr, "[GC] garbage collection disallowed\n");
     }
     return(0);
