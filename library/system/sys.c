@@ -8,9 +8,11 @@
 *									 *
 **************************************************************************
 *									 *
-* File:		sys.c							 *
-* Last rev:	$Revision: 1.15 $						 *
-* mods:		$Log: not supported by cvs2svn $							 *
+* $Id: sys.c,v 1.16 2003-01-27 15:55:40 vsc Exp $									 *
+* mods:		$Log: not supported by cvs2svn $
+* mods:		Revision 1.15  2003/01/27 15:54:10  vsc
+* mods:		fix header
+* mods:									 *
 * comments:	regular expression interpreter                           *
 *									 *
 *************************************************************************/
