@@ -1324,6 +1324,7 @@ static int variant_complex(register CELL *pt0, register CELL *pt0_end, register
   register CELL **to_visit = (CELL **)ASP;
   /* make sure that unification always forces trailing */
   HBREG = H;
+  
 
  loop:
   while (pt0 < pt0_end) {
@@ -1334,12 +1335,17 @@ static int variant_complex(register CELL *pt0, register CELL *pt0_end, register
     d1 = Derefa(pt1);
     if (IsVarTerm(d0)) {
       if (IsVarTerm(d1)) {
-	/* bind the two variables to a new term */
-	Term key = MkDBRefTerm((DBRef)H);
-	*H++ = (CELL)FunctorDBRef;
-	Bind_Global(VarOfTerm(d0), key);
-	if (d0 != d1) {
-	  Bind_Global(VarOfTerm(d1), key);
+	CELL *pt0 = VarOfTerm(d0);
+	CELL *pt1 = VarOfTerm(d1);
+	if (pt0 >= HBREG || pt1 >= HBREG) {
+	  /* one of the variables has been found before */
+	  if (VarOfTerm(d0)+1 == VarOfTerm(d1)) continue;
+	  goto fail;
+	} else {
+	  /* two new occurrences of the same variable */
+	  Term n0 = MkVarTerm(), n1 = MkVarTerm();
+	  Bind_Global(VarOfTerm(d0), n0);
+	  Bind_Global(VarOfTerm(d1), n1);
 	}
 	continue;
       } else {
@@ -1512,33 +1518,67 @@ static int subsumes_complex(register CELL *pt0, register CELL *pt0_end, register
 		   CELL *pt1)
 {
   register CELL **to_visit = (CELL **)ASP;
-  CELL *OLDH = H;
+  tr_fr_ptr OLDTR = TR, new_tr;
+  int write_mode = TRUE;
 
+
+  HBREG = H;
  loop:
   while (pt0 < pt0_end) {
     register CELL d0, d1;
+    int our_write_mode = write_mode;
+
     ++ pt0;
     ++ pt1;
-    d0 = Derefa(pt0);
-    d1 = Derefa(pt1);
-    if (IsVarTerm(d0)) {
-      if (IsVarTerm(d1)) {
-	/* bind the two variables to a new term */
-	Term key = MkDBRefTerm((DBRef)H);
-	Bind_Global(VarOfTerm(d0), d1);
-	H[0] = (CELL)FunctorDBRef;
-	H[1] = d1;
-	H += 2;
-	Bind_Global(VarOfTerm(d1), key);
-	continue;
-      } else {
-	if (IsApplTerm(d1) && RepAppl(d1) >= OLDH && RepAppl(d1) < H) {
-	  /* we are binding to a new variable; */
-	  Bind_Global(VarOfTerm(d0),(CELL)pt1);
+    /* this is a version of Derefa that checks whether we are trying to
+       do something evil */
+    {
+      CELL *npt0 = pt0;
+
+    restart_d0:
+      if (npt0 >= HBREG) {
+	our_write_mode = FALSE;
+      }
+      d0 = *npt0;
+      if (IsVarTerm(d0) &&
+	  d0 != (CELL)npt0
+	  ) {
+	npt0 = (CELL *)d0;
+	goto restart_d0;
+      }
+    }
+    {
+      CELL *npt1 = pt1;
+
+    restart_d1:
+      d1 = *npt1;
+      if (IsVarTerm(d1)
+	  && d1 != (CELL)npt1
+	  ) {
+	/* never dereference through a variable from the left-side */
+	if (npt1 >= HBREG) {
+	  goto fail;
 	} else {
-	  Bind_Global(VarOfTerm(d0), d1);	
+	  npt1 = (CELL *)d1;
+	  goto restart_d1;
 	}
       }
+    }
+    if (IsVarTerm(d0)) {
+      if (our_write_mode) {
+	/* generate a new binding */
+	CELL *pt0 = VarOfTerm(d0);
+	Term new = MkVarTerm();
+	  
+	Bind_Global(pt0, new);
+	if (d0 != d1) { /* avoid loops */
+	  Bind_Global(VarOfTerm(new), d1);
+	}
+      } else {
+	if (d0 == d1) continue;
+	goto fail;
+      }
+      continue;
     } else if (IsVarTerm(d1)) {
       goto fail;
     } else {
@@ -1552,21 +1592,24 @@ static int subsumes_complex(register CELL *pt0, register CELL *pt0_end, register
 #ifdef RATIONAL_TREES
 	/* now link the two structures so that no one else will */
 	/* come here */
-	to_visit -= 4;
+	to_visit -= 5;
 	to_visit[0] = pt0;
 	to_visit[1] = pt0_end;
 	to_visit[2] = pt1;
 	to_visit[3] = (CELL *)*pt0;
+	to_visit[4] = (CELL *)write_mode;
 	*pt0 = d1;
 #else
 	/* store the terms to visit */
 	if (pt0 < pt0_end) {
-	  to_visit -= 3;
+	  to_visit -= 4;
 	  to_visit[0] = pt0;
 	  to_visit[1] = pt0_end;
 	  to_visit[2] = pt1;
+	  to_visit[3] = (CELL *)write_mode;
 	}
 #endif
+	write_mode = our_write_mode;
 	pt0 = RepPair(d0) - 1;
 	pt0_end = RepPair(d0) + 1;
 	pt1 = RepPair(d1) - 1;
@@ -1593,21 +1636,24 @@ static int subsumes_complex(register CELL *pt0, register CELL *pt0_end, register
 #ifdef RATIONAL_TREES
 	  /* now link the two structures so that no one else will */
 	  /* come here */
-	  to_visit -= 4;
+	  to_visit -= 5;
 	  to_visit[0] = pt0;
 	  to_visit[1] = pt0_end;
 	  to_visit[2] = pt1;
 	  to_visit[3] = (CELL *)*pt0;
+	  to_visit[4] = (CELL *)write_mode;
 	  *pt0 = d1;
 #else
 	  /* store the terms to visit */
 	  if (pt0 < pt0_end) {
-	    to_visit -= 3;
+	    to_visit -= 4;
 	    to_visit[0] = pt0;
 	    to_visit[1] = pt0_end;
 	    to_visit[2] = pt1;
+	    to_visit[3] = (CELL *)write_mode;
 	  }
 #endif
+	  write_mode = our_write_mode;
 	  d0 = ArityOfFunctor(f);
 	  pt0 = ap2;
 	  pt0_end = ap2 + d0;
@@ -1624,33 +1670,55 @@ static int subsumes_complex(register CELL *pt0, register CELL *pt0_end, register
     pt0_end = to_visit[1];
     pt1 = to_visit[2];
     *pt0 = (CELL)to_visit[3];
-    to_visit += 4;
+    write_mode = (int)to_visit[4];
+    to_visit += 5;
 #else
     pt0 = to_visit[0];
     pt0_end = to_visit[1];
     pt1 = to_visit[2];
-    to_visit += 3;
+    write_mode = (int)to_visit[3];
+    to_visit += 4;
 #endif
     goto loop;
   }
 
-  while (H > OLDH) {
-    H -= 2;
-    RESET_VARIABLE(VarOfTerm(H[1]));
+  H = HBREG;
+  /* get rid of intermediate variables  */
+  new_tr = TR;
+  while (TR != OLDTR) {
+    /* cell we bound */
+    CELL *pt1 = (CELL *) TrailTerm(--TR);
+    /* cell we created */
+    CELL *npt1 = (CELL *)*pt1;
+    /* shorten the chain */
+    if (IsUnboundVar(*pt1)) {
+      RESET_VARIABLE(pt1);
+    } else {
+      *pt1 = *npt1;
+    }
   }
-  return(TRUE);
+  TR = new_tr;
+  HBREG = B->cp_h;
+  return TRUE;
 
  fail:
+  H = HBREG;
 #ifdef RATIONAL_TREES
   while (to_visit < (CELL **)ASP) {
     pt0 = to_visit[0];
     pt0_end = to_visit[1];
     pt1 = to_visit[2];
     *pt0 = (CELL)to_visit[3];
-    to_visit += 4;
+    to_visit += 5;
   }
 #endif
-  return(FALSE);
+  /* untrail all bindings made by variant */
+  while (TR != (tr_fr_ptr)OLDTR) {
+    CELL *pt1 = (CELL *) TrailTerm(--TR);
+    RESET_VARIABLE(pt1);
+  }
+  HBREG = B->cp_h;
+  return FALSE;
 }
 
 static Int 
