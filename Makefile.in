@@ -133,7 +133,8 @@ C_SOURCES= \
 	$(srcdir)/C/compiler.c $(srcdir)/C/computils.c \
 	$(srcdir)/C/corout.c $(srcdir)/C/dbase.c $(srcdir)/C/errors.c \
 	$(srcdir)/C/eval.c $(srcdir)/C/exec.c $(srcdir)/C/grow.c \
-	$(srcdir)/C/heapgc.c $(srcdir)/C/index.c $(srcdir)/C/init.c	   \
+	$(srcdir)/C/heapgc.c $(srcdir)/C/index.c	   \
+	$(srcdir)/C/init.c $(srcdir)/C/inlines.c	   \
 	$(srcdir)/C/iopreds.c $(srcdir)/C/depth_bound.c \
 	$(srcdir)/C/load_foreign.c \
 	$(srcdir)/C/load_dl.c $(srcdir)/C/load_dld.c $(srcdir)/C/load_none.c \
@@ -177,7 +178,7 @@ ENGINE_OBJECTS = \
 	arith0.o arith1.o arith2.o attvar.o bb.o \
 	cdmgr.o cmppreds.o compiler.o computils.o \
 	corout.o dbase.o errors.o eval.o bignum.o \
-	exec.o grow.o heapgc.o index.o init.o  \
+	exec.o grow.o heapgc.o index.o init.o  inlines.o \
 	iopreds.o depth_bound.o mavar.o modules.o other.o   \
 	parser.o save.o scanner.o sort.o stdpreds.o sysbits.o tracer.o \
 	unify.o userpreds.o utilpreds.o write.o ypsocks.o ypstdio.o @MPI_OBJS@
@@ -328,6 +329,9 @@ index.o: $(srcdir)/C/index.c
 init.o: $(srcdir)/C/init.c
 	$(CC) -c $(CFLAGS) -DYAP_VERSION=\"$(VERSION)\" $(srcdir)/C/init.c -o $@
 
+inlines.o: $(srcdir)/C/inlines.c
+	$(CC) -c $(CFLAGS) $(srcdir)/C/inlines.c -o $@
+
 iopreds.o: $(srcdir)/C/iopreds.c
 	$(CC) -c $(CFLAGS) $(srcdir)/C/iopreds.c -o $@
 
@@ -466,11 +470,11 @@ c_interface.i: $(srcdir)/C/c_interface.c $(srcdir)/include/c_interface.h
 mycb: $(srcdir)/mycb.c
 	$(CC) $(CFLAGS) $(srcdir)/mycb.c -o mycb
 
-startup: yap $(PL_SOURCES)
+startup: yap@EXEC_SUFFIX@ $(PL_SOURCES)
 	-rm -f startup
 	echo "['$(srcdir)/pl/init.yap']. module(user). save_program(startup)." |  @CROSS_SIMULATOR@ ./yap -b $(srcdir)/pl/boot.yap
 
-yap: $(HEADERS) yap.o @YAPLIB@
+yap@EXEC_SUFFIX@: $(HEADERS) yap.o @YAPLIB@
 	$(MPI_CC) $(STANDARD_CFLAGS) $(LDFLAGS) -o yap yap.o @YAPLIB@ $(LIBS) @MPI_LIBS@
 
 libYap.a: $(LIB_OBJECTS)
@@ -487,7 +491,7 @@ install_bin: @INSTALL_COMMAND@
 
 install_unix: startup
 	mkdir -p $(DESTDIR)$(BINDIR)
-	$(INSTALL_PROGRAM) -m 755 yap $(DESTDIR)$(BINDIR)/yap
+	$(INSTALL_PROGRAM) -m 755 yap@EXEC_SUFFIX@ $(DESTDIR)$(BINDIR)/yap
 	mkdir -p $(DESTDIR)$(YAPLIBDIR)
 	$(INSTALL_DATA) startup $(DESTDIR)$(YAPLIBDIR)/startup
 	$(INSTALL_DATA) libYap.a  $(DESTDIR)$(LIBDIR)/libYap.a
@@ -543,7 +547,7 @@ clean: clean_docs
 	rm -f *.o *~ $(GHEADERS) *.BAK
 
 realclean: clean realclean_docs
-	rm -f yap startup config.log config.cache config.h
+	rm -f yap@EXEC_SUFFIX@ startup config.log config.cache config.h
 
 dist:
 
