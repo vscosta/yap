@@ -319,7 +319,7 @@ Error (yap_error_number type, Term where, char *format,...)
   if (type == PURE_ABORT)
     where = TermNil;
   else
-    where = Deref(where);
+    where = CopyTerm(Deref(where));
   if (IsVarTerm(where)) {
     /* we must be careful someone gave us a copy to a local variable */
     Term t = MkVarTerm();
@@ -327,6 +327,7 @@ Error (yap_error_number type, Term where, char *format,...)
     where = Deref(where);
   }
   PrologMode |= InErrorMode;
+  where = CopyTerm(where);
   va_start (ap, format);
   /* now build the error string */
   if (format != NULL)
@@ -1752,7 +1753,7 @@ Error (yap_error_number type, Term where, char *format,...)
     if (type == PURE_ABORT)
       JumpToEnv(MkAtomTerm(LookupAtom("abort")));
     else
-      JumpToEnv(CopyTerm(MkApplTerm(fun, 2, nt)));
+      JumpToEnv(MkApplTerm(fun, 2, nt));
     P = (yamop *)FAILCODE;
   }
   PrologMode &= ~InErrorMode;
