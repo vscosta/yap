@@ -108,7 +108,7 @@
 	'$redo_ground'(Done, X, Goal).
 '$execute_woken_system_goal'('$att_do'(V,New), _) :-
 	% make sure we are not trying to wake up again a bound variable.
-	( '$att_bound'(V) -> attributes:woken_att_do(V,New) ; true ).
+	( '$att_bound'(V) -> true ; attributes:woken_att_do(V,New) ).
 
 freeze(V, G) :-
 	var(V), !,
