@@ -145,8 +145,10 @@ typedef struct idb_queue
 #define IDB_LINK_TABLE 1
 #if LARGE_IDB_LINK_TABLE
 typedef BITS32 link_entry; 
+#define SIZEOF_LINK_ENTRY 4
 #else
 typedef BITS16 link_entry; 
+#define SIZEOF_LINK_ENTRY 2
 #endif
 /* a second alternative is to just use a tag */
 /*#define IDB_USE_MBIT 1*/
@@ -1400,21 +1402,15 @@ CreateDBStruct(Term Tm, DBProp p, int InFlag)
       flag |= DBWithRefs;
     }
 #ifdef IDB_LINK_TABLE
-#if SIZEOF_SHORT_INT==4
-    if (Unsigned(CodeAbs) >= 0x400000000) {
-#else
+#if SIZEOF_LINK_ENTRY==2
     if (Unsigned(CodeAbs) >= 0x40000) {
-#endif
       DBErrorFlag = OTHER_ERROR_IN_DB;
       DBErrorNumber = SYSTEM_ERROR;
       DBErrorTerm = TermNil;
-#if SIZEOF_SHORT_INT==4
       DBErrorMsg = "trying to store term larger than 256KB";
-#else
-      DBErrorMsg = "trying to store term larger than 16MB";
-#endif
       return(NULL);
     }
+#endif
 #endif
     pp = AllocDBSpace(DBLength(CodeAbs));
     if (pp == NIL) {
@@ -1639,16 +1635,16 @@ p_rcda(void)
     return (unify(ARG3, TRef));
   case SOVF_ERROR_IN_DB:
     if (!gc(3, ENV, P)) {
-      Abort("[ SYSTEM ERROR: YAP could not grow stack in recorda/3 ]\n");
+      Error(SYSTEM_ERROR, TermNil, "YAP could not grow stack in recorda/3");
       return(FALSE);
     }
     goto recover_record;
   case TOVF_ERROR_IN_DB:
-    Abort("[ SYSTEM ERROR: YAP could not grow trail in recorda/3 ]\n");
+    Error(SYSTEM_ERROR, TermNil, "YAP could not grow trail in recorda/3");
     return(FALSE);
   case OVF_ERROR_IN_DB:
     if (!growheap(FALSE)) {
-      Abort("[ SYSTEM ERROR: YAP could not grow heap in recorda/3 ]\n");
+      Error(SYSTEM_ERROR, TermNil, "YAP could not grow heap in recorda/3");
       return(FALSE);
     } else
       goto recover_record;
@@ -1678,16 +1674,16 @@ p_rcdap(void)
     return (unify(ARG3, TRef));
   case SOVF_ERROR_IN_DB:
     if (!gc(3, ENV, P)) {
-      Abort("[ SYSTEM ERROR: YAP could not grow stack in recorda/3 ]\n");
+      Error(SYSTEM_ERROR, TermNil, "YAP could not grow stack in recorda/3");
       return(FALSE);
     }
     goto recover_record;
   case TOVF_ERROR_IN_DB:
-    Abort("[ SYSTEM ERROR: YAP could not grow trail in recorda/3 ]\n");
+    Error(SYSTEM_ERROR, TermNil, "YAP could not grow trail in recorda/3");
     return(FALSE);
   case OVF_ERROR_IN_DB:
     if (!growheap(FALSE)) {
-      Abort("[ SYSTEM ERROR: YAP could not grow heap in recorda/3 ]\n");
+      Error(SYSTEM_ERROR, TermNil, "YAP could not grow heap in recorda/3");
       return(FALSE);
     } else
       goto recover_record;
@@ -1717,16 +1713,16 @@ p_rcdz(void)
     return (unify(ARG3, TRef));
   case SOVF_ERROR_IN_DB:
     if (!gc(3, ENV, P)) {
-      Abort("[ SYSTEM ERROR: YAP could not grow stack in recordz/3 ]\n");
+      Error(SYSTEM_ERROR, TermNil, "YAP could not grow stack in recordz/3");
       return(FALSE);
     }
     goto recover_record;
   case TOVF_ERROR_IN_DB:
-    Abort("[ SYSTEM ERROR: YAP could not grow trail in recorda/3 ]\n");
+    Error(SYSTEM_ERROR, TermNil, "YAP could not grow trail in recorda/3");
     return(FALSE);
   case OVF_ERROR_IN_DB:
     if (!growheap(FALSE)) {
-      Abort("[ SYSTEM ERROR: YAP could not grow heap in recordz/3 ]\n");
+      Error(SYSTEM_ERROR, TermNil, "YAP could not grow heap in recordz/3");
       return(FALSE);
     } else
       goto recover_record;
@@ -1756,16 +1752,16 @@ p_rcdzp(void)
     return (unify(ARG3, TRef));
   case SOVF_ERROR_IN_DB:
     if (!gc(3, ENV, P)) {
-      Abort("[ SYSTEM ERROR: YAP could not grow stack in recordz/3 ]\n");
+      Error(SYSTEM_ERROR, TermNil, "YAP could not grow stack in recordz/3");
       return(FALSE);
     }
     goto recover_record;
   case TOVF_ERROR_IN_DB:
-    Abort("[ SYSTEM ERROR: YAP could not grow trail in recorda/3 ]\n");
+    Error(SYSTEM_ERROR, TermNil, "YAP could not grow trail in recorda/3");
     return(FALSE);
   case OVF_ERROR_IN_DB:
     if (!growheap(FALSE)) {
-      Abort("[ SYSTEM ERROR: YAP could not grow heap in recordz/3 ]\n");
+      Error(SYSTEM_ERROR, TermNil, "YAP could not grow heap in recordz/3");
       return(FALSE);
     } else
       goto recover_record;
@@ -1803,16 +1799,16 @@ p_rcdstatp(void)
     return (unify(ARG4,TRef));
   case SOVF_ERROR_IN_DB:
     if (!gc(3, ENV, P)) {
-      Abort("[ SYSTEM ERROR: YAP could not grow stack in record_stat_source/3 ]\n");
+      Error(SYSTEM_ERROR, TermNil, "YAP could not grow stack in record_stat_source/3");
       return(FALSE);
     }
     goto recover_record;
   case TOVF_ERROR_IN_DB:
-    Abort("[ SYSTEM ERROR: YAP could not grow trail in record_stat_source/3 ]\n");
+    Error(SYSTEM_ERROR, TermNil, "YAP could not grow trail in record_stat_source/3");
     return(FALSE);
   case OVF_ERROR_IN_DB:
     if (!growheap(FALSE)) {
-      Abort("[ SYSTEM ERROR: YAP could not grow heap in record_stat_source/3 ]\n");
+      Error(SYSTEM_ERROR, TermNil, "YAP could not grow heap in record_stat_source/3");
       return(FALSE);
     } else
       goto recover_record;
@@ -1845,16 +1841,16 @@ p_drcdap(void)
     return (unify(ARG3, TRef));
   case SOVF_ERROR_IN_DB:
     if (!gc(4, ENV, P)) {
-      Abort("[ SYSTEM ERROR: YAP could not grow stack in recorda/3 ]\n");
+      Error(SYSTEM_ERROR, TermNil, "YAP could not grow stack in recorda/3");
       return(FALSE);
     }
     goto recover_record;
   case TOVF_ERROR_IN_DB:
-    Abort("[ SYSTEM ERROR: YAP could not grow trail in recorda/3 ]\n");
+    Error(SYSTEM_ERROR, TermNil, "YAP could not grow trail in recorda/3");
     return(FALSE);
   case OVF_ERROR_IN_DB:
     if (!growheap(FALSE)) {
-      Abort("[ SYSTEM ERROR: YAP could not grow heap in recorda/3 ]\n");
+      Error(SYSTEM_ERROR, TermNil, "YAP could not grow heap in recorda/3");
       return(FALSE);
     } else
       goto recover_record;
@@ -1888,16 +1884,16 @@ p_drcdzp(void)
     return (unify(ARG3, TRef));
   case SOVF_ERROR_IN_DB:
     if (!gc(4, ENV, P)) {
-      Abort("[ SYSTEM ERROR: YAP could not grow stack in recordz/3 ]\n");
+      Error(SYSTEM_ERROR, TermNil, "YAP could not grow stack in recordz/3");
       return(FALSE);
     }
     goto recover_record;
   case TOVF_ERROR_IN_DB:
-    Abort("[ SYSTEM ERROR: YAP could not grow trail in recorda/3 ]\n");
+    Error(SYSTEM_ERROR, TermNil, "YAP could not grow trail in recorda/3");
     return(FALSE);
   case OVF_ERROR_IN_DB:
     if (!growheap(FALSE)) {
-      Abort("[ SYSTEM ERROR: YAP could not grow heap in recordz/3 ]\n");
+      Error(SYSTEM_ERROR, TermNil, "YAP could not grow heap in recordz/3");
       return(FALSE);
     } else
       goto recover_record;
@@ -1933,16 +1929,16 @@ p_rcdaifnot(void)
     return (unify(ARG3, TRef));
   case SOVF_ERROR_IN_DB:
     if (!gc(3, ENV, P)) {
-      Abort("[ SYSTEM ERROR: YAP could not grow stack in recordaifnot/3 ]\n");
+      Error(SYSTEM_ERROR, TermNil, "YAP could not grow stack in recordaifnot/3");
       return(FALSE);
     }
     goto recover_record;
   case TOVF_ERROR_IN_DB:
-    Abort("[ SYSTEM ERROR: YAP could not grow trail in recorda/3 ]\n");
+    Error(SYSTEM_ERROR, TermNil, "YAP could not grow trail in recorda/3");
     return(FALSE);
   case OVF_ERROR_IN_DB:
     if (!growheap(FALSE)) {
-      Abort("[ SYSTEM ERROR: YAP could not grow heap in recordzifnot/3 ]\n");
+      Error(SYSTEM_ERROR, TermNil, "YAP could not grow heap in recordzifnot/3");
       return(FALSE);
     } else
       goto recover_record;
@@ -1975,16 +1971,16 @@ p_rcdzifnot(void)
     return (unify(ARG3, TRef));
   case SOVF_ERROR_IN_DB:
     if (!gc(3, ENV, P)) {
-      Abort("[ SYSTEM ERROR: YAP could not grow stack in recordaifnot/3 ]\n");
+      Error(SYSTEM_ERROR, TermNil, "YAP could not grow stack in recordaifnot/3");
       return(FALSE);
     }
     goto recover_record;
   case TOVF_ERROR_IN_DB:
-    Abort("[ SYSTEM ERROR: YAP could not grow trail in recorda/3 ]\n");
+    Error(SYSTEM_ERROR, TermNil, "YAP could not grow trail in recorda/3");
     return(FALSE);
   case OVF_ERROR_IN_DB:
     if (!growheap(FALSE)) {
-      Abort("[ SYSTEM ERROR: YAP could not grow heap in recordzifnot/3 ]\n");
+      Error(SYSTEM_ERROR, TermNil, "YAP could not grow heap in recordzifnot/3");
       return(FALSE);
     } else
       goto recover_record;
@@ -2299,7 +2295,7 @@ i_log_upd_recorded(LogUpdDBProp AtProp)
     if (AtProp->Index == NULL) {
       if((AtProp->Index = new_lu_index(AtProp)) == NULL) {
 	if (!growheap(FALSE)) {
-	  Abort("[ SYSTEM ERROR: YAP failed to reserve space in growheap ]\n");
+	  Error(SYSTEM_ERROR, TermNil, "YAP failed to reserve space in growheap");
 	  cut_fail();
 	}
 	twork = Deref(ARG2);
@@ -3864,21 +3860,21 @@ StoreTermInDB(Term t, int nargs)
     switch(DBErrorFlag) {
     case NO_ERROR_IN_DB:
 #ifdef DEBUG
-      Abort("[ SYSTEM ERROR: no error but null return in enqueue/2 ]\n");
+      Error(SYSTEM_ERROR, TermNil, "no error but null return in enqueue/2");
 #endif
       break;
     case SOVF_ERROR_IN_DB:
       if (!gc(nargs, ENV, P)) {
-	Abort("[ SYSTEM ERROR: YAP could not grow stack in enqueue/2 ]\n");
+	Error(SYSTEM_ERROR, TermNil, "YAP could not grow stack in enqueue/2");
 	return(FALSE);
       } else
 	break;
     case TOVF_ERROR_IN_DB:
-      Abort("[ SYSTEM ERROR: YAP could not grow trail in recorda/3 ]\n");
+      Error(SYSTEM_ERROR, TermNil, "YAP could not grow trail in recorda/3");
       return(FALSE);
     case OVF_ERROR_IN_DB:
       if (!growheap(FALSE)) {
-	Abort("[ SYSTEM ERROR: YAP could not grow heap in enqueue/2 ]\n");
+	Error(SYSTEM_ERROR, TermNil, "YAP could not grow heap in enqueue/2");
 	return(FALSE);
       } else
 	break;
@@ -3902,7 +3898,7 @@ p_init_queue(void)
   } else {
     while ((dbq = (db_queue *)AllocDBSpace(sizeof(db_queue))) == NULL) {
       if (!growheap(FALSE)) {
-	Abort("[ SYSTEM ERROR: YAP failed to reserve space in growheap ]\n");
+	Error(SYSTEM_ERROR, TermNil, "YAP failed to reserve space in growheap");
 	return(FALSE);
       }
     }
