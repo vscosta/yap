@@ -17,7 +17,7 @@
 * File:		Yap.h.m4						 *
 * mods:									 *
 * comments:	main header file for YAP				 *
-* version:      $Id: Yap.h,v 1.5 2001-09-24 18:07:16 vsc Exp $	 *
+* version:      $Id: Yap.h,v 1.6 2001-12-10 05:37:39 vsc Exp $	 *
 *************************************************************************/
 
 #include "config.h"

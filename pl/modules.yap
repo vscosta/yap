@@ -362,21 +362,22 @@ module(N) :-
 % if I don't know what the module is, I cannot do anything to the goal,
 % so I just put a call for later on.
 '$module_expansion'(M:G,call(M:G),call(M:G),_,_,_,_) :- var(M), !.
-'$module_expansion'(M:G,call(M:G),call(M:G),_,_,_,_) :- var(G), !.
+'$module_expansion'(M:G,G1,GO,_,_,TM,HVars) :-
+	'$module_expansion'(G,G1,GO,M,M,TM,HVars).
 % if M1 is given explicitly process G within M1's context.
-'$module_expansion'(M:G,G1,GO,_Mod,_MM,TM,HVars) :- !,
-	% is this imported from some other module M1?
-	( '$imported_pred'(G, M, M1) ->
-	    % continue recursively...
-	    '$module_expansion'(G,G1,GO,M1,M,TM,HVars)
-	;
-	  (
-	      '$meta_expansion'(M, M, G, NG, HVars)
-	  ;
-	      G = NG
-	  ),
-	  '$complete_goal_expansion'(NG, M, M, TM, G1, GO, HVars)
-	).
+% '$module_expansion'(M:G,G1,GO,_Mod,_MM,TM,HVars) :- !,
+% 	% is this imported from some other module M1?
+% 	( '$imported_pred'(G, M, M1) ->
+% 	    % continue recursively...
+% 	    '$module_expansion'(G,G1,GO,M1,M,TM,HVars)
+% 	;
+% 	  (
+% 	      '$meta_expansion'(M, M, G, NG, HVars)
+% 	  ;
+% 	      G = NG
+% 	  ),
+% 	  '$complete_goal_expansion'(NG, M, M, TM, G1, GO, HVars)
+% 	).
 %
 % next, check if this is something imported.
 %
@@ -473,7 +474,8 @@ module(N) :-
 '$meta_expansion_loop'(I,D,G,G1,HVars,M) :- 
 	arg(I,D,X), (X==':' ; integer(X)),
 	arg(I,G,A), '$do_expand'(A,HVars), !,
-	arg(I,G1,M:A),
+	'$process_expanded_arg'(A, M, NA),
+	arg(I,G1,NA),
 	I1 is I-1,
 	'$meta_expansion_loop'(I1,D,G,G1,HVars,M).
 '$meta_expansion_loop'(I,D,G,G1,HVars,M) :- 
@@ -487,6 +489,26 @@ module(N) :-
 '$do_expand'(_:_,_) :- !, fail.
 '$do_expand'(_,_).
 
+'$process_expanded_arg'(V, M, M:V) :- var(V), !.
+'$process_expanded_arg'((V1,V2), M, (NV1,NV2)) :- !,
+	'$process_expanded_arg'(V1, M, NV1),
+	'$process_expanded_arg'(V2, M, NV2).
+'$process_expanded_arg'((V1;V2), M, (NV1;NV2)) :- !,
+	'$process_expanded_arg'(V1, M, NV1),
+	'$process_expanded_arg'(V2, M, NV2).
+'$process_expanded_arg'((V1|V2), M, (NV1|NV2)) :- !,
+	'$process_expanded_arg'(V1, M, NV1),
+	'$process_expanded_arg'(V2, M, NV2).
+'$process_expanded_arg'((V1->V2), M, (NV1->NV2)) :- !,
+	'$process_expanded_arg'(V1, M, NV1),
+	'$process_expanded_arg'(V2, M, NV2).
+'$process_expanded_arg'(\+V, M, \+NV) :- !,
+	'$process_expanded_arg'(V, M, NV).
+'$process_expanded_arg'(M:A, _, M:A) :- !.
+'$process_expanded_arg'(G, _, G) :-
+	'$system_predicate'(G), !.
+'$process_expanded_arg'(A, M, M:A).
+	
 '$not_in_vars'(_,[]).
 '$not_in_vars'(V,[X|L]) :- X\==V, '$not_in_vars'(V,L).
 

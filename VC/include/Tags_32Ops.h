@@ -18,7 +18,7 @@
 * Last rev:	December 90						 *
 * mods:									 *
 * comments:	Original Tag Scheme for machines with 32 bits adresses   *
-* version:      $Id: Tags_32Ops.h,v 1.5 2001-09-24 18:07:16 vsc Exp $	 *
+* version:      $Id: Tags_32Ops.h,v 1.6 2001-12-10 05:37:39 vsc Exp $	 *
 *************************************************************************/
 
 /*

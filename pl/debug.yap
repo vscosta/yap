@@ -723,23 +723,12 @@ debugging :-
 '$creep_call'([A|B],Module,_) :- !,
 	'$direct_spy'([Module|[A|B]]).
 '$creep_call'(A,Module,CP) :-
-	'$undefined'(A,Module), !,
-	'$creep_call_undefined'(A,Module,CP).
+	'$undefined'(A,Module),
+	functor(A,F,N),
+	'$recorded'('$import','$import'(S,Module,F,N),_), !, 
+	'$creep_call'(A,S,CP).
 '$creep_call'(A,Module,_) :-
 	'$direct_spy'([Module|A]).
-
-'$creep_call_undefined'(A,M,CP) :-
-	functor(A,F,N),
-	'$recorded'('$import','$import'(S,M,F,N),_), !,
-	'$creep_call'(A,S,CP).
-'$creep_call_undefined'(G, M, CP) :-
-	( \+ '$undefined'(unknown_predicate_handler(_,_,_), user),
-	  user:unknown_predicate_handler(G,NM,NG) ->
-	  '$creep_call'(NG,NM,CP) ;
-	   '$is_dynamic'(G, M) -> fail ;
-	    '$recorded'('$unknown','$unknown'(M:G,US),_),
-	    '$creep_call'(US,M,CP)
-        ).
 
 %'$creep'(G) :- $current_module(M),write(user_error,[creep,M,G]),nl(user_error),fail.
 '$creep'(G) :-
