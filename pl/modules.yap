@@ -60,11 +60,10 @@ use_module(M,I) :-
 	'$current_module'(M),
 	'$find_in_path'(File,X,use_module(File,Imports)), !,
 	'$open'(X,'$csult',Stream,0), !,
-	'$consulting_file_name'(Stream,TrueFileName),
-	( '$loaded'(Stream) -> true
+	( '$loaded'(Stream,TrueFileName) -> true
 	     ;
-	     '$record_loaded'(Stream),
 	       % the following avoids import of all public predicates
+	     '$consulting_file_name'(Stream,TrueFileName),
 	     '$recorda'('$importing','$importing'(TrueFileName),R),
 	     '$reconsult'(File,Stream)
 	 ),
@@ -91,14 +90,14 @@ use_module(Mod,F,I) :-
 '$use_module'(Module,File,Imports) :-
 	'$find_in_path'(File,X,use_module(Module,File,Imports)),
 	'$open'(X,'$csult',Stream,0), !,
-	'$consulting_file_name'(Stream,TrueFileName),
 	'$current_module'(M),
+	'$file_name'(Stream,FName),
 	(
-	  '$loaded'(Stream)
+	  '$loaded'(Stream, TrueFileName)
 	  ->
 	  true
 	;
-	  '$record_loaded'(Stream),
+	  '$consulting_file_name'(Stream,TrueFileName),
 	  % the following avoids import of all public predicates
 	  '$recorda'('$importing','$importing'(TrueFileName),R),
 	  '$reconsult'(File,Stream)

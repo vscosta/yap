@@ -32,15 +32,13 @@ ensure_loaded(V) :-
 '$ensure_loaded'(X) :-
 	'$find_in_path'(X,Y,ensure_loaded(X)),
 	'$open'(Y, '$csult', Stream, 0), !,
-	( '$loaded'(Stream) ->
-	    (  '$consulting_file_name'(Stream,TFN),
-		'$recorded'('$module','$module'(TFN,M,P),_) ->
+	( '$loaded'(Stream,TFN) ->
+	    (  	'$recorded'('$module','$module'(TFN,M,P),_) ->
 		'$current_module'(T), '$import'(P,M,T)
 		;
 		true
 	    )
 	;
-	    '$record_loaded'(Stream),
 	    '$reconsult'(X,Stream)
 	    ),
 	'$close'(Stream).
@@ -86,12 +84,14 @@ reconsult(Fs) :-
 '$reconsult'(X) :-
 	'$find_in_path'(X,Y,reconsult(X)),
 	'$open'(Y,'$csult',Stream,0), !,
-	'$record_loaded'(Stream),
 	'$reconsult'(X,Stream),
 	'$close'(Stream).
 '$reconsult'(X) :-
 	throw(error(permission_error(input,stream,X),reconsult(X))).
 
+'$reconsult'(F,Stream) :-
+	'$record_loaded'(Stream),
+	fail.
 '$reconsult'(F,Stream) :-
 	'$getcwd'(OldD),
 	'$get_value'('$consulting_file',OldF),
@@ -189,7 +189,6 @@ reconsult(Fs) :-
 	),
 	( '$find_in_path'(X,Y,reconsult(X)),
 	  '$open'(Y,'$csult',Stream,0) ->
-		'$record_loaded'(Stream),
 		( '$access_yap_flags'(15, 0) -> true ; '$skip_unix_comments'(Stream) ),
 		'$reconsult'(X,Stream), '$close'(Stream)
 	;
@@ -234,9 +233,10 @@ prolog_load_context(term_position, Position) :-
 	stream_position(Stream, Position).
 
 
-'$loaded'(Stream) :-
+'$loaded'(Stream,F1) :-
 	'$file_name'(Stream,F),			%
-	'$recorded'('$loaded','$loaded'(F,Age),R), !,
+	'$recorded'('$loaded','$loaded'(F1,Age),R),
+	'$same_file'(F1,F), !,
         '$file_age'(F,CurrentAge),
          ((CurrentAge = Age ; Age = -1)  -> true; erase(R), fail).
 

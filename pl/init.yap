@@ -107,6 +107,11 @@ system_mode(verbose,off) :- '$set_value'('$verbose',off).
    '$set_pred_module'(acyclic_term(_,_), terms),
    '$set_pred_module'(variable_in_term(_,_), terms).
 
+%
+% cleanup ensure loaded and recover some data-base space.
+%
+:- ( recorded('$loaded','$loaded'(_,_),R), erase(R), fail ; true ).
+
 :- '$set_value'('$user_module',user), '$protect'.
 
 :- style_check([]).

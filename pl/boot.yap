@@ -891,13 +891,15 @@ break :- '$get_value'('$break',BL), NBL is BL+1,
 '$consult'(X) :-
 	'$find_in_path'(X,Y,consult(X)),
 	'$open'(Y,'$csult',Stream,0), !,
-        '$record_loaded'(Stream),
         '$consult'(X,Stream),
 	'$close'(Stream).
 '$consult'(X) :-
 	throw(error(permission_error(input,stream,X),consult(X))).
 
 
+'$consult'(_,Stream) :-
+        '$record_loaded'(Stream),
+	fail.
 '$consult'(F,Stream) :-
 	'$access_yap_flags'(8, 2), % SICStus Prolog compatibility
 	!,
@@ -944,7 +946,7 @@ break :- '$get_value'('$break',BL), NBL is BL+1,
 '$record_loaded'(user).
 '$record_loaded'(user_input).
 '$record_loaded'(Stream) :-
-	'$loaded'(Stream), !.
+	'$loaded'(Stream,_), !.
 '$record_loaded'(Stream) :-
 	'$file_name'(Stream,F),
 	'$file_age'(F,Age),
