@@ -104,6 +104,7 @@ STD_PROTO(static Int p_set_yap_flags, (void));
 STD_PROTO(static Int useprof,  (void));
 STD_PROTO(static Int useprof0, (void));
 STD_PROTO(static Int profres, (void));
+STD_PROTO(static Int profres2, (void));
 
 #define TIMER_DEFAULT 1000
 static FILE *fprof;
@@ -147,6 +148,14 @@ static Int useprof0(void) {
 
 
 static Int profres(void) { 
+  showprofres(0);
+}
+
+static Int profres2(void) { 
+  showprofres(1);
+}
+
+int showprofres(int tipo) { 
 FILE *f;
 long p, p1,p2, total,total2,count,fora, i;
 unsigned long es,ee,e1,e2,e;
@@ -156,7 +165,6 @@ char nome[200];
 
  f=fopen("PROFPREDS","r");
  if (f==NULL) return (FALSE);
-
 
  i=fscanf(f,"%x - %x - Pred(%ld) - %s",&es,&ee,&p,nome);
  p1=p2=p;
@@ -170,10 +178,24 @@ char nome[200];
    if (e2<ee) e2=ee;
    i=fscanf(f,"%x - %x - Pred(%ld) - %s",&es,&ee,&p,nome);
  }
+ fclose(f);
+
+ f=fopen("PROFINIT","r");
+ if (f!=NULL) {
+
+   while(i>0) {
+     if (p<p1) p1=p;
+     else if (p>p2) p2=p;
+     if (e1>es) e1=es;
+     if (e2<ee) e2=ee;
+     i=fscanf(f,"%x - %x - Pred(%ld) - %s",&es,&ee,&p,nome);
+    }
+ }
+ fclose(f);
+
  printf("%ld Addresses  from [%x] to [%x]\n",e2-e1,e1,e2);
  printf("%ld Predicates from (%ld) to (%ld) \n",p2-p1,p1,p2);
 
- fclose(f);
 
  end=(long *) malloc((e2-e1+1)*sizeof(long));
  if (end==NULL) { printf("Not enought mem to process results...\n"); return (FALSE); }
@@ -197,26 +219,50 @@ char nome[200];
 
  printf("Total count %ld (other code %ld)\n",total,fora); 
 
- f=fopen("PROFPREDS","r");
- if (f==NULL) return (FALSE);
-
  total2=0;
- do {
-   i=fscanf(f,"%x - %x - Pred(%ld) - %s",&es,&ee,&p,nome);
-   if (i<=0) break;
-   count=0;
-   while(es<=ee) { count+=end[es-e1]; es++; } 
+ p1=0; p2=0;
+ count=0;
+
+ f=fopen("PROFPREDS","r");
+ if (f==NULL) return(FALSE);
+ if (tipo==0) {
+   do {
+     i=fscanf(f,"%x - %x - Pred(%ld) - %s",&es,&ee,&p,nome);
+     if (i<=0) break;
+     if (p1!=p) { p2=1; p1=p; } else p2++;
+     count=0; 
+     while(es<=ee) { count+=end[es-e1]; es++; } 
+     total2+=count;
+     if (count) printf("Pred(%ld) - %s (%d) - %ld (%f\%)\n", p,nome,p2,count, ((float) count/total)*100.0);
+   } while(i>0);
+
+ } else {
+   char buffer[300];
+   buffer[0]=0;
+   do {
+     i=fscanf(f,"%x - %x - Pred(%ld) - %s",&es,&ee,&p,nome);
+     if (i<=0) break;
+     if (p1!=p) {
+        p2=1; 
+        p1=p; 
+        if (count) printf("%s",buffer); 
+        total2+=count;
+        count=0; 
+     } else 
+        p2++;
+     while(es<=ee) { count+=end[es-e1]; es++; } 
+     sprintf(buffer,"Pred(%ld) - %s (%d) - %ld (%f\%)\n", p,nome,p2,count, ((float) count/total)*100.0);
+   } while(i>0);
    total2+=count;
-   if (count) printf("Pred(%ld) - %s - %ld (%f\%)\n", p,nome,count, ((float) count/total)*100.0);
- } while(i>0);
-  
+   if (count) printf("%s",buffer);   
+ }
+
  fclose(f); 
  printf("Total counted %ld (other code %ld)\n",total2,total-total2); 
  free(end);
 
  return (TRUE);
 }
-
 
 #endif /* LOW_PROF */
 
@@ -2448,6 +2494,7 @@ Yap_InitCPreds(void)
   Yap_InitCPred("useprof", 1, useprof, SafePredFlag);
   Yap_InitCPred("useprof", 0, useprof0, SafePredFlag);
   Yap_InitCPred("profres", 0, profres, SafePredFlag);
+  Yap_InitCPred("profres2", 0, profres2, SafePredFlag);
 #endif
 #ifndef YAPOR
   Yap_InitCPred("$default_sequential", 1, p_default_sequential, SafePredFlag|SyncPredFlag);
