@@ -2806,7 +2806,6 @@ compact_heap(void)
 	/* oops, we found a blob */
 	int nofcells = (UNMARK_CELL(*current)-EndSpecials) / sizeof(CELL);
 	CELL *ptr = current - nofcells ;
-	CELL func = ptr[0];
 
 	if (MARKED_PTR(ptr)) {
 #ifdef DEBUG

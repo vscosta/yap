@@ -11,8 +11,12 @@
 * File:		cdmgr.c							 *
 * comments:	Code manager						 *
 *									 *
-* Last rev:     $Date: 2004-09-08 17:56:45 $,$Author: vsc $						 *
+* Last rev:     $Date: 2004-09-17 19:34:51 $,$Author: vsc $						 *
 * $Log: not supported by cvs2svn $
+* Revision 1.131  2004/09/08 17:56:45  vsc
+* source: a(X) :- true is a fact!
+* fix use of value after possible overflow in IPred
+*
 * Revision 1.130  2004/09/07 16:48:04  vsc
 * fix bug in unwinding trail at amiops.h
 *
@@ -3316,9 +3320,18 @@ fetch_next_lu_clause(PredEntry *pe, yamop *i_code, Term th, Term tb, Term tr, ya
 	ARG5 = th;
 	ARG6 = tb;
 	ARG7 = tr;
-	if (!Yap_gc(7, YENV, P)) {
-	  Yap_Error(OUT_OF_STACK_ERROR, TermNil, Yap_ErrorMessage);
-	  return FALSE;
+	if (Yap_Error_TYPE == OUT_OF_ATTVARS_ERROR) {
+	  Yap_Error_TYPE = YAP_NO_ERROR;
+	  if (!Yap_growglobal(NULL)) {
+	    Yap_Error(OUT_OF_ATTVARS_ERROR, TermNil, Yap_ErrorMessage);
+	    return FALSE;
+	  }
+	} else {
+	  Yap_Error_TYPE = YAP_NO_ERROR;
+	  if (!Yap_gc(7, YENV, P)) {
+	    Yap_Error(OUT_OF_STACK_ERROR, TermNil, Yap_ErrorMessage);
+	    return FALSE;
+	  }
 	}
 	th = ARG5;
 	tb = ARG6;
@@ -3427,9 +3440,18 @@ fetch_next_lu_clause0(PredEntry *pe, yamop *i_code, Term th, Term tb, yamop *cp_
 
     while ((t = Yap_FetchTermFromDB(cl->ClSource)) == 0L) {
       if (first_time) {
-	if (!Yap_gc(4, YENV, P)) {
-	  Yap_Error(OUT_OF_STACK_ERROR, TermNil, Yap_ErrorMessage);
-	  return FALSE;
+	if (Yap_Error_TYPE == OUT_OF_ATTVARS_ERROR) {
+	  Yap_Error_TYPE = YAP_NO_ERROR;
+	  if (!Yap_growglobal(NULL)) {
+	    Yap_Error(OUT_OF_ATTVARS_ERROR, TermNil, Yap_ErrorMessage);
+	    return FALSE;
+	  }
+	} else {
+	  Yap_Error_TYPE = YAP_NO_ERROR;
+	  if (!Yap_gc(4, YENV, P)) {
+	    Yap_Error(OUT_OF_STACK_ERROR, TermNil, Yap_ErrorMessage);
+	    return FALSE;
+	  }
 	}
       } else {
 	if (!Yap_gc(5, ENV, CP)) {
@@ -3527,9 +3549,18 @@ fetch_next_static_clause(PredEntry *pe, yamop *i_code, Term th, Term tb, Term tr
 
     while ((t = Yap_FetchTermFromDB(cl->usc.ClSource)) == 0L) {
       if (first_time) {
-	if (!Yap_gc(4, YENV, P)) {
-	  Yap_Error(OUT_OF_STACK_ERROR, TermNil, Yap_ErrorMessage);
-	  return FALSE;
+	if (Yap_Error_TYPE == OUT_OF_ATTVARS_ERROR) {
+	  Yap_Error_TYPE = YAP_NO_ERROR;
+	  if (!Yap_growglobal(NULL)) {
+	    Yap_Error(OUT_OF_ATTVARS_ERROR, TermNil, Yap_ErrorMessage);
+	    return FALSE;
+	  }
+	} else {
+	  Yap_Error_TYPE = YAP_NO_ERROR;
+	  if (!Yap_gc(4, YENV, P)) {
+	    Yap_Error(OUT_OF_STACK_ERROR, TermNil, Yap_ErrorMessage);
+	    return FALSE;
+	  }
 	}
       } else {
 	if (!Yap_gc(5, ENV, CP)) {

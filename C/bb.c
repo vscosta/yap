@@ -272,9 +272,18 @@ p_bb_get(void)
     return(FALSE);
   READ_LOCK(p->BBRWLock);  
   while ((out = Yap_FetchTermFromDB(p->Element)) == 0L) {
-    if (!Yap_gc(2, ENV, P)) {
-      Yap_Error(OUT_OF_STACK_ERROR, TermNil, Yap_ErrorMessage);
-      return(TermNil);
+    if (Yap_Error_TYPE == OUT_OF_ATTVARS_ERROR) {
+      Yap_Error_TYPE = YAP_NO_ERROR;
+      if (!Yap_growglobal(NULL)) {
+	Yap_Error(OUT_OF_ATTVARS_ERROR, TermNil, Yap_ErrorMessage);
+	return TermNil;
+      }
+    } else {
+      Yap_Error_TYPE = YAP_NO_ERROR;
+      if (!Yap_gc(2, ENV, P)) {
+	Yap_Error(OUT_OF_STACK_ERROR, TermNil, Yap_ErrorMessage);
+	return TermNil;
+      }
     }
   }
   READ_UNLOCK(p->BBRWLock);
@@ -292,9 +301,18 @@ p_bb_delete(void)
   if (p == NULL || p->Element == NULL)
     return(FALSE);
   while ((out = Yap_FetchTermFromDB(p->Element)) == 0L) {
-    if (!Yap_gc(2, ENV, P)) {
-      Yap_Error(OUT_OF_STACK_ERROR, TermNil, Yap_ErrorMessage);
-      return(TermNil);
+    if (Yap_Error_TYPE == OUT_OF_ATTVARS_ERROR) {
+      Yap_Error_TYPE = YAP_NO_ERROR;
+      if (!Yap_growglobal(NULL)) {
+	Yap_Error(OUT_OF_ATTVARS_ERROR, TermNil, Yap_ErrorMessage);
+	return TermNil;
+      }
+    } else {
+      Yap_Error_TYPE = YAP_NO_ERROR;
+      if (!Yap_gc(2, ENV, P)) {
+	Yap_Error(OUT_OF_STACK_ERROR, TermNil, Yap_ErrorMessage);
+	return TermNil;
+      }
     }
   }
   WRITE_LOCK(p->BBRWLock);  
@@ -316,9 +334,18 @@ p_bb_update(void)
     return(FALSE);
   WRITE_LOCK(p->BBRWLock);  
   while ((out = Yap_FetchTermFromDB(p->Element)) == 0L) {
-    if (!Yap_gc(3, ENV, P)) {
-      Yap_Error(OUT_OF_STACK_ERROR, TermNil, Yap_ErrorMessage);
-      return(TermNil);
+    if (Yap_Error_TYPE == OUT_OF_ATTVARS_ERROR) {
+      Yap_Error_TYPE = YAP_NO_ERROR;
+      if (!Yap_growglobal(NULL)) {
+	Yap_Error(OUT_OF_ATTVARS_ERROR, TermNil, Yap_ErrorMessage);
+	return TermNil;
+      }
+    } else {
+      Yap_Error_TYPE = YAP_NO_ERROR;
+      if (!Yap_gc(3, ENV, P)) {
+	Yap_Error(OUT_OF_STACK_ERROR, TermNil, Yap_ErrorMessage);
+	return TermNil;
+      }
     }
   }
   if (!Yap_unify(ARG2,out)) {

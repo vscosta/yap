@@ -490,15 +490,11 @@ when(_,Goal) :-
 	'$$compile'((S :- var(A), !, freeze(A, S)), (S :- var(A), !, freeze(A, S)), 5, M), fail.
 '$wait'(_).
 
-frozen(V, G) :- nonvar(V), !, G = true.
+frozen(V, G) :- nonvar(V), !,
+	'$do_error'(type_error(variable,V),frozen(V,G)).
 frozen(V, LG) :-
-	'$project'([V],[V],G),
-	'$simplify_list_of_frozen_goals'(G,LG).
-%write(vsc:G0), nl,
-%	'$purge_done_goals'(G0, GI),
-%	'$sort'(GI, GII),
-%write(vsc:GII), nl,
-%	'$convert_list_of_frozen_goals'(GII, G).
+	'$project'([V],[V],Gs),
+	'$simplify_list_of_frozen_goals'(Gs,LG).
 
 '$simplify_list_of_frozen_goals'([],[]).
 '$simplify_list_of_frozen_goals'([(_-G)|Gs],[G|NGs]) :-
@@ -600,11 +596,10 @@ call_residue(Goal,Residue) :-
 
 
 '$project'([],_,[]).
-'$project'([V|LAV],_,LGs) :-
+'$project'(Vs,_,LGs) :-
 	% we don't have constraints yet, so we must be talking about delays.
 	'$undefined'(modules_with_attributes(LAV),attributes), !,
-	attributes:all_attvars(NLAV),
-	'$fetch_delays'(NLAV,LGs, []).
+	'$fetch_delays'(Vs, LGs, []).
 '$project'([V|LAV],LIV,LDs) :-
 	attributes:modules_with_attributes(LMods),
 	'$pick_vars_for_project'(LIV,NLIV),

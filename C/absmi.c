@@ -10,8 +10,11 @@
 *									 *
 * File:		absmi.c							 *
 * comments:	Portable abstract machine interpreter                    *
-* Last rev:     $Date: 2004-08-16 21:02:04 $,$Author: vsc $						 *
+* Last rev:     $Date: 2004-09-17 19:34:49 $,$Author: vsc $						 *
 * $Log: not supported by cvs2svn $
+* Revision 1.143  2004/08/16 21:02:04  vsc
+* more fixes for !
+*
 * Revision 1.142  2004/08/11 16:14:51  vsc
 * whole lot of fixes:
 *   - memory leak in indexing
@@ -1389,9 +1392,18 @@ Yap_absmi(int inp)
 	ASP = YREG;
 	saveregs();
 	while ((t = Yap_FetchTermFromDB(cl->ClSource)) == 0L) {
-	  if (!Yap_gc(3, ENV, CP)) {
-	    Yap_Error(OUT_OF_STACK_ERROR, TermNil, Yap_ErrorMessage);
-	    FAIL();
+	  if (Yap_Error_TYPE == OUT_OF_ATTVARS_ERROR) {
+	    Yap_Error_TYPE = YAP_NO_ERROR;
+	    if (!Yap_growglobal(NULL)) {
+	      Yap_Error(OUT_OF_ATTVARS_ERROR, TermNil, Yap_ErrorMessage);
+	      FAIL();
+	    }
+	  } else {
+	    Yap_Error_TYPE = YAP_NO_ERROR;
+	    if (!Yap_gc(3, ENV, CP)) {
+	      Yap_Error(OUT_OF_STACK_ERROR, TermNil, Yap_ErrorMessage);
+	      FAIL();
+	    }
 	  }
 	}
 	if (!Yap_IUnify(ARG2, t)) {

@@ -267,9 +267,18 @@ AccessNamedArray(Atom a, Int indx)
 	  READ_UNLOCK(ptr->ArRWLock);
 	  if (ref != NULL) {
 	    while ((TRef = Yap_FetchTermFromDB(ref)) == 0L) {
-	      if (!Yap_gc(3, ENV, CP)) {
-		Yap_Error(OUT_OF_STACK_ERROR, TermNil, Yap_ErrorMessage);
-		return(TermNil);
+	      if (Yap_Error_TYPE == OUT_OF_ATTVARS_ERROR) {
+		Yap_Error_TYPE = YAP_NO_ERROR;
+		if (!Yap_growglobal(NULL)) {
+		  Yap_Error(OUT_OF_ATTVARS_ERROR, TermNil, Yap_ErrorMessage);
+		  return TermNil;
+		}
+	      } else {
+		Yap_Error_TYPE = YAP_NO_ERROR;
+		if (!Yap_gc(3, ENV, CP)) {
+		  Yap_Error(OUT_OF_STACK_ERROR, TermNil, Yap_ErrorMessage);
+		  return(TermNil);
+		}
 	      }
 	    }
 	  } else {
@@ -1961,9 +1970,18 @@ p_static_array_to_term(void)
 
 	    if (ref != NULL) {
 	      while ((TRef = Yap_FetchTermFromDB(ref)) == 0L) {
-		if (!Yap_gc(3, YENV, P)) {
-		  Yap_Error(OUT_OF_STACK_ERROR, TermNil, Yap_ErrorMessage);
-		  return(TermNil);
+		if (Yap_Error_TYPE == OUT_OF_ATTVARS_ERROR) {
+		  Yap_Error_TYPE = YAP_NO_ERROR;
+		  if (!Yap_growglobal(NULL)) {
+		    Yap_Error(OUT_OF_ATTVARS_ERROR, TermNil, Yap_ErrorMessage);
+		    return TermNil;
+		  }
+		} else {
+		  Yap_Error_TYPE = YAP_NO_ERROR;
+		  if (!Yap_gc(3, YENV, P)) {
+		    Yap_Error(OUT_OF_STACK_ERROR, TermNil, Yap_ErrorMessage);
+		    return TermNil;
+		  }
 		}
 	      }
 	    } else {

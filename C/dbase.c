@@ -21,6 +21,7 @@ static char     SccsId[] = "%W% %G%";
 #include "Yap.h"
 #include "clause.h"
 #include "yapio.h"
+#include "attvar.h"
 #include "heapgc.h"
 #if HAVE_STRING_H
 #include <string.h>
@@ -2389,18 +2390,21 @@ p_still_variant(void)
 
 
 #ifdef COROUTINING
-static void
+static int
 copy_attachments(CELL *ts)
 {
   while (TRUE) {
-    Term t;
+
+    attvar_record *orig = (attvar_record *)Yap_ReadTimedVar(DelayedVars);
     /* store away in case there is an overflow */
-    *--ASP = ts[3];
-    attas[IntegerOfTerm(ts[2])].term_to_op(ts[1], ts[0]);
-    t = *ASP;
-    ASP++;
-    if (t == TermNil) return;
-    ts = RepAppl(t)+1;
+    if (attas[IntegerOfTerm(ts[2])].term_to_op(ts[1], ts[0])  == FALSE) {
+      /* oops, we did not have enough space to copy the elements */
+      /* reset queue of woken up goals */
+      Yap_UpdateTimedVar(DelayedVars, (CELL)orig);      
+      return FALSE;
+    }
+    if (ts[3] == TermNil) return TRUE;
+    ts = RepAppl(ts[3])+1;
   }
 }
 #endif
@@ -2505,6 +2509,7 @@ GetDBTerm(DBTerm *DBSP)
 	  fprintf(Yap_stderr, "\n\n [ FATAL ERROR: No Stack for Error Handling ]\n");
 	  Yap_exit( 1);
       } else {
+	Yap_Error_TYPE = OUT_OF_STACK_ERROR;
 	Yap_Error_Size = NOf*sizeof(CELL);
 	return (Term)0;
       }
@@ -2520,9 +2525,11 @@ GetDBTerm(DBTerm *DBSP)
 #endif
 #ifdef COROUTINING
     if (DBSP->attachments != 0L)  {
-      *--ASP = (CELL)HOld;
-      copy_attachments((CELL *)AdjustIDBPtr(DBSP->attachments,(CELL)HOld-(CELL)(DBSP->Contents)));
-      HOld = CellPtr(*ASP++);
+      if (!copy_attachments((CELL *)AdjustIDBPtr(DBSP->attachments,(CELL)HOld-(CELL)(DBSP->Contents)))) {
+	  Yap_Error_TYPE = OUT_OF_ATTVARS_ERROR;
+	  Yap_Error_Size = 0;
+	  return (Term)0;
+      }
     }
 #endif
     return AdjustIDBPtr(t,Unsigned(HOld)-(CELL)(DBSP->Contents));
@@ -3113,10 +3120,20 @@ i_recorded(DBProp AtProp, Term t3)
       /* make sure the garbage collector sees what we want it to see! */
       EXTRA_CBACK_ARG(3,1) = (CELL)ref;
       /* oops, we are in trouble, not enough stack space */
-      if (!Yap_gcl(Yap_Error_Size, 3, ENV, CP)) {
-	Yap_Error(OUT_OF_STACK_ERROR, TermNil, Yap_ErrorMessage);
-	return(FALSE);
+      if (Yap_Error_TYPE == OUT_OF_ATTVARS_ERROR) {
+	Yap_Error_TYPE = YAP_NO_ERROR;
+	if (!Yap_growglobal(NULL)) {
+	  Yap_Error(OUT_OF_ATTVARS_ERROR, TermNil, Yap_ErrorMessage);
+	  return FALSE;
+	}
+      } else {
+	Yap_Error_TYPE = YAP_NO_ERROR;
+	if (!Yap_gcl(Yap_Error_Size, 3, ENV, CP)) {
+	  Yap_Error(OUT_OF_STACK_ERROR, TermNil, Yap_ErrorMessage);
+	  return FALSE;
+	}
       }
+      Yap_Error_Size = 0;
       twork = Deref(ARG2);
       t3 = Deref(ARG3);
     }
@@ -3175,9 +3192,18 @@ i_recorded(DBProp AtProp, Term t3)
 	EXTRA_CBACK_ARG(3,2) = MkIntegerTerm(((Int)mask));
 	EXTRA_CBACK_ARG(3,3) = MkIntegerTerm(((Int)key));
 	/* oops, we are in trouble, not enough stack space */
-	if (!Yap_gcl(Yap_Error_Size, 3, ENV, CP)) {
-	  Yap_Error(OUT_OF_STACK_ERROR, TermNil, Yap_ErrorMessage);
-	  return(FALSE);
+	if (Yap_Error_TYPE == OUT_OF_ATTVARS_ERROR) {
+	  Yap_Error_TYPE = YAP_NO_ERROR;
+	  if (!Yap_growglobal(NULL)) {
+	    Yap_Error(OUT_OF_ATTVARS_ERROR, TermNil, Yap_ErrorMessage);
+	    return FALSE;
+	  }
+	} else {
+	  Yap_Error_TYPE = YAP_NO_ERROR;
+	  if (!Yap_gcl(Yap_Error_Size, 3, ENV, CP)) {
+	    Yap_Error(OUT_OF_STACK_ERROR, TermNil, Yap_ErrorMessage);
+	    return(FALSE);
+	  }
 	}
 	READ_LOCK(AtProp->DBRWLock);
       }
@@ -3262,10 +3288,20 @@ c_recorded(int flags)
       /* make sure the garbage collector sees what we want it to see! */
       EXTRA_CBACK_ARG(3,1) = (CELL)ref;
       /* oops, we are in trouble, not enough stack space */
-      if (!Yap_gcl(Yap_Error_Size, 3, ENV, CP)) {
-	Yap_Error(OUT_OF_STACK_ERROR, TermNil, Yap_ErrorMessage);
-	return(FALSE);
+      if (Yap_Error_TYPE == OUT_OF_ATTVARS_ERROR) {
+	Yap_Error_TYPE = YAP_NO_ERROR;
+	if (!Yap_growglobal(NULL)) {
+	  Yap_Error(OUT_OF_ATTVARS_ERROR, TermNil, Yap_ErrorMessage);
+	  return FALSE;
+	}
+      } else {
+	Yap_Error_TYPE = YAP_NO_ERROR;
+	if (!Yap_gcl(Yap_Error_Size, 3, ENV, CP)) {
+	  Yap_Error(OUT_OF_STACK_ERROR, TermNil, Yap_ErrorMessage);
+	  return(FALSE);
+	}
       }
+      Yap_Error_Size = 0;
       PreviousHeap = H;
     }
     Yap_unify(ARG2, TermDB);
@@ -3295,10 +3331,20 @@ c_recorded(int flags)
 	/* make sure the garbage collector sees what we want it to see! */
 	EXTRA_CBACK_ARG(3,1) = (CELL)ref;
 	/* oops, we are in trouble, not enough stack space */
-	if (!Yap_gcl(Yap_Error_Size, 3, ENV, CP)) {
-	  Yap_Error(OUT_OF_STACK_ERROR, TermNil, Yap_ErrorMessage);
-	  return(FALSE);
+	if (Yap_Error_TYPE == OUT_OF_ATTVARS_ERROR) {
+	  Yap_Error_TYPE = YAP_NO_ERROR;
+	  if (!Yap_growglobal(NULL)) {
+	    Yap_Error(OUT_OF_ATTVARS_ERROR, TermNil, Yap_ErrorMessage);
+	    return FALSE;
+	  }
+	} else {
+	  Yap_Error_TYPE = YAP_NO_ERROR;
+	  if (!Yap_gcl(Yap_Error_Size, 3, ENV, CP)) {
+	    Yap_Error(OUT_OF_STACK_ERROR, TermNil, Yap_ErrorMessage);
+	    return(FALSE);
+	  }
 	}
+	Yap_Error_Size = 0;
 	PreviousHeap = H;
       }
       if (Yap_unify(ARG2, TermDB))
@@ -3528,9 +3574,18 @@ p_first_instance(void)
 #endif
   while ((TermDB = GetDBTermFromDBEntry(ref)) == (CELL)0) {
     /* oops, we are in trouble, not enough stack space */
-    if (!Yap_gcl(Yap_Error_Size, 3, ENV, P)) {
-      Yap_Error(OUT_OF_STACK_ERROR, TermNil, Yap_ErrorMessage);
-      return(FALSE);
+    if (Yap_Error_TYPE == OUT_OF_ATTVARS_ERROR) {
+      Yap_Error_TYPE = YAP_NO_ERROR;
+      if (!Yap_growglobal(NULL)) {
+	Yap_Error(OUT_OF_ATTVARS_ERROR, TermNil, Yap_ErrorMessage);
+	return FALSE;
+      }
+    } else {
+      Yap_Error_TYPE = YAP_NO_ERROR;
+      if (!Yap_gcl(Yap_Error_Size, 3, ENV, P)) {
+	Yap_Error(OUT_OF_STACK_ERROR, TermNil, Yap_ErrorMessage);
+	return(FALSE);
+      }
     }
   }
   if (IsVarTerm(TermDB)) {
@@ -4428,9 +4483,18 @@ static_instance(StaticClause *cl)
 
     while ((TermDB = GetDBTerm(cl->usc.ClSource)) == 0L) {
       /* oops, we are in trouble, not enough stack space */
-      if (!Yap_gcl(Yap_Error_Size, 2, ENV, P)) {
-	Yap_Error(OUT_OF_STACK_ERROR, TermNil, Yap_ErrorMessage);
-	return(FALSE);
+      if (Yap_Error_TYPE == OUT_OF_ATTVARS_ERROR) {
+	Yap_Error_TYPE = YAP_NO_ERROR;
+	if (!Yap_growglobal(NULL)) {
+	  Yap_Error(OUT_OF_ATTVARS_ERROR, TermNil, Yap_ErrorMessage);
+	  return FALSE;
+	}
+      } else {
+	Yap_Error_TYPE = YAP_NO_ERROR;
+	if (!Yap_gcl(Yap_Error_Size, 2, ENV, P)) {
+	  Yap_Error(OUT_OF_STACK_ERROR, TermNil, Yap_ErrorMessage);
+	  return(FALSE);
+	}
       }
     }
     return Yap_unify(ARG2, TermDB);
@@ -4491,9 +4555,18 @@ p_instance(void)
       Term            TermDB;
       while ((TermDB = GetDBTerm(cl->ClSource)) == 0L) {
 	/* oops, we are in trouble, not enough stack space */
-	if (!Yap_gcl(Yap_Error_Size, 2, ENV, P)) {
-	  Yap_Error(OUT_OF_STACK_ERROR, TermNil, Yap_ErrorMessage);
-	  return(FALSE);
+	if (Yap_Error_TYPE == OUT_OF_ATTVARS_ERROR) {
+	  Yap_Error_TYPE = YAP_NO_ERROR;
+	  if (!Yap_growglobal(NULL)) {
+	    Yap_Error(OUT_OF_ATTVARS_ERROR, TermNil, Yap_ErrorMessage);
+	    return FALSE;
+	  }
+	} else {
+	  Yap_Error_TYPE = YAP_NO_ERROR;
+	  if (!Yap_gcl(Yap_Error_Size, 2, ENV, P)) {
+	    Yap_Error(OUT_OF_STACK_ERROR, TermNil, Yap_ErrorMessage);
+	    return(FALSE);
+	  }
 	}
       }
       return Yap_unify(ARG2, TermDB);
@@ -4502,9 +4575,18 @@ p_instance(void)
     Term            TermDB;
     while ((TermDB = GetDBTermFromDBEntry(dbr)) == 0L) {
       /* oops, we are in trouble, not enough stack space */
-      if (!Yap_gcl(Yap_Error_Size, 2, ENV, P)) {
-	Yap_Error(OUT_OF_STACK_ERROR, TermNil, Yap_ErrorMessage);
-	return(FALSE);
+      if (Yap_Error_TYPE == OUT_OF_ATTVARS_ERROR) {
+	Yap_Error_TYPE = YAP_NO_ERROR;
+	if (!Yap_growglobal(NULL)) {
+	  Yap_Error(OUT_OF_ATTVARS_ERROR, TermNil, Yap_ErrorMessage);
+	  return FALSE;
+	}
+      } else {
+	Yap_Error_TYPE = YAP_NO_ERROR;
+	if (!Yap_gcl(Yap_Error_Size, 2, ENV, P)) {
+	  Yap_Error(OUT_OF_STACK_ERROR, TermNil, Yap_ErrorMessage);
+	  return(FALSE);
+	}
       }
       t1 = Deref(ARG1);
     }
@@ -4908,9 +4990,18 @@ p_dequeue(void)
       father_key->FirstInQueue = cur_instance->next;
     WRITE_UNLOCK(father_key->QRWLock);
     while ((TDB = GetDBTerm(cur_instance->DBT)) == 0L) {
-      if (!Yap_gcl(Yap_Error_Size, 2, YENV, P)) {
-	Yap_Error(OUT_OF_STACK_ERROR, TermNil, Yap_ErrorMessage);
-	return FALSE;
+      if (Yap_Error_TYPE == OUT_OF_ATTVARS_ERROR) {
+	Yap_Error_TYPE = YAP_NO_ERROR;
+	if (!Yap_growglobal(NULL)) {
+	  Yap_Error(OUT_OF_ATTVARS_ERROR, TermNil, Yap_ErrorMessage);
+	  return FALSE;
+	}
+      } else {
+	Yap_Error_TYPE = YAP_NO_ERROR;
+	if (!Yap_gcl(Yap_Error_Size, 2, YENV, P)) {
+	  Yap_Error(OUT_OF_STACK_ERROR, TermNil, Yap_ErrorMessage);
+	  return FALSE;
+	}
       }
     }
     /* release space for cur_instance */
@@ -5095,6 +5186,7 @@ Yap_InitDBPreds(void)
 #ifdef DEBUG
   Yap_InitCPred("total_erased", 4, p_total_erased, SyncPredFlag);
   Yap_InitCPred("key_erased_statistics", 5, p_key_erased_statistics, SyncPredFlag);
+  Yap_InitCPred("predicate_erased_statistics", 5, p_predicate_erased_statistics, SyncPredFlag);
   Yap_InitCPred("heap_space_info", 3, p_heap_space_info, SyncPredFlag);
 #endif
   Yap_InitCPred("nth_instance", 3, p_nth_instance, SyncPredFlag);

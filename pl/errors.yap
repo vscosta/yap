@@ -11,8 +11,14 @@
 * File:		errors.yap						 *
 * comments:	error messages for YAP					 *
 *									 *
-* Last rev:     $Date: 2004-07-22 21:32:22 $,$Author: vsc $						 *
+* Last rev:     $Date: 2004-09-17 19:34:53 $,$Author: vsc $						 *
 * $Log: not supported by cvs2svn $
+* Revision 1.54  2004/07/22 21:32:22  vsc
+* debugger fixes
+* initial support for JPL
+* bad calls to garbage collector and gc
+* debugger fixes
+*
 * Revision 1.53  2004/06/23 17:24:20  vsc
 * New comment-based message style
 * Fix thread support (at least don't deadlock with oneself)
@@ -471,6 +477,9 @@ print_message(Level, Mss) :-
 	[Where]).
 '$output_error_message'(out_of_trail_error, Where) :-
 	format(user_error,'% OUT OF TRAIL SPACE ERROR- ~w~n',
+	[Where]).
+'$output_error_message'(out_of_attvars_error, Where) :-
+	format(user_error,'% OUT OF STACK SPACE ERROR- ~w~n',
 	[Where]).
 '$output_error_message'(permission_error(access,private_procedure,P), Where) :-
 	format(user_error,'% PERMISSION ERROR- ~w: cannot see clauses for ~w~n',
