@@ -295,6 +295,10 @@ ParseArgs(Atom a)
    * Needed because the arguments for the functor are placed in reverse
    * order 
    */
+  if (H > ASP-(nargs+1)) {
+    ErrorMessage = "Stack Overflow";
+    FAIL;
+  }  
 #ifdef SFUNC
   if (pe)
     t = MkSFTerm(MkFunctor(a, SFArity), nargs, p, pe->NilValue);
@@ -304,10 +308,6 @@ ParseArgs(Atom a)
   t = MkApplTerm(MkFunctor(a, nargs), nargs, p);
 #endif
   /* check for possible overflow against local stack */
-  if (H > ASP-4096) {
-    ErrorMessage = "Stack Overflow";
-    FAIL;
-  }  
   checkfor((Term) ')');
   return (t);
 }

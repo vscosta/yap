@@ -2841,7 +2841,7 @@ p_read (void)
 #if EMACS
   int emacs_cares = FALSE;
 #endif
-  tr_fr_ptr old_TR;
+  tr_fr_ptr old_TR, TR_before_parse;
     
   if (Stream[c_input_stream].status & Binary_Stream_f) {
     Error(PERMISSION_ERROR_INPUT_BINARY_STREAM, MkAtomTerm(Stream[c_input_stream].u.file.name), "read_term/2");
@@ -2883,9 +2883,11 @@ p_read (void)
       }
     }
   repeat_cycle:
+    TR_before_parse = TR;
     if (ErrorMessage || (t = Parse ()) == 0) {
       if (ErrorMessage && (strcmp(ErrorMessage,"Stack Overflow") == 0)) {
 	/* ignore term we just built */
+	TR = TR_before_parse;
 	H = old_H;
 	if (growstack_in_parser(&old_TR, &tokstart, &VarTable)) {
 	  old_H = H;
@@ -2900,6 +2902,7 @@ p_read (void)
 	return(FALSE);
       } else if (ParserErrorStyle == CONTINUE_ON_PARSER_ERROR) {
 	ErrorMessage = NULL;
+	TR = TR_before_parse;
 	/* try again */
 	goto repeat_cycle;
       } else {

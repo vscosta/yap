@@ -55,6 +55,8 @@ Inline(LocalAdjust, CELL, CELL, val, (val+LDiff) )
 Inline(LocalAddrAdjust, ADDR, ADDR, ptr, (ptr+LDiff) )
 Inline(TrailAdjust, CELL, CELL, val, (val+TrDiff) )
 Inline(TrailAddrAdjust, ADDR, ADDR, ptr, (ptr+TrDiff) )
+Inline(TokEntryAdjust, TokEntry *, TokEntry*, ptr, ((CELL)ptr+TrDiff) )
+Inline(VarEntryAdjust, VarEntry *, VarEntry*, ptr, ((CELL)ptr+TrDiff) )
 /* heap data structures */
 Inline(FuncAdjust, Functor, Functor, f, (Functor)(CharP(f)+HDiff) )
 Inline(CellPtoHeapAdjust, CELL *, CELL *, ptr, ((CELL *)(CharP(ptr) + HDiff)) )

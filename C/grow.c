@@ -716,7 +716,7 @@ growstack(long size)
   gc_verbose = is_gc_verbose();
   stack_overflows++;
   if (gc_verbose) {
-    YP_fprintf(YP_stderr, "[SO] Stack overflow %d\n", stack_overflows);
+    YP_fprintf(YP_stderr, "[SO] Stack Overflow %d\n", stack_overflows);
     YP_fprintf(YP_stderr, "[SO] Heap: %8ld cells (%p-%p)\n", (unsigned long int)(H-(CELL *)GlobalBase),GlobalBase,H);
     YP_fprintf(YP_stderr, "[SO] Local:%8ld cells (%p-%p)\n", (unsigned long int)(LCL0-ASP),LCL0,ASP);
     YP_fprintf(YP_stderr, "[SO] Trail:%8ld cells (%p-%p)\n",
@@ -771,7 +771,7 @@ AdjustScannerStacks(TokEntry **tksp, VarEntry **vep)
   VarEntry *ves = *vep;
 
   if (tks != NULL) {
-    tks = *tksp = (TokEntry *)TrailAddrAdjust((ADDR)tks);
+    tks = *tksp = TokEntryAdjust(tks);
   }
   while (tks != NULL) {
     TokEntry *tktmp;
@@ -789,7 +789,7 @@ AdjustScannerStacks(TokEntry **tksp, VarEntry **vep)
     }
     tktmp = tks->TokNext;
     if (tktmp != NULL) {
-      tktmp = (TokEntry *)TrailAddrAdjust((ADDR)tktmp);
+      tktmp = TokEntryAdjust(tktmp);
       tks->TokNext = tktmp;
     }
     tks = tktmp;
@@ -800,12 +800,12 @@ AdjustScannerStacks(TokEntry **tksp, VarEntry **vep)
   }
   ves = AnonVarTable;
   if (ves != NULL) {
-    ves = AnonVarTable = (VarEntry *)TrailAddrAdjust((ADDR)ves);
+    ves = AnonVarTable = VarEntryAdjust(ves);
   }
   while (ves != NULL) {
     VarEntry *vetmp = ves->VarLeft;
     if (vetmp != NULL) {
-      vetmp = (VarEntry *)TrailAddrAdjust((ADDR)vetmp);
+      vetmp = VarEntryAdjust(vetmp);
       ves->VarLeft = vetmp;
     }
     ves->VarAdr = TermNil;
@@ -853,8 +853,10 @@ growstack_in_parser(tr_fr_ptr *old_trp, TokEntry **tksp, VarEntry **vep)
   MoveLocalAndTrail();
   AdjustScannerStacks(tksp, vep);
   {
-    tr_fr_ptr nTR = TR;
-    *old_trp = TR = PtoTRAdjust(*old_trp);
+    tr_fr_ptr nTR;
+    nTR = TR = PtoTRAdjust(TR);
+    *old_trp = PtoTRAdjust(*old_trp);
+    TR = *old_trp;
     AdjustGrowStack();
     TR = nTR;
   }
