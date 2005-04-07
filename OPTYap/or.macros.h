@@ -20,7 +20,6 @@ STD_PROTO(static inline void SCH_refuse_share_request_if_any, (void));
 STD_PROTO(static inline void SCH_set_load, (choiceptr));
 STD_PROTO(static inline void SCH_new_alternative, (yamop *,yamop *));
 
-STD_PROTO(static inline void CUT_prune_to, (choiceptr));
 STD_PROTO(static inline void CUT_send_prune_request, (int, choiceptr));
 STD_PROTO(static inline void CUT_reset_prune_request, (void));
 
@@ -151,6 +150,13 @@ STD_PROTO(static inline qg_sol_fr_ptr CUT_prune_solution_frames, (qg_sol_fr_ptr,
 /* -------------------- **
 **      Cut Macros      **
 ** -------------------- */
+
+#define CUT_prune_to(PRUNE_CP)                     \
+        if (YOUNGER_CP(LOCAL_top_cp, PRUNE_CP)) {  \
+          if (! LOCAL_prune_request)               \
+	    prune_shared_branch(PRUNE_CP);         \
+	  PRUNE_CP = LOCAL_top_cp;                 \
+	}
 
 #define CUT_wait_leftmost()                                           \
         if (PARALLEL_EXECUTION_MODE) {                                \
@@ -317,19 +323,6 @@ void SCH_new_alternative(yamop *curpc, yamop *new) {
 /* ---------------------------- **
 **      Cut Stuff: Pruning      **
 ** ---------------------------- */
-
-static inline
-void CUT_prune_to(choiceptr prune_cp) {
-  if (EQUAL_OR_YOUNGER_CP(prune_cp, LOCAL_top_cp)) {
-    B = prune_cp;
-  } else {
-    if (! LOCAL_prune_request)
-      prune_shared_branch(prune_cp);
-    B = LOCAL_top_cp;
-  }
-  return;
-}
-
 
 static inline
 void CUT_send_prune_request(int worker, choiceptr prune_cp) {

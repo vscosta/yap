@@ -162,34 +162,35 @@ Inline(IsValProperty, PropFlags, int, flags, (flags == ValProperty) )
 	    CodeOfPred holds the address of the	correspondent C-function.
 */
 typedef enum {
-  MegaClausePredFlag=0x80000000L, /* predicate is implemented as a mega-clause		*/
- ThreadLocalPredFlag=0x40000000L, /* local to a thread		*/
-  MultiFileFlag =    0x20000000L, /* is multi-file		*/
-  UserCPredFlag =    0x10000000L, /* CPred defined by the user	*/
-  LogUpdatePredFlag= 0x08000000L, /* dynamic predicate with log. upd. sem.*/
-  InUsePredFlag =    0x04000000L, /* count calls to pred */
-  CountPredFlag =    0x02000000L, /* count calls to pred */
-  HiddenPredFlag =   0x01000000L, /* invisible predicate */
-  CArgsPredFlag =    0x00800000L, /* SWI-like C-interface pred. */
-  SourcePredFlag =   0x00400000L, /* static predicate with source declaration */
-  MetaPredFlag =     0x00200000L, /* predicate subject to a meta declaration */
-  SyncPredFlag =     0x00100000L, /* has to synch before it can execute*/
-  NumberDBPredFlag = 0x00080000L, /* entry for a number key     */
-  AtomDBPredFlag =   0x00040000L, /* entry for an atom key      */
-  GoalExPredFlag =   0x00020000L, /* predicate that is called by goal_expand */
-  TestPredFlag =     0x00010000L, /* is a test (optim. comit)	*/
-  AsmPredFlag =      0x00008000L, /* inline			*/
-  StandardPredFlag=  0x00004000L, /* system predicate		*/
-  DynamicPredFlag=   0x00002000L, /* dynamic predicate		*/
-  CPredFlag =        0x00001000L, /* written in C		*/
-  SafePredFlag =     0x00000800L, /* does not alter arguments	*/
-  CompiledPredFlag=  0x00000400L, /* is static			*/
-  IndexedPredFlag=   0x00000200L, /* has indexing code		*/
-  SpiedPredFlag =    0x00000100L, /* is a spy point		*/
-  BinaryTestPredFlag=0x00000080L, /* test predicate.              */
-  TabledPredFlag =   0x00000040L, /* is tabled			*/
-  SequentialPredFlag=0x00000020L, /* may not create par. choice points!*/
-  ProfiledPredFlag = 0x00000010L  /* pred is being profiled	 */
+  MegaClausePredFlag =  0x80000000L, /* predicate is implemented as a mega-clause */
+  ThreadLocalPredFlag = 0x40000000L, /* local to a thread */
+  MultiFileFlag =       0x20000000L, /* is multi-file */
+  UserCPredFlag =       0x10000000L, /* CPred defined by the user */
+  LogUpdatePredFlag=    0x08000000L, /* dynamic predicate with log. upd. sem. */
+  InUsePredFlag =       0x04000000L, /* count calls to pred */
+  CountPredFlag =       0x02000000L, /* count calls to pred */
+  HiddenPredFlag =      0x01000000L, /* invisible predicate */
+  CArgsPredFlag =       0x00800000L, /* SWI-like C-interface pred. */
+  SourcePredFlag =      0x00400000L, /* static predicate with source declaration */
+  MetaPredFlag =        0x00200000L, /* predicate subject to a meta declaration */
+  SyncPredFlag =        0x00100000L, /* has to synch before it can execute*/
+  NumberDBPredFlag =    0x00080000L, /* entry for a number key */
+  AtomDBPredFlag =      0x00040000L, /* entry for an atom key */
+  GoalExPredFlag =      0x00020000L, /* predicate that is called by goal_expand */
+  TestPredFlag =        0x00010000L, /* is a test (optim. comit) */
+  AsmPredFlag =         0x00008000L, /* inline */
+  StandardPredFlag =    0x00004000L, /* system predicate */
+  DynamicPredFlag =     0x00002000L, /* dynamic predicate */
+  CPredFlag =           0x00001000L, /* written in C */
+  SafePredFlag =        0x00000800L, /* does not alter arguments */
+  CompiledPredFlag =    0x00000400L, /* is static */
+  IndexedPredFlag =     0x00000200L, /* has indexing code */
+  SpiedPredFlag =       0x00000100L, /* is a spy point */
+  BinaryTestPredFlag =  0x00000080L, /* test predicate */
+  TabledPredFlag =      0x00000040L, /* is tabled */
+  SequentialPredFlag =  0x00000020L, /* may not create parallel choice points! */
+  ProfiledPredFlag =    0x00000010L, /* pred is being profiled	 */
+  LocalSchedPredFlag =  0x00000008L  /* use local scheduling as default for tabling */
 } pred_flag;
 
 /* profile data */

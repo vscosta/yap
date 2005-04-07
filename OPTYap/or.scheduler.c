@@ -117,7 +117,7 @@ void move_up_to_prune_request(void) {
   CUT_reset_prune_request();
 #ifdef TABLING
   LOCAL_top_cp_on_stack = LOCAL_top_cp;
-  abolish_incomplete_subgoals(LOCAL_top_cp);
+  abolish_incomplete_subgoals(LOCAL_top_cp - 1);  /* do not include LOCAL_top_cp */
 #endif /* TABLIG */
 
   return;
@@ -277,13 +277,18 @@ int move_up_one_node(or_fr_ptr nearest_livenode) {
   if (OrFr_pend_prune_cp(LOCAL_top_or_fr) 
       && ! LOCAL_prune_request
       && CUT_last_worker_left_pending_prune(LOCAL_top_or_fr)) {
+#ifdef TABLING
+    choiceptr aux_cp = LOCAL_top_cp;
+#endif /* TABLIG */
     choiceptr prune_cp = OrFr_pend_prune_cp(LOCAL_top_or_fr);
     OrFr_pend_prune_cp(LOCAL_top_or_fr) = NULL;
     BRANCH(worker_id, OrFr_depth(LOCAL_top_or_fr)) = OrFr_pend_prune_ltt(LOCAL_top_or_fr);
     UNLOCK_OR_FRAME(LOCAL_top_or_fr);
     prune_shared_branch(prune_cp);
 #ifdef TABLING
-    abolish_incomplete_subgoals(LOCAL_top_cp);
+    while (YOUNGER_CP(aux_cp->cp_b, LOCAL_top_cp))
+      aux_cp = aux_cp->cp_b;
+    abolish_incomplete_subgoals(aux_cp);
 #endif /* TABLIG */
     return FALSE;
   }

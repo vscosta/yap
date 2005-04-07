@@ -751,17 +751,19 @@ p_cut_by( void)
 #else
   pt0 = (choiceptr)(LCL0-IntOfTerm(d0));
 #endif
+#ifdef YAPOR
+    CUT_prune_to(pt0);
+#endif /* YAPOR */
   /* find where to cut to */
   if (pt0 > B) {
     /* Wow, we're gonna cut!!! */
-#ifdef YAPOR
-    CUT_prune_to(pt0);
-#else
-    B = pt0;
-#endif /* YAPOR */
 #ifdef TABLING
+    while (B->cp_b < pt0) {
+      B = B->cp_b;
+    }
     abolish_incomplete_subgoals(B);
 #endif /* TABLING */
+    B = pt0;
     HB = B->cp_h;
     /*    trim_trail();*/
   }

@@ -34,7 +34,7 @@ AC_ARG_ENABLE(low-level-tracer,
 	[ --enable-low-level-tracer  support support for procedure-call tracing ],
 	lowleveltracer="$enableval", lowleveltracer=no)
 AC_ARG_ENABLE(tabling,
-	[ --enable-tabling           support tabling as: batched,local ],
+	[ --enable-tabling           support tabling ],
 	tabling="$enableval", tabling=no)
 AC_ARG_ENABLE(threads,
 	[ --enable-threads           support system threads ],
@@ -721,14 +721,10 @@ case "$orparallelism" in
   ;;
 esac
 
-case "$tabling" in
-  local)
-   YAP_EXTRAS="$YAP_EXTRAS -DTABLING_LOCAL_SCHEDULING=1"
-  ;;
-  yes|batched)
-   YAP_EXTRAS="$YAP_EXTRAS -DTABLING_BATCHED_SCHEDULING=1"
-  ;;
-esac
+if test "$tabling" = "yes"
+  then
+  YAP_EXTRAS="$YAP_EXTRAS -DTABLING=1"
+fi
 
 dnl Checks for header files.
 AC_HEADER_STDC

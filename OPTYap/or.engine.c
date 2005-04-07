@@ -657,7 +657,7 @@ void share_private_nodes(int worker_q) {
     /* update subgoal frames in the recently shared branches */
     while (sg_frame && YOUNGER_CP(SgFr_gen_cp(sg_frame), LOCAL_top_cp_on_stack)) {
       SgFr_gen_worker(sg_frame) = MAX_WORKERS;
-      SgFr_gen_top_or_fr(sg_frame) = GEN_CP(SgFr_gen_cp(sg_frame))->gcp_or_fr;
+      SgFr_gen_top_or_fr(sg_frame) = SgFr_gen_cp(sg_frame)->cp_or_fr;
       sg_frame = SgFr_next(sg_frame);
     }
 
@@ -676,7 +676,7 @@ void share_private_nodes(int worker_q) {
     REMOTE_top_dep_fr(worker_q) = dep_frame;
     /* update dependency frames in the recently shared branches */
     while (YOUNGER_CP(DepFr_cons_cp(dep_frame), LOCAL_top_cp_on_stack)) {
-      DepFr_top_or_fr(dep_frame) = CONS_CP(DepFr_cons_cp(dep_frame))->ccp_or_fr;
+      DepFr_top_or_fr(dep_frame) = DepFr_cons_cp(dep_frame)->cp_or_fr;
       dep_frame = DepFr_next(dep_frame);
     }
 #endif /* TABLING */

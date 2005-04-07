@@ -20,7 +20,6 @@
 
 static int traverse_subgoal_trie(FILE *stream, sg_node_ptr sg_node, char *str, int str_index, int *arity, int depth);
 static int traverse_answer_trie(FILE *stream, ans_node_ptr ans_node, char *str, int str_index, int *arity, int var_index, int depth);
-static void free_answer_trie_branch(ans_node_ptr node);
 #ifdef YAPOR
 #ifdef TABLING_INNER_CUTS
 static int update_answer_trie_branch(ans_node_ptr previous_node, ans_node_ptr node);
@@ -652,10 +651,11 @@ ans_node_ptr answer_trie_node_check_insert(sg_fr_ptr sg_fr, ans_node_ptr parent_
 **      Global functions      **
 ** -------------------------- */
 
-sg_node_ptr subgoal_search(tab_ent_ptr tab_ent, OPREG arity, CELL **Yaddr) {
+sg_fr_ptr subgoal_search(tab_ent_ptr tab_ent, OPREG arity, CELL **Yaddr) {
   int i, j, count_vars;
   CELL *stack_vars, *stack_terms_top, *stack_terms_base, *stack_terms;
   sg_node_ptr current_sg_node;
+  sg_fr_ptr sg_fr;
   
   count_vars = 0;
   stack_vars = *Yaddr;
@@ -717,7 +717,25 @@ sg_node_ptr subgoal_search(tab_ent_ptr tab_ent, OPREG arity, CELL **Yaddr) {
     RESET_VARIABLE(t);
   }
 
-  return current_sg_node;
+#if defined(TABLE_LOCK_AT_NODE_LEVEL)
+  LOCK(TrNode_lock(current_sg_node));
+#elif defined(TABLE_LOCK_AT_WRITE_LEVEL)
+  LOCK_TABLE(current_sg_node);
+#endif /* TABLE_LOCK_LEVEL */
+  if (TrNode_sg_fr(current_sg_node) == NULL) {
+    /* new tabled subgoal */
+    new_subgoal_frame(sg_fr, arity);
+    TrNode_sg_fr(current_sg_node) = (sg_node_ptr) sg_fr;
+  } else {
+    sg_fr = (sg_fr_ptr) TrNode_sg_fr(current_sg_node);
+  }
+#if defined(TABLE_LOCK_AT_NODE_LEVEL)
+  UNLOCK(TrNode_lock(current_sg_node));
+#elif defined(TABLE_LOCK_AT_WRITE_LEVEL)
+  UNLOCK_TABLE(current_sg_node);
+#endif /* TABLE_LOCK_LEVEL */
+
+  return sg_fr;
 }
 
 
@@ -936,11 +954,7 @@ void private_completion(sg_fr_ptr sg_fr) {
   LOCAL_top_sg_fr = SgFr_next(LOCAL_top_sg_fr);
 
   /* release dependency frames */
-#ifdef TABLING_BATCHED_SCHEDULING
-  while (YOUNGER_CP(DepFr_cons_cp(LOCAL_top_dep_fr), B)) {
-#else /* TABLING_LOCAL_SCHEDULING */
-  while (EQUAL_OR_YOUNGER_CP(DepFr_cons_cp(LOCAL_top_dep_fr), B)) {
-#endif /* TABLING_SCHEDULING */
+  while (EQUAL_OR_YOUNGER_CP(DepFr_cons_cp(LOCAL_top_dep_fr), B)) {  /* never equal if batched scheduling */
     dep_fr_ptr dep_fr = DepFr_next(LOCAL_top_dep_fr);
     FREE_DEPENDENCY_FRAME(LOCAL_top_dep_fr);
     LOCAL_top_dep_fr = dep_fr;
@@ -981,12 +995,14 @@ void free_subgoal_trie_branch(sg_node_ptr node, int missing_nodes) {
     free_subgoal_trie_branch(TrNode_child(node), missing_nodes);
   } else {
     sg_fr_ptr sg_fr;
+    ans_node_ptr ans_node;
     sg_fr = (sg_fr_ptr) TrNode_sg_fr(node);
-    if (sg_fr) {
-      free_answer_hash_chain(SgFr_hash_chain(sg_fr));
-      free_answer_trie(sg_fr);
-      FREE_SUBGOAL_FRAME(sg_fr);
-    }
+    free_answer_hash_chain(SgFr_hash_chain(sg_fr));
+    ans_node = SgFr_answer_trie(sg_fr);
+    if (TrNode_child(ans_node))
+      free_answer_trie_branch(TrNode_child(ans_node));
+    FREE_ANSWER_TRIE_NODE(ans_node);
+    FREE_SUBGOAL_FRAME(sg_fr);
   }
 
   FREE_SUBGOAL_TRIE_NODE(node);
@@ -994,11 +1010,15 @@ void free_subgoal_trie_branch(sg_node_ptr node, int missing_nodes) {
 }
 
 
-void free_answer_trie(sg_fr_ptr sg_fr) {
-  ans_node_ptr node;
-  node = SgFr_answer_trie(sg_fr);
-  if (TrNode_child(node))
+void free_answer_trie_branch(ans_node_ptr node) {
+#ifdef TABLING_INNER_CUTS
+  if (TrNode_child(node) && ! IS_ANSWER_LEAF_NODE(node))
+#else
+  if (! IS_ANSWER_LEAF_NODE(node))
+#endif /* TABLING_INNER_CUTS */
     free_answer_trie_branch(TrNode_child(node));
+  if (TrNode_next(node))
+    free_answer_trie_branch(TrNode_next(node));
   FREE_ANSWER_TRIE_NODE(node);
   return;
 }
@@ -1123,12 +1143,12 @@ int traverse_subgoal_trie(FILE *stream, sg_node_ptr sg_node, char *str, int str_
     } else if (depth > TrStat_sg_max_depth) {
       TrStat_sg_max_depth = depth;
     }
-    if (sg_node == NULL) { 
+    if (SgFr_state((sg_fr_ptr)sg_node) == ready) {
       TrStat_subgoals_abolished++;
       SHOW_TRIE("%s.\n    ABOLISHED\n", str);
       return TRUE;
     }
-    if (! SgFr_state((sg_fr_ptr)sg_node)) {
+    if (SgFr_state((sg_fr_ptr)sg_node) == evaluating) {
       SHOW_INFO("%s. --> TRIE ERROR: subgoal not completed !!!\n", str);
       return FALSE;
     }
@@ -1438,21 +1458,6 @@ int traverse_answer_trie(FILE *stream, ans_node_ptr ans_node, char *str, int str
 }
 
 
-static
-void free_answer_trie_branch(ans_node_ptr node) {
-#ifdef TABLING_INNER_CUTS
-  if (TrNode_child(node) && ! IS_ANSWER_LEAF_NODE(node))
-#else
-  if (! IS_ANSWER_LEAF_NODE(node))
-#endif /* TABLING_INNER_CUTS */
-    free_answer_trie_branch(TrNode_child(node));
-  if (TrNode_next(node))
-    free_answer_trie_branch(TrNode_next(node));
-  FREE_ANSWER_TRIE_NODE(node);
-  return;
-}
-
-
 #ifdef YAPOR
 #ifdef TABLING_INNER_CUTS
 static
@@ -1512,7 +1517,7 @@ int update_answer_trie_branch(ans_node_ptr node) {
     ltt = 1;
   }
   TrNode_or_arg(node) = ltt;
-  TrNode_instr(node) = Yap__opcode(TrNode_instr(node));
+  TrNode_instr(node) = Yap_opcode(TrNode_instr(node));
   return ltt;
 }
 #endif /* TABLING_INNER_CUTS */

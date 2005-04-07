@@ -390,10 +390,11 @@ reset_trail(tr_fr_ptr TR0) {
       /* so the next cell is the old value */ 
 #if FROZEN_STACKS
       pt[0] = TrailVal(TR-1);
+      TR -= 1;
 #else
       pt[0] = TrailTerm(TR-1);
-#endif /* FROZEN_STACKS */
       TR -= 2;
+#endif /* FROZEN_STACKS */
     }
 #endif
   }

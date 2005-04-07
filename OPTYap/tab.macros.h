@@ -1,7 +1,7 @@
-
 #include <stdlib.h>
-
 #include "opt.mavar.h"
+
+
 
 /* -------------------- **
 **      Prototypes      **
@@ -63,9 +63,11 @@ STD_PROTO(static inline tg_sol_fr_ptr CUT_prune_tg_solution_frames, (tg_sol_fr_p
 #endif /* TAGS_FAST_OPS */
 
 
-#define NORM_CP(CP)  ((choiceptr)(CP))
-#define GEN_CP(CP)   ((gen_cp_ptr)(CP))
-#define CONS_CP(CP)  ((cons_cp_ptr)(CP))
+#define NORM_CP(CP)            ((choiceptr)(CP))
+#define CONS_CP(CP)            ((struct consumer_choicept *)(CP))
+#define GEN_CP(CP)             ((struct generator_choicept *)(CP))
+#define IS_BATCHED_GEN_CP(CP)  (GEN_CP(CP)->cp_dep_fr == NULL)
+
 
 #define TAG_AS_ANSWER_LEAF_NODE(NODE)  TrNode_parent(NODE) = (ans_node_ptr)((unsigned int)TrNode_parent(NODE) | 0x1)
 #define UNTAG_ANSWER_LEAF_NODE(NODE)   ((ans_node_ptr)((unsigned int)NODE & 0xfffffffe))
@@ -159,15 +161,6 @@ STD_PROTO(static inline tg_sol_fr_ptr CUT_prune_tg_solution_frames, (tg_sol_fr_p
 #endif /* YAPOR */
 
 
-#ifdef TABLING_BATCHED_SCHEDULING
-#define GEN_CP_NULL_ALT                            NULL
-#define GEN_CP_SG_FR(GCP)                          GEN_CP(GCP)->gcp_sg_fr
-#else /* TABLING_LOCAL_SCHEDULING */
-#define GEN_CP_NULL_ALT                            ANSWER_RESOLUTION
-#define GEN_CP_SG_FR(GCP)                          DepFr_sg_fr(GEN_CP(GCP)->gcp_dep_fr)
-#endif /* TABLING_SCHEDULING */
-
-
 #ifdef YAPOR
 #ifdef TIMESTAMP
 #define DepFr_init_timestamp_field(DEP_FR)  DepFr_timestamp(DEP_FR) = 0
@@ -237,32 +230,39 @@ STD_PROTO(static inline tg_sol_fr_ptr CUT_prune_tg_solution_frames, (tg_sol_fr_p
         memcpy(SuspFr_trail_start(SUSP_FR), SuspFr_trail_reg(SUSP_FR), TR_SIZE)
 
 
-#define new_subgoal_frame(SG_FR, BOTTOM_SG_NODE, ARITY, NEXT)      \
+#define new_subgoal_frame(SG_FR, ARITY)                            \
         { register ans_node_ptr ans_node;                          \
           ALLOC_SUBGOAL_FRAME(SG_FR);                              \
           INIT_LOCK(SgFr_lock(SG_FR));                             \
-          SgFr_init_yapor_fields(SG_FR);                           \
-          SgFr_subgoal_trie(SG_FR) = BOTTOM_SG_NODE;               \
           new_answer_trie_node(ans_node, 0, 0, NULL, NULL, NULL);  \
           SgFr_answer_trie(SG_FR) = ans_node;                      \
-          SgFr_first_answer(SG_FR) = NULL;                         \
-          SgFr_last_answer(SG_FR) = NULL;                          \
-          SgFr_hash_chain(SG_FR) = NULL;                           \
-          SgFr_state(SG_FR) = resolving;                           \
+          SgFr_state(SG_FR) = ready;                               \
+          SgFr_abolished(SG_FR) = 0;                               \
           SgFr_arity(SG_FR) = ARITY;                               \
-          SgFr_next(SG_FR) = NEXT;                                 \
 	}
 
 
-#define new_dependency_frame(DEP_FR, DEP_ON_STACK, TOP_OR_FR, LEADER_CP, CONS_CP, SG_FR, NEXT)  \
-        ALLOC_DEPENDENCY_FRAME(DEP_FR);                                                         \
-        INIT_LOCK(DepFr_lock(DEP_FR));                                                          \
-        DepFr_init_yapor_fields(DEP_FR, DEP_ON_STACK, TOP_OR_FR);                               \
-        DepFr_backchain_cp(DEP_FR) = NULL;                                                      \
-        DepFr_leader_cp(DEP_FR) = NORM_CP(LEADER_CP);                                           \
-        DepFr_cons_cp(DEP_FR) = NORM_CP(CONS_CP);                                               \
-        DepFr_sg_fr(DEP_FR) = SG_FR;                                                            \
-        DepFr_last_ans(DEP_FR) = NULL;                                                          \
+#define init_subgoal_frame(SG_FR)                                  \
+        { SgFr_init_yapor_fields(SG_FR);                           \
+          SgFr_first_answer(SG_FR) = NULL;                         \
+          SgFr_last_answer(SG_FR) = NULL;                          \
+          SgFr_hash_chain(SG_FR) = NULL;                           \
+          SgFr_state(SG_FR) = evaluating;                          \
+          SgFr_next(SG_FR) = LOCAL_top_sg_fr;                      \
+          LOCAL_top_sg_fr = sg_fr;                                 \
+	}
+
+
+#define new_dependency_frame(DEP_FR, DEP_ON_STACK, TOP_OR_FR, LEADER_CP, CONS_CP, SG_FR, NEXT)         \
+        ALLOC_DEPENDENCY_FRAME(DEP_FR);                                                                \
+        INIT_LOCK(DepFr_lock(DEP_FR));                                                                 \
+        DepFr_init_yapor_fields(DEP_FR, DEP_ON_STACK, TOP_OR_FR);                                      \
+        DepFr_backchain_cp(DEP_FR) = NULL;                                                             \
+        DepFr_leader_cp(DEP_FR) = NORM_CP(LEADER_CP);                                                  \
+        DepFr_cons_cp(DEP_FR) = NORM_CP(CONS_CP);                                                      \
+        /* start with TrNode_child(DepFr_last_answer(DEP_FR)) pointing to SgFr_first_answer(SG_FR) */  \
+        DepFr_last_answer(DEP_FR) = (ans_node_ptr)((int)(SG_FR) +                                      \
+          (int)(&SgFr_first_answer((sg_fr_ptr)DEP_FR)) - (int)(&TrNode_child((ans_node_ptr)DEP_FR)));  \
         DepFr_next(DEP_FR) = NEXT
 
 
@@ -501,11 +501,11 @@ void pruning_over_tabling_data_structures(void) {
 static inline
 void abolish_incomplete_subgoals(choiceptr prune_cp) {
 #ifdef YAPOR
-  if (YOUNGER_CP(OrFr_node(LOCAL_top_susp_or_fr), prune_cp))
+  if (EQUAL_OR_YOUNGER_CP(OrFr_node(LOCAL_top_susp_or_fr), prune_cp))
     pruning_over_tabling_data_structures();
 #endif /* YAPOR */
 
-  if (YOUNGER_CP(DepFr_cons_cp(LOCAL_top_dep_fr), prune_cp)) {
+  if (EQUAL_OR_YOUNGER_CP(DepFr_cons_cp(LOCAL_top_dep_fr), prune_cp)) {
 #ifdef YAPOR
     if (PARALLEL_EXECUTION_MODE)
       pruning_over_tabling_data_structures();
@@ -514,22 +514,31 @@ void abolish_incomplete_subgoals(choiceptr prune_cp) {
       dep_fr_ptr dep_fr = LOCAL_top_dep_fr;
       LOCAL_top_dep_fr = DepFr_next(dep_fr);
       FREE_DEPENDENCY_FRAME(dep_fr);
-    } while (YOUNGER_CP(DepFr_cons_cp(LOCAL_top_dep_fr), prune_cp));
+    } while (EQUAL_OR_YOUNGER_CP(DepFr_cons_cp(LOCAL_top_dep_fr), prune_cp));
     adjust_freeze_registers();
   }
 
-  while (LOCAL_top_sg_fr && YOUNGER_CP(SgFr_gen_cp(LOCAL_top_sg_fr), prune_cp)) {
+  while (LOCAL_top_sg_fr && EQUAL_OR_YOUNGER_CP(SgFr_gen_cp(LOCAL_top_sg_fr), prune_cp)) {
     sg_fr_ptr sg_fr;
+    ans_hash_ptr hash;
+    ans_node_ptr node;
 #ifdef YAPOR
     if (PARALLEL_EXECUTION_MODE)
       pruning_over_tabling_data_structures();
 #endif /* YAPOR */
     sg_fr = LOCAL_top_sg_fr;
     LOCAL_top_sg_fr = SgFr_next(sg_fr);
-    TrNode_sg_fr(SgFr_subgoal_trie(sg_fr)) = NULL;
-    free_answer_hash_chain(SgFr_hash_chain(sg_fr));
-    free_answer_trie(sg_fr);
-    FREE_SUBGOAL_FRAME(sg_fr);
+    LOCK(SgFr_lock(sg_fr));
+    hash = SgFr_hash_chain(sg_fr);
+    node = TrNode_child(SgFr_answer_trie(sg_fr));
+    TrNode_child(SgFr_answer_trie(sg_fr)) = NULL;
+    TrNode_parent(SgFr_answer_trie(sg_fr)) = NULL;
+    SgFr_state(sg_fr) = ready;
+    SgFr_abolished(sg_fr)++;
+    UNLOCK(SgFr_lock(sg_fr));
+    free_answer_hash_chain(hash);
+    if (node)
+      free_answer_trie_branch(node);
   }
 
   return;
@@ -634,7 +643,10 @@ susp_fr_ptr suspension_frame_to_resume(or_fr_ptr susp_or_fr) {
   while (susp_fr) {
     dep_fr = SuspFr_top_dep_fr(susp_fr);
     do {
-      if (DepFr_last_ans(dep_fr) != SgFr_last_answer(DepFr_sg_fr(dep_fr))) {
+      if (TrNode_child(DepFr_last_answer(dep_fr))) {
+/* ricroc - obsolete
+      if (DepFr_last_answer(dep_fr) != SgFr_last_answer(DepFr_sg_fr(dep_fr))) {
+*/
         /* unconsumed answers in susp_fr */
         *susp_ptr = SuspFr_next(susp_fr);
         return susp_fr;
@@ -775,7 +787,7 @@ void CUT_validate_tg_answers(tg_sol_fr_ptr valid_solutions) {
 
   while (valid_solutions) {
     first_answer = last_answer = NULL;
-    sg_fr = GEN_CP_SG_FR(TgSolFr_gen_cp(valid_solutions));
+    sg_fr = GEN_CP(TgSolFr_gen_cp(valid_solutions))->cp_sg_fr;
     ltt_valid_solutions = valid_solutions;
     valid_solutions = TgSolFr_next(valid_solutions);
     do {

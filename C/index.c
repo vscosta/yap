@@ -11,8 +11,12 @@
 * File:		index.c							 *
 * comments:	Indexing a Prolog predicate				 *
 *									 *
-* Last rev:     $Date: 2005-03-15 18:29:23 $,$Author: vsc $						 *
+* Last rev:     $Date: 2005-04-07 17:48:54 $,$Author: ricroc $						 *
 * $Log: not supported by cvs2svn $
+* Revision 1.120  2005/03/15 18:29:23  vsc
+* fix GPL
+* fix idb: stuff in coroutines.
+*
 * Revision 1.119  2005/03/04 20:30:12  ricroc
 * bug fixes for YapTab support
 *
@@ -647,7 +651,7 @@ has_cut(yamop *pc)
     case _getwork:
     case _getwork_seq:
     case _sync:
-#endif
+#endif /* YAPOR */
 #ifdef TABLING
     case _table_try_me_single:
     case _table_try_me:
@@ -655,7 +659,7 @@ has_cut(yamop *pc)
     case _table_trust_me:
     case _table_answer_resolution:
     case _table_completion:
-#endif
+#endif /* TABLING */
       pc = NEXTOP(pc,ld);
       break;
       /* instructions type Ill */
@@ -702,7 +706,7 @@ has_cut(yamop *pc)
     case _write_l_list:
 #if !defined(YAPOR)
     case _or_last:
-#endif
+#endif /* !YAPOR */
     case _pop:
     case _index_pred:
 #if THREADS
@@ -722,7 +726,7 @@ has_cut(yamop *pc)
     case _index_blob:
 #ifdef YAPOR
     case _getwork_first_time:
-#endif
+#endif /* YAPOR */
 #ifdef TABLING
     case _trie_do_var:
     case _trie_trust_var:
@@ -744,7 +748,7 @@ has_cut(yamop *pc)
     case _trie_trust_struct:
     case _trie_try_struct:
     case _trie_retry_struct:
-#endif
+#endif /* TABLING */
       pc = NEXTOP(pc,e);
       break;
     case _expand_clauses:
@@ -800,7 +804,7 @@ has_cut(yamop *pc)
     case _call:
 #ifdef YAPOR
     case _or_last:
-#endif
+#endif /* YAPOR */
       pc = NEXTOP(pc,sla);
       break;
       /* instructions type sla, but for disjunctions */
@@ -963,7 +967,7 @@ has_cut(yamop *pc)
     case _pop_n:
 #ifdef TABLING
     case _table_new_answer:
-#endif
+#endif /* TABLING */
       pc = NEXTOP(pc,s);
       break;
       /* instructions type ps */
@@ -1347,7 +1351,7 @@ add_info(ClauseDef *clause, UInt regno)
     case _call:
 #ifdef YAPOR
     case _or_last:
-#endif
+#endif /* YAPOR */
     case _either:
     case _or_else:
     case _call_cpred:
@@ -1960,7 +1964,7 @@ add_info(ClauseDef *clause, UInt regno)
     case _getwork:
     case _getwork_seq:
     case _sync:
-#endif
+#endif /* YAPOR */
 #ifdef TABLING
     case _table_try_single:
     case _table_try_me:
@@ -1971,7 +1975,7 @@ add_info(ClauseDef *clause, UInt regno)
     case _table_trust:
     case _table_answer_resolution:
     case _table_completion:
-#endif
+#endif /* TABLING */
     case _enter_profiling:
     case _count_call:
     case _retry_profiled:
@@ -2003,7 +2007,7 @@ add_info(ClauseDef *clause, UInt regno)
     case _procceed:
 #if !defined(YAPOR)
     case _or_last:
-#endif
+#endif  /* !YAPOR */
     case _pop:
     case _index_pred:
 #if THREADS
@@ -2022,7 +2026,7 @@ add_info(ClauseDef *clause, UInt regno)
     case _index_blob:
 #ifdef YAPOR
     case _getwork_first_time:
-#endif
+#endif /* YAPOR */
 #ifdef TABLING
     case _table_new_answer:
     case _trie_do_var:
@@ -2045,7 +2049,7 @@ add_info(ClauseDef *clause, UInt regno)
     case _trie_trust_struct:
     case _trie_try_struct:
     case _trie_retry_struct:
-#endif
+#endif /* TABLING */
       clause->Tag = (CELL)NULL;
       return;
     }
@@ -2957,7 +2961,7 @@ emit_optry(int var_group, int first, int clauses, int clleft, PredEntry *ap)
       /* we never actually get to remove the last choice-point in this case */
       return retry_op;
     } else
-#endif
+#endif /* TABLING */
     {
       /* last group */
       return try_op;
@@ -3286,7 +3290,7 @@ emit_single_switch_case(ClauseDef *min, struct intermediates *cint, int first, i
       return lbl;
     }
   }
-#endif
+#endif /* TABLING */
   return (UInt)(min->CurrentCode);
 }
 
@@ -3566,7 +3570,7 @@ emit_protection_choicepoint(int first, int clleft, UInt nxtlbl, struct intermedi
 	but should work.
       */
       Yap_emit(retryme_op, (CELL)TRUSTFAILCODE, 0, cint);
-#endif
+#endif /* TABLING */
     } else {
       Yap_emit(trustme_op, 0, 0, cint);
     }
@@ -4571,12 +4575,19 @@ expand_index(struct intermediates *cint) {
     case _retry_me2:
     case _retry_me3:
     case _retry_me4:
+#ifdef TABLING
+    case _table_retry_me:
+#endif /* TABLING */
       isfirstcl = FALSE;
     case _try_me:
     case _try_me1:
     case _try_me2:
     case _try_me3:
     case _try_me4:
+#ifdef TABLING
+    case _table_try_single:
+    case _table_try_me:
+#endif /* TABLING */
       /* ok, we found the start for an indexing block,
 	 but we don't if we are going to operate here or not */
       /* if we are to commit here, alt will tell us where */
@@ -4593,6 +4604,9 @@ expand_index(struct intermediates *cint) {
     case _trust_me2:
     case _trust_me3:
     case _trust_me4:
+#ifdef TABLING
+    case _table_trust_me:
+#endif /* TABLING */
       /* we will commit to this group for sure */
       ipc = NEXTOP(ipc,ld);
       alt = NULL;
@@ -4880,8 +4894,11 @@ expand_index(struct intermediates *cint) {
       }
     } else {
       op_numbers op = Yap_op_from_opcode(alt->opc);
-      if (op == _retry ||
-	  op == _trust) {
+      if (op == _retry || op == _trust
+#ifdef TABLING
+          || op == _table_retry || op == _table_trust
+#endif /* TABLING */
+      ) {
 	last = alt->u.ld.d;
       } else if (op >= _retry2 && op <= _retry4) {
 	last = alt->u.l.l;
@@ -7608,13 +7625,15 @@ Yap_FollowIndexingCode(PredEntry *ap, yamop *ipc, Term Terms[3], yamop *ap_pc, y
       break;
     case _trust:
 #ifdef YAPOR
-      CUT_prune_to(B->cp_b);
+      {
+	choiceptr cut_pt;
+	cut_pt = B->cp_b;
+	CUT_prune_to(cut_pt);
+	B = cut_pt;
+      }
 #else
       B = B->cp_b;
 #endif /* YAPOR */
-#ifdef TABLING
-      abolish_incomplete_subgoals(B);
-#endif /* TABLING */
       b0 = B;
       if (lu_pred)
 	return lu_clause(ipc->u.ld.d);
@@ -7628,13 +7647,15 @@ Yap_FollowIndexingCode(PredEntry *ap, yamop *ipc, Term Terms[3], yamop *ap_pc, y
     case _trust_me3:
     case _trust_me4:
 #ifdef YAPOR
-      CUT_prune_to(B->cp_b);
+      {
+	choiceptr cut_pt;
+	cut_pt = B->cp_b;
+	CUT_prune_to(cut_pt);
+	B = cut_pt;
+      }
 #else
       B = B->cp_b;
 #endif /* YAPOR */
-#ifdef TABLING
-      abolish_incomplete_subgoals(B);
-#endif /* TABLING */
       ipc = NEXTOP(ipc,ld);
       break;
     case _trust_logical_pred:
@@ -7942,13 +7963,15 @@ Yap_FollowIndexingCode(PredEntry *ap, yamop *ipc, Term Terms[3], yamop *ap_pc, y
     default:
       if (b0) {
 #ifdef YAPOR
-	CUT_prune_to(B->cp_b);
+	{
+	  choiceptr cut_pt;
+	  cut_pt = B->cp_b;
+	  CUT_prune_to(cut_pt);
+	  B = cut_pt;
+	}
 #else
 	B = B->cp_b;
 #endif /* YAPOR */
-#ifdef TABLING
-	abolish_incomplete_subgoals(B);
-#endif /* TABLING */
 	/* I did a trust */
       }
       if (lu_pred)
@@ -7960,13 +7983,15 @@ Yap_FollowIndexingCode(PredEntry *ap, yamop *ipc, Term Terms[3], yamop *ap_pc, y
   if (b0) {
     /* I did a trust */
 #ifdef YAPOR
-    CUT_prune_to(B->cp_b);
+    {
+      choiceptr cut_pt;
+      cut_pt = B->cp_b;
+      CUT_prune_to(cut_pt);
+      B = cut_pt;
+    }
 #else
     B = B->cp_b;
 #endif /* YAPOR */
-#ifdef TABLING
-    abolish_incomplete_subgoals(B);
-#endif /* TABLING */
   }
   return NULL;
 }

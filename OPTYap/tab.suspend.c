@@ -35,7 +35,7 @@ void public_completion(void) {
     sg_fr_ptr top_sg_fr;
 
     /* complete subgoals */
-    top_sg_fr = SgFr_next(GEN_CP_SG_FR(LOCAL_top_cp));
+    top_sg_fr = SgFr_next(GEN_CP(LOCAL_top_cp)->cp_sg_fr);
     do {
       mark_as_completed(LOCAL_top_sg_fr);
       LOCAL_top_sg_fr = SgFr_next(LOCAL_top_sg_fr);
@@ -293,9 +293,9 @@ void resume_suspension_frame(susp_fr_ptr resume_fr, or_fr_ptr top_or_fr) {
          SuspFr_trail_size(resume_fr));
 
 #ifdef OPTYAP_ERRORS
-  if (CONS_CP(DepFr_cons_cp(SuspFr_top_dep_fr(resume_fr)))->ccp_h != SuspFr_global_reg(resume_fr) + SuspFr_global_size(resume_fr))
+  if (DepFr_cons_cp(SuspFr_top_dep_fr(resume_fr))->cp_h != SuspFr_global_reg(resume_fr) + SuspFr_global_size(resume_fr))
     OPTYAP_ERROR_MESSAGE("DepFr_cons_cp(SuspFr_top_dep_fr)->cp_h != SuspFr_global_reg + SuspFr_global_size (resume_suspension_frame)");
-  if (CONS_CP(DepFr_cons_cp(SuspFr_top_dep_fr(resume_fr)))->ccp_tr != SuspFr_trail_reg(resume_fr) + SuspFr_trail_size(resume_fr))
+  if (DepFr_cons_cp(SuspFr_top_dep_fr(resume_fr))->cp_tr != SuspFr_trail_reg(resume_fr) + SuspFr_trail_size(resume_fr))
     OPTYAP_ERROR_MESSAGE("DepFr_cons_cp(SuspFr_top_dep_fr)->cp_tr != SuspFr_trail_reg + SuspFr_trail_size (resume_suspension_frame)");
   if (DepFr_cons_cp(SuspFr_top_dep_fr(resume_fr)) != SuspFr_local_reg(resume_fr))
     OPTYAP_ERROR_MESSAGE("DepFr_cons_cp(SuspFr_top_dep_fr) != SuspFr_local_reg (resume_suspension_frame)");
@@ -358,14 +358,14 @@ void complete_suspension_branch(susp_fr_ptr susp_fr, choiceptr top_cp, or_fr_ptr
   aux_sg_fr = SuspFr_top_sg_fr(susp_fr);
   if (DepFr_leader_dep_is_on_stack(aux_dep_fr)) {
     while (aux_sg_fr && 
-           ! SgFr_state(aux_sg_fr) &&
+           SgFr_state(aux_sg_fr) == evaluating &&
            EQUAL_OR_YOUNGER_CP(SgFr_gen_cp(aux_sg_fr), top_cp)) {
       mark_as_completed(aux_sg_fr);
       aux_sg_fr = SgFr_next(aux_sg_fr);
     }
   } else {
     while (aux_sg_fr && 
-           ! SgFr_state(aux_sg_fr) &&
+           SgFr_state(aux_sg_fr) == evaluating &&
            YOUNGER_CP(SgFr_gen_cp(aux_sg_fr), top_cp)) {
       mark_as_completed(aux_sg_fr);
       aux_sg_fr = SgFr_next(aux_sg_fr);

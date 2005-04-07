@@ -11,8 +11,13 @@
 * File:		stdpreds.c						 *
 * comments:	General-purpose C implemented system predicates		 *
 *									 *
-* Last rev:     $Date: 2005-03-13 06:26:11 $,$Author: vsc $						 *
+* Last rev:     $Date: 2005-04-07 17:48:55 $,$Author: ricroc $						 *
 * $Log: not supported by cvs2svn $
+* Revision 1.86  2005/03/13 06:26:11  vsc
+* fix excessive pruning in meta-calls
+* fix Term->int breakage in compiler
+* improve JPL (at least it does something now for amd64).
+*
 * Revision 1.85  2005/03/02 19:48:02  vsc
 * Fix some possible errors in name/2 and friends, and cleanup code a bit
 * YAP_Error changed.
@@ -2851,6 +2856,15 @@ p_set_yap_flags(void)
     if (value < INDEX_MODE_OFF || value >  INDEX_MODE_MAX)
       return(FALSE);
     yap_flags[INDEXING_MODE_FLAG] = value;
+    break;
+  case TABLING_MODE_FLAG:
+#ifdef TABLING
+    if (value != TABLING_MODE_DEFAULT && value != TABLING_MODE_BATCHED && value != TABLING_MODE_LOCAL)
+      return(FALSE);
+    yap_flags[TABLING_MODE_FLAG] = value;
+#else
+    return(FALSE);
+#endif /* TABLING */
     break;
   default:
     return(FALSE);

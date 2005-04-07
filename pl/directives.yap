@@ -228,6 +228,25 @@ yap_flag(home,X) :-
 '$transl_to_index_mode'(3, on). % default is multi argument indexing
 '$transl_to_index_mode'(4, max).
 
+% tabling schedulinhg mode
+yap_flag(tabling_mode,X) :- var(X),
+	'$access_yap_flags'(19, X1),
+	'$transl_to_tabling_mode'(X1,X), !.
+yap_flag(tabling_mode,X) :-
+	'$access_yap_flags'(19, X1),
+	'$transl_to_tabling_mode'(X1,off), !,
+	'$do_error'(permission_error(modify,flag,tabling_mode),yap_flag(tabling_mode,X)).
+yap_flag(tabling_mode,X) :- X \= off,
+	'$transl_to_tabling_mode'(X1,X), !,
+	'$set_yap_flags'(19,X1).
+yap_flag(tabling_mode,X) :-
+	'$do_error'(domain_error(flag_value,tabling_mode+X),yap_flag(tabling_mode,X)).
+
+% should match definitions in Yap.h.m4
+'$transl_to_tabling_mode'(0,off).
+'$transl_to_tabling_mode'(1,batched).
+'$transl_to_tabling_mode'(2,local).
+'$transl_to_tabling_mode'(3,default).
 
 yap_flag(informational_messages,X) :- var(X), !,
 	 get_value('$verbose',X).
@@ -591,6 +610,7 @@ yap_flag(host_type,X) :-
 	    V = home  ;
 	    V = host_type  ;
 	    V = index ;
+	    V = tabling ;
 	    V = informational_messages ;
 	    V = integer_rounding_function ;
 	    V = language ;

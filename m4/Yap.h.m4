@@ -10,7 +10,7 @@
 * File:		Yap.h.m4						 *
 * mods:									 *
 * comments:	main header file for YAP				 *
-* version:      $Id: Yap.h.m4,v 1.81 2005-03-14 17:02:40 vsc Exp $	 *
+* version:      $Id: Yap.h.m4,v 1.82 2005-04-07 17:56:00 ricroc Exp $	 *
 *************************************************************************/
 
 #include "config.h"
@@ -28,18 +28,6 @@
 */
 
 #define MULTI_ASSIGNMENT_VARIABLES 1
-
-#if defined(TABLING)
-#error Do not explicitly define TABLING
-#endif /* TABLING */
-
-#if defined(TABLING_BATCHED_SCHEDULING) && defined(TABLING_LOCAL_SCHEDULING)
-#error Do not define multiple tabling scheduling strategies
-#endif /* TABLING_BATCHED_SCHEDULING || TABLING_LOCAL_SCHEDULING */
-
-#if defined(TABLING_BATCHED_SCHEDULING) || defined(TABLING_LOCAL_SCHEDULING)
-#define TABLING 1
-#endif /* TABLING_BATCHED_SCHEDULING || TABLING_LOCAL_SCHEDULING */
 
 #if defined(YAPOR)
 #error Do not explicitly define YAPOR
@@ -533,7 +521,8 @@ typedef enum {
   HALT_AFTER_CONSULT_FLAG = 15,
   FAST_BOOT_FLAG = 16,
   STACK_DUMP_ON_ERROR_FLAG = 17,
-  INDEXING_MODE_FLAG = 18
+  INDEXING_MODE_FLAG = 18,
+  TABLING_MODE_FLAG = 19
 } yap_flags;
 
 #define STRING_AS_CHARS		0
@@ -555,6 +544,13 @@ typedef enum {
 } index_mode_options;
 
 typedef enum {
+  TABLING_MODE_OFF = 0,
+  TABLING_MODE_BATCHED = 1,
+  TABLING_MODE_LOCAL = 2,
+  TABLING_MODE_DEFAULT = 3
+} tabling_mode_options;
+
+typedef enum {
   YAP_CREEP_SIGNAL   =   0x1,		/* received a creep */
   YAP_WAKEUP_SIGNAL  =   0x2,		/* goals to wake up */
   YAP_ALARM_SIGNAL   =   0x4,		/* received an alarm */
@@ -574,7 +570,7 @@ typedef enum {
   YAP_DELAY_CREEP_SIGNAL= 0x10000	/* received a creep but should not do it */
 } yap_signals;
 
-#define NUMBER_OF_YAP_FLAGS     INDEXING_MODE_FLAG+1
+#define NUMBER_OF_YAP_FLAGS  TABLING_MODE_FLAG + 1
 
 /************************  prototypes **********************************/
 

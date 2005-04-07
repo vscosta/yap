@@ -11,8 +11,12 @@
 * File:		errors.yap						 *
 * comments:	error messages for YAP					 *
 *									 *
-* Last rev:     $Date: 2005-02-21 16:50:21 $,$Author: vsc $						 *
+* Last rev:     $Date: 2005-04-07 17:55:05 $,$Author: ricroc $						 *
 * $Log: not supported by cvs2svn $
+* Revision 1.61  2005/02/21 16:50:21  vsc
+* amd64 fixes
+* library fixes
+*
 * Revision 1.60  2005/01/28 23:14:41  vsc
 * move to Yap-4.5.7
 * Fix clause size
@@ -481,6 +485,9 @@ print_message(Level, Mss) :-
 '$output_error_message'(domain_error(write_option,N), Where) :-
 	format(user_error,'% DOMAIN ERROR- ~w: ~w invalid option to write~n',
 	[Where,N]).
+'$output_error_message'(domain_error(table,P), Where) :-
+	format(user_error,'% DOMAIN ERROR- ~w: non-tabled procedure ~w~n',
+	[Where,P]).
 '$output_error_message'(existence_error(array,F), W) :-
 	format(user_error,'% EXISTENCE ERROR- ~w could not open array ~w~n',
 	[W,F]).
@@ -592,6 +599,9 @@ print_message(Level, Mss) :-
 '$output_error_message'(permission_error(modify,static_procedure_in_use,_), Where) :-
 	format(user_error,'% PERMISSION ERROR- ~w: modifying a static procedure in use~n',
 	[Where]).
+'$output_error_message'(permission_error(modify,table,P), _) :-
+	format(user_error,'% PERMISSION ERROR- cannot table procedure ~w~n',
+	[P]).
 '$output_error_message'(permission_error(module,redefined,Mod), Who) :-
 	format(user_error,'% PERMISSION ERROR ~w- redefining module ~a in a different file~n',
 	[Who,Mod]).

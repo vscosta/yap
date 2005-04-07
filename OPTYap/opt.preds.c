@@ -8,12 +8,12 @@
 #include "Yatom.h"
 #include "Heap.h"
 #include "yapio.h"
+#if HAVE_STRING_H
+#include <string.h>
+#endif
 #ifdef YAPOR
 #if HAVE_SYS_TIME_H
 #include <sys/time.h>
-#endif
-#if HAVE_STRING_H
-#include <string.h>
 #endif
 #include "or.macros.h"
 #endif /* YAPOR */
@@ -37,8 +37,8 @@ static qg_ans_fr_ptr actual_answer;
 
 #ifdef YAPOR
 static realtime current_time(void);
-static int yapor_on(void);
-static int start_yapor(void);
+static int p_yapor_on(void);
+static int p_start_yapor(void);
 static int p_sequential(void);
 static int p_default_sequential(void);
 static int p_execution_mode(void);
@@ -50,10 +50,11 @@ static void show_answers(void);
 static void answer_to_stdout(char *answer);
 #endif /* YAPOR */
 #ifdef TABLING
-static int p_table(void);
-static int p_abolish_trie(void);
-static int p_show_trie(void);
-static int p_show_trie_stats(void);
+static int p_do_table(void);
+static int p_do_tabling_mode(void);
+static int p_do_abolish_trie(void);
+static int p_do_show_trie(void);
+static int p_do_show_trie_stats(void);
 #endif /* TABLING */
 #ifdef STATISTICS
 static int p_show_frames_stats(void);
@@ -70,8 +71,8 @@ static int p_debug_prolog(void);
 
 void Yap_init_optyap_preds(void) {
 #ifdef YAPOR
-  Yap_InitCPred("$yapor_on", 0, yapor_on, SafePredFlag|SyncPredFlag|HiddenPredFlag);
-  Yap_InitCPred("$start_yapor", 0, start_yapor, SafePredFlag|SyncPredFlag|HiddenPredFlag);
+  Yap_InitCPred("$yapor_on", 0, p_yapor_on, SafePredFlag|SyncPredFlag|HiddenPredFlag);
+  Yap_InitCPred("$start_yapor", 0, p_start_yapor, SafePredFlag|SyncPredFlag|HiddenPredFlag);
   Yap_InitCPred("$sequential", 1, p_sequential, SafePredFlag|SyncPredFlag|HiddenPredFlag);
   Yap_InitCPred("$default_sequential", 1, p_default_sequential, SafePredFlag|SyncPredFlag|HiddenPredFlag);
   Yap_InitCPred("execution_mode", 1, p_execution_mode, SafePredFlag|SyncPredFlag);
@@ -80,10 +81,11 @@ void Yap_init_optyap_preds(void) {
   Yap_InitCPred("$parallel_yes_answer", 0, p_parallel_yes_answer, SafePredFlag|SyncPredFlag|HiddenPredFlag);
 #endif /* YAPOR */
 #ifdef TABLING
-  Yap_InitCPred("$do_table", 2, p_table, SafePredFlag|SyncPredFlag|HiddenPredFlag);
-  Yap_InitCPred("$do_abolish_trie", 2, p_abolish_trie, SafePredFlag|SyncPredFlag|HiddenPredFlag);
-  Yap_InitCPred("$do_show_trie", 2, p_show_trie, SafePredFlag|SyncPredFlag|HiddenPredFlag);
-  Yap_InitCPred("$do_show_trie_stats", 2, p_show_trie_stats, SafePredFlag|SyncPredFlag|HiddenPredFlag);
+  Yap_InitCPred("$do_table", 2, p_do_table, SafePredFlag|SyncPredFlag|HiddenPredFlag);
+  Yap_InitCPred("$do_tabling_mode", 3, p_do_tabling_mode, SafePredFlag|SyncPredFlag|HiddenPredFlag);
+  Yap_InitCPred("$do_abolish_trie", 2, p_do_abolish_trie, SafePredFlag|SyncPredFlag|HiddenPredFlag);
+  Yap_InitCPred("$do_show_trie", 2, p_do_show_trie, SafePredFlag|SyncPredFlag|HiddenPredFlag);
+  Yap_InitCPred("$do_show_trie_stats", 2, p_do_show_trie_stats, SafePredFlag|SyncPredFlag|HiddenPredFlag);
 #endif /* TABLING */
 #ifdef STATISTICS
   Yap_InitCPred("show_frames_stats", 0, p_show_frames_stats, SafePredFlag|SyncPredFlag);
@@ -124,13 +126,13 @@ realtime current_time(void) {
 
 
 static
-int yapor_on(void) {
+int p_yapor_on(void) {
   return (PARALLEL_EXECUTION_MODE);
 }
 
 
 static
-int start_yapor(void) {
+int p_start_yapor(void) {
 #ifdef TIMESTAMP_CHECK
   GLOBAL_timestamp = 0;
 #endif /* TIMESTAMP_CHECK */
@@ -443,7 +445,7 @@ void answer_to_stdout(char *answer) {
 
 #ifdef TABLING
 static
-int p_table(void) {
+int p_do_table(void) {
   Term t, mod;
   PredEntry *pe;
   tab_ent_ptr te;
@@ -463,6 +465,9 @@ int p_table(void) {
   } else {
     return (FALSE);
   }
+  if (pe->PredFlags & TabledPredFlag) {
+    return (TRUE);
+  }
   pe->PredFlags |= TabledPredFlag;
   new_subgoal_trie_node(sg_node, 0, NULL, NULL, NULL);
   new_table_entry(te, sg_node);
@@ -472,7 +477,53 @@ int p_table(void) {
 
 
 static
-int p_abolish_trie(void) {
+int p_do_tabling_mode(void) {
+  Term t, mod, s;
+  PredEntry *pe;
+
+  mod = Deref(ARG2);
+  if (IsVarTerm(mod) || !IsAtomTerm(mod)) {
+    return (FALSE);
+  }
+  t = Deref(ARG1);
+  if (IsAtomTerm(t)) {
+    Atom at = AtomOfTerm(t);
+    pe = RepPredProp(PredPropByAtom(at, mod));
+  } else if (IsApplTerm(t)) {
+    Functor func = FunctorOfTerm(t);
+    pe = RepPredProp(PredPropByFunc(func, mod));
+  } else {
+    return (FALSE);
+  }
+  s = Deref(ARG3);
+  if (IsVarTerm(s)) {
+    Term sa;
+    if (pe->PredFlags & LocalSchedPredFlag) {
+      sa = MkAtomTerm(Yap_LookupAtom("local"));
+    } else { 
+      sa = MkAtomTerm(Yap_LookupAtom("batched"));
+    }
+    Bind((CELL *)s, sa);
+    return(TRUE);
+  }
+  if (IsAtomTerm(s)) {
+    char *sa;
+    sa = RepAtom(AtomOfTerm(s))->StrOfAE;
+    if (strcmp(sa, "local") == 0) {
+      pe->PredFlags |= LocalSchedPredFlag;
+      return(TRUE);
+    } 
+    if (strcmp(sa,"batched") == 0) {
+      pe->PredFlags &= ~LocalSchedPredFlag;
+      return(TRUE);
+    }
+  }
+  return (FALSE);
+}
+
+
+static
+int p_do_abolish_trie(void) {
   Term t, mod;
   tab_ent_ptr tab_ent;
   sg_hash_ptr hash;
@@ -508,7 +559,7 @@ int p_abolish_trie(void) {
 
 
 static
-int p_show_trie(void) {
+int p_do_show_trie(void) {
   Term t1, mod;
   PredEntry *pe;
   Atom at;
@@ -537,7 +588,7 @@ int p_show_trie(void) {
 
 
 static
-int p_show_trie_stats(void) {
+int p_do_show_trie_stats(void) {
   Term t, mod;
   PredEntry *pe;
   Atom at;

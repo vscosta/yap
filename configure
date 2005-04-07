@@ -850,7 +850,7 @@ Optional Features:
  --enable-depth-limit       support depth-bound computation
  --enable-or-parallelism    support or-parallelism as: env-copy,sba,a-cow
  --enable-low-level-tracer  support support for procedure-call tracing
- --enable-tabling           support tabling as: batched,local
+ --enable-tabling           support tabling
  --enable-threads           support system threads
  --pthread-locking           use pthread locking primitives for internal locking (requires threads)
  --enable-max-performance   try using the best flags for specific architecture
@@ -5890,14 +5890,10 @@ case "$orparallelism" in
   ;;
 esac
 
-case "$tabling" in
-  local)
-   YAP_EXTRAS="$YAP_EXTRAS -DTABLING_LOCAL_SCHEDULING=1"
-  ;;
-  yes|batched)
-   YAP_EXTRAS="$YAP_EXTRAS -DTABLING_BATCHED_SCHEDULING=1"
-  ;;
-esac
+if test "$tabling" = "yes"
+  then
+  YAP_EXTRAS="$YAP_EXTRAS -DTABLING=1"
+fi
 
 echo "$as_me:$LINENO: checking for ANSI C header files" >&5
 echo $ECHO_N "checking for ANSI C header files... $ECHO_C" >&6

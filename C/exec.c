@@ -1167,18 +1167,23 @@ Yap_execute_goal(Term t, int nargs, Term mod)
   }
 
   if (out == 1) {
-    choiceptr old_B;
+    choiceptr cut_B, old_B;
     /* we succeeded, let's prune */
     /* restore the old environment */
     /* get to previous environment */
+    cut_B = (choiceptr)ENV[E_CB];
 #ifdef YAPOR
-    CUT_prune_to((choiceptr)(ENV[E_CB]));
-#else
-    B = (choiceptr)(ENV[E_CB]);
+    CUT_prune_to(cut_B);
 #endif /* YAPOR */
 #ifdef TABLING
-    abolish_incomplete_subgoals(B);
+    if (B != cut_B) {
+      while (B->cp_b < cut_B) {
+	B = B->cp_b;
+      }
+      abolish_incomplete_subgoals(B);
+    }
 #endif /* TABLING */
+    B = cut_B;
     /* find out where we have the old arguments */
     old_B = ((choiceptr)(ENV-(EnvSizeInCells+nargs+1)))-1;
     CP   = saved_cp;
@@ -1355,17 +1360,19 @@ p_restore_regs2(void)
 #else
   pt0 = (choiceptr)(LCL0-IntOfTerm(d0));
 #endif
+#ifdef YAPOR
+  CUT_prune_to(pt0);
+#endif /* YAPOR */
   /* find where to cut to */
   if (pt0 > B) {
     /* Wow, we're gonna cut!!! */
-#ifdef YAPOR
-    CUT_prune_to(pt0);
-#else
-    B = pt0;
-#endif /* YAPOR */
 #ifdef TABLING
+    while (B->cp_b < pt0) {
+      B = B->cp_b;
+    }
     abolish_incomplete_subgoals(B);
 #endif /* TABLING */
+    B = pt0;
     HB = B->cp_h;
     /*    trim_trail();*/
   }
@@ -1448,7 +1455,12 @@ JumpToEnv(Term t) {
     B = first_func;
   }
 #ifdef TABLING
-  abolish_incomplete_subgoals(B);
+  if (B != B0) {
+    while (B0->cp_b < B) {
+      B0 = B0->cp_b;
+    }
+    abolish_incomplete_subgoals(B0);
+  }
 #endif /* TABLING */
   return FALSE;
 }

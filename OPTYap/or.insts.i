@@ -38,18 +38,31 @@
         /*    the frozen branch depends on the current top node     **
 	** this means that the current top node is a generator node */
         LOCK_OR_FRAME(LOCAL_top_or_fr);
-#ifdef TABLING_BATCHED_SCHEDULING
-        if (OrFr_alternative(LOCAL_top_or_fr) != GEN_CP_NULL_ALT) {
-#else /* TABLING_LOCAL_SCHEDULING */
-        if (OrFr_alternative(LOCAL_top_or_fr) != GEN_CP_NULL_ALT || B_FZ == LOCAL_top_cp) {
-#endif /* TABLING_SCHEDULING */
-          /* the current top node has unexploited alternatives ---> we should **
-	  ** exploit all the available alternatives before execute completion */
+        if (OrFr_alternative(LOCAL_top_or_fr) == NULL ||
+           (OrFr_alternative(LOCAL_top_or_fr) == ANSWER_RESOLUTION && B_FZ != LOCAL_top_cp)) {
+          /*                 there are no unexploited alternatives                 **
+          ** (NULL if batched scheduling OR ANSWER_RESOLUTION if local scheduling) */
+          UNLOCK_OR_FRAME(LOCAL_top_or_fr);
+	  goto completion;
+        } else {
+          /*                     there are unexploited alternatives                     **
+	  ** we should exploit all the available alternatives before execute completion */
+          PREG = OrFr_alternative(LOCAL_top_or_fr);
+          PREFETCH_OP(PREG);
+          GONext();
+        }
+/* ricroc - obsolete
+#ifdef  batched scheduling
+        if (OrFr_alternative(LOCAL_top_or_fr) != NULL) {
+#else   local scheduling
+        if (OrFr_alternative(LOCAL_top_or_fr) != ANSWER_RESOLUTION || B_FZ == LOCAL_top_cp) {
+#endif
           PREG = OrFr_alternative(LOCAL_top_or_fr);
           PREFETCH_OP(PREG);
           GONext();
         }
         UNLOCK_OR_FRAME(LOCAL_top_or_fr);
+*/
       }
       goto completion;
     }

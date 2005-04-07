@@ -68,12 +68,12 @@ void finish_yapor(void);
 
 #ifdef TABLING
 #include <stdio.h>
-sg_node_ptr subgoal_search(tab_ent_ptr tab_ent, OPREG arity, CELL **Yaddr);
+sg_fr_ptr subgoal_search(tab_ent_ptr tab_ent, OPREG arity, CELL **Yaddr);
 ans_node_ptr answer_search(sg_fr_ptr sg_fr, CELL *subs_ptr);
 void load_answer_trie(ans_node_ptr ans_node, CELL *subs_ptr);
 void private_completion(sg_fr_ptr sg_fr);
 void free_subgoal_trie_branch(sg_node_ptr node, int missing_nodes);
-void free_answer_trie(sg_fr_ptr sg_fr);
+void free_answer_trie_branch(ans_node_ptr node);
 void update_answer_trie(sg_fr_ptr sg_fr);
 void traverse_trie(FILE *stream, sg_node_ptr sg_node, int pred_arity, Atom pred_atom, int show);
 #endif /* TABLING */

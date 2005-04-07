@@ -10,8 +10,13 @@
 *									 *
 * File:		absmi.c							 *
 * comments:	Portable abstract machine interpreter                    *
-* Last rev:     $Date: 2005-03-13 06:26:09 $,$Author: vsc $						 *
+* Last rev:     $Date: 2005-04-07 17:48:53 $,$Author: ricroc $						 *
 * $Log: not supported by cvs2svn $
+* Revision 1.161  2005/03/13 06:26:09  vsc
+* fix excessive pruning in meta-calls
+* fix Term->int breakage in compiler
+* improve JPL (at least it does something now for amd64).
+*
 * Revision 1.160  2005/03/07 17:49:14  vsc
 * small fixes
 *
@@ -1698,13 +1703,15 @@ Yap_absmi(int inp)
       /* trust_fail                       */
       BOp(trust_fail, e);
 #ifdef YAPOR
-      CUT_prune_to((choiceptr) d0);
+      {
+	choiceptr cut_pt;
+	cut_pt = B->cp_b;
+	CUT_prune_to(cut_pt);
+	B = cut_pt;
+      }
 #else
       B = B->cp_b;
 #endif	/* YAPOR */
-#ifdef TABLING
-      abolish_incomplete_subgoals(B);
-#endif /* TABLING */
       goto fail;
       ENDBOp();
 
@@ -1763,7 +1770,7 @@ Yap_absmi(int inp)
 		  if ((caller_op != _call && caller_op != _fcall) || pe == NULL) {
 		    low_level_trace(retry_table_producer, NULL, NULL);
 		  } else {
-		    low_level_trace(retry_table_producer, pe, (CELL *)(((gen_cp_ptr)B)+1));
+		    low_level_trace(retry_table_producer, pe, (CELL *)(GEN_CP(B)+1));
 		  }
 		}
 		break;
@@ -1781,7 +1788,7 @@ Yap_absmi(int inp)
 		break;
 	      case _table_retry_me:
 	      case _table_trust_me:
-		low_level_trace(retry_pred, ipc->u.lds.p, (CELL *)(((gen_cp_ptr)B)+1));
+		low_level_trace(retry_pred, ipc->u.lds.p, (CELL *)(GEN_CP(B)+ 1));
 		break;
 #endif /* TABLING */
 	      case _or_else:
@@ -1987,10 +1994,11 @@ Yap_absmi(int inp)
 	  /* so the next cell is the old value */ 
 #if FROZEN_STACKS
 	  pt[0] = TrailVal(pt0-1);
+	  pt0 -= 1;
 #else
 	  pt[0] = TrailTerm(pt0-1);
-#endif /* FROZEN_STACKS */
 	  pt0 -= 2;
+#endif /* FROZEN_STACKS */
 	  goto failloop;
 	}
 #endif
@@ -2011,17 +2019,80 @@ Yap_absmi(int inp)
       BEGD(d0);
       /* assume cut is always in stack */
       d0 = YREG[E_CB];
+#ifdef YAPOR
+      CUT_prune_to((choiceptr) d0);
+#endif /* YAPOR */
       if (SHOULD_CUT_UP_TO(B,(choiceptr) d0)) {
 	/* cut ! */
-#ifdef YAPOR
-	CUT_prune_to((choiceptr) d0);
-#else
 	while (B->cp_b < (choiceptr)d0) {
 	  B = B->cp_b;
 	}
+#ifdef TABLING
+	abolish_incomplete_subgoals(B);
+#endif /* TABLING */
       trim_trail:
 	HBREG = PROTECT_FROZEN_H(B->cp_b);
-#if 1
+#if TABLING
+        {
+	  tr_fr_ptr pt0, pt1, pbase;
+	  pbase = B->cp_tr;
+	  pt0 = pt1 = TR - 1;
+	  while (pt1 >= pbase) {
+	    BEGD(d1);
+	    d1 = TrailTerm(pt1);
+	    if (IsVarTerm(d1)) {
+	      if (d1 < (CELL)HBREG || d1 > Unsigned(B->cp_b)) { 
+		TrailTerm(pt0) = d1;
+		TrailVal(pt0) = TrailVal(pt1);
+		pt0--;
+	      }
+	      pt1--;
+	    } else if (IsApplTerm(d1)) {
+	      TrailTerm(pt0) = TrailTerm(pt0-2) = d1;
+	      TrailTerm(pt0-1) = TrailTerm(pt1-1);
+	      pt0 -= 3;
+	      pt1 -= 3;
+	    } else if (IsPairTerm(d1)) {
+	      CELL *pt = RepPair(d1);
+	      if ((ADDR) pt >= Yap_TrailBase) {
+		pt1 = (tr_fr_ptr)pt;
+	      } else if ((*pt & (LogUpdMask|IndexMask)) == (LogUpdMask|IndexMask)) {
+		LogUpdIndex *cl = ClauseFlagsToLogUpdIndex(pt);
+		int erase;
+
+		LOCK(cl->ClLock);
+		DEC_CLREF_COUNT(cl);
+		cl->ClFlags &= ~InUseMask;
+		erase = (cl->ClFlags & ErasedMask) && !(cl->ClRefCount);
+		UNLOCK(cl->ClLock);
+		if (erase) {
+		  /* at this point, we are the only ones accessing the clause,
+		     hence we don't need to have a lock it */
+		  saveregs();
+		  Yap_ErLogUpdIndex(cl, NULL);
+		  setregs();
+		}
+	      } else {
+		TrailTerm(pt0) = d1;
+		pt0--;
+	      }
+	      pt1--;
+	    } else {
+	      TrailTerm(pt0) = d1;
+	      pt0--;
+	      pt1--;
+	    }
+	    ENDD(d1);                              
+	  }
+	  if (pt0 != pt1) {
+	    int size;
+	    pt0++;
+	    size = TR - pt0;
+	    memcpy(pbase, pt0, size * sizeof(struct trail_frame));
+	    TR = pbase + size;
+	  }
+	}
+#else
         {
 	  tr_fr_ptr pt1, pt0;
 	  pt1 = pt0 = B->cp_tr;
@@ -2032,7 +2103,7 @@ Yap_absmi(int inp)
 	      if (d1 < (CELL)HBREG || d1 > Unsigned(B->cp_b)) { 
 		TrailTerm(pt0) = d1;
 		pt0++;
-	      }                                
+	      }     
 	      pt1++;
 	    } else if (IsApplTerm(d1)) {
 	      TrailTerm(pt0+1) = TrailTerm(pt1+1);
@@ -2051,8 +2122,7 @@ Yap_absmi(int inp)
 		erase = (cl->ClFlags & ErasedMask) && !(cl->ClRefCount);
 		UNLOCK(cl->ClLock);
 		if (erase) {
-		  /* at this point, 
-		     we are the only ones accessing the clause,
+		  /* at this point, we are the only ones accessing the clause,
 		     hence we don't need to have a lock it */
 		  saveregs();
 		  Yap_ErLogUpdIndex(cl, NULL);
@@ -2072,12 +2142,8 @@ Yap_absmi(int inp)
 	  }
 	  TR = pt0;
 	}
-#endif /* X */
-	B = B->cp_b;
-#endif	/* YAPOR */
-#ifdef TABLING
-        abolish_incomplete_subgoals(B);
 #endif /* TABLING */
+	B = B->cp_b;
 	SET_BB(PROTECT_FROZEN_B(B));
       }
       ENDD(d0);
@@ -2091,16 +2157,17 @@ Yap_absmi(int inp)
       BEGD(d0);
       /* assume cut is always in stack */
       d0 = YREG[E_CB];
+#ifdef YAPOR
+      CUT_prune_to((choiceptr) d0);
+#endif	/* YAPOR */
       if (SHOULD_CUT_UP_TO(B,(choiceptr) d0)) {
 	/* cut ! */
-#ifdef YAPOR
-	CUT_prune_to((choiceptr) d0);
-#else
 	while (B->cp_b < (choiceptr)d0) {
 	  B = B->cp_b;
 	}
-#endif	/* YAPOR */
-
+#ifdef TABLING
+	abolish_incomplete_subgoals(B);
+#endif /* TABLING */
 #ifdef FROZEN_STACKS
 	{ 
 	  choiceptr top_b = PROTECT_FROZEN_B(B->cp_b);
@@ -2118,8 +2185,8 @@ Yap_absmi(int inp)
 	else {
 	  YREG = (CELL *) ((CELL) ENV + ENV_Size(CPREG));
 	}
-	YREG[E_CB] = d0;
 #endif /* FROZEN_STACKS */
+	YREG[E_CB] = d0;
 	goto trim_trail;
       }
       ENDD(d0);
@@ -2132,15 +2199,17 @@ Yap_absmi(int inp)
       BEGD(d0);
       /* we assume dealloc leaves in S the previous env             */
       d0 = SREG[E_CB];
+#ifdef YAPOR
+      CUT_prune_to((choiceptr) d0);
+#endif	/* YAPOR */
       if (SHOULD_CUT_UP_TO(B,(choiceptr)d0)) {
 	/* cut ! */
-#ifdef YAPOR
-	CUT_prune_to((choiceptr) d0);
-#else
 	while (B->cp_b < (choiceptr)d0) {
 	  B = B->cp_b;
 	}
-#endif	/* YAPOR */
+#ifdef TABLING
+	abolish_incomplete_subgoals(B);
+#endif /* TABLING */
 	goto trim_trail;
       }
       ENDD(d0);
@@ -2191,14 +2260,16 @@ Yap_absmi(int inp)
 #else
 	pt0 = (choiceptr)(LCL0-IntOfTerm(d0));
 #endif
-	if (SHOULD_CUT_UP_TO(B,pt0)) {
 #ifdef YAPOR
-	  CUT_prune_to(pt0);
-#else
+	CUT_prune_to(pt0);
+#endif	/* YAPOR */
+	if (SHOULD_CUT_UP_TO(B,pt0)) {
 	  while (B->cp_b < pt0) {
 	    B = B->cp_b;
 	  }
-#endif	/* YAPOR */
+#ifdef TABLING
+	  abolish_incomplete_subgoals(B);
+#endif /* TABLING */
 	  goto trim_trail;
 	}
       }
@@ -2224,14 +2295,16 @@ Yap_absmi(int inp)
 #else
 	pt0 = (choiceptr)(LCL0-IntOfTerm(d0));
 #endif
-	if (SHOULD_CUT_UP_TO(B,pt0)) {
 #ifdef YAPOR
-	  CUT_prune_to(pt0);
-#else
+	CUT_prune_to(pt0);
+#endif	/* YAPOR */
+	if (SHOULD_CUT_UP_TO(B,pt0)) {
 	  while (B->cp_b < pt0) {
 	    B = B->cp_b;
 	  }
-#endif	/* YAPOR */
+#ifdef TABLING
+	  abolish_incomplete_subgoals(B);
+#endif /* TABLING */
 	  goto trim_trail;
 	}
       }
@@ -8524,16 +8597,18 @@ Yap_absmi(int inp)
 #else
       pt0 = (choiceptr)(LCL0-IntOfTerm(d0));
 #endif
+#ifdef YAPOR
+      CUT_prune_to(pt0);
+#endif /* YAPOR */
       /* find where to cut to */
       if (SHOULD_CUT_UP_TO(B,pt0)) {
 	/* Wow, we're gonna cut!!! */
-#ifdef YAPOR
-	CUT_prune_to(pt0);
-#else
 	while (B->cp_b < pt0) {
 	  B = B->cp_b;
 	}
-#endif /* YAPOR */
+#ifdef TABLING
+	abolish_incomplete_subgoals(B);
+#endif /* TABLING */
 	goto trim_trail;
       }
       PREG = NEXTOP(PREG, xF);
@@ -8570,15 +8645,17 @@ Yap_absmi(int inp)
 #else
       pt1 = (choiceptr)(LCL0-IntOfTerm(d0));
 #endif
+#ifdef YAPOR
+      CUT_prune_to(pt1);
+#endif /* YAPOR */
       if (SHOULD_CUT_UP_TO(B,pt1)) {
 	/* Wow, we're gonna cut!!! */
-#ifdef YAPOR
-	CUT_prune_to(pt1);
-#else
 	while (B->cp_b < pt1) {
 	  B = B->cp_b;
 	}
-#endif /* YAPOR */
+#ifdef TABLING
+	abolish_incomplete_subgoals(B);
+#endif /* TABLING */
 	goto trim_trail;
       }
       PREG = NEXTOP(PREG, yF);
@@ -12509,18 +12586,19 @@ Yap_absmi(int inp)
 	      arity = 0;
 	      if (at == AtomCut) {
 		choiceptr cut_pt = (choiceptr)pt0[E_CB];
+#ifdef YAPOR
+		CUT_prune_to(cut_pt);
+#endif /* YAPOR */
 		/* find where to cut to */
 		if (SHOULD_CUT_UP_TO(B,cut_pt)) {
-#ifdef YAPOR
 		  /* Wow, we're gonna cut!!! */
-		  CUT_prune_to(cut_pt);
-#else
-		  /* Wow, we're gonna cut!!! */
-		  B = cut_pt;
-#endif /* YAPOR */
 #ifdef TABLING
+		  while (B->cp_b < cut_pt) {
+		    B = B->cp_b;
+		  }
 		  abolish_incomplete_subgoals(B);
 #endif /* TABLING */
+		  B = cut_pt;
 		  HB = PROTECT_FROZEN_H(B);
 		}
 	      }
@@ -12599,18 +12677,19 @@ Yap_absmi(int inp)
 	  CACHE_A1();
 	} else if ((Atom)(pen->FunctorOfPred) == AtomCut) {
 	  choiceptr cut_pt = (choiceptr)pt0[E_CB];
+#ifdef YAPOR
+	  CUT_prune_to(cut_pt);
+#endif /* YAPOR */
 	  /* find where to cut to */
 	  if (SHOULD_CUT_UP_TO(B,cut_pt)) {
-#ifdef YAPOR
 	    /* Wow, we're gonna cut!!! */
-	    CUT_prune_to(cut_pt);
-#else
-	    /* Wow, we're gonna cut!!! */
-	    B = cut_pt;
-#endif /* YAPOR */
 #ifdef TABLING
+	    while (B->cp_b < cut_pt) {
+	      B = B->cp_b;
+	    }
 	    abolish_incomplete_subgoals(B);
 #endif /* TABLING */
+	    B = cut_pt;
 	    HB = PROTECT_FROZEN_H(B);
 	  }
 	}

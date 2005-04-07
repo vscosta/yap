@@ -27,8 +27,8 @@ typedef struct subgoal_trie_node {
 #ifdef TABLE_LOCK_AT_NODE_LEVEL
   lockvar lock;
 #endif /* TABLE_LOCK_AT_NODE_LEVEL */
-  struct subgoal_trie_node *child;
   struct subgoal_trie_node *parent;
+  struct subgoal_trie_node *child;
   struct subgoal_trie_node *next;
 } *sg_node_ptr;
 
@@ -41,8 +41,8 @@ typedef struct answer_trie_node {
 #ifdef TABLE_LOCK_AT_NODE_LEVEL
   lockvar lock;
 #endif /* TABLE_LOCK_AT_NODE_LEVEL */
-  struct answer_trie_node *child;
   struct answer_trie_node *parent;
+  struct answer_trie_node *child;
   struct answer_trie_node *next;
 } *ans_node_ptr;
 
@@ -50,9 +50,9 @@ typedef struct answer_trie_node {
 #define TrNode_or_arg(X)       ((X)->or_arg)
 #define TrNode_entry(X)        ((X)->entry)
 #define TrNode_lock(X)         ((X)->lock)
-#define TrNode_sg_fr(X)        ((X)->child)
-#define TrNode_child(X)        ((X)->child)
 #define TrNode_parent(X)       ((X)->parent)
+#define TrNode_child(X)        ((X)->child)
+#define TrNode_sg_fr(X)        ((X)->child)
 #define TrNode_next(X)         ((X)->next)
 
 
@@ -102,16 +102,17 @@ typedef struct subgoal_frame {
   struct or_frame *top_or_frame_on_generator_branch;
 #endif /* YAPOR */
   choiceptr generator_choice_point;
-  struct subgoal_trie_node *subgoal_trie;
   struct answer_trie_node *answer_trie;
   struct answer_trie_node *first_answer;
   struct answer_trie_node *last_answer;
   struct answer_hash *hash_chain;
   enum {
-    resolving = 0,
-    complete = 1,
-    executable = 2
+    ready = 0,
+    evaluating = 1,
+    complete = 2,
+    executable = 3
   } state_flag;
+  int abolished_operations;
   int subgoal_arity;
   struct subgoal_frame *next;
 } *sg_fr_ptr;
@@ -120,12 +121,12 @@ typedef struct subgoal_frame {
 #define SgFr_gen_worker(X)     ((X)->generator_worker)
 #define SgFr_gen_top_or_fr(X)  ((X)->top_or_frame_on_generator_branch)
 #define SgFr_gen_cp(X)         ((X)->generator_choice_point)
-#define SgFr_subgoal_trie(X)   ((X)->subgoal_trie)
 #define SgFr_answer_trie(X)    ((X)->answer_trie)
 #define SgFr_first_answer(X)   ((X)->first_answer)
 #define SgFr_last_answer(X)    ((X)->last_answer)
 #define SgFr_hash_chain(X)     ((X)->hash_chain)
 #define SgFr_state(X)          ((X)->state_flag)
+#define SgFr_abolished(X)      ((X)->abolished_operations)
 #define SgFr_arity(X)          ((X)->subgoal_arity)
 #define SgFr_next(X)           ((X)->next)
 
@@ -137,14 +138,14 @@ typedef struct subgoal_frame {
                        to its or-frame. It is used to find the direct dependency node for 
                        consumer nodes in other workers branches.
    SgFr_gen_cp:        a pointer to the correspondent generator choice point.
-   SgFr_subgoal_trie:  a pointer to the bottom subgoal trie node.
-                       It is used to abolish incomplete subgoals.
    SgFr_answer_trie:   a pointer to the top answer trie node.
                        It is used to check for/insert new answers.
    SgFr_first_answer:  a pointer to the bottom answer trie node of the first available answer.
    SgFr_last_answer:   a pointer to the bottom answer trie node of the last available answer.
    SgFr_hash_chain:    a pointer to the first answer_hash struct for the subgoal in hand.
-   SgFr_state:         a flag that indicates the subgoal state
+   SgFr_state:         a flag that indicates the subgoal state.
+   SgFr_abolished      the number of times the subgoal was abolished.
+   SgFr_arity          the arity of the subgoal.
    SgFr_next:          a pointer to chain between subgoal frames.
 ** ------------------------------------------------------------------------------------------- */
 
@@ -166,7 +167,6 @@ typedef struct dependency_frame {
   choiceptr backchain_choice_point;
   choiceptr leader_choice_point;
   choiceptr consumer_choice_point;
-  struct subgoal_frame *subgoal_frame;
   struct answer_trie_node *last_consumed_answer;
   struct dependency_frame *next;
 } *dep_fr_ptr;
@@ -178,8 +178,7 @@ typedef struct dependency_frame {
 #define DepFr_backchain_cp(X)            ((X)->backchain_choice_point)
 #define DepFr_leader_cp(X)               ((X)->leader_choice_point)
 #define DepFr_cons_cp(X)                 ((X)->consumer_choice_point)
-#define DepFr_sg_fr(X)                   ((X)->subgoal_frame)
-#define DepFr_last_ans(X)                ((X)->last_consumed_answer)
+#define DepFr_last_answer(X)             ((X)->last_consumed_answer)
 #define DepFr_next(X)                    ((X)->next)
 
 /* ---------------------------------------------------------------------------------------------------- **
@@ -197,8 +196,7 @@ typedef struct dependency_frame {
                                  we perform the last backtracking through answers operation.
    DepFr_leader_cp:              a pointer to the leader choice point.
    DepFr_cons_cp:                a pointer to the correspondent consumer choice point.
-   DepFr_sg_fr:                  a pointer to the correspondent subgoal frame.
-   DepFr_last_ans:               a pointer to the last consumed answer.
+   DepFr_last_answer:            a pointer to the last consumed answer.
    DepFr_next:                   a pointer to chain between dependency frames.  
 ** ---------------------------------------------------------------------------------------------------- */
 
@@ -238,54 +236,17 @@ typedef struct suspension_frame {
 
 
 
-/* ----------------------------- **
-**      Struct generator_cp      **
-** ----------------------------- */
+/* ---------------------------------------------------------- **
+**      Structs generator_choicept and consumer_choicept      **
+** ---------------------------------------------------------- */
 
-typedef struct generator_choice_point {
-  /* common choicepoints fields */
-  tr_fr_ptr gcp_tr;
-  CELL *gcp_h;
-  struct choicept *gcp_b;
-#ifdef DEPTH_LIMIT
-  CELL gcp_depth;
-#endif /* DEPTH_LIMIT */
-  yamop *gcp_cp;
-#ifdef YAPOR
-  struct or_frame *gcp_or_fr;
-#endif /* YAPOR */
-  yamop *gcp_ap;
-  CELL *gcp_env;
+struct generator_choicept {
+  struct choicept cp;
+  struct dependency_frame *cp_dep_fr;  /* NULL if batched scheduling */
+  struct subgoal_frame *cp_sg_fr;
+};
 
-  /* specific generator choicepoint fields */
-#ifdef TABLING_BATCHED_SCHEDULING
-  struct subgoal_frame *gcp_sg_fr;
-#else /* TABLING_LOCAL_SCHEDULING */
-  struct dependency_frame *gcp_dep_fr;
-#endif /* TABLING_SCHEDULING */
-} *gen_cp_ptr;
-
-
-
-/* ---------------------------- **
-**      Struct consumer_cp      **
-** ---------------------------- */
-
-typedef struct consumer_choice_point {
-  /* common choicepoints fields */
-  tr_fr_ptr ccp_tr;
-  CELL *ccp_h;
-  struct choicept *ccp_b;
-#ifdef DEPTH_LIMIT
-  CELL ccp_depth;
-#endif /* DEPTH_LIMIT */
-  yamop *ccp_cp;
-#ifdef YAPOR
-  struct or_frame *ccp_or_fr;
-#endif /* YAPOR */
-  yamop *ccp_ap;
-  CELL *ccp_env;
-
-  /* specific consumer choicepoint fields */
-  struct dependency_frame *ccp_dep_fr;
-} *cons_cp_ptr;
+struct consumer_choicept {
+  struct choicept cp;
+  struct dependency_frame *cp_dep_fr;
+};

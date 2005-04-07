@@ -1656,16 +1656,16 @@ mark_trail(tr_fr_ptr trail_ptr, tr_fr_ptr trail_base, CELL *gc_H, choiceptr gc_B
  */
 
 #ifdef TABLING
-#ifdef TABLING_BATCHED_SCHEDULING
 #define init_substitution_pointer(GCB, SUBS_PTR, DEP_FR)  \
-        SUBS_PTR = (CELL *) (CONS_CP(GCB) + 1)
-#else /* TABLING_LOCAL_SCHEDULING */
-#define init_substitution_pointer(GCB, SUBS_PTR, DEP_FR)  \
-        SUBS_PTR = (CELL *) (CONS_CP(GCB) + 1);        \
-        if (DepFr_leader_cp(DEP_FR) == GCB)            \
-          SUBS_PTR += SgFr_arity(GEN_CP_SG_FR(GCB))
-#endif /* TABLING_SCHEDULING */
-#endif
+        if (DepFr_leader_cp(DEP_FR) == GCB) {             \
+          /* GCB is a generator-consumer node */          \
+          /* never here if batched scheduling */          \
+          SUBS_PTR = (CELL *) (GEN_CP(GCB) + 1);          \
+          SUBS_PTR += SgFr_arity(GEN_CP(GCB)->cp_sg_fr);  \
+        } else {                                          \
+          SUBS_PTR = (CELL *) (CONS_CP(GCB) + 1);         \
+        }
+#endif /* TABLING */
 
 
 static void
@@ -1829,7 +1829,7 @@ mark_choicepoints(register choiceptr gc_B, tr_fr_ptr saved_TR, int very_verbose)
 	  CELL vars;
 	  
 	  /* fetch the solution */
-	  init_substitution_pointer(gc_B, answ_fr, CONS_CP(gc_B)->ccp_dep_fr);
+	  init_substitution_pointer(gc_B, answ_fr, CONS_CP(gc_B)->cp_dep_fr);
 	  vars = *answ_fr++;
 	  while (vars--) {	
 	    mark_external_reference(answ_fr);
@@ -1840,15 +1840,8 @@ mark_choicepoints(register choiceptr gc_B, tr_fr_ptr saved_TR, int very_verbose)
 	break;
       case _table_completion:
 	{
-	  register gen_cp_ptr gcp = GEN_CP(gc_B);
-	  int nargs;
-	  
-#ifdef TABLING_BATCHED_SCHEDULING
-	  nargs = gcp->gcp_sg_fr->subgoal_arity;
-#else
-	  nargs = gcp->gcp_dep_fr->subgoal_frame->subgoal_arity;
-#endif
-	  saved_reg = (CELL *)(gcp+1)+nargs;
+	  int nargs = SgFr_arity(GEN_CP(gc_B)->cp_sg_fr);
+	  saved_reg = (CELL *)(GEN_CP(gc_B) + 1) + nargs;
 	  nargs = *saved_reg++;
 	  while (nargs--) {	
 	    mark_external_reference(saved_reg);
@@ -1862,13 +1855,12 @@ mark_choicepoints(register choiceptr gc_B, tr_fr_ptr saved_TR, int very_verbose)
       case _table_retry:
       case _table_trust:
 	{
-	  register gen_cp_ptr gcp = GEN_CP(gc_B);	  
 	  int nargs = rtp->u.ld.s;
 	  /* for each saved register */
-	  for (saved_reg = (CELL *)(gcp+1);
+	  for (saved_reg = (CELL *)(GEN_CP(gc_B) + 1);
 	       /* assumes we can count registers in CP this
 		  way */
-	       saved_reg < (CELL *)(gcp+1) + nargs;
+	       saved_reg < (CELL *)(GEN_CP(gc_B) + 1) + nargs;
 	       saved_reg++) {
 	    mark_external_reference(saved_reg);
 	  }
@@ -2552,7 +2544,7 @@ sweep_choicepoints(choiceptr gc_B)
 			   EnvBMap((CELL_PTR) (gc_B->cp_cp)));
 
 	/* fetch the solution */
-	init_substitution_pointer(gc_B, answ_fr, CONS_CP(gc_B)->ccp_dep_fr);
+	init_substitution_pointer(gc_B, answ_fr, CONS_CP(gc_B)->cp_dep_fr);
 	vars = *answ_fr++;
 	while (vars--) {	
 	  CELL cp_cell = *answ_fr;
@@ -2568,16 +2560,10 @@ sweep_choicepoints(choiceptr gc_B)
       break;
       case _table_completion:
 	{
-	  register gen_cp_ptr gcp = GEN_CP(gc_B);
-	  
-#ifdef TABLING_BATCHED_SCHEDULING
-	  int nargs = gcp->gcp_sg_fr->subgoal_arity;
-#else
-	  int nargs = gcp->gcp_dep_fr->subgoal_frame->subgoal_arity;
-#endif
+	  int nargs = SgFr_arity(GEN_CP(gc_B)->cp_sg_fr);	  
 	  CELL *saved_reg;
 
-	  saved_reg = (CELL *)(gcp+1)+nargs;
+	  saved_reg = (CELL *)(GEN_CP(gc_B) + 1) + nargs;
 	  nargs = *saved_reg++;
 	  while (nargs--) {	
 	    CELL cp_cell = *saved_reg;
@@ -2596,7 +2582,6 @@ sweep_choicepoints(choiceptr gc_B)
     case _table_retry:
     case _table_trust:
       {
-	register gen_cp_ptr gcp = GEN_CP(gc_B);
 	int nargs;
 	CELL *saved_reg;
 	
@@ -2606,10 +2591,10 @@ sweep_choicepoints(choiceptr gc_B)
 
 	nargs = rtp->u.ld.s;
 	/* for each saved register */
-	for (saved_reg = (CELL *)(gcp+1);
+	for (saved_reg = (CELL *)(GEN_CP(gc_B) + 1);
 	     /* assumes we can count registers in CP this
 		way */
-	     saved_reg < (CELL *)(gcp+1) + nargs;
+	     saved_reg < (CELL *)(GEN_CP(gc_B) + 1) + nargs;
 	     saved_reg++) {
 	  CELL cp_cell = *saved_reg;
 	  if (MARKED_PTR(saved_reg)) {
@@ -2619,7 +2604,7 @@ sweep_choicepoints(choiceptr gc_B)
 	    }
 	  }
 	}
-	saved_reg = (CELL *)(gcp+1) + nargs;
+	saved_reg = (CELL *)(GEN_CP(gc_B) + 1) + nargs;
 	nargs = *saved_reg++;
 	while (nargs--) {	
 	  CELL cp_cell = *saved_reg;

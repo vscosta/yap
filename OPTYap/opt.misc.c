@@ -37,9 +37,9 @@ struct worker WORKER;
 void abort_yaptab(const char *msg, ...) {
   va_list args;
   va_start(args, msg);
-  fprintf(stderr, "[ Fatal YapTab Error: ");
+  fprintf(stderr, "%% YAPTAB FATAL ERROR: ");
   vfprintf(stderr, msg, args);
-  fprintf(stderr, " ]\n");
+  fprintf(stderr, "\n");
   exit (1);
 }
 #endif /* TABLING */
@@ -49,9 +49,9 @@ void abort_yaptab(const char *msg, ...) {
 void abort_yapor(const char *msg, ...) {
   va_list args;
   va_start(args, msg);
-  fprintf(stderr, "[ Fatal YapOr Error: ");
+  fprintf(stderr, "%% YAPOR FATAL ERROR: ");
   vfprintf(stderr, msg, args);
-  fprintf(stderr, " (worker %d exiting...) ]\n", worker_id);
+  fprintf(stderr, " (worker %d exiting...)\n", worker_id);
   unmap_memory();
   exit (1);
 }

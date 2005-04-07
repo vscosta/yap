@@ -746,6 +746,11 @@ InitFlags(void)
 #endif
   /* current default */
   yap_flags[INDEXING_MODE_FLAG] = INDEX_MODE_MULTI;
+#ifdef TABLING
+  yap_flags[TABLING_MODE_FLAG] = TABLING_MODE_DEFAULT;
+#else
+  yap_flags[TABLING_MODE_FLAG] = TABLING_MODE_OFF;
+#endif /* TABLING */
 }
 
 static void 
@@ -1154,14 +1159,6 @@ Yap_InitWorkspace(int Heap,
   /* Init signal handling and time */
   /* also init memory page size, required by later functions */
   Yap_InitSysbits ();
-
-#ifdef TABLING
-#ifdef TABLING_BATCHED_SCHEDULING
-  INFORMATION_MESSAGE("YapTab: batched scheduling");
-#else /* TABLING_LOCAL_SCHEDULING */
-  INFORMATION_MESSAGE("YapTab: local scheduling");
-#endif /* BATCHED - LOCAL */
-#endif /* TABLING */
 
 #ifdef YAPOR
   worker_id = 0;

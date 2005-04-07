@@ -155,8 +155,7 @@ useful for normal users.
  o --enable-parallelism={env-copy,sba,a-cow} allows or-parallelism
 supported by one of these three forms. This is still highly experimental.
 
- o --enable-tabling={local,batched} allows one of the two forms of
-tabling. This is still experimental.
+ o --enable-tabling=yes allows tabling support. This is still experimental.
 
 2.3 Porting Yap
 

@@ -65,6 +65,7 @@
           YENV = (CELL *) (NORM_CP(YENV) - 1);  \
           cp = NORM_CP(YENV);                   \
           HBREG = H;                            \
+          store_yaam_reg_cpdepth(cp);           \
           cp->cp_tr = TR;                       \
           cp->cp_h  = H;                        \
           cp->cp_b  = B;                        \
@@ -79,6 +80,7 @@
 
 #define restore_trie_choice_point(AP)                 \
         H = HBREG = PROTECT_FROZEN_H(B);              \
+        restore_yaam_reg_cpdepth(B);                  \
         CPREG = B->cp_cp;                             \
         ENV = B->cp_env;                              \
         YAPOR_update_alternative(PREG, (yamop *) AP)  \
@@ -90,6 +92,7 @@
 #define pop_trie_choice_point()                   \
         YENV = (CELL *) PROTECT_FROZEN_B((B+1));  \
         H = PROTECT_FROZEN_H(B);                  \
+        pop_yaam_reg_cpdepth(B);                  \
 	CPREG = B->cp_cp;                         \
         TABLING_close_alt(B);	                  \
         ENV = B->cp_env;                          \

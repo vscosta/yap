@@ -40,9 +40,7 @@ INFODIR=$(SHAREDIR)/info
 #       -DENV_COPY: or-parallelism with environment copying, in Muse style.
 #       -DSBA: or-parallelism with sparse binding arrays.
 #       -DACOW: or-parallelism with copy-on-write.
-#       -DTABLING_BATCHED_SCHEDULING: support for tabulation with
-#              batched scheduling
-#       -DTABLING_LOCAL_SCHEDULING: support for tabulation with local scheduling
+#       -DTABLING: support for tabling
 #
 #
 # check also optimisation options in INSTALL file.
