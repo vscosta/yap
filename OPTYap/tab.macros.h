@@ -520,7 +520,6 @@ void abolish_incomplete_subgoals(choiceptr prune_cp) {
 
   while (LOCAL_top_sg_fr && EQUAL_OR_YOUNGER_CP(SgFr_gen_cp(LOCAL_top_sg_fr), prune_cp)) {
     sg_fr_ptr sg_fr;
-    ans_hash_ptr hash;
     ans_node_ptr node;
 #ifdef YAPOR
     if (PARALLEL_EXECUTION_MODE)
@@ -529,14 +528,13 @@ void abolish_incomplete_subgoals(choiceptr prune_cp) {
     sg_fr = LOCAL_top_sg_fr;
     LOCAL_top_sg_fr = SgFr_next(sg_fr);
     LOCK(SgFr_lock(sg_fr));
-    hash = SgFr_hash_chain(sg_fr);
+    free_answer_hash_chain(SgFr_hash_chain(sg_fr));
     node = TrNode_child(SgFr_answer_trie(sg_fr));
     TrNode_child(SgFr_answer_trie(sg_fr)) = NULL;
     TrNode_parent(SgFr_answer_trie(sg_fr)) = NULL;
     SgFr_state(sg_fr) = ready;
     SgFr_abolished(sg_fr)++;
     UNLOCK(SgFr_lock(sg_fr));
-    free_answer_hash_chain(hash);
     if (node)
       free_answer_trie_branch(node);
   }
@@ -644,9 +642,6 @@ susp_fr_ptr suspension_frame_to_resume(or_fr_ptr susp_or_fr) {
     dep_fr = SuspFr_top_dep_fr(susp_fr);
     do {
       if (TrNode_child(DepFr_last_answer(dep_fr))) {
-/* ricroc - obsolete
-      if (DepFr_last_answer(dep_fr) != SgFr_last_answer(DepFr_sg_fr(dep_fr))) {
-*/
         /* unconsumed answers in susp_fr */
         *susp_ptr = SuspFr_next(susp_fr);
         return susp_fr;
@@ -805,11 +800,11 @@ void CUT_validate_tg_answers(tg_sol_fr_ptr valid_solutions) {
 #endif /* TABLE_LOCK_LEVEL */
           if (! IS_ANSWER_LEAF_NODE(ans_node)) {
             TAG_AS_ANSWER_LEAF_NODE(ans_node);
-            if (first_answer)
+            if (first_answer == NULL)
+	      first_answer = ans_node;
+	    else
               TrNode_child(last_answer) = ans_node;
-            else
-              first_answer = ans_node;
-            last_answer = ans_node;
+	    last_answer = ans_node;
 	  }
 #if defined(TABLE_LOCK_AT_ENTRY_LEVEL)
           UNLOCK(SgFr_lock(sg_fr));
