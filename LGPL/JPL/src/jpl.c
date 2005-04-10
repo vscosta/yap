@@ -1,4 +1,4 @@
-/*  $Id: jpl.c,v 1.3 2005-03-15 18:29:24 vsc Exp $
+/*  $Id: jpl.c,v 1.4 2005-04-10 04:01:13 vsc Exp $
 
     Part of JPL -- SWI-Prolog/Java interface
 
@@ -1740,8 +1740,8 @@ jni_fetch_buffer_value_plc(
 	    &&	PL_unify_float(tv1,((jfloat*)bp)[i]);
 
     case JNI_XPUT_DOUBLE:
-	return	PL_unify_integer(tv2,((int*)&((jdouble*)bp)[i])[1])
-	    &&	PL_unify_integer(tv1,((int*)&((jdouble*)bp)[i])[0]);
+	return	PL_unify_integer(tv2,0)
+	    &&	YAP_Unify(YAP_GetFromSlot(tv1),YAP_MkFloatTerm(((jdouble*)bp)[i]));
     default:
 	return	FALSE;
 	}
@@ -2169,6 +2169,35 @@ jni_void_2_plc(
     return jni_check_exception() && r;
     }
 
+
+/*
+%T jni_SetByteArrayElement(+term, +term, +term)
+ */
+static foreign_t
+jni_SetByteArrayElement(
+    term_t	ta1,	// +Arg1
+    term_t	ta2,	// +Arg2
+    term_t	ta3	// +Arg3
+    )
+    {
+      jboolean	r;	// Prolog exit/fail outcome
+      jbyteArray p1;
+      jint i2;
+      jbyte i3;
+
+      if	(   !jni_ensure_jvm()	)
+	{
+	  return FALSE;
+	}
+      r = 
+	JNI_term_to_byte_jarray(env,ta1,&p1)
+	&& JNI_term_to_jint(ta2,&i2)
+	&& JNI_term_to_jbyte(ta3,&i3)
+	&& ( (*env)->SetByteArrayRegion(env,p1,i2,1,&i3) , TRUE );
+
+      return jni_check_exception() && r;
+
+    }
 
 /*
 %T jni_void( +integer, +term, +term, +term)
@@ -3865,6 +3894,7 @@ PL_extension predspecs[] =
       { "jni_func",			 4, jni_func_2_plc,		       0 },
       { "jni_func",			 5, jni_func_3_plc,		       0 },
       { "jni_func",			 6, jni_func_4_plc,		       0 },
+      { "jni_SetByteArrayElement",	 3, jni_SetByteArrayElement,	       0 },
       { "jpl_c_lib_version",		 1, jpl_c_lib_version_1_plc,	       0 },
       { "jpl_c_lib_version",		 4, jpl_c_lib_version_4_plc,	       0 },
       { NULL,				 0, NULL,			       0 }

@@ -12,8 +12,13 @@
 * File:		rclause.h						 *
 * comments:	walk through a clause					 *
 *									 *
-* Last rev:     $Date: 2005-01-04 02:50:21 $,$Author: vsc $						 *
+* Last rev:     $Date: 2005-04-10 04:01:13 $,$Author: vsc $						 *
 * $Log: not supported by cvs2svn $
+* Revision 1.1  2005/01/04 02:50:21  vsc
+* - allow MegaClauses with blobs
+* - change Diffs to be thread specific
+* - include Christian's updates
+*
 * Revision 1.47  2004/12/02 06:06:47  vsc
 * fix threads so that they at least start
 * allow error handling to work with threads
@@ -166,9 +171,10 @@ restore_opcodes(yamop *pc)
       break;
       /* instructions type EC */
     case _jump_if_nonvar:
-      pc->u.xl.l = PtoOpAdjust(pc->u.xl.l);
-      pc->u.xl.x = XAdjust(pc->u.xl.x);
-      pc = NEXTOP(pc,xl);
+      pc->u.xll.l1 = PtoOpAdjust(pc->u.xll.l1);
+      pc->u.xll.l2 = PtoOpAdjust(pc->u.xll.l2);
+      pc->u.xll.x = XAdjust(pc->u.xll.x);
+      pc = NEXTOP(pc,xll);
       break;
       /* instructions type EC */
     case _alloc_for_logical_pred:

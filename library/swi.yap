@@ -52,11 +52,11 @@ do_volatile(_,_).
 
 :- use_module(library(lists)).
 
-absolute_file_name(jar(File), Opts, Path) :- !,
+absolute_file_name(jar(File), _Opts, Path) :- !,
 	absolute_file_name(library(File), Path).
-absolute_file_name(library(File), Opts, Path) :- !,
+absolute_file_name(library(File), _Opts, Path) :- !,
 	absolute_file_name(library(File), Path).
-absolute_file_name(File, Opts, Path) :-
+absolute_file_name(File, _Opts, Path) :-
 	absolute_file_name(File, Path).
 
 
@@ -94,7 +94,7 @@ do_forall(X,Y) :-
 do_forall(_,_).
 
 do_for_forall(Y) :- call(Y), !, fail.
-do_for_forall(Y) :- throw(fail_forall).
+do_for_forall(_) :- throw(fail_forall).
 
 between(I,_,I).
 between(I0,I,J) :- I0 < I, 

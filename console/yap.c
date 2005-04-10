@@ -250,7 +250,7 @@ static int
 parse_yap_arguments(int argc, char *argv[], YAP_init_args *iap)
 {
   char *p;
-#if SUPPORT_CONDOR||SUPPORT_THREADS
+#if USE_SYSTEM_MALLOC
   int BootMode = YAP_FULL_BOOT_FROM_PROLOG;
 #else
   int BootMode = YAP_BOOT_FROM_SAVED_CODE;

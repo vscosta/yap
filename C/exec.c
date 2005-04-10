@@ -1296,7 +1296,7 @@ Yap_RunTopGoal(Term t)
   if (Yap_TrailTop - HeapTop < 2048) {
     Yap_PrologMode = BootMode;
     Yap_Error(OUT_OF_TRAIL_ERROR,TermNil,
-	  "unable to boot because of too little heap space");
+	  "unable to boot because of too little Trail space");
   }
 #endif
   goal_out = do_goal(t, CodeAdr, arity, pt, TRUE);

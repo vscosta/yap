@@ -10,8 +10,14 @@
 *									 *
 * File:		absmi.c							 *
 * comments:	Portable abstract machine interpreter                    *
-* Last rev:     $Date: 2005-04-07 17:48:53 $,$Author: ricroc $						 *
+* Last rev:     $Date: 2005-04-10 04:01:07 $,$Author: vsc $						 *
 * $Log: not supported by cvs2svn $
+* Revision 1.162  2005/04/07 17:48:53  ricroc
+* Adding tabling support for mixed strategy evaluation (batched and local scheduling)
+*   UPDATE: compilation flags -DTABLING_BATCHED_SCHEDULING and -DTABLING_LOCAL_SCHEDULING removed. To support tabling use -DTABLING in the Makefile or --enable-tabling in configure.
+*   NEW: yap_flag(tabling_mode,MODE) changes the tabling execution mode of all tabled predicates to MODE (batched, local or default).
+*   NEW: tabling_mode(PRED,MODE) changes the default tabling execution mode of predicate PRED to MODE (batched or local).
+*
 * Revision 1.161  2005/03/13 06:26:09  vsc
 * fix excessive pruning in meta-calls
 * fix Term->int breakage in compiler
@@ -7828,20 +7834,20 @@ Yap_absmi(int inp)
       ENDD(d0);
       ENDBOp();
 
-      BOp(jump_if_nonvar, xl);
+      BOp(jump_if_nonvar, xll);
       BEGD(d0);
-      d0 = XREG(PREG->u.xl.x);
+      d0 = XREG(PREG->u.xll.x);
       deref_head(d0, jump2_if_unk);
       /* non var */
     jump2_if_nonvar:
-      copy_jmp_address(PREG->u.xl.l);
-      PREG = PREG->u.xl.l;
+      copy_jmp_address(PREG->u.xll.l1);
+      PREG = PREG->u.xll.l1;
       JMPNext();
 
       BEGP(pt0);
       deref_body(d0, pt0, jump2_if_unk, jump2_if_nonvar);
       /* variable */
-      PREG = NEXTOP(PREG, xl);
+      PREG = NEXTOP(PREG, xll);
       ENDP(pt0);
       JMPNext();
       ENDD(d0);
@@ -11396,8 +11402,8 @@ Yap_absmi(int inp)
 	PREG = NEXTOP(NEXTOP(NEXTOP(PREG, xcx),sla),l);
 	GONext();
       }	else if (d1  == 0) {
-	XREG(PREG->u.xxx.x) = d0;
-	PREG = NEXTOP(NEXTOP(NEXTOP(PREG, xxx),sla),l);
+	XREG(PREG->u.xcx.x) = d0;
+	PREG = NEXTOP(NEXTOP(NEXTOP(PREG, xcx),sla),l);
 	GONext();
       }	else {
 	saveregs();

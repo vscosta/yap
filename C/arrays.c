@@ -2011,6 +2011,35 @@ p_static_array_to_term(void)
   return(FALSE);
 }
 
+static Int
+p_static_array_location(void)
+{
+  Term t = Deref(ARG1);
+  Int *ptr;
+
+  if (IsVarTerm(t)) {
+    return FALSE;
+  } else if (IsAtomTerm(t)) {
+    /* Create a named array */
+    AtomEntry *ae = RepAtom(AtomOfTerm(t));
+    StaticArrayEntry *pp;
+
+    READ_LOCK(ae->ARWLock);
+    pp = RepStaticArrayProp(ae->PropsOfAE);
+    while (!EndOfPAEntr(pp) && pp->KindOfPE != ArrayProperty)
+      pp = RepStaticArrayProp(pp->NextOfPE);
+    if (EndOfPAEntr(pp) || pp->ValueOfVE.ints == NULL) {
+      READ_UNLOCK(ae->ARWLock);
+      return FALSE;
+    } else {
+      ptr =  pp->ValueOfVE.ints;
+      READ_UNLOCK(ae->ARWLock);
+    }
+    return Yap_unify(ARG2,MkIntegerTerm((Int)ptr));
+  }
+  return FALSE;
+}
+
 void 
 Yap_InitArrayPreds(void)
 {
@@ -2029,5 +2058,6 @@ Yap_InitArrayPreds(void)
   Yap_InitCPred("$array_refs_compiled", 0, p_array_refs_compiled, SafePredFlag|HiddenPredFlag);
   Yap_InitCPred("$static_array_properties", 3, p_static_array_properties, SafePredFlag|HiddenPredFlag);
   Yap_InitCPred("static_array_to_term", 2, p_static_array_to_term, 0L);
+  Yap_InitCPred("static_array_location", 2, p_static_array_location, 0L);
 }
 

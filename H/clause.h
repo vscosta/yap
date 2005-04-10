@@ -256,7 +256,7 @@ same_lu_block(yamop **paddr, yamop *p)
     OPCODE jmp_op = Yap_opcode(_jump_if_nonvar);
 
     while (np->opc == jmp_op) {
-      np = NEXTOP(np, xl);
+      np = NEXTOP(np, xll);
       if (np == p) return TRUE;
     }
     return FALSE;

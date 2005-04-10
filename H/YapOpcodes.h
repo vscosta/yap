@@ -11,8 +11,11 @@
 * File:		YapOpcodes.h						 *
 * comments:	Central Table with all YAP opcodes                       *
 *									 *
-* Last rev:     $Date: 2004-10-26 20:16:04 $							 *
+* Last rev:     $Date: 2005-04-10 04:01:13 $							 *
 * $Log: not supported by cvs2svn $
+* Revision 1.25  2004/10/26 20:16:04  vsc
+* More bug fixes for overflow handling
+*
 * Revision 1.24  2004/09/27 20:45:04  vsc
 * Mega clauses
 * Fixes to sizeof(expand_clauses) which was being overestimated
@@ -183,7 +186,7 @@
     OPCODE(trust                   ,ld),		
     OPCODE(try_in                  ,l),
     OPCODE(jump_if_var             ,l),	
-    OPCODE(jump_if_nonvar          ,xl),	
+    OPCODE(jump_if_nonvar          ,xll),	
     OPCODE(switch_on_cons          ,sssl),	
     OPCODE(switch_on_type          ,llll),	
     OPCODE(switch_list_nl          ,ollll),

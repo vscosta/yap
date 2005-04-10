@@ -11,8 +11,14 @@
 * File:		index.c							 *
 * comments:	Indexing a Prolog predicate				 *
 *									 *
-* Last rev:     $Date: 2005-04-07 17:48:54 $,$Author: ricroc $						 *
+* Last rev:     $Date: 2005-04-10 04:01:12 $,$Author: vsc $						 *
 * $Log: not supported by cvs2svn $
+* Revision 1.121  2005/04/07 17:48:54  ricroc
+* Adding tabling support for mixed strategy evaluation (batched and local scheduling)
+*   UPDATE: compilation flags -DTABLING_BATCHED_SCHEDULING and -DTABLING_LOCAL_SCHEDULING removed. To support tabling use -DTABLING in the Makefile or --enable-tabling in configure.
+*   NEW: yap_flag(tabling_mode,MODE) changes the tabling execution mode of all tabled predicates to MODE (batched, local or default).
+*   NEW: tabling_mode(PRED,MODE) changes the default tabling execution mode of predicate PRED to MODE (batched or local).
+*
 * Revision 1.120  2005/03/15 18:29:23  vsc
 * fix GPL
 * fix idb: stuff in coroutines.
@@ -526,8 +532,7 @@ sort_group(GroupDef *grp, CELL *top, struct intermediates *cint)
     longjmp(cint->CompilerBotch,4);
 #else
     if (!Yap_growtrail(2*max*CellSize, TRUE)) {
-      Yap_Error(OUT_OF_TRAIL_ERROR,TermNil,"YAP failed to reserve %ld in growtrail",
-		2*max*CellSize);
+      longjmp(cint->CompilerBotch,4);
       return;
     }
 #endif
@@ -689,7 +694,7 @@ has_cut(yamop *pc)
       pc = NEXTOP(pc,l);
       break;
     case _jump_if_nonvar:
-      pc = NEXTOP(pc,xl);
+      pc = NEXTOP(pc,xll);
       break;
       /* instructions type EC */
     case _alloc_for_logical_pred:
@@ -4655,17 +4660,17 @@ expand_index(struct intermediates *cint) {
       }
       break;
     case _jump_if_nonvar:
-      argno = arg_from_x(ipc->u.xl.x);
+      argno = arg_from_x(ipc->u.xll.x);
       t = Deref(XREGS[argno]);
       i = 0;
       /* expand_index expects to find the new argument */
       if (!IsVarTerm(t)) {
 	argno--;
 	olabp = NULL;
-	labp = &(ipc->u.xl.l);
-	ipc = ipc->u.xl.l;
+	labp = &(ipc->u.xll.l1);
+	ipc = ipc->u.xll.l1;
       } else {
-	ipc = NEXTOP(ipc,xl);
+	ipc = NEXTOP(ipc,xll);
       }
       break;
       /* instructions type EC */
@@ -4911,7 +4916,8 @@ expand_index(struct intermediates *cint) {
   if (Yap_op_from_opcode((*labp)->opc) == _expand_clauses) {
     /* ok, we know how many clauses */
     yamop *ipc = *labp;
-    COUNT nclauses = ipc->u.sp.s2;
+    /* check all slots, not just the ones with values */
+    COUNT nclauses = ipc->u.sp.s1;
     yamop **clp = (yamop **)NEXTOP(ipc,sp);
 
     eblk = cint->expand_block = ipc;
@@ -5516,7 +5522,7 @@ kill_clause(yamop *ipc, yamop *bg, yamop *lt, path_stack_entry *sp0, PredEntry *
   start = blk->ClCode;
   op0 = Yap_op_from_opcode(start->opc);
   while (op0 == _jump_if_nonvar) {
-    start = NEXTOP(start, xl);
+    start = NEXTOP(start, xll);
     op0 = Yap_op_from_opcode(start->opc);
   }
   if ((op0 != _enter_lu_pred && op0 != _stale_lu_index)
@@ -5828,7 +5834,7 @@ replace_lu_block(LogUpdIndex *blk, int flag, PredEntry *ap, yamop *code, int has
   
   while (op == _jump_if_nonvar) {
     jnvs++;
-    begin = NEXTOP(begin, xl);
+    begin = NEXTOP(begin, xll);
     op = Yap_op_from_opcode(begin->opc);
   }
   /* add half the current space plus 1, and also the extra clause */
@@ -5844,13 +5850,13 @@ replace_lu_block(LogUpdIndex *blk, int flag, PredEntry *ap, yamop *code, int has
     sz = sizeof(LogUpdIndex)+
       (xcls-1)*((UInt)NEXTOP((yamop *)NULL,l))+
       ((UInt)NEXTOP((yamop *)NULL,ld))+
-      jnvs*((UInt)NEXTOP((yamop *)NULL,xl))+
+      jnvs*((UInt)NEXTOP((yamop *)NULL,xll))+
       (UInt)NEXTOP((yamop *)NULL,Ill)+
       (UInt)NEXTOP((yamop *)NULL,p);
   } else {
     sz = sizeof(LogUpdIndex)+
       xcls*((UInt)NEXTOP((yamop *)NULL,ld))+
-      jnvs*((UInt)NEXTOP((yamop *)NULL,xl))+
+      jnvs*((UInt)NEXTOP((yamop *)NULL,xll))+
       (UInt)NEXTOP((yamop *)NULL,Ill)+
       (UInt)NEXTOP((yamop *)NULL,p);
   }
@@ -5891,16 +5897,17 @@ replace_lu_block(LogUpdIndex *blk, int flag, PredEntry *ap, yamop *code, int has
   begin = blk->ClCode;
   while (jnvs--) {
     nbegin->opc = begin->opc;
-    nbegin->u.xl.x = begin->u.xl.x;
-    nbegin->u.xl.l = begin->u.xl.l;
-    if (nbegin->u.xl.l->opc == Yap_opcode(_expand_clauses)) {
+    nbegin->u.xll.x = begin->u.xll.x;
+    nbegin->u.xll.l1 = begin->u.xll.l1;
+    nbegin->u.xll.l2 = NEXTOP(nbegin,xll);
+    if (nbegin->u.xll.l1->opc == Yap_opcode(_expand_clauses)) {
       if (!(blk->ClFlags & ErasedMask)) {
 	/* we haven't done erase yet */
-	nbegin->u.xl.l->u.sp.s3++;
+	nbegin->u.xll.l1->u.sp.s3++;
       }
     }
-    begin = NEXTOP(begin, xl);
-    nbegin = NEXTOP(nbegin, xl);
+    begin = NEXTOP(begin, xll);
+    nbegin = NEXTOP(nbegin, xll);
   }
   codep = start = nbegin;
   /* ok, we've allocated and set up things, now let's finish */
@@ -5991,7 +5998,7 @@ clean_up_index(LogUpdIndex *blk, yamop **jlbl, PredEntry *ap)
     UInt ncls;
 
     while (op == _jump_if_nonvar) {
-      codep = NEXTOP(codep, xl);
+      codep = NEXTOP(codep, xll);
       op = Yap_op_from_opcode(codep->opc);
     }
     ncls = codep->u.Ill.s;
@@ -6011,7 +6018,7 @@ insertz_in_lu_block(LogUpdIndex *blk, PredEntry *ap, yamop *code)
 
   /* make sure this is something I can work with */
   while (op == _jump_if_nonvar) {
-    begin = NEXTOP(begin, xl);
+    begin = NEXTOP(begin, xll);
     op = Yap_op_from_opcode(begin->opc);
   }
   if (op != _enter_lu_pred && op != _stale_lu_index) {
@@ -6115,7 +6122,7 @@ inserta_in_lu_block(LogUpdIndex *blk, PredEntry *ap, yamop *code)
 
   /* make sure this is something I can work with */
   while (op == _jump_if_nonvar) {
-    begin = NEXTOP(begin, xl);
+    begin = NEXTOP(begin, xll);
     op = Yap_op_from_opcode(begin->opc);
   }
   if (op != _enter_lu_pred && op != _stale_lu_index) {
@@ -6524,8 +6531,9 @@ add_to_index(struct intermediates *cint, int first, path_stack_entry *sp, Clause
       ipc = NEXTOP(ipc,l);
       break;
     case _jump_if_nonvar:
-      sp = push_path(sp, &(ipc->u.xl.l), cls, cint);
-      ipc = NEXTOP(ipc,xl);
+      sp = push_path(sp, &(ipc->u.xll.l2), cls, cint);
+      sp = cross_block(sp, &ipc->u.xll.l1, ap);
+      ipc = ipc->u.xll.l1;
       break;
       /* instructions type EC */
     case _try_in:
@@ -7090,8 +7098,9 @@ remove_from_index(PredEntry *ap, path_stack_entry *sp, ClauseDef *cls, yamop *bg
       ipc = NEXTOP(ipc,l);
       break;
     case _jump_if_nonvar:
-      sp = push_path(sp, &(ipc->u.xl.l), cls, cint);
-      ipc = NEXTOP(ipc,xl);
+      sp = push_path(sp, &(ipc->u.xll.l2), cls, cint);
+      sp = cross_block(sp, &ipc->u.xll.l1, ap);
+      ipc = ipc->u.xll.l1;
       break;
       /* instructions type e */
     case _switch_on_type:
@@ -7769,12 +7778,12 @@ Yap_FollowIndexingCode(PredEntry *ap, yamop *ipc, Term Terms[3], yamop *ap_pc, y
       break;
     case _jump_if_nonvar:
       {
-	Term t = Deref(XREGS[arg_from_x(ipc->u.xl.x)]);
+	Term t = Deref(XREGS[arg_from_x(ipc->u.xll.x)]);
 	if (!IsVarTerm(t)) {
-	  jlbl = &(ipc->u.xl.l);
-	  ipc = ipc->u.xl.l;
+	  jlbl = &(ipc->u.xll.l1);
+	  ipc = ipc->u.xll.l1;
 	} else {
-	  ipc = NEXTOP(ipc,xl);
+	  ipc = NEXTOP(ipc,xll);
 	}
       }
       break;
@@ -8161,7 +8170,7 @@ Yap_NthClause(PredEntry *ap, Int ncls)
       ipc = ipc->u.l.l;
       break;
     case _jump_if_nonvar:
-      ipc = NEXTOP(ipc,xl);
+      ipc = NEXTOP(ipc,xll);
       break;
       /* instructions type e */
     case _switch_on_type:
@@ -8269,10 +8278,10 @@ find_caller(PredEntry *ap, yamop *code, struct intermediates *cint) {
       }
       break;
     case _jump_if_nonvar:
-      if (!IsVarTerm(XREGS[arg_from_x(ipc->u.xllll.x)])) {
-	ipc = ipc->u.xl.l;
+      if (!IsVarTerm(XREGS[arg_from_x(ipc->u.xll.x)])) {
+	ipc = ipc->u.xll.l1;
       } else {
-	ipc = NEXTOP(ipc,xl);
+	ipc = NEXTOP(ipc,xll);
       }
       break;
       /* instructions type EC */
@@ -8507,7 +8516,7 @@ Yap_CleanUpIndex(LogUpdIndex *blk)
     op_numbers op = Yap_op_from_opcode(start->opc);
 
     while (op == _jump_if_nonvar) {
-      start = NEXTOP(start, xl);
+      start = NEXTOP(start, xll);
       op = Yap_op_from_opcode(start->opc);
     }
     codep = start->u.Ill.l1;

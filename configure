@@ -2263,7 +2263,7 @@ if test "${enable_dynamic_loading+set}" = set; then
 else
   dynamic_loading=no
 fi;
-# Check whether --enable-use_malloc or --disable-use_malloc was given.
+# Check whether --enable-use-malloc or --disable-use-malloc was given.
 if test "${enable_use_malloc+set}" = set; then
   enableval="$enable_use_malloc"
   use_malloc="$enableval"
@@ -2318,13 +2318,13 @@ if test "${with_jpl+set}" = set; then
   if test "$withval" = yes; then
 		yap_cv_jpl="$JAVA_HOME"
 		dynamic_loading=yes
-		threads=yes
+		maxmemory=yes
 	elif test "$withval" = no; then
 		yap_cv_jpl=no
 	else
 		yap_cv_jpl=$with_jpl
 		dynamic_loading=yes
-		threads=yes
+		maxmemory=yes
 	fi
 else
   yap_cv_jpl=no

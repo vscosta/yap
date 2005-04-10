@@ -10,8 +10,12 @@
 * File:		c_interface.c						 *
 * comments:	c_interface primitives definition 			 *
 *									 *
-* Last rev:	$Date: 2005-03-15 18:29:23 $,$Author: vsc $						 *
+* Last rev:	$Date: 2005-04-10 04:01:10 $,$Author: vsc $						 *
 * $Log: not supported by cvs2svn $
+* Revision 1.65  2005/03/15 18:29:23  vsc
+* fix GPL
+* fix idb: stuff in coroutines.
+*
 * Revision 1.64  2005/03/13 06:26:10  vsc
 * fix excessive pruning in meta-calls
 * fix Term->int breakage in compiler
@@ -1009,8 +1013,9 @@ YAP_Read(int (*mygetc)(void))
   Stream[sno].status = Free_Stream_f;
   if (Yap_ErrorMessage)
     {
-      save_machine_regs();
-      return(0);
+      Yap_clean_tokenizer(tokstart, Yap_VarTable, Yap_AnonVarTable);
+      RECOVER_MACHINE_REGS();
+      return 0;
     }
   t = Yap_Parse();
   Yap_clean_tokenizer(tokstart, Yap_VarTable, Yap_AnonVarTable);

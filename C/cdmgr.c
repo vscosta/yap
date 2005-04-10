@@ -11,8 +11,11 @@
 * File:		cdmgr.c							 *
 * comments:	Code manager						 *
 *									 *
-* Last rev:     $Date: 2005-03-04 20:30:11 $,$Author: ricroc $						 *
+* Last rev:     $Date: 2005-04-10 04:01:10 $,$Author: vsc $						 *
 * $Log: not supported by cvs2svn $
+* Revision 1.154  2005/03/04 20:30:11  ricroc
+* bug fixes for YapTab support
+*
 * Revision 1.153  2005/02/25 03:39:44  vsc
 * fix fixes to undefp
 * fix bug where clause mistook cp for ap
@@ -752,8 +755,8 @@ cleanup_dangling_indices(yamop *ipc, yamop *beg, yamop *end, yamop *suspend_code
       break;
       /* instructions type xl */
     case _jump_if_nonvar:
-      release_wcls(ipc->u.xl.l, ecs);
-      ipc = NEXTOP(ipc,xl);
+      release_wcls(ipc->u.xll.l1, ecs);
+      ipc = NEXTOP(ipc,xll);
       break;
       /* instructions type e */
     case _switch_on_type:
@@ -2300,6 +2303,10 @@ p_setspy(void)
     return (FALSE);
   }
   if (pred->OpcodeOfPred == INDEX_OPCODE) {
+    int i = 0;
+    for (i = 0; i < pred->ArityOfPE; i++) {
+      XREGS[i+1] = MkVarTerm();
+    }
     IPred(pred, 0);
     goto restart_spy;
   }
@@ -4415,7 +4422,7 @@ Yap_InitCdMgr(void)
   Yap_InitCPred("$start_consult", 3, p_startconsult, SafePredFlag|SyncPredFlag|HiddenPredFlag);
   Yap_InitCPred("$show_consult_level", 1, p_showconslultlev, SafePredFlag|HiddenPredFlag);
   Yap_InitCPred("$end_consult", 0, p_endconsult, SafePredFlag|SyncPredFlag|HiddenPredFlag);
-  Yap_InitCPred("$set_spy", 2, p_setspy, SafePredFlag|SyncPredFlag|HiddenPredFlag);
+  Yap_InitCPred("$set_spy", 2, p_setspy, SyncPredFlag|HiddenPredFlag);
   Yap_InitCPred("$rm_spy", 2, p_rmspy, SafePredFlag|SyncPredFlag|HiddenPredFlag);
   /* gc() may happen during compilation, hence these predicates are
 	now unsafe */

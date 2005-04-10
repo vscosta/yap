@@ -11,8 +11,11 @@
 * File:		amidefs.h						 *
 * comments:	Abstract machine peculiarities				 *
 *									 *
-* Last rev:     $Date: 2004-09-30 21:37:41 $							 *
+* Last rev:     $Date: 2005-04-10 04:01:13 $							 *
 * $Log: not supported by cvs2svn $
+* Revision 1.26  2004/09/30 21:37:41  vsc
+* fixes for thread support
+*
 * Revision 1.25  2004/09/27 20:45:04  vsc
 * Mega clauses
 * Fixes to sizeof(expand_clauses) which was being overestimated
@@ -476,9 +479,10 @@ typedef struct yami {
        } xF;
        struct {
 	 wamreg                x;
-	 struct yami	       *l;
+	 struct yami	       *l1;
+	 struct yami	       *l2;
 	 CELL next;
-       } xl; 
+       } xll; 
       struct {
 	 wamreg                xl;
 	 wamreg                xr;

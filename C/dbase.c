@@ -1864,11 +1864,11 @@ record_at(int Flag, DBRef r0, Term t_data, Term t_code)
 
 
 static LogUpdClause *
-record_lu(PredEntry *pe, Term t, int position)
+new_lu_db_entry(Term t, PredEntry *pe)
 {
-  yamop *ipc;
   DBTerm *x;
   LogUpdClause *cl;
+  yamop *ipc;
   int needs_vars = FALSE;
   struct db_globs dbg;
 
@@ -1895,6 +1895,19 @@ record_lu(PredEntry *pe, Term t, int position)
     ipc->opc = Yap_opcode(_copy_idb_term);
   else
     ipc->opc = Yap_opcode(_unify_idb_term);
+
+  return cl;
+}
+
+
+static LogUpdClause *
+record_lu(PredEntry *pe, Term t, int position)
+{
+  LogUpdClause *cl;
+  
+  if ((cl = new_lu_db_entry(t, pe)) == NULL) {
+    return NULL;
+  }
   WRITE_LOCK(pe->PRWLock);
 #if defined(YAPOR) || defined(THREADS)
   WPP = pe;
@@ -1904,6 +1917,48 @@ record_lu(PredEntry *pe, Term t, int position)
   WPP = NULL;
 #endif
   WRITE_UNLOCK(pe->PRWLock);
+  return cl;
+}
+
+static LogUpdClause *
+record_lu_at(int position, LogUpdClause *ocl, Term t)
+{
+  LogUpdClause *cl;
+  PredEntry *pe;
+
+  LOCK(ocl->ClLock);
+  pe = ocl->ClPred;
+  if ((cl = new_lu_db_entry(t,pe)) == NULL) {
+    return NULL;
+  }
+  WRITE_LOCK(pe->PRWLock);
+  Yap_RemoveIndexation(pe);
+  if (position == MkFirst) {
+    /* add before current clause */
+    cl->ClNext = ocl;
+    if (ocl->ClCode == pe->cs.p_code.FirstClause) {
+      cl->ClPrev = NULL;
+      pe->cs.p_code.FirstClause = cl->ClCode;
+    } else {
+      cl->ClPrev = ocl->ClPrev;
+      ocl->ClPrev->ClNext = cl;
+    }
+    ocl->ClPrev = cl;
+  } else {
+    /* add after current clause */
+    cl->ClPrev = ocl;
+    if (ocl->ClCode == pe->cs.p_code.LastClause) {
+      cl->ClNext = NULL;
+      pe->cs.p_code.LastClause = cl->ClCode;
+    } else {
+      cl->ClNext = ocl->ClNext;
+      ocl->ClNext->ClPrev = cl;
+    }
+    ocl->ClNext = cl;
+  }
+  pe->cs.p_code.NOfClauses++;
+  WRITE_UNLOCK(pe->PRWLock);
+  UNLOCK(ocl->ClLock);
   return cl;
 }
 
@@ -1973,12 +2028,13 @@ p_rcdap(void)
   return Yap_unify(ARG3, TRef);
 }
 
-/* recorda_at(+Functor,+Term,-Ref) */
+/* recorda_at(+DBRef,+Term,-Ref) */
 static Int 
 p_rcda_at(void)
 {
   /* Idiotic xlc's cpp does not work with ARG1 within MkDBRefTerm */
   Term            TRef, t1 = Deref(ARG1), t2 = Deref(ARG2);
+  DBRef           dbr;
 
   if (!IsVarTerm(Deref(ARG3)))
     return (FALSE);
@@ -1992,7 +2048,16 @@ p_rcda_at(void)
   }
   Yap_Error_Size = 0;
  restart_record:
-  TRef = MkDBRefTerm(record_at(MkFirst, DBRefOfTerm(t1), t2, Unsigned(0)));
+  dbr = DBRefOfTerm(t1);
+  if (dbr->Flags & ErasedMask) {
+    /* doesn't make sense */ 
+    return FALSE;
+  }
+  if (dbr->Flags & LogUpdMask) {
+    TRef = MkDBRefTerm((DBRef)record_lu_at(MkFirst, (LogUpdClause *)dbr, t2));
+  } else { 
+    TRef = MkDBRefTerm(record_at(MkFirst, DBRefOfTerm(t1), t2, Unsigned(0)));
+  }
   if (Yap_Error_TYPE != YAP_NO_ERROR) {
     if (recover_from_record_error(3)) {
       t1 = Deref(ARG1);
@@ -2100,6 +2165,7 @@ p_rcdz_at(void)
 {
   /* Idiotic xlc's cpp does not work with ARG1 within MkDBRefTerm */
   Term            TRef, t1 = Deref(ARG1), t2 = Deref(ARG2);
+  DBRef           dbr;
 
   if (!IsVarTerm(Deref(ARG3)))
     return (FALSE);
@@ -2113,7 +2179,16 @@ p_rcdz_at(void)
   }
   Yap_Error_Size = 0;
  restart_record:
-  TRef = MkDBRefTerm(record_at(MkLast, DBRefOfTerm(t1), t2, Unsigned(0)));
+  dbr = DBRefOfTerm(t1);
+  if (dbr->Flags & ErasedMask) {
+    /* doesn't make sense */ 
+    return FALSE;
+  }
+  if (dbr->Flags & LogUpdMask) {
+    TRef = MkDBRefTerm((DBRef)record_lu_at(MkLast, (LogUpdClause *)dbr, t2));
+  } else {
+    TRef = MkDBRefTerm(record_at(MkLast, dbr, t2, Unsigned(0)));
+  }
   if (Yap_Error_TYPE != YAP_NO_ERROR) {
     if (recover_from_record_error(3)) {
       t1 = Deref(ARG1);

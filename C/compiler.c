@@ -11,8 +11,13 @@
 * File:		compiler.c						 *
 * comments:	Clause compiler						 *
 *									 *
-* Last rev:     $Date: 2005-03-13 06:26:10 $,$Author: vsc $						 *
+* Last rev:     $Date: 2005-04-10 04:01:10 $,$Author: vsc $						 *
 * $Log: not supported by cvs2svn $
+* Revision 1.64  2005/03/13 06:26:10  vsc
+* fix excessive pruning in meta-calls
+* fix Term->int breakage in compiler
+* improve JPL (at least it does something now for amd64).
+*
 * Revision 1.63  2005/03/04 20:30:11  ricroc
 * bug fixes for YapTab support
 *
@@ -813,19 +818,11 @@ c_bifun(Int Op, Term t1, Term t2, Term t3, int mod, compiler_struct *cglobs)
 	c_var(t1, v1, 0, 0, cglobs);
 	c_var(tn, v2, 0, 0, cglobs);
       /* it has to be either an integer or a floating point */
-      } else if (IsIntTerm(t2)) {
+      } else if (IsIntegerTerm(t2)) {
 	/* first temp */
 	Int v1 = --cglobs->tmpreg;
 
-	Yap_emit(fetch_args_vc_op, (CELL)IntOfTerm(t2), Zero, &cglobs->cint);
-	/* these should be the arguments */
-	c_var(t1, v1, 0, 0, cglobs);
-	/* now we know where the arguments are */
-      } else if (IsLongIntTerm(t2)) {
-	/* first temp */
-	Int v1 = --cglobs->tmpreg;
-
-	Yap_emit(fetch_args_vc_op, (CELL)LongIntOfTerm(t2), Zero, &cglobs->cint);
+	Yap_emit(fetch_args_vc_op, IntegerOfTerm(t2), Zero, &cglobs->cint);
 	/* these should be the arguments */
 	c_var(t1, v1, 0, 0, cglobs);
 	/* now we know where the arguments are */
@@ -1058,17 +1055,10 @@ c_bifun(Int Op, Term t1, Term t2, Term t3, int mod, compiler_struct *cglobs)
 	  /* now we know where the arguments are */
 	}
       }
-    } else if (IsIntTerm(t1)) {
+    } else if (IsIntegerTerm(t1)) {
       /* first temp */
       Int v1 = --cglobs->tmpreg;
-      Yap_emit(fetch_args_cv_op, (CELL)IntOfTerm(t1), Zero, &cglobs->cint);
-      /* these should be the arguments */
-      c_var(t2, v1, 0, 0, cglobs);
-      /* now we know where the arguments are */
-    } else if (IsLongIntTerm(t1)) {
-      /* first temp */
-      Int v1 = --cglobs->tmpreg;
-      Yap_emit(fetch_args_cv_op, (CELL)LongIntOfTerm(t1), Zero, &cglobs->cint);
+      Yap_emit(fetch_args_cv_op, IntegerOfTerm(t1), Zero, &cglobs->cint);
       /* these should be the arguments */
       c_var(t2, v1, 0, 0, cglobs);
       /* now we know where the arguments are */

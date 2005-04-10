@@ -11,8 +11,11 @@
 * File:		amasm.c							 *
 * comments:	abstract machine assembler				 *
 *									 *
-* Last rev:     $Date: 2005-03-04 20:30:10 $							 *
+* Last rev:     $Date: 2005-04-10 04:01:09 $							 *
 * $Log: not supported by cvs2svn $
+* Revision 1.72  2005/03/04 20:30:10  ricroc
+* bug fixes for YapTab support
+*
 * Revision 1.71  2005/01/28 23:14:34  vsc
 * move to Yap-4.5.7
 * Fix clause size
@@ -1197,10 +1200,11 @@ a_xigl(op_numbers opcode, yamop *code_p, int pass_no, struct PSEUDO *cpc)
 {
   if (pass_no) {
     code_p->opc = emit_op(opcode);
-    code_p->u.xl.x = emit_x(cpc->rnd2);
-    code_p->u.xl.l = emit_a(cpc->rnd1);
+    code_p->u.xll.x = emit_x(cpc->rnd2);
+    code_p->u.xll.l1 = emit_a(cpc->rnd1);
+    code_p->u.xll.l2 = NEXTOP(code_p,xll);
   }
-  GONEXT(xl);
+  GONEXT(xll);
   return code_p;
 }
 
@@ -1793,7 +1797,7 @@ a_fetch_vc(cmp_op_info *cmp_info, int pass_no, struct intermediates *cip)
     Ventry *ve;
 
     cmp_info->c_type = TYPE_XC;
-    cmp_info->c_arg = (Int)(cip->cpc->rnd1);
+    cmp_info->c_arg = cip->cpc->rnd1;
     ve = (Ventry *) p->rnd1;
     if (ve->KindOfVE == PermVar) {
       /* don't get rid of get_val_op */
@@ -1820,7 +1824,7 @@ a_fetch_cv(cmp_op_info *cmp_info, int pass_no, struct intermediates *cip)
     Ventry *ve;
 
     cmp_info->c_type = TYPE_CX;
-    cmp_info->c_arg = (Int)(cip->cpc->rnd1);
+    cmp_info->c_arg = cip->cpc->rnd1;
     ve = (Ventry *) p->rnd1;
     if (ve->KindOfVE == PermVar) {
       /* don't get rid of get_val_op */
