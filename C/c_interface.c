@@ -10,8 +10,11 @@
 * File:		c_interface.c						 *
 * comments:	c_interface primitives definition 			 *
 *									 *
-* Last rev:	$Date: 2005-04-10 04:01:10 $,$Author: vsc $						 *
+* Last rev:	$Date: 2005-04-10 04:35:19 $,$Author: vsc $						 *
 * $Log: not supported by cvs2svn $
+* Revision 1.66  2005/04/10 04:01:10  vsc
+* bug fixes, I hope!
+*
 * Revision 1.65  2005/03/15 18:29:23  vsc
 * fix GPL
 * fix idb: stuff in coroutines.
@@ -758,15 +761,15 @@ YAP_AllocSpaceFromYap(unsigned int size)
   void *ptr;
   BACKUP_MACHINE_REGS();
 
-  if ((ptr = Yap_AllocCodeSpace(size)) == NULL) {
+  while ((ptr = Yap_AllocCodeSpace(size)) == NULL) {
     if (!Yap_growheap(FALSE, size, NULL)) {
       Yap_Error(OUT_OF_HEAP_ERROR, TermNil, Yap_ErrorMessage);
-      return(NULL);
+      return NULL;
     }
   }
 
   RECOVER_MACHINE_REGS();
-  return(ptr);
+  return ptr;
 }
 
 X_API void
