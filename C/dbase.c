@@ -2391,7 +2391,8 @@ GetDBLUKey(PredEntry *ap)
     Int id = ap->src.IndxId;
     READ_UNLOCK(ap->PRWLock);
     return MkIntegerTerm(id);
-  } else if (ap->PredFlags & AtomDBPredFlag) {
+  } else if (ap->PredFlags & AtomDBPredFlag ||
+	     (ap->ModuleOfPred != IDB_MODULE && ap->ArityOfPE == 0)) {
     Atom at = (Atom)ap->FunctorOfPred;
     READ_UNLOCK(ap->PRWLock);
     return MkAtomTerm(at);
@@ -3482,35 +3483,22 @@ p_recorded(void)
     }
     if (ref->Flags & LogUpdMask) {
       LogUpdClause *cl = (LogUpdClause *)ref;
-      PredEntry *ap;
-      if (Yap_op_from_opcode(cl->ClCode->opc) == _unify_idb_term) {
-	if (!Yap_unify(ARG2, cl->ClSource->Entry)) {
-	  return FALSE;
-	}
+      PredEntry *ap = cl->ClPred;
+      op_numbers opc = Yap_op_from_opcode(P->opc);
+
+      if (!Yap_unify(GetDBLUKey(ap), ARG1))
+	return FALSE;
+
+      if (opc == _procceed) {
+	P = cl->ClCode;
       } else {
-	Term TermDB;
-	while ((TermDB = GetDBTerm(cl->ClSource)) == (CELL)0) {
-	  /* oops, we are in trouble, not enough stack space */
-	  if (Yap_Error_TYPE == OUT_OF_ATTVARS_ERROR) {
-	    Yap_Error_TYPE = YAP_NO_ERROR;
-	    if (!Yap_growglobal(NULL)) {
-	      Yap_Error(OUT_OF_ATTVARS_ERROR, TermNil, Yap_ErrorMessage);
-	      return FALSE;
-	    }
-	  } else {
-	    Yap_Error_TYPE = YAP_NO_ERROR;
-	    if (!Yap_gcl(Yap_Error_Size, 3, ENV, P)) {
-	      Yap_Error(OUT_OF_STACK_ERROR, TermNil, Yap_ErrorMessage);
-	      return(FALSE);
-	    }
-	  }
-	}
-	if (!Yap_unify(ARG2,TermDB)) {
-	  return FALSE;
-	}
-	ap = cl->ClPred;
-	return Yap_unify(GetDBLUKey(ap), ARG1);
+	CP = P;
+	P = cl->ClCode;
+	ENV = YENV;
+	YENV = ASP;
+	YENV[E_CB] = (CELL) B;
       }
+      return TRUE;
     } else {
       Term TermDB;
       while ((TermDB = GetDBTermFromDBEntry(ref)) == (CELL)0) {
