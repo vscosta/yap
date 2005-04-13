@@ -875,6 +875,9 @@ static Term non_singletons_in_complex_term(register CELL *pt0, register CELL *pt
   vars_in_term_nvar:
     {
       if (IsPairTerm(d0)) {
+	if (to_visit + 1024 >= (CELL **)AuxSp) {
+	  goto aux_overflow;
+	}
 #ifdef RATIONAL_TREES
 	to_visit[0] = pt0;
 	to_visit[1] = pt0_end;
@@ -900,6 +903,9 @@ static Term non_singletons_in_complex_term(register CELL *pt0, register CELL *pt
 	if (IsExtensionFunctor(f)) {
 
 	  continue;
+	}
+	if (to_visit + 1024 >= (CELL **)AuxSp) {
+	  goto aux_overflow;
 	}
 #ifdef RATIONAL_TREES
 	to_visit[0] = pt0;
@@ -957,29 +963,49 @@ static Term non_singletons_in_complex_term(register CELL *pt0, register CELL *pt
     /* close the list */
     RESET_VARIABLE(H-1);
     Yap_unify((CELL)(H-1),ARG2);
-    return(output);
+    return output;
   } else {
-    return(ARG2);
+    return ARG2;
   }
+
+ aux_overflow:
+  clean_tr(TR0);
+  if (H != InitialH) {
+    /* close the list */
+    RESET_VARIABLE(H-1);
+  }
+  return 0L;
 }
  
 static Int 
 p_non_singletons_in_term(void)	/* non_singletons in term t		 */
 {
-        Term t = Deref(ARG1);
-	Term out;
-	if (IsVarTerm(t)) {
-	  out = MkPairTerm(t,ARG2);
-	}  else if (IsPrimitiveTerm(t)) 
-	  out = ARG2;
-	else if (IsPairTerm(t)) {
-	  out = non_singletons_in_complex_term(RepPair(t)-1,
-				     RepPair(t)+1);
-	}
-	else out = non_singletons_in_complex_term(RepAppl(t),
-					RepAppl(t)+
-					ArityOfFunctor(FunctorOfTerm(t)));
-	return(Yap_unify(ARG3,out));
+  Term t;
+  Term out;
+	
+  while (TRUE) {
+    t = Deref(ARG1);
+    if (IsVarTerm(t)) {
+      out = MkPairTerm(t,ARG2);
+    }  else if (IsPrimitiveTerm(t)) {
+      out = ARG2;
+    } else if (IsPairTerm(t)) {
+      out = non_singletons_in_complex_term(RepPair(t)-1,
+					   RepPair(t)+1);
+    } else {
+      out = non_singletons_in_complex_term(RepAppl(t),
+					   RepAppl(t)+
+					   ArityOfFunctor(FunctorOfTerm(t)));
+    }
+    if (out != 0L) {
+      return Yap_unify(ARG3,out);
+    } else {
+      if (!Yap_ExpandPreAllocCodeSpace(0, NULL)) {
+	Yap_Error(OUT_OF_AUXSPACE_ERROR, ARG1, "overflow in singletons");
+	return FALSE;
+      }
+    }
+  }  
 }
 
 static Int ground_complex_term(register CELL *pt0, register CELL *pt0_end)
@@ -1000,6 +1026,9 @@ static Int ground_complex_term(register CELL *pt0, register CELL *pt0_end)
   vars_in_term_nvar:
     {
       if (IsPairTerm(d0)) {
+	if (to_visit + 1024 >= (CELL **)AuxSp) {
+	  goto aux_overflow;
+	}
 #ifdef RATIONAL_TREES
 	to_visit[0] = pt0;
 	to_visit[1] = pt0_end;
@@ -1024,6 +1053,9 @@ static Int ground_complex_term(register CELL *pt0, register CELL *pt0_end)
 
 	if (IsExtensionFunctor(f)) {
 	  continue;
+	}
+	if (to_visit + 1024 >= (CELL **)AuxSp) {
+	  goto aux_overflow;
 	}
 #ifdef RATIONAL_TREES
 	to_visit[0] = pt0;
@@ -1072,29 +1104,47 @@ static Int ground_complex_term(register CELL *pt0, register CELL *pt0_end)
 #endif
     goto loop;
   }
-  return(TRUE);
+  return TRUE;
+
+ aux_overflow:
+  return -1;
 }
  
 static Int 
 p_ground(void)			/* ground(+T)		 */
 {
-  Term t = Deref(ARG1);
+  Term t;
 
-  if (IsVarTerm(t)) {
-    return(FALSE);
-  }  else if (IsPrimitiveTerm(t)) {
-    return(TRUE);
-  } else if (IsPairTerm(t)) {
-    return(ground_complex_term(RepPair(t)-1,
-			       RepPair(t)+1));
-  } else {
-    Functor fun = FunctorOfTerm(t);
+  while (TRUE) {
+    Int out;
 
-    if (IsExtensionFunctor(fun))
-      return(TRUE);
-    else return(ground_complex_term(RepAppl(t),
-				    RepAppl(t)+
-				    ArityOfFunctor(fun)));
+    t = Deref(ARG1);
+    if (IsVarTerm(t)) {
+      return FALSE;
+    }  else if (IsPrimitiveTerm(t)) {
+      return TRUE;
+    } else if (IsPairTerm(t)) {
+      if ((out =ground_complex_term(RepPair(t)-1,
+				    RepPair(t)+1)) >= 0) {
+	return out;
+      }
+    } else {
+      Functor fun = FunctorOfTerm(t);
+      
+      if (IsExtensionFunctor(fun))
+	return(TRUE);
+      else if ((out = ground_complex_term(RepAppl(t),
+					     RepAppl(t)+
+					     ArityOfFunctor(fun))) >= 0) {
+	     return out;
+      }
+    }
+    if (out < 0) {
+      if (!Yap_ExpandPreAllocCodeSpace(0, NULL)) {
+	Yap_Error(OUT_OF_AUXSPACE_ERROR, ARG1, "overflow in ground");
+	return FALSE;
+      }      
+    }
   }
 }
 
@@ -1191,7 +1241,7 @@ static Int var_in_complex_term(register CELL *pt0,
     goto loop;
   }
   clean_tr(TR0);
-  return(FALSE);
+  return FALSE;
 }
  
 static Int 
