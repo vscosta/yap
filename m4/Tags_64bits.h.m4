@@ -11,7 +11,7 @@
 * Last rev:	December 90						 *
 * mods:									 *
 * comments:	Original Tag Scheme for machines with 32 bits adresses   *
-* version:      $Id: Tags_64bits.h.m4,v 1.4 2005-02-21 16:50:18 vsc Exp $	 *
+* version:      $Id: Tags_64bits.h.m4,v 1.5 2005-04-15 19:06:37 vsc Exp $	 *
 *************************************************************************/
 
 #define TAG_64BITS 1
@@ -33,7 +33,7 @@ property list
 
 */
 
-#define SHIFT_HIGH_TAG  63
+#define SHIFT_HIGH_TAG  62
 
 #define MKTAG(HI,LO)   ((((UInt) (HI))<<SHIFT_HIGH_TAG)|(LO))
 
