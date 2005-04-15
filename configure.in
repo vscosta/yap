@@ -301,10 +301,6 @@ AC_CHECK_TOOL(MPI_CC,mpicc,:)
 AC_PATH_PROG(INSTALL_INFO,install-info,true,$PATH:/sbin:/usr/sbin:/usr/etc:/usr/local/sbin)
 AC_PATH_PROG(SHELL,sh)
 
-AC_SUBST(INSTALL_COMMAND)
-AC_SUBST(CROSS_SIMULATOR)
-
-
 dnl Check for libraries.
 dnl mingw does not get along well with libm
 dnl cygnus and mingw32 also need wsock32 to use sockets.
@@ -426,10 +422,6 @@ then
   CC=${OLD_CC}
 fi
 
-AC_SUBST(YAPMPILIB)
-AC_SUBST(MPI_OBJS)
-AC_SUBST(MPI_LIBS)
-
 AC_PROG_CPP
 
 if test "$cross_compiling" = "yes"
@@ -439,36 +431,6 @@ else
   AC_SYS_RESTARTABLE_SYSCALLS
 fi
 
-dnl System stuff for dynamic linking.
-dnl
-dnl Exports:
-dnl
-dnl "" if we can do dynamic linking, "#" otherwise
-AC_SUBST(INSTALL_DLLS)
-dnl if we need to merge several .o files into a single dll.
-AC_SUBST(MERGE_DLL_OBJS)
-dnl C-flags used to compile a file that will be loaded dynamically
-AC_SUBST(SHLIB_CFLAGS)
-dnl suffix for loadable binary (.so,.dll,.o)
-AC_SUBST(SHLIB_SUFFIX)
-dnl suffix for executable (.exe)
-EXEC_SUFFIX=""
-AC_SUBST(EXEC_SUFFIX)
-dnl how to call the loader
-AC_SUBST(DO_SECOND_LD)
-AC_SUBST(SHLIB_LD)
-dnl objects in YAP library
-AC_SUBST(YAPLIB)
-dnl install_info
-AC_SUBST(INSTALL_INFO)
-dnl let YAP_EXTRAS fall through configure, from the env into Makefile
-AC_SUBST(YAP_EXTRAS)
-AC_SUBST(NO_BUILTIN_REGEXP)
-AC_SUBST(ENABLE_JPL)
-AC_SUBST(JAVA_HOME)
-AC_SUBST(JAVAC)
-AC_SUBST(JAR)
-AC_SUBST(IN_UNIX)
 
 dnl defaults
 INSTALL_DLLS="#"
@@ -663,6 +625,8 @@ if test "$dynamic_loading" = "yes"
 then 
   YAP_EXTRAS="$SHLIB_CFLAGS $YAP_EXTRAS"
   YAPLIB=libYap"$SHLIB_SUFFIX"
+  CROSS_SIMULATOR="LD_LIBRARY_PATH=."
+  LDFLAGS="$LDFLAGS -Wl,-R,$prefix/lib"
 fi
 
 if test "$coroutining" = "yes"
@@ -811,6 +775,42 @@ AC_DEFINE(HAVE_GCC,0)
 fi
 AC_SUBST(M4)
 AC_SUBST(M4GENHDRS)
+
+dnl System stuff for dynamic linking.
+dnl
+dnl Exports:
+dnl
+dnl "" if we can do dynamic linking, "#" otherwise
+AC_SUBST(INSTALL_DLLS)
+dnl if we need to merge several .o files into a single dll.
+AC_SUBST(MERGE_DLL_OBJS)
+dnl C-flags used to compile a file that will be loaded dynamically
+AC_SUBST(SHLIB_CFLAGS)
+dnl suffix for loadable binary (.so,.dll,.o)
+AC_SUBST(SHLIB_SUFFIX)
+dnl suffix for executable (.exe)
+EXEC_SUFFIX=""
+AC_SUBST(EXEC_SUFFIX)
+dnl how to call the loader
+AC_SUBST(DO_SECOND_LD)
+AC_SUBST(SHLIB_LD)
+dnl objects in YAP library
+AC_SUBST(YAPLIB)
+dnl install_info
+AC_SUBST(INSTALL_INFO)
+dnl let YAP_EXTRAS fall through configure, from the env into Makefile
+AC_SUBST(YAP_EXTRAS)
+AC_SUBST(NO_BUILTIN_REGEXP)
+AC_SUBST(ENABLE_JPL)
+AC_SUBST(JAVA_HOME)
+AC_SUBST(JAVAC)
+AC_SUBST(JAR)
+AC_SUBST(IN_UNIX)
+AC_SUBST(YAPMPILIB)
+AC_SUBST(MPI_OBJS)
+AC_SUBST(MPI_LIBS)
+AC_SUBST(INSTALL_COMMAND)
+AC_SUBST(CROSS_SIMULATOR)
 
 
 dnl check for threaded code
