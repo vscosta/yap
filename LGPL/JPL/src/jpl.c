@@ -1,4 +1,4 @@
-/*  $Id: jpl.c,v 1.5 2005-04-15 20:26:45 vsc Exp $
+/*  $Id: jpl.c,v 1.6 2005-04-15 20:27:57 vsc Exp $
 
     Part of JPL -- SWI-Prolog/Java interface
 
@@ -2193,7 +2193,6 @@ jni_SetByteArrayElement(
 	JNI_term_to_byte_jarray(env,ta1,&p1)
 	&& JNI_term_to_jint(ta2,&i2)
 	&& JNI_term_to_jbyte(ta3,&i3)
-	&& fprintf(stderr,"%p, %d, %d\n", p1,i2,i3)
 	&& ( (*env)->SetByteArrayRegion(env,p1,i2,1,&i3) , TRUE );
 
       return jni_check_exception() && r;
