@@ -1088,7 +1088,7 @@ static Int ground_complex_term(register CELL *pt0, register CELL *pt0_end)
       *pt0 = (CELL)to_visit[2];
     }
 #endif
-    return(FALSE);
+    return FALSE;
   }
   /* Do we still have compound terms to visit */
   if (to_visit > to_visit0) {
@@ -1107,6 +1107,15 @@ static Int ground_complex_term(register CELL *pt0, register CELL *pt0_end)
   return TRUE;
 
  aux_overflow:
+  /* unwind stack */
+#ifdef RATIONAL_TREES
+  while (to_visit > to_visit0) {
+    to_visit -= 3;
+    pt0 = to_visit[0];
+    pt0_end = to_visit[1];
+    *pt0 = (CELL)to_visit[2];
+  }
+#endif
   return -1;
 }
  
