@@ -1050,7 +1050,7 @@ InitCodes(void)
   Yap_heap_regs->functor_portray = Yap_MkFunctor(AtomPortray, 1);
   Yap_heap_regs->functor_query = Yap_MkFunctor(AtomQuery, 1);
   Yap_heap_regs->functor_creep = Yap_MkFunctor(AtomCreep, 1);
-  Yap_heap_regs->functor_static_clause = Yap_MkFunctor (Yap_FullLookupAtom("$startic_clause"), 1);
+  Yap_heap_regs->functor_static_clause = Yap_MkFunctor (Yap_FullLookupAtom("$static_clause"), 1);
   Yap_heap_regs->functor_stream = Yap_MkFunctor (AtomStream, 1);
   Yap_heap_regs->functor_stream_pos = Yap_MkFunctor (AtomStreamPos, 3);
   Yap_heap_regs->functor_stream_eOS = Yap_MkFunctor (Yap_LookupAtom("end_of_stream"), 1);

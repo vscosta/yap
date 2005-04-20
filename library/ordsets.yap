@@ -176,7 +176,7 @@ ord_intersection(>, Head1, Tail1, _,     Tail2, Intersection) :-
 %   is true when Intersection is the ordered representation of Set1
 %   and Set2, provided that Set1 and Set2 are ordered sets.
 
-ord_intersection(L, [], [], []) :- !.
+ord_intersection(_, [], [], []) :- !.
 ord_intersection([], L, [], L) :- !.
 ord_intersection([Head1|Tail1], [Head2|Tail2], Intersection, Difference) :-
 	compare(Order, Head1, Head2),
@@ -184,7 +184,7 @@ ord_intersection([Head1|Tail1], [Head2|Tail2], Intersection, Difference) :-
 
 ord_intersection(=, Head,  Tail1, _,     Tail2, [Head|Intersection], Difference) :-
 	ord_intersection(Tail1, Tail2, Intersection, Difference).
-ord_intersection(<, Head1,     Tail1, Head2, Tail2, Intersection, Difference) :-
+ord_intersection(<, _,     Tail1, Head2, Tail2, Intersection, Difference) :-
 	ord_intersection(Tail1, [Head2|Tail2], Intersection, Difference).
 ord_intersection(>, Head1, Tail1, Head2,  Tail2, Intersection, [Head2|Difference]) :-
 	ord_intersection([Head1|Tail1], Tail2, Intersection, Difference).

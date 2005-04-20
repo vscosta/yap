@@ -124,7 +124,7 @@ get_keys([], []).
 get_keys([V|AVars], [K-V|KeysVars]) :-
 	get_atts(V, [key(K)]), !,
 	get_keys(AVars, KeysVars).
-get_keys([V|AVars], KeysVars) :-  % may be non-CLPBN vars.
+get_keys([_|AVars], KeysVars) :-  % may be non-CLPBN vars.
 	get_keys(AVars, KeysVars).
 
 merge_same_key([], [], _, []).
@@ -228,7 +228,7 @@ bind_clpbn(_, Var, _, _, _, _) :-
 	use(vel),
 	check_if_vel_done(Var), !.
 bind_clpbn(T, Var, Key0, _, _, _) :-
-	get_atts(Var, [key(Key0)]), !,
+	get_atts(Var, [key(Key)]), !,
 	(
 	  Key = Key0 -> true
 	;

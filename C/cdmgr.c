@@ -11,8 +11,11 @@
 * File:		cdmgr.c							 *
 * comments:	Code manager						 *
 *									 *
-* Last rev:     $Date: 2005-04-10 04:01:10 $,$Author: vsc $						 *
+* Last rev:     $Date: 2005-04-20 04:02:15 $,$Author: vsc $						 *
 * $Log: not supported by cvs2svn $
+* Revision 1.155  2005/04/10 04:01:10  vsc
+* bug fixes, I hope!
+*
 * Revision 1.154  2005/03/04 20:30:11  ricroc
 * bug fixes for YapTab support
 *
@@ -1774,7 +1777,7 @@ addclause(Term t, yamop *cp, int mode, Term mod, Term *t4ref)
   if (pflags & LogUpdatePredFlag) {
     tf = MkDBRefTerm((DBRef)ClauseCodeToLogUpdClause(cp));
   } else {
-    tf = Yap_MkStaticRefTerm((StaticClause *)cp);
+    tf = Yap_MkStaticRefTerm(ClauseCodeToStaticClause(cp));
   }
   if (*t4ref != TermNil) {
     if (!Yap_unify(*t4ref,tf)) {
@@ -1841,7 +1844,6 @@ Yap_EraseStaticClause(StaticClause *cl, Term mod) {
     } else {
       yamop *ncl = cl->ClNext->ClCode;
       ap->cs.p_code.FirstClause = ncl;
-      ncl->opc = Yap_opcode(_try_me);
       ap->cs.p_code.TrueCodeOfPred =
 	ncl;
       ap->OpcodeOfPred = ncl->opc;
@@ -1858,8 +1860,6 @@ Yap_EraseStaticClause(StaticClause *cl, Term mod) {
     ocl->ClNext = cl->ClNext;
     if (cl->ClCode ==  ap->cs.p_code.LastClause) {
       ap->cs.p_code.LastClause = ocl->ClCode;
-      if (ap->cs.p_code.NOfClauses > 1)
-	ocl->ClCode->opc = Yap_opcode(_trust_me);
     }
   }
   if (ap->cs.p_code.NOfClauses == 1) {
