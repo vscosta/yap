@@ -11,8 +11,14 @@
 * File:		errors.yap						 *
 * comments:	error messages for YAP					 *
 *									 *
-* Last rev:     $Date: 2005-04-07 17:55:05 $,$Author: ricroc $						 *
+* Last rev:     $Date: 2005-04-20 20:06:26 $,$Author: vsc $						 *
 * $Log: not supported by cvs2svn $
+* Revision 1.62  2005/04/07 17:55:05  ricroc
+* Adding tabling support for mixed strategy evaluation (batched and local scheduling)
+*   UPDATE: compilation flags -DTABLING_BATCHED_SCHEDULING and -DTABLING_LOCAL_SCHEDULING removed. To support tabling use -DTABLING in the Makefile or --enable-tabling in configure.
+*   NEW: yap_flag(tabling_mode,MODE) changes the tabling execution mode of all tabled predicates to MODE (batched, local or default).
+*   NEW: tabling_mode(PRED,MODE) changes the default tabling execution mode of predicate PRED to MODE (batched or local).
+*
 * Revision 1.61  2005/02/21 16:50:21  vsc
 * amd64 fixes
 * library fixes
@@ -107,8 +113,10 @@ print_message(Level, Mss) :-
 	( var(Msg) ; var(Info) ), !,
 	format(user_error,'% YAP: no handler for error ~w~n', [error(Msg,Info)]).
 '$print_message'(error,error(syntax_error(A,B,C,D,E,F),_)) :- !,
+	'$output_error_location',
 	'$output_error_message'(syntax_error(A,B,C,D,E,F), 'SYNTAX ERROR').
 '$print_message'(error,error(Msg,[Info|local_sp(Where,Envs,CPs)])) :-
+	'$output_error_location',
 	'$prepare_loc'(Info,Where,Location),
 	'$output_error_message'(Msg, Location), !,
 	'$do_stack_dump'(Envs, CPs).
@@ -123,6 +131,7 @@ print_message(Level, Mss) :-
 	    true
 	).
 '$print_message'(warning,M) :-
+	'$output_error_location',
 	format(user_error, '% ', []),
 	'$do_print_message'(M),
 	format(user_error, '~n', []).
@@ -130,6 +139,18 @@ print_message(Level, Mss) :-
 	'$do_print_message'(M),
 	format(user_error, '~n', []).
 
+'$output_error_location' :-
+	get_value('$consulting_file',FileName),
+	FileName \= [],
+	'$start_line'(LN),
+	'$show_consult_level'(LC),
+	'$output_file_pos'(FileName,LN,LC),
+	format(user_error, '~*|', [LC]).
+	
+'$output_file_pos'(user_input,LN,LC) :- !,
+	format(user_error,'~*|% In user_input near line ~d,~n',[LC,LN]).
+'$output_file_pos'(FileName,LN,LC) :-
+	format(user_error,'~*|% In file ~a, near line ~d,~n',[LC,FileName,LN]).
 
 '$do_informational_message'(halt) :- !,
 	format(user_error, '% YAP execution halted~n', []).
@@ -173,15 +194,17 @@ print_message(Level, Mss) :-
 '$do_print_message'(breakpoints(L)) :- !,
 	format(user_error,'Spy-points set on:', []),
 	'$print_list_of_preds'(L).
-'$do_print_message'(clauses_not_together(P,LN)) :- !,
-	format(user_error, 'Discontiguous definition of ~q, at line ~d.',[P,LN]).
+'$do_print_message'(clauses_not_together(P)) :- !,
+	format(user_error, 'Discontiguous definition of ~q.',[P]).
 '$do_print_message'(debug(debug)) :- !,
 	format(user_error,'Debug mode on.',[]).
 '$do_print_message'(debug(off)) :- !,
 	format(user_error,'Debug mode off.',[]).
 '$do_print_message'(debug(trace)) :- !,
 	format(user_error,'Trace mode on.',[]).
-'$do_print_message'(defined_elsewhere(P,F,LN)) :- !,
+'$do_print_message'(declaration(Args,Action)) :- !,
+	format(user_error,'declaration ~w ~w.',	[Args,Action]).
+'$do_print_message'(defined_elsewhere(P,F)) :- !,
 	format(user_error, 'predicate ~q, at line ~d, previously defined in file ~a.',[P,LN,F]).
 '$do_print_message'(import(Pred,To,From,private)) :- !,
 	format(user_error,'Importing private predicate ~w:~w to ~w.',
@@ -200,10 +223,10 @@ print_message(Level, Mss) :-
 '$do_print_message'(leash([A|B])) :- !,
 	format(user_error,'Leashing set to ~w.',
 	[[A|B]]).
-'$do_print_message'(singletons(SVs,P,LN,CLN)) :- !,
+'$do_print_message'(singletons(SVs,P,CLN)) :- !,
 	format(user_error, 'Singleton variable',[]),
 	'$write_svs'(SVs),
-	format(user_error, ' in ~q at line ~d, clause ~d.',[P,LN,CLN]).
+	format(user_error, ' in ~q, clause ~d.',[P,CLN]).
 '$do_print_message'(trace_help) :- !,
 	format(user_error,'  Please enter a valid debugger command (h for help).', []).
 '$do_print_message'(version(Version)) :- !,
@@ -633,12 +656,12 @@ print_message(Level, Mss) :-
 	format(user_error,'% REPRESENTATION ERROR- ~w: number too big~n',
 	[Where]).
 '$output_error_message'(syntax_error(G,0,Msg,[],0,0), Where) :- !,
-	format(user_error,'% SYNTAX ERROR in ~w: ~a~n',[G,Msg]).
-'$output_error_message'(syntax_error(_,Position,_,Term,Pos,Start), Where) :-
+	format(user_error,'% SYNTAX ERROR: ~a',[G,Msg]).
+'$output_error_message'(syntax_error(_,_,_,Term,Pos,Start), Where) :-
 	format(user_error,'% ~w ',[Where]),
-	'$dump_syntax_error_line'(Start,Position),
+%	'$dump_syntax_error_line'(Start,Position),
 	'$dump_syntax_error_term'(10,Pos, Term),
-	format(user_error,'.~n]~n',[]).
+	format(user_error,'.~n',[]).
 '$output_error_message'(system_error, Where) :-
 	format(user_error,'% SYSTEM ERROR- ~w~n',
 	[Where]).
@@ -731,9 +754,8 @@ print_message(Level, Mss) :-
 	[Where]).
 
 
-'$dump_syntax_error_line'(Pos,_) :-
-	format(user_error,'at line ~d:~n',
-	[Pos]).
+'$dump_syntax_error_line'(_,Position) :-
+	format(user_error,'% near line ~d,~n',[Position]).
 
 '$dump_syntax_error_term'(0,J,L) :- !,
 	format(user_error,'~n', []),

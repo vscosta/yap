@@ -287,12 +287,15 @@ remove_from_path(New) :- '$check_path'(New,Path),
 	'$add_multifile'(File,Name,Arity,Module).
 
 '$add_multifile'(File,Name,Arity,Module) :-
-	recordzifnot('$multifile_defs','$defined'(File,Name,Arity,Module),_), !,
+	recorded('$multifile_defs','$defined'(File,Name,Arity,Module), _), !,
+	'$print_message'(warning,declaration((multifile Module:Name/Arity),ignored)).
+'$add_multifile'(File,Name,Arity,Module) :-
+	recordz('$multifile_defs','$defined'(File,Name,Arity,Module),_), !,
 	fail.
 '$add_multifile'(File,Name,Arity,Module) :-
 	recorded('$mf','$mf_clause'(File,Name,Arity,Module,Ref),R),
 	erase(R),
-	erase(Ref),
+	'$erase_clause'(Ref,Module),
 	fail.
 '$add_multifile'(_,_,_,_).
 

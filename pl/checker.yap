@@ -11,8 +11,11 @@
 * File:		checker.yap						 *
 * comments:	style checker for Prolog				 *
 *									 *
-* Last rev:     $Date: 2005-04-20 04:08:20 $,$Author: vsc $						 *
+* Last rev:     $Date: 2005-04-20 20:06:11 $,$Author: vsc $						 *
 * $Log: not supported by cvs2svn $
+* Revision 1.17  2005/04/20 04:08:20  vsc
+* fix warnings
+*
 * Revision 1.16  2005/01/13 05:47:27  vsc
 * lgamma broke arithmetic optimisation
 * integer_y has type y
@@ -138,7 +141,7 @@ no_style_check([H|T]) :- no_style_check(H), no_style_check(T).
 		'$number_of_clauses'(H,M,ClN0),
 		ClN is ClN0+1
 	),
-	print_message(warning,singletons(SVs,(M:Name/Arity),LN,ClN)).
+	print_message(warning,singletons(SVs,(M:Name/Arity),ClN)).
 
 '$xtract_head'(V,M,M,V,call,1) :- var(V), !.
 '$xtract_head'((H:-_),OM,M,NH,Name,Arity) :- !,
@@ -158,8 +161,7 @@ no_style_check([H|T]) :- no_style_check(H), no_style_check(T).
 	recorded('$discontiguous_defs','$df'(F,A,M),_), !.
 '$handle_discontiguous'(F,A,M) :-
 	'$in_this_file_before'(F,A,M),
-	'$start_line'(LN),
-	print_message(warning,clauses_not_together((M:F/A),LN)).
+	print_message(warning,clauses_not_together((M:F/A))).
 
 '$handle_multiple'(F,A,M) :-
 	\+ '$first_clause_in_file'(F,A,M), !.
@@ -182,7 +184,7 @@ no_style_check([H|T]) :- no_style_check(H), no_style_check(T).
 '$test_if_well_reconsulting'(F,F,_) :- !.
 '$test_if_well_reconsulting'(_,Fil,P) :-
 	'$start_line'(LN), 
-	print_message(warning,defined_elsewhere(P,Fil,LN)).
+	print_message(warning,defined_elsewhere(P,Fil)).
 
 '$multifile'(V, _) :- var(V), !,
 	'$do_error'(instantiation_error,multifile(V)).
