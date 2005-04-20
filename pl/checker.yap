@@ -11,8 +11,14 @@
 * File:		checker.yap						 *
 * comments:	style checker for Prolog				 *
 *									 *
-* Last rev:     $Date: 2005-01-13 05:47:27 $,$Author: vsc $						 *
+* Last rev:     $Date: 2005-04-20 04:08:20 $,$Author: vsc $						 *
 * $Log: not supported by cvs2svn $
+* Revision 1.16  2005/01/13 05:47:27  vsc
+* lgamma broke arithmetic optimisation
+* integer_y has type y
+* pass original source to checker (and maybe even use option in parser)
+* use warning mechanism for checker messages.
+*
 * Revision 1.15  2004/06/29 19:12:01  vsc
 * fix checker messages
 *
@@ -153,7 +159,7 @@ no_style_check([H|T]) :- no_style_check(H), no_style_check(T).
 '$handle_discontiguous'(F,A,M) :-
 	'$in_this_file_before'(F,A,M),
 	'$start_line'(LN),
-	print_message(warning,clauses_not_together((M:Name/Arity),LN)).
+	print_message(warning,clauses_not_together((M:F/A),LN)).
 
 '$handle_multiple'(F,A,M) :-
 	\+ '$first_clause_in_file'(F,A,M), !.
@@ -169,14 +175,14 @@ no_style_check([H|T]) :- no_style_check(H), no_style_check(T).
 '$multiple_has_been_defined'(_, F/A, M) :-
 	functor(S, F, A),
 	'$is_multifile'(S, M), !.
-'$multiple_has_been_defined'(Fil,P,_) :-
+'$multiple_has_been_defined'(Fil,P,M) :-
 	recorded('$reconsulting',F,_), !,
-	'$test_if_well_reconsulting'(F,Fil,P).
+	'$test_if_well_reconsulting'(F,Fil,M:P).
 
 '$test_if_well_reconsulting'(F,F,_) :- !.
 '$test_if_well_reconsulting'(_,Fil,P) :-
 	'$start_line'(LN), 
-	print_message(warning,defined_elsewhere((M:Name/Arity),Fil,LN)).
+	print_message(warning,defined_elsewhere(P,Fil,LN)).
 
 '$multifile'(V, _) :- var(V), !,
 	'$do_error'(instantiation_error,multifile(V)).
