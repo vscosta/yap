@@ -11,8 +11,11 @@
 * File:		index.c							 *
 * comments:	Indexing a Prolog predicate				 *
 *									 *
-* Last rev:     $Date: 2005-04-10 04:01:12 $,$Author: vsc $						 *
+* Last rev:     $Date: 2005-04-21 13:53:05 $,$Author: vsc $						 *
 * $Log: not supported by cvs2svn $
+* Revision 1.122  2005/04/10 04:01:12  vsc
+* bug fixes, I hope!
+*
 * Revision 1.121  2005/04/07 17:48:54  ricroc
 * Adding tabling support for mixed strategy evaluation (batched and local scheduling)
 *   UPDATE: compilation flags -DTABLING_BATCHED_SCHEDULING and -DTABLING_LOCAL_SCHEDULING removed. To support tabling use -DTABLING in the Makefile or --enable-tabling in configure.
@@ -1166,6 +1169,10 @@ add_info(ClauseDef *clause, UInt regno)
       cl = NEXTOP(cl,x);
       break;
     case _p_nonvar_x:
+      if (cl->u.xF.F != FAILCODE) {
+	clause->Tag = (CELL)NULL;
+	return;
+      }
       if (regcopy_in(myregs, nofregs, cl->u.xF.x)) {
 	clause->Tag = (CELL)NULL;
 	clause->u.t_ptr = (CELL)NULL;
@@ -1174,6 +1181,10 @@ add_info(ClauseDef *clause, UInt regno)
       cl = NEXTOP(cl,xF);
       break;
     case _p_number_x:
+      if (cl->u.xF.F != FAILCODE) {
+	clause->Tag = (CELL)NULL;
+	return;
+      }
       if (regcopy_in(myregs, nofregs, cl->u.xF.x)) {
 	clause->Tag = (_number+1)*sizeof(CELL);
 	clause->u.t_ptr = (CELL)NULL;
@@ -1182,6 +1193,10 @@ add_info(ClauseDef *clause, UInt regno)
       cl = NEXTOP(cl,xF);
       break;
     case _p_atomic_x:
+      if (cl->u.xF.F != FAILCODE) {
+	clause->Tag = (CELL)NULL;
+	return;
+      }
       if (regcopy_in(myregs, nofregs, cl->u.xF.x)) {
 	clause->Tag = (_atomic+1)*sizeof(CELL);
 	clause->u.t_ptr = (CELL)NULL;
@@ -1190,6 +1205,10 @@ add_info(ClauseDef *clause, UInt regno)
       cl = NEXTOP(cl,xF);
       break;
     case _p_integer_x:
+      if (cl->u.xF.F != FAILCODE) {
+	clause->Tag = (CELL)NULL;
+	return;
+      }
       if (regcopy_in(myregs, nofregs, cl->u.xF.x)) {
 	clause->Tag = (_integer+1)*sizeof(CELL);
 	clause->u.t_ptr = (CELL)NULL;
@@ -1198,6 +1217,10 @@ add_info(ClauseDef *clause, UInt regno)
       cl = NEXTOP(cl,xF);
       break;
     case _p_primitive_x:
+      if (cl->u.xF.F != FAILCODE) {
+	clause->Tag = (CELL)NULL;
+	return;
+      }
       if (regcopy_in(myregs, nofregs, cl->u.xF.x)) {
 	clause->Tag = (_primitive+1)*sizeof(CELL);
 	clause->u.t_ptr = (CELL)NULL;
@@ -1206,6 +1229,10 @@ add_info(ClauseDef *clause, UInt regno)
       cl = NEXTOP(cl,xF);
       break;
     case _p_compound_x:
+      if (cl->u.xF.F != FAILCODE) {
+	clause->Tag = (CELL)NULL;
+	return;
+      }
       if (regcopy_in(myregs, nofregs, cl->u.xF.x)) {
 	clause->Tag = (_compound+1)*sizeof(CELL);
 	clause->u.t_ptr = (CELL)NULL;
@@ -1214,6 +1241,10 @@ add_info(ClauseDef *clause, UInt regno)
       cl = NEXTOP(cl,xF);
       break;
     case _p_var_x:
+      if (cl->u.xF.F != FAILCODE) {
+	clause->Tag = (CELL)NULL;
+	return;
+      }
       if (regcopy_in(myregs, nofregs, cl->u.xF.x)) {
 	clause->Tag = (_var+1)*sizeof(CELL);
 	clause->u.t_ptr = (CELL)NULL;
@@ -1222,6 +1253,10 @@ add_info(ClauseDef *clause, UInt regno)
       cl = NEXTOP(cl,xF);
       break;
     case _p_db_ref_x:
+      if (cl->u.xF.F != FAILCODE) {
+	clause->Tag = (CELL)NULL;
+	return;
+      }
       if (regcopy_in(myregs, nofregs, cl->u.xF.x)) {
 	clause->Tag = AbsAppl((CELL *)FunctorDBRef);
 	clause->u.t_ptr = (CELL)NULL;
@@ -1230,6 +1265,10 @@ add_info(ClauseDef *clause, UInt regno)
       cl = NEXTOP(cl,xF);
       break;
     case _p_float_x:
+      if (cl->u.xF.F != FAILCODE) {
+	clause->Tag = (CELL)NULL;
+	return;
+      }
       if (regcopy_in(myregs, nofregs, cl->u.xF.x)) {
 	clause->Tag = AbsAppl((CELL *)FunctorDouble);
 	clause->u.t_ptr = (CELL)NULL;
@@ -1238,6 +1277,10 @@ add_info(ClauseDef *clause, UInt regno)
       cl = NEXTOP(cl,xF);
       break;
     case _p_atom_x:
+      if (cl->u.xF.F != FAILCODE) {
+	clause->Tag = (CELL)NULL;
+	return;
+      }
       if (regcopy_in(myregs, nofregs, cl->u.xF.x)) {
 	clause->Tag = (_atom+1)*sizeof(CELL);
 	clause->u.t_ptr = (CELL)NULL;
@@ -1269,6 +1312,10 @@ add_info(ClauseDef *clause, UInt regno)
       cl = NEXTOP(cl,y);
       break;
     case _p_nonvar_y:
+      if (cl->u.yF.F != FAILCODE) {
+	clause->Tag = (CELL)NULL;
+	return;
+      }
       if (cl->u.yF.y == ycopy) {
 	clause->Tag = (CELL)NULL;
 	clause->u.t_ptr = (CELL)NULL;
@@ -1277,6 +1324,10 @@ add_info(ClauseDef *clause, UInt regno)
       cl = NEXTOP(cl,yF);
       break;
     case _p_atomic_y:
+      if (cl->u.yF.F != FAILCODE) {
+	clause->Tag = (CELL)NULL;
+	return;
+      }
       if (ycopy == cl->u.yF.y) {
 	clause->Tag = (_atomic+1)*sizeof(CELL);
 	clause->u.t_ptr = (CELL)NULL;
@@ -1285,6 +1336,10 @@ add_info(ClauseDef *clause, UInt regno)
       cl = NEXTOP(cl,yF);
       break;
     case _p_integer_y:
+      if (cl->u.yF.F != FAILCODE) {
+	clause->Tag = (CELL)NULL;
+	return;
+      }
       if (ycopy == cl->u.yF.y) {
 	clause->Tag = (_integer+1)*sizeof(CELL);
 	clause->u.t_ptr = (CELL)NULL;
@@ -1293,6 +1348,10 @@ add_info(ClauseDef *clause, UInt regno)
       cl = NEXTOP(cl,yF);
       break;
     case _p_number_y:
+      if (cl->u.yF.F != FAILCODE) {
+	clause->Tag = (CELL)NULL;
+	return;
+      }
       if (ycopy == cl->u.yF.y) {
 	clause->Tag = (_number+1)*sizeof(CELL);
 	clause->u.t_ptr = (CELL)NULL;
@@ -1301,6 +1360,10 @@ add_info(ClauseDef *clause, UInt regno)
       cl = NEXTOP(cl,yF);
       break;
     case _p_primitive_y:
+      if (cl->u.yF.F != FAILCODE) {
+	clause->Tag = (CELL)NULL;
+	return;
+      }
       if (ycopy == cl->u.yF.y) {
 	clause->Tag = (_primitive+1)*sizeof(CELL);
 	clause->u.t_ptr = (CELL)NULL;
@@ -1309,6 +1372,10 @@ add_info(ClauseDef *clause, UInt regno)
       cl = NEXTOP(cl,yF);
       break;
     case _p_compound_y:
+      if (cl->u.yF.F != FAILCODE) {
+	clause->Tag = (CELL)NULL;
+	return;
+      }
       if (ycopy == cl->u.yF.y) {
 	clause->Tag = (_compound+1)*sizeof(CELL);
 	clause->u.t_ptr = (CELL)NULL;
@@ -1317,6 +1384,10 @@ add_info(ClauseDef *clause, UInt regno)
       cl = NEXTOP(cl,yF);
       break;
     case _p_db_ref_y:
+      if (cl->u.yF.F != FAILCODE) {
+	clause->Tag = (CELL)NULL;
+	return;
+      }
       if (ycopy == cl->u.yF.y) {
 	clause->Tag = AbsAppl((CELL *)FunctorDBRef);
 	clause->u.t_ptr = (CELL)NULL;
@@ -1325,6 +1396,10 @@ add_info(ClauseDef *clause, UInt regno)
       cl = NEXTOP(cl,yF);
       break;
     case _p_float_y:
+      if (cl->u.yF.F != FAILCODE) {
+	clause->Tag = (CELL)NULL;
+	return;
+      }
       if (ycopy == cl->u.yF.y) {
 	clause->Tag = AbsAppl((CELL *)FunctorDouble);
 	clause->u.t_ptr = (CELL)NULL;
@@ -1333,6 +1408,10 @@ add_info(ClauseDef *clause, UInt regno)
       cl = NEXTOP(cl,yF);
       break;
     case _p_atom_y:
+      if (cl->u.yF.F != FAILCODE) {
+	clause->Tag = (CELL)NULL;
+	return;
+      }
       if (cl->u.yF.y == ycopy) {
 	clause->Tag = (_atom+1)*sizeof(CELL);
 	clause->u.t_ptr = (CELL)NULL;
@@ -1341,6 +1420,10 @@ add_info(ClauseDef *clause, UInt regno)
       cl = NEXTOP(cl,yF);
       break;
     case _p_var_y:
+      if (cl->u.yF.F != FAILCODE) {
+	clause->Tag = (CELL)NULL;
+	return;
+      }
       if (cl->u.yF.y == ycopy) {
 	clause->Tag = (_var+1)*sizeof(CELL);
 	clause->u.t_ptr = (CELL)NULL;
