@@ -1,0 +1,20 @@
+=================================================================
+Logtalk - Object oriented extension to Prolog
+Release 2.24.0
+
+Copyright (c) 1998-2005 Paulo Moura.  All Rights Reserved.
+=================================================================
+
+This folder contains code contributions from Logtalk users. Here is 
+a short description of each included contribution:
+
+iso8601.lgt
+	Contributed by: Daniel L. Dudley	
+
+	This is a partial implementation of the ISO 8601 standard, 
+	providing a library of date predicates. The time predicates 
+	are not yet implemented. The best way to get acquainted with 
+	this library is for you to compile the object and then run 
+	one of the documentation helper scripts to transform the 
+	resulting XML file into a (X)HTML or PDF documentation.	Your 
+	feedback is appreciated.

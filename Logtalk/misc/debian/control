@@ -1,8 +1,0 @@
-Package: logtalk
-Version: 2.23.1
-Section: languages
-Priority: optional
-Architecture: all
-Essential: no
-Maintainer: Paulo Moura <pmoura@logtalk.org>
-Description: Logtalk is an open source object-oriented extension to the Prolog programming language. Integrating logic programming with object-oriented and event-driven programming, it is compatible with most Prolog compilers. It supports both prototypes and classes. In addition, it supports component-based programming through category-based composition.

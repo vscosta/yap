@@ -71,6 +71,7 @@
 				<string>\:\-[[:space:]](category)\(</string>			
 				<string>\:\-[[:space:]](end_category)\.</string>			
 				<string>\:\-[[:space:]](alias)\(</string>			
+				<string>\:\-[[:space:]](encoding)\(</string>			
 				<string>\:\-[[:space:]](initialization)\(</string>			
 				<string>\:\-[[:space:]](info)\(</string>			
 				<string>\:\-[[:space:]](mode)\(</string>			

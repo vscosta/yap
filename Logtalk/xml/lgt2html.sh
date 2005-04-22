@@ -2,7 +2,7 @@
 
 ## =================================================================
 ## Logtalk - Object oriented extension to Prolog
-## Release 2.23.1
+## Release 2.24.0
 ##
 ## Copyright (c) 1998-2005 Paulo Moura.  All Rights Reserved.
 ## =================================================================
@@ -44,47 +44,47 @@ usage_help()
 
 create_index_file()
 {
-	echo "" > $index_file
+	echo "" > "$index_file"
 
 	case "$format" in
 		xhtml)
-			echo "<?xml version=\"1.0\"?>" >> $index_file
-			echo "<?xml-stylesheet href=\"logtalk.css\" type=\"text/css\"?>" >> $index_file
-			echo "<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.0 Strict//EN\" \"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd\">" >> $index_file
-			echo "<html lang=\"en\" xml:lang=\"en\" xmlns=\"http://www.w3.org/1999/xhtml\">" >> $index_file
+			echo "<?xml version=\"1.0\"?>" >> "$index_file"
+			echo "<?xml-stylesheet href=\"logtalk.css\" type=\"text/css\"?>" >> "$index_file"
+			echo "<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.0 Strict//EN\" \"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd\">" >> "$index_file"
+			echo "<html lang=\"en\" xml:lang=\"en\" xmlns=\"http://www.w3.org/1999/xhtml\">" >> "$index_file"
 			;;
 		html)
-			echo "<!DOCTYPE html PUBLIC \"-//W3C//DTD HTML 4.01//EN\" \"http://www.w3.org/TR/html4/strict.dtd\">" >> $index_file
-			echo "<html>" >> $index_file
+			echo "<!DOCTYPE html PUBLIC \"-//W3C//DTD HTML 4.01//EN\" \"http://www.w3.org/TR/html4/strict.dtd\">" >> "$index_file"
+			echo "<html>" >> "$index_file"
 			;;
 	esac
 
-	echo "<head>" >> $index_file
-	echo "    <meta http-equiv=\"content-type\" content=\"text/html; charset=utf-8\"/>" >> $index_file
-	echo "    <title>"$index_title"</title>" >> $index_file
-	echo "    <link rel=\"stylesheet\" href=\"logtalk.css\" type=\"text/css\"/>" >> $index_file
-	echo "</head>" >> $index_file
-	echo "<body>" >> $index_file
-	echo "<h1>"$index_title"</h1>" >> $index_file
-	echo "<ul>" >> $index_file
+	echo "<head>" >> "$index_file"
+	echo "    <meta http-equiv=\"content-type\" content=\"text/html; charset=utf-8\"/>" >> "$index_file"
+	echo "    <title>"$index_title"</title>" >> "$index_file"
+	echo "    <link rel=\"stylesheet\" href=\"logtalk.css\" type=\"text/css\"/>" >> "$index_file"
+	echo "</head>" >> "$index_file"
+	echo "<body>" >> "$index_file"
+	echo "<h1>"$index_title"</h1>" >> "$index_file"
+	echo "<ul>" >> "$index_file"
 
 	for file in *.xml; do
 		name="`expr "$file" : '\(.*\)\.[^./]*$' \| "$file"`"
 		echo "  indexing $name.html"
-		echo "    <li><a href=\""$name.html"\">"$name"</a></li>" >> $index_file
+		echo "    <li><a href=\""$name.html"\">"$name"</a></li>" >> "$index_file"
 	done
 
-	echo "</ul>" >> $index_file
+	echo "</ul>" >> "$index_file"
 
 	date="`eval date`"
 
-	echo "<p>Generated on "$date"</p>" >> $index_file
-	echo "</body>" >> $index_file
-	echo "</html>" >> $index_file
+	echo "<p>Generated on "$date"</p>" >> "$index_file"
+	echo "</body>" >> "$index_file"
+	echo "</html>" >> "$index_file"
 }
 
 
-if ! [ $LOGTALKUSER ]
+if ! [ "$LOGTALKUSER" ]
 then
 	echo "Error! The environment variable LOGTALKUSER must be defined first!"
 	exit 1
@@ -150,9 +150,9 @@ else
 		xslt=$html_xslt
 	fi
 
-	cp $LOGTALKUSER/xml/logtalk.dtd .
-	cp $LOGTALKUSER/xml/logtalk.xsd .
-	cp $LOGTALKUSER/xml/logtalk.css $directory
+	cp "$LOGTALKUSER"/xml/logtalk.dtd .
+	cp "$LOGTALKUSER"/xml/logtalk.xsd .
+	cp "$LOGTALKUSER"/xml/logtalk.css "$directory"
 
 	echo
 	echo "converting XML files..."
@@ -161,9 +161,9 @@ else
 		echo "  converting $file"
 		name="`expr "$file" : '\(.*\)\.[^./]*$' \| "$file"`"
 		case "$processor" in
-			xsltproc)	eval xsltproc -o $directory/$name.html $xslt $file;;
-			xalan)		eval xalan -o $directory/$name.html $file $xslt;;
-			sabcmd)		eval sabcmd $xslt $file $directory/$name.html;;
+			xsltproc)	eval xsltproc -o \"$directory\"/\"$name.html\" \"$xslt\" \"$file\";;
+			xalan)		eval xalan -o \"$directory\"/\"$name.html\" \"$file\" \"$xslt\";;
+			sabcmd)		eval sabcmd \"$xslt\" \"$file\" \"$directory\"/\"$name.html\";;
 		esac
 	done
 
@@ -171,7 +171,7 @@ else
 	echo
 	echo "generating index file..."
 
-	index_file=$directory/$index_file
+	index_file="$directory/$index_file"
 	create_index_file
 
 	echo "index file generated"

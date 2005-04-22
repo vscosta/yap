@@ -10,7 +10,7 @@
 			;
 			length(List, 0, Length).
 
-	make_list(0, []):-
+	make_list(0, []) :-
 		!.
 	make_list(N, [_| Tail]):-
 		M is N-1,

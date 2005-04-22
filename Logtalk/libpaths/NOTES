@@ -1,6 +1,6 @@
 =================================================================
 Logtalk - Object oriented extension to Prolog
-Release 2.23.1
+Release 2.24.0
 
 Copyright (c) 1998-2005 Paulo Moura.  All Rights Reserved.
 =================================================================
@@ -23,12 +23,12 @@ As defined, the provided "libpaths.pl" file is already compatible with some
 of the most popular Prolog compilers, running on both Windows, Unix, and 
 Unix-like operating-systems.
 
-The Prolog integration scripts found on the "misc" directory generate scripts 
-and shortcuts that automatically load the copy of the "libpaths.pl" file from 
-the Logtalk end-user directory created by the "misc/cplgtdirs.*" scripts. See 
-the "INSTALL" and the "misc/NOTES" files for more details. Note that a few 
-Prolog compilers do not support the <library>(<entity>) notation. See the 
-"configs/NOTES" file for details.
+The Prolog integration scripts found on the "scripts" directory generate 
+scripts and shortcuts that automatically load the copy of the "libpaths.pl" 
+file from the Logtalk end-user directory created by the "scripts/cplgtdirs.*" 
+scripts. See the "INSTALL" and the "scripts/NOTES" files for more details. 
+Note that a few Prolog compilers do not support the <library>(<entity>) 
+notation. See the "configs/NOTES" file for details.
 
 The somehow contrived code found on the "libpaths.pl" file is needed to ensure 
 compatibility with both the ISO Prolog standard and with most Prolog compilers.
@@ -53,4 +53,4 @@ Some Prolog compilers which imply editing the provided "libpaths.pl" file:
 	* JIProlog (does not support expansion of environment variables on paths)
 	* XSB (does not support expansion of environment variables on paths)
 
-Feedback on other Prolog compilers are most appreciated.
+Feedback on other Prolog compilers is most appreciated.

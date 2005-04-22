@@ -1,6 +1,6 @@
 // =================================================================
 // Logtalk - Object oriented extension to Prolog
-// Release 2.23.1
+// Release 2.24.0
 //
 // Copyright (c) 1998-2005 Paulo Moura.  All Rights Reserved.
 // =================================================================
@@ -36,8 +36,6 @@ else {
 	usage_help();
 	WScript.Quit(1);
 }
-
-logtalk_home = logtalk_home.replace(/\\/g, "\\\\");
 
 var a4_xsl = logtalk_home + "\\xml\\lgtpdfa4.xsl";
 var us_xsl = logtalk_home + "\\xml\\lgtpdfus.xsl";
@@ -96,8 +94,8 @@ for (files.moveFirst(); !files.atEnd(); files.moveNext()) {
 	var file = files.item().name;
 	if (FSObject.GetExtensionName(file) == "xml") {
 		WScript.Echo("  converting " + file);
-		var pdf_file = directory + "\\" + FSObject.GetBaseName(file)+ ".pdf";
-		WshShell.Run(processor + " -q -xml " + file + " -xsl " + xsl + " -pdf " + pdf_file, true);
+		var pdf_file = directory + "\\" + FSObject.GetBaseName(file) + ".pdf";
+		WshShell.Run(processor + " -q -xml \"" + file + "\" -xsl \"" + xsl + "\" -pdf \"" + pdf_file + "\"", true);
 	}
 }
 

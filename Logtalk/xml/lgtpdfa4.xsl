@@ -9,7 +9,7 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %
 %  Logtalk - Object oriented extension to Prolog
-%  Release 2.23.1
+%  Release 2.24.0
 %
 %  Copyright (c) 1998-2005 Paulo Moura.  All Rights Reserved.
 %
@@ -78,6 +78,7 @@
  				<xsl:apply-templates select="logtalk/entity"/>
 				<xsl:apply-templates select="logtalk/relations"/>
 				<xsl:apply-templates select="logtalk/predicates"/>
+				<xsl:apply-templates select="logtalk/remarks"/>
 				<fo:block id="end"/>
 			</fo:flow>
 
@@ -95,17 +96,34 @@
 				margin-left="10mm"
 				font-size="10pt"
 				font-family="serif" 
-				font-style="italic" 
-				space-after="8pt">
+				font-style="italic">
 			<xsl:value-of select="comment"/>
 		</fo:block>
+	</xsl:if>
+
+	<xsl:if test="parameters">
+		<fo:block
+				font-size="9pt"
+				font-family="monospace"
+				margin-left="10mm"
+				space-before="4pt">
+		</fo:block>
+		<xsl:for-each select="parameters/parameter">
+			<fo:block
+					font-size="9pt"
+					font-family="monospace"
+					margin-left="10mm">
+				<xsl:value-of select="name"/> - <xsl:value-of select="description"/>
+			</fo:block>
+		</xsl:for-each>
 	</xsl:if>
 
 	<xsl:if test="author">
 		<fo:block
 				font-size="10pt"
 				font-family="serif" 
-				keep-with-next="always">
+				keep-with-next="always"
+				space-before="8pt">
 			author:
 		</fo:block>
 		<fo:block
@@ -157,7 +175,7 @@
 			font-size="9pt"
 			font-family="monospace"
 			margin-left="10mm" 
-			space-after="8pt">
+			space-after="4pt">
 		<xsl:value-of select="compilation"/>
 	</fo:block>
 
@@ -182,6 +200,11 @@
 
 
 <xsl:template match="logtalk/relations">
+	<fo:block
+			font-size="10pt"
+			font-family="serif"
+			space-before="4pt">
+	</fo:block>
 	<xsl:choose>
 		<xsl:when test="*">
 			<xsl:if test="implements">
@@ -250,9 +273,10 @@
 		</xsl:when>
 		<xsl:otherwise>	
 			<fo:block
-					font-size="10pt"
+					font-size="10pt" 
 					font-family="serif" 
-					keep-with-next="always">
+					font-style="italic"
+					space-before="4pt">
 				(no dependencies on other files)
 			</fo:block>
 		</xsl:otherwise>
@@ -431,7 +455,8 @@
       	<fo:block
 				font-size="10pt"
 				font-family="serif" 
-				keep-with-next="always">
+				keep-with-next="always"
+				space-before="4pt">
      		template:
      	</fo:block>
 		<fo:block
@@ -442,12 +467,29 @@
 		</fo:block>
 	</xsl:if>
 
+	<xsl:if test="arguments">
+		<fo:block
+				font-size="9pt"
+				font-family="monospace"
+				margin-left="10mm"
+				space-before="4pt">
+		</fo:block>
+		<xsl:for-each select="arguments/argument">
+			<fo:block
+					margin-left="10mm">
+				<fo:inline font-size="9pt" font-family="monospace"><xsl:value-of select="name"/></fo:inline>
+				<fo:inline font-size="10pt" font-family="serif" font-style="italic"> - <xsl:value-of select="description"/></fo:inline>
+			</fo:block>
+		</xsl:for-each>
+	</xsl:if>
+
 	<xsl:if test="meta">
       	<fo:block
 				font-size="10pt"
 				font-family="serif" 
-				keep-with-next="always">
-     		metapredicate template:
+				keep-with-next="always"
+				space-before="4pt">
+     		meta-predicate template:
      	</fo:block>
 		<fo:block
 				font-size="9pt"
@@ -461,7 +503,8 @@
        	<fo:block
 				font-size="10pt"
 				font-family="serif" 
-				keep-with-next="always">
+				keep-with-next="always"
+				space-before="4pt">
      		mode - number of solutions:
      	</fo:block>
 		<xsl:for-each select="mode">
@@ -478,7 +521,8 @@
        	<fo:block
 				font-size="10pt"
 				font-family="serif" 
-				keep-with-next="always">
+				keep-with-next="always"
+				space-before="4pt">
      		exceptions:
      	</fo:block>
 		<xsl:for-each select="exceptions/exception">
@@ -498,12 +542,46 @@
 		</xsl:for-each>
 	</xsl:if>
 
+	<xsl:if test="examples">
+       	<fo:block
+				font-size="10pt"
+				font-family="serif" 
+				keep-with-next="always"
+				space-before="4pt">
+     		examples:
+     	</fo:block>
+		<xsl:for-each select="examples/example">
+       		<fo:block
+					font-size="10pt"
+					font-family="serif"
+					font-style="italic"
+					keep-with-next="always"
+					margin-left="10mm">
+     			<xsl:value-of select="description" />
+     		</fo:block>
+			<fo:block
+					font-size="9pt"
+					font-family="monospace"
+					margin-left="20mm">
+				<xsl:value-of select="call" />
+			</fo:block>
+			<fo:block
+					font-size="9pt"
+					font-family="monospace"
+					margin-left="20mm" 
+					space-after="4pt">
+				<xsl:value-of select="bindings" />
+			</fo:block>
+		</xsl:for-each>
+	</xsl:if>
+
 	<xsl:if test="info">
 		<xsl:for-each select="info">
        		<fo:block
 					font-size="10pt"
 					font-family="serif" 
-					keep-with-next="always">
+					keep-with-next="always"
+					space-before="4pt">
     	 			<xsl:value-of select="key"/>:
     	 		</fo:block>
 			<fo:block
@@ -514,6 +592,49 @@
 			</fo:block>
 		</xsl:for-each>
 	</xsl:if>
+
+</xsl:template>
+
+
+<xsl:template match="logtalk/remarks">
+
+	<fo:block
+			font-size="14pt" 
+			font-family="sans-serif" 
+			font-weight="bold" 
+			keep-with-next="always"
+			space-before="18pt">
+		Remarks
+	</fo:block>
+	<xsl:choose>
+		<xsl:when test="*">
+			<xsl:for-each select="remark">
+       			<fo:block
+						font-size="10pt"
+						font-family="serif"
+						font-style="italic"
+						keep-with-next="always"
+						space-before="10pt">
+     				<xsl:value-of select="topic" />
+     			</fo:block>
+				<fo:block
+						font-size="10pt"
+						font-family="serif"
+						margin-left="10mm">
+					<xsl:value-of select="text" />
+				</fo:block>
+			</xsl:for-each>
+		</xsl:when>
+		<xsl:otherwise>	
+			<fo:block
+					font-size="10pt" 
+					font-family="serif" 
+					font-style="italic"
+					space-before="10pt">
+				(none)
+			</fo:block>
+		</xsl:otherwise>
+	</xsl:choose>
 
 </xsl:template>
 

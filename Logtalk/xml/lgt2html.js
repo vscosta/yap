@@ -1,6 +1,6 @@
 // =================================================================
 // Logtalk - Object oriented extension to Prolog
-// Release 2.23.1
+// Release 2.24.0
 //
 // Copyright (c) 1998-2005 Paulo Moura.  All Rights Reserved.
 // =================================================================
@@ -42,10 +42,9 @@ else {
 	WScript.Quit(1);
 }
 
-logtalk_home = logtalk_home.replace(/\\/g, "\\\\");
-
 var html_xslt = logtalk_home + "\\xml\\lgthtml.xsl";
 var xhtml_xslt = logtalk_home + "\\xml\\lgtxhtml.xsl";
+
 var xslt;
 
 var f_arg = "";
@@ -119,16 +118,16 @@ for (files.moveFirst(); !files.atEnd(); files.moveNext()) {
 		var html_file = directory + "\\" + FSObject.GetBaseName(file) + ".html";
 		switch (processor) {
 			case "msxsl" :
-				WshShell.Run("msxsl -o " + html_file + " " + file + " " + xslt, true);
+				WshShell.Run("msxsl -o \"" + html_file + "\" \"" + file + "\" \"" + xslt + "\"", true);
 				break;
 			case "xsltproc" :
-				WshShell.Run("xsltproc -o " + html_file + " " + xslt + " " + file, true);
+				WshShell.Run("xsltproc -o \"" + html_file + "\" \"" + xslt + "\" \"" + file + "\"", true);
 				break;
 			case "xalan" :
-				WshShell.Run("xalan -o " + html_file + " " + file + " " + xslt, true);
+				WshShell.Run("xalan -o \"" + html_file + "\" \"" + file + "\" \"" + xslt + "\"", true);
 				break;
 			case "sabcmd" :
-				WshShell.Run("sabcmd " + xslt + " " + file + " " + html_file, true);
+				WshShell.Run("sabcmd \"" + xslt + "\" \"" + file + "\" \"" + html_file + "\"", true);
 				break;
 		}
 	}

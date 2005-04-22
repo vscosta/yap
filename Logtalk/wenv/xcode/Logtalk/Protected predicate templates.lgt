@@ -8,28 +8,28 @@
 	:- mode(Functor(), Solutions).
 	:- info(Functor/1, [
 		comment is '',
-		argnames is ['Arg']]).
+		arguments is ['Arg'-'Desc']]).
 
 	:- protected(Functor/2).
 	:- mode(Functor(, ), Solutions).
 	:- info(Functor/2, [
 		comment is '',
-		argnames is ['Arg1', 'Arg2']]).
+		arguments is ['Arg1'-'Desc1', 'Arg2'-'Desc2']]).
 
 	:- protected(Functor/3).
 	:- mode(Functor(, , ), Solutions).
 	:- info(Functor/3, [
 		comment is '',
-		argnames is ['Arg1', 'Arg2', 'Arg3']]).
+		arguments is ['Arg1'-'Desc1', 'Arg2'-'Desc2', 'Arg3'-'Desc3']]).
 
 	:- protected(Functor/4).
 	:- mode(Functor(, , , ), Solutions).
 	:- info(Functor/4, [
 		comment is '',
-		argnames is ['Arg1', 'Arg2', 'Arg3', 'Arg4']]).
+		arguments is ['Arg1'-'Desc1', 'Arg2'-'Desc2', 'Arg3'-'Desc3', 'Arg4'-'Desc4']]).
 
 	:- protected(Functor/5).
 	:- mode(Functor(, , , , ), Solutions).
 	:- info(Functor/5, [
 		comment is '',
-		argnames is ['Arg1', 'Arg2', 'Arg3', 'Arg4', 'Arg5']]).
+		arguments is ['Arg1'-'Desc1', 'Arg2'-'Desc2', 'Arg3'-'Desc3', 'Arg4'-'Desc4', 'Arg5'-'Desc5']]).

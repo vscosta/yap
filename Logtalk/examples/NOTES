@@ -1,6 +1,6 @@
 =================================================================
 Logtalk - Object oriented extension to Prolog
-Release 2.23.1
+Release 2.24.0
 
 Copyright (c) 1998-2005 Paulo Moura.  All Rights Reserved.
 =================================================================
@@ -70,6 +70,10 @@ diamonds
 
 dynpred
 	example of using some of the built-in database handling methods
+
+encodings
+	very simple example of using the new, experimental enconding/1 
+	directive (requires Logtalk to be run with the SWI-Prolog compiler)
 
 engines
 	example of category composition (importation of categories by other 

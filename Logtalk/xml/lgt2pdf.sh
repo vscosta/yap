@@ -2,7 +2,7 @@
 
 ## =================================================================
 ## Logtalk - Object oriented extension to Prolog
-## Release 2.23.1
+## Release 2.24.0
 ##
 ## Copyright (c) 1998-2005 Paulo Moura.  All Rights Reserved.
 ## =================================================================
@@ -37,7 +37,7 @@ usage_help()
 	exit 1
 }
 
-if ! [ $LOGTALKUSER ]
+if ! [ "$LOGTALKUSER" ]
 then
 	echo "Error! The environment variable LOGTALKUSER must be defined first!"
 	exit 1
@@ -91,8 +91,8 @@ else
 		xsl=$us_xsl
 	fi
 
-	cp $LOGTALKUSER/xml/logtalk.dtd .
-	cp $LOGTALKUSER/xml/logtalk.xsd .
+	cp "$LOGTALKUSER"/xml/logtalk.dtd .
+	cp "$LOGTALKUSER"/xml/logtalk.xsd .
 
 	echo
 	echo "converting XML files to PDF..."
@@ -100,7 +100,7 @@ else
 	for file in *.xml; do
 		echo "  converting $file"
 		name="`expr "$file" : '\(.*\)\.[^./]*$' \| "$file"`"
-		eval $processor -q -xml $file -xsl $xsl -pdf $directory/$name.pdf
+		eval $processor -q -xml \"$file\" -xsl \"$xsl\" -pdf \"$directory\"/\"$name.pdf\"
 	done
 
 	echo "conversion done"

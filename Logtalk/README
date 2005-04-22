@@ -1,6 +1,6 @@
 =================================================================
 Logtalk - Object oriented extension to Prolog
-Release 2.23.1
+Release 2.24.0
 
 Copyright (c) 1998-2005 Paulo Moura.  All Rights Reserved.
 =================================================================
@@ -25,7 +25,8 @@ CONTENTS
 The overall copyright and permission notice for Logtalk can be found in
 the LICENSE file in this directory. Logtalk follows the Artistic License 2.0.
 The copyright notice and license applies to all files in this release 
-(sources, documentation and examples) unless otherwise explicitly stated.
+(including sources, documentation, and examples) unless otherwise explicitly 
+stated.
 
 
 2. HOME OF LOGTALK PACKAGE
@@ -100,8 +101,8 @@ The reference and user manuals and the tutorial are provided in XHTML format
 and are contained in the manuals directory.
 
 PDF versions of all documentation are also available as a separated download 
-from the Logtalk web site. The PDF files include page numbers, index and a 
-table of contents and are available for printing in both A4 and US Letter 
+from the Logtalk web site. The PDF files include page numbers, an index, and 
+a table of contents and are available for printing in both A4 and US Letter 
 paper formats.
 
 The file RELEASE_NOTES contains descriptions of the changes made in Logtalk 

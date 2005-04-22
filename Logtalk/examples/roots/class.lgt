@@ -6,9 +6,9 @@
 
 
 	:- info([
-		version is 1.0,
+		version is 1.1,
 		author is 'Paulo Moura',
-		date is 2000/7/24,
+		date is 2005/3/12,
 		comment is 'Default metaclass for all classes.']).
 
 
@@ -83,7 +83,7 @@
 			atom_codes(Atom2, Codes2),
 			atom_concat(Functor, Atom2, Identifier),
 			atom_concat(Identifier, Atom, Prefix),
-			\+ current_predicate(Prefix/_),
+			\+ {current_predicate(Prefix/_)},
 			asserta(instance_counter_(Next)),
 		!.
 
@@ -93,7 +93,7 @@
 		number_codes(Arity, Codes),
 		atom_codes(Atom, Codes),
 		atom_concat(Functor, Atom, Prefix),
-		\+ current_predicate(Prefix/_).
+		\+ {current_predicate(Prefix/_)}.
 
 
 	next_integer(N, N1) :-

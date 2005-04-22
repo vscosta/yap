@@ -1,4 +1,4 @@
-<?xml version="1.0"?>
+<?xml version="1.0" encoding="utf-8"?>
 <xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema">
 
 <xsd:annotation>
@@ -11,7 +11,7 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %
 %  Logtalk - Object oriented extension to Prolog
-%  Release 2.23.1
+%  Release 2.24.0
 %
 %  Copyright (c) 1998-2005 Paulo Moura.  All Rights Reserved.
 %
@@ -27,6 +27,7 @@
 		<xsd:element name="entity"		type="entity"/>
 		<xsd:element name="relations"	type="relations"/>
 		<xsd:element name="predicates"	type="predicates"/>
+		<xsd:element name="remarks"		type="remarks"/>
 	</xsd:sequence>
 </xsd:complexType>
 
@@ -37,6 +38,10 @@
 		<xsd:element name="type"		type="type"/>
 		<xsd:element name="compilation"	type="compilation"/>
 		<xsd:element name="comment"		type="xsd:string"	minOccurs="0"/>
+		<xsd:choice	minOccurs="0">
+			<xsd:element name="parnames"	type="xsd:string"/>
+			<xsd:element name="parameters"	type="parameters"/>
+		</xsd:choice>
 		<xsd:element name="author"		type="xsd:string"	minOccurs="0"/>
 		<xsd:element name="version"		type="xsd:string"	minOccurs="0"/>
 		<xsd:element name="date"		type="xsd:string"	minOccurs="0"/>
@@ -62,9 +67,24 @@
 </xsd:simpleType>
 
 
+<xsd:complexType name="parameters">
+	<xsd:sequence>
+		<xsd:element name="parameter"	type="parameter"	maxOccurs="unbounded"/>
+	</xsd:sequence>
+</xsd:complexType>
+
+
+<xsd:complexType name="parameter">
+	<xsd:sequence>
+		<xsd:element name="name"		type="xsd:string"/>
+		<xsd:element name="description"	type="xsd:string"/>
+	</xsd:sequence>
+</xsd:complexType>
+
+
 <xsd:complexType name="info">
 	<xsd:sequence>
-		<xsd:element name="key"	type="xsd:string"/>
+		<xsd:element name="key"		type="xsd:string"/>
 		<xsd:element name="value"	type="xsd:string"/>
 	</xsd:sequence>
 </xsd:complexType>
@@ -148,8 +168,13 @@
 		<xsd:element name="mode"		type="mode"				minOccurs="0" maxOccurs="unbounded"/>
 		<xsd:element name="comment"		type="xsd:string"		minOccurs="0"/>
 		<xsd:element name="template"	type="xsd:string"		minOccurs="0" maxOccurs="unbounded"/>
-		<xsd:element name="exceptions"	type="exceptions"		minOccurs="0" maxOccurs="1"/>
-		<xsd:element name="info"		type="info"				minOccurs="0" maxOccurs="1"/>
+		<xsd:choice	minOccurs="0">
+			<xsd:element name="argnames"	type="xsd:string"/>
+			<xsd:element name="arguments"	type="arguments"/>
+		</xsd:choice>
+		<xsd:element name="exceptions"	type="exceptions"		minOccurs="0"/>
+		<xsd:element name="info"		type="info"				minOccurs="0"/>
+		<xsd:element name="examples"	type="examples"			minOccurs="0"/>
 	</xsd:sequence>
 </xsd:complexType>
 
@@ -174,9 +199,24 @@
 </xsd:simpleType>
 
 
+<xsd:complexType name="arguments">
+	<xsd:sequence>
+		<xsd:element name="argument"	type="argument"	maxOccurs="unbounded"/>
+	</xsd:sequence>
+</xsd:complexType>
+
+
+<xsd:complexType name="argument">
+	<xsd:sequence>
+		<xsd:element name="name"		type="xsd:string"/>
+		<xsd:element name="description"	type="xsd:string"/>
+	</xsd:sequence>
+</xsd:complexType>
+
+
 <xsd:complexType name="exceptions">
 	<xsd:sequence>
-		<xsd:element name="exception"	type="exception"	minOccurs="1" maxOccurs="unbounded"/>
+		<xsd:element name="exception"	type="exception"	maxOccurs="unbounded"/>
 	</xsd:sequence>
 </xsd:complexType>
 
@@ -187,5 +227,37 @@
 		<xsd:element name="term"		type="xsd:string"/>
 	</xsd:sequence>
 </xsd:complexType>
+
+
+<xsd:complexType name="examples">
+	<xsd:sequence>
+		<xsd:element name="example"	type="example"	minOccurs="0"	maxOccurs="unbounded"/>
+	</xsd:sequence>
+</xsd:complexType>
+
+
+<xsd:complexType name="example">
+	<xsd:sequence>
+		<xsd:element name="description"	type="xsd:string"/>
+		<xsd:element name="call"		type="xsd:string"/>
+		<xsd:element name="bindings"	type="xsd:string"/>
+	</xsd:sequence>
+</xsd:complexType>
+
+
+<xsd:complexType name="remarks">
+	<xsd:sequence>
+		<xsd:element name="remark"	type="remark"	minOccurs="0"	maxOccurs="unbounded"/>
+	</xsd:sequence>
+</xsd:complexType>
+
+
+<xsd:complexType name="remark">
+	<xsd:sequence>
+		<xsd:element name="topic"	type="xsd:string"/>
+		<xsd:element name="text"	type="xsd:string"/>
+	</xsd:sequence>
+</xsd:complexType>
+
 
 </xsd:schema>

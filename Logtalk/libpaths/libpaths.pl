@@ -2,7 +2,7 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %
 %  Logtalk - Object oriented extension to Prolog
-%  Release 2.23.1
+%  Release 2.24.0
 %
 %  Copyright (c) 1998-2005 Paulo Moura.  All Rights Reserved.
 %
@@ -19,6 +19,7 @@
 	 assertz(logtalk_library_path(dcgs, '$LOGTALKUSER/examples/dcgs/')),
 	 assertz(logtalk_library_path(diamonds, '$LOGTALKUSER/examples/diamonds/')),
 	 assertz(logtalk_library_path(dynpred, '$LOGTALKUSER/examples/dynpred/')),
+	 assertz(logtalk_library_path(encodings, '$LOGTALKUSER/examples/encodings/')),
 	 assertz(logtalk_library_path(engines, '$LOGTALKUSER/examples/engines/')),
 	 assertz(logtalk_library_path(errors, '$LOGTALKUSER/examples/errors/')),
 	 assertz(logtalk_library_path(hello_world, '$LOGTALKUSER/examples/hello_world/')),
@@ -48,4 +49,5 @@
 	 assertz(logtalk_library_path(shapes_ph, '$LOGTALKUSER/examples/shapes/ph/')),
 	 assertz(logtalk_library_path(sicstus, '$LOGTALKUSER/examples/sicstus/')),
 	 assertz(logtalk_library_path(symdiff, '$LOGTALKUSER/examples/symdiff/')),
-	 assertz(logtalk_library_path(viewpoints, '$LOGTALKUSER/examples/viewpoints/')))).
+	 assertz(logtalk_library_path(viewpoints, '$LOGTALKUSER/examples/viewpoints/')),
+	 assertz(logtalk_library_path(contributions, '$LOGTALKUSER/contributions/')))).

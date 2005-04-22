@@ -5,9 +5,9 @@
 <!--	jEdit 4.1 Logtalk syntax file
 
 	written by		Paulo Moura
-	version			1.43
+	version			1.44
 	created on		2 May 2002
-	last revised	20 January 2005
+	last revised	5 April 2005
 
 	To install, copy this file to the "modes" subdirectory in jEdit 
 	directory installation.   Next, check the "catalog" file in the 
@@ -90,6 +90,10 @@
 
 
 		<!-- Directives -->
+		<SPAN TYPE="FUNCTION" NO_LINE_BREAK="FALSE" DELEGATE="MAIN">
+			<BEGIN>:- encoding(</BEGIN>
+			<END>).</END>
+		</SPAN>
 		<SPAN TYPE="FUNCTION" NO_LINE_BREAK="FALSE" DELEGATE="MAIN">
 			<BEGIN>:- initialization(</BEGIN>
 			<END>).</END>

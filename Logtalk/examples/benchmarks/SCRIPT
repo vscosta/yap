@@ -1,6 +1,6 @@
 =================================================================
 Logtalk - Object oriented extension to Prolog
-Release 2.23.1
+Release 2.24.0
 
 Copyright (c) 1998-2005 Paulo Moura.  All Rights Reserved.
 =================================================================
@@ -12,66 +12,67 @@ Copyright (c) 1998-2005 Paulo Moura.  All Rights Reserved.
 ...
 
 
+% run the default set of benchmark tests:
+
+| ?- benchmarks.
+...
+
+
+% or run specific benchmark tests individually as exemplified next...
+
+
 % call the predicate my_length/0 defined in the Prolog database:
 
-| ?- benchmark(my_length([1, 2, 3, 4, 5, 6, 7, 8, 9, 0], _)).
+| ?- generate_list(30, List), benchmark(my_length(List, _)).
+
+Number of repetitions: 100000
+Loop time: 0.03 seconds
+Goal time: 0.39 seconds
+Average time per call: 3.6e-06 seconds
+Number of calls per second: 277777.777777778
+List = [0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29] ? 
+yes
+
+
+% call the predicate object::length/2 from the top-level:
+
+| ?- generate_list(30, List), benchmark(object::length(List, _)).
 
 Number of repetitions: 100000
 Loop time: 0.04 seconds
-Goal time: 0.31 seconds
-Average time per call: 2.7e-06 seconds
-Number of calls per second: 370370.370370371
+Goal time: 0.79 seconds
+Average time per call: 7.5e-06 seconds
+Number of calls per second: 133333.333333333
+List = [0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29] ? 
 yes
 
 
-% call the predicate module:mod_length/2 from top-level:
+% compiled call of the predicate object::length/2 (simulates message sending 
+% from a compiled object to another object; thus with no top-level overhead):
 
-| ?- benchmark(module:mod_length([1, 2, 3, 4, 5, 6, 7, 8, 9, 0], _)).
+| ?- generate_list(30, List), benchmark('$lgt_send_to_object_nv'(object, length(List, _), user)).
 
 Number of repetitions: 100000
-Loop time: 0.04 seconds
-Goal time: 0.31 seconds
-Average time per call: 2.7e-06 seconds
-Number of calls per second: 370370.37037037
+Loop time: 0.0299999999999998 seconds
+Goal time: 0.5 seconds
+Average time per call: 4.70000000000001e-06 seconds
+Number of calls per second: 212765.957446808
+List = [0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29] ? 
 yes
 
 
-% call the predicate list::length/2 from top-level:
-
-| ?- benchmark(object::length([1, 2, 3, 4, 5, 6, 7, 8, 9, 0], _)).
-
-Number of repetitions: 100000
-Loop time: 0.0600000000000005 seconds
-Goal time: 0.94 seconds
-Average time per call: 8.79999999999999e-06 seconds
-Number of calls per second: 113636.363636364
-yes
-
-
-% compiled call of the predicate list::length/2 (simulates message sending 
-% from a compiled object to another object; thus no top-level overhead):
-
-| ?- benchmark('$lgt_send_to_object_nv'(object, length([1, 2, 3, 4, 5, 6, 7, 8, 9, 0], _), user)).
-
-Number of repetitions: 100000
-Loop time: 0.0499999999999972 seconds
-Goal time: 0.510000000000002 seconds
-Average time per call: 4.60000000000004e-06 seconds
-Number of calls per second: 217391.304347824
-yes
-
-
-% compiled call of the predicate list::length/2 (simulates message sending 
+% compiled call of the predicate object::length/2 (simulates message sending 
 % from a compiled object to another object with event-driven programming 
 % support switched off and with no top-level overhead):
 
-| ?- benchmark('$lgt_send_to_object_ne_nv'(object, length([1, 2, 3, 4, 5, 6, 7, 8, 9, 0], _), user)).
+| ?- generate_list(30, List), benchmark('$lgt_send_to_object_ne_nv'(object, length(List, _), user)).
 
 Number of repetitions: 100000
-Loop time: 0.0500000000000007 seconds
-Goal time: 0.43 seconds
-Average time per call: 3.79999999999999e-06 seconds
-Number of calls per second: 263157.894736843
+Loop time: 0.0300000000000002 seconds
+Goal time: 0.46 seconds
+Average time per call: 4.3e-06 seconds
+Number of calls per second: 232558.139534884
+List = [0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29] ? 
 yes
 
 
@@ -80,48 +81,56 @@ yes
 | ?- benchmark((create_object(xpto, [], [], []), abolish_object(xpto))).
 
 Number of repetitions: 100000
-Loop time: 0.039999999999992 seconds
-Goal time: 102.77 seconds
-Average time per call: 0.0010273 seconds
-Number of calls per second: 973.425484279178
+Loop time: 0.0300000000000011 seconds
+Goal time: 51.59 seconds
+Average time per call: 0.0005156 seconds
+Number of calls per second: 1939.48797517455
 yes
 
 
 % test assertz/1 and retract/1 performance in plain Prolog:
 
 | ?- benchmark(db_test_plain).
+
 Number of repetitions: 100000
-Loop time: 0.0599999999999454 seconds
-Goal time: 81.25 seconds
-Average time per call: 0.000811900000000001 seconds
-Number of calls per second: 1231.67877817465
+Loop time: 0.0299999999999727 seconds
+Goal time: 51.07 seconds
+Average time per call: 0.0005104 seconds
+Number of calls per second: 1959.24764890282
+yes
 
 
-% test assertz/1 and retract/1 performance in this:
+% test assertz/1 and retract/1 performance on "this" database:
 
 | ?- benchmark('$lgt_send_to_object_ne_nv'(database, db_test_this, user)).
+
 Number of repetitions: 100000
-Loop time: 0.0699999999999363 seconds
-Goal time: 92.03 seconds
-Average time per call: 0.0009196 seconds
-Number of calls per second: 1087.42931709439
+Loop time: 0.0299999999999727 seconds
+Goal time: 63.37 seconds
+Average time per call: 0.0006334 seconds
+Number of calls per second: 1578.78118092832
+yes
 
 
-% test assertz/1 and retract/1 performance in self:
+% test assertz/1 and retract/1 performance on "self" database:
 
 | ?- benchmark('$lgt_send_to_object_ne_nv'(database, db_test_self, user)).
+
 Number of repetitions: 100000
-Loop time: 0.0599999999999454 seconds
-Goal time: 111.92 seconds
-Average time per call: 0.0011186 seconds
-Number of calls per second: 893.974611121043
+Loop time: 0.0299999999999727 seconds
+Goal time: 71.3499999999999 seconds
+Average time per call: 0.000713199999999999 seconds
+Number of calls per second: 1402.13123948402
+yes
 
 
-% test assertz/1 and retract/1 performance using ::/2:
+% test assertz/1 and retract/1 performance on another object database (using ::/2):
 
 | ?- benchmark('$lgt_send_to_object_ne_nv'(database, db_test_obj, user)).
+
 Number of repetitions: 100000
-Loop time: 0.0600000000001728 seconds
-Goal time: 114.37 seconds
-Average time per call: 0.0011431 seconds
-Number of calls per second: 874.814102003327
+Loop time: 0.0299999999999727 seconds
+Goal time: 68.97 seconds
+Average time per call: 0.0006894 seconds
+Number of calls per second: 1450.53669857847
+yes

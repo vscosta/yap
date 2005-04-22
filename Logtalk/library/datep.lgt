@@ -3,9 +3,9 @@
 
 
 	:- info([
-		version is 1.0,
+		version is 1.1,
 		author is 'Paulo Moura',
-		date is 2000/7/24,
+		date is 2005/3/17,
 		comment is 'Date protocol.']).
 
 
@@ -13,7 +13,7 @@
 
 	:- mode(today(-integer, -integer, -integer), one).
 
-	:- info(now/3, [
+	:- info(today/3, [
 		comment is 'Returns current date.',
 		argnames is ['Year', 'Month', 'Day']]).
 
@@ -22,7 +22,7 @@
 
 	:- mode(leap_year(+integer), zero_or_one).
 
-	:- info(empty/1,
+	:- info(leap_year/1,
 		[comment is 'True if the argument is a leap year.',
 		 argnames is ['Year']]).
 
@@ -31,7 +31,7 @@
 
 	:- mode(name_of_day(?integer, ?atom, ?atom), zero_or_more).
 
-	:- info(valid/3, [
+	:- info(name_of_day/3, [
 		comment is 'Name and short name of day.',
 		argnames is ['Index', 'Name', 'Short']]).
 
@@ -40,7 +40,7 @@
 
 	:- mode(name_of_month(?integer, ?atom, ?atom), zero_or_more).
 
-	:- info(valid/3, [
+	:- info(name_of_month/3, [
 		comment is 'Name and short name of month.',
 		argnames is ['Index', 'Name', 'Short']]).
 
@@ -49,7 +49,7 @@
 
 	:- mode(days_in_month(?integer, +integer, ?integer), zero_or_more).
 
-	:- info(valid/3, [
+	:- info(days_in_month/3, [
 		comment is 'Number of days in a month.',
 		argnames is ['Month', 'Year', 'Days']]).
 

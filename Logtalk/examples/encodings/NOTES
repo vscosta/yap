@@ -1,0 +1,20 @@
+=================================================================
+Logtalk - Object oriented extension to Prolog
+Release 2.24.0
+
+Copyright (c) 1998-2005 Paulo Moura.  All Rights Reserved.
+=================================================================
+
+
+To load this example and for sample queries, please see the SCRIPT file.
+
+This is a very simple example of using the new, experimental encoding/1 
+directive, which is fully based on the directive with the same name found 
+on recent development releases of SWI-Prolog. Currently, this example 
+requires Logtalk to be run with the SWI-Prolog compiler.
+
+The "babel.lgt" source file uses UTF-8 encoding. When browsing its code, 
+be sure to use a text editor that supports this encoding. In addition, 
+you may need to configure your text editor to open the source file using 
+this encoding. If you are using the SWI-Prolog GUI application on Windows, 
+be sure to select a font which supports Unicode characters.

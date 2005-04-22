@@ -1,6 +1,6 @@
 =================================================================
 Logtalk - Object oriented extension to Prolog
-Release 2.23.1
+Release 2.24.0
 
 Copyright (c) 1998-2005 Paulo Moura.  All Rights Reserved.
 =================================================================
@@ -29,7 +29,7 @@ Value = descendant
 yes
 
 
-% if we retract the local definition, again the inherited definition form root
+% if we retract the local definition, again the definition inherited from root
 % will be used:
 
 | ?- descendant::(retractall(p(_)), p(Value)).
