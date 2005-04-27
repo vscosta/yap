@@ -173,11 +173,13 @@ LookupAtom(char *atom)
     }
   }
 #endif  
-  NOfAtoms++;
   /* add new atom to start of chain */
   ae = (AtomEntry *) Yap_AllocAtomSpace((sizeof *ae) + strlen(atom) + 1);
-  if (ae == NULL)
+  if (ae == NULL) {
+    WRITE_UNLOCK(HashChain[hash].AERWLock);
     return NIL;
+  }
+  NOfAtoms++;
   na = AbsAtom(ae);
   ae->PropsOfAE = NIL;
   if (ae->StrOfAE != atom)

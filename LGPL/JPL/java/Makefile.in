@@ -79,8 +79,8 @@ CLASSES=$(JAVA:.java=.class)
 all:	$(JPL)
 
 $(JAVA):
-	-@ ( cd jpl ; @LN_S@ ../$(srcdir)/jpl/*.java .)
-	-@ ( cd jpl/fli ; @LN_S@ ../../$(srcdir)/jpl/fli/*.java .)
+	-@ ( cd jpl ; @LN_S@ $(srcdir)/jpl/*.java .)
+	-@ ( cd jpl/fli ; @LN_S@ $(srcdir)/jpl/fli/*.java .)
 
 $(JPL):	$(JAVA)
 	$(JAVAC) $(JAVA)

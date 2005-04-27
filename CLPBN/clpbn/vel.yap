@@ -29,6 +29,11 @@
 	clpbn_not_var_member/2,
 	check_for_hidden_vars/3]).
 
+:- use_module(library('clpbn/discrete_utils'), [
+	project_from_CPT/3,
+	reorder_CPT/5,
+	get_dist_size/2]).
+
 :- use_module(library(lists),
 	      [
 	       append/3,
@@ -74,7 +79,7 @@ find_all_clpbn_vars([V|Vs], [Var|LV], ProcessedVars, [table(I,Table,Parents,Size
 	% variables with evidence should not be processed.
 	(var(Ev) ->
 	    Var = var(V,I,Sz,Vals,Parents,Ev,_,_),
-	    get_dist_size(V,Sz),
+	    vel_get_dist_size(V,Sz),
 	    ProcessedVars = [Var|ProcessedVars0]
 	;
 	    ProcessedVars = ProcessedVars0
@@ -84,53 +89,8 @@ find_all_clpbn_vars([V|Vs], [Var|LV], ProcessedVars, [table(I,Table,Parents,Size
 var_with_deps(V, Table, Deps, Sizes, Ev, Vals) :-
 	clpbn:get_atts(V, [dist(Vals,OTable,Parents)]),
 	( clpbn:get_atts(V, [evidence(Ev)]) -> true ; true),
-	reorder_table([V|Parents],Sizes0,OTable,Deps0,Table0),
+	reorder_CPT([V|Parents],OTable,Deps0,Table0,Sizes0),
 	simplify_evidence(Deps0, Table0, Deps0, Sizes0, Table, Deps, Sizes).
-
-get_sizes([], []).
-get_sizes([V|Deps], [Sz|Sizes]) :-
-	get_dist_size(V,Sz),
-	get_sizes(Deps, Sizes).
-
-reorder_table(Vs0, Sizes, T0, Vs, TF) :-
-	get_sizes(Vs0, Szs),
-	numb_vars(Vs0, Szs, _, VPs0, VLs0),
-	keysort(VLs0, VLs),
-	compute_new_factors(VLs, _, Vs, Sizes),
-	get_factors(VLs0,Fs),
-	length(T0,L),
-	functor(TF,t,L),
-	copy_to_new_array(T0, 0, VPs0, Fs, TF).
-
-numb_vars([], [], 1, [], []).
-numb_vars([V|Vs], [L|Ls], A0, [Ai|VPs], [V-(L,_)|VLs]) :-
-	numb_vars(Vs, Ls, Ai, VPs, VLs),
-	A0 is Ai*L.
-
-compute_new_factors([], 1, [], []).
-compute_new_factors([V-(L,F)|VLs], NF, [V|Vs], [L|Szs]) :-
-	compute_new_factors(VLs, F, Vs, Szs),
-	NF is F*L.
-
-get_factors([],[]).
-get_factors([_-(_,F)|VLs0],[F|Fs]) :-
-	get_factors(VLs0,Fs).
-
-copy_to_new_array([], _, _, _, _).
-copy_to_new_array([P|Ps], I, F0s, Fs, S) :-
-	convert_factor(F0s, Fs, I, N),
-	I1 is I+1,
-	N1 is N+1,
-	arg(N1,S,P),
-	copy_to_new_array(Ps, I1, F0s, Fs, S).
-
-convert_factor([], [], _, 0).
-convert_factor([F0|F0s], [F|Fs], I, OUT) :-
-	X is I//F0,
-	NI is I mod F0,
-	NEXT is F*X,
-	convert_factor(F0s, Fs, NI, OUT1),
-	OUT is OUT1+NEXT.
 
 find_all_table_deps(Tables0, LV) :-
 	find_dep_graph(Tables0, DepGraph0),
@@ -168,7 +128,7 @@ compute_size([tab(_,Vs,_)|Tabs],Vs0,K) :-
 
 multiply_sizes([],K,K).
 multiply_sizes([V|Vs],K0,K) :-
-	get_dist_size(V, Sz),
+	vel_get_dist_size(V, Sz),
 	KI is K0*Sz,
 	multiply_sizes(Vs,KI,K).
 
@@ -176,8 +136,7 @@ process(LV0, InputVs, Out) :-
 	find_best(LV0, V0, -1, V, WorkTables, LVI, InputVs),
 	V \== V0, !,
 	multiply_tables(WorkTables, Table),
-	propagate_evidence(V, Evs),
-	project(V,Table,NewTable,Evs),
+	project_from_CPT(V,Table,NewTable),
 	include(LVI,NewTable,V,LV2),
 	process(LV2, InputVs, Out).
 process(LV0, _, Out) :-
@@ -209,25 +168,11 @@ multiply_tables([tab(Tab1,Deps1,Szs1), tab(Tab2,Deps2,Sz2)| Tables], Out) :-
 
 simplify_evidence([], Table, Deps, Sizes, Table, Deps, Sizes).
 simplify_evidence([V|VDeps], Table0, Deps0, Sizes0, Table, Deps, Sizes) :-
-	clpbn:get_atts(V, [evidence(Ev)]),
-	clpbn:get_atts(V, [dist(Out,_,_)]),
-	generate_szs_with_evidence(Out,Ev,Evs),
-	project(V,tab(Table0,Deps0,Sizes0),tab(NewTable,Deps1,Sizes1),Evs),
+	clpbn:get_atts(V, [evidence(_)]), !,
+	project_from_CPT(V,tab(Table0,Deps0,Sizes0),tab(NewTable,Deps1,Sizes1)),
 	simplify_evidence(VDeps, NewTable, Deps1, Sizes1, Table, Deps, Sizes).
 simplify_evidence([_|VDeps], Table0, Deps0, Sizes0, Table, Deps, Sizes) :-
 	simplify_evidence(VDeps, Table0, Deps0, Sizes0, Table, Deps, Sizes).
-
-propagate_evidence(V, Evs) :-
-	clpbn:get_atts(V, [evidence(Ev),dist(Out,_,_)]), !,
-	generate_szs_with_evidence(Out,Ev,Evs).
-propagate_evidence(_, _).
-
-generate_szs_with_evidence([],_,[]).
-generate_szs_with_evidence([Ev|Out],Ev,[ok|Evs]) :- !,
-	generate_szs_with_evidence(Out,Ev,Evs).
-generate_szs_with_evidence([_|Out],Ev,[not_ok|Evs]) :-
-	generate_szs_with_evidence(Out,Ev,Evs).
-
 
 fetch_tables([], []).
 fetch_tables([var(_,_,_,_,_,_,Deps,_)|LV0], Tables) :-
@@ -284,50 +229,6 @@ element([F|Fs], I, P1, [F1|Fs1], P2, [F2|Fs2], Tab1, Tab2, El) :-
 	element(Fs, NI, NP1, Fs1, NP2, Fs2, Tab1, Tab2, El).
 
 % 
-project(V,tab(Table,Deps,Szs),tab(NewTable,NDeps,NSzs),Evs) :-
-	functor(Table,_,Max),
-	find_projection_factor(Deps, V, NDeps, Szs, NSzs, F, Sz),
-	OLoop is Max//(Sz*F),
-	project_outer_loop(0,OLoop,F,Sz,Table,Evs,NTabl),
-	NewTable =.. [t|NTabl].
-
-find_projection_factor([V|Deps], V1, Deps, [Sz|Szs], Szs, F, Sz) :-
-	V == V1, !,
-	mult(Szs, 1, F).
-find_projection_factor([V|Deps], V1, [V|NDeps], [Sz|Szs], [Sz|NSzs], F, NSz) :-
-	find_projection_factor(Deps, V1, NDeps, Szs, NSzs, F, NSz).
-
-mult([], F, F).
-mult([Sz|Szs], Sz0, F) :-
-	SzI is Sz0*Sz,
-	mult(Szs, SzI, F).
-
-project_outer_loop(OLoop,OLoop,_,_,_,_,[]) :- !.
-project_outer_loop(I,OLoop,F,Sz,Table,Evs,NTabl) :-
-	Base is I*Sz*F,
-	project_mid_loop(0,F,Base,Sz,Table,Evs,NTabl,NTabl0),
-	I1 is I+1,
-	project_outer_loop(I1,OLoop,F,Sz,Table,Evs,NTabl0).
-
-project_mid_loop(F,F,_,_,_,_,NTabl,NTabl) :- !.
-project_mid_loop(I,F,Base,Sz,Table,Evs,[Ent|NTablF],NTabl0) :-
-	I1 is I+1,
-	NBase is I+Base,
-	project_inner_loop(0,Sz,Evs,NBase,F,Table,0.0,Ent),
-	project_mid_loop(I1,F,Base,Sz,Table,Evs,NTablF,NTabl0).
-
-project_inner_loop(Sz,Sz,[],_,_,_,Ent,Ent) :- !.
-project_inner_loop(I,Sz,[ok|Evs],NBase,F,Table,Ent0,Ent) :- !,
-	I1 is I+1,
-	Pos is NBase+I*F+1,
-	arg(Pos,Table,E1),
-	Ent1 is E1+Ent0,
-	project_inner_loop(I1,Sz,Evs,NBase,F,Table,Ent1,Ent).
-project_inner_loop(I,Sz,[_|Evs],NBase,F,Table,Ent0,Ent) :- !,
-	I1 is I+1,
-	project_inner_loop(I1,Sz,Evs,NBase,F,Table,Ent0,Ent).
-	
-	
 include([],_,_,[]).
 include([var(V,P,VSz,D,Parents,Ev,Tabs,Est)|LV],tab(T,Vs,Sz),V1,[var(V,P,VSz,D,Parents,Ev,Tabs,Est)|NLV]) :-
 	clpbn_not_var_member(Vs,V), !,
@@ -411,10 +312,9 @@ add_alldiffs([],Eqs,Eqs).
 add_alldiffs(AllDiffs,Eqs,(Eqs/alldiff(AllDiffs))).
 
 
-get_dist_size(V,Sz) :-
+vel_get_dist_size(V,Sz) :-
 	get_atts(V, [size(Sz)]), !.
-get_dist_size(V,Sz) :-
-	clpbn:get_atts(V, [dist(Vals,_,_)]), !,
-	length(Vals,Sz),
+vel_get_dist_size(V,Sz) :-
+	get_dist_size(V,Sz), !,
 	put_atts(V, [size(Sz)]).
 

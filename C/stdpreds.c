@@ -11,8 +11,14 @@
 * File:		stdpreds.c						 *
 * comments:	General-purpose C implemented system predicates		 *
 *									 *
-* Last rev:     $Date: 2005-04-07 17:48:55 $,$Author: ricroc $						 *
+* Last rev:     $Date: 2005-04-27 20:09:25 $,$Author: vsc $						 *
 * $Log: not supported by cvs2svn $
+* Revision 1.87  2005/04/07 17:48:55  ricroc
+* Adding tabling support for mixed strategy evaluation (batched and local scheduling)
+*   UPDATE: compilation flags -DTABLING_BATCHED_SCHEDULING and -DTABLING_LOCAL_SCHEDULING removed. To support tabling use -DTABLING in the Makefile or --enable-tabling in configure.
+*   NEW: yap_flag(tabling_mode,MODE) changes the tabling execution mode of all tabled predicates to MODE (batched, local or default).
+*   NEW: tabling_mode(PRED,MODE) changes the default tabling execution mode of predicate PRED to MODE (batched or local).
+*
 * Revision 1.86  2005/03/13 06:26:11  vsc
 * fix excessive pruning in meta-calls
 * fix Term->int breakage in compiler
@@ -979,14 +985,16 @@ static Int
 p_name(void)
 {				/* name(?Atomic,?String)		 */
   char            *String, *s; /* alloc temp space on trail */
-  Term            t, NewT, AtomNameT = Deref(ARG1);
+  Term            t = Deref(ARG2), NewT, AtomNameT = Deref(ARG1);
 
-  t = Deref(ARG2);
+ restart_aux:
   if (!IsVarTerm(AtomNameT)) {
     if (IsAtomTerm(AtomNameT)) {
       String = RepAtom(AtomOfTerm(AtomNameT))->StrOfAE;
     } else if (IsIntTerm(AtomNameT)) {
       String = Yap_PreAllocCodeSpace();
+      if (String + 1024 > (char *)AuxSp) 
+	goto expand_auxsp;
 #if SHORT_INTS
       sprintf(String, "%ld", IntOfTerm(AtomNameT));
 #else
@@ -994,10 +1002,14 @@ p_name(void)
 #endif
     } else if (IsFloatTerm(AtomNameT)) {
       String = Yap_PreAllocCodeSpace();
+      if (String + 1024 > (char *)AuxSp) 
+	goto expand_auxsp;
 
       sprintf(String, "%f", FloatOfTerm(AtomNameT));
     } else if (IsLongIntTerm(AtomNameT)) {
       String = Yap_PreAllocCodeSpace();
+      if (String + 1024 > (char *)AuxSp) 
+	goto expand_auxsp;
 
 #if SHORT_INTS
       sprintf(String, "%ld", LongIntOfTerm(AtomNameT));
@@ -1007,6 +1019,8 @@ p_name(void)
 #if USE_GMP
     } else if (IsBigIntTerm(AtomNameT)) {
       String = Yap_PreAllocCodeSpace();
+      if (String + 1024 > (char *)AuxSp) 
+	goto expand_auxsp;
       mpz_get_str(String, 10, Yap_BigIntOfTerm(AtomNameT));
 #endif
     } else {
@@ -1022,15 +1036,16 @@ p_name(void)
     return Yap_unify(NewT, ARG2);
   }
   s = String = ((AtomEntry *)Yap_PreAllocCodeSpace())->StrOfAE;
-  if (s == NULL) {
-    return FALSE;
-  }
+  if (String == ((AtomEntry *)NULL)->StrOfAE ||
+      String + 1024 > (char *)AuxSp) 
+    goto expand_auxsp;
   if (!IsVarTerm(t) && t == MkAtomTerm(AtomNil)) {
     return Yap_unify_constant(ARG1, MkAtomTerm(Yap_LookupAtom("")));
   }
   while (!IsVarTerm(t) && IsPairTerm(t)) {
     Term            Head;
     Int             i;
+
     Head = HeadOfTerm(t);
     if (IsVarTerm(Head)) {
       Yap_Error(INSTANTIATION_ERROR,Head,"name/2");
@@ -1046,16 +1061,8 @@ p_name(void)
 	Yap_Error(DOMAIN_ERROR_NOT_LESS_THAN_ZERO,Head,"name/2");
       return FALSE;
     }
-    if (s+1 >= (char *)AuxSp-1024) {
-      char *nString;
-      
-      *H++ = t;
-      nString = ((AtomEntry *)Yap_ExpandPreAllocCodeSpace(0, NULL))->StrOfAE;
-      if (!nString)
-	return FALSE;
-      t = *--H;
-      s = nString+(s-String);
-      String = nString;
+    if (s > (char *)AuxSp-1024) {
+      goto expand_auxsp;
     }
     *s++ = i;
     t = TailOfTerm(t);
@@ -1070,24 +1077,43 @@ p_name(void)
       Atom at;
       while ((at = Yap_LookupAtom(String)) == NIL) {
 	if (!Yap_growheap(FALSE, 0, NULL)) {
-	  Yap_Error(OUT_OF_HEAP_ERROR, TermNil, Yap_ErrorMessage);
+	  Yap_Error(OUT_OF_HEAP_ERROR, ARG2, "generating atom from string in name/2");
 	  return FALSE;
 	}
+	/* safest to restart, we don't know what happened to String */
+	t = Deref(ARG2);
+	AtomNameT = Deref(ARG1);
+	goto restart_aux;
       }
       NewT = MkAtomTerm(at);
     }
     return Yap_unify_constant(ARG1, NewT);
   } else {
-    Yap_Error(TYPE_ERROR_LIST,t,"name/2");
+    Yap_Error(TYPE_ERROR_LIST,ARG2,"name/2");
     return FALSE;
   }
+
+  /* error handling */
+ expand_auxsp:
+  String = Yap_ExpandPreAllocCodeSpace(0,NULL);
+  if (String + 1024 > (char *)AuxSp) {
+    /* crash in flames */
+    Yap_Error(OUT_OF_AUXSPACE_ERROR, ARG1, "allocating temp space in name/2");
+    return FALSE;
+  }
+  AtomNameT = Deref(ARG1);
+  t = Deref(ARG2);
+  goto restart_aux;
+
 }
 
 static Int 
 p_atom_chars(void)
 {
   Term t1 = Deref(ARG1);
+  char           *String;
 
+ restart_aux:
   if (!IsVarTerm(t1)) {
     Term            NewT;
     if (!IsAtomTerm(t1)) {
@@ -1102,11 +1128,14 @@ p_atom_chars(void)
     return Yap_unify(NewT, ARG2);
   } else {
     /* ARG1 unbound */
-    char           *String = ((AtomEntry *)Yap_PreAllocCodeSpace())->StrOfAE; /* alloc temp space on trail */
-    register Term   t = Deref(ARG2);
-    register char  *s = String;
+    Term   t = Deref(ARG2);
+    char  *s;
     Atom at;
 
+    String = ((AtomEntry *)Yap_PreAllocCodeSpace())->StrOfAE;
+    if (String + 1024 > (char *)AuxSp) 
+      goto expand_auxsp;
+    s = String;
     if (IsVarTerm(t)) {
       Yap_Error(INSTANTIATION_ERROR, t1, "atom_chars/2");
       return(FALSE);		
@@ -1135,14 +1164,8 @@ p_atom_chars(void)
 	  Yap_Error(REPRESENTATION_ERROR_CHARACTER_CODE,Head,"atom_chars/2");
 	  return(FALSE);		
 	}
-	if (s+1 == (char *)AuxSp) {
-	  char *nString;
-
-	  *H++ = t;
-	  nString = ((AtomEntry *)Yap_ExpandPreAllocCodeSpace(0,NULL))->StrOfAE;
-	  t = *--H;
-	  s = nString+(s-String);
-	  String = nString;
+	if (s+1024 > (char *)AuxSp) {
+	  goto expand_auxsp;
 	}
 	*s++ = i;
 	t = TailOfTerm(t);
@@ -1173,14 +1196,8 @@ p_atom_chars(void)
 	  Yap_Error(TYPE_ERROR_CHARACTER,Head,"atom_chars/2");
 	  return(FALSE);		
 	}
-	if (s+1 == (char *)AuxSp) {
-	  char *nString;
-
-	  *H++ = t;
-	  nString = ((AtomEntry *)Yap_ExpandPreAllocCodeSpace(0,NULL))->StrOfAE;
-	  t = *--H;
-	  s = nString+(s-String);
-	  String = nString;
+	if (s+1024 == (char *)AuxSp) {
+	  goto expand_auxsp;
 	}
 	*s++ = is[0];
 	t = TailOfTerm(t);
@@ -1202,6 +1219,16 @@ p_atom_chars(void)
     }
     return Yap_unify_constant(ARG1, MkAtomTerm(at));
   }
+  /* error handling */
+ expand_auxsp:
+  String = Yap_ExpandPreAllocCodeSpace(0,NULL);
+  if (String + 1024 > (char *)AuxSp) {
+    /* crash in flames */
+    Yap_Error(OUT_OF_AUXSPACE_ERROR, ARG1, "allocating temp space in atom_chars/2");
+    return FALSE;
+  }
+  t1 = Deref(ARG1);
+  goto restart_aux;
 }
 
 static Int 
@@ -1268,7 +1295,7 @@ p_atom_concat(void)
   }
   Yap_ReleasePreAllocCodeSpace((ADDR)cpt0);
   Yap_Error(TYPE_ERROR_LIST, ARG1, "atom_concat/2");
-  return(FALSE);
+  return FALSE;
 }
 
 static Int 
@@ -1281,6 +1308,14 @@ p_atomic_concat(void)
   UInt sz;
 
  restart:
+  if (cptr+1024 > (char *)AuxSp) {
+    cptr = Yap_ExpandPreAllocCodeSpace(0,NULL);
+    if (cptr + 1024 > (char *)AuxSp) {
+      /* crash in flames */
+      Yap_Error(OUT_OF_AUXSPACE_ERROR, ARG1, "allocating temp space in atomic_concat/2");
+      return FALSE;
+    }
+  }
   cpt0 = cptr;
   /* we need to have a list */
   if (IsVarTerm(t1)) {
@@ -1374,6 +1409,9 @@ static Int
 p_atom_codes(void)
 {
   Term t1 = Deref(ARG1);
+  char *String;
+
+ restart_pred:
   if (!IsVarTerm(t1)) {
     Term            NewT;
     if (!IsAtomTerm(t1)) {
@@ -1384,10 +1422,14 @@ p_atom_codes(void)
     return (Yap_unify(NewT, ARG2));
   } else {
     /* ARG1 unbound */
-    char *String = ((AtomEntry *)Yap_PreAllocCodeSpace())->StrOfAE;
-    register Term   t = Deref(ARG2);
-    register char  *s = String;
+    Term   t = Deref(ARG2);
+    char  *s;
 
+    String = ((AtomEntry *)Yap_PreAllocCodeSpace())->StrOfAE;
+    if (String + 1024 > (char *)AuxSp) { 
+      goto expand_auxsp;
+    }
+    s = String;
     if (IsVarTerm(t)) {
       Yap_Error(INSTANTIATION_ERROR, t1, "atom_codes/2");
       return(FALSE);		
@@ -1415,14 +1457,8 @@ p_atom_codes(void)
 	Yap_Error(REPRESENTATION_ERROR_CHARACTER_CODE,Head,"atom_codes/2");
 	return(FALSE);		
       }
-      if (s+1 == (char *)AuxSp) {
-	char *nString;
-
-	*H++ = t;
-	nString = ((AtomEntry *)Yap_ExpandPreAllocCodeSpace(0,NULL))->StrOfAE;
-	t = *--H;
-	s = nString+(s-String);
-	String = nString;
+      if (s+1024 > (char *)AuxSp) {
+	goto expand_auxsp;
       }
       *s++ = i;
       t = TailOfTerm(t);
@@ -1437,6 +1473,19 @@ p_atom_codes(void)
     *s++ = '\0';
     return (Yap_unify_constant(ARG1, MkAtomTerm(Yap_LookupAtom(String))));
   }
+  /* error handling */
+ expand_auxsp:
+  if (String + 1024 > (char *)AuxSp) { 
+    String = Yap_ExpandPreAllocCodeSpace(0,NULL);
+  
+    if (String + 1024 > (char *)AuxSp) {
+      /* crash in flames */
+      Yap_Error(OUT_OF_AUXSPACE_ERROR, ARG1, "allocating temp space in atom_codes/2");
+      return FALSE;
+    }
+    t1 = Deref(ARG1);
+  }
+  goto restart_pred;
 }
 
 static Int 
@@ -1537,7 +1586,16 @@ p_number_chars(void)
   Term NewT;
   register char  *s;
 
+ restart_aux:
   String = Yap_PreAllocCodeSpace();
+  if (String+1024 > (char *)AuxSp) {
+    String = Yap_ExpandPreAllocCodeSpace(0,NULL);
+    if (String + 1024 > (char *)AuxSp) {
+      /* crash in flames */
+      Yap_Error(OUT_OF_AUXSPACE_ERROR, ARG1, "allocating temp space in number_chars/2");
+      return FALSE;
+    }
+  }
   if (IsNonVarTerm(t1)) {
     Term            NewT;
     if (!IsNumTerm(t1)) {
@@ -1595,14 +1653,15 @@ p_number_chars(void)
 	Yap_Error(REPRESENTATION_ERROR_CHARACTER_CODE,Head,"number_chars/2");
 	return(FALSE);		
       }
-      if (s+1 == (char *)AuxSp) {
-	char *nString;
-
-	*H++ = t;
-	nString = Yap_ExpandPreAllocCodeSpace(0,NULL);
-	t = *--H;
-	s = nString+(s-String);
-	String = nString;
+      if (s+1024 > (char *)AuxSp) {
+	int offs = (s-String);
+	String = Yap_ExpandPreAllocCodeSpace(0,NULL);
+	if (String + (offs+1024) > (char *)AuxSp) {
+	  /* crash in flames */
+	  Yap_Error(OUT_OF_AUXSPACE_ERROR, ARG1, "allocating temp space in number_chars/2");
+	  return FALSE;
+	}
+	goto restart_aux;
       }
       *s++ = i;
       t = TailOfTerm(t);
@@ -1667,9 +1726,17 @@ p_number_atom(void)
   char   *String; /* alloc temp space on Trail */
   register Term   t = Deref(ARG2), t1 = Deref(ARG1);
   Term NewT;
-  register char  *s;
+  char  *s;
 
   s = String = ((AtomEntry *)Yap_PreAllocCodeSpace())->StrOfAE;
+  if (String+1024 > (char *)AuxSp) {
+    s = String = Yap_ExpandPreAllocCodeSpace(0,NULL);
+    if (String + 1024 > (char *)AuxSp) {
+      /* crash in flames */
+      Yap_Error(OUT_OF_AUXSPACE_ERROR, ARG1, "allocating temp space in number_atom/2");
+      return FALSE;
+    }
+  }
   if (IsNonVarTerm(t1)) {
     Atom at;
 
@@ -1731,6 +1798,14 @@ p_number_codes(void)
   register char  *s;
 
   String = Yap_PreAllocCodeSpace();
+  if (String+1024 > (char *)AuxSp) {
+    s = String = Yap_ExpandPreAllocCodeSpace(0,NULL);
+    if (String + 1024 > (char *)AuxSp) {
+      /* crash in flames */
+      Yap_Error(OUT_OF_AUXSPACE_ERROR, ARG1, "allocating temp space in number_codes/2");
+      return FALSE;
+    }
+  }
   if (IsNonVarTerm(t1)) {
     if (IsIntTerm(t1)) {
 #if SHORT_INTS
@@ -2973,17 +3048,17 @@ Yap_InitCPreds(void)
   Yap_InitCPred("$values", 3, p_values, SafePredFlag|SyncPredFlag|HiddenPredFlag);
   /* general purpose */
   Yap_InitCPred("$opdec", 3, p_opdec, SafePredFlag|SyncPredFlag|HiddenPredFlag);
-  Yap_InitCPred("name", 2, p_name, SafePredFlag);
+  Yap_InitCPred("name", 2, p_name, 0);
   Yap_InitCPred("char_code", 2, p_char_code, SafePredFlag);
-  Yap_InitCPred("atom_chars", 2, p_atom_chars, SafePredFlag);
-  Yap_InitCPred("atom_codes", 2, p_atom_codes, SafePredFlag);
+  Yap_InitCPred("atom_chars", 2, p_atom_chars, 0);
+  Yap_InitCPred("atom_codes", 2, p_atom_codes, 0);
   Yap_InitCPred("atom_length", 2, p_atom_length, SafePredFlag);
   Yap_InitCPred("$atom_split", 4, p_atom_split, SafePredFlag|HiddenPredFlag);
-  Yap_InitCPred("number_chars", 2, p_number_chars, SafePredFlag);
-  Yap_InitCPred("number_atom", 2, p_number_atom, SafePredFlag);
-  Yap_InitCPred("number_codes", 2, p_number_codes, SafePredFlag);
-  Yap_InitCPred("atom_concat", 2, p_atom_concat, SafePredFlag);
-  Yap_InitCPred("atomic_concat", 2, p_atomic_concat, SafePredFlag);
+  Yap_InitCPred("number_chars", 2, p_number_chars, 0);
+  Yap_InitCPred("number_atom", 2, p_number_atom, 0);
+  Yap_InitCPred("number_codes", 2, p_number_codes, 0);
+  Yap_InitCPred("atom_concat", 2, p_atom_concat, 0);
+  Yap_InitCPred("atomic_concat", 2, p_atomic_concat, 0);
   Yap_InitCPred("=..", 2, p_univ, 0);
   Yap_InitCPred("$statistics_trail_max", 1, p_statistics_trail_max, SafePredFlag|SyncPredFlag|HiddenPredFlag);
   Yap_InitCPred("$statistics_heap_max", 1, p_statistics_heap_max, SafePredFlag|SyncPredFlag|HiddenPredFlag);

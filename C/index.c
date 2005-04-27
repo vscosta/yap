@@ -11,8 +11,11 @@
 * File:		index.c							 *
 * comments:	Indexing a Prolog predicate				 *
 *									 *
-* Last rev:     $Date: 2005-04-21 13:53:05 $,$Author: vsc $						 *
+* Last rev:     $Date: 2005-04-27 20:09:25 $,$Author: vsc $						 *
 * $Log: not supported by cvs2svn $
+* Revision 1.123  2005/04/21 13:53:05  vsc
+* fix bug with (var(X) -> being interpreted as var(X) by indexing code
+*
 * Revision 1.122  2005/04/10 04:01:12  vsc
 * bug fixes, I hope!
 *
@@ -3389,6 +3392,7 @@ suspend_indexing(ClauseDef *min, ClauseDef *max, PredEntry *ap, struct intermedi
   UInt cls = (max-min)+1;
 
   if (cint->expand_block &&
+      cint->expand_block != (yamop *)(&(ap->cs.p_code.ExpandCode)) &&
       cint->expand_block->u.sp.s2 < 2*(max-min)) {
     cint->expand_block->u.sp.s3++;
     return (UInt)(cint->expand_block);

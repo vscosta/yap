@@ -28,7 +28,9 @@ CLPBN_TOP= $(srcdir)/clpbn.yap
 CLPBN_PROGRAMS= \
 	$(srcdir)/clpbn/aggregates.yap \
 	$(srcdir)/clpbn/bnt.yap \
+	$(srcdir)/clpbn/discrete_utils.yap \
 	$(srcdir)/clpbn/evidence.yap \
+	$(srcdir)/clpbn/gibbs.yap \
 	$(srcdir)/clpbn/graphs.yap \
 	$(srcdir)/clpbn/graphviz.yap \
 	$(srcdir)/clpbn/utils.yap \

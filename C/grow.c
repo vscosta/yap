@@ -808,6 +808,7 @@ do_growheap(int fix_code, UInt in_size, struct intermediates *cip)
   }
 #if YAPOR
   Yap_Error(OUT_OF_HEAP_ERROR,TermNil,"cannot grow Heap: more than a worker/thread running");
+  fprintf(stderr,"ERROR 1\n");
   return FALSE;
 #endif
   if (SizeOfOverflow > sz)
@@ -816,6 +817,7 @@ do_growheap(int fix_code, UInt in_size, struct intermediates *cip)
     size = size/2;
     sz =  size << shift_factor;
     if (sz < in_size) {
+fprintf(stderr,"ERROR 2\n");
       return FALSE;
     }
   }
@@ -846,6 +848,7 @@ do_growheap(int fix_code, UInt in_size, struct intermediates *cip)
     return TRUE;
   }
   /* failed */
+fprintf(stderr,"ERROR 3\n");
   return FALSE;
 }
 

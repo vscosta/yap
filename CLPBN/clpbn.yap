@@ -20,9 +20,6 @@
 :- dynamic
 	user:term_expansion/2.
 
-:- multifile
-	user:term_expansion/2.
-
 :- attribute key/1, dist/3, evidence/1, starter/0.
 
 
@@ -32,6 +29,10 @@
 
 :- use_module('clpbn/vel', [vel/3,
 		    check_if_vel_done/1
+		    ]).
+
+:- use_module('clpbn/gibbs', [gibbs/3,
+		    check_if_gibbs_done/1
 		    ]).
 
 :- use_module('clpbn/graphs', [
@@ -148,6 +149,8 @@ add_to_keys(K1, Ks, [K1|Ks]).
 
 write_out(vel, GVars, AVars, DiffVars) :-
 	vel(GVars, AVars, DiffVars).
+write_out(gibbs, GVars, AVars, DiffVars) :-
+	gibbs(GVars, AVars, DiffVars).
 write_out(bnt, GVars, AVars, _) :-
 	dump_as_bnt(GVars, AVars).
 write_out(graphs, _, AVars, _) :-
@@ -245,7 +248,7 @@ bind_clpbns(Key, Domain, Table, Parents, Key1, Domain1, Table1, Parents1) :-
 	Key == Key1, !,
 	( Domain == Domain1, Table == Table1, Parents == Parents1 -> true ; throw(error(domain_error(bayesian_domain),bind_clpbns(var(Key, Domain, Table, Parents),var(Key1, Domain1, Table1, Parents1))))).
 bind_clpbns(_, _, _, _, _, _, _, _) :-
-	format(user_error, "unification of two bayesian vars not supported~n").
+	format(user_error, 'unification of two bayesian vars not supported~n', []).
 
 bind_evidence_from_extra_var(Ev1,Var) :-
 	get_atts(Var, [evidence(Ev0)]),!,Ev0 = Ev1.
