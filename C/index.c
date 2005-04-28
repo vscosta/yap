@@ -11,8 +11,14 @@
 * File:		index.c							 *
 * comments:	Indexing a Prolog predicate				 *
 *									 *
-* Last rev:     $Date: 2005-04-27 20:09:25 $,$Author: vsc $						 *
+* Last rev:     $Date: 2005-04-28 14:50:45 $,$Author: vsc $						 *
 * $Log: not supported by cvs2svn $
+* Revision 1.124  2005/04/27 20:09:25  vsc
+* indexing code could get confused with suspension points
+* some further improvements on oveflow handling
+* fix paths in Java makefile
+* changs to support gibbs sampling in CLP(BN)
+*
 * Revision 1.123  2005/04/21 13:53:05  vsc
 * fix bug with (var(X) -> being interpreted as var(X) by indexing code
 *
@@ -7642,7 +7648,7 @@ Yap_FollowIndexingCode(PredEntry *ap, yamop *ipc, Term Terms[3], yamop *ap_pc, y
 
   if (ap->ModuleOfPred != IDB_MODULE) {
     if (ap->ArityOfPE) {
-      CELL *tar = RepAppl(Terms[0]);
+      CELL *tar = RepAppl(Deref(Terms[0]));
       UInt i;
 
       for (i = 1; i <= ap->ArityOfPE; i++) {
