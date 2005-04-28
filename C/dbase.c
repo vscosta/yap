@@ -1932,7 +1932,8 @@ record_lu_at(int position, LogUpdClause *ocl, Term t)
     return NULL;
   }
   WRITE_LOCK(pe->PRWLock);
-  Yap_RemoveIndexation(pe);
+  if(pe->cs.p_code.NOfClauses > 1)
+    Yap_RemoveIndexation(pe);
   if (position == MkFirst) {
     /* add before current clause */
     cl->ClNext = ocl;
