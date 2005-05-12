@@ -5600,7 +5600,7 @@ once_with_alarm(Time,Goal,DoOnAlarm) :-
 
 execute_once_with_alarm(Time, Goal) :-
         alarm(Time, alarm, _),
-        ( call(Goal) -> alarm(0, alarm, _) ; alarm(0, alarm, _)).
+        ( call(Goal) -> alarm(0, alarm, _) ; alarm(0, alarm, _), fail).
 @end example
 
 The procedure has three arguments: the @var{Time} before the alarm is

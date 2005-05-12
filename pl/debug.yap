@@ -404,7 +404,7 @@ debugging :-
 % 
 '$spycall'(G, M, _) :-
 	( '$access_yap_flags'(10,0);
-	  '$system_predicate'(G,M), \+ '$meta_predicate'(G,M)
+	  '$system_predicate'(G,M), \+ '$is_metapredicate'(G,M)
 	), !,
 	'$execute_nonstop'(G, M).
 '$spycall'(G, M, InControl) :-

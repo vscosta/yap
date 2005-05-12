@@ -1,4 +1,4 @@
-/*  $Id: jpl.c,v 1.6 2005-04-15 20:27:57 vsc Exp $
+/*  $Id: jpl.c,v 1.7 2005-05-12 03:36:33 vsc Exp $
 
     Part of JPL -- SWI-Prolog/Java interface
 
@@ -1465,6 +1465,7 @@ jni_check_exception(void)
 	}
     else
 	{
+	  //	(*env)->ExceptionDescribe(env);	// send message
 	(*env)->ExceptionClear(env);	// clear "exception-pending" state so we can do JNI calls
 	if (  (c=(*env)->GetObjectClass(env,ej)) != NULL )
 	    { // we've got its class
@@ -1907,6 +1908,7 @@ jni_create_jvm_c(
  // opt[optn].optionString = "abort";	    // I don't understand this yet...
  // opt[optn++].extraInfo = jvm_abort;
  // opt[optn++].optionString = "-Xcheck:jni";    // extra checking of JNI calls
+    opt[optn++].optionString = "-Xmx1024m";    // give java enough space
  // opt[optn++].optionString = "-Xnoclassgc";    // so method/field IDs remain valid (?)
  // opt[optn].optionString = "vfprintf";
  // opt[optn++].extraInfo = fprintf;		    // no O/P, then SEGV

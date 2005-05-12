@@ -1,4 +1,4 @@
-/*  $Id: jpl.yap,v 1.3 2005-03-15 18:29:24 vsc Exp $
+/*  $Id: jpl.yap,v 1.4 2005-05-12 03:36:33 vsc Exp $
 
     Part of JPL -- SWI-Prolog/Java interface
 
@@ -4249,7 +4249,7 @@ setup_jvm :-
 setup_jvm :-
 	add_jpl_to_classpath,
 	add_java_to_ldpath,
-	libjpl(JPL),
+%	libjpl(_JPL),
 %	catch(load_foreign_library(JPL), E, report_java_setup_problem(E)),
 	assert(jvm_ready).
 

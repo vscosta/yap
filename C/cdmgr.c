@@ -11,8 +11,13 @@
 * File:		cdmgr.c							 *
 * comments:	Code manager						 *
 *									 *
-* Last rev:     $Date: 2005-04-20 04:02:15 $,$Author: vsc $						 *
+* Last rev:     $Date: 2005-05-12 03:36:32 $,$Author: vsc $						 *
 * $Log: not supported by cvs2svn $
+* Revision 1.156  2005/04/20 04:02:15  vsc
+* fix a few variable warnings
+* fix erase clause to pass a pointer to clause, not code
+* get rid of Yap4.4 code in Yap_EraseStaticClause
+*
 * Revision 1.155  2005/04/10 04:01:10  vsc
 * bug fixes, I hope!
 *
@@ -3808,7 +3813,7 @@ fetch_next_lu_clause(PredEntry *pe, yamop *i_code, Term th, Term tb, Term tr, ya
   WPP = NULL;
 #endif
   if (cl->ClFlags & FactMask) {
-    if (!Yap_unify(tb, MkAtomTerm(AtomTrue)) ||
+    if (!Yap_unify_constant(tb, MkAtomTerm(AtomTrue)) ||
 	!Yap_unify(tr, rtn))
       return FALSE;
     if (pe->ArityOfPE) {

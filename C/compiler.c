@@ -11,8 +11,11 @@
 * File:		compiler.c						 *
 * comments:	Clause compiler						 *
 *									 *
-* Last rev:     $Date: 2005-04-10 04:01:10 $,$Author: vsc $						 *
+* Last rev:     $Date: 2005-05-12 03:36:32 $,$Author: vsc $						 *
 * $Log: not supported by cvs2svn $
+* Revision 1.65  2005/04/10 04:01:10  vsc
+* bug fixes, I hope!
+*
 * Revision 1.64  2005/03/13 06:26:10  vsc
 * fix excessive pruning in meta-calls
 * fix Term->int breakage in compiler
@@ -104,6 +107,7 @@ typedef struct compiler_struct_struct {
   Ventry *vtable;
   CExpEntry *common_exps;
   int is_a_fact;
+  int hasdbrefs;
   int n_common_exps;
   int goalno;
   int onlast;
@@ -599,15 +603,14 @@ c_arg(Int argno, Term t, unsigned int arity, unsigned int level, compiler_struct
       }
       /* That's it folks! */
       return;
-    } 
+    }
     if (level == 0)
       Yap_emit((cglobs->onhead ? get_num_op : put_num_op), (CELL) t, argno, &cglobs->cint);
     else
       Yap_emit((cglobs->onhead ? (argno == (Int)arity ? unify_last_num_op
 		      : unify_num_op) :
 	    write_num_op), (CELL) t, Zero, &cglobs->cint);
-  }
-  else if (IsPairTerm(t)) {
+  } else if (IsPairTerm(t)) {
     if (optimizer_on && (!cglobs->onhead || argno != 1 || level > 1) && level < 6) {
       t = optimize_ce(t, arity, level, cglobs);
       if (IsVarTerm(t)) {
@@ -640,7 +643,13 @@ c_arg(Int argno, Term t, unsigned int arity, unsigned int level, compiler_struct
       FAIL("can not compile data base reference",TYPE_ERROR_CALLABLE,t);
     } else {
       READ_UNLOCK(cglobs->cint.CurrentPred->PRWLock);
-      Yap_emit((cglobs->onhead ? get_atom_op : put_atom_op), (CELL) t, argno, &cglobs->cint);      
+      cglobs->hasdbrefs = TRUE;
+      if (level == 0)
+	Yap_emit((cglobs->onhead ? get_atom_op : put_atom_op), (CELL) t, argno, &cglobs->cint);      
+      else
+	Yap_emit((cglobs->onhead ? (argno == (Int)arity ? unify_last_atom_op
+				    : unify_atom_op) :
+		  write_atom_op), (CELL) t, Zero, &cglobs->cint);
     }
   } else {
 
@@ -2898,6 +2907,7 @@ Yap_cclause(volatile Term inp_clause, int NOfArgs, int mod, volatile Term src)
   cglobs.n_common_exps = 0;
   cglobs.labelno = 0L;
   cglobs.is_a_fact = FALSE;
+  cglobs.hasdbrefs = FALSE;
   if (IsVarTerm(my_clause)) {
     Yap_Error_TYPE = INSTANTIATION_ERROR;
     Yap_Error_Term = my_clause;
@@ -3006,7 +3016,7 @@ Yap_cclause(volatile Term inp_clause, int NOfArgs, int mod, volatile Term src)
     Yap_ShowCode(&cglobs.cint);
 #endif
   /* phase 3: assemble code                                                */
-  acode = Yap_assemble(ASSEMBLING_CLAUSE, src, cglobs.cint.CurrentPred, body == MkAtomTerm(AtomTrue), &cglobs.cint);
+  acode = Yap_assemble(ASSEMBLING_CLAUSE, src, cglobs.cint.CurrentPred, (cglobs.is_a_fact && !cglobs.hasdbrefs), &cglobs.cint);
 
 
   /* check first if there was space for us */
