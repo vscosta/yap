@@ -1,6 +1,6 @@
 =================================================================
 Logtalk - Object oriented extension to Prolog
-Release 2.24.0
+Release 2.25.0
 
 Copyright (c) 1998-2005 Paulo Moura.  All Rights Reserved.
 =================================================================
@@ -28,6 +28,23 @@ yes
 | ?- square(2)::side(Side).
 
 Side = 2 
+yes
+
+| ?- square(2)::predicate_property(side(_), Property).
+
+Property = public ;
+Property = static ;
+Property = declared_in(rectangle(_G264, _G265)) ;
+Property = defined_in(rectangle(_G297, _G298)) ;
+Property = alias(width(_G182))
+yes
+
+| ?- square(2)::predicate_property(width(_), Property).
+
+Property = public ;
+Property = static ;
+Property = declared_in(rectangle(_G262, _G263)) ;
+Property = defined_in(rectangle(_G293, _G294))
 yes
 
 

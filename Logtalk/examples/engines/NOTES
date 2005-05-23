@@ -1,6 +1,6 @@
 =================================================================
 Logtalk - Object oriented extension to Prolog
-Release 2.24.0
+Release 2.25.0
 
 Copyright (c) 1998-2005 Paulo Moura.  All Rights Reserved.
 =================================================================
@@ -10,4 +10,4 @@ To load this example and for sample queries, please see the SCRIPT
 file.
 
 For a description of this example, please see the comments in the 
-engines.mlgt metafile.
+engines.lgt source file.

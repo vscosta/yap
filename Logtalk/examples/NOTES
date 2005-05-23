@@ -1,6 +1,6 @@
 =================================================================
 Logtalk - Object oriented extension to Prolog
-Release 2.24.0
+Release 2.25.0
 
 Copyright (c) 1998-2005 Paulo Moura.  All Rights Reserved.
 =================================================================
@@ -23,7 +23,7 @@ Some examples may redefine objects already loaded from other examples.
 You may want to restart Logtalk after trying each example.
 
 Some of the examples code have been adopted from public available Prolog 
-code and from known Prolog text books and are copyrighted by the respective 
+code or from known Prolog text books and are copyrighted by the respective 
 authors.
 
 These are programming examples, meaning that you should study the source 

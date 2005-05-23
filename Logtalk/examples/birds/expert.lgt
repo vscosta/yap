@@ -34,7 +34,7 @@
 		write('Bird identification expert system'), nl, nl,
 		forall(
  			(order::leaf(Bird), check(Bird)),
-			(nl, write('Possible identification : '), write(Bird), nl)),
+			(nl, write('Possible identification: '), write(Bird), nl)),
 		nl, write('No (more) candidates found.').
 
 

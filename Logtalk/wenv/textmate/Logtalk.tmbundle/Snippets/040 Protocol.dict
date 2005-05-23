@@ -1,4 +1,0 @@
-{
-	name = "Logtalk protocol";
-	content = "\n:- protocol(${1:Protocol}).\n\n\t:- info([\n\t\tversion is 1.0,\n\t\tauthor is '${2:Your Name}',\n\t\tdate is ${3:2004}/${4:10}/${5:18},\n\t\tcomment is '${6:Description}']).\n\n$0\n\n:- end_protocol.\n";
-}

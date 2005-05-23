@@ -1,6 +1,6 @@
 =================================================================
 Logtalk - Object oriented extension to Prolog
-Release 2.24.0
+Release 2.25.0
 
 Copyright (c) 1998-2005 Paulo Moura.  All Rights Reserved.
 =================================================================
@@ -42,5 +42,20 @@ Text = 'Здравствулте! мир!' ;
 
 Code = zh
 Text = '你好世界!'
+
+Yes
+
+
+% query the table of names:
+
+| ?- latin::name(Name).
+
+Name = 'António Simões' ;
+
+Name = 'Cátia Conceição' ;
+
+Name = 'João Raínho' ;
+
+Name = 'Luís Araújo'
 
 Yes

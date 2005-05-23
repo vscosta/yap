@@ -31,14 +31,6 @@
 			<key>BBLMLanguageSuffix</key>
 			<string>.lgt</string>
 		</dict>
-		<dict>
-			<key>BBLMLanguageSuffix</key>
-			<string>.mlgt</string>
-		</dict>
-		<dict>
-			<key>BBLMLanguageSuffix</key>
-			<string>.loader</string>
-		</dict>
 	</array>
 	<key>Language Features</key>
 	<dict>

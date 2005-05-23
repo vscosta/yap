@@ -402,21 +402,21 @@ The Logtalk grammar is here described using Backus-Naur Form syntax. Non-termina
 </blockquote>
 
 
-<h3>Entity file names<a name="entity_file_names"></a></h3>
+<h3>Source file names<a name="source_file_names"></a></h3>
 
 <blockquote>
 	<dl>
-		<dt>entity_file_names ::=</dt>
-			<dd>entity_file_name |</dd>
-			<dd>entity_file_name_list</dd>
+		<dt>source_file_names ::=</dt>
+			<dd>source_file_name |</dd>
+			<dd>source_file_name_list</dd>
 	</dl>
 	<dl>
-		<dt>entity_file_name ::=</dt>
+		<dt>source_file_name ::=</dt>
 			<dd><em>atom</em> |</dd>
-			<dd>library_entity_file_name</dd>
+			<dd>library_source_file_name</dd>
 	</dl>
 	<dl>
-		<dt>library_entity_file_name ::=</dt>
+		<dt>library_source_file_name ::=</dt>
 			<dd>library_name "<code>(</code>" <em>atom</em> "<code>)</code>"</dd>
 	</dl>
 	<dl>
@@ -424,13 +424,13 @@ The Logtalk grammar is here described using Backus-Naur Form syntax. Non-termina
 			<dd><em>atom</em></dd>
 	</dl>
 		<dl>
-			<dt>entity_file_name_sequence ::=</dt>
-				<dd>entity_file_name |</dd>
-				<dd>entity_file_name "<code>,</code>" entity_file_name_sequence</dd>
+			<dt>source_file_name_sequence ::=</dt>
+				<dd>source_file_name |</dd>
+				<dd>source_file_name "<code>,</code>" source_file_name_sequence</dd>
 		</dl>
 	<dl>
-		<dt>entity_file_name_list ::=</dt>
-			<dd>"<code>[</code>" entity_file_name_sequence "<code>]</code>"</dd>
+		<dt>source_file_name_list ::=</dt>
+			<dd>"<code>[</code>" source_file_name_sequence "<code>]</code>"</dd>
 	</dl>
 
 </blockquote>
@@ -439,6 +439,21 @@ The Logtalk grammar is here described using Backus-Naur Form syntax. Non-termina
 <h3>Directives<a name="directives"></a></h3>
 
 <blockquote>
+
+	<h4>Source file directives<a name="source_file_directives"></a></h4>
+	<blockquote>
+		<dl>
+			<dt>source_file_directives ::=</dt>
+				<dd>source_file_directive |</dd>
+				<dd>source_file_directive source_file_directives</dd>
+		</dl>
+		<dl>
+			<dt>source_file_directive ::=</dt>
+				<dd>"<code>:- encoding(</code>" <i>atom</i> "<code>).</code>" |</dd>
+				<dd><i>initialization_directive</i> |</dd>
+				<dd><i>operator_directive</i></dd>
+		</dl>
+	</blockquote>
 
 	<h4>Object directives<a name="object_directives"></a></h4>
 	<blockquote>
@@ -449,7 +464,7 @@ The Logtalk grammar is here described using Backus-Naur Form syntax. Non-termina
 		</dl>
 		<dl>
 			<dt>object_directive ::=</dt>
-				<dd>"<code>:- initialization(</code>" <i>callable</i> "<code>).</code>" |</dd>
+				<dd><i>initialization_directive</i> |</dd>
 				<dd>"<code>:- uses(</code>" object_identifier "<code>).</code>" |</dd>
 				<dd>"<code>:- calls(</code>" protocol_identifiers "<code>).</code>" |</dd>
 				<dd>"<code>:- dynamic.</code>" |</dd>
@@ -467,7 +482,7 @@ The Logtalk grammar is here described using Backus-Naur Form syntax. Non-termina
 		</dl>
 		<dl>
 			<dt>category_directive ::=</dt>
-				<dd>"<code>:- initialization(</code>" <i>callable</i> "<code>).</code>" |</dd>
+				<dd><i>initialization_directive</i> |</dd>
 				<dd>"<code>:- uses(</code>" object_identifier "<code>).</code>" |</dd>
 				<dd>"<code>:- calls(</code>" protocol_identifiers "<code>).</code>" |</dd>
 				<dd>"<code>:- dynamic.</code>" |</dd>
@@ -485,7 +500,7 @@ The Logtalk grammar is here described using Backus-Naur Form syntax. Non-termina
 		</dl>
 		<dl>
 			<dt>protocol_directive ::=</dt>
-				<dd>"<code>:- initialization(</code>" <i>callable</i> "<code>).</code>" |</dd>
+				<dd><i>initialization_directive</i> |</dd>
 				<dd>"<code>:- dynamic.</code>" |</dd>
 				<dd>"<code>:- info(</code>" info_list "<code>).</code>" |</dd>
 				<dd>predicate_directives</dd>
@@ -755,7 +770,7 @@ Copyright &copy; <a href="mailto:pmoura@logtalk.org">Paulo Moura</a> &mdash; <a 
 </div>
 
 <div class="footer">
-<p><span class="bleft"><a href="http://validator.w3.org/check/referer">XHTML</a> + <a href="http://jigsaw.w3.org/css-validator/check/referer">CSS</a></span><span class="bright">Last updated on: November 22, 2004</span></p>
+<p><span class="bleft"><a href="http://validator.w3.org/check/referer">XHTML</a> + <a href="http://jigsaw.w3.org/css-validator/check/referer">CSS</a></span><span class="bright">Last updated on: May 15, 2005</span></p>
 </div>
 </body>
 </html>

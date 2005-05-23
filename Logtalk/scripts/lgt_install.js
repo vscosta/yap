@@ -1,6 +1,6 @@
 // =================================================================
 // Logtalk - Object oriented extension to Prolog
-// Release 2.24.0
+// Release 2.25.0
 //
 // Copyright (c) 1998-2005 Paulo Moura.  All Rights Reserved.
 // =================================================================
@@ -46,6 +46,7 @@ WScript.Echo("variable.");
 WScript.Echo("");
 
 FSObject.CopyFile(WshShell.CurrentDirectory + "\\BIBLIOGRAPHY", WshShell.CurrentDirectory + "\\BIBLIOGRAPHY.txt");
+FSObject.CopyFile(WshShell.CurrentDirectory + "\\INSTALL", WshShell.CurrentDirectory + "\\INSTALL.txt");
 FSObject.CopyFile(WshShell.CurrentDirectory + "\\LICENSE", WshShell.CurrentDirectory + "\\LICENSE.txt");
 FSObject.CopyFile(WshShell.CurrentDirectory + "\\QUICK_START", WshShell.CurrentDirectory + "\\QUICK_START.txt");
 FSObject.CopyFile(WshShell.CurrentDirectory + "\\README", WshShell.CurrentDirectory + "\\README.txt");
@@ -72,6 +73,12 @@ link = WshShell.CreateShortcut(ProgramsPath + "\\Logtalk\\Logtalk ReadMe.lnk");
 
 link.Description = "Open Logtalk ReadMe";
 link.TargetPath = WshShell.CurrentDirectory + "\\README.txt";
+link.Save();
+
+link = WshShell.CreateShortcut(ProgramsPath + "\\Logtalk\\Logtalk Install and configuration.lnk");
+
+link.Description = "Open Logtalk Install and configuration";
+link.TargetPath = WshShell.CurrentDirectory + "\\INSTALL.txt";
 link.Save();
 
 link = WshShell.CreateShortcut(ProgramsPath + "\\Logtalk\\Logtalk Quick Start.lnk");
@@ -104,9 +111,14 @@ link.Description = "Open Logtalk Upgrading instructions";
 link.TargetPath = WshShell.CurrentDirectory + "\\UPGRADING.txt";
 link.Save();
 
-WScript.Echo('Logtalk installation completed. You will need to restart in order');
-WScript.Echo('to activate the new system environment variables and use the items');
-WScript.Echo('in the new Logtalk program group.');
+WScript.Echo('Logtalk basic installation completed. You will need to restart in order');
+WScript.Echo('to activate the new system environment variables and use the items in');
+WScript.Echo('the new Logtalk program group. See the Install and configuration file');
+WScript.Echo('for details on customizing your working environment.');
+WScript.Echo('');
+WScript.Echo('After restarting your computer, you may want to run some of the Prolog');
+WScript.Echo('integration scripts, which you will find on the same directory as this');
+WScript.Echo('installer script.');
 WScript.Echo('');
 WScript.Echo('Users should run the batch script cplgtdirs in order to copy the');
 WScript.Echo('Logtalk user-modifiable files to their home directories. The path');

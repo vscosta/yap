@@ -1,6 +1,6 @@
 =================================================================
 Logtalk - Object oriented extension to Prolog
-Release 2.24.0
+Release 2.25.0
 
 Copyright (c) 1998-2005 Paulo Moura.  All Rights Reserved.
 =================================================================
@@ -8,6 +8,37 @@ Copyright (c) 1998-2005 Paulo Moura.  All Rights Reserved.
 
 RELEASE NOTES
 =============
+
+
+2.25.0 - May 23, 2005
+
+	Logtalk compiler is now source file-based instead of entity-based. Thus, 
+	a source file may now contain any number of entities, without the need of 
+	using source metafiles. Therefore, this version drops support for source 
+	metafiles and the .mlgt file name extension.
+
+	The experimental encoding/1 directive, when used, must be the first term 
+	on a source file.  Added an entry to the reference manual describing the 
+	directive. Improved "encodings" example.
+
+	Added a new method, debugging/1, to the "debugger" pseudo-object for 
+	querying the system about entities compiled in debug mode.
+
+	Improved source file and entity compilation and loading reporting. In 
+	particular, when using library notation for source files, the Logtalk 
+	compiler now prints the library path containing the source files being 
+	compiled or loaded.
+
+	Added new shell scripts, makeall_lgt.*, which run all the make_*lgt.* 
+	shell scripts in sequence.
+
+	Simplified compiler reporting of singleton variables in directives and 
+	clauses.
+
+	Added an adaption of the "timetables" LPA Prolog++ example.
+
+	Updated B-Prolog config file for the new 6.7 #2 version. Dropped support 
+	for older versions of B-Prolog.
 
 
 2.24.0 - April 22, 2005

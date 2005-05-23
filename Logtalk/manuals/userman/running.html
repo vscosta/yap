@@ -66,7 +66,7 @@ To compile to disk and also load into memory the source files we can use the Log
 This predicate works in the same way of the predicate <code>logtalk_compile/1</code> but also loads the compiled files to memory. 
 </p>
 <p>
-Both predicates expect an entity name, a source metafile, or a list of entity names and source metafiles as an argument. The Logtalk source file name extension, as defined in the configuration file, should be omitted.
+Both predicates expect a source name name or a list of source name names as an argument. The Logtalk source file name extension, as defined in the configuration file, should be omitted.
 </p>
 <p>
 If you have more than a few source files then you may want to use a loader helper file containing the calls to the <code>logtalk_load/1</code> predicate. Consulting or compiling the loader file will then compile and load all your Logtalk entities into memory (see the <a href="programming.html#loaders">next</a> section for details).
@@ -135,7 +135,7 @@ You can use the following flags:
 </dl>
 <dl>
 	<dt><code>doctype(Option)</code></dt>
-		<dd>Sets the DOCTYPE reference in the automatically generated XML documenting files. The default value is <code>local</code>, that is, the DOCTYPE reference points to a local DTD or XSD file (respectively, <code>logtalk.dtd</code> or <code>logtalk.xsd</code>), residing in the same directory as the XML file. Other possible values are <code>web</code> (DOCTYPE reference points to an web location, either <code>http://www.logtalk.org/xml/1.2/logtalk.dtd</code> or <code>http://www.logtalk.org/xml/1.2/logtalk.xsd</code>), and <code>standalone</code> (no DOCTYPE reference in the XML documenting files). The most appropriated option value depends on the XSL processor you intend to use. Some of them are buggy an may not work with the default option value.</dd>
+		<dd>Sets the DOCTYPE reference in the automatically generated XML documenting files. The default value is <code>local</code>, that is, the DOCTYPE reference points to a local DTD or XSD file (respectively, <code>logtalk.dtd</code> or <code>logtalk.xsd</code>), residing in the same directory as the XML file. Other possible values are <code>web</code> (DOCTYPE reference points to an web location, either <code>http://www.logtalk.org/xml/1.3/logtalk.dtd</code> or <code>http://www.logtalk.org/xml/1.3/logtalk.xsd</code>), and <code>standalone</code> (no DOCTYPE reference in the XML documenting files). The most appropriated option value depends on the XSL processor you intend to use. Some of them are buggy an may not work with the default option value.</dd>
 </dl>
 <dl>
 	<dt><code>xsl(File)</code></dt>
@@ -207,7 +207,7 @@ To supress printing of compiling and loading messages (including compiling warni
 Logtalk defines a built-in pseudo-object named <code>debugger</code>, which implements debugging features similar to those found on most Prolog compilers. However, there are some differences between the usual implementation of Prolog debuggers and the current implementation of the Logtalk debugger that you should be aware. First, unlikely most Prolog debuggers, the Logtalk debugger is not implemented as a meta-interpreter. This translates to a different, although similar, set of debugging features with some limitations when compared with some Prolog debuggers. Second, debugging is only possible for objects compiled in debug mode. When compiling an object in this mode, Logtalk keeps each  clause goal in both source form and compiled form in order to allow tracing of the goal execution. Third, implementation of spy points allows the user to specify the execution context for entering the debugger. This feature is a consequence of the encapsulation of predicates inside objects.
 </p>
 
-<h3>Compiling objects in debug mode<a name="debugmode"></a></h3>
+<h3>Compiling entities in debug mode<a name="debugmode"></a></h3>
 
 <p>
 Compilation of source files in debug mode is controlled by the compiler flag <code>debug</code>. The default value for this flag, usually <code>off</code>, is defined in the config files. Its value may be changed at runtime by writing:
@@ -218,7 +218,7 @@ Compilation of source files in debug mode is controlled by the compiler flag <co
     yes
 </pre>
 <p>
-In alternative, if we want to compile only some objects in debug mode, we may instead write:
+In alternative, if we want to compile only some entities in debug mode, we may instead write:
 </p>
 <pre>
     | ?- logtalk_load([file1, file2, ...], [debug(on)]).
@@ -226,6 +226,11 @@ In alternative, if we want to compile only some objects in debug mode, we may in
 <p>
 The compiler flag <code>smart_compilation</code> is automatically turned off whenever the debug flag is turned on at runtime. This is necessary because debug code would not be generated for files previously compiled in normal mode if there is no changes to the source files. However, note that you should be carefull to not turn both flags on at the same time in a config file.
 </p>
+<p>We may check or enumerate, by backtracking, all loaded entities compiled in debug mode as follows:
+</p>
+<pre>
+    | ?- debugger::debugging(Entity).
+</pre>
 
 <h3>Logtalk Procedure Box model<a name="boxmodel"></a></h3>
 
@@ -477,7 +482,7 @@ Copyright &copy; <a href="mailto:pmoura@logtalk.org">Paulo Moura</a> &mdash; <a 
 </div>
 
 <div class="footer">
-<p><span class="bleft"><a href="http://validator.w3.org/check/referer">XHTML</a> + <a href="http://jigsaw.w3.org/css-validator/check/referer">CSS</a></span><span class="bright">Last updated on: February 6, 2005</span></p>
+<p><span class="bleft"><a href="http://validator.w3.org/check/referer">XHTML</a> + <a href="http://jigsaw.w3.org/css-validator/check/referer">CSS</a></span><span class="bright">Last updated on: May 17, 2005</span></p>
 </div>
 </body>
 </html>

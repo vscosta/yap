@@ -1,6 +1,6 @@
 =================================================================
 Logtalk - Object oriented extension to Prolog
-Release 2.24.0
+Release 2.25.0
 
 Copyright (c) 1998-2005 Paulo Moura.  All Rights Reserved.
 =================================================================
@@ -12,7 +12,7 @@ Copyright (c) 1998-2005 Paulo Moura.  All Rights Reserved.
 ...
 
 
-% first variant of the "diamond problem", defined in the "diamond1" metafile:
+% first variant of the "diamond problem", defined in the "diamond1" source file:
 
 | ?- d1::m.
 
@@ -20,7 +20,7 @@ Redefinition of method m/0 in object b1
 yes
 
 
-% second variant of the "diamond problem", defined in the "diamond2" metafile:
+% second variant of the "diamond problem", defined in the "diamond2" source file:
 
 | ?- d2::m.
 
@@ -28,7 +28,7 @@ Redefinition of method m/0 in object c2
 yes
 
 
-% third variant of the "diamond problem", defined in the "diamond3" metafile:
+% third variant of the "diamond problem", defined in the "diamond3" source file:
 
 | ?- d3::b3_m.
 

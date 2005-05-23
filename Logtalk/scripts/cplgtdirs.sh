@@ -2,7 +2,7 @@
 
 ## =================================================================
 ## Logtalk - Object oriented extension to Prolog
-## Release 2.24.0
+## Release 2.25.0
 ##
 ## Copyright (c) 1998-2005 Paulo Moura.  All Rights Reserved.
 ## =================================================================
@@ -52,6 +52,7 @@ cp -RL "$LOGTALKHOME"/library "$LOGTALKUSER"/
 cp -RL "$LOGTALKHOME"/xml "$LOGTALKUSER"/
 chmod -R u+w "$LOGTALKUSER"
 ln -sf "$LOGTALKHOME"/BIBLIOGRAPHY "$LOGTALKUSER"/BIBLIOGRAPHY
+ln -sf "$LOGTALKHOME"/INSTALL "$LOGTALKUSER"/INSTALL
 ln -sf "$LOGTALKHOME"/LICENSE "$LOGTALKUSER"/LICENSE
 ln -sf "$LOGTALKHOME"/QUICK_START "$LOGTALKUSER"/QUICK_START
 ln -sf "$LOGTALKHOME"/README "$LOGTALKUSER"/README

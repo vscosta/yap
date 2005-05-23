@@ -2,7 +2,7 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %
 %  Logtalk - Object oriented extension to Prolog
-%  Release 2.24.0
+%  Release 2.25.0
 %
 %  Copyright (c) 1998-2005 Paulo Moura.  All Rights Reserved.
 %
@@ -28,7 +28,8 @@
 	 assertz(logtalk_library_path(lo_planner, '$LOGTALKUSER/examples/lo/planner/')),
 	 assertz(logtalk_library_path(lo_travellers, '$LOGTALKUSER/examples/lo/travellers/')),
 	 assertz(logtalk_library_path(logic, '$LOGTALKUSER/examples/logic/')),
-	 assertz(logtalk_library_path(lpa, '$LOGTALKUSER/examples/lpa/')),
+	 assertz(logtalk_library_path(lpa_faults, '$LOGTALKUSER/examples/lpa/faults/')),
+	 assertz(logtalk_library_path(lpa_timetables, '$LOGTALKUSER/examples/lpa/timetables/')),
 	 assertz(logtalk_library_path(metainterpreters, '$LOGTALKUSER/examples/metainterpreters/')),
 	 assertz(logtalk_library_path(metapredicates, '$LOGTALKUSER/examples/metapredicates/')),
 	 assertz(logtalk_library_path(mi, '$LOGTALKUSER/examples/mi/')),

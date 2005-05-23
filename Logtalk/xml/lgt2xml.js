@@ -1,6 +1,6 @@
 // =================================================================
 // Logtalk - Object oriented extension to Prolog
-// Release 2.24.0
+// Release 2.25.0
 //
 // Copyright (c) 1998-2005 Paulo Moura.  All Rights Reserved.
 // =================================================================
@@ -107,7 +107,7 @@ function create_index_file() {
 
 	switch (format) {
 		case "xhtml" :
-			f.WriteLine("<?xml version=\"1.0\"?>");
+			f.WriteLine("<?xml version=\"1.0\" encoding=\"utf-8\"?>");
 			f.WriteLine("<?xml-stylesheet href=\"logtalk.css\" type=\"text/css\"?>");
 			f.WriteLine("<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.0 Strict//EN\" \"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd\">");
 			f.WriteLine("<html lang=\"en\" xml:lang=\"en\" xmlns=\"http://www.w3.org/1999/xhtml\">");

@@ -1,4 +1,5 @@
 
 :- initialization(
 	logtalk_load([
-		babel])). 
+		babel,
+		latin])). 

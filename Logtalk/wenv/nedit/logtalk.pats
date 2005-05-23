@@ -66,4 +66,4 @@ nedit.highlightPatterns: Logtalk:1:0{\n\
 	Other arithemtic functors:"\\*\\*|<(sin|cos|atan|exp|log|sqrt)(?=[(])":::Subroutine::\n\
 	Bitwise functors:">>|<<|/\\\\|\\\\/|\\\\":::Subroutine::\n\
 }
-nedit.languageModes:	Logtalk:.mlgt .lgt .loader .config::::4:4:\n\
+nedit.languageModes:	Logtalk: .lgt .config::::4:4:\n\

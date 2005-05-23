@@ -1,6 +1,6 @@
 =================================================================
 Logtalk - Object oriented extension to Prolog
-Release 2.24.0
+Release 2.25.0
 
 Copyright (c) 1998-2005 Paulo Moura.  All Rights Reserved.
 =================================================================
@@ -105,4 +105,10 @@ release notes for details). If you are using custom config files, be sure to
 update them by coping the definition of the new predicates.
 
 Logtalk version 2.23.0 features new, optimized implementations of the database
-built-in methods, implying recompilation of all objects, protocols, and categories.
+built-in methods, implying the recompilation of all objects, protocols, and 
+categories.
+
+Logtalk version 2.25.0 drops support for source metafiles and .mlgt file name 
+extension as this version features a new, file-based compiler, supporting the 
+definition of any number of entities in a single file. Older code using source 
+metafiles will need to rename the file name extensions from .mlgt to .lgt.

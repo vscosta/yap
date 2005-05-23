@@ -35,6 +35,7 @@ discontiguous(/).
 metapredicate().
 op(, , ).
 initialization().
+encoding().
 
 asserta()
 assertz()

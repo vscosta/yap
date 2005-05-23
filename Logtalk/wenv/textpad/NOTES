@@ -1,6 +1,6 @@
 =================================================================
 Logtalk - Object oriented extension to Prolog
-Release 2.24.0
+Release 2.25.0
 
 Copyright (c) 1998-2005 Paulo Moura.  All Rights Reserved.
 =================================================================
@@ -15,7 +15,7 @@ To install:
 
 	Copy the files logtalk.syn and Logtalk.tcl to the SAMPLES subdirectory
 	in the TextPad application directory and define a new document class 
-	for Logtalk source files (whose extensions are .mlgt, .lgt, .loader, 
-	and .config).
+	for Logtalk source files (whose extension is .lgt) and for Prolog 
+	configuration files (whose extension is .config).
 
 THIS SYNTAX FILE IS UNDER DEVELOPMENT.
