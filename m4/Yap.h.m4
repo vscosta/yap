@@ -10,7 +10,7 @@
 * File:		Yap.h.m4						 *
 * mods:									 *
 * comments:	main header file for YAP				 *
-* version:      $Id: Yap.h.m4,v 1.82 2005-04-07 17:56:00 ricroc Exp $	 *
+* version:      $Id: Yap.h.m4,v 1.83 2005-05-25 21:43:33 vsc Exp $	 *
 *************************************************************************/
 
 #include "config.h"
@@ -417,6 +417,7 @@ typedef enum {
   YAP_NO_ERROR,
   FATAL_ERROR,
   INTERNAL_ERROR,
+  INTERNAL_COMPILER_ERROR,
   PURE_ABORT,
   CALL_COUNTER_UNDERFLOW,
   /* ISO_ERRORS */

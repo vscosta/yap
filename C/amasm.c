@@ -11,8 +11,11 @@
 * File:		amasm.c							 *
 * comments:	abstract machine assembler				 *
 *									 *
-* Last rev:     $Date: 2005-04-10 04:01:09 $							 *
+* Last rev:     $Date: 2005-05-25 21:43:32 $							 *
 * $Log: not supported by cvs2svn $
+* Revision 1.73  2005/04/10 04:01:09  vsc
+* bug fixes, I hope!
+*
 * Revision 1.72  2005/03/04 20:30:10  ricroc
 * bug fixes for YapTab support
 *
@@ -909,7 +912,7 @@ a_p(op_numbers opcode, clause_info *clinfo, yamop *code_p, int pass_no, struct i
       break;
     default:
       op = _p_equal;  /* just to make some compilers happy */
-      Yap_Error(SYSTEM_ERROR, TermNil, "internal assembler error for built-in (%d)", (Flags & 0x7f));
+      Yap_Error(INTERNAL_COMPILER_ERROR, TermNil, "internal assembler error for built-in (%d)", (Flags & 0x7f));
       save_machine_regs();
       longjmp(cip->CompilerBotch, 1);
     }
@@ -920,7 +923,7 @@ a_p(op_numbers opcode, clause_info *clinfo, yamop *code_p, int pass_no, struct i
     if (clinfo->commit_lab && (Flags & TestPredFlag)) {
       if (pass_no) {
 	if (Flags & UserCPredFlag) {
-	  Yap_Error(SYSTEM_ERROR, TermNil,
+	  Yap_Error(INTERNAL_COMPILER_ERROR, TermNil,
 		"user defined predicate cannot be a test predicate");
 	  save_machine_regs();
 	  longjmp(cip->CompilerBotch, 1);
@@ -1082,7 +1085,7 @@ compile_cmp_flags(char *s)
     return(EQ_OK_IN_CMP);
   if (strcmp(s,"=\\=") == 0)
     return(GT_OK_IN_CMP|LT_OK_IN_CMP);
-  Yap_Error(SYSTEM_ERROR, TermNil, "internal assembler error in flags for %s", s);
+  Yap_Error(INTERNAL_COMPILER_ERROR, TermNil, "internal assembler error in flags for %s", s);
   return(0);
 }
 
@@ -2035,7 +2038,7 @@ a_f2(int var, cmp_op_info *cmp_info, yamop *code_p, int pass_no, struct intermed
       if (pass_no) {
 	switch (opc) {
 	case _plus:
-	  Yap_Error(SYSTEM_ERROR, cmp_info->x1_arg, "internal assembler error CX for +/2");
+	  Yap_Error(INTERNAL_COMPILER_ERROR, cmp_info->x1_arg, "internal assembler error CX for +/2 (should be XC)");
 	  save_machine_regs();
 	  longjmp(cip->CompilerBotch, 1);
 	  break;
@@ -2043,7 +2046,7 @@ a_f2(int var, cmp_op_info *cmp_info, yamop *code_p, int pass_no, struct intermed
 	  code_p->opc = emit_op(_p_minus_y_cv);
 	  break;
 	case _times:
-	  Yap_Error(SYSTEM_ERROR, cmp_info->x1_arg, "internal assembler error CX for */2");
+	  Yap_Error(INTERNAL_COMPILER_ERROR, cmp_info->x1_arg, "internal assembler error CX for */2 (should be XC)");
 	  save_machine_regs();
 	  longjmp(cip->CompilerBotch, 1);
 	  break;
@@ -2051,24 +2054,20 @@ a_f2(int var, cmp_op_info *cmp_info, yamop *code_p, int pass_no, struct intermed
 	  code_p->opc = emit_op(_p_div_y_cv);
 	  break;
 	case _and:
-	  Yap_Error(SYSTEM_ERROR, cmp_info->x1_arg, "internal assembler error CX for /\\/2");
+	  Yap_Error(INTERNAL_COMPILER_ERROR, cmp_info->x1_arg, "internal assembler error CX for /\\/2 (should be XC)");
 	  save_machine_regs();
 	  longjmp(cip->CompilerBotch, 1);
 	  break;
 	case _or:
-	  Yap_Error(SYSTEM_ERROR, cmp_info->x1_arg, "internal assembler error CX for \\//2");
+	  Yap_Error(INTERNAL_COMPILER_ERROR, cmp_info->x1_arg, "internal assembler error CX for \\//2 (should be XC)");
 	  save_machine_regs();
 	  longjmp(cip->CompilerBotch, 1);
 	  break;
 	case _sll:
 	  code_p->opc = emit_op(_p_sll_y_cv);
-	  save_machine_regs();
-	  longjmp(cip->CompilerBotch, 1);
 	  break;
 	case _slr:
 	  code_p->opc = emit_op(_p_slr_y_cv);
-	  save_machine_regs();
-	  longjmp(cip->CompilerBotch, 1);
 	  break;
 	case _arg:
 	  code_p->opc = emit_op(_p_arg_y_cv);
@@ -2090,7 +2089,7 @@ a_f2(int var, cmp_op_info *cmp_info, yamop *code_p, int pass_no, struct intermed
 	  code_p->opc = emit_op(_p_plus_y_vc);
 	  break;
 	case _minus:
-	  Yap_Error(SYSTEM_ERROR, cmp_info->x2_arg, "internal assembler error XC for -/2");
+	  Yap_Error(INTERNAL_COMPILER_ERROR, cmp_info->x2_arg, "internal assembler error XC for -/2");
 	  save_machine_regs();
 	  longjmp(cip->CompilerBotch, 1);
 	  break;
@@ -2113,7 +2112,7 @@ a_f2(int var, cmp_op_info *cmp_info, yamop *code_p, int pass_no, struct intermed
 	  code_p->opc = emit_op(_p_slr_y_vc);
 	  break;
 	case _arg:
-	  Yap_Error(SYSTEM_ERROR, cmp_info->x2_arg, "internal assembler error for arg/3");
+	  Yap_Error(INTERNAL_COMPILER_ERROR, cmp_info->x2_arg, "internal assembler error for arg/3");
 	  save_machine_regs();
 	  longjmp(cip->CompilerBotch, 1);
 	  break;
@@ -2174,7 +2173,7 @@ a_f2(int var, cmp_op_info *cmp_info, yamop *code_p, int pass_no, struct intermed
       if (pass_no) {
 	switch (opc) {
 	case _plus:
-	  Yap_Error(SYSTEM_ERROR, cmp_info->x1_arg, "internal assembler error CX for +/2");
+	  Yap_Error(INTERNAL_COMPILER_ERROR, cmp_info->x1_arg, "internal assembler error CX for +/2");
 	  save_machine_regs();
 	  longjmp(cip->CompilerBotch, 1);
 	  break;
@@ -2182,7 +2181,7 @@ a_f2(int var, cmp_op_info *cmp_info, yamop *code_p, int pass_no, struct intermed
 	  code_p->opc = emit_op(_p_minus_cv);
 	  break;
 	case _times:
-	  Yap_Error(SYSTEM_ERROR, cmp_info->x1_arg, "internal assembler error CX for */2");
+	  Yap_Error(INTERNAL_COMPILER_ERROR, cmp_info->x1_arg, "internal assembler error CX for */2");
 	  save_machine_regs();
 	  longjmp(cip->CompilerBotch, 1);
 	  break;
@@ -2190,12 +2189,12 @@ a_f2(int var, cmp_op_info *cmp_info, yamop *code_p, int pass_no, struct intermed
 	  code_p->opc = emit_op(_p_div_cv);
 	  break;
 	case _and:
-	  Yap_Error(SYSTEM_ERROR, cmp_info->x1_arg, "internal assembler error CX for /\\/2");
+	  Yap_Error(INTERNAL_COMPILER_ERROR, cmp_info->x1_arg, "internal assembler error CX for /\\/2");
 	  save_machine_regs();
 	  longjmp(cip->CompilerBotch, 1);
 	  break;
 	case _or:
-	  Yap_Error(SYSTEM_ERROR, cmp_info->x1_arg, "internal assembler error CX for \\//2");
+	  Yap_Error(INTERNAL_COMPILER_ERROR, cmp_info->x1_arg, "internal assembler error CX for \\//2");
 	  save_machine_regs();
 	  longjmp(cip->CompilerBotch, 1);
 	  break;
@@ -2225,7 +2224,7 @@ a_f2(int var, cmp_op_info *cmp_info, yamop *code_p, int pass_no, struct intermed
 	  code_p->opc = emit_op(_p_plus_vc);
 	  break;
 	case _minus:
-	  Yap_Error(SYSTEM_ERROR, cmp_info->x2_arg, "internal assembler error XC for -/2");
+	  Yap_Error(INTERNAL_COMPILER_ERROR, cmp_info->x2_arg, "internal assembler error XC for -/2");
 	  save_machine_regs();
 	  longjmp(cip->CompilerBotch, 1);
 	  break;
@@ -2248,7 +2247,7 @@ a_f2(int var, cmp_op_info *cmp_info, yamop *code_p, int pass_no, struct intermed
 	  code_p->opc = emit_op(_p_slr_vc);
 	  break;
 	case _arg:
-	  Yap_Error(SYSTEM_ERROR, cmp_info->x2_arg, "internal assembler error for arg/3");
+	  Yap_Error(INTERNAL_COMPILER_ERROR, cmp_info->x2_arg, "internal assembler error for arg/3");
 	  save_machine_regs();
 	  longjmp(cip->CompilerBotch, 1);
 	  break;
@@ -2922,7 +2921,7 @@ do_pass(int pass_no, yamop **entry_codep, int assembling, int *clause_has_blobsp
       break;
     case fetch_args_for_bccall:
       if (cip->cpc->nextInst->op != bccall_op) {
-	Yap_Error(SYSTEM_ERROR, TermNil, "compiling binary test", (int) cip->cpc->op);
+	Yap_Error(INTERNAL_COMPILER_ERROR, TermNil, "compiling binary test", (int) cip->cpc->op);
 	save_machine_regs();
 	longjmp(cip->CompilerBotch, 1);
       }
@@ -2954,7 +2953,7 @@ do_pass(int pass_no, yamop **entry_codep, int assembling, int *clause_has_blobsp
     case name_op:
       break;
     default:
-      Yap_Error(SYSTEM_ERROR, TermNil, "instruction %d found while assembling", (int) cip->cpc->op);
+      Yap_Error(INTERNAL_COMPILER_ERROR, TermNil, "instruction %d found while assembling", (int) cip->cpc->op);
       save_machine_regs();
       longjmp(cip->CompilerBotch, 1);
     }

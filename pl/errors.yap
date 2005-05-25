@@ -11,8 +11,13 @@
 * File:		errors.yap						 *
 * comments:	error messages for YAP					 *
 *									 *
-* Last rev:     $Date: 2005-05-25 18:18:02 $,$Author: vsc $						 *
+* Last rev:     $Date: 2005-05-25 21:43:33 $,$Author: vsc $						 *
 * $Log: not supported by cvs2svn $
+* Revision 1.64  2005/05/25 18:18:02  vsc
+* fix error handling
+* configure should not allow max-memory and use-malloc at same time
+* some extensions for jpl
+*
 * Revision 1.63  2005/04/20 20:06:26  vsc
 * try to improve error handling and warnings from within consults.
 *
@@ -668,6 +673,9 @@ print_message(Level, Mss) :-
 	format(user_error,'.~n',[]).
 '$output_error_message'(system_error, Where) :-
 	format(user_error,'% SYSTEM ERROR- ~w~n',
+	[Where]).
+'$output_error_message'(internal_compiler_error, Where) :-
+	format(user_error,'% INTERNAL COMPILER ERROR- ~w~n',
 	[Where]).
 '$output_error_message'(system_error(Message), Where) :-
 	format(user_error,'% SYSTEM ERROR- ~w at ~w]~n',

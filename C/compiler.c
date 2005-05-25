@@ -11,8 +11,12 @@
 * File:		compiler.c						 *
 * comments:	Clause compiler						 *
 *									 *
-* Last rev:     $Date: 2005-05-12 03:36:32 $,$Author: vsc $						 *
+* Last rev:     $Date: 2005-05-25 21:43:32 $,$Author: vsc $						 *
 * $Log: not supported by cvs2svn $
+* Revision 1.66  2005/05/12 03:36:32  vsc
+* debugger was making predicates meta instead of testing
+* fix handling of dbrefs in facts and in subarguments.
+*
 * Revision 1.65  2005/04/10 04:01:10  vsc
 * bug fixes, I hope!
 *
@@ -458,7 +462,7 @@ compile_sf_term(Term t, int argno, int level)
       if (IsAtomicTerm(t))
 	Yap_emit((cglobs->onhead ? unify_s_a_op : write_s_a_op), t, (CELL) argno, &cglobs->cint);
       else if (!IsVarTerm(t)) {
-	Yap_Error_TYPE = SYSTEM_ERROR;
+	Yap_Error_TYPE = INTERNAL_COMPILER_ERROR;
 	Yap_Error_Term = TermNil;
 	Yap_ErrorMessage = "illegal argument of soft functor";
 	save_machine_regs();
@@ -485,7 +489,7 @@ c_args(Term app, unsigned int level, compiler_struct *cglobs)
 
   if (level == 0) {
     if (Arity >= MaxTemps) {
-      Yap_Error_TYPE = SYSTEM_ERROR;
+      Yap_Error_TYPE = INTERNAL_COMPILER_ERROR;
       Yap_Error_Term = TermNil;
       Yap_ErrorMessage = "exceed maximum arity of compiled goal";
       save_machine_regs();
@@ -1961,7 +1965,7 @@ clear_bvarray(int var, CELL *bvarray
 #ifdef DEBUG
   if (*bvarray & nbit) {
     /* someone had already marked this variable: complain */
-    Yap_Error_TYPE = SYSTEM_ERROR;
+    Yap_Error_TYPE = INTERNAL_COMPILER_ERROR;
     Yap_Error_Term = TermNil;
     Yap_ErrorMessage = "compiler internal error: variable initialised twice";
     save_machine_regs();
@@ -2002,7 +2006,7 @@ static void
 push_bvmap(int label, PInstr *pcpc, compiler_struct *cglobs)
 {
   if (bvindex == MAX_DISJUNCTIONS) {
-    Yap_Error_TYPE = SYSTEM_ERROR;
+    Yap_Error_TYPE = INTERNAL_COMPILER_ERROR;
     Yap_Error_Term = TermNil;
     Yap_ErrorMessage = "Too many embedded disjunctions";
     save_machine_regs();
@@ -2025,7 +2029,7 @@ reset_bvmap(CELL *bvarray, int nperm, compiler_struct *cglobs)
   if (bvarray == NULL)
 
   if (bvindex == 0) {
-    Yap_Error_TYPE = SYSTEM_ERROR;
+    Yap_Error_TYPE = INTERNAL_COMPILER_ERROR;
     Yap_Error_Term = TermNil;
     Yap_ErrorMessage = "No embedding in disjunctions";
     save_machine_regs();
@@ -2045,7 +2049,7 @@ static void
 pop_bvmap(CELL *bvarray, int nperm, compiler_struct *cglobs)
 {
   if (bvindex == 0) {
-    Yap_Error_TYPE = SYSTEM_ERROR;
+    Yap_Error_TYPE = INTERNAL_COMPILER_ERROR;
     Yap_Error_Term = TermNil;
     Yap_ErrorMessage = "Too few embedded disjunctions";
     /*  save_machine_regs();
@@ -2312,7 +2316,7 @@ checktemp(Int arg, Int rn, compiler_vm_op ic, compiler_struct *cglobs)
       ++target1;
     }
   if (target1 == cglobs->MaxCTemps) {
-    Yap_Error_TYPE = SYSTEM_ERROR;
+    Yap_Error_TYPE = INTERNAL_COMPILER_ERROR;
     Yap_Error_Term = TermNil;
     Yap_ErrorMessage = "too many temporaries";
     save_machine_regs();
@@ -2432,7 +2436,7 @@ c_layout(compiler_struct *cglobs)
     CheckUnsafe(cglobs->cint.CodeStart, cglobs);
 #ifdef DEBUG
     if (cglobs->pbvars != nperm) {
-      Yap_Error_TYPE = SYSTEM_ERROR;
+      Yap_Error_TYPE = INTERNAL_COMPILER_ERROR;
       Yap_Error_Term = TermNil;
       Yap_ErrorMessage = "wrong number of variables found in bitmap";
       save_machine_regs();
@@ -2866,10 +2870,10 @@ Yap_cclause(volatile Term inp_clause, int NOfArgs, int mod, volatile Term src)
     reset_vars(cglobs.vtable);
     Yap_Error_TYPE = OUT_OF_HEAP_ERROR;
     Yap_Error_Term = TermNil;
-    return(0);
+    return 0;
   }
   my_clause = inp_clause;
-  if (Yap_ErrorMessage != NULL) {
+  if (Yap_ErrorMessage) {
     reset_vars(cglobs.vtable);
     return (0);
   }
