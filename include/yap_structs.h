@@ -40,6 +40,10 @@ typedef struct FunctorEntry *YAP_Functor;
 
 typedef struct AtomEntry *YAP_Atom;
 
+typedef long int  YAP_Int;
+
+typedef double YAP_Float;
+
 #ifndef TRUE
 #define TRUE	1
 #endif

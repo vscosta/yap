@@ -11,8 +11,11 @@
 * File:		errors.yap						 *
 * comments:	error messages for YAP					 *
 *									 *
-* Last rev:     $Date: 2005-04-20 20:06:26 $,$Author: vsc $						 *
+* Last rev:     $Date: 2005-05-25 18:18:02 $,$Author: vsc $						 *
 * $Log: not supported by cvs2svn $
+* Revision 1.63  2005/04/20 20:06:26  vsc
+* try to improve error handling and warnings from within consults.
+*
 * Revision 1.62  2005/04/07 17:55:05  ricroc
 * Adding tabling support for mixed strategy evaluation (batched and local scheduling)
 *   UPDATE: compilation flags -DTABLING_BATCHED_SCHEDULING and -DTABLING_LOCAL_SCHEDULING removed. To support tabling use -DTABLING in the Makefile or --enable-tabling in configure.
@@ -113,10 +116,10 @@ print_message(Level, Mss) :-
 	( var(Msg) ; var(Info) ), !,
 	format(user_error,'% YAP: no handler for error ~w~n', [error(Msg,Info)]).
 '$print_message'(error,error(syntax_error(A,B,C,D,E,F),_)) :- !,
-	'$output_error_location',
+	'$output_error_location'('\%'),
 	'$output_error_message'(syntax_error(A,B,C,D,E,F), 'SYNTAX ERROR').
 '$print_message'(error,error(Msg,[Info|local_sp(Where,Envs,CPs)])) :-
-	'$output_error_location',
+	'$output_error_location'('\% ERROR:'),
 	'$prepare_loc'(Info,Where,Location),
 	'$output_error_message'(Msg, Location), !,
 	'$do_stack_dump'(Envs, CPs).
@@ -131,26 +134,27 @@ print_message(Level, Mss) :-
 	    true
 	).
 '$print_message'(warning,M) :-
-	'$output_error_location',
-	format(user_error, '% ', []),
+	'$output_error_location'('!! WARNING:'),
+	format(user_error, '!! ', []),
 	'$do_print_message'(M),
 	format(user_error, '~n', []).
 '$print_message'(help,M) :-
 	'$do_print_message'(M),
 	format(user_error, '~n', []).
 
-'$output_error_location' :-
+'$output_error_location'(MsgCodes) :-
 	get_value('$consulting_file',FileName),
-	FileName \= [],
+	FileName \= [], !,
 	'$start_line'(LN),
 	'$show_consult_level'(LC),
-	'$output_file_pos'(FileName,LN,LC),
+	'$output_file_pos'(FileName,LN,LC,MsgCodes),
 	format(user_error, '~*|', [LC]).
+'$output_error_location'(_).
 	
-'$output_file_pos'(user_input,LN,LC) :- !,
-	format(user_error,'~*|% In user_input near line ~d,~n',[LC,LN]).
-'$output_file_pos'(FileName,LN,LC) :-
-	format(user_error,'~*|% In file ~a, near line ~d,~n',[LC,FileName,LN]).
+'$output_file_pos'(user_input,LN,LC,MsgCodes) :- !,
+	format(user_error,'~*|~a at user_input near line ~d,~n',[LC,MsgCodes,LN]).
+'$output_file_pos'(FileName,LN,LC,MsgCodes) :-
+	format(user_error,'~*|~a at file ~a, near line ~d,~n',[LC,MsgCodes,FileName,LN]).
 
 '$do_informational_message'(halt) :- !,
 	format(user_error, '% YAP execution halted~n', []).

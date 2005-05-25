@@ -1004,6 +1004,15 @@ else
 AC_DEFINE(HAVE_MPZ_XOR,0)
 fi
 
+if test "$use_malloc" = "yes" -a "$maxmemory" = "yes" 
+then
+  echo ****************************************
+  echo Malloc and Max Memory are not compatible
+  echo Please use different options
+  echo ****************************************
+  exit 1
+fi
+
 dnl On some systems doing a fflush(NULL) to flush all output streams
 dnl has the side-effect of makeing all charactes waiting in input
 dnl pipes disapear.

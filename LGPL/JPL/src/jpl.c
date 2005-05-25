@@ -1,4 +1,4 @@
-/*  $Id: jpl.c,v 1.7 2005-05-12 03:36:33 vsc Exp $
+/*  $Id: jpl.c,v 1.8 2005-05-25 18:18:00 vsc Exp $
 
     Part of JPL -- SWI-Prolog/Java interface
 
@@ -2955,9 +2955,14 @@ jni_func_1_plc(
     switch ( n )
 	{
     case   6:
-	r =	JNI_term_to_charP(ta1,&c1)
-	    &&	JNI_jobject_to_term((*env)->FindClass(env,(char*)c1),tr);
-	break;
+      {
+	jobject jobj;
+	
+	r =	JNI_term_to_charP(ta1,&c1);
+	jobj = (*env)->FindClass(env,(char*)c1);
+	r &= JNI_jobject_to_term(jobj,tr);
+      }
+      break;
     case  10:
 	r =	JNI_term_to_jclass(env,ta1,&p1)
 	    &&	JNI_jobject_to_term((*env)->GetSuperclass(env,(jclass)p1),tr);

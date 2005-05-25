@@ -13433,6 +13433,15 @@ _ACEOF
 
 fi
 
+if test "$use_malloc" = "yes" -a "$maxmemory" = "yes"
+then
+  echo ****************************************
+  echo Malloc and Max Memory are not compatible
+  echo Please use different options
+  echo ****************************************
+  exit 1
+fi
+
 echo "$as_me:$LINENO: checking if fflush(NULL) clobbers input pipes" >&5
 echo $ECHO_N "checking if fflush(NULL) clobbers input pipes... $ECHO_C" >&6
 if test "${yap_cv_broken_fflush_null+set}" = set; then

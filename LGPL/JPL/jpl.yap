@@ -1,4 +1,4 @@
-/*  $Id: jpl.yap,v 1.4 2005-05-12 03:36:33 vsc Exp $
+/*  $Id: jpl.yap,v 1.5 2005-05-25 18:18:00 vsc Exp $
 
     Part of JPL -- SWI-Prolog/Java interface
 
@@ -68,11 +68,13 @@
 	    jpl_array_to_length/2,
 	    jpl_array_to_list/2,
 	    jpl_datums_to_array/2,
+	    jpl_datums_to_array/3,
 	    jpl_enumeration_element/2,
 	    jpl_enumeration_to_list/2,
 	    jpl_hashtable_pair/2,
 	    jpl_iterator_element/2,
 	    jpl_list_to_array/2,
+	    jpl_list_to_array/3,
 	    jpl_map_element/2,
 	    jpl_set_element/2
 	  ]).
@@ -3910,6 +3912,11 @@ jpl_datums_to_array(Ds, A) :-
     jpl_datums_to_most_specific_common_ancestor_type(Ds, T),
     jpl_new(array(T), Ds, A).
 
+jpl_datums_to_array(Ds, Type, A) :-
+    ground(Ds),
+    ground(Type),
+    jpl_new(array(Type), Ds, A).
+
 %------------------------------------------------------------------------------
 
 %type	jpl_enumeration_element(object, datum)
@@ -3978,6 +3985,9 @@ jpl_iterator_element(I, E) :-
 
 jpl_list_to_array(Ds, A) :-
     jpl_datums_to_array(Ds, A).
+
+jpl_list_to_array(Ds, Type, A) :-
+    jpl_datums_to_array(Ds, Type, A).
 
 %------------------------------------------------------------------------------
 

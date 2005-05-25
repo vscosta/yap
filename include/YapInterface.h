@@ -106,23 +106,23 @@ extern X_API YAP_Bool PROTO(YAP_IsPairTerm,(YAP_Term));
 /*  YAP_Bool IsApplTerm(YAP_Term)  */
 extern X_API YAP_Bool PROTO(YAP_IsApplTerm,(YAP_Term));
 
-/*    Term MkIntTerm(long int)  */
-extern X_API YAP_Term PROTO(YAP_MkIntTerm,(long int));
+/*    Term MkIntTerm(YAP_Int)  */
+extern X_API YAP_Term PROTO(YAP_MkIntTerm,(YAP_Int));
 
 /*    Term MkBigNumTerm(void *)  */
 extern X_API YAP_Term PROTO(YAP_MkBigNumTerm,(void *));
 
-/*    long int  IntOfTerm(Term) */
-extern X_API long int PROTO(YAP_IntOfTerm,(YAP_Term));
+/*    YAP_Int  IntOfTerm(Term) */
+extern X_API YAP_Int PROTO(YAP_IntOfTerm,(YAP_Term));
 
-/*    long int  BigNumOfTerm(Term) */
+/*    void *  BigNumOfTerm(Term) */
 extern X_API void *PROTO(YAP_BigNumOfTerm,(YAP_Term));
 
-/*    Term MkFloatTerm(double)  */
-extern X_API YAP_Term PROTO(YAP_MkFloatTerm,(double));
+/*    Term MkFloatTerm(YAP_Float)  */
+extern X_API YAP_Term PROTO(YAP_MkFloatTerm,(YAP_Float));
 
-/*    double  FloatOfTerm(YAP_Term) */
-extern X_API double PROTO(YAP_FloatOfTerm,(YAP_Term));
+/*    YAP_Float  FloatOfTerm(YAP_Term) */
+extern X_API YAP_Float PROTO(YAP_FloatOfTerm,(YAP_Term));
 
 /*    Term MkAtomTerm(Atom)  */
 extern X_API YAP_Term PROTO(YAP_MkAtomTerm,(YAP_Atom));
@@ -151,11 +151,11 @@ extern X_API YAP_Term PROTO(YAP_HeadOfTerm,(YAP_Term));
 /*    Term  TailOfTerm(Term)  */
 extern X_API YAP_Term PROTO(YAP_TailOfTerm,(YAP_Term));
 
-/*    YAP_Term     MkApplTerm(YAP_Functor f, unsigned long int n, YAP_Term[] args) */
-extern X_API YAP_Term PROTO(YAP_MkApplTerm,(YAP_Functor,int,YAP_Term *));
+/*    YAP_Term     MkApplTerm(YAP_Functor f, unsigned int n, YAP_Term[] args) */
+extern X_API YAP_Term PROTO(YAP_MkApplTerm,(YAP_Functor,unsigned int,YAP_Term *));
 
-/*    YAP_Term     MkNewApplTerm(YAP_Functor f, unsigned long int n) */
-extern X_API YAP_Term PROTO(YAP_MkNewApplTerm,(YAP_Functor,unsigned long int));
+/*    YAP_Term     MkNewApplTerm(YAP_Functor f, unsigned int n) */
+extern X_API YAP_Term PROTO(YAP_MkNewApplTerm,(YAP_Functor,unsigned int));
 
 /*    YAP_Functor  YAP_FunctorOfTerm(Term)  */
 extern X_API YAP_Functor PROTO(YAP_FunctorOfTerm,(YAP_Term));
@@ -164,13 +164,13 @@ extern X_API YAP_Functor PROTO(YAP_FunctorOfTerm,(YAP_Term));
 extern X_API YAP_Term PROTO(YAP_ArgOfTerm,(unsigned int,YAP_Term));
 
 /*    YAP_Functor  MkFunctor(YAP_Atom a,int arity) */
-extern X_API YAP_Functor PROTO(YAP_MkFunctor,(YAP_Atom,unsigned long int));
+extern X_API YAP_Functor PROTO(YAP_MkFunctor,(YAP_Atom,unsigned int));
 
 /*    YAP_Atom     NameOfFunctor(Functor) */
 extern X_API YAP_Atom PROTO(YAP_NameOfFunctor,(YAP_Functor));
 
-/*    unsigned long int     YAP_ArityOfFunctor(Functor) */
-extern X_API unsigned long int PROTO(YAP_ArityOfFunctor,(YAP_Functor));
+/*    unsigned unsigned int     YAP_ArityOfFunctor(Functor) */
+extern X_API unsigned int PROTO(YAP_ArityOfFunctor,(YAP_Functor));
 
 /*  void ExtraSpace(void) */
 extern X_API void *PROTO(YAP_ExtraSpace,(void));
@@ -182,14 +182,14 @@ extern X_API void *PROTO(YAP_ExtraSpace,(void));
 extern X_API YAP_Bool PROTO(YAP_Unify,(YAP_Term, YAP_Term));
 
 /*  void UserCPredicate(char *name, int *fn(), int arity) */
-extern X_API void PROTO(YAP_UserCPredicate,(char *, YAP_Bool (*)(void), unsigned long int));
+extern X_API void PROTO(YAP_UserCPredicate,(char *, YAP_Bool (*)(void), unsigned int));
 
-/*  void UserCPredicateWithArgs(char *name, int *fn(), long int arity) */
-extern X_API void PROTO(YAP_UserCPredicateWithArgs,(char *, YAP_Bool (*)(void), long int,long int));
+/*  void UserCPredicateWithArgs(char *name, int *fn(), unsigned int arity) */
+extern X_API void PROTO(YAP_UserCPredicateWithArgs,(char *, YAP_Bool (*)(void), unsigned int,unsigned int));
 
 /*  void UserBackCPredicate(char *name, int *init(), int *cont(), int
     arity, int extra) */
-extern X_API void PROTO(YAP_UserBackCPredicate,(char *, YAP_Bool (*)(void), YAP_Bool (*)(void), unsigned long int, unsigned int));
+extern X_API void PROTO(YAP_UserBackCPredicate,(char *, YAP_Bool (*)(void), YAP_Bool (*)(void), unsigned int, unsigned int));
 
 /*  void CallProlog(YAP_Term t) */
 extern X_API YAP_Bool PROTO(YAP_CallProlog,(YAP_Term t));
