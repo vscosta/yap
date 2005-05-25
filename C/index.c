@@ -11,8 +11,11 @@
 * File:		index.c							 *
 * comments:	Indexing a Prolog predicate				 *
 *									 *
-* Last rev:     $Date: 2005-04-28 14:50:45 $,$Author: vsc $						 *
+* Last rev:     $Date: 2005-05-25 18:58:37 $,$Author: vsc $						 *
 * $Log: not supported by cvs2svn $
+* Revision 1.125  2005/04/28 14:50:45  vsc
+* clause should always deref before testing type
+*
 * Revision 1.124  2005/04/27 20:09:25  vsc
 * indexing code could get confused with suspension points
 * some further improvements on oveflow handling
@@ -8145,7 +8148,7 @@ Yap_NthClause(PredEntry *ap, Int ncls)
       if (ncls == 1)
 	return to_clause(ipc->u.ld.d, ap);
       else if (alt == NULL) {
-	ncls -= 2;
+	ncls --;
 	/* get there in a fell swoop */
 	if (ap->PredFlags & ProfiledPredFlag) {
 	  if (ap->PredFlags & CountPredFlag) {
@@ -8158,7 +8161,7 @@ Yap_NthClause(PredEntry *ap, Int ncls)
 	} else {
 	  ipc = (yamop *)((char *)ipc+ncls*(UInt)NEXTOP((yamop *)NULL,ld));
 	}
-	ncls = 1;
+	return to_clause(ipc->u.ld.d, ap);
       } else {
 	ncls--;
       }
@@ -8173,7 +8176,7 @@ Yap_NthClause(PredEntry *ap, Int ncls)
       if (ncls == 1)
 	return to_clause(ipc->u.l.l, ap);
       else if (alt == NULL) {
-	ncls -= 2;
+	ncls --;
 	/* get there in a fell swoop */
 	if (ap->PredFlags & ProfiledPredFlag) {
 	  if (ap->PredFlags & CountPredFlag) {
@@ -8186,7 +8189,7 @@ Yap_NthClause(PredEntry *ap, Int ncls)
 	} else {
 	  ipc = (yamop *)((char *)ipc+ncls*(UInt)NEXTOP((yamop *)NULL,l));
 	}
-	ncls = 1;
+	return to_clause(ipc->u.l.l, ap);
       } else {
 	ncls--;
       }

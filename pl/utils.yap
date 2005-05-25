@@ -721,3 +721,10 @@ halt :-
 halt(X) :-
 	'$halt'(X).
 
+nth_instance(X,Y,Z) :-
+	nonvar(X), var(Y), var(Z), !,
+	recorded(X,_,Z),
+	'$nth_instance'(_,Y,Z).
+nth_instance(X,Y,Z) :-
+	'$nth_instance'(X,Y,Z).
+
