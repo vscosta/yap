@@ -344,9 +344,10 @@ GC_NEW_MAHASH(gc_ma_hash_entry *top) {
   UInt time = ++timestamp;
   if (time == 0) {
     unsigned int i;
+
     /* damn, we overflowed */
     for (i = 0; i < GC_MAVARS_HASH_SIZE; i++)
-      gc_ma_hash_table[i].timestmp = 0;
+      gc_ma_hash_table[i].timestmp = 0L;
     time = ++timestamp;
   }
   gc_ma_h_top = top;
@@ -1450,10 +1451,11 @@ mark_environments(CELL_PTR gc_ENV, OPREG size, CELL *pvbmap)
 	      len++;
 	      mynext = prox;
 	    }
-	    if (len>=15)
+	    if (len>=15) {
 	      (chain[15])++;
-	    else
+	    } else {
 	      (chain[len])++;
+	    }
 	  }
 	}
 #endif
@@ -1595,7 +1597,7 @@ mark_trail(tr_fr_ptr trail_ptr, tr_fr_ptr trail_base, CELL *gc_H, choiceptr gc_B
 
       */
       if (!gc_lookup_ma_var(cptr, trail_base)) {
-	/* first time we see it*/
+	/* check whether this is the first time we see it*/
 	if (HEAP_PTR(trail_cell)) {
 	  /* fool the gc into thinking this is a variable */
 	  TrailTerm(trail_base) = (CELL)cptr;
@@ -2240,11 +2242,11 @@ sweep_trail(choiceptr gc_B, tr_fr_ptr old_TR)
 	CELL *ptr;
 	CELL old = TrailTerm(trail_ptr+1);
 	/* be sure we don't overwrite before we read */
-	int marked_ptr = MARKED_PTR(&TrailTerm(trail_ptr+2));
-	int marked_old = MARKED_PTR(&TrailTerm(trail_ptr+1));
+	Int marked_ptr = MARKED_PTR(&TrailTerm(trail_ptr+2));
+	Int marked_old = MARKED_PTR(&TrailTerm(trail_ptr+1));
 #ifdef FROZEN_STACKS
-	int marked_val_old = MARKED_PTR(&TrailVal(trail_ptr+1));
-	int marked_val_ptr = MARKED_PTR(&TrailVal(trail_ptr+2));
+	Int marked_val_old = MARKED_PTR(&TrailVal(trail_ptr+1));
+	Int marked_val_ptr = MARKED_PTR(&TrailVal(trail_ptr+2));
 #endif
 
 	if (marked_ptr) 
