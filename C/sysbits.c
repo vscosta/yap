@@ -1028,7 +1028,7 @@ SearchForTrailFault(siginfo_t *siginfo)
      */
 #if  OS_HANDLES_TR_OVERFLOW && !USE_SYSTEM_MALLOC
   if ((ptr > (void *)Yap_TrailTop-1024  && 
-       TR < (void *)Yap_TrailTop+(64*1024))) {
+       TR < (tr_fr_ptr) Yap_TrailTop+(64*1024))) {
     if (!Yap_growtrail(64*1024, TRUE)) {
       Yap_Error(OUT_OF_TRAIL_ERROR, TermNil, "YAP failed to reserve %ld bytes in growtrail", 64*1024L);
     }

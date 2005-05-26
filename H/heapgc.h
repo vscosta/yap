@@ -96,7 +96,7 @@ extern char *bp;
 
 #define mcell(X)  bp[X-(CELL *)Yap_GlobalBase]
 
-static inline int
+static inline Int
 MARKED_PTR(CELL* ptr)
 {
   return mcell(ptr) & MARK_BIT;
