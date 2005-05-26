@@ -10,7 +10,7 @@
 * File:		Heap.h         						 *
 * mods:									 *
 * comments:	Heap Init Structure					 *
-* version:      $Id: Heap.h,v 1.78 2005-01-28 23:14:38 vsc Exp $	 *
+* version:      $Id: Heap.h,v 1.79 2005-05-26 18:03:08 rslopes Exp $	 *
 *************************************************************************/
 
 /* information that can be stored in Code Space */
@@ -414,7 +414,7 @@ typedef struct various_codes {
   struct AliasDescS * file_aliases;
 #if LOW_PROF
   int   profiler_on;
-  void *f_prof, *f_preds;
+  FILE *f_prof, *f_preds;
   UInt  prof_preds;
 #endif /* LOW_PROF */
   struct reduction_counters call_counters;
@@ -674,8 +674,8 @@ struct various_codes *Yap_heap_regs;
 #define  FileAliases              Yap_heap_regs->file_aliases
 #if LOW_PROF
 #define  ProfilerOn		  Yap_heap_regs->profiler_on
-#define  FProf     		  ((FILE *)Yap_heap_regs->f_prof)
-#define  FPreds     		  ((FILE *)Yap_heap_regs->f_preds)
+#define  FProf     		  Yap_heap_regs->f_prof
+#define  FPreds     		  Yap_heap_regs->f_preds
 #define  ProfPreds		  Yap_heap_regs->prof_preds
 #endif /* LOW_PROF */
 #define  ReductionsCounter        Yap_heap_regs->call_counters.reductions

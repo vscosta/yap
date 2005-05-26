@@ -11,8 +11,14 @@
 * File:		stdpreds.c						 *
 * comments:	General-purpose C implemented system predicates		 *
 *									 *
-* Last rev:     $Date: 2005-04-27 20:09:25 $,$Author: vsc $						 *
+* Last rev:     $Date: 2005-05-26 18:01:11 $,$Author: rslopes $						 *
 * $Log: not supported by cvs2svn $
+* Revision 1.88  2005/04/27 20:09:25  vsc
+* indexing code could get confused with suspension points
+* some further improvements on oveflow handling
+* fix paths in Java makefile
+* changs to support gibbs sampling in CLP(BN)
+*
 * Revision 1.87  2005/04/07 17:48:55  ricroc
 * Adding tabling support for mixed strategy evaluation (batched and local scheduling)
 *   UPDATE: compilation flags -DTABLING_BATCHED_SCHEDULING and -DTABLING_LOCAL_SCHEDULING removed. To support tabling use -DTABLING in the Makefile or --enable-tabling in configure.
@@ -361,11 +367,12 @@ showprofres(UInt type) {
   /* First part: Read information about predicates and store it on yap trail */
 
   FPreds=fopen(profile_names(PROFPREDS_FILE),"r"); 
+
   if (FPreds == NULL) { printf("Sorry, profiler couldn't find PROFPREDS file. \n"); return FALSE; }
 
   ProfPreds=0;
   pr=(clauseentry *) TR;
-  while (fscanf(FPreds,"+%p %p %p %ld",&(pr->beg),&(pr->end),&(pr->pp),&(pr->ts)) > 0){
+  while (fscanf(FPreds,"+%p %p %p %d",&(pr->beg),&(pr->end),&(pr->pp),&(pr->ts)) > 0){
     int c;
     pr->pcs = 0L;
     pr++;
