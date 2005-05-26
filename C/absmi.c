@@ -10,8 +10,11 @@
 *									 *
 * File:		absmi.c							 *
 * comments:	Portable abstract machine interpreter                    *
-* Last rev:     $Date: 2005-04-10 04:01:07 $,$Author: vsc $						 *
+* Last rev:     $Date: 2005-05-26 18:07:32 $,$Author: vsc $						 *
 * $Log: not supported by cvs2svn $
+* Revision 1.163  2005/04/10 04:01:07  vsc
+* bug fixes, I hope!
+*
 * Revision 1.162  2005/04/07 17:48:53  ricroc
 * Adding tabling support for mixed strategy evaluation (batched and local scheduling)
 *   UPDATE: compilation flags -DTABLING_BATCHED_SCHEDULING and -DTABLING_LOCAL_SCHEDULING removed. To support tabling use -DTABLING in the Makefile or --enable-tabling in configure.
@@ -1329,7 +1332,7 @@ Yap_absmi(int inp)
 	PREG = ipc;
 	UNLOCK(pe->PELock);
 	if (PREG == NULL) FAIL();
-	CACHED_A1() = ARG1;
+	CACHE_A1();
 	JMPNext();
       }
       ENDBOp();
@@ -7213,7 +7216,7 @@ Yap_absmi(int inp)
 	Yap_IPred(ap, 0);
       /* IPred can generate errors, it thus must get rid of the lock itself */
 	setregs();
-	CACHED_A1() = ARG1;
+	CACHE_A1();
 	PREG = ap->CodeOfPred;
 	WRITE_UNLOCK(ap->PRWLock);
       }
