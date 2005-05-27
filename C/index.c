@@ -11,8 +11,11 @@
 * File:		index.c							 *
 * comments:	Indexing a Prolog predicate				 *
 *									 *
-* Last rev:     $Date: 2005-05-25 18:58:37 $,$Author: vsc $						 *
+* Last rev:     $Date: 2005-05-27 21:44:00 $,$Author: vsc $						 *
 * $Log: not supported by cvs2svn $
+* Revision 1.126  2005/05/25 18:58:37  vsc
+* fix another bug in nth_instance, thanks to Pat Caldon
+*
 * Revision 1.125  2005/04/28 14:50:45  vsc
 * clause should always deref before testing type
 *
@@ -6104,6 +6107,11 @@ clean_up_index(LogUpdIndex *blk, yamop **jlbl, PredEntry *ap)
   }
 }
 
+static int is_trust(OPCODE opc) {
+  op_numbers op = Yap_op_from_opcode(opc);
+  return op == _trust;
+}
+
 static yamop *
 insertz_in_lu_block(LogUpdIndex *blk, PredEntry *ap, yamop *code)
 {
@@ -6117,7 +6125,10 @@ insertz_in_lu_block(LogUpdIndex *blk, PredEntry *ap, yamop *code)
     begin = NEXTOP(begin, xll);
     op = Yap_op_from_opcode(begin->opc);
   }
-  if (op != _enter_lu_pred && op != _stale_lu_index) {
+  /* block should start with an enter_lu_pred and end with a trust,
+     otherwise I just don't understand what is going on */
+  if ((op != _enter_lu_pred && op != _stale_lu_index) ||
+      ! is_trust(begin->u.xll.l2->opc)) {
     if (blk->ClFlags & SwitchRootMask) {
       Yap_kill_iblock((ClauseUnion *)blk, NULL, ap);
     } else {
@@ -6166,6 +6177,7 @@ insertz_in_lu_block(LogUpdIndex *blk, PredEntry *ap, yamop *code)
 	if (ap->ArityOfPE >= 2 && 
 	    ap->ArityOfPE <= 4) {
 	  yamop *cl = last->u.ld.d;
+
 	  nlast->opc = Yap_opcode(_retry2+(ap->ArityOfPE-2));
 	  nlast->u.l.l = cl;
 	  where = NEXTOP(nlast,l);

@@ -22,6 +22,7 @@ static char     SccsId[] = "@(#)agc.c	1.3 3/15/90";
 #include "absmi.h"
 #include "alloc.h"
 #include "yapio.h"
+#include "attvar.h"
 
 #ifdef DEBUG
 /* #define DEBUG_RESTORE2 1 */
@@ -188,9 +189,6 @@ mark_atoms(void)
   do {
 #ifdef DEBUG_RESTORE2		/* useful during debug */
     fprintf(errout, "Restoring %s\n", at->StrOfAE);
-    if (strcmp(at->StrOfAE,"$module_expansion") == 0) {
-      printf("oops\n");
-    }
 #endif
     RestoreEntries(RepProp(at->PropsOfAE));
     atm = at->NextOfAE;
@@ -235,55 +233,60 @@ mark_local(void)
   }
 }
 
+static CELL *
+mark_global_cell(CELL *pt)
+{   
+  CELL reg = *pt;
+
+  if (IsVarTerm(reg)) {
+    /* skip bitmaps */
+    switch(reg) {
+    case (CELL)FunctorDouble:
+#if SIZEOF_DOUBLE == 2*SIZEOF_LONG_INT
+      return pt + 4;
+#else
+      return pt + 3;
+#endif
+#if USE_GMP
+    case (CELL)FunctorBigInt:
+      {
+	Int sz = 1+
+	  sizeof(MP_INT)+
+	  (((MP_INT *)(pt+1))->_mp_alloc*sizeof(mp_limb_t));
+	return pt + sz+1;
+      }
+#endif
+    case (CELL)FunctorLongInt:
+      return pt += 3;
+      break;
+    }
+  } else if (IsAtomTerm(reg)) {
+    MarkAtomEntry(RepAtom(AtomOfTerm(reg)));
+    return pt+1;
+  }
+  return pt+1;
+}
+
 static void
 mark_global(void)
 {
-  register CELL *pt;
+  CELL *pt;
 
   /*
    * to clean the global now that functors are just variables pointing to
    * the code 
    */
-  pt = CellPtr(Yap_GlobalBase);
+#if COROUTINING
+  CELL *ptf = (CELL *)DelayTop();
+
+  pt = (CELL *)Yap_GlobalBase;
+  while (pt < ptf) {
+    pt = mark_global_cell(pt);
+  }
+#endif
+  pt = H0;
   while (pt < H) {
-    register CELL reg;
-    
-    reg = *pt;
-    if (IsVarTerm(reg)) {
-      pt++;
-      continue;
-    } else if (IsAtomTerm(reg)) {
-      	MarkAtomEntry(RepAtom(AtomOfTerm(reg)));
-    } else if (IsApplTerm(reg)) {
-      Functor f = FunctorOfTerm(reg);
-      if (f <= FunctorDouble && f >= FunctorLongInt) {
-	/* skip bitmaps */
-	switch((CELL)f) {
-	case (CELL)FunctorDouble:
-#if SIZEOF_DOUBLE == 2*SIZEOF_LONG_INT
-	  pt += 3;
-#else
-	  pt += 2;
-#endif
-	  break;
-#if USE_GMP
-	case (CELL)FunctorBigInt:
-	  {
-	    Int sz = 1+
-	      sizeof(MP_INT)+
-	      (((MP_INT *)(pt+1))->_mp_alloc*sizeof(mp_limb_t));
-	    pt += sz;
-	  }
-	  break;
-#endif
-	case (CELL)FunctorLongInt:
-	default:
-	  pt += 2;
-	  break;
-	}
-      }
-    }
-    pt++;
+    pt = mark_global_cell(pt);
   }
 }
 
