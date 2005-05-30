@@ -11,8 +11,11 @@
 * File:		amidefs.h						 *
 * comments:	Abstract machine peculiarities				 *
 *									 *
-* Last rev:     $Date: 2005-04-10 04:01:13 $							 *
+* Last rev:     $Date: 2005-05-30 06:07:35 $							 *
 * $Log: not supported by cvs2svn $
+* Revision 1.27  2005/04/10 04:01:13  vsc
+* bug fixes, I hope!
+*
 * Revision 1.26  2004/09/30 21:37:41  vsc
 * fixes for thread support
 *
@@ -649,10 +652,23 @@ typedef struct choicept {
         :                                                                                     \
           (SHARED_CP(CP2) ? TRUE : CP1 <= CP2)                                                   \
         )
+
+#define YOUNGER_H(H1, H2) FIXMEE!!!!
+
+
 #else /* ENV_COPY || ACOW */
 #define YOUNGER_CP(CP1, CP2)           ((CP1) <  (CP2))
 #define EQUAL_OR_YOUNGER_CP(CP1, CP2)  ((CP1) <= (CP2))
+
+#define YOUNGER_H(H1, H2)           ((CELL *)(H1) > (CELL *)(H2))
+
 #endif /* SBA */
+
+#define YOUNGEST_CP(CP1, CP2)           (YOUNGER_CP(CP1,CP2) ? (CP1) : (CP2))
+
+#define YOUNGEST_H(H1, H2)           (YOUNGER_H(H1,H2) ? (CELL *)(H1) : (CELL *)(H2))
+
+
 
 /*
    Environment Structure (CP, E, and CUT_B). Yap always saves the B

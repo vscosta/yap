@@ -690,9 +690,7 @@ Macros to check the limits of stacks
 
 #if (defined(SBA) && defined(YAPOR)) || defined(TABLING)
 #define check_stack(Label, GLOB)                             \
- if ( (Int)(Unsigned(E_YREG) - CFREG) < (Int)(GLOB) &&       \
-       (choiceptr)E_YREG < B_FZ && E_YREG > H_FZ       &&       \
-       (GLOB) > H_FZ && (GLOB) < (CELL *)B_FZ) goto Label
+ if ( (Int)(Unsigned(YOUNGEST_CP((choiceptr)E_YREG,B_FZ)) - Unsigned(YOUNGEST_H(H_FZ,GLOB))) < CFREG  ) goto Label
 #else
 #define check_stack(Label, GLOB)                             \
  if ( (Int)(Unsigned(E_YREG) - Unsigned(GLOB)) < CFREG ) goto Label

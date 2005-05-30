@@ -53,13 +53,13 @@ STD_PROTO(static inline tg_sol_fr_ptr CUT_prune_tg_solution_frames, (tg_sol_fr_p
 #define	TabPairTagBits         MKTAG(0x5,3)
 #define	TabApplTagBits         MKTAG(0x5,0)
 #else
-#define	TabTagBits             OOOOPPS!!! Inconsistent Tabling Tag Scheme
-#define TabNumberOfLowTagBits  OOOOPPS!!! Inconsistent Tabling Tag Scheme
-#define	TabVarTagBits          OOOOPPS!!! Inconsistent Tabling Tag Scheme
-#define	TabAtomTagBits         OOOOPPS!!! Inconsistent Tabling Tag Scheme
-#define	TabNumberTagBits       OOOOPPS!!! Inconsistent Tabling Tag Scheme
-#define	TabPairTagBits         OOOOPPS!!! Inconsistent Tabling Tag Scheme
-#define	TabApplTagBits         OOOOPPS!!! Inconsistent Tabling Tag Scheme
+#define	TabTagBits             MKTAG(0x0,LowTagBits)
+#define TabNumberOfLowTagBits  LowTagBits
+#define	TabVarTagBits          MKTAG(0x0,0)
+#define	TabAtomTagBits         AtomTag
+#define	TabNumberTagBits       NumberTag
+#define	TabPairTagBits         PairBits
+#define	TabApplTagBits         ApplBit
 #endif /* TAGS_FAST_OPS */
 
 
