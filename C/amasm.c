@@ -11,8 +11,12 @@
 * File:		amasm.c							 *
 * comments:	abstract machine assembler				 *
 *									 *
-* Last rev:     $Date: 2005-05-30 05:26:49 $							 *
+* Last rev:     $Date: 2005-05-30 05:33:43 $							 *
 * $Log: not supported by cvs2svn $
+* Revision 1.75  2005/05/30 05:26:49  vsc
+* fix tabling
+* allow atom gc again for now.
+*
 * Revision 1.74  2005/05/25 21:43:32  vsc
 * fix compiler bug in 1 << X, found by Nuno Fonseca.
 * compiler internal errors get their own message.
@@ -2361,7 +2365,6 @@ do_pass(int pass_no, yamop **entry_codep, int assembling, int *clause_has_blobsp
     *entry_codep = code_p;
     if (tabled) {
 #if TABLING
-      printf("Here I go at %p\n", code_p);
       code_p = a_try(_table_try_single, (CELL)NEXTOP(code_p,ld), IPredArity, &clinfo, code_p, pass_no);
 #endif
     }

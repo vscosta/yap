@@ -688,10 +688,10 @@ Macros to check the limits of stacks
 
 #endif
 
-#if defined(SBA) && defined(YAPOR)
+#if (defined(SBA) && defined(YAPOR)) || defined(TABLING)
 #define check_stack(Label, GLOB)                             \
  if ( (Int)(Unsigned(E_YREG) - CFREG) < (Int)(GLOB) &&       \
-       (choiceptr)E_YREG < B_FZ && E_Y > H_FZ       &&       \
+       (choiceptr)E_YREG < B_FZ && E_YREG > H_FZ       &&       \
        (GLOB) > H_FZ && (GLOB) < (CELL *)B_FZ) goto Label
 #else
 #define check_stack(Label, GLOB)                             \
