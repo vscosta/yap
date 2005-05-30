@@ -214,7 +214,8 @@ if (IS_BATCHED_GEN_CP(B)) printf("***** Cannot be here - batched scheduling\n");
       init_subgoal_frame(sg_fr);
       UNLOCK(SgFr_lock(sg_fr));
       store_generator_node(PREG->u.ld.s, COMPLETION, sg_fr);
-      PREG = PREG->u.ld.d;
+      /* PREG = PREG->u.ld.d; */
+	PREG = NEXTOP(PREG,ld);	
       PREFETCH_OP(PREG);
       allocate_environment(YENV);
       GONext();

@@ -25,8 +25,9 @@ static char     SccsId[] = "@(#)agc.c	1.3 3/15/90";
 #include "attvar.h"
 
 #ifdef DEBUG
-#define DEBUG_RESTORE1 1
+/* #define DEBUG_RESTORE1 1 */
 /* #define DEBUG_RESTORE2 1 */
+#define DEBUG_RESTORE3 1
 #define errout Yap_stderr
 #endif
 
@@ -190,7 +191,7 @@ mark_atoms(void)
     return;
   }
   do {
-#ifdef DEBUG_RESTORE2		/* useful during debug */
+#ifdef DEBUG_RESTORE1		/* useful during debug */
     fprintf(errout, "Restoring %s\n", at->StrOfAE);
 #endif
     RestoreEntries(RepProp(at->PropsOfAE));
@@ -323,7 +324,7 @@ clean_atoms(void)
 	atm = at->NextOfAE;
 	NOfAtoms--;
       } else {
-#ifdef DEBUG_RESTORE2
+#ifdef DEBUG_RESTORE3
 	fprintf(stderr, "Purged %s\n", at->StrOfAE);
 #endif
 	*patm = at->NextOfAE;
@@ -343,7 +344,7 @@ clean_atoms(void)
       NOfAtoms--;
       atm = at->NextOfAE;
     } else {
-#ifdef DEBUG_RESTORE2
+#ifdef DEBUG_RESTORE1
       fprintf(stderr, "Purged %s\n", at->StrOfAE);
 #endif
       *patm = at->NextOfAE;
@@ -396,7 +397,6 @@ Yap_atom_gc(void)
 static Int
 p_atom_gc(void)
 {
-  return TRUE;
 #ifndef FIXED_STACKS
   atom_gc();
 #endif  /* FIXED_STACKS */

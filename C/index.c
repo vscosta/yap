@@ -11,8 +11,12 @@
 * File:		index.c							 *
 * comments:	Indexing a Prolog predicate				 *
 *									 *
-* Last rev:     $Date: 2005-05-27 21:44:00 $,$Author: vsc $						 *
+* Last rev:     $Date: 2005-05-30 05:26:49 $,$Author: vsc $						 *
 * $Log: not supported by cvs2svn $
+* Revision 1.127  2005/05/27 21:44:00  vsc
+* Don't try to mess with sequences that don't end with a trust.
+* A fix for the atom garbage collector actually ignore floats ;-).
+*
 * Revision 1.126  2005/05/25 18:58:37  vsc
 * fix another bug in nth_instance, thanks to Pat Caldon
 *
@@ -2070,6 +2074,8 @@ add_info(ClauseDef *clause, UInt regno)
 #endif /* YAPOR */
 #ifdef TABLING
     case _table_try_single:
+      cl = NEXTOP(cl,ld);
+      break;      
     case _table_try_me:
     case _table_retry_me:
     case _table_trust_me:
@@ -3017,7 +3023,10 @@ static void
 emit_trust(ClauseDef *cl, struct intermediates *cint, UInt nxtlbl, int clauses)
 {
   PredEntry *ap = cint->CurrentPred;
+  yamop *clcode = cl->Code;
 
+  if (ap->PredFlags & TabledPredFlag)
+    clcode = NEXTOP(clcode, ld);
   if (ap->PredFlags & ProfiledPredFlag) {
     Yap_emit(retry_profiled_op, Unsigned(ap), Zero, cint);
   }
@@ -3025,9 +3034,9 @@ emit_trust(ClauseDef *cl, struct intermediates *cint, UInt nxtlbl, int clauses)
     Yap_emit(count_retry_op, Unsigned(ap), Zero, cint);
   }
   if (clauses == 0) {
-    Yap_emit(trust_op, (CELL)(cl->Code), has_cut(cl->CurrentCode) , cint);
+    Yap_emit(trust_op, (CELL)clcode, has_cut(cl->CurrentCode) , cint);
   } else {
-    Yap_emit(retry_op, (CELL)(cl->Code), (clauses << 1) | has_cut(cl->CurrentCode) , cint);
+    Yap_emit(retry_op, (CELL)clcode, (clauses << 1) | has_cut(cl->CurrentCode) , cint);
     Yap_emit(jumpi_op, nxtlbl, Zero, cint);
   }
 }
@@ -3036,14 +3045,17 @@ static void
 emit_retry(ClauseDef *cl, struct intermediates *cint, int clauses)
 {
   PredEntry *ap = cint->CurrentPred;
+  yamop *clcode = cl->Code;
 
+  if (ap->PredFlags & TabledPredFlag)
+    clcode = NEXTOP(clcode, ld);
   if (ap->PredFlags & ProfiledPredFlag) {
     Yap_emit(retry_profiled_op, Unsigned(ap), Zero, cint);
   }
   if (ap->PredFlags & CountPredFlag) {
     Yap_emit(count_retry_op, Unsigned(ap), Zero, cint);
   }
-  Yap_emit(retry_op, (CELL)(cl->Code), (clauses << 1) | has_cut(cl->CurrentCode), cint);
+  Yap_emit(retry_op, (CELL)clcode, (clauses << 1) | has_cut(cl->CurrentCode), cint);
 }
 
 static compiler_vm_op
@@ -3079,8 +3091,15 @@ emit_optry(int var_group, int first, int clauses, int clleft, PredEntry *ap)
 static void
 emit_try(ClauseDef *cl, struct intermediates *cint, int var_group, int first, int clauses, int clleft, UInt nxtlbl)
 {
+  PredEntry *ap = cint->CurrentPred;
+  yamop *clcode = cl->CurrentCode;
+
+  if (ap->PredFlags & TabledPredFlag) {
+    clcode = NEXTOP(cl->Code, ld);
+  }
+
   compiler_vm_op comp_op = emit_optry(var_group, first, clauses, clleft, cint->CurrentPred);
-  Yap_emit(comp_op, (CELL)(cl->CurrentCode), ((clauses+clleft) << 1) | has_cut(cl->CurrentCode), cint);
+  Yap_emit(comp_op, (CELL)clcode, ((clauses+clleft) << 1) | has_cut(cl->CurrentCode), cint);
 }
 
 static TypeSwitch *
@@ -3377,19 +3396,14 @@ emit_single_switch_case(ClauseDef *min, struct intermediates *cint, int first, i
 {
 #ifdef TABLING
   if (cint->CurrentPred->PredFlags & TabledPredFlag) {
-    /* we have two differences with tabling:
-       1. we cannot allow straight jumps to clauses, otherwise thetabled
-         would never get to be created.
-       2. we don't clean trust at the very end of computation.
+    /* with tabling we don't clean trust at the very end of computation.
     */
-    if (clleft == 0) {
+    if (clleft == 0 && !first) {
       UInt lbl = new_label();
+
       Yap_emit(label_op, lbl, Zero, cint);
-      if (first) {
-	Yap_emit(table_try_single_op, (UInt)(min->CurrentCode), has_cut(cl->CurrentCode), cint);
-      } else {
-	Yap_emit(trust_op, (UInt)(min->CurrentCode), has_cut(cl->CurrentCode), cint);
-      }
+      /* vsc: should check if this condition is sufficient */
+      Yap_emit(trust_op, (UInt)(min->CurrentCode), has_cut(cl->CurrentCode), cint);
       return lbl;
     }
   }

@@ -11,8 +11,12 @@
 * File:		amasm.c							 *
 * comments:	abstract machine assembler				 *
 *									 *
-* Last rev:     $Date: 2005-05-25 21:43:32 $							 *
+* Last rev:     $Date: 2005-05-30 05:26:49 $							 *
 * $Log: not supported by cvs2svn $
+* Revision 1.74  2005/05/25 21:43:32  vsc
+* fix compiler bug in 1 << X, found by Nuno Fonseca.
+* compiler internal errors get their own message.
+*
 * Revision 1.73  2005/04/10 04:01:09  vsc
 * bug fixes, I hope!
 *
@@ -2285,9 +2289,7 @@ do_pass(int pass_no, yamop **entry_codep, int assembling, int *clause_has_blobsp
 #endif	/* YAPOR */
   int log_update;
   int dynamic;
-#ifdef TABLING
   int tabled;
-#endif
   int ystop_found = FALSE;
   union clause_obj *cl_u;
   yamop *code_p;
@@ -2309,9 +2311,7 @@ do_pass(int pass_no, yamop **entry_codep, int assembling, int *clause_has_blobsp
   /* Space while for the clause flags */
   log_update = cip->CurrentPred->PredFlags & LogUpdatePredFlag;
   dynamic = cip->CurrentPred->PredFlags & DynamicPredFlag;
-#ifdef TABLING
   tabled = cip->CurrentPred->PredFlags & TabledPredFlag;
-#endif
   if (assembling == ASSEMBLING_CLAUSE) {
     if (log_update) {
       if (pass_no) {
@@ -2359,11 +2359,17 @@ do_pass(int pass_no, yamop **entry_codep, int assembling, int *clause_has_blobsp
     }
     IPredArity = cip->cpc->rnd2;	/* number of args */
     *entry_codep = code_p;
+    if (tabled) {
+#if TABLING
+      printf("Here I go at %p\n", code_p);
+      code_p = a_try(_table_try_single, (CELL)NEXTOP(code_p,ld), IPredArity, &clinfo, code_p, pass_no);
+#endif
+    }
     if (dynamic) {
 #ifdef YAPOR
-      a_try(TRYOP(_try_me, _try_me0), 0, IPredArity, &clinfo, 1, 0, code_p, pass_no);
+      code_p = a_try(TRYOP(_try_me, _try_me0), 0, IPredArity, &clinfo, 1, 0, code_p, pass_no);
 #else
-      a_try(TRYOP(_try_me, _try_me0), 0, IPredArity, &clinfo, code_p, pass_no);
+      code_p = a_try(TRYOP(_try_me, _try_me0), 0, IPredArity, &clinfo, code_p, pass_no);
 #endif	/* YAPOR */
     }
   } else {
