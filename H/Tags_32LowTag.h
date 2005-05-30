@@ -1,10 +1,3 @@
-
-
-
-
-
-
-
 /*************************************************************************
 *									 *
 *	 YAP Prolog 	%W% %G% 					 *
@@ -18,7 +11,7 @@
 * Last rev:	December 90						 *
 * mods:									 *
 * comments:	Original Tag Scheme for machines with 32 bits adresses   *
-* version:      $Id: Tags_32LowTag.h,v 1.1 2005-05-27 22:27:06 rslopes Exp $	 *
+* version:      $Id: Tags_32LowTag.h,v 1.2 2005-05-30 05:53:34 vsc Exp $	 *
 *************************************************************************/
 
 #define TAG_LOW_BITS_32 1
