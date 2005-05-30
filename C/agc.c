@@ -25,6 +25,7 @@ static char     SccsId[] = "@(#)agc.c	1.3 3/15/90";
 #include "attvar.h"
 
 #ifdef DEBUG
+#define DEBUG_RESTORE1 1
 /* #define DEBUG_RESTORE2 1 */
 #define errout Yap_stderr
 #endif
@@ -73,8 +74,10 @@ CleanAtomMarkedBit(Atom a)
 static inline Functor
 FuncAdjust(Functor f)
 {
-  AtomEntry *ae = RepAtom(NameOfFunctor(f));
-  MarkAtomEntry(ae);
+  if (!IsExtensionFunctor(f)) {  
+    AtomEntry *ae = RepAtom(NameOfFunctor(f));
+    MarkAtomEntry(ae);
+  }
   return(f);
 }
 
@@ -170,7 +173,7 @@ mark_atoms(void)
     if (atm) {
       at =  RepAtom(atm);
       do {
-#ifdef DEBUG_RESTORE2			/* useful during debug */
+#ifdef DEBUG_RESTORE1			/* useful during debug */
 	fprintf(errout, "Restoring %s\n", at->StrOfAE);
 #endif
 	RestoreEntries(RepProp(at->PropsOfAE));
@@ -393,6 +396,7 @@ Yap_atom_gc(void)
 static Int
 p_atom_gc(void)
 {
+  return TRUE;
 #ifndef FIXED_STACKS
   atom_gc();
 #endif  /* FIXED_STACKS */

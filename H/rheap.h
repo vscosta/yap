@@ -11,8 +11,13 @@
 * File:		rheap.h							 *
 * comments:	walk through heap code					 *
 *									 *
-* Last rev:     $Date: 2005-01-04 02:50:21 $,$Author: vsc $						 *
+* Last rev:     $Date: 2005-05-30 03:26:37 $,$Author: vsc $						 *
 * $Log: not supported by cvs2svn $
+* Revision 1.48  2005/01/04 02:50:21  vsc
+* - allow MegaClauses with blobs
+* - change Diffs to be thread specific
+* - include Christian's updates
+*
 * Revision 1.47  2004/12/02 06:06:47  vsc
 * fix threads so that they at least start
 * allow error handling to work with threads
@@ -848,12 +853,21 @@ CleanCode(PredEntry *pp)
 
 
   /* Init takes care of the first 2 cases */
-  if (pp->ArityOfPE)
-    pp->FunctorOfPred = FuncAdjust(pp->FunctorOfPred);
-  else
-    pp->FunctorOfPred = (Functor)AtomAdjust((Atom)(pp->FunctorOfPred));
   if (pp->ModuleOfPred) {
     pp->ModuleOfPred = AtomTermAdjust(pp->ModuleOfPred);
+  }
+  if (pp->ArityOfPE) {
+    if (pp->ModuleOfPred == IDB_MODULE) {
+      if (pp->PredFlags & AtomDBPredFlag) {
+	pp->FunctorOfPred = (Functor)AtomAdjust((Atom)(pp->FunctorOfPred));
+      } else {
+	pp->FunctorOfPred = FuncAdjust(pp->FunctorOfPred);
+      }
+    } else {
+      pp->FunctorOfPred = FuncAdjust(pp->FunctorOfPred);
+    }
+  } else {
+    pp->FunctorOfPred = (Functor)AtomAdjust((Atom)(pp->FunctorOfPred));
   }
   if (pp->ModuleOfPred != IDB_MODULE) {
     if (pp->src.OwnerFile && pp->ModuleOfPred != IDB_MODULE)

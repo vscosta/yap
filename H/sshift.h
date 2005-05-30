@@ -227,7 +227,8 @@ inline EXTERN Functor FuncAdjust (Functor);
 inline EXTERN Functor
 FuncAdjust (Functor f)
 {
-  return (Functor) ((Functor) (CharP (f) + HDiff));
+  if (!IsExtensionFunctor(f)) 
+    return (Functor) ((Functor) (CharP (f) + HDiff));
 }
 
 

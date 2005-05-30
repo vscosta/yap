@@ -43,7 +43,12 @@ Inline(TrailAddrAdjust, ADDR, ADDR, ptr, (ptr+TrDiff) )
 Inline(TokEntryAdjust, TokEntry *, TokEntry*, ptr, ((CELL)ptr+TrDiff) )
 Inline(VarEntryAdjust, VarEntry *, VarEntry*, ptr, ((CELL)ptr+TrDiff) )
 /* heap data structures */
-Inline(FuncAdjust, Functor, Functor, f, (Functor)(CharP(f)+HDiff) )
+EXTERN inline Functor
+FuncAdjust(Functor f) 
+{
+  if (!IsExtensionFunctor(f)) 
+    return (Functor)(CharP(f)+HDiff);
+}
 Inline(CellPtoHeapAdjust, CELL *, CELL *, ptr, ((CELL *)(CharP(ptr) + HDiff)) )
 #if	USE_OFFSETS
 Inline(AtomAdjust, Atom, Atom, at, (at) )

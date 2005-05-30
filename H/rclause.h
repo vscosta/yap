@@ -12,8 +12,11 @@
 * File:		rclause.h						 *
 * comments:	walk through a clause					 *
 *									 *
-* Last rev:     $Date: 2005-04-10 04:01:13 $,$Author: vsc $						 *
+* Last rev:     $Date: 2005-05-30 03:26:37 $,$Author: vsc $						 *
 * $Log: not supported by cvs2svn $
+* Revision 1.2  2005/04/10 04:01:13  vsc
+* bug fixes, I hope!
+*
 * Revision 1.1  2005/01/04 02:50:21  vsc
 * - allow MegaClauses with blobs
 * - change Diffs to be thread specific
@@ -74,8 +77,6 @@ restore_opcodes(yamop *pc)
 #endif
     switch (op) {
     case _Nstop:
-      Yap_Error(SYSTEM_ERROR, TermNil,
-	    "Invalid Opcode found while restoring %p", pc);
       return;
     case _Ystop:
 #ifdef DEBUG_RESTORE2
