@@ -52,6 +52,7 @@ typedef struct logic_upd_index {
     struct logic_upd_index *ParentIndex;
   } u;
   struct logic_upd_index *SiblingIndex;
+  struct logic_upd_index *PrevSiblingIndex;
   struct logic_upd_index *ChildIndex;
   /* The instructions, at least one of the form sl */
   yamop            ClCode[MIN_ARRAY];

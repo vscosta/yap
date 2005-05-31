@@ -325,7 +325,7 @@ clean_atoms(void)
 	NOfAtoms--;
       } else {
 #ifdef DEBUG_RESTORE3
-	fprintf(stderr, "Purged %s\n", at->StrOfAE);
+	fprintf(stderr, "Purged %p:%s\n", at, at->StrOfAE);
 #endif
 	*patm = at->NextOfAE;
 	atm = at->NextOfAE;
@@ -397,10 +397,11 @@ Yap_atom_gc(void)
 static Int
 p_atom_gc(void)
 {
+  return TRUE;
 #ifndef FIXED_STACKS
   atom_gc();
 #endif  /* FIXED_STACKS */
-  return(TRUE);
+  return TRUE;
 }
 
 static Int

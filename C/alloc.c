@@ -12,7 +12,7 @@
 * Last rev:								 *
 * mods:									 *
 * comments:	allocating space					 *
-* version:$Id: alloc.c,v 1.70 2005-05-31 00:12:30 ricroc Exp $		 *
+* version:$Id: alloc.c,v 1.71 2005-05-31 19:42:27 vsc Exp $		 *
 *************************************************************************/
 #ifdef SCCS
 static char SccsId[] = "%W% %G%";
@@ -396,6 +396,9 @@ GetBlock(unsigned int n)
 
   if (FreeBlocks == NIL)
     return (NIL);
+  /* check for bugs */
+  p = &FreeBlocks;
+  /* end check for bugs */
   p = &FreeBlocks;
   while (((b = *p) != NIL) && b->b_size < n)
     p = &b->b_next_size;

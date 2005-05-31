@@ -11,8 +11,11 @@
 * File:		cdmgr.c							 *
 * comments:	Code manager						 *
 *									 *
-* Last rev:     $Date: 2005-05-31 00:30:23 $,$Author: ricroc $						 *
+* Last rev:     $Date: 2005-05-31 19:42:27 $,$Author: vsc $						 *
 * $Log: not supported by cvs2svn $
+* Revision 1.158  2005/05/31 00:30:23  ricroc
+* remove abort_yapor function
+*
 * Revision 1.157  2005/05/12 03:36:32  vsc
 * debugger was making predicates meta instead of testing
 * fix handling of dbrefs in facts and in subarguments.
@@ -923,12 +926,16 @@ kill_first_log_iblock(LogUpdIndex *c, LogUpdIndex *parent, PredEntry *ap)
     LOCK(parent->ClLock);
     if (c == parent->ChildIndex) {
       parent->ChildIndex = c->SiblingIndex;
-    } else {
-      LogUpdIndex *tcl = parent->ChildIndex;
-      while (tcl->SiblingIndex != c) {
-	tcl = tcl->SiblingIndex;
+      if (parent->ChildIndex) {
+	parent->ChildIndex->PrevSiblingIndex = NULL;
       }
-      tcl->SiblingIndex = c->SiblingIndex;
+    } else {
+      c->PrevSiblingIndex->SiblingIndex =
+	c->SiblingIndex;
+      if (c->SiblingIndex) {
+	c->SiblingIndex->PrevSiblingIndex =
+	  c->PrevSiblingIndex;
+      }
     }
     UNLOCK(parent->ClLock);
   }

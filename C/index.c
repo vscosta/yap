@@ -11,8 +11,11 @@
 * File:		index.c							 *
 * comments:	Indexing a Prolog predicate				 *
 *									 *
-* Last rev:     $Date: 2005-05-31 04:46:06 $,$Author: vsc $						 *
+* Last rev:     $Date: 2005-05-31 19:42:27 $,$Author: vsc $						 *
 * $Log: not supported by cvs2svn $
+* Revision 1.130  2005/05/31 04:46:06  vsc
+* fix expand_index on tabled code.
+*
 * Revision 1.129  2005/05/31 02:15:53  vsc
 * fix SYSTEM_ERROR messages
 *
@@ -3305,6 +3308,11 @@ do_var_clauses(ClauseDef *c0, ClauseDef *cf, int var_group, struct intermediates
     else
       ncls = 0;
     Yap_emit_3ops(enter_lu_op, labl_dyn0, labl_dynf, ncls, cint);
+    /* get some placeholders */
+    Yap_emit(jump_op, labl_dyn0, Zero, cint);
+    Yap_emit(jump_op, labl_dyn0, Zero, cint);
+    Yap_emit(jump_op, labl_dyn0, Zero, cint);
+    Yap_emit(jump_op, labl_dyn0, Zero, cint);
     Yap_emit(label_op, labl_dyn0, Zero, cint); 
   }
   if (c0 == cf) {
@@ -3324,6 +3332,11 @@ do_var_clauses(ClauseDef *c0, ClauseDef *cf, int var_group, struct intermediates
       if (!clleft && 
 	  cint->CurrentPred->PredFlags & LogUpdatePredFlag) {
 	Yap_emit(label_op, labl_dynf, Zero, cint); 
+	/* get some placeholders */
+	Yap_emit(jump_op, labl_dynf, Zero, cint);
+	Yap_emit(jump_op, labl_dynf, Zero, cint);
+	Yap_emit(jump_op, labl_dynf, Zero, cint);
+	Yap_emit(jump_op, labl_dynf, Zero, cint);
       }
     }
   }
@@ -3439,8 +3452,16 @@ suspend_indexing(ClauseDef *min, ClauseDef *max, PredEntry *ap, struct intermedi
   if (cls < tcls/8) {
     yamop *ncode;
     yamop **st;
-    UInt sz = (UInt)NEXTOP((yamop *)NULL,sp)+cls*sizeof(yamop *);
+    UInt tels;
+    UInt sz;
 
+    if (ap->PredFlags & LogUpdatePredFlag) {
+      /* give it some slack */
+      tels = cls + 4;
+    } else {
+      tels = cls;
+    }
+    sz = (UInt)NEXTOP((yamop *)NULL,sp)+tels*sizeof(yamop *), sz;
 #if DEBUG
     Yap_expand_clauses_sz += sz;
 #endif
@@ -3450,12 +3471,17 @@ suspend_indexing(ClauseDef *min, ClauseDef *max, PredEntry *ap, struct intermedi
     /* create an expand_block */
     ncode->opc = Yap_opcode(_expand_clauses);
     ncode->u.sp.p = ap;
-    ncode->u.sp.s1 = ncode->u.sp.s2 = cls;
+    ncode->u.sp.s1 = tels;
+    ncode->u.sp.s2 = cls;
     ncode->u.sp.s3 = 1;
     st = (yamop **)NEXTOP(ncode,sp);
     while (min <= max) {
       *st++ = min->Code;
       min++;
+    }
+    while (cls < tels) {
+      *st++ = NULL;
+      cls++;
     }
     LOCK(ExpandClausesListLock);
     ncode->u.sp.snext = ExpandClausesFirst;
@@ -5292,6 +5318,10 @@ ExpandIndex(PredEntry *ap, int ExtraArgs) {
       ic = (LogUpdIndex *)Yap_find_owner_index((yamop *)labp, ap);
     /* insert myself in the indexing code chain */ 
     nic->SiblingIndex = ic->ChildIndex;
+    nic->PrevSiblingIndex = NULL;
+    if (ic->ChildIndex) {
+      ic->ChildIndex->PrevSiblingIndex = nic;
+    }
     nic->u.ParentIndex = ic;
     nic->ClFlags &= ~SwitchRootMask;
     ic->ChildIndex = nic;
@@ -5463,6 +5493,7 @@ replace_index_block(ClauseUnion *parent_block, yamop *cod, yamop *ncod, PredEntr
       *ncl = ClauseCodeToLogUpdIndex(ncod),
       *c = parent_block->lui.ChildIndex;
     ncl->SiblingIndex = cl->SiblingIndex;
+    ncl->PrevSiblingIndex = cl->PrevSiblingIndex;
     ncl->ClRefCount = cl->ClRefCount;
     ncl->ChildIndex = cl->ChildIndex;
     ncl->u.ParentIndex = cl->u.ParentIndex;
@@ -5470,10 +5501,10 @@ replace_index_block(ClauseUnion *parent_block, yamop *cod, yamop *ncod, PredEntr
     if (c == cl) {
       parent_block->lui.ChildIndex = ncl;
     } else {
-      while (c->SiblingIndex != cl) {
-	c = c->SiblingIndex;
-      }
-      c->SiblingIndex = ncl;
+      cl->PrevSiblingIndex->SiblingIndex = ncl;
+    }
+    if (cl->SiblingIndex) {
+      cl->SiblingIndex->PrevSiblingIndex = ncl;
     }
     c = cl->ChildIndex;
     while (c != NULL) {
@@ -6095,6 +6126,10 @@ replace_lu_block(LogUpdIndex *blk, int flag, PredEntry *ap, yamop *code, int has
   } else {
     pcl = blk->u.ParentIndex;
     ncl->SiblingIndex = pcl->ChildIndex;
+    ncl->PrevSiblingIndex = NULL;
+    if (pcl->ChildIndex) {
+      pcl->ChildIndex->PrevSiblingIndex = ncl;
+    }
     pcl->ChildIndex = ncl;
     /* we have a new pointer to our clause */
     pcl->ClRefCount++;
@@ -6143,8 +6178,7 @@ clean_up_index(LogUpdIndex *blk, yamop **jlbl, PredEntry *ap)
 }
 
 static int is_trust(OPCODE opc) {
-  op_numbers op = Yap_op_from_opcode(opc);
-  return op == _trust;
+  return opc == Yap_opcode(_trust);
 }
 
 static yamop *
@@ -6163,7 +6197,7 @@ insertz_in_lu_block(LogUpdIndex *blk, PredEntry *ap, yamop *code)
   /* block should start with an enter_lu_pred and end with a trust,
      otherwise I just don't understand what is going on */
   if ((op != _enter_lu_pred && op != _stale_lu_index) ||
-      ! is_trust(begin->u.xll.l2->opc)) {
+      ! is_trust(PREVOP(begin->u.xll.l2,ld)->opc)) {
     if (blk->ClFlags & SwitchRootMask) {
       Yap_kill_iblock((ClauseUnion *)blk, NULL, ap);
     } else {
@@ -6268,7 +6302,8 @@ inserta_in_lu_block(LogUpdIndex *blk, PredEntry *ap, yamop *code)
     begin = NEXTOP(begin, xll);
     op = Yap_op_from_opcode(begin->opc);
   }
-  if (op != _enter_lu_pred && op != _stale_lu_index) {
+  if ((op != _enter_lu_pred && op != _stale_lu_index) ||
+      ! is_trust(PREVOP(begin->u.xll.l2,ld)->opc)) {
     if (blk->ClFlags & SwitchRootMask) {
       Yap_kill_iblock((ClauseUnion *)blk, NULL, ap);
     } else {
@@ -6492,6 +6527,41 @@ kill_unsafe_block(path_stack_entry *sp, op_numbers op, PredEntry *ap, int first,
   return kill_block(sp+1, ap);
 }
 
+static int
+compacta_expand_clauses(yamop *ipc)
+{
+  /* expand clauses so that you have a hole at the beginning */
+  /* we know that there is at least one element here */
+  yamop **start = (yamop **)(NEXTOP(ipc,sp));
+  yamop **ptr, **end;
+
+  ptr = end = start+ipc->u.sp.s1;
+
+  while (--ptr > start) {
+    yamop *next = *ptr;
+    if (next) *--end = next;
+  }
+  return ptr+1 != end;
+}
+
+static int
+compactz_expand_clauses(yamop *ipc)
+{
+  /* expand clauses so that you have a hole at the beginning */
+  /* we know that there is at least one element here */
+  yamop **start = (yamop **)(NEXTOP(ipc,sp));
+  yamop **ptr, **end;
+
+  end = start+ipc->u.sp.s1;
+  ptr = start;
+
+  while (ptr < end) {
+    yamop *next = *ptr++;
+    if (next) *start++ = next;
+  }
+  return ptr != start;
+}
+
 /* this code should be called when we jumped to clauses */
 static yamop *
 add_to_expand_clauses(path_stack_entry **spp, yamop *ipc, ClauseDef *cls, PredEntry *ap, int first)
@@ -6500,24 +6570,28 @@ add_to_expand_clauses(path_stack_entry **spp, yamop *ipc, ClauseDef *cls, PredEn
   yamop **clar = (yamop **)NEXTOP(ipc,sp);
 
   if (first) {
-    if (*clar == NULL) {
-      while (*clar == NULL) clar++;
-      if (clar[0] != cls->Code) {
-	clar[-1] = cls->Code;
-	ipc->u.sp.s2++;
+    do {
+      if (*clar == NULL || clar[0] == cls->Code) {
+	while (*clar == NULL) clar++;
+	if (clar[0] != cls->Code) {
+	  clar[-1] = cls->Code;
+	  ipc->u.sp.s2++;
+	}
+	return pop_path(spp, cls, ap);
       }
-      return pop_path(spp, cls, ap);
-    }
+    } while (compacta_expand_clauses(ipc));
   } else {
-    clar += ipc->u.sp.s1;
-    if (clar[-1] == NULL) {
-      while (*--clar == NULL);
-      if (clar[0] != cls->Code) {
-	clar[1] = cls->Code;
-	ipc->u.sp.s2++;
+    do {
+      clar += ipc->u.sp.s1;
+      if (clar[-1] == NULL  || clar[-1] == cls->Code) {
+	while (*--clar == NULL);
+	if (clar[0] != cls->Code) {
+	  clar[1] = cls->Code;
+	  ipc->u.sp.s2++;
+	}
+	return pop_path(spp, cls, ap);
       }
-      return pop_path(spp, cls, ap);
-    }
+    } while (compactz_expand_clauses(ipc));
   }
   while ((--sp)->flag != block_entry);
   if (sp->u.cle.entry_code) {

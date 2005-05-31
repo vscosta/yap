@@ -11,8 +11,11 @@
 * File:		amasm.c							 *
 * comments:	abstract machine assembler				 *
 *									 *
-* Last rev:     $Date: 2005-05-30 05:33:43 $							 *
+* Last rev:     $Date: 2005-05-31 19:42:27 $							 *
 * $Log: not supported by cvs2svn $
+* Revision 1.76  2005/05/30 05:33:43  vsc
+* get rid of annoying debugging message.
+*
 * Revision 1.75  2005/05/30 05:26:49  vsc
 * fix tabling
 * allow atom gc again for now.
@@ -1308,6 +1311,11 @@ init_log_upd_table(LogUpdIndex *ic, union clause_obj *cl_u)
 {
   /* insert myself in the indexing code chain */ 
   ic->SiblingIndex = cl_u->lui.ChildIndex;
+  if (ic->SiblingIndex) {
+    ic->SiblingIndex->PrevSiblingIndex = ic;
+  }
+  cl_u->lui.ChildIndex = ic;
+  ic->PrevSiblingIndex = NULL;
   ic->ChildIndex = NULL;
   ic->ClRefCount = 0;
   ic->u.ParentIndex = (LogUpdIndex *)cl_u;
@@ -2382,6 +2390,7 @@ do_pass(int pass_no, yamop **entry_codep, int assembling, int *clause_has_blobsp
 	cl_u->lui.ClFlags = LogUpdMask|IndexedPredFlag|IndexMask|SwitchRootMask;
 	cl_u->lui.ChildIndex = NULL;
 	cl_u->lui.SiblingIndex = NULL;
+	cl_u->lui.PrevSiblingIndex = NULL;
 	cl_u->lui.u.pred = cip->CurrentPred;
 	cl_u->lui.ClSize = size;
 	cl_u->lui.ClRefCount =  0;
