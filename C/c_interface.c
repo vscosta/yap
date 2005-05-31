@@ -10,8 +10,11 @@
 * File:		c_interface.c						 *
 * comments:	c_interface primitives definition 			 *
 *									 *
-* Last rev:	$Date: 2005-04-10 04:35:19 $,$Author: vsc $						 *
+* Last rev:	$Date: 2005-05-31 00:23:47 $,$Author: ricroc $						 *
 * $Log: not supported by cvs2svn $
+* Revision 1.67  2005/04/10 04:35:19  vsc
+* AllocMemoryFromYap should now handle large requests the right way.
+*
 * Revision 1.66  2005/04/10 04:01:10  vsc
 * bug fixes, I hope!
 *
@@ -1175,7 +1178,7 @@ YAP_Init(YAP_init_args *yap_init)
     CurrentModule = USER_MODULE;
     P = GETWORK_FIRST_TIME;
     Yap_exec_absmi(FALSE);
-    abort_yapor("abstract machine unexpected exit");
+    Yap_Error(INTERNAL_ERROR, TermNil, "abstract machine unexpected exit (YAP_Init)");
   }
 #endif /* YAPOR */
 #endif /* YAPOR || TABLING */
