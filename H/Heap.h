@@ -10,10 +10,11 @@
 * File:		Heap.h         						 *
 * mods:									 *
 * comments:	Heap Init Structure					 *
-* version:      $Id: Heap.h,v 1.79 2005-05-26 18:03:08 rslopes Exp $	 *
+* version:      $Id: Heap.h,v 1.80 2005-05-31 08:20:23 ricroc Exp $	 *
 *************************************************************************/
 
 /* information that can be stored in Code Space */
+#include <stdio.h>
 
 #ifndef HEAP_H
 #define HEAP_H 1
