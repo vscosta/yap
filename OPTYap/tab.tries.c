@@ -653,25 +653,24 @@ ans_node_ptr answer_trie_node_check_insert(sg_fr_ptr sg_fr, ans_node_ptr parent_
 
 sg_fr_ptr subgoal_search(tab_ent_ptr tab_ent, OPREG arity, CELL **Yaddr) {
   int i, j, count_vars;
-  CELL *stack_vars, *stack_terms_top, *stack_terms_base, *stack_terms;
+  CELL *stack_vars, *stack_terms_limit, *stack_terms_base, *stack_terms;
   sg_node_ptr current_sg_node;
   sg_fr_ptr sg_fr;
   
   count_vars = 0;
   stack_vars = *Yaddr;
-#ifdef YAPOR
-  stack_terms_top = (CELL *)Yap_TrailTop;
-  stack_terms_base = stack_terms = AuxSp;
-#else
-  stack_terms_top = (CELL *)TR;
+  stack_terms_limit = (CELL *)TR;
   stack_terms_base = stack_terms = (CELL *)Yap_TrailTop;
-#endif /* YAPOR */
   current_sg_node = TabEnt_subgoal_trie(tab_ent);
 
+#ifdef TABLE_LOCK_AT_ENTRY_LEVEL
+  LOCK(TabEnt_lock(tab_ent));
+#endif /* TABLE_LOCK_LEVEL */
   for (i = 1; i <= arity; i++) {
-    STACK_PUSH(XREGS[i], stack_terms, stack_terms_top, stack_terms_base);
+    STACK_PUSH_UP(XREGS[i], stack_terms);
+    STACK_CHECK_EXPAND1(stack_terms, stack_terms_limit, stack_terms_base);
     do {
-      Term t = Deref(STACK_POP(stack_terms));
+      Term t = Deref(STACK_POP_DOWN(stack_terms));
       int tag = t & TabTagBits;
       switch (tag) {
         case TabVarTagBits:
@@ -680,8 +679,8 @@ sg_fr_ptr subgoal_search(tab_ent_ptr tab_ent, OPREG arity, CELL **Yaddr) {
             current_sg_node = subgoal_trie_node_check_insert(tab_ent, current_sg_node, t);
   	  } else {
             if (count_vars == MAX_TABLE_VARS)
-              Yap_Error(SYSTEM_ERROR,TermNil,"MAX_TABLE_VARS exceeded in function subgoal_search (%d)", count_vars);
-            FREE_STACK_PUSH(t, stack_vars);
+              Yap_Error(INTERNAL_ERROR, TermNil, "MAX_TABLE_VARS exceeded (subgoal_search)");
+            STACK_PUSH_UP(t, stack_vars);
 	    *((CELL *)t) = GLOBAL_table_var_enumerator(count_vars);
             t = MakeTableVarTerm(count_vars);
             count_vars++;
@@ -694,29 +693,24 @@ sg_fr_ptr subgoal_search(tab_ent_ptr tab_ent, OPREG arity, CELL **Yaddr) {
           break;
         case TabPairTagBits:
           current_sg_node = subgoal_trie_node_check_insert(tab_ent, current_sg_node, TabPairTagBits);
-          STACK_PUSH(*(RepPair(t) + 1), stack_terms, stack_terms_top, stack_terms_base);
-          STACK_PUSH(*(RepPair(t)), stack_terms, stack_terms_top, stack_terms_base);
+          STACK_PUSH_UP(*(RepPair(t) + 1), stack_terms);
+	  STACK_CHECK_EXPAND1(stack_terms, stack_terms_limit, stack_terms_base);
+          STACK_PUSH_UP(*(RepPair(t)), stack_terms);
+	  STACK_CHECK_EXPAND1(stack_terms, stack_terms_limit, stack_terms_base);
           break;
         case TabApplTagBits:
           current_sg_node = subgoal_trie_node_check_insert(tab_ent, current_sg_node,
                                                            TAGGEDA(TabApplTagBits, FunctorOfTerm(t)));
-          for (j = ArityOfFunctor(FunctorOfTerm(t)); j >= 1; j--)
-            STACK_PUSH(*(RepAppl(t) + j), stack_terms, stack_terms_top, stack_terms_base);
+          for (j = ArityOfFunctor(FunctorOfTerm(t)); j >= 1; j--) {
+            STACK_PUSH_UP(*(RepAppl(t) + j), stack_terms);
+	    STACK_CHECK_EXPAND1(stack_terms, stack_terms_limit, stack_terms_base);
+	  }
           break;
         default:
-          abort_yaptab("unknown type tag in function subgoal_search");
+          Yap_Error(INTERNAL_ERROR, TermNil, "unknown type tag (subgoal_search)");
       }
     } while (STACK_NOT_EMPTY(stack_terms, stack_terms_base));
   }
-
-  FREE_STACK_PUSH(count_vars, stack_vars);
-  *Yaddr = stack_vars++;
-  /* reset variables */
-  while (count_vars--) {
-    Term t = STACK_POP(stack_vars);
-    RESET_VARIABLE(t);
-  }
-
 #if defined(TABLE_LOCK_AT_NODE_LEVEL)
   LOCK(TrNode_lock(current_sg_node));
 #elif defined(TABLE_LOCK_AT_WRITE_LEVEL)
@@ -729,11 +723,21 @@ sg_fr_ptr subgoal_search(tab_ent_ptr tab_ent, OPREG arity, CELL **Yaddr) {
   } else {
     sg_fr = (sg_fr_ptr) TrNode_sg_fr(current_sg_node);
   }
-#if defined(TABLE_LOCK_AT_NODE_LEVEL)
+#if defined(TABLE_LOCK_AT_ENTRY_LEVEL)
+  UNLOCK(TabEnt_lock(tab_ent));
+#elif defined(TABLE_LOCK_AT_NODE_LEVEL)
   UNLOCK(TrNode_lock(current_sg_node));
 #elif defined(TABLE_LOCK_AT_WRITE_LEVEL)
   UNLOCK_TABLE(current_sg_node);
 #endif /* TABLE_LOCK_LEVEL */
+
+  STACK_PUSH_UP(count_vars, stack_vars);
+  *Yaddr = stack_vars++;
+  /* reset variables */
+  while (count_vars--) {
+    Term t = STACK_POP_DOWN(stack_vars);
+    RESET_VARIABLE(t);
+  }
 
   return sg_fr;
 }
@@ -741,29 +745,24 @@ sg_fr_ptr subgoal_search(tab_ent_ptr tab_ent, OPREG arity, CELL **Yaddr) {
 
 ans_node_ptr answer_search(sg_fr_ptr sg_fr, CELL *subs_ptr) {
   int i, j, count_vars, subs_arity;
-  CELL *stack_vars, *stack_terms_base, *stack_terms_top, *stack_terms;
+  CELL *stack_vars, *stack_terms_base, *stack_terms;
   ans_node_ptr current_ans_node;
 
   count_vars = 0;
   subs_arity = *subs_ptr;
-  stack_vars = AuxSp;
-#ifdef YAPOR
-  stack_terms_top = (CELL *)Yap_TrailTop;
-  stack_terms_base = stack_terms = stack_vars - MAX_TABLE_VARS;
-#else
-  stack_terms_top = (CELL *)TR;
+  stack_vars = (CELL *)TR;
   stack_terms_base = stack_terms = (CELL *)Yap_TrailTop;
-#endif /* YAPOR */
   current_ans_node = SgFr_answer_trie(sg_fr);
 
   for (i = subs_arity; i >= 1; i--) {
-    STACK_PUSH(*(subs_ptr + i), stack_terms, stack_terms_top, stack_terms_base);
+    STACK_PUSH_UP(*(subs_ptr + i), stack_terms);
+    STACK_CHECK_EXPAND1(stack_terms, stack_vars, stack_terms_base);
 #ifdef TABLING_ERRORS
     if ((*stack_terms & TabTagBits) != TabVarTagBits)
       TABLING_ERROR_MESSAGE("*stack_terms & TabTagBits != TabVarTagBits (answer_search)");
 #endif /* TABLING_ERRORS */
     do {
-      Term t = Deref(STACK_POP(stack_terms));
+      Term t = Deref(STACK_POP_DOWN(stack_terms));
       int tag = t & TabTagBits;
       switch (tag) {
         case TabVarTagBits:
@@ -772,8 +771,9 @@ ans_node_ptr answer_search(sg_fr_ptr sg_fr, CELL *subs_ptr) {
             current_ans_node = answer_trie_node_check_insert(sg_fr, current_ans_node, t, _trie_retry_val);
   	  } else {
             if (count_vars == MAX_TABLE_VARS)
-              Yap_Error(SYSTEM_ERROR,TermNil,"MAX_TABLE_VARS exceeded in function answer_search (%d)", count_vars);
-            FREE_STACK_PUSH(t, stack_vars);
+              Yap_Error(INTERNAL_ERROR, TermNil, "MAX_TABLE_VARS exceeded (answer_search)");
+	    STACK_PUSH_DOWN(t, stack_vars);
+	    STACK_CHECK_EXPAND1(stack_terms, stack_vars, stack_terms_base);
 	    *((CELL *)t) = GLOBAL_table_var_enumerator(count_vars);
             t = MakeTableVarTerm(count_vars);
             count_vars++;
@@ -786,24 +786,28 @@ ans_node_ptr answer_search(sg_fr_ptr sg_fr, CELL *subs_ptr) {
           break;
         case TabPairTagBits:
           current_ans_node = answer_trie_node_check_insert(sg_fr, current_ans_node, TabPairTagBits, _trie_retry_list);
-          STACK_PUSH(*(RepPair(t) + 1), stack_terms, stack_terms_top, stack_terms_base);
-          STACK_PUSH(*(RepPair(t)), stack_terms, stack_terms_top, stack_terms_base);
+          STACK_PUSH_UP(*(RepPair(t) + 1), stack_terms);
+	  STACK_CHECK_EXPAND1(stack_terms, stack_vars, stack_terms_base);
+          STACK_PUSH_UP(*(RepPair(t)), stack_terms);
+	  STACK_CHECK_EXPAND1(stack_terms, stack_vars, stack_terms_base);
           break;
         case TabApplTagBits:
           current_ans_node = answer_trie_node_check_insert(sg_fr, current_ans_node, TAGGEDA(TabApplTagBits,
                                                            FunctorOfTerm(t)), _trie_retry_struct);
-          for (j = ArityOfFunctor(FunctorOfTerm(t)); j >= 1; j--)
-            STACK_PUSH(*(RepAppl(t) + j), stack_terms, stack_terms_top, stack_terms_base);
+          for (j = ArityOfFunctor(FunctorOfTerm(t)); j >= 1; j--) {
+            STACK_PUSH_UP(*(RepAppl(t) + j), stack_terms);
+	    STACK_CHECK_EXPAND1(stack_terms, stack_vars, stack_terms_base);
+	  }
           break;
         default:
-          abort_yaptab("unknown type tag in function answer_search");
+          Yap_Error(INTERNAL_ERROR, TermNil, "unknown type tag (answer_search)");
       }
     } while (STACK_NOT_EMPTY(stack_terms, stack_terms_base));
   }
 
   /* reset variables */
   while (count_vars--) {
-    Term t = STACK_POP(stack_vars);
+    Term t = STACK_POP_UP(stack_vars);
     RESET_VARIABLE(t);
   }
 
@@ -816,20 +820,16 @@ void load_answer_trie(ans_node_ptr ans_node, CELL *subs_ptr) {
   subs_arity = *subs_ptr;
   if (subs_arity) {
     int i, n_vars = 0;
-    CELL *stack_vars, *stack_terms, *stack_refs, *stack_refs_base, *stack_top;
+    CELL *stack_vars_base, *stack_vars, *stack_terms_base, *stack_terms, *stack_refs_base, *stack_refs;
     ans_node_ptr aux_parent_node;
-#ifdef YAPOR
-    stack_top = (CELL *)Yap_TrailTop;
-    stack_vars = stack_terms = AuxSp - MAX_TABLE_VARS;
-#else
-    stack_top = (CELL *)TR;
-    stack_vars = stack_terms = ((CELL *)Yap_TrailTop)-MAX_TABLE_VARS;
-#endif /* YAPOR */
+    stack_vars_base = stack_vars = (CELL *)TR;
+    stack_terms_base = stack_terms = (CELL *)Yap_TrailTop;
 
     /* load the new answer from the answer trie to the stack_terms */
     aux_parent_node = UNTAG_ANSWER_LEAF_NODE(TrNode_parent(ans_node));
     do {
-      STACK_PUSH(TrNode_entry(ans_node), stack_terms, stack_top, stack_vars);
+      STACK_PUSH_UP(TrNode_entry(ans_node), stack_terms);
+      STACK_CHECK_EXPAND1(stack_terms, stack_vars, stack_terms_base);
       ans_node = aux_parent_node;
       aux_parent_node = TrNode_parent(aux_parent_node);
     } while (aux_parent_node);
@@ -842,7 +842,7 @@ void load_answer_trie(ans_node_ptr ans_node, CELL *subs_ptr) {
     for (i = subs_arity; i >= 1; i--) {
       /* bind the substitution variables with the answer loaded in stack_terms */
       CELL *subs_var = (CELL *) *(subs_ptr + i);
-      Term t = STACK_POP(stack_terms);
+      Term t = STACK_POP_DOWN(stack_terms);
       int tag = t & TabTagBits;
 #ifdef TABLING_ERRORS
       if ((CELL)subs_var != *subs_var)
@@ -852,9 +852,11 @@ void load_answer_trie(ans_node_ptr ans_node, CELL *subs_ptr) {
         case TabVarTagBits:
         { int var_index = VarIndexOfTableTerm(t);
           if (var_index == n_vars) {
-            stack_vars[n_vars++] = (CELL) subs_var;
+            n_vars++;
+	    STACK_PUSH_DOWN(subs_var, stack_vars);
+	    STACK_CHECK_EXPAND3(stack_refs, stack_vars, stack_refs_base, stack_terms, stack_terms_base);
 	  } else {
-            Bind(subs_var, stack_vars[var_index]);
+            Bind(subs_var, stack_vars_base[var_index]);
 	  }
         } break;
         case TabNumberTagBits:
@@ -869,8 +871,10 @@ void load_answer_trie(ans_node_ptr ans_node, CELL *subs_ptr) {
             TABLING_ERROR_MESSAGE("*subs_var & TabTagBits != TabPairTagBits (load_answer_trie)");
 #endif /* TABLING_ERRORS */
           H += 2;
-          STACK_PUSH(H - 1, stack_refs, stack_top, stack_refs_base);
-          STACK_PUSH(H - 2, stack_refs, stack_top, stack_refs_base);
+          STACK_PUSH_UP(H - 1, stack_refs);
+          STACK_CHECK_EXPAND3(stack_refs, stack_vars, stack_refs_base, stack_terms, stack_terms_base);
+          STACK_PUSH_UP(H - 2, stack_refs);
+          STACK_CHECK_EXPAND3(stack_refs, stack_vars, stack_refs_base, stack_terms, stack_terms_base);
           break;
         case TabApplTagBits:
         { /* build a pair term as in function MkApplTerm */
@@ -883,23 +887,27 @@ void load_answer_trie(ans_node_ptr ans_node, CELL *subs_ptr) {
 #endif /* TABLING_ERRORS */
           *H++ = (CELL) f;
           H += f_arity;
-          for (j = 1; j <= f_arity; j++)
-            STACK_PUSH(H - j, stack_refs, stack_top, stack_refs_base);
+          for (j = 1; j <= f_arity; j++) {
+            STACK_PUSH_UP(H - j, stack_refs);
+	    STACK_CHECK_EXPAND3(stack_refs, stack_vars, stack_refs_base, stack_terms, stack_terms_base);
+	  }
         } break;
         default:
-          abort_yaptab("unknown type tag in macro load_answer_trie");
+          Yap_Error(INTERNAL_ERROR, TermNil, "unknown type tag (load_answer_trie)");
       }
       while (STACK_NOT_EMPTY(stack_refs, stack_refs_base)) {
-        CELL *ref = (CELL *) STACK_POP(stack_refs);
-        Term t = STACK_POP(stack_terms);
+        CELL *ref = (CELL *) STACK_POP_DOWN(stack_refs);
+        Term t = STACK_POP_DOWN(stack_terms);
         int tag = t & TabTagBits;
         switch (tag) {
           case TabVarTagBits:
 	  { int var_index = VarIndexOfTableTerm(t);
             if (var_index == n_vars) {
-              stack_vars[n_vars++] = (CELL) ref;
+	      n_vars++;
+	      STACK_PUSH_DOWN(ref, stack_vars);
+	      STACK_CHECK_EXPAND3(stack_refs, stack_vars, stack_refs_base, stack_terms, stack_terms_base);
   	    }
-            *ref = stack_vars[var_index];
+            *ref = stack_vars_base[var_index];
           } break;
           case TabNumberTagBits:
           case TabAtomTagBits:
@@ -913,8 +921,10 @@ void load_answer_trie(ans_node_ptr ans_node, CELL *subs_ptr) {
               TABLING_ERROR_MESSAGE("*ref & TabTagBits != TabPairTagBits (load_answer_trie)");
 #endif /* TABLING_ERRORS */
             H += 2;
-            STACK_PUSH(H - 1, stack_refs, stack_top, stack_refs_base);
-            STACK_PUSH(H - 2, stack_refs, stack_top, stack_refs_base);
+            STACK_PUSH_UP(H - 1, stack_refs);
+	    STACK_CHECK_EXPAND3(stack_refs, stack_vars, stack_refs_base, stack_terms, stack_terms_base);
+            STACK_PUSH_UP(H - 2, stack_refs);
+	    STACK_CHECK_EXPAND3(stack_refs, stack_vars, stack_refs_base, stack_terms, stack_terms_base);
             break;
           case TabApplTagBits:
           { /* build a pair term as in function MkApplTerm */
@@ -927,17 +937,19 @@ void load_answer_trie(ans_node_ptr ans_node, CELL *subs_ptr) {
 #endif /* TABLING_ERRORS */
             *H++ = (CELL) f;
             H += f_arity;
-            for (j = 1; j <= f_arity; j++)
-              STACK_PUSH(H - j, stack_refs, stack_top, stack_refs_base);
+            for (j = 1; j <= f_arity; j++) {
+              STACK_PUSH_UP(H - j, stack_refs);
+	      STACK_CHECK_EXPAND3(stack_refs, stack_vars, stack_refs_base, stack_terms, stack_terms_base);
+	    }
           } break;
           default:
-            abort_yaptab("unknown type tag in macro load_answer_trie");
+	    Yap_Error(INTERNAL_ERROR, TermNil, "unknown type tag (load_answer_trie)");
         }
       }
     }
 #ifdef TABLING_ERRORS
-    if (stack_terms != AuxSp - MAX_TABLE_VARS)
-      TABLING_ERROR_MESSAGE("stack_terms != AuxSp - MAX_TABLE_VARS (load_answer_trie)");
+    if (stack_terms != (CELL *)Yap_TrailTop)
+      TABLING_ERROR_MESSAGE("stack_terms != Yap_TrailTop (load_answer_trie)");
 #endif /* TABLING_ERRORS */
   }
   return;
@@ -989,7 +1001,7 @@ void free_subgoal_trie_branch(sg_node_ptr node, int missing_nodes) {
       missing_nodes += ArityOfFunctor((Functor)NonTagPart(t));
       break;
     default:
-      abort_yaptab("unknown type tag in function chain_subgoal_frames");
+      Yap_Error(INTERNAL_ERROR, TermNil, "unknown type tag (chain_subgoal_frames)");
   }
   if (missing_nodes) {
     free_subgoal_trie_branch(TrNode_child(node), missing_nodes);
@@ -1026,6 +1038,9 @@ void free_answer_trie_branch(ans_node_ptr node) {
 
 void update_answer_trie(sg_fr_ptr sg_fr) {
   ans_node_ptr node;
+
+  free_answer_hash_chain(SgFr_hash_chain(sg_fr));
+  SgFr_hash_chain(sg_fr) = NULL;
   node = TrNode_child(SgFr_answer_trie(sg_fr));
   if (node) {
     TrNode_instr(node) -= 1;
@@ -1043,32 +1058,38 @@ static struct trie_statistics{
   int show;
   long subgoals;
   long subgoals_abolished;
+  long subgoals_abolish_operations;
   long subgoal_trie_nodes;
   long subgoal_linear_nodes;
   int  subgoal_trie_max_depth;
   int  subgoal_trie_min_depth;
   long answers;
+  long answers_yes;
+  long answers_no;
   long answers_pruned;
   long answer_trie_nodes;
   long answer_linear_nodes;
   int  answer_trie_max_depth;
   int  answer_trie_min_depth;
 } trie_stats;
-#define TrStat_show               trie_stats.show
-#define TrStat_subgoals           trie_stats.subgoals
-#define TrStat_subgoals_abolished trie_stats.subgoals_abolished
-#define TrStat_sg_nodes           trie_stats.subgoal_trie_nodes
-#define TrStat_sg_linear_nodes    trie_stats.subgoal_linear_nodes
-#define TrStat_sg_max_depth       trie_stats.subgoal_trie_max_depth
-#define TrStat_sg_min_depth       trie_stats.subgoal_trie_min_depth
-#define TrStat_answers            trie_stats.answers
-#define TrStat_answers_pruned     trie_stats.answers_pruned
-#define TrStat_ans_nodes          trie_stats.answer_trie_nodes
-#define TrStat_ans_linear_nodes   trie_stats.answer_linear_nodes
-#define TrStat_ans_max_depth      trie_stats.answer_trie_max_depth
-#define TrStat_ans_min_depth      trie_stats.answer_trie_min_depth
-#define SHOW_INFO(MESG, ARGS...) fprintf(stream, MESG, ##ARGS)
-#define SHOW_TRIE(MESG, ARGS...) if (TrStat_show) fprintf(stream, MESG, ##ARGS)
+#define TrStat_show                   trie_stats.show
+#define TrStat_subgoals               trie_stats.subgoals
+#define TrStat_sg_abolished           trie_stats.subgoals_abolished
+#define TrStat_sg_abolish_operations  trie_stats.subgoals_abolish_operations
+#define TrStat_sg_nodes               trie_stats.subgoal_trie_nodes
+#define TrStat_sg_linear_nodes        trie_stats.subgoal_linear_nodes
+#define TrStat_sg_max_depth           trie_stats.subgoal_trie_max_depth
+#define TrStat_sg_min_depth           trie_stats.subgoal_trie_min_depth
+#define TrStat_answers                trie_stats.answers
+#define TrStat_answers_yes            trie_stats.answers_yes
+#define TrStat_answers_no             trie_stats.answers_no
+#define TrStat_ans_pruned             trie_stats.answers_pruned
+#define TrStat_ans_nodes              trie_stats.answer_trie_nodes
+#define TrStat_ans_linear_nodes       trie_stats.answer_linear_nodes
+#define TrStat_ans_max_depth          trie_stats.answer_trie_max_depth
+#define TrStat_ans_min_depth          trie_stats.answer_trie_min_depth
+#define SHOW_INFO(MESG, ARGS...)      fprintf(stream, MESG, ##ARGS)
+#define SHOW_TRIE(MESG, ARGS...)      if (TrStat_show) fprintf(stream, MESG, ##ARGS)
 
 void traverse_trie(FILE *stream, sg_node_ptr sg_node, int pred_arity, Atom pred_atom, int show) {
   char str[1000];
@@ -1077,13 +1098,16 @@ void traverse_trie(FILE *stream, sg_node_ptr sg_node, int pred_arity, Atom pred_
 
   TrStat_show = show;
   TrStat_subgoals = 0;
-  TrStat_subgoals_abolished = 0;
+  TrStat_sg_abolished = 0;
+  TrStat_sg_abolish_operations = 0;
   TrStat_sg_nodes = 0;
   TrStat_sg_linear_nodes = 0;
   TrStat_sg_max_depth = -1;
   TrStat_sg_min_depth = -1;
   TrStat_answers = 0;
-  TrStat_answers_pruned = 0;
+  TrStat_answers_yes = 0;
+  TrStat_answers_no = 0;
+  TrStat_ans_pruned = 0;
   TrStat_ans_nodes = 0;
   TrStat_ans_linear_nodes = 0;
   TrStat_ans_max_depth = -1;
@@ -1095,8 +1119,10 @@ void traverse_trie(FILE *stream, sg_node_ptr sg_node, int pred_arity, Atom pred_
   TrStat_sg_nodes++;
   if (traverse_subgoal_trie(stream, sg_node, str, str_index, arity, 0)) {
     SHOW_INFO("\n  Subgoal Trie structure\n    %ld subgoals", TrStat_subgoals);
-    if (TrStat_subgoals_abolished)
-      SHOW_INFO(" (including %ld abolished)", TrStat_subgoals_abolished);
+    if (TrStat_sg_abolished)
+      SHOW_INFO(" including %ld abolished", TrStat_sg_abolished);
+    if (TrStat_sg_abolish_operations)
+      SHOW_INFO(" (%ld abolish operations executed)", TrStat_sg_abolish_operations);
     SHOW_INFO("\n    %ld nodes (%ld%c reuse)\n    %.2f average depth (%d min - %d max)", 
               TrStat_sg_nodes,
               TrStat_sg_linear_nodes == 0 ? 0 : (TrStat_sg_linear_nodes - TrStat_sg_nodes + 1) * 100 / TrStat_sg_linear_nodes,
@@ -1104,9 +1130,11 @@ void traverse_trie(FILE *stream, sg_node_ptr sg_node, int pred_arity, Atom pred_
               TrStat_subgoals == 0 ? 0 : (float)TrStat_sg_linear_nodes / (float)TrStat_subgoals,
               TrStat_sg_min_depth < 0 ? 0 : TrStat_sg_min_depth,
               TrStat_sg_max_depth < 0 ? 0 : TrStat_sg_max_depth);
-    SHOW_INFO("\n  Answer Trie Structure\n    %ld answers", TrStat_answers);
-    if (TrStat_answers_pruned)
-      SHOW_INFO(" (including %ld pruned)", TrStat_answers_pruned);
+    SHOW_INFO("\n  Answer Trie Structure\n    %ld/%ld answers", TrStat_answers_yes, TrStat_answers);
+    if (TrStat_ans_pruned)
+      SHOW_INFO(" including %ld pruned", TrStat_ans_pruned);
+    if (TrStat_answers_no)
+      SHOW_INFO(" (%ld no answers)", TrStat_answers_no);
     SHOW_INFO("\n    %ld nodes (%ld%c reuse)\n    %.2f average depth (%d min - %d max)",
               TrStat_ans_nodes,
               TrStat_ans_linear_nodes == 0 ? 0 : (TrStat_ans_linear_nodes - TrStat_ans_nodes + TrStat_subgoals) * 100 / TrStat_ans_linear_nodes,
@@ -1132,9 +1160,10 @@ int traverse_subgoal_trie(FILE *stream, sg_node_ptr sg_node, char *str, int str_
   int new_arity[100];
 
   if (arity[0] == 0) {
-    ans_node_ptr ans_node;
+    sg_fr_ptr sg_fr = (sg_fr_ptr)sg_node;
     str[str_index] = 0;
     TrStat_subgoals++;
+    TrStat_sg_abolish_operations += SgFr_abolish(sg_fr);
     TrStat_sg_linear_nodes+= depth;
     if (TrStat_sg_max_depth < 0) {
       TrStat_sg_min_depth = TrStat_sg_max_depth = depth;
@@ -1143,34 +1172,39 @@ int traverse_subgoal_trie(FILE *stream, sg_node_ptr sg_node, char *str, int str_
     } else if (depth > TrStat_sg_max_depth) {
       TrStat_sg_max_depth = depth;
     }
-    if (SgFr_state((sg_fr_ptr)sg_node) == ready) {
-      TrStat_subgoals_abolished++;
+    if (SgFr_state(sg_fr) == start) {
+      TrStat_sg_abolished++;
       SHOW_TRIE("%s.\n    ABOLISHED\n", str);
       return TRUE;
     }
-    if (SgFr_state((sg_fr_ptr)sg_node) == evaluating) {
+    if (SgFr_state(sg_fr) == evaluating) {
       SHOW_INFO("%s. --> TRIE ERROR: subgoal not completed !!!\n", str);
       return FALSE;
     }
+    LOCK(SgFr_lock(sg_fr));
+    if (SgFr_state(sg_fr) == complete)
+      update_answer_trie(sg_fr);
+    UNLOCK(SgFr_lock(sg_fr));
     SHOW_TRIE("%s.\n", str);
-    ans_node = SgFr_answer_trie((sg_fr_ptr)sg_node);
     TrStat_ans_nodes++;
-    if (IS_ANSWER_LEAF_NODE(ans_node)) {
-      SHOW_TRIE("    YES\n");
-      if (TrStat_ans_max_depth < 0)
-        TrStat_ans_max_depth = 0;
-      TrStat_ans_min_depth = 0;
-      TrStat_answers++;
-    } else if (TrNode_child(ans_node) == NULL) {
+    if (SgFr_first_answer(sg_fr) == NULL) {
       SHOW_TRIE("    NO\n");
       if (TrStat_ans_max_depth < 0)
         TrStat_ans_max_depth = 0;
       TrStat_ans_min_depth = 0;
+      TrStat_answers_no++;
+    } else if (SgFr_first_answer(sg_fr) == SgFr_answer_trie(sg_fr)) {
+      SHOW_TRIE("    YES\n");
+      if (TrStat_ans_max_depth < 0)
+        TrStat_ans_max_depth = 0;
+      TrStat_ans_min_depth = 0;
+      TrStat_answers_yes++;
+      TrStat_answers++;
     } else {
       char answer_str[1000];
       int answer_arity[1000];
       answer_arity[0] = 0;
-      if (! traverse_answer_trie(stream, TrNode_child(ans_node), answer_str, 0, answer_arity, 0, 1))
+      if (! traverse_answer_trie(stream, TrNode_child(SgFr_answer_trie(sg_fr)), answer_str, 0, answer_arity, 0, 1))
         return FALSE;
     }
     return TRUE;
@@ -1301,7 +1335,7 @@ int traverse_subgoal_trie(FILE *stream, sg_node_ptr sg_node, char *str, int str_
       arity[arity[0]] = ArityOfFunctor((Functor)NonTagPart(t));
       break;
     default:
-      abort_yaptab("unknown type tag in function traverse_subgoal_trie");
+      Yap_Error(INTERNAL_ERROR, TermNil, "unknown type tag (traverse_subgoal_trie)");
   }
 
   if (! traverse_subgoal_trie(stream, TrNode_child(sg_node), str, str_index, arity, depth + 1))
@@ -1429,13 +1463,13 @@ int traverse_answer_trie(FILE *stream, ans_node_ptr ans_node, char *str, int str
       arity[arity[0]] = ArityOfFunctor((Functor)NonTagPart(t));
       break;
     default:
-      abort_yaptab("unknown type tag in function traverse_answer_trie");
+      Yap_Error(INTERNAL_ERROR, TermNil, "unknown type tag (traverse_answer_trie)");
   }
 
   if (! IS_ANSWER_LEAF_NODE(ans_node)) {
 #ifdef TABLING_INNER_CUTS
     if (! TrNode_child(ans_node)) {
-      TrStat_answers_pruned++;
+      TrStat_ans_pruned++;
       return TRUE;
     }
 #endif /* TABLING_INNER_CUTS */

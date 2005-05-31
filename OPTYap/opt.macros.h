@@ -35,33 +35,48 @@ extern int Yap_page_size;
 
 
 
-#define ALLOC_BLOCK(BLOCK, SIZE)                          \
-        BLOCK = malloc(SIZE)
-#define FREE_BLOCK(BLOCK)                                 \
+#define ALLOC_BLOCK(BLOCK, SIZE)                                          \
+        if ((BLOCK = malloc(SIZE)) == NULL)                               \
+          Yap_Error(FATAL_ERROR, TermNil, "malloc error (ALLOC_BLOCK)")
+/*      BLOCK = (void *) Yap_AllocCodeSpace(SIZE)                        */
+#define FREE_BLOCK(BLOCK)                                                 \
         free(BLOCK)
-#define ALLOC_STRUCT(STR, STR_PAGES, STR_TYPE)            \
-        STR = (STR_TYPE *)malloc(sizeof(STR_TYPE))
-#define ALLOC_NEXT_FREE_STRUCT(STR, STR_PAGES, STR_TYPE)  \
-        STR = (STR_TYPE *)malloc(sizeof(STR_TYPE))
-#define FREE_STRUCT(STR, STR_PAGES, STR_TYPE)             \
+/*      Yap_FreeCodeSpace((char *) (BLOCK))                              */
+#define ALLOC_STRUCT(STR, STR_PAGES, STR_TYPE)                            \
+        if ((STR = (STR_TYPE *)malloc(sizeof(STR_TYPE))) == NULL)         \
+          Yap_Error(FATAL_ERROR, TermNil, "malloc error (ALLOC_STRUCT)")
+#define ALLOC_NEXT_FREE_STRUCT(STR, STR_PAGES, STR_TYPE)                  \
+        ALLOC_STRUCT(STR, STR_PAGES, STR_TYPE)
+#define FREE_STRUCT(STR, STR_PAGES, STR_TYPE)                             \
         free(STR)
 /*
-#define ALLOC_BLOCK(BLOCK, SIZE)                          \
-        BLOCK = (void *) Yap_AllocCodeSpace(SIZE)
-#define FREE_BLOCK(BLOCK)                                 \
-        Yap_FreeCodeSpace((char *) (BLOCK))
+#include <sys/shm.h>
+#define SHMMAX 0x2000000
 
-#define ALLOC_PAGE(PG_HD)                                           \
-        LOCK(Pg_lock(GLOBAL_PAGES_void));                           \
-        UPDATE_STATS(Pg_requests(GLOBAL_PAGES_void), 1);            \
-        UPDATE_STATS(Pg_str_in_use(GLOBAL_PAGES_void), 1);          \
-        if (Pg_free_pg(GLOBAL_PAGES_void) == NULL) {                \
-          ALLOC_BLOCK(PG_HD, Yap_page_size);                        \
-          UPDATE_STATS(Pg_str_alloc(GLOBAL_PAGES_void), 1);         \
-        } else {                                                    \
-          PG_HD = Pg_free_pg(GLOBAL_PAGES_void);                    \
-          Pg_free_pg(GLOBAL_PAGES_void) = PgHd_next(PG_HD);         \
-        }                                                           \
+#define ALLOC_PAGE(PG_HD)                                                         \
+        LOCK(Pg_lock(GLOBAL_PAGES_void));                                         \
+        UPDATE_STATS(Pg_requests(GLOBAL_PAGES_void), 1);                          \
+        UPDATE_STATS(Pg_str_in_use(GLOBAL_PAGES_void), 1);                        \
+        if (Pg_free_pg(GLOBAL_PAGES_void) == NULL) {                              \
+          int i, shmid;                                                           \
+          pg_hd_ptr pg_hd, aux_pg_hd;                                             \
+          if ((shmid = shmget(IPC_PRIVATE, SHMMAX, SHM_R|SHM_W)) == -1)           \
+            Yap_Error(FATAL_ERROR, TermNil, "shmget error (ALLOC_PAGE)");         \
+          if ((pg_hd = (pg_hd_ptr) shmat(shmid, NULL, 0)) == (void *) -1)         \
+            Yap_Error(FATAL_ERROR, TermNil, "shmat error (ALLOC_PAGE)");          \
+          if (shmctl(shmid, IPC_RMID, 0) != 0)                                    \
+            Yap_Error(FATAL_ERROR, TermNil, "shmctl error (ALLOC_PAGE)");         \
+          Pg_free_pg(GLOBAL_PAGES_void) = pg_hd;                                  \
+          for (i = 1; i < SHMMAX / Yap_page_size; i++) {                          \
+            aux_pg_hd = (pg_hd_ptr)(((void *)pg_hd) + Yap_page_size);             \
+            PgHd_next(pg_hd) = aux_pg_hd;                                         \
+            pg_hd = aux_pg_hd;                                                    \
+          }                                                                       \
+          PgHd_next(pg_hd) = NULL;                                                \
+          UPDATE_STATS(Pg_str_alloc(GLOBAL_PAGES_void), SHMMAX / Yap_page_size);  \
+        }                                                                         \
+        PG_HD = Pg_free_pg(GLOBAL_PAGES_void);                                    \
+        Pg_free_pg(GLOBAL_PAGES_void) = PgHd_next(PG_HD);                         \
         UNLOCK(Pg_lock(GLOBAL_PAGES_void))
 
 #define FREE_PAGE(PG_HD)                                            \
@@ -174,7 +189,6 @@ extern int Yap_page_size;
           }                                                                        \
         }
 */
-
 #define ALLOC_HASH_BUCKETS(BUCKET_PTR, NUM_BUCKETS)         \
         { int i; void **ptr;                                \
           ALLOC_BLOCK(ptr, NUM_BUCKETS * sizeof(void *));   \

@@ -12,12 +12,12 @@ STD_PROTO(static inline void mark_as_completed, (sg_fr_ptr));
 STD_PROTO(static inline void unbind_variables, (tr_fr_ptr, tr_fr_ptr));
 STD_PROTO(static inline void rebind_variables, (tr_fr_ptr, tr_fr_ptr));
 STD_PROTO(static inline void restore_bindings, (tr_fr_ptr, tr_fr_ptr));
-STD_PROTO(static inline void pruning_over_tabling_data_structures, (void));
 STD_PROTO(static inline void abolish_incomplete_subgoals, (choiceptr));
 STD_PROTO(static inline void free_subgoal_hash_chain, (sg_hash_ptr));
 STD_PROTO(static inline void free_answer_hash_chain, (ans_hash_ptr));
 
 #ifdef YAPOR
+STD_PROTO(static inline void pruning_over_tabling_data_structures, (void));
 STD_PROTO(static inline void collect_suspension_frames, (or_fr_ptr));
 #ifdef TIMESTAMP_CHECK
 STD_PROTO(static inline susp_fr_ptr suspension_frame_to_resume, (or_fr_ptr, long));
@@ -52,7 +52,7 @@ STD_PROTO(static inline tg_sol_fr_ptr CUT_prune_tg_solution_frames, (tg_sol_fr_p
 #define	TabNumberTagBits       NumberTag
 #define	TabPairTagBits         MKTAG(0x5,3)
 #define	TabApplTagBits         MKTAG(0x5,0)
-#else
+#else                /* Tags_32LowTag.h */
 #define	TabTagBits             MKTAG(0x0,LowTagBits)
 #define TabNumberOfLowTagBits  LowTagBits
 #define	TabVarTagBits          MKTAG(0x0,0)
@@ -73,30 +73,53 @@ STD_PROTO(static inline tg_sol_fr_ptr CUT_prune_tg_solution_frames, (tg_sol_fr_p
 #define UNTAG_ANSWER_LEAF_NODE(NODE)   ((ans_node_ptr)((unsigned int)NODE & 0xfffffffe))
 #define IS_ANSWER_LEAF_NODE(NODE)      ((unsigned int)TrNode_parent(NODE) & 0x1)
 
-#define FREE_STACK_PUSH(ITEM, STACK)        *--STACK = (CELL)(ITEM)
-#define STACK_TOP(STACK)                    *STACK
-#define STACK_POP(STACK)                    *STACK++
-#define STACK_EMPTY(STACK, STACK_BASE)      STACK == STACK_BASE
+
 #define STACK_NOT_EMPTY(STACK, STACK_BASE)  STACK != STACK_BASE
+#define STACK_PUSH_UP(ITEM, STACK)          *--STACK = (CELL)(ITEM)
+#define STACK_POP_DOWN(STACK)               *STACK++
+#define STACK_PUSH_DOWN(ITEM, STACK)        *STACK++ = (CELL)(ITEM)
+#define STACK_POP_UP(STACK)                 *--STACK
 #ifdef YAPOR
-#define STACK_PUSH(ITEM, STACK, STACK_TOP, STACK_BASE)  \
-        *--STACK = (CELL)(ITEM);                        \
-        if (STACK <= STACK_TOP)                         \
-          abort_yapor("auxiliary stack full")
+#define STACK_CHECK_EXPAND1(STACK, STACK_LIMIT, STACK1)                              \
+        if (STACK_LIMIT >= STACK) {                                                  \
+          Yap_Error(INTERNAL_ERROR, TermNil, "stack full (STACK_CHECK_EXPAND1)")
+#define STACK_CHECK_EXPAND3(STACK, STACK_LIMIT, STACK1, STACK2, STACK3)              \
+        if (STACK_LIMIT >= STACK) {                                                  \
+          Yap_Error(INTERNAL_ERROR, TermNil, "stack full (STACK_CHECK_EXPAND3)")
 #else
-#define STACK_PUSH(ITEM, STACK, STACK_TOP, STACK_BASE)                           \
-        *--(STACK) = (CELL)(ITEM);                                               \
-        if ((STACK) <= STACK_TOP + 1024) {                                       \
-          void *old_top = Yap_TrailTop;                                          \
-          CELL *NEW_STACK;                                                       \
-          UInt diff;                                                             \
-          abort_yaptab("auxiliary stack full");                                  \
-          Yap_growtrail(64 * 1024L, TRUE);                                       \
-          diff = (void *)Yap_TrailTop - old_top;                                 \
-          NEW_STACK = (CELL *)((void *)(STACK) + diff);                          \
-          memmove((void *)NEW_STACK, (void *)(STACK), old_top - (void *)STACK);  \
-          (STACK) = NEW_STACK;                                                   \
-          (STACK_BASE) = (CELL *)((void *)(STACK_BASE) + diff);                  \
+#define STACK_CHECK_EXPAND1(STACK, STACK_LIMIT, STACK1)                              \
+        if (STACK_LIMIT >= STACK) {                                                  \
+          void *old_top;                                                             \
+          UInt diff;                                                                 \
+          CELL *NEW_STACK;                                                           \
+          if (STACK_LIMIT > STACK)                                                   \
+            Yap_Error(INTERNAL_ERROR, TermNil, "stack full (STACK_CHECK_EXPAND1)");  \
+          INFORMATION_MESSAGE("Expanding trail in 64 Mbytes");                       \
+          old_top = Yap_TrailTop;                                                    \
+          Yap_growtrail(64 * 1024L, TRUE);                                           \
+          diff = (void *)Yap_TrailTop - old_top;                                     \
+          NEW_STACK = (CELL *)((void *)STACK + diff);                                \
+          memmove((void *)NEW_STACK, (void *)STACK, old_top - (void *)STACK);        \
+          STACK = NEW_STACK;                                                         \
+          STACK1 = (CELL *)((void *)STACK1 + diff);                                  \
+        }
+#define STACK_CHECK_EXPAND3(STACK, STACK_LIMIT, STACK1, STACK2, STACK3)              \
+        if (STACK_LIMIT >= STACK) {                                                  \
+          void *old_top;                                                             \
+          UInt diff;                                                                 \
+          CELL *NEW_STACK;                                                           \
+          if (STACK_LIMIT > STACK)                                                   \
+            Yap_Error(INTERNAL_ERROR, TermNil, "stack full (STACK_CHECK_EXPAND3)");  \
+          INFORMATION_MESSAGE("Expanding trail in 64 Mbytes");                       \
+          old_top = Yap_TrailTop;                                                    \
+          Yap_growtrail(64 * 1024L, TRUE);                                           \
+          diff = (void *)Yap_TrailTop - old_top;                                     \
+          NEW_STACK = (CELL *)((void *)STACK + diff);                                \
+          memmove((void *)NEW_STACK, (void *)STACK, old_top - (void *)STACK);        \
+          STACK = NEW_STACK;                                                         \
+          STACK1 = (CELL *)((void *)STACK1 + diff);                                  \
+          STACK2 = (CELL *)((void *)STACK2 + diff);                                  \
+          STACK3 = (CELL *)((void *)STACK3 + diff);                                  \
         }
 #endif /* YAPOR */
 
@@ -236,8 +259,9 @@ STD_PROTO(static inline tg_sol_fr_ptr CUT_prune_tg_solution_frames, (tg_sol_fr_p
           INIT_LOCK(SgFr_lock(SG_FR));                             \
           new_answer_trie_node(ans_node, 0, 0, NULL, NULL, NULL);  \
           SgFr_answer_trie(SG_FR) = ans_node;                      \
-          SgFr_state(SG_FR) = ready;                               \
-          SgFr_abolished(SG_FR) = 0;                               \
+          SgFr_hash_chain(SG_FR) = NULL;                           \
+          SgFr_state(SG_FR) = start;                               \
+          SgFr_abolish(SG_FR) = 0;                                 \
           SgFr_arity(SG_FR) = ARITY;                               \
 	}
 
@@ -246,7 +270,6 @@ STD_PROTO(static inline tg_sol_fr_ptr CUT_prune_tg_solution_frames, (tg_sol_fr_p
         { SgFr_init_yapor_fields(SG_FR);                           \
           SgFr_first_answer(SG_FR) = NULL;                         \
           SgFr_last_answer(SG_FR) = NULL;                          \
-          SgFr_hash_chain(SG_FR) = NULL;                           \
           SgFr_state(SG_FR) = evaluating;                          \
           SgFr_next(SG_FR) = LOCAL_top_sg_fr;                      \
           LOCAL_top_sg_fr = sg_fr;                                 \
@@ -336,13 +359,8 @@ void adjust_freeze_registers(void) {
 
 static inline
 void mark_as_completed(sg_fr_ptr sg_fr) {
-  ans_hash_ptr hash;
-
   LOCK(SgFr_lock(sg_fr));
-  hash = SgFr_hash_chain(sg_fr);
-  SgFr_hash_chain(sg_fr) = NULL;
   SgFr_state(sg_fr) = complete;
-  free_answer_hash_chain(hash);
   UNLOCK(SgFr_lock(sg_fr));
   return;
 }
@@ -367,8 +385,8 @@ void unbind_variables(tr_fr_ptr unbind_tr, tr_fr_ptr end_tr) {
         /* avoid frozen segments */
         unbind_tr = (tr_fr_ptr) ref;
 #ifdef TABLING_ERRORS
-        if (unbind_tr > (tr_fr_ptr) TrailTop)
-          TABLING_ERROR_MESSAGE("unbind_tr > TrailTop (function unbind_variables)");
+        if (unbind_tr > (tr_fr_ptr) Yap_TrailTop)
+          TABLING_ERROR_MESSAGE("unbind_tr > Yap_TrailTop (function unbind_variables)");
         if (unbind_tr < end_tr)
           TABLING_ERROR_MESSAGE("unbind_tr < end_tr (function unbind_variables)");
 #endif /* TABLING_ERRORS */
@@ -405,8 +423,8 @@ void rebind_variables(tr_fr_ptr rebind_tr, tr_fr_ptr end_tr) {
         /* avoid frozen segments */
   	rebind_tr = (tr_fr_ptr) ref;
 #ifdef TABLING_ERRORS
-        if (rebind_tr > (tr_fr_ptr) TrailTop)
-          TABLING_ERROR_MESSAGE("rebind_tr > TrailTop (function rebind_variables)");
+        if (rebind_tr > (tr_fr_ptr) Yap_TrailTop)
+          TABLING_ERROR_MESSAGE("rebind_tr > Yap_TrailTop (function rebind_variables)");
         if (rebind_tr < end_tr)
           TABLING_ERROR_MESSAGE("rebind_tr < end_tr (function rebind_variables)");
 #endif /* TABLING_ERRORS */
@@ -448,8 +466,8 @@ void restore_bindings(tr_fr_ptr unbind_tr, tr_fr_ptr rebind_tr) {
         if ((ADDR)ref >= Yap_TrailBase) {
           unbind_tr = (tr_fr_ptr) ref;
 #ifdef TABLING_ERRORS
-          if (unbind_tr > (tr_fr_ptr) TrailTop)
-            TABLING_ERROR_MESSAGE("unbind_tr > TrailTop (function restore_bindings)");
+          if (unbind_tr > (tr_fr_ptr) Yap_TrailTop)
+            TABLING_ERROR_MESSAGE("unbind_tr > Yap_TrailTop (function restore_bindings)");
 #endif /* TABLING_ERRORS */
         }
       }
@@ -462,8 +480,8 @@ void restore_bindings(tr_fr_ptr unbind_tr, tr_fr_ptr rebind_tr) {
         if ((ADDR)ref >= Yap_TrailBase) {
   	  end_tr = (tr_fr_ptr) ref;
 #ifdef TABLING_ERRORS
-	  if (end_tr > (tr_fr_ptr) TrailTop)
-            TABLING_ERROR_MESSAGE("end_tr > TrailTop (function restore_bindings)");
+	  if (end_tr > (tr_fr_ptr) Yap_TrailTop)
+            TABLING_ERROR_MESSAGE("end_tr > Yap_TrailTop (function restore_bindings)");
 #endif /* TABLING_ERRORS */
         }
       }
@@ -479,21 +497,14 @@ void restore_bindings(tr_fr_ptr unbind_tr, tr_fr_ptr rebind_tr) {
       if ((ADDR)ref >= Yap_TrailBase) {
         rebind_tr = (tr_fr_ptr) ref;
 #ifdef TABLING_ERRORS
-	if (rebind_tr > (tr_fr_ptr) TrailTop)
-          TABLING_ERROR_MESSAGE("rebind_tr > TrailTop (function restore_bindings)");
+	if (rebind_tr > (tr_fr_ptr) Yap_TrailTop)
+          TABLING_ERROR_MESSAGE("rebind_tr > Yap_TrailTop (function restore_bindings)");
         if (rebind_tr < end_tr)
           TABLING_ERROR_MESSAGE("rebind_tr < end_tr (function restore_bindings)");
 #endif /* TABLING_ERRORS */
       }
     }
   }
-  return;
-}
-
-
-static inline
-void pruning_over_tabling_data_structures(void) {
-  abort_yaptab("pruning over tabling data structures");
   return;
 }
 
@@ -520,7 +531,6 @@ void abolish_incomplete_subgoals(choiceptr prune_cp) {
 
   while (LOCAL_top_sg_fr && EQUAL_OR_YOUNGER_CP(SgFr_gen_cp(LOCAL_top_sg_fr), prune_cp)) {
     sg_fr_ptr sg_fr;
-    ans_node_ptr node;
 #ifdef YAPOR
     if (PARALLEL_EXECUTION_MODE)
       pruning_over_tabling_data_structures();
@@ -528,15 +538,22 @@ void abolish_incomplete_subgoals(choiceptr prune_cp) {
     sg_fr = LOCAL_top_sg_fr;
     LOCAL_top_sg_fr = SgFr_next(sg_fr);
     LOCK(SgFr_lock(sg_fr));
-    free_answer_hash_chain(SgFr_hash_chain(sg_fr));
-    node = TrNode_child(SgFr_answer_trie(sg_fr));
-    TrNode_child(SgFr_answer_trie(sg_fr)) = NULL;
-    TrNode_parent(SgFr_answer_trie(sg_fr)) = NULL;
-    SgFr_state(sg_fr) = ready;
-    SgFr_abolished(sg_fr)++;
-    UNLOCK(SgFr_lock(sg_fr));
-    if (node)
-      free_answer_trie_branch(node);
+    if (SgFr_first_answer(sg_fr) == SgFr_answer_trie(sg_fr)) {
+      /* yes answer --> complete */
+      SgFr_state(sg_fr) = complete;
+      UNLOCK(SgFr_lock(sg_fr));
+    } else {
+      ans_node_ptr node;
+      SgFr_state(sg_fr) = start;
+      SgFr_abolish(sg_fr)++;
+      free_answer_hash_chain(SgFr_hash_chain(sg_fr));
+      SgFr_hash_chain(sg_fr) = NULL;
+      node = TrNode_child(SgFr_answer_trie(sg_fr));
+      TrNode_child(SgFr_answer_trie(sg_fr)) = NULL;
+      UNLOCK(SgFr_lock(sg_fr));
+      if (node)
+	free_answer_trie_branch(node);
+    }
   }
 
   return;
@@ -602,6 +619,13 @@ void free_answer_hash_chain(ans_hash_ptr hash) {
 
 
 #ifdef YAPOR
+static inline
+void pruning_over_tabling_data_structures(void) {
+  Yap_Error(INTERNAL_ERROR, TermNil, "pruning over tabling data structures");
+  return;
+}
+
+
 static inline
 void collect_suspension_frames(or_fr_ptr or_fr) {  
   int depth;

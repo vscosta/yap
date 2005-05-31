@@ -438,7 +438,7 @@ void share_private_nodes(int worker_q) {
     choiceptr consumer_cp, next_node_on_branch;
     dep_fr_ptr dep_frame;
     sg_fr_ptr sg_frame;
-    CELL *stack, *stack_base, *stack_top;
+    CELL *stack, *stack_base, *stack_limit;
 
     /* find top dependency frame above current choice point */
     dep_frame = LOCAL_top_dep_fr;
@@ -448,8 +448,8 @@ void share_private_nodes(int worker_q) {
     /* initialize tabling auxiliary variables */ 
     consumer_cp = DepFr_cons_cp(dep_frame);
     next_node_on_branch = NULL;
-    stack_top = (CELL *)TrailTop;
-    stack_base = stack = AuxSp;
+    stack_limit = (CELL *)TR;
+    stack_base = stack = (CELL *)Yap_TrailTop;
 #endif /* TABLING */
 
     /* initialize auxiliary variables */
@@ -537,8 +537,10 @@ void share_private_nodes(int worker_q) {
         /* frozen stack segment */
         if (! next_node_on_branch)
           next_node_on_branch = sharing_node;
-        STACK_PUSH(or_frame, stack, stack_top, stack_base);
-        STACK_PUSH(sharing_node, stack, stack_top, stack_base);
+        STACK_PUSH_UP(or_frame, stack);
+        STACK_CHECK_EXPAND1(stack, stack_limit, stack_base);
+        STACK_PUSH(sharing_node, stack);
+        STACK_CHECK_EXPAND1(stack, stack_limit, stack_base);
         sharing_node = consumer_cp;
         dep_frame = DepFr_next(dep_frame);
         consumer_cp = DepFr_cons_cp(dep_frame);
@@ -567,15 +569,15 @@ void share_private_nodes(int worker_q) {
 #ifdef TABLING
     /* update or-frames stored in auxiliary stack */
     while (STACK_NOT_EMPTY(stack, stack_base)) {
-      next_node_on_branch = (choiceptr) STACK_POP(stack);
-      or_frame = (or_fr_ptr) STACK_POP(stack);
+      next_node_on_branch = (choiceptr) STACK_POP_DOWN(stack);
+      or_frame = (or_fr_ptr) STACK_POP_DOWN(stack);
       OrFr_nearest_livenode(or_frame) = OrFr_next(or_frame) = next_node_on_branch->cp_or_fr;
     }
 #endif /* TABLING */
 
     /* update depth */
     if (depth >= MAX_DEPTH)
-      abort_yapor("maximum depth exceded (%d/%d) (share_private_nodes)", depth, MAX_DEPTH);
+      Yap_Error(INTERNAL_ERROR, TermNil, "maximum depth exceded (share_private_nodes)");
     or_frame = B->cp_or_fr;
 #ifdef TABLING
     previous_or_frame = LOCAL_top_cp_on_stack->cp_or_fr;

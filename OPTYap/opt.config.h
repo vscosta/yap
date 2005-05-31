@@ -5,7 +5,7 @@
 #define MAX_LENGTH_ANSWER  500
 #define MAX_DEPTH          1000
 #define MAX_BEST_TIMES     21
-#define MAX_TABLE_VARS     1000
+#define MAX_TABLE_VARS     100
 #define TABLE_LOCK_BUCKETS 512
 #define TG_ANSWER_SLOTS    20
 

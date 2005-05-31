@@ -2,51 +2,68 @@
 **      Tabling instructions: auxiliary macros      **
 ** ------------------------------------------------ */
 
-#define store_generator_node(ARITY, AP, SG_FR)                         \
-        { register CELL *pt_args;                                      \
-          register choiceptr gcp;                                      \
-          /* store args */                                             \
-          pt_args = XREGS + (ARITY);                                   \
-	  while (pt_args > XREGS) {                                    \
-            register CELL aux_arg = pt_args[0];                        \
-            --YENV;                                                    \
-            --pt_args;                                                 \
-            *YENV = aux_arg;                                           \
-	  }                                                            \
-          /* initialize gcp and adjust subgoal frame field */          \
-          YENV = (CELL *) (GEN_CP(YENV) - 1);                          \
-          gcp = NORM_CP(YENV);                                         \
-          SgFr_gen_cp(SG_FR) = gcp;                                    \
-          /* store generator choice point */                           \
-          HBREG = H;                                                   \
-          store_yaam_reg_cpdepth(gcp);                                 \
-          gcp->cp_tr = TR;            	                               \
-          gcp->cp_ap = (yamop *)(AP);                                  \
-          gcp->cp_h  = H;                                              \
-          gcp->cp_b  = B;                                              \
-          gcp->cp_env = ENV;                                           \
-          gcp->cp_cp = CPREG;                                          \
-	  if (yap_flags[TABLING_MODE_FLAG] != TABLING_MODE_LOCAL &&    \
-             (!(PREG->u.ld.p->PredFlags & LocalSchedPredFlag) ||       \
-             yap_flags[TABLING_MODE_FLAG] == TABLING_MODE_BATCHED)) {  \
-            GEN_CP(gcp)->cp_dep_fr = NULL;                             \
-          } else {                                                     \
-            register dep_fr_ptr new_dep_fr;                            \
-            /* adjust freeze registers */                              \
-            H_FZ = H;                                                  \
-            B_FZ = gcp;                                                \
-            TR_FZ = TR;                                                \
-            /* store dependency frame */                               \
-            new_dependency_frame(new_dep_fr, TRUE, LOCAL_top_or_fr,    \
-                                 gcp, gcp, SG_FR, LOCAL_top_dep_fr);   \
-            LOCAL_top_dep_fr = new_dep_fr;                             \
-            GEN_CP(gcp)->cp_dep_fr = LOCAL_top_dep_fr;                 \
-          }                                                            \
-          GEN_CP(gcp)->cp_sg_fr = SG_FR;                               \
-          set_cut((CELL *)gcp, B);                                     \
-          B = gcp;                                                     \
-          YAPOR_SET_LOAD(B);                                           \
-          SET_BB(B);                                                   \
+#ifdef TABLING_ERRORS
+#define TABLING_ERRORS_check_stack                                       \
+        if (Unsigned(H) + 1024 > Unsigned(B))                            \
+	  TABLING_ERROR_MESSAGE("H + 1024 > B (check_stack)")
+#else
+#define TABLING_ERRORS_check_stack
+#endif /* TABLING_ERRORS */
+#define store_generator_node(ARITY, AP, SG_FR)                           \
+        { register int subs_arity = *YENV;                               \
+          register CELL *pt_args;                                        \
+          register choiceptr gcp;                                        \
+          /* store args */                                               \
+          pt_args = XREGS + (ARITY);                                     \
+	  while (pt_args > XREGS) {                                      \
+            register CELL aux_arg = pt_args[0];                          \
+            --YENV;                                                      \
+            --pt_args;                                                   \
+            *YENV = aux_arg;                                             \
+	  }                                                              \
+          /* initialize gcp and adjust subgoal frame field */            \
+          YENV = (CELL *) (GEN_CP(YENV) - 1);                            \
+          gcp = NORM_CP(YENV);                                           \
+          SgFr_gen_cp(SG_FR) = gcp;                                      \
+          /* store generator choice point */                             \
+          HBREG = H;                                                     \
+          store_yaam_reg_cpdepth(gcp);                                   \
+          gcp->cp_tr = TR;            	                                 \
+          gcp->cp_ap = (yamop *)(AP);                                    \
+          gcp->cp_h  = H;                                                \
+          gcp->cp_b  = B;                                                \
+          gcp->cp_env = ENV;                                             \
+          gcp->cp_cp = CPREG;                                            \
+                                                                         \
+                                                                         \
+	  /*if (SgFr_abolish(SG_FR) == 0) {*/                            \
+	  if (subs_arity == 0 ||                                         \
+              (yap_flags[TABLING_MODE_FLAG] != TABLING_MODE_LOCAL &&     \
+              (!(PREG->u.ld.p->PredFlags & LocalSchedPredFlag) ||        \
+              yap_flags[TABLING_MODE_FLAG] == TABLING_MODE_BATCHED))) {  \
+                                                                         \
+                                                                         \
+            /* go batched */                                             \
+            GEN_CP(gcp)->cp_dep_fr = NULL;                               \
+          } else {                                                       \
+            /* go local */                                               \
+            register dep_fr_ptr new_dep_fr;                              \
+            /* adjust freeze registers */                                \
+            H_FZ = H;                                                    \
+            B_FZ = gcp;                                                  \
+            TR_FZ = TR;                                                  \
+            /* store dependency frame */                                 \
+            new_dependency_frame(new_dep_fr, TRUE, LOCAL_top_or_fr,      \
+                                 gcp, gcp, SG_FR, LOCAL_top_dep_fr);     \
+            LOCAL_top_dep_fr = new_dep_fr;                               \
+            GEN_CP(gcp)->cp_dep_fr = LOCAL_top_dep_fr;                   \
+          }                                                              \
+          GEN_CP(gcp)->cp_sg_fr = SG_FR;                                 \
+          set_cut((CELL *)gcp, B);                                       \
+          B = gcp;                                                       \
+          YAPOR_SET_LOAD(B);                                             \
+          SET_BB(B);                                                     \
+          TABLING_ERRORS_check_stack;                                    \
         }
 
 
@@ -125,9 +142,16 @@
           B = ccp;                                                         \
           YAPOR_SET_LOAD(B);                                               \
           SET_BB(B);                                                       \
+          TABLING_ERRORS_check_stack;                                      \
         }
 
-
+#ifdef TABLING_ERRORS
+#define TABLING_ERRORS_consume_answer_and_procceed                                     \
+        if (IS_BATCHED_GEN_CP(B))                                                      \
+	  TABLING_ERROR_MESSAGE("IS_BATCHED_GEN_CP(B) (consume_answer_and_procceed)")
+#else
+#define TABLING_ERRORS_consume_answer_and_procceed
+#endif /* TABLING_ERRORS */
 #define consume_answer_and_procceed(DEP_FR, ANSWER)       \
         { CELL *subs_ptr;                                 \
           /* restore consumer choice point */             \
@@ -142,7 +166,7 @@
           if (B == DepFr_leader_cp(DEP_FR)) {             \
             /*  B is a generator-consumer node  */        \
             /* never here if batched scheduling */        \
-if (IS_BATCHED_GEN_CP(B)) printf("***** Cannot be here - batched scheduling\n"); \
+            TABLING_ERRORS_consume_answer_and_procceed;   \
             subs_ptr = (CELL *) (GEN_CP(B) + 1);          \
             subs_ptr += SgFr_arity(GEN_CP(B)->cp_sg_fr);  \
 	  } else {                                        \
@@ -155,19 +179,20 @@ if (IS_BATCHED_GEN_CP(B)) printf("***** Cannot be here - batched scheduling\n");
         }
 
 #ifdef DEPTH_LIMIT
-#define allocate_environment(PTR)    \
-        PTR[E_CP] = (CELL) CPREG;    \
-        PTR[E_E] = (CELL) ENV;       \
-        PTR[E_DEPTH] = (CELL)DEPTH;  \
-        PTR[E_B] = (CELL) B;         \
-        ENV = PTR
+#define allocate_environment()        \
+        YENV[E_CP] = (CELL) CPREG;    \
+        YENV[E_E] = (CELL) ENV;       \
+        YENV[E_B] = (CELL) B;         \
+        YENV[E_DEPTH] = (CELL)DEPTH;  \
+        ENV = YENV
 #else
-#define allocate_environment(PTR)    \
-        PTR[E_CP] = (CELL) CPREG;    \
-        PTR[E_E] = (CELL) ENV;       \
-        PTR[E_B] = (CELL) B;         \
-        ENV = PTR
-#endif
+#define allocate_environment()        \
+        YENV[E_CP] = (CELL) CPREG;    \
+        YENV[E_E] = (CELL) ENV;       \
+        YENV[E_B] = (CELL) B;         \
+        ENV = YENV
+#endif /* DEPTH_LIMIT */
+
 
 
 /* ------------------------------ **
@@ -176,7 +201,6 @@ if (IS_BATCHED_GEN_CP(B)) printf("***** Cannot be here - batched scheduling\n");
 
 #ifdef TABLING_INNER_CUTS
   Op(clause_with_cut, e)
-/*printf("ricroc - clause_with_cut\n");*/
     if (LOCAL_pruning_scope) {
       if (YOUNGER_CP(LOCAL_pruning_scope, B))
         LOCAL_pruning_scope = B;
@@ -194,30 +218,19 @@ if (IS_BATCHED_GEN_CP(B)) printf("***** Cannot be here - batched scheduling\n");
   PBOp(table_try_single, ld)
     tab_ent_ptr tab_ent;
     sg_fr_ptr sg_fr;
-    CELL *Yaddr;
 
-/*printf("ricroc - table_try_single\n");*/
-    Yaddr = YENV;
     check_trail();
     tab_ent = PREG->u.ld.te;
-#ifdef TABLE_LOCK_AT_ENTRY_LEVEL
-    LOCK(TabEnt_lock(tab_ent));
-#endif /* TABLE_LOCK_LEVEL */
-    sg_fr = subgoal_search(tab_ent, PREG->u.ld.s, &Yaddr);
-#ifdef TABLE_LOCK_AT_ENTRY_LEVEL
-    UNLOCK(TabEnt_lock(tab_ent));
-#endif /* TABLE_LOCK_LEVEL */
-    YENV = Yaddr;
+    sg_fr = subgoal_search(tab_ent, PREG->u.ld.s, &YENV);
     LOCK(SgFr_lock(sg_fr));
-    if (SgFr_state(sg_fr) == ready) {
+    if (SgFr_state(sg_fr) == start) {
       /* subgoal new or abolished */
       init_subgoal_frame(sg_fr);
       UNLOCK(SgFr_lock(sg_fr));
       store_generator_node(PREG->u.ld.s, COMPLETION, sg_fr);
-      /* PREG = PREG->u.ld.d; */
-	PREG = NEXTOP(PREG,ld);	
+      PREG = NEXTOP(PREG,ld);   /* PREG = PREG->u.ld.d; */
       PREFETCH_OP(PREG);
-      allocate_environment(YENV);
+      allocate_environment();
       GONext();
     } else if (SgFr_state(sg_fr) == evaluating) {
       /* subgoal in evaluation */
@@ -245,20 +258,22 @@ if (IS_BATCHED_GEN_CP(B)) printf("***** Cannot be here - batched scheduling\n");
       goto answer_resolution;
     } else {
       /* subgoal completed */
-      if (SgFr_state(sg_fr) == complete)
-	update_answer_trie(sg_fr);
-      UNLOCK(SgFr_lock(sg_fr));
       if (SgFr_first_answer(sg_fr) == NULL) {
 	/* no answers --> fail */
+	UNLOCK(SgFr_lock(sg_fr));
 	goto fail;
       } else if (SgFr_first_answer(sg_fr) == SgFr_answer_trie(sg_fr)) {
 	/* yes answer --> procceed */
+	UNLOCK(SgFr_lock(sg_fr));
 	PREG = (yamop *) CPREG;
 	PREFETCH_OP(PREG);
 	YENV = ENV;
 	GONext();
       } else {
 	/* answers -> load first answer */
+	if (SgFr_state(sg_fr) == complete)
+	  update_answer_trie(sg_fr);
+	UNLOCK(SgFr_lock(sg_fr));
 	PREG = (yamop *) TrNode_child(SgFr_answer_trie(sg_fr));
 	PREFETCH_OP(PREG);
 	*--YENV = 0;  /* vars_arity */
@@ -273,29 +288,19 @@ if (IS_BATCHED_GEN_CP(B)) printf("***** Cannot be here - batched scheduling\n");
   PBOp(table_try_me, ld)
     tab_ent_ptr tab_ent;
     sg_fr_ptr sg_fr;
-    CELL *Yaddr;
 
-/*printf("ricroc - table_try_me\n");*/
-    Yaddr = YENV;
     check_trail();
     tab_ent = PREG->u.ld.te;
-#ifdef TABLE_LOCK_AT_ENTRY_LEVEL
-    LOCK(TabEnt_lock(tab_ent));
-#endif /* TABLE_LOCK_LEVEL */
-    sg_fr = subgoal_search(tab_ent, PREG->u.ld.s, &Yaddr);
-#ifdef TABLE_LOCK_AT_ENTRY_LEVEL
-    UNLOCK(TabEnt_lock(tab_ent));
-#endif /* TABLE_LOCK_LEVEL */
-    YENV = Yaddr;
+    sg_fr = subgoal_search(tab_ent, PREG->u.ld.s, &YENV);
     LOCK(SgFr_lock(sg_fr));
-    if (SgFr_state(sg_fr) == ready) {
+    if (SgFr_state(sg_fr) == start) {
       /* subgoal new or abolished */
       init_subgoal_frame(sg_fr);
       UNLOCK(SgFr_lock(sg_fr));
       store_generator_node(PREG->u.ld.s, PREG->u.ld.d, sg_fr);
       PREG = NEXTOP(PREG, ld);
       PREFETCH_OP(PREG);
-      allocate_environment(YENV);
+      allocate_environment();
       GONext();
     } else if (SgFr_state(sg_fr) == evaluating) {
       /* subgoal in evaluation */
@@ -323,20 +328,22 @@ if (IS_BATCHED_GEN_CP(B)) printf("***** Cannot be here - batched scheduling\n");
       goto answer_resolution;
     } else {
       /* subgoal completed */
-      if (SgFr_state(sg_fr) == complete)
-	update_answer_trie(sg_fr);
-      UNLOCK(SgFr_lock(sg_fr));
       if (SgFr_first_answer(sg_fr) == NULL) {
 	/* no answers --> fail */
+	UNLOCK(SgFr_lock(sg_fr));
 	goto fail;
       } else if (SgFr_first_answer(sg_fr) == SgFr_answer_trie(sg_fr)) {
 	/* yes answer --> procceed */
+	UNLOCK(SgFr_lock(sg_fr));
 	PREG = (yamop *) CPREG;
 	PREFETCH_OP(PREG);
 	YENV = ENV;
 	GONext();
       } else {
 	/* answers -> load first answer */
+	if (SgFr_state(sg_fr) == complete)
+	  update_answer_trie(sg_fr);
+	UNLOCK(SgFr_lock(sg_fr));
 	PREG = (yamop *) TrNode_child(SgFr_answer_trie(sg_fr));
 	PREFETCH_OP(PREG);
 	*--YENV = 0;  /* vars_arity */
@@ -350,29 +357,19 @@ if (IS_BATCHED_GEN_CP(B)) printf("***** Cannot be here - batched scheduling\n");
   PBOp(table_try, ld)
     tab_ent_ptr tab_ent;
     sg_fr_ptr sg_fr;
-    CELL *Yaddr;
 
-/*printf("ricroc - table_try\n");*/
-    Yaddr = YENV;
     check_trail();
     tab_ent = PREG->u.ld.te;
-#ifdef TABLE_LOCK_AT_ENTRY_LEVEL
-    LOCK(TabEnt_lock(tab_ent));
-#endif /* TABLE_LOCK_LEVEL */
-    sg_fr = subgoal_search(tab_ent, PREG->u.ld.s, &Yaddr);
-#ifdef TABLE_LOCK_AT_ENTRY_LEVEL
-    UNLOCK(TabEnt_lock(tab_ent));
-#endif /* TABLE_LOCK_LEVEL */
-    YENV = Yaddr;
+    sg_fr = subgoal_search(tab_ent, PREG->u.ld.s, &YENV);
     LOCK(SgFr_lock(sg_fr));
-    if (SgFr_state(sg_fr) == ready) {
+    if (SgFr_state(sg_fr) == start) {
       /* subgoal new or abolished */
       init_subgoal_frame(sg_fr);
       UNLOCK(SgFr_lock(sg_fr));
       store_generator_node(PREG->u.ld.s, NEXTOP(PREG,ld), sg_fr);
       PREG = PREG->u.ld.d;
       PREFETCH_OP(PREG);
-      allocate_environment(YENV);
+      allocate_environment();
       GONext();
     } else if (SgFr_state(sg_fr) == evaluating) {
       /* subgoal in evaluation */
@@ -389,31 +386,33 @@ if (IS_BATCHED_GEN_CP(B)) printf("***** Cannot be here - batched scheduling\n");
 	while (YOUNGER_CP(aux_cp, LOCAL_top_cp_on_stack))
 	  aux_cp = aux_cp->cp_b;
 	if (aux_cp->cp_or_fr != DepFr_top_or_fr(LOCAL_top_dep_fr))
-	  OPTYAP_ERROR_MESSAGE("Error on DepFr_top_or_fr (table_try_me)");
+	  OPTYAP_ERROR_MESSAGE("Error on DepFr_top_or_fr (table_try)");
 	aux_cp = B;
 	while (YOUNGER_CP(aux_cp, DepFr_leader_cp(LOCAL_top_dep_fr)))
 	  aux_cp = aux_cp->cp_b;
 	if (aux_cp != DepFr_leader_cp(LOCAL_top_dep_fr))
-	  OPTYAP_ERROR_MESSAGE("Error on DepFr_leader_cp (table_try_me)");
+	  OPTYAP_ERROR_MESSAGE("Error on DepFr_leader_cp (table_try)");
       }
 #endif /* OPTYAP_ERRORS */
       goto answer_resolution;
     } else {
       /* subgoal completed */
-      if (SgFr_state(sg_fr) == complete)
-	update_answer_trie(sg_fr);
-      UNLOCK(SgFr_lock(sg_fr));
       if (SgFr_first_answer(sg_fr) == NULL) {
 	/* no answers --> fail */
+	UNLOCK(SgFr_lock(sg_fr));
 	goto fail;
       } else if (SgFr_first_answer(sg_fr) == SgFr_answer_trie(sg_fr)) {
 	/* yes answer --> procceed */
+	UNLOCK(SgFr_lock(sg_fr));
 	PREG = (yamop *) CPREG;
 	PREFETCH_OP(PREG);
 	YENV = ENV;
 	GONext();
       } else {
-          /* answers -> load first answer */
+        /* answers -> load first answer */
+	if (SgFr_state(sg_fr) == complete)
+	  update_answer_trie(sg_fr);
+	UNLOCK(SgFr_lock(sg_fr));
 	PREG = (yamop *) TrNode_child(SgFr_answer_trie(sg_fr));
 	PREFETCH_OP(PREG);
 	*--YENV = 0;  /* vars_arity */
@@ -426,24 +425,22 @@ if (IS_BATCHED_GEN_CP(B)) printf("***** Cannot be here - batched scheduling\n");
 
 
   Op(table_retry, ld)
-/*printf("ricroc - table_retry\n");*/
     restore_generator_node(PREG->u.ld.s, NEXTOP(PREG,ld));
     YENV = (CELL *) PROTECT_FROZEN_B(B);
     set_cut(YENV, B->cp_b);
     SET_BB(NORM_CP(YENV));
-    allocate_environment(YENV);
+    allocate_environment();
     PREG = PREG->u.ld.d;
     GONext();
   ENDOp();
 
 
   Op(table_retry_me, ld)
-/*printf("ricroc - table_retry_me\n");*/
     restore_generator_node(PREG->u.ld.s, PREG->u.ld.d);
     YENV = (CELL *) PROTECT_FROZEN_B(B);
     set_cut(YENV, B->cp_b);
     SET_BB(NORM_CP(YENV));
-    allocate_environment(YENV);
+    allocate_environment();
     PREG = NEXTOP(PREG,ld);
     GONext();
   ENDOp();
@@ -451,23 +448,21 @@ if (IS_BATCHED_GEN_CP(B)) printf("***** Cannot be here - batched scheduling\n");
 
 
   Op(table_trust_me, ld)
-/*printf("ricroc - table_trust_me\n");*/
     restore_generator_node(PREG->u.ld.s, COMPLETION);
     YENV = (CELL *) PROTECT_FROZEN_B(B);
     set_cut(YENV, B->cp_b);
     SET_BB(NORM_CP(YENV));
-    allocate_environment(YENV);
+    allocate_environment();
     PREG = NEXTOP(PREG,ld);
     GONext();
   ENDOp();
 
   Op(table_trust, ld)
-/*printf("ricroc - table_trust\n");*/
     restore_generator_node(PREG->u.ld.s, COMPLETION);
     YENV = (CELL *) PROTECT_FROZEN_B(B);
     set_cut(YENV, B->cp_b);
     SET_BB(NORM_CP(YENV));
-    allocate_environment(YENV);
+    allocate_environment();
     PREG = PREG->u.ld.d;
     GONext();
   ENDOp();
@@ -479,7 +474,6 @@ if (IS_BATCHED_GEN_CP(B)) printf("***** Cannot be here - batched scheduling\n");
     sg_fr_ptr sg_fr;
     ans_node_ptr ans_node;
 
-/*printf("ricroc - table_new_answer\n");*/
     /* possible optimization: when the number of substitution variables **
     ** is zero, an answer is sufficient to perform an early completion  */
     gcp = NORM_CP(YENV[E_B]);
@@ -569,6 +563,9 @@ if (IS_BATCHED_GEN_CP(B)) printf("***** Cannot be here - batched scheduling\n");
                   CPREG = PREG;
                   SREG = YENV;
                   ENV = YENV = (CELL *) YENV[E_E];
+#ifdef DEPTH_LIMIT
+		  DEPTH = YENV[E_DEPTH];
+#endif /* DEPTH_LIMIT */
                   GONext();
 		} else {
                   /* fail */
@@ -655,11 +652,10 @@ if (IS_BATCHED_GEN_CP(B)) printf("***** Cannot be here - batched scheduling\n");
       UNLOCK_TABLE(ans_node);
       LOCK(SgFr_lock(sg_fr));
 #endif /* TABLE_LOCK_LEVEL */
-      if (SgFr_first_answer(sg_fr) == NULL) {
-        SgFr_first_answer(sg_fr) = ans_node;
-      } else {
+      if (SgFr_first_answer(sg_fr) == NULL)
+	SgFr_first_answer(sg_fr) = ans_node;
+      else
         TrNode_child(SgFr_last_answer(sg_fr)) = ans_node;
-      }
       SgFr_last_answer(sg_fr) = ans_node;
 #ifdef TABLING_ERRORS
       { 
@@ -679,6 +675,9 @@ if (IS_BATCHED_GEN_CP(B)) printf("***** Cannot be here - batched scheduling\n");
         CPREG = PREG;
         SREG = YENV;
         ENV = YENV = (CELL *) YENV[E_E];
+#ifdef DEPTH_LIMIT
+	DEPTH = YENV[E_DEPTH];
+#endif /* DEPTH_LIMIT */
         GONext();
       } else {
         /* fail */
@@ -700,7 +699,6 @@ if (IS_BATCHED_GEN_CP(B)) printf("***** Cannot be here - batched scheduling\n");
 
 
   BOp(table_answer_resolution, ld)
-/*printf("ricroc - table_answer_resolution\n");*/
 #ifdef YAPOR
     if (SCH_top_shared_cp(B)) {
       UNLOCK_OR_FRAME(LOCAL_top_or_fr);
@@ -709,8 +707,6 @@ if (IS_BATCHED_GEN_CP(B)) printf("***** Cannot be here - batched scheduling\n");
 
 
   answer_resolution:
-
-
     INIT_PREFETCH()
     dep_fr_ptr dep_fr;
     ans_node_ptr ans_node;
@@ -730,14 +726,6 @@ if (IS_BATCHED_GEN_CP(B)) printf("***** Cannot be here - batched scheduling\n");
     if (TrNode_child(ans_node)) {
       /* unconsumed answer */
       ans_node = DepFr_last_answer(dep_fr) = TrNode_child(ans_node);
-/* ricroc - obsolete
-    if (ans_node != SgFr_last_answer(DepFr_sg_fr(dep_fr))) {
-      if (ans_node == NULL) {
-        ans_node = DepFr_last_answer(dep_fr) = SgFr_first_answer(DepFr_sg_fr(dep_fr));
-      } else {
-        ans_node = DepFr_last_answer(dep_fr) = TrNode_child(ans_node);
-      }
-*/
       UNLOCK(DepFr_lock(dep_fr));
       consume_answer_and_procceed(dep_fr, ans_node);
     }
@@ -747,6 +735,10 @@ if (IS_BATCHED_GEN_CP(B)) printf("***** Cannot be here - batched scheduling\n");
     if (B == DepFr_leader_cp(LOCAL_top_dep_fr)) {
       /*  B is a generator-consumer node  **
       ** never here if batched scheduling */
+#ifdef TABLING_ERRORS
+      if (IS_BATCHED_GEN_CP(B))
+        TABLING_ERROR_MESSAGE("IS_BATCHED_GEN_CP(B) (answer_resolution)");
+#endif /* TABLING_ERRORS */
       goto completion;
     }
 #endif /* YAPOR */
@@ -788,14 +780,6 @@ if (IS_BATCHED_GEN_CP(B)) printf("***** Cannot be here - batched scheduling\n");
         if (TrNode_child(ans_node)) {
           /* dependency frame with unconsumed answers */
           ans_node = DepFr_last_answer(dep_fr) = TrNode_child(ans_node);
-/* ricroc - obsolete
-        if (ans_node != SgFr_last_answer(DepFr_sg_fr(dep_fr))) {
-          if (ans_node == NULL) {
-            ans_node = DepFr_last_answer(dep_fr) = SgFr_first_answer(DepFr_sg_fr(dep_fr));
-          } else {
-            ans_node = DepFr_last_answer(dep_fr) = TrNode_child(ans_node);
-          }
-*/
 #ifdef YAPOR
           if (YOUNGER_CP(DepFr_backchain_cp(dep_fr), top_chain_cp))
 #endif /* YAPOR */
@@ -1001,7 +985,6 @@ if (IS_BATCHED_GEN_CP(B)) printf("***** Cannot be here - batched scheduling\n");
 
 
   BOp(table_completion, ld);
-/*printf("ricroc - table_completion\n");*/
 #ifdef YAPOR
     if (SCH_top_shared_cp(B)) {
       if (IS_BATCHED_GEN_CP(B)) {
@@ -1040,8 +1023,6 @@ if (IS_BATCHED_GEN_CP(B)) printf("***** Cannot be here - batched scheduling\n");
 
 
   completion:
-/*printf("ricroc - completion\n");*/
-
     INIT_PREFETCH()
     dep_fr_ptr dep_fr;
     ans_node_ptr ans_node;
@@ -1067,14 +1048,6 @@ if (IS_BATCHED_GEN_CP(B)) printf("***** Cannot be here - batched scheduling\n");
       if (TrNode_child(ans_node)) {    
         /* dependency frame with unconsumed answers */
         ans_node = DepFr_last_answer(dep_fr) = TrNode_child(ans_node);
-/* ricroc - obsolete
-      if (ans_node != SgFr_last_answer(DepFr_sg_fr(dep_fr))) {    
-        if (ans_node == NULL) {
-          ans_node = DepFr_last_answer(dep_fr) = SgFr_first_answer(DepFr_sg_fr(dep_fr));
-        } else {
-          ans_node = DepFr_last_answer(dep_fr) = TrNode_child(ans_node);
-        }
-*/
         if (B->cp_ap) {
 #ifdef YAPOR
           if (YOUNGER_CP(DepFr_backchain_cp(dep_fr), B))
@@ -1252,7 +1225,10 @@ if (IS_BATCHED_GEN_CP(B)) printf("***** Cannot be here - batched scheduling\n");
         /*  B is a generator-consumer node  */
         /* never here if batched scheduling */
         ans_node_ptr ans_node;
-if (IS_BATCHED_GEN_CP(B)) printf("***** Cannot be here - batched scheduling\n");
+#ifdef TABLING_ERRORS
+	if (IS_BATCHED_GEN_CP(B))
+	  TABLING_ERROR_MESSAGE("IS_BATCHED_GEN_CP(B) (completion)");
+#endif /* TABLING_ERRORS */
         TR = B->cp_tr;
         SET_BB(B);
         LOCK_OR_FRAME(LOCAL_top_or_fr);
@@ -1262,15 +1238,6 @@ if (IS_BATCHED_GEN_CP(B)) printf("***** Cannot be here - batched scheduling\n");
           /* unconsumed answer */
           UNLOCK_OR_FRAME(LOCAL_top_or_fr);
           ans_node = DepFr_last_answer(LOCAL_top_dep_fr) = TrNode_child(ans_node);
-/* ricroc - obsolete
-        if (ans_node != SgFr_last_answer(DepFr_sg_fr(LOCAL_top_dep_fr))) {
-          UNLOCK_OR_FRAME(LOCAL_top_or_fr);
-          if (ans_node == NULL) {
-            ans_node = DepFr_last_answer(LOCAL_top_dep_fr) = SgFr_first_answer(DepFr_sg_fr(LOCAL_top_dep_fr));
-          } else {
-            ans_node = DepFr_last_answer(LOCAL_top_dep_fr) = TrNode_child(ans_node);
-          }
-*/
           UNLOCK(DepFr_lock(LOCAL_top_dep_fr));
           consume_answer_and_procceed(LOCAL_top_dep_fr, ans_node);
         }
@@ -1322,10 +1289,6 @@ if (IS_BATCHED_GEN_CP(B)) printf("***** Cannot be here - batched scheduling\n");
         goto fail;
       } else {
         /* subgoal completed */
-        LOCK(SgFr_lock(sg_fr));
-        if (SgFr_state(sg_fr) == complete)
-          update_answer_trie(sg_fr);
-        UNLOCK(SgFr_lock(sg_fr));
         if (SgFr_first_answer(sg_fr) == NULL) {
           /* no answers --> fail */
           B = B->cp_b;
@@ -1349,6 +1312,10 @@ if (IS_BATCHED_GEN_CP(B)) printf("***** Cannot be here - batched scheduling\n");
           GONext();
         } else  {
           /* answers -> load first answer */
+	  LOCK(SgFr_lock(sg_fr));
+	  if (SgFr_state(sg_fr) == complete)
+	    update_answer_trie(sg_fr);
+	  UNLOCK(SgFr_lock(sg_fr));
           PREG = (yamop *) TrNode_child(SgFr_answer_trie(sg_fr));
           PREFETCH_OP(PREG);
           *--YENV = 0;  /* vars_arity */

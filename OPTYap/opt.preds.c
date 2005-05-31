@@ -890,7 +890,11 @@ int p_debug_prolog(void) {
   if (IsAtomTerm(t)) {
     char *s;
     s = RepAtom(AtomOfTerm(t))->StrOfAE;
+#ifdef YAPOR_ERRORS
     fprintf(stdout, "W%d: %s\n", worker_id, s);
+#else /* TABLING_ERRORS */
+    fprintf(stdout, "%s\n", s);
+#endif /* YAPOR_ERRORS */
     return(TRUE);
   } else {
     return (FALSE);

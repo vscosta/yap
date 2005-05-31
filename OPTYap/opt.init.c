@@ -226,7 +226,8 @@ void init_workers(void) {
   if (number_workers > 1) {
     int son;
     son = fork();
-    if (son == -1) abort_yapor("fork error in function init_workers");
+    if (son == -1)
+      Yap_Error(FATAL_ERROR, TermNil, "fork error (init_workers)");
     if (son > 0) {
       /* I am the father, I must stay here and wait for my children to all die */
       struct sigaction sigact;
@@ -244,7 +245,8 @@ void init_workers(void) {
   for (proc = 1; proc < number_workers; proc++) {
     int son;
     son = fork();
-    if (son == -1) abort_yapor("fork error in function init_workers");
+    if (son == -1)
+      Yap_Error(FATAL_ERROR, TermNil, "fork error (init_workers)");
     if (son == 0) { 
       /* new worker */
       worker_id = proc;

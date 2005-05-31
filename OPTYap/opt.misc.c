@@ -33,31 +33,6 @@ struct worker WORKER;
 **      Global functions      **
 ** -------------------------- */
 
-#ifdef TABLING
-void abort_yaptab(const char *msg, ...) {
-  va_list args;
-  va_start(args, msg);
-  fprintf(stderr, "%% YAPTAB FATAL ERROR: ");
-  vfprintf(stderr, msg, args);
-  fprintf(stderr, "\n");
-  exit (1);
-}
-#endif /* TABLING */
-
-
-#ifdef YAPOR
-void abort_yapor(const char *msg, ...) {
-  va_list args;
-  va_start(args, msg);
-  fprintf(stderr, "%% YAPOR FATAL ERROR: ");
-  vfprintf(stderr, msg, args);
-  fprintf(stderr, " (worker %d exiting...)\n", worker_id);
-  unmap_memory();
-  exit (1);
-}
-#endif /* YAPOR */
-
-
 void itos(int i, char *s) {
   int n,r,j;
   n = 10;
@@ -91,13 +66,12 @@ void error_message(const char *mesg, ...) {
 #ifdef YAPOR
   LOCK(GLOBAL_LOCKS_stderr_messages);
 #endif /* YAPOR */
-  fprintf(stderr, "[ ");
+  fprintf(stderr, "% POTENCIAL ERROR- ");
 #ifdef YAPOR
   fprintf(stderr, "W%d: ", worker_id);
 #endif /* YAPOR */
-  fprintf(stderr, "Potencial Error -> ");
   vfprintf(stderr, mesg, args);
-  fprintf(stderr, " ]\n");
+  fprintf(stderr, "\n");
 #ifdef YAPOR
   UNLOCK(GLOBAL_LOCKS_stderr_messages);
 #endif /* YAPOR */

@@ -60,11 +60,11 @@ int shm_mapid[MAX_WORKERS + 1];
 void shm_map_memory(int id, int size, void *shmaddr) {
 #define SHMMAX 0x2000000  /* as in <asm/shmparam.h> */
   if (size > SHMMAX)
-    abort_yapor("maximum size for a shm segment exceeded in function shm_map_memory");
+    Yap_Error(FATAL_ERROR, TermNil, "maximum size for a shm segment exceeded (shm_map_memory)");
   if ((shm_mapid[id] = shmget(IPC_PRIVATE, size, SHM_R|SHM_W)) == -1) 
-    abort_yapor("shmget error in function shm_map_memory: %s", strerror(errno));
+    Yap_Error(FATAL_ERROR, TermNil, "shmget error (shm_map_memory)");
   if (shmat(shm_mapid[id], shmaddr, 0) == (void *) -1)
-    abort_yapor("shmat error in function shm_map_memory: %s", strerror(errno));
+    Yap_Error(FATAL_ERROR, TermNil, "shmat error (shm_map_memory)");
   return;
 }
 #else /* MMAP_MEMORY_MAPPING_SCHEME */
@@ -73,18 +73,18 @@ open_mapfile(long TotalArea) {
   strcpy(mapfile,"/tmp/mapfile");
   itos(getpid(), &mapfile[12]);
   if ((fd_mapfile = open(mapfile, O_RDWR|O_CREAT|O_TRUNC, 0666)) < 0)
-    abort_yapor("open error in function open_mapfile: %s", strerror(errno));
+    Yap_Error(FATAL_ERROR, TermNil, "open error (open_mapfile)");
   if (lseek(fd_mapfile, TotalArea, SEEK_SET) < 0) 
-    abort_yapor("lseek error in function open_mapfile: %s", strerror(errno));
+    Yap_Error(FATAL_ERROR, TermNil, "lseek error (open_mapfile)");
   if (write(fd_mapfile, "", 1) < 0) 
-    abort_yapor("write error in function open_mapfile: %s", strerror(errno));
+    Yap_Error(FATAL_ERROR, TermNil, "write error (open_mapfile)");
   return;
 }
 
 
 close_mapfile(void) {
   if (close(fd_mapfile) < 0) 
-    abort_yapor("close error in function close_mapfile: %s", strerror(errno));
+    Yap_Error(FATAL_ERROR, TermNil, "close error (close_mapfile)");
 }
 #endif /* MMAP_MEMORY_MAPPING_SCHEME */
 
@@ -129,7 +129,7 @@ void map_memory(long HeapArea, long GlobalLocalArea, long TrailAuxArea, int n_wo
   open_mapfile(TotalArea);
   if ((mmap_addr = mmap((void *) MMAP_ADDR, (size_t) TotalArea, PROT_READ|PROT_WRITE, 
                          MAP_SHARED|MAP_FIXED, fd_mapfile, 0)) == (void *) -1)
-    abort_yapor("mmap error in function map_memory: %s", strerror(errno));
+    Yap_Error(FATAL_ERROR, TermNil, "mmap error (map_memory)");
 #else /* SHM_MEMORY_MAPPING_SCHEME */
 /* Most systems are limited regarding what we can allocate */
 #ifdef ACOW
@@ -144,10 +144,10 @@ void map_memory(long HeapArea, long GlobalLocalArea, long TrailAuxArea, int n_wo
 #ifdef ACOW
   /* just allocate local space for stacks */
   if ((private_fd_mapfile = open("/dev/zero", O_RDWR)) < 0)
-    abort_yapor("open error in function map_memory: %s", strerror(errno));
+    Yap_Error(FATAL_ERROR, TermNil, "open error (map_memory)");
   if (mmap(Yap_GlobalBase, GlobalLocalArea + TrailAuxArea, PROT_READ|PROT_WRITE, 
            MAP_PRIVATE|MAP_FIXED, private_fd_mapfile, 0) == (void *) -1)
-    abort_yapor("mmap error in function map_memory: %s", strerror(errno));
+    Yap_Error(FATAL_ERROR, TermNil, "mmap error (map_memory)");
   close(private_fd_mapfile);
 #else /* ENV_COPY || SBA */
   for (i = 0; i < n_workers; i++) {
@@ -165,9 +165,9 @@ void map_memory(long HeapArea, long GlobalLocalArea, long TrailAuxArea, int n_wo
   /* alloc space for the sparse binding array */
   sba_size = WorkerArea * n_workers;
   if ((binding_array = (char *)malloc(sba_size)) == NULL)
-    abort_yapor("malloc error in function map_memory: %s", strerror(errno));
+    Yap_Error(FATAL_ERROR, TermNil, "malloc error (map_memory)");
   if ((CELL)binding_array & MBIT) {
-    abort_yapor("OOPS: binding_array start address %p conflicts with tag %x used in IDB", binding_array, MBIT);
+    Yap_Error(INTERNAL_ERROR, TermNil, "binding_array start address conflicts with tag used in IDB (map_memory)");
   }
   sba_offset = binding_array - Yap_GlobalBase;
   sba_end = (int)binding_array + sba_size;
@@ -193,6 +193,7 @@ void unmap_memory (void) {
 #endif /* MEMORY_MAPPING_SCHEME */
   {
     int proc;
+    INFORMATION_MESSAGE("Worker %d exiting...", worker_id);
     for (proc = 0; proc < number_workers; proc++) {
       if (proc != worker_id && worker_pid(proc) != 0) {
         if (kill(worker_pid(proc), SIGKILL) != 0)
@@ -262,21 +263,21 @@ void remap_memory(void) {
 #ifdef SHM_MEMORY_MAPPING_SCHEME
   for (i = 0; i < number_workers; i++) {
     if (shmdt(worker_area(i)) == -1)
-      abort_yapor("shmdt error in function remap_memory");
+      Yap_Error(FATAL_ERROR, TermNil, "shmdt error (remap_memory)");
   }
   for (i = 0; i < number_workers; i++) {
     worker_area(i) = remap_addr + ((number_workers + i - worker_id) % number_workers) * WorkerArea;
     if(shmat(shm_mapid[i], worker_area(i), 0) == (void *) -1)
-      abort_yapor("shmat error in function remap_memory at %p: %s", worker_area(i), strerror(errno));
+      Yap_Error(FATAL_ERROR, TermNil, "shmat error (remap_memory)");
   }
 #else /* MMAP_MEMORY_MAPPING_SCHEME */
   if (munmap(remap_addr, (size_t)(WorkerArea * number_workers)) == -1)
-    abort_yapor("munmap error in function remap_memory");
+    Yap_Error(FATAL_ERROR, TermNil, "munmap error (remap_memory)");
   for (i = 0; i < number_workers; i++) {
     worker_area(i) = remap_addr + ((number_workers + i - worker_id) % number_workers) * WorkerArea;
     if (mmap(worker_area(i), (size_t)WorkerArea, PROT_READ|PROT_WRITE, 
         MAP_SHARED|MAP_FIXED, fd_mapfile, remap_offset + i * WorkerArea) == (void *) -1)
-      abort_yapor("mmap error in function remap_memory: %s", strerror(errno));
+      Yap_Error(FATAL_ERROR, TermNil, "mmap error (remap_memory)");
   }
 #endif /* MEMORY_MAPPING_SCHEME */
   for (i = 0; i < number_workers; i++) {

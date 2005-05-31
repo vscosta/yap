@@ -107,12 +107,12 @@ typedef struct subgoal_frame {
   struct answer_trie_node *last_answer;
   struct answer_hash *hash_chain;
   enum {
-    ready = 0,
+    start = 0,
     evaluating = 1,
     complete = 2,
     executable = 3
   } state_flag;
-  int abolished_operations;
+  int abolish_operations;
   int subgoal_arity;
   struct subgoal_frame *next;
 } *sg_fr_ptr;
@@ -126,7 +126,7 @@ typedef struct subgoal_frame {
 #define SgFr_last_answer(X)    ((X)->last_answer)
 #define SgFr_hash_chain(X)     ((X)->hash_chain)
 #define SgFr_state(X)          ((X)->state_flag)
-#define SgFr_abolished(X)      ((X)->abolished_operations)
+#define SgFr_abolish(X)        ((X)->abolish_operations)
 #define SgFr_arity(X)          ((X)->subgoal_arity)
 #define SgFr_next(X)           ((X)->next)
 
@@ -144,7 +144,7 @@ typedef struct subgoal_frame {
    SgFr_last_answer:   a pointer to the bottom answer trie node of the last available answer.
    SgFr_hash_chain:    a pointer to the first answer_hash struct for the subgoal in hand.
    SgFr_state:         a flag that indicates the subgoal state.
-   SgFr_abolished      the number of times the subgoal was abolished.
+   SgFr_abolish        the number of times the subgoal was abolished.
    SgFr_arity          the arity of the subgoal.
    SgFr_next:          a pointer to chain between subgoal frames.
 ** ------------------------------------------------------------------------------------------- */
