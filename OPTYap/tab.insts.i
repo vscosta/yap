@@ -1,3 +1,14 @@
+/**********************************************************************
+                                                               
+                       The OPTYap Prolog system                
+  OPTYap extends the Yap Prolog system to support or-parallel tabling
+                                                               
+  Copyright:   R. Rocha and NCC - University of Porto, Portugal
+  File:        tab.insts.i
+  version:     $Id: tab.insts.i,v 1.13 2005-05-31 08:24:24 ricroc Exp $   
+                                                                     
+**********************************************************************/
+
 /* ------------------------------------------------ **
 **      Tabling instructions: auxiliary macros      **
 ** ------------------------------------------------ */
@@ -228,7 +239,7 @@
       init_subgoal_frame(sg_fr);
       UNLOCK(SgFr_lock(sg_fr));
       store_generator_node(PREG->u.ld.s, COMPLETION, sg_fr);
-      PREG = NEXTOP(PREG,ld);   /* PREG = PREG->u.ld.d; */
+      PREG = PREG->u.ld.d;   /* PREG = NEXTOP(PREG,ld); */
       PREFETCH_OP(PREG);
       allocate_environment();
       GONext();

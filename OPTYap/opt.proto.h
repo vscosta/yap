@@ -1,6 +1,13 @@
-/* -------------------------------------- **
-**      Prototypes for opt.*.c files      **
-** -------------------------------------- */
+/**********************************************************************
+                                                               
+                       The OPTYap Prolog system                
+  OPTYap extends the Yap Prolog system to support or-parallel tabling
+                                                               
+  Copyright:   R. Rocha and NCC - University of Porto, Portugal
+  File:        opt.proto.h
+  version:     $Id: opt.proto.h,v 1.7 2005-05-31 08:24:24 ricroc Exp $   
+                                                                     
+**********************************************************************/
 
 /* -------------- **
 **  opt.memory.c  **
@@ -51,11 +58,6 @@ void finish_yapor(void);
 #endif /* YAPOR */
 
 
-
-/* -------------------------------------- **
-**      Prototypes for tab.*.c files      **
-** -------------------------------------- */
-
 /* ------------- **
 **  tab.tries.c  **
 ** ------------- */
@@ -84,11 +86,6 @@ void suspend_branch(void);
 void resume_suspension_frame(susp_fr_ptr resume_fr, or_fr_ptr top_or_fr);
 #endif /* TABLING && YAPOR */
 
-
-
-/* ------------------------------------- **
-**      Prototypes for or.*.c files      **
-** ------------------------------------- */
 
 /* ------------- **
 **  or.engine.c  **

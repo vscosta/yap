@@ -1,3 +1,14 @@
+/**********************************************************************
+                                                               
+                       The OPTYap Prolog system                
+  OPTYap extends the Yap Prolog system to support or-parallel tabling
+                                                               
+  Copyright:   R. Rocha and NCC - University of Porto, Portugal
+  File:        opt.config.h
+  version:     $Id: opt.config.h,v 1.5 2005-05-31 08:24:24 ricroc Exp $   
+                                                                     
+**********************************************************************/
+
 /* ---------------------------------- **
 **      Configuration Parameters      **
 ** ---------------------------------- */

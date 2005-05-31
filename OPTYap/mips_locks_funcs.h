@@ -1,3 +1,14 @@
+/**********************************************************************
+                                                               
+                       The OPTYap Prolog system                
+  OPTYap extends the Yap Prolog system to support or-parallel tabling
+                                                               
+  Copyright:   R. Rocha and NCC - University of Porto, Portugal
+  File:        mips_locks_funcs.h  
+  version:     $Id: mips_locks_funcs.h,v 1.2 2005-05-31 08:24:24 ricroc Exp $   
+                                                                     
+**********************************************************************/
+
 /* ------------------------------- **
 **      Atomic locking for MIPS    **
 ** ------------------------------- */

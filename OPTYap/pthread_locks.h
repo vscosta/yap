@@ -1,6 +1,23 @@
-/* ------------------------------- **
-**      Atomic lock for PTHREADS   **
-** ------------------------------- */
+/*************************************************************************
+*									 *
+*	 YAP Prolog 							 *
+*									 *
+*	Yap Prolog was developed at NCCUP - Universidade do Porto	 *
+*									 *
+* Copyright L.Damas, V.S.Costa and Universidade do Porto 1985-1997	 *
+*									 *
+**************************************************************************
+*									 *
+* File:		pthread_locks.h                                          *
+* Last rev:								 *
+* mods:									 *
+* comments:	                                                         *
+*									 *
+*************************************************************************/
+
+/* ----------------------------------- **
+**      Atomic locks for PTHREADS      **
+** ----------------------------------- */
 
 #define INIT_LOCK(LOCK_VAR)    pthread_mutex_init(&(LOCK_VAR), NULL)
 #define DESTROY_LOCK(LOCK_VAR) pthread_mutex_destroy(&(LOCK_VAR))

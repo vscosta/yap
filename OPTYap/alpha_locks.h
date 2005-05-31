@@ -1,3 +1,14 @@
+/**********************************************************************
+                                                               
+                       The OPTYap Prolog system                
+  OPTYap extends the Yap Prolog system to support or-parallel tabling
+                                                               
+  Copyright:   R. Rocha and NCC - University of Porto, Portugal
+  File:        alpha_locks.h  
+  version:     $Id: alpha_locks.h,v 1.2 2005-05-31 08:24:24 ricroc Exp $   
+                                                                     
+**********************************************************************/
+
 /* ------------------------------- **
 **      Atomic lock for ALPHA      **
 ** ------------------------------- */

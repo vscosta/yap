@@ -1,3 +1,14 @@
+/**********************************************************************
+                                                               
+                       The OPTYap Prolog system                
+  OPTYap extends the Yap Prolog system to support or-parallel tabling
+                                                               
+  Copyright:   R. Rocha and NCC - University of Porto, Portugal
+  File:        opt.mavar.h  
+  version:     $Id: opt.mavar.h,v 1.3 2005-05-31 08:24:24 ricroc Exp $   
+                                                                     
+**********************************************************************/
+
 #ifdef MULTI_ASSIGNMENT_VARIABLES
 /* 
    Set of routines to allow restoring updatable variables when we go *up*
