@@ -15,7 +15,7 @@
 *									 *
 *************************************************************************/
 
-:- meta_predicate table(:), abolish_trie(:), show_trie(:), show_trie_stats(:).
+:- meta_predicate table(:), tabling_mode(:), abolish_trie(:), show_trie(:), show_trie_stats(:).
 
 
 
