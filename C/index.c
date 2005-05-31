@@ -11,8 +11,12 @@
 * File:		index.c							 *
 * comments:	Indexing a Prolog predicate				 *
 *									 *
-* Last rev:     $Date: 2005-05-31 19:42:27 $,$Author: vsc $						 *
+* Last rev:     $Date: 2005-05-31 20:04:17 $,$Author: vsc $						 *
 * $Log: not supported by cvs2svn $
+* Revision 1.131  2005/05/31 19:42:27  vsc
+* insert some more slack for indices in LU
+* Use doubly linked list for LU indices so that updating is less cumbersome.
+*
 * Revision 1.130  2005/05/31 04:46:06  vsc
 * fix expand_index on tabled code.
 *
@@ -6537,11 +6541,17 @@ compacta_expand_clauses(yamop *ipc)
 
   ptr = end = start+ipc->u.sp.s1;
 
-  while (--ptr > start) {
-    yamop *next = *ptr;
+  while (ptr > start) {
+    yamop *next = *--ptr;
     if (next) *--end = next;
   }
-  return ptr+1 != end;
+  if (ptr != end) {
+    while (end > start) {
+      *--end = NULL;
+    }
+    return TRUE;
+  }
+  return FALSE;
 }
 
 static int
@@ -6559,7 +6569,14 @@ compactz_expand_clauses(yamop *ipc)
     yamop *next = *ptr++;
     if (next) *start++ = next;
   }
-  return ptr != start;
+  /* reset empty slots at end */
+  if (start != end) {
+    while (start < end) {
+      *start++ = NULL;
+    }
+    return TRUE;
+  }
+  return FALSE;
 }
 
 /* this code should be called when we jumped to clauses */
