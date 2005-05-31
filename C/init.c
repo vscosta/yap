@@ -665,7 +665,7 @@ Yap_InitCPredBack(char *Name, unsigned long int Arity, unsigned int Extra, CPred
   else {
     StaticClause *cl;
     yamop      *code = ((StaticClause *)NULL)->ClCode;
-    pe->PredFlags = CompiledPredFlag | StandardPredFlag;
+    pe->PredFlags = CompiledPredFlag | StandardPredFlag ;
 #ifdef YAPOR
     pe->PredFlags |= SequentialPredFlag;
 #endif /* YAPOR */
@@ -1163,7 +1163,7 @@ Yap_InitWorkspace(int Heap,
 #ifdef YAPOR
   worker_id = 0;
   if (aux_number_workers > MAX_WORKERS)
-    abort_yapor("excessive number of workers");
+    Yap_Error(INTERNAL_ERROR, TermNil, "excessive number of workers (Yap_InitWorkspace)");
 #ifdef ENV_COPY
   INFORMATION_MESSAGE("YapOr: copy model with %d worker%s", aux_number_workers, aux_number_workers == 1 ? "":"s");
 #elif ACOW

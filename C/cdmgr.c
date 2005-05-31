@@ -11,8 +11,12 @@
 * File:		cdmgr.c							 *
 * comments:	Code manager						 *
 *									 *
-* Last rev:     $Date: 2005-05-12 03:36:32 $,$Author: vsc $						 *
+* Last rev:     $Date: 2005-05-31 00:30:23 $,$Author: ricroc $						 *
 * $Log: not supported by cvs2svn $
+* Revision 1.157  2005/05/12 03:36:32  vsc
+* debugger was making predicates meta instead of testing
+* fix handling of dbrefs in facts and in subarguments.
+*
 * Revision 1.156  2005/04/20 04:02:15  vsc
 * fix a few variable warnings
 * fix erase clause to pass a pointer to clause, not code
@@ -1225,7 +1229,7 @@ add_first_static(PredEntry *p, yamop *cp, int spy_flag)
       PUT_YAMOP_SEQ(pt);
     }
     if (YAMOP_LTT(pt) != 1)
-      abort_yapor("YAMOP_LTT error in function add_first_static");
+      Yap_Error(INTERNAL_ERROR, TermNil, "YAMOP_LTT error (add_first_static)");
 #endif /* YAPOR */
 #ifdef TABLING
     if (is_tabled(p)) {
