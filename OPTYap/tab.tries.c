@@ -1,3 +1,14 @@
+/**********************************************************************
+                                                               
+                       The OPTYap Prolog system                
+  OPTYap extends the Yap Prolog system to support or-parallel tabling
+                                                               
+  Copyright:   R. Rocha and NCC - University of Porto, Portugal
+  File:        tab.tries.C
+  version:     $Id: tab.tries.c,v 1.9 2005-05-31 08:17:46 ricroc Exp $   
+                                                                     
+**********************************************************************/
+
 /* ------------------ **
 **      Includes      **
 ** ------------------ */
@@ -671,43 +682,35 @@ sg_fr_ptr subgoal_search(tab_ent_ptr tab_ent, OPREG arity, CELL **Yaddr) {
     STACK_CHECK_EXPAND1(stack_terms, stack_terms_limit, stack_terms_base);
     do {
       Term t = Deref(STACK_POP_DOWN(stack_terms));
-      int tag = t & TabTagBits;
-      switch (tag) {
-        case TabVarTagBits:
-          if (IsTableVarTerm(t)) {
-	    t = MakeTableVarTerm(VarIndexOfTerm(t));
-            current_sg_node = subgoal_trie_node_check_insert(tab_ent, current_sg_node, t);
-  	  } else {
-            if (count_vars == MAX_TABLE_VARS)
-              Yap_Error(INTERNAL_ERROR, TermNil, "MAX_TABLE_VARS exceeded (subgoal_search)");
-            STACK_PUSH_UP(t, stack_vars);
-	    *((CELL *)t) = GLOBAL_table_var_enumerator(count_vars);
-            t = MakeTableVarTerm(count_vars);
-            count_vars++;
-            current_sg_node = subgoal_trie_node_check_insert(tab_ent, current_sg_node, t);
-	  }
-          break;
-        case TabAtomTagBits:
-        case TabNumberTagBits:
-          current_sg_node = subgoal_trie_node_check_insert(tab_ent, current_sg_node, t);
-          break;
-        case TabPairTagBits:
-          current_sg_node = subgoal_trie_node_check_insert(tab_ent, current_sg_node, TabPairTagBits);
-          STACK_PUSH_UP(*(RepPair(t) + 1), stack_terms);
+      if (IsVarTerm(t)) {
+	if (IsTableVarTerm(t)) {
+	  t = MakeTableVarTerm(VarIndexOfTerm(t));
+	  current_sg_node = subgoal_trie_node_check_insert(tab_ent, current_sg_node, t);
+	} else {
+	  if (count_vars == MAX_TABLE_VARS)
+	    Yap_Error(INTERNAL_ERROR, TermNil, "MAX_TABLE_VARS exceeded (subgoal_search)");
+	  STACK_PUSH_UP(t, stack_vars);
+	  *((CELL *)t) = GLOBAL_table_var_enumerator(count_vars);
+	  t = MakeTableVarTerm(count_vars);
+	  count_vars++;
+	  current_sg_node = subgoal_trie_node_check_insert(tab_ent, current_sg_node, t);
+	}
+      } else if (IsAtomOrIntTerm(t)) {
+	current_sg_node = subgoal_trie_node_check_insert(tab_ent, current_sg_node, t);
+      } else if (IsPairTerm(t)) {
+	current_sg_node = subgoal_trie_node_check_insert(tab_ent, current_sg_node, AbsPair(NULL));
+	STACK_PUSH_UP(*(RepPair(t) + 1), stack_terms);
+	STACK_CHECK_EXPAND1(stack_terms, stack_terms_limit, stack_terms_base);
+	STACK_PUSH_UP(*(RepPair(t)), stack_terms);
+	STACK_CHECK_EXPAND1(stack_terms, stack_terms_limit, stack_terms_base);
+      } else if (IsApplTerm(t)) {
+        current_sg_node = subgoal_trie_node_check_insert(tab_ent, current_sg_node, AbsAppl((Term *)FunctorOfTerm(t)));
+	for (j = ArityOfFunctor(FunctorOfTerm(t)); j >= 1; j--) {
+	  STACK_PUSH_UP(*(RepAppl(t) + j), stack_terms);
 	  STACK_CHECK_EXPAND1(stack_terms, stack_terms_limit, stack_terms_base);
-          STACK_PUSH_UP(*(RepPair(t)), stack_terms);
-	  STACK_CHECK_EXPAND1(stack_terms, stack_terms_limit, stack_terms_base);
-          break;
-        case TabApplTagBits:
-          current_sg_node = subgoal_trie_node_check_insert(tab_ent, current_sg_node,
-                                                           TAGGEDA(TabApplTagBits, FunctorOfTerm(t)));
-          for (j = ArityOfFunctor(FunctorOfTerm(t)); j >= 1; j--) {
-            STACK_PUSH_UP(*(RepAppl(t) + j), stack_terms);
-	    STACK_CHECK_EXPAND1(stack_terms, stack_terms_limit, stack_terms_base);
-	  }
-          break;
-        default:
-          Yap_Error(INTERNAL_ERROR, TermNil, "unknown type tag (subgoal_search)");
+	}
+      } else {
+	Yap_Error(INTERNAL_ERROR, TermNil, "unknown type tag (subgoal_search)");
       }
     } while (STACK_NOT_EMPTY(stack_terms, stack_terms_base));
   }
@@ -758,49 +761,41 @@ ans_node_ptr answer_search(sg_fr_ptr sg_fr, CELL *subs_ptr) {
     STACK_PUSH_UP(*(subs_ptr + i), stack_terms);
     STACK_CHECK_EXPAND1(stack_terms, stack_vars, stack_terms_base);
 #ifdef TABLING_ERRORS
-    if ((*stack_terms & TabTagBits) != TabVarTagBits)
-      TABLING_ERROR_MESSAGE("*stack_terms & TabTagBits != TabVarTagBits (answer_search)");
+    if (IsNonVarTerm(*stack_terms))
+      TABLING_ERROR_MESSAGE("IsNonVarTem(*stack_terms) (answer_search)");
 #endif /* TABLING_ERRORS */
     do {
       Term t = Deref(STACK_POP_DOWN(stack_terms));
-      int tag = t & TabTagBits;
-      switch (tag) {
-        case TabVarTagBits:
-          if (IsTableVarTerm(t)) {
-	    t = MakeTableVarTerm(VarIndexOfTerm(t));
-            current_ans_node = answer_trie_node_check_insert(sg_fr, current_ans_node, t, _trie_retry_val);
-  	  } else {
-            if (count_vars == MAX_TABLE_VARS)
-              Yap_Error(INTERNAL_ERROR, TermNil, "MAX_TABLE_VARS exceeded (answer_search)");
-	    STACK_PUSH_DOWN(t, stack_vars);
-	    STACK_CHECK_EXPAND1(stack_terms, stack_vars, stack_terms_base);
-	    *((CELL *)t) = GLOBAL_table_var_enumerator(count_vars);
-            t = MakeTableVarTerm(count_vars);
-            count_vars++;
-            current_ans_node = answer_trie_node_check_insert(sg_fr, current_ans_node, t, _trie_retry_var);
-	  }
-          break;
-        case TabAtomTagBits:
-        case TabNumberTagBits:
-          current_ans_node = answer_trie_node_check_insert(sg_fr, current_ans_node, t, _trie_retry_atom);
-          break;
-        case TabPairTagBits:
-          current_ans_node = answer_trie_node_check_insert(sg_fr, current_ans_node, TabPairTagBits, _trie_retry_list);
-          STACK_PUSH_UP(*(RepPair(t) + 1), stack_terms);
+      if (IsVarTerm(t)) {
+	if (IsTableVarTerm(t)) {
+	  t = MakeTableVarTerm(VarIndexOfTerm(t));
+	  current_ans_node = answer_trie_node_check_insert(sg_fr, current_ans_node, t, _trie_retry_val);
+	} else {
+	  if (count_vars == MAX_TABLE_VARS)
+	    Yap_Error(INTERNAL_ERROR, TermNil, "MAX_TABLE_VARS exceeded (answer_search)");
+	  STACK_PUSH_DOWN(t, stack_vars);
 	  STACK_CHECK_EXPAND1(stack_terms, stack_vars, stack_terms_base);
-          STACK_PUSH_UP(*(RepPair(t)), stack_terms);
+	  *((CELL *)t) = GLOBAL_table_var_enumerator(count_vars);
+	  t = MakeTableVarTerm(count_vars);
+	  count_vars++;
+	  current_ans_node = answer_trie_node_check_insert(sg_fr, current_ans_node, t, _trie_retry_var);
+	}
+      } else if (IsAtomOrIntTerm(t)) {
+	current_ans_node = answer_trie_node_check_insert(sg_fr, current_ans_node, t, _trie_retry_atom);
+      } else if (IsPairTerm(t)) {
+	current_ans_node = answer_trie_node_check_insert(sg_fr, current_ans_node, AbsPair(NULL), _trie_retry_list);
+	STACK_PUSH_UP(*(RepPair(t) + 1), stack_terms);
+	STACK_CHECK_EXPAND1(stack_terms, stack_vars, stack_terms_base);
+	STACK_PUSH_UP(*(RepPair(t)), stack_terms);
+	STACK_CHECK_EXPAND1(stack_terms, stack_vars, stack_terms_base);
+      } else if (IsApplTerm(t)) {
+	current_ans_node = answer_trie_node_check_insert(sg_fr, current_ans_node, AbsAppl((Term *)FunctorOfTerm(t)), _trie_retry_struct);
+	for (j = ArityOfFunctor(FunctorOfTerm(t)); j >= 1; j--) {
+	  STACK_PUSH_UP(*(RepAppl(t) + j), stack_terms);
 	  STACK_CHECK_EXPAND1(stack_terms, stack_vars, stack_terms_base);
-          break;
-        case TabApplTagBits:
-          current_ans_node = answer_trie_node_check_insert(sg_fr, current_ans_node, TAGGEDA(TabApplTagBits,
-                                                           FunctorOfTerm(t)), _trie_retry_struct);
-          for (j = ArityOfFunctor(FunctorOfTerm(t)); j >= 1; j--) {
-            STACK_PUSH_UP(*(RepAppl(t) + j), stack_terms);
-	    STACK_CHECK_EXPAND1(stack_terms, stack_vars, stack_terms_base);
-	  }
-          break;
-        default:
-          Yap_Error(INTERNAL_ERROR, TermNil, "unknown type tag (answer_search)");
+	}
+      } else {
+	Yap_Error(INTERNAL_ERROR, TermNil, "unknown type tag (answer_search)");
       }
     } while (STACK_NOT_EMPTY(stack_terms, stack_terms_base));
   }
@@ -843,107 +838,93 @@ void load_answer_trie(ans_node_ptr ans_node, CELL *subs_ptr) {
       /* bind the substitution variables with the answer loaded in stack_terms */
       CELL *subs_var = (CELL *) *(subs_ptr + i);
       Term t = STACK_POP_DOWN(stack_terms);
-      int tag = t & TabTagBits;
 #ifdef TABLING_ERRORS
       if ((CELL)subs_var != *subs_var)
         TABLING_ERROR_MESSAGE("subs_var != *subs_var (load_answer_trie)");
 #endif /* TABLING_ERRORS */
-      switch (tag) {
-        case TabVarTagBits:
-        { int var_index = VarIndexOfTableTerm(t);
-          if (var_index == n_vars) {
-            n_vars++;
-	    STACK_PUSH_DOWN(subs_var, stack_vars);
-	    STACK_CHECK_EXPAND3(stack_refs, stack_vars, stack_refs_base, stack_terms, stack_terms_base);
-	  } else {
-            Bind(subs_var, stack_vars_base[var_index]);
-	  }
-        } break;
-        case TabNumberTagBits:
-        case TabAtomTagBits:
-	  Bind(subs_var, t);
-	  break;
-        case TabPairTagBits:
-          /* build a pair term as in function MkPairTerm */
-          Bind(subs_var, AbsPair(H));
+      if (IsVarTerm(t)) {
+        int var_index = VarIndexOfTableTerm(t);
+	if (var_index == n_vars) {
+	  n_vars++;
+	  STACK_PUSH_DOWN(subs_var, stack_vars);
+	  STACK_CHECK_EXPAND3(stack_refs, stack_vars, stack_refs_base, stack_terms, stack_terms_base);
+	} else {
+	  Bind(subs_var, stack_vars_base[var_index]);
+	}
+      } else if (IsAtomOrIntTerm(t)) {
+	Bind(subs_var, t);
+      } else if (IsPairTerm(t)) {
+	/* build a pair term as in function MkPairTerm */
+	Bind(subs_var, AbsPair(H));
 #ifdef TABLING_ERRORS
-          if ((*subs_var & TabTagBits) != TabPairTagBits)
-            TABLING_ERROR_MESSAGE("*subs_var & TabTagBits != TabPairTagBits (load_answer_trie)");
+	if (!IsPairTerm(*subs_var))
+	  TABLING_ERROR_MESSAGE("IsNonPairTerm(*subs_var) (load_answer_trie)");
 #endif /* TABLING_ERRORS */
-          H += 2;
-          STACK_PUSH_UP(H - 1, stack_refs);
-          STACK_CHECK_EXPAND3(stack_refs, stack_vars, stack_refs_base, stack_terms, stack_terms_base);
-          STACK_PUSH_UP(H - 2, stack_refs);
-          STACK_CHECK_EXPAND3(stack_refs, stack_vars, stack_refs_base, stack_terms, stack_terms_base);
-          break;
-        case TabApplTagBits:
-        { /* build a pair term as in function MkApplTerm */
-          Functor f = (Functor)NonTagPart(t);
-          int j, f_arity = ArityOfFunctor(f);
-          Bind(subs_var, AbsAppl(H));
+	H += 2;
+	STACK_PUSH_UP(H - 1, stack_refs);
+	STACK_CHECK_EXPAND3(stack_refs, stack_vars, stack_refs_base, stack_terms, stack_terms_base);
+	STACK_PUSH_UP(H - 2, stack_refs);
+	STACK_CHECK_EXPAND3(stack_refs, stack_vars, stack_refs_base, stack_terms, stack_terms_base);
+      } else if (IsApplTerm(t)) {
+        /* build a pair term as in function MkApplTerm */
+	Functor f = (Functor) RepAppl(t);
+	int j, f_arity = ArityOfFunctor(f);
+	Bind(subs_var, AbsAppl(H));
 #ifdef TABLING_ERRORS
-          if ((*subs_var & TabTagBits) != TabApplTagBits)
-            TABLING_ERROR_MESSAGE("*subs_var & TabTagBits != TabApplTagBits (load_answer_trie)");
+	if (!IsApplTerm(*subs_var))
+	  TABLING_ERROR_MESSAGE("IsNonApplTerm(*subs_var) (load_answer_trie)");
 #endif /* TABLING_ERRORS */
-          *H++ = (CELL) f;
-          H += f_arity;
-          for (j = 1; j <= f_arity; j++) {
-            STACK_PUSH_UP(H - j, stack_refs);
-	    STACK_CHECK_EXPAND3(stack_refs, stack_vars, stack_refs_base, stack_terms, stack_terms_base);
-	  }
-        } break;
-        default:
-          Yap_Error(INTERNAL_ERROR, TermNil, "unknown type tag (load_answer_trie)");
+	*H++ = (CELL) f;
+	H += f_arity;
+	for (j = 1; j <= f_arity; j++) {
+	  STACK_PUSH_UP(H - j, stack_refs);
+	  STACK_CHECK_EXPAND3(stack_refs, stack_vars, stack_refs_base, stack_terms, stack_terms_base);
+	}
+      } else {
+	Yap_Error(INTERNAL_ERROR, TermNil, "unknown type tag (load_answer_trie)");
       }
       while (STACK_NOT_EMPTY(stack_refs, stack_refs_base)) {
         CELL *ref = (CELL *) STACK_POP_DOWN(stack_refs);
         Term t = STACK_POP_DOWN(stack_terms);
-        int tag = t & TabTagBits;
-        switch (tag) {
-          case TabVarTagBits:
-	  { int var_index = VarIndexOfTableTerm(t);
-            if (var_index == n_vars) {
-	      n_vars++;
-	      STACK_PUSH_DOWN(ref, stack_vars);
-	      STACK_CHECK_EXPAND3(stack_refs, stack_vars, stack_refs_base, stack_terms, stack_terms_base);
-  	    }
-            *ref = stack_vars_base[var_index];
-          } break;
-          case TabNumberTagBits:
-          case TabAtomTagBits:
-            *ref = t;
-            break;
-          case TabPairTagBits:
-            /* build a pair term as in function MkPairTerm */
-            *ref = AbsPair(H);
-#ifdef TABLING_ERRORS
-            if ((*ref & TabTagBits) != TabPairTagBits)
-              TABLING_ERROR_MESSAGE("*ref & TabTagBits != TabPairTagBits (load_answer_trie)");
-#endif /* TABLING_ERRORS */
-            H += 2;
-            STACK_PUSH_UP(H - 1, stack_refs);
+	if (IsVarTerm(t)) {
+	  int var_index = VarIndexOfTableTerm(t);
+	  if (var_index == n_vars) {
+	    n_vars++;
+	    STACK_PUSH_DOWN(ref, stack_vars);
 	    STACK_CHECK_EXPAND3(stack_refs, stack_vars, stack_refs_base, stack_terms, stack_terms_base);
-            STACK_PUSH_UP(H - 2, stack_refs);
-	    STACK_CHECK_EXPAND3(stack_refs, stack_vars, stack_refs_base, stack_terms, stack_terms_base);
-            break;
-          case TabApplTagBits:
-          { /* build a pair term as in function MkApplTerm */
-            Functor f = (Functor)NonTagPart(t);
-            int j, f_arity = ArityOfFunctor(f);
-            *ref = AbsAppl(H);
+	  }
+	  *ref = stack_vars_base[var_index];
+	} else if (IsAtomOrIntTerm(t)) {
+	  *ref = t;
+	} else if (IsPairTerm(t)) {
+	  /* build a pair term as in function MkPairTerm */
+	  *ref = AbsPair(H);
 #ifdef TABLING_ERRORS
-            if ((*ref & TabTagBits) != TabApplTagBits)
-              TABLING_ERROR_MESSAGE("*ref & TabTagBits != TabApplTagBits (load_answer_trie)");
+	  if (!IsPairTerm(*ref))
+	    TABLING_ERROR_MESSAGE("IsNonPairTerm(*ref) (load_answer_trie)");
 #endif /* TABLING_ERRORS */
-            *H++ = (CELL) f;
-            H += f_arity;
-            for (j = 1; j <= f_arity; j++) {
-              STACK_PUSH_UP(H - j, stack_refs);
-	      STACK_CHECK_EXPAND3(stack_refs, stack_vars, stack_refs_base, stack_terms, stack_terms_base);
-	    }
-          } break;
-          default:
-	    Yap_Error(INTERNAL_ERROR, TermNil, "unknown type tag (load_answer_trie)");
+	  H += 2;
+	  STACK_PUSH_UP(H - 1, stack_refs);
+	  STACK_CHECK_EXPAND3(stack_refs, stack_vars, stack_refs_base, stack_terms, stack_terms_base);
+	  STACK_PUSH_UP(H - 2, stack_refs);
+	  STACK_CHECK_EXPAND3(stack_refs, stack_vars, stack_refs_base, stack_terms, stack_terms_base);
+	} else if (IsApplTerm(t)) {
+          /* build a pair term as in function MkApplTerm */
+	  Functor f = (Functor) RepAppl(t);
+	  int j, f_arity = ArityOfFunctor(f);
+	  *ref = AbsAppl(H);
+#ifdef TABLING_ERRORS
+	  if (!IsApplTerm(*ref))
+	    TABLING_ERROR_MESSAGE("IsNonApplTerm(*ref) (load_answer_trie)");
+#endif /* TABLING_ERRORS */
+	  *H++ = (CELL) f;
+	  H += f_arity;
+	  for (j = 1; j <= f_arity; j++) {
+	    STACK_PUSH_UP(H - j, stack_refs);
+	    STACK_CHECK_EXPAND3(stack_refs, stack_vars, stack_refs_base, stack_terms, stack_terms_base);
+	  }
+	} else {
+	  Yap_Error(INTERNAL_ERROR, TermNil, "unknown type tag (load_answer_trie)");
         }
       }
     }
@@ -980,28 +961,20 @@ void private_completion(sg_fr_ptr sg_fr) {
 
 
 void free_subgoal_trie_branch(sg_node_ptr node, int missing_nodes) {
-  int tag;
   Term t;
 
   if (TrNode_next(node))
     free_subgoal_trie_branch(TrNode_next(node), missing_nodes);
 
-  missing_nodes -= 1;
   t = TrNode_entry(node);
-  tag = t & TabTagBits;
-  switch (tag) {
-    case TabVarTagBits:
-    case TabNumberTagBits:
-    case TabAtomTagBits:
-      break;
-    case TabPairTagBits:
-      missing_nodes += 2;
-      break;
-    case TabApplTagBits:
-      missing_nodes += ArityOfFunctor((Functor)NonTagPart(t));
-      break;
-    default:
-      Yap_Error(INTERNAL_ERROR, TermNil, "unknown type tag (chain_subgoal_frames)");
+  if (IsVarTerm(t) || IsAtomOrIntTerm(t)) {
+    missing_nodes -= 1;
+  } else if (IsPairTerm(t)) {
+    missing_nodes += 1;
+  } else if (IsApplTerm(t)) {
+    missing_nodes += ArityOfFunctor((Functor)RepAppl(t)) - 1;
+  } else {
+    Yap_Error(INTERNAL_ERROR, TermNil, "unknown type tag (chain_subgoal_frames)");
   }
   if (missing_nodes) {
     free_subgoal_trie_branch(TrNode_child(node), missing_nodes);
@@ -1155,7 +1128,6 @@ void traverse_trie(FILE *stream, sg_node_ptr sg_node, int pred_arity, Atom pred_
 
 static
 int traverse_subgoal_trie(FILE *stream, sg_node_ptr sg_node, char *str, int str_index, int *arity, int depth) {
-  int tag;
   Term t;
   int new_arity[100];
 
@@ -1235,107 +1207,101 @@ int traverse_subgoal_trie(FILE *stream, sg_node_ptr sg_node, char *str, int str_
     return FALSE;
 
   t = TrNode_entry(sg_node);
-  tag = t & TabTagBits;
-  switch (tag) {
-    case TabVarTagBits:
-      str_index += sprintf(& str[str_index], "VAR%d", VarIndexOfTableTerm(t));
-      while (arity[0]) {
-        if (arity[arity[0]] > 0) {
-          arity[arity[0]]--;
-          if (arity[arity[0]] == 0) {
-            str_index += sprintf(& str[str_index], ")");
-            arity[0]--;
-	  } else {
-            str_index += sprintf(& str[str_index], ",");
-            break;
-	  }
+  if (IsVarTerm(t)) {
+    str_index += sprintf(& str[str_index], "VAR%d", VarIndexOfTableTerm(t));
+    while (arity[0]) {
+      if (arity[arity[0]] > 0) {
+	arity[arity[0]]--;
+	if (arity[arity[0]] == 0) {
+	  str_index += sprintf(& str[str_index], ")");
+	  arity[0]--;
 	} else {
-          arity[arity[0]]++;
-          if (arity[arity[0]] == 0) {
-            str_index += sprintf(& str[str_index], "]");
-            arity[0]--;
-	  } else {
-            str_index += sprintf(& str[str_index], "|");
-            break;
-	  }
+	  str_index += sprintf(& str[str_index], ",");
+	  break;
 	}
-      }
-      break;
-    case TabNumberTagBits:
-      str_index += sprintf(& str[str_index], "%d", IntOfTerm(t));
-      while (arity[0]) {
-        if (arity[arity[0]] > 0) {
-          arity[arity[0]]--;
-          if (arity[arity[0]] == 0) {
-            str_index += sprintf(& str[str_index], ")");
-            arity[0]--;
-	  } else {
-            str_index += sprintf(& str[str_index], ",");
-            break;
-	  }
-	} else {
-          arity[arity[0]]++;
-          if (arity[arity[0]] == 0) {
-            str[str_index] = 0;
-            SHOW_INFO("%s --> TRIE ERROR: pair without end atom '[]' !!!\n", str);
-            return FALSE;
-	  }
-          str_index += sprintf(& str[str_index], "|");
-          break;
-	}
-      }
-      break;
-    case TabAtomTagBits:
-      if (arity[arity[0]] == -1) {
-        if (strcmp("[]", AtomName(AtomOfTerm(t)))) {
-          str[str_index] = 0;
-          SHOW_INFO("%s --> TRIE ERROR: pair without end atom '[]' !!!\n", str);
-          return FALSE;
-	}
-        str[str_index - 1] = ']';
-        arity[0]--;
       } else {
-        str_index += sprintf(& str[str_index], "%s", AtomName(AtomOfTerm(t)));
-      }
-      while (arity[0]) {
-        if (arity[arity[0]] > 0) {
-          arity[arity[0]]--;
-          if (arity[arity[0]] == 0) {
-            str_index += sprintf(& str[str_index], ")");
-            arity[0]--;
-	  } else {
-            str_index += sprintf(& str[str_index], ",");
-            break;
-	  }
+	arity[arity[0]]++;
+	if (arity[arity[0]] == 0) {
+	  str_index += sprintf(& str[str_index], "]");
+	  arity[0]--;
 	} else {
-          arity[arity[0]]++;
-          if (arity[arity[0]] == 0) {
-            str[str_index] = 0;
-            SHOW_INFO("%s --> TRIE ERROR: pair without end atom '[]' !!!\n", str);
-            return FALSE;
-	  }
-          str_index += sprintf(& str[str_index], "|");
-          break;
+	  str_index += sprintf(& str[str_index], "|");
+	  break;
 	}
       }
-      break;
-    case TabPairTagBits:
-      if (arity[arity[0]] == -1) {
-        str[str_index - 1] = ',';
-        arity[arity[0]] = -2;
+    }
+  } else if (IsIntTerm(t)) {
+    str_index += sprintf(& str[str_index], "%d", IntOfTerm(t));
+    while (arity[0]) {
+      if (arity[arity[0]] > 0) {
+	arity[arity[0]]--;
+	if (arity[arity[0]] == 0) {
+	  str_index += sprintf(& str[str_index], ")");
+	  arity[0]--;
+	} else {
+	  str_index += sprintf(& str[str_index], ",");
+	  break;
+	}
       } else {
-        str_index += sprintf(& str[str_index], "[");
-        arity[0]++;
-        arity[arity[0]] = -2;
+	arity[arity[0]]++;
+	if (arity[arity[0]] == 0) {
+	  str[str_index] = 0;
+	  SHOW_INFO("%s --> TRIE ERROR: pair without end atom '[]' !!!\n", str);
+	  return FALSE;
+	}
+	str_index += sprintf(& str[str_index], "|");
+	break;
       }
-      break;
-    case TabApplTagBits:
-      str_index += sprintf(& str[str_index], "%s(", AtomName(NameOfFunctor((Functor)NonTagPart(t))));
+    }
+  } else if (IsAtomTerm(t)) {
+    if (arity[arity[0]] == -1) {
+      if (strcmp("[]", AtomName(AtomOfTerm(t)))) {
+	str[str_index] = 0;
+	SHOW_INFO("%s --> TRIE ERROR: pair without end atom '[]' !!!\n", str);
+	return FALSE;
+      }
+      str[str_index - 1] = ']';
+      arity[0]--;
+    } else {
+      str_index += sprintf(& str[str_index], "%s", AtomName(AtomOfTerm(t)));
+    }
+    while (arity[0]) {
+      if (arity[arity[0]] > 0) {
+	arity[arity[0]]--;
+	if (arity[arity[0]] == 0) {
+	  str_index += sprintf(& str[str_index], ")");
+	  arity[0]--;
+	} else {
+	  str_index += sprintf(& str[str_index], ",");
+	  break;
+	}
+      } else {
+	arity[arity[0]]++;
+	if (arity[arity[0]] == 0) {
+	  str[str_index] = 0;
+	  SHOW_INFO("%s --> TRIE ERROR: pair without end atom '[]' !!!\n", str);
+	  return FALSE;
+	}
+	str_index += sprintf(& str[str_index], "|");
+	break;
+      }
+    }
+  } else if (IsPairTerm(t)) {    
+    if (arity[arity[0]] == -1) {
+      str[str_index - 1] = ',';
+      arity[arity[0]] = -2;
+    } else {
+      str_index += sprintf(& str[str_index], "[");
       arity[0]++;
-      arity[arity[0]] = ArityOfFunctor((Functor)NonTagPart(t));
-      break;
-    default:
-      Yap_Error(INTERNAL_ERROR, TermNil, "unknown type tag (traverse_subgoal_trie)");
+      arity[arity[0]] = -2;
+    }
+  } else if (IsApplTerm(t)) {
+    Functor f = (Functor) RepAppl(t);
+    str_index += sprintf(& str[str_index], "%s(", AtomName(NameOfFunctor(f)));
+    arity[0]++;
+    arity[arity[0]] = ArityOfFunctor(f);
+  } else {
+    Yap_Error(INTERNAL_ERROR, TermNil, "unknown type tag (traverse_subgoal_trie)");
   }
 
   if (! traverse_subgoal_trie(stream, TrNode_child(sg_node), str, str_index, arity, depth + 1))
@@ -1346,7 +1312,6 @@ int traverse_subgoal_trie(FILE *stream, sg_node_ptr sg_node, char *str, int str_
 
 static
 int traverse_answer_trie(FILE *stream, ans_node_ptr ans_node, char *str, int str_index, int *arity, int var_index, int depth) {
-  int tag;
   Term t;
   int new_arity[100];
 
@@ -1363,107 +1328,102 @@ int traverse_answer_trie(FILE *stream, ans_node_ptr ans_node, char *str, int str
   }
 
   t = TrNode_entry(ans_node);
-  tag = t & TabTagBits;
-  switch (tag) {
-    case TabVarTagBits:
-      str_index += sprintf(& str[str_index], "ANSVAR%d", VarIndexOfTableTerm(t));
-      while (arity[0]) {
-        if (arity[arity[0]] > 0) {
-          arity[arity[0]]--;
-          if (arity[arity[0]] == 0) {
-            str_index += sprintf(& str[str_index], ")");
-            arity[0]--;
-	  } else {
-            str_index += sprintf(& str[str_index], ",");
-            break;
-	  }
+
+  if (IsVarTerm(t)) {
+    str_index += sprintf(& str[str_index], "ANSVAR%d", VarIndexOfTableTerm(t));
+    while (arity[0]) {
+      if (arity[arity[0]] > 0) {
+	arity[arity[0]]--;
+	if (arity[arity[0]] == 0) {
+	  str_index += sprintf(& str[str_index], ")");
+	  arity[0]--;
 	} else {
-          arity[arity[0]]++;
-          if (arity[arity[0]] == 0) {
-            str_index += sprintf(& str[str_index], "]");
-            arity[0]--;
-	  } else {
-            str_index += sprintf(& str[str_index], "|");
-            break;
-	  }
+	  str_index += sprintf(& str[str_index], ",");
+	  break;
 	}
-      }
-      break;
-    case TabNumberTagBits:
-      str_index += sprintf(& str[str_index], "%d", IntOfTerm(t));
-      while (arity[0]) {
-        if (arity[arity[0]] > 0) {
-          arity[arity[0]]--;
-          if (arity[arity[0]] == 0) {
-            str_index += sprintf(& str[str_index], ")");
-            arity[0]--;
-	  } else {
-            str_index += sprintf(& str[str_index], ",");
-            break;
-	  }
-	} else {
-          arity[arity[0]]++;
-          if (arity[arity[0]] == 0) {
-            str[str_index] = 0;
-            SHOW_INFO("%s --> TRIE ERROR: pair without end atom '[]' !!!\n", str);
-            return FALSE;
-	  }
-          str_index += sprintf(& str[str_index], "|");
-          break;
-	}
-      }
-      break;
-    case TabAtomTagBits:
-      if (arity[arity[0]] == -1) {
-        if (strcmp("[]", AtomName(AtomOfTerm(t)))) {
-          str[str_index] = 0;
-          SHOW_INFO("%s --> TRIE ERROR: pair without end atom '[]' !!!\n", str);
-          return FALSE;
-	}
-        str[str_index - 1] = ']';
-        arity[0]--;
       } else {
-        str_index += sprintf(& str[str_index], "%s", AtomName(AtomOfTerm(t)));
-      }
-      while (arity[0]) {
-        if (arity[arity[0]] > 0) {
-          arity[arity[0]]--;
-          if (arity[arity[0]] == 0) {
-            str_index += sprintf(& str[str_index], ")");
-            arity[0]--;
-	  } else {
-            str_index += sprintf(& str[str_index], ",");
-            break;
-	  }
+	arity[arity[0]]++;
+	if (arity[arity[0]] == 0) {
+	  str_index += sprintf(& str[str_index], "]");
+	  arity[0]--;
 	} else {
-          arity[arity[0]]++;
-          if (arity[arity[0]] == 0) {
-            str[str_index] = 0;
-            SHOW_INFO("%s --> TRIE ERROR: pair without end atom '[]' !!!\n", str);
-            return FALSE;
-	  }
-          str_index += sprintf(& str[str_index], "|");
-          break;
+	  str_index += sprintf(& str[str_index], "|");
+	  break;
 	}
       }
-      break;
-    case TabPairTagBits:
-      if (arity[arity[0]] == -1) {
-        str[str_index - 1] = ',';
-        arity[arity[0]] = -2;
+    }
+  } else if (IsIntTerm(t)) {
+    str_index += sprintf(& str[str_index], "%d", IntOfTerm(t));
+    while (arity[0]) {
+      if (arity[arity[0]] > 0) {
+	arity[arity[0]]--;
+	if (arity[arity[0]] == 0) {
+	  str_index += sprintf(& str[str_index], ")");
+	  arity[0]--;
+	} else {
+	  str_index += sprintf(& str[str_index], ",");
+	  break;
+	}
       } else {
-        str_index += sprintf(& str[str_index], "[");
-        arity[0]++;
-        arity[arity[0]] = -2;
+	arity[arity[0]]++;
+	if (arity[arity[0]] == 0) {
+	  str[str_index] = 0;
+	  SHOW_INFO("%s --> TRIE ERROR: pair without end atom '[]' !!!\n", str);
+	  return FALSE;
+	}
+	str_index += sprintf(& str[str_index], "|");
+	break;
       }
-      break;
-    case TabApplTagBits:
-      str_index += sprintf(& str[str_index], "%s(", AtomName(NameOfFunctor((Functor)NonTagPart(t))));
+    }
+  } else if (IsAtomTerm(t)) {
+    if (arity[arity[0]] == -1) {
+      if (strcmp("[]", AtomName(AtomOfTerm(t)))) {
+	str[str_index] = 0;
+	SHOW_INFO("%s --> TRIE ERROR: pair without end atom '[]' !!!\n", str);
+	return FALSE;
+      }
+      str[str_index - 1] = ']';
+      arity[0]--;
+    } else {
+      str_index += sprintf(& str[str_index], "%s", AtomName(AtomOfTerm(t)));
+    }
+    while (arity[0]) {
+      if (arity[arity[0]] > 0) {
+	arity[arity[0]]--;
+	if (arity[arity[0]] == 0) {
+	  str_index += sprintf(& str[str_index], ")");
+	  arity[0]--;
+	} else {
+	  str_index += sprintf(& str[str_index], ",");
+	  break;
+	}
+      } else {
+	arity[arity[0]]++;
+	if (arity[arity[0]] == 0) {
+	  str[str_index] = 0;
+	  SHOW_INFO("%s --> TRIE ERROR: pair without end atom '[]' !!!\n", str);
+	  return FALSE;
+	}
+	str_index += sprintf(& str[str_index], "|");
+	break;
+      }
+    }
+  } else if (IsPairTerm(t)) {
+    if (arity[arity[0]] == -1) {
+      str[str_index - 1] = ',';
+      arity[arity[0]] = -2;
+    } else {
+      str_index += sprintf(& str[str_index], "[");
       arity[0]++;
-      arity[arity[0]] = ArityOfFunctor((Functor)NonTagPart(t));
-      break;
-    default:
-      Yap_Error(INTERNAL_ERROR, TermNil, "unknown type tag (traverse_answer_trie)");
+      arity[arity[0]] = -2;
+    }
+  } else if (IsApplTerm(t)) {
+    Functor f = (Functor) RepAppl(t);
+    str_index += sprintf(& str[str_index], "%s(", AtomName(NameOfFunctor(f)));
+    arity[0]++;
+    arity[arity[0]] = ArityOfFunctor(f);
+  } else {
+    Yap_Error(INTERNAL_ERROR, TermNil, "unknown type tag (traverse_answer_trie)");
   }
 
   if (! IS_ANSWER_LEAF_NODE(ans_node)) {

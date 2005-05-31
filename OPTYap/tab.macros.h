@@ -1,3 +1,18 @@
+/**********************************************************************
+                                                               
+                       The OPTYap Prolog system                
+  OPTYap extends the Yap Prolog system to support or-parallel tabling
+                                                               
+  Copyright:   R. Rocha and NCC - University of Porto, Portugal
+  File:        tab.macros.h
+  version:     $Id: tab.macros.h,v 1.12 2005-05-31 08:17:46 ricroc Exp $   
+                                                                     
+**********************************************************************/
+
+/* ------------------ **
+**      Includes      **
+** ------------------ */
+
 #include <stdlib.h>
 #include "opt.mavar.h"
 
@@ -43,25 +58,6 @@ STD_PROTO(static inline tg_sol_fr_ptr CUT_prune_tg_solution_frames, (tg_sol_fr_p
 /* ----------------------- **
 **     Tabling Macros      **
 ** ----------------------- */
-
-#ifdef TAGS_FAST_OPS  /* Tags_32Ops.h */
-#define	TabTagBits             TagBits
-#define TabNumberOfLowTagBits  LowTagBits
-#define	TabVarTagBits          MKTAG(0x0,0)
-#define	TabAtomTagBits         AtomTag
-#define	TabNumberTagBits       NumberTag
-#define	TabPairTagBits         MKTAG(0x5,3)
-#define	TabApplTagBits         MKTAG(0x5,0)
-#else                /* Tags_32LowTag.h */
-#define	TabTagBits             MKTAG(0x0,LowTagBits)
-#define TabNumberOfLowTagBits  LowTagBits
-#define	TabVarTagBits          MKTAG(0x0,0)
-#define	TabAtomTagBits         AtomTag
-#define	TabNumberTagBits       NumberTag
-#define	TabPairTagBits         PairBits
-#define	TabApplTagBits         ApplBit
-#endif /* TAGS_FAST_OPS */
-
 
 #define NORM_CP(CP)            ((choiceptr)(CP))
 #define CONS_CP(CP)            ((struct consumer_choicept *)(CP))
@@ -124,8 +120,8 @@ STD_PROTO(static inline tg_sol_fr_ptr CUT_prune_tg_solution_frames, (tg_sol_fr_p
 #endif /* YAPOR */
 
 
-#define MakeTableVarTerm(INDEX)    (INDEX << TabNumberOfLowTagBits)
-#define VarIndexOfTableTerm(TERM)  (TERM >> TabNumberOfLowTagBits)
+#define MakeTableVarTerm(INDEX)    (INDEX << LowTagBits)
+#define VarIndexOfTableTerm(TERM)  (TERM >> LowTagBits)
 #define VarIndexOfTerm(TERM)                                               \
         ((((CELL) TERM) - GLOBAL_table_var_enumerator(0)) / sizeof(CELL))
 #define IsTableVarTerm(TERM)                                               \
@@ -322,7 +318,7 @@ STD_PROTO(static inline tg_sol_fr_ptr CUT_prune_tg_solution_frames, (tg_sol_fr_p
 #define ANSWER_HASH_MARK          0
 #define IS_SUBGOAL_HASH(NODE)     (TrNode_entry(NODE) == SUBGOAL_HASH_MARK)
 #define IS_ANSWER_HASH(NODE)      (TrNode_instr(NODE) == ANSWER_HASH_MARK)
-#define HASH_TERM(TERM, SEED)     (((TERM) >> TabNumberOfLowTagBits) & (SEED))
+#define HASH_TERM(TERM, SEED)     (((TERM) >> LowTagBits) & (SEED))
 
 
 #define new_subgoal_hash(HASH, NUM_NODES, TAB_ENT)                  \

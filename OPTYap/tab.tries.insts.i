@@ -1,3 +1,14 @@
+/**********************************************************************
+                                                               
+                       The OPTYap Prolog system                
+  OPTYap extends the Yap Prolog system to support or-parallel tabling
+                                                               
+  Copyright:   R. Rocha and NCC - University of Porto, Portugal
+  File:        tab.tries.insts.i
+  version:     $Id: tab.tries.insts.i,v 1.6 2005-05-31 08:18:19 ricroc Exp $   
+                                                                     
+**********************************************************************/
+
 /* ----------------------------------------------- **
 **      Trie instructions: stack organization      **
 ** ----------------------------------------------- */
@@ -703,7 +714,7 @@
     int heap_arity = *aux_ptr;
     int vars_arity = *(aux_ptr + heap_arity + 1);
     int subs_arity = *(aux_ptr + heap_arity + 2);
-    Functor func = (Functor) NonTagPart(TrNode_entry(node));
+    Functor func = (Functor) RepAppl(TrNode_entry(node));
     int func_arity = ArityOfFunctor(func);
     int i;
 
@@ -717,7 +728,7 @@
     int heap_arity = *aux_ptr;
     int vars_arity = *(aux_ptr + heap_arity + 1);
     int subs_arity = *(aux_ptr + heap_arity + 2);
-    Functor func = (Functor) NonTagPart(TrNode_entry(node));
+    Functor func = (Functor) RepAppl(TrNode_entry(node));
     int func_arity = ArityOfFunctor(func);
     int i;
 
@@ -732,7 +743,7 @@
     int heap_arity = *aux_ptr;
     int vars_arity = *(aux_ptr + heap_arity + 1);
     int subs_arity = *(aux_ptr + heap_arity + 2);
-    Functor func = (Functor) NonTagPart(TrNode_entry(node));
+    Functor func = (Functor) RepAppl(TrNode_entry(node));
     int func_arity = ArityOfFunctor(func);
     int i;
 
@@ -747,7 +758,7 @@
     int heap_arity = *aux_ptr;
     int vars_arity = *(aux_ptr + heap_arity + 1);
     int subs_arity = *(aux_ptr + heap_arity + 2);
-    Functor func = (Functor) NonTagPart(TrNode_entry(node));
+    Functor func = (Functor) RepAppl(TrNode_entry(node));
     int func_arity = ArityOfFunctor(func);
     int i;
 
