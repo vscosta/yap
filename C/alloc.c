@@ -12,7 +12,7 @@
 * Last rev:								 *
 * mods:									 *
 * comments:	allocating space					 *
-* version:$Id: alloc.c,v 1.69 2005-03-04 20:30:10 ricroc Exp $		 *
+* version:$Id: alloc.c,v 1.70 2005-05-31 00:12:30 ricroc Exp $		 *
 *************************************************************************/
 #ifdef SCCS
 static char SccsId[] = "%W% %G%";
@@ -465,9 +465,8 @@ AllocHeap(unsigned int size)
   HeapUsed += size * sizeof(CELL) + sizeof(YAP_SEG_SIZE);
 
 #ifdef YAPOR
-  if (HeapTop > Addr(Yap_GlobalBase) - MinHeapGap) {
-    abort_yapor("No heap left in function AllocHeap");
-  }
+  if (HeapTop > Addr(Yap_GlobalBase) - MinHeapGap)
+    Yap_Error(INTERNAL_ERROR, TermNil, "no heap left (AllocHeap)");
 #else
   if (HeapTop > HeapLim - MinHeapGap) {
     HeapTop -= size * sizeof(CELL) + sizeof(YAP_SEG_SIZE);
@@ -815,7 +814,7 @@ static int
 ExtendWorkSpace(Int s, int fixed_allocation)
 {
 #ifdef YAPOR
-  abort_yapor("function ExtendWorkSpace called");
+  Yap_Error(INTERNAL_ERROR, TermNil, "cannot extend stacks (ExtendWorkSpace)");
   return(FALSE);
 #else
   MALLOC_T a;
