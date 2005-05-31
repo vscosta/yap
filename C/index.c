@@ -11,8 +11,12 @@
 * File:		index.c							 *
 * comments:	Indexing a Prolog predicate				 *
 *									 *
-* Last rev:     $Date: 2005-05-30 05:26:49 $,$Author: vsc $						 *
+* Last rev:     $Date: 2005-05-31 02:15:53 $,$Author: vsc $						 *
 * $Log: not supported by cvs2svn $
+* Revision 1.128  2005/05/30 05:26:49  vsc
+* fix tabling
+* allow atom gc again for now.
+*
 * Revision 1.127  2005/05/27 21:44:00  vsc
 * Don't try to mess with sequences that don't end with a trust.
 * A fix for the atom garbage collector actually ignore floats ;-).
@@ -4734,7 +4738,7 @@ expand_index(struct intermediates *cint) {
       break;
     case _trust:
       /* we should never be here */
-      Yap_Error(SYSTEM_ERROR, TermNil, "New indexing code");
+      Yap_Error(INTERNAL_COMPILER_ERROR, TermNil, "found trust in expand_index");
       labp =  NULL;
       ipc = NULL;
       break;
@@ -4968,7 +4972,7 @@ expand_index(struct intermediates *cint) {
       break;
     default:
       if (alt == NULL) {
-	Yap_Error(SYSTEM_ERROR,t,"Bug in Indexing Code");
+	Yap_Error(INTERNAL_COMPILER_ERROR,t,"unexpected instruction %d at expand_index ", op);
 	labp = NULL;
 	ipc = NULL;
       } else {
@@ -8584,7 +8588,7 @@ find_caller(PredEntry *ap, yamop *code, struct intermediates *cint) {
       return NULL;
     default:
       if (alt == NULL) {
-	Yap_Error(SYSTEM_ERROR,t,"Bug in Indexing Code");
+	Yap_Error(INTERNAL_COMPILER_ERROR,t,"unexpected instruction %d in find_caller", op);
 	return NULL;
       } else {
 	ipc = alt;
