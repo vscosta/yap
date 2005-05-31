@@ -1,10 +1,3 @@
-
-
-
-
-
-
-
 /*************************************************************************
 *									 *
 *	 YAP Prolog 	%W% %G% 					 *
@@ -17,7 +10,7 @@
 * File:		Yap.h.m4						 *
 * mods:									 *
 * comments:	main header file for YAP				 *
-* version:      $Id: Yap.h,v 1.1 2005-05-27 22:27:06 rslopes Exp $	 *
+* version:      $Id: Yap.h,v 1.2 2005-05-31 00:38:20 ricroc Exp $	 *
 *************************************************************************/
 
 #include "config.h"
@@ -1278,8 +1271,8 @@ extern char emacs_tmp[], emacs_tmp2[];
 
 #if defined(YAPOR) || defined(TABLING)
 #include "opt.structs.h"
-#include "opt.macros.h"
 #include "opt.proto.h"
+#include "opt.macros.h"
 #endif /* YAPOR || TABLING */
 
 #if SBA
