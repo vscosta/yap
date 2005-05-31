@@ -11,8 +11,11 @@
 * File:		index.c							 *
 * comments:	Indexing a Prolog predicate				 *
 *									 *
-* Last rev:     $Date: 2005-05-31 02:15:53 $,$Author: vsc $						 *
+* Last rev:     $Date: 2005-05-31 04:46:06 $,$Author: vsc $						 *
 * $Log: not supported by cvs2svn $
+* Revision 1.129  2005/05/31 02:15:53  vsc
+* fix SYSTEM_ERROR messages
+*
 * Revision 1.128  2005/05/30 05:26:49  vsc
 * fix tabling
 * allow atom gc again for now.
@@ -3407,8 +3410,14 @@ emit_single_switch_case(ClauseDef *min, struct intermediates *cint, int first, i
 
       Yap_emit(label_op, lbl, Zero, cint);
       /* vsc: should check if this condition is sufficient */
-      Yap_emit(trust_op, (UInt)(min->CurrentCode), has_cut(cl->CurrentCode), cint);
+      emit_trust(min, cint, nxtlbl, clleft);
       return lbl;
+    } else if (clleft) {
+      /*
+	if we still have clauses left, means we already created a CP,
+	so I should avoid creating again 
+      */
+      return (UInt)NEXTOP(min->CurrentCode,ld);
     }
   }
 #endif /* TABLING */
@@ -4131,8 +4140,9 @@ init_clauses(ClauseDef *cl, PredEntry *ap)
       cl++;
     }
   } else {
-    StaticClause *scl = ClauseCodeToStaticClause(ap->cs.p_code.FirstClause);
+    StaticClause *scl;
 
+    scl = ClauseCodeToStaticClause(ap->cs.p_code.FirstClause);
     do {
       cl->Code = cl->CurrentCode = scl->ClCode;
       cl++;
@@ -4613,9 +4623,10 @@ count_clauses_left(yamop *cl, PredEntry *ap)
     return (ncls-1)-((char *)cl-(char *)mcl->ClCode)/mcl->ClItemSize;
   } else {
     yamop *last = ap->cs.p_code.LastClause;
-    StaticClause *c = ClauseCodeToStaticClause(cl);
+    StaticClause *c;
     COUNT i = 1;
 
+    c = ClauseCodeToStaticClause(cl);
     while (c->ClCode != last) {
       i++;
       c = c->ClNext;
@@ -4674,6 +4685,15 @@ expand_index(struct intermediates *cint) {
       isfirstcl = FALSE;
       ipc = NEXTOP(ipc,ld);
       break;
+#if TABLING
+    case _table_try:
+    case _table_retry:
+      /* this clause had no indexing */
+      first = ClauseCodeToStaticClause(PREVOP(ipc->u.ld.d,ld))->ClNext->ClCode;
+      isfirstcl = FALSE;
+      ipc = NEXTOP(ipc,ld);
+      break;      
+#endif /* TABLING */
     case _try_clause2:
     case _try_clause3:
     case _try_clause4:
@@ -4699,7 +4719,7 @@ expand_index(struct intermediates *cint) {
     case _retry_me4:
 #ifdef TABLING
     case _table_retry_me:
-#endif /* TABLING */
+#endif
       isfirstcl = FALSE;
     case _try_me:
     case _try_me1:
@@ -4707,9 +4727,8 @@ expand_index(struct intermediates *cint) {
     case _try_me3:
     case _try_me4:
 #ifdef TABLING
-    case _table_try_single:
     case _table_try_me:
-#endif /* TABLING */
+#endif
       /* ok, we found the start for an indexing block,
 	 but we don't if we are going to operate here or not */
       /* if we are to commit here, alt will tell us where */
@@ -4999,6 +5018,12 @@ expand_index(struct intermediates *cint) {
   }
   if (s_reg != NULL)
     S = s_reg;
+#ifdef TABLING
+  /* handle tabling hack that insertes a failcode, 
+     this really corresponds to not having any more clauses */
+  if (alt == TRUSTFAILCODE)
+    alt = NULL;
+#endif
   if (alt == NULL) {
     /* oops, we are at last clause */
     fail_l = (UInt)FAILCODE;
@@ -5016,12 +5041,12 @@ expand_index(struct intermediates *cint) {
       }
     } else {
       op_numbers op = Yap_op_from_opcode(alt->opc);
-      if (op == _retry || op == _trust
-#ifdef TABLING
-          || op == _table_retry || op == _table_trust
-#endif /* TABLING */
-      ) {
+      if (op == _retry || op == _trust) {
 	last = alt->u.ld.d;
+#ifdef TABLING
+      } else if (op == _table_retry || op == _table_trust) {
+	last = PREVOP(alt->u.ld.d,ld);
+#endif /* TABLING */
       } else if (op >= _retry2 && op <= _retry4) {
 	last = alt->u.l.l;
       }
@@ -5038,14 +5063,6 @@ expand_index(struct intermediates *cint) {
     yamop **clp = (yamop **)NEXTOP(ipc,sp);
 
     eblk = cint->expand_block = ipc;
-#if DEBUG_EXPAND
-    if (ap->PredFlags & LogUpdatePredFlag) {
-      fprintf(stderr,"vsc +");
-    } else {
-      fprintf(stderr,"vsc ");
-    }
-    fprintf(stderr,"*: expanding %d out of %d\n", nclauses,NClauses);
-#endif
     if (cls+2*nclauses > (ClauseDef *)(ASP-4096)) {
       /* tell how much space we need (worst case) */
       Yap_Error_Size += 2*NClauses*sizeof(ClauseDef);
