@@ -11,7 +11,7 @@
 * Last rev:	December 90						 *
 * mods:									 *
 * comments:	Original Tag Scheme for machines with 32 bits adresses   *
-* version:      $Id: Tags_32LowTag.h,v 1.2 2005-05-30 05:53:34 vsc Exp $	 *
+* version:      $Id: Tags_32LowTag.h,v 1.3 2005-05-31 08:21:43 ricroc Exp $	 *
 *************************************************************************/
 
 #define TAG_LOW_BITS_32 1
@@ -20,12 +20,12 @@
         Each    term is represented internally as an unsigned 32 bit integer as
         follows:
         tag      value
-        ints                    m.....110 numeric value
+        ints            m.....110 numeric value
         atoms           m.....010 offset of atom entry
         pairs           mr.....11 ptr to pair
         aplied functor  mr.....01 ptr to functor followed by args
-        ref                     mr.....00 address of cell
-        undefined               mr.....00 address of cell pointing to itself
+        ref             mr.....00 address of cell
+        undefined       mr.....00 address of cell pointing to itself
 
         functors are represented as ptrs to the functor entry in the atom
         property list
