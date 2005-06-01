@@ -11,8 +11,12 @@
 * File:		index.c							 *
 * comments:	Indexing a Prolog predicate				 *
 *									 *
-* Last rev:     $Date: 2005-06-01 14:02:50 $,$Author: vsc $						 *
+* Last rev:     $Date: 2005-06-01 16:42:30 $,$Author: vsc $						 *
 * $Log: not supported by cvs2svn $
+* Revision 1.133  2005/06/01 14:02:50  vsc
+* get_rid of try_me?, retry_me? and trust_me? instructions: they are not
+* significantly used nowadays.
+*
 * Revision 1.132  2005/05/31 20:04:17  vsc
 * fix cleanup of expand_clauses: make sure we have everything with NULL afterwards.
 *
@@ -4851,12 +4855,19 @@ expand_index(struct intermediates *cint) {
 	labp = &(ipc->u.ollll.l1);
 	sp = push_stack(sp, 1, AbsPair(NULL), TermNil, cint);
 	ipc = ipc->u.ollll.l1;	
-      } else if (IsApplTerm(t)) {
-	sp = push_stack(sp, 1, AbsAppl((CELL *)FunctorOfTerm(t)), TermNil, cint);
-	ipc = ipc->u.ollll.l3;	
-      } else {
-	sp = push_stack(sp, argno, t, TermNil, cint);
+      } else if (t == TermNil) {
+	sp = push_stack(sp, 1, t, TermNil, cint);
 	ipc = ipc->u.ollll.l2;	
+      } else {
+	Term tn;
+
+	if (IsApplTerm(t)) {
+	  tn = AbsAppl((CELL *)FunctorOfTerm(t));
+	} else {
+	  tn = t;
+	}
+	sp = push_stack(sp, argno, tn, TermNil, cint);
+	ipc = ipc->u.ollll.l3;	
       }
       break;
     case _switch_on_arg_type:
@@ -6780,54 +6791,8 @@ add_to_index(struct intermediates *cint, int first, path_stack_entry *sp, Clause
       }
       break;
     case _switch_list_nl:
-      sp = push_path(sp, &(ipc->u.ollll.l4), cls, cint);
-      if (ap->PredFlags & LogUpdatePredFlag) {
-	add_head_info(cls, 1);
-      } else {
-	add_info(cls, 1);
-      }
-      if (IsPairTerm(cls->Tag)) {
-	yamop *nipc = ipc->u.ollll.l1;
-
-	current_arity = 2;
-	move_next(cls, 1);
-	if (nipc == FAILCODE) {
-	  /* jump straight to clause */
-	  ipc->u.ollll.l1 = cls->CurrentCode;
-	  ipc = pop_path(&sp, cls, ap);
-	} else {
-	  /* go on */
-	  sp = cross_block(sp, &ipc->u.ollll.l1, ap);
-	  ipc = nipc;	
-	}
-      } else if (IsAtomOrIntTerm(cls->Tag)) {
-	yamop *nipc = ipc->u.ollll.l2;
-	move_next(cls, 1);
-	if (nipc == FAILCODE) {
-	  /* need to expand the block */
-	  sp = kill_block(sp, ap);
-	  ipc = pop_path(&sp, cls, ap);
-	} else {
-	  /* I do not have to worry about crossing a block here */
-	  ipc = nipc;	
-	}
-      } else if (IsApplTerm(cls->Tag)) {
-	yamop *nipc = ipc->u.ollll.l3;
-	if (nipc == FAILCODE) {
-	  /* need to expand the block */
-	  sp = kill_block(sp, ap);
-	  ipc = pop_path(&sp, cls, ap);
-	} else {
-	  /* I do not have to worry about crossing a block here */
-	  ipc = nipc;	
-	}
-      } else {
-	/* we can't separate into four groups,
-	   need to restart.
-	*/
-	sp = kill_block(sp, ap);
-	ipc = pop_path(&sp, cls, ap);
-      }
+      sp = kill_block(sp, ap);
+      ipc = pop_path(&sp, cls, ap);
       break;
     case _switch_on_arg_type:
       sp = push_path(sp, &(ipc->u.xllll.l4), cls, cint);
@@ -7322,51 +7287,8 @@ remove_from_index(PredEntry *ap, path_stack_entry *sp, ClauseDef *cls, yamop *bg
       }
       break;
     case _switch_list_nl:
-      sp = push_path(sp, &(ipc->u.ollll.l4), cls, cint);
-      if (ap->PredFlags & LogUpdatePredFlag) {
-	add_head_info(cls, 1);
-      } else {
-	add_info(cls, 1);
-      }
-      if (IsPairTerm(cls->Tag)) {
-	yamop *nipc = ipc->u.ollll.l1;
-	current_arity = 2;
-	if (IN_BETWEEN(bg,nipc,lt)) {
-	  /* jump straight to clause */
-	  ipc->u.ollll.l1 = FAILCODE;
-	  ipc = pop_path(&sp, cls, ap);
-	} else {
-	  /* go on */
-	  sp = cross_block(sp, &ipc->u.ollll.l1, ap);
-	  ipc = nipc;	
-	}
-      } else if (IsAtomOrIntTerm(cls->Tag)) {
-	yamop *nipc = ipc->u.ollll.l2;
-	if (IN_BETWEEN(bg,nipc,lt)) {
-	  /* jump straight to clause */
-	  ipc->u.ollll.l2 = FAILCODE;
-	  ipc = pop_path(&sp, cls, ap);
-	} else {
-	  /* I do not have to worry about crossing a block here */
-	  ipc = nipc;	
-	}
-      } else if (IsApplTerm(cls->Tag)) {
-	yamop *nipc = ipc->u.ollll.l3;
-	if (IN_BETWEEN(bg,nipc,lt)) {
-	  /* jump straight to clause */
-	  ipc->u.ollll.l3 = FAILCODE;
-	  ipc = pop_path(&sp, cls, ap);
-	} else {
-	  /* I do not have to worry about crossing a block here */
-	  ipc = nipc;	
-	}
-      } else {
-	/* we can't separate into four groups,
-	   need to restart.
-	*/
-	sp = kill_block(sp, ap);
-	ipc = pop_path(&sp, cls, ap);
-      }
+      sp = kill_block(sp, ap);
+      ipc = pop_path(&sp, cls, ap);
       break;
     case _switch_on_arg_type:
       sp = push_path(sp, &(ipc->u.xllll.l4), cls, cint);
@@ -7973,7 +7895,7 @@ Yap_FollowIndexingCode(PredEntry *ap, yamop *ipc, Term Terms[3], yamop *ap_pc, y
 	jlbl = &(ipc->u.ollll.l1);
 	ipc = ipc->u.ollll.l1;
 	s_reg = RepPair(t);
-      } else if (IsAtomOrIntTerm(t)) {
+      } else if (t == TermNil) {
 	jlbl = &(ipc->u.ollll.l2);
 	ipc = ipc->u.ollll.l2;
       } else {
@@ -8468,12 +8390,16 @@ find_caller(PredEntry *ap, yamop *code, struct intermediates *cint) {
 	if (ipc->u.ollll.l1 == code) 
 	  return &(ipc->u.ollll.l1);
 	ipc = ipc->u.ollll.l1;	
-      } else if (IsApplTerm(t)) {
-	sp = push_stack(sp, 1, AbsAppl((CELL *)FunctorOfTerm(t)), TermNil, cint);
-	ipc = ipc->u.ollll.l3;	
-      } else {
+      } else if (t == TermNil) {
 	sp = push_stack(sp, 1, t, TermNil, cint);
 	ipc = ipc->u.ollll.l2;	
+      } else {
+	if (IsApplTerm(t)) {
+	  sp = push_stack(sp, 1, t, AbsAppl((CELL *)FunctorOfTerm(t)), cint);
+	} else {
+	  sp = push_stack(sp, 1, t, TermNil, cint);
+	}
+	ipc = ipc->u.ollll.l3;	
       }
       break;
     case _switch_on_arg_type:

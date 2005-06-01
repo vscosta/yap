@@ -11,8 +11,12 @@
 * File:		amasm.c							 *
 * comments:	abstract machine assembler				 *
 *									 *
-* Last rev:     $Date: 2005-06-01 14:02:47 $							 *
+* Last rev:     $Date: 2005-06-01 16:42:30 $							 *
 * $Log: not supported by cvs2svn $
+* Revision 1.78  2005/06/01 14:02:47  vsc
+* get_rid of try_me?, retry_me? and trust_me? instructions: they are not
+* significantly used nowadays.
+*
 * Revision 1.77  2005/05/31 19:42:27  vsc
 * insert some more slack for indices in LU
 * Use doubly linked list for LU indices so that updating is less cumbersome.
@@ -1226,31 +1230,75 @@ a_xigl(op_numbers opcode, yamop *code_p, int pass_no, struct PSEUDO *cpc)
   return code_p;
 }
 
+/* enable peephole optimisation for switch_on_term to switch_on_list */
+static int
+is_switch_on_list(op_numbers opcode, struct intermediates *cip)
+{
+  struct PSEUDO *cpc = cip->cpc, *ncpc, *n2cpc;
+  CELL *if_table;
+
+  /* only do this is indexing code is stable */
+  if (cip->CurrentPred->PredFlags & LogUpdatePredFlag)
+    return FALSE;
+  /* check if we are transforming a switch_on_type */
+  if (opcode != _switch_on_type)
+    return FALSE;
+  /* should have two instructions next */
+  if ((ncpc = cpc->nextInst) == NULL ||
+      (n2cpc = ncpc->nextInst) == NULL)
+    return FALSE;
+  /* one a label, the other an if_constant */
+  if (ncpc->op != label_op ||
+      n2cpc->op != if_c_op)
+    return FALSE;
+  /* the label for the constant case should be the if_c label
+     (this should always hold) */
+  if (cpc->arnds[1] != ncpc->rnd1)
+    return FALSE;
+  if_table = (CELL *)(n2cpc->rnd2);
+  /* the constant switch should only have the empty list */
+  if (n2cpc->rnd1 != 1 ||
+      if_table[0] !=TermNil)
+    return FALSE;
+  /*
+    should be pointing to a clause so that we can push the clause opcode,
+    this should be fixable;
+    also, we need to go what's in there, so it cannot be suspend code!
+   */
+  if (cpc->arnds[0] & 1 ||
+      (yamop *)(cpc->arnds[0]) == (yamop *)(&(cip->CurrentPred->cs.p_code.ExpandCode)))
+    return FALSE;
+  /* Appl alternative should be pointing to same point as [] alternative,
+     usually FAILCODE */
+  if (if_table[3] != cpc->arnds[2])
+    return FALSE;
+  /* yesss!! */
+  return TRUE;
+}
+
 static yamop *
 a_4sw(op_numbers opcode, yamop *code_p, int pass_no, struct intermediates *cip)
 {
   CELL *seq_ptr;
 
-  if (opcode == _switch_on_type &&
-      cip->cpc->nextInst != NULL &&
-      cip->cpc->nextInst->op == label_op &&
-      cip->cpc->arnds[1] == cip->cpc->nextInst->rnd1 &&
-      !(cip->cpc->arnds[0] & 1) &&
-      cip->cpc->nextInst->nextInst != NULL &&
-      cip->cpc->nextInst->nextInst->op == if_c_op &&
-      cip->cpc->nextInst->nextInst->rnd1 == 1 &&
-      cip->cpc->nextInst->nextInst->arnds[1] == TermNil &&
-      cip->cpc->nextInst->nextInst->arnds[0] == cip->cpc->arnds[2]) {
+  if (is_switch_on_list(opcode, cip)) {
     if (pass_no) {
+      CELL *ars = (CELL *)(cip->cpc->nextInst->nextInst->rnd2);
       code_p->opc = emit_op(_switch_list_nl);
       seq_ptr = cip->cpc->arnds;
       code_p->u.ollll.pop = ((yamop *)(seq_ptr[0]))->opc;
       code_p->u.ollll.l1 = emit_ilabel(seq_ptr[0], cip);
-      code_p->u.ollll.l2 = emit_ilabel(cip->cpc->nextInst->nextInst->arnds[2], cip);
+      code_p->u.ollll.l2 = emit_ilabel(ars[1], cip);
       code_p->u.ollll.l3 = emit_ilabel(seq_ptr[2], cip);
       code_p->u.ollll.l4 = emit_ilabel(seq_ptr[3], cip);
+      if (cip->CurrentPred->PredFlags & LogUpdatePredFlag) {
+	Yap_FreeCodeSpace((char *)ClauseCodeToLogUpdIndex(ars));
+      } else {
+	Yap_FreeCodeSpace((char *)ClauseCodeToStaticIndex(ars));
+      }
     }
     GONEXT(ollll);
+    /* skip if_cons */
     cip->cpc = cip->cpc->nextInst->nextInst;
   } else {
     if (pass_no) {
