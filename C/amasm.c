@@ -11,8 +11,11 @@
 * File:		amasm.c							 *
 * comments:	abstract machine assembler				 *
 *									 *
-* Last rev:     $Date: 2005-06-01 20:25:23 $							 *
+* Last rev:     $Date: 2005-06-01 21:23:44 $							 *
 * $Log: not supported by cvs2svn $
+* Revision 1.80  2005/06/01 20:25:23  vsc
+* == and \= should not need a choice-point in ->
+*
 * Revision 1.79  2005/06/01 16:42:30  vsc
 * put switch_list_nl back
 *
@@ -1111,17 +1114,27 @@ compile_cmp_flags(char *s)
 {
   if (strcmp(s,"=<") == 0)
     return(EQ_OK_IN_CMP|LT_OK_IN_CMP);
+  if (strcmp(s,"@=<") == 0)
+    return(EQ_OK_IN_CMP|LT_OK_IN_CMP);
   if (strcmp(s,"<") == 0)
+    return(LT_OK_IN_CMP);
+  if (strcmp(s,"@<") == 0)
     return(LT_OK_IN_CMP);
   if (strcmp(s,">=") == 0)
     return(EQ_OK_IN_CMP|GT_OK_IN_CMP);
+  if (strcmp(s,"@>=") == 0)
+    return(EQ_OK_IN_CMP|GT_OK_IN_CMP);
   if (strcmp(s,">") == 0)
+    return(GT_OK_IN_CMP);
+  if (strcmp(s,"@>") == 0)
     return(GT_OK_IN_CMP);
   if (strcmp(s,"=:=") == 0)
     return(EQ_OK_IN_CMP);
   if (strcmp(s,"=\\=") == 0)
     return(GT_OK_IN_CMP|LT_OK_IN_CMP);
-  Yap_Error(INTERNAL_COMPILER_ERROR, TermNil, "internal assembler error in flags for %s", s);
+  if (strcmp(s,"\\==") == 0)
+    return(GT_OK_IN_CMP|LT_OK_IN_CMP);
+  Yap_Error(INTERNAL_COMPILER_ERROR, TermNil, "internal assembler error, %s is not recognised", s);
   return(0);
 }
 

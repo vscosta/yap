@@ -35,11 +35,11 @@ STATIC_PROTO(Int a_gt, (Term, Term));
 STATIC_PROTO(Int a_ge, (Term,Term));
 STATIC_PROTO(Int a_lt, (Term,Term));
 STATIC_PROTO(Int a_le, (Term,Term));
-STATIC_PROTO(Int p_noteq, (void));
-STATIC_PROTO(Int p_gen_lt, (void));
-STATIC_PROTO(Int p_gen_le, (void));
-STATIC_PROTO(Int p_gen_gt, (void));
-STATIC_PROTO(Int p_gen_ge, (void));
+STATIC_PROTO(Int a_noteq, (Term,Term));
+STATIC_PROTO(Int a_gen_lt, (Term,Term));
+STATIC_PROTO(Int a_gen_le, (Term,Term));
+STATIC_PROTO(Int a_gen_gt, (Term,Term));
+STATIC_PROTO(Int a_gen_ge, (Term,Term));
 
 #define rfloat(X)	( X > 0.0 ? 1 : ( X == 0.0 ? 0 : -1))
 
@@ -269,148 +269,159 @@ static int compare_complex(register CELL *pt0, register CELL *pt0_end, register
 }
 
 inline static Int 
-compare(register Term t1,register Term t2) /* compare terms t1 and t2	 */
+compare(Term t1, Term t2) /* compare terms t1 and t2	 */
 {
-	Int             r;
-	t1 = Deref(t1);
-	t2 = Deref(t2);
-	if (t1 == t2)
-		return (0);
-	if (IsVarTerm(t1)) {
-		if (IsVarTerm(t2))
-			return (Signed(t1) - Signed(t2));
-		return (-1);
-	} else if (IsVarTerm(t2))
-		return (1);
-	if (IsAtomTerm(t1)) {
-	  if (IsAtomTerm(t2))
-	    return (strcmp(
-			   RepAtom(AtomOfTerm(t1))->StrOfAE,
-			   RepAtom(AtomOfTerm(t2))->StrOfAE
-			   ));
-	  if (IsPrimitiveTerm(t2))
-	    return (1);
-	  return (-1);
-	}
-	if (IsIntTerm(t1)) {
-	  if (IsIntTerm(t2))
-	    return (IntOfTerm(t1) - IntOfTerm(t2));
-	  if (IsFloatTerm(t2)) {
-	    return(1);
-	  }
-	  if (IsLongIntTerm(t2))
-	    return(IntOfTerm(t1) - LongIntOfTerm(t2));
+
+  if (t1 == t2)
+    return 0;
+  if (IsVarTerm(t1)) {
+    if (IsVarTerm(t2))
+      return Signed(t1) - Signed(t2);
+    return -1;
+  } else if (IsVarTerm(t2)) {
+    /* get rid of variables */
+    return 1;
+  }
+  if (IsAtomOrIntTerm(t1)) {
+    if (IsAtomTerm(t1)) {
+      if (IsAtomTerm(t2))
+	return strcmp(
+		      RepAtom(AtomOfTerm(t1))->StrOfAE,
+		      RepAtom(AtomOfTerm(t2))->StrOfAE
+		      );
+      if (IsPrimitiveTerm(t2))
+	return 1;
+      return -1;
+    } else {
+      if (IsIntTerm(t2))
+	return IntOfTerm(t1) - IntOfTerm(t2);
+      if (IsFloatTerm(t2)) {
+	return 1;
+      }
+      if (IsLongIntTerm(t2)) {
+	return IntOfTerm(t1) - LongIntOfTerm(t2);
+      }
 #ifdef USE_GMP
-	  if (IsBigIntTerm(t2))
-	    return(-mpz_cmp_si(Yap_BigIntOfTerm(t2),IntOfTerm(t1)));
+      if (IsBigIntTerm(t2)) {
+	return -mpz_cmp_si(Yap_BigIntOfTerm(t2),IntOfTerm(t1));
+      }
 #endif
-	  if (IsRefTerm(t2))
-	    return (1);
-	  return (-1);
+      if (IsRefTerm(t2))
+	return 1;
+      return -1;
+    }
+  } else if (IsPairTerm(t1)) {
+    if (IsApplTerm(t2)) {
+      Functor f = FunctorOfTerm(t2);
+      if (IsExtensionFunctor(f))
+	return 1;
+      else {
+	int out;
+	if (!(out = 2-ArityOfFunctor(f)))
+	  out = strcmp(".",RepAtom(NameOfFunctor(f))->StrOfAE);
+	return(out);
+      }
+    }
+    if (IsPairTerm(t2)) {
+      return(compare_complex(RepPair(t1)-1,
+			     RepPair(t1)+1,
+			     RepPair(t2)-1));
+    }
+    else return 1;
+  } else {
+    /* compound term */
+    Functor fun1 = FunctorOfTerm(t1);
+
+    if (IsExtensionFunctor(fun1)) {
+      /* float, long, big, dbref */
+      if (IsFloatTerm(t1)) {
+	if (IsFloatTerm(t2))
+	  return(rfloat(FloatOfTerm(t1) - FloatOfTerm(t2)));
+	if (IsRefTerm(t2))
+	  return 1;
+	return -1;
+      }
+      if (IsLongIntTerm(t1)) {
+	if (IsIntTerm(t2))
+	  return LongIntOfTerm(t1) - IntOfTerm(t2);
+	if (IsFloatTerm(t2)) {
+	  return 1;
 	}
-	if (IsFloatTerm(t1)) {
-	  if (IsFloatTerm(t2))
-	    return(rfloat(FloatOfTerm(t1) - FloatOfTerm(t2)));
-	  if (IsRefTerm(t2))
-	    return (1);
-	  return (-1);
-	}
-	if (IsLongIntTerm(t1)) {
-	  if (IsIntTerm(t2))
-	    return (LongIntOfTerm(t1) - IntOfTerm(t2));
-	  if (IsFloatTerm(t2)) {
-	    return(1);
-	  }
-	  if (IsLongIntTerm(t2))
-	    return (LongIntOfTerm(t1) - LongIntOfTerm(t2));
+	if (IsLongIntTerm(t2))
+	  return LongIntOfTerm(t1) - LongIntOfTerm(t2);
 #ifdef USE_GMP
-	  if (IsBigIntTerm(t2))
-	    return(-mpz_cmp_si(Yap_BigIntOfTerm(t2), LongIntOfTerm(t1)));
+	if (IsBigIntTerm(t2))
+	  return -mpz_cmp_si(Yap_BigIntOfTerm(t2), LongIntOfTerm(t1));
 #endif
-	  if (IsRefTerm(t2))
-	    return (1);
-	  return (-1);
-	}
+	if (IsRefTerm(t2))
+	  return 1;
+	return -1;
+      }
 #ifdef USE_GMP
-        if (IsBigIntTerm(t1)) {
-	  if (IsIntTerm(t2))
-	    return(mpz_cmp_si(Yap_BigIntOfTerm(t1), IntOfTerm(t2)));
-	  if (IsFloatTerm(t2)) {
-	    return(1);
-	  }
-	  if (IsLongIntTerm(t2))
-	    return(mpz_cmp_si(Yap_BigIntOfTerm(t1), LongIntOfTerm(t2)));
-	  if (IsBigIntTerm(t2))
-	    return(mpz_cmp(Yap_BigIntOfTerm(t1), Yap_BigIntOfTerm(t2)));
-	  if (IsRefTerm(t2))
-	    return(1);
-	  return(-1);
+      if (IsBigIntTerm(t1)) {
+	if (IsIntTerm(t2))
+	  return mpz_cmp_si(Yap_BigIntOfTerm(t1), IntOfTerm(t2));
+	if (IsFloatTerm(t2)) {
+	  return 1;
 	}
+	if (IsLongIntTerm(t2))
+	  return mpz_cmp_si(Yap_BigIntOfTerm(t1), LongIntOfTerm(t2));
+	if (IsBigIntTerm(t2))
+	  return mpz_cmp(Yap_BigIntOfTerm(t1), Yap_BigIntOfTerm(t2));
+	if (IsRefTerm(t2))
+	  return 1;
+	return -1;
+      }
 #endif
-	if (IsPairTerm(t1)) {
-	  if (IsApplTerm(t2)) {
-	    Functor f = FunctorOfTerm(t2);
-	    if (IsExtensionFunctor(f))
-	      return(1);
-	    else {
-	      int out;
-	      if (!(out = 2-ArityOfFunctor(f)))
-	        out = strcmp(".",RepAtom(NameOfFunctor(f))->StrOfAE);
-	      return(out);
-	    }
-	  }
-	  if (IsPairTerm(t2)) {
-	    return(compare_complex(RepPair(t1)-1,
-				   RepPair(t1)+1,
-				   RepPair(t2)-1));
-	  }
-	  else return (1);
-	}
-	if (IsRefTerm(t1)) {
-	  if (IsRefTerm(t2))
-	    return (Unsigned(RefOfTerm(t2)) -
-		    Unsigned(RefOfTerm(t1)));
-	  return (-1);
-	}
-	if (!IsApplTerm(t2))
-		return (1);
-	/* compound term */
-	{ Functor fun1 = FunctorOfTerm(t1);
-	  Functor fun2;
-	  fun2 = FunctorOfTerm(t2);
-	  if (IsExtensionFunctor(fun2))
-	    return(1);
-	  r = ArityOfFunctor(fun1) - ArityOfFunctor(fun2);
-	  if (r)
-	    return (r);
-	  r = strcmp(RepAtom(NameOfFunctor(fun1))->StrOfAE,
-		     RepAtom(NameOfFunctor(fun2))->StrOfAE);
-	  if (r)
-	    return (r);
-	  else
-	    return(compare_complex(RepAppl(t1),
-				   RepAppl(t1)+ArityOfFunctor(fun1),
-				   RepAppl(t2)));
-	}
+      if (IsRefTerm(t1)) {
+	if (IsRefTerm(t2))
+	  return Unsigned(RefOfTerm(t2)) -
+		  Unsigned(RefOfTerm(t1));
+	return -1;
+      }
+    }
+    if (!IsApplTerm(t2)) {
+      return 1;
+    } else {
+      Functor fun2 = FunctorOfTerm(t2);
+      Int r;
+
+      if (IsExtensionFunctor(fun2)) {
+	return 1;
+      }
+      r = ArityOfFunctor(fun1) - ArityOfFunctor(fun2);
+      if (r)
+	return r;
+      r = strcmp(RepAtom(NameOfFunctor(fun1))->StrOfAE,
+		 RepAtom(NameOfFunctor(fun2))->StrOfAE);
+      if (r)
+	return r;
+      else
+	return(compare_complex(RepAppl(t1),
+			       RepAppl(t1)+ArityOfFunctor(fun1),
+			       RepAppl(t2)));
+    }
+  }
 }
 
 int Yap_compare_terms(register CELL d0, register CELL d1)
 {
-  return (compare(d0,d1));
+  return (compare(Deref(d0),Deref(d1)));
 }
 
 static Int 
 p_compare(void)
 {				/* compare(?Op,?T1,?T2)	 */
-	Int             r = compare(ARG2, ARG3);
-	Atom            p;
-	if (r < 0)
-		p = AtomLT;
-	else if (r > 0)
-		p = AtomGT;
-	else
-		p = AtomEQ;
-	return (Yap_unify_constant(ARG1, MkAtomTerm(p)));
+  Int             r = compare(Deref(ARG2), Deref(ARG3));
+  Atom            p;
+
+  if (r < 0)
+    p = AtomLT;
+  else if (r > 0)
+    p = AtomGT;
+  else
+    p = AtomEQ;
+  return Yap_unify_constant(ARG1, MkAtomTerm(p));
 }
 
 inline static int
@@ -995,33 +1006,33 @@ a_le(Term t1, Term t2)
 
 
 static Int 
-p_noteq(void)
+a_noteq(Term t1, Term t2)
 {
-  return (compare(ARG1, ARG2) != 0);
+  return (compare(t1, t2) != 0);
 }
 
 static Int 
-p_gen_lt(void)
+a_gen_lt(Term t1, Term t2)
 {
-  return (compare(ARG1, ARG2) < 0);
+  return (compare(t1, t2) < 0);
 }
 
 static Int 
-p_gen_le(void)
+a_gen_le(Term t1, Term t2)
 {
-  return (compare(ARG1, ARG2) <= 0);
+  return (compare(t1, t2) <= 0);
 }
 
 static Int 
-p_gen_gt(void)
+a_gen_gt(Term t1, Term t2)
 {
-  return (compare(ARG1, ARG2) > 0);
+  return (compare(t1, t2) > 0);
 }
 
 static Int 
-p_gen_ge(void)
+a_gen_ge(Term t1, Term t2)
 {
-  return (compare(ARG1, ARG2) >= 0);
+  return (compare(t1, t2) >= 0);
 }
 
 
@@ -1035,10 +1046,10 @@ Yap_InitCmpPreds(void)
   Yap_InitCmpPred("<", 2, a_lt, SafePredFlag | BinaryTestPredFlag);
   Yap_InitCmpPred(">=", 2, a_ge, SafePredFlag | BinaryTestPredFlag);
   Yap_InitCPred("$a_compare", 3, p_acomp, TestPredFlag | SafePredFlag|HiddenPredFlag);
-  Yap_InitCPred("\\==", 2, p_noteq, TestPredFlag | SafePredFlag);
-  Yap_InitCPred("@<", 2, p_gen_lt, TestPredFlag | SafePredFlag);
-  Yap_InitCPred("@=<", 2, p_gen_le, TestPredFlag | SafePredFlag);
-  Yap_InitCPred("@>", 2, p_gen_gt, TestPredFlag | SafePredFlag);
-  Yap_InitCPred("@>=", 2, p_gen_ge, TestPredFlag | SafePredFlag);
+  Yap_InitCmpPred("\\==", 2, a_noteq, BinaryTestPredFlag | SafePredFlag);
+  Yap_InitCmpPred("@<", 2, a_gen_lt, BinaryTestPredFlag | SafePredFlag);
+  Yap_InitCmpPred("@=<", 2, a_gen_le, BinaryTestPredFlag | SafePredFlag);
+  Yap_InitCmpPred("@>", 2, a_gen_gt, BinaryTestPredFlag | SafePredFlag);
+  Yap_InitCmpPred("@>=", 2, a_gen_ge, BinaryTestPredFlag | SafePredFlag);
   Yap_InitCPred("compare", 3, p_compare, TestPredFlag | SafePredFlag);
 }
