@@ -11,8 +11,12 @@
 * File:		cdmgr.c							 *
 * comments:	Code manager						 *
 *									 *
-* Last rev:     $Date: 2005-05-31 19:42:27 $,$Author: vsc $						 *
+* Last rev:     $Date: 2005-06-01 14:02:47 $,$Author: vsc $						 *
 * $Log: not supported by cvs2svn $
+* Revision 1.159  2005/05/31 19:42:27  vsc
+* insert some more slack for indices in LU
+* Use doubly linked list for LU indices so that updating is less cumbersome.
+*
 * Revision 1.158  2005/05/31 00:30:23  ricroc
 * remove abort_yapor function
 *
@@ -737,22 +741,10 @@ cleanup_dangling_indices(yamop *ipc, yamop *beg, yamop *end, yamop *suspend_code
       break;
     case _try_clause:
     case _try_me:
-    case _try_me1:
-    case _try_me2:
-    case _try_me3:
-    case _try_me4:
     case _retry_me:
-    case _retry_me1:
-    case _retry_me2:
-    case _retry_me3:
-    case _retry_me4:
     case _profiled_trust_me:
     case _trust_me:
     case _count_trust_me:
-    case _trust_me1:
-    case _trust_me2:
-    case _trust_me3:
-    case _trust_me4:
       ipc = NEXTOP(ipc,ld);
       break;
     case _enter_lu_pred:

@@ -11,8 +11,12 @@
 * File:		amasm.c							 *
 * comments:	abstract machine assembler				 *
 *									 *
-* Last rev:     $Date: 2005-05-31 19:42:27 $							 *
+* Last rev:     $Date: 2005-06-01 14:02:47 $							 *
 * $Log: not supported by cvs2svn $
+* Revision 1.77  2005/05/31 19:42:27  vsc
+* insert some more slack for indices in LU
+* Use doubly linked list for LU indices so that updating is less cumbersome.
+*
 * Revision 1.76  2005/05/30 05:33:43  vsc
 * get rid of annoying debugging message.
 *
@@ -2282,13 +2286,12 @@ a_f2(int var, cmp_op_info *cmp_info, yamop *code_p, int pass_no, struct intermed
   return code_p;
 }
 
-#define TRYOP(G,P)   (IPredArity<5 ? (op_numbers)((int)(P)+(IPredArity*3)) : (G))
 #ifdef YAPOR
-#define TRYCODE(G,P) a_try(TRYOP(G,P), Unsigned(cip->code_addr) + cip->label_offset[cip->cpc->rnd1], IPredArity, &clinfo, cip->cpc->rnd2 >> 1, cip->cpc->rnd2 & 1, code_p, pass_no)
-#define TABLE_TRYCODE(G) a_try(G, (CELL)emit_ilabel(cip->cpc->rnd1, cip), IPredArity, cip->cpc->rnd2 >> 1, cip->cpc->rnd2 & 1, code_p, pass_no)
+#define TRYCODE(G,P) a_try((G), Unsigned(cip->code_addr) + cip->label_offset[cip->cpc->rnd1], IPredArity, &clinfo, cip->cpc->rnd2 >> 1, cip->cpc->rnd2 & 1, code_p, pass_no)
+#define TABLE_TRYCODE(G) a_try((G), (CELL)emit_ilabel(cip->cpc->rnd1, cip), IPredArity, cip->cpc->rnd2 >> 1, cip->cpc->rnd2 & 1, code_p, pass_no)
 #else
-#define TRYCODE(G,P) a_try(TRYOP(G,P), Unsigned(cip->code_addr) + cip->label_offset[cip->cpc->rnd1], IPredArity, &clinfo, code_p, pass_no)
-#define TABLE_TRYCODE(G) a_try(G, (CELL)emit_ilabel(cip->cpc->rnd1, cip), IPredArity, &clinfo, code_p, pass_no)
+#define TRYCODE(G,P) a_try((G), Unsigned(cip->code_addr) + cip->label_offset[cip->cpc->rnd1], IPredArity, &clinfo, code_p, pass_no)
+#define TABLE_TRYCODE(G) a_try((G), (CELL)emit_ilabel(cip->cpc->rnd1, cip), IPredArity, &clinfo, code_p, pass_no)
 #endif /* YAPOR */
 
 static yamop *
@@ -2378,9 +2381,9 @@ do_pass(int pass_no, yamop **entry_codep, int assembling, int *clause_has_blobsp
     }
     if (dynamic) {
 #ifdef YAPOR
-      code_p = a_try(TRYOP(_try_me, _try_me0), 0, IPredArity, &clinfo, 1, 0, code_p, pass_no);
+      code_p = a_try(_try_me, 0, IPredArity, &clinfo, 1, 0, code_p, pass_no);
 #else
-      code_p = a_try(TRYOP(_try_me, _try_me0), 0, IPredArity, &clinfo, code_p, pass_no);
+      code_p = a_try(_try_me, 0, IPredArity, &clinfo, code_p, pass_no);
 #endif	/* YAPOR */
     }
   } else {

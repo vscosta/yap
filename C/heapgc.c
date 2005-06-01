@@ -1938,16 +1938,6 @@ mark_choicepoints(register choiceptr gc_B, tr_fr_ptr saved_TR, int very_verbose)
       case _profiled_trust_me:
       case _count_retry_me:
       case _count_trust_me:
-      case _retry_me0:
-      case _trust_me0:
-      case _retry_me1:
-      case _trust_me1:
-      case _retry_me2:
-      case _trust_me2:
-      case _retry_me3:
-      case _trust_me3:
-      case _retry_me4:
-      case _trust_me4:
       case _retry:
       case _trust:
 	nargs = rtp->u.ld.s;

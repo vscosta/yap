@@ -4203,8 +4203,6 @@ Yap_ErCl(DynamicClause *clau)
   MyEraseClause(clau);
 }
 
-#define TRYCODE(G,F,N) ( (N)<5 ? (op_numbers)((int)(F)+(N)*3) : G)
-
 static void 
 PrepareToEraseLogUpdClause(LogUpdClause *clau, DBRef dbr)
 {
@@ -4234,7 +4232,7 @@ PrepareToEraseLogUpdClause(LogUpdClause *clau, DBRef dbr)
     } else {
       p->cs.p_code.FirstClause = code_p->u.ld.d;
       p->cs.p_code.FirstClause->opc =
-       Yap_opcode(TRYCODE(_try_me, _try_me0, p->ArityOfPE));
+       Yap_opcode(_try_me);
     }
   }
   dbr->Code = NULL;   /* unlink the two now */

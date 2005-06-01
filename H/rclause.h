@@ -12,8 +12,11 @@
 * File:		rclause.h						 *
 * comments:	walk through a clause					 *
 *									 *
-* Last rev:     $Date: 2005-05-30 03:26:37 $,$Author: vsc $						 *
+* Last rev:     $Date: 2005-06-01 14:02:52 $,$Author: vsc $						 *
 * $Log: not supported by cvs2svn $
+* Revision 1.3  2005/05/30 03:26:37  vsc
+* add some atom gc fixes
+*
 * Revision 1.2  2005/04/10 04:01:13  vsc
 * bug fixes, I hope!
 *
@@ -91,21 +94,6 @@ restore_opcodes(yamop *pc)
     case _profiled_trust_me:
     case _count_retry_me:
     case _count_trust_me:
-    case _try_me0:
-    case _retry_me0:
-    case _trust_me0:
-    case _try_me1:
-    case _retry_me1:
-    case _trust_me1:
-    case _try_me2:
-    case _retry_me2:
-    case _trust_me2:
-    case _try_me3:
-    case _retry_me3:
-    case _trust_me3:
-    case _try_me4:
-    case _retry_me4:
-    case _trust_me4:
     case _spy_or_trymark:
     case _try_and_mark:
     case _profiled_retry_and_mark:

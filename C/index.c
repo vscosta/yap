@@ -11,8 +11,11 @@
 * File:		index.c							 *
 * comments:	Indexing a Prolog predicate				 *
 *									 *
-* Last rev:     $Date: 2005-05-31 20:04:17 $,$Author: vsc $						 *
+* Last rev:     $Date: 2005-06-01 14:02:50 $,$Author: vsc $						 *
 * $Log: not supported by cvs2svn $
+* Revision 1.132  2005/05/31 20:04:17  vsc
+* fix cleanup of expand_clauses: make sure we have everything with NULL afterwards.
+*
 * Revision 1.131  2005/05/31 19:42:27  vsc
 * insert some more slack for indices in LU
 * Use doubly linked list for LU indices so that updating is less cumbersome.
@@ -665,21 +668,6 @@ has_cut(yamop *pc)
     case _profiled_trust_me:
     case _count_retry_me:
     case _count_trust_me:
-    case _try_me0:
-    case _retry_me0:
-    case _trust_me0:
-    case _try_me1:
-    case _retry_me1:
-    case _trust_me1:
-    case _try_me2:
-    case _retry_me2:
-    case _trust_me2:
-    case _try_me3:
-    case _retry_me3:
-    case _trust_me3:
-    case _try_me4:
-    case _retry_me4:
-    case _trust_me4:
     case _spy_or_trymark:
     case _try_and_mark:
     case _profiled_retry_and_mark:
@@ -2056,21 +2044,6 @@ add_info(ClauseDef *clause, UInt regno)
     case _profiled_trust_me:
     case _count_retry_me:
     case _count_trust_me:
-    case _try_me0:
-    case _retry_me0:
-    case _trust_me0:
-    case _try_me1:
-    case _retry_me1:
-    case _trust_me1:
-    case _try_me2:
-    case _retry_me2:
-    case _trust_me2:
-    case _try_me3:
-    case _retry_me3:
-    case _trust_me3:
-    case _try_me4:
-    case _retry_me4:
-    case _trust_me4:
     case _spy_or_trymark:
     case _try_and_mark:
     case _profiled_retry_and_mark:
@@ -4743,19 +4716,11 @@ expand_index(struct intermediates *cint) {
       ipc = NEXTOP(ipc,l);
       break;
     case _retry_me:
-    case _retry_me1:
-    case _retry_me2:
-    case _retry_me3:
-    case _retry_me4:
 #ifdef TABLING
     case _table_retry_me:
 #endif
       isfirstcl = FALSE;
     case _try_me:
-    case _try_me1:
-    case _try_me2:
-    case _try_me3:
-    case _try_me4:
 #ifdef TABLING
     case _table_try_me:
 #endif
@@ -4771,10 +4736,6 @@ expand_index(struct intermediates *cint) {
     case _profiled_trust_me:
     case _trust_me:
     case _count_trust_me:
-    case _trust_me1:
-    case _trust_me2:
-    case _trust_me3:
-    case _trust_me4:
 #ifdef TABLING
     case _table_trust_me:
 #endif /* TABLING */
@@ -6713,19 +6674,11 @@ add_to_index(struct intermediates *cint, int first, path_stack_entry *sp, Clause
       break;
       /* instructions type l */
     case _retry_me:
-    case _retry_me1:
-    case _retry_me2:
-    case _retry_me3:
-    case _retry_me4:
       /* should never be reached both for asserta */
       group1 = FALSE;
       ipc = ipc->u.ld.d;
       break;
     case _try_me:
-    case _try_me1:
-    case _try_me2:
-    case _try_me3:
-    case _try_me4:
       if (first) {
 	ipc = NEXTOP(ipc,ld);
 	alt = ipc->u.ld.d;
@@ -6741,10 +6694,6 @@ add_to_index(struct intermediates *cint, int first, path_stack_entry *sp, Clause
     case _profiled_trust_me:
     case _trust_me:
     case _count_trust_me:
-    case _trust_me1:
-    case _trust_me2:
-    case _trust_me3:
-    case _trust_me4:
       group1 = FALSE;
       ipc = NEXTOP(ipc, ld);
       break;
@@ -7301,25 +7250,13 @@ remove_from_index(PredEntry *ap, path_stack_entry *sp, ClauseDef *cls, yamop *bg
       break;
       /* instructions type l */
     case _try_me:
-    case _try_me1:
-    case _try_me2:
-    case _try_me3:
-    case _try_me4:
     case _retry_me:
-    case _retry_me1:
-    case _retry_me2:
-    case _retry_me3:
-    case _retry_me4:
       sp = push_path(sp, &(ipc->u.ld.d), cls, cint);
       ipc = NEXTOP(ipc,ld);
       break;
     case _profiled_trust_me:
     case _trust_me:
     case _count_trust_me:
-    case _trust_me1:
-    case _trust_me2:
-    case _trust_me3:
-    case _trust_me4:
       ipc = NEXTOP(ipc,ld);
       break;
     case _jump:
@@ -7830,10 +7767,6 @@ Yap_FollowIndexingCode(PredEntry *ap, yamop *ipc, Term Terms[3], yamop *ap_pc, y
       else
 	return (LogUpdClause *)static_clause(ipc->u.l.l, ap);
     case _try_me:
-    case _try_me1:
-    case _try_me2:
-    case _try_me3:
-    case _try_me4:
       if (b0 == NULL)
 	store_clause_choice_point(Terms[0], Terms[1], Terms[2], ipc->u.ld.d, ap, ap_pc, cp_pc);
       else
@@ -7859,10 +7792,6 @@ Yap_FollowIndexingCode(PredEntry *ap, yamop *ipc, Term Terms[3], yamop *ap_pc, y
       else
 	return (LogUpdClause *)static_clause(ipc->u.l.l, ap);
     case _retry_me:
-    case _retry_me1:
-    case _retry_me2:
-    case _retry_me3:
-    case _retry_me4:
       update_clause_choice_point(ipc->u.ld.d,ap_pc);
       ipc = NEXTOP(ipc,ld);
       break;
@@ -7885,10 +7814,6 @@ Yap_FollowIndexingCode(PredEntry *ap, yamop *ipc, Term Terms[3], yamop *ap_pc, y
     case _profiled_trust_me:
     case _trust_me:
     case _count_trust_me:
-    case _trust_me1:
-    case _trust_me2:
-    case _trust_me3:
-    case _trust_me4:
 #ifdef YAPOR
       {
 	choiceptr cut_pt;
@@ -8340,25 +8265,13 @@ Yap_NthClause(PredEntry *ap, Int ncls)
       ipc = alt;
       break;
     case _try_me:
-    case _try_me1:
-    case _try_me2:
-    case _try_me3:
-    case _try_me4:
     case _retry_me:
-    case _retry_me1:
-    case _retry_me2:
-    case _retry_me3:
-    case _retry_me4:
       alt = ipc->u.ld.d;
       ipc = NEXTOP(ipc,ld);
       break;
     case _profiled_trust_me:
     case _trust_me:
     case _count_trust_me:
-    case _trust_me1:
-    case _trust_me2:
-    case _trust_me3:
-    case _trust_me4:
       alt = NULL;
       ipc = NEXTOP(ipc,ld);
       break;
@@ -8482,20 +8395,8 @@ find_caller(PredEntry *ap, yamop *code, struct intermediates *cint) {
     op = Yap_op_from_opcode(ipc->opc);
     switch(op) {
     case _try_me:
-    case _try_me1:
-    case _try_me2:
-    case _try_me3:
-    case _try_me4:
     case _retry_me:
-    case _retry_me1:
-    case _retry_me2:
-    case _retry_me3:
-    case _retry_me4:
     case _trust_me:
-    case _trust_me1:
-    case _trust_me2:
-    case _trust_me3:
-    case _trust_me4:
     case _profiled_trust_me:
     case _count_trust_me:
       alt = ipc->u.ld.d;

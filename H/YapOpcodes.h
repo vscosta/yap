@@ -11,8 +11,11 @@
 * File:		YapOpcodes.h						 *
 * comments:	Central Table with all YAP opcodes                       *
 *									 *
-* Last rev:     $Date: 2005-04-10 04:01:13 $							 *
+* Last rev:     $Date: 2005-06-01 14:02:52 $							 *
 * $Log: not supported by cvs2svn $
+* Revision 1.26  2005/04/10 04:01:13  vsc
+* bug fixes, I hope!
+*
 * Revision 1.25  2004/10/26 20:16:04  vsc
 * More bug fixes for overflow handling
 *
@@ -92,21 +95,6 @@
     OPCODE(try_me                  ,ld),	
     OPCODE(retry_me                ,ld),	
     OPCODE(trust_me                ,ld),	
-    OPCODE(try_me0                 ,ld),	
-    OPCODE(retry_me0               ,ld),	
-    OPCODE(trust_me0               ,ld),	
-    OPCODE(try_me1                 ,ld),	
-    OPCODE(retry_me1               ,ld),	
-    OPCODE(trust_me1               ,ld),	
-    OPCODE(try_me2                 ,ld),	
-    OPCODE(retry_me2               ,ld),	
-    OPCODE(trust_me2               ,ld),	
-    OPCODE(try_me3                 ,ld),	
-    OPCODE(retry_me3               ,ld),	
-    OPCODE(trust_me3               ,ld),	
-    OPCODE(try_me4                 ,ld),	
-    OPCODE(retry_me4               ,ld),	
-    OPCODE(trust_me4               ,ld),	
     OPCODE(try_and_mark            ,ld),
     OPCODE(retry_and_mark          ,ld),
     OPCODE(try_c                   ,lds),		
