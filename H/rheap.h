@@ -11,8 +11,11 @@
 * File:		rheap.h							 *
 * comments:	walk through heap code					 *
 *									 *
-* Last rev:     $Date: 2005-05-30 03:26:37 $,$Author: vsc $						 *
+* Last rev:     $Date: 2005-06-01 13:53:46 $,$Author: vsc $						 *
 * $Log: not supported by cvs2svn $
+* Revision 1.49  2005/05/30 03:26:37  vsc
+* add some atom gc fixes
+*
 * Revision 1.48  2005/01/04 02:50:21  vsc
 * - allow MegaClauses with blobs
 * - change Diffs to be thread specific
@@ -584,17 +587,6 @@ RestoreDB(DBEntry *pp)
   }
 }
 
-/* Restores a DB structure, as it was saved in the heap */
-static void 
-RestoreBB(BlackBoardEntry *pp)
-{
-  if (pp->Element) {
-    pp->Element = DBTermAdjust(pp->Element);
-    RestoreDBTerm(pp->Element);
-  }
-  pp->KeyOfBB = AtomAdjust(pp->KeyOfBB);
-}
-
 #include "rclause.h"
 
 /* Restores a prolog clause, in its compiled form */
@@ -746,6 +738,19 @@ CleanSIndex(StaticIndex *idx)
   }
 }
 
+
+/* Restores a DB structure, as it was saved in the heap */
+static void 
+RestoreBB(BlackBoardEntry *pp)
+{
+  Term t = pp->Element;
+  if (t) {
+    if (!IsVarTerm(t) && !IsAtomicTerm(t)) {
+      RestoreLUClause((LogUpdClause *)DBRefOfTerm(t),NULL);
+    }
+  }
+  pp->KeyOfBB = AtomAdjust(pp->KeyOfBB);
+}
 
 static void
 restore_static_array(StaticArrayEntry *ae)

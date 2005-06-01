@@ -19,8 +19,7 @@ static char     SccsId[] = "%W% %G%";
 #endif
 
 #include "Yap.h"
-#include "Yatom.h"
-#include "Heap.h"
+#include "clause.h"
 #ifndef NULL
 #define NULL (void *)0
 #endif
@@ -47,7 +46,7 @@ PutBBProp(AtomEntry *ae, Term mod)		/* get BBentry for at; */
     p->NextOfPE = ae->PropsOfAE;
     ae->PropsOfAE = AbsBBProp(p);
     p->ModuleOfBB = mod;
-    p->Element = NULL;
+    p->Element = 0L;
     p->KeyOfBB = AbsAtom(ae);
     p->KindOfPE = BBProperty;
     INIT_RWLOCK(p->BBRWLock);    
@@ -94,7 +93,7 @@ PutIntBBProp(Int key, Term mod)	/* get BBentry for at; */
       return(NULL);
     }
     p->ModuleOfBB = mod;
-    p->Element = NULL;
+    p->Element = 0L;
     p->KeyOfBB = (Atom)key;
     p->KindOfPE = BBProperty;
     p->NextOfPE = INT_BB_KEYS[hash_key];
@@ -246,20 +245,53 @@ FetchBBProp(Term t1, char *msg, Term mod)
   return(p);
 }
 
+static Term 
+BBPut(Term t0, Term t2)
+{
+  if (!IsVarTerm(t0) && IsApplTerm(t0)) {
+    Yap_ErLogUpdCl((LogUpdClause *)DBRefOfTerm(t0));
+  }
+  if (IsVarTerm(t2) || IsAtomOrIntTerm(t2)) {
+    return t2;
+  } else {
+    LogUpdClause *cl = Yap_new_ludbe(t2, NULL, 0);
+
+    if (cl == NULL) {
+      return 0L;
+    }
+    return MkDBRefTerm((DBRef)cl);
+  }
+}
+
 static Int
 p_bb_put(void)
 {
   Term t1 = Deref(ARG1);
   BBProp p = AddBBProp(t1, "bb_put/2", CurrentModule);
-  if (p == NULL)
+
+  if (p == NULL) {
     return(FALSE);
-  WRITE_LOCK(p->BBRWLock);    
-  if (p->Element != NULL) {
-    Yap_ReleaseTermFromDB(p->Element);
   }
-  p->Element = Yap_StoreTermInDB(Deref(ARG2),2);
+  WRITE_LOCK(p->BBRWLock);    
+  /*
+    if (p->Element)
+    fprintf(stderr,"putting %p, size %d\n", p, p->Element->NOfCells);
+  */
+  p->Element = BBPut(p->Element, Deref(ARG2));
   WRITE_UNLOCK(p->BBRWLock);
-  return(p->Element != NULL);
+  return (p->Element != 0L);
+}
+
+static Term
+BBGet(Term t, UInt arity)
+{
+  if (IsVarTerm(t)) {
+    return MkVarTerm();
+  } else if (IsAtomOrIntTerm(t)) {
+    return t;
+  } else {
+    return Yap_LUInstance((LogUpdClause *)DBRefOfTerm(t), arity);
+  }
 }
 
 static Int
@@ -267,27 +299,18 @@ p_bb_get(void)
 {
   Term t1 = Deref(ARG1);
   BBProp p = FetchBBProp(t1, "bb_get/2", CurrentModule);
-  Term out;
-  if (p == NULL || p->Element == NULL)
+  Term out, t0;
+  if (p == NULL || p->Element == 0L)
     return(FALSE);
   READ_LOCK(p->BBRWLock);  
-  while ((out = Yap_FetchTermFromDB(p->Element)) == 0L) {
-    if (Yap_Error_TYPE == OUT_OF_ATTVARS_ERROR) {
-      Yap_Error_TYPE = YAP_NO_ERROR;
-      if (!Yap_growglobal(NULL)) {
-	Yap_Error(OUT_OF_ATTVARS_ERROR, TermNil, Yap_ErrorMessage);
-	return TermNil;
-      }
-    } else {
-      Yap_Error_TYPE = YAP_NO_ERROR;
-      if (!Yap_gc(2, ENV, P)) {
-	Yap_Error(OUT_OF_STACK_ERROR, TermNil, Yap_ErrorMessage);
-	return TermNil;
-      }
-    }
-  }
-  READ_UNLOCK(p->BBRWLock);
-  return(Yap_unify(ARG2,out));
+  /*
+    if (p->Element)
+      fprintf(stderr,"getting %p, size %d\n", p, p->Element->NOfCells);
+  */
+  t0 = p->Element;
+  READ_UNLOCK(p->BBRWLock);  
+  out = BBGet(t0, 2);
+  return Yap_unify(ARG2,out);
 }
 
 static Int
@@ -298,28 +321,16 @@ p_bb_delete(void)
   Term out;
 
   p = FetchBBProp(t1, "bb_delete/2", CurrentModule);
-  if (p == NULL || p->Element == NULL)
+  if (p == NULL || p->Element == 0L)
     return(FALSE);
-  while ((out = Yap_FetchTermFromDB(p->Element)) == 0L) {
-    if (Yap_Error_TYPE == OUT_OF_ATTVARS_ERROR) {
-      Yap_Error_TYPE = YAP_NO_ERROR;
-      if (!Yap_growglobal(NULL)) {
-	Yap_Error(OUT_OF_ATTVARS_ERROR, TermNil, Yap_ErrorMessage);
-	return TermNil;
-      }
-    } else {
-      Yap_Error_TYPE = YAP_NO_ERROR;
-      if (!Yap_gc(2, ENV, P)) {
-	Yap_Error(OUT_OF_STACK_ERROR, TermNil, Yap_ErrorMessage);
-	return TermNil;
-      }
-    }
-  }
   WRITE_LOCK(p->BBRWLock);  
-  Yap_ReleaseTermFromDB(p->Element);
-  p->Element = NULL;
+  out = BBGet(p->Element,2);
+  if (!IsVarTerm(p->Element) && IsApplTerm(p->Element)) {
+    Yap_ErLogUpdCl((LogUpdClause *)DBRefOfTerm(p->Element));
+  }
+  p->Element = 0L;
   WRITE_UNLOCK(p->BBRWLock);  
-  return(Yap_unify(ARG2,out));
+  return Yap_unify(ARG2,out);
 }
 
 static Int
@@ -330,33 +341,17 @@ p_bb_update(void)
   Term out;
 
   p = FetchBBProp(t1, "bb_update/3", CurrentModule);
-  if (p == NULL || p->Element == NULL)
-    return(FALSE);
+  if (p == NULL || p->Element == 0L)
+    return FALSE;
   WRITE_LOCK(p->BBRWLock);  
-  while ((out = Yap_FetchTermFromDB(p->Element)) == 0L) {
-    if (Yap_Error_TYPE == OUT_OF_ATTVARS_ERROR) {
-      Yap_Error_TYPE = YAP_NO_ERROR;
-      if (!Yap_growglobal(NULL)) {
-	Yap_Error(OUT_OF_ATTVARS_ERROR, TermNil, Yap_ErrorMessage);
-	return TermNil;
-      }
-    } else {
-      Yap_Error_TYPE = YAP_NO_ERROR;
-      if (!Yap_gc(3, ENV, P)) {
-	Yap_Error(OUT_OF_STACK_ERROR, TermNil, Yap_ErrorMessage);
-	return TermNil;
-      }
-    }
+  out = BBGet(p->Element, 3);
+  if (!Yap_unify(out,ARG2)) {
+    WRITE_UNLOCK(p->BBRWLock);
+    return FALSE;
   }
-  if (!Yap_unify(ARG2,out)) {
-    WRITE_UNLOCK(p->BBRWLock);  
-    return(FALSE);
-  }
-
-  Yap_ReleaseTermFromDB(p->Element);
-  p->Element = Yap_StoreTermInDB(Deref(ARG3),3);
+  p->Element = BBPut(p->Element, Deref(ARG3));
   WRITE_UNLOCK(p->BBRWLock);
-  return(p->Element != NULL);
+  return (p->Element != 0L);
 }
 
 static Int

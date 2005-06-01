@@ -863,7 +863,7 @@ typedef struct
   Prop NextOfPE;		/* used to chain properties                */
   PropFlags KindOfPE;		/* kind of property                        */
   Atom KeyOfBB;			/* functor for this property               */
-  DBTerm *Element;		/* blackboard element                      */
+  Term Element;			/* blackboard element                      */
 #if defined(YAPOR) || defined(THREADS)
   rwlock_t BBRWLock;		/* a read-write lock to protect the entry */
 #endif

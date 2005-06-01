@@ -311,6 +311,10 @@ typedef enum {
 Int	STD_PROTO(Yap_PredForCode,(yamop *, find_pred_type, Atom *, UInt *, Term *));
 #ifdef DEBUG
 void    STD_PROTO(Yap_bug_location,(yamop *));
+
+
+LogUpdClause   *STD_PROTO(Yap_new_ludbe,(Term, PredEntry *, UInt));
+Term            STD_PROTO(Yap_LUInstance,(LogUpdClause *, UInt));
 #endif
 
 

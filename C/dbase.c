@@ -1900,6 +1900,27 @@ new_lu_db_entry(Term t, PredEntry *pe)
 }
 
 
+LogUpdClause *
+Yap_new_ludbe(Term t, PredEntry *pe, UInt nargs)
+{
+  LogUpdClause *x;
+
+  Yap_Error_Size = 0;
+  while ((x = new_lu_db_entry(t, pe)) == NULL) {
+    if (Yap_Error_TYPE == YAP_NO_ERROR) {
+      break;
+    } else {
+      XREGS[nargs+1] = t;
+      if (recover_from_record_error(nargs+1)) {	
+	t = Deref(XREGS[nargs+1]);
+      } else {
+	return FALSE;
+      }
+    }
+  }
+  return x;
+}
+
 static LogUpdClause *
 record_lu(PredEntry *pe, Term t, int position)
 {
@@ -4069,21 +4090,23 @@ EraseLogUpdCl(LogUpdClause *clau)
       UNLOCK(clau->ClPrev->ClLock);
     }
     UNLOCK(clau->ClLock);
-    if (clau->ClCode == ap->cs.p_code.FirstClause) {
-      if (clau->ClNext == NULL) {
-	ap->cs.p_code.FirstClause = NULL;
-      } else {
-	ap->cs.p_code.FirstClause = clau->ClNext->ClCode;
+    if (ap) {
+      if (clau->ClCode == ap->cs.p_code.FirstClause) {
+	if (clau->ClNext == NULL) {
+	  ap->cs.p_code.FirstClause = NULL;
+	} else {
+	  ap->cs.p_code.FirstClause = clau->ClNext->ClCode;
+	}
       }
-    }
-    if (clau->ClCode == ap->cs.p_code.LastClause) {
-      if (clau->ClPrev == NULL) {
-	ap->cs.p_code.LastClause = NULL;
-      } else {
-	ap->cs.p_code.LastClause = clau->ClPrev->ClCode;
+      if (clau->ClCode == ap->cs.p_code.LastClause) {
+	if (clau->ClPrev == NULL) {
+	  ap->cs.p_code.LastClause = NULL;
+	} else {
+	  ap->cs.p_code.LastClause = clau->ClPrev->ClCode;
+	}
       }
+      ap->cs.p_code.NOfClauses--;
     }
-    ap->cs.p_code.NOfClauses--;
     clau->ClFlags |= ErasedMask;
 #ifdef DEBUG
 #ifndef THREADS
@@ -4102,10 +4125,12 @@ EraseLogUpdCl(LogUpdClause *clau)
 #endif
     /* we are holding a reference to the clause */
     clau->ClRefCount++;
-    UNLOCK(clau->ClLock);
-    Yap_RemoveClauseFromIndex(ap, clau->ClCode);
-    /* release the extra reference */
-    LOCK(clau->ClLock);
+    if (ap) {
+      UNLOCK(clau->ClLock);
+      Yap_RemoveClauseFromIndex(ap, clau->ClCode);
+      /* release the extra reference */
+      LOCK(clau->ClLock);
+    }
     clau->ClRefCount--;
 #if defined(YAPOR) || defined(THREADS)
     if (WPP != ap || i_locked) {
@@ -4668,6 +4693,51 @@ p_instance(void)
     return Yap_unify(ARG2, TermDB);
   }
 }
+
+Term
+Yap_LUInstance(LogUpdClause *cl, UInt arity)
+{
+  Term  TermDB;
+  op_numbers opc = Yap_op_from_opcode(cl->ClCode->opc);
+
+  LOCK(cl->ClLock);
+  if (opc == _unify_idb_term) {
+    TermDB = cl->ClSource->Entry;
+  } else  {
+    while ((TermDB = GetDBTerm(cl->ClSource)) == 0L) {
+      /* oops, we are in trouble, not enough stack space */
+      if (Yap_Error_TYPE == OUT_OF_ATTVARS_ERROR) {
+	UNLOCK(cl->ClLock);
+	Yap_Error_TYPE = YAP_NO_ERROR;
+	if (!Yap_growglobal(NULL)) {
+	  Yap_Error(OUT_OF_ATTVARS_ERROR, TermNil, Yap_ErrorMessage);
+	  return 0L;
+	}
+	LOCK(cl->ClLock);
+      } else {
+	UNLOCK(cl->ClLock);
+	Yap_Error_TYPE = YAP_NO_ERROR;
+	if (!Yap_gcl(Yap_Error_Size, arity, ENV, P)) {
+	  Yap_Error(OUT_OF_STACK_ERROR, TermNil, Yap_ErrorMessage);
+	  return 0L;
+	}
+	LOCK(cl->ClLock);
+      }
+    }
+  }
+#if defined(YAPOR) || defined(THREADS)
+  cl->ClRefCount++;
+  TRAIL_CLREF(cl);	/* So that fail will erase it */
+#else
+  if (!(cl->ClFlags & InUseMask)) {
+    cl->ClFlags |= InUseMask;
+    TRAIL_CLREF(cl);
+  }
+#endif
+  UNLOCK(cl->ClLock);
+  return TermDB;
+} 
+
 
 /* instance(+Ref,?Term) */
 static Int 

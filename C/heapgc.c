@@ -2764,7 +2764,7 @@ update_relocation_chain(CELL_PTR current, CELL_PTR dest)
     }
 #endif
   }
-#else /* TAGS_FAST_OPS */
+#else /* !TAGS_FAST_OPS */
   while (RMARKED(current)) {
     CELL             current_tag;
     next = GET_NEXT(ccur);
