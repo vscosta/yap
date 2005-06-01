@@ -11,8 +11,11 @@
 * File:		amasm.c							 *
 * comments:	abstract machine assembler				 *
 *									 *
-* Last rev:     $Date: 2005-06-01 16:42:30 $							 *
+* Last rev:     $Date: 2005-06-01 20:25:23 $							 *
 * $Log: not supported by cvs2svn $
+* Revision 1.79  2005/06/01 16:42:30  vsc
+* put switch_list_nl back
+*
 * Revision 1.78  2005/06/01 14:02:47  vsc
 * get_rid of try_me?, retry_me? and trust_me? instructions: they are not
 * significantly used nowadays.
@@ -908,12 +911,35 @@ check_alloc(clause_info *clinfo, yamop *code_p, int pass_no, struct intermediate
 }
 
 static yamop *
+a_l(CELL rnd1, op_numbers opcode, yamop *code_p, int pass_no, struct intermediates *cip)
+{
+  if (pass_no) {
+    code_p->opc = emit_op(opcode);
+    code_p->u.l.l = emit_a(Unsigned(cip->code_addr) + cip->label_offset[rnd1]);
+  }
+  GONEXT(l);
+  return code_p;
+}
+
+static yamop *
+a_il(CELL rnd1, op_numbers opcode, yamop *code_p, int pass_no, struct intermediates *cip)
+{
+  if (pass_no) {
+    code_p->opc = emit_op(opcode);
+    code_p->u.l.l = emit_ilabel(rnd1, cip);
+  }
+  GONEXT(l);
+  return code_p;
+}
+
+static yamop *
 a_p(op_numbers opcode, clause_info *clinfo, yamop *code_p, int pass_no, struct intermediates *cip)
 {				/* emit opcode & predicate code address */
   Prop fe = (Prop) (cip->cpc->rnd1);
   CELL Flags = RepPredProp(fe)->PredFlags;
   if (Flags & AsmPredFlag) {
     op_numbers op;
+    int is_test = FALSE;
 
     code_p = check_alloc(clinfo, code_p, pass_no, cip);
     switch (Flags & 0x7f) {
@@ -922,9 +948,11 @@ a_p(op_numbers opcode, clause_info *clinfo, yamop *code_p, int pass_no, struct i
       break;
     case _dif:
       op = _p_dif;
+      is_test = TRUE;
       break;
     case _eq:
       op = _p_eq;
+      is_test = TRUE;
       break;
     case _functor:
       op = _p_functor;
@@ -935,7 +963,18 @@ a_p(op_numbers opcode, clause_info *clinfo, yamop *code_p, int pass_no, struct i
       save_machine_regs();
       longjmp(cip->CompilerBotch, 1);
     }
-    return a_e(op, code_p, pass_no);
+    if (is_test) {
+      UInt lab;
+      if (clinfo->commit_lab) {
+	lab = clinfo->commit_lab;
+	clinfo->commit_lab = 0;
+      } else {
+	lab = (CELL)FAILCODE;
+      }
+      return a_il(lab, op, code_p, pass_no, cip);
+    } else {
+      return a_e(op, code_p, pass_no);
+    }
   }
   if (Flags & CPredFlag) {
     code_p = check_alloc(clinfo, code_p, pass_no, cip);
@@ -1053,28 +1092,6 @@ a_empty_call(clause_info *clinfo, yamop *code_p, int pass_no, struct  intermedia
       code_p->u.sla.bmap = NULL;
   }
   GONEXT(sla);
-  return code_p;
-}
-
-static yamop *
-a_l(CELL rnd1, op_numbers opcode, yamop *code_p, int pass_no, struct intermediates *cip)
-{
-  if (pass_no) {
-    code_p->opc = emit_op(opcode);
-    code_p->u.l.l = emit_a(Unsigned(cip->code_addr) + cip->label_offset[rnd1]);
-  }
-  GONEXT(l);
-  return code_p;
-}
-
-static yamop *
-a_il(CELL rnd1, op_numbers opcode, yamop *code_p, int pass_no, struct intermediates *cip)
-{
-  if (pass_no) {
-    code_p->opc = emit_op(opcode);
-    code_p->u.l.l = emit_ilabel(rnd1, cip);
-  }
-  GONEXT(l);
   return code_p;
 }
 

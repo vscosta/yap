@@ -11,8 +11,11 @@
 * File:		index.c							 *
 * comments:	Indexing a Prolog predicate				 *
 *									 *
-* Last rev:     $Date: 2005-06-01 16:42:30 $,$Author: vsc $						 *
+* Last rev:     $Date: 2005-06-01 20:25:23 $,$Author: vsc $						 *
 * $Log: not supported by cvs2svn $
+* Revision 1.134  2005/06/01 16:42:30  vsc
+* put switch_list_nl back
+*
 * Revision 1.133  2005/06/01 14:02:50  vsc
 * get_rid of try_me?, retry_me? and trust_me? instructions: they are not
 * significantly used nowadays.
@@ -719,6 +722,8 @@ has_cut(yamop *pc)
     case _retry2:
     case _retry3:
     case _retry4:
+    case _p_eq:
+    case _p_dif:
       pc = NEXTOP(pc,l);
       break;
     case _jump_if_nonvar:
@@ -749,8 +754,6 @@ has_cut(yamop *pc)
     case _undef_p:
     case _spy_pred:
     case _p_equal:
-    case _p_dif:
-    case _p_eq:
     case _p_functor:
     case _p_execute_tail:
     case _enter_a_profiling:

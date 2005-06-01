@@ -12,8 +12,12 @@
 * File:		rclause.h						 *
 * comments:	walk through a clause					 *
 *									 *
-* Last rev:     $Date: 2005-06-01 14:02:52 $,$Author: vsc $						 *
+* Last rev:     $Date: 2005-06-01 20:25:23 $,$Author: vsc $						 *
 * $Log: not supported by cvs2svn $
+* Revision 1.4  2005/06/01 14:02:52  vsc
+* get_rid of try_me?, retry_me? and trust_me? instructions: they are not
+* significantly used nowadays.
+*
 * Revision 1.3  2005/05/30 03:26:37  vsc
 * add some atom gc fixes
 *
@@ -155,6 +159,7 @@ restore_opcodes(yamop *pc)
     case _retry2:
     case _retry3:
     case _retry4:
+    case _p_eq:
       pc->u.l.l = PtoOpAdjust(pc->u.l.l);
       pc = NEXTOP(pc,l);
       break;
@@ -196,7 +201,6 @@ restore_opcodes(yamop *pc)
     case _spy_pred:
     case _p_equal:
     case _p_dif:
-    case _p_eq:
     case _p_functor:
     case _enter_a_profiling:
     case _count_a_call:

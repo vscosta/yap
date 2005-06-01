@@ -11,8 +11,12 @@
 * File:		YapOpcodes.h						 *
 * comments:	Central Table with all YAP opcodes                       *
 *									 *
-* Last rev:     $Date: 2005-06-01 14:02:52 $							 *
+* Last rev:     $Date: 2005-06-01 20:25:23 $							 *
 * $Log: not supported by cvs2svn $
+* Revision 1.27  2005/06/01 14:02:52  vsc
+* get_rid of try_me?, retry_me? and trust_me? instructions: they are not
+* significantly used nowadays.
+*
 * Revision 1.26  2005/04/10 04:01:13  vsc
 * bug fixes, I hope!
 *
@@ -334,8 +338,8 @@
     OPCODE(p_primitive_x           ,xF),		
     OPCODE(p_primitive_y           ,yF),		
     OPCODE(p_equal                 ,e),			
-    OPCODE(p_dif                   ,e),			
-    OPCODE(p_eq                    ,e),			
+    OPCODE(p_dif                   ,l),			
+    OPCODE(p_eq                    ,l),			
     OPCODE(p_functor               ,e),
     OPCODE(p_plus_vv               ,xxx),
     OPCODE(p_plus_vc               ,xxc),

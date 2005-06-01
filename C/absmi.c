@@ -10,8 +10,12 @@
 *									 *
 * File:		absmi.c							 *
 * comments:	Portable abstract machine interpreter                    *
-* Last rev:     $Date: 2005-06-01 14:02:45 $,$Author: vsc $						 *
+* Last rev:     $Date: 2005-06-01 20:25:22 $,$Author: vsc $						 *
 * $Log: not supported by cvs2svn $
+* Revision 1.165  2005/06/01 14:02:45  vsc
+* get_rid of try_me?, retry_me? and trust_me? instructions: they are not
+* significantly used nowadays.
+*
 * Revision 1.164  2005/05/26 18:07:32  vsc
 * fix warning
 *
@@ -10196,7 +10200,7 @@ Yap_absmi(int inp)
       GONext();
       ENDOp();
 
-      Op(p_dif, e);
+      Op(p_dif, l);
 #ifdef LOW_LEVEL_TRACER
       if (Yap_do_low_level_trace)
 	low_level_trace(enter_pred,RepPredProp(Yap_GetPredPropByFunc(Yap_MkFunctor(Yap_LookupAtom("\\="),2),0)),XREGS+1);
@@ -10212,10 +10216,11 @@ Yap_absmi(int inp)
     dif_nvar1_nvar2:
       /* both arguments are bound */
       if (d0 == d1) {
-	FAIL();
+	PREG = PREG->u.l.l;
+	GONext();
       }
       if (IsAtomOrIntTerm(d0) || IsAtomOrIntTerm(d1)) {
-	PREG = NEXTOP(PREG, e);
+	PREG = NEXTOP(PREG, l);
 	GONext();
       }
       {
@@ -10244,11 +10249,12 @@ Yap_absmi(int inp)
 	save_hb();
 	if (Yap_IUnify(d0, d1) == TRUE) {
 	  /* restore B, no need to restore HB */
+	  PREG = PREG->u.l.l;
 	  B = pt1;
-	  FAIL();
+	  GONext();
 	}
 	/* restore B, and later HB */
-	PREG = NEXTOP(PREG, e);
+	PREG = NEXTOP(PREG, l);
 	B = pt1;
 	SET_BB(PROTECT_FROZEN_B(pt1));
 	ENDCHO(pt1);
@@ -10294,18 +10300,20 @@ Yap_absmi(int inp)
       deref_body(d0, pt0, dif_unk1, dif_nvar1);
       ENDP(pt0);
       /* first argument is unbound */
-      FAIL();
+      PREG = PREG->u.l.l;
+      GONext();
 
       BEGP(pt0);
       deref_body(d1, pt0, dif_nvar1_unk2, dif_nvar1_nvar2);
       ENDP(pt0);
       /* second argument is unbound */
-      FAIL();
+      PREG = PREG->u.l.l;
+      GONext();
       ENDD(d1);
       ENDD(d0);
       ENDOp();
 
-      Op(p_eq, e);
+      Op(p_eq, l);
 #ifdef LOW_LEVEL_TRACER
       if (Yap_do_low_level_trace)
 	low_level_trace(enter_pred,RepPredProp(Yap_GetPredPropByFunc(Yap_MkFunctor(Yap_LookupAtom("=="),2),0)),XREGS+1);
@@ -10321,22 +10329,24 @@ Yap_absmi(int inp)
     p_eq_nvar1_nvar2:
       /* both arguments are bound */
       if (d0 == d1) {
-	PREG = NEXTOP(PREG, e);
+	PREG = NEXTOP(PREG, l);
 	GONext();
       }
       if (IsPairTerm(d0)) {
 	if (!IsPairTerm(d1)) {
-	  FAIL();
+	  PREG = PREG->u.l.l;
+	  GONext();
 	}
 	BEGD(d2);
 	always_save_pc();
 	d2 = iequ_complex(RepPair(d0)-1, RepPair(d0)+1,RepPair(d1)-1);
 	if (d2 == FALSE) {
-	  FAIL();
+	  PREG = PREG->u.l.l;
+	  GONext();
 	}
 	ENDD(d2);
 	always_set_pc();
-	PREG = NEXTOP(PREG, e);
+	PREG = NEXTOP(PREG, l);
 	GONext();
       }
       if (IsApplTerm(d0)) {
@@ -10345,46 +10355,73 @@ Yap_absmi(int inp)
 
 	/* f1 must be a compound term, even if it is a suspension */
 	if (!IsApplTerm(d1)) {
-	  FAIL();
+	  PREG = PREG->u.l.l;
+	  GONext();
 	}
 	f1 = FunctorOfTerm(d1);
 
-	PREG = NEXTOP(PREG, e);
 	/* we now know f1 is true */
 	/* deref if a compound term */
 	if (IsExtensionFunctor(f0)) {
 	  switch ((CELL)f0) {
 	  case (CELL)FunctorDBRef:
-	    if (d0 == d1) GONext();
-	    FAIL();
+	    if (d0 == d1) {
+	      PREG = NEXTOP(PREG, l);
+	      GONext();
+	    }
+	    PREG = PREG->u.l.l;
+	    GONext();
 	  case (CELL)FunctorLongInt:
-	    if (f1 != FunctorLongInt) FAIL();
-	    if (LongIntOfTerm(d0) == LongIntOfTerm(d1)) GONext();
-	    FAIL();
+	    if (f1 != FunctorLongInt) {
+	      PREG = PREG->u.l.l;
+	      GONext();
+	    }
+	    if (LongIntOfTerm(d0) == LongIntOfTerm(d1)) {
+	      PREG = NEXTOP(PREG, l);
+	      GONext();
+	    }
+	    PREG = PREG->u.l.l;
+	    GONext();
 #ifdef USE_GMP
 	  case (CELL)FunctorBigInt:
-	    if (f1 != FunctorBigInt) FAIL();
-	    if (mpz_cmp(Yap_BigIntOfTerm(d0), Yap_BigIntOfTerm(d1)) == 0) GONext();
-	    FAIL();
+	    if (f1 != FunctorBigInt) {
+	      PREG = PREG->u.l.l;
+	      GONext();
+	    }
+	    if (mpz_cmp(Yap_BigIntOfTerm(d0), Yap_BigIntOfTerm(d1)) == 0) {
+	      PREG = NEXTOP(PREG, l);
+	      GONext();
+	    }
+	    PREG = PREG->u.l.l;
+	    GONext();
 #endif
 	  case (CELL)FunctorDouble:
-	    if (f1 != FunctorDouble) FAIL();
-	    if (FloatOfTerm(d0) == FloatOfTerm(d1)) GONext();
-	    FAIL();
+	    if (f1 != FunctorDouble) {
+	      PREG = PREG->u.l.l;
+	      GONext();
+	    }
+	    if (FloatOfTerm(d0) == FloatOfTerm(d1)) {
+	      PREG = NEXTOP(PREG, l);
+	      GONext();
+	    }
 	  default:
-	    FAIL();
+	    PREG = PREG->u.l.l;
+	    GONext();
 	  }
 	}
 	if (f0 != f1) {
-	  FAIL();
+	  PREG = PREG->u.l.l;
+	  GONext();
 	}
 	always_save_pc();
 	BEGD(d2);
 	d2 = iequ_complex(RepAppl(d0), RepAppl(d0)+ArityOfFunctor(f0), RepAppl(d1));
 	if (d2 == FALSE) {
-	  FAIL();
+	  PREG = PREG->u.l.l;
+	  GONext();
 	}
 	ENDD(d2);
+	PREG = NEXTOP(PREG, l);
 	always_set_pc();
 	GONext();
       }
@@ -10397,7 +10434,8 @@ Yap_absmi(int inp)
       /* second argument is unbound */
       /* I don't need to worry about co-routining because an
 	 unbound variable may never be == to a constrained variable!! */
-      FAIL();
+      PREG = PREG->u.l.l;
+      GONext();
       ENDD(d1);
 
       BEGP(pt0);
@@ -10408,16 +10446,19 @@ Yap_absmi(int inp)
     p_eq_var1_nvar2:
       /* I don't need to worry about co-routining because an
 	 unbound variable may never be == to a constrained variable!! */
-      FAIL();
+      PREG = PREG->u.l.l;
+      GONext();
 
       BEGP(pt1);
       deref_body(d1, pt1, p_eq_var1_unk2, p_eq_var1_nvar2);
       /* first argument is unbound */
       /* second argument is unbound */
       if (pt1 != pt0) {
+	PREG = PREG->u.l.l;
+	GONext();
 	FAIL();
       }
-      PREG = NEXTOP(PREG, e);
+      PREG = NEXTOP(PREG, l);
       GONext();      
       ENDP(pt1);
       ENDD(d1);
