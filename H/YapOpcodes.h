@@ -11,8 +11,11 @@
 * File:		YapOpcodes.h						 *
 * comments:	Central Table with all YAP opcodes                       *
 *									 *
-* Last rev:     $Date: 2005-06-01 20:25:23 $							 *
+* Last rev:     $Date: 2005-06-03 08:18:25 $							 *
 * $Log: not supported by cvs2svn $
+* Revision 1.28  2005/06/01 20:25:23  vsc
+* == and \= should not need a choice-point in ->
+*
 * Revision 1.27  2005/06/01 14:02:52  vsc
 * get_rid of try_me?, retry_me? and trust_me? instructions: they are not
 * significantly used nowadays.
@@ -60,18 +63,25 @@
     OPCODE(getwork_seq             ,ld),
     OPCODE(sync                    ,ld),
 #endif /* YAPOR */
+#ifdef TABLING_INNER_CUTS
+    OPCODE(clause_with_cut         ,e),
+#endif /* TABLING_INNER_CUTS */
 #ifdef TABLING
-    OPCODE(table_try_me            ,ld),
-    OPCODE(table_retry_me          ,ld),
-    OPCODE(table_trust_me          ,ld),
     OPCODE(table_try_single        ,ld),
+    OPCODE(table_try_me            ,ld),
     OPCODE(table_try	           ,ld),
+    OPCODE(table_retry_me          ,ld),
     OPCODE(table_retry	           ,ld),
+    OPCODE(table_trust_me          ,ld),
     OPCODE(table_trust             ,ld),
     OPCODE(table_new_answer        ,s),
     OPCODE(table_answer_resolution ,ld),
     OPCODE(table_completion        ,ld),
 
+    OPCODE(trie_do_nothing         ,e),
+    OPCODE(trie_trust_nothing      ,e),
+    OPCODE(trie_try_nothing        ,e),
+    OPCODE(trie_retry_nothing      ,e),
     OPCODE(trie_do_var             ,e),
     OPCODE(trie_trust_var          ,e),
     OPCODE(trie_try_var            ,e),
@@ -92,10 +102,11 @@
     OPCODE(trie_trust_struct       ,e),
     OPCODE(trie_try_struct         ,e),
     OPCODE(trie_retry_struct       ,e),
+    OPCODE(trie_do_float           ,e),
+    OPCODE(trie_trust_float        ,e),
+    OPCODE(trie_try_float          ,e),
+    OPCODE(trie_retry_float        ,e),
 #endif /* TABLING */
-#ifdef TABLING_INNER_CUTS
-    OPCODE(clause_with_cut         ,e),
-#endif /* TABLING_INNER_CUTS */
     OPCODE(try_me                  ,ld),	
     OPCODE(retry_me                ,ld),	
     OPCODE(trust_me                ,ld),	

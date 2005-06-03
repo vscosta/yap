@@ -5,7 +5,7 @@
                                                                
   Copyright:   R. Rocha and NCC - University of Porto, Portugal
   File:        opt.proto.h
-  version:     $Id: opt.proto.h,v 1.7 2005-05-31 08:24:24 ricroc Exp $   
+  version:     $Id: opt.proto.h,v 1.8 2005-06-03 08:19:17 ricroc Exp $   
                                                                      
 **********************************************************************/
 
@@ -71,7 +71,7 @@ void private_completion(sg_fr_ptr sg_fr);
 void free_subgoal_trie_branch(sg_node_ptr node, int missing_nodes);
 void free_answer_trie_branch(ans_node_ptr node);
 void update_answer_trie(sg_fr_ptr sg_fr);
-void traverse_trie(FILE *stream, sg_node_ptr sg_node, int pred_arity, Atom pred_atom, int show);
+void traverse_trie(sg_node_ptr sg_node, int pred_arity, Atom pred_atom, int show);
 #endif /* TABLING */
 
 

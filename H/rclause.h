@@ -12,8 +12,11 @@
 * File:		rclause.h						 *
 * comments:	walk through a clause					 *
 *									 *
-* Last rev:     $Date: 2005-06-01 20:25:23 $,$Author: vsc $						 *
+* Last rev:     $Date: 2005-06-03 08:18:25 $,$Author: ricroc $						 *
 * $Log: not supported by cvs2svn $
+* Revision 1.5  2005/06/01 20:25:23  vsc
+* == and \= should not need a choice-point in ->
+*
 * Revision 1.4  2005/06/01 14:02:52  vsc
 * get_rid of try_me?, retry_me? and trust_me? instructions: they are not
 * significantly used nowadays.
@@ -211,6 +214,10 @@ restore_opcodes(yamop *pc)
     case _getwork_first_time:
 #endif
 #ifdef TABLING
+    case _trie_do_nothing:
+    case _trie_trust_nothing:
+    case _trie_try_nothing:
+    case _trie_retry_nothing:
     case _trie_do_var:
     case _trie_trust_var:
     case _trie_try_var:
@@ -231,6 +238,10 @@ restore_opcodes(yamop *pc)
     case _trie_trust_struct:
     case _trie_try_struct:
     case _trie_retry_struct:
+    case _trie_do_float:
+    case _trie_trust_float:
+    case _trie_try_float:
+    case _trie_retry_float:
 #endif /* TABLING */
 #ifdef TABLING_INNER_CUTS
     case _clause_with_cut:

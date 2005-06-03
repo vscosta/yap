@@ -5,7 +5,7 @@
                                                                
   Copyright:   R. Rocha and NCC - University of Porto, Portugal
   File:        tab.insts.i
-  version:     $Id: tab.insts.i,v 1.13 2005-05-31 08:24:24 ricroc Exp $   
+  version:     $Id: tab.insts.i,v 1.14 2005-06-03 08:19:18 ricroc Exp $   
                                                                      
 **********************************************************************/
 
@@ -16,7 +16,9 @@
 #ifdef TABLING_ERRORS
 #define TABLING_ERRORS_check_stack                                       \
         if (Unsigned(H) + 1024 > Unsigned(B))                            \
-	  TABLING_ERROR_MESSAGE("H + 1024 > B (check_stack)")
+	  TABLING_ERROR_MESSAGE("H + 1024 > B (check_stack)");           \
+        if (Unsigned(H_FZ) + 1024 > Unsigned(B))                         \
+	  TABLING_ERROR_MESSAGE("H_FZ + 1024 > B (check_stack)")
 #else
 #define TABLING_ERRORS_check_stack
 #endif /* TABLING_ERRORS */
@@ -365,6 +367,7 @@
   ENDPBOp();
 
 
+
   PBOp(table_try, ld)
     tab_ent_ptr tab_ent;
     sg_fr_ptr sg_fr;
@@ -435,17 +438,6 @@
 
 
 
-  Op(table_retry, ld)
-    restore_generator_node(PREG->u.ld.s, NEXTOP(PREG,ld));
-    YENV = (CELL *) PROTECT_FROZEN_B(B);
-    set_cut(YENV, B->cp_b);
-    SET_BB(NORM_CP(YENV));
-    allocate_environment();
-    PREG = PREG->u.ld.d;
-    GONext();
-  ENDOp();
-
-
   Op(table_retry_me, ld)
     restore_generator_node(PREG->u.ld.s, PREG->u.ld.d);
     YENV = (CELL *) PROTECT_FROZEN_B(B);
@@ -453,6 +445,18 @@
     SET_BB(NORM_CP(YENV));
     allocate_environment();
     PREG = NEXTOP(PREG,ld);
+    GONext();
+  ENDOp();
+
+
+
+  Op(table_retry, ld)
+    restore_generator_node(PREG->u.ld.s, NEXTOP(PREG,ld));
+    YENV = (CELL *) PROTECT_FROZEN_B(B);
+    set_cut(YENV, B->cp_b);
+    SET_BB(NORM_CP(YENV));
+    allocate_environment();
+    PREG = PREG->u.ld.d;
     GONext();
   ENDOp();
 
@@ -468,6 +472,8 @@
     GONext();
   ENDOp();
 
+
+
   Op(table_trust, ld)
     restore_generator_node(PREG->u.ld.s, COMPLETION);
     YENV = (CELL *) PROTECT_FROZEN_B(B);
@@ -477,6 +483,7 @@
     PREG = PREG->u.ld.d;
     GONext();
   ENDOp();
+
 
 
   PBOp(table_new_answer, s)

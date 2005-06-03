@@ -5,7 +5,7 @@
                                                                
   Copyright:   R. Rocha and NCC - University of Porto, Portugal
   File:        tab.macros.h
-  version:     $Id: tab.macros.h,v 1.12 2005-05-31 08:17:46 ricroc Exp $   
+  version:     $Id: tab.macros.h,v 1.13 2005-06-03 08:19:18 ricroc Exp $   
                                                                      
 **********************************************************************/
 
@@ -76,46 +76,23 @@ STD_PROTO(static inline tg_sol_fr_ptr CUT_prune_tg_solution_frames, (tg_sol_fr_p
 #define STACK_PUSH_DOWN(ITEM, STACK)        *STACK++ = (CELL)(ITEM)
 #define STACK_POP_UP(STACK)                 *--STACK
 #ifdef YAPOR
-#define STACK_CHECK_EXPAND1(STACK, STACK_LIMIT, STACK1)                              \
-        if (STACK_LIMIT >= STACK) {                                                  \
-          Yap_Error(INTERNAL_ERROR, TermNil, "stack full (STACK_CHECK_EXPAND1)")
-#define STACK_CHECK_EXPAND3(STACK, STACK_LIMIT, STACK1, STACK2, STACK3)              \
-        if (STACK_LIMIT >= STACK) {                                                  \
-          Yap_Error(INTERNAL_ERROR, TermNil, "stack full (STACK_CHECK_EXPAND3)")
+#define STACK_CHECK_EXPAND(STACK, STACK_LIMIT, STACK_BASE)                       \
+        if (STACK_LIMIT >= STACK) {                                              \
+          Yap_Error(INTERNAL_ERROR, TermNil, "stack full (STACK_CHECK_EXPAND)")
 #else
-#define STACK_CHECK_EXPAND1(STACK, STACK_LIMIT, STACK1)                              \
-        if (STACK_LIMIT >= STACK) {                                                  \
-          void *old_top;                                                             \
-          UInt diff;                                                                 \
-          CELL *NEW_STACK;                                                           \
-          if (STACK_LIMIT > STACK)                                                   \
-            Yap_Error(INTERNAL_ERROR, TermNil, "stack full (STACK_CHECK_EXPAND1)");  \
-          INFORMATION_MESSAGE("Expanding trail in 64 Mbytes");                       \
-          old_top = Yap_TrailTop;                                                    \
-          Yap_growtrail(64 * 1024L, TRUE);                                           \
-          diff = (void *)Yap_TrailTop - old_top;                                     \
-          NEW_STACK = (CELL *)((void *)STACK + diff);                                \
-          memmove((void *)NEW_STACK, (void *)STACK, old_top - (void *)STACK);        \
-          STACK = NEW_STACK;                                                         \
-          STACK1 = (CELL *)((void *)STACK1 + diff);                                  \
-        }
-#define STACK_CHECK_EXPAND3(STACK, STACK_LIMIT, STACK1, STACK2, STACK3)              \
-        if (STACK_LIMIT >= STACK) {                                                  \
-          void *old_top;                                                             \
-          UInt diff;                                                                 \
-          CELL *NEW_STACK;                                                           \
-          if (STACK_LIMIT > STACK)                                                   \
-            Yap_Error(INTERNAL_ERROR, TermNil, "stack full (STACK_CHECK_EXPAND3)");  \
-          INFORMATION_MESSAGE("Expanding trail in 64 Mbytes");                       \
-          old_top = Yap_TrailTop;                                                    \
-          Yap_growtrail(64 * 1024L, TRUE);                                           \
-          diff = (void *)Yap_TrailTop - old_top;                                     \
-          NEW_STACK = (CELL *)((void *)STACK + diff);                                \
-          memmove((void *)NEW_STACK, (void *)STACK, old_top - (void *)STACK);        \
-          STACK = NEW_STACK;                                                         \
-          STACK1 = (CELL *)((void *)STACK1 + diff);                                  \
-          STACK2 = (CELL *)((void *)STACK2 + diff);                                  \
-          STACK3 = (CELL *)((void *)STACK3 + diff);                                  \
+#define STACK_CHECK_EXPAND(STACK, STACK_LIMIT, STACK_BASE)                       \
+        if (STACK_LIMIT >= STACK) {                                              \
+          void *old_top;                                                         \
+          UInt diff;                                                             \
+          CELL *NEW_STACK;                                                       \
+          INFORMATION_MESSAGE("Expanding trail in 64 Mbytes");                   \
+          old_top = Yap_TrailTop;                                                \
+          Yap_growtrail(64 * 1024L, TRUE);                                       \
+          diff = (void *)Yap_TrailTop - old_top;                                 \
+          NEW_STACK = (CELL *)((void *)STACK + diff);                            \
+          memmove((void *)NEW_STACK, (void *)STACK, old_top - (void *)STACK);    \
+          STACK = NEW_STACK;                                                     \
+          STACK_BASE = (CELL *)((void *)STACK_BASE + diff);                      \
         }
 #endif /* YAPOR */
 

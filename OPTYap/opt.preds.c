@@ -5,7 +5,7 @@
                                                                
   Copyright:   R. Rocha and NCC - University of Porto, Portugal
   File:        opt.preds.c
-  version:     $Id: opt.preds.c,v 1.15 2005-05-31 08:24:24 ricroc Exp $   
+  version:     $Id: opt.preds.c,v 1.16 2005-06-03 08:19:17 ricroc Exp $   
                                                                      
 **********************************************************************/
 
@@ -593,7 +593,7 @@ int p_do_show_trie(void) {
   } else {
     return (FALSE);
   }
-  traverse_trie(stdout, TrNode_child(TabEnt_subgoal_trie(pe->TableOfPred)), arity, at, TRUE);
+  traverse_trie(TrNode_child(TabEnt_subgoal_trie(pe->TableOfPred)), arity, at, TRUE);
   return (TRUE);
 }
 
@@ -622,7 +622,7 @@ int p_do_show_trie_stats(void) {
   } else {
     return(FALSE);
   }
-  traverse_trie(stdout, TrNode_child(TabEnt_subgoal_trie(pe->TableOfPred)), arity, at, FALSE);
+  traverse_trie(TrNode_child(TabEnt_subgoal_trie(pe->TableOfPred)), arity, at, FALSE);
   return (TRUE);
 }
 #endif /* TABLING */

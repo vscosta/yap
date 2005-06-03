@@ -5,7 +5,7 @@
                                                                
   Copyright:   R. Rocha and NCC - University of Porto, Portugal
   File:        tab.tries.C
-  version:     $Id: tab.tries.c,v 1.9 2005-05-31 08:17:46 ricroc Exp $   
+  version:     $Id: tab.tries.c,v 1.10 2005-06-03 08:19:18 ricroc Exp $   
                                                                      
 **********************************************************************/
 
@@ -21,7 +21,18 @@
 #endif
 #include "Yatom.h"
 #include "Heap.h"
+#include "yapio.h"
 #include "tab.macros.h"
+
+
+/* ----------------- **
+**      Defines      **
+** ----------------- */
+
+#define TRAVERSE_NORMAL     0
+#define TRAVERSE_FLOAT_INIT 1
+#define TRAVERSE_FLOAT      2
+#define TRAVERSE_FLOAT_END  3
 
 
 
@@ -29,8 +40,6 @@
 **      Local functions declaration      **
 ** ------------------------------------- */
 
-static int traverse_subgoal_trie(FILE *stream, sg_node_ptr sg_node, char *str, int str_index, int *arity, int depth);
-static int traverse_answer_trie(FILE *stream, ans_node_ptr ans_node, char *str, int str_index, int *arity, int var_index, int depth);
 #ifdef YAPOR
 #ifdef TABLING_INNER_CUTS
 static int update_answer_trie_branch(ans_node_ptr previous_node, ans_node_ptr node);
@@ -40,6 +49,8 @@ static int update_answer_trie_branch(ans_node_ptr node);
 #else
 static void update_answer_trie_branch(ans_node_ptr node);
 #endif /* YAPOR */
+static int traverse_subgoal_trie(sg_node_ptr sg_node, char *str, int str_index, int *arity, int depth, int mode);
+static int traverse_answer_trie(ans_node_ptr ans_node, char *str, int str_index, int *arity, int var_index, int depth, int mode);
 
 
 
@@ -667,7 +678,7 @@ sg_fr_ptr subgoal_search(tab_ent_ptr tab_ent, OPREG arity, CELL **Yaddr) {
   CELL *stack_vars, *stack_terms_limit, *stack_terms_base, *stack_terms;
   sg_node_ptr current_sg_node;
   sg_fr_ptr sg_fr;
-  
+
   count_vars = 0;
   stack_vars = *Yaddr;
   stack_terms_limit = (CELL *)TR;
@@ -679,7 +690,7 @@ sg_fr_ptr subgoal_search(tab_ent_ptr tab_ent, OPREG arity, CELL **Yaddr) {
 #endif /* TABLE_LOCK_LEVEL */
   for (i = 1; i <= arity; i++) {
     STACK_PUSH_UP(XREGS[i], stack_terms);
-    STACK_CHECK_EXPAND1(stack_terms, stack_terms_limit, stack_terms_base);
+    STACK_CHECK_EXPAND(stack_terms, stack_terms_limit, stack_terms_base);
     do {
       Term t = Deref(STACK_POP_DOWN(stack_terms));
       if (IsVarTerm(t)) {
@@ -700,14 +711,24 @@ sg_fr_ptr subgoal_search(tab_ent_ptr tab_ent, OPREG arity, CELL **Yaddr) {
       } else if (IsPairTerm(t)) {
 	current_sg_node = subgoal_trie_node_check_insert(tab_ent, current_sg_node, AbsPair(NULL));
 	STACK_PUSH_UP(*(RepPair(t) + 1), stack_terms);
-	STACK_CHECK_EXPAND1(stack_terms, stack_terms_limit, stack_terms_base);
+	STACK_CHECK_EXPAND(stack_terms, stack_terms_limit, stack_terms_base);
 	STACK_PUSH_UP(*(RepPair(t)), stack_terms);
-	STACK_CHECK_EXPAND1(stack_terms, stack_terms_limit, stack_terms_base);
+	STACK_CHECK_EXPAND(stack_terms, stack_terms_limit, stack_terms_base);
       } else if (IsApplTerm(t)) {
-        current_sg_node = subgoal_trie_node_check_insert(tab_ent, current_sg_node, AbsAppl((Term *)FunctorOfTerm(t)));
-	for (j = ArityOfFunctor(FunctorOfTerm(t)); j >= 1; j--) {
-	  STACK_PUSH_UP(*(RepAppl(t) + j), stack_terms);
-	  STACK_CHECK_EXPAND1(stack_terms, stack_terms_limit, stack_terms_base);
+	Functor f = FunctorOfTerm(t);
+	current_sg_node = subgoal_trie_node_check_insert(tab_ent, current_sg_node, AbsAppl((Term *)f));
+	if (f == FunctorDouble) {
+	  volatile Float dbl = FloatOfTerm(t);
+	  volatile Term *t_dbl = (Term *)((void *) &dbl);
+#if SIZEOF_DOUBLE == 2 * SIZEOF_LONG_INT
+	  current_sg_node = subgoal_trie_node_check_insert(tab_ent, current_sg_node, *(t_dbl + 1));
+#endif /* SIZEOF_DOUBLE x SIZEOF_LONG_INT */
+	  current_sg_node = subgoal_trie_node_check_insert(tab_ent, current_sg_node, *t_dbl);
+	} else {
+	  for (j = ArityOfFunctor(f); j >= 1; j--) {
+	    STACK_PUSH_UP(*(RepAppl(t) + j), stack_terms);
+	    STACK_CHECK_EXPAND(stack_terms, stack_terms_limit, stack_terms_base);
+	  }
 	}
       } else {
 	Yap_Error(INTERNAL_ERROR, TermNil, "unknown type tag (subgoal_search)");
@@ -759,7 +780,7 @@ ans_node_ptr answer_search(sg_fr_ptr sg_fr, CELL *subs_ptr) {
 
   for (i = subs_arity; i >= 1; i--) {
     STACK_PUSH_UP(*(subs_ptr + i), stack_terms);
-    STACK_CHECK_EXPAND1(stack_terms, stack_vars, stack_terms_base);
+    STACK_CHECK_EXPAND(stack_terms, stack_vars, stack_terms_base);
 #ifdef TABLING_ERRORS
     if (IsNonVarTerm(*stack_terms))
       TABLING_ERROR_MESSAGE("IsNonVarTem(*stack_terms) (answer_search)");
@@ -774,7 +795,7 @@ ans_node_ptr answer_search(sg_fr_ptr sg_fr, CELL *subs_ptr) {
 	  if (count_vars == MAX_TABLE_VARS)
 	    Yap_Error(INTERNAL_ERROR, TermNil, "MAX_TABLE_VARS exceeded (answer_search)");
 	  STACK_PUSH_DOWN(t, stack_vars);
-	  STACK_CHECK_EXPAND1(stack_terms, stack_vars, stack_terms_base);
+	  STACK_CHECK_EXPAND(stack_terms, stack_vars, stack_terms_base);
 	  *((CELL *)t) = GLOBAL_table_var_enumerator(count_vars);
 	  t = MakeTableVarTerm(count_vars);
 	  count_vars++;
@@ -785,14 +806,26 @@ ans_node_ptr answer_search(sg_fr_ptr sg_fr, CELL *subs_ptr) {
       } else if (IsPairTerm(t)) {
 	current_ans_node = answer_trie_node_check_insert(sg_fr, current_ans_node, AbsPair(NULL), _trie_retry_list);
 	STACK_PUSH_UP(*(RepPair(t) + 1), stack_terms);
-	STACK_CHECK_EXPAND1(stack_terms, stack_vars, stack_terms_base);
+	STACK_CHECK_EXPAND(stack_terms, stack_vars, stack_terms_base);
 	STACK_PUSH_UP(*(RepPair(t)), stack_terms);
-	STACK_CHECK_EXPAND1(stack_terms, stack_vars, stack_terms_base);
+	STACK_CHECK_EXPAND(stack_terms, stack_vars, stack_terms_base);
       } else if (IsApplTerm(t)) {
-	current_ans_node = answer_trie_node_check_insert(sg_fr, current_ans_node, AbsAppl((Term *)FunctorOfTerm(t)), _trie_retry_struct);
-	for (j = ArityOfFunctor(FunctorOfTerm(t)); j >= 1; j--) {
-	  STACK_PUSH_UP(*(RepAppl(t) + j), stack_terms);
-	  STACK_CHECK_EXPAND1(stack_terms, stack_vars, stack_terms_base);
+	Functor f = FunctorOfTerm(t);
+	if (f == FunctorDouble) {
+	  volatile Float dbl = FloatOfTerm(t);
+	  volatile Term *t_dbl = (Term *)((void *) &dbl);
+	  current_ans_node = answer_trie_node_check_insert(sg_fr, current_ans_node, AbsAppl((Term *)f), _trie_retry_nothing);
+#if SIZEOF_DOUBLE == 2 * SIZEOF_LONG_INT
+	  current_ans_node = answer_trie_node_check_insert(sg_fr, current_ans_node, *(t_dbl + 1), _trie_retry_nothing);
+#endif /* SIZEOF_DOUBLE x SIZEOF_LONG_INT */
+	  current_ans_node = answer_trie_node_check_insert(sg_fr, current_ans_node, *t_dbl, _trie_retry_nothing);
+	  current_ans_node = answer_trie_node_check_insert(sg_fr, current_ans_node, AbsAppl((Term *)f), _trie_retry_float);
+	} else {
+	  current_ans_node = answer_trie_node_check_insert(sg_fr, current_ans_node, AbsAppl((Term *)f), _trie_retry_struct);
+	  for (j = ArityOfFunctor(f); j >= 1; j--) {
+	    STACK_PUSH_UP(*(RepAppl(t) + j), stack_terms);
+	    STACK_CHECK_EXPAND(stack_terms, stack_vars, stack_terms_base);
+	  }
 	}
       } else {
 	Yap_Error(INTERNAL_ERROR, TermNil, "unknown type tag (answer_search)");
@@ -811,128 +844,83 @@ ans_node_ptr answer_search(sg_fr_ptr sg_fr, CELL *subs_ptr) {
 
 
 void load_answer_trie(ans_node_ptr ans_node, CELL *subs_ptr) {
-  int subs_arity;
-  subs_arity = *subs_ptr;
-  if (subs_arity) {
-    int i, n_vars = 0;
-    CELL *stack_vars_base, *stack_vars, *stack_terms_base, *stack_terms, *stack_refs_base, *stack_refs;
-    ans_node_ptr aux_parent_node;
-    stack_vars_base = stack_vars = (CELL *)TR;
-    stack_terms_base = stack_terms = (CELL *)Yap_TrailTop;
+  CELL *stack_vars_base, *stack_vars, *stack_terms_base, *stack_terms;
+  int subs_arity, i, n_vars = MAX_TABLE_VARS;
+  Term t;
 
-    /* load the new answer from the answer trie to the stack_terms */
-    aux_parent_node = UNTAG_ANSWER_LEAF_NODE(TrNode_parent(ans_node));
-    do {
-      STACK_PUSH_UP(TrNode_entry(ans_node), stack_terms);
-      STACK_CHECK_EXPAND1(stack_terms, stack_vars, stack_terms_base);
-      ans_node = aux_parent_node;
-      aux_parent_node = TrNode_parent(aux_parent_node);
-    } while (aux_parent_node);
-    stack_refs_base = stack_refs = stack_terms;
+  if ((subs_arity = *subs_ptr) == 0)
+    return;
 
 #ifdef TABLING_ERRORS
-    if (H < H_FZ)
-      TABLING_ERROR_MESSAGE("H < H_FZ (load_answer_trie)");
+  if (H < H_FZ)
+    TABLING_ERROR_MESSAGE("H < H_FZ (load_answer_trie)");
 #endif /* TABLING_ERRORS */
-    for (i = subs_arity; i >= 1; i--) {
-      /* bind the substitution variables with the answer loaded in stack_terms */
-      CELL *subs_var = (CELL *) *(subs_ptr + i);
-      Term t = STACK_POP_DOWN(stack_terms);
-#ifdef TABLING_ERRORS
-      if ((CELL)subs_var != *subs_var)
-        TABLING_ERROR_MESSAGE("subs_var != *subs_var (load_answer_trie)");
-#endif /* TABLING_ERRORS */
-      if (IsVarTerm(t)) {
-        int var_index = VarIndexOfTableTerm(t);
-	if (var_index == n_vars) {
-	  n_vars++;
-	  STACK_PUSH_DOWN(subs_var, stack_vars);
-	  STACK_CHECK_EXPAND3(stack_refs, stack_vars, stack_refs_base, stack_terms, stack_terms_base);
-	} else {
-	  Bind(subs_var, stack_vars_base[var_index]);
-	}
-      } else if (IsAtomOrIntTerm(t)) {
-	Bind(subs_var, t);
-      } else if (IsPairTerm(t)) {
-	/* build a pair term as in function MkPairTerm */
-	Bind(subs_var, AbsPair(H));
-#ifdef TABLING_ERRORS
-	if (!IsPairTerm(*subs_var))
-	  TABLING_ERROR_MESSAGE("IsNonPairTerm(*subs_var) (load_answer_trie)");
-#endif /* TABLING_ERRORS */
-	H += 2;
-	STACK_PUSH_UP(H - 1, stack_refs);
-	STACK_CHECK_EXPAND3(stack_refs, stack_vars, stack_refs_base, stack_terms, stack_terms_base);
-	STACK_PUSH_UP(H - 2, stack_refs);
-	STACK_CHECK_EXPAND3(stack_refs, stack_vars, stack_refs_base, stack_terms, stack_terms_base);
-      } else if (IsApplTerm(t)) {
-        /* build a pair term as in function MkApplTerm */
-	Functor f = (Functor) RepAppl(t);
-	int j, f_arity = ArityOfFunctor(f);
-	Bind(subs_var, AbsAppl(H));
-#ifdef TABLING_ERRORS
-	if (!IsApplTerm(*subs_var))
-	  TABLING_ERROR_MESSAGE("IsNonApplTerm(*subs_var) (load_answer_trie)");
-#endif /* TABLING_ERRORS */
-	*H++ = (CELL) f;
-	H += f_arity;
-	for (j = 1; j <= f_arity; j++) {
-	  STACK_PUSH_UP(H - j, stack_refs);
-	  STACK_CHECK_EXPAND3(stack_refs, stack_vars, stack_refs_base, stack_terms, stack_terms_base);
-	}
+  stack_vars_base = stack_vars = (CELL *)TR;
+  stack_terms_base = stack_terms = (CELL *)Yap_TrailTop;
+
+  t = TrNode_entry(ans_node);
+  ans_node = UNTAG_ANSWER_LEAF_NODE(TrNode_parent(ans_node));
+  do {
+    if (IsVarTerm(t)) {
+      int var_index = VarIndexOfTableTerm(t);
+      if (n_vars == MAX_TABLE_VARS) {
+	stack_vars += var_index;
+	STACK_CHECK_EXPAND(stack_terms, stack_vars, stack_terms_base);
+      }
+      if (var_index < n_vars) {
+	n_vars = var_index;
+	stack_vars_base[var_index] = MkVarTerm();
+      }
+      STACK_PUSH_UP(stack_vars_base[var_index], stack_terms);
+      STACK_CHECK_EXPAND(stack_terms, stack_vars, stack_terms_base);
+    } else if (IsAtomOrIntTerm(t)) {
+      STACK_PUSH_UP(t, stack_terms);
+      STACK_CHECK_EXPAND(stack_terms, stack_vars, stack_terms_base);
+    } else if (IsPairTerm(t)) {
+      Term head = STACK_POP_DOWN(stack_terms);
+      Term tail = STACK_POP_DOWN(stack_terms);
+      t = MkPairTerm(head, tail);
+      STACK_PUSH_UP(t, stack_terms);
+    } else if (IsApplTerm(t)) {
+      Functor f = (Functor) RepAppl(t);
+      if (f == FunctorDouble) {
+	volatile Float dbl;
+	volatile Term *t_dbl = (Term *)((void *) &dbl);
+	t = TrNode_entry(ans_node);
+	ans_node = TrNode_parent(ans_node);
+	*t_dbl = t;
+#if SIZEOF_DOUBLE == 2 * SIZEOF_LONG_INT
+	t = TrNode_entry(ans_node);
+	ans_node = TrNode_parent(ans_node);
+	*(t_dbl + 1) = t;
+#endif /* SIZEOF_DOUBLE x SIZEOF_LONG_INT */
+	ans_node = TrNode_parent(ans_node);
+	t = MkFloatTerm(dbl);
+	STACK_PUSH_UP(t, stack_terms);
       } else {
-	Yap_Error(INTERNAL_ERROR, TermNil, "unknown type tag (load_answer_trie)");
+	int f_arity = ArityOfFunctor(f);
+	t = Yap_MkApplTerm(f, f_arity, stack_terms);
+	stack_terms += f_arity;
+	STACK_PUSH_UP(t, stack_terms);
       }
-      while (STACK_NOT_EMPTY(stack_refs, stack_refs_base)) {
-        CELL *ref = (CELL *) STACK_POP_DOWN(stack_refs);
-        Term t = STACK_POP_DOWN(stack_terms);
-	if (IsVarTerm(t)) {
-	  int var_index = VarIndexOfTableTerm(t);
-	  if (var_index == n_vars) {
-	    n_vars++;
-	    STACK_PUSH_DOWN(ref, stack_vars);
-	    STACK_CHECK_EXPAND3(stack_refs, stack_vars, stack_refs_base, stack_terms, stack_terms_base);
-	  }
-	  *ref = stack_vars_base[var_index];
-	} else if (IsAtomOrIntTerm(t)) {
-	  *ref = t;
-	} else if (IsPairTerm(t)) {
-	  /* build a pair term as in function MkPairTerm */
-	  *ref = AbsPair(H);
-#ifdef TABLING_ERRORS
-	  if (!IsPairTerm(*ref))
-	    TABLING_ERROR_MESSAGE("IsNonPairTerm(*ref) (load_answer_trie)");
-#endif /* TABLING_ERRORS */
-	  H += 2;
-	  STACK_PUSH_UP(H - 1, stack_refs);
-	  STACK_CHECK_EXPAND3(stack_refs, stack_vars, stack_refs_base, stack_terms, stack_terms_base);
-	  STACK_PUSH_UP(H - 2, stack_refs);
-	  STACK_CHECK_EXPAND3(stack_refs, stack_vars, stack_refs_base, stack_terms, stack_terms_base);
-	} else if (IsApplTerm(t)) {
-          /* build a pair term as in function MkApplTerm */
-	  Functor f = (Functor) RepAppl(t);
-	  int j, f_arity = ArityOfFunctor(f);
-	  *ref = AbsAppl(H);
-#ifdef TABLING_ERRORS
-	  if (!IsApplTerm(*ref))
-	    TABLING_ERROR_MESSAGE("IsNonApplTerm(*ref) (load_answer_trie)");
-#endif /* TABLING_ERRORS */
-	  *H++ = (CELL) f;
-	  H += f_arity;
-	  for (j = 1; j <= f_arity; j++) {
-	    STACK_PUSH_UP(H - j, stack_refs);
-	    STACK_CHECK_EXPAND3(stack_refs, stack_vars, stack_refs_base, stack_terms, stack_terms_base);
-	  }
-	} else {
-	  Yap_Error(INTERNAL_ERROR, TermNil, "unknown type tag (load_answer_trie)");
-        }
-      }
+    } else {
+      Yap_Error(INTERNAL_ERROR, TermNil, "unknown type tag (load_answer_trie)");
     }
-#ifdef TABLING_ERRORS
-    if (stack_terms != (CELL *)Yap_TrailTop)
-      TABLING_ERROR_MESSAGE("stack_terms != Yap_TrailTop (load_answer_trie)");
-#endif /* TABLING_ERRORS */
+    t = TrNode_entry(ans_node);
+    ans_node = TrNode_parent(ans_node);
+  } while (ans_node);
+
+  for (i = subs_arity; i >= 1; i--) {
+    CELL *subs_var = (CELL *) *(subs_ptr + i);
+    t = STACK_POP_DOWN(stack_terms);
+    Bind(subs_var, t);
   }
+
+#ifdef TABLING_ERRORS
+  if (stack_terms != (CELL *)Yap_TrailTop)
+    TABLING_ERROR_MESSAGE("stack_terms != Yap_TrailTop (load_answer_trie)");
+#endif /* TABLING_ERRORS */
+
   return;
 }
 
@@ -1061,12 +1049,15 @@ static struct trie_statistics{
 #define TrStat_ans_linear_nodes       trie_stats.answer_linear_nodes
 #define TrStat_ans_max_depth          trie_stats.answer_trie_max_depth
 #define TrStat_ans_min_depth          trie_stats.answer_trie_min_depth
-#define SHOW_INFO(MESG, ARGS...)      fprintf(stream, MESG, ##ARGS)
-#define SHOW_TRIE(MESG, ARGS...)      if (TrStat_show) fprintf(stream, MESG, ##ARGS)
 
-void traverse_trie(FILE *stream, sg_node_ptr sg_node, int pred_arity, Atom pred_atom, int show) {
-  char str[1000];
-  int arity[100];
+#define STR_ARRAY_SIZE  1000
+#define ARITY_ARRAY_SIZE 100
+#define SHOW_INFO(MESG, ARGS...)      fprintf(Yap_stderr, MESG, ##ARGS)
+#define SHOW_TRIE(MESG, ARGS...)      if (TrStat_show) fprintf(Yap_stderr, MESG, ##ARGS)
+
+void traverse_trie(sg_node_ptr sg_node, int pred_arity, Atom pred_atom, int show) {
+  char str[STR_ARRAY_SIZE];
+  int arity[ARITY_ARRAY_SIZE];
   int str_index;
 
   TrStat_show = show;
@@ -1088,35 +1079,42 @@ void traverse_trie(FILE *stream, sg_node_ptr sg_node, int pred_arity, Atom pred_
   str_index = sprintf(str, "  ?- %s(", AtomName(pred_atom));
   arity[0] = 1;
   arity[1] = pred_arity;
-  SHOW_INFO("\n[ Trie structure for predicate '%s/%d' ]\n[\n", AtomName(pred_atom), pred_arity);
+  SHOW_INFO("\n[ Trie structure for predicate '%s/%d' ]\n", AtomName(pred_atom), pred_arity);
   TrStat_sg_nodes++;
-  if (traverse_subgoal_trie(stream, sg_node, str, str_index, arity, 0)) {
-    SHOW_INFO("\n  Subgoal Trie structure\n    %ld subgoals", TrStat_subgoals);
-    if (TrStat_sg_abolished)
-      SHOW_INFO(" including %ld abolished", TrStat_sg_abolished);
-    if (TrStat_sg_abolish_operations)
-      SHOW_INFO(" (%ld abolish operations executed)", TrStat_sg_abolish_operations);
-    SHOW_INFO("\n    %ld nodes (%ld%c reuse)\n    %.2f average depth (%d min - %d max)", 
-              TrStat_sg_nodes,
-              TrStat_sg_linear_nodes == 0 ? 0 : (TrStat_sg_linear_nodes - TrStat_sg_nodes + 1) * 100 / TrStat_sg_linear_nodes,
-              '%',
-              TrStat_subgoals == 0 ? 0 : (float)TrStat_sg_linear_nodes / (float)TrStat_subgoals,
-              TrStat_sg_min_depth < 0 ? 0 : TrStat_sg_min_depth,
-              TrStat_sg_max_depth < 0 ? 0 : TrStat_sg_max_depth);
-    SHOW_INFO("\n  Answer Trie Structure\n    %ld/%ld answers", TrStat_answers_yes, TrStat_answers);
-    if (TrStat_ans_pruned)
-      SHOW_INFO(" including %ld pruned", TrStat_ans_pruned);
-    if (TrStat_answers_no)
-      SHOW_INFO(" (%ld no answers)", TrStat_answers_no);
-    SHOW_INFO("\n    %ld nodes (%ld%c reuse)\n    %.2f average depth (%d min - %d max)",
-              TrStat_ans_nodes,
-              TrStat_ans_linear_nodes == 0 ? 0 : (TrStat_ans_linear_nodes - TrStat_ans_nodes + TrStat_subgoals) * 100 / TrStat_ans_linear_nodes,
-              '%',
-              TrStat_answers == 0 ? 0 : (float)TrStat_ans_linear_nodes / (float)TrStat_answers,
-              TrStat_ans_min_depth < 0 ? 0 : TrStat_ans_min_depth,
-              TrStat_ans_max_depth < 0 ? 0 : TrStat_ans_max_depth);
-  }
-  SHOW_INFO("\n]\n\n");
+  if (sg_node && ! traverse_subgoal_trie(sg_node, str, str_index, arity, 1, TRAVERSE_NORMAL))
+    return;
+  SHOW_INFO("\n  Subgoal Trie structure\n    %ld subgoals", TrStat_subgoals);
+  if (TrStat_sg_abolished)
+    SHOW_INFO(" including %ld abolished", TrStat_sg_abolished);
+  if (TrStat_sg_abolish_operations)
+    SHOW_INFO(" (%ld abolish operations executed)", TrStat_sg_abolish_operations);
+  SHOW_INFO("\n    %ld nodes (%ld%c saving)\n    %.2f average depth (%d min - %d max)", 
+	    TrStat_sg_nodes,
+	    TrStat_sg_linear_nodes == 0 ? 0 : (TrStat_sg_linear_nodes - TrStat_sg_nodes + 1) * 100 / TrStat_sg_linear_nodes,
+	    '%',
+	    TrStat_subgoals == 0 ? 0 : (float)TrStat_sg_linear_nodes / (float)TrStat_subgoals,
+	    TrStat_sg_min_depth < 0 ? 0 : TrStat_sg_min_depth,
+	    TrStat_sg_max_depth < 0 ? 0 : TrStat_sg_max_depth);
+  SHOW_INFO("\n  Answer Trie Structure\n    ");
+  if (TrStat_answers_yes)
+    SHOW_INFO("%ld yes answers/", TrStat_answers_yes);
+  SHOW_INFO("%ld answers", TrStat_answers);
+  if (TrStat_ans_pruned)
+    SHOW_INFO(" including %ld pruned", TrStat_ans_pruned);
+  if (TrStat_answers_no)
+    SHOW_INFO(" (%ld no answers)", TrStat_answers_no);
+  SHOW_INFO("\n    %ld nodes (%ld%c saving)\n    %.2f average depth (%d min - %d max)",
+	    TrStat_ans_nodes,
+	    TrStat_ans_linear_nodes == 0 ? 0 : (TrStat_ans_linear_nodes - TrStat_ans_nodes + TrStat_subgoals) * 100 / TrStat_ans_linear_nodes,
+	    '%',
+	    TrStat_answers == 0 ? 0 : (float)TrStat_ans_linear_nodes / (float)TrStat_answers,
+	    TrStat_ans_min_depth < 0 ? 0 : TrStat_ans_min_depth,
+	    TrStat_ans_max_depth < 0 ? 0 : TrStat_ans_max_depth);
+  SHOW_INFO("\n  Total Memory Used\n    %ld bytes",
+	    TrStat_sg_nodes * sizeof(struct subgoal_trie_node) +
+	    TrStat_ans_nodes * sizeof(struct answer_trie_node) +
+	    TrStat_subgoals * sizeof(struct subgoal_frame));
+  SHOW_INFO("\n\n");
   return;
 }
 
@@ -1126,88 +1124,157 @@ void traverse_trie(FILE *stream, sg_node_ptr sg_node, int pred_arity, Atom pred_
 **      Local functions      **
 ** ------------------------- */
 
+#ifdef YAPOR
+#ifdef TABLING_INNER_CUTS
 static
-int traverse_subgoal_trie(FILE *stream, sg_node_ptr sg_node, char *str, int str_index, int *arity, int depth) {
-  Term t;
-  int new_arity[100];
-
-  if (arity[0] == 0) {
-    sg_fr_ptr sg_fr = (sg_fr_ptr)sg_node;
-    str[str_index] = 0;
-    TrStat_subgoals++;
-    TrStat_sg_abolish_operations += SgFr_abolish(sg_fr);
-    TrStat_sg_linear_nodes+= depth;
-    if (TrStat_sg_max_depth < 0) {
-      TrStat_sg_min_depth = TrStat_sg_max_depth = depth;
-    } else if (depth < TrStat_sg_min_depth) {
-      TrStat_sg_min_depth = depth;
-    } else if (depth > TrStat_sg_max_depth) {
-      TrStat_sg_max_depth = depth;
+int update_answer_trie_branch(ans_node_ptr previous_node, ans_node_ptr node) {
+  int ltt;
+  if (! IS_ANSWER_LEAF_NODE(node)) {
+    if (TrNode_child(node)) {
+      TrNode_instr(TrNode_child(node)) -= 1;  /* retry --> try */
+      update_answer_trie_branch(NULL, TrNode_child(node));
+      if (TrNode_child(node))
+        goto update_next_trie_branch;
     }
-    if (SgFr_state(sg_fr) == start) {
-      TrStat_sg_abolished++;
-      SHOW_TRIE("%s.\n    ABOLISHED\n", str);
-      return TRUE;
-    }
-    if (SgFr_state(sg_fr) == evaluating) {
-      SHOW_INFO("%s. --> TRIE ERROR: subgoal not completed !!!\n", str);
-      return FALSE;
-    }
-    LOCK(SgFr_lock(sg_fr));
-    if (SgFr_state(sg_fr) == complete)
-      update_answer_trie(sg_fr);
-    UNLOCK(SgFr_lock(sg_fr));
-    SHOW_TRIE("%s.\n", str);
-    TrStat_ans_nodes++;
-    if (SgFr_first_answer(sg_fr) == NULL) {
-      SHOW_TRIE("    NO\n");
-      if (TrStat_ans_max_depth < 0)
-        TrStat_ans_max_depth = 0;
-      TrStat_ans_min_depth = 0;
-      TrStat_answers_no++;
-    } else if (SgFr_first_answer(sg_fr) == SgFr_answer_trie(sg_fr)) {
-      SHOW_TRIE("    YES\n");
-      if (TrStat_ans_max_depth < 0)
-        TrStat_ans_max_depth = 0;
-      TrStat_ans_min_depth = 0;
-      TrStat_answers_yes++;
-      TrStat_answers++;
+    /* node belonging to a pruned answer */
+    if (previous_node) {
+      TrNode_next(previous_node) = TrNode_next(node);
+      FREE_ANSWER_TRIE_NODE(node);
+      if (TrNode_next(previous_node)) {
+        return update_answer_trie_branch(previous_node, TrNode_next(previous_node));
+      } else {
+        TrNode_instr(previous_node) -= 2;  /* retry --> trust : try --> do */
+        return 0;
+      }
     } else {
-      char answer_str[1000];
-      int answer_arity[1000];
-      answer_arity[0] = 0;
-      if (! traverse_answer_trie(stream, TrNode_child(SgFr_answer_trie(sg_fr)), answer_str, 0, answer_arity, 0, 1))
-        return FALSE;
+      TrNode_child(TrNode_parent(node)) = TrNode_next(node);
+      if (TrNode_next(node)) {
+        TrNode_instr(TrNode_next(node)) -= 1;  /* retry --> try */
+        update_answer_trie_branch(NULL, TrNode_next(node));          
+      }
+      FREE_ANSWER_TRIE_NODE(node);
+      return 0;
     }
-    return TRUE;
+  }
+update_next_trie_branch:
+  if (TrNode_next(node)) {
+    ltt = 1 + update_answer_trie_branch(node, TrNode_next(node));
+  } else {
+    TrNode_instr(node) -= 2;  /* retry --> trust : try --> do */
+    ltt = 1;
   }
 
-  if (sg_node == NULL) 
-    return TRUE;
+  TrNode_or_arg(node) = ltt;
+  TrNode_instr(node) = Yap_opcode(TrNode_instr(node));
+  return ltt;
+}
+#else
+static
+int update_answer_trie_branch(ans_node_ptr node) {
+  int ltt;
+  if (! IS_ANSWER_LEAF_NODE(node)) {
+    TrNode_instr(TrNode_child(node)) -= 1;  /* retry --> try */
+    update_answer_trie_branch(TrNode_child(node));
+  }
+  if (TrNode_next(node)) {
+    ltt = 1 + update_answer_trie_branch(TrNode_next(node));
+  } else {
+    TrNode_instr(node) -= 2;  /* retry --> trust : try --> do */
+    ltt = 1;
+  }
+  TrNode_or_arg(node) = ltt;
+  TrNode_instr(node) = Yap_opcode(TrNode_instr(node));
+  return ltt;
+}
+#endif /* TABLING_INNER_CUTS */
+#else /* TABLING */
+static
+void update_answer_trie_branch(ans_node_ptr node) {
+  if (! IS_ANSWER_LEAF_NODE(node)) {
+    TrNode_instr(TrNode_child(node)) -= 1;  /* retry --> try */
+    update_answer_trie_branch(TrNode_child(node));
+  }
+  if (TrNode_next(node)) {
+    update_answer_trie_branch(TrNode_next(node));
+  } else {
+    TrNode_instr(node) -= 2;  /* retry --> trust : try --> do */
+  }
+  TrNode_instr(node) = Yap_opcode(TrNode_instr(node));
+  return;
+}
+#endif /* YAPOR */
+#endif /* TABLING */
+
+
+static
+int traverse_subgoal_trie(sg_node_ptr sg_node, char *str, int str_index, int *arity, int depth, int mode) {
+  int old_str_index, old_arity[ARITY_ARRAY_SIZE], old_mode;
+  Term t;
+
+  /* save the current state */
+  old_mode = mode;
+  old_str_index = str_index;
+  memcpy(old_arity, arity, sizeof(int) * (arity[0] + 1));
+  t = TrNode_entry(sg_node);
+
+  /* test if hashing */
   if (IS_SUBGOAL_HASH(sg_node)) {
     sg_node_ptr *bucket, *last_bucket;
     sg_hash_ptr hash;
-
     hash = (sg_hash_ptr) sg_node;
     bucket = Hash_buckets(hash);
     last_bucket = bucket + Hash_num_buckets(hash);
     do {
       if (*bucket) {
         sg_node = *bucket;
-        memcpy(new_arity, arity, 100);
-        if (! traverse_subgoal_trie(stream, sg_node, str, str_index, new_arity, depth))
+        if (! traverse_subgoal_trie(sg_node, str, str_index, arity, depth, mode))
           return FALSE;
+	memcpy(arity, old_arity, sizeof(int) * (old_arity[0] + 1));
       }
     } while (++bucket != last_bucket);
     return TRUE;
   }
-  TrStat_sg_nodes++;
-  memcpy(new_arity, arity, 100);
-  if (! traverse_subgoal_trie(stream, TrNode_next(sg_node), str, str_index, new_arity, depth))
-    return FALSE;
 
-  t = TrNode_entry(sg_node);
-  if (IsVarTerm(t)) {
+  /* test the node type */
+#if SIZEOF_DOUBLE == 2 * SIZEOF_LONG_INT
+  if (mode == TRAVERSE_FLOAT_INIT) {
+    arity[0]++;
+    arity[arity[0]] = (int) t;
+    mode = TRAVERSE_FLOAT;
+  } else if (mode == TRAVERSE_FLOAT) {
+    volatile Float dbl;
+    volatile Term *t_dbl = (Term *)((void *) &dbl);
+    *t_dbl = t;
+    *(t_dbl + 1) = (Term) arity[arity[0]];
+    arity[0]--;
+#else /* SIZEOF_DOUBLE == SIZEOF_LONG_INT */
+  if (mode == TRAVERSE_FLOAT_INIT) {
+    Float dbl = (Float) t;
+#endif /* SIZEOF_DOUBLE x SIZEOF_LONG_INT */
+    str_index += sprintf(& str[str_index], "%.15g", dbl);
+    while (arity[0]) {
+      if (arity[arity[0]] > 0) {
+	arity[arity[0]]--;
+	if (arity[arity[0]] == 0) {
+	  str_index += sprintf(& str[str_index], ")");
+	  arity[0]--;
+	} else {
+	  str_index += sprintf(& str[str_index], ",");
+	  break;
+	}
+      } else {
+	arity[arity[0]]++;
+	if (arity[arity[0]] == 0) {
+	  str[str_index] = 0;
+	  SHOW_INFO("%s --> TRIE ERROR: pair without end atom '[]' !!!\n", str);
+	  return FALSE;
+	}
+	str_index += sprintf(& str[str_index], "|");
+	break;
+      }
+    }
+    mode = TRAVERSE_NORMAL;
+  } else if (IsVarTerm(t)) {
     str_index += sprintf(& str[str_index], "VAR%d", VarIndexOfTableTerm(t));
     while (arity[0]) {
       if (arity[arity[0]] > 0) {
@@ -1297,39 +1364,141 @@ int traverse_subgoal_trie(FILE *stream, sg_node_ptr sg_node, char *str, int str_
     }
   } else if (IsApplTerm(t)) {
     Functor f = (Functor) RepAppl(t);
-    str_index += sprintf(& str[str_index], "%s(", AtomName(NameOfFunctor(f)));
-    arity[0]++;
-    arity[arity[0]] = ArityOfFunctor(f);
+    if (f == FunctorDouble) {
+      mode = TRAVERSE_FLOAT_INIT;
+    } else {
+      str_index += sprintf(& str[str_index], "%s(", AtomName(NameOfFunctor(f)));
+      arity[0]++;
+      arity[arity[0]] = ArityOfFunctor(f);
+    }
   } else {
     Yap_Error(INTERNAL_ERROR, TermNil, "unknown type tag (traverse_subgoal_trie)");
   }
 
-  if (! traverse_subgoal_trie(stream, TrNode_child(sg_node), str, str_index, arity, depth + 1))
+  TrStat_sg_nodes++;
+  /* show answers ... */
+  if (arity[0] == 0) {
+    sg_fr_ptr sg_fr = (sg_fr_ptr) TrNode_child(sg_node);
+    str[str_index] = 0;
+    TrStat_subgoals++;
+    TrStat_sg_abolish_operations += SgFr_abolish(sg_fr);
+    TrStat_sg_linear_nodes+= depth;
+    if (TrStat_sg_max_depth < 0) {
+      TrStat_sg_min_depth = TrStat_sg_max_depth = depth;
+    } else if (depth < TrStat_sg_min_depth) {
+      TrStat_sg_min_depth = depth;
+    } else if (depth > TrStat_sg_max_depth) {
+      TrStat_sg_max_depth = depth;
+    }
+    if (SgFr_state(sg_fr) == start) {
+      TrStat_sg_abolished++;
+      SHOW_TRIE("%s.\n    ABOLISHED\n", str);
+    }
+    if (SgFr_state(sg_fr) == evaluating) {
+      SHOW_INFO("%s. --> TRIE ERROR: subgoal not completed !!!\n", str);
+      return FALSE;
+    }
+    LOCK(SgFr_lock(sg_fr));
+    if (SgFr_state(sg_fr) == complete)
+      update_answer_trie(sg_fr);
+    UNLOCK(SgFr_lock(sg_fr));
+    SHOW_TRIE("%s.\n", str);
+    TrStat_ans_nodes++;
+    if (SgFr_first_answer(sg_fr) == NULL) {
+      if (TrStat_ans_max_depth < 0)
+        TrStat_ans_max_depth = 0;
+      TrStat_ans_min_depth = 0;
+      TrStat_answers_no++;
+      SHOW_TRIE("    NO\n");
+    } else if (SgFr_first_answer(sg_fr) == SgFr_answer_trie(sg_fr)) {
+      if (TrStat_ans_max_depth < 0)
+        TrStat_ans_max_depth = 0;
+      TrStat_ans_min_depth = 0;
+      TrStat_answers_yes++;
+      TrStat_answers++;
+      SHOW_TRIE("    YES\n");
+    } else {
+      char answer_str[STR_ARRAY_SIZE];
+      int answer_arity[ARITY_ARRAY_SIZE];
+      answer_arity[0] = 0;
+      if (! traverse_answer_trie(TrNode_child(SgFr_answer_trie(sg_fr)), answer_str, 0, answer_arity, 0, 1, TRAVERSE_NORMAL))
+	return FALSE;
+    }
+  }
+
+  /* ... or continue with child node */
+  else if (! traverse_subgoal_trie(TrNode_child(sg_node), str, str_index, arity, depth + 1, mode))
     return FALSE;
+
+  /* continue with sibling node */
+  if (TrNode_next(sg_node))
+    if (! traverse_subgoal_trie(TrNode_next(sg_node), str, old_str_index, old_arity, depth, old_mode))
+      return FALSE;
+
   return TRUE;
 }
 
 
 static
-int traverse_answer_trie(FILE *stream, ans_node_ptr ans_node, char *str, int str_index, int *arity, int var_index, int depth) {
+int traverse_answer_trie(ans_node_ptr ans_node, char *str, int str_index, int *arity, int var_index, int depth, int mode) {
+  int old_str_index, old_arity[ARITY_ARRAY_SIZE], old_var_index, old_mode;
   Term t;
-  int new_arity[100];
 
-  if (ans_node == NULL) 
-    return TRUE;
-  TrStat_ans_nodes++;
-  memcpy(new_arity, arity, 100);
-  if (! traverse_answer_trie(stream, TrNode_next(ans_node), str, str_index, new_arity, var_index, depth))
-    return FALSE;
+  /* save the current state */
+  old_mode = mode;
+  old_var_index = var_index;
+  old_str_index = str_index;
+  memcpy(old_arity, arity, sizeof(int) * (arity[0] + 1));
+  t = TrNode_entry(ans_node);
 
-  if (arity[0] == 0) {
+  /* print VAR when starting a term */
+  if (arity[0] == 0 && mode == TRAVERSE_NORMAL) {
     str_index += sprintf(& str[str_index], "    VAR%d: ", var_index);
     var_index++;
   }
 
-  t = TrNode_entry(ans_node);
-
-  if (IsVarTerm(t)) {
+  /* test the node type */
+  if (mode == TRAVERSE_FLOAT_END) {
+    mode = TRAVERSE_NORMAL;
+#if SIZEOF_DOUBLE == 2 * SIZEOF_LONG_INT
+  } else if (mode == TRAVERSE_FLOAT_INIT) {
+    arity[0]++;
+    arity[arity[0]] = (int) t;
+    mode = TRAVERSE_FLOAT;
+  } else if (mode == TRAVERSE_FLOAT) {
+    volatile Float dbl;
+    volatile Term *t_dbl = (Term *)((void *) &dbl);
+    *t_dbl = t;
+    *(t_dbl + 1) = (Term) arity[arity[0]];
+    arity[0]--;
+#else /* SIZEOF_DOUBLE == SIZEOF_LONG_INT */
+  } else if (mode == TRAVERSE_FLOAT_INIT) {
+    Float dbl = (Float) t;
+#endif /* SIZEOF_DOUBLE x SIZEOF_LONG_INT */
+    str_index += sprintf(& str[str_index], "%.15g", dbl);
+    while (arity[0]) {
+      if (arity[arity[0]] > 0) {
+	arity[arity[0]]--;
+	if (arity[arity[0]] == 0) {
+	  str_index += sprintf(& str[str_index], ")");
+	  arity[0]--;
+	} else {
+	  str_index += sprintf(& str[str_index], ",");
+	  break;
+	}
+      } else {
+	arity[arity[0]]++;
+	if (arity[arity[0]] == 0) {
+	  str[str_index] = 0;
+	  SHOW_INFO("%s --> TRIE ERROR: pair without end atom '[]' !!!\n", str);
+	  return FALSE;
+	}
+	str_index += sprintf(& str[str_index], "|");
+	break;
+      }
+    }
+    mode = TRAVERSE_FLOAT_END;
+  } else if (IsVarTerm(t)) {
     str_index += sprintf(& str[str_index], "ANSVAR%d", VarIndexOfTableTerm(t));
     while (arity[0]) {
       if (arity[arity[0]] > 0) {
@@ -1419,116 +1588,46 @@ int traverse_answer_trie(FILE *stream, ans_node_ptr ans_node, char *str, int str
     }
   } else if (IsApplTerm(t)) {
     Functor f = (Functor) RepAppl(t);
-    str_index += sprintf(& str[str_index], "%s(", AtomName(NameOfFunctor(f)));
-    arity[0]++;
-    arity[arity[0]] = ArityOfFunctor(f);
+    if (f == FunctorDouble) {
+      mode = TRAVERSE_FLOAT_INIT;
+    } else {
+      str_index += sprintf(& str[str_index], "%s(", AtomName(NameOfFunctor(f)));
+      arity[0]++;
+      arity[arity[0]] = ArityOfFunctor(f);
+    }
   } else {
     Yap_Error(INTERNAL_ERROR, TermNil, "unknown type tag (traverse_answer_trie)");
   }
 
-  if (! IS_ANSWER_LEAF_NODE(ans_node)) {
-#ifdef TABLING_INNER_CUTS
-    if (! TrNode_child(ans_node)) {
-      TrStat_ans_pruned++;
-      return TRUE;
-    }
-#endif /* TABLING_INNER_CUTS */
-    if (! traverse_answer_trie(stream, TrNode_child(ans_node), str, str_index, arity, var_index, depth + 1))
-      return FALSE;
-  } else {
+  TrStat_ans_nodes++;
+  /* show answer .... */
+  if (IS_ANSWER_LEAF_NODE(ans_node)) {
     str[str_index] = 0;
     SHOW_TRIE("%s\n", str);
     TrStat_answers++;
     TrStat_ans_linear_nodes+= depth;
-    if (TrStat_ans_max_depth < 0) {
+    if (TrStat_ans_max_depth < 0)
       TrStat_ans_min_depth = TrStat_ans_max_depth = depth;
-    } else if (depth < TrStat_ans_min_depth) {
+    else if (depth < TrStat_ans_min_depth)
       TrStat_ans_min_depth = depth;
-    } else if (depth > TrStat_ans_max_depth) {
+    else if (depth > TrStat_ans_max_depth)
       TrStat_ans_max_depth = depth;
-    }
   }
+
+#ifdef TABLING_INNER_CUTS
+  /* ... or continue with pruned node */
+  else if (TrNode_child(ans_node) == NULL)
+    TrStat_ans_pruned++;
+#endif /* TABLING_INNER_CUTS */
+
+  /* ... or continue with child node */
+  else if (! traverse_answer_trie(TrNode_child(ans_node), str, str_index, arity, var_index, depth + 1, mode))
+    return FALSE;
+
+  /* continue with sibling node */
+  if (TrNode_next(ans_node))
+    if (! traverse_answer_trie(TrNode_next(ans_node), str, old_str_index, old_arity, old_var_index, depth, old_mode))
+      return FALSE;
+
   return TRUE;
 }
-
-
-#ifdef YAPOR
-#ifdef TABLING_INNER_CUTS
-static
-int update_answer_trie_branch(ans_node_ptr previous_node, ans_node_ptr node) {
-  int ltt;
-  if (! IS_ANSWER_LEAF_NODE(node)) {
-    if (TrNode_child(node)) {
-      TrNode_instr(TrNode_child(node)) -= 1;  /* retry --> try */
-      update_answer_trie_branch(NULL, TrNode_child(node));
-      if (TrNode_child(node))
-        goto update_next_trie_branch;
-    }
-    /* node belonging to a pruned answer */
-    if (previous_node) {
-      TrNode_next(previous_node) = TrNode_next(node);
-      FREE_ANSWER_TRIE_NODE(node);
-      if (TrNode_next(previous_node)) {
-        return update_answer_trie_branch(previous_node, TrNode_next(previous_node));
-      } else {
-        TrNode_instr(previous_node) -= 2;  /* retry --> trust : try --> do */
-        return 0;
-      }
-    } else {
-      TrNode_child(TrNode_parent(node)) = TrNode_next(node);
-      if (TrNode_next(node)) {
-        TrNode_instr(TrNode_next(node)) -= 1;  /* retry --> try */
-        update_answer_trie_branch(NULL, TrNode_next(node));          
-      }
-      FREE_ANSWER_TRIE_NODE(node);
-      return 0;
-    }
-  }
-update_next_trie_branch:
-  if (TrNode_next(node)) {
-    ltt = 1 + update_answer_trie_branch(node, TrNode_next(node));
-  } else {
-    TrNode_instr(node) -= 2;  /* retry --> trust : try --> do */
-    ltt = 1;
-  }
-
-  TrNode_or_arg(node) = ltt;
-  TrNode_instr(node) = Yap_opcode(TrNode_instr(node));
-  return ltt;
-}
-#else
-static
-int update_answer_trie_branch(ans_node_ptr node) {
-  int ltt;
-  if (! IS_ANSWER_LEAF_NODE(node)) {
-    TrNode_instr(TrNode_child(node)) -= 1;  /* retry --> try */
-    update_answer_trie_branch(TrNode_child(node));
-  }
-  if (TrNode_next(node)) {
-    ltt = 1 + update_answer_trie_branch(TrNode_next(node));
-  } else {
-    TrNode_instr(node) -= 2;  /* retry --> trust : try --> do */
-    ltt = 1;
-  }
-  TrNode_or_arg(node) = ltt;
-  TrNode_instr(node) = Yap_opcode(TrNode_instr(node));
-  return ltt;
-}
-#endif /* TABLING_INNER_CUTS */
-#else /* TABLING */
-static
-void update_answer_trie_branch(ans_node_ptr node) {
-  if (! IS_ANSWER_LEAF_NODE(node)) {
-    TrNode_instr(TrNode_child(node)) -= 1;  /* retry --> try */
-    update_answer_trie_branch(TrNode_child(node));
-  }
-  if (TrNode_next(node)) {
-    update_answer_trie_branch(TrNode_next(node));
-  } else {
-    TrNode_instr(node) -= 2;  /* retry --> trust : try --> do */
-  }
-  TrNode_instr(node) = Yap_opcode(TrNode_instr(node));
-  return;
-}
-#endif /* YAPOR */
-#endif /* TABLING */
