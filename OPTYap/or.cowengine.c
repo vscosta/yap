@@ -21,12 +21,13 @@
 
 #include "Yap.h"
 #ifdef ACOW
-#include "Yatom.h"
-#include "Heap.h"
-#include "or.macros.h"
 #include <sys/types.h>
 #include <unistd.h>
 #include <stdio.h>
+#include "Yatom.h"
+#include "Heap.h"
+#include "or.macros.h"
+
 
 
 

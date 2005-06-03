@@ -21,11 +21,13 @@
 
 #include "Yap.h"
 #ifdef SBA
+#include <stdio.h>
 #include "Yatom.h"
 #include "Heap.h"
 #include "or.macros.h"
-#include <stdio.h>
 #include "opt.mavar.h"
+
+
 
 /* ------------------------------------- **
 **      Local functions declaration      **
@@ -340,5 +342,4 @@ void share_private_nodes(int worker_q) {
   /* update load and return */
   REMOTE_load(worker_q) = LOCAL_load = 0;
 }
-
 #endif /* SBA */

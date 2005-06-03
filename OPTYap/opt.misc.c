@@ -5,7 +5,7 @@
                                                                
   Copyright:   R. Rocha and NCC - University of Porto, Portugal
   File:        opt.misc.c  
-  version:     $Id: opt.misc.c,v 1.10 2005-05-31 08:24:24 ricroc Exp $   
+  version:     $Id: opt.misc.c,v 1.11 2005-06-03 18:28:11 ricroc Exp $   
                                                                      
 **********************************************************************/
 
@@ -18,14 +18,14 @@
 #include <stdarg.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include "Yatom.h"
-#include "yapio.h"
 #if HAVE_UNISTD_H
 #include <unistd.h>
-#endif
+#endif /* HAVE_UNISTD_H */
 #if HAVE_STDARG_H
 #include <stdarg.h>
-#endif
+#endif /* HAVE_STDARG_H */
+#include "Yatom.h"
+#include "yapio.h"
 
 
 
@@ -89,5 +89,4 @@ void error_message(const char *mesg, ...) {
   return;
 }
 #endif /* YAPOR_ERRORS || TABLING_ERRORS */
-
 #endif /* YAPOR || TABLING */

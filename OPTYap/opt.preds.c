@@ -5,7 +5,7 @@
                                                                
   Copyright:   R. Rocha and NCC - University of Porto, Portugal
   File:        opt.preds.c
-  version:     $Id: opt.preds.c,v 1.16 2005-06-03 08:19:17 ricroc Exp $   
+  version:     $Id: opt.preds.c,v 1.17 2005-06-03 18:28:11 ricroc Exp $   
                                                                      
 **********************************************************************/
 
@@ -16,16 +16,16 @@
 #include "Yap.h"
 #if defined(YAPOR) || defined(TABLING)
 #include <stdio.h>
+#if HAVE_STRING_H
+#include <string.h>
+#endif /* HAVE_STRING_H */
 #include "Yatom.h"
 #include "Heap.h"
 #include "yapio.h"
-#if HAVE_STRING_H
-#include <string.h>
-#endif
 #ifdef YAPOR
 #if HAVE_SYS_TIME_H
 #include <sys/time.h>
-#endif
+#endif /* HAVE_SYS_TIME_H */
 #include "or.macros.h"
 #endif /* YAPOR */
 #ifdef TABLING

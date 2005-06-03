@@ -5,7 +5,7 @@
                                                                
   Copyright:   R. Rocha and NCC - University of Porto, Portugal
   File:        opt.init.c  
-  version:     $Id: opt.init.c,v 1.6 2005-05-31 08:24:24 ricroc Exp $   
+  version:     $Id: opt.init.c,v 1.7 2005-06-03 18:28:11 ricroc Exp $   
                                                                      
 **********************************************************************/
 
@@ -14,10 +14,8 @@
 ** ------------------ */
 
 #include "Yap.h"
-
-#define OPT_MAVAR_STATIC
-
 #if defined(YAPOR) || defined(TABLING)
+#define OPT_MAVAR_STATIC
 #include "Yatom.h"
 #include "Heap.h"
 #include <unistd.h>
@@ -28,24 +26,16 @@
 #ifdef TABLING
 #include "tab.macros.h"
 #endif /* TABLING */
-
 #if defined(TABLING) || !defined(ACOW)
-
 #ifndef TABLING
 #include "opt.mavar.h"
-#endif
-
+#endif /* !TABLING */
 #ifdef MULTI_ASSIGNMENT_VARIABLES
-
 ma_hash_entry ma_hash_table[MAVARS_HASH_SIZE];
-
 UInt timestamp;    /* an unsigned int */
-
 ma_h_inner_struct *ma_h_top;
-
 #endif /* MULTI_ASSIGNMENT_VARIABLES */
-#endif
-
+#endif /* TABLING || !ACOW */
 #ifdef ACOW
 #include "sys/wait.h"
 #endif /* ACOW */

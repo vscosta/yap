@@ -5,33 +5,9 @@
                                                                
   Copyright:   R. Rocha and NCC - University of Porto, Portugal
   File:        opt.memory.c  
-  version:     $Id: opt.memory.c,v 1.8 2005-05-31 08:24:24 ricroc Exp $   
+  version:     $Id: opt.memory.c,v 1.9 2005-06-03 18:28:11 ricroc Exp $   
                                                                      
 **********************************************************************/
-
-/* ------------------------------------------------------ **
-**                                                        **
-** By default we use mmap to map memory.                  **
-** For i386 machines we use shared memory segments (shm). **
-**                                                        **
-** ------------------------------------------------------ */
-
-#define MMAP_MEMORY_MAPPING_SCHEME
-
-#ifdef i386
-#undef MMAP_MEMORY_MAPPING_SCHEME
-#define SHM_MEMORY_MAPPING_SCHEME
-#endif /* i386 */
-
-#if !defined(MMAP_MEMORY_MAPPING_SCHEME) && !defined(SHM_MEMORY_MAPPING_SCHEME)
-#error Define a memory mapping scheme
-#endif /* !MMAP_MEMORY_MAPPING_SCHEME && !SHM_MEMORY_MAPPING_SCHEME */
-
-#if defined(MMAP_MEMORY_MAPPING_SCHEME) && defined(SHM_MEMORY_MAPPING_SCHEME)
-#error Do not define multiple memory mapping schemes
-#endif /* MMAP_MEMORY_MAPPING_SCHEME && SHM_MEMORY_MAPPING_SCHEME */
-
-
 
 /* -------------------------------------- **
 **      Includes and local variables      **
@@ -39,10 +15,6 @@
 
 #include "Yap.h"
 #ifdef YAPOR
-#include "Yatom.h"
-#include "Heap.h"
-#include "alloc.h"
-#include "heapgc.h"
 #include <signal.h>
 #include <stdio.h>
 #include <unistd.h>
@@ -52,6 +24,10 @@
 #include <stdlib.h>
 #include <sys/shm.h>
 #include <sys/mman.h>
+#include "Yatom.h"
+#include "Heap.h"
+#include "alloc.h"
+#include "heapgc.h"
 
 #define KBYTES 1024
 
